@@ -19,6 +19,28 @@ if $(GLUT.AVAILABLE) = "yes"
 	"../../Extras/PhysicsInterface/CcdPhysics" 
 	"../../Extras/PhysicsInterface/Common" ;
   }
+
+  #some demos need extra functionality, Collada / ConvexDecomposition etc.
+  rule ExtraDemo
+  {
+    Application $(<) : $(>) : noinstall console nomanifest ;
+    LinkWith $(<) :  convexdecomposition bullet bulletopenglsupport bulletphysicsinterfacecommon bulletccdphysics bulletmath ;
+    CFlags $(<) :
+          [ FIncludes $(TOP)/Demos/OpenGL ]
+          [ FIncludes $(TOP)/Extras/PhysicsInterface/CcdPhysics ]
+          [ FIncludes $(TOP)/Extras/PhysicsInterface/Common ]
+	  [ FIncludes $(TOP)/Extras/ConvexDecomposition ]
+
+    ;
+    MsvcIncDirs $(<) :
+        "../../Demos/OpenGL"
+        "../../Extras/PhysicsInterface/CcdPhysics"
+        "../../Extras/PhysicsInterface/Common" ;
+	"../../Extras/ConvexDecomposition" ;
+  }
+
+
+
 }
 else
 {
@@ -40,8 +62,10 @@ else
         "../../Extras/PhysicsInterface/Common" ;
   }
 
-SubInclude TOP Demos BasicSample ;
 SubInclude TOP Demos CcdPhysicsDemo ;
+SubInclude TOP Demos ConvexDecompositionDemo ;
+SubInclude TOP Demos ColladaDemo ;
+SubInclude TOP Demos BasicSample ;
 SubInclude TOP Demos CollisionDemo ;
 SubInclude TOP Demos CollisionInterfaceDemo ;
 SubInclude TOP Demos ConcaveDemo ;
