@@ -86,13 +86,13 @@ unsigned int getDebugColor(void)
 class Wpoint
 {
 public:
-  Wpoint(const Vector3d<float> &p,float w)
+  Wpoint(const Vector3d &p,float w)
   {
     mPoint = p;
     mWeight = w;
   }
 
-  Vector3d<float> mPoint;
+  Vector3d mPoint;
   float           mWeight;
 };
 
@@ -159,9 +159,9 @@ public:
   }
 
   // clip this line segment against this triangle.
-  bool clip(const Vector3d<float> &start,Vector3d<float> &end) const
+  bool clip(const Vector3d &start,Vector3d &end) const
   {
-    Vector3d<float> sect;
+    Vector3d sect;
 
     bool hit = lineIntersectsTriangle(start.Ptr(), end.Ptr(), mP1.Ptr(), mP2.Ptr(), mP3.Ptr(), sect.Ptr() );
 
@@ -172,7 +172,7 @@ public:
     return hit;
   }
 
-	bool Concave(const Vector3d<float> &p,float &distance,Vector3d<float> &n) const
+	bool Concave(const Vector3d &p,float &distance,Vector3d &n) const
 	{
 		n.NearestPointInTriangle(p,mP1,mP2,mP3);
 		distance = p.Distance(n);
@@ -213,9 +213,9 @@ public:
 			unsigned int color = getDebugColor();
 
 #if 0
-  		Vector3d<float> d1 = mNear1;
-  		Vector3d<float> d2 = mNear2;
-	  	Vector3d<float> d3 = mNear3;
+  		Vector3d d1 = mNear1;
+  		Vector3d d2 = mNear2;
+	  	Vector3d d3 = mNear3;
 
   		callback->ConvexDebugPoint(mP1.Ptr(),0.01f,0x00FF00);
   		callback->ConvexDebugPoint(mP2.Ptr(),0.01f,0x00FF00);
@@ -251,7 +251,7 @@ public:
 
 	}
 
-	float raySect(const Vector3d<float> &p,const Vector3d<float> &dir,Vector3d<float> &sect) const
+	float raySect(const Vector3d &p,const Vector3d &dir,Vector3d &sect) const
 	{
 		float plane[4];
 
@@ -260,7 +260,7 @@ public:
     plane[2] = mNormal.z;
     plane[3] = mPlaneD;
 
-		Vector3d<float> dest = p+dir*100000;
+		Vector3d dest = p+dir*100000;
 
     intersect( p.Ptr(), dest.Ptr(), sect.Ptr(), plane );
 
@@ -268,7 +268,7 @@ public:
 
 	}
 
-  float planeDistance(const Vector3d<float> &p) const
+  float planeDistance(const Vector3d &p) const
   {
 		float plane[4];
 
@@ -339,9 +339,9 @@ public:
     Wpoint p2(mP2,mC2);
     Wpoint p3(mP3,mC3);
 
-		Vector3d<float> d1 = mNear1 - mP1;
-		Vector3d<float> d2 = mNear2 - mP2;
-		Vector3d<float> d3 = mNear3 - mP3;
+		Vector3d d1 = mNear1 - mP1;
+		Vector3d d2 = mNear2 - mP2;
+		Vector3d d3 = mNear3 - mP3;
 
 		d1*=WSCALE;
 		d2*=WSCALE;
@@ -375,9 +375,9 @@ public:
 		callback->ConvexDebugTri(mP2.Ptr(), d2.Ptr(),  d2.Ptr(),0x00FF00);
 		callback->ConvexDebugTri(mP3.Ptr(), d3.Ptr(),  d3.Ptr(),0x00FF00);
 
-		Vector3d<float> np1 = mP1 + mNormal*0.05f;
-		Vector3d<float> np2 = mP2 + mNormal*0.05f;
-		Vector3d<float> np3 = mP3 + mNormal*0.05f;
+		Vector3d np1 = mP1 + mNormal*0.05f;
+		Vector3d np2 = mP2 + mNormal*0.05f;
+		Vector3d np3 = mP3 + mNormal*0.05f;
 
 		callback->ConvexDebugTri(mP1.Ptr(), np1.Ptr(), np1.Ptr(), 0xFF00FF );
 		callback->ConvexDebugTri(mP2.Ptr(), np2.Ptr(), np2.Ptr(), 0xFF00FF );
@@ -393,13 +393,13 @@ public:
 
   }
 
-  Vector3d<float>	mP1;
-  Vector3d<float>	mP2;
-  Vector3d<float>	mP3;
-  Vector3d<float> mNear1;
-  Vector3d<float> mNear2;
-  Vector3d<float> mNear3;
-  Vector3d<float> mNormal;
+  Vector3d	mP1;
+  Vector3d	mP2;
+  Vector3d	mP3;
+  Vector3d mNear1;
+  Vector3d mNear2;
+  Vector3d mNear3;
+  Vector3d mNormal;
   float           mPlaneD;
   float           mConcavity;
   float           mC1;
@@ -459,7 +459,7 @@ bool featureMatch(CTri &m,const CTriVector &tris,ConvexDecompInterface *callback
 
   	  	neardot = dot;
 
-        Vector3d<float> n1,n2,n3;
+        Vector3d n1,n2,n3;
 
         t.raySect( m.mP1, m.mNormal, m.mNear1 );
         t.raySect( m.mP2, m.mNormal, m.mNear2 );
@@ -608,7 +608,7 @@ float computeConcavity(unsigned int vcount,
 		float dy = bmax[1] - bmin[1];
 		float dz = bmax[2] - bmin[2];
 
-		Vector3d<float> center;
+		Vector3d center;
 
 		center.x = bmin[0] + dx*0.5f;
 		center.y = bmin[1] + dy*0.5f;

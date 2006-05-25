@@ -79,15 +79,15 @@ public:
   	mP3.Set( &vertices[i3*3] );
   }
 
-  Vector3d<float>	mP1;
-  Vector3d<float>	mP2;
-  Vector3d<float>	mP3;
-  Vector3d<float> mNormal;
+  Vector3d	mP1;
+  Vector3d	mP2;
+  Vector3d	mP3;
+  Vector3d mNormal;
 
 };
 
 
-void addTri(VertexLookup vl,UintVector &list,const Vector3d<float> &p1,const Vector3d<float> &p2,const Vector3d<float> &p3)
+void addTri(VertexLookup vl,UintVector &list,const Vector3d &p1,const Vector3d &p2,const Vector3d &p3)
 {
   unsigned int i1 = Vl_getIndex(vl, p1.Ptr() );
   unsigned int i2 = Vl_getIndex(vl, p2.Ptr() );
@@ -232,7 +232,7 @@ void doConvexDecomposition(unsigned int           vcount,
 			  for (float z=-1; z<1; z+=0.04f)
 				{
 				  float d = x*plane[0] + y*plane[1] + z*plane[2] + plane[3];
-					Vector3d<float> p(x,y,z);
+					Vector3d p(x,y,z);
 				  if ( d >= 0 )
 					  callback->ConvexDebugPoint(p.Ptr(), 0.02f, 0x00FF00);
 				  else
@@ -254,19 +254,19 @@ void doConvexDecomposition(unsigned int           vcount,
 
 			FaceTri t(vertices, i1, i2, i3 );
 
-			Vector3d<float> front[4];
-			Vector3d<float> back[4];
+			Vector3d front[4];
+			Vector3d back[4];
 
 			unsigned int fcount=0;
 			unsigned int bcount=0;
 
 			PlaneTriResult result;
 
-		  result = planeTriIntersection(plane,t.mP1.Ptr(),sizeof(Vector3d<float>),0.00001f,front[0].Ptr(),fcount,back[0].Ptr(),bcount );
+		  result = planeTriIntersection(plane,t.mP1.Ptr(),sizeof(Vector3d),0.00001f,front[0].Ptr(),fcount,back[0].Ptr(),bcount );
 
 			if( fcount > 4 || bcount > 4 )
 			{
-		    result = planeTriIntersection(plane,t.mP1.Ptr(),sizeof(Vector3d<float>),0.00001f,front[0].Ptr(),fcount,back[0].Ptr(),bcount );
+		    result = planeTriIntersection(plane,t.mP1.Ptr(),sizeof(Vector3d),0.00001f,front[0].Ptr(),fcount,back[0].Ptr(),bcount );
 			}
 
 			switch ( result )
