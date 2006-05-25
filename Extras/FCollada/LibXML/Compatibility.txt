@@ -1,0 +1,2 @@
+[Guillaume Laforte/Feeling Software]
+Please note that this version of LibXML2 is meant to be used and compiled on Windows platforms only. For a version of LibXML2 specific to your platform, please check http://xmlsoft.org/.

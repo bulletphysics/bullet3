@@ -1,0 +1,3 @@
+SubDir TOP Demos ContinuousConvexCollision ;
+
+BulletDemo ContinuousConvexCollision : [ Wildcard *.h *.cpp  ] ;

@@ -1,0 +1,47 @@
+# This line must be set manually to the CodeWarrior Pro 5 installation.
+# Good luck!
+
+set CW "malyn_apps:CodeWarrior Pro 5:MetroWerks CodeWarrior"
+
+set -e MWCincludes "{CW}:MacOS Support:Universal:Interfaces:CIncludes,{CW}:MacOS Support:OpenTransport:Open Tpt Client Developer:Includes:CIncludes,{CW}:MacOS Support:Headers:Apple MPW,{CW}:MSL:MSL_C:MSL_Common:Include,{CW}:MSL:MSL_C++:MSL_Common:Include,{CW}:MSL:MSL_C:MSL_MacOS:Include" 
+
+mwcppc  -o :bin.mac:command.o  -nomapcr -w off   command.c  
+mwcppc  -o :bin.mac:compile.o  -nomapcr -w off   compile.c  
+mwcppc  -o :bin.mac:execmac.o  -nomapcr -w off   execmac.c  
+mwcppc  -o :bin.mac:filemac.o  -nomapcr -w off   filemac.c
+mwcppc  -o :bin.mac:pathmac.o  -nomapcr -w off   pathmac.c  
+mwcppc  -o :bin.mac:jamgram.o  -nomapcr -w off   jamgram.c  
+mwcppc  -o :bin.mac:expand.o  -nomapcr -w off   expand.c  
+mwcppc  -o :bin.mac:glob.o  -nomapcr -w off   glob.c  
+mwcppc  -o :bin.mac:hash.o  -nomapcr -w off   hash.c  
+mwcppc  -o :bin.mac:headers.o  -nomapcr -w off   headers.c  
+mwcppc  -o :bin.mac:lists.o  -nomapcr -w off   lists.c  
+mwcppc  -o :bin.mac:make.o  -nomapcr -w off   make.c  
+mwcppc  -o :bin.mac:make1.o  -nomapcr -w off   make1.c  
+mwcppc  -o :bin.mac:newstr.o  -nomapcr -w off   newstr.c  
+mwcppc  -o :bin.mac:option.o  -nomapcr -w off   option.c  
+mwcppc  -o :bin.mac:parse.o  -nomapcr -w off   parse.c  
+mwcppc  -o :bin.mac:regexp.o  -nomapcr -w off   regexp.c  
+mwcppc  -o :bin.mac:rules.o  -nomapcr -w off   rules.c  
+mwcppc  -o :bin.mac:scan.o  -nomapcr -w off   scan.c  
+mwcppc  -o :bin.mac:search.o  -nomapcr -w off   search.c  
+mwcppc  -o :bin.mac:timestamp.o  -nomapcr -w off   timestamp.c  
+mwcppc  -o :bin.mac:variable.o  -nomapcr -w off   variable.c  
+
+mwlinkppc  -library -o :bin.mac:libjam.lib  :bin.mac:command.o :bin.mac:compile.o :bin.mac:execmac.o :bin.mac:filemac.o :bin.mac:pathmac.o :bin.mac:jamgram.o :bin.mac:expand.o :bin.mac:glob.o :bin.mac:hash.o :bin.mac:headers.o :bin.mac:lists.o :bin.mac:make.o :bin.mac:make1.o :bin.mac:newstr.o :bin.mac:option.o :bin.mac:parse.o :bin.mac:regexp.o :bin.mac:rules.o :bin.mac:scan.o :bin.mac:search.o :bin.mac:timestamp.o :bin.mac:variable.o 
+mwcppc  -o :bin.mac:mkjambase.o  -nomapcr -w off   mkjambase.c  
+
+mwlinkppc  -o :bin.mac:mkjambase  -mpwtool -warn  :bin.mac:mkjambase.o   "{CW}:MacOS Support:Universal:Libraries:StubLibraries:Interfacelib" "{CW}:MacOS Support:Universal:Libraries:StubLibraries:ThreadsLib" "{CW}:MacOS Support:Universal:Libraries:StubLibraries:Mathlib" "{CW}:MacOS Support:Libraries:Apple MPW PPC:PPCToolLibs.o" "{CW}:MacOS Support:Libraries:Runtime:Runtime PPC:MSL MPWCRuntime.lib" "{CW}:MSL:MSL_C:MSL_MacOS:Lib:PPC:MSL C.PPC MPW.Lib" 
+mwcppc  -o :bin.mac:jam.o  -nomapcr -w off   jam.c  
+
+:bin.mac:mkjambase  jambase.c  Jambase 
+
+mwcppc  -o :bin.mac:jambase.o  -nomapcr -w off   jambase.c 
+
+mwlinkppc  -o :bin.mac:jam  -mpwtool -warn :bin.mac:jam.o :bin.mac:jambase.o :bin.mac:libjam.lib  "{CW}:MacOS Support:Universal:Libraries:StubLibraries:Interfacelib" "{CW}:MacOS Support:Universal:Libraries:StubLibraries:ThreadsLib" "{CW}:MacOS Support:Universal:Libraries:StubLibraries:Mathlib" "{CW}:MacOS Support:Libraries:Apple MPW PPC:PPCToolLibs.o" "{CW}:MacOS Support:Libraries:Runtime:Runtime PPC:MSL MPWCRuntime.lib" "{CW}:MSL:MSL_C:MSL_MacOS:Lib:PPC:MSL C.PPC MPW.Lib" 
+
+
+
+
+
+

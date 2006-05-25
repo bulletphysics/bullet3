@@ -1,0 +1,80 @@
+#============================================================================
+# Rules for compiling Objective-C and Objective-C++ files
+# Copyright (C)2003 by Matze Braun <matzebraun@users.sourceforge.net>
+#
+#    This library is free software; you can redistribute it and/or modify it
+#    under the terms of the GNU Library General Public License as published by
+#    the Free Software Foundation; either version 2 of the License, or (at your
+#    option) any later version.
+#
+#    This library is distributed in the hope that it will be useful, but
+#    WITHOUT ANY WARRANTY; without even the implied warranty of MERCHANTABILITY
+#    or FITNESS FOR A PARTICULAR PURPOSE.  See the GNU Library General Public
+#    License for more details.
+#
+#    You should have received a copy of the GNU Library General Public License
+#    along with this library; if not, write to the Free Software Foundation,
+#    Inc., 675 Mass Ave, Cambridge, MA 02139, USA.
+#
+#============================================================================
+
+if $(CMD.OBJC)
+{
+
+rule ObjCRule
+{
+  local object = [ DoObjectGrist [ PrefixSuffix $(>)_ : $(<) : $(SUFOBJ) ] ] ;
+  ObjC $(object) : $(<) ;
+  return $(object) ;
+}
+RegisterFileType ObjCRule : .m ;
+RegisterHeaderRule HeaderRule : $(HDRPATTERN) : .m ;
+
+rule ObjC
+{
+  Depends $(<) : $(>) ;
+
+  CCFLAGS on $(<) += $(CCFLAGS) $(SUBDIRCCFLAGS) ;
+  OBJCFLAGS on $(<) += $(OBJCFLAGS) ;
+  CCHDRS on $(<) = [ on $(<) FIncludes $(HDRS) ] ;
+  CCDEFS on $(<) = [ on $(<) FDefines $(DEFINES) ] ;
+}
+
+actions ObjC
+{
+  $(CMD.OBJC) -c -o $(<) $(CCHDRS) $(CCFLAGS) $(OBJCFLAGS) $(CCDEFS) $(>)
+}
+}
+
+if $(CMD.OBJC++)
+{
+rule ObjC++Rule
+{
+  local object = [ DoObjectGrist [ PrefixSuffix $(>)_ : $(<) : $(SUFOBJ) ] ] ;
+  ObjC++ $(object) : $(<) ;
+  return $(object) ;
+}
+RegisterFileType ObjC++Rule : .mm .M ;
+RegisterHeaderRule HeaderRule : $(HDRPATTERN) : .mm .M ;
+
+rule ObjC++
+{
+  Depends $(<) : $(>) ;
+  
+  # Ugly hack: Apple's gcc4 does not accept -fvisibility-inlines-hidden in
+  # Objective-C++ mode. Ideally, this issue should be resolved by the
+  # configure script, but it does not currently distinguish between flags
+  # intended for the C++ compiler and those intended for the Objective-C++
+  # compiler.
+  local rejects = -fvisibility-inlines-hidden ;
+  C++FLAGS on $(<) += [ Filter $(C++FLAGS) $(SUBDIRC++FLAGS) : $(rejects) ] ;
+  OBJC++FLAGS on $(<) += [ Filter $(OBJC++FLAGS) : $(rejects) ] ;
+  CCHDRS on $(<) = [ on $(<) FIncludes $(HDRS) ] ;
+  CCDEFS on $(<) = [ on $(<) FDefines $(DEFINES) ] ;
+}
+
+actions ObjC++
+{
+  $(CMD.OBJC++) -c -o $(<) $(CCHDRS) $(C++FLAGS) $(OBJC++FLAGS) $(CCDEFS) $(>)
+}
+}

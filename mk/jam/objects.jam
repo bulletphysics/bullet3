@@ -1,0 +1,250 @@
+#============================================================================
+# Rules for compiling a set of sources to object files
+# Copyright (C)2003 by Matze Braun <matzebraun@users.sourceforge.net>
+#
+#    This library is free software; you can redistribute it and/or modify it
+#    under the terms of the GNU Library General Public License as published by
+#    the Free Software Foundation; either version 2 of the License, or (at your
+#    option) any later version.
+#
+#    This library is distributed in the hope that it will be useful, but
+#    WITHOUT ANY WARRANTY; without even the implied warranty of MERCHANTABILITY
+#    or FITNESS FOR A PARTICULAR PURPOSE.  See the GNU Library General Public
+#    License for more details.
+#
+#    You should have received a copy of the GNU Library General Public License
+#    along with this library; if not, write to the Free Software Foundation,
+#    Inc., 675 Mass Ave, Cambridge, MA 02139, USA.
+#
+#============================================================================
+# These are slightly modified versions of the Object and Objects rules from
+# jam. The problem with the original rules in Jambase is the handling of
+# custom file types. The solution with the UserObject rule is monolithic, you
+# can only have 1 such rule. Thus we construct a more flexible toolkit here
+# which let's you register rules for certain filetypes.
+
+##  RegisterFileType Rulename : extensions
+##    Register a rule which is used to compile a filetype into object
+##    files. The registered rule is called with the name of the
+##    sourcefile as argument and should return a list of objectfiles which are
+##    created. You should set the grist of the object files by using the
+##    DoObjectGrist function.
+rule RegisterFileType
+{
+  local suffix ;
+  for suffix in $(>)
+  {
+    FILETYPE_$(suffix) = $(<) ;
+  }
+}
+
+##  RegisterHeaderRule rulename : regexpattern : extensions
+##    Registers a rule and a regular expression which will be used for header
+##    file scanning of the specified extensions.
+rule RegisterHeaderRule
+{
+  local suffix ;
+  for suffix in $(3)
+  {
+    HDRRULE_$(suffix) = $(<) ;
+    HDRPATTERN_$(suffix) = $(>) ;
+  }
+}
+
+##  CompileObjects sources [: objectfileprefix]
+##    Compile a set of sourcefiles into objectfiles (extension: SUFOBJ,
+##    usually .o). This rule takes care of setting the SEARCH and LOCATE
+##    variables to the values of $(SEARCH_SOURCE) and $(LOCATE_TARGET).
+##    The Application, Plugin and Library rules already use this rule
+##    internally. You should only use this rule if you have to avoid the
+##    Application, Plugin or Library rules.
+rule CompileObjects
+{
+  local source ;
+  local targets ;
+
+  # Search the source
+  SEARCH on $(<) = $(SEARCH_SOURCE) ;      
+
+  for source in $(<)
+  {
+    # compile the sourcefile to targetfile
+    targets += [ CompileObject $(source) : $(>) ] ;
+  }
+  
+  # locate the targets
+  MakeLocate $(targets) : $(LOCATE_TARGET) ;
+
+  return $(targets) ;
+}
+
+##  PrefixSuffix [prefix] : filename : suffix
+##    Replaces the suffix of 'filename' with 'suffix' and prepends 'prefix' to
+##    it. 
+rule PrefixSuffix
+{
+  local prefix = $(1) ;
+  local name = $(2) ;
+  local suffix = $(3) ;
+  if ! $(prefix) { prefix = "" ; }
+  return $(name:B=$(prefix)$(name:B):S=$(suffix)) ;
+}
+
+#----------------------------------------------------------------------------
+# private part
+
+# helper rule: Compiles a source file to an object file. Does header file
+# scanning, sets LOCATE and SEARCH for source and target, grists the files
+# with the current subdir and searches for the correct registered rule.
+rule CompileObject
+{
+  # handle #includes for source: Jam scans for headers with
+  # the regexp pattern $(HDRSCAN) and then invokes $(HDRRULE)
+  # with the scanned file as the target and the found headers
+  # as the sources.  HDRSEARCH is the value of SEARCH used for
+  # the found header files.  Finally, if jam must deal with 
+  # header files of the same name in different directories,
+  # they can be distinguished with HDRGRIST.
+
+  # $(SEARCH_SOURCE:E) is where cc first looks for #include 
+  # "foo.h" files.  If the source file is in a distant directory, 
+  # look there.  Else, look in "" (the current directory).
+  if $(HDRRULE_$(<:S))
+  {
+    HDRSEARCH on $(<) = 
+	$(SEARCH_SOURCE:E) $(SUBDIRHDRS) $(HDRS) $(STDHDRS) ;  
+    HDRGRIST on $(<) = $(HDRGRIST) ;                               
+    HDRRULE on $(<) = $(HDRRULE_$(<:S)) ;
+    HDRSCAN on $(<) = $(HDRPATTERN_$(<:S)) ;
+  }
+
+  local targets ;
+  # Invoke filetype specific rule
+  if $(FILETYPE_$(<:S))
+  {
+    targets = [ $(FILETYPE_$(<:S)) $(<) : $(>) ] ;
+  }
+  else
+  {
+    echo Warning: no rules for file type $(<:S) defined (at file $(<)). ;
+  }
+
+  if $(targets)
+  {
+    # construct clean target
+    Clean clean : $(targets) ;
+
+    # Save HDRS for -I$(HDRS) on compile.
+    # We shouldn't need -I$(SEARCH_SOURCE) as cc can find headers
+    # in the .c file's directory, but generated .c files (from
+    # yacc, lex, etc) are located in $(LOCATE_TARGET), possibly
+    # different from $(SEARCH_SOURCE).
+    HDRS on $(<) = $(SEARCH_SOURCE) $(SUBDIRHDRS) $(HDRS) ;
+
+    # propagate target specific-defines
+    DEFINES on $(<) += $(DEFINES) ;
+  }
+
+  return $(targets) ;
+}
+
+##  HeaderRule source : headers
+##    This rule is the default header rule used by the objects rules. You
+##    might register custom rules with the RegisterHeaderRule rule.
+rule HeaderRule
+{
+  # N.B.  This rule is called during binding, potentially after
+  # the fate of many targets has been determined, and must be
+  # used with caution: don't add dependencies to unrelated
+  # targets, and don't set variables on $(<).
+                                                                                
+  # Tell Jam that anything depending on $(<) also depends on $(>),
+  # set SEARCH so Jam can find the headers, but then say we don't
+  # care if we can't actually find the headers (they may have been
+  # within ifdefs),
+  local s = $(>:G=$(HDRGRIST:E)) ;
+
+  Includes $(<) : $(s) ;
+  SEARCH on $(s) = $(HDRSEARCH) ;
+  NoCare $(s) ;
+ 
+  local i ;
+  for i in $(s)
+  {
+    HDRGRIST on $(i) = $(HDRGRIST) ;
+    HDRSEARCH on $(i) = $(HDRSEARCH) ;
+    HDRRULE on $(i) = [ on $(<) GetVar HDRRULE ] ;
+    HDRSCAN on $(i) = [ on $(<) GetVar HDRPATTERN ] ;
+  }
+}
+
+if $(JAMVERSION) < 2.5
+{
+## XXX XXX XXX a bug in jam 2.4 let's the version above fail. I'll let this
+##    non-optimal version in here until jam 2.5 is out.
+
+rule HeaderRule
+{
+  local s = $(>:G=$(HDRGRIST:E)) ;
+
+  Includes $(<) : $(s) ;
+  SEARCH on $(s) = $(HDRSEARCH) ;
+  NoCare $(s) ;
+ 
+  local i ;
+  for i in $(s)
+  {
+    if $(HDRRULE_$(i:S))
+    {
+      HDRGRIST on $(i) = $(HDRGRIST) ;
+      HDRSEARCH on $(i) = $(HDRSEARCH) ;	
+      HDRRULE on $(i) = $(HDRRULE_$(i:S)) ;
+      HDRSCAN on $(i) = $(HDRPATTERN_$(i:S)) ;
+    }
+    else if $(JAM_DEBUG)
+    {
+      #echo "No Header rule for $(i:S) file $(i) " ;
+    }
+  }
+}
+
+} # end of if $(JAMVERSION) < 1.5
+
+# Dummy rule: .o files are used as is.
+rule UseObjectFile
+{
+  return $(<) ;
+}
+RegisterFileType UseObjectFile : .o ;
+
+# Ignore header files.
+rule UseHeaderFile
+{
+  return ;
+}
+RegisterFileType UseHeaderFile : .h .hpp ;
+RegisterHeaderRule HeaderRule : $(HDRPATTERN) : .h .hpp .inc ;
+
+# Generates a grist suitable for output objects based on
+# SUBVARIANT and SUBDIR variable.
+rule DoObjectGrist
+{
+  return $(<:G=$(SOURCE_GRIST:E)!$(SUBVARIANT:J=!)) ;
+}
+
+# Generates a grist suitable for source files based on SUBDIR variable.
+# Doesn't change an existing grist.
+rule DoSourceGrist
+{
+  local gristed ;
+  for g in $(<)
+  {
+    local grist ;
+    if $(g:G)
+    {
+      grist = $(g:G) ;
+    }
+    gristed += $(g:G=$(grist:E=$(SOURCE_GRIST:E))) ;
+  }
+  return $(gristed) ;
+}

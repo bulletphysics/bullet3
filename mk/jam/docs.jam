@@ -1,0 +1,688 @@
+#============================================================================
+# Rules for creating Documentation
+# Copyright (C)2005 by Eric Sunshine <sunshine@sunshineco.com>
+#
+#    This library is free software; you can redistribute it and/or modify it
+#    under the terms of the GNU Library General Public License as published by
+#    the Free Software Foundation; either version 2 of the License, or (at your
+#    option) any later version.
+#
+#    This library is distributed in the hope that it will be useful, but
+#    WITHOUT ANY WARRANTY; without even the implied warranty of MERCHANTABILITY
+#    or FITNESS FOR A PARTICULAR PURPOSE.  See the GNU Library General Public
+#    License for more details.
+#
+#    You should have received a copy of the GNU Library General Public License
+#    along with this library; if not, write to the Free Software Foundation,
+#    Inc., 675 Mass Ave, Cambridge, MA 02139, USA.
+#
+#============================================================================
+
+# Do-nothing implementations which avoid Jam error messages if client Jamfiles
+# attempt to invoke documantation-generation rules despite lack of availability
+# of appropriate tools. This simplifies client Jamfiles since the client does
+# not need to check for the presence of the various tools. These rules will be
+# re-defined later if the necessary tools are available.
+rule Texi2Info   { }
+rule Texi2HTML   { }
+rule Texi2DVI    { }
+rule Texi2PS     { }
+rule Texi2PDF    { }
+rule Doxygen     { }
+rule RepairNodes { }
+
+if $(PERL)
+{
+  PATH.TEXI2HTML.HOME ?= [ ConcatDirs $(TOP) docs support ] ;
+  PATH.TEXI2HTML ?= [ ConcatDirs $(PATH.TEXI2HTML.HOME) texi2html.pl ] ;
+  CMD.TEXI2HTML ?= "$(PERL) $(PATH.TEXI2HTML)" ;
+}
+
+if $(CMD.MAKEINFO)
+{
+##  Texi2Info targetname : texifiles : outputformat [ : subdir : [ outfile :
+##            [ options ]]]
+##    Invoke the makeinfo utility to convert Texinfo source (typically) to Info
+##    format when the pseudo target 'targetname' is invoked. 'texifiles' is a
+##    list of Texinfo files to be converted.  The first element of 'texifiles'
+##    should be the top-level Texinfo document which includes the remaining
+##    files. It is okay for 'texifiles' to mention only a single Texinfo source
+##    if the entire document is contained in the one file. 'outputformat' is
+##    one of "info", "html", "xml", or "docbook".  If not specified, it
+##    defaults to "info". The optional 'subdir' is a subdirectory of
+##    $(LOCATE.DOCS) into which the generated files should be placed. The
+##    optional 'outfile' is the name of the output file. Some output formats
+##    may generate multiple output files (such as "outfile.info",
+##    "outfile-1.info", "outfile-2.info", etc.). If 'outfile' is omitted, then
+##    the output filename is derived from the first element of 'texifiles' with
+##    the extension changed to reflect 'outputformat' (one of .info, .html,
+##    .xml, or .docbook). 'options' is a set of command-line flags passed
+##    directly to makeinfo. Returns the gristed output file name.
+rule Texi2Info
+{
+  local target    = $(1) ;
+  local texifiles = $(2) ;
+  local format    = $(3) ;
+  local subdir    = $(4) ;
+  local outfile   = $(5) ;
+  local options   = $(6) ;
+
+  if ! $(format) { format = info ; }
+
+  local fmtoptions ;
+  switch $(format)
+  {
+    case info    : fmtoptions =           ;
+    case html    : fmtoptions = --html    ;
+    case xml     : fmtoptions = --xml     ;
+    case docbook : fmtoptions = --docbook ;
+  }
+
+  return [ _Texinfo $(target) : $(texifiles) : $(format) : $(outfile) :
+    RunMakeInfo : $(fmtoptions) $(options) : $(subdir) ] ;
+}
+}
+
+if $(CMD.TEXI2HTML)
+{
+##  Texi2HTML targetname : texifiles [ : subdir : [ outfile : [ options ]]]
+##    Invoke the texi2html utility to convert Texinfo source to HTML format
+##    when the pseudo target 'targetname' is invoked. 'texifiles' is a list of
+##    Texinfo files to be converted.  The first element of 'texifiles' should
+##    be the top-level Texinfo document which includes the remaining files. It
+##    is okay for 'texifiles' to mention only a single Texinfo source if the
+##    entire document is contained in the one file.  The optional 'subdir' is a
+##    subdirectory of $(LOCATE.DOCS) into which the generated files should be
+##    placed. The optional 'outfile' is the name of the root output file
+##    (typically "index.html"). If the input files contain multiple Texinfo
+##    @nodes, then texi2html may generate multiple output files (depending upon
+##    local texi2html configuration) based upon the section numbering, and
+##    'outfile' will reference the other generated files.  If 'outfile' is
+##    omitted, then the output filename is derived from the first element of
+##    'texifiles' with the extension changed to .html. 'options' is a set of
+##    command-line flags passed directly to texi2html. Returns the gristed
+##    output file name.
+rule Texi2HTML
+{
+  local target    = $(1) ;
+  local texifiles = $(2) ;
+  local subdir    = $(3) ;
+  local outfile   = $(4) ;
+  local options   = $(5) ;
+  return [ _Texinfo $(target) : $(texifiles) : html : $(outfile) :
+    RunTexi2HTML : $(options) : $(subdir) ] ;
+}
+}
+
+if $(CMD.TEXI2DVI)
+{
+##  Texi2DVI targetname : texifiles [ : subdir [ : outfile [ : options ]]]
+##    Invoke the texi2dvi utility to convert Texinfo source to DVI format when
+##    the pseudo target 'targetname' is invoked. 'texifiles' is a list of
+##    Texinfo files to be converted.  The first element of 'texifiles' should
+##    be the top-level Texinfo document which includes the remaining files. It
+##    is okay for 'texifiles' to mention only a single Texinfo source if the
+##    entire document is contained in the one file.  The optional 'subdir' is a
+##    subdirectory of $(LOCATE.DOCS) into which the generated file should be
+##    placed. The optional 'outfile' is the name of the output file.  If
+##    'outfile' is omitted, then the output filename is derived from the first
+##    element of 'texifiles' with the extension changed to .dvi. 'options' is a
+##    set of command-line flags passed directly to texi2dvi.  Returns the
+##    gristed output file name.
+rule Texi2DVI
+{
+  return [ _Texi2DVI $(1) : $(2) : $(3) : $(4) : $(5) : dvi ] ;
+}
+
+if $(CMD.DVIPS)
+{
+##  Texi2PS targetname : texifile [ : subdir [ : outfile [ : psoptions
+##          [ : dvioptions ]]]]
+##    Invoke the texi2dvi and dvips utilities to convert Texinfo source to
+##    PostScript format when the pseudo target 'targetname' is invoked.
+##    'texifiles' is a list of Texinfo files to be converted. The first
+##    element of 'texifiles' should be the top-level Texinfo document which
+##    includes the remaining files. It is okay for 'texifiles' to mention only
+##    a single Texinfo source if the entire document is contained in the one
+##    file.  The optional 'subdir' is a subdirectory of $(LOCATE.DOCS) into
+##    which the generated file should be placed. The optional 'outfile' is the
+##    name of the output file.  If 'outfile' is omitted, then the output
+##    filename is derived from the first element of 'texifiles' with the
+##    extension changed to .ps. 'psoptions' is a set of command-line flags
+##    passed directly to dvips. 'dvioptions' is a set of command-line flags
+##    passed directly to texi2dvi. Returns the gristed output file name.
+rule Texi2PS
+{
+  local target     = $(1) ;
+  local texifiles  = $(2) ;
+  local subdir     = $(3) ;
+  local outfile    = $(4) ;
+  local psoptions  = $(5) ;
+  local dvioptions = $(6) ;
+  return [ _Dvi $(target) : $(texifiles) : ps : $(outfile:S=.ps) : RunDVIPS :
+    $(psoptions) : $(dvioptions) : $(subdir) ] ;
+}
+}
+
+if $(CMD.DVIPDF)
+{
+##  Texi2PDF targetname : texifiles [ : subdir [ : outfile [ : pdfoptions
+##    [ : dvioptions ]]]]
+##    Invoke the texi2dvi and dvipdf utilities to convert Texinfo source to PDF
+##    format when the pseudo target 'targetname' is invoked.  'texifiles' is a
+##    list of Texinfo files to be converted. The first element of 'texifiles'
+##    should be the top-level Texinfo document which includes the remaining
+##    files. It is okay for 'texifiles' to mention only a single Texinfo source
+##    if the entire document is contained in the one file.  The optional
+##    'subdir' is a subdirectory of $(LOCATE.DOCS) into which the generated
+##    file should be placed. The optional 'outfile' is the name of the output
+##    file.  If 'outfile' is omitted, then the output filename is derived from
+##    the first element of 'texifiles' with the extension changed to .pdf.
+##    'pdfoptions' is a set of command-line flags passed directly to
+##    dvipdf. 'dvioptions' is a set of command-line flags passed directly to
+##    texi2dvi. Returns the gristed output file name.
+rule Texi2PDF
+{
+  local target     = $(1) ;
+  local texifiles  = $(2) ;
+  local subdir     = $(3) ;
+  local outfile    = $(4) ;
+  local pdfoptions = $(5) ;
+  local dvioptions = $(6) ;
+
+  local pdffile = [ _Dvi $(target) : $(texifiles) : pdf : $(outfile:S=.pdf) :
+    RunDVIPDF : $(pdfoptions) : $(dvioptions) : $(subdir) ] ;
+  CONVERTER on $(pdffile) = $(CMD.DVIPDF) ;
+  return pdffile ;
+}
+}
+else if $(CMD.TEXI2PDF)
+{
+##  Texi2PDF targetname : texifiles [ : subdir [ : outfile [ : options ]]]
+##    Invoke the texi2pdf utility to convert Texinfo source to PDF format when
+##    the pseudo target 'targetname' is invoked. 'texifiles' is a list of
+##    Texinfo files to be converted.  The first element of 'texifiles' should
+##    be the top-level Texinfo document which includes the remaining files. It
+##    is okay for 'texifiles' to mention only a single Texinfo source if the
+##    entire document is contained in the one file.  The optional 'subdir' is a
+##    subdirectory of $(LOCATE.DOCS) into which the generated file should be
+##    placed. The optional 'outfile' is the name of the output file.  If
+##    'outfile' is omitted, then the output filename is derived from the first
+##    element of 'texifiles' with the extension changed to .pdf. 'options' is a
+##    set of command-line flags passed directly to texi2pdf.  Returns the
+##    gristed output file name.
+rule Texi2PDF
+{
+  local target    = $(1) ;
+  local texifiles = $(2) ;
+  local subdir    = $(3) ;
+  local outfile   = $(4) ;
+  local options   = $(5) ;
+  local pdffile = [ _Texinfo $(target) : $(texifiles) : pdf : $(outfile) :
+    RunTexi2DVI : -I $(SUBDIR) $(options) : $(subdir) ] ;
+  CONVERTER on $(pdffile) = $(CMD.TEXI2PDF) ;
+  OPTIONS on $(pdffile) += $(FLAGS.TEXI2PDF) ;
+  return pdffile ;
+}
+}
+}
+
+if $(PERL)
+{
+PATH.NODEFIX ?= [ ConcatDirs $(TOP) docs support nodefix.pl ] ;
+CMD.NODEFIX ?= $(PERL) $(PATH.NODEFIX) ;
+
+##  RepairNodes targetname : texifile [ : srcdir ]
+##    When 'targetname' is invoked, perform in-place repair of @node and @menu
+##    directives in 'texifile' so that they correctly reflect the documentation
+##    hierarchy defined by @chapter, @section, @subsection, etc. directives.
+##    'srcdir' is the directory containing 'texifile' as well as any files
+##    included via @include{} or @import{} directives. If 'srcdir' is omitted,
+##    then $(SUBDIR) is assumed.
+rule RepairNodes
+{
+  local target = $(1) ;
+  local texifile = $(2) ;
+  local srcdir = $(3) ;
+  if ! $(srcdir) { srcdir = $(SUBDIR) ; }
+
+  SEARCH on $(texifile) = $(srcdir) ;
+  TEXINFO.INCDIR on $(target) = $(srcdir) ;
+  Depends $(target) : $(texifile) ;
+  NotFile $(target) ;
+  Always $(target) ;
+}
+
+actions RepairNodes
+{
+  $(CMD.NODEFIX) --include-dir="$(TEXINFO.INCDIR)" "$(>)" ;
+}
+}
+
+if $(CMD.DOXYGEN)
+{
+
+actions WriteCppWrapper
+{
+  echo "$(DOXYCPP_COMMAND)" > "$(1)"
+}
+
+rule GenerateDoxygenCppWrapper
+{
+  local target = $(1) ;
+  local cxxcpp = $(2) ;
+  
+  local outfile cmdpath command ;
+  if $(TARGET.OS) = WIN32
+  {
+    # On Win32, MSYS is not used but the "native" process running, so we can't
+    # launch the preprocessor with sh.
+    outfile = "cpp.cmd" ;
+    local p = [ SplitToList $(LOCATE.DOCS) : "/" ] $(outfile) ;
+    cmdpath = $(p:J=\\\\) ;
+    command = "$(cxxcpp)" %1 ;
+  }
+  else
+  {
+    outfile = "cpp.sh" ;
+    local p = $(LOCATE.DOCS) $(outfile) ;
+    cmdpath = $(p:J=/) ;
+    command = "$(cxxcpp)" \\$1 ;
+  }
+  MakeLocate $(outfile) : $(LOCATE.DOCS) ;
+  DOXYCPP_COMMAND on $(outfile) = $(command) ;
+  WriteCppWrapper $(outfile) ;
+  MODE on $(outfile) = "+x" ;
+  Chmod $(outfile) ;
+    
+  Always $(outfile) ;
+  Depends $(target) : $(outfile) ;
+  Clean $(target)clean : $(outfile) ;
+  
+  return $(cmdpath) ;
+}
+
+##  Doxygen targetname : doxyprofile-and-resources [ : subdir [ : outfile
+##          [ : options ]]]
+##    Invoke the Doxygen utility to generate API documentation based upon
+##    'doxyprofile' when the pseudo target 'targetname' is invoked. The first
+##    element of 'doxyprofile-and-resources' is the Doxygen configuration file
+##    which controls the API generation. The remaining optional elements are
+##    additional resources which should be copied verbatim to the output
+##    directory. Typical additional resources include CSS and related image
+##    files.  It is assumed that the source files mentioned by
+##    'doxyprofile-and-resources' reside in $(SUBDIR).  The optional 'subdir'
+##    is a subdirectory of $(LOCATE.DOCS) into which the generated files should
+##    be placed. The optional 'outfile' is the name of the root output file
+##    (typically "index.html"). This file will reference any other files
+##    generated by Doxygen.  If 'outfile' is omitted, then the output filename
+##    defaults to "index.html".  'options' is a set of command-line flags
+##    passed directly to Doxygen. Returns the gristed output file name.
+rule Doxygen
+{
+  local target    = $(1) ;
+  local infiles   = $(2) ;
+  local subdir    = $(3) ;
+  local outfile   = $(4) ;
+  local optioins  = $(5) ;
+  local doxyfile  = $(infiles[1]) ;
+  local resources = $(infiles[2-]) ;
+  local outdir    = [ FDirName $(LOCATE.DOCS) $(subdir) ] ;
+  local grist     = "$(SOURCE_GRIST)!$(target)" ;
+
+  if ! $(outfile)
+  {
+    outfile = index.html ;
+  }
+  outfile = $(outfile:G=$(grist)) ;
+
+  local r ;
+  for r in $(resources)
+  {
+    local src = $(r:G=$(grist)!src) ;
+    local dst = $(r:G=$(grist)!dst) ;
+    SEARCH on $(src) = $(SUBDIR) ;
+    MakeLocate $(dst) : $(outdir) ;
+    Copy $(dst) : $(src) ;
+    Depends $(dst) : $(src) ;
+    Depends $(outfile) : $(dst) ;
+    Clean $(target)clean : $(dst) ;
+  }
+
+  local doxycpp ;
+  if $(CMD.C++CPP)
+  {
+    doxycpp = [ GenerateDoxygenCppWrapper $(outfile) : 
+      $(CMD.C++CPP) [ FDefines DOXYGEN_RUN ] ] ;
+  }
+  
+  local have_dot = "NO" ;
+  local dot_path ;
+  if $(CMD.DOT)
+  {
+    local dotpath = [ Reverse [ SplitToList $(CMD.DOT) : / ] ] ;
+    if $(dotpath[1]) != "dot"
+    {
+      Echo "doxygen expects the dot binary to be named 'dot' exactly" ;
+    }
+    else
+    {
+      dot_path = [ Reverse $(dotpath[2-]) ] ;
+      dot_path = $(dot_path:J=/) ;
+      have_dot = "YES" ;
+    }
+  }
+
+  SEARCH on $(doxyfile) = $(SUBDIR) ;
+  OPTIONS on $(target) = $(options) ;
+  DOXYCPP on $(target) = $(doxycpp) ;
+  HAVE_DOT on $(target) = $(have_dot) ;
+  DOT_PATH on $(target) = $(dot_path) ;
+  MakeLocate $(outfile) : $(outdir) ;
+  Depends $(outfile) : $(doxyfile) ;
+  Depends $(target) : $(outfile) ;
+  RunDoxygen $(target) : $(doxyfile) ;
+  NotFile $(target) ;
+  Always $(target) ;
+  Clean $(target)clean : $(outfile) ;
+  if $(subdir)
+  {
+    CleanDir $(target)clean : $(outdir) ;
+  }
+  Depends cleandoc : $(target)clean ;
+  return outfile ;
+}
+}
+
+#----------------------------------------------------------------------------
+# Private helper rules and actions.
+
+##  _Texinfo targetname : texifiles : format : [ outfile ] : converter
+##           [ : options [ : subdir ]]
+##    The workhorse of the various Texinfo conversion rules. This rule sets up
+##    a pseudo-target 'targetname' which takes care of copying image files to
+##    the output directory if needed by the output format, gristing intput and
+##    output files, invoking the specified low-level conversion rule, and
+##    cleaning up temporary files upon completion.  'texifiles' is a list of
+##    Texinfo files to be converted.  The first element of 'texifiles' should
+##    be the top-level Texinfo document which @includes the remaining files. It
+##    is okay for 'texifiles' to mention only a single Texinfo source if the
+##    entire document is contained in the one file. 'format' is one of "info",
+##    "html", "xml", "docbook", "dvi", "ps", or "pdf", and is used in the
+##    formulation of the grist, and as the extension of 'outfile' if omitted.
+##    The format also determines which type of image files (if any) should be
+##    copied to the output directory, and whether the copied images should be
+##    cleaned up upon completion.  'outfile' is the name of the root output
+##    file.  If 'outfile' is omitted, then the output filename is derived from
+##    the first element of 'texifiles' with the extension changed to reflect
+##    'format'. 'converter' is the Jam rule which will perform the actual
+##    conversion. It is passed 'outfile' as $(<), and the first element of
+##    'texifiles' as $(>).  The optional 'subdir' is a subdirectory of
+##    $(LOCATE.DOCS) into which the generated files should be placed.
+##    'options' is a set of command-line flags to be passed directly to the
+##    underlying conversion tool.  Returns the gristed output file name.  The
+##    following variables may be accessed from within the 'converter' action:
+##      $(SRCDIR)  - Value of $(SUBDIR) when this rule was invoked.
+##      $(OUTDIR)  - Directory into which output files should be emitted.
+##      $(OUTLOG)  - Name of a log file within $(OUTDIR) into which 'converter'
+##                   may direct diagnostic output of conversion tool if needed.
+##      $(FORMAT)  - Value of 'format'.
+##      $(OPTIONS) - Value of 'options'.
+rule _Texinfo
+{
+  local target    = $(1) ;
+  local texifiles = $(2) ;
+  local format    = $(3) ;
+  local outfile   = $(4) ;
+  local converter = $(5) ;
+  local options   = $(6) ;
+  local subdir    = $(7) ;
+  local outdir    = [ FDirName $(LOCATE.DOCS) $(subdir) ] ;
+  local grist     = "$(SOURCE_GRIST)!$(target)!$(format)" ;
+  local outlog ;
+
+  local texifile = $(texifiles[1]:G=$(grist)) ;
+  local texideps = $(texifiles[2-]) ;
+
+  if ! $(outfile)
+  {
+    outfile = $(texifile:BS=.$(format)) ;
+  }
+  outfile = $(outfile:G=$(grist)) ;
+  outlog = $(outfile:G=:R=$(outdir):S=$(outfile:S)log) ;
+
+  local inftypes = .txt ;
+  local xmltypes = .jpg .png .gif ;
+  local dvitypes = .eps .pdf ;
+  local pstypes  = .eps ;
+  local pdftypes = .eps .pdf ;
+  local imagetypes copyimages ;
+  switch $(format)
+  {
+    case info    : imagetypes = $(inftypes) ; copyimages = no  ;
+    case html    : imagetypes = $(xmltypes) ; copyimages = yes ;
+    case xml     : imagetypes = $(xmltypes) ; copyimages = yes ;
+    case docbook : imagetypes = $(xmltypes) ; copyimages = yes ;
+    case dvi     : imagetypes = $(dvitypes) ; copyimages = yes ;
+    case ps      : imagetypes = $(pstypes)  ; copyimages = no  ;
+    case pdf     : imagetypes = $(pdftypes) ; copyimages = no  ;
+    case *       : Error "Texinfo: unrecognized output format" $(format) ;
+  }
+
+  local images ;
+  if $(imagetypes) { images = [ Recurse : $(imagetypes) ] ; }
+
+  local image ;
+  for image in $(images)
+  {
+    local imagegrist = "$(grist)!$(image:D)" ;
+    local src = $(image:BSG=$(imagegrist)) ;
+    local srcdir = [ ConcatDirs $(SUBDIR) $(image:D) ] ;
+    SEARCH on $(src) = $(srcdir) ;
+    if $(copyimages) = no
+    {
+      Includes $(texifile) : $(src) ;
+    }
+    else
+    {
+      local dst = $(image:BSG=$(imagegrist)built) ;
+      local dstdir = [ ConcatDirs $(outdir) $(image:D) ] ;
+      MakeLocate $(dst) : $(dstdir) ;
+      Copy $(dst) : $(src) ;
+      Depends $(dst) : $(src) ;
+      Depends $(outfile) : $(dst) ;
+      Clean $(target)clean : $(dst) ;
+    }
+  }
+
+  SRCDIR  on $(outfile) = $(SUBDIR) ;
+  OUTDIR  on $(outfile) = $(outdir) ;
+  OUTLOG  on $(outfile) = $(outlog) ;
+  FORMAT  on $(outfile) = $(format) ;
+  OPTIONS on $(outfile) = $(options) ;
+
+  SEARCH on $(texifile) = $(SUBDIR) ;
+  SEARCH on $(texideps) = $(SUBDIR) ;
+  Includes $(texifile) : $(texideps) ;
+  MakeLocate $(outfile) : $(outdir) ;
+  Depends $(outfile) : $(texifile) ;
+  Depends $(target) : $(outfile) ;
+  $(converter) $(outfile) : $(texifile) ;
+  NotFile $(target) ;
+  Clean $(target)clean : $(outfile) ;
+  if $(subdir)
+  {
+    CleanDir $(target)clean : $(outdir) ;
+  }
+  Depends cleandoc : $(target)clean ;
+
+  return $(outfile) ;
+}
+
+##  _Texi2DVI targetname : texifiles [ : subdir [ : outfile [ : options
+##            [ : format ]]]]
+##    A thin wrapper around the _Texinfo rule which invokes TeX-wrapping tools
+##    such as texi2dvi and texi2pdf. The action for this rule captures the
+##    output of TeX into a log file and tells the user to consult the log file
+##    if TeX fails.  It also monitors the log file for TeX `hbox' warnings, and
+##    informs the user to consult the log if any are discovered. The log file
+##    is removed silently if no problems are detected.  Returns the gristed
+##    output DVI file name.  In addition to the variables exported by the
+##    _Texinfo rule, the following variables may be accessed from within the
+##    action:
+##      $(CONVERTER) - The actual command-line tool wrapping TeX.
+rule _Texi2DVI
+{
+  local target    = $(1) ;
+  local texifiles = $(2) ;
+  local subdir    = $(3) ;
+  local outfile   = $(4) ;
+  local options   = $(5) ;
+  local format    = $(6) ;
+  local dvifile = [ _Texinfo $(target) : $(texifiles) : $(format) :
+    $(outfile) : RunTexi2DVI : -I $(SUBDIR) $(options) : $(subdir) ] ;
+  CONVERTER on $(dvifile) = $(CMD.TEXI2DVI) ;
+  OPTIONS on $(dvifile) += $(FLAGS.TEXI2DVI) ;
+  return $(dvifile) ;
+}
+
+##  _Dvi targetname : texifiles : format : outfile : converter [ : options
+##       [ : dvioptions [ : subdir ]]]
+##    A wrapper around the _Texi2DVI rule which also runs a secondary
+##    conversion rule/action on the generated DVI file. Examples of secondary
+##    conversions include dvips, dvipdf, etc. The arguments 'targetname',
+##    'format', 'outfile', and 'subdir' have the same meaning as for the
+##    _Texinfo and _Texi2DVI rules. 'converter' is the rule/action which
+##    converts the generated DVI file to the final output format.  'options' is
+##    a set of command-line flags to be passed directly to the underlying
+##    secondary conversion tool.  'dvioptions' are the command-line options
+##    passed to _Texi2DVI.  As with the _Texi2DVI rule, this rule captures the
+##    output of the secondary conversion tool to a log file and instructs the
+##    user to consult it when a problem is detected.  Returns the gristed
+##    output file name.
+rule _Dvi
+{
+  local target     = $(1) ;
+  local texifiles  = $(2) ;
+  local format     = $(3) ;
+  local outfile    = $(4) ;
+  local converter  = $(5) ;
+  local options    = $(6) ;
+  local dvioptions = $(7) ;
+  local subdir     = $(8) ;
+
+  local dvifile = [ _Texi2DVI _$(target)_dvi : $(texifiles) : $(subdir) :
+    $(outfile:S=.dvi) : $(dvioptions) : $(format) ] ;
+
+  if ! $(outfile)
+  {
+    outfile = $(dvifile:BS=.$(format)) ;
+  }
+  local outdir = [ FDirName $(LOCATE.DOCS) $(subdir) ] ;
+  local outlog = $(outfile:G=:R=$(outdir):S=$(outfile:S)log) ;
+
+  SRCDIR  on $(outfile) = $(SUBDIR) ;
+  OUTLOG  on $(outfile) = $(outlog) ;
+  FORMAT  on $(outfile) = $(format) ;
+  OPTIONS on $(outfile) = $(psoptions) ;
+
+  MakeLocate $(outfile) : $(outdir) ;
+  Depends $(outfile) : $(dvifile) ;
+  Depends $(target) : $(outfile) ;
+  $(converter) $(outfile) : $(dvifile) ;
+  RmTemps $(outfile) : $(dvifile) ;
+  Clean $(target)clean : $(outfile) $(dvifile) ;
+  NotFile $(target) ;
+  NotFile $(target)clean ;
+  if $(subdir)
+  {
+    CleanDir $(target)clean : $(outdir) ;
+  }
+
+  return $(outfile) ;
+}
+
+# Unfortunately, `makeinfo' 4.3, which ships with MSYS, does not respect the
+# search path (-I) for @image{} directives, so we need to `cd' into the source
+# directory to work around this shortcoming.  With modern versions of
+# `makeinfo', we could instead just use `-I$(SRCDIR)' instead of the pwd/cd
+# goop.
+actions RunMakeInfo
+{
+  dir=`pwd` ; \
+  cd $(>:D) ; \
+  $(CMD.MAKEINFO) $(OPTIONS) $(FLAGS.MAKEINFO) --output="${dir}/$(<)" $(>:B)
+}
+
+actions RunTexi2HTML
+{
+  T2H_HOME="$(PATH.TEXI2HTML.HOME)" \
+  $(CMD.TEXI2HTML) $(OPTIONS) $(FLAGS.TEXI2HTML) -subdir="$(OUTDIR)" \
+    -top-file="$(<:BS)" "$(>)"
+}
+
+actions RunTexi2DVI
+{
+  $(CONVERTER) $(OPTIONS) --batch --output=$(<) $(>) > $(OUTLOG) 2>&1
+  if test $? -ne 0; then
+    echo "*** ERROR: $(CONVERTER) reported one or more errors."
+    echo "*** ERROR: See $(OUTLOG) for details."
+    false
+  fi
+  if test $? -eq 0; then
+    grep hbox $(OUTLOG) >/dev/null 2>&1
+    if test $? -eq 0; then
+      echo "*** WARNING: $(CONVERTER) reported 'hbox' warnings." && \
+      echo "*** WARNING: See $(OUTLOG) for details."
+    else
+      $(RM) $(OUTLOG)
+    fi
+    true
+  else
+    false
+  fi
+}
+
+actions RunDVIPS
+{
+  TEXPICTS="$(SRCDIR)" \
+  $(CMD.DVIPS) $(OPTIONS) -o $(<) $(>) > $(OUTLOG) 2>&1
+  if test $? -ne 0; then
+    echo "*** ERROR: $(CMD.DVIPS) reported one or more errors."
+    echo "*** ERROR: See $(OUTLOG) for details."
+    false
+  else
+    $(RM) $(OUTLOG)
+    true
+  fi
+}
+
+actions RunDVIPDF
+{
+  TEXPICTS="$(SRCDIR)" \
+  $(CMD.DVIPDF) $(OPTIONS) $(>) $(<) > $(OUTLOG) 2>&1
+  if test $? -ne 0; then
+    echo "*** ERROR: $(CMD.DVIPDF) reported one or more errors."
+    echo "*** ERROR: See $(OUTLOG) for details."
+    false
+  else
+    $(RM) $(OUTLOG)
+    true
+  fi
+}
+
+actions RunDoxygen
+{
+  TOP=$(TOP) DOXYCPP=$(DOXYCPP) HAVE_DOT=$(HAVE_DOT) DOT_PATH=$(DOT_PATH) $(CMD.DOXYGEN) $(OPTIONS) $(FLAGS.DOXYGEN) $(>)
+}
+
+#----------------------------------------------------------------------------
+# Additional clean rules.
+
+CleanDir cleandoc : $(LOCATE.DOCS) ;
+Depends clean : cleandoc ;
+Help cleandoc : "Remove built documentation files" ;
+
+Always docclean ;
+NotFile docclean ;
+Depends docclean : cleandoc ;

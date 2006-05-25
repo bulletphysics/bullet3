@@ -1,0 +1,301 @@
+[% FILTER null;
+#==============================================================================
+# TemplateToolkit2 utility macros for MSVC project generation
+# Copyright (C) 2004 by Eric Sunshine <sunshine@sunshineco.com>
+#
+#    This library is free software; you can redistribute it and/or modify it
+#    under the terms of the GNU Library General Public License as published by
+#    the Free Software Foundation; either version 2 of the License, or (at your
+#    option) any later version.
+#
+#    This library is distributed in the hope that it will be useful, but
+#    WITHOUT ANY WARRANTY; without even the implied warranty of MERCHANTABILITY
+#    or FITNESS FOR A PARTICULAR PURPOSE.  See the GNU Library General Public
+#    License for more details.
+#
+#    You should have received a copy of the GNU Library General Public License
+#    along with this library; if not, write to the Free Software Foundation,
+#    Inc., 675 Mass Ave, Cambridge, MA 02139, USA.
+#
+#==============================================================================
+
+#------------------------------------------------------------------------------
+# Return input string with forward slashes changed to backward slashes.
+#------------------------------------------------------------------------------
+MACRO slash(s) GET s.replace('/','\\');
+
+#------------------------------------------------------------------------------
+# Given a path, strip off any prefix found in the my.doc.striproot[] array.
+# For example, if my.doc.striproot[] contains '/usr/local/', and this macro is
+# invoked as striproot('/usr/local/foo.bar'), then the return value will be
+# 'foo.bar'.
+#------------------------------------------------------------------------------
+MACRO striproot(p) BLOCK;
+  IF my.doc.striproot;
+    UNLESS my.doc.striprootpat;
+      r = [];
+      FOREACH c IN my.doc.striproot;
+	IF c != '.';
+	  c = c.replace('[/\\\\]?$', '/?') IF c != './';
+	  r.push(c.replace('[.]', '\\.'));
+	END;
+      END;
+      my.doc.striprootpat = '^(?i:' _ r.join('|') _ ')';
+    END;
+    p.replace(my.doc.striprootpat, '');
+  ELSE;
+    GET p;
+  END;
+END;
+
+#------------------------------------------------------------------------------
+# Given an array of paths, invoke striproot() upon each and return the results.
+# Note that, because TemplateToolkit macros can not return true lists, the
+# return value is actually a string with the elements delimited by the token
+# `|'; thus clients must split() the return value if a real list result is
+# desired.  For instance: myfiles = striproots(allfiles).split('|')
+#------------------------------------------------------------------------------
+MACRO striproots(p) BLOCK;
+  r = [];
+  FOREACH c IN p;
+    r.push(striproot(c));
+  END;
+  r.join('|');
+END;
+
+#------------------------------------------------------------------------------
+# Given an array of path components, return the concatenation of the components
+# (using backslash '\' as a delimiter) after possibly stripping an optional
+# prefix from each component.  The list of prefixes which may be stripped are
+# found in the my.doc.striproot[] array.  For example, if my.doc.striproot[]
+# contains '/usr/local/', and this macro is invoked as
+# path(['/usr/local/foo', 'bar', 'cow.baz']), then the return value will be
+# 'foo\bar\cow.baz'.
+#------------------------------------------------------------------------------
+MACRO path(p) BLOCK;
+  r = [];
+  FOREACH c IN p;
+    r.push(striproot(c));
+  END;
+  slash(r.join('\\'));
+END;
+
+#------------------------------------------------------------------------------
+# Given a string specifying a set of options for a tool (compiler, linker,
+# etc.) of the form `/opt1 "arg1" /opt2 "arg2"' (or `/opt1:arg1 /opt2:arg2', or
+# the like), translate forward slashes in `arg' (which is assumed to be a
+# pathname) to backward slashes.  For example, given
+# `/I "foo/bar" /out:cow/baz', returns `/I "foo\bar" /out:cow\baz'.
+#------------------------------------------------------------------------------
+MACRO flags(s) GET slash(s).replace('\A\\\\','/').replace('\s\\\\',' /');
+
+#------------------------------------------------------------------------------
+# Given an array of items, return only the items which match the set of regular
+# expressions in my.doc.accept[] and which do not match the set of expressions
+# in my.doc.reject[].  For example, if my.doc.accept[] contains the one pattern
+# '\.cpp$', and my.doc.reject[] contains the one pattern 'ow', then, given the
+# list ['foo.h', 'bar.cpp', 'cow.cpp'], the list of returned items will be
+# ['bar.cpp'].  Note that, because TemplateToolkit macros can not return true
+# lists, the return value is actually a string with the elements delimited by
+# the token `|'; thus clients must split() the return value if a real list
+# result is desired.  For instance: myfiles = filter(allfiles).split('|')
+#------------------------------------------------------------------------------
+MACRO filter(x) BLOCK;
+  IF my.doc.accept;
+    UNLESS my.doc.acceptpat;
+      my.doc.acceptpat = my.doc.accept.join('|');
+    END;
+    x = x.grep(my.doc.acceptpat);
+  END;
+  IF my.doc.reject;
+    UNLESS my.doc.acceptpat;
+      my.doc.rejectpat = my.doc.reject.join('|');
+    END;
+    y = [];
+    FOREACH i IN x;
+      UNLESS i.match(my.doc.rejectpat);
+	y.push(i);
+      END;
+    END;
+    y.join('|');
+  ELSE;
+    x.join('|');
+  END;
+END;
+
+#------------------------------------------------------------------------------
+# Given an input string, return a globally unique identifier (GUID)
+# representing the string (essentially a textual representation of an MD5
+# checksum).  The returned string has the form
+# XXXXXXXX-XXXX-XXXX-XXXX-XXXXXXXXXXXX, where each `X' represents some
+# (uppercase) hexadecimal digit.
+#------------------------------------------------------------------------------
+MACRO guid(s) BLOCK;
+  USE md5 = Digest::MD5;
+  CALL md5.add(s);
+  digest = md5.hexdigest.chunk(4);
+  GET digest.0 _
+      digest.1 _ '-' _
+      digest.2 _ '-' _
+      digest.3 _ '-' _
+      digest.4 _ '-' _
+      digest.5 _
+      digest.6 _
+      digest.7 | upper;
+END;
+
+#------------------------------------------------------------------------------
+# Given an arbitrary identifier (the `tag'), attempt to locate macros named
+# after variations of that tag and the current build mode and project type;
+# then invoke any discovered macros and concatenate their results, delimited by
+# `delim' (which may be omitted if no explicit delimiter is needed).  Macro
+# names are composed of `tag', the current build mode (given by the global
+# `build.mode' property, where `build' typically is a reference to a hash
+# contained in the global builds[] array), and the current project type as
+# indicated by the global my.doc.projtype.0 property.  The full list of macros
+# consulted by interpolate() is presented below.  The macros are invoked in the
+# order shown.
+#
+#    tag_build
+#    tag_projtype
+#    tag_projtype_build
+#------------------------------------------------------------------------------
+MACRO interpolate(tag, delim) BLOCK;
+  p = [];
+  s = ${"${tag}_${build.tag}"};
+  p.push(s) IF s.length > 0;
+  s = ${"${tag}_${my.doc.projtype.0}"};
+  p.push(s) IF s.length > 0;
+  s = ${"${tag}_${my.doc.projtype.0}_${build.tag}"};
+  p.push(s) IF s.length > 0;
+  GET p.join(delim);
+END;
+
+#------------------------------------------------------------------------------
+# Given an array of strings, return the concatenation of the elements,
+# delimited by `delim'.  Prior to concatenation, `prefix' and `suffix' (if
+# provided) are attached to each element.  For example,
+# glue(['foo','bar'],':','<','>') returns "<foo>:<bar>".
+#------------------------------------------------------------------------------
+MACRO glue(array, delim, prefix, suffix) BLOCK;
+  delim = suffix _ delim _ prefix;
+  s = array.join(delim);
+  IF s.length > 0;
+    s = prefix _ s _ suffix;
+  END;
+  GET s;
+END;
+
+#------------------------------------------------------------------------------
+# Given an arbitrary identifier (the `tag'), attempt to access several in-scope
+# or globally visible arrays in order to extract additional options for a given
+# build mode and project type.  The elements of the accessed arrays, along with
+# a `seed' array, are concatentated, delimited by `delim'.  Each element is
+# optionally modified by `prefix' and `suffix' as described in the glue()
+# macro.  The actual list of arrays consulted is:
+#
+#    build.tag
+#    projtypes.projtype.tag
+#    my.doc.tagkey
+#
+# The above list assumes that a hash named `build' is in scope.  Typically,
+# this is a reference to an element of the global builds[] array
+# (control.tlib).  Furthermore, `projtype' is shorthand for my.doc.projtype.0,
+# which is assumed to exist globally, and is specific to the project being
+# generated.  Finally, `tagkey' is actually the value of the "${tag}key" key
+# within the `build' hash.  As a practical example, if generating a project
+# file for a "plugin" and emitting the "debug" configuration, given a `tag' of
+# "cflags", then the following arrays may be consulted:
+#
+#    build.cflags
+#    projtypes.plugin.cflags
+#    my.doc.cflagsdebug
+#
+# In this example, the name "cflagsdebug" comes from the
+# builds['debug'].cflagskey property (control.tlib).
+#------------------------------------------------------------------------------
+MACRO compose(tag, seed, delim, prefix, suffix) BLOCK;
+  p = [];
+  p = p.merge(build.$tag).
+    merge(projtypes.${my.doc.projtype.0}.$tag).
+    merge(my.doc.${${"build.${tag}key"}}).
+    merge(seed);
+  GET glue(p, delim, prefix, suffix);
+END;
+
+#------------------------------------------------------------------------------
+# Given an arbitrary `tag', concatenate the list of pathnames in my.doc.tag[],
+# along with a `seed' list, delimited by `delim'.  Each item is mutated by
+# path() prior to concatenation.  The optional `prefix' and `suffix' modify
+# each item as described in the glue() macro.  For example, if my.doc.libdir[]
+# contains the elements "foo/bar" and "baz/snorz", then the invocation
+# composepaths('libdir',['cow/fish'],' ','/I "','"') will return the string
+# `/I "cow\fish" /I "foo\bar" /I "baz\snorz"'. Likewise,
+# composepaths('libdir',[],',') will return `foo\bar,baz\snorz'.
+#------------------------------------------------------------------------------
+MACRO composepaths(tag, seed, delim, prefix, suffix) BLOCK;
+  p = seed;
+  FOREACH d IN my.doc.$tag;
+    p.push(path([d]).replace('\\\\$',''));
+  END;
+  GET glue(p, delim, prefix, suffix);
+END;
+
+#------------------------------------------------------------------------------
+# Loads a data file containing key/value tuples and stores the tuples in the
+# hash named my.tag, where `tag' is provided by the caller.  The key/value
+# tuples appear one per line in the data file, and the key must be separated
+# from the value via a literal '|'.  The very first line of the data file
+# _must_ be the literal string "key|value" (sans quotes).  Each key in the data
+# file becomes a key in the my.tag hash.  Typically, the name "doc" is used for
+# `tag', and is meant to represent attributes (such as special compiler and
+# linker flags, list of files, etc.) of the current "project file document"
+# under construction.  Indeed, many of the macros defined here (macros.tlib)
+# assume the presence of the my.doc hash, and consult it to learn about
+# properties specific to the project file being synthesized.  It is legal for
+# the same key to appear multiple times in the data file; this is how an array
+# of values is defined for a given key.  In fact, _all_ values in the hash are
+# assumed to be arrays.  Consequently, even if you know that a particular key
+# will appear in the data file only a single time, you must still perform an
+# array access to obtain its value (for instance, `my.doc.projtype.0').  Values
+# from the loaded data file are typically accessed via the FOREACH directive
+# (for example, `FOREACH cflag IN my.doc.cflags'), but can also be accessed
+# individually (`my.doc.cflags.0', `my.doc.cflags.1', etc.).
+#------------------------------------------------------------------------------
+MACRO load(path, tag) BLOCK;
+  my.$tag = {};
+  USE f = datafile(path, delim = '|');
+  FOREACH r IN f;
+    IF my.$tag.exists(r.key);
+      my.$tag.${r.key}.push(r.value);
+    ELSE;
+      my.$tag.${r.key} = [ r.value ];
+    END;
+  END;
+END;
+
+#------------------------------------------------------------------------------
+# Build-specific path composition macros.
+#
+#    workroot
+#        Return the root of the directory hierarchy in which build temporaries
+#        and some targets will be placed.
+#    worklibout
+#        Return the location where built static libraries will be placed.
+#    workbuild
+#        Return the location of a build temporary.  If `tail' is omitted, then
+#        this will be the directory into which temporary build output will be
+#        placed (a subdirectory of `workroot').  If `tail', an array of
+#        pathname components, is provided, then it can specify a directory or
+#        file beneath the `workbuild' directory.  The elements of `tail' are
+#        concatenated without any delimiter.  For example, workbuild([]) might
+#        return "..\out\build", whereas workbuild(['myapp']) would return
+#        "..\out\build\myapp", and workbuild(['myapp/test','.obj']) would
+#        return "..\out\build\myapp\test.obj".
+#------------------------------------------------------------------------------
+MACRO workroot GET path([my.doc.buildroot.0, 'out', glue([build.tag, my.doc.msvcversion.0])]);
+MACRO worklibout GET path([workroot, 'libs']);
+MACRO workbuild(tail)
+  GET path([workroot, 'build', my.doc.project.0, tail.join('')]);
+
+END %]

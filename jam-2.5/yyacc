@@ -1,0 +1,88 @@
+#!/bin/sh
+
+# yyacc - yacc wrapper
+#
+# Allows tokens to be written as `literal` and then automatically 
+# substituted with #defined tokens.
+#
+# Usage:
+#	yyacc file.y filetab.h file.yy 
+#
+# inputs:
+#	file.yy		yacc grammar with ` literals
+#
+# outputs:
+#	file.y		yacc grammar
+#	filetab.h	array of string <-> token mappings
+#
+# 03-13-93 - Documented and p moved in sed command (for some reason, 
+#	     s/x/y/p doesn't work).
+# 10-12-93 - Take basename as second argument.
+# 12-31-96 - reversed order of args to be compatible with GenFile rule
+# 03/19/02 (seiwald) - suffix symbols with _t to avoid conflicts
+#
+
+outy=${1?}
+outh=${2?}
+in=${3?}
+out=`basename $in .yy`
+
+T=/tmp/yy$$
+trap 'rm -f $T.*' 0
+
+sed '
+	: 1
+	/`/{
+		h
+		s/[^`]*`\([^`]*\)`.*/\1/
+		p
+		g
+		s/[^`]*`[^`]*`//
+		b 1
+	}
+	d
+' $in | sort -u | sed '
+	h
+	y/abcdefghijklmnopqrstuvwxyz/ABCDEFGHIJKLMNOPQRSTUVWXYZ/
+	s/:/_COLON/
+	s/!/_BANG/
+	s/&&/_AMPERAMPER/
+	s/&/_AMPER/
+	s/+/_PLUS/
+	s/||/_BARBAR/
+	s/|/_BAR/
+	s/;/_SEMIC/
+	s/-/_MINUS/
+	s/</_LANGLE/
+	s/>/_RANGLE/
+	s/\./_PERIOD/
+	s/?/_QUESTION/
+	s/=/_EQUALS/
+	s/,/_COMMA/
+	s/\[/_LBRACKET/
+	s/]/_RBRACKET/
+	s/{/_LBRACE/
+	s/}/_RBRACE/
+	s/(/_LPAREN/
+	s/)/_RPAREN/
+	s/.*/&_t/
+	G
+	s/\n/ /
+' > $T.1
+
+sed '
+	s:^\(.*\) \(.*\)$:s/`\2`/\1/g:
+	s:\.:\\.:g
+	s:\[:\\[:g
+' $T.1 > $T.s
+
+rm -f $outy $outh
+
+(
+	sed 's:^\(.*\) \(.*\)$:%token \1:' $T.1
+	sed -f $T.s $in
+) > $outy
+
+(
+	sed 's:^\(.*\) \(.*\)$:	{ "\2", \1 },:' $T.1 
+) > $outh

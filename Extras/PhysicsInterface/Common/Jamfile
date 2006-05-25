@@ -1,0 +1,5 @@
+SubDir TOP Extras PhysicsInterface Common ;
+
+Library bulletphysicsinterfacecommon : [ Wildcard *.h *.cpp ] ;
+
+InstallHeader [ Wildcard *.h ] ;

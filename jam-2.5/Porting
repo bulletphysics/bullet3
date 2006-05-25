@@ -1,0 +1,68 @@
+Notes on porting Jam - revised 12/31/2000
+
+1) Working out system dependencies in the Jam code.
+
+    Jam's OS footprint is fairly small.  For OS independent work Jam
+    liberally uses standard libc functions like stdio, malloc, and
+    string.  The OS dependent interfaces are:
+
+	From filesys.h:
+
+	    file_parse() - split a file name into dir/base/suffix/member
+	    file_build() - build a filename given dir/base/suffix/member
+	    file_dirscan() - scan a directory for files
+	    file_archscan() - scan an archive for files
+	    file_time() - get the timestamp of a file, if not already 
+			  done by file_dirscan().
+
+	From execcmd.h:
+
+	    execcmd() - execute a shell script
+	    execwait() - wait for any outstanding execcmd()'s.
+
+    The current implementations are:
+
+	    filemac.c - mac MPW 
+	    filent.c - NT 
+	    fileos2.c - OS/2 
+	    fileunix.c - all UNIX
+	    filevms.c - VMS
+
+	    execmac.c - mac MPW
+	    execunix.c - UNIX, OS/2, NT
+	    execvms.c - VMS
+
+2) Defining OSMAJOR, OSMINOR in jam.h
+
+    So that the Jambase and Jamfile know their host, Jam defines $(OS)
+    to be something useful for each platform.  Make sure that there is
+    code in jam.h to generate a useful value for $(OS), and key it off 
+    the platform specific C-preprocessor symbol.   If the C-preprocessor 
+    doesn't itself defines such a symbol, add a define to the Makefile.
+
+    In addition to $(OS), you can also set $(OSPLAT) if the OS runs on
+    multiple platforms (like Linux or NT).
+
+3) Working out system dependencies in the Jambase
+
+    With the value of $(OS) available, the Jambase can be extended to
+    support special variables or rules for new platforms.   See the
+    current support for VMS, NT, and Mac.
+
+4) Yacc troubles
+
+    The generated files jamgram.h and jamgram.c are distributed for the 
+    poor souls without yacc.
+
+5) Known problematic systems:
+
+    - Pyramid has no malloc.h, memory.h
+
+    - Encore has no stdlib.h
+
+    - Bull DPX has sys/file.h problems
+
+6) Send the results back.
+
+    If you do porting work, the result can be integrated into future
+    releases if you send it back to the author's address in the README.

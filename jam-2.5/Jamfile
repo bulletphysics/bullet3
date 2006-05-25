@@ -1,0 +1,152 @@
+#
+# Jamfile to build Jam (a make(1)-like program)
+#
+# There are no user-serviceable parts in this file.
+#
+# Put executables in platform-specific  subdirectory.
+
+if $(VMS) 	{ LOCATE_TARGET ?= [.binvms] ; }
+else if $(MAC) 	{ LOCATE_TARGET ?= :bin.mac ; }
+else 		{ LOCATE_TARGET ?= bin.$(OSFULL[1]:L) ; }
+
+# Leave generated source in current directory; it would be nice to use
+# these lines below to build the source into the platform-specific
+# directory, but getting scan.c to include the right jambase.h is
+# hard: with ""'s, it always gets the bootstrap version; with <>'s,
+# it won't find the bootstrap version.
+
+# SEARCH_SOURCE ?= $(LOCATE_TARGET) $(DOT) ;
+# LOCATE_SOURCE ?= $(LOCATE_TARGET) ;
+
+#
+# We have some different files for UNIX, VMS, and NT.
+#
+
+if $(NT) 	{ code = execunix.c filent.c pathunix.c ; } 
+else if $(MINGW) { code = execunix.c filent.c pathunix.c ; } 
+else if $(OS2)	{ code = execunix.c fileos2.c pathunix.c ; } 
+else if $(VMS) 	{ code = execvms.c filevms.c pathvms.c ; } 
+else if $(MAC)	{ code = execmac.c filemac.c pathmac.c ; }
+else 		{ code = execunix.c fileunix.c pathunix.c ; }
+
+# For jam profiling/debugging.
+
+if $(PROFILE)
+{
+	CCFLAGS += -pg ;
+	LINKFLAGS += -pg ;
+	LOCATE_TARGET = $(LOCATE_TARGET)/pg ;
+}
+
+if $(DEBUG)
+{
+	CCFLAGS += -g ;
+	LINKFLAGS += -g ;
+	LOCATE_TARGET = $(LOCATE_TARGET)/g ;
+}
+
+# We have to signal jam.h for these
+
+if $(OS) = NT 			{ CCFLAGS += /DNT ; }
+
+# Do we know yacc?
+
+if $(YACC) 	{ code += jamgram.y ; }
+else            { code += jamgram.c ; }
+
+#
+# Build the jamgram.y from the jamgram.yy
+# yyacc is a slippery script that makes grammars a little
+# easier to read/maintain.
+#
+
+if $(YACC) && $(SUFEXE) = ""
+{
+	GenFile jamgram.y jamgramtab.h : yyacc jamgram.yy ;
+}
+
+#
+# How to build the compiled in jambase.
+#
+
+Main		mkjambase : mkjambase.c ;
+
+if $(VMS)
+{
+	CC = cxx ;
+	LINK = cxxlink ;
+	CCFLAGS += /define=VMS ;
+}
+
+#
+# The guts of the Jamfile: how to build Jam
+#
+
+Main 		jam : jam.c jambase.c ;
+LinkLibraries 	jam : libjam.a ;
+GenFile 	jambase.c : mkjambase Jambase ;
+
+Library         libjam.a :
+		    builtins.c command.c compile.c $(code) expand.c
+		    glob.c hash.c headers.c lists.c make.c make1.c
+		    newstr.c option.c parse.c regexp.c rules.c scan.c
+		    search.c timestamp.c variable.c ;
+
+
+if $(BINDIR) 	{ InstallBin $(BINDIR) : jam ; }
+
+#
+# Distribution making from here on out.
+#
+
+ALLSOURCE =
+	Build.com Build.mpw Jam.html Jambase Jambase.html Jamfile
+	Jamfile.html Makefile Porting README RELNOTES builtins.c builtins.h
+	command.c command.h compile.c compile.h execcmd.h execmac.c
+	execunix.c execvms.c expand.c expand.h filemac.c filent.c
+	fileos2.c filesys.h fileunix.c filevms.c glob.c hash.c hash.h
+	headers.c headers.h jam.c jam.h jambase.c jambase.h jamgram.c
+	jamgram.h jamgram.y jamgram.yy jamgramtab.h lists.c lists.h
+	make.c make.h make1.c mkjambase.c newstr.c newstr.h option.c
+	option.h parse.c parse.h patchlevel.h pathmac.c pathsys.h
+	pathunix.c pathvms.c regexp.c regexp.h rules.c rules.h scan.c
+	scan.h search.c search.h timestamp.c timestamp.h variable.c
+	variable.h yyacc ;
+
+rule Ball
+{
+	NotFile balls ;
+	Depends balls : $(<) ;
+
+	DEPENDS $(<) : $(>) ;
+
+	switch $(<) 
+	{
+	case *.tar : Tar $(<) : $(>) ;
+	case *.shar : Shar $(<) : $(>) ;
+	case *.zip : Zip $(<) : $(>) ;
+	}
+}
+
+VERSION = jam-2.5 ;
+
+actions Tar
+{
+	ln -s . $(VERSION)
+	tar cvhf $(<) $(VERSION)/$(>)
+	rm $(VERSION)
+}
+
+actions Shar
+{
+	shar $(>) > $(<)
+}
+
+actions Zip
+{
+	zip $(<) $(>) 
+}
+
+Ball $(VERSION).shar : $(ALLSOURCE) ;
+Ball $(VERSION).tar : $(ALLSOURCE) ;
+Ball $(VERSION).zip : $(ALLSOURCE) ;

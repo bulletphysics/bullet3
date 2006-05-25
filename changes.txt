@@ -1,0 +1,75 @@
+Bullet Continuous Collision Detection and Physics Library
+Erwin Coumans
+
+2006 May 24
+	Improved GJK accuracy, fixed GjkConvexCast issue, thanks to ~MyXa~ for reporting
+	
+2006 May 19
+	Added restitution support
+	Moved out Friction and Dynamics info from ManifoldPoint (removed logical dependency)
+	Added a void* m_userPersistentData in ManifoldPoint.
+	Added a ContactDestroyedCallback, to allow user to handle destruction of m_userPersistentData
+
+2006 May 13
+	Fixed some bugs in friction / jacobian calculations. Reported by Dirk Gregorius. Thanks!
+
+2006 May 9
+	Fixed raycasting filtering
+	Moved repository to SVN at https://svn.sourceforge.net/svnroot/bullet
+		
+2006 April 27
+	Moved raycasting to CollisionWorld, to make it more generic
+	Added basic CCD option in the CcdCollisionDemo
+	Fixed 'noResponse' mode, for triggering rigidbodies (useful for Artificial Intelligence queries)
+	Improved Bullet/ODE sample (in Extras)
+		
+2006 April 10
+	Separating Axis Test (SAT) convex hull collision detector, contribution by Simon Hobbs
+	Added SIMD SSE Math classes (for above SAT)
+	Added Mouse picking in CcdPhysicsDemo
+	Improved penetration depth estimation in MinkowskiPenetrationDepthSolver, both accuracy and performance
+	Added Hinge constraint
+	Added quickprof profiling (see http://sourceforge.net/projects/quickprof )
+		
+2006 March 21 Frank Richter <resqu@gmx.ch>
+	Removed VC manifest files.
+	Removed superfluous "grpplugins" projects.
+
+2006 March 20 Erwin Coumans
+	Clamped the acculumated impulse rather then intermediate impulse (within the iteration)
+	Use the persistent contacts for reusing the impulse
+	Separated friction and normal solving for better stability
+	Decreased the default number of iterations of the constraint solver from 10 to 4
+
+2006 March 19 Frank Richter <resqu@gmx.ch>
+	Removed a couple of CSisms from the VC projects.
+	Fixed VC include & lib paths to go to the Addtional* options
+	  instead the command line arguments.
+	Added pkgconfig support.
+
+2006 March 14 Frank Richter <resqu@gmx.ch>
+	Added support for shipped GLUT on MinGW.
+	Fixed GLUT support on MinGW.
+
+2006 March 13 Frank Richter <resqu@gmx.ch>
+	Bolted on Jam-based build system.
+	Generated VC project files.
+	Fixed GCC warnings.
+	Fixed Linux build issues.
+
+2006 March 13
+Added 3D Sweep and Prune Broadphase Collision Detection, Contribution from Simon Hobbs.
+
+2006 March 2
+	Minor change in license to ZLib/LibPNG
+	This makes it legally a bit easier to deploy on Playstation 3
+	Prepared for more generic constraints, added ConstraintsDemo
+
+2006 Feb 23
+	Rearranged files and dependencies to allow for easier standalone Collision Detection without Bullet Dynamics.
+	See Demos/CollisionInterfaceDemo and Extras/ode/ode/test/test_BulletGjk.cpp for examples how to use.
+
+
+... todo: add history
+
+2003 Initial version (continuous collision detection)

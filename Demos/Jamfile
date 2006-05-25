@@ -1,0 +1,53 @@
+SubDir TOP Demos ;
+
+SubInclude TOP Demos OpenGL ;
+
+if $(GLUT.AVAILABLE) = "yes"
+{
+  # All demo apps have a lot in common, so use this rule to simply things
+  rule BulletDemo
+  {
+    Application $(<) : $(>) : noinstall console nomanifest ;
+    LinkWith $(<) :  bullet bulletopenglsupport bulletphysicsinterfacecommon bulletccdphysics bulletmath ;
+    CFlags $(<) : 
+	  [ FIncludes $(TOP)/Demos/OpenGL ] 
+	  [ FIncludes $(TOP)/Extras/PhysicsInterface/CcdPhysics ] 
+	  [ FIncludes $(TOP)/Extras/PhysicsInterface/Common ] 
+    ;
+    MsvcIncDirs $(<) : 
+	"../../Demos/OpenGL" 
+	"../../Extras/PhysicsInterface/CcdPhysics" 
+	"../../Extras/PhysicsInterface/Common" ;
+  }
+}
+else
+{
+  rule BulletDemo
+  {
+  }
+}
+
+ rule BulletBasicDemo
+  {
+    Application $(<) : $(>) : noinstall console nomanifest ;
+    LinkWith $(<) :  bullet bulletphysicsinterfacecommon bulletccdphysics bulletmath ;
+    CFlags $(<) :
+          [ FIncludes $(TOP)/Extras/PhysicsInterface/CcdPhysics ]
+          [ FIncludes $(TOP)/Extras/PhysicsInterface/Common ]
+    ;
+    MsvcIncDirs $(<) :
+        "../../Extras/PhysicsInterface/CcdPhysics"
+        "../../Extras/PhysicsInterface/Common" ;
+  }
+
+SubInclude TOP Demos BasicSample ;
+SubInclude TOP Demos CcdPhysicsDemo ;
+SubInclude TOP Demos CollisionDemo ;
+SubInclude TOP Demos CollisionInterfaceDemo ;
+SubInclude TOP Demos ConcaveDemo ;
+SubInclude TOP Demos ConstraintDemo ;
+SubInclude TOP Demos ContinuousConvexCollision ;
+SubInclude TOP Demos GjkConvexCastDemo ;
+SubInclude TOP Demos EPAPenDepthDemo ;
+SubInclude TOP Demos Raytracer ;
+SubInclude TOP Demos SimplexDemo ;

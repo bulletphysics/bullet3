@@ -1,0 +1,61 @@
+#============================================================================
+# Rules for building compile groups
+# Copyright (C)2003 by Matze Braun <matzebraun@users.sourceforge.net>
+#
+#    This library is free software; you can redistribute it and/or modify it
+#    under the terms of the GNU Library General Public License as published by
+#    the Free Software Foundation; either version 2 of the License, or (at your
+#    option) any later version.
+#
+#    This library is distributed in the hope that it will be useful, but
+#    WITHOUT ANY WARRANTY; without even the implied warranty of MERCHANTABILITY
+#    or FITNESS FOR A PARTICULAR PURPOSE.  See the GNU Library General Public
+#    License for more details.
+#
+#    You should have received a copy of the GNU Library General Public License
+#    along with this library; if not, write to the Free Software Foundation,
+#    Inc., 675 Mass Ave, Cambridge, MA 02139, USA.
+#
+#============================================================================
+
+COMPILE_GROUPS = ;
+
+##  CompileGroups target : groups
+##    Adds a target to a list of compile groups. A compile group is a virtual
+##    target which combines several targets. This is useful for things like a
+##    creating a target which compiles all image loaders, all renderers, etc.
+rule CompileGroups
+{
+  local _i ;
+
+  for _i in $(>)
+  {
+    Depends $(_i) : $(<) ;
+    Depends $(_i)clean : $(<)clean ;
+
+    if ! [ IsElem $(_i) : $(COMPILE_GROUPS) ]
+    {
+      NotFile $(_i) ;
+      Echo "Warning: $(_i) not registered via RegisterCompileGroups" ;
+    }
+  }
+}
+
+##  RegisterCompileGroups
+##    Registers compile groups. You must specify all compile groups here before
+##    can use them.
+rule RegisterCompileGroups
+{
+  NotFile $(<) ;
+  COMPILE_GROUPS += $(<) ;
+
+  local i ;
+  for i in $(<)
+  {
+    local desc = [ Description $(i) ] ;
+    if $(desc)
+    {
+      Help $(i) : "Build the $(desc)" ;
+    }
+  }
+}

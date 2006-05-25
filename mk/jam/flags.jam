@@ -1,0 +1,172 @@
+#============================================================================
+# Rules for specifying compiler and linker flags
+# Copyright (C)2003 by Matze Braun <matzebraun@users.sourceforge.net>
+#
+#    This library is free software; you can redistribute it and/or modify it
+#    under the terms of the GNU Library General Public License as published by
+#    the Free Software Foundation; either version 2 of the License, or (at your
+#    option) any later version.
+#
+#    This library is distributed in the hope that it will be useful, but
+#    WITHOUT ANY WARRANTY; without even the implied warranty of MERCHANTABILITY
+#    or FITNESS FOR A PARTICULAR PURPOSE.  See the GNU Library General Public
+#    License for more details.
+#
+#    You should have received a copy of the GNU Library General Public License
+#    along with this library; if not, write to the Free Software Foundation,
+#    Inc., 675 Mass Ave, Cambridge, MA 02139, USA.
+#
+#============================================================================
+
+##  LinkWith target : libs
+##    Link an application with libraries. The specified libraries should have
+##    build rules in the same project. For external libraries use the
+##    ExternalLibs rule. Specify the library names without any extensions or
+##    the leading "lib".
+rule LinkWith
+{
+  local rawlibs = [ ResolveLibs $(>) ] ;
+
+  if ( $($(<)_TYPE) = library ) && ( "$($(<)_SHARED)" = "" )
+  {
+    # LibDepends for shared libs invokes LinkWith, so prevent recursion
+    LibDepends $(<) : $(rawlibs) ;
+  }                           
+  
+  local i libs ;
+  for i in $(rawlibs)
+  {
+    libs += [ ConstructLibraryLinkTarget $(i) : $($(i)_SHARED) ] ;
+  }
+      
+  Depends $($(<)_TARGET) : $(libs) ;
+  NEEDLIBS on $($(<)_TARGET) += $(libs) ;
+  $(<).NEEDLIBS += $(rawlibs) ;
+
+  LFlags $(<) : $($($(rawlibs).EXTERNALLIBS).LFLAGS) ;
+}
+
+##  CFlags target : flags [ : options ]
+##    Sets cflags on all sourcefiles of a library, plugin or application target
+##    This rule affects c++ and c compiler flags.
+rule CFlags
+{
+  CheckOptions nostatic : $(3) : $(<) ;
+
+  CCFLAGS on $($(<)_OBJECTS) += $(>) ;
+  C++FLAGS on $($(<)_OBJECTS) += $(>) ;
+
+  UnitTestCFlags $(<) : $(>) : $(3) ;
+}
+
+##  MergeLFlags flags1 : flags2
+##    Merge two arrays of linker flags. Removes duplicate entries, however,
+##    ensures that the correct relative right-to-left order of both flag arrays
+##    is kept.
+rule MergeLFlags
+{
+  local result = ;
+  local libs2 = $(2) ;
+  for l in $(1)
+  {
+    if [ IsElem $(l) : $(libs2) ]
+    {
+      # If a flag from set 1 is in set 2, add all flags from start of set 2
+      # to the occurance of the flag to result.
+      while "$(libs2[1])" != "" && $(libs2[1]) != $(l)
+      {
+        result += $(libs2[1]) ;
+        libs2 = $(libs2[2-]) ;
+      }
+      result += $(libs2[1]) ;
+      libs2 = $(libs2[2-]) ;
+    }
+    else
+    {
+      # Just add the flag.
+      result += $(l) ;
+    }
+  }
+  result += $(libs2) ;
+  return $(result) ;
+}
+
+##  LFlags target : flags [ : options ]
+##    Sets linker flags for a library, plugin or application target
+rule LFlags
+{
+  CheckOptions nostatic : $(3) : $(<) ;
+
+  NotFile $(>) ;
+  NEEDLIBS on $($(<)_TARGET) += $(>) ;
+  $(<).LFLAGS += $(>) ;
+
+  UnitTestLFlags $(<) : $(>) : $(3) ;
+}
+
+##  ExternalLibs target : identifiers
+##    Specify a dependency between 'target' and the external libraries
+##    indicated by 'identifiers'.  If 'target' is an application or plugin,
+##    then it is linked against the indicated external libraries.  If 'target'
+##    is a library, then its dependency upon 'identifiers' is noted, and
+##    applications or plugins which link against 'target' will also be linked
+##    against the libraries indicated by 'identifiers'.  'identifiers' is a
+##    list of base names of a set of variables which provide build tool
+##    information about each external library.  In particular, assuming that
+##    `ident' is one element of `identifiers', the value of $(ident).CFLAGS
+##    should provide compiler flags needed for the external library indicated
+##    by 'ident'; and $(ident).LFLAGS should provide linker flags for the
+##    library.
+rule ExternalLibs
+{
+  local extlib ;
+  for extlib in $(>)
+  {
+    CFlags $(<) : $($(extlib).CFLAGS) ;
+    LFlags $(<) : $($(extlib).LFLAGS) ;
+    
+    $(<).EXTERNALLIBS += $(extlib) ;
+  }
+}
+
+##  ExtraObjects target : objectfiles [ : options ]
+##    Link additional object files with a target.
+##    Options:
+##      inheritcflags: The mentioned object files will inherit compiler flags
+##      assigned to target's normal object files (in addition to any flags
+##      already set manually).
+rule ExtraObjects
+{
+  CheckOptions inheritcflags : $(3) : $(<) ;
+  if [ IsElem inheritcflags : $(3) ]
+  {
+    $(<)_OBJECTS += $(>) ;
+  }
+  EXTRAOBJECTS on $($(<)_TARGET) += $(>) ;
+  Depends $($(<)_TARGET) : $(>) ;
+  Clean $(<)clean : $(>) ;
+  Clean clean : $(>) ;
+}
+
+#----------------------------------------------------------------------------
+# private part
+
+##  ResolveLibs libs
+##    Given a list of libraries, augment the list by adding other libraries
+##    upon which the given libraries depend.  Dependencies between libraries
+##    are specified via LibDepends (or LinkWith when the target is a library).
+##    The returned list is ordered such that it is suitable for Unix linkers
+##    which are sensitive to the order of libraries in the invocation
+##    statement.
+rule ResolveLibs
+{
+  local i libs ;
+  for i in $(<)
+  {
+      libs += $(i) $($(i)_depends) ;
+  }
+  # We must eliminate the duplicates in reverse order in order to ensure that
+  # we do not destroy the overall library ordering since Unix linkers are
+  # order-sensitive.
+  return [ Reverse [ RemoveDups [ Reverse $(libs) ] ] ] ;
+}

@@ -1,0 +1,3 @@
+SubDir TOP Demos SimplexDemo ;
+
+BulletDemo SimplexDemo : [ Wildcard *.h *.cpp  ] ;

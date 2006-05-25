@@ -1,0 +1,50 @@
+#============================================================================
+# Rules for handling assembler files
+# Copyright (C)2003 by Matze Braun <matzebraun@users.sourceforge.net>
+#
+#    This library is free software; you can redistribute it and/or modify it
+#    under the terms of the GNU Library General Public License as published by
+#    the Free Software Foundation; either version 2 of the License, or (at your
+#    option) any later version.
+#
+#    This library is distributed in the hope that it will be useful, but
+#    WITHOUT ANY WARRANTY; without even the implied warranty of MERCHANTABILITY
+#    or FITNESS FOR A PARTICULAR PURPOSE.  See the GNU Library General Public
+#    License for more details.
+#
+#    You should have received a copy of the GNU Library General Public License
+#    along with this library; if not, write to the Free Software Foundation,
+#    Inc., 675 Mass Ave, Cambridge, MA 02139, USA.
+#
+#============================================================================
+
+if $(CMD.NASM)
+{
+
+rule NasmRule
+{
+  local object = [ DoObjectGrist [ PrefixSuffix $(>)_ : $(<) : $(SUFOBJ) ] ] ;
+  Nasm $(object) : $(<) ;
+  return $(object) ;
+}
+RegisterFileType NasmRule : .asm ;
+
+rule Nasm
+{
+  Depends $(<) : $(>) ;
+  NASM.FLAGS on $(<) += $(NASM.FLAGS) ;
+  # NASM doesn't scan for headers in current dir of the files, so add the dir of
+  # the file to the -I flags
+  local includeflags = [ FIncludes $(SEARCH_SOURCE)/$(<:D) $(SUBDIRHDRS) $(HDRS) ] ;
+  # NASM requires that -I paths have a trailing slash.
+  INCLUDEFLAGS on $(<) = $(includeflags)$(SLASH) ;
+}
+
+NASM.HDRPATTERN = "^[ 	]*%[ 	]*include[ 	]*[<\"]([^\">]*)[\">].*$" ;
+RegisterHeaderRule HeaderRule : $(NASM.HDRPATTERN) : .asm .ash ;
+
+actions Nasm
+{
+  $(CMD.NASM) $(NASM.FLAGS) $(INCLUDEFLAGS) -o $(<) $(>)
+}
+}

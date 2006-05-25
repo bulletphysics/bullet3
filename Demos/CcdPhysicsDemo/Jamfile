@@ -1,0 +1,3 @@
+SubDir TOP Demos CcdPhysicsDemo ;
+
+BulletDemo CcdPhysicsDemo : [ Wildcard *.h *.cpp  ] ;

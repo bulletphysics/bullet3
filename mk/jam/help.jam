@@ -1,0 +1,85 @@
+#============================================================================
+# Rules for collecting and emitting descriptions about targets
+# Copyright (C)2003 by Matze Braun <matzebraun@users.sourceforge.net>
+# Copyright (C)2004 by Eric Sunshine <sunshine@sunshineco.com>
+#
+#    This library is free software; you can redistribute it and/or modify it
+#    under the terms of the GNU Library General Public License as published by
+#    the Free Software Foundation; either version 2 of the License, or (at your
+#    option) any later version.
+#
+#    This library is distributed in the hope that it will be useful, but
+#    WITHOUT ANY WARRANTY; without even the implied warranty of MERCHANTABILITY
+#    or FITNESS FOR A PARTICULAR PURPOSE.  See the GNU Library General Public
+#    License for more details.
+#
+#    You should have received a copy of the GNU Library General Public License
+#    along with this library; if not, write to the Free Software Foundation,
+#    Inc., 675 Mass Ave, Cambridge, MA 02139, USA.
+#
+#============================================================================
+
+##  Description target [ : description ]
+##    Provides access to the description of 'target'. The description may be
+##    used by other rules, such as those which generate project files, or which
+##    present informative messages to the user regarding 'target'. If invoked
+##    with two arguments, then it sets the description of 'target'. If invoked
+##    with one argument, then it returns the description of 'target'. You
+##    should invoke this rule to set the description before invoking other
+##    rules which might need access to target's description, such as the
+##    Application, Library, and Plugin rules. As a convenience, several generic
+##    rules, such as Application, Library, and Plugin will automatically invoke
+##    the Help rule for 'target' using the provided 'description'.
+rule Description
+{
+  local desc = $(>) ;
+  if $(desc)
+  {
+    $(<)_description = $(desc) ;
+  }
+  else
+  {
+    desc = $($(<)_description) ;
+  }
+  return $(desc) ;
+}
+
+
+##  Help target : description
+##    Specify the 'description' to emit for 'target' when the user invokes "jam
+##    help".
+rule Help
+{
+  local target = $(<) ;
+  local desc = $(>) ;
+
+  if ! $(target) { target = "" ; }
+  if ! $(desc) { desc = "" ; }
+
+  # target width:20, description width:54
+  local target_pad = "                    " ;
+  local target_pat = "...................." ;
+  local desc_pad = "                                                      " ;
+  local desc_pat = "......................................................" ;
+
+  local m = Match ; # Indirect invocation allows variables in pattern regex.
+  local target_str = [ $(m) "($(target_pat)).*" : "$(target)$(target_pad)" ] ;
+  local desc_str = [ $(m) "($(desc_pat)).*" : "$(desc)$(desc_pad)" ] ;
+  local help = "jam $(target_str) $(desc_str)" ;
+
+  target = $(target:G=help) ;
+  Depends help : $(target) ;
+  NotFile $(help) ;
+  PrintHelp $(target) : $(help) ;
+  Always $(target) ;
+  NotFile $(target) ;
+}
+
+actions quietly PrintHelp
+{
+  echo "$(>)"
+}
+
+NotFile help ;
+Always help ;
+Help all : "Build the entire project" ;

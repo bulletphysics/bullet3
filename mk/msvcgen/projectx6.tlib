@@ -1,0 +1,99 @@
+#==============================================================================
+# TemplateToolkit2 template extension for MSVC6 project (vcproj) file.
+# Copyright (C) 2004 by Eric Sunshine <sunshine@sunshineco.com>
+#
+#    This library is free software; you can redistribute it and/or modify it
+#    under the terms of the GNU Library General Public License as published by
+#    the Free Software Foundation; either version 2 of the License, or (at your
+#    option) any later version.
+#
+#    This library is distributed in the hope that it will be useful, but
+#    WITHOUT ANY WARRANTY; without even the implied warranty of MERCHANTABILITY
+#    or FITNESS FOR A PARTICULAR PURPOSE.  See the GNU Library General Public
+#    License for more details.
+#
+#    You should have received a copy of the GNU Library General Public License
+#    along with this library; if not, write to the Free Software Foundation,
+#    Inc., 675 Mass Ave, Cambridge, MA 02139, USA.
+#
+#==============================================================================
+#------------------------------------------------------------------------------
+# This file, projectx6.tlib, provides additional support for the main MSVC6
+# project file template, project6.tlib, in the form of macros which customize
+# the file generation based upon combinations of build mode and target type.
+#
+# project6.tlib will look for macros named "tag_build", "tag_type", and
+# "tag_type_build".  `tag' is an arbitrary name, such as "addcpp", "addlink32",
+# or "linkeropts".  which project6.tlib will use when looking for
+# customizations for a particular section of the project file (such as the
+# compiler or linker sections, for instance).  `build' is one of the build mode
+# tag names (typically "release" or "debug") from the build[] array
+# (control.tlib).  `type' is one of the project types (typically "appcon",
+# "appgui", "group", "library", or "plugin") named by the projtypes[] array
+# (control.tlib).
+#
+# For example, to add customization entries to the post-build portion of the
+# project file in release mode for all project types, provide a macro named
+# "postbuild_release".  To customize the post-build for plugins only but for
+# all build modes, provide the macro "postbuild_plugin".  To add customizations
+# for the post-build in debug mode for GUI application projects only, provide a
+# macro named "postbuild_appgui_debug".
+#------------------------------------------------------------------------------
+
+[%
+projtypes.appcon.type = 'Console Application';
+projtypes.appcon.typecode = '0x0103';
+projtypes.appgui.type = 'Application';
+projtypes.appgui.typecode = '0x0101';
+projtypes.group.type = 'Static Library';
+projtypes.group.typecode = '0x0104';
+projtypes.library.type = 'Static Library';
+projtypes.library.typecode = '0x0104';
+projtypes.plugin.type = 'Dynamic-Link Library';
+projtypes.plugin.typecode = '0x0102';
+%]
+
+[% MACRO delaylibs_plugin
+GET glue(my.doc.librarydelay,' ','/DELAYLOAD:','.dll') %]
+
+[% MACRO linkeropts_release GET '/OPT:NOREF' %]
+[% MACRO linkeropts_debug   GET '/debug /pdbtype:sept' %]
+[% MACRO linkeropts_plugin  GET '/dll' %]
+
+[% MACRO usedebuglibs_release GET '0' %]
+[% MACRO usedebuglibs_debug   GET '1' %]
+
+[% MACRO addcpp_release GET '/Gy /GF /MD /Ob2 /Og /Oi /Ot /Oy' %]
+[% MACRO addcpp_debug   GET '/GR /MDd /ZI /Od' %]
+[% MACRO addcpp_library GET '/D "_LIB"' %]
+
+[% MACRO ignoreexportlib_common(bool) BLOCK -%]
+# PROP Ignore_Export_Lib [% bool %]
+[% END %]
+[% MACRO ignoreexportlib_appcon_release GET ignoreexportlib_common('0') %]
+[% MACRO ignoreexportlib_appcon_debug   GET ignoreexportlib_common('1') %]
+[% MACRO ignoreexportlib_appgui_release GET ignoreexportlib_common('0') %]
+[% MACRO ignoreexportlib_appgui_debug   GET ignoreexportlib_common('1') %]
+[% MACRO ignoreexportlib_group          GET ignoreexportlib_common('0') %]
+[% MACRO ignoreexportlib_library        GET ignoreexportlib_common('0') %]
+[% MACRO ignoreexportlib_plugin         GET ignoreexportlib_common('1') %]
+
+[% MACRO addlib32_outfile(suffix) BLOCK -%]
+/out:"[% worklibout %]\[% my.doc.project.0 %][% suffix %].lib"
+[%- END %]
+[% MACRO addlib32_library_release GET addlib32_outfile('')   %]
+[% MACRO addlib32_library_debug   GET addlib32_outfile('_d') %]
+[% MACRO addlib32_group           GET addlib32_outfile('')   %]
+
+[% MACRO addlink32_subsystem(subsys) BLOCK -%]
+/subsystem:[% subsys %]
+[%- END %]
+[% MACRO addlink32_common(subsys) BLOCK -%]
+/out:"[% path([my.doc.buildroot.0, my.doc.target.0]) %]" [%
+addlink32_subsystem(subsys) %]
+[%- END %]
+[% MACRO addlink32_appcon GET addlink32_common('console') %]
+[% MACRO addlink32_appgui_release GET addlink32_common('windows') %]
+[% MACRO addlink32_appgui_debug GET addlink32_common('console') %]
+[% MACRO addlink32_library GET addlink32_subsystem('windows') %]
+[% MACRO addlink32_plugin GET addlink32_common('windows') %]

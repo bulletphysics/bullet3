@@ -1,0 +1,576 @@
+#==============================================================================
+# Jam rules for unit testing with CppTest (http://cpptest.sourceforge.net/)
+# Copyright (C) 2005 by Eric Sunshine <sunshine@sunshineco.com>
+#
+#    This library is free software; you can redistribute it and/or modify it
+#    under the terms of the GNU Library General Public License as published by
+#    the Free Software Foundation; either version 2 of the License, or (at your
+#    option) any later version.
+#
+#    This library is distributed in the hope that it will be useful, but
+#    WITHOUT ANY WARRANTY; without even the implied warranty of MERCHANTABILITY
+#    or FITNESS FOR A PARTICULAR PURPOSE.  See the GNU Library General Public
+#    License for more details.
+#
+#    You should have received a copy of the GNU Library General Public License
+#    along with this library; if not, write to the Free Software Foundation,
+#    Inc., 675 Mass Ave, Cambridge, MA 02139, USA.
+#
+#==============================================================================
+if $(CPPUNIT.AVAILABLE) = yes
+{
+
+UNITTEST_VERBOSE ?= yes ;
+UNITTEST_RUNFLAGS ?= ;
+if $(UNITTEST_VERBOSE) = yes
+{
+  UNITTEST_RUNFLAGS += "--verbose" ;
+}
+
+## UnitTest module [ : testdirs [ : extensions ] ]
+##
+## This rule provides a dynamic unit testing framework which utilizes CppUnit
+## (http://cpptest.sourceforge.net/).  The invocation:
+##
+##    UnitTest <module> ;
+##
+## sets up unit testing support for `module' if $(SUBDIR)/t/ exists for
+## `module' and contains test fragment files (*.t) and/or header (*.h) files.
+## If `testdirs' is provided, then it is a list of directory to scan for test
+## fragments instead of `t/'. If `extensions' is provided, then it is a list of
+## file extensions for which to search instead of `.t'.
+##
+## It is safe to invoke this rule for modules which do not have a `t/'
+## subdirectory, in which case the rule invocation is silently ignored. The
+## UnitTest rule automatically synthesizes an appropriate driver program which
+## incorporates the test fragment files (*.t), thus eliminating a boring and
+## error-prone task.
+##
+## The Application, Library, and Plugin rules automatically invoke UnitTest on
+## behalf of the client (unless given the `notest' option), so the vast
+## majority of modules in a project inherit unit testing support automatically
+## and for free. Simply populating a `t/' subdirectory with unit testing
+## fragment files (*.t) is typically all that is needed to enable unit testing
+## for an application, library, or plugin.
+##
+## The unit testing Jam target for `module' is named "check_module". In
+## addition to this module-level granularity, the UnitTest rule also provides
+## dynamic directory-based granularity. For example, presume that the following
+## abbreviated list of directories exist in a project tree:
+##
+##     apps/example
+##     libs/common
+##     plugins/bindings/perl_b
+##     plugins/bindings/python_b
+##     plugins/bindings/ruby_b
+##
+## The following module-based unit testing Jam targets will be created
+## (assuming that the appropriate test fragment files, $(SUBDIR)/t/*.t, exist
+## in each directory):
+##
+##     check_example
+##     check_common
+##     check_perl_b
+##     check_python_b
+##     check_ruby_b
+##
+## Furthermore, the following directory-based targets also will be created
+## dynamically:
+##
+##     check (and its alias check_all)
+##     check_apps
+##     check_apps_example
+##     check_libs
+##     check_libs_common
+##     check_plugins
+##     check_plugins_bindings
+##     check_plugins_bindings_perl_b
+##     check_plugins_bindings_python_b
+##     check_plugins_bindings_ruby_b
+##
+## The very neat thing about the directory-based targets is that they
+## automatically synthesize a driver program which incorporates all of the
+## tests contained in child directories. For instance, the `check_plugins'
+## target creates a unit testing driver which incorporates the tests from the
+## bindings/perl_b/t, bindings/python_b/t, and bindings/ruby_b/t directories;
+## and the `check_all' target creates a driver which incorporates all tests in
+## the entire project. This allows entire selected branches of tests to be run
+## all at once rather than having to run several different driver programs to
+## get a complete report.
+##
+## The unit testing framework automatically wraps each test fragment file (*.t)
+## into a synthesized C++ source file containing CppUnit boilerplate, such as
+## necessary #include directives, #defines, etc.  This allows the fragment
+## files to be as simple as possible. They need #include only headers related
+## to the actual module being tested, but need not worry about setting up the
+## CppUnit environment since that is done automatically.  A typical fragment
+## file might look like this:
+##
+##     /* Test file: libs/common/t/array.t */
+##
+##     #include "common/myarray.h"
+##
+##     class MyArrayTest : public CppUnit::TestFixture
+##     {
+##     public:
+##       void setUp()      { ...set up test data... }
+##       void tearDown()   { ...destroy test data... }
+##
+##       void testInsert() { ...test array insertion methods... }
+##       void testDelete() { ...test array deletion methods... }
+##
+##       CPPUNIT_TEST_SUITE(MyArrayTest);
+##         CPPUNIT_TEST(testInsert);
+##         CPPUNIT_TEST(testDelete);
+##       CPPUNIT_TEST_SUITE_END();
+##     };
+##
+## When the UnitTest rule synthesizes C++ wrappers for the test fragments, it
+## needs to figure out the names of classes which contain tests. The synthesis
+## process makes this determination by examining *.t and *.h files for
+## subclasses of CppUnit::TestFixture. For this to work correctly, the
+## "class Foo : public CppUnit::TestFixture" declaration must not be split over
+## multiple lines.
+##
+## It is possible to have extra text added at the beginning and end of the
+## synthesized C++ source code for both the *.t wrappers and the driver
+## programs by optionally defining the following Jam variables (perhaps in
+## Jamrules) with whatever text you would like inserted into the synthesized
+## files:
+##
+##     UNITTEST_BOILERPLATE_TEST_PRE
+##     UNITTEST_BOILERPLATE_TEST_POST
+##     UNITTEST_BOILERPLATE_MAIN_PRE
+##     UNITTEST_BOILERPLATE_MAIN_POST
+##
+## Thest `TEST' variables apply to the *.t wrappers, and the `MAIN' variables
+## apply to the driver programs into which the wrappers are linked. If you find
+## that you are including common code in all of your *.t files, then you may
+## want to simplify by propagating the common code to the `TEST' boilerplate
+## instead.
+##
+rule UnitTest
+{
+  local mod = $(1) ;
+  local testdirs = $(2) ;
+  local exts = $(3) ;
+  if ! $(testdirs) { testdirs = t ; }
+  if ! $(exts) { exts = .t ; }
+
+  local test_clean = [ UnitTestNameClean $(mod) ] ;
+  local oldsubdir = $(SUBDIR_TOKENS) ;
+
+  local testdir ;
+  for testdir in $(testdirs)
+  {
+    SubDir TOP $(oldsubdir) $(testdir)  ;
+
+    local tests_obj ;
+    local tests   = [ Recurse : $(exts) ] ;
+    local headers = [ Recurse : .h .hpp .hxx .H ] ;
+    if $(tests) || $(headers)
+    {
+      tests = [ DoSourceGrist $(tests) ] ;
+      SEARCH on $(tests) = $(SEARCH_SOURCE) ;
+
+      local tests_src = $(tests:S=.cpp) ;
+      MakeLocate $(tests_src) : $(LOCATE_TARGET) ;
+      Clean $(test_clean) : $(tests_src) ;
+
+      # For each fragment (*.t), create a C++ wrapper. Automatically register
+      # subclasses of CppUnit::TestFixture.
+      local i ;
+      for i in $(tests)
+      {
+	Includes $(i:S=.cpp) : $(i) ;
+	UnitTestSource $(i:S=.cpp) : $(i) ;
+      }
+
+      # Also search for CppUnit::TestFixture subclasses in headers (*.h) and
+      # synthesize a C++ wrapper which registers them.
+      if $(headers)
+      {
+	headers = [ DoSourceGrist $(headers) ] ;
+	SEARCH on $(headers) = $(SEARCH_SOURCE) ;
+	local suitereg = [ DoSourceGrist __suitereg.cpp ] ;
+	MakeLocate $(suitereg) : $(LOCATE_TARGET) ;
+	UnitTestSource $(suitereg) : $(headers) ;
+	Includes $(suitereg) : $(headers) ;
+	tests_src += $(suitereg) ;
+      }
+
+      # Compile all synthesized sources.
+      tests_obj = [ CompileObjects $(tests_src) ] ;
+      CCHDRS on $(tests_obj) += [ FIncludes $(SEARCH_SOURCE) ] ;
+      C++FLAGS on $(tests_obj) += $(COMPILER.C++FLAGS.EXCEPTIONS.ENABLE)
+	$(CPPUNIT.CFLAGS) ;
+      Clean $(test_clean) : $(tests_obj) ;
+
+      # Create the driver for "check_module".
+      UnitTestDriver $(mod) : $(tests_obj) ;
+      # Dynamically create the drivers for all parent directories.
+      UnitTestDynamicTargets $(mod) : $(tests_obj) : $(oldsubdir) ;
+    }
+  }
+
+  SubDir TOP $(oldsubdir) ;
+}
+
+#------------------------------------------------------------------------------
+# PRIVATE UTILITY RULES
+#------------------------------------------------------------------------------
+
+# UnitTestDriver module : objs [ : owner ]
+#   Given a set of object files which represent test fragment wrappers for
+#   `module', set up the driver program which incorporates them, and create the
+#   "check_module" and "check_moduleclean" targets. For invocations which arise
+#   from the UnitTest rule, `module' will be the actual module for which
+#   testing is being arranged, and `objs' will be the complete set of test
+#   objects for `module'. For directory-based testing drivers, `module' will be
+#   the dynamically synthesized module name representing the directory for
+#   which testing is being arranged, and `objs' will be only a subset of all
+#   objects which ultimately will be incorporated into this synthesized driver
+#   (specifically, the subset will be the objects belonging to `owner'). This
+#   rule may be invoked multiple times for the same synthesized directory-based
+#   driver `module' in order to accumulate the object files from all child
+#   directories (recursively).
+#
+#   Since the driver programs in parent directories are actually conglomerates
+#   of the objects from many different modules, this rule is invoked multiple
+#   times for any given directory-based driver program. Each invocations
+#   presents it with a different set of object files. Therefore, it must take
+#   special care. In particular, the first time this rule is invoked for a
+#   synthesized driver in a particular directory, it actually creates the
+#   application target; on subsequent invocations for the same directory, it
+#   merely adds `objs' to the already-created application target.  This way,
+#   the a directory's dynamically synthesized driver program can incorporate
+#   objects from all of its child directories (recursively).
+#
+#   The `owner' is the module which owns the object files, `objs'. In the
+#   example illustrated for the UnitTest rule, when the "check_libs" driver
+#   program is under creation from within the `UnitTest common' invocation, the
+#   owner will be "common". This information is needed in order to ensure that
+#   the driver program synthesized at the "libs" level, which incorporates
+#   "common"'s object files, can gain access to "common's" linker flags (since
+#   they will be needed for linking the directory-based driver). If `owner' is
+#   not provided, then it defaults to `module'.
+rule UnitTestDriver
+{
+  local mod = $(1) ;
+  local objs = $(2) ;
+  local owner = $(3) ;
+  if ! $(owner) { owner = $(mod) ; }
+
+  local test_name  = [ UnitTestNameTest  $(mod) ] ;
+  local test_clean = [ UnitTestNameClean $(mod) ] ;
+
+  # This is the low-level target name by which a unit testing driver program is
+  # known. We only create the target the first time we are called at a
+  # particular directory level (thus the module_UNITTESTS check). Upon
+  # subsequent invocations, we merely add the new objects files to the existing
+  # driver.
+
+  local test_driver = $(mod)_unittest ;
+  if ! $($(mod)_UNITTESTS)
+  {
+    $(mod)_UNITTESTS = $(test_driver) ;
+
+    # Create the actual driver program represented by the `test_driver' target.
+    local test_driver_target =
+      [ DoObjectGrist [ ConstructApplicationTarget __unittest : console ] ] ;
+    MakeLocate $(test_driver_target) : $(LOCATE_TARGET) ;
+    $(test_driver)_TYPE = application ;
+    $(test_driver)_TARGET = $(test_driver_target) ;
+    $(test_driver)_OBJECTS = $(objs) ;
+    SystemLinkApplication $(test_driver) : $(objs) [ UnitTestCommonObj ] :
+      console ;
+    CFlags $(test_driver) : $(APPLICATION.CFLAGS) ;
+    LFlags $(test_driver) : $(LINKLIBS) $(APPLICATION.LFLAGS)
+      $(CPPUNIT.LFLAGS) ;
+
+    Depends $(test_name) : $(test_driver_target) ;
+    Clean $(test_clean) : $(test_driver_target) ;
+
+    # Actually run the unit tests.
+    NotFile $(test_name) $(test_clean) ;
+    Always  $(test_name) $(test_clean) ;
+    Depends checkclean : $(test_clean) ;
+    UnitTestRun $(test_name) : $(test_driver_target) ;
+  }
+  else
+  {
+    ExtraObjects $(test_driver) : $(objs) ;
+  }
+
+  # Apply appropriate linker flags to the driver program. This has two parts:
+  # (1) If these are the unit tests for a library, then, as a convenience,
+  #     assume that the tests need to link against that library.
+  # (2) For directory-based test targets, the driver needs all of the linker
+  #     flags required by its child directories (recursively). For example, in
+  #     the earlier cited illustration, the "check_all", and "check_libs"
+  #     targets will also need whatever linker flags libs/common itself
+  #     requires.
+
+  if $($(owner)_TYPE) = library { LinkWith $(test_driver) : $(owner) ; }
+  LinkWith $(test_driver) : [ on $($(owner)_TARGET) GetVar NEEDLIBS ] ;
+
+  return $(test_driver) ;
+}
+
+# UnitTestCommonObj
+#   Create object files common to all driver programs. Presently, the only
+#   common component is the main() function, which utilizes CppUnit's automatic
+#   test discovery protocol to discover test classes. (These are the subclasses
+#   of CppUnit::TestFixture for which we scan and pass to the
+#   CPPUNIT_TEST_SUITE_REGISTRATION() macro.)
+rule UnitTestCommonObj
+{
+  if ! $(UNITTEST_COMMON_OBJ)
+  {
+    local test_main_dir = [ ConcatDirs $(LOCATE.OBJECTS) __unittest_common ] ;
+    local test_main_src = main.cpp ;
+    test_main_src = $(test_main_src:G=__unittest) ;
+    MakeLocate $(test_main_src) : $(test_main_dir) ;
+    UnitTestMain $(test_main_src) ;
+    Clean checkclean : $(test_main_src) ;
+
+    local test_main_obj = [ CompileObjects $(test_main_src) ] ;
+    MakeLocate $(test_main_obj) : $(test_main_dir) ;
+    C++FLAGS on $(test_main_obj) += $(COMPILER.C++FLAGS.EXCEPTIONS.ENABLE)
+      $(CPPUNIT.CFLAGS) ;
+    Clean checkclean : $(test_main_obj) ;
+
+    UNITTEST_COMMON_OBJ = $(test_main_obj) ;
+  }
+  return $(UNITTEST_COMMON_OBJ) ;
+}
+
+# UnitTestDynamicTargets module : objs : subdir_tokens
+#   Given a set of subdirectory tokens representing the location of `module' in
+#   the source tree, dynamically synthesize a test driver program in each
+#   parent directory leading up to module's location. Each synthesized test
+#   program will incorporate module's `objs', as well as the objects of all
+#   other children (recursively) of the directory containing each driver. (The
+#   additional objects will be incorporated by subsequent invocations for the
+#   same directories.)
+rule UnitTestDynamicTargets
+{
+  local mod = $(1) ;
+  local objs = $(2) ;
+  local subdir_tokens = $(3) ;
+
+  # There is no need to synthesize a driver for the directory in which `module'
+  # itself resides, since we already have a "check_module" target for that.
+  # Therefore, simply alias this directory entry to the existing "check_module"
+  # target.
+
+  local deepest_name  = [ UnitTestNameTest  $(subdir_tokens:J=_) ] ;
+  local deepest_clean = [ UnitTestNameClean $(subdir_tokens:J=_) ] ;
+  NotFile $(deepest_name) $(deepest_clean) ;
+  Depends $(deepest_name)  : [ UnitTestNameTest  $(mod) ] ;
+  Depends $(deepest_clean) : [ UnitTestNameClean $(mod) ] ;
+
+  # For each parent directory of `module', synthesize a driver target.
+  local tokens = [ FReverse $(subdir_tokens) ] ;
+  tokens = $(tokens[2-]) ;
+  while $(tokens)
+  {
+    UnitTestDynamicTarget $(mod) : $(objs) : [ FReverse $(tokens) ] ;
+    tokens = $(tokens[2-]) ;
+  }
+
+  # Synthesize a "check_all" target which incorporates all tests projectwide.
+  UnitTestDynamicTarget $(mod) : $(objs) : : all ;
+}
+
+# UnitTestDynamicTarget module : objs : dir_tokens [ : dyn_module ]
+#   The workhorse for UnitTestDynamicTargets which actually changes to the
+#   specified directory and creates the driver program. The "check_foo" target
+#   name is normally composed of the directory tokens joined with underscores
+#   (i.e. "check_dir_tokens") unless the optional `dyn_module' is provided, in
+#   which case the target name becomes "check_dyn_module".
+rule UnitTestDynamicTarget
+{
+  local mod = $(1) ;
+  local objs = $(2) ;
+  local dir_tokens = $(3) ;
+  local dyn_mod = $(4) ;
+  if ! $(dyn_mod) { dyn_mod = $(dir_tokens:J=_) ; }
+
+  local olddir = $(SUBDIR_TOKENS) ;
+  SubDir TOP $(dir_tokens) ;
+
+  local test_driver = [ UnitTestDriver $(dyn_mod) : $(objs) : $(mod) ] ;
+
+  # Use module_UNITTESTS to remember that this dynamically synthesized driver
+  # has a relation to `module'. This information is needed later when clients
+  # invoke CFlags, LFlags, and LibDepends for `module'. Not only must those
+  # settings be applied to `module', but we must also apply them to module's
+  # test driver, as well as all of the directory-based drivers which
+  # incorporate module's test objects.  This is what the UnitTestCFlags,
+  # UnitTestLFlags, and UnitTestLibDepends rules do.
+
+  $(mod)_UNITTESTS += $(test_driver) ;
+
+  SubDir TOP $(olddir) ;
+}
+
+# UnitTestNameTest module
+#   Return the name of the "check_module" target for `module'.
+rule UnitTestNameTest
+{ return check_$(<) ; }
+
+# UnitTestNameClean module
+#   Return the name of the "check_moduleclean" target for `module'.
+rule UnitTestNameClean
+{ local n = [ UnitTestNameTest $(<) ] ; return $(n)clean ; }
+
+# UnitTestCFlags module : flags [ : options ]
+#   Hook invoked automatically by CFlags. Applies `flags' also to module's test
+#   driver.
+rule UnitTestCFlags
+{
+  # Empty for now. Presumably the compiler flags are needed only by the actual
+  # sources of `module'; not by its tests which merely link against module's
+  # objects. This assumption may be wrong, and may change in the future.
+}
+
+# UnitTestLFlags module : flags [ : options ]
+#   Hook invoked automatically by LFlags. Applies `flags' also to module's test
+#   driver and to all directory-based drivers which incorporate module's test
+#   objects.
+rule UnitTestLFlags
+{
+  local mod       = $(1) ;
+  local flags     = $(2) ;
+  local options   = $(3) ;
+  local unittests = $($(mod)_UNITTESTS) ;
+  local u ;
+  for u in $(unittests)
+  {
+    LFlags $(u) : $(flags) : $(options) ;
+  }
+}
+
+# UnitTestLibDepends module : deps
+#   Hook invoked automatically by LibDepends. Applies `deps' also to module's
+#   test driver and to all directory-based drivers which incorporate module's
+#   test objects.
+rule UnitTestLibDepends
+{
+  local mod       = $(1) ;
+  local libs      = $(2) ;
+  local unittests = $($(mod)_UNITTESTS) ;
+  local u ;
+  for u in $(unittests)
+  {
+    LinkWith $(u) : $(libs) ;
+  }
+}
+
+# UnitTestSource wrapper : files
+#   Create a `wrapper' which #includes all `files' (which are probably *.t test
+#   fragments or headers). Also scan `files' for subclasses of
+#   CppUnit::TestFixture and invoke CPPUNIT_TEST_SUITE_REGISTRATION() for each
+#   discovery.
+actions UnitTestSource
+{
+  cat <<EOF > $(<)
+// Automatically generated; do not edit.
+#include <string>
+#include <cppunit/TestCaller.h>
+#include <cppunit/TestFixture.h>
+#include <cppunit/TestSuite.h>
+#include <cppunit/extensions/HelperMacros.h>
+$(UNITTEST_BOILERPLATE_TEST_PRE)
+EOF
+  for i in $(>:BS); do
+    echo '#include "'$i'"' >> $(<)
+  done
+  for i in $(>); do
+    classes=`sed '/public[ 	][ 	]*CppUnit::TestFixture/!d;\
+      s/class[ 	][ 	]*\([^ 	][^ 	]*\)[ 	]*:.*/\1/' < $i`
+    for c in $classes; do
+      echo "CPPUNIT_TEST_SUITE_REGISTRATION($c);" >> $(<)
+    done
+  done
+  cat <<EOF >> $(<)
+$(UNITTEST_BOILERPLATE_TEST_POST)
+EOF
+}
+
+# UnitTestMain file
+#   Create a generic main() which is used for all test driver programs.  It
+#   uses CppUnit's automated test class discovery protocol to discover classes
+#   containing tests, therefore it is entirely generic and can be used by any
+#   number of driver programs.
+actions UnitTestMain
+{
+  cat <<EOF > $(<)
+// Automatically generated; do not edit.
+#include <string>
+#include <cppunit/BriefTestProgressListener.h>
+#include <cppunit/TestResult.h>
+#include <cppunit/extensions/TestFactoryRegistry.h>
+#include <cppunit/ui/text/TestRunner.h>
+$(UNITTEST_BOILERPLATE_MAIN_PRE)
+int main(int argc, char** argv)
+{
+  bool verbose = false;
+  for (int i = 1; i < argc; i++)
+  {
+    char const* s = argv[i];
+    if (*s == '-')
+    {
+      do { s++; } while (*s == '-');
+      verbose = (*s == 'v' || *s == 'V');
+      if (verbose)
+        break;
+    }
+  }
+
+  CppUnit::TextUi::TestRunner runner;
+  CppUnit::TestFactoryRegistry& registry =
+    CppUnit::TestFactoryRegistry::getRegistry();
+  CppUnit::BriefTestProgressListener listener;
+  if (verbose)
+    runner.eventManager().addListener(&listener);
+  runner.addTest(registry.makeTest());
+  return runner.run("", false, true, !verbose) ? 0 : -1;
+}
+$(UNITTEST_BOILERPLATE_MAIN_POST)
+EOF
+}
+
+# UnitTestRun check_target : program
+#   Actually run the unit test driver `program' for the invocation target
+#   `check_target'.
+actions UnitTestRun
+{
+  $(>) $(UNITTEST_RUNFLAGS)
+}
+
+}
+else # !CPPUNIT.AVAILABLE
+{
+
+rule UnitTest { }
+rule UnitTestCFlags { }
+rule UnitTestLFlags { }
+rule UnitTestLibDepends { }
+
+actions UnitTestDisabled
+{
+  echo "$(<): Unit testing disabled (CppUnit not installed)."
+}
+
+Always check_all ;
+Depends check : check_all ;
+UnitTestDisabled check_all ;
+
+}
+
+NotFile check checkclean check_all check_allclean ;
+Depends check : check_all ;
+Depends clean : checkclean ;
+Help check : "Run unit tests" ;

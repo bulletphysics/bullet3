@@ -1,0 +1,1450 @@
+<HTML>
+<TITLE>
+Jamfiles and Jambase
+</TITLE>
+<BODY>
+<CENTER>
+<A HREF=http://www.perforce.com/jam/jam.html>
+Jam
+</a>
+<A NAME="TOP">
+<H2>
+Using Jamfiles and Jambase
+</H2>
+</A>
+</CENTER>
+<P>
+This document describes how to write Jamfiles using the Jam Jambase 
+rules to build software products. 
+Related documents of interest are:
+<UL>
+<LI>
+	<a href="Jam.html">The Jam Executable Program</A>,
+	which describes using the <b>jam</b> command and the 
+	langauge used in Jambase
+<LI>
+	<A href="Jambase.html">Jambase Reference</A>,
+	which summarizes the Jambase rules and variables
+</UL>
+<P>
+Jam documentation and source are available from the
+<A HREF=http://public.perforce.com/public/index.html>Perforce Public Depot</a>.
+<HR>
+<P>
+<H2>
+Overview
+</H2>
+<P>
+        <B>jam,</B> the Jam executable program,
+       recursively  builds  target files  from source files
+       using dependency and build specifications defined
+       in Jam rules files.
+        <B>jam</B> parses the rules files to identify targets
+        and sources,
+        examines the filesystem to determine which
+        targets need updating, and issues OS commands to update
+        targets.
+<P>
+        A base rules file called "Jambase" is provided with the 
+	Jam distribution. 
+	The Jambase file defines rules and variables which support
+	standard software build operations, like compiling, linking,
+	etc.
+<P>
+	When the Jambase rules are used,
+	<B>jam</B> reads Jambase, then reads a file called
+	"Jamfile" in the current directory.
+	The Jamfile describes what to do with the source files in 
+	its directory. It may also cause
+	Jamfiles in other directories to be read. 
+	<P>
+	Under certain circumstances, the first Jamfile read
+	also causes a site-specific "Jamrules" file to be read.
+	The Jamrules file is an optional set of rule and variable
+	definitions used to define site-specific processing.
+<P>
+<H4>
+The Basic Jamfile
+</H4>
+<P>
+Jamfiles contain rule invocations, which usually look like:
+<PRE>
+	<I>RuleName</I> <I>targets</I> : <I>targets</I> ;
+</PRE>
+The target(s) to the left of the colon usually indicate
+what gets built, and the target(s) to the right of the
+colon usually indicate what it is built from.
+<P>
+<P>
+A Jamfile can be as simple as this:
+<PRE>
+	Main myprog : main.c util.c ;
+</PRE>
+This specifies that there is a main.c and util.c file in the same
+directory as the Jamfile, and that those source files should be
+compiled and linked into an executable called myprog.
+If you cd to the directory where this Jamfile lives,
+you can see the exactly how <b>jam</b> would 
+build myprog with:
+<PRE>
+	jam -n
+</PRE>
+Or, you can actually build myprog with the command:
+<PRE>
+	jam
+</PRE>
+
+<P>
+<H4>
+Whitespace
+</H4>
+Jamfile elements are delimited by whitespace (blanks, tabs, or
+newlines). Elements to be delimited include rule names, targets,
+colons, and semicolons. A common mistake users make is to forget the
+whitespace, e.g.,
+<PRE>
+	Main myprog: main.c util.c ; #<I>WRONG!</I>
+</PRE>
+Jam doesn't distinguish between a typo and a target called "myprog:", 
+so if you get strange results, the first thing
+you should check for in your Jamfile is missing whitespace.
+<P>
+<H4>
+Filenames, Target Identifiers, and Buildable Targets
+</H4>
+<P>
+Consider this Jamfile:
+<PRE>
+	Main myprog : main.c util.c ;                   
+	LinkLibraries myprog : libtree ;     
+	Library libtree : treemake.c treetrav.c ;    
+</PRE>
+<P>
+The Main rule specifies that an executable called myprog will be built.
+The compiled main.c and util.c objects will be linked to produce
+myprog. 
+The LinkLibraries rule specifies that libtree will
+be linked into myprog as well.
+The Library rule specifies which source files will be compiled and
+archived into the libtree library.
+<P>
+The Jamfile above refers to targets like "myprog" and "libtree". 
+However, depending on the platform you're building on, the actual
+filenames of those targets could be "myprog.exe" and "libtree.lib".
+Most Jambase rules supply the actual filenames of targets,
+so that Jamfiles themselves need not make any
+platform-specific filename references.
+<P>
+The <b>jam</b> program builds up a list of unique target identifiers.
+Unless you are using the SubDir rules (described later),
+the default identifier for a file target is its filename. In the above
+example, the target identifiers are the filenames: myprog.exe,
+libtree.lib, main.obj, etc.
+<P>
+While all Jambase rules refer to "targets",
+not all targets are buildable.
+There are two kinds of buildable targets: 
+file targets and pseudotargets.
+File targets are objects that can be found in the filesystem.
+Pseudotargets are symbolic, and represent other targets.
+<P>
+You can use any buildable target on the <b>jam</b> command line to
+build a subset of defined targets. For example:
+<PRE>
+        jam libtree.a 
+</PRE>
+on Unix builds the libtree library and all the compiled objects
+that go in it.
+<P>
+<H4>
+Pseudotargets
+</H4>
+<P>
+Most Jambase rules that define file targets also define pseudotargets
+which are dependent on types of file targets.
+For example, Jambase defines a pseudotarget called "lib", which 
+is dependent on file targets created by the Library rule. So 
+the command:  
+<PRE>
+        jam lib
+</PRE> 
+used with the above example would cause the libtree library to be built.
+Also, there is one pseudotarget built into <b>jam</b> itself, called
+"all". Jambase sets "all" dependent on (almost) all other targets.
+<P>
+In the unfortunate case where you have a buildable target whose name
+is the same as one of the Jambase pseudotargets, you'll have problems
+with the conflicting target name.
+Your workaround choices are:
+<P>
+<ol>
+<lI>Change the name of your buildable file or directory that conflicts.
+<p>
+<li>Modify your Jambase and change the name of the conflicting pseudotarget.
+(Pseudotargets are defined in Jambase using the NOTFILE rule.)
+<p>
+<li>Use grist on the conflicting target name in your Jamfile. E.g., instead
+    of
+    <PRE>
+    File lib : libfoo.a ;
+    </PRE>
+    try
+    <PRE>
+    File &lt;dir&gt;lib : libfoo.a ;
+    </PRE>
+</ol>
+<P>
+
+<H4>
+Dependencies
+</H4>
+<P>
+Jambase rules set dependencies on targets, so that if you update a
+source file, all the file targets that depend on that source
+file, and only the ones that depend on that source file, 
+will be updated (rebuilt) the next time you run <b>jam</b>. 
+<P>
+Here are some of the dependencies 
+that get set when <b>jam</b> runs on NT using the example Jamfile above:
+<CENTER>
+<TABLE> 
+<TR><TD><B>Target</B><TD>&nbsp;&nbsp;&nbsp;<TD><B>Depends on</B></TD>
+<TR><TD>myprog.exe<TD><TD>main.obj, util.obj, libtree.lib
+<TR><TD>libtree.lib<TD><TD>treemake.obj, treetrav.obj
+<TR><TD>treetrav.obj<TD><TD>treetrav.c
+</TABLE>
+</CENTER>
+<P>
+Furthermore, the Main and Library rules set up recursive
+header scanning on their source targets.
+So after <b>jam</b> has finished parsing the Jamfile and
+setting the rule-driven dependencies, it scans the source 
+files for "#include" lines. All #include files found during
+this scan become dependencies of the compiled object.
+E.g., all header files used to compile treetrav.c would
+be made dependencies of treetrav.obj.
+<P>
+As a result, when you run <b>jam</b>, it will rebuild targets
+if either the source files change or the 
+header files change. You can't tell by looking at a Jamfile
+which header files are dependencies, but you can easily
+display those dependencies with:
+<PRE>
+	jam -nd+3
+</PRE>
+<H4>
+Rule Ordering
+</H4>
+<P>
+Rules which specify dependencies, like the Main, Library, and
+LinkLibrary rules, can be invoked in any order. <b>jam</b>
+figures out the order in which targets are built from 
+their dependencies.
+<P>
+Some rules, however, set variables which are used by subsequent
+rule invocations, and their ordering is important. 
+For example, the SubDir* rules (discussed
+later) must be invoked in a particular order.
+
+<P>
+<H4>
+Detailed Jambase Specifications
+</H4>
+<P>
+This document describes how to use various Jambase rules
+from a functional point of view.
+You can see the summary of available Jambase rules in the
+<a href="Jambase.html">Jambase Reference</A>.
+The detailed specifications for any Jambase rule
+can be found by reading the rule definition itself
+in the Jambase file.
+<P>
+
+<HR>
+<H2>
+Handling Directory Trees
+</H2>
+       The SubDir* rules are used to
+       define source code directory hierarchies.
+       With SubDir and SubInclude, you can use <b>jam</b>
+       to build software from source files and Jamfiles spread
+       across many directories, as is typical for large projects.
+       The SubDir* rules unify an entire
+       source code tree so that <b>jam</b> can read in
+       all the Jamfiles in one pass and 
+       compute dependencies across the entire project.
+<P>
+	To use the SubDir* rules, you must:
+<P>
+<OL>
+       <LI>     Preface the Jamfile in each directory with an invocation 
+       of the SubDir rule.
+<P>
+       <LI>     Place  at  the  root  of the tree a file named Jamrules.  
+	      This file could be empty,  but  in
+              practice  it contains user-provided rules and variable 
+	      definitions that  are  shared  throughout  the
+              tree.   Examples  of  such  definitions are library
+              names,  header  directories,  install  directories,
+              compiler  flags,  etc.  This file is good candidate
+              for automatic customizing with autoconf(GNU).
+<P>
+	<LI> 	Optionally, set an environment variable pointing
+		to the root directory of the srouce tree. The
+		variable's name is left up to you, but in these
+		examples, we use TOP.
+</OL>
+<P>
+<H4>
+   SubDir Rule
+</H4>
+<P>
+       The  SubDir  rule  must  be  invoked before any rules that
+       refer to the contents of the directory - it is best to put
+       it at the top of each Jamfile.  For example:
+<PRE>
+	# Jamfile in $(TOP)/src/util directory.
+
+	SubDir TOP src util ;
+
+	Main myprog : main.c util.c ;                   
+	LinkLibraries myprog : libtree ;     
+	Library libtree : treemake.c treetrav.c ;    
+</PRE>
+       This  compiles  four  files  in  $(TOP)/src/util, archives
+       two of the objects into libtree, and links  the  whole
+       thing into myprog. 
+       Outputs are placed in the $(TOP)/src/util
+       directory. 
+       <P>
+       This doesn't appear to be any different from 
+       the previous example that didn't have a SubDir rule,
+       but two things are happening behind the scenes:
+       <OL>
+       <LI>The SubDir rule causes <b>jam</b> to read
+	   in the $(TOP)/Jamrules file. 
+           (The Jamrules file can alternately be named by  the
+              variable  $(xxxRULES), where xxx is the name of the
+              root variable, e.g., $(TOPRULES)).  
+	      <P>
+	   The Jamrules file can contain variable definitions
+	   and rule definitions specific to your codeline.
+	   It allows you to completely customize your build 
+	   environment without having to rewrite Jambase.
+	   Jamrules is only read
+	   in once, at the first SubDir invocation.
+	   <P>
+	<LI>
+	   The SubDir rule initializes a set of variables
+	   that are used by Main and other rules to 
+	   uniquely identify the source files in this
+	   directory and assign locations to the targets
+	   built from files in this directory.
+	   <P>
+	   When you have set a root variable, e.g., $(TOP),
+	   SubDir constructs path names rooted with $(TOP),
+	   e.g., $(TOP)/src/util.
+	   Otherwise, SubDir constructs relative pathnames
+	   to the root directory, computed from the number
+	   of arguments to the first SubDir rule, e.g.,
+	   ../../src/util. In either case, the SubDir
+	   rule constructs the path names that locate source
+	   files.
+	   You'll see how this is useful later.
+	<P>
+       </UL>
+
+<P>
+       The SubDir rule takes  as  its  first  argument  the  root
+       variable's  name  and  takes  as  subsequent arguments the
+       directory names leading from the root to the directory  of
+       the  current Jamfile.  Note that the name of the subdirectory 
+       is given as individual  elements:   the  SubDir  rule
+       does not use system-specific directory name syntax.
+<P>
+<P>
+<H4>
+   SubInclude Rule
+</H4>
+	The SubInclude rule is used in a Jamfile to cause another
+	Jamfile to be read in.
+       Its arguments are in  the  same  format  as
+       SubDir's.
+<P>
+       The  recommended  practice is only to include one level of
+       subdirectories at a time, and let the Jamfile in each subdirectory  
+       include  its own subdirectories.  This allows a
+       user to sit in any arbitrary directory of the source  tree
+       and build that subtree.  For example:
+<PRE>
+       # This is $(TOP)/Jamfile, top level Jamfile for mondo project.
+
+       SubInclude TOP src ;
+       SubInclude TOP man ;
+       SubInclude TOP misc ;
+       SubInclude TOP util ;
+</PRE>
+       If  a directory has both subdirectories of its own as well
+       as files that need building,  the  SubIncludes  should  be
+       either before the SubDir rule or be at the end of the Jamfile 
+       - not between the SubDir and other rule  invocations.
+       For example:
+<PRE>
+	# This is $(TOP)/src/Jamfile:
+
+	SubDir TOP src ;
+
+	Main mondo : mondo.c ;
+	LinkLibraries mondo : libmisc libutil ;
+	
+	SubInclude TOP src misc ;
+	SubInclude TOP src util ;
+</PRE>
+<P>
+	(<b>jam</b> processes all the Jamfiles it reads as if
+	it were reading one single, large Jamfile. 
+	Build rules like Main and LinkLibraries rely on the
+	preceding SubDir rule to set up source file and
+	output file locations, and SubIncludes rules read in
+	Jamfiles that contain SubDir rules. So if you put
+	a SubIncludes rule between a SubDir and a Main
+	rule, <b>jam</b> will try to find the source files
+	for the Main rule in the wrong directory.)
+<P>
+<H4>
+   Variables Used to Handle Directory Trees
+</H4>
+       The  following  variables are set by the SubDir rule
+       and used by the Jambase rules that define file targets:
+<P>
+<CENTER>
+<TABLE>
+<TR><TD VALIGN=TOP>
+              SEARCH_SOURCE
+	      <TD><TD>The SubDir targets (e.g., "TOP src util")
+	      are used to construct a pathname (e.g., $(TOP)/src/util),
+	      and that pathname is assigned to $(SEARCH_SOURCE). 
+	      Rules like Main and Library use $(SEARCH_SOURCE)
+	      to set search paths on source files.
+<TR><TD VALIGN=TOP>
+              LOCATE_SOURCE
+	      <TD><TD>Initialized by the SubDir rule to the same
+	      value as $(SEARCH_SOURCE), unless ALL_LOCATE_TARGET
+	      is set.
+	      $(LOCATE_SOURCE) is used by rules that build
+	      generated source files (e.g., Yacc and Lex) to
+	      set location of output files.
+	      Thus the default location of built source files
+	      is the directory of the Jamfile that defines them.
+<TR><TD VALIGN=TOP>
+              LOCATE_TARGET
+	      <TD><TD>Initalized by the SubDir rule to the same
+	      value as $(SEARCH_SOURCE), unless ALL_LOCATE_TARGET
+	      is set.
+	      $(LOCATE_TARGET) is used by rules that build
+	      binary objects (e.g., Main and Library) to
+	      set location of output files.
+	      Thus the default location of built binaray files
+	      is the directory of the Jamfile that defines them.
+<TR><TD VALIGN=TOP>
+              ALL_LOCATE_TARGET
+	      <TD><TD>
+	      If $(ALL_LOCATE_TARGET) is set, LOCATE_SOURCE
+	      and and LOCATE_TARGET are set to  $(ALL_LOCATE_TARGET)
+	      instead of to $(SEARCH_SOURCE). This can be used to
+	      direct built files to be written to a location outside
+	      of the source tree, and enables building from read-only
+	      source trees.
+<TR><TD VALIGN=TOP>
+              SOURCE_GRIST
+	      <TD><TD>The SubDir targets are formed into a string
+	      like "src!util" and that string is assigned to 
+	      SOURCE_GRIST. Rules that define file targets
+	      use $(SOURCE_GRIST) to set the "grist" attribute
+	      on targets. This is used to assure uniqueness 
+	      of target identifiers where filenames themselves
+	      are not unique.
+	      For example, the target identifiers of 
+	      $(TOP)/src/client/main.c and $(TOP)/src/server/main.c
+	      would be &lt;src!client&gt;main.c and &lt;src!server&gt;main.c.
+</TABLE>
+</CENTER>
+<P>
+       The $(LOCATE_TARGET) and  $(SEARCH_SOURCE)  variables are used
+       extensively by rules in Jambase: most rules that  generate
+       targets  (like  Main,  Object,  etc.)  set $(LOCATE) to 
+       $(LOCATE_TARGET) for the targets they generate, and  rules
+       that  use  sources  (most all of them) set $(SEARCH) to be
+       $(SEARCH_SOURCE) for the sources they use.
+<P>
+       $(LOCATE) and $(SEARCH) are better  explained  in  
+       <A HREF="Jam.html">The Jam Executable Program</A>
+       but in brief they tell <B>jam</B> where to create new targets and
+       where to find existing ones, respectively.
+<P>
+       Note that you can reset these variables
+       after SubDir sets them. For example, this Jamfile builds
+       a program called gensrc, then runs it to create a source file
+       called new.c: 
+       <PRE>
+       SubDir TOP src util ;
+       Main gensrc : gensrc.c ;
+       LOCATE_SOURCE = $(NEWSRC) ;
+       GenFile new.c : gensrc ;
+       </PRE>
+       By default, new.c would be written into the
+       $(TOP)/src/util directory, but resetting LOCATE_SOURCE causes
+       it to be written to the $(NEWSRC) directory. ($(NEWSRC) is assumed
+       to have been set elsewhere, e.g., in Jamrules.)
+<P>
+<H4>
+   VMS Notes
+</H4>
+       On VMS, the logical name table is not imported as  is  the
+       environment on UNIX.  To use the SubDir and related rules,
+       you must set the value of the variable that names the root
+       directory.  For example:
+<PRE>
+              TOP = USR_DISK:[JONES.SRC] ;
+
+              SubInclude TOP util ;
+</PRE>
+       The variable must have a value that looks like a directory
+       or device.  If you choose, you can use a  concealed  logical.  
+       For example:
+<PRE>
+              TOP = TOP: ;
+
+              SubInclude TOP util ;
+</PRE>
+       The  :  at  the  end of TOP makes the value of $(TOP) look
+       like a device name, which jam respects as a directory name
+       and  will  use when trying to access files.  TOP must then
+       be defined from DCL:
+<PRE>
+              $ define/job/translation=concealed TOP DK100:[USERS.JONES.SRC.]
+</PRE>
+       Note three things: the concealed  translation  allows  the
+       logical  to  be  used as a device name; the device name in
+       the logical (here DK100) cannot itself be concealed  logical  
+       (VMS  rules, man); and the directory component of the
+       definition must end in a period (more VMS rules).
+<P>
+<H2>
+Building Executables and Libraries
+</H2>
+<P>
+The rules that build executables and libraries are: Main, Library,
+and LinkLibraries.
+<H4>
+   Main Rule
+</H4>
+       The Main rule compiles source files and links the  resulting 
+       objects into an executable.  For example:
+<PRE>
+              Main myprog : main.c util.c ;
+</PRE>
+       This  compiles  main.c  and  util.c  and  links main.o and
+       util.o into myprog. The object files and resulting 
+       executable are named appropriately for the platform.
+<P>
+	Main can also be used to build shared libraries and/or
+	dynamic link libraries, since those are also linked
+	objects. E.g.:
+	<PRE>
+		Main driver$(SUFSHR) : driver.c ;
+	</PRE>
+	Normally, Main uses $(SUFEXE) to determine the suffix on
+	the filename of the built target. To override it,
+	you can supply a suffix explicity.
+	In this case,
+	$(SUFSHR) is assumed to be the OS-specific shared library
+	suffix, defined in Jamrules with something
+	like:
+	<PRE>
+		if $(UNIX)      { SUFSHR = .so ; }
+		else if $(NT)   { SUFSHR = .dll ; }
+	</PRE>
+	<P>
+	Main uses the Objects rule to compile source targets. 
+
+<H4>
+   Library Rule
+</H4>
+       The Library  rule  compiles  source  files,  archives  the
+       resulting  object  files  into a library, and then deletes
+       the object files.  For example:
+<PRE>
+              Library libstring : strcmp.c strcpy.c strlen.c ;
+              Library libtree : treemake.c treetrav.c ;
+</PRE>
+       This compiles five source files,  archives  three  of  the
+       object  files into libstring and the other two into libtree.  
+       Actual library filenames are formed with the $(SUFLIB) suffix.
+       Once the objects are safely in the libraries, the
+       objects are deleted.
+       <P>
+       Library uses the Objects rule to compile source files.
+<P>
+<H4>
+   LinkLibraries Rule
+</H4>
+       To link executables with built libraries, use
+       the LinkLibraries rule.  For example:
+<PRE>
+              Main myprog : main.c util.c ;
+              LinkLibraries myprog : libstring libtree ;
+</PRE>
+       The LinkLibraries rule  does  two  things:  it  makes  the
+       libraries dependencies of the executable, so that they get
+       built first; and it makes the libraries  show  up  on  the
+       command  line  that links the executable.  The ordering of
+       the lines above is not important, because <b>jam</b> builds  targets 
+       in the order that they are needed.
+<P>
+       You  can  put multiple libraries on a single invocation of
+       the LinkLibraries rule, or you can provide them in  multiple  
+       invocations.   In both cases, the libraries appear on
+       the link command line in the  order  in  which  they  were
+       encountered.  You can also provide multiple executables to
+       the LinkLibraries rule, if they need the same libraries,
+       e.g.:
+       <PRE>
+		LinkLibraries prog1 prog2 prog3 : libstring libtree ;
+       </PRE>
+<P>
+<H4>
+   Variables Used in Building Executables and Libraries
+</H4>
+<CENTER>
+<TABLE>
+<TR><TD>
+              AR           
+	      <TD><TD>Archive command, used for Library targets.
+<TR><TD>
+              SUFEXE         
+	      <TD>*<TD>Suffix on filenames of executables referenced
+		by Main and LinkLibraries.
+<TR><TD>
+              LINK           
+	      <TD><TD>Link command, used for Main targets.
+<TR><TD>
+              LINKFLAGS       
+	      <TD><TD>Linker flags.
+<TR><TD>
+              LINKLIBS        
+	      <TD><TD>Link libraries that aren't dependencies. (See note
+		below.)
+<TR><TD>
+              EXEMODE         
+	      <TD>*<TD>File permissions on Main targets.
+<TR><TD>
+              MODE            
+	      <TD><TD>Target-specific file permissions on Main targets
+		(set from $(EXEMODE))
+<TR><TD>
+              RANLIB          
+	      <TD><TD>Name of ranlib program, if any.
+</TABLE>
+</CENTER>
+
+<P>
+	Variables above marked with "*" are used by the Main,
+	Library, and LinkLibraries rules. Their values at the 
+	time the rules are invoked are used to set target-specific
+	variables.
+	<P>
+	All other variables listed above are globally defined,
+	and are used in actions that update Main and Library
+	targets. This means that the global values of those
+	variables are used, uness target-specific values have
+	been set. 
+	(For instance, a target-specific MODE value is set by 
+	the Main rule.)
+	The target-specific values always override
+	global values.
+<P>
+	Note that there are two ways to specify link libraries for
+	executables: 
+	<UL>
+	<LI>Use the LinkLibraries rule 
+	to specify built libraries; i.e., libraries
+	that are built by Library rules. This assures that
+	these libraries are built first, and that Main targets are 
+	rebuilt when the libraries are updated.
+	<P>
+	<LI>Use the LINKLIBS variable to specify external
+	 libraries; e.g., system libraries or third-party libraries.
+	 The LINKLIBS variable must be set to the the actual
+	 link command flag that specifies the libraries.
+	 <P>
+	 </UL>
+	 <P>
+	 For example:
+<PRE>
+	<I>#In Jamrules:</I>
+              if $(UNIX) { X11LINKLIBS = -lXext -lX11 ; }
+              if $(NT)   { X11LINKLIBS = libext.lib libX11.lib ; }
+
+	<I>#In Jamfile:</I>
+              Main xprog : xprog.c ;
+              LINKLIBS on xprog$(SUFEXE) = $(X11LINKLIBS) ;
+              LinkLibraries xprog : libxutil ;
+              Library libxutil : xtop.c xbottom.c xutil.c ;
+</PRE>
+       This  example  uses the Jam syntax "variable on target" to
+       set a target-specific variable.  In this way,  only  xprog
+       will  be linked with this special $(X11LINKLIBS), 
+       even if other executables were going to  be  built
+       by  the  same Jamfile. Note that when you set a variable
+       on a target, you have to specify the target identifer
+       exactly, which in this case is the suffixed filename of
+       the executable.
+       The actual link command line on Unix, for example, would
+       look something like this:
+<PRE>
+              cc -o xprog xprog.o libxutil.a -lXext -lX11
+</PRE>
+<H2>
+Compiling
+</H2>
+       Compiling of source files occurs normally as  a  byproduct
+       of  the Main or Library rules, which call the rules 
+       described here. These rules may also be called explicitly
+       if the Main and Library behavior doesn't satisfy your
+       requirements.
+<P>
+<H4>
+   Objects Rule
+</H4>
+       The Main and Library rules call the Objects rule on source files.
+       Compiled object files built by
+       the Objects rule are a dependency of the <I>obj</i>
+       pseudotarget, so "jam obj" will build object files used in 
+       Main and Library rules.
+       <P>
+       Target identifiers created by the Objects rule have grist
+       set to $(SOURCE_GRIST). So given this Jamfile:
+       <PRE>
+		SubDir TOP src lock ;
+		Main locker : lock.c ;
+       </PRE>
+       the object file created is lock.o (or lock.obj) and
+       its target identifier is &lt;src!lock&gt;lock.o 
+       (or &lt;src!lock&gt;lock.obj).
+
+       <P>
+       You can also call  Objects  directly.  For example:
+<PRE>
+              Objects a.c b.c c.c ;
+</PRE>
+       This compiles a.c into a.o, b.c into b.o, etc. The object
+       file suffix is supplied by the Objects rule.
+<P>
+<H4>
+   Object Rule
+</H4>
+       Objects  gets  its work done by calling the Object rule on
+       each of the source files.
+       You could use the Object rule directly.
+       For example, on Unix, you could use:
+<PRE>
+              Object foo.o : foo.c ;
+</PRE>
+	However, the Object rule does not provide suffixes, and
+	it does not provide the grist needed to construct target
+	identifiers if you are using the SubDir* rules.
+	A portable and robust Jamfile would need to invoke Object thus:
+	<PRE>
+	      Object &lt;src!util&gt;foo$(SUFOBJ) : &lt;src!util&gt;foo.c ;
+	</PRE>
+	which is inelegant and clearly shows why using Objects
+	is better than using Object.
+	<P>
+	If there's any advantage to the Object rule, it's
+       that it doesn't require that the object name bear
+       any relationship to the source.  It is  thus  possible  to
+       compile  the  same file into different objects.  For example:
+
+<PRE>
+              Object a.o : foo.c ;
+              Object b.o : foo.c ;
+              Object c.o : foo.c ;
+</PRE>
+       This compiles foo.c (three times) into a.o, b.o, and  c.o.
+       Later examples show how this is useful.
+<P>
+       The Object rule looks at the suffix of the source file and
+       calls the appropriate rules to do  the  actual  preprocessing
+       (if any) and compiling needed to produce the output object file.
+       The Object rule is
+       capable of the generating of an object file from  any
+       type of source.  For example:
+<PRE>
+              Object grammar$(SUFOBJ) : grammar.y ;
+              Object scanner$(SUFOBJ) : scanner.l ;
+              Object fastf$(SUFOBJ) : fastf.f ;
+              Object util$(SUFOBJ) : util.c ;
+</PRE>
+	An even more elegant way to get the same result is to let the
+	Objects rule call Object:
+	<PRE>
+              Objects grammar.y scanner.l fastf.f util.c ;
+	</PRE>
+	<P>
+       In  addition to calling the compile rules, Object sets up
+       a bunch of variables specific to  the  source  and  target
+       files.  (See Variables Used in Compiling, below.)
+<P>
+<H4>
+   Cc, C++, Yacc, Lex, Fortran, As, etc. Rules
+</H4>
+<P>
+       The Object rule calls compile rules specific to the suffix of
+       the source file.  (You can see which suffixes are supported
+       by looking at the Object rule definition in Jambase.)
+       Because  the  extra  work  done  by  the
+       Object rule, it is not always useful to call the compile
+       rules directly.  But the adventurous  user  might  attempt
+       it.  For example:
+<PRE>
+              Yacc grammar.c : grammar.y ;
+              Lex scan.c : scan.l ;
+              Cc prog.o : prog.c ;
+</PRE>
+       These examples individually run yacc(1), lex(1), and the C
+       compiler on their sources.
+<P>
+<H4>
+   UserObject Rule
+</H4>
+       Any files with suffixes not understood by the Object  rule
+       are passed to the UserObject rule.  The default definition
+       of UserObject simply emits a warning that  the  suffix  is
+       not  understood.   This  Jambase rule definition is intended to be
+       overridden in Jamrules with one that recognizes the project-specific
+       source file suffixes. For  example:
+
+<PRE>
+	#In Jamrules:
+
+              rule UserObject
+              {
+                  switch $(&gt;)
+                  {
+                  case *.rc   : ResourceCompiler $(&lt;) : $(&gt;) ;
+                  case *      : ECHO "unknown suffix on" $(&gt;) ;
+                  }
+              }
+
+              rule ResourceCompiler
+              {
+                  DEPENDS $(&lt;) : $(&gt;) ;
+		  Clean clean : $(<) ;
+              }
+
+              actions ResourceCompiler
+              {
+                  rc /fo $(&lt;) $(RCFLAGS) $(&gt;)
+              }
+
+
+	#In Jamfile:
+
+              Library liblock : lockmgr.c ;
+	      if $(NT) { Library liblock : lock.rc ; }
+</PRE>
+<P>
+	In this example, the UserObject definition in Jamrules
+	allows *.rc files to be handle as regular Main and Library
+	sources. The lock.rc file is compiled into lock.obj
+	by the "rc" command, and lock.obj is archived into a library
+	with other compiled objects.
+<H4>
+   LibraryFromObjects Rule
+</H4>
+       Sometimes the Library rule's straightforward compiling  of
+       source  into  object modules to be archived isn't flexible
+       enough.  The LibraryFromObjects rule  does  the  archiving
+       (and  deleting)  job of the Library rule, but not the compiling.  
+       The user can make use of the  Objects  or  Object
+       rule for that.  For example:
+<PRE>
+              LibraryFromObjects libfoo.a : max.o min.o ;
+              Object max.o : maxmin.c ;
+              Object min.o : maxmin.c ;
+              ObjectCcFlags max.o : -DUSEMAX ;
+              ObjectCcFlags min.o : -DUSEMIN ;
+</PRE>
+       This  Unix-specific example compiles  the  same  source  file into 
+       two different
+       objects, with different compile flags, and archives  them.
+       (The ObjectCcFlags rule is described shortly.)
+       Unfortunately, the portable and robust implementation of the
+       above example is not as pleasant to read:
+       <PRE>
+	      SubDir TOP foo bar ;
+              LibraryFromObjects libfoo$(SUFLIB) : &lt;foo!bar&gt;max$(SUFOBJ) 
+			                           &lt;foo!bar&gt;min$(SUFOBJ) ;
+              Object &lt;foo!bar&gt;min$(SUFOBJ) : &lt;foo!bar&gt;maxmin.c ;
+              Object &lt;foo!bar&gt;max$(SUFOBJ) : &lt;foo!bar&gt;maxmin.c ;
+	      ObjectCcFlags &lt;foo!bar&gt;min$(SUFOBJ) : -DUSEMIN ;
+	      ObjectCcFlags &lt;foo!bar&gt;max$(SUFOBJ) : -DUSEMAX ;
+       </PRE>
+       Note that, among other things, you must supply the library
+       file suffix when using the LibraryFromObjects rule.
+<P>
+<H4>
+   MainFromObjects Rule
+</H4>
+       Similar  to  LibraryFromObjects,  MainFromObjects does the
+       linking part of the Main rule, but not the compiling.
+       MainFromObjects  can be used when  there  are no
+       objects at all,  and  everything  is  to  be  loaded  from
+       libraries.  For example:
+<PRE>
+              MainFromObjects testprog ;
+              LinkLibraries testprog : libprog ;
+              Library libprog : main.c util.c ;
+</PRE>
+       On Unix, say, this generates a link command that looks like:
+<PRE>
+              cc -o testprog libprog.a
+</PRE>
+       Linking  purely  from  libraries is something that doesn't
+       work everywhere: it depends on  the  symbol  "main"  being
+       undefined when the linker encounters the library that contains 
+       the definition of "main".
+<P>
+<H4>
+   Variables Used in Compiling
+</H4>
+       The following variables control the  compiling  of  source
+       files:
+<P>
+<CENTER>
+<TABLE>
+<TR><TD VALIGN=TOP>
+              C++              
+	      <TD><TD>The C++ compiler command
+<TR><TD VALIGN=TOP>
+              CC               
+	      <TD><TD>The C compiler command
+<TR><TD VALIGN=TOP>
+              C++FLAGS       
+	      <BR>
+              CCFLAGS        
+	      <TD VALIGN=TOP><TD VALIGN=TOP>Compile flags, used to
+		 create or update compiled objects
+<TR><TD>
+              SUBDIRC++FLAGS 
+	      <BR>
+              SUBDIRCCFLAGS  
+	      <TD VALIGN=TOP><TD VALIGN=TOP>Additonal compile flags
+		for source files in this directory.
+<TR><TD VALIGN=TOP>
+              OPTIM            
+	      <TD><TD>Compiler optimization flag. The Cc and C++ 
+		actions use this as well as C++FLAGS or CCFLAGS.
+<TR><TD VALIGN=TOP>
+              HDRS           
+	      <TD VALIGN=TOP><TD>Non-standard header directories; i.e.,
+		the directories the compiler will not look in 
+		by default and which therefore must be supplied
+		to the compile command. These directories are
+		also used by <b>jam</b> to scan for include files.
+<TR><TD VALIGN=TOP>
+              STDHDRS        
+	      <TD VALIGN=TOP><TD>Standard header directories, i.e., the
+		directories the compiler searches automatically.
+		These are not passed to the compiler, but they
+		are used by <b>jam</b> to scan for include files.
+<TR><TD>
+              SUBDIRHDRS     
+	      <TD><TD>Additional paths to add to HDRS for source files
+		in this directory.
+<TR><TD>
+              LEX              
+	      <TD><TD>The lex(1) command 
+<TR><TD>
+              YACC             
+	      <TD><TD>The yacc(1) command 
+</TABLE>
+</CENTER>
+<P>
+       The  Cc rule sets a target-specific $(CCFLAGS) to the current 
+       value of $(CCFLAGS) and $(SUBDIRCCFLAGS).   Similarly
+       for  the C++ rule.  The Object rule sets a target-specific
+       $(HDRS) to  the  current  value  of  $(HDRS)  and  $(SUBDDIRHDRS).
+
+<P>
+       $(CC),  $(C++),  $(CCFLAGS),  $(C++FLAGS),  $(OPTIM),  and
+       $(HDRS) all affect the  compiling  of  C  and  C++  files.
+       $(OPTIM)  is  separate  from $(CCFLAGS) and $(C++FLAGS) so
+       they can be set independently.
+<P>
+       $(HDRS) lists the directories to search for header  files,
+       and  it  is used in two ways: first, it is passed to the C
+       compiler (with the flag -I prepended); second, it is  used
+       by  HdrRule  to  locate  the header files whose names were
+       found when scanning source files.   $(STDHDRS)  lists  the
+       header  directories  that  the  C  compiler  already knows
+       about.  It does not need passing to the C compiler, but is
+       used by HdrRule.
+<P>
+       Note that these variables, if set as target-specific variables, 
+       must be set on the target,  not  the  source  file.
+       The target file in this case is the object file to be generated.  
+       For example:
+<PRE>
+              Library libximage : xtiff.c xjpeg.c xgif.c ;
+
+              HDRS on xjpeg$(SUFOBJ) = /usr/local/src/jpeg ;
+              CCFLAGS on xtiff$(SUFOBJ) = -DHAVE_TIFF ;
+</PRE>
+       This can be done more easily with the rules that follow.
+<P>
+<H4>
+   ObjectCcFlags, ObjectC++Flags, ObjectHdrs Rules
+</H4>
+       $(CCFLAGS), $(C++FLAGS) and  $(HDRS)  can  be  set on object file
+       targets
+       directly, but  there are rules that allow these variables
+       to be set by referring to the original source  file  name,
+       rather  than  to  the  derived object file name.  ObjectCcFlags 
+       adds object-specific flags to the $(CCFLAGS)  variable,  
+       ObjectC++Flags  adds  object-specific  flags to the
+       $(C++FLAGS) variable, and ObjectHdrs  add  object-specific
+       directories to the $(HDRS) variable.  For example:
+<PRE>
+	#In Jamrules:
+		if $(NT) { CCFLAGS_X = /DXVERSION ;	
+			   HDRS_X = \\\\SPARKY\\X11\\INCLUDE\\X11 ;
+		         }
+
+	#In Jamfile:
+              Main xviewer : viewer.c ;
+              ObjectCcFlags viewer.c : $(CCFLAGS_X) ;
+              ObjectHdrs viewer.c : $(HDRS_X) ;
+</PRE>
+	The ObjectCcFlags and ObjectHdrs rules take .c files
+	as targets, but actually set $(CCFLAGS) and $(HDRS) values
+	on the .obj (or .o) files. As a result, the action
+	that updates the target .obj file uses the target-specific
+	values of $(CCFLAGS) and $(HDRS).
+<P>
+<H4>
+   SubDirCcFlags, SubDirC++Flags, SubDirHdrs Rules
+</H4>
+       These rules set the  values  of  $(SUBDIRCCFLAGS),  $(SUBDIRC++FLAGS)  
+       and $(SUBDIRHDRS), which are used by the Cc,
+       C++, and Object rules  when  setting  the  target-specific
+       values  for $(CCFLAGS), $(C++FLAGS) and $(HDRS).  The SubDir 
+       rule clears these variables out, and thus they provide
+       directory-specific  values of $(CCFLAGS), $(C++FLAGS)  and
+       $(HDRS).  For example:
+<PRE>
+	#In Jamrules:
+              GZHDRS = $(TOP)/src/gz/include ;
+	      GZFLAG = -DGZ ;
+		
+	#In Jamfile:
+              SubDir TOP src gz utils ;
+
+              SubDirHdrs $(GZHDRS) ;
+              SubDirCcFlags $(GZFLAG) ;
+
+	      Library libgz : gizmo.c ;
+	      Main gizmo : main.c ;
+	      LinkLibraries gizmo : libgz ;
+</PRE>
+	All .c files in this directory files will be compiled with
+	$(GZFLAG) as well as the default $(CCFLAG), and the include
+	paths used on the compile command will be $(GZHDRS) as well
+	as the default $(HDRS).
+<H2>
+Header File Processing
+</H2>
+       One of the functions of the Object rule is set up 
+       scanning of source
+       files  for (C style) header file inclusions.  To do so, it
+       sets the special variables $(HDRSCAN)  and  $(HDRRULE)
+       as  target-specific  variables  on  the source file.  The
+       presence of these variables triggers a  special  mechanism
+       in  <B>jam</B> for scanning a file for header file inclusions and
+       invoking a  rule  with  the  results  of  the  scan.   The
+       $(HDRSCAN)  variable  is  set  to an egrep(1) pattern that
+       matches "#include" statements in C source files,  and  the
+       $(HDRRULE)  variable  is  set to the name of the rule that
+       gets invoked as such:
+<PRE>
+              $(HDRRULE) source-file : included-files ;
+</PRE>
+       This rule is supposed to set up the  dependencies  between
+       the  source  file and the included files.  The Object rule
+       uses HdrRule  to  do  the  job.   HdrRule  itself  expects
+       another  variable,  $(HDRSEARCH), to be set to the list of
+       directories where the included files can be found.  Object
+       does  this  as  well,  setting $(HDRSEARCH) to $(HDRS) and
+       $(STDHDRS).
+<P>
+       The header file scanning occurs during the "file  binding"
+       phase   of  <b>jam</b>,  which  means  that  the  target-specific
+       variables (for the source file) are in effect.  To accomodate 
+       nested includes, one of the HdrRule's jobs is to pass
+       the target-specific values of $(HDRRULE), $(HDRSCAN),  and
+       $(HDRSEARCH) onto the included files, so that they will be
+       scanned as well.
+<P>
+<H4>
+   HdrRule Rule
+</H4>
+	Normally, HdrRule is not invoked directly; the Object rule
+	(called by Main and Library) invokes it.
+	<P>
+	If there are special dependencies that need to be set,
+	and which are not set by HdrRule itself, you can define
+	another rule and let it invoke HdrRule.  For example:
+
+<PRE>
+	#In Jamrules:
+              rule BuiltHeaders
+              {
+                      DEPENDS $(&gt;) : mkhdr$(SUFEXE) ;
+                      HdrRule $(&lt;) : $(&gt;) ;
+              }
+
+	#In Jamfile:
+              Main mkhdr : mkhdr.c ;
+              Main ugly : ugly.c ;
+
+              HDRRULE on ugly.c = BuiltHeaders ;
+
+</PRE>
+       This example just says that the files included by "ugly.c"
+       are  generated  by the program "mkhdr", which can be built
+       from "mkhdr.c".  During the binding phase, <b>jam</b> will
+       scan ugly.c, and if it finds an include file, ughdr.h,
+       for example, it will automatically invoke the rule:
+       <PRE>
+              BuiltHeaders ugly.c : ughdr.h ;
+       </PRE>
+       By calling HdrRule at the end  of  BuiltHeaders,  
+       all  the gadgetry of HdrRule takes effect and it
+       doesn't need to be duplicated.
+<P>
+<H4>
+   Variables Used for Header Scanning
+</H4>
+<CENTER>
+<TABLE>
+<TR><TD VALIGN=TOP>
+              HDRPATTERN    
+	      <TD><TD>Default scan pattern for "include" lines.
+<TR><TD VALIGN=TOP>
+              HDRSCAN         
+	      <TD><TD>Scan pattern to use. 
+		This is a special variable: during binding, if
+		both HDRSCAN and HDRRULE are set, scanning is activated
+		on the target being bound.
+		The HdrRule and Object rules sets this
+		to $(HDRPATTERN) on their source targets.
+<TR><TD VALIGN=TOP>
+              HDRRULE         
+	      <TD><TD>Name of rule to invoked on files found in header
+		scan. The HdrRule and Object rules set this to "HdrRule"
+		on their source targets. This is also a special variable;
+		it's the only <b>jam</b> variable that can hold the
+		name of a rule to be invoked.
+<TR><TD VALIGN=TOP>
+              HDRSEARCH       
+	      <TD><TD>Search paths for files found during header scanning.
+		This is set from $(HDRS) and $(STDHDRS), which are 
+		described in the Compiling section.
+		<b>jam</b> will search $(HDRSEARCH) directories for
+		the files found by header scans. 
+</TABLE>
+</CENTER>
+<P>
+       The  Object rule sets HDRRULE and HDRSCAN specifically for
+       the source files to be scanned, rather than globally.   If
+       they  were  set  globally,  jam  would attempt to scan all
+       files, even library archives and executables,  for  header
+       file  inclusions.   That  would  be  slow and probably not
+       yield desirable results.
+<P>
+<H2>
+Copying Files
+</H2>
+<H4>
+   File Rule
+</H4>
+       The File rule copies one file to another.  The target name
+       needn't  be the same as the source name.  For
+       example:
+<PRE>
+	switch $(OS)
+	{
+           case NT*  : File config.h : confignt.h ;
+	   case *    : File config.h : configunix.h ;
+	}
+	LOCATE on config.h = $(LOCATE_SOURCE) ;
+</PRE>
+	This creates a config.h file from either confignt.h or
+	configunix.h, depending on the current build platform.
+<P>
+	The File rule does not
+	use the LOCATE_SOURCE variable set by the
+	SubDir rule (although it does use SEARCH_SOURCE), which
+	means you have to set the copied file's output directory
+	yourself. That's done by setting the special
+	LOCATE variable on the target, as shown above,
+	or with the MakeLocate rule described below.
+<H4>
+   Bulk Rule
+</H4>
+       The Bulk rule is a shorthand for many invocations  of  the
+       File  rule when all files are going to the same directory.
+       For example:
+<PRE>
+	#In Jamrules:
+              DISTRIB_GROB = d:\\distrib\\grob ;
+
+	#In Jamfile:
+              Bulk $(DISTRIB_GROB) : grobvals.txt grobvars.txt ;
+</PRE>
+	This causes gobvals.txt and grobvars.txt to be copied
+	into the $(DISTRIB_GROB) directory.
+<H4>
+   HardLink Rule
+</H4>
+       The Unix-only HardLink rule makes a hard link (using ln(1)) from the
+       source  to  the  target,  if there isn't one already.  For
+       example:
+<PRE>
+              HardLink config.h : configunix.h ;
+</PRE>
+<H4>
+   Shell Rule
+</H4>
+       The Shell rule is like the File rule, except that on Unix it makes
+       sure  the first line of the target is "#!/bin/sh" and sets
+       the permission to make the file executable.  For example:
+<PRE>
+              Shell /usr/local/bin/add : add.sh ;
+</PRE>
+<P>
+	You can also use $(SHELLHEADER) to dictate
+	what the first line of the copied file will be.
+       For
+       example:
+<PRE>
+              Shell /usr/local/bin/add : add.awk ;
+              SHELLHEADER on /usr/local/bin/add = "#!/bin/awk -f" ;
+</PRE>
+       This installs an awk(1) script.
+<P>
+<H4>
+   Variables Used When Copying Files
+</H4>
+<CENTER>
+<TABLE>
+<TR><TD VALIGN=TOP>
+              FILEMODE      
+	      <TD><TD>Default file permissions for copied files
+<TR><TD VALIGN=TOP>
+              SHELLMODE     
+	      <TD><TD>Default file permissions for Shell rule targets
+<TR><TD VALIGN=TOP>
+              MODE            
+	      <TD><TD>File permissions set on files copied by
+		File, Bulk, and Shell rules. 
+       		File and Shell sets a target-specific MODE to the  current
+       		value  of  $(FILEMODE) or $(SHELLMODE), respectively.  
+<TR><TD VALIGN=TOP>
+              SHELLHEADER     
+	      <TD><TD>String to write in first line of Shell targets 
+	      (default is #!/bin/sh).
+
+</TABLE>
+</CENTER>
+<P>
+
+<H2>
+Installing Files
+</H2>
+Jambase provides a set of Install* rules to copy files
+into an destination directory and set permissions on them.
+On Unix, the install(1) program is used.
+If the destination directory does not exist, <b>jam</b>
+creates it first.
+<P>
+All files copied with the Install* rules are dependencies
+of the <i>install</i> pseudotarget, which means that the
+command "jam install" will cause the installed copies to
+be updated. Also, "jam uninstall" will cause the installed
+copies to be removed.
+<P>
+The Install* rules are:
+<CENTER>
+<TABLE>
+<TR><TD VALIGN=TOP><B>InstallBin</B>
+    <TD VALIGN=TOP>Copies file and sets its permission to $(EXEMODE).
+		   You must specify the suffixed executable name. E.g.:
+    <PRE>InstallBin $(BINDIR) : thing$(SUFEXE) ;
+		   </PRE>
+
+<TR><TD VALIGN=TOP><B>InstallFile</B>
+    <TD VALIGN=TOP>Copies file and sets its permission to $(FILEMODE). E.g.:
+    <PRE>InstallFile $(DESTDIR) : readme.txt ;
+		   </PRE>
+
+<TR><TD VALIGN=TOP><B>InstallLib</B>
+    <TD VALIGN=TOP>Copies file and sets its permission to $(FILEMODE).
+		   You must specify the suffixed library name. E.g.:
+    <PRE>InstallLib $(LIBDIR) : libzoo$(SUFLIB) ;
+		   </PRE>
+
+<TR><TD VALIGN=TOP><B>InstallMan</B>
+    <TD VALIGN=TOP>Copies file into the man<i>n</i>
+		   subdirectory of the target directory
+		   and sets its permission to $(FILEMODE). E.g.,
+		   this copies foo.5 into the $(DESTDIR)/man5 directory:
+    <PRE>InstallMan $(DESTDIR) : foo.5 ;
+		   </PRE>
+
+<TR><TD VALIGN=TOP><B>InstallShell</B>
+    <TD VALIGN=TOP>Copies file and sets its permission to $(SHELLMODE). E.g.:
+    <PRE>InstallShell $(DESTDIR) : startup ;
+		   </PRE>
+
+</TABLE>
+</CENTER>
+<P>
+<P>
+<H4>
+   Variables
+</H4>
+       The following variables control the installation rules:
+<P>
+<CENTER>
+<TABLE>
+<TR><TD>
+              INSTALL        
+	      <TD><TD>The install program (Unix only)
+<TR><TD>
+              FILEMODE     
+	      <TD><TD>Default file permissions on readable files. 
+<TR><TD>
+              EXEMODE      
+	      <TD><TD>Default file permission executable files.
+<TR><TD>
+              SHELLMODE    
+	      <TD><TD>Default file permission on shell script files.
+<TR><TD>
+              MODE           
+	      <TD><TD>Target-specific file permissions
+</TABLE>
+</CENTER>
+<P>
+<P>
+       The  Install  rules set a target-specific MODE to the current 
+       value of $(FILEMODE),  $(EXEMODE),  or  $(SHELLMODE),
+       depending on which Install rule was invoked.
+<P>
+       The  directory variables are just defined for convenience:
+       they must be passed  as  the  target  to  the  appropriate
+       Install  rule.   The $(INSTALL) and mode variables must be
+       set (globally) before calling the Install rules  in  order
+       to take effect.
+<P>
+<H2>
+Miscellaneous Rules
+</H2>
+<H4>
+Clean Rule
+</H4>
+<P>
+The Clean rule defines files to be removed when you run "jam clean".
+Any site-specific build rules defined in your Jamrules should invoke
+Clean so that outputs can be removed. E.g.,
+<PRE>
+	rule ResourceCompiler
+	{
+	   DEPENDS $(<) : $(>) ;
+	   Clean clean : $(<) ;
+	}
+</PRE>
+<P>
+<P>
+Most Jambase rules invoke the Clean rule on their built targets,
+so "jam clean" will remove all compiled objects, libraries,
+executables, etc.
+<P>
+<H4>
+MakeLocate Rule
+</H4>
+      MakeLocate is a single convenient rule that creates a directory,
+      sets LOCATE on a target to that directory, and makes the directory
+      a dependency of the target. It is used by many Jambase rules,
+      and can be invoked directly, e.g.:
+      <PRE>
+		GenFile data.tbl : hxtract data.h ;
+		MakeLocate data.tbl : $(TABLEDIR) ;
+      </PRE>
+      In this example, the File rule creates data.tbl from data.h.
+      The MakeLocate causes data.tbl to be written into the $(TABLEDIR)
+      directory; and if the directory doesn't exist, it is created first.
+      <P>
+      The MakeLocate rule invokes another Jambase rule, MkDir,
+      to (recursively) create
+      directories. MkDir uses the $(MKDIR) variable to determine the
+      platform-specific command that creates directories.
+<P>
+<H4>
+RmTemps Rule
+</H4>
+	Some intermediate files are meant to be temporary. 
+	The RmTemps rule can be used to cause 
+	<b>jam</b> to delete them after they are used. 
+	<P>
+	RmTemps must be:
+	<UL>
+	<LI>
+	the last rule 
+	invoked on the permanent file that uses
+	the temporary file(s) 
+	<LI>
+	invoked with the permanent file as the output
+	target and the temporary file(s) as the input target
+	<LI>
+	invoked with the exact target identifiers of
+	the permanent file and the temporary file(s)
+	</UL>
+	For
+	example: 
+	<PRE>
+		SubDir TOP src big ;
+		GenFile big.y : joinfiles part1.y part2.y part3.y ;
+		Main bigworld : main.c big.y ;
+		RmTemps bigworld$(SUFEXE) : &lt;src!big&gt;big.y ;
+	</PRE>
+	This causes big.y to be deleted after it has been used to create
+	the bigworld executable. 
+	The exact target identifier of big.y is  &lt;src!big&gt;big.y
+	(the GenFile and Main rules tack on the grist automatically);
+	the exact target identifier of the bigworld executable
+	is bigworld$(SUFEXE).
+<P>
+<HR>   
+<A HREF="#TOP">Back to top.</A>
+<P>
+        Copyright 1997, 2000 Perforce Software, Inc.
+        <BR>
+        Comments to <A HREF="mailto:info@perforce.com">info@perforce.com</A>
+        <BR>
+        Last updated: Dec 31, 2000
+	<BR>
+	$Id: Jamfile.html,v 1.1 2006/04/13 19:03:01 ejcoumans Exp $
+</BODY> 
+</HTML>

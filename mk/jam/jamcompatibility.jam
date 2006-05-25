@@ -1,0 +1,349 @@
+#============================================================================
+# Several hacks to make the build compatible with certain old/broken jam
+# versions
+# Copyright (C)2003 by Matze Braun <matzebraun@users.sourceforge.net>
+#
+#    This library is free software; you can redistribute it and/or modify it
+#    under the terms of the GNU Library General Public License as published by
+#    the Free Software Foundation; either version 2 of the License, or (at your
+#    option) any later version.
+#
+#    This library is distributed in the hope that it will be useful, but
+#    WITHOUT ANY WARRANTY; without even the implied warranty of MERCHANTABILITY
+#    or FITNESS FOR A PARTICULAR PURPOSE.  See the GNU Library General Public
+#    License for more details.
+#
+#    You should have received a copy of the GNU Library General Public License
+#    along with this library; if not, write to the Free Software Foundation,
+#    Inc., 675 Mass Ave, Cambridge, MA 02139, USA.
+#
+#============================================================================
+
+# BoostJam is evil: It is compatible to Jam 2.4 but has a version number 3.1,
+# we try to detect BoostJam with the ARGV extension.
+if $(ARGV[0])
+{
+  # BoostJam hacks.
+  JAMVERSION = 2.4 ;
+  rule FIncludes
+  {
+    return -I$(<) ;
+  }
+  rule FDefines
+  {
+    return -D$(<) ;
+  }
+}
+
+if $(JAMVERSION) < 2.4
+{
+    EXIT "Error: This buildsystem requires jam version 2.4 or later." ;
+}
+
+# All scripts invoked by the build system expect a Bourne or compatible shell.
+# Reject C-shell and its variants (such as tcsh).  Unfortunately, this is a bit
+# of an ugly hack.  It would be nicer to perform this logic at the very end of
+# this file as a last-minute assertion.  Unfortunately, however, it seems that
+# references to $(SHELL) in any of the included files get bound at the point
+# of reference, thus we need to perform this filtering as early as possible.
+# Furthermore, on Windows, if the MSYS installation path contains a space (such
+# as "c:\Program Files\msys"), the space will cause `actions' to fail which
+# employ $(SHELL) indirectly through some other variable.  Therefore, handle
+# this case as well.
+if [ Match (csh) : $(SHELL) ] || $(SHELL[2])
+{
+  SHELL = "/bin/sh" ;
+}
+
+# Jam 2.4's SubDir rule had some problems and misses the useful SUBDIRRULES
+# extension. So we override it here with a better version (from jam 2.5rc3).
+# Likewise, 2.4 is missing FReverse and FStrip, which are needed by SubDir and
+# other custom rules we define.
+if $(JAMVERSION) = 2.4
+{
+
+rule FReverse 
+{
+	# FReverse a1 a2 a3 ... ;
+	# return ... a3 a2 a1 ;
+
+	if $(1) { return [ FReverse $(1[2-]) ] $(1[1]) ; }
+}
+
+rule FStripCommon
+{
+	# FStripCommon v1 : v2 ;
+
+	# Strip common initial elements of variables v1 and v2.
+	# Modifies the variable values themselves.
+
+	if $($(<)[1]) && $($(<)[1]) = $($(>)[1])
+	{
+	    $(<) = $($(<)[2-]) ;
+	    $(>) = $($(>)[2-]) ;
+	    FStripCommon $(<) : $(>) ;
+	}
+}
+
+rule SubDir
+{
+	#
+	# SubDir TOP d1 d2 ... ;
+	#
+	# Support for a project tree spanning multiple directories.
+	#
+	# SubDir declares a Jamfile's location in a project tree, setting
+	# Jambase variables (SEARCH_SOURCE, LOCATE_TARGET) so that source
+	# files can be found.
+	#
+	# TOP is a user-select variable name for root of the tree, and
+	# d1 d2 ...  are the directory elements that lead from the root
+	# of the tree to the directory of the Jamfile.
+	#
+	# TOP can be set externally, but normally the first SubDir call
+	# computes TOP as the path up from the current directory; the
+	# path contains one ../ for each of d1 d2 ...
+	#
+	# SubDir reads once the project-specific rules file Jamrules 
+	# in the TOP directory, if present.  This can be overridden
+	# with the variable TOPRULES.
+	#
+	# SubDir supports multiple, overlaid project trees:  SubDir
+	# invocations with different TOPs can appear in the same Jamfile.
+	# The location established by the first SubDir call is used set
+	# the TOPs for the subsequent SubDir calls.
+	#
+	# SubDir's public variables:
+	#
+	#	$(TOP) = path from CWD to root.
+	#	$(SUBDIR) = path from CWD to the directory SubDir names.
+	#	$(SUBDIR_TOKENS) = path from $(TOP) to $(SUBDIR) as dir names
+	#	$(SEARCH_SOURCE) = $(SUBDIR)
+	#	$(LOCATE_SOURCE) = $(ALL_LOCATE_TARGET) $(SUBDIR)
+	#	$(LOCATE_TARGET) = $(ALL_LOCATE_TARGET) $(SUBDIR)
+	#	$(SOURCE_GRIST) = $(SUBDIR_TOKENS) with !'s 
+	#
+
+	local _top = $(<[1]) ;
+	local _tokens = $(<[2-]) ;
+
+	#
+	# First time through sets up relative root and includes Jamrules.
+	#
+
+	if ! $(_top)
+	{
+	    Exit SubDir syntax error ;
+	}
+
+	if ! $($(_top)-SET)
+	{
+	    $(_top)-SET = true ;
+
+	    # First time we've seen this TOP.
+	    # We'll initialize a number of internal variables:
+	    #
+	    #	$(TOP-UP) = directories from ROOT to a common point
+	    #	$(TOP-DOWN) = directories from common point to TOP
+	    #	$(TOP-ROOT) = root directory for UP/DOWN -- normally CWD
+	    #	$(SUBDIR_UP) = current value of $(TOP-UP)
+	    #	$(SUBDIR_DOWN) = current value of $(TOP-DOWN)
+	    #	$(SUBDIR_ROOT) = current value of $(TOP-ROOT)
+	    #
+
+	    if $($(_top))
+	    {
+		# TOP externally set.
+		# We'll ignore the relative (UP/DOWN) path that
+		# got us here, and instead remember the hard ROOT.
+
+		$(_top)-UP = ;
+		$(_top)-DOWN = ;
+		$(_top)-ROOT = $($(_top)) ;
+	    }
+	    else
+	    {
+		# TOP not preset.
+
+		# Establishing a new TOP.  In the simplest case,
+		# (SUBDIR_UP/SUBDIR_DOWN/SUBDIR_ROOT unset), it's
+		# merely a certain number of directories down from
+		# the current directory, and FSubDirPath will set
+		# TOP to a path consisting of ../ for each of the
+		# elements of _tokens, because that represents how 
+		# far below TOP the current directory sits.
+		#
+		# In the more complicated case, the starting directory
+		# isn't the directory of jam's invocation but an 
+		# location established by previous SubDir call.  The
+		# starting directory is SUBDIR_UP directories up from
+		# SUBDIR_ROOT, and then SUBDIR_DOWN directories down
+		# from that.   If SUBDIR_ROOT is not set, that means
+		# SUBDIR_DOWN and SUBDIR_UP represent the path from
+		# the directory of jam's invocation.
+		#
+		# In the most complicated case, the _tokens also 
+		# represents directories down, because TOP is being
+		# estalished in a directory other than TOP's root.
+		# Hopefully, _tokens and SUBDIR_DOWN represent the
+		# same final directory, relative to the new TOP and
+		# the previous SubDIr's TOP.  To find the new TOP,
+		# we have to chop off any common directories from
+		# then ends of _tokens and SUBDIR_DOWN.  To do so,
+		# we reverse each of them, call FStripCommon to
+		# remove the initial common elements, and then
+		# reverse them again.  After this process, if
+		# both _tokens and SUBDIR_DOWN have elements, it
+		# means the directory names estalished by the two
+		# SubDir calls don't match, and a warning is issued.
+		# All hell will likely break loose at this point,
+		# since the whole SubDir scheme relies on the SubDir
+		# calls accurately naming the current directory.
+
+		# Strip common trailing elements of _tokens and SUBDIR_DOWN.
+
+		_tokens = [ FReverse $(_tokens) ] ;
+		SUBDIR_DOWN = [ FReverse $(SUBDIR_DOWN) ] ;
+		FStripCommon _tokens : SUBDIR_DOWN ;
+		SUBDIR_DOWN = [ FReverse $(SUBDIR_DOWN) ] ;
+		_tokens = [ FReverse $(_tokens) ] ;
+
+		if $(SUBDIR_DOWN) && $(_tokens) 
+		{ 
+		    Echo Warning: SubDir $(<) misplaced! ; 
+		}
+
+		# We'll remember the relative (UP/DOWN) path that
+		# got us here, plus any hard ROOT starting point
+		# for the UP/DOWN.  If TOP is never set externally,
+		# ROOT will always be "" (directory of jam's invocation).
+
+		$(_top)-UP = $(SUBDIR_UP) $(_tokens) ;
+		$(_top)-DOWN = $(SUBDIR_DOWN) ;
+		$(_top)-ROOT = $(SUBDIR_ROOT:E="") ;
+		$(_top) = [ FSubDirPath $(_top) ] ;
+	    }
+
+	    # Set subdir vars for the inclusion of the Jamrules,
+	    # just in case they have SubDir rules of their own.
+	    # Note that SUBDIR_DOWN is empty: it's all the way
+	    # up where the Jamrules live.  These gets overrided
+	    # just after the inclusion.
+
+	    SUBDIR_UP = $($(_top)-UP) ;
+	    SUBDIR_DOWN = ;
+	    SUBDIR_ROOT = $($(_top)-ROOT) ;
+
+	    # Include $(TOPRULES) or $(TOP)/Jamrules.
+	    # Include $(TOPRULES) if set.
+	    # Otherwise include $(TOP)/Jamrules if present.
+
+	    if $($(_top)RULES) { 
+		include $($(_top)RULES) ;
+	    } else { 
+		NoCare $(JAMRULES:R=$($(_top)):G=$(_top)) ;
+		include $(JAMRULES:R=$($(_top)):G=$(_top)) ;
+	    }
+	}
+
+	# Get path from $(TOP) to named directory.
+	# Save dir tokens for other potential uses.
+
+	SUBDIR_UP = $($(_top)-UP) ;
+        SUBDIR_DOWN = $($(_top)-DOWN) $(_tokens) ;
+	SUBDIR_ROOT = $($(_top)-ROOT) ;
+        SUBDIR_TOKENS = $(SUBDIR_DOWN) ;
+
+	SUBDIR = [ FSubDirPath $(<) ] ;
+
+	# Now set up SEARCH_SOURCE, LOCATE_TARGET, SOURCE_GRIST
+	# These can be reset if needed.	 For example, if the source
+	# directory should not hold object files, LOCATE_TARGET can
+	# subsequently be redefined.
+
+	SEARCH_SOURCE = $(SUBDIR) ;
+	LOCATE_SOURCE = $(ALL_LOCATE_TARGET) $(SUBDIR) ;
+	LOCATE_TARGET = $(ALL_LOCATE_TARGET) $(SUBDIR) ;
+	SOURCE_GRIST = [ FGrist $(SUBDIR_TOKENS) ] ;
+
+	# Reset per-directory ccflags, hdrs, etc,
+	# listed in SUBDIRRESET.
+	# Note use of variable expanded assignment var
+
+	SUBDIR$(SUBDIRRESET) = ;
+
+	# Invoke user-specific SubDir extensions,
+	# rule names listed in SUBDIRRULES.
+	# Note use of variable expanded rule invocation
+
+	$(SUBDIRRULES) $(<) ;
+}
+
+rule FSubDirPath
+{
+	# FSubDirPath TOP d1 ... ;
+
+	# Returns path to named directory.
+
+	# If jam is invoked in a subdirectory of the TOP, then we
+	# need to prepend a ../ for every level we must climb up
+	# (TOP-UP), and then append the directory names we must 
+	# climb down (TOP-DOWN), plus the named directories d1 ...
+	# If TOP was set externally, or computed from another TOP 
+	# that was, we'll have to reroot the whole thing at TOP-ROOT.
+
+	local _r = [ FRelPath $($(<[1])-UP) : $($(<[1])-DOWN) $(<[2-]) ] ;
+
+	return $(_r:R=$($(<[1])-ROOT)) ;
+}
+
+rule SubInclude
+{
+	# SubInclude TOP d1 ... ;
+	#
+	# Include a subdirectory's Jamfile.
+
+	# We use SubDir to get there, in case the included Jamfile
+	# either doesn't have its own SubDir (naughty) or is a subtree
+	# with its own TOP.
+
+	if ! $($(<[1]))
+	{
+	    Exit SubInclude $(<[1]) without prior SubDir $(<[1]) ;
+	}
+
+	SubDir $(<) ;
+
+	include $(JAMFILE:D=$(SUBDIR)) ;
+}
+
+rule SubRules
+{
+	# SubRules TOP d1 ... : Other-TOP ;
+	#
+	# Read another tree's Jamrules, by giving it's path according
+	# to this tree and it's own name.
+
+	if ! $($(<[1]))
+	{
+	    Exit SubRules $(<[1]) without prior SubDir $(<[1]) ;
+	}
+
+	SubDir $(<) ;
+	SubDir $(>) ;
+}
+
+## Now we try to fix up the already messed settings
+## XXX We can only hope that Jam 2.4 users don't try starting Jam from
+## subdirectories
+TOP-SET = true ;
+TOP-UP = ;
+TOP-DOWN = ;
+TOP-ROOT = $(TOP) ;
+SUBDIR_UP = $(TOP-UP) ;
+SUBDIR_DOWN = ;
+SUBDIR_ROOT = $(TOP-ROOT) ;
+
+#SubDir TOP ;
+
+} # end if $(JAMVERSION) = 2.4

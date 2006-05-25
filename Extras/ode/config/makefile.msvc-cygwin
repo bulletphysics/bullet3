@@ -1,0 +1,30 @@
+# To build ODE using VC++ from the cygwin make environment
+
+WINDOWS=1
+THIS_DIR1=./
+THIS_DIR2=
+DEL_CMD=rm -f
+CC=cl /nologo /DWIN32
+OBJ=.obj
+C_FLAGS=/c /GR- /GX- /W3 /GF
+C_INC=/I
+C_OUT=/Fo
+C_EXEOUT=/Fe
+C_DEF=/D
+C_OPT=/O
+AR=lib /nologo /OUT:
+RANLIB=
+LIB_PREFIX=
+LIB_SUFFIX=.lib
+LINK_OPENGL=Comctl32.lib kernel32.lib user32.lib gdi32.lib OpenGL32.lib Glu32.lib
+LINK_MATH=
+RC_RULE=rc /r /fo$@ $<
+
+ifeq ($(BUILD),release)
+OPT=2
+C_FLAGS+=/Oy
+endif
+
+ifeq ($(BUILD),debug)
+OPT=d
+endif

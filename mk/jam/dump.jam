@@ -1,0 +1,128 @@
+#==============================================================================
+# Utility functions for collecting information about the Jam environment.
+# Copyright (C)2004 by Eric Sunshine <sunshine@sunshineco.com>
+#
+#    This library is free software; you can redistribute it and/or modify it
+#    under the terms of the GNU Library General Public License as published by
+#    the Free Software Foundation; either version 2 of the License, or (at your
+#    option) any later version.
+#
+#    This library is distributed in the hope that it will be useful, but
+#    WITHOUT ANY WARRANTY; without even the implied warranty of MERCHANTABILITY
+#    or FITNESS FOR A PARTICULAR PURPOSE.  See the GNU Library General Public
+#    License for more details.
+#
+#    You should have received a copy of the GNU Library General Public License
+#    along with this library; if not, write to the Free Software Foundation,
+#    Inc., 675 Mass Ave, Cambridge, MA 02139, USA.
+#
+#==============================================================================
+
+#------------------------------------------------------------------------------
+# When the target "dumptargets" is invoked, dump the top-level, user-visible
+# build targets as a whitespace-delimited list to the file named by the Jam
+# variable DUMPTARGETS_FILE.  Example:
+#
+#    jam -sDUMPTARGETS_FILE=targets.txt dumptargets
+#
+# This output might be useful, for instance, when composing documentation (via
+# some automated mechanism) which lists the targets visible to the user.
+#
+# IMPLEMENTATION NOTES
+#
+# The emitted target names are collected from several locations:
+#
+#    - All single-word arguments to NotFile composed of ._- and alphanumerics.
+#
+#    - Targets defined by the Application rule.  Unlike other rules (Plugin,
+#      Library, etc.) which compose a top-level pseudo-target using NotFile
+#      (which is thus caught by the above case), on Unix, the Application rule
+#      does not invoke NotFile since the top-level target has the same name as
+#      the generated executable.
+#
+#    - Targets defined by the ShellScript rule, since the emitted shell scripts
+#      have the same name as the top-level target.
+#
+# Collection occurs in two phases.  This file must be included by build.jam
+# before any other utility *.jam files are included, and it must also be
+# included after all other utility *.jam files are included.  In the first
+# phase, the NotFile rule is re-defined so that we can catch pseudo-targets
+# created by the other utility *.jam files (we must re-define NotFile before
+# they are included), as well as any NotFile pseudo-targets created by Jamfiles
+# throughout the project.  In the second phase, the Application and ShellScript
+# rules are re-defined (we must do so after application.jam has defined the
+# implementations which we override).  These overrides allow us to catch
+# application and shell-script targets which project-wide Jamfiles define.
+#------------------------------------------------------------------------------
+if $(DUMPTARGETS_FILE)
+{
+# Jam does not support arithmetic, so we fake it with Roman numerals.
+DUMPTARGETS_PASS ?= "" ;
+DUMPTARGETS_PASS = "$(DUMPTARGETS_PASS)I" ;
+
+switch $(DUMPTARGETS_PASS)
+{
+case I :
+
+actions InitPseudoTargets
+{
+  $(RM) $(<)
+}
+
+rule DumpPseudoTargets
+{
+  NotFile $(<) ;
+  Always $(<) ;
+  Depends $(<) : $(>) ;
+  Always $(>) ;
+  InitPseudoTargets $(>) ;
+}
+
+DumpPseudoTargets dumptargets : "$(DUMPTARGETS_FILE)" ;
+
+actions together piecemeal EmitPseudoTarget
+{
+  echo "$(>)" >> $(<)
+}
+
+rule PossiblePseudoTarget
+{
+  # NoCare and Includes are not actually required; they are used here merely to
+  # avoid Jam's "using independent target" warning.  Note, however, that Jam
+  # 2.4 and BoostJam try building the target despite the fact that we NoCare
+  # about it. (Presumably this is because the targets have updating actions,
+  # and those actions override the NoCare.)  Consequently, we have to put up
+  # with the "using independent target" warnings for these older Jam versions.
+  NoCare $(<) ;
+  if $(JAMVERSION) != 2.4 { Includes dumptargets : $(<) ; }
+
+  local i ;
+  for i in $(<)
+  {
+    local s = [ Match ^([A-Za-z0-9_.-]+)$ : $(i) ] ;
+    if $(s)
+    {
+      EmitPseudoTarget "$(DUMPTARGETS_FILE)" : $(i) ;
+    }
+  }
+}
+
+rule NotFile
+{
+  PossiblePseudoTarget $(<) ;
+}
+
+case II :
+
+rule Application
+{
+  PossiblePseudoTarget $(<) $(<)clean ;
+}
+
+rule ShellScript
+{
+  PossiblePseudoTarget $(<) $(<)clean ;
+}
+
+}
+}

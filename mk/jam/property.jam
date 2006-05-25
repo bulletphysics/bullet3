@@ -1,0 +1,58 @@
+#==============================================================================
+# Generic property-bag mechanism.
+# Copyright (C) 2004 by Eric Sunshine <sunshine@sunshineco.com>
+#
+#    This library is free software; you can redistribute it and/or modify it
+#    under the terms of the GNU Library General Public License as published by
+#    the Free Software Foundation; either version 2 of the License, or (at your
+#    option) any later version.
+#
+#    This library is distributed in the hope that it will be useful, but
+#    WITHOUT ANY WARRANTY; without even the implied warranty of MERCHANTABILITY
+#    or FITNESS FOR A PARTICULAR PURPOSE.  See the GNU Library General Public
+#    License for more details.
+#
+#    You should have received a copy of the GNU Library General Public License
+#    along with this library; if not, write to the Free Software Foundation,
+#    Inc., 675 Mass Ave, Cambridge, MA 02139, USA.
+#
+#==============================================================================
+
+# Property bag : name
+#   Returns the value of property 'name' in container 'bag' if present, else
+#   returns a null value.  'bag' and 'name' should be simple identifiers
+#   composed of alphanumeric characters and underscore, and with an alphabetic
+#   or an underscore as the first character.
+rule Property
+{
+  local p = [ _PropertyName $(<) : $(>) ] ;
+  return $($(p)) ;
+}
+
+# SetProperty bag : name [ : value ]
+#   Add property 'name' to container 'bag'. If 'value' is not provided, sets
+#   the property to "true".
+rule SetProperty
+{
+  local p = [ _PropertyName $(<) : $(>) ] ;
+  local v = $(3) ;
+  if ! $(v) { v = "true" ; }
+  $(p) = $(v) ;
+}
+
+# ClearProperty bag : name
+#   Remove property 'name' from container 'bag'.
+rule ClearProperty
+{
+  local p = [ _PropertyName $(<) : $(>) ] ;
+  $(p) = "" ;
+}
+
+
+#------------------------------------------------------------------------------
+# Private utilitiy rules.
+#------------------------------------------------------------------------------
+rule _PropertyName
+{
+  return "__property_$(<)_$(>)" ;
+}

@@ -1,0 +1,1130 @@
+===============================================================================
+===============================================================================
+
+
+Release notes for Jam 2.5
+(aka Jam - make(1) redux)
+
+1.  Release info:
+
+	Jam 2.5
+	August 19, 2004
+	VERSION 2.5
+
+	(n.b. Jam 2.5 is merely Jam 2.5rc3 of April 2003 with the rc3
+	moniker removed.)
+
+2.  Compatibility
+
+	Jam 2.5 is upward compatible with Jam 2.4
+
+	The Jam 2.5 language is a superset of the 2.4 language;
+	Jamfiles, Jambase, and other rulesets used in 2.4 can be used
+	with the 2.5 language support.
+
+3.  Changes since 2.4.
+
+3.1.  Changes to Jam Language
+
+	The 'return' statement now actually returns, and there are now
+	break & continue statements for for & while loops.
+
+3.2.  Jambase Changes
+
+	MkDir now grists directories with 'dir', so that directory
+	targets can be distinguished from other targets.
+
+	SubDir now allows multiple overlapping roots (top level
+	directories): the first SubDir of a new root uses the CWD of
+	jam to set that root; subsquent SubDirs use the current SUBDIR
+	to set the new root.  New FSubDirPath to compute a path (given
+	SubDir arguments) and SubRules to include another root's
+	Jamrules.  Jamrules only included if present; no error issued
+	if no Jamrules file.
+
+	Using SubDir to include a subpart of an SubDir tree now works.
+	Previously, you could only include the root of another SubDir
+	tree.  This example includes the ../server/support/Jamfile,
+	without getting confused as to the current directory:
+
+		SubDir ALL src builds ;
+		SubInclude ALL src server support ;
+
+	$(RMDIR) has been defined for NT and defaulted to $(RM) 
+	everwhere else.  Not much tested.  For Michael Champigny.
+
+	GenFile actions (on UNIX) now put . in the PATH for the execution
+	of the command, so that (at least) when jam builds itself . does 
+	not need to be in the global path.  It is the rare case where a
+	target bound in the current directory can't be used directly,
+	so we fudge it by setting PATH.
+
+	Undocumented support for SUBDIRRULES, user-provided rules
+	to invoke at the end of the SubDir rule, and SUBDIRRESET,
+	SUBDIR variables to reset (like SUBDIRC++FLAGS, SUBDIRHDRS, etc)
+	for each new SubDir.
+
+3.3   'jam' Changes (See Jam.html)
+
+	The whole /MR of Jam's name has been dropped.  It was intended
+	to avoid trademark infringement of JYACC's JAM, but as far as
+	we can tell (a) it wasn't enough to avoid infringement and (b)
+	the trademark has lapsed anyhow.
+
+	If header dependencies cause an object to be recompiled and
+	the source file is a temporary, the temporary is now
+	reconstructed.  Previously, headers weren't considered when
+	deciding when to reconstruct a temporary.
+
+	-d has been reworked to make it easier to display more useful
+	tracing information separate from the debugging gunk:
+
+		-da - show all actions (formerly -d2)
+		-dc - show 'causes' for rebuilding (new output)
+		-dd - show dependencies (new output)
+		-dm - show make graph (aka -d3)
+		-dx - show executable text (formerly -d2)
+
+	-dd is new, and more display options are anticipated.
+
+	-n now implies -dax.
+
+	The message "...using xxx..." now only shows up with -da.
+
+	Jam.html was extensively updated, in an attempt at lucidity.
+
+3.4.  Jam internal code changes
+
+	Removed spurious search() in 'on' statement handling, thanks
+	(again) to Ingo Weinhold.
+
+	Fix 'includes' support so that included files aren't treated
+	as direct dependencies during the command execution phase.  If
+	an included file failed to build, make1() would bypass the
+	including file.  Now make0() appends each child's 'includes'
+	onto its own 'depends' list, eliminating 'includes'-specific
+	code in make0() and make1().
+
+	Rewrite of the past: updated all jam's source with comments to
+	reflect changes since about 2.3, very early 2001.
+
+
+4.  Fixed bugs
+
+	Fixed the description of the :E modifier in Jam.html.
+
+	Setting target-specific variables while under the influence of
+	the target's target-specific variables caused the _global_ values
+	to be modified.  This happened both during header file scanning
+	(HdrRule is called when target-specific variables are in effect)
+	and with the "on target statement" syntax.  Now setting
+	target-specific variables works again.  Thanks to Matt Armstrong.
+
+	Setting "var on target ?= value" now works as expected: if the
+	variable is already set on the target, it is left unchanged.
+	Previously, ?= was ignored and the variable was set anyway.
+	Thanks to Chris Antos.
+
+	Variable expansion in actions has always put an extra blank
+	space after the last list element, but the expansion is described
+	in the code as "space separated".  Now the last blank is suppressed
+	to match.  From Miklos Fazekas.
+
+	The temp file name used by jam for .bat files on NT now contains
+	jam's pid, so that multiple jams can run on the same system (with
+	the same $TEMP).  Thanks to Steve Anichini.
+
+	Several uninitialized memory accesses have been corrected in
+	var_expand() and file_archscan(), thanks to Matt Armstrong.
+
+5.  Porting
+
+	The Makefile now uses $(EXENAME) (./jam0 on UNIX, .\jam0.exe
+	on NT) instead of just "jam0", so that . doesn't need to be in
+	your PATH to bootstrap.
+
+	MACOSX updates: use 'ar' instead of libtool, as libtool can't
+	update a library and we archive too many things to do it in
+	one go; add piles of code to file_archscan() to handle new
+	BSD4.4 style "#1/nnnn" archive entry names, where the real
+	entry name follows the header and nnnn is the length of the
+	name.
+
+	The jam code underwent a const-ing, to work with compilers
+	that don't like "" being passed as a non-const char *.
+
+	Compiling on solaris w/ sparc now sets OSPLAT to "sparc".
+	Previously, it suppressed this, assuming (wrongly) that sparc
+	was the only solaris platform.  Thanks to Michael Champigny
+	<michael.champigny@intel.com>.
+
+	Jambase no longer announces the compiler it is using on
+	Windows.  It doesn't announce anything else, so why?
+
+	Jambase no longer refers to advapi32.lib on NT, as it isn't
+	needed for linking jam itself and it seems to move from
+	release to release (of MS Visual Studio).
+
+	Makefile/Jambase: BEOS updates from "Ingo Weinhold"
+	<bonefish@cs.tu-berlin.de>.
+
+	The NoCare rule can be used to suppress error messages when
+	an 'include' file can't be found.
+
+	AIX "big" archives are now supported, thanks to suggestions
+	from Randy Roesler.
+
+	MSVCDIR now works as well as MSVCNT for the Microsoft Visual C
+	compiler directory.  It changed names in VC 6.0.  Thanks to
+	Matt Armstrong.
+
+	Allow jam to build with BorlandC 5.5
+
+	For WinXP IA64; set MSVCNT to the root of the SDK and MSVCVer
+	to Win64; change handle type to long long (too much to include
+	windows.h?); bury IA64 in the library path in Jambase.
+
+	Mac classic MPW Codewarrior 7 upgrades: minor compiling
+	issues, new paths in Jambase for libraries and includes, and
+	separate out GenFile1 that sets PATH for UNIX only, as it
+	does't work under MPW (or anything other than with sh).
+
+	Minor Cray porting: make hashitem()'s key value unsigned so
+	we're guaranteed no integer overflows.
+
+	Remove NT FQuote rule, as, \" is required to pass quotes on
+	the command line.
+
+	Remove temp .bat files created on NT.  They used to all have
+	the same name and get reused, but with 2.5 the names were salted
+	with the PID and they would litter $TEMP.  Now they get removed
+	after being used.
+
+===============================================================================
+===============================================================================
+
+
+Release notes for Jam 2.4
+(aka Jam - make(1) redux)
+
+1.  Release info:
+
+	Jam 2.4
+	March, 21, 2002
+	VERSION 2.4
+
+2.  Compatibility
+
+	Jam 2.4 is upward compatible with Jam 2.3
+
+	The Jam 2.4 language is a superset of the 2.3 language;
+	Jamfiles, Jambase, and other rulesets used in 2.3 can be used
+	with the 2.4 language support.
+
+3.  Changes since 2.3.
+
+3.1.  Changes to Jam Language
+
+	The mechanism for calling rules that return values - "[ rule
+	args ...]", (and 'return' in the rule body), is now a
+	documented part of the language.
+
+	Add "on <target> <rulename> <field1> ..." syntax, to invoke a
+	rule under the influence of a target's specific variables.
+
+        Add "[ on targ rule ... ]" to call a rule returning a value,
+        under the influence of a target's specific variables.
+
+	New 'Glob' builtin that returns a list of files, given a list
+	of directories, and a list of filename patterns.
+
+	New 'while expr { block }' construct.
+
+	New :E=value modifier provides default value if variable unset.
+
+	New :J=joinval modifier concatenates list elements into single
+		element, separated by joinval.
+
+	\ can now be used to escape a space (or any single whitespace
+	character), so that you don't have to resort to quotes. 
+
+	New 'Match regexp : string' rule matches regexp against string
+	and returns list of results.
+
+	Rules can now be invoked indirectly, through variable names.
+	If the variable expands to an empty list, no rule is run.
+	If the variable expands to multiple entries, each rule is
+	run with the same arguments.  The result of the rule invocation
+	is the concatenation of the results of the rules invoked.
+
+	'Echo' and 'Exit' now have aliases 'echo' and 'exit', since it
+	is really hard to tell that these are built-in rules and not
+	part of the language, like 'include'.  Real rules continue to
+	start with a capital.
+
+3.2.  Jambase Changes
+
+	Support for YACCGEN, the suffix used on generated yacc output.
+
+        Fix ups to have jam and p4 build with borland C 5.5,
+        and minor win98 jam support for jam clean
+
+	SubDirHdrs now takes directory names in the same format as
+	SubInclude : one directory element per word.
+
+	More portable support for specifying includes and #defines:
+	New ASHDRS, CCHDRS, CCDEFS, DEFINES, ObjectDefines, FQuote,
+	FIncludes, FDefines.  Ordering of cc and c++ flags grossly
+	rearranged.
+
+	Jambase has been compacted by applying the new E: and J:
+	expansion modifiers.
+
+	New SoftLink rule, courtesy of David Lindes.  It currently
+	assumes you can pass a -s flag to $(LN).
+
+3.3   'jam' Changes (See Jam.html)
+
+	Added '-q' (quit quick) option; jam will exit promptly (as if it
+	received an interrupt), as soon as any target fails.
+
+	Added experimental '-g' (build newest sources first) option:
+	all things being equal, normally targets are simply built in
+	the order they appear in the Jamfiles.  With this flag, targets
+	with the newest sources are built first.   From an idea by Arnt
+	Gulbrandsen.  Undocumented (outside this note).
+
+3.4.  Jam internal code changes
+
+	jamgram.yy now defines YYMAXDEPTH to 10000, what it is on 
+	FreeBSD, for older yaccs that left it at 150 or so.  This is
+	needed for the right-recursion now used in the grammar.
+
+	Optimize rule compilation, with right-recursion instead of left.
+
+        Split jam's built-in rules out to builtins.c from compile.c,
+        so that compile.c only deals with the language.
+
+        Split jam's pathsys.h from filesys.h, since they are really
+        two different pieces.
+
+	evaluate_if(), which evaluated the condition tree for 'if' and
+	returned an int, has been replaced with compile_eval(), which does
+	essentially the same but returns a LIST.
+
+4.  Fixed bugs
+
+	Missing TEMPORARY targets with multiple parents no longer spoil one
+	parent's time with another.  The parents' time is used for comparison
+	with dependents, but no longer taken on as the target's own time.
+
+	'actions updated', not 'actions together', now protects targets
+	from being deleted on failed/interrupted updates.
+
+	Fixed broken $(v[1-]), which always returned an empty expansion.
+	Thanks to Ian Godin <ian@sgrail.com>.
+
+	Defining a rule within another rule, and invoking the enclosing
+	rule more than once, would result in giving the first rule a
+	null definition.  Fixed.
+
+	$(d:P) now works properly on the mac, climbing up directories.
+	Thanks to Miklos Fazekas <boga@mac.com>.
+
+        No longer (sometimes) treat \ as a directory separator on
+        UNIX.  It isn't supposed to be, but was due to bungled ifdefs.
+        
+        Applying just :U or :D (or :E, :J) mods no longer causes the
+        variable value to be treated as a filename (parsed and rebuilt
+        using the OS specific pathsys routines). Previously, if _any_
+        mods were present then the value was parsed and rebuilt as if
+        a filename, and that could in certain cases munge the value.
+        Only the file modifiers (:GDBSM) treat the value as a
+        filename.
+
+	Four rules makeCommon, makeGrist, makeString, makeSubDir from
+	jam 2.2 missing in 2.3 have been re-added, with apologies to
+	dtb@cisco.com.
+
+	Return status more likely to be correct when using -d0, now that 
+	targets are could as being built even with no debugging output.
+	Thanks to Miklos Fazekas <boga@mac.com>.
+
+	yyacc now suffixes all terminals it defines with _t, so that they
+	don't conflict with other symbols (like RULE with the typedef
+	in rules.h).  Thanks to Michael Allard.
+
+	InstallInto now handles multiple sources properly, rather than
+	acting as if each installed target depended on all sources to
+	be installed.  $(INSTALLGRIST) is now the default grist for
+	installed targets, rather than the hardcoded 'installed'.  Thanks
+	to Stephen Goodson.
+
+5.  Porting
+
+	[MACINTOSH] Paths are now downshifted (internally) so as to
+	handle its case insensitivity.  Thanks to Miklos Fazekas
+	<boga@mac.com>.
+
+        [NT] MS changed the macro for the IA64 Windows NT 64bit
+        compiler.
+
+	[CYGWIN] Cygwin jam porting: dance around bison and yyacc.
+	Use bison's -y flag to use yacc's output file naming
+	conventions, and don't use yyacc on systems whose SUFEXE is
+	set.
+
+	[VMS] The Jambase itself was not formatting the CCHDRS and
+        CCDEFS properly: on VMS they can't be appended to, because
+        multiple /define or /include directives don't work.  Instead
+        now CCHDRS and CCDEFS is reformatted from HDRS and DEFINES
+        anytime those latter two change.  This requires the recent
+        change to jam to allow access to target-specific variables
+        when setting other variables.
+
+        [VMS] Remove exception call when file_dirscan() can't, for
+        some reason, scan a directory.  Use a better set of #ifdefs to
+        determine if we're on a vax, rather than relying on the C
+        compiler being a specific version: we're able to build with
+        the C++ compiler now.
+
+	[VMS] Port new jam to run with just cxx compiler.
+        (The C compiler being a extra-cost item).
+
+        [NT] Add entry for DevStudio when the settings are already in the
+        system environment.
+
+        [NT] default $(MV) to "move /y" in Jambase.
+
+	[MINGW] Mingw port by Max Blagai.
+
+===============================================================================
+===============================================================================
+
+
+Release notes for Jam 2.3
+(aka Jam - make(1) redux)
+
+0.  Bugs fixed since 2.3.1
+
+	PATCHLEVEL 2 - 3/12/2001
+
+	NOCARE changed back: it once again does not applies to targets
+	with sources and/or actions.  In 2.3 it was changed to apply to
+	such targets, but that broke header file builds: files that are
+	#included get marked with NOCARE, but if they have source or
+	actions, they still should get built.
+
+1.  Release info:
+
+	Jam 2.3
+	November 16, 2000
+	VERSION 2.3
+	PATCHLEVEL 1
+
+2.  Compatibility
+
+	Jam 2.3 is upward compatible with Jam 2.2.
+
+	The Jam 2.3 language is a superset of the 2.2 language;
+	Jamfiles, Jambase, and other rulesets used in 2.2 can be used
+	with the 2.3 language support.
+
+3.  Changes since 2.2
+
+3.1.  Changes to Jam Language
+
+	Rules now can have values, which can expanded into a list with
+	the new "[ rule args ... ]" syntax.  A rule's value is the value
+	of its last statement, though only the following statements have
+	values: if (value of the leg chosen), switch (ditto), set (value
+	of the resulting variable), return (its arguments).  Note that
+	'return' doesn't actually return.  This support is EXPERIEMENTAL
+	and otherwise undocumented.  (2.3.1)
+
+	Because of the new way lists are processed, if a rule has no
+	targets a warning message is no longer issued.
+
+	NOCARE now applies to targets with sources and/or actions,
+	rather than just those without.
+
+3.2.  Jambase Changes
+
+	The HDRPATTERN variable now allows for leading blanks before
+	the #include, to keep up with ANSI.  By john@nanaon-sha.co.jp
+	(John Belmonte) (2.2.3).
+
+	HDRPATTERN has been adjusted to avoid mistaking cases like:
+
+		# include <time.h> /* could be <sys/time.h> */
+
+	MkDir now NOUPDATE's $(DOT), so that there are no dependencies
+	on the current directory's timestamp.  By john@nanaon-sha.co.jp
+	(John Belmonte).
+
+	The old mock functions like makeDirName, which assigned their
+	results to the variable named as their first argument, have
+	been replaced with real functions using the new [] syntax.
+	E.g. "makeDirName foo : bar ola" is now "foo = [ fDirName bar ]"
+
+	Install now always does a cp/chmod/etc, rather than using
+	the system's install(1), which invariably seems broken.
+
+3.3.  Jam internal code changes
+
+	$JAMUNAME is set on UNIX.  (2.2.4).
+
+	Jam ANSI-fied (2.3.0).
+
+	jam.h now defines a bunch of symbols used by the other source
+	files, so as minimize compiler- and platform-specific ifdefs.
+
+	OSVER is no longer set by jam.h (it was only set for AIX).
+	Jam does not depend on this variable at all, except to set
+	$(OSFULL), which is used to determine jam's build directory.
+	If the user needs to distinguish between various revs of 
+	OSs, he must set OSVER in the environment.
+
+4.  Fixed bugs
+
+	Redefining a rule while it was executing could cause jam to
+	crash.  Reference counts are now used to prevent that, thanks
+	to Matt Armstrong.
+
+	Logic for computing chunk size when executing PIECEMEAL rules
+	has been reworked to be a little more accurate, without danger
+	of overflow, at the cost of being a little more compute intensive.
+	Instead of computing an estimate chunksize in the (now gone)
+	make1chunk(), make1cmds() now just goes full bore and tries to
+	use all args.  When that fails, it backs off by 10% of the source
+	args until the command fits.  It takes a little bit more compute
+	time compared to the old logic, but when you're executing actions
+	to build all of Shinola it's still pretty small in the scheme
+	of things.
+
+	The NT handle leak in execunix.c has been fixed, thanks to
+	Gurusamy Sarathy.  (2.2.1).
+
+5.  Porting
+
+	Platforms newly supported or updated:
+
+	    AmigaOS (with gcc), courtesy of Alain Penders (2.2.2).
+
+	    Beos
+
+	    CYGWIN 1.1.4, courtesy of John Belmonte <john@nanaon-sha.co.jp>.
+
+	    IBM AS400 via Visual Age on NT (primitive)
+
+	    IBM OS/390 Unix System Services
+
+	    Linux SuSE on OS390
+
+	    Linux Mips, ARM
+
+	    Lynx
+
+	    HPUX 11, IA64
+
+	    Mac OS X Server, courtesy of Jeff_Sickel@sickel.com (2.2.5).
+
+	    Mac Rhapsody
+
+	    MPE IX 6.0
+
+	    NetBSD
+
+	    QNX RTP (QNX 6.0)
+
+	    Siemens Sinix
+
+	    UNICOS
+
+	    VMS 6.2, 7.1
+
+	    Windows NT IA64
+
+5.1.  NT Porting Notes
+
+	Always create tmp .bat file for actions if JAMSHELL is set.
+	That way, if JAMSHELL is a .bat file itself, it can handle
+	single-command actions with more than 9 cmd line args.
+
+	COMSPEC is no longer examined: cmd.exe is always used
+	instead.  Only cmd.exe can execute the Jambase rules anyhow.
+
+	Jam can be built with Borland C++ 5.5.
+
+	OS2 fixes: InstallBin now works.  Filenames are now downshifted,
+	so mixed case works better there, too.  file_dirscan() can now scan 
+	the root ("c:\" or "\") directory, which it couldn't handle before.
+
+	var_defines now ignores OS=Windows_NT, because it conflicts
+	with Jam's setting of OS (to NT).
+
+5.2. Mac OS 8/9 Notes
+
+	The support for Mac is curious at best.  It runs under MPW.
+
+	It requires CodeWarrior Pro 5, but no longer requires GUSI.
+
+	Use Build.mpw to bootstrap the build.
+
+	The Mac specific definitions in the Jambase are not intended
+	to be of general purpose, but are sufficient to have Jam build
+	itself.
+
+===============================================================================
+===============================================================================
+
+
+Release Notes for Jam 2.2
+
+1.  Release info:
+
+	Jam 2.2
+	October 22, 1997
+	VERSION 2.2
+	PATCHLEVEL 1
+
+2. Compatibility
+
+	Jam 2.2 is a roll-up of 'Jam - make(1) redux' release 2.1+.
+	Most of the changes described below were available before this,
+	in the jam.2.1.plus.tar ball.
+
+	The Jam 2.2 language is a superset of the 2.1 language;
+	Jamfiles, Jambase, and other rulesets used in 2.1 can be used
+	with the 2.2 language support.
+
+	See 'Jambase Changes', below, to see if your Jamfiles need any
+	changes to work with the 2.2 Jambase.
+
+
+3. Changes Since 2.1
+
+	New product name: Jam. (Executable program is still named 'jam'.)
+
+	Documentation rewritten; HTML versions supplied.
+
+
+3.1 Changes to Jam Language 
+
+	Rules may now have more fields than just $(<) and $(>).
+
+	Local variables are now supported.
+
+	The expression 'if $(A) in $(B)' is now supported.
+
+	New variable modifiers :U and :L result in uppercased or lowercased
+	values.
+
+	New variable modifier :P reliably results in parent directory
+	of either a file or directory. (Previously, :D was used, but on VMS
+	:D of a directory name is just the directory name.)
+
+	The :S variable modifier now results in the _last_ suffix if a 
+	filename has more than one dot (.) in it.
+
+	New predefined $(JAMDATE) variable is initialized at runtime for 
+	simple date stamping.
+
+	New predefined variables $(OSVER) and $(OSPLAT) are used to 
+	distinguish among operating system versions and hardware platforms,
+	when possible.
+
+	New 'bind' qualifier on action definitions allows variables
+	other than $(<) and $(>) to be bound with SEARCH and LOCATE paths.
+
+	Action buffer size is no longer limited by MAXCMD. Instead, each 
+	line in an action is limited by MAXLINE, defined for each OS, and 
+	the entire action size is limited by CMDBUF.
+
+
+3.2 Jambase Changes (See Jamfile.html)
+
+	Jambase has been reworked to incorporate new language features.
+
+	A handful of new utility rules has been added: makeString,
+	makeDirName, etc.
+
+	New HDRGRIST variable in Jambase allows for headers with the same
+	name to be distinguished.
+
+	LOCATE_TARGET now has a new flavor, LOCATE_SOURCE, that is used by
+	rules that generate source files (e.g., Yacc and Lex).
+
+	Header file includes now happen in the proper order. The limit of
+	10 include files has been eliminated.
+
+	The old "Install" rule is no longer available.  Use InstallBin, 
+	InstallFile, InstallLib, InstallMan, or InstallShell instead.
+
+
+3.3 'jam' Changes (See Jam.html)
+
+	'jam' can now be built as a stand-alone program, with Jambase 
+	compiled into the executable. An external or alternate Jambase can 
+	still be referenced explicitly with -f.
+
+	On command failure, 'jam' now emits the text of the command that 
+	failed.  This is a compromise between the normal -d1 behavior (where 
+	commands were never seen) and -d2 (where commands are always seen).
+
+	'jam' now exits non-zero if it doesn't have a total success.  A parse
+	error, sources that can't be found, and targets that can't be built
+	all generate non-zero exit status.
+	
+	The debugging levels (-d flags) have been slightly redefined.
+
+	The supplied Jamfile now builds 'jam' into a platform specific 
+	subdirectory. This lets you use the same source directory to
+	build 'jam' for more than one platform.
+
+	The supplied Jamfile does not rebuild generated source files by 
+	default. (They are supplied with the distribution.) See Jamfile
+	for more information.
+
+
+4.  Fixed Bugs
+
+	The 'include' bug has finally been fixed, so that include
+	statements take effect exactly when they are executed,
+	rather than after the current statement block.  This also
+	corrects the problem where an 'include' within an 'if'
+	block would wind up including the file one token after the
+	'if' block's closing brace.  Credit goes to Thomas Woods
+	for suggesting that the parse tree generation and parse
+	tree execution be paired in their own loop, rather than
+	having the parser execute the tree directly.
+
+	The setting and extracting of grist has been regularized:
+	normally, if you set a component of a filename (using the
+	:DBSMG= modifiers), you are supposed to include the delimiters
+	that set off the component:  that is, you say "$(x:S=.suffix)",
+	including the ".".  But with grist it was inconsistent
+	between setting and getting: setting grist required no
+	<>'s, while getting grist included them.   Getting grist
+	continues to return the <>'s, but now setting grist can
+	either include them (the new way) or not (the old way).
+
+	'actions together' now suppresses duplicate sources from
+	showing up in $(>).
+
+	Accessing variables whose names contained ['s (as happens with
+	MkDir on VMS) wasn't working, because it treated the [ as an
+	array subscript. Now [ and ] are, like :, handled specially so 
+	that they can appear in variable values.
+
+	The 'if' statement now compares all elements in expressions;
+	previously, it only compared the first element of each list.
+
+	If a command line in an action is longer than MAXLINE (formerly
+	MAXCMD), 'jam' now issues an error and exits rather than dumping 
+	core.
+
+	If a Jamfile ended without a trailing newline, jam dumped core.
+	This has been fixed.
+
+
+5.  Porting
+
+	See jam.h for the definitive list of supported platforms.
+	Since 2.1, support has been added for:
+
+	    Macintosh MPW
+	    Alpha VMS
+	    Alpha NT
+	    NT PowerPC
+	    BeOS
+	    MVS OE
+	    UNIXWARE
+	    QNX
+	    SINIX (Nixdorf)
+	    OS/2
+	    Interactive UNIX (ISC), courtesy of Matthew Newhook
+
+
+5.1 NT Support Fixes
+
+	The NT command executor now handles multiple line actions, by writing
+	multi-line actions to a batch file and executing that.
+	
+	Targets are universally lowercased on NT. (Matthew Newhook)
+
+	Concurrent process support is fully enabled for NT.
+	(Gurusamy Sarathy <gsar@engin.umich.edu>)
+	
+	Path handling: Jam now knows that the directory component of "D:\"
+	is "D:\", just as on unix it knows that the directory component of
+	"/" is "/".  It also now successfully gets the timestamp for "D:\"
+	or just plain "\".
+
+
+5.2 VMS Support Fixes
+
+	VMS support is much, much better now.  The path name manipulation
+	routines (in pathvms.c) were more or less rewritten, and they now
+	handle the vagaries of combining directory and file names properly.
+
+	Targets are universally lowercased on VMS.
+
+	Multi-line command blocks on VMS are now executed in a single system()
+	call rather than separate ones for each line, so that actions can
+	be DCL scripts.
+
+===============================================================================
+===============================================================================
+
+
+Release notes for Jam 2.1.
+
+1.  Release info:
+	Jam 2.1
+	February 1, 1996
+	VERSION 2.1
+	PATCHLEVEL 0
+
+2.  Porting
+
+	Linux is now supported.
+
+	FREEBSD is now supported.
+
+	SCO ("M_XENIX") now supported.
+
+	NCR now supported.
+
+	NEXT support from karthy@dannug.dk (Karsten Thygesen)
+
+	DECC support from zinser@axp614.gsi.de (Martin P.J. Zinser)
+
+	I have changes for OS/2, but no way to test them.  Volunteers?
+	I have VMS multiprocess support, but no way to test it.  Volunteers?
+
+2.1.  NT Support fixes.
+
+	The NT support is considerably more real than it was in 2.0.
+	Filent.c had its syntax error corrected, it no longer skips the
+	first entry when scanning directories, and it handles string
+	tables in archives (for long object file names).
+
+	The Jambase was changed a bit to support the various C/C++
+	compilers on NT, although it has only been thorougly tested
+	with MSVC20.
+
+	You still need to set MSVCNT or BCCROOT to the root of the 
+	the compiler's directory tree, and you'll get an error if you
+	don't set it (rather than getting a pile of mysterious errors).
+
+2.2.  Other porting fixes.
+
+	SPLITPATH now set up for UNIX (:), NT (;), VMS (,)
+
+	Jambase support for Solaris works better now: the location of
+	AR is hardwired to /usr/ccs/bin/ar and it knowns "install"
+	doesn't take -c.  Solaris -- how the mighty have fallen.
+
+	To handle Linux's wacko yacc, jamgram.h is now included after
+	scan.h so that YYSTYPE is define.
+
+3.  Jambase Changes (see Jamfile.html)
+
+	SubDir now computes the root directory for the source tree, if
+	the variable naming the root directory isn't set in the environment.
+	It counts the number of directory elements leading from the root
+	to the current directory (as passed to SubDir) and uses that many
+	"../"'s to identify the root.  This means that to use SubDir you
+	no longer have to have anything special set in the environment.
+
+	InstallFile is now an alias for InstallLib.
+
+	'first' is now dependency of all pseudo-targets (all, files, 
+	exe, lib, shell), so that jamming any of these pseudo-targets
+	also builds any dependencies of 'first'.
+
+	The File rule definition in the Jambase was missing an &.
+
+	The File rule now calls the Clean rule, so that installed files
+	get cleaned.
+
+4.  Jam changes (see Jam.html)
+
+	Variables may now be set on the command line with -svar=value.
+
+	Targets marked with NOUPDATE are now immune to the -a (anyhow) 
+	flag.  Previously, the MkDir rule would try to recreate directories
+	that already exist when jam was invoked with -a.
+
+	A new variable, $(JAMVERSION), joins the small list of built-in 
+	variables.  It it set to the release of jam, currently "2.1".
+
+	If an actions fails, jam now deletes the target(s).  It won't
+	delete libraries or other targets that are composites.  This is
+	now consistent with jam's behavior on interrupts (it deletes the
+	targets).
+
+	Jam had a nasty bug when setting multiple variables to the same
+	value:  if the first two variable names were the same, the variable
+	value got trashed.  This also affected "on target" variables if
+	the first two targets were the same.  For example:
+
+		FOO on bar.c bar.c foo.c = a b c ;
+
+	This would mangle the value of FOO for bar.c and foo.c.  This has
+	been fixed.
+
+	Jam would generate bogus numbers when reporting the number of
+	targets updated after an interrupt.  It now is more careful about
+	counting.
+
+	The debugging flag -d has been extended.  In addition to supporting
+	-dx (turn on debugging for all levels up to x) there is also now
+	-d+x (turn on debugging at only level x).  The default output
+	level is -d1 (-or d2 if -n is given); this can be turned off with
+	-d0.   The debug levels are listed in jam.1 and jam.h.
+
+	The parsing debug output now uses indenting to indicate when
+	one rule invokes another.
+
+===============================================================================
+===============================================================================
+
+
+Release notes for Jam 2.0.
+
+1.  Release info:
+	Jam 2.0 
+	March 10, 1994
+	VERSION 2.0
+	PATCHLEVEL 5
+
+2.  Porting
+
+	Windows/NT is now (crudely) supported, courtesy of Brett Taylor
+	and Laura Wingerd.  
+
+	COHERENT/386 is now supported, courtesy of Fred Smith.
+
+	Solaris archive string table for long archive names is now
+	supported, thanks to Mike Matrigali.
+
+3.  Compatibility
+
+	Jam 2.0 syntax is a superset of Jam 1.0 syntax, and thus it can
+	interpret a Jam 1.0 Jambase.
+
+	The Jam 2.0 Jambase is a superset of the Jam 1.0 Jambase, and
+	thus it can include a Jamfile written for Jam 1.0.
+
+4.  Changes from Jam 1.0 to Jam 2.0
+
+4.1.  Documentation changes
+
+	New Jamfile.5 manual page, with lots of examples and easy
+	reading.  It replaces both the old "Examples" file as well as
+	the old Jambase.5 manual page.
+
+	jam.1 edited by Stephen W. Liddle and Diane Holt.
+
+4.2.  Jambase Changes (see Jamfile.5)
+
+4.2.1.  New rules:
+
+	There are new rules to make handling subdirectories easier:
+	SubDir, SubInclude, SubDirCcFlags, SubDirHdrs.
+
+	There are new rules to handle file-specific CCFLAGS and HDRS:
+	ObjectCcFlags and ObjectHdrs.
+
+	Misc new rules: HardLink, InstallShell, MkDir.
+
+	New rule "clean" that deletes exactly what jam has built, and
+	"uninstall" that deletes exactly what was installed.
+
+	New rules for handling suffixes .s, .f, .cc, .cpp, .C.
+
+4.2.2.  Old rules:
+
+	The InstallBin, Lib, Man, and the new Shell rules now take the
+	destination directory as the target and the files to be copied
+	as sources.  These rules formerly took the files to be copied
+	as targets, and used built-in destination directories of
+	$(BINDIR), $(LIBDIR), $(MANDIR), and $(BINDIR).
+
+	The InstallBin, Lib, Man, and Shell rules use the install(1)
+	program now, instead of doing their own copying.
+
+	The Cc rule now uses -o when possible, rather than moving the
+	result.  Some platforms (Pyramid?) have a broken -o.
+
+	Jambase rules taking libraries, objects, and executables now
+	all ignore the suffixes provided and use the one defined in the
+	Jambase for the platform.
+
+	Stupid yyacc support moved out of Jambase, as jam is its only
+	likely user.
+
+	Jambase now purturbs library sources with a "grist" of
+	SOURCE_GRIST.
+
+4.2.3.  Misc:
+
+	The names of the default rules defined in Jambase have been
+	lowercased and un-abbreviated, to be more imake(1) like.
+
+	The Jambase has been reorganized and sorted, with VMS and NT
+	support moved in from their own files.
+
+	The Jambase has been relocated on UNIX from /usr/local/lib/jam
+	to /usr/local/lib.
+
+4.3.  Jam changes (see jam.1)
+
+4.3.1.   Flags:
+
+	New -a (anyhow) flag: means build everything.
+
+	New -j<x> flag: run jobs in parallel.
+
+	Old -t now rebuilds the touched target, rather that just the
+	target's parents.
+
+	-n now implies -d2, so that you see what's happening.  The
+	debug level can be subsequently overridden.
+
+	New -v to dump version.
+
+4.3.2.  Rules:
+
+	New ALWAYS rule behaves like -t: always builds target.
+
+	New EXIT rule makes it possible to raise a fatal error.
+
+	New LEAVES rule which say target depends only on the update
+	times of the leaf sources.
+
+	New NOUPDATE rule says built targets only if they don't exist.
+
+	NOTIME has been renamed NOTFILE, to more accurately reflect its
+	meaning (it says a target is not to be bound to a file).
+
+4.3.3.  Variables:
+
+	New special variable JAMSHELL: argv template for command execution 
+	shell.
+
+	Variables, both normal and target-specific, can have their
+	value appended with the syntax "var += value" or "var on target
+	+= value".
+
+	"?=" is now synonymous with "default =".
+
+	Imported enviroment variable values are now split at blanks
+	(:'s if the variable name ends in PATH), so that they become
+	proper list values.
+
+4.3.4.  Misc:
+
+	Files to be sourced with "include" are now bound first, so
+	$(SEARCH) and $(LOCATE) affect them.  They still can't be
+	built, though.
+
+	New modifier on "actions": "existing" causes $(>) to expand
+	only those files that currently exist.
+
+4.3.5.  Bug fixes:
+
+	When scanning tokens known to be argument lists (such as the
+	arguments to rule invocations and variable assignment), the
+	parser now tells the scanner to ignore alphabetic keywords, as
+	all such lists terminate with punctuation keywords (like : or
+	;).  This way, alphabetic keywords don't need to be quoted when
+	they appear as arguments.
+
+	The scanner has been fixed to handle oversized tokens,
+	unterminated quotes, unterminated action blocks, and tokens
+	abutting EOF (i.e. a token with no white space before EOF).
+
+	The progress report "...on xth target..." used to count all
+	targets, rather than just those with updating actions.  Since
+	the original pronouncement of targets to be udpated included
+	only those with updating actions, the progress report has been
+	changed to match.
+
+	'If' conditionals now must be single arguments.  Previously,
+	they could be zero or more arguments, which didn't make much
+	sense, and made things like 'foo == bar' true.  The comparison
+	operator is '=', and '==' just looked like the second of three
+	arguments in the unary "non-empty argument list" conditional.
+
+	Header files indirectly including themselves were mistakenly
+	reported as being dependent on themselves.  Recursing through
+	header file dependencies is now done after determining the fate
+	of the target.
+
+	The variable expansion support was expanding $(X)$(UNDEF) as if
+	it were $(X).  It now expands to an empty list, like it
+	should.
+
+	The UNIX version of file_build() didn't handle "dir/.suffix"
+	right.  Now it does.
+
+	The VMS command buffer was assumed to be as large as 1024 bytes,
+	which isn't the case everywhere as it is related to some weird
+	quota.  It has been lowered to 256.
+
+	$(>) and $(<) wouldn't expand in action blocks if the targets
+	were marked with NOTIME.  Now they expand properly.
+
+	Malloc() return values are now checked.
+
+	The variable expansion routine var_expand() is now a little
+	faster, by taking a few often needed shortcuts.
+
+	The VMS version of file_build() used the wrong length when
+	re-rooting file names that already had directory compoents.
+	This was fixed.
+
+	Various tracing adjustments were made.
+
+5.  Limitations/Known Bugs
+
+	The new Windows/NT support has only been marginally tested.  It
+	is dependent on certain variables being set depending on which
+	compiler you are using.  You'll need to look in the file
+	Jambase and see what variables are expected to be set.
+
+	The VMS support has been tested, courtesy of the DEC guest
+	machine, but has not been hammered fully in release 2.0.  It
+	was used quite a bit in Jam 1.0.
+
+	Jam clean when there is nothing to clean claims it is updating
+	a target.
+
+	Because the include statement works by pushing a new file in
+	the input stream of the scanner rather than recursively
+	invoking the parser on the new file, multiple include
+	statements in a rule's procedure causes the files to be
+	included in reverse order.
+
+	If the include statement appears inside an if block, the
+	parser's attempt to find the else will cause the text of the
+	included file to appear after the first token following the
+	statement block.  This is rarely what is intended.
+
+	In a rule's actions, only $(<) and $(>) refer to the bound file
+	names:  all other variable references get the unbound names.
+	This is a pain for $(NEEDLIBS), because it means that library
+	path can't be bound using $(SEARCH) and $(LOCATE).
+
+	With the -j flag, errors from failed commands can get
+	staggeringly mixed up.  Also, because targets tend to get built
+	in a quickest-first ordering, dependency information must be
+	quite exact.  Finally, beware of parallelizing commands that
+	drop fixed-named files into the current directory, like yacc(1)
+	does.
+
+	A poorly set $(JAMSHELL) is likely to result in silent
+	failure.

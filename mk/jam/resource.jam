@@ -1,0 +1,109 @@
+#============================================================================
+# Rules for handling additional resources.
+# Platform-specific Jam files may override these if needed.
+#
+# Copyright (C)2004 by Eric Sunshine <sunshine@sunshineco.com>
+#
+#    This library is free software; you can redistribute it and/or modify it
+#    under the terms of the GNU Library General Public License as published by
+#    the Free Software Foundation; either version 2 of the License, or (at your
+#    option) any later version.
+#
+#    This library is distributed in the hope that it will be useful, but
+#    WITHOUT ANY WARRANTY; without even the implied warranty of MERCHANTABILITY
+#    or FITNESS FOR A PARTICULAR PURPOSE.  See the GNU Library General Public
+#    License for more details.
+#
+#    You should have received a copy of the GNU Library General Public License
+#    along with this library; if not, write to the Free Software Foundation,
+#    Inc., 675 Mass Ave, Cambridge, MA 02139, USA.
+#
+#============================================================================
+
+## ApplicationIconDefault platform : type [ : icon [ : pathcomponents ]]
+##    If invoked with three or more arguments, specifies the default icon for
+##    applications of the specified type for the given platform, which may be
+##    'macosx', 'win32', or 'unix'.  Type should be 'all', 'gui', or 'console'.
+##    If pathcomponents is omitted, SEARCH_SOURCE is used.  This setting can be
+##    overriden for an individual application with the ApplicationIcon rule.
+##    This rule must be invoked before invoking any Application rules if it is
+##    to have any effect.  If invoked with two arguments, returns the default
+##    icon (if any) for the given platform and type.
+rule ApplicationIconDefault
+{
+  local platform = $(1) ;
+  local type = $(2) ;
+  local icon = $(3) ;
+  local iconpath = $(4) ;
+  local key = default_$(platform)_$(type) ;
+
+  if $(icon)
+  {
+    SetProperty appicon : $(key) : $(icon) ;
+    if $(iconpath)
+    {
+      SEARCH on $(icon) = [ ConcatDirs $(iconpath) ] ;
+    }
+    else
+    {
+      SEARCH on $(icon) = $(SEARCH_SOURCE) ;
+    }
+  }
+
+  local result = [ Property appicon : $(key) ] ;
+  if ! $(result) && $(type) != all
+  {
+    result = [ Property appicon : default_$(platform)_all ] ;
+  }
+  return $(result) ;
+}
+
+## ApplicationIcon platform : basename [ : icon [ : pathcomponents ]]
+##    If invoked with three or more arguments, specifies the icon for the
+##    application given by basename for the indicated platform, which may be
+##    'macosx', 'win32', or 'unix'.  If pathcomponents is omitted,
+##    SEARCH_SOURCE is used.  If this rule is not invoked, then the icon
+##    specified via ApplicationIconDefault is used, if any.  This rule must be
+##    invoked before the Application rule to which this icon will apply.  If
+##    invoked with two arguments, returns the icon (if any) explicitly
+##    registered for basename for the given platform.
+rule ApplicationIcon
+{
+  local platform = $(1) ;
+  local target = $(2) ;
+  local icon = $(3) ;
+  local iconpath = $(4) ;
+  local key = app_$(platform)_$(target) ;
+
+  if $(icon)
+  {
+    SetProperty appicon : $(key) : $(icon) ;
+    if $(iconpath)
+    {
+      SEARCH on $(icon) = [ ConcatDirs $(iconpath) ] ;
+    }
+    else
+    {
+      SEARCH on $(icon) = $(SEARCH_SOURCE) ;
+    }
+
+    # An ugly but effective way to detect incorrect usage.
+    if $($(target)_TARGET)
+    {
+      Echo "Warning: `ApplicationIcon:$(target):$(icon)' incorrectly invoked"
+        "after Application rule." ;
+    }
+  }
+
+  return [ Property appicon : $(key) ] ;
+}
+
+##  Win32Resource basename : rcfiles
+##    Specify .rc files for the target known as basename.  The .rc files should
+##    already have SEARCH set appropriately.
+rule Win32Resource { }
+
+##  Win32RcFlags basename : rcfiles
+##    Specify flags passed to the resource compiler when compiling resources
+##    for the target known as basename.
+rule Win32RcFlags { }

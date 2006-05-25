@@ -1,0 +1,354 @@
+#==============================================================================
+# Jam configuration and actions for MacOS/X
+# Copyright (C) 2003-2005 by Eric Sunshine <sunshine@sunshineco.com>
+#
+#    This library is free software; you can redistribute it and/or modify it
+#    under the terms of the GNU Library General Public License as published by
+#    the Free Software Foundation; either version 2 of the License, or (at your
+#    option) any later version.
+#
+#    This library is distributed in the hope that it will be useful, but
+#    WITHOUT ANY WARRANTY; without even the implied warranty of MERCHANTABILITY
+#    or FITNESS FOR A PARTICULAR PURPOSE.  See the GNU Library General Public
+#    License for more details.
+#
+#    You should have received a copy of the GNU Library General Public License
+#    along with this library; if not, write to the Free Software Foundation,
+#    Inc., 675 Mass Ave, Cambridge, MA 02139, USA.
+#
+#==============================================================================
+SHELL ?= "/bin/sh" ;
+
+MACOSX_ENVIRONMENT = "export MACOSX_DEPLOYMENT_TARGET=10.2" ;
+PLUGIN.LFLAGS += "-bundle" ;
+# We use the ugly -Wl form, which does not contain embedded whitespace (unlike
+# "-framework AppKit"), to help external projects which use the result of
+# "cs-config --libs" in conjunction with GNU libtool, since libtool likes to
+# re-arrange arguments, not realizing that "-framwork" and "AppKit" need to
+# stay together.
+LINKLIBS += "-Wl,-framework,AppKit" "-Wl,-framework,Foundation" ;
+
+# Jambase in Jam 2.4 has a bug where it incorrectly defines RANLIB as "" for
+# MacOS/X, and this bogus value will override a RANLIB set via ?= in Jamconfig,
+# by a configure script, thus we must give RANLIB an appropriate value here if
+# we find that it has the bogus value.  Jam 2.5 does not contain this bug.
+# Furthermore, MacOS/X Panther expects us to use the -s option with ranlib.
+if ! $(RANLIB) { RANLIB = "ranlib" ; }
+RANLIB += "-s" ;
+
+# Experience seems to indicate that library scanning misbehaves on MacOS/X with
+# Jam 2.4, consequently we disable it.
+NOARSCAN = true ;
+
+#------------------------------------------------------------------------------
+# Public rules.
+#------------------------------------------------------------------------------
+
+# ConstructApplicationTarget target : options
+#    Constructs the application target name.
+rule ConstructApplicationTarget
+{
+  return $(<) ;
+}
+
+# ConstructStaticLibraryTarget target : options
+#    Constructs the static library target name.
+rule ConstructStaticLibraryTarget
+{
+  return lib$(<)$(SUFLIB) ;
+}
+
+# ConstructSharedLibraryTarget target : options
+#    Constructs the shared library target name.
+rule ConstructSharedLibraryTarget
+{
+  return lib$(<).$(PACKAGE_VERSION).dylib ; 
+}
+
+# ConstructSharedLibraryLinkLib target : options
+#    Constructs the name of a shared library against which some other target
+#    links.
+rule ConstructSharedLibraryLinkLib
+{
+  return lib$(<).$(PACKAGE_VERSION).dylib ; 
+}
+
+# ConstructPluginTarget target : options
+#    Constructs the plugin target name.
+rule ConstructPluginTarget
+{
+    return $(<).csbundle ;
+}
+
+# SystemLinkApplication target : objects : options
+#    Apply appropriate rule to link the application based upon the options.
+rule SystemLinkApplication
+{
+    local target = $($(<)_TARGET) ;
+    Depends $(target) : $(>) ;
+    if [ IsElem console : $(3) ]
+    {
+        LinkApplicationConsole $(target) : $(>) ;
+        Clean clean : $(target) ;
+        Clean $(<)clean : $(target) ;
+    }
+    else
+    {
+        CreateApplicationWrapper $(target) : $(>) ;
+        CleanDir clean : [ Wrapper $(<) : app ] ;
+        CleanDir $(<)clean : [ Wrapper $(<) : app ] ;
+    }
+}
+
+# SystemInstallApplication target : subdirs : options
+#    Apply appropriate rule to install the application based upon the options.
+rule SystemInstallApplication
+{
+    if [ IsElem console : $(3) ]
+    {
+        Depends install_bin : 
+            [ DoInstall $(<) : $(bindir) $(2) : $(INSTALL_PROGRAM) ] ;
+    }
+    else
+    {
+        InstallApplicationGUI $(<) : $(bindir) $(2) ;
+    }
+}
+
+# SystemInstallPlugin target : subdirs : options
+#    Apply appropriate rule to install the plugin based upon the options.
+rule SystemInstallPlugin
+{
+    Depends install_plugin :
+	[ DoInstall $(<) : $(plugindir) $(2) : $(INSTALL_PROGRAM) ] ;
+}
+
+# SystemLinkPlugin target : objects : options
+#    Link a plugin module and handle meta-data appropriately.
+rule SystemLinkPlugin
+{
+    local target = $($(<)_TARGET) ;
+    Depends $(target) : $(>) ;
+    LinkPlugin $(target) : $(>) ;
+    PluginMetaData $(<) : $($(<)_METAFILE) : $(3) ;
+    Clean clean : $(target) ;
+    Clean $(<)clean : $(target) ;
+}
+
+# LinkPlugin plugin : objects
+#    Link a plugin module from a set of object files.
+actions LinkPlugin bind NEEDLIBS bind EXTRAOBJECTS
+{
+    $(MACOSX_ENVIRONMENT)
+    $(CMD.LINK) -bundle -o $(<) $(>) $(EXTRAOBJECTS) $(NEEDLIBS) $(LINKLIBS)
+}
+
+# LinkApplicationConsole exe : objects
+#    Link a console (non-GUI) appliation from a set of object files.
+actions LinkApplicationConsole bind NEEDLIBS bind EXTRAOBJECTS
+{
+    $(MACOSX_ENVIRONMENT)
+    $(CMD.LINK) -o $(<) $(>) $(EXTRAOBJECTS) $(NEEDLIBS) $(LINKLIBS)
+}
+
+# CreateApplicationWrapper basename : objects
+#    Create a complete, though minimal, application wrapper given a set of
+#    object files.  The rules ApplicationIconDefault and ApplicationIcon
+#    control the icon associated with the application wrapper.
+rule CreateApplicationWrapper
+{
+    WrapFile $(<) : $(<) : Contents MacOS : AppExe : $(>) ;
+    WrapFile $(<) : PkgInfo : Contents : AppPkgInfo : $(>) ;
+    WrapFile $(<) : version.plist : Contents : AppVersionPlist : $(>) ;
+    WrapFile $(<) : Info.plist : Contents : AppInfoPlist : $(>) ;
+    WrapFile $(<) : InfoPlist.strings : Contents Resources English.lproj : 
+        AppInfoPlistStrings : $(>) ;
+
+    local icon = [ ApplicationIcon macosx : $(<) ] ;
+    if ! $(icon)
+    {
+      local apptype = gui ;
+      if [ IsElem console : $(>) ] { apptype = console ; }
+      icon = [ ApplicationIconDefault macosx : $(apptype) ] ;
+    }
+    if $(icon)
+    {
+	$(<)_APPICON = $(icon) ;
+        AppIcon $(<) : $(icon) ;
+    }
+}
+
+# Wrapper basename : suffix [ : pathcomponents ]
+#    Returns wrapper name in the directory specified by pathcomponents for
+#    the given basename.  If pathcomponents is omitted, LOCATE.TARGETS is
+#    used.
+rule Wrapper
+{
+    local dir ;
+    if $(3) { dir = [ FDirName $(3) ] ; }
+    else { dir = $(LOCATE.TARGETS) ; }
+    return [ FDirName $(dir) $(1).$(2) ] ;
+}
+
+# WrapFile basename : file : pathcomponents : rule [ : objects : [ suffix ] ]
+#    Generate a file within a wrapper.  pathcomponents is a list of names
+#    which compose the relative path within the wrapper where file should be
+#    placed.  pathcomponents may be the empty list if the file should reside
+#    at the top-level of the wrapper.  rule is rule/action which should be
+#    invoked to generate file.  rule is invoked with arguments
+#    <basename.suffix/pathcomponents/file>, <objects>, and <basename>.
+#    objects is an optional list of files from which file should be built.  It
+#    may be omitted if file does not depend upon any other files.  suffix is
+#    the extension of the wrapper (not of file).  If suffix is omitted, "app"
+#    is assumed.
+#
+#    Implementation note: If basename and file are the same, then we do not
+#    grist file.  (Obviously, we also do not want to set the file dependent
+#    upon itself.)  The reason we do not grist file in this case is that the
+#    LinkWith, and LFlags rules associate the variables NEEDLIBS and
+#    LINKLIBS with the ungristed name, therefore in order to get access to
+#    these variables at AppExe action time, we must use the same (ungristed)
+#    name.  It is otherwise impossible to gain access to those variables.
+#    This is an unfortunate hack which pollutes the otherwise general-purpose
+#    WrapFile rule.
+rule WrapFile
+{
+    local suffix ;
+    if $(6) { suffix = $(6) ; } else { suffix = app ; }
+    local target = $(2) ;
+    if $(target) != $(1)
+    {
+        target = $(target:G=$(1)) ;
+        Depends $(1) : $(target) ;
+    }
+    local dir = [ FDirName [ Wrapper $(1) : $(suffix) ] $(3) ] ;
+    MakeLocate $(target) : $(dir) ;
+    if $(5) { Depends $(target) : $(5) ; }
+    BASENAME on $(target) = $(1) ;
+    $(4) $(target) : $(5) : $(1) ;
+
+    Clean clean : [ FDirName $(dir) $(target) ] ;
+    Clean $(1)clean : [ FDirName $(dir) $(target) ] ;
+}
+
+# LinkApplication exe : objects
+actions AppExe bind NEEDLIBS bind EXTRAOBJECTS
+{
+    $(MACOSX_ENVIRONMENT)
+    $(CMD.LINK) -o $(<) $(>) $(EXTRAOBJECTS) $(NEEDLIBS) $(LINKLIBS)
+}
+
+# AppPkgInfo file
+actions AppPkgInfo
+{
+    echo 'APPL????' > $(<) ;
+}
+
+# AppInfoPlistStrings file
+actions AppInfoPlistStrings
+{
+  cat << EOT > $(<)
+CFBundleName = "$(BASENAME)";
+CFBundleShortVersionString = "$(PACKAGE_VERSION)";
+CFBundleGetInfoString = "$(BASENAME), $(PACKAGE_VERSION)";
+EOT
+}
+
+# AppVersionPlist file
+actions AppVersionPlist
+{
+  cat << EOT > $(<)
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE plist SYSTEM "file://localhost/System/Library/DTDs/PropertyList.dtd">
+<plist version="0.9">
+  <dict>
+    <key>CFBundleShortVersionString</key>
+    <string>$(PACKAGE_VERSION)</string>
+    <key>CFBundleVersion</key>
+    <string>$(PACKAGE_VERSION)</string>
+    <key>ProjectName</key>
+    <string>$(BASENAME)</string>
+  </dict>
+</plist>
+EOT
+}
+
+# AppInfoPlist filename : placeholder : basename
+#    Implementation Note: $(BASENAME)_APPICON might be empty in the actions of
+#    this rule, if the client did not specify a default icon or a
+#    target-specific icon, in which case we need to omit both the
+#    CFBundleIconFile key and value.  To accomplish this, the key and value
+#    are placed on a single line with no intervening whitespace.  When Jam
+#    interpolates a variable, if the variable is empty, it removes all
+#    adjacent text (the key and value, in this case) which is just what we
+#    desire.
+actions AppInfoPlist
+{
+  cat << EOT > $(<)
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE plist SYSTEM "file://localhost/System/Library/DTDs/PropertyList.dtd">
+<plist version="0.9">
+  <dict>
+    <key>CFBundleDevelopmentRegion</key>
+    <string>English</string>
+    <key>CFBundleName</key>
+    <string>$(BASENAME)</string>
+    <key>CFBundleExecutable</key>
+    <string>$(BASENAME)</string>
+    <key>CFBundleIconFile</key><string>$($(BASENAME)_APPICON)</string>
+    <key>CFBundleInfoDictionaryVersion</key>
+    <string>6.0</string>
+    <key>CFBundlePackageType</key>
+    <string>APPL</string>
+    <key>CFBundleSignature</key>
+    <string>????</string>
+    <key>CFBundleVersion</key>
+    <string>0</string>
+    <key>CFBundleShortVersionString</key>
+    <string>$(PACKAGE_VERSION)</string>
+    <key>NSPrincipalClass</key>
+    <string>NSApplication</string>
+  </dict>
+</plist>
+EOT
+}
+
+# AppIcon <basename> : <icon>
+#    Copy an icon into the wrapper.  It is assumed that some other agent has
+#    already set SEARCH on the icon, if necessary.
+rule AppIcon
+{
+    local icon = $(>:G=$(<)) ;
+    Depends $(<) : $(icon) ; 
+    Depends $(icon) : $(>) ;
+    MakeLocate $(icon) : 
+      [ FDirName [ Wrapper $(<) : app ] Contents Resources ] ;
+    Copy $(icon) : $(>) ;
+    Clean clean : $(icon) ;
+    Clean $(<)clean : $(icon) ;
+}
+
+# InstallApplicationGUI app : installdirs
+#    Install a GUI application.  Unlike applications on other platforms which
+#    exist as a single executable file, on MacOS/X, an application is wrapped
+#    in a directory hierarchy, thus a deep copy is needed (i.e. the typical
+#    Install rule does not work).
+rule InstallApplicationGUI
+{
+    local wrapper = $(<).app ;
+    Depends $(wrapper) : $(<) ;
+    SEARCH on $(wrapper) = $(LOCATE.TARGETS) ;
+
+    # Yuck! Internal knowledge of how DoInstall composes 'dir' and 'target'.
+    local dir = [ ConcatDirs $(DESTDIR) $(2) ] ;
+    local target = $(wrapper:BSR=$(dir):G=install) ;
+
+    InstallApplicationWrapperPrepare $(target) ;
+    Depends install_bin :
+	[ DoInstall $(wrapper) : $(2) : "$(DEEPCOPY)" ] ; 
+}
+
+actions InstallApplicationWrapperPrepare
+{
+    $(DELTREE) $(<) ;
+}

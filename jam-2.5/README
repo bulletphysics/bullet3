@@ -1,0 +1,154 @@
+Jam - make(1) redux
+
+    /+\
+    +\	Copyright 1993-2002 Christopher Seiwald and Perforce Software, Inc.
+    \+/
+
+    This is Release 2.5 of Jam, a make-like program.
+
+    License is hereby granted to use this software and distribute it
+    freely, as long as this copyright notice is retained and modifications 
+    are clearly marked.
+
+    ALL WARRANTIES ARE HEREBY DISCLAIMED.
+
+FEATURES
+
+   ->	Jam is a make(1) replacement that makes building simple things
+	simple and building complicated things manageable.
+
+   ->	Jam's language is expressive, making Jamfiles (c.f. Makefiles) 
+	compact.  Here's a sample:
+
+	    Main smail : main.c map.c resolve.c deliver.c
+			 misc.c parser.y alias.c pw.c headers.c
+			 scanner.l getpath.c str.c ;
+
+	This builds "smail" from a dozen source files.  Jam handles 
+	header file dependencies automatically and on-the-fly.
+
+   ->	Jam is very portable: it runs on UNIX, VMS, Mac, and NT.  
+	Most Jamfiles themselves are portable, like the sample above.
+
+   ->   Jam is unintrusive: it is small, it has negligible CPU 
+	overhead, and it doesn't create any of its own funny files
+	(c.f. Odin, nmake, SunOS make).
+
+   ->	Jam can build large projects spread across many directories
+	in one pass, without recursing, tracking the relationships
+	among all files. Jam can do this with multiple, concurrent 
+	processes.
+
+   ->   Jam isn't under the blinkin GNU copyright, so you can 
+	incorporate it into commercial products.
+
+
+INFORMATION GUIDE
+
+    Jam.html		jam and language reference.
+
+    Jambase.html	Reference for the Jambase boilerplate file.
+
+    Jamfile.html	Easy reading on creating a Jamfile and using jam.
+
+    RELNOTES		Release 2.3 release notes.
+
+    Porting		Notes on porting jam to wildcat platforms.
+
+    README		This file.  Includes installation instructions.
+
+    jam.c		Contains the jam command's main() as well as an 
+			introduction to the code, for serious hackers.
+
+
+INSTALLING
+
+    The Makefile (UNIX, NT), build.com (VMS), Build.mpw (Mac MPW) are 
+    for bootstrapping.  Once jam is built, it can rebuild itself.
+
+    UNIX
+
+	Build jam with make(1) on:
+
+	    Platform		$(OS) 
+	    -------------------------
+	    AIX			AIX		*	
+	    BSD/386 1.0		BSDI
+	    COHERENT/386	COHERENT
+	    DGUX 5.4		DGUX
+	    FreeBSD		FREEBSD
+	    HPUX 9.0		HPUX
+	    IRIX 5.0		IRIX
+	    Linux		LINUX
+	    NEXTSTEP 3.2	NEXT
+	    OSF/1		OSF
+	    PTX V2.1.0		PTX
+	    Solaris 2		SOLARIS		*
+	    SunOS4.1		SUNOS
+	    Ultrix 4.2		ULTRIX
+	    BeOS		BEOS		*
+
+	    * requires editing Makefile
+
+    Windows
+
+	Build jam with nmake on:
+
+	    Platform		$(OS)
+	    -------------------------
+	    NT			NT		*
+	    OS/2		OS2		*
+
+	The NT MAXLINE (command line length) is still set in jam.h to
+	996, which was apparently the NT 3.5 limit. On 4.0, the limit 
+	is somewhere around 10K. For now, you can increase MAXLINE in 
+	jam.h so that a jam running on 4.0 will use the full command
+	line length, but that jam.exe will fail miserably on the older OS.
+
+	On NT, a variable must be set before invoking jam to tell
+	it where the C compiler lives.  The name of this variable
+	depends on which compiler you are using:
+
+	    BCCROOT:	The Borland C compiler
+	    MSVCDIR:	The Microsoft Compiler 6.0 (for NT)
+	    MSVCNT:	The Microsoft Compiler 5.0 (for NT)
+	    MSVC:	The Microsoft Compiler 1.5 (for Windows)
+
+	Only MSVCNT and MSVCDIR have really been tested and are known
+	to work.
+
+    Macintosh
+
+	Build jam with Build.mpw on:
+
+	    Platform		$(OS)
+	    -------------------------
+	    Macintosh		MAC		
+
+	You'll need to edit Build.mpw to set CW.  
+
+    VMS
+
+    	Build jam with @build.com on:
+
+	    Platform		$(OS)
+	    -------------------------
+	    VMS 5.4		VMS
+	    OPENVMS		OPENVMS
+
+Comments to the author!
+
+November, 1993 - release 1.0
+March, 1995 - release 2.0 
+February, 1996 - release 2.1
+November, 1997 - release 2.2
+December, 2000 - release 2.3
+March, 2002 - release 2.4
+December, 2002 - release 2.5 rc1
+January, 2003 - release 2.5 rc2
+April, 2003 - release 2.5 rc3
+August, 2004 - release 2.5 (rc3 moniker merely dropped)
+
+Christopher Seiwald
+
+seiwald@perforce.com

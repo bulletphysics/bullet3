@@ -1,0 +1,66 @@
+[% FILTER null;
+#==============================================================================
+# TemplateToolkit2 template for MSVC7 solution (sln) file.
+# Copyright (C) 2004 by Eric Sunshine <sunshine@sunshineco.com>
+#
+#    This library is free software; you can redistribute it and/or modify it
+#    under the terms of the GNU Library General Public License as published by
+#    the Free Software Foundation; either version 2 of the License, or (at your
+#    option) any later version.
+#
+#    This library is distributed in the hope that it will be useful, but
+#    WITHOUT ANY WARRANTY; without even the implied warranty of MERCHANTABILITY
+#    or FITNESS FOR A PARTICULAR PURPOSE.  See the GNU Library General Public
+#    License for more details.
+#
+#    You should have received a copy of the GNU Library General Public License
+#    along with this library; if not, write to the Free Software Foundation,
+#    Inc., 675 Mass Ave, Cambridge, MA 02139, USA.
+#
+#==============================================================================
+  PROCESS macros.tlib;
+  PROCESS control.tlib;
+
+  my = {};
+  load(respfile, 'doc');
+  FOREACH f IN my.doc.customize; PROCESS $f | null; END;
+
+  projects = filter(my.doc.project).split('\|').sort;
+  guids = {};
+  FOREACH project IN projects;
+    guids.$project = guid(project);
+  END;
+END -%]
+Microsoft Visual Studio Solution File, Format Version [% my.doc.formatversion.0 %]
+# Visual C++ Express 2005
+[% FOREACH project IN projects -%]
+Project("{8BC9CEB8-8B4A-11D0-8D11-00A0C91BC942}") = "[% project %]", "
+    [%- project %].vcproj", "{[% guids.$project %]}"
+EndProject
+[% END -%]
+Global
+	GlobalSection(SolutionConfiguration) = preSolution
+[% n = 0; FOREACH build IN builds -%]
+		ConfigName.[% n; n = n + 1 %] = [% build.name %]
+[% END -%]
+	EndGlobalSection
+	GlobalSection(ProjectDependencies) = postSolution
+[% FOREACH project IN projects; g = guids.$project; n = 0 -%]
+[% FOREACH dep IN filter(my.doc.$project).split('\|').sort -%]
+		{[% g %]}.[% n; n = n + 1 %] = {[% guids.$dep %]}
+[% END -%]
+[% END -%]
+	EndGlobalSection
+	GlobalSection(ProjectConfiguration) = postSolution
+[% FOREACH project IN projects; g = guids.$project -%]
+[% FOREACH build IN builds -%]
+		{[% g %]}.[% build.name %].ActiveCfg = [% build.name %]|Win32
+		{[% g %]}.[% build.name %].Build.0 = [% build.name %]|Win32
+[% END -%]
+[% END -%]
+	EndGlobalSection
+	GlobalSection(ExtensibilityGlobals) = postSolution
+	EndGlobalSection
+	GlobalSection(ExtensibilityAddIns) = postSolution
+	EndGlobalSection
+EndGlobal

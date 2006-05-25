@@ -1,0 +1,225 @@
+#============================================================================
+# Rules for swig
+# Copyright (C)2004 by Eric Sunshine <sunshine@sunshineco.com>
+# Copyright (C)2003 by Matze Braun <matzebraun@users.sourceforge.net>
+#
+#    This library is free software; you can redistribute it and/or modify it
+#    under the terms of the GNU Library General Public License as published by
+#    the Free Software Foundation; either version 2 of the License, or (at your
+#    option) any later version.
+#
+#    This library is distributed in the hope that it will be useful, but
+#    WITHOUT ANY WARRANTY; without even the implied warranty of MERCHANTABILITY
+#    or FITNESS FOR A PARTICULAR PURPOSE.  See the GNU Library General Public
+#    License for more details.
+#
+#    You should have received a copy of the GNU Library General Public License
+#    along with this library; if not, write to the Free Software Foundation,
+#    Inc., 675 Mass Ave, Cambridge, MA 02139, USA.
+#
+#============================================================================
+
+if $(CMD.SWIG)
+{
+  # Post-processing of the Swig-generated C++ file.
+  #
+  # (1) We need to ensure that <stdint.h> defines INT64_C() and cousins, which
+  # means that the __STDC_CONSTANT_MACROS and __STDC_LIMIT_MACROS macros must
+  # be defined before <stdint.h> is included.  In some Python installations,
+  # Python.h includes <stdint.h>, and Swig-generated output includes Python.h
+  # before we ever have a chance to define the __STDC_* macros.  There is no
+  # Swig-supported mechanism allowing us to insert these #defines before
+  # Python.h is included, so we post-process the output file.
+  #
+  # (2) We #undefine _DEBUG, to ensure that python23.lib is used by MSVC
+  # instead of python23_d.lib.
+  #
+  # (3) Delete any lines containing the CVS `Header' keyword to ensure that CVS
+  # does not consider the file changed simply because `Header' expansion
+  # differs.
+  #
+  # (4) Swig 1.3.22 for Perl emits illegal expressions `new (sometype)[n]'
+  # rather than `new sometype[n]' (at least gcc considers it illegal),
+  # therefore, we transform the expression by dropping the parentheses.
+  #
+  # (5) cs_pyth.cpp contains a macro "#define SWIG_init init_cspace". However,
+  # cs_pyth.cpp may reside in a shared lib, so we rather want the name 
+  # SWIG_init and define init_cspace as a simple forwared ourselves.
+  #
+  # (6) perl.h includes dirent.h on some configurations which conflicts with
+  # the CS definitions of dirent, opendir, etc.  So define _DIRENT_H_ to 
+  # make dirent.h skip its body.  This is hackish but no better solution
+  # has been found.
+  #
+  # (Despite the fact that these customizations might seem project-specific,
+  # they should be safe for all projects.)
+  SWIG.SED_SCRIPT =
+    "'s/\\([ 	]*#[ 	]*include[ 	][ 	]*[<\"]Python.h[>\"]\\)/\\
+    #ifndef __STDC_CONSTANT_MACROS\\
+    #define __STDC_CONSTANT_MACROS\\
+    #endif\\
+    #ifndef __STDC_LIMIT_MACROS\\
+    #define __STDC_LIMIT_MACROS\\
+    #endif\\
+    #ifndef DEBUG_PYTHON\\
+    #undef _DEBUG\\
+    #endif\\
+    \\1/g
+    /\$Header:/d
+    s/new[ 	][ 	]*(\\([^)][^)]*\\))[ 	]*\\[/new \\1 [/g
+    s/[ 	]*#[ 	]*define[ 	][ 	]*SWIG_init[ 	]*init_\\(.*\\)/#define SWIG_init SWIG_init_\\1/g
+    s/\\([	 ]*#[	 ]*include[	 ][	 ]*[<\"]perl.h[>\"]\\)/\\
+    #ifndef _DIRENT_H_\\
+    #define _DIRENT_H_\\
+    #endif\\
+    \\1/g'" ;
+
+  ## Swig targets : swigfile : language [ : swigflags [ : swigincdirs
+  ##     [ : swigfiledir [ : frozendirs [ : tag [ : outdir ]]]]]]
+  ##   Given a Swig input file `swigfile', generate `targets' for scripting
+  ##   language `language'.  The first element of `targets' should name the
+  ##   generated C or C++ file, and the remaining optional elements should name
+  ##   any other language-specific scripting files which Swig will generate.
+  ##   For instance, the files widgets.cpp and widgets.py might be emitted by
+  ##   Swig for the input file widgets.i.  The generated files are placed in
+  ##   $(LOCATE_TARGET).  `swigflags' specifies additional flags to pass to
+  ##   Swig.  `swigincdirs' is a list of additional directories which Swig
+  ##   should search for files which it includes.  `swigfiledir' specifies the
+  ##   location of `swigfile' if it does not reside in the present source
+  ##   directory.  This rule defines top-level targets named "$(tag)swig",
+  ##   which generates `targets' on-demand; and "$(tag)swigclean", which
+  ##   deletes the generated files.  `tag' is a simple identifier out of which
+  ##   top-level pseudo-targets names are constructed.  If `tag' is not
+  ##   provided, then `language' is used instead.  If `frozentargdirs' is
+  ##   provided, then an additional top-level target named "$(tag)freeze" is
+  ##   defined, which copies the generated files to the specified directories.
+  ##   If `frozentargdirs' contains only one element, then all generated files
+  ##   are copied to that directory.  If it contains two elements, then the
+  ##   first element of `targets' is copied to the first element of
+  ##   `frozentargdirs', and all remaining elements of `targets' are copied to
+  ##   the second element of `frozentargdirs'. `outdir', if provided, is a list
+  ##   of path components which specify a subdirectory in which Swig should
+  ##   place the language-specific support files, rather than placing them in
+  ##   $(LOCATE_TARGET).  This might be useful, for instance, when Swig is in
+  ##   Java mode, and the .java files must be placed in a directory hierarchy
+  ##   which reflects the full package name.
+  rule Swig
+  {
+    local target = $(1[1]) ;
+    local othertargets = $(1[2-]) ;
+    local swigfile = $(2) ;
+    local language = $(3) ;
+    local swigflags = $(4) ;
+    local swigincdirs = $(5) ;
+    local swigfiledir = $(6) ;
+    local frozentargetdir = $(7[1]) ;
+    local frozenotherdir = $(7[2-]) ;
+    local tag = $(8) ;
+    local outdir = $(9) ;
+
+    if ! $(frozenotherdir) { frozenotherdir = $(frozentargetdir) ; }
+    if ! $(tag) { tag = $(language) ; }
+    if ! $(outdir) { outdir = $(LOCATE_TARGET) ; }
+
+    Depends $(target) : $(swigfile) ;
+    MakeLocate $(target) : $(LOCATE_TARGET) ;
+    if $(othertargets)
+    {
+      MakeLocate $(othertargets) : $(outdir) ;
+
+      # If any target, such as an install target, depends upon the other files,
+      # we force them to be built with a dependency upon the target.
+      Depends $(othertargets) : $(target) ;
+    }
+
+    SWIG.FLAGS on $(target) +=
+      $(SWIG.FLAGS) -$(language) $(swigflags) -I$(swigincdirs)
+      -outdir [ ConcatDirs $(outdir) ] ;
+
+    # Allow Swig input file to reside at location other than $(SEARCH_SOURCE).
+    if $(swigfiledir)
+    {
+      SEARCH on $(swigfile) = $(swigfiledir) ;
+    }
+    else
+    {
+      SEARCH on $(swigfile) = $(SEARCH_SOURCE) ;
+    }
+
+    # Scan for special Swig includes.
+    HDRGRIST on $(swigfile) = $(HDRGRIST) ;
+    HDRSEARCH on $(swigfile) =
+      $(SEARCH_SOURCE:E) $(SUBDIRHDRS) $(HDRS) $(STDHDRS) ;
+    HDRRULE on $(swigfile) = HeaderRule ;
+    HDRSCAN on $(swigfile) = $(SWIG.HDRPATTERN) ;
+
+    RunSwig $(target) : $(swigfile) ;
+    Depends $(tag)swig : $(target) ;
+    NotFile $(tag)swig ;
+    Always $(tag)swig ;
+    Help $(tag)swig : "Generate Swig files for $(tag)" ;
+
+    Clean $(tag)swigclean : $(target) $(othertargets) ;
+    Depends clean : $(tag)swigclean ;
+
+    if $(frozentargetdir)
+    {
+      local frozen_target = $(target:G=$(tag)freeze) ;
+      MakeLocate $(frozen_target) : $(frozentargetdir) ;
+      Depends $(frozen_target) : $(target) ;
+      Copy $(frozen_target) : $(target) ;
+      Depends $(tag)freeze : $(frozen_target) ;
+
+      if $(othertargets)
+      {
+        local frozen_other = $(othertargets:G=$(tag)freeze) ;
+        MakeLocate $(frozen_other) : $(frozenotherdir) ;
+        Depends $(frozen_other) : $(othertargets) ;
+        Copy $(frozen_other) : $(othertargets) ;
+        Depends $(tag)freeze : $(frozen_other) ;
+      }
+
+      NotFile $(tag)freeze ;
+      Help $(tag)freeze : "Copy generated Swig files to source directory" ;
+    }
+  }
+
+  actions RunSwig
+  {
+    $(CMD.SWIG) $(SWIG.FLAGS) -o $(<) $(>)
+    $(SED) $(SWIG.SED_SCRIPT) < $(<) > $(<).sed
+    $(RM) $(<)
+    $(MV) $(<).sed $(<)
+  }
+
+  SWIG.SIMPLE.LANGUAGE ?= python ;
+  SWIG.SIMPLE.EXT ?= py ;
+  SWIG.SIMPLE.FLAGS ?= -c++ -shadow ;
+
+  ## SimpleSwig swigfile
+  ##   Given a Swig input file (.i), invokes Swig to generate a .cpp file with
+  ##   the same basename, and a script file with the same basename.
+  ##   SWIG.SIMPLE.LANGUAGE specifies the language for which Swig should emit a
+  ##   binding; SWIG.SIMPLE.EXT indicates the file extension of the generated
+  ##   script file; SWIG.SIMPLE.FLAGS specifies additional flags for Swig.
+  rule SimpleSwig
+  {
+    local object = [ DoObjectGrist $(<:S=$(SUFOBJ)) ] ;
+    local cppfile = $(<:S=.cpp) ;
+    local script = $(<:S=.$(SWIG.SIMPLE.EXT)) ;
+
+    C++ $(object) : $(cppfile) ;
+    Swig $(cppfile) $(script) : $(<) : $(SWIG.SIMPLE.LANGUAGE) :
+      $(SWIG.SIMPLE.FLAGS) ;
+
+    return $(object) ;
+  }
+  RegisterFileType SimpleSwig : .i ;
+
+  if ! $(NO_SWIG_HEADER_SCANNING)
+  {
+    SWIG.HDRPATTERN =
+      "^[ 	]*[%#][ 	]*include[ 	]*[<\"]([^\">]*)[\">].*$" ;
+    RegisterHeaderRule HeaderRule : $(SWIG.HDRPATTERN) : .i ;
+  }
+}

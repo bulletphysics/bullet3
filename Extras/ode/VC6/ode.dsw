@@ -1,0 +1,53 @@
+Microsoft Developer Studio Workspace File, Format Version 6.00
+# WARNING: DO NOT EDIT OR DELETE THIS WORKSPACE FILE!
+
+###############################################################################
+
+Project: "OPCODE"=..\OPCODE\Opcode.dsp - Package Owner=<4>
+
+Package=<5>
+{{{
+    begin source code control
+    "$/TR4/ODE/VC6", WNKAAAAA
+    .
+    end source code control
+}}}
+
+Package=<4>
+{{{
+}}}
+
+###############################################################################
+
+Project: "ode"=.\ode.dsp - Package Owner=<4>
+
+Package=<5>
+{{{
+    begin source code control
+    "$/TR4/ODE/VC6", WNKAAAAA
+    .
+    end source code control
+}}}
+
+Package=<4>
+{{{
+    Begin Project Dependency
+    Project_Dep_Name OPCODE
+    End Project Dependency
+}}}
+
+###############################################################################
+
+Global:
+
+Package=<5>
+{{{
+}}}
+
+Package=<3>
+{{{
+}}}
+
+###############################################################################
+
+

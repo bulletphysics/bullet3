@@ -1,0 +1,76 @@
+#============================================================================
+# Rules for C and C++ files
+# Copyright (C)2003 by Matze Braun <matzebraun@users.sourceforge.net>
+#
+#    This library is free software; you can redistribute it and/or modify it
+#    under the terms of the GNU Library General Public License as published by
+#    the Free Software Foundation; either version 2 of the License, or (at your
+#    option) any later version.
+#
+#    This library is distributed in the hope that it will be useful, but
+#    WITHOUT ANY WARRANTY; without even the implied warranty of MERCHANTABILITY
+#    or FITNESS FOR A PARTICULAR PURPOSE.  See the GNU Library General Public
+#    License for more details.
+#
+#    You should have received a copy of the GNU Library General Public License
+#    along with this library; if not, write to the Free Software Foundation,
+#    Inc., 675 Mass Ave, Cambridge, MA 02139, USA.
+#
+#============================================================================
+
+if $(CMD.CC)
+{
+
+rule CcRule
+{
+    local object = 
+      [ DoObjectGrist [ PrefixSuffix $(>)_ : $(<) : $(SUFOBJ) ] ] ;
+    Cc $(object) : $(<) ;
+    return $(object) ;
+}
+RegisterFileType CcRule : .c ;
+RegisterHeaderRule HeaderRule : $(HDRPATTERN) : .c ;
+
+rule Cc
+{
+    Depends $(<) : $(>) ;
+
+    CCFLAGS on $(<) += $(CCFLAGS) $(SUBDIRCCFLAGS) ;
+    CCHDRS on $(<) = [ on $(<) FIncludes $(HDRS) ] ;
+    CCDEFS on $(<) = [ on $(<) FDefines $(DEFINES) ] ;
+}
+
+actions Cc
+{
+    $(CMD.CC) -c -o $(<) $(CCHDRS) $(CCFLAGS) $(CCDEFS) $(>)
+}
+} # end if $(CMD.CC)
+
+if $(CMD.C++)
+{
+
+rule C++Rule
+{
+    local object = 
+      [ DoObjectGrist [ PrefixSuffix $(>)_ : $(<) : $(SUFOBJ) ] ] ;
+    C++ $(object) : $(<) ;
+    return $(object) ;
+}
+RegisterFileType C++Rule : .cpp .cc .c++ ;
+RegisterHeaderRule HeaderRule : $(HDRPATTERN) : .cpp .cc .c++ ;
+
+rule C++
+{
+    Depends $(<) : $(>) ;
+
+    C++FLAGS on $(<) += $(C++FLAGS) $(SUBDIRC++FLAGS) ;
+    CCHDRS on $(<) = [ on $(<) FIncludes $(HDRS) ] ;
+    CCDEFS on $(<) = [ on $(<) FDefines $(DEFINES) ] ;
+}
+
+actions C++
+{
+    $(CMD.C++) -c -o $(<) $(CCHDRS) $(C++FLAGS) $(CCDEFS) $(>)
+}
+} # end if $(CMD:C++)
+

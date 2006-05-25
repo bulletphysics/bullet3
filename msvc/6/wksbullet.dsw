@@ -1,0 +1,554 @@
+Microsoft Developer Studio Workspace File, Format Version 6.00
+# WARNING: DO NOT EDIT OR DELETE THIS WORKSPACE FILE!
+
+###############################################################################
+
+Project: "appBasicSample"=.\appBasicSample.dsp - Package Owner=<4>
+
+Package=<5>
+{{{
+}}}
+
+Package=<4>
+{{{
+    Begin Project Dependency
+    Project_Dep_Name libbullet
+    End Project Dependency
+    Begin Project Dependency
+    Project_Dep_Name libbulletccdphysics
+    End Project Dependency
+    Begin Project Dependency
+    Project_Dep_Name libbulletdynamics
+    End Project Dependency
+    Begin Project Dependency
+    Project_Dep_Name libbulletmath
+    End Project Dependency
+    Begin Project Dependency
+    Project_Dep_Name libbulletphysicsinterfacecommon
+    End Project Dependency
+}}}
+
+###############################################################################
+
+Project: "appCcdPhysicsDemo"=.\appCcdPhysicsDemo.dsp - Package Owner=<4>
+
+Package=<5>
+{{{
+}}}
+
+Package=<4>
+{{{
+    Begin Project Dependency
+    Project_Dep_Name libbullet
+    End Project Dependency
+    Begin Project Dependency
+    Project_Dep_Name libbulletccdphysics
+    End Project Dependency
+    Begin Project Dependency
+    Project_Dep_Name libbulletdynamics
+    End Project Dependency
+    Begin Project Dependency
+    Project_Dep_Name libbulletmath
+    End Project Dependency
+    Begin Project Dependency
+    Project_Dep_Name libbulletopenglsupport
+    End Project Dependency
+    Begin Project Dependency
+    Project_Dep_Name libbulletphysicsinterfacecommon
+    End Project Dependency
+}}}
+
+###############################################################################
+
+Project: "appCollisionDemo"=.\appCollisionDemo.dsp - Package Owner=<4>
+
+Package=<5>
+{{{
+}}}
+
+Package=<4>
+{{{
+    Begin Project Dependency
+    Project_Dep_Name libbullet
+    End Project Dependency
+    Begin Project Dependency
+    Project_Dep_Name libbulletccdphysics
+    End Project Dependency
+    Begin Project Dependency
+    Project_Dep_Name libbulletdynamics
+    End Project Dependency
+    Begin Project Dependency
+    Project_Dep_Name libbulletmath
+    End Project Dependency
+    Begin Project Dependency
+    Project_Dep_Name libbulletopenglsupport
+    End Project Dependency
+    Begin Project Dependency
+    Project_Dep_Name libbulletphysicsinterfacecommon
+    End Project Dependency
+}}}
+
+###############################################################################
+
+Project: "appCollisionInterfaceDemo"=.\appCollisionInterfaceDemo.dsp - Package Owner=<4>
+
+Package=<5>
+{{{
+}}}
+
+Package=<4>
+{{{
+    Begin Project Dependency
+    Project_Dep_Name libbullet
+    End Project Dependency
+    Begin Project Dependency
+    Project_Dep_Name libbulletccdphysics
+    End Project Dependency
+    Begin Project Dependency
+    Project_Dep_Name libbulletdynamics
+    End Project Dependency
+    Begin Project Dependency
+    Project_Dep_Name libbulletmath
+    End Project Dependency
+    Begin Project Dependency
+    Project_Dep_Name libbulletopenglsupport
+    End Project Dependency
+    Begin Project Dependency
+    Project_Dep_Name libbulletphysicsinterfacecommon
+    End Project Dependency
+}}}
+
+###############################################################################
+
+Project: "appConcaveDemo"=.\appConcaveDemo.dsp - Package Owner=<4>
+
+Package=<5>
+{{{
+}}}
+
+Package=<4>
+{{{
+    Begin Project Dependency
+    Project_Dep_Name libbullet
+    End Project Dependency
+    Begin Project Dependency
+    Project_Dep_Name libbulletccdphysics
+    End Project Dependency
+    Begin Project Dependency
+    Project_Dep_Name libbulletdynamics
+    End Project Dependency
+    Begin Project Dependency
+    Project_Dep_Name libbulletmath
+    End Project Dependency
+    Begin Project Dependency
+    Project_Dep_Name libbulletopenglsupport
+    End Project Dependency
+    Begin Project Dependency
+    Project_Dep_Name libbulletphysicsinterfacecommon
+    End Project Dependency
+}}}
+
+###############################################################################
+
+Project: "appConstraintDemo"=.\appConstraintDemo.dsp - Package Owner=<4>
+
+Package=<5>
+{{{
+}}}
+
+Package=<4>
+{{{
+    Begin Project Dependency
+    Project_Dep_Name libbullet
+    End Project Dependency
+    Begin Project Dependency
+    Project_Dep_Name libbulletccdphysics
+    End Project Dependency
+    Begin Project Dependency
+    Project_Dep_Name libbulletdynamics
+    End Project Dependency
+    Begin Project Dependency
+    Project_Dep_Name libbulletmath
+    End Project Dependency
+    Begin Project Dependency
+    Project_Dep_Name libbulletopenglsupport
+    End Project Dependency
+    Begin Project Dependency
+    Project_Dep_Name libbulletphysicsinterfacecommon
+    End Project Dependency
+}}}
+
+###############################################################################
+
+Project: "appContinuousConvexCollision"=.\appContinuousConvexCollision.dsp - Package Owner=<4>
+
+Package=<5>
+{{{
+}}}
+
+Package=<4>
+{{{
+    Begin Project Dependency
+    Project_Dep_Name libbullet
+    End Project Dependency
+    Begin Project Dependency
+    Project_Dep_Name libbulletccdphysics
+    End Project Dependency
+    Begin Project Dependency
+    Project_Dep_Name libbulletdynamics
+    End Project Dependency
+    Begin Project Dependency
+    Project_Dep_Name libbulletmath
+    End Project Dependency
+    Begin Project Dependency
+    Project_Dep_Name libbulletopenglsupport
+    End Project Dependency
+    Begin Project Dependency
+    Project_Dep_Name libbulletphysicsinterfacecommon
+    End Project Dependency
+}}}
+
+###############################################################################
+
+Project: "appEPAPenDepthDemo"=.\appEPAPenDepthDemo.dsp - Package Owner=<4>
+
+Package=<5>
+{{{
+}}}
+
+Package=<4>
+{{{
+    Begin Project Dependency
+    Project_Dep_Name libbullet
+    End Project Dependency
+    Begin Project Dependency
+    Project_Dep_Name libbulletccdphysics
+    End Project Dependency
+    Begin Project Dependency
+    Project_Dep_Name libbulletdynamics
+    End Project Dependency
+    Begin Project Dependency
+    Project_Dep_Name libbulletmath
+    End Project Dependency
+    Begin Project Dependency
+    Project_Dep_Name libbulletopenglsupport
+    End Project Dependency
+    Begin Project Dependency
+    Project_Dep_Name libbulletphysicsinterfacecommon
+    End Project Dependency
+}}}
+
+###############################################################################
+
+Project: "appGjkConvexCastDemo"=.\appGjkConvexCastDemo.dsp - Package Owner=<4>
+
+Package=<5>
+{{{
+}}}
+
+Package=<4>
+{{{
+    Begin Project Dependency
+    Project_Dep_Name libbullet
+    End Project Dependency
+    Begin Project Dependency
+    Project_Dep_Name libbulletccdphysics
+    End Project Dependency
+    Begin Project Dependency
+    Project_Dep_Name libbulletdynamics
+    End Project Dependency
+    Begin Project Dependency
+    Project_Dep_Name libbulletmath
+    End Project Dependency
+    Begin Project Dependency
+    Project_Dep_Name libbulletopenglsupport
+    End Project Dependency
+    Begin Project Dependency
+    Project_Dep_Name libbulletphysicsinterfacecommon
+    End Project Dependency
+}}}
+
+###############################################################################
+
+Project: "appRaytracer"=.\appRaytracer.dsp - Package Owner=<4>
+
+Package=<5>
+{{{
+}}}
+
+Package=<4>
+{{{
+    Begin Project Dependency
+    Project_Dep_Name libbullet
+    End Project Dependency
+    Begin Project Dependency
+    Project_Dep_Name libbulletccdphysics
+    End Project Dependency
+    Begin Project Dependency
+    Project_Dep_Name libbulletdynamics
+    End Project Dependency
+    Begin Project Dependency
+    Project_Dep_Name libbulletmath
+    End Project Dependency
+    Begin Project Dependency
+    Project_Dep_Name libbulletopenglsupport
+    End Project Dependency
+    Begin Project Dependency
+    Project_Dep_Name libbulletphysicsinterfacecommon
+    End Project Dependency
+}}}
+
+###############################################################################
+
+Project: "appSimplexDemo"=.\appSimplexDemo.dsp - Package Owner=<4>
+
+Package=<5>
+{{{
+}}}
+
+Package=<4>
+{{{
+    Begin Project Dependency
+    Project_Dep_Name libbullet
+    End Project Dependency
+    Begin Project Dependency
+    Project_Dep_Name libbulletccdphysics
+    End Project Dependency
+    Begin Project Dependency
+    Project_Dep_Name libbulletdynamics
+    End Project Dependency
+    Begin Project Dependency
+    Project_Dep_Name libbulletmath
+    End Project Dependency
+    Begin Project Dependency
+    Project_Dep_Name libbulletopenglsupport
+    End Project Dependency
+    Begin Project Dependency
+    Project_Dep_Name libbulletphysicsinterfacecommon
+    End Project Dependency
+}}}
+
+###############################################################################
+
+Project: "grpall_bullet"=.\grpall_bullet.dsp - Package Owner=<4>
+
+Package=<5>
+{{{
+}}}
+
+Package=<4>
+{{{
+    Begin Project Dependency
+    Project_Dep_Name appBasicSample
+    End Project Dependency
+    Begin Project Dependency
+    Project_Dep_Name appCcdPhysicsDemo
+    End Project Dependency
+    Begin Project Dependency
+    Project_Dep_Name appCollisionDemo
+    End Project Dependency
+    Begin Project Dependency
+    Project_Dep_Name appCollisionInterfaceDemo
+    End Project Dependency
+    Begin Project Dependency
+    Project_Dep_Name appConcaveDemo
+    End Project Dependency
+    Begin Project Dependency
+    Project_Dep_Name appConstraintDemo
+    End Project Dependency
+    Begin Project Dependency
+    Project_Dep_Name appContinuousConvexCollision
+    End Project Dependency
+    Begin Project Dependency
+    Project_Dep_Name appEPAPenDepthDemo
+    End Project Dependency
+    Begin Project Dependency
+    Project_Dep_Name appGjkConvexCastDemo
+    End Project Dependency
+    Begin Project Dependency
+    Project_Dep_Name appRaytracer
+    End Project Dependency
+    Begin Project Dependency
+    Project_Dep_Name appSimplexDemo
+    End Project Dependency
+    Begin Project Dependency
+    Project_Dep_Name libbullet
+    End Project Dependency
+    Begin Project Dependency
+    Project_Dep_Name libbulletccdphysics
+    End Project Dependency
+    Begin Project Dependency
+    Project_Dep_Name libbulletdynamics
+    End Project Dependency
+    Begin Project Dependency
+    Project_Dep_Name libbulletmath
+    End Project Dependency
+    Begin Project Dependency
+    Project_Dep_Name libbulletopenglsupport
+    End Project Dependency
+    Begin Project Dependency
+    Project_Dep_Name libbulletphysicsinterfacecommon
+    End Project Dependency
+}}}
+
+###############################################################################
+
+Project: "grpapps_bullet"=.\grpapps_bullet.dsp - Package Owner=<4>
+
+Package=<5>
+{{{
+}}}
+
+Package=<4>
+{{{
+    Begin Project Dependency
+    Project_Dep_Name appBasicSample
+    End Project Dependency
+    Begin Project Dependency
+    Project_Dep_Name appCcdPhysicsDemo
+    End Project Dependency
+    Begin Project Dependency
+    Project_Dep_Name appCollisionDemo
+    End Project Dependency
+    Begin Project Dependency
+    Project_Dep_Name appCollisionInterfaceDemo
+    End Project Dependency
+    Begin Project Dependency
+    Project_Dep_Name appConcaveDemo
+    End Project Dependency
+    Begin Project Dependency
+    Project_Dep_Name appConstraintDemo
+    End Project Dependency
+    Begin Project Dependency
+    Project_Dep_Name appContinuousConvexCollision
+    End Project Dependency
+    Begin Project Dependency
+    Project_Dep_Name appEPAPenDepthDemo
+    End Project Dependency
+    Begin Project Dependency
+    Project_Dep_Name appGjkConvexCastDemo
+    End Project Dependency
+    Begin Project Dependency
+    Project_Dep_Name appRaytracer
+    End Project Dependency
+    Begin Project Dependency
+    Project_Dep_Name appSimplexDemo
+    End Project Dependency
+}}}
+
+###############################################################################
+
+Project: "grplibs_bullet"=.\grplibs_bullet.dsp - Package Owner=<4>
+
+Package=<5>
+{{{
+}}}
+
+Package=<4>
+{{{
+    Begin Project Dependency
+    Project_Dep_Name libbullet
+    End Project Dependency
+    Begin Project Dependency
+    Project_Dep_Name libbulletccdphysics
+    End Project Dependency
+    Begin Project Dependency
+    Project_Dep_Name libbulletdynamics
+    End Project Dependency
+    Begin Project Dependency
+    Project_Dep_Name libbulletmath
+    End Project Dependency
+    Begin Project Dependency
+    Project_Dep_Name libbulletopenglsupport
+    End Project Dependency
+    Begin Project Dependency
+    Project_Dep_Name libbulletphysicsinterfacecommon
+    End Project Dependency
+}}}
+
+###############################################################################
+
+Project: "libbullet"=.\libbullet.dsp - Package Owner=<4>
+
+Package=<5>
+{{{
+}}}
+
+Package=<4>
+{{{
+}}}
+
+###############################################################################
+
+Project: "libbulletccdphysics"=.\libbulletccdphysics.dsp - Package Owner=<4>
+
+Package=<5>
+{{{
+}}}
+
+Package=<4>
+{{{
+}}}
+
+###############################################################################
+
+Project: "libbulletdynamics"=.\libbulletdynamics.dsp - Package Owner=<4>
+
+Package=<5>
+{{{
+}}}
+
+Package=<4>
+{{{
+}}}
+
+###############################################################################
+
+Project: "libbulletmath"=.\libbulletmath.dsp - Package Owner=<4>
+
+Package=<5>
+{{{
+}}}
+
+Package=<4>
+{{{
+}}}
+
+###############################################################################
+
+Project: "libbulletopenglsupport"=.\libbulletopenglsupport.dsp - Package Owner=<4>
+
+Package=<5>
+{{{
+}}}
+
+Package=<4>
+{{{
+}}}
+
+###############################################################################
+
+Project: "libbulletphysicsinterfacecommon"=.\libbulletphysicsinterfacecommon.dsp - Package Owner=<4>
+
+Package=<5>
+{{{
+}}}
+
+Package=<4>
+{{{
+}}}
+
+###############################################################################
+
+Global:
+
+Package=<5>
+{{{
+}}}
+
+Package=<3>
+{{{
+}}}
+
+###############################################################################
+

@@ -1,0 +1,109 @@
+#============================================================================
+# Work around problems the SubDir rule of Jambase
+#	(until jampeople accept my patches :-/ )
+# Copyright (C)2003 by Matze Braun <matzebraun@users.sourceforge.net>
+#
+#    This library is free software; you can redistribute it and/or modify it
+#    under the terms of the GNU Library General Public License as published by
+#    the Free Software Foundation; either version 2 of the License, or (at your
+#    option) any later version.
+#
+#    This library is distributed in the hope that it will be useful, but
+#    WITHOUT ANY WARRANTY; without even the implied warranty of MERCHANTABILITY
+#    or FITNESS FOR A PARTICULAR PURPOSE.  See the GNU Library General Public
+#    License for more details.
+#
+#    You should have received a copy of the GNU Library General Public License
+#    along with this library; if not, write to the Free Software Foundation,
+#    Inc., 675 Mass Ave, Cambridge, MA 02139, USA.
+#
+#============================================================================
+
+LOCATE.OBJECTS ?= $(BUILDTOP)/out/$(OSFULL[1]:L) ;
+LOCATE.TARGETS ?= $(BUILDTOP) ;
+LOCATE.DOCS ?= $(BUILDTOP)/out/docs ;
+
+SUBDIRRULES += FixSubDirPath ;
+
+CMD.MKDIR ?= mkdir ;
+CMD.MKDIRS ?= "$(CMD.MKDIR) -p" ;
+
+rule FixSubDirPath
+{
+    LOCATE_SOURCE = [ FDirName $(LOCATE.OBJECTS) $(SUBDIR_TOKENS) ] ;
+    LOCATE_TARGET = [ FDirName $(LOCATE.OBJECTS) $(SUBDIR_TOKENS) ] ;
+}
+
+# Fix bug in Jambase where SubInclude in the middle of a Jamfile made it break.
+rule SubInclude
+{
+    if ! $($(<[1]))
+    {
+        Exit SubInclude $(<[1]) without prior SubDir $(<[1]) ;
+    }
+
+    local save_SUBDIR_TOKENS = $(SUBDIR_TOKENS) ;
+
+    SubDir $(<) ;
+
+    include $(JAMFILE:D=$(SUBDIR)) ;
+
+    SubDir $(<[1]) $(save_SUBDIR_TOKENS) ;
+}
+
+# This MakeLocate rule differs from the Jambase one in that it also works with
+# files being in subdirectories.
+rule MakeLocate
+{
+    # MakeLocate targets : directory ;
+
+    # Sets special variable LOCATE on targets, and arranges
+    # with MkDir to create target directory.
+
+    # Note we grist the directory name with 'dir',
+    # so that directory path components and other
+    # targets don't conflict.
+
+    if $(>) && $(>) != ""
+    {
+        local i ;
+        for i in $(<)
+	{
+            LOCATE on $(i) = $(>) ;
+
+            local targetfile = $(i:R=$(>)) ;
+	    local targetdir = $(targetfile:D) ;
+	    if ! $(targetdir) { targetdir = "." ; }
+	    targetdir = $(targetdir:G=dir) ;
+            Depends $(i) : $(targetdir) ;
+            MkDir $(targetdir) ;
+        }
+    }
+}
+
+# The default MkDir rule in Jambase has problems when paths contains a sequence
+# of multiple slashes (ie. bla////fup). We solve these problems and greatly
+# simply this rule by using the "mkdir -p" or mkdirs command.
+rule MkDir
+{
+    # MkDir directory ;
+
+    # Make a directory and all its parent directories.
+
+    # Ignore timestamps on directories: we only care if they
+    # exist.
+
+    NoUpdate $(<) ;
+
+    # don't create the dir multiple times
+    if ! $($(<)-mkdir)
+    {
+        $(<)-mkdir = true ;
+        MkDir1 $(<) ;
+    }
+}
+
+actions MkDir1
+{
+        $(CMD.MKDIRS) "$(<)"
+}

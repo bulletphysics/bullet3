@@ -1,0 +1,4 @@
+SubDir TOP Extras PhysicsInterface ;
+
+SubInclude TOP Extras PhysicsInterface Common ;
+SubInclude TOP Extras PhysicsInterface CcdPhysics ;

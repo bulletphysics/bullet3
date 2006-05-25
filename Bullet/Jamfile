@@ -1,0 +1,11 @@
+SubDir TOP Bullet ;
+
+
+Description bullet : "Bullet Continuous Collision Detection and Physics Library" ;
+Library bullet :
+  [ Wildcard BroadphaseCollision : *.h *.cpp ] 
+  [ Wildcard CollisionDispatch : *.h *.cpp ] 
+  [ Wildcard CollisionShapes : *.h *.cpp ] 
+  [ Wildcard NarrowPhaseCollision : *.h *.cpp ] 
+;
+Recurse InstallHeader : .h  ;

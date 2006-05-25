@@ -1,0 +1,10 @@
+EXPORTS
+
+	xmlFree
+	xmlMalloc
+	xmlMallocAtomic
+	xmlRealloc
+	xmlMemStrdup
+
+SECTIONS
+	.data READ WRITE

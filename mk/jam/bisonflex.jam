@@ -1,0 +1,165 @@
+#============================================================================
+# Rules for flex and bison
+# Copyright (C)2003 by Matze Braun <matzebraun@users.sourceforge.net>
+#
+#    This library is free software; you can redistribute it and/or modify it
+#    under the terms of the GNU Library General Public License as published by
+#    the Free Software Foundation; either version 2 of the License, or (at your
+#    option) any later version.
+#
+#    This library is distributed in the hope that it will be useful, but
+#    WITHOUT ANY WARRANTY; without even the implied warranty of MERCHANTABILITY
+#    or FITNESS FOR A PARTICULAR PURPOSE.  See the GNU Library General Public
+#    License for more details.
+#
+#    You should have received a copy of the GNU Library General Public License
+#    along with this library; if not, write to the Free Software Foundation,
+#    Inc., 675 Mass Ave, Cambridge, MA 02139, USA.
+#
+#============================================================================
+
+if $(CMD.FLEX)
+{
+  # Some versions of Flex-generated files want to include <unistd.h> which is
+  # not normally available on Windows, so we need to protect it.  We also
+  # filter out CVS `Header' keywords in order to prevent CVS from thinking that
+  # the file has changed simply because the Header information is different.
+  FLEX.SED_SCRIPT =
+    "'s/\\([ 	]*#[ 	]*include[ 	][ 	]*<unistd.h>\\)/#ifndef WIN32\\
+    \\1\\
+    #endif/;/\$Header:/d'" ;
+
+  # Compilers such as MSVC do not like #line directives.  Since the generated
+  # file might get stored in CVS and used by MSVC users (even if generated on
+  # Unix, for instance), we want to suppress #line directives in all cases.
+  FLEX.FLAGS += -L ;
+
+  rule FlexRule
+  {
+    local object ;
+    local cfile = [ DoObjectGrist $(<:S=.c) ] ;
+    
+    MakeLocate $(cfile) : $(LOCATE_TARGET) ;
+    SEARCH on $(cfile) = $(LOCATE_TARGET) ;
+   
+    Flex $(cfile) : $(<) ;
+    object = [ CompileObjects $(cfile) : $(>) ] ;
+    
+    return $(object) ;
+  }
+  RegisterFileType FlexRule : .l ;
+  
+  rule Flex++Rule
+  {
+    local object ;
+    local cppfile = [ DoObjectGrist $(<:S=.cpp) ] ;
+
+    MakeLocate $(cppfile) : $(LOCATE_TARGET) ;
+    SEARCH on $(cppfile) = $(LOCATE_TARGET) ;
+
+    Flex $(cppfile) : $(<) ;
+    object = [ CompileObjects $(cppfile) : $(>) ] ;
+
+    return $(object) ;
+  }
+  RegisterFileType Flex++Rule : .ll ;
+
+  rule Flex
+  {
+    Depends $(<) : $(>) ;
+    FLEX.FLAGS on $(<) += $(FLEX.FLAGS) ;
+  }
+
+  # Use -t and output redirection to avoid flex choosing undesirable names for
+  # its output files.  Also apply FLEX.SED_SCRIPT.
+  actions Flex
+  {
+    $(CMD.FLEX) -t $(FLEX.FLAGS) $(>) | $(SED) $(FLEX.SED_SCRIPT) > $(<)
+  }
+}
+
+if $(CMD.BISON)
+{
+  rule BisonRule
+  {
+    local object ;
+    local cfile = [ DoObjectGrist $(<:S=.c) ] ;
+    local headerfile = [ DoObjectGrist $(<:S=.h) ] ;
+
+    # Jam's header file scannning doesn't use grist so we have to workaround
+    # this here.
+    Includes $(headerfile:G=$(SOURCE_GRIST:E)!$(SUBVARIANT:J=!)) : $(headerfile) ;
+  
+    MakeLocate $(cfile) $(headerfile) : $(LOCATE_TARGET) ;
+    
+    BISON.FLAGS on $(cfile) = 
+      [ on [ DoSourceGrist $(<:S=.c) ] GetVar BISON.FLAGS ] ;
+    Bison $(cfile) : $(<) ;
+    # Work around for jam warning about independant target when we put both
+    # headerfile and cppfile in the bison line...
+    Includes $(cppfile) : $(headerfile) ;
+    object = [ CompileObjects $(cfile) : $(>) ] ;
+    SEARCH on $(cfile) = $(LOCATE_TARGET) ;
+    SEARCH on $(headerfile) = $(LOCATE_TARGET) ;
+
+    return $(object) ;
+  }
+  RegisterFileType BisonRule : .y ;
+
+  rule Bison++Rule
+  {
+    local object ;
+    local cppfile = [ DoObjectGrist $(<:S=.cpp) ] ;
+    local headerfile = [ DoObjectGrist $(<:S=.hpp) ] ;
+
+    # Jam's header file scannning doesn't use grist so we have to workaround
+    # this here.
+    Includes $(headerfile:G=$(SOURCE_GRIST:E)!$(SUBVARIANT:J=!)) : $(headerfile) ;
+
+    MakeLocate $(cppfile) : $(LOCATE_TARGET) ;
+    MakeLocate $(headerfile) : $(LOCATE_TARGET) ;
+    
+    BISON.FLAGS on $(cppfile) = 
+      [ on [ DoSourceGrist $(<:S=.cpp) ] GetVar BISON.FLAGS ] ;
+    Bison $(cppfile) : $(<) ;
+    # Work around for jam warning about independant target when we put both
+    # headerfile and cppfile in the bison line...
+    Includes $(cppfile) : $(headerfile) ;
+    object = [ CompileObjects $(cppfile) : $(>) ] ;
+    SEARCH on $(cppfile) = $(LOCATE_TARGET) ;
+    SEARCH on $(headerfile) = $(LOCATE_TARGET) ;
+
+    return $(object) ;
+  }
+  RegisterFileType Bison++Rule : .yy ;
+    
+  rule Bison
+  {
+    Depends $(<) : $(>) ;
+    BISON.FLAGS on $(<) += $(BISON.FLAGS) ;
+  }
+  rule BisonFlags
+  {
+    local target ;
+    
+    if $(<:S) = .yy
+    {
+      target = [ DoSourceGrist $(<:S=.cpp) $(<:S=.hpp) ] ;
+    }
+    else
+    {
+      target = [ DoSourceGrist $(<:S=.c) $(<:S=.h) ] ;
+    }
+    BISON.FLAGS on $(target) += $(>) ;
+  }
+	
+  # Compilers such as MSVC do not like #line directives.  Since the generated
+  # file might get stored in CVS and used by MSVC users (even if generated on
+  # Unix, for instance), we want to suppress #line directives in all cases.
+  BISON.FLAGS += --no-lines ;
+
+  actions Bison
+  {
+    $(CMD.BISON) -d $(BISON.FLAGS) -o $(<[1]) $(>)
+  }
+}
