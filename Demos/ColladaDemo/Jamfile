@@ -1,0 +1,3 @@
+SubDir TOP Demos ColladaDemo ;
+
+BulletDemo ColladaDemo : [ Wildcard *.h *.cpp  ] ;
