@@ -15,7 +15,7 @@ subject to the following restrictions:
 
 #include "CcdPhysicsEnvironment.h"
 #include "CcdPhysicsController.h"
-#include "MyMotionState.h"
+
 //#include "GL_LineSegmentShape.h"
 #include "CollisionShapes/BoxShape.h"
 #include "CollisionShapes/SphereShape.h"
@@ -108,7 +108,7 @@ const int numObjects = 120;
 
 const int maxNumObjects = 450;
 
-MyMotionState ms[maxNumObjects];
+DefaultMotionState ms[maxNumObjects];
 CcdPhysicsController* physObjects[maxNumObjects] = {0,0,0,0};
 int	shapeIndex[maxNumObjects];
 CcdPhysicsEnvironment* physicsEnvironmentPtr = 0;

@@ -26,7 +26,7 @@ subject to the following restrictions:
 #include "CollisionShapes/CylinderShape.h"
 #include "CollisionShapes/Simplex1to4Shape.h"
 
-
+#include "CollisionShapes/ConvexTriangleMeshShape.h"
 
 
 #include "IDebugDraw.h"
@@ -52,6 +52,7 @@ void GL_ShapeDrawer::DrawCoordSystem()  {
 
 
 
+
 class GlDrawcallback : public TriangleCallback
 {
 public:
@@ -71,8 +72,27 @@ public:
 		glEnd();
 
 	}
-
 };
+
+class TriangleGlDrawcallback : public InternalTriangleIndexCallback
+{
+public:
+	virtual void InternalProcessTriangleIndex(SimdVector3* triangle,int partId,int  triangleIndex)
+	{
+		glBegin(GL_TRIANGLES);//LINES);
+		glColor3f(1, 0, 0);
+		glVertex3d(triangle[0].getX(), triangle[0].getY(), triangle[0].getZ());
+		glVertex3d(triangle[1].getX(), triangle[1].getY(), triangle[1].getZ());
+		glColor3f(0, 1, 0);
+		glVertex3d(triangle[2].getX(), triangle[2].getY(), triangle[2].getZ());
+		glVertex3d(triangle[1].getX(), triangle[1].getY(), triangle[1].getZ());
+		glColor3f(0, 0, 1);
+		glVertex3d(triangle[2].getX(), triangle[2].getY(), triangle[2].getZ());
+		glVertex3d(triangle[0].getX(), triangle[0].getY(), triangle[0].getZ());
+		glEnd();
+	}
+};
+
 
 void GL_ShapeDrawer::DrawOpenGL(float* m, const CollisionShape* shape, const SimdVector3& color,int	debugMode)
 {
@@ -130,6 +150,12 @@ void GL_ShapeDrawer::DrawOpenGL(float* m, const CollisionShape* shape, const Sim
 				break;
 
 			}
+		case CONVEX_TRIANGLEMESH_SHAPE_PROXYTYPE:
+			{
+				useWireframeFallback = false;
+				break;
+			}
+
 		case CONVEX_SHAPE_PROXYTYPE:
 		case CYLINDER_SHAPE_PROXYTYPE:
 			{
@@ -224,6 +250,17 @@ void GL_ShapeDrawer::DrawOpenGL(float* m, const CollisionShape* shape, const Sim
 
 	}
 
+	if (shape->GetShapeType() == CONVEX_TRIANGLEMESH_SHAPE_PROXYTYPE)
+	{
+		ConvexTriangleMeshShape* convexMesh = (ConvexTriangleMeshShape*) shape;
+		
+		extern float eye[3];
+		SimdVector3 aabbMax(eye[0]+100,eye[1]+100,eye[2]+100);
+		SimdVector3 aabbMin(eye[0]-100,eye[1]-100,eye[2]-100);
+		TriangleGlDrawcallback drawCallback;
+		convexMesh->GetStridingMesh()->InternalProcessAllTriangles(&drawCallback,aabbMin,aabbMax);
+
+	}
 	
     
 	glPopMatrix();

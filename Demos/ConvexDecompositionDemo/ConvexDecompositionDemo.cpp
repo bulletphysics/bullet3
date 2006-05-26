@@ -13,13 +13,19 @@ subject to the following restrictions:
 3. This notice may not be removed or altered from any source distribution.
 */
 
+#include "cd_wavefront.h"
+#include "ConvexBuilder.h"
+
+
 #include "CcdPhysicsEnvironment.h"
 #include "CcdPhysicsController.h"
-#include "MyMotionState.h"
+
 //#include "GL_LineSegmentShape.h"
 #include "CollisionShapes/BoxShape.h"
 #include "CollisionShapes/SphereShape.h"
 #include "CollisionShapes/ConeShape.h"
+#include "CollisionShapes/ConvexTriangleMeshShape.h"
+#include "CollisionShapes/TriangleMesh.h"
 
 
 #include "CollisionShapes/Simplex1to4Shape.h"
@@ -37,38 +43,6 @@ subject to the following restrictions:
 
 #include "GLDebugDrawer.h"
 
-//#define COLLADA_PHYSICS_TEST 1
-#ifdef COLLADA_PHYSICS_TEST
-
-//Collada Physics test
-//#define NO_LIBXML //need LIBXML, because FCDocument/FCDPhysicsRigidBody.h needs FUDaeWriter, through FCDPhysicsParameter.hpp
-#include "FUtils/FUtils.h"
-#include "FCDocument/FCDocument.h"
-#include "FCDocument/FCDSceneNode.h"
-#include "FUtils/FUFileManager.h"
-#include "FUtils/FULogFile.h"
-#include "FCDocument/FCDPhysicsSceneNode.h"
-#include "FCDocument/FCDPhysicsModelInstance.h"
-#include "FCDocument/FCDPhysicsRigidBodyInstance.h"
-#include "FCDocument/FCDPhysicsRigidBody.h"
-#include "FCDocument/FCDGeometryInstance.h"
-#include "FCDocument/FCDGeometryMesh.h"
-#include "FCDocument/FCDGeometry.h"
-#include "FCDocument/FCDPhysicsAnalyticalGeometry.h"
-
-
-
-
-//aaa
-
-
-
-
-
-#endif //COLLADA_PHYSICS_TEST
-
-
-
 
 #include "PHY_Pro.h"
 #include "BMF_Api.h"
@@ -76,7 +50,7 @@ subject to the following restrictions:
 
 float deltaTime = 1.f/60.f;
 float bulletSpeed = 40.f;
-bool createConstraint = true;
+bool createConstraint = false;//true;
 #ifdef WIN32
 #if _MSC_VER >= 1310
 //only use SIMD Hull code under Win32
@@ -101,27 +75,33 @@ extern int glutScreenHeight;
 
 
 #ifdef _DEBUG
-const int numObjects = 120;//22;
+int numObjects = 4;//22;
 #else
-const int numObjects = 120;
+int numObjects = 120;
 #endif
 
 const int maxNumObjects = 450;
 
-MyMotionState ms[maxNumObjects];
+DefaultMotionState ms[maxNumObjects];
 CcdPhysicsController* physObjects[maxNumObjects] = {0,0,0,0};
 int	shapeIndex[maxNumObjects];
+
+SimdVector3	centroids[maxNumObjects];
+
 CcdPhysicsEnvironment* physicsEnvironmentPtr = 0;
 
 
-#define CUBE_HALF_EXTENTS 1
+#define CUBE_HALF_EXTENTS 4
 
 #define EXTRA_HEIGHT -20.f
 //GL_LineSegmentShape shapeE(SimdPoint3(-50,0,0),
 //						   SimdPoint3(50,0,0));
 static const int numShapes = 4;
 
-CollisionShape* shapePtr[numShapes] = 
+CollisionShape* shapePtr[maxNumObjects];
+
+
+CollisionShape* prebuildShapePtr[numShapes] = 
 {
 	///Please don't make the box sizes larger then 1000: the collision detection will be inaccurate.
 	///See http://www.continuousphysics.com/Bullet/phpBB2/viewtopic.php?t=346
@@ -141,352 +121,11 @@ CollisionShape* shapePtr[numShapes] =
 
 
 
-////////////////////////////////////
-
-#ifdef COLLADA_PHYSICS_TEST
-
-
-bool ConvertColladaPhysicsToBulletPhysics(const FCDPhysicsSceneNode* inputNode)
-{
-
-	assert(inputNode);
-
-	/// FRSceneNodeList nodesToDelete;
-	// FRMeshPhysicsController::StartCooking();
-
-	FCDPhysicsModelInstanceList models = inputNode->GetInstances();
-
-	//Go through all of the physics models 
-	for (FCDPhysicsModelInstanceList::iterator itM=models.begin(); itM != models.end(); itM++) 
-	{
-
-		FCDEntityInstanceList& instanceList = (*itM)->GetInstances();
-		//create one node per physics model. This node is pretty much only a middle man, 
-		//but better describes the structure we get from the input file 
-		//FRSceneNode* modelNode = new FRSceneNode(); 
-		//modelNode->SetParent(outputNode); 
-		//outputNode->AddChild(modelNode); 
-		//Go through all of the rigid bodies and rigid constraints in that model 
-
-		for (FCDEntityInstanceList::iterator itE=instanceList.begin(); itE!=instanceList.end(); itE++) 
-		{
-			if ((*itE)->GetType() == FCDEntityInstance::PHYSICS_RIGID_CONSTRAINT) 
-			{
-				//not yet, could add point to point / hinge support easily 
-			}
-			else 
-				if ((*itE)->GetType() == FCDEntityInstance::PHYSICS_RIGID_BODY) 
-				{
-
-					printf("PHYSICS_RIGID_BODY\n");
-
-
-					//Create a controller per rigid-body 
-
-					//FRMeshPhysicsController* controller = new FRMeshPhysicsController(inputNode->GetGravity(), inputNode->GetTimestep()); 
-					FCDPhysicsRigidBodyInstance* rbInstance = (FCDPhysicsRigidBodyInstance*)(*itE);
-
-					FCDSceneNode* targetNode = rbInstance->GetTargetNode();
-
-
-					if (!targetNode) 
-					{
-
-
-						//DebugOut("FCTranslator: No target node defined in rigid body instance"); 
-
-						//SAFE_DELETE(controller); 
-
-						continue; 
-					}
-
-
-					//Transfer all the transforms in n into cNode, and bake
-					//at the same time the scalings. It is necessary to re-translate the
-					//transforms as they will get deleted when we delete the old node.
-					//A better way to do this would be to steal the transforms from the old
-					//nodes, and make sure they're not deleted later, but this is impractical
-					//right now as we would also have to migrate all the animation curves.
-
-
-					//FRTScaleList scaleTransforms;
-
-					uint32 numTransforms = targetNode->GetTransformCount();
-
-					for (uint32 i=0; i<numTransforms; i++)
-					{
-						//targetNode->GetTransforms()[i]);
-					}
-
-					//Then affect all of its geometry instances.
-					//Collect all the entities inside the entity vector and inside the children nodes
-/*
-					FREntityList childEntities = n->GetEntities();
-					FRSceneNodeList childrenToParse = n->GetChildren();
-
-					while (!childrenToParse.empty())
-					{
-						FRSceneNode* child = *childrenToParse.begin();
-						const FREntityList& e = child->GetEntities();
-						//add the entities of that child
-						childEntities.insert(childEntities.end(), e.begin(), e.end());
-						//queue the grand-children nodes
-						childrenToParse.insert(childrenToParse.end(), child->GetChildren().begin(), child->GetChildren().end());
-						childrenToParse.erase(childrenToParse.begin());
-
-					}
-*/
-					//now check which ones are geometry mesh (right now an entity is only derived by mesh
-					//but do this to avoid problems in the future)
-/*
-					for (FREntityList::iterator itT = childEntities.begin(); itT != childEntities.end(); itT++)
-					{
-
-						if ((*itT)->GetType() == FREntity::MESH || (*itT)->GetType() == FREntity::MESH_CONTROLLER)
-
-						{
-
-							FRMesh* cMesh = (FRMesh*)*itT;
-
-							//while we're here, bake the scaling transforms into the meshes
-
-							BakeScalingIntoMesh(cMesh, scaleTransforms);
-
-							controller->AddBindMesh((FRMesh*)*itT);
-
-						}
-
-					}
-*/
-
-
-					/////////////////////////////////////////////////////////////////////
-					//We're done with the targets. Now take care of the physics shapes.
-					FCDPhysicsRigidBody* rigidBody = rbInstance->FlattenRigidBody();
-					FCDPhysicsMaterial* mat = rigidBody->GetPhysicsMaterial();
-					FCDPhysicsShapeList shapes = rigidBody->GetPhysicsShapeList();
-					for (uint32 i=0; i<shapes.size(); i++)
-					{
-						FCDPhysicsShape* OldShape = shapes[i];
-
-						OldShape->GetType();//
-						//controller->SetDensity(OldShape->GetDensity());
-
-
-						if (OldShape->GetGeometryInstance())
-
-						{
-
-							FCDGeometry* geoTemp = (FCDGeometry*)(OldShape->GetGeometryInstance()->GetEntity());
-							
-							const FCDGeometryMesh* colladaMesh = geoTemp->GetMesh();
-							
-
-
-							//FRMesh* cMesh = ToFREntityGeometry(geoTemp);
-							//BakeScalingIntoMesh(cMesh, scaleTransforms);
-
-							for (uint32 j=0; j<colladaMesh->GetPolygonsCount(); j++)
-							{
-								/*
-								FRMeshPhysicsShape* NewShape = new FRMeshPhysicsShape(controller);
-
-								if (!NewShape->CreateTriangleMesh(cMesh, j, true))
-
-								{
-
-									SAFE_DELETE(NewShape);
-
-									continue;
-
-								}
-								if (mat)
-								{
-									NewShape->SetMaterial(mat->GetStaticFriction(), mat->GetDynamicFriction(), mat->GetRestitution());
-									//FIXME
-									//NewShape->material->setFrictionCombineMode();
-									//NewShape->material->setSpring();
-								}
-
-								controller->AddShape(NewShape);
-
-							*/
-						}
-							
-
-
-						}
-
-						else
-
-						{
-
-							//FRMeshPhysicsShape* NewShape = new FRMeshPhysicsShape(controller);
-
-							FCDPhysicsAnalyticalGeometry* analGeom = OldShape->GetAnalyticalGeometry();
-
-							//increse the following value for nicer shapes with more vertices
-
-							uint16 superEllipsoidSubdivisionLevel = 2;
-
-							if (!analGeom)
-
-								continue;
-
-							switch (analGeom->GetGeomType())
-
-							{
-
-							case FCDPhysicsAnalyticalGeometry::BOX:
-
-								{
-
-									FCDPASBox* box = (FCDPASBox*)analGeom;
-
-									break;
-
-								}
-
-							case FCDPhysicsAnalyticalGeometry::PLANE:
-
-								{
-
-									FCDPASPlane* plane = (FCDPASPlane*)analGeom;
-
-									break;
-
-								}
-
-							case FCDPhysicsAnalyticalGeometry::SPHERE:
-
-								{
-
-									FCDPASSphere* sphere = (FCDPASSphere*)analGeom;
-								
-									break;
-
-								}
-
-							case FCDPhysicsAnalyticalGeometry::CYLINDER:
-
-								{
-
-									//FIXME: only using the first radius of the cylinder
-
-									FCDPASCylinder* cylinder = (FCDPASCylinder*)analGeom;
-
-
-									break;
-
-								}
-
-							case FCDPhysicsAnalyticalGeometry::CAPSULE:
-
-								{
-
-									//FIXME: only using the first radius of the capsule
-
-									FCDPASCapsule* capsule = (FCDPASCapsule*)analGeom;
-
-
-									break;
-
-								}
-
-							case FCDPhysicsAnalyticalGeometry::TAPERED_CAPSULE:
-
-								{
-
-									//FIXME: only using the first radius of the capsule
-
-									FCDPASTaperedCapsule* tcapsule = (FCDPASTaperedCapsule*)analGeom;
-
-									break;
-
-								}
-
-							case FCDPhysicsAnalyticalGeometry::TAPERED_CYLINDER:
-
-								{
-
-									//FIXME: only using the first radius of the cylinder
-
-									FCDPASTaperedCylinder* tcylinder = (FCDPASTaperedCylinder*)analGeom;
-
-									break;
-
-								}
-
-							default:
-
-								{
-
-									break;
-
-								}
-
-							}
-
-							//controller->AddShape(NewShape);
-						}
-
-					}
-
-					FCDPhysicsParameter<bool>* dyn = (FCDPhysicsParameter<bool>*)rigidBody->FindParameterByReference(DAE_DYNAMIC_ELEMENT);
-
-					if (dyn) 
-					{
-						//dyn->GetValue();
-					}
-
-					FCDPhysicsParameter<float>* mass = (FCDPhysicsParameter<float>*)rigidBody->FindParameterByReference(DAE_MASS_ELEMENT);
-
-					if (mass) 
-					{
-						mass->GetValue();
-					}
-
-					FCDPhysicsParameter<FMVector3>* inertia = (FCDPhysicsParameter<FMVector3>*)rigidBody->FindParameterByReference(DAE_INERTIA_ELEMENT);
-
-					if (inertia) 
-					{
-						inertia->GetValue();
-					}
-
-					FCDPhysicsParameter<FMVector3>* velocity = (FCDPhysicsParameter<FMVector3>*)rigidBody->FindParameterByReference(DAE_VELOCITY_ELEMENT);
-
-					if (velocity) 
-					{
-						velocity->GetValue();
-					}
-
-					FCDPhysicsParameter<FMVector3>* angularVelocity = (FCDPhysicsParameter<FMVector3>*)rigidBody->FindParameterByReference(DAE_ANGULAR_VELOCITY_ELEMENT);
-
-					if (angularVelocity) 
-					{
-						angularVelocity->GetValue();
-					}
-
-					//controller->SetGlobalPose(n->CalculateWorldTransformation());//??
-
-					//SAFE_DELETE(rigidBody);
-
-				}
-
-		}
-
-	}
-
-	return true; 
-}
-
-
-
-#endif //COLLADA_PHYSICS_TEST
 
 
 ////////////////////////////////////
 
+unsigned int tcount = 0;
 
 
 GLDebugDrawer debugDrawer;
@@ -494,27 +133,203 @@ GLDebugDrawer debugDrawer;
 int main(int argc,char** argv)
 {
 
-#ifdef COLLADA_PHYSICS_TEST
-	char* filename = "ColladaPhysics.dae";
-	FCDocument* document = new FCDocument();
-	FUStatus status = document->LoadFromFile(filename);
-	bool success = status.IsSuccessful();
-	printf ("Collada import %i\n",success);
-
-	if (success)
+	int i;
+	for (i=0;i<numObjects;i++)
 	{
-		const FCDPhysicsSceneNode* physicsSceneRoot = document->GetPhysicsSceneRoot();
-		if (ConvertColladaPhysicsToBulletPhysics( physicsSceneRoot ))
+		if (i>0)
 		{
-			printf("ConvertColladaPhysicsToBulletPhysics successfull\n");
-		} else
-		{
-			printf("ConvertColladaPhysicsToBulletPhysics failed\n");
+			shapePtr[i] = prebuildShapePtr[1];
+			shapeIndex[i] = 1;//sphere
 		}
+		else
+		{
+			shapeIndex[i] = 0;
+			shapePtr[i] = prebuildShapePtr[0];
+		}
+	}
+	
+	ConvexDecomposition::WavefrontObj wo;
+	char* filename = "table.obj";
+	tcount = wo.loadObj(filename);
+
+	class MyConvexDecomposition : public ConvexDecomposition::ConvexDecompInterface
+	{
+		public:
+
+		MyConvexDecomposition (FILE* outputFile)
+			:mBaseCount(0),
+			mHullCount(0),
+			mOutputFile(outputFile)
+
+		{
+		}
+		
+			virtual void ConvexDecompResult(ConvexDecomposition::ConvexResult &result)
+			{
+
+				TriangleMesh* trimesh = new TriangleMesh();
+
+				SimdVector3 localScaling(6.f,6.f,6.f);
+
+				//export data to .obj
+				printf("ConvexResult\n");
+				if (mOutputFile)
+				{
+					fprintf(mOutputFile,"## Hull Piece %d with %d vertices and %d triangles.\r\n", mHullCount, result.mHullVcount, result.mHullTcount );
+
+					fprintf(mOutputFile,"usemtl Material%i\r\n",mBaseCount);
+					fprintf(mOutputFile,"o Object%i\r\n",mBaseCount);
+
+					for (unsigned int i=0; i<result.mHullVcount; i++)
+					{
+						const float *p = &result.mHullVertices[i*3];
+						fprintf(mOutputFile,"v %0.9f %0.9f %0.9f\r\n", p[0], p[1], p[2] );
+					}
+
+					//calc centroid, to shift vertices around center of mass
+					centroids[numObjects] = SimdVector3(0,0,0);
+					if ( 1 )
+					{
+						const unsigned int *src = result.mHullIndices;
+						for (unsigned int i=0; i<result.mHullTcount; i++)
+						{
+							unsigned int index0 = *src++;
+							unsigned int index1 = *src++;
+							unsigned int index2 = *src++;
+							SimdVector3 vertex0(result.mHullVertices[index0*3], result.mHullVertices[index0*3+1],result.mHullVertices[index0*3+2]);
+							SimdVector3 vertex1(result.mHullVertices[index1*3], result.mHullVertices[index1*3+1],result.mHullVertices[index1*3+2]);
+							SimdVector3 vertex2(result.mHullVertices[index2*3], result.mHullVertices[index2*3+1],result.mHullVertices[index2*3+2]);
+							vertex0 *= localScaling;
+							vertex1 *= localScaling;
+							vertex2 *= localScaling;
+							centroids[numObjects] += vertex0;
+							centroids[numObjects]+= vertex1;
+							centroids[numObjects]+= vertex2;
+							
+						}
+					}
+
+					centroids[numObjects] *= 1.f/(float(result.mHullTcount) * 3);
+
+					if ( 1 )
+					{
+						const unsigned int *src = result.mHullIndices;
+						for (unsigned int i=0; i<result.mHullTcount; i++)
+						{
+							unsigned int index0 = *src++;
+							unsigned int index1 = *src++;
+							unsigned int index2 = *src++;
+
+
+							SimdVector3 vertex0(result.mHullVertices[index0*3], result.mHullVertices[index0*3+1],result.mHullVertices[index0*3+2]);
+							SimdVector3 vertex1(result.mHullVertices[index1*3], result.mHullVertices[index1*3+1],result.mHullVertices[index1*3+2]);
+							SimdVector3 vertex2(result.mHullVertices[index2*3], result.mHullVertices[index2*3+1],result.mHullVertices[index2*3+2]);
+							vertex0 *= localScaling;
+							vertex1 *= localScaling;
+							vertex2 *= localScaling;
+							
+							vertex0 -= centroids[numObjects];
+							vertex1 -= centroids[numObjects];
+							vertex2 -= centroids[numObjects];
+
+							trimesh->AddTriangle(vertex0,vertex1,vertex2);
+
+							index0+=mBaseCount;
+							index1+=mBaseCount;
+							index2+=mBaseCount;
+							
+							fprintf(mOutputFile,"f %d %d %d\r\n", index0+1, index1+1, index2+1 );
+						}
+					}
+
+					shapeIndex[numObjects] = numObjects;
+					shapePtr[numObjects++] = new ConvexTriangleMeshShape(trimesh);
+					
+					mBaseCount+=result.mHullVcount; // advance the 'base index' counter.
+
+
+				}
+			}
+
+			int   	mBaseCount;
+  			int		mHullCount;
+			FILE*	mOutputFile;
+
+	};
+
+	if (tcount)
+	{
+		numObjects = 1; //always have the ground object first
+		
+		TriangleMesh* trimesh = new TriangleMesh();
+
+		SimdVector3 localScaling(6.f,6.f,6.f);
+		
+		for (int i=0;i<wo.mTriCount;i++)
+		{
+			int index0 = wo.mIndices[i*3];
+			int index1 = wo.mIndices[i*3+1];
+			int index2 = wo.mIndices[i*3+2];
+
+			SimdVector3 vertex0(wo.mVertices[index0*3], wo.mVertices[index0*3+1],wo.mVertices[index0*3+2]);
+			SimdVector3 vertex1(wo.mVertices[index1*3], wo.mVertices[index1*3+1],wo.mVertices[index1*3+2]);
+			SimdVector3 vertex2(wo.mVertices[index2*3], wo.mVertices[index2*3+1],wo.mVertices[index2*3+2]);
+			
+			vertex0 *= localScaling;
+			vertex1 *= localScaling;
+			vertex2 *= localScaling;
+
+			trimesh->AddTriangle(vertex0,vertex1,vertex2);
+		}
+
+		shapePtr[numObjects++] = new ConvexTriangleMeshShape(trimesh);
+	}
+			
+
+	if (tcount)
+	{
+
+		char outputFileName[512];
+  		strcpy(outputFileName,filename);
+  		char *dot = strstr(outputFileName,".");
+  		if ( dot ) 
+			*dot = 0;
+		strcat(outputFileName,"_convex.obj");
+  		FILE* outputFile = fopen(outputFileName,"wb");
+				
+		unsigned int depth = 7;
+		float cpercent     = 5;
+		float ppercent     = 15;
+		unsigned int maxv  = 16;
+		float skinWidth    = 0.01;
+
+		printf("WavefrontObj num triangles read %i",tcount);
+		ConvexDecomposition::DecompDesc desc;
+		desc.mVcount       =	wo.mVertexCount;
+		desc.mVertices     = wo.mVertices;
+		desc.mTcount       = wo.mTriCount;
+		desc.mIndices      = (unsigned int *)wo.mIndices;
+		desc.mDepth        = depth;
+		desc.mCpercent     = cpercent;
+		desc.mPpercent     = ppercent;
+		desc.mMaxVertices  = maxv;
+		desc.mSkinWidth    = skinWidth;
+
+		MyConvexDecomposition	convexDecomposition(outputFile);
+		desc.mCallback = &convexDecomposition;
+		
+		
+
+		//convexDecomposition.performConvexDecomposition(desc);
+
+		ConvexBuilder cb(desc.mCallback);
+		int ret = cb.process(desc);
+		
+		if (outputFile)
+			fclose(outputFile);
 
 
 	}
-#endif //COLLADA_PHYSICS_TEST
 
 	CollisionDispatcher* dispatcher = new	CollisionDispatcher();
 
@@ -555,18 +370,6 @@ int main(int argc,char** argv)
 
 	SimdTransform tr;
 	tr.setIdentity();
-
-	int i;
-	for (i=0;i<numObjects;i++)
-	{
-		if (i>0)
-		{
-			shapeIndex[i] = 1;//sphere
-		}
-		else
-			shapeIndex[i] = 0;
-	}
-
 
 
 
@@ -1050,11 +853,20 @@ void clientResetScene()
 				physicsEnvironmentPtr->GetBroadphase()->CleanProxyFromPairs(bpproxy);
 			}
 
+			int p = i;
+			if (tcount)
+			{
+				if (p>2)
+					p=2;
+			}
+
 			//stack them
 			int colsize = 10;
-			int row = (i*CUBE_HALF_EXTENTS*2)/(colsize*2*CUBE_HALF_EXTENTS);
+			if (tcount)
+				colsize = 2;
+			int row = (p*CUBE_HALF_EXTENTS*2)/(colsize*2*CUBE_HALF_EXTENTS);
 			int row2 = row;
-			int col = (i)%(colsize)-colsize/2;
+			int col = (p)%(colsize)-colsize/2;
 
 
 			if (col>3)
@@ -1062,8 +874,18 @@ void clientResetScene()
 				col=11;
 				row2 |=1;
 			}
-			physObjects[i]->setPosition(col*2*CUBE_HALF_EXTENTS + (row2%2)*CUBE_HALF_EXTENTS,
+
+			SimdVector3 position(col*2*CUBE_HALF_EXTENTS + (row2%2)*CUBE_HALF_EXTENTS,
 				row*2*CUBE_HALF_EXTENTS+CUBE_HALF_EXTENTS+EXTRA_HEIGHT,0);
+
+			if (tcount)
+			{
+				if (p==2)
+				{
+					position += centroids[i];
+				}
+			}
+			physObjects[i]->setPosition(position[0],position[1],position[2]);
 			physObjects[i]->setOrientation(0,0,0,1);
 			physObjects[i]->SetLinearVelocity(0,0,0,false);
 			physObjects[i]->SetAngularVelocity(0,0,0,false);
