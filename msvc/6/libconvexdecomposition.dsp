@@ -124,6 +124,10 @@ SOURCE=..\..\Extras\ConvexDecomposition\concavity.cpp
 # End Source File
 # Begin Source File
 
+SOURCE=..\..\Extras\ConvexDecomposition\ConvexBuilder.cpp
+# End Source File
+# Begin Source File
+
 SOURCE=..\..\Extras\ConvexDecomposition\ConvexDecomposition.cpp
 # End Source File
 # Begin Source File
@@ -140,7 +144,7 @@ SOURCE=..\..\Extras\ConvexDecomposition\meshvolume.cpp
 # End Source File
 # Begin Source File
 
-SOURCE=..\..\Extras\ConvexDecomposition\PlaneTri.cpp
+SOURCE=..\..\Extras\ConvexDecomposition\planetri.cpp
 # End Source File
 # Begin Source File
 
@@ -184,6 +188,10 @@ SOURCE=..\..\Extras\ConvexDecomposition\concavity.h
 # End Source File
 # Begin Source File
 
+SOURCE=..\..\Extras\ConvexDecomposition\ConvexBuilder.h
+# End Source File
+# Begin Source File
+
 SOURCE=..\..\Extras\ConvexDecomposition\ConvexDecomposition.h
 # End Source File
 # Begin Source File
@@ -200,7 +208,7 @@ SOURCE=..\..\Extras\ConvexDecomposition\meshvolume.h
 # End Source File
 # Begin Source File
 
-SOURCE=..\..\Extras\ConvexDecomposition\PlaneTri.h
+SOURCE=..\..\Extras\ConvexDecomposition\planetri.h
 # End Source File
 # Begin Source File
 

@@ -175,6 +175,9 @@
 				RelativePath="..\..\Extras\ConvexDecomposition\concavity.cpp">
 			</File>
 			<File
+				RelativePath="..\..\Extras\ConvexDecomposition\ConvexBuilder.cpp">
+			</File>
+			<File
 				RelativePath="..\..\Extras\ConvexDecomposition\ConvexDecomposition.cpp">
 			</File>
 			<File
@@ -187,7 +190,7 @@
 				RelativePath="..\..\Extras\ConvexDecomposition\meshvolume.cpp">
 			</File>
 			<File
-				RelativePath="..\..\Extras\ConvexDecomposition\PlaneTri.cpp">
+				RelativePath="..\..\Extras\ConvexDecomposition\planetri.cpp">
 			</File>
 			<File
 				RelativePath="..\..\Extras\ConvexDecomposition\raytri.cpp">
@@ -221,6 +224,9 @@
 				RelativePath="..\..\Extras\ConvexDecomposition\concavity.h">
 			</File>
 			<File
+				RelativePath="..\..\Extras\ConvexDecomposition\ConvexBuilder.h">
+			</File>
+			<File
 				RelativePath="..\..\Extras\ConvexDecomposition\ConvexDecomposition.h">
 			</File>
 			<File
@@ -233,7 +239,7 @@
 				RelativePath="..\..\Extras\ConvexDecomposition\meshvolume.h">
 			</File>
 			<File
-				RelativePath="..\..\Extras\ConvexDecomposition\PlaneTri.h">
+				RelativePath="..\..\Extras\ConvexDecomposition\planetri.h">
 			</File>
 			<File
 				RelativePath="..\..\Extras\ConvexDecomposition\raytri.h">

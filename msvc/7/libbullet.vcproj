@@ -217,6 +217,9 @@
 				RelativePath="..\..\Bullet\CollisionShapes\ConvexShape.cpp">
 			</File>
 			<File
+				RelativePath="..\..\Bullet\CollisionShapes\ConvexTriangleMeshShape.cpp">
+			</File>
+			<File
 				RelativePath="..\..\Bullet\CollisionShapes\CylinderShape.cpp">
 			</File>
 			<File
@@ -387,6 +390,9 @@
 			</File>
 			<File
 				RelativePath="..\..\Bullet\CollisionShapes\ConvexShape.h">
+			</File>
+			<File
+				RelativePath="..\..\Bullet\CollisionShapes\ConvexTriangleMeshShape.h">
 			</File>
 			<File
 				RelativePath="..\..\Bullet\CollisionShapes\CylinderShape.h">

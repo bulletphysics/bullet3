@@ -180,6 +180,10 @@ SOURCE=..\..\Bullet\CollisionShapes\ConvexShape.cpp
 # End Source File
 # Begin Source File
 
+SOURCE=..\..\Bullet\CollisionShapes\ConvexTriangleMeshShape.cpp
+# End Source File
+# Begin Source File
+
 SOURCE=..\..\Bullet\CollisionShapes\CylinderShape.cpp
 # End Source File
 # Begin Source File
@@ -405,6 +409,10 @@ SOURCE=..\..\Bullet\CollisionShapes\ConvexHullShape.h
 # Begin Source File
 
 SOURCE=..\..\Bullet\CollisionShapes\ConvexShape.h
+# End Source File
+# Begin Source File
+
+SOURCE=..\..\Bullet\CollisionShapes\ConvexTriangleMeshShape.h
 # End Source File
 # Begin Source File
 
