@@ -23,7 +23,7 @@ SimdScalar rel_error2 = rel_error * rel_error;
 float maxdist2 = 1.e30f;
 
 
-int maxIter=1000;
+int gGjkMaxIter=1000;
 
 GjkPairDetector::GjkPairDetector(ConvexShape* objectA,ConvexShape* objectB,SimplexSolverInterface* simplexSolver,ConvexPenetrationDepthSolver*	penetrationDepthSolver)
 :m_cachedSeparatingAxis(0.f,0.f,1.f),
@@ -69,21 +69,22 @@ int curIter = 0;
 		
 		while (true)
 		{
-			if (curIter++ > maxIter)
-{
-#ifdef DEBUG
-printf("GjkPairDetector maxIter exceeded:%i\n",curIter);
-printf("sepAxis=(%f,%f,%f), squaredDistance = %f, shapeTypeA=%i,shapeTypeB=%i\n",
-m_cachedSeparatingAxis.getX(),
-m_cachedSeparatingAxis.getY(),
-m_cachedSeparatingAxis.getZ(),
-squaredDistance,
-m_minkowskiA->GetShapeType(),
-m_minkowskiB->GetShapeType());
-#endif
-break;
+			//rare failure case, perhaps deferate shapes?
+			if (curIter++ > gGjkMaxIter)
+			{
+				#if defined(DEBUG) || defined (_DEBUG)
+					printf("GjkPairDetector maxIter exceeded:%i\n",curIter);
+					printf("sepAxis=(%f,%f,%f), squaredDistance = %f, shapeTypeA=%i,shapeTypeB=%i\n",
+					m_cachedSeparatingAxis.getX(),
+					m_cachedSeparatingAxis.getY(),
+					m_cachedSeparatingAxis.getZ(),
+					squaredDistance,
+					m_minkowskiA->GetShapeType(),
+					m_minkowskiB->GetShapeType());
+				#endif
+				break;
 
-}
+			}
 
 			SimdVector3 seperatingAxisInA = (-m_cachedSeparatingAxis)* input.m_transformA.getBasis();
 			SimdVector3 seperatingAxisInB = m_cachedSeparatingAxis* input.m_transformB.getBasis();
