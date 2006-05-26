@@ -27,3 +27,5 @@ FILEFLAGS 0x0
     }
   }
 }
+
+APPICON                 ICON                    "bullet_ico.ico"
