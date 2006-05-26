@@ -149,7 +149,7 @@ int main(int argc,char** argv)
 	}
 	
 	ConvexDecomposition::WavefrontObj wo;
-	char* filename = "table.obj";
+	char* filename = "file.obj";
 	tcount = wo.loadObj(filename);
 
 	class MyConvexDecomposition : public ConvexDecomposition::ConvexDecompInterface
