@@ -142,6 +142,11 @@ CHull * ConvexBuilder::canMerge(CHull *a,CHull *b)
 	unsigned int vcount = Vl_getVcount(vc);
 	const float *vertices = Vl_getVertices(vc);
 	unsigned int tcount = indices.size()/3;
+	
+	//don't do anything if hull is empty
+	if (!tcount)
+		return 0;
+
 	unsigned int *idx   = &indices[0];
 
 	HullResult hresult;
