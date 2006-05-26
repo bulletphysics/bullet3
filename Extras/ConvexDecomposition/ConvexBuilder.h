@@ -36,7 +36,7 @@ THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
 //
 
 
-#include "convexdecomposition.h"
+#include "ConvexDecomposition.h"
 #include "vlookup.h"
 
 using namespace ConvexDecomposition;

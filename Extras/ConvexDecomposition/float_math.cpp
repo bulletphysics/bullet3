@@ -169,9 +169,9 @@ void fm_quatToMatrix(const float *quat,float *matrix) // convert quaterinion rot
 	matrix[1*4+2] =     2 * ( yz + wx );
 	matrix[2*4+2] = 1 - 2 * ( xx + yy );
 
-	matrix[3*4+0] =(float) matrix[3*4+1] = matrix[3*4+2] = 0.0f;
-	matrix[0*4+3] =(float) matrix[1*4+3] = matrix[2*4+3] = 0.0f;
-	matrix[3*4+3] =(float) 1.0f;
+	matrix[3*4+0] = matrix[3*4+1] = matrix[3*4+2] = 0.0f;
+	matrix[0*4+3] = matrix[1*4+3] = matrix[2*4+3] = 0.0f;
+	matrix[3*4+3] = 1.0f;
 
 }
 

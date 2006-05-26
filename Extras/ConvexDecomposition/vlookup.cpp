@@ -143,39 +143,39 @@ public:
 };
 
 
-template <class Type> class VertexLess
+class VertexLess
 {
 public:
-	typedef std::vector< Type > VertexVector;
+	typedef std::vector< VertexPosition > VertexVector;
 
 	bool operator()(int v1,int v2) const;
 
-	static void SetSearch(const Type& match,VertexVector *list)
+	static void SetSearch(const VertexPosition& match,VertexVector *list)
 	{
 		mFind = match;
 		mList = list;
 	};
 
 private:
-	const Type& Get(int index) const
+	const VertexPosition& Get(int index) const
 	{
 		if ( index == -1 ) return mFind;
 		VertexVector &vlist = *mList;
 		return vlist[index];
 	}
-	static Type mFind; // vertice to locate.
+	static VertexPosition mFind; // vertice to locate.
 	static VertexVector  *mList;
 };
 
 template <class Type> class VertexPool
 {
 public:
-	typedef std::set<int, VertexLess<Type> > VertexSet;
+	typedef std::set<int, VertexLess > VertexSet;
 	typedef std::vector< Type > VertexVector;
 
 	int GetVertex(const Type& vtx)
 	{
-		VertexLess<Type>::SetSearch(vtx,&mVtxs);
+		VertexLess::SetSearch(vtx,&mVtxs);
 		VertexSet::iterator found;
 		found = mVertSet.find( -1 );
 		if ( found != mVertSet.end() )
@@ -187,6 +187,7 @@ public:
 		mVertSet.insert( idx );
 		return idx;
 	};
+
 
 	const float * GetPos(int idx) const
 	{
@@ -234,10 +235,10 @@ private:
 };
 
 
-VertexPosition VertexLess<VertexPosition>::mFind;
-std::vector<VertexPosition > *VertexLess<VertexPosition>::mList=0;
+VertexPosition VertexLess::mFind;
+std::vector<VertexPosition > *VertexLess::mList=0;
 
-bool VertexLess<VertexPosition>::operator()(int v1,int v2) const
+bool VertexLess::operator()(int v1,int v2) const
 {
 
 	const VertexPosition& a = Get(v1);
@@ -264,6 +265,7 @@ bool VertexLess<VertexPosition>::operator()(int v1,int v2) const
 
 	return false;
 };
+
 
 
 

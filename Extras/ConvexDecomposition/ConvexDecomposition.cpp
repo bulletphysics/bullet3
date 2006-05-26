@@ -44,7 +44,7 @@
 #include "cd_vector.h"
 #include "cd_hull.h"
 #include "bestfit.h"
-#include "PlaneTri.h"
+#include "planetri.h"
 #include "vlookup.h"
 #include "splitplane.h"
 #include "meshvolume.h"

@@ -35,7 +35,7 @@ if $(GLUT.AVAILABLE) = "yes"
     MsvcIncDirs $(<) :
         "../../Demos/OpenGL"
         "../../Extras/PhysicsInterface/CcdPhysics"
-        "../../Extras/PhysicsInterface/Common" ;
+        "../../Extras/PhysicsInterface/Common" 
 	"../../Extras/ConvexDecomposition" ;
   }
 
