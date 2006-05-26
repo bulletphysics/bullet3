@@ -1,0 +1,10 @@
+SubDir TOP Extras ConvexDecomposition ;
+
+IncludeDir Extras/ConvexDecomposition ;
+
+Library convexdecomposition : [ Wildcard *.h *.cpp ] ;
+CFlags convexdecomposition : [ FIncludes $(TOP)/Extras/Decomposition ] ;
+LibDepends convexdecomposition :  ;
+
+
+InstallHeader [ Wildcard *.h ] : ConvexDecomposition ;
