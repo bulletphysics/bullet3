@@ -32,7 +32,7 @@
 				OptimizeForProcessor="1"
 				ExceptionHandling="0"
 				AdditionalOptions=" "
-				AdditionalIncludeDirectories=".;..\..;..\..\Bullet;..\..\BulletDynamics;..\..\LinearMath;..\..\Extras\PhysicsInterface\Common;..\..\Glut;..\..\Demos\OpenGL;..\..\Extras\PhysicsInterface\CcdPhysics"
+				AdditionalIncludeDirectories=".;..\..;..\..\Bullet;..\..\BulletDynamics;..\..\LinearMath;..\..\Extras\PhysicsInterface\Common;..\..\Extras\ConvexDecomposition;..\..\Glut;..\..\Demos\OpenGL;..\..\Extras\PhysicsInterface\CcdPhysics"
 				PrecompiledHeaderFile="..\..\out\release7\build\appSimplexDemo\appSimplexDemo.pch"
 				AssemblerListingLocation="..\..\out\release7\build\appSimplexDemo\"
 				ObjectFile="..\..\out\release7\build\appSimplexDemo\"
@@ -80,7 +80,7 @@
 			<Tool
 				Name="VCResourceCompilerTool"
 				PreprocessorDefinitions="NDEBUG;_CONSOLE;PROJECTGEN_VERSION=7"
-				AdditionalIncludeDirectories=".;..\..;..\..\Bullet;..\..\BulletDynamics;..\..\LinearMath;..\..\Extras\PhysicsInterface\Common;..\..\Glut;..\..\Demos\OpenGL;..\..\Extras\PhysicsInterface\CcdPhysics"
+				AdditionalIncludeDirectories=".;..\..;..\..\Bullet;..\..\BulletDynamics;..\..\LinearMath;..\..\Extras\PhysicsInterface\Common;..\..\Extras\ConvexDecomposition;..\..\Glut;..\..\Demos\OpenGL;..\..\Extras\PhysicsInterface\CcdPhysics"
 				Culture="1033"/>
 			<Tool
 				Name="VCWebServiceProxyGeneratorTool"/>
@@ -106,7 +106,7 @@
 				OptimizeForProcessor="1"
 				ExceptionHandling="0"
 				AdditionalOptions=" "
-				AdditionalIncludeDirectories=".;..\..;..\..\Bullet;..\..\BulletDynamics;..\..\LinearMath;..\..\Extras\PhysicsInterface\Common;..\..\Glut;..\..\Demos\OpenGL;..\..\Extras\PhysicsInterface\CcdPhysics"
+				AdditionalIncludeDirectories=".;..\..;..\..\Bullet;..\..\BulletDynamics;..\..\LinearMath;..\..\Extras\PhysicsInterface\Common;..\..\Extras\ConvexDecomposition;..\..\Glut;..\..\Demos\OpenGL;..\..\Extras\PhysicsInterface\CcdPhysics"
 				PrecompiledHeaderFile="..\..\out\debug7\build\appSimplexDemo\appSimplexDemo.pch"
 				AssemblerListingLocation="..\..\out\debug7\build\appSimplexDemo\"
 				ObjectFile="..\..\out\debug7\build\appSimplexDemo\"
@@ -152,7 +152,7 @@
 			<Tool
 				Name="VCResourceCompilerTool"
 				PreprocessorDefinitions="_DEBUG;_CONSOLE;PROJECTGEN_VERSION=7"
-				AdditionalIncludeDirectories=".;..\..;..\..\Bullet;..\..\BulletDynamics;..\..\LinearMath;..\..\Extras\PhysicsInterface\Common;..\..\Glut;..\..\Demos\OpenGL;..\..\Extras\PhysicsInterface\CcdPhysics"
+				AdditionalIncludeDirectories=".;..\..;..\..\Bullet;..\..\BulletDynamics;..\..\LinearMath;..\..\Extras\PhysicsInterface\Common;..\..\Extras\ConvexDecomposition;..\..\Glut;..\..\Demos\OpenGL;..\..\Extras\PhysicsInterface\CcdPhysics"
 				Culture="1033"/>
 			<Tool
 				Name="VCWebServiceProxyGeneratorTool"/>
