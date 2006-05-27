@@ -37,7 +37,7 @@ subject to the following restrictions:
 
 #include "GLDebugDrawer.h"
 
-//#define COLLADA_PHYSICS_TEST 1
+#define COLLADA_PHYSICS_TEST 1
 #ifdef COLLADA_PHYSICS_TEST
 
 //Collada Physics test
@@ -55,8 +55,6 @@ subject to the following restrictions:
 #include "FCDocument/FCDGeometryMesh.h"
 #include "FCDocument/FCDGeometry.h"
 #include "FCDocument/FCDPhysicsAnalyticalGeometry.h"
-
-
 
 
 //aaa
@@ -274,7 +272,6 @@ bool ConvertColladaPhysicsToBulletPhysics(const FCDPhysicsSceneNode* inputNode)
 
 
 						if (OldShape->GetGeometryInstance())
-
 						{
 
 							FCDGeometry* geoTemp = (FCDGeometry*)(OldShape->GetGeometryInstance()->GetEntity());
@@ -288,6 +285,7 @@ bool ConvertColladaPhysicsToBulletPhysics(const FCDPhysicsSceneNode* inputNode)
 
 							for (uint32 j=0; j<colladaMesh->GetPolygonsCount(); j++)
 							{
+								
 								/*
 								FRMeshPhysicsShape* NewShape = new FRMeshPhysicsShape(controller);
 
@@ -436,14 +434,16 @@ bool ConvertColladaPhysicsToBulletPhysics(const FCDPhysicsSceneNode* inputNode)
 
 					if (dyn) 
 					{
-						//dyn->GetValue();
+						bool* mydyn = dyn->GetValue();
+						printf("mydyn %i\n",*mydyn);
 					}
 
 					FCDPhysicsParameter<float>* mass = (FCDPhysicsParameter<float>*)rigidBody->FindParameterByReference(DAE_MASS_ELEMENT);
 
 					if (mass) 
 					{
-						mass->GetValue();
+						float* mymass = mass->GetValue();
+						printf("RB mass:%f\n",*mymass);
 					}
 
 					FCDPhysicsParameter<FMVector3>* inertia = (FCDPhysicsParameter<FMVector3>*)rigidBody->FindParameterByReference(DAE_INERTIA_ELEMENT);
@@ -495,7 +495,7 @@ int main(int argc,char** argv)
 {
 
 #ifdef COLLADA_PHYSICS_TEST
-	char* filename = "ColladaPhysics.dae";
+	char* filename = "analyticalGeomPhysicsTest.dae";//ColladaPhysics.dae";
 	FCDocument* document = new FCDocument();
 	FUStatus status = document->LoadFromFile(filename);
 	bool success = status.IsSuccessful();

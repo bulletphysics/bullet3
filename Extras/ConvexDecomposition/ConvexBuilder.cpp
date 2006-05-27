@@ -290,7 +290,7 @@ unsigned int ConvexBuilder::process(const DecompDesc &desc)
 		hdesc.mVertexStride = sizeof(float)*3;
 		hdesc.mMaxVertices  = desc.mMaxVertices; // maximum number of vertices allowed in the output
 
-		if ( desc.mSkinWidth > 0 )
+		if ( desc.mSkinWidth  )
 		{
 			hdesc.mSkinWidth = desc.mSkinWidth;
 			hdesc.SetHullFlag(QF_SKIN_WIDTH); // do skin width computation.

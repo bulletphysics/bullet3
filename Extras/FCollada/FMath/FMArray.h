@@ -36,7 +36,7 @@ public:
 
 	/** Copy constructor.
 		@param copy The dynamically-sized array to copy the values from. */
-	vector(const std::vector& copy) : std::vector<T>(copy) {}
+	vector(const std::vector<T>& copy) : std::vector<T>(copy) {}
 
 	/** Constructor: Builds a dynamically-sized array from a constant-sized array.
 		@param values A constant-sized array of floating-point values.

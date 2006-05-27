@@ -237,7 +237,7 @@ fstring FUFileManager::MakeFilePathAbsolute(const fstring& _filePath)
 
 		if (filePath.size() < 2 || (filePath[1] != ':' && filePath[1] != '|'))
 		{
-			filePath.insert(0, '/');
+			filePath.insert(0, "/");//'/');
 		}
 	}
 

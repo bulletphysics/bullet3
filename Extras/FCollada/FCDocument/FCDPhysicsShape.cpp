@@ -167,15 +167,18 @@ FUStatus FCDPhysicsShape::LoadFromXML(xmlNode* physicsShapeNode)
 		else
 		{
 			FCDTransform* transform = FCDTFactory::CreateTransform(GetDocument(), NULL, child);
-			if (transform != NULL && (transform->GetType() != FCDTransform::TRANSLATION
-				|| transform->GetType() != FCDTransform::ROTATION || transform->GetType() != FCDTransform::SCALE))
+			if (transform)
 			{
-				SAFE_DELETE(transform);
-			}
-			else
-			{
-				transforms.push_back(transform);
-				status.AppendStatus(transform->LoadFromXML(child));
+				if (transform != NULL && (transform->GetType() != FCDTransform::TRANSLATION
+					|| transform->GetType() != FCDTransform::ROTATION || transform->GetType() != FCDTransform::SCALE))
+				{
+					SAFE_DELETE(transform);
+				}
+				else
+				{
+					transforms.push_back(transform);
+					status.AppendStatus(transform->LoadFromXML(child));
+				}
 			}
 		}
 	}

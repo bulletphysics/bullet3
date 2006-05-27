@@ -50,7 +50,7 @@ void FUUniqueStringMapT<Builder>::AddUniqueString(typename Builder::String& want
 	{
 		// Attempt to generate a new string by appending an increasing counter.
 		uint32 counter = 2;
-		static const maxCounter = 256;
+		static const int maxCounter = 256;
 		Builder buffer;
 		buffer.reserve(wantedStr.length() + 5);
 		do
