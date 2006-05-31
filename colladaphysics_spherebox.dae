@@ -1,0 +1,604 @@
+<?xml version="1.0" encoding="utf-8"?>
+<COLLADA version="1.4.0" xmlns="http://www.collada.org/2005/11/COLLADASchema">
+	<asset>
+		<contributor>
+			<author>Illusoft Collada 1.4.0 plugin for Blender - http://colladablender.illusoft.com</author>
+			<authoring_tool>Blender v:241 - Illusoft Collada Exporter v:0.2.32</authoring_tool>
+			<comments></comments>
+			<copyright></copyright>
+			<source_data>file://c:/blender/blender-2.42-win32-preview26-experimentalhull/rigidbody_info3.blend</source_data>
+		</contributor>
+		<created>2006-05-31T14:57:49.948000</created>
+		<modified>2006-05-31T14:57:49.948000</modified>
+		<unit meter="0.01" name="centimeter"/>
+		<up_axis>Z_UP</up_axis>
+	</asset>
+	<library_cameras>
+		<camera id="Camera1" name="Camera1">
+			<optics>
+				<technique_common>
+					<perspective>
+						<yfov>49.13434</yfov>
+						<znear>0.1</znear>
+						<zfar>100.0</zfar>
+					</perspective>
+				</technique_common>
+			</optics>
+		</camera>
+	</library_cameras>
+	<library_effects>
+		<effect id="Material_001-fx" name="Material_001-fx">
+			<profile_COMMON>
+				<technique>
+					<phong>
+						<emission>
+							<color>0.0 0.0 0.0 1.0</color>
+						</emission>
+						<ambient>
+							<color>0.4 0.4 0.4 1.0</color>
+						</ambient>
+						<diffuse>
+							<color>0.8 0.8 0.8 1.0</color>
+						</diffuse>
+						<specular>
+							<color>0.5 0.5 0.5 1.0</color>
+						</specular>
+						<shininess>
+							<float>12.0</float>
+						</shininess>
+						<reflective>
+							<color>1.0 1.0 1.0 1.0</color>
+						</reflective>
+						<reflectivity>
+							<float>0.8</float>
+						</reflectivity>
+						<transparent>
+							<color>1 1 1 1</color>
+						</transparent>
+						<transparency>
+							<float>0.0</float>
+						</transparency>
+					</phong>
+				</technique>
+			</profile_COMMON>
+		</effect>
+		<effect id="lambert1-fx" name="lambert1-fx">
+			<profile_COMMON>
+				<technique>
+					<lambert>
+						<emission>
+							<color>0.0 0.0 0.0 1.0</color>
+						</emission>
+						<ambient>
+							<color>0.25 0.25 0.25 1.0</color>
+						</ambient>
+						<diffuse>
+							<color>0.5 0.5 0.5 1.0</color>
+						</diffuse>
+						<reflective>
+							<color>1.0 1.0 1.0 1.0</color>
+						</reflective>
+						<reflectivity>
+							<float>0.8</float>
+						</reflectivity>
+						<transparent>
+							<color>1 1 1 1</color>
+						</transparent>
+						<transparency>
+							<float>0.0</float>
+						</transparency>
+					</lambert>
+				</technique>
+			</profile_COMMON>
+		</effect>
+	</library_effects>
+	<library_geometries>
+		<geometry id="Cube1" name="Cube1">
+			<mesh>
+				<source id="Cube1-Position">
+					<float_array count="24" id="Cube1-Position-array">1.0 1.0 -1.0 1.0 -1.0 -1.0 -1.0 -1.0 -1.0 -1.0 1.0 -1.0 1.0 1.0 1.0 1.0 -1.0 1.0 -1.0 -1.0 1.0 -1.0 1.0 1.0</float_array>
+					<technique_common>
+						<accessor count="8" source="#Cube1-Position-array" stride="3">
+							<param name="X" type="float"/>
+							<param name="Y" type="float"/>
+							<param name="Z" type="float"/>
+						</accessor>
+					</technique_common>
+				</source>
+				<source id="Cube1-Normals">
+					<float_array count="24" id="Cube1-Normals-array">0.57735 0.57735 -0.57735 0.57735 -0.57735 -0.57735 -0.57735 -0.57735 -0.57735 -0.57735 0.57735 -0.57735 0.57735 0.57735 0.57735 0.57735 -0.57735 0.57735 -0.57735 -0.57735 0.57735 -0.57735 0.57735 0.57735</float_array>
+					<technique_common>
+						<accessor count="8" source="#Cube1-Normals-array" stride="3">
+							<param name="X" type="float"/>
+							<param name="Y" type="float"/>
+							<param name="Z" type="float"/>
+						</accessor>
+					</technique_common>
+				</source>
+				<vertices id="Cube1-Vertex">
+					<input semantic="POSITION" source="#Cube1-Position"/>
+					<input semantic="NORMAL" source="#Cube1-Normals"/>
+				</vertices>
+				<polygons count="6" material="Material_001">
+					<input offset="0" semantic="VERTEX" source="#Cube1-Vertex"/>
+					<p>0 1 2 3</p>
+					<p>4 7 6 5</p>
+					<p>0 4 5 1</p>
+					<p>1 5 6 2</p>
+					<p>2 6 7 3</p>
+					<p>4 0 3 7</p>
+				</polygons>
+			</mesh>
+		</geometry>
+		<geometry id="pCubeShape2-lib" name="pCubeShape2-lib">
+			<mesh>
+				<source id="pCubeShape2-lib-Position">
+					<float_array count="24" id="pCubeShape2-lib-Position-array">-0.5 -0.5 0.5 0.5 -0.5 0.5 -0.5 0.5 0.5 0.5 0.5 0.5 -0.5 0.5 -0.5 0.5 0.5 -0.5 -0.5 -0.5 -0.5 0.5 -0.5 -0.5</float_array>
+					<technique_common>
+						<accessor count="8" source="#pCubeShape2-lib-Position-array" stride="3">
+							<param name="X" type="float"/>
+							<param name="Y" type="float"/>
+							<param name="Z" type="float"/>
+						</accessor>
+					</technique_common>
+				</source>
+				<source id="pCubeShape2-lib-Normals">
+					<float_array count="24" id="pCubeShape2-lib-Normals-array">-0.57735 -0.57735 0.57735 0.57735 -0.57735 0.57735 -0.57735 0.57735 0.57735 0.57735 0.57735 0.57735 -0.57735 0.57735 -0.57735 0.57735 0.57735 -0.57735 -0.57735 -0.57735 -0.57735 0.57735 -0.57735 -0.57735</float_array>
+					<technique_common>
+						<accessor count="8" source="#pCubeShape2-lib-Normals-array" stride="3">
+							<param name="X" type="float"/>
+							<param name="Y" type="float"/>
+							<param name="Z" type="float"/>
+						</accessor>
+					</technique_common>
+				</source>
+				<source id="pCubeShape2-lib-UV">
+					<float_array count="48" id="pCubeShape2-lib-UV-array">0.0 0.0 1.0 0.0 1.0 1.0 0.0 1.0 0.0 1.0 1.0 1.0 1.0 2.0 0.0 2.0 0.0 2.0 1.0 2.0 1.0 3.0 0.0 3.0 1.0 4.0 0.0 4.0 0.0 3.0 1.0 3.0 1.0 0.0 2.0 0.0 2.0 1.0 1.0 1.0 -1.0 0.0 0.0 0.0 0.0 1.0 -1.0 1.0</float_array>
+					<technique_common>
+						<accessor count="24" source="#pCubeShape2-lib-UV-array" stride="2">
+							<param name="S" type="float"/>
+							<param name="T" type="float"/>
+						</accessor>
+					</technique_common>
+				</source>
+				<vertices id="pCubeShape2-lib-Vertex">
+					<input semantic="POSITION" source="#pCubeShape2-lib-Position"/>
+					<input semantic="NORMAL" source="#pCubeShape2-lib-Normals"/>
+				</vertices>
+				<polygons count="6" material="lambert1">
+					<input offset="0" semantic="VERTEX" source="#pCubeShape2-lib-Vertex"/>
+					<input offset="1" semantic="TEXCOORD" source="#pCubeShape2-lib-UV"/>
+					<p>0 0 1 1 3 2 2 3</p>
+					<p>2 4 3 5 5 6 4 7</p>
+					<p>4 8 5 9 7 10 6 11</p>
+					<p>1 12 0 13 6 14 7 15</p>
+					<p>1 16 7 17 5 18 3 19</p>
+					<p>6 20 0 21 2 22 4 23</p>
+				</polygons>
+			</mesh>
+		</geometry>
+		<geometry id="nxRigidBody1-Convex" name="nxRigidBody1-Convex">
+			<convex_mesh convex_hull_of="pCubeShape2-lib"/>
+		</geometry>
+		<geometry id="pCubeShape1-lib" name="pCubeShape1-lib">
+			<mesh>
+				<source id="pCubeShape1-lib-Position">
+					<float_array count="24" id="pCubeShape1-lib-Position-array">-6.74248 -8.05407 -2.85569 7.34416 -8.08925 -2.86899 -6.74248 10.41119 3.95942 7.34416 10.37602 3.94612 -6.74248 10.76482 3.02403 7.34416 10.72965 3.01073 -6.74248 -7.70045 -3.79108 7.34416 -7.73562 -3.80438</float_array>
+					<technique_common>
+						<accessor count="8" source="#pCubeShape1-lib-Position-array" stride="3">
+							<param name="X" type="float"/>
+							<param name="Y" type="float"/>
+							<param name="Z" type="float"/>
+						</accessor>
+					</technique_common>
+				</source>
+				<source id="pCubeShape1-lib-Normals">
+					<float_array count="24" id="pCubeShape1-lib-Normals-array">-0.57988 -0.74123 0.33805 0.57784 -0.74255 0.33863 -0.57479 0.33955 0.7445 0.57686 0.33894 0.74319 -0.57784 0.74255 -0.33863 0.57988 0.74123 -0.33805 -0.57686 -0.33894 -0.74319 0.57479 -0.33955 -0.7445</float_array>
+					<technique_common>
+						<accessor count="8" source="#pCubeShape1-lib-Normals-array" stride="3">
+							<param name="X" type="float"/>
+							<param name="Y" type="float"/>
+							<param name="Z" type="float"/>
+						</accessor>
+					</technique_common>
+				</source>
+				<source id="pCubeShape1-lib-UV">
+					<float_array count="48" id="pCubeShape1-lib-UV-array">0.0 0.0 1.0 0.0 1.0 1.0 0.0 1.0 0.0 1.0 1.0 1.0 1.0 2.0 0.0 2.0 0.0 2.0 1.0 2.0 1.0 3.0 0.0 3.0 1.0 4.0 0.0 4.0 0.0 3.0 1.0 3.0 1.0 0.0 2.0 0.0 2.0 1.0 1.0 1.0 -1.0 0.0 0.0 0.0 0.0 1.0 -1.0 1.0</float_array>
+					<technique_common>
+						<accessor count="24" source="#pCubeShape1-lib-UV-array" stride="2">
+							<param name="S" type="float"/>
+							<param name="T" type="float"/>
+						</accessor>
+					</technique_common>
+				</source>
+				<vertices id="pCubeShape1-lib-Vertex">
+					<input semantic="POSITION" source="#pCubeShape1-lib-Position"/>
+					<input semantic="NORMAL" source="#pCubeShape1-lib-Normals"/>
+				</vertices>
+				<polygons count="6" material="lambert1">
+					<input offset="0" semantic="VERTEX" source="#pCubeShape1-lib-Vertex"/>
+					<input offset="1" semantic="TEXCOORD" source="#pCubeShape1-lib-UV"/>
+					<p>0 0 1 1 3 2 2 3</p>
+					<p>2 4 3 5 5 6 4 7</p>
+					<p>4 8 5 9 7 10 6 11</p>
+					<p>1 12 0 13 6 14 7 15</p>
+					<p>1 16 7 17 5 18 3 19</p>
+					<p>6 20 0 21 2 22 4 23</p>
+				</polygons>
+			</mesh>
+		</geometry>
+		<geometry id="nxRigidBody2-Convex" name="nxRigidBody2-Convex">
+			<convex_mesh convex_hull_of="pCubeShape1-lib"/>
+		</geometry>
+		<geometry id="pCubeShape3-lib" name="pCubeShape3-lib">
+			<mesh>
+				<source id="pCubeShape3-lib-Position">
+					<float_array count="24" id="pCubeShape3-lib-Position-array">-0.5 -0.5 0.5 0.5 -0.5 0.5 -0.5 0.5 0.5 0.5 0.5 0.5 -0.5 0.5 -0.5 0.5 0.5 -0.5 -0.5 -0.5 -0.5 0.5 -0.5 -0.5</float_array>
+					<technique_common>
+						<accessor count="8" source="#pCubeShape3-lib-Position-array" stride="3">
+							<param name="X" type="float"/>
+							<param name="Y" type="float"/>
+							<param name="Z" type="float"/>
+						</accessor>
+					</technique_common>
+				</source>
+				<source id="pCubeShape3-lib-Normals">
+					<float_array count="24" id="pCubeShape3-lib-Normals-array">-0.57735 -0.57735 0.57735 0.57735 -0.57735 0.57735 -0.57735 0.57735 0.57735 0.57735 0.57735 0.57735 -0.57735 0.57735 -0.57735 0.57735 0.57735 -0.57735 -0.57735 -0.57735 -0.57735 0.57735 -0.57735 -0.57735</float_array>
+					<technique_common>
+						<accessor count="8" source="#pCubeShape3-lib-Normals-array" stride="3">
+							<param name="X" type="float"/>
+							<param name="Y" type="float"/>
+							<param name="Z" type="float"/>
+						</accessor>
+					</technique_common>
+				</source>
+				<source id="pCubeShape3-lib-UV">
+					<float_array count="48" id="pCubeShape3-lib-UV-array">0.0 0.0 1.0 0.0 1.0 1.0 0.0 1.0 0.0 1.0 1.0 1.0 1.0 2.0 0.0 2.0 0.0 2.0 1.0 2.0 1.0 3.0 0.0 3.0 1.0 4.0 0.0 4.0 0.0 3.0 1.0 3.0 1.0 0.0 2.0 0.0 2.0 1.0 1.0 1.0 -1.0 0.0 0.0 0.0 0.0 1.0 -1.0 1.0</float_array>
+					<technique_common>
+						<accessor count="24" source="#pCubeShape3-lib-UV-array" stride="2">
+							<param name="S" type="float"/>
+							<param name="T" type="float"/>
+						</accessor>
+					</technique_common>
+				</source>
+				<vertices id="pCubeShape3-lib-Vertex">
+					<input semantic="POSITION" source="#pCubeShape3-lib-Position"/>
+					<input semantic="NORMAL" source="#pCubeShape3-lib-Normals"/>
+				</vertices>
+				<polygons count="6" material="lambert1">
+					<input offset="0" semantic="VERTEX" source="#pCubeShape3-lib-Vertex"/>
+					<input offset="1" semantic="TEXCOORD" source="#pCubeShape3-lib-UV"/>
+					<p>0 0 1 1 3 2 2 3</p>
+					<p>2 4 3 5 5 6 4 7</p>
+					<p>4 8 5 9 7 10 6 11</p>
+					<p>1 12 0 13 6 14 7 15</p>
+					<p>1 16 7 17 5 18 3 19</p>
+					<p>6 20 0 21 2 22 4 23</p>
+				</polygons>
+			</mesh>
+		</geometry>
+		<geometry id="nxRigidBody3-Convex" name="nxRigidBody3-Convex">
+			<convex_mesh convex_hull_of="pCubeShape3-lib"/>
+		</geometry>
+		<geometry id="pCubeShape4-lib" name="pCubeShape4-lib">
+			<mesh>
+				<source id="pCubeShape4-lib-Position">
+					<float_array count="24" id="pCubeShape4-lib-Position-array">-0.5 -0.5 0.5 0.5 -0.5 0.5 -0.5 0.5 0.5 0.5 0.5 0.5 -0.5 0.5 -0.5 0.5 0.5 -0.5 -0.5 -0.5 -0.5 0.5 -0.5 -0.5</float_array>
+					<technique_common>
+						<accessor count="8" source="#pCubeShape4-lib-Position-array" stride="3">
+							<param name="X" type="float"/>
+							<param name="Y" type="float"/>
+							<param name="Z" type="float"/>
+						</accessor>
+					</technique_common>
+				</source>
+				<source id="pCubeShape4-lib-Normals">
+					<float_array count="24" id="pCubeShape4-lib-Normals-array">-0.57735 -0.57735 0.57735 0.57735 -0.57735 0.57735 -0.57735 0.57735 0.57735 0.57735 0.57735 0.57735 -0.57735 0.57735 -0.57735 0.57735 0.57735 -0.57735 -0.57735 -0.57735 -0.57735 0.57735 -0.57735 -0.57735</float_array>
+					<technique_common>
+						<accessor count="8" source="#pCubeShape4-lib-Normals-array" stride="3">
+							<param name="X" type="float"/>
+							<param name="Y" type="float"/>
+							<param name="Z" type="float"/>
+						</accessor>
+					</technique_common>
+				</source>
+				<source id="pCubeShape4-lib-UV">
+					<float_array count="48" id="pCubeShape4-lib-UV-array">0.0 0.0 1.0 0.0 1.0 1.0 0.0 1.0 0.0 1.0 1.0 1.0 1.0 2.0 0.0 2.0 0.0 2.0 1.0 2.0 1.0 3.0 0.0 3.0 1.0 4.0 0.0 4.0 0.0 3.0 1.0 3.0 1.0 0.0 2.0 0.0 2.0 1.0 1.0 1.0 -1.0 0.0 0.0 0.0 0.0 1.0 -1.0 1.0</float_array>
+					<technique_common>
+						<accessor count="24" source="#pCubeShape4-lib-UV-array" stride="2">
+							<param name="S" type="float"/>
+							<param name="T" type="float"/>
+						</accessor>
+					</technique_common>
+				</source>
+				<vertices id="pCubeShape4-lib-Vertex">
+					<input semantic="POSITION" source="#pCubeShape4-lib-Position"/>
+					<input semantic="NORMAL" source="#pCubeShape4-lib-Normals"/>
+				</vertices>
+				<polygons count="6" material="lambert1">
+					<input offset="0" semantic="VERTEX" source="#pCubeShape4-lib-Vertex"/>
+					<input offset="1" semantic="TEXCOORD" source="#pCubeShape4-lib-UV"/>
+					<p>0 0 1 1 3 2 2 3</p>
+					<p>2 4 3 5 5 6 4 7</p>
+					<p>4 8 5 9 7 10 6 11</p>
+					<p>1 12 0 13 6 14 7 15</p>
+					<p>1 16 7 17 5 18 3 19</p>
+					<p>6 20 0 21 2 22 4 23</p>
+				</polygons>
+			</mesh>
+		</geometry>
+		<geometry id="pCubeShape5-lib" name="pCubeShape5-lib">
+			<mesh>
+				<source id="pCubeShape5-lib-Position">
+					<float_array count="24" id="pCubeShape5-lib-Position-array">-0.5 -0.5 0.5 0.5 -0.5 0.5 -0.5 0.5 0.5 0.5 0.5 0.5 -0.5 0.5 -0.5 0.5 0.5 -0.5 -0.5 -0.5 -0.5 0.5 -0.5 -0.5</float_array>
+					<technique_common>
+						<accessor count="8" source="#pCubeShape5-lib-Position-array" stride="3">
+							<param name="X" type="float"/>
+							<param name="Y" type="float"/>
+							<param name="Z" type="float"/>
+						</accessor>
+					</technique_common>
+				</source>
+				<source id="pCubeShape5-lib-Normals">
+					<float_array count="24" id="pCubeShape5-lib-Normals-array">-0.57735 -0.57735 0.57735 0.57735 -0.57735 0.57735 -0.57735 0.57735 0.57735 0.57735 0.57735 0.57735 -0.57735 0.57735 -0.57735 0.57735 0.57735 -0.57735 -0.57735 -0.57735 -0.57735 0.57735 -0.57735 -0.57735</float_array>
+					<technique_common>
+						<accessor count="8" source="#pCubeShape5-lib-Normals-array" stride="3">
+							<param name="X" type="float"/>
+							<param name="Y" type="float"/>
+							<param name="Z" type="float"/>
+						</accessor>
+					</technique_common>
+				</source>
+				<source id="pCubeShape5-lib-UV">
+					<float_array count="48" id="pCubeShape5-lib-UV-array">0.0 0.0 1.0 0.0 1.0 1.0 0.0 1.0 0.0 1.0 1.0 1.0 1.0 2.0 0.0 2.0 0.0 2.0 1.0 2.0 1.0 3.0 0.0 3.0 1.0 4.0 0.0 4.0 0.0 3.0 1.0 3.0 1.0 0.0 2.0 0.0 2.0 1.0 1.0 1.0 -1.0 0.0 0.0 0.0 0.0 1.0 -1.0 1.0</float_array>
+					<technique_common>
+						<accessor count="24" source="#pCubeShape5-lib-UV-array" stride="2">
+							<param name="S" type="float"/>
+							<param name="T" type="float"/>
+						</accessor>
+					</technique_common>
+				</source>
+				<vertices id="pCubeShape5-lib-Vertex">
+					<input semantic="POSITION" source="#pCubeShape5-lib-Position"/>
+					<input semantic="NORMAL" source="#pCubeShape5-lib-Normals"/>
+				</vertices>
+				<polygons count="6" material="lambert1">
+					<input offset="0" semantic="VERTEX" source="#pCubeShape5-lib-Vertex"/>
+					<input offset="1" semantic="TEXCOORD" source="#pCubeShape5-lib-UV"/>
+					<p>0 0 1 1 3 2 2 3</p>
+					<p>2 4 3 5 5 6 4 7</p>
+					<p>4 8 5 9 7 10 6 11</p>
+					<p>1 12 0 13 6 14 7 15</p>
+					<p>1 16 7 17 5 18 3 19</p>
+					<p>6 20 0 21 2 22 4 23</p>
+				</polygons>
+			</mesh>
+		</geometry>
+	</library_geometries>
+	<library_lights>
+		<light id="Spot_001" name="Spot_001">
+			<technique_common>
+				<point>
+					<color>1.0 1.0 1.0</color>
+					<constant_attenuation>0.0</constant_attenuation>
+					<linear_attenuation>0.0</linear_attenuation>
+					<quadratic_attenuation>0.0</quadratic_attenuation>
+				</point>
+			</technique_common>
+		</light>
+	</library_lights>
+	<library_materials>
+		<material id="Material_001" name="Material_001">
+			<instance_effect url="#Material_001-fx"/>
+		</material>
+		<material id="lambert1" name="lambert1">
+			<instance_effect url="#lambert1-fx"/>
+		</material>
+	</library_materials>
+	<library_visual_scenes>
+		<visual_scene id="Scene" name="Scene">
+			<node id="Camera" name="Camera">
+				<rotate>1.0 0.0 0.0 63.5593</rotate>
+				<rotate>0.0 1.0 0.0 0.61977</rotate>
+				<rotate>0.0 0.0 1.0 46.69195</rotate>
+				<translate>7.48113 -6.50764 5.34367</translate>
+				<instance_camera url="#Camera1"/>
+			</node>
+			<node id="Lamp" name="Lamp">
+				<rotate>1.0 0.0 0.0 37.26105</rotate>
+				<rotate>0.0 1.0 0.0 3.16371</rotate>
+				<rotate>0.0 0.0 1.0 106.93632</rotate>
+				<translate>4.07625 1.00545 5.90386</translate>
+				<instance_light url="#Spot_001"/>
+			</node>
+			<node id="Cube" name="Cube">
+				<instance_geometry url="#Cube1">
+					<bind_material>
+						<technique_common>
+							<instance_material symbol="Material_001" target="#Material_001"/>
+						</technique_common>
+					</bind_material>
+				</instance_geometry>
+			</node>
+			<node id="nxRigidBody1" name="nxRigidBody1">
+				<rotate>1.0 0.0 0.0 18.07152</rotate>
+				<translate>-4.83627 8.74773 4.57299</translate>
+				<instance_geometry url="#pCubeShape2-lib">
+					<bind_material>
+						<technique_common>
+							<instance_material symbol="lambert1" target="#lambert1"/>
+						</technique_common>
+					</bind_material>
+				</instance_geometry>
+			</node>
+			<node id="nxRigidBody2" name="nxRigidBody2">
+				<instance_geometry url="#pCubeShape1-lib">
+					<bind_material>
+						<technique_common>
+							<instance_material symbol="lambert1" target="#lambert1"/>
+						</technique_common>
+					</bind_material>
+				</instance_geometry>
+			</node>
+			<node id="nxRigidBody3" name="nxRigidBody3">
+				<rotate>1.0 0.0 0.0 20.57249</rotate>
+				<translate>-2.14103 8.80941 4.5776</translate>
+				<instance_geometry url="#pCubeShape3-lib">
+					<bind_material>
+						<technique_common>
+							<instance_material symbol="lambert1" target="#lambert1"/>
+						</technique_common>
+					</bind_material>
+				</instance_geometry>
+			</node>
+			<node id="nxRigidBody4" name="nxRigidBody4">
+				<rotate>1.0 0.0 0.0 18.42935</rotate>
+				<translate>1.52202 8.88853 4.60957</translate>
+				<instance_geometry url="#pCubeShape4-lib">
+					<bind_material>
+						<technique_common>
+							<instance_material symbol="lambert1" target="#lambert1"/>
+						</technique_common>
+					</bind_material>
+				</instance_geometry>
+			</node>
+			<node id="nxRigidBody5" name="nxRigidBody5">
+				<rotate>1.0 0.0 0.0 20.2285</rotate>
+				<translate>5.09268 8.95341 4.68514</translate>
+				<instance_geometry url="#pCubeShape5-lib">
+					<bind_material>
+						<technique_common>
+							<instance_material symbol="lambert1" target="#lambert1"/>
+						</technique_common>
+					</bind_material>
+				</instance_geometry>
+			</node>
+		</visual_scene>
+	</library_visual_scenes>
+	<library_physics_materials>
+		<physics_material id="nxRigidBody1PxMaterial" name="nxRigidBody1PxMaterial">
+			<technique_common>
+				<dynamic_friction>0</dynamic_friction>
+				<restitution>0</restitution>
+				<static_friction>0</static_friction>
+			</technique_common>
+		</physics_material>
+		<physics_material id="nxRigidBody2PxMaterial" name="nxRigidBody2PxMaterial">
+			<technique_common>
+				<dynamic_friction>0</dynamic_friction>
+				<restitution>0</restitution>
+				<static_friction>0</static_friction>
+			</technique_common>
+		</physics_material>
+		<physics_material id="nxRigidBody3PxMaterial" name="nxRigidBody3PxMaterial">
+			<technique_common>
+				<dynamic_friction>0</dynamic_friction>
+				<restitution>0</restitution>
+				<static_friction>0</static_friction>
+			</technique_common>
+		</physics_material>
+		<physics_material id="nxRigidBody4PxMaterial" name="nxRigidBody4PxMaterial">
+			<technique_common>
+				<dynamic_friction>0</dynamic_friction>
+				<restitution>0</restitution>
+				<static_friction>0</static_friction>
+			</technique_common>
+		</physics_material>
+		<physics_material id="nxRigidBody5PxMaterial" name="nxRigidBody5PxMaterial">
+			<technique_common>
+				<dynamic_friction>0</dynamic_friction>
+				<restitution>0</restitution>
+				<static_friction>0</static_friction>
+			</technique_common>
+		</physics_material>
+	</library_physics_materials>
+	<library_physics_models>
+		<physics_model id="nxRigidBody1-PX" name="nxRigidBody1-PX">
+			<rigid_body name="nxRigidBody1-RB">
+				<technique_common>
+					<instance_physics_material url="#nxRigidBody1PxMaterial"/>
+					<shape>
+						<instance_geometry url="#nxRigidBody1-Convex"/>
+					</shape>
+					<dynamic>true</dynamic>
+					<mass>1.0</mass>
+				</technique_common>
+			</rigid_body>
+		</physics_model>
+		<physics_model id="nxRigidBody2-PX" name="nxRigidBody2-PX">
+			<rigid_body name="nxRigidBody2-RB">
+				<technique_common>
+					<instance_physics_material url="#nxRigidBody2PxMaterial"/>
+					<shape>
+						<instance_geometry url="#nxRigidBody2-Convex"/>
+					</shape>
+					<dynamic>false</dynamic>
+					<mass>1.0</mass>
+				</technique_common>
+			</rigid_body>
+		</physics_model>
+		<physics_model id="nxRigidBody3-PX" name="nxRigidBody3-PX">
+			<rigid_body name="nxRigidBody3-RB">
+				<technique_common>
+					<instance_physics_material url="#nxRigidBody3PxMaterial"/>
+					<shape>
+						<instance_geometry url="#nxRigidBody3-Convex"/>
+					</shape>
+					<dynamic>true</dynamic>
+					<mass>1.0</mass>
+				</technique_common>
+			</rigid_body>
+		</physics_model>
+		<physics_model id="nxRigidBody4-PX" name="nxRigidBody4-PX">
+			<rigid_body name="nxRigidBody4-RB">
+				<technique_common>
+					<instance_physics_material url="#nxRigidBody4PxMaterial"/>
+					<shape>
+						<box>
+							<half_extends>1 1 1</half_extends>
+						</box>
+					</shape>
+					<dynamic>true</dynamic>
+					<mass>1.0</mass>
+				</technique_common>
+			</rigid_body>
+		</physics_model>
+		<physics_model id="nxRigidBody5-PX" name="nxRigidBody5-PX">
+			<rigid_body name="nxRigidBody5-RB">
+				<technique_common>
+					<instance_physics_material url="#nxRigidBody5PxMaterial"/>
+					<shape>
+						<sphere>
+							<radius>1</radius>
+						</sphere>
+					</shape>
+					<dynamic>true</dynamic>
+					<mass>1.0</mass>
+				</technique_common>
+			</rigid_body>
+		</physics_model>
+	</library_physics_models>
+	<library_physics_scenes>
+		<physics_scene id="Scene-Physics" name="Scene-Physics">
+			<instance_physics_model url="#nxRigidBody1-PX">
+				<instance_rigid_body target="#nxRigidBody1"/>
+			</instance_physics_model>
+			<instance_physics_model url="#nxRigidBody2-PX">
+				<instance_rigid_body target="#nxRigidBody2"/>
+			</instance_physics_model>
+			<instance_physics_model url="#nxRigidBody3-PX">
+				<instance_rigid_body target="#nxRigidBody3"/>
+			</instance_physics_model>
+			<instance_physics_model url="#nxRigidBody4-PX">
+				<instance_rigid_body target="#nxRigidBody4"/>
+			</instance_physics_model>
+			<instance_physics_model url="#nxRigidBody5-PX">
+				<instance_rigid_body target="#nxRigidBody5"/>
+			</instance_physics_model>
+		</physics_scene>
+	</library_physics_scenes>
+	<scene>
+		<instance_visual_scene url="#Scene"/>
+		<instance_physics_scene url="#Scene-Physics"/>
+	</scene>
+</COLLADA>
