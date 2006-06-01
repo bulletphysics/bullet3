@@ -23,6 +23,7 @@ using namespace FUDaeWriter;
 
 FCDGeometryMesh::FCDGeometryMesh(FCDocument* document, FCDGeometry* _parent) : FCDObject(document, "FCDGeometryMesh")
 {
+	m_convex = false;
 	parent = _parent;
 	faceVertexCount = faceCount = holeCount = 0;
 	isDoubleSided = true;
@@ -232,7 +233,7 @@ FCDGeometryMesh* FCDGeometryMesh::Clone(FloatList& newPositions, uint32 newPosit
 FUStatus FCDGeometryMesh::LoadFromXML(xmlNode* meshNode)
 {
 	FUStatus status;
-
+	
 	// Read in the data sources
 	xmlNodeList sourceDataNodes;
 	FindChildrenByType(meshNode, DAE_SOURCE_ELEMENT, sourceDataNodes);

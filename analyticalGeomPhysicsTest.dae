@@ -366,22 +366,12 @@ dereferenceXRefs=0;cameraXFov=0;cameraYFov=1</comments>
               <half_extents>0.500000 0.500000 0.736465</half_extents>
             </box>
           </shape>
-          <shape>
-            <box>
-              <half_extents>0.500000 0.500000 0.500000</half_extents>
-            </box>
-          </shape>
         </technique_common>
       </rigid_body>
       <rigid_body sid="nxRigidBody2-RB">
         <technique_common>
           <mass>5.000000</mass>
           <instance_physics_material url="#nxRigidBody2-PhysicsMaterial"/>
-          <shape>
-            <sphere>
-              <radius>1.000000</radius>
-            </sphere>
-          </shape>
           <shape>
             <sphere>
               <radius>1.000000</radius>

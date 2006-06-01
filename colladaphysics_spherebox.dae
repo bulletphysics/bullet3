@@ -555,7 +555,7 @@
 					<instance_physics_material url="#nxRigidBody4PxMaterial"/>
 					<shape>
 						<box>
-							<half_extends>1 1 1</half_extends>
+							<half_extents>1 1 1</half_extents>
 						</box>
 					</shape>
 					<dynamic>true</dynamic>
@@ -595,6 +595,10 @@
 			<instance_physics_model url="#nxRigidBody5-PX">
 				<instance_rigid_body target="#nxRigidBody5"/>
 			</instance_physics_model>
+			 
+			 <technique_common>
+			<gravity>0 0 -9.810000</gravity>
+			 </technique_common>
 		</physics_scene>
 	</library_physics_scenes>
 	<scene>

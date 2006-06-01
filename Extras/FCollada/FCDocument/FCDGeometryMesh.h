@@ -204,6 +204,8 @@ public:
 		@param parentNode The COLLADA XML parent node in which to insert the geometric mesh.
 		@return The created \<mesh\> element XML tree node. */
 	xmlNode* WriteToXML(xmlNode* parentNode) const;
+
+	bool	m_convex;
 };
 
 #endif // _FCD_GEOMETRY_MESH_H_

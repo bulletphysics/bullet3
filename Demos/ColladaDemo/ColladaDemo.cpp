@@ -21,6 +21,13 @@ subject to the following restrictions:
 #include "CollisionShapes/SphereShape.h"
 #include "CollisionShapes/ConeShape.h"
 
+#include "CollisionShapes/ConvexHullShape.h"
+#include "CollisionShapes/TriangleMesh.h"
+#include "CollisionShapes/ConvexTriangleMeshShape.h"
+#include "CollisionShapes/TriangleMeshShape.h"
+
+
+
 
 #include "CollisionShapes/Simplex1to4Shape.h"
 #include "CollisionShapes/EmptyShape.h"
@@ -37,8 +44,6 @@ subject to the following restrictions:
 
 #include "GLDebugDrawer.h"
 
-#define COLLADA_PHYSICS_TEST 1
-#ifdef COLLADA_PHYSICS_TEST
 
 //Collada Physics test
 //#define NO_LIBXML //need LIBXML, because FCDocument/FCDPhysicsRigidBody.h needs FUDaeWriter, through FCDPhysicsParameter.hpp
@@ -52,7 +57,12 @@ subject to the following restrictions:
 #include "FCDocument/FCDPhysicsRigidBodyInstance.h"
 #include "FCDocument/FCDPhysicsRigidBody.h"
 #include "FCDocument/FCDGeometryInstance.h"
+#include "FCDocument/FCDGeometrySource.h"
 #include "FCDocument/FCDGeometryMesh.h"
+
+#include "FCDocument/FCDGeometryPolygons.h"
+
+
 #include "FCDocument/FCDGeometry.h"
 #include "FCDocument/FCDPhysicsAnalyticalGeometry.h"
 
@@ -63,7 +73,6 @@ subject to the following restrictions:
 
 
 
-#endif //COLLADA_PHYSICS_TEST
 
 
 
@@ -74,7 +83,7 @@ subject to the following restrictions:
 
 float deltaTime = 1.f/60.f;
 float bulletSpeed = 40.f;
-bool createConstraint = true;
+
 #ifdef WIN32
 #if _MSC_VER >= 1310
 //only use SIMD Hull code under Win32
@@ -98,50 +107,114 @@ extern int glutScreenWidth;
 extern int glutScreenHeight;
 
 
-#ifdef _DEBUG
-const int numObjects = 120;//22;
-#else
-const int numObjects = 120;
-#endif
+
+int numObjects = 0;
 
 const int maxNumObjects = 450;
 
 DefaultMotionState ms[maxNumObjects];
 CcdPhysicsController* physObjects[maxNumObjects] = {0,0,0,0};
-int	shapeIndex[maxNumObjects];
+
 CcdPhysicsEnvironment* physicsEnvironmentPtr = 0;
 
 
 #define CUBE_HALF_EXTENTS 1
-
 #define EXTRA_HEIGHT -20.f
-//GL_LineSegmentShape shapeE(SimdPoint3(-50,0,0),
-//						   SimdPoint3(50,0,0));
-static const int numShapes = 4;
-
-CollisionShape* shapePtr[numShapes] = 
-{
-	///Please don't make the box sizes larger then 1000: the collision detection will be inaccurate.
-	///See http://www.continuousphysics.com/Bullet/phpBB2/viewtopic.php?t=346
-
-	new BoxShape (SimdVector3(450,10,450)),
-		new BoxShape (SimdVector3(CUBE_HALF_EXTENTS,CUBE_HALF_EXTENTS,CUBE_HALF_EXTENTS)),
-		new SphereShape (CUBE_HALF_EXTENTS- 0.05f),
-
-		//new ConeShape(CUBE_HALF_EXTENTS,2.f*CUBE_HALF_EXTENTS),
-		//new BU_Simplex1to4(SimdPoint3(-1,-1,-1),SimdPoint3(1,-1,-1),SimdPoint3(-1,1,-1),SimdPoint3(0,0,1)),
-
-		//new EmptyShape(),
-
-		new BoxShape (SimdVector3(0.4,1,0.8))
-
-};
 
 
+CollisionShape* gShapePtr[maxNumObjects];//1 rigidbody has 1 shape (no re-use of shapes)
 
 ////////////////////////////////////
 
-#ifdef COLLADA_PHYSICS_TEST
+///Very basic import
+void	CreatePhysicsObject(bool isDynamic, float mass, const SimdTransform& startTransform,CollisionShape* shape)
+{
+
+	PHY_ShapeProps shapeProps;
+
+	shapeProps.m_do_anisotropic = false;
+	shapeProps.m_do_fh = false;
+	shapeProps.m_do_rot_fh = false;
+	shapeProps.m_friction_scaling[0] = 1.;
+	shapeProps.m_friction_scaling[1] = 1.;
+	shapeProps.m_friction_scaling[2] = 1.;
+
+	shapeProps.m_inertia = 1.f;
+	shapeProps.m_lin_drag = 0.2f;
+	shapeProps.m_ang_drag = 0.1f;
+	shapeProps.m_mass = 10.0f;
+
+	PHY_MaterialProps materialProps;
+	materialProps.m_friction = 10.5f;
+	materialProps.m_restitution = 0.0f;
+
+	CcdConstructionInfo ccdObjectCi;
+	ccdObjectCi.m_friction = 0.5f;
+
+	ccdObjectCi.m_linearDamping = shapeProps.m_lin_drag;
+	ccdObjectCi.m_angularDamping = shapeProps.m_ang_drag;
+
+	SimdTransform tr;
+	tr.setIdentity();
+
+	int i = numObjects;
+	{
+		gShapePtr[i] = shape;
+
+		shapeProps.m_shape = gShapePtr[i];
+		shapeProps.m_shape->SetMargin(0.05f);
+
+		SimdQuaternion orn = startTransform.getRotation();
+		
+
+		ms[i].setWorldOrientation(orn[0],orn[1],orn[2],orn[3]);
+		ms[i].setWorldPosition(startTransform.getOrigin().getX(),startTransform.getOrigin().getY(),startTransform.getOrigin().getZ());
+
+		ccdObjectCi.m_MotionState = &ms[i];
+		ccdObjectCi.m_gravity = SimdVector3(0,0,0);
+		ccdObjectCi.m_localInertiaTensor =SimdVector3(0,0,0);
+		if (!isDynamic)
+		{
+			shapeProps.m_mass = 0.f;
+			ccdObjectCi.m_mass = shapeProps.m_mass;
+			ccdObjectCi.m_collisionFlags = CollisionObject::isStatic;
+		}
+		else
+		{
+			shapeProps.m_mass = mass;
+			ccdObjectCi.m_mass = shapeProps.m_mass;
+			ccdObjectCi.m_collisionFlags = 0;
+		}
+
+
+		SimdVector3 localInertia(0.f,0.f,0.f);
+		
+		if (isDynamic)
+		{
+			gShapePtr[i]->CalculateLocalInertia(shapeProps.m_mass,localInertia);
+		}
+
+		ccdObjectCi.m_localInertiaTensor = localInertia;
+		ccdObjectCi.m_collisionShape = gShapePtr[i];
+
+
+		physObjects[i]= new CcdPhysicsController( ccdObjectCi);
+
+		// Only do CCD if  motion in one timestep (1.f/60.f) exceeds CUBE_HALF_EXTENTS
+		physObjects[i]->GetRigidBody()->m_ccdSquareMotionTreshold = 0.f; 
+		
+		//Experimental: better estimation of CCD Time of Impact:
+		//physObjects[i]->GetRigidBody()->m_ccdSweptShereRadius = 0.5*CUBE_HALF_EXTENTS;
+
+		physicsEnvironmentPtr->addCcdPhysicsController( physObjects[i]);
+		
+	}
+
+	numObjects++;
+	
+}
+
+
 
 
 bool ConvertColladaPhysicsToBulletPhysics(const FCDPhysicsSceneNode* inputNode)
@@ -181,6 +254,7 @@ bool ConvertColladaPhysicsToBulletPhysics(const FCDPhysicsSceneNode* inputNode)
 
 					//Create a controller per rigid-body 
 
+					physicsEnvironmentPtr->setGravity(inputNode->GetGravity().x,inputNode->GetGravity().y,inputNode->GetGravity().z);
 					//FRMeshPhysicsController* controller = new FRMeshPhysicsController(inputNode->GetGravity(), inputNode->GetTimestep()); 
 					FCDPhysicsRigidBodyInstance* rbInstance = (FCDPhysicsRigidBodyInstance*)(*itE);
 
@@ -209,11 +283,27 @@ bool ConvertColladaPhysicsToBulletPhysics(const FCDPhysicsSceneNode* inputNode)
 
 					//FRTScaleList scaleTransforms;
 
+					SimdTransform accumulatedWorldTransform;
+					accumulatedWorldTransform.setIdentity();
+					
 					uint32 numTransforms = targetNode->GetTransformCount();
 
 					for (uint32 i=0; i<numTransforms; i++)
 					{
-						//targetNode->GetTransforms()[i]);
+						FMMatrix44 mat = (targetNode->GetTransforms()[i])->ToMatrix();
+						SimdVector3 pos(mat.GetTranslation().x,mat.GetTranslation().y,mat.GetTranslation().z);
+
+						SimdMatrix3x3 rotMat(
+							mat.m[0][0],mat.m[0][1],mat.m[0][2],
+							mat.m[1][0],mat.m[1][1],mat.m[1][2],
+							mat.m[2][0],mat.m[2][1],mat.m[2][2]);
+
+						rotMat = rotMat.transpose();
+						SimdTransform trans(rotMat,pos);
+
+						//TODO: check pre or post multiply
+						accumulatedWorldTransform = accumulatedWorldTransform * trans;
+
 					}
 
 					//Then affect all of its geometry instances.
@@ -263,6 +353,20 @@ bool ConvertColladaPhysicsToBulletPhysics(const FCDPhysicsSceneNode* inputNode)
 					FCDPhysicsRigidBody* rigidBody = rbInstance->FlattenRigidBody();
 					FCDPhysicsMaterial* mat = rigidBody->GetPhysicsMaterial();
 					FCDPhysicsShapeList shapes = rigidBody->GetPhysicsShapeList();
+
+					CollisionShape* collisionShape = 0;
+
+
+					FCDPhysicsParameter<bool>* dyn = (FCDPhysicsParameter<bool>*)rigidBody->FindParameterByReference(DAE_DYNAMIC_ELEMENT);
+
+					bool isDynamic = true;
+
+					if (dyn) 
+					{
+						isDynamic = *dyn->GetValue();
+						printf("isDynamic %i\n",isDynamic);
+					}
+
 					for (uint32 i=0; i<shapes.size(); i++)
 					{
 						FCDPhysicsShape* OldShape = shapes[i];
@@ -273,42 +377,215 @@ bool ConvertColladaPhysicsToBulletPhysics(const FCDPhysicsSceneNode* inputNode)
 
 						if (OldShape->GetGeometryInstance())
 						{
+							printf("mesh/convex geometry\n");
 
 							FCDGeometry* geoTemp = (FCDGeometry*)(OldShape->GetGeometryInstance()->GetEntity());
 							
-							const FCDGeometryMesh* colladaMesh = geoTemp->GetMesh();
+							FCDGeometryMesh* colladaMesh = geoTemp->GetMesh();
 							
 
-
-							//FRMesh* cMesh = ToFREntityGeometry(geoTemp);
-							//BakeScalingIntoMesh(cMesh, scaleTransforms);
-
-							for (uint32 j=0; j<colladaMesh->GetPolygonsCount(); j++)
+							if (colladaMesh)
 							{
+							
+								if (1)
+								{
+									bool useConvexHull = false;
+
+									//useConvexHull uses just the points. works, but there is no rendering at the moment
+									//for convex hull shapes
+									if (useConvexHull)
+									{
+										int count = colladaMesh->GetVertexSourceCount();
+										for (int i=0;i<count;i++)
+										{
+											const FCDGeometrySource* geomSource = colladaMesh->GetVertexSource(i);
+
+											if (geomSource->GetSourceType()==FUDaeGeometryInput::POSITION)
+											{
+												
+												int numPoints = geomSource->GetSourceData().size()/3;
+												SimdPoint3* points = new SimdPoint3[numPoints];
+												for (int p=0;p<numPoints;p++)
+												{
+													points[p].setValue(geomSource->GetSourceData()[p*3],
+														geomSource->GetSourceData()[p*3+1],
+														geomSource->GetSourceData()[p*3+2]);
+												}
+
+
+
+												collisionShape = new ConvexHullShape(points,numPoints);
+												
+												delete points;
+
+												break;
+											}
+										}
+
+									}
+									else
+									{
+										TriangleMesh* trimesh = new TriangleMesh();
+
+										int polyCount = colladaMesh->GetPolygonsCount();
+										for (uint32 j=0; j<polyCount; j++)
+										{
+											FCDGeometryPolygons* poly = colladaMesh->GetPolygons(j);
+											poly->Triangulate();
+
+											int numfaces = poly->GetFaceCount();
+											int numfacevertex = poly->GetFaceVertexCount();
+																						
+											std::vector<UInt32List> dataIndices;
+																				
+
+											//for (FCDGeometryPolygonsInputList::iterator itI = poly->idxOwners.begin(); itI != idxOwners.end(); ++itI)
+											//{
+											//	UInt32List* indices = &(*itI)->indices;
+											//	dataIndices.push_back(*indices);
+											//}
+
+																					
+											
+											
+											FCDGeometryPolygonsInput* inputs = poly->FindInput(FUDaeGeometryInput::POSITION);
+											
+
+											int startIndex = 0;
+											for (int p=0;p<numfaces;p++)
+											{
+												int numfacevertices = poly->GetFaceVertexCounts()[p];
+
+												switch (numfacevertices)
+												{
+												case 3:
+													{
+														
+														//float value = inputs->source->GetSourceData()[index];
+														
+															int offset = poly->GetFaceVertexOffset(p);
+															int index;
+															index = inputs->indices[offset];
+													
+															SimdVector3 vertex0(
+															inputs->source->GetSourceData()[index*3],
+															inputs->source->GetSourceData()[index*3+1],
+															inputs->source->GetSourceData()[index*3+2]);
+
+															index = inputs->indices[offset+1];
+														
+														SimdVector3 vertex1(
+															inputs->source->GetSourceData()[index*3],
+															inputs->source->GetSourceData()[index*3+1],
+															inputs->source->GetSourceData()[index*3+2]);
+														
+															index = inputs->indices[offset+2];
+
+														SimdVector3 vertex2(
+															inputs->source->GetSourceData()[index*3],
+															inputs->source->GetSourceData()[index*3+1],
+															inputs->source->GetSourceData()[index*3+2]);
+															
+														
+														trimesh->AddTriangle(vertex0,vertex1,vertex2);
+													break;
+													}
+
+												case 4:
+													{
+															int offset = poly->GetFaceVertexOffset(p);
+															int index;
+															index = inputs->indices[offset];
+													
+															SimdVector3 vertex0(
+															inputs->source->GetSourceData()[index*3],
+															inputs->source->GetSourceData()[index*3+1],
+															inputs->source->GetSourceData()[index*3+2]);
+
+															index = inputs->indices[offset+1];
+														
+														SimdVector3 vertex1(
+															inputs->source->GetSourceData()[index*3],
+															inputs->source->GetSourceData()[index*3+1],
+															inputs->source->GetSourceData()[index*3+2]);
+														
+															index = inputs->indices[offset+2];
+
+														SimdVector3 vertex2(
+															inputs->source->GetSourceData()[index*3],
+															inputs->source->GetSourceData()[index*3+1],
+															inputs->source->GetSourceData()[index*3+2]);
+																									
+														index = inputs->indices[offset+3];
+
+														SimdVector3 vertex3(
+															inputs->source->GetSourceData()[index*3],
+															inputs->source->GetSourceData()[index*3+1],
+															inputs->source->GetSourceData()[index*3+2]);
+
+														trimesh->AddTriangle(vertex0,vertex1,vertex2);
+														trimesh->AddTriangle(vertex0,vertex2,vertex3);
+
+														break;
+													}
+
+													default:
+														{
+														}
+												}
+											}
+
+											if (colladaMesh->m_convex || isDynamic)
+											{
+												collisionShape = new ConvexTriangleMeshShape(trimesh);
+											} else
+											{
+												collisionShape = new TriangleMeshShape(trimesh);
+											}
+																						
+
+										}
 								
-								/*
-								FRMeshPhysicsShape* NewShape = new FRMeshPhysicsShape(controller);
 
-								if (!NewShape->CreateTriangleMesh(cMesh, j, true))
+									}
 
+
+								} else
 								{
 
-									SAFE_DELETE(NewShape);
+									//should be static triangle mesh!
 
-									continue;
+									//FRMesh* cMesh = ToFREntityGeometry(geoTemp);
+									//BakeScalingIntoMesh(cMesh, scaleTransforms);
 
+									for (uint32 j=0; j<colladaMesh->GetPolygonsCount(); j++)
+									{
+										
+										/*
+										FRMeshPhysicsShape* NewShape = new FRMeshPhysicsShape(controller);
+
+										if (!NewShape->CreateTriangleMesh(cMesh, j, true))
+
+										{
+
+											SAFE_DELETE(NewShape);
+
+											continue;
+
+										}
+										if (mat)
+										{
+											NewShape->SetMaterial(mat->GetStaticFriction(), mat->GetDynamicFriction(), mat->GetRestitution());
+											//FIXME
+											//NewShape->material->setFrictionCombineMode();
+											//NewShape->material->setSpring();
+										}
+
+										controller->AddShape(NewShape);
+
+									*/
 								}
-								if (mat)
-								{
-									NewShape->SetMaterial(mat->GetStaticFriction(), mat->GetDynamicFriction(), mat->GetRestitution());
-									//FIXME
-									//NewShape->material->setFrictionCombineMode();
-									//NewShape->material->setSpring();
-								}
-
-								controller->AddShape(NewShape);
-
-							*/
+							}
 						}
 							
 
@@ -340,6 +617,8 @@ bool ConvertColladaPhysicsToBulletPhysics(const FCDPhysicsSceneNode* inputNode)
 								{
 
 									FCDPASBox* box = (FCDPASBox*)analGeom;
+									printf("Box\n");
+									collisionShape = new BoxShape(SimdVector3(box->halfExtents.x,box->halfExtents.y,box->halfExtents.z));
 
 									break;
 
@@ -350,7 +629,7 @@ bool ConvertColladaPhysicsToBulletPhysics(const FCDPhysicsSceneNode* inputNode)
 								{
 
 									FCDPASPlane* plane = (FCDPASPlane*)analGeom;
-
+									printf("Plane\n");
 									break;
 
 								}
@@ -360,7 +639,8 @@ bool ConvertColladaPhysicsToBulletPhysics(const FCDPhysicsSceneNode* inputNode)
 								{
 
 									FCDPASSphere* sphere = (FCDPASSphere*)analGeom;
-								
+									collisionShape = new SphereShape(sphere->radius);
+									printf("Sphere\n");
 									break;
 
 								}
@@ -372,7 +652,7 @@ bool ConvertColladaPhysicsToBulletPhysics(const FCDPhysicsSceneNode* inputNode)
 									//FIXME: only using the first radius of the cylinder
 
 									FCDPASCylinder* cylinder = (FCDPASCylinder*)analGeom;
-
+									printf("Cylinder\n");
 
 									break;
 
@@ -385,7 +665,7 @@ bool ConvertColladaPhysicsToBulletPhysics(const FCDPhysicsSceneNode* inputNode)
 									//FIXME: only using the first radius of the capsule
 
 									FCDPASCapsule* capsule = (FCDPASCapsule*)analGeom;
-
+									printf("Capsule\n");
 
 									break;
 
@@ -398,7 +678,7 @@ bool ConvertColladaPhysicsToBulletPhysics(const FCDPhysicsSceneNode* inputNode)
 									//FIXME: only using the first radius of the capsule
 
 									FCDPASTaperedCapsule* tcapsule = (FCDPASTaperedCapsule*)analGeom;
-
+									printf("TaperedCapsule\n");
 									break;
 
 								}
@@ -410,7 +690,7 @@ bool ConvertColladaPhysicsToBulletPhysics(const FCDPhysicsSceneNode* inputNode)
 									//FIXME: only using the first radius of the cylinder
 
 									FCDPASTaperedCylinder* tcylinder = (FCDPASTaperedCylinder*)analGeom;
-
+									printf("TaperedCylinder\n");
 									break;
 
 								}
@@ -430,27 +710,23 @@ bool ConvertColladaPhysicsToBulletPhysics(const FCDPhysicsSceneNode* inputNode)
 
 					}
 
-					FCDPhysicsParameter<bool>* dyn = (FCDPhysicsParameter<bool>*)rigidBody->FindParameterByReference(DAE_DYNAMIC_ELEMENT);
-
-					if (dyn) 
-					{
-						bool* mydyn = dyn->GetValue();
-						printf("mydyn %i\n",*mydyn);
-					}
+				
 
 					FCDPhysicsParameter<float>* mass = (FCDPhysicsParameter<float>*)rigidBody->FindParameterByReference(DAE_MASS_ELEMENT);
 
+					float mymass = 1.f;
+
 					if (mass) 
 					{
-						float* mymass = mass->GetValue();
-						printf("RB mass:%f\n",*mymass);
+						mymass = *mass->GetValue();
+						printf("RB mass:%f\n",mymass);
 					}
 
 					FCDPhysicsParameter<FMVector3>* inertia = (FCDPhysicsParameter<FMVector3>*)rigidBody->FindParameterByReference(DAE_INERTIA_ELEMENT);
 
 					if (inertia) 
 					{
-						inertia->GetValue();
+						inertia->GetValue();//this should be calculated from shape
 					}
 
 					FCDPhysicsParameter<FMVector3>* velocity = (FCDPhysicsParameter<FMVector3>*)rigidBody->FindParameterByReference(DAE_VELOCITY_ELEMENT);
@@ -467,6 +743,18 @@ bool ConvertColladaPhysicsToBulletPhysics(const FCDPhysicsSceneNode* inputNode)
 						angularVelocity->GetValue();
 					}
 
+					static int once = true;
+
+					if (collisionShape)
+					{
+						once = false;
+						printf("create Physics Object\n");
+						//void	CreatePhysicsObject(bool isDynamic, float mass, const SimdTransform& startTransform,CollisionShape* shape)
+
+						CreatePhysicsObject(isDynamic, mymass, accumulatedWorldTransform,collisionShape);
+
+
+					}
 					//controller->SetGlobalPose(n->CalculateWorldTransformation());//??
 
 					//SAFE_DELETE(rigidBody);
@@ -482,7 +770,6 @@ bool ConvertColladaPhysicsToBulletPhysics(const FCDPhysicsSceneNode* inputNode)
 
 
 
-#endif //COLLADA_PHYSICS_TEST
 
 
 ////////////////////////////////////
@@ -494,8 +781,26 @@ GLDebugDrawer debugDrawer;
 int main(int argc,char** argv)
 {
 
-#ifdef COLLADA_PHYSICS_TEST
-	char* filename = "analyticalGeomPhysicsTest.dae";//ColladaPhysics.dae";
+	///Setup a Physics Simulation Environment
+	CollisionDispatcher* dispatcher = new	CollisionDispatcher();
+	SimdVector3 worldAabbMin(-10000,-10000,-10000);
+	SimdVector3 worldAabbMax(10000,10000,10000);
+	BroadphaseInterface* broadphase = new AxisSweep3(worldAabbMin,worldAabbMax);
+	//BroadphaseInterface* broadphase = new SimpleBroadphase();
+	physicsEnvironmentPtr = new CcdPhysicsEnvironment(dispatcher,broadphase);
+	physicsEnvironmentPtr->setDeactivationTime(2.f);
+	physicsEnvironmentPtr->setGravity(0,-10,0);
+	physicsEnvironmentPtr->setDebugDrawer(&debugDrawer);
+
+
+	/// Import Collada 1.4 Physics objects
+
+	//char* filename = "analyticalGeomPhysicsTest.dae";//ColladaPhysics.dae";
+	//char* filename = "colladaphysics_spherebox.dae";
+	char* filename = "friction.dae";
+
+	
+
 	FCDocument* document = new FCDocument();
 	FUStatus status = document->LoadFromFile(filename);
 	bool success = status.IsSuccessful();
@@ -511,215 +816,13 @@ int main(int argc,char** argv)
 		{
 			printf("ConvertColladaPhysicsToBulletPhysics failed\n");
 		}
-
-
 	}
-#endif //COLLADA_PHYSICS_TEST
-
-	CollisionDispatcher* dispatcher = new	CollisionDispatcher();
-
-
-	SimdVector3 worldAabbMin(-10000,-10000,-10000);
-	SimdVector3 worldAabbMax(10000,10000,10000);
-
-	BroadphaseInterface* broadphase = new AxisSweep3(worldAabbMin,worldAabbMax);
-	//BroadphaseInterface* broadphase = new SimpleBroadphase();
-
-	physicsEnvironmentPtr = new CcdPhysicsEnvironment(dispatcher,broadphase);
-	physicsEnvironmentPtr->setDeactivationTime(2.f);
-
-	physicsEnvironmentPtr->setGravity(0,-10,0);
-	PHY_ShapeProps shapeProps;
-
-	shapeProps.m_do_anisotropic = false;
-	shapeProps.m_do_fh = false;
-	shapeProps.m_do_rot_fh = false;
-	shapeProps.m_friction_scaling[0] = 1.;
-	shapeProps.m_friction_scaling[1] = 1.;
-	shapeProps.m_friction_scaling[2] = 1.;
-
-	shapeProps.m_inertia = 1.f;
-	shapeProps.m_lin_drag = 0.2f;
-	shapeProps.m_ang_drag = 0.1f;
-	shapeProps.m_mass = 10.0f;
-
-	PHY_MaterialProps materialProps;
-	materialProps.m_friction = 10.5f;
-	materialProps.m_restitution = 0.0f;
-
-	CcdConstructionInfo ccdObjectCi;
-	ccdObjectCi.m_friction = 0.5f;
-
-	ccdObjectCi.m_linearDamping = shapeProps.m_lin_drag;
-	ccdObjectCi.m_angularDamping = shapeProps.m_ang_drag;
-
-	SimdTransform tr;
-	tr.setIdentity();
-
-	int i;
-	for (i=0;i<numObjects;i++)
-	{
-		if (i>0)
-		{
-			shapeIndex[i] = 1;//sphere
-		}
-		else
-			shapeIndex[i] = 0;
-	}
-
-
-
-
-	for (i=0;i<numObjects;i++)
-	{
-		shapeProps.m_shape = shapePtr[shapeIndex[i]];
-		shapeProps.m_shape->SetMargin(0.05f);
-
-
-
-		bool isDyna = i>0;
-		//if (i==1)
-		//	isDyna=false;
-
-		if (0)//i==1)
-		{
-			SimdQuaternion orn(0,0,0.1*SIMD_HALF_PI);
-			ms[i].setWorldOrientation(orn.x(),orn.y(),orn.z(),orn[3]);
-		}
-
-
-		if (i>0)
-		{
-
-			switch (i)
-			{
-			case 1:
-				{
-					ms[i].setWorldPosition(0,10,0);
-					//for testing, rotate the ground cube so the stack has to recover a bit
-
-					break;
-				}
-			case 2:
-				{
-					ms[i].setWorldPosition(0,8,2);
-					break;
-				}
-			default:
-				ms[i].setWorldPosition(0,i*CUBE_HALF_EXTENTS*2 - CUBE_HALF_EXTENTS,0);
-			}
-
-			float quatIma0,quatIma1,quatIma2,quatReal;
-			SimdQuaternion quat;
-			SimdVector3 axis(0,0,1);
-			SimdScalar angle=0.5f;
-
-			quat.setRotation(axis,angle);
-
-			ms[i].setWorldOrientation(quat.getX(),quat.getY(),quat.getZ(),quat[3]);
-
-
-
-		} else
-		{
-			ms[i].setWorldPosition(0,-10+EXTRA_HEIGHT,0);
-
-		}
-
-		ccdObjectCi.m_MotionState = &ms[i];
-		ccdObjectCi.m_gravity = SimdVector3(0,0,0);
-		ccdObjectCi.m_localInertiaTensor =SimdVector3(0,0,0);
-		if (!isDyna)
-		{
-			shapeProps.m_mass = 0.f;
-			ccdObjectCi.m_mass = shapeProps.m_mass;
-			ccdObjectCi.m_collisionFlags = CollisionObject::isStatic;
-		}
-		else
-		{
-			shapeProps.m_mass = 1.f;
-			ccdObjectCi.m_mass = shapeProps.m_mass;
-			ccdObjectCi.m_collisionFlags = 0;
-		}
-
-
-		SimdVector3 localInertia;
-		if (shapePtr[shapeIndex[i]]->GetShapeType() == EMPTY_SHAPE_PROXYTYPE)
-		{
-			//take inertia from first shape
-			shapePtr[1]->CalculateLocalInertia(shapeProps.m_mass,localInertia);
-		} else
-		{
-			shapePtr[shapeIndex[i]]->CalculateLocalInertia(shapeProps.m_mass,localInertia);
-		}
-		ccdObjectCi.m_localInertiaTensor = localInertia;
-
-		ccdObjectCi.m_collisionShape = shapePtr[shapeIndex[i]];
-
-
-		physObjects[i]= new CcdPhysicsController( ccdObjectCi);
-
-		// Only do CCD if  motion in one timestep (1.f/60.f) exceeds CUBE_HALF_EXTENTS
-		physObjects[i]->GetRigidBody()->m_ccdSquareMotionTreshold = CUBE_HALF_EXTENTS;
-		
-		//Experimental: better estimation of CCD Time of Impact:
-		//physObjects[i]->GetRigidBody()->m_ccdSweptShereRadius = 0.5*CUBE_HALF_EXTENTS;
-
-		physicsEnvironmentPtr->addCcdPhysicsController( physObjects[i]);
-
-		if (i==1)
-		{
-			//physObjects[i]->SetAngularVelocity(0,0,-2,true);
-		}
-
-		physicsEnvironmentPtr->setDebugDrawer(&debugDrawer);
-
-	}
-
-
-	//create a constraint
-	if (createConstraint)
-	{
-		//physObjects[i]->SetAngularVelocity(0,0,-2,true);
-		int constraintId;
-
-		float pivotX=CUBE_HALF_EXTENTS,
-			pivotY=-CUBE_HALF_EXTENTS,
-			pivotZ=CUBE_HALF_EXTENTS;
-
-		float axisX=1,axisY=0,axisZ=0;
-
-
-
-		HingeConstraint* hinge = 0;
-
-		SimdVector3 pivotInA(CUBE_HALF_EXTENTS,-CUBE_HALF_EXTENTS,CUBE_HALF_EXTENTS);
-		SimdVector3 pivotInB(-CUBE_HALF_EXTENTS,-CUBE_HALF_EXTENTS,CUBE_HALF_EXTENTS);
-		SimdVector3 axisInA(0,1,0);
-		SimdVector3 axisInB(0,-1,0);
-
-		RigidBody* rb0 = physObjects[1]->GetRigidBody();
-		RigidBody* rb1 = physObjects[2]->GetRigidBody();
-
-		hinge = new HingeConstraint(
-			*rb0,
-			*rb1,pivotInA,pivotInB,axisInA,axisInB);
-
-		physicsEnvironmentPtr->m_constraints.push_back(hinge);
-
-		hinge->SetUserConstraintId(100);
-		hinge->SetUserConstraintType(PHY_LINEHINGE_CONSTRAINT);
-
-	}
-
-
-
 
 	clientResetScene();
 
 	setCameraDistance(26.f);
 
-	return glutmain(argc, argv,640,480,"Bullet Physics Demo. http://www.continuousphysics.com/Bullet/phpBB2/");
+	return glutmain(argc, argv,640,480,"Bullet Collada Physics Viewer. http://www.continuousphysics.com/Bullet/phpBB2/");
 }
 
 //to be implemented by the demo
@@ -727,20 +830,7 @@ void renderme()
 {
 	debugDrawer.SetDebugMode(getDebugMode());
 
-	//render the hinge axis
-	if (createConstraint)
-	{
-		SimdVector3 color(1,0,0);
-		SimdVector3 dirLocal(0,1,0);
-		SimdVector3 pivotInA(CUBE_HALF_EXTENTS,-CUBE_HALF_EXTENTS,CUBE_HALF_EXTENTS);
-		SimdVector3 pivotInB(-CUBE_HALF_EXTENTS,-CUBE_HALF_EXTENTS,CUBE_HALF_EXTENTS);
-		SimdVector3 from = physObjects[1]->GetRigidBody()->getCenterOfMassTransform()(pivotInA);
-		SimdVector3 fromB = physObjects[2]->GetRigidBody()->getCenterOfMassTransform()(pivotInB);
-		SimdVector3 dirWorldA = physObjects[1]->GetRigidBody()->getCenterOfMassTransform().getBasis() * dirLocal ;
-		SimdVector3 dirWorldB = physObjects[2]->GetRigidBody()->getCenterOfMassTransform().getBasis() * dirLocal ;
-		debugDrawer.DrawLine(from,from+dirWorldA,color);
-		debugDrawer.DrawLine(fromB,fromB+dirWorldB,color);
-	}
+	
 
 	float m[16];
 	int i;
@@ -769,42 +859,6 @@ void renderme()
 
 	physicsEnvironmentPtr->EnableSatCollisionDetection(isSatEnabled);
 
-
-#ifdef USE_HULL
-	//some testing code for SAT
-	if (isSatEnabled)
-	{
-		for (int s=0;s<numShapes;s++)
-		{
-			CollisionShape* shape = shapePtr[s];
-
-			if (shape->IsPolyhedral())
-			{
-				PolyhedralConvexShape* polyhedron = static_cast<PolyhedralConvexShape*>(shape);
-				if (!polyhedron->m_optionalHull)
-				{
-					//first convert vertices in 'Point3' format
-					int numPoints = polyhedron->GetNumVertices();
-					Point3* points = new Point3[numPoints+1];
-					//first 4 points should not be co-planar, so add central point to satisfy MakeHull
-					points[0] = Point3(0.f,0.f,0.f);
-
-					SimdVector3 vertex;
-					for (int p=0;p<numPoints;p++)
-					{
-						polyhedron->GetVertex(p,vertex);
-						points[p+1] = Point3(vertex.getX(),vertex.getY(),vertex.getZ());
-					}
-
-					Hull* hull = Hull::MakeHull(numPoints+1,points);
-					polyhedron->m_optionalHull = hull;
-				}
-
-			}
-		}
-
-	}
-#endif //USE_HULL
 
 
 	for (i=0;i<numObjects;i++)
@@ -865,7 +919,7 @@ void renderme()
 		{
 			if (physObjects[i]->GetRigidBody()->GetCollisionShape()->GetShapeType() == EMPTY_SHAPE_PROXYTYPE)
 			{
-				physObjects[i]->GetRigidBody()->SetCollisionShape(shapePtr[1]);
+				physObjects[i]->GetRigidBody()->SetCollisionShape(gShapePtr[1]);
 
 				//remove the persistent collision pairs that were created based on the previous shape
 
@@ -1030,51 +1084,17 @@ void clientDisplay(void) {
 void clientResetScene()
 {
 
-	int i;
-	for (i=0;i<numObjects;i++)
-	{
-		if (i>0)
-		{
-
-			if ((getDebugMode() & IDebugDraw::DBG_NoHelpText))
-			{
-				if (physObjects[i]->GetRigidBody()->GetCollisionShape()->GetShapeType() == BOX_SHAPE_PROXYTYPE)
-				{
-					physObjects[i]->GetRigidBody()->SetCollisionShape(shapePtr[2]);
-				} else
-				{
-					physObjects[i]->GetRigidBody()->SetCollisionShape(shapePtr[1]);
-				}
-
-				BroadphaseProxy* bpproxy = physObjects[i]->GetRigidBody()->m_broadphaseHandle;
-				physicsEnvironmentPtr->GetBroadphase()->CleanProxyFromPairs(bpproxy);
-			}
-
-			//stack them
-			int colsize = 10;
-			int row = (i*CUBE_HALF_EXTENTS*2)/(colsize*2*CUBE_HALF_EXTENTS);
-			int row2 = row;
-			int col = (i)%(colsize)-colsize/2;
-
-
-			if (col>3)
-			{
-				col=11;
-				row2 |=1;
-			}
-			physObjects[i]->setPosition(col*2*CUBE_HALF_EXTENTS + (row2%2)*CUBE_HALF_EXTENTS,
-				row*2*CUBE_HALF_EXTENTS+CUBE_HALF_EXTENTS+EXTRA_HEIGHT,0);
-			physObjects[i]->setOrientation(0,0,0,1);
-			physObjects[i]->SetLinearVelocity(0,0,0,false);
-			physObjects[i]->SetAngularVelocity(0,0,0,false);
-		} 
-	}
+	//delete and reload, or keep transforms ready?
 }
 
 
 
 void	shootBox(const SimdVector3& destination)
 {
+	//no objects to shoot
+	if (!numObjects)
+		return;
+
 	int i  = numObjects-1;
 
 

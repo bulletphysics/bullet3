@@ -91,6 +91,36 @@ FUStatus FCDGeometry::LoadFromXML(xmlNode* geometryNode)
 			status.AppendStatus(s->LoadFromXML(child));
 			break;
 		}
+		else if (IsEquivalent(child->name, DAE_CONVEX_MESH_ELEMENT))
+		{
+			//several cases can exist here...
+			//wait for fixed version of FCollada?
+			//assume <convex_hull_of> and do instantiate?
+
+			// Create a new mesh
+			FCDGeometryMesh* m = CreateMesh();
+			m->m_convex = true;
+			FUUri url = ReadNodeUrl(child,"convex_hull_of");
+			
+			if (!url.prefix.empty())
+			{
+				FCDGeometry* entity = GetDocument()->FindGeometry(url.prefix);
+				if (entity)
+				{
+					printf("found convex_mesh%s\n",url.prefix);
+					//quick hack
+					this->mesh = entity->GetMesh();
+					mesh->m_convex = true;
+
+				}
+				
+			}
+		
+			
+			//status.AppendStatus(m->LoadFromXML(child));
+
+			break;
+		}
 		else
 		{
 			return status.Fail(FS("Unknown child in <geometry> with id: ") + TO_FSTRING(GetDaeId()), child->line);
