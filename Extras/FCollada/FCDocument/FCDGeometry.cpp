@@ -100,10 +100,14 @@ FUStatus FCDGeometry::LoadFromXML(xmlNode* geometryNode)
 			// Create a new mesh
 			FCDGeometryMesh* m = CreateMesh();
 			m->m_convex = true;
-			FUUri url = ReadNodeUrl(child,"convex_hull_of");
+			FUUri url;
+			char hullname[] = "convex_hull_of";
+
+			url = ReadNodeUrl(child,hullname);
 			
 			if (!url.prefix.empty())
 			{
+				
 				FCDGeometry* entity = GetDocument()->FindGeometry(url.prefix);
 				if (entity)
 				{
