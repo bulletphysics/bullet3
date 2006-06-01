@@ -111,7 +111,7 @@ FUStatus FCDGeometry::LoadFromXML(xmlNode* geometryNode)
 				FCDGeometry* entity = GetDocument()->FindGeometry(url.prefix);
 				if (entity)
 				{
-					printf("found convex_mesh%s\n",url.prefix);
+					printf("found convex_mesh\n");
 					//quick hack
 					this->mesh = entity->GetMesh();
 					mesh->m_convex = true;

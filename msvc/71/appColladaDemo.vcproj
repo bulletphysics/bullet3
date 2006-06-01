@@ -1,4 +1,4 @@
-<?xml version="1.0" encoding = "Windows-1252"?>
+<?xml version="1.0" encoding="Windows-1252"?>
 <VisualStudioProject
 	ProjectType="Visual C++"
 	Version="7.10"
@@ -16,23 +16,23 @@
 			OutputDirectory="..\..\out\release71\build\appColladaDemo\"
 			IntermediateDirectory="..\..\out\release71\build\appColladaDemo\"
 			ConfigurationType="1"
-			CharacterSet="2"
-			WholeProgramOptimization="1"
 			UseOfMFC="0"
-			ATLMinimizesCRunTimeLibraryUsage="FALSE">
+			ATLMinimizesCRunTimeLibraryUsage="FALSE"
+			CharacterSet="2"
+			WholeProgramOptimization="TRUE">
 			<Tool
 				Name="VCCLCompilerTool"
-				Optimization="2"
-				StringPooling="TRUE"
-				EnableFunctionLevelLinking="TRUE"
-				RuntimeLibrary="2"
-				DebugInformationFormat="3"
-				BufferSecurityCheck="FALSE"
-				PreprocessorDefinitions="NDEBUG;_CONSOLE;WIN32"
-				OptimizeForProcessor="1"
-				ExceptionHandling="0"
 				AdditionalOptions=" "
-				AdditionalIncludeDirectories=".;..\..;..\..\Bullet;..\..\BulletDynamics;..\..\LinearMath;..\..\Extras\PhysicsInterface\Common;..\..\Extras\ConvexDecomposition;..\..\Glut;..\..\Demos\OpenGL;..\..\Extras\PhysicsInterface\CcdPhysics"
+				Optimization="2"
+				OptimizeForProcessor="1"
+				AdditionalIncludeDirectories=".;..\..;..\..\Bullet;..\..\BulletDynamics;..\..\LinearMath;..\..\Extras\PhysicsInterface\Common;..\..\Extras\ConvexDecomposition;..\..\Glut;..\..\Demos\OpenGL;..\..\Extras\PhysicsInterface\CcdPhysics;..\..\Extras\FCollada;..\..\Extras\FCollada\LibXML\include"
+				PreprocessorDefinitions="NDEBUG;_CONSOLE;WIN32"
+				StringPooling="TRUE"
+				ExceptionHandling="FALSE"
+				RuntimeLibrary="2"
+				BufferSecurityCheck="FALSE"
+				EnableFunctionLevelLinking="TRUE"
+				TreatWChar_tAsBuiltInType="FALSE"
 				PrecompiledHeaderFile="..\..\out\release71\build\appColladaDemo\appColladaDemo.pch"
 				AssemblerListingLocation="..\..\out\release71\build\appColladaDemo\"
 				ObjectFile="..\..\out\release71\build\appColladaDemo\"
@@ -40,29 +40,26 @@
 				WarningLevel="3"
 				SuppressStartupBanner="TRUE"
 				Detect64BitPortabilityProblems="TRUE"
-				TreatWChar_tAsBuiltInType="false"
+				DebugInformationFormat="3"
 				CompileAs="0"/>
 			<Tool
 				Name="VCCustomBuildTool"/>
 			<Tool
 				Name="VCLinkerTool"
-				LinkIncremental="1"
-				OptimizeReferences="2"
-				EnableCOMDATFolding="2"
-				GenerateDebugInformation="TRUE"
-				IgnoreDefaultLibraryNames="LIBC,LIBCD,LIBCMT,LIBCMTD"
-				OutputFile="..\..\ColladaDemo.exe"
-				SubSystem="1"
+				IgnoreImportLibrary="TRUE"
 				AdditionalOptions=" "
 				AdditionalDependencies="glut32.lib"
-				IgnoreImportLibrary="TRUE"
+				OutputFile="..\..\ColladaDemo.exe"
+				LinkIncremental="1"
 				SuppressStartupBanner="TRUE"
 				AdditionalLibraryDirectories="..\..\Glut"
+				IgnoreDefaultLibraryNames="LIBC,LIBCD,LIBCMT,LIBCMTD"
+				GenerateDebugInformation="TRUE"
 				ProgramDatabaseFile="..\..\out\release71\build\appColladaDemo\ColladaDemo.pdb"
+				SubSystem="1"
+				OptimizeReferences="2"
+				EnableCOMDATFolding="2"
 				TargetMachine="1"/>
-			<Tool
-				Name="VCLibrarianTool"
-				SuppressStartupBanner="TRUE"/>
 			<Tool
 				Name="VCMIDLTool"
 				PreprocessorDefinitions="NDEBUG;_CONSOLE"
@@ -71,8 +68,7 @@
 				TargetEnvironment="1"
 				TypeLibraryName="..\..\out\release71\build\appColladaDemo\appColladaDemo.tlb"/>
 			<Tool
-				Name="VCPostBuildEventTool"
-				/>
+				Name="VCPostBuildEventTool"/>
 			<Tool
 				Name="VCPreBuildEventTool"/>
 			<Tool
@@ -80,33 +76,39 @@
 			<Tool
 				Name="VCResourceCompilerTool"
 				PreprocessorDefinitions="NDEBUG;_CONSOLE;PROJECTGEN_VERSION=71"
-				AdditionalIncludeDirectories=".;..\..;..\..\Bullet;..\..\BulletDynamics;..\..\LinearMath;..\..\Extras\PhysicsInterface\Common;..\..\Extras\ConvexDecomposition;..\..\Glut;..\..\Demos\OpenGL;..\..\Extras\PhysicsInterface\CcdPhysics"
-				Culture="1033"/>
+				Culture="1033"
+				AdditionalIncludeDirectories=".;..\..;..\..\Bullet;..\..\BulletDynamics;..\..\LinearMath;..\..\Extras\PhysicsInterface\Common;..\..\Extras\ConvexDecomposition;..\..\Glut;..\..\Demos\OpenGL;..\..\Extras\PhysicsInterface\CcdPhysics"/>
 			<Tool
 				Name="VCWebServiceProxyGeneratorTool"/>
 			<Tool
+				Name="VCXMLDataGeneratorTool"/>
+			<Tool
 				Name="VCWebDeploymentTool"/>
+			<Tool
+				Name="VCManagedWrapperGeneratorTool"/>
+			<Tool
+				Name="VCAuxiliaryManagedWrapperGeneratorTool"/>
 		</Configuration>
 		<Configuration
 			Name="Debug|Win32"
 			OutputDirectory="..\..\out\debug71\build\appColladaDemo\"
 			IntermediateDirectory="..\..\out\debug71\build\appColladaDemo\"
 			ConfigurationType="1"
-			CharacterSet="2"
 			UseOfMFC="0"
-			ATLMinimizesCRunTimeLibraryUsage="FALSE">
+			ATLMinimizesCRunTimeLibraryUsage="FALSE"
+			CharacterSet="2">
 			<Tool
 				Name="VCCLCompilerTool"
-				Optimization="0"
-				MinimalRebuild="TRUE"
-				DebugInformationFormat="4"
-				RuntimeTypeInfo="TRUE"
-				RuntimeLibrary="3"
-				PreprocessorDefinitions="_DEBUG;_CONSOLE;WIN32"
-				OptimizeForProcessor="1"
-				ExceptionHandling="0"
 				AdditionalOptions=" "
-				AdditionalIncludeDirectories=".;..\..;..\..\Bullet;..\..\BulletDynamics;..\..\LinearMath;..\..\Extras\PhysicsInterface\Common;..\..\Extras\ConvexDecomposition;..\..\Glut;..\..\Demos\OpenGL;..\..\Extras\PhysicsInterface\CcdPhysics"
+				Optimization="0"
+				OptimizeForProcessor="1"
+				AdditionalIncludeDirectories=".;..\..;..\..\Bullet;..\..\BulletDynamics;..\..\LinearMath;..\..\Extras\PhysicsInterface\Common;..\..\Extras\ConvexDecomposition;..\..\Glut;..\..\Demos\OpenGL;..\..\Extras\PhysicsInterface\CcdPhysics;..\..\Extras\FCollada;..\..\Extras\FCollada\LibXML\include"
+				PreprocessorDefinitions="_DEBUG;_CONSOLE;WIN32"
+				MinimalRebuild="TRUE"
+				ExceptionHandling="FALSE"
+				RuntimeLibrary="3"
+				TreatWChar_tAsBuiltInType="FALSE"
+				RuntimeTypeInfo="TRUE"
 				PrecompiledHeaderFile="..\..\out\debug71\build\appColladaDemo\appColladaDemo.pch"
 				AssemblerListingLocation="..\..\out\debug71\build\appColladaDemo\"
 				ObjectFile="..\..\out\debug71\build\appColladaDemo\"
@@ -114,27 +116,24 @@
 				WarningLevel="3"
 				SuppressStartupBanner="TRUE"
 				Detect64BitPortabilityProblems="TRUE"
-				TreatWChar_tAsBuiltInType="false"
+				DebugInformationFormat="4"
 				CompileAs="0"/>
 			<Tool
 				Name="VCCustomBuildTool"/>
 			<Tool
 				Name="VCLinkerTool"
-				LinkIncremental="2"
-				GenerateDebugInformation="TRUE"
-				IgnoreDefaultLibraryNames="LIBC,LIBCD,LIBCMT,LIBCMTD,MSVCRT"
-				OutputFile="..\..\ColladaDemo.exe"
-				SubSystem="1"
+				IgnoreImportLibrary="TRUE"
 				AdditionalOptions=" "
 				AdditionalDependencies="glut32.lib"
-				IgnoreImportLibrary="TRUE"
+				OutputFile="..\..\ColladaDemo.exe"
+				LinkIncremental="2"
 				SuppressStartupBanner="TRUE"
 				AdditionalLibraryDirectories="..\..\Glut"
+				IgnoreDefaultLibraryNames="LIBC,LIBCD,LIBCMT,LIBCMTD,MSVCRT"
+				GenerateDebugInformation="TRUE"
 				ProgramDatabaseFile="..\..\out\debug71\build\appColladaDemo\ColladaDemo.pdb"
+				SubSystem="1"
 				TargetMachine="1"/>
-			<Tool
-				Name="VCLibrarianTool"
-				SuppressStartupBanner="TRUE"/>
 			<Tool
 				Name="VCMIDLTool"
 				PreprocessorDefinitions="_DEBUG;_CONSOLE"
@@ -143,8 +142,7 @@
 				TargetEnvironment="1"
 				TypeLibraryName="..\..\out\debug71\build\appColladaDemo\appColladaDemo.tlb"/>
 			<Tool
-				Name="VCPostBuildEventTool"
-				/>
+				Name="VCPostBuildEventTool"/>
 			<Tool
 				Name="VCPreBuildEventTool"/>
 			<Tool
@@ -152,14 +150,22 @@
 			<Tool
 				Name="VCResourceCompilerTool"
 				PreprocessorDefinitions="_DEBUG;_CONSOLE;PROJECTGEN_VERSION=71"
-				AdditionalIncludeDirectories=".;..\..;..\..\Bullet;..\..\BulletDynamics;..\..\LinearMath;..\..\Extras\PhysicsInterface\Common;..\..\Extras\ConvexDecomposition;..\..\Glut;..\..\Demos\OpenGL;..\..\Extras\PhysicsInterface\CcdPhysics"
-				Culture="1033"/>
+				Culture="1033"
+				AdditionalIncludeDirectories=".;..\..;..\..\Bullet;..\..\BulletDynamics;..\..\LinearMath;..\..\Extras\PhysicsInterface\Common;..\..\Extras\ConvexDecomposition;..\..\Glut;..\..\Demos\OpenGL;..\..\Extras\PhysicsInterface\CcdPhysics"/>
 			<Tool
 				Name="VCWebServiceProxyGeneratorTool"/>
 			<Tool
+				Name="VCXMLDataGeneratorTool"/>
+			<Tool
 				Name="VCWebDeploymentTool"/>
+			<Tool
+				Name="VCManagedWrapperGeneratorTool"/>
+			<Tool
+				Name="VCAuxiliaryManagedWrapperGeneratorTool"/>
 		</Configuration>
 	</Configurations>
+	<References>
+	</References>
 	<Files>
 		<Filter
 			Name="Source Files"
