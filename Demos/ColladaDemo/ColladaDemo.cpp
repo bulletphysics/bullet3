@@ -833,9 +833,10 @@ int main(int argc,char** argv)
 	/// Import Collada 1.4 Physics objects
 
 	//char* filename = "analyticalGeomPhysicsTest.dae";//ColladaPhysics.dae";
-	char* filename = "colladaphysics_spherebox.dae";
-	
+	//char* filename = "colladaphysics_spherebox.dae";
 	//char* filename = "friction.dae";
+	char* filename = "jenga.dae";
+	
 
 #ifdef USE_FCOLLADA
 
