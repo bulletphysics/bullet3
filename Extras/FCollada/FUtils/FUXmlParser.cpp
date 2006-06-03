@@ -103,11 +103,14 @@ namespace FUXmlParser
 	// Returns the string value of a node's property
 	string ReadNodeProperty(xmlNode* node, const char* property)
 	{
-		string ret;
+		string ret="";
 		if (node != NULL && property != NULL)
 		{
 			xmlChar* data = xmlGetProp(node, xmlT(property));
-			if (data != NULL) ret = (const char*) data;
+			if (data != NULL) 
+			{
+				ret = (const char*) data;
+			}
 			xmlFree(data);
 		}
 

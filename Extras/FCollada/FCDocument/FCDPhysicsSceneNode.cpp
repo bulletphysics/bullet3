@@ -24,7 +24,7 @@ using namespace FUDaeWriter;
 FCDPhysicsSceneNode::FCDPhysicsSceneNode(FCDocument* document) : FCDEntity(document, "PhysicsSceneNode")
 {
 	//FIXME: no default values are specified in the 1.4 spec!
-	gravity.x = 0.f; gravity.y = -9.8f; gravity.z = 0.f;
+	gravity.x = 0.f; gravity.y = 0.f; gravity.z = -9.8f;
 	timestep = 1.f;
 }
 

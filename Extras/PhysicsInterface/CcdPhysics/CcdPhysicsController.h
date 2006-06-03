@@ -208,6 +208,7 @@ class	DefaultMotionState : public PHY_IMotionState
 		virtual	void	calculateWorldTransformations();
 		
 		SimdTransform	m_worldTransform;
+		SimdVector3		m_localScaling;
 
 };
 

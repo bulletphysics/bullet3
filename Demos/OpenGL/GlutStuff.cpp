@@ -105,22 +105,40 @@ void toggleIdle() {
     }
 }
 
+#include "SimdMatrix3x3.h"
+
+SimdVector3 gCameraUp(0,1,0);
+int	gForwardAxis = 2;
 
 void setCamera() {
+
 
     glMatrixMode(GL_PROJECTION);
     glLoadIdentity();
 	float rele = ele * 0.01745329251994329547;// rads per deg
     float razi = azi * 0.01745329251994329547;// rads per deg
-    eye[0] = DISTANCE * sin(razi) * cos(rele);
-	eye[1] = DISTANCE * sin(rele);
-	eye[2] = DISTANCE * cos(razi) * cos(rele);
- 
+    
 
+	SimdQuaternion rot(gCameraUp,razi);
+
+
+	SimdVector3 eyePos(0,0,0);
+	eyePos[gForwardAxis] = -DISTANCE;
+
+	SimdVector3 forward(eyePos[0],eyePos[1],eyePos[2]);
+	SimdVector3 right = gCameraUp.cross(forward);
+	SimdQuaternion roll(right,-rele);
+
+	eyePos = SimdMatrix3x3(rot) * SimdMatrix3x3(roll) * eyePos;
+
+	eye[0] = eyePos.getX();
+	eye[1] = eyePos.getY();
+	eye[2] = eyePos.getZ();
+ 
     glFrustum(-1.0, 1.0, -1.0, 1.0, 1.0, 100.0);
     gluLookAt(eye[0], eye[1], eye[2], 
               center[0], center[1], center[2], 
-              0, 1, 0);
+			  gCameraUp.getX(),gCameraUp.getY(),gCameraUp.getZ());
     glMatrixMode(GL_MODELVIEW);
 }
 

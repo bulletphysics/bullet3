@@ -170,6 +170,8 @@ void GL_ShapeDrawer::DrawOpenGL(float* m, const CollisionShape* shape, const Sim
 	}
 	
 
+	
+
 	if (useWireframeFallback)
 	{
 		/// for polyhedral shapes
@@ -195,16 +197,10 @@ void GL_ShapeDrawer::DrawOpenGL(float* m, const CollisionShape* shape, const Sim
 			glEnd();
 
 			
-
-			if (debugMode==IDebugDraw::DBG_DrawText)
-			{
-				BMF_DrawString(BMF_GetFont(BMF_kHelvetica10),polyshape->GetName());
-			}
-
 			if (debugMode==IDebugDraw::DBG_DrawFeaturesText)
 			{
 				BMF_DrawString(BMF_GetFont(BMF_kHelvetica10),polyshape->GetExtraDebugInfo());
-			
+
 				glColor3f(1.f, 1.f, 1.f);
 				for (i=0;i<polyshape->GetNumVertices();i++)
 				{
@@ -230,6 +226,8 @@ void GL_ShapeDrawer::DrawOpenGL(float* m, const CollisionShape* shape, const Sim
 					
 				}
 			}
+
+			
 		}
 	}
 
@@ -262,6 +260,17 @@ void GL_ShapeDrawer::DrawOpenGL(float* m, const CollisionShape* shape, const Sim
 
 	}
 	
+	glDisable(GL_DEPTH_BUFFER_BIT);
+	if (debugMode==IDebugDraw::DBG_DrawText)
+	{
+		BMF_DrawString(BMF_GetFont(BMF_kHelvetica10),shape->GetName());
+	}
+
+	if (debugMode==IDebugDraw::DBG_DrawFeaturesText)
+	{
+		BMF_DrawString(BMF_GetFont(BMF_kHelvetica10),shape->GetExtraDebugInfo());
+	}
+	glEnable(GL_DEPTH_BUFFER_BIT);
     
 	glPopMatrix();
     glPopMatrix();

@@ -535,6 +535,7 @@ PHY_IPhysicsController*	CcdPhysicsController::GetReplica()
 DefaultMotionState::DefaultMotionState()
 {
 	m_worldTransform.setIdentity();
+	m_localScaling.setValue(1.f,1.f,1.f);
 }
 
 
@@ -552,9 +553,9 @@ void	DefaultMotionState::getWorldPosition(float& posX,float& posY,float& posZ)
 
 void	DefaultMotionState::getWorldScaling(float& scaleX,float& scaleY,float& scaleZ)
 {
-	scaleX = 1.;
-	scaleY = 1.;
-	scaleZ = 1.;
+	scaleX = m_localScaling.getX();
+	scaleY = m_localScaling.getY();
+	scaleZ = m_localScaling.getZ();
 }
 
 void	DefaultMotionState::getWorldOrientation(float& quatIma0,float& quatIma1,float& quatIma2,float& quatReal)

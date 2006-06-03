@@ -27,7 +27,8 @@ subject to the following restrictions:
 #include "CollisionShapes/TriangleMeshShape.h"
 
 
-
+extern SimdVector3 gCameraUp;
+extern int	gForwardAxis;
 
 #include "CollisionShapes/Simplex1to4Shape.h"
 #include "CollisionShapes/EmptyShape.h"
@@ -44,6 +45,9 @@ subject to the following restrictions:
 
 #include "GLDebugDrawer.h"
 
+//either FCollada or Collada-dom
+#define USE_FCOLLADA 1
+#ifdef USE_FCOLLADA
 
 //Collada Physics test
 //#define NO_LIBXML //need LIBXML, because FCDocument/FCDPhysicsRigidBody.h needs FUDaeWriter, through FCDPhysicsParameter.hpp
@@ -67,11 +71,14 @@ subject to the following restrictions:
 #include "FCDocument/FCDPhysicsAnalyticalGeometry.h"
 
 
-//aaa
+#else
+//Use Collada-dom
+
+#include "dae.h"
+#include "dom/domCOLLADA.h"
 
 
-
-
+#endif
 
 
 
@@ -216,6 +223,8 @@ void	CreatePhysicsObject(bool isDynamic, float mass, const SimdTransform& startT
 
 
 
+#ifdef USE_FCOLLADA
+
 
 bool ConvertColladaPhysicsToBulletPhysics(const FCDPhysicsSceneNode* inputNode)
 {
@@ -281,7 +290,11 @@ bool ConvertColladaPhysicsToBulletPhysics(const FCDPhysicsSceneNode* inputNode)
 					//right now as we would also have to migrate all the animation curves.
 
 
-					//FRTScaleList scaleTransforms;
+					SimdVector3 localScaling(1.f,1.f,1.f);
+
+					
+
+					
 
 					SimdTransform accumulatedWorldTransform;
 					accumulatedWorldTransform.setIdentity();
@@ -290,19 +303,33 @@ bool ConvertColladaPhysicsToBulletPhysics(const FCDPhysicsSceneNode* inputNode)
 
 					for (uint32 i=0; i<numTransforms; i++)
 					{
-						FMMatrix44 mat = (targetNode->GetTransforms()[i])->ToMatrix();
-						SimdVector3 pos(mat.GetTranslation().x,mat.GetTranslation().y,mat.GetTranslation().z);
 
-						SimdMatrix3x3 rotMat(
-							mat.m[0][0],mat.m[0][1],mat.m[0][2],
-							mat.m[1][0],mat.m[1][1],mat.m[1][2],
-							mat.m[2][0],mat.m[2][1],mat.m[2][2]);
+						if (targetNode->GetTransforms()[i]->GetType() == FCDTransform::SCALE)
+						{
 
-						rotMat = rotMat.transpose();
-						SimdTransform trans(rotMat,pos);
+							FCDTScale* scaleTrans = (FCDTScale*)targetNode->GetTransforms()[i];
+							const FMVector3& scaling = scaleTrans->GetScale();
+							localScaling[0] = scaling.x;
+							localScaling[1] = scaling.y;
+							localScaling[2] = scaling.z;
 
-						//TODO: check pre or post multiply
-						accumulatedWorldTransform = accumulatedWorldTransform * trans;
+						} else
+						{
+
+							FMMatrix44 mat = (targetNode->GetTransforms()[i])->ToMatrix();
+							SimdVector3 pos(mat.GetTranslation().x,mat.GetTranslation().y,mat.GetTranslation().z);
+
+							SimdMatrix3x3 rotMat(
+								mat.m[0][0],mat.m[0][1],mat.m[0][2],
+								mat.m[1][0],mat.m[1][1],mat.m[1][2],
+								mat.m[2][0],mat.m[2][1],mat.m[2][2]);
+
+							rotMat = rotMat.transpose();
+							SimdTransform trans(rotMat,pos);
+
+							//TODO: check pre or post multiply
+							accumulatedWorldTransform = accumulatedWorldTransform * trans;
+						}
 
 					}
 
@@ -552,6 +579,7 @@ bool ConvertColladaPhysicsToBulletPhysics(const FCDPhysicsSceneNode* inputNode)
 
 								} else
 								{
+									printf("static not yet?\n");
 
 									//should be static triangle mesh!
 
@@ -751,6 +779,9 @@ bool ConvertColladaPhysicsToBulletPhysics(const FCDPhysicsSceneNode* inputNode)
 						printf("create Physics Object\n");
 						//void	CreatePhysicsObject(bool isDynamic, float mass, const SimdTransform& startTransform,CollisionShape* shape)
 
+						collisionShape->setLocalScaling(localScaling);
+						ms[numObjects].m_localScaling = localScaling;
+
 						CreatePhysicsObject(isDynamic, mymass, accumulatedWorldTransform,collisionShape);
 
 
@@ -768,7 +799,10 @@ bool ConvertColladaPhysicsToBulletPhysics(const FCDPhysicsSceneNode* inputNode)
 	return true; 
 }
 
+#else
+//Collada-dom
 
+#endif
 
 
 
@@ -780,6 +814,8 @@ GLDebugDrawer debugDrawer;
 
 int main(int argc,char** argv)
 {
+	gCameraUp = SimdVector3(0,0,1);
+	gForwardAxis = 1;
 
 	///Setup a Physics Simulation Environment
 	CollisionDispatcher* dispatcher = new	CollisionDispatcher();
@@ -792,6 +828,7 @@ int main(int argc,char** argv)
 	physicsEnvironmentPtr->setGravity(0,-10,0);
 	physicsEnvironmentPtr->setDebugDrawer(&debugDrawer);
 
+	
 
 	/// Import Collada 1.4 Physics objects
 
@@ -800,7 +837,7 @@ int main(int argc,char** argv)
 	
 	//char* filename = "friction.dae";
 
-	
+#ifdef USE_FCOLLADA
 
 	FCDocument* document = new FCDocument();
 	FUStatus status = document->LoadFromFile(filename);
@@ -818,7 +855,150 @@ int main(int argc,char** argv)
 			printf("ConvertColladaPhysicsToBulletPhysics failed\n");
 		}
 	}
+#else
+	//Collada-dom
+	DAE *collada = new DAE;
 
+	
+	int res = collada->load(filename);//,docBuffer);
+	if (res != DAE_OK)
+	{
+		printf("DAE/Collada-dom: Couldn't load %s\n",filename);
+	} else
+	{
+
+		domCOLLADA *dom = collada->getDom(filename);
+		if ( !dom )
+		{
+			printf("COLLADA File loaded to the dom, but query for the dom assets failed \n" );
+			printf("COLLADA Load Aborted! \n" );
+			delete collada;	
+			
+		} else
+		{
+
+			//succesfully loaded file, now convert data
+
+			if ( dom->getAsset()->getUp_axis() )
+			{
+				domAsset::domUp_axis * up = dom->getAsset()->getUp_axis();
+				switch( up->getValue() )
+				{
+					case UPAXISTYPE_X_UP:
+						printf("	X is Up Data and Hiearchies must be converted!\n" ); 
+						printf("  Conversion to X axis Up isn't currently supported!\n" ); 
+						printf("  COLLADA_RT defaulting to Y Up \n" ); 
+						break; 
+					case UPAXISTYPE_Y_UP:
+						printf("	Y Axis is Up for this file \n" ); 
+						printf("  COLLADA_RT set to Y Up \n" ); 
+						
+						break;
+					case UPAXISTYPE_Z_UP:
+						printf("	Z Axis is Up for this file \n" ); 
+						printf("  All Geometry and Hiearchies must be converted!\n" ); 
+						break; 
+					default:
+					
+						break; 
+				}
+			}
+
+
+
+			// Load all the geometry libraries
+			for ( int i = 0; i < dom->getLibrary_geometries_array().getCount(); i++)
+			{
+				domLibrary_geometriesRef libgeom = dom->getLibrary_geometries_array()[i];
+				
+				printf(" CrtScene::Reading Geometry Library \n" );
+				for ( int  i = 0; i < libgeom->getGeometry_array().getCount(); i++)
+				{
+					//ReadGeometry(  ); 
+					domGeometryRef lib = libgeom->getGeometry_array()[i];
+
+					domMesh			*meshElement		= lib->getMesh();
+					if (meshElement)
+					{
+						
+
+						// Find out how many groups we need to allocate space for 
+						int	numTriangleGroups = (int)meshElement->getTriangles_array().getCount();
+						int	numPolygonGroups  = (int)meshElement->getPolygons_array().getCount();
+						int	totalGroups		  = numTriangleGroups + numPolygonGroups;
+						if (totalGroups == 0) 
+						{
+							printf("No Triangles or Polygons found int Geometry %s \n", lib->getId() ); 
+						} else
+						{
+							printf("Found mesh geometry: numTriangleGroups:%i numPolygonGroups:%i\n",numTriangleGroups,numPolygonGroups);
+						}
+						
+
+					}
+					domConvex_mesh	*convexMeshElement	= lib->getConvex_mesh();
+					if (convexMeshElement)
+					{
+						printf("found convexmesh element\n");
+						// Find out how many groups we need to allocate space for 
+						int	numTriangleGroups = (int)convexMeshElement->getTriangles_array().getCount();
+						int	numPolygonGroups  = (int)convexMeshElement->getPolygons_array().getCount();
+						int	totalGroups		  = numTriangleGroups + numPolygonGroups;
+						if (totalGroups == 0) 
+						{
+							printf("No Triangles or Polygons found in ConvexMesh Geometry %s \n", lib->getId() ); 
+						}else
+						{
+							printf("Found convexmesh geometry: numTriangleGroups:%i numPolygonGroups:%i\n",numTriangleGroups,numPolygonGroups);
+						}
+					}//fi
+				}//for each geometry
+
+			}//for all geometry libraries
+
+			for ( int i = 0; i < dom->getLibrary_physics_scenes_array().getCount(); i++)
+			{
+				domLibrary_physics_scenesRef physicsScenesRef = dom->getLibrary_physics_scenes_array()[i];
+				for (int s=0;s<physicsScenesRef->getPhysics_scene_array().getCount();s++)
+				{
+					domPhysics_sceneRef physicsSceneRef = physicsScenesRef->getPhysics_scene_array()[s];
+
+					for (int m=0;m<physicsSceneRef->getInstance_physics_model_array().getCount();m++)
+					{
+						domInstance_physics_modelRef modelRef = physicsSceneRef->getInstance_physics_model_array()[m];
+
+						for (int r=0;r<modelRef->getInstance_rigid_body_array().getCount();r++)
+						{
+							domInstance_rigid_bodyRef rigidbodyRef = modelRef->getInstance_rigid_body_array()[r];
+							domInstance_rigid_body::domTechnique_commonRef techniqueRef = rigidbodyRef->getTechnique_common();
+							
+							if (techniqueRef)
+							{
+								float mass = techniqueRef->getMass()->getValue();
+								bool isDynamics = techniqueRef->getDynamic()->getValue();
+								printf("mass = %f, isDynamics %i\n",mass,isDynamics);
+							}
+
+						}
+
+						//we don't handle constraints just yet
+						for (int c=0;c<modelRef->getInstance_rigid_constraint_array().getCount();i++)
+						{
+
+						}
+
+					}
+
+				}
+			}
+
+		}
+
+
+
+	}
+
+#endif
 	clientResetScene();
 
 	setCameraDistance(26.f);
@@ -911,7 +1091,8 @@ void renderme()
 		}
 
 		char	extraDebug[125];
-		sprintf(extraDebug,"islId, Body=%i , %i",physObjects[i]->GetRigidBody()->m_islandTag1,physObjects[i]->GetRigidBody()->m_debugBodyId);
+		
+		sprintf(extraDebug,"islandId=%i, Body=%i, ShapeType=%s",physObjects[i]->GetRigidBody()->m_islandTag1,physObjects[i]->GetRigidBody()->m_debugBodyId,physObjects[i]->GetRigidBody()->GetCollisionShape()->GetName());
 		physObjects[i]->GetRigidBody()->GetCollisionShape()->SetExtraDebugInfo(extraDebug);
 		GL_ShapeDrawer::DrawOpenGL(m,physObjects[i]->GetRigidBody()->GetCollisionShape(),wireColor,getDebugMode());
 
@@ -1136,6 +1317,7 @@ float gOldPickingDist  = 0.f;
 RigidBody* pickedBody = 0;//for deactivation state
 
 
+
 SimdVector3	GetRayTo(int x,int y)
 {
 	float top = 1.f;
@@ -1151,7 +1333,8 @@ SimdVector3	GetRayTo(int x,int y)
 	rayForward*= farPlane;
 
 	SimdVector3 rightOffset;
-	SimdVector3 vertical(0.f,1.f,0.f);
+	SimdVector3 vertical = gCameraUp;
+
 	SimdVector3 hor;
 	hor = rayForward.cross(vertical);
 	hor.normalize();
