@@ -126,7 +126,7 @@ int main(int argc,char** argv)
 		shapeProps.m_shape->SetMargin(0.05f);
 
 
-		bool isDyna = i>0;
+		bool isDyna = i>1;
 		
 		if (0)//i==1)
 		{
@@ -188,16 +188,17 @@ int main(int argc,char** argv)
 		int constraintId;
 
 			float pivotX=CUBE_HALF_EXTENTS,
-				pivotY=CUBE_HALF_EXTENTS,
-				pivotZ=CUBE_HALF_EXTENTS;
-			float axisX=0,axisY=1,axisZ=0;
+				pivotY=-CUBE_HALF_EXTENTS,
+				pivotZ=-CUBE_HALF_EXTENTS;
+			float axisX=0,axisY=0,axisZ=1;
 
 
 		constraintId =physicsEnvironmentPtr->createConstraint(
 		physObjects[1],
 		//0,
 		physObjects[2],
-			PHY_POINT2POINT_CONSTRAINT,
+			//PHY_POINT2POINT_CONSTRAINT,
+			PHY_GENERIC_6DOF_CONSTRAINT,//can leave any of the 6 degree of freedom 'free' or 'locked'
 			//PHY_LINEHINGE_CONSTRAINT,
 			pivotX,pivotY,pivotZ,
 			axisX,axisY,axisZ

@@ -77,6 +77,9 @@ RaycastVehicle::VehicleTuning	gTuning;
 #include "ConstraintSolver/ConstraintSolver.h"
 #include "ConstraintSolver/Point2PointConstraint.h"
 #include "ConstraintSolver/HingeConstraint.h"
+#include "ConstraintSolver/Generic6DofConstraint.h"
+
+
 
 
 //#include "BroadphaseCollision/QueryDispatcher.h"
@@ -1184,8 +1187,36 @@ int			CcdPhysicsEnvironment::createConstraint(class PHY_IPhysicsController* ctrl
 			break;
 		}
 
+	case PHY_GENERIC_6DOF_CONSTRAINT:
+		{
+			Generic6DofConstraint* genericConstraint = 0;
+
+			if (rb1)
+			{
+				genericConstraint = new Generic6DofConstraint(
+					*rb0,
+					*rb1,pivotInA,pivotInB,axisInA,axisInB);
+
+
+			} else
+			{
+				genericConstraint = new Generic6DofConstraint(*rb0,
+					pivotInA,axisInA);
+
+			}
+			
+
+			m_constraints.push_back(genericConstraint);
+			genericConstraint->SetUserConstraintId(gConstraintUid++);
+			genericConstraint->SetUserConstraintType(type);
+			//64 bit systems can't cast pointer to int. could use size_t instead.
+			return genericConstraint->GetUserConstraintId();
+
+			break;
+		}
 	case PHY_ANGULAR_CONSTRAINT:
 		angularOnly = true;
+
 
 	case PHY_LINEHINGE_CONSTRAINT:
 		{
