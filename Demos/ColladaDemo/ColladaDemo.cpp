@@ -47,7 +47,7 @@ extern int	gForwardAxis;
 #include "GLDebugDrawer.h"
 
 //either FCollada or COLLADA_DOM
-#define USE_FCOLLADA 1
+//#define USE_FCOLLADA 1
 #ifdef USE_FCOLLADA
 
 //Collada Physics test
@@ -120,6 +120,8 @@ int numObjects = 0;
 
 const int maxNumObjects = 450;
 
+SimdTransform startTransforms[maxNumObjects];
+
 DefaultMotionState ms[maxNumObjects];
 CcdPhysicsController* physObjects[maxNumObjects] = {0,0,0,0};
 
@@ -137,6 +139,8 @@ CollisionShape* gShapePtr[maxNumObjects];//1 rigidbody has 1 shape (no re-use of
 ///Very basic import
 void	CreatePhysicsObject(bool isDynamic, float mass, const SimdTransform& startTransform,CollisionShape* shape)
 {
+
+	startTransforms[numObjects] = startTransform;
 
 	PHY_ShapeProps shapeProps;
 
@@ -901,15 +905,17 @@ int main(int argc,char** argv)
 						printf("	X is Up Data and Hiearchies must be converted!\n" ); 
 						printf("  Conversion to X axis Up isn't currently supported!\n" ); 
 						printf("  COLLADA_RT defaulting to Y Up \n" ); 
+						physicsEnvironmentPtr->setGravity(-10,0,0);
 						break; 
 					case UPAXISTYPE_Y_UP:
 						printf("	Y Axis is Up for this file \n" ); 
 						printf("  COLLADA_RT set to Y Up \n" ); 
-						
+						physicsEnvironmentPtr->setGravity(0,-10,0);
 						break;
 					case UPAXISTYPE_Z_UP:
 						printf("	Z Axis is Up for this file \n" ); 
 						printf("  All Geometry and Hiearchies must be converted!\n" ); 
+						physicsEnvironmentPtr->setGravity(0,0,-10);
 						break; 
 					default:
 					
@@ -919,6 +925,8 @@ int main(int argc,char** argv)
 
 
 
+
+			
 			// Load all the geometry libraries
 			for ( int i = 0; i < dom->getLibrary_geometries_array().getCount(); i++)
 			{
@@ -979,20 +987,170 @@ int main(int argc,char** argv)
 					for (int m=0;m<physicsSceneRef->getInstance_physics_model_array().getCount();m++)
 					{
 						domInstance_physics_modelRef modelRef = physicsSceneRef->getInstance_physics_model_array()[m];
+						
 
+						//domPhysics_modelRef mr =;
+							
+						daeElementRef ref = modelRef->getUrl().getElement();
+						domPhysics_modelRef model = *(domPhysics_modelRef*)&ref; 
+
+						
+
+						
+						float mass = 1.f;
+						bool isDynamics = true;
+						CollisionShape* colShape = 0;
+						SimdTransform	startTransform;
+						startTransform.setIdentity();
+						SimdVector3 startScale(1.f,1.f,1.f);
+
+						//find transform of the node that this rigidbody maps to
+
+						
+
+						
+
+
+						
+						for (int s=0;s<dom->getLibrary_visual_scenes_array().getCount();s++)
+						{
+							
+							
+
+							//for the transforms?
+							
+							domLibrary_visual_scenesRef scenesRef = dom->getLibrary_visual_scenes_array()[s];
+							for (int i=0;i<scenesRef->getVisual_scene_array().getCount();i++)
+							{
+								domVisual_sceneRef sceneRef = scenesRef->getVisual_scene_array()[i];
+								for (int n=0;n<sceneRef->getNode_array().getCount();n++)
+								{
+									domNodeRef nodeRef = sceneRef->getNode_array()[n];
+									nodeRef->getRotate_array();
+									nodeRef->getTranslate_array();
+									nodeRef->getScale_array();
+
+								}
+							}
+						
+							
+						}
+
+
+						
+
+						{
+							for (int r=0;r<model->getRigid_body_array().getCount();r++)
+							{
+
+								domRigid_bodyRef physicsModel = model->getRigid_body_array()[r];
+																
+								const domRigid_body::domTechnique_commonRef techniqueRef = physicsModel->getTechnique_common();
+								if (techniqueRef)
+								{
+									
+									mass = techniqueRef->getMass()->getValue();
+									isDynamics = techniqueRef->getDynamic()->getValue();
+									
+									//shapes
+									for (int s=0;s<techniqueRef->getShape_array().getCount();s++)
+									{
+										domRigid_body::domTechnique_common::domShapeRef shapeRef = techniqueRef->getShape_array()[s];
+										
+										
+										if (shapeRef->getBox())
+										{
+											domBoxRef boxRef = shapeRef->getBox();
+											domBox::domHalf_extentsRef	domHalfExtentsRef = boxRef->getHalf_extents();
+											domFloat3& halfExtents = domHalfExtentsRef->getValue();
+											float x = halfExtents.get(0);
+											float y = halfExtents.get(1);
+											float z = halfExtents.get(2);
+											colShape = new BoxShape(SimdVector3(x,y,z));
+										}
+										if (shapeRef->getSphere())
+										{
+											domSphereRef sphereRef = shapeRef->getSphere();
+											domSphere::domRadiusRef radiusRef = sphereRef->getRadius();
+											domFloat radius = radiusRef->getValue();
+											colShape = new SphereShape(radius);
+										}
+
+										if (shapeRef->getCylinder())
+										{
+											domCylinderRef cylinderRef = shapeRef->getCylinder();
+											domFloat height = cylinderRef->getHeight()->getValue();
+											domFloat2 radius2 = cylinderRef->getRadius()->getValue();
+											domFloat radius0 = radius2.get(0);
+											
+											//Cylinder around the local Y axis
+											colShape = new CylinderShape(SimdVector3(radius0,height,radius0));
+
+										}
+
+
+
+									}
+
+
+
+								}
+
+
+							}
+						}
+
+						
 						for (int r=0;r<modelRef->getInstance_rigid_body_array().getCount();r++)
 						{
 							domInstance_rigid_bodyRef rigidbodyRef = modelRef->getInstance_rigid_body_array()[r];
 							domInstance_rigid_body::domTechnique_commonRef techniqueRef = rigidbodyRef->getTechnique_common();
+							daeElementRef elem = rigidbodyRef->getTarget().getElement();
+							if (elem)
+							{
+								domNodeRef node = *(domNodeRef*)&elem;
+								int i;
+								for (i=0;i<node->getRotate_array().getCount();i++)
+								{
+									domRotateRef rotateRef = node->getRotate_array()[i];
+									domFloat4 fl4 = rotateRef->getValue();
+									float angleRad = SIMD_RADS_PER_DEG*fl4.get(3);
+									SimdQuaternion rotQuat(SimdVector3(fl4.get(0),fl4.get(1),fl4.get(2)),angleRad);
+									startTransform.getBasis() = startTransform.getBasis() * SimdMatrix3x3(rotQuat);
+								}
+
+								for (i=0;i<node->getTranslate_array().getCount();i++)
+								{
+									domTranslateRef translateRef = node->getTranslate_array()[i];
+									domFloat3 fl3 = translateRef->getValue();
+									startTransform.getOrigin() += SimdVector3(fl3.get(0),fl3.get(1),fl3.get(2));
+								}
+								
+								for (i=0;i<node->getScale_array().getCount();i++)
+								{
+									domScaleRef scaleRef = node->getScale_array()[i];
+									domFloat3 fl3 = scaleRef->getValue();
+									startScale = SimdVector3(fl3.get(0),fl3.get(1),fl3.get(2));
+								}
+
+							}
 							
+
 							if (techniqueRef)
 							{
-								float mass = techniqueRef->getMass()->getValue();
-								bool isDynamics = techniqueRef->getDynamic()->getValue();
-								printf("mass = %f, isDynamics %i\n",mass,isDynamics);
+								mass = techniqueRef->getMass()->getValue();
+								isDynamics = techniqueRef->getDynamic()->getValue();
 							}
 
 						}
+
+						printf("mass = %f, isDynamics %i\n",mass,isDynamics);
+						if (colShape)
+						{
+							CreatePhysicsObject(isDynamics,mass,startTransform,colShape);
+
+						}
+
 
 						//we don't handle constraints just yet
 						for (int c=0;c<modelRef->getInstance_rigid_constraint_array().getCount();i++)
@@ -1302,6 +1460,17 @@ void clientDisplay(void) {
 
 void clientResetScene()
 {
+	for (int i=0;i<numObjects;i++)
+	{
+		ms[i].m_worldTransform = startTransforms[i];
+		physObjects[i]->setPosition(startTransforms[i].getOrigin().getX(),startTransforms[i].getOrigin().getY(),startTransforms[i].getOrigin().getZ());
+		physObjects[i]->SetLinearVelocity(0,0,0,0);
+		physObjects[i]->SetAngularVelocity(0,0,0,0);
+		SimdQuaternion orn;
+		startTransforms[i].getBasis().getRotation(orn);
+		physObjects[i]->setOrientation(orn.x(),orn.y(),orn.z(),orn[3]);
+		
+	}
 
 	//delete and reload, or keep transforms ready?
 }
