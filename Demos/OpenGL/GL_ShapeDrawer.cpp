@@ -145,6 +145,8 @@ void GL_ShapeDrawer::DrawOpenGL(float* m, const CollisionShape* shape, const Sim
 				const ConeShape* coneShape = static_cast<const ConeShape*>(shape);
 				float radius = coneShape->GetRadius();//+coneShape->GetMargin();
 				float height = coneShape->GetHeight();//+coneShape->GetMargin();
+				//glRotatef(-90.0, 1.0, 0.0, 0.0);
+				glTranslatef(0.0, 0.0, -0.5*height);
 				glutSolidCone(radius,height,10,10);
 				useWireframeFallback = false;
 				break;
@@ -159,6 +161,45 @@ void GL_ShapeDrawer::DrawOpenGL(float* m, const CollisionShape* shape, const Sim
 		case CONVEX_SHAPE_PROXYTYPE:
 		case CYLINDER_SHAPE_PROXYTYPE:
 			{
+				const CylinderShape* cylinder = static_cast<const CylinderShape*>(shape);
+				int upAxis = cylinder->GetUpAxis();
+				
+				GLUquadricObj *quadObj = gluNewQuadric();
+				
+				glPushMatrix();
+				switch (upAxis)
+				{
+				case 0:
+					glRotatef(-90.0, 0.0, 1.0, 0.0);
+					glTranslatef(0.0, 0.0, -1.0);
+					break;
+				case 1:
+					glRotatef(-90.0, 1.0, 0.0, 0.0);
+					glTranslatef(0.0, 0.0, -1.0);
+					break;
+				case 2:
+					
+					glTranslatef(0.0, 0.0, -1.0);
+					break;
+				default:
+					{
+						assert(0);
+					}
+
+				}
+				
+				//The gluCylinder subroutine draws a cylinder that is oriented along the z axis. 
+				//The base of the cylinder is placed at z = 0; the top of the cylinder is placed at z=height. 
+				//Like a sphere, the cylinder is subdivided around the z axis into slices and along the z axis into stacks.
+				
+				gluQuadricDrawStyle(quadObj, (GLenum)GLU_FILL);
+				gluQuadricNormals(quadObj, (GLenum)GLU_SMOOTH);
+				float radius = cylinder->GetHalfExtents().getX();
+				float height = 2.f*cylinder->GetHalfExtents().getY();
+				gluCylinder(quadObj, radius, radius, height, 15, 10);
+				glPopMatrix();
+				glEndList();
+
 				break;
 			}
 		default:

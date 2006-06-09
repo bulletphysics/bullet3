@@ -19,6 +19,7 @@ subject to the following restrictions:
 //#include "GL_LineSegmentShape.h"
 #include "CollisionShapes/BoxShape.h"
 #include "CollisionShapes/SphereShape.h"
+#include "CollisionShapes/CylinderShape.h"
 #include "CollisionShapes/ConeShape.h"
 
 #include "CollisionShapes/ConvexHullShape.h"
@@ -45,7 +46,7 @@ extern int	gForwardAxis;
 
 #include "GLDebugDrawer.h"
 
-//either FCollada or Collada-dom
+//either FCollada or COLLADA_DOM
 #define USE_FCOLLADA 1
 #ifdef USE_FCOLLADA
 
@@ -681,6 +682,9 @@ bool ConvertColladaPhysicsToBulletPhysics(const FCDPhysicsSceneNode* inputNode)
 
 									FCDPASCylinder* cylinder = (FCDPASCylinder*)analGeom;
 									printf("Cylinder\n");
+									//Blender exports Z cylinders
+									//collisionShape = new CylinderShapeZ(SimdVector3(cylinder->radius,cylinder->radius,cylinder->height));
+									collisionShape = new CylinderShape(SimdVector3(cylinder->radius,cylinder->height,cylinder->radius));
 
 									break;
 
@@ -718,7 +722,15 @@ bool ConvertColladaPhysicsToBulletPhysics(const FCDPhysicsSceneNode* inputNode)
 									//FIXME: only using the first radius of the cylinder
 
 									FCDPASTaperedCylinder* tcylinder = (FCDPASTaperedCylinder*)analGeom;
-									printf("TaperedCylinder\n");
+									printf("TaperedCylinder, creating a cone for now\n");
+									if (!tcylinder->height)
+									{
+										printf("tapered_cylinder with height 0.0\n");
+										tcylinder->height = 1.f;
+									}
+									//either use radius1 or radius2 for now
+									collisionShape = new ConeShape(tcylinder->radius,tcylinder->height);
+
 									break;
 
 								}
@@ -1131,6 +1143,8 @@ void renderme()
 
 		float yIncr = -2.f;
 
+		SimdVector3 offset(xOffset,0,0);
+		SimdVector3 up = gCameraUp;
 		char buf[124];
 
 		glColor3f(0, 0, 0);
@@ -1163,39 +1177,54 @@ void renderme()
 		sprintf(buf,"mouse to interact");
 		BMF_DrawString(BMF_GetFont(BMF_kHelvetica10),buf);
 		yStart += yIncr;
-
-		glRasterPos3f(xOffset,yStart,0);
+		
+		SimdVector3 textPos = offset + up*yStart;
+		glRasterPos3f(textPos.getX(),textPos.getY(),textPos.getZ());
+		
 		sprintf(buf,"space to reset");
 		BMF_DrawString(BMF_GetFont(BMF_kHelvetica10),buf);
 		yStart += yIncr;
 
-		glRasterPos3f(xOffset,yStart,0);
+		textPos = offset + up*yStart;
+		glRasterPos3f(textPos.getX(),textPos.getY(),textPos.getZ());
+
 		sprintf(buf,"cursor keys and z,x to navigate");
 		BMF_DrawString(BMF_GetFont(BMF_kHelvetica10),buf);
 		yStart += yIncr;
 
-		glRasterPos3f(xOffset,yStart,0);
+		textPos = offset + up*yStart ;
+		glRasterPos3f(textPos.getX(),textPos.getY(),textPos.getZ());
+
 		sprintf(buf,"i to toggle simulation, s single step");
 		BMF_DrawString(BMF_GetFont(BMF_kHelvetica10),buf);
 		yStart += yIncr;
 
-		glRasterPos3f(xOffset,yStart,0);
+		textPos = offset + up*yStart ;
+		glRasterPos3f(textPos.getX(),textPos.getY(),textPos.getZ());
+
 		sprintf(buf,"q to quit");
 		BMF_DrawString(BMF_GetFont(BMF_kHelvetica10),buf);
 		yStart += yIncr;
 
-		glRasterPos3f(xOffset,yStart,0);
+		textPos = offset + up*yStart ;
+		glRasterPos3f(textPos.getX(),textPos.getY(),textPos.getZ());
+
 		sprintf(buf,"d to toggle deactivation");
 		BMF_DrawString(BMF_GetFont(BMF_kHelvetica10),buf);
 		yStart += yIncr;
 
-		glRasterPos3f(xOffset,yStart,0);
+		textPos = offset + up*yStart ;
+		glRasterPos3f(textPos.getX(),textPos.getY(),textPos.getZ());
+
 		sprintf(buf,"a to draw temporal AABBs");
 		BMF_DrawString(BMF_GetFont(BMF_kHelvetica10),buf);
 		yStart += yIncr;
 
 
-		glRasterPos3f(xOffset,yStart,0);
+		textPos = offset + up*yStart ;
+		glRasterPos3f(textPos.getX(),textPos.getY(),textPos.getZ());
+
+
 		sprintf(buf,"h to toggle help text");
 		BMF_DrawString(BMF_GetFont(BMF_kHelvetica10),buf);
 		yStart += yIncr;
@@ -1204,22 +1233,31 @@ void renderme()
 
 		bool useCCD = (getDebugMode() & IDebugDraw::DBG_EnableCCD);
 
-		glRasterPos3f(xOffset,yStart,0);
+		textPos = offset + up*yStart ;
+		glRasterPos3f(textPos.getX(),textPos.getY(),textPos.getZ());
+
+
 		sprintf(buf,"m Bullet GJK = %i",!isSatEnabled);
 		BMF_DrawString(BMF_GetFont(BMF_kHelvetica10),buf);
 		yStart += yIncr;
 
-		glRasterPos3f(xOffset,yStart,0);
+		textPos = offset + up*yStart ;
+		glRasterPos3f(textPos.getX(),textPos.getY(),textPos.getZ());
+
 		sprintf(buf,"n Bullet LCP = %i",useBulletLCP);
 		BMF_DrawString(BMF_GetFont(BMF_kHelvetica10),buf);
 		yStart += yIncr;
 
-		glRasterPos3f(xOffset,yStart,0);
+		textPos = offset + up*yStart ;
+		glRasterPos3f(textPos.getX(),textPos.getY(),textPos.getZ());
+
 		sprintf(buf,"1 CCD mode (adhoc) = %i",useCCD);
 		BMF_DrawString(BMF_GetFont(BMF_kHelvetica10),buf);
 		yStart += yIncr;
 
-		glRasterPos3f(xOffset,yStart,0);
+		textPos = offset + up*yStart ;
+		glRasterPos3f(textPos.getX(),textPos.getY(),textPos.getZ());
+
 		sprintf(buf,"+- shooting speed = %10.2f",bulletSpeed);
 		BMF_DrawString(BMF_GetFont(BMF_kHelvetica10),buf);
 		yStart += yIncr;
@@ -1231,8 +1269,6 @@ void renderme()
 void clientMoveAndDisplay()
 {
 	glClear(GL_COLOR_BUFFER_BIT | GL_DEPTH_BUFFER_BIT); 
-
-
 
 	physicsEnvironmentPtr->proceedDeltaTime(0.f,deltaTime);
 

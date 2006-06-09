@@ -3,13 +3,13 @@
 	<asset>
 		<contributor>
 			<author>Illusoft Collada 1.4.0 plugin for Blender - http://colladablender.illusoft.com</author>
-			<authoring_tool>Blender v:241 - Illusoft Collada Exporter v:0.2.45</authoring_tool>
+			<authoring_tool>Blender v:241 - Illusoft Collada Exporter v:0.2.56</authoring_tool>
 			<comments></comments>
 			<copyright></copyright>
 			<source_data>file://c:/blender/physics_demos-2.42-preview24/jenga_physics_test.blend</source_data>
 		</contributor>
-		<created>2006-06-02T17:45:13.891000</created>
-		<modified>2006-06-02T17:45:13.891000</modified>
+		<created>2006-06-06T14:18:41.437000</created>
+		<modified>2006-06-06T14:18:41.452000</modified>
 		<unit meter="0.01" name="centimeter"/>
 		<up_axis>Z_UP</up_axis>
 	</asset>
@@ -29,7 +29,7 @@
 	<library_effects>
 		<effect id="Material-fx" name="Material-fx">
 			<profile_COMMON>
-				<technique>
+				<technique sid="">
 					<phong>
 						<emission>
 							<color>0.0 0.0 0.0 1.0</color>
@@ -3604,7 +3604,8 @@
 				<translate>15.50131 29.68761 4.99616</translate>
 				<rotate>0.0 0.0 1.0 0.0</rotate>
 				<rotate>0.0 1.0 0.0 0.0</rotate>
-				<rotate>1.0 0.0 0.0 -36.81686</rotate>
+					<rotate>1.0 0.0 0.0 -36.81686</rotate>
+					<rotate>1.0 0.0 0.0 90.0</rotate>
 				<instance_geometry url="#Cylinder_004-Geometry"/>
 			</node>
 			<node id="Cylinder_003" name="Cylinder_003">
@@ -3612,6 +3613,7 @@
 				<rotate>0.0 0.0 1.0 -38.06934</rotate>
 				<rotate>0.0 1.0 0.0 0.0</rotate>
 				<rotate>1.0 0.0 0.0 0.0</rotate>
+				<rotate>1.0 0.0 0.0 90.0</rotate>
 				<instance_geometry url="#Cylinder_003-Geometry"/>
 			</node>
 			<node id="Cylinder_002" name="Cylinder_002">
@@ -3619,6 +3621,7 @@
 				<rotate>0.0 0.0 1.0 -38.06934</rotate>
 				<rotate>0.0 1.0 0.0 0.0</rotate>
 				<rotate>1.0 0.0 0.0 0.0</rotate>
+				<rotate>1.0 0.0 0.0 90.0</rotate>
 				<instance_geometry url="#Cylinder_002-Geometry"/>
 			</node>
 			<node id="Cylinder_001" name="Cylinder_001">
@@ -3626,6 +3629,7 @@
 				<rotate>0.0 0.0 1.0 -38.06934</rotate>
 				<rotate>0.0 1.0 0.0 0.0</rotate>
 				<rotate>1.0 0.0 0.0 0.0</rotate>
+				<rotate>1.0 0.0 0.0 90.0</rotate>
 				<instance_geometry url="#Cylinder_001-Geometry"/>
 			</node>
 			<node id="Cylinder" name="Cylinder">
@@ -3633,6 +3637,7 @@
 				<rotate>0.0 0.0 1.0 -23.42368</rotate>
 				<rotate>0.0 1.0 0.0 -47.70962</rotate>
 				<rotate>1.0 0.0 0.0 14.68375</rotate>
+				<rotate>1.0 0.0 0.0 90.0</rotate>
 				<instance_geometry url="#Cylinder-Geometry"/>
 			</node>
 			<node id="Cube_067" name="Cube_067">
@@ -4261,6 +4266,13 @@
 				<static_friction>0</static_friction>
 			</technique_common>
 		</physics_material>
+		<physics_material id="Cone_003-PhysicsMaterial" name="Cone_003-PhysicsMaterial">
+			<technique_common>
+				<dynamic_friction>0</dynamic_friction>
+				<restitution>0</restitution>
+				<static_friction>0</static_friction>
+			</technique_common>
+		</physics_material>
 		<physics_material id="Cube_071-PhysicsMaterial" name="Cube_071-PhysicsMaterial">
 			<technique_common>
 				<dynamic_friction>0</dynamic_friction>
@@ -4290,6 +4302,55 @@
 			</technique_common>
 		</physics_material>
 		<physics_material id="Cube_068-PhysicsMaterial" name="Cube_068-PhysicsMaterial">
+			<technique_common>
+				<dynamic_friction>0</dynamic_friction>
+				<restitution>0</restitution>
+				<static_friction>0</static_friction>
+			</technique_common>
+		</physics_material>
+		<physics_material id="Cone_001-PhysicsMaterial" name="Cone_001-PhysicsMaterial">
+			<technique_common>
+				<dynamic_friction>0</dynamic_friction>
+				<restitution>0</restitution>
+				<static_friction>0</static_friction>
+			</technique_common>
+		</physics_material>
+		<physics_material id="Cone-PhysicsMaterial" name="Cone-PhysicsMaterial">
+			<technique_common>
+				<dynamic_friction>0</dynamic_friction>
+				<restitution>0</restitution>
+				<static_friction>0</static_friction>
+			</technique_common>
+		</physics_material>
+		<physics_material id="Cylinder_004-PhysicsMaterial" name="Cylinder_004-PhysicsMaterial">
+			<technique_common>
+				<dynamic_friction>0</dynamic_friction>
+				<restitution>0</restitution>
+				<static_friction>0</static_friction>
+			</technique_common>
+		</physics_material>
+		<physics_material id="Cylinder_003-PhysicsMaterial" name="Cylinder_003-PhysicsMaterial">
+			<technique_common>
+				<dynamic_friction>0</dynamic_friction>
+				<restitution>0</restitution>
+				<static_friction>0</static_friction>
+			</technique_common>
+		</physics_material>
+		<physics_material id="Cylinder_002-PhysicsMaterial" name="Cylinder_002-PhysicsMaterial">
+			<technique_common>
+				<dynamic_friction>0</dynamic_friction>
+				<restitution>0</restitution>
+				<static_friction>0</static_friction>
+			</technique_common>
+		</physics_material>
+		<physics_material id="Cylinder_001-PhysicsMaterial" name="Cylinder_001-PhysicsMaterial">
+			<technique_common>
+				<dynamic_friction>0</dynamic_friction>
+				<restitution>0</restitution>
+				<static_friction>0</static_friction>
+			</technique_common>
+		</physics_material>
+		<physics_material id="Cylinder-PhysicsMaterial" name="Cylinder-PhysicsMaterial">
 			<technique_common>
 				<dynamic_friction>0</dynamic_friction>
 				<restitution>0</restitution>
@@ -4732,6 +4793,22 @@
 				</technique_common>
 			</rigid_body>
 		</physics_model>
+		<physics_model id="Cone_003-PhysicsModel" name="Cone_003-PhysicsModel">
+			<rigid_body name="Cone_003-RigidBody">
+				<technique_common>
+					<instance_physics_material url="#Cone_003-PhysicsMaterial"/>
+					<shape>
+						<tapered_cylinder>
+							<radius1>1.0</radius1>
+							<radius2>0</radius2>
+							<height>1.0</height>
+						</tapered_cylinder>
+					</shape>
+					<dynamic>true</dynamic>
+					<mass>1.0</mass>
+				</technique_common>
+			</rigid_body>
+		</physics_model>
 		<physics_model id="Cube_071-PhysicsModel" name="Cube_071-PhysicsModel">
 			<rigid_body name="Cube_071-RigidBody">
 				<technique_common>
@@ -4790,6 +4867,113 @@
 						<box>
 							<half_extents>1.0 1.0 1.0</half_extents>
 						</box>
+					</shape>
+					<dynamic>true</dynamic>
+					<mass>1.0</mass>
+				</technique_common>
+			</rigid_body>
+		</physics_model>
+		<physics_model id="Cone_001-PhysicsModel" name="Cone_001-PhysicsModel">
+			<rigid_body name="Cone_001-RigidBody">
+				<technique_common>
+					<instance_physics_material url="#Cone_001-PhysicsMaterial"/>
+					<shape>
+						<tapered_cylinder>
+							<radius1>1.0</radius1>
+							<radius2>0</radius2>
+							<height>0.42013</height>
+						</tapered_cylinder>
+					</shape>
+					<dynamic>true</dynamic>
+					<mass>1.0</mass>
+				</technique_common>
+			</rigid_body>
+		</physics_model>
+		<physics_model id="Cone-PhysicsModel" name="Cone-PhysicsModel">
+			<rigid_body name="Cone-RigidBody">
+				<technique_common>
+					<instance_physics_material url="#Cone-PhysicsMaterial"/>
+					<shape>
+						<tapered_cylinder>
+							<radius1>1.0</radius1>
+							<radius2>0</radius2>
+							<height>1.0</height>
+						</tapered_cylinder>
+					</shape>
+					<dynamic>true</dynamic>
+					<mass>1.0</mass>
+				</technique_common>
+			</rigid_body>
+		</physics_model>
+		<physics_model id="Cylinder_004-PhysicsModel" name="Cylinder_004-PhysicsModel">
+			<rigid_body name="Cylinder_004-RigidBody">
+				<technique_common>
+					<instance_physics_material url="#Cylinder_004-PhysicsMaterial"/>
+					<shape>
+						<cylinder>
+							<radius>1.0</radius>
+							<height>1.0</height>
+						</cylinder>
+					</shape>
+					<dynamic>true</dynamic>
+					<mass>1.0</mass>
+				</technique_common>
+			</rigid_body>
+		</physics_model>
+		<physics_model id="Cylinder_003-PhysicsModel" name="Cylinder_003-PhysicsModel">
+			<rigid_body name="Cylinder_003-RigidBody">
+				<technique_common>
+					<instance_physics_material url="#Cylinder_003-PhysicsMaterial"/>
+					<shape>
+						<cylinder>
+							<radius>1. 1.00</radius>
+							<height>1.0</height>
+						</cylinder>
+					</shape>
+					<dynamic>true</dynamic>
+					<mass>1.0</mass>
+				</technique_common>
+			</rigid_body>
+		</physics_model>
+		<physics_model id="Cylinder_002-PhysicsModel" name="Cylinder_002-PhysicsModel">
+			<rigid_body name="Cylinder_002-RigidBody">
+				<technique_common>
+					<instance_physics_material url="#Cylinder_002-PhysicsMaterial"/>
+					<shape>
+						<cylinder>
+							<radius>1. 1.00</radius>
+							<height>1.0</height>
+						</cylinder>
+					</shape>
+					<dynamic>true</dynamic>
+					<mass>1.0</mass>
+				</technique_common>
+			</rigid_body>
+		</physics_model>
+		<physics_model id="Cylinder_001-PhysicsModel" name="Cylinder_001-PhysicsModel">
+			<rigid_body name="Cylinder_001-RigidBody">
+				<technique_common>
+					<instance_physics_material url="#Cylinder_001-PhysicsMaterial"/>
+					<shape>
+						<cylinder>
+							<radius>1. 1.00</radius>
+							<height>1.0</height>
+						</cylinder>
+					</shape>
+					<dynamic>true</dynamic>
+					<mass>1.0</mass>
+				</technique_common>
+			</rigid_body>
+		</physics_model>
+		<physics_model id="Cylinder-PhysicsModel" name="Cylinder-PhysicsModel">
+			<rigid_body name="Cylinder-RigidBody">
+				<technique_common>
+					<instance_physics_material url="#Cylinder-PhysicsMaterial"/>
+					<shape>
+						<cylinder>
+							<radius>1.0 1.0</radius>
+							<height>1.0</height>
+						</cylinder>
 					</shape>
 					<dynamic>true</dynamic>
 					<mass>1.0</mass>
@@ -5617,6 +5801,9 @@
 			<instance_physics_model url="#Font-PhysicsModel">
 				<instance_rigid_body target="#Font"/>
 			</instance_physics_model>
+			<instance_physics_model url="#Cone_003-PhysicsModel">
+				<instance_rigid_body target="#Cone_003"/>
+			</instance_physics_model>
 			<instance_physics_model url="#Cube_071-PhysicsModel">
 				<instance_rigid_body target="#Cube_071"/>
 			</instance_physics_model>
@@ -5631,6 +5818,27 @@
 			</instance_physics_model>
 			<instance_physics_model url="#Cube_068-PhysicsModel">
 				<instance_rigid_body target="#Cube_068"/>
+			</instance_physics_model>
+			<instance_physics_model url="#Cone_001-PhysicsModel">
+				<instance_rigid_body target="#Cone_001"/>
+			</instance_physics_model>
+			<instance_physics_model url="#Cone-PhysicsModel">
+				<instance_rigid_body target="#Cone"/>
+			</instance_physics_model>
+			<instance_physics_model url="#Cylinder_004-PhysicsModel">
+				<instance_rigid_body target="#Cylinder_004"/>
+			</instance_physics_model>
+			<instance_physics_model url="#Cylinder_003-PhysicsModel">
+				<instance_rigid_body target="#Cylinder_003"/>
+			</instance_physics_model>
+			<instance_physics_model url="#Cylinder_002-PhysicsModel">
+				<instance_rigid_body target="#Cylinder_002"/>
+			</instance_physics_model>
+			<instance_physics_model url="#Cylinder_001-PhysicsModel">
+				<instance_rigid_body target="#Cylinder_001"/>
+			</instance_physics_model>
+			<instance_physics_model url="#Cylinder-PhysicsModel">
+				<instance_rigid_body target="#Cylinder"/>
 			</instance_physics_model>
 			<instance_physics_model url="#Cube_067-PhysicsModel">
 				<instance_rigid_body target="#Cube_067"/>
