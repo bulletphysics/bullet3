@@ -924,6 +924,24 @@ int main(int argc,char** argv)
 			}
 
 
+			//we don't handle visual objects, physics objects are rendered as such
+			for (int s=0;s<dom->getLibrary_visual_scenes_array().getCount();s++)
+			{
+				domLibrary_visual_scenesRef scenesRef = dom->getLibrary_visual_scenes_array()[s];
+				for (int i=0;i<scenesRef->getVisual_scene_array().getCount();i++)
+				{
+					domVisual_sceneRef sceneRef = scenesRef->getVisual_scene_array()[i];
+					for (int n=0;n<sceneRef->getNode_array().getCount();n++)
+					{
+						domNodeRef nodeRef = sceneRef->getNode_array()[n];
+						nodeRef->getRotate_array();
+						nodeRef->getTranslate_array();
+						nodeRef->getScale_array();
+
+					}
+				}
+			}
+
 
 
 			
@@ -941,8 +959,6 @@ int main(int argc,char** argv)
 					domMesh			*meshElement		= lib->getMesh();
 					if (meshElement)
 					{
-						
-
 						// Find out how many groups we need to allocate space for 
 						int	numTriangleGroups = (int)meshElement->getTriangles_array().getCount();
 						int	numPolygonGroups  = (int)meshElement->getPolygons_array().getCount();
@@ -1004,40 +1020,8 @@ int main(int argc,char** argv)
 						startTransform.setIdentity();
 						SimdVector3 startScale(1.f,1.f,1.f);
 
-						//find transform of the node that this rigidbody maps to
-
 						
-
-						
-
-
-						
-						for (int s=0;s<dom->getLibrary_visual_scenes_array().getCount();s++)
-						{
-							
-							
-
-							//for the transforms?
-							
-							domLibrary_visual_scenesRef scenesRef = dom->getLibrary_visual_scenes_array()[s];
-							for (int i=0;i<scenesRef->getVisual_scene_array().getCount();i++)
-							{
-								domVisual_sceneRef sceneRef = scenesRef->getVisual_scene_array()[i];
-								for (int n=0;n<sceneRef->getNode_array().getCount();n++)
-								{
-									domNodeRef nodeRef = sceneRef->getNode_array()[n];
-									nodeRef->getRotate_array();
-									nodeRef->getTranslate_array();
-									nodeRef->getScale_array();
-
-								}
-							}
-						
-							
-						}
-
-
-						
+										
 
 						{
 							for (int r=0;r<model->getRigid_body_array().getCount();r++)
@@ -1088,6 +1072,120 @@ int main(int argc,char** argv)
 
 										}
 
+										if (shapeRef->getInstance_geometry())
+										{
+											const domInstance_geometryRef geomInstRef = shapeRef->getInstance_geometry();
+											daeElement* geomElem = geomInstRef->getUrl().getElement();
+											//elemRef->getTypeName();
+											domGeometry* geom = (domGeometry*) geomElem;
+											if (geom->getMesh())
+											{
+												const domMeshRef meshRef = geom->getMesh();
+
+												printf("mesh\n");
+											}
+
+											if (geom->getConvex_mesh())
+											{
+
+												ConvexHullShape* convexHullShape = new ConvexHullShape(0,0);
+												
+												//it is quite a trick to get to the vertices, using Collada.
+												//we are not there yet...
+												
+												const domConvex_meshRef convexRef = geom->getConvex_mesh();
+												daeString urlref = convexRef->getConvex_hull_of().getURI();
+												daeString urlref2 = convexRef->getConvex_hull_of().getOriginalURI();
+												
+												// Load all the geometry libraries
+												for ( int i = 0; i < dom->getLibrary_geometries_array().getCount(); i++)
+												{
+													domLibrary_geometriesRef libgeom = dom->getLibrary_geometries_array()[i];
+													//int index = libgeom->findLastIndexOf(urlref2);
+													//can't find it
+
+													for ( int  i = 0; i < libgeom->getGeometry_array().getCount(); i++)
+													{
+														//ReadGeometry(  ); 
+														domGeometryRef lib = libgeom->getGeometry_array()[i];
+														if (!strcmp(lib->getName(),urlref2))
+														{
+															//found convex_hull geometry
+															domMesh			*meshElement		= lib->getMesh();
+															if (meshElement)
+															{
+																for (int i=0;i<meshElement->getSource_array().getCount();i++)
+																{
+																	
+																	domSourceRef srcRef = meshElement->getSource_array()[i];
+																	
+																	
+																	/*for (int j=0;j<srcRef->getFloat_array()->getCount();j++)
+																	{
+																		const domListOfFloats& listFloats = srcRef->getFloat_array()[i].getValue();
+																		int cnt = listFloats.getCount();
+
+																		for (int k=0;k+2<cnt;k+=3)
+																		{
+
+																			domFloat fl0 = listFloats.get(k);
+																			domFloat fl1 = listFloats.get(k+1);
+																			domFloat fl2 = listFloats.get(k+2);
+
+																			convexHullShape->AddPoint(SimdPoint3(fl0,fl1,fl2));
+																		}
+																	}
+																	*/
+																	
+																	
+
+																	
+																}
+
+																int tricount = meshElement->getTriangles_array().getCount();
+																int polycount = meshElement->getPolygons_array().getCount();
+																for (int i=0;i<polycount;i++)
+																{
+																	domPolygons* poly = meshElement->getPolygons_array()[i];
+																	for (int i=0;i<poly->getInput_array().getCount();i++)
+																	{
+																		domInputLocalOffsetRef offset = poly->getInput_array()[i];
+																		
+
+																	}
+
+
+																}
+																int vertexCount = meshElement->getVertices()->getInput_array().getCount(); //?
+
+															}
+														}
+													}
+													
+
+													if (convexHullShape->GetNumVertices())
+													{
+														colShape = convexHullShape;
+													} else
+													{
+														delete convexHullShape;
+													}
+													
+
+
+												}
+												
+												
+												//domGeometryRef linkedGeom = *(domGeometryRef*)&otherElemRef;
+
+												printf("convexmesh\n");
+
+											}
+
+											
+											
+										}
+
 
 
 									}
@@ -1103,12 +1201,16 @@ int main(int argc,char** argv)
 						
 						for (int r=0;r<modelRef->getInstance_rigid_body_array().getCount();r++)
 						{
+							
 							domInstance_rigid_bodyRef rigidbodyRef = modelRef->getInstance_rigid_body_array()[r];
 							domInstance_rigid_body::domTechnique_commonRef techniqueRef = rigidbodyRef->getTechnique_common();
 							daeElementRef elem = rigidbodyRef->getTarget().getElement();
 							if (elem)
 							{
 								domNodeRef node = *(domNodeRef*)&elem;
+
+								//find transform of the node that this rigidbody maps to
+
 								int i;
 								for (i=0;i<node->getRotate_array().getCount();i++)
 								{
