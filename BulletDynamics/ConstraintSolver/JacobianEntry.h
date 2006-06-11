@@ -57,7 +57,7 @@ public:
 		const SimdMatrix3x3& world2B,
 		const SimdVector3& inertiaInvA,
 		const SimdVector3& inertiaInvB)
-		:m_jointAxis(m_jointAxis)
+		:m_jointAxis(jointAxis)
 	{
 		m_aJ= world2A*m_jointAxis;
 		m_bJ = world2B*-m_jointAxis;
