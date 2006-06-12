@@ -70,7 +70,7 @@ void	Generic6DofConstraint::BuildJacobian()
 	//calculate two perpendicular jointAxis, orthogonal to hingeAxis
 	//these two jointAxis require equal angular velocities for both bodies
 
-	//this is ununsed for now, it's a todo
+	//this is unused for now, it's a todo
 	SimdVector3 axisWorldA = GetRigidBodyA().getCenterOfMassTransform().getBasis() * m_axisInA;
 	SimdVector3 jointAxis0;
 	SimdVector3 jointAxis1;

@@ -198,8 +198,8 @@ int main(int argc,char** argv)
 		//0,
 		physObjects[2],
 			//PHY_POINT2POINT_CONSTRAINT,
-			PHY_GENERIC_6DOF_CONSTRAINT,//can leave any of the 6 degree of freedom 'free' or 'locked'
-			//PHY_LINEHINGE_CONSTRAINT,
+			//PHY_GENERIC_6DOF_CONSTRAINT,//can leave any of the 6 degree of freedom 'free' or 'locked'
+			PHY_LINEHINGE_CONSTRAINT,
 			pivotX,pivotY,pivotZ,
 			axisX,axisY,axisZ
 			);
