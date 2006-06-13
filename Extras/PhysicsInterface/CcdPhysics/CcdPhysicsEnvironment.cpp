@@ -1193,15 +1193,23 @@ int			CcdPhysicsEnvironment::createConstraint(class PHY_IPhysicsController* ctrl
 
 			if (rb1)
 			{
+				SimdTransform frameInA;
+				SimdTransform frameInB;
+
+				frameInA.setIdentity();
+				frameInB.setIdentity();
+
+				frameInA.setOrigin( pivotInA );
+				frameInB.setOrigin( pivotInB );
+
 				genericConstraint = new Generic6DofConstraint(
-					*rb0,
-					*rb1,pivotInA,pivotInB,axisInA,axisInB);
+					*rb0,*rb1,
+					frameInA,frameInB);
 
 
 			} else
 			{
-				genericConstraint = new Generic6DofConstraint(*rb0,
-					pivotInA,axisInA);
+				// TODO: Implement single body case...
 
 			}
 			

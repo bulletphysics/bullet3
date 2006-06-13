@@ -70,6 +70,22 @@ public:
 		assert(m_Adiag > 0.0f);
 	}
 
+	//angular constraint between two different rigidbodies
+	JacobianEntry(const SimdVector3& axisInA,
+		const SimdVector3& axisInB,
+		const SimdVector3& inertiaInvA,
+		const SimdVector3& inertiaInvB)
+		: m_jointAxis(m_jointAxis)
+		, m_aJ(axisInA)
+		, m_bJ(axisInB)
+	{
+		m_0MinvJt	= inertiaInvA * m_aJ;
+		m_1MinvJt = inertiaInvB * m_bJ;
+		m_Adiag =  m_0MinvJt.dot(m_aJ) + m_1MinvJt.dot(m_bJ);
+
+		assert(m_Adiag > 0.0f);
+	}
+
 	//constraint on one rigidbody
 	JacobianEntry(
 		const SimdMatrix3x3& world2A,

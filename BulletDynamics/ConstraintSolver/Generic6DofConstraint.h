@@ -30,20 +30,19 @@ class RigidBody;
 /// Work in progress (is still a Hinge actually)
 class Generic6DofConstraint : public TypedConstraint
 {
-	JacobianEntry	m_jac[3]; //3 orthogonal linear constraints
-	JacobianEntry	m_jacAng[3]; //3 orthogonal angular constraints
+	JacobianEntry	m_jac[3];			// 3 orthogonal linear constraints
+	JacobianEntry	m_jacAng[3];		// 3 orthogonal angular constraints
 
-	SimdVector3	m_pivotInA;
-	SimdVector3	m_pivotInB;
-	SimdVector3	m_axisInA;
-	SimdVector3	m_axisInB;
+
+	SimdTransform	m_frameInA;			// the constraint space w.r.t body A
+	SimdTransform	m_frameInB;			// the constraint space w.r.t body B
+
+	SimdScalar      m_lowerLimit[6];	// the constraint lower limits
+	SimdScalar      m_upperLimit[6];	// the constraint upper limits
 
 		
 public:
-
-	Generic6DofConstraint(RigidBody& rbA,RigidBody& rbB, const SimdVector3& pivotInA,const SimdVector3& pivotInB,SimdVector3& axisInA,SimdVector3& axisInB);
-
-	Generic6DofConstraint(RigidBody& rbA,const SimdVector3& pivotInA,SimdVector3& axisInA);
+	Generic6DofConstraint(RigidBody& rbA, RigidBody& rbB, const SimdTransform& frameInA, const SimdTransform& frameInB );
 
 	Generic6DofConstraint();
 
