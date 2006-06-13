@@ -75,7 +75,7 @@ public:
 		const SimdVector3& axisInB,
 		const SimdVector3& inertiaInvA,
 		const SimdVector3& inertiaInvB)
-		: m_jointAxis(m_jointAxis)
+		: m_linearJointAxis(SimdVector3(0.f,0.f,0.f))
 		, m_aJ(axisInA)
 		, m_bJ(axisInB)
 	{
