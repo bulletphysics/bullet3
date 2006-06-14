@@ -47,7 +47,7 @@ extern int	gForwardAxis;
 #include "GLDebugDrawer.h"
 
 //either FCollada or COLLADA_DOM
-//#define USE_FCOLLADA 1
+#define USE_FCOLLADA 1
 #ifdef USE_FCOLLADA
 
 //Collada Physics test
@@ -1087,6 +1087,23 @@ int main(int argc,char** argv)
 
 											if (geom->getConvex_mesh())
 											{
+
+												{
+													 const domConvex_meshRef convexRef = geom->getConvex_mesh();
+													 daeElementRef otherElemRef = convexRef->getConvex_hull_of().getElement();
+													 if ( otherElemRef != NULL )
+													 {
+		 													 domGeometryRef linkedGeom = *(domGeometryRef*)&otherElemRef;
+															 printf( "otherLinked\n");
+													 } else
+													 {
+														 printf("convexMesh polyCount = %i\n",convexRef->getPolygons_array().getCount());
+														 printf("convexMesh triCount = %i\n",convexRef->getTriangles_array().getCount());
+		
+													 }
+												}
+												 
+
 
 												ConvexHullShape* convexHullShape = new ConvexHullShape(0,0);
 												

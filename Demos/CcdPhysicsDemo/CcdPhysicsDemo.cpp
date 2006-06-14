@@ -71,7 +71,7 @@ extern int glutScreenHeight;
 
 
 #ifdef _DEBUG
-const int numObjects = 120;//22;
+const int numObjects = 22;
 #else
 const int numObjects = 120;
 #endif
@@ -285,45 +285,34 @@ int main(int argc,char** argv)
 	}
 
 
-	//create a constraint
-	if (createConstraint)
+	clientResetScene();
+
 	{
 		//physObjects[i]->SetAngularVelocity(0,0,-2,true);
 		int constraintId;
 
-		float pivotX=CUBE_HALF_EXTENTS,
-			pivotY=-CUBE_HALF_EXTENTS,
-			pivotZ=CUBE_HALF_EXTENTS;
-
-		float axisX=1,axisY=0,axisZ=0;
-
+			float pivotX=CUBE_HALF_EXTENTS,
+				pivotY=CUBE_HALF_EXTENTS,
+				pivotZ=CUBE_HALF_EXTENTS;
+			float axisX=0,axisY=1,axisZ=0;
 
 
-		HingeConstraint* hinge = 0;
-
-		SimdVector3 pivotInA(CUBE_HALF_EXTENTS,-CUBE_HALF_EXTENTS,CUBE_HALF_EXTENTS);
-		SimdVector3 pivotInB(-CUBE_HALF_EXTENTS,-CUBE_HALF_EXTENTS,CUBE_HALF_EXTENTS);
-		SimdVector3 axisInA(0,1,0);
-		SimdVector3 axisInB(0,-1,0);
-
-		RigidBody* rb0 = physObjects[1]->GetRigidBody();
-		RigidBody* rb1 = physObjects[2]->GetRigidBody();
-
-		hinge = new HingeConstraint(
-			*rb0,
-			*rb1,pivotInA,pivotInB,axisInA,axisInB);
-
-		physicsEnvironmentPtr->m_constraints.push_back(hinge);
-
-		hinge->SetUserConstraintId(100);
-		hinge->SetUserConstraintType(PHY_LINEHINGE_CONSTRAINT);
+		constraintId =physicsEnvironmentPtr->createConstraint(
+		physObjects[1],
+		//0,
+		physObjects[2],
+			////PHY_POINT2POINT_CONSTRAINT,
+			PHY_GENERIC_6DOF_CONSTRAINT,//can leave any of the 6 degree of freedom 'free' or 'locked'
+			//PHY_LINEHINGE_CONSTRAINT,
+			pivotX,pivotY,pivotZ,
+			axisX,axisY,axisZ
+			);
 
 	}
 
+	
 
 
-
-	clientResetScene();
 
 	setCameraDistance(26.f);
 

@@ -94,7 +94,7 @@ void	HingeConstraint::BuildJacobian()
 
 void	HingeConstraint::SolveConstraint(SimdScalar	timeStep)
 {
-#define NEW_IMPLEMENTATION
+//#define NEW_IMPLEMENTATION
 
 #ifdef NEW_IMPLEMENTATION
 	SimdScalar tau = 0.3f;
@@ -164,8 +164,9 @@ void	HingeConstraint::SolveConstraint(SimdScalar	timeStep)
 	SimdScalar jacDiagABInv0 = 1.f / m_jacAng[0].getDiagonal();
 	SimdScalar rel_vel0 = m_jacAng[0].getRelativeVelocity(m_rbA.getLinearVelocity(),angvelA, 
 																	m_rbB.getLinearVelocity(),angvelB);
+	float tau1 = tau;//0.f;
 
-	SimdScalar impulse0 = (tau * axisB.dot(jointAxis1) / timeStep - damping * rel_vel0) * jacDiagABInv0;
+	SimdScalar impulse0 = (tau1 * axisB.dot(jointAxis1) / timeStep - damping * rel_vel0) * jacDiagABInv0;
 	SimdVector3 angular_impulse0 = jointAxis0 * impulse0;
 
 	m_rbA.applyTorqueImpulse( angular_impulse0);
@@ -181,7 +182,7 @@ void	HingeConstraint::SolveConstraint(SimdScalar	timeStep)
 	SimdScalar rel_vel1 = m_jacAng[1].getRelativeVelocity(m_rbA.getLinearVelocity(),angvelA, 
 																	m_rbB.getLinearVelocity(),angvelB);;
 
-	SimdScalar impulse1 = -(tau * axisB.dot(jointAxis0) / timeStep + damping * rel_vel1) * jacDiagABInv1;
+	SimdScalar impulse1 = -(tau1 * axisB.dot(jointAxis0) / timeStep + damping * rel_vel1) * jacDiagABInv1;
 	SimdVector3 angular_impulse1 = jointAxis1 * impulse1;
 
 	m_rbA.applyTorqueImpulse( angular_impulse1);
