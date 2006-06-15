@@ -1156,8 +1156,8 @@ int			CcdPhysicsEnvironment::createConstraint(class PHY_IPhysicsController* ctrl
 	SimdVector3 pivotInB = rb1 ? rb1->getCenterOfMassTransform().inverse()(rb0->getCenterOfMassTransform()(pivotInA)) : pivotInA;
 	SimdVector3 axisInA(axisX,axisY,axisZ);
 	SimdVector3 axisInB = rb1 ? 
-		(rb1->getCenterOfMassTransform().getBasis().inverse()*(rb0->getCenterOfMassTransform().getBasis() * -axisInA)) : 
-	rb0->getCenterOfMassTransform().getBasis() * -axisInA;
+		(rb1->getCenterOfMassTransform().getBasis().inverse()*(rb0->getCenterOfMassTransform().getBasis() * axisInA)) : 
+	rb0->getCenterOfMassTransform().getBasis() * axisInA;
 
 	bool angularOnly = false;
 
@@ -1195,9 +1195,19 @@ int			CcdPhysicsEnvironment::createConstraint(class PHY_IPhysicsController* ctrl
 			{
 				SimdTransform frameInA;
 				SimdTransform frameInB;
+				
+				SimdVector3 axis1, axis2;
+				SimdPlaneSpace1( axisInA, axis1, axis2 );
 
-				frameInA.setIdentity();
-				frameInB.setIdentity();
+				frameInA.getBasis().setValue( axisInA.x(), axis1.x(), axis2.x(),
+					                          axisInA.y(), axis1.y(), axis2.y(),
+											  axisInA.z(), axis1.z(), axis2.z() );
+
+	
+				SimdPlaneSpace1( axisInB, axis1, axis2 );
+				frameInB.getBasis().setValue( axisInB.x(), axis1.x(), axis2.x(),
+					                          axisInB.y(), axis1.y(), axis2.y(),
+											  axisInB.z(), axis1.z(), axis2.z() );
 
 				frameInA.setOrigin( pivotInA );
 				frameInB.setOrigin( pivotInB );

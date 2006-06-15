@@ -77,7 +77,7 @@ public:
 		const SimdVector3& inertiaInvB)
 		: m_linearJointAxis(SimdVector3(0.f,0.f,0.f))
 		, m_aJ(axisInA)
-		, m_bJ(axisInB)
+		, m_bJ(-axisInB)
 	{
 		m_0MinvJt	= inertiaInvA * m_aJ;
 		m_1MinvJt = inertiaInvB * m_bJ;
