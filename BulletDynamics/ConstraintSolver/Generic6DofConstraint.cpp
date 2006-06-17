@@ -79,6 +79,7 @@ void Generic6DofConstraint::BuildJacobian()
 		SimdVector3 axisA = m_rbA.getCenterOfMassTransform().getBasis() * m_frameInA.getBasis().getColumn( kAxisA[i] );
 		SimdVector3 axisB = m_rbB.getCenterOfMassTransform().getBasis() * m_frameInB.getBasis().getColumn( kAxisB[i] );
 
+		// Dirk: This is IMO mathematically the correct way, but we should consider axisA and axisB being near parallel
 		SimdVector3 axis = kSign[i] * axisA.cross(axisB);
 
 		new (&m_jacAng[i])	JacobianEntry(axis,
@@ -152,7 +153,8 @@ void	Generic6DofConstraint::SolveConstraint(SimdScalar	timeStep)
 		//impulse
 		SimdScalar impulse = -(tau*rel_pos/timeStep + damping*rel_vel) * jacDiagABInv;
 		
-		SimdVector3 axis = kSign[i] * axisA.cross(axisB).normalized();
+		// Dirk: Not needed - we could actually project onto Jacobian entry here (same as above)
+		SimdVector3 axis = kSign[i] * axisA.cross(axisB);
 		SimdVector3 impulse_vector = axis * impulse;
 
 		m_rbA.applyTorqueImpulse( impulse_vector);
