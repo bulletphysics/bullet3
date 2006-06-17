@@ -1,6 +1,7 @@
 Bullet Continuous Collision Detection and Physics Library
 Erwin Coumans
 
+
 2006 June 17 Frank Richter <resqu@gmx.ch>
 	Bumped version in configure.ac to 1.5.6 (assuming that "1.5f" is
 	  the next version released).
@@ -9,6 +10,9 @@ Erwin Coumans
 	Set msvc/bullet_ico.ico as the default application icon.
 	Disabled exceptions for gcc builds.
 	Applied a patch from Michael D. Adams to fix a warning with gcc.
+
+2006 June 16 Erwin Coumans
+	Constraints now merge simulation islands.
 
 2006 May 24
 	Improved GJK accuracy, fixed GjkConvexCast issue, thanks to ~MyXa~ for reporting
