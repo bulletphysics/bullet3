@@ -8,6 +8,7 @@ Erwin Coumans
 	  GLU detection issue on MinGW.
 	Set msvc/bullet_ico.ico as the default application icon.
 	Disabled exceptions for gcc builds.
+	Applied a patch from Michael D. Adams to fix a warning with gcc.
 
 2006 May 24
 	Improved GJK accuracy, fixed GjkConvexCast issue, thanks to ~MyXa~ for reporting

@@ -43,16 +43,16 @@ struct CcdConstructionInfo
 {
 	CcdConstructionInfo()
 		: m_gravity(0,0,0),
+		m_scaling(1.f,1.f,1.f),
 		m_mass(0.f),
 		m_restitution(0.1f),
 		m_friction(0.5f),
 		m_linearDamping(0.1f),
 		m_angularDamping(0.1f),
+		m_collisionFlags(0),
 		m_MotionState(0),
 		m_physicsEnv(0),
-		m_inertiaFactor(1.f),
-		m_scaling(1.f,1.f,1.f),
-		m_collisionFlags(0)
+		m_inertiaFactor(1.f)
 	{
 	}
 
