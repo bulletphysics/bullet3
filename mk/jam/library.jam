@@ -67,11 +67,6 @@ rule Library
   $(<)_SOURCES = $(sources) ;
   $(<)_TARGET = $(target) ;
 
-  # create target clean rule
-  Always $(<)clean ;
-  NotFile $(<)clean ;
-  Clean $(<)clean : $(objects) ; # create target clean rule 
-
   # so 'jam foo' works when it's really foo.exe (Windows) or foo.app (MacOS/X)
   if $(target) != $(<)
   {
@@ -105,6 +100,12 @@ rule Library
   }
   CFlags $(<) : $(LIBRARY.CFLAGS) ;
   LFlags $(<) : $(LIBRARY.LFLAGS) ;
+
+  # create target clean rule
+  Always $(<)clean ;
+  NotFile $(<)clean ;
+  Clean $(<)clean : $(objects) $($(<)_CLEANEXTRA) ;
+  Clean clean : $($(<)_CLEANEXTRA) ;
 
   if ! [ IsElem nohelp : $(options) ]
   {
@@ -206,8 +207,6 @@ rule LibraryStatic
   }
 
   Archive $(target) : $(objects) ;
-  Clean $(<)clean : $(target) ;
-  Depends clean : $(<)clean ;
 
   if $(RANLIB)
   {
@@ -268,14 +267,24 @@ rule LibraryShared
     SEARCH on $(linklib) = $(LOCATE.OBJECTS)/libs ;
   }
   Depends $(target) : $(objects) ;
-  Clean $(<)clean : $(linklib) $(target) ;
-  Depends clean : $(<)clean ;
+  $(<)_CLEANEXTRA += $(target) ;
   Depends $(target) : $(deplibs) ;
     
   CFlags $(<) : [ FDefines CS_$(<:U)_LIB  ] ;
   LFlags $(<) : $(LINKLIBS) ;
     
   SystemLinkSharedLibrary $(target) : $(objects) $(deplibs) : $(linklib) ;
+  
+  if $(LINK.DEBUG.INFO.SEPARATE) = "yes"
+  {
+    local debugfile = [ SplitDebugInfo $(target) ] ;
+    $(<)_CLEANEXTRA += $(debugfile) ;
+    if ! [ IsElem noinstall : $(options) ]
+    {
+      NoCare $(debugfile) ;
+      Depends install_lib : [ DoInstall $(debugfile) : $(libdir) : $(INSTALL_DATA) ] ;
+    }
+  }
 }
 
 rule ConstructLibraryTarget

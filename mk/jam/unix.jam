@@ -117,7 +117,15 @@ rule SystemLinkSharedLibrary
 {
   LFlags $(<) : $(LINKLIBS) ;
   Depends $(<) : $(>) ;
-  LinkSharedLibrary $(<) : $(>) : $(3) ;
+  local response = $(<).resp ;
+  MakeLocate $(response) : $(LOCATE.OBJECTS)/libs ;
+  ResponseFile $(response) : $(>) ;
+  # @@@ FIXME: response files are only supported on newer binutils
+  # But quite useful to avoid blowing jam's 10240 max action length.
+  #Depends $(response) : $(>) ;
+  #Depends $(<) : $(response) ;
+  #LinkSharedLibrary $(<) : $(response) ;
+  LinkSharedLibrary $(<) : $(>) ;
 
   Clean clean : $(<) ;
   Clean $(<)clean : $(<) ;

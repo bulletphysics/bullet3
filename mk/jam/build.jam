@@ -49,6 +49,7 @@ include $(jamrulesdir)/objectivec.jam ;
 include $(jamrulesdir)/assembler.jam ;
 include $(jamrulesdir)/bisonflex.jam ;
 include $(jamrulesdir)/swig.jam ;
+include $(jamrulesdir)/strip.jam ;
 
 include $(jamrulesdir)/flags.jam ;
 include $(jamrulesdir)/library.jam ;

@@ -1,6 +1,6 @@
 #============================================================================
-# Rules for handling assembler files
-# Copyright (C)2003 by Matze Braun <matzebraun@users.sourceforge.net>
+# Rules for stripping binaries
+# Copyright (C)2006 by Frank Richter
 #
 #    This library is free software; you can redistribute it and/or modify it
 #    under the terms of the GNU Library General Public License as published by
@@ -18,33 +18,19 @@
 #
 #============================================================================
 
-if $(CMD.NASM)
+##  SplitDebugInfo binary
+##    Strips the debugging information into a separate external file.
+rule SplitDebugInfo
 {
-
-rule NasmRule
-{
-  local object = [ DoObjectGrist [ PrefixSuffix $(>)_ : $(<) : $(SUFOBJ) ] ] ;
-  Nasm $(object) : $(<) ;
-  return $(object) ;
-}
-RegisterFileType NasmRule : .asm ;
-
-rule Nasm
-{
-  Depends $(<) : $(>) ;
-  NASM.FLAGS on $(<) += $(NASM.FLAGS) ;
-  # NASM doesn't scan for headers in current dir of the files, so add the dir of
-  # the file to the -I flags
-  local includeflags = [ FIncludes $(SEARCH_SOURCE)/$(<:D) $(SUBDIRHDRS) $(HDRS) ] ;
-  # NASM requires that -I paths have a trailing slash.
-  INCLUDEFLAGS on $(<) = $(includeflags)$(SLASH) ;
+  local binary = $(1) ;
+  DoSplitDebugInfo $(binary) ;
+  return $(binary).dbg ;
 }
 
-NASM.HDRPATTERN = "^[ 	]*%[ 	]*include[ 	]*[<\"]([^\">]*)[\">].*$" ;
-RegisterHeaderRule HeaderRule : $(NASM.HDRPATTERN) : .asm .ash ;
-
-actions Nasm
+actions DoSplitDebugInfo
 {
-  $(CMD.NASM) $(NASM.FLAGS) $(INCLUDEFLAGS) -o $(<) $(>)
-}
+  $(CMD.OBJCOPY) --only-keep-debug $(<) $(<).dbg
+  $(CMD.OBJCOPY) --strip-unneeded $(<)
+  $(CMD.OBJCOPY) --add-gnu-debuglink=$(<).dbg $(<)
+  if [ "$(CHMOD)" ] ; then $(CHMOD) a-x $(<).dbg ; fi
 }

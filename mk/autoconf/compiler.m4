@@ -73,6 +73,7 @@ AC_DEFUN([CS_PROG_CXX],[
 ])
 
 AC_DEFUN([CS_PROG_LINK],[
+    AC_REQUIRE([CS_PROG_CXX])
     AS_IF([test -n "$CXX"],
 	[CS_EMIT_BUILD_PROPERTY([CMD.LINK], [AS_ESCAPE([$(CMD.C++)])])],
 	[CS_EMIT_BUILD_PROPERTY([CMD.LINK], [AS_ESCAPE([$(CMD.CC)])])])
@@ -87,7 +88,7 @@ AC_DEFUN([CS_PROG_LINK],[
     # promote the warning to an error, so we must instead scan the compiler's
     # output for an appropriate diagnostic.
     CS_CHECK_BUILD_FLAGS([if -shared is accepted], [cs_cv_prog_link_shared],
-	[CS_CREATE_TUPLE([-shared])], [C++],
+	[CS_CREATE_TUPLE([-shared $cs_cv_prog_cxx_pic])], [C++],
 	[CS_EMIT_BUILD_PROPERTY([PLUGIN.LFLAGS], [-shared], [+])], [],
 	[], [], [], [shared])
 

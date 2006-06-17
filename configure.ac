@@ -9,7 +9,7 @@ AC_PREREQ([2.54])
 #----------------------------------------------------------------------------
 AC_INIT(
     [bullet],
-    [1.1.2006.0319],
+    [1.5.6],
     [bullet@erwincoumans.com])
 CS_PACKAGEINFO(
     [Bullet Continuous Collision Detection and Physics Library],
@@ -43,6 +43,16 @@ CS_CHECK_PROGS([PERL], [perl5 perl])
 CS_EMIT_BUILD_PROPERTY([PERL], [$PERL])
 
 CS_CHECK_TEMPLATE_TOOLKIT2([emit])
+
+#----------------------------------------------------------------------------
+# Check if C++ exceptions can be disabled.
+#----------------------------------------------------------------------------
+CS_EMIT_BUILD_FLAGS([how to disable C++ exceptions],
+    [cs_cv_prog_cxx_disable_exceptions], [CS_CREATE_TUPLE([-fno-exceptions])],
+    [C++], [COMPILER.C++FLAGS.EXCEPTIONS.DISABLE], [],
+    [CS_EMIT_BUILD_PROPERTY([COMPILER.C++FLAGS],
+	[$cs_cv_prog_cxx_disable_exceptions], [+])])
+
 
 #----------------------------------------------------------------------------
 # Determine system type

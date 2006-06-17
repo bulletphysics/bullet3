@@ -36,6 +36,8 @@ Help distclean : "Remove built targets and configuration" ;
 Help maintainerclean :
     "Remove built targets, configuration, and generated files." ;
 
+ApplicationIconDefault win32 : all : bullet_ico.ico : $(TOP) msvc ;
+
 MsvcGenSubDir TOP msvc : common ;
 MsvcGenSubDir TOP msvc 6 : 6 ;
 MsvcGenSubDir TOP msvc 7 : 7 ;

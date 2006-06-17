@@ -55,11 +55,6 @@ rule Application
   $(<)_SOURCES = $(sources) ;
   $(<)_TARGET = $(target) ;
 
-  # create target clean rule
-  Always $(<)clean ;
-  NotFile $(<)clean ;
-  Clean $(<)clean : $(objects) ; # create target clean rule 
-
   # so 'jam foo' works when it's really foo.exe (Windows) or foo.app (MacOS/X)
   if $(target) != $(<)
   {
@@ -88,8 +83,26 @@ rule Application
   MakeLocate $(target) : $(LOCATE.TARGETS) ;
   SystemLinkApplication $(<) : $(objects) : $(3) ;
 
+  local cleanextra ;
+  if $(LINK.DEBUG.INFO.SEPARATE) = "yes"
+  {
+    local debugfile = [ SplitDebugInfo $(target) ] ;
+    cleanextra += $(debugfile) ;
+    if ! [ IsElem noinstall : $(3) ]
+    {
+      NoCare $(debugfile) ;
+      Depends install_bin : [ DoInstall $(debugfile) : $(bindir) : $(INSTALL_DATA) ] ;
+    }
+  }
+
   CFlags $(<) : $(APPLICATION.CFLAGS) ;
   LFlags $(<) : $(LINKLIBS) $(APPLICATION.LFLAGS) ;      
+
+  # create target clean rule
+  Always $(<)clean ;
+  NotFile $(<)clean ;
+  Clean $(<)clean : $(objects) $(cleanextra) ;
+  Clean clean : $(cleanextra) ;
 
   if ! [ IsElem nohelp : $(3) ]
   {

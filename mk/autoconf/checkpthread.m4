@@ -93,6 +93,25 @@ AC_DEFUN([_CS_CHECK_MUTEX_FEATURE],
 		[$cs_cv_sys_pthread_libs])])],
 	[$2=no])])
 
+#------------------------------------------------------------------------------
+# CS_CHECK_PTHREAD_ATFORK(CACHE-VAR)
+#     Checks whether the pthread library contains pthread_atfork(). Sets
+#     CACHE-VAR to "yes" or "no", according to the test result.
+#------------------------------------------------------------------------------
+AC_DEFUN([CS_CHECK_PTHREAD_ATFORK],
+    [AS_IF([test $cs_cv_sys_pthread = yes],
+	[AC_CACHE_CHECK([for pthread_atfork support], [$1],
+	    [CS_BUILD_IFELSE(
+		[AC_LANG_PROGRAM(
+		    [[#include <pthread.h>]],
+		    [pthread_atfork (0, 0, 0);])],
+		[], [],
+		[$1=yes], [$1=no],
+		[$cs_cv_sys_pthread_cflags -D_GNU_SOURCE],
+		[$cs_cv_sys_pthread_lflags],
+		[$cs_cv_sys_pthread_libs])])],
+	[$1=no])])
+
 m4_define([cs_pthread_flags],
     [CS_CREATE_TUPLE() \
     CS_CREATE_TUPLE([], [], [-lpthread]) \

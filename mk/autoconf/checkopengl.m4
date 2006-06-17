@@ -145,7 +145,7 @@ AC_DEFUN([CS_CHECK_GLU],
 	
 	# Windows?
 	AS_IF([test $cs_host_family = windows],
-	    [cs_win32_gl=CS_CREATE_TUPLE([],[],[-lopengl32])])
+	    [cs_win32_glu=CS_CREATE_TUPLE([],[],[-lglu32])])
     
 	# Check for GLU.
 	CS_CHECK_BUILD([for GLU], [cs_cv_libglu],

@@ -41,7 +41,7 @@
 #
 #==============================================================================
 
-MSVCGEN_SUPPORTED_VERSIONS = 6 7 71 8 sn71 ;
+MSVCGEN_SUPPORTED_VERSIONS = 6 7 71 8 ;
 MSVCGEN_BUILD_ROOT ?= [ ConcatDirs $(BUILDTOP) out ] ;
 MSVCGEN_BUILD_TEMP ?= [ ConcatDirs $(MSVCGEN_BUILD_ROOT) msvcgen ] ;
 
@@ -189,6 +189,13 @@ rule MsvcCFlags1 { }
 ##   then 'lflags' is used for release and debug.
 rule MsvcLFlags { MsvcLFlags1 $(1) : $(2) : $(3) ; }
 rule MsvcLFlags1 { }
+
+## MsvcExtraFile target : files
+##   Use this rule to add extra file resources to the "Resource files" 
+##   filter of the generated project. Commonly, those files are auxiliary
+##   files not specified in the source file list, e.g. ".inc" files.
+rule MsvcExtraFile { MsvcExtraFile1 $(1) : $(2) ; }
+rule MsvcExtraFile1 { }
 
 ## MsvcGenName target : name
 ##   Assign an MSVC project name to 'target'.  Normally, the project name is
@@ -440,18 +447,13 @@ if $(MSVC_VERSION) = 6
 {
   SUFPRJ = dsp ;
   SUFWSP = dsw ;
-  MSVC_SUFLIB = lii6iiib ;
-  MSVC_SUFEXE = exe ;
   MSVC_FORCE_CRLF = yes ;
   MSVC_TEMPLATE_SUFFIX = 6 ;
 }
-else if $(MSVC_VERSION) = 7 || $(MSVC_VERSION) = 71 || $(MSVC_VERSION) = 8 || $(MSVC_VERSION) = sn71
+else if $(MSVC_VERSION) = 7 || $(MSVC_VERSION) = 71 || $(MSVC_VERSION) = 8
 {
   SUFPRJ = vcproj ;
   SUFWSP = sln ;
-  MSVC_SUFLIB = liiixxiib ;
-  MSVC_SUFEXE = exe ;
-
   MSVC_FORCE_CRLF = no ;
   MSVC_TEMPLATE_SUFFIX = 7 ;
   if $(MSVC_VERSION) = 7
@@ -468,14 +470,6 @@ else if $(MSVC_VERSION) = 7 || $(MSVC_VERSION) = 71 || $(MSVC_VERSION) = 8 || $(
   {
     MSVC_FORMATVERSION_PRJ = 8.00 ;
     MSVC_FORMATVERSION_WSP = 9.00 ;
-  }
-  else if $(MSVC_VERSION) = sn71
-  {
-    MSVC_FORMATVERSION_PRJ = 7.10 ;
-    MSVC_FORMATVERSION_WSP = 8.00 ;
-    MSVC_TEMPLATE_SUFFIX = sn71 ;
-    MSVC_SUFLIB = a ;
-    MSVC_SUFEXE = elf ;
   }
 }
 else
@@ -681,6 +675,11 @@ rule MsvcProject
   local sources = $(4) ;
   local options = $(5) ;
   local relpath = [ Property msvcgen : relpath$(MSVC_VERSION) ] ;
+  local relpathcommon = [ Property msvcgen : relpathcommon ] ;
+  if "$(relpathcommon)" = ""
+  {
+    relpathcommon = $(relpath) ;
+  }
   local outdir = [ Property msvcgen : outdir$(MSVC_VERSION) ] ;
   local outdircommon = [ Property msvcgen : outdircommon ] ;
   if "$(outdircommon)" = ""
@@ -833,8 +832,7 @@ rule MsvcProject
       {
 	local iconrc = $(resource:S=.iconrctmp) ;
 	# RELPATH includes trailing slash (hence the "" in ConcatDirs).
-	RELPATH on $(iconrc) =
-	  [ ConcatDirs [ Property msvcgen : relpath$(MSVC_VERSION) ] "" ] ;
+	RELPATH on $(iconrc) = [ ConcatDirs $(relpathcommon) "" ] ;
 	MakeLocate $(iconrc) : $(workdircommon) ;
 	Depends $(iconrc) : $(icon) ;
         Depends $(iconrc) : $(SUBDIR)/Jamfile ;
@@ -1034,7 +1032,7 @@ rule Application
   {
     projtype = appgui ;
   }
-  MsvcProject $(<) : $(projtype) : $(<:S=.$(MSVC_SUFEXE)) : $(>) : $(3) ;
+  MsvcProject $(<) : $(projtype) : $(<:S=.exe) : $(>) : $(3) ;
   
   CompileGroups $(<) : all apps ;
 }
@@ -1070,7 +1068,7 @@ rule Library
 {
   RegisterWellKnownCompileGroup libs ;
   $(<)_TYPE = library ;
-  MsvcProject $(<) : library : $(<:S=.$(MSVC_SUFLIB)) : $(>) ;
+  MsvcProject $(<) : library : $(<:S=.lib) : $(>) ;
   CompileGroups $(<) : all libs ;
 }
 
@@ -1085,10 +1083,11 @@ rule StaticPluginLibrary
   {
     targets = [ Filter $(targets) : $(rejects) ] ;
   }
-  local sources ;
+  local sources extlibs ;
   for t in $(targets)
   {
     sources += $(STATICPLUGINS.SOURCES.$(t)) ;
+    extlibs += $($(t).EXTERNALLIBS) ;
   }
 
   $(name)_STATIC = "yes" ;
@@ -1096,6 +1095,7 @@ rule StaticPluginLibrary
   Library $(name) : $(sources) ;
   MsvcDefine $(name) : CS_STATIC_LINKED ;
   _MsvcDefine $(name) : $(STATICPLUGINS.MSVC_DEFINES) ;
+  ExternalLibs $(name) : [ RemoveDups $(extlibs) ] ;
 
   # Write out needed CFLAGS, LFLAGS
   local outdir = [ Property msvcgen : outdircommon ] ;
@@ -1129,12 +1129,12 @@ rule WriteDependencies
   MakeLocate $(depfile_gristed) : [ on $(depfile) GetVar LOCATE ] ;
   
   # "Artificially" insert static library itself
-  lflags.debug += $(MSVC.PREFIX.library)$(libname)_d.$(MSVC_SUFLIB) ;
-  lflags.release += $(MSVC.PREFIX.library)$(libname).$(MSVC_SUFLIB) ;
+  lflags.debug += $(MSVC.PREFIX.library)$(libname)_d.lib ;
+  lflags.release += $(MSVC.PREFIX.library)$(libname).lib ;
   # Collect other libs
   local libs = [ ResolveLibs $($(plugin).NEEDLIBS) ] ;
-  lflags.debug += $(MSVC.PREFIX.library)$(libs)_d.$(MSVC_SUFLIB) ;
-  lflags.release += $(MSVC.PREFIX.library)$(libs).$(MSVC_SUFLIB) ;
+  lflags.debug += $(MSVC.PREFIX.library)$(libs)_d.lib ;
+  lflags.release += $(MSVC.PREFIX.library)$(libs).lib ;
   
   # Defines
   local l ;
@@ -1350,6 +1350,20 @@ rule MsvcLFlags1
   local modes = [ MsvcClassifyMode $(3) ] ;
   $(target).LFLAGS.$(modes) += $(2) ;
   _MsvcRespEmit $(1) : $(2) : lflags : $(3) ;
+}
+
+# MsvcLFlags target : files
+#   (See documentation above.)
+rule MsvcExtraFile1 
+{
+  local rawname = $(1) ;
+  local files = $(2) ;
+
+  local respfile = $($(rawname)_PRJ_RESPFILE) ;
+  local respdir = $($(rawname)_PRJ_RESPDIR) ;
+  
+  ResponseFile $(respfile) : "file|$(files)" : notfile :
+    $(respdir) ;
 }
 
 # _MsvcIncDirs target : incdirs [ : mode ]
