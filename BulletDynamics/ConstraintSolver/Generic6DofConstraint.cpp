@@ -19,6 +19,9 @@ subject to the following restrictions:
 #include "Dynamics/MassProps.h"
 #include "SimdTransformUtil.h"
 
+static const SimdScalar kSign[] = { 1.0f, -1.0f, 1.0f };
+static const int kAxisA[] = { 1, 0, 0 };
+static const int kAxisB[] = { 2, 2, 1 };
 
 Generic6DofConstraint::Generic6DofConstraint()
 {
@@ -62,18 +65,36 @@ void Generic6DofConstraint::BuildJacobian()
 	// angular part
 	for (int i=0;i<3;i++)
 	{
+		#if 0
+
 		SimdVector3 axisInA = m_frameInA.getBasis().getColumn(i);
 		SimdVector3 axisInB = m_frameInB.getBasis().getColumn(i);
 
 		new (&m_jacAng[i])	JacobianEntry(axisInA, axisInB,
 			m_rbA.getInvInertiaDiagLocal(),
 			m_rbB.getInvInertiaDiagLocal());
+
+		#else
+
+		SimdVector3 axisA = m_rbA.getCenterOfMassTransform().getBasis() * m_frameInA.getBasis().getColumn( kAxisA[i] );
+		SimdVector3 axisB = m_rbB.getCenterOfMassTransform().getBasis() * m_frameInB.getBasis().getColumn( kAxisB[i] );
+
+		SimdVector3 axis = kSign[i] * axisA.cross(axisB);
+
+		new (&m_jacAng[i])	JacobianEntry(axis,
+		m_rbA.getCenterOfMassTransform().getBasis().transpose(),
+		m_rbB.getCenterOfMassTransform().getBasis().transpose(),
+		m_rbA.getInvInertiaDiagLocal(),
+		m_rbB.getInvInertiaDiagLocal());
+
+		#endif
+
 	}
 }
 
 void	Generic6DofConstraint::SolveConstraint(SimdScalar	timeStep)
 {
-	SimdScalar tau = 0.0f;
+	SimdScalar tau = 0.1f;
 	SimdScalar damping = 1.0f;
 
 	SimdVector3 pivotAInW = m_rbA.getCenterOfMassTransform() * m_frameInA.getOrigin();
@@ -81,23 +102,15 @@ void	Generic6DofConstraint::SolveConstraint(SimdScalar	timeStep)
 
 	SimdVector3 rel_pos1 = pivotAInW - m_rbA.getCenterOfMassPosition(); 
 	SimdVector3 rel_pos2 = pivotBInW - m_rbB.getCenterOfMassPosition();
-
-//#define JACOBIAN_STYLE
-
-#ifdef JACOBIAN_STYLE
-	SimdVector3 angvelA = m_rbA.getCenterOfMassTransform().getBasis().transpose() * m_rbA.getAngularVelocity();
-	SimdVector3 angvelB = m_rbB.getCenterOfMassTransform().getBasis().transpose() * m_rbB.getAngularVelocity();
-#endif
 	
 	SimdVector3 normal(0,0,0);
 
 	// linear
 	for (int i=0;i<3;i++)
 	{		
-	#ifndef JACOBIAN_STYLE
 		SimdVector3 angvelA = m_rbA.getCenterOfMassTransform().getBasis().transpose() * m_rbA.getAngularVelocity();
 		SimdVector3 angvelB = m_rbB.getCenterOfMassTransform().getBasis().transpose() * m_rbB.getAngularVelocity();
-	#endif
+	
 
 		normal[i] = 1;
 		SimdScalar jacDiagABInv = 1.f / m_jac[i].getDiagonal();
@@ -121,11 +134,9 @@ void	Generic6DofConstraint::SolveConstraint(SimdScalar	timeStep)
 	// angular
 	for (int i=0;i<3;i++)
 	{
-	#ifndef JACOBIAN_STYLE
 		SimdVector3 angvelA = m_rbA.getCenterOfMassTransform().getBasis().transpose() * m_rbA.getAngularVelocity();
 		SimdVector3 angvelB = m_rbB.getCenterOfMassTransform().getBasis().transpose() * m_rbB.getAngularVelocity();
-	#endif
-
+	
 		SimdScalar jacDiagABInv = 1.f / m_jacAng[i].getDiagonal();
 		
 		//velocity error (first order error)
@@ -133,14 +144,16 @@ void	Generic6DofConstraint::SolveConstraint(SimdScalar	timeStep)
 																		m_rbB.getLinearVelocity(),angvelB);
 
 		//positional error (zeroth order error)
-		SimdVector3 axisA = m_rbA.getCenterOfMassTransform().getBasis() * m_frameInA.getBasis().getColumn(i);
-		SimdVector3 axisB = m_rbB.getCenterOfMassTransform().getBasis() * m_frameInB.getBasis().getColumn(i);
+		SimdVector3 axisA = m_rbA.getCenterOfMassTransform().getBasis() * m_frameInA.getBasis().getColumn( kAxisA[i] );
+		SimdVector3 axisB = m_rbB.getCenterOfMassTransform().getBasis() * m_frameInB.getBasis().getColumn( kAxisB[i] );
 
-		SimdScalar rel_pos = 0.0f * axisB.dot(axisA);
+		SimdScalar rel_pos = kSign[i] * axisA.dot(axisB);
 
 		//impulse
-		SimdScalar impulse = (tau*rel_pos/timeStep - damping*rel_vel) * jacDiagABInv;
-		SimdVector3 impulse_vector = axisA * impulse;
+		SimdScalar impulse = -(tau*rel_pos/timeStep + damping*rel_vel) * jacDiagABInv;
+		
+		SimdVector3 axis = kSign[i] * axisA.cross(axisB).normalized();
+		SimdVector3 impulse_vector = axis * impulse;
 
 		m_rbA.applyTorqueImpulse( impulse_vector);
 		m_rbB.applyTorqueImpulse(-impulse_vector);
