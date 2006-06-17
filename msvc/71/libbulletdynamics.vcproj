@@ -1,4 +1,4 @@
-<?xml version="1.0" encoding="Windows-1252"?>
+<?xml version="1.0" encoding = "Windows-1252"?>
 <VisualStudioProject
 	ProjectType="Visual C++"
 	Version="7.10"
@@ -20,17 +20,17 @@
 			ATLMinimizesCRunTimeLibraryUsage="FALSE">
 			<Tool
 				Name="VCCLCompilerTool"
-				AdditionalOptions=" "
 				Optimization="2"
-				OptimizeForProcessor="1"
-				AdditionalIncludeDirectories=".;..\..;..\..\Bullet;..\..\BulletDynamics;..\..\LinearMath"
-				PreprocessorDefinitions="NDEBUG;_LIB;_WINDOWS;WIN32"
 				StringPooling="TRUE"
-				ExceptionHandling="FALSE"
-				RuntimeLibrary="2"
-				BufferSecurityCheck="FALSE"
 				EnableFunctionLevelLinking="TRUE"
-				TreatWChar_tAsBuiltInType="FALSE"
+				RuntimeLibrary="2"
+				DebugInformationFormat="3"
+				BufferSecurityCheck="FALSE"
+				PreprocessorDefinitions="NDEBUG;_LIB;_WINDOWS;WIN32"
+				OptimizeForProcessor="1"
+				ExceptionHandling="0"
+				AdditionalOptions=" "
+				AdditionalIncludeDirectories=".;..\..;..\..\Bullet;..\..\BulletDynamics;..\..\LinearMath"
 				PrecompiledHeaderFile="..\..\out\release71\build\libbulletdynamics\libbulletdynamics.pch"
 				AssemblerListingLocation="..\..\out\release71\build\libbulletdynamics\"
 				ObjectFile="..\..\out\release71\build\libbulletdynamics\"
@@ -38,10 +38,24 @@
 				WarningLevel="3"
 				SuppressStartupBanner="TRUE"
 				Detect64BitPortabilityProblems="TRUE"
-				DebugInformationFormat="3"
+				TreatWChar_tAsBuiltInType="false"
 				CompileAs="0"/>
 			<Tool
 				Name="VCCustomBuildTool"/>
+			<Tool
+				Name="VCLinkerTool"
+				LinkIncremental="1"
+				OptimizeReferences="2"
+				EnableCOMDATFolding="2"
+				GenerateDebugInformation="TRUE"
+				IgnoreDefaultLibraryNames="LIBC,LIBCD,LIBCMT,LIBCMTD"
+				AdditionalOptions=" "
+				AdditionalDependencies=""
+				IgnoreImportLibrary="TRUE"
+				SuppressStartupBanner="TRUE"
+				AdditionalLibraryDirectories=""
+				ProgramDatabaseFile="..\..\out\release71\build\libbulletdynamics\bulletdynamics.pdb"
+				TargetMachine="1"/>
 			<Tool
 				Name="VCLibrarianTool"
 				OutputFile="..\..\out\release71\libs\libbulletdynamics.lib"
@@ -54,7 +68,8 @@
 				TargetEnvironment="1"
 				TypeLibraryName="..\..\out\release71\build\libbulletdynamics\libbulletdynamics.tlb"/>
 			<Tool
-				Name="VCPostBuildEventTool"/>
+				Name="VCPostBuildEventTool"
+				/>
 			<Tool
 				Name="VCPreBuildEventTool"/>
 			<Tool
@@ -62,16 +77,12 @@
 			<Tool
 				Name="VCResourceCompilerTool"
 				PreprocessorDefinitions="NDEBUG;_LIB;_WINDOWS;PROJECTGEN_VERSION=71"
-				Culture="1033"
-				AdditionalIncludeDirectories=".;..\..;..\..\Bullet;..\..\BulletDynamics;..\..\LinearMath"/>
+				AdditionalIncludeDirectories=".;..\..;..\..\Bullet;..\..\BulletDynamics;..\..\LinearMath"
+				Culture="1033"/>
 			<Tool
 				Name="VCWebServiceProxyGeneratorTool"/>
 			<Tool
-				Name="VCXMLDataGeneratorTool"/>
-			<Tool
-				Name="VCManagedWrapperGeneratorTool"/>
-			<Tool
-				Name="VCAuxiliaryManagedWrapperGeneratorTool"/>
+				Name="VCWebDeploymentTool"/>
 		</Configuration>
 		<Configuration
 			Name="Debug|Win32"
@@ -82,16 +93,16 @@
 			ATLMinimizesCRunTimeLibraryUsage="FALSE">
 			<Tool
 				Name="VCCLCompilerTool"
-				AdditionalOptions=" "
 				Optimization="0"
-				OptimizeForProcessor="1"
-				AdditionalIncludeDirectories=".;..\..;..\..\Bullet;..\..\BulletDynamics;..\..\LinearMath"
-				PreprocessorDefinitions="_DEBUG;_LIB;_WINDOWS;WIN32"
 				MinimalRebuild="TRUE"
-				ExceptionHandling="FALSE"
-				RuntimeLibrary="3"
-				TreatWChar_tAsBuiltInType="FALSE"
+				DebugInformationFormat="4"
 				RuntimeTypeInfo="TRUE"
+				RuntimeLibrary="3"
+				PreprocessorDefinitions="_DEBUG;_LIB;_WINDOWS;WIN32"
+				OptimizeForProcessor="1"
+				ExceptionHandling="0"
+				AdditionalOptions=" "
+				AdditionalIncludeDirectories=".;..\..;..\..\Bullet;..\..\BulletDynamics;..\..\LinearMath"
 				PrecompiledHeaderFile="..\..\out\debug71\build\libbulletdynamics\libbulletdynamics.pch"
 				AssemblerListingLocation="..\..\out\debug71\build\libbulletdynamics\"
 				ObjectFile="..\..\out\debug71\build\libbulletdynamics\"
@@ -99,10 +110,22 @@
 				WarningLevel="3"
 				SuppressStartupBanner="TRUE"
 				Detect64BitPortabilityProblems="TRUE"
-				DebugInformationFormat="4"
+				TreatWChar_tAsBuiltInType="false"
 				CompileAs="0"/>
 			<Tool
 				Name="VCCustomBuildTool"/>
+			<Tool
+				Name="VCLinkerTool"
+				LinkIncremental="2"
+				GenerateDebugInformation="TRUE"
+				IgnoreDefaultLibraryNames="LIBC,LIBCD,LIBCMT,LIBCMTD,MSVCRT"
+				AdditionalOptions=" "
+				AdditionalDependencies=""
+				IgnoreImportLibrary="TRUE"
+				SuppressStartupBanner="TRUE"
+				AdditionalLibraryDirectories=""
+				ProgramDatabaseFile="..\..\out\debug71\build\libbulletdynamics\bulletdynamics.pdb"
+				TargetMachine="1"/>
 			<Tool
 				Name="VCLibrarianTool"
 				OutputFile="..\..\out\debug71\libs\libbulletdynamics_d.lib"
@@ -115,7 +138,8 @@
 				TargetEnvironment="1"
 				TypeLibraryName="..\..\out\debug71\build\libbulletdynamics\libbulletdynamics.tlb"/>
 			<Tool
-				Name="VCPostBuildEventTool"/>
+				Name="VCPostBuildEventTool"
+				/>
 			<Tool
 				Name="VCPreBuildEventTool"/>
 			<Tool
@@ -123,32 +147,23 @@
 			<Tool
 				Name="VCResourceCompilerTool"
 				PreprocessorDefinitions="_DEBUG;_LIB;_WINDOWS;PROJECTGEN_VERSION=71"
-				Culture="1033"
-				AdditionalIncludeDirectories=".;..\..;..\..\Bullet;..\..\BulletDynamics;..\..\LinearMath"/>
+				AdditionalIncludeDirectories=".;..\..;..\..\Bullet;..\..\BulletDynamics;..\..\LinearMath"
+				Culture="1033"/>
 			<Tool
 				Name="VCWebServiceProxyGeneratorTool"/>
 			<Tool
-				Name="VCXMLDataGeneratorTool"/>
-			<Tool
-				Name="VCManagedWrapperGeneratorTool"/>
-			<Tool
-				Name="VCAuxiliaryManagedWrapperGeneratorTool"/>
+				Name="VCWebDeploymentTool"/>
 		</Configuration>
 	</Configurations>
-	<References>
-	</References>
 	<Files>
 		<Filter
 			Name="Source Files"
 			Filter="">
 			<File
-				RelativePath="..\..\BulletDynamics\Dynamics\BU_Joint.cpp">
-			</File>
-			<File
 				RelativePath="..\..\BulletDynamics\ConstraintSolver\ContactConstraint.cpp">
 			</File>
 			<File
-				RelativePath="..\..\BulletDynamics\Dynamics\ContactJoint.cpp">
+				RelativePath="..\..\BulletDynamics\ConstraintSolver\Generic6DofConstraint.cpp">
 			</File>
 			<File
 				RelativePath="..\..\BulletDynamics\ConstraintSolver\HingeConstraint.cpp">
@@ -158,9 +173,6 @@
 			</File>
 			<File
 				RelativePath="..\..\BulletDynamics\ConstraintSolver\Point2PointConstraint.cpp">
-			</File>
-			<File
-				RelativePath="..\..\BulletDynamics\Dynamics\RigidBody.cpp">
 			</File>
 			<File
 				RelativePath="..\..\BulletDynamics\ConstraintSolver\SimpleConstraintSolver.cpp">
@@ -174,13 +186,19 @@
 			<File
 				RelativePath="..\..\BulletDynamics\ConstraintSolver\TypedConstraint.cpp">
 			</File>
+			<File
+				RelativePath="..\..\BulletDynamics\Dynamics\BU_Joint.cpp">
+			</File>
+			<File
+				RelativePath="..\..\BulletDynamics\Dynamics\ContactJoint.cpp">
+			</File>
+			<File
+				RelativePath="..\..\BulletDynamics\Dynamics\RigidBody.cpp">
+			</File>
 		</Filter>
 		<Filter
 			Name="Header Files"
 			Filter="">
-			<File
-				RelativePath="..\..\BulletDynamics\Dynamics\BU_Joint.h">
-			</File>
 			<File
 				RelativePath="..\..\BulletDynamics\ConstraintSolver\ConstraintSolver.h">
 			</File>
@@ -188,10 +206,10 @@
 				RelativePath="..\..\BulletDynamics\ConstraintSolver\ContactConstraint.h">
 			</File>
 			<File
-				RelativePath="..\..\BulletDynamics\Dynamics\ContactJoint.h">
+				RelativePath="..\..\BulletDynamics\ConstraintSolver\ContactSolverInfo.h">
 			</File>
 			<File
-				RelativePath="..\..\BulletDynamics\ConstraintSolver\ContactSolverInfo.h">
+				RelativePath="..\..\BulletDynamics\ConstraintSolver\Generic6DofConstraint.h">
 			</File>
 			<File
 				RelativePath="..\..\BulletDynamics\ConstraintSolver\HingeConstraint.h">
@@ -200,16 +218,10 @@
 				RelativePath="..\..\BulletDynamics\ConstraintSolver\JacobianEntry.h">
 			</File>
 			<File
-				RelativePath="..\..\BulletDynamics\Dynamics\MassProps.h">
-			</File>
-			<File
 				RelativePath="..\..\BulletDynamics\ConstraintSolver\OdeConstraintSolver.h">
 			</File>
 			<File
 				RelativePath="..\..\BulletDynamics\ConstraintSolver\Point2PointConstraint.h">
-			</File>
-			<File
-				RelativePath="..\..\BulletDynamics\Dynamics\RigidBody.h">
 			</File>
 			<File
 				RelativePath="..\..\BulletDynamics\ConstraintSolver\SimpleConstraintSolver.h">
@@ -223,13 +235,19 @@
 			<File
 				RelativePath="..\..\BulletDynamics\ConstraintSolver\TypedConstraint.h">
 			</File>
+			<File
+				RelativePath="..\..\BulletDynamics\Dynamics\BU_Joint.h">
+			</File>
+			<File
+				RelativePath="..\..\BulletDynamics\Dynamics\ContactJoint.h">
+			</File>
+			<File
+				RelativePath="..\..\BulletDynamics\Dynamics\MassProps.h">
+			</File>
+			<File
+				RelativePath="..\..\BulletDynamics\Dynamics\RigidBody.h">
+			</File>
 		</Filter>
-		<File
-			RelativePath="..\..\BulletDynamics\ConstraintSolver\Generic6DofConstraint.cpp">
-		</File>
-		<File
-			RelativePath="..\..\BulletDynamics\ConstraintSolver\Generic6DofConstraint.h">
-		</File>
 	</Files>
 	<Globals>
 	</Globals>

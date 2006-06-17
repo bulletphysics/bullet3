@@ -108,6 +108,10 @@ SOURCE=..\..\BulletDynamics\ConstraintSolver\ContactConstraint.cpp
 # End Source File
 # Begin Source File
 
+SOURCE=..\..\BulletDynamics\ConstraintSolver\Generic6DofConstraint.cpp
+# End Source File
+# Begin Source File
+
 SOURCE=..\..\BulletDynamics\ConstraintSolver\HingeConstraint.cpp
 # End Source File
 # Begin Source File
@@ -161,6 +165,10 @@ SOURCE=..\..\BulletDynamics\ConstraintSolver\ContactConstraint.h
 # Begin Source File
 
 SOURCE=..\..\BulletDynamics\ConstraintSolver\ContactSolverInfo.h
+# End Source File
+# Begin Source File
+
+SOURCE=..\..\BulletDynamics\ConstraintSolver\Generic6DofConstraint.h
 # End Source File
 # Begin Source File
 

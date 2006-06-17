@@ -1,8 +1,8 @@
 // This file is generated automatically.
 
 1 VERSIONINFO
-FILEVERSION 1, 1, 2006, 0319
-PRODUCTVERSION 1, 1, 2006, 0319
+FILEVERSION 1, 5, 6, 0
+PRODUCTVERSION 1, 5, 6, 0
 #ifdef CS_DEBUG
 FILEFLAGS 0x1
 #else
@@ -14,8 +14,8 @@ FILEFLAGS 0x0
     BLOCK "040904E4"
     {
       VALUE "ProductName", "Bullet Continuous Collision Detection and Physics Library"
-      VALUE "ProductVersion", "1.1.2006.0319"
-      VALUE "FileVersion", "1.1.2006.0319"
+      VALUE "ProductVersion", "1.5.6"
+      VALUE "FileVersion", "1.5.6"
       VALUE "LegalCopyright", "Copyright (c) 2005-2006 Erwin Coumans"
       VALUE "FileDescription", "BasicSample"
 #ifdef CS_DEBUG
@@ -27,3 +27,4 @@ FILEFLAGS 0x0
     }
   }
 }
+1 ICON "../msvc/bullet_ico.ico"

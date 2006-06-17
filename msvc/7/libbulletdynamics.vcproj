@@ -163,6 +163,9 @@
 				RelativePath="..\..\BulletDynamics\ConstraintSolver\ContactConstraint.cpp">
 			</File>
 			<File
+				RelativePath="..\..\BulletDynamics\ConstraintSolver\Generic6DofConstraint.cpp">
+			</File>
+			<File
 				RelativePath="..\..\BulletDynamics\ConstraintSolver\HingeConstraint.cpp">
 			</File>
 			<File
@@ -204,6 +207,9 @@
 			</File>
 			<File
 				RelativePath="..\..\BulletDynamics\ConstraintSolver\ContactSolverInfo.h">
+			</File>
+			<File
+				RelativePath="..\..\BulletDynamics\ConstraintSolver\Generic6DofConstraint.h">
 			</File>
 			<File
 				RelativePath="..\..\BulletDynamics\ConstraintSolver\HingeConstraint.h">
