@@ -13,6 +13,7 @@ subject to the following restrictions:
 3. This notice may not be removed or altered from any source distribution.
 */
 
+
 /**
  * @mainpage Bullet Documentation
  *
@@ -57,18 +58,22 @@ subject to the following restrictions:
  * 
  */
  
+ 
+
 #ifndef COLLISION_WORLD_H
 #define COLLISION_WORLD_H
 
 
 class CollisionShape;
-class CollisionDispatcher;
 class BroadphaseInterface;
 #include "SimdVector3.h"
 #include "SimdTransform.h"
 #include "CollisionObject.h"
+#include "CollisionDispatcher.h" //for definition of CollisionObjectArray
 
 #include <vector>
+
+
 
 ///CollisionWorld is interface and container for the collision detection
 class CollisionWorld
@@ -93,6 +98,7 @@ public:
 	virtual ~CollisionWorld();
 
 	virtual	void	UpdateActivationState();
+	virtual	void	StoreIslandActivationState();
 
 	BroadphaseInterface*	GetBroadphase()
 	{
@@ -196,6 +202,17 @@ public:
 
 
 	void	AddCollisionObject(CollisionObject* collisionObject);
+
+	CollisionObjectArray& GetCollisionObjectArray()
+	{
+		return m_collisionObjects;
+	}
+
+	const CollisionObjectArray& GetCollisionObjectArray() const
+	{
+		return m_collisionObjects;
+	}
+
 
 	void	RemoveCollisionObject(CollisionObject* collisionObject);
 
