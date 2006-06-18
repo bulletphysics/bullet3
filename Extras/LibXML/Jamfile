@@ -1,0 +1,16 @@
+SubDir TOP Extras LibXML ;
+
+IncludeDir Extras/LibXML/include ;
+
+Library libxml : [ Wildcard *.h *.c ] ;
+
+CFlags libxml : 
+[ FIncludes $(TOP)/Extras/LibXML ]
+[ FIncludes $(TOP)/Extras/LibXML/include ]
+;
+
+LibDepends libxml :  ;
+
+
+InstallHeader [ Wildcard *.h ] : LibXML ;
+
