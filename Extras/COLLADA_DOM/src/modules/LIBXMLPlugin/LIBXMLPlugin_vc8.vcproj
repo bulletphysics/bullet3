@@ -4,6 +4,7 @@
 	Version="8.00"
 	Name="LIBXMLPlugin_vc8"
 	ProjectGUID="{4A974C64-D51F-4D0F-85B8-0C876EF29F2E}"
+	RootNamespace="LIBXMLPlugin_vc8"
 	Keyword="Win32Proj"
 	>
 	<Platforms>
@@ -40,7 +41,7 @@
 			<Tool
 				Name="VCCLCompilerTool"
 				Optimization="0"
-				AdditionalIncludeDirectories="&quot;../../../external-libs/libxml2/win32/include&quot;;../../../include"
+				AdditionalIncludeDirectories="&quot;../../../external-libs/libxml2/win32/include&quot;;../../../include;../../../../FCollada/LibXML/include"
 				PreprocessorDefinitions="WIN32;_DEBUG;_LIB;LIBXML_STATIC"
 				MinimalRebuild="true"
 				BasicRuntimeChecks="3"
@@ -105,7 +106,7 @@
 			/>
 			<Tool
 				Name="VCCLCompilerTool"
-				AdditionalIncludeDirectories="&quot;../../../external-libs/libxml2/win32/include&quot;;../../../include"
+				AdditionalIncludeDirectories="&quot;../../../external-libs/libxml2/win32/include&quot;;../../../include;../../../../FCollada/LibXML/include"
 				PreprocessorDefinitions="WIN32;NDEBUG;_LIB;LIBXML_STATIC"
 				RuntimeLibrary="2"
 				UsePrecompiledHeader="0"
@@ -169,7 +170,7 @@
 			<Tool
 				Name="VCCLCompilerTool"
 				Optimization="0"
-				AdditionalIncludeDirectories="&quot;../../../external-libs/libxml2/win32/include&quot;;../../../include"
+				AdditionalIncludeDirectories="&quot;../../../external-libs/libxml2/win32/include&quot;;../../../include;../../../../FCollada/LibXML/include"
 				PreprocessorDefinitions="WIN32;_DEBUG;_LIB;LIBXML_STATIC"
 				MinimalRebuild="true"
 				BasicRuntimeChecks="3"
@@ -234,7 +235,7 @@
 			/>
 			<Tool
 				Name="VCCLCompilerTool"
-				AdditionalIncludeDirectories="&quot;../../../external-libs/libxml2/win32/include&quot;;../../../include"
+				AdditionalIncludeDirectories="&quot;../../../external-libs/libxml2/win32/include&quot;;../../../include;../../../../FCollada/LibXML/include"
 				PreprocessorDefinitions="WIN32;NDEBUG;_LIB;LIBXML_STATIC"
 				RuntimeLibrary="2"
 				UsePrecompiledHeader="0"
