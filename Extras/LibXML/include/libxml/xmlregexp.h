@@ -40,6 +40,7 @@ typedef xmlRegExecCtxt *xmlRegExecCtxtPtr;
 }
 #endif 
 #include <libxml/tree.h>
+#include <libxml/dict.h>
 #ifdef __cplusplus
 extern "C" {
 #endif
@@ -99,6 +100,113 @@ XMLPUBFUN int XMLCALL
 		    			 int *nbneg,
 					 xmlChar **values,
 					 int *terminal);
+#ifdef LIBXML_EXPR_ENABLED
+/*
+ * Formal regular expression handling
+ * Its goal is to do some formal work on content models
+ */
+
+/* expressions are used within a context */
+typedef struct _xmlExpCtxt xmlExpCtxt;
+typedef xmlExpCtxt *xmlExpCtxtPtr;
+
+XMLPUBFUN void XMLCALL
+			xmlExpFreeCtxt	(xmlExpCtxtPtr ctxt);
+XMLPUBFUN xmlExpCtxtPtr XMLCALL
+			xmlExpNewCtxt	(int maxNodes,
+					 xmlDictPtr dict);
+
+XMLPUBFUN int XMLCALL
+			xmlExpCtxtNbNodes(xmlExpCtxtPtr ctxt);
+XMLPUBFUN int XMLCALL
+			xmlExpCtxtNbCons(xmlExpCtxtPtr ctxt);
+
+/* Expressions are trees but the tree is opaque */
+typedef struct _xmlExpNode xmlExpNode;
+typedef xmlExpNode *xmlExpNodePtr;
+
+typedef enum {
+    XML_EXP_EMPTY = 0,
+    XML_EXP_FORBID = 1,
+    XML_EXP_ATOM = 2,
+    XML_EXP_SEQ = 3,
+    XML_EXP_OR = 4,
+    XML_EXP_COUNT = 5
+} xmlExpNodeType;
+
+/*
+ * 2 core expressions shared by all for the empty language set 
+ * and for the set with just the empty token
+ */
+XMLPUBVAR xmlExpNodePtr forbiddenExp;
+XMLPUBVAR xmlExpNodePtr emptyExp;
+
+/*
+ * Expressions are reference counted internally
+ */
+XMLPUBFUN void XMLCALL
+			xmlExpFree	(xmlExpCtxtPtr ctxt,
+					 xmlExpNodePtr expr);
+XMLPUBFUN void XMLCALL
+			xmlExpRef	(xmlExpNodePtr expr);
+
+/*
+ * constructors can be either manual or from a string
+ */
+XMLPUBFUN xmlExpNodePtr XMLCALL
+			xmlExpParse	(xmlExpCtxtPtr ctxt,
+					 const char *expr);
+XMLPUBFUN xmlExpNodePtr XMLCALL
+			xmlExpNewAtom	(xmlExpCtxtPtr ctxt,
+					 const xmlChar *name,
+					 int len);
+XMLPUBFUN xmlExpNodePtr XMLCALL
+			xmlExpNewOr	(xmlExpCtxtPtr ctxt,
+					 xmlExpNodePtr left,
+					 xmlExpNodePtr right);
+XMLPUBFUN xmlExpNodePtr XMLCALL
+			xmlExpNewSeq	(xmlExpCtxtPtr ctxt,
+					 xmlExpNodePtr left,
+					 xmlExpNodePtr right);
+XMLPUBFUN xmlExpNodePtr XMLCALL
+			xmlExpNewRange	(xmlExpCtxtPtr ctxt,
+					 xmlExpNodePtr subset,
+					 int min,
+					 int max);
+/*
+ * The really interesting APIs
+ */
+XMLPUBFUN int XMLCALL
+			xmlExpIsNillable(xmlExpNodePtr expr);
+XMLPUBFUN int XMLCALL
+			xmlExpMaxToken	(xmlExpNodePtr expr);
+XMLPUBFUN int XMLCALL
+			xmlExpGetLanguage(xmlExpCtxtPtr ctxt,
+					 xmlExpNodePtr expr,
+					 const xmlChar**langList,
+					 int len);
+XMLPUBFUN int XMLCALL
+			xmlExpGetStart	(xmlExpCtxtPtr ctxt,
+					 xmlExpNodePtr expr,
+					 const xmlChar**tokList,
+					 int len);
+XMLPUBFUN xmlExpNodePtr XMLCALL
+			xmlExpStringDerive(xmlExpCtxtPtr ctxt,
+					 xmlExpNodePtr expr,
+					 const xmlChar *str,
+					 int len);
+XMLPUBFUN xmlExpNodePtr XMLCALL
+			xmlExpExpDerive	(xmlExpCtxtPtr ctxt,
+					 xmlExpNodePtr expr,
+					 xmlExpNodePtr sub);
+XMLPUBFUN int XMLCALL
+			xmlExpSubsume	(xmlExpCtxtPtr ctxt,
+					 xmlExpNodePtr expr,
+					 xmlExpNodePtr sub);
+XMLPUBFUN void XMLCALL
+			xmlExpDump	(xmlBufferPtr buf,
+					 xmlExpNodePtr expr);
+#endif /* LIBXML_EXPR_ENABLED */
 #ifdef __cplusplus
 }
 #endif 

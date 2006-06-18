@@ -87,8 +87,8 @@ typedef xmlSchema *xmlSchemaPtr;
 /**
  * A schemas validation context
  */
-typedef void (*xmlSchemaValidityErrorFunc) (void *ctx, const char *msg, ...);
-typedef void (*xmlSchemaValidityWarningFunc) (void *ctx, const char *msg, ...);
+typedef void (XMLCDECL *xmlSchemaValidityErrorFunc) (void *ctx, const char *msg, ...);
+typedef void (XMLCDECL *xmlSchemaValidityWarningFunc) (void *ctx, const char *msg, ...);
 
 typedef struct _xmlSchemaParserCtxt xmlSchemaParserCtxt;
 typedef xmlSchemaParserCtxt *xmlSchemaParserCtxtPtr;
@@ -113,11 +113,18 @@ XMLPUBFUN void XMLCALL
 					 xmlSchemaValidityErrorFunc err,
 					 xmlSchemaValidityWarningFunc warn,
 					 void *ctx);
+XMLPUBFUN void XMLCALL
+	    xmlSchemaSetParserStructuredErrors(xmlSchemaParserCtxtPtr ctxt,
+					 xmlStructuredErrorFunc serror,
+					 void *ctx);
 XMLPUBFUN int XMLCALL
-		xmlSchemaGetParserErrors	(xmlSchemaParserCtxtPtr ctxt,
+		xmlSchemaGetParserErrors(xmlSchemaParserCtxtPtr ctxt,
 					xmlSchemaValidityErrorFunc * err,
 					xmlSchemaValidityWarningFunc * warn,
 					void **ctx);
+XMLPUBFUN int XMLCALL
+		xmlSchemaIsValid	(xmlSchemaValidCtxtPtr ctxt);
+
 XMLPUBFUN xmlSchemaPtr XMLCALL	
 	    xmlSchemaParse		(xmlSchemaParserCtxtPtr ctxt);
 XMLPUBFUN void XMLCALL		
@@ -134,6 +141,10 @@ XMLPUBFUN void XMLCALL
 	    xmlSchemaSetValidErrors	(xmlSchemaValidCtxtPtr ctxt,
 					 xmlSchemaValidityErrorFunc err,
 					 xmlSchemaValidityWarningFunc warn,
+					 void *ctx);
+XMLPUBFUN void XMLCALL
+	    xmlSchemaSetValidStructuredErrors(xmlSchemaValidCtxtPtr ctxt,
+					 xmlStructuredErrorFunc serror,
 					 void *ctx);
 XMLPUBFUN int XMLCALL
 	    xmlSchemaGetValidErrors	(xmlSchemaValidCtxtPtr ctxt,
@@ -156,12 +167,29 @@ XMLPUBFUN int XMLCALL
 XMLPUBFUN int XMLCALL
             xmlSchemaValidateOneElement (xmlSchemaValidCtxtPtr ctxt,
 			                 xmlNodePtr elem);
-XMLPUBFUN int XMLCALL			
+XMLPUBFUN int XMLCALL
 	    xmlSchemaValidateStream	(xmlSchemaValidCtxtPtr ctxt,
 					 xmlParserInputBufferPtr input,
 					 xmlCharEncoding enc,
 					 xmlSAXHandlerPtr sax,
 					 void *user_data);
+XMLPUBFUN int XMLCALL
+	    xmlSchemaValidateFile	(xmlSchemaValidCtxtPtr ctxt,
+					 const char * filename,
+					 int options);
+
+/*
+ * Interface to insert Schemas SAX velidation in a SAX stream
+ */
+typedef struct _xmlSchemaSAXPlug xmlSchemaSAXPlugStruct;
+typedef xmlSchemaSAXPlugStruct *xmlSchemaSAXPlugPtr;
+
+XMLPUBFUN xmlSchemaSAXPlugPtr XMLCALL
+            xmlSchemaSAXPlug		(xmlSchemaValidCtxtPtr ctxt,
+					 xmlSAXHandlerPtr *sax,
+					 void **user_data);
+XMLPUBFUN int XMLCALL
+            xmlSchemaSAXUnplug		(xmlSchemaSAXPlugPtr plug);
 #ifdef __cplusplus
 }
 #endif

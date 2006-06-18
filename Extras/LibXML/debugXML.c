@@ -34,6 +34,8 @@
 #include <libxml/relaxng.h>
 #endif
 
+#define DUMP_TEXT_TYPE 1
+
 typedef struct _xmlDebugCtxt xmlDebugCtxt;
 typedef xmlDebugCtxt *xmlDebugCtxtPtr;
 struct _xmlDebugCtxt {
@@ -46,6 +48,7 @@ struct _xmlDebugCtxt {
     int check;                  /* do just checkings */
     int errors;                 /* number of errors found */
     int nodict;			/* if the document has no dictionnary */
+    int options;		/* options */
 };
 
 static void xmlCtxtDumpNodeList(xmlDebugCtxtPtr ctxt, xmlNodePtr node);
@@ -63,6 +66,7 @@ xmlCtxtDumpInitCtxt(xmlDebugCtxtPtr ctxt)
     ctxt->node = NULL;
     ctxt->dict = NULL;
     ctxt->nodict = 0;
+    ctxt->options = 0;
     for (i = 0; i < 100; i++)
         ctxt->shift[i] = ' ';
     ctxt->shift[100] = 0;
@@ -344,8 +348,10 @@ xmlCtxtGenericNodeCheck(xmlDebugCtxtPtr ctxt, xmlNodePtr node) {
 
     if ((node->type != XML_ELEMENT_NODE) &&
 	(node->type != XML_ATTRIBUTE_NODE) &&
+	(node->type != XML_ELEMENT_DECL) &&
 	(node->type != XML_ATTRIBUTE_DECL) &&
 	(node->type != XML_DTD_NODE) &&
+	(node->type != XML_ELEMENT_DECL) &&
 	(node->type != XML_HTML_DOCUMENT_NODE) &&
 	(node->type != XML_DOCUMENT_NODE)) {
 	if (node->content != NULL)
@@ -900,9 +906,18 @@ xmlCtxtDumpOneNode(xmlDebugCtxtPtr ctxt, xmlNodePtr node)
             if (!ctxt->check) {
                 xmlCtxtDumpSpaces(ctxt);
                 if (node->name == (const xmlChar *) xmlStringTextNoenc)
-                    fprintf(ctxt->output, "TEXT no enc\n");
+                    fprintf(ctxt->output, "TEXT no enc");
                 else
-                    fprintf(ctxt->output, "TEXT\n");
+                    fprintf(ctxt->output, "TEXT");
+		if (ctxt->options & DUMP_TEXT_TYPE) {
+		    if (node->content == (xmlChar *) &(node->properties))
+			fprintf(ctxt->output, " compact\n");
+		    else if (xmlDictOwns(ctxt->dict, node->content) == 1)
+			fprintf(ctxt->output, " interned\n");
+		    else
+			fprintf(ctxt->output, "\n");
+		} else
+		    fprintf(ctxt->output, "\n");
             }
             break;
         case XML_CDATA_SECTION_NODE:
@@ -1003,9 +1018,9 @@ xmlCtxtDumpOneNode(xmlDebugCtxtPtr ctxt, xmlNodePtr node)
         fprintf(ctxt->output, "PBM: doc == NULL !!!\n");
     }
     ctxt->depth++;
-    if (node->nsDef != NULL)
+    if ((node->type == XML_ELEMENT_NODE) && (node->nsDef != NULL))
         xmlCtxtDumpNamespaceList(ctxt, node->nsDef);
-    if (node->properties != NULL)
+    if ((node->type == XML_ELEMENT_NODE) && (node->properties != NULL))
         xmlCtxtDumpAttrList(ctxt, node->properties);
     if (node->type != XML_ENTITY_REF_NODE) {
         if ((node->type != XML_ELEMENT_NODE) && (node->content != NULL)) {
@@ -1050,7 +1065,8 @@ xmlCtxtDumpNode(xmlDebugCtxtPtr ctxt, xmlNodePtr node)
         return;
     }
     xmlCtxtDumpOneNode(ctxt, node);
-    if ((node->children != NULL) && (node->type != XML_ENTITY_REF_NODE)) {
+    if ((node->type != XML_NAMESPACE_DECL) && 
+        (node->children != NULL) && (node->type != XML_ENTITY_REF_NODE)) {
         ctxt->depth++;
         xmlCtxtDumpNodeList(ctxt, node->children);
         ctxt->depth--;
@@ -1487,6 +1503,7 @@ xmlDebugDumpDocumentHead(FILE * output, xmlDocPtr doc)
     if (output == NULL)
 	output = stdout;
     xmlCtxtDumpInitCtxt(&ctxt);
+    ctxt.options |= DUMP_TEXT_TYPE;
     ctxt.output = output;
     xmlCtxtDumpDocumentHead(&ctxt, doc);
     xmlCtxtDumpCleanCtxt(&ctxt);
@@ -1507,6 +1524,7 @@ xmlDebugDumpDocument(FILE * output, xmlDocPtr doc)
     if (output == NULL)
 	output = stdout;
     xmlCtxtDumpInitCtxt(&ctxt);
+    ctxt.options |= DUMP_TEXT_TYPE;
     ctxt.output = output;
     xmlCtxtDumpDocument(&ctxt, doc);
     xmlCtxtDumpCleanCtxt(&ctxt);
@@ -1527,6 +1545,7 @@ xmlDebugDumpDTD(FILE * output, xmlDtdPtr dtd)
     if (output == NULL)
 	output = stdout;
     xmlCtxtDumpInitCtxt(&ctxt);
+    ctxt.options |= DUMP_TEXT_TYPE;
     ctxt.output = output;
     xmlCtxtDumpDTD(&ctxt, dtd);
     xmlCtxtDumpCleanCtxt(&ctxt);
@@ -2120,6 +2139,37 @@ xmlShellRegisterNamespace(xmlShellCtxtPtr ctxt, char *arg,
     }
 
     xmlFree(nsListDup);
+    return(0);
+}
+/**
+ * xmlShellRegisterRootNamespaces:
+ * @ctxt:  the shell context
+ * @arg:  unused
+ * @node:  the root element
+ * @node2:  unused
+ *
+ * Implements the XML shell function "setrootns"
+ * which registers all namespaces declarations found on the root element.
+ *
+ * Returns 0 on success and a negative value otherwise.
+ */
+static int
+xmlShellRegisterRootNamespaces(xmlShellCtxtPtr ctxt, char *arg ATTRIBUTE_UNUSED,
+      xmlNodePtr root, xmlNodePtr node2 ATTRIBUTE_UNUSED)
+{
+    xmlNsPtr ns;
+
+    if ((root == NULL) || (root->type != XML_ELEMENT_NODE) ||
+        (root->nsDef == NULL) || (ctxt == NULL) || (ctxt->pctxt == NULL))
+	return(-1);
+    ns = root->nsDef;
+    while (ns != NULL) {
+        if (ns->prefix == NULL)
+	    xmlXPathRegisterNs(ctxt->pctxt, BAD_CAST "defaultns", ns->href);
+	else
+	    xmlXPathRegisterNs(ctxt->pctxt, ns->prefix, ns->href);
+        ns = ns->next;
+    }
     return(0);
 }
 #endif
@@ -2859,6 +2909,8 @@ xmlShell(xmlDocPtr doc, char *filename, xmlShellReadlineFunc input,
 		  fprintf(ctxt->output, "\txpath expr   evaluate the XPath expression in that context and print the result\n");
 		  fprintf(ctxt->output, "\tsetns nsreg  register a namespace to a prefix in the XPath evaluation context\n");
 		  fprintf(ctxt->output, "\t             format for nsreg is: prefix=[nsuri] (i.e. prefix= unsets a prefix)\n");
+		  fprintf(ctxt->output, "\tsetrootns    register all namespace found on the root element\n");
+		  fprintf(ctxt->output, "\t             the default namespace if any uses 'defaultns' prefix\n");
 #endif /* LIBXML_XPATH_ENABLED */
 		  fprintf(ctxt->output, "\tpwd          display current working directory\n");
 		  fprintf(ctxt->output, "\tquit         leave shell\n");
@@ -2923,6 +2975,11 @@ xmlShell(xmlDocPtr doc, char *filename, xmlShellReadlineFunc input,
             } else {
                 xmlShellRegisterNamespace(ctxt, arg, NULL, NULL);
             }
+        } else if (!strcmp(command, "setrootns")) {
+	    xmlNodePtr root;
+
+	    root = xmlDocGetRootElement(ctxt->doc);
+	    xmlShellRegisterRootNamespaces(ctxt, NULL, root, NULL);
         } else if (!strcmp(command, "xpath")) {
             if (arg[0] == 0) {
 		xmlGenericError(xmlGenericErrorContext,

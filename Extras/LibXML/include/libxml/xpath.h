@@ -35,6 +35,7 @@ extern "C" {
 #endif /* LIBXML_XPATH_ENABLED or LIBXML_SCHEMAS_ENABLED */
 	
 #ifdef LIBXML_XPATH_ENABLED
+
 typedef struct _xmlXPathContext xmlXPathContext;
 typedef xmlXPathContext *xmlXPathContextPtr;
 typedef struct _xmlXPathParserContext xmlXPathParserContext;
@@ -249,6 +250,23 @@ typedef xmlXPathFunction (*xmlXPathFuncLookupFunc) (void *ctxt,
 					 const xmlChar *ns_uri);
 
 /**
+ * xmlXPathFlags:
+ * Flags for XPath engine compilation and runtime
+ */
+/**
+ * XML_XPATH_CHECKNS:
+ *
+ * check namespaces at compilation
+ */
+#define XML_XPATH_CHECKNS (1<<0)
+/**
+ * XML_XPATH_NOVAR:
+ *
+ * forbid variables in expression
+ */
+#define XML_XPATH_NOVAR	  (1<<1)
+
+/**
  * xmlXPathContext:
  *
  * Expression evaluation occurs with respect to a context.
@@ -324,6 +342,10 @@ struct _xmlXPathContext {
 
     /* dictionnary */
     xmlDictPtr dict;			/* dictionnary if any */
+
+    int flags;				/* flags to control compilation */
+    /* Cache for reusal of XPath objects */
+    void *cache;
 };
 
 /*
@@ -466,9 +488,13 @@ XMLPUBFUN xmlXPathObjectPtr XMLCALL
  */
 XMLPUBFUN xmlXPathContextPtr XMLCALL 
 		    xmlXPathNewContext		(xmlDocPtr doc);
-XMLPUBFUN void XMLCALL		   
+XMLPUBFUN void XMLCALL
 		    xmlXPathFreeContext		(xmlXPathContextPtr ctxt);
-
+XMLPUBFUN int XMLCALL
+		    xmlXPathContextSetCache(xmlXPathContextPtr ctxt,
+				            int active,
+					    int value,
+					    int options);
 /**
  * Evaluation functions.
  */

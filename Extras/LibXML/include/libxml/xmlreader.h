@@ -15,6 +15,7 @@
 #include <libxml/xmlIO.h>
 #ifdef LIBXML_SCHEMAS_ENABLED
 #include <libxml/relaxng.h>
+#include <libxml/xmlschemas.h>
 #endif
 
 #ifdef LIBXML_READER_ENABLED
@@ -120,10 +121,15 @@ XMLPUBFUN void XMLCALL
  */
 XMLPUBFUN int XMLCALL		
 			xmlTextReaderRead	(xmlTextReaderPtr reader);
+
+#ifdef LIBXML_WRITER_ENABLED
 XMLPUBFUN xmlChar * XMLCALL	
 			xmlTextReaderReadInnerXml	(xmlTextReaderPtr reader);
+			
 XMLPUBFUN xmlChar * XMLCALL	
 			xmlTextReaderReadOuterXml	(xmlTextReaderPtr reader);
+#endif
+
 XMLPUBFUN xmlChar * XMLCALL	
 			xmlTextReaderReadString		(xmlTextReaderPtr reader);
 XMLPUBFUN int XMLCALL		
@@ -247,7 +253,7 @@ XMLPUBFUN xmlNodePtr XMLCALL
 XMLPUBFUN int XMLCALL
             xmlTextReaderGetParserLineNumber(xmlTextReaderPtr reader);
 
-XMLPUBFUN intptr_t XMLCALL
+XMLPUBFUN int XMLCALL
             xmlTextReaderGetParserColumnNumber(xmlTextReaderPtr reader);
 
 XMLPUBFUN xmlNodePtr XMLCALL	
@@ -275,6 +281,16 @@ XMLPUBFUN int XMLCALL
 XMLPUBFUN int XMLCALL		
 		    xmlTextReaderRelaxNGSetSchema(xmlTextReaderPtr reader,
 						 xmlRelaxNGPtr schema);
+XMLPUBFUN int XMLCALL
+		    xmlTextReaderSchemaValidate	(xmlTextReaderPtr reader,
+		    				 const char *xsd);
+XMLPUBFUN int XMLCALL
+		    xmlTextReaderSchemaValidateCtxt(xmlTextReaderPtr reader,
+						 xmlSchemaValidCtxtPtr ctxt,
+						 int options);
+XMLPUBFUN int XMLCALL		
+		    xmlTextReaderSetSchema	(xmlTextReaderPtr reader,
+		    				 xmlSchemaPtr schema);
 #endif
 XMLPUBFUN const xmlChar * XMLCALL
 		    xmlTextReaderConstXmlVersion(xmlTextReaderPtr reader);
@@ -285,7 +301,7 @@ XMLPUBFUN int XMLCALL
 /*
  * Index lookup
  */
-XMLPUBFUN intptr_t XMLCALL
+XMLPUBFUN long XMLCALL
 		xmlTextReaderByteConsumed	(xmlTextReaderPtr reader);
 
 /*
@@ -304,7 +320,7 @@ XMLPUBFUN xmlTextReaderPtr XMLCALL
 					 int options);
 XMLPUBFUN xmlTextReaderPtr XMLCALL
 		xmlReaderForMemory	(const char *buffer,
-					 intptr_t size,
+					 int size,
 					 const char *URL,
 					 const char *encoding,
 					 int options);
@@ -338,7 +354,7 @@ XMLPUBFUN int XMLCALL
 XMLPUBFUN int XMLCALL
 		xmlReaderNewMemory	(xmlTextReaderPtr reader,
 					 const char *buffer,
-					 intptr_t size,
+					 int size,
 					 const char *URL,
 					 const char *encoding,
 					 int options);

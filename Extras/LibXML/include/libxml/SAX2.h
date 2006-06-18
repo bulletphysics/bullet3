@@ -29,9 +29,9 @@ XMLPUBFUN void XMLCALL
 		xmlSAX2SetDocumentLocator	(void *ctx,
 						 xmlSAXLocatorPtr loc);
     
-XMLPUBFUN intptr_t XMLCALL		
+XMLPUBFUN int XMLCALL		
 		xmlSAX2GetLineNumber		(void *ctx);
-XMLPUBFUN intptr_t XMLCALL		
+XMLPUBFUN int XMLCALL		
 		xmlSAX2GetColumnNumber		(void *ctx);
 
 XMLPUBFUN int XMLCALL		
@@ -98,7 +98,7 @@ XMLPUBFUN void XMLCALL
 		xmlSAX2StartDocument		(void *ctx);
 XMLPUBFUN void XMLCALL		
 		xmlSAX2EndDocument		(void *ctx);
-#if defined(LIBXML_SAX1_ENABLED) || defined(LIBXML_HTML_ENABLED)
+#if defined(LIBXML_SAX1_ENABLED) || defined(LIBXML_HTML_ENABLED) || defined(LIBXML_WRITER_ENABLED) || defined(LIBXML_DOCB_ENABLED)
 XMLPUBFUN void XMLCALL		
 		xmlSAX2StartElement		(void *ctx,
 						 const xmlChar *fullname,
@@ -114,8 +114,8 @@ XMLPUBFUN void XMLCALL
 						 const xmlChar *URI,
 						 int nb_namespaces,
 						 const xmlChar **namespaces,
-						 intptr_t nb_attributes,
-						 intptr_t nb_defaulted,
+						 int nb_attributes,
+						 int nb_defaulted,
 						 const xmlChar **attributes);
 XMLPUBFUN void XMLCALL
 		xmlSAX2EndElementNs		(void *ctx,
@@ -128,11 +128,11 @@ XMLPUBFUN void XMLCALL
 XMLPUBFUN void XMLCALL		
 		xmlSAX2Characters		(void *ctx,
 						 const xmlChar *ch,
-						 intptr_t len);
+						 int len);
 XMLPUBFUN void XMLCALL		
 		xmlSAX2IgnorableWhitespace	(void *ctx,
 						 const xmlChar *ch,
-						 intptr_t len);
+						 int len);
 XMLPUBFUN void XMLCALL		
 		xmlSAX2ProcessingInstruction	(void *ctx,
 						 const xmlChar *target,
@@ -143,7 +143,7 @@ XMLPUBFUN void XMLCALL
 XMLPUBFUN void XMLCALL		
 		xmlSAX2CDataBlock		(void *ctx,
 						 const xmlChar *value,
-						 intptr_t len);
+						 int len);
 
 #ifdef LIBXML_SAX1_ENABLED
 XMLPUBFUN int XMLCALL

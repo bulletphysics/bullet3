@@ -286,7 +286,7 @@ XMLPUBFUN xmlParserCtxtPtr XMLCALL
 						 int options);
 XMLPUBFUN xmlParserCtxtPtr XMLCALL	
 			xmlCreateMemoryParserCtxt(const char *buffer,
-						 intptr_t size);
+						 int size);
 XMLPUBFUN xmlParserCtxtPtr XMLCALL	
 			xmlCreateEntityParserCtxt(const xmlChar *URL,
 						 const xmlChar *ID,
@@ -486,7 +486,7 @@ XMLPUBFUN xmlChar * XMLCALL
 XMLPUBFUN xmlChar * XMLCALL
 		xmlStringLenDecodeEntities	(xmlParserCtxtPtr ctxt,
 						 const xmlChar *str,
-						 intptr_t len,
+						 int len,
 						 int what,
 						 xmlChar end,
 						 xmlChar  end2,
@@ -520,9 +520,9 @@ XMLPUBFUN int XMLCALL			xmlCheckLanguageID	(const xmlChar *lang);
  */
 XMLPUBFUN int XMLCALL			xmlCurrentChar		(xmlParserCtxtPtr ctxt,
 						 int *len);
-XMLPUBFUN intptr_t XMLCALL		xmlCopyCharMultiByte	(xmlChar *out,
+XMLPUBFUN int XMLCALL		xmlCopyCharMultiByte	(xmlChar *out,
 						 int val);
-XMLPUBFUN intptr_t XMLCALL			xmlCopyChar		(intptr_t len,
+XMLPUBFUN int XMLCALL			xmlCopyChar		(int len,
 						 xmlChar *out,
 						 int val);
 XMLPUBFUN void XMLCALL			xmlNextChar		(xmlParserCtxtPtr ctxt);

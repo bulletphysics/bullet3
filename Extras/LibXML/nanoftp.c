@@ -94,9 +94,6 @@
 #endif
 #define SOCKET int
 #endif
-#if defined(VMS) || defined(__VMS)
-#define XML_SOCKLEN_T unsigned int
-#endif
 
 #ifdef __BEOS__
 #ifndef PF_INET
@@ -108,10 +105,14 @@
 #define ss_family __ss_family
 #endif
 
+#ifndef XML_SOCKLEN_T
+#define XML_SOCKLEN_T unsigned int
+#endif
+
 #define FTP_COMMAND_OK		200
 #define FTP_SYNTAX_ERROR	500
 #define FTP_GET_PASSWD		331
-#define FTP_BUF_SIZE		512
+#define FTP_BUF_SIZE		1024
 
 #define XML_NANO_MAX_URLBUF	4096
 
@@ -315,7 +316,7 @@ xmlNanoFTPScanURL(void *ctx, const char *URL) {
     }
     if (URL == NULL) return;
 
-    uri = xmlParseURI(URL);
+    uri = xmlParseURIRaw(URL, 1);
     if (uri == NULL)
 	return;
 
@@ -376,7 +377,7 @@ xmlNanoFTPUpdateURL(void *ctx, const char *URL) {
     if (ctxt->hostname == NULL)
 	return(-1);
 
-    uri = xmlParseURI(URL);
+    uri = xmlParseURIRaw(URL, 1);
     if (uri == NULL)
 	return(-1);
 
@@ -439,7 +440,7 @@ xmlNanoFTPScanProxy(const char *URL) {
 #endif
     if (URL == NULL) return;
 
-    uri = xmlParseURI(URL);
+    uri = xmlParseURIRaw(URL, 1);
     if ((uri == NULL) || (uri->scheme == NULL) ||
 	(strcmp(uri->scheme, "ftp")) || (uri->server == NULL)) {
 	__xmlIOErr(XML_FROM_FTP, XML_FTP_URL_SYNTAX, "Syntax Error\n");
@@ -943,7 +944,7 @@ xmlNanoFTPConnect(void *ctx) {
 	((struct sockaddr_in *)&ctxt->ftpAddr)->sin_family = AF_INET;
 	memcpy (&((struct sockaddr_in *)&ctxt->ftpAddr)->sin_addr,
 		hp->h_addr_list[0], hp->h_length);
-	((struct sockaddr_in *)&ctxt->ftpAddr)->sin_port = htons (port);
+	((struct sockaddr_in *)&ctxt->ftpAddr)->sin_port = (u_short)htons ((unsigned short)port);
 	ctxt->controlFd = socket (AF_INET, SOCK_STREAM, 0);
 	addrlen = sizeof (struct sockaddr_in);
     }

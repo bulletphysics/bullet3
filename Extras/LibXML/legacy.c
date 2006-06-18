@@ -673,7 +673,6 @@ xmlHandleEntity(xmlParserCtxtPtr ctxt ATTRIBUTE_UNUSED,
  *
  * Creation of a Namespace, the old way using PI and without scoping
  *   DEPRECATED !!!
- * It now create a namespace on the root element of the document if found.
  * Returns NULL this functionality had been removed
  */
 xmlNsPtr

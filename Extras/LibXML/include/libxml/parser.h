@@ -60,15 +60,15 @@ struct _xmlParserInput {
     const xmlChar *base;              /* Base of the array to parse */
     const xmlChar *cur;               /* Current char being parsed */
     const xmlChar *end;               /* end of the array to parse */
-    intptr_t length;                  /* length if known */
+    int length;                       /* length if known */
     int line;                         /* Current line */
-    intptr_t col;                     /* Current column */
+    int col;                          /* Current column */
     /*
      * NOTE: consumed is only tested for equality in the parser code,
      *       so even if there is an overflow this should not give troubles
      *       for parsing very large instances.
      */
-    size_t consumed;                  /* How many xmlChars already consumed */
+    unsigned long consumed;           /* How many xmlChars already consumed */
     xmlParserInputDeallocate free;    /* function to deallocate the base */
     const xmlChar *encoding;          /* the encoding string for entity */
     const xmlChar *version;           /* the version string for entity */
@@ -89,9 +89,9 @@ typedef xmlParserNodeInfo *xmlParserNodeInfoPtr;
 struct _xmlParserNodeInfo {
   const struct _xmlNode* node;
   /* Position & line # that text that created the node begins & ends on */
-  size_t begin_pos;
+  unsigned long begin_pos;
   unsigned long begin_line;
-  size_t end_pos;
+  unsigned long end_pos;
   unsigned long end_line;
 };
 
@@ -228,8 +228,8 @@ struct _xmlParserCtxt {
     int                nameMax;       /* Max depth of the parsing stack */
     const xmlChar *   *nameTab;       /* array of nodes */
 
-    intptr_t           nbChars;       /* number of xmlChar processed */
-    intptr_t           checkIndex;    /* used by progressive parsing lookup */
+    long               nbChars;       /* number of xmlChar processed */
+    long            checkIndex;       /* used by progressive parsing lookup */
     int             keepBlanks;       /* ugly but ... */
     int             disableSAX;       /* SAX callbacks are disabled */
     int               inSubset;       /* Parsing is in int 1/ext 2 subset */
@@ -247,8 +247,8 @@ struct _xmlParserCtxt {
     xmlParserInputPtr  entity;        /* used to check entities boundaries */
     int                charset;       /* encoding of the in-memory content
 				         actually an xmlCharEncoding */
-    intptr_t           nodelen;       /* Those two fields are there to */
-    intptr_t           nodemem;       /* Speed up large node parsing */
+    int                nodelen;       /* Those two fields are there to */
+    int                nodemem;       /* Speed up large node parsing */
     int                pedantic;      /* signal pedantic warnings */
     void              *_private;      /* For user data, libxml won't touch it */
 
@@ -259,7 +259,7 @@ struct _xmlParserCtxt {
     int                progressive;   /* is this a progressive parsing */
     xmlDictPtr         dict;          /* dictionnary for the parser */
     const xmlChar *   *atts;          /* array for the attributes callbacks */
-    intptr_t           maxatts;       /* the size of the array */
+    int                maxatts;       /* the size of the array */
     int                docdict;       /* use strings from dict to build tree */
 
     /*
@@ -276,7 +276,7 @@ struct _xmlParserCtxt {
     int                nsNr;          /* the number of inherited namespaces */
     int                nsMax;         /* the size of the arrays */
     const xmlChar *   *nsTab;         /* the array of prefix/namespace name */
-    intptr_t          *attallocs;     /* which attribute were allocated */
+    int               *attallocs;     /* which attribute were allocated */
     void *            *pushTab;       /* array of data for push */
     xmlHashTablePtr    attsDefault;   /* defaulted attributes if any */
     xmlHashTablePtr    attsSpecial;   /* non-CDATA attributes if any */
@@ -307,8 +307,8 @@ struct _xmlParserCtxt {
 struct _xmlSAXLocator {
     const xmlChar *(*getPublicId)(void *ctx);
     const xmlChar *(*getSystemId)(void *ctx);
-    intptr_t (*getLineNumber)(void *ctx);
-    intptr_t (*getColumnNumber)(void *ctx);
+    int (*getLineNumber)(void *ctx);
+    int (*getColumnNumber)(void *ctx);
 };
 
 /**
@@ -538,7 +538,7 @@ typedef void (*referenceSAXFunc) (void *ctx,
  */
 typedef void (*charactersSAXFunc) (void *ctx,
 				const xmlChar *ch,
-				intptr_t len);
+				int len);
 /**
  * ignorableWhitespaceSAXFunc:
  * @ctx:  the user data (XML parser context)
@@ -550,7 +550,7 @@ typedef void (*charactersSAXFunc) (void *ctx,
  */
 typedef void (*ignorableWhitespaceSAXFunc) (void *ctx,
 				const xmlChar *ch,
-				intptr_t len);
+				int len);
 /**
  * processingInstructionSAXFunc:
  * @ctx:  the user data (XML parser context)
@@ -580,9 +580,9 @@ typedef void (*commentSAXFunc) (void *ctx,
  * Called when a pcdata block has been parsed.
  */
 typedef void (*cdataBlockSAXFunc) (
-	            void *ctx,
+	                        void *ctx,
 				const xmlChar *value,
-				intptr_t len);
+				int len);
 /**
  * warningSAXFunc:
  * @ctx:  an XML parser context
@@ -591,7 +591,7 @@ typedef void (*cdataBlockSAXFunc) (
  * 
  * Display and format a warning messages, callback.
  */
-typedef void (*warningSAXFunc) (void *ctx,
+typedef void (XMLCDECL *warningSAXFunc) (void *ctx,
 				const char *msg, ...);
 /**
  * errorSAXFunc:
@@ -601,7 +601,7 @@ typedef void (*warningSAXFunc) (void *ctx,
  * 
  * Display and format an error messages, callback.
  */
-typedef void (*errorSAXFunc) (void *ctx,
+typedef void (XMLCDECL *errorSAXFunc) (void *ctx,
 				const char *msg, ...);
 /**
  * fatalErrorSAXFunc:
@@ -613,7 +613,7 @@ typedef void (*errorSAXFunc) (void *ctx,
  * Note: so far fatalError() SAX callbacks are not used, error()
  *       get all the callbacks for errors.
  */
-typedef void (*fatalErrorSAXFunc) (void *ctx,
+typedef void (XMLCDECL *fatalErrorSAXFunc) (void *ctx,
 				const char *msg, ...);
 /**
  * isStandaloneSAXFunc:
@@ -681,8 +681,8 @@ typedef void (*startElementNsSAX2Func) (void *ctx,
 					const xmlChar *URI,
 					int nb_namespaces,
 					const xmlChar **namespaces,
-					intptr_t nb_attributes,
-					intptr_t nb_defaulted,
+					int nb_attributes,
+					int nb_defaulted,
 					const xmlChar **attributes);
  
 /**
@@ -813,12 +813,12 @@ XMLPUBFUN void XMLCALL
 /*
  * Input functions
  */
-XMLPUBFUN intptr_t XMLCALL		
+XMLPUBFUN int XMLCALL		
 		xmlParserInputRead	(xmlParserInputPtr in,
-					 intptr_t len);
-XMLPUBFUN intptr_t XMLCALL		
+					 int len);
+XMLPUBFUN int XMLCALL		
 		xmlParserInputGrow	(xmlParserInputPtr in,
-					 intptr_t len);
+					 int len);
 
 /*
  * Basic parsing Interfaces
@@ -830,16 +830,14 @@ XMLPUBFUN xmlDocPtr XMLCALL
 		xmlParseFile		(const char *filename);
 XMLPUBFUN xmlDocPtr XMLCALL	
 		xmlParseMemory		(const char *buffer,
-					 intptr_t size);
+					 int size);
 #endif /* LIBXML_SAX1_ENABLED */
 XMLPUBFUN int XMLCALL		
 		xmlSubstituteEntitiesDefault(int val);
 XMLPUBFUN int XMLCALL		
 		xmlKeepBlanksDefault	(int val);
-#ifdef LIBXML_PUSH_ENABLED
 XMLPUBFUN void XMLCALL		
 		xmlStopParser		(xmlParserCtxtPtr ctxt);
-#endif /* LIBXML_PUSH_ENABLED */
 XMLPUBFUN int XMLCALL		
 		xmlPedanticParserDefault(int val);
 XMLPUBFUN int XMLCALL		
@@ -882,12 +880,12 @@ XMLPUBFUN xmlDocPtr XMLCALL
 XMLPUBFUN xmlDocPtr XMLCALL	
 		xmlSAXParseMemory	(xmlSAXHandlerPtr sax,
 					 const char *buffer,
-                     intptr_t size,
+                                   	 int size,
 					 int recovery);
 XMLPUBFUN xmlDocPtr XMLCALL	
 		xmlSAXParseMemoryWithData (xmlSAXHandlerPtr sax,
 					 const char *buffer,
-                     intptr_t size,
+                                   	 int size,
 					 int recovery,
 					 void *data);
 XMLPUBFUN xmlDocPtr XMLCALL	
@@ -1003,12 +1001,12 @@ XMLPUBFUN xmlParserCtxtPtr XMLCALL
 		xmlCreatePushParserCtxt(xmlSAXHandlerPtr sax,
 					 void *user_data,
 					 const char *chunk,
-					 intptr_t size,
+					 int size,
 					 const char *filename);
 XMLPUBFUN int XMLCALL		 
 		xmlParseChunk		(xmlParserCtxtPtr ctxt,
 					 const char *chunk,
-					 intptr_t size,
+					 int size,
 					 int terminate);
 #endif /* LIBXML_PUSH_ENABLED */
 
@@ -1062,7 +1060,7 @@ XMLPUBFUN xmlParserInputPtr XMLCALL
 /*
  * Index lookup, actually implemented in the encoding module
  */
-XMLPUBFUN intptr_t XMLCALL
+XMLPUBFUN long XMLCALL
 		xmlByteConsumed		(xmlParserCtxtPtr ctxt);
 
 /*
@@ -1090,7 +1088,8 @@ typedef enum {
     XML_PARSE_NODICT	= 1<<12,/* Do not reuse the context dictionnary */
     XML_PARSE_NSCLEAN	= 1<<13,/* remove redundant namespaces declarations */
     XML_PARSE_NOCDATA	= 1<<14,/* merge CDATA as text nodes */
-    XML_PARSE_NOXINCNODE= 1<<15 /* do not generate XINCLUDE START/END nodes */
+    XML_PARSE_NOXINCNODE= 1<<15,/* do not generate XINCLUDE START/END nodes */
+    XML_PARSE_COMPACT   = 1<<16 /* compact small text nodes */
 } xmlParserOption;
 
 XMLPUBFUN void XMLCALL
@@ -1163,6 +1162,53 @@ XMLPUBFUN xmlDocPtr XMLCALL
 					 const char *URL,
 					 const char *encoding,
 					 int options);
+
+/*
+ * Library wide options
+ */
+/**
+ * xmlFeature:
+ *
+ * Used to examine the existance of features that can be enabled
+ * or disabled at compile-time.
+ * They used to be called XML_FEATURE_xxx but this clashed with Expat
+ */
+typedef enum {
+    XML_WITH_THREAD = 1,
+    XML_WITH_TREE = 2,
+    XML_WITH_OUTPUT = 3,
+    XML_WITH_PUSH = 4,
+    XML_WITH_READER = 5,
+    XML_WITH_PATTERN = 6,
+    XML_WITH_WRITER = 7,
+    XML_WITH_SAX1 = 8,
+    XML_WITH_FTP = 9,
+    XML_WITH_HTTP = 10,
+    XML_WITH_VALID = 11,
+    XML_WITH_HTML = 12,
+    XML_WITH_LEGACY = 13,
+    XML_WITH_C14N = 14,
+    XML_WITH_CATALOG = 15,
+    XML_WITH_XPATH = 16,
+    XML_WITH_XPTR = 17,
+    XML_WITH_XINCLUDE = 18,
+    XML_WITH_ICONV = 19,
+    XML_WITH_ISO8859X = 20,
+    XML_WITH_UNICODE = 21,
+    XML_WITH_REGEXP = 22,
+    XML_WITH_AUTOMATA = 23,
+    XML_WITH_EXPR = 24,
+    XML_WITH_SCHEMAS = 25,
+    XML_WITH_SCHEMATRON = 26,
+    XML_WITH_MODULES = 27,
+    XML_WITH_DEBUG = 28,
+    XML_WITH_DEBUG_MEM = 29,
+    XML_WITH_DEBUG_RUN = 30,
+    XML_WITH_NONE = 99999 /* just to be sure of allocation size */
+} xmlFeature;
+
+XMLPUBFUN int XMLCALL
+		xmlHasFeature		(xmlFeature feature);
 
 #ifdef __cplusplus
 }

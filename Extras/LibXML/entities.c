@@ -518,7 +518,7 @@ xmlEncodeEntitiesReentrant(xmlDocPtr doc, const xmlChar *input) {
 
     while (*cur != '\0') {
         if (out - buffer > buffer_size - 100) {
-	    intptr_t indx = out - buffer;
+	    int indx = out - buffer;
 
 	    growBufferReentrant();
 	    out = &buffer[indx];
@@ -560,7 +560,7 @@ xmlEncodeEntitiesReentrant(xmlDocPtr doc, const xmlChar *input) {
 		    *out++ = xc;
 	        } else
 		 */
-		    *out++ = *cur;
+		*out++ = *cur;
 	    } else {
 		/*
 		 * We assume we have UTF-8 input.
@@ -616,10 +616,7 @@ xmlEncodeEntitiesReentrant(xmlDocPtr doc, const xmlChar *input) {
 		/*
 		 * We could do multiple things here. Just save as a char ref
 		 */
-		if (html)
-		    snprintf(buf, sizeof(buf), "&#%d;", val);
-		else
-		    snprintf(buf, sizeof(buf), "&#x%X;", val);
+		snprintf(buf, sizeof(buf), "&#x%X;", val);
 		buf[sizeof(buf) - 1] = 0;
 		ptr = buf;
 		while (*ptr != 0) *out++ = *ptr++;
@@ -671,7 +668,7 @@ xmlEncodeSpecialChars(xmlDocPtr doc ATTRIBUTE_UNUSED, const xmlChar *input) {
 
     while (*cur != '\0') {
         if (out - buffer > buffer_size - 10) {
-	    intptr_t indx = out - buffer;
+	    int indx = out - buffer;
 
 	    growBufferReentrant();
 	    out = &buffer[indx];

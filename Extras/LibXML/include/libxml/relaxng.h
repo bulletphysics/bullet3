@@ -27,8 +27,8 @@ typedef xmlRelaxNG *xmlRelaxNGPtr;
 /**
  * A schemas validation context
  */
-typedef void (*xmlRelaxNGValidityErrorFunc) (void *ctx, const char *msg, ...);
-typedef void (*xmlRelaxNGValidityWarningFunc) (void *ctx, const char *msg, ...);
+typedef void (XMLCDECL *xmlRelaxNGValidityErrorFunc) (void *ctx, const char *msg, ...);
+typedef void (XMLCDECL *xmlRelaxNGValidityWarningFunc) (void *ctx, const char *msg, ...);
 
 typedef struct _xmlRelaxNGParserCtxt xmlRelaxNGParserCtxt;
 typedef xmlRelaxNGParserCtxt *xmlRelaxNGParserCtxtPtr;
@@ -127,6 +127,11 @@ XMLPUBFUN int XMLCALL
 					 xmlRelaxNGValidityErrorFunc *err,
 					 xmlRelaxNGValidityWarningFunc *warn,
 					 void **ctx);
+XMLPUBFUN void XMLCALL
+		    xmlRelaxNGSetParserStructuredErrors(
+					 xmlRelaxNGParserCtxtPtr ctxt,
+					 xmlStructuredErrorFunc serror,
+					 void *ctx);
 XMLPUBFUN xmlRelaxNGPtr XMLCALL	
 		    xmlRelaxNGParse		(xmlRelaxNGParserCtxtPtr ctxt);
 XMLPUBFUN void XMLCALL		
@@ -152,6 +157,9 @@ XMLPUBFUN int XMLCALL
 					 xmlRelaxNGValidityErrorFunc *err,
 					 xmlRelaxNGValidityWarningFunc *warn,
 					 void **ctx);
+XMLPUBFUN void XMLCALL
+			xmlRelaxNGSetValidStructuredErrors(xmlRelaxNGValidCtxtPtr ctxt,
+					  xmlStructuredErrorFunc serror, void *ctx);
 XMLPUBFUN xmlRelaxNGValidCtxtPtr XMLCALL	
 		    xmlRelaxNGNewValidCtxt	(xmlRelaxNGPtr schema);
 XMLPUBFUN void XMLCALL			

@@ -237,7 +237,7 @@ xmlXIncludeNewRef(xmlXIncludeCtxtPtr ctxt, const xmlChar *URI,
 	ret->URI = xmlStrdup(URI);
     ret->fragment = NULL;
     ret->ref = ref;
-    ret->doc = 0;
+    ret->doc = NULL;
     ret->count = 0;
     ret->xml = 0;
     ret->inc = NULL;
@@ -360,7 +360,7 @@ xmlXIncludeURLPop(xmlXIncludeCtxtPtr ctxt)
     else
         ctxt->url = NULL;
     ret = ctxt->urlTab[ctxt->urlNr];
-    ctxt->urlTab[ctxt->urlNr] = 0;
+    ctxt->urlTab[ctxt->urlNr] = NULL;
     if (ret != NULL)
 	xmlFree(ret);
 }
@@ -388,9 +388,11 @@ xmlXIncludeFreeContext(xmlXIncludeCtxtPtr ctxt) {
 	if (ctxt->incTab[i] != NULL)
 	    xmlXIncludeFreeRef(ctxt->incTab[i]);
     }
-    for (i = 0;i < ctxt->txtNr;i++) {
-	if (ctxt->txturlTab[i] != NULL)
-	    xmlFree(ctxt->txturlTab[i]);
+    if (ctxt->txturlTab != NULL) {
+	for (i = 0;i < ctxt->txtNr;i++) {
+	    if (ctxt->txturlTab[i] != NULL)
+		xmlFree(ctxt->txturlTab[i]);
+	}
     }
     if (ctxt->incTab != NULL)
 	xmlFree(ctxt->incTab);
@@ -609,7 +611,7 @@ xmlXIncludeAddNode(xmlXIncludeCtxtPtr ctxt, xmlNodePtr cur) {
     /*
      * Check the URL against the stack for recursions
      */
-    if (!local) {
+    if ((!local) && (xml == 1)) {
 	for (i = 0;i < ctxt->urlNr;i++) {
 	    if (xmlStrEqual(URL, ctxt->urlTab[i])) {
 		xmlXIncludeErr(ctxt, cur, XML_XINCLUDE_RECURSION,
@@ -1401,9 +1403,14 @@ xmlXIncludeLoadDoc(xmlXIncludeCtxtPtr ctxt, const xmlChar *url, int nr) {
     URL = xmlSaveUri(uri);
     xmlFreeURI(uri);
     if (URL == NULL) {
-	xmlXIncludeErr(ctxt, ctxt->incTab[nr]->ref, 
-	               XML_XINCLUDE_HREF_URI,
-		       "invalid value URI %s\n", url);
+        if (ctxt->incTab != NULL)
+	    xmlXIncludeErr(ctxt, ctxt->incTab[nr]->ref, 
+			   XML_XINCLUDE_HREF_URI,
+			   "invalid value URI %s\n", url);
+	else
+	    xmlXIncludeErr(ctxt, NULL,
+			   XML_XINCLUDE_HREF_URI,
+			   "invalid value URI %s\n", url);
 	if (fragment != NULL)
 	    xmlFree(fragment);
 	return(-1);
@@ -1663,32 +1670,81 @@ loaded:
      */
     if ((doc != NULL) && (URL != NULL) && (xmlStrchr(URL, (xmlChar) '/'))) {
 	xmlNodePtr node;
-	xmlChar *relURI;
+	xmlChar *base;
 	xmlChar *curBase;
 
 	/*
-	 * The base is only adjusted if necessary for the existing base
+	 * The base is only adjusted if "necessary", i.e. if the xinclude node
+	 * has a base specified, or the URL is relative
 	 */
-	relURI = xmlBuildRelativeURI(URL, ctxt->base);
-	if (relURI == NULL) {	/* Error return */
-	    xmlXIncludeErr(ctxt, ctxt->incTab[nr]->ref, 
+	base = xmlGetNsProp(ctxt->incTab[nr]->ref, BAD_CAST "base",
+			XML_XML_NAMESPACE);
+	if (base == NULL) {
+	    /*
+	     * No xml:base on the xinclude node, so we check whether the
+	     * URI base is different than (relative to) the context base
+	     */
+	    curBase = xmlBuildRelativeURI(URL, ctxt->base);
+	    if (curBase == NULL) {	/* Error return */
+	        xmlXIncludeErr(ctxt, ctxt->incTab[nr]->ref, 
 	               XML_XINCLUDE_HREF_URI,
 		       "trying to build relative URI from %s\n", URL);
-	} else {
-	    if (xmlStrchr(relURI, (xmlChar) '/')) {
-		node = ctxt->incTab[nr]->inc;
-		while (node != NULL) {
-	            if (node->type == XML_ELEMENT_NODE) {
-			curBase = xmlNodeGetBase(node->doc, node);
-			if ((curBase == NULL) || xmlStrEqual(curBase, node->doc->URL))
-			    xmlNodeSetBase(node, relURI);
-			if (curBase != NULL)
-			    xmlFree(curBase);
-		    }
-	            node = node->next;
-		}
+	    } else {
+		/* If the URI doesn't contain a slash, it's not relative */
+	        if (!xmlStrchr(curBase, (xmlChar) '/'))
+		    xmlFree(curBase);
+		else
+		    base = curBase;
 	    }
-	    xmlFree(relURI);
+	}
+	if (base != NULL) {	/* Adjustment may be needed */
+	    node = ctxt->incTab[nr]->inc;
+	    while (node != NULL) {
+		/* Only work on element nodes */
+		if (node->type == XML_ELEMENT_NODE) {
+		    curBase = xmlNodeGetBase(node->doc, node);
+		    /* If no current base, set it */
+		    if (curBase == NULL) {
+			xmlNodeSetBase(node, base);
+		    } else {
+			/*
+			 * If the current base is the same as the
+			 * URL of the document, then reset it to be
+			 * the specified xml:base or the relative URI
+			 */
+			if (xmlStrEqual(curBase, node->doc->URL)) {
+			    xmlNodeSetBase(node, base);
+			} else {
+			    /*
+			     * If the element already has an xml:base
+			     * set, then relativise it if necessary
+			     */
+			    xmlChar *xmlBase;
+			    xmlBase = xmlGetNsProp(node,
+					    BAD_CAST "base",
+					    XML_XML_NAMESPACE);
+			    if (xmlBase != NULL) {
+				xmlChar *relBase;
+				relBase = xmlBuildURI(xmlBase, base);
+				if (relBase == NULL) { /* error */
+				    xmlXIncludeErr(ctxt, 
+						ctxt->incTab[nr]->ref,
+						XML_XINCLUDE_HREF_URI,
+					"trying to rebuild base from %s\n",
+						xmlBase);
+				} else {
+				    xmlNodeSetBase(node, relBase);
+				    xmlFree(relBase);
+				}
+				xmlFree(xmlBase);
+			    }
+			}
+			xmlFree(curBase);
+		    }
+		}
+	        node = node->next;
+	    }
+	    xmlFree(base);
 	}
     }
     if ((nr < ctxt->incNr) && (ctxt->incTab[nr]->doc != NULL) &&
@@ -1719,7 +1775,7 @@ xmlXIncludeLoadTxt(xmlXIncludeCtxtPtr ctxt, const xmlChar *url, int nr) {
     xmlNodePtr node;
     xmlURIPtr uri;
     xmlChar *URL;
-    size_t i;
+    int i;
     xmlChar *encoding = NULL;
     xmlCharEncoding enc = (xmlCharEncoding) 0;
 
@@ -1807,7 +1863,7 @@ xmlXIncludeLoadTxt(xmlXIncludeCtxtPtr ctxt, const xmlChar *url, int nr) {
      * Scan all chars from the resource and add the to the node
      */
     while (xmlParserInputBufferRead(buf, 128) > 0) {
-	size_t len;
+	int len;
 	const xmlChar *content;
 
 	content = xmlBufferContent(buf->buffer);
@@ -1903,7 +1959,7 @@ xmlXIncludeLoadFallback(xmlXIncludeCtxtPtr ctxt, xmlNodePtr fallback, int nr) {
 static xmlNodePtr
 xmlXIncludePreProcessNode(xmlXIncludeCtxtPtr ctxt, xmlNodePtr node) {
     xmlXIncludeAddNode(ctxt, node);
-    return(0);
+    return(NULL);
 }
 
 /**
@@ -2254,7 +2310,7 @@ static int
 xmlXIncludeDoProcess(xmlXIncludeCtxtPtr ctxt, xmlDocPtr doc, xmlNodePtr tree) {
     xmlNodePtr cur;
     int ret = 0;
-    int i;
+    int i, start;
 
     if ((doc == NULL) || (tree == NULL))
 	return(-1);
@@ -2266,6 +2322,7 @@ xmlXIncludeDoProcess(xmlXIncludeCtxtPtr ctxt, xmlDocPtr doc, xmlNodePtr tree) {
 	if (ret < 0)
 	    return(-1);
     }
+    start = ctxt->incNr;
 
     /*
      * First phase: lookup the elements in the document
@@ -2306,7 +2363,7 @@ xmlXIncludeDoProcess(xmlXIncludeCtxtPtr ctxt, xmlDocPtr doc, xmlNodePtr tree) {
     /*
      * Second Phase : collect the infosets fragments
      */
-    for (i = ctxt->incBase;i < ctxt->incNr; i++) {
+    for (i = start;i < ctxt->incNr; i++) {
         xmlXIncludeLoadNode(ctxt, i);
 	ret++;
     }

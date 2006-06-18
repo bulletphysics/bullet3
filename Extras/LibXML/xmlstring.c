@@ -38,7 +38,7 @@
  * Returns a new xmlChar * or NULL
  */
 xmlChar *
-xmlStrndup(const xmlChar *cur, intptr_t len) {
+xmlStrndup(const xmlChar *cur, int len) {
     xmlChar *ret;
     
     if ((cur == NULL) || (len < 0)) return(NULL);
@@ -82,8 +82,8 @@ xmlStrdup(const xmlChar *cur) {
  */
 
 xmlChar *
-xmlCharStrndup(const char *cur, intptr_t len) {
-    intptr_t i;
+xmlCharStrndup(const char *cur, int len) {
+    int i;
     xmlChar *ret;
     
     if ((cur == NULL) || (len < 0)) return(NULL);
@@ -128,9 +128,9 @@ xmlCharStrdup(const char *cur) {
  * Returns the integer result of the comparison
  */
 
-intptr_t
+int
 xmlStrcmp(const xmlChar *str1, const xmlChar *str2) {
-    register intptr_t tmp;
+    register int tmp;
 
     if (str1 == str2) return(0);
     if (str1 == NULL) return(-1);
@@ -147,13 +147,13 @@ xmlStrcmp(const xmlChar *str1, const xmlChar *str2) {
  * @str1:  the first xmlChar *
  * @str2:  the second xmlChar *
  *
- * Check if both string are equal of have same content
- * Should be a bit more readable and faster than xmlStrEqual()
+ * Check if both strings are equal of have same content.
+ * Should be a bit more readable and faster than xmlStrcmp()
  *
  * Returns 1 if they are equal, 0 if they are different
  */
 
-intptr_t
+int
 xmlStrEqual(const xmlChar *str1, const xmlChar *str2) {
     if (str1 == str2) return(1);
     if (str1 == NULL) return(0);
@@ -175,7 +175,7 @@ xmlStrEqual(const xmlChar *str1, const xmlChar *str2) {
  * Returns 1 if they are equal, 0 if they are different
  */
 
-intptr_t
+int
 xmlStrQEqual(const xmlChar *pref, const xmlChar *name, const xmlChar *str) {
     if (pref == NULL) return(xmlStrEqual(name, str));
     if (name == NULL) return(0);
@@ -202,9 +202,9 @@ xmlStrQEqual(const xmlChar *pref, const xmlChar *name, const xmlChar *str) {
  * Returns the integer result of the comparison
  */
 
-intptr_t
-xmlStrncmp(const xmlChar *str1, const xmlChar *str2, intptr_t len) {
-    register intptr_t tmp;
+int
+xmlStrncmp(const xmlChar *str1, const xmlChar *str2, int len) {
+    register int tmp;
 
     if (len <= 0) return(0);
     if (str1 == str2) return(0);
@@ -267,9 +267,9 @@ static const xmlChar casemap[256] = {
  * Returns the integer result of the comparison
  */
 
-intptr_t
+int
 xmlStrcasecmp(const xmlChar *str1, const xmlChar *str2) {
-    register intptr_t tmp;
+    register int tmp;
 
     if (str1 == str2) return(0);
     if (str1 == NULL) return(-1);
@@ -292,9 +292,9 @@ xmlStrcasecmp(const xmlChar *str1, const xmlChar *str2) {
  * Returns the integer result of the comparison
  */
 
-intptr_t
-xmlStrncasecmp(const xmlChar *str1, const xmlChar *str2, intptr_t len) {
-    register intptr_t tmp;
+int
+xmlStrncasecmp(const xmlChar *str1, const xmlChar *str2, int len) {
+    register int tmp;
 
     if (len <= 0) return(0);
     if (str1 == str2) return(0);
@@ -339,7 +339,7 @@ xmlStrchr(const xmlChar *str, xmlChar val) {
 
 const xmlChar *
 xmlStrstr(const xmlChar *str, const xmlChar *val) {
-    intptr_t n;
+    int n;
     
     if (str == NULL) return(NULL);
     if (val == NULL) return(NULL);
@@ -367,7 +367,7 @@ xmlStrstr(const xmlChar *str, const xmlChar *val) {
 
 const xmlChar *
 xmlStrcasestr(const xmlChar *str, xmlChar *val) {
-    intptr_t n;
+    int n;
     
     if (str == NULL) return(NULL);
     if (val == NULL) return(NULL);
@@ -394,8 +394,8 @@ xmlStrcasestr(const xmlChar *str, xmlChar *val) {
  */
 
 xmlChar *
-xmlStrsub(const xmlChar *str, intptr_t start, intptr_t len) {
-    intptr_t i;
+xmlStrsub(const xmlChar *str, int start, int len) {
+    int i;
     
     if (str == NULL) return(NULL);
     if (start < 0) return(NULL);
@@ -418,9 +418,9 @@ xmlStrsub(const xmlChar *str, intptr_t start, intptr_t len) {
  * Returns the number of xmlChar contained in the ARRAY.
  */
 
-intptr_t
+int
 xmlStrlen(const xmlChar *str) {
-    intptr_t len = 0;
+    int len = 0;
 
     if (str == NULL) return(0);
     while (*str != 0) { /* non input consuming */
@@ -437,19 +437,22 @@ xmlStrlen(const xmlChar *str) {
  * @len:  the length of @add
  *
  * a strncat for array of xmlChar's, it will extend @cur with the len
- * first bytes of @add.
+ * first bytes of @add. Note that if @len < 0 then this is an API error
+ * and NULL will be returned.
  *
  * Returns a new xmlChar *, the original @cur is reallocated if needed
  * and should not be freed
  */
 
 xmlChar *
-xmlStrncat(xmlChar *cur, const xmlChar *add, intptr_t len) {
-    intptr_t size;
+xmlStrncat(xmlChar *cur, const xmlChar *add, int len) {
+    int size;
     xmlChar *ret;
 
     if ((add == NULL) || (len == 0))
         return(cur);
+    if (len < 0)
+	return(NULL);
     if (cur == NULL)
         return(xmlStrndup(add, len));
 
@@ -468,16 +471,17 @@ xmlStrncat(xmlChar *cur, const xmlChar *add, intptr_t len) {
  * xmlStrncatNew:
  * @str1:  first xmlChar string
  * @str2:  second xmlChar string
- * @len:  the len of @str2
+ * @len:  the len of @str2 or < 0
  *
  * same as xmlStrncat, but creates a new string.  The original
- * two strings are not freed.
+ * two strings are not freed. If @len is < 0 then the length
+ * will be calculated automatically.
  *
  * Returns a new xmlChar * or NULL
  */
 xmlChar *
-xmlStrncatNew(const xmlChar *str1, const xmlChar *str2, intptr_t len) {
-    intptr_t size;
+xmlStrncatNew(const xmlChar *str1, const xmlChar *str2, int len) {
+    int size;
     xmlChar *ret;
 
     if (len < 0)
@@ -533,10 +537,10 @@ xmlStrcat(xmlChar *cur, const xmlChar *add) {
  *
  * Returns the number of characters written to @buf or -1 if an error occurs.
  */
-intptr_t 
-xmlStrPrintf(xmlChar *buf, intptr_t len, const xmlChar *msg, ...) {
+int XMLCDECL 
+xmlStrPrintf(xmlChar *buf, int len, const xmlChar *msg, ...) {
     va_list args;
-    intptr_t ret;
+    int ret;
     
     if((buf == NULL) || (msg == NULL)) {
         return(-1);
@@ -561,9 +565,9 @@ xmlStrPrintf(xmlChar *buf, intptr_t len, const xmlChar *msg, ...) {
  *
  * Returns the number of characters written to @buf or -1 if an error occurs.
  */
-intptr_t 
-xmlStrVPrintf(xmlChar *buf, intptr_t len, const xmlChar *msg, va_list ap) {
-    intptr_t ret;
+int 
+xmlStrVPrintf(xmlChar *buf, int len, const xmlChar *msg, va_list ap) {
+    int ret;
     
     if((buf == NULL) || (msg == NULL)) {
         return(-1);
@@ -599,10 +603,10 @@ xmlStrVPrintf(xmlChar *buf, intptr_t len, const xmlChar *msg, va_list ap) {
  *
  * returns the numbers of bytes in the character, -1 on format error
  */
-intptr_t
+int
 xmlUTF8Size(const xmlChar *utf) {
     xmlChar mask;
-    intptr_t len;
+    int len;
 
     if (utf == NULL)
         return -1;
@@ -630,7 +634,7 @@ xmlUTF8Size(const xmlChar *utf) {
  *
  * returns result of the compare as with xmlStrncmp
  */
-intptr_t
+int
 xmlUTF8Charcmp(const xmlChar *utf1, const xmlChar *utf2) {
 
     if (utf1 == NULL ) {
@@ -650,9 +654,9 @@ xmlUTF8Charcmp(const xmlChar *utf1, const xmlChar *utf2) {
  *
  * Returns the number of characters in the string or -1 in case of error
  */
-intptr_t
+int
 xmlUTF8Strlen(const xmlChar *utf) {
-    intptr_t ret = 0;
+    int ret = 0;
 
     if (utf == NULL)
         return(-1);
@@ -694,11 +698,16 @@ xmlUTF8Strlen(const xmlChar *utf) {
  * Returns the char value or -1 in case of error, and sets *len to
  *        the actual number of bytes consumed (0 in case of error)
  */
-intptr_t
-xmlGetUTF8Char(const unsigned char* utf, intptr_t* len) {
-    size_t c;
+int
+xmlGetUTF8Char(const unsigned char *utf, int *len) {
+    unsigned int c;
 
-    if (utf == NULL || len == NULL || *len < 1) goto error;
+    if (utf == NULL)
+        goto error;
+    if (len == NULL)
+        goto error;
+    if (*len < 1)
+        goto error;
 
     c = utf[0];
     if (c & 0x80) {
@@ -760,10 +769,10 @@ error:
  *
  * Return value: true if @utf is valid.
  **/
-intptr_t
+int
 xmlCheckUTF8(const unsigned char *utf)
 {
-    intptr_t ix;
+    int ix;
     unsigned char c;
 
     if (utf == NULL)
@@ -812,8 +821,8 @@ xmlCheckUTF8(const unsigned char *utf)
  * the first 'len' characters of ARRAY
  */
 
-intptr_t
-xmlUTF8Strsize(const xmlChar *utf, intptr_t len) {
+int
+xmlUTF8Strsize(const xmlChar *utf, int len) {
     const xmlChar   *ptr=utf;
     xmlChar         ch;
 
@@ -846,9 +855,9 @@ xmlUTF8Strsize(const xmlChar *utf, intptr_t len) {
  * Returns a new UTF8 * or NULL
  */
 xmlChar *
-xmlUTF8Strndup(const xmlChar *utf, intptr_t len) {
+xmlUTF8Strndup(const xmlChar *utf, int len) {
     xmlChar *ret;
-    intptr_t i;
+    int i;
     
     if ((utf == NULL) || (len < 0)) return(NULL);
     i = xmlUTF8Strsize(utf, len);
@@ -875,7 +884,7 @@ xmlUTF8Strndup(const xmlChar *utf, intptr_t len) {
  * Returns a pointer to the UTF8 character or NULL
  */
 const xmlChar *
-xmlUTF8Strpos(const xmlChar *utf, intptr_t pos) {
+xmlUTF8Strpos(const xmlChar *utf, int pos) {
     xmlChar ch;
 
     if (utf == NULL) return(NULL);
@@ -906,9 +915,9 @@ xmlUTF8Strpos(const xmlChar *utf, intptr_t pos) {
  * Returns the relative character position of the desired char
  * or -1 if not found
  */
-intptr_t
+int
 xmlUTF8Strloc(const xmlChar *utf, const xmlChar *utfchar) {
-    intptr_t i, size;
+    int i, size;
     xmlChar ch;
 
     if (utf==NULL || utfchar==NULL) return -1;
@@ -944,8 +953,8 @@ xmlUTF8Strloc(const xmlChar *utf, const xmlChar *utfchar) {
  */
 
 xmlChar *
-xmlUTF8Strsub(const xmlChar *utf, intptr_t start, intptr_t len) {
-    intptr_t            i;
+xmlUTF8Strsub(const xmlChar *utf, int start, int len) {
+    int            i;
     xmlChar ch;
 
     if (utf == NULL) return(NULL);

@@ -60,7 +60,8 @@ typedef enum {
     XML_FROM_VALID,	/* The XML DTD validation with valid context */
     XML_FROM_CHECK,	/* The error checking module */
     XML_FROM_WRITER,	/* The xmlwriter module */
-    XML_FROM_MODULE	/* The dynamically loaded module module*/
+    XML_FROM_MODULE,	/* The dynamically loaded module module*/
+    XML_FROM_I18N 	/* The module handling character conversion */
 } xmlErrorDomain;
 
 /**
@@ -82,7 +83,7 @@ struct _xmlError {
     char       *str2;	/* extra string information */
     char       *str3;	/* extra string information */
     int		int1;	/* extra number information */
-    intptr_t	int2;	/* column number of the error or 0 if N/A (todo: rename this field when we would break ABI) */
+    int		int2;	/* column number of the error or 0 if N/A (todo: rename this field when we would break ABI) */
     void       *ctxt;   /* the parser context if available */
     void       *node;   /* the node in the tree */
 };
@@ -195,10 +196,17 @@ typedef enum {
     XML_WAR_NS_URI, /* 99 */
     XML_WAR_NS_URI_RELATIVE, /* 100 */
     XML_ERR_MISSING_ENCODING, /* 101 */
+    XML_WAR_SPACE_VALUE, /* 102 */
+    XML_ERR_NOT_STANDALONE, /* 103 */
+    XML_ERR_ENTITY_PROCESSING, /* 104 */
+    XML_ERR_NOTATION_PROCESSING, /* 105 */
+    XML_WAR_NS_COLUMN, /* 106 */
+    XML_WAR_ENTITY_REDEFINED, /* 107 */
     XML_NS_ERR_XML_NAMESPACE = 200,
     XML_NS_ERR_UNDEFINED_NAMESPACE, /* 201 */
     XML_NS_ERR_QNAME, /* 202 */
     XML_NS_ERR_ATTRIBUTE_REDEFINED, /* 203 */
+    XML_NS_ERR_EMPTY, /* 204 */
     XML_DTD_ATTRIBUTE_DEFAULT = 500,
     XML_DTD_ATTRIBUTE_REDEFINED, /* 501 */
     XML_DTD_ATTRIBUTE_VALUE, /* 502 */
@@ -655,6 +663,7 @@ typedef enum {
     XML_SCHEMAV_CVC_TYPE_2, /* 1876 */
     XML_SCHEMAV_CVC_IDC, /* 1877 */
     XML_SCHEMAV_CVC_WILDCARD, /* 1878 */
+    XML_SCHEMAV_MISC, /* 1879 */
     XML_XPTR_UNKNOWN_SCHEME = 1900, 
     XML_XPTR_CHILDSEQ_START, /* 1901 */
     XML_XPTR_EVAL_FAILED, /* 1902 */
@@ -752,6 +761,18 @@ typedef enum {
     XML_SCHEMAP_DERIVATION_OK_RESTRICTION_2_1_3, /* 3077 */
     XML_SCHEMAP_AU_PROPS_CORRECT_2, /* 3078 */
     XML_SCHEMAP_A_PROPS_CORRECT_2, /* 3079 */
+    XML_SCHEMAP_C_PROPS_CORRECT, /* 3080 */
+    XML_SCHEMAP_SRC_REDEFINE, /* 3081 */
+    XML_SCHEMAP_SRC_IMPORT, /* 3082 */
+    XML_SCHEMAP_WARN_SKIP_SCHEMA, /* 3083 */
+    XML_SCHEMAP_WARN_UNLOCATED_SCHEMA, /* 3084 */
+    XML_SCHEMAP_WARN_ATTR_REDECL_PROH, /* 3085 */
+    XML_SCHEMAP_WARN_ATTR_POINTLESS_PROH, /* 3085 */
+    XML_SCHEMAP_AG_PROPS_CORRECT, /* 3086 */
+    XML_SCHEMAP_COS_CT_EXTENDS_1_2, /* 3087 */
+    XML_SCHEMAP_AU_PROPS_CORRECT, /* 3088 */
+    XML_SCHEMAP_A_PROPS_CORRECT_3, /* 3089 */
+    XML_SCHEMAP_COS_ALL_LIMITED, /* 3090 */
     XML_MODULE_OPEN = 4900, /* 4900 */
     XML_MODULE_CLOSE, /* 4901 */
     XML_CHECK_FOUND_ELEMENT = 5000,
@@ -791,7 +812,12 @@ typedef enum {
     XML_CHECK_NOT_NCNAME, /* 5034 */
     XML_CHECK_OUTSIDE_DICT, /* 5035 */
     XML_CHECK_WRONG_NAME, /* 5036 */
-    XML_CHECK_NAME_NOT_NULL /* 5037 */
+    XML_CHECK_NAME_NOT_NULL, /* 5037 */
+    XML_I18N_NO_NAME = 6000,
+    XML_I18N_NO_HANDLER, /* 6001 */
+    XML_I18N_EXCESS_HANDLER, /* 6002 */
+    XML_I18N_CONV_FAILED, /* 6003 */
+    XML_I18N_NO_OUTPUT /* 6004 */
 #if 0
     XML_CHECK_, /* 5033 */
     XML_CHECK_X /* 503 */
@@ -807,7 +833,7 @@ typedef enum {
  * Signature of the function to use when there is an error and
  * no parsing or validity context available .
  */
-typedef void (*xmlGenericErrorFunc) (void *ctx,
+typedef void (XMLCDECL *xmlGenericErrorFunc) (void *ctx,
 				 const char *msg,
 	 			 ...);
 /**
@@ -818,7 +844,7 @@ typedef void (*xmlGenericErrorFunc) (void *ctx,
  * Signature of the function to use when there is an error and
  * the module handles the new error reporting mechanism.
  */
-typedef void (*xmlStructuredErrorFunc) (void *userData, xmlErrorPtr error);
+typedef void (XMLCALL *xmlStructuredErrorFunc) (void *userData, xmlErrorPtr error);
 
 /*
  * Use the following function to reset the two global variables
@@ -837,19 +863,19 @@ XMLPUBFUN void XMLCALL
  * Default message routines used by SAX and Valid context for error
  * and warning reporting.
  */
-XMLPUBFUN void XMLCALL	
+XMLPUBFUN void XMLCDECL	
     xmlParserError		(void *ctx,
 				 const char *msg,
 				 ...);
-XMLPUBFUN void XMLCALL	
+XMLPUBFUN void XMLCDECL	
     xmlParserWarning		(void *ctx,
 				 const char *msg,
 				 ...);
-XMLPUBFUN void XMLCALL	
+XMLPUBFUN void XMLCDECL	
     xmlParserValidityError	(void *ctx,
 				 const char *msg,
 				 ...);
-XMLPUBFUN void XMLCALL	
+XMLPUBFUN void XMLCDECL	
     xmlParserValidityWarning	(void *ctx,
 				 const char *msg,
 				 ...);

@@ -39,7 +39,7 @@ typedef xmlValidState *xmlValidStatePtr;
  * Callback called when a validity error is found. This is a message
  * oriented function similar to an *printf function.
  */
-typedef void (*xmlValidityErrorFunc) (void *ctx,
+typedef void (XMLCDECL *xmlValidityErrorFunc) (void *ctx,
 			     const char *msg,
 			     ...);
 
@@ -54,7 +54,7 @@ typedef void (*xmlValidityErrorFunc) (void *ctx,
  * Callback called when a validity warning is found. This is a message
  * oriented function similar to an *printf function.
  */
-typedef void (*xmlValidityWarningFunc) (void *ctx,
+typedef void (XMLCDECL *xmlValidityWarningFunc) (void *ctx,
 			       const char *msg,
 			       ...);
 
@@ -193,15 +193,15 @@ XMLPUBFUN void XMLCALL
 					 xmlElementContentPtr cur);
 XMLPUBFUN void XMLCALL		     
 		xmlSnprintfElementContent(char *buf,
-					 size_t size,
-					 xmlElementContentPtr content,
-					 int glob);
+					 int size,
+	                                 xmlElementContentPtr content,
+					 int englob);
 #ifdef LIBXML_OUTPUT_ENABLED
 /* DEPRECATED */
 XMLPUBFUN void XMLCALL		     
 		xmlSprintfElementContent(char *buf,
-					 xmlElementContentPtr content,
-					 int glob);
+	                                 xmlElementContentPtr content,
+					 int englob);
 #endif /* LIBXML_OUTPUT_ENABLED */
 /* DEPRECATED */
 
@@ -410,7 +410,7 @@ XMLPUBFUN xmlElementPtr XMLCALL
 
 XMLPUBFUN int XMLCALL		
 		xmlValidGetPotentialChildren(xmlElementContent *ctree,
-					 const xmlChar **list,
+					 const xmlChar **names,
 					 int *len,
 					 int max);
 

@@ -36,6 +36,10 @@
 #include <zlib.h>
 #endif
 
+#ifdef WIN32
+#include <windows.h>
+#endif
+
 /* Figure a portable way to know if a file is a directory. */
 #ifndef HAVE_STAT
 #  ifdef HAVE__STAT
@@ -188,6 +192,39 @@ static const char *IOerr[] = {
     "already in use",		/* EALREADY */
     "unknown address familly",	/* EAFNOSUPPORT */
 };
+
+#if defined(WIN32) || defined (__DJGPP__) && !defined (__CYGWIN__)
+/**
+ * __xmlIOWin32UTF8ToWChar:
+ * @u8String:  uft-8 string
+ *
+ * Convert a string from utf-8 to wchar (WINDOWS ONLY!)
+ */
+static wchar_t *
+__xmlIOWin32UTF8ToWChar(const char *u8String)
+{
+	wchar_t *wString = NULL;
+
+	if (u8String)
+	{
+		int wLen = MultiByteToWideChar(CP_UTF8,0,u8String,-1,NULL,0);
+		if (wLen)
+		{
+			wString = malloc((wLen+1) * sizeof(wchar_t));
+			if (wString)
+			{
+				if (MultiByteToWideChar(CP_UTF8,0,u8String,-1,wString,wLen+1) == 0)
+				{
+					free(wString);
+					wString = NULL;
+				}
+			}
+		}
+	}
+	
+	return wString;
+}
+#endif
 
 /**
  * xmlIOErrMemory:
@@ -553,22 +590,44 @@ int
 xmlCheckFilename (const char *path)
 {
 #ifdef HAVE_STAT
-    struct stat stat_buffer;
+	struct stat stat_buffer;
+#endif
+	if (path == NULL)
+		return(0);
+  
+#if defined(WIN32) || defined (__DJGPP__) && !defined (__CYGWIN__)
+	{
+		int retval = 0;
+	
+		wchar_t *wPath = __xmlIOWin32UTF8ToWChar(path);
+		if (wPath)
+		{
+			struct _stat stat_buffer;
+			
+			if (_wstat(wPath,&stat_buffer) == 0)
+			{
+				retval = 1;
+				
+				if (((stat_buffer.st_mode & S_IFDIR) == S_IFDIR))
+					retval = 2;
+			}
+	
+			free(wPath);
+		}
 
-    if (path == NULL)
-        return(0);
-
+		return retval;
+	}
+#else
+#ifdef HAVE_STAT
     if (stat(path, &stat_buffer) == -1)
         return 0;
 
 #ifdef S_ISDIR
-    if (S_ISDIR(stat_buffer.st_mode)) {
+    if (S_ISDIR(stat_buffer.st_mode))
         return 2;
-    }
-#endif
-#endif
-    if (path == NULL)
-        return(0);
+#endif /* S_ISDIR */
+#endif /* HAVE_STAT */
+#endif /* WIN32 */
 
     return 1;
 }
@@ -588,11 +647,11 @@ xmlNop(void) {
  *
  * Returns the number of bytes written
  */
-static intptr_t
-xmlFdRead (void * context, char * buffer, size_t len) {
-    intptr_t ret;
+static int
+xmlFdRead (void * context, char * buffer, int len) {
+    int ret;
 
-    ret = read((int) (size_t) context, &buffer[0], (unsigned int) len);
+    ret = read((int) (long) context, &buffer[0], len);
     if (ret < 0) xmlIOErr(0, "read()");
     return(ret);
 }
@@ -608,12 +667,14 @@ xmlFdRead (void * context, char * buffer, size_t len) {
  *
  * Returns the number of bytes written
  */
-static intptr_t
-xmlFdWrite (void * context, const char * buffer, size_t len) {
-    intptr_t ret;
+static int
+xmlFdWrite (void * context, const char * buffer, int len) {
+    int ret = 0;
 
-    ret = write((int) (size_t) context, &buffer[0], (unsigned int) len);
-    if (ret < 0) xmlIOErr(0, "write()");
+    if (len > 0) {
+	ret = write((int) (long) context, &buffer[0], len);
+	if (ret < 0) xmlIOErr(0, "write()");
+    }
     return(ret);
 }
 #endif /* LIBXML_OUTPUT_ENABLED */
@@ -629,7 +690,7 @@ xmlFdWrite (void * context, const char * buffer, size_t len) {
 static int
 xmlFdClose (void * context) {
     int ret;
-    ret = close((int) (size_t) context);
+    ret = close((int) (long) context);
     if (ret < 0) xmlIOErr(0, "close()");
     return(ret);
 }
@@ -690,7 +751,18 @@ xmlFileOpen_real (const char *filename) {
         return(NULL);
 
 #if defined(WIN32) || defined (__DJGPP__) && !defined (__CYGWIN__)
-    fd = fopen(path, "rb");
+	{
+		wchar_t *wPath = __xmlIOWin32UTF8ToWChar(path);
+		if (wPath)
+		{
+			fd = _wfopen(wPath, L"rb");
+			free(wPath);
+   	}
+   	else
+   	{
+   	   fd = fopen(path, "rb");
+	   }
+	}	
 #else
     fd = fopen(path, "r");
 #endif /* WIN32 */
@@ -760,8 +832,24 @@ xmlFileOpenW (const char *filename) {
     if (path == NULL)
 	return(NULL);
 
-    fd = fopen(path, "wb");
-    if (fd == NULL) xmlIOErr(0, path);
+#if defined(WIN32) || defined (__DJGPP__) && !defined (__CYGWIN__)
+	{
+		wchar_t *wPath = __xmlIOWin32UTF8ToWChar(path);
+		if (wPath)
+		{
+			fd = _wfopen(wPath, L"wb");
+			free(wPath);
+   	}
+   	else
+   	{
+	  	   fd = fopen(path, "wb");
+	  	}
+	}
+#else
+  	   fd = fopen(path, "wb");
+#endif /* WIN32 */
+
+	 if (fd == NULL) xmlIOErr(0, path);
     return((void *) fd);
 }
 #endif /* LIBXML_OUTPUT_ENABLED */
@@ -776,9 +864,9 @@ xmlFileOpenW (const char *filename) {
  *
  * Returns the number of bytes written or < 0 in case of failure
  */
-intptr_t
-xmlFileRead (void * context, char * buffer, size_t len) {
-    intptr_t ret;
+int
+xmlFileRead (void * context, char * buffer, int len) {
+    int ret;
     if ((context == NULL) || (buffer == NULL)) 
         return(-1);
     ret = fread(&buffer[0], 1,  len, (FILE *) context);
@@ -797,9 +885,9 @@ xmlFileRead (void * context, char * buffer, size_t len) {
  *
  * Returns the number of bytes written
  */
-static intptr_t
-xmlFileWrite (void * context, const char * buffer, size_t len) {
-    size_t items;
+static int
+xmlFileWrite (void * context, const char * buffer, int len) {
+    int items;
 
     if ((context == NULL) || (buffer == NULL)) 
         return(-1);
@@ -859,6 +947,28 @@ xmlFileFlush (void * context) {
         xmlIOErr(0, "fflush()");
     return(ret);
 }
+
+#ifdef LIBXML_OUTPUT_ENABLED
+/**
+ * xmlBufferWrite:
+ * @context:  the xmlBuffer
+ * @buffer:  the data to write
+ * @len:  number of bytes to write
+ *
+ * Write @len bytes from @buffer to the xml buffer
+ *
+ * Returns the number of bytes written
+ */
+static int
+xmlBufferWrite (void * context, const char * buffer, int len) {
+    int ret;
+
+    ret = xmlBufferAdd((xmlBufferPtr) context, (const xmlChar *) buffer, len);
+    if (ret != 0)
+        return(-1);
+    return(len);
+}
+#endif
 
 #ifdef HAVE_ZLIB_H
 /************************************************************************
@@ -1206,7 +1316,7 @@ xmlCreateZMemBuff( int compression ) {
     }
 
     /*  Set the header data.  The CRC will be needed for the trailer  */
-    buff->crc = crc32( 0L, Z_NULL, 0 );
+    buff->crc = crc32( 0L, NULL, 0 );
     hdr_lgth = snprintf( (char *)buff->zbuff, buff->size,
 			"%c%c%c%c%c%c%c%c%c%c",
 			GZ_MAGIC1, GZ_MAGIC2, Z_DEFLATED, 
@@ -2114,11 +2224,11 @@ xmlFreeParserInputBuffer(xmlParserInputBufferPtr in) {
  *
  * Returns the number of byte written or -1 in case of error.
  */
-intptr_t
+int
 xmlOutputBufferClose(xmlOutputBufferPtr out)
 {
-    intptr_t written;
-    intptr_t err_rc = 0;
+    int written;
+    int err_rc = 0;
 
     if (out == NULL)
         return (-1);
@@ -2250,9 +2360,9 @@ __xmlOutputBufferCreateFilename(const char *URI,
 
     puri = xmlParseURI(URI);
     if (puri != NULL) {
+#ifdef HAVE_ZLIB_H
         if ((puri->scheme != NULL) &&
 	    (!xmlStrEqual(BAD_CAST puri->scheme, BAD_CAST "file")))
-#ifdef HAVE_ZLIB_H
 	    is_file_uri = 0;
 #endif
 	/*
@@ -2436,6 +2546,31 @@ xmlOutputBufferCreateFile(FILE *file, xmlCharEncodingHandlerPtr encoder) {
 
     return(ret);
 }
+
+/**
+ * xmlOutputBufferCreateBuffer:
+ * @buffer:  a xmlBufferPtr
+ * @encoder:  the encoding converter or NULL
+ *
+ * Create a buffered output for the progressive saving to a xmlBuffer
+ *
+ * Returns the new parser output or NULL
+ */
+xmlOutputBufferPtr
+xmlOutputBufferCreateBuffer(xmlBufferPtr buffer,
+                            xmlCharEncodingHandlerPtr encoder) {
+    xmlOutputBufferPtr ret;
+
+    if (buffer == NULL) return(NULL);
+
+    ret = xmlOutputBufferCreateIO((xmlOutputWriteCallback)
+                                  xmlBufferWrite,
+                                  (xmlOutputCloseCallback)
+                                  NULL, (void *) buffer, encoder);
+
+    return(ret);
+}
+
 #endif /* LIBXML_OUTPUT_ENABLED */
 
 /**
@@ -2456,7 +2591,7 @@ xmlParserInputBufferCreateFd(int fd, xmlCharEncoding enc) {
 
     ret = xmlAllocParserInputBuffer(enc);
     if (ret != NULL) {
-        ret->context = (void *) (intptr_t) fd;
+        ret->context = (void *) (long) fd;
 	ret->readcallback = xmlFdRead;
 	ret->closecallback = xmlFdClose;
     }
@@ -2476,7 +2611,7 @@ xmlParserInputBufferCreateFd(int fd, xmlCharEncoding enc) {
  * Returns the new parser input or NULL
  */
 xmlParserInputBufferPtr
-xmlParserInputBufferCreateMem(const char *mem, intptr_t size, xmlCharEncoding enc) {
+xmlParserInputBufferCreateMem(const char *mem, int size, xmlCharEncoding enc) {
     xmlParserInputBufferPtr ret;
     int errcode;
 
@@ -2512,7 +2647,7 @@ xmlParserInputBufferCreateMem(const char *mem, intptr_t size, xmlCharEncoding en
  * Returns the new parser input or NULL
  */
 xmlParserInputBufferPtr
-xmlParserInputBufferCreateStatic(const char *mem, intptr_t size,
+xmlParserInputBufferCreateStatic(const char *mem, int size,
                                  xmlCharEncoding enc) {
     xmlParserInputBufferPtr ret;
 
@@ -2536,11 +2671,11 @@ xmlParserInputBufferCreateStatic(const char *mem, intptr_t size,
     else
         ret->raw = NULL;
     ret->compressed = -1;
-    ret->context = (void*) mem;
+    ret->context = (void *) mem;
     ret->readcallback = NULL;
     ret->closecallback = NULL;
 
-    return ret;
+    return(ret);
 }
 
 #ifdef LIBXML_OUTPUT_ENABLED
@@ -2562,7 +2697,7 @@ xmlOutputBufferCreateFd(int fd, xmlCharEncodingHandlerPtr encoder) {
 
     ret = xmlAllocOutputBuffer(encoder);
     if (ret != NULL) {
-        ret->context = (void *) (intptr_t) fd;
+        ret->context = (void *) (long) fd;
 	ret->writecallback = xmlFdWrite;
 	ret->closecallback = NULL;
     }
@@ -2686,16 +2821,16 @@ xmlOutputBufferCreateFilenameDefault(xmlOutputBufferCreateFilenameFunc func)
  * Returns the number of chars read and stored in the buffer, or -1
  *         in case of error.
  */
-intptr_t
+int
 xmlParserInputBufferPush(xmlParserInputBufferPtr in,
-	                 intptr_t len, const char *buf) {
-    intptr_t nbchars = 0;
-    intptr_t ret;
+	                 int len, const char *buf) {
+    int nbchars = 0;
+    int ret;
 
     if (len < 0) return(0);
     if ((in == NULL) || (in->error)) return(-1);
     if (in->encoder != NULL) {
-        size_t use;
+        unsigned int use;
 
         /*
 	 * Store the data in the incoming raw buffer
@@ -2738,10 +2873,10 @@ xmlParserInputBufferPush(xmlParserInputBufferPtr in,
  * When reading from an Input channel indicated end of file or error
  * don't reread from it again.
  */
-static intptr_t
+static int
 endOfInput (void * context ATTRIBUTE_UNUSED,
 	    char * buffer ATTRIBUTE_UNUSED,
-	    size_t len ATTRIBUTE_UNUSED) {
+	    int len ATTRIBUTE_UNUSED) {
     return(0);
 }
 
@@ -2760,13 +2895,13 @@ endOfInput (void * context ATTRIBUTE_UNUSED,
  * Returns the number of chars read and stored in the buffer, or -1
  *         in case of error.
  */
-intptr_t
-xmlParserInputBufferGrow(xmlParserInputBufferPtr in, intptr_t len) {
+int
+xmlParserInputBufferGrow(xmlParserInputBufferPtr in, int len) {
     char *buffer = NULL;
-    intptr_t res = 0;
-    intptr_t nbchars = 0;
-    intptr_t buffree;
-    size_t needSize;
+    int res = 0;
+    int nbchars = 0;
+    int buffree;
+    unsigned int needSize;
 
     if ((in == NULL) || (in->error)) return(-1);
     if ((len <= MINLEN) && (len != 4))
@@ -2806,7 +2941,7 @@ xmlParserInputBufferGrow(xmlParserInputBufferPtr in, intptr_t len) {
     }
     len = res;
     if (in->encoder != NULL) {
-        size_t use;
+        unsigned int use;
 
         /*
 	 * Store the data in the incoming raw buffer
@@ -2854,8 +2989,8 @@ xmlParserInputBufferGrow(xmlParserInputBufferPtr in, intptr_t len) {
  * Returns the number of chars read and stored in the buffer, or -1
  *         in case of error.
  */
-intptr_t
-xmlParserInputBufferRead(xmlParserInputBufferPtr in, intptr_t len) {
+int
+xmlParserInputBufferRead(xmlParserInputBufferPtr in, int len) {
     if ((in == NULL) || (in->error)) return(-1);
     if (in->readcallback != NULL)
 	return(xmlParserInputBufferGrow(in, len));
@@ -2881,12 +3016,12 @@ xmlParserInputBufferRead(xmlParserInputBufferPtr in, intptr_t len) {
  * Returns the number of chars immediately written, or -1
  *         in case of error.
  */
-intptr_t
-xmlOutputBufferWrite(xmlOutputBufferPtr out, intptr_t len, const char *buf) {
-    intptr_t nbchars = 0; /* number of chars to output to I/O */
-    intptr_t ret;         /* return from function call */
-    intptr_t written = 0; /* number of char written to I/O so far */
-    intptr_t chunk;  /* number of byte curreent processed from buf */
+int
+xmlOutputBufferWrite(xmlOutputBufferPtr out, int len, const char *buf) {
+    int nbchars = 0; /* number of chars to output to I/O */
+    int ret;         /* return from function call */
+    int written = 0; /* number of char written to I/O so far */
+    int chunk;       /* number of byte curreent processed from buf */
 
     if ((out == NULL) || (out->error)) return(-1);
     if (len < 0) return(0);
@@ -2982,9 +3117,9 @@ done:
  *     if the return value is positive, else unpredictable.
  * The value of @outlen after return is the number of octets consumed.
  */
-static intptr_t
-xmlEscapeContent(unsigned char* out, intptr_t* outlen,
-                 const xmlChar* in, intptr_t* inlen) {
+static int
+xmlEscapeContent(unsigned char* out, int *outlen,
+                 const xmlChar* in, int *inlen) {
     unsigned char* outstart = out;
     const unsigned char* base = in;
     unsigned char* outend = out + *outlen;
@@ -3044,16 +3179,16 @@ xmlEscapeContent(unsigned char* out, intptr_t* outlen,
  * Returns the number of chars immediately written, or -1
  *         in case of error.
  */
-intptr_t
+int
 xmlOutputBufferWriteEscape(xmlOutputBufferPtr out, const xmlChar *str,
                            xmlCharEncodingOutputFunc escaping) {
-    intptr_t nbchars = 0; /* number of chars to output to I/O */
-    intptr_t ret;         /* return from function call */
-    intptr_t written = 0; /* number of char written to I/O so far */
-    intptr_t oldwritten=0;/* loop guard */
-    intptr_t chunk;       /* number of byte currently processed from str */
-    intptr_t len;         /* number of bytes in str */
-    intptr_t cons;        /* byte from str consumed */
+    int nbchars = 0; /* number of chars to output to I/O */
+    int ret;         /* return from function call */
+    int written = 0; /* number of char written to I/O so far */
+    int oldwritten=0;/* loop guard */
+    int chunk;       /* number of byte currently processed from str */
+    int len;         /* number of bytes in str */
+    int cons;        /* byte from str consumed */
 
     if ((out == NULL) || (out->error) || (str == NULL) ||
         (out->buffer == NULL) ||
@@ -3165,9 +3300,9 @@ done:
  * Returns the number of chars immediately written, or -1
  *         in case of error.
  */
-intptr_t
+int
 xmlOutputBufferWriteString(xmlOutputBufferPtr out, const char *str) {
-    size_t len;
+    int len;
     
     if ((out == NULL) || (out->error)) return(-1);
     if (str == NULL)
@@ -3187,9 +3322,9 @@ xmlOutputBufferWriteString(xmlOutputBufferPtr out, const char *str) {
  *
  * Returns the number of byte written or -1 in case of error.
  */
-intptr_t
+int
 xmlOutputBufferFlush(xmlOutputBufferPtr out) {
-    intptr_t nbchars = 0, ret = 0;
+    int nbchars = 0, ret = 0;
 
     if ((out == NULL) || (out->error)) return(-1);
     /*
@@ -3279,7 +3414,7 @@ xmlParserGetDirectory(const char *filename) {
         if (getcwd(dir, 1024) != NULL) {
 	    dir[1023] = 0;
 	    ret = xmlMemStrdup(dir);
-		}
+	}
     }
     return(ret);
 }
@@ -3533,7 +3668,6 @@ xmlGetExternalEntityLoader(void) {
  *
  * Load an external entity, note that the use of this function for
  * unparsed entities may generate problems
- * TODO: a more generic External entity API must be designed
  *
  * Returns the xmlParserInputPtr or NULL
  */

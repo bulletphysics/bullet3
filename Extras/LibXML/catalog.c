@@ -1200,8 +1200,6 @@ static void
 xmlParseXMLCatalogNode(xmlNodePtr cur, xmlCatalogPrefer prefer,
 	               xmlCatalogEntryPtr parent, xmlCatalogEntryPtr cgroup)
 {
-    xmlChar *uri = NULL;
-    xmlChar *URL = NULL;
     xmlChar *base = NULL;
     xmlCatalogEntryPtr entry = NULL;
 
@@ -1288,10 +1286,6 @@ xmlParseXMLCatalogNode(xmlNodePtr cur, xmlCatalogPrefer prefer,
     }
     if (base != NULL)
 	xmlFree(base);
-    if (uri != NULL)
-	xmlFree(uri);
-    if (URL != NULL)
-	xmlFree(URL);
 }
 
 /**
@@ -1546,6 +1540,7 @@ xmlAddXMLCatalog(xmlCatalogEntryPtr catal, const xmlChar *type,
 	cur->next = xmlNewCatalogEntry(typ, orig, replace,
 		                       NULL, catal->prefer, NULL);
     if (doregister) {
+        catal->type = XML_CATA_CATALOG;
 	cur = xmlHashLookup(xmlCatalogXMLFiles, catal->URL);
 	if (cur != NULL)
 	    cur->children = catal->children;
@@ -1648,7 +1643,8 @@ xmlCatalogXMLResolve(xmlCatalogEntryPtr catal, const xmlChar *pubID,
 		    if (xmlStrEqual(sysID, cur->name)) {
 			if (xmlDebugCatalogs)
 			    xmlGenericError(xmlGenericErrorContext,
-				    "Found system match %s\n", cur->name);
+				    "Found system match %s, using %s\n",
+				            cur->name, cur->URL);
 			catal->depth--;
 			return(xmlStrdup(cur->URL));
 		    }
@@ -3218,7 +3214,7 @@ xmlLoadCatalogs(const char *pathss) {
 	return;
 
     cur = pathss;
-    while ((cur != NULL) && (*cur != 0)) {
+    while (*cur != 0) {
 	while (xmlIsBlank_ch(*cur)) cur++;
 	if (*cur != 0) {
 	    paths = cur;

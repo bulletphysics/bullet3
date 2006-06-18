@@ -47,13 +47,16 @@ struct _xmlURI {
 XMLPUBFUN xmlURIPtr XMLCALL	
 		xmlCreateURI		(void);
 XMLPUBFUN xmlChar * XMLCALL	
-		xmlBuildURI			(const xmlChar *URI,
-	                         const xmlChar *base);
+		xmlBuildURI		(const xmlChar *URI,
+	                         	 const xmlChar *base);
 XMLPUBFUN xmlChar * XMLCALL	
 		xmlBuildRelativeURI	(const xmlChar *URI,
-	                         const xmlChar *base);
+	                         	 const xmlChar *base);
 XMLPUBFUN xmlURIPtr XMLCALL	
 		xmlParseURI		(const char *str);
+XMLPUBFUN xmlURIPtr XMLCALL	
+		xmlParseURIRaw		(const char *str,
+					 int raw);
 XMLPUBFUN int XMLCALL		
 		xmlParseURIReference	(xmlURIPtr uri,
 					 const char *str);
@@ -67,7 +70,7 @@ XMLPUBFUN xmlChar * XMLCALL
  					 const xmlChar *list);
 XMLPUBFUN char * XMLCALL		
 		xmlURIUnescapeString	(const char *str,
-					 intptr_t len,
+					 int len,
 					 char *target);
 XMLPUBFUN int XMLCALL		
 		xmlNormalizeURIPath	(char *path);

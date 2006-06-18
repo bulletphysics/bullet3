@@ -41,7 +41,7 @@ typedef xmlDictEntry *xmlDictEntryPtr;
 struct _xmlDictEntry {
     struct _xmlDictEntry *next;
     const xmlChar *name;
-    intptr_t len;
+    int len;
     int valid;
 };
 
@@ -51,8 +51,8 @@ struct _xmlDictStrings {
     xmlDictStringsPtr next;
     xmlChar *free;
     xmlChar *end;
-    intptr_t size;
-    intptr_t nbStrings;
+    int size;
+    int nbStrings;
     xmlChar array[1];
 };
 /*
@@ -125,10 +125,10 @@ xmlDictCleanup(void) {
  * Returns the pointer of the local string, or NULL in case of error.
  */
 static const xmlChar *
-xmlDictAddString(xmlDictPtr dict, const xmlChar *name, intptr_t namelen) {
+xmlDictAddString(xmlDictPtr dict, const xmlChar *name, int namelen) {
     xmlDictStringsPtr pool;
     const xmlChar *ret;
-    intptr_t size = 0; /* + sizeof(_xmlDictStrings) == 1024 */
+    int size = 0; /* + sizeof(_xmlDictStrings) == 1024 */
 
     pool = dict->strings;
     while (pool != NULL) {
@@ -176,12 +176,12 @@ found_pool:
  */
 static const xmlChar *
 xmlDictAddQString(xmlDictPtr dict, const xmlChar *prefix,
-                 const xmlChar *name, intptr_t namelen)
+                 const xmlChar *name, int namelen)
 {
     xmlDictStringsPtr pool;
     const xmlChar *ret;
-    intptr_t size = 0; /* + sizeof(_xmlDictStrings) == 1024 */
-    size_t plen;
+    int size = 0; /* + sizeof(_xmlDictStrings) == 1024 */
+    int plen;
 
     if (prefix == NULL) return(xmlDictAddString(dict, name, namelen));
     plen = xmlStrlen(prefix);
@@ -228,7 +228,7 @@ found_pool:
  * Calculate the hash key
  */
 static unsigned long
-xmlDictComputeKey(const xmlChar *name, intptr_t namelen) {
+xmlDictComputeKey(const xmlChar *name, int namelen) {
     unsigned long value = 0L;
     
     if (name == NULL) return(0);
@@ -258,10 +258,10 @@ xmlDictComputeKey(const xmlChar *name, intptr_t namelen) {
  * Calculate the hash key
  */
 static unsigned long
-xmlDictComputeQKey(const xmlChar *prefix, const xmlChar *name, intptr_t len)
+xmlDictComputeQKey(const xmlChar *prefix, const xmlChar *name, int len)
 {
     unsigned long value = 0L;
-    size_t plen;
+    int plen;
     
     if (prefix == NULL)
         return(xmlDictComputeKey(name, len));
@@ -560,7 +560,7 @@ xmlDictFree(xmlDictPtr dict) {
  * Returns the internal copy of the name or NULL in case of internal error
  */
 const xmlChar *
-xmlDictLookup(xmlDictPtr dict, const xmlChar *name, intptr_t len) {
+xmlDictLookup(xmlDictPtr dict, const xmlChar *name, int len) {
     unsigned long key, okey, nbi = 0;
     xmlDictEntryPtr entry;
     xmlDictEntryPtr insert;
@@ -679,7 +679,7 @@ xmlDictLookup(xmlDictPtr dict, const xmlChar *name, intptr_t len) {
  * Returns the internal copy of the name or NULL if not found.
  */
 const xmlChar *
-xmlDictExists(xmlDictPtr dict, const xmlChar *name, intptr_t len) {
+xmlDictExists(xmlDictPtr dict, const xmlChar *name, int len) {
     unsigned long key, okey, nbi = 0;
     xmlDictEntryPtr insert;
 
@@ -776,7 +776,7 @@ xmlDictQLookup(xmlDictPtr dict, const xmlChar *prefix, const xmlChar *name) {
     xmlDictEntryPtr entry;
     xmlDictEntryPtr insert;
     const xmlChar *ret;
-    intptr_t len;
+    int len;
 
     if ((dict == NULL) || (name == NULL))
 	return(NULL);

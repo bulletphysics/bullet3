@@ -88,13 +88,12 @@ typedef char *(XMLCALL *xmlStrdupFunc)(const char *str);
 
 /*
  * The 4 interfaces used for all memory handling within libxml.
+LIBXML_DLL_IMPORT extern xmlFreeFunc xmlFree;
+LIBXML_DLL_IMPORT extern xmlMallocFunc xmlMalloc;
+LIBXML_DLL_IMPORT extern xmlMallocFunc xmlMallocAtomic;
+LIBXML_DLL_IMPORT extern xmlReallocFunc xmlRealloc;
+LIBXML_DLL_IMPORT extern xmlStrdupFunc xmlMemStrdup;
  */
-
-LIBXML_DLL_IMPORT xmlFreeFunc xmlFree;
-LIBXML_DLL_IMPORT xmlMallocFunc xmlMalloc;
-LIBXML_DLL_IMPORT xmlMallocFunc xmlMallocAtomic;
-LIBXML_DLL_IMPORT xmlReallocFunc xmlRealloc;
-LIBXML_DLL_IMPORT xmlStrdupFunc xmlMemStrdup;
 
 /*
  * The way to overload the existing functions.
@@ -138,9 +137,9 @@ XMLPUBFUN void XMLCALL
 /*
  * These are specific to the XML debug memory wrapper.
  */
-XMLPUBFUN size_t XMLCALL	
+XMLPUBFUN int XMLCALL	
 	xmlMemUsed	(void);
-XMLPUBFUN size_t XMLCALL	
+XMLPUBFUN int XMLCALL	
 	xmlMemBlocks	(void);
 XMLPUBFUN void XMLCALL	
 	xmlMemDisplay	(FILE *fp);

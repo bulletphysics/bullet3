@@ -42,11 +42,11 @@ XMLPUBFUN void XMLCALL
 XMLPUBFUN const xmlChar * XMLCALL		
 			xmlDictLookup	(xmlDictPtr dict,
 		                         const xmlChar *name,
-		                         intptr_t len);
+		                         int len);
 XMLPUBFUN const xmlChar * XMLCALL		
 			xmlDictExists	(xmlDictPtr dict,
 		                         const xmlChar *name,
-		                         intptr_t len);
+		                         int len);
 XMLPUBFUN const xmlChar * XMLCALL		
 			xmlDictQLookup	(xmlDictPtr dict,
 		                         const xmlChar *prefix,

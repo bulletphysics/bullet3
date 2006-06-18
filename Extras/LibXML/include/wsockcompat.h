@@ -7,11 +7,29 @@
 
 #ifdef _WIN32_WCE
 #include <winsock.h>
-#elif defined (WIN32)
+#else
 #undef HAVE_ERRNO_H
 #include <winsock2.h>
-#elif defined (LINUX)
-#include <sys/socket.h>
+
+/* the following is a workaround a problem for 'inline' keyword in said
+   header when compiled with Borland C++ 6 */
+#if defined(__BORLANDC__) && !defined(__cplusplus)
+#define inline __inline
+#endif
+
+#include <ws2tcpip.h>
+
+/* Check if ws2tcpip.h is a recent version which provides getaddrinfo() */
+#if defined(GetAddrInfo)
+#define HAVE_GETADDRINFO
+#endif
+#endif
+
+#ifdef __MINGW32__
+/* Include <errno.h> here to ensure that it doesn't get included later
+ * (e.g. by iconv.h) and overwrites the definition of EWOULDBLOCK. */
+#include <errno.h>
+#undef EWOULDBLOCK
 #endif
 
 #if !defined SOCKLEN_T

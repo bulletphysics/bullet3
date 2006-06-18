@@ -49,9 +49,9 @@
 #include <libxml/threads.h>
 
 static int xmlMemInitialized = 0;
-static size_t debugMemSize = 0;
-static size_t debugMemBlocks = 0;
-static size_t debugMaxMemSize = 0;
+static unsigned long  debugMemSize = 0;
+static unsigned long  debugMemBlocks = 0;
+static unsigned long  debugMaxMemSize = 0;
 static xmlMutexPtr xmlMemMutex = NULL;
 
 void xmlMallocBreakpoint(void);
@@ -309,7 +309,7 @@ xmlMemMalloc(size_t size)
  */
 
 void *
-xmlReallocLoc(void *ptr, size_t size, const char * file, int line)
+xmlReallocLoc(void *ptr,size_t size, const char * file, int line)
 {
     MEMHDR *p;
     unsigned long number;
@@ -325,6 +325,7 @@ xmlReallocLoc(void *ptr, size_t size, const char * file, int line)
 
     p = CLIENT_2_HDR(ptr);
     number = p->mh_number;
+    if (xmlMemStopAtBlock == number) xmlMallocBreakpoint();
     if (p->mh_tag != MEMTAG) {
        Mem_Tag_Err(p);
 	 goto error;
@@ -429,6 +430,7 @@ xmlMemFree(void *ptr)
         Mem_Tag_Err(p);
         goto error;
     }
+    if (xmlMemStopAtBlock == p->mh_number) xmlMallocBreakpoint();
     p->mh_tag = ~MEMTAG;
     memset(target, -1, p->mh_size);
     xmlMutexLock(xmlMemMutex);
@@ -455,7 +457,7 @@ xmlMemFree(void *ptr)
     
 error:    
     xmlGenericError(xmlGenericErrorContext,
-	    "xmlMemFree(%lX) error\n", (unsigned long) (size_t) ptr);
+	    "xmlMemFree(%lX) error\n", (unsigned long) ptr);
     xmlMallocBreakpoint();
     return;
 }
@@ -545,7 +547,7 @@ xmlMemoryStrdup(const char *str) {
  * Returns an int representing the amount of memory allocated.
  */
 
-size_t
+int
 xmlMemUsed(void) {
      return(debugMemSize);
 }
@@ -558,7 +560,7 @@ xmlMemUsed(void) {
  * Returns an int representing the number of blocks
  */
 
-size_t
+int
 xmlMemBlocks(void) {
      return(debugMemBlocks);
 }
@@ -640,7 +642,18 @@ xmlMemDisplay(FILE *fp)
     time_t currentTime;
     char buf[500];
     struct tm * tstruct;
+#endif
+#endif
+    FILE *old_fp = fp;
 
+    if (fp == NULL) {
+	fp = fopen(".memorylist", "w");
+	if (fp == NULL)
+	    return;
+    }
+
+#ifdef MEM_LIST
+#if defined(HAVE_LOCALTIME) && defined(HAVE_STRFTIME)
     currentTime = time(NULL);
     tstruct = localtime(&currentTime);
     strftime(buf, sizeof(buf) - 1, "%I:%M:%S %p", tstruct);
@@ -666,6 +679,8 @@ xmlMemDisplay(FILE *fp)
            default:
 	        fprintf(fp,"Unknown memory block, may be corrupted");
 		xmlMutexUnlock(xmlMemMutex);
+		if (old_fp == NULL)
+		    fclose(fp);
 		return;
         }
 	if (p->mh_file != NULL) fprintf(fp,"%s(%u)", p->mh_file, p->mh_line);
@@ -684,6 +699,8 @@ xmlMemDisplay(FILE *fp)
 #else
     fprintf(fp,"Memory list not compiled (MEM_LIST not defined !)\n");
 #endif
+    if (old_fp == NULL)
+	fclose(fp);
 }
 
 #ifdef MEM_LIST

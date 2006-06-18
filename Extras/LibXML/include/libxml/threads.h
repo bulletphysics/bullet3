@@ -36,7 +36,6 @@ typedef xmlRMutex *xmlRMutexPtr;
 #ifdef __cplusplus
 extern "C" {
 #endif
-
 XMLPUBFUN xmlMutexPtr XMLCALL		
 			xmlNewMutex	(void);
 XMLPUBFUN void XMLCALL			

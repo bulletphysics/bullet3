@@ -95,8 +95,8 @@ typedef enum {
  *     if the return value is positive, else unpredictiable.
  * The value of @outlen after return is the number of octets consumed.
  */
-typedef intptr_t (* xmlCharEncodingInputFunc)(unsigned char *out, intptr_t* outlen,
-                                         const unsigned char *in, intptr_t* inlen);
+typedef int (* xmlCharEncodingInputFunc)(unsigned char *out, int *outlen,
+                                         const unsigned char *in, int *inlen);
 
 
 /**
@@ -117,8 +117,8 @@ typedef intptr_t (* xmlCharEncodingInputFunc)(unsigned char *out, intptr_t* outl
  *     if the return value is positive, else unpredictiable.
  * The value of @outlen after return is the number of octets produced.
  */
-typedef intptr_t (* xmlCharEncodingOutputFunc)(unsigned char *out, intptr_t* outlen,
-                                          const unsigned char *in, intptr_t* inlen);
+typedef int (* xmlCharEncodingOutputFunc)(unsigned char *out, int *outlen,
+                                          const unsigned char *in, int *inlen);
 
 
 /*
@@ -186,18 +186,18 @@ XMLPUBFUN const char * XMLCALL
  */
 XMLPUBFUN xmlCharEncoding XMLCALL
 	xmlDetectCharEncoding		(const unsigned char *in,
-					 intptr_t len);
+					 int len);
 
-XMLPUBFUN intptr_t XMLCALL	
+XMLPUBFUN int XMLCALL	
 	xmlCharEncOutFunc		(xmlCharEncodingHandler *handler,
 					 xmlBufferPtr out,
 					 xmlBufferPtr in);
 
-XMLPUBFUN intptr_t XMLCALL	
+XMLPUBFUN int XMLCALL	
 	xmlCharEncInFunc		(xmlCharEncodingHandler *handler,
 					 xmlBufferPtr out,
 					 xmlBufferPtr in);
-XMLPUBFUN intptr_t XMLCALL
+XMLPUBFUN int XMLCALL
 	xmlCharEncFirstLine		(xmlCharEncodingHandler *handler,
 					 xmlBufferPtr out,
 					 xmlBufferPtr in);
@@ -208,17 +208,17 @@ XMLPUBFUN int XMLCALL
  * Export a few useful functions
  */
 #ifdef LIBXML_OUTPUT_ENABLED
-XMLPUBFUN intptr_t XMLCALL	
+XMLPUBFUN int XMLCALL	
 	UTF8Toisolat1			(unsigned char *out,
-					 intptr_t* outlen,
+					 int *outlen,
 					 const unsigned char *in,
-					 intptr_t* inlen);
+					 int *inlen);
 #endif /* LIBXML_OUTPUT_ENABLED */
-XMLPUBFUN intptr_t XMLCALL	
+XMLPUBFUN int XMLCALL	
 	isolat1ToUTF8			(unsigned char *out,
-					 intptr_t* outlen,
+					 int *outlen,
 					 const unsigned char *in,
-					 intptr_t* inlen);
+					 int *inlen);
 #ifdef __cplusplus
 }
 #endif

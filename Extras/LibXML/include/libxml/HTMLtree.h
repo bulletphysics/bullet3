@@ -75,6 +75,11 @@ XMLPUBFUN void XMLCALL
 		htmlDocDumpMemory	(xmlDocPtr cur,
 					 xmlChar **mem,
 					 int *size);
+XMLPUBFUN void XMLCALL	    
+		htmlDocDumpMemoryFormat	(xmlDocPtr cur,
+					 xmlChar **mem,
+					 int *size,
+					 int format);
 XMLPUBFUN int XMLCALL		
 		htmlDocDump		(FILE *f,
 					 xmlDocPtr cur);

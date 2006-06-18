@@ -19,10 +19,17 @@
 #endif
 
 #if defined(macintosh)
-	#include "config-mac.h"
+#include "config-mac.h"
 #else
-	#include "config.h"
-	#include <libxml/xmlversion.h>
+#include "config.h"
+#include <libxml/xmlversion.h>
+#endif
+
+#if defined(__Lynx__)
+#include <stdio.h> /* pull definition of size_t */
+#include <varargs.h>
+int snprintf(char *, size_t, const char *, ...);
+int vfprintf(FILE *, const char *, va_list);
 #endif
 
 #ifndef WITH_TRIO
@@ -49,6 +56,14 @@ extern int __xmlRegisterCallbacks;
  */
 void __xmlIOErr(int domain, int code, const char *extra);
 void __xmlLoaderErr(void *ctx, const char *msg, const char *filename);
+#ifdef LIBXML_HTML_ENABLED
+/*
+ * internal function of HTML parser needed for xmlParseInNodeContext
+ * but not part of the API
+ */
+void __htmlParseContent(void *ctx);
+#endif
+
 
 #ifdef IN_LIBXML
 #ifdef __GNUC__

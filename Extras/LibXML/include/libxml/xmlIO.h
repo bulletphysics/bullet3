@@ -31,7 +31,7 @@ extern "C" {
  *
  * Returns 1 if yes and 0 if another Input module should be used
  */
-typedef int (*xmlInputMatchCallback) (char const *filename);
+typedef int (XMLCALL *xmlInputMatchCallback) (char const *filename);
 /**
  * xmlInputOpenCallback:
  * @filename: the filename or URI
@@ -40,7 +40,7 @@ typedef int (*xmlInputMatchCallback) (char const *filename);
  *
  * Returns an Input context or NULL in case or error
  */
-typedef void * (*xmlInputOpenCallback) (char const *filename);
+typedef void * (XMLCALL *xmlInputOpenCallback) (char const *filename);
 /**
  * xmlInputReadCallback:
  * @context:  an Input context
@@ -51,7 +51,7 @@ typedef void * (*xmlInputOpenCallback) (char const *filename);
  *
  * Returns the number of bytes read or -1 in case of error
  */
-typedef intptr_t (*xmlInputReadCallback) (void * context, char * buffer, size_t len);
+typedef int (XMLCALL *xmlInputReadCallback) (void * context, char * buffer, int len);
 /**
  * xmlInputCloseCallback:
  * @context:  an Input context
@@ -60,7 +60,7 @@ typedef intptr_t (*xmlInputReadCallback) (void * context, char * buffer, size_t 
  *
  * Returns 0 or -1 in case of error
  */
-typedef int (*xmlInputCloseCallback) (void * context);
+typedef int (XMLCALL *xmlInputCloseCallback) (void * context);
 
 #ifdef LIBXML_OUTPUT_ENABLED
 /*
@@ -77,7 +77,7 @@ typedef int (*xmlInputCloseCallback) (void * context);
  *
  * Returns 1 if yes and 0 if another Output module should be used
  */
-typedef int (*xmlOutputMatchCallback) (char const *filename);
+typedef int (XMLCALL *xmlOutputMatchCallback) (char const *filename);
 /**
  * xmlOutputOpenCallback:
  * @filename: the filename or URI
@@ -86,7 +86,7 @@ typedef int (*xmlOutputMatchCallback) (char const *filename);
  *
  * Returns an Output context or NULL in case or error
  */
-typedef void * (*xmlOutputOpenCallback) (char const *filename);
+typedef void * (XMLCALL *xmlOutputOpenCallback) (char const *filename);
 /**
  * xmlOutputWriteCallback:
  * @context:  an Output context
@@ -97,8 +97,8 @@ typedef void * (*xmlOutputOpenCallback) (char const *filename);
  *
  * Returns the number of bytes written or -1 in case of error
  */
-typedef intptr_t (*xmlOutputWriteCallback) (void * context, const char * buffer,
-                                       size_t len);
+typedef int (XMLCALL *xmlOutputWriteCallback) (void * context, const char * buffer,
+                                       int len);
 /**
  * xmlOutputCloseCallback:
  * @context:  an Output context
@@ -107,7 +107,7 @@ typedef intptr_t (*xmlOutputWriteCallback) (void * context, const char * buffer,
  *
  * Returns 0 or -1 in case of error
  */
-typedef int (*xmlOutputCloseCallback) (void * context);
+typedef int (XMLCALL *xmlOutputCloseCallback) (void * context);
 #endif /* LIBXML_OUTPUT_ENABLED */
 
 #ifdef __cplusplus
@@ -133,7 +133,7 @@ struct _xmlParserInputBuffer {
     xmlBufferPtr raw;       /* if encoder != NULL buffer for raw input */
     int	compressed;	    /* -1=unknown, 0=not compressed, 1=compressed */
     int error;
-    size_t rawconsumed;/* amount consumed from raw */
+    unsigned long rawconsumed;/* amount consumed from raw */
 };
 
 
@@ -147,7 +147,7 @@ struct _xmlOutputBuffer {
     
     xmlBufferPtr buffer;    /* Local buffer encoded in UTF-8 or ISOLatin */
     xmlBufferPtr conv;      /* if encoder != NULL buffer for output */
-    intptr_t written;            /* total number of byte written */
+    int written;            /* total number of byte written */
     int error;
 };
 #endif /* LIBXML_OUTPUT_ENABLED */
@@ -176,25 +176,25 @@ XMLPUBFUN xmlParserInputBufferPtr XMLCALL
 	xmlParserInputBufferCreateFd		(int fd,
 	                                         xmlCharEncoding enc);
 XMLPUBFUN xmlParserInputBufferPtr XMLCALL
-	xmlParserInputBufferCreateMem		(const char *mem, intptr_t size,
+	xmlParserInputBufferCreateMem		(const char *mem, int size,
 	                                         xmlCharEncoding enc);
 XMLPUBFUN xmlParserInputBufferPtr XMLCALL
-	xmlParserInputBufferCreateStatic	(const char *mem, intptr_t size,
+	xmlParserInputBufferCreateStatic	(const char *mem, int size,
 	                                         xmlCharEncoding enc);
 XMLPUBFUN xmlParserInputBufferPtr XMLCALL
 	xmlParserInputBufferCreateIO		(xmlInputReadCallback   ioread,
 						 xmlInputCloseCallback  ioclose,
 						 void *ioctx,
 	                                         xmlCharEncoding enc);
-XMLPUBFUN intptr_t XMLCALL	
+XMLPUBFUN int XMLCALL	
 	xmlParserInputBufferRead		(xmlParserInputBufferPtr in,
-						 intptr_t len);
-XMLPUBFUN intptr_t XMLCALL	
+						 int len);
+XMLPUBFUN int XMLCALL	
 	xmlParserInputBufferGrow		(xmlParserInputBufferPtr in,
-						 intptr_t len);
-XMLPUBFUN intptr_t XMLCALL	
+						 int len);
+XMLPUBFUN int XMLCALL	
 	xmlParserInputBufferPush		(xmlParserInputBufferPtr in,
-						 intptr_t len,
+						 int len,
 						 const char *buf);
 XMLPUBFUN void XMLCALL	
 	xmlFreeParserInputBuffer		(xmlParserInputBufferPtr in);
@@ -232,6 +232,10 @@ XMLPUBFUN xmlOutputBufferPtr XMLCALL
 					 xmlCharEncodingHandlerPtr encoder);
 
 XMLPUBFUN xmlOutputBufferPtr XMLCALL
+	xmlOutputBufferCreateBuffer	(xmlBufferPtr buffer,
+					 xmlCharEncodingHandlerPtr encoder);
+
+XMLPUBFUN xmlOutputBufferPtr XMLCALL
 	xmlOutputBufferCreateFd		(int fd,
 					 xmlCharEncodingHandlerPtr encoder);
 
@@ -241,21 +245,21 @@ XMLPUBFUN xmlOutputBufferPtr XMLCALL
 					 void *ioctx,
 					 xmlCharEncodingHandlerPtr encoder);
 
-XMLPUBFUN intptr_t XMLCALL	
+XMLPUBFUN int XMLCALL	
 	xmlOutputBufferWrite		(xmlOutputBufferPtr out,
-					 intptr_t len,
+					 int len,
 					 const char *buf);
-XMLPUBFUN intptr_t XMLCALL	
+XMLPUBFUN int XMLCALL	
 	xmlOutputBufferWriteString	(xmlOutputBufferPtr out,
 					 const char *str);
-XMLPUBFUN intptr_t XMLCALL	
+XMLPUBFUN int XMLCALL	
 	xmlOutputBufferWriteEscape	(xmlOutputBufferPtr out,
 					 const xmlChar *str,
 					 xmlCharEncodingOutputFunc escaping);
 
-XMLPUBFUN intptr_t XMLCALL	
+XMLPUBFUN int XMLCALL	
 	xmlOutputBufferFlush		(xmlOutputBufferPtr out);
-XMLPUBFUN intptr_t XMLCALL	
+XMLPUBFUN int XMLCALL	
 	xmlOutputBufferClose		(xmlOutputBufferPtr out);
 
 XMLPUBFUN int XMLCALL     
@@ -305,10 +309,10 @@ XMLPUBFUN int XMLCALL
 	xmlFileMatch 			(const char *filename);
 XMLPUBFUN void * XMLCALL	
 	xmlFileOpen 			(const char *filename);
-XMLPUBFUN intptr_t XMLCALL	
+XMLPUBFUN int XMLCALL	
 	xmlFileRead 			(void * context, 
 					 char * buffer, 
-					 size_t len);
+					 int len);
 XMLPUBFUN int XMLCALL	
 	xmlFileClose 			(void * context);
 

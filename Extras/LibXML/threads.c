@@ -46,6 +46,46 @@
 
 /* #define DEBUG_THREADS */
 
+#ifdef HAVE_PTHREAD_H
+
+static int libxml_is_threaded = -1;
+#ifdef __GNUC__
+#ifdef linux
+#if (__GNUC__ == 3 && __GNUC_MINOR__ >= 3) || (__GNUC__ > 3)
+extern int pthread_once (pthread_once_t *__once_control,
+                         void (*__init_routine) (void))
+	   __attribute((weak));
+extern void *pthread_getspecific (pthread_key_t __key)
+	   __attribute((weak));
+extern int pthread_setspecific (pthread_key_t __key,
+                                __const void *__pointer)
+	   __attribute((weak));
+extern int pthread_key_create (pthread_key_t *__key,
+                               void (*__destr_function) (void *))
+	   __attribute((weak));
+extern int pthread_mutex_init ()
+	   __attribute((weak));
+extern int pthread_mutex_destroy ()
+	   __attribute((weak));
+extern int pthread_mutex_lock ()
+	   __attribute((weak));
+extern int pthread_mutex_unlock ()
+	   __attribute((weak));
+extern int pthread_cond_init ()
+	   __attribute((weak));
+extern int pthread_equal ()
+	   __attribute((weak));
+extern pthread_t pthread_self ()
+	   __attribute((weak));
+extern int pthread_key_create ()
+	   __attribute((weak));
+extern int pthread_cond_signal ()
+	   __attribute((weak));
+#endif
+#endif /* linux */
+#endif /* __GNUC__ */
+#endif /* HAVE_PTHREAD_H */
+
 /*
  * TODO: this module still uses malloc/free and not xmlMalloc/xmlFree
  *       to avoid some crazyness since xmlMalloc/xmlFree may actually
@@ -140,7 +180,8 @@ xmlNewMutex(void)
     if ((tok = malloc(sizeof(xmlMutex))) == NULL)
         return (NULL);
 #ifdef HAVE_PTHREAD_H
-    pthread_mutex_init(&tok->lock, NULL);
+    if (libxml_is_threaded != 0)
+	pthread_mutex_init(&tok->lock, NULL);
 #elif defined HAVE_WIN32_THREADS
     tok->mutex = CreateMutex(NULL, FALSE, NULL);
 #elif defined HAVE_BEOS_THREADS
@@ -166,7 +207,8 @@ xmlFreeMutex(xmlMutexPtr tok)
     if (tok == NULL) return;
 
 #ifdef HAVE_PTHREAD_H
-    pthread_mutex_destroy(&tok->lock);
+    if (libxml_is_threaded != 0)
+	pthread_mutex_destroy(&tok->lock);
 #elif defined HAVE_WIN32_THREADS
     CloseHandle(tok->mutex);
 #elif defined HAVE_BEOS_THREADS
@@ -187,7 +229,8 @@ xmlMutexLock(xmlMutexPtr tok)
     if (tok == NULL)
         return;
 #ifdef HAVE_PTHREAD_H
-    pthread_mutex_lock(&tok->lock);
+    if (libxml_is_threaded != 0)
+	pthread_mutex_lock(&tok->lock);
 #elif defined HAVE_WIN32_THREADS
     WaitForSingleObject(tok->mutex, INFINITE);
 #elif defined HAVE_BEOS_THREADS
@@ -214,7 +257,8 @@ xmlMutexUnlock(xmlMutexPtr tok)
     if (tok == NULL)
         return;
 #ifdef HAVE_PTHREAD_H
-    pthread_mutex_unlock(&tok->lock);
+    if (libxml_is_threaded != 0)
+	pthread_mutex_unlock(&tok->lock);
 #elif defined HAVE_WIN32_THREADS
     ReleaseMutex(tok->mutex);
 #elif defined HAVE_BEOS_THREADS
@@ -243,10 +287,12 @@ xmlNewRMutex(void)
     if ((tok = malloc(sizeof(xmlRMutex))) == NULL)
         return (NULL);
 #ifdef HAVE_PTHREAD_H
-    pthread_mutex_init(&tok->lock, NULL);
-    tok->held = 0;
-    tok->waiters = 0;
-    pthread_cond_init(&tok->cv, NULL);
+    if (libxml_is_threaded != 0) {
+	pthread_mutex_init(&tok->lock, NULL);
+	tok->held = 0;
+	tok->waiters = 0;
+	pthread_cond_init(&tok->cv, NULL);
+    }
 #elif defined HAVE_WIN32_THREADS
     InitializeCriticalSection(&tok->cs);
     tok->count = 0;
@@ -270,8 +316,11 @@ xmlNewRMutex(void)
 void
 xmlFreeRMutex(xmlRMutexPtr tok ATTRIBUTE_UNUSED)
 {
+    if (tok == NULL)
+        return;
 #ifdef HAVE_PTHREAD_H
-    pthread_mutex_destroy(&tok->lock);
+    if (libxml_is_threaded != 0)
+	pthread_mutex_destroy(&tok->lock);
 #elif defined HAVE_WIN32_THREADS
     DeleteCriticalSection(&tok->cs);
 #elif defined HAVE_BEOS_THREADS
@@ -292,6 +341,9 @@ xmlRMutexLock(xmlRMutexPtr tok)
     if (tok == NULL)
         return;
 #ifdef HAVE_PTHREAD_H
+    if (libxml_is_threaded == 0)
+        return;
+
     pthread_mutex_lock(&tok->lock);
     if (tok->held) {
         if (pthread_equal(tok->tid, pthread_self())) {
@@ -334,6 +386,9 @@ xmlRMutexUnlock(xmlRMutexPtr tok ATTRIBUTE_UNUSED)
     if (tok == NULL)
         return;
 #ifdef HAVE_PTHREAD_H
+    if (libxml_is_threaded == 0)
+        return;
+    
     pthread_mutex_lock(&tok->lock);
     tok->held--;
     if (tok->held == 0) {
@@ -417,7 +472,7 @@ typedef struct _xmlGlobalStateCleanupHelperParams
     void *memory;
 } xmlGlobalStateCleanupHelperParams;
 
-static void xmlGlobalStateCleanupHelper (void *p)
+static void XMLCDECL xmlGlobalStateCleanupHelper (void *p)
 {
     xmlGlobalStateCleanupHelperParams *params = (xmlGlobalStateCleanupHelperParams *) p;
     WaitForSingleObject(params->thread, INFINITE);
@@ -469,6 +524,9 @@ xmlGetGlobalState(void)
 {
 #ifdef HAVE_PTHREAD_H
     xmlGlobalState *globalval;
+
+    if (libxml_is_threaded == 0)
+        return(NULL);
 
     pthread_once(&once_control, xmlOnceInit);
 
@@ -559,6 +617,8 @@ int
 xmlGetThreadId(void)
 {
 #ifdef HAVE_PTHREAD_H
+    if (libxml_is_threaded == 0)
+        return(0);
     return((int) pthread_self());
 #elif defined HAVE_WIN32_THREADS
     return GetCurrentThreadId();
@@ -580,6 +640,10 @@ int
 xmlIsMainThread(void)
 {
 #ifdef HAVE_PTHREAD_H
+    if (libxml_is_threaded == -1)
+        xmlInitThreads();
+    if (libxml_is_threaded == 0)
+        return(1);
     pthread_once(&once_control, xmlOnceInit);
 #elif defined HAVE_WIN32_THREADS
     xmlOnceInit (); 
@@ -645,6 +709,29 @@ xmlInitThreads(void)
 #endif
 #if defined(HAVE_WIN32_THREADS) && !defined(HAVE_COMPILER_TLS) && (!defined(LIBXML_STATIC) || defined(LIBXML_STATIC_FOR_DLL))
     InitializeCriticalSection(&cleanup_helpers_cs);
+#endif
+#ifdef HAVE_PTHREAD_H
+    if (libxml_is_threaded == -1) {
+        if ((pthread_once != NULL) &&
+	    (pthread_getspecific != NULL) &&
+	    (pthread_setspecific != NULL) &&
+	    (pthread_key_create != NULL) &&
+	    (pthread_mutex_init != NULL) &&
+	    (pthread_mutex_destroy != NULL) &&
+	    (pthread_mutex_lock != NULL) &&
+	    (pthread_mutex_unlock != NULL) &&
+	    (pthread_cond_init != NULL) &&
+	    (pthread_equal != NULL) &&
+	    (pthread_self != NULL) &&
+	    (pthread_key_create != NULL) &&
+	    (pthread_cond_signal != NULL)) {
+	    libxml_is_threaded = 1;
+/* fprintf(stderr, "Running multithreaded\n"); */
+	} else {
+/* fprintf(stderr, "Running without multithread\n"); */
+	    libxml_is_threaded = 0;
+	}
+    }
 #endif
 }
 

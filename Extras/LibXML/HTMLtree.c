@@ -506,16 +506,17 @@ htmlNodeDumpFile(FILE *out, xmlDocPtr doc, xmlNodePtr cur) {
 }
 
 /**
- * htmlDocDumpMemory:
+ * htmlDocDumpMemoryFormat:
  * @cur:  the document
  * @mem:  OUT: the memory pointer
  * @size:  OUT: the memory length
+ * @format:  should formatting spaces been added
  *
  * Dump an HTML document in memory and return the xmlChar * and it's size.
  * It's up to the caller to free the memory.
  */
 void
-htmlDocDumpMemory(xmlDocPtr cur, xmlChar**mem, int *size) {
+htmlDocDumpMemoryFormat(xmlDocPtr cur, xmlChar**mem, int *size, int format) {
     xmlOutputBufferPtr buf;
     xmlCharEncodingHandlerPtr handler = NULL;
     const char *encoding;
@@ -552,6 +553,8 @@ htmlDocDumpMemory(xmlDocPtr cur, xmlChar**mem, int *size) {
 		*size = 0;
 		return;
 	    }
+	} else {
+	    handler = xmlFindCharEncodingHandler(encoding);
 	}
     }
 
@@ -570,7 +573,8 @@ htmlDocDumpMemory(xmlDocPtr cur, xmlChar**mem, int *size) {
 	return;
     }
 
-    htmlDocContentDumpOutput(buf, cur, NULL);
+	htmlDocContentDumpFormatOutput(buf, cur, NULL, format);
+
     xmlOutputBufferFlush(buf);
     if (buf->conv != NULL) {
 	*size = buf->conv->use;
@@ -580,6 +584,20 @@ htmlDocDumpMemory(xmlDocPtr cur, xmlChar**mem, int *size) {
 	*mem = xmlStrndup(buf->buffer->content, *size);
     }
     (void)xmlOutputBufferClose(buf);
+}
+
+/**
+ * htmlDocDumpMemory:
+ * @cur:  the document
+ * @mem:  OUT: the memory pointer
+ * @size:  OUT: the memory length
+ *
+ * Dump an HTML document in memory and return the xmlChar * and it's size.
+ * It's up to the caller to free the memory.
+ */
+void
+htmlDocDumpMemory(xmlDocPtr cur, xmlChar**mem, int *size) {
+	htmlDocDumpMemoryFormat(cur, mem, size, 1);
 }
 
 
@@ -1026,6 +1044,8 @@ htmlDocDump(FILE *f, xmlDocPtr cur) {
 	    handler = xmlFindCharEncodingHandler(encoding);
 	    if (handler == NULL)
 		return(-1);
+	} else {
+	    handler = xmlFindCharEncodingHandler(encoding);
 	}
     }
 

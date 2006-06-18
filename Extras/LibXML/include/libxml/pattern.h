@@ -29,6 +29,20 @@ extern "C" {
 typedef struct _xmlPattern xmlPattern;
 typedef xmlPattern *xmlPatternPtr;
 
+/**
+ * xmlPatternFlags:
+ *
+ * This is the set of options affecting the behaviour of pattern
+ * matching with this module
+ *
+ */
+typedef enum {
+    XML_PATTERN_DEFAULT		= 0,	/* simple pattern match */
+    XML_PATTERN_XPATH		= 1<<0,	/* standard XPath pattern */
+    XML_PATTERN_XSSEL		= 1<<1,	/* XPath subset for schema selector */
+    XML_PATTERN_XSFIELD		= 1<<2	/* XPath subset for schema field */
+} xmlPatternFlags;
+
 XMLPUBFUN void XMLCALL
 			xmlFreePattern		(xmlPatternPtr comp);
 
@@ -53,11 +67,18 @@ XMLPUBFUN int XMLCALL
 XMLPUBFUN int XMLCALL
 			xmlPatternMaxDepth	(xmlPatternPtr comp);
 XMLPUBFUN int XMLCALL
+			xmlPatternMinDepth	(xmlPatternPtr comp);
+XMLPUBFUN int XMLCALL
 			xmlPatternFromRoot	(xmlPatternPtr comp);
 XMLPUBFUN xmlStreamCtxtPtr XMLCALL
 			xmlPatternGetStreamCtxt	(xmlPatternPtr comp);
 XMLPUBFUN void XMLCALL
 			xmlFreeStreamCtxt	(xmlStreamCtxtPtr stream);
+XMLPUBFUN int XMLCALL
+			xmlStreamPushNode	(xmlStreamCtxtPtr stream,
+						 const xmlChar *name,
+						 const xmlChar *ns,
+						 int nodeType);
 XMLPUBFUN int XMLCALL
 			xmlStreamPush		(xmlStreamCtxtPtr stream,
 						 const xmlChar *name,
@@ -68,6 +89,8 @@ XMLPUBFUN int XMLCALL
 						 const xmlChar *ns);
 XMLPUBFUN int XMLCALL
 			xmlStreamPop		(xmlStreamCtxtPtr stream);
+XMLPUBFUN int XMLCALL
+			xmlStreamWantsAnyNode	(xmlStreamCtxtPtr stream);
 #ifdef __cplusplus
 }
 #endif

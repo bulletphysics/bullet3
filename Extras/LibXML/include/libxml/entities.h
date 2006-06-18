@@ -48,7 +48,7 @@ struct _xmlEntity {
 
     xmlChar                *orig;	/* content without ref substitution */
     xmlChar             *content;	/* content or ndata if unparsed */
-    intptr_t              length;	/* the content length */
+    int                   length;	/* the content length */
     xmlEntityType          etype;	/* The entity type */
     const xmlChar    *ExternalID;	/* External identifier for PUBLIC */
     const xmlChar      *SystemID;	/* URI for a SYSTEM or PUBLIC Entity */

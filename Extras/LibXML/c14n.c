@@ -793,7 +793,7 @@ xmlExcC14NProcessNamespacesAxis(xmlC14NCtxPtr ctx, xmlNodePtr cur, int visible)
          * default namespace (XML Namespaces: "default namespaces 
     	 * do not apply directly to attributes")	 
          */
-	if((attr->ns != NULL) && xmlC14NIsVisible(ctx, attr, cur)) {
+	if((attr->ns != NULL) && !xmlC14NIsXmlNs(attr->ns) && xmlC14NIsVisible(ctx, attr, cur)) {
 	    already_rendered = xmlExcC14NVisibleNsStackFind(ctx->ns_rendered, attr->ns, ctx);
 	    xmlC14NVisibleNsStackAdd(ctx->ns_rendered, attr->ns, cur); 
 	    if(!already_rendered && visible) {
@@ -802,7 +802,7 @@ xmlExcC14NProcessNamespacesAxis(xmlC14NCtxPtr ctx, xmlNodePtr cur, int visible)
 	    if(xmlStrlen(attr->ns->prefix) == 0) {
 		has_empty_ns = 1;
 	    }
-	} else if(attr->ns == NULL) {
+	} else if((attr->ns != NULL) && (xmlStrlen(attr->ns->prefix) == 0) && (xmlStrlen(attr->ns->href) == 0)) {
 	    has_visibly_utilized_empty_ns = 1;
 	}
     }
@@ -946,6 +946,7 @@ xmlC14NPrintAttrs(const xmlAttrPtr attr, xmlC14NCtxPtr ctx)
  * xmlC14NProcessAttrsAxis:
  * @ctx: 		the C14N context
  * @cur:		the current node
+ * @parent_visible:	the visibility of parent node
  *
  * Prints out canonical attribute axis of the current node to the
  * buffer from C14N context as follows 
@@ -974,7 +975,7 @@ xmlC14NPrintAttrs(const xmlAttrPtr attr, xmlC14NCtxPtr ctx)
  * Returns 0 on success or -1 on fail.
  */
 static int
-xmlC14NProcessAttrsAxis(xmlC14NCtxPtr ctx, xmlNodePtr cur)
+xmlC14NProcessAttrsAxis(xmlC14NCtxPtr ctx, xmlNodePtr cur, int parent_visible)
 {
     xmlAttrPtr attr;
     xmlListPtr list;
@@ -1009,7 +1010,7 @@ xmlC14NProcessAttrsAxis(xmlC14NCtxPtr ctx, xmlNodePtr cur)
      * include attributes in "xml" namespace defined in ancestors
      * (only for non-exclusive XML Canonicalization)
      */
-    if ((!ctx->exclusive) && (cur->parent != NULL)
+    if (parent_visible && (!ctx->exclusive) && (cur->parent != NULL)
         && (!xmlC14NIsVisible(ctx, cur->parent, cur->parent->parent))) {
         /*
          * If XPath node-set is not specified then the parent is always 
@@ -1138,6 +1139,7 @@ xmlC14NProcessElementNode(xmlC14NCtxPtr ctx, xmlNodePtr cur, int visible)
     /* 
      * Save ns_rendered stack position
      */
+    memset(&state, 0, sizeof(state));
     xmlC14NVisibleNsStackSave(ctx->ns_rendered, &state);
 
     if (visible) {	
@@ -1171,12 +1173,10 @@ xmlC14NProcessElementNode(xmlC14NCtxPtr ctx, xmlNodePtr cur, int visible)
 	xmlC14NVisibleNsStackShift(ctx->ns_rendered);
     }
     
-    if(visible) {
-	ret = xmlC14NProcessAttrsAxis(ctx, cur);
-	if (ret < 0) {
-        xmlC14NErrInternal("processing attributes axis");
-    	    return (-1);
-	}
+    ret = xmlC14NProcessAttrsAxis(ctx, cur, visible);
+    if (ret < 0) {
+	xmlC14NErrInternal("processing attributes axis");
+    	return (-1);
     }
 
     if (visible) { 
