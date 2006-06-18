@@ -1,6 +1,9 @@
 Bullet Continuous Collision Detection and Physics Library
 Erwin Coumans
 
+2006 June 18 Dirk Gregorius <dirk@dirkgregorius.de>
+	Started implementing Generic6DOF joint and setup basic interface
+
 
 2006 June 17 Frank Richter <resqu@gmx.ch>
 	Bumped version in configure.ac to 1.5.6 (assuming that "1.5f" is
