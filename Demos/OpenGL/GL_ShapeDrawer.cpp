@@ -131,6 +131,7 @@ void GL_ShapeDrawer::DrawOpenGL(float* m, const CollisionShape* shape, const Sim
 				break;
 			}
 		case CONVEX_HULL_SHAPE_PROXYTYPE:
+			break;
 		case SPHERE_SHAPE_PROXYTYPE:
 			{
 				const SphereShape* sphereShape = static_cast<const SphereShape*>(shape);

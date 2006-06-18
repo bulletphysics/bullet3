@@ -47,7 +47,7 @@ extern int	gForwardAxis;
 #include "GLDebugDrawer.h"
 
 //either FCollada or COLLADA_DOM
-#define USE_FCOLLADA 1
+//#define USE_FCOLLADA 1
 #ifdef USE_FCOLLADA
 
 //Collada Physics test
@@ -1082,7 +1082,7 @@ int main(int argc,char** argv)
 											{
 												const domMeshRef meshRef = geom->getMesh();
 
-												printf("mesh\n");
+												printf("(concave) mesh not supported yet\n");
 											}
 
 											if (geom->getConvex_mesh())
@@ -1131,49 +1131,42 @@ int main(int argc,char** argv)
 															domMesh			*meshElement		= lib->getMesh();
 															if (meshElement)
 															{
-																for (int i=0;i<meshElement->getSource_array().getCount();i++)
+																const domVerticesRef vertsRef = meshElement->getVertices();
+																int numInputs = vertsRef->getInput_array().getCount();
+																for (int i=0;i<numInputs;i++)
 																{
-																	
-																	domSourceRef srcRef = meshElement->getSource_array()[i];
-																	
-																	
-																	/*for (int j=0;j<srcRef->getFloat_array()->getCount();j++)
+																	domInputLocalRef localRef = vertsRef->getInput_array()[i];
+																	daeString str = localRef->getSemantic();
+																	if ( !strcmp(str,"POSITION"))
 																	{
-																		const domListOfFloats& listFloats = srcRef->getFloat_array()[i].getValue();
-																		int cnt = listFloats.getCount();
-
-																		for (int k=0;k+2<cnt;k+=3)
-																		{
-
-																			domFloat fl0 = listFloats.get(k);
-																			domFloat fl1 = listFloats.get(k+1);
-																			domFloat fl2 = listFloats.get(k+2);
-
-																			convexHullShape->AddPoint(SimdPoint3(fl0,fl1,fl2));
-																		}
-																	}
-																	*/
-																	
-																	
-
-																	
-																}
-
-																int tricount = meshElement->getTriangles_array().getCount();
-																int polycount = meshElement->getPolygons_array().getCount();
-																for (int i=0;i<polycount;i++)
-																{
-																	domPolygons* poly = meshElement->getPolygons_array()[i];
-																	for (int i=0;i<poly->getInput_array().getCount();i++)
-																	{
-																		domInputLocalOffsetRef offset = poly->getInput_array()[i];
+																		const domURIFragmentType& frag = localRef->getSource();
 																		
+																		daeElementConstRef constElem = frag.getElement();
+																		
+																		const domSourceRef node = *(const domSourceRef*)&constElem;
+																		const domFloat_arrayRef flArray = node->getFloat_array();
+																		if (flArray)
+																		{
+																			int numElem = flArray->getCount();
+																			const domListOfFloats& listFloats = flArray->getValue();
+
+																			for (int k=0;k+2<numElem;k+=3)
+																			{
+																				domFloat fl0 = listFloats.get(k);
+																				domFloat fl1 = listFloats.get(k+1);
+																				domFloat fl2 = listFloats.get(k+2);
+																				//printf("float %f %f %f\n",fl0,fl1,fl2);
+
+																				convexHullShape->AddPoint(SimdPoint3(fl0,fl1,fl2));
+																			}
+
+																		}
 
 																	}
-
+																	
 
 																}
-																int vertexCount = meshElement->getVertices()->getInput_array().getCount(); //?
+
 
 															}
 														}
@@ -1183,9 +1176,11 @@ int main(int argc,char** argv)
 													if (convexHullShape->GetNumVertices())
 													{
 														colShape = convexHullShape;
+														printf("created convexHullShape with %i points\n",convexHullShape->GetNumVertices());
 													} else
 													{
 														delete convexHullShape;
+														printf("failed to create convexHullShape\n");
 													}
 													
 
