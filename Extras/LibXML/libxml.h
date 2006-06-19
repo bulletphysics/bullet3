@@ -21,8 +21,12 @@
 #if defined(macintosh)
 #include "config-mac.h"
 #else
+#ifdef _MSC_VER
+#include "config-win32.h"
+#else
 #include "config.h"
 #include <libxml/xmlversion.h>
+#endif //_MSVC
 #endif
 
 #if defined(__Lynx__)
