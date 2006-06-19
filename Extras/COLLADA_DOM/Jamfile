@@ -1,9 +1,8 @@
 SubDir TOP Extras COLLADA_DOM ;
 
-IncludeDir 
-	Extras/COLLADA_DOM/include
-	Extras/COLLADA_DOM/include/1.4
-;
+IncludeDir  Extras/COLLADA_DOM/include ;
+IncludeDir Extras/COLLADA_DOM/include/1.4 ;
+IncludeDir Extras/LibXML/include ; 
 
 Library collada-dom : 
 	[ Wildcard src/dae : *.h *.cpp ]
@@ -14,8 +13,13 @@ Library collada-dom :
 
 
  ;
+CFlags collada-dom :
+[ FIncludes $(TOP)/Extras/COLLADA_DOM/include ]
+[ FIncludes $(TOP)/Extras/COLLADA_DOM/include/1.4 ]
+[ FIncludes $(TOP)/Extras/LibXML/include ]
+;
 
-LibDepends collada-dom :  ;
+LibDepends collada-dom : libxml  ;
 
 
 InstallHeader [ Wildcard *.h ] : COLLADA_DOM ;

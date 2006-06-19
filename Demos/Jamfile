@@ -42,10 +42,10 @@ if $(GLUT.AVAILABLE) = "yes"
         "../../Demos/OpenGL"
         "../../Extras/PhysicsInterface/CcdPhysics"
         "../../Extras/PhysicsInterface/Common" 
-				"../../Extras/ConvexDecomposition" 
-				"../../Extras/COLLADA_DOM/include"
- 	  		"../../Extras/COLLADA_DOM/include/1.4"
-				"../../Extras/LibXML"
+	"../../Extras/ConvexDecomposition" 
+	"../../Extras/COLLADA_DOM/include"
+ 	"../../Extras/COLLADA_DOM/include/1.4"
+	"../../Extras/LibXML"
         "../../Extras/LibXML/include"	;
   }
 

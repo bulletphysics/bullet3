@@ -321,7 +321,7 @@ public:
 	 * @param uri the URI to make "this" relative to.
 	 * @note this is experimental and not fully tested, please don't use in critical code yet.
 	 */
-	int daeURI::makeRelativeTo(daeURI* uri);
+	int makeRelativeTo(daeURI* uri);
 
 	/**
 	 * Comparison operator.
