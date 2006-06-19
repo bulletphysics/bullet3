@@ -14,12 +14,6 @@ Library collada-dom :
 
 
  ;
-CFlags collada-dom : 
-[ FIncludes $(TOP)/Extras/COLLADA_DOM ]
-[ FIncludes $(TOP)/Extras/COLLADA_DOM/include ]
-[ FIncludes $(TOP)/Extras/COLLADA_DOM/include/1.4 ]
-[ FIncludes $(TOP)/Extras/LibXML/include ]
-;
 
 LibDepends collada-dom :  ;
 
