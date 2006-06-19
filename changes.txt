@@ -1,6 +1,10 @@
 Bullet Continuous Collision Detection and Physics Library
 Erwin Coumans
 
+2006 June 19 Erwin Coumans
+	Added support for COLLADA Physics Import.
+	Both jam and Visual Studio can compile ColladaDemo
+
 2006 June 18 Dirk Gregorius <dirk@dirkgregorius.de>
 	Started implementing Generic6DOF joint and setup basic interface
 
@@ -13,8 +17,7 @@ Erwin Coumans
 	Set msvc/bullet_ico.ico as the default application icon.
 	Disabled exceptions for gcc builds.
 	Applied a patch from Michael D. Adams to fix a warning with gcc.
-
-2006 June 16 Erwin Coumans
+2006 jUNE 16 Erwin Coumans
 	Constraints now merge simulation islands.
 
 2006 May 24
