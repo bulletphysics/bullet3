@@ -16,4 +16,17 @@ jam
 
 If jam is not available for your system, you can compile it, jam sources are included with the Bullet sources in jam-2.5
 
+compiling jam:
+
+cd jam-2.5
+
+make
+
+(as root)
+
+su
+
+make install
+
+For more help, visit http://www.continuousphysics.com
 
