@@ -47,6 +47,13 @@ extern int	gForwardAxis;
 #include "GLDebugDrawer.h"
 
 //either FCollada or COLLADA_DOM
+
+//COLLADA_DOM and LibXML source code are included in Extras/ folder.
+//COLLADA_DOM should compile under all platforms, and is enabled by default.
+
+//If you want to compile with FCollada (under windows), add the FCollada sourcecode
+//in Extras/FCollada, and define USE_FOLLADE, and include the library.
+
 //#define USE_FCOLLADA 1
 #ifdef USE_FCOLLADA
 

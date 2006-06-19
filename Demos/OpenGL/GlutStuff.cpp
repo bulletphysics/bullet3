@@ -370,6 +370,7 @@ int glutmain(int argc, char **argv,int width,int height,const char* title) {
 	glutMotionFunc(clientMotionFunc);
 	glutDisplayFunc( clientDisplay );
 
+	clientMoveAndDisplay();
 	
     glutMainLoop();
     return 0;
