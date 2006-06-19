@@ -1,3 +1,0 @@
-SubDir TOP Demos BasicSample ;
-
-BulletBasicDemo BasicSample : [ Wildcard *.h *.cpp  ] ;

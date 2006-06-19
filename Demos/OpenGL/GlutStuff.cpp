@@ -90,7 +90,7 @@ bool stepping= true;
 bool singleStep = false;
 
 
-static bool idle = true;
+static bool idle = false;
   
 void toggleIdle() {
 
@@ -365,7 +365,7 @@ int glutmain(int argc, char **argv,int width,int height,const char* title) {
     glutSpecialFunc(mySpecial);
     glutReshapeFunc(myReshape);
     //createMenu();
-	glutIdleFunc(0);//clientMoveAndDisplay);
+	glutIdleFunc(clientMoveAndDisplay);
 	glutMouseFunc(clientMouseFunc);
 	glutMotionFunc(clientMotionFunc);
 	glutDisplayFunc( clientDisplay );

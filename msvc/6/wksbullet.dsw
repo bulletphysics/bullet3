@@ -3,33 +3,6 @@ Microsoft Developer Studio Workspace File, Format Version 6.00
 
 ###############################################################################
 
-Project: "appBasicSample"=.\appBasicSample.dsp - Package Owner=<4>
-
-Package=<5>
-{{{
-}}}
-
-Package=<4>
-{{{
-    Begin Project Dependency
-    Project_Dep_Name libbullet
-    End Project Dependency
-    Begin Project Dependency
-    Project_Dep_Name libbulletccdphysics
-    End Project Dependency
-    Begin Project Dependency
-    Project_Dep_Name libbulletdynamics
-    End Project Dependency
-    Begin Project Dependency
-    Project_Dep_Name libbulletmath
-    End Project Dependency
-    Begin Project Dependency
-    Project_Dep_Name libbulletphysicsinterfacecommon
-    End Project Dependency
-}}}
-
-###############################################################################
-
 Project: "appCcdPhysicsDemo"=.\appCcdPhysicsDemo.dsp - Package Owner=<4>
 
 Package=<5>
@@ -417,9 +390,6 @@ Package=<5>
 Package=<4>
 {{{
     Begin Project Dependency
-    Project_Dep_Name appBasicSample
-    End Project Dependency
-    Begin Project Dependency
     Project_Dep_Name appCcdPhysicsDemo
     End Project Dependency
     Begin Project Dependency
@@ -494,9 +464,6 @@ Package=<5>
 
 Package=<4>
 {{{
-    Begin Project Dependency
-    Project_Dep_Name appBasicSample
-    End Project Dependency
     Begin Project Dependency
     Project_Dep_Name appCcdPhysicsDemo
     End Project Dependency

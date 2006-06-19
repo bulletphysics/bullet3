@@ -75,7 +75,6 @@ else
 SubInclude TOP Demos CcdPhysicsDemo ;
 SubInclude TOP Demos ConvexDecompositionDemo ;
 SubInclude TOP Demos ColladaDemo ;
-SubInclude TOP Demos BasicSample ;
 SubInclude TOP Demos CollisionDemo ;
 SubInclude TOP Demos CollisionInterfaceDemo ;
 SubInclude TOP Demos ConcaveDemo ;
