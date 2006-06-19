@@ -1,0 +1,19 @@
+Bullet Collision Detection and Physics Library
+
+Compile
+
+Under Windows, projectfiles for Visual Studio version 6,7,7.1 and 8 are available in msvc/<version>.
+For example, for Visual Studio 2005, open msvc/8/wksbullet.sln
+
+The ColladaDemo and ConvexDecomposition demo needs to be able to locate the data files (jenga.dae and file.obj) in the current directory. Make sure Visual Studio points to the right folder (..\..).
+
+
+For other systems, for example Linux or Mac OS-X:
+
+./configure
+
+jam
+
+If jam is not available for your system, you can compile it, jam sources are included with the Bullet sources in jam-2.5
+
+
