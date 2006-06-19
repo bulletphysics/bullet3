@@ -86,6 +86,15 @@ Package=<4>
     Begin Project Dependency
     Project_Dep_Name libbulletphysicsinterfacecommon
     End Project Dependency
+    Begin Project Dependency
+    Project_Dep_Name libcollada-dom
+    End Project Dependency
+    Begin Project Dependency
+    Project_Dep_Name libconvexdecomposition
+    End Project Dependency
+    Begin Project Dependency
+    Project_Dep_Name liblibxml
+    End Project Dependency
 }}}
 
 ###############################################################################
@@ -267,7 +276,13 @@ Package=<4>
     Project_Dep_Name libbulletphysicsinterfacecommon
     End Project Dependency
     Begin Project Dependency
+    Project_Dep_Name libcollada-dom
+    End Project Dependency
+    Begin Project Dependency
     Project_Dep_Name libconvexdecomposition
+    End Project Dependency
+    Begin Project Dependency
+    Project_Dep_Name liblibxml
     End Project Dependency
 }}}
 
@@ -459,7 +474,13 @@ Package=<4>
     Project_Dep_Name libbulletphysicsinterfacecommon
     End Project Dependency
     Begin Project Dependency
+    Project_Dep_Name libcollada-dom
+    End Project Dependency
+    Begin Project Dependency
     Project_Dep_Name libconvexdecomposition
+    End Project Dependency
+    Begin Project Dependency
+    Project_Dep_Name liblibxml
     End Project Dependency
 }}}
 
@@ -543,7 +564,13 @@ Package=<4>
     Project_Dep_Name libbulletphysicsinterfacecommon
     End Project Dependency
     Begin Project Dependency
+    Project_Dep_Name libcollada-dom
+    End Project Dependency
+    Begin Project Dependency
     Project_Dep_Name libconvexdecomposition
+    End Project Dependency
+    Begin Project Dependency
+    Project_Dep_Name liblibxml
     End Project Dependency
 }}}
 
@@ -621,7 +648,31 @@ Package=<4>
 
 ###############################################################################
 
+Project: "libcollada-dom"=.\libcollada-dom.dsp - Package Owner=<4>
+
+Package=<5>
+{{{
+}}}
+
+Package=<4>
+{{{
+}}}
+
+###############################################################################
+
 Project: "libconvexdecomposition"=.\libconvexdecomposition.dsp - Package Owner=<4>
+
+Package=<5>
+{{{
+}}}
+
+Package=<4>
+{{{
+}}}
+
+###############################################################################
+
+Project: "liblibxml"=.\liblibxml.dsp - Package Owner=<4>
 
 Package=<5>
 {{{
