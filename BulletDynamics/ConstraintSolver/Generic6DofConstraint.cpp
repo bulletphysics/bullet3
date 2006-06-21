@@ -43,8 +43,9 @@ void Generic6DofConstraint::BuildJacobian()
 	const SimdVector3& pivotInA = m_frameInA.getOrigin();
 	const SimdVector3& pivotInB = m_frameInB.getOrigin();
 
+	int i;
 	//linear part
-	for (int i=0;i<3;i++)
+	for (i=0;i<3;i++)
 	{
 		normal[i] = 1;
 
@@ -63,7 +64,7 @@ void Generic6DofConstraint::BuildJacobian()
 	}
 
 	// angular part
-	for (int i=0;i<3;i++)
+	for (i=0;i<3;i++)
 	{
 		#if 0
 
@@ -105,9 +106,10 @@ void	Generic6DofConstraint::SolveConstraint(SimdScalar	timeStep)
 	SimdVector3 rel_pos2 = pivotBInW - m_rbB.getCenterOfMassPosition();
 	
 	SimdVector3 normal(0,0,0);
+	int i;
 
 	// linear
-	for (int i=0;i<3;i++)
+	for (i=0;i<3;i++)
 	{		
 		SimdVector3 angvelA = m_rbA.getCenterOfMassTransform().getBasis().transpose() * m_rbA.getAngularVelocity();
 		SimdVector3 angvelB = m_rbB.getCenterOfMassTransform().getBasis().transpose() * m_rbB.getAngularVelocity();
@@ -133,7 +135,7 @@ void	Generic6DofConstraint::SolveConstraint(SimdScalar	timeStep)
 	}
 
 	// angular
-	for (int i=0;i<3;i++)
+	for (i=0;i<3;i++)
 	{
 		SimdVector3 angvelA = m_rbA.getCenterOfMassTransform().getBasis().transpose() * m_rbA.getAngularVelocity();
 		SimdVector3 angvelB = m_rbB.getCenterOfMassTransform().getBasis().transpose() * m_rbB.getAngularVelocity();
