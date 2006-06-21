@@ -100,7 +100,7 @@
 				Optimization="0"
 				MinimalRebuild="TRUE"
 				DebugInformationFormat="4"
-				RuntimeTypeInfo="TRUE"
+				RuntimeTypeInfo="FALSE"
 				RuntimeLibrary="3"
 				PreprocessorDefinitions="_DEBUG;_CONSOLE;WIN32"
 				OptimizeForProcessor="1"

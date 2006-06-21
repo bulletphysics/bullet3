@@ -1751,7 +1751,7 @@ void clientMouseFunc(int button, int state, int x, int y)
 						CcdPhysicsController* physCtrl = static_cast<CcdPhysicsController*>(hitObj);
 						RigidBody* body = physCtrl->GetRigidBody();
 
-						if (body)
+						if (body && !body->IsStatic())
 						{
 							pickedBody = body;
 							pickedBody->SetActivationState(DISABLE_DEACTIVATION);
