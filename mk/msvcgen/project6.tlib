@@ -83,7 +83,7 @@ RSC=rc.exe
 [% interpolate('ignoreexportlib') -%]
 # PROP Target_Dir ""
 # ADD BASE CPP /nologo /vmb /vms /W3 /Gm /G5 /D "WIN32" /FD /c
-# ADD CPP /nologo /vmb /vms /W3 /Gm /GX /G5 /FD /c [% interpolate('addcpp', ' ') %] /D "_MT" /D "_MBCS" [% composedefs(['WIN32']) %] [% flags(compose('cflags', [], ' ')) %] [% composedirs('incdirs', ['.'], '/I ') %]
+# ADD CPP /nologo /vmb /vms /W3 /Gm /G5 /FD /c [% interpolate('addcpp', ' ') %] /D "_MT" /D "_MBCS" [% composedefs(['WIN32']) %] [% flags(compose('cflags', [], ' ')) %] [% composedirs('incdirs', ['.'], '/I ') %]
 # ADD BASE MTL /nologo /mktyplib203 /o "NUL" /win32
 # ADD MTL /nologo /mktyplib203 /o "NUL" /win32 [% composedefs([]) %]
 # ADD BASE RSC /l 0x409
