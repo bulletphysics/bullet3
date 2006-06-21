@@ -315,7 +315,7 @@ void ConvexConvexAlgorithm ::ProcessCollision (BroadphaseProxy* ,BroadphaseProxy
 	input.m_maximumDistanceSquared = min0->GetMargin() + min1->GetMargin() + m_manifoldPtr->GetContactBreakingTreshold();
 	input.m_maximumDistanceSquared*= input.m_maximumDistanceSquared;
 	
-	input.m_maximumDistanceSquared = 1e30f;
+//	input.m_maximumDistanceSquared = 1e30f;
 	
 	input.m_transformA = col0->m_worldTransform;
 	input.m_transformB = col1->m_worldTransform;
