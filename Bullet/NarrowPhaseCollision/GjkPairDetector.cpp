@@ -18,6 +18,10 @@ subject to the following restrictions:
 #include "NarrowPhaseCollision/SimplexSolverInterface.h"
 #include "NarrowPhaseCollision/ConvexPenetrationDepthSolver.h"
 
+#if defined(DEBUG) || defined (_DEBUG)
+#include <stdio.h> //for debug printf
+#endif
+
 static const SimdScalar rel_error = SimdScalar(1.0e-5);
 SimdScalar rel_error2 = rel_error * rel_error;
 float maxdist2 = 1.e30f;
