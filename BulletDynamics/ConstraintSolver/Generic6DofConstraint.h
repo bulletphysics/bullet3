@@ -33,12 +33,14 @@ class Generic6DofConstraint : public TypedConstraint
 	JacobianEntry	m_jac[3];			// 3 orthogonal linear constraints
 	JacobianEntry	m_jacAng[3];		// 3 orthogonal angular constraints
 
-
 	SimdTransform	m_frameInA;			// the constraint space w.r.t body A
 	SimdTransform	m_frameInB;			// the constraint space w.r.t body B
 
-	SimdScalar      m_lowerLimit[6];	// the constraint lower limits
-	SimdScalar      m_upperLimit[6];	// the constraint upper limits
+	SimdScalar m_accumulatedLinearImpulse[3];
+	SimdScalar m_accumulatedAngularImpulse[3];
+
+	SimdScalar      m_angularLowerLimit[3];	// the constraint lower limits
+	SimdScalar      m_angularUpperLimit[3];	// the constraint upper limits
 
 		
 public:
@@ -51,6 +53,14 @@ public:
 	virtual	void	SolveConstraint(SimdScalar	timeStep);
 
 	void	UpdateRHS(SimdScalar	timeStep);
+
+	SimdScalar ComputeAngle(int axis) const;
+
+	void SetAngularLimit(int axis, SimdScalar lo, SimdScalar hi)
+		{
+		m_angularLowerLimit[axis] = lo; 
+		m_angularUpperLimit[axis] = hi; 
+		}
 
 	const RigidBody& GetRigidBodyA() const
 	{

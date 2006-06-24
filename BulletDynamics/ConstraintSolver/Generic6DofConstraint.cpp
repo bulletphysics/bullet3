@@ -27,12 +27,27 @@ Generic6DofConstraint::Generic6DofConstraint()
 {
 }
 
-Generic6DofConstraint::Generic6DofConstraint(RigidBody& rbA, RigidBody& rbB, const SimdTransform& frameInA, const SimdTransform& frameInB )
+Generic6DofConstraint::Generic6DofConstraint(RigidBody& rbA, RigidBody& rbB, const SimdTransform& frameInA, const SimdTransform& frameInB)
 : TypedConstraint(rbA, rbB)
 , m_frameInA(frameInA)
 , m_frameInB(frameInB)
 {
-	
+m_accumulatedLinearImpulse[0] = 0.0f;
+m_accumulatedLinearImpulse[1] = 0.0f;
+m_accumulatedLinearImpulse[2] = 0.0f;
+
+m_accumulatedAngularImpulse[0] = 0.0f;
+m_accumulatedAngularImpulse[1] = 0.0f;
+m_accumulatedAngularImpulse[2] = 0.0f;
+
+m_angularLowerLimit[0] = 0.0f;
+m_angularLowerLimit[1] = 0.0f;
+m_angularLowerLimit[2] = 0.0f;
+
+m_angularUpperLimit[0] = 0.0f;
+m_angularUpperLimit[1] = 0.0f;
+m_angularUpperLimit[2] = 0.0f;
+
 }
 
 
@@ -43,12 +58,19 @@ void Generic6DofConstraint::BuildJacobian()
 	const SimdVector3& pivotInA = m_frameInA.getOrigin();
 	const SimdVector3& pivotInB = m_frameInB.getOrigin();
 
+	SimdVector3 pivotAInW = m_rbA.getCenterOfMassTransform() * m_frameInA.getOrigin();
+	SimdVector3 pivotBInW = m_rbB.getCenterOfMassTransform() * m_frameInB.getOrigin();
+
+	SimdVector3 rel_pos1 = pivotAInW - m_rbA.getCenterOfMassPosition(); 
+	SimdVector3 rel_pos2 = pivotBInW - m_rbB.getCenterOfMassPosition();
+
 	int i;
 	//linear part
 	for (i=0;i<3;i++)
 	{
 		normal[i] = 1;
-
+		
+		// Create linear atom
 		new (&m_jac[i]) JacobianEntry(
 			m_rbA.getCenterOfMassTransform().getBasis().transpose(),
 			m_rbB.getCenterOfMassTransform().getBasis().transpose(),
@@ -60,37 +82,36 @@ void Generic6DofConstraint::BuildJacobian()
 			m_rbB.getInvInertiaDiagLocal(),
 			m_rbB.getInvMass());
 
+		// Apply accumulated impulse
+		SimdVector3 impulse_vector = m_accumulatedLinearImpulse[i] * normal;
+
+		m_rbA.applyImpulse( impulse_vector, rel_pos1);
+		m_rbB.applyImpulse(-impulse_vector, rel_pos2);
+
 		normal[i] = 0;
 	}
 
 	// angular part
 	for (i=0;i<3;i++)
 	{
-		#if 0
-
-		SimdVector3 axisInA = m_frameInA.getBasis().getColumn(i);
-		SimdVector3 axisInB = m_frameInB.getBasis().getColumn(i);
-
-		new (&m_jacAng[i])	JacobianEntry(axisInA, axisInB,
-			m_rbA.getInvInertiaDiagLocal(),
-			m_rbB.getInvInertiaDiagLocal());
-
-		#else
-
 		SimdVector3 axisA = m_rbA.getCenterOfMassTransform().getBasis() * m_frameInA.getBasis().getColumn( kAxisA[i] );
 		SimdVector3 axisB = m_rbB.getCenterOfMassTransform().getBasis() * m_frameInB.getBasis().getColumn( kAxisB[i] );
 
-		// Dirk: This is IMO mathematically the correct way, but we should consider axisA and axisB being near parallel
+		// Dirk: This is IMO mathematically the correct way, but we should consider axisA and axisB being near parallel maybe
 		SimdVector3 axis = kSign[i] * axisA.cross(axisB);
 
+		// Create angular atom
 		new (&m_jacAng[i])	JacobianEntry(axis,
-		m_rbA.getCenterOfMassTransform().getBasis().transpose(),
-		m_rbB.getCenterOfMassTransform().getBasis().transpose(),
-		m_rbA.getInvInertiaDiagLocal(),
-		m_rbB.getInvInertiaDiagLocal());
+			m_rbA.getCenterOfMassTransform().getBasis().transpose(),
+			m_rbB.getCenterOfMassTransform().getBasis().transpose(),
+			m_rbA.getInvInertiaDiagLocal(),
+			m_rbB.getInvInertiaDiagLocal());
 
-		#endif
+		// Apply accumulated impulse
+		SimdVector3 impulse_vector = m_accumulatedAngularImpulse[i] * axis;
 
+		m_rbA.applyTorqueImpulse( impulse_vector);
+		m_rbB.applyTorqueImpulse(-impulse_vector);
 	}
 }
 
@@ -126,6 +147,7 @@ void	Generic6DofConstraint::SolveConstraint(SimdScalar	timeStep)
 		SimdScalar depth = -(pivotAInW - pivotBInW).dot(normal); 
 		
 		SimdScalar impulse = (tau*depth/timeStep - damping*rel_vel) * jacDiagABInv;
+		m_accumulatedLinearImpulse[i] += impulse;
 
 		SimdVector3 impulse_vector = normal * impulse;
 		m_rbA.applyImpulse( impulse_vector, rel_pos1);
@@ -154,6 +176,7 @@ void	Generic6DofConstraint::SolveConstraint(SimdScalar	timeStep)
 
 		//impulse
 		SimdScalar impulse = -(tau*rel_pos/timeStep + damping*rel_vel) * jacDiagABInv;
+		m_accumulatedAngularImpulse[i] += impulse;
 		
 		// Dirk: Not needed - we could actually project onto Jacobian entry here (same as above)
 		SimdVector3 axis = kSign[i] * axisA.cross(axisB);
@@ -168,4 +191,53 @@ void	Generic6DofConstraint::UpdateRHS(SimdScalar	timeStep)
 {
 
 }
+
+SimdScalar Generic6DofConstraint::ComputeAngle(int axis) const
+	{
+	SimdScalar angle;
+
+	switch (axis)
+		{
+		case 0:
+			{
+			SimdVector3 v1 = m_rbA.getCenterOfMassTransform().getBasis() * m_frameInA.getBasis().getColumn(1);
+			SimdVector3 v2 = m_rbB.getCenterOfMassTransform().getBasis() * m_frameInB.getBasis().getColumn(1);
+			SimdVector3 w2 = m_rbB.getCenterOfMassTransform().getBasis() * m_frameInB.getBasis().getColumn(2);
+
+			SimdScalar s = v1.dot(w2);
+			SimdScalar c = v1.dot(v2);
+
+			angle = SimdAtan2( s, c );
+			}
+			break;
+
+		case 1:
+			{
+			SimdVector3 w1 = m_rbA.getCenterOfMassTransform().getBasis() * m_frameInA.getBasis().getColumn(2);
+			SimdVector3 w2 = m_rbB.getCenterOfMassTransform().getBasis() * m_frameInB.getBasis().getColumn(2);
+			SimdVector3 u2 = m_rbB.getCenterOfMassTransform().getBasis() * m_frameInB.getBasis().getColumn(0);
+
+			SimdScalar s = w1.dot(u2);
+			SimdScalar c = w1.dot(w2);
+
+			angle = SimdAtan2( s, c );
+			}
+			break;
+
+		case 2:
+			{
+			SimdVector3 u1 = m_rbA.getCenterOfMassTransform().getBasis() * m_frameInA.getBasis().getColumn(0);
+			SimdVector3 u2 = m_rbB.getCenterOfMassTransform().getBasis() * m_frameInB.getBasis().getColumn(0);
+			SimdVector3 v2 = m_rbB.getCenterOfMassTransform().getBasis() * m_frameInB.getBasis().getColumn(1);
+
+			SimdScalar s = u1.dot(v2);
+			SimdScalar c = u1.dot(u2);
+
+			angle = SimdAtan2( s, c );
+			}
+			break;
+		}
+
+	return angle;
+	}
 
