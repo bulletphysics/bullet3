@@ -39,20 +39,24 @@ extern bool gDisableDeactivation;
 class CcdPhysicsEnvironment;
 
 
-///CollisionFilterGroups provides some optional usage of basic collision filtering
-///this is done during broadphase, so very early in the pipeline
-///more advanced collision filtering should be done in CollisionDispatcher::NeedsCollision
-enum CollisionFilterGroups
-{
-	Default	= 1,
-	Static = 2,
-	Kinematic = 4,
-	Debris = 8,
-	All = Default | Static | Kinematic | Debris,
-};
+
 
 struct CcdConstructionInfo
 {
+
+	///CollisionFilterGroups provides some optional usage of basic collision filtering
+	///this is done during broadphase, so very early in the pipeline
+	///more advanced collision filtering should be done in CollisionDispatcher::NeedsCollision
+	enum CollisionFilterGroups
+	{
+	        DefaultFilter = 1,
+	        StaticFilter = 2,
+	        KinematicFilter = 4,
+	        DebrisFilter = 8,
+	        AllFilter = DefaultFilter | StaticFilter | KinematicFilter | DebrisFilter,
+	};
+
+
 	CcdConstructionInfo()
 		: m_gravity(0,0,0),
 		m_scaling(1.f,1.f,1.f),
@@ -62,8 +66,8 @@ struct CcdConstructionInfo
 		m_linearDamping(0.1f),
 		m_angularDamping(0.1f),
 		m_collisionFlags(0),
-		m_collisionFilterGroup(CollisionFilterGroups::Default),
-		m_collisionFilterMask(CollisionFilterGroups::All),
+		m_collisionFilterGroup(DefaultFilter),
+		m_collisionFilterMask(AllFilter),
 		m_MotionState(0),
 		m_physicsEnv(0),
 		m_inertiaFactor(1.f)

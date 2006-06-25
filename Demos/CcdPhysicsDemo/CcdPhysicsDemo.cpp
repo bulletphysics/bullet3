@@ -246,8 +246,8 @@ int main(int argc,char** argv)
 			ccdObjectCi.m_mass = shapeProps.m_mass;
 			ccdObjectCi.m_collisionFlags = CollisionObject::isStatic;
 			
-			ccdObjectCi.m_collisionFilterGroup = CollisionFilterGroups::Static;
-			ccdObjectCi.m_collisionFilterMask = CollisionFilterGroups::All ^ CollisionFilterGroups::Static;
+			ccdObjectCi.m_collisionFilterGroup = CcdConstructionInfo::StaticFilter;
+			ccdObjectCi.m_collisionFilterMask = CcdConstructionInfo::AllFilter ^ CcdConstructionInfo::StaticFilter;
 		}
 		else
 		{

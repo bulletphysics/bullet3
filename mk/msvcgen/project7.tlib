@@ -79,6 +79,7 @@ END -%]
 				AdditionalDependencies="[% compose('libs', [], ' ') %]"
 				IgnoreImportLibrary="TRUE"
 				SuppressStartupBanner="TRUE"
+				GenerateManifest="false"
 				AdditionalLibraryDirectories="[% composedirs('libdirs', []) %]"
 				ProgramDatabaseFile="[% workbuild([my.doc.rawtarget.0,'.pdb']) %]"
 				TargetMachine="1"/>
