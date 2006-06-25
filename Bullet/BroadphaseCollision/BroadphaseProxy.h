@@ -43,6 +43,7 @@ CONCAVE_SHAPES_START_HERE,
 	//keep all the convex shapetype below here, for the check IsConvexShape in broadphase proxy!
 	TRIANGLE_MESH_SHAPE_PROXYTYPE,
 	EMPTY_SHAPE_PROXYTYPE,
+	COMPOUND_SHAPE_PROXYTYPE,
 
 	MAX_BROADPHASE_COLLISION_TYPES
 };
