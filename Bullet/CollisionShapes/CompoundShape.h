@@ -28,6 +28,7 @@ subject to the following restrictions:
 
 /// CompoundShape allows to store multiple other CollisionShapes
 /// This allows for concave collision objects. This is more general then the Static Concave TriangleMeshShape.
+/// Place holder, not fully implemented yet
 class CompoundShape	: public CollisionShape
 {
 public:
