@@ -70,7 +70,7 @@
 				Optimization="2"
 				StringPooling="TRUE"
 				EnableFunctionLevelLinking="TRUE"
-				RuntimeLibrary="2"
+				RuntimeLibrary="0"
 				DebugInformationFormat="3"
 				BufferSecurityCheck="FALSE"
 [% END %]
@@ -79,7 +79,7 @@
 				MinimalRebuild="TRUE"
 				DebugInformationFormat="4"
 				RuntimeTypeInfo="FALSE"
-				RuntimeLibrary="3"
+				RuntimeLibrary="1"
 [% END %]
 
 [% MACRO linker_release BLOCK -%]
