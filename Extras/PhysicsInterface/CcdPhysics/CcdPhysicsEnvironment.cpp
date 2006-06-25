@@ -374,7 +374,7 @@ void	CcdPhysicsEnvironment::addCcdPhysicsController(CcdPhysicsController* ctrl)
 	body->setGravity( m_gravity );
 	m_controllers.push_back(ctrl);
 
-	m_collisionWorld->AddCollisionObject(body);
+	m_collisionWorld->AddCollisionObject(body,ctrl->GetCollisionFilterGroup(),ctrl->GetCollisionFilterMask());
 
 	assert(body->m_broadphaseHandle);
 

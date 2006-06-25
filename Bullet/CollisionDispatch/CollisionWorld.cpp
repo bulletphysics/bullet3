@@ -112,7 +112,7 @@ void	CollisionWorld::StoreIslandActivationState()
 
 
 
-void	CollisionWorld::AddCollisionObject(CollisionObject* collisionObject)
+void	CollisionWorld::AddCollisionObject(CollisionObject* collisionObject,short int collisionFilterGroup,short int collisionFilterMask)
 {
 		m_collisionObjects.push_back(collisionObject);
 
@@ -128,7 +128,9 @@ void	CollisionWorld::AddCollisionObject(CollisionObject* collisionObject)
 			minAabb,
 			maxAabb,
 			type,
-			collisionObject
+			collisionObject,
+			collisionFilterGroup,
+			collisionFilterMask
 			);
 		
 

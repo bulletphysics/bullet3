@@ -74,7 +74,7 @@ SimpleBroadphase::~SimpleBroadphase()
 }
 
 
-BroadphaseProxy*	SimpleBroadphase::CreateProxy(  const SimdVector3& min,  const SimdVector3& max,int shapeType,void* userPtr)
+BroadphaseProxy*	SimpleBroadphase::CreateProxy(  const SimdVector3& min,  const SimdVector3& max,int shapeType,void* userPtr ,short int collisionFilterGroup,short int collisionFilterMask)
 {
 	if (m_numProxies >= m_maxProxies)
 	{
@@ -84,7 +84,7 @@ BroadphaseProxy*	SimpleBroadphase::CreateProxy(  const SimdVector3& min,  const 
 	assert(min[0]<= max[0] && min[1]<= max[1] && min[2]<= max[2]);
 
 	int freeIndex= m_freeProxies[m_firstFreeProxy];
-	SimpleBroadphaseProxy* proxy = new (&m_proxies[freeIndex])SimpleBroadphaseProxy(min,max,shapeType,userPtr);
+	SimpleBroadphaseProxy* proxy = new (&m_proxies[freeIndex])SimpleBroadphaseProxy(min,max,shapeType,userPtr,collisionFilterGroup,collisionFilterMask);
 	m_firstFreeProxy++;
 
 	SimpleBroadphaseProxy* proxy1 = &m_proxies[0];
@@ -180,6 +180,10 @@ void	SimpleBroadphase::AddOverlappingPair(BroadphaseProxy* proxy0,BroadphaseProx
 {
 	//don't add overlap with own
 	assert(proxy0 != proxy1);
+
+	if (!NeedsCollision(proxy0,proxy1))
+		return;
+
 
 	BroadphasePair pair(*proxy0,*proxy1);
 	m_OverlappingPairs[m_NumOverlapBroadphasePair] = pair;

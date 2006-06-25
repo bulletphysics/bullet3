@@ -39,6 +39,18 @@ extern bool gDisableDeactivation;
 class CcdPhysicsEnvironment;
 
 
+///CollisionFilterGroups provides some optional usage of basic collision filtering
+///this is done during broadphase, so very early in the pipeline
+///more advanced collision filtering should be done in CollisionDispatcher::NeedsCollision
+enum CollisionFilterGroups
+{
+	Default	= 1,
+	Static = 2,
+	Kinematic = 4,
+	Debris = 8,
+	All = Default | Static | Kinematic | Debris,
+};
+
 struct CcdConstructionInfo
 {
 	CcdConstructionInfo()
@@ -50,6 +62,8 @@ struct CcdConstructionInfo
 		m_linearDamping(0.1f),
 		m_angularDamping(0.1f),
 		m_collisionFlags(0),
+		m_collisionFilterGroup(CollisionFilterGroups::Default),
+		m_collisionFilterMask(CollisionFilterGroups::All),
 		m_MotionState(0),
 		m_physicsEnv(0),
 		m_inertiaFactor(1.f)
@@ -65,6 +79,15 @@ struct CcdConstructionInfo
 	SimdScalar	m_linearDamping;
 	SimdScalar	m_angularDamping;
 	int			m_collisionFlags;
+
+	///optional use of collision group/mask:
+	///only collision with object goups that match the collision mask.
+	///this is very basic early out. advanced collision filtering should be
+	///done in the CollisionDispatcher::NeedsCollision and NeedsResponse
+	///both values default to 1
+	short int	m_collisionFilterGroup;
+	short int	m_collisionFilterMask;
+
 
 	CollisionShape*			m_collisionShape;
 	class	PHY_IMotionState*			m_MotionState;
@@ -158,6 +181,17 @@ class CcdPhysicsController : public PHY_IPhysicsController
 		virtual	void				setNewClientInfo(void* clientinfo);
 		virtual PHY_IPhysicsController*	GetReplica();
 		
+		///There should be no 'SetCollisionFilterGroup' method, as changing this during run-time is will result in errors
+		short int	GetCollisionFilterGroup() const
+		{
+			return m_cci.m_collisionFilterGroup;
+		}
+		///There should be no 'SetCollisionFilterGroup' method, as changing this during run-time is will result in errors
+		short int	GetCollisionFilterMask() const
+		{
+			return m_cci.m_collisionFilterMask;
+		}
+
 
 		virtual void	calcXform() {} ;
 		virtual void SetMargin(float margin) {};

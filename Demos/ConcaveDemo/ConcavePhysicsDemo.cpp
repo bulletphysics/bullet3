@@ -20,6 +20,8 @@ subject to the following restrictions:
 #include "CollisionShapes/BoxShape.h"
 #include "CollisionShapes/Simplex1to4Shape.h"
 #include "Dynamics/RigidBody.h"
+#include "BroadphaseCollision/AxisSweep3.h"
+
 #include "ConstraintSolver/SimpleConstraintSolver.h"
 #include "ConstraintSolver/OdeConstraintSolver.h"
 #include "CollisionDispatch/CollisionDispatcher.h"
@@ -83,6 +85,19 @@ int	gIndices[NUM_TRIANGLES*3];
 
 int main(int argc,char** argv)
 {
+
+	printf("BroadphaseProxy: %i\n",sizeof(BroadphaseProxy));
+	printf("AxisSweep3::Handle : %i\n",sizeof(AxisSweep3::Handle));
+
+	printf("SimpleBroadphaseProxy : %i\n",sizeof(SimpleBroadphaseProxy));
+
+	printf("RigidBody : %i\n",sizeof(RigidBody));
+
+	printf("CcdPhysicsController: %i\n",sizeof(CcdPhysicsController));
+	
+	printf("ManifoldPoint: %i\n",sizeof(ManifoldPoint));
+	
+	
 
 	setCameraDistance(30.f);
 

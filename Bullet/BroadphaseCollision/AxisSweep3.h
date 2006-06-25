@@ -99,14 +99,14 @@ public:
 		//this is replace by sweep and prune
 	}
 	
-	unsigned short AddHandle(const SimdPoint3& aabbMin,const SimdPoint3& aabbMax, void* pOwner);
+	unsigned short AddHandle(const SimdPoint3& aabbMin,const SimdPoint3& aabbMax, void* pOwner,short int collisionFilterGroup,short int collisionFilterMask);
 	void RemoveHandle(unsigned short handle);
 	void UpdateHandle(unsigned short handle, const SimdPoint3& aabbMin,const SimdPoint3& aabbMax);
 	inline Handle* GetHandle(unsigned short index) const {return m_pHandles + index;}
 
 
 	//Broadphase Interface
-	virtual BroadphaseProxy*	CreateProxy(  const SimdVector3& min,  const SimdVector3& max,int shapeType,void* userPtr );
+	virtual BroadphaseProxy*	CreateProxy(  const SimdVector3& min,  const SimdVector3& max,int shapeType,void* userPtr ,short int collisionFilterGroup,short int collisionFilterMask);
 	virtual void	DestroyProxy(BroadphaseProxy* proxy);
 	virtual void	SetAabb(BroadphaseProxy* proxy,const SimdVector3& aabbMin,const SimdVector3& aabbMax);
 

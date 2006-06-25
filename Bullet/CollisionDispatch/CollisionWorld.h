@@ -201,7 +201,7 @@ public:
 	void	RayTest(const SimdVector3& rayFromWorld, const SimdVector3& rayToWorld, RayResultCallback& resultCallback);
 
 
-	void	AddCollisionObject(CollisionObject* collisionObject);
+	void	AddCollisionObject(CollisionObject* collisionObject,short int collisionFilterGroup=1,short int collisionFilterMask=1);
 
 	CollisionObjectArray& GetCollisionObjectArray()
 	{

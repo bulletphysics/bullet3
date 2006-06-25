@@ -30,8 +30,8 @@ struct SimpleBroadphaseProxy : public BroadphaseProxy
 	
 	SimpleBroadphaseProxy() {};
 
-	SimpleBroadphaseProxy(const SimdPoint3& minpt,const SimdPoint3& maxpt,int shapeType,void* userPtr)
-	:BroadphaseProxy(shapeType,userPtr),
+	SimpleBroadphaseProxy(const SimdPoint3& minpt,const SimdPoint3& maxpt,int shapeType,void* userPtr,short int collisionFilterGroup,short int collisionFilterMask)
+	:BroadphaseProxy(userPtr,collisionFilterGroup,collisionFilterMask),
 	m_min(minpt),m_max(maxpt)		
 	{
 	}
@@ -82,12 +82,24 @@ public:
 	SimpleBroadphase(int maxProxies=4096,int maxOverlap=8192);
 	virtual ~SimpleBroadphase();
 
-	virtual BroadphaseProxy*	CreateProxy(  const SimdVector3& min,  const SimdVector3& max,int shapeType,void* userPtr);
+
+	virtual BroadphaseProxy*	CreateProxy(  const SimdVector3& min,  const SimdVector3& max,int shapeType,void* userPtr ,short int collisionFilterGroup,short int collisionFilterMask);
+
 
 	virtual void	DestroyProxy(BroadphaseProxy* proxy);
 	virtual void	SetAabb(BroadphaseProxy* proxy,const SimdVector3& aabbMin,const SimdVector3& aabbMax);
 	virtual void	CleanProxyFromPairs(BroadphaseProxy* proxy);
 	virtual void	DispatchAllCollisionPairs(Dispatcher&	dispatcher,DispatcherInfo& dispatchInfo);
+
+	
+	inline bool NeedsCollision(BroadphaseProxy* proxy0,BroadphaseProxy* proxy1) const
+	{
+		bool collides = proxy0->m_collisionFilterGroup & proxy1->m_collisionFilterMask;
+		collides = collides && (proxy1->m_collisionFilterGroup & proxy0->m_collisionFilterMask);
+		
+		return collides;
+	}
+
 
 };
 

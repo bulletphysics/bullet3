@@ -155,11 +155,7 @@ int main(int argc,char** argv)
 	materialProps.m_friction = 10.5f;
 	materialProps.m_restitution = 0.0f;
 
-	CcdConstructionInfo ccdObjectCi;
-	ccdObjectCi.m_friction = 0.5f;
-
-	ccdObjectCi.m_linearDamping = shapeProps.m_lin_drag;
-	ccdObjectCi.m_angularDamping = shapeProps.m_ang_drag;
+	
 
 	SimdTransform tr;
 	tr.setIdentity();
@@ -180,6 +176,13 @@ int main(int argc,char** argv)
 
 	for (i=0;i<numObjects;i++)
 	{
+
+		CcdConstructionInfo ccdObjectCi;
+		ccdObjectCi.m_friction = 0.5f;
+
+		ccdObjectCi.m_linearDamping = shapeProps.m_lin_drag;
+		ccdObjectCi.m_angularDamping = shapeProps.m_ang_drag;
+
 		shapeProps.m_shape = shapePtr[shapeIndex[i]];
 		shapeProps.m_shape->SetMargin(0.05f);
 
@@ -242,12 +245,16 @@ int main(int argc,char** argv)
 			shapeProps.m_mass = 0.f;
 			ccdObjectCi.m_mass = shapeProps.m_mass;
 			ccdObjectCi.m_collisionFlags = CollisionObject::isStatic;
+			
+			ccdObjectCi.m_collisionFilterGroup = CollisionFilterGroups::Static;
+			ccdObjectCi.m_collisionFilterMask = CollisionFilterGroups::All ^ CollisionFilterGroups::Static;
 		}
 		else
 		{
 			shapeProps.m_mass = 1.f;
 			ccdObjectCi.m_mass = shapeProps.m_mass;
 			ccdObjectCi.m_collisionFlags = 0;
+
 		}
 
 
@@ -817,7 +824,7 @@ void clientMouseFunc(int button, int state, int x, int y)
 						CcdPhysicsController* physCtrl = static_cast<CcdPhysicsController*>(hitObj);
 						RigidBody* body = physCtrl->GetRigidBody();
 
-						if (body)
+						if (body && !body->IsStatic())
 						{
 							pickedBody = body;
 							pickedBody->SetActivationState(DISABLE_DEACTIVATION);
