@@ -17,7 +17,6 @@ subject to the following restrictions:
 #include "ConvexConcaveCollisionAlgorithm.h"
 #include "CollisionDispatch/CollisionObject.h"
 #include "CollisionShapes/MultiSphereShape.h"
-#include "CollisionShapes/BoxShape.h"
 #include "ConvexConvexAlgorithm.h"
 #include "BroadphaseCollision/BroadphaseProxy.h"
 #include "CollisionShapes/TriangleShape.h"
@@ -28,7 +27,7 @@ subject to the following restrictions:
 
 ConvexConcaveCollisionAlgorithm::ConvexConcaveCollisionAlgorithm( const CollisionAlgorithmConstructionInfo& ci,BroadphaseProxy* proxy0,BroadphaseProxy* proxy1)
 : CollisionAlgorithm(ci),m_convex(*proxy0),m_concave(*proxy1),
-m_boxTriangleCallback(ci.m_dispatcher,proxy0,proxy1)
+m_ConvexTriangleCallback(ci.m_dispatcher,proxy0,proxy1)
 
 {
 }
@@ -39,8 +38,8 @@ ConvexConcaveCollisionAlgorithm::~ConvexConcaveCollisionAlgorithm()
 
 
 
-BoxTriangleCallback::BoxTriangleCallback(Dispatcher*  dispatcher,BroadphaseProxy* proxy0,BroadphaseProxy* proxy1):
-  m_boxProxy(proxy0),m_triangleProxy(*proxy1),m_dispatcher(dispatcher),
+ConvexTriangleCallback::ConvexTriangleCallback(Dispatcher*  dispatcher,BroadphaseProxy* proxy0,BroadphaseProxy* proxy1):
+  m_convexProxy(proxy0),m_triangleProxy(*proxy1),m_dispatcher(dispatcher),
 	m_dispatchInfoPtr(0)
 {
 
@@ -52,7 +51,7 @@ BoxTriangleCallback::BoxTriangleCallback(Dispatcher*  dispatcher,BroadphaseProxy
   	  ClearCache();
 }
 
-BoxTriangleCallback::~BoxTriangleCallback()
+ConvexTriangleCallback::~ConvexTriangleCallback()
 {
 	ClearCache();
 	m_dispatcher->ReleaseManifold( m_manifoldPtr );
@@ -60,14 +59,14 @@ BoxTriangleCallback::~BoxTriangleCallback()
 }
   
 
-void	BoxTriangleCallback::ClearCache()
+void	ConvexTriangleCallback::ClearCache()
 {
 	m_dispatcher->ClearManifold(m_manifoldPtr);
 };
 
 
 
-void BoxTriangleCallback::ProcessTriangle(SimdVector3* triangle,int partId, int triangleIndex)
+void ConvexTriangleCallback::ProcessTriangle(SimdVector3* triangle,int partId, int triangleIndex)
 {
  
 	//just for debugging purposes
@@ -81,7 +80,7 @@ void BoxTriangleCallback::ProcessTriangle(SimdVector3* triangle,int partId, int 
 
 	
 
-	CollisionObject* colObj = static_cast<CollisionObject*>(m_boxProxy->m_clientObject);
+	CollisionObject* colObj = static_cast<CollisionObject*>(m_convexProxy->m_clientObject);
 	
 	if (colObj->m_collisionShape->IsConvex())
 	{
@@ -93,8 +92,8 @@ void BoxTriangleCallback::ProcessTriangle(SimdVector3* triangle,int partId, int 
 		CollisionShape* tmpShape = ob->m_collisionShape;
 		ob->m_collisionShape = &tm;
 		
-		ConvexConvexAlgorithm cvxcvxalgo(m_manifoldPtr,ci,m_boxProxy,&m_triangleProxy);
-		cvxcvxalgo.ProcessCollision(m_boxProxy,&m_triangleProxy,*m_dispatchInfoPtr);
+		ConvexConvexAlgorithm cvxcvxalgo(m_manifoldPtr,ci,m_convexProxy,&m_triangleProxy);
+		cvxcvxalgo.ProcessCollision(m_convexProxy,&m_triangleProxy,*m_dispatchInfoPtr);
 		ob->m_collisionShape = tmpShape;
 
 	}
@@ -105,22 +104,22 @@ void BoxTriangleCallback::ProcessTriangle(SimdVector3* triangle,int partId, int 
 
 
 
-void	BoxTriangleCallback::SetTimeStepAndCounters(float collisionMarginTriangle,const DispatcherInfo& dispatchInfo)
+void	ConvexTriangleCallback::SetTimeStepAndCounters(float collisionMarginTriangle,const DispatcherInfo& dispatchInfo)
 {
 	m_dispatchInfoPtr = &dispatchInfo;
 	m_collisionMarginTriangle = collisionMarginTriangle;
 
 	//recalc aabbs
-	CollisionObject* boxBody = (CollisionObject* )m_boxProxy->m_clientObject;
+	CollisionObject* convexBody = (CollisionObject* )m_convexProxy->m_clientObject;
 	CollisionObject* triBody = (CollisionObject* )m_triangleProxy.m_clientObject;
 
-	SimdTransform boxInTriangleSpace;
-	boxInTriangleSpace = triBody->m_worldTransform.inverse() * boxBody->m_worldTransform;
+	SimdTransform convexInTriangleSpace;
+	convexInTriangleSpace = triBody->m_worldTransform.inverse() * convexBody->m_worldTransform;
 
-	CollisionShape* boxshape = static_cast<CollisionShape*>(boxBody->m_collisionShape);
+	CollisionShape* convexShape = static_cast<CollisionShape*>(convexBody->m_collisionShape);
 	//CollisionShape* triangleShape = static_cast<CollisionShape*>(triBody->m_collisionShape);
 
-	boxshape->GetAabb(boxInTriangleSpace,m_aabbMin,m_aabbMax);
+	convexShape->GetAabb(convexInTriangleSpace,m_aabbMin,m_aabbMax);
 
 	float extraMargin = collisionMarginTriangle;//CONVEX_DISTANCE_MARGIN;//+0.1f;
 
@@ -133,14 +132,14 @@ void	BoxTriangleCallback::SetTimeStepAndCounters(float collisionMarginTriangle,c
 
 void ConvexConcaveCollisionAlgorithm::ClearCache()
 {
-	m_boxTriangleCallback.ClearCache();
+	m_ConvexTriangleCallback.ClearCache();
 
 }
 
 void ConvexConcaveCollisionAlgorithm::ProcessCollision (BroadphaseProxy* ,BroadphaseProxy* ,const DispatcherInfo& dispatchInfo)
 {
 
-	CollisionObject* boxBody = static_cast<CollisionObject* >(m_convex.m_clientObject);
+	CollisionObject* convexBody = static_cast<CollisionObject* >(m_convex.m_clientObject);
 	CollisionObject* triBody = static_cast<CollisionObject* >(m_concave.m_clientObject);
 
 	if (triBody->m_collisionShape->GetShapeType() == TRIANGLE_MESH_SHAPE_PROXYTYPE)
@@ -154,17 +153,19 @@ void ConvexConcaveCollisionAlgorithm::ProcessCollision (BroadphaseProxy* ,Broadp
 		CollisionObject*	triOb = static_cast<CollisionObject*>(m_concave.m_clientObject);
 		TriangleMeshShape* triangleMesh = static_cast<TriangleMeshShape*>( triOb->m_collisionShape);
 		
-		if (boxBody->m_collisionShape->IsConvex())
+		if (convexBody->m_collisionShape->IsConvex())
 		{
 			float collisionMarginTriangle = triangleMesh->GetMargin();
 					
-			m_boxTriangleCallback.SetTimeStepAndCounters(collisionMarginTriangle,dispatchInfo);
-#ifdef USE_BOX_TRIANGLE
-			m_dispatcher->ClearManifold(m_boxTriangleCallback.m_manifoldPtr);
-#endif
-			m_boxTriangleCallback.m_manifoldPtr->SetBodies(m_convex.m_clientObject,m_concave.m_clientObject);
+			m_ConvexTriangleCallback.SetTimeStepAndCounters(collisionMarginTriangle,dispatchInfo);
 
-			triangleMesh->ProcessAllTriangles( &m_boxTriangleCallback,m_boxTriangleCallback.GetAabbMin(),m_boxTriangleCallback.GetAabbMax());
+			//Disable persistency. previously, some older algorithm calculated all contacts in one go, so you can clear it here.
+			//m_dispatcher->ClearManifold(m_ConvexTriangleCallback.m_manifoldPtr);
+
+
+			m_ConvexTriangleCallback.m_manifoldPtr->SetBodies(m_convex.m_clientObject,m_concave.m_clientObject);
+
+			triangleMesh->ProcessAllTriangles( &m_ConvexTriangleCallback,m_ConvexTriangleCallback.GetAabbMin(),m_ConvexTriangleCallback.GetAabbMax());
 			
 	
 		}
