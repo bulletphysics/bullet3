@@ -254,6 +254,7 @@ public:
 		m_broadphaseProxy = broadphaseProxy;
 	}
 	
+	
 
 	/// for ode solver-binding
 	dMatrix3		m_R;//temp
@@ -261,10 +262,11 @@ public:
 	dMatrix3		m_invI;
 
 	int				m_odeTag;
-	float		m_padding[1024];
+	
 	SimdVector3		m_tacc;//temp
 	SimdVector3		m_facc;
-	
+
+
 
 	int	m_debugBodyId;
 };

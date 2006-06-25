@@ -50,7 +50,7 @@ public:
 		m_1MinvJt = inertiaInvB * m_bJ;
 		m_Adiag = massInvA + m_0MinvJt.dot(m_aJ) + massInvB + m_1MinvJt.dot(m_bJ);
 
-		assert(m_Adiag > 0.0f);
+		ASSERT(m_Adiag > 0.0f);
 	}
 
 	//angular constraint between two different rigidbodies
@@ -67,7 +67,7 @@ public:
 		m_1MinvJt = inertiaInvB * m_bJ;
 		m_Adiag =  m_0MinvJt.dot(m_aJ) + m_1MinvJt.dot(m_bJ);
 
-		assert(m_Adiag > 0.0f);
+		ASSERT(m_Adiag > 0.0f);
 	}
 
 	//angular constraint between two different rigidbodies
@@ -83,7 +83,7 @@ public:
 		m_1MinvJt = inertiaInvB * m_bJ;
 		m_Adiag =  m_0MinvJt.dot(m_aJ) + m_1MinvJt.dot(m_bJ);
 
-		assert(m_Adiag > 0.0f);
+		ASSERT(m_Adiag > 0.0f);
 	}
 
 	//constraint on one rigidbody
@@ -101,7 +101,7 @@ public:
 		m_1MinvJt = SimdVector3(0.f,0.f,0.f);
 		m_Adiag = massInvA + m_0MinvJt.dot(m_aJ);
 
-		assert(m_Adiag > 0.0f);
+		ASSERT(m_Adiag > 0.0f);
 	}
 
 	SimdScalar	getDiagonal() const { return m_Adiag; }
