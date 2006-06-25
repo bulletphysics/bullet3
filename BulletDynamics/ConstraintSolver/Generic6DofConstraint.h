@@ -36,11 +36,10 @@ class Generic6DofConstraint : public TypedConstraint
 	SimdTransform	m_frameInA;			// the constraint space w.r.t body A
 	SimdTransform	m_frameInB;			// the constraint space w.r.t body B
 
-	SimdScalar m_accumulatedLinearImpulse[3];
-	SimdScalar m_accumulatedAngularImpulse[3];
+	SimdScalar      m_lowerLimit[6];	// the constraint lower limits
+	SimdScalar      m_upperLimit[6];	// the constraint upper limits
 
-	SimdScalar      m_angularLowerLimit[3];	// the constraint lower limits
-	SimdScalar      m_angularUpperLimit[3];	// the constraint upper limits
+	SimdScalar		m_accumulatedImpulse[6];
 
 		
 public:
@@ -58,8 +57,8 @@ public:
 
 	void SetAngularLimit(int axis, SimdScalar lo, SimdScalar hi)
 		{
-		m_angularLowerLimit[axis] = lo; 
-		m_angularUpperLimit[axis] = hi; 
+		m_lowerLimit[axis + 3] = lo; 
+		m_upperLimit[axis + 3] = hi; 
 		}
 
 	const RigidBody& GetRigidBodyA() const

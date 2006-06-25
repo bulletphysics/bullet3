@@ -32,21 +32,12 @@ Generic6DofConstraint::Generic6DofConstraint(RigidBody& rbA, RigidBody& rbB, con
 , m_frameInA(frameInA)
 , m_frameInB(frameInB)
 {
-m_accumulatedLinearImpulse[0] = 0.0f;
-m_accumulatedLinearImpulse[1] = 0.0f;
-m_accumulatedLinearImpulse[2] = 0.0f;
-
-m_accumulatedAngularImpulse[0] = 0.0f;
-m_accumulatedAngularImpulse[1] = 0.0f;
-m_accumulatedAngularImpulse[2] = 0.0f;
-
-m_angularLowerLimit[0] = 0.0f;
-m_angularLowerLimit[1] = 0.0f;
-m_angularLowerLimit[2] = 0.0f;
-
-m_angularUpperLimit[0] = 0.0f;
-m_angularUpperLimit[1] = 0.0f;
-m_angularUpperLimit[2] = 0.0f;
+	for (int i=0; i<6;++i)
+	{
+		m_lowerLimit[i] = 0.0f;
+		m_upperLimit[i] = 0.0f;
+		m_accumulatedImpulse[i] = 0.0f;
+	}
 
 }
 
@@ -83,7 +74,7 @@ void Generic6DofConstraint::BuildJacobian()
 			m_rbB.getInvMass());
 
 		// Apply accumulated impulse
-		SimdVector3 impulse_vector = m_accumulatedLinearImpulse[i] * normal;
+		SimdVector3 impulse_vector = m_accumulatedImpulse[i] * normal;
 
 		m_rbA.applyImpulse( impulse_vector, rel_pos1);
 		m_rbB.applyImpulse(-impulse_vector, rel_pos2);
@@ -108,7 +99,7 @@ void Generic6DofConstraint::BuildJacobian()
 			m_rbB.getInvInertiaDiagLocal());
 
 		// Apply accumulated impulse
-		SimdVector3 impulse_vector = m_accumulatedAngularImpulse[i] * axis;
+		SimdVector3 impulse_vector = m_accumulatedImpulse[i + 3] * axis;
 
 		m_rbA.applyTorqueImpulse( impulse_vector);
 		m_rbB.applyTorqueImpulse(-impulse_vector);
@@ -147,7 +138,7 @@ void	Generic6DofConstraint::SolveConstraint(SimdScalar	timeStep)
 		SimdScalar depth = -(pivotAInW - pivotBInW).dot(normal); 
 		
 		SimdScalar impulse = (tau*depth/timeStep - damping*rel_vel) * jacDiagABInv;
-		m_accumulatedLinearImpulse[i] += impulse;
+		m_accumulatedImpulse[i] += impulse;
 
 		SimdVector3 impulse_vector = normal * impulse;
 		m_rbA.applyImpulse( impulse_vector, rel_pos1);
@@ -176,7 +167,7 @@ void	Generic6DofConstraint::SolveConstraint(SimdScalar	timeStep)
 
 		//impulse
 		SimdScalar impulse = -(tau*rel_pos/timeStep + damping*rel_vel) * jacDiagABInv;
-		m_accumulatedAngularImpulse[i] += impulse;
+		m_accumulatedImpulse[i + 3] += impulse;
 		
 		// Dirk: Not needed - we could actually project onto Jacobian entry here (same as above)
 		SimdVector3 axis = kSign[i] * axisA.cross(axisB);
