@@ -87,12 +87,12 @@
 				OptimizeReferences="2"
 				EnableCOMDATFolding="2"
 				GenerateDebugInformation="TRUE"
-				IgnoreDefaultLibraryNames="LIBC,LIBCD,LIBCMT,LIBCMTD"
+				IgnoreDefaultLibraryNames="LIBC,LIBCD"
 [% END %]
 [% MACRO linker_debug BLOCK -%]
 				LinkIncremental="2"
 				GenerateDebugInformation="TRUE"
-				IgnoreDefaultLibraryNames="LIBC,LIBCD,LIBCMT,LIBCMTD,MSVCRT"
+				IgnoreDefaultLibraryNames="LIBC,LIBCD"
 [% END %]
 
 [% MACRO linker_common BLOCK -%]
