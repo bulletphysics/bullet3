@@ -53,6 +53,7 @@
 				AdditionalDependencies=""
 				IgnoreImportLibrary="TRUE"
 				SuppressStartupBanner="TRUE"
+				GenerateManifest="false"
 				AdditionalLibraryDirectories=""
 				ProgramDatabaseFile="..\..\out\release8\build\grpall_bullet\all_bullet.pdb"
 				TargetMachine="1"/>
@@ -123,6 +124,7 @@
 				AdditionalDependencies=""
 				IgnoreImportLibrary="TRUE"
 				SuppressStartupBanner="TRUE"
+				GenerateManifest="false"
 				AdditionalLibraryDirectories=""
 				ProgramDatabaseFile="..\..\out\debug8\build\grpall_bullet\all_bullet.pdb"
 				TargetMachine="1"/>

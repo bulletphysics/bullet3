@@ -53,6 +53,7 @@
 				AdditionalDependencies=""
 				IgnoreImportLibrary="TRUE"
 				SuppressStartupBanner="TRUE"
+				GenerateManifest="false"
 				AdditionalLibraryDirectories=""
 				ProgramDatabaseFile="..\..\out\release71\build\libbullet\bullet.pdb"
 				TargetMachine="1"/>
@@ -123,6 +124,7 @@
 				AdditionalDependencies=""
 				IgnoreImportLibrary="TRUE"
 				SuppressStartupBanner="TRUE"
+				GenerateManifest="false"
 				AdditionalLibraryDirectories=""
 				ProgramDatabaseFile="..\..\out\debug71\build\libbullet\bullet.pdb"
 				TargetMachine="1"/>
@@ -184,6 +186,9 @@
 				RelativePath="..\..\Bullet\CollisionDispatch\CollisionWorld.cpp">
 			</File>
 			<File
+				RelativePath="..\..\Bullet\CollisionDispatch\CompoundCollisionAlgorithm.cpp">
+			</File>
+			<File
 				RelativePath="..\..\Bullet\CollisionDispatch\ConvexConcaveCollisionAlgorithm.cpp">
 			</File>
 			<File
@@ -206,6 +211,9 @@
 			</File>
 			<File
 				RelativePath="..\..\Bullet\CollisionShapes\CollisionShape.cpp">
+			</File>
+			<File
+				RelativePath="..\..\Bullet\CollisionShapes\CompoundShape.cpp">
 			</File>
 			<File
 				RelativePath="..\..\Bullet\CollisionShapes\ConeShape.cpp">
@@ -356,6 +364,9 @@
 				RelativePath="..\..\Bullet\CollisionDispatch\CollisionWorld.h">
 			</File>
 			<File
+				RelativePath="..\..\Bullet\CollisionDispatch\CompoundCollisionAlgorithm.h">
+			</File>
+			<File
 				RelativePath="..\..\Bullet\CollisionDispatch\ConvexConcaveCollisionAlgorithm.h">
 			</File>
 			<File
@@ -381,6 +392,9 @@
 			</File>
 			<File
 				RelativePath="..\..\Bullet\CollisionShapes\CollisionShape.h">
+			</File>
+			<File
+				RelativePath="..\..\Bullet\CollisionShapes\CompoundShape.h">
 			</File>
 			<File
 				RelativePath="..\..\Bullet\CollisionShapes\ConeShape.h">

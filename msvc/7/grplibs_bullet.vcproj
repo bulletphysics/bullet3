@@ -53,6 +53,7 @@
 				AdditionalDependencies=""
 				IgnoreImportLibrary="TRUE"
 				SuppressStartupBanner="TRUE"
+				GenerateManifest="false"
 				AdditionalLibraryDirectories=""
 				ProgramDatabaseFile="..\..\out\release7\build\grplibs_bullet\libs_bullet.pdb"
 				TargetMachine="1"/>
@@ -123,6 +124,7 @@
 				AdditionalDependencies=""
 				IgnoreImportLibrary="TRUE"
 				SuppressStartupBanner="TRUE"
+				GenerateManifest="false"
 				AdditionalLibraryDirectories=""
 				ProgramDatabaseFile="..\..\out\debug7\build\grplibs_bullet\libs_bullet.pdb"
 				TargetMachine="1"/>

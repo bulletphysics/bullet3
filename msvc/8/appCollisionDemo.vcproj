@@ -57,6 +57,7 @@
 				AdditionalDependencies="glut32.lib"
 				IgnoreImportLibrary="TRUE"
 				SuppressStartupBanner="TRUE"
+				GenerateManifest="false"
 				AdditionalLibraryDirectories="..\..\Glut"
 				ProgramDatabaseFile="..\..\out\release8\build\appCollisionDemo\CollisionDemo.pdb"
 				TargetMachine="1"/>
@@ -129,6 +130,7 @@
 				AdditionalDependencies="glut32.lib"
 				IgnoreImportLibrary="TRUE"
 				SuppressStartupBanner="TRUE"
+				GenerateManifest="false"
 				AdditionalLibraryDirectories="..\..\Glut"
 				ProgramDatabaseFile="..\..\out\debug8\build\appCollisionDemo\CollisionDemo.pdb"
 				TargetMachine="1"/>

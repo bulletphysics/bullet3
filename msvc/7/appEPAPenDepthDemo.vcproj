@@ -57,6 +57,7 @@
 				AdditionalDependencies="glut32.lib"
 				IgnoreImportLibrary="TRUE"
 				SuppressStartupBanner="TRUE"
+				GenerateManifest="false"
 				AdditionalLibraryDirectories="..\..\Glut"
 				ProgramDatabaseFile="..\..\out\release7\build\appEPAPenDepthDemo\EPAPenDepthDemo.pdb"
 				TargetMachine="1"/>
@@ -129,6 +130,7 @@
 				AdditionalDependencies="glut32.lib"
 				IgnoreImportLibrary="TRUE"
 				SuppressStartupBanner="TRUE"
+				GenerateManifest="false"
 				AdditionalLibraryDirectories="..\..\Glut"
 				ProgramDatabaseFile="..\..\out\debug7\build\appEPAPenDepthDemo\EPAPenDepthDemo.pdb"
 				TargetMachine="1"/>

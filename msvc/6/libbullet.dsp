@@ -136,6 +136,10 @@ SOURCE=..\..\Bullet\CollisionDispatch\CollisionWorld.cpp
 # End Source File
 # Begin Source File
 
+SOURCE=..\..\Bullet\CollisionDispatch\CompoundCollisionAlgorithm.cpp
+# End Source File
+# Begin Source File
+
 SOURCE=..\..\Bullet\CollisionDispatch\ConvexConcaveCollisionAlgorithm.cpp
 # End Source File
 # Begin Source File
@@ -165,6 +169,10 @@ SOURCE=..\..\Bullet\CollisionShapes\BvhTriangleMeshShape.cpp
 # Begin Source File
 
 SOURCE=..\..\Bullet\CollisionShapes\CollisionShape.cpp
+# End Source File
+# Begin Source File
+
+SOURCE=..\..\Bullet\CollisionShapes\CompoundShape.cpp
 # End Source File
 # Begin Source File
 
@@ -364,6 +372,10 @@ SOURCE=..\..\Bullet\CollisionDispatch\CollisionWorld.h
 # End Source File
 # Begin Source File
 
+SOURCE=..\..\Bullet\CollisionDispatch\CompoundCollisionAlgorithm.h
+# End Source File
+# Begin Source File
+
 SOURCE=..\..\Bullet\CollisionDispatch\ConvexConcaveCollisionAlgorithm.h
 # End Source File
 # Begin Source File
@@ -397,6 +409,10 @@ SOURCE=..\..\Bullet\CollisionShapes\CollisionMargin.h
 # Begin Source File
 
 SOURCE=..\..\Bullet\CollisionShapes\CollisionShape.h
+# End Source File
+# Begin Source File
+
+SOURCE=..\..\Bullet\CollisionShapes\CompoundShape.h
 # End Source File
 # Begin Source File
 
