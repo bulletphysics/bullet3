@@ -1,6 +1,12 @@
 Bullet Continuous Collision Detection and Physics Library
 Erwin Coumans
 
+2006 June 25 Erwin Coumans
+	Added basic Collision Filtering, during broadphase
+	Allow adding meshes to the TriangleIndexVertexArray,
+	(input for TriangleMeshShape) 
+	Preparation for CompoundShape
+
 2006 June 19 Erwin Coumans
 	Added support for COLLADA Physics Import.
 	Both jam and Visual Studio can compile ColladaDemo
