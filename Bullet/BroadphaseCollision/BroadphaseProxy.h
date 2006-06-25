@@ -54,8 +54,8 @@ struct BroadphaseProxy
 	
 	//Usually the client CollisionObject or Rigidbody class
 	void*	m_clientObject;
-	unsigned int m_collisionFilterGroup;
-	unsigned int m_collisionFilterMask;
+	short int m_collisionFilterGroup;
+	short int m_collisionFilterMask;
 
 	//used for memory pools
 	BroadphaseProxy() :m_clientObject(0){}
