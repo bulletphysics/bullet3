@@ -41,7 +41,7 @@
 #
 #==============================================================================
 
-MSVCGEN_SUPPORTED_VERSIONS = 6 7 71 8 ;
+MSVCGEN_SUPPORTED_VERSIONS = 6 7 71 8 sn71 ;
 MSVCGEN_BUILD_ROOT ?= [ ConcatDirs $(BUILDTOP) out ] ;
 MSVCGEN_BUILD_TEMP ?= [ ConcatDirs $(MSVCGEN_BUILD_ROOT) msvcgen ] ;
 
@@ -447,13 +447,18 @@ if $(MSVC_VERSION) = 6
 {
   SUFPRJ = dsp ;
   SUFWSP = dsw ;
+  MSVC_SUFLIB = lii6iiib ;
+  MSVC_SUFEXE = exe ;
   MSVC_FORCE_CRLF = yes ;
   MSVC_TEMPLATE_SUFFIX = 6 ;
 }
-else if $(MSVC_VERSION) = 7 || $(MSVC_VERSION) = 71 || $(MSVC_VERSION) = 8
+else if $(MSVC_VERSION) = 7 || $(MSVC_VERSION) = 71 || $(MSVC_VERSION) = 8 || $(MSVC_VERSION) = sn71
 {
   SUFPRJ = vcproj ;
   SUFWSP = sln ;
+  MSVC_SUFLIB = liiixxiib ;
+  MSVC_SUFEXE = exe ;
+
   MSVC_FORCE_CRLF = no ;
   MSVC_TEMPLATE_SUFFIX = 7 ;
   if $(MSVC_VERSION) = 7
@@ -470,6 +475,14 @@ else if $(MSVC_VERSION) = 7 || $(MSVC_VERSION) = 71 || $(MSVC_VERSION) = 8
   {
     MSVC_FORMATVERSION_PRJ = 8.00 ;
     MSVC_FORMATVERSION_WSP = 9.00 ;
+  }
+  else if $(MSVC_VERSION) = sn71
+  {
+    MSVC_FORMATVERSION_PRJ = 7.10 ;
+    MSVC_FORMATVERSION_WSP = 8.00 ;
+    MSVC_TEMPLATE_SUFFIX = sn71 ;
+    MSVC_SUFLIB = a ;
+    MSVC_SUFEXE = elf ;
   }
 }
 else
@@ -1032,7 +1045,7 @@ rule Application
   {
     projtype = appgui ;
   }
-  MsvcProject $(<) : $(projtype) : $(<:S=.exe) : $(>) : $(3) ;
+  MsvcProject $(<) : $(projtype) : $(<:S=.$(MSVC_SUFEXE)) : $(>) : $(3) ;
   
   CompileGroups $(<) : all apps ;
 }
@@ -1068,7 +1081,7 @@ rule Library
 {
   RegisterWellKnownCompileGroup libs ;
   $(<)_TYPE = library ;
-  MsvcProject $(<) : library : $(<:S=.lib) : $(>) ;
+  MsvcProject $(<) : library : $(<:S=.$(MSVC_SUFLIB)) : $(>) ;
   CompileGroups $(<) : all libs ;
 }
 
@@ -1129,12 +1142,12 @@ rule WriteDependencies
   MakeLocate $(depfile_gristed) : [ on $(depfile) GetVar LOCATE ] ;
   
   # "Artificially" insert static library itself
-  lflags.debug += $(MSVC.PREFIX.library)$(libname)_d.lib ;
-  lflags.release += $(MSVC.PREFIX.library)$(libname).lib ;
+  lflags.debug += $(MSVC.PREFIX.library)$(libname)_d.$(MSVC_SUFLIB) ;
+  lflags.release += $(MSVC.PREFIX.library)$(libname).$(MSVC_SUFLIB) ;
   # Collect other libs
   local libs = [ ResolveLibs $($(plugin).NEEDLIBS) ] ;
-  lflags.debug += $(MSVC.PREFIX.library)$(libs)_d.lib ;
-  lflags.release += $(MSVC.PREFIX.library)$(libs).lib ;
+  lflags.debug += $(MSVC.PREFIX.library)$(libs)_d.$(MSVC_SUFLIB) ;
+  lflags.release += $(MSVC.PREFIX.library)$(libs).$(MSVC_SUFLIB) ;
   
   # Defines
   local l ;
