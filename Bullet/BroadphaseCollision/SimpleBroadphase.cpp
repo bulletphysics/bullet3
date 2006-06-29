@@ -36,19 +36,16 @@ void	SimpleBroadphase::validate()
 }
 
 SimpleBroadphase::SimpleBroadphase(int maxProxies,int maxOverlap)
-	:m_firstFreeProxy(0),
+	:OverlappingPairCache(maxOverlap),
+	m_firstFreeProxy(0),
 	m_numProxies(0),
-	m_blockedForChanges(false),
-	m_NumOverlapBroadphasePair(0),
-	m_maxProxies(maxProxies),
-	m_maxOverlap(maxOverlap)
+	m_maxProxies(maxProxies)
 {
 
 	m_proxies = new SimpleBroadphaseProxy[maxProxies];
 	m_freeProxies = new int[maxProxies];
 	m_pProxies = new SimpleBroadphaseProxy*[maxProxies];
-	m_OverlappingPairs = new BroadphasePair[maxOverlap];
-
+	
 
 	int i;
 	for (i=0;i<m_maxProxies;i++)
@@ -62,7 +59,6 @@ SimpleBroadphase::~SimpleBroadphase()
 	delete[] m_proxies;
 	delete []m_freeProxies;
 	delete [] m_pProxies;
-	delete [] m_OverlappingPairs;
 
 	/*int i;
 	for (i=m_numProxies-1;i>=0;i--)
@@ -99,19 +95,7 @@ BroadphaseProxy*	SimpleBroadphase::CreateProxy(  const SimdVector3& min,  const 
 	return proxy;
 }
 
-void	SimpleBroadphase::RemoveOverlappingPairsContainingProxy(BroadphaseProxy* proxy)
-{
-	int i;
-		for ( i=m_NumOverlapBroadphasePair-1;i>=0;i--)
-		{
-			BroadphasePair& pair = m_OverlappingPairs[i];
-			if (pair.m_pProxy0 == proxy ||
-					pair.m_pProxy1 == proxy)
-			{
-				RemoveOverlappingPair(pair);
-			}
-		}
-}
+
 
 void	SimpleBroadphase::DestroyProxy(BroadphaseProxy* proxyOrg)
 {
@@ -148,93 +132,13 @@ void	SimpleBroadphase::SetAabb(BroadphaseProxy* proxy,const SimdVector3& aabbMin
 	sbp->m_max = aabbMax;
 }
 
-void	SimpleBroadphase::CleanOverlappingPair(BroadphasePair& pair)
-{
-	for (int dispatcherId=0;dispatcherId<SIMPLE_MAX_ALGORITHMS;dispatcherId++)
-	{
-		if (pair.m_algorithms[dispatcherId])
-		{
-			{
-				delete pair.m_algorithms[dispatcherId];
-				pair.m_algorithms[dispatcherId]=0;
-			}
-		}
-	}
-}
 
 
-void	SimpleBroadphase::CleanProxyFromPairs(BroadphaseProxy* proxy)
-{
-	for (int i=0;i<m_NumOverlapBroadphasePair;i++)
-	{
-		BroadphasePair& pair = m_OverlappingPairs[i];
-		if (pair.m_pProxy0 == proxy ||
-				pair.m_pProxy1 == proxy)
-		{
-			CleanOverlappingPair(pair);
-		}
-	}
-}
 
-void	SimpleBroadphase::AddOverlappingPair(BroadphaseProxy* proxy0,BroadphaseProxy* proxy1)
-{
-	//don't add overlap with own
-	assert(proxy0 != proxy1);
-
-	if (!NeedsCollision(proxy0,proxy1))
-		return;
-
-
-	BroadphasePair pair(*proxy0,*proxy1);
-	m_OverlappingPairs[m_NumOverlapBroadphasePair] = pair;
-
-	int i;
-	for (i=0;i<SIMPLE_MAX_ALGORITHMS;i++)
-	{
-		assert(!m_OverlappingPairs[m_NumOverlapBroadphasePair].m_algorithms[i]);
-		m_OverlappingPairs[m_NumOverlapBroadphasePair].m_algorithms[i] = 0;
-	}
-
-	if (m_NumOverlapBroadphasePair >= m_maxOverlap)
-	{
-		//printf("Error: too many overlapping objects: m_NumOverlapBroadphasePair: %d\n",m_NumOverlapBroadphasePair);
-#ifdef DEBUG
-		assert(0);
-#endif 
-	} else
-	{
-		m_NumOverlapBroadphasePair++;
-	}
 
 	
-}
-	
-BroadphasePair*	SimpleBroadphase::FindPair(BroadphaseProxy* proxy0,BroadphaseProxy* proxy1)
-{
-	BroadphasePair* foundPair = 0;
 
-	int i;
-	for (i=m_NumOverlapBroadphasePair-1;i>=0;i--)
-	{
-		BroadphasePair& pair = m_OverlappingPairs[i];
-		if (((pair.m_pProxy0 == proxy0) && (pair.m_pProxy1 == proxy1)) ||
-			((pair.m_pProxy0 == proxy1) && (pair.m_pProxy1 == proxy0)))
-		{
-			foundPair = &pair;
-			return foundPair;
-		}
-	}	
 
-	return foundPair;
-}
-void	SimpleBroadphase::RemoveOverlappingPair(BroadphasePair& pair)
-{
-    CleanOverlappingPair(pair);
-	int	index = &pair - &m_OverlappingPairs[0];
-	//remove efficiently, swap with the last
-	m_OverlappingPairs[index] = m_OverlappingPairs[m_NumOverlapBroadphasePair-1];
-	m_NumOverlapBroadphasePair--;
-}
 
 bool	SimpleBroadphase::AabbOverlap(SimpleBroadphaseProxy* proxy0,SimpleBroadphaseProxy* proxy1)
 {
@@ -269,9 +173,10 @@ void	SimpleBroadphase::RefreshOverlappingPairs()
 	}
 
 	//then remove non-overlapping ones
-	for (i=0;i<m_NumOverlapBroadphasePair;i++)
+	for (i=0;i<GetNumOverlappingPairs();i++)
 	{
-		BroadphasePair& pair = m_OverlappingPairs[i];
+		BroadphasePair& pair = GetOverlappingPair(i);
+
 		SimpleBroadphaseProxy* proxy0 = GetSimpleProxyFromProxy(pair.m_pProxy0);
 		SimpleBroadphaseProxy* proxy1 = GetSimpleProxyFromProxy(pair.m_pProxy1);
 		if (!AabbOverlap(proxy0,proxy1))
@@ -281,71 +186,6 @@ void	SimpleBroadphase::RefreshOverlappingPairs()
 	}
 
 	
-
-}
-
-void	SimpleBroadphase::DispatchAllCollisionPairs(Dispatcher&	dispatcher,DispatcherInfo& dispatchInfo)
-{
-	m_blockedForChanges = true;
-
-	int i;
-	
-	int dispatcherId = dispatcher.GetUniqueId();
-
-	RefreshOverlappingPairs();
-
-	for (i=0;i<m_NumOverlapBroadphasePair;i++)
-	{
-		
-		BroadphasePair& pair = m_OverlappingPairs[i];
-		
-		if (dispatcherId>= 0)
-		{
-			//dispatcher will keep algorithms persistent in the collision pair
-			if (!pair.m_algorithms[dispatcherId])
-			{
-				pair.m_algorithms[dispatcherId] = dispatcher.FindAlgorithm(
-					*pair.m_pProxy0,
-					*pair.m_pProxy1);
-			}
-
-			if (pair.m_algorithms[dispatcherId])
-			{
-				if (dispatchInfo.m_dispatchFunc == 		DispatcherInfo::DISPATCH_DISCRETE)
-				{
-					pair.m_algorithms[dispatcherId]->ProcessCollision(pair.m_pProxy0,pair.m_pProxy1,dispatchInfo);
-				} else
-				{
-					float toi = pair.m_algorithms[dispatcherId]->CalculateTimeOfImpact(pair.m_pProxy0,pair.m_pProxy1,dispatchInfo);
-					if (dispatchInfo.m_timeOfImpact > toi)
-						dispatchInfo.m_timeOfImpact = toi;
-
-				}
-			}
-		} else
-		{
-			//non-persistent algorithm dispatcher
-				CollisionAlgorithm* algo = dispatcher.FindAlgorithm(
-					*pair.m_pProxy0,
-					*pair.m_pProxy1);
-
-				if (algo)
-				{
-					if (dispatchInfo.m_dispatchFunc == 		DispatcherInfo::DISPATCH_DISCRETE)
-					{
-						algo->ProcessCollision(pair.m_pProxy0,pair.m_pProxy1,dispatchInfo);
-					} else
-					{
-						float toi = algo->CalculateTimeOfImpact(pair.m_pProxy0,pair.m_pProxy1,dispatchInfo);
-						if (dispatchInfo.m_timeOfImpact > toi)
-							dispatchInfo.m_timeOfImpact = toi;
-					}
-				}
-		}
-
-	}
-
-	m_blockedForChanges = false;
 
 }
 

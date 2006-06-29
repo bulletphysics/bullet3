@@ -22,8 +22,8 @@ subject to the following restrictions:
 #include "Dynamics/RigidBody.h"
 #include "BroadphaseCollision/AxisSweep3.h"
 
-#include "ConstraintSolver/SimpleConstraintSolver.h"
-#include "ConstraintSolver/OdeConstraintSolver.h"
+#include "ConstraintSolver/SequentialImpulseConstraintSolver.h"
+//#include "ConstraintSolver/OdeConstraintSolver.h"
 #include "CollisionDispatch/CollisionDispatcher.h"
 #include "BroadphaseCollision/SimpleBroadphase.h"
 #include "CollisionShapes/TriangleMeshShape.h"
@@ -216,8 +216,8 @@ int main(int argc,char** argv)
 
 //	GLDebugDrawer	debugDrawer;
 
-	//ConstraintSolver* solver = new SimpleConstraintSolver;
-	ConstraintSolver* solver = new OdeConstraintSolver;
+	ConstraintSolver* solver = new SequentialImpulseConstraintSolver;
+	//ConstraintSolver* solver = new OdeConstraintSolver;
 
 	CollisionDispatcher* dispatcher = new	CollisionDispatcher();
 		

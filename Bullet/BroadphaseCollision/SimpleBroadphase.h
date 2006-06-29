@@ -16,12 +16,9 @@ subject to the following restrictions:
 #ifndef SIMPLE_BROADPHASE_H
 #define SIMPLE_BROADPHASE_H
 
-//#define SIMPLE_MAX_PROXIES 8192
-//#define SIMPLE_MAX_OVERLAP 4096
 
-#include "BroadphaseInterface.h"
-#include "BroadphaseProxy.h"
-#include "SimdPoint3.h"
+#include "OverlappingPairCache.h"
+
 
 struct SimpleBroadphaseProxy : public BroadphaseProxy
 {
@@ -40,7 +37,7 @@ struct SimpleBroadphaseProxy : public BroadphaseProxy
 };
 
 ///SimpleBroadphase is a brute force aabb culling broadphase based on O(n^2) aabb checks
-class SimpleBroadphase : public BroadphaseInterface
+class SimpleBroadphase : public OverlappingPairCache
 {
 
 	SimpleBroadphaseProxy*	m_proxies;
@@ -50,14 +47,10 @@ class SimpleBroadphase : public BroadphaseInterface
 	SimpleBroadphaseProxy** m_pProxies;
 	int				m_numProxies;
 
-	//during the dispatch, check that user doesn't destroy/create proxy
-	bool		m_blockedForChanges;
-
-	BroadphasePair*	m_OverlappingPairs;
-	int	m_NumOverlapBroadphasePair;
+	
 
 	int m_maxProxies;
-	int m_maxOverlap;
+	
 	
 	inline SimpleBroadphaseProxy*	GetSimpleProxyFromProxy(BroadphaseProxy* proxy)
 	{
@@ -70,13 +63,8 @@ class SimpleBroadphase : public BroadphaseInterface
 	void	validate();
 
 protected:
-	void	RemoveOverlappingPair(BroadphasePair& pair);
-	void	CleanOverlappingPair(BroadphasePair& pair);
 
-	void	RemoveOverlappingPairsContainingProxy(BroadphaseProxy* proxy);
 
-	void	AddOverlappingPair(BroadphaseProxy* proxy0,BroadphaseProxy* proxy1);
-	BroadphasePair*	FindPair(BroadphaseProxy* proxy0,BroadphaseProxy* proxy1);
 	virtual void	RefreshOverlappingPairs();
 public:
 	SimpleBroadphase(int maxProxies=4096,int maxOverlap=8192);
@@ -88,17 +76,10 @@ public:
 
 	virtual void	DestroyProxy(BroadphaseProxy* proxy);
 	virtual void	SetAabb(BroadphaseProxy* proxy,const SimdVector3& aabbMin,const SimdVector3& aabbMax);
-	virtual void	CleanProxyFromPairs(BroadphaseProxy* proxy);
-	virtual void	DispatchAllCollisionPairs(Dispatcher&	dispatcher,DispatcherInfo& dispatchInfo);
-
-	
-	inline bool NeedsCollision(BroadphaseProxy* proxy0,BroadphaseProxy* proxy1) const
-	{
-		bool collides = proxy0->m_collisionFilterGroup & proxy1->m_collisionFilterMask;
-		collides = collides && (proxy1->m_collisionFilterGroup & proxy0->m_collisionFilterMask);
 		
-		return collides;
-	}
+	
+	
+
 
 
 };

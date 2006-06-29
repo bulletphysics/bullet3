@@ -48,6 +48,7 @@ void	AxisSweep3::SetAabb(BroadphaseProxy* proxy,const SimdVector3& aabbMin,const
 
 
 AxisSweep3::AxisSweep3(const SimdPoint3& worldAabbMin,const SimdPoint3& worldAabbMax, int maxHandles, int maxOverlaps)
+:OverlappingPairCache(maxOverlaps)
 {
 	//assert(bounds.HasVolume());
 

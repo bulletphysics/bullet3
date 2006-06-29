@@ -30,8 +30,9 @@ Very basic raytracer, rendering into a texture.
 #include "NarrowPhaseCollision/SubSimplexConvexCast.h"
 #include "NarrowPhaseCollision/GjkConvexCast.h"
 #include "NarrowPhaseCollision/ContinuousConvexCollision.h"
+#ifdef USE_ALGEBRAIC_CCD
 #include "NarrowPhaseCollision/BU_CollisionPair.h"
-
+#endif //USE_ALGEBRAIC_CCD
 
 
 #include "CollisionShapes/SphereShape.h"

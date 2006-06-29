@@ -29,7 +29,10 @@
 #include "NarrowPhaseCollision/GjkConvexCast.h"
 #include "NarrowPhaseCollision/ContinuousConvexCollision.h"
 #include "NarrowPhaseCollision/SubSimplexConvexCast.h"
+
+#ifdef USE_ALGEBRAIC_CCD
 #include "NarrowPhaseCollision/BU_CollisionPair.h"
+#endif //USE_ALGEBRAIC_CCD
 
 #include "CollisionShapes/SphereShape.h"
 
@@ -191,7 +194,7 @@ void clientDisplay(void) {
 		GjkConvexCast	convexCaster1(shapePtr[0],shapePtr[i],&gGjkSimplexSolver);
 		
 		//BU_CollisionPair (algebraic version) is currently broken, will look into this
-		BU_CollisionPair convexCaster2(shapePtr[0],shapePtr[i]);
+		//BU_CollisionPair convexCaster2(shapePtr[0],shapePtr[i]);
 		SubsimplexConvexCast convexCaster3(shapePtr[0],shapePtr[i],&gGjkSimplexSolver);
 				
 		gGjkSimplexSolver.reset();

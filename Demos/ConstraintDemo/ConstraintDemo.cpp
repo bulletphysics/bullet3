@@ -22,8 +22,8 @@ subject to the following restrictions:
 #include "CollisionShapes/EmptyShape.h"
 
 #include "Dynamics/RigidBody.h"
-#include "ConstraintSolver/SimpleConstraintSolver.h"
-#include "ConstraintSolver/OdeConstraintSolver.h"
+#include "ConstraintSolver/SequentialImpulseConstraintSolver.h"
+//#include "ConstraintSolver/OdeConstraintSolver.h"
 #include "CollisionDispatch/CollisionDispatcher.h"
 #include "BroadphaseCollision/SimpleBroadphase.h"
 #include "IDebugDraw.h"
@@ -72,7 +72,7 @@ int main(int argc,char** argv)
 {
 
 
-	ConstraintSolver* solver = new SimpleConstraintSolver;
+	ConstraintSolver* solver = new SequentialImpulseConstraintSolver;
 	//ConstraintSolver* solver = new OdeConstraintSolver;
 
 	CollisionDispatcher* dispatcher = new	CollisionDispatcher();

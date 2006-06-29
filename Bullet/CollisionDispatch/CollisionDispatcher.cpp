@@ -79,7 +79,9 @@ CollisionDispatcher::CollisionDispatcher ():
 PersistentManifold*	CollisionDispatcher::GetNewManifold(void* b0,void* b1) 
 { 
 	gNumManifold++;
-	//printf("GetNewManifoldResult: gNumManifold %d\n",gNumManifold);
+	
+	//ASSERT(gNumManifold < 65535);
+	
 
 	CollisionObject* body0 = (CollisionObject*)b0;
 	CollisionObject* body1 = (CollisionObject*)b1;

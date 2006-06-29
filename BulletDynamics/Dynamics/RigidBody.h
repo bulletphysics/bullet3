@@ -31,7 +31,6 @@ typedef SimdScalar dMatrix3[4*3];
 extern float gLinearAirDamping;
 extern bool gUseEpa;
 
-#define MAX_RIGIDBODIES 8192
 
 
 /// RigidBody class for RigidBody Dynamics

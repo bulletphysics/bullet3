@@ -1,15 +1,17 @@
-<?xml version="1.0" encoding = "Windows-1252"?>
+<?xml version="1.0" encoding="Windows-1252"?>
 <VisualStudioProject
 	ProjectType="Visual C++"
 	Version="8.00"
 	Name="libbullet"
 	ProjectGUID="{90F5975E-550B-EEC8-9A8A-B8581D3FCF97}"
-	SccProjectName=""
-	SccLocalPath="">
+	>
 	<Platforms>
 		<Platform
-			Name="Win32"/>
+			Name="Win32"
+		/>
 	</Platforms>
+	<ToolFiles>
+	</ToolFiles>
 	<Configurations>
 		<Configuration
 			Name="Release|Win32"
@@ -17,73 +19,82 @@
 			IntermediateDirectory="..\..\out\release8\build\libbullet\"
 			ConfigurationType="4"
 			UseOfMFC="0"
-			ATLMinimizesCRunTimeLibraryUsage="FALSE">
+			ATLMinimizesCRunTimeLibraryUsage="false"
+			>
+			<Tool
+				Name="VCPreBuildEventTool"
+			/>
+			<Tool
+				Name="VCCustomBuildTool"
+			/>
+			<Tool
+				Name="VCXMLDataGeneratorTool"
+			/>
+			<Tool
+				Name="VCWebServiceProxyGeneratorTool"
+			/>
+			<Tool
+				Name="VCMIDLTool"
+				PreprocessorDefinitions="NDEBUG;_LIB;_WINDOWS"
+				MkTypLibCompatible="true"
+				SuppressStartupBanner="true"
+				TargetEnvironment="1"
+				TypeLibraryName="..\..\out\release8\build\libbullet\libbullet.tlb"
+			/>
 			<Tool
 				Name="VCCLCompilerTool"
-				Optimization="2"
-				StringPooling="TRUE"
-				EnableFunctionLevelLinking="TRUE"
-				RuntimeLibrary="0"
-				DebugInformationFormat="3"
-				BufferSecurityCheck="FALSE"
-				PreprocessorDefinitions="NDEBUG;_LIB;_WINDOWS;WIN32"
-				OptimizeForProcessor="1"
-				ExceptionHandling="0"
 				AdditionalOptions=" "
+				Optimization="2"
 				AdditionalIncludeDirectories=".;..\..;..\..\Bullet;..\..\BulletDynamics;..\..\LinearMath"
+				PreprocessorDefinitions="NDEBUG;_LIB;_WINDOWS;WIN32"
+				StringPooling="true"
+				ExceptionHandling="0"
+				RuntimeLibrary="0"
+				BufferSecurityCheck="false"
+				EnableFunctionLevelLinking="true"
+				TreatWChar_tAsBuiltInType="false"
 				PrecompiledHeaderFile="..\..\out\release8\build\libbullet\libbullet.pch"
 				AssemblerListingLocation="..\..\out\release8\build\libbullet\"
 				ObjectFile="..\..\out\release8\build\libbullet\"
 				ProgramDataBaseFileName="..\..\out\release8\build\libbullet\bullet.pdb"
 				WarningLevel="3"
-				SuppressStartupBanner="TRUE"
-				Detect64BitPortabilityProblems="TRUE"
-				TreatWChar_tAsBuiltInType="false"
-				CompileAs="0"/>
+				SuppressStartupBanner="true"
+				Detect64BitPortabilityProblems="true"
+				DebugInformationFormat="3"
+				CompileAs="0"
+			/>
 			<Tool
-				Name="VCCustomBuildTool"/>
-			<Tool
-				Name="VCLinkerTool"
-				LinkIncremental="1"
-				OptimizeReferences="2"
-				EnableCOMDATFolding="2"
-				GenerateDebugInformation="TRUE"
-				IgnoreDefaultLibraryNames="LIBC,LIBCD"
-				AdditionalOptions=" "
-				AdditionalDependencies=""
-				IgnoreImportLibrary="TRUE"
-				SuppressStartupBanner="TRUE"
-				GenerateManifest="false"
-				AdditionalLibraryDirectories=""
-				ProgramDatabaseFile="..\..\out\release8\build\libbullet\bullet.pdb"
-				TargetMachine="1"/>
-			<Tool
-				Name="VCLibrarianTool"
-				OutputFile="..\..\out\release8\libs\libbullet.lib"
-				SuppressStartupBanner="TRUE"/>
-			<Tool
-				Name="VCMIDLTool"
-				PreprocessorDefinitions="NDEBUG;_LIB;_WINDOWS"
-				MkTypLibCompatible="TRUE"
-				SuppressStartupBanner="TRUE"
-				TargetEnvironment="1"
-				TypeLibraryName="..\..\out\release8\build\libbullet\libbullet.tlb"/>
-			<Tool
-				Name="VCPostBuildEventTool"
-				/>
-			<Tool
-				Name="VCPreBuildEventTool"/>
-			<Tool
-				Name="VCPreLinkEventTool"/>
+				Name="VCManagedResourceCompilerTool"
+			/>
 			<Tool
 				Name="VCResourceCompilerTool"
 				PreprocessorDefinitions="NDEBUG;_LIB;_WINDOWS;PROJECTGEN_VERSION=8"
+				Culture="1033"
 				AdditionalIncludeDirectories=".;..\..;..\..\Bullet;..\..\BulletDynamics;..\..\LinearMath"
-				Culture="1033"/>
+			/>
 			<Tool
-				Name="VCWebServiceProxyGeneratorTool"/>
+				Name="VCPreLinkEventTool"
+			/>
 			<Tool
-				Name="VCWebDeploymentTool"/>
+				Name="VCLibrarianTool"
+				OutputFile="..\..\out\release8\libs\libbullet.lib"
+				SuppressStartupBanner="true"
+			/>
+			<Tool
+				Name="VCALinkTool"
+			/>
+			<Tool
+				Name="VCXDCMakeTool"
+			/>
+			<Tool
+				Name="VCBscMakeTool"
+			/>
+			<Tool
+				Name="VCFxCopTool"
+			/>
+			<Tool
+				Name="VCPostBuildEventTool"
+			/>
 		</Configuration>
 		<Configuration
 			Name="Debug|Win32"
@@ -91,471 +102,554 @@
 			IntermediateDirectory="..\..\out\debug8\build\libbullet\"
 			ConfigurationType="4"
 			UseOfMFC="0"
-			ATLMinimizesCRunTimeLibraryUsage="FALSE">
+			ATLMinimizesCRunTimeLibraryUsage="false"
+			>
+			<Tool
+				Name="VCPreBuildEventTool"
+			/>
+			<Tool
+				Name="VCCustomBuildTool"
+			/>
+			<Tool
+				Name="VCXMLDataGeneratorTool"
+			/>
+			<Tool
+				Name="VCWebServiceProxyGeneratorTool"
+			/>
+			<Tool
+				Name="VCMIDLTool"
+				PreprocessorDefinitions="_DEBUG;_LIB;_WINDOWS"
+				MkTypLibCompatible="true"
+				SuppressStartupBanner="true"
+				TargetEnvironment="1"
+				TypeLibraryName="..\..\out\debug8\build\libbullet\libbullet.tlb"
+			/>
 			<Tool
 				Name="VCCLCompilerTool"
-				Optimization="0"
-				MinimalRebuild="TRUE"
-				DebugInformationFormat="4"
-				RuntimeTypeInfo="FALSE"
-				RuntimeLibrary="1"
-				PreprocessorDefinitions="_DEBUG;_LIB;_WINDOWS;WIN32"
-				OptimizeForProcessor="1"
-				ExceptionHandling="0"
 				AdditionalOptions=" "
+				Optimization="0"
 				AdditionalIncludeDirectories=".;..\..;..\..\Bullet;..\..\BulletDynamics;..\..\LinearMath"
+				PreprocessorDefinitions="_DEBUG;_LIB;_WINDOWS;WIN32"
+				MinimalRebuild="true"
+				ExceptionHandling="0"
+				RuntimeLibrary="1"
+				TreatWChar_tAsBuiltInType="false"
+				RuntimeTypeInfo="false"
 				PrecompiledHeaderFile="..\..\out\debug8\build\libbullet\libbullet.pch"
 				AssemblerListingLocation="..\..\out\debug8\build\libbullet\"
 				ObjectFile="..\..\out\debug8\build\libbullet\"
 				ProgramDataBaseFileName="..\..\out\debug8\build\libbullet\bullet.pdb"
 				WarningLevel="3"
-				SuppressStartupBanner="TRUE"
-				Detect64BitPortabilityProblems="TRUE"
-				TreatWChar_tAsBuiltInType="false"
-				CompileAs="0"/>
+				SuppressStartupBanner="true"
+				Detect64BitPortabilityProblems="true"
+				DebugInformationFormat="4"
+				CompileAs="0"
+			/>
 			<Tool
-				Name="VCCustomBuildTool"/>
-			<Tool
-				Name="VCLinkerTool"
-				LinkIncremental="2"
-				GenerateDebugInformation="TRUE"
-				IgnoreDefaultLibraryNames="LIBC,LIBCD"
-				AdditionalOptions=" "
-				AdditionalDependencies=""
-				IgnoreImportLibrary="TRUE"
-				SuppressStartupBanner="TRUE"
-				GenerateManifest="false"
-				AdditionalLibraryDirectories=""
-				ProgramDatabaseFile="..\..\out\debug8\build\libbullet\bullet.pdb"
-				TargetMachine="1"/>
-			<Tool
-				Name="VCLibrarianTool"
-				OutputFile="..\..\out\debug8\libs\libbullet_d.lib"
-				SuppressStartupBanner="TRUE"/>
-			<Tool
-				Name="VCMIDLTool"
-				PreprocessorDefinitions="_DEBUG;_LIB;_WINDOWS"
-				MkTypLibCompatible="TRUE"
-				SuppressStartupBanner="TRUE"
-				TargetEnvironment="1"
-				TypeLibraryName="..\..\out\debug8\build\libbullet\libbullet.tlb"/>
-			<Tool
-				Name="VCPostBuildEventTool"
-				/>
-			<Tool
-				Name="VCPreBuildEventTool"/>
-			<Tool
-				Name="VCPreLinkEventTool"/>
+				Name="VCManagedResourceCompilerTool"
+			/>
 			<Tool
 				Name="VCResourceCompilerTool"
 				PreprocessorDefinitions="_DEBUG;_LIB;_WINDOWS;PROJECTGEN_VERSION=8"
+				Culture="1033"
 				AdditionalIncludeDirectories=".;..\..;..\..\Bullet;..\..\BulletDynamics;..\..\LinearMath"
-				Culture="1033"/>
+			/>
 			<Tool
-				Name="VCWebServiceProxyGeneratorTool"/>
+				Name="VCPreLinkEventTool"
+			/>
 			<Tool
-				Name="VCWebDeploymentTool"/>
+				Name="VCLibrarianTool"
+				OutputFile="..\..\out\debug8\libs\libbullet_d.lib"
+				SuppressStartupBanner="true"
+			/>
+			<Tool
+				Name="VCALinkTool"
+			/>
+			<Tool
+				Name="VCXDCMakeTool"
+			/>
+			<Tool
+				Name="VCBscMakeTool"
+			/>
+			<Tool
+				Name="VCFxCopTool"
+			/>
+			<Tool
+				Name="VCPostBuildEventTool"
+			/>
 		</Configuration>
 	</Configurations>
+	<References>
+	</References>
 	<Files>
 		<Filter
 			Name="Source Files"
-			Filter="">
+			>
 			<File
-				RelativePath="..\..\Bullet\BroadphaseCollision\AxisSweep3.cpp">
+				RelativePath="..\..\Bullet\BroadphaseCollision\AxisSweep3.cpp"
+				>
 			</File>
 			<File
-				RelativePath="..\..\Bullet\BroadphaseCollision\BroadphaseProxy.cpp">
+				RelativePath="..\..\Bullet\CollisionShapes\BoxShape.cpp"
+				>
 			</File>
 			<File
-				RelativePath="..\..\Bullet\BroadphaseCollision\CollisionAlgorithm.cpp">
+				RelativePath="..\..\Bullet\BroadphaseCollision\BroadphaseProxy.cpp"
+				>
 			</File>
 			<File
-				RelativePath="..\..\Bullet\BroadphaseCollision\Dispatcher.cpp">
+				RelativePath="..\..\Bullet\CollisionShapes\BvhTriangleMeshShape.cpp"
+				>
 			</File>
 			<File
-				RelativePath="..\..\Bullet\BroadphaseCollision\SimpleBroadphase.cpp">
+				RelativePath="..\..\Bullet\BroadphaseCollision\CollisionAlgorithm.cpp"
+				>
 			</File>
 			<File
-				RelativePath="..\..\Bullet\CollisionDispatch\CollisionDispatcher.cpp">
+				RelativePath="..\..\Bullet\CollisionDispatch\CollisionDispatcher.cpp"
+				>
 			</File>
 			<File
-				RelativePath="..\..\Bullet\CollisionDispatch\CollisionObject.cpp">
+				RelativePath="..\..\Bullet\CollisionDispatch\CollisionObject.cpp"
+				>
 			</File>
 			<File
-				RelativePath="..\..\Bullet\CollisionDispatch\CollisionWorld.cpp">
+				RelativePath="..\..\Bullet\CollisionShapes\CollisionShape.cpp"
+				>
 			</File>
 			<File
-				RelativePath="..\..\Bullet\CollisionDispatch\CompoundCollisionAlgorithm.cpp">
+				RelativePath="..\..\Bullet\CollisionDispatch\CollisionWorld.cpp"
+				>
 			</File>
 			<File
-				RelativePath="..\..\Bullet\CollisionDispatch\ConvexConcaveCollisionAlgorithm.cpp">
+				RelativePath="..\..\Bullet\CollisionDispatch\CompoundCollisionAlgorithm.cpp"
+				>
 			</File>
 			<File
-				RelativePath="..\..\Bullet\CollisionDispatch\ConvexConvexAlgorithm.cpp">
+				RelativePath="..\..\Bullet\CollisionShapes\CompoundShape.cpp"
+				>
 			</File>
 			<File
-				RelativePath="..\..\Bullet\CollisionDispatch\EmptyCollisionAlgorithm.cpp">
+				RelativePath="..\..\Bullet\CollisionShapes\ConeShape.cpp"
+				>
 			</File>
 			<File
-				RelativePath="..\..\Bullet\CollisionDispatch\ManifoldResult.cpp">
+				RelativePath="..\..\Bullet\NarrowPhaseCollision\ContinuousConvexCollision.cpp"
+				>
 			</File>
 			<File
-				RelativePath="..\..\Bullet\CollisionDispatch\UnionFind.cpp">
+				RelativePath="..\..\Bullet\NarrowPhaseCollision\ConvexCast.cpp"
+				>
 			</File>
 			<File
-				RelativePath="..\..\Bullet\CollisionShapes\BoxShape.cpp">
+				RelativePath="..\..\Bullet\CollisionDispatch\ConvexConcaveCollisionAlgorithm.cpp"
+				>
 			</File>
 			<File
-				RelativePath="..\..\Bullet\CollisionShapes\BvhTriangleMeshShape.cpp">
+				RelativePath="..\..\Bullet\CollisionDispatch\ConvexConvexAlgorithm.cpp"
+				>
 			</File>
 			<File
-				RelativePath="..\..\Bullet\CollisionShapes\CollisionShape.cpp">
+				RelativePath="..\..\Bullet\CollisionShapes\ConvexHullShape.cpp"
+				>
 			</File>
 			<File
-				RelativePath="..\..\Bullet\CollisionShapes\CompoundShape.cpp">
+				RelativePath="..\..\Bullet\CollisionShapes\ConvexShape.cpp"
+				>
 			</File>
 			<File
-				RelativePath="..\..\Bullet\CollisionShapes\ConeShape.cpp">
+				RelativePath="..\..\Bullet\CollisionShapes\ConvexTriangleMeshShape.cpp"
+				>
 			</File>
 			<File
-				RelativePath="..\..\Bullet\CollisionShapes\ConvexHullShape.cpp">
+				RelativePath="..\..\Bullet\CollisionShapes\CylinderShape.cpp"
+				>
 			</File>
 			<File
-				RelativePath="..\..\Bullet\CollisionShapes\ConvexShape.cpp">
+				RelativePath="..\..\Bullet\BroadphaseCollision\Dispatcher.cpp"
+				>
 			</File>
 			<File
-				RelativePath="..\..\Bullet\CollisionShapes\ConvexTriangleMeshShape.cpp">
+				RelativePath="..\..\Bullet\CollisionDispatch\EmptyCollisionAlgorithm.cpp"
+				>
 			</File>
 			<File
-				RelativePath="..\..\Bullet\CollisionShapes\CylinderShape.cpp">
+				RelativePath="..\..\Bullet\CollisionShapes\EmptyShape.cpp"
+				>
 			</File>
 			<File
-				RelativePath="..\..\Bullet\CollisionShapes\EmptyShape.cpp">
+				RelativePath="..\..\Bullet\NarrowPhaseCollision\GjkConvexCast.cpp"
+				>
 			</File>
 			<File
-				RelativePath="..\..\Bullet\CollisionShapes\MinkowskiSumShape.cpp">
+				RelativePath="..\..\Bullet\NarrowPhaseCollision\GjkPairDetector.cpp"
+				>
 			</File>
 			<File
-				RelativePath="..\..\Bullet\CollisionShapes\MultiSphereShape.cpp">
+				RelativePath="..\..\Bullet\NarrowPhaseCollision\Hull.cpp"
+				>
 			</File>
 			<File
-				RelativePath="..\..\Bullet\CollisionShapes\OptimizedBvh.cpp">
+				RelativePath="..\..\Bullet\NarrowPhaseCollision\ManifoldContactAddResult.cpp"
+				>
 			</File>
 			<File
-				RelativePath="..\..\Bullet\CollisionShapes\PolyhedralConvexShape.cpp">
+				RelativePath="..\..\Bullet\CollisionDispatch\ManifoldResult.cpp"
+				>
 			</File>
 			<File
-				RelativePath="..\..\Bullet\CollisionShapes\Simplex1to4Shape.cpp">
+				RelativePath="..\..\Bullet\NarrowPhaseCollision\MinkowskiPenetrationDepthSolver.cpp"
+				>
 			</File>
 			<File
-				RelativePath="..\..\Bullet\CollisionShapes\SphereShape.cpp">
+				RelativePath="..\..\Bullet\CollisionShapes\MinkowskiSumShape.cpp"
+				>
 			</File>
 			<File
-				RelativePath="..\..\Bullet\CollisionShapes\StridingMeshInterface.cpp">
+				RelativePath="..\..\Bullet\CollisionShapes\MultiSphereShape.cpp"
+				>
 			</File>
 			<File
-				RelativePath="..\..\Bullet\CollisionShapes\TriangleCallback.cpp">
+				RelativePath="..\..\Bullet\CollisionShapes\OptimizedBvh.cpp"
+				>
 			</File>
 			<File
-				RelativePath="..\..\Bullet\CollisionShapes\TriangleIndexVertexArray.cpp">
+				RelativePath="..\..\Bullet\NarrowPhaseCollision\PersistentManifold.cpp"
+				>
 			</File>
 			<File
-				RelativePath="..\..\Bullet\CollisionShapes\TriangleMesh.cpp">
+				RelativePath="..\..\Bullet\CollisionShapes\PolyhedralConvexShape.cpp"
+				>
 			</File>
 			<File
-				RelativePath="..\..\Bullet\CollisionShapes\TriangleMeshShape.cpp">
+				RelativePath="..\..\Bullet\NarrowPhaseCollision\RaycastCallback.cpp"
+				>
 			</File>
 			<File
-				RelativePath="..\..\Bullet\NarrowPhaseCollision\BU_AlgebraicPolynomialSolver.cpp">
+				RelativePath="..\..\Bullet\NarrowPhaseCollision\Shape.cpp"
+				>
 			</File>
 			<File
-				RelativePath="..\..\Bullet\NarrowPhaseCollision\BU_Collidable.cpp">
+				RelativePath="..\..\Bullet\BroadphaseCollision\SimpleBroadphase.cpp"
+				>
 			</File>
 			<File
-				RelativePath="..\..\Bullet\NarrowPhaseCollision\BU_CollisionPair.cpp">
+				RelativePath="..\..\Bullet\CollisionShapes\Simplex1to4Shape.cpp"
+				>
 			</File>
 			<File
-				RelativePath="..\..\Bullet\NarrowPhaseCollision\BU_EdgeEdge.cpp">
+				RelativePath="..\..\Bullet\CollisionShapes\SphereShape.cpp"
+				>
 			</File>
 			<File
-				RelativePath="..\..\Bullet\NarrowPhaseCollision\BU_Screwing.cpp">
+				RelativePath="..\..\Bullet\CollisionShapes\StridingMeshInterface.cpp"
+				>
 			</File>
 			<File
-				RelativePath="..\..\Bullet\NarrowPhaseCollision\BU_VertexPoly.cpp">
+				RelativePath="..\..\Bullet\NarrowPhaseCollision\SubSimplexConvexCast.cpp"
+				>
 			</File>
 			<File
-				RelativePath="..\..\Bullet\NarrowPhaseCollision\ContinuousConvexCollision.cpp">
+				RelativePath="..\..\Bullet\CollisionShapes\TriangleCallback.cpp"
+				>
 			</File>
 			<File
-				RelativePath="..\..\Bullet\NarrowPhaseCollision\ConvexCast.cpp">
+				RelativePath="..\..\Bullet\CollisionShapes\TriangleIndexVertexArray.cpp"
+				>
 			</File>
 			<File
-				RelativePath="..\..\Bullet\NarrowPhaseCollision\Epa.cpp">
+				RelativePath="..\..\Bullet\CollisionShapes\TriangleMesh.cpp"
+				>
 			</File>
 			<File
-				RelativePath="..\..\Bullet\NarrowPhaseCollision\EpaFace.cpp">
+				RelativePath="..\..\Bullet\CollisionShapes\TriangleMeshShape.cpp"
+				>
 			</File>
 			<File
-				RelativePath="..\..\Bullet\NarrowPhaseCollision\EpaPenetrationDepthSolver.cpp">
+				RelativePath="..\..\Bullet\CollisionDispatch\UnionFind.cpp"
+				>
 			</File>
 			<File
-				RelativePath="..\..\Bullet\NarrowPhaseCollision\EpaPolyhedron.cpp">
-			</File>
-			<File
-				RelativePath="..\..\Bullet\NarrowPhaseCollision\GjkConvexCast.cpp">
-			</File>
-			<File
-				RelativePath="..\..\Bullet\NarrowPhaseCollision\GjkPairDetector.cpp">
-			</File>
-			<File
-				RelativePath="..\..\Bullet\NarrowPhaseCollision\Hull.cpp">
-			</File>
-			<File
-				RelativePath="..\..\Bullet\NarrowPhaseCollision\ManifoldContactAddResult.cpp">
-			</File>
-			<File
-				RelativePath="..\..\Bullet\NarrowPhaseCollision\MinkowskiPenetrationDepthSolver.cpp">
-			</File>
-			<File
-				RelativePath="..\..\Bullet\NarrowPhaseCollision\PersistentManifold.cpp">
-			</File>
-			<File
-				RelativePath="..\..\Bullet\NarrowPhaseCollision\RaycastCallback.cpp">
-			</File>
-			<File
-				RelativePath="..\..\Bullet\NarrowPhaseCollision\Shape.cpp">
-			</File>
-			<File
-				RelativePath="..\..\Bullet\NarrowPhaseCollision\SubSimplexConvexCast.cpp">
-			</File>
-			<File
-				RelativePath="..\..\Bullet\NarrowPhaseCollision\VoronoiSimplexSolver.cpp">
+				RelativePath="..\..\Bullet\NarrowPhaseCollision\VoronoiSimplexSolver.cpp"
+				>
 			</File>
 		</Filter>
 		<Filter
 			Name="Header Files"
-			Filter="">
+			>
 			<File
-				RelativePath="..\..\Bullet\BroadphaseCollision\AxisSweep3.h">
+				RelativePath="..\..\Bullet\BroadphaseCollision\AxisSweep3.h"
+				>
 			</File>
 			<File
-				RelativePath="..\..\Bullet\BroadphaseCollision\BroadphaseInterface.h">
+				RelativePath="..\..\Bullet\CollisionShapes\BoxShape.h"
+				>
 			</File>
 			<File
-				RelativePath="..\..\Bullet\BroadphaseCollision\BroadphaseProxy.h">
+				RelativePath="..\..\Bullet\BroadphaseCollision\BroadphaseInterface.h"
+				>
 			</File>
 			<File
-				RelativePath="..\..\Bullet\BroadphaseCollision\CollisionAlgorithm.h">
+				RelativePath="..\..\Bullet\BroadphaseCollision\BroadphaseProxy.h"
+				>
 			</File>
 			<File
-				RelativePath="..\..\Bullet\BroadphaseCollision\Dispatcher.h">
+				RelativePath="..\..\Bullet\NarrowPhaseCollision\BU_AlgebraicPolynomialSolver.h"
+				>
 			</File>
 			<File
-				RelativePath="..\..\Bullet\BroadphaseCollision\SimpleBroadphase.h">
+				RelativePath="..\..\Bullet\NarrowPhaseCollision\BU_Collidable.h"
+				>
 			</File>
 			<File
-				RelativePath="..\..\Bullet\CollisionDispatch\CollisionDispatcher.h">
+				RelativePath="..\..\Bullet\NarrowPhaseCollision\BU_CollisionPair.h"
+				>
 			</File>
 			<File
-				RelativePath="..\..\Bullet\CollisionDispatch\CollisionObject.h">
+				RelativePath="..\..\Bullet\NarrowPhaseCollision\BU_EdgeEdge.h"
+				>
 			</File>
 			<File
-				RelativePath="..\..\Bullet\CollisionDispatch\CollisionWorld.h">
+				RelativePath="..\..\Bullet\NarrowPhaseCollision\BU_MotionStateInterface.h"
+				>
 			</File>
 			<File
-				RelativePath="..\..\Bullet\CollisionDispatch\CompoundCollisionAlgorithm.h">
+				RelativePath="..\..\Bullet\NarrowPhaseCollision\BU_PolynomialSolverInterface.h"
+				>
 			</File>
 			<File
-				RelativePath="..\..\Bullet\CollisionDispatch\ConvexConcaveCollisionAlgorithm.h">
+				RelativePath="..\..\Bullet\NarrowPhaseCollision\BU_Screwing.h"
+				>
 			</File>
 			<File
-				RelativePath="..\..\Bullet\CollisionDispatch\ConvexConvexAlgorithm.h">
+				RelativePath="..\..\Bullet\NarrowPhaseCollision\BU_StaticMotionState.h"
+				>
 			</File>
 			<File
-				RelativePath="..\..\Bullet\CollisionDispatch\EmptyCollisionAlgorithm.h">
+				RelativePath="..\..\Bullet\NarrowPhaseCollision\BU_VertexPoly.h"
+				>
 			</File>
 			<File
-				RelativePath="..\..\Bullet\CollisionDispatch\ManifoldResult.h">
+				RelativePath="..\..\Bullet\CollisionShapes\BvhTriangleMeshShape.h"
+				>
 			</File>
 			<File
-				RelativePath="..\..\Bullet\CollisionDispatch\UnionFind.h">
+				RelativePath="..\..\Bullet\BroadphaseCollision\CollisionAlgorithm.h"
+				>
 			</File>
 			<File
-				RelativePath="..\..\Bullet\CollisionShapes\BoxShape.h">
+				RelativePath="..\..\Bullet\CollisionDispatch\CollisionDispatcher.h"
+				>
 			</File>
 			<File
-				RelativePath="..\..\Bullet\CollisionShapes\BvhTriangleMeshShape.h">
+				RelativePath="..\..\Bullet\NarrowPhaseCollision\CollisionMargin.h"
+				>
 			</File>
 			<File
-				RelativePath="..\..\Bullet\CollisionShapes\CollisionMargin.h">
+				RelativePath="..\..\Bullet\CollisionShapes\CollisionMargin.h"
+				>
 			</File>
 			<File
-				RelativePath="..\..\Bullet\CollisionShapes\CollisionShape.h">
+				RelativePath="..\..\Bullet\CollisionDispatch\CollisionObject.h"
+				>
 			</File>
 			<File
-				RelativePath="..\..\Bullet\CollisionShapes\CompoundShape.h">
+				RelativePath="..\..\Bullet\CollisionShapes\CollisionShape.h"
+				>
 			</File>
 			<File
-				RelativePath="..\..\Bullet\CollisionShapes\ConeShape.h">
+				RelativePath="..\..\Bullet\CollisionDispatch\CollisionWorld.h"
+				>
 			</File>
 			<File
-				RelativePath="..\..\Bullet\CollisionShapes\ConvexHullShape.h">
+				RelativePath="..\..\Bullet\CollisionDispatch\CompoundCollisionAlgorithm.h"
+				>
 			</File>
 			<File
-				RelativePath="..\..\Bullet\CollisionShapes\ConvexShape.h">
+				RelativePath="..\..\Bullet\CollisionShapes\CompoundShape.h"
+				>
 			</File>
 			<File
-				RelativePath="..\..\Bullet\CollisionShapes\ConvexTriangleMeshShape.h">
+				RelativePath="..\..\Bullet\CollisionShapes\ConeShape.h"
+				>
 			</File>
 			<File
-				RelativePath="..\..\Bullet\CollisionShapes\CylinderShape.h">
+				RelativePath="..\..\Bullet\NarrowPhaseCollision\ContinuousConvexCollision.h"
+				>
 			</File>
 			<File
-				RelativePath="..\..\Bullet\CollisionShapes\EmptyShape.h">
+				RelativePath="..\..\Bullet\NarrowPhaseCollision\ConvexCast.h"
+				>
 			</File>
 			<File
-				RelativePath="..\..\Bullet\CollisionShapes\MinkowskiSumShape.h">
+				RelativePath="..\..\Bullet\CollisionDispatch\ConvexConcaveCollisionAlgorithm.h"
+				>
 			</File>
 			<File
-				RelativePath="..\..\Bullet\CollisionShapes\MultiSphereShape.h">
+				RelativePath="..\..\Bullet\CollisionDispatch\ConvexConvexAlgorithm.h"
+				>
 			</File>
 			<File
-				RelativePath="..\..\Bullet\CollisionShapes\OptimizedBvh.h">
+				RelativePath="..\..\Bullet\CollisionShapes\ConvexHullShape.h"
+				>
 			</File>
 			<File
-				RelativePath="..\..\Bullet\CollisionShapes\PolyhedralConvexShape.h">
+				RelativePath="..\..\Bullet\NarrowPhaseCollision\ConvexPenetrationDepthSolver.h"
+				>
 			</File>
 			<File
-				RelativePath="..\..\Bullet\CollisionShapes\Simplex1to4Shape.h">
+				RelativePath="..\..\Bullet\CollisionShapes\ConvexShape.h"
+				>
 			</File>
 			<File
-				RelativePath="..\..\Bullet\CollisionShapes\SphereShape.h">
+				RelativePath="..\..\Bullet\CollisionShapes\ConvexTriangleMeshShape.h"
+				>
 			</File>
 			<File
-				RelativePath="..\..\Bullet\CollisionShapes\StridingMeshInterface.h">
+				RelativePath="..\..\Bullet\CollisionShapes\CylinderShape.h"
+				>
 			</File>
 			<File
-				RelativePath="..\..\Bullet\CollisionShapes\TriangleCallback.h">
+				RelativePath="..\..\Bullet\NarrowPhaseCollision\DiscreteCollisionDetectorInterface.h"
+				>
 			</File>
 			<File
-				RelativePath="..\..\Bullet\CollisionShapes\TriangleIndexVertexArray.h">
+				RelativePath="..\..\Bullet\BroadphaseCollision\Dispatcher.h"
+				>
 			</File>
 			<File
-				RelativePath="..\..\Bullet\CollisionShapes\TriangleMesh.h">
+				RelativePath="..\..\Bullet\CollisionDispatch\EmptyCollisionAlgorithm.h"
+				>
 			</File>
 			<File
-				RelativePath="..\..\Bullet\CollisionShapes\TriangleMeshShape.h">
+				RelativePath="..\..\Bullet\CollisionShapes\EmptyShape.h"
+				>
 			</File>
 			<File
-				RelativePath="..\..\Bullet\CollisionShapes\TriangleShape.h">
+				RelativePath="..\..\Bullet\NarrowPhaseCollision\GjkConvexCast.h"
+				>
 			</File>
 			<File
-				RelativePath="..\..\Bullet\NarrowPhaseCollision\BU_AlgebraicPolynomialSolver.h">
+				RelativePath="..\..\Bullet\NarrowPhaseCollision\GjkPairDetector.h"
+				>
 			</File>
 			<File
-				RelativePath="..\..\Bullet\NarrowPhaseCollision\BU_Collidable.h">
+				RelativePath="..\..\Bullet\NarrowPhaseCollision\Hull.h"
+				>
 			</File>
 			<File
-				RelativePath="..\..\Bullet\NarrowPhaseCollision\BU_CollisionPair.h">
+				RelativePath="..\..\Bullet\NarrowPhaseCollision\HullContactCollector.h"
+				>
 			</File>
 			<File
-				RelativePath="..\..\Bullet\NarrowPhaseCollision\BU_EdgeEdge.h">
+				RelativePath="..\..\Bullet\NarrowPhaseCollision\ManifoldContactAddResult.h"
+				>
 			</File>
 			<File
-				RelativePath="..\..\Bullet\NarrowPhaseCollision\BU_MotionStateInterface.h">
+				RelativePath="..\..\Bullet\NarrowPhaseCollision\ManifoldPoint.h"
+				>
 			</File>
 			<File
-				RelativePath="..\..\Bullet\NarrowPhaseCollision\BU_PolynomialSolverInterface.h">
+				RelativePath="..\..\Bullet\CollisionDispatch\ManifoldResult.h"
+				>
 			</File>
 			<File
-				RelativePath="..\..\Bullet\NarrowPhaseCollision\BU_Screwing.h">
+				RelativePath="..\..\Bullet\NarrowPhaseCollision\MinkowskiPenetrationDepthSolver.h"
+				>
 			</File>
 			<File
-				RelativePath="..\..\Bullet\NarrowPhaseCollision\BU_StaticMotionState.h">
+				RelativePath="..\..\Bullet\CollisionShapes\MinkowskiSumShape.h"
+				>
 			</File>
 			<File
-				RelativePath="..\..\Bullet\NarrowPhaseCollision\BU_VertexPoly.h">
+				RelativePath="..\..\Bullet\CollisionShapes\MultiSphereShape.h"
+				>
 			</File>
 			<File
-				RelativePath="..\..\Bullet\NarrowPhaseCollision\CollisionMargin.h">
+				RelativePath="..\..\Bullet\CollisionShapes\OptimizedBvh.h"
+				>
 			</File>
 			<File
-				RelativePath="..\..\Bullet\NarrowPhaseCollision\ContinuousConvexCollision.h">
+				RelativePath="..\..\Bullet\NarrowPhaseCollision\PersistentManifold.h"
+				>
 			</File>
 			<File
-				RelativePath="..\..\Bullet\NarrowPhaseCollision\ConvexCast.h">
+				RelativePath="..\..\Bullet\NarrowPhaseCollision\PointCollector.h"
+				>
 			</File>
 			<File
-				RelativePath="..\..\Bullet\NarrowPhaseCollision\ConvexPenetrationDepthSolver.h">
+				RelativePath="..\..\Bullet\CollisionShapes\PolyhedralConvexShape.h"
+				>
 			</File>
 			<File
-				RelativePath="..\..\Bullet\NarrowPhaseCollision\DiscreteCollisionDetectorInterface.h">
+				RelativePath="..\..\Bullet\NarrowPhaseCollision\RaycastCallback.h"
+				>
 			</File>
 			<File
-				RelativePath="..\..\Bullet\NarrowPhaseCollision\Epa.h">
+				RelativePath="..\..\Bullet\NarrowPhaseCollision\Shape.h"
+				>
 			</File>
 			<File
-				RelativePath="..\..\Bullet\NarrowPhaseCollision\EpaCommon.h">
+				RelativePath="..\..\Bullet\BroadphaseCollision\SimpleBroadphase.h"
+				>
 			</File>
 			<File
-				RelativePath="..\..\Bullet\NarrowPhaseCollision\EpaFace.h">
+				RelativePath="..\..\Bullet\CollisionShapes\Simplex1to4Shape.h"
+				>
 			</File>
 			<File
-				RelativePath="..\..\Bullet\NarrowPhaseCollision\EpaHalfEdge.h">
+				RelativePath="..\..\Bullet\NarrowPhaseCollision\SimplexSolverInterface.h"
+				>
 			</File>
 			<File
-				RelativePath="..\..\Bullet\NarrowPhaseCollision\EpaPenetrationDepthSolver.h">
+				RelativePath="..\..\Bullet\CollisionShapes\SphereShape.h"
+				>
 			</File>
 			<File
-				RelativePath="..\..\Bullet\NarrowPhaseCollision\EpaPolyhedron.h">
+				RelativePath="..\..\Bullet\CollisionShapes\StridingMeshInterface.h"
+				>
 			</File>
 			<File
-				RelativePath="..\..\Bullet\NarrowPhaseCollision\EpaVertex.h">
+				RelativePath="..\..\Bullet\NarrowPhaseCollision\SubSimplexConvexCast.h"
+				>
 			</File>
 			<File
-				RelativePath="..\..\Bullet\NarrowPhaseCollision\GjkConvexCast.h">
+				RelativePath="..\..\Bullet\CollisionShapes\TriangleCallback.h"
+				>
 			</File>
 			<File
-				RelativePath="..\..\Bullet\NarrowPhaseCollision\GjkPairDetector.h">
+				RelativePath="..\..\Bullet\CollisionShapes\TriangleIndexVertexArray.h"
+				>
 			</File>
 			<File
-				RelativePath="..\..\Bullet\NarrowPhaseCollision\Hull.h">
+				RelativePath="..\..\Bullet\CollisionShapes\TriangleMesh.h"
+				>
 			</File>
 			<File
-				RelativePath="..\..\Bullet\NarrowPhaseCollision\HullContactCollector.h">
+				RelativePath="..\..\Bullet\CollisionShapes\TriangleMeshShape.h"
+				>
 			</File>
 			<File
-				RelativePath="..\..\Bullet\NarrowPhaseCollision\ManifoldContactAddResult.h">
+				RelativePath="..\..\Bullet\CollisionShapes\TriangleShape.h"
+				>
 			</File>
 			<File
-				RelativePath="..\..\Bullet\NarrowPhaseCollision\ManifoldPoint.h">
+				RelativePath="..\..\Bullet\CollisionDispatch\UnionFind.h"
+				>
 			</File>
 			<File
-				RelativePath="..\..\Bullet\NarrowPhaseCollision\MinkowskiPenetrationDepthSolver.h">
-			</File>
-			<File
-				RelativePath="..\..\Bullet\NarrowPhaseCollision\PersistentManifold.h">
-			</File>
-			<File
-				RelativePath="..\..\Bullet\NarrowPhaseCollision\PointCollector.h">
-			</File>
-			<File
-				RelativePath="..\..\Bullet\NarrowPhaseCollision\RaycastCallback.h">
-			</File>
-			<File
-				RelativePath="..\..\Bullet\NarrowPhaseCollision\Shape.h">
-			</File>
-			<File
-				RelativePath="..\..\Bullet\NarrowPhaseCollision\SimplexSolverInterface.h">
-			</File>
-			<File
-				RelativePath="..\..\Bullet\NarrowPhaseCollision\SubSimplexConvexCast.h">
-			</File>
-			<File
-				RelativePath="..\..\Bullet\NarrowPhaseCollision\VoronoiSimplexSolver.h">
+				RelativePath="..\..\Bullet\NarrowPhaseCollision\VoronoiSimplexSolver.h"
+				>
 			</File>
 		</Filter>
+		<File
+			RelativePath="..\..\Bullet\BroadphaseCollision\OverlappingPairCache.cpp"
+			>
+		</File>
+		<File
+			RelativePath="..\..\Bullet\BroadphaseCollision\OverlappingPairCache.h"
+			>
+		</File>
 	</Files>
 	<Globals>
 	</Globals>

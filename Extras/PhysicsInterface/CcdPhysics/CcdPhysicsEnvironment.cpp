@@ -36,8 +36,7 @@ subject to the following restrictions:
 #include "BroadphaseCollision/Dispatcher.h"
 #include "NarrowPhaseCollision/PersistentManifold.h"
 #include "CollisionShapes/TriangleMeshShape.h"
-#include "ConstraintSolver/OdeConstraintSolver.h"
-#include "ConstraintSolver/SimpleConstraintSolver.h"
+#include "ConstraintSolver/SequentialImpulseConstraintSolver.h"
 
 
 //profiling/timings
@@ -325,7 +324,7 @@ static void DrawAabb(IDebugDraw* debugDrawer,const SimdVector3& from,const SimdV
 
 CcdPhysicsEnvironment::CcdPhysicsEnvironment(CollisionDispatcher* dispatcher,BroadphaseInterface* broadphase)
 :m_scalingPropagated(false),
-m_numIterations(10),
+m_numIterations(4),
 m_numTimeSubSteps(1),
 m_ccdMode(0),
 m_solverType(-1),
@@ -1034,7 +1033,7 @@ void		CcdPhysicsEnvironment::setSolverType(int solverType)
 			if (m_solverType != solverType)
 			{
 
-				m_solver = new SimpleConstraintSolver();
+				m_solver = new SequentialImpulseConstraintSolver();
 
 				break;
 			}
@@ -1044,7 +1043,7 @@ void		CcdPhysicsEnvironment::setSolverType(int solverType)
 	default:
 		if (m_solverType != solverType)
 		{
-			m_solver = new OdeConstraintSolver();
+//			m_solver = new OdeConstraintSolver();
 
 			break;
 		}

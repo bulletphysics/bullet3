@@ -21,13 +21,13 @@
 
 #include "SimdPoint3.h"
 #include "SimdVector3.h"
-#include "SimpleBroadphase.h"
+#include "OverlappingPairCache.h"
 #include "BroadphaseProxy.h"
 
 /// AxisSweep3 is an efficient implementation of the 3d axis sweep and prune broadphase.
 /// It uses arrays rather then lists for storage of the 3 axis. Also it operates using integer coordinates instead of floats.
 /// The TestOverlap check is optimized to check the array index, rather then the actual AABB coordinates/pos
-class AxisSweep3 : public SimpleBroadphase
+class AxisSweep3 : public OverlappingPairCache
 {
 
 public:

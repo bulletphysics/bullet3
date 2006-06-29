@@ -48,9 +48,11 @@ subject to the following restrictions:
 #include "NarrowPhaseCollision/Epa.h"
 #include "NarrowPhaseCollision/ConvexPenetrationDepthSolver.h"
 #include "NarrowPhaseCollision/EpaPenetrationDepthSolver.h"
+EpaPenetrationDepthSolver epaPenDepthSolver;
+
 
 SimplexSolverInterface	simplexSolver;
-EpaPenetrationDepthSolver epaPenDepthSolver;
+
 
 int screenWidth = 640.f;
 int screenHeight = 480.f;

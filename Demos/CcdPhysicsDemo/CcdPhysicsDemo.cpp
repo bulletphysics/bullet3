@@ -69,14 +69,17 @@ extern float eye[3];
 extern int glutScreenWidth;
 extern int glutScreenHeight;
 
+const int maxProxies = 32766;
+const int maxOverlap = 65535;
+
 
 #ifdef _DEBUG
-const int numObjects = 22;
+const int numObjects = 5000;
 #else
-const int numObjects = 120;
+const int numObjects = 2000;
 #endif
 
-const int maxNumObjects = 450;
+const int maxNumObjects = 32760;
 
 MyMotionState ms[maxNumObjects];
 CcdPhysicsController* physObjects[maxNumObjects] = {0,0,0,0};
@@ -127,11 +130,11 @@ int main(int argc,char** argv)
 	CollisionDispatcher* dispatcher = new	CollisionDispatcher();
 
 
-	SimdVector3 worldAabbMin(-10000,-10000,-10000);
-	SimdVector3 worldAabbMax(10000,10000,10000);
+	SimdVector3 worldAabbMin(-30000,-30000,-30000);
+	SimdVector3 worldAabbMax(30000,30000,30000);
 
-	BroadphaseInterface* broadphase = new AxisSweep3(worldAabbMin,worldAabbMax);
-	//BroadphaseInterface* broadphase = new SimpleBroadphase();
+	//BroadphaseInterface* broadphase = new AxisSweep3(worldAabbMin,worldAabbMax,maxProxies,maxOverlap);
+	BroadphaseInterface* broadphase = new SimpleBroadphase(maxProxies,maxOverlap);
 
 	physicsEnvironmentPtr = new CcdPhysicsEnvironment(dispatcher,broadphase);
 	physicsEnvironmentPtr->setDeactivationTime(2.f);
