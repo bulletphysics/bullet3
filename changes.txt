@@ -1,6 +1,11 @@
 Bullet Continuous Collision Detection and Physics Library
 Erwin Coumans
 
+2006 June 29 Erwin Coumans
+	Refactoring of the broadphase
+	Moved some optional files to Extras: Algebraic ccd and EPA, quickstep
+	Moved the limits on bodies/overlap to 32k and 65k
+	
 2006 June 25 Erwin Coumans
 	Added basic Collision Filtering, during broadphase
 	Allow adding meshes to the TriangleIndexVertexArray,
