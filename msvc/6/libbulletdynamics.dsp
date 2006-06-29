@@ -116,23 +116,15 @@ SOURCE=..\..\BulletDynamics\ConstraintSolver\HingeConstraint.cpp
 # End Source File
 # Begin Source File
 
-SOURCE=..\..\BulletDynamics\ConstraintSolver\OdeConstraintSolver.cpp
-# End Source File
-# Begin Source File
-
 SOURCE=..\..\BulletDynamics\ConstraintSolver\Point2PointConstraint.cpp
 # End Source File
 # Begin Source File
 
-SOURCE=..\..\BulletDynamics\ConstraintSolver\SimpleConstraintSolver.cpp
+SOURCE=..\..\BulletDynamics\ConstraintSolver\SequentialImpulseConstraintSolver.cpp
 # End Source File
 # Begin Source File
 
 SOURCE=..\..\BulletDynamics\ConstraintSolver\Solve2LinearConstraint.cpp
-# End Source File
-# Begin Source File
-
-SOURCE=..\..\BulletDynamics\ConstraintSolver\SorLcp.cpp
 # End Source File
 # Begin Source File
 
@@ -180,23 +172,15 @@ SOURCE=..\..\BulletDynamics\ConstraintSolver\JacobianEntry.h
 # End Source File
 # Begin Source File
 
-SOURCE=..\..\BulletDynamics\ConstraintSolver\OdeConstraintSolver.h
-# End Source File
-# Begin Source File
-
 SOURCE=..\..\BulletDynamics\ConstraintSolver\Point2PointConstraint.h
 # End Source File
 # Begin Source File
 
-SOURCE=..\..\BulletDynamics\ConstraintSolver\SimpleConstraintSolver.h
+SOURCE=..\..\BulletDynamics\ConstraintSolver\SequentialImpulseConstraintSolver.h
 # End Source File
 # Begin Source File
 
 SOURCE=..\..\BulletDynamics\ConstraintSolver\Solve2LinearConstraint.h
-# End Source File
-# Begin Source File
-
-SOURCE=..\..\BulletDynamics\ConstraintSolver\SorLcp.h
 # End Source File
 # Begin Source File
 

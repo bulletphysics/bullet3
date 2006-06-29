@@ -174,6 +174,9 @@
 				RelativePath="..\..\Bullet\BroadphaseCollision\Dispatcher.cpp">
 			</File>
 			<File
+				RelativePath="..\..\Bullet\BroadphaseCollision\OverlappingPairCache.cpp">
+			</File>
+			<File
 				RelativePath="..\..\Bullet\BroadphaseCollision\SimpleBroadphase.cpp">
 			</File>
 			<File
@@ -267,40 +270,10 @@
 				RelativePath="..\..\Bullet\CollisionShapes\TriangleMeshShape.cpp">
 			</File>
 			<File
-				RelativePath="..\..\Bullet\NarrowPhaseCollision\BU_AlgebraicPolynomialSolver.cpp">
-			</File>
-			<File
-				RelativePath="..\..\Bullet\NarrowPhaseCollision\BU_Collidable.cpp">
-			</File>
-			<File
-				RelativePath="..\..\Bullet\NarrowPhaseCollision\BU_CollisionPair.cpp">
-			</File>
-			<File
-				RelativePath="..\..\Bullet\NarrowPhaseCollision\BU_EdgeEdge.cpp">
-			</File>
-			<File
-				RelativePath="..\..\Bullet\NarrowPhaseCollision\BU_Screwing.cpp">
-			</File>
-			<File
-				RelativePath="..\..\Bullet\NarrowPhaseCollision\BU_VertexPoly.cpp">
-			</File>
-			<File
 				RelativePath="..\..\Bullet\NarrowPhaseCollision\ContinuousConvexCollision.cpp">
 			</File>
 			<File
 				RelativePath="..\..\Bullet\NarrowPhaseCollision\ConvexCast.cpp">
-			</File>
-			<File
-				RelativePath="..\..\Bullet\NarrowPhaseCollision\Epa.cpp">
-			</File>
-			<File
-				RelativePath="..\..\Bullet\NarrowPhaseCollision\EpaFace.cpp">
-			</File>
-			<File
-				RelativePath="..\..\Bullet\NarrowPhaseCollision\EpaPenetrationDepthSolver.cpp">
-			</File>
-			<File
-				RelativePath="..\..\Bullet\NarrowPhaseCollision\EpaPolyhedron.cpp">
 			</File>
 			<File
 				RelativePath="..\..\Bullet\NarrowPhaseCollision\GjkConvexCast.cpp">
@@ -350,6 +323,9 @@
 			</File>
 			<File
 				RelativePath="..\..\Bullet\BroadphaseCollision\Dispatcher.h">
+			</File>
+			<File
+				RelativePath="..\..\Bullet\BroadphaseCollision\OverlappingPairCache.h">
 			</File>
 			<File
 				RelativePath="..\..\Bullet\BroadphaseCollision\SimpleBroadphase.h">
@@ -451,33 +427,6 @@
 				RelativePath="..\..\Bullet\CollisionShapes\TriangleShape.h">
 			</File>
 			<File
-				RelativePath="..\..\Bullet\NarrowPhaseCollision\BU_AlgebraicPolynomialSolver.h">
-			</File>
-			<File
-				RelativePath="..\..\Bullet\NarrowPhaseCollision\BU_Collidable.h">
-			</File>
-			<File
-				RelativePath="..\..\Bullet\NarrowPhaseCollision\BU_CollisionPair.h">
-			</File>
-			<File
-				RelativePath="..\..\Bullet\NarrowPhaseCollision\BU_EdgeEdge.h">
-			</File>
-			<File
-				RelativePath="..\..\Bullet\NarrowPhaseCollision\BU_MotionStateInterface.h">
-			</File>
-			<File
-				RelativePath="..\..\Bullet\NarrowPhaseCollision\BU_PolynomialSolverInterface.h">
-			</File>
-			<File
-				RelativePath="..\..\Bullet\NarrowPhaseCollision\BU_Screwing.h">
-			</File>
-			<File
-				RelativePath="..\..\Bullet\NarrowPhaseCollision\BU_StaticMotionState.h">
-			</File>
-			<File
-				RelativePath="..\..\Bullet\NarrowPhaseCollision\BU_VertexPoly.h">
-			</File>
-			<File
 				RelativePath="..\..\Bullet\NarrowPhaseCollision\CollisionMargin.h">
 			</File>
 			<File
@@ -491,27 +440,6 @@
 			</File>
 			<File
 				RelativePath="..\..\Bullet\NarrowPhaseCollision\DiscreteCollisionDetectorInterface.h">
-			</File>
-			<File
-				RelativePath="..\..\Bullet\NarrowPhaseCollision\Epa.h">
-			</File>
-			<File
-				RelativePath="..\..\Bullet\NarrowPhaseCollision\EpaCommon.h">
-			</File>
-			<File
-				RelativePath="..\..\Bullet\NarrowPhaseCollision\EpaFace.h">
-			</File>
-			<File
-				RelativePath="..\..\Bullet\NarrowPhaseCollision\EpaHalfEdge.h">
-			</File>
-			<File
-				RelativePath="..\..\Bullet\NarrowPhaseCollision\EpaPenetrationDepthSolver.h">
-			</File>
-			<File
-				RelativePath="..\..\Bullet\NarrowPhaseCollision\EpaPolyhedron.h">
-			</File>
-			<File
-				RelativePath="..\..\Bullet\NarrowPhaseCollision\EpaVertex.h">
 			</File>
 			<File
 				RelativePath="..\..\Bullet\NarrowPhaseCollision\GjkConvexCast.h">

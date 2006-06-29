@@ -1,17 +1,15 @@
-<?xml version="1.0" encoding="Windows-1252"?>
+<?xml version="1.0" encoding = "Windows-1252"?>
 <VisualStudioProject
 	ProjectType="Visual C++"
 	Version="8.00"
 	Name="libbulletccdphysics"
 	ProjectGUID="{C63CFD5B-23E8-FB4F-79DB-E40F463B0C1E}"
-	>
+	SccProjectName=""
+	SccLocalPath="">
 	<Platforms>
 		<Platform
-			Name="Win32"
-		/>
+			Name="Win32"/>
 	</Platforms>
-	<ToolFiles>
-	</ToolFiles>
 	<Configurations>
 		<Configuration
 			Name="Release|Win32"
@@ -19,82 +17,73 @@
 			IntermediateDirectory="..\..\out\release8\build\libbulletccdphysics\"
 			ConfigurationType="4"
 			UseOfMFC="0"
-			ATLMinimizesCRunTimeLibraryUsage="false"
-			>
-			<Tool
-				Name="VCPreBuildEventTool"
-			/>
-			<Tool
-				Name="VCCustomBuildTool"
-			/>
-			<Tool
-				Name="VCXMLDataGeneratorTool"
-			/>
-			<Tool
-				Name="VCWebServiceProxyGeneratorTool"
-			/>
-			<Tool
-				Name="VCMIDLTool"
-				PreprocessorDefinitions="NDEBUG;_LIB;_WINDOWS"
-				MkTypLibCompatible="true"
-				SuppressStartupBanner="true"
-				TargetEnvironment="1"
-				TypeLibraryName="..\..\out\release8\build\libbulletccdphysics\libbulletccdphysics.tlb"
-			/>
+			ATLMinimizesCRunTimeLibraryUsage="FALSE">
 			<Tool
 				Name="VCCLCompilerTool"
-				AdditionalOptions=" "
 				Optimization="2"
-				AdditionalIncludeDirectories=".;..\..;..\..\Bullet;..\..\BulletDynamics;..\..\LinearMath;..\..\Extras\PhysicsInterface\Common"
-				PreprocessorDefinitions="NDEBUG;_LIB;_WINDOWS;WIN32"
-				StringPooling="true"
-				ExceptionHandling="0"
+				StringPooling="TRUE"
+				EnableFunctionLevelLinking="TRUE"
 				RuntimeLibrary="0"
-				BufferSecurityCheck="false"
-				EnableFunctionLevelLinking="true"
-				TreatWChar_tAsBuiltInType="false"
+				DebugInformationFormat="3"
+				BufferSecurityCheck="FALSE"
+				PreprocessorDefinitions="NDEBUG;_LIB;_WINDOWS;WIN32"
+				OptimizeForProcessor="1"
+				ExceptionHandling="0"
+				AdditionalOptions=" "
+				AdditionalIncludeDirectories=".;..\..;..\..\Bullet;..\..\BulletDynamics;..\..\LinearMath;..\..\Extras\PhysicsInterface\Common"
 				PrecompiledHeaderFile="..\..\out\release8\build\libbulletccdphysics\libbulletccdphysics.pch"
 				AssemblerListingLocation="..\..\out\release8\build\libbulletccdphysics\"
 				ObjectFile="..\..\out\release8\build\libbulletccdphysics\"
 				ProgramDataBaseFileName="..\..\out\release8\build\libbulletccdphysics\bulletccdphysics.pdb"
 				WarningLevel="3"
-				SuppressStartupBanner="true"
-				Detect64BitPortabilityProblems="true"
-				DebugInformationFormat="3"
-				CompileAs="0"
-			/>
+				SuppressStartupBanner="TRUE"
+				Detect64BitPortabilityProblems="TRUE"
+				TreatWChar_tAsBuiltInType="false"
+				CompileAs="0"/>
 			<Tool
-				Name="VCManagedResourceCompilerTool"
-			/>
+				Name="VCCustomBuildTool"/>
 			<Tool
-				Name="VCResourceCompilerTool"
-				PreprocessorDefinitions="NDEBUG;_LIB;_WINDOWS;PROJECTGEN_VERSION=8"
-				Culture="1033"
-				AdditionalIncludeDirectories=".;..\..;..\..\Bullet;..\..\BulletDynamics;..\..\LinearMath;..\..\Extras\PhysicsInterface\Common"
-			/>
-			<Tool
-				Name="VCPreLinkEventTool"
-			/>
+				Name="VCLinkerTool"
+				LinkIncremental="1"
+				OptimizeReferences="2"
+				EnableCOMDATFolding="2"
+				GenerateDebugInformation="TRUE"
+				IgnoreDefaultLibraryNames="LIBC,LIBCD"
+				AdditionalOptions=" "
+				AdditionalDependencies=""
+				IgnoreImportLibrary="TRUE"
+				SuppressStartupBanner="TRUE"
+				GenerateManifest="false"
+				AdditionalLibraryDirectories=""
+				ProgramDatabaseFile="..\..\out\release8\build\libbulletccdphysics\bulletccdphysics.pdb"
+				TargetMachine="1"/>
 			<Tool
 				Name="VCLibrarianTool"
 				OutputFile="..\..\out\release8\libs\libbulletccdphysics.lib"
-				SuppressStartupBanner="true"
-			/>
+				SuppressStartupBanner="TRUE"/>
 			<Tool
-				Name="VCALinkTool"
-			/>
-			<Tool
-				Name="VCXDCMakeTool"
-			/>
-			<Tool
-				Name="VCBscMakeTool"
-			/>
-			<Tool
-				Name="VCFxCopTool"
-			/>
+				Name="VCMIDLTool"
+				PreprocessorDefinitions="NDEBUG;_LIB;_WINDOWS"
+				MkTypLibCompatible="TRUE"
+				SuppressStartupBanner="TRUE"
+				TargetEnvironment="1"
+				TypeLibraryName="..\..\out\release8\build\libbulletccdphysics\libbulletccdphysics.tlb"/>
 			<Tool
 				Name="VCPostBuildEventTool"
-			/>
+				/>
+			<Tool
+				Name="VCPreBuildEventTool"/>
+			<Tool
+				Name="VCPreLinkEventTool"/>
+			<Tool
+				Name="VCResourceCompilerTool"
+				PreprocessorDefinitions="NDEBUG;_LIB;_WINDOWS;PROJECTGEN_VERSION=8"
+				AdditionalIncludeDirectories=".;..\..;..\..\Bullet;..\..\BulletDynamics;..\..\LinearMath;..\..\Extras\PhysicsInterface\Common"
+				Culture="1033"/>
+			<Tool
+				Name="VCWebServiceProxyGeneratorTool"/>
+			<Tool
+				Name="VCWebDeploymentTool"/>
 		</Configuration>
 		<Configuration
 			Name="Debug|Win32"
@@ -102,116 +91,91 @@
 			IntermediateDirectory="..\..\out\debug8\build\libbulletccdphysics\"
 			ConfigurationType="4"
 			UseOfMFC="0"
-			ATLMinimizesCRunTimeLibraryUsage="false"
-			>
-			<Tool
-				Name="VCPreBuildEventTool"
-			/>
-			<Tool
-				Name="VCCustomBuildTool"
-			/>
-			<Tool
-				Name="VCXMLDataGeneratorTool"
-			/>
-			<Tool
-				Name="VCWebServiceProxyGeneratorTool"
-			/>
-			<Tool
-				Name="VCMIDLTool"
-				PreprocessorDefinitions="_DEBUG;_LIB;_WINDOWS"
-				MkTypLibCompatible="true"
-				SuppressStartupBanner="true"
-				TargetEnvironment="1"
-				TypeLibraryName="..\..\out\debug8\build\libbulletccdphysics\libbulletccdphysics.tlb"
-			/>
+			ATLMinimizesCRunTimeLibraryUsage="FALSE">
 			<Tool
 				Name="VCCLCompilerTool"
-				AdditionalOptions=" "
 				Optimization="0"
-				AdditionalIncludeDirectories=".;..\..;..\..\Bullet;..\..\BulletDynamics;..\..\LinearMath;..\..\Extras\PhysicsInterface\Common"
-				PreprocessorDefinitions="_DEBUG;_LIB;_WINDOWS;WIN32"
-				MinimalRebuild="true"
-				ExceptionHandling="0"
+				MinimalRebuild="TRUE"
+				DebugInformationFormat="4"
+				RuntimeTypeInfo="FALSE"
 				RuntimeLibrary="1"
-				TreatWChar_tAsBuiltInType="false"
-				RuntimeTypeInfo="false"
+				PreprocessorDefinitions="_DEBUG;_LIB;_WINDOWS;WIN32"
+				OptimizeForProcessor="1"
+				ExceptionHandling="0"
+				AdditionalOptions=" "
+				AdditionalIncludeDirectories=".;..\..;..\..\Bullet;..\..\BulletDynamics;..\..\LinearMath;..\..\Extras\PhysicsInterface\Common"
 				PrecompiledHeaderFile="..\..\out\debug8\build\libbulletccdphysics\libbulletccdphysics.pch"
 				AssemblerListingLocation="..\..\out\debug8\build\libbulletccdphysics\"
 				ObjectFile="..\..\out\debug8\build\libbulletccdphysics\"
 				ProgramDataBaseFileName="..\..\out\debug8\build\libbulletccdphysics\bulletccdphysics.pdb"
 				WarningLevel="3"
-				SuppressStartupBanner="true"
-				Detect64BitPortabilityProblems="true"
-				DebugInformationFormat="4"
-				CompileAs="0"
-			/>
+				SuppressStartupBanner="TRUE"
+				Detect64BitPortabilityProblems="TRUE"
+				TreatWChar_tAsBuiltInType="false"
+				CompileAs="0"/>
 			<Tool
-				Name="VCManagedResourceCompilerTool"
-			/>
+				Name="VCCustomBuildTool"/>
 			<Tool
-				Name="VCResourceCompilerTool"
-				PreprocessorDefinitions="_DEBUG;_LIB;_WINDOWS;PROJECTGEN_VERSION=8"
-				Culture="1033"
-				AdditionalIncludeDirectories=".;..\..;..\..\Bullet;..\..\BulletDynamics;..\..\LinearMath;..\..\Extras\PhysicsInterface\Common"
-			/>
-			<Tool
-				Name="VCPreLinkEventTool"
-			/>
+				Name="VCLinkerTool"
+				LinkIncremental="2"
+				GenerateDebugInformation="TRUE"
+				IgnoreDefaultLibraryNames="LIBC,LIBCD"
+				AdditionalOptions=" "
+				AdditionalDependencies=""
+				IgnoreImportLibrary="TRUE"
+				SuppressStartupBanner="TRUE"
+				GenerateManifest="false"
+				AdditionalLibraryDirectories=""
+				ProgramDatabaseFile="..\..\out\debug8\build\libbulletccdphysics\bulletccdphysics.pdb"
+				TargetMachine="1"/>
 			<Tool
 				Name="VCLibrarianTool"
 				OutputFile="..\..\out\debug8\libs\libbulletccdphysics_d.lib"
-				SuppressStartupBanner="true"
-			/>
+				SuppressStartupBanner="TRUE"/>
 			<Tool
-				Name="VCALinkTool"
-			/>
-			<Tool
-				Name="VCXDCMakeTool"
-			/>
-			<Tool
-				Name="VCBscMakeTool"
-			/>
-			<Tool
-				Name="VCFxCopTool"
-			/>
+				Name="VCMIDLTool"
+				PreprocessorDefinitions="_DEBUG;_LIB;_WINDOWS"
+				MkTypLibCompatible="TRUE"
+				SuppressStartupBanner="TRUE"
+				TargetEnvironment="1"
+				TypeLibraryName="..\..\out\debug8\build\libbulletccdphysics\libbulletccdphysics.tlb"/>
 			<Tool
 				Name="VCPostBuildEventTool"
-			/>
+				/>
+			<Tool
+				Name="VCPreBuildEventTool"/>
+			<Tool
+				Name="VCPreLinkEventTool"/>
+			<Tool
+				Name="VCResourceCompilerTool"
+				PreprocessorDefinitions="_DEBUG;_LIB;_WINDOWS;PROJECTGEN_VERSION=8"
+				AdditionalIncludeDirectories=".;..\..;..\..\Bullet;..\..\BulletDynamics;..\..\LinearMath;..\..\Extras\PhysicsInterface\Common"
+				Culture="1033"/>
+			<Tool
+				Name="VCWebServiceProxyGeneratorTool"/>
+			<Tool
+				Name="VCWebDeploymentTool"/>
 		</Configuration>
 	</Configurations>
-	<References>
-	</References>
 	<Files>
 		<Filter
 			Name="Source Files"
-			>
+			Filter="">
 			<File
-				RelativePath="..\..\Extras\PhysicsInterface\CcdPhysics\CcdPhysicsController.cpp"
-				>
+				RelativePath="..\..\Extras\PhysicsInterface\CcdPhysics\CcdPhysicsController.cpp">
 			</File>
 			<File
-				RelativePath="..\..\Extras\PhysicsInterface\CcdPhysics\CcdPhysicsEnvironment.cpp"
-				>
-			</File>
-			<File
-				RelativePath="..\..\Extras\PhysicsInterface\CcdPhysics\ParallelPhysicsEnvironment.cpp"
-				>
+				RelativePath="..\..\Extras\PhysicsInterface\CcdPhysics\CcdPhysicsEnvironment.cpp">
 			</File>
 		</Filter>
 		<Filter
 			Name="Header Files"
-			>
+			Filter="">
 			<File
-				RelativePath="..\..\Extras\PhysicsInterface\CcdPhysics\CcdPhysicsController.h"
-				>
+				RelativePath="..\..\Extras\PhysicsInterface\CcdPhysics\CcdPhysicsController.h">
 			</File>
 			<File
-				RelativePath="..\..\Extras\PhysicsInterface\CcdPhysics\CcdPhysicsEnvironment.h"
-				>
-			</File>
-			<File
-				RelativePath="..\..\Extras\PhysicsInterface\CcdPhysics\ParallelPhysicsEnvironment.h"
-				>
+				RelativePath="..\..\Extras\PhysicsInterface\CcdPhysics\CcdPhysicsEnvironment.h">
 			</File>
 		</Filter>
 	</Files>

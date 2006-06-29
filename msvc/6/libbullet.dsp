@@ -120,6 +120,10 @@ SOURCE=..\..\Bullet\BroadphaseCollision\Dispatcher.cpp
 # End Source File
 # Begin Source File
 
+SOURCE=..\..\Bullet\BroadphaseCollision\OverlappingPairCache.cpp
+# End Source File
+# Begin Source File
+
 SOURCE=..\..\Bullet\BroadphaseCollision\SimpleBroadphase.cpp
 # End Source File
 # Begin Source File
@@ -244,51 +248,11 @@ SOURCE=..\..\Bullet\CollisionShapes\TriangleMeshShape.cpp
 # End Source File
 # Begin Source File
 
-SOURCE=..\..\Bullet\NarrowPhaseCollision\BU_AlgebraicPolynomialSolver.cpp
-# End Source File
-# Begin Source File
-
-SOURCE=..\..\Bullet\NarrowPhaseCollision\BU_Collidable.cpp
-# End Source File
-# Begin Source File
-
-SOURCE=..\..\Bullet\NarrowPhaseCollision\BU_CollisionPair.cpp
-# End Source File
-# Begin Source File
-
-SOURCE=..\..\Bullet\NarrowPhaseCollision\BU_EdgeEdge.cpp
-# End Source File
-# Begin Source File
-
-SOURCE=..\..\Bullet\NarrowPhaseCollision\BU_Screwing.cpp
-# End Source File
-# Begin Source File
-
-SOURCE=..\..\Bullet\NarrowPhaseCollision\BU_VertexPoly.cpp
-# End Source File
-# Begin Source File
-
 SOURCE=..\..\Bullet\NarrowPhaseCollision\ContinuousConvexCollision.cpp
 # End Source File
 # Begin Source File
 
 SOURCE=..\..\Bullet\NarrowPhaseCollision\ConvexCast.cpp
-# End Source File
-# Begin Source File
-
-SOURCE=..\..\Bullet\NarrowPhaseCollision\Epa.cpp
-# End Source File
-# Begin Source File
-
-SOURCE=..\..\Bullet\NarrowPhaseCollision\EpaFace.cpp
-# End Source File
-# Begin Source File
-
-SOURCE=..\..\Bullet\NarrowPhaseCollision\EpaPenetrationDepthSolver.cpp
-# End Source File
-# Begin Source File
-
-SOURCE=..\..\Bullet\NarrowPhaseCollision\EpaPolyhedron.cpp
 # End Source File
 # Begin Source File
 
@@ -353,6 +317,10 @@ SOURCE=..\..\Bullet\BroadphaseCollision\CollisionAlgorithm.h
 # Begin Source File
 
 SOURCE=..\..\Bullet\BroadphaseCollision\Dispatcher.h
+# End Source File
+# Begin Source File
+
+SOURCE=..\..\Bullet\BroadphaseCollision\OverlappingPairCache.h
 # End Source File
 # Begin Source File
 
@@ -488,42 +456,6 @@ SOURCE=..\..\Bullet\CollisionShapes\TriangleShape.h
 # End Source File
 # Begin Source File
 
-SOURCE=..\..\Bullet\NarrowPhaseCollision\BU_AlgebraicPolynomialSolver.h
-# End Source File
-# Begin Source File
-
-SOURCE=..\..\Bullet\NarrowPhaseCollision\BU_Collidable.h
-# End Source File
-# Begin Source File
-
-SOURCE=..\..\Bullet\NarrowPhaseCollision\BU_CollisionPair.h
-# End Source File
-# Begin Source File
-
-SOURCE=..\..\Bullet\NarrowPhaseCollision\BU_EdgeEdge.h
-# End Source File
-# Begin Source File
-
-SOURCE=..\..\Bullet\NarrowPhaseCollision\BU_MotionStateInterface.h
-# End Source File
-# Begin Source File
-
-SOURCE=..\..\Bullet\NarrowPhaseCollision\BU_PolynomialSolverInterface.h
-# End Source File
-# Begin Source File
-
-SOURCE=..\..\Bullet\NarrowPhaseCollision\BU_Screwing.h
-# End Source File
-# Begin Source File
-
-SOURCE=..\..\Bullet\NarrowPhaseCollision\BU_StaticMotionState.h
-# End Source File
-# Begin Source File
-
-SOURCE=..\..\Bullet\NarrowPhaseCollision\BU_VertexPoly.h
-# End Source File
-# Begin Source File
-
 SOURCE=..\..\Bullet\NarrowPhaseCollision\CollisionMargin.h
 # End Source File
 # Begin Source File
@@ -541,34 +473,6 @@ SOURCE=..\..\Bullet\NarrowPhaseCollision\ConvexPenetrationDepthSolver.h
 # Begin Source File
 
 SOURCE=..\..\Bullet\NarrowPhaseCollision\DiscreteCollisionDetectorInterface.h
-# End Source File
-# Begin Source File
-
-SOURCE=..\..\Bullet\NarrowPhaseCollision\Epa.h
-# End Source File
-# Begin Source File
-
-SOURCE=..\..\Bullet\NarrowPhaseCollision\EpaCommon.h
-# End Source File
-# Begin Source File
-
-SOURCE=..\..\Bullet\NarrowPhaseCollision\EpaFace.h
-# End Source File
-# Begin Source File
-
-SOURCE=..\..\Bullet\NarrowPhaseCollision\EpaHalfEdge.h
-# End Source File
-# Begin Source File
-
-SOURCE=..\..\Bullet\NarrowPhaseCollision\EpaPenetrationDepthSolver.h
-# End Source File
-# Begin Source File
-
-SOURCE=..\..\Bullet\NarrowPhaseCollision\EpaPolyhedron.h
-# End Source File
-# Begin Source File
-
-SOURCE=..\..\Bullet\NarrowPhaseCollision\EpaVertex.h
 # End Source File
 # Begin Source File
 

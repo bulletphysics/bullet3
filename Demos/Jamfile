@@ -81,6 +81,5 @@ SubInclude TOP Demos ConcaveDemo ;
 SubInclude TOP Demos ConstraintDemo ;
 SubInclude TOP Demos ContinuousConvexCollision ;
 SubInclude TOP Demos GjkConvexCastDemo ;
-SubInclude TOP Demos EPAPenDepthDemo ;
 SubInclude TOP Demos Raytracer ;
 SubInclude TOP Demos SimplexDemo ;
