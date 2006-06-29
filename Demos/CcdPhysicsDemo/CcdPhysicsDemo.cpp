@@ -76,7 +76,7 @@ const int maxOverlap = 65535;
 #ifdef _DEBUG
 const int numObjects = 50;
 #else
-const int numObjects = 500;
+const int numObjects = 200;
 #endif
 
 const int maxNumObjects = 32760;
