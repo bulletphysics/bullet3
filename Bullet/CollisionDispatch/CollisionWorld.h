@@ -70,6 +70,7 @@ class BroadphaseInterface;
 #include "SimdTransform.h"
 #include "CollisionObject.h"
 #include "CollisionDispatcher.h" //for definition of CollisionObjectArray
+#include "BroadphaseCollision/OverlappingPairCache.h"
 
 #include <vector>
 
@@ -85,13 +86,14 @@ class CollisionWorld
 	
 	CollisionDispatcher*	m_dispatcher;
 
-	BroadphaseInterface*	m_broadphase;
+	OverlappingPairCache*	m_pairCache;
+	
 
 public:
 
-	CollisionWorld(CollisionDispatcher* dispatcher,BroadphaseInterface* broadphase)
+	CollisionWorld(CollisionDispatcher* dispatcher,OverlappingPairCache* pairCache)
 		:m_dispatcher(dispatcher),
-		m_broadphase(broadphase)
+		m_pairCache(pairCache)
 	{
 
 	}
@@ -102,8 +104,14 @@ public:
 
 	BroadphaseInterface*	GetBroadphase()
 	{
-		return m_broadphase;
+		return m_pairCache;
 	}
+
+	OverlappingPairCache*	GetPairCache()
+	{
+		return m_pairCache;
+	}
+
 
 	CollisionDispatcher*	GetDispatcher()
 	{

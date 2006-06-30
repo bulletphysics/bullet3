@@ -74,7 +74,7 @@ class	OverlappingPairCache : public BroadphaseInterface
 		return collides;
 	}
 		
-	void	DispatchAllCollisionPairs(Dispatcher&	dispatcher,DispatcherInfo& dispatchInfo);
+	
 
 	virtual void	RefreshOverlappingPairs() =0;
 

@@ -22,28 +22,15 @@ subject to the following restrictions:
 #include "CollisionDispatch/ManifoldResult.h"
 
 #include "BroadphaseCollision/BroadphaseProxy.h"
-#include <vector>
+
 
 class IDebugDraw;
+class OverlappingPairCache;
 
-typedef std::vector<struct CollisionObject*> CollisionObjectArray;
+
+#include "CollisionCreateFunc.h"
 
 
-struct CollisionAlgorithmCreateFunc
-{
-	bool m_swapped;
-	
-	CollisionAlgorithmCreateFunc()
-		:m_swapped(false)
-	{
-	}
-	virtual ~CollisionAlgorithmCreateFunc(){};
-
-	virtual	CollisionAlgorithm* CreateCollisionAlgorithm(BroadphaseProxy& proxy0,BroadphaseProxy& proxy1)
-	{
-		return 0;
-	}
-};
 
 
 ///CollisionDispatcher supports algorithms that handle ConvexConvex and ConvexConcave collision pairs.
@@ -131,7 +118,7 @@ public:
 
 	virtual int GetUniqueId() { return RIGIDBODY_DISPATCHER;}
 	
-	
+	virtual void	DispatchAllCollisionPairs(OverlappingPairCache* pairCache,DispatcherInfo& dispatchInfo);
 
 };
 

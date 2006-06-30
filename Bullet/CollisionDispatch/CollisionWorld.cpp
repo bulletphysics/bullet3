@@ -150,10 +150,13 @@ void	CollisionWorld::PerformDiscreteCollisionDetection()
 	for (size_t i=0;i<m_collisionObjects.size();i++)
 	{
 		m_collisionObjects[i]->m_collisionShape->GetAabb(m_collisionObjects[i]->m_worldTransform,aabbMin,aabbMax);
-		m_broadphase->SetAabb(m_collisionObjects[i]->m_broadphaseHandle,aabbMin,aabbMax);
+		m_pairCache->SetAabb(m_collisionObjects[i]->m_broadphaseHandle,aabbMin,aabbMax);
 	}
 
-	m_broadphase->DispatchAllCollisionPairs(*GetDispatcher(),dispatchInfo);
+	CollisionDispatcher* dispatcher = GetDispatcher();
+	if (dispatcher)
+		dispatcher->DispatchAllCollisionPairs(m_pairCache,dispatchInfo);
+
 }
 
 

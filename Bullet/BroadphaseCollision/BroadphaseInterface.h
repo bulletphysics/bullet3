@@ -33,7 +33,7 @@ public:
 	virtual void	DestroyProxy(BroadphaseProxy* proxy)=0;
 	virtual void	SetAabb(BroadphaseProxy* proxy,const SimdVector3& aabbMin,const SimdVector3& aabbMax)=0;
 	virtual void	CleanProxyFromPairs(BroadphaseProxy* proxy)=0;
-	virtual void	DispatchAllCollisionPairs(Dispatcher&	dispatcher,DispatcherInfo& dispatchInfo)=0;
+	
 
 };
 

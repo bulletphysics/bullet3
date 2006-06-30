@@ -37,6 +37,7 @@ class Dispatcher;
 class WrapperVehicle;
 class PersistentManifold;
 class BroadphaseInterface;
+class OverlappingPairCache;
 class IDebugDraw;
 
 /// CcdPhysicsEnvironment is experimental mainloop for physics simulation using optional continuous collision detection.
@@ -62,7 +63,7 @@ class CcdPhysicsEnvironment : public PHY_IPhysicsEnvironment
 	
 
 	public:
-		CcdPhysicsEnvironment(CollisionDispatcher* dispatcher=0, BroadphaseInterface* broadphase=0);
+		CcdPhysicsEnvironment(CollisionDispatcher* dispatcher=0, OverlappingPairCache* pairCache=0);
 
 		virtual		~CcdPhysicsEnvironment();
 

@@ -322,7 +322,7 @@ static void DrawAabb(IDebugDraw* debugDrawer,const SimdVector3& from,const SimdV
 
 
 
-CcdPhysicsEnvironment::CcdPhysicsEnvironment(CollisionDispatcher* dispatcher,BroadphaseInterface* broadphase)
+CcdPhysicsEnvironment::CcdPhysicsEnvironment(CollisionDispatcher* dispatcher,OverlappingPairCache* pairCache)
 :m_scalingPropagated(false),
 m_numIterations(4),
 m_numTimeSubSteps(1),
@@ -336,18 +336,18 @@ m_enableSatCollisionDetection(false)
 	{
 		m_triggerCallbacks[i] = 0;
 	}
-	if (!dispatcher)
-		dispatcher = new CollisionDispatcher();
+	//if (!dispatcher)
+	//	dispatcher = new CollisionDispatcher();
 
 
-	if(!broadphase)
+	if(!pairCache)
 	{
 
 		//todo: calculate/let user specify this world sizes
 		SimdVector3 worldMin(-10000,-10000,-10000);
 		SimdVector3 worldMax(10000,10000,10000);
 
-		broadphase = new AxisSweep3(worldMin,worldMax);
+		pairCache = new AxisSweep3(worldMin,worldMax);
 
 		//broadphase = new SimpleBroadphase();
 	}
@@ -355,7 +355,7 @@ m_enableSatCollisionDetection(false)
 
 	setSolverType(1);//issues with quickstep and memory allocations
 
-	m_collisionWorld = new CollisionWorld(dispatcher,broadphase);
+	m_collisionWorld = new CollisionWorld(dispatcher,pairCache);
 
 	m_debugDrawer = 0;
 	m_gravity = SimdVector3(0.f,-10.f,0.f);
@@ -654,7 +654,7 @@ bool	CcdPhysicsEnvironment::proceedDeltaTimeOneStep(float timeStep)
 	Profiler::endBlock("predictIntegratedTransform");
 #endif //USE_QUICKPROF
 
-	BroadphaseInterface*	scene = GetBroadphase();
+	OverlappingPairCache*	scene = m_collisionWorld->GetPairCache();
 
 
 	//
@@ -675,7 +675,7 @@ bool	CcdPhysicsEnvironment::proceedDeltaTimeOneStep(float timeStep)
 	dispatchInfo.m_stepCount = 0;
 	dispatchInfo.m_enableSatConvex = m_enableSatCollisionDetection;
 
-	scene->DispatchAllCollisionPairs(*GetDispatcher(),dispatchInfo);///numsubstep,g);
+	GetDispatcher()->DispatchAllCollisionPairs(scene,dispatchInfo);
 
 
 #ifdef USE_QUICKPROF
@@ -842,7 +842,8 @@ bool	CcdPhysicsEnvironment::proceedDeltaTimeOneStep(float timeStep)
 				dispatchInfo.m_stepCount = 0;
 				dispatchInfo.m_dispatchFunc = DispatcherInfo::DISPATCH_CONTINUOUS;
 
-				scene->DispatchAllCollisionPairs( *GetDispatcher(),dispatchInfo);///numsubstep,g);
+				GetDispatcher()->DispatchAllCollisionPairs(scene,dispatchInfo);
+				
 				toi = dispatchInfo.m_timeOfImpact;
 
 			}

@@ -21,6 +21,10 @@ subject to the following restrictions:
 struct CollisionObject;
 class PersistentManifold;
 
+
+
+
+
 ///ManifoldResult is a helper class to manage  contact results.
 class ManifoldResult : public DiscreteCollisionDetectorInterface::Result
 {

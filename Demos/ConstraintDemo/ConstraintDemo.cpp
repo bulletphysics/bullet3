@@ -77,7 +77,7 @@ int main(int argc,char** argv)
 
 	CollisionDispatcher* dispatcher = new	CollisionDispatcher();
 		
-	BroadphaseInterface* broadphase = new SimpleBroadphase();
+	OverlappingPairCache* broadphase = new SimpleBroadphase();
 
 
 	physicsEnvironmentPtr = new CcdPhysicsEnvironment(dispatcher,broadphase);

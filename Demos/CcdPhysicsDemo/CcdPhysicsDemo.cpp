@@ -27,6 +27,9 @@ subject to the following restrictions:
 
 #include "Dynamics/RigidBody.h"
 #include "CollisionDispatch/CollisionDispatcher.h"
+
+#include "ParallelIslandDispatcher.h"
+
 #include "BroadphaseCollision/SimpleBroadphase.h"
 #include "BroadphaseCollision/AxisSweep3.h"
 #include "ConstraintSolver/Point2PointConstraint.h"
@@ -128,13 +131,13 @@ int main(int argc,char** argv)
 
 
 	CollisionDispatcher* dispatcher = new	CollisionDispatcher();
-
-
+	Dispatcher* dispatcher2 = new	ParallelIslandDispatcher();
+	
 	SimdVector3 worldAabbMin(-30000,-30000,-30000);
 	SimdVector3 worldAabbMax(30000,30000,30000);
 
 	//BroadphaseInterface* broadphase = new AxisSweep3(worldAabbMin,worldAabbMax,maxProxies,maxOverlap);
-	BroadphaseInterface* broadphase = new SimpleBroadphase(maxProxies,maxOverlap);
+	OverlappingPairCache* broadphase = new SimpleBroadphase(maxProxies,maxOverlap);
 
 	physicsEnvironmentPtr = new CcdPhysicsEnvironment(dispatcher,broadphase);
 	physicsEnvironmentPtr->setDeactivationTime(2.f);

@@ -337,8 +337,8 @@ int main(int argc,char** argv)
 	SimdVector3 worldAabbMin(-10000,-10000,-10000);
 	SimdVector3 worldAabbMax(10000,10000,10000);
 
-	BroadphaseInterface* broadphase = new AxisSweep3(worldAabbMin,worldAabbMax);
-	//BroadphaseInterface* broadphase = new SimpleBroadphase();
+	OverlappingPairCache* broadphase = new AxisSweep3(worldAabbMin,worldAabbMax);
+	//OverlappingPairCache* broadphase = new SimpleBroadphase();
 
 	physicsEnvironmentPtr = new CcdPhysicsEnvironment(dispatcher,broadphase);
 	physicsEnvironmentPtr->setDeactivationTime(2.f);
