@@ -99,7 +99,7 @@ class CcdPhysicsEnvironment : public PHY_IPhysicsEnvironment
 		virtual void		endFrame() {};
 		/// Perform an integration step of duration 'timeStep'.
 		virtual	bool		proceedDeltaTime(double curTime,float timeStep);
-		bool				proceedDeltaTimeOneStep(float timeStep);
+		virtual bool		proceedDeltaTimeOneStep(float timeStep);
 
 		virtual	void		setFixedTimeStep(bool useFixedTimeStep,float fixedTimeStep){};
 		//returns 0.f if no fixed timestep is used

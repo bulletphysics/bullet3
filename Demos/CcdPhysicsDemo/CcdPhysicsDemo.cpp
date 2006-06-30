@@ -14,6 +14,8 @@ subject to the following restrictions:
 */
 
 #include "CcdPhysicsEnvironment.h"
+#include "ParallelPhysicsEnvironment.h"
+
 #include "CcdPhysicsController.h"
 #include "MyMotionState.h"
 //#include "GL_LineSegmentShape.h"
@@ -87,8 +89,11 @@ const int maxNumObjects = 32760;
 MyMotionState ms[maxNumObjects];
 CcdPhysicsController* physObjects[maxNumObjects] = {0,0,0,0};
 int	shapeIndex[maxNumObjects];
+#ifdef USE_PARALLEL_DISPATCHER
+ParallelPhysicsEnvironment* physicsEnvironmentPtr = 0;
+#else
 CcdPhysicsEnvironment* physicsEnvironmentPtr = 0;
-
+#endif
 
 #define CUBE_HALF_EXTENTS 1
 
@@ -131,7 +136,7 @@ int main(int argc,char** argv)
 
 
 	CollisionDispatcher* dispatcher = new	CollisionDispatcher();
-	Dispatcher* dispatcher2 = new	ParallelIslandDispatcher();
+	ParallelIslandDispatcher* dispatcher2 = new	ParallelIslandDispatcher();
 	
 	SimdVector3 worldAabbMin(-30000,-30000,-30000);
 	SimdVector3 worldAabbMax(30000,30000,30000);
@@ -139,7 +144,11 @@ int main(int argc,char** argv)
 	//BroadphaseInterface* broadphase = new AxisSweep3(worldAabbMin,worldAabbMax,maxProxies,maxOverlap);
 	OverlappingPairCache* broadphase = new SimpleBroadphase(maxProxies,maxOverlap);
 
+#ifdef USE_PARALLEL_DISPATCHER
+	physicsEnvironmentPtr = new ParallelPhysicsEnvironment(dispatcher2,broadphase);
+#else
 	physicsEnvironmentPtr = new CcdPhysicsEnvironment(dispatcher,broadphase);
+#endif
 	physicsEnvironmentPtr->setDeactivationTime(2.f);
 
 	physicsEnvironmentPtr->setGravity(0,-10,0);
