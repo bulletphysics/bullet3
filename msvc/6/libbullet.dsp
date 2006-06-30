@@ -328,6 +328,10 @@ SOURCE=..\..\Bullet\BroadphaseCollision\SimpleBroadphase.h
 # End Source File
 # Begin Source File
 
+SOURCE=..\..\Bullet\CollisionDispatch\CollisionCreateFunc.h
+# End Source File
+# Begin Source File
+
 SOURCE=..\..\Bullet\CollisionDispatch\CollisionDispatcher.h
 # End Source File
 # Begin Source File

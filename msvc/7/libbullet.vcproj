@@ -331,6 +331,9 @@
 				RelativePath="..\..\Bullet\BroadphaseCollision\SimpleBroadphase.h">
 			</File>
 			<File
+				RelativePath="..\..\Bullet\CollisionDispatch\CollisionCreateFunc.h">
+			</File>
+			<File
 				RelativePath="..\..\Bullet\CollisionDispatch\CollisionDispatcher.h">
 			</File>
 			<File
