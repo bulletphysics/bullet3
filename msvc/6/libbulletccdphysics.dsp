@@ -118,6 +118,10 @@ SOURCE=..\..\Extras\PhysicsInterface\CcdPhysics\ParallelIslandDispatcher.cpp
 
 SOURCE=..\..\Extras\PhysicsInterface\CcdPhysics\ParallelPhysicsEnvironment.cpp
 # End Source File
+# Begin Source File
+
+SOURCE=..\..\Extras\PhysicsInterface\CcdPhysics\SimulationIsland.cpp
+# End Source File
 # End Group
 # Begin Group "Header Files"
 
@@ -137,6 +141,10 @@ SOURCE=..\..\Extras\PhysicsInterface\CcdPhysics\ParallelIslandDispatcher.h
 # Begin Source File
 
 SOURCE=..\..\Extras\PhysicsInterface\CcdPhysics\ParallelPhysicsEnvironment.h
+# End Source File
+# Begin Source File
+
+SOURCE=..\..\Extras\PhysicsInterface\CcdPhysics\SimulationIsland.h
 # End Source File
 # End Group
 # End Target

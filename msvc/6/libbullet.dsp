@@ -160,6 +160,10 @@ SOURCE=..\..\Bullet\CollisionDispatch\ManifoldResult.cpp
 # End Source File
 # Begin Source File
 
+SOURCE=..\..\Bullet\CollisionDispatch\SimulationIslandManager.cpp
+# End Source File
+# Begin Source File
+
 SOURCE=..\..\Bullet\CollisionDispatch\UnionFind.cpp
 # End Source File
 # Begin Source File
@@ -361,6 +365,10 @@ SOURCE=..\..\Bullet\CollisionDispatch\EmptyCollisionAlgorithm.h
 # Begin Source File
 
 SOURCE=..\..\Bullet\CollisionDispatch\ManifoldResult.h
+# End Source File
+# Begin Source File
+
+SOURCE=..\..\Bullet\CollisionDispatch\SimulationIslandManager.h
 # End Source File
 # Begin Source File
 

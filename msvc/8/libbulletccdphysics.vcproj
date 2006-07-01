@@ -173,6 +173,9 @@
 			<File
 				RelativePath="..\..\Extras\PhysicsInterface\CcdPhysics\ParallelPhysicsEnvironment.cpp">
 			</File>
+			<File
+				RelativePath="..\..\Extras\PhysicsInterface\CcdPhysics\SimulationIsland.cpp">
+			</File>
 		</Filter>
 		<Filter
 			Name="Header Files"
@@ -188,6 +191,9 @@
 			</File>
 			<File
 				RelativePath="..\..\Extras\PhysicsInterface\CcdPhysics\ParallelPhysicsEnvironment.h">
+			</File>
+			<File
+				RelativePath="..\..\Extras\PhysicsInterface\CcdPhysics\SimulationIsland.h">
 			</File>
 		</Filter>
 	</Files>

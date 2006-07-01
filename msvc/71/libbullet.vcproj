@@ -204,6 +204,9 @@
 				RelativePath="..\..\Bullet\CollisionDispatch\ManifoldResult.cpp">
 			</File>
 			<File
+				RelativePath="..\..\Bullet\CollisionDispatch\SimulationIslandManager.cpp">
+			</File>
+			<File
 				RelativePath="..\..\Bullet\CollisionDispatch\UnionFind.cpp">
 			</File>
 			<File
@@ -356,6 +359,9 @@
 			</File>
 			<File
 				RelativePath="..\..\Bullet\CollisionDispatch\ManifoldResult.h">
+			</File>
+			<File
+				RelativePath="..\..\Bullet\CollisionDispatch\SimulationIslandManager.h">
 			</File>
 			<File
 				RelativePath="..\..\Bullet\CollisionDispatch\UnionFind.h">
