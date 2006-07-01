@@ -104,7 +104,7 @@ void	CollisionWorld::PerformDiscreteCollisionDetection()
 
 	Dispatcher* dispatcher = GetDispatcher();
 	if (dispatcher)
-		dispatcher->DispatchAllCollisionPairs(m_pairCache,dispatchInfo);
+		dispatcher->DispatchAllCollisionPairs(&m_pairCache->GetOverlappingPair(0),m_pairCache->GetNumOverlappingPairs(),dispatchInfo);
 
 }
 

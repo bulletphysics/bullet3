@@ -179,7 +179,7 @@ void	CollisionDispatcher::ReleaseManifoldResult(ManifoldResult*)
 }
 
 
-void	CollisionDispatcher::DispatchAllCollisionPairs(OverlappingPairCache* pairCache,DispatcherInfo& dispatchInfo)
+void	CollisionDispatcher::DispatchAllCollisionPairs(BroadphasePair* pairs,int numPairs,DispatcherInfo& dispatchInfo)
 {
 	//m_blockedForChanges = true;
 
@@ -187,12 +187,12 @@ void	CollisionDispatcher::DispatchAllCollisionPairs(OverlappingPairCache* pairCa
 
 	int dispatcherId = GetUniqueId();
 
-	pairCache->RefreshOverlappingPairs();
+	
 
-	for (i=0;i<pairCache->GetNumOverlappingPairs();i++)
+	for (i=0;i<numPairs;i++)
 	{
 
-		BroadphasePair& pair = pairCache->GetOverlappingPair(i);
+		BroadphasePair& pair = pairs[i];
 
 		if (dispatcherId>= 0)
 		{

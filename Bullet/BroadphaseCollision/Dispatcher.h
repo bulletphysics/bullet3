@@ -87,7 +87,7 @@ public:
 
 	virtual	void	ReleaseManifoldResult(ManifoldResult*)=0;
 
-	virtual void	DispatchAllCollisionPairs(OverlappingPairCache* pairCache,DispatcherInfo& dispatchInfo)=0;
+	virtual void	DispatchAllCollisionPairs(class BroadphasePair* pairs,int numPairs,DispatcherInfo& dispatchInfo)=0;
 
 	virtual int GetNumManifolds() const = 0;
 

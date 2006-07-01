@@ -54,6 +54,8 @@ class CcdPhysicsEnvironment : public PHY_IPhysicsEnvironment
 	
 	//timestep subdivisions
 	int	m_numTimeSubSteps;
+protected:
+
 	int	m_ccdMode;
 	int	m_solverType;
 	int	m_profileTimings;
@@ -64,7 +66,7 @@ class CcdPhysicsEnvironment : public PHY_IPhysicsEnvironment
 	SimulationIslandManager*	m_islandManager;
 
 	public:
-		CcdPhysicsEnvironment(CollisionDispatcher* dispatcher=0, OverlappingPairCache* pairCache=0);
+		CcdPhysicsEnvironment(Dispatcher* dispatcher=0, OverlappingPairCache* pairCache=0);
 
 		virtual		~CcdPhysicsEnvironment();
 
@@ -200,7 +202,17 @@ class CcdPhysicsEnvironment : public PHY_IPhysicsEnvironment
 			return m_collisionWorld;
 		}
 
-	private:
+		SimulationIslandManager*	GetSimulationIslandManager()
+		{
+			return m_islandManager;
+		}
+
+		const SimulationIslandManager*	GetSimulationIslandManager() const 
+		{
+			return m_islandManager;
+		}
+
+	protected:
 		
 		
 
@@ -220,6 +232,7 @@ class CcdPhysicsEnvironment : public PHY_IPhysicsEnvironment
 
 		bool	m_scalingPropagated;
 
+		
 
 };
 

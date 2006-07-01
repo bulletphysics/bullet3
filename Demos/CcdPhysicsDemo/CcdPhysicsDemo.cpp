@@ -145,8 +145,8 @@ int main(int argc,char** argv)
 	SimdVector3 worldAabbMin(-30000,-30000,-30000);
 	SimdVector3 worldAabbMax(30000,30000,30000);
 
-	//BroadphaseInterface* broadphase = new AxisSweep3(worldAabbMin,worldAabbMax,maxProxies,maxOverlap);
-	OverlappingPairCache* broadphase = new SimpleBroadphase(maxProxies,maxOverlap);
+	OverlappingPairCache* broadphase = new AxisSweep3(worldAabbMin,worldAabbMax,maxProxies,maxOverlap);
+	//OverlappingPairCache* broadphase = new SimpleBroadphase(maxProxies,maxOverlap);
 
 #ifdef USE_PARALLEL_DISPATCHER
 	physicsEnvironmentPtr = new ParallelPhysicsEnvironment(dispatcher2,broadphase);

@@ -103,7 +103,7 @@ public:
 
 	virtual int GetUniqueId() { return RIGIDBODY_DISPATCHER;}
 	
-	virtual void	DispatchAllCollisionPairs(OverlappingPairCache* pairCache,DispatcherInfo& dispatchInfo);
+	virtual void	DispatchAllCollisionPairs(BroadphasePair* pairs,int numPairs,DispatcherInfo& dispatchInfo);
 
 	
 

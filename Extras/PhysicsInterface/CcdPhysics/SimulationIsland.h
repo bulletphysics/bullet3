@@ -16,14 +16,35 @@ subject to the following restrictions:
 #ifndef SIMULATION_ISLAND_H
 #define SIMULATION_ISLAND_H
 
+#include <vector>
+class BroadphaseInterface;
+class Dispatcher;
+
 ///SimulationIsland groups all computations and data (for collision detection and dynamics) that can execute in parallel with other SimulationIsland's
 ///The ParallelPhysicsEnvironment and ParallelIslandDispatcher will dispatch SimulationIsland's
 ///At the start of the simulation timestep the simulation islands are re-calculated
 ///During one timestep there is no merging or splitting of Simulation Islands
 class SimulationIsland
 {
+	
 	public:
-		
+	std::vector<class CcdPhysicsController*> m_controllers;
+	std::vector<class PersistentManifold*> m_manifolds;
+	std::vector<class BroadphasePair> m_overlappingPairs;
+	
+	bool	Simulate(Dispatcher* dispatcher,BroadphaseInterface* broadphase,	class ConstraintSolver*	solver, float timeStep);
+	
+	
+	int	GetNumControllers()
+	{
+		return m_controllers.size();
+	}
+
+	
+	
+
+	void	SyncMotionStates(float timeStep);
+	void	UpdateAabbs(BroadphaseInterface* broadphase,float timeStep);
 };
 
 #endif //SIMULATION_ISLAND_H

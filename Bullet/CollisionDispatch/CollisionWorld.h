@@ -84,14 +84,14 @@ class CollisionWorld
 
 	std::vector<CollisionObject*>	m_collisionObjects;
 	
-	CollisionDispatcher*	m_dispatcher1;
+	Dispatcher*	m_dispatcher1;
 
 	OverlappingPairCache*	m_pairCache;
 	
 
 public:
 
-	CollisionWorld(CollisionDispatcher* dispatcher,OverlappingPairCache* pairCache)
+	CollisionWorld(Dispatcher* dispatcher,OverlappingPairCache* pairCache)
 		:m_dispatcher1(dispatcher),
 		m_pairCache(pairCache)
 	{

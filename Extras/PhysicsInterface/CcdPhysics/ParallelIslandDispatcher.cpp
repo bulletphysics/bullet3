@@ -267,8 +267,69 @@ void	ParallelIslandDispatcher::ReleaseManifoldResult(ManifoldResult*)
 
 }
 
-void	ParallelIslandDispatcher::DispatchAllCollisionPairs(OverlappingPairCache* pairCache,DispatcherInfo& dispatchInfo)
+
+void	ParallelIslandDispatcher::DispatchAllCollisionPairs(BroadphasePair* pairs,int numPairs,DispatcherInfo& dispatchInfo)
 {
+	//m_blockedForChanges = true;
+
+	int i;
+
+	int dispatcherId = GetUniqueId();
+
+	
+
+	for (i=0;i<numPairs;i++)
+	{
+
+		BroadphasePair& pair = pairs[i];
+
+		if (dispatcherId>= 0)
+		{
+			//dispatcher will keep algorithms persistent in the collision pair
+			if (!pair.m_algorithms[dispatcherId])
+			{
+				pair.m_algorithms[dispatcherId] = FindAlgorithm(
+					*pair.m_pProxy0,
+					*pair.m_pProxy1);
+			}
+
+			if (pair.m_algorithms[dispatcherId])
+			{
+				if (dispatchInfo.m_dispatchFunc == 		DispatcherInfo::DISPATCH_DISCRETE)
+				{
+					pair.m_algorithms[dispatcherId]->ProcessCollision(pair.m_pProxy0,pair.m_pProxy1,dispatchInfo);
+				} else
+				{
+					float toi = pair.m_algorithms[dispatcherId]->CalculateTimeOfImpact(pair.m_pProxy0,pair.m_pProxy1,dispatchInfo);
+					if (dispatchInfo.m_timeOfImpact > toi)
+						dispatchInfo.m_timeOfImpact = toi;
+
+				}
+			}
+		} else
+		{
+			//non-persistent algorithm dispatcher
+			CollisionAlgorithm* algo = FindAlgorithm(
+				*pair.m_pProxy0,
+				*pair.m_pProxy1);
+
+			if (algo)
+			{
+				if (dispatchInfo.m_dispatchFunc == 		DispatcherInfo::DISPATCH_DISCRETE)
+				{
+					algo->ProcessCollision(pair.m_pProxy0,pair.m_pProxy1,dispatchInfo);
+				} else
+				{
+					float toi = algo->CalculateTimeOfImpact(pair.m_pProxy0,pair.m_pProxy1,dispatchInfo);
+					if (dispatchInfo.m_timeOfImpact > toi)
+						dispatchInfo.m_timeOfImpact = toi;
+				}
+			}
+		}
+
+	}
+
+	//m_blockedForChanges = false;
 
 }
 

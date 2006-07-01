@@ -321,7 +321,7 @@ static void DrawAabb(IDebugDraw* debugDrawer,const SimdVector3& from,const SimdV
 
 
 
-CcdPhysicsEnvironment::CcdPhysicsEnvironment(CollisionDispatcher* dispatcher,OverlappingPairCache* pairCache)
+CcdPhysicsEnvironment::CcdPhysicsEnvironment(Dispatcher* dispatcher,OverlappingPairCache* pairCache)
 :m_scalingPropagated(false),
 m_numIterations(4),
 m_numTimeSubSteps(1),
@@ -676,7 +676,8 @@ bool	CcdPhysicsEnvironment::proceedDeltaTimeOneStep(float timeStep)
 	dispatchInfo.m_stepCount = 0;
 	dispatchInfo.m_enableSatConvex = m_enableSatCollisionDetection;
 
-	GetCollisionWorld()->GetDispatcher()->DispatchAllCollisionPairs(scene,dispatchInfo);
+	scene->RefreshOverlappingPairs();
+	GetCollisionWorld()->GetDispatcher()->DispatchAllCollisionPairs(&scene->GetOverlappingPair(0),scene->GetNumOverlappingPairs(),dispatchInfo);
 
 
 #ifdef USE_QUICKPROF
@@ -844,7 +845,8 @@ bool	CcdPhysicsEnvironment::proceedDeltaTimeOneStep(float timeStep)
 				dispatchInfo.m_stepCount = 0;
 				dispatchInfo.m_dispatchFunc = DispatcherInfo::DISPATCH_CONTINUOUS;
 
-				GetCollisionWorld()->GetDispatcher()->DispatchAllCollisionPairs(scene,dispatchInfo);
+				//pairCache->RefreshOverlappingPairs();//??
+				GetCollisionWorld()->GetDispatcher()->DispatchAllCollisionPairs(&scene->GetOverlappingPair(0),scene->GetNumOverlappingPairs(),dispatchInfo);
 				
 				toi = dispatchInfo.m_timeOfImpact;
 

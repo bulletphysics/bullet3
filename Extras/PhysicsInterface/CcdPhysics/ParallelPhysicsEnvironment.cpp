@@ -20,13 +20,14 @@ subject to the following restrictions:
 #include "ParallelIslandDispatcher.h"
 #include "CollisionDispatch/CollisionWorld.h"
 #include "ConstraintSolver/TypedConstraint.h"
-
+#include "CollisionDispatch/SimulationIslandManager.h"
+#include "SimulationIsland.h"
 
 
 ParallelPhysicsEnvironment::ParallelPhysicsEnvironment(ParallelIslandDispatcher* dispatcher, OverlappingPairCache* pairCache):
-CcdPhysicsEnvironment(0,pairCache)
+CcdPhysicsEnvironment(dispatcher,pairCache)
 {
-
+	
 }
 
 ParallelPhysicsEnvironment::~ParallelPhysicsEnvironment()
@@ -39,13 +40,15 @@ ParallelPhysicsEnvironment::~ParallelPhysicsEnvironment()
 /// Perform an integration step of duration 'timeStep'.
 bool	ParallelPhysicsEnvironment::proceedDeltaTimeOneStep(float timeStep)
 {
+	OverlappingPairCache*	scene = m_collisionWorld->GetPairCache();
+	scene->RefreshOverlappingPairs();
+
 
 #ifdef USE_QUICKPROF
-	Profiler::beginBlock("CalcSimulationIslands");
+	Profiler::beginBlock("IslandUnionFind");
 #endif //USE_QUICKPROF
 
-	/*
-	GetCollisionWorld()->UpdateActivationState();
+	GetSimulationIslandManager()->UpdateActivationState(GetCollisionWorld(),GetCollisionWorld()->GetDispatcher());
 
 	{
 		int i;
@@ -56,367 +59,100 @@ bool	ParallelPhysicsEnvironment::proceedDeltaTimeOneStep(float timeStep)
 
 			const RigidBody* colObj0 = &constraint->GetRigidBodyA();
 			const RigidBody* colObj1 = &constraint->GetRigidBodyB();
-			
+
 			if (((colObj0) && ((colObj0)->mergesSimulationIslands())) &&
-						((colObj1) && ((colObj1)->mergesSimulationIslands())))
+				((colObj1) && ((colObj1)->mergesSimulationIslands())))
 			{
 				if (colObj0->IsActive() || colObj1->IsActive())
 				{
-					GetDispatcher()->GetUnionFind().unite((colObj0)->m_islandTag1,
+
+					GetSimulationIslandManager()->GetUnionFind().unite((colObj0)->m_islandTag1,
 						(colObj1)->m_islandTag1);
 				}
 			}
 		}
 	}
 
-	GetCollisionWorld()->StoreIslandActivationState();
-*/
+	GetSimulationIslandManager()->StoreIslandActivationState(GetCollisionWorld());
 
 #ifdef USE_QUICKPROF
-	Profiler::endBlock("CalcSimulationIslands");
+	Profiler::endBlock("IslandUnionFind");
 #endif //USE_QUICKPROF
 
-
-
-/*
-	//printf("CcdPhysicsEnvironment::proceedDeltaTime\n");
-
-	if (SimdFuzzyZero(timeStep))
-		return true;
-
-	if (m_debugDrawer)
-	{
-		gDisableDeactivation = (m_debugDrawer->GetDebugMode() & IDebugDraw::DBG_NoDeactivation);
-	}
-
-
+	
+	///calculate simulation islands
+	
 #ifdef USE_QUICKPROF
-	Profiler::beginBlock("SyncMotionStates");
+	Profiler::beginBlock("BuildIslands");
 #endif //USE_QUICKPROF
 
+	std::vector<SimulationIsland> simulationIslands;
+	simulationIslands.resize(GetNumControllers());
 
-	//this is needed because scaling is not known in advance, and scaling has to propagate to the shape
-	if (!m_scalingPropagated)
+	int k;
+	for (k=0;k<GetNumControllers();k++)
 	{
-		SyncMotionStates(timeStep);
-		m_scalingPropagated = true;
-	}
-
-
-#ifdef USE_QUICKPROF
-	Profiler::endBlock("SyncMotionStates");
-
-	Profiler::beginBlock("predictIntegratedTransform");
-#endif //USE_QUICKPROF
-
-	{
-		//		std::vector<CcdPhysicsController*>::iterator i;
-
-
-
-		int k;
-		for (k=0;k<GetNumControllers();k++)
-		{
 			CcdPhysicsController* ctrl = m_controllers[k];
-			//		SimdTransform predictedTrans;
-			RigidBody* body = ctrl->GetRigidBody();
-			if (body->IsActive())
+			int tag = ctrl->GetRigidBody()->m_islandTag1;
+			if (tag>=0)
 			{
-				if (!body->IsStatic())
-				{
-					body->applyForces( timeStep);
-					body->integrateVelocities( timeStep);
-					body->predictIntegratedTransform(timeStep,body->m_interpolationWorldTransform);
-				}
+				simulationIslands[tag].m_controllers.push_back(ctrl);
 			}
+	}
 
+	Dispatcher* dispatcher = GetCollisionWorld()->GetDispatcher();
+
+	
+	
+	int i;
+	for (int i=0;i<	scene->GetNumOverlappingPairs();i++)
+	{
+		BroadphasePair* pair = &scene->GetOverlappingPair(i);
+
+		CollisionObject*	col0 = static_cast<CollisionObject*>(pair->m_pProxy0->m_clientObject);
+		CollisionObject*	col1 = static_cast<CollisionObject*>(pair->m_pProxy1->m_clientObject);
+		
+		if (col0->m_islandTag1 > col1->m_islandTag1)
+		{
+			simulationIslands[col0->m_islandTag1].m_overlappingPairs.push_back(*pair);
+		} else
+		{
+			simulationIslands[col1->m_islandTag1].m_overlappingPairs.push_back(*pair);
 		}
 	}
 
-#ifdef USE_QUICKPROF
-	Profiler::endBlock("predictIntegratedTransform");
-#endif //USE_QUICKPROF
+	//add all overlapping pairs for each island
 
-	BroadphaseInterface*	scene = GetBroadphase();
+	for (i=0;i<dispatcher->GetNumManifolds();i++)
+	{
+		 PersistentManifold* manifold = dispatcher->GetManifoldByIndexInternal(i);
+		 
+		 //filtering for response
 
+		 CollisionObject* colObj0 = static_cast<CollisionObject*>(manifold->GetBody0());
+		 CollisionObject* colObj1 = static_cast<CollisionObject*>(manifold->GetBody1());
+		 {
+			 int islandTag = colObj0->m_islandTag1;
+			 if (colObj1->m_islandTag1 > islandTag)
+				 islandTag = colObj1->m_islandTag1;
 
-	//
-	// collision detection (?)
-	//
-
-
-#ifdef USE_QUICKPROF
-	Profiler::beginBlock("DispatchAllCollisionPairs");
-#endif //USE_QUICKPROF
-
-
-	int numsubstep = m_numIterations;
-
-
-	DispatcherInfo dispatchInfo;
-	dispatchInfo.m_timeStep = timeStep;
-	dispatchInfo.m_stepCount = 0;
-	dispatchInfo.m_enableSatConvex = m_enableSatCollisionDetection;
-
-	scene->DispatchAllCollisionPairs(*GetDispatcher(),dispatchInfo);///numsubstep,g);
-
-
-#ifdef USE_QUICKPROF
-	Profiler::endBlock("DispatchAllCollisionPairs");
-#endif //USE_QUICKPROF
-
-
-	int numRigidBodies = m_controllers.size();
-
+				if (dispatcher->NeedsResponse(*colObj0,*colObj1))
+					simulationIslands[islandTag].m_manifolds.push_back(manifold);
+			
+		 }
+	}
 	
 
 
-	//contacts
-#ifdef USE_QUICKPROF
-	Profiler::beginBlock("SolveConstraint");
-#endif //USE_QUICKPROF
-
-
-	//solve the regular constraints (point 2 point, hinge, etc)
-
-	for (int g=0;g<numsubstep;g++)
+	
+	//Each simulation island can be processed in parallel
+	for (k=0;k<simulationIslands.size();k++)
 	{
-		//
-		// constraint solving
-		//
-
-
-		int i;
-		int numConstraints = m_constraints.size();
-
-		//point to point constraints
-		for (i=0;i< numConstraints ; i++ )
+		if (simulationIslands[k].m_controllers.size())
 		{
-			TypedConstraint* constraint = m_constraints[i];
-
-			constraint->BuildJacobian();
-			constraint->SolveConstraint( timeStep );
-
+			simulationIslands[k].Simulate(dispatcher,GetBroadphase(),m_solver,timeStep);
 		}
-
-
 	}
-
-#ifdef USE_QUICKPROF
-	Profiler::endBlock("SolveConstraint");
-#endif //USE_QUICKPROF
-
-	//solve the vehicles
-
-#ifdef NEW_BULLET_VEHICLE_SUPPORT
-	//vehicles
-	int numVehicles = m_wrapperVehicles.size();
-	for (int i=0;i<numVehicles;i++)
-	{
-		WrapperVehicle* wrapperVehicle = m_wrapperVehicles[i];
-		RaycastVehicle* vehicle = wrapperVehicle->GetVehicle();
-		vehicle->UpdateVehicle( timeStep);
-	}
-#endif //NEW_BULLET_VEHICLE_SUPPORT
-
-
-	struct InplaceSolverIslandCallback : public ParallelIslandDispatcher::IslandCallback
-	{
-
-		ContactSolverInfo& m_solverInfo;
-		ConstraintSolver*	m_solver;
-		IDebugDraw*	m_debugDrawer;
-
-		InplaceSolverIslandCallback(
-			ContactSolverInfo& solverInfo,
-			ConstraintSolver*	solver,
-			IDebugDraw*	debugDrawer)
-			:m_solverInfo(solverInfo),
-			m_solver(solver),
-			m_debugDrawer(debugDrawer)
-		{
-
-		}
-
-		virtual	void	ProcessIsland(PersistentManifold**	manifolds,int numManifolds)
-		{
-			m_solver->SolveGroup( manifolds, numManifolds,m_solverInfo,m_debugDrawer);
-		}
-
-	};
-
-
-	m_solverInfo.m_friction = 0.9f;
-	m_solverInfo.m_numIterations = m_numIterations;
-	m_solverInfo.m_timeStep = timeStep;
-	m_solverInfo.m_restitution = 0.f;//m_restitution;
-
-	InplaceSolverIslandCallback	solverCallback(
-		m_solverInfo,
-		m_solver,
-		m_debugDrawer);
-
-#ifdef USE_QUICKPROF
-	Profiler::beginBlock("BuildAndProcessIslands");
-#endif //USE_QUICKPROF
-
-	/// solve all the contact points and contact friction
-	GetDispatcher()->BuildAndProcessIslands(m_collisionWorld->GetCollisionObjectArray(),&solverCallback);
-
-#ifdef USE_QUICKPROF
-	Profiler::endBlock("BuildAndProcessIslands");
-
-	Profiler::beginBlock("CallbackTriggers");
-#endif //USE_QUICKPROF
-
-	CallbackTriggers();
-
-#ifdef USE_QUICKPROF
-	Profiler::endBlock("CallbackTriggers");
-
-
-	Profiler::beginBlock("proceedToTransform");
-
-#endif //USE_QUICKPROF
-	{
-
-
-
-		{
-
-			
-			
-			UpdateAabbs(timeStep);
-
-
-			float toi = 1.f;
-
-
-
-			if (m_ccdMode == 3)
-			{
-				DispatcherInfo dispatchInfo;
-				dispatchInfo.m_timeStep = timeStep;
-				dispatchInfo.m_stepCount = 0;
-				dispatchInfo.m_dispatchFunc = DispatcherInfo::DISPATCH_CONTINUOUS;
-
-				scene->DispatchAllCollisionPairs( *GetDispatcher(),dispatchInfo);///numsubstep,g);
-				toi = dispatchInfo.m_timeOfImpact;
-
-			}
-
-			
-
-			//
-			// integrating solution
-			//
-
-			{
-				
-				std::vector<CcdPhysicsController*>::iterator i;
-
-				for (i=m_controllers.begin();
-					!(i==m_controllers.end()); i++)
-				{
-
-					CcdPhysicsController* ctrl = *i;
-
-					SimdTransform predictedTrans;
-					RigidBody* body = ctrl->GetRigidBody();
-					
-					if (body->IsActive())
-					{
-
-						if (!body->IsStatic())
-						{
-							body->predictIntegratedTransform(timeStep*	toi, predictedTrans);
-							body->proceedToTransform( predictedTrans);
-						}
-
-					}
-				}
-
-			}
-
-
-
-
-
-			//
-			// disable sleeping physics objects
-			//
-
-			std::vector<CcdPhysicsController*> m_sleepingControllers;
-
-			std::vector<CcdPhysicsController*>::iterator i;
-
-			for (i=m_controllers.begin();
-				!(i==m_controllers.end()); i++)
-			{
-				CcdPhysicsController* ctrl = (*i);
-				RigidBody* body = ctrl->GetRigidBody();
-
-				ctrl->UpdateDeactivation(timeStep);
-
-
-				if (ctrl->wantsSleeping())
-				{
-					if (body->GetActivationState() == ACTIVE_TAG)
-						body->SetActivationState( WANTS_DEACTIVATION );
-				} else
-				{
-					if (body->GetActivationState() != DISABLE_DEACTIVATION)
-						body->SetActivationState( ACTIVE_TAG );
-				}
-
-				if (useIslands)
-				{
-					if (body->GetActivationState() == ISLAND_SLEEPING)
-					{
-						m_sleepingControllers.push_back(ctrl);
-					}
-				} else
-				{
-					if (ctrl->wantsSleeping())
-					{
-						m_sleepingControllers.push_back(ctrl);
-					}
-				}
-			}
-
-
-
-
-		}
-
-
-#ifdef USE_QUICKPROF
-		Profiler::endBlock("proceedToTransform");
-
-		Profiler::beginBlock("SyncMotionStates");
-#endif //USE_QUICKPROF
-
-		SyncMotionStates(timeStep);
-
-#ifdef USE_QUICKPROF
-		Profiler::endBlock("SyncMotionStates");
-
-		Profiler::endProfilingCycle();
-#endif //USE_QUICKPROF
-
-
-#ifdef NEW_BULLET_VEHICLE_SUPPORT
-		//sync wheels for vehicles
-		int numVehicles = m_wrapperVehicles.size();
-		for (int i=0;i<numVehicles;i++)
-		{
-			WrapperVehicle* wrapperVehicle = m_wrapperVehicles[i];
-
-			wrapperVehicle->SyncWheels();
-		}
-#endif //NEW_BULLET_VEHICLE_SUPPORT
-	}
-*/
-
 	return true;
+
 }
