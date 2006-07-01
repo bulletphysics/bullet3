@@ -27,34 +27,7 @@ subject to the following restrictions:
 
 static int gNumManifold2 = 0;
 
-void ParallelIslandDispatcher::FindUnions()
-{
-	if (m_useIslands)
-	{
-		for (int i=0;i<GetNumManifolds();i++)
-		{
-			const PersistentManifold* manifold = this->GetManifoldByIndexInternal(i);
-			//static objects (invmass 0.f) don't merge !
 
-			 const  CollisionObject* colObj0 = static_cast<const CollisionObject*>(manifold->GetBody0());
-			 const  CollisionObject* colObj1 = static_cast<const CollisionObject*>(manifold->GetBody1());
-
-			 if (colObj0 && colObj1 && NeedsResponse(*colObj0,*colObj1))
-			 {
-				if (((colObj0) && ((colObj0)->mergesSimulationIslands())) &&
-					((colObj1) && ((colObj1)->mergesSimulationIslands())))
-				{
-
-					m_unionFind.unite((colObj0)->m_islandTag1,
-						(colObj1)->m_islandTag1);
-				}
-			 }
-			
-			
-		}
-	}
-	
-}
 	
 
 	
@@ -293,3 +266,9 @@ void	ParallelIslandDispatcher::ReleaseManifoldResult(ManifoldResult*)
 {
 
 }
+
+void	ParallelIslandDispatcher::DispatchAllCollisionPairs(OverlappingPairCache* pairCache,DispatcherInfo& dispatchInfo)
+{
+
+}
+

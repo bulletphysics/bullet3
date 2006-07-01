@@ -30,8 +30,7 @@ subject to the following restrictions:
 
 #include "CollisionShapes/ConvexShape.h"
 #include "CollisionShapes/ConeShape.h"
-
-
+#include "CollisionDispatch/SimulationIslandManager.h"
 
 #include "BroadphaseCollision/Dispatcher.h"
 #include "NarrowPhaseCollision/PersistentManifold.h"
@@ -55,7 +54,7 @@ subject to the following restrictions:
 #include "PHY_IMotionState.h"
 
 #include "CollisionDispatch/EmptyCollisionAlgorithm.h"
-#include "CollisionDispatch/UnionFind.h"
+
 
 
 #include "CollisionShapes/SphereShape.h"
@@ -359,6 +358,8 @@ m_enableSatCollisionDetection(false)
 
 	m_debugDrawer = 0;
 	m_gravity = SimdVector3(0.f,-10.f,0.f);
+
+	m_islandManager = new SimulationIslandManager();
 
 
 }
@@ -675,7 +676,7 @@ bool	CcdPhysicsEnvironment::proceedDeltaTimeOneStep(float timeStep)
 	dispatchInfo.m_stepCount = 0;
 	dispatchInfo.m_enableSatConvex = m_enableSatCollisionDetection;
 
-	GetDispatcher()->DispatchAllCollisionPairs(scene,dispatchInfo);
+	GetCollisionWorld()->GetDispatcher()->DispatchAllCollisionPairs(scene,dispatchInfo);
 
 
 #ifdef USE_QUICKPROF
@@ -685,7 +686,8 @@ bool	CcdPhysicsEnvironment::proceedDeltaTimeOneStep(float timeStep)
 
 	int numRigidBodies = m_controllers.size();
 
-	m_collisionWorld->UpdateActivationState();
+	
+	m_islandManager->UpdateActivationState(GetCollisionWorld(),GetCollisionWorld()->GetDispatcher());
 
 	{
 		int i;
@@ -702,15 +704,15 @@ bool	CcdPhysicsEnvironment::proceedDeltaTimeOneStep(float timeStep)
 			{
 				if (colObj0->IsActive() || colObj1->IsActive())
 				{
-					GetDispatcher()->GetUnionFind().unite((colObj0)->m_islandTag1,
+
+					m_islandManager->GetUnionFind().unite((colObj0)->m_islandTag1,
 						(colObj1)->m_islandTag1);
 				}
 			}
 		}
 	}
 
-	m_collisionWorld->StoreIslandActivationState();
-
+	m_islandManager->StoreIslandActivationState(GetCollisionWorld());
 
 
 	//contacts
@@ -762,7 +764,7 @@ bool	CcdPhysicsEnvironment::proceedDeltaTimeOneStep(float timeStep)
 #endif //NEW_BULLET_VEHICLE_SUPPORT
 
 
-	struct InplaceSolverIslandCallback : public CollisionDispatcher::IslandCallback
+	struct InplaceSolverIslandCallback : public SimulationIslandManager::IslandCallback
 	{
 
 		ContactSolverInfo& m_solverInfo;
@@ -803,7 +805,7 @@ bool	CcdPhysicsEnvironment::proceedDeltaTimeOneStep(float timeStep)
 #endif //USE_QUICKPROF
 
 	/// solve all the contact points and contact friction
-	GetDispatcher()->BuildAndProcessIslands(m_collisionWorld->GetCollisionObjectArray(),&solverCallback);
+	m_islandManager->BuildAndProcessIslands(GetCollisionWorld()->GetDispatcher(),m_collisionWorld->GetCollisionObjectArray(),&solverCallback);
 
 #ifdef USE_QUICKPROF
 	Profiler::endBlock("BuildAndProcessIslands");
@@ -842,7 +844,7 @@ bool	CcdPhysicsEnvironment::proceedDeltaTimeOneStep(float timeStep)
 				dispatchInfo.m_stepCount = 0;
 				dispatchInfo.m_dispatchFunc = DispatcherInfo::DISPATCH_CONTINUOUS;
 
-				GetDispatcher()->DispatchAllCollisionPairs(scene,dispatchInfo);
+				GetCollisionWorld()->GetDispatcher()->DispatchAllCollisionPairs(scene,dispatchInfo);
 				
 				toi = dispatchInfo.m_timeOfImpact;
 
@@ -1426,15 +1428,6 @@ BroadphaseInterface*	CcdPhysicsEnvironment::GetBroadphase()
 
 
 
-const CollisionDispatcher* CcdPhysicsEnvironment::GetDispatcher() const
-{
-	return m_collisionWorld->GetDispatcher();
-}
-
-CollisionDispatcher* CcdPhysicsEnvironment::GetDispatcher()
-{
-	return m_collisionWorld->GetDispatcher();
-}
 
 CcdPhysicsEnvironment::~CcdPhysicsEnvironment()
 {
@@ -1449,6 +1442,8 @@ CcdPhysicsEnvironment::~CcdPhysicsEnvironment()
 	//first delete scene, then dispatcher, because pairs have to release manifolds on the dispatcher
 	//delete m_dispatcher;
 	delete m_collisionWorld;
+	
+	delete m_islandManager;
 
 }
 
@@ -1465,15 +1460,9 @@ CcdPhysicsController* CcdPhysicsEnvironment::GetPhysicsController( int index)
 }
 
 
-int	CcdPhysicsEnvironment::GetNumManifolds() const
-{
-	return GetDispatcher()->GetNumManifolds();
-}
 
-const PersistentManifold*	CcdPhysicsEnvironment::GetManifold(int index) const
-{
-	return GetDispatcher()->GetManifoldByIndexInternal(index);
-}
+
+
 
 TypedConstraint*	CcdPhysicsEnvironment::getConstraintById(int constraintId)
 {
@@ -1566,6 +1555,7 @@ void CcdPhysicsEnvironment::requestCollisionCallback(PHY_IPhysicsController* ctr
 
 void	CcdPhysicsEnvironment::CallbackTriggers()
 {
+	/*
 	CcdPhysicsController* ctrl0=0,*ctrl1=0;
 
 	if (m_triggerCallbacks[PHY_OBJECT_RESPONSE])
@@ -1603,6 +1593,7 @@ void	CcdPhysicsEnvironment::CallbackTriggers()
 
 
 	}
+*/
 
 }
 

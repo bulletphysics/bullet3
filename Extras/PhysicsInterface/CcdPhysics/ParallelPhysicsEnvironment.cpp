@@ -18,6 +18,9 @@ subject to the following restrictions:
 #include "ParallelPhysicsEnvironment.h"
 #include "CcdPhysicsController.h"
 #include "ParallelIslandDispatcher.h"
+#include "CollisionDispatch/CollisionWorld.h"
+#include "ConstraintSolver/TypedConstraint.h"
+
 
 
 ParallelPhysicsEnvironment::ParallelPhysicsEnvironment(ParallelIslandDispatcher* dispatcher, OverlappingPairCache* pairCache):
@@ -36,6 +39,44 @@ ParallelPhysicsEnvironment::~ParallelPhysicsEnvironment()
 /// Perform an integration step of duration 'timeStep'.
 bool	ParallelPhysicsEnvironment::proceedDeltaTimeOneStep(float timeStep)
 {
+
+#ifdef USE_QUICKPROF
+	Profiler::beginBlock("CalcSimulationIslands");
+#endif //USE_QUICKPROF
+
+	/*
+	GetCollisionWorld()->UpdateActivationState();
+
+	{
+		int i;
+		int numConstraints = m_constraints.size();
+		for (i=0;i< numConstraints ; i++ )
+		{
+			TypedConstraint* constraint = m_constraints[i];
+
+			const RigidBody* colObj0 = &constraint->GetRigidBodyA();
+			const RigidBody* colObj1 = &constraint->GetRigidBodyB();
+			
+			if (((colObj0) && ((colObj0)->mergesSimulationIslands())) &&
+						((colObj1) && ((colObj1)->mergesSimulationIslands())))
+			{
+				if (colObj0->IsActive() || colObj1->IsActive())
+				{
+					GetDispatcher()->GetUnionFind().unite((colObj0)->m_islandTag1,
+						(colObj1)->m_islandTag1);
+				}
+			}
+		}
+	}
+
+	GetCollisionWorld()->StoreIslandActivationState();
+*/
+
+#ifdef USE_QUICKPROF
+	Profiler::endBlock("CalcSimulationIslands");
+#endif //USE_QUICKPROF
+
+
 
 /*
 	//printf("CcdPhysicsEnvironment::proceedDeltaTime\n");
@@ -127,32 +168,7 @@ bool	ParallelPhysicsEnvironment::proceedDeltaTimeOneStep(float timeStep)
 
 	int numRigidBodies = m_controllers.size();
 
-	m_collisionWorld->UpdateActivationState();
-
-	{
-		int i;
-		int numConstraints = m_constraints.size();
-		for (i=0;i< numConstraints ; i++ )
-		{
-			TypedConstraint* constraint = m_constraints[i];
-
-			const RigidBody* colObj0 = &constraint->GetRigidBodyA();
-			const RigidBody* colObj1 = &constraint->GetRigidBodyB();
-			
-			if (((colObj0) && ((colObj0)->mergesSimulationIslands())) &&
-						((colObj1) && ((colObj1)->mergesSimulationIslands())))
-			{
-				if (colObj0->IsActive() || colObj1->IsActive())
-				{
-					GetDispatcher()->GetUnionFind().unite((colObj0)->m_islandTag1,
-						(colObj1)->m_islandTag1);
-				}
-			}
-		}
-	}
-
-	m_collisionWorld->StoreIslandActivationState();
-
+	
 
 
 	//contacts

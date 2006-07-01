@@ -52,61 +52,10 @@ CollisionWorld::~CollisionWorld()
 
 }
 
-void	CollisionWorld::UpdateActivationState()
-{
-	m_dispatcher->InitUnionFind(m_collisionObjects.size());
-	
-	// put the index into m_controllers into m_tag	
-	{
-		std::vector<CollisionObject*>::iterator i;
-		
-		int index = 0;
-		for (i=m_collisionObjects.begin();
-		!(i==m_collisionObjects.end()); i++)
-		{
-			
-			CollisionObject*	collisionObject= (*i);
-			collisionObject->m_islandTag1 = index;
-			collisionObject->m_hitFraction = 1.f;
-			index++;
-			
-		}
-	}
-	// do the union find
-	
-	m_dispatcher->FindUnions();
-	
-
-	
-}
 
 
 
-void	CollisionWorld::StoreIslandActivationState()
-{
-	// put the islandId ('find' value) into m_tag	
-	{
-		UnionFind& unionFind = m_dispatcher->GetUnionFind();
-		
-		std::vector<CollisionObject*>::iterator i;
-		
-		int index = 0;
-		for (i=m_collisionObjects.begin();
-		!(i==m_collisionObjects.end()); i++)
-		{
-			CollisionObject* collisionObject= (*i);
-			
-			if (collisionObject->mergesSimulationIslands())
-			{
-				collisionObject->m_islandTag1 = unionFind.find(index);
-			} else
-			{
-				collisionObject->m_islandTag1 = -1;
-			}
-			index++;
-		}
-	}
-}
+
 
 
 
@@ -153,7 +102,7 @@ void	CollisionWorld::PerformDiscreteCollisionDetection()
 		m_pairCache->SetAabb(m_collisionObjects[i]->m_broadphaseHandle,aabbMin,aabbMax);
 	}
 
-	CollisionDispatcher* dispatcher = GetDispatcher();
+	Dispatcher* dispatcher = GetDispatcher();
 	if (dispatcher)
 		dispatcher->DispatchAllCollisionPairs(m_pairCache,dispatchInfo);
 

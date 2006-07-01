@@ -117,6 +117,9 @@ public:
 	virtual bool	NeedsResponse(const CollisionObject& colObj0,const CollisionObject& colObj1);
 
 	virtual int GetUniqueId() { return RIGIDBODY_DISPATCHER;}
+
+	virtual void	DispatchAllCollisionPairs(OverlappingPairCache* pairCache,DispatcherInfo& dispatchInfo);
+
 	
 	
 

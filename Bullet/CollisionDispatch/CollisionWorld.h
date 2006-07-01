@@ -84,7 +84,7 @@ class CollisionWorld
 
 	std::vector<CollisionObject*>	m_collisionObjects;
 	
-	CollisionDispatcher*	m_dispatcher;
+	CollisionDispatcher*	m_dispatcher1;
 
 	OverlappingPairCache*	m_pairCache;
 	
@@ -92,15 +92,13 @@ class CollisionWorld
 public:
 
 	CollisionWorld(CollisionDispatcher* dispatcher,OverlappingPairCache* pairCache)
-		:m_dispatcher(dispatcher),
+		:m_dispatcher1(dispatcher),
 		m_pairCache(pairCache)
 	{
 
 	}
 	virtual ~CollisionWorld();
 
-	virtual	void	UpdateActivationState();
-	virtual	void	StoreIslandActivationState();
 
 	BroadphaseInterface*	GetBroadphase()
 	{
@@ -113,9 +111,9 @@ public:
 	}
 
 
-	CollisionDispatcher*	GetDispatcher()
+	Dispatcher*	GetDispatcher()
 	{
-		return m_dispatcher;
+		return m_dispatcher1;
 	}
 
 	///LocalShapeInfo gives extra information for complex shapes

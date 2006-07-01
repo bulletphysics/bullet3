@@ -13,6 +13,9 @@ subject to the following restrictions:
 3. This notice may not be removed or altered from any source distribution.
 */
 
+//#define USE_PARALLEL_DISPATCHER 1
+
+
 #include "CcdPhysicsEnvironment.h"
 #include "ParallelPhysicsEnvironment.h"
 
@@ -89,6 +92,7 @@ const int maxNumObjects = 32760;
 MyMotionState ms[maxNumObjects];
 CcdPhysicsController* physObjects[maxNumObjects] = {0,0,0,0};
 int	shapeIndex[maxNumObjects];
+
 #ifdef USE_PARALLEL_DISPATCHER
 ParallelPhysicsEnvironment* physicsEnvironmentPtr = 0;
 #else
@@ -308,6 +312,8 @@ int main(int argc,char** argv)
 
 
 	clientResetScene();
+	physicsEnvironmentPtr->SyncMotionStates(0.f);
+
 
 	{
 		//physObjects[i]->SetAngularVelocity(0,0,-2,true);

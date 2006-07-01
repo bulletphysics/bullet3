@@ -120,9 +120,11 @@ void clientDisplay(void) {
 
 	if (collisionWorld)
 		collisionWorld->PerformDiscreteCollisionDetection();
-
-	///one way to draw all the contact points is iterating over contact manifolds / points:
+	
 	int i;
+/*
+	///one way to draw all the contact points is iterating over contact manifolds / points:
+
 	int numManifolds = collisionWorld->GetDispatcher()->GetNumManifolds();
 	for (i=0;i<numManifolds;i++)
 	{
@@ -147,6 +149,7 @@ void clientDisplay(void) {
 			glEnd();
 		}
 	}
+*/
 
 
 	//GL_ShapeDrawer::DrawCoordSystem();

@@ -24,7 +24,7 @@ class CcdPhysicsController;
 
 
 class TypedConstraint;
-
+class SimulationIslandManager;
 class CollisionDispatcher;
 class Dispatcher;
 //#include "BroadphaseInterface.h"
@@ -61,6 +61,7 @@ class CcdPhysicsEnvironment : public PHY_IPhysicsEnvironment
 
 	ContactSolverInfo	m_solverInfo;
 	
+	SimulationIslandManager*	m_islandManager;
 
 	public:
 		CcdPhysicsEnvironment(CollisionDispatcher* dispatcher=0, OverlappingPairCache* pairCache=0);
@@ -160,9 +161,9 @@ class CcdPhysicsEnvironment : public PHY_IPhysicsEnvironment
 
 		BroadphaseInterface*	GetBroadphase();
 
-		CollisionDispatcher* GetDispatcher();
 		
-		const CollisionDispatcher* GetDispatcher() const;
+		
+		
 
 		bool	IsSatCollisionDetectionEnabled() const
 		{
@@ -180,16 +181,29 @@ class CcdPhysicsEnvironment : public PHY_IPhysicsEnvironment
 
 		CcdPhysicsController* GetPhysicsController( int index);
 
-		int	GetNumManifolds() const;
+		
 
 		const PersistentManifold*	GetManifold(int index) const;
 
 		std::vector<TypedConstraint*> m_constraints;
 
+		void	SyncMotionStates(float timeStep);
+
+		
+		class CollisionWorld*	GetCollisionWorld()
+		{
+			return m_collisionWorld;
+		}
+
+		const class CollisionWorld*	GetCollisionWorld() const
+		{
+			return m_collisionWorld;
+		}
+
 	private:
 		
 		
-		void	SyncMotionStates(float timeStep);
+
 		
 		std::vector<CcdPhysicsController*> m_controllers;
 		
