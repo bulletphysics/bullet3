@@ -30,9 +30,11 @@ class SimulationIsland
 	public:
 	std::vector<class CcdPhysicsController*> m_controllers;
 	std::vector<class PersistentManifold*> m_manifolds;
-	std::vector<class BroadphasePair> m_overlappingPairs;
 	
-	bool	Simulate(Dispatcher* dispatcher,BroadphaseInterface* broadphase,	class ConstraintSolver*	solver, float timeStep);
+	std::vector<int> m_overlappingPairIndices;
+	std::vector<int> m_constraintIndices;
+
+	bool	Simulate(int numSolverIterations,class TypedConstraint** constraintsBaseAddress,struct BroadphasePair*	overlappingPairBaseAddress, Dispatcher* dispatcher,BroadphaseInterface* broadphase,	class ConstraintSolver*	solver, float timeStep);
 	
 	
 	int	GetNumControllers()

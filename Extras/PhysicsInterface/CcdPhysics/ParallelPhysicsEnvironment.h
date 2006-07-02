@@ -37,6 +37,7 @@ class ParallelPhysicsEnvironment : public CcdPhysicsEnvironment
 		/// Perform an integration step of duration 'timeStep'.
 		virtual bool						proceedDeltaTimeOneStep(float timeStep);
 		
+		//void	BuildSimulationIslands();
 
 };
 

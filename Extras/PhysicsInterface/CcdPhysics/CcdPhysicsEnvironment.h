@@ -49,12 +49,14 @@ class CcdPhysicsEnvironment : public PHY_IPhysicsEnvironment
 	SimdVector3 m_gravity;
 	
 	IDebugDraw*	m_debugDrawer;
+
+protected:
 	//solver iterations
 	int	m_numIterations;
 	
 	//timestep subdivisions
 	int	m_numTimeSubSteps;
-protected:
+
 
 	int	m_ccdMode;
 	int	m_solverType;

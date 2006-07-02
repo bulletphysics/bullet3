@@ -21,51 +21,15 @@ subject to the following restrictions:
 #include "BroadphaseCollision/Dispatcher.h"
 #include "ConstraintSolver/ContactSolverInfo.h"
 #include "ConstraintSolver/ConstraintSolver.h"
+#include "ConstraintSolver/TypedConstraint.h"
 
 extern float gContactBreakingTreshold;
 
-bool	SimulationIsland::Simulate(Dispatcher* dispatcher,BroadphaseInterface* broadphase,class ConstraintSolver*	solver,float timeStep)
+bool	SimulationIsland::Simulate(int numSolverIterations,TypedConstraint** constraintsBaseAddress,BroadphasePair*	overlappingPairBaseAddress, Dispatcher* dispatcher,BroadphaseInterface* broadphase,class ConstraintSolver*	solver,float timeStep)
 {
-	//then execute all stuff below for each simulation island
 
 
 #ifdef USE_QUICKPROF
-	Profiler::endBlock("BuildIslands");
-#endif //USE_QUICKPROF
-
-
-
-
-	///build simulation islands, and add them to a job queue, which can be processed in parallel
-	///or on the GPU
-
-
-	//printf("CcdPhysicsEnvironment::proceedDeltaTime\n");
-
-	if (SimdFuzzyZero(timeStep))
-		return true;
-
-	//	if (m_debugDrawer)
-	//	{
-	//		gDisableDeactivation = (m_debugDrawer->GetDebugMode() & IDebugDraw::DBG_NoDeactivation);
-	//	}
-
-
-#ifdef USE_QUICKPROF
-	Profiler::beginBlock("SyncMotionStates");
-#endif //USE_QUICKPROF
-
-
-	//this is needed because scaling is not known in advance, and scaling has to propagate to the shape
-	//if (!m_scalingPropagated)
-	//{
-	//	SyncMotionStates(timeStep);
-	//	m_scalingPropagated = true;
-	//}
-
-
-#ifdef USE_QUICKPROF
-	Profiler::endBlock("SyncMotionStates");
 
 	Profiler::beginBlock("predictIntegratedTransform");
 #endif //USE_QUICKPROF
@@ -119,10 +83,28 @@ bool	SimulationIsland::Simulate(Dispatcher* dispatcher,BroadphaseInterface* broa
 	dispatchInfo.m_stepCount = 0;
 	dispatchInfo.m_enableSatConvex = false;//m_enableSatCollisionDetection;
 
-	//pairCache->RefreshOverlappingPairs();
-	if (m_overlappingPairs.size())
+	std::vector<BroadphasePair>	overlappingPairs;
+	overlappingPairs.resize(this->m_overlappingPairIndices.size());
+
+	//gather overlapping pair info
+	int i;
+	for (i=0;i<m_overlappingPairIndices.size();i++)
 	{
-		dispatcher->DispatchAllCollisionPairs(&m_overlappingPairs[0],m_overlappingPairs.size(),dispatchInfo);///numsubstep,g);
+		overlappingPairs[i] = overlappingPairBaseAddress[m_overlappingPairIndices[i]];
+	}
+
+	
+	//pairCache->RefreshOverlappingPairs();
+	if (overlappingPairs.size())
+	{
+		dispatcher->DispatchAllCollisionPairs(&overlappingPairs[0],overlappingPairs.size(),dispatchInfo);///numsubstep,g);
+	}
+
+	//scatter overlapping pair info, mainly the created algorithms/contact caches
+	
+	for (i=0;i<m_overlappingPairIndices.size();i++)
+	{
+		overlappingPairBaseAddress[m_overlappingPairIndices[i]] = overlappingPairs[i];
 	}
 
 
@@ -130,7 +112,7 @@ bool	SimulationIsland::Simulate(Dispatcher* dispatcher,BroadphaseInterface* broa
 	Profiler::endBlock("DispatchAllCollisionPairs");
 	#endif //USE_QUICKPROF
 
-/*
+
 
 
 	int numRigidBodies = m_controllers.size();
@@ -146,25 +128,23 @@ bool	SimulationIsland::Simulate(Dispatcher* dispatcher,BroadphaseInterface* broa
 
 	//solve the regular constraints (point 2 point, hinge, etc)
 
-	for (int g=0;g<numsubstep;g++)
+	for (int g=0;g<numSolverIterations;g++)
 	{
-	//
-	// constraint solving
-	//
+		//
+		// constraint solving
+		//
 
+		int i;
+		int numConstraints = m_constraintIndices.size();
 
-	int i;
-	int numConstraints = m_constraints.size();
+		//point to point constraints
+		for (i=0;i< numConstraints ; i++ )
+		{
+			TypedConstraint* constraint = constraintsBaseAddress[m_constraintIndices[i]];
+			constraint->BuildJacobian();
+			constraint->SolveConstraint( timeStep );
 
-	//point to point constraints
-	for (i=0;i< numConstraints ; i++ )
-	{
-	TypedConstraint* constraint = m_constraints[i];
-
-	constraint->BuildJacobian();
-	constraint->SolveConstraint( timeStep );
-
-	}
+		}
 
 
 	}
@@ -172,6 +152,8 @@ bool	SimulationIsland::Simulate(Dispatcher* dispatcher,BroadphaseInterface* broa
 	#ifdef USE_QUICKPROF
 	Profiler::endBlock("SolveConstraint");
 	#endif //USE_QUICKPROF
+
+	/*
 
 	//solve the vehicles
 
@@ -185,54 +167,10 @@ bool	SimulationIsland::Simulate(Dispatcher* dispatcher,BroadphaseInterface* broa
 	vehicle->UpdateVehicle( timeStep);
 	}
 	#endif //NEW_BULLET_VEHICLE_SUPPORT
+*/
 
-
-	struct InplaceSolverIslandCallback : public ParallelIslandDispatcher::IslandCallback
-	{
-
-	ContactSolverInfo& m_solverInfo;
-	ConstraintSolver*	m_solver;
-	IDebugDraw*	m_debugDrawer;
-
-	InplaceSolverIslandCallback(
-	ContactSolverInfo& solverInfo,
-	ConstraintSolver*	solver,
-	IDebugDraw*	debugDrawer)
-	:m_solverInfo(solverInfo),
-	m_solver(solver),
-	m_debugDrawer(debugDrawer)
-	{
-
-	}
-
-	virtual	void	ProcessIsland(PersistentManifold**	manifolds,int numManifolds)
-	{
-	m_solver->SolveGroup( manifolds, numManifolds,m_solverInfo,m_debugDrawer);
-	}
-
-	};
-
-
-	m_solverInfo.m_friction = 0.9f;
-	m_solverInfo.m_numIterations = m_numIterations;
-	m_solverInfo.m_timeStep = timeStep;
-	m_solverInfo.m_restitution = 0.f;//m_restitution;
-
-	InplaceSolverIslandCallback	solverCallback(
-	m_solverInfo,
-	m_solver,
-	m_debugDrawer);
-
-	#ifdef USE_QUICKPROF
-	Profiler::beginBlock("BuildAndProcessIslands");
-	#endif //USE_QUICKPROF
-
-	/// solve all the contact points and contact friction
-	GetDispatcher()->BuildAndProcessIslands(m_collisionWorld->GetCollisionObjectArray(),&solverCallback);
-
-	#ifdef USE_QUICKPROF
-	Profiler::endBlock("BuildAndProcessIslands");
-
+	/*
+	
 	Profiler::beginBlock("CallbackTriggers");
 	#endif //USE_QUICKPROF
 
@@ -249,7 +187,7 @@ bool	SimulationIsland::Simulate(Dispatcher* dispatcher,BroadphaseInterface* broa
 	ContactSolverInfo	solverInfo;
 
 	solverInfo.m_friction = 0.9f;
-	solverInfo.m_numIterations = 10;//m_numIterations;
+	solverInfo.m_numIterations = numSolverIterations;
 	solverInfo.m_timeStep = timeStep;
 	solverInfo.m_restitution = 0.f;//m_restitution;
 
@@ -275,17 +213,17 @@ bool	SimulationIsland::Simulate(Dispatcher* dispatcher,BroadphaseInterface* broa
 
 			float toi = 1.f;
 
-
+			//experimental continuous collision detection
 
 			/*		if (m_ccdMode == 3)
 			{
-			DispatcherInfo dispatchInfo;
-			dispatchInfo.m_timeStep = timeStep;
-			dispatchInfo.m_stepCount = 0;
-			dispatchInfo.m_dispatchFunc = DispatcherInfo::DISPATCH_CONTINUOUS;
+				DispatcherInfo dispatchInfo;
+				dispatchInfo.m_timeStep = timeStep;
+				dispatchInfo.m_stepCount = 0;
+				dispatchInfo.m_dispatchFunc = DispatcherInfo::DISPATCH_CONTINUOUS;
 
-			//			GetCollisionWorld()->GetDispatcher()->DispatchAllCollisionPairs(scene,dispatchInfo);
-			toi = dispatchInfo.m_timeOfImpact;
+				//			GetCollisionWorld()->GetDispatcher()->DispatchAllCollisionPairs(scene,dispatchInfo);
+				toi = dispatchInfo.m_timeOfImpact;
 
 			}
 			*/
@@ -386,7 +324,6 @@ bool	SimulationIsland::Simulate(Dispatcher* dispatcher,BroadphaseInterface* broa
 #ifdef USE_QUICKPROF
 		Profiler::endBlock("SyncMotionStates");
 
-		Profiler::endProfilingCycle();
 #endif //USE_QUICKPROF
 
 

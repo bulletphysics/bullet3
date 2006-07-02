@@ -82,7 +82,7 @@ const int maxOverlap = 65535;
 
 
 #ifdef _DEBUG
-const int numObjects = 20;
+const int numObjects = 120;
 #else
 const int numObjects = 120;
 #endif
@@ -314,7 +314,7 @@ int main(int argc,char** argv)
 	clientResetScene();
 	physicsEnvironmentPtr->SyncMotionStates(0.f);
 
-
+	if (createConstraint)
 	{
 		//physObjects[i]->SetAngularVelocity(0,0,-2,true);
 		int constraintId;

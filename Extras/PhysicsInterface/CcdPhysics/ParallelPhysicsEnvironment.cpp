@@ -40,9 +40,12 @@ ParallelPhysicsEnvironment::~ParallelPhysicsEnvironment()
 /// Perform an integration step of duration 'timeStep'.
 bool	ParallelPhysicsEnvironment::proceedDeltaTimeOneStep(float timeStep)
 {
+	// Make sure the broadphase / overlapping AABB paircache is up-to-date
 	OverlappingPairCache*	scene = m_collisionWorld->GetPairCache();
 	scene->RefreshOverlappingPairs();
 
+	// Find the connected sets that can be simulated in parallel
+	// Using union find
 
 #ifdef USE_QUICKPROF
 	Profiler::beginBlock("IslandUnionFind");
@@ -73,6 +76,7 @@ bool	ParallelPhysicsEnvironment::proceedDeltaTimeOneStep(float timeStep)
 		}
 	}
 
+	//Store the island id in each body
 	GetSimulationIslandManager()->StoreIslandActivationState(GetCollisionWorld());
 
 #ifdef USE_QUICKPROF
@@ -80,7 +84,8 @@ bool	ParallelPhysicsEnvironment::proceedDeltaTimeOneStep(float timeStep)
 #endif //USE_QUICKPROF
 
 	
-	///calculate simulation islands
+
+	///build simulation islands
 	
 #ifdef USE_QUICKPROF
 	Profiler::beginBlock("BuildIslands");
@@ -103,9 +108,9 @@ bool	ParallelPhysicsEnvironment::proceedDeltaTimeOneStep(float timeStep)
 	Dispatcher* dispatcher = GetCollisionWorld()->GetDispatcher();
 
 	
-	
+	//this is a brute force approach, will rethink later about more subtle ways
 	int i;
-	for (int i=0;i<	scene->GetNumOverlappingPairs();i++)
+	for (i=0;i<	scene->GetNumOverlappingPairs();i++)
 	{
 		BroadphasePair* pair = &scene->GetOverlappingPair(i);
 
@@ -114,11 +119,25 @@ bool	ParallelPhysicsEnvironment::proceedDeltaTimeOneStep(float timeStep)
 		
 		if (col0->m_islandTag1 > col1->m_islandTag1)
 		{
-			simulationIslands[col0->m_islandTag1].m_overlappingPairs.push_back(*pair);
+			simulationIslands[col0->m_islandTag1].m_overlappingPairIndices.push_back(i);
 		} else
 		{
-			simulationIslands[col1->m_islandTag1].m_overlappingPairs.push_back(*pair);
+			simulationIslands[col1->m_islandTag1].m_overlappingPairIndices.push_back(i);
 		}
+	}
+	
+	//store constraint indices for each island
+	for (i=0;i<m_constraints.size();i++)
+	{
+		TypedConstraint& constraint = *m_constraints[i];
+		if (constraint.GetRigidBodyA().m_islandTag1 > constraint.GetRigidBodyB().m_islandTag1)
+		{
+			simulationIslands[constraint.GetRigidBodyA().m_islandTag1].m_constraintIndices.push_back(i);
+		} else
+		{
+			simulationIslands[constraint.GetRigidBodyB().m_islandTag1].m_constraintIndices.push_back(i);
+		}
+
 	}
 
 	//add all overlapping pairs for each island
@@ -141,18 +160,35 @@ bool	ParallelPhysicsEnvironment::proceedDeltaTimeOneStep(float timeStep)
 			
 		 }
 	}
-	
+		
+	#ifdef USE_QUICKPROF
+		Profiler::endBlock("BuildIslands");
+	#endif //USE_QUICKPROF
 
 
+#ifdef USE_QUICKPROF
+	Profiler::beginBlock("SimulateIsland");
+#endif //USE_QUICKPROF
 	
-	//Each simulation island can be processed in parallel
+	TypedConstraint** constraintBase = 0;
+	if (m_constraints.size())
+		constraintBase = &m_constraints[0];
+
+
+
+	//Each simulation island can be processed in parallel (will be put on a job queue)
 	for (k=0;k<simulationIslands.size();k++)
 	{
 		if (simulationIslands[k].m_controllers.size())
 		{
-			simulationIslands[k].Simulate(dispatcher,GetBroadphase(),m_solver,timeStep);
+			simulationIslands[k].Simulate(m_numIterations, constraintBase ,&scene->GetOverlappingPair(0),dispatcher,GetBroadphase(),m_solver,timeStep);
 		}
 	}
+
+#ifdef USE_QUICKPROF
+	Profiler::endBlock("SimulateIsland");
+#endif //USE_QUICKPROF
+
 	return true;
 
 }
