@@ -13,40 +13,33 @@ subject to the following restrictions:
 3. This notice may not be removed or altered from any source distribution.
 */
 
-#ifndef TRIANGLE_MESH_SHAPE_H
-#define TRIANGLE_MESH_SHAPE_H
+#ifndef STATIC_PLANE_SHAPE_H
+#define STATIC_PLANE_SHAPE_H
 
 #include "CollisionShapes/ConcaveShape.h"
-#include "CollisionShapes/StridingMeshInterface.h"
 
 
-///Concave triangle mesh. Uses an interface to access the triangles to allow for sharing graphics/physics triangles.
-class TriangleMeshShape : public ConcaveShape
+///StaticPlaneShape simulates an 'infinite' plane by dynamically reporting triangles approximated by intersection of the plane with the AABB.
+///Assumed is that the other objects is not also infinite, so a reasonable sized AABB.
+class StaticPlaneShape : public ConcaveShape
 {
 protected:
-	StridingMeshInterface* m_meshInterface;
 	SimdVector3	m_localAabbMin;
 	SimdVector3	m_localAabbMax;
 	
+	SimdVector3	m_planeNormal;
+	SimdVector3	m_localScaling;
+	SimdScalar m_planeConstant;
 
 public:
-	TriangleMeshShape(StridingMeshInterface* meshInterface);
+	StaticPlaneShape(const SimdVector3& planeNormal,SimdScalar planeConstant);
 
-	virtual ~TriangleMeshShape();
+	virtual ~StaticPlaneShape();
 
-	virtual SimdVector3 LocalGetSupportingVertex(const SimdVector3& vec) const;
-
-	virtual SimdVector3	LocalGetSupportingVertexWithoutMargin(const SimdVector3& vec)const
-	{
-		assert(0);
-		return LocalGetSupportingVertex(vec);
-	}
-
-	void	RecalcLocalAabb();
 
 	virtual int	GetShapeType() const
 	{
-		return TRIANGLE_MESH_SHAPE_PROXYTYPE;
+		return STATIC_PLANE_PROXYTYPE;
 	}
 
 	virtual void GetAabb(const SimdTransform& t,SimdVector3& aabbMin,SimdVector3& aabbMax) const;
@@ -60,9 +53,9 @@ public:
 	
 
 	//debugging
-	virtual char*	GetName()const {return "TRIANGLEMESH";}
+	virtual char*	GetName()const {return "STATICPLANE";}
 
 
 };
 
-#endif //TRIANGLE_MESH_SHAPE_H
+#endif //STATIC_PLANE_SHAPE_H

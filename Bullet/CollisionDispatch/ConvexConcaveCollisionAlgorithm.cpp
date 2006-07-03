@@ -19,11 +19,10 @@ subject to the following restrictions:
 #include "CollisionShapes/MultiSphereShape.h"
 #include "ConvexConvexAlgorithm.h"
 #include "BroadphaseCollision/BroadphaseProxy.h"
-#include "CollisionShapes/TriangleShape.h"
+#include "CollisionShapes/ConcaveShape.h"
 #include "CollisionDispatch/ManifoldResult.h"
 #include "NarrowPhaseCollision/RaycastCallback.h"
-#include "CollisionShapes/TriangleMeshShape.h"
-
+#include "CollisionShapes/TriangleShape.h"
 
 ConvexConcaveCollisionAlgorithm::ConvexConcaveCollisionAlgorithm( const CollisionAlgorithmConstructionInfo& ci,BroadphaseProxy* proxy0,BroadphaseProxy* proxy1)
 : CollisionAlgorithm(ci),m_convex(*proxy0),m_concave(*proxy1),
@@ -142,7 +141,7 @@ void ConvexConcaveCollisionAlgorithm::ProcessCollision (BroadphaseProxy* ,Broadp
 	CollisionObject* convexBody = static_cast<CollisionObject* >(m_convex.m_clientObject);
 	CollisionObject* triBody = static_cast<CollisionObject* >(m_concave.m_clientObject);
 
-	if (triBody->m_collisionShape->GetShapeType() == TRIANGLE_MESH_SHAPE_PROXYTYPE)
+	if (triBody->m_collisionShape->IsConcave())
 	{
 
 		if (!m_dispatcher->NeedsCollision(m_convex,m_concave))
@@ -151,11 +150,11 @@ void ConvexConcaveCollisionAlgorithm::ProcessCollision (BroadphaseProxy* ,Broadp
 		
 
 		CollisionObject*	triOb = static_cast<CollisionObject*>(m_concave.m_clientObject);
-		TriangleMeshShape* triangleMesh = static_cast<TriangleMeshShape*>( triOb->m_collisionShape);
+		ConcaveShape* concaveShape = static_cast<ConcaveShape*>( triOb->m_collisionShape);
 		
 		if (convexBody->m_collisionShape->IsConvex())
 		{
-			float collisionMarginTriangle = triangleMesh->GetMargin();
+			float collisionMarginTriangle = concaveShape->GetMargin();
 					
 			m_ConvexTriangleCallback.SetTimeStepAndCounters(collisionMarginTriangle,dispatchInfo);
 
@@ -165,7 +164,7 @@ void ConvexConcaveCollisionAlgorithm::ProcessCollision (BroadphaseProxy* ,Broadp
 
 			m_ConvexTriangleCallback.m_manifoldPtr->SetBodies(m_convex.m_clientObject,m_concave.m_clientObject);
 
-			triangleMesh->ProcessAllTriangles( &m_ConvexTriangleCallback,m_ConvexTriangleCallback.GetAabbMin(),m_ConvexTriangleCallback.GetAabbMax());
+			concaveShape->ProcessAllTriangles( &m_ConvexTriangleCallback,m_ConvexTriangleCallback.GetAabbMin(),m_ConvexTriangleCallback.GetAabbMax());
 			
 	
 		}
@@ -210,12 +209,12 @@ float ConvexConcaveCollisionAlgorithm::CalculateTimeOfImpact(BroadphaseProxy* ,B
 	SimdVector3 aabbMin (-1e30f,-1e30f,-1e30f);
 	SimdVector3 aabbMax (SIMD_INFINITY,SIMD_INFINITY,SIMD_INFINITY);
 
-	if (triBody->m_collisionShape->GetShapeType() == TRIANGLE_MESH_SHAPE_PROXYTYPE)
+	if (triBody->m_collisionShape->IsConcave())
 	{
 
 		CollisionObject* concavebody = (CollisionObject* )m_concave.m_clientObject;
 
-		TriangleMeshShape* triangleMesh = (TriangleMeshShape*) concavebody->m_collisionShape;
+		ConcaveShape* triangleMesh = (ConcaveShape*) concavebody->m_collisionShape;
 		
 		if (triangleMesh)
 		{

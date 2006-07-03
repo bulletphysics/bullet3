@@ -25,7 +25,7 @@ subject to the following restrictions:
 #include "CollisionShapes/BoxShape.h"
 #include "CollisionShapes/SphereShape.h"
 #include "CollisionShapes/ConeShape.h"
-
+#include "CollisionShapes/StaticPlaneShape.h"
 
 #include "CollisionShapes/Simplex1to4Shape.h"
 #include "CollisionShapes/EmptyShape.h"
@@ -82,7 +82,7 @@ const int maxOverlap = 65535;
 
 
 #ifdef _DEBUG
-const int numObjects = 120;
+const int numObjects = 20;
 #else
 const int numObjects = 120;
 #endif
@@ -112,6 +112,8 @@ CollisionShape* shapePtr[numShapes] =
 	///See http://www.continuousphysics.com/Bullet/phpBB2/viewtopic.php?t=346
 
 	new BoxShape (SimdVector3(450,10,450)),
+	//new StaticPlaneShape(SimdVector3(0,1,0),10),
+
 		new BoxShape (SimdVector3(CUBE_HALF_EXTENTS,CUBE_HALF_EXTENTS,CUBE_HALF_EXTENTS)),
 		new SphereShape (CUBE_HALF_EXTENTS- 0.05f),
 
