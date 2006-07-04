@@ -190,13 +190,6 @@ rule MsvcCFlags1 { }
 rule MsvcLFlags { MsvcLFlags1 $(1) : $(2) : $(3) ; }
 rule MsvcLFlags1 { }
 
-## MsvcExtraFile target : files
-##   Use this rule to add extra file resources to the "Resource files" 
-##   filter of the generated project. Commonly, those files are auxiliary
-##   files not specified in the source file list, e.g. ".inc" files.
-rule MsvcExtraFile { MsvcExtraFile1 $(1) : $(2) ; }
-rule MsvcExtraFile1 { }
-
 ## MsvcGenName target : name
 ##   Assign an MSVC project name to 'target'.  Normally, the project name is
 ##   'target' with a prefix of "app", "grp", "lib", "plg", or "wks", depending
@@ -688,11 +681,6 @@ rule MsvcProject
   local sources = $(4) ;
   local options = $(5) ;
   local relpath = [ Property msvcgen : relpath$(MSVC_VERSION) ] ;
-  local relpathcommon = [ Property msvcgen : relpathcommon ] ;
-  if "$(relpathcommon)" = ""
-  {
-    relpathcommon = $(relpath) ;
-  }
   local outdir = [ Property msvcgen : outdir$(MSVC_VERSION) ] ;
   local outdircommon = [ Property msvcgen : outdircommon ] ;
   if "$(outdircommon)" = ""
@@ -845,7 +833,8 @@ rule MsvcProject
       {
 	local iconrc = $(resource:S=.iconrctmp) ;
 	# RELPATH includes trailing slash (hence the "" in ConcatDirs).
-	RELPATH on $(iconrc) = [ ConcatDirs $(relpathcommon) "" ] ;
+	RELPATH on $(iconrc) =
+	  [ ConcatDirs [ Property msvcgen : relpath$(MSVC_VERSION) ] "" ] ;
 	MakeLocate $(iconrc) : $(workdircommon) ;
 	Depends $(iconrc) : $(icon) ;
         Depends $(iconrc) : $(SUBDIR)/Jamfile ;
@@ -1096,11 +1085,10 @@ rule StaticPluginLibrary
   {
     targets = [ Filter $(targets) : $(rejects) ] ;
   }
-  local sources extlibs ;
+  local sources ;
   for t in $(targets)
   {
     sources += $(STATICPLUGINS.SOURCES.$(t)) ;
-    extlibs += $($(t).EXTERNALLIBS) ;
   }
 
   $(name)_STATIC = "yes" ;
@@ -1108,7 +1096,6 @@ rule StaticPluginLibrary
   Library $(name) : $(sources) ;
   MsvcDefine $(name) : CS_STATIC_LINKED ;
   _MsvcDefine $(name) : $(STATICPLUGINS.MSVC_DEFINES) ;
-  ExternalLibs $(name) : [ RemoveDups $(extlibs) ] ;
 
   # Write out needed CFLAGS, LFLAGS
   local outdir = [ Property msvcgen : outdircommon ] ;
@@ -1363,20 +1350,6 @@ rule MsvcLFlags1
   local modes = [ MsvcClassifyMode $(3) ] ;
   $(target).LFLAGS.$(modes) += $(2) ;
   _MsvcRespEmit $(1) : $(2) : lflags : $(3) ;
-}
-
-# MsvcLFlags target : files
-#   (See documentation above.)
-rule MsvcExtraFile1 
-{
-  local rawname = $(1) ;
-  local files = $(2) ;
-
-  local respfile = $($(rawname)_PRJ_RESPFILE) ;
-  local respdir = $($(rawname)_PRJ_RESPDIR) ;
-  
-  ResponseFile $(respfile) : "file|$(files)" : notfile :
-    $(respdir) ;
 }
 
 # _MsvcIncDirs target : incdirs [ : mode ]

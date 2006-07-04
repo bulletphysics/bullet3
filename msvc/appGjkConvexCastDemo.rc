@@ -27,4 +27,4 @@ FILEFLAGS 0x0
     }
   }
 }
-1 ICON "../msvc/bullet_ico.ico"
+1 ICON "../../msvc/bullet_ico.ico"

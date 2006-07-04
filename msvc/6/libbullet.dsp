@@ -184,6 +184,10 @@ SOURCE=..\..\Bullet\CollisionShapes\CompoundShape.cpp
 # End Source File
 # Begin Source File
 
+SOURCE=..\..\Bullet\CollisionShapes\ConcaveShape.cpp
+# End Source File
+# Begin Source File
+
 SOURCE=..\..\Bullet\CollisionShapes\ConeShape.cpp
 # End Source File
 # Begin Source File
@@ -229,6 +233,10 @@ SOURCE=..\..\Bullet\CollisionShapes\Simplex1to4Shape.cpp
 # Begin Source File
 
 SOURCE=..\..\Bullet\CollisionShapes\SphereShape.cpp
+# End Source File
+# Begin Source File
+
+SOURCE=..\..\Bullet\CollisionShapes\StaticPlaneShape.cpp
 # End Source File
 # Begin Source File
 
@@ -396,6 +404,10 @@ SOURCE=..\..\Bullet\CollisionShapes\CompoundShape.h
 # End Source File
 # Begin Source File
 
+SOURCE=..\..\Bullet\CollisionShapes\ConcaveShape.h
+# End Source File
+# Begin Source File
+
 SOURCE=..\..\Bullet\CollisionShapes\ConeShape.h
 # End Source File
 # Begin Source File
@@ -441,6 +453,10 @@ SOURCE=..\..\Bullet\CollisionShapes\Simplex1to4Shape.h
 # Begin Source File
 
 SOURCE=..\..\Bullet\CollisionShapes\SphereShape.h
+# End Source File
+# Begin Source File
+
+SOURCE=..\..\Bullet\CollisionShapes\StaticPlaneShape.h
 # End Source File
 # Begin Source File
 

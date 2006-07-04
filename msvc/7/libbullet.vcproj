@@ -222,6 +222,9 @@
 				RelativePath="..\..\Bullet\CollisionShapes\CompoundShape.cpp">
 			</File>
 			<File
+				RelativePath="..\..\Bullet\CollisionShapes\ConcaveShape.cpp">
+			</File>
+			<File
 				RelativePath="..\..\Bullet\CollisionShapes\ConeShape.cpp">
 			</File>
 			<File
@@ -256,6 +259,9 @@
 			</File>
 			<File
 				RelativePath="..\..\Bullet\CollisionShapes\SphereShape.cpp">
+			</File>
+			<File
+				RelativePath="..\..\Bullet\CollisionShapes\StaticPlaneShape.cpp">
 			</File>
 			<File
 				RelativePath="..\..\Bullet\CollisionShapes\StridingMeshInterface.cpp">
@@ -382,6 +388,9 @@
 				RelativePath="..\..\Bullet\CollisionShapes\CompoundShape.h">
 			</File>
 			<File
+				RelativePath="..\..\Bullet\CollisionShapes\ConcaveShape.h">
+			</File>
+			<File
 				RelativePath="..\..\Bullet\CollisionShapes\ConeShape.h">
 			</File>
 			<File
@@ -416,6 +425,9 @@
 			</File>
 			<File
 				RelativePath="..\..\Bullet\CollisionShapes\SphereShape.h">
+			</File>
+			<File
+				RelativePath="..\..\Bullet\CollisionShapes\StaticPlaneShape.h">
 			</File>
 			<File
 				RelativePath="..\..\Bullet\CollisionShapes\StridingMeshInterface.h">
