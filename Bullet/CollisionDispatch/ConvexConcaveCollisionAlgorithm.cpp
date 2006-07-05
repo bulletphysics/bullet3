@@ -23,6 +23,7 @@ subject to the following restrictions:
 #include "CollisionDispatch/ManifoldResult.h"
 #include "NarrowPhaseCollision/RaycastCallback.h"
 #include "CollisionShapes/TriangleShape.h"
+#include "IDebugDraw.h"
 
 ConvexConcaveCollisionAlgorithm::ConvexConcaveCollisionAlgorithm( const CollisionAlgorithmConstructionInfo& ci,BroadphaseProxy* proxy0,BroadphaseProxy* proxy1)
 : CollisionAlgorithm(ci),m_convex(*proxy0),m_concave(*proxy1),
@@ -77,7 +78,27 @@ void ConvexTriangleCallback::ProcessTriangle(SimdVector3* triangle,int partId, i
 	CollisionAlgorithmConstructionInfo ci;
 	ci.m_dispatcher = m_dispatcher;
 
+	CollisionObject* ob = static_cast<CollisionObject*>(m_triangleProxy.m_clientObject);
+
+
 	
+	///debug drawing of the overlapping triangles
+	if (m_dispatchInfoPtr && m_dispatchInfoPtr->m_debugDraw && m_dispatchInfoPtr->m_debugDraw->GetDebugMode() > 0)
+	{
+		SimdVector3 color(255,255,0);
+		SimdTransform& tr = ob->m_worldTransform;
+		m_dispatchInfoPtr->m_debugDraw->DrawLine(tr(triangle[0]),tr(triangle[1]),color);
+		m_dispatchInfoPtr->m_debugDraw->DrawLine(tr(triangle[1]),tr(triangle[2]),color);
+		m_dispatchInfoPtr->m_debugDraw->DrawLine(tr(triangle[2]),tr(triangle[0]),color);
+
+		//SimdVector3 center = triangle[0] + triangle[1]+triangle[2];
+		//center *= 0.333333f;
+		//m_dispatchInfoPtr->m_debugDraw->DrawLine(tr(triangle[0]),tr(center),color);
+		//m_dispatchInfoPtr->m_debugDraw->DrawLine(tr(triangle[1]),tr(center),color);
+		//m_dispatchInfoPtr->m_debugDraw->DrawLine(tr(triangle[2]),tr(center),color);
+
+	}
+
 
 	CollisionObject* colObj = static_cast<CollisionObject*>(m_convexProxy->m_clientObject);
 	
@@ -86,8 +107,7 @@ void ConvexTriangleCallback::ProcessTriangle(SimdVector3* triangle,int partId, i
 		TriangleShape tm(triangle[0],triangle[1],triangle[2]);	
 		tm.SetMargin(m_collisionMarginTriangle);
 	
-		CollisionObject* ob = static_cast<CollisionObject*>(m_triangleProxy.m_clientObject);
-
+		
 		CollisionShape* tmpShape = ob->m_collisionShape;
 		ob->m_collisionShape = &tm;
 		
@@ -137,7 +157,7 @@ void ConvexConcaveCollisionAlgorithm::ClearCache()
 
 void ConvexConcaveCollisionAlgorithm::ProcessCollision (BroadphaseProxy* ,BroadphaseProxy* ,const DispatcherInfo& dispatchInfo)
 {
-
+	
 	CollisionObject* convexBody = static_cast<CollisionObject* >(m_convex.m_clientObject);
 	CollisionObject* triBody = static_cast<CollisionObject* >(m_concave.m_clientObject);
 

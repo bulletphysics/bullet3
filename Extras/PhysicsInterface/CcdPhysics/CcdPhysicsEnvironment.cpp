@@ -675,6 +675,7 @@ bool	CcdPhysicsEnvironment::proceedDeltaTimeOneStep(float timeStep)
 	dispatchInfo.m_timeStep = timeStep;
 	dispatchInfo.m_stepCount = 0;
 	dispatchInfo.m_enableSatConvex = m_enableSatCollisionDetection;
+	dispatchInfo.m_debugDraw = this->m_debugDrawer;
 
 	scene->RefreshOverlappingPairs();
 	GetCollisionWorld()->GetDispatcher()->DispatchAllCollisionPairs(&scene->GetOverlappingPair(0),scene->GetNumOverlappingPairs(),dispatchInfo);

@@ -32,7 +32,7 @@ subject to the following restrictions:
 #include "CollisionShapes/TriangleMesh.h"
 
 #include "IDebugDraw.h"
-//#include "GLDebugDrawer.h"
+#include "GLDebugDrawer.h"
 
 #include "PHY_Pro.h"
 
@@ -57,6 +57,7 @@ CcdPhysicsEnvironment* physicsEnvironmentPtr = 0;
 TriangleMesh meshData; 
 StridingMeshInterface* ptr;
 
+GLDebugDrawer	debugDrawer;
 
 //GL_LineSegmentShape shapeE(SimdPoint3(-50,0,0),
 //						   SimdPoint3(50,0,0));
@@ -214,7 +215,7 @@ int main(int argc,char** argv)
 #endif//DEBUG_MESH
 
 
-//	GLDebugDrawer	debugDrawer;
+	
 
 	ConstraintSolver* solver = new SequentialImpulseConstraintSolver;
 	//ConstraintSolver* solver = new OdeConstraintSolver;
@@ -322,7 +323,7 @@ int main(int argc,char** argv)
 		}
 */
 		//for the line that represents the AABB extents
-//	physicsEnvironmentPtr->setDebugDrawer(&debugDrawer);
+	physicsEnvironmentPtr->setDebugDrawer(&debugDrawer);
 
 		
 	}
@@ -335,6 +336,8 @@ void renderme()
 {
 	float m[16];
 	int i;
+
+	debugDrawer.SetDebugMode(getDebugMode());
 
 	for (i=0;i<numObjects;i++)
 	{
