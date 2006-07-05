@@ -22,10 +22,11 @@ subject to the following restrictions:
 #include "ConstraintSolver/ContactSolverInfo.h"
 #include "ConstraintSolver/ConstraintSolver.h"
 #include "ConstraintSolver/TypedConstraint.h"
+#include "IDebugDraw.h"
 
 extern float gContactBreakingTreshold;
 
-bool	SimulationIsland::Simulate(int numSolverIterations,TypedConstraint** constraintsBaseAddress,BroadphasePair*	overlappingPairBaseAddress, Dispatcher* dispatcher,BroadphaseInterface* broadphase,class ConstraintSolver*	solver,float timeStep)
+bool	SimulationIsland::Simulate(IDebugDraw* debugDrawer,int numSolverIterations,TypedConstraint** constraintsBaseAddress,BroadphasePair*	overlappingPairBaseAddress, Dispatcher* dispatcher,BroadphaseInterface* broadphase,class ConstraintSolver*	solver,float timeStep)
 {
 
 
@@ -82,7 +83,8 @@ bool	SimulationIsland::Simulate(int numSolverIterations,TypedConstraint** constr
 	dispatchInfo.m_timeStep = timeStep;
 	dispatchInfo.m_stepCount = 0;
 	dispatchInfo.m_enableSatConvex = false;//m_enableSatCollisionDetection;
-
+	dispatchInfo.m_debugDraw = debugDrawer;
+	
 	std::vector<BroadphasePair>	overlappingPairs;
 	overlappingPairs.resize(this->m_overlappingPairIndices.size());
 
@@ -208,7 +210,7 @@ bool	SimulationIsland::Simulate(int numSolverIterations,TypedConstraint** constr
 		{
 
 
-			UpdateAabbs(broadphase,timeStep);
+			UpdateAabbs(debugDrawer,broadphase,timeStep);
 
 
 			float toi = 1.f;
@@ -364,7 +366,7 @@ void	SimulationIsland::SyncMotionStates(float timeStep)
 
 
 
-void	SimulationIsland::UpdateAabbs(BroadphaseInterface* scene,float	timeStep)
+void	SimulationIsland::UpdateAabbs(IDebugDraw* debugDrawer,BroadphaseInterface* scene,float	timeStep)
 {
 	std::vector<CcdPhysicsController*>::iterator i;
 

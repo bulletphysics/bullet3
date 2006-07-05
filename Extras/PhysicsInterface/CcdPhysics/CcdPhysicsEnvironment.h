@@ -48,9 +48,10 @@ class CcdPhysicsEnvironment : public PHY_IPhysicsEnvironment
 {
 	SimdVector3 m_gravity;
 	
-	IDebugDraw*	m_debugDrawer;
+	
 
 protected:
+	IDebugDraw*	m_debugDrawer;
 	//solver iterations
 	int	m_numIterations;
 	

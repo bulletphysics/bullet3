@@ -60,6 +60,8 @@ void	StaticPlaneShape::ProcessAllTriangles(TriangleCallback* callback,const Simd
 	//this is where the triangles are generated, given AABB and plane equation (normal/constant)
 
 	SimdVector3 tangentDir0,tangentDir1;
+
+	//tangentDir0/tangentDir1 can be precalculated
 	SimdPlaneSpace1(m_planeNormal,tangentDir0,tangentDir1);
 
 	SimdVector3 supVertex0,supVertex1;

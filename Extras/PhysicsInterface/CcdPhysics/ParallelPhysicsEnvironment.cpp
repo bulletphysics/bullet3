@@ -181,7 +181,7 @@ bool	ParallelPhysicsEnvironment::proceedDeltaTimeOneStep(float timeStep)
 	{
 		if (simulationIslands[k].m_controllers.size())
 		{
-			simulationIslands[k].Simulate(m_numIterations, constraintBase ,&scene->GetOverlappingPair(0),dispatcher,GetBroadphase(),m_solver,timeStep);
+			simulationIslands[k].Simulate(m_debugDrawer,m_numIterations, constraintBase ,&scene->GetOverlappingPair(0),dispatcher,GetBroadphase(),m_solver,timeStep);
 		}
 	}
 

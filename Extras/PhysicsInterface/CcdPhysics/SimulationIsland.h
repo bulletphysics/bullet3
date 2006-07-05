@@ -19,6 +19,7 @@ subject to the following restrictions:
 #include <vector>
 class BroadphaseInterface;
 class Dispatcher;
+class IDebugDraw;
 
 ///SimulationIsland groups all computations and data (for collision detection and dynamics) that can execute in parallel with other SimulationIsland's
 ///The ParallelPhysicsEnvironment and ParallelIslandDispatcher will dispatch SimulationIsland's
@@ -34,7 +35,7 @@ class SimulationIsland
 	std::vector<int> m_overlappingPairIndices;
 	std::vector<int> m_constraintIndices;
 
-	bool	Simulate(int numSolverIterations,class TypedConstraint** constraintsBaseAddress,struct BroadphasePair*	overlappingPairBaseAddress, Dispatcher* dispatcher,BroadphaseInterface* broadphase,	class ConstraintSolver*	solver, float timeStep);
+	bool	Simulate(IDebugDraw* debugDrawer,int numSolverIterations,class TypedConstraint** constraintsBaseAddress,struct BroadphasePair*	overlappingPairBaseAddress, Dispatcher* dispatcher,BroadphaseInterface* broadphase,	class ConstraintSolver*	solver, float timeStep);
 	
 	
 	int	GetNumControllers()
@@ -46,7 +47,7 @@ class SimulationIsland
 	
 
 	void	SyncMotionStates(float timeStep);
-	void	UpdateAabbs(BroadphaseInterface* broadphase,float timeStep);
+	void	UpdateAabbs(IDebugDraw* debugDrawer,BroadphaseInterface* broadphase,float timeStep);
 };
 
 #endif //SIMULATION_ISLAND_H
