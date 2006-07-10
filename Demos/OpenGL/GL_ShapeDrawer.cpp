@@ -16,7 +16,16 @@ subject to the following restrictions:
 #ifdef WIN32 //needed for glut.h
 #include <windows.h>
 #endif
+
+//think different
+#if defined(__APPLE__) && !defined (VMDMESA)
+#include <OpenGL/gl.h>
+#include <OpenGL/glu.h>
+#include <GLUT/glut.h>
+#else
 #include <GL/glut.h>
+#endif
+
 #include "GL_ShapeDrawer.h"
 #include "CollisionShapes/PolyhedralConvexShape.h"
 #include "CollisionShapes/TriangleMeshShape.h"

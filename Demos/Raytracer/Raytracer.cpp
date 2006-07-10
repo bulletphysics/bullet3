@@ -23,7 +23,14 @@ Very basic raytracer, rendering into a texture.
 #ifdef WIN32 //needed for glut.h
 #include <windows.h>
 #endif
+//think different
+#if defined(__APPLE__) && !defined (VMDMESA)
+#include <OpenGL/gl.h>
+#include <OpenGL/glu.h>
+#include <GLUT/glut.h>
+#else
 #include <GL/glut.h>
+#endif>
 #include "GlutStuff.h"
 
 #include "NarrowPhaseCollision/VoronoiSimplexSolver.h"

@@ -16,7 +16,17 @@ subject to the following restrictions:
 #ifdef WIN32//for glut.h
 #include <windows.h>
 #endif
+
+
+//think different
+#if defined(__APPLE__) && !defined (VMDMESA)
+#include <OpenGL/gl.h>
+#include <OpenGL/glu.h>
+#include <GLUT/glut.h>
+#else
 #include <GL/glut.h>
+#endif
+
 #include <stdlib.h>
 #include <stdio.h>
 #include <math.h>

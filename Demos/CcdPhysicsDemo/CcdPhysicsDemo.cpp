@@ -13,7 +13,7 @@ subject to the following restrictions:
 3. This notice may not be removed or altered from any source distribution.
 */
 
-#define USE_PARALLEL_DISPATCHER 1
+//#define USE_PARALLEL_DISPATCHER 1
 
 
 #include "CcdPhysicsEnvironment.h"
@@ -67,7 +67,16 @@ bool createConstraint = true;
 #ifdef WIN32 //needed for glut.h
 #include <windows.h>
 #endif
+
+//think different
+#if defined(__APPLE__) && !defined (VMDMESA)
+#include <OpenGL/gl.h>
+#include <OpenGL/glu.h>
+#include <GLUT/glut.h>
+#else
 #include <GL/glut.h>
+#endif
+
 #include "GL_ShapeDrawer.h"
 
 #include "GlutStuff.h"
@@ -111,7 +120,7 @@ CollisionShape* shapePtr[numShapes] =
 	///Please don't make the box sizes larger then 1000: the collision detection will be inaccurate.
 	///See http://www.continuousphysics.com/Bullet/phpBB2/viewtopic.php?t=346
 
-#define USE_GROUND_PLANE 1
+//#define USE_GROUND_PLANE 1
 #ifdef USE_GROUND_PLANE
 	new StaticPlaneShape(SimdVector3(0,1,0),10),
 #else

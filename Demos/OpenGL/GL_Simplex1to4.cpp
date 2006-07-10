@@ -18,7 +18,14 @@ subject to the following restrictions:
 #ifdef WIN32
 #include <windows.h>
 #endif
+
+//think different
+#if defined(__APPLE__) && !defined (VMDMESA)
+#include <OpenGL/gl.h>
+#include <OpenGL/glu.h>
+#else
 #include <GL/gl.h>
+#endif
 #include "SimdTransform.h"
 
 GL_Simplex1to4::GL_Simplex1to4()
