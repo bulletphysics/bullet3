@@ -22,7 +22,13 @@ subject to the following restrictions:
 #ifdef WIN32
 #include <windows.h>
 #endif
+//think different
+#if defined(__APPLE__) && !defined (VMDMESA)
+#include <OpenGL/gl.h>
+#include <OpenGL/glu.h>
+#else
 #include <GL/gl.h>
+#endif
 struct DebugCastResult : public ConvexCast::CastResult
 {
 
