@@ -1183,14 +1183,14 @@ int main(int argc,char** argv)
 
 														const domConvex_meshRef convexRef = geom->getConvex_mesh();
 														//daeString urlref = convexRef->getConvex_hull_of().getURI();
-														//daeString urlref2 = convexRef->getConvex_hull_of().getOriginalURI();
+														daeString urlref2 = convexRef->getConvex_hull_of().getOriginalURI();
 														daeElementRef otherElemRef = convexRef->getConvex_hull_of().getElement();
-															if ( otherElemRef != NULL )
-															{
-																domGeometryRef linkedGeom = *(domGeometryRef*)&otherElemRef;
+														//	if ( otherElemRef != NULL )
+														//	{
+														//		domGeometryRef linkedGeom = *(domGeometryRef*)&otherElemRef;
 
 														// Load all the geometry libraries
-														/*for ( int i = 0; i < dom->getLibrary_geometries_array().getCount(); i++)
+														for ( int i = 0; i < dom->getLibrary_geometries_array().getCount(); i++)
 														{
 															domLibrary_geometriesRef libgeom = dom->getLibrary_geometries_array()[i];
 															//int index = libgeom->findLastIndexOf(urlref2);
@@ -1201,9 +1201,9 @@ int main(int argc,char** argv)
 																//ReadGeometry(  ); 
 																domGeometryRef lib = libgeom->getGeometry_array()[i];
 																if (!strcmp(lib->getName(),urlref2))
-																{*/
+																{
 																	//found convex_hull geometry
-																	domMesh			*meshElement		= linkedGeom->getMesh();
+																	domMesh			*meshElement		= lib->getMesh();//linkedGeom->getMesh();
 																	if (meshElement)
 																	{
 																		const domVerticesRef vertsRef = meshElement->getVertices();
@@ -1242,7 +1242,9 @@ int main(int argc,char** argv)
 
 																		}
 
-
+																	}
+																}
+															
 																	
 																
 															}
