@@ -1043,6 +1043,21 @@ int main(int argc,char** argv)
 
 							xsNCName bodyName = rigidbodyRef->getBody();
 
+							domInstance_rigid_body::domTechnique_commonRef techniqueRef = rigidbodyRef->getTechnique_common();
+							if (techniqueRef)
+							{
+								if (techniqueRef->getMass())
+								{
+									mass = techniqueRef->getMass()->getValue();
+								}
+								if (techniqueRef->getDynamic())
+								{
+									isDynamics = techniqueRef->getDynamic()->getValue();
+								}
+							}
+
+							printf("mass = %f, isDynamics %i\n",mass,isDynamics);
+
 							if (bodyName)
 							{
 								//try to find the rigid body
@@ -1111,9 +1126,14 @@ int main(int argc,char** argv)
 													{
 														const domMeshRef meshRef = geom->getMesh();
 														TriangleIndexVertexArray* tindexArray = new TriangleIndexVertexArray();
+
+														TriangleMesh* trimesh = new TriangleMesh();
+
 														
 														for (int tg = 0;tg<meshRef->getTriangles_array().getCount();tg++)
 														{
+
+
 															domTrianglesRef triRef = meshRef->getTriangles_array()[tg];
 															const domPRef pRef = triRef->getP();
 															daeMemoryRef memRef = pRef->getValue().getRawData();
@@ -1122,23 +1142,76 @@ int main(int argc,char** argv)
 
 
 															
+															int vertexoffset = -1;
+															domInputLocalOffsetRef indexOffsetRef;
+															
 
 															for (int w=0;w<triRef->getInput_array().getCount();w++)
 															{
 																int offset = triRef->getInput_array()[w]->getOffset();
+																daeString str = triRef->getInput_array()[w]->getSemantic();
+																if (!strcmp(str,"VERTEX"))
+																{
+																	indexOffsetRef = triRef->getInput_array()[w];
+																	vertexoffset = offset;
+																}
 																if (offset > meshPart.m_triangleIndexStride)
 																{
 																	meshPart.m_triangleIndexStride = offset;
 																}
 															}
 															meshPart.m_triangleIndexStride++;
-
+															domListOfUInts indexArray =triRef->getP()->getValue(); 
+															int count = indexArray.getCount();
 
 															//int*		m_triangleIndexBase;
 
 
 
 															meshPart.m_numTriangles = triRef->getCount();
+
+															const domVerticesRef vertsRef = meshRef->getVertices();
+															int numInputs = vertsRef->getInput_array().getCount();
+															for (int i=0;i<numInputs;i++)
+															{
+																domInputLocalRef localRef = vertsRef->getInput_array()[i];
+																daeString str = localRef->getSemantic();
+																if ( !strcmp(str,"POSITION"))
+																{
+																	const domURIFragmentType& frag = localRef->getSource();
+
+																	daeElementConstRef constElem = frag.getElement();
+
+																	const domSourceRef node = *(const domSourceRef*)&constElem;
+																	const domFloat_arrayRef flArray = node->getFloat_array();
+																	if (flArray)
+																	{
+																		int numElem = flArray->getCount();
+																		const domListOfFloats& listFloats = flArray->getValue();
+
+																		int numVerts = listFloats.getCount()/3;
+																		int k=vertexoffset;
+																		int t=0;
+																		int vertexStride = 3;//instead of hardcoded stride, should use the 'accessor'
+																		for (;t<meshPart.m_numTriangles;t++)
+																		{
+																			SimdVector3 verts[3];
+																			int index0,index1,index2;
+																			for (int i=0;i<3;i++)
+																			{
+																				index0 = indexArray.get(k)*vertexStride;
+																				domFloat fl0 = listFloats.get(index0);
+																				domFloat fl1 = listFloats.get(index0+1);
+																				domFloat fl2 = listFloats.get(index0+2);
+																				k+=meshPart.m_triangleIndexStride;
+																				verts[i].setValue(fl0,fl1,fl2);
+																			}
+																			trimesh->AddTriangle(verts[0],verts[1],verts[2]);
+																		}
+																	}
+																}
+															}
+
 
 
 
@@ -1149,11 +1222,19 @@ int main(int argc,char** argv)
 																//int			m_vertexStride;//use the accessor for this
 
 															//};
-															tindexArray->AddIndexedMesh(meshPart);
+															//tindexArray->AddIndexedMesh(meshPart);
+															if (isDynamics)
+															{
+																printf("moving concave <mesh> not supported, transformed into convex\n");
+																colShape = new ConvexTriangleMeshShape(trimesh);
+															} else
+															{
+																printf("static concave triangle <mesh> added\n");
+																colShape = new TriangleMeshShape(trimesh);
+															}
+
 														}
 
-
-														printf("(concave) mesh not supported yet\n");
 													}
 
 													if (geom->getConvex_mesh())
@@ -1322,20 +1403,7 @@ int main(int argc,char** argv)
 
 							}
 
-							domInstance_rigid_body::domTechnique_commonRef techniqueRef = rigidbodyRef->getTechnique_common();
-							if (techniqueRef)
-							{
-								if (techniqueRef->getMass())
-								{
-									mass = techniqueRef->getMass()->getValue();
-								}
-								if (techniqueRef->getDynamic())
-								{
-									isDynamics = techniqueRef->getDynamic()->getValue();
-								}
-							}
-
-							printf("mass = %f, isDynamics %i\n",mass,isDynamics);
+				
 							if (colShape)
 							{
 								CreatePhysicsObject(isDynamics,mass,startTransform,colShape);
