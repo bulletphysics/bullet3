@@ -21,7 +21,7 @@ subject to the following restrictions:
 #include "CollisionShapes/SphereShape.h"
 #include "CollisionShapes/CylinderShape.h"
 #include "CollisionShapes/ConeShape.h"
-
+#include "CollisionShapes/StaticPlaneShape.h"
 #include "CollisionShapes/ConvexHullShape.h"
 #include "CollisionShapes/TriangleMesh.h"
 #include "CollisionShapes/ConvexTriangleMeshShape.h"
@@ -1019,6 +1019,17 @@ int main(int argc,char** argv)
 				{
 					domPhysics_sceneRef physicsSceneRef = physicsScenesRef->getPhysics_scene_array()[s];
 
+					if (physicsSceneRef->getTechnique_common())
+					{
+						if (physicsSceneRef->getTechnique_common()->getGravity())
+						{
+							const domFloat3 grav = physicsSceneRef->getTechnique_common()->getGravity()->getValue();
+							printf("gravity set to %f,%f,%f\n",grav.get(0),grav.get(1),grav.get(2));
+							physicsEnvironmentPtr->setGravity(grav.get(0),grav.get(1),grav.get(2));
+						}
+
+					} 
+
 					for (int m=0;m<physicsSceneRef->getInstance_physics_model_array().getCount();m++)
 					{
 						domInstance_physics_modelRef instance_physicsModelRef = physicsSceneRef->getInstance_physics_model_array()[m];
@@ -1085,6 +1096,18 @@ int main(int argc,char** argv)
 											{
 												domRigid_body::domTechnique_common::domShapeRef shapeRef = techniqueRef->getShape_array()[s];
 
+												if (shapeRef->getPlane())
+												{
+													domPlaneRef planeRef = shapeRef->getPlane();
+													if (planeRef->getEquation())
+													{
+														const domFloat4 planeEq = planeRef->getEquation()->getValue();
+														SimdVector3 planeNormal(planeEq.get(0),planeEq.get(1),planeEq.get(2));
+														SimdScalar planeConstant = planeEq.get(3);
+														colShape = new StaticPlaneShape(planeNormal,planeConstant);
+													}
+
+												}
 
 												if (shapeRef->getBox())
 												{
@@ -1378,6 +1401,20 @@ int main(int argc,char** argv)
 								//find transform of the node that this rigidbody maps to
 
 								int i;
+								//either load the matrix (worldspace) or incrementally build the transform from 'translate'/'rotate'
+								for (i=0;i<node->getMatrix_array().getCount();i++)
+								{
+									domMatrixRef matrixRef = node->getMatrix_array()[i];
+									domFloat4x4 fl16 = matrixRef->getValue();
+									SimdVector3 origin(fl16.get(3),fl16.get(7),fl16.get(11));
+									startTransform.setOrigin(origin);
+									SimdMatrix3x3 basis(fl16.get(0),fl16.get(1),fl16.get(2),
+													    fl16.get(4),fl16.get(5),fl16.get(6),
+														fl16.get(8),fl16.get(9),fl16.get(10));
+									startTransform.setBasis(basis);
+								}
+
+
 								for (i=0;i<node->getRotate_array().getCount();i++)
 								{
 									domRotateRef rotateRef = node->getRotate_array()[i];
