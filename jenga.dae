@@ -5620,6 +5620,10 @@
 			<instance_physics_model url="#Plane-PhysicsModel">
 				<instance_rigid_body body="Plane-RigidBody" target="#Plane"/>
 			</instance_physics_model>
+			<technique_common>
+        <gravity>0 0 -9.810000</gravity>
+        <time_step>0.0166666</time_step>
+      </technique_common>
 		</physics_scene>
 	</library_physics_scenes>
 	<scene>
