@@ -8,8 +8,8 @@
 			<copyright></copyright>
 			<source_data>file:///Users/erwin/Desktop/physics_demos-2.42-preview34/jenga_physics_test.blend</source_data>
 		</contributor>
-		<created>2006-07-18T10:26:20.399035</created>
-		<modified>2006-07-18T10:26:20.399096</modified>
+		<created>2006-07-18T10:32:54.891550</created>
+		<modified>2006-07-18T10:32:54.891607</modified>
 		<unit meter="0.01" name="centimeter"/>
 		<up_axis>Z_UP</up_axis>
 	</asset>
@@ -3055,7 +3055,7 @@
 	<library_visual_scenes>
 		<visual_scene id="Scene" name="Scene">
 			<node id="Font_001" name="Font_001">
-				<translate>-11.09123 10.94667 11.9831</translate>
+				<translate>-14.55524 -12.21748 -0.85392</translate>
 				<rotate>0.0 0.0 1.0 -0.0</rotate>
 				<rotate>0.0 1.0 0.0 -0.0</rotate>
 				<rotate>1.0 0.0 0.0 90.0</rotate>
@@ -3066,7 +3066,7 @@
 				</instance_geometry>
 			</node>
 			<node id="Font" name="Font">
-				<translate>-11.04743 10.94669 14.32909</translate>
+				<translate>-14.51144 -12.21746 1.49207</translate>
 				<rotate>0.0 0.0 1.0 -0.0</rotate>
 				<rotate>0.0 1.0 0.0 -0.0</rotate>
 				<rotate>1.0 0.0 0.0 90.0</rotate>
@@ -3078,7 +3078,7 @@
 				</instance_geometry>
 			</node>
 			<node id="Cone_003" name="Cone_003">
-				<translate>-7.08194 32.16471 4.88068</translate>
+				<translate>-10.54595 9.00056 -7.95634</translate>
 				<rotate>0.0 0.0 1.0 161.23931</rotate>
 				<rotate>0.0 1.0 0.0 7.87085</rotate>
 				<rotate>1.0 0.0 0.0 -1.43785</rotate>
@@ -3091,7 +3091,7 @@
 				</instance_geometry>
 			</node>
 			<node id="Cube_071" name="Cube_071">
-				<translate>-8.05011 10.94663 6.36017</translate>
+				<translate>-11.51412 -12.21752 -6.47685</translate>
 				<rotate>0.0 0.0 1.0 0.0</rotate>
 				<rotate>0.0 1.0 0.0 -40.16574</rotate>
 				<rotate>1.0 0.0 0.0 89.99999</rotate>
@@ -3104,7 +3104,7 @@
 				</instance_geometry>
 			</node>
 			<node id="Cube_070" name="Cube_070">
-				<translate>-7.34207 10.94663 4.62739</translate>
+				<translate>-10.80608 -12.21753 -8.20963</translate>
 				<rotate>0.0 0.0 1.0 179.99999</rotate>
 				<rotate>0.0 1.0 0.0 -68.68968</rotate>
 				<rotate>1.0 0.0 0.0 -90.0</rotate>
@@ -3117,7 +3117,7 @@
 				</instance_geometry>
 			</node>
 			<node id="Cube_069" name="Cube_069">
-				<translate>-8.6747 10.94663 4.10024</translate>
+				<translate>-12.13872 -12.21753 -8.73677</translate>
 				<rotate>0.0 0.0 1.0 -0.0</rotate>
 				<rotate>0.0 1.0 0.0 61.88929</rotate>
 				<rotate>1.0 0.0 0.0 89.99999</rotate>
@@ -3130,7 +3130,7 @@
 				</instance_geometry>
 			</node>
 			<node id="Sphere" name="Sphere">
-				<translate>-7.63166 19.69709 7.21431</translate>
+				<translate>-11.09567 -3.46707 -5.6227</translate>
 				<rotate>0.0 0.0 1.0 13.53526</rotate>
 				<rotate>0.0 1.0 0.0 -3.36769</rotate>
 				<rotate>1.0 0.0 0.0 31.10502</rotate>
@@ -3143,14 +3143,14 @@
 				</instance_geometry>
 			</node>
 			<node id="Cube_068" name="Cube_068">
-				<translate>-2.21179 32.61221 4.84847</translate>
+				<translate>-5.6758 9.44806 -7.98855</translate>
 				<rotate>0.0 0.0 1.0 90.0</rotate>
 				<rotate>0.0 1.0 0.0 -30.45178</rotate>
 				<rotate>1.0 0.0 0.0 90.0</rotate>
 				<instance_geometry url="#Cube"/>
 			</node>
 			<node id="Cone_001" name="Cone_001">
-				<translate>9.22884 18.03846 14.23642</translate>
+				<translate>5.76483 -5.12569 1.3994</translate>
 				<rotate>0.0 0.0 1.0 -5.78135</rotate>
 				<rotate>0.0 1.0 0.0 8.39643</rotate>
 				<rotate>1.0 0.0 0.0 -226.35694</rotate>
@@ -3163,7 +3163,7 @@
 				</instance_geometry>
 			</node>
 			<node id="Cone" name="Cone">
-				<translate>-1.20109 19.85159 4.36037</translate>
+				<translate>-4.6651 -3.31256 -8.47664</translate>
 				<rotate>0.0 0.0 1.0 165.33786</rotate>
 				<rotate>0.0 1.0 0.0 -9.4701</rotate>
 				<rotate>1.0 0.0 0.0 164.1133</rotate>
@@ -3176,7 +3176,7 @@
 				</instance_geometry>
 			</node>
 			<node id="Cylinder_004" name="Cylinder_004">
-				<translate>15.50131 29.68761 4.99616</translate>
+				<translate>12.0373 6.52345 -7.84086</translate>
 				<rotate>0.0 0.0 1.0 0.0</rotate>
 				<rotate>0.0 1.0 0.0 -0.0</rotate>
 				<rotate>1.0 0.0 0.0 -36.81686</rotate>
@@ -3189,7 +3189,7 @@
 				</instance_geometry>
 			</node>
 			<node id="Cylinder_003" name="Cylinder_003">
-				<translate>14.16319 23.49394 4.14571</translate>
+				<translate>10.69918 0.32979 -8.69131</translate>
 				<rotate>0.0 0.0 1.0 -38.06934</rotate>
 				<rotate>0.0 1.0 0.0 0.0</rotate>
 				<rotate>1.0 0.0 0.0 0.0</rotate>
@@ -3202,7 +3202,7 @@
 				</instance_geometry>
 			</node>
 			<node id="Cylinder_002" name="Cylinder_002">
-				<translate>14.13561 23.49805 6.28982</translate>
+				<translate>10.6716 0.3339 -6.5472</translate>
 				<rotate>0.0 0.0 1.0 -38.06934</rotate>
 				<rotate>0.0 1.0 0.0 0.0</rotate>
 				<rotate>1.0 0.0 0.0 0.0</rotate>
@@ -3215,7 +3215,7 @@
 				</instance_geometry>
 			</node>
 			<node id="Cylinder_001" name="Cylinder_001">
-				<translate>14.11076 23.53547 8.39422</translate>
+				<translate>10.64675 0.37131 -4.4428</translate>
 				<rotate>0.0 0.0 1.0 -38.06934</rotate>
 				<rotate>0.0 1.0 0.0 0.0</rotate>
 				<rotate>1.0 0.0 0.0 0.0</rotate>
@@ -3228,7 +3228,7 @@
 				</instance_geometry>
 			</node>
 			<node id="Cylinder" name="Cylinder">
-				<translate>16.86389 16.54336 5.35329</translate>
+				<translate>13.39988 -6.62079 -7.48373</translate>
 				<rotate>0.0 0.0 1.0 -23.42368</rotate>
 				<rotate>0.0 1.0 0.0 -47.70962</rotate>
 				<rotate>1.0 0.0 0.0 14.68375</rotate>
@@ -3241,7 +3241,7 @@
 				</instance_geometry>
 			</node>
 			<node id="Cube_067" name="Cube_067">
-				<translate>4.53469 24.25876 3.66579</translate>
+				<translate>1.07068 1.0946 -9.17122</translate>
 				<instance_geometry url="#Cube_098">
 					<bind_material>
 						<technique_common>
@@ -3251,7 +3251,7 @@
 				</instance_geometry>
 			</node>
 			<node id="Cube_066" name="Cube_066">
-				<translate>6.53469 24.25876 3.66579</translate>
+				<translate>3.07068 1.0946 -9.17122</translate>
 				<instance_geometry url="#Cube_097">
 					<bind_material>
 						<technique_common>
@@ -3261,7 +3261,7 @@
 				</instance_geometry>
 			</node>
 			<node id="Cube_065" name="Cube_065">
-				<translate>2.53469 24.25876 3.66579</translate>
+				<translate>-0.92932 1.0946 -9.17122</translate>
 				<instance_geometry url="#Cube_096">
 					<bind_material>
 						<technique_common>
@@ -3271,7 +3271,7 @@
 				</instance_geometry>
 			</node>
 			<node id="Cube_064" name="Cube_064">
-				<translate>2.53469 24.25876 5.66579</translate>
+				<translate>-0.92932 1.0946 -7.17122</translate>
 				<instance_geometry url="#Cube_095">
 					<bind_material>
 						<technique_common>
@@ -3281,7 +3281,7 @@
 				</instance_geometry>
 			</node>
 			<node id="Cube_063" name="Cube_063">
-				<translate>6.53469 24.25876 5.66579</translate>
+				<translate>3.07068 1.0946 -7.17122</translate>
 				<instance_geometry url="#Cube_094">
 					<bind_material>
 						<technique_common>
@@ -3291,7 +3291,7 @@
 				</instance_geometry>
 			</node>
 			<node id="Cube_062" name="Cube_062">
-				<translate>4.53469 24.25876 5.66579</translate>
+				<translate>1.07068 1.0946 -7.17122</translate>
 				<instance_geometry url="#Cube_093">
 					<bind_material>
 						<technique_common>
@@ -3301,7 +3301,7 @@
 				</instance_geometry>
 			</node>
 			<node id="Cube_061" name="Cube_061">
-				<translate>4.53469 26.25876 4.66579</translate>
+				<translate>1.07068 3.0946 -8.17122</translate>
 				<instance_geometry url="#Cube_092">
 					<bind_material>
 						<technique_common>
@@ -3311,7 +3311,7 @@
 				</instance_geometry>
 			</node>
 			<node id="Cube_031" name="Cube_031">
-				<translate>4.53469 22.25876 4.66579</translate>
+				<translate>1.07068 -0.9054 -8.17122</translate>
 				<instance_geometry url="#Cube_091">
 					<bind_material>
 						<technique_common>
@@ -3321,7 +3321,7 @@
 				</instance_geometry>
 			</node>
 			<node id="Cube_030" name="Cube_030">
-				<translate>4.53469 24.25876 4.66579</translate>
+				<translate>1.07068 1.0946 -8.17122</translate>
 				<instance_geometry url="#Cube_090">
 					<bind_material>
 						<technique_common>
@@ -3331,7 +3331,7 @@
 				</instance_geometry>
 			</node>
 			<node id="Cube_029" name="Cube_029">
-				<translate>4.53469 24.25876 6.66579</translate>
+				<translate>1.07068 1.0946 -6.17122</translate>
 				<instance_geometry url="#Cube_089">
 					<bind_material>
 						<technique_common>
@@ -3341,7 +3341,7 @@
 				</instance_geometry>
 			</node>
 			<node id="Cube_028" name="Cube_028">
-				<translate>4.53469 22.25876 6.66579</translate>
+				<translate>1.07068 -0.9054 -6.17122</translate>
 				<instance_geometry url="#Cube_088">
 					<bind_material>
 						<technique_common>
@@ -3351,7 +3351,7 @@
 				</instance_geometry>
 			</node>
 			<node id="Cube_027" name="Cube_027">
-				<translate>4.53469 26.25876 6.66579</translate>
+				<translate>1.07068 3.0946 -6.17122</translate>
 				<instance_geometry url="#Cube_087">
 					<bind_material>
 						<technique_common>
@@ -3361,7 +3361,7 @@
 				</instance_geometry>
 			</node>
 			<node id="Cube_026" name="Cube_026">
-				<translate>4.53469 24.25876 7.66579</translate>
+				<translate>1.07068 1.0946 -5.17122</translate>
 				<instance_geometry url="#Cube_086">
 					<bind_material>
 						<technique_common>
@@ -3371,7 +3371,7 @@
 				</instance_geometry>
 			</node>
 			<node id="Cube_025" name="Cube_025">
-				<translate>6.53469 24.25876 7.66579</translate>
+				<translate>3.07068 1.0946 -5.17122</translate>
 				<instance_geometry url="#Cube_085">
 					<bind_material>
 						<technique_common>
@@ -3381,7 +3381,7 @@
 				</instance_geometry>
 			</node>
 			<node id="Cube_024" name="Cube_024">
-				<translate>2.53469 24.25876 7.66579</translate>
+				<translate>-0.92932 1.0946 -5.17122</translate>
 				<instance_geometry url="#Cube_084">
 					<bind_material>
 						<technique_common>
@@ -3391,7 +3391,7 @@
 				</instance_geometry>
 			</node>
 			<node id="Cube_023" name="Cube_023">
-				<translate>2.53469 24.25876 9.66579</translate>
+				<translate>-0.92932 1.0946 -3.17122</translate>
 				<instance_geometry url="#Cube_083">
 					<bind_material>
 						<technique_common>
@@ -3401,7 +3401,7 @@
 				</instance_geometry>
 			</node>
 			<node id="Cube_022" name="Cube_022">
-				<translate>6.53469 24.25876 9.66579</translate>
+				<translate>3.07068 1.0946 -3.17122</translate>
 				<instance_geometry url="#Cube_082">
 					<bind_material>
 						<technique_common>
@@ -3411,7 +3411,7 @@
 				</instance_geometry>
 			</node>
 			<node id="Cube_021" name="Cube_021">
-				<translate>4.53469 24.25876 9.66579</translate>
+				<translate>1.07068 1.0946 -3.17122</translate>
 				<instance_geometry url="#Cube_081">
 					<bind_material>
 						<technique_common>
@@ -3421,7 +3421,7 @@
 				</instance_geometry>
 			</node>
 			<node id="Cube_020" name="Cube_020">
-				<translate>4.53469 26.25876 8.66579</translate>
+				<translate>1.07068 3.0946 -4.17122</translate>
 				<instance_geometry url="#Cube_080">
 					<bind_material>
 						<technique_common>
@@ -3431,7 +3431,7 @@
 				</instance_geometry>
 			</node>
 			<node id="Cube_019" name="Cube_019">
-				<translate>4.53469 22.25876 8.66579</translate>
+				<translate>1.07068 -0.9054 -4.17122</translate>
 				<instance_geometry url="#Cube_079">
 					<bind_material>
 						<technique_common>
@@ -3441,7 +3441,7 @@
 				</instance_geometry>
 			</node>
 			<node id="Cube_018" name="Cube_018">
-				<translate>4.53469 24.25876 8.66579</translate>
+				<translate>1.07068 1.0946 -4.17122</translate>
 				<instance_geometry url="#Cube_078">
 					<bind_material>
 						<technique_common>
@@ -3451,7 +3451,7 @@
 				</instance_geometry>
 			</node>
 			<node id="Cube_017" name="Cube_017">
-				<translate>4.53469 24.25876 10.66579</translate>
+				<translate>1.07068 1.0946 -2.17122</translate>
 				<instance_geometry url="#Cube_077">
 					<bind_material>
 						<technique_common>
@@ -3461,7 +3461,7 @@
 				</instance_geometry>
 			</node>
 			<node id="Cube_016" name="Cube_016">
-				<translate>4.53469 22.25876 10.66579</translate>
+				<translate>1.07068 -0.9054 -2.17122</translate>
 				<instance_geometry url="#Cube_076">
 					<bind_material>
 						<technique_common>
@@ -3471,7 +3471,7 @@
 				</instance_geometry>
 			</node>
 			<node id="Cube_015" name="Cube_015">
-				<translate>4.53469 26.25876 10.66579</translate>
+				<translate>1.07068 3.0946 -2.17122</translate>
 				<instance_geometry url="#Cube_075">
 					<bind_material>
 						<technique_common>
@@ -3481,7 +3481,7 @@
 				</instance_geometry>
 			</node>
 			<node id="Cube_014" name="Cube_014">
-				<translate>4.53469 24.25876 11.66579</translate>
+				<translate>1.07068 1.0946 -1.17122</translate>
 				<instance_geometry url="#Cube_074">
 					<bind_material>
 						<technique_common>
@@ -3491,7 +3491,7 @@
 				</instance_geometry>
 			</node>
 			<node id="Cube_013" name="Cube_013">
-				<translate>6.53469 24.25876 11.66579</translate>
+				<translate>3.07068 1.0946 -1.17122</translate>
 				<instance_geometry url="#Cube_073">
 					<bind_material>
 						<technique_common>
@@ -3501,7 +3501,7 @@
 				</instance_geometry>
 			</node>
 			<node id="Cube_012" name="Cube_012">
-				<translate>2.53469 24.25876 11.66579</translate>
+				<translate>-0.92932 1.0946 -1.17122</translate>
 				<instance_geometry url="#Cube_072">
 					<bind_material>
 						<technique_common>
@@ -3511,7 +3511,7 @@
 				</instance_geometry>
 			</node>
 			<node id="Cube_011" name="Cube_011">
-				<translate>2.53469 24.25876 13.66579</translate>
+				<translate>-0.92932 1.0946 0.82878</translate>
 				<instance_geometry url="#Cube_071-Geometry">
 					<bind_material>
 						<technique_common>
@@ -3521,7 +3521,7 @@
 				</instance_geometry>
 			</node>
 			<node id="Cube_010" name="Cube_010">
-				<translate>6.53469 24.25876 13.66579</translate>
+				<translate>3.07068 1.0946 0.82878</translate>
 				<instance_geometry url="#Cube_070-Geometry">
 					<bind_material>
 						<technique_common>
@@ -3531,7 +3531,7 @@
 				</instance_geometry>
 			</node>
 			<node id="Cube_009" name="Cube_009">
-				<translate>4.53469 24.25876 13.66579</translate>
+				<translate>1.07068 1.0946 0.82878</translate>
 				<instance_geometry url="#Cube_069-Geometry">
 					<bind_material>
 						<technique_common>
@@ -3541,7 +3541,7 @@
 				</instance_geometry>
 			</node>
 			<node id="Cube_008-Node" name="Cube_008-Node">
-				<translate>4.53469 26.25876 12.66579</translate>
+				<translate>1.07068 3.0946 -0.17122</translate>
 				<instance_geometry url="#Cube_024-Geometry">
 					<bind_material>
 						<technique_common>
@@ -3551,7 +3551,7 @@
 				</instance_geometry>
 			</node>
 			<node id="Cube_007" name="Cube_007">
-				<translate>4.53469 22.25876 12.66579</translate>
+				<translate>1.07068 -0.9054 -0.17122</translate>
 				<instance_geometry url="#Cube_023-Geometry">
 					<bind_material>
 						<technique_common>
@@ -3561,7 +3561,7 @@
 				</instance_geometry>
 			</node>
 			<node id="Cube_006-Node" name="Cube_006-Node">
-				<translate>4.53469 24.25876 12.66579</translate>
+				<translate>1.07068 1.0946 -0.17122</translate>
 				<instance_geometry url="#Cube_022-Geometry">
 					<bind_material>
 						<technique_common>
@@ -3571,7 +3571,7 @@
 				</instance_geometry>
 			</node>
 			<node id="Cube_005" name="Cube_005">
-				<translate>4.53469 24.25876 14.66579</translate>
+				<translate>1.07068 1.0946 1.82878</translate>
 				<instance_geometry url="#Cube_021-Geometry">
 					<bind_material>
 						<technique_common>
@@ -3581,7 +3581,7 @@
 				</instance_geometry>
 			</node>
 			<node id="Cube_004" name="Cube_004">
-				<translate>4.53469 22.25876 14.66579</translate>
+				<translate>1.07068 -0.9054 1.82878</translate>
 				<instance_geometry url="#Cube_020-Geometry">
 					<bind_material>
 						<technique_common>
@@ -3591,7 +3591,7 @@
 				</instance_geometry>
 			</node>
 			<node id="Cube_003-Node" name="Cube_003-Node">
-				<translate>4.53469 26.25876 14.66579</translate>
+				<translate>1.07068 3.0946 1.82878</translate>
 				<instance_geometry url="#Cube_019-Geometry">
 					<bind_material>
 						<technique_common>
@@ -3601,7 +3601,7 @@
 				</instance_geometry>
 			</node>
 			<node id="Cube_002" name="Cube_002">
-				<translate>4.53469 24.25876 15.66579</translate>
+				<translate>1.07068 1.0946 2.82878</translate>
 				<instance_geometry url="#Cube_018-Geometry">
 					<bind_material>
 						<technique_common>
@@ -3611,7 +3611,7 @@
 				</instance_geometry>
 			</node>
 			<node id="Cube_001" name="Cube_001">
-				<translate>6.53469 24.25876 15.66579</translate>
+				<translate>3.07068 1.0946 2.82878</translate>
 				<instance_geometry url="#Cube_017-Geometry">
 					<bind_material>
 						<technique_common>
@@ -3621,7 +3621,7 @@
 				</instance_geometry>
 			</node>
 			<node id="Cube-Node" name="Cube-Node">
-				<translate>2.53469 24.25876 15.66579</translate>
+				<translate>-0.92932 1.0946 2.82878</translate>
 				<instance_geometry url="#Cube_016-Geometry">
 					<bind_material>
 						<technique_common>
@@ -3631,7 +3631,7 @@
 				</instance_geometry>
 			</node>
 			<node id="Cube_060" name="Cube_060">
-				<translate>4.53469 10.75148 9.99067</translate>
+				<translate>1.07068 -12.41267 -2.84635</translate>
 				<rotate>0.0 0.0 1.0 0.0</rotate>
 				<rotate>0.0 1.0 0.0 -0.0</rotate>
 				<rotate>1.0 0.0 0.0 -146.99812</rotate>
@@ -3644,7 +3644,7 @@
 				</instance_geometry>
 			</node>
 			<node id="Cube_059" name="Cube_059">
-				<translate>4.53469 10.50702 8.86006</translate>
+				<translate>1.07068 -12.65713 -3.97696</translate>
 				<rotate>0.0 0.0 1.0 0.0</rotate>
 				<rotate>0.0 1.0 0.0 -0.0</rotate>
 				<rotate>1.0 0.0 0.0 -146.99812</rotate>
@@ -3657,7 +3657,7 @@
 				</instance_geometry>
 			</node>
 			<node id="Cube_058" name="Cube_058">
-				<translate>4.53469 10.23201 7.91279</translate>
+				<translate>1.07068 -12.93214 -4.92423</translate>
 				<rotate>0.0 0.0 1.0 0.0</rotate>
 				<rotate>0.0 1.0 0.0 -0.0</rotate>
 				<rotate>1.0 0.0 0.0 -146.99812</rotate>
@@ -3670,7 +3670,7 @@
 				</instance_geometry>
 			</node>
 			<node id="Cube_057" name="Cube_057">
-				<translate>4.53469 7.97079 7.82112</translate>
+				<translate>1.07068 -15.19337 -5.0159</translate>
 				<rotate>0.0 0.0 1.0 0.0</rotate>
 				<rotate>0.0 1.0 0.0 -0.0</rotate>
 				<rotate>1.0 0.0 0.0 -146.99812</rotate>
@@ -3683,7 +3683,7 @@
 				</instance_geometry>
 			</node>
 			<node id="Cube_055" name="Cube_055">
-				<translate>4.53469 9.59031 5.25432</translate>
+				<translate>1.07068 -13.57384 -7.5827</translate>
 				<rotate>0.0 0.0 1.0 0.0</rotate>
 				<rotate>0.0 1.0 0.0 -0.0</rotate>
 				<rotate>1.0 0.0 0.0 -146.99812</rotate>
@@ -3696,7 +3696,7 @@
 				</instance_geometry>
 			</node>
 			<node id="Cube_054" name="Cube_054">
-				<translate>4.08984 35.16743 4.83229</translate>
+				<translate>0.62583 12.00328 -8.00472</translate>
 				<rotate>0.0 0.0 1.0 3.21265</rotate>
 				<rotate>0.0 1.0 0.0 -12.03335</rotate>
 				<rotate>1.0 0.0 0.0 66.50218</rotate>
@@ -3709,11 +3709,11 @@
 				</instance_geometry>
 			</node>
 			<node id="Cube_053" name="Cube_053">
-				<translate>4.75245 32.31659 9.14795</translate>
+				<translate>1.28844 9.15244 -3.68906</translate>
 				<instance_geometry url="#Cube_009-Geometry"/>
 			</node>
 			<node id="Cube_051" name="Cube_051">
-				<translate>4.53469 15.25876 5.66579</translate>
+				<translate>1.07068 -7.9054 -7.17122</translate>
 				<instance_geometry url="#Cube_005-Geometry">
 					<bind_material>
 						<technique_common>
@@ -3723,7 +3723,7 @@
 				</instance_geometry>
 			</node>
 			<node id="Cube_050" name="Cube_050">
-				<translate>4.53469 14.25876 4.66579</translate>
+				<translate>1.07068 -8.9054 -8.17122</translate>
 				<instance_geometry url="#Cube_004-Geometry">
 					<bind_material>
 						<technique_common>
@@ -3733,7 +3733,7 @@
 				</instance_geometry>
 			</node>
 			<node id="Cube_049" name="Cube_049">
-				<translate>4.53469 16.25876 4.66579</translate>
+				<translate>1.07068 -6.9054 -8.17122</translate>
 				<instance_geometry url="#Cube_002-Geometry">
 					<bind_material>
 						<technique_common>
@@ -3743,7 +3743,7 @@
 				</instance_geometry>
 			</node>
 			<node id="Cube_048" name="Cube_048">
-				<translate>4.53469 15.25876 3.66579</translate>
+				<translate>1.07068 -7.9054 -9.17122</translate>
 				<instance_geometry url="#Cube_001-Geometry">
 					<bind_material>
 						<technique_common>
@@ -3753,7 +3753,7 @@
 				</instance_geometry>
 			</node>
 			<node id="Cube_047" name="Cube_047">
-				<translate>-3.23567 12.93996 5.08112</translate>
+				<translate>-6.69969 -10.22419 -7.75589</translate>
 				<rotate>0.0 0.0 1.0 -0.18482</rotate>
 				<rotate>0.0 1.0 0.0 -14.9718</rotate>
 				<rotate>1.0 0.0 0.0 -1.78118</rotate>
@@ -3766,7 +3766,7 @@
 				</instance_geometry>
 			</node>
 			<node id="Cube_046" name="Cube_046">
-				<translate>6.53469 24.25876 17.66579</translate>
+				<translate>3.07068 1.0946 4.82878</translate>
 				<instance_geometry url="#Cube_067-Geometry">
 					<bind_material>
 						<technique_common>
@@ -3776,7 +3776,7 @@
 				</instance_geometry>
 			</node>
 			<node id="Cube_045" name="Cube_045">
-				<translate>4.53469 24.25876 17.66579</translate>
+				<translate>1.07068 1.0946 4.82878</translate>
 				<instance_geometry url="#Cube_066-Geometry">
 					<bind_material>
 						<technique_common>
@@ -3786,7 +3786,7 @@
 				</instance_geometry>
 			</node>
 			<node id="Cube_043" name="Cube_043">
-				<translate>4.53469 17.25876 3.66579</translate>
+				<translate>1.07068 -5.9054 -9.17122</translate>
 				<instance_geometry url="#Cube_064-Geometry">
 					<bind_material>
 						<technique_common>
@@ -3796,7 +3796,7 @@
 				</instance_geometry>
 			</node>
 			<node id="Cube_041" name="Cube_041">
-				<translate>4.53469 26.25876 16.66579</translate>
+				<translate>1.07068 3.0946 3.82878</translate>
 				<instance_geometry url="#Cube_062-Geometry">
 					<bind_material>
 						<technique_common>
@@ -3806,7 +3806,7 @@
 				</instance_geometry>
 			</node>
 			<node id="Cube_040" name="Cube_040">
-				<translate>4.53469 22.25876 16.66579</translate>
+				<translate>1.07068 -0.9054 3.82878</translate>
 				<instance_geometry url="#Cube_061-Geometry">
 					<bind_material>
 						<technique_common>
@@ -3816,7 +3816,7 @@
 				</instance_geometry>
 			</node>
 			<node id="Cube_039" name="Cube_039">
-				<translate>4.53469 24.25876 16.66579</translate>
+				<translate>1.07068 1.0946 3.82878</translate>
 				<instance_geometry url="#Cube_060-Geometry">
 					<bind_material>
 						<technique_common>
@@ -3826,7 +3826,7 @@
 				</instance_geometry>
 			</node>
 			<node id="Plane" name="Plane">
-				<translate>3.78113 23.18561 3.05137</translate>
+				<translate>0.31712 0.02145 -9.78565</translate>
 				<instance_geometry url="#Plane-Geometry">
 					<bind_material>
 						<technique_common>
@@ -3836,14 +3836,14 @@
 				</instance_geometry>
 			</node>
 			<node id="Lamp" name="Lamp">
-				<translate>13.08615 17.27467 12.69993</translate>
+				<translate>9.62214 -5.88949 -0.13709</translate>
 				<rotate>0.0 0.0 1.0 106.93632</rotate>
 				<rotate>0.0 1.0 0.0 3.16371</rotate>
 				<rotate>1.0 0.0 0.0 37.26105</rotate>
 				<instance_light url="#Spot"/>
 			</node>
 			<node id="Camera" name="Camera">
-				<translate>-3.938 -10.03377 9.63874</translate>
+				<translate>-7.40201 -33.19793 -3.19828</translate>
 				<rotate>0.0 0.0 1.0 0.0</rotate>
 				<rotate>0.0 1.0 0.0 0.0</rotate>
 				<rotate>1.0 0.0 0.0 90.0</rotate>
