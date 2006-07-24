@@ -20,6 +20,8 @@ subject to the following restrictions:
 
 
 CompoundShape::CompoundShape()
+:m_localAabbMin(1e30f,1e30f,1e30f),
+m_localAabbMax(-1e30f,-1e30f,-1e30f)
 {
 }
 
@@ -28,21 +30,66 @@ CompoundShape::~CompoundShape()
 {
 }
 
+void	CompoundShape::AddChildShape(const SimdTransform& localTransform,CollisionShape* shape)
+{
+	m_childTransforms.push_back(localTransform);
+	m_childShapes.push_back(shape);
+
+	//extend the local aabbMin/aabbMax
+	SimdVector3 localAabbMin,localAabbMax;
+	shape->GetAabb(localTransform,localAabbMin,localAabbMax);
+	for (int i=0;i<3;i++)
+	{
+		if (m_localAabbMin[i] > localAabbMin[i])
+		{
+			m_localAabbMin[i] = localAabbMin[i];
+		}
+		if (m_localAabbMax[i] < localAabbMax[i])
+		{
+			m_localAabbMax[i] = localAabbMax[i];
+		}
+
+	}
+}
+
+
 
 	///GetAabb's default implementation is brute force, expected derived classes to implement a fast dedicated version
-void CompoundShape::GetAabb(const SimdTransform& t,SimdVector3& aabbMin,SimdVector3& aabbMax) const
+void CompoundShape::GetAabb(const SimdTransform& trans,SimdVector3& aabbMin,SimdVector3& aabbMax) const
 {
-	SimdVector3 margin(GetMargin(),GetMargin(),GetMargin());
+	SimdVector3 localHalfExtents = 0.5f*(m_localAabbMax-m_localAabbMin);
+	SimdVector3 localCenter = 0.5f*(m_localAabbMax+m_localAabbMin);
+	
+	SimdMatrix3x3 abs_b = trans.getBasis().absolute();  
 
-	aabbMin = t.getOrigin() - margin;
+	SimdPoint3 center = trans(localCenter);
 
-	aabbMax = t.getOrigin() + margin;
+	SimdVector3 extent = SimdVector3(abs_b[0].dot(localHalfExtents),
+		   abs_b[1].dot(localHalfExtents),
+		  abs_b[2].dot(localHalfExtents));
+	extent += SimdVector3(GetMargin(),GetMargin(),GetMargin());
 
+	aabbMin = center - extent;
+	aabbMax = center + extent;
 }
 
 void	CompoundShape::CalculateLocalInertia(SimdScalar mass,SimdVector3& inertia)
 {
-	assert(0);
+	//approximation: take the inertia from the aabb for now
+	SimdTransform ident;
+	SimdVector3 aabbMin,aabbMax;
+	GetAabb(ident,aabbMin,aabbMax);
+	
+	SimdVector3 halfExtents = (aabbMax-aabbMin)*0.5f;
+	
+	SimdScalar lx=2.f*(halfExtents.x());
+	SimdScalar ly=2.f*(halfExtents.y());
+	SimdScalar lz=2.f*(halfExtents.z());
+
+	inertia[0] = mass/(12.0f) * (ly*ly + lz*lz);
+	inertia[1] = mass/(12.0f) * (lx*lx + lz*lz);
+	inertia[2] = mass/(12.0f) * (lx*lx + ly*ly);
+
 }
 
 	

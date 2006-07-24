@@ -20,6 +20,7 @@ subject to the following restrictions:
 #include "CollisionShapes/SphereShape.h" //for raycasting
 #include "CollisionShapes/TriangleMeshShape.h" //for raycasting
 #include "NarrowPhaseCollision/RaycastCallback.h"
+#include "CollisionShapes/CompoundShape.h"
 
 #include "NarrowPhaseCollision/SubSimplexConvexCast.h"
 #include "BroadphaseCollision/BroadphaseInterface.h"
@@ -139,58 +140,27 @@ void	CollisionWorld::RemoveCollisionObject(CollisionObject* collisionObject)
 		}
 }
 
-
-
-void	CollisionWorld::RayTest(const SimdVector3& rayFromWorld, const SimdVector3& rayToWorld, RayResultCallback& resultCallback)
+void	RayTestSingle(const SimdTransform& rayFromTrans,const SimdTransform& rayToTrans,
+					  CollisionObject* collisionObject,
+					  const CollisionShape* collisionShape,
+					  const SimdTransform& colObjWorldTransform,
+					  CollisionWorld::RayResultCallback& resultCallback)
 {
-
 	
-	SimdTransform	rayFromTrans,rayToTrans;
-	rayFromTrans.setIdentity();
-	rayFromTrans.setOrigin(rayFromWorld);
-	rayToTrans.setIdentity();
-	
-	rayToTrans.setOrigin(rayToWorld);
-
-	//do culling based on aabb (rayFrom/rayTo)
-	SimdVector3 rayAabbMin = rayFromWorld;
-	SimdVector3 rayAabbMax = rayFromWorld;
-	rayAabbMin.setMin(rayToWorld);
-	rayAabbMax.setMax(rayToWorld);
-
 	SphereShape pointShape(0.0f);
 
-	/// brute force go over all objects. Once there is a broadphase, use that, or
-	/// add a raycast against aabb first.
-	
-	std::vector<CollisionObject*>::iterator iter;
-	
-	for (iter=m_collisionObjects.begin();
-	!(iter==m_collisionObjects.end()); iter++)
-	{
-		
-		CollisionObject*	collisionObject= (*iter);
-
-		//RigidcollisionObject* collisionObject = ctrl->GetRigidcollisionObject();
-		SimdVector3 collisionObjectAabbMin,collisionObjectAabbMax;
-		collisionObject->m_collisionShape->GetAabb(collisionObject->m_worldTransform,collisionObjectAabbMin,collisionObjectAabbMax);
-
-		//check aabb overlap
-
-		if (TestAabbAgainstAabb2(rayAabbMin,rayAabbMax,collisionObjectAabbMin,collisionObjectAabbMax))
-		{
-			if (collisionObject->m_collisionShape->IsConvex())
+	if (collisionShape->IsConvex())
 			{
 				ConvexCast::CastResult castResult;
 				castResult.m_fraction = 1.f;//??
 
-				ConvexShape* convexShape = (ConvexShape*) collisionObject->m_collisionShape;
+				ConvexShape* convexShape = (ConvexShape*) collisionShape;
 				VoronoiSimplexSolver	simplexSolver;
 				SubsimplexConvexCast convexCaster(&pointShape,convexShape,&simplexSolver);
 				//GjkConvexCast	convexCaster(&pointShape,convexShape,&simplexSolver);
 				//ContinuousConvexCollision convexCaster(&pointShape,convexShape,&simplexSolver,0);
 				
-				if (convexCaster.calcTimeOfImpact(rayFromTrans,rayToTrans,collisionObject->m_worldTransform,collisionObject->m_worldTransform,castResult))
+				if (convexCaster.calcTimeOfImpact(rayFromTrans,rayToTrans,colObjWorldTransform,colObjWorldTransform,castResult))
 				{
 					//add hit
 					if (castResult.m_normal.length2() > 0.0001f)
@@ -217,12 +187,12 @@ void	CollisionWorld::RayTest(const SimdVector3& rayFromWorld, const SimdVector3&
 			else
 			{
 				
-				if (collisionObject->m_collisionShape->IsConcave())
+				if (collisionShape->IsConcave())
 					{
 
-						TriangleMeshShape* triangleMesh = (TriangleMeshShape*)collisionObject->m_collisionShape;
+						TriangleMeshShape* triangleMesh = (TriangleMeshShape*)collisionShape;
 						
-						SimdTransform worldTocollisionObject = collisionObject->m_worldTransform.inverse();
+						SimdTransform worldTocollisionObject = colObjWorldTransform.inverse();
 
 						SimdVector3 rayFromLocal = worldTocollisionObject * rayFromTrans.getOrigin();
 						SimdVector3 rayToLocal = worldTocollisionObject * rayToTrans.getOrigin();
@@ -231,12 +201,12 @@ void	CollisionWorld::RayTest(const SimdVector3& rayFromWorld, const SimdVector3&
 
 						struct BridgeTriangleRaycastCallback : public TriangleRaycastCallback 
 						{
-							RayResultCallback* m_resultCallback;
+							CollisionWorld::RayResultCallback* m_resultCallback;
 							CollisionObject*	m_collisionObject;
 							TriangleMeshShape*	m_triangleMesh;
 
 							BridgeTriangleRaycastCallback( const SimdVector3& from,const SimdVector3& to,
-								RayResultCallback* resultCallback, CollisionObject* collisionObject,TriangleMeshShape*	triangleMesh):
+								CollisionWorld::RayResultCallback* resultCallback, CollisionObject* collisionObject,TriangleMeshShape*	triangleMesh):
 								TriangleRaycastCallback(from,to),
 									m_resultCallback(resultCallback),
 									m_collisionObject(collisionObject),
@@ -275,10 +245,75 @@ void	CollisionWorld::RayTest(const SimdVector3& rayFromWorld, const SimdVector3&
 
 						triangleMesh->ProcessAllTriangles(&rcb,rayAabbMinLocal,rayAabbMaxLocal);
 											
-					}
-					
+					} else
+					{
+						//todo: use AABB tree or other BVH acceleration structure!
+						if (collisionShape->IsCompound())
+						{
+							const CompoundShape* compoundShape = static_cast<const CompoundShape*>(collisionShape);
+							int i=0;
+							for (i=0;i<compoundShape->GetNumChildShapes();i++)
+							{
+								SimdTransform childTrans = compoundShape->GetChildTransform(i);
+								const CollisionShape* childCollisionShape = compoundShape->GetChildShape(i);
+								SimdTransform childWorldTrans = colObjWorldTransform * childTrans;
+								RayTestSingle(rayFromTrans,rayToTrans,
+									collisionObject,
+									childCollisionShape,
+									childWorldTrans,
+									resultCallback);
 
+							}
+
+
+						}
+					}
 			}
+}
+
+void	CollisionWorld::RayTest(const SimdVector3& rayFromWorld, const SimdVector3& rayToWorld, RayResultCallback& resultCallback)
+{
+
+	
+	SimdTransform	rayFromTrans,rayToTrans;
+	rayFromTrans.setIdentity();
+	rayFromTrans.setOrigin(rayFromWorld);
+	rayToTrans.setIdentity();
+	
+	rayToTrans.setOrigin(rayToWorld);
+
+	//do culling based on aabb (rayFrom/rayTo)
+	SimdVector3 rayAabbMin = rayFromWorld;
+	SimdVector3 rayAabbMax = rayFromWorld;
+	rayAabbMin.setMin(rayToWorld);
+	rayAabbMax.setMax(rayToWorld);
+
+
+	/// brute force go over all objects. Once there is a broadphase, use that, or
+	/// add a raycast against aabb first.
+	
+	std::vector<CollisionObject*>::iterator iter;
+	
+	for (iter=m_collisionObjects.begin();
+	!(iter==m_collisionObjects.end()); iter++)
+	{
+		
+		CollisionObject*	collisionObject= (*iter);
+
+		//RigidcollisionObject* collisionObject = ctrl->GetRigidcollisionObject();
+		SimdVector3 collisionObjectAabbMin,collisionObjectAabbMax;
+		collisionObject->m_collisionShape->GetAabb(collisionObject->m_worldTransform,collisionObjectAabbMin,collisionObjectAabbMax);
+
+		//check aabb overlap
+
+		if (TestAabbAgainstAabb2(rayAabbMin,rayAabbMax,collisionObjectAabbMin,collisionObjectAabbMax))
+		{
+			RayTestSingle(rayFromTrans,rayToTrans,
+				collisionObject,
+					 collisionObject->m_collisionShape,
+					  collisionObject->m_worldTransform,
+					  resultCallback);
+			
 		}
 	}
 

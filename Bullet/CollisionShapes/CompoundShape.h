@@ -28,14 +28,43 @@ subject to the following restrictions:
 
 /// CompoundShape allows to store multiple other CollisionShapes
 /// This allows for concave collision objects. This is more general then the Static Concave TriangleMeshShape.
-/// Place holder, not fully implemented yet
 class CompoundShape	: public CollisionShape
 {
+	std::vector<SimdTransform>		m_childTransforms;
+	std::vector<CollisionShape*>	m_childShapes;
+	SimdVector3						m_localAabbMin;
+	SimdVector3						m_localAabbMax;
+
+
 public:
 	CompoundShape();
 
 	virtual ~CompoundShape();
 
+	void	AddChildShape(const SimdTransform& localTransform,CollisionShape* shape);
+
+	int		GetNumChildShapes() const
+	{
+		return m_childShapes.size();
+	}
+
+	CollisionShape* GetChildShape(int index)
+	{
+		return m_childShapes[index];
+	}
+	const CollisionShape* GetChildShape(int index) const
+	{
+		return m_childShapes[index];
+	}
+
+	SimdTransform	GetChildTransform(int index)
+	{
+		return m_childTransforms[index];
+	}
+	const SimdTransform	GetChildTransform(int index) const
+	{
+		return m_childTransforms[index];
+	}
 
 	///GetAabb's default implementation is brute force, expected derived classes to implement a fast dedicated version
 	void GetAabb(const SimdTransform& t,SimdVector3& aabbMin,SimdVector3& aabbMax) const;

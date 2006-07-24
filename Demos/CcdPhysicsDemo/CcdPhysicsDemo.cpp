@@ -26,7 +26,7 @@ subject to the following restrictions:
 #include "CollisionShapes/SphereShape.h"
 #include "CollisionShapes/ConeShape.h"
 #include "CollisionShapes/StaticPlaneShape.h"
-
+#include "CollisionShapes/CompoundShape.h"
 #include "CollisionShapes/Simplex1to4Shape.h"
 #include "CollisionShapes/EmptyShape.h"
 
@@ -126,7 +126,7 @@ CollisionShape* shapePtr[numShapes] =
 #else
 	new BoxShape (SimdVector3(450,10,450)),
 #endif
-
+		
 		new BoxShape (SimdVector3(CUBE_HALF_EXTENTS,CUBE_HALF_EXTENTS,CUBE_HALF_EXTENTS)),
 		new SphereShape (CUBE_HALF_EXTENTS- 0.05f),
 
@@ -205,8 +205,13 @@ int main(int argc,char** argv)
 			shapeIndex[i] = 0;
 	}
 
+	CompoundShape* compoundShape = new CompoundShape();
+	//shapePtr[1] = compoundShape;
 
+	SimdTransform ident;
+	ident.setIdentity();
 
+	compoundShape->AddChildShape(ident,new BoxShape (SimdVector3(CUBE_HALF_EXTENTS,CUBE_HALF_EXTENTS,CUBE_HALF_EXTENTS)));
 
 	for (i=0;i<numObjects;i++)
 	{
@@ -498,8 +503,17 @@ void renderme()
 		char	extraDebug[125];
 		sprintf(extraDebug,"islId, Body=%i , %i",physObjects[i]->GetRigidBody()->m_islandTag1,physObjects[i]->GetRigidBody()->m_debugBodyId);
 		physObjects[i]->GetRigidBody()->GetCollisionShape()->SetExtraDebugInfo(extraDebug);
+
+		float vec[16];
+		SimdTransform ident;
+		ident.setIdentity();
+		ident.getOpenGLMatrix(vec);
+		glPushMatrix(); 
+	  glLoadMatrixf(vec);
+
 		GL_ShapeDrawer::DrawOpenGL(m,physObjects[i]->GetRigidBody()->GetCollisionShape(),wireColor,getDebugMode());
 
+		glPopMatrix(); 
 		///this block is just experimental code to show some internal issues with replacing shapes on the fly.
 		if (getDebugMode()!=0 && (i>0))
 		{

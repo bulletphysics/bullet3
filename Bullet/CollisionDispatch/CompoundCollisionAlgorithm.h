@@ -23,14 +23,19 @@ subject to the following restrictions:
 #include "NarrowPhaseCollision/PersistentManifold.h"
 class Dispatcher;
 #include "BroadphaseCollision/BroadphaseProxy.h"
-
+#include <vector>
 
 
 /// CompoundCollisionAlgorithm  supports collision between CompoundCollisionShapes and other collision shapes
 /// Place holder, not fully implemented yet
 class CompoundCollisionAlgorithm  : public CollisionAlgorithm
 {
+	BroadphaseProxy	m_compoundProxy;
+	BroadphaseProxy	m_otherProxy;
+	std::vector<BroadphaseProxy> m_childProxies;
+	std::vector<CollisionAlgorithm*> m_childCollisionAlgorithms;
 
+	Dispatcher*		m_dispatcher;
 	BroadphaseProxy m_compound;
 
 	BroadphaseProxy m_other;
