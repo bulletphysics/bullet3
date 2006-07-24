@@ -21,6 +21,8 @@ subject to the following restrictions:
 #include "CollisionDispatch/ConvexConvexAlgorithm.h"
 #include "CollisionDispatch/EmptyCollisionAlgorithm.h"
 #include "CollisionDispatch/ConvexConcaveCollisionAlgorithm.h"
+#include "CollisionDispatch/CompoundCollisionAlgorithm.h"
+
 #include "CollisionShapes/CollisionShape.h"
 #include "CollisionDispatch/CollisionObject.h"
 #include <algorithm>
@@ -210,6 +212,18 @@ CollisionAlgorithm* ParallelIslandDispatcher::InternalFindAlgorithm(BroadphasePr
 	{
 		return new ConvexConcaveCollisionAlgorithm(ci,&proxy1,&proxy0);
 	}
+
+	if (body0->m_collisionShape->IsCompound())
+	{
+		return new CompoundCollisionAlgorithm(ci,&proxy0,&proxy1);
+	} else
+	{
+		if (body1->m_collisionShape->IsCompound())
+		{
+			return new CompoundCollisionAlgorithm(ci,&proxy1,&proxy0);
+		}
+	}
+
 
 	//failed to find an algorithm
 	return new EmptyAlgorithm(ci);

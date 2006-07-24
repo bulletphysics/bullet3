@@ -46,6 +46,9 @@ bool	SimulationIsland::Simulate(IDebugDraw* debugDrawer,int numSolverIterations,
 			CcdPhysicsController* ctrl = m_controllers[k];
 			//		SimdTransform predictedTrans;
 			RigidBody* body = ctrl->GetRigidBody();
+			//todo: only do this when necessary, it's used for contact points
+			body->m_cachedInvertedWorldTransform = body->m_worldTransform.inverse();
+
 			if (body->IsActive())
 			{
 				if (!body->IsStatic())

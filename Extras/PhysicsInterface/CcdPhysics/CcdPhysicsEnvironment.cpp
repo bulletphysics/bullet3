@@ -386,7 +386,8 @@ void	CcdPhysicsEnvironment::addCcdPhysicsController(CcdPhysicsController* ctrl)
 	assert(shapeinterface);
 
 	const SimdTransform& t = ctrl->GetRigidBody()->getCenterOfMassTransform();
-
+	
+	body->m_cachedInvertedWorldTransform = body->m_worldTransform.inverse();
 
 	SimdPoint3 minAabb,maxAabb;
 
@@ -638,6 +639,9 @@ bool	CcdPhysicsEnvironment::proceedDeltaTimeOneStep(float timeStep)
 			CcdPhysicsController* ctrl = m_controllers[k];
 			//		SimdTransform predictedTrans;
 			RigidBody* body = ctrl->GetRigidBody();
+			
+			body->m_cachedInvertedWorldTransform = body->m_worldTransform.inverse();
+
 			if (body->IsActive())
 			{
 				if (!body->IsStatic())
@@ -1558,10 +1562,10 @@ void CcdPhysicsEnvironment::requestCollisionCallback(PHY_IPhysicsController* ctr
 
 void	CcdPhysicsEnvironment::CallbackTriggers()
 {
-	/*
+	
 	CcdPhysicsController* ctrl0=0,*ctrl1=0;
 
-	if (m_triggerCallbacks[PHY_OBJECT_RESPONSE])
+	if (m_triggerCallbacks[PHY_OBJECT_RESPONSE] || (m_debugDrawer && (m_debugDrawer->GetDebugMode() & IDebugDraw::DBG_DrawContactPoints)))
 	{
 		//walk over all overlapping pairs, and if one of the involved bodies is registered for trigger callback, perform callback
 		int numManifolds = m_collisionWorld->GetDispatcher()->GetNumManifolds();
@@ -1571,6 +1575,16 @@ void	CcdPhysicsEnvironment::CallbackTriggers()
 			int numContacts = manifold->GetNumContacts();
 			if (numContacts)
 			{
+				if (m_debugDrawer && (m_debugDrawer->GetDebugMode() & IDebugDraw::DBG_DrawContactPoints))
+				{
+					for (int j=0;j<numContacts;j++)
+					{
+						SimdVector3 color(1,0,0);
+						const ManifoldPoint& cp = manifold->GetContactPoint(j);
+						if (m_debugDrawer)
+							m_debugDrawer->DrawContactPoint(cp.m_positionWorldOnB,cp.m_normalWorldOnB,cp.GetDistance(),cp.GetLifeTime(),color);
+					}
+				}
 				RigidBody* obj0 = static_cast<RigidBody* >(manifold->GetBody0());
 				RigidBody* obj1 = static_cast<RigidBody* >(manifold->GetBody1());
 
@@ -1596,7 +1610,7 @@ void	CcdPhysicsEnvironment::CallbackTriggers()
 
 
 	}
-*/
+
 
 }
 

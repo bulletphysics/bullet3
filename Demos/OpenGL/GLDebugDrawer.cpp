@@ -51,7 +51,8 @@ void	GLDebugDrawer::DrawContactPoint(const SimdVector3& pointOnB,const SimdVecto
 		glVertex3d(from.getX(), from.getY(), from.getZ());
 		glVertex3d(to.getX(), to.getY(), to.getZ());
 		glEnd();
-	
+
+
 		glRasterPos3f(from.x(),  from.y(),  from.z());
 		char buf[12];
 		sprintf(buf," %d",lifeTime);

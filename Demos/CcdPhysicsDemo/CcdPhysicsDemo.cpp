@@ -54,7 +54,7 @@ subject to the following restrictions:
 
 float deltaTime = 1.f/60.f;
 float bulletSpeed = 40.f;
-bool createConstraint = true;
+
 #ifdef WIN32
 #if _MSC_VER >= 1310
 //only use SIMD Hull code under Win32
@@ -88,6 +88,9 @@ extern int glutScreenHeight;
 
 const int maxProxies = 32766;
 const int maxOverlap = 65535;
+
+bool createConstraint = true;//false;
+bool useCompound = true;//false;
 
 
 #ifdef _DEBUG
@@ -124,7 +127,7 @@ CollisionShape* shapePtr[numShapes] =
 #ifdef USE_GROUND_PLANE
 	new StaticPlaneShape(SimdVector3(0,1,0),10),
 #else
-	new BoxShape (SimdVector3(450,10,450)),
+	new BoxShape (SimdVector3(50,10,50)),
 #endif
 		
 		new BoxShape (SimdVector3(CUBE_HALF_EXTENTS,CUBE_HALF_EXTENTS,CUBE_HALF_EXTENTS)),
@@ -170,7 +173,7 @@ int main(int argc,char** argv)
 #endif
 	physicsEnvironmentPtr->setDeactivationTime(2.f);
 
-	physicsEnvironmentPtr->setGravity(0,-10,0);
+	physicsEnvironmentPtr->setGravity(0,-10,0);//0,0);//-10,0);
 	PHY_ShapeProps shapeProps;
 
 	shapeProps.m_do_anisotropic = false;
@@ -205,13 +208,19 @@ int main(int argc,char** argv)
 			shapeIndex[i] = 0;
 	}
 
-	CompoundShape* compoundShape = new CompoundShape();
-	//shapePtr[1] = compoundShape;
+	if (useCompound)
+	{
+		CompoundShape* compoundShape = new CompoundShape();
+		CollisionShape* oldShape = shapePtr[1];
+		shapePtr[1] = compoundShape;
 
-	SimdTransform ident;
-	ident.setIdentity();
-
-	compoundShape->AddChildShape(ident,new BoxShape (SimdVector3(CUBE_HALF_EXTENTS,CUBE_HALF_EXTENTS,CUBE_HALF_EXTENTS)));
+		SimdTransform ident;
+		ident.setIdentity();
+		ident.setOrigin(SimdVector3(0,0,0));	
+		compoundShape->AddChildShape(ident,oldShape);//
+		ident.setOrigin(SimdVector3(0,0,2));	
+		compoundShape->AddChildShape(ident,new SphereShape(0.9));//
+	}
 
 	for (i=0;i<numObjects;i++)
 	{
@@ -509,11 +518,13 @@ void renderme()
 		ident.setIdentity();
 		ident.getOpenGLMatrix(vec);
 		glPushMatrix(); 
-	  glLoadMatrixf(vec);
+	  
+		glLoadMatrixf(vec);
 
 		GL_ShapeDrawer::DrawOpenGL(m,physObjects[i]->GetRigidBody()->GetCollisionShape(),wireColor,getDebugMode());
 
 		glPopMatrix(); 
+
 		///this block is just experimental code to show some internal issues with replacing shapes on the fly.
 		if (getDebugMode()!=0 && (i>0))
 		{
@@ -668,6 +679,9 @@ void clientDisplay(void) {
 
 
 	physicsEnvironmentPtr->UpdateAabbs(deltaTime);
+	//draw contactpoints
+	physicsEnvironmentPtr->CallbackTriggers();
+
 
 	renderme();
 

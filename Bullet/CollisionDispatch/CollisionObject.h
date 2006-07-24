@@ -38,7 +38,9 @@ struct	CollisionObject
 	//m_interpolationWorldTransform is used for CCD and interpolation
 	//it can be either previous or future (predicted) transform
 	SimdTransform	m_interpolationWorldTransform;
-	
+
+	SimdTransform	m_cachedInvertedWorldTransform;
+
 	enum CollisionFlags
 	{
 		isStatic = 1,

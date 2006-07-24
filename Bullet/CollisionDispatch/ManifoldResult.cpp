@@ -31,8 +31,12 @@ void ManifoldResult::AddContactPoint(const SimdVector3& normalOnBInWorld,const S
 	if (depth > m_manifoldPtr->GetContactBreakingTreshold())
 		return;
 
-	SimdTransform transAInv = m_body0->m_worldTransform.inverse();
-	SimdTransform transBInv= m_body1->m_worldTransform.inverse();
+
+	SimdTransform transAInv = m_body0->m_cachedInvertedWorldTransform;
+	SimdTransform transBInv= m_body1->m_cachedInvertedWorldTransform;
+
+	//transAInv = m_body0->m_worldTransform.inverse();
+	//transBInv= m_body1->m_worldTransform.inverse();
 	SimdVector3 pointA = pointInWorld + normalOnBInWorld * depth;
 	SimdVector3 localA = transAInv(pointA );
 	SimdVector3 localB = transBInv(pointInWorld);

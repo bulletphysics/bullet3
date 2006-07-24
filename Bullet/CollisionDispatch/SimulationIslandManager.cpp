@@ -113,6 +113,7 @@ void	SimulationIslandManager::StoreIslandActivationState(CollisionWorld* colWorl
 //
 void SimulationIslandManager::BuildAndProcessIslands(Dispatcher* dispatcher,CollisionObjectArray& collisionObjects, IslandCallback* callback)
 {
+	
 	int numBodies  = collisionObjects.size();
 
 	for (int islandId=0;islandId<numBodies;islandId++)
@@ -128,8 +129,10 @@ void SimulationIslandManager::BuildAndProcessIslands(Dispatcher* dispatcher,Coll
 		for (i=0;i<numBodies;i++)
 		{
 			CollisionObject* colObj0 = collisionObjects[i];
+		
 			if (colObj0->m_islandTag1 == islandId)
 			{
+			
 				if (colObj0->GetActivationState()== ACTIVE_TAG)
 				{
 					allSleeping = false;

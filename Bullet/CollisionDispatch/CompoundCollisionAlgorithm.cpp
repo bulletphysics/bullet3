@@ -72,11 +72,20 @@ void CompoundCollisionAlgorithm::ProcessCollision (BroadphaseProxy* ,BroadphaseP
 		//temporarily exchange parent CollisionShape with childShape, and recurse
 		CollisionShape* childShape = compoundShape->GetChildShape(i);
 		CollisionObject* colObj = static_cast<CollisionObject*>(m_childProxies[i].m_clientObject);
+
+		//backup
+		SimdTransform	orgTrans = colObj->m_worldTransform;
 		CollisionShape* orgShape = colObj->m_collisionShape;
+
+		SimdTransform childTrans = compoundShape->GetChildTransform(i);
+		SimdTransform	newChildWorldTrans = orgTrans*childTrans ;
+		colObj->m_worldTransform = newChildWorldTrans;
+
 		colObj->m_collisionShape = childShape;
 		m_childCollisionAlgorithms[i]->ProcessCollision(&m_childProxies[i],&m_otherProxy,dispatchInfo);
 		//revert back
 		colObj->m_collisionShape =orgShape;
+		colObj->m_worldTransform = orgTrans;
 	}
 }
 

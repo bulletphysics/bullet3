@@ -114,7 +114,7 @@ void GL_ShapeDrawer::DrawOpenGL(float* m, const CollisionShape* shape, const Sim
 	if (shape->GetShapeType() == COMPOUND_SHAPE_PROXYTYPE)
 	{
 		const CompoundShape* compoundShape = static_cast<const CompoundShape*>(shape);
-		for (int i=0;i<compoundShape->GetNumChildShapes();i++)
+		for (int i=compoundShape->GetNumChildShapes()-1;i>=0;i--)
 		{
 			SimdTransform childTrans = compoundShape->GetChildTransform(i);
 			const CollisionShape* colShape = compoundShape->GetChildShape(i);
@@ -123,16 +123,15 @@ void GL_ShapeDrawer::DrawOpenGL(float* m, const CollisionShape* shape, const Sim
 			DrawOpenGL(childMat,colShape,color,debugMode);
 		}
 
-		return;
 	} else
 	{
 		//DrawCoordSystem();
 	    
-		glPushMatrix();
+		//glPushMatrix();
 		glEnable(GL_COLOR_MATERIAL);
 		glColor3f(color.x(),color.y(), color.z());
 
-		glRasterPos3f(0.0,  0.0,  0.0);
+		
 
 		bool useWireframeFallback = true;
 
@@ -268,6 +267,7 @@ void GL_ShapeDrawer::DrawOpenGL(float* m, const CollisionShape* shape, const Sim
 				
 				if (debugMode==IDebugDraw::DBG_DrawFeaturesText)
 				{
+					glRasterPos3f(0.0,  0.0,  0.0);
 					BMF_DrawString(BMF_GetFont(BMF_kHelvetica10),polyshape->GetExtraDebugInfo());
 
 					glColor3f(1.f, 1.f, 1.f);
@@ -329,7 +329,7 @@ void GL_ShapeDrawer::DrawOpenGL(float* m, const CollisionShape* shape, const Sim
 
 		}
 		
-		glDisable(GL_DEPTH_BUFFER_BIT);
+		/*glDisable(GL_DEPTH_BUFFER_BIT);
 		if (debugMode==IDebugDraw::DBG_DrawText)
 		{
 			BMF_DrawString(BMF_GetFont(BMF_kHelvetica10),shape->GetName());
@@ -340,7 +340,9 @@ void GL_ShapeDrawer::DrawOpenGL(float* m, const CollisionShape* shape, const Sim
 			BMF_DrawString(BMF_GetFont(BMF_kHelvetica10),shape->GetExtraDebugInfo());
 		}
 		glEnable(GL_DEPTH_BUFFER_BIT);
-		glPopMatrix();
+		*/
+
+	//	glPopMatrix();
 	}
     glPopMatrix();
 	

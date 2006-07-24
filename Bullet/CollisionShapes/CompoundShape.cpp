@@ -77,6 +77,7 @@ void	CompoundShape::CalculateLocalInertia(SimdScalar mass,SimdVector3& inertia)
 {
 	//approximation: take the inertia from the aabb for now
 	SimdTransform ident;
+	ident.setIdentity();
 	SimdVector3 aabbMin,aabbMax;
 	GetAabb(ident,aabbMin,aabbMax);
 	
