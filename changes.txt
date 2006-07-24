@@ -1,6 +1,20 @@
 Bullet Continuous Collision Detection and Physics Library
 Erwin Coumans
 
+2006 July 24 Erwin Coumans
+	Added Compound CollisionShape support
+	(this is still low performance -> requires stackless tree-versus-tree traversal for better performance)
+
+2006 July 15 Erwin Coumans
+	Added initial support for Parallel execution (collision detection, constraint solving)
+	See ParallelPhysicsEnvironment in Extras\PhysicsInterface\CcdPhysics
+	
+2006 July 10 Erwin Coumans
+	Added MacOS X support (some build issues mainly)
+		
+2006 July 5 Erwin Coumans
+	Improved COLLADA 1.4 physics import, both COLLADA-DOM and FCollada
+
 2006 June 29 Erwin Coumans
 	Refactoring of the broadphase
 	Moved some optional files to Extras: Algebraic ccd and EPA, quickstep
