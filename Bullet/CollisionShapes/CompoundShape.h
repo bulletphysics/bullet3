@@ -24,7 +24,7 @@ subject to the following restrictions:
 #include <vector>
 #include "CollisionShapes/CollisionMargin.h"
 
-
+class OptimizedBvh;
 
 /// CompoundShape allows to store multiple other CollisionShapes
 /// This allows for concave collision objects. This is more general then the Static Concave TriangleMeshShape.
@@ -35,6 +35,7 @@ class CompoundShape	: public CollisionShape
 	SimdVector3						m_localAabbMin;
 	SimdVector3						m_localAabbMax;
 
+	OptimizedBvh*					m_aabbTree;
 
 public:
 	CompoundShape();
@@ -96,6 +97,13 @@ public:
 		return "Compound";
 	}
 
+	//this is optional, but should make collision queries faster, by culling non-overlapping nodes
+	void	CreateAabbTreeFromChildren();
+
+	const OptimizedBvh*					GetAabbTree() const
+	{
+		return m_aabbTree;
+	}
 
 private:
 	SimdScalar	m_collisionMargin;

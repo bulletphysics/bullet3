@@ -21,7 +21,8 @@ subject to the following restrictions:
 
 CompoundShape::CompoundShape()
 :m_localAabbMin(1e30f,1e30f,1e30f),
-m_localAabbMax(-1e30f,-1e30f,-1e30f)
+m_localAabbMax(-1e30f,-1e30f,-1e30f),
+m_aabbTree(0)
 {
 }
 

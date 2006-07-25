@@ -65,6 +65,14 @@ void CompoundCollisionAlgorithm::ProcessCollision (BroadphaseProxy* ,BroadphaseP
 	
 	CompoundShape* compoundShape = static_cast<CompoundShape*>(colObj->m_collisionShape);
 
+	//We will use the OptimizedBVH, AABB tree to cull potential child-overlaps
+	//If both proxies are Compound, we will deal with that directly, by performing sequential/parallel tree traversals
+	//given Proxy0 and Proxy1, if both have a tree, Tree0 and Tree1, this means:
+	//determine overlapping nodes of Proxy1 using Proxy0 AABB against Tree1
+	//then use each overlapping node AABB against Tree0
+	//and vise versa.
+
+
 	int numChildren = m_childCollisionAlgorithms.size();
 	int i;
 	for (i=0;i<numChildren;i++)
