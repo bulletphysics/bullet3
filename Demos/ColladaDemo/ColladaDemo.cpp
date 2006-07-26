@@ -88,7 +88,7 @@ extern int	gForwardAxis;
 #include "dom/domCOLLADA.h"
 
 DAE* collada = 0;
-
+domCOLLADA* dom = 0;
 
 #endif
 
@@ -939,7 +939,7 @@ int main(int argc,char** argv)
 	} else
 	{
 
-		domCOLLADA *dom = collada->getDom(filename);
+		dom = collada->getDom(filename);
 		if ( !dom )
 		{
 			printf("COLLADA File loaded to the dom, but query for the dom assets failed \n" );
@@ -961,11 +961,15 @@ int main(int argc,char** argv)
 					printf("  Conversion to X axis Up isn't currently supported!\n" ); 
 					printf("  COLLADA_RT defaulting to Y Up \n" ); 
 					physicsEnvironmentPtr->setGravity(-10,0,0);
+					gCameraUp = SimdVector3(1,0,0);
+					gForwardAxis = 1;
 					break; 
 				case UPAXISTYPE_Y_UP:
 					printf("	Y Axis is Up for this file \n" ); 
 					printf("  COLLADA_RT set to Y Up \n" ); 
 					physicsEnvironmentPtr->setGravity(0,-10,0);
+					gCameraUp = SimdVector3(0,1,0);
+					gForwardAxis = 0;
 					break;
 				case UPAXISTYPE_Z_UP:
 					printf("	Z Axis is Up for this file \n" ); 
@@ -1112,6 +1116,8 @@ int main(int argc,char** argv)
 							if (bodyName && model)
 							{
 								//try to find the rigid body
+								int numBody = model->getRigid_body_array().getCount();
+
 								for (int r=0;r<model->getRigid_body_array().getCount();r++)
 								{
 									domRigid_bodyRef rigidBodyRef = model->getRigid_body_array()[r];
@@ -1923,6 +1929,40 @@ void clientKeyboard(unsigned char key, int x, int y)
 			{
 				name = &saveName[1];
 			} 
+			
+			if (dom->getAsset()->getContributor_array().getCount())
+			{
+				if (!dom->getAsset()->getContributor_array().get(0)->getAuthor())
+				{
+					dom->getAsset()->getContributor_array().get(0)->createAndPlace("author");
+				}
+
+				dom->getAsset()->getContributor_array().get(0)->getAuthor()->setValue
+					("http://bullet.sourceforge.net Erwin Coumans");
+
+				if (!dom->getAsset()->getContributor_array().get(0)->getAuthoring_tool())
+				{
+					dom->getAsset()->getContributor_array().get(0)->createAndPlace("authoring_tool");
+				}
+
+				dom->getAsset()->getContributor_array().get(0)->getAuthoring_tool()->setValue
+#ifdef WIN32
+					("Bullet ColladaPhysicsViewer-Win32-0.5");
+#else
+#ifdef __APPLE__
+					("Bullet ColladaPhysicsViewer-MacOSX-0.5");
+#else
+					("Bullet ColladaPhysicsViewer-UnknownPlatform-0.5");
+#endif
+#endif
+				if (!dom->getAsset()->getContributor_array().get(0)->getComments())
+				{
+					dom->getAsset()->getContributor_array().get(0)->createAndPlace("comments");
+				}
+				 dom->getAsset()->getContributor_array().get(0)->getComments()->setValue
+					 ("Comments to Physics Forum at http://www.continuousphysics.com/Bullet/phpBB2/index.php");
+			}
+
 			collada->saveAs(name);
 			
 			
