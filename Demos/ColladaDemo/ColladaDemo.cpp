@@ -142,11 +142,7 @@ SimdTransform startTransforms[maxNumObjects];
 
 //quick test to export new position into a COLLADA .dae file
 #ifndef USE_FCOLLADA
-domTranslateRef translateRef[maxNumObjects];
-
-domRotate_Array* rotateArray[maxNumObjects];
-
-domMatrixRef	matrixRef[maxNumObjects];
+domNodeRef	colladadomNodes[maxNumObjects];
 #endif //USE_FCOLLADA
 
 DefaultMotionState ms[maxNumObjects];
@@ -930,10 +926,7 @@ int main(int argc,char** argv)
 
 		for (int i=0;i<maxNumObjects;i++)
 		{
-			translateRef[i] = 0;
-			rotateArray[i] = 0;
-			//rotateRef[i] = 0;
-			matrixRef[i] = 0;
+			colladadomNodes[i] = 0;
 		}
 	}
 
@@ -1030,7 +1023,7 @@ int main(int argc,char** argv)
 							printf("No Triangles or Polygons found int Geometry %s \n", lib->getId() ); 
 						} else
 						{
-							printf("Found mesh geometry: numTriangleGroups:%i numPolygonGroups:%i\n",numTriangleGroups,numPolygonGroups);
+							printf("Found mesh geometry (%s): numTriangleGroups:%i numPolygonGroups:%i\n",lib->getId(),numTriangleGroups,numPolygonGroups);
 						}
 
 
@@ -1042,6 +1035,7 @@ int main(int argc,char** argv)
 						// Find out how many groups we need to allocate space for 
 						int	numTriangleGroups = (int)convexMeshElement->getTriangles_array().getCount();
 						int	numPolygonGroups  = (int)convexMeshElement->getPolygons_array().getCount();
+
 						int	totalGroups		  = numTriangleGroups + numPolygonGroups;
 						if (totalGroups == 0) 
 						{
@@ -1115,13 +1109,13 @@ int main(int argc,char** argv)
 
 							printf("mass = %f, isDynamics %i\n",mass,isDynamics);
 
-							if (bodyName)
+							if (bodyName && model)
 							{
 								//try to find the rigid body
 								for (int r=0;r<model->getRigid_body_array().getCount();r++)
 								{
 									domRigid_bodyRef rigidBodyRef = model->getRigid_body_array()[r];
-									if (!strcmp(rigidBodyRef->getName(),bodyName))
+									if (rigidBodyRef->getSid() && !strcmp(rigidBodyRef->getSid(),bodyName))
 									{
 
 										const domRigid_body::domTechnique_commonRef techniqueRef = rigidBodyRef->getTechnique_common();
@@ -1437,63 +1431,62 @@ int main(int argc,char** argv)
 								//////////////////////
 							}
 
-
-//The 'target' points to a graphics element/node, which contains the start (world) transform
-daeElementRef elem = rigidbodyRef->getTarget().getElement();
-if (elem)
-{
-	domNodeRef node = *(domNodeRef*)&elem;
-
-	//find transform of the node that this rigidbody maps to
-
-	int i;
-	//either load the matrix (worldspace) or incrementally build the transform from 'translate'/'rotate'
-	for (i=0;i<node->getMatrix_array().getCount();i++)
-	{
-		domMatrixRef matrixRef = node->getMatrix_array()[i];
-		domFloat4x4 fl16 = matrixRef->getValue();
-		SimdVector3 origin(fl16.get(3),fl16.get(7),fl16.get(11));
-		startTransform.setOrigin(origin);
-		SimdMatrix3x3 basis(fl16.get(0),fl16.get(1),fl16.get(2),
-						    fl16.get(4),fl16.get(5),fl16.get(6),
-							fl16.get(8),fl16.get(9),fl16.get(10));
-		startTransform.setBasis(basis);
-	}
-
-
-	if (node->getRotate_array().getCount())
-	{
-		rotateArray[numObjects] = &node->getRotate_array();
-	}
-
-	for (i=0;i<node->getRotate_array().getCount();i++)
-	{
-		domRotateRef rotateRef = node->getRotate_array()[i];
-		domFloat4 fl4 = rotateRef->getValue();
-		float angleRad = SIMD_RADS_PER_DEG*fl4.get(3);
-		SimdQuaternion rotQuat(SimdVector3(fl4.get(0),fl4.get(1),fl4.get(2)),angleRad);
-		startTransform.getBasis() = startTransform.getBasis() * SimdMatrix3x3(rotQuat);
-	}
-
-	for (i=0;i<node->getTranslate_array().getCount();i++)
-	{
-		translateRef[numObjects] = node->getTranslate_array()[i];
-		domFloat3 fl3 = translateRef[numObjects]->getValue();
-		startTransform.getOrigin() += SimdVector3(fl3.get(0),fl3.get(1),fl3.get(2));
-	}
-
-	for (i=0;i<node->getScale_array().getCount();i++)
-	{
-		domScaleRef scaleRef = node->getScale_array()[i];
-		domFloat3 fl3 = scaleRef->getValue();
-		startScale = SimdVector3(fl3.get(0),fl3.get(1),fl3.get(2));
-	}
-
-}
-
-				
 							if (colShape)
 							{
+
+								//The 'target' points to a graphics element/node, which contains the start (world) transform
+								daeElementRef elem = rigidbodyRef->getTarget().getElement();
+								if (elem)
+								{
+									domNodeRef node = *(domNodeRef*)&elem;
+									colladadomNodes[numObjects] = node;
+
+									//find transform of the node that this rigidbody maps to
+
+									int i;
+									//either load the matrix (worldspace) or incrementally build the transform from 'translate'/'rotate'
+									for (i=0;i<node->getMatrix_array().getCount();i++)
+									{
+										domMatrixRef matrixRef = node->getMatrix_array()[i];
+										domFloat4x4 fl16 = matrixRef->getValue();
+										SimdVector3 origin(fl16.get(3),fl16.get(7),fl16.get(11));
+										startTransform.setOrigin(origin);
+										SimdMatrix3x3 basis(fl16.get(0),fl16.get(1),fl16.get(2),
+															fl16.get(4),fl16.get(5),fl16.get(6),
+															fl16.get(8),fl16.get(9),fl16.get(10));
+										startTransform.setBasis(basis);
+									}
+
+
+									
+
+									for (i=0;i<node->getRotate_array().getCount();i++)
+									{
+										domRotateRef rotateRef = node->getRotate_array()[i];
+										domFloat4 fl4 = rotateRef->getValue();
+										float angleRad = SIMD_RADS_PER_DEG*fl4.get(3);
+										SimdQuaternion rotQuat(SimdVector3(fl4.get(0),fl4.get(1),fl4.get(2)),angleRad);
+										startTransform.getBasis() = startTransform.getBasis() * SimdMatrix3x3(rotQuat);
+									}
+
+									for (i=0;i<node->getTranslate_array().getCount();i++)
+									{
+										domTranslateRef translateRef = node->getTranslate_array()[i];
+										domFloat3 fl3 = translateRef->getValue();
+										startTransform.getOrigin() += SimdVector3(fl3.get(0),fl3.get(1),fl3.get(2));
+									}
+
+									for (i=0;i<node->getScale_array().getCount();i++)
+									{
+										domScaleRef scaleRef = node->getScale_array()[i];
+										domFloat3 fl3 = scaleRef->getValue();
+										startScale = SimdVector3(fl3.get(0),fl3.get(1),fl3.get(2));
+									}
+
+								}
+
+					
+							
 								CreatePhysicsObject(isDynamics,mass,startTransform,colShape);
 
 							}
@@ -1851,11 +1844,25 @@ void clientKeyboard(unsigned char key, int x, int y)
 		{
 			for (int i=0;i<numObjects;i++)
 			{
-				if (translateRef[i])
+				assert(colladadomNodes[i]);
+				if (!colladadomNodes[i]->getTranslate_array().getCount())
+				{
+					domTranslate* transl = (domTranslate*) colladadomNodes[i]->createAndPlace("translate");
+					transl->getValue().append(0.);
+					transl->getValue().append(0.);
+					transl->getValue().append(0.);
+				}
+
+				while (colladadomNodes[i]->getTranslate_array().getCount() > 1)
+				{
+					colladadomNodes[i]->removeFromParent(colladadomNodes[i]->getTranslate_array().get(1));
+					//colladadomNodes[i]->getTranslate_array().removeIndex(1);
+				}
+
 				{
 
 					float np[3];
-					domFloat3 newPos = translateRef[i]->getValue();
+					domFloat3 newPos = colladadomNodes[i]->getTranslate_array().get(0)->getValue();
 					physObjects[i]->GetMotionState()->getWorldPosition(
 						np[0],
 						np[1],
@@ -1863,22 +1870,28 @@ void clientKeyboard(unsigned char key, int x, int y)
 					newPos.set(0,np[0]);
 					newPos.set(1,np[1]);
 					newPos.set(2,np[2]);
-					translateRef[i]->setValue(newPos);
+					colladadomNodes[i]->getTranslate_array().get(0)->setValue(newPos);
 
 				}
-				domRotate_Array* ptr = rotateArray[i];
-				if (ptr)
-				{
-					//it is not easy to just clear/remove values, so we reset the rotation for all, except the first one
-					//make all zero-rotations, except for first
-					for (int i=0;i<ptr->getCount();i++)
-					{
-						ptr->get(i)->getValue().set(0,1);
-						ptr->get(i)->getValue().set(1,0);
-						ptr->get(i)->getValue().set(2,0);
-						ptr->get(i)->getValue().set(3,0);
-					}
+				
 
+				if (!colladadomNodes[i]->getRotate_array().getCount())
+				{
+					domRotate* rot = (domRotate*)colladadomNodes[i]->createAndPlace("rotate");
+					rot->getValue().append(1.0);
+					rot->getValue().append(0.0);
+					rot->getValue().append(0.0);
+					rot->getValue().append(0.0);
+				}
+
+				while (colladadomNodes[i]->getRotate_array().getCount()>1)
+				{
+					colladadomNodes[i]->removeFromParent(colladadomNodes[i]->getRotate_array().get(1));
+					//colladadomNodes[i]->getRotate_array().removeIndex(1);
+
+				}
+
+				{
 					float quatIma0,quatIma1,quatIma2,quatReal;
 					
 					SimdQuaternion quat = physObjects[i]->GetRigidBody()->getCenterOfMassTransform().getRotation();
@@ -1890,21 +1903,21 @@ void clientKeyboard(unsigned char key, int x, int y)
 						axis = SimdVector3(1.f,0.f,0.f);
 					else
 						axis /= SimdSqrt(len);
-					ptr->get(0)->getValue().set(0,axis[0]);
-					ptr->get(0)->getValue().set(1,axis[1]);
-					ptr->get(0)->getValue().set(2,axis[2]);
-					ptr->get(0)->getValue().set(3,quat.getAngle()*SIMD_DEGS_PER_RAD);
+					colladadomNodes[i]->getRotate_array().get(0)->getValue().set(0,axis[0]);
+					colladadomNodes[i]->getRotate_array().get(0)->getValue().set(1,axis[1]);
+					colladadomNodes[i]->getRotate_array().get(0)->getValue().set(2,axis[2]);
+					colladadomNodes[i]->getRotate_array().get(0)->getValue().set(3,quat.getAngle()*SIMD_DEGS_PER_RAD);
 				}
-				if (matrixRef[i])
-				{
-					//not yet
-					//printf
 
+				while (colladadomNodes[i]->getMatrix_array().getCount())
+				{
+					colladadomNodes[i]->removeFromParent(colladadomNodes[i]->getMatrix_array().get(0));
+					//colladadomNodes[i]->getMatrix_array().removeIndex(0);
 				}
 			}
 			char	saveName[550];
 			static int saveCount=1;
-			sprintf(saveName,"%s%i.dae\0",getLastFileName(),saveCount++);
+			sprintf(saveName,"%s%i",getLastFileName(),saveCount++);
 			char* name = &saveName[0];
 			if (name[0] == '/')
 			{
