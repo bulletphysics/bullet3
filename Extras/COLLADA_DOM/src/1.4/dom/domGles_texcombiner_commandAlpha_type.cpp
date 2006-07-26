@@ -13,6 +13,12 @@
 
 #include <dae/daeDom.h>
 #include <dom/domGles_texcombiner_commandAlpha_type.h>
+#include <dae/daeMetaCMPolicy.h>
+#include <dae/daeMetaSequence.h>
+#include <dae/daeMetaChoice.h>
+#include <dae/daeMetaGroup.h>
+#include <dae/daeMetaAny.h>
+#include <dae/daeMetaElementAttribute.h>
 
 daeElementRef
 domGles_texcombiner_commandAlpha_type::create(daeInt bytes)
@@ -29,11 +35,20 @@ domGles_texcombiner_commandAlpha_type::registerElement()
     
     _Meta = new daeMetaElement;
     _Meta->setName( "gles_texcombiner_commandAlpha_type" );
-	_Meta->setStaticPointerAddress(&domGles_texcombiner_commandAlpha_type::_Meta);
 	_Meta->registerConstructor(domGles_texcombiner_commandAlpha_type::create);
 
-	// Add elements: argument
-    _Meta->appendArrayElement(domGles_texcombiner_argumentAlpha_type::registerElement(),daeOffsetOf(domGles_texcombiner_commandAlpha_type,elemArgument_array),"argument"); 
+	daeMetaCMPolicy *cm = NULL;
+	daeMetaElementAttribute *mea = NULL;
+	cm = new daeMetaSequence( _Meta, cm, 0, 1, 1 );
+
+	mea = new daeMetaElementArrayAttribute( _Meta, cm, 0, 1, 3 );
+	mea->setName( "argument" );
+	mea->setOffset( daeOffsetOf(domGles_texcombiner_commandAlpha_type,elemArgument_array) );
+	mea->setElementType( domGles_texcombiner_argumentAlpha_type::registerElement() );
+	cm->appendChild( mea );
+	
+	cm->setMaxOrdinal( 0 );
+	_Meta->setCMRoot( cm );	
 
 	//	Add attribute: operator
  	{

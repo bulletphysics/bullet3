@@ -13,6 +13,12 @@
 
 #include <dae/daeDom.h>
 #include <dom/domInstance_camera.h>
+#include <dae/daeMetaCMPolicy.h>
+#include <dae/daeMetaSequence.h>
+#include <dae/daeMetaChoice.h>
+#include <dae/daeMetaGroup.h>
+#include <dae/daeMetaAny.h>
+#include <dae/daeMetaElementAttribute.h>
 
 daeElementRef
 domInstance_camera::create(daeInt bytes)
@@ -29,11 +35,18 @@ domInstance_camera::registerElement()
     
     _Meta = new daeMetaElement;
     _Meta->setName( "instance_camera" );
-	_Meta->setStaticPointerAddress(&domInstance_camera::_Meta);
 	_Meta->registerConstructor(domInstance_camera::create);
 
-	// Add elements: extra
-    _Meta->appendArrayElement(domExtra::registerElement(),daeOffsetOf(domInstance_camera,elemExtra_array));
+	daeMetaCMPolicy *cm = NULL;
+	daeMetaElementAttribute *mea = NULL;
+	cm = new daeMetaSequence( _Meta, cm, 0, 1, 1 );
+
+	mea = new daeMetaElementArrayAttribute( _Meta, cm, 0, 0, -1 );
+	mea->setName( "extra" );
+	mea->setOffset( daeOffsetOf(domInstance_camera,elemExtra_array) );
+	mea->setElementType( domExtra::registerElement() );
+	cm->appendChild( mea );
+	
 
 	//	Add attribute: url
  	{
@@ -43,6 +56,28 @@ domInstance_camera::registerElement()
 		ma->setOffset( daeOffsetOf( domInstance_camera , attrUrl ));
 		ma->setContainer( _Meta );
 		ma->setIsRequired( true );
+	
+		_Meta->appendAttribute(ma);
+	}
+
+	//	Add attribute: sid
+ 	{
+		daeMetaAttribute *ma = new daeMetaAttribute;
+		ma->setName( "sid" );
+		ma->setType( daeAtomicType::get("xsNCName"));
+		ma->setOffset( daeOffsetOf( domInstance_camera , attrSid ));
+		ma->setContainer( _Meta );
+	
+		_Meta->appendAttribute(ma);
+	}
+
+	//	Add attribute: name
+ 	{
+		daeMetaAttribute *ma = new daeMetaAttribute;
+		ma->setName( "name" );
+		ma->setType( daeAtomicType::get("xsNCName"));
+		ma->setOffset( daeOffsetOf( domInstance_camera , attrName ));
+		ma->setContainer( _Meta );
 	
 		_Meta->appendAttribute(ma);
 	}

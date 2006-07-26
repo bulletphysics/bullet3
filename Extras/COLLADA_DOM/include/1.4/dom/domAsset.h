@@ -56,14 +56,14 @@ public:
 		public:	//Accessors and Mutators
 			/**
 			 * Gets the value of this element.
-			 * @return a xsString of the value.
+			 * @return Returns a xsString of the value.
 			 */
 			xsString getValue() const { return _value; }
 			/**
 			 * Sets the _value of this element.
 			 * @param val The new value for this element.
 			 */
-			void setValue( xsString val ) { _value = val; }
+			void setValue( xsString val ) { *(daeStringRef*)&_value = val; }
 
 		protected:
 			/**
@@ -125,14 +125,14 @@ public:
 		public:	//Accessors and Mutators
 			/**
 			 * Gets the value of this element.
-			 * @return a xsString of the value.
+			 * @return Returns a xsString of the value.
 			 */
 			xsString getValue() const { return _value; }
 			/**
 			 * Sets the _value of this element.
 			 * @param val The new value for this element.
 			 */
-			void setValue( xsString val ) { _value = val; }
+			void setValue( xsString val ) { *(daeStringRef*)&_value = val; }
 
 		protected:
 			/**
@@ -194,14 +194,14 @@ public:
 		public:	//Accessors and Mutators
 			/**
 			 * Gets the value of this element.
-			 * @return a xsString of the value.
+			 * @return Returns a xsString of the value.
 			 */
 			xsString getValue() const { return _value; }
 			/**
 			 * Sets the _value of this element.
 			 * @param val The new value for this element.
 			 */
-			void setValue( xsString val ) { _value = val; }
+			void setValue( xsString val ) { *(daeStringRef*)&_value = val; }
 
 		protected:
 			/**
@@ -263,14 +263,14 @@ public:
 		public:	//Accessors and Mutators
 			/**
 			 * Gets the value of this element.
-			 * @return a xsString of the value.
+			 * @return Returns a xsString of the value.
 			 */
 			xsString getValue() const { return _value; }
 			/**
 			 * Sets the _value of this element.
 			 * @param val The new value for this element.
 			 */
-			void setValue( xsString val ) { _value = val; }
+			void setValue( xsString val ) { *(daeStringRef*)&_value = val; }
 
 		protected:
 			/**
@@ -501,14 +501,14 @@ public:
 	public:	//Accessors and Mutators
 		/**
 		 * Gets the value of this element.
-		 * @return a xsDateTime of the value.
+		 * @return Returns a xsDateTime of the value.
 		 */
 		xsDateTime getValue() const { return _value; }
 		/**
 		 * Sets the _value of this element.
 		 * @param val The new value for this element.
 		 */
-		void setValue( xsDateTime val ) { _value = val; }
+		void setValue( xsDateTime val ) { *(daeStringRef*)&_value = val; }
 
 	protected:
 		/**
@@ -570,14 +570,14 @@ public:
 	public:	//Accessors and Mutators
 		/**
 		 * Gets the value of this element.
-		 * @return a xsString of the value.
+		 * @return Returns a xsString of the value.
 		 */
 		xsString getValue() const { return _value; }
 		/**
 		 * Sets the _value of this element.
 		 * @param val The new value for this element.
 		 */
-		void setValue( xsString val ) { _value = val; }
+		void setValue( xsString val ) { *(daeStringRef*)&_value = val; }
 
 	protected:
 		/**
@@ -640,14 +640,14 @@ public:
 	public:	//Accessors and Mutators
 		/**
 		 * Gets the value of this element.
-		 * @return a xsDateTime of the value.
+		 * @return Returns a xsDateTime of the value.
 		 */
 		xsDateTime getValue() const { return _value; }
 		/**
 		 * Sets the _value of this element.
 		 * @param val The new value for this element.
 		 */
-		void setValue( xsDateTime val ) { _value = val; }
+		void setValue( xsDateTime val ) { *(daeStringRef*)&_value = val; }
 
 	protected:
 		/**
@@ -709,14 +709,14 @@ public:
 	public:	//Accessors and Mutators
 		/**
 		 * Gets the value of this element.
-		 * @return a xsString of the value.
+		 * @return Returns a xsString of the value.
 		 */
 		xsString getValue() const { return _value; }
 		/**
 		 * Sets the _value of this element.
 		 * @param val The new value for this element.
 		 */
-		void setValue( xsString val ) { _value = val; }
+		void setValue( xsString val ) { *(daeStringRef*)&_value = val; }
 
 	protected:
 		/**
@@ -778,14 +778,14 @@ public:
 	public:	//Accessors and Mutators
 		/**
 		 * Gets the value of this element.
-		 * @return a xsString of the value.
+		 * @return Returns a xsString of the value.
 		 */
 		xsString getValue() const { return _value; }
 		/**
 		 * Sets the _value of this element.
 		 * @param val The new value for this element.
 		 */
-		void setValue( xsString val ) { _value = val; }
+		void setValue( xsString val ) { *(daeStringRef*)&_value = val; }
 
 	protected:
 		/**
@@ -847,14 +847,14 @@ public:
 	public:	//Accessors and Mutators
 		/**
 		 * Gets the value of this element.
-		 * @return a xsString of the value.
+		 * @return Returns a xsString of the value.
 		 */
 		xsString getValue() const { return _value; }
 		/**
 		 * Sets the _value of this element.
 		 * @param val The new value for this element.
 		 */
-		void setValue( xsString val ) { _value = val; }
+		void setValue( xsString val ) { *(daeStringRef*)&_value = val; }
 
 	protected:
 		/**
@@ -930,7 +930,8 @@ public:
 		 * Sets the meter attribute.
 		 * @param atMeter The new value for the meter attribute.
 		 */
-		void setMeter( domFloat atMeter ) { attrMeter = atMeter; }
+		void setMeter( domFloat atMeter ) { attrMeter = atMeter;	
+	 _validAttributeArray[0] = true; }
 
 		/**
 		 * Gets the name attribute.
@@ -941,7 +942,8 @@ public:
 		 * Sets the name attribute.
 		 * @param atName The new value for the name attribute.
 		 */
-		void setName( xsNMTOKEN atName ) { attrName = atName; }
+		void setName( xsNMTOKEN atName ) { *(daeStringRef*)&attrName = atName;	
+	 _validAttributeArray[1] = true; }
 
 	protected:
 		/**

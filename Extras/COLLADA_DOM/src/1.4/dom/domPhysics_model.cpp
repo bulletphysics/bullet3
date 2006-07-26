@@ -13,6 +13,12 @@
 
 #include <dae/daeDom.h>
 #include <dom/domPhysics_model.h>
+#include <dae/daeMetaCMPolicy.h>
+#include <dae/daeMetaSequence.h>
+#include <dae/daeMetaChoice.h>
+#include <dae/daeMetaGroup.h>
+#include <dae/daeMetaAny.h>
+#include <dae/daeMetaElementAttribute.h>
 
 daeElementRef
 domPhysics_model::create(daeInt bytes)
@@ -29,15 +35,44 @@ domPhysics_model::registerElement()
     
     _Meta = new daeMetaElement;
     _Meta->setName( "physics_model" );
-	_Meta->setStaticPointerAddress(&domPhysics_model::_Meta);
 	_Meta->registerConstructor(domPhysics_model::create);
 
-	// Add elements: asset, rigid_body, rigid_constraint, instance_physics_model, extra
-    _Meta->appendElement(domAsset::registerElement(),daeOffsetOf(domPhysics_model,elemAsset));
-    _Meta->appendArrayElement(domRigid_body::registerElement(),daeOffsetOf(domPhysics_model,elemRigid_body_array));
-    _Meta->appendArrayElement(domRigid_constraint::registerElement(),daeOffsetOf(domPhysics_model,elemRigid_constraint_array));
-    _Meta->appendArrayElement(domInstance_physics_model::registerElement(),daeOffsetOf(domPhysics_model,elemInstance_physics_model_array));
-    _Meta->appendArrayElement(domExtra::registerElement(),daeOffsetOf(domPhysics_model,elemExtra_array));
+	daeMetaCMPolicy *cm = NULL;
+	daeMetaElementAttribute *mea = NULL;
+	cm = new daeMetaSequence( _Meta, cm, 0, 1, 1 );
+
+	mea = new daeMetaElementAttribute( _Meta, cm, 0, 0, 1 );
+	mea->setName( "asset" );
+	mea->setOffset( daeOffsetOf(domPhysics_model,elemAsset) );
+	mea->setElementType( domAsset::registerElement() );
+	cm->appendChild( mea );
+	
+	mea = new daeMetaElementArrayAttribute( _Meta, cm, 1, 0, -1 );
+	mea->setName( "rigid_body" );
+	mea->setOffset( daeOffsetOf(domPhysics_model,elemRigid_body_array) );
+	mea->setElementType( domRigid_body::registerElement() );
+	cm->appendChild( mea );
+	
+	mea = new daeMetaElementArrayAttribute( _Meta, cm, 2, 0, -1 );
+	mea->setName( "rigid_constraint" );
+	mea->setOffset( daeOffsetOf(domPhysics_model,elemRigid_constraint_array) );
+	mea->setElementType( domRigid_constraint::registerElement() );
+	cm->appendChild( mea );
+	
+	mea = new daeMetaElementArrayAttribute( _Meta, cm, 3, 0, -1 );
+	mea->setName( "instance_physics_model" );
+	mea->setOffset( daeOffsetOf(domPhysics_model,elemInstance_physics_model_array) );
+	mea->setElementType( domInstance_physics_model::registerElement() );
+	cm->appendChild( mea );
+	
+	mea = new daeMetaElementArrayAttribute( _Meta, cm, 4, 0, -1 );
+	mea->setName( "extra" );
+	mea->setOffset( daeOffsetOf(domPhysics_model,elemExtra_array) );
+	mea->setElementType( domExtra::registerElement() );
+	cm->appendChild( mea );
+	
+	cm->setMaxOrdinal( 4 );
+	_Meta->setCMRoot( cm );	
 
 	//	Add attribute: id
  	{

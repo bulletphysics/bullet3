@@ -460,6 +460,7 @@ daeResolverType::memoryToString(daeChar* src, daeChar* dst, daeInt dstSize)
 	{
 		// This URI was never successfully resolved, so write out it's original value
 		s = thisURI->getOriginalURI();
+		if ( s == NULL ) s = "";
 	}
 	else
 	{
@@ -471,6 +472,7 @@ daeResolverType::memoryToString(daeChar* src, daeChar* dst, daeInt dstSize)
 		{
 			// we will send back the original URI if we're pointing at ourselves
 			s = thisURI->getOriginalURI();
+			if ( s == NULL ) s = "";
 		}
 		else
 		{
@@ -478,17 +480,19 @@ daeResolverType::memoryToString(daeChar* src, daeChar* dst, daeInt dstSize)
 #if 1
 			// we will send back the full resolved URI
 			s = thisURI->getURI();
+			if ( s == NULL ) s = "";
 #else
 			// Makes the URI relative to the document being written, EXPERIMENTAL, not fully tested!!!
 			thisURI->makeRelativeTo(thisURI->getDocument()->getCollection()->getDocumentURI());
 			s = thisURI->getOriginalURI();
+			if ( s == NULL ) s = "";
 #endif
 		}
 	}
 	// Copy at most dstSize-1 characters, null terminate and return error if the string was too long
 	daeChar *d;
 	int i;
-	for(d = dst, i = 1;	*s != 0 && i<dstSize; s++, d++, i++)
+	for(d = dst, i = 1; *s != 0 && i<dstSize; s++, d++, i++)
 	{
 		// If the URI contains spaces, substitute %20
 		if(*s == ' ')
@@ -512,7 +516,7 @@ daeResolverType::memoryToString(daeChar* src, daeChar* dst, daeInt dstSize)
 		}
 	}
 	*d = 0;
-	if(*s == 0)
+	if( *s == 0)
 		return(true);
 	else
 		return(false);
@@ -594,7 +598,7 @@ daeStringRefType::stringToMemory(daeChar* srcChars, daeChar* dstMemory)
 daeBool
 daeEnumType::stringToMemory(daeChar* src, daeChar* dst )
 {
-	size_t index; 
+	size_t index(0); 
 	if ( _strings->find(src,index) == DAE_ERR_QUERY_NO_MATCH ) return false;
 	daeEnum val = _values->get( index );
 	*((daeEnum*)dst) = val;
@@ -618,7 +622,7 @@ daeEnumType::memoryToString(daeChar* src, daeChar* dst, daeInt dstSize)
 daeBool
 daeBoolType::stringToMemory(daeChar* srcChars, daeChar* dstMemory)
 {
-	if (strncmp(srcChars,"true",4)==0)
+	if (strncmp(srcChars,"true",4)==0 || strncmp(srcChars,"1",1)==0)
 		*((daeBool*)dstMemory) = true;
 	else
 		*((daeBool*)dstMemory) = false;

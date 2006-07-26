@@ -170,7 +170,8 @@ daeInt DAE::load(daeString name, daeString docBuffer)
 		registerFunc();
 
 	if ( !plugin || !database ) {
-		printf( "no plugin or database\n" );
+		//printf( "no plugin or database\n" );
+		daeErrorHandler::get()->handleError("no plugin or database\n");
 		return DAE_ERR_BACKEND_IO;
 	}
 

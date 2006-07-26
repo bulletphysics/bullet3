@@ -88,6 +88,32 @@ protected:
  */
 class domGles_texcombiner_commandRGB_type : public daeElement, public domGles_texcombiner_commandRGB_type_complexType
 {
+
+public:	//Accessors and Mutators
+	/**
+	 * Gets the operator attribute.
+	 * @return Returns a domGles_texcombiner_operatorRGB_enums of the operator attribute.
+	 */
+	domGles_texcombiner_operatorRGB_enums getOperator() const { return attrOperator; }
+	/**
+	 * Sets the operator attribute.
+	 * @param atOperator The new value for the operator attribute.
+	 */
+	void setOperator( domGles_texcombiner_operatorRGB_enums atOperator ) { attrOperator = atOperator;
+	 _validAttributeArray[0] = true; }
+
+	/**
+	 * Gets the scale attribute.
+	 * @return Returns a xsFloat of the scale attribute.
+	 */
+	xsFloat getScale() const { return attrScale; }
+	/**
+	 * Sets the scale attribute.
+	 * @param atScale The new value for the scale attribute.
+	 */
+	void setScale( xsFloat atScale ) { attrScale = atScale;
+	 _validAttributeArray[1] = true; }
+
 protected:
 	/**
 	 * Constructor

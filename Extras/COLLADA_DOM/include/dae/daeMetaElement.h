@@ -19,10 +19,10 @@
 #include <dae/daeElement.h>
 #include <dae/daeMetaAttribute.h>
 
+class daeMetaCMPolicy;
+class daeMetaElementArrayAttribute;
+
 typedef daeElementRef (*daeElementConstructFunctionPtr)(daeInt bytes);
-class daeMetaElement;
-typedef daeSmartRef<daeMetaElement> daeMetaElementRef;
-typedef daeTArray<daeMetaElementRef> daeMetaElementRefArray;
 
 /**
  * Each instance of the @c daeMetaElement class describes a C++ COLLADA dom
@@ -45,43 +45,33 @@ typedef daeTArray<daeMetaElementRef> daeMetaElementRefArray;
 class daeMetaElement : public daeElement
 {
 protected:
-	daeStringRef					_name;
+	daeStringRef						_name;
 
-	daeElementConstructFunctionPtr	_createFunc;
-	daeInt							_minOccurs;
-	daeInt							_maxOccurs;
-	daeStringRef					_ref;
-	daeBool							_isSequence;
-	daeBool							_isChoice;
-	daeBool							_needsResolve;
-	daeInt							_elementSize;
+	daeElementConstructFunctionPtr		_createFunc;
+	daeBool								_needsResolve;
+	daeInt								_elementSize;
 	
-	daeMetaElementAttributeArray		_metaElements;
 	daeMetaAttributeRefArray			_metaAttributes;
 	daeMetaAttributeRef					_metaValue;
 	daeMetaElementArrayAttribute*		_metaContents;
+	daeMetaArrayAttribute*				_metaContentsOrder;
+
 	daeMetaElement *					_metaIntegration;
 	daeMetaAttributeRef					_metaID;
-
-	daeMetaElement*						_parent;
-
-	daeMetaElement**					_staticPointerAddress;
 
 	daeMetaAttributePtrArray			_resolvers;
 
 	daeBool								_isTrackableForQueries;
 	daeBool								_usesStringContents;
 
-	daeBool							_isTransparent;
-	daeBool							_isAbstract;
-	daeBool							_allowsAny;
+	daeBool								_isTransparent;
+	daeBool								_isAbstract;
+	daeBool								_allowsAny;
+	daeBool								_innerClass;
 	
-	static daeMetaElementRefArray _metas;
+	static daeTArray<daeSmartRef<daeMetaElement> >		_metas;
 
-	daeStringArray						_otherChildren;
-	daeStringArray						_otherChildrenTypes;
-	daeTArray<daeMetaElementAttribute*> _otherChildrenContainer;
-	
+    daeMetaCMPolicy *					_contentModel;	
 
 public:
 	/**
@@ -95,31 +85,17 @@ public:
 	~daeMetaElement();
 
 public: // public accessors
+	
 	/**
-	 * Gets the number of possible children of elements of this type that don't actually
-	 * belong to this type.
-	 * @return Returns the number of other possible children.
+	 * Determines if elements of this type is an inner class.
+	 * @return Returns true if this element type is an inner class.
 	 */
-	size_t getPossibleChildrenCount() { return _otherChildren.getCount(); }
+	daeBool getIsInnerClass() { return _innerClass; }
 	/**
-	 * Gets the name of the possible child specified.
-	 * @param index Index into the _otherChildren array.
-	 * @return Returns the name of the possible child specified.
+	 * Sets if elements of this type are inner classes.
+	 * @param abstract True if this type is an inner class.
 	 */
-	daeString getPossibleChildName(daeInt index) { return _otherChildren.get(index); }
-	/**
-	 * Gets the containing element for the possible child specified.
-	 * @param index Index into the _otherChildrenContainer array.
-	 * @return Returns the containing element for the possible child specified.
-	 */
-	daeMetaElementAttribute* getPossibleChildContainer(daeInt index) { return _otherChildrenContainer.get(index); }
-	/**
-	 * Gets the type of the possible child specified.
-	 * @param index Index into the _otherChildren array.
-	 * @return Returns a string of the type of the possible child specified.
-	 */
-	daeString getPossibleChildType(daeInt index) { return _otherChildrenTypes.get(index); }
-
+	void setIsInnerClass( daeBool ic ) { _innerClass = ic; }
 	/**
 	 * Determines if elements of this type can be placed in the object model.
 	 * @return Returns true if this element type is abstract, false otherwise.
@@ -210,25 +186,6 @@ public: // public accessors
 	daeMetaAttribute* getIDAttribute() { return _metaID; }
 
 	/**
-	 * Gets the @c daeMetaElement associated with a child element of a given
-	 * element type.
-	 * @param elementName Name of the element to find as a child of @c this.
-	 * @return Returns the @c daeMetaElement describing the potential child element, or
-	 * NULL if no such child type exists in the context of this element.
-	 */
-	daeMetaElement* findChild(daeString elementName);
-
-	/**
-	 * Gets the container of this element type as defined by the COLLADA's XML
-	 * schema.  This parent type controls where this element
-	 * can be directly inlined inside of another element.
-	 * Although an element can be referred to in multiple places, it is only
-	 * included in one; thus a single parent.
-	 * @return Returns the parent @c daeMetaElement.
-	 */
-	daeMetaElement* getParent() { return _parent; }
-
-	/**
 	 * Gets the name of this element type.
 	 * @return Returns the name of this element type.
 	 */
@@ -239,14 +196,6 @@ public: // public accessors
 	 * @param s String name	to set.
 	 */
 	void setName(daeString s) { _name = s; }
-
-	/**
-	 * Gets the array of element attributes associated with this element type.
-	 * @return  Returns the array of potential child elements in the XML COLLADA
-	 * hierarchy.
-	 */
-	daeMetaElementAttributeArray& getMetaElements() {
-		return _metaElements; }
 
 	/**
 	 * Gets the array of attributes that represent URI fields that need
@@ -265,14 +214,6 @@ public: // public accessors
 	 */
 	daeMetaAttributeRefArray& getMetaAttributes() {
 		return _metaAttributes; }
-
-	/**
-	 * Gets the array of element attributes associated with this element type.
-	 * @returns Returns the array of potential child elements in the XML COLLADA
-	 * hierarchy.
-	 */
-	daeMetaElementAttributeArray& getMetaElementArray() {
-		return _metaElements; }
 
 	/**
 	 * Gets the attribute which has a name as provided by the <tt><i>s</i></tt> parameter. 
@@ -297,13 +238,19 @@ public: // public accessors
 	
 public: 
 	/**
-	 * Resisters with the reflective object system that the dom class described by this @c daeMetaElement
+	 * Registers with the reflective object system that the dom class described by this @c daeMetaElement
 	 * contains a <tt><i>_contents</i></tt> array. This method is @em only for @c daeMetaElement contstuction, and
 	 * should only be called by the system as it sets up the Reflective Object System.
-	 * @param offset Byte offset for the contents field in the C++
-	 * element class.
+	 * @param offset Byte offset for the contents field in the C++ element class.
 	 */
 	void addContents(daeInt offset);
+	/**
+	 * Registers with the reflective object system the array that stores the _contents ordering. This method is @em 
+	 * only for @c daeMetaElement contstuction, and should only be called by the system as it sets up the Reflective 
+	 * Object System.
+	 * @param offset Byte offset for the contents order array in the C++ element class.
+	 */
+	void addContentsOrder( daeInt offset );
 
 	/**
 	 * Gets the attribute associated with the contents meta information.
@@ -313,66 +260,12 @@ public:
 	daeMetaElementArrayAttribute* getContents() { return _metaContents; }
 
 	/**
-	 * Appends another element type to be a potential child
-	 * element of this element type.
-	 * @param metaElement @c daeMetaElement of the potential child element.
-	 * @param offset Byte offset where the corresponding C++ field lives
-	 * in each c++ class instance for this element type.
-	 * @param name The name for this attribute if the type is complex, if none is
-	 * specified, the name of the @c daeMetaElement will be used.
-	 */
-	void appendElement(daeMetaElement* metaElement, daeInt offset, daeString name=NULL);
-
-	/**
-	 * Appends the potential child element
-	 * as a list of potential child elements rather than as a singleton.
-	 * @param metaElement @c daeMetaElement of the potential child element.
-	 * @param offset Byte offset where the corresponding C++ field lives
-	 * in each C++ class instance for this element type.  In this case the
-	 * C++ field will be an array of elements rather than merely a pointer to
-	 * one.
-	 * @param name The name for this attribute if the type is complex, if none is
-	 * specified, the name of the metaElement will be used.
-	 * @note This function is the same as @c appendElement(), except that it appends the potential child element
-	 * as a list of potential child elements rather than as a singleton.
-	 */
-	void appendArrayElement(daeMetaElement* metaElement, daeInt offset, daeString name=NULL);
-
-	/**
 	 * Appends a @c daeMetaAttribute that represents a field corresponding to an
 	 * XML attribute to the C++ version of this element type.
 	 * @param attr Attribute to append to this element types list
 	 * of potential attributes.
 	 */
 	void appendAttribute(daeMetaAttribute* attr);
-
-	/**
-	 * Appends a possible child and maps the name to the actual container.
-	 * @param name The name of the child element.
-	 * @param cont Pointer to the @c daeMetaElementAttribute which contains the element.
-	 * @param type The type name of the possible child.
-	 */
-	void appendPossibleChild( daeString name, daeMetaElementAttribute* cont, daeString type = NULL );
-
-	/**
-	 * Sets the address where the static pointer lives for this element type's
-	 * @c daeMetaElement.  For instance, <tt> daeNode::_Meta </tt> will point to its 
-	 * corresponding @c daeMetaElement.
-	 * If the @c daeMetaElement is deleted independently, this pointer is automatically set to NULL.
-	 * @param addr Address of the storage for the pointer to the @c daeMetaElement.
-	 */
-	void setStaticPointerAddress(daeMetaElement** addr) {
-		_staticPointerAddress = addr; }
-
-	
-	/**
-	 * Gets the address where the static pointer lives for this element type's
-	 * @c daeMetaElement.  For instance, <tt> daeNode::_Meta </tt> will point to its 
-	 * corresponding @c daeMetaElement.
-	 * If the @c daeMetaElement is deleted independently, this pointer is automatically set to NULL.
-	 * @return Returns the address of the storage for the pointer to the @c daeMetaElement.
-	 */
-	daeMetaElement** getStaticPointerAddress() { return _staticPointerAddress;}
 
 	/**
 	 * Registers the function that can construct a C++ instance
@@ -397,6 +290,7 @@ public:
 	 * including factory creation.
 	 */
 	void validate();
+	
 	/**
 	 * Places a child element into the <tt><i>parent</i></tt> element where the
 	 * calling object is the @c daeMetaElement for the parent element.
@@ -404,7 +298,50 @@ public:
 	 * @param child Child element to place in the parent.
 	 * @return Returns true if the operation was successful, false otherwise.
 	 */
-	daeBool place(daeElementRef parent, daeElementRef child);
+	daeBool place(daeElement *parent, daeElement *child, daeUInt *ordinal = NULL);
+	/**
+	 * Places a child element into the <tt><i>parent</i></tt> element at a specific location
+	 * where the calling object is the @c daeMetaElement for the parent element.
+	 * @param index The location in the contents array to insert.
+	 * @param parent Element to act as the container.
+	 * @param child Child element to place in the parent.
+	 * @return Returns true if the operation was successful, false otherwise.
+	 * @note This should only be called on elements that have a _contents array. Elements without
+	 * a _contents array will be placed normally.
+	 */
+	daeBool placeAt( daeInt index, daeElement *parent, daeElement *child );
+	/**
+	 * Places a child element into the <tt><i>parent</i></tt> element at a specific location which is right
+	 * before the marker element.
+	 * @param marker The element location in the contents array to insert before.
+	 * @param parent Element to act as the container.
+	 * @param child Child element to place in the parent.
+	 * @return Returns true if the operation was successful, false otherwise.
+	 */
+	daeBool placeBefore( daeElement* marker, daeElement *parent, daeElement *child, daeUInt *ordinal = NULL );
+	/**
+	 * Places a child element into the <tt><i>parent</i></tt> element at a specific location which is right
+	 * after the marker element.
+	 * @param marker The element location in the contents array to insert after.
+	 * @param parent Element to act as the container.
+	 * @param child Child element to place in the parent.
+	 * @return Returns true if the operation was successful, false otherwise.
+	 */
+	daeBool placeAfter( daeElement* marker, daeElement *parent, daeElement *child, daeUInt *ordinal = NULL );
+
+	/**
+	 * Removes a child element from its parent element.
+	 * @param parent Element That is the parent.
+	 * @param child Child element to remove.
+	 * @return Returns true if the operation was successful, false otherwise.
+	 */
+	daeBool remove( daeElement *parent, daeElement *child );
+	/**
+	 * Gets all of the children from an element of this type.
+	 * @param parent The element that you want to get the children from.
+	 * @param array The return value.  An elementref array to append this element's children to.
+	 */
+	void getChildren( daeElement* parent, daeElementRefArray &array );
 
 	/**
 	 * Invokes the factory element creation routine set by @c registerConstructor() 
@@ -425,35 +362,29 @@ public:
 	daeElementRef create(daeString childElementTypeName);
 
 	/**
-	 * Gets the meta information for a given subelement
-	 * @param s Name of the child element type to look up.
-	 * @return Returns the meta information for a given subelement.
+	 * Gets the root of the content model policy tree.
+	 * @return Returns the root element of the tree of content model policy elements.
 	 */
-	daeMetaElement* getChildMetaElement(daeString s);
-
+	daeMetaCMPolicy *getCMRoot()  { return _contentModel; }
 	/**
-	 * Gets the meta information for a given subelement
-	 * @param s Name of the child element type to look up.
-	 * @return Returns the meta information for a given subelement.
+	 * Sets the root of the content model policy tree.
+	 * @param cm The root element of the tree of content model policy elements.
 	 */
-	daeMetaElementAttribute* getChildMetaElementAttribute(daeString s);
+	void setCMRoot( daeMetaCMPolicy *cm ) { _contentModel = cm; }
 
 public:
-	/**
-	 * Unused
-	 */
-	static daeMetaElement* _Schema;
-public:
-	/**
-	 * Empty no-op function.
-	 */
-	static void initializeSchemaMeta();
 	
 	/**
 	 * Releases all of the meta information contained in @c daeMetaElements.
 	 */
 	static void releaseMetas();
+
+	static const daeTArray<daeSmartRef<daeMetaElement> > &getAllMetas() { return _metas; }
 };
+
+typedef daeSmartRef<daeMetaElement> daeMetaElementRef;
+typedef daeTArray<daeMetaElementRef> daeMetaElementRefArray;
+
 #endif //__DAE_META_ELEMENT_H__
 
 

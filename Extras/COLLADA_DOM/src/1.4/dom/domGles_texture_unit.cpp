@@ -13,6 +13,12 @@
 
 #include <dae/daeDom.h>
 #include <dom/domGles_texture_unit.h>
+#include <dae/daeMetaCMPolicy.h>
+#include <dae/daeMetaSequence.h>
+#include <dae/daeMetaChoice.h>
+#include <dae/daeMetaGroup.h>
+#include <dae/daeMetaAny.h>
+#include <dae/daeMetaElementAttribute.h>
 
 daeElementRef
 domGles_texture_unit::create(daeInt bytes)
@@ -29,13 +35,38 @@ domGles_texture_unit::registerElement()
     
     _Meta = new daeMetaElement;
     _Meta->setName( "gles_texture_unit" );
-	_Meta->setStaticPointerAddress(&domGles_texture_unit::_Meta);
 	_Meta->registerConstructor(domGles_texture_unit::create);
 
-	// Add elements: surface, sampler_state, texcoord
-    _Meta->appendElement(domGles_texture_unit::domSurface::registerElement(),daeOffsetOf(domGles_texture_unit,elemSurface));
-    _Meta->appendElement(domGles_texture_unit::domSampler_state::registerElement(),daeOffsetOf(domGles_texture_unit,elemSampler_state));
-    _Meta->appendElement(domGles_texture_unit::domTexcoord::registerElement(),daeOffsetOf(domGles_texture_unit,elemTexcoord));
+	daeMetaCMPolicy *cm = NULL;
+	daeMetaElementAttribute *mea = NULL;
+	cm = new daeMetaSequence( _Meta, cm, 0, 1, 1 );
+
+	mea = new daeMetaElementAttribute( _Meta, cm, 0, 0, 1 );
+	mea->setName( "surface" );
+	mea->setOffset( daeOffsetOf(domGles_texture_unit,elemSurface) );
+	mea->setElementType( domGles_texture_unit::domSurface::registerElement() );
+	cm->appendChild( mea );
+	
+	mea = new daeMetaElementAttribute( _Meta, cm, 1, 0, 1 );
+	mea->setName( "sampler_state" );
+	mea->setOffset( daeOffsetOf(domGles_texture_unit,elemSampler_state) );
+	mea->setElementType( domGles_texture_unit::domSampler_state::registerElement() );
+	cm->appendChild( mea );
+	
+	mea = new daeMetaElementAttribute( _Meta, cm, 2, 0, 1 );
+	mea->setName( "texcoord" );
+	mea->setOffset( daeOffsetOf(domGles_texture_unit,elemTexcoord) );
+	mea->setElementType( domGles_texture_unit::domTexcoord::registerElement() );
+	cm->appendChild( mea );
+	
+	mea = new daeMetaElementArrayAttribute( _Meta, cm, 3, 0, -1 );
+	mea->setName( "extra" );
+	mea->setOffset( daeOffsetOf(domGles_texture_unit,elemExtra_array) );
+	mea->setElementType( domExtra::registerElement() );
+	cm->appendChild( mea );
+	
+	cm->setMaxOrdinal( 3 );
+	_Meta->setCMRoot( cm );	
 
 	//	Add attribute: sid
  	{
@@ -70,9 +101,9 @@ domGles_texture_unit::domSurface::registerElement()
     
     _Meta = new daeMetaElement;
     _Meta->setName( "surface" );
-	_Meta->setStaticPointerAddress(&domGles_texture_unit::domSurface::_Meta);
 	_Meta->registerConstructor(domGles_texture_unit::domSurface::create);
 
+	_Meta->setIsInnerClass( true );
 	//	Add attribute: _value
  	{
 		daeMetaAttribute *ma = new daeMetaAttribute;
@@ -105,9 +136,9 @@ domGles_texture_unit::domSampler_state::registerElement()
     
     _Meta = new daeMetaElement;
     _Meta->setName( "sampler_state" );
-	_Meta->setStaticPointerAddress(&domGles_texture_unit::domSampler_state::_Meta);
 	_Meta->registerConstructor(domGles_texture_unit::domSampler_state::create);
 
+	_Meta->setIsInnerClass( true );
 	//	Add attribute: _value
  	{
 		daeMetaAttribute *ma = new daeMetaAttribute;
@@ -140,9 +171,9 @@ domGles_texture_unit::domTexcoord::registerElement()
     
     _Meta = new daeMetaElement;
     _Meta->setName( "texcoord" );
-	_Meta->setStaticPointerAddress(&domGles_texture_unit::domTexcoord::_Meta);
 	_Meta->registerConstructor(domGles_texture_unit::domTexcoord::create);
 
+	_Meta->setIsInnerClass( true );
 
 	//	Add attribute: semantic
  	{

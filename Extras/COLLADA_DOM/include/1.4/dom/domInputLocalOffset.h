@@ -69,7 +69,7 @@ public:	//Accessors and Mutators
 	 * Sets the semantic attribute.
 	 * @param atSemantic The new value for the semantic attribute.
 	 */
-	void setSemantic( xsNMTOKEN atSemantic ) { attrSemantic = atSemantic; }
+	void setSemantic( xsNMTOKEN atSemantic ) { *(daeStringRef*)&attrSemantic = atSemantic; }
 
 	/**
 	 * Gets the source attribute.
@@ -122,6 +122,61 @@ protected:
  */
 class domInputLocalOffset : public daeElement, public domInputLocalOffset_complexType
 {
+
+public:	//Accessors and Mutators
+	/**
+	 * Gets the offset attribute.
+	 * @return Returns a domUint of the offset attribute.
+	 */
+	domUint getOffset() const { return attrOffset; }
+	/**
+	 * Sets the offset attribute.
+	 * @param atOffset The new value for the offset attribute.
+	 */
+	void setOffset( domUint atOffset ) { attrOffset = atOffset;
+	 _validAttributeArray[0] = true; }
+
+	/**
+	 * Gets the semantic attribute.
+	 * @return Returns a xsNMTOKEN of the semantic attribute.
+	 */
+	xsNMTOKEN getSemantic() const { return attrSemantic; }
+	/**
+	 * Sets the semantic attribute.
+	 * @param atSemantic The new value for the semantic attribute.
+	 */
+	void setSemantic( xsNMTOKEN atSemantic ) { *(daeStringRef*)&attrSemantic = atSemantic;
+	 _validAttributeArray[1] = true; }
+
+	/**
+	 * Gets the source attribute.
+	 * @return Returns a domURIFragmentType reference of the source attribute.
+	 */
+	domURIFragmentType &getSource() { return attrSource; }
+	/**
+	 * Gets the source attribute.
+	 * @return Returns a constant domURIFragmentType reference of the source attribute.
+	 */
+	const domURIFragmentType &getSource() const { return attrSource; }
+	/**
+	 * Sets the source attribute.
+	 * @param atSource The new value for the source attribute.
+	 */
+	void setSource( const domURIFragmentType &atSource ) { attrSource.setURI( atSource.getURI() );
+	 _validAttributeArray[2] = true; }
+
+	/**
+	 * Gets the set attribute.
+	 * @return Returns a domUint of the set attribute.
+	 */
+	domUint getSet() const { return attrSet; }
+	/**
+	 * Sets the set attribute.
+	 * @param atSet The new value for the set attribute.
+	 */
+	void setSet( domUint atSet ) { attrSet = atSet;
+	 _validAttributeArray[3] = true; }
+
 protected:
 	/**
 	 * Constructor

@@ -79,6 +79,20 @@ protected:
  */
 class domGlsl_setparam_simple : public daeElement, public domGlsl_setparam_simple_complexType
 {
+
+public:	//Accessors and Mutators
+	/**
+	 * Gets the ref attribute.
+	 * @return Returns a domGlsl_identifier of the ref attribute.
+	 */
+	domGlsl_identifier getRef() const { return attrRef; }
+	/**
+	 * Sets the ref attribute.
+	 * @param atRef The new value for the ref attribute.
+	 */
+	void setRef( domGlsl_identifier atRef ) { attrRef = atRef;
+	 _validAttributeArray[0] = true; }
+
 protected:
 	/**
 	 * Constructor

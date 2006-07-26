@@ -13,6 +13,12 @@
 
 #include <dae/daeDom.h>
 #include <dom/domSpline.h>
+#include <dae/daeMetaCMPolicy.h>
+#include <dae/daeMetaSequence.h>
+#include <dae/daeMetaChoice.h>
+#include <dae/daeMetaGroup.h>
+#include <dae/daeMetaAny.h>
+#include <dae/daeMetaElementAttribute.h>
 
 daeElementRef
 domSpline::create(daeInt bytes)
@@ -29,13 +35,32 @@ domSpline::registerElement()
     
     _Meta = new daeMetaElement;
     _Meta->setName( "spline" );
-	_Meta->setStaticPointerAddress(&domSpline::_Meta);
 	_Meta->registerConstructor(domSpline::create);
 
-	// Add elements: source, control_vertices, extra
-    _Meta->appendArrayElement(domSource::registerElement(),daeOffsetOf(domSpline,elemSource_array));
-    _Meta->appendElement(domSpline::domControl_vertices::registerElement(),daeOffsetOf(domSpline,elemControl_vertices));
-    _Meta->appendArrayElement(domExtra::registerElement(),daeOffsetOf(domSpline,elemExtra_array));
+	daeMetaCMPolicy *cm = NULL;
+	daeMetaElementAttribute *mea = NULL;
+	cm = new daeMetaSequence( _Meta, cm, 0, 1, 1 );
+
+	mea = new daeMetaElementArrayAttribute( _Meta, cm, 0, 1, -1 );
+	mea->setName( "source" );
+	mea->setOffset( daeOffsetOf(domSpline,elemSource_array) );
+	mea->setElementType( domSource::registerElement() );
+	cm->appendChild( mea );
+	
+	mea = new daeMetaElementAttribute( _Meta, cm, 1, 1, 1 );
+	mea->setName( "control_vertices" );
+	mea->setOffset( daeOffsetOf(domSpline,elemControl_vertices) );
+	mea->setElementType( domSpline::domControl_vertices::registerElement() );
+	cm->appendChild( mea );
+	
+	mea = new daeMetaElementArrayAttribute( _Meta, cm, 2, 0, -1 );
+	mea->setName( "extra" );
+	mea->setOffset( daeOffsetOf(domSpline,elemExtra_array) );
+	mea->setElementType( domExtra::registerElement() );
+	cm->appendChild( mea );
+	
+	cm->setMaxOrdinal( 2 );
+	_Meta->setCMRoot( cm );	
 
 	//	Add attribute: closed
  	{
@@ -71,12 +96,27 @@ domSpline::domControl_vertices::registerElement()
     
     _Meta = new daeMetaElement;
     _Meta->setName( "control_vertices" );
-	_Meta->setStaticPointerAddress(&domSpline::domControl_vertices::_Meta);
 	_Meta->registerConstructor(domSpline::domControl_vertices::create);
 
-	// Add elements: input, extra
-    _Meta->appendArrayElement(domInputLocal::registerElement(),daeOffsetOf(domSpline::domControl_vertices,elemInput_array),"input"); 
-    _Meta->appendArrayElement(domExtra::registerElement(),daeOffsetOf(domSpline::domControl_vertices,elemExtra_array));
+	_Meta->setIsInnerClass( true );
+	daeMetaCMPolicy *cm = NULL;
+	daeMetaElementAttribute *mea = NULL;
+	cm = new daeMetaSequence( _Meta, cm, 0, 1, 1 );
+
+	mea = new daeMetaElementArrayAttribute( _Meta, cm, 0, 1, -1 );
+	mea->setName( "input" );
+	mea->setOffset( daeOffsetOf(domSpline::domControl_vertices,elemInput_array) );
+	mea->setElementType( domInputLocal::registerElement() );
+	cm->appendChild( mea );
+	
+	mea = new daeMetaElementArrayAttribute( _Meta, cm, 1, 0, -1 );
+	mea->setName( "extra" );
+	mea->setOffset( daeOffsetOf(domSpline::domControl_vertices,elemExtra_array) );
+	mea->setElementType( domExtra::registerElement() );
+	cm->appendChild( mea );
+	
+	cm->setMaxOrdinal( 1 );
+	_Meta->setCMRoot( cm );	
 	
 	
 	_Meta->setElementSize(sizeof(domSpline::domControl_vertices));

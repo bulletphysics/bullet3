@@ -13,6 +13,12 @@
 
 #include <dae/daeDom.h>
 #include <dom/domParam.h>
+#include <dae/daeMetaCMPolicy.h>
+#include <dae/daeMetaSequence.h>
+#include <dae/daeMetaChoice.h>
+#include <dae/daeMetaGroup.h>
+#include <dae/daeMetaAny.h>
+#include <dae/daeMetaElementAttribute.h>
 
 daeElementRef
 domParam::create(daeInt bytes)
@@ -29,7 +35,6 @@ domParam::registerElement()
     
     _Meta = new daeMetaElement;
     _Meta->setName( "param" );
-	_Meta->setStaticPointerAddress(&domParam::_Meta);
 	_Meta->registerConstructor(domParam::create);
 
 	//	Add attribute: _value

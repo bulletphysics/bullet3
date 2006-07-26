@@ -13,6 +13,12 @@
 
 #include <dae/daeDom.h>
 #include <dom/domMatrix.h>
+#include <dae/daeMetaCMPolicy.h>
+#include <dae/daeMetaSequence.h>
+#include <dae/daeMetaChoice.h>
+#include <dae/daeMetaGroup.h>
+#include <dae/daeMetaAny.h>
+#include <dae/daeMetaElementAttribute.h>
 
 daeElementRef
 domMatrix::create(daeInt bytes)
@@ -29,7 +35,6 @@ domMatrix::registerElement()
     
     _Meta = new daeMetaElement;
     _Meta->setName( "matrix" );
-	_Meta->setStaticPointerAddress(&domMatrix::_Meta);
 	_Meta->registerConstructor(domMatrix::create);
 
 	//	Add attribute: _value

@@ -13,6 +13,12 @@
 
 #include <dae/daeDom.h>
 #include <dom/domImage.h>
+#include <dae/daeMetaCMPolicy.h>
+#include <dae/daeMetaSequence.h>
+#include <dae/daeMetaChoice.h>
+#include <dae/daeMetaGroup.h>
+#include <dae/daeMetaAny.h>
+#include <dae/daeMetaElementAttribute.h>
 
 daeElementRef
 domImage::create(daeInt bytes)
@@ -29,16 +35,47 @@ domImage::registerElement()
     
     _Meta = new daeMetaElement;
     _Meta->setName( "image" );
-	_Meta->setStaticPointerAddress(&domImage::_Meta);
 	_Meta->registerConstructor(domImage::create);
 
-	// Add elements: asset, data, init_from, extra
-    _Meta->appendElement(domAsset::registerElement(),daeOffsetOf(domImage,elemAsset));
-    _Meta->appendElement(domImage::domData::registerElement(),daeOffsetOf(domImage,elemData));
-    _Meta->appendElement(domImage::domInit_from::registerElement(),daeOffsetOf(domImage,elemInit_from));
-    _Meta->appendArrayElement(domExtra::registerElement(),daeOffsetOf(domImage,elemExtra_array));
+	daeMetaCMPolicy *cm = NULL;
+	daeMetaElementAttribute *mea = NULL;
+	cm = new daeMetaSequence( _Meta, cm, 0, 1, 1 );
+
+	mea = new daeMetaElementAttribute( _Meta, cm, 0, 0, 1 );
+	mea->setName( "asset" );
+	mea->setOffset( daeOffsetOf(domImage,elemAsset) );
+	mea->setElementType( domAsset::registerElement() );
+	cm->appendChild( mea );
+	
+	cm = new daeMetaChoice( _Meta, cm, 1, 1, 1 );
+
+	mea = new daeMetaElementAttribute( _Meta, cm, 0, 1, 1 );
+	mea->setName( "data" );
+	mea->setOffset( daeOffsetOf(domImage,elemData) );
+	mea->setElementType( domImage::domData::registerElement() );
+	cm->appendChild( mea );
+	
+	mea = new daeMetaElementAttribute( _Meta, cm, 0, 1, 1 );
+	mea->setName( "init_from" );
+	mea->setOffset( daeOffsetOf(domImage,elemInit_from) );
+	mea->setElementType( domImage::domInit_from::registerElement() );
+	cm->appendChild( mea );
+	
+	cm->setMaxOrdinal( 0 );
+	cm->getParent()->appendChild( cm );
+	cm = cm->getParent();
+	
+	mea = new daeMetaElementArrayAttribute( _Meta, cm, 2, 0, -1 );
+	mea->setName( "extra" );
+	mea->setOffset( daeOffsetOf(domImage,elemExtra_array) );
+	mea->setElementType( domExtra::registerElement() );
+	cm->appendChild( mea );
+	
+	cm->setMaxOrdinal( 2 );
+	_Meta->setCMRoot( cm );	
 	// Ordered list of sub-elements
     _Meta->addContents(daeOffsetOf(domImage,_contents));
+    _Meta->addContentsOrder(daeOffsetOf(domImage,_contentsOrder));
 
 
 	//	Add attribute: id
@@ -130,9 +167,9 @@ domImage::domData::registerElement()
     
     _Meta = new daeMetaElement;
     _Meta->setName( "data" );
-	_Meta->setStaticPointerAddress(&domImage::domData::_Meta);
 	_Meta->registerConstructor(domImage::domData::create);
 
+	_Meta->setIsInnerClass( true );
 	//	Add attribute: _value
  	{
 		daeMetaAttribute *ma = new daeMetaArrayAttribute;
@@ -166,9 +203,9 @@ domImage::domInit_from::registerElement()
     
     _Meta = new daeMetaElement;
     _Meta->setName( "init_from" );
-	_Meta->setStaticPointerAddress(&domImage::domInit_from::_Meta);
 	_Meta->registerConstructor(domImage::domInit_from::create);
 
+	_Meta->setIsInnerClass( true );
 	//	Add attribute: _value
  	{
 		daeMetaAttribute *ma = new daeMetaAttribute;

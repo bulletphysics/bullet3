@@ -13,6 +13,12 @@
 
 #include <dae/daeDom.h>
 #include <dom/domLibrary_cameras.h>
+#include <dae/daeMetaCMPolicy.h>
+#include <dae/daeMetaSequence.h>
+#include <dae/daeMetaChoice.h>
+#include <dae/daeMetaGroup.h>
+#include <dae/daeMetaAny.h>
+#include <dae/daeMetaElementAttribute.h>
 
 daeElementRef
 domLibrary_cameras::create(daeInt bytes)
@@ -29,13 +35,32 @@ domLibrary_cameras::registerElement()
     
     _Meta = new daeMetaElement;
     _Meta->setName( "library_cameras" );
-	_Meta->setStaticPointerAddress(&domLibrary_cameras::_Meta);
 	_Meta->registerConstructor(domLibrary_cameras::create);
 
-	// Add elements: asset, camera, extra
-    _Meta->appendElement(domAsset::registerElement(),daeOffsetOf(domLibrary_cameras,elemAsset));
-    _Meta->appendArrayElement(domCamera::registerElement(),daeOffsetOf(domLibrary_cameras,elemCamera_array));
-    _Meta->appendArrayElement(domExtra::registerElement(),daeOffsetOf(domLibrary_cameras,elemExtra_array));
+	daeMetaCMPolicy *cm = NULL;
+	daeMetaElementAttribute *mea = NULL;
+	cm = new daeMetaSequence( _Meta, cm, 0, 1, 1 );
+
+	mea = new daeMetaElementAttribute( _Meta, cm, 0, 0, 1 );
+	mea->setName( "asset" );
+	mea->setOffset( daeOffsetOf(domLibrary_cameras,elemAsset) );
+	mea->setElementType( domAsset::registerElement() );
+	cm->appendChild( mea );
+	
+	mea = new daeMetaElementArrayAttribute( _Meta, cm, 1, 1, -1 );
+	mea->setName( "camera" );
+	mea->setOffset( daeOffsetOf(domLibrary_cameras,elemCamera_array) );
+	mea->setElementType( domCamera::registerElement() );
+	cm->appendChild( mea );
+	
+	mea = new daeMetaElementArrayAttribute( _Meta, cm, 2, 0, -1 );
+	mea->setName( "extra" );
+	mea->setOffset( daeOffsetOf(domLibrary_cameras,elemExtra_array) );
+	mea->setElementType( domExtra::registerElement() );
+	cm->appendChild( mea );
+	
+	cm->setMaxOrdinal( 2 );
+	_Meta->setCMRoot( cm );	
 
 	//	Add attribute: id
  	{

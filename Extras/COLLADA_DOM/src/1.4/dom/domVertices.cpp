@@ -13,6 +13,12 @@
 
 #include <dae/daeDom.h>
 #include <dom/domVertices.h>
+#include <dae/daeMetaCMPolicy.h>
+#include <dae/daeMetaSequence.h>
+#include <dae/daeMetaChoice.h>
+#include <dae/daeMetaGroup.h>
+#include <dae/daeMetaAny.h>
+#include <dae/daeMetaElementAttribute.h>
 
 daeElementRef
 domVertices::create(daeInt bytes)
@@ -29,12 +35,26 @@ domVertices::registerElement()
     
     _Meta = new daeMetaElement;
     _Meta->setName( "vertices" );
-	_Meta->setStaticPointerAddress(&domVertices::_Meta);
 	_Meta->registerConstructor(domVertices::create);
 
-	// Add elements: input, extra
-    _Meta->appendArrayElement(domInputLocal::registerElement(),daeOffsetOf(domVertices,elemInput_array),"input"); 
-    _Meta->appendArrayElement(domExtra::registerElement(),daeOffsetOf(domVertices,elemExtra_array));
+	daeMetaCMPolicy *cm = NULL;
+	daeMetaElementAttribute *mea = NULL;
+	cm = new daeMetaSequence( _Meta, cm, 0, 1, 1 );
+
+	mea = new daeMetaElementArrayAttribute( _Meta, cm, 0, 1, -1 );
+	mea->setName( "input" );
+	mea->setOffset( daeOffsetOf(domVertices,elemInput_array) );
+	mea->setElementType( domInputLocal::registerElement() );
+	cm->appendChild( mea );
+	
+	mea = new daeMetaElementArrayAttribute( _Meta, cm, 1, 0, -1 );
+	mea->setName( "extra" );
+	mea->setOffset( daeOffsetOf(domVertices,elemExtra_array) );
+	mea->setElementType( domExtra::registerElement() );
+	cm->appendChild( mea );
+	
+	cm->setMaxOrdinal( 1 );
+	_Meta->setCMRoot( cm );	
 
 	//	Add attribute: id
  	{

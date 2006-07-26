@@ -13,6 +13,12 @@
 
 #include <dae/daeDom.h>
 #include <dom/domCg_connect_param.h>
+#include <dae/daeMetaCMPolicy.h>
+#include <dae/daeMetaSequence.h>
+#include <dae/daeMetaChoice.h>
+#include <dae/daeMetaGroup.h>
+#include <dae/daeMetaAny.h>
+#include <dae/daeMetaElementAttribute.h>
 
 daeElementRef
 domCg_connect_param::create(daeInt bytes)
@@ -29,7 +35,6 @@ domCg_connect_param::registerElement()
     
     _Meta = new daeMetaElement;
     _Meta->setName( "cg_connect_param" );
-	_Meta->setStaticPointerAddress(&domCg_connect_param::_Meta);
 	_Meta->registerConstructor(domCg_connect_param::create);
 
 

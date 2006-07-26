@@ -13,6 +13,12 @@
 
 #include <dae/daeDom.h>
 #include <dom/domSkin.h>
+#include <dae/daeMetaCMPolicy.h>
+#include <dae/daeMetaSequence.h>
+#include <dae/daeMetaChoice.h>
+#include <dae/daeMetaGroup.h>
+#include <dae/daeMetaAny.h>
+#include <dae/daeMetaElementAttribute.h>
 
 daeElementRef
 domSkin::create(daeInt bytes)
@@ -30,15 +36,44 @@ domSkin::registerElement()
     
     _Meta = new daeMetaElement;
     _Meta->setName( "skin" );
-	_Meta->setStaticPointerAddress(&domSkin::_Meta);
 	_Meta->registerConstructor(domSkin::create);
 
-	// Add elements: bind_shape_matrix, source, joints, vertex_weights, extra
-    _Meta->appendElement(domSkin::domBind_shape_matrix::registerElement(),daeOffsetOf(domSkin,elemBind_shape_matrix));
-    _Meta->appendArrayElement(domSource::registerElement(),daeOffsetOf(domSkin,elemSource_array));
-    _Meta->appendElement(domSkin::domJoints::registerElement(),daeOffsetOf(domSkin,elemJoints));
-    _Meta->appendElement(domSkin::domVertex_weights::registerElement(),daeOffsetOf(domSkin,elemVertex_weights));
-    _Meta->appendArrayElement(domExtra::registerElement(),daeOffsetOf(domSkin,elemExtra_array));
+	daeMetaCMPolicy *cm = NULL;
+	daeMetaElementAttribute *mea = NULL;
+	cm = new daeMetaSequence( _Meta, cm, 0, 1, 1 );
+
+	mea = new daeMetaElementAttribute( _Meta, cm, 0, 0, 1 );
+	mea->setName( "bind_shape_matrix" );
+	mea->setOffset( daeOffsetOf(domSkin,elemBind_shape_matrix) );
+	mea->setElementType( domSkin::domBind_shape_matrix::registerElement() );
+	cm->appendChild( mea );
+	
+	mea = new daeMetaElementArrayAttribute( _Meta, cm, 1, 3, -1 );
+	mea->setName( "source" );
+	mea->setOffset( daeOffsetOf(domSkin,elemSource_array) );
+	mea->setElementType( domSource::registerElement() );
+	cm->appendChild( mea );
+	
+	mea = new daeMetaElementAttribute( _Meta, cm, 2, 1, 1 );
+	mea->setName( "joints" );
+	mea->setOffset( daeOffsetOf(domSkin,elemJoints) );
+	mea->setElementType( domSkin::domJoints::registerElement() );
+	cm->appendChild( mea );
+	
+	mea = new daeMetaElementAttribute( _Meta, cm, 3, 1, 1 );
+	mea->setName( "vertex_weights" );
+	mea->setOffset( daeOffsetOf(domSkin,elemVertex_weights) );
+	mea->setElementType( domSkin::domVertex_weights::registerElement() );
+	cm->appendChild( mea );
+	
+	mea = new daeMetaElementArrayAttribute( _Meta, cm, 4, 0, -1 );
+	mea->setName( "extra" );
+	mea->setOffset( daeOffsetOf(domSkin,elemExtra_array) );
+	mea->setElementType( domExtra::registerElement() );
+	cm->appendChild( mea );
+	
+	cm->setMaxOrdinal( 4 );
+	_Meta->setCMRoot( cm );	
 
 	//	Add attribute: source
  	{
@@ -74,9 +109,9 @@ domSkin::domBind_shape_matrix::registerElement()
     
     _Meta = new daeMetaElement;
     _Meta->setName( "bind_shape_matrix" );
-	_Meta->setStaticPointerAddress(&domSkin::domBind_shape_matrix::_Meta);
 	_Meta->registerConstructor(domSkin::domBind_shape_matrix::create);
 
+	_Meta->setIsInnerClass( true );
 	//	Add attribute: _value
  	{
 		daeMetaAttribute *ma = new daeMetaArrayAttribute;
@@ -109,12 +144,27 @@ domSkin::domJoints::registerElement()
     
     _Meta = new daeMetaElement;
     _Meta->setName( "joints" );
-	_Meta->setStaticPointerAddress(&domSkin::domJoints::_Meta);
 	_Meta->registerConstructor(domSkin::domJoints::create);
 
-	// Add elements: input, extra
-    _Meta->appendArrayElement(domInputLocal::registerElement(),daeOffsetOf(domSkin::domJoints,elemInput_array),"input"); 
-    _Meta->appendArrayElement(domExtra::registerElement(),daeOffsetOf(domSkin::domJoints,elemExtra_array));
+	_Meta->setIsInnerClass( true );
+	daeMetaCMPolicy *cm = NULL;
+	daeMetaElementAttribute *mea = NULL;
+	cm = new daeMetaSequence( _Meta, cm, 0, 1, 1 );
+
+	mea = new daeMetaElementArrayAttribute( _Meta, cm, 0, 2, -1 );
+	mea->setName( "input" );
+	mea->setOffset( daeOffsetOf(domSkin::domJoints,elemInput_array) );
+	mea->setElementType( domInputLocal::registerElement() );
+	cm->appendChild( mea );
+	
+	mea = new daeMetaElementArrayAttribute( _Meta, cm, 1, 0, -1 );
+	mea->setName( "extra" );
+	mea->setOffset( daeOffsetOf(domSkin::domJoints,elemExtra_array) );
+	mea->setElementType( domExtra::registerElement() );
+	cm->appendChild( mea );
+	
+	cm->setMaxOrdinal( 1 );
+	_Meta->setCMRoot( cm );	
 	
 	
 	_Meta->setElementSize(sizeof(domSkin::domJoints));
@@ -138,14 +188,39 @@ domSkin::domVertex_weights::registerElement()
     
     _Meta = new daeMetaElement;
     _Meta->setName( "vertex_weights" );
-	_Meta->setStaticPointerAddress(&domSkin::domVertex_weights::_Meta);
 	_Meta->registerConstructor(domSkin::domVertex_weights::create);
 
-	// Add elements: input, vcount, v, extra
-    _Meta->appendArrayElement(domInputLocalOffset::registerElement(),daeOffsetOf(domSkin::domVertex_weights,elemInput_array),"input"); 
-    _Meta->appendElement(domSkin::domVertex_weights::domVcount::registerElement(),daeOffsetOf(domSkin::domVertex_weights,elemVcount));
-    _Meta->appendElement(domSkin::domVertex_weights::domV::registerElement(),daeOffsetOf(domSkin::domVertex_weights,elemV));
-    _Meta->appendArrayElement(domExtra::registerElement(),daeOffsetOf(domSkin::domVertex_weights,elemExtra_array));
+	_Meta->setIsInnerClass( true );
+	daeMetaCMPolicy *cm = NULL;
+	daeMetaElementAttribute *mea = NULL;
+	cm = new daeMetaSequence( _Meta, cm, 0, 1, 1 );
+
+	mea = new daeMetaElementArrayAttribute( _Meta, cm, 0, 2, -1 );
+	mea->setName( "input" );
+	mea->setOffset( daeOffsetOf(domSkin::domVertex_weights,elemInput_array) );
+	mea->setElementType( domInputLocalOffset::registerElement() );
+	cm->appendChild( mea );
+	
+	mea = new daeMetaElementAttribute( _Meta, cm, 1, 0, 1 );
+	mea->setName( "vcount" );
+	mea->setOffset( daeOffsetOf(domSkin::domVertex_weights,elemVcount) );
+	mea->setElementType( domSkin::domVertex_weights::domVcount::registerElement() );
+	cm->appendChild( mea );
+	
+	mea = new daeMetaElementAttribute( _Meta, cm, 2, 0, 1 );
+	mea->setName( "v" );
+	mea->setOffset( daeOffsetOf(domSkin::domVertex_weights,elemV) );
+	mea->setElementType( domSkin::domVertex_weights::domV::registerElement() );
+	cm->appendChild( mea );
+	
+	mea = new daeMetaElementArrayAttribute( _Meta, cm, 3, 0, -1 );
+	mea->setName( "extra" );
+	mea->setOffset( daeOffsetOf(domSkin::domVertex_weights,elemExtra_array) );
+	mea->setElementType( domExtra::registerElement() );
+	cm->appendChild( mea );
+	
+	cm->setMaxOrdinal( 3 );
+	_Meta->setCMRoot( cm );	
 
 	//	Add attribute: count
  	{
@@ -181,9 +256,9 @@ domSkin::domVertex_weights::domVcount::registerElement()
     
     _Meta = new daeMetaElement;
     _Meta->setName( "vcount" );
-	_Meta->setStaticPointerAddress(&domSkin::domVertex_weights::domVcount::_Meta);
 	_Meta->registerConstructor(domSkin::domVertex_weights::domVcount::create);
 
+	_Meta->setIsInnerClass( true );
 	//	Add attribute: _value
  	{
 		daeMetaAttribute *ma = new daeMetaArrayAttribute;
@@ -216,9 +291,9 @@ domSkin::domVertex_weights::domV::registerElement()
     
     _Meta = new daeMetaElement;
     _Meta->setName( "v" );
-	_Meta->setStaticPointerAddress(&domSkin::domVertex_weights::domV::_Meta);
 	_Meta->registerConstructor(domSkin::domVertex_weights::domV::create);
 
+	_Meta->setIsInnerClass( true );
 	//	Add attribute: _value
  	{
 		daeMetaAttribute *ma = new daeMetaArrayAttribute;

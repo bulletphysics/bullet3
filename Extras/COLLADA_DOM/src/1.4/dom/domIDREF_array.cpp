@@ -13,6 +13,12 @@
 
 #include <dae/daeDom.h>
 #include <dom/domIDREF_array.h>
+#include <dae/daeMetaCMPolicy.h>
+#include <dae/daeMetaSequence.h>
+#include <dae/daeMetaChoice.h>
+#include <dae/daeMetaGroup.h>
+#include <dae/daeMetaAny.h>
+#include <dae/daeMetaElementAttribute.h>
 
 daeElementRef
 domIDREF_array::create(daeInt bytes)
@@ -29,7 +35,6 @@ domIDREF_array::registerElement()
     
     _Meta = new daeMetaElement;
     _Meta->setName( "IDREF_array" );
-	_Meta->setStaticPointerAddress(&domIDREF_array::_Meta);
 	_Meta->registerConstructor(domIDREF_array::create);
 
 	//	Add attribute: _value

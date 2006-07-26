@@ -13,6 +13,14 @@
 
 #include <dae/daeDom.h>
 #include <dae/domAny.h>
+#include <dae/daeMetaAttribute.h>
+#include <dae/daeMetaCMPolicy.h>
+#include <dae/daeMetaSequence.h>
+#include <dae/daeMetaChoice.h>
+#include <dae/daeMetaGroup.h>
+#include <dae/daeMetaAny.h>
+#include <dae/daeMetaElementAttribute.h>
+#include <dae/daeErrorHandler.h>
 
 daeElementRef
 domAny::create(daeInt bytes)
@@ -30,9 +38,17 @@ domAny::registerElement()
     _Meta->setName( "any" );
 	//_Meta->setStaticPointerAddress(&domAny::_Meta);
 	_Meta->registerConstructor(domAny::create);
+	daeMetaCMPolicy *cm = NULL;
+	cm = new daeMetaSequence( _Meta, cm, 0, 1, 1 );
+
+	cm = new daeMetaAny( _Meta, cm, 0, 0, -1 );
+
+	cm->setMaxOrdinal( 0 );
+	_Meta->setCMRoot( cm );	
 	_Meta->setAllowsAny( true );
 	
 	_Meta->addContents(daeOffsetOf(domAny,_contents));
+	_Meta->addContentsOrder(daeOffsetOf(domAny,_contentsOrder));
 	
 	//VALUE
 	{
@@ -65,15 +81,14 @@ daeBool domAny::setAttribute(daeString attrName, daeString attrValue) {
 		if ((metaAttrs[i]->getName() != NULL) && (strcmp(metaAttrs[i]->getName(),attrName)==0)) {
 			if (metaAttrs[i]->getType() != NULL) {
 				metaAttrs[i]->set(this,attrValue);
+				_validAttributeArray[i] = true;
 			}
 			return true;
 		}
 	}
 	//else register it and then set it.
 	if ( n >= MAX_ATTRIBUTES ) {
-		fprintf(stderr,	"daeAny::setAttribute() - too many attributes on this domAny.  The maximum number of attributes allowed is %d",
-						MAX_ATTRIBUTES );
-		fflush(stderr);
+		daeErrorHandler::get()->handleWarning( "domAny::setAttribute() - too many attributes on this domAny.  The maximum number of attributes allowed is MAX_ATTRIBUTES" );
 		return false;
 	}
 	daeMetaAttribute *ma = new daeMetaAttribute;
@@ -82,6 +97,7 @@ daeBool domAny::setAttribute(daeString attrName, daeString attrValue) {
 	ma->setOffset( (daeInt)daeOffsetOf( domAny , attrs[n] ));
 	ma->setContainer( _meta );
 	_meta->appendAttribute(ma);
+	_validAttributeArray.append( true );
 	if (metaAttrs[i]->getType() != NULL) {
 		metaAttrs[i]->set(this,attrValue);
 		return true;

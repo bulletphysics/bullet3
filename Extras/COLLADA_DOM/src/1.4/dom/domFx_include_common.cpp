@@ -13,6 +13,12 @@
 
 #include <dae/daeDom.h>
 #include <dom/domFx_include_common.h>
+#include <dae/daeMetaCMPolicy.h>
+#include <dae/daeMetaSequence.h>
+#include <dae/daeMetaChoice.h>
+#include <dae/daeMetaGroup.h>
+#include <dae/daeMetaAny.h>
+#include <dae/daeMetaElementAttribute.h>
 
 daeElementRef
 domFx_include_common::create(daeInt bytes)
@@ -30,7 +36,6 @@ domFx_include_common::registerElement()
     
     _Meta = new daeMetaElement;
     _Meta->setName( "fx_include_common" );
-	_Meta->setStaticPointerAddress(&domFx_include_common::_Meta);
 	_Meta->registerConstructor(domFx_include_common::create);
 
 

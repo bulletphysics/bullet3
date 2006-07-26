@@ -14,7 +14,7 @@
 #include <modules/daeSTLDatabase.h>
 #include <dae/daeMetaElement.h>
 
-daeSTLDatabase::daeSTLDatabase():validated(true)
+daeSTLDatabase::daeSTLDatabase()
 {}
 
 daeSTLDatabase::~daeSTLDatabase()
@@ -238,7 +238,6 @@ daeInt daeSTLDatabase::insertElement(daeDocument* document,daeElement* element)
 		return DAE_OK;
 	
 	DAE_STL_DATABASE_CELL tmp;
-	validated = false;
 	tmp.document = document;
 	tmp.name = element->getID();
 	if (tmp.name == NULL)
@@ -248,7 +247,11 @@ daeInt daeSTLDatabase::insertElement(daeDocument* document,daeElement* element)
 
 	std::vector<DAE_STL_DATABASE_CELL>::iterator it = std::upper_bound(elements.begin(), elements.end(), tmp, daeSTLDatabaseLess());
 	elements.insert(it, tmp);
-	//elements.push_back(tmp);
+	
+	//insert into IDMap if element has an ID. IDMap is used to speed up URI resolution
+	if ( element->getID() != NULL ) {
+		elementsIDMap.insert( std::make_pair( std::string( element->getID() ), tmp ) );
+	}
 
 	return DAE_OK;
 }
@@ -272,13 +275,24 @@ daeInt daeSTLDatabase::removeElement(daeDocument* document,daeElement* element)
 	std::vector<DAE_STL_DATABASE_CELL>::iterator iter = elements.begin();
 	while ( iter != elements.end() ) {
 		if ( (*iter).element == element ) {
-			iter = elements.erase(iter);
+			elements.erase(iter);
+			break;
 		}
-		else {
+		iter++;
+	} 
+
+	if ( element->getID() != NULL ) {
+		std::pair< std::multimap<std::string, DAE_STL_DATABASE_CELL>::iterator, std::multimap<std::string, DAE_STL_DATABASE_CELL>::iterator> range;
+		range = elementsIDMap.equal_range( std::string( element->getID() ) );
+        std::multimap<std::string, DAE_STL_DATABASE_CELL>::iterator iter = range.first;
+		while( iter != range.second ) {
+			if ( (*iter).second.element == element ) {
+				elementsIDMap.erase( iter );
+				break;
+			}
 			iter++;
 		}
-	} 
-	validated = false;
+	}
 	return DAE_OK;
 }
 
@@ -296,6 +310,7 @@ daeInt daeSTLDatabase::removeChildren( daeDocument *c, daeElement *element )
 daeInt daeSTLDatabase::clear()
 {
 	elements.clear();
+	elementsIDMap.clear();
 	int i;
 	for (i=0;i<(int)documents.size();i++)
 		delete documents[i];
@@ -313,6 +328,48 @@ daeUInt daeSTLDatabase::getElementCount(daeString name,daeString type,daeString 
 	if ( !name && !type && !file ) 
 	{
 		return (daeUInt)elements.size();
+	}
+
+	if ( name ) 
+	{ 
+		// name specified
+		int count = 0;
+		if ( file ) 
+		{ 
+			// If a document URI was a search key (in file) resolve it to a text URI with no fragment
+			daeURI tempURI(file,true);
+			daeDocument *col = getDocument( tempURI.getURI() );
+			if ( col == NULL ) {
+				return 0;
+			}
+			// a document was specified
+			std::pair< std::multimap< std::string, DAE_STL_DATABASE_CELL >::iterator, std::multimap< std::string, DAE_STL_DATABASE_CELL >::iterator> range;
+			range = elementsIDMap.equal_range( std::string( name ) );
+			std::multimap< std::string, DAE_STL_DATABASE_CELL >::iterator i = range.first;
+			while ( i != range.second )
+			{
+				DAE_STL_DATABASE_CELL e = (*i).second;
+				if ( col == e.document && !strcmp(name, e.name) )
+				{
+					count++;
+				}
+				++i;
+			}
+			return count;
+		}
+		else 
+		{ 
+			//no file specified
+			std::pair< std::multimap< std::string, DAE_STL_DATABASE_CELL >::iterator, std::multimap< std::string, DAE_STL_DATABASE_CELL >::iterator> range;
+			range = elementsIDMap.equal_range( std::string( name ) );
+			std::multimap< std::string, DAE_STL_DATABASE_CELL >::iterator i = range.first;
+			while ( i != range.second )
+			{
+				++i;
+				count++;
+			}
+			return count;
+		}
 	}
 
 	std::pair< std::vector<DAE_STL_DATABASE_CELL>::iterator, std::vector<DAE_STL_DATABASE_CELL>::iterator> range;
@@ -336,72 +393,28 @@ daeUInt daeSTLDatabase::getElementCount(daeString name,daeString type,daeString 
 		sz = (int)elements.size();
 	}
 	
-	if ( name ) 
+	//no name specified
+	if ( file ) 
 	{ 
-		// name specified
+		// If a document URI was a search key (in file) resolve it to a text URI with no fragment
+		daeURI tempURI(file,true);
+		daeDocument *col = getDocument( tempURI.getURI() );
+		if ( col == NULL ) {
+			return 0;
+		}
+		//a document was specified
 		int count = 0;
-		if ( file ) 
-		{ 
-			// If a document URI was a search key (in file) resolve it to a text URI with no fragment
-			daeURI tempURI(file,true);
-			daeDocument *col = getDocument( tempURI.getURI() );
-			if ( col == NULL ) {
-				return 0;
-			}
-			// a document was specified
-			//for ( int i = 0; i < sz; i++ ) 
-			std::vector< DAE_STL_DATABASE_CELL >::iterator i = range.first;
-			while ( i != range.second )
+		std::vector< DAE_STL_DATABASE_CELL >::iterator i = range.first;
+		while ( i != range.second )
+		{
+			DAE_STL_DATABASE_CELL e = *(i);
+			if( col == e.document )
 			{
-				DAE_STL_DATABASE_CELL e = *(i);
-				if ( col == e.document && !strcmp(name, e.name) )
-				{
-					count++;
-				}
-				i++;
+				count++;
 			}
-			return count;
+			++i;
 		}
-		else 
-		{ 
-			//no file specified
-			std::vector< DAE_STL_DATABASE_CELL >::iterator i = range.first;
-			while ( i != range.second )
-			{
-				DAE_STL_DATABASE_CELL e = *(i);
-				if ( !strcmp( name, e.name ) ) {
-					count++;
-				}
-				i++;
-			}
-			return count;
-		}
-	}
-	else 
-	{ 
-		//no name specified
-		if ( file ) 
-		{ 
-			// If a document URI was a search key (in file) resolve it to a text URI with no fragment
-			daeURI tempURI(file,true);
-			daeDocument *col = getDocument( tempURI.getURI() );
-			if ( col == NULL ) {
-				return 0;
-			}
-			//a document was specified
-			int count = 0;
-			std::vector< DAE_STL_DATABASE_CELL >::iterator i = range.first;
-			while ( i != range.second )
-			{
-				DAE_STL_DATABASE_CELL e = *(i);
-				if( col == e.document )
-				{
-					count++;
-				}
-				i++;
-			}
-			return count;
-		}
+		return count;
 	}
 	//if you get to this point only a type was specified
 	return sz;
@@ -424,7 +437,60 @@ daeInt daeSTLDatabase::getElement(daeElement** pElement,daeInt index,daeString n
 		*pElement = elements[index].element;
 		return DAE_OK;
 	}
-
+	
+	if ( name ) 
+	{ 
+		//name specified
+		int count = 0;
+		if ( file ) 
+		{ 
+			// If a document URI was a search key (in file) resolve it to a text URI with no fragment
+			daeURI tempURI(file,true);
+			daeDocument *col = getDocument( tempURI.getURI() );
+			if ( col == NULL ) {
+				return DAE_ERR_QUERY_NO_MATCH;
+			}
+			//a document was specified
+			std::pair< std::multimap< std::string, DAE_STL_DATABASE_CELL >::iterator, std::multimap< std::string, DAE_STL_DATABASE_CELL >::iterator> range;
+			range = elementsIDMap.equal_range( std::string( name ) );
+			std::multimap< std::string, DAE_STL_DATABASE_CELL >::iterator i = range.first;
+			while ( i != range.second )
+			{
+				DAE_STL_DATABASE_CELL e = (*i).second;
+				if ( col == e.document && !strcmp(name, e.name) )  
+				{
+					if ( count == index )
+					{
+						*pElement = e.element;
+						return DAE_OK;
+					}
+					count++;
+				}
+				++i;
+			}
+			return DAE_ERR_QUERY_NO_MATCH;
+		}
+		else 
+		{ 
+			//no document specified
+			std::pair< std::multimap< std::string, DAE_STL_DATABASE_CELL >::iterator, std::multimap< std::string, DAE_STL_DATABASE_CELL >::iterator> range;
+			range = elementsIDMap.equal_range( std::string( name ) );
+			std::multimap< std::string, DAE_STL_DATABASE_CELL >::iterator i = range.first;
+			while ( i != range.second )
+			{
+				DAE_STL_DATABASE_CELL e = (*i).second;
+				if ( count == index ) 
+				{
+					*pElement = e.element;
+					return DAE_OK;
+				}
+				count++;
+				++i;
+			}
+			return DAE_ERR_QUERY_NO_MATCH;
+		}
+	}
+	
 	std::pair< std::vector<DAE_STL_DATABASE_CELL>::iterator, std::vector<DAE_STL_DATABASE_CELL>::iterator> range;
 	int sz = 0;
 	if ( type )	
@@ -449,89 +515,36 @@ daeInt daeSTLDatabase::getElement(daeElement** pElement,daeInt index,daeString n
 		sz = (int)elements.size();
 	}
 
-	if ( name ) 
+
+	//no name specified
+	if ( file ) 
 	{ 
-		//name specified
+		// If a document URI was a search key (in file) resolve it to a text URI with no fragment
+		daeURI tempURI(file,true);
+		daeDocument *col = getDocument( tempURI.getURI() );
+		if ( col == NULL ) {
+			return DAE_ERR_QUERY_NO_MATCH;
+		}
+		//a document was specified
 		int count = 0;
-		if ( file ) 
-		{ 
-			// If a document URI was a search key (in file) resolve it to a text URI with no fragment
-			daeURI tempURI(file,true);
-			daeDocument *col = getDocument( tempURI.getURI() );
-			if ( col == NULL ) {
-				return DAE_ERR_QUERY_NO_MATCH;
-			}
-			//a document was specified
-			//for ( int i = 0; i < sz; i++ ) 
-			std::vector< DAE_STL_DATABASE_CELL >::iterator i = range.first;
-			while ( i != range.second )
+		std::vector< DAE_STL_DATABASE_CELL >::iterator i = range.first;
+		while ( i != range.second )
+		{
+			DAE_STL_DATABASE_CELL e = *(i);
+			if( col == e.document ) 
 			{
-				DAE_STL_DATABASE_CELL e = *i;
-				if ( col == e.document && !strcmp(name, e.name) )  
+				if( count == index ) 
 				{
-					if ( count == index )
-					{
-						*pElement = e.element;
-						return DAE_OK;
-					}
-					count++;
+					*pElement = e.element;
+					return DAE_OK;
 				}
-				i++;
+				count++;
 			}
-			return DAE_ERR_QUERY_NO_MATCH;
+			++i;
 		}
-		else 
-		{ 
-			//no document specified
-			std::vector< DAE_STL_DATABASE_CELL >::iterator i = range.first;
-			while ( i != range.second )
-			{
-				DAE_STL_DATABASE_CELL e = *(i);
-				if ( !strcmp( name, e.name ) ) 
-				{
-					if ( count == index ) 
-					{
-						*pElement = e.element;
-						return DAE_OK;
-					}
-					count++;
-				}
-				i++;
-			}
-			return DAE_ERR_QUERY_NO_MATCH;
-		}
+		return DAE_ERR_QUERY_NO_MATCH;
 	}
-	else 
-	{ 
-		//no name specified
-		if ( file ) 
-		{ 
-			// If a document URI was a search key (in file) resolve it to a text URI with no fragment
-			daeURI tempURI(file,true);
-			daeDocument *col = getDocument( tempURI.getURI() );
-			if ( col == NULL ) {
-				return DAE_ERR_QUERY_NO_MATCH;
-			}
-			//a document was specified
-			int count = 0;
-			std::vector< DAE_STL_DATABASE_CELL >::iterator i = range.first;
-			while ( i != range.second )
-			{
-				DAE_STL_DATABASE_CELL e = *(i);
-				if( col == e.document ) 
-				{
-					if( count == index ) 
-					{
-						*pElement = e.element;
-						return DAE_OK;
-					}
-					count++;
-				}
-				i++;
-			}
-			return DAE_ERR_QUERY_NO_MATCH;
-		}
-	}
+
 	//if you get to this point only a type was specified
 	*pElement = (*(range.first+index)).element;
 	return DAE_OK;
@@ -552,23 +565,18 @@ void daeSTLDatabase::validate()
 			daeDocument *tmp = documents[i];
 			//removeDocument( tmp );
 			//insertDocument( tmp );
-			const daeElementRefArray &iea = tmp->getInsertedArray();
-			for ( unsigned int x = 0; x < iea.getCount(); x++ ) {
-				insertElement( tmp, iea[x] );
-			}
 			const daeElementRefArray &rea = tmp->getRemovedArray();
 			for ( unsigned int x = 0; x < rea.getCount(); x++ ) {
 				removeElement( tmp, rea[x] );
 			}
+
+			const daeElementRefArray &iea = tmp->getInsertedArray();
+			for ( unsigned int x = 0; x < iea.getCount(); x++ ) {
+				insertElement( tmp, iea[x] );
+			}
+			
 			tmp->setModified(false);
-			validated = false;
 		}
 	}
-	//if (!validated)
-	//{
-	//	//sort the array by type then by name
-	//	std::sort(elements.begin(),elements.end(),daeSTLDatabaseLess());
-	//	validated = true;
-	//}
 }
 

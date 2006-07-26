@@ -13,6 +13,12 @@
 
 #include <dae/daeDom.h>
 #include <dom/domInstance_rigid_constraint.h>
+#include <dae/daeMetaCMPolicy.h>
+#include <dae/daeMetaSequence.h>
+#include <dae/daeMetaChoice.h>
+#include <dae/daeMetaGroup.h>
+#include <dae/daeMetaAny.h>
+#include <dae/daeMetaElementAttribute.h>
 
 daeElementRef
 domInstance_rigid_constraint::create(daeInt bytes)
@@ -29,11 +35,20 @@ domInstance_rigid_constraint::registerElement()
     
     _Meta = new daeMetaElement;
     _Meta->setName( "instance_rigid_constraint" );
-	_Meta->setStaticPointerAddress(&domInstance_rigid_constraint::_Meta);
 	_Meta->registerConstructor(domInstance_rigid_constraint::create);
 
-	// Add elements: extra
-    _Meta->appendArrayElement(domExtra::registerElement(),daeOffsetOf(domInstance_rigid_constraint,elemExtra_array));
+	daeMetaCMPolicy *cm = NULL;
+	daeMetaElementAttribute *mea = NULL;
+	cm = new daeMetaSequence( _Meta, cm, 0, 1, 1 );
+
+	mea = new daeMetaElementArrayAttribute( _Meta, cm, 0, 0, -1 );
+	mea->setName( "extra" );
+	mea->setOffset( daeOffsetOf(domInstance_rigid_constraint,elemExtra_array) );
+	mea->setElementType( domExtra::registerElement() );
+	cm->appendChild( mea );
+	
+	cm->setMaxOrdinal( 0 );
+	_Meta->setCMRoot( cm );	
 
 	//	Add attribute: constraint
  	{
@@ -43,6 +58,28 @@ domInstance_rigid_constraint::registerElement()
 		ma->setOffset( daeOffsetOf( domInstance_rigid_constraint , attrConstraint ));
 		ma->setContainer( _Meta );
 		ma->setIsRequired( true );
+	
+		_Meta->appendAttribute(ma);
+	}
+
+	//	Add attribute: sid
+ 	{
+		daeMetaAttribute *ma = new daeMetaAttribute;
+		ma->setName( "sid" );
+		ma->setType( daeAtomicType::get("xsNCName"));
+		ma->setOffset( daeOffsetOf( domInstance_rigid_constraint , attrSid ));
+		ma->setContainer( _Meta );
+	
+		_Meta->appendAttribute(ma);
+	}
+
+	//	Add attribute: name
+ 	{
+		daeMetaAttribute *ma = new daeMetaAttribute;
+		ma->setName( "name" );
+		ma->setType( daeAtomicType::get("xsNCName"));
+		ma->setOffset( daeOffsetOf( domInstance_rigid_constraint , attrName ));
+		ma->setContainer( _Meta );
 	
 		_Meta->appendAttribute(ma);
 	}

@@ -13,6 +13,12 @@
 
 #include <dae/daeDom.h>
 #include <dom/domInstance_effect.h>
+#include <dae/daeMetaCMPolicy.h>
+#include <dae/daeMetaSequence.h>
+#include <dae/daeMetaChoice.h>
+#include <dae/daeMetaGroup.h>
+#include <dae/daeMetaAny.h>
+#include <dae/daeMetaElementAttribute.h>
 
 daeElementRef
 domInstance_effect::create(daeInt bytes)
@@ -30,13 +36,32 @@ domInstance_effect::registerElement()
     
     _Meta = new daeMetaElement;
     _Meta->setName( "instance_effect" );
-	_Meta->setStaticPointerAddress(&domInstance_effect::_Meta);
 	_Meta->registerConstructor(domInstance_effect::create);
 
-	// Add elements: technique_hint, setparam, extra
-    _Meta->appendArrayElement(domInstance_effect::domTechnique_hint::registerElement(),daeOffsetOf(domInstance_effect,elemTechnique_hint_array));
-    _Meta->appendArrayElement(domInstance_effect::domSetparam::registerElement(),daeOffsetOf(domInstance_effect,elemSetparam_array));
-    _Meta->appendArrayElement(domExtra::registerElement(),daeOffsetOf(domInstance_effect,elemExtra_array));
+	daeMetaCMPolicy *cm = NULL;
+	daeMetaElementAttribute *mea = NULL;
+	cm = new daeMetaSequence( _Meta, cm, 0, 1, 1 );
+
+	mea = new daeMetaElementArrayAttribute( _Meta, cm, 0, 0, -1 );
+	mea->setName( "technique_hint" );
+	mea->setOffset( daeOffsetOf(domInstance_effect,elemTechnique_hint_array) );
+	mea->setElementType( domInstance_effect::domTechnique_hint::registerElement() );
+	cm->appendChild( mea );
+	
+	mea = new daeMetaElementArrayAttribute( _Meta, cm, 1, 0, -1 );
+	mea->setName( "setparam" );
+	mea->setOffset( daeOffsetOf(domInstance_effect,elemSetparam_array) );
+	mea->setElementType( domInstance_effect::domSetparam::registerElement() );
+	cm->appendChild( mea );
+	
+	mea = new daeMetaElementArrayAttribute( _Meta, cm, 2, 0, -1 );
+	mea->setName( "extra" );
+	mea->setOffset( daeOffsetOf(domInstance_effect,elemExtra_array) );
+	mea->setElementType( domExtra::registerElement() );
+	cm->appendChild( mea );
+	
+	cm->setMaxOrdinal( 2 );
+	_Meta->setCMRoot( cm );	
 
 	//	Add attribute: url
  	{
@@ -46,6 +71,28 @@ domInstance_effect::registerElement()
 		ma->setOffset( daeOffsetOf( domInstance_effect , attrUrl ));
 		ma->setContainer( _Meta );
 		ma->setIsRequired( true );
+	
+		_Meta->appendAttribute(ma);
+	}
+
+	//	Add attribute: sid
+ 	{
+		daeMetaAttribute *ma = new daeMetaAttribute;
+		ma->setName( "sid" );
+		ma->setType( daeAtomicType::get("xsNCName"));
+		ma->setOffset( daeOffsetOf( domInstance_effect , attrSid ));
+		ma->setContainer( _Meta );
+	
+		_Meta->appendAttribute(ma);
+	}
+
+	//	Add attribute: name
+ 	{
+		daeMetaAttribute *ma = new daeMetaAttribute;
+		ma->setName( "name" );
+		ma->setType( daeAtomicType::get("xsNCName"));
+		ma->setOffset( daeOffsetOf( domInstance_effect , attrName ));
+		ma->setContainer( _Meta );
 	
 		_Meta->appendAttribute(ma);
 	}
@@ -72,9 +119,9 @@ domInstance_effect::domTechnique_hint::registerElement()
     
     _Meta = new daeMetaElement;
     _Meta->setName( "technique_hint" );
-	_Meta->setStaticPointerAddress(&domInstance_effect::domTechnique_hint::_Meta);
 	_Meta->registerConstructor(domInstance_effect::domTechnique_hint::create);
 
+	_Meta->setIsInnerClass( true );
 
 	//	Add attribute: platform
  	{
@@ -83,7 +130,19 @@ domInstance_effect::domTechnique_hint::registerElement()
 		ma->setType( daeAtomicType::get("xsNCName"));
 		ma->setOffset( daeOffsetOf( domInstance_effect::domTechnique_hint , attrPlatform ));
 		ma->setContainer( _Meta );
-		ma->setIsRequired( true );
+		ma->setIsRequired( false );
+	
+		_Meta->appendAttribute(ma);
+	}
+
+	//	Add attribute: profile
+ 	{
+		daeMetaAttribute *ma = new daeMetaAttribute;
+		ma->setName( "profile" );
+		ma->setType( daeAtomicType::get("xsNCName"));
+		ma->setOffset( daeOffsetOf( domInstance_effect::domTechnique_hint , attrProfile ));
+		ma->setContainer( _Meta );
+		ma->setIsRequired( false );
 	
 		_Meta->appendAttribute(ma);
 	}
@@ -122,53 +181,27 @@ domInstance_effect::domSetparam::registerElement()
     
     _Meta = new daeMetaElement;
     _Meta->setName( "setparam" );
-	_Meta->setStaticPointerAddress(&domInstance_effect::domSetparam::_Meta);
 	_Meta->registerConstructor(domInstance_effect::domSetparam::create);
 
-	// Add elements: fx_basic_type_common
-    _Meta->appendElement(domFx_basic_type_common::registerElement(),daeOffsetOf(domInstance_effect::domSetparam,elemFx_basic_type_common));
-	_Meta->appendPossibleChild( "bool", _Meta->getMetaElements()[0]);
-	_Meta->appendPossibleChild( "bool2", _Meta->getMetaElements()[0]);
-	_Meta->appendPossibleChild( "bool3", _Meta->getMetaElements()[0]);
-	_Meta->appendPossibleChild( "bool4", _Meta->getMetaElements()[0]);
-	_Meta->appendPossibleChild( "int", _Meta->getMetaElements()[0]);
-	_Meta->appendPossibleChild( "int2", _Meta->getMetaElements()[0]);
-	_Meta->appendPossibleChild( "int3", _Meta->getMetaElements()[0]);
-	_Meta->appendPossibleChild( "int4", _Meta->getMetaElements()[0]);
-	_Meta->appendPossibleChild( "float", _Meta->getMetaElements()[0]);
-	_Meta->appendPossibleChild( "float2", _Meta->getMetaElements()[0]);
-	_Meta->appendPossibleChild( "float3", _Meta->getMetaElements()[0]);
-	_Meta->appendPossibleChild( "float4", _Meta->getMetaElements()[0]);
-	_Meta->appendPossibleChild( "float1x1", _Meta->getMetaElements()[0]);
-	_Meta->appendPossibleChild( "float1x2", _Meta->getMetaElements()[0]);
-	_Meta->appendPossibleChild( "float1x3", _Meta->getMetaElements()[0]);
-	_Meta->appendPossibleChild( "float1x4", _Meta->getMetaElements()[0]);
-	_Meta->appendPossibleChild( "float2x1", _Meta->getMetaElements()[0]);
-	_Meta->appendPossibleChild( "float2x2", _Meta->getMetaElements()[0]);
-	_Meta->appendPossibleChild( "float2x3", _Meta->getMetaElements()[0]);
-	_Meta->appendPossibleChild( "float2x4", _Meta->getMetaElements()[0]);
-	_Meta->appendPossibleChild( "float3x1", _Meta->getMetaElements()[0]);
-	_Meta->appendPossibleChild( "float3x2", _Meta->getMetaElements()[0]);
-	_Meta->appendPossibleChild( "float3x3", _Meta->getMetaElements()[0]);
-	_Meta->appendPossibleChild( "float3x4", _Meta->getMetaElements()[0]);
-	_Meta->appendPossibleChild( "float4x1", _Meta->getMetaElements()[0]);
-	_Meta->appendPossibleChild( "float4x2", _Meta->getMetaElements()[0]);
-	_Meta->appendPossibleChild( "float4x3", _Meta->getMetaElements()[0]);
-	_Meta->appendPossibleChild( "float4x4", _Meta->getMetaElements()[0]);
-	_Meta->appendPossibleChild( "surface", _Meta->getMetaElements()[0], "fx_surface_common");
-	_Meta->appendPossibleChild( "sampler1D", _Meta->getMetaElements()[0], "fx_sampler1D_common");
-	_Meta->appendPossibleChild( "sampler2D", _Meta->getMetaElements()[0], "fx_sampler2D_common");
-	_Meta->appendPossibleChild( "sampler3D", _Meta->getMetaElements()[0], "fx_sampler3D_common");
-	_Meta->appendPossibleChild( "samplerCUBE", _Meta->getMetaElements()[0], "fx_samplerCUBE_common");
-	_Meta->appendPossibleChild( "samplerRECT", _Meta->getMetaElements()[0], "fx_samplerRECT_common");
-	_Meta->appendPossibleChild( "samplerDEPTH", _Meta->getMetaElements()[0], "fx_samplerDEPTH_common");
-	_Meta->appendPossibleChild( "enum", _Meta->getMetaElements()[0]);
+	_Meta->setIsInnerClass( true );
+	daeMetaCMPolicy *cm = NULL;
+	daeMetaElementAttribute *mea = NULL;
+	cm = new daeMetaSequence( _Meta, cm, 0, 1, 1 );
+
+	mea = new daeMetaElementAttribute( _Meta, cm, 0, 1, 1 );
+	mea->setName( "fx_basic_type_common" );
+	mea->setOffset( daeOffsetOf(domInstance_effect::domSetparam,elemFx_basic_type_common) );
+	mea->setElementType( domFx_basic_type_common::registerElement() );
+	cm->appendChild( new daeMetaGroup( mea, _Meta, cm, 0, 1, 1 ) );
+	
+	cm->setMaxOrdinal( 0 );
+	_Meta->setCMRoot( cm );	
 
 	//	Add attribute: ref
  	{
 		daeMetaAttribute *ma = new daeMetaAttribute;
 		ma->setName( "ref" );
-		ma->setType( daeAtomicType::get("xsNCName"));
+		ma->setType( daeAtomicType::get("xsToken"));
 		ma->setOffset( daeOffsetOf( domInstance_effect::domSetparam , attrRef ));
 		ma->setContainer( _Meta );
 		ma->setIsRequired( true );

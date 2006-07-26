@@ -13,6 +13,12 @@
 
 #include <dae/daeDom.h>
 #include <dom/domGles_basic_type_common.h>
+#include <dae/daeMetaCMPolicy.h>
+#include <dae/daeMetaSequence.h>
+#include <dae/daeMetaChoice.h>
+#include <dae/daeMetaGroup.h>
+#include <dae/daeMetaAny.h>
+#include <dae/daeMetaElementAttribute.h>
 
 daeElementRef
 domGles_basic_type_common::create(daeInt bytes)
@@ -29,46 +35,216 @@ domGles_basic_type_common::registerElement()
     
     _Meta = new daeMetaElement;
     _Meta->setName( "gles_basic_type_common" );
-	_Meta->setStaticPointerAddress(&domGles_basic_type_common::_Meta);
 	_Meta->registerConstructor(domGles_basic_type_common::create);
 
 	_Meta->setIsTransparent( true );
-	// Add elements: bool, bool2, bool3, bool4, int, int2, int3, int4, float, float2, float3, float4, float1x1, float1x2, float1x3, float1x4, float2x1, float2x2, float2x3, float2x4, float3x1, float3x2, float3x3, float3x4, float4x1, float4x2, float4x3, float4x4, surface, texture_pipeline, sampler_state, texture_unit, enum
-    _Meta->appendElement(domGles_basic_type_common::domBool::registerElement(),daeOffsetOf(domGles_basic_type_common,elemBool));
-    _Meta->appendElement(domGles_basic_type_common::domBool2::registerElement(),daeOffsetOf(domGles_basic_type_common,elemBool2));
-    _Meta->appendElement(domGles_basic_type_common::domBool3::registerElement(),daeOffsetOf(domGles_basic_type_common,elemBool3));
-    _Meta->appendElement(domGles_basic_type_common::domBool4::registerElement(),daeOffsetOf(domGles_basic_type_common,elemBool4));
-    _Meta->appendElement(domGles_basic_type_common::domInt::registerElement(),daeOffsetOf(domGles_basic_type_common,elemInt));
-    _Meta->appendElement(domGles_basic_type_common::domInt2::registerElement(),daeOffsetOf(domGles_basic_type_common,elemInt2));
-    _Meta->appendElement(domGles_basic_type_common::domInt3::registerElement(),daeOffsetOf(domGles_basic_type_common,elemInt3));
-    _Meta->appendElement(domGles_basic_type_common::domInt4::registerElement(),daeOffsetOf(domGles_basic_type_common,elemInt4));
-    _Meta->appendElement(domGles_basic_type_common::domFloat::registerElement(),daeOffsetOf(domGles_basic_type_common,elemFloat));
-    _Meta->appendElement(domGles_basic_type_common::domFloat2::registerElement(),daeOffsetOf(domGles_basic_type_common,elemFloat2));
-    _Meta->appendElement(domGles_basic_type_common::domFloat3::registerElement(),daeOffsetOf(domGles_basic_type_common,elemFloat3));
-    _Meta->appendElement(domGles_basic_type_common::domFloat4::registerElement(),daeOffsetOf(domGles_basic_type_common,elemFloat4));
-    _Meta->appendElement(domGles_basic_type_common::domFloat1x1::registerElement(),daeOffsetOf(domGles_basic_type_common,elemFloat1x1));
-    _Meta->appendElement(domGles_basic_type_common::domFloat1x2::registerElement(),daeOffsetOf(domGles_basic_type_common,elemFloat1x2));
-    _Meta->appendElement(domGles_basic_type_common::domFloat1x3::registerElement(),daeOffsetOf(domGles_basic_type_common,elemFloat1x3));
-    _Meta->appendElement(domGles_basic_type_common::domFloat1x4::registerElement(),daeOffsetOf(domGles_basic_type_common,elemFloat1x4));
-    _Meta->appendElement(domGles_basic_type_common::domFloat2x1::registerElement(),daeOffsetOf(domGles_basic_type_common,elemFloat2x1));
-    _Meta->appendElement(domGles_basic_type_common::domFloat2x2::registerElement(),daeOffsetOf(domGles_basic_type_common,elemFloat2x2));
-    _Meta->appendElement(domGles_basic_type_common::domFloat2x3::registerElement(),daeOffsetOf(domGles_basic_type_common,elemFloat2x3));
-    _Meta->appendElement(domGles_basic_type_common::domFloat2x4::registerElement(),daeOffsetOf(domGles_basic_type_common,elemFloat2x4));
-    _Meta->appendElement(domGles_basic_type_common::domFloat3x1::registerElement(),daeOffsetOf(domGles_basic_type_common,elemFloat3x1));
-    _Meta->appendElement(domGles_basic_type_common::domFloat3x2::registerElement(),daeOffsetOf(domGles_basic_type_common,elemFloat3x2));
-    _Meta->appendElement(domGles_basic_type_common::domFloat3x3::registerElement(),daeOffsetOf(domGles_basic_type_common,elemFloat3x3));
-    _Meta->appendElement(domGles_basic_type_common::domFloat3x4::registerElement(),daeOffsetOf(domGles_basic_type_common,elemFloat3x4));
-    _Meta->appendElement(domGles_basic_type_common::domFloat4x1::registerElement(),daeOffsetOf(domGles_basic_type_common,elemFloat4x1));
-    _Meta->appendElement(domGles_basic_type_common::domFloat4x2::registerElement(),daeOffsetOf(domGles_basic_type_common,elemFloat4x2));
-    _Meta->appendElement(domGles_basic_type_common::domFloat4x3::registerElement(),daeOffsetOf(domGles_basic_type_common,elemFloat4x3));
-    _Meta->appendElement(domGles_basic_type_common::domFloat4x4::registerElement(),daeOffsetOf(domGles_basic_type_common,elemFloat4x4));
-    _Meta->appendElement(domFx_surface_common::registerElement(),daeOffsetOf(domGles_basic_type_common,elemSurface),"surface"); 
-    _Meta->appendElement(domGles_texture_pipeline::registerElement(),daeOffsetOf(domGles_basic_type_common,elemTexture_pipeline),"texture_pipeline"); 
-    _Meta->appendElement(domGles_sampler_state::registerElement(),daeOffsetOf(domGles_basic_type_common,elemSampler_state),"sampler_state"); 
-    _Meta->appendElement(domGles_texture_unit::registerElement(),daeOffsetOf(domGles_basic_type_common,elemTexture_unit),"texture_unit"); 
-    _Meta->appendElement(domGles_basic_type_common::domEnum::registerElement(),daeOffsetOf(domGles_basic_type_common,elemEnum));
+	daeMetaCMPolicy *cm = NULL;
+	daeMetaElementAttribute *mea = NULL;
+	cm = new daeMetaChoice( _Meta, cm, 0, 1, 1 );
+
+	mea = new daeMetaElementAttribute( _Meta, cm, 0, 1, 1 );
+	mea->setName( "bool" );
+	mea->setOffset( daeOffsetOf(domGles_basic_type_common,elemBool) );
+	mea->setElementType( domGles_basic_type_common::domBool::registerElement() );
+	cm->appendChild( mea );
+	
+	mea = new daeMetaElementAttribute( _Meta, cm, 0, 1, 1 );
+	mea->setName( "bool2" );
+	mea->setOffset( daeOffsetOf(domGles_basic_type_common,elemBool2) );
+	mea->setElementType( domGles_basic_type_common::domBool2::registerElement() );
+	cm->appendChild( mea );
+	
+	mea = new daeMetaElementAttribute( _Meta, cm, 0, 1, 1 );
+	mea->setName( "bool3" );
+	mea->setOffset( daeOffsetOf(domGles_basic_type_common,elemBool3) );
+	mea->setElementType( domGles_basic_type_common::domBool3::registerElement() );
+	cm->appendChild( mea );
+	
+	mea = new daeMetaElementAttribute( _Meta, cm, 0, 1, 1 );
+	mea->setName( "bool4" );
+	mea->setOffset( daeOffsetOf(domGles_basic_type_common,elemBool4) );
+	mea->setElementType( domGles_basic_type_common::domBool4::registerElement() );
+	cm->appendChild( mea );
+	
+	mea = new daeMetaElementAttribute( _Meta, cm, 0, 1, 1 );
+	mea->setName( "int" );
+	mea->setOffset( daeOffsetOf(domGles_basic_type_common,elemInt) );
+	mea->setElementType( domGles_basic_type_common::domInt::registerElement() );
+	cm->appendChild( mea );
+	
+	mea = new daeMetaElementAttribute( _Meta, cm, 0, 1, 1 );
+	mea->setName( "int2" );
+	mea->setOffset( daeOffsetOf(domGles_basic_type_common,elemInt2) );
+	mea->setElementType( domGles_basic_type_common::domInt2::registerElement() );
+	cm->appendChild( mea );
+	
+	mea = new daeMetaElementAttribute( _Meta, cm, 0, 1, 1 );
+	mea->setName( "int3" );
+	mea->setOffset( daeOffsetOf(domGles_basic_type_common,elemInt3) );
+	mea->setElementType( domGles_basic_type_common::domInt3::registerElement() );
+	cm->appendChild( mea );
+	
+	mea = new daeMetaElementAttribute( _Meta, cm, 0, 1, 1 );
+	mea->setName( "int4" );
+	mea->setOffset( daeOffsetOf(domGles_basic_type_common,elemInt4) );
+	mea->setElementType( domGles_basic_type_common::domInt4::registerElement() );
+	cm->appendChild( mea );
+	
+	mea = new daeMetaElementAttribute( _Meta, cm, 0, 1, 1 );
+	mea->setName( "float" );
+	mea->setOffset( daeOffsetOf(domGles_basic_type_common,elemFloat) );
+	mea->setElementType( domGles_basic_type_common::domFloat::registerElement() );
+	cm->appendChild( mea );
+	
+	mea = new daeMetaElementAttribute( _Meta, cm, 0, 1, 1 );
+	mea->setName( "float2" );
+	mea->setOffset( daeOffsetOf(domGles_basic_type_common,elemFloat2) );
+	mea->setElementType( domGles_basic_type_common::domFloat2::registerElement() );
+	cm->appendChild( mea );
+	
+	mea = new daeMetaElementAttribute( _Meta, cm, 0, 1, 1 );
+	mea->setName( "float3" );
+	mea->setOffset( daeOffsetOf(domGles_basic_type_common,elemFloat3) );
+	mea->setElementType( domGles_basic_type_common::domFloat3::registerElement() );
+	cm->appendChild( mea );
+	
+	mea = new daeMetaElementAttribute( _Meta, cm, 0, 1, 1 );
+	mea->setName( "float4" );
+	mea->setOffset( daeOffsetOf(domGles_basic_type_common,elemFloat4) );
+	mea->setElementType( domGles_basic_type_common::domFloat4::registerElement() );
+	cm->appendChild( mea );
+	
+	mea = new daeMetaElementAttribute( _Meta, cm, 0, 1, 1 );
+	mea->setName( "float1x1" );
+	mea->setOffset( daeOffsetOf(domGles_basic_type_common,elemFloat1x1) );
+	mea->setElementType( domGles_basic_type_common::domFloat1x1::registerElement() );
+	cm->appendChild( mea );
+	
+	mea = new daeMetaElementAttribute( _Meta, cm, 0, 1, 1 );
+	mea->setName( "float1x2" );
+	mea->setOffset( daeOffsetOf(domGles_basic_type_common,elemFloat1x2) );
+	mea->setElementType( domGles_basic_type_common::domFloat1x2::registerElement() );
+	cm->appendChild( mea );
+	
+	mea = new daeMetaElementAttribute( _Meta, cm, 0, 1, 1 );
+	mea->setName( "float1x3" );
+	mea->setOffset( daeOffsetOf(domGles_basic_type_common,elemFloat1x3) );
+	mea->setElementType( domGles_basic_type_common::domFloat1x3::registerElement() );
+	cm->appendChild( mea );
+	
+	mea = new daeMetaElementAttribute( _Meta, cm, 0, 1, 1 );
+	mea->setName( "float1x4" );
+	mea->setOffset( daeOffsetOf(domGles_basic_type_common,elemFloat1x4) );
+	mea->setElementType( domGles_basic_type_common::domFloat1x4::registerElement() );
+	cm->appendChild( mea );
+	
+	mea = new daeMetaElementAttribute( _Meta, cm, 0, 1, 1 );
+	mea->setName( "float2x1" );
+	mea->setOffset( daeOffsetOf(domGles_basic_type_common,elemFloat2x1) );
+	mea->setElementType( domGles_basic_type_common::domFloat2x1::registerElement() );
+	cm->appendChild( mea );
+	
+	mea = new daeMetaElementAttribute( _Meta, cm, 0, 1, 1 );
+	mea->setName( "float2x2" );
+	mea->setOffset( daeOffsetOf(domGles_basic_type_common,elemFloat2x2) );
+	mea->setElementType( domGles_basic_type_common::domFloat2x2::registerElement() );
+	cm->appendChild( mea );
+	
+	mea = new daeMetaElementAttribute( _Meta, cm, 0, 1, 1 );
+	mea->setName( "float2x3" );
+	mea->setOffset( daeOffsetOf(domGles_basic_type_common,elemFloat2x3) );
+	mea->setElementType( domGles_basic_type_common::domFloat2x3::registerElement() );
+	cm->appendChild( mea );
+	
+	mea = new daeMetaElementAttribute( _Meta, cm, 0, 1, 1 );
+	mea->setName( "float2x4" );
+	mea->setOffset( daeOffsetOf(domGles_basic_type_common,elemFloat2x4) );
+	mea->setElementType( domGles_basic_type_common::domFloat2x4::registerElement() );
+	cm->appendChild( mea );
+	
+	mea = new daeMetaElementAttribute( _Meta, cm, 0, 1, 1 );
+	mea->setName( "float3x1" );
+	mea->setOffset( daeOffsetOf(domGles_basic_type_common,elemFloat3x1) );
+	mea->setElementType( domGles_basic_type_common::domFloat3x1::registerElement() );
+	cm->appendChild( mea );
+	
+	mea = new daeMetaElementAttribute( _Meta, cm, 0, 1, 1 );
+	mea->setName( "float3x2" );
+	mea->setOffset( daeOffsetOf(domGles_basic_type_common,elemFloat3x2) );
+	mea->setElementType( domGles_basic_type_common::domFloat3x2::registerElement() );
+	cm->appendChild( mea );
+	
+	mea = new daeMetaElementAttribute( _Meta, cm, 0, 1, 1 );
+	mea->setName( "float3x3" );
+	mea->setOffset( daeOffsetOf(domGles_basic_type_common,elemFloat3x3) );
+	mea->setElementType( domGles_basic_type_common::domFloat3x3::registerElement() );
+	cm->appendChild( mea );
+	
+	mea = new daeMetaElementAttribute( _Meta, cm, 0, 1, 1 );
+	mea->setName( "float3x4" );
+	mea->setOffset( daeOffsetOf(domGles_basic_type_common,elemFloat3x4) );
+	mea->setElementType( domGles_basic_type_common::domFloat3x4::registerElement() );
+	cm->appendChild( mea );
+	
+	mea = new daeMetaElementAttribute( _Meta, cm, 0, 1, 1 );
+	mea->setName( "float4x1" );
+	mea->setOffset( daeOffsetOf(domGles_basic_type_common,elemFloat4x1) );
+	mea->setElementType( domGles_basic_type_common::domFloat4x1::registerElement() );
+	cm->appendChild( mea );
+	
+	mea = new daeMetaElementAttribute( _Meta, cm, 0, 1, 1 );
+	mea->setName( "float4x2" );
+	mea->setOffset( daeOffsetOf(domGles_basic_type_common,elemFloat4x2) );
+	mea->setElementType( domGles_basic_type_common::domFloat4x2::registerElement() );
+	cm->appendChild( mea );
+	
+	mea = new daeMetaElementAttribute( _Meta, cm, 0, 1, 1 );
+	mea->setName( "float4x3" );
+	mea->setOffset( daeOffsetOf(domGles_basic_type_common,elemFloat4x3) );
+	mea->setElementType( domGles_basic_type_common::domFloat4x3::registerElement() );
+	cm->appendChild( mea );
+	
+	mea = new daeMetaElementAttribute( _Meta, cm, 0, 1, 1 );
+	mea->setName( "float4x4" );
+	mea->setOffset( daeOffsetOf(domGles_basic_type_common,elemFloat4x4) );
+	mea->setElementType( domGles_basic_type_common::domFloat4x4::registerElement() );
+	cm->appendChild( mea );
+	
+	mea = new daeMetaElementAttribute( _Meta, cm, 0, 1, 1 );
+	mea->setName( "surface" );
+	mea->setOffset( daeOffsetOf(domGles_basic_type_common,elemSurface) );
+	mea->setElementType( domFx_surface_common::registerElement() );
+	cm->appendChild( mea );
+	
+	mea = new daeMetaElementAttribute( _Meta, cm, 0, 1, 1 );
+	mea->setName( "texture_pipeline" );
+	mea->setOffset( daeOffsetOf(domGles_basic_type_common,elemTexture_pipeline) );
+	mea->setElementType( domGles_texture_pipeline::registerElement() );
+	cm->appendChild( mea );
+	
+	mea = new daeMetaElementAttribute( _Meta, cm, 0, 1, 1 );
+	mea->setName( "sampler_state" );
+	mea->setOffset( daeOffsetOf(domGles_basic_type_common,elemSampler_state) );
+	mea->setElementType( domGles_sampler_state::registerElement() );
+	cm->appendChild( mea );
+	
+	mea = new daeMetaElementAttribute( _Meta, cm, 0, 1, 1 );
+	mea->setName( "texture_unit" );
+	mea->setOffset( daeOffsetOf(domGles_basic_type_common,elemTexture_unit) );
+	mea->setElementType( domGles_texture_unit::registerElement() );
+	cm->appendChild( mea );
+	
+	mea = new daeMetaElementAttribute( _Meta, cm, 0, 1, 1 );
+	mea->setName( "enum" );
+	mea->setOffset( daeOffsetOf(domGles_basic_type_common,elemEnum) );
+	mea->setElementType( domGles_basic_type_common::domEnum::registerElement() );
+	cm->appendChild( mea );
+	
+	cm->setMaxOrdinal( 0 );
+	_Meta->setCMRoot( cm );	
 	// Ordered list of sub-elements
     _Meta->addContents(daeOffsetOf(domGles_basic_type_common,_contents));
+    _Meta->addContentsOrder(daeOffsetOf(domGles_basic_type_common,_contentsOrder));
 
 	
 	
@@ -93,9 +269,9 @@ domGles_basic_type_common::domBool::registerElement()
     
     _Meta = new daeMetaElement;
     _Meta->setName( "bool" );
-	_Meta->setStaticPointerAddress(&domGles_basic_type_common::domBool::_Meta);
 	_Meta->registerConstructor(domGles_basic_type_common::domBool::create);
 
+	_Meta->setIsInnerClass( true );
 	//	Add attribute: _value
  	{
 		daeMetaAttribute *ma = new daeMetaAttribute;
@@ -128,9 +304,9 @@ domGles_basic_type_common::domBool2::registerElement()
     
     _Meta = new daeMetaElement;
     _Meta->setName( "bool2" );
-	_Meta->setStaticPointerAddress(&domGles_basic_type_common::domBool2::_Meta);
 	_Meta->registerConstructor(domGles_basic_type_common::domBool2::create);
 
+	_Meta->setIsInnerClass( true );
 	//	Add attribute: _value
  	{
 		daeMetaAttribute *ma = new daeMetaArrayAttribute;
@@ -163,9 +339,9 @@ domGles_basic_type_common::domBool3::registerElement()
     
     _Meta = new daeMetaElement;
     _Meta->setName( "bool3" );
-	_Meta->setStaticPointerAddress(&domGles_basic_type_common::domBool3::_Meta);
 	_Meta->registerConstructor(domGles_basic_type_common::domBool3::create);
 
+	_Meta->setIsInnerClass( true );
 	//	Add attribute: _value
  	{
 		daeMetaAttribute *ma = new daeMetaArrayAttribute;
@@ -198,9 +374,9 @@ domGles_basic_type_common::domBool4::registerElement()
     
     _Meta = new daeMetaElement;
     _Meta->setName( "bool4" );
-	_Meta->setStaticPointerAddress(&domGles_basic_type_common::domBool4::_Meta);
 	_Meta->registerConstructor(domGles_basic_type_common::domBool4::create);
 
+	_Meta->setIsInnerClass( true );
 	//	Add attribute: _value
  	{
 		daeMetaAttribute *ma = new daeMetaArrayAttribute;
@@ -233,9 +409,9 @@ domGles_basic_type_common::domInt::registerElement()
     
     _Meta = new daeMetaElement;
     _Meta->setName( "int" );
-	_Meta->setStaticPointerAddress(&domGles_basic_type_common::domInt::_Meta);
 	_Meta->registerConstructor(domGles_basic_type_common::domInt::create);
 
+	_Meta->setIsInnerClass( true );
 	//	Add attribute: _value
  	{
 		daeMetaAttribute *ma = new daeMetaAttribute;
@@ -268,9 +444,9 @@ domGles_basic_type_common::domInt2::registerElement()
     
     _Meta = new daeMetaElement;
     _Meta->setName( "int2" );
-	_Meta->setStaticPointerAddress(&domGles_basic_type_common::domInt2::_Meta);
 	_Meta->registerConstructor(domGles_basic_type_common::domInt2::create);
 
+	_Meta->setIsInnerClass( true );
 	//	Add attribute: _value
  	{
 		daeMetaAttribute *ma = new daeMetaArrayAttribute;
@@ -303,9 +479,9 @@ domGles_basic_type_common::domInt3::registerElement()
     
     _Meta = new daeMetaElement;
     _Meta->setName( "int3" );
-	_Meta->setStaticPointerAddress(&domGles_basic_type_common::domInt3::_Meta);
 	_Meta->registerConstructor(domGles_basic_type_common::domInt3::create);
 
+	_Meta->setIsInnerClass( true );
 	//	Add attribute: _value
  	{
 		daeMetaAttribute *ma = new daeMetaArrayAttribute;
@@ -338,9 +514,9 @@ domGles_basic_type_common::domInt4::registerElement()
     
     _Meta = new daeMetaElement;
     _Meta->setName( "int4" );
-	_Meta->setStaticPointerAddress(&domGles_basic_type_common::domInt4::_Meta);
 	_Meta->registerConstructor(domGles_basic_type_common::domInt4::create);
 
+	_Meta->setIsInnerClass( true );
 	//	Add attribute: _value
  	{
 		daeMetaAttribute *ma = new daeMetaArrayAttribute;
@@ -373,9 +549,9 @@ domGles_basic_type_common::domFloat::registerElement()
     
     _Meta = new daeMetaElement;
     _Meta->setName( "float" );
-	_Meta->setStaticPointerAddress(&domGles_basic_type_common::domFloat::_Meta);
 	_Meta->registerConstructor(domGles_basic_type_common::domFloat::create);
 
+	_Meta->setIsInnerClass( true );
 	//	Add attribute: _value
  	{
 		daeMetaAttribute *ma = new daeMetaAttribute;
@@ -408,9 +584,9 @@ domGles_basic_type_common::domFloat2::registerElement()
     
     _Meta = new daeMetaElement;
     _Meta->setName( "float2" );
-	_Meta->setStaticPointerAddress(&domGles_basic_type_common::domFloat2::_Meta);
 	_Meta->registerConstructor(domGles_basic_type_common::domFloat2::create);
 
+	_Meta->setIsInnerClass( true );
 	//	Add attribute: _value
  	{
 		daeMetaAttribute *ma = new daeMetaArrayAttribute;
@@ -443,9 +619,9 @@ domGles_basic_type_common::domFloat3::registerElement()
     
     _Meta = new daeMetaElement;
     _Meta->setName( "float3" );
-	_Meta->setStaticPointerAddress(&domGles_basic_type_common::domFloat3::_Meta);
 	_Meta->registerConstructor(domGles_basic_type_common::domFloat3::create);
 
+	_Meta->setIsInnerClass( true );
 	//	Add attribute: _value
  	{
 		daeMetaAttribute *ma = new daeMetaArrayAttribute;
@@ -478,9 +654,9 @@ domGles_basic_type_common::domFloat4::registerElement()
     
     _Meta = new daeMetaElement;
     _Meta->setName( "float4" );
-	_Meta->setStaticPointerAddress(&domGles_basic_type_common::domFloat4::_Meta);
 	_Meta->registerConstructor(domGles_basic_type_common::domFloat4::create);
 
+	_Meta->setIsInnerClass( true );
 	//	Add attribute: _value
  	{
 		daeMetaAttribute *ma = new daeMetaArrayAttribute;
@@ -513,9 +689,9 @@ domGles_basic_type_common::domFloat1x1::registerElement()
     
     _Meta = new daeMetaElement;
     _Meta->setName( "float1x1" );
-	_Meta->setStaticPointerAddress(&domGles_basic_type_common::domFloat1x1::_Meta);
 	_Meta->registerConstructor(domGles_basic_type_common::domFloat1x1::create);
 
+	_Meta->setIsInnerClass( true );
 	//	Add attribute: _value
  	{
 		daeMetaAttribute *ma = new daeMetaAttribute;
@@ -548,9 +724,9 @@ domGles_basic_type_common::domFloat1x2::registerElement()
     
     _Meta = new daeMetaElement;
     _Meta->setName( "float1x2" );
-	_Meta->setStaticPointerAddress(&domGles_basic_type_common::domFloat1x2::_Meta);
 	_Meta->registerConstructor(domGles_basic_type_common::domFloat1x2::create);
 
+	_Meta->setIsInnerClass( true );
 	//	Add attribute: _value
  	{
 		daeMetaAttribute *ma = new daeMetaArrayAttribute;
@@ -583,9 +759,9 @@ domGles_basic_type_common::domFloat1x3::registerElement()
     
     _Meta = new daeMetaElement;
     _Meta->setName( "float1x3" );
-	_Meta->setStaticPointerAddress(&domGles_basic_type_common::domFloat1x3::_Meta);
 	_Meta->registerConstructor(domGles_basic_type_common::domFloat1x3::create);
 
+	_Meta->setIsInnerClass( true );
 	//	Add attribute: _value
  	{
 		daeMetaAttribute *ma = new daeMetaArrayAttribute;
@@ -618,9 +794,9 @@ domGles_basic_type_common::domFloat1x4::registerElement()
     
     _Meta = new daeMetaElement;
     _Meta->setName( "float1x4" );
-	_Meta->setStaticPointerAddress(&domGles_basic_type_common::domFloat1x4::_Meta);
 	_Meta->registerConstructor(domGles_basic_type_common::domFloat1x4::create);
 
+	_Meta->setIsInnerClass( true );
 	//	Add attribute: _value
  	{
 		daeMetaAttribute *ma = new daeMetaArrayAttribute;
@@ -653,9 +829,9 @@ domGles_basic_type_common::domFloat2x1::registerElement()
     
     _Meta = new daeMetaElement;
     _Meta->setName( "float2x1" );
-	_Meta->setStaticPointerAddress(&domGles_basic_type_common::domFloat2x1::_Meta);
 	_Meta->registerConstructor(domGles_basic_type_common::domFloat2x1::create);
 
+	_Meta->setIsInnerClass( true );
 	//	Add attribute: _value
  	{
 		daeMetaAttribute *ma = new daeMetaArrayAttribute;
@@ -688,9 +864,9 @@ domGles_basic_type_common::domFloat2x2::registerElement()
     
     _Meta = new daeMetaElement;
     _Meta->setName( "float2x2" );
-	_Meta->setStaticPointerAddress(&domGles_basic_type_common::domFloat2x2::_Meta);
 	_Meta->registerConstructor(domGles_basic_type_common::domFloat2x2::create);
 
+	_Meta->setIsInnerClass( true );
 	//	Add attribute: _value
  	{
 		daeMetaAttribute *ma = new daeMetaArrayAttribute;
@@ -723,9 +899,9 @@ domGles_basic_type_common::domFloat2x3::registerElement()
     
     _Meta = new daeMetaElement;
     _Meta->setName( "float2x3" );
-	_Meta->setStaticPointerAddress(&domGles_basic_type_common::domFloat2x3::_Meta);
 	_Meta->registerConstructor(domGles_basic_type_common::domFloat2x3::create);
 
+	_Meta->setIsInnerClass( true );
 	//	Add attribute: _value
  	{
 		daeMetaAttribute *ma = new daeMetaArrayAttribute;
@@ -758,9 +934,9 @@ domGles_basic_type_common::domFloat2x4::registerElement()
     
     _Meta = new daeMetaElement;
     _Meta->setName( "float2x4" );
-	_Meta->setStaticPointerAddress(&domGles_basic_type_common::domFloat2x4::_Meta);
 	_Meta->registerConstructor(domGles_basic_type_common::domFloat2x4::create);
 
+	_Meta->setIsInnerClass( true );
 	//	Add attribute: _value
  	{
 		daeMetaAttribute *ma = new daeMetaArrayAttribute;
@@ -793,9 +969,9 @@ domGles_basic_type_common::domFloat3x1::registerElement()
     
     _Meta = new daeMetaElement;
     _Meta->setName( "float3x1" );
-	_Meta->setStaticPointerAddress(&domGles_basic_type_common::domFloat3x1::_Meta);
 	_Meta->registerConstructor(domGles_basic_type_common::domFloat3x1::create);
 
+	_Meta->setIsInnerClass( true );
 	//	Add attribute: _value
  	{
 		daeMetaAttribute *ma = new daeMetaArrayAttribute;
@@ -828,9 +1004,9 @@ domGles_basic_type_common::domFloat3x2::registerElement()
     
     _Meta = new daeMetaElement;
     _Meta->setName( "float3x2" );
-	_Meta->setStaticPointerAddress(&domGles_basic_type_common::domFloat3x2::_Meta);
 	_Meta->registerConstructor(domGles_basic_type_common::domFloat3x2::create);
 
+	_Meta->setIsInnerClass( true );
 	//	Add attribute: _value
  	{
 		daeMetaAttribute *ma = new daeMetaArrayAttribute;
@@ -863,9 +1039,9 @@ domGles_basic_type_common::domFloat3x3::registerElement()
     
     _Meta = new daeMetaElement;
     _Meta->setName( "float3x3" );
-	_Meta->setStaticPointerAddress(&domGles_basic_type_common::domFloat3x3::_Meta);
 	_Meta->registerConstructor(domGles_basic_type_common::domFloat3x3::create);
 
+	_Meta->setIsInnerClass( true );
 	//	Add attribute: _value
  	{
 		daeMetaAttribute *ma = new daeMetaArrayAttribute;
@@ -898,9 +1074,9 @@ domGles_basic_type_common::domFloat3x4::registerElement()
     
     _Meta = new daeMetaElement;
     _Meta->setName( "float3x4" );
-	_Meta->setStaticPointerAddress(&domGles_basic_type_common::domFloat3x4::_Meta);
 	_Meta->registerConstructor(domGles_basic_type_common::domFloat3x4::create);
 
+	_Meta->setIsInnerClass( true );
 	//	Add attribute: _value
  	{
 		daeMetaAttribute *ma = new daeMetaArrayAttribute;
@@ -933,9 +1109,9 @@ domGles_basic_type_common::domFloat4x1::registerElement()
     
     _Meta = new daeMetaElement;
     _Meta->setName( "float4x1" );
-	_Meta->setStaticPointerAddress(&domGles_basic_type_common::domFloat4x1::_Meta);
 	_Meta->registerConstructor(domGles_basic_type_common::domFloat4x1::create);
 
+	_Meta->setIsInnerClass( true );
 	//	Add attribute: _value
  	{
 		daeMetaAttribute *ma = new daeMetaArrayAttribute;
@@ -968,9 +1144,9 @@ domGles_basic_type_common::domFloat4x2::registerElement()
     
     _Meta = new daeMetaElement;
     _Meta->setName( "float4x2" );
-	_Meta->setStaticPointerAddress(&domGles_basic_type_common::domFloat4x2::_Meta);
 	_Meta->registerConstructor(domGles_basic_type_common::domFloat4x2::create);
 
+	_Meta->setIsInnerClass( true );
 	//	Add attribute: _value
  	{
 		daeMetaAttribute *ma = new daeMetaArrayAttribute;
@@ -1003,9 +1179,9 @@ domGles_basic_type_common::domFloat4x3::registerElement()
     
     _Meta = new daeMetaElement;
     _Meta->setName( "float4x3" );
-	_Meta->setStaticPointerAddress(&domGles_basic_type_common::domFloat4x3::_Meta);
 	_Meta->registerConstructor(domGles_basic_type_common::domFloat4x3::create);
 
+	_Meta->setIsInnerClass( true );
 	//	Add attribute: _value
  	{
 		daeMetaAttribute *ma = new daeMetaArrayAttribute;
@@ -1038,9 +1214,9 @@ domGles_basic_type_common::domFloat4x4::registerElement()
     
     _Meta = new daeMetaElement;
     _Meta->setName( "float4x4" );
-	_Meta->setStaticPointerAddress(&domGles_basic_type_common::domFloat4x4::_Meta);
 	_Meta->registerConstructor(domGles_basic_type_common::domFloat4x4::create);
 
+	_Meta->setIsInnerClass( true );
 	//	Add attribute: _value
  	{
 		daeMetaAttribute *ma = new daeMetaArrayAttribute;
@@ -1073,9 +1249,9 @@ domGles_basic_type_common::domEnum::registerElement()
     
     _Meta = new daeMetaElement;
     _Meta->setName( "enum" );
-	_Meta->setStaticPointerAddress(&domGles_basic_type_common::domEnum::_Meta);
 	_Meta->registerConstructor(domGles_basic_type_common::domEnum::create);
 
+	_Meta->setIsInnerClass( true );
 	//	Add attribute: _value
  	{
 		daeMetaAttribute *ma = new daeMetaAttribute;

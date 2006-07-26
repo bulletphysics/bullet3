@@ -73,14 +73,14 @@ public:
 	 * @note This function is called internally and not meant to be called by the client application.
 	 * Calling this function from the client application may result in unexpected behavior.
 	 */
-	void insertElement( daeElementRef element ) { insertedElements.append( element ); }
+	void insertElement( daeElementRef element );
 	/**
 	 * This function is used to track how a document gets modified. It gets called internally.
 	 * @param element The element that was removed from this document.
 	 * @note This function is called internally and not meant to be called by the client application.
 	 * Calling this function from the client application may result in unexpected behavior.
 	 */
-	void removeElement( daeElementRef element ) { removedElements.append( element ); }
+	void removeElement( daeElementRef element );
 
 	/**
 	 * This function is used to track how a document gets modified. It gets called internally.

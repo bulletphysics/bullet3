@@ -13,6 +13,12 @@
 
 #include <dae/daeDom.h>
 #include <dom/domGlsl_newparam.h>
+#include <dae/daeMetaCMPolicy.h>
+#include <dae/daeMetaSequence.h>
+#include <dae/daeMetaChoice.h>
+#include <dae/daeMetaGroup.h>
+#include <dae/daeMetaAny.h>
+#include <dae/daeMetaElementAttribute.h>
 
 daeElementRef
 domGlsl_newparam::create(daeInt bytes)
@@ -29,40 +35,53 @@ domGlsl_newparam::registerElement()
     
     _Meta = new daeMetaElement;
     _Meta->setName( "glsl_newparam" );
-	_Meta->setStaticPointerAddress(&domGlsl_newparam::_Meta);
 	_Meta->registerConstructor(domGlsl_newparam::create);
 
-	// Add elements: annotate, semantic, modifier, glsl_param_type, array
-    _Meta->appendArrayElement(domFx_annotate_common::registerElement(),daeOffsetOf(domGlsl_newparam,elemAnnotate_array),"annotate"); 
-    _Meta->appendElement(domGlsl_newparam::domSemantic::registerElement(),daeOffsetOf(domGlsl_newparam,elemSemantic));
-    _Meta->appendElement(domGlsl_newparam::domModifier::registerElement(),daeOffsetOf(domGlsl_newparam,elemModifier));
-    _Meta->appendElement(domGlsl_param_type::registerElement(),daeOffsetOf(domGlsl_newparam,elemGlsl_param_type));
-	_Meta->appendPossibleChild( "bool", _Meta->getMetaElements()[3]);
-	_Meta->appendPossibleChild( "bool2", _Meta->getMetaElements()[3]);
-	_Meta->appendPossibleChild( "bool3", _Meta->getMetaElements()[3]);
-	_Meta->appendPossibleChild( "bool4", _Meta->getMetaElements()[3]);
-	_Meta->appendPossibleChild( "float", _Meta->getMetaElements()[3]);
-	_Meta->appendPossibleChild( "float2", _Meta->getMetaElements()[3]);
-	_Meta->appendPossibleChild( "float3", _Meta->getMetaElements()[3]);
-	_Meta->appendPossibleChild( "float4", _Meta->getMetaElements()[3]);
-	_Meta->appendPossibleChild( "float2x2", _Meta->getMetaElements()[3]);
-	_Meta->appendPossibleChild( "float3x3", _Meta->getMetaElements()[3]);
-	_Meta->appendPossibleChild( "float4x4", _Meta->getMetaElements()[3]);
-	_Meta->appendPossibleChild( "int", _Meta->getMetaElements()[3]);
-	_Meta->appendPossibleChild( "int2", _Meta->getMetaElements()[3]);
-	_Meta->appendPossibleChild( "int3", _Meta->getMetaElements()[3]);
-	_Meta->appendPossibleChild( "int4", _Meta->getMetaElements()[3]);
-	_Meta->appendPossibleChild( "surface", _Meta->getMetaElements()[3], "fx_surface_common");
-	_Meta->appendPossibleChild( "sampler1D", _Meta->getMetaElements()[3], "gl_sampler1D");
-	_Meta->appendPossibleChild( "sampler2D", _Meta->getMetaElements()[3], "gl_sampler2D");
-	_Meta->appendPossibleChild( "sampler3D", _Meta->getMetaElements()[3], "gl_sampler3D");
-	_Meta->appendPossibleChild( "samplerCUBE", _Meta->getMetaElements()[3], "gl_samplerCUBE");
-	_Meta->appendPossibleChild( "samplerRECT", _Meta->getMetaElements()[3], "gl_samplerRECT");
-	_Meta->appendPossibleChild( "samplerDEPTH", _Meta->getMetaElements()[3], "gl_samplerDEPTH");
-	_Meta->appendPossibleChild( "enum", _Meta->getMetaElements()[3]);
-    _Meta->appendElement(domGlsl_newarray_type::registerElement(),daeOffsetOf(domGlsl_newparam,elemArray),"array"); 
+	daeMetaCMPolicy *cm = NULL;
+	daeMetaElementAttribute *mea = NULL;
+	cm = new daeMetaSequence( _Meta, cm, 0, 1, 1 );
+
+	mea = new daeMetaElementArrayAttribute( _Meta, cm, 0, 0, -1 );
+	mea->setName( "annotate" );
+	mea->setOffset( daeOffsetOf(domGlsl_newparam,elemAnnotate_array) );
+	mea->setElementType( domFx_annotate_common::registerElement() );
+	cm->appendChild( mea );
+	
+	mea = new daeMetaElementAttribute( _Meta, cm, 1, 0, 1 );
+	mea->setName( "semantic" );
+	mea->setOffset( daeOffsetOf(domGlsl_newparam,elemSemantic) );
+	mea->setElementType( domGlsl_newparam::domSemantic::registerElement() );
+	cm->appendChild( mea );
+	
+	mea = new daeMetaElementAttribute( _Meta, cm, 2, 0, 1 );
+	mea->setName( "modifier" );
+	mea->setOffset( daeOffsetOf(domGlsl_newparam,elemModifier) );
+	mea->setElementType( domGlsl_newparam::domModifier::registerElement() );
+	cm->appendChild( mea );
+	
+	cm = new daeMetaChoice( _Meta, cm, 3, 1, 1 );
+
+	mea = new daeMetaElementAttribute( _Meta, cm, 0, 1, 1 );
+	mea->setName( "glsl_param_type" );
+	mea->setOffset( daeOffsetOf(domGlsl_newparam,elemGlsl_param_type) );
+	mea->setElementType( domGlsl_param_type::registerElement() );
+	cm->appendChild( new daeMetaGroup( mea, _Meta, cm, 0, 1, 1 ) );
+	
+	mea = new daeMetaElementAttribute( _Meta, cm, 0, 1, 1 );
+	mea->setName( "array" );
+	mea->setOffset( daeOffsetOf(domGlsl_newparam,elemArray) );
+	mea->setElementType( domGlsl_newarray_type::registerElement() );
+	cm->appendChild( mea );
+	
+	cm->setMaxOrdinal( 0 );
+	cm->getParent()->appendChild( cm );
+	cm = cm->getParent();
+	
+	cm->setMaxOrdinal( 3 );
+	_Meta->setCMRoot( cm );	
 	// Ordered list of sub-elements
     _Meta->addContents(daeOffsetOf(domGlsl_newparam,_contents));
+    _Meta->addContentsOrder(daeOffsetOf(domGlsl_newparam,_contentsOrder));
 
 
 	//	Add attribute: sid
@@ -99,9 +118,9 @@ domGlsl_newparam::domSemantic::registerElement()
     
     _Meta = new daeMetaElement;
     _Meta->setName( "semantic" );
-	_Meta->setStaticPointerAddress(&domGlsl_newparam::domSemantic::_Meta);
 	_Meta->registerConstructor(domGlsl_newparam::domSemantic::create);
 
+	_Meta->setIsInnerClass( true );
 	//	Add attribute: _value
  	{
 		daeMetaAttribute *ma = new daeMetaAttribute;
@@ -134,9 +153,9 @@ domGlsl_newparam::domModifier::registerElement()
     
     _Meta = new daeMetaElement;
     _Meta->setName( "modifier" );
-	_Meta->setStaticPointerAddress(&domGlsl_newparam::domModifier::_Meta);
 	_Meta->registerConstructor(domGlsl_newparam::domModifier::create);
 
+	_Meta->setIsInnerClass( true );
 	//	Add attribute: _value
  	{
 		daeMetaAttribute *ma = new daeMetaAttribute;

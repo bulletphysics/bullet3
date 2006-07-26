@@ -46,7 +46,8 @@ public:
 		 * Sets the sid attribute.
 		 * @param atSid The new value for the sid attribute.
 		 */
-		void setSid( xsNCName atSid ) { attrSid = atSid; }
+		void setSid( xsNCName atSid ) { *(daeStringRef*)&attrSid = atSid;	
+	 _validAttributeArray[0] = true; }
 
 		/**
 		 * Gets the value of this element.
@@ -119,7 +120,8 @@ public:
 		 * Sets the ref attribute.
 		 * @param atRef The new value for the ref attribute.
 		 */
-		void setRef( xsNCName atRef ) { attrRef = atRef; }
+		void setRef( xsNCName atRef ) { *(daeStringRef*)&attrRef = atRef;	
+	 _validAttributeArray[0] = true; }
 
 	protected:
 		/**
@@ -169,6 +171,10 @@ protected:  // Elements
 	 * Used to preserve order in elements that do not specify strict sequencing of sub-elements.
 	 */
 	daeElementRefArray _contents;
+	/**
+	 * Used to preserve order in elements that have a complex content model.
+	 */
+	daeUIntArray       _contentsOrder;
 
 
 public:	//Accessors and Mutators

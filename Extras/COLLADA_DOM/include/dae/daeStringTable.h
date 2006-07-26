@@ -57,6 +57,8 @@ private: // MEMBERS
 	daeStringArray _stringBuffersList;
 
 	daeString allocateBuffer();
+
+	daeString _empty;
 };
 
 #endif //__DAE_STRING_TABLE_H__

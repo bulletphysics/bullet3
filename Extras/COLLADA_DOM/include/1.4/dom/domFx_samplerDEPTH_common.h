@@ -16,6 +16,7 @@
 #include <dom/domTypes.h>
 #include <dom/domElements.h>
 
+#include <dom/domExtra.h>
 
 /**
  * A texture sampler for depth maps.
@@ -40,14 +41,14 @@ public:
 	public:	//Accessors and Mutators
 		/**
 		 * Gets the value of this element.
-		 * @return a xsNCName of the value.
+		 * @return Returns a xsNCName of the value.
 		 */
 		xsNCName getValue() const { return _value; }
 		/**
 		 * Sets the _value of this element.
 		 * @param val The new value for this element.
 		 */
-		void setValue( xsNCName val ) { _value = val; }
+		void setValue( xsNCName val ) { *(daeStringRef*)&_value = val; }
 
 	protected:
 		/**
@@ -356,6 +357,7 @@ protected:  // Elements
 	domWrap_tRef elemWrap_t;
 	domMinfilterRef elemMinfilter;
 	domMagfilterRef elemMagfilter;
+	domExtra_Array elemExtra_array;
 
 public:	//Accessors and Mutators
 	/**
@@ -383,11 +385,21 @@ public:	//Accessors and Mutators
 	 * @return a daeSmartRef to the magfilter element.
 	 */
 	const domMagfilterRef getMagfilter() const { return elemMagfilter; }
+	/**
+	 * Gets the extra element array.
+	 * @return Returns a reference to the array of extra elements.
+	 */
+	domExtra_Array &getExtra_array() { return elemExtra_array; }
+	/**
+	 * Gets the extra element array.
+	 * @return Returns a constant reference to the array of extra elements.
+	 */
+	const domExtra_Array &getExtra_array() const { return elemExtra_array; }
 protected:
 	/**
 	 * Constructor
 	 */
-	domFx_samplerDEPTH_common_complexType() : elemSource(), elemWrap_s(), elemWrap_t(), elemMinfilter(), elemMagfilter() {}
+	domFx_samplerDEPTH_common_complexType() : elemSource(), elemWrap_s(), elemWrap_t(), elemMinfilter(), elemMagfilter(), elemExtra_array() {}
 	/**
 	 * Destructor
 	 */

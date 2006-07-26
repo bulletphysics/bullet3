@@ -83,7 +83,7 @@ private:
 	void postProcessDom(daeDocument *document, daeElement* element, std::vector<INTEGRATION_ITEM> &intItems);
 
 	void writeElement( daeElement* element ); 
-	void writeAttribute( daeMetaAttribute* attr, daeElement* element );
+	void writeAttribute( daeMetaAttribute* attr, daeElement* element, daeInt attrNum = -1 );
 
 	void readAttributes( daeElement *element, xmlTextReaderPtr reader );
 	void readValue( daeElement *element, xmlTextReaderPtr reader );

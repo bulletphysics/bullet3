@@ -13,6 +13,12 @@
 
 #include <dae/daeDom.h>
 #include <dom/domAccessor.h>
+#include <dae/daeMetaCMPolicy.h>
+#include <dae/daeMetaSequence.h>
+#include <dae/daeMetaChoice.h>
+#include <dae/daeMetaGroup.h>
+#include <dae/daeMetaAny.h>
+#include <dae/daeMetaElementAttribute.h>
 
 daeElementRef
 domAccessor::create(daeInt bytes)
@@ -30,11 +36,20 @@ domAccessor::registerElement()
     
     _Meta = new daeMetaElement;
     _Meta->setName( "accessor" );
-	_Meta->setStaticPointerAddress(&domAccessor::_Meta);
 	_Meta->registerConstructor(domAccessor::create);
 
-	// Add elements: param
-    _Meta->appendArrayElement(domParam::registerElement(),daeOffsetOf(domAccessor,elemParam_array));
+	daeMetaCMPolicy *cm = NULL;
+	daeMetaElementAttribute *mea = NULL;
+	cm = new daeMetaSequence( _Meta, cm, 0, 1, 1 );
+
+	mea = new daeMetaElementArrayAttribute( _Meta, cm, 0, 0, -1 );
+	mea->setName( "param" );
+	mea->setOffset( daeOffsetOf(domAccessor,elemParam_array) );
+	mea->setElementType( domParam::registerElement() );
+	cm->appendChild( mea );
+	
+	cm->setMaxOrdinal( 0 );
+	_Meta->setCMRoot( cm );	
 
 	//	Add attribute: count
  	{

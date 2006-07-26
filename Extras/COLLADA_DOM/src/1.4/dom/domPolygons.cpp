@@ -13,6 +13,12 @@
 
 #include <dae/daeDom.h>
 #include <dom/domPolygons.h>
+#include <dae/daeMetaCMPolicy.h>
+#include <dae/daeMetaSequence.h>
+#include <dae/daeMetaChoice.h>
+#include <dae/daeMetaGroup.h>
+#include <dae/daeMetaAny.h>
+#include <dae/daeMetaElementAttribute.h>
 
 daeElementRef
 domPolygons::create(daeInt bytes)
@@ -29,16 +35,47 @@ domPolygons::registerElement()
     
     _Meta = new daeMetaElement;
     _Meta->setName( "polygons" );
-	_Meta->setStaticPointerAddress(&domPolygons::_Meta);
 	_Meta->registerConstructor(domPolygons::create);
 
-	// Add elements: input, p, ph, extra
-    _Meta->appendArrayElement(domInputLocalOffset::registerElement(),daeOffsetOf(domPolygons,elemInput_array),"input"); 
-    _Meta->appendArrayElement(domP::registerElement(),daeOffsetOf(domPolygons,elemP_array));
-    _Meta->appendArrayElement(domPolygons::domPh::registerElement(),daeOffsetOf(domPolygons,elemPh_array));
-    _Meta->appendArrayElement(domExtra::registerElement(),daeOffsetOf(domPolygons,elemExtra_array));
+	daeMetaCMPolicy *cm = NULL;
+	daeMetaElementAttribute *mea = NULL;
+	cm = new daeMetaSequence( _Meta, cm, 0, 1, 1 );
+
+	mea = new daeMetaElementArrayAttribute( _Meta, cm, 0, 0, -1 );
+	mea->setName( "input" );
+	mea->setOffset( daeOffsetOf(domPolygons,elemInput_array) );
+	mea->setElementType( domInputLocalOffset::registerElement() );
+	cm->appendChild( mea );
+	
+	cm = new daeMetaChoice( _Meta, cm, 1, 0, -1 );
+
+	mea = new daeMetaElementArrayAttribute( _Meta, cm, 0, 1, 1 );
+	mea->setName( "p" );
+	mea->setOffset( daeOffsetOf(domPolygons,elemP_array) );
+	mea->setElementType( domP::registerElement() );
+	cm->appendChild( mea );
+	
+	mea = new daeMetaElementArrayAttribute( _Meta, cm, 0, 1, 1 );
+	mea->setName( "ph" );
+	mea->setOffset( daeOffsetOf(domPolygons,elemPh_array) );
+	mea->setElementType( domPolygons::domPh::registerElement() );
+	cm->appendChild( mea );
+	
+	cm->setMaxOrdinal( 0 );
+	cm->getParent()->appendChild( cm );
+	cm = cm->getParent();
+	
+	mea = new daeMetaElementArrayAttribute( _Meta, cm, 3002, 0, -1 );
+	mea->setName( "extra" );
+	mea->setOffset( daeOffsetOf(domPolygons,elemExtra_array) );
+	mea->setElementType( domExtra::registerElement() );
+	cm->appendChild( mea );
+	
+	cm->setMaxOrdinal( 3002 );
+	_Meta->setCMRoot( cm );	
 	// Ordered list of sub-elements
     _Meta->addContents(daeOffsetOf(domPolygons,_contents));
+    _Meta->addContentsOrder(daeOffsetOf(domPolygons,_contentsOrder));
 
 
 	//	Add attribute: name
@@ -97,12 +134,27 @@ domPolygons::domPh::registerElement()
     
     _Meta = new daeMetaElement;
     _Meta->setName( "ph" );
-	_Meta->setStaticPointerAddress(&domPolygons::domPh::_Meta);
 	_Meta->registerConstructor(domPolygons::domPh::create);
 
-	// Add elements: p, h
-    _Meta->appendElement(domP::registerElement(),daeOffsetOf(domPolygons::domPh,elemP));
-    _Meta->appendArrayElement(domPolygons::domPh::domH::registerElement(),daeOffsetOf(domPolygons::domPh,elemH_array));
+	_Meta->setIsInnerClass( true );
+	daeMetaCMPolicy *cm = NULL;
+	daeMetaElementAttribute *mea = NULL;
+	cm = new daeMetaSequence( _Meta, cm, 0, 1, 1 );
+
+	mea = new daeMetaElementAttribute( _Meta, cm, 0, 1, 1 );
+	mea->setName( "p" );
+	mea->setOffset( daeOffsetOf(domPolygons::domPh,elemP) );
+	mea->setElementType( domP::registerElement() );
+	cm->appendChild( mea );
+	
+	mea = new daeMetaElementArrayAttribute( _Meta, cm, 1, 1, -1 );
+	mea->setName( "h" );
+	mea->setOffset( daeOffsetOf(domPolygons::domPh,elemH_array) );
+	mea->setElementType( domPolygons::domPh::domH::registerElement() );
+	cm->appendChild( mea );
+	
+	cm->setMaxOrdinal( 1 );
+	_Meta->setCMRoot( cm );	
 	
 	
 	_Meta->setElementSize(sizeof(domPolygons::domPh));
@@ -126,9 +178,9 @@ domPolygons::domPh::domH::registerElement()
     
     _Meta = new daeMetaElement;
     _Meta->setName( "h" );
-	_Meta->setStaticPointerAddress(&domPolygons::domPh::domH::_Meta);
 	_Meta->registerConstructor(domPolygons::domPh::domH::create);
 
+	_Meta->setIsInnerClass( true );
 	//	Add attribute: _value
  	{
 		daeMetaAttribute *ma = new daeMetaArrayAttribute;

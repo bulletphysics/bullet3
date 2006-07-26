@@ -155,7 +155,8 @@ public:	//Accessors and Mutators
 	 * Sets the name attribute.
 	 * @param atName The new value for the name attribute.
 	 */
-	void setName( xsNCName atName ) { attrName = atName; }
+	void setName( xsNCName atName ) { *(daeStringRef*)&attrName = atName;
+	 _validAttributeArray[0] = true; }
 
 	/**
 	 * Gets the count attribute.
@@ -166,7 +167,8 @@ public:	//Accessors and Mutators
 	 * Sets the count attribute.
 	 * @param atCount The new value for the count attribute.
 	 */
-	void setCount( domUint atCount ) { attrCount = atCount; }
+	void setCount( domUint atCount ) { attrCount = atCount;
+	 _validAttributeArray[1] = true; }
 
 	/**
 	 * Gets the material attribute.
@@ -177,7 +179,8 @@ public:	//Accessors and Mutators
 	 * Sets the material attribute.
 	 * @param atMaterial The new value for the material attribute.
 	 */
-	void setMaterial( xsNCName atMaterial ) { attrMaterial = atMaterial; }
+	void setMaterial( xsNCName atMaterial ) { *(daeStringRef*)&attrMaterial = atMaterial;
+	 _validAttributeArray[2] = true; }
 
 	/**
 	 * Gets the input element array.

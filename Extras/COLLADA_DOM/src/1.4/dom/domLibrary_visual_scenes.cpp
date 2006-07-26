@@ -13,6 +13,12 @@
 
 #include <dae/daeDom.h>
 #include <dom/domLibrary_visual_scenes.h>
+#include <dae/daeMetaCMPolicy.h>
+#include <dae/daeMetaSequence.h>
+#include <dae/daeMetaChoice.h>
+#include <dae/daeMetaGroup.h>
+#include <dae/daeMetaAny.h>
+#include <dae/daeMetaElementAttribute.h>
 
 daeElementRef
 domLibrary_visual_scenes::create(daeInt bytes)
@@ -29,13 +35,32 @@ domLibrary_visual_scenes::registerElement()
     
     _Meta = new daeMetaElement;
     _Meta->setName( "library_visual_scenes" );
-	_Meta->setStaticPointerAddress(&domLibrary_visual_scenes::_Meta);
 	_Meta->registerConstructor(domLibrary_visual_scenes::create);
 
-	// Add elements: asset, visual_scene, extra
-    _Meta->appendElement(domAsset::registerElement(),daeOffsetOf(domLibrary_visual_scenes,elemAsset));
-    _Meta->appendArrayElement(domVisual_scene::registerElement(),daeOffsetOf(domLibrary_visual_scenes,elemVisual_scene_array));
-    _Meta->appendArrayElement(domExtra::registerElement(),daeOffsetOf(domLibrary_visual_scenes,elemExtra_array));
+	daeMetaCMPolicy *cm = NULL;
+	daeMetaElementAttribute *mea = NULL;
+	cm = new daeMetaSequence( _Meta, cm, 0, 1, 1 );
+
+	mea = new daeMetaElementAttribute( _Meta, cm, 0, 0, 1 );
+	mea->setName( "asset" );
+	mea->setOffset( daeOffsetOf(domLibrary_visual_scenes,elemAsset) );
+	mea->setElementType( domAsset::registerElement() );
+	cm->appendChild( mea );
+	
+	mea = new daeMetaElementArrayAttribute( _Meta, cm, 1, 1, -1 );
+	mea->setName( "visual_scene" );
+	mea->setOffset( daeOffsetOf(domLibrary_visual_scenes,elemVisual_scene_array) );
+	mea->setElementType( domVisual_scene::registerElement() );
+	cm->appendChild( mea );
+	
+	mea = new daeMetaElementArrayAttribute( _Meta, cm, 2, 0, -1 );
+	mea->setName( "extra" );
+	mea->setOffset( daeOffsetOf(domLibrary_visual_scenes,elemExtra_array) );
+	mea->setElementType( domExtra::registerElement() );
+	cm->appendChild( mea );
+	
+	cm->setMaxOrdinal( 2 );
+	_Meta->setCMRoot( cm );	
 
 	//	Add attribute: id
  	{

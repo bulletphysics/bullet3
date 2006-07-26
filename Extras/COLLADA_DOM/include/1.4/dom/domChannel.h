@@ -52,7 +52,8 @@ public:	//Accessors and Mutators
 	 * Sets the source attribute.
 	 * @param atSource The new value for the source attribute.
 	 */
-	void setSource( const domURIFragmentType &atSource ) { attrSource.setURI( atSource.getURI() ); }
+	void setSource( const domURIFragmentType &atSource ) { attrSource.setURI( atSource.getURI() );
+	 _validAttributeArray[0] = true; }
 
 	/**
 	 * Gets the target attribute.
@@ -63,7 +64,8 @@ public:	//Accessors and Mutators
 	 * Sets the target attribute.
 	 * @param atTarget The new value for the target attribute.
 	 */
-	void setTarget( xsToken atTarget ) { attrTarget = atTarget; }
+	void setTarget( xsToken atTarget ) { *(daeStringRef*)&attrTarget = atTarget;
+	 _validAttributeArray[1] = true; }
 
 protected:
 	/**

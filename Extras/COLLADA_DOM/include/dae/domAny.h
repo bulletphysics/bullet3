@@ -42,6 +42,10 @@ protected:  // Attribute
 	 * Used to preserve order in elements that do not specify strict sequencing of sub-elements.
 	 */
 	daeElementRefArray _contents;
+	/**
+	 * Used to preserve order in elements that have a complex content model.
+	 */
+	daeUIntArray       _contentsOrder;
 
 public:
 	/**
@@ -81,7 +85,7 @@ public:
 	 * Sets the _value of this element.
 	 * @param val The new value for this element.
 	 */
-	void setValue( daeString val ) { _value = val; }
+	void setValue( daeString val ) { *(daeStringRef*)&_value = val; }
 
 protected:
 	/**

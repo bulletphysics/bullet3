@@ -13,6 +13,12 @@
 
 #include <dae/daeDom.h>
 #include <dom/domTristrips.h>
+#include <dae/daeMetaCMPolicy.h>
+#include <dae/daeMetaSequence.h>
+#include <dae/daeMetaChoice.h>
+#include <dae/daeMetaGroup.h>
+#include <dae/daeMetaAny.h>
+#include <dae/daeMetaElementAttribute.h>
 
 daeElementRef
 domTristrips::create(daeInt bytes)
@@ -29,13 +35,32 @@ domTristrips::registerElement()
     
     _Meta = new daeMetaElement;
     _Meta->setName( "tristrips" );
-	_Meta->setStaticPointerAddress(&domTristrips::_Meta);
 	_Meta->registerConstructor(domTristrips::create);
 
-	// Add elements: input, p, extra
-    _Meta->appendArrayElement(domInputLocalOffset::registerElement(),daeOffsetOf(domTristrips,elemInput_array),"input"); 
-    _Meta->appendArrayElement(domP::registerElement(),daeOffsetOf(domTristrips,elemP_array));
-    _Meta->appendArrayElement(domExtra::registerElement(),daeOffsetOf(domTristrips,elemExtra_array));
+	daeMetaCMPolicy *cm = NULL;
+	daeMetaElementAttribute *mea = NULL;
+	cm = new daeMetaSequence( _Meta, cm, 0, 1, 1 );
+
+	mea = new daeMetaElementArrayAttribute( _Meta, cm, 0, 0, -1 );
+	mea->setName( "input" );
+	mea->setOffset( daeOffsetOf(domTristrips,elemInput_array) );
+	mea->setElementType( domInputLocalOffset::registerElement() );
+	cm->appendChild( mea );
+	
+	mea = new daeMetaElementArrayAttribute( _Meta, cm, 1, 0, -1 );
+	mea->setName( "p" );
+	mea->setOffset( daeOffsetOf(domTristrips,elemP_array) );
+	mea->setElementType( domP::registerElement() );
+	cm->appendChild( mea );
+	
+	mea = new daeMetaElementArrayAttribute( _Meta, cm, 2, 0, -1 );
+	mea->setName( "extra" );
+	mea->setOffset( daeOffsetOf(domTristrips,elemExtra_array) );
+	mea->setElementType( domExtra::registerElement() );
+	cm->appendChild( mea );
+	
+	cm->setMaxOrdinal( 2 );
+	_Meta->setCMRoot( cm );	
 
 	//	Add attribute: name
  	{

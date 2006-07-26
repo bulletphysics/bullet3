@@ -76,14 +76,14 @@ public:
 			public:	//Accessors and Mutators
 				/**
 				 * Gets the value of this element.
-				 * @return a xsNCName of the value.
+				 * @return Returns a xsNCName of the value.
 				 */
 				xsNCName getValue() const { return _value; }
 				/**
 				 * Sets the _value of this element.
 				 * @param val The new value for this element.
 				 */
-				void setValue( xsNCName val ) { _value = val; }
+				void setValue( xsNCName val ) { *(daeStringRef*)&_value = val; }
 
 			protected:
 				/**
@@ -160,7 +160,8 @@ public:
 			 * Sets the camera_node attribute.
 			 * @param atCamera_node The new value for the camera_node attribute.
 			 */
-			void setCamera_node( const xsAnyURI &atCamera_node ) { attrCamera_node.setURI( atCamera_node.getURI() ); }
+			void setCamera_node( const xsAnyURI &atCamera_node ) { attrCamera_node.setURI( atCamera_node.getURI() );		
+	 _validAttributeArray[0] = true; }
 
 			/**
 			 * Gets the layer element array.
@@ -240,7 +241,8 @@ public:
 		 * Sets the name attribute.
 		 * @param atName The new value for the name attribute.
 		 */
-		void setName( xsNCName atName ) { attrName = atName; }
+		void setName( xsNCName atName ) { *(daeStringRef*)&attrName = atName;	
+	 _validAttributeArray[0] = true; }
 
 		/**
 		 * Gets the render element array.
@@ -334,7 +336,8 @@ public:	//Accessors and Mutators
 	 * Sets the id attribute.
 	 * @param atId The new value for the id attribute.
 	 */
-	void setId( xsID atId ) { attrId = atId; }
+	void setId( xsID atId ) { *(daeStringRef*)&attrId = atId;
+	 _validAttributeArray[0] = true; }
 
 	/**
 	 * Gets the name attribute.
@@ -345,7 +348,8 @@ public:	//Accessors and Mutators
 	 * Sets the name attribute.
 	 * @param atName The new value for the name attribute.
 	 */
-	void setName( xsNCName atName ) { attrName = atName; }
+	void setName( xsNCName atName ) { *(daeStringRef*)&attrName = atName;
+	 _validAttributeArray[1] = true; }
 
 	/**
 	 * Gets the asset element.

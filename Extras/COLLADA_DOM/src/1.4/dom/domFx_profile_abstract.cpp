@@ -13,6 +13,12 @@
 
 #include <dae/daeDom.h>
 #include <dom/domFx_profile_abstract.h>
+#include <dae/daeMetaCMPolicy.h>
+#include <dae/daeMetaSequence.h>
+#include <dae/daeMetaChoice.h>
+#include <dae/daeMetaGroup.h>
+#include <dae/daeMetaAny.h>
+#include <dae/daeMetaElementAttribute.h>
 
 daeElementRef
 domFx_profile_abstract::create(daeInt bytes)
@@ -29,7 +35,6 @@ domFx_profile_abstract::registerElement()
     
     _Meta = new daeMetaElement;
     _Meta->setName( "fx_profile_abstract" );
-	_Meta->setStaticPointerAddress(&domFx_profile_abstract::_Meta);
 	_Meta->registerConstructor(domFx_profile_abstract::create);
 
 	_Meta->setIsAbstract( true );

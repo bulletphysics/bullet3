@@ -13,6 +13,12 @@
 
 #include <dae/daeDom.h>
 #include <dom/domFx_sampler1D_common.h>
+#include <dae/daeMetaCMPolicy.h>
+#include <dae/daeMetaSequence.h>
+#include <dae/daeMetaChoice.h>
+#include <dae/daeMetaGroup.h>
+#include <dae/daeMetaAny.h>
+#include <dae/daeMetaElementAttribute.h>
 
 daeElementRef
 domFx_sampler1D_common::create(daeInt bytes)
@@ -29,18 +35,68 @@ domFx_sampler1D_common::registerElement()
     
     _Meta = new daeMetaElement;
     _Meta->setName( "fx_sampler1D_common" );
-	_Meta->setStaticPointerAddress(&domFx_sampler1D_common::_Meta);
 	_Meta->registerConstructor(domFx_sampler1D_common::create);
 
-	// Add elements: source, wrap_s, minfilter, magfilter, mipfilter, border_color, mipmap_maxlevel, mipmap_bias
-    _Meta->appendElement(domFx_sampler1D_common::domSource::registerElement(),daeOffsetOf(domFx_sampler1D_common,elemSource));
-    _Meta->appendElement(domFx_sampler1D_common::domWrap_s::registerElement(),daeOffsetOf(domFx_sampler1D_common,elemWrap_s));
-    _Meta->appendElement(domFx_sampler1D_common::domMinfilter::registerElement(),daeOffsetOf(domFx_sampler1D_common,elemMinfilter));
-    _Meta->appendElement(domFx_sampler1D_common::domMagfilter::registerElement(),daeOffsetOf(domFx_sampler1D_common,elemMagfilter));
-    _Meta->appendElement(domFx_sampler1D_common::domMipfilter::registerElement(),daeOffsetOf(domFx_sampler1D_common,elemMipfilter));
-    _Meta->appendElement(domFx_sampler1D_common::domBorder_color::registerElement(),daeOffsetOf(domFx_sampler1D_common,elemBorder_color));
-    _Meta->appendElement(domFx_sampler1D_common::domMipmap_maxlevel::registerElement(),daeOffsetOf(domFx_sampler1D_common,elemMipmap_maxlevel));
-    _Meta->appendElement(domFx_sampler1D_common::domMipmap_bias::registerElement(),daeOffsetOf(domFx_sampler1D_common,elemMipmap_bias));
+	daeMetaCMPolicy *cm = NULL;
+	daeMetaElementAttribute *mea = NULL;
+	cm = new daeMetaSequence( _Meta, cm, 0, 1, 1 );
+
+	mea = new daeMetaElementAttribute( _Meta, cm, 0, 1, 1 );
+	mea->setName( "source" );
+	mea->setOffset( daeOffsetOf(domFx_sampler1D_common,elemSource) );
+	mea->setElementType( domFx_sampler1D_common::domSource::registerElement() );
+	cm->appendChild( mea );
+	
+	mea = new daeMetaElementAttribute( _Meta, cm, 1, 0, 1 );
+	mea->setName( "wrap_s" );
+	mea->setOffset( daeOffsetOf(domFx_sampler1D_common,elemWrap_s) );
+	mea->setElementType( domFx_sampler1D_common::domWrap_s::registerElement() );
+	cm->appendChild( mea );
+	
+	mea = new daeMetaElementAttribute( _Meta, cm, 2, 0, 1 );
+	mea->setName( "minfilter" );
+	mea->setOffset( daeOffsetOf(domFx_sampler1D_common,elemMinfilter) );
+	mea->setElementType( domFx_sampler1D_common::domMinfilter::registerElement() );
+	cm->appendChild( mea );
+	
+	mea = new daeMetaElementAttribute( _Meta, cm, 3, 0, 1 );
+	mea->setName( "magfilter" );
+	mea->setOffset( daeOffsetOf(domFx_sampler1D_common,elemMagfilter) );
+	mea->setElementType( domFx_sampler1D_common::domMagfilter::registerElement() );
+	cm->appendChild( mea );
+	
+	mea = new daeMetaElementAttribute( _Meta, cm, 4, 0, 1 );
+	mea->setName( "mipfilter" );
+	mea->setOffset( daeOffsetOf(domFx_sampler1D_common,elemMipfilter) );
+	mea->setElementType( domFx_sampler1D_common::domMipfilter::registerElement() );
+	cm->appendChild( mea );
+	
+	mea = new daeMetaElementAttribute( _Meta, cm, 5, 0, 1 );
+	mea->setName( "border_color" );
+	mea->setOffset( daeOffsetOf(domFx_sampler1D_common,elemBorder_color) );
+	mea->setElementType( domFx_sampler1D_common::domBorder_color::registerElement() );
+	cm->appendChild( mea );
+	
+	mea = new daeMetaElementAttribute( _Meta, cm, 6, 0, 1 );
+	mea->setName( "mipmap_maxlevel" );
+	mea->setOffset( daeOffsetOf(domFx_sampler1D_common,elemMipmap_maxlevel) );
+	mea->setElementType( domFx_sampler1D_common::domMipmap_maxlevel::registerElement() );
+	cm->appendChild( mea );
+	
+	mea = new daeMetaElementAttribute( _Meta, cm, 7, 0, 1 );
+	mea->setName( "mipmap_bias" );
+	mea->setOffset( daeOffsetOf(domFx_sampler1D_common,elemMipmap_bias) );
+	mea->setElementType( domFx_sampler1D_common::domMipmap_bias::registerElement() );
+	cm->appendChild( mea );
+	
+	mea = new daeMetaElementArrayAttribute( _Meta, cm, 8, 0, -1 );
+	mea->setName( "extra" );
+	mea->setOffset( daeOffsetOf(domFx_sampler1D_common,elemExtra_array) );
+	mea->setElementType( domExtra::registerElement() );
+	cm->appendChild( mea );
+	
+	cm->setMaxOrdinal( 8 );
+	_Meta->setCMRoot( cm );	
 	
 	
 	_Meta->setElementSize(sizeof(domFx_sampler1D_common));
@@ -64,9 +120,9 @@ domFx_sampler1D_common::domSource::registerElement()
     
     _Meta = new daeMetaElement;
     _Meta->setName( "source" );
-	_Meta->setStaticPointerAddress(&domFx_sampler1D_common::domSource::_Meta);
 	_Meta->registerConstructor(domFx_sampler1D_common::domSource::create);
 
+	_Meta->setIsInnerClass( true );
 	//	Add attribute: _value
  	{
 		daeMetaAttribute *ma = new daeMetaAttribute;
@@ -99,9 +155,9 @@ domFx_sampler1D_common::domWrap_s::registerElement()
     
     _Meta = new daeMetaElement;
     _Meta->setName( "wrap_s" );
-	_Meta->setStaticPointerAddress(&domFx_sampler1D_common::domWrap_s::_Meta);
 	_Meta->registerConstructor(domFx_sampler1D_common::domWrap_s::create);
 
+	_Meta->setIsInnerClass( true );
 	//	Add attribute: _value
  	{
 		daeMetaAttribute *ma = new daeMetaAttribute;
@@ -134,9 +190,9 @@ domFx_sampler1D_common::domMinfilter::registerElement()
     
     _Meta = new daeMetaElement;
     _Meta->setName( "minfilter" );
-	_Meta->setStaticPointerAddress(&domFx_sampler1D_common::domMinfilter::_Meta);
 	_Meta->registerConstructor(domFx_sampler1D_common::domMinfilter::create);
 
+	_Meta->setIsInnerClass( true );
 	//	Add attribute: _value
  	{
 		daeMetaAttribute *ma = new daeMetaAttribute;
@@ -169,9 +225,9 @@ domFx_sampler1D_common::domMagfilter::registerElement()
     
     _Meta = new daeMetaElement;
     _Meta->setName( "magfilter" );
-	_Meta->setStaticPointerAddress(&domFx_sampler1D_common::domMagfilter::_Meta);
 	_Meta->registerConstructor(domFx_sampler1D_common::domMagfilter::create);
 
+	_Meta->setIsInnerClass( true );
 	//	Add attribute: _value
  	{
 		daeMetaAttribute *ma = new daeMetaAttribute;
@@ -204,9 +260,9 @@ domFx_sampler1D_common::domMipfilter::registerElement()
     
     _Meta = new daeMetaElement;
     _Meta->setName( "mipfilter" );
-	_Meta->setStaticPointerAddress(&domFx_sampler1D_common::domMipfilter::_Meta);
 	_Meta->registerConstructor(domFx_sampler1D_common::domMipfilter::create);
 
+	_Meta->setIsInnerClass( true );
 	//	Add attribute: _value
  	{
 		daeMetaAttribute *ma = new daeMetaAttribute;
@@ -239,9 +295,9 @@ domFx_sampler1D_common::domBorder_color::registerElement()
     
     _Meta = new daeMetaElement;
     _Meta->setName( "border_color" );
-	_Meta->setStaticPointerAddress(&domFx_sampler1D_common::domBorder_color::_Meta);
 	_Meta->registerConstructor(domFx_sampler1D_common::domBorder_color::create);
 
+	_Meta->setIsInnerClass( true );
 	//	Add attribute: _value
  	{
 		daeMetaAttribute *ma = new daeMetaArrayAttribute;
@@ -274,9 +330,9 @@ domFx_sampler1D_common::domMipmap_maxlevel::registerElement()
     
     _Meta = new daeMetaElement;
     _Meta->setName( "mipmap_maxlevel" );
-	_Meta->setStaticPointerAddress(&domFx_sampler1D_common::domMipmap_maxlevel::_Meta);
 	_Meta->registerConstructor(domFx_sampler1D_common::domMipmap_maxlevel::create);
 
+	_Meta->setIsInnerClass( true );
 	//	Add attribute: _value
  	{
 		daeMetaAttribute *ma = new daeMetaAttribute;
@@ -309,9 +365,9 @@ domFx_sampler1D_common::domMipmap_bias::registerElement()
     
     _Meta = new daeMetaElement;
     _Meta->setName( "mipmap_bias" );
-	_Meta->setStaticPointerAddress(&domFx_sampler1D_common::domMipmap_bias::_Meta);
 	_Meta->registerConstructor(domFx_sampler1D_common::domMipmap_bias::create);
 
+	_Meta->setIsInnerClass( true );
 	//	Add attribute: _value
  	{
 		daeMetaAttribute *ma = new daeMetaAttribute;

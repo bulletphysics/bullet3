@@ -13,6 +13,12 @@
 
 #include <dae/daeDom.h>
 #include <dom/domConvex_mesh.h>
+#include <dae/daeMetaCMPolicy.h>
+#include <dae/daeMetaSequence.h>
+#include <dae/daeMetaChoice.h>
+#include <dae/daeMetaGroup.h>
+#include <dae/daeMetaAny.h>
+#include <dae/daeMetaElementAttribute.h>
 
 daeElementRef
 domConvex_mesh::create(daeInt bytes)
@@ -30,22 +36,83 @@ domConvex_mesh::registerElement()
     
     _Meta = new daeMetaElement;
     _Meta->setName( "convex_mesh" );
-	_Meta->setStaticPointerAddress(&domConvex_mesh::_Meta);
 	_Meta->registerConstructor(domConvex_mesh::create);
 
-	// Add elements: source, vertices, lines, linestrips, polygons, polylist, triangles, trifans, tristrips, extra
-    _Meta->appendArrayElement(domSource::registerElement(),daeOffsetOf(domConvex_mesh,elemSource_array));
-    _Meta->appendElement(domVertices::registerElement(),daeOffsetOf(domConvex_mesh,elemVertices));
-    _Meta->appendArrayElement(domLines::registerElement(),daeOffsetOf(domConvex_mesh,elemLines_array));
-    _Meta->appendArrayElement(domLinestrips::registerElement(),daeOffsetOf(domConvex_mesh,elemLinestrips_array));
-    _Meta->appendArrayElement(domPolygons::registerElement(),daeOffsetOf(domConvex_mesh,elemPolygons_array));
-    _Meta->appendArrayElement(domPolylist::registerElement(),daeOffsetOf(domConvex_mesh,elemPolylist_array));
-    _Meta->appendArrayElement(domTriangles::registerElement(),daeOffsetOf(domConvex_mesh,elemTriangles_array));
-    _Meta->appendArrayElement(domTrifans::registerElement(),daeOffsetOf(domConvex_mesh,elemTrifans_array));
-    _Meta->appendArrayElement(domTristrips::registerElement(),daeOffsetOf(domConvex_mesh,elemTristrips_array));
-    _Meta->appendArrayElement(domExtra::registerElement(),daeOffsetOf(domConvex_mesh,elemExtra_array));
+	daeMetaCMPolicy *cm = NULL;
+	daeMetaElementAttribute *mea = NULL;
+	cm = new daeMetaSequence( _Meta, cm, 0, 0, 1 );
+
+	mea = new daeMetaElementArrayAttribute( _Meta, cm, 0, 1, -1 );
+	mea->setName( "source" );
+	mea->setOffset( daeOffsetOf(domConvex_mesh,elemSource_array) );
+	mea->setElementType( domSource::registerElement() );
+	cm->appendChild( mea );
+	
+	mea = new daeMetaElementAttribute( _Meta, cm, 1, 1, 1 );
+	mea->setName( "vertices" );
+	mea->setOffset( daeOffsetOf(domConvex_mesh,elemVertices) );
+	mea->setElementType( domVertices::registerElement() );
+	cm->appendChild( mea );
+	
+	cm = new daeMetaChoice( _Meta, cm, 2, 0, -1 );
+
+	mea = new daeMetaElementArrayAttribute( _Meta, cm, 0, 1, 1 );
+	mea->setName( "lines" );
+	mea->setOffset( daeOffsetOf(domConvex_mesh,elemLines_array) );
+	mea->setElementType( domLines::registerElement() );
+	cm->appendChild( mea );
+	
+	mea = new daeMetaElementArrayAttribute( _Meta, cm, 0, 1, 1 );
+	mea->setName( "linestrips" );
+	mea->setOffset( daeOffsetOf(domConvex_mesh,elemLinestrips_array) );
+	mea->setElementType( domLinestrips::registerElement() );
+	cm->appendChild( mea );
+	
+	mea = new daeMetaElementArrayAttribute( _Meta, cm, 0, 1, 1 );
+	mea->setName( "polygons" );
+	mea->setOffset( daeOffsetOf(domConvex_mesh,elemPolygons_array) );
+	mea->setElementType( domPolygons::registerElement() );
+	cm->appendChild( mea );
+	
+	mea = new daeMetaElementArrayAttribute( _Meta, cm, 0, 1, 1 );
+	mea->setName( "polylist" );
+	mea->setOffset( daeOffsetOf(domConvex_mesh,elemPolylist_array) );
+	mea->setElementType( domPolylist::registerElement() );
+	cm->appendChild( mea );
+	
+	mea = new daeMetaElementArrayAttribute( _Meta, cm, 0, 1, 1 );
+	mea->setName( "triangles" );
+	mea->setOffset( daeOffsetOf(domConvex_mesh,elemTriangles_array) );
+	mea->setElementType( domTriangles::registerElement() );
+	cm->appendChild( mea );
+	
+	mea = new daeMetaElementArrayAttribute( _Meta, cm, 0, 1, 1 );
+	mea->setName( "trifans" );
+	mea->setOffset( daeOffsetOf(domConvex_mesh,elemTrifans_array) );
+	mea->setElementType( domTrifans::registerElement() );
+	cm->appendChild( mea );
+	
+	mea = new daeMetaElementArrayAttribute( _Meta, cm, 0, 1, 1 );
+	mea->setName( "tristrips" );
+	mea->setOffset( daeOffsetOf(domConvex_mesh,elemTristrips_array) );
+	mea->setElementType( domTristrips::registerElement() );
+	cm->appendChild( mea );
+	
+	cm->setMaxOrdinal( 0 );
+	cm->getParent()->appendChild( cm );
+	cm = cm->getParent();
+	
+	mea = new daeMetaElementArrayAttribute( _Meta, cm, 3003, 0, -1 );
+	mea->setName( "extra" );
+	mea->setOffset( daeOffsetOf(domConvex_mesh,elemExtra_array) );
+	mea->setElementType( domExtra::registerElement() );
+	cm->appendChild( mea );
+	
+	cm->setMaxOrdinal( 3003 );
+	_Meta->setCMRoot( cm );	
 	// Ordered list of sub-elements
     _Meta->addContents(daeOffsetOf(domConvex_mesh,_contents));
+    _Meta->addContentsOrder(daeOffsetOf(domConvex_mesh,_contentsOrder));
 
 
 	//	Add attribute: convex_hull_of

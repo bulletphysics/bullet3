@@ -16,6 +16,7 @@
 #include <dom/domTypes.h>
 #include <dom/domElements.h>
 
+#include <dom/domExtra.h>
 
 class domGles_texture_unit_complexType 
 {
@@ -37,14 +38,14 @@ public:
 	public:	//Accessors and Mutators
 		/**
 		 * Gets the value of this element.
-		 * @return a xsNCName of the value.
+		 * @return Returns a xsNCName of the value.
 		 */
 		xsNCName getValue() const { return _value; }
 		/**
 		 * Sets the _value of this element.
 		 * @param val The new value for this element.
 		 */
-		void setValue( xsNCName val ) { _value = val; }
+		void setValue( xsNCName val ) { *(daeStringRef*)&_value = val; }
 
 	protected:
 		/**
@@ -102,14 +103,14 @@ public:
 	public:	//Accessors and Mutators
 		/**
 		 * Gets the value of this element.
-		 * @return a xsNCName of the value.
+		 * @return Returns a xsNCName of the value.
 		 */
 		xsNCName getValue() const { return _value; }
 		/**
 		 * Sets the _value of this element.
 		 * @param val The new value for this element.
 		 */
-		void setValue( xsNCName val ) { _value = val; }
+		void setValue( xsNCName val ) { *(daeStringRef*)&_value = val; }
 
 	protected:
 		/**
@@ -171,7 +172,8 @@ public:
 		 * Sets the semantic attribute.
 		 * @param atSemantic The new value for the semantic attribute.
 		 */
-		void setSemantic( xsNCName atSemantic ) { attrSemantic = atSemantic; }
+		void setSemantic( xsNCName atSemantic ) { *(daeStringRef*)&attrSemantic = atSemantic;	
+	 _validAttributeArray[0] = true; }
 
 	protected:
 		/**
@@ -225,6 +227,7 @@ protected:  // Elements
 	domSurfaceRef elemSurface;
 	domSampler_stateRef elemSampler_state;
 	domTexcoordRef elemTexcoord;
+	domExtra_Array elemExtra_array;
 
 public:	//Accessors and Mutators
 	/**
@@ -236,7 +239,7 @@ public:	//Accessors and Mutators
 	 * Sets the sid attribute.
 	 * @param atSid The new value for the sid attribute.
 	 */
-	void setSid( xsNCName atSid ) { attrSid = atSid; }
+	void setSid( xsNCName atSid ) { *(daeStringRef*)&attrSid = atSid; }
 
 	/**
 	 * Gets the surface element.
@@ -253,11 +256,21 @@ public:	//Accessors and Mutators
 	 * @return a daeSmartRef to the texcoord element.
 	 */
 	const domTexcoordRef getTexcoord() const { return elemTexcoord; }
+	/**
+	 * Gets the extra element array.
+	 * @return Returns a reference to the array of extra elements.
+	 */
+	domExtra_Array &getExtra_array() { return elemExtra_array; }
+	/**
+	 * Gets the extra element array.
+	 * @return Returns a constant reference to the array of extra elements.
+	 */
+	const domExtra_Array &getExtra_array() const { return elemExtra_array; }
 protected:
 	/**
 	 * Constructor
 	 */
-	domGles_texture_unit_complexType() : attrSid(), elemSurface(), elemSampler_state(), elemTexcoord() {}
+	domGles_texture_unit_complexType() : attrSid(), elemSurface(), elemSampler_state(), elemTexcoord(), elemExtra_array() {}
 	/**
 	 * Destructor
 	 */
@@ -277,6 +290,20 @@ protected:
  */
 class domGles_texture_unit : public daeElement, public domGles_texture_unit_complexType
 {
+
+public:	//Accessors and Mutators
+	/**
+	 * Gets the sid attribute.
+	 * @return Returns a xsNCName of the sid attribute.
+	 */
+	xsNCName getSid() const { return attrSid; }
+	/**
+	 * Sets the sid attribute.
+	 * @param atSid The new value for the sid attribute.
+	 */
+	void setSid( xsNCName atSid ) { *(daeStringRef*)&attrSid = atSid;
+	 _validAttributeArray[0] = true; }
+
 protected:
 	/**
 	 * Constructor

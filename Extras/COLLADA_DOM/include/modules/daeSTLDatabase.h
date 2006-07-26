@@ -17,6 +17,8 @@
 #include <stdio.h>
 
 #include <vector>
+#include <map>
+#include <string>
 #include <algorithm>
 #include <functional>
 
@@ -117,17 +119,9 @@ private:
 	};
 
 	std::vector<DAE_STL_DATABASE_CELL> elements;
+	std::multimap< std::string, DAE_STL_DATABASE_CELL> elementsIDMap; 
 	std::vector<daeDocument*> documents;
-	bool validated;
 	daeMetaElement* topMeta;
-
-	//!!!ACL removing this function.
-	/*daeInt getElementByType(daeElement** pElement, 
-									 int *currentIndex,
-									 int index,
-									 daeString name = NULL,
-									 daeString type = NULL,
-									 daeString file = NULL);*/
 
 	daeInt insertChildren( daeDocument *c, daeElement *element );
 	daeInt removeChildren( daeDocument *c, daeElement *element );

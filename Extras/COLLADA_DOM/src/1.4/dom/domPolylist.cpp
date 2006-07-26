@@ -13,6 +13,12 @@
 
 #include <dae/daeDom.h>
 #include <dom/domPolylist.h>
+#include <dae/daeMetaCMPolicy.h>
+#include <dae/daeMetaSequence.h>
+#include <dae/daeMetaChoice.h>
+#include <dae/daeMetaGroup.h>
+#include <dae/daeMetaAny.h>
+#include <dae/daeMetaElementAttribute.h>
 
 daeElementRef
 domPolylist::create(daeInt bytes)
@@ -29,14 +35,38 @@ domPolylist::registerElement()
     
     _Meta = new daeMetaElement;
     _Meta->setName( "polylist" );
-	_Meta->setStaticPointerAddress(&domPolylist::_Meta);
 	_Meta->registerConstructor(domPolylist::create);
 
-	// Add elements: input, vcount, p, extra
-    _Meta->appendArrayElement(domInputLocalOffset::registerElement(),daeOffsetOf(domPolylist,elemInput_array),"input"); 
-    _Meta->appendElement(domPolylist::domVcount::registerElement(),daeOffsetOf(domPolylist,elemVcount));
-    _Meta->appendElement(domP::registerElement(),daeOffsetOf(domPolylist,elemP));
-    _Meta->appendArrayElement(domExtra::registerElement(),daeOffsetOf(domPolylist,elemExtra_array));
+	daeMetaCMPolicy *cm = NULL;
+	daeMetaElementAttribute *mea = NULL;
+	cm = new daeMetaSequence( _Meta, cm, 0, 1, 1 );
+
+	mea = new daeMetaElementArrayAttribute( _Meta, cm, 0, 0, -1 );
+	mea->setName( "input" );
+	mea->setOffset( daeOffsetOf(domPolylist,elemInput_array) );
+	mea->setElementType( domInputLocalOffset::registerElement() );
+	cm->appendChild( mea );
+	
+	mea = new daeMetaElementAttribute( _Meta, cm, 1, 0, 1 );
+	mea->setName( "vcount" );
+	mea->setOffset( daeOffsetOf(domPolylist,elemVcount) );
+	mea->setElementType( domPolylist::domVcount::registerElement() );
+	cm->appendChild( mea );
+	
+	mea = new daeMetaElementAttribute( _Meta, cm, 2, 0, 1 );
+	mea->setName( "p" );
+	mea->setOffset( daeOffsetOf(domPolylist,elemP) );
+	mea->setElementType( domP::registerElement() );
+	cm->appendChild( mea );
+	
+	mea = new daeMetaElementArrayAttribute( _Meta, cm, 3, 0, -1 );
+	mea->setName( "extra" );
+	mea->setOffset( daeOffsetOf(domPolylist,elemExtra_array) );
+	mea->setElementType( domExtra::registerElement() );
+	cm->appendChild( mea );
+	
+	cm->setMaxOrdinal( 3 );
+	_Meta->setCMRoot( cm );	
 
 	//	Add attribute: name
  	{
@@ -94,9 +124,9 @@ domPolylist::domVcount::registerElement()
     
     _Meta = new daeMetaElement;
     _Meta->setName( "vcount" );
-	_Meta->setStaticPointerAddress(&domPolylist::domVcount::_Meta);
 	_Meta->registerConstructor(domPolylist::domVcount::create);
 
+	_Meta->setIsInnerClass( true );
 	//	Add attribute: _value
  	{
 		daeMetaAttribute *ma = new daeMetaArrayAttribute;

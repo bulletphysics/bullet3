@@ -62,6 +62,20 @@ protected:
  */
 class domCg_connect_param : public daeElement, public domCg_connect_param_complexType
 {
+
+public:	//Accessors and Mutators
+	/**
+	 * Gets the ref attribute.
+	 * @return Returns a domCg_identifier of the ref attribute.
+	 */
+	domCg_identifier getRef() const { return attrRef; }
+	/**
+	 * Sets the ref attribute.
+	 * @param atRef The new value for the ref attribute.
+	 */
+	void setRef( domCg_identifier atRef ) { attrRef = atRef;
+	 _validAttributeArray[0] = true; }
+
 protected:
 	/**
 	 * Constructor

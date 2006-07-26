@@ -13,6 +13,12 @@
 
 #include <dae/daeDom.h>
 #include <dom/domSkew.h>
+#include <dae/daeMetaCMPolicy.h>
+#include <dae/daeMetaSequence.h>
+#include <dae/daeMetaChoice.h>
+#include <dae/daeMetaGroup.h>
+#include <dae/daeMetaAny.h>
+#include <dae/daeMetaElementAttribute.h>
 
 daeElementRef
 domSkew::create(daeInt bytes)
@@ -29,7 +35,6 @@ domSkew::registerElement()
     
     _Meta = new daeMetaElement;
     _Meta->setName( "skew" );
-	_Meta->setStaticPointerAddress(&domSkew::_Meta);
 	_Meta->registerConstructor(domSkew::create);
 
 	//	Add attribute: _value

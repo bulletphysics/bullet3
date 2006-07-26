@@ -13,6 +13,12 @@
 
 #include <dae/daeDom.h>
 #include <dom/domCg_sampler2D.h>
+#include <dae/daeMetaCMPolicy.h>
+#include <dae/daeMetaSequence.h>
+#include <dae/daeMetaChoice.h>
+#include <dae/daeMetaGroup.h>
+#include <dae/daeMetaAny.h>
+#include <dae/daeMetaElementAttribute.h>
 
 daeElementRef
 domCg_sampler2D::create(daeInt bytes)
@@ -29,19 +35,80 @@ domCg_sampler2D::registerElement()
     
     _Meta = new daeMetaElement;
     _Meta->setName( "cg_sampler2D" );
-	_Meta->setStaticPointerAddress(&domCg_sampler2D::_Meta);
 	_Meta->registerConstructor(domCg_sampler2D::create);
 
-	// Add elements: source, wrap_s, wrap_t, minfilter, magfilter, mipfilter, border_color, mipmap_maxlevel, mipmap_bias
-    _Meta->appendElement(domSource::registerElement(),daeOffsetOf(domCg_sampler2D,elemSource));
-    _Meta->appendElement(domWrap_s::registerElement(),daeOffsetOf(domCg_sampler2D,elemWrap_s));
-    _Meta->appendElement(domWrap_t::registerElement(),daeOffsetOf(domCg_sampler2D,elemWrap_t));
-    _Meta->appendElement(domMinfilter::registerElement(),daeOffsetOf(domCg_sampler2D,elemMinfilter));
-    _Meta->appendElement(domMagfilter::registerElement(),daeOffsetOf(domCg_sampler2D,elemMagfilter));
-    _Meta->appendElement(domMipfilter::registerElement(),daeOffsetOf(domCg_sampler2D,elemMipfilter));
-    _Meta->appendElement(domBorder_color::registerElement(),daeOffsetOf(domCg_sampler2D,elemBorder_color));
-    _Meta->appendElement(domMipmap_maxlevel::registerElement(),daeOffsetOf(domCg_sampler2D,elemMipmap_maxlevel));
-    _Meta->appendElement(domMipmap_bias::registerElement(),daeOffsetOf(domCg_sampler2D,elemMipmap_bias));
+	daeMetaCMPolicy *cm = NULL;
+	daeMetaElementAttribute *mea = NULL;
+	cm = new daeMetaSequence( _Meta, cm, 0, 1, 1 );
+
+	cm = new daeMetaSequence( _Meta, cm, 0, 1, 1 );
+
+	mea = new daeMetaElementAttribute( _Meta, cm, 0, 1, 1 );
+	mea->setName( "source" );
+	mea->setOffset( daeOffsetOf(domCg_sampler2D,elemSource) );
+	mea->setElementType( domSource::registerElement() );
+	cm->appendChild( mea );
+	
+	mea = new daeMetaElementAttribute( _Meta, cm, 1, 0, 1 );
+	mea->setName( "wrap_s" );
+	mea->setOffset( daeOffsetOf(domCg_sampler2D,elemWrap_s) );
+	mea->setElementType( domWrap_s::registerElement() );
+	cm->appendChild( mea );
+	
+	mea = new daeMetaElementAttribute( _Meta, cm, 2, 0, 1 );
+	mea->setName( "wrap_t" );
+	mea->setOffset( daeOffsetOf(domCg_sampler2D,elemWrap_t) );
+	mea->setElementType( domWrap_t::registerElement() );
+	cm->appendChild( mea );
+	
+	mea = new daeMetaElementAttribute( _Meta, cm, 3, 0, 1 );
+	mea->setName( "minfilter" );
+	mea->setOffset( daeOffsetOf(domCg_sampler2D,elemMinfilter) );
+	mea->setElementType( domMinfilter::registerElement() );
+	cm->appendChild( mea );
+	
+	mea = new daeMetaElementAttribute( _Meta, cm, 4, 0, 1 );
+	mea->setName( "magfilter" );
+	mea->setOffset( daeOffsetOf(domCg_sampler2D,elemMagfilter) );
+	mea->setElementType( domMagfilter::registerElement() );
+	cm->appendChild( mea );
+	
+	mea = new daeMetaElementAttribute( _Meta, cm, 5, 0, 1 );
+	mea->setName( "mipfilter" );
+	mea->setOffset( daeOffsetOf(domCg_sampler2D,elemMipfilter) );
+	mea->setElementType( domMipfilter::registerElement() );
+	cm->appendChild( mea );
+	
+	mea = new daeMetaElementAttribute( _Meta, cm, 6, 0, 1 );
+	mea->setName( "border_color" );
+	mea->setOffset( daeOffsetOf(domCg_sampler2D,elemBorder_color) );
+	mea->setElementType( domBorder_color::registerElement() );
+	cm->appendChild( mea );
+	
+	mea = new daeMetaElementAttribute( _Meta, cm, 7, 0, 1 );
+	mea->setName( "mipmap_maxlevel" );
+	mea->setOffset( daeOffsetOf(domCg_sampler2D,elemMipmap_maxlevel) );
+	mea->setElementType( domMipmap_maxlevel::registerElement() );
+	cm->appendChild( mea );
+	
+	mea = new daeMetaElementAttribute( _Meta, cm, 8, 0, 1 );
+	mea->setName( "mipmap_bias" );
+	mea->setOffset( daeOffsetOf(domCg_sampler2D,elemMipmap_bias) );
+	mea->setElementType( domMipmap_bias::registerElement() );
+	cm->appendChild( mea );
+	
+	mea = new daeMetaElementArrayAttribute( _Meta, cm, 9, 0, -1 );
+	mea->setName( "extra" );
+	mea->setOffset( daeOffsetOf(domCg_sampler2D,elemExtra_array) );
+	mea->setElementType( domExtra::registerElement() );
+	cm->appendChild( mea );
+	
+	cm->setMaxOrdinal( 9 );
+	cm->getParent()->appendChild( cm );
+	cm = cm->getParent();
+	
+	cm->setMaxOrdinal( 9 );
+	_Meta->setCMRoot( cm );	
 	
 	
 	_Meta->setElementSize(sizeof(domCg_sampler2D));

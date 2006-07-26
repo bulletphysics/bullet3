@@ -13,6 +13,12 @@
 
 #include <dae/daeDom.h>
 #include <dom/domLibrary_controllers.h>
+#include <dae/daeMetaCMPolicy.h>
+#include <dae/daeMetaSequence.h>
+#include <dae/daeMetaChoice.h>
+#include <dae/daeMetaGroup.h>
+#include <dae/daeMetaAny.h>
+#include <dae/daeMetaElementAttribute.h>
 
 daeElementRef
 domLibrary_controllers::create(daeInt bytes)
@@ -29,13 +35,32 @@ domLibrary_controllers::registerElement()
     
     _Meta = new daeMetaElement;
     _Meta->setName( "library_controllers" );
-	_Meta->setStaticPointerAddress(&domLibrary_controllers::_Meta);
 	_Meta->registerConstructor(domLibrary_controllers::create);
 
-	// Add elements: asset, controller, extra
-    _Meta->appendElement(domAsset::registerElement(),daeOffsetOf(domLibrary_controllers,elemAsset));
-    _Meta->appendArrayElement(domController::registerElement(),daeOffsetOf(domLibrary_controllers,elemController_array));
-    _Meta->appendArrayElement(domExtra::registerElement(),daeOffsetOf(domLibrary_controllers,elemExtra_array));
+	daeMetaCMPolicy *cm = NULL;
+	daeMetaElementAttribute *mea = NULL;
+	cm = new daeMetaSequence( _Meta, cm, 0, 1, 1 );
+
+	mea = new daeMetaElementAttribute( _Meta, cm, 0, 0, 1 );
+	mea->setName( "asset" );
+	mea->setOffset( daeOffsetOf(domLibrary_controllers,elemAsset) );
+	mea->setElementType( domAsset::registerElement() );
+	cm->appendChild( mea );
+	
+	mea = new daeMetaElementArrayAttribute( _Meta, cm, 1, 1, -1 );
+	mea->setName( "controller" );
+	mea->setOffset( daeOffsetOf(domLibrary_controllers,elemController_array) );
+	mea->setElementType( domController::registerElement() );
+	cm->appendChild( mea );
+	
+	mea = new daeMetaElementArrayAttribute( _Meta, cm, 2, 0, -1 );
+	mea->setName( "extra" );
+	mea->setOffset( daeOffsetOf(domLibrary_controllers,elemExtra_array) );
+	mea->setElementType( domExtra::registerElement() );
+	cm->appendChild( mea );
+	
+	cm->setMaxOrdinal( 2 );
+	_Meta->setCMRoot( cm );	
 
 	//	Add attribute: id
  	{

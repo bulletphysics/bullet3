@@ -13,6 +13,8 @@
 
 #include <dae/daeIDRef.h>
 #include <dae/daeDatabase.h>
+#include <dae/daeErrorHandler.h>
+
 daeIDRefResolverPtrArray daeIDRefResolver::_KnownResolvers;
 
 void
@@ -154,9 +156,9 @@ daeIDRefResolver::attemptResolveID(daeIDRef& id)
 			return;
 
 #if defined(_DEBUG) && defined(WIN32)
-	fprintf(stderr,
-			"daeIDRefResolver::attemptResolveID(%s) - failed\n",
-			id.getID());
+	char msg[128];
+	sprintf(msg,"daeIDRefResolver::attemptResolveID(%s) - failed\n",id.getID());
+	daeErrorHandler::get()->handleWarning( msg );
 #endif
 			
 }
@@ -212,10 +214,9 @@ daeDefaultIDRefResolver::resolveElement(daeIDRef& idref, daeString typeNameHint)
 
 	if (status||(resolved==NULL)) {
 		idref.setState( daeIDRef::id_failed_id_not_found );
-		fprintf(stderr,
-				"daeDefaultIDRefResolver::resolveElement() - failed to resolve %s\n",
-				idref.getID());
-		fflush(stderr);
+		char msg[128];
+		sprintf(msg,"daeDefaultIDRefResolver::resolveElement() - failed to resolve %s\n",idref.getID());
+		daeErrorHandler::get()->handleWarning( msg );
 		return false;
 	}
 

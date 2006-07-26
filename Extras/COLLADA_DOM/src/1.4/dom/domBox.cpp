@@ -13,6 +13,12 @@
 
 #include <dae/daeDom.h>
 #include <dom/domBox.h>
+#include <dae/daeMetaCMPolicy.h>
+#include <dae/daeMetaSequence.h>
+#include <dae/daeMetaChoice.h>
+#include <dae/daeMetaGroup.h>
+#include <dae/daeMetaAny.h>
+#include <dae/daeMetaElementAttribute.h>
 
 daeElementRef
 domBox::create(daeInt bytes)
@@ -29,12 +35,26 @@ domBox::registerElement()
     
     _Meta = new daeMetaElement;
     _Meta->setName( "box" );
-	_Meta->setStaticPointerAddress(&domBox::_Meta);
 	_Meta->registerConstructor(domBox::create);
 
-	// Add elements: half_extents, extra
-    _Meta->appendElement(domBox::domHalf_extents::registerElement(),daeOffsetOf(domBox,elemHalf_extents));
-    _Meta->appendArrayElement(domExtra::registerElement(),daeOffsetOf(domBox,elemExtra_array));
+	daeMetaCMPolicy *cm = NULL;
+	daeMetaElementAttribute *mea = NULL;
+	cm = new daeMetaSequence( _Meta, cm, 0, 1, 1 );
+
+	mea = new daeMetaElementAttribute( _Meta, cm, 0, 1, 1 );
+	mea->setName( "half_extents" );
+	mea->setOffset( daeOffsetOf(domBox,elemHalf_extents) );
+	mea->setElementType( domBox::domHalf_extents::registerElement() );
+	cm->appendChild( mea );
+	
+	mea = new daeMetaElementArrayAttribute( _Meta, cm, 1, 0, -1 );
+	mea->setName( "extra" );
+	mea->setOffset( daeOffsetOf(domBox,elemExtra_array) );
+	mea->setElementType( domExtra::registerElement() );
+	cm->appendChild( mea );
+	
+	cm->setMaxOrdinal( 1 );
+	_Meta->setCMRoot( cm );	
 	
 	
 	_Meta->setElementSize(sizeof(domBox));
@@ -58,9 +78,9 @@ domBox::domHalf_extents::registerElement()
     
     _Meta = new daeMetaElement;
     _Meta->setName( "half_extents" );
-	_Meta->setStaticPointerAddress(&domBox::domHalf_extents::_Meta);
 	_Meta->registerConstructor(domBox::domHalf_extents::create);
 
+	_Meta->setIsInnerClass( true );
 	//	Add attribute: _value
  	{
 		daeMetaAttribute *ma = new daeMetaArrayAttribute;

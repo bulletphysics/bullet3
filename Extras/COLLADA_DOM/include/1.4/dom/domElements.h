@@ -46,6 +46,31 @@ class domTargetableFloat3;
 typedef daeSmartRef<domTargetableFloat3> domTargetableFloat3Ref;
 typedef daeTArray<domTargetableFloat3Ref> domTargetableFloat3_Array;
 
+class domFx_surface_format_hint_common;
+
+typedef daeSmartRef<domFx_surface_format_hint_common> domFx_surface_format_hint_commonRef;
+typedef daeTArray<domFx_surface_format_hint_commonRef> domFx_surface_format_hint_common_Array;
+
+class domFx_surface_init_planar_common;
+
+typedef daeSmartRef<domFx_surface_init_planar_common> domFx_surface_init_planar_commonRef;
+typedef daeTArray<domFx_surface_init_planar_commonRef> domFx_surface_init_planar_common_Array;
+
+class domFx_surface_init_volume_common;
+
+typedef daeSmartRef<domFx_surface_init_volume_common> domFx_surface_init_volume_commonRef;
+typedef daeTArray<domFx_surface_init_volume_commonRef> domFx_surface_init_volume_common_Array;
+
+class domFx_surface_init_cube_common;
+
+typedef daeSmartRef<domFx_surface_init_cube_common> domFx_surface_init_cube_commonRef;
+typedef daeTArray<domFx_surface_init_cube_commonRef> domFx_surface_init_cube_common_Array;
+
+class domFx_surface_init_from_common;
+
+typedef daeSmartRef<domFx_surface_init_from_common> domFx_surface_init_from_commonRef;
+typedef daeTArray<domFx_surface_init_from_commonRef> domFx_surface_init_from_common_Array;
+
 class domFx_surface_common;
 
 typedef daeSmartRef<domFx_surface_common> domFx_surface_commonRef;
@@ -126,11 +151,6 @@ class domFx_newparam_common;
 typedef daeSmartRef<domFx_newparam_common> domFx_newparam_commonRef;
 typedef daeTArray<domFx_newparam_commonRef> domFx_newparam_common_Array;
 
-class domFx_setparam_common;
-
-typedef daeSmartRef<domFx_setparam_common> domFx_setparam_commonRef;
-typedef daeTArray<domFx_setparam_commonRef> domFx_setparam_common_Array;
-
 class domFx_code_profile;
 
 typedef daeSmartRef<domFx_code_profile> domFx_code_profileRef;
@@ -205,6 +225,11 @@ class domCommon_color_or_texture_type;
 
 typedef daeSmartRef<domCommon_color_or_texture_type> domCommon_color_or_texture_typeRef;
 typedef daeTArray<domCommon_color_or_texture_typeRef> domCommon_color_or_texture_type_Array;
+
+class domCommon_transparent_type;
+
+typedef daeSmartRef<domCommon_transparent_type> domCommon_transparent_typeRef;
+typedef daeTArray<domCommon_transparent_typeRef> domCommon_transparent_type_Array;
 
 class domCommon_newparam_type;
 
@@ -335,6 +360,11 @@ class domGles_newparam;
 
 typedef daeSmartRef<domGles_newparam> domGles_newparamRef;
 typedef daeTArray<domGles_newparamRef> domGles_newparam_Array;
+
+class domFx_surface_init_common;
+
+typedef daeSmartRef<domFx_surface_init_common> domFx_surface_init_commonRef;
+typedef daeTArray<domFx_surface_init_commonRef> domFx_surface_init_common_Array;
 
 class domFx_annotate_type_common;
 

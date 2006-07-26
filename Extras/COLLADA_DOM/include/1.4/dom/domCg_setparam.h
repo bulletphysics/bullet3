@@ -39,6 +39,10 @@ protected:  // Elements
 	 * Used to preserve order in elements that do not specify strict sequencing of sub-elements.
 	 */
 	daeElementRefArray _contents;
+	/**
+	 * Used to preserve order in elements that have a complex content model.
+	 */
+	daeUIntArray       _contentsOrder;
 
 
 public:	//Accessors and Mutators
@@ -62,7 +66,7 @@ public:	//Accessors and Mutators
 	 * Sets the program attribute.
 	 * @param atProgram The new value for the program attribute.
 	 */
-	void setProgram( xsNCName atProgram ) { attrProgram = atProgram; }
+	void setProgram( xsNCName atProgram ) { *(daeStringRef*)&attrProgram = atProgram; }
 
 	/**
 	 * Gets the cg_param_type element.
@@ -119,6 +123,32 @@ protected:
  */
 class domCg_setparam : public daeElement, public domCg_setparam_complexType
 {
+
+public:	//Accessors and Mutators
+	/**
+	 * Gets the ref attribute.
+	 * @return Returns a domCg_identifier of the ref attribute.
+	 */
+	domCg_identifier getRef() const { return attrRef; }
+	/**
+	 * Sets the ref attribute.
+	 * @param atRef The new value for the ref attribute.
+	 */
+	void setRef( domCg_identifier atRef ) { attrRef = atRef;
+	 _validAttributeArray[0] = true; }
+
+	/**
+	 * Gets the program attribute.
+	 * @return Returns a xsNCName of the program attribute.
+	 */
+	xsNCName getProgram() const { return attrProgram; }
+	/**
+	 * Sets the program attribute.
+	 * @param atProgram The new value for the program attribute.
+	 */
+	void setProgram( xsNCName atProgram ) { *(daeStringRef*)&attrProgram = atProgram;
+	 _validAttributeArray[1] = true; }
+
 protected:
 	/**
 	 * Constructor

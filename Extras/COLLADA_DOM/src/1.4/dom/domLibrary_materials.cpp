@@ -13,6 +13,12 @@
 
 #include <dae/daeDom.h>
 #include <dom/domLibrary_materials.h>
+#include <dae/daeMetaCMPolicy.h>
+#include <dae/daeMetaSequence.h>
+#include <dae/daeMetaChoice.h>
+#include <dae/daeMetaGroup.h>
+#include <dae/daeMetaAny.h>
+#include <dae/daeMetaElementAttribute.h>
 
 daeElementRef
 domLibrary_materials::create(daeInt bytes)
@@ -29,13 +35,32 @@ domLibrary_materials::registerElement()
     
     _Meta = new daeMetaElement;
     _Meta->setName( "library_materials" );
-	_Meta->setStaticPointerAddress(&domLibrary_materials::_Meta);
 	_Meta->registerConstructor(domLibrary_materials::create);
 
-	// Add elements: asset, material, extra
-    _Meta->appendElement(domAsset::registerElement(),daeOffsetOf(domLibrary_materials,elemAsset));
-    _Meta->appendArrayElement(domMaterial::registerElement(),daeOffsetOf(domLibrary_materials,elemMaterial_array));
-    _Meta->appendArrayElement(domExtra::registerElement(),daeOffsetOf(domLibrary_materials,elemExtra_array));
+	daeMetaCMPolicy *cm = NULL;
+	daeMetaElementAttribute *mea = NULL;
+	cm = new daeMetaSequence( _Meta, cm, 0, 1, 1 );
+
+	mea = new daeMetaElementAttribute( _Meta, cm, 0, 0, 1 );
+	mea->setName( "asset" );
+	mea->setOffset( daeOffsetOf(domLibrary_materials,elemAsset) );
+	mea->setElementType( domAsset::registerElement() );
+	cm->appendChild( mea );
+	
+	mea = new daeMetaElementArrayAttribute( _Meta, cm, 1, 1, -1 );
+	mea->setName( "material" );
+	mea->setOffset( daeOffsetOf(domLibrary_materials,elemMaterial_array) );
+	mea->setElementType( domMaterial::registerElement() );
+	cm->appendChild( mea );
+	
+	mea = new daeMetaElementArrayAttribute( _Meta, cm, 2, 0, -1 );
+	mea->setName( "extra" );
+	mea->setOffset( daeOffsetOf(domLibrary_materials,elemExtra_array) );
+	mea->setElementType( domExtra::registerElement() );
+	cm->appendChild( mea );
+	
+	cm->setMaxOrdinal( 2 );
+	_Meta->setCMRoot( cm );	
 
 	//	Add attribute: id
  	{

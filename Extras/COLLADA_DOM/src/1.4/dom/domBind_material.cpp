@@ -13,6 +13,12 @@
 
 #include <dae/daeDom.h>
 #include <dom/domBind_material.h>
+#include <dae/daeMetaCMPolicy.h>
+#include <dae/daeMetaSequence.h>
+#include <dae/daeMetaChoice.h>
+#include <dae/daeMetaGroup.h>
+#include <dae/daeMetaAny.h>
+#include <dae/daeMetaElementAttribute.h>
 
 daeElementRef
 domBind_material::create(daeInt bytes)
@@ -29,13 +35,38 @@ domBind_material::registerElement()
     
     _Meta = new daeMetaElement;
     _Meta->setName( "bind_material" );
-	_Meta->setStaticPointerAddress(&domBind_material::_Meta);
 	_Meta->registerConstructor(domBind_material::create);
 
-	// Add elements: param, technique_common, technique
-    _Meta->appendArrayElement(domParam::registerElement(),daeOffsetOf(domBind_material,elemParam_array));
-    _Meta->appendElement(domBind_material::domTechnique_common::registerElement(),daeOffsetOf(domBind_material,elemTechnique_common));
-    _Meta->appendArrayElement(domTechnique::registerElement(),daeOffsetOf(domBind_material,elemTechnique_array));
+	daeMetaCMPolicy *cm = NULL;
+	daeMetaElementAttribute *mea = NULL;
+	cm = new daeMetaSequence( _Meta, cm, 0, 1, 1 );
+
+	mea = new daeMetaElementArrayAttribute( _Meta, cm, 0, 0, -1 );
+	mea->setName( "param" );
+	mea->setOffset( daeOffsetOf(domBind_material,elemParam_array) );
+	mea->setElementType( domParam::registerElement() );
+	cm->appendChild( mea );
+	
+	mea = new daeMetaElementAttribute( _Meta, cm, 1, 1, 1 );
+	mea->setName( "technique_common" );
+	mea->setOffset( daeOffsetOf(domBind_material,elemTechnique_common) );
+	mea->setElementType( domBind_material::domTechnique_common::registerElement() );
+	cm->appendChild( mea );
+	
+	mea = new daeMetaElementArrayAttribute( _Meta, cm, 2, 0, -1 );
+	mea->setName( "technique" );
+	mea->setOffset( daeOffsetOf(domBind_material,elemTechnique_array) );
+	mea->setElementType( domTechnique::registerElement() );
+	cm->appendChild( mea );
+	
+	mea = new daeMetaElementArrayAttribute( _Meta, cm, 3, 0, -1 );
+	mea->setName( "extra" );
+	mea->setOffset( daeOffsetOf(domBind_material,elemExtra_array) );
+	mea->setElementType( domExtra::registerElement() );
+	cm->appendChild( mea );
+	
+	cm->setMaxOrdinal( 3 );
+	_Meta->setCMRoot( cm );	
 	
 	
 	_Meta->setElementSize(sizeof(domBind_material));
@@ -59,11 +90,21 @@ domBind_material::domTechnique_common::registerElement()
     
     _Meta = new daeMetaElement;
     _Meta->setName( "technique_common" );
-	_Meta->setStaticPointerAddress(&domBind_material::domTechnique_common::_Meta);
 	_Meta->registerConstructor(domBind_material::domTechnique_common::create);
 
-	// Add elements: instance_material
-    _Meta->appendArrayElement(domInstance_material::registerElement(),daeOffsetOf(domBind_material::domTechnique_common,elemInstance_material_array));
+	_Meta->setIsInnerClass( true );
+	daeMetaCMPolicy *cm = NULL;
+	daeMetaElementAttribute *mea = NULL;
+	cm = new daeMetaSequence( _Meta, cm, 0, 1, 1 );
+
+	mea = new daeMetaElementArrayAttribute( _Meta, cm, 0, 1, -1 );
+	mea->setName( "instance_material" );
+	mea->setOffset( daeOffsetOf(domBind_material::domTechnique_common,elemInstance_material_array) );
+	mea->setElementType( domInstance_material::registerElement() );
+	cm->appendChild( mea );
+	
+	cm->setMaxOrdinal( 0 );
+	_Meta->setCMRoot( cm );	
 	
 	
 	_Meta->setElementSize(sizeof(domBind_material::domTechnique_common));

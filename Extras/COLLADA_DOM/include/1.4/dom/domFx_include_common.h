@@ -49,7 +49,7 @@ public:	//Accessors and Mutators
 	 * Sets the sid attribute.
 	 * @param atSid The new value for the sid attribute.
 	 */
-	void setSid( xsNCName atSid ) { attrSid = atSid; }
+	void setSid( xsNCName atSid ) { *(daeStringRef*)&attrSid = atSid; }
 
 	/**
 	 * Gets the url attribute.
@@ -91,6 +91,37 @@ protected:
  */
 class domFx_include_common : public daeElement, public domFx_include_common_complexType
 {
+
+public:	//Accessors and Mutators
+	/**
+	 * Gets the sid attribute.
+	 * @return Returns a xsNCName of the sid attribute.
+	 */
+	xsNCName getSid() const { return attrSid; }
+	/**
+	 * Sets the sid attribute.
+	 * @param atSid The new value for the sid attribute.
+	 */
+	void setSid( xsNCName atSid ) { *(daeStringRef*)&attrSid = atSid;
+	 _validAttributeArray[0] = true; }
+
+	/**
+	 * Gets the url attribute.
+	 * @return Returns a xsAnyURI reference of the url attribute.
+	 */
+	xsAnyURI &getUrl() { return attrUrl; }
+	/**
+	 * Gets the url attribute.
+	 * @return Returns a constant xsAnyURI reference of the url attribute.
+	 */
+	const xsAnyURI &getUrl() const { return attrUrl; }
+	/**
+	 * Sets the url attribute.
+	 * @param atUrl The new value for the url attribute.
+	 */
+	void setUrl( const xsAnyURI &atUrl ) { attrUrl.setURI( atUrl.getURI() );
+	 _validAttributeArray[1] = true; }
+
 protected:
 	/**
 	 * Constructor

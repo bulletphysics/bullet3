@@ -13,6 +13,12 @@
 
 #include <dae/daeDom.h>
 #include <dom/domGles_texcombiner_command_type.h>
+#include <dae/daeMetaCMPolicy.h>
+#include <dae/daeMetaSequence.h>
+#include <dae/daeMetaChoice.h>
+#include <dae/daeMetaGroup.h>
+#include <dae/daeMetaAny.h>
+#include <dae/daeMetaElementAttribute.h>
 
 daeElementRef
 domGles_texcombiner_command_type::create(daeInt bytes)
@@ -29,13 +35,32 @@ domGles_texcombiner_command_type::registerElement()
     
     _Meta = new daeMetaElement;
     _Meta->setName( "gles_texcombiner_command_type" );
-	_Meta->setStaticPointerAddress(&domGles_texcombiner_command_type::_Meta);
 	_Meta->registerConstructor(domGles_texcombiner_command_type::create);
 
-	// Add elements: constant, RGB, alpha
-    _Meta->appendElement(domGles_texture_constant_type::registerElement(),daeOffsetOf(domGles_texcombiner_command_type,elemConstant),"constant"); 
-    _Meta->appendElement(domGles_texcombiner_commandRGB_type::registerElement(),daeOffsetOf(domGles_texcombiner_command_type,elemRGB),"RGB"); 
-    _Meta->appendElement(domGles_texcombiner_commandAlpha_type::registerElement(),daeOffsetOf(domGles_texcombiner_command_type,elemAlpha),"alpha"); 
+	daeMetaCMPolicy *cm = NULL;
+	daeMetaElementAttribute *mea = NULL;
+	cm = new daeMetaSequence( _Meta, cm, 0, 1, 1 );
+
+	mea = new daeMetaElementAttribute( _Meta, cm, 0, 0, 1 );
+	mea->setName( "constant" );
+	mea->setOffset( daeOffsetOf(domGles_texcombiner_command_type,elemConstant) );
+	mea->setElementType( domGles_texture_constant_type::registerElement() );
+	cm->appendChild( mea );
+	
+	mea = new daeMetaElementAttribute( _Meta, cm, 1, 0, 1 );
+	mea->setName( "RGB" );
+	mea->setOffset( daeOffsetOf(domGles_texcombiner_command_type,elemRGB) );
+	mea->setElementType( domGles_texcombiner_commandRGB_type::registerElement() );
+	cm->appendChild( mea );
+	
+	mea = new daeMetaElementAttribute( _Meta, cm, 2, 0, 1 );
+	mea->setName( "alpha" );
+	mea->setOffset( daeOffsetOf(domGles_texcombiner_command_type,elemAlpha) );
+	mea->setElementType( domGles_texcombiner_commandAlpha_type::registerElement() );
+	cm->appendChild( mea );
+	
+	cm->setMaxOrdinal( 2 );
+	_Meta->setCMRoot( cm );	
 	
 	
 	_Meta->setElementSize(sizeof(domGles_texcombiner_command_type));

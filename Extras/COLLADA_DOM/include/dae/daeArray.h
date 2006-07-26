@@ -131,6 +131,13 @@ public:
 			set( i, cpy[i] ); 
 	}
 	/**
+	 * Constructor that takes one element and turns into an array
+	 */
+	daeTArray( const T &el ) : daeArray() {
+		_elementSize = sizeof(T);
+		append( el );
+	}
+	/**
 	*  Destructor.
 	 */
 	virtual ~daeTArray() {
@@ -177,10 +184,10 @@ public:
 		{
 			// If the array shrank, destruct the elements
 			size_t i;
-			for(i=_count-1; i>= nElements; i--) 
+			for(i=_count; i>nElements; i--)
 			{
-				((T*)_data + i)->~T();
-				memset(_data+i*_elementSize,0,_elementSize);
+				((T*)_data + (i-1))->~T();
+				memset(_data+(i-1)*_elementSize,0,_elementSize);
 			}
 		}
 		_count = nElements;
@@ -239,11 +246,14 @@ public:
 	 * objects in two places, the class member and the <i> @c _contents </i> array, when you remove something from the
 	 * do, you must remove it from both places.
 	 */
-	inline daeInt remove(const T& value) 
+	inline daeInt remove(const T& value, size_t *idx = NULL ) 
 	{
 		size_t index;
 		if(find(value,index) == DAE_OK)
 		{
+			if ( idx != NULL ) {
+				*idx = index;
+			}
 			return(removeIndex( index ));
 		}
 		else

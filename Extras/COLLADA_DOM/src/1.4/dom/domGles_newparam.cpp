@@ -13,6 +13,12 @@
 
 #include <dae/daeDom.h>
 #include <dom/domGles_newparam.h>
+#include <dae/daeMetaCMPolicy.h>
+#include <dae/daeMetaSequence.h>
+#include <dae/daeMetaChoice.h>
+#include <dae/daeMetaGroup.h>
+#include <dae/daeMetaAny.h>
+#include <dae/daeMetaElementAttribute.h>
 
 daeElementRef
 domGles_newparam::create(daeInt bytes)
@@ -29,47 +35,38 @@ domGles_newparam::registerElement()
     
     _Meta = new daeMetaElement;
     _Meta->setName( "gles_newparam" );
-	_Meta->setStaticPointerAddress(&domGles_newparam::_Meta);
 	_Meta->registerConstructor(domGles_newparam::create);
 
-	// Add elements: annotate, semantic, modifier, gles_basic_type_common
-    _Meta->appendArrayElement(domFx_annotate_common::registerElement(),daeOffsetOf(domGles_newparam,elemAnnotate_array),"annotate"); 
-    _Meta->appendElement(domGles_newparam::domSemantic::registerElement(),daeOffsetOf(domGles_newparam,elemSemantic));
-    _Meta->appendElement(domGles_newparam::domModifier::registerElement(),daeOffsetOf(domGles_newparam,elemModifier));
-    _Meta->appendElement(domGles_basic_type_common::registerElement(),daeOffsetOf(domGles_newparam,elemGles_basic_type_common));
-	_Meta->appendPossibleChild( "bool", _Meta->getMetaElements()[3]);
-	_Meta->appendPossibleChild( "bool2", _Meta->getMetaElements()[3]);
-	_Meta->appendPossibleChild( "bool3", _Meta->getMetaElements()[3]);
-	_Meta->appendPossibleChild( "bool4", _Meta->getMetaElements()[3]);
-	_Meta->appendPossibleChild( "int", _Meta->getMetaElements()[3]);
-	_Meta->appendPossibleChild( "int2", _Meta->getMetaElements()[3]);
-	_Meta->appendPossibleChild( "int3", _Meta->getMetaElements()[3]);
-	_Meta->appendPossibleChild( "int4", _Meta->getMetaElements()[3]);
-	_Meta->appendPossibleChild( "float", _Meta->getMetaElements()[3]);
-	_Meta->appendPossibleChild( "float2", _Meta->getMetaElements()[3]);
-	_Meta->appendPossibleChild( "float3", _Meta->getMetaElements()[3]);
-	_Meta->appendPossibleChild( "float4", _Meta->getMetaElements()[3]);
-	_Meta->appendPossibleChild( "float1x1", _Meta->getMetaElements()[3]);
-	_Meta->appendPossibleChild( "float1x2", _Meta->getMetaElements()[3]);
-	_Meta->appendPossibleChild( "float1x3", _Meta->getMetaElements()[3]);
-	_Meta->appendPossibleChild( "float1x4", _Meta->getMetaElements()[3]);
-	_Meta->appendPossibleChild( "float2x1", _Meta->getMetaElements()[3]);
-	_Meta->appendPossibleChild( "float2x2", _Meta->getMetaElements()[3]);
-	_Meta->appendPossibleChild( "float2x3", _Meta->getMetaElements()[3]);
-	_Meta->appendPossibleChild( "float2x4", _Meta->getMetaElements()[3]);
-	_Meta->appendPossibleChild( "float3x1", _Meta->getMetaElements()[3]);
-	_Meta->appendPossibleChild( "float3x2", _Meta->getMetaElements()[3]);
-	_Meta->appendPossibleChild( "float3x3", _Meta->getMetaElements()[3]);
-	_Meta->appendPossibleChild( "float3x4", _Meta->getMetaElements()[3]);
-	_Meta->appendPossibleChild( "float4x1", _Meta->getMetaElements()[3]);
-	_Meta->appendPossibleChild( "float4x2", _Meta->getMetaElements()[3]);
-	_Meta->appendPossibleChild( "float4x3", _Meta->getMetaElements()[3]);
-	_Meta->appendPossibleChild( "float4x4", _Meta->getMetaElements()[3]);
-	_Meta->appendPossibleChild( "surface", _Meta->getMetaElements()[3], "fx_surface_common");
-	_Meta->appendPossibleChild( "texture_pipeline", _Meta->getMetaElements()[3], "gles_texture_pipeline");
-	_Meta->appendPossibleChild( "sampler_state", _Meta->getMetaElements()[3], "gles_sampler_state");
-	_Meta->appendPossibleChild( "texture_unit", _Meta->getMetaElements()[3], "gles_texture_unit");
-	_Meta->appendPossibleChild( "enum", _Meta->getMetaElements()[3]);
+	daeMetaCMPolicy *cm = NULL;
+	daeMetaElementAttribute *mea = NULL;
+	cm = new daeMetaSequence( _Meta, cm, 0, 1, 1 );
+
+	mea = new daeMetaElementArrayAttribute( _Meta, cm, 0, 0, -1 );
+	mea->setName( "annotate" );
+	mea->setOffset( daeOffsetOf(domGles_newparam,elemAnnotate_array) );
+	mea->setElementType( domFx_annotate_common::registerElement() );
+	cm->appendChild( mea );
+	
+	mea = new daeMetaElementAttribute( _Meta, cm, 1, 0, 1 );
+	mea->setName( "semantic" );
+	mea->setOffset( daeOffsetOf(domGles_newparam,elemSemantic) );
+	mea->setElementType( domGles_newparam::domSemantic::registerElement() );
+	cm->appendChild( mea );
+	
+	mea = new daeMetaElementAttribute( _Meta, cm, 2, 0, 1 );
+	mea->setName( "modifier" );
+	mea->setOffset( daeOffsetOf(domGles_newparam,elemModifier) );
+	mea->setElementType( domGles_newparam::domModifier::registerElement() );
+	cm->appendChild( mea );
+	
+	mea = new daeMetaElementAttribute( _Meta, cm, 3, 1, 1 );
+	mea->setName( "gles_basic_type_common" );
+	mea->setOffset( daeOffsetOf(domGles_newparam,elemGles_basic_type_common) );
+	mea->setElementType( domGles_basic_type_common::registerElement() );
+	cm->appendChild( new daeMetaGroup( mea, _Meta, cm, 3, 1, 1 ) );
+	
+	cm->setMaxOrdinal( 3 );
+	_Meta->setCMRoot( cm );	
 
 	//	Add attribute: sid
  	{
@@ -105,9 +102,9 @@ domGles_newparam::domSemantic::registerElement()
     
     _Meta = new daeMetaElement;
     _Meta->setName( "semantic" );
-	_Meta->setStaticPointerAddress(&domGles_newparam::domSemantic::_Meta);
 	_Meta->registerConstructor(domGles_newparam::domSemantic::create);
 
+	_Meta->setIsInnerClass( true );
 	//	Add attribute: _value
  	{
 		daeMetaAttribute *ma = new daeMetaAttribute;
@@ -140,9 +137,9 @@ domGles_newparam::domModifier::registerElement()
     
     _Meta = new daeMetaElement;
     _Meta->setName( "modifier" );
-	_Meta->setStaticPointerAddress(&domGles_newparam::domModifier::_Meta);
 	_Meta->registerConstructor(domGles_newparam::domModifier::create);
 
+	_Meta->setIsInnerClass( true );
 	//	Add attribute: _value
  	{
 		daeMetaAttribute *ma = new daeMetaAttribute;

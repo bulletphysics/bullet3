@@ -18,6 +18,7 @@
 
 #include <dom/domParam.h>
 #include <dom/domTechnique.h>
+#include <dom/domExtra.h>
 #include <dom/domInstance_material.h>
 
 /**
@@ -33,8 +34,8 @@ public:
 	typedef daeTArray<domTechnique_commonRef> domTechnique_common_Array;
 
 /**
- * The technique_common element specifies the instance_rigid_body information
- * for the common  profile which all COLLADA implementations need to support.
+ * The technique_common element specifies the bind_material information for
+ * the common  profile which all COLLADA implementations need to support.
  */
 	class domTechnique_common : public daeElement
 	{
@@ -106,8 +107,8 @@ protected:  // Elements
  */
 	domParam_Array elemParam_array;
 /**
- * The technique_common element specifies the instance_rigid_body information
- * for the common  profile which all COLLADA implementations need to support.
+ * The technique_common element specifies the bind_material information for
+ * the common  profile which all COLLADA implementations need to support.
  * @see domTechnique_common
  */
 	domTechnique_commonRef elemTechnique_common;
@@ -116,6 +117,10 @@ protected:  // Elements
  * @see domTechnique
  */
 	domTechnique_Array elemTechnique_array;
+/**
+ *  The extra element may appear any number of times.  @see domExtra
+ */
+	domExtra_Array elemExtra_array;
 
 public:	//Accessors and Mutators
 	/**
@@ -143,11 +148,21 @@ public:	//Accessors and Mutators
 	 * @return Returns a constant reference to the array of technique elements.
 	 */
 	const domTechnique_Array &getTechnique_array() const { return elemTechnique_array; }
+	/**
+	 * Gets the extra element array.
+	 * @return Returns a reference to the array of extra elements.
+	 */
+	domExtra_Array &getExtra_array() { return elemExtra_array; }
+	/**
+	 * Gets the extra element array.
+	 * @return Returns a constant reference to the array of extra elements.
+	 */
+	const domExtra_Array &getExtra_array() const { return elemExtra_array; }
 protected:
 	/**
 	 * Constructor
 	 */
-	domBind_material() : elemParam_array(), elemTechnique_common(), elemTechnique_array() {}
+	domBind_material() : elemParam_array(), elemTechnique_common(), elemTechnique_array(), elemExtra_array() {}
 	/**
 	 * Destructor
 	 */

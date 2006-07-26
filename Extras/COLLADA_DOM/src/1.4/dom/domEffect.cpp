@@ -13,6 +13,12 @@
 
 #include <dae/daeDom.h>
 #include <dom/domEffect.h>
+#include <dae/daeMetaCMPolicy.h>
+#include <dae/daeMetaSequence.h>
+#include <dae/daeMetaChoice.h>
+#include <dae/daeMetaGroup.h>
+#include <dae/daeMetaAny.h>
+#include <dae/daeMetaElementAttribute.h>
 
 daeElementRef
 domEffect::create(daeInt bytes)
@@ -33,22 +39,81 @@ domEffect::registerElement()
     
     _Meta = new daeMetaElement;
     _Meta->setName( "effect" );
-	_Meta->setStaticPointerAddress(&domEffect::_Meta);
 	_Meta->registerConstructor(domEffect::create);
 
-	// Add elements: asset, annotate, image, newparam, fx_profile_abstract, extra
-    _Meta->appendElement(domAsset::registerElement(),daeOffsetOf(domEffect,elemAsset));
-    _Meta->appendArrayElement(domFx_annotate_common::registerElement(),daeOffsetOf(domEffect,elemAnnotate_array),"annotate"); 
-    _Meta->appendArrayElement(domImage::registerElement(),daeOffsetOf(domEffect,elemImage_array));
-    _Meta->appendArrayElement(domFx_newparam_common::registerElement(),daeOffsetOf(domEffect,elemNewparam_array),"newparam"); 
-    _Meta->appendArrayElement(domFx_profile_abstract::registerElement(),daeOffsetOf(domEffect,elemFx_profile_abstract_array));
-    _Meta->appendArrayElement(domProfile_GLSL::registerElement(),daeOffsetOf(domEffect,elemFx_profile_abstract_array));
-    _Meta->appendArrayElement(domProfile_COMMON::registerElement(),daeOffsetOf(domEffect,elemFx_profile_abstract_array));
-    _Meta->appendArrayElement(domProfile_CG::registerElement(),daeOffsetOf(domEffect,elemFx_profile_abstract_array));
-    _Meta->appendArrayElement(domProfile_GLES::registerElement(),daeOffsetOf(domEffect,elemFx_profile_abstract_array));
-    _Meta->appendArrayElement(domExtra::registerElement(),daeOffsetOf(domEffect,elemExtra_array));
+	daeMetaCMPolicy *cm = NULL;
+	daeMetaElementAttribute *mea = NULL;
+	cm = new daeMetaSequence( _Meta, cm, 0, 1, 1 );
+
+	mea = new daeMetaElementAttribute( _Meta, cm, 0, 0, 1 );
+	mea->setName( "asset" );
+	mea->setOffset( daeOffsetOf(domEffect,elemAsset) );
+	mea->setElementType( domAsset::registerElement() );
+	cm->appendChild( mea );
+	
+	mea = new daeMetaElementArrayAttribute( _Meta, cm, 1, 0, -1 );
+	mea->setName( "annotate" );
+	mea->setOffset( daeOffsetOf(domEffect,elemAnnotate_array) );
+	mea->setElementType( domFx_annotate_common::registerElement() );
+	cm->appendChild( mea );
+	
+	mea = new daeMetaElementArrayAttribute( _Meta, cm, 2, 0, -1 );
+	mea->setName( "image" );
+	mea->setOffset( daeOffsetOf(domEffect,elemImage_array) );
+	mea->setElementType( domImage::registerElement() );
+	cm->appendChild( mea );
+	
+	mea = new daeMetaElementArrayAttribute( _Meta, cm, 3, 0, -1 );
+	mea->setName( "newparam" );
+	mea->setOffset( daeOffsetOf(domEffect,elemNewparam_array) );
+	mea->setElementType( domFx_newparam_common::registerElement() );
+	cm->appendChild( mea );
+	
+	mea = new daeMetaElementArrayAttribute( _Meta, cm, 4, 1, -1 );
+	mea->setName( "fx_profile_abstract" );
+	mea->setOffset( daeOffsetOf(domEffect,elemFx_profile_abstract_array) );
+	mea->setElementType( domFx_profile_abstract::registerElement() );
+	cm->appendChild( mea );
+	
+    
+	mea = new daeMetaElementArrayAttribute( _Meta, cm, 4, 1, -1 );
+	mea->setName( "profile_GLSL" );
+	mea->setOffset( daeOffsetOf(domEffect,elemFx_profile_abstract_array) );
+	mea->setElementType( domProfile_GLSL::registerElement() );
+	cm->appendChild( mea );
+	
+    
+	mea = new daeMetaElementArrayAttribute( _Meta, cm, 4, 1, -1 );
+	mea->setName( "profile_COMMON" );
+	mea->setOffset( daeOffsetOf(domEffect,elemFx_profile_abstract_array) );
+	mea->setElementType( domProfile_COMMON::registerElement() );
+	cm->appendChild( mea );
+	
+    
+	mea = new daeMetaElementArrayAttribute( _Meta, cm, 4, 1, -1 );
+	mea->setName( "profile_CG" );
+	mea->setOffset( daeOffsetOf(domEffect,elemFx_profile_abstract_array) );
+	mea->setElementType( domProfile_CG::registerElement() );
+	cm->appendChild( mea );
+	
+    
+	mea = new daeMetaElementArrayAttribute( _Meta, cm, 4, 1, -1 );
+	mea->setName( "profile_GLES" );
+	mea->setOffset( daeOffsetOf(domEffect,elemFx_profile_abstract_array) );
+	mea->setElementType( domProfile_GLES::registerElement() );
+	cm->appendChild( mea );
+	
+	mea = new daeMetaElementArrayAttribute( _Meta, cm, 5, 0, -1 );
+	mea->setName( "extra" );
+	mea->setOffset( daeOffsetOf(domEffect,elemExtra_array) );
+	mea->setElementType( domExtra::registerElement() );
+	cm->appendChild( mea );
+	
+	cm->setMaxOrdinal( 5 );
+	_Meta->setCMRoot( cm );	
 	// Ordered list of sub-elements
     _Meta->addContents(daeOffsetOf(domEffect,_contents));
+    _Meta->addContentsOrder(daeOffsetOf(domEffect,_contentsOrder));
 
 
 	//	Add attribute: id

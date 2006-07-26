@@ -48,7 +48,7 @@ public:	//Accessors and Mutators
 	 * Sets the unit attribute.
 	 * @param atUnit The new value for the unit attribute.
 	 */
-	void setUnit( xsNCName atUnit ) { attrUnit = atUnit; }
+	void setUnit( xsNCName atUnit ) { *(daeStringRef*)&attrUnit = atUnit; }
 
 	/**
 	 * Gets the constant element.
@@ -79,6 +79,32 @@ protected:
  */
 class domGles_texenv_command_type : public daeElement, public domGles_texenv_command_type_complexType
 {
+
+public:	//Accessors and Mutators
+	/**
+	 * Gets the operator attribute.
+	 * @return Returns a domGles_texenv_mode_enums of the operator attribute.
+	 */
+	domGles_texenv_mode_enums getOperator() const { return attrOperator; }
+	/**
+	 * Sets the operator attribute.
+	 * @param atOperator The new value for the operator attribute.
+	 */
+	void setOperator( domGles_texenv_mode_enums atOperator ) { attrOperator = atOperator;
+	 _validAttributeArray[0] = true; }
+
+	/**
+	 * Gets the unit attribute.
+	 * @return Returns a xsNCName of the unit attribute.
+	 */
+	xsNCName getUnit() const { return attrUnit; }
+	/**
+	 * Sets the unit attribute.
+	 * @param atUnit The new value for the unit attribute.
+	 */
+	void setUnit( xsNCName atUnit ) { *(daeStringRef*)&attrUnit = atUnit;
+	 _validAttributeArray[1] = true; }
+
 protected:
 	/**
 	 * Constructor

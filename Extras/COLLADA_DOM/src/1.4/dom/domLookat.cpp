@@ -13,6 +13,12 @@
 
 #include <dae/daeDom.h>
 #include <dom/domLookat.h>
+#include <dae/daeMetaCMPolicy.h>
+#include <dae/daeMetaSequence.h>
+#include <dae/daeMetaChoice.h>
+#include <dae/daeMetaGroup.h>
+#include <dae/daeMetaAny.h>
+#include <dae/daeMetaElementAttribute.h>
 
 daeElementRef
 domLookat::create(daeInt bytes)
@@ -29,7 +35,6 @@ domLookat::registerElement()
     
     _Meta = new daeMetaElement;
     _Meta->setName( "lookat" );
-	_Meta->setStaticPointerAddress(&domLookat::_Meta);
 	_Meta->registerConstructor(domLookat::create);
 
 	//	Add attribute: _value

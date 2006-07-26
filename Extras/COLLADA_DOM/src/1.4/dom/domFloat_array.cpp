@@ -13,6 +13,12 @@
 
 #include <dae/daeDom.h>
 #include <dom/domFloat_array.h>
+#include <dae/daeMetaCMPolicy.h>
+#include <dae/daeMetaSequence.h>
+#include <dae/daeMetaChoice.h>
+#include <dae/daeMetaGroup.h>
+#include <dae/daeMetaAny.h>
+#include <dae/daeMetaElementAttribute.h>
 
 daeElementRef
 domFloat_array::create(daeInt bytes)
@@ -29,7 +35,6 @@ domFloat_array::registerElement()
     
     _Meta = new daeMetaElement;
     _Meta->setName( "float_array" );
-	_Meta->setStaticPointerAddress(&domFloat_array::_Meta);
 	_Meta->registerConstructor(domFloat_array::create);
 
 	//	Add attribute: _value

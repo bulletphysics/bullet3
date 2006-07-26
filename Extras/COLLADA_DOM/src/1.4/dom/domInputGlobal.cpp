@@ -13,6 +13,12 @@
 
 #include <dae/daeDom.h>
 #include <dom/domInputGlobal.h>
+#include <dae/daeMetaCMPolicy.h>
+#include <dae/daeMetaSequence.h>
+#include <dae/daeMetaChoice.h>
+#include <dae/daeMetaGroup.h>
+#include <dae/daeMetaAny.h>
+#include <dae/daeMetaElementAttribute.h>
 
 daeElementRef
 domInputGlobal::create(daeInt bytes)
@@ -30,7 +36,6 @@ domInputGlobal::registerElement()
     
     _Meta = new daeMetaElement;
     _Meta->setName( "InputGlobal" );
-	_Meta->setStaticPointerAddress(&domInputGlobal::_Meta);
 	_Meta->registerConstructor(domInputGlobal::create);
 
 

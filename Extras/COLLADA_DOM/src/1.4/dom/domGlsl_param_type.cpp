@@ -13,6 +13,12 @@
 
 #include <dae/daeDom.h>
 #include <dom/domGlsl_param_type.h>
+#include <dae/daeMetaCMPolicy.h>
+#include <dae/daeMetaSequence.h>
+#include <dae/daeMetaChoice.h>
+#include <dae/daeMetaGroup.h>
+#include <dae/daeMetaAny.h>
+#include <dae/daeMetaElementAttribute.h>
 
 daeElementRef
 domGlsl_param_type::create(daeInt bytes)
@@ -29,36 +35,156 @@ domGlsl_param_type::registerElement()
     
     _Meta = new daeMetaElement;
     _Meta->setName( "glsl_param_type" );
-	_Meta->setStaticPointerAddress(&domGlsl_param_type::_Meta);
 	_Meta->registerConstructor(domGlsl_param_type::create);
 
 	_Meta->setIsTransparent( true );
-	// Add elements: bool, bool2, bool3, bool4, float, float2, float3, float4, float2x2, float3x3, float4x4, int, int2, int3, int4, surface, sampler1D, sampler2D, sampler3D, samplerCUBE, samplerRECT, samplerDEPTH, enum
-    _Meta->appendElement(domGlsl_param_type::domBool::registerElement(),daeOffsetOf(domGlsl_param_type,elemBool));
-    _Meta->appendElement(domGlsl_param_type::domBool2::registerElement(),daeOffsetOf(domGlsl_param_type,elemBool2));
-    _Meta->appendElement(domGlsl_param_type::domBool3::registerElement(),daeOffsetOf(domGlsl_param_type,elemBool3));
-    _Meta->appendElement(domGlsl_param_type::domBool4::registerElement(),daeOffsetOf(domGlsl_param_type,elemBool4));
-    _Meta->appendElement(domGlsl_param_type::domFloat::registerElement(),daeOffsetOf(domGlsl_param_type,elemFloat));
-    _Meta->appendElement(domGlsl_param_type::domFloat2::registerElement(),daeOffsetOf(domGlsl_param_type,elemFloat2));
-    _Meta->appendElement(domGlsl_param_type::domFloat3::registerElement(),daeOffsetOf(domGlsl_param_type,elemFloat3));
-    _Meta->appendElement(domGlsl_param_type::domFloat4::registerElement(),daeOffsetOf(domGlsl_param_type,elemFloat4));
-    _Meta->appendElement(domGlsl_param_type::domFloat2x2::registerElement(),daeOffsetOf(domGlsl_param_type,elemFloat2x2));
-    _Meta->appendElement(domGlsl_param_type::domFloat3x3::registerElement(),daeOffsetOf(domGlsl_param_type,elemFloat3x3));
-    _Meta->appendElement(domGlsl_param_type::domFloat4x4::registerElement(),daeOffsetOf(domGlsl_param_type,elemFloat4x4));
-    _Meta->appendElement(domGlsl_param_type::domInt::registerElement(),daeOffsetOf(domGlsl_param_type,elemInt));
-    _Meta->appendElement(domGlsl_param_type::domInt2::registerElement(),daeOffsetOf(domGlsl_param_type,elemInt2));
-    _Meta->appendElement(domGlsl_param_type::domInt3::registerElement(),daeOffsetOf(domGlsl_param_type,elemInt3));
-    _Meta->appendElement(domGlsl_param_type::domInt4::registerElement(),daeOffsetOf(domGlsl_param_type,elemInt4));
-    _Meta->appendElement(domFx_surface_common::registerElement(),daeOffsetOf(domGlsl_param_type,elemSurface),"surface"); 
-    _Meta->appendElement(domGl_sampler1D::registerElement(),daeOffsetOf(domGlsl_param_type,elemSampler1D),"sampler1D"); 
-    _Meta->appendElement(domGl_sampler2D::registerElement(),daeOffsetOf(domGlsl_param_type,elemSampler2D),"sampler2D"); 
-    _Meta->appendElement(domGl_sampler3D::registerElement(),daeOffsetOf(domGlsl_param_type,elemSampler3D),"sampler3D"); 
-    _Meta->appendElement(domGl_samplerCUBE::registerElement(),daeOffsetOf(domGlsl_param_type,elemSamplerCUBE),"samplerCUBE"); 
-    _Meta->appendElement(domGl_samplerRECT::registerElement(),daeOffsetOf(domGlsl_param_type,elemSamplerRECT),"samplerRECT"); 
-    _Meta->appendElement(domGl_samplerDEPTH::registerElement(),daeOffsetOf(domGlsl_param_type,elemSamplerDEPTH),"samplerDEPTH"); 
-    _Meta->appendElement(domGlsl_param_type::domEnum::registerElement(),daeOffsetOf(domGlsl_param_type,elemEnum));
+	daeMetaCMPolicy *cm = NULL;
+	daeMetaElementAttribute *mea = NULL;
+	cm = new daeMetaChoice( _Meta, cm, 0, 1, 1 );
+
+	mea = new daeMetaElementAttribute( _Meta, cm, 0, 1, 1 );
+	mea->setName( "bool" );
+	mea->setOffset( daeOffsetOf(domGlsl_param_type,elemBool) );
+	mea->setElementType( domGlsl_param_type::domBool::registerElement() );
+	cm->appendChild( mea );
+	
+	mea = new daeMetaElementAttribute( _Meta, cm, 0, 1, 1 );
+	mea->setName( "bool2" );
+	mea->setOffset( daeOffsetOf(domGlsl_param_type,elemBool2) );
+	mea->setElementType( domGlsl_param_type::domBool2::registerElement() );
+	cm->appendChild( mea );
+	
+	mea = new daeMetaElementAttribute( _Meta, cm, 0, 1, 1 );
+	mea->setName( "bool3" );
+	mea->setOffset( daeOffsetOf(domGlsl_param_type,elemBool3) );
+	mea->setElementType( domGlsl_param_type::domBool3::registerElement() );
+	cm->appendChild( mea );
+	
+	mea = new daeMetaElementAttribute( _Meta, cm, 0, 1, 1 );
+	mea->setName( "bool4" );
+	mea->setOffset( daeOffsetOf(domGlsl_param_type,elemBool4) );
+	mea->setElementType( domGlsl_param_type::domBool4::registerElement() );
+	cm->appendChild( mea );
+	
+	mea = new daeMetaElementAttribute( _Meta, cm, 0, 1, 1 );
+	mea->setName( "float" );
+	mea->setOffset( daeOffsetOf(domGlsl_param_type,elemFloat) );
+	mea->setElementType( domGlsl_param_type::domFloat::registerElement() );
+	cm->appendChild( mea );
+	
+	mea = new daeMetaElementAttribute( _Meta, cm, 0, 1, 1 );
+	mea->setName( "float2" );
+	mea->setOffset( daeOffsetOf(domGlsl_param_type,elemFloat2) );
+	mea->setElementType( domGlsl_param_type::domFloat2::registerElement() );
+	cm->appendChild( mea );
+	
+	mea = new daeMetaElementAttribute( _Meta, cm, 0, 1, 1 );
+	mea->setName( "float3" );
+	mea->setOffset( daeOffsetOf(domGlsl_param_type,elemFloat3) );
+	mea->setElementType( domGlsl_param_type::domFloat3::registerElement() );
+	cm->appendChild( mea );
+	
+	mea = new daeMetaElementAttribute( _Meta, cm, 0, 1, 1 );
+	mea->setName( "float4" );
+	mea->setOffset( daeOffsetOf(domGlsl_param_type,elemFloat4) );
+	mea->setElementType( domGlsl_param_type::domFloat4::registerElement() );
+	cm->appendChild( mea );
+	
+	mea = new daeMetaElementAttribute( _Meta, cm, 0, 1, 1 );
+	mea->setName( "float2x2" );
+	mea->setOffset( daeOffsetOf(domGlsl_param_type,elemFloat2x2) );
+	mea->setElementType( domGlsl_param_type::domFloat2x2::registerElement() );
+	cm->appendChild( mea );
+	
+	mea = new daeMetaElementAttribute( _Meta, cm, 0, 1, 1 );
+	mea->setName( "float3x3" );
+	mea->setOffset( daeOffsetOf(domGlsl_param_type,elemFloat3x3) );
+	mea->setElementType( domGlsl_param_type::domFloat3x3::registerElement() );
+	cm->appendChild( mea );
+	
+	mea = new daeMetaElementAttribute( _Meta, cm, 0, 1, 1 );
+	mea->setName( "float4x4" );
+	mea->setOffset( daeOffsetOf(domGlsl_param_type,elemFloat4x4) );
+	mea->setElementType( domGlsl_param_type::domFloat4x4::registerElement() );
+	cm->appendChild( mea );
+	
+	mea = new daeMetaElementAttribute( _Meta, cm, 0, 1, 1 );
+	mea->setName( "int" );
+	mea->setOffset( daeOffsetOf(domGlsl_param_type,elemInt) );
+	mea->setElementType( domGlsl_param_type::domInt::registerElement() );
+	cm->appendChild( mea );
+	
+	mea = new daeMetaElementAttribute( _Meta, cm, 0, 1, 1 );
+	mea->setName( "int2" );
+	mea->setOffset( daeOffsetOf(domGlsl_param_type,elemInt2) );
+	mea->setElementType( domGlsl_param_type::domInt2::registerElement() );
+	cm->appendChild( mea );
+	
+	mea = new daeMetaElementAttribute( _Meta, cm, 0, 1, 1 );
+	mea->setName( "int3" );
+	mea->setOffset( daeOffsetOf(domGlsl_param_type,elemInt3) );
+	mea->setElementType( domGlsl_param_type::domInt3::registerElement() );
+	cm->appendChild( mea );
+	
+	mea = new daeMetaElementAttribute( _Meta, cm, 0, 1, 1 );
+	mea->setName( "int4" );
+	mea->setOffset( daeOffsetOf(domGlsl_param_type,elemInt4) );
+	mea->setElementType( domGlsl_param_type::domInt4::registerElement() );
+	cm->appendChild( mea );
+	
+	mea = new daeMetaElementAttribute( _Meta, cm, 0, 1, 1 );
+	mea->setName( "surface" );
+	mea->setOffset( daeOffsetOf(domGlsl_param_type,elemSurface) );
+	mea->setElementType( domGlsl_surface_type::registerElement() );
+	cm->appendChild( mea );
+	
+	mea = new daeMetaElementAttribute( _Meta, cm, 0, 1, 1 );
+	mea->setName( "sampler1D" );
+	mea->setOffset( daeOffsetOf(domGlsl_param_type,elemSampler1D) );
+	mea->setElementType( domGl_sampler1D::registerElement() );
+	cm->appendChild( mea );
+	
+	mea = new daeMetaElementAttribute( _Meta, cm, 0, 1, 1 );
+	mea->setName( "sampler2D" );
+	mea->setOffset( daeOffsetOf(domGlsl_param_type,elemSampler2D) );
+	mea->setElementType( domGl_sampler2D::registerElement() );
+	cm->appendChild( mea );
+	
+	mea = new daeMetaElementAttribute( _Meta, cm, 0, 1, 1 );
+	mea->setName( "sampler3D" );
+	mea->setOffset( daeOffsetOf(domGlsl_param_type,elemSampler3D) );
+	mea->setElementType( domGl_sampler3D::registerElement() );
+	cm->appendChild( mea );
+	
+	mea = new daeMetaElementAttribute( _Meta, cm, 0, 1, 1 );
+	mea->setName( "samplerCUBE" );
+	mea->setOffset( daeOffsetOf(domGlsl_param_type,elemSamplerCUBE) );
+	mea->setElementType( domGl_samplerCUBE::registerElement() );
+	cm->appendChild( mea );
+	
+	mea = new daeMetaElementAttribute( _Meta, cm, 0, 1, 1 );
+	mea->setName( "samplerRECT" );
+	mea->setOffset( daeOffsetOf(domGlsl_param_type,elemSamplerRECT) );
+	mea->setElementType( domGl_samplerRECT::registerElement() );
+	cm->appendChild( mea );
+	
+	mea = new daeMetaElementAttribute( _Meta, cm, 0, 1, 1 );
+	mea->setName( "samplerDEPTH" );
+	mea->setOffset( daeOffsetOf(domGlsl_param_type,elemSamplerDEPTH) );
+	mea->setElementType( domGl_samplerDEPTH::registerElement() );
+	cm->appendChild( mea );
+	
+	mea = new daeMetaElementAttribute( _Meta, cm, 0, 1, 1 );
+	mea->setName( "enum" );
+	mea->setOffset( daeOffsetOf(domGlsl_param_type,elemEnum) );
+	mea->setElementType( domGlsl_param_type::domEnum::registerElement() );
+	cm->appendChild( mea );
+	
+	cm->setMaxOrdinal( 0 );
+	_Meta->setCMRoot( cm );	
 	// Ordered list of sub-elements
     _Meta->addContents(daeOffsetOf(domGlsl_param_type,_contents));
+    _Meta->addContentsOrder(daeOffsetOf(domGlsl_param_type,_contentsOrder));
 
 	
 	
@@ -83,9 +209,9 @@ domGlsl_param_type::domBool::registerElement()
     
     _Meta = new daeMetaElement;
     _Meta->setName( "bool" );
-	_Meta->setStaticPointerAddress(&domGlsl_param_type::domBool::_Meta);
 	_Meta->registerConstructor(domGlsl_param_type::domBool::create);
 
+	_Meta->setIsInnerClass( true );
 	//	Add attribute: _value
  	{
 		daeMetaAttribute *ma = new daeMetaAttribute;
@@ -118,9 +244,9 @@ domGlsl_param_type::domBool2::registerElement()
     
     _Meta = new daeMetaElement;
     _Meta->setName( "bool2" );
-	_Meta->setStaticPointerAddress(&domGlsl_param_type::domBool2::_Meta);
 	_Meta->registerConstructor(domGlsl_param_type::domBool2::create);
 
+	_Meta->setIsInnerClass( true );
 	//	Add attribute: _value
  	{
 		daeMetaAttribute *ma = new daeMetaArrayAttribute;
@@ -153,9 +279,9 @@ domGlsl_param_type::domBool3::registerElement()
     
     _Meta = new daeMetaElement;
     _Meta->setName( "bool3" );
-	_Meta->setStaticPointerAddress(&domGlsl_param_type::domBool3::_Meta);
 	_Meta->registerConstructor(domGlsl_param_type::domBool3::create);
 
+	_Meta->setIsInnerClass( true );
 	//	Add attribute: _value
  	{
 		daeMetaAttribute *ma = new daeMetaArrayAttribute;
@@ -188,9 +314,9 @@ domGlsl_param_type::domBool4::registerElement()
     
     _Meta = new daeMetaElement;
     _Meta->setName( "bool4" );
-	_Meta->setStaticPointerAddress(&domGlsl_param_type::domBool4::_Meta);
 	_Meta->registerConstructor(domGlsl_param_type::domBool4::create);
 
+	_Meta->setIsInnerClass( true );
 	//	Add attribute: _value
  	{
 		daeMetaAttribute *ma = new daeMetaArrayAttribute;
@@ -223,9 +349,9 @@ domGlsl_param_type::domFloat::registerElement()
     
     _Meta = new daeMetaElement;
     _Meta->setName( "float" );
-	_Meta->setStaticPointerAddress(&domGlsl_param_type::domFloat::_Meta);
 	_Meta->registerConstructor(domGlsl_param_type::domFloat::create);
 
+	_Meta->setIsInnerClass( true );
 	//	Add attribute: _value
  	{
 		daeMetaAttribute *ma = new daeMetaAttribute;
@@ -258,9 +384,9 @@ domGlsl_param_type::domFloat2::registerElement()
     
     _Meta = new daeMetaElement;
     _Meta->setName( "float2" );
-	_Meta->setStaticPointerAddress(&domGlsl_param_type::domFloat2::_Meta);
 	_Meta->registerConstructor(domGlsl_param_type::domFloat2::create);
 
+	_Meta->setIsInnerClass( true );
 	//	Add attribute: _value
  	{
 		daeMetaAttribute *ma = new daeMetaArrayAttribute;
@@ -293,9 +419,9 @@ domGlsl_param_type::domFloat3::registerElement()
     
     _Meta = new daeMetaElement;
     _Meta->setName( "float3" );
-	_Meta->setStaticPointerAddress(&domGlsl_param_type::domFloat3::_Meta);
 	_Meta->registerConstructor(domGlsl_param_type::domFloat3::create);
 
+	_Meta->setIsInnerClass( true );
 	//	Add attribute: _value
  	{
 		daeMetaAttribute *ma = new daeMetaArrayAttribute;
@@ -328,9 +454,9 @@ domGlsl_param_type::domFloat4::registerElement()
     
     _Meta = new daeMetaElement;
     _Meta->setName( "float4" );
-	_Meta->setStaticPointerAddress(&domGlsl_param_type::domFloat4::_Meta);
 	_Meta->registerConstructor(domGlsl_param_type::domFloat4::create);
 
+	_Meta->setIsInnerClass( true );
 	//	Add attribute: _value
  	{
 		daeMetaAttribute *ma = new daeMetaArrayAttribute;
@@ -363,9 +489,9 @@ domGlsl_param_type::domFloat2x2::registerElement()
     
     _Meta = new daeMetaElement;
     _Meta->setName( "float2x2" );
-	_Meta->setStaticPointerAddress(&domGlsl_param_type::domFloat2x2::_Meta);
 	_Meta->registerConstructor(domGlsl_param_type::domFloat2x2::create);
 
+	_Meta->setIsInnerClass( true );
 	//	Add attribute: _value
  	{
 		daeMetaAttribute *ma = new daeMetaArrayAttribute;
@@ -398,9 +524,9 @@ domGlsl_param_type::domFloat3x3::registerElement()
     
     _Meta = new daeMetaElement;
     _Meta->setName( "float3x3" );
-	_Meta->setStaticPointerAddress(&domGlsl_param_type::domFloat3x3::_Meta);
 	_Meta->registerConstructor(domGlsl_param_type::domFloat3x3::create);
 
+	_Meta->setIsInnerClass( true );
 	//	Add attribute: _value
  	{
 		daeMetaAttribute *ma = new daeMetaArrayAttribute;
@@ -433,9 +559,9 @@ domGlsl_param_type::domFloat4x4::registerElement()
     
     _Meta = new daeMetaElement;
     _Meta->setName( "float4x4" );
-	_Meta->setStaticPointerAddress(&domGlsl_param_type::domFloat4x4::_Meta);
 	_Meta->registerConstructor(domGlsl_param_type::domFloat4x4::create);
 
+	_Meta->setIsInnerClass( true );
 	//	Add attribute: _value
  	{
 		daeMetaAttribute *ma = new daeMetaArrayAttribute;
@@ -468,9 +594,9 @@ domGlsl_param_type::domInt::registerElement()
     
     _Meta = new daeMetaElement;
     _Meta->setName( "int" );
-	_Meta->setStaticPointerAddress(&domGlsl_param_type::domInt::_Meta);
 	_Meta->registerConstructor(domGlsl_param_type::domInt::create);
 
+	_Meta->setIsInnerClass( true );
 	//	Add attribute: _value
  	{
 		daeMetaAttribute *ma = new daeMetaAttribute;
@@ -503,9 +629,9 @@ domGlsl_param_type::domInt2::registerElement()
     
     _Meta = new daeMetaElement;
     _Meta->setName( "int2" );
-	_Meta->setStaticPointerAddress(&domGlsl_param_type::domInt2::_Meta);
 	_Meta->registerConstructor(domGlsl_param_type::domInt2::create);
 
+	_Meta->setIsInnerClass( true );
 	//	Add attribute: _value
  	{
 		daeMetaAttribute *ma = new daeMetaArrayAttribute;
@@ -538,9 +664,9 @@ domGlsl_param_type::domInt3::registerElement()
     
     _Meta = new daeMetaElement;
     _Meta->setName( "int3" );
-	_Meta->setStaticPointerAddress(&domGlsl_param_type::domInt3::_Meta);
 	_Meta->registerConstructor(domGlsl_param_type::domInt3::create);
 
+	_Meta->setIsInnerClass( true );
 	//	Add attribute: _value
  	{
 		daeMetaAttribute *ma = new daeMetaArrayAttribute;
@@ -573,9 +699,9 @@ domGlsl_param_type::domInt4::registerElement()
     
     _Meta = new daeMetaElement;
     _Meta->setName( "int4" );
-	_Meta->setStaticPointerAddress(&domGlsl_param_type::domInt4::_Meta);
 	_Meta->registerConstructor(domGlsl_param_type::domInt4::create);
 
+	_Meta->setIsInnerClass( true );
 	//	Add attribute: _value
  	{
 		daeMetaAttribute *ma = new daeMetaArrayAttribute;
@@ -608,9 +734,9 @@ domGlsl_param_type::domEnum::registerElement()
     
     _Meta = new daeMetaElement;
     _Meta->setName( "enum" );
-	_Meta->setStaticPointerAddress(&domGlsl_param_type::domEnum::_Meta);
 	_Meta->registerConstructor(domGlsl_param_type::domEnum::create);
 
+	_Meta->setIsInnerClass( true );
 	//	Add attribute: _value
  	{
 		daeMetaAttribute *ma = new daeMetaAttribute;

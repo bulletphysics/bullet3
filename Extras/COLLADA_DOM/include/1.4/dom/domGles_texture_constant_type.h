@@ -50,7 +50,7 @@ public:	//Accessors and Mutators
 	 * Sets the param attribute.
 	 * @param atParam The new value for the param attribute.
 	 */
-	void setParam( xsNCName atParam ) { attrParam = atParam; }
+	void setParam( xsNCName atParam ) { *(daeStringRef*)&attrParam = atParam; }
 
 protected:
 	/**
@@ -76,6 +76,37 @@ protected:
  */
 class domGles_texture_constant_type : public daeElement, public domGles_texture_constant_type_complexType
 {
+
+public:	//Accessors and Mutators
+	/**
+	 * Gets the value array attribute.
+	 * @return Returns a domFloat4 reference of the value array attribute.
+	 */
+	domFloat4 &getValue() { return attrValue; }
+	/**
+	 * Gets the value array attribute.
+	 * @return Returns a constant domFloat4 reference of the value array attribute.
+	 */
+	const domFloat4 &getValue() const { return attrValue; }
+	/**
+	 * Sets the value array attribute.
+	 * @param atValue The new value for the value array attribute.
+	 */
+	void setValue( const domFloat4 &atValue ) { attrValue = atValue;
+	 _validAttributeArray[0] = true; }
+
+	/**
+	 * Gets the param attribute.
+	 * @return Returns a xsNCName of the param attribute.
+	 */
+	xsNCName getParam() const { return attrParam; }
+	/**
+	 * Sets the param attribute.
+	 * @param atParam The new value for the param attribute.
+	 */
+	void setParam( xsNCName atParam ) { *(daeStringRef*)&attrParam = atParam;
+	 _validAttributeArray[1] = true; }
+
 protected:
 	/**
 	 * Constructor

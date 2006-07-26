@@ -13,6 +13,12 @@
 
 #include <dae/daeDom.h>
 #include <dom/domGles_sampler_state.h>
+#include <dae/daeMetaCMPolicy.h>
+#include <dae/daeMetaSequence.h>
+#include <dae/daeMetaChoice.h>
+#include <dae/daeMetaGroup.h>
+#include <dae/daeMetaAny.h>
+#include <dae/daeMetaElementAttribute.h>
 
 daeElementRef
 domGles_sampler_state::create(daeInt bytes)
@@ -29,18 +35,62 @@ domGles_sampler_state::registerElement()
     
     _Meta = new daeMetaElement;
     _Meta->setName( "gles_sampler_state" );
-	_Meta->setStaticPointerAddress(&domGles_sampler_state::_Meta);
 	_Meta->registerConstructor(domGles_sampler_state::create);
 
-	// Add elements: wrap_s, wrap_t, minfilter, magfilter, mipfilter, mipmap_maxlevel, mipmap_bias, extra
-    _Meta->appendElement(domGles_sampler_state::domWrap_s::registerElement(),daeOffsetOf(domGles_sampler_state,elemWrap_s));
-    _Meta->appendElement(domGles_sampler_state::domWrap_t::registerElement(),daeOffsetOf(domGles_sampler_state,elemWrap_t));
-    _Meta->appendElement(domGles_sampler_state::domMinfilter::registerElement(),daeOffsetOf(domGles_sampler_state,elemMinfilter));
-    _Meta->appendElement(domGles_sampler_state::domMagfilter::registerElement(),daeOffsetOf(domGles_sampler_state,elemMagfilter));
-    _Meta->appendElement(domGles_sampler_state::domMipfilter::registerElement(),daeOffsetOf(domGles_sampler_state,elemMipfilter));
-    _Meta->appendElement(domGles_sampler_state::domMipmap_maxlevel::registerElement(),daeOffsetOf(domGles_sampler_state,elemMipmap_maxlevel));
-    _Meta->appendElement(domGles_sampler_state::domMipmap_bias::registerElement(),daeOffsetOf(domGles_sampler_state,elemMipmap_bias));
-    _Meta->appendArrayElement(domExtra::registerElement(),daeOffsetOf(domGles_sampler_state,elemExtra_array));
+	daeMetaCMPolicy *cm = NULL;
+	daeMetaElementAttribute *mea = NULL;
+	cm = new daeMetaSequence( _Meta, cm, 0, 1, 1 );
+
+	mea = new daeMetaElementAttribute( _Meta, cm, 0, 0, 1 );
+	mea->setName( "wrap_s" );
+	mea->setOffset( daeOffsetOf(domGles_sampler_state,elemWrap_s) );
+	mea->setElementType( domGles_sampler_state::domWrap_s::registerElement() );
+	cm->appendChild( mea );
+	
+	mea = new daeMetaElementAttribute( _Meta, cm, 1, 0, 1 );
+	mea->setName( "wrap_t" );
+	mea->setOffset( daeOffsetOf(domGles_sampler_state,elemWrap_t) );
+	mea->setElementType( domGles_sampler_state::domWrap_t::registerElement() );
+	cm->appendChild( mea );
+	
+	mea = new daeMetaElementAttribute( _Meta, cm, 2, 0, 1 );
+	mea->setName( "minfilter" );
+	mea->setOffset( daeOffsetOf(domGles_sampler_state,elemMinfilter) );
+	mea->setElementType( domGles_sampler_state::domMinfilter::registerElement() );
+	cm->appendChild( mea );
+	
+	mea = new daeMetaElementAttribute( _Meta, cm, 3, 0, 1 );
+	mea->setName( "magfilter" );
+	mea->setOffset( daeOffsetOf(domGles_sampler_state,elemMagfilter) );
+	mea->setElementType( domGles_sampler_state::domMagfilter::registerElement() );
+	cm->appendChild( mea );
+	
+	mea = new daeMetaElementAttribute( _Meta, cm, 4, 0, 1 );
+	mea->setName( "mipfilter" );
+	mea->setOffset( daeOffsetOf(domGles_sampler_state,elemMipfilter) );
+	mea->setElementType( domGles_sampler_state::domMipfilter::registerElement() );
+	cm->appendChild( mea );
+	
+	mea = new daeMetaElementAttribute( _Meta, cm, 5, 0, 1 );
+	mea->setName( "mipmap_maxlevel" );
+	mea->setOffset( daeOffsetOf(domGles_sampler_state,elemMipmap_maxlevel) );
+	mea->setElementType( domGles_sampler_state::domMipmap_maxlevel::registerElement() );
+	cm->appendChild( mea );
+	
+	mea = new daeMetaElementAttribute( _Meta, cm, 6, 0, 1 );
+	mea->setName( "mipmap_bias" );
+	mea->setOffset( daeOffsetOf(domGles_sampler_state,elemMipmap_bias) );
+	mea->setElementType( domGles_sampler_state::domMipmap_bias::registerElement() );
+	cm->appendChild( mea );
+	
+	mea = new daeMetaElementArrayAttribute( _Meta, cm, 7, 0, -1 );
+	mea->setName( "extra" );
+	mea->setOffset( daeOffsetOf(domGles_sampler_state,elemExtra_array) );
+	mea->setElementType( domExtra::registerElement() );
+	cm->appendChild( mea );
+	
+	cm->setMaxOrdinal( 7 );
+	_Meta->setCMRoot( cm );	
 
 	//	Add attribute: sid
  	{
@@ -75,9 +125,9 @@ domGles_sampler_state::domWrap_s::registerElement()
     
     _Meta = new daeMetaElement;
     _Meta->setName( "wrap_s" );
-	_Meta->setStaticPointerAddress(&domGles_sampler_state::domWrap_s::_Meta);
 	_Meta->registerConstructor(domGles_sampler_state::domWrap_s::create);
 
+	_Meta->setIsInnerClass( true );
 	//	Add attribute: _value
  	{
 		daeMetaAttribute *ma = new daeMetaAttribute;
@@ -110,9 +160,9 @@ domGles_sampler_state::domWrap_t::registerElement()
     
     _Meta = new daeMetaElement;
     _Meta->setName( "wrap_t" );
-	_Meta->setStaticPointerAddress(&domGles_sampler_state::domWrap_t::_Meta);
 	_Meta->registerConstructor(domGles_sampler_state::domWrap_t::create);
 
+	_Meta->setIsInnerClass( true );
 	//	Add attribute: _value
  	{
 		daeMetaAttribute *ma = new daeMetaAttribute;
@@ -145,9 +195,9 @@ domGles_sampler_state::domMinfilter::registerElement()
     
     _Meta = new daeMetaElement;
     _Meta->setName( "minfilter" );
-	_Meta->setStaticPointerAddress(&domGles_sampler_state::domMinfilter::_Meta);
 	_Meta->registerConstructor(domGles_sampler_state::domMinfilter::create);
 
+	_Meta->setIsInnerClass( true );
 	//	Add attribute: _value
  	{
 		daeMetaAttribute *ma = new daeMetaAttribute;
@@ -180,9 +230,9 @@ domGles_sampler_state::domMagfilter::registerElement()
     
     _Meta = new daeMetaElement;
     _Meta->setName( "magfilter" );
-	_Meta->setStaticPointerAddress(&domGles_sampler_state::domMagfilter::_Meta);
 	_Meta->registerConstructor(domGles_sampler_state::domMagfilter::create);
 
+	_Meta->setIsInnerClass( true );
 	//	Add attribute: _value
  	{
 		daeMetaAttribute *ma = new daeMetaAttribute;
@@ -215,9 +265,9 @@ domGles_sampler_state::domMipfilter::registerElement()
     
     _Meta = new daeMetaElement;
     _Meta->setName( "mipfilter" );
-	_Meta->setStaticPointerAddress(&domGles_sampler_state::domMipfilter::_Meta);
 	_Meta->registerConstructor(domGles_sampler_state::domMipfilter::create);
 
+	_Meta->setIsInnerClass( true );
 	//	Add attribute: _value
  	{
 		daeMetaAttribute *ma = new daeMetaAttribute;
@@ -250,9 +300,9 @@ domGles_sampler_state::domMipmap_maxlevel::registerElement()
     
     _Meta = new daeMetaElement;
     _Meta->setName( "mipmap_maxlevel" );
-	_Meta->setStaticPointerAddress(&domGles_sampler_state::domMipmap_maxlevel::_Meta);
 	_Meta->registerConstructor(domGles_sampler_state::domMipmap_maxlevel::create);
 
+	_Meta->setIsInnerClass( true );
 	//	Add attribute: _value
  	{
 		daeMetaAttribute *ma = new daeMetaAttribute;
@@ -285,9 +335,9 @@ domGles_sampler_state::domMipmap_bias::registerElement()
     
     _Meta = new daeMetaElement;
     _Meta->setName( "mipmap_bias" );
-	_Meta->setStaticPointerAddress(&domGles_sampler_state::domMipmap_bias::_Meta);
 	_Meta->registerConstructor(domGles_sampler_state::domMipmap_bias::create);
 
+	_Meta->setIsInnerClass( true );
 	//	Add attribute: _value
  	{
 		daeMetaAttribute *ma = new daeMetaAttribute;

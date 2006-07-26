@@ -13,6 +13,12 @@
 
 #include <dae/daeDom.h>
 #include <dom/domCg_surface_type.h>
+#include <dae/daeMetaCMPolicy.h>
+#include <dae/daeMetaSequence.h>
+#include <dae/daeMetaChoice.h>
+#include <dae/daeMetaGroup.h>
+#include <dae/daeMetaAny.h>
+#include <dae/daeMetaElementAttribute.h>
 
 daeElementRef
 domCg_surface_type::create(daeInt bytes)
@@ -29,17 +35,90 @@ domCg_surface_type::registerElement()
     
     _Meta = new daeMetaElement;
     _Meta->setName( "cg_surface_type" );
-	_Meta->setStaticPointerAddress(&domCg_surface_type::_Meta);
 	_Meta->registerConstructor(domCg_surface_type::create);
 
-	// Add elements: init_from, format, size, viewport_ratio, mip_levels, mipmap_generate, generator
-    _Meta->appendArrayElement(domInit_from::registerElement(),daeOffsetOf(domCg_surface_type,elemInit_from_array));
-    _Meta->appendElement(domFormat::registerElement(),daeOffsetOf(domCg_surface_type,elemFormat));
-    _Meta->appendElement(domSize::registerElement(),daeOffsetOf(domCg_surface_type,elemSize));
-    _Meta->appendElement(domViewport_ratio::registerElement(),daeOffsetOf(domCg_surface_type,elemViewport_ratio));
-    _Meta->appendElement(domMip_levels::registerElement(),daeOffsetOf(domCg_surface_type,elemMip_levels));
-    _Meta->appendElement(domMipmap_generate::registerElement(),daeOffsetOf(domCg_surface_type,elemMipmap_generate));
-    _Meta->appendElement(domGenerator::registerElement(),daeOffsetOf(domCg_surface_type,elemGenerator));
+	daeMetaCMPolicy *cm = NULL;
+	daeMetaElementAttribute *mea = NULL;
+	cm = new daeMetaSequence( _Meta, cm, 0, 1, 1 );
+
+	cm = new daeMetaSequence( _Meta, cm, 0, 1, 1 );
+
+	mea = new daeMetaElementAttribute( _Meta, cm, 0, 0, 1 );
+	mea->setName( "fx_surface_init_common" );
+	mea->setOffset( daeOffsetOf(domCg_surface_type,elemFx_surface_init_common) );
+	mea->setElementType( domFx_surface_init_common::registerElement() );
+	cm->appendChild( new daeMetaGroup( mea, _Meta, cm, 0, 0, 1 ) );
+	
+	mea = new daeMetaElementAttribute( _Meta, cm, 1, 0, 1 );
+	mea->setName( "format" );
+	mea->setOffset( daeOffsetOf(domCg_surface_type,elemFormat) );
+	mea->setElementType( domFormat::registerElement() );
+	cm->appendChild( mea );
+	
+	mea = new daeMetaElementAttribute( _Meta, cm, 2, 0, 1 );
+	mea->setName( "format_hint" );
+	mea->setOffset( daeOffsetOf(domCg_surface_type,elemFormat_hint) );
+	mea->setElementType( domFx_surface_format_hint_common::registerElement() );
+	cm->appendChild( mea );
+	
+	cm = new daeMetaChoice( _Meta, cm, 3, 0, 1 );
+
+	mea = new daeMetaElementAttribute( _Meta, cm, 0, 1, 1 );
+	mea->setName( "size" );
+	mea->setOffset( daeOffsetOf(domCg_surface_type,elemSize) );
+	mea->setElementType( domSize::registerElement() );
+	cm->appendChild( mea );
+	
+	mea = new daeMetaElementAttribute( _Meta, cm, 0, 1, 1 );
+	mea->setName( "viewport_ratio" );
+	mea->setOffset( daeOffsetOf(domCg_surface_type,elemViewport_ratio) );
+	mea->setElementType( domViewport_ratio::registerElement() );
+	cm->appendChild( mea );
+	
+	cm->setMaxOrdinal( 0 );
+	cm->getParent()->appendChild( cm );
+	cm = cm->getParent();
+	
+	mea = new daeMetaElementAttribute( _Meta, cm, 4, 0, 1 );
+	mea->setName( "mip_levels" );
+	mea->setOffset( daeOffsetOf(domCg_surface_type,elemMip_levels) );
+	mea->setElementType( domMip_levels::registerElement() );
+	cm->appendChild( mea );
+	
+	mea = new daeMetaElementAttribute( _Meta, cm, 5, 0, 1 );
+	mea->setName( "mipmap_generate" );
+	mea->setOffset( daeOffsetOf(domCg_surface_type,elemMipmap_generate) );
+	mea->setElementType( domMipmap_generate::registerElement() );
+	cm->appendChild( mea );
+	
+	mea = new daeMetaElementArrayAttribute( _Meta, cm, 6, 0, -1 );
+	mea->setName( "extra" );
+	mea->setOffset( daeOffsetOf(domCg_surface_type,elemExtra_array) );
+	mea->setElementType( domExtra::registerElement() );
+	cm->appendChild( mea );
+	
+	cm->setMaxOrdinal( 6 );
+	cm->getParent()->appendChild( cm );
+	cm = cm->getParent();
+	
+	cm = new daeMetaSequence( _Meta, cm, 7, 1, 1 );
+
+	mea = new daeMetaElementAttribute( _Meta, cm, 0, 0, 1 );
+	mea->setName( "generator" );
+	mea->setOffset( daeOffsetOf(domCg_surface_type,elemGenerator) );
+	mea->setElementType( domGenerator::registerElement() );
+	cm->appendChild( mea );
+	
+	cm->setMaxOrdinal( 0 );
+	cm->getParent()->appendChild( cm );
+	cm = cm->getParent();
+	
+	cm->setMaxOrdinal( 7 );
+	_Meta->setCMRoot( cm );	
+	// Ordered list of sub-elements
+    _Meta->addContents(daeOffsetOf(domCg_surface_type,_contents));
+    _Meta->addContentsOrder(daeOffsetOf(domCg_surface_type,_contentsOrder));
+
 
 	//	Add attribute: type
  	{
@@ -75,17 +154,54 @@ domCg_surface_type::domGenerator::registerElement()
     
     _Meta = new daeMetaElement;
     _Meta->setName( "generator" );
-	_Meta->setStaticPointerAddress(&domCg_surface_type::domGenerator::_Meta);
 	_Meta->registerConstructor(domCg_surface_type::domGenerator::create);
 
-	// Add elements: annotate, code, include, name, setparam
-    _Meta->appendArrayElement(domFx_annotate_common::registerElement(),daeOffsetOf(domCg_surface_type::domGenerator,elemAnnotate_array),"annotate"); 
-    _Meta->appendArrayElement(domFx_code_profile::registerElement(),daeOffsetOf(domCg_surface_type::domGenerator,elemCode_array),"code"); 
-    _Meta->appendArrayElement(domFx_include_common::registerElement(),daeOffsetOf(domCg_surface_type::domGenerator,elemInclude_array),"include"); 
-    _Meta->appendElement(domCg_surface_type::domGenerator::domName::registerElement(),daeOffsetOf(domCg_surface_type::domGenerator,elemName));
-    _Meta->appendArrayElement(domCg_setparam_simple::registerElement(),daeOffsetOf(domCg_surface_type::domGenerator,elemSetparam_array),"setparam"); 
+	_Meta->setIsInnerClass( true );
+	daeMetaCMPolicy *cm = NULL;
+	daeMetaElementAttribute *mea = NULL;
+	cm = new daeMetaSequence( _Meta, cm, 0, 1, 1 );
+
+	mea = new daeMetaElementArrayAttribute( _Meta, cm, 0, 0, -1 );
+	mea->setName( "annotate" );
+	mea->setOffset( daeOffsetOf(domCg_surface_type::domGenerator,elemAnnotate_array) );
+	mea->setElementType( domFx_annotate_common::registerElement() );
+	cm->appendChild( mea );
+	
+	cm = new daeMetaChoice( _Meta, cm, 1, 1, -1 );
+
+	mea = new daeMetaElementArrayAttribute( _Meta, cm, 0, 1, 1 );
+	mea->setName( "code" );
+	mea->setOffset( daeOffsetOf(domCg_surface_type::domGenerator,elemCode_array) );
+	mea->setElementType( domFx_code_profile::registerElement() );
+	cm->appendChild( mea );
+	
+	mea = new daeMetaElementArrayAttribute( _Meta, cm, 0, 1, 1 );
+	mea->setName( "include" );
+	mea->setOffset( daeOffsetOf(domCg_surface_type::domGenerator,elemInclude_array) );
+	mea->setElementType( domFx_include_common::registerElement() );
+	cm->appendChild( mea );
+	
+	cm->setMaxOrdinal( 0 );
+	cm->getParent()->appendChild( cm );
+	cm = cm->getParent();
+	
+	mea = new daeMetaElementAttribute( _Meta, cm, 3002, 1, 1 );
+	mea->setName( "name" );
+	mea->setOffset( daeOffsetOf(domCg_surface_type::domGenerator,elemName) );
+	mea->setElementType( domCg_surface_type::domGenerator::domName::registerElement() );
+	cm->appendChild( mea );
+	
+	mea = new daeMetaElementArrayAttribute( _Meta, cm, 3003, 0, -1 );
+	mea->setName( "setparam" );
+	mea->setOffset( daeOffsetOf(domCg_surface_type::domGenerator,elemSetparam_array) );
+	mea->setElementType( domCg_setparam_simple::registerElement() );
+	cm->appendChild( mea );
+	
+	cm->setMaxOrdinal( 3003 );
+	_Meta->setCMRoot( cm );	
 	// Ordered list of sub-elements
     _Meta->addContents(daeOffsetOf(domCg_surface_type::domGenerator,_contents));
+    _Meta->addContentsOrder(daeOffsetOf(domCg_surface_type::domGenerator,_contentsOrder));
 
 	
 	
@@ -110,9 +226,9 @@ domCg_surface_type::domGenerator::domName::registerElement()
     
     _Meta = new daeMetaElement;
     _Meta->setName( "name" );
-	_Meta->setStaticPointerAddress(&domCg_surface_type::domGenerator::domName::_Meta);
 	_Meta->registerConstructor(domCg_surface_type::domGenerator::domName::create);
 
+	_Meta->setIsInnerClass( true );
 	//	Add attribute: _value
  	{
 		daeMetaAttribute *ma = new daeMetaAttribute;

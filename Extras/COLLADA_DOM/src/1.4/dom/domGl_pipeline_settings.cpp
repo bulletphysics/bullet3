@@ -13,6 +13,12 @@
 
 #include <dae/daeDom.h>
 #include <dom/domGl_pipeline_settings.h>
+#include <dae/daeMetaCMPolicy.h>
+#include <dae/daeMetaSequence.h>
+#include <dae/daeMetaChoice.h>
+#include <dae/daeMetaGroup.h>
+#include <dae/daeMetaAny.h>
+#include <dae/daeMetaElementAttribute.h>
 
 daeElementRef
 domGl_pipeline_settings::create(daeInt bytes)
@@ -29,121 +35,672 @@ domGl_pipeline_settings::registerElement()
     
     _Meta = new daeMetaElement;
     _Meta->setName( "gl_pipeline_settings" );
-	_Meta->setStaticPointerAddress(&domGl_pipeline_settings::_Meta);
 	_Meta->registerConstructor(domGl_pipeline_settings::create);
 
 	_Meta->setIsTransparent( true );
-	// Add elements: alpha_func, blend_func, blend_func_separate, blend_equation, blend_equation_separate, color_material, cull_face, depth_func, fog_mode, fog_coord_src, front_face, light_model_color_control, logic_op, polygon_mode, shade_model, stencil_func, stencil_op, stencil_func_separate, stencil_op_separate, stencil_mask_separate, light_enable, light_ambient, light_diffuse, light_specular, light_position, light_constant_attenuation, light_linear_attenuation, light_quadratic_attenuation, light_spot_cutoff, light_spot_direction, light_spot_exponent, texture1D, texture2D, texture3D, textureCUBE, textureRECT, textureDEPTH, texture1D_enable, texture2D_enable, texture3D_enable, textureCUBE_enable, textureRECT_enable, textureDEPTH_enable, texture_env_color, texture_env_mode, clip_plane, clip_plane_enable, blend_color, clear_color, clear_stencil, clear_depth, color_mask, depth_bounds, depth_mask, depth_range, fog_density, fog_start, fog_end, fog_color, light_model_ambient, lighting_enable, line_stipple, line_width, material_ambient, material_diffuse, material_emission, material_shininess, material_specular, model_view_matrix, point_distance_attenuation, point_fade_threshold_size, point_size, point_size_min, point_size_max, polygon_offset, projection_matrix, scissor, stencil_mask, alpha_test_enable, auto_normal_enable, blend_enable, color_logic_op_enable, cull_face_enable, depth_bounds_enable, depth_clamp_enable, depth_test_enable, dither_enable, fog_enable, light_model_local_viewer_enable, light_model_two_side_enable, line_smooth_enable, line_stipple_enable, logic_op_enable, multisample_enable, normalize_enable, point_smooth_enable, polygon_offset_fill_enable, polygon_offset_line_enable, polygon_offset_point_enable, polygon_smooth_enable, polygon_stipple_enable, rescale_normal_enable, sample_alpha_to_coverage_enable, sample_alpha_to_one_enable, sample_coverage_enable, scissor_test_enable, stencil_test_enable, gl_hook_abstract
-    _Meta->appendElement(domGl_pipeline_settings::domAlpha_func::registerElement(),daeOffsetOf(domGl_pipeline_settings,elemAlpha_func));
-    _Meta->appendElement(domGl_pipeline_settings::domBlend_func::registerElement(),daeOffsetOf(domGl_pipeline_settings,elemBlend_func));
-    _Meta->appendElement(domGl_pipeline_settings::domBlend_func_separate::registerElement(),daeOffsetOf(domGl_pipeline_settings,elemBlend_func_separate));
-    _Meta->appendElement(domGl_pipeline_settings::domBlend_equation::registerElement(),daeOffsetOf(domGl_pipeline_settings,elemBlend_equation));
-    _Meta->appendElement(domGl_pipeline_settings::domBlend_equation_separate::registerElement(),daeOffsetOf(domGl_pipeline_settings,elemBlend_equation_separate));
-    _Meta->appendElement(domGl_pipeline_settings::domColor_material::registerElement(),daeOffsetOf(domGl_pipeline_settings,elemColor_material));
-    _Meta->appendElement(domGl_pipeline_settings::domCull_face::registerElement(),daeOffsetOf(domGl_pipeline_settings,elemCull_face));
-    _Meta->appendElement(domGl_pipeline_settings::domDepth_func::registerElement(),daeOffsetOf(domGl_pipeline_settings,elemDepth_func));
-    _Meta->appendElement(domGl_pipeline_settings::domFog_mode::registerElement(),daeOffsetOf(domGl_pipeline_settings,elemFog_mode));
-    _Meta->appendElement(domGl_pipeline_settings::domFog_coord_src::registerElement(),daeOffsetOf(domGl_pipeline_settings,elemFog_coord_src));
-    _Meta->appendElement(domGl_pipeline_settings::domFront_face::registerElement(),daeOffsetOf(domGl_pipeline_settings,elemFront_face));
-    _Meta->appendElement(domGl_pipeline_settings::domLight_model_color_control::registerElement(),daeOffsetOf(domGl_pipeline_settings,elemLight_model_color_control));
-    _Meta->appendElement(domGl_pipeline_settings::domLogic_op::registerElement(),daeOffsetOf(domGl_pipeline_settings,elemLogic_op));
-    _Meta->appendElement(domGl_pipeline_settings::domPolygon_mode::registerElement(),daeOffsetOf(domGl_pipeline_settings,elemPolygon_mode));
-    _Meta->appendElement(domGl_pipeline_settings::domShade_model::registerElement(),daeOffsetOf(domGl_pipeline_settings,elemShade_model));
-    _Meta->appendElement(domGl_pipeline_settings::domStencil_func::registerElement(),daeOffsetOf(domGl_pipeline_settings,elemStencil_func));
-    _Meta->appendElement(domGl_pipeline_settings::domStencil_op::registerElement(),daeOffsetOf(domGl_pipeline_settings,elemStencil_op));
-    _Meta->appendElement(domGl_pipeline_settings::domStencil_func_separate::registerElement(),daeOffsetOf(domGl_pipeline_settings,elemStencil_func_separate));
-    _Meta->appendElement(domGl_pipeline_settings::domStencil_op_separate::registerElement(),daeOffsetOf(domGl_pipeline_settings,elemStencil_op_separate));
-    _Meta->appendElement(domGl_pipeline_settings::domStencil_mask_separate::registerElement(),daeOffsetOf(domGl_pipeline_settings,elemStencil_mask_separate));
-    _Meta->appendElement(domGl_pipeline_settings::domLight_enable::registerElement(),daeOffsetOf(domGl_pipeline_settings,elemLight_enable));
-    _Meta->appendElement(domGl_pipeline_settings::domLight_ambient::registerElement(),daeOffsetOf(domGl_pipeline_settings,elemLight_ambient));
-    _Meta->appendElement(domGl_pipeline_settings::domLight_diffuse::registerElement(),daeOffsetOf(domGl_pipeline_settings,elemLight_diffuse));
-    _Meta->appendElement(domGl_pipeline_settings::domLight_specular::registerElement(),daeOffsetOf(domGl_pipeline_settings,elemLight_specular));
-    _Meta->appendElement(domGl_pipeline_settings::domLight_position::registerElement(),daeOffsetOf(domGl_pipeline_settings,elemLight_position));
-    _Meta->appendElement(domGl_pipeline_settings::domLight_constant_attenuation::registerElement(),daeOffsetOf(domGl_pipeline_settings,elemLight_constant_attenuation));
-    _Meta->appendElement(domGl_pipeline_settings::domLight_linear_attenuation::registerElement(),daeOffsetOf(domGl_pipeline_settings,elemLight_linear_attenuation));
-    _Meta->appendElement(domGl_pipeline_settings::domLight_quadratic_attenuation::registerElement(),daeOffsetOf(domGl_pipeline_settings,elemLight_quadratic_attenuation));
-    _Meta->appendElement(domGl_pipeline_settings::domLight_spot_cutoff::registerElement(),daeOffsetOf(domGl_pipeline_settings,elemLight_spot_cutoff));
-    _Meta->appendElement(domGl_pipeline_settings::domLight_spot_direction::registerElement(),daeOffsetOf(domGl_pipeline_settings,elemLight_spot_direction));
-    _Meta->appendElement(domGl_pipeline_settings::domLight_spot_exponent::registerElement(),daeOffsetOf(domGl_pipeline_settings,elemLight_spot_exponent));
-    _Meta->appendElement(domGl_pipeline_settings::domTexture1D::registerElement(),daeOffsetOf(domGl_pipeline_settings,elemTexture1D));
-    _Meta->appendElement(domGl_pipeline_settings::domTexture2D::registerElement(),daeOffsetOf(domGl_pipeline_settings,elemTexture2D));
-    _Meta->appendElement(domGl_pipeline_settings::domTexture3D::registerElement(),daeOffsetOf(domGl_pipeline_settings,elemTexture3D));
-    _Meta->appendElement(domGl_pipeline_settings::domTextureCUBE::registerElement(),daeOffsetOf(domGl_pipeline_settings,elemTextureCUBE));
-    _Meta->appendElement(domGl_pipeline_settings::domTextureRECT::registerElement(),daeOffsetOf(domGl_pipeline_settings,elemTextureRECT));
-    _Meta->appendElement(domGl_pipeline_settings::domTextureDEPTH::registerElement(),daeOffsetOf(domGl_pipeline_settings,elemTextureDEPTH));
-    _Meta->appendElement(domGl_pipeline_settings::domTexture1D_enable::registerElement(),daeOffsetOf(domGl_pipeline_settings,elemTexture1D_enable));
-    _Meta->appendElement(domGl_pipeline_settings::domTexture2D_enable::registerElement(),daeOffsetOf(domGl_pipeline_settings,elemTexture2D_enable));
-    _Meta->appendElement(domGl_pipeline_settings::domTexture3D_enable::registerElement(),daeOffsetOf(domGl_pipeline_settings,elemTexture3D_enable));
-    _Meta->appendElement(domGl_pipeline_settings::domTextureCUBE_enable::registerElement(),daeOffsetOf(domGl_pipeline_settings,elemTextureCUBE_enable));
-    _Meta->appendElement(domGl_pipeline_settings::domTextureRECT_enable::registerElement(),daeOffsetOf(domGl_pipeline_settings,elemTextureRECT_enable));
-    _Meta->appendElement(domGl_pipeline_settings::domTextureDEPTH_enable::registerElement(),daeOffsetOf(domGl_pipeline_settings,elemTextureDEPTH_enable));
-    _Meta->appendElement(domGl_pipeline_settings::domTexture_env_color::registerElement(),daeOffsetOf(domGl_pipeline_settings,elemTexture_env_color));
-    _Meta->appendElement(domGl_pipeline_settings::domTexture_env_mode::registerElement(),daeOffsetOf(domGl_pipeline_settings,elemTexture_env_mode));
-    _Meta->appendElement(domGl_pipeline_settings::domClip_plane::registerElement(),daeOffsetOf(domGl_pipeline_settings,elemClip_plane));
-    _Meta->appendElement(domGl_pipeline_settings::domClip_plane_enable::registerElement(),daeOffsetOf(domGl_pipeline_settings,elemClip_plane_enable));
-    _Meta->appendElement(domGl_pipeline_settings::domBlend_color::registerElement(),daeOffsetOf(domGl_pipeline_settings,elemBlend_color));
-    _Meta->appendElement(domGl_pipeline_settings::domClear_color::registerElement(),daeOffsetOf(domGl_pipeline_settings,elemClear_color));
-    _Meta->appendElement(domGl_pipeline_settings::domClear_stencil::registerElement(),daeOffsetOf(domGl_pipeline_settings,elemClear_stencil));
-    _Meta->appendElement(domGl_pipeline_settings::domClear_depth::registerElement(),daeOffsetOf(domGl_pipeline_settings,elemClear_depth));
-    _Meta->appendElement(domGl_pipeline_settings::domColor_mask::registerElement(),daeOffsetOf(domGl_pipeline_settings,elemColor_mask));
-    _Meta->appendElement(domGl_pipeline_settings::domDepth_bounds::registerElement(),daeOffsetOf(domGl_pipeline_settings,elemDepth_bounds));
-    _Meta->appendElement(domGl_pipeline_settings::domDepth_mask::registerElement(),daeOffsetOf(domGl_pipeline_settings,elemDepth_mask));
-    _Meta->appendElement(domGl_pipeline_settings::domDepth_range::registerElement(),daeOffsetOf(domGl_pipeline_settings,elemDepth_range));
-    _Meta->appendElement(domGl_pipeline_settings::domFog_density::registerElement(),daeOffsetOf(domGl_pipeline_settings,elemFog_density));
-    _Meta->appendElement(domGl_pipeline_settings::domFog_start::registerElement(),daeOffsetOf(domGl_pipeline_settings,elemFog_start));
-    _Meta->appendElement(domGl_pipeline_settings::domFog_end::registerElement(),daeOffsetOf(domGl_pipeline_settings,elemFog_end));
-    _Meta->appendElement(domGl_pipeline_settings::domFog_color::registerElement(),daeOffsetOf(domGl_pipeline_settings,elemFog_color));
-    _Meta->appendElement(domGl_pipeline_settings::domLight_model_ambient::registerElement(),daeOffsetOf(domGl_pipeline_settings,elemLight_model_ambient));
-    _Meta->appendElement(domGl_pipeline_settings::domLighting_enable::registerElement(),daeOffsetOf(domGl_pipeline_settings,elemLighting_enable));
-    _Meta->appendElement(domGl_pipeline_settings::domLine_stipple::registerElement(),daeOffsetOf(domGl_pipeline_settings,elemLine_stipple));
-    _Meta->appendElement(domGl_pipeline_settings::domLine_width::registerElement(),daeOffsetOf(domGl_pipeline_settings,elemLine_width));
-    _Meta->appendElement(domGl_pipeline_settings::domMaterial_ambient::registerElement(),daeOffsetOf(domGl_pipeline_settings,elemMaterial_ambient));
-    _Meta->appendElement(domGl_pipeline_settings::domMaterial_diffuse::registerElement(),daeOffsetOf(domGl_pipeline_settings,elemMaterial_diffuse));
-    _Meta->appendElement(domGl_pipeline_settings::domMaterial_emission::registerElement(),daeOffsetOf(domGl_pipeline_settings,elemMaterial_emission));
-    _Meta->appendElement(domGl_pipeline_settings::domMaterial_shininess::registerElement(),daeOffsetOf(domGl_pipeline_settings,elemMaterial_shininess));
-    _Meta->appendElement(domGl_pipeline_settings::domMaterial_specular::registerElement(),daeOffsetOf(domGl_pipeline_settings,elemMaterial_specular));
-    _Meta->appendElement(domGl_pipeline_settings::domModel_view_matrix::registerElement(),daeOffsetOf(domGl_pipeline_settings,elemModel_view_matrix));
-    _Meta->appendElement(domGl_pipeline_settings::domPoint_distance_attenuation::registerElement(),daeOffsetOf(domGl_pipeline_settings,elemPoint_distance_attenuation));
-    _Meta->appendElement(domGl_pipeline_settings::domPoint_fade_threshold_size::registerElement(),daeOffsetOf(domGl_pipeline_settings,elemPoint_fade_threshold_size));
-    _Meta->appendElement(domGl_pipeline_settings::domPoint_size::registerElement(),daeOffsetOf(domGl_pipeline_settings,elemPoint_size));
-    _Meta->appendElement(domGl_pipeline_settings::domPoint_size_min::registerElement(),daeOffsetOf(domGl_pipeline_settings,elemPoint_size_min));
-    _Meta->appendElement(domGl_pipeline_settings::domPoint_size_max::registerElement(),daeOffsetOf(domGl_pipeline_settings,elemPoint_size_max));
-    _Meta->appendElement(domGl_pipeline_settings::domPolygon_offset::registerElement(),daeOffsetOf(domGl_pipeline_settings,elemPolygon_offset));
-    _Meta->appendElement(domGl_pipeline_settings::domProjection_matrix::registerElement(),daeOffsetOf(domGl_pipeline_settings,elemProjection_matrix));
-    _Meta->appendElement(domGl_pipeline_settings::domScissor::registerElement(),daeOffsetOf(domGl_pipeline_settings,elemScissor));
-    _Meta->appendElement(domGl_pipeline_settings::domStencil_mask::registerElement(),daeOffsetOf(domGl_pipeline_settings,elemStencil_mask));
-    _Meta->appendElement(domGl_pipeline_settings::domAlpha_test_enable::registerElement(),daeOffsetOf(domGl_pipeline_settings,elemAlpha_test_enable));
-    _Meta->appendElement(domGl_pipeline_settings::domAuto_normal_enable::registerElement(),daeOffsetOf(domGl_pipeline_settings,elemAuto_normal_enable));
-    _Meta->appendElement(domGl_pipeline_settings::domBlend_enable::registerElement(),daeOffsetOf(domGl_pipeline_settings,elemBlend_enable));
-    _Meta->appendElement(domGl_pipeline_settings::domColor_logic_op_enable::registerElement(),daeOffsetOf(domGl_pipeline_settings,elemColor_logic_op_enable));
-    _Meta->appendElement(domGl_pipeline_settings::domCull_face_enable::registerElement(),daeOffsetOf(domGl_pipeline_settings,elemCull_face_enable));
-    _Meta->appendElement(domGl_pipeline_settings::domDepth_bounds_enable::registerElement(),daeOffsetOf(domGl_pipeline_settings,elemDepth_bounds_enable));
-    _Meta->appendElement(domGl_pipeline_settings::domDepth_clamp_enable::registerElement(),daeOffsetOf(domGl_pipeline_settings,elemDepth_clamp_enable));
-    _Meta->appendElement(domGl_pipeline_settings::domDepth_test_enable::registerElement(),daeOffsetOf(domGl_pipeline_settings,elemDepth_test_enable));
-    _Meta->appendElement(domGl_pipeline_settings::domDither_enable::registerElement(),daeOffsetOf(domGl_pipeline_settings,elemDither_enable));
-    _Meta->appendElement(domGl_pipeline_settings::domFog_enable::registerElement(),daeOffsetOf(domGl_pipeline_settings,elemFog_enable));
-    _Meta->appendElement(domGl_pipeline_settings::domLight_model_local_viewer_enable::registerElement(),daeOffsetOf(domGl_pipeline_settings,elemLight_model_local_viewer_enable));
-    _Meta->appendElement(domGl_pipeline_settings::domLight_model_two_side_enable::registerElement(),daeOffsetOf(domGl_pipeline_settings,elemLight_model_two_side_enable));
-    _Meta->appendElement(domGl_pipeline_settings::domLine_smooth_enable::registerElement(),daeOffsetOf(domGl_pipeline_settings,elemLine_smooth_enable));
-    _Meta->appendElement(domGl_pipeline_settings::domLine_stipple_enable::registerElement(),daeOffsetOf(domGl_pipeline_settings,elemLine_stipple_enable));
-    _Meta->appendElement(domGl_pipeline_settings::domLogic_op_enable::registerElement(),daeOffsetOf(domGl_pipeline_settings,elemLogic_op_enable));
-    _Meta->appendElement(domGl_pipeline_settings::domMultisample_enable::registerElement(),daeOffsetOf(domGl_pipeline_settings,elemMultisample_enable));
-    _Meta->appendElement(domGl_pipeline_settings::domNormalize_enable::registerElement(),daeOffsetOf(domGl_pipeline_settings,elemNormalize_enable));
-    _Meta->appendElement(domGl_pipeline_settings::domPoint_smooth_enable::registerElement(),daeOffsetOf(domGl_pipeline_settings,elemPoint_smooth_enable));
-    _Meta->appendElement(domGl_pipeline_settings::domPolygon_offset_fill_enable::registerElement(),daeOffsetOf(domGl_pipeline_settings,elemPolygon_offset_fill_enable));
-    _Meta->appendElement(domGl_pipeline_settings::domPolygon_offset_line_enable::registerElement(),daeOffsetOf(domGl_pipeline_settings,elemPolygon_offset_line_enable));
-    _Meta->appendElement(domGl_pipeline_settings::domPolygon_offset_point_enable::registerElement(),daeOffsetOf(domGl_pipeline_settings,elemPolygon_offset_point_enable));
-    _Meta->appendElement(domGl_pipeline_settings::domPolygon_smooth_enable::registerElement(),daeOffsetOf(domGl_pipeline_settings,elemPolygon_smooth_enable));
-    _Meta->appendElement(domGl_pipeline_settings::domPolygon_stipple_enable::registerElement(),daeOffsetOf(domGl_pipeline_settings,elemPolygon_stipple_enable));
-    _Meta->appendElement(domGl_pipeline_settings::domRescale_normal_enable::registerElement(),daeOffsetOf(domGl_pipeline_settings,elemRescale_normal_enable));
-    _Meta->appendElement(domGl_pipeline_settings::domSample_alpha_to_coverage_enable::registerElement(),daeOffsetOf(domGl_pipeline_settings,elemSample_alpha_to_coverage_enable));
-    _Meta->appendElement(domGl_pipeline_settings::domSample_alpha_to_one_enable::registerElement(),daeOffsetOf(domGl_pipeline_settings,elemSample_alpha_to_one_enable));
-    _Meta->appendElement(domGl_pipeline_settings::domSample_coverage_enable::registerElement(),daeOffsetOf(domGl_pipeline_settings,elemSample_coverage_enable));
-    _Meta->appendElement(domGl_pipeline_settings::domScissor_test_enable::registerElement(),daeOffsetOf(domGl_pipeline_settings,elemScissor_test_enable));
-    _Meta->appendElement(domGl_pipeline_settings::domStencil_test_enable::registerElement(),daeOffsetOf(domGl_pipeline_settings,elemStencil_test_enable));
-    _Meta->appendElement(domGl_hook_abstract::registerElement(),daeOffsetOf(domGl_pipeline_settings,elemGl_hook_abstract));
+	daeMetaCMPolicy *cm = NULL;
+	daeMetaElementAttribute *mea = NULL;
+	cm = new daeMetaChoice( _Meta, cm, 0, 1, 1 );
+
+	mea = new daeMetaElementAttribute( _Meta, cm, 0, 1, 1 );
+	mea->setName( "alpha_func" );
+	mea->setOffset( daeOffsetOf(domGl_pipeline_settings,elemAlpha_func) );
+	mea->setElementType( domGl_pipeline_settings::domAlpha_func::registerElement() );
+	cm->appendChild( mea );
+	
+	mea = new daeMetaElementAttribute( _Meta, cm, 0, 1, 1 );
+	mea->setName( "blend_func" );
+	mea->setOffset( daeOffsetOf(domGl_pipeline_settings,elemBlend_func) );
+	mea->setElementType( domGl_pipeline_settings::domBlend_func::registerElement() );
+	cm->appendChild( mea );
+	
+	mea = new daeMetaElementAttribute( _Meta, cm, 0, 1, 1 );
+	mea->setName( "blend_func_separate" );
+	mea->setOffset( daeOffsetOf(domGl_pipeline_settings,elemBlend_func_separate) );
+	mea->setElementType( domGl_pipeline_settings::domBlend_func_separate::registerElement() );
+	cm->appendChild( mea );
+	
+	mea = new daeMetaElementAttribute( _Meta, cm, 0, 1, 1 );
+	mea->setName( "blend_equation" );
+	mea->setOffset( daeOffsetOf(domGl_pipeline_settings,elemBlend_equation) );
+	mea->setElementType( domGl_pipeline_settings::domBlend_equation::registerElement() );
+	cm->appendChild( mea );
+	
+	mea = new daeMetaElementAttribute( _Meta, cm, 0, 1, 1 );
+	mea->setName( "blend_equation_separate" );
+	mea->setOffset( daeOffsetOf(domGl_pipeline_settings,elemBlend_equation_separate) );
+	mea->setElementType( domGl_pipeline_settings::domBlend_equation_separate::registerElement() );
+	cm->appendChild( mea );
+	
+	mea = new daeMetaElementAttribute( _Meta, cm, 0, 1, 1 );
+	mea->setName( "color_material" );
+	mea->setOffset( daeOffsetOf(domGl_pipeline_settings,elemColor_material) );
+	mea->setElementType( domGl_pipeline_settings::domColor_material::registerElement() );
+	cm->appendChild( mea );
+	
+	mea = new daeMetaElementAttribute( _Meta, cm, 0, 1, 1 );
+	mea->setName( "cull_face" );
+	mea->setOffset( daeOffsetOf(domGl_pipeline_settings,elemCull_face) );
+	mea->setElementType( domGl_pipeline_settings::domCull_face::registerElement() );
+	cm->appendChild( mea );
+	
+	mea = new daeMetaElementAttribute( _Meta, cm, 0, 1, 1 );
+	mea->setName( "depth_func" );
+	mea->setOffset( daeOffsetOf(domGl_pipeline_settings,elemDepth_func) );
+	mea->setElementType( domGl_pipeline_settings::domDepth_func::registerElement() );
+	cm->appendChild( mea );
+	
+	mea = new daeMetaElementAttribute( _Meta, cm, 0, 1, 1 );
+	mea->setName( "fog_mode" );
+	mea->setOffset( daeOffsetOf(domGl_pipeline_settings,elemFog_mode) );
+	mea->setElementType( domGl_pipeline_settings::domFog_mode::registerElement() );
+	cm->appendChild( mea );
+	
+	mea = new daeMetaElementAttribute( _Meta, cm, 0, 1, 1 );
+	mea->setName( "fog_coord_src" );
+	mea->setOffset( daeOffsetOf(domGl_pipeline_settings,elemFog_coord_src) );
+	mea->setElementType( domGl_pipeline_settings::domFog_coord_src::registerElement() );
+	cm->appendChild( mea );
+	
+	mea = new daeMetaElementAttribute( _Meta, cm, 0, 1, 1 );
+	mea->setName( "front_face" );
+	mea->setOffset( daeOffsetOf(domGl_pipeline_settings,elemFront_face) );
+	mea->setElementType( domGl_pipeline_settings::domFront_face::registerElement() );
+	cm->appendChild( mea );
+	
+	mea = new daeMetaElementAttribute( _Meta, cm, 0, 1, 1 );
+	mea->setName( "light_model_color_control" );
+	mea->setOffset( daeOffsetOf(domGl_pipeline_settings,elemLight_model_color_control) );
+	mea->setElementType( domGl_pipeline_settings::domLight_model_color_control::registerElement() );
+	cm->appendChild( mea );
+	
+	mea = new daeMetaElementAttribute( _Meta, cm, 0, 1, 1 );
+	mea->setName( "logic_op" );
+	mea->setOffset( daeOffsetOf(domGl_pipeline_settings,elemLogic_op) );
+	mea->setElementType( domGl_pipeline_settings::domLogic_op::registerElement() );
+	cm->appendChild( mea );
+	
+	mea = new daeMetaElementAttribute( _Meta, cm, 0, 1, 1 );
+	mea->setName( "polygon_mode" );
+	mea->setOffset( daeOffsetOf(domGl_pipeline_settings,elemPolygon_mode) );
+	mea->setElementType( domGl_pipeline_settings::domPolygon_mode::registerElement() );
+	cm->appendChild( mea );
+	
+	mea = new daeMetaElementAttribute( _Meta, cm, 0, 1, 1 );
+	mea->setName( "shade_model" );
+	mea->setOffset( daeOffsetOf(domGl_pipeline_settings,elemShade_model) );
+	mea->setElementType( domGl_pipeline_settings::domShade_model::registerElement() );
+	cm->appendChild( mea );
+	
+	mea = new daeMetaElementAttribute( _Meta, cm, 0, 1, 1 );
+	mea->setName( "stencil_func" );
+	mea->setOffset( daeOffsetOf(domGl_pipeline_settings,elemStencil_func) );
+	mea->setElementType( domGl_pipeline_settings::domStencil_func::registerElement() );
+	cm->appendChild( mea );
+	
+	mea = new daeMetaElementAttribute( _Meta, cm, 0, 1, 1 );
+	mea->setName( "stencil_op" );
+	mea->setOffset( daeOffsetOf(domGl_pipeline_settings,elemStencil_op) );
+	mea->setElementType( domGl_pipeline_settings::domStencil_op::registerElement() );
+	cm->appendChild( mea );
+	
+	mea = new daeMetaElementAttribute( _Meta, cm, 0, 1, 1 );
+	mea->setName( "stencil_func_separate" );
+	mea->setOffset( daeOffsetOf(domGl_pipeline_settings,elemStencil_func_separate) );
+	mea->setElementType( domGl_pipeline_settings::domStencil_func_separate::registerElement() );
+	cm->appendChild( mea );
+	
+	mea = new daeMetaElementAttribute( _Meta, cm, 0, 1, 1 );
+	mea->setName( "stencil_op_separate" );
+	mea->setOffset( daeOffsetOf(domGl_pipeline_settings,elemStencil_op_separate) );
+	mea->setElementType( domGl_pipeline_settings::domStencil_op_separate::registerElement() );
+	cm->appendChild( mea );
+	
+	mea = new daeMetaElementAttribute( _Meta, cm, 0, 1, 1 );
+	mea->setName( "stencil_mask_separate" );
+	mea->setOffset( daeOffsetOf(domGl_pipeline_settings,elemStencil_mask_separate) );
+	mea->setElementType( domGl_pipeline_settings::domStencil_mask_separate::registerElement() );
+	cm->appendChild( mea );
+	
+	mea = new daeMetaElementAttribute( _Meta, cm, 0, 1, 1 );
+	mea->setName( "light_enable" );
+	mea->setOffset( daeOffsetOf(domGl_pipeline_settings,elemLight_enable) );
+	mea->setElementType( domGl_pipeline_settings::domLight_enable::registerElement() );
+	cm->appendChild( mea );
+	
+	mea = new daeMetaElementAttribute( _Meta, cm, 0, 1, 1 );
+	mea->setName( "light_ambient" );
+	mea->setOffset( daeOffsetOf(domGl_pipeline_settings,elemLight_ambient) );
+	mea->setElementType( domGl_pipeline_settings::domLight_ambient::registerElement() );
+	cm->appendChild( mea );
+	
+	mea = new daeMetaElementAttribute( _Meta, cm, 0, 1, 1 );
+	mea->setName( "light_diffuse" );
+	mea->setOffset( daeOffsetOf(domGl_pipeline_settings,elemLight_diffuse) );
+	mea->setElementType( domGl_pipeline_settings::domLight_diffuse::registerElement() );
+	cm->appendChild( mea );
+	
+	mea = new daeMetaElementAttribute( _Meta, cm, 0, 1, 1 );
+	mea->setName( "light_specular" );
+	mea->setOffset( daeOffsetOf(domGl_pipeline_settings,elemLight_specular) );
+	mea->setElementType( domGl_pipeline_settings::domLight_specular::registerElement() );
+	cm->appendChild( mea );
+	
+	mea = new daeMetaElementAttribute( _Meta, cm, 0, 1, 1 );
+	mea->setName( "light_position" );
+	mea->setOffset( daeOffsetOf(domGl_pipeline_settings,elemLight_position) );
+	mea->setElementType( domGl_pipeline_settings::domLight_position::registerElement() );
+	cm->appendChild( mea );
+	
+	mea = new daeMetaElementAttribute( _Meta, cm, 0, 1, 1 );
+	mea->setName( "light_constant_attenuation" );
+	mea->setOffset( daeOffsetOf(domGl_pipeline_settings,elemLight_constant_attenuation) );
+	mea->setElementType( domGl_pipeline_settings::domLight_constant_attenuation::registerElement() );
+	cm->appendChild( mea );
+	
+	mea = new daeMetaElementAttribute( _Meta, cm, 0, 1, 1 );
+	mea->setName( "light_linear_attenuation" );
+	mea->setOffset( daeOffsetOf(domGl_pipeline_settings,elemLight_linear_attenuation) );
+	mea->setElementType( domGl_pipeline_settings::domLight_linear_attenuation::registerElement() );
+	cm->appendChild( mea );
+	
+	mea = new daeMetaElementAttribute( _Meta, cm, 0, 1, 1 );
+	mea->setName( "light_quadratic_attenuation" );
+	mea->setOffset( daeOffsetOf(domGl_pipeline_settings,elemLight_quadratic_attenuation) );
+	mea->setElementType( domGl_pipeline_settings::domLight_quadratic_attenuation::registerElement() );
+	cm->appendChild( mea );
+	
+	mea = new daeMetaElementAttribute( _Meta, cm, 0, 1, 1 );
+	mea->setName( "light_spot_cutoff" );
+	mea->setOffset( daeOffsetOf(domGl_pipeline_settings,elemLight_spot_cutoff) );
+	mea->setElementType( domGl_pipeline_settings::domLight_spot_cutoff::registerElement() );
+	cm->appendChild( mea );
+	
+	mea = new daeMetaElementAttribute( _Meta, cm, 0, 1, 1 );
+	mea->setName( "light_spot_direction" );
+	mea->setOffset( daeOffsetOf(domGl_pipeline_settings,elemLight_spot_direction) );
+	mea->setElementType( domGl_pipeline_settings::domLight_spot_direction::registerElement() );
+	cm->appendChild( mea );
+	
+	mea = new daeMetaElementAttribute( _Meta, cm, 0, 1, 1 );
+	mea->setName( "light_spot_exponent" );
+	mea->setOffset( daeOffsetOf(domGl_pipeline_settings,elemLight_spot_exponent) );
+	mea->setElementType( domGl_pipeline_settings::domLight_spot_exponent::registerElement() );
+	cm->appendChild( mea );
+	
+	mea = new daeMetaElementAttribute( _Meta, cm, 0, 1, 1 );
+	mea->setName( "texture1D" );
+	mea->setOffset( daeOffsetOf(domGl_pipeline_settings,elemTexture1D) );
+	mea->setElementType( domGl_pipeline_settings::domTexture1D::registerElement() );
+	cm->appendChild( mea );
+	
+	mea = new daeMetaElementAttribute( _Meta, cm, 0, 1, 1 );
+	mea->setName( "texture2D" );
+	mea->setOffset( daeOffsetOf(domGl_pipeline_settings,elemTexture2D) );
+	mea->setElementType( domGl_pipeline_settings::domTexture2D::registerElement() );
+	cm->appendChild( mea );
+	
+	mea = new daeMetaElementAttribute( _Meta, cm, 0, 1, 1 );
+	mea->setName( "texture3D" );
+	mea->setOffset( daeOffsetOf(domGl_pipeline_settings,elemTexture3D) );
+	mea->setElementType( domGl_pipeline_settings::domTexture3D::registerElement() );
+	cm->appendChild( mea );
+	
+	mea = new daeMetaElementAttribute( _Meta, cm, 0, 1, 1 );
+	mea->setName( "textureCUBE" );
+	mea->setOffset( daeOffsetOf(domGl_pipeline_settings,elemTextureCUBE) );
+	mea->setElementType( domGl_pipeline_settings::domTextureCUBE::registerElement() );
+	cm->appendChild( mea );
+	
+	mea = new daeMetaElementAttribute( _Meta, cm, 0, 1, 1 );
+	mea->setName( "textureRECT" );
+	mea->setOffset( daeOffsetOf(domGl_pipeline_settings,elemTextureRECT) );
+	mea->setElementType( domGl_pipeline_settings::domTextureRECT::registerElement() );
+	cm->appendChild( mea );
+	
+	mea = new daeMetaElementAttribute( _Meta, cm, 0, 1, 1 );
+	mea->setName( "textureDEPTH" );
+	mea->setOffset( daeOffsetOf(domGl_pipeline_settings,elemTextureDEPTH) );
+	mea->setElementType( domGl_pipeline_settings::domTextureDEPTH::registerElement() );
+	cm->appendChild( mea );
+	
+	mea = new daeMetaElementAttribute( _Meta, cm, 0, 1, 1 );
+	mea->setName( "texture1D_enable" );
+	mea->setOffset( daeOffsetOf(domGl_pipeline_settings,elemTexture1D_enable) );
+	mea->setElementType( domGl_pipeline_settings::domTexture1D_enable::registerElement() );
+	cm->appendChild( mea );
+	
+	mea = new daeMetaElementAttribute( _Meta, cm, 0, 1, 1 );
+	mea->setName( "texture2D_enable" );
+	mea->setOffset( daeOffsetOf(domGl_pipeline_settings,elemTexture2D_enable) );
+	mea->setElementType( domGl_pipeline_settings::domTexture2D_enable::registerElement() );
+	cm->appendChild( mea );
+	
+	mea = new daeMetaElementAttribute( _Meta, cm, 0, 1, 1 );
+	mea->setName( "texture3D_enable" );
+	mea->setOffset( daeOffsetOf(domGl_pipeline_settings,elemTexture3D_enable) );
+	mea->setElementType( domGl_pipeline_settings::domTexture3D_enable::registerElement() );
+	cm->appendChild( mea );
+	
+	mea = new daeMetaElementAttribute( _Meta, cm, 0, 1, 1 );
+	mea->setName( "textureCUBE_enable" );
+	mea->setOffset( daeOffsetOf(domGl_pipeline_settings,elemTextureCUBE_enable) );
+	mea->setElementType( domGl_pipeline_settings::domTextureCUBE_enable::registerElement() );
+	cm->appendChild( mea );
+	
+	mea = new daeMetaElementAttribute( _Meta, cm, 0, 1, 1 );
+	mea->setName( "textureRECT_enable" );
+	mea->setOffset( daeOffsetOf(domGl_pipeline_settings,elemTextureRECT_enable) );
+	mea->setElementType( domGl_pipeline_settings::domTextureRECT_enable::registerElement() );
+	cm->appendChild( mea );
+	
+	mea = new daeMetaElementAttribute( _Meta, cm, 0, 1, 1 );
+	mea->setName( "textureDEPTH_enable" );
+	mea->setOffset( daeOffsetOf(domGl_pipeline_settings,elemTextureDEPTH_enable) );
+	mea->setElementType( domGl_pipeline_settings::domTextureDEPTH_enable::registerElement() );
+	cm->appendChild( mea );
+	
+	mea = new daeMetaElementAttribute( _Meta, cm, 0, 1, 1 );
+	mea->setName( "texture_env_color" );
+	mea->setOffset( daeOffsetOf(domGl_pipeline_settings,elemTexture_env_color) );
+	mea->setElementType( domGl_pipeline_settings::domTexture_env_color::registerElement() );
+	cm->appendChild( mea );
+	
+	mea = new daeMetaElementAttribute( _Meta, cm, 0, 1, 1 );
+	mea->setName( "texture_env_mode" );
+	mea->setOffset( daeOffsetOf(domGl_pipeline_settings,elemTexture_env_mode) );
+	mea->setElementType( domGl_pipeline_settings::domTexture_env_mode::registerElement() );
+	cm->appendChild( mea );
+	
+	mea = new daeMetaElementAttribute( _Meta, cm, 0, 1, 1 );
+	mea->setName( "clip_plane" );
+	mea->setOffset( daeOffsetOf(domGl_pipeline_settings,elemClip_plane) );
+	mea->setElementType( domGl_pipeline_settings::domClip_plane::registerElement() );
+	cm->appendChild( mea );
+	
+	mea = new daeMetaElementAttribute( _Meta, cm, 0, 1, 1 );
+	mea->setName( "clip_plane_enable" );
+	mea->setOffset( daeOffsetOf(domGl_pipeline_settings,elemClip_plane_enable) );
+	mea->setElementType( domGl_pipeline_settings::domClip_plane_enable::registerElement() );
+	cm->appendChild( mea );
+	
+	mea = new daeMetaElementAttribute( _Meta, cm, 0, 1, 1 );
+	mea->setName( "blend_color" );
+	mea->setOffset( daeOffsetOf(domGl_pipeline_settings,elemBlend_color) );
+	mea->setElementType( domGl_pipeline_settings::domBlend_color::registerElement() );
+	cm->appendChild( mea );
+	
+	mea = new daeMetaElementAttribute( _Meta, cm, 0, 1, 1 );
+	mea->setName( "clear_color" );
+	mea->setOffset( daeOffsetOf(domGl_pipeline_settings,elemClear_color) );
+	mea->setElementType( domGl_pipeline_settings::domClear_color::registerElement() );
+	cm->appendChild( mea );
+	
+	mea = new daeMetaElementAttribute( _Meta, cm, 0, 1, 1 );
+	mea->setName( "clear_stencil" );
+	mea->setOffset( daeOffsetOf(domGl_pipeline_settings,elemClear_stencil) );
+	mea->setElementType( domGl_pipeline_settings::domClear_stencil::registerElement() );
+	cm->appendChild( mea );
+	
+	mea = new daeMetaElementAttribute( _Meta, cm, 0, 1, 1 );
+	mea->setName( "clear_depth" );
+	mea->setOffset( daeOffsetOf(domGl_pipeline_settings,elemClear_depth) );
+	mea->setElementType( domGl_pipeline_settings::domClear_depth::registerElement() );
+	cm->appendChild( mea );
+	
+	mea = new daeMetaElementAttribute( _Meta, cm, 0, 1, 1 );
+	mea->setName( "color_mask" );
+	mea->setOffset( daeOffsetOf(domGl_pipeline_settings,elemColor_mask) );
+	mea->setElementType( domGl_pipeline_settings::domColor_mask::registerElement() );
+	cm->appendChild( mea );
+	
+	mea = new daeMetaElementAttribute( _Meta, cm, 0, 1, 1 );
+	mea->setName( "depth_bounds" );
+	mea->setOffset( daeOffsetOf(domGl_pipeline_settings,elemDepth_bounds) );
+	mea->setElementType( domGl_pipeline_settings::domDepth_bounds::registerElement() );
+	cm->appendChild( mea );
+	
+	mea = new daeMetaElementAttribute( _Meta, cm, 0, 1, 1 );
+	mea->setName( "depth_mask" );
+	mea->setOffset( daeOffsetOf(domGl_pipeline_settings,elemDepth_mask) );
+	mea->setElementType( domGl_pipeline_settings::domDepth_mask::registerElement() );
+	cm->appendChild( mea );
+	
+	mea = new daeMetaElementAttribute( _Meta, cm, 0, 1, 1 );
+	mea->setName( "depth_range" );
+	mea->setOffset( daeOffsetOf(domGl_pipeline_settings,elemDepth_range) );
+	mea->setElementType( domGl_pipeline_settings::domDepth_range::registerElement() );
+	cm->appendChild( mea );
+	
+	mea = new daeMetaElementAttribute( _Meta, cm, 0, 1, 1 );
+	mea->setName( "fog_density" );
+	mea->setOffset( daeOffsetOf(domGl_pipeline_settings,elemFog_density) );
+	mea->setElementType( domGl_pipeline_settings::domFog_density::registerElement() );
+	cm->appendChild( mea );
+	
+	mea = new daeMetaElementAttribute( _Meta, cm, 0, 1, 1 );
+	mea->setName( "fog_start" );
+	mea->setOffset( daeOffsetOf(domGl_pipeline_settings,elemFog_start) );
+	mea->setElementType( domGl_pipeline_settings::domFog_start::registerElement() );
+	cm->appendChild( mea );
+	
+	mea = new daeMetaElementAttribute( _Meta, cm, 0, 1, 1 );
+	mea->setName( "fog_end" );
+	mea->setOffset( daeOffsetOf(domGl_pipeline_settings,elemFog_end) );
+	mea->setElementType( domGl_pipeline_settings::domFog_end::registerElement() );
+	cm->appendChild( mea );
+	
+	mea = new daeMetaElementAttribute( _Meta, cm, 0, 1, 1 );
+	mea->setName( "fog_color" );
+	mea->setOffset( daeOffsetOf(domGl_pipeline_settings,elemFog_color) );
+	mea->setElementType( domGl_pipeline_settings::domFog_color::registerElement() );
+	cm->appendChild( mea );
+	
+	mea = new daeMetaElementAttribute( _Meta, cm, 0, 1, 1 );
+	mea->setName( "light_model_ambient" );
+	mea->setOffset( daeOffsetOf(domGl_pipeline_settings,elemLight_model_ambient) );
+	mea->setElementType( domGl_pipeline_settings::domLight_model_ambient::registerElement() );
+	cm->appendChild( mea );
+	
+	mea = new daeMetaElementAttribute( _Meta, cm, 0, 1, 1 );
+	mea->setName( "lighting_enable" );
+	mea->setOffset( daeOffsetOf(domGl_pipeline_settings,elemLighting_enable) );
+	mea->setElementType( domGl_pipeline_settings::domLighting_enable::registerElement() );
+	cm->appendChild( mea );
+	
+	mea = new daeMetaElementAttribute( _Meta, cm, 0, 1, 1 );
+	mea->setName( "line_stipple" );
+	mea->setOffset( daeOffsetOf(domGl_pipeline_settings,elemLine_stipple) );
+	mea->setElementType( domGl_pipeline_settings::domLine_stipple::registerElement() );
+	cm->appendChild( mea );
+	
+	mea = new daeMetaElementAttribute( _Meta, cm, 0, 1, 1 );
+	mea->setName( "line_width" );
+	mea->setOffset( daeOffsetOf(domGl_pipeline_settings,elemLine_width) );
+	mea->setElementType( domGl_pipeline_settings::domLine_width::registerElement() );
+	cm->appendChild( mea );
+	
+	mea = new daeMetaElementAttribute( _Meta, cm, 0, 1, 1 );
+	mea->setName( "material_ambient" );
+	mea->setOffset( daeOffsetOf(domGl_pipeline_settings,elemMaterial_ambient) );
+	mea->setElementType( domGl_pipeline_settings::domMaterial_ambient::registerElement() );
+	cm->appendChild( mea );
+	
+	mea = new daeMetaElementAttribute( _Meta, cm, 0, 1, 1 );
+	mea->setName( "material_diffuse" );
+	mea->setOffset( daeOffsetOf(domGl_pipeline_settings,elemMaterial_diffuse) );
+	mea->setElementType( domGl_pipeline_settings::domMaterial_diffuse::registerElement() );
+	cm->appendChild( mea );
+	
+	mea = new daeMetaElementAttribute( _Meta, cm, 0, 1, 1 );
+	mea->setName( "material_emission" );
+	mea->setOffset( daeOffsetOf(domGl_pipeline_settings,elemMaterial_emission) );
+	mea->setElementType( domGl_pipeline_settings::domMaterial_emission::registerElement() );
+	cm->appendChild( mea );
+	
+	mea = new daeMetaElementAttribute( _Meta, cm, 0, 1, 1 );
+	mea->setName( "material_shininess" );
+	mea->setOffset( daeOffsetOf(domGl_pipeline_settings,elemMaterial_shininess) );
+	mea->setElementType( domGl_pipeline_settings::domMaterial_shininess::registerElement() );
+	cm->appendChild( mea );
+	
+	mea = new daeMetaElementAttribute( _Meta, cm, 0, 1, 1 );
+	mea->setName( "material_specular" );
+	mea->setOffset( daeOffsetOf(domGl_pipeline_settings,elemMaterial_specular) );
+	mea->setElementType( domGl_pipeline_settings::domMaterial_specular::registerElement() );
+	cm->appendChild( mea );
+	
+	mea = new daeMetaElementAttribute( _Meta, cm, 0, 1, 1 );
+	mea->setName( "model_view_matrix" );
+	mea->setOffset( daeOffsetOf(domGl_pipeline_settings,elemModel_view_matrix) );
+	mea->setElementType( domGl_pipeline_settings::domModel_view_matrix::registerElement() );
+	cm->appendChild( mea );
+	
+	mea = new daeMetaElementAttribute( _Meta, cm, 0, 1, 1 );
+	mea->setName( "point_distance_attenuation" );
+	mea->setOffset( daeOffsetOf(domGl_pipeline_settings,elemPoint_distance_attenuation) );
+	mea->setElementType( domGl_pipeline_settings::domPoint_distance_attenuation::registerElement() );
+	cm->appendChild( mea );
+	
+	mea = new daeMetaElementAttribute( _Meta, cm, 0, 1, 1 );
+	mea->setName( "point_fade_threshold_size" );
+	mea->setOffset( daeOffsetOf(domGl_pipeline_settings,elemPoint_fade_threshold_size) );
+	mea->setElementType( domGl_pipeline_settings::domPoint_fade_threshold_size::registerElement() );
+	cm->appendChild( mea );
+	
+	mea = new daeMetaElementAttribute( _Meta, cm, 0, 1, 1 );
+	mea->setName( "point_size" );
+	mea->setOffset( daeOffsetOf(domGl_pipeline_settings,elemPoint_size) );
+	mea->setElementType( domGl_pipeline_settings::domPoint_size::registerElement() );
+	cm->appendChild( mea );
+	
+	mea = new daeMetaElementAttribute( _Meta, cm, 0, 1, 1 );
+	mea->setName( "point_size_min" );
+	mea->setOffset( daeOffsetOf(domGl_pipeline_settings,elemPoint_size_min) );
+	mea->setElementType( domGl_pipeline_settings::domPoint_size_min::registerElement() );
+	cm->appendChild( mea );
+	
+	mea = new daeMetaElementAttribute( _Meta, cm, 0, 1, 1 );
+	mea->setName( "point_size_max" );
+	mea->setOffset( daeOffsetOf(domGl_pipeline_settings,elemPoint_size_max) );
+	mea->setElementType( domGl_pipeline_settings::domPoint_size_max::registerElement() );
+	cm->appendChild( mea );
+	
+	mea = new daeMetaElementAttribute( _Meta, cm, 0, 1, 1 );
+	mea->setName( "polygon_offset" );
+	mea->setOffset( daeOffsetOf(domGl_pipeline_settings,elemPolygon_offset) );
+	mea->setElementType( domGl_pipeline_settings::domPolygon_offset::registerElement() );
+	cm->appendChild( mea );
+	
+	mea = new daeMetaElementAttribute( _Meta, cm, 0, 1, 1 );
+	mea->setName( "projection_matrix" );
+	mea->setOffset( daeOffsetOf(domGl_pipeline_settings,elemProjection_matrix) );
+	mea->setElementType( domGl_pipeline_settings::domProjection_matrix::registerElement() );
+	cm->appendChild( mea );
+	
+	mea = new daeMetaElementAttribute( _Meta, cm, 0, 1, 1 );
+	mea->setName( "scissor" );
+	mea->setOffset( daeOffsetOf(domGl_pipeline_settings,elemScissor) );
+	mea->setElementType( domGl_pipeline_settings::domScissor::registerElement() );
+	cm->appendChild( mea );
+	
+	mea = new daeMetaElementAttribute( _Meta, cm, 0, 1, 1 );
+	mea->setName( "stencil_mask" );
+	mea->setOffset( daeOffsetOf(domGl_pipeline_settings,elemStencil_mask) );
+	mea->setElementType( domGl_pipeline_settings::domStencil_mask::registerElement() );
+	cm->appendChild( mea );
+	
+	mea = new daeMetaElementAttribute( _Meta, cm, 0, 1, 1 );
+	mea->setName( "alpha_test_enable" );
+	mea->setOffset( daeOffsetOf(domGl_pipeline_settings,elemAlpha_test_enable) );
+	mea->setElementType( domGl_pipeline_settings::domAlpha_test_enable::registerElement() );
+	cm->appendChild( mea );
+	
+	mea = new daeMetaElementAttribute( _Meta, cm, 0, 1, 1 );
+	mea->setName( "auto_normal_enable" );
+	mea->setOffset( daeOffsetOf(domGl_pipeline_settings,elemAuto_normal_enable) );
+	mea->setElementType( domGl_pipeline_settings::domAuto_normal_enable::registerElement() );
+	cm->appendChild( mea );
+	
+	mea = new daeMetaElementAttribute( _Meta, cm, 0, 1, 1 );
+	mea->setName( "blend_enable" );
+	mea->setOffset( daeOffsetOf(domGl_pipeline_settings,elemBlend_enable) );
+	mea->setElementType( domGl_pipeline_settings::domBlend_enable::registerElement() );
+	cm->appendChild( mea );
+	
+	mea = new daeMetaElementAttribute( _Meta, cm, 0, 1, 1 );
+	mea->setName( "color_logic_op_enable" );
+	mea->setOffset( daeOffsetOf(domGl_pipeline_settings,elemColor_logic_op_enable) );
+	mea->setElementType( domGl_pipeline_settings::domColor_logic_op_enable::registerElement() );
+	cm->appendChild( mea );
+	
+	mea = new daeMetaElementAttribute( _Meta, cm, 0, 1, 1 );
+	mea->setName( "color_material_enable" );
+	mea->setOffset( daeOffsetOf(domGl_pipeline_settings,elemColor_material_enable) );
+	mea->setElementType( domGl_pipeline_settings::domColor_material_enable::registerElement() );
+	cm->appendChild( mea );
+	
+	mea = new daeMetaElementAttribute( _Meta, cm, 0, 1, 1 );
+	mea->setName( "cull_face_enable" );
+	mea->setOffset( daeOffsetOf(domGl_pipeline_settings,elemCull_face_enable) );
+	mea->setElementType( domGl_pipeline_settings::domCull_face_enable::registerElement() );
+	cm->appendChild( mea );
+	
+	mea = new daeMetaElementAttribute( _Meta, cm, 0, 1, 1 );
+	mea->setName( "depth_bounds_enable" );
+	mea->setOffset( daeOffsetOf(domGl_pipeline_settings,elemDepth_bounds_enable) );
+	mea->setElementType( domGl_pipeline_settings::domDepth_bounds_enable::registerElement() );
+	cm->appendChild( mea );
+	
+	mea = new daeMetaElementAttribute( _Meta, cm, 0, 1, 1 );
+	mea->setName( "depth_clamp_enable" );
+	mea->setOffset( daeOffsetOf(domGl_pipeline_settings,elemDepth_clamp_enable) );
+	mea->setElementType( domGl_pipeline_settings::domDepth_clamp_enable::registerElement() );
+	cm->appendChild( mea );
+	
+	mea = new daeMetaElementAttribute( _Meta, cm, 0, 1, 1 );
+	mea->setName( "depth_test_enable" );
+	mea->setOffset( daeOffsetOf(domGl_pipeline_settings,elemDepth_test_enable) );
+	mea->setElementType( domGl_pipeline_settings::domDepth_test_enable::registerElement() );
+	cm->appendChild( mea );
+	
+	mea = new daeMetaElementAttribute( _Meta, cm, 0, 1, 1 );
+	mea->setName( "dither_enable" );
+	mea->setOffset( daeOffsetOf(domGl_pipeline_settings,elemDither_enable) );
+	mea->setElementType( domGl_pipeline_settings::domDither_enable::registerElement() );
+	cm->appendChild( mea );
+	
+	mea = new daeMetaElementAttribute( _Meta, cm, 0, 1, 1 );
+	mea->setName( "fog_enable" );
+	mea->setOffset( daeOffsetOf(domGl_pipeline_settings,elemFog_enable) );
+	mea->setElementType( domGl_pipeline_settings::domFog_enable::registerElement() );
+	cm->appendChild( mea );
+	
+	mea = new daeMetaElementAttribute( _Meta, cm, 0, 1, 1 );
+	mea->setName( "light_model_local_viewer_enable" );
+	mea->setOffset( daeOffsetOf(domGl_pipeline_settings,elemLight_model_local_viewer_enable) );
+	mea->setElementType( domGl_pipeline_settings::domLight_model_local_viewer_enable::registerElement() );
+	cm->appendChild( mea );
+	
+	mea = new daeMetaElementAttribute( _Meta, cm, 0, 1, 1 );
+	mea->setName( "light_model_two_side_enable" );
+	mea->setOffset( daeOffsetOf(domGl_pipeline_settings,elemLight_model_two_side_enable) );
+	mea->setElementType( domGl_pipeline_settings::domLight_model_two_side_enable::registerElement() );
+	cm->appendChild( mea );
+	
+	mea = new daeMetaElementAttribute( _Meta, cm, 0, 1, 1 );
+	mea->setName( "line_smooth_enable" );
+	mea->setOffset( daeOffsetOf(domGl_pipeline_settings,elemLine_smooth_enable) );
+	mea->setElementType( domGl_pipeline_settings::domLine_smooth_enable::registerElement() );
+	cm->appendChild( mea );
+	
+	mea = new daeMetaElementAttribute( _Meta, cm, 0, 1, 1 );
+	mea->setName( "line_stipple_enable" );
+	mea->setOffset( daeOffsetOf(domGl_pipeline_settings,elemLine_stipple_enable) );
+	mea->setElementType( domGl_pipeline_settings::domLine_stipple_enable::registerElement() );
+	cm->appendChild( mea );
+	
+	mea = new daeMetaElementAttribute( _Meta, cm, 0, 1, 1 );
+	mea->setName( "logic_op_enable" );
+	mea->setOffset( daeOffsetOf(domGl_pipeline_settings,elemLogic_op_enable) );
+	mea->setElementType( domGl_pipeline_settings::domLogic_op_enable::registerElement() );
+	cm->appendChild( mea );
+	
+	mea = new daeMetaElementAttribute( _Meta, cm, 0, 1, 1 );
+	mea->setName( "multisample_enable" );
+	mea->setOffset( daeOffsetOf(domGl_pipeline_settings,elemMultisample_enable) );
+	mea->setElementType( domGl_pipeline_settings::domMultisample_enable::registerElement() );
+	cm->appendChild( mea );
+	
+	mea = new daeMetaElementAttribute( _Meta, cm, 0, 1, 1 );
+	mea->setName( "normalize_enable" );
+	mea->setOffset( daeOffsetOf(domGl_pipeline_settings,elemNormalize_enable) );
+	mea->setElementType( domGl_pipeline_settings::domNormalize_enable::registerElement() );
+	cm->appendChild( mea );
+	
+	mea = new daeMetaElementAttribute( _Meta, cm, 0, 1, 1 );
+	mea->setName( "point_smooth_enable" );
+	mea->setOffset( daeOffsetOf(domGl_pipeline_settings,elemPoint_smooth_enable) );
+	mea->setElementType( domGl_pipeline_settings::domPoint_smooth_enable::registerElement() );
+	cm->appendChild( mea );
+	
+	mea = new daeMetaElementAttribute( _Meta, cm, 0, 1, 1 );
+	mea->setName( "polygon_offset_fill_enable" );
+	mea->setOffset( daeOffsetOf(domGl_pipeline_settings,elemPolygon_offset_fill_enable) );
+	mea->setElementType( domGl_pipeline_settings::domPolygon_offset_fill_enable::registerElement() );
+	cm->appendChild( mea );
+	
+	mea = new daeMetaElementAttribute( _Meta, cm, 0, 1, 1 );
+	mea->setName( "polygon_offset_line_enable" );
+	mea->setOffset( daeOffsetOf(domGl_pipeline_settings,elemPolygon_offset_line_enable) );
+	mea->setElementType( domGl_pipeline_settings::domPolygon_offset_line_enable::registerElement() );
+	cm->appendChild( mea );
+	
+	mea = new daeMetaElementAttribute( _Meta, cm, 0, 1, 1 );
+	mea->setName( "polygon_offset_point_enable" );
+	mea->setOffset( daeOffsetOf(domGl_pipeline_settings,elemPolygon_offset_point_enable) );
+	mea->setElementType( domGl_pipeline_settings::domPolygon_offset_point_enable::registerElement() );
+	cm->appendChild( mea );
+	
+	mea = new daeMetaElementAttribute( _Meta, cm, 0, 1, 1 );
+	mea->setName( "polygon_smooth_enable" );
+	mea->setOffset( daeOffsetOf(domGl_pipeline_settings,elemPolygon_smooth_enable) );
+	mea->setElementType( domGl_pipeline_settings::domPolygon_smooth_enable::registerElement() );
+	cm->appendChild( mea );
+	
+	mea = new daeMetaElementAttribute( _Meta, cm, 0, 1, 1 );
+	mea->setName( "polygon_stipple_enable" );
+	mea->setOffset( daeOffsetOf(domGl_pipeline_settings,elemPolygon_stipple_enable) );
+	mea->setElementType( domGl_pipeline_settings::domPolygon_stipple_enable::registerElement() );
+	cm->appendChild( mea );
+	
+	mea = new daeMetaElementAttribute( _Meta, cm, 0, 1, 1 );
+	mea->setName( "rescale_normal_enable" );
+	mea->setOffset( daeOffsetOf(domGl_pipeline_settings,elemRescale_normal_enable) );
+	mea->setElementType( domGl_pipeline_settings::domRescale_normal_enable::registerElement() );
+	cm->appendChild( mea );
+	
+	mea = new daeMetaElementAttribute( _Meta, cm, 0, 1, 1 );
+	mea->setName( "sample_alpha_to_coverage_enable" );
+	mea->setOffset( daeOffsetOf(domGl_pipeline_settings,elemSample_alpha_to_coverage_enable) );
+	mea->setElementType( domGl_pipeline_settings::domSample_alpha_to_coverage_enable::registerElement() );
+	cm->appendChild( mea );
+	
+	mea = new daeMetaElementAttribute( _Meta, cm, 0, 1, 1 );
+	mea->setName( "sample_alpha_to_one_enable" );
+	mea->setOffset( daeOffsetOf(domGl_pipeline_settings,elemSample_alpha_to_one_enable) );
+	mea->setElementType( domGl_pipeline_settings::domSample_alpha_to_one_enable::registerElement() );
+	cm->appendChild( mea );
+	
+	mea = new daeMetaElementAttribute( _Meta, cm, 0, 1, 1 );
+	mea->setName( "sample_coverage_enable" );
+	mea->setOffset( daeOffsetOf(domGl_pipeline_settings,elemSample_coverage_enable) );
+	mea->setElementType( domGl_pipeline_settings::domSample_coverage_enable::registerElement() );
+	cm->appendChild( mea );
+	
+	mea = new daeMetaElementAttribute( _Meta, cm, 0, 1, 1 );
+	mea->setName( "scissor_test_enable" );
+	mea->setOffset( daeOffsetOf(domGl_pipeline_settings,elemScissor_test_enable) );
+	mea->setElementType( domGl_pipeline_settings::domScissor_test_enable::registerElement() );
+	cm->appendChild( mea );
+	
+	mea = new daeMetaElementAttribute( _Meta, cm, 0, 1, 1 );
+	mea->setName( "stencil_test_enable" );
+	mea->setOffset( daeOffsetOf(domGl_pipeline_settings,elemStencil_test_enable) );
+	mea->setElementType( domGl_pipeline_settings::domStencil_test_enable::registerElement() );
+	cm->appendChild( mea );
+	
+	mea = new daeMetaElementAttribute( _Meta, cm, 0, 1, 1 );
+	mea->setName( "gl_hook_abstract" );
+	mea->setOffset( daeOffsetOf(domGl_pipeline_settings,elemGl_hook_abstract) );
+	mea->setElementType( domGl_hook_abstract::registerElement() );
+	cm->appendChild( mea );
+	
+	cm->setMaxOrdinal( 0 );
+	_Meta->setCMRoot( cm );	
 	// Ordered list of sub-elements
     _Meta->addContents(daeOffsetOf(domGl_pipeline_settings,_contents));
+    _Meta->addContentsOrder(daeOffsetOf(domGl_pipeline_settings,_contentsOrder));
 
 	
 	
@@ -168,12 +725,27 @@ domGl_pipeline_settings::domAlpha_func::registerElement()
     
     _Meta = new daeMetaElement;
     _Meta->setName( "alpha_func" );
-	_Meta->setStaticPointerAddress(&domGl_pipeline_settings::domAlpha_func::_Meta);
 	_Meta->registerConstructor(domGl_pipeline_settings::domAlpha_func::create);
 
-	// Add elements: func, value
-    _Meta->appendElement(domGl_pipeline_settings::domAlpha_func::domFunc::registerElement(),daeOffsetOf(domGl_pipeline_settings::domAlpha_func,elemFunc));
-    _Meta->appendElement(domGl_pipeline_settings::domAlpha_func::domValue::registerElement(),daeOffsetOf(domGl_pipeline_settings::domAlpha_func,elemValue));
+	_Meta->setIsInnerClass( true );
+	daeMetaCMPolicy *cm = NULL;
+	daeMetaElementAttribute *mea = NULL;
+	cm = new daeMetaSequence( _Meta, cm, 0, 1, 1 );
+
+	mea = new daeMetaElementAttribute( _Meta, cm, 0, 1, 1 );
+	mea->setName( "func" );
+	mea->setOffset( daeOffsetOf(domGl_pipeline_settings::domAlpha_func,elemFunc) );
+	mea->setElementType( domGl_pipeline_settings::domAlpha_func::domFunc::registerElement() );
+	cm->appendChild( mea );
+	
+	mea = new daeMetaElementAttribute( _Meta, cm, 1, 1, 1 );
+	mea->setName( "value" );
+	mea->setOffset( daeOffsetOf(domGl_pipeline_settings::domAlpha_func,elemValue) );
+	mea->setElementType( domGl_pipeline_settings::domAlpha_func::domValue::registerElement() );
+	cm->appendChild( mea );
+	
+	cm->setMaxOrdinal( 1 );
+	_Meta->setCMRoot( cm );	
 	
 	
 	_Meta->setElementSize(sizeof(domGl_pipeline_settings::domAlpha_func));
@@ -197,9 +769,9 @@ domGl_pipeline_settings::domAlpha_func::domFunc::registerElement()
     
     _Meta = new daeMetaElement;
     _Meta->setName( "func" );
-	_Meta->setStaticPointerAddress(&domGl_pipeline_settings::domAlpha_func::domFunc::_Meta);
 	_Meta->registerConstructor(domGl_pipeline_settings::domAlpha_func::domFunc::create);
 
+	_Meta->setIsInnerClass( true );
 
 	//	Add attribute: value
  	{
@@ -248,9 +820,9 @@ domGl_pipeline_settings::domAlpha_func::domValue::registerElement()
     
     _Meta = new daeMetaElement;
     _Meta->setName( "value" );
-	_Meta->setStaticPointerAddress(&domGl_pipeline_settings::domAlpha_func::domValue::_Meta);
 	_Meta->registerConstructor(domGl_pipeline_settings::domAlpha_func::domValue::create);
 
+	_Meta->setIsInnerClass( true );
 
 	//	Add attribute: value
  	{
@@ -299,12 +871,27 @@ domGl_pipeline_settings::domBlend_func::registerElement()
     
     _Meta = new daeMetaElement;
     _Meta->setName( "blend_func" );
-	_Meta->setStaticPointerAddress(&domGl_pipeline_settings::domBlend_func::_Meta);
 	_Meta->registerConstructor(domGl_pipeline_settings::domBlend_func::create);
 
-	// Add elements: src, dest
-    _Meta->appendElement(domGl_pipeline_settings::domBlend_func::domSrc::registerElement(),daeOffsetOf(domGl_pipeline_settings::domBlend_func,elemSrc));
-    _Meta->appendElement(domGl_pipeline_settings::domBlend_func::domDest::registerElement(),daeOffsetOf(domGl_pipeline_settings::domBlend_func,elemDest));
+	_Meta->setIsInnerClass( true );
+	daeMetaCMPolicy *cm = NULL;
+	daeMetaElementAttribute *mea = NULL;
+	cm = new daeMetaSequence( _Meta, cm, 0, 1, 1 );
+
+	mea = new daeMetaElementAttribute( _Meta, cm, 0, 1, 1 );
+	mea->setName( "src" );
+	mea->setOffset( daeOffsetOf(domGl_pipeline_settings::domBlend_func,elemSrc) );
+	mea->setElementType( domGl_pipeline_settings::domBlend_func::domSrc::registerElement() );
+	cm->appendChild( mea );
+	
+	mea = new daeMetaElementAttribute( _Meta, cm, 1, 1, 1 );
+	mea->setName( "dest" );
+	mea->setOffset( daeOffsetOf(domGl_pipeline_settings::domBlend_func,elemDest) );
+	mea->setElementType( domGl_pipeline_settings::domBlend_func::domDest::registerElement() );
+	cm->appendChild( mea );
+	
+	cm->setMaxOrdinal( 1 );
+	_Meta->setCMRoot( cm );	
 	
 	
 	_Meta->setElementSize(sizeof(domGl_pipeline_settings::domBlend_func));
@@ -328,9 +915,9 @@ domGl_pipeline_settings::domBlend_func::domSrc::registerElement()
     
     _Meta = new daeMetaElement;
     _Meta->setName( "src" );
-	_Meta->setStaticPointerAddress(&domGl_pipeline_settings::domBlend_func::domSrc::_Meta);
 	_Meta->registerConstructor(domGl_pipeline_settings::domBlend_func::domSrc::create);
 
+	_Meta->setIsInnerClass( true );
 
 	//	Add attribute: value
  	{
@@ -379,9 +966,9 @@ domGl_pipeline_settings::domBlend_func::domDest::registerElement()
     
     _Meta = new daeMetaElement;
     _Meta->setName( "dest" );
-	_Meta->setStaticPointerAddress(&domGl_pipeline_settings::domBlend_func::domDest::_Meta);
 	_Meta->registerConstructor(domGl_pipeline_settings::domBlend_func::domDest::create);
 
+	_Meta->setIsInnerClass( true );
 
 	//	Add attribute: value
  	{
@@ -430,14 +1017,39 @@ domGl_pipeline_settings::domBlend_func_separate::registerElement()
     
     _Meta = new daeMetaElement;
     _Meta->setName( "blend_func_separate" );
-	_Meta->setStaticPointerAddress(&domGl_pipeline_settings::domBlend_func_separate::_Meta);
 	_Meta->registerConstructor(domGl_pipeline_settings::domBlend_func_separate::create);
 
-	// Add elements: src_rgb, dest_rgb, src_alpha, dest_alpha
-    _Meta->appendElement(domGl_pipeline_settings::domBlend_func_separate::domSrc_rgb::registerElement(),daeOffsetOf(domGl_pipeline_settings::domBlend_func_separate,elemSrc_rgb));
-    _Meta->appendElement(domGl_pipeline_settings::domBlend_func_separate::domDest_rgb::registerElement(),daeOffsetOf(domGl_pipeline_settings::domBlend_func_separate,elemDest_rgb));
-    _Meta->appendElement(domGl_pipeline_settings::domBlend_func_separate::domSrc_alpha::registerElement(),daeOffsetOf(domGl_pipeline_settings::domBlend_func_separate,elemSrc_alpha));
-    _Meta->appendElement(domGl_pipeline_settings::domBlend_func_separate::domDest_alpha::registerElement(),daeOffsetOf(domGl_pipeline_settings::domBlend_func_separate,elemDest_alpha));
+	_Meta->setIsInnerClass( true );
+	daeMetaCMPolicy *cm = NULL;
+	daeMetaElementAttribute *mea = NULL;
+	cm = new daeMetaSequence( _Meta, cm, 0, 1, 1 );
+
+	mea = new daeMetaElementAttribute( _Meta, cm, 0, 1, 1 );
+	mea->setName( "src_rgb" );
+	mea->setOffset( daeOffsetOf(domGl_pipeline_settings::domBlend_func_separate,elemSrc_rgb) );
+	mea->setElementType( domGl_pipeline_settings::domBlend_func_separate::domSrc_rgb::registerElement() );
+	cm->appendChild( mea );
+	
+	mea = new daeMetaElementAttribute( _Meta, cm, 1, 1, 1 );
+	mea->setName( "dest_rgb" );
+	mea->setOffset( daeOffsetOf(domGl_pipeline_settings::domBlend_func_separate,elemDest_rgb) );
+	mea->setElementType( domGl_pipeline_settings::domBlend_func_separate::domDest_rgb::registerElement() );
+	cm->appendChild( mea );
+	
+	mea = new daeMetaElementAttribute( _Meta, cm, 2, 1, 1 );
+	mea->setName( "src_alpha" );
+	mea->setOffset( daeOffsetOf(domGl_pipeline_settings::domBlend_func_separate,elemSrc_alpha) );
+	mea->setElementType( domGl_pipeline_settings::domBlend_func_separate::domSrc_alpha::registerElement() );
+	cm->appendChild( mea );
+	
+	mea = new daeMetaElementAttribute( _Meta, cm, 3, 1, 1 );
+	mea->setName( "dest_alpha" );
+	mea->setOffset( daeOffsetOf(domGl_pipeline_settings::domBlend_func_separate,elemDest_alpha) );
+	mea->setElementType( domGl_pipeline_settings::domBlend_func_separate::domDest_alpha::registerElement() );
+	cm->appendChild( mea );
+	
+	cm->setMaxOrdinal( 3 );
+	_Meta->setCMRoot( cm );	
 	
 	
 	_Meta->setElementSize(sizeof(domGl_pipeline_settings::domBlend_func_separate));
@@ -461,9 +1073,9 @@ domGl_pipeline_settings::domBlend_func_separate::domSrc_rgb::registerElement()
     
     _Meta = new daeMetaElement;
     _Meta->setName( "src_rgb" );
-	_Meta->setStaticPointerAddress(&domGl_pipeline_settings::domBlend_func_separate::domSrc_rgb::_Meta);
 	_Meta->registerConstructor(domGl_pipeline_settings::domBlend_func_separate::domSrc_rgb::create);
 
+	_Meta->setIsInnerClass( true );
 
 	//	Add attribute: value
  	{
@@ -512,9 +1124,9 @@ domGl_pipeline_settings::domBlend_func_separate::domDest_rgb::registerElement()
     
     _Meta = new daeMetaElement;
     _Meta->setName( "dest_rgb" );
-	_Meta->setStaticPointerAddress(&domGl_pipeline_settings::domBlend_func_separate::domDest_rgb::_Meta);
 	_Meta->registerConstructor(domGl_pipeline_settings::domBlend_func_separate::domDest_rgb::create);
 
+	_Meta->setIsInnerClass( true );
 
 	//	Add attribute: value
  	{
@@ -563,9 +1175,9 @@ domGl_pipeline_settings::domBlend_func_separate::domSrc_alpha::registerElement()
     
     _Meta = new daeMetaElement;
     _Meta->setName( "src_alpha" );
-	_Meta->setStaticPointerAddress(&domGl_pipeline_settings::domBlend_func_separate::domSrc_alpha::_Meta);
 	_Meta->registerConstructor(domGl_pipeline_settings::domBlend_func_separate::domSrc_alpha::create);
 
+	_Meta->setIsInnerClass( true );
 
 	//	Add attribute: value
  	{
@@ -614,9 +1226,9 @@ domGl_pipeline_settings::domBlend_func_separate::domDest_alpha::registerElement(
     
     _Meta = new daeMetaElement;
     _Meta->setName( "dest_alpha" );
-	_Meta->setStaticPointerAddress(&domGl_pipeline_settings::domBlend_func_separate::domDest_alpha::_Meta);
 	_Meta->registerConstructor(domGl_pipeline_settings::domBlend_func_separate::domDest_alpha::create);
 
+	_Meta->setIsInnerClass( true );
 
 	//	Add attribute: value
  	{
@@ -665,9 +1277,9 @@ domGl_pipeline_settings::domBlend_equation::registerElement()
     
     _Meta = new daeMetaElement;
     _Meta->setName( "blend_equation" );
-	_Meta->setStaticPointerAddress(&domGl_pipeline_settings::domBlend_equation::_Meta);
 	_Meta->registerConstructor(domGl_pipeline_settings::domBlend_equation::create);
 
+	_Meta->setIsInnerClass( true );
 
 	//	Add attribute: value
  	{
@@ -716,12 +1328,27 @@ domGl_pipeline_settings::domBlend_equation_separate::registerElement()
     
     _Meta = new daeMetaElement;
     _Meta->setName( "blend_equation_separate" );
-	_Meta->setStaticPointerAddress(&domGl_pipeline_settings::domBlend_equation_separate::_Meta);
 	_Meta->registerConstructor(domGl_pipeline_settings::domBlend_equation_separate::create);
 
-	// Add elements: rgb, alpha
-    _Meta->appendElement(domGl_pipeline_settings::domBlend_equation_separate::domRgb::registerElement(),daeOffsetOf(domGl_pipeline_settings::domBlend_equation_separate,elemRgb));
-    _Meta->appendElement(domGl_pipeline_settings::domBlend_equation_separate::domAlpha::registerElement(),daeOffsetOf(domGl_pipeline_settings::domBlend_equation_separate,elemAlpha));
+	_Meta->setIsInnerClass( true );
+	daeMetaCMPolicy *cm = NULL;
+	daeMetaElementAttribute *mea = NULL;
+	cm = new daeMetaSequence( _Meta, cm, 0, 1, 1 );
+
+	mea = new daeMetaElementAttribute( _Meta, cm, 0, 1, 1 );
+	mea->setName( "rgb" );
+	mea->setOffset( daeOffsetOf(domGl_pipeline_settings::domBlend_equation_separate,elemRgb) );
+	mea->setElementType( domGl_pipeline_settings::domBlend_equation_separate::domRgb::registerElement() );
+	cm->appendChild( mea );
+	
+	mea = new daeMetaElementAttribute( _Meta, cm, 1, 1, 1 );
+	mea->setName( "alpha" );
+	mea->setOffset( daeOffsetOf(domGl_pipeline_settings::domBlend_equation_separate,elemAlpha) );
+	mea->setElementType( domGl_pipeline_settings::domBlend_equation_separate::domAlpha::registerElement() );
+	cm->appendChild( mea );
+	
+	cm->setMaxOrdinal( 1 );
+	_Meta->setCMRoot( cm );	
 	
 	
 	_Meta->setElementSize(sizeof(domGl_pipeline_settings::domBlend_equation_separate));
@@ -745,9 +1372,9 @@ domGl_pipeline_settings::domBlend_equation_separate::domRgb::registerElement()
     
     _Meta = new daeMetaElement;
     _Meta->setName( "rgb" );
-	_Meta->setStaticPointerAddress(&domGl_pipeline_settings::domBlend_equation_separate::domRgb::_Meta);
 	_Meta->registerConstructor(domGl_pipeline_settings::domBlend_equation_separate::domRgb::create);
 
+	_Meta->setIsInnerClass( true );
 
 	//	Add attribute: value
  	{
@@ -796,9 +1423,9 @@ domGl_pipeline_settings::domBlend_equation_separate::domAlpha::registerElement()
     
     _Meta = new daeMetaElement;
     _Meta->setName( "alpha" );
-	_Meta->setStaticPointerAddress(&domGl_pipeline_settings::domBlend_equation_separate::domAlpha::_Meta);
 	_Meta->registerConstructor(domGl_pipeline_settings::domBlend_equation_separate::domAlpha::create);
 
+	_Meta->setIsInnerClass( true );
 
 	//	Add attribute: value
  	{
@@ -847,12 +1474,27 @@ domGl_pipeline_settings::domColor_material::registerElement()
     
     _Meta = new daeMetaElement;
     _Meta->setName( "color_material" );
-	_Meta->setStaticPointerAddress(&domGl_pipeline_settings::domColor_material::_Meta);
 	_Meta->registerConstructor(domGl_pipeline_settings::domColor_material::create);
 
-	// Add elements: face, mode
-    _Meta->appendElement(domGl_pipeline_settings::domColor_material::domFace::registerElement(),daeOffsetOf(domGl_pipeline_settings::domColor_material,elemFace));
-    _Meta->appendElement(domGl_pipeline_settings::domColor_material::domMode::registerElement(),daeOffsetOf(domGl_pipeline_settings::domColor_material,elemMode));
+	_Meta->setIsInnerClass( true );
+	daeMetaCMPolicy *cm = NULL;
+	daeMetaElementAttribute *mea = NULL;
+	cm = new daeMetaSequence( _Meta, cm, 0, 1, 1 );
+
+	mea = new daeMetaElementAttribute( _Meta, cm, 0, 1, 1 );
+	mea->setName( "face" );
+	mea->setOffset( daeOffsetOf(domGl_pipeline_settings::domColor_material,elemFace) );
+	mea->setElementType( domGl_pipeline_settings::domColor_material::domFace::registerElement() );
+	cm->appendChild( mea );
+	
+	mea = new daeMetaElementAttribute( _Meta, cm, 1, 1, 1 );
+	mea->setName( "mode" );
+	mea->setOffset( daeOffsetOf(domGl_pipeline_settings::domColor_material,elemMode) );
+	mea->setElementType( domGl_pipeline_settings::domColor_material::domMode::registerElement() );
+	cm->appendChild( mea );
+	
+	cm->setMaxOrdinal( 1 );
+	_Meta->setCMRoot( cm );	
 	
 	
 	_Meta->setElementSize(sizeof(domGl_pipeline_settings::domColor_material));
@@ -876,9 +1518,9 @@ domGl_pipeline_settings::domColor_material::domFace::registerElement()
     
     _Meta = new daeMetaElement;
     _Meta->setName( "face" );
-	_Meta->setStaticPointerAddress(&domGl_pipeline_settings::domColor_material::domFace::_Meta);
 	_Meta->registerConstructor(domGl_pipeline_settings::domColor_material::domFace::create);
 
+	_Meta->setIsInnerClass( true );
 
 	//	Add attribute: value
  	{
@@ -927,9 +1569,9 @@ domGl_pipeline_settings::domColor_material::domMode::registerElement()
     
     _Meta = new daeMetaElement;
     _Meta->setName( "mode" );
-	_Meta->setStaticPointerAddress(&domGl_pipeline_settings::domColor_material::domMode::_Meta);
 	_Meta->registerConstructor(domGl_pipeline_settings::domColor_material::domMode::create);
 
+	_Meta->setIsInnerClass( true );
 
 	//	Add attribute: value
  	{
@@ -978,9 +1620,9 @@ domGl_pipeline_settings::domCull_face::registerElement()
     
     _Meta = new daeMetaElement;
     _Meta->setName( "cull_face" );
-	_Meta->setStaticPointerAddress(&domGl_pipeline_settings::domCull_face::_Meta);
 	_Meta->registerConstructor(domGl_pipeline_settings::domCull_face::create);
 
+	_Meta->setIsInnerClass( true );
 
 	//	Add attribute: value
  	{
@@ -1029,9 +1671,9 @@ domGl_pipeline_settings::domDepth_func::registerElement()
     
     _Meta = new daeMetaElement;
     _Meta->setName( "depth_func" );
-	_Meta->setStaticPointerAddress(&domGl_pipeline_settings::domDepth_func::_Meta);
 	_Meta->registerConstructor(domGl_pipeline_settings::domDepth_func::create);
 
+	_Meta->setIsInnerClass( true );
 
 	//	Add attribute: value
  	{
@@ -1080,9 +1722,9 @@ domGl_pipeline_settings::domFog_mode::registerElement()
     
     _Meta = new daeMetaElement;
     _Meta->setName( "fog_mode" );
-	_Meta->setStaticPointerAddress(&domGl_pipeline_settings::domFog_mode::_Meta);
 	_Meta->registerConstructor(domGl_pipeline_settings::domFog_mode::create);
 
+	_Meta->setIsInnerClass( true );
 
 	//	Add attribute: value
  	{
@@ -1131,9 +1773,9 @@ domGl_pipeline_settings::domFog_coord_src::registerElement()
     
     _Meta = new daeMetaElement;
     _Meta->setName( "fog_coord_src" );
-	_Meta->setStaticPointerAddress(&domGl_pipeline_settings::domFog_coord_src::_Meta);
 	_Meta->registerConstructor(domGl_pipeline_settings::domFog_coord_src::create);
 
+	_Meta->setIsInnerClass( true );
 
 	//	Add attribute: value
  	{
@@ -1182,9 +1824,9 @@ domGl_pipeline_settings::domFront_face::registerElement()
     
     _Meta = new daeMetaElement;
     _Meta->setName( "front_face" );
-	_Meta->setStaticPointerAddress(&domGl_pipeline_settings::domFront_face::_Meta);
 	_Meta->registerConstructor(domGl_pipeline_settings::domFront_face::create);
 
+	_Meta->setIsInnerClass( true );
 
 	//	Add attribute: value
  	{
@@ -1233,9 +1875,9 @@ domGl_pipeline_settings::domLight_model_color_control::registerElement()
     
     _Meta = new daeMetaElement;
     _Meta->setName( "light_model_color_control" );
-	_Meta->setStaticPointerAddress(&domGl_pipeline_settings::domLight_model_color_control::_Meta);
 	_Meta->registerConstructor(domGl_pipeline_settings::domLight_model_color_control::create);
 
+	_Meta->setIsInnerClass( true );
 
 	//	Add attribute: value
  	{
@@ -1284,9 +1926,9 @@ domGl_pipeline_settings::domLogic_op::registerElement()
     
     _Meta = new daeMetaElement;
     _Meta->setName( "logic_op" );
-	_Meta->setStaticPointerAddress(&domGl_pipeline_settings::domLogic_op::_Meta);
 	_Meta->registerConstructor(domGl_pipeline_settings::domLogic_op::create);
 
+	_Meta->setIsInnerClass( true );
 
 	//	Add attribute: value
  	{
@@ -1335,12 +1977,27 @@ domGl_pipeline_settings::domPolygon_mode::registerElement()
     
     _Meta = new daeMetaElement;
     _Meta->setName( "polygon_mode" );
-	_Meta->setStaticPointerAddress(&domGl_pipeline_settings::domPolygon_mode::_Meta);
 	_Meta->registerConstructor(domGl_pipeline_settings::domPolygon_mode::create);
 
-	// Add elements: face, mode
-    _Meta->appendElement(domGl_pipeline_settings::domPolygon_mode::domFace::registerElement(),daeOffsetOf(domGl_pipeline_settings::domPolygon_mode,elemFace));
-    _Meta->appendElement(domGl_pipeline_settings::domPolygon_mode::domMode::registerElement(),daeOffsetOf(domGl_pipeline_settings::domPolygon_mode,elemMode));
+	_Meta->setIsInnerClass( true );
+	daeMetaCMPolicy *cm = NULL;
+	daeMetaElementAttribute *mea = NULL;
+	cm = new daeMetaSequence( _Meta, cm, 0, 1, 1 );
+
+	mea = new daeMetaElementAttribute( _Meta, cm, 0, 1, 1 );
+	mea->setName( "face" );
+	mea->setOffset( daeOffsetOf(domGl_pipeline_settings::domPolygon_mode,elemFace) );
+	mea->setElementType( domGl_pipeline_settings::domPolygon_mode::domFace::registerElement() );
+	cm->appendChild( mea );
+	
+	mea = new daeMetaElementAttribute( _Meta, cm, 1, 1, 1 );
+	mea->setName( "mode" );
+	mea->setOffset( daeOffsetOf(domGl_pipeline_settings::domPolygon_mode,elemMode) );
+	mea->setElementType( domGl_pipeline_settings::domPolygon_mode::domMode::registerElement() );
+	cm->appendChild( mea );
+	
+	cm->setMaxOrdinal( 1 );
+	_Meta->setCMRoot( cm );	
 	
 	
 	_Meta->setElementSize(sizeof(domGl_pipeline_settings::domPolygon_mode));
@@ -1364,9 +2021,9 @@ domGl_pipeline_settings::domPolygon_mode::domFace::registerElement()
     
     _Meta = new daeMetaElement;
     _Meta->setName( "face" );
-	_Meta->setStaticPointerAddress(&domGl_pipeline_settings::domPolygon_mode::domFace::_Meta);
 	_Meta->registerConstructor(domGl_pipeline_settings::domPolygon_mode::domFace::create);
 
+	_Meta->setIsInnerClass( true );
 
 	//	Add attribute: value
  	{
@@ -1415,9 +2072,9 @@ domGl_pipeline_settings::domPolygon_mode::domMode::registerElement()
     
     _Meta = new daeMetaElement;
     _Meta->setName( "mode" );
-	_Meta->setStaticPointerAddress(&domGl_pipeline_settings::domPolygon_mode::domMode::_Meta);
 	_Meta->registerConstructor(domGl_pipeline_settings::domPolygon_mode::domMode::create);
 
+	_Meta->setIsInnerClass( true );
 
 	//	Add attribute: value
  	{
@@ -1466,9 +2123,9 @@ domGl_pipeline_settings::domShade_model::registerElement()
     
     _Meta = new daeMetaElement;
     _Meta->setName( "shade_model" );
-	_Meta->setStaticPointerAddress(&domGl_pipeline_settings::domShade_model::_Meta);
 	_Meta->registerConstructor(domGl_pipeline_settings::domShade_model::create);
 
+	_Meta->setIsInnerClass( true );
 
 	//	Add attribute: value
  	{
@@ -1517,13 +2174,33 @@ domGl_pipeline_settings::domStencil_func::registerElement()
     
     _Meta = new daeMetaElement;
     _Meta->setName( "stencil_func" );
-	_Meta->setStaticPointerAddress(&domGl_pipeline_settings::domStencil_func::_Meta);
 	_Meta->registerConstructor(domGl_pipeline_settings::domStencil_func::create);
 
-	// Add elements: func, ref, mask
-    _Meta->appendElement(domGl_pipeline_settings::domStencil_func::domFunc::registerElement(),daeOffsetOf(domGl_pipeline_settings::domStencil_func,elemFunc));
-    _Meta->appendElement(domGl_pipeline_settings::domStencil_func::domRef::registerElement(),daeOffsetOf(domGl_pipeline_settings::domStencil_func,elemRef));
-    _Meta->appendElement(domGl_pipeline_settings::domStencil_func::domMask::registerElement(),daeOffsetOf(domGl_pipeline_settings::domStencil_func,elemMask));
+	_Meta->setIsInnerClass( true );
+	daeMetaCMPolicy *cm = NULL;
+	daeMetaElementAttribute *mea = NULL;
+	cm = new daeMetaSequence( _Meta, cm, 0, 1, 1 );
+
+	mea = new daeMetaElementAttribute( _Meta, cm, 0, 1, 1 );
+	mea->setName( "func" );
+	mea->setOffset( daeOffsetOf(domGl_pipeline_settings::domStencil_func,elemFunc) );
+	mea->setElementType( domGl_pipeline_settings::domStencil_func::domFunc::registerElement() );
+	cm->appendChild( mea );
+	
+	mea = new daeMetaElementAttribute( _Meta, cm, 1, 1, 1 );
+	mea->setName( "ref" );
+	mea->setOffset( daeOffsetOf(domGl_pipeline_settings::domStencil_func,elemRef) );
+	mea->setElementType( domGl_pipeline_settings::domStencil_func::domRef::registerElement() );
+	cm->appendChild( mea );
+	
+	mea = new daeMetaElementAttribute( _Meta, cm, 2, 1, 1 );
+	mea->setName( "mask" );
+	mea->setOffset( daeOffsetOf(domGl_pipeline_settings::domStencil_func,elemMask) );
+	mea->setElementType( domGl_pipeline_settings::domStencil_func::domMask::registerElement() );
+	cm->appendChild( mea );
+	
+	cm->setMaxOrdinal( 2 );
+	_Meta->setCMRoot( cm );	
 	
 	
 	_Meta->setElementSize(sizeof(domGl_pipeline_settings::domStencil_func));
@@ -1547,9 +2224,9 @@ domGl_pipeline_settings::domStencil_func::domFunc::registerElement()
     
     _Meta = new daeMetaElement;
     _Meta->setName( "func" );
-	_Meta->setStaticPointerAddress(&domGl_pipeline_settings::domStencil_func::domFunc::_Meta);
 	_Meta->registerConstructor(domGl_pipeline_settings::domStencil_func::domFunc::create);
 
+	_Meta->setIsInnerClass( true );
 
 	//	Add attribute: value
  	{
@@ -1598,9 +2275,9 @@ domGl_pipeline_settings::domStencil_func::domRef::registerElement()
     
     _Meta = new daeMetaElement;
     _Meta->setName( "ref" );
-	_Meta->setStaticPointerAddress(&domGl_pipeline_settings::domStencil_func::domRef::_Meta);
 	_Meta->registerConstructor(domGl_pipeline_settings::domStencil_func::domRef::create);
 
+	_Meta->setIsInnerClass( true );
 
 	//	Add attribute: value
  	{
@@ -1649,9 +2326,9 @@ domGl_pipeline_settings::domStencil_func::domMask::registerElement()
     
     _Meta = new daeMetaElement;
     _Meta->setName( "mask" );
-	_Meta->setStaticPointerAddress(&domGl_pipeline_settings::domStencil_func::domMask::_Meta);
 	_Meta->registerConstructor(domGl_pipeline_settings::domStencil_func::domMask::create);
 
+	_Meta->setIsInnerClass( true );
 
 	//	Add attribute: value
  	{
@@ -1700,13 +2377,33 @@ domGl_pipeline_settings::domStencil_op::registerElement()
     
     _Meta = new daeMetaElement;
     _Meta->setName( "stencil_op" );
-	_Meta->setStaticPointerAddress(&domGl_pipeline_settings::domStencil_op::_Meta);
 	_Meta->registerConstructor(domGl_pipeline_settings::domStencil_op::create);
 
-	// Add elements: fail, zfail, zpass
-    _Meta->appendElement(domGl_pipeline_settings::domStencil_op::domFail::registerElement(),daeOffsetOf(domGl_pipeline_settings::domStencil_op,elemFail));
-    _Meta->appendElement(domGl_pipeline_settings::domStencil_op::domZfail::registerElement(),daeOffsetOf(domGl_pipeline_settings::domStencil_op,elemZfail));
-    _Meta->appendElement(domGl_pipeline_settings::domStencil_op::domZpass::registerElement(),daeOffsetOf(domGl_pipeline_settings::domStencil_op,elemZpass));
+	_Meta->setIsInnerClass( true );
+	daeMetaCMPolicy *cm = NULL;
+	daeMetaElementAttribute *mea = NULL;
+	cm = new daeMetaSequence( _Meta, cm, 0, 1, 1 );
+
+	mea = new daeMetaElementAttribute( _Meta, cm, 0, 1, 1 );
+	mea->setName( "fail" );
+	mea->setOffset( daeOffsetOf(domGl_pipeline_settings::domStencil_op,elemFail) );
+	mea->setElementType( domGl_pipeline_settings::domStencil_op::domFail::registerElement() );
+	cm->appendChild( mea );
+	
+	mea = new daeMetaElementAttribute( _Meta, cm, 1, 1, 1 );
+	mea->setName( "zfail" );
+	mea->setOffset( daeOffsetOf(domGl_pipeline_settings::domStencil_op,elemZfail) );
+	mea->setElementType( domGl_pipeline_settings::domStencil_op::domZfail::registerElement() );
+	cm->appendChild( mea );
+	
+	mea = new daeMetaElementAttribute( _Meta, cm, 2, 1, 1 );
+	mea->setName( "zpass" );
+	mea->setOffset( daeOffsetOf(domGl_pipeline_settings::domStencil_op,elemZpass) );
+	mea->setElementType( domGl_pipeline_settings::domStencil_op::domZpass::registerElement() );
+	cm->appendChild( mea );
+	
+	cm->setMaxOrdinal( 2 );
+	_Meta->setCMRoot( cm );	
 	
 	
 	_Meta->setElementSize(sizeof(domGl_pipeline_settings::domStencil_op));
@@ -1730,9 +2427,9 @@ domGl_pipeline_settings::domStencil_op::domFail::registerElement()
     
     _Meta = new daeMetaElement;
     _Meta->setName( "fail" );
-	_Meta->setStaticPointerAddress(&domGl_pipeline_settings::domStencil_op::domFail::_Meta);
 	_Meta->registerConstructor(domGl_pipeline_settings::domStencil_op::domFail::create);
 
+	_Meta->setIsInnerClass( true );
 
 	//	Add attribute: value
  	{
@@ -1781,9 +2478,9 @@ domGl_pipeline_settings::domStencil_op::domZfail::registerElement()
     
     _Meta = new daeMetaElement;
     _Meta->setName( "zfail" );
-	_Meta->setStaticPointerAddress(&domGl_pipeline_settings::domStencil_op::domZfail::_Meta);
 	_Meta->registerConstructor(domGl_pipeline_settings::domStencil_op::domZfail::create);
 
+	_Meta->setIsInnerClass( true );
 
 	//	Add attribute: value
  	{
@@ -1832,9 +2529,9 @@ domGl_pipeline_settings::domStencil_op::domZpass::registerElement()
     
     _Meta = new daeMetaElement;
     _Meta->setName( "zpass" );
-	_Meta->setStaticPointerAddress(&domGl_pipeline_settings::domStencil_op::domZpass::_Meta);
 	_Meta->registerConstructor(domGl_pipeline_settings::domStencil_op::domZpass::create);
 
+	_Meta->setIsInnerClass( true );
 
 	//	Add attribute: value
  	{
@@ -1883,14 +2580,39 @@ domGl_pipeline_settings::domStencil_func_separate::registerElement()
     
     _Meta = new daeMetaElement;
     _Meta->setName( "stencil_func_separate" );
-	_Meta->setStaticPointerAddress(&domGl_pipeline_settings::domStencil_func_separate::_Meta);
 	_Meta->registerConstructor(domGl_pipeline_settings::domStencil_func_separate::create);
 
-	// Add elements: front, back, ref, mask
-    _Meta->appendElement(domGl_pipeline_settings::domStencil_func_separate::domFront::registerElement(),daeOffsetOf(domGl_pipeline_settings::domStencil_func_separate,elemFront));
-    _Meta->appendElement(domGl_pipeline_settings::domStencil_func_separate::domBack::registerElement(),daeOffsetOf(domGl_pipeline_settings::domStencil_func_separate,elemBack));
-    _Meta->appendElement(domGl_pipeline_settings::domStencil_func_separate::domRef::registerElement(),daeOffsetOf(domGl_pipeline_settings::domStencil_func_separate,elemRef));
-    _Meta->appendElement(domGl_pipeline_settings::domStencil_func_separate::domMask::registerElement(),daeOffsetOf(domGl_pipeline_settings::domStencil_func_separate,elemMask));
+	_Meta->setIsInnerClass( true );
+	daeMetaCMPolicy *cm = NULL;
+	daeMetaElementAttribute *mea = NULL;
+	cm = new daeMetaSequence( _Meta, cm, 0, 1, 1 );
+
+	mea = new daeMetaElementAttribute( _Meta, cm, 0, 1, 1 );
+	mea->setName( "front" );
+	mea->setOffset( daeOffsetOf(domGl_pipeline_settings::domStencil_func_separate,elemFront) );
+	mea->setElementType( domGl_pipeline_settings::domStencil_func_separate::domFront::registerElement() );
+	cm->appendChild( mea );
+	
+	mea = new daeMetaElementAttribute( _Meta, cm, 1, 1, 1 );
+	mea->setName( "back" );
+	mea->setOffset( daeOffsetOf(domGl_pipeline_settings::domStencil_func_separate,elemBack) );
+	mea->setElementType( domGl_pipeline_settings::domStencil_func_separate::domBack::registerElement() );
+	cm->appendChild( mea );
+	
+	mea = new daeMetaElementAttribute( _Meta, cm, 2, 1, 1 );
+	mea->setName( "ref" );
+	mea->setOffset( daeOffsetOf(domGl_pipeline_settings::domStencil_func_separate,elemRef) );
+	mea->setElementType( domGl_pipeline_settings::domStencil_func_separate::domRef::registerElement() );
+	cm->appendChild( mea );
+	
+	mea = new daeMetaElementAttribute( _Meta, cm, 3, 1, 1 );
+	mea->setName( "mask" );
+	mea->setOffset( daeOffsetOf(domGl_pipeline_settings::domStencil_func_separate,elemMask) );
+	mea->setElementType( domGl_pipeline_settings::domStencil_func_separate::domMask::registerElement() );
+	cm->appendChild( mea );
+	
+	cm->setMaxOrdinal( 3 );
+	_Meta->setCMRoot( cm );	
 	
 	
 	_Meta->setElementSize(sizeof(domGl_pipeline_settings::domStencil_func_separate));
@@ -1914,9 +2636,9 @@ domGl_pipeline_settings::domStencil_func_separate::domFront::registerElement()
     
     _Meta = new daeMetaElement;
     _Meta->setName( "front" );
-	_Meta->setStaticPointerAddress(&domGl_pipeline_settings::domStencil_func_separate::domFront::_Meta);
 	_Meta->registerConstructor(domGl_pipeline_settings::domStencil_func_separate::domFront::create);
 
+	_Meta->setIsInnerClass( true );
 
 	//	Add attribute: value
  	{
@@ -1965,9 +2687,9 @@ domGl_pipeline_settings::domStencil_func_separate::domBack::registerElement()
     
     _Meta = new daeMetaElement;
     _Meta->setName( "back" );
-	_Meta->setStaticPointerAddress(&domGl_pipeline_settings::domStencil_func_separate::domBack::_Meta);
 	_Meta->registerConstructor(domGl_pipeline_settings::domStencil_func_separate::domBack::create);
 
+	_Meta->setIsInnerClass( true );
 
 	//	Add attribute: value
  	{
@@ -2016,9 +2738,9 @@ domGl_pipeline_settings::domStencil_func_separate::domRef::registerElement()
     
     _Meta = new daeMetaElement;
     _Meta->setName( "ref" );
-	_Meta->setStaticPointerAddress(&domGl_pipeline_settings::domStencil_func_separate::domRef::_Meta);
 	_Meta->registerConstructor(domGl_pipeline_settings::domStencil_func_separate::domRef::create);
 
+	_Meta->setIsInnerClass( true );
 
 	//	Add attribute: value
  	{
@@ -2067,9 +2789,9 @@ domGl_pipeline_settings::domStencil_func_separate::domMask::registerElement()
     
     _Meta = new daeMetaElement;
     _Meta->setName( "mask" );
-	_Meta->setStaticPointerAddress(&domGl_pipeline_settings::domStencil_func_separate::domMask::_Meta);
 	_Meta->registerConstructor(domGl_pipeline_settings::domStencil_func_separate::domMask::create);
 
+	_Meta->setIsInnerClass( true );
 
 	//	Add attribute: value
  	{
@@ -2118,14 +2840,39 @@ domGl_pipeline_settings::domStencil_op_separate::registerElement()
     
     _Meta = new daeMetaElement;
     _Meta->setName( "stencil_op_separate" );
-	_Meta->setStaticPointerAddress(&domGl_pipeline_settings::domStencil_op_separate::_Meta);
 	_Meta->registerConstructor(domGl_pipeline_settings::domStencil_op_separate::create);
 
-	// Add elements: face, fail, zfail, zpass
-    _Meta->appendElement(domGl_pipeline_settings::domStencil_op_separate::domFace::registerElement(),daeOffsetOf(domGl_pipeline_settings::domStencil_op_separate,elemFace));
-    _Meta->appendElement(domGl_pipeline_settings::domStencil_op_separate::domFail::registerElement(),daeOffsetOf(domGl_pipeline_settings::domStencil_op_separate,elemFail));
-    _Meta->appendElement(domGl_pipeline_settings::domStencil_op_separate::domZfail::registerElement(),daeOffsetOf(domGl_pipeline_settings::domStencil_op_separate,elemZfail));
-    _Meta->appendElement(domGl_pipeline_settings::domStencil_op_separate::domZpass::registerElement(),daeOffsetOf(domGl_pipeline_settings::domStencil_op_separate,elemZpass));
+	_Meta->setIsInnerClass( true );
+	daeMetaCMPolicy *cm = NULL;
+	daeMetaElementAttribute *mea = NULL;
+	cm = new daeMetaSequence( _Meta, cm, 0, 1, 1 );
+
+	mea = new daeMetaElementAttribute( _Meta, cm, 0, 1, 1 );
+	mea->setName( "face" );
+	mea->setOffset( daeOffsetOf(domGl_pipeline_settings::domStencil_op_separate,elemFace) );
+	mea->setElementType( domGl_pipeline_settings::domStencil_op_separate::domFace::registerElement() );
+	cm->appendChild( mea );
+	
+	mea = new daeMetaElementAttribute( _Meta, cm, 1, 1, 1 );
+	mea->setName( "fail" );
+	mea->setOffset( daeOffsetOf(domGl_pipeline_settings::domStencil_op_separate,elemFail) );
+	mea->setElementType( domGl_pipeline_settings::domStencil_op_separate::domFail::registerElement() );
+	cm->appendChild( mea );
+	
+	mea = new daeMetaElementAttribute( _Meta, cm, 2, 1, 1 );
+	mea->setName( "zfail" );
+	mea->setOffset( daeOffsetOf(domGl_pipeline_settings::domStencil_op_separate,elemZfail) );
+	mea->setElementType( domGl_pipeline_settings::domStencil_op_separate::domZfail::registerElement() );
+	cm->appendChild( mea );
+	
+	mea = new daeMetaElementAttribute( _Meta, cm, 3, 1, 1 );
+	mea->setName( "zpass" );
+	mea->setOffset( daeOffsetOf(domGl_pipeline_settings::domStencil_op_separate,elemZpass) );
+	mea->setElementType( domGl_pipeline_settings::domStencil_op_separate::domZpass::registerElement() );
+	cm->appendChild( mea );
+	
+	cm->setMaxOrdinal( 3 );
+	_Meta->setCMRoot( cm );	
 	
 	
 	_Meta->setElementSize(sizeof(domGl_pipeline_settings::domStencil_op_separate));
@@ -2149,9 +2896,9 @@ domGl_pipeline_settings::domStencil_op_separate::domFace::registerElement()
     
     _Meta = new daeMetaElement;
     _Meta->setName( "face" );
-	_Meta->setStaticPointerAddress(&domGl_pipeline_settings::domStencil_op_separate::domFace::_Meta);
 	_Meta->registerConstructor(domGl_pipeline_settings::domStencil_op_separate::domFace::create);
 
+	_Meta->setIsInnerClass( true );
 
 	//	Add attribute: value
  	{
@@ -2200,9 +2947,9 @@ domGl_pipeline_settings::domStencil_op_separate::domFail::registerElement()
     
     _Meta = new daeMetaElement;
     _Meta->setName( "fail" );
-	_Meta->setStaticPointerAddress(&domGl_pipeline_settings::domStencil_op_separate::domFail::_Meta);
 	_Meta->registerConstructor(domGl_pipeline_settings::domStencil_op_separate::domFail::create);
 
+	_Meta->setIsInnerClass( true );
 
 	//	Add attribute: value
  	{
@@ -2251,9 +2998,9 @@ domGl_pipeline_settings::domStencil_op_separate::domZfail::registerElement()
     
     _Meta = new daeMetaElement;
     _Meta->setName( "zfail" );
-	_Meta->setStaticPointerAddress(&domGl_pipeline_settings::domStencil_op_separate::domZfail::_Meta);
 	_Meta->registerConstructor(domGl_pipeline_settings::domStencil_op_separate::domZfail::create);
 
+	_Meta->setIsInnerClass( true );
 
 	//	Add attribute: value
  	{
@@ -2302,9 +3049,9 @@ domGl_pipeline_settings::domStencil_op_separate::domZpass::registerElement()
     
     _Meta = new daeMetaElement;
     _Meta->setName( "zpass" );
-	_Meta->setStaticPointerAddress(&domGl_pipeline_settings::domStencil_op_separate::domZpass::_Meta);
 	_Meta->registerConstructor(domGl_pipeline_settings::domStencil_op_separate::domZpass::create);
 
+	_Meta->setIsInnerClass( true );
 
 	//	Add attribute: value
  	{
@@ -2353,12 +3100,27 @@ domGl_pipeline_settings::domStencil_mask_separate::registerElement()
     
     _Meta = new daeMetaElement;
     _Meta->setName( "stencil_mask_separate" );
-	_Meta->setStaticPointerAddress(&domGl_pipeline_settings::domStencil_mask_separate::_Meta);
 	_Meta->registerConstructor(domGl_pipeline_settings::domStencil_mask_separate::create);
 
-	// Add elements: face, mask
-    _Meta->appendElement(domGl_pipeline_settings::domStencil_mask_separate::domFace::registerElement(),daeOffsetOf(domGl_pipeline_settings::domStencil_mask_separate,elemFace));
-    _Meta->appendElement(domGl_pipeline_settings::domStencil_mask_separate::domMask::registerElement(),daeOffsetOf(domGl_pipeline_settings::domStencil_mask_separate,elemMask));
+	_Meta->setIsInnerClass( true );
+	daeMetaCMPolicy *cm = NULL;
+	daeMetaElementAttribute *mea = NULL;
+	cm = new daeMetaSequence( _Meta, cm, 0, 1, 1 );
+
+	mea = new daeMetaElementAttribute( _Meta, cm, 0, 1, 1 );
+	mea->setName( "face" );
+	mea->setOffset( daeOffsetOf(domGl_pipeline_settings::domStencil_mask_separate,elemFace) );
+	mea->setElementType( domGl_pipeline_settings::domStencil_mask_separate::domFace::registerElement() );
+	cm->appendChild( mea );
+	
+	mea = new daeMetaElementAttribute( _Meta, cm, 1, 1, 1 );
+	mea->setName( "mask" );
+	mea->setOffset( daeOffsetOf(domGl_pipeline_settings::domStencil_mask_separate,elemMask) );
+	mea->setElementType( domGl_pipeline_settings::domStencil_mask_separate::domMask::registerElement() );
+	cm->appendChild( mea );
+	
+	cm->setMaxOrdinal( 1 );
+	_Meta->setCMRoot( cm );	
 	
 	
 	_Meta->setElementSize(sizeof(domGl_pipeline_settings::domStencil_mask_separate));
@@ -2382,9 +3144,9 @@ domGl_pipeline_settings::domStencil_mask_separate::domFace::registerElement()
     
     _Meta = new daeMetaElement;
     _Meta->setName( "face" );
-	_Meta->setStaticPointerAddress(&domGl_pipeline_settings::domStencil_mask_separate::domFace::_Meta);
 	_Meta->registerConstructor(domGl_pipeline_settings::domStencil_mask_separate::domFace::create);
 
+	_Meta->setIsInnerClass( true );
 
 	//	Add attribute: value
  	{
@@ -2433,9 +3195,9 @@ domGl_pipeline_settings::domStencil_mask_separate::domMask::registerElement()
     
     _Meta = new daeMetaElement;
     _Meta->setName( "mask" );
-	_Meta->setStaticPointerAddress(&domGl_pipeline_settings::domStencil_mask_separate::domMask::_Meta);
 	_Meta->registerConstructor(domGl_pipeline_settings::domStencil_mask_separate::domMask::create);
 
+	_Meta->setIsInnerClass( true );
 
 	//	Add attribute: value
  	{
@@ -2484,9 +3246,9 @@ domGl_pipeline_settings::domLight_enable::registerElement()
     
     _Meta = new daeMetaElement;
     _Meta->setName( "light_enable" );
-	_Meta->setStaticPointerAddress(&domGl_pipeline_settings::domLight_enable::_Meta);
 	_Meta->registerConstructor(domGl_pipeline_settings::domLight_enable::create);
 
+	_Meta->setIsInnerClass( true );
 
 	//	Add attribute: value
  	{
@@ -2547,9 +3309,9 @@ domGl_pipeline_settings::domLight_ambient::registerElement()
     
     _Meta = new daeMetaElement;
     _Meta->setName( "light_ambient" );
-	_Meta->setStaticPointerAddress(&domGl_pipeline_settings::domLight_ambient::_Meta);
 	_Meta->registerConstructor(domGl_pipeline_settings::domLight_ambient::create);
 
+	_Meta->setIsInnerClass( true );
 
 	//	Add attribute: value
  	{
@@ -2610,9 +3372,9 @@ domGl_pipeline_settings::domLight_diffuse::registerElement()
     
     _Meta = new daeMetaElement;
     _Meta->setName( "light_diffuse" );
-	_Meta->setStaticPointerAddress(&domGl_pipeline_settings::domLight_diffuse::_Meta);
 	_Meta->registerConstructor(domGl_pipeline_settings::domLight_diffuse::create);
 
+	_Meta->setIsInnerClass( true );
 
 	//	Add attribute: value
  	{
@@ -2673,9 +3435,9 @@ domGl_pipeline_settings::domLight_specular::registerElement()
     
     _Meta = new daeMetaElement;
     _Meta->setName( "light_specular" );
-	_Meta->setStaticPointerAddress(&domGl_pipeline_settings::domLight_specular::_Meta);
 	_Meta->registerConstructor(domGl_pipeline_settings::domLight_specular::create);
 
+	_Meta->setIsInnerClass( true );
 
 	//	Add attribute: value
  	{
@@ -2736,9 +3498,9 @@ domGl_pipeline_settings::domLight_position::registerElement()
     
     _Meta = new daeMetaElement;
     _Meta->setName( "light_position" );
-	_Meta->setStaticPointerAddress(&domGl_pipeline_settings::domLight_position::_Meta);
 	_Meta->registerConstructor(domGl_pipeline_settings::domLight_position::create);
 
+	_Meta->setIsInnerClass( true );
 
 	//	Add attribute: value
  	{
@@ -2799,9 +3561,9 @@ domGl_pipeline_settings::domLight_constant_attenuation::registerElement()
     
     _Meta = new daeMetaElement;
     _Meta->setName( "light_constant_attenuation" );
-	_Meta->setStaticPointerAddress(&domGl_pipeline_settings::domLight_constant_attenuation::_Meta);
 	_Meta->registerConstructor(domGl_pipeline_settings::domLight_constant_attenuation::create);
 
+	_Meta->setIsInnerClass( true );
 
 	//	Add attribute: value
  	{
@@ -2862,9 +3624,9 @@ domGl_pipeline_settings::domLight_linear_attenuation::registerElement()
     
     _Meta = new daeMetaElement;
     _Meta->setName( "light_linear_attenuation" );
-	_Meta->setStaticPointerAddress(&domGl_pipeline_settings::domLight_linear_attenuation::_Meta);
 	_Meta->registerConstructor(domGl_pipeline_settings::domLight_linear_attenuation::create);
 
+	_Meta->setIsInnerClass( true );
 
 	//	Add attribute: value
  	{
@@ -2925,9 +3687,9 @@ domGl_pipeline_settings::domLight_quadratic_attenuation::registerElement()
     
     _Meta = new daeMetaElement;
     _Meta->setName( "light_quadratic_attenuation" );
-	_Meta->setStaticPointerAddress(&domGl_pipeline_settings::domLight_quadratic_attenuation::_Meta);
 	_Meta->registerConstructor(domGl_pipeline_settings::domLight_quadratic_attenuation::create);
 
+	_Meta->setIsInnerClass( true );
 
 	//	Add attribute: value
  	{
@@ -2988,9 +3750,9 @@ domGl_pipeline_settings::domLight_spot_cutoff::registerElement()
     
     _Meta = new daeMetaElement;
     _Meta->setName( "light_spot_cutoff" );
-	_Meta->setStaticPointerAddress(&domGl_pipeline_settings::domLight_spot_cutoff::_Meta);
 	_Meta->registerConstructor(domGl_pipeline_settings::domLight_spot_cutoff::create);
 
+	_Meta->setIsInnerClass( true );
 
 	//	Add attribute: value
  	{
@@ -3051,9 +3813,9 @@ domGl_pipeline_settings::domLight_spot_direction::registerElement()
     
     _Meta = new daeMetaElement;
     _Meta->setName( "light_spot_direction" );
-	_Meta->setStaticPointerAddress(&domGl_pipeline_settings::domLight_spot_direction::_Meta);
 	_Meta->registerConstructor(domGl_pipeline_settings::domLight_spot_direction::create);
 
+	_Meta->setIsInnerClass( true );
 
 	//	Add attribute: value
  	{
@@ -3114,9 +3876,9 @@ domGl_pipeline_settings::domLight_spot_exponent::registerElement()
     
     _Meta = new daeMetaElement;
     _Meta->setName( "light_spot_exponent" );
-	_Meta->setStaticPointerAddress(&domGl_pipeline_settings::domLight_spot_exponent::_Meta);
 	_Meta->registerConstructor(domGl_pipeline_settings::domLight_spot_exponent::create);
 
+	_Meta->setIsInnerClass( true );
 
 	//	Add attribute: value
  	{
@@ -3177,14 +3939,30 @@ domGl_pipeline_settings::domTexture1D::registerElement()
     
     _Meta = new daeMetaElement;
     _Meta->setName( "texture1D" );
-	_Meta->setStaticPointerAddress(&domGl_pipeline_settings::domTexture1D::_Meta);
 	_Meta->registerConstructor(domGl_pipeline_settings::domTexture1D::create);
 
-	// Add elements: value, param
-    _Meta->appendElement(domGl_sampler1D::registerElement(),daeOffsetOf(domGl_pipeline_settings::domTexture1D,elemValue),"value"); 
-    _Meta->appendElement(domGl_pipeline_settings::domTexture1D::domParam::registerElement(),daeOffsetOf(domGl_pipeline_settings::domTexture1D,elemParam));
+	_Meta->setIsInnerClass( true );
+	daeMetaCMPolicy *cm = NULL;
+	daeMetaElementAttribute *mea = NULL;
+	cm = new daeMetaChoice( _Meta, cm, 0, 1, 1 );
+
+	mea = new daeMetaElementAttribute( _Meta, cm, 0, 1, 1 );
+	mea->setName( "value" );
+	mea->setOffset( daeOffsetOf(domGl_pipeline_settings::domTexture1D,elemValue) );
+	mea->setElementType( domGl_sampler1D::registerElement() );
+	cm->appendChild( mea );
+	
+	mea = new daeMetaElementAttribute( _Meta, cm, 0, 1, 1 );
+	mea->setName( "param" );
+	mea->setOffset( daeOffsetOf(domGl_pipeline_settings::domTexture1D,elemParam) );
+	mea->setElementType( domGl_pipeline_settings::domTexture1D::domParam::registerElement() );
+	cm->appendChild( mea );
+	
+	cm->setMaxOrdinal( 0 );
+	_Meta->setCMRoot( cm );	
 	// Ordered list of sub-elements
     _Meta->addContents(daeOffsetOf(domGl_pipeline_settings::domTexture1D,_contents));
+    _Meta->addContentsOrder(daeOffsetOf(domGl_pipeline_settings::domTexture1D,_contentsOrder));
 
 
 	//	Add attribute: index
@@ -3221,9 +3999,9 @@ domGl_pipeline_settings::domTexture1D::domParam::registerElement()
     
     _Meta = new daeMetaElement;
     _Meta->setName( "param" );
-	_Meta->setStaticPointerAddress(&domGl_pipeline_settings::domTexture1D::domParam::_Meta);
 	_Meta->registerConstructor(domGl_pipeline_settings::domTexture1D::domParam::create);
 
+	_Meta->setIsInnerClass( true );
 	//	Add attribute: _value
  	{
 		daeMetaAttribute *ma = new daeMetaAttribute;
@@ -3256,14 +4034,30 @@ domGl_pipeline_settings::domTexture2D::registerElement()
     
     _Meta = new daeMetaElement;
     _Meta->setName( "texture2D" );
-	_Meta->setStaticPointerAddress(&domGl_pipeline_settings::domTexture2D::_Meta);
 	_Meta->registerConstructor(domGl_pipeline_settings::domTexture2D::create);
 
-	// Add elements: value, param
-    _Meta->appendElement(domGl_sampler2D::registerElement(),daeOffsetOf(domGl_pipeline_settings::domTexture2D,elemValue),"value"); 
-    _Meta->appendElement(domGl_pipeline_settings::domTexture2D::domParam::registerElement(),daeOffsetOf(domGl_pipeline_settings::domTexture2D,elemParam));
+	_Meta->setIsInnerClass( true );
+	daeMetaCMPolicy *cm = NULL;
+	daeMetaElementAttribute *mea = NULL;
+	cm = new daeMetaChoice( _Meta, cm, 0, 1, 1 );
+
+	mea = new daeMetaElementAttribute( _Meta, cm, 0, 1, 1 );
+	mea->setName( "value" );
+	mea->setOffset( daeOffsetOf(domGl_pipeline_settings::domTexture2D,elemValue) );
+	mea->setElementType( domGl_sampler2D::registerElement() );
+	cm->appendChild( mea );
+	
+	mea = new daeMetaElementAttribute( _Meta, cm, 0, 1, 1 );
+	mea->setName( "param" );
+	mea->setOffset( daeOffsetOf(domGl_pipeline_settings::domTexture2D,elemParam) );
+	mea->setElementType( domGl_pipeline_settings::domTexture2D::domParam::registerElement() );
+	cm->appendChild( mea );
+	
+	cm->setMaxOrdinal( 0 );
+	_Meta->setCMRoot( cm );	
 	// Ordered list of sub-elements
     _Meta->addContents(daeOffsetOf(domGl_pipeline_settings::domTexture2D,_contents));
+    _Meta->addContentsOrder(daeOffsetOf(domGl_pipeline_settings::domTexture2D,_contentsOrder));
 
 
 	//	Add attribute: index
@@ -3300,9 +4094,9 @@ domGl_pipeline_settings::domTexture2D::domParam::registerElement()
     
     _Meta = new daeMetaElement;
     _Meta->setName( "param" );
-	_Meta->setStaticPointerAddress(&domGl_pipeline_settings::domTexture2D::domParam::_Meta);
 	_Meta->registerConstructor(domGl_pipeline_settings::domTexture2D::domParam::create);
 
+	_Meta->setIsInnerClass( true );
 	//	Add attribute: _value
  	{
 		daeMetaAttribute *ma = new daeMetaAttribute;
@@ -3335,14 +4129,30 @@ domGl_pipeline_settings::domTexture3D::registerElement()
     
     _Meta = new daeMetaElement;
     _Meta->setName( "texture3D" );
-	_Meta->setStaticPointerAddress(&domGl_pipeline_settings::domTexture3D::_Meta);
 	_Meta->registerConstructor(domGl_pipeline_settings::domTexture3D::create);
 
-	// Add elements: value, param
-    _Meta->appendElement(domGl_sampler3D::registerElement(),daeOffsetOf(domGl_pipeline_settings::domTexture3D,elemValue),"value"); 
-    _Meta->appendElement(domGl_pipeline_settings::domTexture3D::domParam::registerElement(),daeOffsetOf(domGl_pipeline_settings::domTexture3D,elemParam));
+	_Meta->setIsInnerClass( true );
+	daeMetaCMPolicy *cm = NULL;
+	daeMetaElementAttribute *mea = NULL;
+	cm = new daeMetaChoice( _Meta, cm, 0, 1, 1 );
+
+	mea = new daeMetaElementAttribute( _Meta, cm, 0, 1, 1 );
+	mea->setName( "value" );
+	mea->setOffset( daeOffsetOf(domGl_pipeline_settings::domTexture3D,elemValue) );
+	mea->setElementType( domGl_sampler3D::registerElement() );
+	cm->appendChild( mea );
+	
+	mea = new daeMetaElementAttribute( _Meta, cm, 0, 1, 1 );
+	mea->setName( "param" );
+	mea->setOffset( daeOffsetOf(domGl_pipeline_settings::domTexture3D,elemParam) );
+	mea->setElementType( domGl_pipeline_settings::domTexture3D::domParam::registerElement() );
+	cm->appendChild( mea );
+	
+	cm->setMaxOrdinal( 0 );
+	_Meta->setCMRoot( cm );	
 	// Ordered list of sub-elements
     _Meta->addContents(daeOffsetOf(domGl_pipeline_settings::domTexture3D,_contents));
+    _Meta->addContentsOrder(daeOffsetOf(domGl_pipeline_settings::domTexture3D,_contentsOrder));
 
 
 	//	Add attribute: index
@@ -3379,9 +4189,9 @@ domGl_pipeline_settings::domTexture3D::domParam::registerElement()
     
     _Meta = new daeMetaElement;
     _Meta->setName( "param" );
-	_Meta->setStaticPointerAddress(&domGl_pipeline_settings::domTexture3D::domParam::_Meta);
 	_Meta->registerConstructor(domGl_pipeline_settings::domTexture3D::domParam::create);
 
+	_Meta->setIsInnerClass( true );
 	//	Add attribute: _value
  	{
 		daeMetaAttribute *ma = new daeMetaAttribute;
@@ -3414,14 +4224,30 @@ domGl_pipeline_settings::domTextureCUBE::registerElement()
     
     _Meta = new daeMetaElement;
     _Meta->setName( "textureCUBE" );
-	_Meta->setStaticPointerAddress(&domGl_pipeline_settings::domTextureCUBE::_Meta);
 	_Meta->registerConstructor(domGl_pipeline_settings::domTextureCUBE::create);
 
-	// Add elements: value, param
-    _Meta->appendElement(domGl_samplerCUBE::registerElement(),daeOffsetOf(domGl_pipeline_settings::domTextureCUBE,elemValue),"value"); 
-    _Meta->appendElement(domGl_pipeline_settings::domTextureCUBE::domParam::registerElement(),daeOffsetOf(domGl_pipeline_settings::domTextureCUBE,elemParam));
+	_Meta->setIsInnerClass( true );
+	daeMetaCMPolicy *cm = NULL;
+	daeMetaElementAttribute *mea = NULL;
+	cm = new daeMetaChoice( _Meta, cm, 0, 1, 1 );
+
+	mea = new daeMetaElementAttribute( _Meta, cm, 0, 1, 1 );
+	mea->setName( "value" );
+	mea->setOffset( daeOffsetOf(domGl_pipeline_settings::domTextureCUBE,elemValue) );
+	mea->setElementType( domGl_samplerCUBE::registerElement() );
+	cm->appendChild( mea );
+	
+	mea = new daeMetaElementAttribute( _Meta, cm, 0, 1, 1 );
+	mea->setName( "param" );
+	mea->setOffset( daeOffsetOf(domGl_pipeline_settings::domTextureCUBE,elemParam) );
+	mea->setElementType( domGl_pipeline_settings::domTextureCUBE::domParam::registerElement() );
+	cm->appendChild( mea );
+	
+	cm->setMaxOrdinal( 0 );
+	_Meta->setCMRoot( cm );	
 	// Ordered list of sub-elements
     _Meta->addContents(daeOffsetOf(domGl_pipeline_settings::domTextureCUBE,_contents));
+    _Meta->addContentsOrder(daeOffsetOf(domGl_pipeline_settings::domTextureCUBE,_contentsOrder));
 
 
 	//	Add attribute: index
@@ -3458,9 +4284,9 @@ domGl_pipeline_settings::domTextureCUBE::domParam::registerElement()
     
     _Meta = new daeMetaElement;
     _Meta->setName( "param" );
-	_Meta->setStaticPointerAddress(&domGl_pipeline_settings::domTextureCUBE::domParam::_Meta);
 	_Meta->registerConstructor(domGl_pipeline_settings::domTextureCUBE::domParam::create);
 
+	_Meta->setIsInnerClass( true );
 	//	Add attribute: _value
  	{
 		daeMetaAttribute *ma = new daeMetaAttribute;
@@ -3493,14 +4319,30 @@ domGl_pipeline_settings::domTextureRECT::registerElement()
     
     _Meta = new daeMetaElement;
     _Meta->setName( "textureRECT" );
-	_Meta->setStaticPointerAddress(&domGl_pipeline_settings::domTextureRECT::_Meta);
 	_Meta->registerConstructor(domGl_pipeline_settings::domTextureRECT::create);
 
-	// Add elements: value, param
-    _Meta->appendElement(domGl_samplerRECT::registerElement(),daeOffsetOf(domGl_pipeline_settings::domTextureRECT,elemValue),"value"); 
-    _Meta->appendElement(domGl_pipeline_settings::domTextureRECT::domParam::registerElement(),daeOffsetOf(domGl_pipeline_settings::domTextureRECT,elemParam));
+	_Meta->setIsInnerClass( true );
+	daeMetaCMPolicy *cm = NULL;
+	daeMetaElementAttribute *mea = NULL;
+	cm = new daeMetaChoice( _Meta, cm, 0, 1, 1 );
+
+	mea = new daeMetaElementAttribute( _Meta, cm, 0, 1, 1 );
+	mea->setName( "value" );
+	mea->setOffset( daeOffsetOf(domGl_pipeline_settings::domTextureRECT,elemValue) );
+	mea->setElementType( domGl_samplerRECT::registerElement() );
+	cm->appendChild( mea );
+	
+	mea = new daeMetaElementAttribute( _Meta, cm, 0, 1, 1 );
+	mea->setName( "param" );
+	mea->setOffset( daeOffsetOf(domGl_pipeline_settings::domTextureRECT,elemParam) );
+	mea->setElementType( domGl_pipeline_settings::domTextureRECT::domParam::registerElement() );
+	cm->appendChild( mea );
+	
+	cm->setMaxOrdinal( 0 );
+	_Meta->setCMRoot( cm );	
 	// Ordered list of sub-elements
     _Meta->addContents(daeOffsetOf(domGl_pipeline_settings::domTextureRECT,_contents));
+    _Meta->addContentsOrder(daeOffsetOf(domGl_pipeline_settings::domTextureRECT,_contentsOrder));
 
 
 	//	Add attribute: index
@@ -3537,9 +4379,9 @@ domGl_pipeline_settings::domTextureRECT::domParam::registerElement()
     
     _Meta = new daeMetaElement;
     _Meta->setName( "param" );
-	_Meta->setStaticPointerAddress(&domGl_pipeline_settings::domTextureRECT::domParam::_Meta);
 	_Meta->registerConstructor(domGl_pipeline_settings::domTextureRECT::domParam::create);
 
+	_Meta->setIsInnerClass( true );
 	//	Add attribute: _value
  	{
 		daeMetaAttribute *ma = new daeMetaAttribute;
@@ -3572,14 +4414,30 @@ domGl_pipeline_settings::domTextureDEPTH::registerElement()
     
     _Meta = new daeMetaElement;
     _Meta->setName( "textureDEPTH" );
-	_Meta->setStaticPointerAddress(&domGl_pipeline_settings::domTextureDEPTH::_Meta);
 	_Meta->registerConstructor(domGl_pipeline_settings::domTextureDEPTH::create);
 
-	// Add elements: value, param
-    _Meta->appendElement(domGl_samplerDEPTH::registerElement(),daeOffsetOf(domGl_pipeline_settings::domTextureDEPTH,elemValue),"value"); 
-    _Meta->appendElement(domGl_pipeline_settings::domTextureDEPTH::domParam::registerElement(),daeOffsetOf(domGl_pipeline_settings::domTextureDEPTH,elemParam));
+	_Meta->setIsInnerClass( true );
+	daeMetaCMPolicy *cm = NULL;
+	daeMetaElementAttribute *mea = NULL;
+	cm = new daeMetaChoice( _Meta, cm, 0, 1, 1 );
+
+	mea = new daeMetaElementAttribute( _Meta, cm, 0, 1, 1 );
+	mea->setName( "value" );
+	mea->setOffset( daeOffsetOf(domGl_pipeline_settings::domTextureDEPTH,elemValue) );
+	mea->setElementType( domGl_samplerDEPTH::registerElement() );
+	cm->appendChild( mea );
+	
+	mea = new daeMetaElementAttribute( _Meta, cm, 0, 1, 1 );
+	mea->setName( "param" );
+	mea->setOffset( daeOffsetOf(domGl_pipeline_settings::domTextureDEPTH,elemParam) );
+	mea->setElementType( domGl_pipeline_settings::domTextureDEPTH::domParam::registerElement() );
+	cm->appendChild( mea );
+	
+	cm->setMaxOrdinal( 0 );
+	_Meta->setCMRoot( cm );	
 	// Ordered list of sub-elements
     _Meta->addContents(daeOffsetOf(domGl_pipeline_settings::domTextureDEPTH,_contents));
+    _Meta->addContentsOrder(daeOffsetOf(domGl_pipeline_settings::domTextureDEPTH,_contentsOrder));
 
 
 	//	Add attribute: index
@@ -3616,9 +4474,9 @@ domGl_pipeline_settings::domTextureDEPTH::domParam::registerElement()
     
     _Meta = new daeMetaElement;
     _Meta->setName( "param" );
-	_Meta->setStaticPointerAddress(&domGl_pipeline_settings::domTextureDEPTH::domParam::_Meta);
 	_Meta->registerConstructor(domGl_pipeline_settings::domTextureDEPTH::domParam::create);
 
+	_Meta->setIsInnerClass( true );
 	//	Add attribute: _value
  	{
 		daeMetaAttribute *ma = new daeMetaAttribute;
@@ -3651,9 +4509,9 @@ domGl_pipeline_settings::domTexture1D_enable::registerElement()
     
     _Meta = new daeMetaElement;
     _Meta->setName( "texture1D_enable" );
-	_Meta->setStaticPointerAddress(&domGl_pipeline_settings::domTexture1D_enable::_Meta);
 	_Meta->registerConstructor(domGl_pipeline_settings::domTexture1D_enable::create);
 
+	_Meta->setIsInnerClass( true );
 
 	//	Add attribute: value
  	{
@@ -3713,9 +4571,9 @@ domGl_pipeline_settings::domTexture2D_enable::registerElement()
     
     _Meta = new daeMetaElement;
     _Meta->setName( "texture2D_enable" );
-	_Meta->setStaticPointerAddress(&domGl_pipeline_settings::domTexture2D_enable::_Meta);
 	_Meta->registerConstructor(domGl_pipeline_settings::domTexture2D_enable::create);
 
+	_Meta->setIsInnerClass( true );
 
 	//	Add attribute: value
  	{
@@ -3775,9 +4633,9 @@ domGl_pipeline_settings::domTexture3D_enable::registerElement()
     
     _Meta = new daeMetaElement;
     _Meta->setName( "texture3D_enable" );
-	_Meta->setStaticPointerAddress(&domGl_pipeline_settings::domTexture3D_enable::_Meta);
 	_Meta->registerConstructor(domGl_pipeline_settings::domTexture3D_enable::create);
 
+	_Meta->setIsInnerClass( true );
 
 	//	Add attribute: value
  	{
@@ -3837,9 +4695,9 @@ domGl_pipeline_settings::domTextureCUBE_enable::registerElement()
     
     _Meta = new daeMetaElement;
     _Meta->setName( "textureCUBE_enable" );
-	_Meta->setStaticPointerAddress(&domGl_pipeline_settings::domTextureCUBE_enable::_Meta);
 	_Meta->registerConstructor(domGl_pipeline_settings::domTextureCUBE_enable::create);
 
+	_Meta->setIsInnerClass( true );
 
 	//	Add attribute: value
  	{
@@ -3899,9 +4757,9 @@ domGl_pipeline_settings::domTextureRECT_enable::registerElement()
     
     _Meta = new daeMetaElement;
     _Meta->setName( "textureRECT_enable" );
-	_Meta->setStaticPointerAddress(&domGl_pipeline_settings::domTextureRECT_enable::_Meta);
 	_Meta->registerConstructor(domGl_pipeline_settings::domTextureRECT_enable::create);
 
+	_Meta->setIsInnerClass( true );
 
 	//	Add attribute: value
  	{
@@ -3961,9 +4819,9 @@ domGl_pipeline_settings::domTextureDEPTH_enable::registerElement()
     
     _Meta = new daeMetaElement;
     _Meta->setName( "textureDEPTH_enable" );
-	_Meta->setStaticPointerAddress(&domGl_pipeline_settings::domTextureDEPTH_enable::_Meta);
 	_Meta->registerConstructor(domGl_pipeline_settings::domTextureDEPTH_enable::create);
 
+	_Meta->setIsInnerClass( true );
 
 	//	Add attribute: value
  	{
@@ -4023,9 +4881,9 @@ domGl_pipeline_settings::domTexture_env_color::registerElement()
     
     _Meta = new daeMetaElement;
     _Meta->setName( "texture_env_color" );
-	_Meta->setStaticPointerAddress(&domGl_pipeline_settings::domTexture_env_color::_Meta);
 	_Meta->registerConstructor(domGl_pipeline_settings::domTexture_env_color::create);
 
+	_Meta->setIsInnerClass( true );
 
 	//	Add attribute: value
  	{
@@ -4084,9 +4942,9 @@ domGl_pipeline_settings::domTexture_env_mode::registerElement()
     
     _Meta = new daeMetaElement;
     _Meta->setName( "texture_env_mode" );
-	_Meta->setStaticPointerAddress(&domGl_pipeline_settings::domTexture_env_mode::_Meta);
 	_Meta->registerConstructor(domGl_pipeline_settings::domTexture_env_mode::create);
 
+	_Meta->setIsInnerClass( true );
 
 	//	Add attribute: value
  	{
@@ -4145,9 +5003,9 @@ domGl_pipeline_settings::domClip_plane::registerElement()
     
     _Meta = new daeMetaElement;
     _Meta->setName( "clip_plane" );
-	_Meta->setStaticPointerAddress(&domGl_pipeline_settings::domClip_plane::_Meta);
 	_Meta->registerConstructor(domGl_pipeline_settings::domClip_plane::create);
 
+	_Meta->setIsInnerClass( true );
 
 	//	Add attribute: value
  	{
@@ -4207,9 +5065,9 @@ domGl_pipeline_settings::domClip_plane_enable::registerElement()
     
     _Meta = new daeMetaElement;
     _Meta->setName( "clip_plane_enable" );
-	_Meta->setStaticPointerAddress(&domGl_pipeline_settings::domClip_plane_enable::_Meta);
 	_Meta->registerConstructor(domGl_pipeline_settings::domClip_plane_enable::create);
 
+	_Meta->setIsInnerClass( true );
 
 	//	Add attribute: value
  	{
@@ -4269,9 +5127,9 @@ domGl_pipeline_settings::domBlend_color::registerElement()
     
     _Meta = new daeMetaElement;
     _Meta->setName( "blend_color" );
-	_Meta->setStaticPointerAddress(&domGl_pipeline_settings::domBlend_color::_Meta);
 	_Meta->registerConstructor(domGl_pipeline_settings::domBlend_color::create);
 
+	_Meta->setIsInnerClass( true );
 
 	//	Add attribute: value
  	{
@@ -4320,9 +5178,9 @@ domGl_pipeline_settings::domClear_color::registerElement()
     
     _Meta = new daeMetaElement;
     _Meta->setName( "clear_color" );
-	_Meta->setStaticPointerAddress(&domGl_pipeline_settings::domClear_color::_Meta);
 	_Meta->registerConstructor(domGl_pipeline_settings::domClear_color::create);
 
+	_Meta->setIsInnerClass( true );
 
 	//	Add attribute: value
  	{
@@ -4371,9 +5229,9 @@ domGl_pipeline_settings::domClear_stencil::registerElement()
     
     _Meta = new daeMetaElement;
     _Meta->setName( "clear_stencil" );
-	_Meta->setStaticPointerAddress(&domGl_pipeline_settings::domClear_stencil::_Meta);
 	_Meta->registerConstructor(domGl_pipeline_settings::domClear_stencil::create);
 
+	_Meta->setIsInnerClass( true );
 
 	//	Add attribute: value
  	{
@@ -4422,9 +5280,9 @@ domGl_pipeline_settings::domClear_depth::registerElement()
     
     _Meta = new daeMetaElement;
     _Meta->setName( "clear_depth" );
-	_Meta->setStaticPointerAddress(&domGl_pipeline_settings::domClear_depth::_Meta);
 	_Meta->registerConstructor(domGl_pipeline_settings::domClear_depth::create);
 
+	_Meta->setIsInnerClass( true );
 
 	//	Add attribute: value
  	{
@@ -4473,9 +5331,9 @@ domGl_pipeline_settings::domColor_mask::registerElement()
     
     _Meta = new daeMetaElement;
     _Meta->setName( "color_mask" );
-	_Meta->setStaticPointerAddress(&domGl_pipeline_settings::domColor_mask::_Meta);
 	_Meta->registerConstructor(domGl_pipeline_settings::domColor_mask::create);
 
+	_Meta->setIsInnerClass( true );
 
 	//	Add attribute: value
  	{
@@ -4524,9 +5382,9 @@ domGl_pipeline_settings::domDepth_bounds::registerElement()
     
     _Meta = new daeMetaElement;
     _Meta->setName( "depth_bounds" );
-	_Meta->setStaticPointerAddress(&domGl_pipeline_settings::domDepth_bounds::_Meta);
 	_Meta->registerConstructor(domGl_pipeline_settings::domDepth_bounds::create);
 
+	_Meta->setIsInnerClass( true );
 
 	//	Add attribute: value
  	{
@@ -4574,9 +5432,9 @@ domGl_pipeline_settings::domDepth_mask::registerElement()
     
     _Meta = new daeMetaElement;
     _Meta->setName( "depth_mask" );
-	_Meta->setStaticPointerAddress(&domGl_pipeline_settings::domDepth_mask::_Meta);
 	_Meta->registerConstructor(domGl_pipeline_settings::domDepth_mask::create);
 
+	_Meta->setIsInnerClass( true );
 
 	//	Add attribute: value
  	{
@@ -4625,9 +5483,9 @@ domGl_pipeline_settings::domDepth_range::registerElement()
     
     _Meta = new daeMetaElement;
     _Meta->setName( "depth_range" );
-	_Meta->setStaticPointerAddress(&domGl_pipeline_settings::domDepth_range::_Meta);
 	_Meta->registerConstructor(domGl_pipeline_settings::domDepth_range::create);
 
+	_Meta->setIsInnerClass( true );
 
 	//	Add attribute: value
  	{
@@ -4676,9 +5534,9 @@ domGl_pipeline_settings::domFog_density::registerElement()
     
     _Meta = new daeMetaElement;
     _Meta->setName( "fog_density" );
-	_Meta->setStaticPointerAddress(&domGl_pipeline_settings::domFog_density::_Meta);
 	_Meta->registerConstructor(domGl_pipeline_settings::domFog_density::create);
 
+	_Meta->setIsInnerClass( true );
 
 	//	Add attribute: value
  	{
@@ -4727,9 +5585,9 @@ domGl_pipeline_settings::domFog_start::registerElement()
     
     _Meta = new daeMetaElement;
     _Meta->setName( "fog_start" );
-	_Meta->setStaticPointerAddress(&domGl_pipeline_settings::domFog_start::_Meta);
 	_Meta->registerConstructor(domGl_pipeline_settings::domFog_start::create);
 
+	_Meta->setIsInnerClass( true );
 
 	//	Add attribute: value
  	{
@@ -4778,9 +5636,9 @@ domGl_pipeline_settings::domFog_end::registerElement()
     
     _Meta = new daeMetaElement;
     _Meta->setName( "fog_end" );
-	_Meta->setStaticPointerAddress(&domGl_pipeline_settings::domFog_end::_Meta);
 	_Meta->registerConstructor(domGl_pipeline_settings::domFog_end::create);
 
+	_Meta->setIsInnerClass( true );
 
 	//	Add attribute: value
  	{
@@ -4829,9 +5687,9 @@ domGl_pipeline_settings::domFog_color::registerElement()
     
     _Meta = new daeMetaElement;
     _Meta->setName( "fog_color" );
-	_Meta->setStaticPointerAddress(&domGl_pipeline_settings::domFog_color::_Meta);
 	_Meta->registerConstructor(domGl_pipeline_settings::domFog_color::create);
 
+	_Meta->setIsInnerClass( true );
 
 	//	Add attribute: value
  	{
@@ -4880,9 +5738,9 @@ domGl_pipeline_settings::domLight_model_ambient::registerElement()
     
     _Meta = new daeMetaElement;
     _Meta->setName( "light_model_ambient" );
-	_Meta->setStaticPointerAddress(&domGl_pipeline_settings::domLight_model_ambient::_Meta);
 	_Meta->registerConstructor(domGl_pipeline_settings::domLight_model_ambient::create);
 
+	_Meta->setIsInnerClass( true );
 
 	//	Add attribute: value
  	{
@@ -4931,9 +5789,9 @@ domGl_pipeline_settings::domLighting_enable::registerElement()
     
     _Meta = new daeMetaElement;
     _Meta->setName( "lighting_enable" );
-	_Meta->setStaticPointerAddress(&domGl_pipeline_settings::domLighting_enable::_Meta);
 	_Meta->registerConstructor(domGl_pipeline_settings::domLighting_enable::create);
 
+	_Meta->setIsInnerClass( true );
 
 	//	Add attribute: value
  	{
@@ -4982,9 +5840,9 @@ domGl_pipeline_settings::domLine_stipple::registerElement()
     
     _Meta = new daeMetaElement;
     _Meta->setName( "line_stipple" );
-	_Meta->setStaticPointerAddress(&domGl_pipeline_settings::domLine_stipple::_Meta);
 	_Meta->registerConstructor(domGl_pipeline_settings::domLine_stipple::create);
 
+	_Meta->setIsInnerClass( true );
 
 	//	Add attribute: value
  	{
@@ -5033,9 +5891,9 @@ domGl_pipeline_settings::domLine_width::registerElement()
     
     _Meta = new daeMetaElement;
     _Meta->setName( "line_width" );
-	_Meta->setStaticPointerAddress(&domGl_pipeline_settings::domLine_width::_Meta);
 	_Meta->registerConstructor(domGl_pipeline_settings::domLine_width::create);
 
+	_Meta->setIsInnerClass( true );
 
 	//	Add attribute: value
  	{
@@ -5084,9 +5942,9 @@ domGl_pipeline_settings::domMaterial_ambient::registerElement()
     
     _Meta = new daeMetaElement;
     _Meta->setName( "material_ambient" );
-	_Meta->setStaticPointerAddress(&domGl_pipeline_settings::domMaterial_ambient::_Meta);
 	_Meta->registerConstructor(domGl_pipeline_settings::domMaterial_ambient::create);
 
+	_Meta->setIsInnerClass( true );
 
 	//	Add attribute: value
  	{
@@ -5135,9 +5993,9 @@ domGl_pipeline_settings::domMaterial_diffuse::registerElement()
     
     _Meta = new daeMetaElement;
     _Meta->setName( "material_diffuse" );
-	_Meta->setStaticPointerAddress(&domGl_pipeline_settings::domMaterial_diffuse::_Meta);
 	_Meta->registerConstructor(domGl_pipeline_settings::domMaterial_diffuse::create);
 
+	_Meta->setIsInnerClass( true );
 
 	//	Add attribute: value
  	{
@@ -5186,9 +6044,9 @@ domGl_pipeline_settings::domMaterial_emission::registerElement()
     
     _Meta = new daeMetaElement;
     _Meta->setName( "material_emission" );
-	_Meta->setStaticPointerAddress(&domGl_pipeline_settings::domMaterial_emission::_Meta);
 	_Meta->registerConstructor(domGl_pipeline_settings::domMaterial_emission::create);
 
+	_Meta->setIsInnerClass( true );
 
 	//	Add attribute: value
  	{
@@ -5237,9 +6095,9 @@ domGl_pipeline_settings::domMaterial_shininess::registerElement()
     
     _Meta = new daeMetaElement;
     _Meta->setName( "material_shininess" );
-	_Meta->setStaticPointerAddress(&domGl_pipeline_settings::domMaterial_shininess::_Meta);
 	_Meta->registerConstructor(domGl_pipeline_settings::domMaterial_shininess::create);
 
+	_Meta->setIsInnerClass( true );
 
 	//	Add attribute: value
  	{
@@ -5288,9 +6146,9 @@ domGl_pipeline_settings::domMaterial_specular::registerElement()
     
     _Meta = new daeMetaElement;
     _Meta->setName( "material_specular" );
-	_Meta->setStaticPointerAddress(&domGl_pipeline_settings::domMaterial_specular::_Meta);
 	_Meta->registerConstructor(domGl_pipeline_settings::domMaterial_specular::create);
 
+	_Meta->setIsInnerClass( true );
 
 	//	Add attribute: value
  	{
@@ -5339,9 +6197,9 @@ domGl_pipeline_settings::domModel_view_matrix::registerElement()
     
     _Meta = new daeMetaElement;
     _Meta->setName( "model_view_matrix" );
-	_Meta->setStaticPointerAddress(&domGl_pipeline_settings::domModel_view_matrix::_Meta);
 	_Meta->registerConstructor(domGl_pipeline_settings::domModel_view_matrix::create);
 
+	_Meta->setIsInnerClass( true );
 
 	//	Add attribute: value
  	{
@@ -5390,9 +6248,9 @@ domGl_pipeline_settings::domPoint_distance_attenuation::registerElement()
     
     _Meta = new daeMetaElement;
     _Meta->setName( "point_distance_attenuation" );
-	_Meta->setStaticPointerAddress(&domGl_pipeline_settings::domPoint_distance_attenuation::_Meta);
 	_Meta->registerConstructor(domGl_pipeline_settings::domPoint_distance_attenuation::create);
 
+	_Meta->setIsInnerClass( true );
 
 	//	Add attribute: value
  	{
@@ -5441,9 +6299,9 @@ domGl_pipeline_settings::domPoint_fade_threshold_size::registerElement()
     
     _Meta = new daeMetaElement;
     _Meta->setName( "point_fade_threshold_size" );
-	_Meta->setStaticPointerAddress(&domGl_pipeline_settings::domPoint_fade_threshold_size::_Meta);
 	_Meta->registerConstructor(domGl_pipeline_settings::domPoint_fade_threshold_size::create);
 
+	_Meta->setIsInnerClass( true );
 
 	//	Add attribute: value
  	{
@@ -5492,9 +6350,9 @@ domGl_pipeline_settings::domPoint_size::registerElement()
     
     _Meta = new daeMetaElement;
     _Meta->setName( "point_size" );
-	_Meta->setStaticPointerAddress(&domGl_pipeline_settings::domPoint_size::_Meta);
 	_Meta->registerConstructor(domGl_pipeline_settings::domPoint_size::create);
 
+	_Meta->setIsInnerClass( true );
 
 	//	Add attribute: value
  	{
@@ -5543,9 +6401,9 @@ domGl_pipeline_settings::domPoint_size_min::registerElement()
     
     _Meta = new daeMetaElement;
     _Meta->setName( "point_size_min" );
-	_Meta->setStaticPointerAddress(&domGl_pipeline_settings::domPoint_size_min::_Meta);
 	_Meta->registerConstructor(domGl_pipeline_settings::domPoint_size_min::create);
 
+	_Meta->setIsInnerClass( true );
 
 	//	Add attribute: value
  	{
@@ -5594,9 +6452,9 @@ domGl_pipeline_settings::domPoint_size_max::registerElement()
     
     _Meta = new daeMetaElement;
     _Meta->setName( "point_size_max" );
-	_Meta->setStaticPointerAddress(&domGl_pipeline_settings::domPoint_size_max::_Meta);
 	_Meta->registerConstructor(domGl_pipeline_settings::domPoint_size_max::create);
 
+	_Meta->setIsInnerClass( true );
 
 	//	Add attribute: value
  	{
@@ -5645,9 +6503,9 @@ domGl_pipeline_settings::domPolygon_offset::registerElement()
     
     _Meta = new daeMetaElement;
     _Meta->setName( "polygon_offset" );
-	_Meta->setStaticPointerAddress(&domGl_pipeline_settings::domPolygon_offset::_Meta);
 	_Meta->registerConstructor(domGl_pipeline_settings::domPolygon_offset::create);
 
+	_Meta->setIsInnerClass( true );
 
 	//	Add attribute: value
  	{
@@ -5696,9 +6554,9 @@ domGl_pipeline_settings::domProjection_matrix::registerElement()
     
     _Meta = new daeMetaElement;
     _Meta->setName( "projection_matrix" );
-	_Meta->setStaticPointerAddress(&domGl_pipeline_settings::domProjection_matrix::_Meta);
 	_Meta->registerConstructor(domGl_pipeline_settings::domProjection_matrix::create);
 
+	_Meta->setIsInnerClass( true );
 
 	//	Add attribute: value
  	{
@@ -5747,9 +6605,9 @@ domGl_pipeline_settings::domScissor::registerElement()
     
     _Meta = new daeMetaElement;
     _Meta->setName( "scissor" );
-	_Meta->setStaticPointerAddress(&domGl_pipeline_settings::domScissor::_Meta);
 	_Meta->registerConstructor(domGl_pipeline_settings::domScissor::create);
 
+	_Meta->setIsInnerClass( true );
 
 	//	Add attribute: value
  	{
@@ -5797,9 +6655,9 @@ domGl_pipeline_settings::domStencil_mask::registerElement()
     
     _Meta = new daeMetaElement;
     _Meta->setName( "stencil_mask" );
-	_Meta->setStaticPointerAddress(&domGl_pipeline_settings::domStencil_mask::_Meta);
 	_Meta->registerConstructor(domGl_pipeline_settings::domStencil_mask::create);
 
+	_Meta->setIsInnerClass( true );
 
 	//	Add attribute: value
  	{
@@ -5848,9 +6706,9 @@ domGl_pipeline_settings::domAlpha_test_enable::registerElement()
     
     _Meta = new daeMetaElement;
     _Meta->setName( "alpha_test_enable" );
-	_Meta->setStaticPointerAddress(&domGl_pipeline_settings::domAlpha_test_enable::_Meta);
 	_Meta->registerConstructor(domGl_pipeline_settings::domAlpha_test_enable::create);
 
+	_Meta->setIsInnerClass( true );
 
 	//	Add attribute: value
  	{
@@ -5899,9 +6757,9 @@ domGl_pipeline_settings::domAuto_normal_enable::registerElement()
     
     _Meta = new daeMetaElement;
     _Meta->setName( "auto_normal_enable" );
-	_Meta->setStaticPointerAddress(&domGl_pipeline_settings::domAuto_normal_enable::_Meta);
 	_Meta->registerConstructor(domGl_pipeline_settings::domAuto_normal_enable::create);
 
+	_Meta->setIsInnerClass( true );
 
 	//	Add attribute: value
  	{
@@ -5950,9 +6808,9 @@ domGl_pipeline_settings::domBlend_enable::registerElement()
     
     _Meta = new daeMetaElement;
     _Meta->setName( "blend_enable" );
-	_Meta->setStaticPointerAddress(&domGl_pipeline_settings::domBlend_enable::_Meta);
 	_Meta->registerConstructor(domGl_pipeline_settings::domBlend_enable::create);
 
+	_Meta->setIsInnerClass( true );
 
 	//	Add attribute: value
  	{
@@ -6001,9 +6859,9 @@ domGl_pipeline_settings::domColor_logic_op_enable::registerElement()
     
     _Meta = new daeMetaElement;
     _Meta->setName( "color_logic_op_enable" );
-	_Meta->setStaticPointerAddress(&domGl_pipeline_settings::domColor_logic_op_enable::_Meta);
 	_Meta->registerConstructor(domGl_pipeline_settings::domColor_logic_op_enable::create);
 
+	_Meta->setIsInnerClass( true );
 
 	//	Add attribute: value
  	{
@@ -6038,6 +6896,57 @@ domGl_pipeline_settings::domColor_logic_op_enable::registerElement()
 }
 
 daeElementRef
+domGl_pipeline_settings::domColor_material_enable::create(daeInt bytes)
+{
+	domGl_pipeline_settings::domColor_material_enableRef ref = new(bytes) domGl_pipeline_settings::domColor_material_enable;
+	return ref;
+}
+
+
+daeMetaElement *
+domGl_pipeline_settings::domColor_material_enable::registerElement()
+{
+    if ( _Meta != NULL ) return _Meta;
+    
+    _Meta = new daeMetaElement;
+    _Meta->setName( "color_material_enable" );
+	_Meta->registerConstructor(domGl_pipeline_settings::domColor_material_enable::create);
+
+	_Meta->setIsInnerClass( true );
+
+	//	Add attribute: value
+ 	{
+		daeMetaAttribute *ma = new daeMetaAttribute;
+		ma->setName( "value" );
+		ma->setType( daeAtomicType::get("Bool"));
+		ma->setOffset( daeOffsetOf( domGl_pipeline_settings::domColor_material_enable , attrValue ));
+		ma->setContainer( _Meta );
+		ma->setDefault( "true");
+		ma->setIsRequired( false );
+	
+		_Meta->appendAttribute(ma);
+	}
+
+	//	Add attribute: param
+ 	{
+		daeMetaAttribute *ma = new daeMetaAttribute;
+		ma->setName( "param" );
+		ma->setType( daeAtomicType::get("xsNCName"));
+		ma->setOffset( daeOffsetOf( domGl_pipeline_settings::domColor_material_enable , attrParam ));
+		ma->setContainer( _Meta );
+		ma->setIsRequired( false );
+	
+		_Meta->appendAttribute(ma);
+	}
+	
+	
+	_Meta->setElementSize(sizeof(domGl_pipeline_settings::domColor_material_enable));
+	_Meta->validate();
+
+	return _Meta;
+}
+
+daeElementRef
 domGl_pipeline_settings::domCull_face_enable::create(daeInt bytes)
 {
 	domGl_pipeline_settings::domCull_face_enableRef ref = new(bytes) domGl_pipeline_settings::domCull_face_enable;
@@ -6052,9 +6961,9 @@ domGl_pipeline_settings::domCull_face_enable::registerElement()
     
     _Meta = new daeMetaElement;
     _Meta->setName( "cull_face_enable" );
-	_Meta->setStaticPointerAddress(&domGl_pipeline_settings::domCull_face_enable::_Meta);
 	_Meta->registerConstructor(domGl_pipeline_settings::domCull_face_enable::create);
 
+	_Meta->setIsInnerClass( true );
 
 	//	Add attribute: value
  	{
@@ -6103,9 +7012,9 @@ domGl_pipeline_settings::domDepth_bounds_enable::registerElement()
     
     _Meta = new daeMetaElement;
     _Meta->setName( "depth_bounds_enable" );
-	_Meta->setStaticPointerAddress(&domGl_pipeline_settings::domDepth_bounds_enable::_Meta);
 	_Meta->registerConstructor(domGl_pipeline_settings::domDepth_bounds_enable::create);
 
+	_Meta->setIsInnerClass( true );
 
 	//	Add attribute: value
  	{
@@ -6154,9 +7063,9 @@ domGl_pipeline_settings::domDepth_clamp_enable::registerElement()
     
     _Meta = new daeMetaElement;
     _Meta->setName( "depth_clamp_enable" );
-	_Meta->setStaticPointerAddress(&domGl_pipeline_settings::domDepth_clamp_enable::_Meta);
 	_Meta->registerConstructor(domGl_pipeline_settings::domDepth_clamp_enable::create);
 
+	_Meta->setIsInnerClass( true );
 
 	//	Add attribute: value
  	{
@@ -6205,9 +7114,9 @@ domGl_pipeline_settings::domDepth_test_enable::registerElement()
     
     _Meta = new daeMetaElement;
     _Meta->setName( "depth_test_enable" );
-	_Meta->setStaticPointerAddress(&domGl_pipeline_settings::domDepth_test_enable::_Meta);
 	_Meta->registerConstructor(domGl_pipeline_settings::domDepth_test_enable::create);
 
+	_Meta->setIsInnerClass( true );
 
 	//	Add attribute: value
  	{
@@ -6256,9 +7165,9 @@ domGl_pipeline_settings::domDither_enable::registerElement()
     
     _Meta = new daeMetaElement;
     _Meta->setName( "dither_enable" );
-	_Meta->setStaticPointerAddress(&domGl_pipeline_settings::domDither_enable::_Meta);
 	_Meta->registerConstructor(domGl_pipeline_settings::domDither_enable::create);
 
+	_Meta->setIsInnerClass( true );
 
 	//	Add attribute: value
  	{
@@ -6307,9 +7216,9 @@ domGl_pipeline_settings::domFog_enable::registerElement()
     
     _Meta = new daeMetaElement;
     _Meta->setName( "fog_enable" );
-	_Meta->setStaticPointerAddress(&domGl_pipeline_settings::domFog_enable::_Meta);
 	_Meta->registerConstructor(domGl_pipeline_settings::domFog_enable::create);
 
+	_Meta->setIsInnerClass( true );
 
 	//	Add attribute: value
  	{
@@ -6358,9 +7267,9 @@ domGl_pipeline_settings::domLight_model_local_viewer_enable::registerElement()
     
     _Meta = new daeMetaElement;
     _Meta->setName( "light_model_local_viewer_enable" );
-	_Meta->setStaticPointerAddress(&domGl_pipeline_settings::domLight_model_local_viewer_enable::_Meta);
 	_Meta->registerConstructor(domGl_pipeline_settings::domLight_model_local_viewer_enable::create);
 
+	_Meta->setIsInnerClass( true );
 
 	//	Add attribute: value
  	{
@@ -6409,9 +7318,9 @@ domGl_pipeline_settings::domLight_model_two_side_enable::registerElement()
     
     _Meta = new daeMetaElement;
     _Meta->setName( "light_model_two_side_enable" );
-	_Meta->setStaticPointerAddress(&domGl_pipeline_settings::domLight_model_two_side_enable::_Meta);
 	_Meta->registerConstructor(domGl_pipeline_settings::domLight_model_two_side_enable::create);
 
+	_Meta->setIsInnerClass( true );
 
 	//	Add attribute: value
  	{
@@ -6460,9 +7369,9 @@ domGl_pipeline_settings::domLine_smooth_enable::registerElement()
     
     _Meta = new daeMetaElement;
     _Meta->setName( "line_smooth_enable" );
-	_Meta->setStaticPointerAddress(&domGl_pipeline_settings::domLine_smooth_enable::_Meta);
 	_Meta->registerConstructor(domGl_pipeline_settings::domLine_smooth_enable::create);
 
+	_Meta->setIsInnerClass( true );
 
 	//	Add attribute: value
  	{
@@ -6511,9 +7420,9 @@ domGl_pipeline_settings::domLine_stipple_enable::registerElement()
     
     _Meta = new daeMetaElement;
     _Meta->setName( "line_stipple_enable" );
-	_Meta->setStaticPointerAddress(&domGl_pipeline_settings::domLine_stipple_enable::_Meta);
 	_Meta->registerConstructor(domGl_pipeline_settings::domLine_stipple_enable::create);
 
+	_Meta->setIsInnerClass( true );
 
 	//	Add attribute: value
  	{
@@ -6562,9 +7471,9 @@ domGl_pipeline_settings::domLogic_op_enable::registerElement()
     
     _Meta = new daeMetaElement;
     _Meta->setName( "logic_op_enable" );
-	_Meta->setStaticPointerAddress(&domGl_pipeline_settings::domLogic_op_enable::_Meta);
 	_Meta->registerConstructor(domGl_pipeline_settings::domLogic_op_enable::create);
 
+	_Meta->setIsInnerClass( true );
 
 	//	Add attribute: value
  	{
@@ -6613,9 +7522,9 @@ domGl_pipeline_settings::domMultisample_enable::registerElement()
     
     _Meta = new daeMetaElement;
     _Meta->setName( "multisample_enable" );
-	_Meta->setStaticPointerAddress(&domGl_pipeline_settings::domMultisample_enable::_Meta);
 	_Meta->registerConstructor(domGl_pipeline_settings::domMultisample_enable::create);
 
+	_Meta->setIsInnerClass( true );
 
 	//	Add attribute: value
  	{
@@ -6664,9 +7573,9 @@ domGl_pipeline_settings::domNormalize_enable::registerElement()
     
     _Meta = new daeMetaElement;
     _Meta->setName( "normalize_enable" );
-	_Meta->setStaticPointerAddress(&domGl_pipeline_settings::domNormalize_enable::_Meta);
 	_Meta->registerConstructor(domGl_pipeline_settings::domNormalize_enable::create);
 
+	_Meta->setIsInnerClass( true );
 
 	//	Add attribute: value
  	{
@@ -6715,9 +7624,9 @@ domGl_pipeline_settings::domPoint_smooth_enable::registerElement()
     
     _Meta = new daeMetaElement;
     _Meta->setName( "point_smooth_enable" );
-	_Meta->setStaticPointerAddress(&domGl_pipeline_settings::domPoint_smooth_enable::_Meta);
 	_Meta->registerConstructor(domGl_pipeline_settings::domPoint_smooth_enable::create);
 
+	_Meta->setIsInnerClass( true );
 
 	//	Add attribute: value
  	{
@@ -6766,9 +7675,9 @@ domGl_pipeline_settings::domPolygon_offset_fill_enable::registerElement()
     
     _Meta = new daeMetaElement;
     _Meta->setName( "polygon_offset_fill_enable" );
-	_Meta->setStaticPointerAddress(&domGl_pipeline_settings::domPolygon_offset_fill_enable::_Meta);
 	_Meta->registerConstructor(domGl_pipeline_settings::domPolygon_offset_fill_enable::create);
 
+	_Meta->setIsInnerClass( true );
 
 	//	Add attribute: value
  	{
@@ -6817,9 +7726,9 @@ domGl_pipeline_settings::domPolygon_offset_line_enable::registerElement()
     
     _Meta = new daeMetaElement;
     _Meta->setName( "polygon_offset_line_enable" );
-	_Meta->setStaticPointerAddress(&domGl_pipeline_settings::domPolygon_offset_line_enable::_Meta);
 	_Meta->registerConstructor(domGl_pipeline_settings::domPolygon_offset_line_enable::create);
 
+	_Meta->setIsInnerClass( true );
 
 	//	Add attribute: value
  	{
@@ -6868,9 +7777,9 @@ domGl_pipeline_settings::domPolygon_offset_point_enable::registerElement()
     
     _Meta = new daeMetaElement;
     _Meta->setName( "polygon_offset_point_enable" );
-	_Meta->setStaticPointerAddress(&domGl_pipeline_settings::domPolygon_offset_point_enable::_Meta);
 	_Meta->registerConstructor(domGl_pipeline_settings::domPolygon_offset_point_enable::create);
 
+	_Meta->setIsInnerClass( true );
 
 	//	Add attribute: value
  	{
@@ -6919,9 +7828,9 @@ domGl_pipeline_settings::domPolygon_smooth_enable::registerElement()
     
     _Meta = new daeMetaElement;
     _Meta->setName( "polygon_smooth_enable" );
-	_Meta->setStaticPointerAddress(&domGl_pipeline_settings::domPolygon_smooth_enable::_Meta);
 	_Meta->registerConstructor(domGl_pipeline_settings::domPolygon_smooth_enable::create);
 
+	_Meta->setIsInnerClass( true );
 
 	//	Add attribute: value
  	{
@@ -6970,9 +7879,9 @@ domGl_pipeline_settings::domPolygon_stipple_enable::registerElement()
     
     _Meta = new daeMetaElement;
     _Meta->setName( "polygon_stipple_enable" );
-	_Meta->setStaticPointerAddress(&domGl_pipeline_settings::domPolygon_stipple_enable::_Meta);
 	_Meta->registerConstructor(domGl_pipeline_settings::domPolygon_stipple_enable::create);
 
+	_Meta->setIsInnerClass( true );
 
 	//	Add attribute: value
  	{
@@ -7021,9 +7930,9 @@ domGl_pipeline_settings::domRescale_normal_enable::registerElement()
     
     _Meta = new daeMetaElement;
     _Meta->setName( "rescale_normal_enable" );
-	_Meta->setStaticPointerAddress(&domGl_pipeline_settings::domRescale_normal_enable::_Meta);
 	_Meta->registerConstructor(domGl_pipeline_settings::domRescale_normal_enable::create);
 
+	_Meta->setIsInnerClass( true );
 
 	//	Add attribute: value
  	{
@@ -7072,9 +7981,9 @@ domGl_pipeline_settings::domSample_alpha_to_coverage_enable::registerElement()
     
     _Meta = new daeMetaElement;
     _Meta->setName( "sample_alpha_to_coverage_enable" );
-	_Meta->setStaticPointerAddress(&domGl_pipeline_settings::domSample_alpha_to_coverage_enable::_Meta);
 	_Meta->registerConstructor(domGl_pipeline_settings::domSample_alpha_to_coverage_enable::create);
 
+	_Meta->setIsInnerClass( true );
 
 	//	Add attribute: value
  	{
@@ -7123,9 +8032,9 @@ domGl_pipeline_settings::domSample_alpha_to_one_enable::registerElement()
     
     _Meta = new daeMetaElement;
     _Meta->setName( "sample_alpha_to_one_enable" );
-	_Meta->setStaticPointerAddress(&domGl_pipeline_settings::domSample_alpha_to_one_enable::_Meta);
 	_Meta->registerConstructor(domGl_pipeline_settings::domSample_alpha_to_one_enable::create);
 
+	_Meta->setIsInnerClass( true );
 
 	//	Add attribute: value
  	{
@@ -7174,9 +8083,9 @@ domGl_pipeline_settings::domSample_coverage_enable::registerElement()
     
     _Meta = new daeMetaElement;
     _Meta->setName( "sample_coverage_enable" );
-	_Meta->setStaticPointerAddress(&domGl_pipeline_settings::domSample_coverage_enable::_Meta);
 	_Meta->registerConstructor(domGl_pipeline_settings::domSample_coverage_enable::create);
 
+	_Meta->setIsInnerClass( true );
 
 	//	Add attribute: value
  	{
@@ -7225,9 +8134,9 @@ domGl_pipeline_settings::domScissor_test_enable::registerElement()
     
     _Meta = new daeMetaElement;
     _Meta->setName( "scissor_test_enable" );
-	_Meta->setStaticPointerAddress(&domGl_pipeline_settings::domScissor_test_enable::_Meta);
 	_Meta->registerConstructor(domGl_pipeline_settings::domScissor_test_enable::create);
 
+	_Meta->setIsInnerClass( true );
 
 	//	Add attribute: value
  	{
@@ -7276,9 +8185,9 @@ domGl_pipeline_settings::domStencil_test_enable::registerElement()
     
     _Meta = new daeMetaElement;
     _Meta->setName( "stencil_test_enable" );
-	_Meta->setStaticPointerAddress(&domGl_pipeline_settings::domStencil_test_enable::_Meta);
 	_Meta->registerConstructor(domGl_pipeline_settings::domStencil_test_enable::create);
 
+	_Meta->setIsInnerClass( true );
 
 	//	Add attribute: value
  	{
@@ -7432,6 +8341,7 @@ daeMetaElement * domGl_pipeline_settings::domAlpha_test_enable::_Meta = NULL;
 daeMetaElement * domGl_pipeline_settings::domAuto_normal_enable::_Meta = NULL;
 daeMetaElement * domGl_pipeline_settings::domBlend_enable::_Meta = NULL;
 daeMetaElement * domGl_pipeline_settings::domColor_logic_op_enable::_Meta = NULL;
+daeMetaElement * domGl_pipeline_settings::domColor_material_enable::_Meta = NULL;
 daeMetaElement * domGl_pipeline_settings::domCull_face_enable::_Meta = NULL;
 daeMetaElement * domGl_pipeline_settings::domDepth_bounds_enable::_Meta = NULL;
 daeMetaElement * domGl_pipeline_settings::domDepth_clamp_enable::_Meta = NULL;

@@ -16,6 +16,9 @@
 #include <dom/domTypes.h>
 #include <dom/domElements.h>
 
+#include <dom/domFx_surface_init_common.h>
+#include <dom/domExtra.h>
+#include <dom/domFx_surface_format_hint_common.h>
 
 /**
  * The fx_surface_common type is used to declare a resource that can be used
@@ -25,142 +28,37 @@
 class domFx_surface_common_complexType 
 {
 public:
-	class domInit_from;
-
-	typedef daeSmartRef<domInit_from> domInit_fromRef;
-	typedef daeTArray<domInit_fromRef> domInit_from_Array;
-
-/**
- * The init_from element is a list of IDREFs which specify the images to use
- * to initialize this surface.
- */
-	class domInit_from : public daeElement
-	{
-	protected:  // Attributes
-		xsUnsignedInt attrMip;
-		xsUnsignedInt attrSlice;
-		domFx_surface_face_enum attrFace;
-
-	protected:  // Value
-		/**
-		 * The xsIDREFS value of the text data of this element. 
-		 */
-		xsIDREFS _value;
-
-	public:	//Accessors and Mutators
-		/**
-		 * Gets the mip attribute.
-		 * @return Returns a xsUnsignedInt of the mip attribute.
-		 */
-		xsUnsignedInt getMip() const { return attrMip; }
-		/**
-		 * Sets the mip attribute.
-		 * @param atMip The new value for the mip attribute.
-		 */
-		void setMip( xsUnsignedInt atMip ) { attrMip = atMip; }
-
-		/**
-		 * Gets the slice attribute.
-		 * @return Returns a xsUnsignedInt of the slice attribute.
-		 */
-		xsUnsignedInt getSlice() const { return attrSlice; }
-		/**
-		 * Sets the slice attribute.
-		 * @param atSlice The new value for the slice attribute.
-		 */
-		void setSlice( xsUnsignedInt atSlice ) { attrSlice = atSlice; }
-
-		/**
-		 * Gets the face attribute.
-		 * @return Returns a domFx_surface_face_enum of the face attribute.
-		 */
-		domFx_surface_face_enum getFace() const { return attrFace; }
-		/**
-		 * Sets the face attribute.
-		 * @param atFace The new value for the face attribute.
-		 */
-		void setFace( domFx_surface_face_enum atFace ) { attrFace = atFace; }
-
-		/**
-		 * Gets the _value array.
-		 * @return Returns a xsIDREFS reference of the _value array.
-		 */
-		xsIDREFS &getValue() { return _value; }
-		/**
-		 * Gets the _value array.
-		 * @return Returns a constant xsIDREFS reference of the _value array.
-		 */
-		const xsIDREFS &getValue() const { return _value; }
-		/**
-		 * Sets the _value array.
-		 * @param val The new value for the _value array.
-		 */
-		void setValue( const xsIDREFS &val ) { _value = val; }
-
-	protected:
-		/**
-		 * Constructor
-		 */
-		domInit_from() : attrMip(), attrSlice(), attrFace(), _value() {}
-		/**
-		 * Destructor
-		 */
-		virtual ~domInit_from() {}
-		/**
-		 * Copy Constructor
-		 */
-		domInit_from( const domInit_from &cpy ) : daeElement() { (void)cpy; }
-		/**
-		 * Overloaded assignment operator
-		 */
-		virtual domInit_from &operator=( const domInit_from &cpy ) { (void)cpy; return *this; }
-
-	public: // STATIC METHODS
-		/**
-		 * Creates an instance of this class and returns a daeElementRef referencing it.
-		 * @param bytes The size allocated for this instance.
-		 * @return a daeElementRef referencing an instance of this object.
-		 */
-		static daeElementRef create(daeInt bytes);
-		/**
-		 * Creates a daeMetaElement object that describes this element in the meta object reflection framework.
-		 * If a daeMetaElement already exists it will return that instead of creating a new one. 
-		 * @return A daeMetaElement describing this COLLADA element.
-		 */
-		static daeMetaElement* registerElement();
-
-	public: // STATIC MEMBERS
-		/**
-		 * The daeMetaElement that describes this element in the meta object reflection framework.
-		 */
-		static daeMetaElement* _Meta;
-	};
-
 	class domFormat;
 
 	typedef daeSmartRef<domFormat> domFormatRef;
 	typedef daeTArray<domFormatRef> domFormat_Array;
 
+/**
+ * Contains a string representing the profile and platform specific texel
+ * format that the author would like this surface to use.  If this element
+ * is not specified then the application will use a common format R8G8B8A8
+ * with linear color gradient, not  sRGB.
+ */
 	class domFormat : public daeElement
 	{
 
 	protected:  // Value
 		/**
-		 * The xsString value of the text data of this element. 
+		 * The xsToken value of the text data of this element. 
 		 */
-		xsString _value;
+		xsToken _value;
 
 	public:	//Accessors and Mutators
 		/**
 		 * Gets the value of this element.
-		 * @return a xsString of the value.
+		 * @return Returns a xsToken of the value.
 		 */
-		xsString getValue() const { return _value; }
+		xsToken getValue() const { return _value; }
 		/**
 		 * Sets the _value of this element.
 		 * @param val The new value for this element.
 		 */
-		void setValue( xsString val ) { _value = val; }
+		void setValue( xsToken val ) { *(daeStringRef*)&_value = val; }
 
 	protected:
 		/**
@@ -206,6 +104,9 @@ public:
 	typedef daeSmartRef<domSize> domSizeRef;
 	typedef daeTArray<domSizeRef> domSize_Array;
 
+/**
+ * The surface should be sized to these exact dimensions
+ */
 	class domSize : public daeElement
 	{
 
@@ -276,6 +177,10 @@ public:
 	typedef daeSmartRef<domViewport_ratio> domViewport_ratioRef;
 	typedef daeTArray<domViewport_ratioRef> domViewport_ratio_Array;
 
+/**
+ * The surface should be sized to a dimension based on this ratio of the viewport's
+ * dimensions in pixels
+ */
 	class domViewport_ratio : public daeElement
 	{
 
@@ -346,6 +251,13 @@ public:
 	typedef daeSmartRef<domMip_levels> domMip_levelsRef;
 	typedef daeTArray<domMip_levelsRef> domMip_levels_Array;
 
+/**
+ * the surface should contain the following number of MIP levels.  If this
+ * element is not present it is assumed that all miplevels exist until a dimension
+ * becomes 1 texel.  To create a surface that has only one level of mip maps
+ * (mip=0) set this to 1.  If the value is 0 the result is the same as if
+ * mip_levels was unspecified, all possible mip_levels will exist.
+ */
 	class domMip_levels : public daeElement
 	{
 
@@ -411,6 +323,12 @@ public:
 	typedef daeSmartRef<domMipmap_generate> domMipmap_generateRef;
 	typedef daeTArray<domMipmap_generateRef> domMipmap_generate_Array;
 
+/**
+ * By default it is assumed that mipmaps are supplied by the author so, if
+ * not all subsurfaces are initialized, it is invalid and will result in profile
+ * and platform specific behavior unless mipmap_generate is responsible for
+ * initializing the remainder of the sub-surfaces
+ */
 	class domMipmap_generate : public daeElement
 	{
 
@@ -473,23 +391,71 @@ public:
 
 
 protected:  // Attribute
+/**
+ * Specifying the type of a surface is mandatory though the type may be "UNTYPED".
+ * When a surface is typed as UNTYPED, it is said to be temporarily untyped
+ * and instead will be typed later by the context it is used in such as which
+ * samplers reference it in that are used in a particular technique or pass.
+ * If there is a type mismatch between what is set into it later and what
+ * the runtime decides the type should be the result in profile and platform
+ * specific behavior.
+ */
 	domFx_surface_type_enum attrType;
 
 protected:  // Elements
 /**
- * The init_from element is a list of IDREFs which specify the images to use
- * to initialize this surface. @see domInit_from
+ * The common set of initalization options for surfaces.  Choose which is
+ * appropriate for your surface based on the type attribute and other characteristics
+ * described by the annotation docs on the choiced child elements of this
+ * type. @see domFx_surface_init_common
  */
-	domInit_from_Array elemInit_from_array;
+	domFx_surface_init_commonRef elemFx_surface_init_common;
+/**
+ * Contains a string representing the profile and platform specific texel
+ * format that the author would like this surface to use.  If this element
+ * is not specified then the application will use a common format R8G8B8A8
+ * with linear color gradient, not  sRGB. @see domFormat
+ */
 	domFormatRef elemFormat;
+/**
+ * If the exact format cannot be resolved via the "format" element then the
+ * format_hint will describe the important features of the format so that
+ * the application may select a compatable or close format @see domFormat_hint
+ */
+	domFx_surface_format_hint_commonRef elemFormat_hint;
+/**
+ * The surface should be sized to these exact dimensions @see domSize
+ */
 	domSizeRef elemSize;
+/**
+ * The surface should be sized to a dimension based on this ratio of the viewport's
+ * dimensions in pixels @see domViewport_ratio
+ */
 	domViewport_ratioRef elemViewport_ratio;
+/**
+ * the surface should contain the following number of MIP levels.  If this
+ * element is not present it is assumed that all miplevels exist until a dimension
+ * becomes 1 texel.  To create a surface that has only one level of mip maps
+ * (mip=0) set this to 1.  If the value is 0 the result is the same as if
+ * mip_levels was unspecified, all possible mip_levels will exist. @see domMip_levels
+ */
 	domMip_levelsRef elemMip_levels;
+/**
+ * By default it is assumed that mipmaps are supplied by the author so, if
+ * not all subsurfaces are initialized, it is invalid and will result in profile
+ * and platform specific behavior unless mipmap_generate is responsible for
+ * initializing the remainder of the sub-surfaces @see domMipmap_generate
+ */
 	domMipmap_generateRef elemMipmap_generate;
+	domExtra_Array elemExtra_array;
 	/**
 	 * Used to preserve order in elements that do not specify strict sequencing of sub-elements.
 	 */
 	daeElementRefArray _contents;
+	/**
+	 * Used to preserve order in elements that have a complex content model.
+	 */
+	daeUIntArray       _contentsOrder;
 
 
 public:	//Accessors and Mutators
@@ -505,20 +471,20 @@ public:	//Accessors and Mutators
 	void setType( domFx_surface_type_enum atType ) { attrType = atType; }
 
 	/**
-	 * Gets the init_from element array.
-	 * @return Returns a reference to the array of init_from elements.
+	 * Gets the fx_surface_init_common element.
+	 * @return a daeSmartRef to the fx_surface_init_common element.
 	 */
-	domInit_from_Array &getInit_from_array() { return elemInit_from_array; }
-	/**
-	 * Gets the init_from element array.
-	 * @return Returns a constant reference to the array of init_from elements.
-	 */
-	const domInit_from_Array &getInit_from_array() const { return elemInit_from_array; }
+	const domFx_surface_init_commonRef getFx_surface_init_common() const { return elemFx_surface_init_common; }
 	/**
 	 * Gets the format element.
 	 * @return a daeSmartRef to the format element.
 	 */
 	const domFormatRef getFormat() const { return elemFormat; }
+	/**
+	 * Gets the format_hint element.
+	 * @return a daeSmartRef to the format_hint element.
+	 */
+	const domFx_surface_format_hint_commonRef getFormat_hint() const { return elemFormat_hint; }
 	/**
 	 * Gets the size element.
 	 * @return a daeSmartRef to the size element.
@@ -540,6 +506,16 @@ public:	//Accessors and Mutators
 	 */
 	const domMipmap_generateRef getMipmap_generate() const { return elemMipmap_generate; }
 	/**
+	 * Gets the extra element array.
+	 * @return Returns a reference to the array of extra elements.
+	 */
+	domExtra_Array &getExtra_array() { return elemExtra_array; }
+	/**
+	 * Gets the extra element array.
+	 * @return Returns a constant reference to the array of extra elements.
+	 */
+	const domExtra_Array &getExtra_array() const { return elemExtra_array; }
+	/**
 	 * Gets the _contents array.
 	 * @return Returns a reference to the _contents element array.
 	 */
@@ -554,7 +530,7 @@ protected:
 	/**
 	 * Constructor
 	 */
-	domFx_surface_common_complexType() : attrType(), elemInit_from_array(), elemFormat(), elemSize(), elemViewport_ratio(), elemMip_levels(), elemMipmap_generate() {}
+	domFx_surface_common_complexType() : attrType(), elemFx_surface_init_common(), elemFormat(), elemFormat_hint(), elemSize(), elemViewport_ratio(), elemMip_levels(), elemMipmap_generate(), elemExtra_array() {}
 	/**
 	 * Destructor
 	 */
@@ -567,6 +543,25 @@ protected:
 	 * Overloaded assignment operator
 	 */
 	virtual domFx_surface_common_complexType &operator=( const domFx_surface_common_complexType &cpy ) { (void)cpy; return *this; }
+
+public: //Backwards Compatibility
+	typedef domFx_surface_init_from_common       domInit_from;
+	typedef domFx_surface_init_from_commonRef    domInit_fromRef;
+	typedef domFx_surface_init_from_common_Array domInit_from_Array;
+	
+	/**
+	 * Gets the init_from element array.
+	 * @return Returns a reference to the array of init_from elements.
+	 */
+	domInit_from_Array &getInit_from_array();
+	/**
+	 * Gets the init_from element array.
+	 * @return Returns a constant reference to the array of init_from elements.
+	 */
+	const domInit_from_Array &getInit_from_array() const;
+
+private:
+	domInit_from_Array emptyArray;
 };
 
 /**
@@ -574,6 +569,20 @@ protected:
  */
 class domFx_surface_common : public daeElement, public domFx_surface_common_complexType
 {
+
+public:	//Accessors and Mutators
+	/**
+	 * Gets the type attribute.
+	 * @return Returns a domFx_surface_type_enum of the type attribute.
+	 */
+	domFx_surface_type_enum getType() const { return attrType; }
+	/**
+	 * Sets the type attribute.
+	 * @param atType The new value for the type attribute.
+	 */
+	void setType( domFx_surface_type_enum atType ) { attrType = atType;
+	 _validAttributeArray[0] = true; }
+
 protected:
 	/**
 	 * Constructor

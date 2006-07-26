@@ -13,6 +13,12 @@
 
 #include <dae/daeDom.h>
 #include <dom/domChannel.h>
+#include <dae/daeMetaCMPolicy.h>
+#include <dae/daeMetaSequence.h>
+#include <dae/daeMetaChoice.h>
+#include <dae/daeMetaGroup.h>
+#include <dae/daeMetaAny.h>
+#include <dae/daeMetaElementAttribute.h>
 
 daeElementRef
 domChannel::create(daeInt bytes)
@@ -30,7 +36,6 @@ domChannel::registerElement()
     
     _Meta = new daeMetaElement;
     _Meta->setName( "channel" );
-	_Meta->setStaticPointerAddress(&domChannel::_Meta);
 	_Meta->registerConstructor(domChannel::create);
 
 

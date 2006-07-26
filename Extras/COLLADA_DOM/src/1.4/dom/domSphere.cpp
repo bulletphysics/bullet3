@@ -13,6 +13,12 @@
 
 #include <dae/daeDom.h>
 #include <dom/domSphere.h>
+#include <dae/daeMetaCMPolicy.h>
+#include <dae/daeMetaSequence.h>
+#include <dae/daeMetaChoice.h>
+#include <dae/daeMetaGroup.h>
+#include <dae/daeMetaAny.h>
+#include <dae/daeMetaElementAttribute.h>
 
 daeElementRef
 domSphere::create(daeInt bytes)
@@ -29,12 +35,26 @@ domSphere::registerElement()
     
     _Meta = new daeMetaElement;
     _Meta->setName( "sphere" );
-	_Meta->setStaticPointerAddress(&domSphere::_Meta);
 	_Meta->registerConstructor(domSphere::create);
 
-	// Add elements: radius, extra
-    _Meta->appendElement(domSphere::domRadius::registerElement(),daeOffsetOf(domSphere,elemRadius));
-    _Meta->appendArrayElement(domExtra::registerElement(),daeOffsetOf(domSphere,elemExtra_array));
+	daeMetaCMPolicy *cm = NULL;
+	daeMetaElementAttribute *mea = NULL;
+	cm = new daeMetaSequence( _Meta, cm, 0, 1, 1 );
+
+	mea = new daeMetaElementAttribute( _Meta, cm, 0, 1, 1 );
+	mea->setName( "radius" );
+	mea->setOffset( daeOffsetOf(domSphere,elemRadius) );
+	mea->setElementType( domSphere::domRadius::registerElement() );
+	cm->appendChild( mea );
+	
+	mea = new daeMetaElementArrayAttribute( _Meta, cm, 1, 0, -1 );
+	mea->setName( "extra" );
+	mea->setOffset( daeOffsetOf(domSphere,elemExtra_array) );
+	mea->setElementType( domExtra::registerElement() );
+	cm->appendChild( mea );
+	
+	cm->setMaxOrdinal( 1 );
+	_Meta->setCMRoot( cm );	
 	
 	
 	_Meta->setElementSize(sizeof(domSphere));
@@ -58,9 +78,9 @@ domSphere::domRadius::registerElement()
     
     _Meta = new daeMetaElement;
     _Meta->setName( "radius" );
-	_Meta->setStaticPointerAddress(&domSphere::domRadius::_Meta);
 	_Meta->registerConstructor(domSphere::domRadius::create);
 
+	_Meta->setIsInnerClass( true );
 	//	Add attribute: _value
  	{
 		daeMetaAttribute *ma = new daeMetaAttribute;

@@ -57,7 +57,7 @@ public:	//Accessors and Mutators
 	 * Sets the unit attribute.
 	 * @param atUnit The new value for the unit attribute.
 	 */
-	void setUnit( xsNCName atUnit ) { attrUnit = atUnit; }
+	void setUnit( xsNCName atUnit ) { *(daeStringRef*)&attrUnit = atUnit; }
 
 protected:
 	/**
@@ -83,6 +83,44 @@ protected:
  */
 class domGles_texcombiner_argumentRGB_type : public daeElement, public domGles_texcombiner_argumentRGB_type_complexType
 {
+
+public:	//Accessors and Mutators
+	/**
+	 * Gets the source attribute.
+	 * @return Returns a domGles_texcombiner_source_enums of the source attribute.
+	 */
+	domGles_texcombiner_source_enums getSource() const { return attrSource; }
+	/**
+	 * Sets the source attribute.
+	 * @param atSource The new value for the source attribute.
+	 */
+	void setSource( domGles_texcombiner_source_enums atSource ) { attrSource = atSource;
+	 _validAttributeArray[0] = true; }
+
+	/**
+	 * Gets the operand attribute.
+	 * @return Returns a domGles_texcombiner_operandRGB_enums of the operand attribute.
+	 */
+	domGles_texcombiner_operandRGB_enums getOperand() const { return attrOperand; }
+	/**
+	 * Sets the operand attribute.
+	 * @param atOperand The new value for the operand attribute.
+	 */
+	void setOperand( domGles_texcombiner_operandRGB_enums atOperand ) { attrOperand = atOperand;
+	 _validAttributeArray[1] = true; }
+
+	/**
+	 * Gets the unit attribute.
+	 * @return Returns a xsNCName of the unit attribute.
+	 */
+	xsNCName getUnit() const { return attrUnit; }
+	/**
+	 * Sets the unit attribute.
+	 * @param atUnit The new value for the unit attribute.
+	 */
+	void setUnit( xsNCName atUnit ) { *(daeStringRef*)&attrUnit = atUnit;
+	 _validAttributeArray[2] = true; }
+
 protected:
 	/**
 	 * Constructor

@@ -20,24 +20,38 @@
 #include <dom/domCg_setarray_type.h>
 #include <dom/domCg_setuser_type.h>
 #include <dom/domCg_connect_param.h>
+#include <dom/domCg_setparam.h>
 
 /**
  * Creates an instance of a structured class.
  */
 class domCg_setuser_type_complexType 
 {
-protected:  // Attribute
+protected:  // Attributes
 	domCg_identifier attrName;
+/**
+ *  Reference a code or include element which defines the usertype 
+ */
+	xsNCName attrSource;
 
 protected:  // Elements
 	domCg_param_type_Array elemCg_param_type_array;
 	domCg_setarray_type_Array elemArray_array;
 	domCg_setuser_type_Array elemUsertype_array;
 	domCg_connect_param_Array elemConnect_param_array;
+/**
+ * Use a series of these to set the members by name.  The ref attribute will
+ * be relative to the usertype you are in right now. @see domSetparam
+ */
+	domCg_setparam_Array elemSetparam_array;
 	/**
 	 * Used to preserve order in elements that do not specify strict sequencing of sub-elements.
 	 */
 	daeElementRefArray _contents;
+	/**
+	 * Used to preserve order in elements that have a complex content model.
+	 */
+	daeUIntArray       _contentsOrder;
 
 
 public:	//Accessors and Mutators
@@ -51,6 +65,17 @@ public:	//Accessors and Mutators
 	 * @param atName The new value for the name attribute.
 	 */
 	void setName( domCg_identifier atName ) { attrName = atName; }
+
+	/**
+	 * Gets the source attribute.
+	 * @return Returns a xsNCName of the source attribute.
+	 */
+	xsNCName getSource() const { return attrSource; }
+	/**
+	 * Sets the source attribute.
+	 * @param atSource The new value for the source attribute.
+	 */
+	void setSource( xsNCName atSource ) { *(daeStringRef*)&attrSource = atSource; }
 
 	/**
 	 * Gets the cg_param_type element array.
@@ -93,6 +118,16 @@ public:	//Accessors and Mutators
 	 */
 	const domCg_connect_param_Array &getConnect_param_array() const { return elemConnect_param_array; }
 	/**
+	 * Gets the setparam element array.
+	 * @return Returns a reference to the array of setparam elements.
+	 */
+	domCg_setparam_Array &getSetparam_array() { return elemSetparam_array; }
+	/**
+	 * Gets the setparam element array.
+	 * @return Returns a constant reference to the array of setparam elements.
+	 */
+	const domCg_setparam_Array &getSetparam_array() const { return elemSetparam_array; }
+	/**
 	 * Gets the _contents array.
 	 * @return Returns a reference to the _contents element array.
 	 */
@@ -107,7 +142,7 @@ protected:
 	/**
 	 * Constructor
 	 */
-	domCg_setuser_type_complexType() : attrName(), elemCg_param_type_array(), elemArray_array(), elemUsertype_array(), elemConnect_param_array() {}
+	domCg_setuser_type_complexType() : attrName(), attrSource(), elemCg_param_type_array(), elemArray_array(), elemUsertype_array(), elemConnect_param_array(), elemSetparam_array() {}
 	/**
 	 * Destructor
 	 */
@@ -127,6 +162,32 @@ protected:
  */
 class domCg_setuser_type : public daeElement, public domCg_setuser_type_complexType
 {
+
+public:	//Accessors and Mutators
+	/**
+	 * Gets the name attribute.
+	 * @return Returns a domCg_identifier of the name attribute.
+	 */
+	domCg_identifier getName() const { return attrName; }
+	/**
+	 * Sets the name attribute.
+	 * @param atName The new value for the name attribute.
+	 */
+	void setName( domCg_identifier atName ) { attrName = atName;
+	 _validAttributeArray[0] = true; }
+
+	/**
+	 * Gets the source attribute.
+	 * @return Returns a xsNCName of the source attribute.
+	 */
+	xsNCName getSource() const { return attrSource; }
+	/**
+	 * Sets the source attribute.
+	 * @param atSource The new value for the source attribute.
+	 */
+	void setSource( xsNCName atSource ) { *(daeStringRef*)&attrSource = atSource;
+	 _validAttributeArray[1] = true; }
+
 protected:
 	/**
 	 * Constructor

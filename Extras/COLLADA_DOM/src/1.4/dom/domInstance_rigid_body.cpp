@@ -13,6 +13,12 @@
 
 #include <dae/daeDom.h>
 #include <dom/domInstance_rigid_body.h>
+#include <dae/daeMetaCMPolicy.h>
+#include <dae/daeMetaSequence.h>
+#include <dae/daeMetaChoice.h>
+#include <dae/daeMetaGroup.h>
+#include <dae/daeMetaAny.h>
+#include <dae/daeMetaElementAttribute.h>
 
 daeElementRef
 domInstance_rigid_body::create(daeInt bytes)
@@ -30,13 +36,32 @@ domInstance_rigid_body::registerElement()
     
     _Meta = new daeMetaElement;
     _Meta->setName( "instance_rigid_body" );
-	_Meta->setStaticPointerAddress(&domInstance_rigid_body::_Meta);
 	_Meta->registerConstructor(domInstance_rigid_body::create);
 
-	// Add elements: technique_common, technique, extra
-    _Meta->appendElement(domInstance_rigid_body::domTechnique_common::registerElement(),daeOffsetOf(domInstance_rigid_body,elemTechnique_common));
-    _Meta->appendArrayElement(domTechnique::registerElement(),daeOffsetOf(domInstance_rigid_body,elemTechnique_array));
-    _Meta->appendArrayElement(domExtra::registerElement(),daeOffsetOf(domInstance_rigid_body,elemExtra_array));
+	daeMetaCMPolicy *cm = NULL;
+	daeMetaElementAttribute *mea = NULL;
+	cm = new daeMetaSequence( _Meta, cm, 0, 1, 1 );
+
+	mea = new daeMetaElementAttribute( _Meta, cm, 0, 1, 1 );
+	mea->setName( "technique_common" );
+	mea->setOffset( daeOffsetOf(domInstance_rigid_body,elemTechnique_common) );
+	mea->setElementType( domInstance_rigid_body::domTechnique_common::registerElement() );
+	cm->appendChild( mea );
+	
+	mea = new daeMetaElementArrayAttribute( _Meta, cm, 1, 0, -1 );
+	mea->setName( "technique" );
+	mea->setOffset( daeOffsetOf(domInstance_rigid_body,elemTechnique_array) );
+	mea->setElementType( domTechnique::registerElement() );
+	cm->appendChild( mea );
+	
+	mea = new daeMetaElementArrayAttribute( _Meta, cm, 2, 0, -1 );
+	mea->setName( "extra" );
+	mea->setOffset( daeOffsetOf(domInstance_rigid_body,elemExtra_array) );
+	mea->setElementType( domExtra::registerElement() );
+	cm->appendChild( mea );
+	
+	cm->setMaxOrdinal( 2 );
+	_Meta->setCMRoot( cm );	
 
 	//	Add attribute: body
  	{
@@ -56,6 +81,17 @@ domInstance_rigid_body::registerElement()
 		ma->setName( "sid" );
 		ma->setType( daeAtomicType::get("xsNCName"));
 		ma->setOffset( daeOffsetOf( domInstance_rigid_body , attrSid ));
+		ma->setContainer( _Meta );
+	
+		_Meta->appendAttribute(ma);
+	}
+
+	//	Add attribute: name
+ 	{
+		daeMetaAttribute *ma = new daeMetaAttribute;
+		ma->setName( "name" );
+		ma->setType( daeAtomicType::get("xsNCName"));
+		ma->setOffset( daeOffsetOf( domInstance_rigid_body , attrName ));
 		ma->setContainer( _Meta );
 	
 		_Meta->appendAttribute(ma);
@@ -95,21 +131,78 @@ domInstance_rigid_body::domTechnique_common::registerElement()
     
     _Meta = new daeMetaElement;
     _Meta->setName( "technique_common" );
-	_Meta->setStaticPointerAddress(&domInstance_rigid_body::domTechnique_common::_Meta);
 	_Meta->registerConstructor(domInstance_rigid_body::domTechnique_common::create);
 
-	// Add elements: angular_velocity, velocity, dynamic, mass, mass_frame, inertia, instance_physics_material, physics_material, shape
-    _Meta->appendElement(domInstance_rigid_body::domTechnique_common::domAngular_velocity::registerElement(),daeOffsetOf(domInstance_rigid_body::domTechnique_common,elemAngular_velocity));
-    _Meta->appendElement(domInstance_rigid_body::domTechnique_common::domVelocity::registerElement(),daeOffsetOf(domInstance_rigid_body::domTechnique_common,elemVelocity));
-    _Meta->appendElement(domInstance_rigid_body::domTechnique_common::domDynamic::registerElement(),daeOffsetOf(domInstance_rigid_body::domTechnique_common,elemDynamic));
-    _Meta->appendElement(domTargetableFloat::registerElement(),daeOffsetOf(domInstance_rigid_body::domTechnique_common,elemMass),"mass"); 
-    _Meta->appendElement(domInstance_rigid_body::domTechnique_common::domMass_frame::registerElement(),daeOffsetOf(domInstance_rigid_body::domTechnique_common,elemMass_frame));
-    _Meta->appendElement(domTargetableFloat3::registerElement(),daeOffsetOf(domInstance_rigid_body::domTechnique_common,elemInertia),"inertia"); 
-    _Meta->appendElement(domInstance_physics_material::registerElement(),daeOffsetOf(domInstance_rigid_body::domTechnique_common,elemInstance_physics_material));
-    _Meta->appendElement(domPhysics_material::registerElement(),daeOffsetOf(domInstance_rigid_body::domTechnique_common,elemPhysics_material));
-    _Meta->appendArrayElement(domInstance_rigid_body::domTechnique_common::domShape::registerElement(),daeOffsetOf(domInstance_rigid_body::domTechnique_common,elemShape_array));
+	_Meta->setIsInnerClass( true );
+	daeMetaCMPolicy *cm = NULL;
+	daeMetaElementAttribute *mea = NULL;
+	cm = new daeMetaSequence( _Meta, cm, 0, 1, 1 );
+
+	mea = new daeMetaElementAttribute( _Meta, cm, 0, 0, 1 );
+	mea->setName( "angular_velocity" );
+	mea->setOffset( daeOffsetOf(domInstance_rigid_body::domTechnique_common,elemAngular_velocity) );
+	mea->setElementType( domInstance_rigid_body::domTechnique_common::domAngular_velocity::registerElement() );
+	cm->appendChild( mea );
+	
+	mea = new daeMetaElementAttribute( _Meta, cm, 1, 0, 1 );
+	mea->setName( "velocity" );
+	mea->setOffset( daeOffsetOf(domInstance_rigid_body::domTechnique_common,elemVelocity) );
+	mea->setElementType( domInstance_rigid_body::domTechnique_common::domVelocity::registerElement() );
+	cm->appendChild( mea );
+	
+	mea = new daeMetaElementAttribute( _Meta, cm, 2, 0, 1 );
+	mea->setName( "dynamic" );
+	mea->setOffset( daeOffsetOf(domInstance_rigid_body::domTechnique_common,elemDynamic) );
+	mea->setElementType( domInstance_rigid_body::domTechnique_common::domDynamic::registerElement() );
+	cm->appendChild( mea );
+	
+	mea = new daeMetaElementAttribute( _Meta, cm, 3, 0, 1 );
+	mea->setName( "mass" );
+	mea->setOffset( daeOffsetOf(domInstance_rigid_body::domTechnique_common,elemMass) );
+	mea->setElementType( domTargetableFloat::registerElement() );
+	cm->appendChild( mea );
+	
+	mea = new daeMetaElementAttribute( _Meta, cm, 4, 0, 1 );
+	mea->setName( "mass_frame" );
+	mea->setOffset( daeOffsetOf(domInstance_rigid_body::domTechnique_common,elemMass_frame) );
+	mea->setElementType( domInstance_rigid_body::domTechnique_common::domMass_frame::registerElement() );
+	cm->appendChild( mea );
+	
+	mea = new daeMetaElementAttribute( _Meta, cm, 5, 0, 1 );
+	mea->setName( "inertia" );
+	mea->setOffset( daeOffsetOf(domInstance_rigid_body::domTechnique_common,elemInertia) );
+	mea->setElementType( domTargetableFloat3::registerElement() );
+	cm->appendChild( mea );
+	
+	cm = new daeMetaChoice( _Meta, cm, 6, 0, 1 );
+
+	mea = new daeMetaElementAttribute( _Meta, cm, 0, 1, 1 );
+	mea->setName( "instance_physics_material" );
+	mea->setOffset( daeOffsetOf(domInstance_rigid_body::domTechnique_common,elemInstance_physics_material) );
+	mea->setElementType( domInstance_physics_material::registerElement() );
+	cm->appendChild( mea );
+	
+	mea = new daeMetaElementAttribute( _Meta, cm, 0, 1, 1 );
+	mea->setName( "physics_material" );
+	mea->setOffset( daeOffsetOf(domInstance_rigid_body::domTechnique_common,elemPhysics_material) );
+	mea->setElementType( domPhysics_material::registerElement() );
+	cm->appendChild( mea );
+	
+	cm->setMaxOrdinal( 0 );
+	cm->getParent()->appendChild( cm );
+	cm = cm->getParent();
+	
+	mea = new daeMetaElementArrayAttribute( _Meta, cm, 7, 0, -1 );
+	mea->setName( "shape" );
+	mea->setOffset( daeOffsetOf(domInstance_rigid_body::domTechnique_common,elemShape_array) );
+	mea->setElementType( domInstance_rigid_body::domTechnique_common::domShape::registerElement() );
+	cm->appendChild( mea );
+	
+	cm->setMaxOrdinal( 7 );
+	_Meta->setCMRoot( cm );	
 	// Ordered list of sub-elements
     _Meta->addContents(daeOffsetOf(domInstance_rigid_body::domTechnique_common,_contents));
+    _Meta->addContentsOrder(daeOffsetOf(domInstance_rigid_body::domTechnique_common,_contentsOrder));
 
 	
 	
@@ -134,9 +227,9 @@ domInstance_rigid_body::domTechnique_common::domAngular_velocity::registerElemen
     
     _Meta = new daeMetaElement;
     _Meta->setName( "angular_velocity" );
-	_Meta->setStaticPointerAddress(&domInstance_rigid_body::domTechnique_common::domAngular_velocity::_Meta);
 	_Meta->registerConstructor(domInstance_rigid_body::domTechnique_common::domAngular_velocity::create);
 
+	_Meta->setIsInnerClass( true );
 	//	Add attribute: _value
  	{
 		daeMetaAttribute *ma = new daeMetaArrayAttribute;
@@ -169,9 +262,9 @@ domInstance_rigid_body::domTechnique_common::domVelocity::registerElement()
     
     _Meta = new daeMetaElement;
     _Meta->setName( "velocity" );
-	_Meta->setStaticPointerAddress(&domInstance_rigid_body::domTechnique_common::domVelocity::_Meta);
 	_Meta->registerConstructor(domInstance_rigid_body::domTechnique_common::domVelocity::create);
 
+	_Meta->setIsInnerClass( true );
 	//	Add attribute: _value
  	{
 		daeMetaAttribute *ma = new daeMetaArrayAttribute;
@@ -204,9 +297,9 @@ domInstance_rigid_body::domTechnique_common::domDynamic::registerElement()
     
     _Meta = new daeMetaElement;
     _Meta->setName( "dynamic" );
-	_Meta->setStaticPointerAddress(&domInstance_rigid_body::domTechnique_common::domDynamic::_Meta);
 	_Meta->registerConstructor(domInstance_rigid_body::domTechnique_common::domDynamic::create);
 
+	_Meta->setIsInnerClass( true );
 	//	Add attribute: _value
  	{
 		daeMetaAttribute *ma = new daeMetaAttribute;
@@ -250,14 +343,30 @@ domInstance_rigid_body::domTechnique_common::domMass_frame::registerElement()
     
     _Meta = new daeMetaElement;
     _Meta->setName( "mass_frame" );
-	_Meta->setStaticPointerAddress(&domInstance_rigid_body::domTechnique_common::domMass_frame::_Meta);
 	_Meta->registerConstructor(domInstance_rigid_body::domTechnique_common::domMass_frame::create);
 
-	// Add elements: translate, rotate
-    _Meta->appendArrayElement(domTranslate::registerElement(),daeOffsetOf(domInstance_rigid_body::domTechnique_common::domMass_frame,elemTranslate_array));
-    _Meta->appendArrayElement(domRotate::registerElement(),daeOffsetOf(domInstance_rigid_body::domTechnique_common::domMass_frame,elemRotate_array));
+	_Meta->setIsInnerClass( true );
+	daeMetaCMPolicy *cm = NULL;
+	daeMetaElementAttribute *mea = NULL;
+	cm = new daeMetaChoice( _Meta, cm, 0, 1, -1 );
+
+	mea = new daeMetaElementArrayAttribute( _Meta, cm, 0, 1, 1 );
+	mea->setName( "translate" );
+	mea->setOffset( daeOffsetOf(domInstance_rigid_body::domTechnique_common::domMass_frame,elemTranslate_array) );
+	mea->setElementType( domTranslate::registerElement() );
+	cm->appendChild( mea );
+	
+	mea = new daeMetaElementArrayAttribute( _Meta, cm, 0, 1, 1 );
+	mea->setName( "rotate" );
+	mea->setOffset( daeOffsetOf(domInstance_rigid_body::domTechnique_common::domMass_frame,elemRotate_array) );
+	mea->setElementType( domRotate::registerElement() );
+	cm->appendChild( mea );
+	
+	cm->setMaxOrdinal( 0 );
+	_Meta->setCMRoot( cm );	
 	// Ordered list of sub-elements
     _Meta->addContents(daeOffsetOf(domInstance_rigid_body::domTechnique_common::domMass_frame,_contents));
+    _Meta->addContentsOrder(daeOffsetOf(domInstance_rigid_body::domTechnique_common::domMass_frame,_contentsOrder));
 
 	
 	
@@ -282,28 +391,132 @@ domInstance_rigid_body::domTechnique_common::domShape::registerElement()
     
     _Meta = new daeMetaElement;
     _Meta->setName( "shape" );
-	_Meta->setStaticPointerAddress(&domInstance_rigid_body::domTechnique_common::domShape::_Meta);
 	_Meta->registerConstructor(domInstance_rigid_body::domTechnique_common::domShape::create);
 
-	// Add elements: hollow, mass, density, instance_physics_material, physics_material, instance_geometry, plane, box, sphere, cylinder, tapered_cylinder, capsule, tapered_capsule, translate, rotate, extra
-    _Meta->appendElement(domInstance_rigid_body::domTechnique_common::domShape::domHollow::registerElement(),daeOffsetOf(domInstance_rigid_body::domTechnique_common::domShape,elemHollow));
-    _Meta->appendElement(domTargetableFloat::registerElement(),daeOffsetOf(domInstance_rigid_body::domTechnique_common::domShape,elemMass),"mass"); 
-    _Meta->appendElement(domTargetableFloat::registerElement(),daeOffsetOf(domInstance_rigid_body::domTechnique_common::domShape,elemDensity),"density"); 
-    _Meta->appendElement(domInstance_physics_material::registerElement(),daeOffsetOf(domInstance_rigid_body::domTechnique_common::domShape,elemInstance_physics_material));
-    _Meta->appendElement(domPhysics_material::registerElement(),daeOffsetOf(domInstance_rigid_body::domTechnique_common::domShape,elemPhysics_material));
-    _Meta->appendElement(domInstance_geometry::registerElement(),daeOffsetOf(domInstance_rigid_body::domTechnique_common::domShape,elemInstance_geometry));
-    _Meta->appendElement(domPlane::registerElement(),daeOffsetOf(domInstance_rigid_body::domTechnique_common::domShape,elemPlane));
-    _Meta->appendElement(domBox::registerElement(),daeOffsetOf(domInstance_rigid_body::domTechnique_common::domShape,elemBox));
-    _Meta->appendElement(domSphere::registerElement(),daeOffsetOf(domInstance_rigid_body::domTechnique_common::domShape,elemSphere));
-    _Meta->appendElement(domCylinder::registerElement(),daeOffsetOf(domInstance_rigid_body::domTechnique_common::domShape,elemCylinder));
-    _Meta->appendElement(domTapered_cylinder::registerElement(),daeOffsetOf(domInstance_rigid_body::domTechnique_common::domShape,elemTapered_cylinder));
-    _Meta->appendElement(domCapsule::registerElement(),daeOffsetOf(domInstance_rigid_body::domTechnique_common::domShape,elemCapsule));
-    _Meta->appendElement(domTapered_capsule::registerElement(),daeOffsetOf(domInstance_rigid_body::domTechnique_common::domShape,elemTapered_capsule));
-    _Meta->appendArrayElement(domTranslate::registerElement(),daeOffsetOf(domInstance_rigid_body::domTechnique_common::domShape,elemTranslate_array));
-    _Meta->appendArrayElement(domRotate::registerElement(),daeOffsetOf(domInstance_rigid_body::domTechnique_common::domShape,elemRotate_array));
-    _Meta->appendArrayElement(domExtra::registerElement(),daeOffsetOf(domInstance_rigid_body::domTechnique_common::domShape,elemExtra_array));
+	_Meta->setIsInnerClass( true );
+	daeMetaCMPolicy *cm = NULL;
+	daeMetaElementAttribute *mea = NULL;
+	cm = new daeMetaSequence( _Meta, cm, 0, 1, 1 );
+
+	mea = new daeMetaElementAttribute( _Meta, cm, 0, 0, 1 );
+	mea->setName( "hollow" );
+	mea->setOffset( daeOffsetOf(domInstance_rigid_body::domTechnique_common::domShape,elemHollow) );
+	mea->setElementType( domInstance_rigid_body::domTechnique_common::domShape::domHollow::registerElement() );
+	cm->appendChild( mea );
+	
+	mea = new daeMetaElementAttribute( _Meta, cm, 1, 0, 1 );
+	mea->setName( "mass" );
+	mea->setOffset( daeOffsetOf(domInstance_rigid_body::domTechnique_common::domShape,elemMass) );
+	mea->setElementType( domTargetableFloat::registerElement() );
+	cm->appendChild( mea );
+	
+	mea = new daeMetaElementAttribute( _Meta, cm, 2, 0, 1 );
+	mea->setName( "density" );
+	mea->setOffset( daeOffsetOf(domInstance_rigid_body::domTechnique_common::domShape,elemDensity) );
+	mea->setElementType( domTargetableFloat::registerElement() );
+	cm->appendChild( mea );
+	
+	cm = new daeMetaChoice( _Meta, cm, 3, 0, 1 );
+
+	mea = new daeMetaElementAttribute( _Meta, cm, 0, 1, 1 );
+	mea->setName( "instance_physics_material" );
+	mea->setOffset( daeOffsetOf(domInstance_rigid_body::domTechnique_common::domShape,elemInstance_physics_material) );
+	mea->setElementType( domInstance_physics_material::registerElement() );
+	cm->appendChild( mea );
+	
+	mea = new daeMetaElementAttribute( _Meta, cm, 0, 1, 1 );
+	mea->setName( "physics_material" );
+	mea->setOffset( daeOffsetOf(domInstance_rigid_body::domTechnique_common::domShape,elemPhysics_material) );
+	mea->setElementType( domPhysics_material::registerElement() );
+	cm->appendChild( mea );
+	
+	cm->setMaxOrdinal( 0 );
+	cm->getParent()->appendChild( cm );
+	cm = cm->getParent();
+	
+	cm = new daeMetaChoice( _Meta, cm, 4, 1, 1 );
+
+	mea = new daeMetaElementAttribute( _Meta, cm, 0, 1, 1 );
+	mea->setName( "instance_geometry" );
+	mea->setOffset( daeOffsetOf(domInstance_rigid_body::domTechnique_common::domShape,elemInstance_geometry) );
+	mea->setElementType( domInstance_geometry::registerElement() );
+	cm->appendChild( mea );
+	
+	mea = new daeMetaElementAttribute( _Meta, cm, 0, 1, 1 );
+	mea->setName( "plane" );
+	mea->setOffset( daeOffsetOf(domInstance_rigid_body::domTechnique_common::domShape,elemPlane) );
+	mea->setElementType( domPlane::registerElement() );
+	cm->appendChild( mea );
+	
+	mea = new daeMetaElementAttribute( _Meta, cm, 0, 1, 1 );
+	mea->setName( "box" );
+	mea->setOffset( daeOffsetOf(domInstance_rigid_body::domTechnique_common::domShape,elemBox) );
+	mea->setElementType( domBox::registerElement() );
+	cm->appendChild( mea );
+	
+	mea = new daeMetaElementAttribute( _Meta, cm, 0, 1, 1 );
+	mea->setName( "sphere" );
+	mea->setOffset( daeOffsetOf(domInstance_rigid_body::domTechnique_common::domShape,elemSphere) );
+	mea->setElementType( domSphere::registerElement() );
+	cm->appendChild( mea );
+	
+	mea = new daeMetaElementAttribute( _Meta, cm, 0, 1, 1 );
+	mea->setName( "cylinder" );
+	mea->setOffset( daeOffsetOf(domInstance_rigid_body::domTechnique_common::domShape,elemCylinder) );
+	mea->setElementType( domCylinder::registerElement() );
+	cm->appendChild( mea );
+	
+	mea = new daeMetaElementAttribute( _Meta, cm, 0, 1, 1 );
+	mea->setName( "tapered_cylinder" );
+	mea->setOffset( daeOffsetOf(domInstance_rigid_body::domTechnique_common::domShape,elemTapered_cylinder) );
+	mea->setElementType( domTapered_cylinder::registerElement() );
+	cm->appendChild( mea );
+	
+	mea = new daeMetaElementAttribute( _Meta, cm, 0, 1, 1 );
+	mea->setName( "capsule" );
+	mea->setOffset( daeOffsetOf(domInstance_rigid_body::domTechnique_common::domShape,elemCapsule) );
+	mea->setElementType( domCapsule::registerElement() );
+	cm->appendChild( mea );
+	
+	mea = new daeMetaElementAttribute( _Meta, cm, 0, 1, 1 );
+	mea->setName( "tapered_capsule" );
+	mea->setOffset( daeOffsetOf(domInstance_rigid_body::domTechnique_common::domShape,elemTapered_capsule) );
+	mea->setElementType( domTapered_capsule::registerElement() );
+	cm->appendChild( mea );
+	
+	cm->setMaxOrdinal( 0 );
+	cm->getParent()->appendChild( cm );
+	cm = cm->getParent();
+	
+	cm = new daeMetaChoice( _Meta, cm, 5, 0, -1 );
+
+	mea = new daeMetaElementArrayAttribute( _Meta, cm, 0, 1, 1 );
+	mea->setName( "translate" );
+	mea->setOffset( daeOffsetOf(domInstance_rigid_body::domTechnique_common::domShape,elemTranslate_array) );
+	mea->setElementType( domTranslate::registerElement() );
+	cm->appendChild( mea );
+	
+	mea = new daeMetaElementArrayAttribute( _Meta, cm, 0, 1, 1 );
+	mea->setName( "rotate" );
+	mea->setOffset( daeOffsetOf(domInstance_rigid_body::domTechnique_common::domShape,elemRotate_array) );
+	mea->setElementType( domRotate::registerElement() );
+	cm->appendChild( mea );
+	
+	cm->setMaxOrdinal( 0 );
+	cm->getParent()->appendChild( cm );
+	cm = cm->getParent();
+	
+	mea = new daeMetaElementArrayAttribute( _Meta, cm, 3006, 0, -1 );
+	mea->setName( "extra" );
+	mea->setOffset( daeOffsetOf(domInstance_rigid_body::domTechnique_common::domShape,elemExtra_array) );
+	mea->setElementType( domExtra::registerElement() );
+	cm->appendChild( mea );
+	
+	cm->setMaxOrdinal( 3006 );
+	_Meta->setCMRoot( cm );	
 	// Ordered list of sub-elements
     _Meta->addContents(daeOffsetOf(domInstance_rigid_body::domTechnique_common::domShape,_contents));
+    _Meta->addContentsOrder(daeOffsetOf(domInstance_rigid_body::domTechnique_common::domShape,_contentsOrder));
 
 	
 	
@@ -328,9 +541,9 @@ domInstance_rigid_body::domTechnique_common::domShape::domHollow::registerElemen
     
     _Meta = new daeMetaElement;
     _Meta->setName( "hollow" );
-	_Meta->setStaticPointerAddress(&domInstance_rigid_body::domTechnique_common::domShape::domHollow::_Meta);
 	_Meta->registerConstructor(domInstance_rigid_body::domTechnique_common::domShape::domHollow::create);
 
+	_Meta->setIsInnerClass( true );
 	//	Add attribute: _value
  	{
 		daeMetaAttribute *ma = new daeMetaAttribute;

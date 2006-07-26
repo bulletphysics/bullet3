@@ -13,6 +13,12 @@
 
 #include <dae/daeDom.h>
 #include <dom/domCommon_color_or_texture_type.h>
+#include <dae/daeMetaCMPolicy.h>
+#include <dae/daeMetaSequence.h>
+#include <dae/daeMetaChoice.h>
+#include <dae/daeMetaGroup.h>
+#include <dae/daeMetaAny.h>
+#include <dae/daeMetaElementAttribute.h>
 
 daeElementRef
 domCommon_color_or_texture_type::create(daeInt bytes)
@@ -29,15 +35,35 @@ domCommon_color_or_texture_type::registerElement()
     
     _Meta = new daeMetaElement;
     _Meta->setName( "common_color_or_texture_type" );
-	_Meta->setStaticPointerAddress(&domCommon_color_or_texture_type::_Meta);
 	_Meta->registerConstructor(domCommon_color_or_texture_type::create);
 
-	// Add elements: color, param, texture
-    _Meta->appendElement(domCommon_color_or_texture_type::domColor::registerElement(),daeOffsetOf(domCommon_color_or_texture_type,elemColor));
-    _Meta->appendElement(domCommon_color_or_texture_type::domParam::registerElement(),daeOffsetOf(domCommon_color_or_texture_type,elemParam));
-    _Meta->appendElement(domCommon_color_or_texture_type::domTexture::registerElement(),daeOffsetOf(domCommon_color_or_texture_type,elemTexture));
+	daeMetaCMPolicy *cm = NULL;
+	daeMetaElementAttribute *mea = NULL;
+	cm = new daeMetaChoice( _Meta, cm, 0, 1, 1 );
+
+	mea = new daeMetaElementAttribute( _Meta, cm, 0, 1, 1 );
+	mea->setName( "color" );
+	mea->setOffset( daeOffsetOf(domCommon_color_or_texture_type,elemColor) );
+	mea->setElementType( domCommon_color_or_texture_type::domColor::registerElement() );
+	cm->appendChild( mea );
+	
+	mea = new daeMetaElementAttribute( _Meta, cm, 0, 1, 1 );
+	mea->setName( "param" );
+	mea->setOffset( daeOffsetOf(domCommon_color_or_texture_type,elemParam) );
+	mea->setElementType( domCommon_color_or_texture_type::domParam::registerElement() );
+	cm->appendChild( mea );
+	
+	mea = new daeMetaElementAttribute( _Meta, cm, 0, 1, 1 );
+	mea->setName( "texture" );
+	mea->setOffset( daeOffsetOf(domCommon_color_or_texture_type,elemTexture) );
+	mea->setElementType( domCommon_color_or_texture_type::domTexture::registerElement() );
+	cm->appendChild( mea );
+	
+	cm->setMaxOrdinal( 0 );
+	_Meta->setCMRoot( cm );	
 	// Ordered list of sub-elements
     _Meta->addContents(daeOffsetOf(domCommon_color_or_texture_type,_contents));
+    _Meta->addContentsOrder(daeOffsetOf(domCommon_color_or_texture_type,_contentsOrder));
 
 	
 	
@@ -62,9 +88,9 @@ domCommon_color_or_texture_type::domColor::registerElement()
     
     _Meta = new daeMetaElement;
     _Meta->setName( "color" );
-	_Meta->setStaticPointerAddress(&domCommon_color_or_texture_type::domColor::_Meta);
 	_Meta->registerConstructor(domCommon_color_or_texture_type::domColor::create);
 
+	_Meta->setIsInnerClass( true );
 	//	Add attribute: _value
  	{
 		daeMetaAttribute *ma = new daeMetaArrayAttribute;
@@ -108,9 +134,9 @@ domCommon_color_or_texture_type::domParam::registerElement()
     
     _Meta = new daeMetaElement;
     _Meta->setName( "param" );
-	_Meta->setStaticPointerAddress(&domCommon_color_or_texture_type::domParam::_Meta);
 	_Meta->registerConstructor(domCommon_color_or_texture_type::domParam::create);
 
+	_Meta->setIsInnerClass( true );
 
 	//	Add attribute: ref
  	{
@@ -146,11 +172,21 @@ domCommon_color_or_texture_type::domTexture::registerElement()
     
     _Meta = new daeMetaElement;
     _Meta->setName( "texture" );
-	_Meta->setStaticPointerAddress(&domCommon_color_or_texture_type::domTexture::_Meta);
 	_Meta->registerConstructor(domCommon_color_or_texture_type::domTexture::create);
 
-	// Add elements: extra
-    _Meta->appendElement(domExtra::registerElement(),daeOffsetOf(domCommon_color_or_texture_type::domTexture,elemExtra));
+	_Meta->setIsInnerClass( true );
+	daeMetaCMPolicy *cm = NULL;
+	daeMetaElementAttribute *mea = NULL;
+	cm = new daeMetaSequence( _Meta, cm, 0, 1, 1 );
+
+	mea = new daeMetaElementAttribute( _Meta, cm, 0, 0, 1 );
+	mea->setName( "extra" );
+	mea->setOffset( daeOffsetOf(domCommon_color_or_texture_type::domTexture,elemExtra) );
+	mea->setElementType( domExtra::registerElement() );
+	cm->appendChild( mea );
+	
+	cm->setMaxOrdinal( 0 );
+	_Meta->setCMRoot( cm );	
 
 	//	Add attribute: texture
  	{

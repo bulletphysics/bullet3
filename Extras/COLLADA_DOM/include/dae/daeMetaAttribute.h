@@ -25,14 +25,6 @@ class daeMetaElement;
 class daeMetaAttribute;
 class daeMetaElementAttribute;
 
-typedef daeSmartRef<daeMetaElementAttribute> daeMetaElementAttributeRef;
-typedef daeSmartRef<daeMetaElement> daeMetaElementRef;
-typedef daeSmartRef<daeMetaAttribute> daeMetaAttributeRef;
-
-typedef daeTArray<daeMetaAttributeRef> daeMetaAttributeRefArray;
-typedef daeTArray<daeMetaAttribute*> daeMetaAttributePtrArray;
-typedef daeTArray<daeMetaElementAttributeRef> daeMetaElementAttributeRefArray;
-
 /**
  * The @c daeMetaAttribute class describes one attribute in a C++ COLLADA dom element.
  *
@@ -57,7 +49,6 @@ protected:
 	daeAtomicType*			_type;
 	daeMetaElement*			_container;
 	daeString				_default;
-	daeBool					_isValid;
 	daeBool					_isRequired;
 
 public:
@@ -71,21 +62,6 @@ public:
 	 */
 	~daeMetaAttribute() {}
 public:
-	/** 
-	 * Determines if the value of this attribute was ever set. 
-	 * This will be the case if @c setDefault() was
-	 * called or if the attribute was assigned a value by the input file.  If you set the value yourself,
-	 * you need to call @c setIsValid() to set this flag.
-	 * @return Returns true if the value in this attribute is valid.
-	 */
-	daeBool getIsValid() {return _isValid; }
-	/**
-	 * Sets the value that indicates if this attribute contains a valid value.  
-	 * If you don't set this on an optional
-	 * attribute, that attribute will not be written.
-	 * @param isValid Indicates if the value in this attribute valid, true if it is, false if not.
-	 */
-	void setIsValid(daeBool isValid) {_isValid = isValid;}
 	/** 
 	 * Determines if the schema indicates that this is a required attribute.
 	 * @return Returns true if this is a required attribute, false if not.
@@ -182,35 +158,14 @@ public:
 	 * @return Returns the associated particle out of parent element e, based on index, if necessary.
 	 */
 	virtual daeMemoryRef get(daeElement* e, daeInt index);
+
+	/**
+	 * Gets if this attribute is an array attribute.
+	 * @return Returns true if this attribute is an array type.
+	 */
+	virtual daeBool isArrayAttribute()		{ return false; }
 	  
-public: // STATIC MEMBERS
-	/**
-	 * Lists the type names that can be created by factories and indicates which _FactoryTemplates to use for each type.
-	 */
-	static daeStringRefArrayArray		_NameBindings;
-	/**
-	 * Points to the factory objects used to construct various types of attributes, _NameBindings specifies which type names are bound to which factories.
-	 */
-	static daeMetaAttributeRefArray		_FactoryTemplates;
-	
-public:	//STATIC INTERFACE
-	/**
-	 * Obsolete
-	 */
-	static daeMetaAttributeRef Factory(daeStringRef xmlTypeName);
-	/**
-	 * Obsolete
-	 */
-	static void InitializeKnownTypes();
-
 public:
-	/**
-	 * Clones the @c daeMetaAttribute.
-	 * @return Returns a duplicate of this @c daeMetaAttribute.
-	 * @note Not Implemented.
-	 */
-	virtual daeMetaAttributeRef clone();
-
 	/**
 	 * Resolves a reference (if there is one) in the attribute type;
 	 * only useful for reference types.
@@ -261,171 +216,7 @@ public:
 	daeChar* getWritableMemory(daeElement* e) {
 		return (daeChar*)e+_offset; }
 };
-/**
-* The @c daeMetaElementAttribute class represents a single attribute whose value is an element.
-*/
-class daeMetaElementAttribute : public daeMetaAttribute
-{
-public:
-	/** Minimum number of times this meta element can occur. */
-	daeInt					_minOccurs;
-	/** Maximum number of times this meta element can occur. */
-	daeInt					_maxOccurs;
-	/** If this element is found in a choice group in the schema */
-	daeBool					_isInChoice;
-	/** If this element is found in a sequence group in the schema */
-	daeBool					_isInSequence;
-	
-	/** The element found before this one in the sequence group in the schema */
-	daeMetaElement* 		_previousInSequence;
-	/** The metaElement that describes the element type of this attribute */
-	daeMetaElement* 		_elementType;
-public:
-	/**
-	 * Constructor
-	 */
-	daeMetaElementAttribute();
-	/**
-	 * Destructor
-	 */
-	~daeMetaElementAttribute() {}
-public:
-	/**
-	 * Sets the element type for the element that this attribute points to.
-	 * @param elementType @c daeMetaElement representing the type.
-	 */
-	void setElementType(daeMetaElement *elementType) {
-		_elementType = elementType; }
 
-	/**
-	 * Gets the element type for the element that this attribute points to.
-	 * @return Returns the @c daeMetaElement representing the type.
-	 */
-	daeMetaElement* getElementType() { return _elementType; }
-	
-	/**
-	 * Defines the override version of base method.
-	 * @see daeMetaAttribute::clone()
-	 */
-	virtual daeMetaAttributeRef clone();
-	
-	/**
-	 * Places element <tt><i>child</i></tt> in element <tt><i>parent</i></tt> using @c this element attribute.
-	 * @param parent The Element in which to place child.
-	 * @param child The Element to place in parent.
-	 */
-	virtual void placeElement(daeElement* parent, daeElement* child);
-	/**
-	 * Removes element <tt><i>child</i></tt> from element <tt><i>parent</i></tt> using @c this element attribute.
-	 * @param parent The Element in which to remove child.
-	 * @param child The Element to remove from parent.
-	 */
-	virtual void removeElement(daeElement* parent, daeElement* child);
-	/**
-	 * Sets the database document associated with this element.
-	 * @param parent The daeElement to set the document.
-	 * @param c The @c daeDocument to associate with this element.
-	 */
-	virtual void setDocument(daeElement *parent, daeDocument* c );
-	inline void setCollection(daeElement *parent, daeDocument* c ) {
-		setDocument( parent, c );
-	}
-
-	/**
-	 * Gets the number of elements associated with this attribute in instance <tt><i>e.</i></tt> 
-	 * @param e Containing element to run the operation on.
-	 * @return Returns the number of elements associated with this attribute
-	 * in instance <tt><i>e.</i></tt> 
-	 */
-	virtual daeInt getCount(daeElement* e);
-
-	/**
-	 * Gets an element from containing element <tt><i>e</i></tt> based on <tt><i>index.</i></tt> 
-	 * @param e Containing element from which to get the element.
-	 * @param index Index of the element to retrieve if indeed
-	 * there is an array of elements rather than a singleton.
-	 * @return Returns the associated element out of parent element e, based on index, if necessary.
-	 */
-	virtual daeMemoryRef get(daeElement* e, daeInt index);
-
-	/**
-	 * Defines the override version of base method.
-	 * @param element Element on which to set this attribute.
-	 * @param s String containing the value to be converted via the
-	 * atomic type system.
-	 */
-	virtual void set(daeElement* element, daeString s);
-	/**
-	 * Defines the override version of base method.
-	 * @param toElement Pointer to a @c daeElement to copy this attribute to.
-	 * @param fromElement Pointer to a @c daeElement to copy this attribute from.
-	 */
-	virtual void copy(daeElement* toElement, daeElement* fromElement);
-};
-typedef daeSmartRef<daeMetaElementAttribute> daeMetaElementAttributeRef;
-typedef daeTArray<daeMetaElementAttributeRef> daeMetaElementAttributeArray;
-
-
-/**
- * The @c daeMetaElementArrayAttribute class is similar to daeMetaElementAttribute 
- * except that this meta attribute
- * describes an array of elements rather than a singleton.
- */
-class daeMetaElementArrayAttribute : public daeMetaElementAttribute
-{
-public:
-	/**
-	 * Constructor
-	 */
-	daeMetaElementArrayAttribute();
-public:
-	/**
-	 * Defines the override version of this method from @c daeMetaElement.
-	 * @return Returns a duplicate of this @c daeMetaAttribute.
-	 * @note Not Implemented.
-	 */
-	virtual daeMetaAttributeRef clone();
-	/**
-	 * Defines the override version of this method from @c daeMetaElement.
-	 */
-	virtual void placeElement(daeElement* parent, daeElement* child);
-    /**
-	 * Defines the override version of this method from @c daeMetaElement.
-	 */
-	virtual void removeElement(daeElement* parent, daeElement* child);
-	/**
-	 * Sets the database document associated with this element.
-	 * @param c The @c daeDocument to associate with this element.
-	 */
-	virtual void setDocument(daeElement *parent, daeDocument* c );
-	inline void setCollection(daeElement *parent, daeDocument* c ) {
-		setDocument( parent, c );
-	}
-
-	/**
-	 * Defines the override version of this method from @c daeMetaElement.
-	 * @param e Containing element to run the operation on.
-	 * @return Returns the number of particles associated with this attribute
-	 * in instance <tt><i>e.</i></tt> 
-	 */
-	virtual daeInt getCount(daeElement* e);
-	/**
-	 * Defines the override version of this method from @c daeMetaElement.
-	 * @param e Containing element from which to get the element.
-	 * @param index Index of the particle to retrieve if indeed
-	 * there is an array of elements rather than a singleton.
-	 * @return Returns the associated particle out of parent element e, based on index, if necessary.
-	 */
-	virtual daeMemoryRef get(daeElement* e, daeInt index);
-	/**
-	 * Defines the override version of this method from @c daeMetaElement.
-	 * @param toElement Pointer to a @c daeElement to copy this attribute to.
-	 * @param fromElement Pointer to a @c daeElement to copy this attribute from.
-	 */
-	virtual void copy(daeElement* toElement, daeElement* fromElement);
-};
-typedef daeSmartRef<daeMetaElementArrayAttribute> daeMetaElementArrayAttributeRef;
-typedef daeTArray<daeMetaElementArrayAttributeRef> daeMetaElementArrayAttributeArray;
 
 /**
  * The @c daeMetaArrayAttribute class is simple a wrapper that implements
@@ -436,14 +227,7 @@ typedef daeTArray<daeMetaElementArrayAttributeRef> daeMetaElementArrayAttributeA
  */
 class daeMetaArrayAttribute : public daeMetaAttribute
 {
-	daeMetaAttributeRef arrayType;
 public:
-	/**
-	 * Defines the override version of this method from @c daeMetaAttribute.
-	 * @return Returns a duplicate of this @c daeMetaAttribute.
-	 * @note Not Implemented.
-	 */
-	virtual daeMetaAttributeRef clone();
 	/**
 	 * Defines the override version of this method from @c daeMetaAttribute.
 	 * @param element Element on which to set this attribute.
@@ -472,7 +256,19 @@ public:
 	 * @return Returns the associated particle out of parent element e, based on index, if necessary.
 	 */
 	virtual daeMemoryRef get(daeElement* e, daeInt index);
+
+	/**
+	 * Gets if this attribute is an array attribute.
+	 * @return Returns true if this attribute is an array type.
+	 */
+	virtual daeBool isArrayAttribute()		{ return true; }
 };
+
+
+typedef daeSmartRef<daeMetaAttribute> daeMetaAttributeRef;
+
+typedef daeTArray<daeMetaAttributeRef> daeMetaAttributeRefArray;
+typedef daeTArray<daeMetaAttribute*> daeMetaAttributePtrArray;
 
 #endif //__DAE_META_ATTRIBUTE_H__
 

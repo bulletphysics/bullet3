@@ -13,6 +13,12 @@
 
 #include <dae/daeDom.h>
 #include <dom/domPlane.h>
+#include <dae/daeMetaCMPolicy.h>
+#include <dae/daeMetaSequence.h>
+#include <dae/daeMetaChoice.h>
+#include <dae/daeMetaGroup.h>
+#include <dae/daeMetaAny.h>
+#include <dae/daeMetaElementAttribute.h>
 
 daeElementRef
 domPlane::create(daeInt bytes)
@@ -29,12 +35,26 @@ domPlane::registerElement()
     
     _Meta = new daeMetaElement;
     _Meta->setName( "plane" );
-	_Meta->setStaticPointerAddress(&domPlane::_Meta);
 	_Meta->registerConstructor(domPlane::create);
 
-	// Add elements: equation, extra
-    _Meta->appendElement(domPlane::domEquation::registerElement(),daeOffsetOf(domPlane,elemEquation));
-    _Meta->appendArrayElement(domExtra::registerElement(),daeOffsetOf(domPlane,elemExtra_array));
+	daeMetaCMPolicy *cm = NULL;
+	daeMetaElementAttribute *mea = NULL;
+	cm = new daeMetaSequence( _Meta, cm, 0, 1, 1 );
+
+	mea = new daeMetaElementAttribute( _Meta, cm, 0, 1, 1 );
+	mea->setName( "equation" );
+	mea->setOffset( daeOffsetOf(domPlane,elemEquation) );
+	mea->setElementType( domPlane::domEquation::registerElement() );
+	cm->appendChild( mea );
+	
+	mea = new daeMetaElementArrayAttribute( _Meta, cm, 1, 0, -1 );
+	mea->setName( "extra" );
+	mea->setOffset( daeOffsetOf(domPlane,elemExtra_array) );
+	mea->setElementType( domExtra::registerElement() );
+	cm->appendChild( mea );
+	
+	cm->setMaxOrdinal( 1 );
+	_Meta->setCMRoot( cm );	
 	
 	
 	_Meta->setElementSize(sizeof(domPlane));
@@ -58,9 +78,9 @@ domPlane::domEquation::registerElement()
     
     _Meta = new daeMetaElement;
     _Meta->setName( "equation" );
-	_Meta->setStaticPointerAddress(&domPlane::domEquation::_Meta);
 	_Meta->registerConstructor(domPlane::domEquation::create);
 
+	_Meta->setIsInnerClass( true );
 	//	Add attribute: _value
  	{
 		daeMetaAttribute *ma = new daeMetaArrayAttribute;

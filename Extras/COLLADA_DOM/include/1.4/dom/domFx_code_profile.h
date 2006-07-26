@@ -47,18 +47,18 @@ public:	//Accessors and Mutators
 	 * Sets the sid attribute.
 	 * @param atSid The new value for the sid attribute.
 	 */
-	void setSid( xsNCName atSid ) { attrSid = atSid; }
+	void setSid( xsNCName atSid ) { *(daeStringRef*)&attrSid = atSid; }
 
 	/**
 	 * Gets the value of this element.
-	 * @return a xsString of the value.
+	 * @return Returns a xsString of the value.
 	 */
 	xsString getValue() const { return _value; }
 	/**
 	 * Sets the _value of this element.
 	 * @param val The new value for this element.
 	 */
-	void setValue( xsString val ) { _value = val; }
+	void setValue( xsString val ) { *(daeStringRef*)&_value = val; }
 
 protected:
 	/**
@@ -84,6 +84,20 @@ protected:
  */
 class domFx_code_profile : public daeElement, public domFx_code_profile_complexType
 {
+
+public:	//Accessors and Mutators
+	/**
+	 * Gets the sid attribute.
+	 * @return Returns a xsNCName of the sid attribute.
+	 */
+	xsNCName getSid() const { return attrSid; }
+	/**
+	 * Sets the sid attribute.
+	 * @param atSid The new value for the sid attribute.
+	 */
+	void setSid( xsNCName atSid ) { *(daeStringRef*)&attrSid = atSid;
+	 _validAttributeArray[0] = true; }
+
 protected:
 	/**
 	 * Constructor

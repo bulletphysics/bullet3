@@ -17,11 +17,12 @@
 #include <dom/domElements.h>
 
 #include <dom/domFx_profile_abstract.h>
+#include <dom/domAsset.h>
 #include <dom/domImage.h>
+#include <dom/domExtra.h>
 #include <dom/domFx_code_profile.h>
 #include <dom/domFx_include_common.h>
 #include <dom/domCg_newparam.h>
-#include <dom/domAsset.h>
 #include <dom/domFx_annotate_common.h>
 #include <dom/domCg_setparam.h>
 #include <dom/domGl_pipeline_settings.h>
@@ -157,14 +158,14 @@ public:
 				public:	//Accessors and Mutators
 					/**
 					 * Gets the value of this element.
-					 * @return a xsNMTOKEN of the value.
+					 * @return Returns a xsNMTOKEN of the value.
 					 */
 					xsNMTOKEN getValue() const { return _value; }
 					/**
 					 * Sets the _value of this element.
 					 * @param val The new value for this element.
 					 */
-					void setValue( xsNMTOKEN val ) { _value = val; }
+					void setValue( xsNMTOKEN val ) { *(daeStringRef*)&_value = val; }
 
 				protected:
 					/**
@@ -225,14 +226,14 @@ public:
 				public:	//Accessors and Mutators
 					/**
 					 * Gets the value of this element.
-					 * @return a xsString of the value.
+					 * @return Returns a xsString of the value.
 					 */
 					xsString getValue() const { return _value; }
 					/**
 					 * Sets the _value of this element.
 					 * @param val The new value for this element.
 					 */
-					void setValue( xsString val ) { _value = val; }
+					void setValue( xsString val ) { *(daeStringRef*)&_value = val; }
 
 				protected:
 					/**
@@ -302,18 +303,19 @@ public:
 					 * Sets the source attribute.
 					 * @param atSource The new value for the source attribute.
 					 */
-					void setSource( xsNCName atSource ) { attrSource = atSource; }
+					void setSource( xsNCName atSource ) { *(daeStringRef*)&attrSource = atSource;				
+	 _validAttributeArray[0] = true; }
 
 					/**
 					 * Gets the value of this element.
-					 * @return a xsNCName of the value.
+					 * @return Returns a xsNCName of the value.
 					 */
 					xsNCName getValue() const { return _value; }
 					/**
 					 * Sets the _value of this element.
 					 * @param val The new value for this element.
 					 */
-					void setValue( xsNCName val ) { _value = val; }
+					void setValue( xsNCName val ) { *(daeStringRef*)&_value = val; }
 
 				protected:
 					/**
@@ -389,7 +391,8 @@ public:
 						 * Sets the ref attribute.
 						 * @param atRef The new value for the ref attribute.
 						 */
-						void setRef( xsNCName atRef ) { attrRef = atRef; }
+						void setRef( xsNCName atRef ) { *(daeStringRef*)&attrRef = atRef;					
+	 _validAttributeArray[0] = true; }
 
 					protected:
 						/**
@@ -449,6 +452,10 @@ public:
 					 * Used to preserve order in elements that do not specify strict sequencing of sub-elements.
 					 */
 					daeElementRefArray _contents;
+					/**
+					 * Used to preserve order in elements that have a complex content model.
+					 */
+					daeUIntArray       _contentsOrder;
 
 
 				public:	//Accessors and Mutators
@@ -461,7 +468,8 @@ public:
 					 * Sets the symbol attribute.
 					 * @param atSymbol The new value for the symbol attribute.
 					 */
-					void setSymbol( xsNCName atSymbol ) { attrSymbol = atSymbol; }
+					void setSymbol( xsNCName atSymbol ) { *(daeStringRef*)&attrSymbol = atSymbol;				
+	 _validAttributeArray[0] = true; }
 
 					/**
 					 * Gets the cg_param_type element.
@@ -558,7 +566,8 @@ public:
 				 * Sets the stage attribute.
 				 * @param atStage The new value for the stage attribute.
 				 */
-				void setStage( domCg_pipeline_stage atStage ) { attrStage = atStage; }
+				void setStage( domCg_pipeline_stage atStage ) { attrStage = atStage;			
+	 _validAttributeArray[0] = true; }
 
 				/**
 				 * Gets the annotate element array.
@@ -658,10 +667,15 @@ public:
  * a pass. @see domShader
  */
 			domShader_Array elemShader_array;
+			domExtra_Array elemExtra_array;
 			/**
 			 * Used to preserve order in elements that do not specify strict sequencing of sub-elements.
 			 */
 			daeElementRefArray _contents;
+			/**
+			 * Used to preserve order in elements that have a complex content model.
+			 */
+			daeUIntArray       _contentsOrder;
 
 
 		public:	//Accessors and Mutators
@@ -674,7 +688,8 @@ public:
 			 * Sets the sid attribute.
 			 * @param atSid The new value for the sid attribute.
 			 */
-			void setSid( xsNCName atSid ) { attrSid = atSid; }
+			void setSid( xsNCName atSid ) { *(daeStringRef*)&attrSid = atSid;		
+	 _validAttributeArray[0] = true; }
 
 			/**
 			 * Gets the annotate element array.
@@ -772,6 +787,16 @@ public:
 			 */
 			const domShader_Array &getShader_array() const { return elemShader_array; }
 			/**
+			 * Gets the extra element array.
+			 * @return Returns a reference to the array of extra elements.
+			 */
+			domExtra_Array &getExtra_array() { return elemExtra_array; }
+			/**
+			 * Gets the extra element array.
+			 * @return Returns a constant reference to the array of extra elements.
+			 */
+			const domExtra_Array &getExtra_array() const { return elemExtra_array; }
+			/**
 			 * Gets the _contents array.
 			 * @return Returns a reference to the _contents element array.
 			 */
@@ -786,7 +811,7 @@ public:
 			/**
 			 * Constructor
 			 */
-			domPass() : attrSid(), elemAnnotate_array(), elemColor_target_array(), elemDepth_target_array(), elemStencil_target_array(), elemColor_clear_array(), elemDepth_clear_array(), elemStencil_clear_array(), elemDraw(), elemGl_pipeline_settings_array(), elemShader_array() {}
+			domPass() : attrSid(), elemAnnotate_array(), elemColor_target_array(), elemDepth_target_array(), elemStencil_target_array(), elemColor_clear_array(), elemDepth_clear_array(), elemStencil_clear_array(), elemDraw(), elemGl_pipeline_settings_array(), elemShader_array(), elemExtra_array() {}
 			/**
 			 * Destructor
 			 */
@@ -852,10 +877,15 @@ public:
  * one rendering pipeline. @see domPass
  */
 		domPass_Array elemPass_array;
+		domExtra_Array elemExtra_array;
 		/**
 		 * Used to preserve order in elements that do not specify strict sequencing of sub-elements.
 		 */
 		daeElementRefArray _contents;
+		/**
+		 * Used to preserve order in elements that have a complex content model.
+		 */
+		daeUIntArray       _contentsOrder;
 
 
 	public:	//Accessors and Mutators
@@ -868,7 +898,8 @@ public:
 		 * Sets the id attribute.
 		 * @param atId The new value for the id attribute.
 		 */
-		void setId( xsID atId ) { attrId = atId; }
+		void setId( xsID atId ) { *(daeStringRef*)&attrId = atId;	
+	 _validAttributeArray[0] = true; }
 
 		/**
 		 * Gets the sid attribute.
@@ -879,7 +910,8 @@ public:
 		 * Sets the sid attribute.
 		 * @param atSid The new value for the sid attribute.
 		 */
-		void setSid( xsNCName atSid ) { attrSid = atSid; }
+		void setSid( xsNCName atSid ) { *(daeStringRef*)&attrSid = atSid;	
+	 _validAttributeArray[1] = true; }
 
 		/**
 		 * Gets the asset element.
@@ -957,6 +989,16 @@ public:
 		 */
 		const domPass_Array &getPass_array() const { return elemPass_array; }
 		/**
+		 * Gets the extra element array.
+		 * @return Returns a reference to the array of extra elements.
+		 */
+		domExtra_Array &getExtra_array() { return elemExtra_array; }
+		/**
+		 * Gets the extra element array.
+		 * @return Returns a constant reference to the array of extra elements.
+		 */
+		const domExtra_Array &getExtra_array() const { return elemExtra_array; }
+		/**
 		 * Gets the _contents array.
 		 * @return Returns a reference to the _contents element array.
 		 */
@@ -971,7 +1013,7 @@ public:
 		/**
 		 * Constructor
 		 */
-		domTechnique() : attrId(), attrSid(), elemAsset(), elemAnnotate_array(), elemCode_array(), elemInclude_array(), elemImage_array(), elemNewparam_array(), elemSetparam_array(), elemPass_array() {}
+		domTechnique() : attrId(), attrSid(), elemAsset(), elemAnnotate_array(), elemCode_array(), elemInclude_array(), elemImage_array(), elemNewparam_array(), elemSetparam_array(), elemPass_array(), elemExtra_array() {}
 		/**
 		 * Destructor
 		 */
@@ -1007,7 +1049,13 @@ public:
 	};
 
 
-protected:  // Attribute
+protected:  // Attributes
+/**
+ *  The id attribute is a text string containing the unique identifier of
+ * this element.  This value must be unique within the instance document.
+ * Optional attribute. 
+ */
+	xsID attrId;
 /**
  *  The type of platform. This is a vendor-defined character string that indicates
  * the platform or capability target for the technique. Optional 
@@ -1015,6 +1063,7 @@ protected:  // Attribute
 	xsNCName attrPlatform;
 
 protected:  // Elements
+	domAssetRef elemAsset;
 	domFx_code_profile_Array elemCode_array;
 	domFx_include_common_Array elemInclude_array;
 	domImage_Array elemImage_array;
@@ -1024,13 +1073,30 @@ protected:  // Elements
  * passes necessary for rendering this effect using one method. @see domTechnique
  */
 	domTechnique_Array elemTechnique_array;
+	domExtra_Array elemExtra_array;
 	/**
 	 * Used to preserve order in elements that do not specify strict sequencing of sub-elements.
 	 */
 	daeElementRefArray _contents;
+	/**
+	 * Used to preserve order in elements that have a complex content model.
+	 */
+	daeUIntArray       _contentsOrder;
 
 
 public:	//Accessors and Mutators
+	/**
+	 * Gets the id attribute.
+	 * @return Returns a xsID of the id attribute.
+	 */
+	xsID getId() const { return attrId; }
+	/**
+	 * Sets the id attribute.
+	 * @param atId The new value for the id attribute.
+	 */
+	void setId( xsID atId ) { *(daeStringRef*)&attrId = atId;
+	 _validAttributeArray[0] = true; }
+
 	/**
 	 * Gets the platform attribute.
 	 * @return Returns a xsNCName of the platform attribute.
@@ -1040,8 +1106,14 @@ public:	//Accessors and Mutators
 	 * Sets the platform attribute.
 	 * @param atPlatform The new value for the platform attribute.
 	 */
-	void setPlatform( xsNCName atPlatform ) { attrPlatform = atPlatform; }
+	void setPlatform( xsNCName atPlatform ) { *(daeStringRef*)&attrPlatform = atPlatform;
+	 _validAttributeArray[1] = true; }
 
+	/**
+	 * Gets the asset element.
+	 * @return a daeSmartRef to the asset element.
+	 */
+	const domAssetRef getAsset() const { return elemAsset; }
 	/**
 	 * Gets the code element array.
 	 * @return Returns a reference to the array of code elements.
@@ -1093,6 +1165,16 @@ public:	//Accessors and Mutators
 	 */
 	const domTechnique_Array &getTechnique_array() const { return elemTechnique_array; }
 	/**
+	 * Gets the extra element array.
+	 * @return Returns a reference to the array of extra elements.
+	 */
+	domExtra_Array &getExtra_array() { return elemExtra_array; }
+	/**
+	 * Gets the extra element array.
+	 * @return Returns a constant reference to the array of extra elements.
+	 */
+	const domExtra_Array &getExtra_array() const { return elemExtra_array; }
+	/**
 	 * Gets the _contents array.
 	 * @return Returns a reference to the _contents element array.
 	 */
@@ -1107,7 +1189,7 @@ protected:
 	/**
 	 * Constructor
 	 */
-	domProfile_CG() : attrPlatform(), elemCode_array(), elemInclude_array(), elemImage_array(), elemNewparam_array(), elemTechnique_array() {}
+	domProfile_CG() : attrId(), attrPlatform(), elemAsset(), elemCode_array(), elemInclude_array(), elemImage_array(), elemNewparam_array(), elemTechnique_array(), elemExtra_array() {}
 	/**
 	 * Destructor
 	 */

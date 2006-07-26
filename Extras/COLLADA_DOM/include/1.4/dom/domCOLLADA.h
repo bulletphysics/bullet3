@@ -60,8 +60,8 @@ public:
 	protected:  // Elements
 /**
  * The instance_physics_scene element declares the instantiation of a COLLADA
- * physics_scene resource. The instance_physics_scene element may only appear
- * once. @see domInstance_physics_scene
+ * physics_scene resource. The instance_physics_scene element may appear any
+ * number of times. @see domInstance_physics_scene
  */
 		domInstanceWithExtra_Array elemInstance_physics_scene_array;
 /**
@@ -141,7 +141,7 @@ public:
 	};
 
 
-protected:  // Attribute
+protected:  // Attributes
 	/**
 	 * This element may specify its own xmlns.
 	 */
@@ -151,6 +151,11 @@ protected:  // Attribute
  * document  conforms. Required Attribute. 
  */
 	domVersionType attrVersion;
+/**
+ *  The xml:base attribute allows you to define the base URI for this COLLADA
+ * document. See http://www.w3.org/TR/xmlbase/ for more information. 
+ */
+	xsAnyURI attrXml_base;
 
 protected:  // Elements
 /**
@@ -248,6 +253,10 @@ protected:  // Elements
 	 * Used to preserve order in elements that do not specify strict sequencing of sub-elements.
 	 */
 	daeElementRefArray _contents;
+	/**
+	 * Used to preserve order in elements that have a complex content model.
+	 */
+	daeUIntArray       _contentsOrder;
 
 
 public:	//Accessors and Mutators
@@ -265,7 +274,8 @@ public:	//Accessors and Mutators
 	 * Sets the xmlns attribute.
 	 * @param xmlns The new value for the xmlns attribute.
 	 */
-	void setXmlns( const xsAnyURI &xmlns ) { attrXmlns.setURI( xmlns.getURI() ); }
+	void setXmlns( const xsAnyURI &xmlns ) { attrXmlns.setURI( xmlns.getURI() );
+	 _validAttributeArray[0] = true; }
 
 	/**
 	 * Gets the version attribute.
@@ -276,7 +286,25 @@ public:	//Accessors and Mutators
 	 * Sets the version attribute.
 	 * @param atVersion The new value for the version attribute.
 	 */
-	void setVersion( domVersionType atVersion ) { attrVersion = atVersion; }
+	void setVersion( domVersionType atVersion ) { attrVersion = atVersion;
+	 _validAttributeArray[1] = true; }
+
+	/**
+	 * Gets the xml_base attribute.
+	 * @return Returns a xsAnyURI reference of the xml_base attribute.
+	 */
+	xsAnyURI &getXml_base() { return attrXml_base; }
+	/**
+	 * Gets the xml_base attribute.
+	 * @return Returns a constant xsAnyURI reference of the xml_base attribute.
+	 */
+	const xsAnyURI &getXml_base() const { return attrXml_base; }
+	/**
+	 * Sets the xml_base attribute.
+	 * @param atXml_base The new value for the xml_base attribute.
+	 */
+	void setXml_base( const xsAnyURI &atXml_base ) { attrXml_base.setURI( atXml_base.getURI() );
+	 _validAttributeArray[2] = true; }
 
 	/**
 	 * Gets the asset element.
@@ -463,7 +491,7 @@ protected:
 	/**
 	 * Constructor
 	 */
-	domCOLLADA() : attrVersion(), elemAsset(), elemLibrary_animations_array(), elemLibrary_animation_clips_array(), elemLibrary_cameras_array(), elemLibrary_controllers_array(), elemLibrary_geometries_array(), elemLibrary_effects_array(), elemLibrary_force_fields_array(), elemLibrary_images_array(), elemLibrary_lights_array(), elemLibrary_materials_array(), elemLibrary_nodes_array(), elemLibrary_physics_materials_array(), elemLibrary_physics_models_array(), elemLibrary_physics_scenes_array(), elemLibrary_visual_scenes_array(), elemScene(), elemExtra_array() {}
+	domCOLLADA() : attrVersion(), attrXml_base(), elemAsset(), elemLibrary_animations_array(), elemLibrary_animation_clips_array(), elemLibrary_cameras_array(), elemLibrary_controllers_array(), elemLibrary_geometries_array(), elemLibrary_effects_array(), elemLibrary_force_fields_array(), elemLibrary_images_array(), elemLibrary_lights_array(), elemLibrary_materials_array(), elemLibrary_nodes_array(), elemLibrary_physics_materials_array(), elemLibrary_physics_models_array(), elemLibrary_physics_scenes_array(), elemLibrary_visual_scenes_array(), elemScene(), elemExtra_array() {}
 	/**
 	 * Destructor
 	 */

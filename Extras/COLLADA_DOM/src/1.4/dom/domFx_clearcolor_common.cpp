@@ -13,6 +13,12 @@
 
 #include <dae/daeDom.h>
 #include <dom/domFx_clearcolor_common.h>
+#include <dae/daeMetaCMPolicy.h>
+#include <dae/daeMetaSequence.h>
+#include <dae/daeMetaChoice.h>
+#include <dae/daeMetaGroup.h>
+#include <dae/daeMetaAny.h>
+#include <dae/daeMetaElementAttribute.h>
 
 daeElementRef
 domFx_clearcolor_common::create(daeInt bytes)
@@ -29,7 +35,6 @@ domFx_clearcolor_common::registerElement()
     
     _Meta = new daeMetaElement;
     _Meta->setName( "fx_clearcolor_common" );
-	_Meta->setStaticPointerAddress(&domFx_clearcolor_common::_Meta);
 	_Meta->registerConstructor(domFx_clearcolor_common::create);
 
 	//	Add attribute: _value

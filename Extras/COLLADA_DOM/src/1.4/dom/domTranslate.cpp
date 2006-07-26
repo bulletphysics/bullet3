@@ -13,6 +13,12 @@
 
 #include <dae/daeDom.h>
 #include <dom/domTranslate.h>
+#include <dae/daeMetaCMPolicy.h>
+#include <dae/daeMetaSequence.h>
+#include <dae/daeMetaChoice.h>
+#include <dae/daeMetaGroup.h>
+#include <dae/daeMetaAny.h>
+#include <dae/daeMetaElementAttribute.h>
 
 daeElementRef
 domTranslate::create(daeInt bytes)
@@ -29,7 +35,6 @@ domTranslate::registerElement()
     
     _Meta = new daeMetaElement;
     _Meta->setName( "translate" );
-	_Meta->setStaticPointerAddress(&domTranslate::_Meta);
 	_Meta->registerConstructor(domTranslate::create);
 
 	//	Add attribute: _value

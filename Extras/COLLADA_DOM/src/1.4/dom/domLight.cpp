@@ -13,6 +13,12 @@
 
 #include <dae/daeDom.h>
 #include <dom/domLight.h>
+#include <dae/daeMetaCMPolicy.h>
+#include <dae/daeMetaSequence.h>
+#include <dae/daeMetaChoice.h>
+#include <dae/daeMetaGroup.h>
+#include <dae/daeMetaAny.h>
+#include <dae/daeMetaElementAttribute.h>
 
 daeElementRef
 domLight::create(daeInt bytes)
@@ -29,14 +35,38 @@ domLight::registerElement()
     
     _Meta = new daeMetaElement;
     _Meta->setName( "light" );
-	_Meta->setStaticPointerAddress(&domLight::_Meta);
 	_Meta->registerConstructor(domLight::create);
 
-	// Add elements: asset, technique_common, technique, extra
-    _Meta->appendElement(domAsset::registerElement(),daeOffsetOf(domLight,elemAsset));
-    _Meta->appendElement(domLight::domTechnique_common::registerElement(),daeOffsetOf(domLight,elemTechnique_common));
-    _Meta->appendArrayElement(domTechnique::registerElement(),daeOffsetOf(domLight,elemTechnique_array));
-    _Meta->appendArrayElement(domExtra::registerElement(),daeOffsetOf(domLight,elemExtra_array));
+	daeMetaCMPolicy *cm = NULL;
+	daeMetaElementAttribute *mea = NULL;
+	cm = new daeMetaSequence( _Meta, cm, 0, 1, 1 );
+
+	mea = new daeMetaElementAttribute( _Meta, cm, 0, 0, 1 );
+	mea->setName( "asset" );
+	mea->setOffset( daeOffsetOf(domLight,elemAsset) );
+	mea->setElementType( domAsset::registerElement() );
+	cm->appendChild( mea );
+	
+	mea = new daeMetaElementAttribute( _Meta, cm, 1, 1, 1 );
+	mea->setName( "technique_common" );
+	mea->setOffset( daeOffsetOf(domLight,elemTechnique_common) );
+	mea->setElementType( domLight::domTechnique_common::registerElement() );
+	cm->appendChild( mea );
+	
+	mea = new daeMetaElementArrayAttribute( _Meta, cm, 2, 0, -1 );
+	mea->setName( "technique" );
+	mea->setOffset( daeOffsetOf(domLight,elemTechnique_array) );
+	mea->setElementType( domTechnique::registerElement() );
+	cm->appendChild( mea );
+	
+	mea = new daeMetaElementArrayAttribute( _Meta, cm, 3, 0, -1 );
+	mea->setName( "extra" );
+	mea->setOffset( daeOffsetOf(domLight,elemExtra_array) );
+	mea->setElementType( domExtra::registerElement() );
+	cm->appendChild( mea );
+	
+	cm->setMaxOrdinal( 3 );
+	_Meta->setCMRoot( cm );	
 
 	//	Add attribute: id
  	{
@@ -82,16 +112,42 @@ domLight::domTechnique_common::registerElement()
     
     _Meta = new daeMetaElement;
     _Meta->setName( "technique_common" );
-	_Meta->setStaticPointerAddress(&domLight::domTechnique_common::_Meta);
 	_Meta->registerConstructor(domLight::domTechnique_common::create);
 
-	// Add elements: ambient, directional, point, spot
-    _Meta->appendElement(domLight::domTechnique_common::domAmbient::registerElement(),daeOffsetOf(domLight::domTechnique_common,elemAmbient));
-    _Meta->appendElement(domLight::domTechnique_common::domDirectional::registerElement(),daeOffsetOf(domLight::domTechnique_common,elemDirectional));
-    _Meta->appendElement(domLight::domTechnique_common::domPoint::registerElement(),daeOffsetOf(domLight::domTechnique_common,elemPoint));
-    _Meta->appendElement(domLight::domTechnique_common::domSpot::registerElement(),daeOffsetOf(domLight::domTechnique_common,elemSpot));
+	_Meta->setIsInnerClass( true );
+	daeMetaCMPolicy *cm = NULL;
+	daeMetaElementAttribute *mea = NULL;
+	cm = new daeMetaChoice( _Meta, cm, 0, 1, 1 );
+
+	mea = new daeMetaElementAttribute( _Meta, cm, 0, 1, 1 );
+	mea->setName( "ambient" );
+	mea->setOffset( daeOffsetOf(domLight::domTechnique_common,elemAmbient) );
+	mea->setElementType( domLight::domTechnique_common::domAmbient::registerElement() );
+	cm->appendChild( mea );
+	
+	mea = new daeMetaElementAttribute( _Meta, cm, 0, 1, 1 );
+	mea->setName( "directional" );
+	mea->setOffset( daeOffsetOf(domLight::domTechnique_common,elemDirectional) );
+	mea->setElementType( domLight::domTechnique_common::domDirectional::registerElement() );
+	cm->appendChild( mea );
+	
+	mea = new daeMetaElementAttribute( _Meta, cm, 0, 1, 1 );
+	mea->setName( "point" );
+	mea->setOffset( daeOffsetOf(domLight::domTechnique_common,elemPoint) );
+	mea->setElementType( domLight::domTechnique_common::domPoint::registerElement() );
+	cm->appendChild( mea );
+	
+	mea = new daeMetaElementAttribute( _Meta, cm, 0, 1, 1 );
+	mea->setName( "spot" );
+	mea->setOffset( daeOffsetOf(domLight::domTechnique_common,elemSpot) );
+	mea->setElementType( domLight::domTechnique_common::domSpot::registerElement() );
+	cm->appendChild( mea );
+	
+	cm->setMaxOrdinal( 0 );
+	_Meta->setCMRoot( cm );	
 	// Ordered list of sub-elements
     _Meta->addContents(daeOffsetOf(domLight::domTechnique_common,_contents));
+    _Meta->addContentsOrder(daeOffsetOf(domLight::domTechnique_common,_contentsOrder));
 
 	
 	
@@ -116,11 +172,21 @@ domLight::domTechnique_common::domAmbient::registerElement()
     
     _Meta = new daeMetaElement;
     _Meta->setName( "ambient" );
-	_Meta->setStaticPointerAddress(&domLight::domTechnique_common::domAmbient::_Meta);
 	_Meta->registerConstructor(domLight::domTechnique_common::domAmbient::create);
 
-	// Add elements: color
-    _Meta->appendElement(domTargetableFloat3::registerElement(),daeOffsetOf(domLight::domTechnique_common::domAmbient,elemColor),"color"); 
+	_Meta->setIsInnerClass( true );
+	daeMetaCMPolicy *cm = NULL;
+	daeMetaElementAttribute *mea = NULL;
+	cm = new daeMetaSequence( _Meta, cm, 0, 1, 1 );
+
+	mea = new daeMetaElementAttribute( _Meta, cm, 0, 1, 1 );
+	mea->setName( "color" );
+	mea->setOffset( daeOffsetOf(domLight::domTechnique_common::domAmbient,elemColor) );
+	mea->setElementType( domTargetableFloat3::registerElement() );
+	cm->appendChild( mea );
+	
+	cm->setMaxOrdinal( 0 );
+	_Meta->setCMRoot( cm );	
 	
 	
 	_Meta->setElementSize(sizeof(domLight::domTechnique_common::domAmbient));
@@ -144,11 +210,21 @@ domLight::domTechnique_common::domDirectional::registerElement()
     
     _Meta = new daeMetaElement;
     _Meta->setName( "directional" );
-	_Meta->setStaticPointerAddress(&domLight::domTechnique_common::domDirectional::_Meta);
 	_Meta->registerConstructor(domLight::domTechnique_common::domDirectional::create);
 
-	// Add elements: color
-    _Meta->appendElement(domTargetableFloat3::registerElement(),daeOffsetOf(domLight::domTechnique_common::domDirectional,elemColor),"color"); 
+	_Meta->setIsInnerClass( true );
+	daeMetaCMPolicy *cm = NULL;
+	daeMetaElementAttribute *mea = NULL;
+	cm = new daeMetaSequence( _Meta, cm, 0, 1, 1 );
+
+	mea = new daeMetaElementAttribute( _Meta, cm, 0, 1, 1 );
+	mea->setName( "color" );
+	mea->setOffset( daeOffsetOf(domLight::domTechnique_common::domDirectional,elemColor) );
+	mea->setElementType( domTargetableFloat3::registerElement() );
+	cm->appendChild( mea );
+	
+	cm->setMaxOrdinal( 0 );
+	_Meta->setCMRoot( cm );	
 	
 	
 	_Meta->setElementSize(sizeof(domLight::domTechnique_common::domDirectional));
@@ -172,14 +248,39 @@ domLight::domTechnique_common::domPoint::registerElement()
     
     _Meta = new daeMetaElement;
     _Meta->setName( "point" );
-	_Meta->setStaticPointerAddress(&domLight::domTechnique_common::domPoint::_Meta);
 	_Meta->registerConstructor(domLight::domTechnique_common::domPoint::create);
 
-	// Add elements: color, constant_attenuation, linear_attenuation, quadratic_attenuation
-    _Meta->appendElement(domTargetableFloat3::registerElement(),daeOffsetOf(domLight::domTechnique_common::domPoint,elemColor),"color"); 
-    _Meta->appendElement(domTargetableFloat::registerElement(),daeOffsetOf(domLight::domTechnique_common::domPoint,elemConstant_attenuation),"constant_attenuation"); 
-    _Meta->appendElement(domTargetableFloat::registerElement(),daeOffsetOf(domLight::domTechnique_common::domPoint,elemLinear_attenuation),"linear_attenuation"); 
-    _Meta->appendElement(domTargetableFloat::registerElement(),daeOffsetOf(domLight::domTechnique_common::domPoint,elemQuadratic_attenuation),"quadratic_attenuation"); 
+	_Meta->setIsInnerClass( true );
+	daeMetaCMPolicy *cm = NULL;
+	daeMetaElementAttribute *mea = NULL;
+	cm = new daeMetaSequence( _Meta, cm, 0, 1, 1 );
+
+	mea = new daeMetaElementAttribute( _Meta, cm, 0, 1, 1 );
+	mea->setName( "color" );
+	mea->setOffset( daeOffsetOf(domLight::domTechnique_common::domPoint,elemColor) );
+	mea->setElementType( domTargetableFloat3::registerElement() );
+	cm->appendChild( mea );
+	
+	mea = new daeMetaElementAttribute( _Meta, cm, 1, 0, 1 );
+	mea->setName( "constant_attenuation" );
+	mea->setOffset( daeOffsetOf(domLight::domTechnique_common::domPoint,elemConstant_attenuation) );
+	mea->setElementType( domTargetableFloat::registerElement() );
+	cm->appendChild( mea );
+	
+	mea = new daeMetaElementAttribute( _Meta, cm, 2, 0, 1 );
+	mea->setName( "linear_attenuation" );
+	mea->setOffset( daeOffsetOf(domLight::domTechnique_common::domPoint,elemLinear_attenuation) );
+	mea->setElementType( domTargetableFloat::registerElement() );
+	cm->appendChild( mea );
+	
+	mea = new daeMetaElementAttribute( _Meta, cm, 3, 0, 1 );
+	mea->setName( "quadratic_attenuation" );
+	mea->setOffset( daeOffsetOf(domLight::domTechnique_common::domPoint,elemQuadratic_attenuation) );
+	mea->setElementType( domTargetableFloat::registerElement() );
+	cm->appendChild( mea );
+	
+	cm->setMaxOrdinal( 3 );
+	_Meta->setCMRoot( cm );	
 	
 	
 	_Meta->setElementSize(sizeof(domLight::domTechnique_common::domPoint));
@@ -203,16 +304,51 @@ domLight::domTechnique_common::domSpot::registerElement()
     
     _Meta = new daeMetaElement;
     _Meta->setName( "spot" );
-	_Meta->setStaticPointerAddress(&domLight::domTechnique_common::domSpot::_Meta);
 	_Meta->registerConstructor(domLight::domTechnique_common::domSpot::create);
 
-	// Add elements: color, constant_attenuation, linear_attenuation, quadratic_attenuation, falloff_angle, falloff_exponent
-    _Meta->appendElement(domTargetableFloat3::registerElement(),daeOffsetOf(domLight::domTechnique_common::domSpot,elemColor),"color"); 
-    _Meta->appendElement(domTargetableFloat::registerElement(),daeOffsetOf(domLight::domTechnique_common::domSpot,elemConstant_attenuation),"constant_attenuation"); 
-    _Meta->appendElement(domTargetableFloat::registerElement(),daeOffsetOf(domLight::domTechnique_common::domSpot,elemLinear_attenuation),"linear_attenuation"); 
-    _Meta->appendElement(domTargetableFloat::registerElement(),daeOffsetOf(domLight::domTechnique_common::domSpot,elemQuadratic_attenuation),"quadratic_attenuation"); 
-    _Meta->appendElement(domTargetableFloat::registerElement(),daeOffsetOf(domLight::domTechnique_common::domSpot,elemFalloff_angle),"falloff_angle"); 
-    _Meta->appendElement(domTargetableFloat::registerElement(),daeOffsetOf(domLight::domTechnique_common::domSpot,elemFalloff_exponent),"falloff_exponent"); 
+	_Meta->setIsInnerClass( true );
+	daeMetaCMPolicy *cm = NULL;
+	daeMetaElementAttribute *mea = NULL;
+	cm = new daeMetaSequence( _Meta, cm, 0, 1, 1 );
+
+	mea = new daeMetaElementAttribute( _Meta, cm, 0, 1, 1 );
+	mea->setName( "color" );
+	mea->setOffset( daeOffsetOf(domLight::domTechnique_common::domSpot,elemColor) );
+	mea->setElementType( domTargetableFloat3::registerElement() );
+	cm->appendChild( mea );
+	
+	mea = new daeMetaElementAttribute( _Meta, cm, 1, 0, 1 );
+	mea->setName( "constant_attenuation" );
+	mea->setOffset( daeOffsetOf(domLight::domTechnique_common::domSpot,elemConstant_attenuation) );
+	mea->setElementType( domTargetableFloat::registerElement() );
+	cm->appendChild( mea );
+	
+	mea = new daeMetaElementAttribute( _Meta, cm, 2, 0, 1 );
+	mea->setName( "linear_attenuation" );
+	mea->setOffset( daeOffsetOf(domLight::domTechnique_common::domSpot,elemLinear_attenuation) );
+	mea->setElementType( domTargetableFloat::registerElement() );
+	cm->appendChild( mea );
+	
+	mea = new daeMetaElementAttribute( _Meta, cm, 3, 0, 1 );
+	mea->setName( "quadratic_attenuation" );
+	mea->setOffset( daeOffsetOf(domLight::domTechnique_common::domSpot,elemQuadratic_attenuation) );
+	mea->setElementType( domTargetableFloat::registerElement() );
+	cm->appendChild( mea );
+	
+	mea = new daeMetaElementAttribute( _Meta, cm, 4, 0, 1 );
+	mea->setName( "falloff_angle" );
+	mea->setOffset( daeOffsetOf(domLight::domTechnique_common::domSpot,elemFalloff_angle) );
+	mea->setElementType( domTargetableFloat::registerElement() );
+	cm->appendChild( mea );
+	
+	mea = new daeMetaElementAttribute( _Meta, cm, 5, 0, 1 );
+	mea->setName( "falloff_exponent" );
+	mea->setOffset( daeOffsetOf(domLight::domTechnique_common::domSpot,elemFalloff_exponent) );
+	mea->setElementType( domTargetableFloat::registerElement() );
+	cm->appendChild( mea );
+	
+	cm->setMaxOrdinal( 5 );
+	_Meta->setCMRoot( cm );	
 	
 	
 	_Meta->setElementSize(sizeof(domLight::domTechnique_common::domSpot));

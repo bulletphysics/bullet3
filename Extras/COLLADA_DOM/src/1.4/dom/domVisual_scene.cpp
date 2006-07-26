@@ -13,6 +13,12 @@
 
 #include <dae/daeDom.h>
 #include <dom/domVisual_scene.h>
+#include <dae/daeMetaCMPolicy.h>
+#include <dae/daeMetaSequence.h>
+#include <dae/daeMetaChoice.h>
+#include <dae/daeMetaGroup.h>
+#include <dae/daeMetaAny.h>
+#include <dae/daeMetaElementAttribute.h>
 
 daeElementRef
 domVisual_scene::create(daeInt bytes)
@@ -29,14 +35,38 @@ domVisual_scene::registerElement()
     
     _Meta = new daeMetaElement;
     _Meta->setName( "visual_scene" );
-	_Meta->setStaticPointerAddress(&domVisual_scene::_Meta);
 	_Meta->registerConstructor(domVisual_scene::create);
 
-	// Add elements: asset, node, evaluate_scene, extra
-    _Meta->appendElement(domAsset::registerElement(),daeOffsetOf(domVisual_scene,elemAsset));
-    _Meta->appendArrayElement(domNode::registerElement(),daeOffsetOf(domVisual_scene,elemNode_array));
-    _Meta->appendArrayElement(domVisual_scene::domEvaluate_scene::registerElement(),daeOffsetOf(domVisual_scene,elemEvaluate_scene_array));
-    _Meta->appendArrayElement(domExtra::registerElement(),daeOffsetOf(domVisual_scene,elemExtra_array));
+	daeMetaCMPolicy *cm = NULL;
+	daeMetaElementAttribute *mea = NULL;
+	cm = new daeMetaSequence( _Meta, cm, 0, 1, 1 );
+
+	mea = new daeMetaElementAttribute( _Meta, cm, 0, 0, 1 );
+	mea->setName( "asset" );
+	mea->setOffset( daeOffsetOf(domVisual_scene,elemAsset) );
+	mea->setElementType( domAsset::registerElement() );
+	cm->appendChild( mea );
+	
+	mea = new daeMetaElementArrayAttribute( _Meta, cm, 1, 1, -1 );
+	mea->setName( "node" );
+	mea->setOffset( daeOffsetOf(domVisual_scene,elemNode_array) );
+	mea->setElementType( domNode::registerElement() );
+	cm->appendChild( mea );
+	
+	mea = new daeMetaElementArrayAttribute( _Meta, cm, 2, 0, -1 );
+	mea->setName( "evaluate_scene" );
+	mea->setOffset( daeOffsetOf(domVisual_scene,elemEvaluate_scene_array) );
+	mea->setElementType( domVisual_scene::domEvaluate_scene::registerElement() );
+	cm->appendChild( mea );
+	
+	mea = new daeMetaElementArrayAttribute( _Meta, cm, 3, 0, -1 );
+	mea->setName( "extra" );
+	mea->setOffset( daeOffsetOf(domVisual_scene,elemExtra_array) );
+	mea->setElementType( domExtra::registerElement() );
+	cm->appendChild( mea );
+	
+	cm->setMaxOrdinal( 3 );
+	_Meta->setCMRoot( cm );	
 
 	//	Add attribute: id
  	{
@@ -83,11 +113,21 @@ domVisual_scene::domEvaluate_scene::registerElement()
     
     _Meta = new daeMetaElement;
     _Meta->setName( "evaluate_scene" );
-	_Meta->setStaticPointerAddress(&domVisual_scene::domEvaluate_scene::_Meta);
 	_Meta->registerConstructor(domVisual_scene::domEvaluate_scene::create);
 
-	// Add elements: render
-    _Meta->appendArrayElement(domVisual_scene::domEvaluate_scene::domRender::registerElement(),daeOffsetOf(domVisual_scene::domEvaluate_scene,elemRender_array));
+	_Meta->setIsInnerClass( true );
+	daeMetaCMPolicy *cm = NULL;
+	daeMetaElementAttribute *mea = NULL;
+	cm = new daeMetaSequence( _Meta, cm, 0, 1, 1 );
+
+	mea = new daeMetaElementArrayAttribute( _Meta, cm, 0, 1, -1 );
+	mea->setName( "render" );
+	mea->setOffset( daeOffsetOf(domVisual_scene::domEvaluate_scene,elemRender_array) );
+	mea->setElementType( domVisual_scene::domEvaluate_scene::domRender::registerElement() );
+	cm->appendChild( mea );
+	
+	cm->setMaxOrdinal( 0 );
+	_Meta->setCMRoot( cm );	
 
 	//	Add attribute: name
  	{
@@ -123,12 +163,27 @@ domVisual_scene::domEvaluate_scene::domRender::registerElement()
     
     _Meta = new daeMetaElement;
     _Meta->setName( "render" );
-	_Meta->setStaticPointerAddress(&domVisual_scene::domEvaluate_scene::domRender::_Meta);
 	_Meta->registerConstructor(domVisual_scene::domEvaluate_scene::domRender::create);
 
-	// Add elements: layer, instance_effect
-    _Meta->appendArrayElement(domVisual_scene::domEvaluate_scene::domRender::domLayer::registerElement(),daeOffsetOf(domVisual_scene::domEvaluate_scene::domRender,elemLayer_array));
-    _Meta->appendElement(domInstance_effect::registerElement(),daeOffsetOf(domVisual_scene::domEvaluate_scene::domRender,elemInstance_effect));
+	_Meta->setIsInnerClass( true );
+	daeMetaCMPolicy *cm = NULL;
+	daeMetaElementAttribute *mea = NULL;
+	cm = new daeMetaSequence( _Meta, cm, 0, 1, 1 );
+
+	mea = new daeMetaElementArrayAttribute( _Meta, cm, 0, 0, -1 );
+	mea->setName( "layer" );
+	mea->setOffset( daeOffsetOf(domVisual_scene::domEvaluate_scene::domRender,elemLayer_array) );
+	mea->setElementType( domVisual_scene::domEvaluate_scene::domRender::domLayer::registerElement() );
+	cm->appendChild( mea );
+	
+	mea = new daeMetaElementAttribute( _Meta, cm, 1, 0, 1 );
+	mea->setName( "instance_effect" );
+	mea->setOffset( daeOffsetOf(domVisual_scene::domEvaluate_scene::domRender,elemInstance_effect) );
+	mea->setElementType( domInstance_effect::registerElement() );
+	cm->appendChild( mea );
+	
+	cm->setMaxOrdinal( 1 );
+	_Meta->setCMRoot( cm );	
 
 	//	Add attribute: camera_node
  	{
@@ -164,9 +219,9 @@ domVisual_scene::domEvaluate_scene::domRender::domLayer::registerElement()
     
     _Meta = new daeMetaElement;
     _Meta->setName( "layer" );
-	_Meta->setStaticPointerAddress(&domVisual_scene::domEvaluate_scene::domRender::domLayer::_Meta);
 	_Meta->registerConstructor(domVisual_scene::domEvaluate_scene::domRender::domLayer::create);
 
+	_Meta->setIsInnerClass( true );
 	//	Add attribute: _value
  	{
 		daeMetaAttribute *ma = new daeMetaAttribute;

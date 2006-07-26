@@ -13,6 +13,12 @@
 
 #include <dae/daeDom.h>
 #include <dom/domGles_texenv_command_type.h>
+#include <dae/daeMetaCMPolicy.h>
+#include <dae/daeMetaSequence.h>
+#include <dae/daeMetaChoice.h>
+#include <dae/daeMetaGroup.h>
+#include <dae/daeMetaAny.h>
+#include <dae/daeMetaElementAttribute.h>
 
 daeElementRef
 domGles_texenv_command_type::create(daeInt bytes)
@@ -29,11 +35,20 @@ domGles_texenv_command_type::registerElement()
     
     _Meta = new daeMetaElement;
     _Meta->setName( "gles_texenv_command_type" );
-	_Meta->setStaticPointerAddress(&domGles_texenv_command_type::_Meta);
 	_Meta->registerConstructor(domGles_texenv_command_type::create);
 
-	// Add elements: constant
-    _Meta->appendElement(domGles_texture_constant_type::registerElement(),daeOffsetOf(domGles_texenv_command_type,elemConstant),"constant"); 
+	daeMetaCMPolicy *cm = NULL;
+	daeMetaElementAttribute *mea = NULL;
+	cm = new daeMetaSequence( _Meta, cm, 0, 1, 1 );
+
+	mea = new daeMetaElementAttribute( _Meta, cm, 0, 0, 1 );
+	mea->setName( "constant" );
+	mea->setOffset( daeOffsetOf(domGles_texenv_command_type,elemConstant) );
+	mea->setElementType( domGles_texture_constant_type::registerElement() );
+	cm->appendChild( mea );
+	
+	cm->setMaxOrdinal( 0 );
+	_Meta->setCMRoot( cm );	
 
 	//	Add attribute: operator
  	{

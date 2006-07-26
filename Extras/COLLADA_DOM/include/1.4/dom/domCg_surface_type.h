@@ -69,18 +69,19 @@ public:
 			 * Sets the source attribute.
 			 * @param atSource The new value for the source attribute.
 			 */
-			void setSource( xsNCName atSource ) { attrSource = atSource; }
+			void setSource( xsNCName atSource ) { *(daeStringRef*)&attrSource = atSource;		
+	 _validAttributeArray[0] = true; }
 
 			/**
 			 * Gets the value of this element.
-			 * @return a xsNCName of the value.
+			 * @return Returns a xsNCName of the value.
 			 */
 			xsNCName getValue() const { return _value; }
 			/**
 			 * Sets the _value of this element.
 			 * @param val The new value for this element.
 			 */
-			void setValue( xsNCName val ) { _value = val; }
+			void setValue( xsNCName val ) { *(daeStringRef*)&_value = val; }
 
 		protected:
 			/**
@@ -151,6 +152,10 @@ public:
 		 * Used to preserve order in elements that do not specify strict sequencing of sub-elements.
 		 */
 		daeElementRefArray _contents;
+		/**
+		 * Used to preserve order in elements that have a complex content model.
+		 */
+		daeUIntArray       _contentsOrder;
 
 
 	public:	//Accessors and Mutators

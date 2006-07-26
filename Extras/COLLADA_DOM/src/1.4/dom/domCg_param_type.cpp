@@ -13,6 +13,12 @@
 
 #include <dae/daeDom.h>
 #include <dom/domCg_param_type.h>
+#include <dae/daeMetaCMPolicy.h>
+#include <dae/daeMetaSequence.h>
+#include <dae/daeMetaChoice.h>
+#include <dae/daeMetaGroup.h>
+#include <dae/daeMetaAny.h>
+#include <dae/daeMetaElementAttribute.h>
 
 daeElementRef
 domCg_param_type::create(daeInt bytes)
@@ -29,127 +35,702 @@ domCg_param_type::registerElement()
     
     _Meta = new daeMetaElement;
     _Meta->setName( "cg_param_type" );
-	_Meta->setStaticPointerAddress(&domCg_param_type::_Meta);
 	_Meta->registerConstructor(domCg_param_type::create);
 
 	_Meta->setIsTransparent( true );
-	// Add elements: bool, bool1, bool2, bool3, bool4, bool1x1, bool1x2, bool1x3, bool1x4, bool2x1, bool2x2, bool2x3, bool2x4, bool3x1, bool3x2, bool3x3, bool3x4, bool4x1, bool4x2, bool4x3, bool4x4, float, float1, float2, float3, float4, float1x1, float1x2, float1x3, float1x4, float2x1, float2x2, float2x3, float2x4, float3x1, float3x2, float3x3, float3x4, float4x1, float4x2, float4x3, float4x4, int, int1, int2, int3, int4, int1x1, int1x2, int1x3, int1x4, int2x1, int2x2, int2x3, int2x4, int3x1, int3x2, int3x3, int3x4, int4x1, int4x2, int4x3, int4x4, half, half1, half2, half3, half4, half1x1, half1x2, half1x3, half1x4, half2x1, half2x2, half2x3, half2x4, half3x1, half3x2, half3x3, half3x4, half4x1, half4x2, half4x3, half4x4, fixed, fixed1, fixed2, fixed3, fixed4, fixed1x1, fixed1x2, fixed1x3, fixed1x4, fixed2x1, fixed2x2, fixed2x3, fixed2x4, fixed3x1, fixed3x2, fixed3x3, fixed3x4, fixed4x1, fixed4x2, fixed4x3, fixed4x4, surface, sampler1D, sampler2D, sampler3D, samplerRECT, samplerCUBE, samplerDEPTH, string, enum
-    _Meta->appendElement(domCg_param_type::domBool::registerElement(),daeOffsetOf(domCg_param_type,elemBool));
-    _Meta->appendElement(domCg_param_type::domBool1::registerElement(),daeOffsetOf(domCg_param_type,elemBool1));
-    _Meta->appendElement(domCg_param_type::domBool2::registerElement(),daeOffsetOf(domCg_param_type,elemBool2));
-    _Meta->appendElement(domCg_param_type::domBool3::registerElement(),daeOffsetOf(domCg_param_type,elemBool3));
-    _Meta->appendElement(domCg_param_type::domBool4::registerElement(),daeOffsetOf(domCg_param_type,elemBool4));
-    _Meta->appendElement(domCg_param_type::domBool1x1::registerElement(),daeOffsetOf(domCg_param_type,elemBool1x1));
-    _Meta->appendElement(domCg_param_type::domBool1x2::registerElement(),daeOffsetOf(domCg_param_type,elemBool1x2));
-    _Meta->appendElement(domCg_param_type::domBool1x3::registerElement(),daeOffsetOf(domCg_param_type,elemBool1x3));
-    _Meta->appendElement(domCg_param_type::domBool1x4::registerElement(),daeOffsetOf(domCg_param_type,elemBool1x4));
-    _Meta->appendElement(domCg_param_type::domBool2x1::registerElement(),daeOffsetOf(domCg_param_type,elemBool2x1));
-    _Meta->appendElement(domCg_param_type::domBool2x2::registerElement(),daeOffsetOf(domCg_param_type,elemBool2x2));
-    _Meta->appendElement(domCg_param_type::domBool2x3::registerElement(),daeOffsetOf(domCg_param_type,elemBool2x3));
-    _Meta->appendElement(domCg_param_type::domBool2x4::registerElement(),daeOffsetOf(domCg_param_type,elemBool2x4));
-    _Meta->appendElement(domCg_param_type::domBool3x1::registerElement(),daeOffsetOf(domCg_param_type,elemBool3x1));
-    _Meta->appendElement(domCg_param_type::domBool3x2::registerElement(),daeOffsetOf(domCg_param_type,elemBool3x2));
-    _Meta->appendElement(domCg_param_type::domBool3x3::registerElement(),daeOffsetOf(domCg_param_type,elemBool3x3));
-    _Meta->appendElement(domCg_param_type::domBool3x4::registerElement(),daeOffsetOf(domCg_param_type,elemBool3x4));
-    _Meta->appendElement(domCg_param_type::domBool4x1::registerElement(),daeOffsetOf(domCg_param_type,elemBool4x1));
-    _Meta->appendElement(domCg_param_type::domBool4x2::registerElement(),daeOffsetOf(domCg_param_type,elemBool4x2));
-    _Meta->appendElement(domCg_param_type::domBool4x3::registerElement(),daeOffsetOf(domCg_param_type,elemBool4x3));
-    _Meta->appendElement(domCg_param_type::domBool4x4::registerElement(),daeOffsetOf(domCg_param_type,elemBool4x4));
-    _Meta->appendElement(domCg_param_type::domFloat::registerElement(),daeOffsetOf(domCg_param_type,elemFloat));
-    _Meta->appendElement(domCg_param_type::domFloat1::registerElement(),daeOffsetOf(domCg_param_type,elemFloat1));
-    _Meta->appendElement(domCg_param_type::domFloat2::registerElement(),daeOffsetOf(domCg_param_type,elemFloat2));
-    _Meta->appendElement(domCg_param_type::domFloat3::registerElement(),daeOffsetOf(domCg_param_type,elemFloat3));
-    _Meta->appendElement(domCg_param_type::domFloat4::registerElement(),daeOffsetOf(domCg_param_type,elemFloat4));
-    _Meta->appendElement(domCg_param_type::domFloat1x1::registerElement(),daeOffsetOf(domCg_param_type,elemFloat1x1));
-    _Meta->appendElement(domCg_param_type::domFloat1x2::registerElement(),daeOffsetOf(domCg_param_type,elemFloat1x2));
-    _Meta->appendElement(domCg_param_type::domFloat1x3::registerElement(),daeOffsetOf(domCg_param_type,elemFloat1x3));
-    _Meta->appendElement(domCg_param_type::domFloat1x4::registerElement(),daeOffsetOf(domCg_param_type,elemFloat1x4));
-    _Meta->appendElement(domCg_param_type::domFloat2x1::registerElement(),daeOffsetOf(domCg_param_type,elemFloat2x1));
-    _Meta->appendElement(domCg_param_type::domFloat2x2::registerElement(),daeOffsetOf(domCg_param_type,elemFloat2x2));
-    _Meta->appendElement(domCg_param_type::domFloat2x3::registerElement(),daeOffsetOf(domCg_param_type,elemFloat2x3));
-    _Meta->appendElement(domCg_param_type::domFloat2x4::registerElement(),daeOffsetOf(domCg_param_type,elemFloat2x4));
-    _Meta->appendElement(domCg_param_type::domFloat3x1::registerElement(),daeOffsetOf(domCg_param_type,elemFloat3x1));
-    _Meta->appendElement(domCg_param_type::domFloat3x2::registerElement(),daeOffsetOf(domCg_param_type,elemFloat3x2));
-    _Meta->appendElement(domCg_param_type::domFloat3x3::registerElement(),daeOffsetOf(domCg_param_type,elemFloat3x3));
-    _Meta->appendElement(domCg_param_type::domFloat3x4::registerElement(),daeOffsetOf(domCg_param_type,elemFloat3x4));
-    _Meta->appendElement(domCg_param_type::domFloat4x1::registerElement(),daeOffsetOf(domCg_param_type,elemFloat4x1));
-    _Meta->appendElement(domCg_param_type::domFloat4x2::registerElement(),daeOffsetOf(domCg_param_type,elemFloat4x2));
-    _Meta->appendElement(domCg_param_type::domFloat4x3::registerElement(),daeOffsetOf(domCg_param_type,elemFloat4x3));
-    _Meta->appendElement(domCg_param_type::domFloat4x4::registerElement(),daeOffsetOf(domCg_param_type,elemFloat4x4));
-    _Meta->appendElement(domCg_param_type::domInt::registerElement(),daeOffsetOf(domCg_param_type,elemInt));
-    _Meta->appendElement(domCg_param_type::domInt1::registerElement(),daeOffsetOf(domCg_param_type,elemInt1));
-    _Meta->appendElement(domCg_param_type::domInt2::registerElement(),daeOffsetOf(domCg_param_type,elemInt2));
-    _Meta->appendElement(domCg_param_type::domInt3::registerElement(),daeOffsetOf(domCg_param_type,elemInt3));
-    _Meta->appendElement(domCg_param_type::domInt4::registerElement(),daeOffsetOf(domCg_param_type,elemInt4));
-    _Meta->appendElement(domCg_param_type::domInt1x1::registerElement(),daeOffsetOf(domCg_param_type,elemInt1x1));
-    _Meta->appendElement(domCg_param_type::domInt1x2::registerElement(),daeOffsetOf(domCg_param_type,elemInt1x2));
-    _Meta->appendElement(domCg_param_type::domInt1x3::registerElement(),daeOffsetOf(domCg_param_type,elemInt1x3));
-    _Meta->appendElement(domCg_param_type::domInt1x4::registerElement(),daeOffsetOf(domCg_param_type,elemInt1x4));
-    _Meta->appendElement(domCg_param_type::domInt2x1::registerElement(),daeOffsetOf(domCg_param_type,elemInt2x1));
-    _Meta->appendElement(domCg_param_type::domInt2x2::registerElement(),daeOffsetOf(domCg_param_type,elemInt2x2));
-    _Meta->appendElement(domCg_param_type::domInt2x3::registerElement(),daeOffsetOf(domCg_param_type,elemInt2x3));
-    _Meta->appendElement(domCg_param_type::domInt2x4::registerElement(),daeOffsetOf(domCg_param_type,elemInt2x4));
-    _Meta->appendElement(domCg_param_type::domInt3x1::registerElement(),daeOffsetOf(domCg_param_type,elemInt3x1));
-    _Meta->appendElement(domCg_param_type::domInt3x2::registerElement(),daeOffsetOf(domCg_param_type,elemInt3x2));
-    _Meta->appendElement(domCg_param_type::domInt3x3::registerElement(),daeOffsetOf(domCg_param_type,elemInt3x3));
-    _Meta->appendElement(domCg_param_type::domInt3x4::registerElement(),daeOffsetOf(domCg_param_type,elemInt3x4));
-    _Meta->appendElement(domCg_param_type::domInt4x1::registerElement(),daeOffsetOf(domCg_param_type,elemInt4x1));
-    _Meta->appendElement(domCg_param_type::domInt4x2::registerElement(),daeOffsetOf(domCg_param_type,elemInt4x2));
-    _Meta->appendElement(domCg_param_type::domInt4x3::registerElement(),daeOffsetOf(domCg_param_type,elemInt4x3));
-    _Meta->appendElement(domCg_param_type::domInt4x4::registerElement(),daeOffsetOf(domCg_param_type,elemInt4x4));
-    _Meta->appendElement(domCg_param_type::domHalf::registerElement(),daeOffsetOf(domCg_param_type,elemHalf));
-    _Meta->appendElement(domCg_param_type::domHalf1::registerElement(),daeOffsetOf(domCg_param_type,elemHalf1));
-    _Meta->appendElement(domCg_param_type::domHalf2::registerElement(),daeOffsetOf(domCg_param_type,elemHalf2));
-    _Meta->appendElement(domCg_param_type::domHalf3::registerElement(),daeOffsetOf(domCg_param_type,elemHalf3));
-    _Meta->appendElement(domCg_param_type::domHalf4::registerElement(),daeOffsetOf(domCg_param_type,elemHalf4));
-    _Meta->appendElement(domCg_param_type::domHalf1x1::registerElement(),daeOffsetOf(domCg_param_type,elemHalf1x1));
-    _Meta->appendElement(domCg_param_type::domHalf1x2::registerElement(),daeOffsetOf(domCg_param_type,elemHalf1x2));
-    _Meta->appendElement(domCg_param_type::domHalf1x3::registerElement(),daeOffsetOf(domCg_param_type,elemHalf1x3));
-    _Meta->appendElement(domCg_param_type::domHalf1x4::registerElement(),daeOffsetOf(domCg_param_type,elemHalf1x4));
-    _Meta->appendElement(domCg_param_type::domHalf2x1::registerElement(),daeOffsetOf(domCg_param_type,elemHalf2x1));
-    _Meta->appendElement(domCg_param_type::domHalf2x2::registerElement(),daeOffsetOf(domCg_param_type,elemHalf2x2));
-    _Meta->appendElement(domCg_param_type::domHalf2x3::registerElement(),daeOffsetOf(domCg_param_type,elemHalf2x3));
-    _Meta->appendElement(domCg_param_type::domHalf2x4::registerElement(),daeOffsetOf(domCg_param_type,elemHalf2x4));
-    _Meta->appendElement(domCg_param_type::domHalf3x1::registerElement(),daeOffsetOf(domCg_param_type,elemHalf3x1));
-    _Meta->appendElement(domCg_param_type::domHalf3x2::registerElement(),daeOffsetOf(domCg_param_type,elemHalf3x2));
-    _Meta->appendElement(domCg_param_type::domHalf3x3::registerElement(),daeOffsetOf(domCg_param_type,elemHalf3x3));
-    _Meta->appendElement(domCg_param_type::domHalf3x4::registerElement(),daeOffsetOf(domCg_param_type,elemHalf3x4));
-    _Meta->appendElement(domCg_param_type::domHalf4x1::registerElement(),daeOffsetOf(domCg_param_type,elemHalf4x1));
-    _Meta->appendElement(domCg_param_type::domHalf4x2::registerElement(),daeOffsetOf(domCg_param_type,elemHalf4x2));
-    _Meta->appendElement(domCg_param_type::domHalf4x3::registerElement(),daeOffsetOf(domCg_param_type,elemHalf4x3));
-    _Meta->appendElement(domCg_param_type::domHalf4x4::registerElement(),daeOffsetOf(domCg_param_type,elemHalf4x4));
-    _Meta->appendElement(domCg_param_type::domFixed::registerElement(),daeOffsetOf(domCg_param_type,elemFixed));
-    _Meta->appendElement(domCg_param_type::domFixed1::registerElement(),daeOffsetOf(domCg_param_type,elemFixed1));
-    _Meta->appendElement(domCg_param_type::domFixed2::registerElement(),daeOffsetOf(domCg_param_type,elemFixed2));
-    _Meta->appendElement(domCg_param_type::domFixed3::registerElement(),daeOffsetOf(domCg_param_type,elemFixed3));
-    _Meta->appendElement(domCg_param_type::domFixed4::registerElement(),daeOffsetOf(domCg_param_type,elemFixed4));
-    _Meta->appendElement(domCg_param_type::domFixed1x1::registerElement(),daeOffsetOf(domCg_param_type,elemFixed1x1));
-    _Meta->appendElement(domCg_param_type::domFixed1x2::registerElement(),daeOffsetOf(domCg_param_type,elemFixed1x2));
-    _Meta->appendElement(domCg_param_type::domFixed1x3::registerElement(),daeOffsetOf(domCg_param_type,elemFixed1x3));
-    _Meta->appendElement(domCg_param_type::domFixed1x4::registerElement(),daeOffsetOf(domCg_param_type,elemFixed1x4));
-    _Meta->appendElement(domCg_param_type::domFixed2x1::registerElement(),daeOffsetOf(domCg_param_type,elemFixed2x1));
-    _Meta->appendElement(domCg_param_type::domFixed2x2::registerElement(),daeOffsetOf(domCg_param_type,elemFixed2x2));
-    _Meta->appendElement(domCg_param_type::domFixed2x3::registerElement(),daeOffsetOf(domCg_param_type,elemFixed2x3));
-    _Meta->appendElement(domCg_param_type::domFixed2x4::registerElement(),daeOffsetOf(domCg_param_type,elemFixed2x4));
-    _Meta->appendElement(domCg_param_type::domFixed3x1::registerElement(),daeOffsetOf(domCg_param_type,elemFixed3x1));
-    _Meta->appendElement(domCg_param_type::domFixed3x2::registerElement(),daeOffsetOf(domCg_param_type,elemFixed3x2));
-    _Meta->appendElement(domCg_param_type::domFixed3x3::registerElement(),daeOffsetOf(domCg_param_type,elemFixed3x3));
-    _Meta->appendElement(domCg_param_type::domFixed3x4::registerElement(),daeOffsetOf(domCg_param_type,elemFixed3x4));
-    _Meta->appendElement(domCg_param_type::domFixed4x1::registerElement(),daeOffsetOf(domCg_param_type,elemFixed4x1));
-    _Meta->appendElement(domCg_param_type::domFixed4x2::registerElement(),daeOffsetOf(domCg_param_type,elemFixed4x2));
-    _Meta->appendElement(domCg_param_type::domFixed4x3::registerElement(),daeOffsetOf(domCg_param_type,elemFixed4x3));
-    _Meta->appendElement(domCg_param_type::domFixed4x4::registerElement(),daeOffsetOf(domCg_param_type,elemFixed4x4));
-    _Meta->appendElement(domCg_surface_type::registerElement(),daeOffsetOf(domCg_param_type,elemSurface),"surface"); 
-    _Meta->appendElement(domCg_sampler1D::registerElement(),daeOffsetOf(domCg_param_type,elemSampler1D),"sampler1D"); 
-    _Meta->appendElement(domCg_sampler2D::registerElement(),daeOffsetOf(domCg_param_type,elemSampler2D),"sampler2D"); 
-    _Meta->appendElement(domCg_sampler3D::registerElement(),daeOffsetOf(domCg_param_type,elemSampler3D),"sampler3D"); 
-    _Meta->appendElement(domCg_samplerRECT::registerElement(),daeOffsetOf(domCg_param_type,elemSamplerRECT),"samplerRECT"); 
-    _Meta->appendElement(domCg_samplerCUBE::registerElement(),daeOffsetOf(domCg_param_type,elemSamplerCUBE),"samplerCUBE"); 
-    _Meta->appendElement(domCg_samplerDEPTH::registerElement(),daeOffsetOf(domCg_param_type,elemSamplerDEPTH),"samplerDEPTH"); 
-    _Meta->appendElement(domCg_param_type::domString::registerElement(),daeOffsetOf(domCg_param_type,elemString));
-    _Meta->appendElement(domCg_param_type::domEnum::registerElement(),daeOffsetOf(domCg_param_type,elemEnum));
+	daeMetaCMPolicy *cm = NULL;
+	daeMetaElementAttribute *mea = NULL;
+	cm = new daeMetaChoice( _Meta, cm, 0, 1, 1 );
+
+	mea = new daeMetaElementAttribute( _Meta, cm, 0, 1, 1 );
+	mea->setName( "bool" );
+	mea->setOffset( daeOffsetOf(domCg_param_type,elemBool) );
+	mea->setElementType( domCg_param_type::domBool::registerElement() );
+	cm->appendChild( mea );
+	
+	mea = new daeMetaElementAttribute( _Meta, cm, 0, 1, 1 );
+	mea->setName( "bool1" );
+	mea->setOffset( daeOffsetOf(domCg_param_type,elemBool1) );
+	mea->setElementType( domCg_param_type::domBool1::registerElement() );
+	cm->appendChild( mea );
+	
+	mea = new daeMetaElementAttribute( _Meta, cm, 0, 1, 1 );
+	mea->setName( "bool2" );
+	mea->setOffset( daeOffsetOf(domCg_param_type,elemBool2) );
+	mea->setElementType( domCg_param_type::domBool2::registerElement() );
+	cm->appendChild( mea );
+	
+	mea = new daeMetaElementAttribute( _Meta, cm, 0, 1, 1 );
+	mea->setName( "bool3" );
+	mea->setOffset( daeOffsetOf(domCg_param_type,elemBool3) );
+	mea->setElementType( domCg_param_type::domBool3::registerElement() );
+	cm->appendChild( mea );
+	
+	mea = new daeMetaElementAttribute( _Meta, cm, 0, 1, 1 );
+	mea->setName( "bool4" );
+	mea->setOffset( daeOffsetOf(domCg_param_type,elemBool4) );
+	mea->setElementType( domCg_param_type::domBool4::registerElement() );
+	cm->appendChild( mea );
+	
+	mea = new daeMetaElementAttribute( _Meta, cm, 0, 1, 1 );
+	mea->setName( "bool1x1" );
+	mea->setOffset( daeOffsetOf(domCg_param_type,elemBool1x1) );
+	mea->setElementType( domCg_param_type::domBool1x1::registerElement() );
+	cm->appendChild( mea );
+	
+	mea = new daeMetaElementAttribute( _Meta, cm, 0, 1, 1 );
+	mea->setName( "bool1x2" );
+	mea->setOffset( daeOffsetOf(domCg_param_type,elemBool1x2) );
+	mea->setElementType( domCg_param_type::domBool1x2::registerElement() );
+	cm->appendChild( mea );
+	
+	mea = new daeMetaElementAttribute( _Meta, cm, 0, 1, 1 );
+	mea->setName( "bool1x3" );
+	mea->setOffset( daeOffsetOf(domCg_param_type,elemBool1x3) );
+	mea->setElementType( domCg_param_type::domBool1x3::registerElement() );
+	cm->appendChild( mea );
+	
+	mea = new daeMetaElementAttribute( _Meta, cm, 0, 1, 1 );
+	mea->setName( "bool1x4" );
+	mea->setOffset( daeOffsetOf(domCg_param_type,elemBool1x4) );
+	mea->setElementType( domCg_param_type::domBool1x4::registerElement() );
+	cm->appendChild( mea );
+	
+	mea = new daeMetaElementAttribute( _Meta, cm, 0, 1, 1 );
+	mea->setName( "bool2x1" );
+	mea->setOffset( daeOffsetOf(domCg_param_type,elemBool2x1) );
+	mea->setElementType( domCg_param_type::domBool2x1::registerElement() );
+	cm->appendChild( mea );
+	
+	mea = new daeMetaElementAttribute( _Meta, cm, 0, 1, 1 );
+	mea->setName( "bool2x2" );
+	mea->setOffset( daeOffsetOf(domCg_param_type,elemBool2x2) );
+	mea->setElementType( domCg_param_type::domBool2x2::registerElement() );
+	cm->appendChild( mea );
+	
+	mea = new daeMetaElementAttribute( _Meta, cm, 0, 1, 1 );
+	mea->setName( "bool2x3" );
+	mea->setOffset( daeOffsetOf(domCg_param_type,elemBool2x3) );
+	mea->setElementType( domCg_param_type::domBool2x3::registerElement() );
+	cm->appendChild( mea );
+	
+	mea = new daeMetaElementAttribute( _Meta, cm, 0, 1, 1 );
+	mea->setName( "bool2x4" );
+	mea->setOffset( daeOffsetOf(domCg_param_type,elemBool2x4) );
+	mea->setElementType( domCg_param_type::domBool2x4::registerElement() );
+	cm->appendChild( mea );
+	
+	mea = new daeMetaElementAttribute( _Meta, cm, 0, 1, 1 );
+	mea->setName( "bool3x1" );
+	mea->setOffset( daeOffsetOf(domCg_param_type,elemBool3x1) );
+	mea->setElementType( domCg_param_type::domBool3x1::registerElement() );
+	cm->appendChild( mea );
+	
+	mea = new daeMetaElementAttribute( _Meta, cm, 0, 1, 1 );
+	mea->setName( "bool3x2" );
+	mea->setOffset( daeOffsetOf(domCg_param_type,elemBool3x2) );
+	mea->setElementType( domCg_param_type::domBool3x2::registerElement() );
+	cm->appendChild( mea );
+	
+	mea = new daeMetaElementAttribute( _Meta, cm, 0, 1, 1 );
+	mea->setName( "bool3x3" );
+	mea->setOffset( daeOffsetOf(domCg_param_type,elemBool3x3) );
+	mea->setElementType( domCg_param_type::domBool3x3::registerElement() );
+	cm->appendChild( mea );
+	
+	mea = new daeMetaElementAttribute( _Meta, cm, 0, 1, 1 );
+	mea->setName( "bool3x4" );
+	mea->setOffset( daeOffsetOf(domCg_param_type,elemBool3x4) );
+	mea->setElementType( domCg_param_type::domBool3x4::registerElement() );
+	cm->appendChild( mea );
+	
+	mea = new daeMetaElementAttribute( _Meta, cm, 0, 1, 1 );
+	mea->setName( "bool4x1" );
+	mea->setOffset( daeOffsetOf(domCg_param_type,elemBool4x1) );
+	mea->setElementType( domCg_param_type::domBool4x1::registerElement() );
+	cm->appendChild( mea );
+	
+	mea = new daeMetaElementAttribute( _Meta, cm, 0, 1, 1 );
+	mea->setName( "bool4x2" );
+	mea->setOffset( daeOffsetOf(domCg_param_type,elemBool4x2) );
+	mea->setElementType( domCg_param_type::domBool4x2::registerElement() );
+	cm->appendChild( mea );
+	
+	mea = new daeMetaElementAttribute( _Meta, cm, 0, 1, 1 );
+	mea->setName( "bool4x3" );
+	mea->setOffset( daeOffsetOf(domCg_param_type,elemBool4x3) );
+	mea->setElementType( domCg_param_type::domBool4x3::registerElement() );
+	cm->appendChild( mea );
+	
+	mea = new daeMetaElementAttribute( _Meta, cm, 0, 1, 1 );
+	mea->setName( "bool4x4" );
+	mea->setOffset( daeOffsetOf(domCg_param_type,elemBool4x4) );
+	mea->setElementType( domCg_param_type::domBool4x4::registerElement() );
+	cm->appendChild( mea );
+	
+	mea = new daeMetaElementAttribute( _Meta, cm, 0, 1, 1 );
+	mea->setName( "float" );
+	mea->setOffset( daeOffsetOf(domCg_param_type,elemFloat) );
+	mea->setElementType( domCg_param_type::domFloat::registerElement() );
+	cm->appendChild( mea );
+	
+	mea = new daeMetaElementAttribute( _Meta, cm, 0, 1, 1 );
+	mea->setName( "float1" );
+	mea->setOffset( daeOffsetOf(domCg_param_type,elemFloat1) );
+	mea->setElementType( domCg_param_type::domFloat1::registerElement() );
+	cm->appendChild( mea );
+	
+	mea = new daeMetaElementAttribute( _Meta, cm, 0, 1, 1 );
+	mea->setName( "float2" );
+	mea->setOffset( daeOffsetOf(domCg_param_type,elemFloat2) );
+	mea->setElementType( domCg_param_type::domFloat2::registerElement() );
+	cm->appendChild( mea );
+	
+	mea = new daeMetaElementAttribute( _Meta, cm, 0, 1, 1 );
+	mea->setName( "float3" );
+	mea->setOffset( daeOffsetOf(domCg_param_type,elemFloat3) );
+	mea->setElementType( domCg_param_type::domFloat3::registerElement() );
+	cm->appendChild( mea );
+	
+	mea = new daeMetaElementAttribute( _Meta, cm, 0, 1, 1 );
+	mea->setName( "float4" );
+	mea->setOffset( daeOffsetOf(domCg_param_type,elemFloat4) );
+	mea->setElementType( domCg_param_type::domFloat4::registerElement() );
+	cm->appendChild( mea );
+	
+	mea = new daeMetaElementAttribute( _Meta, cm, 0, 1, 1 );
+	mea->setName( "float1x1" );
+	mea->setOffset( daeOffsetOf(domCg_param_type,elemFloat1x1) );
+	mea->setElementType( domCg_param_type::domFloat1x1::registerElement() );
+	cm->appendChild( mea );
+	
+	mea = new daeMetaElementAttribute( _Meta, cm, 0, 1, 1 );
+	mea->setName( "float1x2" );
+	mea->setOffset( daeOffsetOf(domCg_param_type,elemFloat1x2) );
+	mea->setElementType( domCg_param_type::domFloat1x2::registerElement() );
+	cm->appendChild( mea );
+	
+	mea = new daeMetaElementAttribute( _Meta, cm, 0, 1, 1 );
+	mea->setName( "float1x3" );
+	mea->setOffset( daeOffsetOf(domCg_param_type,elemFloat1x3) );
+	mea->setElementType( domCg_param_type::domFloat1x3::registerElement() );
+	cm->appendChild( mea );
+	
+	mea = new daeMetaElementAttribute( _Meta, cm, 0, 1, 1 );
+	mea->setName( "float1x4" );
+	mea->setOffset( daeOffsetOf(domCg_param_type,elemFloat1x4) );
+	mea->setElementType( domCg_param_type::domFloat1x4::registerElement() );
+	cm->appendChild( mea );
+	
+	mea = new daeMetaElementAttribute( _Meta, cm, 0, 1, 1 );
+	mea->setName( "float2x1" );
+	mea->setOffset( daeOffsetOf(domCg_param_type,elemFloat2x1) );
+	mea->setElementType( domCg_param_type::domFloat2x1::registerElement() );
+	cm->appendChild( mea );
+	
+	mea = new daeMetaElementAttribute( _Meta, cm, 0, 1, 1 );
+	mea->setName( "float2x2" );
+	mea->setOffset( daeOffsetOf(domCg_param_type,elemFloat2x2) );
+	mea->setElementType( domCg_param_type::domFloat2x2::registerElement() );
+	cm->appendChild( mea );
+	
+	mea = new daeMetaElementAttribute( _Meta, cm, 0, 1, 1 );
+	mea->setName( "float2x3" );
+	mea->setOffset( daeOffsetOf(domCg_param_type,elemFloat2x3) );
+	mea->setElementType( domCg_param_type::domFloat2x3::registerElement() );
+	cm->appendChild( mea );
+	
+	mea = new daeMetaElementAttribute( _Meta, cm, 0, 1, 1 );
+	mea->setName( "float2x4" );
+	mea->setOffset( daeOffsetOf(domCg_param_type,elemFloat2x4) );
+	mea->setElementType( domCg_param_type::domFloat2x4::registerElement() );
+	cm->appendChild( mea );
+	
+	mea = new daeMetaElementAttribute( _Meta, cm, 0, 1, 1 );
+	mea->setName( "float3x1" );
+	mea->setOffset( daeOffsetOf(domCg_param_type,elemFloat3x1) );
+	mea->setElementType( domCg_param_type::domFloat3x1::registerElement() );
+	cm->appendChild( mea );
+	
+	mea = new daeMetaElementAttribute( _Meta, cm, 0, 1, 1 );
+	mea->setName( "float3x2" );
+	mea->setOffset( daeOffsetOf(domCg_param_type,elemFloat3x2) );
+	mea->setElementType( domCg_param_type::domFloat3x2::registerElement() );
+	cm->appendChild( mea );
+	
+	mea = new daeMetaElementAttribute( _Meta, cm, 0, 1, 1 );
+	mea->setName( "float3x3" );
+	mea->setOffset( daeOffsetOf(domCg_param_type,elemFloat3x3) );
+	mea->setElementType( domCg_param_type::domFloat3x3::registerElement() );
+	cm->appendChild( mea );
+	
+	mea = new daeMetaElementAttribute( _Meta, cm, 0, 1, 1 );
+	mea->setName( "float3x4" );
+	mea->setOffset( daeOffsetOf(domCg_param_type,elemFloat3x4) );
+	mea->setElementType( domCg_param_type::domFloat3x4::registerElement() );
+	cm->appendChild( mea );
+	
+	mea = new daeMetaElementAttribute( _Meta, cm, 0, 1, 1 );
+	mea->setName( "float4x1" );
+	mea->setOffset( daeOffsetOf(domCg_param_type,elemFloat4x1) );
+	mea->setElementType( domCg_param_type::domFloat4x1::registerElement() );
+	cm->appendChild( mea );
+	
+	mea = new daeMetaElementAttribute( _Meta, cm, 0, 1, 1 );
+	mea->setName( "float4x2" );
+	mea->setOffset( daeOffsetOf(domCg_param_type,elemFloat4x2) );
+	mea->setElementType( domCg_param_type::domFloat4x2::registerElement() );
+	cm->appendChild( mea );
+	
+	mea = new daeMetaElementAttribute( _Meta, cm, 0, 1, 1 );
+	mea->setName( "float4x3" );
+	mea->setOffset( daeOffsetOf(domCg_param_type,elemFloat4x3) );
+	mea->setElementType( domCg_param_type::domFloat4x3::registerElement() );
+	cm->appendChild( mea );
+	
+	mea = new daeMetaElementAttribute( _Meta, cm, 0, 1, 1 );
+	mea->setName( "float4x4" );
+	mea->setOffset( daeOffsetOf(domCg_param_type,elemFloat4x4) );
+	mea->setElementType( domCg_param_type::domFloat4x4::registerElement() );
+	cm->appendChild( mea );
+	
+	mea = new daeMetaElementAttribute( _Meta, cm, 0, 1, 1 );
+	mea->setName( "int" );
+	mea->setOffset( daeOffsetOf(domCg_param_type,elemInt) );
+	mea->setElementType( domCg_param_type::domInt::registerElement() );
+	cm->appendChild( mea );
+	
+	mea = new daeMetaElementAttribute( _Meta, cm, 0, 1, 1 );
+	mea->setName( "int1" );
+	mea->setOffset( daeOffsetOf(domCg_param_type,elemInt1) );
+	mea->setElementType( domCg_param_type::domInt1::registerElement() );
+	cm->appendChild( mea );
+	
+	mea = new daeMetaElementAttribute( _Meta, cm, 0, 1, 1 );
+	mea->setName( "int2" );
+	mea->setOffset( daeOffsetOf(domCg_param_type,elemInt2) );
+	mea->setElementType( domCg_param_type::domInt2::registerElement() );
+	cm->appendChild( mea );
+	
+	mea = new daeMetaElementAttribute( _Meta, cm, 0, 1, 1 );
+	mea->setName( "int3" );
+	mea->setOffset( daeOffsetOf(domCg_param_type,elemInt3) );
+	mea->setElementType( domCg_param_type::domInt3::registerElement() );
+	cm->appendChild( mea );
+	
+	mea = new daeMetaElementAttribute( _Meta, cm, 0, 1, 1 );
+	mea->setName( "int4" );
+	mea->setOffset( daeOffsetOf(domCg_param_type,elemInt4) );
+	mea->setElementType( domCg_param_type::domInt4::registerElement() );
+	cm->appendChild( mea );
+	
+	mea = new daeMetaElementAttribute( _Meta, cm, 0, 1, 1 );
+	mea->setName( "int1x1" );
+	mea->setOffset( daeOffsetOf(domCg_param_type,elemInt1x1) );
+	mea->setElementType( domCg_param_type::domInt1x1::registerElement() );
+	cm->appendChild( mea );
+	
+	mea = new daeMetaElementAttribute( _Meta, cm, 0, 1, 1 );
+	mea->setName( "int1x2" );
+	mea->setOffset( daeOffsetOf(domCg_param_type,elemInt1x2) );
+	mea->setElementType( domCg_param_type::domInt1x2::registerElement() );
+	cm->appendChild( mea );
+	
+	mea = new daeMetaElementAttribute( _Meta, cm, 0, 1, 1 );
+	mea->setName( "int1x3" );
+	mea->setOffset( daeOffsetOf(domCg_param_type,elemInt1x3) );
+	mea->setElementType( domCg_param_type::domInt1x3::registerElement() );
+	cm->appendChild( mea );
+	
+	mea = new daeMetaElementAttribute( _Meta, cm, 0, 1, 1 );
+	mea->setName( "int1x4" );
+	mea->setOffset( daeOffsetOf(domCg_param_type,elemInt1x4) );
+	mea->setElementType( domCg_param_type::domInt1x4::registerElement() );
+	cm->appendChild( mea );
+	
+	mea = new daeMetaElementAttribute( _Meta, cm, 0, 1, 1 );
+	mea->setName( "int2x1" );
+	mea->setOffset( daeOffsetOf(domCg_param_type,elemInt2x1) );
+	mea->setElementType( domCg_param_type::domInt2x1::registerElement() );
+	cm->appendChild( mea );
+	
+	mea = new daeMetaElementAttribute( _Meta, cm, 0, 1, 1 );
+	mea->setName( "int2x2" );
+	mea->setOffset( daeOffsetOf(domCg_param_type,elemInt2x2) );
+	mea->setElementType( domCg_param_type::domInt2x2::registerElement() );
+	cm->appendChild( mea );
+	
+	mea = new daeMetaElementAttribute( _Meta, cm, 0, 1, 1 );
+	mea->setName( "int2x3" );
+	mea->setOffset( daeOffsetOf(domCg_param_type,elemInt2x3) );
+	mea->setElementType( domCg_param_type::domInt2x3::registerElement() );
+	cm->appendChild( mea );
+	
+	mea = new daeMetaElementAttribute( _Meta, cm, 0, 1, 1 );
+	mea->setName( "int2x4" );
+	mea->setOffset( daeOffsetOf(domCg_param_type,elemInt2x4) );
+	mea->setElementType( domCg_param_type::domInt2x4::registerElement() );
+	cm->appendChild( mea );
+	
+	mea = new daeMetaElementAttribute( _Meta, cm, 0, 1, 1 );
+	mea->setName( "int3x1" );
+	mea->setOffset( daeOffsetOf(domCg_param_type,elemInt3x1) );
+	mea->setElementType( domCg_param_type::domInt3x1::registerElement() );
+	cm->appendChild( mea );
+	
+	mea = new daeMetaElementAttribute( _Meta, cm, 0, 1, 1 );
+	mea->setName( "int3x2" );
+	mea->setOffset( daeOffsetOf(domCg_param_type,elemInt3x2) );
+	mea->setElementType( domCg_param_type::domInt3x2::registerElement() );
+	cm->appendChild( mea );
+	
+	mea = new daeMetaElementAttribute( _Meta, cm, 0, 1, 1 );
+	mea->setName( "int3x3" );
+	mea->setOffset( daeOffsetOf(domCg_param_type,elemInt3x3) );
+	mea->setElementType( domCg_param_type::domInt3x3::registerElement() );
+	cm->appendChild( mea );
+	
+	mea = new daeMetaElementAttribute( _Meta, cm, 0, 1, 1 );
+	mea->setName( "int3x4" );
+	mea->setOffset( daeOffsetOf(domCg_param_type,elemInt3x4) );
+	mea->setElementType( domCg_param_type::domInt3x4::registerElement() );
+	cm->appendChild( mea );
+	
+	mea = new daeMetaElementAttribute( _Meta, cm, 0, 1, 1 );
+	mea->setName( "int4x1" );
+	mea->setOffset( daeOffsetOf(domCg_param_type,elemInt4x1) );
+	mea->setElementType( domCg_param_type::domInt4x1::registerElement() );
+	cm->appendChild( mea );
+	
+	mea = new daeMetaElementAttribute( _Meta, cm, 0, 1, 1 );
+	mea->setName( "int4x2" );
+	mea->setOffset( daeOffsetOf(domCg_param_type,elemInt4x2) );
+	mea->setElementType( domCg_param_type::domInt4x2::registerElement() );
+	cm->appendChild( mea );
+	
+	mea = new daeMetaElementAttribute( _Meta, cm, 0, 1, 1 );
+	mea->setName( "int4x3" );
+	mea->setOffset( daeOffsetOf(domCg_param_type,elemInt4x3) );
+	mea->setElementType( domCg_param_type::domInt4x3::registerElement() );
+	cm->appendChild( mea );
+	
+	mea = new daeMetaElementAttribute( _Meta, cm, 0, 1, 1 );
+	mea->setName( "int4x4" );
+	mea->setOffset( daeOffsetOf(domCg_param_type,elemInt4x4) );
+	mea->setElementType( domCg_param_type::domInt4x4::registerElement() );
+	cm->appendChild( mea );
+	
+	mea = new daeMetaElementAttribute( _Meta, cm, 0, 1, 1 );
+	mea->setName( "half" );
+	mea->setOffset( daeOffsetOf(domCg_param_type,elemHalf) );
+	mea->setElementType( domCg_param_type::domHalf::registerElement() );
+	cm->appendChild( mea );
+	
+	mea = new daeMetaElementAttribute( _Meta, cm, 0, 1, 1 );
+	mea->setName( "half1" );
+	mea->setOffset( daeOffsetOf(domCg_param_type,elemHalf1) );
+	mea->setElementType( domCg_param_type::domHalf1::registerElement() );
+	cm->appendChild( mea );
+	
+	mea = new daeMetaElementAttribute( _Meta, cm, 0, 1, 1 );
+	mea->setName( "half2" );
+	mea->setOffset( daeOffsetOf(domCg_param_type,elemHalf2) );
+	mea->setElementType( domCg_param_type::domHalf2::registerElement() );
+	cm->appendChild( mea );
+	
+	mea = new daeMetaElementAttribute( _Meta, cm, 0, 1, 1 );
+	mea->setName( "half3" );
+	mea->setOffset( daeOffsetOf(domCg_param_type,elemHalf3) );
+	mea->setElementType( domCg_param_type::domHalf3::registerElement() );
+	cm->appendChild( mea );
+	
+	mea = new daeMetaElementAttribute( _Meta, cm, 0, 1, 1 );
+	mea->setName( "half4" );
+	mea->setOffset( daeOffsetOf(domCg_param_type,elemHalf4) );
+	mea->setElementType( domCg_param_type::domHalf4::registerElement() );
+	cm->appendChild( mea );
+	
+	mea = new daeMetaElementAttribute( _Meta, cm, 0, 1, 1 );
+	mea->setName( "half1x1" );
+	mea->setOffset( daeOffsetOf(domCg_param_type,elemHalf1x1) );
+	mea->setElementType( domCg_param_type::domHalf1x1::registerElement() );
+	cm->appendChild( mea );
+	
+	mea = new daeMetaElementAttribute( _Meta, cm, 0, 1, 1 );
+	mea->setName( "half1x2" );
+	mea->setOffset( daeOffsetOf(domCg_param_type,elemHalf1x2) );
+	mea->setElementType( domCg_param_type::domHalf1x2::registerElement() );
+	cm->appendChild( mea );
+	
+	mea = new daeMetaElementAttribute( _Meta, cm, 0, 1, 1 );
+	mea->setName( "half1x3" );
+	mea->setOffset( daeOffsetOf(domCg_param_type,elemHalf1x3) );
+	mea->setElementType( domCg_param_type::domHalf1x3::registerElement() );
+	cm->appendChild( mea );
+	
+	mea = new daeMetaElementAttribute( _Meta, cm, 0, 1, 1 );
+	mea->setName( "half1x4" );
+	mea->setOffset( daeOffsetOf(domCg_param_type,elemHalf1x4) );
+	mea->setElementType( domCg_param_type::domHalf1x4::registerElement() );
+	cm->appendChild( mea );
+	
+	mea = new daeMetaElementAttribute( _Meta, cm, 0, 1, 1 );
+	mea->setName( "half2x1" );
+	mea->setOffset( daeOffsetOf(domCg_param_type,elemHalf2x1) );
+	mea->setElementType( domCg_param_type::domHalf2x1::registerElement() );
+	cm->appendChild( mea );
+	
+	mea = new daeMetaElementAttribute( _Meta, cm, 0, 1, 1 );
+	mea->setName( "half2x2" );
+	mea->setOffset( daeOffsetOf(domCg_param_type,elemHalf2x2) );
+	mea->setElementType( domCg_param_type::domHalf2x2::registerElement() );
+	cm->appendChild( mea );
+	
+	mea = new daeMetaElementAttribute( _Meta, cm, 0, 1, 1 );
+	mea->setName( "half2x3" );
+	mea->setOffset( daeOffsetOf(domCg_param_type,elemHalf2x3) );
+	mea->setElementType( domCg_param_type::domHalf2x3::registerElement() );
+	cm->appendChild( mea );
+	
+	mea = new daeMetaElementAttribute( _Meta, cm, 0, 1, 1 );
+	mea->setName( "half2x4" );
+	mea->setOffset( daeOffsetOf(domCg_param_type,elemHalf2x4) );
+	mea->setElementType( domCg_param_type::domHalf2x4::registerElement() );
+	cm->appendChild( mea );
+	
+	mea = new daeMetaElementAttribute( _Meta, cm, 0, 1, 1 );
+	mea->setName( "half3x1" );
+	mea->setOffset( daeOffsetOf(domCg_param_type,elemHalf3x1) );
+	mea->setElementType( domCg_param_type::domHalf3x1::registerElement() );
+	cm->appendChild( mea );
+	
+	mea = new daeMetaElementAttribute( _Meta, cm, 0, 1, 1 );
+	mea->setName( "half3x2" );
+	mea->setOffset( daeOffsetOf(domCg_param_type,elemHalf3x2) );
+	mea->setElementType( domCg_param_type::domHalf3x2::registerElement() );
+	cm->appendChild( mea );
+	
+	mea = new daeMetaElementAttribute( _Meta, cm, 0, 1, 1 );
+	mea->setName( "half3x3" );
+	mea->setOffset( daeOffsetOf(domCg_param_type,elemHalf3x3) );
+	mea->setElementType( domCg_param_type::domHalf3x3::registerElement() );
+	cm->appendChild( mea );
+	
+	mea = new daeMetaElementAttribute( _Meta, cm, 0, 1, 1 );
+	mea->setName( "half3x4" );
+	mea->setOffset( daeOffsetOf(domCg_param_type,elemHalf3x4) );
+	mea->setElementType( domCg_param_type::domHalf3x4::registerElement() );
+	cm->appendChild( mea );
+	
+	mea = new daeMetaElementAttribute( _Meta, cm, 0, 1, 1 );
+	mea->setName( "half4x1" );
+	mea->setOffset( daeOffsetOf(domCg_param_type,elemHalf4x1) );
+	mea->setElementType( domCg_param_type::domHalf4x1::registerElement() );
+	cm->appendChild( mea );
+	
+	mea = new daeMetaElementAttribute( _Meta, cm, 0, 1, 1 );
+	mea->setName( "half4x2" );
+	mea->setOffset( daeOffsetOf(domCg_param_type,elemHalf4x2) );
+	mea->setElementType( domCg_param_type::domHalf4x2::registerElement() );
+	cm->appendChild( mea );
+	
+	mea = new daeMetaElementAttribute( _Meta, cm, 0, 1, 1 );
+	mea->setName( "half4x3" );
+	mea->setOffset( daeOffsetOf(domCg_param_type,elemHalf4x3) );
+	mea->setElementType( domCg_param_type::domHalf4x3::registerElement() );
+	cm->appendChild( mea );
+	
+	mea = new daeMetaElementAttribute( _Meta, cm, 0, 1, 1 );
+	mea->setName( "half4x4" );
+	mea->setOffset( daeOffsetOf(domCg_param_type,elemHalf4x4) );
+	mea->setElementType( domCg_param_type::domHalf4x4::registerElement() );
+	cm->appendChild( mea );
+	
+	mea = new daeMetaElementAttribute( _Meta, cm, 0, 1, 1 );
+	mea->setName( "fixed" );
+	mea->setOffset( daeOffsetOf(domCg_param_type,elemFixed) );
+	mea->setElementType( domCg_param_type::domFixed::registerElement() );
+	cm->appendChild( mea );
+	
+	mea = new daeMetaElementAttribute( _Meta, cm, 0, 1, 1 );
+	mea->setName( "fixed1" );
+	mea->setOffset( daeOffsetOf(domCg_param_type,elemFixed1) );
+	mea->setElementType( domCg_param_type::domFixed1::registerElement() );
+	cm->appendChild( mea );
+	
+	mea = new daeMetaElementAttribute( _Meta, cm, 0, 1, 1 );
+	mea->setName( "fixed2" );
+	mea->setOffset( daeOffsetOf(domCg_param_type,elemFixed2) );
+	mea->setElementType( domCg_param_type::domFixed2::registerElement() );
+	cm->appendChild( mea );
+	
+	mea = new daeMetaElementAttribute( _Meta, cm, 0, 1, 1 );
+	mea->setName( "fixed3" );
+	mea->setOffset( daeOffsetOf(domCg_param_type,elemFixed3) );
+	mea->setElementType( domCg_param_type::domFixed3::registerElement() );
+	cm->appendChild( mea );
+	
+	mea = new daeMetaElementAttribute( _Meta, cm, 0, 1, 1 );
+	mea->setName( "fixed4" );
+	mea->setOffset( daeOffsetOf(domCg_param_type,elemFixed4) );
+	mea->setElementType( domCg_param_type::domFixed4::registerElement() );
+	cm->appendChild( mea );
+	
+	mea = new daeMetaElementAttribute( _Meta, cm, 0, 1, 1 );
+	mea->setName( "fixed1x1" );
+	mea->setOffset( daeOffsetOf(domCg_param_type,elemFixed1x1) );
+	mea->setElementType( domCg_param_type::domFixed1x1::registerElement() );
+	cm->appendChild( mea );
+	
+	mea = new daeMetaElementAttribute( _Meta, cm, 0, 1, 1 );
+	mea->setName( "fixed1x2" );
+	mea->setOffset( daeOffsetOf(domCg_param_type,elemFixed1x2) );
+	mea->setElementType( domCg_param_type::domFixed1x2::registerElement() );
+	cm->appendChild( mea );
+	
+	mea = new daeMetaElementAttribute( _Meta, cm, 0, 1, 1 );
+	mea->setName( "fixed1x3" );
+	mea->setOffset( daeOffsetOf(domCg_param_type,elemFixed1x3) );
+	mea->setElementType( domCg_param_type::domFixed1x3::registerElement() );
+	cm->appendChild( mea );
+	
+	mea = new daeMetaElementAttribute( _Meta, cm, 0, 1, 1 );
+	mea->setName( "fixed1x4" );
+	mea->setOffset( daeOffsetOf(domCg_param_type,elemFixed1x4) );
+	mea->setElementType( domCg_param_type::domFixed1x4::registerElement() );
+	cm->appendChild( mea );
+	
+	mea = new daeMetaElementAttribute( _Meta, cm, 0, 1, 1 );
+	mea->setName( "fixed2x1" );
+	mea->setOffset( daeOffsetOf(domCg_param_type,elemFixed2x1) );
+	mea->setElementType( domCg_param_type::domFixed2x1::registerElement() );
+	cm->appendChild( mea );
+	
+	mea = new daeMetaElementAttribute( _Meta, cm, 0, 1, 1 );
+	mea->setName( "fixed2x2" );
+	mea->setOffset( daeOffsetOf(domCg_param_type,elemFixed2x2) );
+	mea->setElementType( domCg_param_type::domFixed2x2::registerElement() );
+	cm->appendChild( mea );
+	
+	mea = new daeMetaElementAttribute( _Meta, cm, 0, 1, 1 );
+	mea->setName( "fixed2x3" );
+	mea->setOffset( daeOffsetOf(domCg_param_type,elemFixed2x3) );
+	mea->setElementType( domCg_param_type::domFixed2x3::registerElement() );
+	cm->appendChild( mea );
+	
+	mea = new daeMetaElementAttribute( _Meta, cm, 0, 1, 1 );
+	mea->setName( "fixed2x4" );
+	mea->setOffset( daeOffsetOf(domCg_param_type,elemFixed2x4) );
+	mea->setElementType( domCg_param_type::domFixed2x4::registerElement() );
+	cm->appendChild( mea );
+	
+	mea = new daeMetaElementAttribute( _Meta, cm, 0, 1, 1 );
+	mea->setName( "fixed3x1" );
+	mea->setOffset( daeOffsetOf(domCg_param_type,elemFixed3x1) );
+	mea->setElementType( domCg_param_type::domFixed3x1::registerElement() );
+	cm->appendChild( mea );
+	
+	mea = new daeMetaElementAttribute( _Meta, cm, 0, 1, 1 );
+	mea->setName( "fixed3x2" );
+	mea->setOffset( daeOffsetOf(domCg_param_type,elemFixed3x2) );
+	mea->setElementType( domCg_param_type::domFixed3x2::registerElement() );
+	cm->appendChild( mea );
+	
+	mea = new daeMetaElementAttribute( _Meta, cm, 0, 1, 1 );
+	mea->setName( "fixed3x3" );
+	mea->setOffset( daeOffsetOf(domCg_param_type,elemFixed3x3) );
+	mea->setElementType( domCg_param_type::domFixed3x3::registerElement() );
+	cm->appendChild( mea );
+	
+	mea = new daeMetaElementAttribute( _Meta, cm, 0, 1, 1 );
+	mea->setName( "fixed3x4" );
+	mea->setOffset( daeOffsetOf(domCg_param_type,elemFixed3x4) );
+	mea->setElementType( domCg_param_type::domFixed3x4::registerElement() );
+	cm->appendChild( mea );
+	
+	mea = new daeMetaElementAttribute( _Meta, cm, 0, 1, 1 );
+	mea->setName( "fixed4x1" );
+	mea->setOffset( daeOffsetOf(domCg_param_type,elemFixed4x1) );
+	mea->setElementType( domCg_param_type::domFixed4x1::registerElement() );
+	cm->appendChild( mea );
+	
+	mea = new daeMetaElementAttribute( _Meta, cm, 0, 1, 1 );
+	mea->setName( "fixed4x2" );
+	mea->setOffset( daeOffsetOf(domCg_param_type,elemFixed4x2) );
+	mea->setElementType( domCg_param_type::domFixed4x2::registerElement() );
+	cm->appendChild( mea );
+	
+	mea = new daeMetaElementAttribute( _Meta, cm, 0, 1, 1 );
+	mea->setName( "fixed4x3" );
+	mea->setOffset( daeOffsetOf(domCg_param_type,elemFixed4x3) );
+	mea->setElementType( domCg_param_type::domFixed4x3::registerElement() );
+	cm->appendChild( mea );
+	
+	mea = new daeMetaElementAttribute( _Meta, cm, 0, 1, 1 );
+	mea->setName( "fixed4x4" );
+	mea->setOffset( daeOffsetOf(domCg_param_type,elemFixed4x4) );
+	mea->setElementType( domCg_param_type::domFixed4x4::registerElement() );
+	cm->appendChild( mea );
+	
+	mea = new daeMetaElementAttribute( _Meta, cm, 0, 1, 1 );
+	mea->setName( "surface" );
+	mea->setOffset( daeOffsetOf(domCg_param_type,elemSurface) );
+	mea->setElementType( domCg_surface_type::registerElement() );
+	cm->appendChild( mea );
+	
+	mea = new daeMetaElementAttribute( _Meta, cm, 0, 1, 1 );
+	mea->setName( "sampler1D" );
+	mea->setOffset( daeOffsetOf(domCg_param_type,elemSampler1D) );
+	mea->setElementType( domCg_sampler1D::registerElement() );
+	cm->appendChild( mea );
+	
+	mea = new daeMetaElementAttribute( _Meta, cm, 0, 1, 1 );
+	mea->setName( "sampler2D" );
+	mea->setOffset( daeOffsetOf(domCg_param_type,elemSampler2D) );
+	mea->setElementType( domCg_sampler2D::registerElement() );
+	cm->appendChild( mea );
+	
+	mea = new daeMetaElementAttribute( _Meta, cm, 0, 1, 1 );
+	mea->setName( "sampler3D" );
+	mea->setOffset( daeOffsetOf(domCg_param_type,elemSampler3D) );
+	mea->setElementType( domCg_sampler3D::registerElement() );
+	cm->appendChild( mea );
+	
+	mea = new daeMetaElementAttribute( _Meta, cm, 0, 1, 1 );
+	mea->setName( "samplerRECT" );
+	mea->setOffset( daeOffsetOf(domCg_param_type,elemSamplerRECT) );
+	mea->setElementType( domCg_samplerRECT::registerElement() );
+	cm->appendChild( mea );
+	
+	mea = new daeMetaElementAttribute( _Meta, cm, 0, 1, 1 );
+	mea->setName( "samplerCUBE" );
+	mea->setOffset( daeOffsetOf(domCg_param_type,elemSamplerCUBE) );
+	mea->setElementType( domCg_samplerCUBE::registerElement() );
+	cm->appendChild( mea );
+	
+	mea = new daeMetaElementAttribute( _Meta, cm, 0, 1, 1 );
+	mea->setName( "samplerDEPTH" );
+	mea->setOffset( daeOffsetOf(domCg_param_type,elemSamplerDEPTH) );
+	mea->setElementType( domCg_samplerDEPTH::registerElement() );
+	cm->appendChild( mea );
+	
+	mea = new daeMetaElementAttribute( _Meta, cm, 0, 1, 1 );
+	mea->setName( "string" );
+	mea->setOffset( daeOffsetOf(domCg_param_type,elemString) );
+	mea->setElementType( domCg_param_type::domString::registerElement() );
+	cm->appendChild( mea );
+	
+	mea = new daeMetaElementAttribute( _Meta, cm, 0, 1, 1 );
+	mea->setName( "enum" );
+	mea->setOffset( daeOffsetOf(domCg_param_type,elemEnum) );
+	mea->setElementType( domCg_param_type::domEnum::registerElement() );
+	cm->appendChild( mea );
+	
+	cm->setMaxOrdinal( 0 );
+	_Meta->setCMRoot( cm );	
 	// Ordered list of sub-elements
     _Meta->addContents(daeOffsetOf(domCg_param_type,_contents));
+    _Meta->addContentsOrder(daeOffsetOf(domCg_param_type,_contentsOrder));
 
 	
 	
@@ -174,9 +755,9 @@ domCg_param_type::domBool::registerElement()
     
     _Meta = new daeMetaElement;
     _Meta->setName( "bool" );
-	_Meta->setStaticPointerAddress(&domCg_param_type::domBool::_Meta);
 	_Meta->registerConstructor(domCg_param_type::domBool::create);
 
+	_Meta->setIsInnerClass( true );
 	//	Add attribute: _value
  	{
 		daeMetaAttribute *ma = new daeMetaAttribute;
@@ -209,9 +790,9 @@ domCg_param_type::domBool1::registerElement()
     
     _Meta = new daeMetaElement;
     _Meta->setName( "bool1" );
-	_Meta->setStaticPointerAddress(&domCg_param_type::domBool1::_Meta);
 	_Meta->registerConstructor(domCg_param_type::domBool1::create);
 
+	_Meta->setIsInnerClass( true );
 	//	Add attribute: _value
  	{
 		daeMetaAttribute *ma = new daeMetaAttribute;
@@ -244,9 +825,9 @@ domCg_param_type::domBool2::registerElement()
     
     _Meta = new daeMetaElement;
     _Meta->setName( "bool2" );
-	_Meta->setStaticPointerAddress(&domCg_param_type::domBool2::_Meta);
 	_Meta->registerConstructor(domCg_param_type::domBool2::create);
 
+	_Meta->setIsInnerClass( true );
 	//	Add attribute: _value
  	{
 		daeMetaAttribute *ma = new daeMetaArrayAttribute;
@@ -279,9 +860,9 @@ domCg_param_type::domBool3::registerElement()
     
     _Meta = new daeMetaElement;
     _Meta->setName( "bool3" );
-	_Meta->setStaticPointerAddress(&domCg_param_type::domBool3::_Meta);
 	_Meta->registerConstructor(domCg_param_type::domBool3::create);
 
+	_Meta->setIsInnerClass( true );
 	//	Add attribute: _value
  	{
 		daeMetaAttribute *ma = new daeMetaArrayAttribute;
@@ -314,9 +895,9 @@ domCg_param_type::domBool4::registerElement()
     
     _Meta = new daeMetaElement;
     _Meta->setName( "bool4" );
-	_Meta->setStaticPointerAddress(&domCg_param_type::domBool4::_Meta);
 	_Meta->registerConstructor(domCg_param_type::domBool4::create);
 
+	_Meta->setIsInnerClass( true );
 	//	Add attribute: _value
  	{
 		daeMetaAttribute *ma = new daeMetaArrayAttribute;
@@ -349,9 +930,9 @@ domCg_param_type::domBool1x1::registerElement()
     
     _Meta = new daeMetaElement;
     _Meta->setName( "bool1x1" );
-	_Meta->setStaticPointerAddress(&domCg_param_type::domBool1x1::_Meta);
 	_Meta->registerConstructor(domCg_param_type::domBool1x1::create);
 
+	_Meta->setIsInnerClass( true );
 	//	Add attribute: _value
  	{
 		daeMetaAttribute *ma = new daeMetaArrayAttribute;
@@ -384,9 +965,9 @@ domCg_param_type::domBool1x2::registerElement()
     
     _Meta = new daeMetaElement;
     _Meta->setName( "bool1x2" );
-	_Meta->setStaticPointerAddress(&domCg_param_type::domBool1x2::_Meta);
 	_Meta->registerConstructor(domCg_param_type::domBool1x2::create);
 
+	_Meta->setIsInnerClass( true );
 	//	Add attribute: _value
  	{
 		daeMetaAttribute *ma = new daeMetaArrayAttribute;
@@ -419,9 +1000,9 @@ domCg_param_type::domBool1x3::registerElement()
     
     _Meta = new daeMetaElement;
     _Meta->setName( "bool1x3" );
-	_Meta->setStaticPointerAddress(&domCg_param_type::domBool1x3::_Meta);
 	_Meta->registerConstructor(domCg_param_type::domBool1x3::create);
 
+	_Meta->setIsInnerClass( true );
 	//	Add attribute: _value
  	{
 		daeMetaAttribute *ma = new daeMetaArrayAttribute;
@@ -454,9 +1035,9 @@ domCg_param_type::domBool1x4::registerElement()
     
     _Meta = new daeMetaElement;
     _Meta->setName( "bool1x4" );
-	_Meta->setStaticPointerAddress(&domCg_param_type::domBool1x4::_Meta);
 	_Meta->registerConstructor(domCg_param_type::domBool1x4::create);
 
+	_Meta->setIsInnerClass( true );
 	//	Add attribute: _value
  	{
 		daeMetaAttribute *ma = new daeMetaArrayAttribute;
@@ -489,9 +1070,9 @@ domCg_param_type::domBool2x1::registerElement()
     
     _Meta = new daeMetaElement;
     _Meta->setName( "bool2x1" );
-	_Meta->setStaticPointerAddress(&domCg_param_type::domBool2x1::_Meta);
 	_Meta->registerConstructor(domCg_param_type::domBool2x1::create);
 
+	_Meta->setIsInnerClass( true );
 	//	Add attribute: _value
  	{
 		daeMetaAttribute *ma = new daeMetaArrayAttribute;
@@ -524,9 +1105,9 @@ domCg_param_type::domBool2x2::registerElement()
     
     _Meta = new daeMetaElement;
     _Meta->setName( "bool2x2" );
-	_Meta->setStaticPointerAddress(&domCg_param_type::domBool2x2::_Meta);
 	_Meta->registerConstructor(domCg_param_type::domBool2x2::create);
 
+	_Meta->setIsInnerClass( true );
 	//	Add attribute: _value
  	{
 		daeMetaAttribute *ma = new daeMetaArrayAttribute;
@@ -559,9 +1140,9 @@ domCg_param_type::domBool2x3::registerElement()
     
     _Meta = new daeMetaElement;
     _Meta->setName( "bool2x3" );
-	_Meta->setStaticPointerAddress(&domCg_param_type::domBool2x3::_Meta);
 	_Meta->registerConstructor(domCg_param_type::domBool2x3::create);
 
+	_Meta->setIsInnerClass( true );
 	//	Add attribute: _value
  	{
 		daeMetaAttribute *ma = new daeMetaArrayAttribute;
@@ -594,9 +1175,9 @@ domCg_param_type::domBool2x4::registerElement()
     
     _Meta = new daeMetaElement;
     _Meta->setName( "bool2x4" );
-	_Meta->setStaticPointerAddress(&domCg_param_type::domBool2x4::_Meta);
 	_Meta->registerConstructor(domCg_param_type::domBool2x4::create);
 
+	_Meta->setIsInnerClass( true );
 	//	Add attribute: _value
  	{
 		daeMetaAttribute *ma = new daeMetaArrayAttribute;
@@ -629,9 +1210,9 @@ domCg_param_type::domBool3x1::registerElement()
     
     _Meta = new daeMetaElement;
     _Meta->setName( "bool3x1" );
-	_Meta->setStaticPointerAddress(&domCg_param_type::domBool3x1::_Meta);
 	_Meta->registerConstructor(domCg_param_type::domBool3x1::create);
 
+	_Meta->setIsInnerClass( true );
 	//	Add attribute: _value
  	{
 		daeMetaAttribute *ma = new daeMetaArrayAttribute;
@@ -664,9 +1245,9 @@ domCg_param_type::domBool3x2::registerElement()
     
     _Meta = new daeMetaElement;
     _Meta->setName( "bool3x2" );
-	_Meta->setStaticPointerAddress(&domCg_param_type::domBool3x2::_Meta);
 	_Meta->registerConstructor(domCg_param_type::domBool3x2::create);
 
+	_Meta->setIsInnerClass( true );
 	//	Add attribute: _value
  	{
 		daeMetaAttribute *ma = new daeMetaArrayAttribute;
@@ -699,9 +1280,9 @@ domCg_param_type::domBool3x3::registerElement()
     
     _Meta = new daeMetaElement;
     _Meta->setName( "bool3x3" );
-	_Meta->setStaticPointerAddress(&domCg_param_type::domBool3x3::_Meta);
 	_Meta->registerConstructor(domCg_param_type::domBool3x3::create);
 
+	_Meta->setIsInnerClass( true );
 	//	Add attribute: _value
  	{
 		daeMetaAttribute *ma = new daeMetaArrayAttribute;
@@ -734,9 +1315,9 @@ domCg_param_type::domBool3x4::registerElement()
     
     _Meta = new daeMetaElement;
     _Meta->setName( "bool3x4" );
-	_Meta->setStaticPointerAddress(&domCg_param_type::domBool3x4::_Meta);
 	_Meta->registerConstructor(domCg_param_type::domBool3x4::create);
 
+	_Meta->setIsInnerClass( true );
 	//	Add attribute: _value
  	{
 		daeMetaAttribute *ma = new daeMetaArrayAttribute;
@@ -769,9 +1350,9 @@ domCg_param_type::domBool4x1::registerElement()
     
     _Meta = new daeMetaElement;
     _Meta->setName( "bool4x1" );
-	_Meta->setStaticPointerAddress(&domCg_param_type::domBool4x1::_Meta);
 	_Meta->registerConstructor(domCg_param_type::domBool4x1::create);
 
+	_Meta->setIsInnerClass( true );
 	//	Add attribute: _value
  	{
 		daeMetaAttribute *ma = new daeMetaArrayAttribute;
@@ -804,9 +1385,9 @@ domCg_param_type::domBool4x2::registerElement()
     
     _Meta = new daeMetaElement;
     _Meta->setName( "bool4x2" );
-	_Meta->setStaticPointerAddress(&domCg_param_type::domBool4x2::_Meta);
 	_Meta->registerConstructor(domCg_param_type::domBool4x2::create);
 
+	_Meta->setIsInnerClass( true );
 	//	Add attribute: _value
  	{
 		daeMetaAttribute *ma = new daeMetaArrayAttribute;
@@ -839,9 +1420,9 @@ domCg_param_type::domBool4x3::registerElement()
     
     _Meta = new daeMetaElement;
     _Meta->setName( "bool4x3" );
-	_Meta->setStaticPointerAddress(&domCg_param_type::domBool4x3::_Meta);
 	_Meta->registerConstructor(domCg_param_type::domBool4x3::create);
 
+	_Meta->setIsInnerClass( true );
 	//	Add attribute: _value
  	{
 		daeMetaAttribute *ma = new daeMetaArrayAttribute;
@@ -874,9 +1455,9 @@ domCg_param_type::domBool4x4::registerElement()
     
     _Meta = new daeMetaElement;
     _Meta->setName( "bool4x4" );
-	_Meta->setStaticPointerAddress(&domCg_param_type::domBool4x4::_Meta);
 	_Meta->registerConstructor(domCg_param_type::domBool4x4::create);
 
+	_Meta->setIsInnerClass( true );
 	//	Add attribute: _value
  	{
 		daeMetaAttribute *ma = new daeMetaArrayAttribute;
@@ -909,9 +1490,9 @@ domCg_param_type::domFloat::registerElement()
     
     _Meta = new daeMetaElement;
     _Meta->setName( "float" );
-	_Meta->setStaticPointerAddress(&domCg_param_type::domFloat::_Meta);
 	_Meta->registerConstructor(domCg_param_type::domFloat::create);
 
+	_Meta->setIsInnerClass( true );
 	//	Add attribute: _value
  	{
 		daeMetaAttribute *ma = new daeMetaAttribute;
@@ -944,9 +1525,9 @@ domCg_param_type::domFloat1::registerElement()
     
     _Meta = new daeMetaElement;
     _Meta->setName( "float1" );
-	_Meta->setStaticPointerAddress(&domCg_param_type::domFloat1::_Meta);
 	_Meta->registerConstructor(domCg_param_type::domFloat1::create);
 
+	_Meta->setIsInnerClass( true );
 	//	Add attribute: _value
  	{
 		daeMetaAttribute *ma = new daeMetaAttribute;
@@ -979,9 +1560,9 @@ domCg_param_type::domFloat2::registerElement()
     
     _Meta = new daeMetaElement;
     _Meta->setName( "float2" );
-	_Meta->setStaticPointerAddress(&domCg_param_type::domFloat2::_Meta);
 	_Meta->registerConstructor(domCg_param_type::domFloat2::create);
 
+	_Meta->setIsInnerClass( true );
 	//	Add attribute: _value
  	{
 		daeMetaAttribute *ma = new daeMetaArrayAttribute;
@@ -1014,9 +1595,9 @@ domCg_param_type::domFloat3::registerElement()
     
     _Meta = new daeMetaElement;
     _Meta->setName( "float3" );
-	_Meta->setStaticPointerAddress(&domCg_param_type::domFloat3::_Meta);
 	_Meta->registerConstructor(domCg_param_type::domFloat3::create);
 
+	_Meta->setIsInnerClass( true );
 	//	Add attribute: _value
  	{
 		daeMetaAttribute *ma = new daeMetaArrayAttribute;
@@ -1049,9 +1630,9 @@ domCg_param_type::domFloat4::registerElement()
     
     _Meta = new daeMetaElement;
     _Meta->setName( "float4" );
-	_Meta->setStaticPointerAddress(&domCg_param_type::domFloat4::_Meta);
 	_Meta->registerConstructor(domCg_param_type::domFloat4::create);
 
+	_Meta->setIsInnerClass( true );
 	//	Add attribute: _value
  	{
 		daeMetaAttribute *ma = new daeMetaArrayAttribute;
@@ -1084,9 +1665,9 @@ domCg_param_type::domFloat1x1::registerElement()
     
     _Meta = new daeMetaElement;
     _Meta->setName( "float1x1" );
-	_Meta->setStaticPointerAddress(&domCg_param_type::domFloat1x1::_Meta);
 	_Meta->registerConstructor(domCg_param_type::domFloat1x1::create);
 
+	_Meta->setIsInnerClass( true );
 	//	Add attribute: _value
  	{
 		daeMetaAttribute *ma = new daeMetaArrayAttribute;
@@ -1119,9 +1700,9 @@ domCg_param_type::domFloat1x2::registerElement()
     
     _Meta = new daeMetaElement;
     _Meta->setName( "float1x2" );
-	_Meta->setStaticPointerAddress(&domCg_param_type::domFloat1x2::_Meta);
 	_Meta->registerConstructor(domCg_param_type::domFloat1x2::create);
 
+	_Meta->setIsInnerClass( true );
 	//	Add attribute: _value
  	{
 		daeMetaAttribute *ma = new daeMetaArrayAttribute;
@@ -1154,9 +1735,9 @@ domCg_param_type::domFloat1x3::registerElement()
     
     _Meta = new daeMetaElement;
     _Meta->setName( "float1x3" );
-	_Meta->setStaticPointerAddress(&domCg_param_type::domFloat1x3::_Meta);
 	_Meta->registerConstructor(domCg_param_type::domFloat1x3::create);
 
+	_Meta->setIsInnerClass( true );
 	//	Add attribute: _value
  	{
 		daeMetaAttribute *ma = new daeMetaArrayAttribute;
@@ -1189,9 +1770,9 @@ domCg_param_type::domFloat1x4::registerElement()
     
     _Meta = new daeMetaElement;
     _Meta->setName( "float1x4" );
-	_Meta->setStaticPointerAddress(&domCg_param_type::domFloat1x4::_Meta);
 	_Meta->registerConstructor(domCg_param_type::domFloat1x4::create);
 
+	_Meta->setIsInnerClass( true );
 	//	Add attribute: _value
  	{
 		daeMetaAttribute *ma = new daeMetaArrayAttribute;
@@ -1224,9 +1805,9 @@ domCg_param_type::domFloat2x1::registerElement()
     
     _Meta = new daeMetaElement;
     _Meta->setName( "float2x1" );
-	_Meta->setStaticPointerAddress(&domCg_param_type::domFloat2x1::_Meta);
 	_Meta->registerConstructor(domCg_param_type::domFloat2x1::create);
 
+	_Meta->setIsInnerClass( true );
 	//	Add attribute: _value
  	{
 		daeMetaAttribute *ma = new daeMetaArrayAttribute;
@@ -1259,9 +1840,9 @@ domCg_param_type::domFloat2x2::registerElement()
     
     _Meta = new daeMetaElement;
     _Meta->setName( "float2x2" );
-	_Meta->setStaticPointerAddress(&domCg_param_type::domFloat2x2::_Meta);
 	_Meta->registerConstructor(domCg_param_type::domFloat2x2::create);
 
+	_Meta->setIsInnerClass( true );
 	//	Add attribute: _value
  	{
 		daeMetaAttribute *ma = new daeMetaArrayAttribute;
@@ -1294,9 +1875,9 @@ domCg_param_type::domFloat2x3::registerElement()
     
     _Meta = new daeMetaElement;
     _Meta->setName( "float2x3" );
-	_Meta->setStaticPointerAddress(&domCg_param_type::domFloat2x3::_Meta);
 	_Meta->registerConstructor(domCg_param_type::domFloat2x3::create);
 
+	_Meta->setIsInnerClass( true );
 	//	Add attribute: _value
  	{
 		daeMetaAttribute *ma = new daeMetaArrayAttribute;
@@ -1329,9 +1910,9 @@ domCg_param_type::domFloat2x4::registerElement()
     
     _Meta = new daeMetaElement;
     _Meta->setName( "float2x4" );
-	_Meta->setStaticPointerAddress(&domCg_param_type::domFloat2x4::_Meta);
 	_Meta->registerConstructor(domCg_param_type::domFloat2x4::create);
 
+	_Meta->setIsInnerClass( true );
 	//	Add attribute: _value
  	{
 		daeMetaAttribute *ma = new daeMetaArrayAttribute;
@@ -1364,9 +1945,9 @@ domCg_param_type::domFloat3x1::registerElement()
     
     _Meta = new daeMetaElement;
     _Meta->setName( "float3x1" );
-	_Meta->setStaticPointerAddress(&domCg_param_type::domFloat3x1::_Meta);
 	_Meta->registerConstructor(domCg_param_type::domFloat3x1::create);
 
+	_Meta->setIsInnerClass( true );
 	//	Add attribute: _value
  	{
 		daeMetaAttribute *ma = new daeMetaArrayAttribute;
@@ -1399,9 +1980,9 @@ domCg_param_type::domFloat3x2::registerElement()
     
     _Meta = new daeMetaElement;
     _Meta->setName( "float3x2" );
-	_Meta->setStaticPointerAddress(&domCg_param_type::domFloat3x2::_Meta);
 	_Meta->registerConstructor(domCg_param_type::domFloat3x2::create);
 
+	_Meta->setIsInnerClass( true );
 	//	Add attribute: _value
  	{
 		daeMetaAttribute *ma = new daeMetaArrayAttribute;
@@ -1434,9 +2015,9 @@ domCg_param_type::domFloat3x3::registerElement()
     
     _Meta = new daeMetaElement;
     _Meta->setName( "float3x3" );
-	_Meta->setStaticPointerAddress(&domCg_param_type::domFloat3x3::_Meta);
 	_Meta->registerConstructor(domCg_param_type::domFloat3x3::create);
 
+	_Meta->setIsInnerClass( true );
 	//	Add attribute: _value
  	{
 		daeMetaAttribute *ma = new daeMetaArrayAttribute;
@@ -1469,9 +2050,9 @@ domCg_param_type::domFloat3x4::registerElement()
     
     _Meta = new daeMetaElement;
     _Meta->setName( "float3x4" );
-	_Meta->setStaticPointerAddress(&domCg_param_type::domFloat3x4::_Meta);
 	_Meta->registerConstructor(domCg_param_type::domFloat3x4::create);
 
+	_Meta->setIsInnerClass( true );
 	//	Add attribute: _value
  	{
 		daeMetaAttribute *ma = new daeMetaArrayAttribute;
@@ -1504,9 +2085,9 @@ domCg_param_type::domFloat4x1::registerElement()
     
     _Meta = new daeMetaElement;
     _Meta->setName( "float4x1" );
-	_Meta->setStaticPointerAddress(&domCg_param_type::domFloat4x1::_Meta);
 	_Meta->registerConstructor(domCg_param_type::domFloat4x1::create);
 
+	_Meta->setIsInnerClass( true );
 	//	Add attribute: _value
  	{
 		daeMetaAttribute *ma = new daeMetaArrayAttribute;
@@ -1539,9 +2120,9 @@ domCg_param_type::domFloat4x2::registerElement()
     
     _Meta = new daeMetaElement;
     _Meta->setName( "float4x2" );
-	_Meta->setStaticPointerAddress(&domCg_param_type::domFloat4x2::_Meta);
 	_Meta->registerConstructor(domCg_param_type::domFloat4x2::create);
 
+	_Meta->setIsInnerClass( true );
 	//	Add attribute: _value
  	{
 		daeMetaAttribute *ma = new daeMetaArrayAttribute;
@@ -1574,9 +2155,9 @@ domCg_param_type::domFloat4x3::registerElement()
     
     _Meta = new daeMetaElement;
     _Meta->setName( "float4x3" );
-	_Meta->setStaticPointerAddress(&domCg_param_type::domFloat4x3::_Meta);
 	_Meta->registerConstructor(domCg_param_type::domFloat4x3::create);
 
+	_Meta->setIsInnerClass( true );
 	//	Add attribute: _value
  	{
 		daeMetaAttribute *ma = new daeMetaArrayAttribute;
@@ -1609,9 +2190,9 @@ domCg_param_type::domFloat4x4::registerElement()
     
     _Meta = new daeMetaElement;
     _Meta->setName( "float4x4" );
-	_Meta->setStaticPointerAddress(&domCg_param_type::domFloat4x4::_Meta);
 	_Meta->registerConstructor(domCg_param_type::domFloat4x4::create);
 
+	_Meta->setIsInnerClass( true );
 	//	Add attribute: _value
  	{
 		daeMetaAttribute *ma = new daeMetaArrayAttribute;
@@ -1644,9 +2225,9 @@ domCg_param_type::domInt::registerElement()
     
     _Meta = new daeMetaElement;
     _Meta->setName( "int" );
-	_Meta->setStaticPointerAddress(&domCg_param_type::domInt::_Meta);
 	_Meta->registerConstructor(domCg_param_type::domInt::create);
 
+	_Meta->setIsInnerClass( true );
 	//	Add attribute: _value
  	{
 		daeMetaAttribute *ma = new daeMetaAttribute;
@@ -1679,9 +2260,9 @@ domCg_param_type::domInt1::registerElement()
     
     _Meta = new daeMetaElement;
     _Meta->setName( "int1" );
-	_Meta->setStaticPointerAddress(&domCg_param_type::domInt1::_Meta);
 	_Meta->registerConstructor(domCg_param_type::domInt1::create);
 
+	_Meta->setIsInnerClass( true );
 	//	Add attribute: _value
  	{
 		daeMetaAttribute *ma = new daeMetaAttribute;
@@ -1714,9 +2295,9 @@ domCg_param_type::domInt2::registerElement()
     
     _Meta = new daeMetaElement;
     _Meta->setName( "int2" );
-	_Meta->setStaticPointerAddress(&domCg_param_type::domInt2::_Meta);
 	_Meta->registerConstructor(domCg_param_type::domInt2::create);
 
+	_Meta->setIsInnerClass( true );
 	//	Add attribute: _value
  	{
 		daeMetaAttribute *ma = new daeMetaArrayAttribute;
@@ -1749,9 +2330,9 @@ domCg_param_type::domInt3::registerElement()
     
     _Meta = new daeMetaElement;
     _Meta->setName( "int3" );
-	_Meta->setStaticPointerAddress(&domCg_param_type::domInt3::_Meta);
 	_Meta->registerConstructor(domCg_param_type::domInt3::create);
 
+	_Meta->setIsInnerClass( true );
 	//	Add attribute: _value
  	{
 		daeMetaAttribute *ma = new daeMetaArrayAttribute;
@@ -1784,9 +2365,9 @@ domCg_param_type::domInt4::registerElement()
     
     _Meta = new daeMetaElement;
     _Meta->setName( "int4" );
-	_Meta->setStaticPointerAddress(&domCg_param_type::domInt4::_Meta);
 	_Meta->registerConstructor(domCg_param_type::domInt4::create);
 
+	_Meta->setIsInnerClass( true );
 	//	Add attribute: _value
  	{
 		daeMetaAttribute *ma = new daeMetaArrayAttribute;
@@ -1819,9 +2400,9 @@ domCg_param_type::domInt1x1::registerElement()
     
     _Meta = new daeMetaElement;
     _Meta->setName( "int1x1" );
-	_Meta->setStaticPointerAddress(&domCg_param_type::domInt1x1::_Meta);
 	_Meta->registerConstructor(domCg_param_type::domInt1x1::create);
 
+	_Meta->setIsInnerClass( true );
 	//	Add attribute: _value
  	{
 		daeMetaAttribute *ma = new daeMetaArrayAttribute;
@@ -1854,9 +2435,9 @@ domCg_param_type::domInt1x2::registerElement()
     
     _Meta = new daeMetaElement;
     _Meta->setName( "int1x2" );
-	_Meta->setStaticPointerAddress(&domCg_param_type::domInt1x2::_Meta);
 	_Meta->registerConstructor(domCg_param_type::domInt1x2::create);
 
+	_Meta->setIsInnerClass( true );
 	//	Add attribute: _value
  	{
 		daeMetaAttribute *ma = new daeMetaArrayAttribute;
@@ -1889,9 +2470,9 @@ domCg_param_type::domInt1x3::registerElement()
     
     _Meta = new daeMetaElement;
     _Meta->setName( "int1x3" );
-	_Meta->setStaticPointerAddress(&domCg_param_type::domInt1x3::_Meta);
 	_Meta->registerConstructor(domCg_param_type::domInt1x3::create);
 
+	_Meta->setIsInnerClass( true );
 	//	Add attribute: _value
  	{
 		daeMetaAttribute *ma = new daeMetaArrayAttribute;
@@ -1924,9 +2505,9 @@ domCg_param_type::domInt1x4::registerElement()
     
     _Meta = new daeMetaElement;
     _Meta->setName( "int1x4" );
-	_Meta->setStaticPointerAddress(&domCg_param_type::domInt1x4::_Meta);
 	_Meta->registerConstructor(domCg_param_type::domInt1x4::create);
 
+	_Meta->setIsInnerClass( true );
 	//	Add attribute: _value
  	{
 		daeMetaAttribute *ma = new daeMetaArrayAttribute;
@@ -1959,9 +2540,9 @@ domCg_param_type::domInt2x1::registerElement()
     
     _Meta = new daeMetaElement;
     _Meta->setName( "int2x1" );
-	_Meta->setStaticPointerAddress(&domCg_param_type::domInt2x1::_Meta);
 	_Meta->registerConstructor(domCg_param_type::domInt2x1::create);
 
+	_Meta->setIsInnerClass( true );
 	//	Add attribute: _value
  	{
 		daeMetaAttribute *ma = new daeMetaArrayAttribute;
@@ -1994,9 +2575,9 @@ domCg_param_type::domInt2x2::registerElement()
     
     _Meta = new daeMetaElement;
     _Meta->setName( "int2x2" );
-	_Meta->setStaticPointerAddress(&domCg_param_type::domInt2x2::_Meta);
 	_Meta->registerConstructor(domCg_param_type::domInt2x2::create);
 
+	_Meta->setIsInnerClass( true );
 	//	Add attribute: _value
  	{
 		daeMetaAttribute *ma = new daeMetaArrayAttribute;
@@ -2029,9 +2610,9 @@ domCg_param_type::domInt2x3::registerElement()
     
     _Meta = new daeMetaElement;
     _Meta->setName( "int2x3" );
-	_Meta->setStaticPointerAddress(&domCg_param_type::domInt2x3::_Meta);
 	_Meta->registerConstructor(domCg_param_type::domInt2x3::create);
 
+	_Meta->setIsInnerClass( true );
 	//	Add attribute: _value
  	{
 		daeMetaAttribute *ma = new daeMetaArrayAttribute;
@@ -2064,9 +2645,9 @@ domCg_param_type::domInt2x4::registerElement()
     
     _Meta = new daeMetaElement;
     _Meta->setName( "int2x4" );
-	_Meta->setStaticPointerAddress(&domCg_param_type::domInt2x4::_Meta);
 	_Meta->registerConstructor(domCg_param_type::domInt2x4::create);
 
+	_Meta->setIsInnerClass( true );
 	//	Add attribute: _value
  	{
 		daeMetaAttribute *ma = new daeMetaArrayAttribute;
@@ -2099,9 +2680,9 @@ domCg_param_type::domInt3x1::registerElement()
     
     _Meta = new daeMetaElement;
     _Meta->setName( "int3x1" );
-	_Meta->setStaticPointerAddress(&domCg_param_type::domInt3x1::_Meta);
 	_Meta->registerConstructor(domCg_param_type::domInt3x1::create);
 
+	_Meta->setIsInnerClass( true );
 	//	Add attribute: _value
  	{
 		daeMetaAttribute *ma = new daeMetaArrayAttribute;
@@ -2134,9 +2715,9 @@ domCg_param_type::domInt3x2::registerElement()
     
     _Meta = new daeMetaElement;
     _Meta->setName( "int3x2" );
-	_Meta->setStaticPointerAddress(&domCg_param_type::domInt3x2::_Meta);
 	_Meta->registerConstructor(domCg_param_type::domInt3x2::create);
 
+	_Meta->setIsInnerClass( true );
 	//	Add attribute: _value
  	{
 		daeMetaAttribute *ma = new daeMetaArrayAttribute;
@@ -2169,9 +2750,9 @@ domCg_param_type::domInt3x3::registerElement()
     
     _Meta = new daeMetaElement;
     _Meta->setName( "int3x3" );
-	_Meta->setStaticPointerAddress(&domCg_param_type::domInt3x3::_Meta);
 	_Meta->registerConstructor(domCg_param_type::domInt3x3::create);
 
+	_Meta->setIsInnerClass( true );
 	//	Add attribute: _value
  	{
 		daeMetaAttribute *ma = new daeMetaArrayAttribute;
@@ -2204,9 +2785,9 @@ domCg_param_type::domInt3x4::registerElement()
     
     _Meta = new daeMetaElement;
     _Meta->setName( "int3x4" );
-	_Meta->setStaticPointerAddress(&domCg_param_type::domInt3x4::_Meta);
 	_Meta->registerConstructor(domCg_param_type::domInt3x4::create);
 
+	_Meta->setIsInnerClass( true );
 	//	Add attribute: _value
  	{
 		daeMetaAttribute *ma = new daeMetaArrayAttribute;
@@ -2239,9 +2820,9 @@ domCg_param_type::domInt4x1::registerElement()
     
     _Meta = new daeMetaElement;
     _Meta->setName( "int4x1" );
-	_Meta->setStaticPointerAddress(&domCg_param_type::domInt4x1::_Meta);
 	_Meta->registerConstructor(domCg_param_type::domInt4x1::create);
 
+	_Meta->setIsInnerClass( true );
 	//	Add attribute: _value
  	{
 		daeMetaAttribute *ma = new daeMetaArrayAttribute;
@@ -2274,9 +2855,9 @@ domCg_param_type::domInt4x2::registerElement()
     
     _Meta = new daeMetaElement;
     _Meta->setName( "int4x2" );
-	_Meta->setStaticPointerAddress(&domCg_param_type::domInt4x2::_Meta);
 	_Meta->registerConstructor(domCg_param_type::domInt4x2::create);
 
+	_Meta->setIsInnerClass( true );
 	//	Add attribute: _value
  	{
 		daeMetaAttribute *ma = new daeMetaArrayAttribute;
@@ -2309,9 +2890,9 @@ domCg_param_type::domInt4x3::registerElement()
     
     _Meta = new daeMetaElement;
     _Meta->setName( "int4x3" );
-	_Meta->setStaticPointerAddress(&domCg_param_type::domInt4x3::_Meta);
 	_Meta->registerConstructor(domCg_param_type::domInt4x3::create);
 
+	_Meta->setIsInnerClass( true );
 	//	Add attribute: _value
  	{
 		daeMetaAttribute *ma = new daeMetaArrayAttribute;
@@ -2344,9 +2925,9 @@ domCg_param_type::domInt4x4::registerElement()
     
     _Meta = new daeMetaElement;
     _Meta->setName( "int4x4" );
-	_Meta->setStaticPointerAddress(&domCg_param_type::domInt4x4::_Meta);
 	_Meta->registerConstructor(domCg_param_type::domInt4x4::create);
 
+	_Meta->setIsInnerClass( true );
 	//	Add attribute: _value
  	{
 		daeMetaAttribute *ma = new daeMetaArrayAttribute;
@@ -2379,9 +2960,9 @@ domCg_param_type::domHalf::registerElement()
     
     _Meta = new daeMetaElement;
     _Meta->setName( "half" );
-	_Meta->setStaticPointerAddress(&domCg_param_type::domHalf::_Meta);
 	_Meta->registerConstructor(domCg_param_type::domHalf::create);
 
+	_Meta->setIsInnerClass( true );
 	//	Add attribute: _value
  	{
 		daeMetaAttribute *ma = new daeMetaAttribute;
@@ -2414,9 +2995,9 @@ domCg_param_type::domHalf1::registerElement()
     
     _Meta = new daeMetaElement;
     _Meta->setName( "half1" );
-	_Meta->setStaticPointerAddress(&domCg_param_type::domHalf1::_Meta);
 	_Meta->registerConstructor(domCg_param_type::domHalf1::create);
 
+	_Meta->setIsInnerClass( true );
 	//	Add attribute: _value
  	{
 		daeMetaAttribute *ma = new daeMetaAttribute;
@@ -2449,9 +3030,9 @@ domCg_param_type::domHalf2::registerElement()
     
     _Meta = new daeMetaElement;
     _Meta->setName( "half2" );
-	_Meta->setStaticPointerAddress(&domCg_param_type::domHalf2::_Meta);
 	_Meta->registerConstructor(domCg_param_type::domHalf2::create);
 
+	_Meta->setIsInnerClass( true );
 	//	Add attribute: _value
  	{
 		daeMetaAttribute *ma = new daeMetaArrayAttribute;
@@ -2484,9 +3065,9 @@ domCg_param_type::domHalf3::registerElement()
     
     _Meta = new daeMetaElement;
     _Meta->setName( "half3" );
-	_Meta->setStaticPointerAddress(&domCg_param_type::domHalf3::_Meta);
 	_Meta->registerConstructor(domCg_param_type::domHalf3::create);
 
+	_Meta->setIsInnerClass( true );
 	//	Add attribute: _value
  	{
 		daeMetaAttribute *ma = new daeMetaArrayAttribute;
@@ -2519,9 +3100,9 @@ domCg_param_type::domHalf4::registerElement()
     
     _Meta = new daeMetaElement;
     _Meta->setName( "half4" );
-	_Meta->setStaticPointerAddress(&domCg_param_type::domHalf4::_Meta);
 	_Meta->registerConstructor(domCg_param_type::domHalf4::create);
 
+	_Meta->setIsInnerClass( true );
 	//	Add attribute: _value
  	{
 		daeMetaAttribute *ma = new daeMetaArrayAttribute;
@@ -2554,9 +3135,9 @@ domCg_param_type::domHalf1x1::registerElement()
     
     _Meta = new daeMetaElement;
     _Meta->setName( "half1x1" );
-	_Meta->setStaticPointerAddress(&domCg_param_type::domHalf1x1::_Meta);
 	_Meta->registerConstructor(domCg_param_type::domHalf1x1::create);
 
+	_Meta->setIsInnerClass( true );
 	//	Add attribute: _value
  	{
 		daeMetaAttribute *ma = new daeMetaArrayAttribute;
@@ -2589,9 +3170,9 @@ domCg_param_type::domHalf1x2::registerElement()
     
     _Meta = new daeMetaElement;
     _Meta->setName( "half1x2" );
-	_Meta->setStaticPointerAddress(&domCg_param_type::domHalf1x2::_Meta);
 	_Meta->registerConstructor(domCg_param_type::domHalf1x2::create);
 
+	_Meta->setIsInnerClass( true );
 	//	Add attribute: _value
  	{
 		daeMetaAttribute *ma = new daeMetaArrayAttribute;
@@ -2624,9 +3205,9 @@ domCg_param_type::domHalf1x3::registerElement()
     
     _Meta = new daeMetaElement;
     _Meta->setName( "half1x3" );
-	_Meta->setStaticPointerAddress(&domCg_param_type::domHalf1x3::_Meta);
 	_Meta->registerConstructor(domCg_param_type::domHalf1x3::create);
 
+	_Meta->setIsInnerClass( true );
 	//	Add attribute: _value
  	{
 		daeMetaAttribute *ma = new daeMetaArrayAttribute;
@@ -2659,9 +3240,9 @@ domCg_param_type::domHalf1x4::registerElement()
     
     _Meta = new daeMetaElement;
     _Meta->setName( "half1x4" );
-	_Meta->setStaticPointerAddress(&domCg_param_type::domHalf1x4::_Meta);
 	_Meta->registerConstructor(domCg_param_type::domHalf1x4::create);
 
+	_Meta->setIsInnerClass( true );
 	//	Add attribute: _value
  	{
 		daeMetaAttribute *ma = new daeMetaArrayAttribute;
@@ -2694,9 +3275,9 @@ domCg_param_type::domHalf2x1::registerElement()
     
     _Meta = new daeMetaElement;
     _Meta->setName( "half2x1" );
-	_Meta->setStaticPointerAddress(&domCg_param_type::domHalf2x1::_Meta);
 	_Meta->registerConstructor(domCg_param_type::domHalf2x1::create);
 
+	_Meta->setIsInnerClass( true );
 	//	Add attribute: _value
  	{
 		daeMetaAttribute *ma = new daeMetaArrayAttribute;
@@ -2729,9 +3310,9 @@ domCg_param_type::domHalf2x2::registerElement()
     
     _Meta = new daeMetaElement;
     _Meta->setName( "half2x2" );
-	_Meta->setStaticPointerAddress(&domCg_param_type::domHalf2x2::_Meta);
 	_Meta->registerConstructor(domCg_param_type::domHalf2x2::create);
 
+	_Meta->setIsInnerClass( true );
 	//	Add attribute: _value
  	{
 		daeMetaAttribute *ma = new daeMetaArrayAttribute;
@@ -2764,9 +3345,9 @@ domCg_param_type::domHalf2x3::registerElement()
     
     _Meta = new daeMetaElement;
     _Meta->setName( "half2x3" );
-	_Meta->setStaticPointerAddress(&domCg_param_type::domHalf2x3::_Meta);
 	_Meta->registerConstructor(domCg_param_type::domHalf2x3::create);
 
+	_Meta->setIsInnerClass( true );
 	//	Add attribute: _value
  	{
 		daeMetaAttribute *ma = new daeMetaArrayAttribute;
@@ -2799,9 +3380,9 @@ domCg_param_type::domHalf2x4::registerElement()
     
     _Meta = new daeMetaElement;
     _Meta->setName( "half2x4" );
-	_Meta->setStaticPointerAddress(&domCg_param_type::domHalf2x4::_Meta);
 	_Meta->registerConstructor(domCg_param_type::domHalf2x4::create);
 
+	_Meta->setIsInnerClass( true );
 	//	Add attribute: _value
  	{
 		daeMetaAttribute *ma = new daeMetaArrayAttribute;
@@ -2834,9 +3415,9 @@ domCg_param_type::domHalf3x1::registerElement()
     
     _Meta = new daeMetaElement;
     _Meta->setName( "half3x1" );
-	_Meta->setStaticPointerAddress(&domCg_param_type::domHalf3x1::_Meta);
 	_Meta->registerConstructor(domCg_param_type::domHalf3x1::create);
 
+	_Meta->setIsInnerClass( true );
 	//	Add attribute: _value
  	{
 		daeMetaAttribute *ma = new daeMetaArrayAttribute;
@@ -2869,9 +3450,9 @@ domCg_param_type::domHalf3x2::registerElement()
     
     _Meta = new daeMetaElement;
     _Meta->setName( "half3x2" );
-	_Meta->setStaticPointerAddress(&domCg_param_type::domHalf3x2::_Meta);
 	_Meta->registerConstructor(domCg_param_type::domHalf3x2::create);
 
+	_Meta->setIsInnerClass( true );
 	//	Add attribute: _value
  	{
 		daeMetaAttribute *ma = new daeMetaArrayAttribute;
@@ -2904,9 +3485,9 @@ domCg_param_type::domHalf3x3::registerElement()
     
     _Meta = new daeMetaElement;
     _Meta->setName( "half3x3" );
-	_Meta->setStaticPointerAddress(&domCg_param_type::domHalf3x3::_Meta);
 	_Meta->registerConstructor(domCg_param_type::domHalf3x3::create);
 
+	_Meta->setIsInnerClass( true );
 	//	Add attribute: _value
  	{
 		daeMetaAttribute *ma = new daeMetaArrayAttribute;
@@ -2939,9 +3520,9 @@ domCg_param_type::domHalf3x4::registerElement()
     
     _Meta = new daeMetaElement;
     _Meta->setName( "half3x4" );
-	_Meta->setStaticPointerAddress(&domCg_param_type::domHalf3x4::_Meta);
 	_Meta->registerConstructor(domCg_param_type::domHalf3x4::create);
 
+	_Meta->setIsInnerClass( true );
 	//	Add attribute: _value
  	{
 		daeMetaAttribute *ma = new daeMetaArrayAttribute;
@@ -2974,9 +3555,9 @@ domCg_param_type::domHalf4x1::registerElement()
     
     _Meta = new daeMetaElement;
     _Meta->setName( "half4x1" );
-	_Meta->setStaticPointerAddress(&domCg_param_type::domHalf4x1::_Meta);
 	_Meta->registerConstructor(domCg_param_type::domHalf4x1::create);
 
+	_Meta->setIsInnerClass( true );
 	//	Add attribute: _value
  	{
 		daeMetaAttribute *ma = new daeMetaArrayAttribute;
@@ -3009,9 +3590,9 @@ domCg_param_type::domHalf4x2::registerElement()
     
     _Meta = new daeMetaElement;
     _Meta->setName( "half4x2" );
-	_Meta->setStaticPointerAddress(&domCg_param_type::domHalf4x2::_Meta);
 	_Meta->registerConstructor(domCg_param_type::domHalf4x2::create);
 
+	_Meta->setIsInnerClass( true );
 	//	Add attribute: _value
  	{
 		daeMetaAttribute *ma = new daeMetaArrayAttribute;
@@ -3044,9 +3625,9 @@ domCg_param_type::domHalf4x3::registerElement()
     
     _Meta = new daeMetaElement;
     _Meta->setName( "half4x3" );
-	_Meta->setStaticPointerAddress(&domCg_param_type::domHalf4x3::_Meta);
 	_Meta->registerConstructor(domCg_param_type::domHalf4x3::create);
 
+	_Meta->setIsInnerClass( true );
 	//	Add attribute: _value
  	{
 		daeMetaAttribute *ma = new daeMetaArrayAttribute;
@@ -3079,9 +3660,9 @@ domCg_param_type::domHalf4x4::registerElement()
     
     _Meta = new daeMetaElement;
     _Meta->setName( "half4x4" );
-	_Meta->setStaticPointerAddress(&domCg_param_type::domHalf4x4::_Meta);
 	_Meta->registerConstructor(domCg_param_type::domHalf4x4::create);
 
+	_Meta->setIsInnerClass( true );
 	//	Add attribute: _value
  	{
 		daeMetaAttribute *ma = new daeMetaArrayAttribute;
@@ -3114,9 +3695,9 @@ domCg_param_type::domFixed::registerElement()
     
     _Meta = new daeMetaElement;
     _Meta->setName( "fixed" );
-	_Meta->setStaticPointerAddress(&domCg_param_type::domFixed::_Meta);
 	_Meta->registerConstructor(domCg_param_type::domFixed::create);
 
+	_Meta->setIsInnerClass( true );
 	//	Add attribute: _value
  	{
 		daeMetaAttribute *ma = new daeMetaAttribute;
@@ -3149,9 +3730,9 @@ domCg_param_type::domFixed1::registerElement()
     
     _Meta = new daeMetaElement;
     _Meta->setName( "fixed1" );
-	_Meta->setStaticPointerAddress(&domCg_param_type::domFixed1::_Meta);
 	_Meta->registerConstructor(domCg_param_type::domFixed1::create);
 
+	_Meta->setIsInnerClass( true );
 	//	Add attribute: _value
  	{
 		daeMetaAttribute *ma = new daeMetaAttribute;
@@ -3184,9 +3765,9 @@ domCg_param_type::domFixed2::registerElement()
     
     _Meta = new daeMetaElement;
     _Meta->setName( "fixed2" );
-	_Meta->setStaticPointerAddress(&domCg_param_type::domFixed2::_Meta);
 	_Meta->registerConstructor(domCg_param_type::domFixed2::create);
 
+	_Meta->setIsInnerClass( true );
 	//	Add attribute: _value
  	{
 		daeMetaAttribute *ma = new daeMetaArrayAttribute;
@@ -3219,9 +3800,9 @@ domCg_param_type::domFixed3::registerElement()
     
     _Meta = new daeMetaElement;
     _Meta->setName( "fixed3" );
-	_Meta->setStaticPointerAddress(&domCg_param_type::domFixed3::_Meta);
 	_Meta->registerConstructor(domCg_param_type::domFixed3::create);
 
+	_Meta->setIsInnerClass( true );
 	//	Add attribute: _value
  	{
 		daeMetaAttribute *ma = new daeMetaArrayAttribute;
@@ -3254,9 +3835,9 @@ domCg_param_type::domFixed4::registerElement()
     
     _Meta = new daeMetaElement;
     _Meta->setName( "fixed4" );
-	_Meta->setStaticPointerAddress(&domCg_param_type::domFixed4::_Meta);
 	_Meta->registerConstructor(domCg_param_type::domFixed4::create);
 
+	_Meta->setIsInnerClass( true );
 	//	Add attribute: _value
  	{
 		daeMetaAttribute *ma = new daeMetaArrayAttribute;
@@ -3289,9 +3870,9 @@ domCg_param_type::domFixed1x1::registerElement()
     
     _Meta = new daeMetaElement;
     _Meta->setName( "fixed1x1" );
-	_Meta->setStaticPointerAddress(&domCg_param_type::domFixed1x1::_Meta);
 	_Meta->registerConstructor(domCg_param_type::domFixed1x1::create);
 
+	_Meta->setIsInnerClass( true );
 	//	Add attribute: _value
  	{
 		daeMetaAttribute *ma = new daeMetaArrayAttribute;
@@ -3324,9 +3905,9 @@ domCg_param_type::domFixed1x2::registerElement()
     
     _Meta = new daeMetaElement;
     _Meta->setName( "fixed1x2" );
-	_Meta->setStaticPointerAddress(&domCg_param_type::domFixed1x2::_Meta);
 	_Meta->registerConstructor(domCg_param_type::domFixed1x2::create);
 
+	_Meta->setIsInnerClass( true );
 	//	Add attribute: _value
  	{
 		daeMetaAttribute *ma = new daeMetaArrayAttribute;
@@ -3359,9 +3940,9 @@ domCg_param_type::domFixed1x3::registerElement()
     
     _Meta = new daeMetaElement;
     _Meta->setName( "fixed1x3" );
-	_Meta->setStaticPointerAddress(&domCg_param_type::domFixed1x3::_Meta);
 	_Meta->registerConstructor(domCg_param_type::domFixed1x3::create);
 
+	_Meta->setIsInnerClass( true );
 	//	Add attribute: _value
  	{
 		daeMetaAttribute *ma = new daeMetaArrayAttribute;
@@ -3394,9 +3975,9 @@ domCg_param_type::domFixed1x4::registerElement()
     
     _Meta = new daeMetaElement;
     _Meta->setName( "fixed1x4" );
-	_Meta->setStaticPointerAddress(&domCg_param_type::domFixed1x4::_Meta);
 	_Meta->registerConstructor(domCg_param_type::domFixed1x4::create);
 
+	_Meta->setIsInnerClass( true );
 	//	Add attribute: _value
  	{
 		daeMetaAttribute *ma = new daeMetaArrayAttribute;
@@ -3429,9 +4010,9 @@ domCg_param_type::domFixed2x1::registerElement()
     
     _Meta = new daeMetaElement;
     _Meta->setName( "fixed2x1" );
-	_Meta->setStaticPointerAddress(&domCg_param_type::domFixed2x1::_Meta);
 	_Meta->registerConstructor(domCg_param_type::domFixed2x1::create);
 
+	_Meta->setIsInnerClass( true );
 	//	Add attribute: _value
  	{
 		daeMetaAttribute *ma = new daeMetaArrayAttribute;
@@ -3464,9 +4045,9 @@ domCg_param_type::domFixed2x2::registerElement()
     
     _Meta = new daeMetaElement;
     _Meta->setName( "fixed2x2" );
-	_Meta->setStaticPointerAddress(&domCg_param_type::domFixed2x2::_Meta);
 	_Meta->registerConstructor(domCg_param_type::domFixed2x2::create);
 
+	_Meta->setIsInnerClass( true );
 	//	Add attribute: _value
  	{
 		daeMetaAttribute *ma = new daeMetaArrayAttribute;
@@ -3499,9 +4080,9 @@ domCg_param_type::domFixed2x3::registerElement()
     
     _Meta = new daeMetaElement;
     _Meta->setName( "fixed2x3" );
-	_Meta->setStaticPointerAddress(&domCg_param_type::domFixed2x3::_Meta);
 	_Meta->registerConstructor(domCg_param_type::domFixed2x3::create);
 
+	_Meta->setIsInnerClass( true );
 	//	Add attribute: _value
  	{
 		daeMetaAttribute *ma = new daeMetaArrayAttribute;
@@ -3534,9 +4115,9 @@ domCg_param_type::domFixed2x4::registerElement()
     
     _Meta = new daeMetaElement;
     _Meta->setName( "fixed2x4" );
-	_Meta->setStaticPointerAddress(&domCg_param_type::domFixed2x4::_Meta);
 	_Meta->registerConstructor(domCg_param_type::domFixed2x4::create);
 
+	_Meta->setIsInnerClass( true );
 	//	Add attribute: _value
  	{
 		daeMetaAttribute *ma = new daeMetaArrayAttribute;
@@ -3569,9 +4150,9 @@ domCg_param_type::domFixed3x1::registerElement()
     
     _Meta = new daeMetaElement;
     _Meta->setName( "fixed3x1" );
-	_Meta->setStaticPointerAddress(&domCg_param_type::domFixed3x1::_Meta);
 	_Meta->registerConstructor(domCg_param_type::domFixed3x1::create);
 
+	_Meta->setIsInnerClass( true );
 	//	Add attribute: _value
  	{
 		daeMetaAttribute *ma = new daeMetaArrayAttribute;
@@ -3604,9 +4185,9 @@ domCg_param_type::domFixed3x2::registerElement()
     
     _Meta = new daeMetaElement;
     _Meta->setName( "fixed3x2" );
-	_Meta->setStaticPointerAddress(&domCg_param_type::domFixed3x2::_Meta);
 	_Meta->registerConstructor(domCg_param_type::domFixed3x2::create);
 
+	_Meta->setIsInnerClass( true );
 	//	Add attribute: _value
  	{
 		daeMetaAttribute *ma = new daeMetaArrayAttribute;
@@ -3639,9 +4220,9 @@ domCg_param_type::domFixed3x3::registerElement()
     
     _Meta = new daeMetaElement;
     _Meta->setName( "fixed3x3" );
-	_Meta->setStaticPointerAddress(&domCg_param_type::domFixed3x3::_Meta);
 	_Meta->registerConstructor(domCg_param_type::domFixed3x3::create);
 
+	_Meta->setIsInnerClass( true );
 	//	Add attribute: _value
  	{
 		daeMetaAttribute *ma = new daeMetaArrayAttribute;
@@ -3674,9 +4255,9 @@ domCg_param_type::domFixed3x4::registerElement()
     
     _Meta = new daeMetaElement;
     _Meta->setName( "fixed3x4" );
-	_Meta->setStaticPointerAddress(&domCg_param_type::domFixed3x4::_Meta);
 	_Meta->registerConstructor(domCg_param_type::domFixed3x4::create);
 
+	_Meta->setIsInnerClass( true );
 	//	Add attribute: _value
  	{
 		daeMetaAttribute *ma = new daeMetaArrayAttribute;
@@ -3709,9 +4290,9 @@ domCg_param_type::domFixed4x1::registerElement()
     
     _Meta = new daeMetaElement;
     _Meta->setName( "fixed4x1" );
-	_Meta->setStaticPointerAddress(&domCg_param_type::domFixed4x1::_Meta);
 	_Meta->registerConstructor(domCg_param_type::domFixed4x1::create);
 
+	_Meta->setIsInnerClass( true );
 	//	Add attribute: _value
  	{
 		daeMetaAttribute *ma = new daeMetaArrayAttribute;
@@ -3744,9 +4325,9 @@ domCg_param_type::domFixed4x2::registerElement()
     
     _Meta = new daeMetaElement;
     _Meta->setName( "fixed4x2" );
-	_Meta->setStaticPointerAddress(&domCg_param_type::domFixed4x2::_Meta);
 	_Meta->registerConstructor(domCg_param_type::domFixed4x2::create);
 
+	_Meta->setIsInnerClass( true );
 	//	Add attribute: _value
  	{
 		daeMetaAttribute *ma = new daeMetaArrayAttribute;
@@ -3779,9 +4360,9 @@ domCg_param_type::domFixed4x3::registerElement()
     
     _Meta = new daeMetaElement;
     _Meta->setName( "fixed4x3" );
-	_Meta->setStaticPointerAddress(&domCg_param_type::domFixed4x3::_Meta);
 	_Meta->registerConstructor(domCg_param_type::domFixed4x3::create);
 
+	_Meta->setIsInnerClass( true );
 	//	Add attribute: _value
  	{
 		daeMetaAttribute *ma = new daeMetaArrayAttribute;
@@ -3814,9 +4395,9 @@ domCg_param_type::domFixed4x4::registerElement()
     
     _Meta = new daeMetaElement;
     _Meta->setName( "fixed4x4" );
-	_Meta->setStaticPointerAddress(&domCg_param_type::domFixed4x4::_Meta);
 	_Meta->registerConstructor(domCg_param_type::domFixed4x4::create);
 
+	_Meta->setIsInnerClass( true );
 	//	Add attribute: _value
  	{
 		daeMetaAttribute *ma = new daeMetaArrayAttribute;
@@ -3849,9 +4430,9 @@ domCg_param_type::domString::registerElement()
     
     _Meta = new daeMetaElement;
     _Meta->setName( "string" );
-	_Meta->setStaticPointerAddress(&domCg_param_type::domString::_Meta);
 	_Meta->registerConstructor(domCg_param_type::domString::create);
 
+	_Meta->setIsInnerClass( true );
 	//	Add attribute: _value
  	{
 		daeMetaAttribute *ma = new daeMetaAttribute;
@@ -3884,9 +4465,9 @@ domCg_param_type::domEnum::registerElement()
     
     _Meta = new daeMetaElement;
     _Meta->setName( "enum" );
-	_Meta->setStaticPointerAddress(&domCg_param_type::domEnum::_Meta);
 	_Meta->registerConstructor(domCg_param_type::domEnum::create);
 
+	_Meta->setIsInnerClass( true );
 	//	Add attribute: _value
  	{
 		daeMetaAttribute *ma = new daeMetaAttribute;

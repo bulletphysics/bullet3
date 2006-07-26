@@ -102,7 +102,7 @@ public:
 	};
 
 
-protected:  // Attribute
+protected:  // Attributes
 /**
  *  The url attribute refers to resource. This may refer to a local resource
  * using a relative  URL fragment identifier that begins with the “#”
@@ -110,6 +110,16 @@ protected:  // Attribute
  * absolute or relative URL. 
  */
 	xsAnyURI attrUrl;
+/**
+ *  The sid attribute is a text string value containing the sub-identifier
+ * of this element. This  value must be unique within the scope of the parent
+ * element. Optional attribute. 
+ */
+	xsNCName attrSid;
+/**
+ *  The name attribute is the text string name of this element. Optional attribute.
+ */
+	xsNCName attrName;
 
 protected:  // Elements
 /**
@@ -143,7 +153,32 @@ public:	//Accessors and Mutators
 	 * Sets the url attribute.
 	 * @param atUrl The new value for the url attribute.
 	 */
-	void setUrl( const xsAnyURI &atUrl ) { attrUrl.setURI( atUrl.getURI() ); }
+	void setUrl( const xsAnyURI &atUrl ) { attrUrl.setURI( atUrl.getURI() );
+	 _validAttributeArray[0] = true; }
+
+	/**
+	 * Gets the sid attribute.
+	 * @return Returns a xsNCName of the sid attribute.
+	 */
+	xsNCName getSid() const { return attrSid; }
+	/**
+	 * Sets the sid attribute.
+	 * @param atSid The new value for the sid attribute.
+	 */
+	void setSid( xsNCName atSid ) { *(daeStringRef*)&attrSid = atSid;
+	 _validAttributeArray[1] = true; }
+
+	/**
+	 * Gets the name attribute.
+	 * @return Returns a xsNCName of the name attribute.
+	 */
+	xsNCName getName() const { return attrName; }
+	/**
+	 * Sets the name attribute.
+	 * @param atName The new value for the name attribute.
+	 */
+	void setName( xsNCName atName ) { *(daeStringRef*)&attrName = atName;
+	 _validAttributeArray[2] = true; }
 
 	/**
 	 * Gets the skeleton element array.
@@ -174,7 +209,7 @@ protected:
 	/**
 	 * Constructor
 	 */
-	domInstance_controller() : attrUrl(), elemSkeleton_array(), elemBind_material(), elemExtra_array() {}
+	domInstance_controller() : attrUrl(), attrSid(), attrName(), elemSkeleton_array(), elemBind_material(), elemExtra_array() {}
 	/**
 	 * Destructor
 	 */

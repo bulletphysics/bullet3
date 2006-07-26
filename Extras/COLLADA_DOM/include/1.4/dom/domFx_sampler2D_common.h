@@ -16,6 +16,7 @@
 #include <dom/domTypes.h>
 #include <dom/domElements.h>
 
+#include <dom/domExtra.h>
 
 /**
  * A two-dimensional texture sampler.
@@ -40,14 +41,14 @@ public:
 	public:	//Accessors and Mutators
 		/**
 		 * Gets the value of this element.
-		 * @return a xsNCName of the value.
+		 * @return Returns a xsNCName of the value.
 		 */
 		xsNCName getValue() const { return _value; }
 		/**
 		 * Sets the _value of this element.
 		 * @param val The new value for this element.
 		 */
-		void setValue( xsNCName val ) { _value = val; }
+		void setValue( xsNCName val ) { *(daeStringRef*)&_value = val; }
 
 	protected:
 		/**
@@ -625,6 +626,7 @@ protected:  // Elements
 	domBorder_colorRef elemBorder_color;
 	domMipmap_maxlevelRef elemMipmap_maxlevel;
 	domMipmap_biasRef elemMipmap_bias;
+	domExtra_Array elemExtra_array;
 
 public:	//Accessors and Mutators
 	/**
@@ -672,11 +674,21 @@ public:	//Accessors and Mutators
 	 * @return a daeSmartRef to the mipmap_bias element.
 	 */
 	const domMipmap_biasRef getMipmap_bias() const { return elemMipmap_bias; }
+	/**
+	 * Gets the extra element array.
+	 * @return Returns a reference to the array of extra elements.
+	 */
+	domExtra_Array &getExtra_array() { return elemExtra_array; }
+	/**
+	 * Gets the extra element array.
+	 * @return Returns a constant reference to the array of extra elements.
+	 */
+	const domExtra_Array &getExtra_array() const { return elemExtra_array; }
 protected:
 	/**
 	 * Constructor
 	 */
-	domFx_sampler2D_common_complexType() : elemSource(), elemWrap_s(), elemWrap_t(), elemMinfilter(), elemMagfilter(), elemMipfilter(), elemBorder_color(), elemMipmap_maxlevel(), elemMipmap_bias() {}
+	domFx_sampler2D_common_complexType() : elemSource(), elemWrap_s(), elemWrap_t(), elemMinfilter(), elemMagfilter(), elemMipfilter(), elemBorder_color(), elemMipmap_maxlevel(), elemMipmap_bias(), elemExtra_array() {}
 	/**
 	 * Destructor
 	 */

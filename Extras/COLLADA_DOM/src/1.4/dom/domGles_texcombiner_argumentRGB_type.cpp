@@ -13,6 +13,12 @@
 
 #include <dae/daeDom.h>
 #include <dom/domGles_texcombiner_argumentRGB_type.h>
+#include <dae/daeMetaCMPolicy.h>
+#include <dae/daeMetaSequence.h>
+#include <dae/daeMetaChoice.h>
+#include <dae/daeMetaGroup.h>
+#include <dae/daeMetaAny.h>
+#include <dae/daeMetaElementAttribute.h>
 
 daeElementRef
 domGles_texcombiner_argumentRGB_type::create(daeInt bytes)
@@ -29,7 +35,6 @@ domGles_texcombiner_argumentRGB_type::registerElement()
     
     _Meta = new daeMetaElement;
     _Meta->setName( "gles_texcombiner_argumentRGB_type" );
-	_Meta->setStaticPointerAddress(&domGles_texcombiner_argumentRGB_type::_Meta);
 	_Meta->registerConstructor(domGles_texcombiner_argumentRGB_type::create);
 
 

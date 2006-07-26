@@ -13,7 +13,7 @@
 
 #include <dae/daeStringTable.h>
 
-daeStringTable::daeStringTable(int stringBufferSize):_stringBufferSize(stringBufferSize)
+daeStringTable::daeStringTable(int stringBufferSize):_stringBufferSize(stringBufferSize), _empty( "" )
 {
 	//allocate initial buffer
 	allocateBuffer();
@@ -29,6 +29,7 @@ daeString daeStringTable::allocateBuffer()
 
 daeString daeStringTable::allocString(daeString string)
 {
+	if ( string == NULL ) return _empty;
 	size_t stringSize = strlen(string) + 1;
 	size_t sizeLeft = _stringBufferSize - _stringBufferIndex;
 	daeString buf;

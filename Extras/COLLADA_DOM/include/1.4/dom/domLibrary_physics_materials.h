@@ -26,6 +26,17 @@
  */
 class domLibrary_physics_materials : public daeElement
 {
+protected:  // Attributes
+/**
+ *  The id attribute is a text string containing the unique identifier of
+ * this element.  This value must be unique within the instance document.
+ * Optional attribute. 
+ */
+	xsID attrId;
+/**
+ *  The name attribute is the text string name of this element. Optional attribute.
+ */
+	xsNCName attrName;
 
 protected:  // Elements
 /**
@@ -43,6 +54,30 @@ protected:  // Elements
 	domExtra_Array elemExtra_array;
 
 public:	//Accessors and Mutators
+	/**
+	 * Gets the id attribute.
+	 * @return Returns a xsID of the id attribute.
+	 */
+	xsID getId() const { return attrId; }
+	/**
+	 * Sets the id attribute.
+	 * @param atId The new value for the id attribute.
+	 */
+	void setId( xsID atId ) { *(daeStringRef*)&attrId = atId;
+	 _validAttributeArray[0] = true; }
+
+	/**
+	 * Gets the name attribute.
+	 * @return Returns a xsNCName of the name attribute.
+	 */
+	xsNCName getName() const { return attrName; }
+	/**
+	 * Sets the name attribute.
+	 * @param atName The new value for the name attribute.
+	 */
+	void setName( xsNCName atName ) { *(daeStringRef*)&attrName = atName;
+	 _validAttributeArray[1] = true; }
+
 	/**
 	 * Gets the asset element.
 	 * @return a daeSmartRef to the asset element.
@@ -72,7 +107,7 @@ protected:
 	/**
 	 * Constructor
 	 */
-	domLibrary_physics_materials() : elemAsset(), elemPhysics_material_array(), elemExtra_array() {}
+	domLibrary_physics_materials() : attrId(), attrName(), elemAsset(), elemPhysics_material_array(), elemExtra_array() {}
 	/**
 	 * Destructor
 	 */

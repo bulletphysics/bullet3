@@ -75,6 +75,20 @@ protected:
  */
 class domFx_cleardepth_common : public daeElement, public domFx_cleardepth_common_complexType
 {
+
+public:	//Accessors and Mutators
+	/**
+	 * Gets the index attribute.
+	 * @return Returns a xsNonNegativeInteger of the index attribute.
+	 */
+	xsNonNegativeInteger getIndex() const { return attrIndex; }
+	/**
+	 * Sets the index attribute.
+	 * @param atIndex The new value for the index attribute.
+	 */
+	void setIndex( xsNonNegativeInteger atIndex ) { attrIndex = atIndex;
+	 _validAttributeArray[0] = true; }
+
 protected:
 	/**
 	 * Constructor

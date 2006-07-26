@@ -85,7 +85,7 @@ typedef domGlsl_ListOfFloat		domGlsl_float4x4;
 typedef domGlsl_ListOfInt		domGlsl_int2;
 typedef domGlsl_ListOfInt		domGlsl_int3;
 typedef domGlsl_ListOfInt		domGlsl_int4;
-typedef xsString		domGlsl_identifier;
+typedef xsToken		domGlsl_identifier;
 typedef xsBoolean		domCg_bool;
 typedef xsFloat		domCg_float;
 typedef xsInt		domCg_int;
@@ -196,7 +196,7 @@ typedef domCg_ListOfFixed		domCg_fixed4x1;
 typedef domCg_ListOfFixed		domCg_fixed4x2;
 typedef domCg_ListOfFixed		domCg_fixed4x3;
 typedef domCg_ListOfFixed		domCg_fixed4x4;
-typedef xsString		domCg_identifier;
+typedef xsToken		domCg_identifier;
 typedef xsNonNegativeInteger		domGLES_MAX_LIGHTS_index;
 typedef xsNonNegativeInteger		domGLES_MAX_CLIP_PLANES_index;
 typedef xsNonNegativeInteger		domGLES_MAX_TEXTURE_COORDS_index;
@@ -237,11 +237,18 @@ enum domUpAxisType {
  */
 enum domVersionType {
 	VERSIONTYPE_1_4_0,
-	VERSIONTYPE_COUNT = 1
+	VERSIONTYPE_1_4_1,
+	VERSIONTYPE_COUNT = 2
+};
+
+enum domFx_opaque_enum {
+	FX_OPAQUE_ENUM_A_ONE,		/**< When a transparent opaque attribute is set to A_ONE, it means the transparency information will be taken from the alpha channel of the color, texture, or parameter supplying the value. The value of 1.0 is opaque in this mode. */
+	FX_OPAQUE_ENUM_RGB_ZERO,		/**< When a transparent opaque attribute is set to RGB_ZERO, it means the transparency information will be taken from the red, green, and blue channels of the color, texture, or parameter supplying the value. Each channel is modulated independently. The value of 0.0 is opaque in this mode. */
+	FX_OPAQUE_ENUM_COUNT = 2
 };
 
 enum domFx_surface_type_enum {
-	FX_SURFACE_TYPE_ENUM_UNTYPED,
+	FX_SURFACE_TYPE_ENUM_UNTYPED,		/**< When a surface's type attribute is set to UNTYPED, its type is initially unknown and established later by the context in which it is used, such as by a texture sampler that references it. A surface of any other type may be changed into an UNTYPED surface at run-time, as if it were created by <newparam>, using <setparam>. If there is a type mismatch between a <setparam> operation and what the run-time decides the type should be, the result is profile- and platform-specific behavior. */
 	FX_SURFACE_TYPE_ENUM_1D,
 	FX_SURFACE_TYPE_ENUM_2D,
 	FX_SURFACE_TYPE_ENUM_3D,
@@ -259,6 +266,61 @@ enum domFx_surface_face_enum {
 	FX_SURFACE_FACE_ENUM_POSITIVE_Z,
 	FX_SURFACE_FACE_ENUM_NEGATIVE_Z,
 	FX_SURFACE_FACE_ENUM_COUNT = 6
+};
+
+/**
+ * The per-texel layout of the format.  The length of the string indicate
+ * how many channels there are and the letter respresents the name of the
+ * channel.  There are typically 0 to 4 channels.
+ */
+enum domFx_surface_format_hint_channels_enum {
+	FX_SURFACE_FORMAT_HINT_CHANNELS_ENUM_RGB,		/**< RGB color  map */
+	FX_SURFACE_FORMAT_HINT_CHANNELS_ENUM_RGBA,		/**< RGB color + Alpha map often used for color + transparency or other things packed into channel A like specular power */
+	FX_SURFACE_FORMAT_HINT_CHANNELS_ENUM_L,		/**< Luminance map often used for light mapping */
+	FX_SURFACE_FORMAT_HINT_CHANNELS_ENUM_LA,		/**< Luminance+Alpha map often used for light mapping */
+	FX_SURFACE_FORMAT_HINT_CHANNELS_ENUM_D,		/**< Depth map often used for displacement, parellax, relief, or shadow mapping */
+	FX_SURFACE_FORMAT_HINT_CHANNELS_ENUM_XYZ,		/**< Typically used for normal maps or 3component displacement maps. */
+	FX_SURFACE_FORMAT_HINT_CHANNELS_ENUM_XYZW,		/**< Typically used for normal maps where W is the depth for relief or parrallax mapping */
+	FX_SURFACE_FORMAT_HINT_CHANNELS_ENUM_COUNT = 7
+};
+
+/**
+ * Each channel of the texel has a precision.  Typically these are all linked
+ * together.  An exact format lay lower the precision of an individual channel
+ * but applying a higher precision by linking the channels together may still
+ * convey the same information.
+ */
+enum domFx_surface_format_hint_precision_enum {
+	FX_SURFACE_FORMAT_HINT_PRECISION_ENUM_LOW,		/**< For integers this typically represents 8 bits.  For floats typically 16 bits. */
+	FX_SURFACE_FORMAT_HINT_PRECISION_ENUM_MID,		/**< For integers this typically represents 8 to 24 bits.  For floats typically 16 to 32 bits. */
+	FX_SURFACE_FORMAT_HINT_PRECISION_ENUM_HIGH,		/**< For integers this typically represents 16 to 32 bits.  For floats typically 24 to 32 bits. */
+	FX_SURFACE_FORMAT_HINT_PRECISION_ENUM_COUNT = 3
+};
+
+/**
+ * Each channel represents a range of values. Some example ranges are signed
+ * or unsigned integers, or between between a clamped range such as 0.0f to
+ * 1.0f, or high dynamic range via floating point
+ */
+enum domFx_surface_format_hint_range_enum {
+	FX_SURFACE_FORMAT_HINT_RANGE_ENUM_SNORM,		/**< Format is representing a decimal value that remains within the -1 to 1 range. Implimentation could be integer-fixedpoint or floats. */
+	FX_SURFACE_FORMAT_HINT_RANGE_ENUM_UNORM,		/**< Format is representing a decimal value that remains within the 0 to 1 range. Implimentation could be integer-fixedpoint or floats. */
+	FX_SURFACE_FORMAT_HINT_RANGE_ENUM_SINT,		/**< Format is representing signed integer numbers.  (ex. 8bits = -128 to 127) */
+	FX_SURFACE_FORMAT_HINT_RANGE_ENUM_UINT,		/**< Format is representing unsigned integer numbers.  (ex. 8bits = 0 to 255) */
+	FX_SURFACE_FORMAT_HINT_RANGE_ENUM_FLOAT,		/**< Format should support full floating point ranges.  High precision is expected to be 32bit. Mid precision may be 16 to 32 bit.  Low precision is expected to be 16 bit. */
+	FX_SURFACE_FORMAT_HINT_RANGE_ENUM_COUNT = 5
+};
+
+/**
+ * Additional hints about data relationships and other things to help the
+ * application pick the best format.
+ */
+enum domFx_surface_format_hint_option_enum {
+	FX_SURFACE_FORMAT_HINT_OPTION_ENUM_SRGB_GAMMA,		/**< colors are stored with respect to the sRGB 2.2 gamma curve rather than linear */
+	FX_SURFACE_FORMAT_HINT_OPTION_ENUM_NORMALIZED3,		/**< the texel's XYZ/RGB should be normalized such as in a normal map. */
+	FX_SURFACE_FORMAT_HINT_OPTION_ENUM_NORMALIZED4,		/**< the texel's XYZW/RGBA should be normalized such as in a normal map. */
+	FX_SURFACE_FORMAT_HINT_OPTION_ENUM_COMPRESSABLE,		/**< The surface may use run-time compression.  Considering the best compression based on desired, channel, range, precision, and options */
+	FX_SURFACE_FORMAT_HINT_OPTION_ENUM_COUNT = 4
 };
 
 enum domFx_sampler_wrap_common {

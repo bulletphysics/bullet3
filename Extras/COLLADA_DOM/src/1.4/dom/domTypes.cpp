@@ -481,6 +481,8 @@ void registerDomTypes()
     ((daeEnumType*)type)->_values = new daeEnumArray;
 	((daeEnumType*)type)->_strings->append("1.4.0");
 	((daeEnumType*)type)->_values->append(VERSIONTYPE_1_4_0);    
+	((daeEnumType*)type)->_strings->append("1.4.1");
+	((daeEnumType*)type)->_values->append(VERSIONTYPE_1_4_1);    
 	daeAtomicType::append( type );
 
 	// TYPEDEF: Fx_color_common	//check if this type has an existing base
@@ -494,6 +496,17 @@ void registerDomTypes()
 		type->_nameBindings.append("Fx_color_common");
 	}
 	
+    // ENUM: Fx_opaque_enum    
+    type = new daeEnumType;
+    type->_nameBindings.append("Fx_opaque_enum");
+    ((daeEnumType*)type)->_strings = new daeStringRefArray;
+    ((daeEnumType*)type)->_values = new daeEnumArray;
+	((daeEnumType*)type)->_strings->append("A_ONE");
+	((daeEnumType*)type)->_values->append(FX_OPAQUE_ENUM_A_ONE);    
+	((daeEnumType*)type)->_strings->append("RGB_ZERO");
+	((daeEnumType*)type)->_values->append(FX_OPAQUE_ENUM_RGB_ZERO);    
+	daeAtomicType::append( type );
+
     // ENUM: Fx_surface_type_enum    
     type = new daeEnumType;
     type->_nameBindings.append("Fx_surface_type_enum");
@@ -532,6 +545,72 @@ void registerDomTypes()
 	((daeEnumType*)type)->_values->append(FX_SURFACE_FACE_ENUM_POSITIVE_Z);    
 	((daeEnumType*)type)->_strings->append("NEGATIVE_Z");
 	((daeEnumType*)type)->_values->append(FX_SURFACE_FACE_ENUM_NEGATIVE_Z);    
+	daeAtomicType::append( type );
+
+    // ENUM: Fx_surface_format_hint_channels_enum    
+    type = new daeEnumType;
+    type->_nameBindings.append("Fx_surface_format_hint_channels_enum");
+    ((daeEnumType*)type)->_strings = new daeStringRefArray;
+    ((daeEnumType*)type)->_values = new daeEnumArray;
+	((daeEnumType*)type)->_strings->append("RGB");
+	((daeEnumType*)type)->_values->append(FX_SURFACE_FORMAT_HINT_CHANNELS_ENUM_RGB);    
+	((daeEnumType*)type)->_strings->append("RGBA");
+	((daeEnumType*)type)->_values->append(FX_SURFACE_FORMAT_HINT_CHANNELS_ENUM_RGBA);    
+	((daeEnumType*)type)->_strings->append("L");
+	((daeEnumType*)type)->_values->append(FX_SURFACE_FORMAT_HINT_CHANNELS_ENUM_L);    
+	((daeEnumType*)type)->_strings->append("LA");
+	((daeEnumType*)type)->_values->append(FX_SURFACE_FORMAT_HINT_CHANNELS_ENUM_LA);    
+	((daeEnumType*)type)->_strings->append("D");
+	((daeEnumType*)type)->_values->append(FX_SURFACE_FORMAT_HINT_CHANNELS_ENUM_D);    
+	((daeEnumType*)type)->_strings->append("XYZ");
+	((daeEnumType*)type)->_values->append(FX_SURFACE_FORMAT_HINT_CHANNELS_ENUM_XYZ);    
+	((daeEnumType*)type)->_strings->append("XYZW");
+	((daeEnumType*)type)->_values->append(FX_SURFACE_FORMAT_HINT_CHANNELS_ENUM_XYZW);    
+	daeAtomicType::append( type );
+
+    // ENUM: Fx_surface_format_hint_precision_enum    
+    type = new daeEnumType;
+    type->_nameBindings.append("Fx_surface_format_hint_precision_enum");
+    ((daeEnumType*)type)->_strings = new daeStringRefArray;
+    ((daeEnumType*)type)->_values = new daeEnumArray;
+	((daeEnumType*)type)->_strings->append("LOW");
+	((daeEnumType*)type)->_values->append(FX_SURFACE_FORMAT_HINT_PRECISION_ENUM_LOW);    
+	((daeEnumType*)type)->_strings->append("MID");
+	((daeEnumType*)type)->_values->append(FX_SURFACE_FORMAT_HINT_PRECISION_ENUM_MID);    
+	((daeEnumType*)type)->_strings->append("HIGH");
+	((daeEnumType*)type)->_values->append(FX_SURFACE_FORMAT_HINT_PRECISION_ENUM_HIGH);    
+	daeAtomicType::append( type );
+
+    // ENUM: Fx_surface_format_hint_range_enum    
+    type = new daeEnumType;
+    type->_nameBindings.append("Fx_surface_format_hint_range_enum");
+    ((daeEnumType*)type)->_strings = new daeStringRefArray;
+    ((daeEnumType*)type)->_values = new daeEnumArray;
+	((daeEnumType*)type)->_strings->append("SNORM");
+	((daeEnumType*)type)->_values->append(FX_SURFACE_FORMAT_HINT_RANGE_ENUM_SNORM);    
+	((daeEnumType*)type)->_strings->append("UNORM");
+	((daeEnumType*)type)->_values->append(FX_SURFACE_FORMAT_HINT_RANGE_ENUM_UNORM);    
+	((daeEnumType*)type)->_strings->append("SINT");
+	((daeEnumType*)type)->_values->append(FX_SURFACE_FORMAT_HINT_RANGE_ENUM_SINT);    
+	((daeEnumType*)type)->_strings->append("UINT");
+	((daeEnumType*)type)->_values->append(FX_SURFACE_FORMAT_HINT_RANGE_ENUM_UINT);    
+	((daeEnumType*)type)->_strings->append("FLOAT");
+	((daeEnumType*)type)->_values->append(FX_SURFACE_FORMAT_HINT_RANGE_ENUM_FLOAT);    
+	daeAtomicType::append( type );
+
+    // ENUM: Fx_surface_format_hint_option_enum    
+    type = new daeEnumType;
+    type->_nameBindings.append("Fx_surface_format_hint_option_enum");
+    ((daeEnumType*)type)->_strings = new daeStringRefArray;
+    ((daeEnumType*)type)->_values = new daeEnumArray;
+	((daeEnumType*)type)->_strings->append("SRGB_GAMMA");
+	((daeEnumType*)type)->_values->append(FX_SURFACE_FORMAT_HINT_OPTION_ENUM_SRGB_GAMMA);    
+	((daeEnumType*)type)->_strings->append("NORMALIZED3");
+	((daeEnumType*)type)->_values->append(FX_SURFACE_FORMAT_HINT_OPTION_ENUM_NORMALIZED3);    
+	((daeEnumType*)type)->_strings->append("NORMALIZED4");
+	((daeEnumType*)type)->_values->append(FX_SURFACE_FORMAT_HINT_OPTION_ENUM_NORMALIZED4);    
+	((daeEnumType*)type)->_strings->append("COMPRESSABLE");
+	((daeEnumType*)type)->_values->append(FX_SURFACE_FORMAT_HINT_OPTION_ENUM_COMPRESSABLE);    
 	daeAtomicType::append( type );
 
     // ENUM: Fx_sampler_wrap_common    
@@ -1259,7 +1338,7 @@ void registerDomTypes()
 	daeAtomicType::append( type );
 
 	// TYPEDEF: Glsl_identifier	//check if this type has an existing base
-	type = daeAtomicType::get("xsString");
+	type = daeAtomicType::get("xsToken");
 	if ( type == NULL ) { //register as a raw type
 		type = new daeRawRefType;
 		type->_nameBindings.append("Glsl_identifier");
@@ -2491,7 +2570,7 @@ void registerDomTypes()
 	daeAtomicType::append( type );
 
 	// TYPEDEF: Cg_identifier	//check if this type has an existing base
-	type = daeAtomicType::get("xsString");
+	type = daeAtomicType::get("xsToken");
 	if ( type == NULL ) { //register as a raw type
 		type = new daeRawRefType;
 		type->_nameBindings.append("Cg_identifier");

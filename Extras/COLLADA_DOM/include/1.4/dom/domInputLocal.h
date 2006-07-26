@@ -46,7 +46,7 @@ public:	//Accessors and Mutators
 	 * Sets the semantic attribute.
 	 * @param atSemantic The new value for the semantic attribute.
 	 */
-	void setSemantic( xsNMTOKEN atSemantic ) { attrSemantic = atSemantic; }
+	void setSemantic( xsNMTOKEN atSemantic ) { *(daeStringRef*)&attrSemantic = atSemantic; }
 
 	/**
 	 * Gets the source attribute.
@@ -88,6 +88,37 @@ protected:
  */
 class domInputLocal : public daeElement, public domInputLocal_complexType
 {
+
+public:	//Accessors and Mutators
+	/**
+	 * Gets the semantic attribute.
+	 * @return Returns a xsNMTOKEN of the semantic attribute.
+	 */
+	xsNMTOKEN getSemantic() const { return attrSemantic; }
+	/**
+	 * Sets the semantic attribute.
+	 * @param atSemantic The new value for the semantic attribute.
+	 */
+	void setSemantic( xsNMTOKEN atSemantic ) { *(daeStringRef*)&attrSemantic = atSemantic;
+	 _validAttributeArray[0] = true; }
+
+	/**
+	 * Gets the source attribute.
+	 * @return Returns a domURIFragmentType reference of the source attribute.
+	 */
+	domURIFragmentType &getSource() { return attrSource; }
+	/**
+	 * Gets the source attribute.
+	 * @return Returns a constant domURIFragmentType reference of the source attribute.
+	 */
+	const domURIFragmentType &getSource() const { return attrSource; }
+	/**
+	 * Sets the source attribute.
+	 * @param atSource The new value for the source attribute.
+	 */
+	void setSource( const domURIFragmentType &atSource ) { attrSource.setURI( atSource.getURI() );
+	 _validAttributeArray[1] = true; }
+
 protected:
 	/**
 	 * Constructor

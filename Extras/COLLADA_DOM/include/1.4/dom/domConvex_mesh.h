@@ -61,6 +61,10 @@ protected:  // Elements
 	 * Used to preserve order in elements that do not specify strict sequencing of sub-elements.
 	 */
 	daeElementRefArray _contents;
+	/**
+	 * Used to preserve order in elements that have a complex content model.
+	 */
+	daeUIntArray       _contentsOrder;
 
 
 public:	//Accessors and Mutators
@@ -78,7 +82,8 @@ public:	//Accessors and Mutators
 	 * Sets the convex_hull_of attribute.
 	 * @param atConvex_hull_of The new value for the convex_hull_of attribute.
 	 */
-	void setConvex_hull_of( const xsAnyURI &atConvex_hull_of ) { attrConvex_hull_of.setURI( atConvex_hull_of.getURI() ); }
+	void setConvex_hull_of( const xsAnyURI &atConvex_hull_of ) { attrConvex_hull_of.setURI( atConvex_hull_of.getURI() );
+	 _validAttributeArray[0] = true; }
 
 	/**
 	 * Gets the source element array.

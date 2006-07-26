@@ -13,6 +13,12 @@
 
 #include <dae/daeDom.h>
 #include <dom/domPhysics_scene.h>
+#include <dae/daeMetaCMPolicy.h>
+#include <dae/daeMetaSequence.h>
+#include <dae/daeMetaChoice.h>
+#include <dae/daeMetaGroup.h>
+#include <dae/daeMetaAny.h>
+#include <dae/daeMetaElementAttribute.h>
 
 daeElementRef
 domPhysics_scene::create(daeInt bytes)
@@ -29,16 +35,50 @@ domPhysics_scene::registerElement()
     
     _Meta = new daeMetaElement;
     _Meta->setName( "physics_scene" );
-	_Meta->setStaticPointerAddress(&domPhysics_scene::_Meta);
 	_Meta->registerConstructor(domPhysics_scene::create);
 
-	// Add elements: asset, instance_force_field, instance_physics_model, technique_common, technique, extra
-    _Meta->appendElement(domAsset::registerElement(),daeOffsetOf(domPhysics_scene,elemAsset));
-    _Meta->appendArrayElement(domInstance_force_field::registerElement(),daeOffsetOf(domPhysics_scene,elemInstance_force_field_array));
-    _Meta->appendArrayElement(domInstance_physics_model::registerElement(),daeOffsetOf(domPhysics_scene,elemInstance_physics_model_array));
-    _Meta->appendElement(domPhysics_scene::domTechnique_common::registerElement(),daeOffsetOf(domPhysics_scene,elemTechnique_common));
-    _Meta->appendArrayElement(domTechnique::registerElement(),daeOffsetOf(domPhysics_scene,elemTechnique_array));
-    _Meta->appendArrayElement(domExtra::registerElement(),daeOffsetOf(domPhysics_scene,elemExtra_array));
+	daeMetaCMPolicy *cm = NULL;
+	daeMetaElementAttribute *mea = NULL;
+	cm = new daeMetaSequence( _Meta, cm, 0, 1, 1 );
+
+	mea = new daeMetaElementAttribute( _Meta, cm, 0, 0, 1 );
+	mea->setName( "asset" );
+	mea->setOffset( daeOffsetOf(domPhysics_scene,elemAsset) );
+	mea->setElementType( domAsset::registerElement() );
+	cm->appendChild( mea );
+	
+	mea = new daeMetaElementArrayAttribute( _Meta, cm, 1, 0, -1 );
+	mea->setName( "instance_force_field" );
+	mea->setOffset( daeOffsetOf(domPhysics_scene,elemInstance_force_field_array) );
+	mea->setElementType( domInstance_force_field::registerElement() );
+	cm->appendChild( mea );
+	
+	mea = new daeMetaElementArrayAttribute( _Meta, cm, 2, 0, -1 );
+	mea->setName( "instance_physics_model" );
+	mea->setOffset( daeOffsetOf(domPhysics_scene,elemInstance_physics_model_array) );
+	mea->setElementType( domInstance_physics_model::registerElement() );
+	cm->appendChild( mea );
+	
+	mea = new daeMetaElementAttribute( _Meta, cm, 3, 1, 1 );
+	mea->setName( "technique_common" );
+	mea->setOffset( daeOffsetOf(domPhysics_scene,elemTechnique_common) );
+	mea->setElementType( domPhysics_scene::domTechnique_common::registerElement() );
+	cm->appendChild( mea );
+	
+	mea = new daeMetaElementArrayAttribute( _Meta, cm, 4, 0, -1 );
+	mea->setName( "technique" );
+	mea->setOffset( daeOffsetOf(domPhysics_scene,elemTechnique_array) );
+	mea->setElementType( domTechnique::registerElement() );
+	cm->appendChild( mea );
+	
+	mea = new daeMetaElementArrayAttribute( _Meta, cm, 5, 0, -1 );
+	mea->setName( "extra" );
+	mea->setOffset( daeOffsetOf(domPhysics_scene,elemExtra_array) );
+	mea->setElementType( domExtra::registerElement() );
+	cm->appendChild( mea );
+	
+	cm->setMaxOrdinal( 5 );
+	_Meta->setCMRoot( cm );	
 
 	//	Add attribute: id
  	{
@@ -84,12 +124,27 @@ domPhysics_scene::domTechnique_common::registerElement()
     
     _Meta = new daeMetaElement;
     _Meta->setName( "technique_common" );
-	_Meta->setStaticPointerAddress(&domPhysics_scene::domTechnique_common::_Meta);
 	_Meta->registerConstructor(domPhysics_scene::domTechnique_common::create);
 
-	// Add elements: gravity, time_step
-    _Meta->appendElement(domTargetableFloat3::registerElement(),daeOffsetOf(domPhysics_scene::domTechnique_common,elemGravity),"gravity"); 
-    _Meta->appendElement(domTargetableFloat::registerElement(),daeOffsetOf(domPhysics_scene::domTechnique_common,elemTime_step),"time_step"); 
+	_Meta->setIsInnerClass( true );
+	daeMetaCMPolicy *cm = NULL;
+	daeMetaElementAttribute *mea = NULL;
+	cm = new daeMetaSequence( _Meta, cm, 0, 1, 1 );
+
+	mea = new daeMetaElementAttribute( _Meta, cm, 0, 0, 1 );
+	mea->setName( "gravity" );
+	mea->setOffset( daeOffsetOf(domPhysics_scene::domTechnique_common,elemGravity) );
+	mea->setElementType( domTargetableFloat3::registerElement() );
+	cm->appendChild( mea );
+	
+	mea = new daeMetaElementAttribute( _Meta, cm, 1, 0, 1 );
+	mea->setName( "time_step" );
+	mea->setOffset( daeOffsetOf(domPhysics_scene::domTechnique_common,elemTime_step) );
+	mea->setElementType( domTargetableFloat::registerElement() );
+	cm->appendChild( mea );
+	
+	cm->setMaxOrdinal( 1 );
+	_Meta->setCMRoot( cm );	
 	
 	
 	_Meta->setElementSize(sizeof(domPhysics_scene::domTechnique_common));

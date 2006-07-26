@@ -17,12 +17,13 @@
 #include <dom/domElements.h>
 
 #include <dom/domFx_profile_abstract.h>
+#include <dom/domAsset.h>
 #include <dom/domImage.h>
 #include <dom/domExtra.h>
 #include <dom/domCommon_newparam_type.h>
-#include <dom/domAsset.h>
 #include <dom/domCommon_color_or_texture_type.h>
 #include <dom/domCommon_float_or_param_type.h>
+#include <dom/domCommon_transparent_type.h>
 
 /**
  * Opens a block of COMMON platform-specific data types and technique declarations.
@@ -54,7 +55,7 @@ public:
 			domCommon_color_or_texture_typeRef elemEmission;
 			domCommon_color_or_texture_typeRef elemReflective;
 			domCommon_float_or_param_typeRef elemReflectivity;
-			domCommon_color_or_texture_typeRef elemTransparent;
+			domCommon_transparent_typeRef elemTransparent;
 			domCommon_float_or_param_typeRef elemTransparency;
 			domCommon_float_or_param_typeRef elemIndex_of_refraction;
 
@@ -78,7 +79,8 @@ public:
 			 * Gets the transparent element.
 			 * @return a daeSmartRef to the transparent element.
 			 */
-			const domCommon_color_or_texture_typeRef getTransparent() const { return elemTransparent; }
+			const domCommon_transparent_typeRef getTransparent() const { return elemTransparent; }
+
 			/**
 			 * Gets the transparency element.
 			 * @return a daeSmartRef to the transparency element.
@@ -142,7 +144,7 @@ public:
 			domCommon_color_or_texture_typeRef elemDiffuse;
 			domCommon_color_or_texture_typeRef elemReflective;
 			domCommon_float_or_param_typeRef elemReflectivity;
-			domCommon_color_or_texture_typeRef elemTransparent;
+			domCommon_transparent_typeRef elemTransparent;
 			domCommon_float_or_param_typeRef elemTransparency;
 			domCommon_float_or_param_typeRef elemIndex_of_refraction;
 
@@ -176,7 +178,8 @@ public:
 			 * Gets the transparent element.
 			 * @return a daeSmartRef to the transparent element.
 			 */
-			const domCommon_color_or_texture_typeRef getTransparent() const { return elemTransparent; }
+			const domCommon_transparent_typeRef getTransparent() const { return elemTransparent; }
+
 			/**
 			 * Gets the transparency element.
 			 * @return a daeSmartRef to the transparency element.
@@ -242,7 +245,7 @@ public:
 			domCommon_float_or_param_typeRef elemShininess;
 			domCommon_color_or_texture_typeRef elemReflective;
 			domCommon_float_or_param_typeRef elemReflectivity;
-			domCommon_color_or_texture_typeRef elemTransparent;
+			domCommon_transparent_typeRef elemTransparent;
 			domCommon_float_or_param_typeRef elemTransparency;
 			domCommon_float_or_param_typeRef elemIndex_of_refraction;
 
@@ -286,7 +289,8 @@ public:
 			 * Gets the transparent element.
 			 * @return a daeSmartRef to the transparent element.
 			 */
-			const domCommon_color_or_texture_typeRef getTransparent() const { return elemTransparent; }
+			const domCommon_transparent_typeRef getTransparent() const { return elemTransparent; }
+
 			/**
 			 * Gets the transparency element.
 			 * @return a daeSmartRef to the transparency element.
@@ -352,7 +356,7 @@ public:
 			domCommon_float_or_param_typeRef elemShininess;
 			domCommon_color_or_texture_typeRef elemReflective;
 			domCommon_float_or_param_typeRef elemReflectivity;
-			domCommon_color_or_texture_typeRef elemTransparent;
+			domCommon_transparent_typeRef elemTransparent;
 			domCommon_float_or_param_typeRef elemTransparency;
 			domCommon_float_or_param_typeRef elemIndex_of_refraction;
 
@@ -396,7 +400,7 @@ public:
 			 * Gets the transparent element.
 			 * @return a daeSmartRef to the transparent element.
 			 */
-			const domCommon_color_or_texture_typeRef getTransparent() const { return elemTransparent; }
+			const domCommon_transparent_typeRef getTransparent() const { return elemTransparent; }
 			/**
 			 * Gets the transparency element.
 			 * @return a daeSmartRef to the transparency element.
@@ -480,6 +484,10 @@ public:
 		 * Used to preserve order in elements that do not specify strict sequencing of sub-elements.
 		 */
 		daeElementRefArray _contents;
+		/**
+		 * Used to preserve order in elements that have a complex content model.
+		 */
+		daeUIntArray       _contentsOrder;
 
 
 	public:	//Accessors and Mutators
@@ -492,7 +500,8 @@ public:
 		 * Sets the id attribute.
 		 * @param atId The new value for the id attribute.
 		 */
-		void setId( xsID atId ) { attrId = atId; }
+		void setId( xsID atId ) { *(daeStringRef*)&attrId = atId;	
+	 _validAttributeArray[0] = true; }
 
 		/**
 		 * Gets the sid attribute.
@@ -503,7 +512,8 @@ public:
 		 * Sets the sid attribute.
 		 * @param atSid The new value for the sid attribute.
 		 */
-		void setSid( xsNCName atSid ) { attrSid = atSid; }
+		void setSid( xsNCName atSid ) { *(daeStringRef*)&attrSid = atSid;	
+	 _validAttributeArray[1] = true; }
 
 		/**
 		 * Gets the asset element.
@@ -611,8 +621,16 @@ public:
 	};
 
 
+protected:  // Attribute
+/**
+ *  The id attribute is a text string containing the unique identifier of
+ * this element.  This value must be unique within the instance document.
+ * Optional attribute. 
+ */
+	xsID attrId;
 
 protected:  // Elements
+	domAssetRef elemAsset;
 	domImage_Array elemImage_array;
 	domCommon_newparam_type_Array elemNewparam_array;
 /**
@@ -628,9 +646,30 @@ protected:  // Elements
 	 * Used to preserve order in elements that do not specify strict sequencing of sub-elements.
 	 */
 	daeElementRefArray _contents;
+	/**
+	 * Used to preserve order in elements that have a complex content model.
+	 */
+	daeUIntArray       _contentsOrder;
 
 
 public:	//Accessors and Mutators
+	/**
+	 * Gets the id attribute.
+	 * @return Returns a xsID of the id attribute.
+	 */
+	xsID getId() const { return attrId; }
+	/**
+	 * Sets the id attribute.
+	 * @param atId The new value for the id attribute.
+	 */
+	void setId( xsID atId ) { *(daeStringRef*)&attrId = atId;
+	 _validAttributeArray[0] = true; }
+
+	/**
+	 * Gets the asset element.
+	 * @return a daeSmartRef to the asset element.
+	 */
+	const domAssetRef getAsset() const { return elemAsset; }
 	/**
 	 * Gets the image element array.
 	 * @return Returns a reference to the array of image elements.
@@ -681,7 +720,7 @@ protected:
 	/**
 	 * Constructor
 	 */
-	domProfile_COMMON() : elemImage_array(), elemNewparam_array(), elemTechnique(), elemExtra_array() {}
+	domProfile_COMMON() : attrId(), elemAsset(), elemImage_array(), elemNewparam_array(), elemTechnique(), elemExtra_array() {}
 	/**
 	 * Destructor
 	 */

@@ -14,6 +14,7 @@
 #include <dae/daeURI.h>
 #include <ctype.h>
 #include <dae/daeDocument.h>
+#include <dae/daeErrorHandler.h>
 
 #ifdef _WIN32
 #include <direct.h>  // for getcwd (windows)
@@ -28,7 +29,6 @@ daeString findCharacterReverse(daeString string, daeChar stopChar);
 daeURIResolverPtrArray daeURIResolver::_KnownResolvers;
 
 static daeURI ApplicationURI(1);
-daeString empty = "";
 
 void
 daeURI::setBaseURI(daeURI& uri)
@@ -48,14 +48,14 @@ daeURI::initialize()
 {
 	// Initialize a URI to it's empty state, same as daeURI::reset but also clears out "container"
 
-	uriString			= empty;
-	originalURIString	= empty;
-	protocol			= empty;
-	authority			= empty;
-	filepath			= empty;
-	file				= empty;
-	id					= empty;
-	extension			= empty;
+	uriString			= NULL;
+	originalURIString	= NULL;
+	protocol			= NULL;
+	authority			= NULL;
+	filepath			= NULL;
+	file				= NULL;
+	id					= NULL;
+	extension			= NULL;
 	state				= uri_empty;
 	element				= NULL;
 	container			= NULL;
@@ -187,14 +187,14 @@ daeURI::reset()
 
 	// Set everything to the empty string
 
-	uriString			= empty;
-	originalURIString	= empty;
-	protocol			= empty;
-	authority				= empty;
-	filepath			= empty;
-	file				= empty;
-	id					= empty;
-	extension			= empty;
+	uriString			= NULL;
+	originalURIString	= NULL;
+	protocol			= NULL;
+	authority				= NULL;
+	filepath			= NULL;
+	file				= NULL;
+	id					= NULL;
+	extension			= NULL;
 
 	state				= uri_empty;
 	element				= NULL;
@@ -232,20 +232,20 @@ findCharacter(daeString string, daeChar stopChar)
 daeString safeCreate(daeString src)
 {
 	if (src == NULL)
-		return empty;
+		return NULL;
 	daeChar* ret = (daeChar*)daeMemorySystem::malloc("uri",strlen(src)+1);
 	if (ret == NULL)
-		return empty;
+		return NULL;
 	strcpy(ret,src);
 	
 	return ret;
 }
 void safeDelete(daeString src)
 {
-	if(src != empty)
+	if(src != NULL)
 	{
 		daeMemorySystem::free("uri",(void*)src);
-		src = empty; 
+		src = NULL; 
 	}
 	
 }
@@ -286,7 +286,7 @@ daeURI::internalSetURI(daeString _URIString)
 
 	// Store the originalURI so you can fix it post Reset
 	daeString oURI = originalURIString;
-	originalURIString = empty;
+	originalURIString = NULL;
 
 	// Reset everything
 	reset();
@@ -297,7 +297,7 @@ daeURI::internalSetURI(daeString _URIString)
 	uriString = safeCreate(_URIString);
 	
 	tmp = (daeChar*)daeMemorySystem::malloc("tmp",strlen(_URIString)+1);
-	if ((uriString == empty)||(tmp == NULL))
+	if ((uriString == NULL)||(tmp == NULL))
 		return;
 	strcpy(tmp,uriString);
 	
@@ -403,7 +403,7 @@ daeURI::internalSetURI(daeString _URIString)
 		isAbsolute = true;
 	}
 	else {
-		protocol = empty;
+		protocol = NULL;
 		isAbsolute = false;
 	}
 
@@ -430,7 +430,7 @@ daeURI::internalSetURI(daeString _URIString)
 	int dirLen = (int)strlen(filepath);
 
 	// append a '/'
-	if ((filepath != empty) && (dirLen > 0) &&
+	if ((filepath != NULL) && (dirLen > 0) &&
 		(filepath[dirLen-1] != '/')) {
 		daeMemorySystem::free("uri",(void*)filepath);
 		filepath =	(daeString)daeMemorySystem::malloc("uri", dirLen+2);
@@ -566,10 +566,19 @@ daeURI::validate(daeURI* baseURI)
 					}
 					else
 					{
-						newPath = (daeChar*)daeMemorySystem::malloc("uri", strlen(baseURI->filepath) + strlen(filepath) + 1);
+						size_t l = 0;
+						if ( filepath != NULL ) {
+							l = strlen(filepath);
+						}
+						newPath = (daeChar*)daeMemorySystem::malloc("uri", strlen(baseURI->filepath) + l + 1);
 						*newPath = 0;
 						strcat(newPath,baseURI->filepath);
-						strcat(newPath,filepath);
+						if ( filepath != NULL ) {
+							strcat(newPath,filepath);
+						}
+						else {
+							strcat(newPath,"");
+						}
 					}
 					//T.path = remove_dot_segments(T.path);
 					normalizeURIPath(newPath);
@@ -589,18 +598,27 @@ daeURI::validate(daeURI* baseURI)
 	// T.fragment = R.fragment;
 
 	// Now for the purpose of maintaining the class members, we reassemble all this into a string version of the URI
+	size_t len = 0;
+	if ( protocol != NULL ) {
+		len += strlen(protocol);
+	}
+	if ( authority != NULL ) {
+		len += strlen(authority);
+	}
+	if ( filepath != NULL ) {
+		len += strlen(filepath);
+	}
+	if ( file != NULL ) {
+		len += strlen(file);
+	}
+	if ( queryString != NULL ) {
+		len += strlen(queryString);
+	}
+	if ( id != NULL ) {
+		len += strlen(id);
+	}
 	daeChar* newURI = (daeChar*)
-		daeMemorySystem::malloc(
-			"uri",
-			strlen(protocol) +		// really scheme
-			1 +						// space for ":"
-			strlen(authority) +			// really authority
-			2 +						// space for "//"
-			strlen(filepath) +		// path without the filename
-			strlen(file) +			// filename part of the path
-			strlen(queryString) +   // "#"
-			strlen(id) +			// really fragment
-			1);						// terminating zero
+		daeMemorySystem::malloc("uri", len + 4 );
 	*newURI = 0;
 
 	if(protocol != NULL && *protocol != 0)
@@ -852,19 +870,22 @@ daeURI::resolveURI()
 daeBool daeURI::getPath(daeChar *dest, daeInt size)
 {
 
-	if(filepath==0 || file==0) 
+	if( file == NULL ) 
 	{
 		//printf("****** %s : %s\n", uriString, originalURIString);
 		return false;
 	}
-    
-	int lenPath = (int)strlen(filepath);
+    *dest = 0;
+	int lenPath = 0;
+	if ( filepath != NULL ) lenPath = (int)strlen(filepath);
 	int lenFile = (int)strlen(file);
 
-	int length =  lenPath + lenFile;
-	if (length < size)
+	int len =  lenPath + lenFile;
+	if (len < size)
 	{
-		strcpy(dest,filepath);
+		if ( filepath != NULL ) {
+			strcpy(dest,filepath);
+		}
 		strcat(dest,file);
 		return true;
 	}
@@ -900,23 +921,25 @@ daeURIResolver::attemptResolveURI(daeURI& uri)
 				return;
 		}
 #if defined(_DEBUG) && defined(WIN32)
-	fprintf(stderr,
-			"daeURIResolver::attemptResolveURI(%s) - failed\n",
-			uri.getURI());
+		char msg[256];
+		sprintf(msg,"daeURIResolver::attemptResolveURI(%s) - failed\n",	uri.getURI());
+		daeErrorHandler::get()->handleWarning( msg );
 #endif
 	
 	if (!foundProtocol) {
 		uri.setState(daeURI::uri_failed_unsupported_protocol);
 #if defined(_DEBUG) && defined(WIN32)
-		fprintf(stderr,"**protocol '%s' is not supported**\n",uri.getProtocol());
-		fflush(stderr);
+		char msg[128];
+		sprintf(msg,"**protocol '%s' is not supported**\n",uri.getProtocol());
+		daeErrorHandler::get()->handleWarning( msg );
 #endif
 	}
 	else {
 #if defined(_DEBUG) && defined(WIN32)
-		fprintf(stderr,"**file(%s/%s) or id(%s) failed to resolve\n",
+		char msg[256];
+		sprintf(msg,"**file(%s/%s) or id(%s) failed to resolve\n",
 				uri.getFilepath(),uri.getFile(),uri.getID());
-		fflush(stderr);
+		daeErrorHandler::get()->handleWarning( msg );
 #endif		
 	}
 			
@@ -1117,10 +1140,23 @@ void daeURI::normalizeURIPath(char *path)
 // another existing URI.  The new URI is stored in the "originalURI"
 int daeURI::makeRelativeTo(daeURI* relativeToURI)
 {
-	// !!!GAC for some reason, relativeToURI is in pending and not success state, why??
-	// Can't do this function unless both URIs have already been successfully resolved
-	if(getState() != uri_success /*|| relativeToURI->getState() != uri_success*/ )
-		return(DAE_ERR_INVALID_CALL);  // !!!GAC Need to assign a real error code to this
+	if( getState() == uri_empty || relativeToURI->getState() == uri_empty ) 
+		return(DAE_ERR_INVALID_CALL);
+	if( getState() == uri_loaded )
+	{
+		if (container != NULL)
+			validate(container->getDocumentURI());
+		else
+			validate();
+	}
+	if( relativeToURI->getState() == uri_loaded )
+	{
+		if (relativeToURI->getContainer() != NULL)
+			relativeToURI->validate(relativeToURI->getContainer()->getDocumentURI());
+		else
+			relativeToURI->validate();
+	}
+
 
 	// Can only do this function if both URIs have the same scheme and authority
 
@@ -1158,7 +1194,15 @@ int daeURI::makeRelativeTo(daeURI* relativeToURI)
 	// Delete old URI string
 	safeDelete(originalURIString);
 	// Allocate memory for a new "originalURI" and free the old one
-	char *newRelativeURI = (char*) daeMemorySystem::malloc("uri",strlen(relativeTo_slash)+ strlen(file)+(segment_count*3)+strlen(getID())+2);
+	char *newRelativeURI;
+	if ( getID() == NULL )
+	{
+		newRelativeURI = (char*) daeMemorySystem::malloc("uri",strlen(this_slash)+ strlen(file)+(segment_count*3)+1);
+	}
+	else
+	{
+		newRelativeURI = (char*) daeMemorySystem::malloc("uri",strlen(this_slash)+ strlen(file)+(segment_count*3)+strlen(id)+2);
+	}
 	char *temp = newRelativeURI;
 	for(int i = 0; i < segment_count; i++)
 	{
@@ -1167,7 +1211,7 @@ int daeURI::makeRelativeTo(daeURI* relativeToURI)
 	}
 	strcpy(temp,this_slash);
 	strcat(temp,file);
-	if(id!=empty && strlen(getID()) != 0)
+	if(id!=NULL && strlen(getID()) != 0)
 	{
 		strcat(temp,"#");
 		strcat(temp,getID());

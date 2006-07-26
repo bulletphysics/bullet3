@@ -13,6 +13,12 @@
 
 #include <dae/daeDom.h>
 #include <dom/domMorph.h>
+#include <dae/daeMetaCMPolicy.h>
+#include <dae/daeMetaSequence.h>
+#include <dae/daeMetaChoice.h>
+#include <dae/daeMetaGroup.h>
+#include <dae/daeMetaAny.h>
+#include <dae/daeMetaElementAttribute.h>
 
 daeElementRef
 domMorph::create(daeInt bytes)
@@ -30,13 +36,32 @@ domMorph::registerElement()
     
     _Meta = new daeMetaElement;
     _Meta->setName( "morph" );
-	_Meta->setStaticPointerAddress(&domMorph::_Meta);
 	_Meta->registerConstructor(domMorph::create);
 
-	// Add elements: source, targets, extra
-    _Meta->appendArrayElement(domSource::registerElement(),daeOffsetOf(domMorph,elemSource_array));
-    _Meta->appendElement(domMorph::domTargets::registerElement(),daeOffsetOf(domMorph,elemTargets));
-    _Meta->appendArrayElement(domExtra::registerElement(),daeOffsetOf(domMorph,elemExtra_array));
+	daeMetaCMPolicy *cm = NULL;
+	daeMetaElementAttribute *mea = NULL;
+	cm = new daeMetaSequence( _Meta, cm, 0, 1, 1 );
+
+	mea = new daeMetaElementArrayAttribute( _Meta, cm, 0, 2, -1 );
+	mea->setName( "source" );
+	mea->setOffset( daeOffsetOf(domMorph,elemSource_array) );
+	mea->setElementType( domSource::registerElement() );
+	cm->appendChild( mea );
+	
+	mea = new daeMetaElementAttribute( _Meta, cm, 1, 1, 1 );
+	mea->setName( "targets" );
+	mea->setOffset( daeOffsetOf(domMorph,elemTargets) );
+	mea->setElementType( domMorph::domTargets::registerElement() );
+	cm->appendChild( mea );
+	
+	mea = new daeMetaElementArrayAttribute( _Meta, cm, 2, 0, -1 );
+	mea->setName( "extra" );
+	mea->setOffset( daeOffsetOf(domMorph,elemExtra_array) );
+	mea->setElementType( domExtra::registerElement() );
+	cm->appendChild( mea );
+	
+	cm->setMaxOrdinal( 2 );
+	_Meta->setCMRoot( cm );	
 
 	//	Add attribute: method
  	{
@@ -84,12 +109,27 @@ domMorph::domTargets::registerElement()
     
     _Meta = new daeMetaElement;
     _Meta->setName( "targets" );
-	_Meta->setStaticPointerAddress(&domMorph::domTargets::_Meta);
 	_Meta->registerConstructor(domMorph::domTargets::create);
 
-	// Add elements: input, extra
-    _Meta->appendArrayElement(domInputLocal::registerElement(),daeOffsetOf(domMorph::domTargets,elemInput_array),"input"); 
-    _Meta->appendArrayElement(domExtra::registerElement(),daeOffsetOf(domMorph::domTargets,elemExtra_array));
+	_Meta->setIsInnerClass( true );
+	daeMetaCMPolicy *cm = NULL;
+	daeMetaElementAttribute *mea = NULL;
+	cm = new daeMetaSequence( _Meta, cm, 0, 1, 1 );
+
+	mea = new daeMetaElementArrayAttribute( _Meta, cm, 0, 2, -1 );
+	mea->setName( "input" );
+	mea->setOffset( daeOffsetOf(domMorph::domTargets,elemInput_array) );
+	mea->setElementType( domInputLocal::registerElement() );
+	cm->appendChild( mea );
+	
+	mea = new daeMetaElementArrayAttribute( _Meta, cm, 1, 0, -1 );
+	mea->setName( "extra" );
+	mea->setOffset( daeOffsetOf(domMorph::domTargets,elemExtra_array) );
+	mea->setElementType( domExtra::registerElement() );
+	cm->appendChild( mea );
+	
+	cm->setMaxOrdinal( 1 );
+	_Meta->setCMRoot( cm );	
 	
 	
 	_Meta->setElementSize(sizeof(domMorph::domTargets));

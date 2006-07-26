@@ -35,8 +35,8 @@ public:
 	virtual ~daeIntegrationObject() {}
 
 public:
-	/** A smartRef to the element associated with this integration object. */
-	daeElementRef	_element;
+	/** A pointer to the element associated with this integration object. */
+	daeElement	*_element;
 	/** A pointer at which to store the user object associated with this element. */
 	void*			_object;
 	/** An enum describing the state of the conversion from COLLADA. */

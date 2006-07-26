@@ -13,6 +13,12 @@
 
 #include <dae/daeDom.h>
 #include <dom/domPhysics_material.h>
+#include <dae/daeMetaCMPolicy.h>
+#include <dae/daeMetaSequence.h>
+#include <dae/daeMetaChoice.h>
+#include <dae/daeMetaGroup.h>
+#include <dae/daeMetaAny.h>
+#include <dae/daeMetaElementAttribute.h>
 
 daeElementRef
 domPhysics_material::create(daeInt bytes)
@@ -29,14 +35,38 @@ domPhysics_material::registerElement()
     
     _Meta = new daeMetaElement;
     _Meta->setName( "physics_material" );
-	_Meta->setStaticPointerAddress(&domPhysics_material::_Meta);
 	_Meta->registerConstructor(domPhysics_material::create);
 
-	// Add elements: asset, technique_common, technique, extra
-    _Meta->appendElement(domAsset::registerElement(),daeOffsetOf(domPhysics_material,elemAsset));
-    _Meta->appendElement(domPhysics_material::domTechnique_common::registerElement(),daeOffsetOf(domPhysics_material,elemTechnique_common));
-    _Meta->appendArrayElement(domTechnique::registerElement(),daeOffsetOf(domPhysics_material,elemTechnique_array));
-    _Meta->appendArrayElement(domExtra::registerElement(),daeOffsetOf(domPhysics_material,elemExtra_array));
+	daeMetaCMPolicy *cm = NULL;
+	daeMetaElementAttribute *mea = NULL;
+	cm = new daeMetaSequence( _Meta, cm, 0, 1, 1 );
+
+	mea = new daeMetaElementAttribute( _Meta, cm, 0, 0, 1 );
+	mea->setName( "asset" );
+	mea->setOffset( daeOffsetOf(domPhysics_material,elemAsset) );
+	mea->setElementType( domAsset::registerElement() );
+	cm->appendChild( mea );
+	
+	mea = new daeMetaElementAttribute( _Meta, cm, 1, 1, 1 );
+	mea->setName( "technique_common" );
+	mea->setOffset( daeOffsetOf(domPhysics_material,elemTechnique_common) );
+	mea->setElementType( domPhysics_material::domTechnique_common::registerElement() );
+	cm->appendChild( mea );
+	
+	mea = new daeMetaElementArrayAttribute( _Meta, cm, 2, 0, -1 );
+	mea->setName( "technique" );
+	mea->setOffset( daeOffsetOf(domPhysics_material,elemTechnique_array) );
+	mea->setElementType( domTechnique::registerElement() );
+	cm->appendChild( mea );
+	
+	mea = new daeMetaElementArrayAttribute( _Meta, cm, 3, 0, -1 );
+	mea->setName( "extra" );
+	mea->setOffset( daeOffsetOf(domPhysics_material,elemExtra_array) );
+	mea->setElementType( domExtra::registerElement() );
+	cm->appendChild( mea );
+	
+	cm->setMaxOrdinal( 3 );
+	_Meta->setCMRoot( cm );	
 
 	//	Add attribute: id
  	{
@@ -82,13 +112,33 @@ domPhysics_material::domTechnique_common::registerElement()
     
     _Meta = new daeMetaElement;
     _Meta->setName( "technique_common" );
-	_Meta->setStaticPointerAddress(&domPhysics_material::domTechnique_common::_Meta);
 	_Meta->registerConstructor(domPhysics_material::domTechnique_common::create);
 
-	// Add elements: dynamic_friction, restitution, static_friction
-    _Meta->appendElement(domTargetableFloat::registerElement(),daeOffsetOf(domPhysics_material::domTechnique_common,elemDynamic_friction),"dynamic_friction"); 
-    _Meta->appendElement(domTargetableFloat::registerElement(),daeOffsetOf(domPhysics_material::domTechnique_common,elemRestitution),"restitution"); 
-    _Meta->appendElement(domTargetableFloat::registerElement(),daeOffsetOf(domPhysics_material::domTechnique_common,elemStatic_friction),"static_friction"); 
+	_Meta->setIsInnerClass( true );
+	daeMetaCMPolicy *cm = NULL;
+	daeMetaElementAttribute *mea = NULL;
+	cm = new daeMetaSequence( _Meta, cm, 0, 1, 1 );
+
+	mea = new daeMetaElementAttribute( _Meta, cm, 0, 0, 1 );
+	mea->setName( "dynamic_friction" );
+	mea->setOffset( daeOffsetOf(domPhysics_material::domTechnique_common,elemDynamic_friction) );
+	mea->setElementType( domTargetableFloat::registerElement() );
+	cm->appendChild( mea );
+	
+	mea = new daeMetaElementAttribute( _Meta, cm, 1, 0, 1 );
+	mea->setName( "restitution" );
+	mea->setOffset( daeOffsetOf(domPhysics_material::domTechnique_common,elemRestitution) );
+	mea->setElementType( domTargetableFloat::registerElement() );
+	cm->appendChild( mea );
+	
+	mea = new daeMetaElementAttribute( _Meta, cm, 2, 0, 1 );
+	mea->setName( "static_friction" );
+	mea->setOffset( daeOffsetOf(domPhysics_material::domTechnique_common,elemStatic_friction) );
+	mea->setElementType( domTargetableFloat::registerElement() );
+	cm->appendChild( mea );
+	
+	cm->setMaxOrdinal( 2 );
+	_Meta->setCMRoot( cm );	
 	
 	
 	_Meta->setElementSize(sizeof(domPhysics_material::domTechnique_common));

@@ -14,6 +14,7 @@
 #include <dae/daeElement.h>
 #include <dae/daeArray.h>
 #include <dae/daeMetaAttribute.h>
+#include <dae/daeMetaElementAttribute.h>
 #include <dae/daeMetaElement.h>
 #include <dae/daeDatabase.h>
 #include <dae/daeErrorHandler.h>
@@ -107,210 +108,48 @@ daeElement::placeElement(daeElement* e)
 {
 	if (e == NULL || e == this)
 		return false;
-	if (e->getMeta()->getIsAbstract()) {
-		return false;
-	}
-	daeMetaElementAttributeArray &meas = _meta->getMetaElements();
-	if (_meta->getAllowsAny()) {
-		//remove element from praent
-		if ( e->_parent ) {
-			e->_parent->removeChildElement( e );
-		}
-		e->_parent = this;
-		//add element to contents if one exists
-		if (_meta->getContents() != NULL) {
-			daeElementRefArray* contents =
-				(daeElementRefArray*)_meta->getContents()->getWritableMemory(this);
-			contents->append(e);
-		}	
-		//update document pointer
-		e->setDocument( _document );
-		if ( _document ) {
-			_document->insertElement( e );
-			_document->setModified(true);
-		}
-		return true;	
-	}
-	int cnt = (int)meas.getCount();
-	int i;
-	daeString nm = e->getElementName();
-	if ( !nm ) {
-		nm = e->getTypeName();
-	}
-	for(i=0;i<cnt;i++) {
-		if (strcmp(meas[i]->getName(), nm ) == 0 || strcmp(meas[i]->_elementType->getName(), nm ) == 0) {
-			//add element to meta
-			meas[i]->placeElement(this,e);
-			//remove element from praent
-			if ( e->_parent ) {
-				e->_parent->removeChildElement( e );
-			}
-			e->_parent = this;
-			//add element to contents if one exists
-			if (_meta->getContents() != NULL) {
-				daeElementRefArray* contents =
-					(daeElementRefArray*)_meta->getContents()->getWritableMemory(this);
-				contents->append(e);
-			}	
-			//update document pointer
-			e->setDocument( _document );
-			if ( _document ) {
-				_document->insertElement( e );
-				_document->setModified(true);
-			}
-			return true;
-		}
-	}
-	for ( unsigned int c = 0; c < _meta->getPossibleChildrenCount(); c++ ) {
-		if (strcmp(_meta->getPossibleChildName(c), e->_meta->getName()) == 0 ||
-			strcmp(_meta->getPossibleChildType(c), e->_meta->getName()) == 0 ) {
-			
-			daeMetaElementAttribute *cont = _meta->getPossibleChildContainer(c);
-			int elCnt = cont->getCount(this);
-			daeMemoryRef mem = cont->get(this, elCnt );
-			daeElementRef el;
-			if ( mem != 0 ) {
-				el = *(daeElementRef*)mem;
-			}
-			if ( el == NULL ) {
-				cont->placeElement(this, cont->_elementType->create() );
-				el = *(daeElementRef*)cont->get(this, elCnt );
-				el->_parent = this;
-			}
-			if ( el->placeElement( e ) ) {
-				if (_meta->getContents() != NULL) {
-					daeElementRefArray* contents =
-						(daeElementRefArray*)_meta->getContents()->getWritableMemory(this);
-					contents->append(el);
-				}
-				return true;
-			}
-			return false;
-		}
-	}
-	return false;
+	return _meta->place( this, e );
 }
 
 daeBool daeElement::placeElementAt(daeInt index, daeElement* e) {
 	if (e == NULL || e == this)
 		return false;
-	if (e->getMeta()->getIsAbstract()) {
-		return false;
-	}
-		
-	daeMetaElementAttributeArray &meas = _meta->getMetaElements();
-	if (_meta->getAllowsAny()) {
-		//remove element from praent
-		if ( e->_parent ) {
-			e->_parent->removeChildElement( e );
-		}
-		e->_parent = this;
-		//add element to contents if one exists
-		if (_meta->getContents() != NULL) {
-			daeElementRefArray* contents =
-				(daeElementRefArray*)_meta->getContents()->getWritableMemory(this);
-			contents->insertAt(index, e);
-		}	
-		//update document pointer
-		e->setDocument( _document );
-		if ( _document ) {
-			_document->insertElement( e );
-			_document->setModified(true);
-		}
-		return true;	
-	}
-	int cnt = (int)meas.getCount();
-	int i;
-	daeString nm = e->getElementName();
-	if ( !nm ) {
-		nm = e->getTypeName();
-	}
-	for(i=0;i<cnt;i++) {
-		if (strcmp(meas[i]->getName(), nm ) == 0 || strcmp(meas[i]->_elementType->getName(), nm ) == 0) {
-			//add element to meta
-			meas[i]->placeElement(this,e);
-			//remove element from praent
-			if ( e->_parent ) {
-				e->_parent->removeChildElement( e );
-			}
-			e->_parent = this;
-			//add element to contents if one exists
-			if (_meta->getContents() != NULL) {
-				daeElementRefArray* contents =
-					(daeElementRefArray*)_meta->getContents()->getWritableMemory(this);
-				contents->insertAt( index, e );
-			}	
-			//update document pointer
-			e->setDocument( _document );
-			if ( _document ) {
-				_document->insertElement( e );
-				_document->setModified(true);
-			}
-			return true;
-		}
-	}
-	for ( unsigned int c = 0; c < _meta->getPossibleChildrenCount(); c++ ) {
-		if (strcmp(_meta->getPossibleChildName(c), e->_meta->getName()) == 0 ||
-			strcmp(_meta->getPossibleChildType(c), e->_meta->getName()) == 0 ) {
-			
-			daeMetaElementAttribute *cont = _meta->getPossibleChildContainer(c);
-			int elCnt = cont->getCount(this);
-			daeMemoryRef mem = cont->get(this, elCnt );
-			daeElementRef el;
-			if ( mem != 0 ) {
-				el = *(daeElementRef*)mem;
-			}
-			if ( el == NULL ) {
-				cont->placeElement(this, cont->_elementType->create() );
-				el = *(daeElementRef*)cont->get(this, elCnt );
-				el->_parent = this;
-			}
-			if ( el->placeElement( e ) ) {
-				if (_meta->getContents() != NULL) {
-					daeElementRefArray* contents =
-						(daeElementRefArray*)_meta->getContents()->getWritableMemory(this);
-					contents->insertAt(index, el);
-				}
-				return true;
-			}
-			return false;
-		}
-	}
-	return false;
+	return _meta->placeAt( index, this, e );
 }
 
 daeBool daeElement::placeElementBefore( daeElement *marker, daeElement *element ) {
 	if (marker == NULL || element == NULL || marker->getXMLParentElement() != this ) {
 		return false;
 	}
-	if ( _meta->getContents() != NULL ) {
-		size_t idx;
-		daeElementRefArray* contents =
-						(daeElementRefArray*)_meta->getContents()->getWritableMemory(this);
-		if ( contents->find( marker, idx ) != DAE_OK ) {
-			return false;
-		}
-		return placeElementAt( (daeInt)idx, element );
-	}
-	if ( strcmp( marker->getTypeName(), element->getTypeName() ) == 0 ) {
-		//same type
-		daeMetaElementAttribute *mea = _meta->getChildMetaElementAttribute( element->getTypeName() );
-		daeElementRefArray* era = (daeElementRefArray*)mea->getWritableMemory(this);
-		size_t idx;
-		if ( era->find( marker, idx ) != DAE_OK ) {
-			return false;
-		}
-		era->insertAt( idx, element );
-		return true;
-	}
-	return placeElement( element );
+	//if ( _meta->getContents() != NULL ) {
+	//	size_t idx;
+	//	daeElementRefArray* contents =
+	//					(daeElementRefArray*)_meta->getContents()->getWritableMemory(this);
+	//	if ( contents->find( marker, idx ) != DAE_OK ) {
+	//		return false;
+	//	}
+	//	return placeElementAt( (daeInt)idx, element );
+	//}
+	//if ( strcmp( marker->getTypeName(), element->getTypeName() ) == 0 ) {
+	//	//same type
+	//	daeMetaElementAttribute *mea = _meta->getChildMetaElementAttribute( element->getTypeName() );
+	//	daeElementRefArray* era = (daeElementRefArray*)mea->getWritableMemory(this);
+	//	size_t idx;
+	//	if ( era->find( marker, idx ) != DAE_OK ) {
+	//		return false;
+	//	}
+	//	era->insertAt( idx, element );
+	//	return true;
+	//}
+	//return placeElement( element );
+	return _meta->placeBefore( marker, this, element );
 }
 
 daeBool daeElement::placeElementAfter( daeElement *marker, daeElement *element ) {
 	if (marker == NULL || element == NULL || marker->getXMLParentElement() != this ) {
 		return false;
 	}
-	if ( _meta->getContents() != NULL ) {
+	/*if ( _meta->getContents() != NULL ) {
 		size_t idx;
 		daeElementRefArray* contents =
 						(daeElementRefArray*)_meta->getContents()->getWritableMemory(this);
@@ -328,8 +167,8 @@ daeBool daeElement::placeElementAfter( daeElement *marker, daeElement *element )
 		}
 		era->insertAt( idx+1, element );
 		return true;
-	}
-	return placeElement( element );
+	}*/
+	return _meta->placeAfter( marker, this, element );
 }
 
 daeInt daeElement::findLastIndexOf( daeString elementName ) {
@@ -344,15 +183,6 @@ daeInt daeElement::findLastIndexOf( daeString elementName ) {
 			if ( strcmp( nm, elementName ) == 0 ) {
 				return i;
 			}
-		}
-		return -1;
-	}
-	daeInt idx = 0;
-	size_t cnt = _meta->getMetaElements().getCount();
-	for ( unsigned int i = 0; i < cnt; ++i ) {
-		idx += (daeInt)((daeElementRefArray*)(_meta->getMetaElements().get(i)->getWritableMemory(this)))->getCount();
-		if ( strcmp( _meta->getMetaElements().get(i)->getName(), elementName ) == 0 ) {
-			return idx;
 		}
 	}
 	return -1;
@@ -369,36 +199,9 @@ daeElement::removeChildElement(daeElement* element)
 
 	// Clear the element's parent pointer, if the element has references outside
 	// 'this' it won't go away, so we want to make sure it's parent is valid
-
-	element->_parent = NULL;
-
-	// Remove the element from our contents array (if we have one)
-
-	if (_meta->getContents() != NULL) 
-	{
-		daeElementRefArray* contents = (daeElementRefArray*)_meta->getContents()->getWritableMemory(this);
-		contents->remove(element);
-	}
-
-	// Remove the element from wherever else it appears in 'this'
-
-	daeMetaElementAttributeArray &meas = _meta->getMetaElements();
-	int cnt = (int)meas.getCount();
-	int i;
-	// Look for a meta element with a matching name
-	for(i=0;i<cnt;i++) 
-	{
-		if (strcmp(meas[i]->getName(), element->_meta->getName()) == 0) 
-		{
-			if ( _document ) {
-				_document->removeElement( element );
-				_document->setModified(true);
-			}
-			// Remove it, if the element's ref count goes to zero it might be destructed,
-			// so don't touch "element" again after this point.
-			meas[i]->removeElement(this,element);
-			return true;
-		}
+	if ( _meta->remove( this, element ) ) {
+		element->_parent = NULL;
+		return true;
 	}
 	return false;
 }
@@ -410,12 +213,11 @@ void daeElement::setDocument( daeDocument *c ) {
 	}
 	_document = c;
 
-	daeMetaElementAttributeArray &meas = _meta->getMetaElements();
-	int cnt = (int)meas.getCount();
-	for( int i = 0; i < cnt; i++) {
-		meas[i]->setDocument( this, c );
+	daeElementRefArray ea;
+	getChildren( ea );
+	for ( size_t x = 0; x < ea.getCount(); x++ ) {
+		ea[x]->setDocument( c );
 	}
-
 }
 
 daeBool
@@ -441,11 +243,63 @@ daeElement::setAttribute(daeString attrName, daeString attrValue)
 			if (metaAttrs[i]->getType() != NULL)
 			{
 				metaAttrs[i]->set(this,attrValue);
+				_validAttributeArray[i] = true;
 			}
 			return true;
 		}
 	}
 	return false;
+}
+
+daeBool daeElement::isAttributeSet( daeString attrName ) {
+	if (_meta == NULL)
+		return false;
+	
+	daeMetaAttributeRefArray& metaAttrs = _meta->getMetaAttributes();
+	int n = (int)metaAttrs.getCount();
+	int i;
+	for(i=0;i<n;i++) {
+		if ((metaAttrs[i]->getName() != NULL) &&
+			(strcmp(metaAttrs[i]->getName(),attrName)==0)) {
+		
+			return _validAttributeArray[i];
+		}
+	}
+	return false;
+}
+
+daeBool daeElement::hasAttribute( daeString attrName ) {
+	if (_meta == NULL)
+		return false;
+	
+	daeMetaAttributeRefArray& metaAttrs = _meta->getMetaAttributes();
+	int n = (int)metaAttrs.getCount();
+	int i;
+	for(i=0;i<n;i++) {
+		if ((metaAttrs[i]->getName() != NULL) &&
+			(strcmp(metaAttrs[i]->getName(),attrName)==0)) {
+		
+			return true;
+		}
+	}
+	return false;
+}
+
+daeMemoryRef daeElement::getAttributeValue( daeString attrName ) {
+	if (_meta == NULL)
+		return false;
+	
+	daeMetaAttributeRefArray& metaAttrs = _meta->getMetaAttributes();
+	int n = (int)metaAttrs.getCount();
+	int i;
+	for(i=0;i<n;i++) {
+		if ((metaAttrs[i]->getName() != NULL) &&
+			(strcmp(metaAttrs[i]->getName(),attrName)==0)) {
+		
+			return metaAttrs[i]->getWritableMemory(this);
+		}
+	}
+	return NULL;
 }
 
 void
@@ -500,11 +354,19 @@ daeElement::setup(daeMetaElement* meta)
 	}
 	daeMetaAttributeRefArray& attrs = meta->getMetaAttributes();
 	int macnt = (int)attrs.getCount();
-	
+
+	_validAttributeArray.setCount( macnt );
+
 	int i;
-	for(i=0;i<macnt;i++)
-		if (attrs[i]->getDefault() != NULL)
+	for(i=0;i<macnt;i++) {
+		if (attrs[i]->getDefault() != NULL) {
 			attrs[i]->set(this, attrs[i]->getDefault());
+			_validAttributeArray[i] = true;
+		}
+		else {
+			_validAttributeArray[i] = false;
+		}
+	}
 
 #if 0	
 	// Setup resolvers to know their containers and thus their file context
@@ -564,21 +426,7 @@ daeString daeElement::getID() const
 }
 
 void daeElement::getChildren( daeElementRefArray &array ) {
-	if (_meta->getContents() != NULL) {
-		daeMetaElementArrayAttribute *contents = _meta->getContents();
-		for ( int i = 0; i < contents->getCount( this ); i++ ) {
-			array.append( *(daeElementRef*)contents->get( this, i ) );
-		}
-	}
-	else
-	{
-		daeMetaElementAttributeArray &meas = _meta->getMetaElements();
-		for(unsigned int i = 0; i < meas.getCount(); i++) {
-			for ( int c = 0; c < meas[i]->getCount( this ); c++ ) {
-				array.append( *(daeElementRef*)meas[i]->get( this, c ) );
-			}
-		}			
-	}
+	_meta->getChildren( this, array );
 }
 
 daeSmartRef<daeElement> daeElement::clone(daeString idSuffix, daeString nameSuffix) {
@@ -596,22 +444,12 @@ daeSmartRef<daeElement> daeElement::clone(daeString idSuffix, daeString nameSuff
 		//memcpy( val->getWritableMemory( ret ), val->getWritableMemory( this ), val->getSize() );
 		val->copy( ret, this );
 	}
-	//use meta system to child elements
-	if ( _meta->getContents() != NULL )  {
-		daeMetaElementArrayAttribute *contents = _meta->getContents();
-		for ( int i = 0; i < contents->getCount( this ); i++ ) {
-			ret->placeElement( (*(daeElementRef*)contents->get( this, i ))->clone(idSuffix, nameSuffix) );
-		}
+	daeElementRefArray children;
+	_meta->getChildren( this, children );
+	for ( size_t x = 0; x < children.getCount(); x++ ) {
+		ret->placeElement( children.get(x)->clone( idSuffix, nameSuffix ) );
 	}
-	else {
-		daeMetaElementAttributeArray &meas = _meta->getMetaElements();
-		for(unsigned int i = 0; i < meas.getCount(); i++) {
-			for ( int c = 0; c < meas[i]->getCount( this ); c++ ) {
-				ret->placeElement( (*(daeElementRef*)meas[i]->get( this, c ))->clone(idSuffix, nameSuffix) );
-			}
-		}	
-	}
-	//ret->ref(); //called because the cast to daeElement* releases a reference causing premature deletion
+
 	//mangle the id
 	daeMetaAttribute *id = _meta->getIDAttribute();
 	if ( idSuffix != NULL && id != NULL ) {

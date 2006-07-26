@@ -45,6 +45,10 @@ protected:  // Element
 	 * Used to preserve order in elements that do not specify strict sequencing of sub-elements.
 	 */
 	daeElementRefArray _contents;
+	/**
+	 * Used to preserve order in elements that have a complex content model.
+	 */
+	daeUIntArray       _contentsOrder;
 
 
 public:	//Accessors and Mutators
@@ -62,7 +66,8 @@ public:	//Accessors and Mutators
 	 * Sets the xmlns attribute.
 	 * @param xmlns The new value for the xmlns attribute.
 	 */
-	void setXmlns( const xsAnyURI &xmlns ) { attrXmlns.setURI( xmlns.getURI() ); }
+	void setXmlns( const xsAnyURI &xmlns ) { attrXmlns.setURI( xmlns.getURI() );
+	 _validAttributeArray[0] = true; }
 
 	/**
 	 * Gets the profile attribute.
@@ -73,7 +78,8 @@ public:	//Accessors and Mutators
 	 * Sets the profile attribute.
 	 * @param atProfile The new value for the profile attribute.
 	 */
-	void setProfile( xsNMTOKEN atProfile ) { attrProfile = atProfile; }
+	void setProfile( xsNMTOKEN atProfile ) { *(daeStringRef*)&attrProfile = atProfile;
+	 _validAttributeArray[1] = true; }
 
 	/**
 	 * Gets the _contents array.

@@ -13,6 +13,12 @@
 
 #include <dae/daeDom.h>
 #include <dom/domFx_stenciltarget_common.h>
+#include <dae/daeMetaCMPolicy.h>
+#include <dae/daeMetaSequence.h>
+#include <dae/daeMetaChoice.h>
+#include <dae/daeMetaGroup.h>
+#include <dae/daeMetaAny.h>
+#include <dae/daeMetaElementAttribute.h>
 
 daeElementRef
 domFx_stenciltarget_common::create(daeInt bytes)
@@ -29,7 +35,6 @@ domFx_stenciltarget_common::registerElement()
     
     _Meta = new daeMetaElement;
     _Meta->setName( "fx_stenciltarget_common" );
-	_Meta->setStaticPointerAddress(&domFx_stenciltarget_common::_Meta);
 	_Meta->registerConstructor(domFx_stenciltarget_common::create);
 
 	//	Add attribute: _value
@@ -48,6 +53,32 @@ domFx_stenciltarget_common::registerElement()
 		ma->setName( "index" );
 		ma->setType( daeAtomicType::get("xsNonNegativeInteger"));
 		ma->setOffset( daeOffsetOf( domFx_stenciltarget_common , attrIndex ));
+		ma->setContainer( _Meta );
+		ma->setDefault( "0");
+		ma->setIsRequired( false );
+	
+		_Meta->appendAttribute(ma);
+	}
+
+	//	Add attribute: face
+ 	{
+		daeMetaAttribute *ma = new daeMetaAttribute;
+		ma->setName( "face" );
+		ma->setType( daeAtomicType::get("Fx_surface_face_enum"));
+		ma->setOffset( daeOffsetOf( domFx_stenciltarget_common , attrFace ));
+		ma->setContainer( _Meta );
+		ma->setDefault( "POSITIVE_X");
+		ma->setIsRequired( false );
+	
+		_Meta->appendAttribute(ma);
+	}
+
+	//	Add attribute: mip
+ 	{
+		daeMetaAttribute *ma = new daeMetaAttribute;
+		ma->setName( "mip" );
+		ma->setType( daeAtomicType::get("xsNonNegativeInteger"));
+		ma->setOffset( daeOffsetOf( domFx_stenciltarget_common , attrMip ));
 		ma->setContainer( _Meta );
 		ma->setDefault( "0");
 		ma->setIsRequired( false );

@@ -13,6 +13,12 @@
 
 #include <dae/daeDom.h>
 #include <dom/domLibrary_animations.h>
+#include <dae/daeMetaCMPolicy.h>
+#include <dae/daeMetaSequence.h>
+#include <dae/daeMetaChoice.h>
+#include <dae/daeMetaGroup.h>
+#include <dae/daeMetaAny.h>
+#include <dae/daeMetaElementAttribute.h>
 
 daeElementRef
 domLibrary_animations::create(daeInt bytes)
@@ -29,13 +35,32 @@ domLibrary_animations::registerElement()
     
     _Meta = new daeMetaElement;
     _Meta->setName( "library_animations" );
-	_Meta->setStaticPointerAddress(&domLibrary_animations::_Meta);
 	_Meta->registerConstructor(domLibrary_animations::create);
 
-	// Add elements: asset, animation, extra
-    _Meta->appendElement(domAsset::registerElement(),daeOffsetOf(domLibrary_animations,elemAsset));
-    _Meta->appendArrayElement(domAnimation::registerElement(),daeOffsetOf(domLibrary_animations,elemAnimation_array));
-    _Meta->appendArrayElement(domExtra::registerElement(),daeOffsetOf(domLibrary_animations,elemExtra_array));
+	daeMetaCMPolicy *cm = NULL;
+	daeMetaElementAttribute *mea = NULL;
+	cm = new daeMetaSequence( _Meta, cm, 0, 1, 1 );
+
+	mea = new daeMetaElementAttribute( _Meta, cm, 0, 0, 1 );
+	mea->setName( "asset" );
+	mea->setOffset( daeOffsetOf(domLibrary_animations,elemAsset) );
+	mea->setElementType( domAsset::registerElement() );
+	cm->appendChild( mea );
+	
+	mea = new daeMetaElementArrayAttribute( _Meta, cm, 1, 1, -1 );
+	mea->setName( "animation" );
+	mea->setOffset( daeOffsetOf(domLibrary_animations,elemAnimation_array) );
+	mea->setElementType( domAnimation::registerElement() );
+	cm->appendChild( mea );
+	
+	mea = new daeMetaElementArrayAttribute( _Meta, cm, 2, 0, -1 );
+	mea->setName( "extra" );
+	mea->setOffset( daeOffsetOf(domLibrary_animations,elemExtra_array) );
+	mea->setElementType( domExtra::registerElement() );
+	cm->appendChild( mea );
+	
+	cm->setMaxOrdinal( 2 );
+	_Meta->setCMRoot( cm );	
 
 	//	Add attribute: id
  	{

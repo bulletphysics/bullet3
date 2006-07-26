@@ -13,6 +13,12 @@
 
 #include <dae/daeDom.h>
 #include <dom/domCOLLADA.h>
+#include <dae/daeMetaCMPolicy.h>
+#include <dae/daeMetaSequence.h>
+#include <dae/daeMetaChoice.h>
+#include <dae/daeMetaGroup.h>
+#include <dae/daeMetaAny.h>
+#include <dae/daeMetaElementAttribute.h>
 
 extern daeString COLLADA_VERSION;
 extern daeString COLLADA_NAMESPACE;
@@ -22,8 +28,12 @@ domCOLLADA::create(daeInt bytes)
 {
 	domCOLLADARef ref = new(bytes) domCOLLADA;
 	ref->attrXmlns.setContainer( (domCOLLADA*)ref );
+	ref->attrXml_base.setContainer( (domCOLLADA*)ref );
+	ref->_meta = _Meta;
+	ref->_validAttributeArray.setCount( ref->_meta->getMetaAttributes().getCount() );
 	ref->setAttribute("version", COLLADA_VERSION );
 	ref->setAttribute("xmlns", COLLADA_NAMESPACE );
+	ref->_meta = NULL;
 	return ref;
 }
 
@@ -35,30 +45,131 @@ domCOLLADA::registerElement()
     
     _Meta = new daeMetaElement;
     _Meta->setName( "COLLADA" );
-	_Meta->setStaticPointerAddress(&domCOLLADA::_Meta);
 	_Meta->registerConstructor(domCOLLADA::create);
 
-	// Add elements: asset, library_animations, library_animation_clips, library_cameras, library_controllers, library_geometries, library_effects, library_force_fields, library_images, library_lights, library_materials, library_nodes, library_physics_materials, library_physics_models, library_physics_scenes, library_visual_scenes, scene, extra
-    _Meta->appendElement(domAsset::registerElement(),daeOffsetOf(domCOLLADA,elemAsset));
-    _Meta->appendArrayElement(domLibrary_animations::registerElement(),daeOffsetOf(domCOLLADA,elemLibrary_animations_array));
-    _Meta->appendArrayElement(domLibrary_animation_clips::registerElement(),daeOffsetOf(domCOLLADA,elemLibrary_animation_clips_array));
-    _Meta->appendArrayElement(domLibrary_cameras::registerElement(),daeOffsetOf(domCOLLADA,elemLibrary_cameras_array));
-    _Meta->appendArrayElement(domLibrary_controllers::registerElement(),daeOffsetOf(domCOLLADA,elemLibrary_controllers_array));
-    _Meta->appendArrayElement(domLibrary_geometries::registerElement(),daeOffsetOf(domCOLLADA,elemLibrary_geometries_array));
-    _Meta->appendArrayElement(domLibrary_effects::registerElement(),daeOffsetOf(domCOLLADA,elemLibrary_effects_array));
-    _Meta->appendArrayElement(domLibrary_force_fields::registerElement(),daeOffsetOf(domCOLLADA,elemLibrary_force_fields_array));
-    _Meta->appendArrayElement(domLibrary_images::registerElement(),daeOffsetOf(domCOLLADA,elemLibrary_images_array));
-    _Meta->appendArrayElement(domLibrary_lights::registerElement(),daeOffsetOf(domCOLLADA,elemLibrary_lights_array));
-    _Meta->appendArrayElement(domLibrary_materials::registerElement(),daeOffsetOf(domCOLLADA,elemLibrary_materials_array));
-    _Meta->appendArrayElement(domLibrary_nodes::registerElement(),daeOffsetOf(domCOLLADA,elemLibrary_nodes_array));
-    _Meta->appendArrayElement(domLibrary_physics_materials::registerElement(),daeOffsetOf(domCOLLADA,elemLibrary_physics_materials_array));
-    _Meta->appendArrayElement(domLibrary_physics_models::registerElement(),daeOffsetOf(domCOLLADA,elemLibrary_physics_models_array));
-    _Meta->appendArrayElement(domLibrary_physics_scenes::registerElement(),daeOffsetOf(domCOLLADA,elemLibrary_physics_scenes_array));
-    _Meta->appendArrayElement(domLibrary_visual_scenes::registerElement(),daeOffsetOf(domCOLLADA,elemLibrary_visual_scenes_array));
-    _Meta->appendElement(domCOLLADA::domScene::registerElement(),daeOffsetOf(domCOLLADA,elemScene));
-    _Meta->appendArrayElement(domExtra::registerElement(),daeOffsetOf(domCOLLADA,elemExtra_array));
+	daeMetaCMPolicy *cm = NULL;
+	daeMetaElementAttribute *mea = NULL;
+	cm = new daeMetaSequence( _Meta, cm, 0, 1, 1 );
+
+	mea = new daeMetaElementAttribute( _Meta, cm, 0, 1, 1 );
+	mea->setName( "asset" );
+	mea->setOffset( daeOffsetOf(domCOLLADA,elemAsset) );
+	mea->setElementType( domAsset::registerElement() );
+	cm->appendChild( mea );
+	
+	cm = new daeMetaChoice( _Meta, cm, 1, 0, -1 );
+
+	mea = new daeMetaElementArrayAttribute( _Meta, cm, 0, 1, 1 );
+	mea->setName( "library_animations" );
+	mea->setOffset( daeOffsetOf(domCOLLADA,elemLibrary_animations_array) );
+	mea->setElementType( domLibrary_animations::registerElement() );
+	cm->appendChild( mea );
+	
+	mea = new daeMetaElementArrayAttribute( _Meta, cm, 0, 1, 1 );
+	mea->setName( "library_animation_clips" );
+	mea->setOffset( daeOffsetOf(domCOLLADA,elemLibrary_animation_clips_array) );
+	mea->setElementType( domLibrary_animation_clips::registerElement() );
+	cm->appendChild( mea );
+	
+	mea = new daeMetaElementArrayAttribute( _Meta, cm, 0, 1, 1 );
+	mea->setName( "library_cameras" );
+	mea->setOffset( daeOffsetOf(domCOLLADA,elemLibrary_cameras_array) );
+	mea->setElementType( domLibrary_cameras::registerElement() );
+	cm->appendChild( mea );
+	
+	mea = new daeMetaElementArrayAttribute( _Meta, cm, 0, 1, 1 );
+	mea->setName( "library_controllers" );
+	mea->setOffset( daeOffsetOf(domCOLLADA,elemLibrary_controllers_array) );
+	mea->setElementType( domLibrary_controllers::registerElement() );
+	cm->appendChild( mea );
+	
+	mea = new daeMetaElementArrayAttribute( _Meta, cm, 0, 1, 1 );
+	mea->setName( "library_geometries" );
+	mea->setOffset( daeOffsetOf(domCOLLADA,elemLibrary_geometries_array) );
+	mea->setElementType( domLibrary_geometries::registerElement() );
+	cm->appendChild( mea );
+	
+	mea = new daeMetaElementArrayAttribute( _Meta, cm, 0, 1, 1 );
+	mea->setName( "library_effects" );
+	mea->setOffset( daeOffsetOf(domCOLLADA,elemLibrary_effects_array) );
+	mea->setElementType( domLibrary_effects::registerElement() );
+	cm->appendChild( mea );
+	
+	mea = new daeMetaElementArrayAttribute( _Meta, cm, 0, 1, 1 );
+	mea->setName( "library_force_fields" );
+	mea->setOffset( daeOffsetOf(domCOLLADA,elemLibrary_force_fields_array) );
+	mea->setElementType( domLibrary_force_fields::registerElement() );
+	cm->appendChild( mea );
+	
+	mea = new daeMetaElementArrayAttribute( _Meta, cm, 0, 1, 1 );
+	mea->setName( "library_images" );
+	mea->setOffset( daeOffsetOf(domCOLLADA,elemLibrary_images_array) );
+	mea->setElementType( domLibrary_images::registerElement() );
+	cm->appendChild( mea );
+	
+	mea = new daeMetaElementArrayAttribute( _Meta, cm, 0, 1, 1 );
+	mea->setName( "library_lights" );
+	mea->setOffset( daeOffsetOf(domCOLLADA,elemLibrary_lights_array) );
+	mea->setElementType( domLibrary_lights::registerElement() );
+	cm->appendChild( mea );
+	
+	mea = new daeMetaElementArrayAttribute( _Meta, cm, 0, 1, 1 );
+	mea->setName( "library_materials" );
+	mea->setOffset( daeOffsetOf(domCOLLADA,elemLibrary_materials_array) );
+	mea->setElementType( domLibrary_materials::registerElement() );
+	cm->appendChild( mea );
+	
+	mea = new daeMetaElementArrayAttribute( _Meta, cm, 0, 1, 1 );
+	mea->setName( "library_nodes" );
+	mea->setOffset( daeOffsetOf(domCOLLADA,elemLibrary_nodes_array) );
+	mea->setElementType( domLibrary_nodes::registerElement() );
+	cm->appendChild( mea );
+	
+	mea = new daeMetaElementArrayAttribute( _Meta, cm, 0, 1, 1 );
+	mea->setName( "library_physics_materials" );
+	mea->setOffset( daeOffsetOf(domCOLLADA,elemLibrary_physics_materials_array) );
+	mea->setElementType( domLibrary_physics_materials::registerElement() );
+	cm->appendChild( mea );
+	
+	mea = new daeMetaElementArrayAttribute( _Meta, cm, 0, 1, 1 );
+	mea->setName( "library_physics_models" );
+	mea->setOffset( daeOffsetOf(domCOLLADA,elemLibrary_physics_models_array) );
+	mea->setElementType( domLibrary_physics_models::registerElement() );
+	cm->appendChild( mea );
+	
+	mea = new daeMetaElementArrayAttribute( _Meta, cm, 0, 1, 1 );
+	mea->setName( "library_physics_scenes" );
+	mea->setOffset( daeOffsetOf(domCOLLADA,elemLibrary_physics_scenes_array) );
+	mea->setElementType( domLibrary_physics_scenes::registerElement() );
+	cm->appendChild( mea );
+	
+	mea = new daeMetaElementArrayAttribute( _Meta, cm, 0, 1, 1 );
+	mea->setName( "library_visual_scenes" );
+	mea->setOffset( daeOffsetOf(domCOLLADA,elemLibrary_visual_scenes_array) );
+	mea->setElementType( domLibrary_visual_scenes::registerElement() );
+	cm->appendChild( mea );
+	
+	cm->setMaxOrdinal( 0 );
+	cm->getParent()->appendChild( cm );
+	cm = cm->getParent();
+	
+	mea = new daeMetaElementAttribute( _Meta, cm, 3002, 0, 1 );
+	mea->setName( "scene" );
+	mea->setOffset( daeOffsetOf(domCOLLADA,elemScene) );
+	mea->setElementType( domCOLLADA::domScene::registerElement() );
+	cm->appendChild( mea );
+	
+	mea = new daeMetaElementArrayAttribute( _Meta, cm, 3003, 0, -1 );
+	mea->setName( "extra" );
+	mea->setOffset( daeOffsetOf(domCOLLADA,elemExtra_array) );
+	mea->setElementType( domExtra::registerElement() );
+	cm->appendChild( mea );
+	
+	cm->setMaxOrdinal( 3003 );
+	_Meta->setCMRoot( cm );	
 	// Ordered list of sub-elements
     _Meta->addContents(daeOffsetOf(domCOLLADA,_contents));
+    _Meta->addContentsOrder(daeOffsetOf(domCOLLADA,_contentsOrder));
 
     //	Add attribute: xmlns
     {
@@ -79,6 +190,17 @@ domCOLLADA::registerElement()
 		ma->setOffset( daeOffsetOf( domCOLLADA , attrVersion ));
 		ma->setContainer( _Meta );
 		ma->setIsRequired( true );
+	
+		_Meta->appendAttribute(ma);
+	}
+
+	//	Add attribute: xml_base
+ 	{
+		daeMetaAttribute *ma = new daeMetaAttribute;
+		ma->setName( "xml_base" );
+		ma->setType( daeAtomicType::get("xsAnyURI"));
+		ma->setOffset( daeOffsetOf( domCOLLADA , attrXml_base ));
+		ma->setContainer( _Meta );
 	
 		_Meta->appendAttribute(ma);
 	}
@@ -105,13 +227,33 @@ domCOLLADA::domScene::registerElement()
     
     _Meta = new daeMetaElement;
     _Meta->setName( "scene" );
-	_Meta->setStaticPointerAddress(&domCOLLADA::domScene::_Meta);
 	_Meta->registerConstructor(domCOLLADA::domScene::create);
 
-	// Add elements: instance_physics_scene, instance_visual_scene, extra
-    _Meta->appendArrayElement(domInstanceWithExtra::registerElement(),daeOffsetOf(domCOLLADA::domScene,elemInstance_physics_scene_array),"instance_physics_scene"); 
-    _Meta->appendElement(domInstanceWithExtra::registerElement(),daeOffsetOf(domCOLLADA::domScene,elemInstance_visual_scene),"instance_visual_scene"); 
-    _Meta->appendArrayElement(domExtra::registerElement(),daeOffsetOf(domCOLLADA::domScene,elemExtra_array));
+	_Meta->setIsInnerClass( true );
+	daeMetaCMPolicy *cm = NULL;
+	daeMetaElementAttribute *mea = NULL;
+	cm = new daeMetaSequence( _Meta, cm, 0, 1, 1 );
+
+	mea = new daeMetaElementArrayAttribute( _Meta, cm, 0, 0, -1 );
+	mea->setName( "instance_physics_scene" );
+	mea->setOffset( daeOffsetOf(domCOLLADA::domScene,elemInstance_physics_scene_array) );
+	mea->setElementType( domInstanceWithExtra::registerElement() );
+	cm->appendChild( mea );
+	
+	mea = new daeMetaElementAttribute( _Meta, cm, 1, 0, 1 );
+	mea->setName( "instance_visual_scene" );
+	mea->setOffset( daeOffsetOf(domCOLLADA::domScene,elemInstance_visual_scene) );
+	mea->setElementType( domInstanceWithExtra::registerElement() );
+	cm->appendChild( mea );
+	
+	mea = new daeMetaElementArrayAttribute( _Meta, cm, 2, 0, -1 );
+	mea->setName( "extra" );
+	mea->setOffset( daeOffsetOf(domCOLLADA::domScene,elemExtra_array) );
+	mea->setElementType( domExtra::registerElement() );
+	cm->appendChild( mea );
+	
+	cm->setMaxOrdinal( 2 );
+	_Meta->setCMRoot( cm );	
 	
 	
 	_Meta->setElementSize(sizeof(domCOLLADA::domScene));

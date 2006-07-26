@@ -23,12 +23,22 @@
  */
 class domInstance_rigid_constraint : public daeElement
 {
-protected:  // Attribute
+protected:  // Attributes
 /**
  *  The constraint attribute indicates which rigid_constraing to instantiate.
  * Required attribute. 
  */
 	xsNCName attrConstraint;
+/**
+ *  The sid attribute is a text string value containing the sub-identifier
+ * of this element. This  value must be unique within the scope of the parent
+ * element. Optional attribute. 
+ */
+	xsNCName attrSid;
+/**
+ *  The name attribute is the text string name of this element. Optional attribute.
+ */
+	xsNCName attrName;
 
 protected:  // Element
 /**
@@ -46,7 +56,32 @@ public:	//Accessors and Mutators
 	 * Sets the constraint attribute.
 	 * @param atConstraint The new value for the constraint attribute.
 	 */
-	void setConstraint( xsNCName atConstraint ) { attrConstraint = atConstraint; }
+	void setConstraint( xsNCName atConstraint ) { *(daeStringRef*)&attrConstraint = atConstraint;
+	 _validAttributeArray[0] = true; }
+
+	/**
+	 * Gets the sid attribute.
+	 * @return Returns a xsNCName of the sid attribute.
+	 */
+	xsNCName getSid() const { return attrSid; }
+	/**
+	 * Sets the sid attribute.
+	 * @param atSid The new value for the sid attribute.
+	 */
+	void setSid( xsNCName atSid ) { *(daeStringRef*)&attrSid = atSid;
+	 _validAttributeArray[1] = true; }
+
+	/**
+	 * Gets the name attribute.
+	 * @return Returns a xsNCName of the name attribute.
+	 */
+	xsNCName getName() const { return attrName; }
+	/**
+	 * Sets the name attribute.
+	 * @param atName The new value for the name attribute.
+	 */
+	void setName( xsNCName atName ) { *(daeStringRef*)&attrName = atName;
+	 _validAttributeArray[2] = true; }
 
 	/**
 	 * Gets the extra element array.
@@ -62,7 +97,7 @@ protected:
 	/**
 	 * Constructor
 	 */
-	domInstance_rigid_constraint() : attrConstraint(), elemExtra_array() {}
+	domInstance_rigid_constraint() : attrConstraint(), attrSid(), attrName(), elemExtra_array() {}
 	/**
 	 * Destructor
 	 */

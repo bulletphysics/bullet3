@@ -13,6 +13,12 @@
 
 #include <dae/daeDom.h>
 #include <dom/domGeometry.h>
+#include <dae/daeMetaCMPolicy.h>
+#include <dae/daeMetaSequence.h>
+#include <dae/daeMetaChoice.h>
+#include <dae/daeMetaGroup.h>
+#include <dae/daeMetaAny.h>
+#include <dae/daeMetaElementAttribute.h>
 
 daeElementRef
 domGeometry::create(daeInt bytes)
@@ -29,17 +35,53 @@ domGeometry::registerElement()
     
     _Meta = new daeMetaElement;
     _Meta->setName( "geometry" );
-	_Meta->setStaticPointerAddress(&domGeometry::_Meta);
 	_Meta->registerConstructor(domGeometry::create);
 
-	// Add elements: asset, convex_mesh, mesh, spline, extra
-    _Meta->appendElement(domAsset::registerElement(),daeOffsetOf(domGeometry,elemAsset));
-    _Meta->appendElement(domConvex_mesh::registerElement(),daeOffsetOf(domGeometry,elemConvex_mesh));
-    _Meta->appendElement(domMesh::registerElement(),daeOffsetOf(domGeometry,elemMesh));
-    _Meta->appendElement(domSpline::registerElement(),daeOffsetOf(domGeometry,elemSpline));
-    _Meta->appendArrayElement(domExtra::registerElement(),daeOffsetOf(domGeometry,elemExtra_array));
+	daeMetaCMPolicy *cm = NULL;
+	daeMetaElementAttribute *mea = NULL;
+	cm = new daeMetaSequence( _Meta, cm, 0, 1, 1 );
+
+	mea = new daeMetaElementAttribute( _Meta, cm, 0, 0, 1 );
+	mea->setName( "asset" );
+	mea->setOffset( daeOffsetOf(domGeometry,elemAsset) );
+	mea->setElementType( domAsset::registerElement() );
+	cm->appendChild( mea );
+	
+	cm = new daeMetaChoice( _Meta, cm, 1, 1, 1 );
+
+	mea = new daeMetaElementAttribute( _Meta, cm, 0, 1, 1 );
+	mea->setName( "convex_mesh" );
+	mea->setOffset( daeOffsetOf(domGeometry,elemConvex_mesh) );
+	mea->setElementType( domConvex_mesh::registerElement() );
+	cm->appendChild( mea );
+	
+	mea = new daeMetaElementAttribute( _Meta, cm, 0, 1, 1 );
+	mea->setName( "mesh" );
+	mea->setOffset( daeOffsetOf(domGeometry,elemMesh) );
+	mea->setElementType( domMesh::registerElement() );
+	cm->appendChild( mea );
+	
+	mea = new daeMetaElementAttribute( _Meta, cm, 0, 1, 1 );
+	mea->setName( "spline" );
+	mea->setOffset( daeOffsetOf(domGeometry,elemSpline) );
+	mea->setElementType( domSpline::registerElement() );
+	cm->appendChild( mea );
+	
+	cm->setMaxOrdinal( 0 );
+	cm->getParent()->appendChild( cm );
+	cm = cm->getParent();
+	
+	mea = new daeMetaElementArrayAttribute( _Meta, cm, 2, 0, -1 );
+	mea->setName( "extra" );
+	mea->setOffset( daeOffsetOf(domGeometry,elemExtra_array) );
+	mea->setElementType( domExtra::registerElement() );
+	cm->appendChild( mea );
+	
+	cm->setMaxOrdinal( 2 );
+	_Meta->setCMRoot( cm );	
 	// Ordered list of sub-elements
     _Meta->addContents(daeOffsetOf(domGeometry,_contents));
+    _Meta->addContentsOrder(daeOffsetOf(domGeometry,_contentsOrder));
 
 
 	//	Add attribute: id

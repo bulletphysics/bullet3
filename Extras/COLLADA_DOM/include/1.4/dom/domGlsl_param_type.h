@@ -16,7 +16,7 @@
 #include <dom/domTypes.h>
 #include <dom/domElements.h>
 
-#include <dom/domFx_surface_common.h>
+#include <dom/domGlsl_surface_type.h>
 #include <dom/domGl_sampler1D.h>
 #include <dom/domGl_sampler2D.h>
 #include <dom/domGl_sampler3D.h>
@@ -1148,7 +1148,7 @@ protected:  // Elements
 	domInt2Ref elemInt2;
 	domInt3Ref elemInt3;
 	domInt4Ref elemInt4;
-	domFx_surface_commonRef elemSurface;
+	domGlsl_surface_typeRef elemSurface;
 	domGl_sampler1DRef elemSampler1D;
 	domGl_sampler2DRef elemSampler2D;
 	domGl_sampler3DRef elemSampler3D;
@@ -1160,6 +1160,10 @@ protected:  // Elements
 	 * Used to preserve order in elements that do not specify strict sequencing of sub-elements.
 	 */
 	daeElementRefArray _contents;
+	/**
+	 * Used to preserve order in elements that have a complex content model.
+	 */
+	daeUIntArray       _contentsOrder;
 
 
 public:	//Accessors and Mutators
@@ -1242,7 +1246,7 @@ public:	//Accessors and Mutators
 	 * Gets the surface element.
 	 * @return a daeSmartRef to the surface element.
 	 */
-	const domFx_surface_commonRef getSurface() const { return elemSurface; }
+	const domGlsl_surface_typeRef getSurface() const { return elemSurface; }
 	/**
 	 * Gets the sampler1D element.
 	 * @return a daeSmartRef to the sampler1D element.

@@ -13,6 +13,12 @@
 
 #include <dae/daeDom.h>
 #include <dom/domEllipsoid.h>
+#include <dae/daeMetaCMPolicy.h>
+#include <dae/daeMetaSequence.h>
+#include <dae/daeMetaChoice.h>
+#include <dae/daeMetaGroup.h>
+#include <dae/daeMetaAny.h>
+#include <dae/daeMetaElementAttribute.h>
 
 daeElementRef
 domEllipsoid::create(daeInt bytes)
@@ -29,11 +35,20 @@ domEllipsoid::registerElement()
     
     _Meta = new daeMetaElement;
     _Meta->setName( "ellipsoid" );
-	_Meta->setStaticPointerAddress(&domEllipsoid::_Meta);
 	_Meta->registerConstructor(domEllipsoid::create);
 
-	// Add elements: size
-    _Meta->appendElement(domEllipsoid::domSize::registerElement(),daeOffsetOf(domEllipsoid,elemSize));
+	daeMetaCMPolicy *cm = NULL;
+	daeMetaElementAttribute *mea = NULL;
+	cm = new daeMetaSequence( _Meta, cm, 0, 1, 1 );
+
+	mea = new daeMetaElementAttribute( _Meta, cm, 0, 1, 1 );
+	mea->setName( "size" );
+	mea->setOffset( daeOffsetOf(domEllipsoid,elemSize) );
+	mea->setElementType( domEllipsoid::domSize::registerElement() );
+	cm->appendChild( mea );
+	
+	cm->setMaxOrdinal( 0 );
+	_Meta->setCMRoot( cm );	
 	
 	
 	_Meta->setElementSize(sizeof(domEllipsoid));
@@ -57,9 +72,9 @@ domEllipsoid::domSize::registerElement()
     
     _Meta = new daeMetaElement;
     _Meta->setName( "size" );
-	_Meta->setStaticPointerAddress(&domEllipsoid::domSize::_Meta);
 	_Meta->registerConstructor(domEllipsoid::domSize::create);
 
+	_Meta->setIsInnerClass( true );
 	//	Add attribute: _value
  	{
 		daeMetaAttribute *ma = new daeMetaArrayAttribute;

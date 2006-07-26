@@ -13,6 +13,12 @@
 
 #include <dae/daeDom.h>
 #include <dom/domCommon_float_or_param_type.h>
+#include <dae/daeMetaCMPolicy.h>
+#include <dae/daeMetaSequence.h>
+#include <dae/daeMetaChoice.h>
+#include <dae/daeMetaGroup.h>
+#include <dae/daeMetaAny.h>
+#include <dae/daeMetaElementAttribute.h>
 
 daeElementRef
 domCommon_float_or_param_type::create(daeInt bytes)
@@ -29,14 +35,29 @@ domCommon_float_or_param_type::registerElement()
     
     _Meta = new daeMetaElement;
     _Meta->setName( "common_float_or_param_type" );
-	_Meta->setStaticPointerAddress(&domCommon_float_or_param_type::_Meta);
 	_Meta->registerConstructor(domCommon_float_or_param_type::create);
 
-	// Add elements: float, param
-    _Meta->appendElement(domCommon_float_or_param_type::domFloat::registerElement(),daeOffsetOf(domCommon_float_or_param_type,elemFloat));
-    _Meta->appendElement(domCommon_float_or_param_type::domParam::registerElement(),daeOffsetOf(domCommon_float_or_param_type,elemParam));
+	daeMetaCMPolicy *cm = NULL;
+	daeMetaElementAttribute *mea = NULL;
+	cm = new daeMetaChoice( _Meta, cm, 0, 1, 1 );
+
+	mea = new daeMetaElementAttribute( _Meta, cm, 0, 1, 1 );
+	mea->setName( "float" );
+	mea->setOffset( daeOffsetOf(domCommon_float_or_param_type,elemFloat) );
+	mea->setElementType( domCommon_float_or_param_type::domFloat::registerElement() );
+	cm->appendChild( mea );
+	
+	mea = new daeMetaElementAttribute( _Meta, cm, 0, 1, 1 );
+	mea->setName( "param" );
+	mea->setOffset( daeOffsetOf(domCommon_float_or_param_type,elemParam) );
+	mea->setElementType( domCommon_float_or_param_type::domParam::registerElement() );
+	cm->appendChild( mea );
+	
+	cm->setMaxOrdinal( 0 );
+	_Meta->setCMRoot( cm );	
 	// Ordered list of sub-elements
     _Meta->addContents(daeOffsetOf(domCommon_float_or_param_type,_contents));
+    _Meta->addContentsOrder(daeOffsetOf(domCommon_float_or_param_type,_contentsOrder));
 
 	
 	
@@ -61,9 +82,9 @@ domCommon_float_or_param_type::domFloat::registerElement()
     
     _Meta = new daeMetaElement;
     _Meta->setName( "float" );
-	_Meta->setStaticPointerAddress(&domCommon_float_or_param_type::domFloat::_Meta);
 	_Meta->registerConstructor(domCommon_float_or_param_type::domFloat::create);
 
+	_Meta->setIsInnerClass( true );
 	//	Add attribute: _value
  	{
 		daeMetaAttribute *ma = new daeMetaAttribute;
@@ -107,9 +128,9 @@ domCommon_float_or_param_type::domParam::registerElement()
     
     _Meta = new daeMetaElement;
     _Meta->setName( "param" );
-	_Meta->setStaticPointerAddress(&domCommon_float_or_param_type::domParam::_Meta);
 	_Meta->registerConstructor(domCommon_float_or_param_type::domParam::create);
 
+	_Meta->setIsInnerClass( true );
 
 	//	Add attribute: ref
  	{

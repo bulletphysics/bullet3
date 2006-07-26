@@ -13,6 +13,12 @@
 
 #include <dae/daeDom.h>
 #include <dom/domRigid_constraint.h>
+#include <dae/daeMetaCMPolicy.h>
+#include <dae/daeMetaSequence.h>
+#include <dae/daeMetaChoice.h>
+#include <dae/daeMetaGroup.h>
+#include <dae/daeMetaAny.h>
+#include <dae/daeMetaElementAttribute.h>
 
 daeElementRef
 domRigid_constraint::create(daeInt bytes)
@@ -29,15 +35,44 @@ domRigid_constraint::registerElement()
     
     _Meta = new daeMetaElement;
     _Meta->setName( "rigid_constraint" );
-	_Meta->setStaticPointerAddress(&domRigid_constraint::_Meta);
 	_Meta->registerConstructor(domRigid_constraint::create);
 
-	// Add elements: ref_attachment, attachment, technique_common, technique, extra
-    _Meta->appendElement(domRigid_constraint::domRef_attachment::registerElement(),daeOffsetOf(domRigid_constraint,elemRef_attachment));
-    _Meta->appendElement(domRigid_constraint::domAttachment::registerElement(),daeOffsetOf(domRigid_constraint,elemAttachment));
-    _Meta->appendElement(domRigid_constraint::domTechnique_common::registerElement(),daeOffsetOf(domRigid_constraint,elemTechnique_common));
-    _Meta->appendArrayElement(domTechnique::registerElement(),daeOffsetOf(domRigid_constraint,elemTechnique_array));
-    _Meta->appendArrayElement(domExtra::registerElement(),daeOffsetOf(domRigid_constraint,elemExtra_array));
+	daeMetaCMPolicy *cm = NULL;
+	daeMetaElementAttribute *mea = NULL;
+	cm = new daeMetaSequence( _Meta, cm, 0, 1, 1 );
+
+	mea = new daeMetaElementAttribute( _Meta, cm, 0, 1, 1 );
+	mea->setName( "ref_attachment" );
+	mea->setOffset( daeOffsetOf(domRigid_constraint,elemRef_attachment) );
+	mea->setElementType( domRigid_constraint::domRef_attachment::registerElement() );
+	cm->appendChild( mea );
+	
+	mea = new daeMetaElementAttribute( _Meta, cm, 1, 1, 1 );
+	mea->setName( "attachment" );
+	mea->setOffset( daeOffsetOf(domRigid_constraint,elemAttachment) );
+	mea->setElementType( domRigid_constraint::domAttachment::registerElement() );
+	cm->appendChild( mea );
+	
+	mea = new daeMetaElementAttribute( _Meta, cm, 2, 1, 1 );
+	mea->setName( "technique_common" );
+	mea->setOffset( daeOffsetOf(domRigid_constraint,elemTechnique_common) );
+	mea->setElementType( domRigid_constraint::domTechnique_common::registerElement() );
+	cm->appendChild( mea );
+	
+	mea = new daeMetaElementArrayAttribute( _Meta, cm, 3, 0, -1 );
+	mea->setName( "technique" );
+	mea->setOffset( daeOffsetOf(domRigid_constraint,elemTechnique_array) );
+	mea->setElementType( domTechnique::registerElement() );
+	cm->appendChild( mea );
+	
+	mea = new daeMetaElementArrayAttribute( _Meta, cm, 4, 0, -1 );
+	mea->setName( "extra" );
+	mea->setOffset( daeOffsetOf(domRigid_constraint,elemExtra_array) );
+	mea->setElementType( domExtra::registerElement() );
+	cm->appendChild( mea );
+	
+	cm->setMaxOrdinal( 4 );
+	_Meta->setCMRoot( cm );	
 
 	//	Add attribute: sid
  	{
@@ -85,15 +120,36 @@ domRigid_constraint::domRef_attachment::registerElement()
     
     _Meta = new daeMetaElement;
     _Meta->setName( "ref_attachment" );
-	_Meta->setStaticPointerAddress(&domRigid_constraint::domRef_attachment::_Meta);
 	_Meta->registerConstructor(domRigid_constraint::domRef_attachment::create);
 
-	// Add elements: translate, rotate, extra
-    _Meta->appendArrayElement(domTranslate::registerElement(),daeOffsetOf(domRigid_constraint::domRef_attachment,elemTranslate_array));
-    _Meta->appendArrayElement(domRotate::registerElement(),daeOffsetOf(domRigid_constraint::domRef_attachment,elemRotate_array));
-    _Meta->appendArrayElement(domExtra::registerElement(),daeOffsetOf(domRigid_constraint::domRef_attachment,elemExtra_array));
+	_Meta->setIsInnerClass( true );
+	daeMetaCMPolicy *cm = NULL;
+	daeMetaElementAttribute *mea = NULL;
+	cm = new daeMetaChoice( _Meta, cm, 0, 0, -1 );
+
+	mea = new daeMetaElementArrayAttribute( _Meta, cm, 0, 1, 1 );
+	mea->setName( "translate" );
+	mea->setOffset( daeOffsetOf(domRigid_constraint::domRef_attachment,elemTranslate_array) );
+	mea->setElementType( domTranslate::registerElement() );
+	cm->appendChild( mea );
+	
+	mea = new daeMetaElementArrayAttribute( _Meta, cm, 0, 1, 1 );
+	mea->setName( "rotate" );
+	mea->setOffset( daeOffsetOf(domRigid_constraint::domRef_attachment,elemRotate_array) );
+	mea->setElementType( domRotate::registerElement() );
+	cm->appendChild( mea );
+	
+	mea = new daeMetaElementArrayAttribute( _Meta, cm, 0, 0, -1 );
+	mea->setName( "extra" );
+	mea->setOffset( daeOffsetOf(domRigid_constraint::domRef_attachment,elemExtra_array) );
+	mea->setElementType( domExtra::registerElement() );
+	cm->appendChild( mea );
+	
+	cm->setMaxOrdinal( 0 );
+	_Meta->setCMRoot( cm );	
 	// Ordered list of sub-elements
     _Meta->addContents(daeOffsetOf(domRigid_constraint::domRef_attachment,_contents));
+    _Meta->addContentsOrder(daeOffsetOf(domRigid_constraint::domRef_attachment,_contentsOrder));
 
 
 	//	Add attribute: rigid_body
@@ -130,15 +186,36 @@ domRigid_constraint::domAttachment::registerElement()
     
     _Meta = new daeMetaElement;
     _Meta->setName( "attachment" );
-	_Meta->setStaticPointerAddress(&domRigid_constraint::domAttachment::_Meta);
 	_Meta->registerConstructor(domRigid_constraint::domAttachment::create);
 
-	// Add elements: translate, rotate, extra
-    _Meta->appendArrayElement(domTranslate::registerElement(),daeOffsetOf(domRigid_constraint::domAttachment,elemTranslate_array));
-    _Meta->appendArrayElement(domRotate::registerElement(),daeOffsetOf(domRigid_constraint::domAttachment,elemRotate_array));
-    _Meta->appendArrayElement(domExtra::registerElement(),daeOffsetOf(domRigid_constraint::domAttachment,elemExtra_array));
+	_Meta->setIsInnerClass( true );
+	daeMetaCMPolicy *cm = NULL;
+	daeMetaElementAttribute *mea = NULL;
+	cm = new daeMetaChoice( _Meta, cm, 0, 0, -1 );
+
+	mea = new daeMetaElementArrayAttribute( _Meta, cm, 0, 1, 1 );
+	mea->setName( "translate" );
+	mea->setOffset( daeOffsetOf(domRigid_constraint::domAttachment,elemTranslate_array) );
+	mea->setElementType( domTranslate::registerElement() );
+	cm->appendChild( mea );
+	
+	mea = new daeMetaElementArrayAttribute( _Meta, cm, 0, 1, 1 );
+	mea->setName( "rotate" );
+	mea->setOffset( daeOffsetOf(domRigid_constraint::domAttachment,elemRotate_array) );
+	mea->setElementType( domRotate::registerElement() );
+	cm->appendChild( mea );
+	
+	mea = new daeMetaElementArrayAttribute( _Meta, cm, 0, 0, -1 );
+	mea->setName( "extra" );
+	mea->setOffset( daeOffsetOf(domRigid_constraint::domAttachment,elemExtra_array) );
+	mea->setElementType( domExtra::registerElement() );
+	cm->appendChild( mea );
+	
+	cm->setMaxOrdinal( 0 );
+	_Meta->setCMRoot( cm );	
 	// Ordered list of sub-elements
     _Meta->addContents(daeOffsetOf(domRigid_constraint::domAttachment,_contents));
+    _Meta->addContentsOrder(daeOffsetOf(domRigid_constraint::domAttachment,_contentsOrder));
 
 
 	//	Add attribute: rigid_body
@@ -174,14 +251,39 @@ domRigid_constraint::domTechnique_common::registerElement()
     
     _Meta = new daeMetaElement;
     _Meta->setName( "technique_common" );
-	_Meta->setStaticPointerAddress(&domRigid_constraint::domTechnique_common::_Meta);
 	_Meta->registerConstructor(domRigid_constraint::domTechnique_common::create);
 
-	// Add elements: enabled, interpenetrate, limits, spring
-    _Meta->appendElement(domRigid_constraint::domTechnique_common::domEnabled::registerElement(),daeOffsetOf(domRigid_constraint::domTechnique_common,elemEnabled));
-    _Meta->appendElement(domRigid_constraint::domTechnique_common::domInterpenetrate::registerElement(),daeOffsetOf(domRigid_constraint::domTechnique_common,elemInterpenetrate));
-    _Meta->appendElement(domRigid_constraint::domTechnique_common::domLimits::registerElement(),daeOffsetOf(domRigid_constraint::domTechnique_common,elemLimits));
-    _Meta->appendElement(domRigid_constraint::domTechnique_common::domSpring::registerElement(),daeOffsetOf(domRigid_constraint::domTechnique_common,elemSpring));
+	_Meta->setIsInnerClass( true );
+	daeMetaCMPolicy *cm = NULL;
+	daeMetaElementAttribute *mea = NULL;
+	cm = new daeMetaSequence( _Meta, cm, 0, 1, 1 );
+
+	mea = new daeMetaElementAttribute( _Meta, cm, 0, 0, 1 );
+	mea->setName( "enabled" );
+	mea->setOffset( daeOffsetOf(domRigid_constraint::domTechnique_common,elemEnabled) );
+	mea->setElementType( domRigid_constraint::domTechnique_common::domEnabled::registerElement() );
+	cm->appendChild( mea );
+	
+	mea = new daeMetaElementAttribute( _Meta, cm, 1, 0, 1 );
+	mea->setName( "interpenetrate" );
+	mea->setOffset( daeOffsetOf(domRigid_constraint::domTechnique_common,elemInterpenetrate) );
+	mea->setElementType( domRigid_constraint::domTechnique_common::domInterpenetrate::registerElement() );
+	cm->appendChild( mea );
+	
+	mea = new daeMetaElementAttribute( _Meta, cm, 2, 0, 1 );
+	mea->setName( "limits" );
+	mea->setOffset( daeOffsetOf(domRigid_constraint::domTechnique_common,elemLimits) );
+	mea->setElementType( domRigid_constraint::domTechnique_common::domLimits::registerElement() );
+	cm->appendChild( mea );
+	
+	mea = new daeMetaElementAttribute( _Meta, cm, 3, 0, 1 );
+	mea->setName( "spring" );
+	mea->setOffset( daeOffsetOf(domRigid_constraint::domTechnique_common,elemSpring) );
+	mea->setElementType( domRigid_constraint::domTechnique_common::domSpring::registerElement() );
+	cm->appendChild( mea );
+	
+	cm->setMaxOrdinal( 3 );
+	_Meta->setCMRoot( cm );	
 	
 	
 	_Meta->setElementSize(sizeof(domRigid_constraint::domTechnique_common));
@@ -205,9 +307,9 @@ domRigid_constraint::domTechnique_common::domEnabled::registerElement()
     
     _Meta = new daeMetaElement;
     _Meta->setName( "enabled" );
-	_Meta->setStaticPointerAddress(&domRigid_constraint::domTechnique_common::domEnabled::_Meta);
 	_Meta->registerConstructor(domRigid_constraint::domTechnique_common::domEnabled::create);
 
+	_Meta->setIsInnerClass( true );
 	//	Add attribute: _value
  	{
 		daeMetaAttribute *ma = new daeMetaAttribute;
@@ -251,9 +353,9 @@ domRigid_constraint::domTechnique_common::domInterpenetrate::registerElement()
     
     _Meta = new daeMetaElement;
     _Meta->setName( "interpenetrate" );
-	_Meta->setStaticPointerAddress(&domRigid_constraint::domTechnique_common::domInterpenetrate::_Meta);
 	_Meta->registerConstructor(domRigid_constraint::domTechnique_common::domInterpenetrate::create);
 
+	_Meta->setIsInnerClass( true );
 	//	Add attribute: _value
  	{
 		daeMetaAttribute *ma = new daeMetaAttribute;
@@ -297,12 +399,27 @@ domRigid_constraint::domTechnique_common::domLimits::registerElement()
     
     _Meta = new daeMetaElement;
     _Meta->setName( "limits" );
-	_Meta->setStaticPointerAddress(&domRigid_constraint::domTechnique_common::domLimits::_Meta);
 	_Meta->registerConstructor(domRigid_constraint::domTechnique_common::domLimits::create);
 
-	// Add elements: swing_cone_and_twist, linear
-    _Meta->appendElement(domRigid_constraint::domTechnique_common::domLimits::domSwing_cone_and_twist::registerElement(),daeOffsetOf(domRigid_constraint::domTechnique_common::domLimits,elemSwing_cone_and_twist));
-    _Meta->appendElement(domRigid_constraint::domTechnique_common::domLimits::domLinear::registerElement(),daeOffsetOf(domRigid_constraint::domTechnique_common::domLimits,elemLinear));
+	_Meta->setIsInnerClass( true );
+	daeMetaCMPolicy *cm = NULL;
+	daeMetaElementAttribute *mea = NULL;
+	cm = new daeMetaSequence( _Meta, cm, 0, 1, 1 );
+
+	mea = new daeMetaElementAttribute( _Meta, cm, 0, 0, 1 );
+	mea->setName( "swing_cone_and_twist" );
+	mea->setOffset( daeOffsetOf(domRigid_constraint::domTechnique_common::domLimits,elemSwing_cone_and_twist) );
+	mea->setElementType( domRigid_constraint::domTechnique_common::domLimits::domSwing_cone_and_twist::registerElement() );
+	cm->appendChild( mea );
+	
+	mea = new daeMetaElementAttribute( _Meta, cm, 1, 0, 1 );
+	mea->setName( "linear" );
+	mea->setOffset( daeOffsetOf(domRigid_constraint::domTechnique_common::domLimits,elemLinear) );
+	mea->setElementType( domRigid_constraint::domTechnique_common::domLimits::domLinear::registerElement() );
+	cm->appendChild( mea );
+	
+	cm->setMaxOrdinal( 1 );
+	_Meta->setCMRoot( cm );	
 	
 	
 	_Meta->setElementSize(sizeof(domRigid_constraint::domTechnique_common::domLimits));
@@ -326,12 +443,27 @@ domRigid_constraint::domTechnique_common::domLimits::domSwing_cone_and_twist::re
     
     _Meta = new daeMetaElement;
     _Meta->setName( "swing_cone_and_twist" );
-	_Meta->setStaticPointerAddress(&domRigid_constraint::domTechnique_common::domLimits::domSwing_cone_and_twist::_Meta);
 	_Meta->registerConstructor(domRigid_constraint::domTechnique_common::domLimits::domSwing_cone_and_twist::create);
 
-	// Add elements: min, max
-    _Meta->appendElement(domTargetableFloat3::registerElement(),daeOffsetOf(domRigid_constraint::domTechnique_common::domLimits::domSwing_cone_and_twist,elemMin),"min"); 
-    _Meta->appendElement(domTargetableFloat3::registerElement(),daeOffsetOf(domRigid_constraint::domTechnique_common::domLimits::domSwing_cone_and_twist,elemMax),"max"); 
+	_Meta->setIsInnerClass( true );
+	daeMetaCMPolicy *cm = NULL;
+	daeMetaElementAttribute *mea = NULL;
+	cm = new daeMetaSequence( _Meta, cm, 0, 1, 1 );
+
+	mea = new daeMetaElementAttribute( _Meta, cm, 0, 0, 1 );
+	mea->setName( "min" );
+	mea->setOffset( daeOffsetOf(domRigid_constraint::domTechnique_common::domLimits::domSwing_cone_and_twist,elemMin) );
+	mea->setElementType( domTargetableFloat3::registerElement() );
+	cm->appendChild( mea );
+	
+	mea = new daeMetaElementAttribute( _Meta, cm, 1, 0, 1 );
+	mea->setName( "max" );
+	mea->setOffset( daeOffsetOf(domRigid_constraint::domTechnique_common::domLimits::domSwing_cone_and_twist,elemMax) );
+	mea->setElementType( domTargetableFloat3::registerElement() );
+	cm->appendChild( mea );
+	
+	cm->setMaxOrdinal( 1 );
+	_Meta->setCMRoot( cm );	
 	
 	
 	_Meta->setElementSize(sizeof(domRigid_constraint::domTechnique_common::domLimits::domSwing_cone_and_twist));
@@ -355,12 +487,27 @@ domRigid_constraint::domTechnique_common::domLimits::domLinear::registerElement(
     
     _Meta = new daeMetaElement;
     _Meta->setName( "linear" );
-	_Meta->setStaticPointerAddress(&domRigid_constraint::domTechnique_common::domLimits::domLinear::_Meta);
 	_Meta->registerConstructor(domRigid_constraint::domTechnique_common::domLimits::domLinear::create);
 
-	// Add elements: min, max
-    _Meta->appendElement(domTargetableFloat3::registerElement(),daeOffsetOf(domRigid_constraint::domTechnique_common::domLimits::domLinear,elemMin),"min"); 
-    _Meta->appendElement(domTargetableFloat3::registerElement(),daeOffsetOf(domRigid_constraint::domTechnique_common::domLimits::domLinear,elemMax),"max"); 
+	_Meta->setIsInnerClass( true );
+	daeMetaCMPolicy *cm = NULL;
+	daeMetaElementAttribute *mea = NULL;
+	cm = new daeMetaSequence( _Meta, cm, 0, 1, 1 );
+
+	mea = new daeMetaElementAttribute( _Meta, cm, 0, 0, 1 );
+	mea->setName( "min" );
+	mea->setOffset( daeOffsetOf(domRigid_constraint::domTechnique_common::domLimits::domLinear,elemMin) );
+	mea->setElementType( domTargetableFloat3::registerElement() );
+	cm->appendChild( mea );
+	
+	mea = new daeMetaElementAttribute( _Meta, cm, 1, 0, 1 );
+	mea->setName( "max" );
+	mea->setOffset( daeOffsetOf(domRigid_constraint::domTechnique_common::domLimits::domLinear,elemMax) );
+	mea->setElementType( domTargetableFloat3::registerElement() );
+	cm->appendChild( mea );
+	
+	cm->setMaxOrdinal( 1 );
+	_Meta->setCMRoot( cm );	
 	
 	
 	_Meta->setElementSize(sizeof(domRigid_constraint::domTechnique_common::domLimits::domLinear));
@@ -384,12 +531,27 @@ domRigid_constraint::domTechnique_common::domSpring::registerElement()
     
     _Meta = new daeMetaElement;
     _Meta->setName( "spring" );
-	_Meta->setStaticPointerAddress(&domRigid_constraint::domTechnique_common::domSpring::_Meta);
 	_Meta->registerConstructor(domRigid_constraint::domTechnique_common::domSpring::create);
 
-	// Add elements: angular, linear
-    _Meta->appendElement(domRigid_constraint::domTechnique_common::domSpring::domAngular::registerElement(),daeOffsetOf(domRigid_constraint::domTechnique_common::domSpring,elemAngular));
-    _Meta->appendElement(domRigid_constraint::domTechnique_common::domSpring::domLinear::registerElement(),daeOffsetOf(domRigid_constraint::domTechnique_common::domSpring,elemLinear));
+	_Meta->setIsInnerClass( true );
+	daeMetaCMPolicy *cm = NULL;
+	daeMetaElementAttribute *mea = NULL;
+	cm = new daeMetaSequence( _Meta, cm, 0, 1, 1 );
+
+	mea = new daeMetaElementAttribute( _Meta, cm, 0, 0, 1 );
+	mea->setName( "angular" );
+	mea->setOffset( daeOffsetOf(domRigid_constraint::domTechnique_common::domSpring,elemAngular) );
+	mea->setElementType( domRigid_constraint::domTechnique_common::domSpring::domAngular::registerElement() );
+	cm->appendChild( mea );
+	
+	mea = new daeMetaElementAttribute( _Meta, cm, 1, 0, 1 );
+	mea->setName( "linear" );
+	mea->setOffset( daeOffsetOf(domRigid_constraint::domTechnique_common::domSpring,elemLinear) );
+	mea->setElementType( domRigid_constraint::domTechnique_common::domSpring::domLinear::registerElement() );
+	cm->appendChild( mea );
+	
+	cm->setMaxOrdinal( 1 );
+	_Meta->setCMRoot( cm );	
 	
 	
 	_Meta->setElementSize(sizeof(domRigid_constraint::domTechnique_common::domSpring));
@@ -413,13 +575,33 @@ domRigid_constraint::domTechnique_common::domSpring::domAngular::registerElement
     
     _Meta = new daeMetaElement;
     _Meta->setName( "angular" );
-	_Meta->setStaticPointerAddress(&domRigid_constraint::domTechnique_common::domSpring::domAngular::_Meta);
 	_Meta->registerConstructor(domRigid_constraint::domTechnique_common::domSpring::domAngular::create);
 
-	// Add elements: stiffness, damping, target_value
-    _Meta->appendElement(domTargetableFloat::registerElement(),daeOffsetOf(domRigid_constraint::domTechnique_common::domSpring::domAngular,elemStiffness),"stiffness"); 
-    _Meta->appendElement(domTargetableFloat::registerElement(),daeOffsetOf(domRigid_constraint::domTechnique_common::domSpring::domAngular,elemDamping),"damping"); 
-    _Meta->appendElement(domTargetableFloat::registerElement(),daeOffsetOf(domRigid_constraint::domTechnique_common::domSpring::domAngular,elemTarget_value),"target_value"); 
+	_Meta->setIsInnerClass( true );
+	daeMetaCMPolicy *cm = NULL;
+	daeMetaElementAttribute *mea = NULL;
+	cm = new daeMetaSequence( _Meta, cm, 0, 1, 1 );
+
+	mea = new daeMetaElementAttribute( _Meta, cm, 0, 0, 1 );
+	mea->setName( "stiffness" );
+	mea->setOffset( daeOffsetOf(domRigid_constraint::domTechnique_common::domSpring::domAngular,elemStiffness) );
+	mea->setElementType( domTargetableFloat::registerElement() );
+	cm->appendChild( mea );
+	
+	mea = new daeMetaElementAttribute( _Meta, cm, 1, 0, 1 );
+	mea->setName( "damping" );
+	mea->setOffset( daeOffsetOf(domRigid_constraint::domTechnique_common::domSpring::domAngular,elemDamping) );
+	mea->setElementType( domTargetableFloat::registerElement() );
+	cm->appendChild( mea );
+	
+	mea = new daeMetaElementAttribute( _Meta, cm, 2, 0, 1 );
+	mea->setName( "target_value" );
+	mea->setOffset( daeOffsetOf(domRigid_constraint::domTechnique_common::domSpring::domAngular,elemTarget_value) );
+	mea->setElementType( domTargetableFloat::registerElement() );
+	cm->appendChild( mea );
+	
+	cm->setMaxOrdinal( 2 );
+	_Meta->setCMRoot( cm );	
 	
 	
 	_Meta->setElementSize(sizeof(domRigid_constraint::domTechnique_common::domSpring::domAngular));
@@ -443,13 +625,33 @@ domRigid_constraint::domTechnique_common::domSpring::domLinear::registerElement(
     
     _Meta = new daeMetaElement;
     _Meta->setName( "linear" );
-	_Meta->setStaticPointerAddress(&domRigid_constraint::domTechnique_common::domSpring::domLinear::_Meta);
 	_Meta->registerConstructor(domRigid_constraint::domTechnique_common::domSpring::domLinear::create);
 
-	// Add elements: stiffness, damping, target_value
-    _Meta->appendElement(domTargetableFloat::registerElement(),daeOffsetOf(domRigid_constraint::domTechnique_common::domSpring::domLinear,elemStiffness),"stiffness"); 
-    _Meta->appendElement(domTargetableFloat::registerElement(),daeOffsetOf(domRigid_constraint::domTechnique_common::domSpring::domLinear,elemDamping),"damping"); 
-    _Meta->appendElement(domTargetableFloat::registerElement(),daeOffsetOf(domRigid_constraint::domTechnique_common::domSpring::domLinear,elemTarget_value),"target_value"); 
+	_Meta->setIsInnerClass( true );
+	daeMetaCMPolicy *cm = NULL;
+	daeMetaElementAttribute *mea = NULL;
+	cm = new daeMetaSequence( _Meta, cm, 0, 1, 1 );
+
+	mea = new daeMetaElementAttribute( _Meta, cm, 0, 0, 1 );
+	mea->setName( "stiffness" );
+	mea->setOffset( daeOffsetOf(domRigid_constraint::domTechnique_common::domSpring::domLinear,elemStiffness) );
+	mea->setElementType( domTargetableFloat::registerElement() );
+	cm->appendChild( mea );
+	
+	mea = new daeMetaElementAttribute( _Meta, cm, 1, 0, 1 );
+	mea->setName( "damping" );
+	mea->setOffset( daeOffsetOf(domRigid_constraint::domTechnique_common::domSpring::domLinear,elemDamping) );
+	mea->setElementType( domTargetableFloat::registerElement() );
+	cm->appendChild( mea );
+	
+	mea = new daeMetaElementAttribute( _Meta, cm, 2, 0, 1 );
+	mea->setName( "target_value" );
+	mea->setOffset( daeOffsetOf(domRigid_constraint::domTechnique_common::domSpring::domLinear,elemTarget_value) );
+	mea->setElementType( domTargetableFloat::registerElement() );
+	cm->appendChild( mea );
+	
+	cm->setMaxOrdinal( 2 );
+	_Meta->setCMRoot( cm );	
 	
 	
 	_Meta->setElementSize(sizeof(domRigid_constraint::domTechnique_common::domSpring::domLinear));

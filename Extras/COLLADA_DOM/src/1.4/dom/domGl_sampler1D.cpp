@@ -13,6 +13,12 @@
 
 #include <dae/daeDom.h>
 #include <dom/domGl_sampler1D.h>
+#include <dae/daeMetaCMPolicy.h>
+#include <dae/daeMetaSequence.h>
+#include <dae/daeMetaChoice.h>
+#include <dae/daeMetaGroup.h>
+#include <dae/daeMetaAny.h>
+#include <dae/daeMetaElementAttribute.h>
 
 daeElementRef
 domGl_sampler1D::create(daeInt bytes)
@@ -29,18 +35,74 @@ domGl_sampler1D::registerElement()
     
     _Meta = new daeMetaElement;
     _Meta->setName( "gl_sampler1D" );
-	_Meta->setStaticPointerAddress(&domGl_sampler1D::_Meta);
 	_Meta->registerConstructor(domGl_sampler1D::create);
 
-	// Add elements: source, wrap_s, minfilter, magfilter, mipfilter, border_color, mipmap_maxlevel, mipmap_bias
-    _Meta->appendElement(domSource::registerElement(),daeOffsetOf(domGl_sampler1D,elemSource));
-    _Meta->appendElement(domWrap_s::registerElement(),daeOffsetOf(domGl_sampler1D,elemWrap_s));
-    _Meta->appendElement(domMinfilter::registerElement(),daeOffsetOf(domGl_sampler1D,elemMinfilter));
-    _Meta->appendElement(domMagfilter::registerElement(),daeOffsetOf(domGl_sampler1D,elemMagfilter));
-    _Meta->appendElement(domMipfilter::registerElement(),daeOffsetOf(domGl_sampler1D,elemMipfilter));
-    _Meta->appendElement(domBorder_color::registerElement(),daeOffsetOf(domGl_sampler1D,elemBorder_color));
-    _Meta->appendElement(domMipmap_maxlevel::registerElement(),daeOffsetOf(domGl_sampler1D,elemMipmap_maxlevel));
-    _Meta->appendElement(domMipmap_bias::registerElement(),daeOffsetOf(domGl_sampler1D,elemMipmap_bias));
+	daeMetaCMPolicy *cm = NULL;
+	daeMetaElementAttribute *mea = NULL;
+	cm = new daeMetaSequence( _Meta, cm, 0, 1, 1 );
+
+	cm = new daeMetaSequence( _Meta, cm, 0, 1, 1 );
+
+	mea = new daeMetaElementAttribute( _Meta, cm, 0, 1, 1 );
+	mea->setName( "source" );
+	mea->setOffset( daeOffsetOf(domGl_sampler1D,elemSource) );
+	mea->setElementType( domSource::registerElement() );
+	cm->appendChild( mea );
+	
+	mea = new daeMetaElementAttribute( _Meta, cm, 1, 0, 1 );
+	mea->setName( "wrap_s" );
+	mea->setOffset( daeOffsetOf(domGl_sampler1D,elemWrap_s) );
+	mea->setElementType( domWrap_s::registerElement() );
+	cm->appendChild( mea );
+	
+	mea = new daeMetaElementAttribute( _Meta, cm, 2, 0, 1 );
+	mea->setName( "minfilter" );
+	mea->setOffset( daeOffsetOf(domGl_sampler1D,elemMinfilter) );
+	mea->setElementType( domMinfilter::registerElement() );
+	cm->appendChild( mea );
+	
+	mea = new daeMetaElementAttribute( _Meta, cm, 3, 0, 1 );
+	mea->setName( "magfilter" );
+	mea->setOffset( daeOffsetOf(domGl_sampler1D,elemMagfilter) );
+	mea->setElementType( domMagfilter::registerElement() );
+	cm->appendChild( mea );
+	
+	mea = new daeMetaElementAttribute( _Meta, cm, 4, 0, 1 );
+	mea->setName( "mipfilter" );
+	mea->setOffset( daeOffsetOf(domGl_sampler1D,elemMipfilter) );
+	mea->setElementType( domMipfilter::registerElement() );
+	cm->appendChild( mea );
+	
+	mea = new daeMetaElementAttribute( _Meta, cm, 5, 0, 1 );
+	mea->setName( "border_color" );
+	mea->setOffset( daeOffsetOf(domGl_sampler1D,elemBorder_color) );
+	mea->setElementType( domBorder_color::registerElement() );
+	cm->appendChild( mea );
+	
+	mea = new daeMetaElementAttribute( _Meta, cm, 6, 0, 1 );
+	mea->setName( "mipmap_maxlevel" );
+	mea->setOffset( daeOffsetOf(domGl_sampler1D,elemMipmap_maxlevel) );
+	mea->setElementType( domMipmap_maxlevel::registerElement() );
+	cm->appendChild( mea );
+	
+	mea = new daeMetaElementAttribute( _Meta, cm, 7, 0, 1 );
+	mea->setName( "mipmap_bias" );
+	mea->setOffset( daeOffsetOf(domGl_sampler1D,elemMipmap_bias) );
+	mea->setElementType( domMipmap_bias::registerElement() );
+	cm->appendChild( mea );
+	
+	mea = new daeMetaElementArrayAttribute( _Meta, cm, 8, 0, -1 );
+	mea->setName( "extra" );
+	mea->setOffset( daeOffsetOf(domGl_sampler1D,elemExtra_array) );
+	mea->setElementType( domExtra::registerElement() );
+	cm->appendChild( mea );
+	
+	cm->setMaxOrdinal( 8 );
+	cm->getParent()->appendChild( cm );
+	cm = cm->getParent();
+	
+	cm->setMaxOrdinal( 8 );
+	_Meta->setCMRoot( cm );	
 	
 	
 	_Meta->setElementSize(sizeof(domGl_sampler1D));

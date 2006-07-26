@@ -191,6 +191,11 @@ public:
 	 * Initializes the @c daeIDREf, setting <tt><i>id, element,</i></tt>  and <tt><i>container</i></tt> to NULL.
 	 */
 	void initialize();
+
+	//Backwards Compatibility
+	daeIDRef &get( daeUInt idx ) { (void)idx; return *this; }
+	size_t getCount() const { return 1; }
+	daeIDRef& operator[](size_t index) { (void)index; return *this; }
 };
 
 class daeIDRefResolver;

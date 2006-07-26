@@ -13,6 +13,12 @@
 
 #include <dae/daeDom.h>
 #include <dom/domCommon_newparam_type.h>
+#include <dae/daeMetaCMPolicy.h>
+#include <dae/daeMetaSequence.h>
+#include <dae/daeMetaChoice.h>
+#include <dae/daeMetaGroup.h>
+#include <dae/daeMetaAny.h>
+#include <dae/daeMetaElementAttribute.h>
 
 daeElementRef
 domCommon_newparam_type::create(daeInt bytes)
@@ -29,19 +35,65 @@ domCommon_newparam_type::registerElement()
     
     _Meta = new daeMetaElement;
     _Meta->setName( "common_newparam_type" );
-	_Meta->setStaticPointerAddress(&domCommon_newparam_type::_Meta);
 	_Meta->registerConstructor(domCommon_newparam_type::create);
 
-	// Add elements: semantic, float, float2, float3, float4, surface, sampler2D
-    _Meta->appendElement(domCommon_newparam_type::domSemantic::registerElement(),daeOffsetOf(domCommon_newparam_type,elemSemantic));
-    _Meta->appendElement(domCommon_newparam_type::domFloat::registerElement(),daeOffsetOf(domCommon_newparam_type,elemFloat));
-    _Meta->appendElement(domCommon_newparam_type::domFloat2::registerElement(),daeOffsetOf(domCommon_newparam_type,elemFloat2));
-    _Meta->appendElement(domCommon_newparam_type::domFloat3::registerElement(),daeOffsetOf(domCommon_newparam_type,elemFloat3));
-    _Meta->appendElement(domCommon_newparam_type::domFloat4::registerElement(),daeOffsetOf(domCommon_newparam_type,elemFloat4));
-    _Meta->appendElement(domFx_surface_common::registerElement(),daeOffsetOf(domCommon_newparam_type,elemSurface),"surface"); 
-    _Meta->appendElement(domFx_sampler2D_common::registerElement(),daeOffsetOf(domCommon_newparam_type,elemSampler2D),"sampler2D"); 
+	daeMetaCMPolicy *cm = NULL;
+	daeMetaElementAttribute *mea = NULL;
+	cm = new daeMetaSequence( _Meta, cm, 0, 1, 1 );
+
+	mea = new daeMetaElementAttribute( _Meta, cm, 0, 0, 1 );
+	mea->setName( "semantic" );
+	mea->setOffset( daeOffsetOf(domCommon_newparam_type,elemSemantic) );
+	mea->setElementType( domCommon_newparam_type::domSemantic::registerElement() );
+	cm->appendChild( mea );
+	
+	cm = new daeMetaChoice( _Meta, cm, 1, 1, 1 );
+
+	mea = new daeMetaElementAttribute( _Meta, cm, 0, 1, 1 );
+	mea->setName( "float" );
+	mea->setOffset( daeOffsetOf(domCommon_newparam_type,elemFloat) );
+	mea->setElementType( domCommon_newparam_type::domFloat::registerElement() );
+	cm->appendChild( mea );
+	
+	mea = new daeMetaElementAttribute( _Meta, cm, 0, 1, 1 );
+	mea->setName( "float2" );
+	mea->setOffset( daeOffsetOf(domCommon_newparam_type,elemFloat2) );
+	mea->setElementType( domCommon_newparam_type::domFloat2::registerElement() );
+	cm->appendChild( mea );
+	
+	mea = new daeMetaElementAttribute( _Meta, cm, 0, 1, 1 );
+	mea->setName( "float3" );
+	mea->setOffset( daeOffsetOf(domCommon_newparam_type,elemFloat3) );
+	mea->setElementType( domCommon_newparam_type::domFloat3::registerElement() );
+	cm->appendChild( mea );
+	
+	mea = new daeMetaElementAttribute( _Meta, cm, 0, 1, 1 );
+	mea->setName( "float4" );
+	mea->setOffset( daeOffsetOf(domCommon_newparam_type,elemFloat4) );
+	mea->setElementType( domCommon_newparam_type::domFloat4::registerElement() );
+	cm->appendChild( mea );
+	
+	mea = new daeMetaElementAttribute( _Meta, cm, 0, 1, 1 );
+	mea->setName( "surface" );
+	mea->setOffset( daeOffsetOf(domCommon_newparam_type,elemSurface) );
+	mea->setElementType( domFx_surface_common::registerElement() );
+	cm->appendChild( mea );
+	
+	mea = new daeMetaElementAttribute( _Meta, cm, 0, 1, 1 );
+	mea->setName( "sampler2D" );
+	mea->setOffset( daeOffsetOf(domCommon_newparam_type,elemSampler2D) );
+	mea->setElementType( domFx_sampler2D_common::registerElement() );
+	cm->appendChild( mea );
+	
+	cm->setMaxOrdinal( 0 );
+	cm->getParent()->appendChild( cm );
+	cm = cm->getParent();
+	
+	cm->setMaxOrdinal( 1 );
+	_Meta->setCMRoot( cm );	
 	// Ordered list of sub-elements
     _Meta->addContents(daeOffsetOf(domCommon_newparam_type,_contents));
+    _Meta->addContentsOrder(daeOffsetOf(domCommon_newparam_type,_contentsOrder));
 
 
 	//	Add attribute: sid
@@ -78,9 +130,9 @@ domCommon_newparam_type::domSemantic::registerElement()
     
     _Meta = new daeMetaElement;
     _Meta->setName( "semantic" );
-	_Meta->setStaticPointerAddress(&domCommon_newparam_type::domSemantic::_Meta);
 	_Meta->registerConstructor(domCommon_newparam_type::domSemantic::create);
 
+	_Meta->setIsInnerClass( true );
 	//	Add attribute: _value
  	{
 		daeMetaAttribute *ma = new daeMetaAttribute;
@@ -113,9 +165,9 @@ domCommon_newparam_type::domFloat::registerElement()
     
     _Meta = new daeMetaElement;
     _Meta->setName( "float" );
-	_Meta->setStaticPointerAddress(&domCommon_newparam_type::domFloat::_Meta);
 	_Meta->registerConstructor(domCommon_newparam_type::domFloat::create);
 
+	_Meta->setIsInnerClass( true );
 	//	Add attribute: _value
  	{
 		daeMetaAttribute *ma = new daeMetaAttribute;
@@ -148,9 +200,9 @@ domCommon_newparam_type::domFloat2::registerElement()
     
     _Meta = new daeMetaElement;
     _Meta->setName( "float2" );
-	_Meta->setStaticPointerAddress(&domCommon_newparam_type::domFloat2::_Meta);
 	_Meta->registerConstructor(domCommon_newparam_type::domFloat2::create);
 
+	_Meta->setIsInnerClass( true );
 	//	Add attribute: _value
  	{
 		daeMetaAttribute *ma = new daeMetaArrayAttribute;
@@ -183,9 +235,9 @@ domCommon_newparam_type::domFloat3::registerElement()
     
     _Meta = new daeMetaElement;
     _Meta->setName( "float3" );
-	_Meta->setStaticPointerAddress(&domCommon_newparam_type::domFloat3::_Meta);
 	_Meta->registerConstructor(domCommon_newparam_type::domFloat3::create);
 
+	_Meta->setIsInnerClass( true );
 	//	Add attribute: _value
  	{
 		daeMetaAttribute *ma = new daeMetaArrayAttribute;
@@ -218,9 +270,9 @@ domCommon_newparam_type::domFloat4::registerElement()
     
     _Meta = new daeMetaElement;
     _Meta->setName( "float4" );
-	_Meta->setStaticPointerAddress(&domCommon_newparam_type::domFloat4::_Meta);
 	_Meta->registerConstructor(domCommon_newparam_type::domFloat4::create);
 
+	_Meta->setIsInnerClass( true );
 	//	Add attribute: _value
  	{
 		daeMetaAttribute *ma = new daeMetaArrayAttribute;

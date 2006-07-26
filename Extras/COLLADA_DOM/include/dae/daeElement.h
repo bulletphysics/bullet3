@@ -54,6 +54,7 @@ private:
 protected:
 	daeMetaElement*			_meta;
 	daeString				_elementName;
+	daeBoolArray			_validAttributeArray;
 
 public:
 	/** An enum that describes the state of user integration with this object */
@@ -211,6 +212,30 @@ public:
 	virtual daeBool setAttribute(daeString attrName, daeString attrValue);
 
 	/**
+	 * Checks if an attribute has been set either by being loaded from the COLLADA document or set
+	 * programmatically.
+	 * @param attrName The name of the attribute to check.
+	 * @return Returns true if the attribute has been set. False if the attribute hasn't been set 
+	 * or doesn't exist for this element.
+	 */
+	daeBool isAttributeSet( daeString attrName );
+
+	/**
+	 * Checks if this element can have the attribute specified.
+	 * @param attrName The name of the attribute to look for.
+	 * @return Returns true is this element can have an attribute with the name specified. False otherwise.
+	 */
+	daeBool hasAttribute( daeString attrName );
+
+	/**
+	 * Gets a pointer to the value of the attribute specified.
+	 * @param attrName The name of the attribute to look for.
+	 * @return Returns a daeMemoryRef (char *) to the value of the attribute. The return value will need 
+	 * to be typecast to the appropriate type. Returns NULL if the attribute does not exist.
+	 */
+	daeMemoryRef getAttributeValue( daeString attrName );
+
+	/**
 	 * Finds the database document associated with @c this element.
 	 * @return Returns the @c daeDocument representing the containing file or database
 	 * group.
@@ -255,7 +280,6 @@ public:
 	 */
 	daeElement* createAndPlace(daeString className);
 
-	//!!!ACL
 	/**
 	 * Create a sub-element via #createElement and place it via #placeElementAt
 	 * This also automatically inserts the new element at the specified index in the _contents of it's 
@@ -272,7 +296,18 @@ public:
 	 * If @c createAndPlace() was used to create the element, its parent is the the caller of @c createAndPlace().
 	 * @return Returns the parent element, if @c this is not the top level element.
 	 */
+	daeElement* getParentElement() { return _parent;}
+	/**
+	 * Deprecated. Use getParentElement()
+	 * @deprecated
+	 */
 	daeElement* getXMLParentElement() { return _parent;}
+	/**
+	 * Sets the parent element for this element.
+	 * @param newParent The element which is the new parent element for this element.
+	 * @note This function is called internally and not meant to be called form the client application. 
+	 */
+	void setParentElement( daeElement *parent ) { _parent = parent; }
 
 	/**
 	 * Gets the associated Meta information for this element.  This
@@ -321,7 +356,6 @@ public:
 	 */
     daeString getID() const;
 
-	//!!! ACL
 	/**
 	 * Gets the children/sub-elements of this element.
 	 * This is a helper function used to easily access an element's children without the use of the

@@ -13,6 +13,12 @@
 
 #include <dae/daeDom.h>
 #include <dom/domProfile_GLSL.h>
+#include <dae/daeMetaCMPolicy.h>
+#include <dae/daeMetaSequence.h>
+#include <dae/daeMetaChoice.h>
+#include <dae/daeMetaGroup.h>
+#include <dae/daeMetaAny.h>
+#include <dae/daeMetaElementAttribute.h>
 
 daeElementRef
 domProfile_GLSL::create(daeInt bytes)
@@ -29,18 +35,84 @@ domProfile_GLSL::registerElement()
     
     _Meta = new daeMetaElement;
     _Meta->setName( "profile_GLSL" );
-	_Meta->setStaticPointerAddress(&domProfile_GLSL::_Meta);
 	_Meta->registerConstructor(domProfile_GLSL::create);
 
-	// Add elements: code, include, image, newparam, technique
-    _Meta->appendArrayElement(domFx_code_profile::registerElement(),daeOffsetOf(domProfile_GLSL,elemCode_array),"code"); 
-    _Meta->appendArrayElement(domFx_include_common::registerElement(),daeOffsetOf(domProfile_GLSL,elemInclude_array),"include"); 
-    _Meta->appendArrayElement(domImage::registerElement(),daeOffsetOf(domProfile_GLSL,elemImage_array));
-    _Meta->appendArrayElement(domGlsl_newparam::registerElement(),daeOffsetOf(domProfile_GLSL,elemNewparam_array),"newparam"); 
-    _Meta->appendArrayElement(domProfile_GLSL::domTechnique::registerElement(),daeOffsetOf(domProfile_GLSL,elemTechnique_array));
+	daeMetaCMPolicy *cm = NULL;
+	daeMetaElementAttribute *mea = NULL;
+	cm = new daeMetaSequence( _Meta, cm, 0, 1, 1 );
+
+	mea = new daeMetaElementAttribute( _Meta, cm, 0, 0, 1 );
+	mea->setName( "asset" );
+	mea->setOffset( daeOffsetOf(domProfile_GLSL,elemAsset) );
+	mea->setElementType( domAsset::registerElement() );
+	cm->appendChild( mea );
+	
+	cm = new daeMetaChoice( _Meta, cm, 1, 0, -1 );
+
+	mea = new daeMetaElementArrayAttribute( _Meta, cm, 0, 1, 1 );
+	mea->setName( "code" );
+	mea->setOffset( daeOffsetOf(domProfile_GLSL,elemCode_array) );
+	mea->setElementType( domFx_code_profile::registerElement() );
+	cm->appendChild( mea );
+	
+	mea = new daeMetaElementArrayAttribute( _Meta, cm, 0, 1, 1 );
+	mea->setName( "include" );
+	mea->setOffset( daeOffsetOf(domProfile_GLSL,elemInclude_array) );
+	mea->setElementType( domFx_include_common::registerElement() );
+	cm->appendChild( mea );
+	
+	cm->setMaxOrdinal( 0 );
+	cm->getParent()->appendChild( cm );
+	cm = cm->getParent();
+	
+	cm = new daeMetaChoice( _Meta, cm, 3002, 0, -1 );
+
+	mea = new daeMetaElementArrayAttribute( _Meta, cm, 0, 1, 1 );
+	mea->setName( "image" );
+	mea->setOffset( daeOffsetOf(domProfile_GLSL,elemImage_array) );
+	mea->setElementType( domImage::registerElement() );
+	cm->appendChild( mea );
+	
+	mea = new daeMetaElementArrayAttribute( _Meta, cm, 0, 1, 1 );
+	mea->setName( "newparam" );
+	mea->setOffset( daeOffsetOf(domProfile_GLSL,elemNewparam_array) );
+	mea->setElementType( domGlsl_newparam::registerElement() );
+	cm->appendChild( mea );
+	
+	cm->setMaxOrdinal( 0 );
+	cm->getParent()->appendChild( cm );
+	cm = cm->getParent();
+	
+	mea = new daeMetaElementArrayAttribute( _Meta, cm, 6003, 1, -1 );
+	mea->setName( "technique" );
+	mea->setOffset( daeOffsetOf(domProfile_GLSL,elemTechnique_array) );
+	mea->setElementType( domProfile_GLSL::domTechnique::registerElement() );
+	cm->appendChild( mea );
+	
+	mea = new daeMetaElementArrayAttribute( _Meta, cm, 6004, 0, -1 );
+	mea->setName( "extra" );
+	mea->setOffset( daeOffsetOf(domProfile_GLSL,elemExtra_array) );
+	mea->setElementType( domExtra::registerElement() );
+	cm->appendChild( mea );
+	
+	cm->setMaxOrdinal( 6004 );
+	_Meta->setCMRoot( cm );	
 	// Ordered list of sub-elements
     _Meta->addContents(daeOffsetOf(domProfile_GLSL,_contents));
+    _Meta->addContentsOrder(daeOffsetOf(domProfile_GLSL,_contentsOrder));
 
+
+	//	Add attribute: id
+ 	{
+		daeMetaAttribute *ma = new daeMetaAttribute;
+		ma->setName( "id" );
+		ma->setType( daeAtomicType::get("xsID"));
+		ma->setOffset( daeOffsetOf( domProfile_GLSL , attrId ));
+		ma->setContainer( _Meta );
+		ma->setIsRequired( false );
+	
+		_Meta->appendAttribute(ma);
+	}
 	
 	
 	_Meta->setElementSize(sizeof(domProfile_GLSL));
@@ -64,18 +136,78 @@ domProfile_GLSL::domTechnique::registerElement()
     
     _Meta = new daeMetaElement;
     _Meta->setName( "technique" );
-	_Meta->setStaticPointerAddress(&domProfile_GLSL::domTechnique::_Meta);
 	_Meta->registerConstructor(domProfile_GLSL::domTechnique::create);
 
-	// Add elements: code, include, image, newparam, setparam, pass
-    _Meta->appendArrayElement(domFx_code_profile::registerElement(),daeOffsetOf(domProfile_GLSL::domTechnique,elemCode_array),"code"); 
-    _Meta->appendArrayElement(domFx_include_common::registerElement(),daeOffsetOf(domProfile_GLSL::domTechnique,elemInclude_array),"include"); 
-    _Meta->appendArrayElement(domImage::registerElement(),daeOffsetOf(domProfile_GLSL::domTechnique,elemImage_array));
-    _Meta->appendArrayElement(domGlsl_newparam::registerElement(),daeOffsetOf(domProfile_GLSL::domTechnique,elemNewparam_array),"newparam"); 
-    _Meta->appendArrayElement(domGlsl_setparam::registerElement(),daeOffsetOf(domProfile_GLSL::domTechnique,elemSetparam_array),"setparam"); 
-    _Meta->appendArrayElement(domProfile_GLSL::domTechnique::domPass::registerElement(),daeOffsetOf(domProfile_GLSL::domTechnique,elemPass_array));
+	_Meta->setIsInnerClass( true );
+	daeMetaCMPolicy *cm = NULL;
+	daeMetaElementAttribute *mea = NULL;
+	cm = new daeMetaSequence( _Meta, cm, 0, 1, 1 );
+
+	mea = new daeMetaElementArrayAttribute( _Meta, cm, 0, 0, -1 );
+	mea->setName( "annotate" );
+	mea->setOffset( daeOffsetOf(domProfile_GLSL::domTechnique,elemAnnotate_array) );
+	mea->setElementType( domFx_annotate_common::registerElement() );
+	cm->appendChild( mea );
+	
+	cm = new daeMetaChoice( _Meta, cm, 1, 0, -1 );
+
+	mea = new daeMetaElementArrayAttribute( _Meta, cm, 0, 1, 1 );
+	mea->setName( "code" );
+	mea->setOffset( daeOffsetOf(domProfile_GLSL::domTechnique,elemCode_array) );
+	mea->setElementType( domFx_code_profile::registerElement() );
+	cm->appendChild( mea );
+	
+	mea = new daeMetaElementArrayAttribute( _Meta, cm, 0, 1, 1 );
+	mea->setName( "include" );
+	mea->setOffset( daeOffsetOf(domProfile_GLSL::domTechnique,elemInclude_array) );
+	mea->setElementType( domFx_include_common::registerElement() );
+	cm->appendChild( mea );
+	
+	cm->setMaxOrdinal( 0 );
+	cm->getParent()->appendChild( cm );
+	cm = cm->getParent();
+	
+	cm = new daeMetaChoice( _Meta, cm, 3002, 0, -1 );
+
+	mea = new daeMetaElementArrayAttribute( _Meta, cm, 0, 1, 1 );
+	mea->setName( "image" );
+	mea->setOffset( daeOffsetOf(domProfile_GLSL::domTechnique,elemImage_array) );
+	mea->setElementType( domImage::registerElement() );
+	cm->appendChild( mea );
+	
+	mea = new daeMetaElementArrayAttribute( _Meta, cm, 0, 1, 1 );
+	mea->setName( "newparam" );
+	mea->setOffset( daeOffsetOf(domProfile_GLSL::domTechnique,elemNewparam_array) );
+	mea->setElementType( domGlsl_newparam::registerElement() );
+	cm->appendChild( mea );
+	
+	mea = new daeMetaElementArrayAttribute( _Meta, cm, 0, 1, 1 );
+	mea->setName( "setparam" );
+	mea->setOffset( daeOffsetOf(domProfile_GLSL::domTechnique,elemSetparam_array) );
+	mea->setElementType( domGlsl_setparam::registerElement() );
+	cm->appendChild( mea );
+	
+	cm->setMaxOrdinal( 0 );
+	cm->getParent()->appendChild( cm );
+	cm = cm->getParent();
+	
+	mea = new daeMetaElementArrayAttribute( _Meta, cm, 6003, 1, -1 );
+	mea->setName( "pass" );
+	mea->setOffset( daeOffsetOf(domProfile_GLSL::domTechnique,elemPass_array) );
+	mea->setElementType( domProfile_GLSL::domTechnique::domPass::registerElement() );
+	cm->appendChild( mea );
+	
+	mea = new daeMetaElementArrayAttribute( _Meta, cm, 6004, 0, -1 );
+	mea->setName( "extra" );
+	mea->setOffset( daeOffsetOf(domProfile_GLSL::domTechnique,elemExtra_array) );
+	mea->setElementType( domExtra::registerElement() );
+	cm->appendChild( mea );
+	
+	cm->setMaxOrdinal( 6004 );
+	_Meta->setCMRoot( cm );	
 	// Ordered list of sub-elements
     _Meta->addContents(daeOffsetOf(domProfile_GLSL::domTechnique,_contents));
+    _Meta->addContentsOrder(daeOffsetOf(domProfile_GLSL::domTechnique,_contentsOrder));
 
 
 	//	Add attribute: id
@@ -123,129 +255,90 @@ domProfile_GLSL::domTechnique::domPass::registerElement()
     
     _Meta = new daeMetaElement;
     _Meta->setName( "pass" );
-	_Meta->setStaticPointerAddress(&domProfile_GLSL::domTechnique::domPass::_Meta);
 	_Meta->registerConstructor(domProfile_GLSL::domTechnique::domPass::create);
 
-	// Add elements: annotate, color_target, depth_target, stencil_target, color_clear, depth_clear, stencil_clear, draw, gl_pipeline_settings, shader
-    _Meta->appendArrayElement(domFx_annotate_common::registerElement(),daeOffsetOf(domProfile_GLSL::domTechnique::domPass,elemAnnotate_array),"annotate"); 
-    _Meta->appendArrayElement(domFx_colortarget_common::registerElement(),daeOffsetOf(domProfile_GLSL::domTechnique::domPass,elemColor_target_array),"color_target"); 
-    _Meta->appendArrayElement(domFx_depthtarget_common::registerElement(),daeOffsetOf(domProfile_GLSL::domTechnique::domPass,elemDepth_target_array),"depth_target"); 
-    _Meta->appendArrayElement(domFx_stenciltarget_common::registerElement(),daeOffsetOf(domProfile_GLSL::domTechnique::domPass,elemStencil_target_array),"stencil_target"); 
-    _Meta->appendArrayElement(domFx_clearcolor_common::registerElement(),daeOffsetOf(domProfile_GLSL::domTechnique::domPass,elemColor_clear_array),"color_clear"); 
-    _Meta->appendArrayElement(domFx_cleardepth_common::registerElement(),daeOffsetOf(domProfile_GLSL::domTechnique::domPass,elemDepth_clear_array),"depth_clear"); 
-    _Meta->appendArrayElement(domFx_clearstencil_common::registerElement(),daeOffsetOf(domProfile_GLSL::domTechnique::domPass,elemStencil_clear_array),"stencil_clear"); 
-    _Meta->appendElement(domProfile_GLSL::domTechnique::domPass::domDraw::registerElement(),daeOffsetOf(domProfile_GLSL::domTechnique::domPass,elemDraw));
-    _Meta->appendArrayElement(domGl_pipeline_settings::registerElement(),daeOffsetOf(domProfile_GLSL::domTechnique::domPass,elemGl_pipeline_settings_array));
-	_Meta->appendPossibleChild( "alpha_func", _Meta->getMetaElements()[8]);
-	_Meta->appendPossibleChild( "blend_func", _Meta->getMetaElements()[8]);
-	_Meta->appendPossibleChild( "blend_func_separate", _Meta->getMetaElements()[8]);
-	_Meta->appendPossibleChild( "blend_equation", _Meta->getMetaElements()[8]);
-	_Meta->appendPossibleChild( "blend_equation_separate", _Meta->getMetaElements()[8]);
-	_Meta->appendPossibleChild( "color_material", _Meta->getMetaElements()[8]);
-	_Meta->appendPossibleChild( "cull_face", _Meta->getMetaElements()[8]);
-	_Meta->appendPossibleChild( "depth_func", _Meta->getMetaElements()[8]);
-	_Meta->appendPossibleChild( "fog_mode", _Meta->getMetaElements()[8]);
-	_Meta->appendPossibleChild( "fog_coord_src", _Meta->getMetaElements()[8]);
-	_Meta->appendPossibleChild( "front_face", _Meta->getMetaElements()[8]);
-	_Meta->appendPossibleChild( "light_model_color_control", _Meta->getMetaElements()[8]);
-	_Meta->appendPossibleChild( "logic_op", _Meta->getMetaElements()[8]);
-	_Meta->appendPossibleChild( "polygon_mode", _Meta->getMetaElements()[8]);
-	_Meta->appendPossibleChild( "shade_model", _Meta->getMetaElements()[8]);
-	_Meta->appendPossibleChild( "stencil_func", _Meta->getMetaElements()[8]);
-	_Meta->appendPossibleChild( "stencil_op", _Meta->getMetaElements()[8]);
-	_Meta->appendPossibleChild( "stencil_func_separate", _Meta->getMetaElements()[8]);
-	_Meta->appendPossibleChild( "stencil_op_separate", _Meta->getMetaElements()[8]);
-	_Meta->appendPossibleChild( "stencil_mask_separate", _Meta->getMetaElements()[8]);
-	_Meta->appendPossibleChild( "light_enable", _Meta->getMetaElements()[8]);
-	_Meta->appendPossibleChild( "light_ambient", _Meta->getMetaElements()[8]);
-	_Meta->appendPossibleChild( "light_diffuse", _Meta->getMetaElements()[8]);
-	_Meta->appendPossibleChild( "light_specular", _Meta->getMetaElements()[8]);
-	_Meta->appendPossibleChild( "light_position", _Meta->getMetaElements()[8]);
-	_Meta->appendPossibleChild( "light_constant_attenuation", _Meta->getMetaElements()[8]);
-	_Meta->appendPossibleChild( "light_linear_attenuation", _Meta->getMetaElements()[8]);
-	_Meta->appendPossibleChild( "light_quadratic_attenuation", _Meta->getMetaElements()[8]);
-	_Meta->appendPossibleChild( "light_spot_cutoff", _Meta->getMetaElements()[8]);
-	_Meta->appendPossibleChild( "light_spot_direction", _Meta->getMetaElements()[8]);
-	_Meta->appendPossibleChild( "light_spot_exponent", _Meta->getMetaElements()[8]);
-	_Meta->appendPossibleChild( "texture1D", _Meta->getMetaElements()[8]);
-	_Meta->appendPossibleChild( "texture2D", _Meta->getMetaElements()[8]);
-	_Meta->appendPossibleChild( "texture3D", _Meta->getMetaElements()[8]);
-	_Meta->appendPossibleChild( "textureCUBE", _Meta->getMetaElements()[8]);
-	_Meta->appendPossibleChild( "textureRECT", _Meta->getMetaElements()[8]);
-	_Meta->appendPossibleChild( "textureDEPTH", _Meta->getMetaElements()[8]);
-	_Meta->appendPossibleChild( "texture1D_enable", _Meta->getMetaElements()[8]);
-	_Meta->appendPossibleChild( "texture2D_enable", _Meta->getMetaElements()[8]);
-	_Meta->appendPossibleChild( "texture3D_enable", _Meta->getMetaElements()[8]);
-	_Meta->appendPossibleChild( "textureCUBE_enable", _Meta->getMetaElements()[8]);
-	_Meta->appendPossibleChild( "textureRECT_enable", _Meta->getMetaElements()[8]);
-	_Meta->appendPossibleChild( "textureDEPTH_enable", _Meta->getMetaElements()[8]);
-	_Meta->appendPossibleChild( "texture_env_color", _Meta->getMetaElements()[8]);
-	_Meta->appendPossibleChild( "texture_env_mode", _Meta->getMetaElements()[8]);
-	_Meta->appendPossibleChild( "clip_plane", _Meta->getMetaElements()[8]);
-	_Meta->appendPossibleChild( "clip_plane_enable", _Meta->getMetaElements()[8]);
-	_Meta->appendPossibleChild( "blend_color", _Meta->getMetaElements()[8]);
-	_Meta->appendPossibleChild( "clear_color", _Meta->getMetaElements()[8]);
-	_Meta->appendPossibleChild( "clear_stencil", _Meta->getMetaElements()[8]);
-	_Meta->appendPossibleChild( "clear_depth", _Meta->getMetaElements()[8]);
-	_Meta->appendPossibleChild( "color_mask", _Meta->getMetaElements()[8]);
-	_Meta->appendPossibleChild( "depth_bounds", _Meta->getMetaElements()[8]);
-	_Meta->appendPossibleChild( "depth_mask", _Meta->getMetaElements()[8]);
-	_Meta->appendPossibleChild( "depth_range", _Meta->getMetaElements()[8]);
-	_Meta->appendPossibleChild( "fog_density", _Meta->getMetaElements()[8]);
-	_Meta->appendPossibleChild( "fog_start", _Meta->getMetaElements()[8]);
-	_Meta->appendPossibleChild( "fog_end", _Meta->getMetaElements()[8]);
-	_Meta->appendPossibleChild( "fog_color", _Meta->getMetaElements()[8]);
-	_Meta->appendPossibleChild( "light_model_ambient", _Meta->getMetaElements()[8]);
-	_Meta->appendPossibleChild( "lighting_enable", _Meta->getMetaElements()[8]);
-	_Meta->appendPossibleChild( "line_stipple", _Meta->getMetaElements()[8]);
-	_Meta->appendPossibleChild( "line_width", _Meta->getMetaElements()[8]);
-	_Meta->appendPossibleChild( "material_ambient", _Meta->getMetaElements()[8]);
-	_Meta->appendPossibleChild( "material_diffuse", _Meta->getMetaElements()[8]);
-	_Meta->appendPossibleChild( "material_emission", _Meta->getMetaElements()[8]);
-	_Meta->appendPossibleChild( "material_shininess", _Meta->getMetaElements()[8]);
-	_Meta->appendPossibleChild( "material_specular", _Meta->getMetaElements()[8]);
-	_Meta->appendPossibleChild( "model_view_matrix", _Meta->getMetaElements()[8]);
-	_Meta->appendPossibleChild( "point_distance_attenuation", _Meta->getMetaElements()[8]);
-	_Meta->appendPossibleChild( "point_fade_threshold_size", _Meta->getMetaElements()[8]);
-	_Meta->appendPossibleChild( "point_size", _Meta->getMetaElements()[8]);
-	_Meta->appendPossibleChild( "point_size_min", _Meta->getMetaElements()[8]);
-	_Meta->appendPossibleChild( "point_size_max", _Meta->getMetaElements()[8]);
-	_Meta->appendPossibleChild( "polygon_offset", _Meta->getMetaElements()[8]);
-	_Meta->appendPossibleChild( "projection_matrix", _Meta->getMetaElements()[8]);
-	_Meta->appendPossibleChild( "scissor", _Meta->getMetaElements()[8]);
-	_Meta->appendPossibleChild( "stencil_mask", _Meta->getMetaElements()[8]);
-	_Meta->appendPossibleChild( "alpha_test_enable", _Meta->getMetaElements()[8]);
-	_Meta->appendPossibleChild( "auto_normal_enable", _Meta->getMetaElements()[8]);
-	_Meta->appendPossibleChild( "blend_enable", _Meta->getMetaElements()[8]);
-	_Meta->appendPossibleChild( "color_logic_op_enable", _Meta->getMetaElements()[8]);
-	_Meta->appendPossibleChild( "cull_face_enable", _Meta->getMetaElements()[8]);
-	_Meta->appendPossibleChild( "depth_bounds_enable", _Meta->getMetaElements()[8]);
-	_Meta->appendPossibleChild( "depth_clamp_enable", _Meta->getMetaElements()[8]);
-	_Meta->appendPossibleChild( "depth_test_enable", _Meta->getMetaElements()[8]);
-	_Meta->appendPossibleChild( "dither_enable", _Meta->getMetaElements()[8]);
-	_Meta->appendPossibleChild( "fog_enable", _Meta->getMetaElements()[8]);
-	_Meta->appendPossibleChild( "light_model_local_viewer_enable", _Meta->getMetaElements()[8]);
-	_Meta->appendPossibleChild( "light_model_two_side_enable", _Meta->getMetaElements()[8]);
-	_Meta->appendPossibleChild( "line_smooth_enable", _Meta->getMetaElements()[8]);
-	_Meta->appendPossibleChild( "line_stipple_enable", _Meta->getMetaElements()[8]);
-	_Meta->appendPossibleChild( "logic_op_enable", _Meta->getMetaElements()[8]);
-	_Meta->appendPossibleChild( "multisample_enable", _Meta->getMetaElements()[8]);
-	_Meta->appendPossibleChild( "normalize_enable", _Meta->getMetaElements()[8]);
-	_Meta->appendPossibleChild( "point_smooth_enable", _Meta->getMetaElements()[8]);
-	_Meta->appendPossibleChild( "polygon_offset_fill_enable", _Meta->getMetaElements()[8]);
-	_Meta->appendPossibleChild( "polygon_offset_line_enable", _Meta->getMetaElements()[8]);
-	_Meta->appendPossibleChild( "polygon_offset_point_enable", _Meta->getMetaElements()[8]);
-	_Meta->appendPossibleChild( "polygon_smooth_enable", _Meta->getMetaElements()[8]);
-	_Meta->appendPossibleChild( "polygon_stipple_enable", _Meta->getMetaElements()[8]);
-	_Meta->appendPossibleChild( "rescale_normal_enable", _Meta->getMetaElements()[8]);
-	_Meta->appendPossibleChild( "sample_alpha_to_coverage_enable", _Meta->getMetaElements()[8]);
-	_Meta->appendPossibleChild( "sample_alpha_to_one_enable", _Meta->getMetaElements()[8]);
-	_Meta->appendPossibleChild( "sample_coverage_enable", _Meta->getMetaElements()[8]);
-	_Meta->appendPossibleChild( "scissor_test_enable", _Meta->getMetaElements()[8]);
-	_Meta->appendPossibleChild( "stencil_test_enable", _Meta->getMetaElements()[8]);
-    _Meta->appendArrayElement(domProfile_GLSL::domTechnique::domPass::domShader::registerElement(),daeOffsetOf(domProfile_GLSL::domTechnique::domPass,elemShader_array));
+	_Meta->setIsInnerClass( true );
+	daeMetaCMPolicy *cm = NULL;
+	daeMetaElementAttribute *mea = NULL;
+	cm = new daeMetaSequence( _Meta, cm, 0, 1, 1 );
+
+	mea = new daeMetaElementArrayAttribute( _Meta, cm, 0, 0, -1 );
+	mea->setName( "annotate" );
+	mea->setOffset( daeOffsetOf(domProfile_GLSL::domTechnique::domPass,elemAnnotate_array) );
+	mea->setElementType( domFx_annotate_common::registerElement() );
+	cm->appendChild( mea );
+	
+	mea = new daeMetaElementArrayAttribute( _Meta, cm, 1, 0, -1 );
+	mea->setName( "color_target" );
+	mea->setOffset( daeOffsetOf(domProfile_GLSL::domTechnique::domPass,elemColor_target_array) );
+	mea->setElementType( domFx_colortarget_common::registerElement() );
+	cm->appendChild( mea );
+	
+	mea = new daeMetaElementArrayAttribute( _Meta, cm, 2, 0, -1 );
+	mea->setName( "depth_target" );
+	mea->setOffset( daeOffsetOf(domProfile_GLSL::domTechnique::domPass,elemDepth_target_array) );
+	mea->setElementType( domFx_depthtarget_common::registerElement() );
+	cm->appendChild( mea );
+	
+	mea = new daeMetaElementArrayAttribute( _Meta, cm, 3, 0, -1 );
+	mea->setName( "stencil_target" );
+	mea->setOffset( daeOffsetOf(domProfile_GLSL::domTechnique::domPass,elemStencil_target_array) );
+	mea->setElementType( domFx_stenciltarget_common::registerElement() );
+	cm->appendChild( mea );
+	
+	mea = new daeMetaElementArrayAttribute( _Meta, cm, 4, 0, -1 );
+	mea->setName( "color_clear" );
+	mea->setOffset( daeOffsetOf(domProfile_GLSL::domTechnique::domPass,elemColor_clear_array) );
+	mea->setElementType( domFx_clearcolor_common::registerElement() );
+	cm->appendChild( mea );
+	
+	mea = new daeMetaElementArrayAttribute( _Meta, cm, 5, 0, -1 );
+	mea->setName( "depth_clear" );
+	mea->setOffset( daeOffsetOf(domProfile_GLSL::domTechnique::domPass,elemDepth_clear_array) );
+	mea->setElementType( domFx_cleardepth_common::registerElement() );
+	cm->appendChild( mea );
+	
+	mea = new daeMetaElementArrayAttribute( _Meta, cm, 6, 0, -1 );
+	mea->setName( "stencil_clear" );
+	mea->setOffset( daeOffsetOf(domProfile_GLSL::domTechnique::domPass,elemStencil_clear_array) );
+	mea->setElementType( domFx_clearstencil_common::registerElement() );
+	cm->appendChild( mea );
+	
+	mea = new daeMetaElementAttribute( _Meta, cm, 7, 0, 1 );
+	mea->setName( "draw" );
+	mea->setOffset( daeOffsetOf(domProfile_GLSL::domTechnique::domPass,elemDraw) );
+	mea->setElementType( domProfile_GLSL::domTechnique::domPass::domDraw::registerElement() );
+	cm->appendChild( mea );
+	
+	cm = new daeMetaChoice( _Meta, cm, 8, 1, -1 );
+
+	mea = new daeMetaElementArrayAttribute( _Meta, cm, 0, 1, 1 );
+	mea->setName( "gl_pipeline_settings" );
+	mea->setOffset( daeOffsetOf(domProfile_GLSL::domTechnique::domPass,elemGl_pipeline_settings_array) );
+	mea->setElementType( domGl_pipeline_settings::registerElement() );
+	cm->appendChild( new daeMetaGroup( mea, _Meta, cm, 0, 1, 1 ) );
+	
+	mea = new daeMetaElementArrayAttribute( _Meta, cm, 0, 1, 1 );
+	mea->setName( "shader" );
+	mea->setOffset( daeOffsetOf(domProfile_GLSL::domTechnique::domPass,elemShader_array) );
+	mea->setElementType( domProfile_GLSL::domTechnique::domPass::domShader::registerElement() );
+	cm->appendChild( mea );
+	
+	cm->setMaxOrdinal( 0 );
+	cm->getParent()->appendChild( cm );
+	cm = cm->getParent();
+	
+	mea = new daeMetaElementArrayAttribute( _Meta, cm, 3009, 0, -1 );
+	mea->setName( "extra" );
+	mea->setOffset( daeOffsetOf(domProfile_GLSL::domTechnique::domPass,elemExtra_array) );
+	mea->setElementType( domExtra::registerElement() );
+	cm->appendChild( mea );
+	
+	cm->setMaxOrdinal( 3009 );
+	_Meta->setCMRoot( cm );	
 	// Ordered list of sub-elements
     _Meta->addContents(daeOffsetOf(domProfile_GLSL::domTechnique::domPass,_contents));
+    _Meta->addContentsOrder(daeOffsetOf(domProfile_GLSL::domTechnique::domPass,_contentsOrder));
 
 
 	//	Add attribute: sid
@@ -282,9 +375,9 @@ domProfile_GLSL::domTechnique::domPass::domDraw::registerElement()
     
     _Meta = new daeMetaElement;
     _Meta->setName( "draw" );
-	_Meta->setStaticPointerAddress(&domProfile_GLSL::domTechnique::domPass::domDraw::_Meta);
 	_Meta->registerConstructor(domProfile_GLSL::domTechnique::domPass::domDraw::create);
 
+	_Meta->setIsInnerClass( true );
 	//	Add attribute: _value
  	{
 		daeMetaAttribute *ma = new daeMetaAttribute;
@@ -317,15 +410,51 @@ domProfile_GLSL::domTechnique::domPass::domShader::registerElement()
     
     _Meta = new daeMetaElement;
     _Meta->setName( "shader" );
-	_Meta->setStaticPointerAddress(&domProfile_GLSL::domTechnique::domPass::domShader::_Meta);
 	_Meta->registerConstructor(domProfile_GLSL::domTechnique::domPass::domShader::create);
 
-	// Add elements: annotate, compiler_target, compiler_options, name, bind
-    _Meta->appendArrayElement(domFx_annotate_common::registerElement(),daeOffsetOf(domProfile_GLSL::domTechnique::domPass::domShader,elemAnnotate_array),"annotate"); 
-    _Meta->appendElement(domProfile_GLSL::domTechnique::domPass::domShader::domCompiler_target::registerElement(),daeOffsetOf(domProfile_GLSL::domTechnique::domPass::domShader,elemCompiler_target));
-    _Meta->appendElement(domProfile_GLSL::domTechnique::domPass::domShader::domCompiler_options::registerElement(),daeOffsetOf(domProfile_GLSL::domTechnique::domPass::domShader,elemCompiler_options));
-    _Meta->appendElement(domProfile_GLSL::domTechnique::domPass::domShader::domName::registerElement(),daeOffsetOf(domProfile_GLSL::domTechnique::domPass::domShader,elemName));
-    _Meta->appendArrayElement(domProfile_GLSL::domTechnique::domPass::domShader::domBind::registerElement(),daeOffsetOf(domProfile_GLSL::domTechnique::domPass::domShader,elemBind_array));
+	_Meta->setIsInnerClass( true );
+	daeMetaCMPolicy *cm = NULL;
+	daeMetaElementAttribute *mea = NULL;
+	cm = new daeMetaSequence( _Meta, cm, 0, 1, 1 );
+
+	mea = new daeMetaElementArrayAttribute( _Meta, cm, 0, 0, -1 );
+	mea->setName( "annotate" );
+	mea->setOffset( daeOffsetOf(domProfile_GLSL::domTechnique::domPass::domShader,elemAnnotate_array) );
+	mea->setElementType( domFx_annotate_common::registerElement() );
+	cm->appendChild( mea );
+	
+	cm = new daeMetaSequence( _Meta, cm, 1, 0, 1 );
+
+	mea = new daeMetaElementAttribute( _Meta, cm, 0, 1, 1 );
+	mea->setName( "compiler_target" );
+	mea->setOffset( daeOffsetOf(domProfile_GLSL::domTechnique::domPass::domShader,elemCompiler_target) );
+	mea->setElementType( domProfile_GLSL::domTechnique::domPass::domShader::domCompiler_target::registerElement() );
+	cm->appendChild( mea );
+	
+	mea = new daeMetaElementAttribute( _Meta, cm, 1, 0, 1 );
+	mea->setName( "compiler_options" );
+	mea->setOffset( daeOffsetOf(domProfile_GLSL::domTechnique::domPass::domShader,elemCompiler_options) );
+	mea->setElementType( domProfile_GLSL::domTechnique::domPass::domShader::domCompiler_options::registerElement() );
+	cm->appendChild( mea );
+	
+	cm->setMaxOrdinal( 1 );
+	cm->getParent()->appendChild( cm );
+	cm = cm->getParent();
+	
+	mea = new daeMetaElementAttribute( _Meta, cm, 3, 1, 1 );
+	mea->setName( "name" );
+	mea->setOffset( daeOffsetOf(domProfile_GLSL::domTechnique::domPass::domShader,elemName) );
+	mea->setElementType( domProfile_GLSL::domTechnique::domPass::domShader::domName::registerElement() );
+	cm->appendChild( mea );
+	
+	mea = new daeMetaElementArrayAttribute( _Meta, cm, 4, 0, -1 );
+	mea->setName( "bind" );
+	mea->setOffset( daeOffsetOf(domProfile_GLSL::domTechnique::domPass::domShader,elemBind_array) );
+	mea->setElementType( domProfile_GLSL::domTechnique::domPass::domShader::domBind::registerElement() );
+	cm->appendChild( mea );
+	
+	cm->setMaxOrdinal( 4 );
+	_Meta->setCMRoot( cm );	
 
 	//	Add attribute: stage
  	{
@@ -360,9 +489,9 @@ domProfile_GLSL::domTechnique::domPass::domShader::domCompiler_target::registerE
     
     _Meta = new daeMetaElement;
     _Meta->setName( "compiler_target" );
-	_Meta->setStaticPointerAddress(&domProfile_GLSL::domTechnique::domPass::domShader::domCompiler_target::_Meta);
 	_Meta->registerConstructor(domProfile_GLSL::domTechnique::domPass::domShader::domCompiler_target::create);
 
+	_Meta->setIsInnerClass( true );
 	//	Add attribute: _value
  	{
 		daeMetaAttribute *ma = new daeMetaAttribute;
@@ -395,9 +524,9 @@ domProfile_GLSL::domTechnique::domPass::domShader::domCompiler_options::register
     
     _Meta = new daeMetaElement;
     _Meta->setName( "compiler_options" );
-	_Meta->setStaticPointerAddress(&domProfile_GLSL::domTechnique::domPass::domShader::domCompiler_options::_Meta);
 	_Meta->registerConstructor(domProfile_GLSL::domTechnique::domPass::domShader::domCompiler_options::create);
 
+	_Meta->setIsInnerClass( true );
 	//	Add attribute: _value
  	{
 		daeMetaAttribute *ma = new daeMetaAttribute;
@@ -430,9 +559,9 @@ domProfile_GLSL::domTechnique::domPass::domShader::domName::registerElement()
     
     _Meta = new daeMetaElement;
     _Meta->setName( "name" );
-	_Meta->setStaticPointerAddress(&domProfile_GLSL::domTechnique::domPass::domShader::domName::_Meta);
 	_Meta->registerConstructor(domProfile_GLSL::domTechnique::domPass::domShader::domName::create);
 
+	_Meta->setIsInnerClass( true );
 	//	Add attribute: _value
  	{
 		daeMetaAttribute *ma = new daeMetaAttribute;
@@ -477,37 +606,30 @@ domProfile_GLSL::domTechnique::domPass::domShader::domBind::registerElement()
     
     _Meta = new daeMetaElement;
     _Meta->setName( "bind" );
-	_Meta->setStaticPointerAddress(&domProfile_GLSL::domTechnique::domPass::domShader::domBind::_Meta);
 	_Meta->registerConstructor(domProfile_GLSL::domTechnique::domPass::domShader::domBind::create);
 
-	// Add elements: glsl_param_type, param
-    _Meta->appendElement(domGlsl_param_type::registerElement(),daeOffsetOf(domProfile_GLSL::domTechnique::domPass::domShader::domBind,elemGlsl_param_type));
-	_Meta->appendPossibleChild( "bool", _Meta->getMetaElements()[0]);
-	_Meta->appendPossibleChild( "bool2", _Meta->getMetaElements()[0]);
-	_Meta->appendPossibleChild( "bool3", _Meta->getMetaElements()[0]);
-	_Meta->appendPossibleChild( "bool4", _Meta->getMetaElements()[0]);
-	_Meta->appendPossibleChild( "float", _Meta->getMetaElements()[0]);
-	_Meta->appendPossibleChild( "float2", _Meta->getMetaElements()[0]);
-	_Meta->appendPossibleChild( "float3", _Meta->getMetaElements()[0]);
-	_Meta->appendPossibleChild( "float4", _Meta->getMetaElements()[0]);
-	_Meta->appendPossibleChild( "float2x2", _Meta->getMetaElements()[0]);
-	_Meta->appendPossibleChild( "float3x3", _Meta->getMetaElements()[0]);
-	_Meta->appendPossibleChild( "float4x4", _Meta->getMetaElements()[0]);
-	_Meta->appendPossibleChild( "int", _Meta->getMetaElements()[0]);
-	_Meta->appendPossibleChild( "int2", _Meta->getMetaElements()[0]);
-	_Meta->appendPossibleChild( "int3", _Meta->getMetaElements()[0]);
-	_Meta->appendPossibleChild( "int4", _Meta->getMetaElements()[0]);
-	_Meta->appendPossibleChild( "surface", _Meta->getMetaElements()[0], "fx_surface_common");
-	_Meta->appendPossibleChild( "sampler1D", _Meta->getMetaElements()[0], "gl_sampler1D");
-	_Meta->appendPossibleChild( "sampler2D", _Meta->getMetaElements()[0], "gl_sampler2D");
-	_Meta->appendPossibleChild( "sampler3D", _Meta->getMetaElements()[0], "gl_sampler3D");
-	_Meta->appendPossibleChild( "samplerCUBE", _Meta->getMetaElements()[0], "gl_samplerCUBE");
-	_Meta->appendPossibleChild( "samplerRECT", _Meta->getMetaElements()[0], "gl_samplerRECT");
-	_Meta->appendPossibleChild( "samplerDEPTH", _Meta->getMetaElements()[0], "gl_samplerDEPTH");
-	_Meta->appendPossibleChild( "enum", _Meta->getMetaElements()[0]);
-    _Meta->appendElement(domProfile_GLSL::domTechnique::domPass::domShader::domBind::domParam::registerElement(),daeOffsetOf(domProfile_GLSL::domTechnique::domPass::domShader::domBind,elemParam));
+	_Meta->setIsInnerClass( true );
+	daeMetaCMPolicy *cm = NULL;
+	daeMetaElementAttribute *mea = NULL;
+	cm = new daeMetaChoice( _Meta, cm, 0, 1, 1 );
+
+	mea = new daeMetaElementAttribute( _Meta, cm, 0, 1, 1 );
+	mea->setName( "glsl_param_type" );
+	mea->setOffset( daeOffsetOf(domProfile_GLSL::domTechnique::domPass::domShader::domBind,elemGlsl_param_type) );
+	mea->setElementType( domGlsl_param_type::registerElement() );
+	cm->appendChild( new daeMetaGroup( mea, _Meta, cm, 0, 1, 1 ) );
+	
+	mea = new daeMetaElementAttribute( _Meta, cm, 0, 1, 1 );
+	mea->setName( "param" );
+	mea->setOffset( daeOffsetOf(domProfile_GLSL::domTechnique::domPass::domShader::domBind,elemParam) );
+	mea->setElementType( domProfile_GLSL::domTechnique::domPass::domShader::domBind::domParam::registerElement() );
+	cm->appendChild( mea );
+	
+	cm->setMaxOrdinal( 0 );
+	_Meta->setCMRoot( cm );	
 	// Ordered list of sub-elements
     _Meta->addContents(daeOffsetOf(domProfile_GLSL::domTechnique::domPass::domShader::domBind,_contents));
+    _Meta->addContentsOrder(daeOffsetOf(domProfile_GLSL::domTechnique::domPass::domShader::domBind,_contentsOrder));
 
 
 	//	Add attribute: symbol
@@ -544,9 +666,9 @@ domProfile_GLSL::domTechnique::domPass::domShader::domBind::domParam::registerEl
     
     _Meta = new daeMetaElement;
     _Meta->setName( "param" );
-	_Meta->setStaticPointerAddress(&domProfile_GLSL::domTechnique::domPass::domShader::domBind::domParam::_Meta);
 	_Meta->registerConstructor(domProfile_GLSL::domTechnique::domPass::domShader::domBind::domParam::create);
 
+	_Meta->setIsInnerClass( true );
 
 	//	Add attribute: ref
  	{

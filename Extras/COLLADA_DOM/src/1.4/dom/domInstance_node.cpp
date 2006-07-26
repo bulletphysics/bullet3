@@ -13,6 +13,12 @@
 
 #include <dae/daeDom.h>
 #include <dom/domInstance_node.h>
+#include <dae/daeMetaCMPolicy.h>
+#include <dae/daeMetaSequence.h>
+#include <dae/daeMetaChoice.h>
+#include <dae/daeMetaGroup.h>
+#include <dae/daeMetaAny.h>
+#include <dae/daeMetaElementAttribute.h>
 
 daeElementRef
 domInstance_node::create(daeInt bytes)
@@ -29,11 +35,18 @@ domInstance_node::registerElement()
     
     _Meta = new daeMetaElement;
     _Meta->setName( "instance_node" );
-	_Meta->setStaticPointerAddress(&domInstance_node::_Meta);
 	_Meta->registerConstructor(domInstance_node::create);
 
-	// Add elements: extra
-    _Meta->appendArrayElement(domExtra::registerElement(),daeOffsetOf(domInstance_node,elemExtra_array));
+	daeMetaCMPolicy *cm = NULL;
+	daeMetaElementAttribute *mea = NULL;
+	cm = new daeMetaSequence( _Meta, cm, 0, 1, 1 );
+
+	mea = new daeMetaElementArrayAttribute( _Meta, cm, 0, 0, -1 );
+	mea->setName( "extra" );
+	mea->setOffset( daeOffsetOf(domInstance_node,elemExtra_array) );
+	mea->setElementType( domExtra::registerElement() );
+	cm->appendChild( mea );
+	
 
 	//	Add attribute: url
  	{
@@ -43,6 +56,28 @@ domInstance_node::registerElement()
 		ma->setOffset( daeOffsetOf( domInstance_node , attrUrl ));
 		ma->setContainer( _Meta );
 		ma->setIsRequired( true );
+	
+		_Meta->appendAttribute(ma);
+	}
+
+	//	Add attribute: sid
+ 	{
+		daeMetaAttribute *ma = new daeMetaAttribute;
+		ma->setName( "sid" );
+		ma->setType( daeAtomicType::get("xsNCName"));
+		ma->setOffset( daeOffsetOf( domInstance_node , attrSid ));
+		ma->setContainer( _Meta );
+	
+		_Meta->appendAttribute(ma);
+	}
+
+	//	Add attribute: name
+ 	{
+		daeMetaAttribute *ma = new daeMetaAttribute;
+		ma->setName( "name" );
+		ma->setType( daeAtomicType::get("xsNCName"));
+		ma->setOffset( daeOffsetOf( domInstance_node , attrName ));
+		ma->setContainer( _Meta );
 	
 		_Meta->appendAttribute(ma);
 	}

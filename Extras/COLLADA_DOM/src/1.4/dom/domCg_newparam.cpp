@@ -13,6 +13,12 @@
 
 #include <dae/daeDom.h>
 #include <dom/domCg_newparam.h>
+#include <dae/daeMetaCMPolicy.h>
+#include <dae/daeMetaSequence.h>
+#include <dae/daeMetaChoice.h>
+#include <dae/daeMetaGroup.h>
+#include <dae/daeMetaAny.h>
+#include <dae/daeMetaElementAttribute.h>
 
 daeElementRef
 domCg_newparam::create(daeInt bytes)
@@ -29,132 +35,59 @@ domCg_newparam::registerElement()
     
     _Meta = new daeMetaElement;
     _Meta->setName( "cg_newparam" );
-	_Meta->setStaticPointerAddress(&domCg_newparam::_Meta);
 	_Meta->registerConstructor(domCg_newparam::create);
 
-	// Add elements: annotate, semantic, modifier, cg_param_type, usertype, array
-    _Meta->appendArrayElement(domFx_annotate_common::registerElement(),daeOffsetOf(domCg_newparam,elemAnnotate_array),"annotate"); 
-    _Meta->appendElement(domCg_newparam::domSemantic::registerElement(),daeOffsetOf(domCg_newparam,elemSemantic));
-    _Meta->appendElement(domCg_newparam::domModifier::registerElement(),daeOffsetOf(domCg_newparam,elemModifier));
-    _Meta->appendElement(domCg_param_type::registerElement(),daeOffsetOf(domCg_newparam,elemCg_param_type));
-	_Meta->appendPossibleChild( "bool", _Meta->getMetaElements()[3]);
-	_Meta->appendPossibleChild( "bool1", _Meta->getMetaElements()[3]);
-	_Meta->appendPossibleChild( "bool2", _Meta->getMetaElements()[3]);
-	_Meta->appendPossibleChild( "bool3", _Meta->getMetaElements()[3]);
-	_Meta->appendPossibleChild( "bool4", _Meta->getMetaElements()[3]);
-	_Meta->appendPossibleChild( "bool1x1", _Meta->getMetaElements()[3]);
-	_Meta->appendPossibleChild( "bool1x2", _Meta->getMetaElements()[3]);
-	_Meta->appendPossibleChild( "bool1x3", _Meta->getMetaElements()[3]);
-	_Meta->appendPossibleChild( "bool1x4", _Meta->getMetaElements()[3]);
-	_Meta->appendPossibleChild( "bool2x1", _Meta->getMetaElements()[3]);
-	_Meta->appendPossibleChild( "bool2x2", _Meta->getMetaElements()[3]);
-	_Meta->appendPossibleChild( "bool2x3", _Meta->getMetaElements()[3]);
-	_Meta->appendPossibleChild( "bool2x4", _Meta->getMetaElements()[3]);
-	_Meta->appendPossibleChild( "bool3x1", _Meta->getMetaElements()[3]);
-	_Meta->appendPossibleChild( "bool3x2", _Meta->getMetaElements()[3]);
-	_Meta->appendPossibleChild( "bool3x3", _Meta->getMetaElements()[3]);
-	_Meta->appendPossibleChild( "bool3x4", _Meta->getMetaElements()[3]);
-	_Meta->appendPossibleChild( "bool4x1", _Meta->getMetaElements()[3]);
-	_Meta->appendPossibleChild( "bool4x2", _Meta->getMetaElements()[3]);
-	_Meta->appendPossibleChild( "bool4x3", _Meta->getMetaElements()[3]);
-	_Meta->appendPossibleChild( "bool4x4", _Meta->getMetaElements()[3]);
-	_Meta->appendPossibleChild( "float", _Meta->getMetaElements()[3]);
-	_Meta->appendPossibleChild( "float1", _Meta->getMetaElements()[3]);
-	_Meta->appendPossibleChild( "float2", _Meta->getMetaElements()[3]);
-	_Meta->appendPossibleChild( "float3", _Meta->getMetaElements()[3]);
-	_Meta->appendPossibleChild( "float4", _Meta->getMetaElements()[3]);
-	_Meta->appendPossibleChild( "float1x1", _Meta->getMetaElements()[3]);
-	_Meta->appendPossibleChild( "float1x2", _Meta->getMetaElements()[3]);
-	_Meta->appendPossibleChild( "float1x3", _Meta->getMetaElements()[3]);
-	_Meta->appendPossibleChild( "float1x4", _Meta->getMetaElements()[3]);
-	_Meta->appendPossibleChild( "float2x1", _Meta->getMetaElements()[3]);
-	_Meta->appendPossibleChild( "float2x2", _Meta->getMetaElements()[3]);
-	_Meta->appendPossibleChild( "float2x3", _Meta->getMetaElements()[3]);
-	_Meta->appendPossibleChild( "float2x4", _Meta->getMetaElements()[3]);
-	_Meta->appendPossibleChild( "float3x1", _Meta->getMetaElements()[3]);
-	_Meta->appendPossibleChild( "float3x2", _Meta->getMetaElements()[3]);
-	_Meta->appendPossibleChild( "float3x3", _Meta->getMetaElements()[3]);
-	_Meta->appendPossibleChild( "float3x4", _Meta->getMetaElements()[3]);
-	_Meta->appendPossibleChild( "float4x1", _Meta->getMetaElements()[3]);
-	_Meta->appendPossibleChild( "float4x2", _Meta->getMetaElements()[3]);
-	_Meta->appendPossibleChild( "float4x3", _Meta->getMetaElements()[3]);
-	_Meta->appendPossibleChild( "float4x4", _Meta->getMetaElements()[3]);
-	_Meta->appendPossibleChild( "int", _Meta->getMetaElements()[3]);
-	_Meta->appendPossibleChild( "int1", _Meta->getMetaElements()[3]);
-	_Meta->appendPossibleChild( "int2", _Meta->getMetaElements()[3]);
-	_Meta->appendPossibleChild( "int3", _Meta->getMetaElements()[3]);
-	_Meta->appendPossibleChild( "int4", _Meta->getMetaElements()[3]);
-	_Meta->appendPossibleChild( "int1x1", _Meta->getMetaElements()[3]);
-	_Meta->appendPossibleChild( "int1x2", _Meta->getMetaElements()[3]);
-	_Meta->appendPossibleChild( "int1x3", _Meta->getMetaElements()[3]);
-	_Meta->appendPossibleChild( "int1x4", _Meta->getMetaElements()[3]);
-	_Meta->appendPossibleChild( "int2x1", _Meta->getMetaElements()[3]);
-	_Meta->appendPossibleChild( "int2x2", _Meta->getMetaElements()[3]);
-	_Meta->appendPossibleChild( "int2x3", _Meta->getMetaElements()[3]);
-	_Meta->appendPossibleChild( "int2x4", _Meta->getMetaElements()[3]);
-	_Meta->appendPossibleChild( "int3x1", _Meta->getMetaElements()[3]);
-	_Meta->appendPossibleChild( "int3x2", _Meta->getMetaElements()[3]);
-	_Meta->appendPossibleChild( "int3x3", _Meta->getMetaElements()[3]);
-	_Meta->appendPossibleChild( "int3x4", _Meta->getMetaElements()[3]);
-	_Meta->appendPossibleChild( "int4x1", _Meta->getMetaElements()[3]);
-	_Meta->appendPossibleChild( "int4x2", _Meta->getMetaElements()[3]);
-	_Meta->appendPossibleChild( "int4x3", _Meta->getMetaElements()[3]);
-	_Meta->appendPossibleChild( "int4x4", _Meta->getMetaElements()[3]);
-	_Meta->appendPossibleChild( "half", _Meta->getMetaElements()[3]);
-	_Meta->appendPossibleChild( "half1", _Meta->getMetaElements()[3]);
-	_Meta->appendPossibleChild( "half2", _Meta->getMetaElements()[3]);
-	_Meta->appendPossibleChild( "half3", _Meta->getMetaElements()[3]);
-	_Meta->appendPossibleChild( "half4", _Meta->getMetaElements()[3]);
-	_Meta->appendPossibleChild( "half1x1", _Meta->getMetaElements()[3]);
-	_Meta->appendPossibleChild( "half1x2", _Meta->getMetaElements()[3]);
-	_Meta->appendPossibleChild( "half1x3", _Meta->getMetaElements()[3]);
-	_Meta->appendPossibleChild( "half1x4", _Meta->getMetaElements()[3]);
-	_Meta->appendPossibleChild( "half2x1", _Meta->getMetaElements()[3]);
-	_Meta->appendPossibleChild( "half2x2", _Meta->getMetaElements()[3]);
-	_Meta->appendPossibleChild( "half2x3", _Meta->getMetaElements()[3]);
-	_Meta->appendPossibleChild( "half2x4", _Meta->getMetaElements()[3]);
-	_Meta->appendPossibleChild( "half3x1", _Meta->getMetaElements()[3]);
-	_Meta->appendPossibleChild( "half3x2", _Meta->getMetaElements()[3]);
-	_Meta->appendPossibleChild( "half3x3", _Meta->getMetaElements()[3]);
-	_Meta->appendPossibleChild( "half3x4", _Meta->getMetaElements()[3]);
-	_Meta->appendPossibleChild( "half4x1", _Meta->getMetaElements()[3]);
-	_Meta->appendPossibleChild( "half4x2", _Meta->getMetaElements()[3]);
-	_Meta->appendPossibleChild( "half4x3", _Meta->getMetaElements()[3]);
-	_Meta->appendPossibleChild( "half4x4", _Meta->getMetaElements()[3]);
-	_Meta->appendPossibleChild( "fixed", _Meta->getMetaElements()[3]);
-	_Meta->appendPossibleChild( "fixed1", _Meta->getMetaElements()[3]);
-	_Meta->appendPossibleChild( "fixed2", _Meta->getMetaElements()[3]);
-	_Meta->appendPossibleChild( "fixed3", _Meta->getMetaElements()[3]);
-	_Meta->appendPossibleChild( "fixed4", _Meta->getMetaElements()[3]);
-	_Meta->appendPossibleChild( "fixed1x1", _Meta->getMetaElements()[3]);
-	_Meta->appendPossibleChild( "fixed1x2", _Meta->getMetaElements()[3]);
-	_Meta->appendPossibleChild( "fixed1x3", _Meta->getMetaElements()[3]);
-	_Meta->appendPossibleChild( "fixed1x4", _Meta->getMetaElements()[3]);
-	_Meta->appendPossibleChild( "fixed2x1", _Meta->getMetaElements()[3]);
-	_Meta->appendPossibleChild( "fixed2x2", _Meta->getMetaElements()[3]);
-	_Meta->appendPossibleChild( "fixed2x3", _Meta->getMetaElements()[3]);
-	_Meta->appendPossibleChild( "fixed2x4", _Meta->getMetaElements()[3]);
-	_Meta->appendPossibleChild( "fixed3x1", _Meta->getMetaElements()[3]);
-	_Meta->appendPossibleChild( "fixed3x2", _Meta->getMetaElements()[3]);
-	_Meta->appendPossibleChild( "fixed3x3", _Meta->getMetaElements()[3]);
-	_Meta->appendPossibleChild( "fixed3x4", _Meta->getMetaElements()[3]);
-	_Meta->appendPossibleChild( "fixed4x1", _Meta->getMetaElements()[3]);
-	_Meta->appendPossibleChild( "fixed4x2", _Meta->getMetaElements()[3]);
-	_Meta->appendPossibleChild( "fixed4x3", _Meta->getMetaElements()[3]);
-	_Meta->appendPossibleChild( "fixed4x4", _Meta->getMetaElements()[3]);
-	_Meta->appendPossibleChild( "surface", _Meta->getMetaElements()[3], "cg_surface_type");
-	_Meta->appendPossibleChild( "sampler1D", _Meta->getMetaElements()[3], "cg_sampler1D");
-	_Meta->appendPossibleChild( "sampler2D", _Meta->getMetaElements()[3], "cg_sampler2D");
-	_Meta->appendPossibleChild( "sampler3D", _Meta->getMetaElements()[3], "cg_sampler3D");
-	_Meta->appendPossibleChild( "samplerRECT", _Meta->getMetaElements()[3], "cg_samplerRECT");
-	_Meta->appendPossibleChild( "samplerCUBE", _Meta->getMetaElements()[3], "cg_samplerCUBE");
-	_Meta->appendPossibleChild( "samplerDEPTH", _Meta->getMetaElements()[3], "cg_samplerDEPTH");
-	_Meta->appendPossibleChild( "string", _Meta->getMetaElements()[3]);
-	_Meta->appendPossibleChild( "enum", _Meta->getMetaElements()[3]);
-    _Meta->appendElement(domCg_setuser_type::registerElement(),daeOffsetOf(domCg_newparam,elemUsertype),"usertype"); 
-    _Meta->appendElement(domCg_newarray_type::registerElement(),daeOffsetOf(domCg_newparam,elemArray),"array"); 
+	daeMetaCMPolicy *cm = NULL;
+	daeMetaElementAttribute *mea = NULL;
+	cm = new daeMetaSequence( _Meta, cm, 0, 1, 1 );
+
+	mea = new daeMetaElementArrayAttribute( _Meta, cm, 0, 0, -1 );
+	mea->setName( "annotate" );
+	mea->setOffset( daeOffsetOf(domCg_newparam,elemAnnotate_array) );
+	mea->setElementType( domFx_annotate_common::registerElement() );
+	cm->appendChild( mea );
+	
+	mea = new daeMetaElementAttribute( _Meta, cm, 1, 0, 1 );
+	mea->setName( "semantic" );
+	mea->setOffset( daeOffsetOf(domCg_newparam,elemSemantic) );
+	mea->setElementType( domCg_newparam::domSemantic::registerElement() );
+	cm->appendChild( mea );
+	
+	mea = new daeMetaElementAttribute( _Meta, cm, 2, 0, 1 );
+	mea->setName( "modifier" );
+	mea->setOffset( daeOffsetOf(domCg_newparam,elemModifier) );
+	mea->setElementType( domCg_newparam::domModifier::registerElement() );
+	cm->appendChild( mea );
+	
+	cm = new daeMetaChoice( _Meta, cm, 3, 1, 1 );
+
+	mea = new daeMetaElementAttribute( _Meta, cm, 0, 1, 1 );
+	mea->setName( "cg_param_type" );
+	mea->setOffset( daeOffsetOf(domCg_newparam,elemCg_param_type) );
+	mea->setElementType( domCg_param_type::registerElement() );
+	cm->appendChild( new daeMetaGroup( mea, _Meta, cm, 0, 1, 1 ) );
+	
+	mea = new daeMetaElementAttribute( _Meta, cm, 0, 1, 1 );
+	mea->setName( "usertype" );
+	mea->setOffset( daeOffsetOf(domCg_newparam,elemUsertype) );
+	mea->setElementType( domCg_setuser_type::registerElement() );
+	cm->appendChild( mea );
+	
+	mea = new daeMetaElementAttribute( _Meta, cm, 0, 1, 1 );
+	mea->setName( "array" );
+	mea->setOffset( daeOffsetOf(domCg_newparam,elemArray) );
+	mea->setElementType( domCg_newarray_type::registerElement() );
+	cm->appendChild( mea );
+	
+	cm->setMaxOrdinal( 0 );
+	cm->getParent()->appendChild( cm );
+	cm = cm->getParent();
+	
+	cm->setMaxOrdinal( 3 );
+	_Meta->setCMRoot( cm );	
 	// Ordered list of sub-elements
     _Meta->addContents(daeOffsetOf(domCg_newparam,_contents));
+    _Meta->addContentsOrder(daeOffsetOf(domCg_newparam,_contentsOrder));
 
 
 	//	Add attribute: sid
@@ -191,9 +124,9 @@ domCg_newparam::domSemantic::registerElement()
     
     _Meta = new daeMetaElement;
     _Meta->setName( "semantic" );
-	_Meta->setStaticPointerAddress(&domCg_newparam::domSemantic::_Meta);
 	_Meta->registerConstructor(domCg_newparam::domSemantic::create);
 
+	_Meta->setIsInnerClass( true );
 	//	Add attribute: _value
  	{
 		daeMetaAttribute *ma = new daeMetaAttribute;
@@ -226,9 +159,9 @@ domCg_newparam::domModifier::registerElement()
     
     _Meta = new daeMetaElement;
     _Meta->setName( "modifier" );
-	_Meta->setStaticPointerAddress(&domCg_newparam::domModifier::_Meta);
 	_Meta->registerConstructor(domCg_newparam::domModifier::create);
 
+	_Meta->setIsInnerClass( true );
 	//	Add attribute: _value
  	{
 		daeMetaAttribute *ma = new daeMetaAttribute;

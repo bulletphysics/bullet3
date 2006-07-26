@@ -21,6 +21,8 @@ class domFx_depthtarget_common_complexType
 {
 protected:  // Attributes
 	xsNonNegativeInteger attrIndex;
+	domFx_surface_face_enum attrFace;
+	xsNonNegativeInteger attrMip;
 	xsNonNegativeInteger attrSlice;
 
 protected:  // Value
@@ -42,6 +44,28 @@ public:	//Accessors and Mutators
 	void setIndex( xsNonNegativeInteger atIndex ) { attrIndex = atIndex; }
 
 	/**
+	 * Gets the face attribute.
+	 * @return Returns a domFx_surface_face_enum of the face attribute.
+	 */
+	domFx_surface_face_enum getFace() const { return attrFace; }
+	/**
+	 * Sets the face attribute.
+	 * @param atFace The new value for the face attribute.
+	 */
+	void setFace( domFx_surface_face_enum atFace ) { attrFace = atFace; }
+
+	/**
+	 * Gets the mip attribute.
+	 * @return Returns a xsNonNegativeInteger of the mip attribute.
+	 */
+	xsNonNegativeInteger getMip() const { return attrMip; }
+	/**
+	 * Sets the mip attribute.
+	 * @param atMip The new value for the mip attribute.
+	 */
+	void setMip( xsNonNegativeInteger atMip ) { attrMip = atMip; }
+
+	/**
 	 * Gets the slice attribute.
 	 * @return Returns a xsNonNegativeInteger of the slice attribute.
 	 */
@@ -54,20 +78,20 @@ public:	//Accessors and Mutators
 
 	/**
 	 * Gets the value of this element.
-	 * @return a xsNCName of the value.
+	 * @return Returns a xsNCName of the value.
 	 */
 	xsNCName getValue() const { return _value; }
 	/**
 	 * Sets the _value of this element.
 	 * @param val The new value for this element.
 	 */
-	void setValue( xsNCName val ) { _value = val; }
+	void setValue( xsNCName val ) { *(daeStringRef*)&_value = val; }
 
 protected:
 	/**
 	 * Constructor
 	 */
-	domFx_depthtarget_common_complexType() : attrIndex(), attrSlice(), _value() {}
+	domFx_depthtarget_common_complexType() : attrIndex(), attrFace(), attrMip(), attrSlice(), _value() {}
 	/**
 	 * Destructor
 	 */
@@ -87,6 +111,56 @@ protected:
  */
 class domFx_depthtarget_common : public daeElement, public domFx_depthtarget_common_complexType
 {
+
+public:	//Accessors and Mutators
+	/**
+	 * Gets the index attribute.
+	 * @return Returns a xsNonNegativeInteger of the index attribute.
+	 */
+	xsNonNegativeInteger getIndex() const { return attrIndex; }
+	/**
+	 * Sets the index attribute.
+	 * @param atIndex The new value for the index attribute.
+	 */
+	void setIndex( xsNonNegativeInteger atIndex ) { attrIndex = atIndex;
+	 _validAttributeArray[0] = true; }
+
+	/**
+	 * Gets the face attribute.
+	 * @return Returns a domFx_surface_face_enum of the face attribute.
+	 */
+	domFx_surface_face_enum getFace() const { return attrFace; }
+	/**
+	 * Sets the face attribute.
+	 * @param atFace The new value for the face attribute.
+	 */
+	void setFace( domFx_surface_face_enum atFace ) { attrFace = atFace;
+	 _validAttributeArray[1] = true; }
+
+	/**
+	 * Gets the mip attribute.
+	 * @return Returns a xsNonNegativeInteger of the mip attribute.
+	 */
+	xsNonNegativeInteger getMip() const { return attrMip; }
+	/**
+	 * Sets the mip attribute.
+	 * @param atMip The new value for the mip attribute.
+	 */
+	void setMip( xsNonNegativeInteger atMip ) { attrMip = atMip;
+	 _validAttributeArray[2] = true; }
+
+	/**
+	 * Gets the slice attribute.
+	 * @return Returns a xsNonNegativeInteger of the slice attribute.
+	 */
+	xsNonNegativeInteger getSlice() const { return attrSlice; }
+	/**
+	 * Sets the slice attribute.
+	 * @param atSlice The new value for the slice attribute.
+	 */
+	void setSlice( xsNonNegativeInteger atSlice ) { attrSlice = atSlice;
+	 _validAttributeArray[3] = true; }
+
 protected:
 	/**
 	 * Constructor

@@ -1075,14 +1075,14 @@ public:
 	public:	//Accessors and Mutators
 		/**
 		 * Gets the value of this element.
-		 * @return a ::xsString of the value.
+		 * @return Returns a ::xsString of the value.
 		 */
 		::xsString getValue() const { return _value; }
 		/**
 		 * Sets the _value of this element.
 		 * @param val The new value for this element.
 		 */
-		void setValue( ::xsString val ) { _value = val; }
+		void setValue( ::xsString val ) { *(daeStringRef*)&_value = val; }
 
 	protected:
 		/**
@@ -1146,6 +1146,10 @@ protected:  // Elements
 	 * Used to preserve order in elements that do not specify strict sequencing of sub-elements.
 	 */
 	daeElementRefArray _contents;
+	/**
+	 * Used to preserve order in elements that have a complex content model.
+	 */
+	daeUIntArray       _contentsOrder;
 
 
 public:	//Accessors and Mutators

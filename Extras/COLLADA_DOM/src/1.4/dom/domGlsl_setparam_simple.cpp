@@ -13,6 +13,12 @@
 
 #include <dae/daeDom.h>
 #include <dom/domGlsl_setparam_simple.h>
+#include <dae/daeMetaCMPolicy.h>
+#include <dae/daeMetaSequence.h>
+#include <dae/daeMetaChoice.h>
+#include <dae/daeMetaGroup.h>
+#include <dae/daeMetaAny.h>
+#include <dae/daeMetaElementAttribute.h>
 
 daeElementRef
 domGlsl_setparam_simple::create(daeInt bytes)
@@ -29,35 +35,26 @@ domGlsl_setparam_simple::registerElement()
     
     _Meta = new daeMetaElement;
     _Meta->setName( "glsl_setparam_simple" );
-	_Meta->setStaticPointerAddress(&domGlsl_setparam_simple::_Meta);
 	_Meta->registerConstructor(domGlsl_setparam_simple::create);
 
-	// Add elements: annotate, glsl_param_type
-    _Meta->appendArrayElement(domFx_annotate_common::registerElement(),daeOffsetOf(domGlsl_setparam_simple,elemAnnotate_array),"annotate"); 
-    _Meta->appendElement(domGlsl_param_type::registerElement(),daeOffsetOf(domGlsl_setparam_simple,elemGlsl_param_type));
-	_Meta->appendPossibleChild( "bool", _Meta->getMetaElements()[1]);
-	_Meta->appendPossibleChild( "bool2", _Meta->getMetaElements()[1]);
-	_Meta->appendPossibleChild( "bool3", _Meta->getMetaElements()[1]);
-	_Meta->appendPossibleChild( "bool4", _Meta->getMetaElements()[1]);
-	_Meta->appendPossibleChild( "float", _Meta->getMetaElements()[1]);
-	_Meta->appendPossibleChild( "float2", _Meta->getMetaElements()[1]);
-	_Meta->appendPossibleChild( "float3", _Meta->getMetaElements()[1]);
-	_Meta->appendPossibleChild( "float4", _Meta->getMetaElements()[1]);
-	_Meta->appendPossibleChild( "float2x2", _Meta->getMetaElements()[1]);
-	_Meta->appendPossibleChild( "float3x3", _Meta->getMetaElements()[1]);
-	_Meta->appendPossibleChild( "float4x4", _Meta->getMetaElements()[1]);
-	_Meta->appendPossibleChild( "int", _Meta->getMetaElements()[1]);
-	_Meta->appendPossibleChild( "int2", _Meta->getMetaElements()[1]);
-	_Meta->appendPossibleChild( "int3", _Meta->getMetaElements()[1]);
-	_Meta->appendPossibleChild( "int4", _Meta->getMetaElements()[1]);
-	_Meta->appendPossibleChild( "surface", _Meta->getMetaElements()[1], "fx_surface_common");
-	_Meta->appendPossibleChild( "sampler1D", _Meta->getMetaElements()[1], "gl_sampler1D");
-	_Meta->appendPossibleChild( "sampler2D", _Meta->getMetaElements()[1], "gl_sampler2D");
-	_Meta->appendPossibleChild( "sampler3D", _Meta->getMetaElements()[1], "gl_sampler3D");
-	_Meta->appendPossibleChild( "samplerCUBE", _Meta->getMetaElements()[1], "gl_samplerCUBE");
-	_Meta->appendPossibleChild( "samplerRECT", _Meta->getMetaElements()[1], "gl_samplerRECT");
-	_Meta->appendPossibleChild( "samplerDEPTH", _Meta->getMetaElements()[1], "gl_samplerDEPTH");
-	_Meta->appendPossibleChild( "enum", _Meta->getMetaElements()[1]);
+	daeMetaCMPolicy *cm = NULL;
+	daeMetaElementAttribute *mea = NULL;
+	cm = new daeMetaSequence( _Meta, cm, 0, 1, 1 );
+
+	mea = new daeMetaElementArrayAttribute( _Meta, cm, 0, 0, -1 );
+	mea->setName( "annotate" );
+	mea->setOffset( daeOffsetOf(domGlsl_setparam_simple,elemAnnotate_array) );
+	mea->setElementType( domFx_annotate_common::registerElement() );
+	cm->appendChild( mea );
+	
+	mea = new daeMetaElementAttribute( _Meta, cm, 1, 1, 1 );
+	mea->setName( "glsl_param_type" );
+	mea->setOffset( daeOffsetOf(domGlsl_setparam_simple,elemGlsl_param_type) );
+	mea->setElementType( domGlsl_param_type::registerElement() );
+	cm->appendChild( new daeMetaGroup( mea, _Meta, cm, 1, 1, 1 ) );
+	
+	cm->setMaxOrdinal( 1 );
+	_Meta->setCMRoot( cm );	
 
 	//	Add attribute: ref
  	{

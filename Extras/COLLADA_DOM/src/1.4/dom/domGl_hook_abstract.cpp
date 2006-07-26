@@ -13,6 +13,12 @@
 
 #include <dae/daeDom.h>
 #include <dom/domGl_hook_abstract.h>
+#include <dae/daeMetaCMPolicy.h>
+#include <dae/daeMetaSequence.h>
+#include <dae/daeMetaChoice.h>
+#include <dae/daeMetaGroup.h>
+#include <dae/daeMetaAny.h>
+#include <dae/daeMetaElementAttribute.h>
 
 daeElementRef
 domGl_hook_abstract::create(daeInt bytes)
@@ -29,7 +35,6 @@ domGl_hook_abstract::registerElement()
     
     _Meta = new daeMetaElement;
     _Meta->setName( "gl_hook_abstract" );
-	_Meta->setStaticPointerAddress(&domGl_hook_abstract::_Meta);
 	_Meta->registerConstructor(domGl_hook_abstract::create);
 
 	_Meta->setIsAbstract( true );

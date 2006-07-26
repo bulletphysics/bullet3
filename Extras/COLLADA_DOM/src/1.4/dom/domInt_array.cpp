@@ -13,6 +13,12 @@
 
 #include <dae/daeDom.h>
 #include <dom/domInt_array.h>
+#include <dae/daeMetaCMPolicy.h>
+#include <dae/daeMetaSequence.h>
+#include <dae/daeMetaChoice.h>
+#include <dae/daeMetaGroup.h>
+#include <dae/daeMetaAny.h>
+#include <dae/daeMetaElementAttribute.h>
 
 daeElementRef
 domInt_array::create(daeInt bytes)
@@ -29,7 +35,6 @@ domInt_array::registerElement()
     
     _Meta = new daeMetaElement;
     _Meta->setName( "int_array" );
-	_Meta->setStaticPointerAddress(&domInt_array::_Meta);
 	_Meta->registerConstructor(domInt_array::create);
 
 	//	Add attribute: _value

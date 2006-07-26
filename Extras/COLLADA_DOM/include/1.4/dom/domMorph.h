@@ -149,7 +149,8 @@ public:	//Accessors and Mutators
 	 * Sets the method attribute.
 	 * @param atMethod The new value for the method attribute.
 	 */
-	void setMethod( domMorphMethodType atMethod ) { attrMethod = atMethod; }
+	void setMethod( domMorphMethodType atMethod ) { attrMethod = atMethod;
+	 _validAttributeArray[0] = true; }
 
 	/**
 	 * Gets the source attribute.
@@ -165,7 +166,8 @@ public:	//Accessors and Mutators
 	 * Sets the source attribute.
 	 * @param atSource The new value for the source attribute.
 	 */
-	void setSource( const xsAnyURI &atSource ) { attrSource.setURI( atSource.getURI() ); }
+	void setSource( const xsAnyURI &atSource ) { attrSource.setURI( atSource.getURI() );
+	 _validAttributeArray[1] = true; }
 
 	/**
 	 * Gets the source element array.

@@ -13,6 +13,12 @@
 
 #include <dae/daeDom.h>
 #include <dom/domFx_samplerDEPTH_common.h>
+#include <dae/daeMetaCMPolicy.h>
+#include <dae/daeMetaSequence.h>
+#include <dae/daeMetaChoice.h>
+#include <dae/daeMetaGroup.h>
+#include <dae/daeMetaAny.h>
+#include <dae/daeMetaElementAttribute.h>
 
 daeElementRef
 domFx_samplerDEPTH_common::create(daeInt bytes)
@@ -29,15 +35,50 @@ domFx_samplerDEPTH_common::registerElement()
     
     _Meta = new daeMetaElement;
     _Meta->setName( "fx_samplerDEPTH_common" );
-	_Meta->setStaticPointerAddress(&domFx_samplerDEPTH_common::_Meta);
 	_Meta->registerConstructor(domFx_samplerDEPTH_common::create);
 
-	// Add elements: source, wrap_s, wrap_t, minfilter, magfilter
-    _Meta->appendElement(domFx_samplerDEPTH_common::domSource::registerElement(),daeOffsetOf(domFx_samplerDEPTH_common,elemSource));
-    _Meta->appendElement(domFx_samplerDEPTH_common::domWrap_s::registerElement(),daeOffsetOf(domFx_samplerDEPTH_common,elemWrap_s));
-    _Meta->appendElement(domFx_samplerDEPTH_common::domWrap_t::registerElement(),daeOffsetOf(domFx_samplerDEPTH_common,elemWrap_t));
-    _Meta->appendElement(domFx_samplerDEPTH_common::domMinfilter::registerElement(),daeOffsetOf(domFx_samplerDEPTH_common,elemMinfilter));
-    _Meta->appendElement(domFx_samplerDEPTH_common::domMagfilter::registerElement(),daeOffsetOf(domFx_samplerDEPTH_common,elemMagfilter));
+	daeMetaCMPolicy *cm = NULL;
+	daeMetaElementAttribute *mea = NULL;
+	cm = new daeMetaSequence( _Meta, cm, 0, 1, 1 );
+
+	mea = new daeMetaElementAttribute( _Meta, cm, 0, 1, 1 );
+	mea->setName( "source" );
+	mea->setOffset( daeOffsetOf(domFx_samplerDEPTH_common,elemSource) );
+	mea->setElementType( domFx_samplerDEPTH_common::domSource::registerElement() );
+	cm->appendChild( mea );
+	
+	mea = new daeMetaElementAttribute( _Meta, cm, 1, 0, 1 );
+	mea->setName( "wrap_s" );
+	mea->setOffset( daeOffsetOf(domFx_samplerDEPTH_common,elemWrap_s) );
+	mea->setElementType( domFx_samplerDEPTH_common::domWrap_s::registerElement() );
+	cm->appendChild( mea );
+	
+	mea = new daeMetaElementAttribute( _Meta, cm, 2, 0, 1 );
+	mea->setName( "wrap_t" );
+	mea->setOffset( daeOffsetOf(domFx_samplerDEPTH_common,elemWrap_t) );
+	mea->setElementType( domFx_samplerDEPTH_common::domWrap_t::registerElement() );
+	cm->appendChild( mea );
+	
+	mea = new daeMetaElementAttribute( _Meta, cm, 3, 0, 1 );
+	mea->setName( "minfilter" );
+	mea->setOffset( daeOffsetOf(domFx_samplerDEPTH_common,elemMinfilter) );
+	mea->setElementType( domFx_samplerDEPTH_common::domMinfilter::registerElement() );
+	cm->appendChild( mea );
+	
+	mea = new daeMetaElementAttribute( _Meta, cm, 4, 0, 1 );
+	mea->setName( "magfilter" );
+	mea->setOffset( daeOffsetOf(domFx_samplerDEPTH_common,elemMagfilter) );
+	mea->setElementType( domFx_samplerDEPTH_common::domMagfilter::registerElement() );
+	cm->appendChild( mea );
+	
+	mea = new daeMetaElementArrayAttribute( _Meta, cm, 5, 0, -1 );
+	mea->setName( "extra" );
+	mea->setOffset( daeOffsetOf(domFx_samplerDEPTH_common,elemExtra_array) );
+	mea->setElementType( domExtra::registerElement() );
+	cm->appendChild( mea );
+	
+	cm->setMaxOrdinal( 5 );
+	_Meta->setCMRoot( cm );	
 	
 	
 	_Meta->setElementSize(sizeof(domFx_samplerDEPTH_common));
@@ -61,9 +102,9 @@ domFx_samplerDEPTH_common::domSource::registerElement()
     
     _Meta = new daeMetaElement;
     _Meta->setName( "source" );
-	_Meta->setStaticPointerAddress(&domFx_samplerDEPTH_common::domSource::_Meta);
 	_Meta->registerConstructor(domFx_samplerDEPTH_common::domSource::create);
 
+	_Meta->setIsInnerClass( true );
 	//	Add attribute: _value
  	{
 		daeMetaAttribute *ma = new daeMetaAttribute;
@@ -96,9 +137,9 @@ domFx_samplerDEPTH_common::domWrap_s::registerElement()
     
     _Meta = new daeMetaElement;
     _Meta->setName( "wrap_s" );
-	_Meta->setStaticPointerAddress(&domFx_samplerDEPTH_common::domWrap_s::_Meta);
 	_Meta->registerConstructor(domFx_samplerDEPTH_common::domWrap_s::create);
 
+	_Meta->setIsInnerClass( true );
 	//	Add attribute: _value
  	{
 		daeMetaAttribute *ma = new daeMetaAttribute;
@@ -131,9 +172,9 @@ domFx_samplerDEPTH_common::domWrap_t::registerElement()
     
     _Meta = new daeMetaElement;
     _Meta->setName( "wrap_t" );
-	_Meta->setStaticPointerAddress(&domFx_samplerDEPTH_common::domWrap_t::_Meta);
 	_Meta->registerConstructor(domFx_samplerDEPTH_common::domWrap_t::create);
 
+	_Meta->setIsInnerClass( true );
 	//	Add attribute: _value
  	{
 		daeMetaAttribute *ma = new daeMetaAttribute;
@@ -166,9 +207,9 @@ domFx_samplerDEPTH_common::domMinfilter::registerElement()
     
     _Meta = new daeMetaElement;
     _Meta->setName( "minfilter" );
-	_Meta->setStaticPointerAddress(&domFx_samplerDEPTH_common::domMinfilter::_Meta);
 	_Meta->registerConstructor(domFx_samplerDEPTH_common::domMinfilter::create);
 
+	_Meta->setIsInnerClass( true );
 	//	Add attribute: _value
  	{
 		daeMetaAttribute *ma = new daeMetaAttribute;
@@ -201,9 +242,9 @@ domFx_samplerDEPTH_common::domMagfilter::registerElement()
     
     _Meta = new daeMetaElement;
     _Meta->setName( "magfilter" );
-	_Meta->setStaticPointerAddress(&domFx_samplerDEPTH_common::domMagfilter::_Meta);
 	_Meta->registerConstructor(domFx_samplerDEPTH_common::domMagfilter::create);
 
+	_Meta->setIsInnerClass( true );
 	//	Add attribute: _value
  	{
 		daeMetaAttribute *ma = new daeMetaAttribute;

@@ -13,6 +13,12 @@
 
 #include <dae/daeDom.h>
 #include <dom/domTargetableFloat3.h>
+#include <dae/daeMetaCMPolicy.h>
+#include <dae/daeMetaSequence.h>
+#include <dae/daeMetaChoice.h>
+#include <dae/daeMetaGroup.h>
+#include <dae/daeMetaAny.h>
+#include <dae/daeMetaElementAttribute.h>
 
 daeElementRef
 domTargetableFloat3::create(daeInt bytes)
@@ -29,7 +35,6 @@ domTargetableFloat3::registerElement()
     
     _Meta = new daeMetaElement;
     _Meta->setName( "TargetableFloat3" );
-	_Meta->setStaticPointerAddress(&domTargetableFloat3::_Meta);
 	_Meta->registerConstructor(domTargetableFloat3::create);
 
 	//	Add attribute: _value

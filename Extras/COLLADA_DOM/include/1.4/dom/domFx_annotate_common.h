@@ -36,7 +36,7 @@ public:	//Accessors and Mutators
 	 * Sets the name attribute.
 	 * @param atName The new value for the name attribute.
 	 */
-	void setName( xsNCName atName ) { attrName = atName; }
+	void setName( xsNCName atName ) { *(daeStringRef*)&attrName = atName; }
 
 	/**
 	 * Gets the fx_annotate_type_common element.
@@ -67,6 +67,20 @@ protected:
  */
 class domFx_annotate_common : public daeElement, public domFx_annotate_common_complexType
 {
+
+public:	//Accessors and Mutators
+	/**
+	 * Gets the name attribute.
+	 * @return Returns a xsNCName of the name attribute.
+	 */
+	xsNCName getName() const { return attrName; }
+	/**
+	 * Sets the name attribute.
+	 * @param atName The new value for the name attribute.
+	 */
+	void setName( xsNCName atName ) { *(daeStringRef*)&attrName = atName;
+	 _validAttributeArray[0] = true; }
+
 protected:
 	/**
 	 * Constructor

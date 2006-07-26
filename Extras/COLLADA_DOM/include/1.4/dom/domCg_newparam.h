@@ -48,14 +48,14 @@ public:
 	public:	//Accessors and Mutators
 		/**
 		 * Gets the value of this element.
-		 * @return a xsNCName of the value.
+		 * @return Returns a xsNCName of the value.
 		 */
 		xsNCName getValue() const { return _value; }
 		/**
 		 * Sets the _value of this element.
 		 * @param val The new value for this element.
 		 */
-		void setValue( xsNCName val ) { _value = val; }
+		void setValue( xsNCName val ) { *(daeStringRef*)&_value = val; }
 
 	protected:
 		/**
@@ -191,6 +191,10 @@ protected:  // Elements
 	 * Used to preserve order in elements that do not specify strict sequencing of sub-elements.
 	 */
 	daeElementRefArray _contents;
+	/**
+	 * Used to preserve order in elements that have a complex content model.
+	 */
+	daeUIntArray       _contentsOrder;
 
 
 public:	//Accessors and Mutators
@@ -275,6 +279,20 @@ protected:
  */
 class domCg_newparam : public daeElement, public domCg_newparam_complexType
 {
+
+public:	//Accessors and Mutators
+	/**
+	 * Gets the sid attribute.
+	 * @return Returns a domCg_identifier of the sid attribute.
+	 */
+	domCg_identifier getSid() const { return attrSid; }
+	/**
+	 * Sets the sid attribute.
+	 * @param atSid The new value for the sid attribute.
+	 */
+	void setSid( domCg_identifier atSid ) { attrSid = atSid;
+	 _validAttributeArray[0] = true; }
+
 protected:
 	/**
 	 * Constructor

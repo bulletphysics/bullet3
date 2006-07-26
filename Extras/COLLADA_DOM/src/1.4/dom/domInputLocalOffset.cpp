@@ -13,6 +13,12 @@
 
 #include <dae/daeDom.h>
 #include <dom/domInputLocalOffset.h>
+#include <dae/daeMetaCMPolicy.h>
+#include <dae/daeMetaSequence.h>
+#include <dae/daeMetaChoice.h>
+#include <dae/daeMetaGroup.h>
+#include <dae/daeMetaAny.h>
+#include <dae/daeMetaElementAttribute.h>
 
 daeElementRef
 domInputLocalOffset::create(daeInt bytes)
@@ -30,7 +36,6 @@ domInputLocalOffset::registerElement()
     
     _Meta = new daeMetaElement;
     _Meta->setName( "InputLocalOffset" );
-	_Meta->setStaticPointerAddress(&domInputLocalOffset::_Meta);
 	_Meta->registerConstructor(domInputLocalOffset::create);
 
 

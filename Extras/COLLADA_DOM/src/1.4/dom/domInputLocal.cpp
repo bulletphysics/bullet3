@@ -13,6 +13,12 @@
 
 #include <dae/daeDom.h>
 #include <dom/domInputLocal.h>
+#include <dae/daeMetaCMPolicy.h>
+#include <dae/daeMetaSequence.h>
+#include <dae/daeMetaChoice.h>
+#include <dae/daeMetaGroup.h>
+#include <dae/daeMetaAny.h>
+#include <dae/daeMetaElementAttribute.h>
 
 daeElementRef
 domInputLocal::create(daeInt bytes)
@@ -30,7 +36,6 @@ domInputLocal::registerElement()
     
     _Meta = new daeMetaElement;
     _Meta->setName( "InputLocal" );
-	_Meta->setStaticPointerAddress(&domInputLocal::_Meta);
 	_Meta->registerConstructor(domInputLocal::create);
 
 

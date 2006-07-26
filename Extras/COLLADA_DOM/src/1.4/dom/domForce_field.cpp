@@ -13,6 +13,12 @@
 
 #include <dae/daeDom.h>
 #include <dom/domForce_field.h>
+#include <dae/daeMetaCMPolicy.h>
+#include <dae/daeMetaSequence.h>
+#include <dae/daeMetaChoice.h>
+#include <dae/daeMetaGroup.h>
+#include <dae/daeMetaAny.h>
+#include <dae/daeMetaElementAttribute.h>
 
 daeElementRef
 domForce_field::create(daeInt bytes)
@@ -29,13 +35,32 @@ domForce_field::registerElement()
     
     _Meta = new daeMetaElement;
     _Meta->setName( "force_field" );
-	_Meta->setStaticPointerAddress(&domForce_field::_Meta);
 	_Meta->registerConstructor(domForce_field::create);
 
-	// Add elements: asset, technique, extra
-    _Meta->appendElement(domAsset::registerElement(),daeOffsetOf(domForce_field,elemAsset));
-    _Meta->appendArrayElement(domTechnique::registerElement(),daeOffsetOf(domForce_field,elemTechnique_array));
-    _Meta->appendArrayElement(domExtra::registerElement(),daeOffsetOf(domForce_field,elemExtra_array));
+	daeMetaCMPolicy *cm = NULL;
+	daeMetaElementAttribute *mea = NULL;
+	cm = new daeMetaSequence( _Meta, cm, 0, 1, 1 );
+
+	mea = new daeMetaElementAttribute( _Meta, cm, 0, 0, 1 );
+	mea->setName( "asset" );
+	mea->setOffset( daeOffsetOf(domForce_field,elemAsset) );
+	mea->setElementType( domAsset::registerElement() );
+	cm->appendChild( mea );
+	
+	mea = new daeMetaElementArrayAttribute( _Meta, cm, 1, 1, -1 );
+	mea->setName( "technique" );
+	mea->setOffset( daeOffsetOf(domForce_field,elemTechnique_array) );
+	mea->setElementType( domTechnique::registerElement() );
+	cm->appendChild( mea );
+	
+	mea = new daeMetaElementArrayAttribute( _Meta, cm, 2, 0, -1 );
+	mea->setName( "extra" );
+	mea->setOffset( daeOffsetOf(domForce_field,elemExtra_array) );
+	mea->setElementType( domExtra::registerElement() );
+	cm->appendChild( mea );
+	
+	cm->setMaxOrdinal( 2 );
+	_Meta->setCMRoot( cm );	
 
 	//	Add attribute: id
  	{

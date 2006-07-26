@@ -13,6 +13,12 @@
 
 #include <dae/daeDom.h>
 #include <dom/domAnimation.h>
+#include <dae/daeMetaCMPolicy.h>
+#include <dae/daeMetaSequence.h>
+#include <dae/daeMetaChoice.h>
+#include <dae/daeMetaGroup.h>
+#include <dae/daeMetaAny.h>
+#include <dae/daeMetaElementAttribute.h>
 
 daeElementRef
 domAnimation::create(daeInt bytes)
@@ -29,18 +35,113 @@ domAnimation::registerElement()
     
     _Meta = new daeMetaElement;
     _Meta->setName( "animation" );
-	_Meta->setStaticPointerAddress(&domAnimation::_Meta);
 	_Meta->registerConstructor(domAnimation::create);
 
-	// Add elements: asset, source, sampler, channel, animation, extra
-    _Meta->appendElement(domAsset::registerElement(),daeOffsetOf(domAnimation,elemAsset));
-    _Meta->appendArrayElement(domSource::registerElement(),daeOffsetOf(domAnimation,elemSource_array));
-    _Meta->appendArrayElement(domSampler::registerElement(),daeOffsetOf(domAnimation,elemSampler_array));
-    _Meta->appendArrayElement(domChannel::registerElement(),daeOffsetOf(domAnimation,elemChannel_array));
-    _Meta->appendArrayElement(domAnimation::registerElement(),daeOffsetOf(domAnimation,elemAnimation_array));
-    _Meta->appendArrayElement(domExtra::registerElement(),daeOffsetOf(domAnimation,elemExtra_array));
+	daeMetaCMPolicy *cm = NULL;
+	daeMetaElementAttribute *mea = NULL;
+	cm = new daeMetaSequence( _Meta, cm, 0, 1, 1 );
+
+	mea = new daeMetaElementAttribute( _Meta, cm, 0, 0, 1 );
+	mea->setName( "asset" );
+	mea->setOffset( daeOffsetOf(domAnimation,elemAsset) );
+	mea->setElementType( domAsset::registerElement() );
+	cm->appendChild( mea );
+	
+	cm = new daeMetaChoice( _Meta, cm, 1, 1, 1 );
+
+	cm = new daeMetaSequence( _Meta, cm, 0, 1, 1 );
+
+	mea = new daeMetaElementArrayAttribute( _Meta, cm, 0, 1, -1 );
+	mea->setName( "source" );
+	mea->setOffset( daeOffsetOf(domAnimation,elemSource_array) );
+	mea->setElementType( domSource::registerElement() );
+	cm->appendChild( mea );
+	
+	cm = new daeMetaChoice( _Meta, cm, 1, 1, 1 );
+
+	cm = new daeMetaSequence( _Meta, cm, 0, 1, 1 );
+
+	mea = new daeMetaElementArrayAttribute( _Meta, cm, 0, 1, -1 );
+	mea->setName( "sampler" );
+	mea->setOffset( daeOffsetOf(domAnimation,elemSampler_array) );
+	mea->setElementType( domSampler::registerElement() );
+	cm->appendChild( mea );
+	
+	mea = new daeMetaElementArrayAttribute( _Meta, cm, 1, 1, -1 );
+	mea->setName( "channel" );
+	mea->setOffset( daeOffsetOf(domAnimation,elemChannel_array) );
+	mea->setElementType( domChannel::registerElement() );
+	cm->appendChild( mea );
+	
+	mea = new daeMetaElementArrayAttribute( _Meta, cm, 2, 0, -1 );
+	mea->setName( "animation" );
+	mea->setOffset( daeOffsetOf(domAnimation,elemAnimation_array) );
+	mea->setElementType( domAnimation::registerElement() );
+	cm->appendChild( mea );
+	
+	cm->setMaxOrdinal( 2 );
+	cm->getParent()->appendChild( cm );
+	cm = cm->getParent();
+	
+	mea = new daeMetaElementArrayAttribute( _Meta, cm, 3, 1, -1 );
+	mea->setName( "animation" );
+	mea->setOffset( daeOffsetOf(domAnimation,elemAnimation_array) );
+	mea->setElementType( domAnimation::registerElement() );
+	cm->appendChild( mea );
+	
+	cm->setMaxOrdinal( 2 );
+	cm->getParent()->appendChild( cm );
+	cm = cm->getParent();
+	
+	cm->setMaxOrdinal( 1 );
+	cm->getParent()->appendChild( cm );
+	cm = cm->getParent();
+	
+	cm = new daeMetaSequence( _Meta, cm, 2, 1, 1 );
+
+	mea = new daeMetaElementArrayAttribute( _Meta, cm, 0, 1, -1 );
+	mea->setName( "sampler" );
+	mea->setOffset( daeOffsetOf(domAnimation,elemSampler_array) );
+	mea->setElementType( domSampler::registerElement() );
+	cm->appendChild( mea );
+	
+	mea = new daeMetaElementArrayAttribute( _Meta, cm, 1, 1, -1 );
+	mea->setName( "channel" );
+	mea->setOffset( daeOffsetOf(domAnimation,elemChannel_array) );
+	mea->setElementType( domChannel::registerElement() );
+	cm->appendChild( mea );
+	
+	mea = new daeMetaElementArrayAttribute( _Meta, cm, 2, 0, -1 );
+	mea->setName( "animation" );
+	mea->setOffset( daeOffsetOf(domAnimation,elemAnimation_array) );
+	mea->setElementType( domAnimation::registerElement() );
+	cm->appendChild( mea );
+	
+	cm->setMaxOrdinal( 2 );
+	cm->getParent()->appendChild( cm );
+	cm = cm->getParent();
+	
+	mea = new daeMetaElementArrayAttribute( _Meta, cm, 5, 1, -1 );
+	mea->setName( "animation" );
+	mea->setOffset( daeOffsetOf(domAnimation,elemAnimation_array) );
+	mea->setElementType( domAnimation::registerElement() );
+	cm->appendChild( mea );
+	
+	cm->setMaxOrdinal( 4 );
+	cm->getParent()->appendChild( cm );
+	cm = cm->getParent();
+	
+	mea = new daeMetaElementArrayAttribute( _Meta, cm, 2, 0, -1 );
+	mea->setName( "extra" );
+	mea->setOffset( daeOffsetOf(domAnimation,elemExtra_array) );
+	mea->setElementType( domExtra::registerElement() );
+	cm->appendChild( mea );
+	
+	cm->setMaxOrdinal( 2 );
+	_Meta->setCMRoot( cm );	
 	// Ordered list of sub-elements
     _Meta->addContents(daeOffsetOf(domAnimation,_contents));
+    _Meta->addContentsOrder(daeOffsetOf(domAnimation,_contentsOrder));
 
 
 	//	Add attribute: id

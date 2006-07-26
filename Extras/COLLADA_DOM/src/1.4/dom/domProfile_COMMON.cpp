@@ -13,6 +13,12 @@
 
 #include <dae/daeDom.h>
 #include <dom/domProfile_COMMON.h>
+#include <dae/daeMetaCMPolicy.h>
+#include <dae/daeMetaSequence.h>
+#include <dae/daeMetaChoice.h>
+#include <dae/daeMetaGroup.h>
+#include <dae/daeMetaAny.h>
+#include <dae/daeMetaElementAttribute.h>
 
 daeElementRef
 domProfile_COMMON::create(daeInt bytes)
@@ -29,17 +35,66 @@ domProfile_COMMON::registerElement()
     
     _Meta = new daeMetaElement;
     _Meta->setName( "profile_COMMON" );
-	_Meta->setStaticPointerAddress(&domProfile_COMMON::_Meta);
 	_Meta->registerConstructor(domProfile_COMMON::create);
 
-	// Add elements: image, newparam, technique, extra
-    _Meta->appendArrayElement(domImage::registerElement(),daeOffsetOf(domProfile_COMMON,elemImage_array));
-    _Meta->appendArrayElement(domCommon_newparam_type::registerElement(),daeOffsetOf(domProfile_COMMON,elemNewparam_array),"newparam"); 
-    _Meta->appendElement(domProfile_COMMON::domTechnique::registerElement(),daeOffsetOf(domProfile_COMMON,elemTechnique));
-    _Meta->appendArrayElement(domExtra::registerElement(),daeOffsetOf(domProfile_COMMON,elemExtra_array));
+	daeMetaCMPolicy *cm = NULL;
+	daeMetaElementAttribute *mea = NULL;
+	cm = new daeMetaSequence( _Meta, cm, 0, 1, 1 );
+
+	mea = new daeMetaElementAttribute( _Meta, cm, 0, 0, 1 );
+	mea->setName( "asset" );
+	mea->setOffset( daeOffsetOf(domProfile_COMMON,elemAsset) );
+	mea->setElementType( domAsset::registerElement() );
+	cm->appendChild( mea );
+	
+	cm = new daeMetaChoice( _Meta, cm, 1, 0, -1 );
+
+	mea = new daeMetaElementArrayAttribute( _Meta, cm, 0, 1, 1 );
+	mea->setName( "image" );
+	mea->setOffset( daeOffsetOf(domProfile_COMMON,elemImage_array) );
+	mea->setElementType( domImage::registerElement() );
+	cm->appendChild( mea );
+	
+	mea = new daeMetaElementArrayAttribute( _Meta, cm, 0, 1, 1 );
+	mea->setName( "newparam" );
+	mea->setOffset( daeOffsetOf(domProfile_COMMON,elemNewparam_array) );
+	mea->setElementType( domCommon_newparam_type::registerElement() );
+	cm->appendChild( mea );
+	
+	cm->setMaxOrdinal( 0 );
+	cm->getParent()->appendChild( cm );
+	cm = cm->getParent();
+	
+	mea = new daeMetaElementAttribute( _Meta, cm, 3002, 1, 1 );
+	mea->setName( "technique" );
+	mea->setOffset( daeOffsetOf(domProfile_COMMON,elemTechnique) );
+	mea->setElementType( domProfile_COMMON::domTechnique::registerElement() );
+	cm->appendChild( mea );
+	
+	mea = new daeMetaElementArrayAttribute( _Meta, cm, 3003, 0, -1 );
+	mea->setName( "extra" );
+	mea->setOffset( daeOffsetOf(domProfile_COMMON,elemExtra_array) );
+	mea->setElementType( domExtra::registerElement() );
+	cm->appendChild( mea );
+	
+	cm->setMaxOrdinal( 3003 );
+	_Meta->setCMRoot( cm );	
 	// Ordered list of sub-elements
     _Meta->addContents(daeOffsetOf(domProfile_COMMON,_contents));
+    _Meta->addContentsOrder(daeOffsetOf(domProfile_COMMON,_contentsOrder));
 
+
+	//	Add attribute: id
+ 	{
+		daeMetaAttribute *ma = new daeMetaAttribute;
+		ma->setName( "id" );
+		ma->setType( daeAtomicType::get("xsID"));
+		ma->setOffset( daeOffsetOf( domProfile_COMMON , attrId ));
+		ma->setContainer( _Meta );
+		ma->setIsRequired( false );
+	
+		_Meta->appendAttribute(ma);
+	}
 	
 	
 	_Meta->setElementSize(sizeof(domProfile_COMMON));
@@ -63,20 +118,78 @@ domProfile_COMMON::domTechnique::registerElement()
     
     _Meta = new daeMetaElement;
     _Meta->setName( "technique" );
-	_Meta->setStaticPointerAddress(&domProfile_COMMON::domTechnique::_Meta);
 	_Meta->registerConstructor(domProfile_COMMON::domTechnique::create);
 
-	// Add elements: asset, image, newparam, constant, lambert, phong, blinn, extra
-    _Meta->appendElement(domAsset::registerElement(),daeOffsetOf(domProfile_COMMON::domTechnique,elemAsset));
-    _Meta->appendArrayElement(domImage::registerElement(),daeOffsetOf(domProfile_COMMON::domTechnique,elemImage_array));
-    _Meta->appendArrayElement(domCommon_newparam_type::registerElement(),daeOffsetOf(domProfile_COMMON::domTechnique,elemNewparam_array),"newparam"); 
-    _Meta->appendElement(domProfile_COMMON::domTechnique::domConstant::registerElement(),daeOffsetOf(domProfile_COMMON::domTechnique,elemConstant));
-    _Meta->appendElement(domProfile_COMMON::domTechnique::domLambert::registerElement(),daeOffsetOf(domProfile_COMMON::domTechnique,elemLambert));
-    _Meta->appendElement(domProfile_COMMON::domTechnique::domPhong::registerElement(),daeOffsetOf(domProfile_COMMON::domTechnique,elemPhong));
-    _Meta->appendElement(domProfile_COMMON::domTechnique::domBlinn::registerElement(),daeOffsetOf(domProfile_COMMON::domTechnique,elemBlinn));
-    _Meta->appendArrayElement(domExtra::registerElement(),daeOffsetOf(domProfile_COMMON::domTechnique,elemExtra_array));
+	_Meta->setIsInnerClass( true );
+	daeMetaCMPolicy *cm = NULL;
+	daeMetaElementAttribute *mea = NULL;
+	cm = new daeMetaSequence( _Meta, cm, 0, 1, 1 );
+
+	mea = new daeMetaElementAttribute( _Meta, cm, 0, 0, 1 );
+	mea->setName( "asset" );
+	mea->setOffset( daeOffsetOf(domProfile_COMMON::domTechnique,elemAsset) );
+	mea->setElementType( domAsset::registerElement() );
+	cm->appendChild( mea );
+	
+	cm = new daeMetaChoice( _Meta, cm, 1, 0, -1 );
+
+	mea = new daeMetaElementArrayAttribute( _Meta, cm, 0, 1, 1 );
+	mea->setName( "image" );
+	mea->setOffset( daeOffsetOf(domProfile_COMMON::domTechnique,elemImage_array) );
+	mea->setElementType( domImage::registerElement() );
+	cm->appendChild( mea );
+	
+	mea = new daeMetaElementArrayAttribute( _Meta, cm, 0, 1, 1 );
+	mea->setName( "newparam" );
+	mea->setOffset( daeOffsetOf(domProfile_COMMON::domTechnique,elemNewparam_array) );
+	mea->setElementType( domCommon_newparam_type::registerElement() );
+	cm->appendChild( mea );
+	
+	cm->setMaxOrdinal( 0 );
+	cm->getParent()->appendChild( cm );
+	cm = cm->getParent();
+	
+	cm = new daeMetaChoice( _Meta, cm, 3002, 1, 1 );
+
+	mea = new daeMetaElementAttribute( _Meta, cm, 0, 1, 1 );
+	mea->setName( "constant" );
+	mea->setOffset( daeOffsetOf(domProfile_COMMON::domTechnique,elemConstant) );
+	mea->setElementType( domProfile_COMMON::domTechnique::domConstant::registerElement() );
+	cm->appendChild( mea );
+	
+	mea = new daeMetaElementAttribute( _Meta, cm, 0, 1, 1 );
+	mea->setName( "lambert" );
+	mea->setOffset( daeOffsetOf(domProfile_COMMON::domTechnique,elemLambert) );
+	mea->setElementType( domProfile_COMMON::domTechnique::domLambert::registerElement() );
+	cm->appendChild( mea );
+	
+	mea = new daeMetaElementAttribute( _Meta, cm, 0, 1, 1 );
+	mea->setName( "phong" );
+	mea->setOffset( daeOffsetOf(domProfile_COMMON::domTechnique,elemPhong) );
+	mea->setElementType( domProfile_COMMON::domTechnique::domPhong::registerElement() );
+	cm->appendChild( mea );
+	
+	mea = new daeMetaElementAttribute( _Meta, cm, 0, 1, 1 );
+	mea->setName( "blinn" );
+	mea->setOffset( daeOffsetOf(domProfile_COMMON::domTechnique,elemBlinn) );
+	mea->setElementType( domProfile_COMMON::domTechnique::domBlinn::registerElement() );
+	cm->appendChild( mea );
+	
+	cm->setMaxOrdinal( 0 );
+	cm->getParent()->appendChild( cm );
+	cm = cm->getParent();
+	
+	mea = new daeMetaElementArrayAttribute( _Meta, cm, 3003, 0, -1 );
+	mea->setName( "extra" );
+	mea->setOffset( daeOffsetOf(domProfile_COMMON::domTechnique,elemExtra_array) );
+	mea->setElementType( domExtra::registerElement() );
+	cm->appendChild( mea );
+	
+	cm->setMaxOrdinal( 3003 );
+	_Meta->setCMRoot( cm );	
 	// Ordered list of sub-elements
     _Meta->addContents(daeOffsetOf(domProfile_COMMON::domTechnique,_contents));
+    _Meta->addContentsOrder(daeOffsetOf(domProfile_COMMON::domTechnique,_contentsOrder));
 
 
 	//	Add attribute: id
@@ -124,16 +237,51 @@ domProfile_COMMON::domTechnique::domConstant::registerElement()
     
     _Meta = new daeMetaElement;
     _Meta->setName( "constant" );
-	_Meta->setStaticPointerAddress(&domProfile_COMMON::domTechnique::domConstant::_Meta);
 	_Meta->registerConstructor(domProfile_COMMON::domTechnique::domConstant::create);
 
-	// Add elements: emission, reflective, reflectivity, transparent, transparency, index_of_refraction
-    _Meta->appendElement(domCommon_color_or_texture_type::registerElement(),daeOffsetOf(domProfile_COMMON::domTechnique::domConstant,elemEmission),"emission"); 
-    _Meta->appendElement(domCommon_color_or_texture_type::registerElement(),daeOffsetOf(domProfile_COMMON::domTechnique::domConstant,elemReflective),"reflective"); 
-    _Meta->appendElement(domCommon_float_or_param_type::registerElement(),daeOffsetOf(domProfile_COMMON::domTechnique::domConstant,elemReflectivity),"reflectivity"); 
-    _Meta->appendElement(domCommon_color_or_texture_type::registerElement(),daeOffsetOf(domProfile_COMMON::domTechnique::domConstant,elemTransparent),"transparent"); 
-    _Meta->appendElement(domCommon_float_or_param_type::registerElement(),daeOffsetOf(domProfile_COMMON::domTechnique::domConstant,elemTransparency),"transparency"); 
-    _Meta->appendElement(domCommon_float_or_param_type::registerElement(),daeOffsetOf(domProfile_COMMON::domTechnique::domConstant,elemIndex_of_refraction),"index_of_refraction"); 
+	_Meta->setIsInnerClass( true );
+	daeMetaCMPolicy *cm = NULL;
+	daeMetaElementAttribute *mea = NULL;
+	cm = new daeMetaSequence( _Meta, cm, 0, 1, 1 );
+
+	mea = new daeMetaElementAttribute( _Meta, cm, 0, 0, 1 );
+	mea->setName( "emission" );
+	mea->setOffset( daeOffsetOf(domProfile_COMMON::domTechnique::domConstant,elemEmission) );
+	mea->setElementType( domCommon_color_or_texture_type::registerElement() );
+	cm->appendChild( mea );
+	
+	mea = new daeMetaElementAttribute( _Meta, cm, 1, 0, 1 );
+	mea->setName( "reflective" );
+	mea->setOffset( daeOffsetOf(domProfile_COMMON::domTechnique::domConstant,elemReflective) );
+	mea->setElementType( domCommon_color_or_texture_type::registerElement() );
+	cm->appendChild( mea );
+	
+	mea = new daeMetaElementAttribute( _Meta, cm, 2, 0, 1 );
+	mea->setName( "reflectivity" );
+	mea->setOffset( daeOffsetOf(domProfile_COMMON::domTechnique::domConstant,elemReflectivity) );
+	mea->setElementType( domCommon_float_or_param_type::registerElement() );
+	cm->appendChild( mea );
+	
+	mea = new daeMetaElementAttribute( _Meta, cm, 3, 0, 1 );
+	mea->setName( "transparent" );
+	mea->setOffset( daeOffsetOf(domProfile_COMMON::domTechnique::domConstant,elemTransparent) );
+	mea->setElementType( domCommon_transparent_type::registerElement() );
+	cm->appendChild( mea );
+	
+	mea = new daeMetaElementAttribute( _Meta, cm, 4, 0, 1 );
+	mea->setName( "transparency" );
+	mea->setOffset( daeOffsetOf(domProfile_COMMON::domTechnique::domConstant,elemTransparency) );
+	mea->setElementType( domCommon_float_or_param_type::registerElement() );
+	cm->appendChild( mea );
+	
+	mea = new daeMetaElementAttribute( _Meta, cm, 5, 0, 1 );
+	mea->setName( "index_of_refraction" );
+	mea->setOffset( daeOffsetOf(domProfile_COMMON::domTechnique::domConstant,elemIndex_of_refraction) );
+	mea->setElementType( domCommon_float_or_param_type::registerElement() );
+	cm->appendChild( mea );
+	
+	cm->setMaxOrdinal( 5 );
+	_Meta->setCMRoot( cm );	
 	
 	
 	_Meta->setElementSize(sizeof(domProfile_COMMON::domTechnique::domConstant));
@@ -157,18 +305,63 @@ domProfile_COMMON::domTechnique::domLambert::registerElement()
     
     _Meta = new daeMetaElement;
     _Meta->setName( "lambert" );
-	_Meta->setStaticPointerAddress(&domProfile_COMMON::domTechnique::domLambert::_Meta);
 	_Meta->registerConstructor(domProfile_COMMON::domTechnique::domLambert::create);
 
-	// Add elements: emission, ambient, diffuse, reflective, reflectivity, transparent, transparency, index_of_refraction
-    _Meta->appendElement(domCommon_color_or_texture_type::registerElement(),daeOffsetOf(domProfile_COMMON::domTechnique::domLambert,elemEmission),"emission"); 
-    _Meta->appendElement(domCommon_color_or_texture_type::registerElement(),daeOffsetOf(domProfile_COMMON::domTechnique::domLambert,elemAmbient),"ambient"); 
-    _Meta->appendElement(domCommon_color_or_texture_type::registerElement(),daeOffsetOf(domProfile_COMMON::domTechnique::domLambert,elemDiffuse),"diffuse"); 
-    _Meta->appendElement(domCommon_color_or_texture_type::registerElement(),daeOffsetOf(domProfile_COMMON::domTechnique::domLambert,elemReflective),"reflective"); 
-    _Meta->appendElement(domCommon_float_or_param_type::registerElement(),daeOffsetOf(domProfile_COMMON::domTechnique::domLambert,elemReflectivity),"reflectivity"); 
-    _Meta->appendElement(domCommon_color_or_texture_type::registerElement(),daeOffsetOf(domProfile_COMMON::domTechnique::domLambert,elemTransparent),"transparent"); 
-    _Meta->appendElement(domCommon_float_or_param_type::registerElement(),daeOffsetOf(domProfile_COMMON::domTechnique::domLambert,elemTransparency),"transparency"); 
-    _Meta->appendElement(domCommon_float_or_param_type::registerElement(),daeOffsetOf(domProfile_COMMON::domTechnique::domLambert,elemIndex_of_refraction),"index_of_refraction"); 
+	_Meta->setIsInnerClass( true );
+	daeMetaCMPolicy *cm = NULL;
+	daeMetaElementAttribute *mea = NULL;
+	cm = new daeMetaSequence( _Meta, cm, 0, 1, 1 );
+
+	mea = new daeMetaElementAttribute( _Meta, cm, 0, 0, 1 );
+	mea->setName( "emission" );
+	mea->setOffset( daeOffsetOf(domProfile_COMMON::domTechnique::domLambert,elemEmission) );
+	mea->setElementType( domCommon_color_or_texture_type::registerElement() );
+	cm->appendChild( mea );
+	
+	mea = new daeMetaElementAttribute( _Meta, cm, 1, 0, 1 );
+	mea->setName( "ambient" );
+	mea->setOffset( daeOffsetOf(domProfile_COMMON::domTechnique::domLambert,elemAmbient) );
+	mea->setElementType( domCommon_color_or_texture_type::registerElement() );
+	cm->appendChild( mea );
+	
+	mea = new daeMetaElementAttribute( _Meta, cm, 2, 0, 1 );
+	mea->setName( "diffuse" );
+	mea->setOffset( daeOffsetOf(domProfile_COMMON::domTechnique::domLambert,elemDiffuse) );
+	mea->setElementType( domCommon_color_or_texture_type::registerElement() );
+	cm->appendChild( mea );
+	
+	mea = new daeMetaElementAttribute( _Meta, cm, 3, 0, 1 );
+	mea->setName( "reflective" );
+	mea->setOffset( daeOffsetOf(domProfile_COMMON::domTechnique::domLambert,elemReflective) );
+	mea->setElementType( domCommon_color_or_texture_type::registerElement() );
+	cm->appendChild( mea );
+	
+	mea = new daeMetaElementAttribute( _Meta, cm, 4, 0, 1 );
+	mea->setName( "reflectivity" );
+	mea->setOffset( daeOffsetOf(domProfile_COMMON::domTechnique::domLambert,elemReflectivity) );
+	mea->setElementType( domCommon_float_or_param_type::registerElement() );
+	cm->appendChild( mea );
+	
+	mea = new daeMetaElementAttribute( _Meta, cm, 5, 0, 1 );
+	mea->setName( "transparent" );
+	mea->setOffset( daeOffsetOf(domProfile_COMMON::domTechnique::domLambert,elemTransparent) );
+	mea->setElementType( domCommon_transparent_type::registerElement() );
+	cm->appendChild( mea );
+	
+	mea = new daeMetaElementAttribute( _Meta, cm, 6, 0, 1 );
+	mea->setName( "transparency" );
+	mea->setOffset( daeOffsetOf(domProfile_COMMON::domTechnique::domLambert,elemTransparency) );
+	mea->setElementType( domCommon_float_or_param_type::registerElement() );
+	cm->appendChild( mea );
+	
+	mea = new daeMetaElementAttribute( _Meta, cm, 7, 0, 1 );
+	mea->setName( "index_of_refraction" );
+	mea->setOffset( daeOffsetOf(domProfile_COMMON::domTechnique::domLambert,elemIndex_of_refraction) );
+	mea->setElementType( domCommon_float_or_param_type::registerElement() );
+	cm->appendChild( mea );
+	
+	cm->setMaxOrdinal( 7 );
+	_Meta->setCMRoot( cm );	
 	
 	
 	_Meta->setElementSize(sizeof(domProfile_COMMON::domTechnique::domLambert));
@@ -192,20 +385,75 @@ domProfile_COMMON::domTechnique::domPhong::registerElement()
     
     _Meta = new daeMetaElement;
     _Meta->setName( "phong" );
-	_Meta->setStaticPointerAddress(&domProfile_COMMON::domTechnique::domPhong::_Meta);
 	_Meta->registerConstructor(domProfile_COMMON::domTechnique::domPhong::create);
 
-	// Add elements: emission, ambient, diffuse, specular, shininess, reflective, reflectivity, transparent, transparency, index_of_refraction
-    _Meta->appendElement(domCommon_color_or_texture_type::registerElement(),daeOffsetOf(domProfile_COMMON::domTechnique::domPhong,elemEmission),"emission"); 
-    _Meta->appendElement(domCommon_color_or_texture_type::registerElement(),daeOffsetOf(domProfile_COMMON::domTechnique::domPhong,elemAmbient),"ambient"); 
-    _Meta->appendElement(domCommon_color_or_texture_type::registerElement(),daeOffsetOf(domProfile_COMMON::domTechnique::domPhong,elemDiffuse),"diffuse"); 
-    _Meta->appendElement(domCommon_color_or_texture_type::registerElement(),daeOffsetOf(domProfile_COMMON::domTechnique::domPhong,elemSpecular),"specular"); 
-    _Meta->appendElement(domCommon_float_or_param_type::registerElement(),daeOffsetOf(domProfile_COMMON::domTechnique::domPhong,elemShininess),"shininess"); 
-    _Meta->appendElement(domCommon_color_or_texture_type::registerElement(),daeOffsetOf(domProfile_COMMON::domTechnique::domPhong,elemReflective),"reflective"); 
-    _Meta->appendElement(domCommon_float_or_param_type::registerElement(),daeOffsetOf(domProfile_COMMON::domTechnique::domPhong,elemReflectivity),"reflectivity"); 
-    _Meta->appendElement(domCommon_color_or_texture_type::registerElement(),daeOffsetOf(domProfile_COMMON::domTechnique::domPhong,elemTransparent),"transparent"); 
-    _Meta->appendElement(domCommon_float_or_param_type::registerElement(),daeOffsetOf(domProfile_COMMON::domTechnique::domPhong,elemTransparency),"transparency"); 
-    _Meta->appendElement(domCommon_float_or_param_type::registerElement(),daeOffsetOf(domProfile_COMMON::domTechnique::domPhong,elemIndex_of_refraction),"index_of_refraction"); 
+	_Meta->setIsInnerClass( true );
+	daeMetaCMPolicy *cm = NULL;
+	daeMetaElementAttribute *mea = NULL;
+	cm = new daeMetaSequence( _Meta, cm, 0, 1, 1 );
+
+	mea = new daeMetaElementAttribute( _Meta, cm, 0, 0, 1 );
+	mea->setName( "emission" );
+	mea->setOffset( daeOffsetOf(domProfile_COMMON::domTechnique::domPhong,elemEmission) );
+	mea->setElementType( domCommon_color_or_texture_type::registerElement() );
+	cm->appendChild( mea );
+	
+	mea = new daeMetaElementAttribute( _Meta, cm, 1, 0, 1 );
+	mea->setName( "ambient" );
+	mea->setOffset( daeOffsetOf(domProfile_COMMON::domTechnique::domPhong,elemAmbient) );
+	mea->setElementType( domCommon_color_or_texture_type::registerElement() );
+	cm->appendChild( mea );
+	
+	mea = new daeMetaElementAttribute( _Meta, cm, 2, 0, 1 );
+	mea->setName( "diffuse" );
+	mea->setOffset( daeOffsetOf(domProfile_COMMON::domTechnique::domPhong,elemDiffuse) );
+	mea->setElementType( domCommon_color_or_texture_type::registerElement() );
+	cm->appendChild( mea );
+	
+	mea = new daeMetaElementAttribute( _Meta, cm, 3, 0, 1 );
+	mea->setName( "specular" );
+	mea->setOffset( daeOffsetOf(domProfile_COMMON::domTechnique::domPhong,elemSpecular) );
+	mea->setElementType( domCommon_color_or_texture_type::registerElement() );
+	cm->appendChild( mea );
+	
+	mea = new daeMetaElementAttribute( _Meta, cm, 4, 0, 1 );
+	mea->setName( "shininess" );
+	mea->setOffset( daeOffsetOf(domProfile_COMMON::domTechnique::domPhong,elemShininess) );
+	mea->setElementType( domCommon_float_or_param_type::registerElement() );
+	cm->appendChild( mea );
+	
+	mea = new daeMetaElementAttribute( _Meta, cm, 5, 0, 1 );
+	mea->setName( "reflective" );
+	mea->setOffset( daeOffsetOf(domProfile_COMMON::domTechnique::domPhong,elemReflective) );
+	mea->setElementType( domCommon_color_or_texture_type::registerElement() );
+	cm->appendChild( mea );
+	
+	mea = new daeMetaElementAttribute( _Meta, cm, 6, 0, 1 );
+	mea->setName( "reflectivity" );
+	mea->setOffset( daeOffsetOf(domProfile_COMMON::domTechnique::domPhong,elemReflectivity) );
+	mea->setElementType( domCommon_float_or_param_type::registerElement() );
+	cm->appendChild( mea );
+	
+	mea = new daeMetaElementAttribute( _Meta, cm, 7, 0, 1 );
+	mea->setName( "transparent" );
+	mea->setOffset( daeOffsetOf(domProfile_COMMON::domTechnique::domPhong,elemTransparent) );
+	mea->setElementType( domCommon_transparent_type::registerElement() );
+	cm->appendChild( mea );
+	
+	mea = new daeMetaElementAttribute( _Meta, cm, 8, 0, 1 );
+	mea->setName( "transparency" );
+	mea->setOffset( daeOffsetOf(domProfile_COMMON::domTechnique::domPhong,elemTransparency) );
+	mea->setElementType( domCommon_float_or_param_type::registerElement() );
+	cm->appendChild( mea );
+	
+	mea = new daeMetaElementAttribute( _Meta, cm, 9, 0, 1 );
+	mea->setName( "index_of_refraction" );
+	mea->setOffset( daeOffsetOf(domProfile_COMMON::domTechnique::domPhong,elemIndex_of_refraction) );
+	mea->setElementType( domCommon_float_or_param_type::registerElement() );
+	cm->appendChild( mea );
+	
+	cm->setMaxOrdinal( 9 );
+	_Meta->setCMRoot( cm );	
 	
 	
 	_Meta->setElementSize(sizeof(domProfile_COMMON::domTechnique::domPhong));
@@ -229,20 +477,75 @@ domProfile_COMMON::domTechnique::domBlinn::registerElement()
     
     _Meta = new daeMetaElement;
     _Meta->setName( "blinn" );
-	_Meta->setStaticPointerAddress(&domProfile_COMMON::domTechnique::domBlinn::_Meta);
 	_Meta->registerConstructor(domProfile_COMMON::domTechnique::domBlinn::create);
 
-	// Add elements: emission, ambient, diffuse, specular, shininess, reflective, reflectivity, transparent, transparency, index_of_refraction
-    _Meta->appendElement(domCommon_color_or_texture_type::registerElement(),daeOffsetOf(domProfile_COMMON::domTechnique::domBlinn,elemEmission),"emission"); 
-    _Meta->appendElement(domCommon_color_or_texture_type::registerElement(),daeOffsetOf(domProfile_COMMON::domTechnique::domBlinn,elemAmbient),"ambient"); 
-    _Meta->appendElement(domCommon_color_or_texture_type::registerElement(),daeOffsetOf(domProfile_COMMON::domTechnique::domBlinn,elemDiffuse),"diffuse"); 
-    _Meta->appendElement(domCommon_color_or_texture_type::registerElement(),daeOffsetOf(domProfile_COMMON::domTechnique::domBlinn,elemSpecular),"specular"); 
-    _Meta->appendElement(domCommon_float_or_param_type::registerElement(),daeOffsetOf(domProfile_COMMON::domTechnique::domBlinn,elemShininess),"shininess"); 
-    _Meta->appendElement(domCommon_color_or_texture_type::registerElement(),daeOffsetOf(domProfile_COMMON::domTechnique::domBlinn,elemReflective),"reflective"); 
-    _Meta->appendElement(domCommon_float_or_param_type::registerElement(),daeOffsetOf(domProfile_COMMON::domTechnique::domBlinn,elemReflectivity),"reflectivity"); 
-    _Meta->appendElement(domCommon_color_or_texture_type::registerElement(),daeOffsetOf(domProfile_COMMON::domTechnique::domBlinn,elemTransparent),"transparent"); 
-    _Meta->appendElement(domCommon_float_or_param_type::registerElement(),daeOffsetOf(domProfile_COMMON::domTechnique::domBlinn,elemTransparency),"transparency"); 
-    _Meta->appendElement(domCommon_float_or_param_type::registerElement(),daeOffsetOf(domProfile_COMMON::domTechnique::domBlinn,elemIndex_of_refraction),"index_of_refraction"); 
+	_Meta->setIsInnerClass( true );
+	daeMetaCMPolicy *cm = NULL;
+	daeMetaElementAttribute *mea = NULL;
+	cm = new daeMetaSequence( _Meta, cm, 0, 1, 1 );
+
+	mea = new daeMetaElementAttribute( _Meta, cm, 0, 0, 1 );
+	mea->setName( "emission" );
+	mea->setOffset( daeOffsetOf(domProfile_COMMON::domTechnique::domBlinn,elemEmission) );
+	mea->setElementType( domCommon_color_or_texture_type::registerElement() );
+	cm->appendChild( mea );
+	
+	mea = new daeMetaElementAttribute( _Meta, cm, 1, 0, 1 );
+	mea->setName( "ambient" );
+	mea->setOffset( daeOffsetOf(domProfile_COMMON::domTechnique::domBlinn,elemAmbient) );
+	mea->setElementType( domCommon_color_or_texture_type::registerElement() );
+	cm->appendChild( mea );
+	
+	mea = new daeMetaElementAttribute( _Meta, cm, 2, 0, 1 );
+	mea->setName( "diffuse" );
+	mea->setOffset( daeOffsetOf(domProfile_COMMON::domTechnique::domBlinn,elemDiffuse) );
+	mea->setElementType( domCommon_color_or_texture_type::registerElement() );
+	cm->appendChild( mea );
+	
+	mea = new daeMetaElementAttribute( _Meta, cm, 3, 0, 1 );
+	mea->setName( "specular" );
+	mea->setOffset( daeOffsetOf(domProfile_COMMON::domTechnique::domBlinn,elemSpecular) );
+	mea->setElementType( domCommon_color_or_texture_type::registerElement() );
+	cm->appendChild( mea );
+	
+	mea = new daeMetaElementAttribute( _Meta, cm, 4, 0, 1 );
+	mea->setName( "shininess" );
+	mea->setOffset( daeOffsetOf(domProfile_COMMON::domTechnique::domBlinn,elemShininess) );
+	mea->setElementType( domCommon_float_or_param_type::registerElement() );
+	cm->appendChild( mea );
+	
+	mea = new daeMetaElementAttribute( _Meta, cm, 5, 0, 1 );
+	mea->setName( "reflective" );
+	mea->setOffset( daeOffsetOf(domProfile_COMMON::domTechnique::domBlinn,elemReflective) );
+	mea->setElementType( domCommon_color_or_texture_type::registerElement() );
+	cm->appendChild( mea );
+	
+	mea = new daeMetaElementAttribute( _Meta, cm, 6, 0, 1 );
+	mea->setName( "reflectivity" );
+	mea->setOffset( daeOffsetOf(domProfile_COMMON::domTechnique::domBlinn,elemReflectivity) );
+	mea->setElementType( domCommon_float_or_param_type::registerElement() );
+	cm->appendChild( mea );
+	
+	mea = new daeMetaElementAttribute( _Meta, cm, 7, 0, 1 );
+	mea->setName( "transparent" );
+	mea->setOffset( daeOffsetOf(domProfile_COMMON::domTechnique::domBlinn,elemTransparent) );
+	mea->setElementType( domCommon_transparent_type::registerElement() );
+	cm->appendChild( mea );
+	
+	mea = new daeMetaElementAttribute( _Meta, cm, 8, 0, 1 );
+	mea->setName( "transparency" );
+	mea->setOffset( daeOffsetOf(domProfile_COMMON::domTechnique::domBlinn,elemTransparency) );
+	mea->setElementType( domCommon_float_or_param_type::registerElement() );
+	cm->appendChild( mea );
+	
+	mea = new daeMetaElementAttribute( _Meta, cm, 9, 0, 1 );
+	mea->setName( "index_of_refraction" );
+	mea->setOffset( daeOffsetOf(domProfile_COMMON::domTechnique::domBlinn,elemIndex_of_refraction) );
+	mea->setElementType( domCommon_float_or_param_type::registerElement() );
+	cm->appendChild( mea );
+	
+	cm->setMaxOrdinal( 9 );
+	_Meta->setCMRoot( cm );	
 	
 	
 	_Meta->setElementSize(sizeof(domProfile_COMMON::domTechnique::domBlinn));
@@ -250,7 +553,6 @@ domProfile_COMMON::domTechnique::domBlinn::registerElement()
 
 	return _Meta;
 }
-
 
 daeMetaElement * domProfile_COMMON::_Meta = NULL;
 daeMetaElement * domProfile_COMMON::domTechnique::_Meta = NULL;

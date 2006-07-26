@@ -13,6 +13,12 @@
 
 #include <dae/daeDom.h>
 #include <dom/domSampler.h>
+#include <dae/daeMetaCMPolicy.h>
+#include <dae/daeMetaSequence.h>
+#include <dae/daeMetaChoice.h>
+#include <dae/daeMetaGroup.h>
+#include <dae/daeMetaAny.h>
+#include <dae/daeMetaElementAttribute.h>
 
 daeElementRef
 domSampler::create(daeInt bytes)
@@ -29,11 +35,20 @@ domSampler::registerElement()
     
     _Meta = new daeMetaElement;
     _Meta->setName( "sampler" );
-	_Meta->setStaticPointerAddress(&domSampler::_Meta);
 	_Meta->registerConstructor(domSampler::create);
 
-	// Add elements: input
-    _Meta->appendArrayElement(domInputLocal::registerElement(),daeOffsetOf(domSampler,elemInput_array),"input"); 
+	daeMetaCMPolicy *cm = NULL;
+	daeMetaElementAttribute *mea = NULL;
+	cm = new daeMetaSequence( _Meta, cm, 0, 1, 1 );
+
+	mea = new daeMetaElementArrayAttribute( _Meta, cm, 0, 1, -1 );
+	mea->setName( "input" );
+	mea->setOffset( daeOffsetOf(domSampler,elemInput_array) );
+	mea->setElementType( domInputLocal::registerElement() );
+	cm->appendChild( mea );
+	
+	cm->setMaxOrdinal( 0 );
+	_Meta->setCMRoot( cm );	
 
 	//	Add attribute: id
  	{

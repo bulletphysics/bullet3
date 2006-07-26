@@ -13,6 +13,12 @@
 
 #include <dae/daeDom.h>
 #include <dom/domCylinder.h>
+#include <dae/daeMetaCMPolicy.h>
+#include <dae/daeMetaSequence.h>
+#include <dae/daeMetaChoice.h>
+#include <dae/daeMetaGroup.h>
+#include <dae/daeMetaAny.h>
+#include <dae/daeMetaElementAttribute.h>
 
 daeElementRef
 domCylinder::create(daeInt bytes)
@@ -29,13 +35,32 @@ domCylinder::registerElement()
     
     _Meta = new daeMetaElement;
     _Meta->setName( "cylinder" );
-	_Meta->setStaticPointerAddress(&domCylinder::_Meta);
 	_Meta->registerConstructor(domCylinder::create);
 
-	// Add elements: height, radius, extra
-    _Meta->appendElement(domCylinder::domHeight::registerElement(),daeOffsetOf(domCylinder,elemHeight));
-    _Meta->appendElement(domCylinder::domRadius::registerElement(),daeOffsetOf(domCylinder,elemRadius));
-    _Meta->appendArrayElement(domExtra::registerElement(),daeOffsetOf(domCylinder,elemExtra_array));
+	daeMetaCMPolicy *cm = NULL;
+	daeMetaElementAttribute *mea = NULL;
+	cm = new daeMetaSequence( _Meta, cm, 0, 1, 1 );
+
+	mea = new daeMetaElementAttribute( _Meta, cm, 0, 1, 1 );
+	mea->setName( "height" );
+	mea->setOffset( daeOffsetOf(domCylinder,elemHeight) );
+	mea->setElementType( domCylinder::domHeight::registerElement() );
+	cm->appendChild( mea );
+	
+	mea = new daeMetaElementAttribute( _Meta, cm, 1, 1, 1 );
+	mea->setName( "radius" );
+	mea->setOffset( daeOffsetOf(domCylinder,elemRadius) );
+	mea->setElementType( domCylinder::domRadius::registerElement() );
+	cm->appendChild( mea );
+	
+	mea = new daeMetaElementArrayAttribute( _Meta, cm, 2, 0, -1 );
+	mea->setName( "extra" );
+	mea->setOffset( daeOffsetOf(domCylinder,elemExtra_array) );
+	mea->setElementType( domExtra::registerElement() );
+	cm->appendChild( mea );
+	
+	cm->setMaxOrdinal( 2 );
+	_Meta->setCMRoot( cm );	
 	
 	
 	_Meta->setElementSize(sizeof(domCylinder));
@@ -59,9 +84,9 @@ domCylinder::domHeight::registerElement()
     
     _Meta = new daeMetaElement;
     _Meta->setName( "height" );
-	_Meta->setStaticPointerAddress(&domCylinder::domHeight::_Meta);
 	_Meta->registerConstructor(domCylinder::domHeight::create);
 
+	_Meta->setIsInnerClass( true );
 	//	Add attribute: _value
  	{
 		daeMetaAttribute *ma = new daeMetaAttribute;
@@ -94,9 +119,9 @@ domCylinder::domRadius::registerElement()
     
     _Meta = new daeMetaElement;
     _Meta->setName( "radius" );
-	_Meta->setStaticPointerAddress(&domCylinder::domRadius::_Meta);
 	_Meta->registerConstructor(domCylinder::domRadius::create);
 
+	_Meta->setIsInnerClass( true );
 	//	Add attribute: _value
  	{
 		daeMetaAttribute *ma = new daeMetaArrayAttribute;

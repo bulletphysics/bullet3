@@ -13,6 +13,12 @@
 
 #include <dae/daeDom.h>
 #include <dom/domLibrary_force_fields.h>
+#include <dae/daeMetaCMPolicy.h>
+#include <dae/daeMetaSequence.h>
+#include <dae/daeMetaChoice.h>
+#include <dae/daeMetaGroup.h>
+#include <dae/daeMetaAny.h>
+#include <dae/daeMetaElementAttribute.h>
 
 daeElementRef
 domLibrary_force_fields::create(daeInt bytes)
@@ -29,13 +35,32 @@ domLibrary_force_fields::registerElement()
     
     _Meta = new daeMetaElement;
     _Meta->setName( "library_force_fields" );
-	_Meta->setStaticPointerAddress(&domLibrary_force_fields::_Meta);
 	_Meta->registerConstructor(domLibrary_force_fields::create);
 
-	// Add elements: asset, force_field, extra
-    _Meta->appendElement(domAsset::registerElement(),daeOffsetOf(domLibrary_force_fields,elemAsset));
-    _Meta->appendArrayElement(domForce_field::registerElement(),daeOffsetOf(domLibrary_force_fields,elemForce_field_array));
-    _Meta->appendArrayElement(domExtra::registerElement(),daeOffsetOf(domLibrary_force_fields,elemExtra_array));
+	daeMetaCMPolicy *cm = NULL;
+	daeMetaElementAttribute *mea = NULL;
+	cm = new daeMetaSequence( _Meta, cm, 0, 1, 1 );
+
+	mea = new daeMetaElementAttribute( _Meta, cm, 0, 0, 1 );
+	mea->setName( "asset" );
+	mea->setOffset( daeOffsetOf(domLibrary_force_fields,elemAsset) );
+	mea->setElementType( domAsset::registerElement() );
+	cm->appendChild( mea );
+	
+	mea = new daeMetaElementArrayAttribute( _Meta, cm, 1, 1, -1 );
+	mea->setName( "force_field" );
+	mea->setOffset( daeOffsetOf(domLibrary_force_fields,elemForce_field_array) );
+	mea->setElementType( domForce_field::registerElement() );
+	cm->appendChild( mea );
+	
+	mea = new daeMetaElementArrayAttribute( _Meta, cm, 2, 0, -1 );
+	mea->setName( "extra" );
+	mea->setOffset( daeOffsetOf(domLibrary_force_fields,elemExtra_array) );
+	mea->setElementType( domExtra::registerElement() );
+	cm->appendChild( mea );
+	
+	cm->setMaxOrdinal( 2 );
+	_Meta->setCMRoot( cm );	
 
 	//	Add attribute: id
  	{

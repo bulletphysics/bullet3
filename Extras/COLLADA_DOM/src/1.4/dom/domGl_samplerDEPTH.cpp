@@ -13,6 +13,12 @@
 
 #include <dae/daeDom.h>
 #include <dom/domGl_samplerDEPTH.h>
+#include <dae/daeMetaCMPolicy.h>
+#include <dae/daeMetaSequence.h>
+#include <dae/daeMetaChoice.h>
+#include <dae/daeMetaGroup.h>
+#include <dae/daeMetaAny.h>
+#include <dae/daeMetaElementAttribute.h>
 
 daeElementRef
 domGl_samplerDEPTH::create(daeInt bytes)
@@ -29,15 +35,56 @@ domGl_samplerDEPTH::registerElement()
     
     _Meta = new daeMetaElement;
     _Meta->setName( "gl_samplerDEPTH" );
-	_Meta->setStaticPointerAddress(&domGl_samplerDEPTH::_Meta);
 	_Meta->registerConstructor(domGl_samplerDEPTH::create);
 
-	// Add elements: source, wrap_s, wrap_t, minfilter, magfilter
-    _Meta->appendElement(domSource::registerElement(),daeOffsetOf(domGl_samplerDEPTH,elemSource));
-    _Meta->appendElement(domWrap_s::registerElement(),daeOffsetOf(domGl_samplerDEPTH,elemWrap_s));
-    _Meta->appendElement(domWrap_t::registerElement(),daeOffsetOf(domGl_samplerDEPTH,elemWrap_t));
-    _Meta->appendElement(domMinfilter::registerElement(),daeOffsetOf(domGl_samplerDEPTH,elemMinfilter));
-    _Meta->appendElement(domMagfilter::registerElement(),daeOffsetOf(domGl_samplerDEPTH,elemMagfilter));
+	daeMetaCMPolicy *cm = NULL;
+	daeMetaElementAttribute *mea = NULL;
+	cm = new daeMetaSequence( _Meta, cm, 0, 1, 1 );
+
+	cm = new daeMetaSequence( _Meta, cm, 0, 1, 1 );
+
+	mea = new daeMetaElementAttribute( _Meta, cm, 0, 1, 1 );
+	mea->setName( "source" );
+	mea->setOffset( daeOffsetOf(domGl_samplerDEPTH,elemSource) );
+	mea->setElementType( domSource::registerElement() );
+	cm->appendChild( mea );
+	
+	mea = new daeMetaElementAttribute( _Meta, cm, 1, 0, 1 );
+	mea->setName( "wrap_s" );
+	mea->setOffset( daeOffsetOf(domGl_samplerDEPTH,elemWrap_s) );
+	mea->setElementType( domWrap_s::registerElement() );
+	cm->appendChild( mea );
+	
+	mea = new daeMetaElementAttribute( _Meta, cm, 2, 0, 1 );
+	mea->setName( "wrap_t" );
+	mea->setOffset( daeOffsetOf(domGl_samplerDEPTH,elemWrap_t) );
+	mea->setElementType( domWrap_t::registerElement() );
+	cm->appendChild( mea );
+	
+	mea = new daeMetaElementAttribute( _Meta, cm, 3, 0, 1 );
+	mea->setName( "minfilter" );
+	mea->setOffset( daeOffsetOf(domGl_samplerDEPTH,elemMinfilter) );
+	mea->setElementType( domMinfilter::registerElement() );
+	cm->appendChild( mea );
+	
+	mea = new daeMetaElementAttribute( _Meta, cm, 4, 0, 1 );
+	mea->setName( "magfilter" );
+	mea->setOffset( daeOffsetOf(domGl_samplerDEPTH,elemMagfilter) );
+	mea->setElementType( domMagfilter::registerElement() );
+	cm->appendChild( mea );
+	
+	mea = new daeMetaElementArrayAttribute( _Meta, cm, 5, 0, -1 );
+	mea->setName( "extra" );
+	mea->setOffset( daeOffsetOf(domGl_samplerDEPTH,elemExtra_array) );
+	mea->setElementType( domExtra::registerElement() );
+	cm->appendChild( mea );
+	
+	cm->setMaxOrdinal( 5 );
+	cm->getParent()->appendChild( cm );
+	cm = cm->getParent();
+	
+	cm->setMaxOrdinal( 5 );
+	_Meta->setCMRoot( cm );	
 	
 	
 	_Meta->setElementSize(sizeof(domGl_samplerDEPTH));

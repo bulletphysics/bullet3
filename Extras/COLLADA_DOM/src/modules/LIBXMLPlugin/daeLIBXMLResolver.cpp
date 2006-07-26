@@ -15,6 +15,7 @@
 #include <dae/daeDatabase.h>
 #include <dae/daeURI.h>
 #include <modules/daeLIBXMLPlugin.h>
+#include <dae/daeErrorHandler.h>
 
 daeLIBXMLResolver::daeLIBXMLResolver(daeDatabase* database,daeIOPlugin* plugin)
 {
@@ -100,10 +101,11 @@ daeLIBXMLResolver::resolveElement(daeURI& uri, daeString typeNameHint)
 		daeDocument *tempDocument;
 		if ( tempElement == NULL || (tempDocument = tempElement->getDocument()) == NULL ) {
 			uri.setState(daeURI::uri_failed_missing_container);
-			fprintf(stderr,
+			char msg[256];
+			sprintf(msg,
 					"daeLIBXMLResolver::resolveElement() - failed to resolve %s\n",
 					uri.getURI());
-			fflush(stderr);
+			daeErrorHandler::get()->handleError( msg );
 			return false;
 		}
 		//assert(tempDocument);
@@ -119,10 +121,11 @@ daeLIBXMLResolver::resolveElement(daeURI& uri, daeString typeNameHint)
 	if (status ||(resolved==NULL)) 
 	{
 		uri.setState(daeURI::uri_failed_id_not_found);
-		fprintf(stderr,
+		char msg[256];
+		sprintf(msg,
 				"daeLIBXMLResolver::resolveElement() - failed to resolve %s\n",
 				uri.getURI());
-		fflush(stderr);
+		daeErrorHandler::get()->handleError( msg );
 		return false;
 	}
 
