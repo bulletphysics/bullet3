@@ -220,6 +220,10 @@ SOURCE=..\..\Extras\COLLADA_DOM\src\1.4\dom\domCommon_newparam_type.cpp
 # End Source File
 # Begin Source File
 
+SOURCE=..\..\Extras\COLLADA_DOM\src\1.4\dom\domCommon_transparent_type.cpp
+# End Source File
+# Begin Source File
+
 SOURCE=..\..\Extras\COLLADA_DOM\src\1.4\dom\domConstants.cpp
 # End Source File
 # Begin Source File
@@ -328,15 +332,35 @@ SOURCE=..\..\Extras\COLLADA_DOM\src\1.4\dom\domFx_samplerRECT_common.cpp
 # End Source File
 # Begin Source File
 
-SOURCE=..\..\Extras\COLLADA_DOM\src\1.4\dom\domFx_setparam_common.cpp
-# End Source File
-# Begin Source File
-
 SOURCE=..\..\Extras\COLLADA_DOM\src\1.4\dom\domFx_stenciltarget_common.cpp
 # End Source File
 # Begin Source File
 
 SOURCE=..\..\Extras\COLLADA_DOM\src\1.4\dom\domFx_surface_common.cpp
+# End Source File
+# Begin Source File
+
+SOURCE=..\..\Extras\COLLADA_DOM\src\1.4\dom\domFx_surface_format_hint_common.cpp
+# End Source File
+# Begin Source File
+
+SOURCE=..\..\Extras\COLLADA_DOM\src\1.4\dom\domFx_surface_init_common.cpp
+# End Source File
+# Begin Source File
+
+SOURCE=..\..\Extras\COLLADA_DOM\src\1.4\dom\domFx_surface_init_cube_common.cpp
+# End Source File
+# Begin Source File
+
+SOURCE=..\..\Extras\COLLADA_DOM\src\1.4\dom\domFx_surface_init_from_common.cpp
+# End Source File
+# Begin Source File
+
+SOURCE=..\..\Extras\COLLADA_DOM\src\1.4\dom\domFx_surface_init_planar_common.cpp
+# End Source File
+# Begin Source File
+
+SOURCE=..\..\Extras\COLLADA_DOM\src\1.4\dom\domFx_surface_init_volume_common.cpp
 # End Source File
 # Begin Source File
 
@@ -808,11 +832,39 @@ SOURCE=..\..\Extras\COLLADA_DOM\src\dae\daeMemorySystem.cpp
 # End Source File
 # Begin Source File
 
+SOURCE=..\..\Extras\COLLADA_DOM\src\dae\daeMetaAny.cpp
+# End Source File
+# Begin Source File
+
 SOURCE=..\..\Extras\COLLADA_DOM\src\dae\daeMetaAttribute.cpp
 # End Source File
 # Begin Source File
 
+SOURCE=..\..\Extras\COLLADA_DOM\src\dae\daeMetaChoice.cpp
+# End Source File
+# Begin Source File
+
+SOURCE=..\..\Extras\COLLADA_DOM\src\dae\daeMetaCMPolicy.cpp
+# End Source File
+# Begin Source File
+
 SOURCE=..\..\Extras\COLLADA_DOM\src\dae\daeMetaElement.cpp
+# End Source File
+# Begin Source File
+
+SOURCE=..\..\Extras\COLLADA_DOM\src\dae\daeMetaElementAttribute.cpp
+# End Source File
+# Begin Source File
+
+SOURCE=..\..\Extras\COLLADA_DOM\src\dae\daeMetaGroup.cpp
+# End Source File
+# Begin Source File
+
+SOURCE=..\..\Extras\COLLADA_DOM\src\dae\daeMetaSequence.cpp
+# End Source File
+# Begin Source File
+
+SOURCE=..\..\Extras\COLLADA_DOM\src\dae\daeSIDResolver.cpp
 # End Source File
 # Begin Source File
 
