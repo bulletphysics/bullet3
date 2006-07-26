@@ -1,6 +1,10 @@
 Bullet Continuous Collision Detection and Physics Library
 Erwin Coumans
 
+2006 July 26 Erwin Coumans
+	Upgraded to COLLADA-DOM 1.4.1, latest SVN version
+	ColladaDemo can export snapshots to .dae
+	
 2006 July 24 Erwin Coumans
 	Added Compound CollisionShape support
 	(this is still low performance -> requires stackless tree-versus-tree traversal for better performance)
