@@ -1517,7 +1517,7 @@ int main(int argc,char** argv)
 
 	setCameraDistance(26.f);
 
-	return glutmain(argc, argv,640,480,"Bullet Collada Physics Viewer. http://www.continuousphysics.com/Bullet/phpBB2/");
+	return glutmain(argc, argv,640,480,"Bullet COLLADA Physics Viewer http://bullet.sourceforge.net");
 }
 
 //to be implemented by the demo
@@ -1673,15 +1673,14 @@ void renderme()
 		//<< std::endl;
 
 
-
-		glRasterPos3f(xOffset,yStart,0);
-		sprintf(buf,"mouse to interact");
-		BMF_DrawString(BMF_GetFont(BMF_kHelvetica10),buf);
-		yStart += yIncr;
-
 		SimdVector3 textPos = offset + up*yStart;
 		glRasterPos3f(textPos.getX(),textPos.getY(),textPos.getZ());
+		sprintf(buf,"mouse to interact");
+		BMF_DrawString(BMF_GetFont(BMF_kHelvetica10),buf);
 
+		yStart += yIncr;
+		textPos = offset + up*yStart;
+		glRasterPos3f(textPos.getX(),textPos.getY(),textPos.getZ());
 		sprintf(buf,"space to reset");
 		BMF_DrawString(BMF_GetFont(BMF_kHelvetica10),buf);
 		yStart += yIncr;
@@ -1718,6 +1717,18 @@ void renderme()
 		glRasterPos3f(textPos.getX(),textPos.getY(),textPos.getZ());
 
 		sprintf(buf,"a to draw temporal AABBs");
+		BMF_DrawString(BMF_GetFont(BMF_kHelvetica10),buf);
+		yStart += yIncr;
+
+		textPos = offset + up*yStart ;
+		glRasterPos3f(textPos.getX(),textPos.getY(),textPos.getZ());
+		sprintf(buf,"e to export COLLADA 1.4 physics snapshot");
+		BMF_DrawString(BMF_GetFont(BMF_kHelvetica10),buf);
+		yStart += yIncr;
+
+		textPos = offset + up*yStart ;
+		glRasterPos3f(textPos.getX(),textPos.getY(),textPos.getZ());
+		sprintf(buf,"c to show contact points (wireframe more)");
 		BMF_DrawString(BMF_GetFont(BMF_kHelvetica10),buf);
 		yStart += yIncr;
 
