@@ -25,9 +25,18 @@ daeMetaAttribute::set(daeElement* e, daeString s)
 			daeErrorHandler::get()->handleWarning(msg);
 		}
 		else if ( strcmp(s, "INF") == 0 ) {
-			char msg[256];
-			sprintf(msg, "INF encountered while setting %s attribute in %s element.\n", (daeString)_name, (daeString)_container->getName() );
-			daeErrorHandler::get()->handleWarning( msg );
+			//quick workaround for http://sourceforge.net/tracker/index.php?func=detail&aid=1530106&group_id=157838&atid=805424
+			s = "999999.9";
+			//char msg[256];
+			//sprintf(msg, "INF encountered while setting %s attribute in %s element.\n", (daeString)_name, (daeString)_container->getName() );
+			//daeErrorHandler::get()->handleWarning( msg );
+		}
+		else if ( strcmp(s, "-INF") == 0 ) {
+			s = "-999999.9";
+			//quick workaround for http://sourceforge.net/tracker/index.php?func=detail&aid=1530106&group_id=157838&atid=805424
+			//char msg[256];
+			//sprintf(msg, "-INF encountered while setting %s attribute in %s element.\n", (daeString)_name, (daeString)_container->getName() );
+			//daeErrorHandler::get()->handleWarning( msg );
 		}
 	}
 	_type->stringToMemory((char*)s, getWritableMemory(e));
@@ -50,9 +59,18 @@ daeMetaArrayAttribute::set(daeElement* e, daeString s)
 			daeErrorHandler::get()->handleWarning(msg);
 		}
 		else if ( strcmp(s, "INF") == 0 ) {
-			char msg[256];
-			sprintf(msg, "INF encountered while setting %s attribute in %s element.\n", (daeString)_name, (daeString)_container->getName() );
-			daeErrorHandler::get()->handleWarning( msg );
+			s = "999999.9";
+			//quick workaround for http://sourceforge.net/tracker/index.php?func=detail&aid=1530106&group_id=157838&atid=805424
+			//char msg[256];
+			//sprintf(msg, "INF encountered while setting %s attribute in %s element.\n", (daeString)_name, (daeString)_container->getName() );
+			//daeErrorHandler::get()->handleWarning( msg );
+		}
+		else if ( strcmp(s, "-INF") == 0 ) {
+			s = "-999999.9";
+			//quick workaround for http://sourceforge.net/tracker/index.php?func=detail&aid=1530106&group_id=157838&atid=805424
+			//char msg[256];
+			//sprintf(msg, "-INF encountered while setting %s attribute in %s element.\n", (daeString)_name, (daeString)_container->getName() );
+			//daeErrorHandler::get()->handleWarning( msg );
 		}
 	}
 	daeArray* array = (daeArray*)getWritableMemory(e);

@@ -1499,13 +1499,55 @@ int main(int argc,char** argv)
 
 						} //for  each  instance_rigid_body
 
+						
+					} //for each physics model
 
-						//we don't handle constraints just yet
-						for (int c=0;c<instance_physicsModelRef->getInstance_rigid_constraint_array().getCount();i++)
+					//we don't handle constraints just yet
+					for (int m=0;m<physicsSceneRef->getInstance_physics_model_array().getCount();m++)
+					{
+						domInstance_physics_modelRef instance_physicsModelRef = physicsSceneRef->getInstance_physics_model_array()[m];
+
+						daeElementRef ref = instance_physicsModelRef->getUrl().getElement();
+
+						domPhysics_modelRef model = *(domPhysics_modelRef*)&ref; 
+
+						for (int c=0;c<instance_physicsModelRef->getInstance_rigid_constraint_array().getCount();c++)
 						{
+							domInstance_rigid_constraintRef constraintRef = instance_physicsModelRef->getInstance_rigid_constraint_array().get(c);
+							xsNCName constraintName = constraintRef->getConstraint();
+
+							if (constraintName && model)
+							{
+								//try to find the rigid body
+								int numConstraints= model->getRigid_constraint_array().getCount();
+
+								for (int r=0;r<numConstraints;r++)
+								{
+									domRigid_constraintRef rigidConstraintRef = model->getRigid_constraint_array()[r];
+									
+									if (rigidConstraintRef->getSid() && !strcmp(rigidConstraintRef->getSid(),constraintName))
+									{
+										/*
+										//two bodies
+										rigidConstraintRef->getRef_attachment();
+										rigidConstraintRef->getAttachment();
+
+										
+										const domRigid_constraint::domTechnique_commonRef commonRef = rigidConstraintRef->getTechnique_common();
+										domFloat3 flMax = commonRef->getLimits()->getLinear()->getMax()->getValue();
+										SimdVector3 maxLinearLimit(flMax.get(0),flMax.get(1),flMax.get(2));
+										domFloat3 flMin = commonRef->getLimits()->getLinear()->getMin()->getValue();
+										SimdVector3 minLinearLimit(flMin.get(0),flMin.get(1),flMin.get(2));
+										commonRef->getLimits()->getSwing_cone_and_twist();
+*/
+
+									}
+								}
+							}
 
 						}
-					}
+					} //2nd time, for each physics model
+
 				}
 			}
 
