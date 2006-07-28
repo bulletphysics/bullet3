@@ -87,8 +87,56 @@ extern int	gForwardAxis;
 #include "dae.h"
 #include "dom/domCOLLADA.h"
 
+
+
+
 DAE* collada = 0;
 domCOLLADA* dom = 0;
+
+
+domMatrix_Array emptyMatrixArray;
+
+SimdTransform	GetSimdTransformFromCOLLADA_DOM(domMatrix_Array& matrixArray,
+														domRotate_Array& rotateArray,
+														domTranslate_Array& translateArray
+														)
+
+{
+	SimdTransform	startTransform;
+	startTransform.setIdentity();
+	
+	int i;
+	//either load the matrix (worldspace) or incrementally build the transform from 'translate'/'rotate'
+	for (i=0;i<matrixArray.getCount();i++)
+	{
+		domMatrixRef matrixRef = matrixArray[i];
+		domFloat4x4 fl16 = matrixRef->getValue();
+		SimdVector3 origin(fl16.get(3),fl16.get(7),fl16.get(11));
+		startTransform.setOrigin(origin);
+		SimdMatrix3x3 basis(fl16.get(0),fl16.get(1),fl16.get(2),
+							fl16.get(4),fl16.get(5),fl16.get(6),
+							fl16.get(8),fl16.get(9),fl16.get(10));
+		startTransform.setBasis(basis);
+	}
+
+	for (i=0;i<rotateArray.getCount();i++)
+	{
+		domRotateRef rotateRef = rotateArray[i];
+		domFloat4 fl4 = rotateRef->getValue();
+		float angleRad = SIMD_RADS_PER_DEG*fl4.get(3);
+		SimdQuaternion rotQuat(SimdVector3(fl4.get(0),fl4.get(1),fl4.get(2)),angleRad);
+		startTransform.getBasis() = startTransform.getBasis() * SimdMatrix3x3(rotQuat);
+	}
+
+	for (i=0;i<translateArray.getCount();i++)
+	{
+		domTranslateRef translateRef = translateArray[i];
+		domFloat3 fl3 = translateRef->getValue();
+		startTransform.getOrigin() += SimdVector3(fl3.get(0),fl3.get(1),fl3.get(2));
+	}
+	return startTransform;
+}
+
 
 #endif
 
@@ -160,7 +208,7 @@ CollisionShape* gShapePtr[maxNumObjects];//1 rigidbody has 1 shape (no re-use of
 ////////////////////////////////////
 
 ///Very basic import
-void	CreatePhysicsObject(bool isDynamic, float mass, const SimdTransform& startTransform,CollisionShape* shape)
+CcdPhysicsController*  CreatePhysicsObject(bool isDynamic, float mass, const SimdTransform& startTransform,CollisionShape* shape)
 {
 
 	startTransforms[numObjects] = startTransform;
@@ -245,8 +293,8 @@ void	CreatePhysicsObject(bool isDynamic, float mass, const SimdTransform& startT
 
 	}
 
-	numObjects++;
-
+	//return newly created PhysicsController
+	return physObjects[numObjects++];
 }
 
 
@@ -1449,38 +1497,12 @@ int main(int argc,char** argv)
 
 									//find transform of the node that this rigidbody maps to
 
-									int i;
-									//either load the matrix (worldspace) or incrementally build the transform from 'translate'/'rotate'
-									for (i=0;i<node->getMatrix_array().getCount();i++)
-									{
-										domMatrixRef matrixRef = node->getMatrix_array()[i];
-										domFloat4x4 fl16 = matrixRef->getValue();
-										SimdVector3 origin(fl16.get(3),fl16.get(7),fl16.get(11));
-										startTransform.setOrigin(origin);
-										SimdMatrix3x3 basis(fl16.get(0),fl16.get(1),fl16.get(2),
-															fl16.get(4),fl16.get(5),fl16.get(6),
-															fl16.get(8),fl16.get(9),fl16.get(10));
-										startTransform.setBasis(basis);
-									}
-
-
-									
-
-									for (i=0;i<node->getRotate_array().getCount();i++)
-									{
-										domRotateRef rotateRef = node->getRotate_array()[i];
-										domFloat4 fl4 = rotateRef->getValue();
-										float angleRad = SIMD_RADS_PER_DEG*fl4.get(3);
-										SimdQuaternion rotQuat(SimdVector3(fl4.get(0),fl4.get(1),fl4.get(2)),angleRad);
-										startTransform.getBasis() = startTransform.getBasis() * SimdMatrix3x3(rotQuat);
-									}
-
-									for (i=0;i<node->getTranslate_array().getCount();i++)
-									{
-										domTranslateRef translateRef = node->getTranslate_array()[i];
-										domFloat3 fl3 = translateRef->getValue();
-										startTransform.getOrigin() += SimdVector3(fl3.get(0),fl3.get(1),fl3.get(2));
-									}
+							
+									startTransform = GetSimdTransformFromCOLLADA_DOM(
+														node->getMatrix_array(),
+														node->getRotate_array(),
+														node->getTranslate_array()
+														);
 
 									for (i=0;i<node->getScale_array().getCount();i++)
 									{
@@ -1493,7 +1515,9 @@ int main(int argc,char** argv)
 
 					
 							
-								CreatePhysicsObject(isDynamics,mass,startTransform,colShape);
+								CcdPhysicsController* ctrl = CreatePhysicsObject(isDynamics,mass,startTransform,colShape);
+								//for bodyName lookup in constraints
+								ctrl->setNewClientInfo((void*)bodyName);
 
 							}
 
@@ -1527,19 +1551,128 @@ int main(int argc,char** argv)
 									
 									if (rigidConstraintRef->getSid() && !strcmp(rigidConstraintRef->getSid(),constraintName))
 									{
-										/*
+										
 										//two bodies
-										rigidConstraintRef->getRef_attachment();
-										rigidConstraintRef->getAttachment();
+										const domRigid_constraint::domRef_attachmentRef attachRefBody = rigidConstraintRef->getRef_attachment();
+										const domRigid_constraint::domAttachmentRef attachBody1 = rigidConstraintRef->getAttachment();
+
+										daeString uri = attachRefBody->getRigid_body().getURI();
+										daeString orgUri0 = attachRefBody->getRigid_body().getOriginalURI();
+										daeString orgUri1 = attachBody1->getRigid_body().getOriginalURI();
+										CcdPhysicsController* ctrl0=0,*ctrl1=0;
+										
+										for (int i=0;i<numObjects;i++)
+										{
+											char* bodyName = (char*)physObjects[i]->getNewClientInfo();
+											if (!strcmp(bodyName,orgUri0))
+											{
+												printf("found\n");
+												ctrl0=physObjects[i];
+											}
+											if (!strcmp(bodyName,orgUri1))
+											{
+												ctrl1=physObjects[i];
+											}
+										}
+
+
+
+										const domRigid_constraint::domAttachmentRef attachOtherBody = rigidConstraintRef->getAttachment();
 
 										
 										const domRigid_constraint::domTechnique_commonRef commonRef = rigidConstraintRef->getTechnique_common();
-										domFloat3 flMax = commonRef->getLimits()->getLinear()->getMax()->getValue();
-										SimdVector3 maxLinearLimit(flMax.get(0),flMax.get(1),flMax.get(2));
+										
 										domFloat3 flMin = commonRef->getLimits()->getLinear()->getMin()->getValue();
 										SimdVector3 minLinearLimit(flMin.get(0),flMin.get(1),flMin.get(2));
-										commonRef->getLimits()->getSwing_cone_and_twist();
-*/
+										
+										domFloat3 flMax = commonRef->getLimits()->getLinear()->getMax()->getValue();
+										SimdVector3 maxLinearLimit(flMax.get(0),flMax.get(1),flMax.get(2));
+																			
+										domFloat3 coneMinLimit = commonRef->getLimits()->getSwing_cone_and_twist()->getMin()->getValue();
+										SimdVector3 angularMin(coneMinLimit.get(0),coneMinLimit.get(1),coneMinLimit.get(2));
+
+										domFloat3 coneMaxLimit = commonRef->getLimits()->getSwing_cone_and_twist()->getMax()->getValue();
+										SimdVector3 angularMax(coneMaxLimit.get(0),coneMaxLimit.get(1),coneMaxLimit.get(2));
+
+										{
+											int constraintId;
+
+											SimdTransform attachFrameRef0;
+											attachFrameRef0 = 
+												GetSimdTransformFromCOLLADA_DOM
+												(
+												emptyMatrixArray,
+												attachRefBody->getRotate_array(),
+												attachRefBody->getTranslate_array());
+
+											SimdTransform attachFrameOther;
+											attachFrameOther =
+												GetSimdTransformFromCOLLADA_DOM
+												(
+												emptyMatrixArray,
+												attachBody1->getRotate_array(),
+												attachBody1->getTranslate_array()
+												);
+
+
+											//convert INF / -INF into lower > upper
+
+											//currently there is a hack in the DOM to detect INF / -INF
+											//see daeMetaAttribute.cpp
+											//INF -> 999999.9
+											//-INF -> -999999.9
+											float linearCheckTreshold = 999999.0;
+											float angularCheckTreshold = 180.0;//check this
+
+
+
+											
+											//free means upper < lower, 
+											//locked means upper == lower
+											//limited means upper > lower
+											//limitIndex: first 3 are linear, next 3 are angular
+
+											SimdVector3 linearLowerLimits = minLinearLimit;
+											SimdVector3 linearUpperLimits = maxLinearLimit;
+											SimdVector3 angularLowerLimits = angularMin;
+											SimdVector3 angularUpperLimits = angularMax;
+											{
+												for (int i=0;i<3;i++)
+												{
+													if  ((linearLowerLimits[i] < -linearCheckTreshold) ||
+														(linearUpperLimits[i] > linearCheckTreshold))
+													{
+														//disable limits
+														linearLowerLimits[i] = 1;
+														linearUpperLimits[i] = 0;
+													}
+
+													if  ((angularLowerLimits[i] < -angularCheckTreshold) ||
+														(angularUpperLimits[i] > angularCheckTreshold))
+													{
+														//disable limits
+														angularLowerLimits[i] = 1;
+														angularUpperLimits[i] = 0;
+													}
+												}
+											}
+
+
+											constraintId =physicsEnvironmentPtr->createUniversalD6Constraint(
+											ctrl0,
+											ctrl1,
+											attachFrameRef0,
+											attachFrameOther,
+											linearLowerLimits,
+											linearUpperLimits,
+											angularLowerLimits,
+											angularUpperLimits
+												);
+
+
+										}
+
+
 
 									}
 								}

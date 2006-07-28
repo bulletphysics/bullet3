@@ -20,6 +20,8 @@ subject to the following restrictions:
 #include <vector>
 class CcdPhysicsController;
 #include "SimdVector3.h"
+#include "SimdTransform.h"
+
 
 
 
@@ -119,6 +121,20 @@ protected:
 		virtual int			createConstraint(class PHY_IPhysicsController* ctrl,class PHY_IPhysicsController* ctrl2,PHY_ConstraintType type,
 			float pivotX,float pivotY,float pivotZ,
 			float axisX,float axisY,float axisZ);
+
+
+		//Following the COLLADA physics specification for constraints
+		virtual int			createUniversalD6Constraint(
+		class PHY_IPhysicsController* ctrlRef,class PHY_IPhysicsController* ctrlOther,
+			SimdTransform& localAttachmentFrameRef,
+			SimdTransform& localAttachmentOther,
+			const SimdVector3& linearMinLimits,
+			const SimdVector3& linearMaxLimits,
+			const SimdVector3& angularMinLimits,
+			const SimdVector3& angularMaxLimits
+			);
+
+
 	    virtual void		removeConstraint(int	constraintid);
 
 

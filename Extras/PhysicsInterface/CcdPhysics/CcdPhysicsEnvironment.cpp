@@ -1327,6 +1327,62 @@ int			CcdPhysicsEnvironment::createConstraint(class PHY_IPhysicsController* ctrl
 
 }
 
+
+
+
+//Following the COLLADA physics specification for constraints
+int			CcdPhysicsEnvironment::createUniversalD6Constraint(
+						class PHY_IPhysicsController* ctrlRef,class PHY_IPhysicsController* ctrlOther,
+						SimdTransform& frameInA,
+						SimdTransform& frameInB,
+						const SimdVector3& linearMinLimits,
+						const SimdVector3& linearMaxLimits,
+						const SimdVector3& angularMinLimits,
+						const SimdVector3& angularMaxLimits
+)
+{
+
+	//we could either add some logic to recognize ball-socket and hinge, or let that up to the user
+	//perhaps some warning or hint that hinge/ball-socket is more efficient?
+	
+	Generic6DofConstraint* genericConstraint = 0;
+	CcdPhysicsController* ctrl0 = (CcdPhysicsController*) ctrlRef;
+	CcdPhysicsController* ctrl1 = (CcdPhysicsController*) ctrlOther;
+	
+	RigidBody* rb0 = ctrl0->GetRigidBody();
+	RigidBody* rb1 = ctrl1->GetRigidBody();
+
+	if (rb1)
+	{
+		
+
+		genericConstraint = new Generic6DofConstraint(
+			*rb0,*rb1,
+			frameInA,frameInB);
+		genericConstraint->setLinearLowerLimit(linearMinLimits);
+		genericConstraint->setLinearUpperLimit(linearMaxLimits);
+		genericConstraint->setAngularLowerLimit(angularMinLimits);
+		genericConstraint->setAngularUpperLimit(angularMaxLimits);
+	} else
+	{
+		// TODO: Implement single body case...
+		//No, we can use a fixed rigidbody in above code, rather then unnecessary duplation of code
+
+	}
+	
+	if (genericConstraint)
+	{
+		m_constraints.push_back(genericConstraint);
+		genericConstraint->SetUserConstraintId(gConstraintUid++);
+		genericConstraint->SetUserConstraintType(PHY_GENERIC_6DOF_CONSTRAINT);
+		//64 bit systems can't cast pointer to int. could use size_t instead.
+		return genericConstraint->GetUserConstraintId();
+	}
+	return 0;
+}
+
+
+
 void		CcdPhysicsEnvironment::removeConstraint(int	constraintId)
 {
 	std::vector<TypedConstraint*>::iterator i;

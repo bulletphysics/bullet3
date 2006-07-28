@@ -32,6 +32,10 @@ Generic6DofConstraint::Generic6DofConstraint(RigidBody& rbA, RigidBody& rbB, con
 , m_frameInA(frameInA)
 , m_frameInB(frameInB)
 {
+	//free means upper < lower, 
+	//locked means upper == lower
+	//limited means upper > lower
+	//so start all locked
 	for (int i=0; i<6;++i)
 	{
 		m_lowerLimit[i] = 0.0f;
@@ -59,50 +63,56 @@ void Generic6DofConstraint::BuildJacobian()
 	//linear part
 	for (i=0;i<3;i++)
 	{
-		normal[i] = 1;
-		
-		// Create linear atom
-		new (&m_jac[i]) JacobianEntry(
-			m_rbA.getCenterOfMassTransform().getBasis().transpose(),
-			m_rbB.getCenterOfMassTransform().getBasis().transpose(),
-			m_rbA.getCenterOfMassTransform()*pivotInA - m_rbA.getCenterOfMassPosition(),
-			m_rbB.getCenterOfMassTransform()*pivotInB - m_rbB.getCenterOfMassPosition(),
-			normal,
-			m_rbA.getInvInertiaDiagLocal(),
-			m_rbA.getInvMass(),
-			m_rbB.getInvInertiaDiagLocal(),
-			m_rbB.getInvMass());
+		if (isLimited(i))
+		{
+			normal[i] = 1;
+			
+			// Create linear atom
+			new (&m_jacLinear[i]) JacobianEntry(
+				m_rbA.getCenterOfMassTransform().getBasis().transpose(),
+				m_rbB.getCenterOfMassTransform().getBasis().transpose(),
+				m_rbA.getCenterOfMassTransform()*pivotInA - m_rbA.getCenterOfMassPosition(),
+				m_rbB.getCenterOfMassTransform()*pivotInB - m_rbB.getCenterOfMassPosition(),
+				normal,
+				m_rbA.getInvInertiaDiagLocal(),
+				m_rbA.getInvMass(),
+				m_rbB.getInvInertiaDiagLocal(),
+				m_rbB.getInvMass());
 
-		// Apply accumulated impulse
-		SimdVector3 impulse_vector = m_accumulatedImpulse[i] * normal;
+			// Apply accumulated impulse
+			SimdVector3 impulse_vector = m_accumulatedImpulse[i] * normal;
 
-		m_rbA.applyImpulse( impulse_vector, rel_pos1);
-		m_rbB.applyImpulse(-impulse_vector, rel_pos2);
+			m_rbA.applyImpulse( impulse_vector, rel_pos1);
+			m_rbB.applyImpulse(-impulse_vector, rel_pos2);
 
-		normal[i] = 0;
+			normal[i] = 0;
+		}
 	}
 
 	// angular part
 	for (i=0;i<3;i++)
 	{
-		SimdVector3 axisA = m_rbA.getCenterOfMassTransform().getBasis() * m_frameInA.getBasis().getColumn( kAxisA[i] );
-		SimdVector3 axisB = m_rbB.getCenterOfMassTransform().getBasis() * m_frameInB.getBasis().getColumn( kAxisB[i] );
+		if (isLimited(i+3))
+		{
+			SimdVector3 axisA = m_rbA.getCenterOfMassTransform().getBasis() * m_frameInA.getBasis().getColumn( kAxisA[i] );
+			SimdVector3 axisB = m_rbB.getCenterOfMassTransform().getBasis() * m_frameInB.getBasis().getColumn( kAxisB[i] );
 
-		// Dirk: This is IMO mathematically the correct way, but we should consider axisA and axisB being near parallel maybe
-		SimdVector3 axis = kSign[i] * axisA.cross(axisB);
+			// Dirk: This is IMO mathematically the correct way, but we should consider axisA and axisB being near parallel maybe
+			SimdVector3 axis = kSign[i] * axisA.cross(axisB);
 
-		// Create angular atom
-		new (&m_jacAng[i])	JacobianEntry(axis,
-			m_rbA.getCenterOfMassTransform().getBasis().transpose(),
-			m_rbB.getCenterOfMassTransform().getBasis().transpose(),
-			m_rbA.getInvInertiaDiagLocal(),
-			m_rbB.getInvInertiaDiagLocal());
+			// Create angular atom
+			new (&m_jacAng[i])	JacobianEntry(axis,
+				m_rbA.getCenterOfMassTransform().getBasis().transpose(),
+				m_rbB.getCenterOfMassTransform().getBasis().transpose(),
+				m_rbA.getInvInertiaDiagLocal(),
+				m_rbB.getInvInertiaDiagLocal());
 
-		// Apply accumulated impulse
-		SimdVector3 impulse_vector = m_accumulatedImpulse[i + 3] * axis;
+			// Apply accumulated impulse
+			SimdVector3 impulse_vector = m_accumulatedImpulse[i + 3] * axis;
 
-		m_rbA.applyTorqueImpulse( impulse_vector);
-		m_rbB.applyTorqueImpulse(-impulse_vector);
+			m_rbA.applyTorqueImpulse( impulse_vector);
+			m_rbB.applyTorqueImpulse(-impulse_vector);
+		}
 	}
 }
 
@@ -123,58 +133,64 @@ void	Generic6DofConstraint::SolveConstraint(SimdScalar	timeStep)
 	// linear
 	for (i=0;i<3;i++)
 	{		
-		SimdVector3 angvelA = m_rbA.getCenterOfMassTransform().getBasis().transpose() * m_rbA.getAngularVelocity();
-		SimdVector3 angvelB = m_rbB.getCenterOfMassTransform().getBasis().transpose() * m_rbB.getAngularVelocity();
-	
-
-		normal[i] = 1;
-		SimdScalar jacDiagABInv = 1.f / m_jac[i].getDiagonal();
-
-		//velocity error (first order error)
-		SimdScalar rel_vel = m_jac[i].getRelativeVelocity(m_rbA.getLinearVelocity(),angvelA, 
-																m_rbB.getLinearVelocity(),angvelB);
-	
-		//positional error (zeroth order error)
-		SimdScalar depth = -(pivotAInW - pivotBInW).dot(normal); 
+		if (isLimited(i))
+		{
+			SimdVector3 angvelA = m_rbA.getCenterOfMassTransform().getBasis().transpose() * m_rbA.getAngularVelocity();
+			SimdVector3 angvelB = m_rbB.getCenterOfMassTransform().getBasis().transpose() * m_rbB.getAngularVelocity();
 		
-		SimdScalar impulse = (tau*depth/timeStep - damping*rel_vel) * jacDiagABInv;
-		m_accumulatedImpulse[i] += impulse;
 
-		SimdVector3 impulse_vector = normal * impulse;
-		m_rbA.applyImpulse( impulse_vector, rel_pos1);
-		m_rbB.applyImpulse(-impulse_vector, rel_pos2);
+			normal[i] = 1;
+			SimdScalar jacDiagABInv = 1.f / m_jacLinear[i].getDiagonal();
+
+			//velocity error (first order error)
+			SimdScalar rel_vel = m_jacLinear[i].getRelativeVelocity(m_rbA.getLinearVelocity(),angvelA, 
+																	m_rbB.getLinearVelocity(),angvelB);
 		
-		normal[i] = 0;
+			//positional error (zeroth order error)
+			SimdScalar depth = -(pivotAInW - pivotBInW).dot(normal); 
+			
+			SimdScalar impulse = (tau*depth/timeStep - damping*rel_vel) * jacDiagABInv;
+			m_accumulatedImpulse[i] += impulse;
+
+			SimdVector3 impulse_vector = normal * impulse;
+			m_rbA.applyImpulse( impulse_vector, rel_pos1);
+			m_rbB.applyImpulse(-impulse_vector, rel_pos2);
+			
+			normal[i] = 0;
+		}
 	}
 
 	// angular
 	for (i=0;i<3;i++)
 	{
-		SimdVector3 angvelA = m_rbA.getCenterOfMassTransform().getBasis().transpose() * m_rbA.getAngularVelocity();
-		SimdVector3 angvelB = m_rbB.getCenterOfMassTransform().getBasis().transpose() * m_rbB.getAngularVelocity();
-	
-		SimdScalar jacDiagABInv = 1.f / m_jacAng[i].getDiagonal();
+		if (isLimited(i+3))
+		{
+			SimdVector3 angvelA = m_rbA.getCenterOfMassTransform().getBasis().transpose() * m_rbA.getAngularVelocity();
+			SimdVector3 angvelB = m_rbB.getCenterOfMassTransform().getBasis().transpose() * m_rbB.getAngularVelocity();
 		
-		//velocity error (first order error)
-		SimdScalar rel_vel = m_jacAng[i].getRelativeVelocity(m_rbA.getLinearVelocity(),angvelA, 
-																		m_rbB.getLinearVelocity(),angvelB);
+			SimdScalar jacDiagABInv = 1.f / m_jacAng[i].getDiagonal();
+			
+			//velocity error (first order error)
+			SimdScalar rel_vel = m_jacAng[i].getRelativeVelocity(m_rbA.getLinearVelocity(),angvelA, 
+																			m_rbB.getLinearVelocity(),angvelB);
 
-		//positional error (zeroth order error)
-		SimdVector3 axisA = m_rbA.getCenterOfMassTransform().getBasis() * m_frameInA.getBasis().getColumn( kAxisA[i] );
-		SimdVector3 axisB = m_rbB.getCenterOfMassTransform().getBasis() * m_frameInB.getBasis().getColumn( kAxisB[i] );
+			//positional error (zeroth order error)
+			SimdVector3 axisA = m_rbA.getCenterOfMassTransform().getBasis() * m_frameInA.getBasis().getColumn( kAxisA[i] );
+			SimdVector3 axisB = m_rbB.getCenterOfMassTransform().getBasis() * m_frameInB.getBasis().getColumn( kAxisB[i] );
 
-		SimdScalar rel_pos = kSign[i] * axisA.dot(axisB);
+			SimdScalar rel_pos = kSign[i] * axisA.dot(axisB);
 
-		//impulse
-		SimdScalar impulse = -(tau*rel_pos/timeStep + damping*rel_vel) * jacDiagABInv;
-		m_accumulatedImpulse[i + 3] += impulse;
-		
-		// Dirk: Not needed - we could actually project onto Jacobian entry here (same as above)
-		SimdVector3 axis = kSign[i] * axisA.cross(axisB);
-		SimdVector3 impulse_vector = axis * impulse;
+			//impulse
+			SimdScalar impulse = -(tau*rel_pos/timeStep + damping*rel_vel) * jacDiagABInv;
+			m_accumulatedImpulse[i + 3] += impulse;
+			
+			// Dirk: Not needed - we could actually project onto Jacobian entry here (same as above)
+			SimdVector3 axis = kSign[i] * axisA.cross(axisB);
+			SimdVector3 impulse_vector = axis * impulse;
 
-		m_rbA.applyTorqueImpulse( impulse_vector);
-		m_rbB.applyTorqueImpulse(-impulse_vector);
+			m_rbA.applyTorqueImpulse( impulse_vector);
+			m_rbB.applyTorqueImpulse(-impulse_vector);
+		}
 	}
 }
 

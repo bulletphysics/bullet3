@@ -30,7 +30,7 @@ class RigidBody;
 /// Work in progress (is still a Hinge actually)
 class Generic6DofConstraint : public TypedConstraint
 {
-	JacobianEntry	m_jac[3];			// 3 orthogonal linear constraints
+	JacobianEntry	m_jacLinear[3];			// 3 orthogonal linear constraints
 	JacobianEntry	m_jacAng[3];		// 3 orthogonal angular constraints
 
 	SimdTransform	m_frameInA;			// the constraint space w.r.t body A
@@ -55,11 +55,49 @@ public:
 
 	SimdScalar ComputeAngle(int axis) const;
 
-	void SetAngularLimit(int axis, SimdScalar lo, SimdScalar hi)
-		{
-		m_lowerLimit[axis + 3] = lo; 
-		m_upperLimit[axis + 3] = hi; 
-		}
+	void	setLinearLowerLimit(const SimdVector3& linearLower)
+	{
+		m_lowerLimit[0] = linearLower.getX();
+		m_lowerLimit[1] = linearLower.getY();
+		m_lowerLimit[2] = linearLower.getZ();
+	}
+
+	void	setLinearUpperLimit(const SimdVector3& linearUpper)
+	{
+		m_upperLimit[0] = linearUpper.getX();
+		m_upperLimit[1] = linearUpper.getY();
+		m_upperLimit[2] = linearUpper.getZ();
+	}
+
+	void	setAngularLowerLimit(const SimdVector3& angularLower)
+	{
+		m_lowerLimit[3] = angularLower.getX();
+		m_lowerLimit[4] = angularLower.getY();
+		m_lowerLimit[5] = angularLower.getZ();
+	}
+
+	void	setAngularUpperLimit(const SimdVector3& angularUpper)
+	{
+		m_upperLimit[3] = angularUpper.getX();
+		m_upperLimit[4] = angularUpper.getY();
+		m_upperLimit[5] = angularUpper.getZ();
+	}
+
+	//first 3 are linear, next 3 are angular
+	void SetLimit(int axis, SimdScalar lo, SimdScalar hi)
+	{
+		m_lowerLimit[axis] = lo; 
+		m_upperLimit[axis] = hi; 
+	}
+
+	//free means upper < lower, 
+	//locked means upper == lower
+	//limited means upper > lower
+	//limitIndex: first 3 are linear, next 3 are angular
+	bool	isLimited(int limitIndex)
+	{
+		return (m_upperLimit[limitIndex] >= m_lowerLimit[limitIndex]);
+	}
 
 	const RigidBody& GetRigidBodyA() const
 	{
