@@ -1239,7 +1239,7 @@ int main(int argc,char** argv)
 													daeElement* geomElem = geomInstRef->getUrl().getElement();
 													//elemRef->getTypeName();
 													domGeometry* geom = (domGeometry*) geomElem;
-													if (geom->getMesh())
+													if (geom && geom->getMesh())
 													{
 														const domMeshRef meshRef = geom->getMesh();
 														TriangleIndexVertexArray* tindexArray = new TriangleIndexVertexArray();
@@ -1354,7 +1354,7 @@ int main(int argc,char** argv)
 
 													}
 
-													if (geom->getConvex_mesh())
+													if (geom && geom->getConvex_mesh())
 													{
 
 														{
@@ -1382,84 +1382,125 @@ int main(int argc,char** argv)
 														const domConvex_meshRef convexRef = geom->getConvex_mesh();
 														//daeString urlref = convexRef->getConvex_hull_of().getURI();
 														daeString urlref2 = convexRef->getConvex_hull_of().getOriginalURI();
-														daeElementRef otherElemRef = convexRef->getConvex_hull_of().getElement();
-														//	if ( otherElemRef != NULL )
-														//	{
-														//		domGeometryRef linkedGeom = *(domGeometryRef*)&otherElemRef;
-
-														// Load all the geometry libraries
-														for ( int i = 0; i < dom->getLibrary_geometries_array().getCount(); i++)
+														if (urlref2)
 														{
-															domLibrary_geometriesRef libgeom = dom->getLibrary_geometries_array()[i];
-															//int index = libgeom->findLastIndexOf(urlref2);
-															//can't find it
+															daeElementRef otherElemRef = convexRef->getConvex_hull_of().getElement();
+															//	if ( otherElemRef != NULL )
+															//	{
+															//		domGeometryRef linkedGeom = *(domGeometryRef*)&otherElemRef;
 
-															for ( int  i = 0; i < libgeom->getGeometry_array().getCount(); i++)
+															// Load all the geometry libraries
+															for ( int i = 0; i < dom->getLibrary_geometries_array().getCount(); i++)
 															{
-																//ReadGeometry(  ); 
-																domGeometryRef lib = libgeom->getGeometry_array()[i];
-																if (!strcmp(lib->getName(),urlref2))
+																domLibrary_geometriesRef libgeom = dom->getLibrary_geometries_array()[i];
+																//int index = libgeom->findLastIndexOf(urlref2);
+																//can't find it
+
+																for ( int  i = 0; i < libgeom->getGeometry_array().getCount(); i++)
 																{
-																	//found convex_hull geometry
-																	domMesh			*meshElement		= lib->getMesh();//linkedGeom->getMesh();
-																	if (meshElement)
+																	//ReadGeometry(  ); 
+																	domGeometryRef lib = libgeom->getGeometry_array()[i];
+																	if (!strcmp(lib->getName(),urlref2))
 																	{
-																		const domVerticesRef vertsRef = meshElement->getVertices();
-																		int numInputs = vertsRef->getInput_array().getCount();
-																		for (int i=0;i<numInputs;i++)
+																		//found convex_hull geometry
+																		domMesh			*meshElement		= lib->getMesh();//linkedGeom->getMesh();
+																		if (meshElement)
 																		{
-																			domInputLocalRef localRef = vertsRef->getInput_array()[i];
-																			daeString str = localRef->getSemantic();
-																			if ( !strcmp(str,"POSITION"))
+																			const domVerticesRef vertsRef = meshElement->getVertices();
+																			int numInputs = vertsRef->getInput_array().getCount();
+																			for (int i=0;i<numInputs;i++)
 																			{
-																				const domURIFragmentType& frag = localRef->getSource();
-
-																				daeElementConstRef constElem = frag.getElement();
-
-																				const domSourceRef node = *(const domSourceRef*)&constElem;
-																				const domFloat_arrayRef flArray = node->getFloat_array();
-																				if (flArray)
+																				domInputLocalRef localRef = vertsRef->getInput_array()[i];
+																				daeString str = localRef->getSemantic();
+																				if ( !strcmp(str,"POSITION"))
 																				{
-																					int numElem = flArray->getCount();
-																					const domListOfFloats& listFloats = flArray->getValue();
+																					const domURIFragmentType& frag = localRef->getSource();
 
-																					for (int k=0;k+2<numElem;k+=3)
+																					daeElementConstRef constElem = frag.getElement();
+
+																					const domSourceRef node = *(const domSourceRef*)&constElem;
+																					const domFloat_arrayRef flArray = node->getFloat_array();
+																					if (flArray)
 																					{
-																						domFloat fl0 = listFloats.get(k);
-																						domFloat fl1 = listFloats.get(k+1);
-																						domFloat fl2 = listFloats.get(k+2);
-																						//printf("float %f %f %f\n",fl0,fl1,fl2);
+																						int numElem = flArray->getCount();
+																						const domListOfFloats& listFloats = flArray->getValue();
 
-																						convexHullShape->AddPoint(SimdPoint3(fl0,fl1,fl2));
+																						for (int k=0;k+2<numElem;k+=3)
+																						{
+																							domFloat fl0 = listFloats.get(k);
+																							domFloat fl1 = listFloats.get(k+1);
+																							domFloat fl2 = listFloats.get(k+2);
+																							//printf("float %f %f %f\n",fl0,fl1,fl2);
+
+																							convexHullShape->AddPoint(SimdPoint3(fl0,fl1,fl2));
+																						}
+
 																					}
 
 																				}
 
+
 																			}
 
+																		}
+																	}
+																
+																		
+																	
+																}
+															}
 
+
+														} else
+														{
+															//no getConvex_hull_of but direct vertices
+															const domVerticesRef vertsRef = convexRef->getVertices();
+															int numInputs = vertsRef->getInput_array().getCount();
+															for (int i=0;i<numInputs;i++)
+															{
+																domInputLocalRef localRef = vertsRef->getInput_array()[i];
+																daeString str = localRef->getSemantic();
+																if ( !strcmp(str,"POSITION"))
+																{
+																	const domURIFragmentType& frag = localRef->getSource();
+
+																	daeElementConstRef constElem = frag.getElement();
+
+																	const domSourceRef node = *(const domSourceRef*)&constElem;
+																	const domFloat_arrayRef flArray = node->getFloat_array();
+																	if (flArray)
+																	{
+																		int numElem = flArray->getCount();
+																		const domListOfFloats& listFloats = flArray->getValue();
+
+																		for (int k=0;k+2<numElem;k+=3)
+																		{
+																			domFloat fl0 = listFloats.get(k);
+																			domFloat fl1 = listFloats.get(k+1);
+																			domFloat fl2 = listFloats.get(k+2);
+																			//printf("float %f %f %f\n",fl0,fl1,fl2);
+
+																			convexHullShape->AddPoint(SimdPoint3(fl0,fl1,fl2));
 																		}
 
 																	}
+
 																}
-															
-																	
-																
+
+
 															}
 
 
-															if (convexHullShape->GetNumVertices())
-															{
-																colShape = convexHullShape;
-																printf("created convexHullShape with %i points\n",convexHullShape->GetNumVertices());
-															} else
-															{
-																delete convexHullShape;
-																printf("failed to create convexHullShape\n");
-															}
+														}
 
-
-
+														if (convexHullShape->GetNumVertices())
+														{
+															colShape = convexHullShape;
+															printf("created convexHullShape with %i points\n",convexHullShape->GetNumVertices());
+														} else
+														{
+															delete convexHullShape;
+															printf("failed to create convexHullShape\n");
 														}
 
 
@@ -1566,7 +1607,6 @@ int main(int argc,char** argv)
 											char* bodyName = (char*)physObjects[i]->getNewClientInfo();
 											if (!strcmp(bodyName,orgUri0))
 											{
-												printf("found\n");
 												ctrl0=physObjects[i];
 											}
 											if (!strcmp(bodyName,orgUri1))
@@ -1658,6 +1698,8 @@ int main(int argc,char** argv)
 											}
 
 
+											if (ctrl0 && ctrl1)
+											{
 											constraintId =physicsEnvironmentPtr->createUniversalD6Constraint(
 											ctrl0,
 											ctrl1,
@@ -1668,6 +1710,10 @@ int main(int argc,char** argv)
 											angularLowerLimits,
 											angularUpperLimits
 												);
+											} else
+											{
+												printf("Error: Cannot find Rigidbodies(%s,%s) for constraint %s\n",orgUri0,orgUri1,constraintName);
+											}
 
 
 										}
