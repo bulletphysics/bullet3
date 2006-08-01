@@ -27,6 +27,7 @@ subject to the following restrictions:
 #include "CollisionShapes/ConvexTriangleMeshShape.h"
 #include "CollisionShapes/TriangleMeshShape.h"
 #include "CollisionShapes/TriangleIndexVertexArray.h"
+#include "CollisionShapes/CompoundShape.h"
 
 
 extern SimdVector3 gCameraUp;
@@ -457,7 +458,11 @@ bool ConvertColladaPhysicsToBulletPhysics(const FCDPhysicsSceneNode* inputNode)
 					FCDPhysicsMaterial* mat = rigidBody->GetPhysicsMaterial();
 					FCDPhysicsShapeList shapes = rigidBody->GetPhysicsShapeList();
 
+					//need to deal with compound shapes and single shapes
+					//easiest is to always create a compound, and then add each shape
+					//and at the end, if compound consists of just 1 objects (without local transform) simplify it
 					CollisionShape* collisionShape = 0;
+					
 
 
 					FCDPhysicsParameter<bool>* dyn = (FCDPhysicsParameter<bool>*)rigidBody->FindParameterByReference(DAE_DYNAMIC_ELEMENT);
@@ -514,7 +519,6 @@ bool ConvertColladaPhysicsToBulletPhysics(const FCDPhysicsSceneNode* inputNode)
 														geomSource->GetSourceData()[p*3+1],
 														geomSource->GetSourceData()[p*3+2]);
 												}
-
 
 
 												collisionShape = new ConvexHullShape(points,numPoints);
@@ -823,7 +827,7 @@ bool ConvertColladaPhysicsToBulletPhysics(const FCDPhysicsSceneNode* inputNode)
 							//controller->AddShape(NewShape);
 						}
 
-					}
+					}//for all shapes
 
 
 
@@ -1143,6 +1147,7 @@ int main(int argc,char** argv)
 							float mass = 1.f;
 							bool isDynamics = true;
 							CollisionShape* colShape = 0;
+							CompoundShape* compoundShape = 0;
 
 							xsNCName bodyName = rigidbodyRef->getBody();
 
@@ -1511,8 +1516,41 @@ int main(int argc,char** argv)
 													}
 												}
 
+												//if more then 1 shape, or a non-identity local shapetransform
+												//use a compound
 
-											}
+												bool hasShapeLocalTransform = ((shapeRef->getRotate_array().getCount() > 0) ||
+													(shapeRef->getTranslate_array().getCount() > 0));
+												
+												if (colShape)
+												{
+													if ((techniqueRef->getShape_array().getCount()>1) ||
+														(hasShapeLocalTransform))
+													{
+														
+														if (!compoundShape)
+														{
+															compoundShape = new CompoundShape();
+														}
+
+														SimdTransform localTransform;
+														localTransform.setIdentity();
+														if (hasShapeLocalTransform)
+														{
+														localTransform = GetSimdTransformFromCOLLADA_DOM(
+															emptyMatrixArray,
+															shapeRef->getRotate_array(),
+															shapeRef->getTranslate_array()
+															);
+														}
+
+														compoundShape->AddChildShape(localTransform,colShape);
+														colShape = 0;
+													}
+												}
+
+
+											}//for each shape
 
 
 
@@ -1525,6 +1563,9 @@ int main(int argc,char** argv)
 
 								//////////////////////
 							}
+
+							if (compoundShape)
+								colShape = compoundShape;
 
 							if (colShape)
 							{
