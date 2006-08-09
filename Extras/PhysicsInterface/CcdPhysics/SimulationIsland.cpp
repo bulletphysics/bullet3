@@ -455,10 +455,10 @@ void	SimulationIsland::UpdateAabbs(IDebugDraw* debugDrawer,BroadphaseInterface* 
 						if (reportMe)
 						{
 							reportMe = false;
-							printf("Overflow in AABB, object removed from simulation \n");
-							printf("If you can reproduce this, please email bugs@continuousphysics.com\n");
-							printf("Please include above information, your Platform, version of OS.\n");
-							printf("Thanks.\n");
+							//printf("Overflow in AABB, object removed from simulation \n");
+							//printf("If you can reproduce this, please email bugs@continuousphysics.com\n");
+							//printf("Please include above information, your Platform, version of OS.\n");
+							//printf("Thanks.\n");
 						}
 						
 					}

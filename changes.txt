@@ -1,6 +1,11 @@
 Bullet Continuous Collision Detection and Physics Library
 Erwin Coumans
 
+2006 August 9
+	Added CMake support (see http://cmake.org)
+	This can autogenerate makefiles, projectfiles cross platform (including MacOS X Xcode )
+	Just run cmake . in the root folder and it will autogenerate build files
+	
 2006 July 26 Erwin Coumans
 	Upgraded to COLLADA-DOM 1.4.1, latest SVN version
 	ColladaDemo can export snapshots to .dae
