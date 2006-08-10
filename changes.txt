@@ -1,6 +1,9 @@
 Bullet Continuous Collision Detection and Physics Library
 Erwin Coumans
 
+2006 August 10
+	Added per-triangle material (friction/restitution) support for non-convex meshes. See ConcaveDemo for usage.
+
 2006 August 9
 	Added CMake support (see http://cmake.org)
 	This can autogenerate makefiles, projectfiles cross platform (including MacOS X Xcode )
