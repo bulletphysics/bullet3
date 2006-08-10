@@ -35,7 +35,11 @@ m_penetrationDepthSolver(penetrationDepthSolver),
 m_simplexSolver(simplexSolver),
 m_minkowskiA(objectA),
 m_minkowskiB(objectB),
-m_ignoreMargin(false)
+m_ignoreMargin(false),
+m_partId0(-1),
+m_index0(-1),
+m_partId1(-1),
+m_index1(-1)
 {
 }
 
@@ -207,6 +211,8 @@ int curIter = 0;
 
 	if (isValid)
 	{
+		output.SetShapeIdentifiers(m_partId0,m_index0,m_partId1,m_index1);
+
 		output.AddContactPoint(
 			normalInB,
 			pointOnB,

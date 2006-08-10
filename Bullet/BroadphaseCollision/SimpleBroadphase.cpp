@@ -14,8 +14,8 @@ subject to the following restrictions:
 */
 
 #include "SimpleBroadphase.h"
-#include "BroadphaseCollision/Dispatcher.h"
-#include "BroadphaseCollision/CollisionAlgorithm.h"
+#include <BroadphaseCollision/Dispatcher.h>
+#include <BroadphaseCollision/CollisionAlgorithm.h>
 
 #include "SimdVector3.h"
 #include "SimdTransform.h"

@@ -27,8 +27,8 @@ struct CollisionResult;
 extern float gContactBreakingTreshold;
 
 typedef bool (*ContactDestroyedCallback)(void* userPersistentData);
+extern ContactDestroyedCallback	gContactDestroyedCallback;
 
-extern ContactDestroyedCallback	gContactCallback;
 
 
 

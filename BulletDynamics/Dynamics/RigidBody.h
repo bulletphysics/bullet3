@@ -172,22 +172,7 @@ public:
 	void	getAabb(SimdVector3& aabbMin,SimdVector3& aabbMax) const;
 
 
-	void	setRestitution(float rest)
-	{
-		m_restitution = rest;
-	}
-	float	getRestitution() const
-	{
-		return m_restitution;
-	}
-	void	setFriction(float frict)
-	{
-		m_friction = frict;
-	}
-	float	getFriction() const
-	{
-		return m_friction;
-	}
+
 
 	
 	inline float ComputeImpulseDenominator(const SimdPoint3& pos, const SimdVector3& normal) const
@@ -227,8 +212,6 @@ private:
 	SimdScalar		m_angularDamping;
 	SimdScalar		m_inverseMass;
 
-	SimdScalar		m_friction;
-	SimdScalar		m_restitution;
 
 	SimdScalar		m_kinematicTimeStep;
 

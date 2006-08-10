@@ -47,7 +47,7 @@ bool  MyContactDestroyedCallback(void* userPersistentData)
 
 SequentialImpulseConstraintSolver::SequentialImpulseConstraintSolver()
 {
-	gContactCallback = &MyContactDestroyedCallback;
+	gContactDestroyedCallback = &MyContactDestroyedCallback;
 }
 
 
@@ -188,10 +188,10 @@ float SequentialImpulseConstraintSolver::Solve(PersistentManifold* manifoldPtr, 
 				SimdScalar rel_vel;
 				rel_vel = cp.m_normalWorldOnB.dot(vel);
 				
-				float combinedRestitution = body0->getRestitution() * body1->getRestitution();
-
+				float combinedRestitution = cp.m_combinedRestitution;
+				
 				cpd->m_penetration = cp.GetDistance();
-
+				cpd->m_friction = cp.m_combinedFriction;
 				cpd->m_restitution = restitutionCurve(rel_vel, combinedRestitution);
 				if (cpd->m_restitution <= 0.) //0.f)
 				{

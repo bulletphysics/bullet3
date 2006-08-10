@@ -33,18 +33,7 @@ SimdScalar contactTau = .02f;//0.02f;//*0.02f;
 
 
 
-SimdScalar	calculateCombinedFriction(RigidBody& body0,RigidBody& body1)
-{
-	SimdScalar friction = body0.getFriction() * body1.getFriction();
 
-	const SimdScalar MAX_FRICTION  = 10.f;
-	if (friction < -MAX_FRICTION)
-		friction = -MAX_FRICTION;
-	if (friction > MAX_FRICTION)
-		friction = MAX_FRICTION;
-	return friction;
-
-}
 
 
 //bilateral constraint between two dynamic objects
@@ -128,9 +117,6 @@ float resolveSingleCollision(
 	SimdScalar rel_vel;
 	rel_vel = normal.dot(vel);
 	
-	float combinedRestitution = body1.getRestitution() * body2.getRestitution();
-
-	
 
 	SimdScalar Kfps = 1.f / solverInfo.m_timeStep ;
 
@@ -187,17 +173,19 @@ float resolveSingleFriction(
 
 		)
 {
+
 	const SimdVector3& pos1 = contactPoint.GetPositionWorldOnA();
 	const SimdVector3& pos2 = contactPoint.GetPositionWorldOnB();
 	const SimdVector3& normal = contactPoint.m_normalWorldOnB;
 
 	SimdVector3 rel_pos1 = pos1 - body1.getCenterOfMassPosition(); 
 	SimdVector3 rel_pos2 = pos2 - body2.getCenterOfMassPosition();
-	float combinedFriction = calculateCombinedFriction(body1,body2);
-
+	
 	ConstraintPersistentData* cpd = (ConstraintPersistentData*) contactPoint.m_userPersistentData;
 	assert(cpd);
 
+	float combinedFriction = cpd->m_friction;
+	
 	SimdScalar limit = cpd->m_appliedImpulse * combinedFriction;
 	//if (contactPoint.m_appliedImpulse>0.f)
 	//friction

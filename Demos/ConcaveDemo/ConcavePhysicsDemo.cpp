@@ -91,9 +91,69 @@ static const int NUM_TRIANGLES=4;
 
 SimdVector3	gVertices[NUM_VERTICES];
 int	gIndices[NUM_TRIANGLES*3];
+const float TRIANGLE_SIZE=80.f;
+
+
+///User can override this material combiner by implementing gContactAddedCallback and setting body0->m_collisionFlags |= CollisionObject::customMaterialCallback;
+inline SimdScalar	calculateCombinedFriction(float friction0,float friction1)
+{
+	SimdScalar friction = friction0 * friction1;
+
+	const SimdScalar MAX_FRICTION  = 10.f;
+	if (friction < -MAX_FRICTION)
+		friction = -MAX_FRICTION;
+	if (friction > MAX_FRICTION)
+		friction = MAX_FRICTION;
+	return friction;
+
+}
+
+inline SimdScalar	calculateCombinedRestitution(float restitution0,float restitution1)
+{
+	return restitution0 * restitution1;
+}
+
+
+
+bool CustomMaterialCombinerCallback(ManifoldPoint& cp,	const CollisionObject* colObj0,int partId0,int index0,const CollisionObject* colObj1,int partId1,int index1)
+{
+
+	float friction0 = colObj0->getFriction();
+	float friction1 = colObj1->getFriction();
+	float restitution0 = colObj0->getRestitution();
+	float restitution1 = colObj1->getRestitution();
+
+	if (colObj0->m_collisionFlags & CollisionObject::customMaterialCallback)
+	{
+		friction0 = 1.0;//partId0,index0
+		restitution0 = 0.f;
+	}
+	if (colObj1->m_collisionFlags & CollisionObject::customMaterialCallback)
+	{
+		if (index1&1)
+		{
+			friction1 = 1.0f;//partId1,index1
+		} else
+		{
+			friction1 = 0.f;
+		}
+		restitution1 = 0.f;
+	}
+
+	cp.m_combinedFriction = calculateCombinedFriction(friction0,friction1);
+	cp.m_combinedRestitution = calculateCombinedRestitution(restitution0,restitution1);
+
+	//this return value is currently ignored, but to be on the safe side: return false if you don't calculate friction
+	return true;
+}
+
+extern ContactAddedCallback		gContactAddedCallback;
+
+
 
 int main(int argc,char** argv)
 {
+	gContactAddedCallback = CustomMaterialCombinerCallback;
 
 	printf("BroadphaseProxy: %i\n",sizeof(BroadphaseProxy));
 	printf("AxisSweep3::Handle : %i\n",sizeof(AxisSweep3::Handle));
@@ -190,7 +250,7 @@ int main(int argc,char** argv)
 	{
 		for (int j=0;j<NUM_VERTS_Y;j++)
 		{
-			gVertices[i+j*NUM_VERTS_X].setValue((i-NUM_VERTS_X*0.5f)*10.f,2.f*sinf((float)i)*cosf((float)j),(j-NUM_VERTS_Y*0.5f)*10.f);
+			gVertices[i+j*NUM_VERTS_X].setValue((i-NUM_VERTS_X*0.5f)*TRIANGLE_SIZE,2.f*sinf((float)i)*cosf((float)j),(j-NUM_VERTS_Y*0.5f)*TRIANGLE_SIZE);
 		}
 	}
 
@@ -280,11 +340,13 @@ int main(int argc,char** argv)
 		
 		if (!i)
 		{
+				ccdObjectCi.m_friction = 0.0f;			
 			//SimdQuaternion orn(0,0,0.1*SIMD_HALF_PI);
 			//ms[i].setWorldOrientation(orn.x(),orn.y(),orn.z(),orn[3]);
 			//ms[i].setWorldPosition(0,-10,0);
 		} else
 		{
+				ccdObjectCi.m_friction = 0.5f;
 				ms[i].setWorldPosition(10,i*15-10,0);
 		}
 		
@@ -299,11 +361,14 @@ int main(int argc,char** argv)
 		{
 			shapeProps.m_mass = 0.f;
 			ccdObjectCi.m_mass = shapeProps.m_mass;
+			ccdObjectCi.m_collisionFlags = CollisionObject::customMaterialCallback;
+
 		}
 		else
 		{
 			shapeProps.m_mass = 1.f;
 			ccdObjectCi.m_mass = shapeProps.m_mass;
+			ccdObjectCi.m_collisionFlags =0;
 		}
 
 		
@@ -314,12 +379,12 @@ int main(int argc,char** argv)
 		} else
 		{
 			localInertia.setValue(0.f,0.f,0.f);
+	
 
 		}
 		ccdObjectCi.m_localInertiaTensor = localInertia;
 
 		ccdObjectCi.m_collisionShape = shapePtr[shapeIndex[i]];
-
 
 		physObjects[i]= new CcdPhysicsController( ccdObjectCi);
 		physicsEnvironmentPtr->addCcdPhysicsController( physObjects[i]);

@@ -45,7 +45,7 @@ struct	CollisionObject
 	{
 		isStatic = 1,
 		noContactResponse = 2,
-
+		customMaterialCallback = 4,//this allows per-triangle material (friction/restitution)
 	};
 
 	int				m_collisionFlags;
@@ -53,6 +53,9 @@ struct	CollisionObject
 	int				m_islandTag1;
 	int				m_activationState1;
 	float			m_deactivationTime;
+
+	SimdScalar		m_friction;
+	SimdScalar		m_restitution;
 
 	BroadphaseProxy*	m_broadphaseHandle;
 	CollisionShape*		m_collisionShape;
@@ -100,6 +103,23 @@ struct	CollisionObject
 	inline bool IsActive() const
 	{
 		return ((GetActivationState() != ISLAND_SLEEPING) && (GetActivationState() != DISABLE_SIMULATION));
+	}
+
+		void	setRestitution(float rest)
+	{
+		m_restitution = rest;
+	}
+	float	getRestitution() const
+	{
+		return m_restitution;
+	}
+	void	setFriction(float frict)
+	{
+		m_friction = frict;
+	}
+	float	getFriction() const
+	{
+		return m_friction;
 	}
 
 
