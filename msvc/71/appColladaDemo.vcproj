@@ -167,7 +167,23 @@
 			Name="Source Files"
 			Filter="">
 			<File
+				RelativePath="..\..\Demos\ColladaDemo\BspConverter.cpp">
+			</File>
+			<File
+				RelativePath="..\..\Demos\ColladaDemo\BspLoader.cpp">
+			</File>
+			<File
 				RelativePath="..\..\Demos\ColladaDemo\ColladaDemo.cpp">
+			</File>
+		</Filter>
+		<Filter
+			Name="Header Files"
+			Filter="">
+			<File
+				RelativePath="..\..\Demos\ColladaDemo\BspConverter.h">
+			</File>
+			<File
+				RelativePath="..\..\Demos\ColladaDemo\BspLoader.h">
 			</File>
 		</Filter>
 		<Filter

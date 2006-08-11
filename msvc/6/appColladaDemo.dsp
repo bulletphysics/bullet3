@@ -104,7 +104,27 @@ SOURCE="$(InputPath)"
 # PROP Default_Filter ""
 # Begin Source File
 
+SOURCE=..\..\Demos\ColladaDemo\BspConverter.cpp
+# End Source File
+# Begin Source File
+
+SOURCE=..\..\Demos\ColladaDemo\BspLoader.cpp
+# End Source File
+# Begin Source File
+
 SOURCE=..\..\Demos\ColladaDemo\ColladaDemo.cpp
+# End Source File
+# End Group
+# Begin Group "Header Files"
+
+# PROP Default_Filter ""
+# Begin Source File
+
+SOURCE=..\..\Demos\ColladaDemo\BspConverter.h
+# End Source File
+# Begin Source File
+
+SOURCE=..\..\Demos\ColladaDemo\BspLoader.h
 # End Source File
 # End Group
 # Begin Group "Resource Files"
