@@ -48,8 +48,8 @@ extern int	gForwardAxis;
 
 #include "GLDebugDrawer.h"
 
-
-#define QUAKE_BSP_IMPORTING 1
+//in future make it a bsp2dae
+//#define QUAKE_BSP_IMPORTING 1
 
 #ifdef QUAKE_BSP_IMPORTING
 #include "BspLoader.h"
@@ -308,6 +308,7 @@ CcdPhysicsController*  CreatePhysicsObject(bool isDynamic, float mass, const Sim
 }
 
 
+#ifdef QUAKE_BSP_IMPORTING
 
 ///BspToBulletConverter  extends the BspConverter to convert to Bullet datastructures
 class BspToBulletConverter : public BspConverter
@@ -334,7 +335,7 @@ public:
 			}
 		}
 };
-
+#endif //QUAKE_BSP_IMPORTING
 
 #ifdef USE_FCOLLADA
 
@@ -1851,7 +1852,7 @@ int main(int argc,char** argv)
 #endif
 	clientResetScene();
 
-	setCameraDistance(16.f);
+	setCameraDistance(26.f);
 
 	return glutmain(argc, argv,640,480,"Bullet COLLADA Physics Viewer http://bullet.sourceforge.net");
 }

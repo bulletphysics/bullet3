@@ -73,6 +73,7 @@ else
   }
 
 SubInclude TOP Demos CcdPhysicsDemo ;
+SubInclude TOP Demos BspDemo ;
 SubInclude TOP Demos ConvexDecompositionDemo ;
 SubInclude TOP Demos ColladaDemo ;
 SubInclude TOP Demos CollisionDemo ;
