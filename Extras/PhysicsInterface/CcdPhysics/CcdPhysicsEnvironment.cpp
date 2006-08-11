@@ -881,6 +881,11 @@ bool	CcdPhysicsEnvironment::proceedDeltaTimeOneStep(float timeStep)
 
 						if (!body->IsStatic())
 						{
+							if (body->m_hitFraction < 1.f)
+							{
+								//set velocity to zero... until we have proper CCD integrated
+								body->setLinearVelocity(body->getLinearVelocity()*0.5f);
+							}
 							body->predictIntegratedTransform(timeStep*	toi, predictedTrans);
 							body->proceedToTransform( predictedTrans);
 						}

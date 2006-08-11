@@ -29,6 +29,10 @@ subject to the following restrictions:
 #include "CollisionShapes/CompoundShape.h"
 #include "CollisionShapes/Simplex1to4Shape.h"
 #include "CollisionShapes/EmptyShape.h"
+#include "CollisionShapes/TriangleMeshShape.h"
+#include "CollisionShapes/TriangleIndexVertexArray.h"
+#include "CollisionShapes/BvhTriangleMeshShape.h"
+#include "CollisionShapes/TriangleMesh.h"
 
 #include "Dynamics/RigidBody.h"
 #include "CollisionDispatch/CollisionDispatcher.h"
@@ -94,7 +98,7 @@ bool useCompound = true;//false;
 
 
 #ifdef _DEBUG
-const int numObjects = 20;
+const int numObjects = 50;
 #else
 const int numObjects = 120;
 #endif
@@ -174,6 +178,65 @@ int main(int argc,char** argv)
 	physicsEnvironmentPtr->setDeactivationTime(2.f);
 
 	physicsEnvironmentPtr->setGravity(0,-10,0);//0,0);//-10,0);
+	int i;
+
+//#define  USE_TRIMESH_GROUND 1
+#ifdef USE_TRIMESH_GROUND
+
+
+const float TRIANGLE_SIZE=20.f;
+
+	//create a triangle-mesh ground
+	int vertStride = sizeof(SimdVector3);
+	int indexStride = 3*sizeof(int);
+
+	const int NUM_VERTS_X = 50;
+	const int NUM_VERTS_Y = 50;
+	const int totalVerts = NUM_VERTS_X*NUM_VERTS_Y;
+	
+	const int totalTriangles = 2*(NUM_VERTS_X-1)*(NUM_VERTS_Y-1);
+
+	SimdVector3*	gVertices = new SimdVector3[totalVerts];
+	int*	gIndices = new int[totalTriangles*3];
+
+	
+
+	for ( i=0;i<NUM_VERTS_X;i++)
+	{
+		for (int j=0;j<NUM_VERTS_Y;j++)
+		{
+			gVertices[i+j*NUM_VERTS_X].setValue((i-NUM_VERTS_X*0.5f)*TRIANGLE_SIZE,2.f*sinf((float)i)*cosf((float)j),(j-NUM_VERTS_Y*0.5f)*TRIANGLE_SIZE);
+		}
+	}
+
+	int index=0;
+	for ( i=0;i<NUM_VERTS_X-1;i++)
+	{
+		for (int j=0;j<NUM_VERTS_Y-1;j++)
+		{
+			gIndices[index++] = j*NUM_VERTS_X+i;
+			gIndices[index++] = j*NUM_VERTS_X+i+1;
+			gIndices[index++] = (j+1)*NUM_VERTS_X+i+1;
+
+			gIndices[index++] = j*NUM_VERTS_X+i;
+			gIndices[index++] = (j+1)*NUM_VERTS_X+i+1;
+			gIndices[index++] = (j+1)*NUM_VERTS_X+i;
+		}
+	}
+	
+	TriangleIndexVertexArray* indexVertexArrays = new TriangleIndexVertexArray(totalTriangles,
+		gIndices,
+		indexStride,
+		totalVerts,(float*) &gVertices[0].x(),vertStride);
+
+	//shapePtr[4] = new TriangleMeshShape(indexVertexArrays);
+	shapePtr[0] = new BvhTriangleMeshShape(indexVertexArrays);
+
+	
+#endif //
+	
+	
+	
 	PHY_ShapeProps shapeProps;
 
 	shapeProps.m_do_anisotropic = false;
@@ -197,7 +260,7 @@ int main(int argc,char** argv)
 	SimdTransform tr;
 	tr.setIdentity();
 
-	int i;
+	
 	for (i=0;i<numObjects;i++)
 	{
 		if (i>0)
@@ -306,17 +369,21 @@ int main(int argc,char** argv)
 		}
 
 
-		SimdVector3 localInertia;
-		if (shapePtr[shapeIndex[i]]->GetShapeType() == EMPTY_SHAPE_PROXYTYPE)
+		SimdVector3 localInertia(0.f,0.f,0.f);
+		if (shapeIndex[i])
 		{
-			//take inertia from first shape
-			shapePtr[1]->CalculateLocalInertia(shapeProps.m_mass,localInertia);
-		} else
-		{
-			shapePtr[shapeIndex[i]]->CalculateLocalInertia(shapeProps.m_mass,localInertia);
+			if (shapePtr[shapeIndex[i]]->GetShapeType() == EMPTY_SHAPE_PROXYTYPE)
+			{
+				//take inertia from first shape
+				shapePtr[1]->CalculateLocalInertia(shapeProps.m_mass,localInertia);
+			} else
+			{
+				shapePtr[shapeIndex[i]]->CalculateLocalInertia(shapeProps.m_mass,localInertia);
+			}
+
 		}
 		ccdObjectCi.m_localInertiaTensor = localInertia;
-
+		
 		ccdObjectCi.m_collisionShape = shapePtr[shapeIndex[i]];
 
 
@@ -326,7 +393,7 @@ int main(int argc,char** argv)
 		physObjects[i]->GetRigidBody()->m_ccdSquareMotionTreshold = CUBE_HALF_EXTENTS;
 		
 		//Experimental: better estimation of CCD Time of Impact:
-		//physObjects[i]->GetRigidBody()->m_ccdSweptShereRadius = 0.5*CUBE_HALF_EXTENTS;
+		physObjects[i]->GetRigidBody()->m_ccdSweptShereRadius = 0.2*CUBE_HALF_EXTENTS;
 
 		physicsEnvironmentPtr->addCcdPhysicsController( physObjects[i]);
 

@@ -22,7 +22,9 @@ subject to the following restrictions:
 CompoundShape::CompoundShape()
 :m_localAabbMin(1e30f,1e30f,1e30f),
 m_localAabbMax(-1e30f,-1e30f,-1e30f),
-m_aabbTree(0)
+m_aabbTree(0),
+m_collisionMargin(0.f),
+m_localScaling(1.f,1.f,1.f)
 {
 }
 

@@ -23,7 +23,9 @@ subject to the following restrictions:
 #include "CollisionDispatch/ManifoldResult.h"
 #include "NarrowPhaseCollision/RaycastCallback.h"
 #include "CollisionShapes/TriangleShape.h"
+#include "CollisionShapes/SphereShape.h"
 #include "IDebugDraw.h"
+#include "NarrowPhaseCollision/SubSimplexConvexCast.h"
 
 ConvexConcaveCollisionAlgorithm::ConvexConcaveCollisionAlgorithm( const CollisionAlgorithmConstructionInfo& ci,BroadphaseProxy* proxy0,BroadphaseProxy* proxy1)
 : CollisionAlgorithm(ci),m_convex(*proxy0),m_concave(*proxy1),
@@ -202,36 +204,84 @@ float ConvexConcaveCollisionAlgorithm::CalculateTimeOfImpact(BroadphaseProxy* ,B
 	CollisionObject* convexbody = (CollisionObject* )m_convex.m_clientObject;
 	CollisionObject* triBody = static_cast<CollisionObject* >(m_concave.m_clientObject);
 
-	const SimdVector3& from = convexbody->m_worldTransform.getOrigin();
-	
-	SimdVector3 to = convexbody->m_interpolationWorldTransform.getOrigin();
+	//only perform CCD above a certain treshold, this prevents blocking on the long run
+	//because object in a blocked ccd state (hitfraction<1) get their linear velocity halved each frame...
+	float squareMot0 = (convexbody->m_interpolationWorldTransform.getOrigin() - convexbody->m_worldTransform.getOrigin()).length2();
+	if (squareMot0 < convexbody->m_ccdSquareMotionTreshold)
+	{
+		return 1.f;
+	}
+
+	//const SimdVector3& from = convexbody->m_worldTransform.getOrigin();
+	//SimdVector3 to = convexbody->m_interpolationWorldTransform.getOrigin();
 	//todo: only do if the motion exceeds the 'radius'
 
-	struct LocalTriangleRaycastCallback	: public TriangleRaycastCallback
+	SimdTransform convexFromLocal = triBody->m_cachedInvertedWorldTransform * convexbody->m_worldTransform;
+	SimdTransform convexToLocal = triBody->m_cachedInvertedWorldTransform * convexbody->m_interpolationWorldTransform;
+
+	struct LocalTriangleSphereCastCallback	: public TriangleCallback
 	{
-		LocalTriangleRaycastCallback(const SimdVector3& from,const SimdVector3& to)
-			:TriangleRaycastCallback(from,to)
-		{
+		SimdTransform m_ccdSphereFromTrans;
+		SimdTransform m_ccdSphereToTrans;
+		SimdTransform	m_meshTransform;
+
+		float	m_ccdSphereRadius;
+		float	m_hitFraction;
+	
+
+		LocalTriangleSphereCastCallback(const SimdTransform& from,const SimdTransform& to,float ccdSphereRadius,float hitFraction)
+			:m_ccdSphereFromTrans(from),
+			m_ccdSphereToTrans(to),
+			m_ccdSphereRadius(ccdSphereRadius),
+			m_hitFraction(hitFraction)
+		{			
 		}
 		
-		virtual float ReportHit(const SimdVector3& hitNormalLocal, float hitFraction, int partId, int triangleIndex )
+		
+		virtual void ProcessTriangle(SimdVector3* triangle, int partId, int triangleIndex)
 		{
-			//todo: handle ccd here
-			return 0.f;
+			//do a swept sphere for now
+			SimdTransform ident;
+			ident.setIdentity();
+			ConvexCast::CastResult castResult;
+			castResult.m_fraction = m_hitFraction;
+			SphereShape	pointShape(m_ccdSphereRadius);
+			TriangleShape	triShape(triangle[0],triangle[1],triangle[2]);
+			VoronoiSimplexSolver	simplexSolver;
+			SubsimplexConvexCast convexCaster(&pointShape,&triShape,&simplexSolver);
+			//GjkConvexCast	convexCaster(&pointShape,convexShape,&simplexSolver);
+			//ContinuousConvexCollision convexCaster(&pointShape,convexShape,&simplexSolver,0);
+			//local space?
+
+			if (convexCaster.calcTimeOfImpact(m_ccdSphereFromTrans,m_ccdSphereToTrans,
+				ident,ident,castResult))
+			{
+				if (m_hitFraction > castResult.m_fraction)
+					m_hitFraction = castResult.m_fraction;
+			}
 
 		}
+
 	};
 
 
-	LocalTriangleRaycastCallback raycastCallback(from,to);
+	
 
-	raycastCallback.m_hitFraction = convexbody->m_hitFraction;
-
-	SimdVector3 aabbMin (-1e30f,-1e30f,-1e30f);
-	SimdVector3 aabbMax (SIMD_INFINITY,SIMD_INFINITY,SIMD_INFINITY);
-
+	
 	if (triBody->m_collisionShape->IsConcave())
 	{
+		SimdVector3 rayAabbMin = convexFromLocal.getOrigin();
+		rayAabbMin.setMin(convexToLocal.getOrigin());
+		SimdVector3 rayAabbMax = convexFromLocal.getOrigin();
+		rayAabbMax.setMax(convexToLocal.getOrigin());
+		rayAabbMin -= SimdVector3(convexbody->m_ccdSweptShereRadius,convexbody->m_ccdSweptShereRadius,convexbody->m_ccdSweptShereRadius);
+		rayAabbMax += SimdVector3(convexbody->m_ccdSweptShereRadius,convexbody->m_ccdSweptShereRadius,convexbody->m_ccdSweptShereRadius);
+
+		float curHitFraction = 1.f; //is this available?
+		LocalTriangleSphereCastCallback raycastCallback(convexFromLocal,convexToLocal,
+		convexbody->m_ccdSweptShereRadius,curHitFraction);
+
+		raycastCallback.m_hitFraction = convexbody->m_hitFraction;
 
 		CollisionObject* concavebody = (CollisionObject* )m_concave.m_clientObject;
 
@@ -239,15 +289,16 @@ float ConvexConcaveCollisionAlgorithm::CalculateTimeOfImpact(BroadphaseProxy* ,B
 		
 		if (triangleMesh)
 		{
-			triangleMesh->ProcessAllTriangles(&raycastCallback,aabbMin,aabbMax);
+			triangleMesh->ProcessAllTriangles(&raycastCallback,rayAabbMin,rayAabbMax);
 		}
-	}
+	
 
 
-	if (raycastCallback.m_hitFraction < convexbody->m_hitFraction)
-	{
-		convexbody->m_hitFraction = raycastCallback.m_hitFraction;
-		return raycastCallback.m_hitFraction;
+		if (raycastCallback.m_hitFraction < convexbody->m_hitFraction)
+		{
+			convexbody->m_hitFraction = raycastCallback.m_hitFraction;
+			return raycastCallback.m_hitFraction;
+		}
 	}
 
 	return 1.f;

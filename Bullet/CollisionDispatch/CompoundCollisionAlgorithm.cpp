@@ -99,5 +99,46 @@ void CompoundCollisionAlgorithm::ProcessCollision (BroadphaseProxy* ,BroadphaseP
 
 float	CompoundCollisionAlgorithm::CalculateTimeOfImpact(BroadphaseProxy* proxy0,BroadphaseProxy* proxy1,const DispatcherInfo& dispatchInfo)
 {
-	return 1.f;
+	CollisionObject* colObj = static_cast<CollisionObject*>(m_compoundProxy.m_clientObject);
+	assert (colObj->m_collisionShape->IsCompound());
+	
+	CompoundShape* compoundShape = static_cast<CompoundShape*>(colObj->m_collisionShape);
+
+	//We will use the OptimizedBVH, AABB tree to cull potential child-overlaps
+	//If both proxies are Compound, we will deal with that directly, by performing sequential/parallel tree traversals
+	//given Proxy0 and Proxy1, if both have a tree, Tree0 and Tree1, this means:
+	//determine overlapping nodes of Proxy1 using Proxy0 AABB against Tree1
+	//then use each overlapping node AABB against Tree0
+	//and vise versa.
+
+	float hitFraction = 1.f;
+
+	int numChildren = m_childCollisionAlgorithms.size();
+	int i;
+	for (i=0;i<numChildren;i++)
+	{
+		//temporarily exchange parent CollisionShape with childShape, and recurse
+		CollisionShape* childShape = compoundShape->GetChildShape(i);
+		CollisionObject* colObj = static_cast<CollisionObject*>(m_childProxies[i].m_clientObject);
+
+		//backup
+		SimdTransform	orgTrans = colObj->m_worldTransform;
+		CollisionShape* orgShape = colObj->m_collisionShape;
+
+		SimdTransform childTrans = compoundShape->GetChildTransform(i);
+		SimdTransform	newChildWorldTrans = orgTrans*childTrans ;
+		colObj->m_worldTransform = newChildWorldTrans;
+
+		colObj->m_collisionShape = childShape;
+		float frac = m_childCollisionAlgorithms[i]->CalculateTimeOfImpact(&m_childProxies[i],&m_otherProxy,dispatchInfo);
+		if (frac<hitFraction)
+		{
+			hitFraction = frac;
+		}
+		//revert back
+		colObj->m_collisionShape =orgShape;
+		colObj->m_worldTransform = orgTrans;
+	}
+	return hitFraction;
+
 }
