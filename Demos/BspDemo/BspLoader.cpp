@@ -451,9 +451,9 @@ int BspLoader::getMachineEndianness()
    long int i = 1;
    const char *p = (const char *) &i;
    if (p[0] == 1)  // Lowest address contains the least significant byte
-      return LITTLE_ENDIAN;
+	   return BSP_LITTLE_ENDIAN;
    else
-      return BIG_ENDIAN;
+	   return BSP_BIG_ENDIAN;
 }
 
 short   BspLoader::LittleShort (short l)
