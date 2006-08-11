@@ -48,6 +48,15 @@ extern int	gForwardAxis;
 
 #include "GLDebugDrawer.h"
 
+
+#define QUAKE_BSP_IMPORTING 1
+
+#ifdef QUAKE_BSP_IMPORTING
+#include "BspLoader.h"
+#include "BspConverter.h"
+#endif //QUAKE_BSP_IMPORTING
+
+
 //either FCollada or COLLADA_DOM
 
 //COLLADA_DOM and LibXML source code are included in Extras/ folder.
@@ -255,7 +264,7 @@ CcdPhysicsController*  CreatePhysicsObject(bool isDynamic, float mass, const Sim
 		ms[i].setWorldPosition(startTransform.getOrigin().getX(),startTransform.getOrigin().getY(),startTransform.getOrigin().getZ());
 
 		ccdObjectCi.m_MotionState = &ms[i];
-		ccdObjectCi.m_gravity = SimdVector3(0,0,0);
+		ccdObjectCi.m_gravity = SimdVector3(0,-9.8,0);
 		ccdObjectCi.m_localInertiaTensor =SimdVector3(0,0,0);
 		if (!isDynamic)
 		{
@@ -298,6 +307,33 @@ CcdPhysicsController*  CreatePhysicsObject(bool isDynamic, float mass, const Sim
 	return physObjects[numObjects++];
 }
 
+
+
+///BspToBulletConverter  extends the BspConverter to convert to Bullet datastructures
+class BspToBulletConverter : public BspConverter
+{
+public:
+
+		virtual void	AddConvexVerticesCollider(std::vector<SimdVector3>& vertices, bool isEntity, const SimdVector3& entityTargetLocation)
+		{
+			///perhaps we can do something special with entities (isEntity)
+			///like adding a collision Triggering (as example)
+			
+			if (vertices.size() > 0)
+			{
+				bool isDynamic = false;
+				float mass = 0.f;
+				SimdTransform startTransform;
+				//can use a shift
+				startTransform.setIdentity();
+				startTransform.setOrigin(SimdVector3(0,0,-10.f));
+				//this create an internal copy of the vertices
+				CollisionShape* shape = new ConvexHullShape(&vertices[0],vertices.size());
+
+				CreatePhysicsObject(isDynamic, mass, startTransform,shape);
+			}
+		}
+};
 
 
 #ifdef USE_FCOLLADA
@@ -909,6 +945,7 @@ char* getLastFileName();
 
 int main(int argc,char** argv)
 {
+
 	/// Import Collada 1.4 Physics objects
 
 	//char* filename = "analyticalGeomPhysicsTest.dae";//ColladaPhysics.dae";
@@ -944,9 +981,46 @@ int main(int argc,char** argv)
 	//BroadphaseInterface* broadphase = new SimpleBroadphase();
 	physicsEnvironmentPtr = new CcdPhysicsEnvironment(dispatcher,broadphase);
 	physicsEnvironmentPtr->setDeactivationTime(2.f);
-	physicsEnvironmentPtr->setGravity(0,-10,0);
+	physicsEnvironmentPtr->setGravity(0,0,-10);
 	physicsEnvironmentPtr->setDebugDrawer(&debugDrawer);
 
+
+
+#ifdef QUAKE_BSP_IMPORTING
+
+	void* memoryBuffer = 0;
+	char* bspfilename = "bsptest.bsp";
+	FILE* file = fopen(bspfilename,"r");
+	if (!file)
+	{
+		//try again other path, 
+		//sight... visual studio leaves the current working directory in the projectfiles folder
+		//instead of executable folder. who wants this default behaviour?!?
+		bspfilename = "../../bsptest.bsp";
+		file = fopen(bspfilename,"r");
+	}
+	if (file)
+	{
+		BspLoader bspLoader;
+		int size=0;
+		if (fseek(file, 0, SEEK_END) || (size = ftell(file)) == EOF || fseek(file, 0, SEEK_SET)) {        /* File operations denied? ok, just close and return failure */
+			printf("Error: cannot get filesize from %s\n", bspfilename);
+		} else
+		{
+			//how to detect file size?
+			memoryBuffer = malloc(size+1);
+			fread(memoryBuffer,1,size,file);
+			bspLoader.LoadBSPFile( memoryBuffer);
+
+			BspToBulletConverter bsp2bullet;
+			float bspScaling = 0.1f;
+			bsp2bullet.convertBsp(bspLoader,bspScaling);
+
+		}
+		fclose(file);
+	}
+
+#endif
 
 
 
@@ -1777,7 +1851,7 @@ int main(int argc,char** argv)
 #endif
 	clientResetScene();
 
-	setCameraDistance(26.f);
+	setCameraDistance(16.f);
 
 	return glutmain(argc, argv,640,480,"Bullet COLLADA Physics Viewer http://bullet.sourceforge.net");
 }
@@ -2095,9 +2169,15 @@ void clientResetScene()
 
 void	shootBox(const SimdVector3& destination)
 {
-	//no objects to shoot
-	if (!numObjects)
-		return;
+
+	bool isDynamic = true;
+	float mass = 1.f;
+	SimdTransform startTransform;
+	startTransform.setIdentity();
+	startTransform.setOrigin(SimdVector3(eye[0],eye[1],eye[2]));
+	CollisionShape* boxShape = new BoxShape(SimdVector3(1.f,1.f,1.f));
+
+	CreatePhysicsObject(isDynamic, mass, startTransform,boxShape);
 
 	int i  = numObjects-1;
 
