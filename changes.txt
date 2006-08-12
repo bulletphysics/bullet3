@@ -1,6 +1,10 @@
 Bullet Continuous Collision Detection and Physics Library
 Erwin Coumans
 
+2006 August 11
+	Added Quake BspDemo
+	Improved CCD for compound and non-convex objects
+
 2006 August 10
 	Added per-triangle material (friction/restitution) support for non-convex meshes. See ConcaveDemo for usage.
 
