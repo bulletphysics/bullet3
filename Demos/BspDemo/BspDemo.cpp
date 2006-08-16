@@ -294,7 +294,7 @@ int main(int argc,char** argv)
 		//try again other path, 
 		//sight... visual studio leaves the current working directory in the projectfiles folder
 		//instead of executable folder. who wants this default behaviour?!?
-		bspfilename = "../../bsptest.bsp";
+		bspfilename = "../../BspDemo.bsp";
 		file = fopen(bspfilename,"r");
 	}
 	if (file)
