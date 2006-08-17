@@ -731,8 +731,15 @@ void clientMoveAndDisplay()
 
 	physicsEnvironmentPtr->proceedDeltaTime(0.f,deltaTime);
 
-	renderme();
+#ifdef USE_QUICKPROF 
+        Profiler::beginBlock("render"); 
+#endif //USE_QUICKPROF 
+	
+	renderme(); 
 
+#ifdef USE_QUICKPROF 
+        Profiler::endBlock("render"); 
+#endif 
 	glFlush();
 	glutSwapBuffers();
 
