@@ -2,7 +2,7 @@ INCLUDE_DIRECTORIES(
 ${BULLET_PHYSICS_SOURCE_DIR}/LinearMath ${BULLET_PHYSICS_SOURCE_DIR}/Bullet ${BULLET_PHYSICS_SOURCE_DIR}/BulletDynamics }
 )
 	
-ADD_LIBRARY(BULLET_DYNAMICS
+ADD_LIBRARY(LibBulletDynamics
 
 	ConstraintSolver/ContactConstraint.cpp
 	ConstraintSolver/Generic6DofConstraint.cpp

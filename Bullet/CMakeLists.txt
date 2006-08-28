@@ -3,7 +3,7 @@ INCLUDE_DIRECTORIES(
 ${BULLET_PHYSICS_SOURCE_DIR}/LinearMath ${BULLET_PHYSICS_SOURCE_DIR}/Bullet }
 )
 	
-ADD_LIBRARY(BULLET_COLLISION 
+ADD_LIBRARY(LibBulletCollision
 				BroadphaseCollision/AxisSweep3.cpp
 				BroadphaseCollision/BroadphaseProxy.cpp
 				BroadphaseCollision/CollisionAlgorithm.cpp

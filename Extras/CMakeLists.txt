@@ -1,1 +1,1 @@
-SUBDIRS( PhysicsInterface )
+SUBDIRS( PhysicsInterface LibXML COLLADA_DOM )

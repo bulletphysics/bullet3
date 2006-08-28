@@ -1,4 +1,4 @@
-ADD_LIBRARY(LINEAR_MATH
+ADD_LIBRARY(LibLinearMath
 Geometry.cpp    
 Quat.cpp       
 Vector.cpp      
