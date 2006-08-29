@@ -24,10 +24,13 @@ class TypedConstraint
 {
 	int	m_userConstraintType;
 	int	m_userConstraintId;
+	
 
 protected:
 	RigidBody&	m_rbA;
 	RigidBody&	m_rbB;
+	float	m_appliedImpulse;
+
 
 public:
 
@@ -50,6 +53,15 @@ public:
 		return m_rbB;
 	}
 
+	RigidBody& GetRigidBodyA()
+	{
+		return m_rbA;
+	}
+	RigidBody& GetRigidBodyB()
+	{
+		return m_rbB;
+	}
+
 	int GetUserConstraintType() const
 	{
 		return m_userConstraintType ;
@@ -68,6 +80,10 @@ public:
 	int GetUserConstraintId()
 	{
 		return m_userConstraintId;
+	}
+	float	GetAppliedImpulse()
+	{
+		return m_appliedImpulse;
 	}
 };
 

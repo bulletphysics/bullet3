@@ -335,8 +335,8 @@ m_enableSatCollisionDetection(false)
 	{
 		m_triggerCallbacks[i] = 0;
 	}
-	//if (!dispatcher)
-	//	dispatcher = new CollisionDispatcher();
+	if (!dispatcher)
+		dispatcher = new CollisionDispatcher();
 
 
 	if(!pairCache)
@@ -1834,3 +1834,18 @@ PHY_IPhysicsController* CcdPhysicsEnvironment::CreateConeController(float conera
 	return sphereController;
 }
 	
+float		CcdPhysicsEnvironment::getAppliedImpulse(int	constraintid)
+{
+	std::vector<TypedConstraint*>::iterator i;
+
+	for (i=m_constraints.begin();
+		!(i==m_constraints.end()); i++)
+	{
+		TypedConstraint* constraint = (*i);
+		if (constraint->GetUserConstraintId() == constraintid)
+		{
+			return constraint->GetAppliedImpulse();
+		}
+	}
+	return 0.f;
+}

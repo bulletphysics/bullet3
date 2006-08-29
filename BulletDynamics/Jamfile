@@ -3,5 +3,6 @@ SubDir TOP BulletDynamics ;
 Library bulletdynamics :
   [ Wildcard ConstraintSolver : *.h *.cpp ] 
   [ Wildcard Dynamics : *.h *.cpp ] 
+  [ Wildcard Vehicle : *.h *.cpp ] 
 ;
 Recurse InstallHeader : .h  ;

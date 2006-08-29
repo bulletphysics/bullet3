@@ -28,7 +28,7 @@ HingeConstraint::HingeConstraint(RigidBody& rbA,RigidBody& rbB, const SimdVector
 								 SimdVector3& axisInA,SimdVector3& axisInB)
 :TypedConstraint(rbA,rbB),m_pivotInA(pivotInA),m_pivotInB(pivotInB),
 m_axisInA(axisInA),
-m_axisInB(axisInB),
+m_axisInB(-axisInB),
 m_angularOnly(false)
 {
 
@@ -47,6 +47,8 @@ m_angularOnly(false)
 
 void	HingeConstraint::BuildJacobian()
 {
+	m_appliedImpulse = 0.f;
+
 	SimdVector3	normal(0,0,0);
 
 	if (!m_angularOnly)
@@ -216,7 +218,7 @@ void	HingeConstraint::SolveConstraint(SimdScalar	timeStep)
 			//positional error (zeroth order error)
 			SimdScalar depth = -(pivotAInW - pivotBInW).dot(normal); //this is the error projected on the normal
 			SimdScalar impulse = depth*tau/timeStep  * jacDiagABInv -  damping * rel_vel * jacDiagABInv * damping;
-
+			m_appliedImpulse += impulse;
 			SimdVector3 impulse_vector = normal * impulse;
 			m_rbA.applyImpulse(impulse_vector, pivotAInW - m_rbA.getCenterOfMassPosition());
 			m_rbB.applyImpulse(-impulse_vector, pivotBInW - m_rbB.getCenterOfMassPosition());

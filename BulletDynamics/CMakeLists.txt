@@ -14,4 +14,6 @@ ADD_LIBRARY(LibBulletDynamics
 	Dynamics/BU_Joint.cpp
 	Dynamics/ContactJoint.cpp
 	Dynamics/RigidBody.cpp
+	Vehicle/RaycastVehicle.cpp
+	Vehicle/WheelInfo.cpp
 )
