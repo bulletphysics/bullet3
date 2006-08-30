@@ -142,6 +142,14 @@ SOURCE=..\..\BulletDynamics\Dynamics\ContactJoint.cpp
 
 SOURCE=..\..\BulletDynamics\Dynamics\RigidBody.cpp
 # End Source File
+# Begin Source File
+
+SOURCE=..\..\BulletDynamics\Vehicle\RaycastVehicle.cpp
+# End Source File
+# Begin Source File
+
+SOURCE=..\..\BulletDynamics\Vehicle\WheelInfo.cpp
+# End Source File
 # End Group
 # Begin Group "Header Files"
 
@@ -201,6 +209,18 @@ SOURCE=..\..\BulletDynamics\Dynamics\MassProps.h
 # Begin Source File
 
 SOURCE=..\..\BulletDynamics\Dynamics\RigidBody.h
+# End Source File
+# Begin Source File
+
+SOURCE=..\..\BulletDynamics\Vehicle\RaycastVehicle.h
+# End Source File
+# Begin Source File
+
+SOURCE=..\..\BulletDynamics\Vehicle\VehicleRaycaster.h
+# End Source File
+# Begin Source File
+
+SOURCE=..\..\BulletDynamics\Vehicle\WheelInfo.h
 # End Source File
 # End Group
 # End Target
