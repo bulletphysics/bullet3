@@ -94,59 +94,7 @@ extern int	gForwardAxis;
 #else
 //Use Collada-dom
 
-#include "dae.h"
-#include "dom/domCOLLADA.h"
-
-
-
-
-DAE* collada = 0;
-domCOLLADA* dom = 0;
-
-
-domMatrix_Array emptyMatrixArray;
-
-SimdTransform	GetSimdTransformFromCOLLADA_DOM(domMatrix_Array& matrixArray,
-														domRotate_Array& rotateArray,
-														domTranslate_Array& translateArray
-														)
-
-{
-	SimdTransform	startTransform;
-	startTransform.setIdentity();
-	
-	int i;
-	//either load the matrix (worldspace) or incrementally build the transform from 'translate'/'rotate'
-	for (i=0;i<matrixArray.getCount();i++)
-	{
-		domMatrixRef matrixRef = matrixArray[i];
-		domFloat4x4 fl16 = matrixRef->getValue();
-		SimdVector3 origin(fl16.get(3),fl16.get(7),fl16.get(11));
-		startTransform.setOrigin(origin);
-		SimdMatrix3x3 basis(fl16.get(0),fl16.get(1),fl16.get(2),
-							fl16.get(4),fl16.get(5),fl16.get(6),
-							fl16.get(8),fl16.get(9),fl16.get(10));
-		startTransform.setBasis(basis);
-	}
-
-	for (i=0;i<rotateArray.getCount();i++)
-	{
-		domRotateRef rotateRef = rotateArray[i];
-		domFloat4 fl4 = rotateRef->getValue();
-		float angleRad = SIMD_RADS_PER_DEG*fl4.get(3);
-		SimdQuaternion rotQuat(SimdVector3(fl4.get(0),fl4.get(1),fl4.get(2)),angleRad);
-		startTransform.getBasis() = startTransform.getBasis() * SimdMatrix3x3(rotQuat);
-	}
-
-	for (i=0;i<translateArray.getCount();i++)
-	{
-		domTranslateRef translateRef = translateArray[i];
-		domFloat3 fl3 = translateRef->getValue();
-		startTransform.getOrigin() += SimdVector3(fl3.get(0),fl3.get(1),fl3.get(2));
-	}
-	return startTransform;
-}
-
+#include "ColladaConverter.h"
 
 #endif
 
@@ -200,7 +148,7 @@ SimdTransform startTransforms[maxNumObjects];
 
 //quick test to export new position into a COLLADA .dae file
 #ifndef USE_FCOLLADA
-domNodeRef	colladadomNodes[maxNumObjects];
+
 #endif //USE_FCOLLADA
 
 DefaultMotionState ms[maxNumObjects];
@@ -218,7 +166,7 @@ CollisionShape* gShapePtr[maxNumObjects];//1 rigidbody has 1 shape (no re-use of
 ////////////////////////////////////
 
 ///Very basic import
-CcdPhysicsController*  CreatePhysicsObject(bool isDynamic, float mass, const SimdTransform& startTransform,CollisionShape* shape)
+CcdPhysicsController*  LocalCreatePhysicsObject(bool isDynamic, float mass, const SimdTransform& startTransform,CollisionShape* shape)
 {
 
 	startTransforms[numObjects] = startTransform;
@@ -307,6 +255,55 @@ CcdPhysicsController*  CreatePhysicsObject(bool isDynamic, float mass, const Sim
 	return physObjects[numObjects++];
 }
 
+class MyColladaConverter : public ColladaConverter
+{
+	public:
+		///those 2 virtuals are called for each constraint/physics object
+	virtual int			createUniversalD6Constraint(
+		class PHY_IPhysicsController* ctrlRef,class PHY_IPhysicsController* ctrlOther,
+			SimdTransform& localAttachmentFrameRef,
+			SimdTransform& localAttachmentOther,
+			const SimdVector3& linearMinLimits,
+			const SimdVector3& linearMaxLimits,
+			const SimdVector3& angularMinLimits,
+			const SimdVector3& angularMaxLimits
+			)
+		{
+			return physicsEnvironmentPtr->createUniversalD6Constraint(
+					ctrlRef,ctrlOther,
+					localAttachmentFrameRef,
+					localAttachmentOther,
+					linearMinLimits,
+					linearMaxLimits,
+					angularMinLimits,
+					angularMaxLimits
+				);
+		}
+
+	virtual CcdPhysicsController*  CreatePhysicsObject(bool isDynamic, 
+		float mass, 
+		const SimdTransform& startTransform,
+		CollisionShape* shape)
+	{
+		CcdPhysicsController*  ctrl = LocalCreatePhysicsObject(isDynamic, mass, startTransform,shape);
+		return ctrl;
+	}
+
+
+	virtual	void	SetGravity(const SimdVector3& grav)
+	{
+		physicsEnvironmentPtr->setGravity(grav.getX(),grav.getY(),grav.getZ());
+	}
+	virtual void	SetCameraInfo(const SimdVector3& camUp,int forwardAxis) 
+	{
+		gCameraUp = camUp;
+		gForwardAxis = forwardAxis;
+	}
+
+};
+
+MyColladaConverter* gColladaConverter = 0;
+
 
 #ifdef QUAKE_BSP_IMPORTING
 
@@ -331,7 +328,7 @@ public:
 				//this create an internal copy of the vertices
 				CollisionShape* shape = new ConvexHullShape(&vertices[0],vertices.size());
 
-				CreatePhysicsObject(isDynamic, mass, startTransform,shape);
+				LocalCreatePhysicsObject(isDynamic, mass, startTransform,shape);
 			}
 		}
 };
@@ -905,12 +902,12 @@ bool ConvertColladaPhysicsToBulletPhysics(const FCDPhysicsSceneNode* inputNode)
 					{
 						once = false;
 						printf("create Physics Object\n");
-						//void	CreatePhysicsObject(bool isDynamic, float mass, const SimdTransform& startTransform,CollisionShape* shape)
+						//void	LocalCreatePhysicsObject(bool isDynamic, float mass, const SimdTransform& startTransform,CollisionShape* shape)
 
 						collisionShape->setLocalScaling(localScaling);
 						ms[numObjects].m_localScaling = localScaling;
 
-						CreatePhysicsObject(isDynamic, mymass, accumulatedWorldTransform,collisionShape);
+						LocalCreatePhysicsObject(isDynamic, mymass, accumulatedWorldTransform,collisionShape);
 
 
 					}
@@ -940,8 +937,7 @@ bool ConvertColladaPhysicsToBulletPhysics(const FCDPhysicsSceneNode* inputNode)
 
 GLDebugDrawer debugDrawer;
 
-char* fixFileName(const char* lpCmdLine);
-char* getLastFileName();
+
 
 
 int main(int argc,char** argv)
@@ -963,12 +959,7 @@ int main(int argc,char** argv)
 	}
 	if (argc>1)
 	{
-#ifdef USE_FCOLLADA
 		filename = argv[1];
-#else
-		//COLLADA-DOM requires certain filename convention
-		filename = fixFileName(argv[1]);
-#endif
 	}
 
 	gCameraUp = SimdVector3(0,0,1);
@@ -1045,811 +1036,25 @@ int main(int argc,char** argv)
 		}
 	}
 #else
-	//Collada-dom
-	collada = new DAE;
 
-	//clear 
+	MyColladaConverter* converter = new MyColladaConverter;
+
+	bool result = converter->load(filename);
+
+	if (result)
 	{
-
-		for (int i=0;i<maxNumObjects;i++)
-		{
-			colladadomNodes[i] = 0;
-		}
+		result = converter->convert();
 	}
-
-
-	int res = collada->load(filename);//,docBuffer);
-	
-	if (res != DAE_OK)
+	if (result)
 	{
-		printf("DAE/Collada-dom: Couldn't load %s\n",filename);
+		gColladaConverter = converter;
 	} else
 	{
-
-		dom = collada->getDom(filename);
-		if ( !dom )
-		{
-			printf("COLLADA File loaded to the dom, but query for the dom assets failed \n" );
-			printf("COLLADA Load Aborted! \n" );
-			delete collada;	
-
-		} else
-		{
-
-			//succesfully loaded file, now convert data
-
-			if ( dom->getAsset()->getUp_axis() )
-			{
-				domAsset::domUp_axis * up = dom->getAsset()->getUp_axis();
-				switch( up->getValue() )
-				{
-				case UPAXISTYPE_X_UP:
-					printf("	X is Up Data and Hiearchies must be converted!\n" ); 
-					printf("  Conversion to X axis Up isn't currently supported!\n" ); 
-					printf("  COLLADA_RT defaulting to Y Up \n" ); 
-					physicsEnvironmentPtr->setGravity(-10,0,0);
-					gCameraUp = SimdVector3(1,0,0);
-					gForwardAxis = 1;
-					break; 
-				case UPAXISTYPE_Y_UP:
-					printf("	Y Axis is Up for this file \n" ); 
-					printf("  COLLADA_RT set to Y Up \n" ); 
-					physicsEnvironmentPtr->setGravity(0,-10,0);
-					gCameraUp = SimdVector3(0,1,0);
-					gForwardAxis = 0;
-					break;
-				case UPAXISTYPE_Z_UP:
-					printf("	Z Axis is Up for this file \n" ); 
-					printf("  All Geometry and Hiearchies must be converted!\n" ); 
-					physicsEnvironmentPtr->setGravity(0,0,-10);
-					break; 
-				default:
-
-					break; 
-				}
-			}
-
-
-			//we don't handle visual objects, physics objects are rendered as such
-			for (int s=0;s<dom->getLibrary_visual_scenes_array().getCount();s++)
-			{
-				domLibrary_visual_scenesRef scenesRef = dom->getLibrary_visual_scenes_array()[s];
-				for (int i=0;i<scenesRef->getVisual_scene_array().getCount();i++)
-				{
-					domVisual_sceneRef sceneRef = scenesRef->getVisual_scene_array()[i];
-					for (int n=0;n<sceneRef->getNode_array().getCount();n++)
-					{
-						domNodeRef nodeRef = sceneRef->getNode_array()[n];
-						nodeRef->getRotate_array();
-						nodeRef->getTranslate_array();
-						nodeRef->getScale_array();
-
-					}
-				}
-			}
-
-
-
-
-			// Load all the geometry libraries
-			for ( int i = 0; i < dom->getLibrary_geometries_array().getCount(); i++)
-			{
-				domLibrary_geometriesRef libgeom = dom->getLibrary_geometries_array()[i];
-
-				printf(" CrtScene::Reading Geometry Library \n" );
-				for ( int  i = 0; i < libgeom->getGeometry_array().getCount(); i++)
-				{
-					//ReadGeometry(  ); 
-					domGeometryRef lib = libgeom->getGeometry_array()[i];
-
-					domMesh			*meshElement		= lib->getMesh();
-					if (meshElement)
-					{
-						// Find out how many groups we need to allocate space for 
-						int	numTriangleGroups = (int)meshElement->getTriangles_array().getCount();
-						int	numPolygonGroups  = (int)meshElement->getPolygons_array().getCount();
-						int	totalGroups		  = numTriangleGroups + numPolygonGroups;
-						if (totalGroups == 0) 
-						{
-							printf("No Triangles or Polygons found int Geometry %s \n", lib->getId() ); 
-						} else
-						{
-							printf("Found mesh geometry (%s): numTriangleGroups:%i numPolygonGroups:%i\n",lib->getId(),numTriangleGroups,numPolygonGroups);
-						}
-
-
-					}
-					domConvex_mesh	*convexMeshElement	= lib->getConvex_mesh();
-					if (convexMeshElement)
-					{
-						printf("found convexmesh element\n");
-						// Find out how many groups we need to allocate space for 
-						int	numTriangleGroups = (int)convexMeshElement->getTriangles_array().getCount();
-						int	numPolygonGroups  = (int)convexMeshElement->getPolygons_array().getCount();
-
-						int	totalGroups		  = numTriangleGroups + numPolygonGroups;
-						if (totalGroups == 0) 
-						{
-							printf("No Triangles or Polygons found in ConvexMesh Geometry %s \n", lib->getId() ); 
-						}else
-						{
-							printf("Found convexmesh geometry: numTriangleGroups:%i numPolygonGroups:%i\n",numTriangleGroups,numPolygonGroups);
-						}
-					}//fi
-				}//for each geometry
-
-			}//for all geometry libraries
-
-
-			//dom->getLibrary_physics_models_array()
-
-			for ( int i = 0; i < dom->getLibrary_physics_scenes_array().getCount(); i++)
-			{
-				domLibrary_physics_scenesRef physicsScenesRef = dom->getLibrary_physics_scenes_array()[i];
-				for (int s=0;s<physicsScenesRef->getPhysics_scene_array().getCount();s++)
-				{
-					domPhysics_sceneRef physicsSceneRef = physicsScenesRef->getPhysics_scene_array()[s];
-
-					if (physicsSceneRef->getTechnique_common())
-					{
-						if (physicsSceneRef->getTechnique_common()->getGravity())
-						{
-							const domFloat3 grav = physicsSceneRef->getTechnique_common()->getGravity()->getValue();
-							printf("gravity set to %f,%f,%f\n",grav.get(0),grav.get(1),grav.get(2));
-							physicsEnvironmentPtr->setGravity(grav.get(0),grav.get(1),grav.get(2));
-						}
-
-					} 
-
-					for (int m=0;m<physicsSceneRef->getInstance_physics_model_array().getCount();m++)
-					{
-						domInstance_physics_modelRef instance_physicsModelRef = physicsSceneRef->getInstance_physics_model_array()[m];
-
-						daeElementRef ref = instance_physicsModelRef->getUrl().getElement();
-
-						domPhysics_modelRef model = *(domPhysics_modelRef*)&ref; 
-
-
-						for (int r=0;r<instance_physicsModelRef->getInstance_rigid_body_array().getCount();r++)
-						{
-
-							domInstance_rigid_bodyRef rigidbodyRef = instance_physicsModelRef->getInstance_rigid_body_array()[r];
-
-							SimdTransform	startTransform;
-							startTransform.setIdentity();
-							SimdVector3 startScale(1.f,1.f,1.f);
-
-							float mass = 1.f;
-							bool isDynamics = true;
-							CollisionShape* colShape = 0;
-							CompoundShape* compoundShape = 0;
-
-							xsNCName bodyName = rigidbodyRef->getBody();
-
-							domInstance_rigid_body::domTechnique_commonRef techniqueRef = rigidbodyRef->getTechnique_common();
-							if (techniqueRef)
-							{
-								if (techniqueRef->getMass())
-								{
-									mass = techniqueRef->getMass()->getValue();
-								}
-								if (techniqueRef->getDynamic())
-								{
-									isDynamics = techniqueRef->getDynamic()->getValue();
-								}
-							}
-
-							printf("mass = %f, isDynamics %i\n",mass,isDynamics);
-
-							if (bodyName && model)
-							{
-								//try to find the rigid body
-								int numBody = model->getRigid_body_array().getCount();
-
-								for (int r=0;r<model->getRigid_body_array().getCount();r++)
-								{
-									domRigid_bodyRef rigidBodyRef = model->getRigid_body_array()[r];
-									if (rigidBodyRef->getSid() && !strcmp(rigidBodyRef->getSid(),bodyName))
-									{
-
-										const domRigid_body::domTechnique_commonRef techniqueRef = rigidBodyRef->getTechnique_common();
-										if (techniqueRef)
-										{
-
-											if (techniqueRef->getMass())
-											{
-												mass = techniqueRef->getMass()->getValue();
-											}
-											if (techniqueRef->getDynamic())
-											{
-												isDynamics = techniqueRef->getDynamic()->getValue();
-											}
-
-											//shapes
-											for (int s=0;s<techniqueRef->getShape_array().getCount();s++)
-											{
-												domRigid_body::domTechnique_common::domShapeRef shapeRef = techniqueRef->getShape_array()[s];
-
-												if (shapeRef->getPlane())
-												{
-													domPlaneRef planeRef = shapeRef->getPlane();
-													if (planeRef->getEquation())
-													{
-														const domFloat4 planeEq = planeRef->getEquation()->getValue();
-														SimdVector3 planeNormal(planeEq.get(0),planeEq.get(1),planeEq.get(2));
-														SimdScalar planeConstant = planeEq.get(3);
-														colShape = new StaticPlaneShape(planeNormal,planeConstant);
-													}
-
-												}
-
-												if (shapeRef->getBox())
-												{
-													domBoxRef boxRef = shapeRef->getBox();
-													domBox::domHalf_extentsRef	domHalfExtentsRef = boxRef->getHalf_extents();
-													domFloat3& halfExtents = domHalfExtentsRef->getValue();
-													float x = halfExtents.get(0);
-													float y = halfExtents.get(1);
-													float z = halfExtents.get(2);
-													colShape = new BoxShape(SimdVector3(x,y,z));
-												}
-												if (shapeRef->getSphere())
-												{
-													domSphereRef sphereRef = shapeRef->getSphere();
-													domSphere::domRadiusRef radiusRef = sphereRef->getRadius();
-													domFloat radius = radiusRef->getValue();
-													colShape = new SphereShape(radius);
-												}
-
-												if (shapeRef->getCylinder())
-												{
-													domCylinderRef cylinderRef = shapeRef->getCylinder();
-													domFloat height = cylinderRef->getHeight()->getValue();
-													domFloat2 radius2 = cylinderRef->getRadius()->getValue();
-													domFloat radius0 = radius2.get(0);
-
-													//Cylinder around the local Y axis
-													colShape = new CylinderShape(SimdVector3(radius0,height,radius0));
-
-												}
-
-												if (shapeRef->getInstance_geometry())
-												{
-													const domInstance_geometryRef geomInstRef = shapeRef->getInstance_geometry();
-													daeElement* geomElem = geomInstRef->getUrl().getElement();
-													//elemRef->getTypeName();
-													domGeometry* geom = (domGeometry*) geomElem;
-													if (geom && geom->getMesh())
-													{
-														const domMeshRef meshRef = geom->getMesh();
-														TriangleIndexVertexArray* tindexArray = new TriangleIndexVertexArray();
-
-														TriangleMesh* trimesh = new TriangleMesh();
-
-														
-														for (int tg = 0;tg<meshRef->getTriangles_array().getCount();tg++)
-														{
-
-
-															domTrianglesRef triRef = meshRef->getTriangles_array()[tg];
-															const domPRef pRef = triRef->getP();
-															daeMemoryRef memRef = pRef->getValue().getRawData();
-															IndexedMesh meshPart;
-															meshPart.m_triangleIndexStride=0;
-
-
-															
-															int vertexoffset = -1;
-															domInputLocalOffsetRef indexOffsetRef;
-															
-
-															for (int w=0;w<triRef->getInput_array().getCount();w++)
-															{
-																int offset = triRef->getInput_array()[w]->getOffset();
-																daeString str = triRef->getInput_array()[w]->getSemantic();
-																if (!strcmp(str,"VERTEX"))
-																{
-																	indexOffsetRef = triRef->getInput_array()[w];
-																	vertexoffset = offset;
-																}
-																if (offset > meshPart.m_triangleIndexStride)
-																{
-																	meshPart.m_triangleIndexStride = offset;
-																}
-															}
-															meshPart.m_triangleIndexStride++;
-															domListOfUInts indexArray =triRef->getP()->getValue(); 
-															int count = indexArray.getCount();
-
-															//int*		m_triangleIndexBase;
-
-
-
-															meshPart.m_numTriangles = triRef->getCount();
-
-															const domVerticesRef vertsRef = meshRef->getVertices();
-															int numInputs = vertsRef->getInput_array().getCount();
-															for (int i=0;i<numInputs;i++)
-															{
-																domInputLocalRef localRef = vertsRef->getInput_array()[i];
-																daeString str = localRef->getSemantic();
-																if ( !strcmp(str,"POSITION"))
-																{
-																	const domURIFragmentType& frag = localRef->getSource();
-
-																	daeElementConstRef constElem = frag.getElement();
-
-																	const domSourceRef node = *(const domSourceRef*)&constElem;
-																	const domFloat_arrayRef flArray = node->getFloat_array();
-																	if (flArray)
-																	{
-																		int numElem = flArray->getCount();
-																		const domListOfFloats& listFloats = flArray->getValue();
-
-																		int numVerts = listFloats.getCount()/3;
-																		int k=vertexoffset;
-																		int t=0;
-																		int vertexStride = 3;//instead of hardcoded stride, should use the 'accessor'
-																		for (;t<meshPart.m_numTriangles;t++)
-																		{
-																			SimdVector3 verts[3];
-																			int index0,index1,index2;
-																			for (int i=0;i<3;i++)
-																			{
-																				index0 = indexArray.get(k)*vertexStride;
-																				domFloat fl0 = listFloats.get(index0);
-																				domFloat fl1 = listFloats.get(index0+1);
-																				domFloat fl2 = listFloats.get(index0+2);
-																				k+=meshPart.m_triangleIndexStride;
-																				verts[i].setValue(fl0,fl1,fl2);
-																			}
-																			trimesh->AddTriangle(verts[0],verts[1],verts[2]);
-																		}
-																	}
-																}
-															}
-
-
-
-
-
-																//int			m_triangleIndexStride;//calculate max offset
-																//int			m_numVertices;
-																//float*		m_vertexBase;//getRawData on floatArray
-																//int			m_vertexStride;//use the accessor for this
-
-															//};
-															//tindexArray->AddIndexedMesh(meshPart);
-															if (isDynamics)
-															{
-																printf("moving concave <mesh> not supported, transformed into convex\n");
-																colShape = new ConvexTriangleMeshShape(trimesh);
-															} else
-															{
-																printf("static concave triangle <mesh> added\n");
-																colShape = new TriangleMeshShape(trimesh);
-															}
-
-														}
-
-													}
-
-													if (geom && geom->getConvex_mesh())
-													{
-
-														{
-															const domConvex_meshRef convexRef = geom->getConvex_mesh();
-															daeElementRef otherElemRef = convexRef->getConvex_hull_of().getElement();
-															if ( otherElemRef != NULL )
-															{
-																domGeometryRef linkedGeom = *(domGeometryRef*)&otherElemRef;
-																printf( "otherLinked\n");
-															} else
-															{
-																printf("convexMesh polyCount = %i\n",convexRef->getPolygons_array().getCount());
-																printf("convexMesh triCount = %i\n",convexRef->getTriangles_array().getCount());
-
-															}
-														}
-
-
-
-														ConvexHullShape* convexHullShape = new ConvexHullShape(0,0);
-
-														//it is quite a trick to get to the vertices, using Collada.
-														//we are not there yet...
-
-														const domConvex_meshRef convexRef = geom->getConvex_mesh();
-														//daeString urlref = convexRef->getConvex_hull_of().getURI();
-														daeString urlref2 = convexRef->getConvex_hull_of().getOriginalURI();
-														if (urlref2)
-														{
-															daeElementRef otherElemRef = convexRef->getConvex_hull_of().getElement();
-															//	if ( otherElemRef != NULL )
-															//	{
-															//		domGeometryRef linkedGeom = *(domGeometryRef*)&otherElemRef;
-
-															// Load all the geometry libraries
-															for ( int i = 0; i < dom->getLibrary_geometries_array().getCount(); i++)
-															{
-																domLibrary_geometriesRef libgeom = dom->getLibrary_geometries_array()[i];
-																//int index = libgeom->findLastIndexOf(urlref2);
-																//can't find it
-
-																for ( int  i = 0; i < libgeom->getGeometry_array().getCount(); i++)
-																{
-																	//ReadGeometry(  ); 
-																	domGeometryRef lib = libgeom->getGeometry_array()[i];
-																	if (!strcmp(lib->getName(),urlref2))
-																	{
-																		//found convex_hull geometry
-																		domMesh			*meshElement		= lib->getMesh();//linkedGeom->getMesh();
-																		if (meshElement)
-																		{
-																			const domVerticesRef vertsRef = meshElement->getVertices();
-																			int numInputs = vertsRef->getInput_array().getCount();
-																			for (int i=0;i<numInputs;i++)
-																			{
-																				domInputLocalRef localRef = vertsRef->getInput_array()[i];
-																				daeString str = localRef->getSemantic();
-																				if ( !strcmp(str,"POSITION"))
-																				{
-																					const domURIFragmentType& frag = localRef->getSource();
-
-																					daeElementConstRef constElem = frag.getElement();
-
-																					const domSourceRef node = *(const domSourceRef*)&constElem;
-																					const domFloat_arrayRef flArray = node->getFloat_array();
-																					if (flArray)
-																					{
-																						int numElem = flArray->getCount();
-																						const domListOfFloats& listFloats = flArray->getValue();
-
-																						for (int k=0;k+2<numElem;k+=3)
-																						{
-																							domFloat fl0 = listFloats.get(k);
-																							domFloat fl1 = listFloats.get(k+1);
-																							domFloat fl2 = listFloats.get(k+2);
-																							//printf("float %f %f %f\n",fl0,fl1,fl2);
-
-																							convexHullShape->AddPoint(SimdPoint3(fl0,fl1,fl2));
-																						}
-
-																					}
-
-																				}
-
-
-																			}
-
-																		}
-																	}
-																
-																		
-																	
-																}
-															}
-
-
-														} else
-														{
-															//no getConvex_hull_of but direct vertices
-															const domVerticesRef vertsRef = convexRef->getVertices();
-															int numInputs = vertsRef->getInput_array().getCount();
-															for (int i=0;i<numInputs;i++)
-															{
-																domInputLocalRef localRef = vertsRef->getInput_array()[i];
-																daeString str = localRef->getSemantic();
-																if ( !strcmp(str,"POSITION"))
-																{
-																	const domURIFragmentType& frag = localRef->getSource();
-
-																	daeElementConstRef constElem = frag.getElement();
-
-																	const domSourceRef node = *(const domSourceRef*)&constElem;
-																	const domFloat_arrayRef flArray = node->getFloat_array();
-																	if (flArray)
-																	{
-																		int numElem = flArray->getCount();
-																		const domListOfFloats& listFloats = flArray->getValue();
-
-																		for (int k=0;k+2<numElem;k+=3)
-																		{
-																			domFloat fl0 = listFloats.get(k);
-																			domFloat fl1 = listFloats.get(k+1);
-																			domFloat fl2 = listFloats.get(k+2);
-																			//printf("float %f %f %f\n",fl0,fl1,fl2);
-
-																			convexHullShape->AddPoint(SimdPoint3(fl0,fl1,fl2));
-																		}
-
-																	}
-
-																}
-
-
-															}
-
-
-														}
-
-														if (convexHullShape->GetNumVertices())
-														{
-															colShape = convexHullShape;
-															printf("created convexHullShape with %i points\n",convexHullShape->GetNumVertices());
-														} else
-														{
-															delete convexHullShape;
-															printf("failed to create convexHullShape\n");
-														}
-
-
-														//domGeometryRef linkedGeom = *(domGeometryRef*)&otherElemRef;
-
-														printf("convexmesh\n");
-
-													}
-												}
-
-												//if more then 1 shape, or a non-identity local shapetransform
-												//use a compound
-
-												bool hasShapeLocalTransform = ((shapeRef->getRotate_array().getCount() > 0) ||
-													(shapeRef->getTranslate_array().getCount() > 0));
-												
-												if (colShape)
-												{
-													if ((techniqueRef->getShape_array().getCount()>1) ||
-														(hasShapeLocalTransform))
-													{
-														
-														if (!compoundShape)
-														{
-															compoundShape = new CompoundShape();
-														}
-
-														SimdTransform localTransform;
-														localTransform.setIdentity();
-														if (hasShapeLocalTransform)
-														{
-														localTransform = GetSimdTransformFromCOLLADA_DOM(
-															emptyMatrixArray,
-															shapeRef->getRotate_array(),
-															shapeRef->getTranslate_array()
-															);
-														}
-
-														compoundShape->AddChildShape(localTransform,colShape);
-														colShape = 0;
-													}
-												}
-
-
-											}//for each shape
-
-
-
-										}
-
-
-
-									}
-								}
-
-								//////////////////////
-							}
-
-							if (compoundShape)
-								colShape = compoundShape;
-
-							if (colShape)
-							{
-
-								//The 'target' points to a graphics element/node, which contains the start (world) transform
-								daeElementRef elem = rigidbodyRef->getTarget().getElement();
-								if (elem)
-								{
-									domNodeRef node = *(domNodeRef*)&elem;
-									colladadomNodes[numObjects] = node;
-
-									//find transform of the node that this rigidbody maps to
-
-							
-									startTransform = GetSimdTransformFromCOLLADA_DOM(
-														node->getMatrix_array(),
-														node->getRotate_array(),
-														node->getTranslate_array()
-														);
-
-									for (i=0;i<node->getScale_array().getCount();i++)
-									{
-										domScaleRef scaleRef = node->getScale_array()[i];
-										domFloat3 fl3 = scaleRef->getValue();
-										startScale = SimdVector3(fl3.get(0),fl3.get(1),fl3.get(2));
-									}
-
-								}
-
-					
-							
-								CcdPhysicsController* ctrl = CreatePhysicsObject(isDynamics,mass,startTransform,colShape);
-								//for bodyName lookup in constraints
-								ctrl->setNewClientInfo((void*)bodyName);
-
-							}
-
-						} //for  each  instance_rigid_body
-
-						
-					} //for each physics model
-
-					//we don't handle constraints just yet
-					for (int m=0;m<physicsSceneRef->getInstance_physics_model_array().getCount();m++)
-					{
-						domInstance_physics_modelRef instance_physicsModelRef = physicsSceneRef->getInstance_physics_model_array()[m];
-
-						daeElementRef ref = instance_physicsModelRef->getUrl().getElement();
-
-						domPhysics_modelRef model = *(domPhysics_modelRef*)&ref; 
-
-						for (int c=0;c<instance_physicsModelRef->getInstance_rigid_constraint_array().getCount();c++)
-						{
-							domInstance_rigid_constraintRef constraintRef = instance_physicsModelRef->getInstance_rigid_constraint_array().get(c);
-							xsNCName constraintName = constraintRef->getConstraint();
-
-							if (constraintName && model)
-							{
-								//try to find the rigid body
-								int numConstraints= model->getRigid_constraint_array().getCount();
-
-								for (int r=0;r<numConstraints;r++)
-								{
-									domRigid_constraintRef rigidConstraintRef = model->getRigid_constraint_array()[r];
-									
-									if (rigidConstraintRef->getSid() && !strcmp(rigidConstraintRef->getSid(),constraintName))
-									{
-										
-										//two bodies
-										const domRigid_constraint::domRef_attachmentRef attachRefBody = rigidConstraintRef->getRef_attachment();
-										const domRigid_constraint::domAttachmentRef attachBody1 = rigidConstraintRef->getAttachment();
-
-										daeString uri = attachRefBody->getRigid_body().getURI();
-										daeString orgUri0 = attachRefBody->getRigid_body().getOriginalURI();
-										daeString orgUri1 = attachBody1->getRigid_body().getOriginalURI();
-										CcdPhysicsController* ctrl0=0,*ctrl1=0;
-										
-										for (int i=0;i<numObjects;i++)
-										{
-											char* bodyName = (char*)physObjects[i]->getNewClientInfo();
-											if (!strcmp(bodyName,orgUri0))
-											{
-												ctrl0=physObjects[i];
-											}
-											if (!strcmp(bodyName,orgUri1))
-											{
-												ctrl1=physObjects[i];
-											}
-										}
-
-
-
-										const domRigid_constraint::domAttachmentRef attachOtherBody = rigidConstraintRef->getAttachment();
-
-										
-										const domRigid_constraint::domTechnique_commonRef commonRef = rigidConstraintRef->getTechnique_common();
-										
-										domFloat3 flMin = commonRef->getLimits()->getLinear()->getMin()->getValue();
-										SimdVector3 minLinearLimit(flMin.get(0),flMin.get(1),flMin.get(2));
-										
-										domFloat3 flMax = commonRef->getLimits()->getLinear()->getMax()->getValue();
-										SimdVector3 maxLinearLimit(flMax.get(0),flMax.get(1),flMax.get(2));
-																			
-										domFloat3 coneMinLimit = commonRef->getLimits()->getSwing_cone_and_twist()->getMin()->getValue();
-										SimdVector3 angularMin(coneMinLimit.get(0),coneMinLimit.get(1),coneMinLimit.get(2));
-
-										domFloat3 coneMaxLimit = commonRef->getLimits()->getSwing_cone_and_twist()->getMax()->getValue();
-										SimdVector3 angularMax(coneMaxLimit.get(0),coneMaxLimit.get(1),coneMaxLimit.get(2));
-
-										{
-											int constraintId;
-
-											SimdTransform attachFrameRef0;
-											attachFrameRef0 = 
-												GetSimdTransformFromCOLLADA_DOM
-												(
-												emptyMatrixArray,
-												attachRefBody->getRotate_array(),
-												attachRefBody->getTranslate_array());
-
-											SimdTransform attachFrameOther;
-											attachFrameOther =
-												GetSimdTransformFromCOLLADA_DOM
-												(
-												emptyMatrixArray,
-												attachBody1->getRotate_array(),
-												attachBody1->getTranslate_array()
-												);
-
-
-											//convert INF / -INF into lower > upper
-
-											//currently there is a hack in the DOM to detect INF / -INF
-											//see daeMetaAttribute.cpp
-											//INF -> 999999.9
-											//-INF -> -999999.9
-											float linearCheckTreshold = 999999.0;
-											float angularCheckTreshold = 180.0;//check this
-
-
-
-											
-											//free means upper < lower, 
-											//locked means upper == lower
-											//limited means upper > lower
-											//limitIndex: first 3 are linear, next 3 are angular
-
-											SimdVector3 linearLowerLimits = minLinearLimit;
-											SimdVector3 linearUpperLimits = maxLinearLimit;
-											SimdVector3 angularLowerLimits = angularMin;
-											SimdVector3 angularUpperLimits = angularMax;
-											{
-												for (int i=0;i<3;i++)
-												{
-													if  ((linearLowerLimits[i] < -linearCheckTreshold) ||
-														(linearUpperLimits[i] > linearCheckTreshold))
-													{
-														//disable limits
-														linearLowerLimits[i] = 1;
-														linearUpperLimits[i] = 0;
-													}
-
-													if  ((angularLowerLimits[i] < -angularCheckTreshold) ||
-														(angularUpperLimits[i] > angularCheckTreshold))
-													{
-														//disable limits
-														angularLowerLimits[i] = 1;
-														angularUpperLimits[i] = 0;
-													}
-												}
-											}
-
-
-											if (ctrl0 && ctrl1)
-											{
-											constraintId =physicsEnvironmentPtr->createUniversalD6Constraint(
-											ctrl0,
-											ctrl1,
-											attachFrameRef0,
-											attachFrameOther,
-											linearLowerLimits,
-											linearUpperLimits,
-											angularLowerLimits,
-											angularUpperLimits
-												);
-											} else
-											{
-												printf("Error: Cannot find Rigidbodies(%s,%s) for constraint %s\n",orgUri0,orgUri1,constraintName);
-											}
-
-
-										}
-
-
-
-									}
-								}
-							}
-
-						}
-					} //2nd time, for each physics model
-
-				}
-			}
-
-		}
+		gColladaConverter = 0;
 	}
 
 #endif
+
 	clientResetScene();
 
 	setCameraDistance(26.f);
@@ -2178,7 +1383,7 @@ void	shootBox(const SimdVector3& destination)
 	startTransform.setOrigin(SimdVector3(eye[0],eye[1],eye[2]));
 	CollisionShape* boxShape = new BoxShape(SimdVector3(1.f,1.f,1.f));
 
-	CreatePhysicsObject(isDynamic, mass, startTransform,boxShape);
+	LocalCreatePhysicsObject(isDynamic, mass, startTransform,boxShape);
 
 	int i  = numObjects-1;
 
@@ -2200,127 +1405,9 @@ void clientKeyboard(unsigned char key, int x, int y)
 #ifndef USE_FCOLLADA
 	if (key =='e')
 	{
-		if (collada)
-		{
-			for (int i=0;i<numObjects;i++)
-			{
-				assert(colladadomNodes[i]);
-				if (!colladadomNodes[i]->getTranslate_array().getCount())
-				{
-					domTranslate* transl = (domTranslate*) colladadomNodes[i]->createAndPlace("translate");
-					transl->getValue().append(0.);
-					transl->getValue().append(0.);
-					transl->getValue().append(0.);
-				}
-
-				while (colladadomNodes[i]->getTranslate_array().getCount() > 1)
-				{
-					colladadomNodes[i]->removeFromParent(colladadomNodes[i]->getTranslate_array().get(1));
-					//colladadomNodes[i]->getTranslate_array().removeIndex(1);
-				}
-
-				{
-
-					float np[3];
-					domFloat3 newPos = colladadomNodes[i]->getTranslate_array().get(0)->getValue();
-					physObjects[i]->GetMotionState()->getWorldPosition(
-						np[0],
-						np[1],
-						np[2]);
-					newPos.set(0,np[0]);
-					newPos.set(1,np[1]);
-					newPos.set(2,np[2]);
-					colladadomNodes[i]->getTranslate_array().get(0)->setValue(newPos);
-
-				}
-				
-
-				if (!colladadomNodes[i]->getRotate_array().getCount())
-				{
-					domRotate* rot = (domRotate*)colladadomNodes[i]->createAndPlace("rotate");
-					rot->getValue().append(1.0);
-					rot->getValue().append(0.0);
-					rot->getValue().append(0.0);
-					rot->getValue().append(0.0);
-				}
-
-				while (colladadomNodes[i]->getRotate_array().getCount()>1)
-				{
-					colladadomNodes[i]->removeFromParent(colladadomNodes[i]->getRotate_array().get(1));
-					//colladadomNodes[i]->getRotate_array().removeIndex(1);
-
-				}
-
-				{
-					float quatIma0,quatIma1,quatIma2,quatReal;
-					
-					SimdQuaternion quat = physObjects[i]->GetRigidBody()->getCenterOfMassTransform().getRotation();
-					SimdVector3 axis(quat.getX(),quat.getY(),quat.getZ());
-					axis[3] = 0.f;
-					//check for axis length
-					SimdScalar len = axis.length2();
-					if (len < SIMD_EPSILON*SIMD_EPSILON)
-						axis = SimdVector3(1.f,0.f,0.f);
-					else
-						axis /= SimdSqrt(len);
-					colladadomNodes[i]->getRotate_array().get(0)->getValue().set(0,axis[0]);
-					colladadomNodes[i]->getRotate_array().get(0)->getValue().set(1,axis[1]);
-					colladadomNodes[i]->getRotate_array().get(0)->getValue().set(2,axis[2]);
-					colladadomNodes[i]->getRotate_array().get(0)->getValue().set(3,quat.getAngle()*SIMD_DEGS_PER_RAD);
-				}
-
-				while (colladadomNodes[i]->getMatrix_array().getCount())
-				{
-					colladadomNodes[i]->removeFromParent(colladadomNodes[i]->getMatrix_array().get(0));
-					//colladadomNodes[i]->getMatrix_array().removeIndex(0);
-				}
-			}
-			char	saveName[550];
-			static int saveCount=1;
-			sprintf(saveName,"%s%i",getLastFileName(),saveCount++);
-			char* name = &saveName[0];
-			if (name[0] == '/')
-			{
-				name = &saveName[1];
-			} 
-			
-			if (dom->getAsset()->getContributor_array().getCount())
-			{
-				if (!dom->getAsset()->getContributor_array().get(0)->getAuthor())
-				{
-					dom->getAsset()->getContributor_array().get(0)->createAndPlace("author");
-				}
-
-				dom->getAsset()->getContributor_array().get(0)->getAuthor()->setValue
-					("http://bullet.sourceforge.net Erwin Coumans");
-
-				if (!dom->getAsset()->getContributor_array().get(0)->getAuthoring_tool())
-				{
-					dom->getAsset()->getContributor_array().get(0)->createAndPlace("authoring_tool");
-				}
-
-				dom->getAsset()->getContributor_array().get(0)->getAuthoring_tool()->setValue
-#ifdef WIN32
-					("Bullet ColladaPhysicsViewer-Win32-0.5");
-#else
-#ifdef __APPLE__
-					("Bullet ColladaPhysicsViewer-MacOSX-0.5");
-#else
-					("Bullet ColladaPhysicsViewer-UnknownPlatform-0.5");
-#endif
-#endif
-				if (!dom->getAsset()->getContributor_array().get(0)->getComments())
-				{
-					dom->getAsset()->getContributor_array().get(0)->createAndPlace("comments");
-				}
-				 dom->getAsset()->getContributor_array().get(0)->getComments()->setValue
-					 ("Comments to Physics Forum at http://www.continuousphysics.com/Bullet/phpBB2/index.php");
-			}
-
-			collada->saveAs(name);
-			
-			
-		}
+		//save a COLLADA .dae physics snapshot
+		if (gColladaConverter)
+			gColladaConverter->saveAs();
 	}
 #endif
 	if (key == '.')
@@ -2537,51 +1624,4 @@ void	clientMotionFunc(int x,int y)
 	}
 }
 
-//some code that de-mangles the windows filename passed in as argument
-char cleaned_filename[512];
-char* getLastFileName()
-{
-	return cleaned_filename;
-}
-char* fixFileName(const char* lpCmdLine)
-{
 
-
-	// We might get a windows-style path on the command line, this can mess up the DOM which expects
-	// all paths to be URI's.  This block of code does some conversion to try and make the input
-	// compliant without breaking the ability to accept a properly formatted URI.  Right now this only
-	// displays the first filename
-	const char *in = lpCmdLine;
-	char* out = cleaned_filename;
-	*out = NULL;
-	// If the first character is a ", skip it (filenames with spaces in them are quoted)
-	if(*in == '\"')
-	{
-		in++;
-	}
-	if(*(in+1) == ':')
-	{
-		// Second character is a :, assume we have a path with a drive letter and add a slash at the beginning
-		*(out++) = '/';
-	}
-	int i;
-	for(i =0; i<512; i++)
-	{
-		// If we hit a null or a quote, stop copying.  This will get just the first filename.
-		if(*in == NULL || *in == '\"')
-			break;
-		// Copy while swapping backslashes for forward ones
-		if(*in == '\\')
-		{
-			*out = '/';
-		}
-		else
-		{
-			*out = *in;
-		}
-		in++;
-		out++;
-	}
-	
-	return cleaned_filename;
-}
