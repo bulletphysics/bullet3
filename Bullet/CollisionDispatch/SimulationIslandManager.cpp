@@ -151,25 +151,7 @@ void SimulationIslandManager::BuildAndProcessIslands(Dispatcher* dispatcher,Coll
 			}
 
 			
-			for (i=0;i<dispatcher->GetNumManifolds();i++)
-			{
-				 PersistentManifold* manifold = dispatcher->GetManifoldByIndexInternal(i);
-				 
-				 //filtering for response
-
-				 CollisionObject* colObj0 = static_cast<CollisionObject*>(manifold->GetBody0());
-				 CollisionObject* colObj1 = static_cast<CollisionObject*>(manifold->GetBody1());
-				 assert(colObj0);
-				 assert(colObj1);
-				 {
-					if (((colObj0)->m_islandTag1 == (islandId)) ||
-						((colObj1)->m_islandTag1 == (islandId)))
-					{
-						if (dispatcher->NeedsResponse(*colObj0,*colObj1))
-							islandmanifold.push_back(manifold);
-					}
-				 }
-			}
+			
 			if (allSleeping)
 			{
 				int i;
@@ -198,6 +180,27 @@ void SimulationIslandManager::BuildAndProcessIslands(Dispatcher* dispatcher,Coll
 						}
 					}
 				}
+
+				for (i=0;i<dispatcher->GetNumManifolds();i++)
+				{
+					 PersistentManifold* manifold = dispatcher->GetManifoldByIndexInternal(i);
+					 
+					 //filtering for response
+
+					 CollisionObject* colObj0 = static_cast<CollisionObject*>(manifold->GetBody0());
+					 CollisionObject* colObj1 = static_cast<CollisionObject*>(manifold->GetBody1());
+					 assert(colObj0);
+					 assert(colObj1);
+					 {
+						if (((colObj0)->m_islandTag1 == (islandId)) ||
+							((colObj1)->m_islandTag1 == (islandId)))
+						{
+							if (dispatcher->NeedsResponse(*colObj0,*colObj1))
+								islandmanifold.push_back(manifold);
+						}
+					 }
+				}
+
 
 				/// Process the actual simulation, only if not sleeping/deactivated
 				if (islandmanifold.size())
