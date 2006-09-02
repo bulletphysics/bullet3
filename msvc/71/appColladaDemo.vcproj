@@ -173,6 +173,9 @@
 				RelativePath="..\..\Demos\ColladaDemo\BspLoader.cpp">
 			</File>
 			<File
+				RelativePath="..\..\Demos\ColladaDemo\ColladaConverter.cpp">
+			</File>
+			<File
 				RelativePath="..\..\Demos\ColladaDemo\ColladaDemo.cpp">
 			</File>
 		</Filter>
@@ -184,6 +187,9 @@
 			</File>
 			<File
 				RelativePath="..\..\Demos\ColladaDemo\BspLoader.h">
+			</File>
+			<File
+				RelativePath="..\..\Demos\ColladaDemo\ColladaConverter.h">
 			</File>
 		</Filter>
 		<Filter

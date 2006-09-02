@@ -112,6 +112,10 @@ SOURCE=..\..\Demos\ColladaDemo\BspLoader.cpp
 # End Source File
 # Begin Source File
 
+SOURCE=..\..\Demos\ColladaDemo\ColladaConverter.cpp
+# End Source File
+# Begin Source File
+
 SOURCE=..\..\Demos\ColladaDemo\ColladaDemo.cpp
 # End Source File
 # End Group
@@ -125,6 +129,10 @@ SOURCE=..\..\Demos\ColladaDemo\BspConverter.h
 # Begin Source File
 
 SOURCE=..\..\Demos\ColladaDemo\BspLoader.h
+# End Source File
+# Begin Source File
+
+SOURCE=..\..\Demos\ColladaDemo\ColladaConverter.h
 # End Source File
 # End Group
 # Begin Group "Resource Files"
