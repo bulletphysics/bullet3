@@ -153,6 +153,7 @@ bool	ColladaConverter::load(const char* orgfilename)
 			return false;
 		}
 	}
+	return true;
 }
 
 
