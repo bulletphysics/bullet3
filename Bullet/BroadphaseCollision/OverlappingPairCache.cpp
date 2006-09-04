@@ -98,7 +98,9 @@ void	OverlappingPairCache::AddOverlappingPair(BroadphaseProxy* proxy0,Broadphase
 
 }
 
-
+///this FindPair becomes really slow. Either sort the list to speedup the query, or
+///use a different solution. It is mainly used for Removing overlapping pairs. Removal could be delayed.
+///we could keep a linked list in each proxy, and store pair in one of the proxies (with lowest memory address)
 BroadphasePair*	OverlappingPairCache::FindPair(BroadphaseProxy* proxy0,BroadphaseProxy* proxy1)
 {
 	BroadphasePair* foundPair = 0;
