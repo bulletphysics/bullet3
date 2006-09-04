@@ -1,2 +1,2 @@
-SUBDIRS( OpenGL CcdPhysicsDemo BspDemo ColladaDemo )
+SUBDIRS( OpenGL CcdPhysicsDemo BspDemo ColladaDemo VehicleDemo )
 

@@ -103,6 +103,8 @@ void	CollisionWorld::PerformDiscreteCollisionDetection()
 		m_pairCache->SetAabb(m_collisionObjects[i]->m_broadphaseHandle,aabbMin,aabbMax);
 	}
 
+	m_pairCache->RefreshOverlappingPairs();
+
 	Dispatcher* dispatcher = GetDispatcher();
 	if (dispatcher)
 		dispatcher->DispatchAllCollisionPairs(&m_pairCache->GetOverlappingPair(0),m_pairCache->GetNumOverlappingPairs(),dispatchInfo);
@@ -140,11 +142,11 @@ void	CollisionWorld::RemoveCollisionObject(CollisionObject* collisionObject)
 		}
 }
 
-void	RayTestSingle(const SimdTransform& rayFromTrans,const SimdTransform& rayToTrans,
+void	CollisionWorld::RayTestSingle(const SimdTransform& rayFromTrans,const SimdTransform& rayToTrans,
 					  CollisionObject* collisionObject,
 					  const CollisionShape* collisionShape,
 					  const SimdTransform& colObjWorldTransform,
-					  CollisionWorld::RayResultCallback& resultCallback)
+					  RayResultCallback& resultCallback)
 {
 	
 	SphereShape pointShape(0.0f);

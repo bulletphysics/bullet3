@@ -204,8 +204,18 @@ public:
 		return m_collisionObjects.size();
 	}
 
+	/// RayTest performs a raycast on all objects in the CollisionWorld, and calls the resultCallback
+	/// This allows for several queries: first hit, all hits, any hit, dependent on the value returned by the callback.
 	void	RayTest(const SimdVector3& rayFromWorld, const SimdVector3& rayToWorld, RayResultCallback& resultCallback);
 
+	/// RayTestSingle performs a raycast call and calls the resultCallback. It is used internally by RayTest.
+	/// In a future implementation, we consider moving the ray test as a virtual method in CollisionShape.
+	/// This allows more customization.
+	void	RayTestSingle(const SimdTransform& rayFromTrans,const SimdTransform& rayToTrans,
+					  CollisionObject* collisionObject,
+					  const CollisionShape* collisionShape,
+					  const SimdTransform& colObjWorldTransform,
+					  RayResultCallback& resultCallback);
 
 	void	AddCollisionObject(CollisionObject* collisionObject,short int collisionFilterGroup=1,short int collisionFilterMask=1);
 

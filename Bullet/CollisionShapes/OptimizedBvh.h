@@ -69,7 +69,7 @@ class OptimizedBvh
 
 public:
 	OptimizedBvh() :m_rootNode1(0), m_numNodes(0) { }
-	virtual ~OptimizedBvh() {};
+	virtual ~OptimizedBvh();
 	
 	void	Build(StridingMeshInterface* triangles);
 

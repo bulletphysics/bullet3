@@ -85,6 +85,11 @@ void OptimizedBvh::Build(StridingMeshInterface* triangles)
 //	OptimizedBvhNode* leafNodes = new OptimizedBvhNode;
 }
 
+OptimizedBvh::~OptimizedBvh()
+{
+	if (m_contiguousNodes)
+		delete m_contiguousNodes;
+}
 
 OptimizedBvhNode*	OptimizedBvh::BuildTree	(NodeArray&	leafNodes,int startIndex,int endIndex)
 {
