@@ -390,6 +390,36 @@ Package=<4>
 
 ###############################################################################
 
+Project: "appVehicleDemo"=.\appVehicleDemo.dsp - Package Owner=<4>
+
+Package=<5>
+{{{
+}}}
+
+Package=<4>
+{{{
+    Begin Project Dependency
+    Project_Dep_Name libbullet
+    End Project Dependency
+    Begin Project Dependency
+    Project_Dep_Name libbulletccdphysics
+    End Project Dependency
+    Begin Project Dependency
+    Project_Dep_Name libbulletdynamics
+    End Project Dependency
+    Begin Project Dependency
+    Project_Dep_Name libbulletmath
+    End Project Dependency
+    Begin Project Dependency
+    Project_Dep_Name libbulletopenglsupport
+    End Project Dependency
+    Begin Project Dependency
+    Project_Dep_Name libbulletphysicsinterfacecommon
+    End Project Dependency
+}}}
+
+###############################################################################
+
 Project: "grpall_bullet"=.\grpall_bullet.dsp - Package Owner=<4>
 
 Package=<5>
@@ -433,6 +463,9 @@ Package=<4>
     End Project Dependency
     Begin Project Dependency
     Project_Dep_Name appSimplexDemo
+    End Project Dependency
+    Begin Project Dependency
+    Project_Dep_Name appVehicleDemo
     End Project Dependency
     Begin Project Dependency
     Project_Dep_Name libbullet
@@ -508,6 +541,9 @@ Package=<4>
     End Project Dependency
     Begin Project Dependency
     Project_Dep_Name appSimplexDemo
+    End Project Dependency
+    Begin Project Dependency
+    Project_Dep_Name appVehicleDemo
     End Project Dependency
 }}}
 
