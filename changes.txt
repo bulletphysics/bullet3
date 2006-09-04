@@ -1,6 +1,13 @@
 Bullet Continuous Collision Detection and Physics Library
 Erwin Coumans
 
+2006 Sept 4
+	Fixed concave collision bug (caused instability/missing collisions in meshes/compounds)
+	Fixed memoryleak in OptimizedBvh, added RayTestSingle to CollisionWorld
+	Prepared for VehicleDemo
+	Increased Performance (island generation for sleeping objects took too much time)
+	Better COLLADA 1.4.1 physics conformance in ColladaDemo
+
 2006 August 11
 	Added Quake BspDemo
 	Improved CCD for compound and non-convex objects
