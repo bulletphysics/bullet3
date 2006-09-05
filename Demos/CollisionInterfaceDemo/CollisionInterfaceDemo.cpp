@@ -193,6 +193,11 @@ void clientResetScene()
 	objects[1].m_worldTransform.setOrigin(SimdVector3(0.0f,9.f,0.f));
 }
 
+void clientSpecialKeyboard(int key, int x, int y)
+{
+	defaultSpecialKeyboard(key,x,y);
+}
+
 void clientKeyboard(unsigned char key, int x, int y)
 {
 	defaultKeyboard(key, x, y);

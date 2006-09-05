@@ -76,6 +76,7 @@ WheelInfo&	RaycastVehicle::AddWheel( const SimdVector3& connectionPointCS, const
 	WheelInfo& wheel = m_wheelInfo[GetNumWheels()-1];
 	
 	UpdateWheelTransformsWS( wheel );
+	UpdateWheelTransform(GetNumWheels()-1);
 	return wheel;
 }
 
@@ -344,17 +345,9 @@ SimdScalar	RaycastVehicle::GetSteeringValue(int wheel) const
 
 void	RaycastVehicle::ApplyEngineForce(SimdScalar force, int wheel)
 {
-	for (int i=0;i<GetNumWheels();i++)
-	{
-		WheelInfo& wheelInfo = GetWheelInfo(i);
-
-		bool applyOnFrontWheel = !wheel;
-
-		if (applyOnFrontWheel == wheelInfo.m_bIsFrontWheel)
-		{
-			wheelInfo.m_engineForce = force;
-		}
-	}
+	assert(wheel>=0 && wheel < GetNumWheels());
+	WheelInfo& wheelInfo = GetWheelInfo(wheel);
+	wheelInfo.m_engineForce = force;
 }
 
 

@@ -13,7 +13,6 @@ subject to the following restrictions:
 3. This notice may not be removed or altered from any source distribution.
 */
 
-
 #ifndef PHY_IVEHICLE_H
 #define PHY_IVEHICLE_H
 
@@ -55,6 +54,18 @@ public:
 	virtual	void	ApplyEngineForce(float force,int wheelIndex) = 0;
 
 	virtual	void	ApplyBraking(float braking,int wheelIndex) = 0;
+
+	virtual	void	SetWheelFriction(float friction,int wheelIndex) = 0;
+	
+	virtual	void	SetSuspensionStiffness(float suspensionStiffness,int wheelIndex) = 0;
+	
+	virtual	void	SetSuspensionDamping(float suspensionStiffness,int wheelIndex) = 0;
+	
+	virtual	void	SetSuspensionCompression(float suspensionStiffness,int wheelIndex) = 0;
+	
+	virtual	void	SetRollInfluence(float rollInfluence,int wheelIndex) = 0;
+
+	virtual void	SetCoordinateSystem(int rightIndex,int upIndex,int forwardIndex) =0;
 
 };
 

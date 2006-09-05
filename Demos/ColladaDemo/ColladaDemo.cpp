@@ -1399,6 +1399,11 @@ void	shootBox(const SimdVector3& destination)
 	physObjects[i]->SetAngularVelocity(0,0,0,false);
 }
 
+void clientSpecialKeyboard(int key, int x, int y)
+{
+	defaultSpecialKeyboard(key,x,y);
+}
+
 void clientKeyboard(unsigned char key, int x, int y)
 {
 

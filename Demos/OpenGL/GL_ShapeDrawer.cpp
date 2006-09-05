@@ -192,21 +192,23 @@ void GL_ShapeDrawer::DrawOpenGL(float* m, const CollisionShape* shape, const Sim
 					int upAxis = cylinder->GetUpAxis();
 					
 					GLUquadricObj *quadObj = gluNewQuadric();
-					
+					float radius = cylinder->GetRadius();
+					float halfHeight = cylinder->GetHalfExtents()[upAxis];
+
 					glPushMatrix();
 					switch (upAxis)
 					{
 					case 0:
 						glRotatef(-90.0, 0.0, 1.0, 0.0);
-						glTranslatef(0.0, 0.0, -1.0);
+						glTranslatef(0.0, 0.0, -halfHeight);
 						break;
 					case 1:
 						glRotatef(-90.0, 1.0, 0.0, 0.0);
-						glTranslatef(0.0, 0.0, -1.0);
+						glTranslatef(0.0, 0.0, -halfHeight);
 						break;
 					case 2:
 						
-						glTranslatef(0.0, 0.0, -1.0);
+						glTranslatef(0.0, 0.0, -halfHeight);
 						break;
 					default:
 						{
@@ -221,9 +223,9 @@ void GL_ShapeDrawer::DrawOpenGL(float* m, const CollisionShape* shape, const Sim
 					
 					gluQuadricDrawStyle(quadObj, (GLenum)GLU_FILL);
 					gluQuadricNormals(quadObj, (GLenum)GLU_SMOOTH);
-					float radius = cylinder->GetHalfExtents().getX();
-					float height = 2.f*cylinder->GetHalfExtents().getY();
-					gluCylinder(quadObj, radius, radius, height, 15, 10);
+					
+					
+					gluCylinder(quadObj, radius, radius, 2.f*halfHeight, 15, 10);
 					glPopMatrix();
 					glEndList();
 

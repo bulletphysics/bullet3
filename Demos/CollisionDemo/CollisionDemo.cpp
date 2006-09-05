@@ -197,6 +197,12 @@ void clientResetScene()
 {
 
 }
+
+void clientSpecialKeyboard(int key, int x, int y)
+{
+	defaultSpecialKeyboard(key,x,y);
+}
+
 void clientKeyboard(unsigned char key, int x, int y)
 {
 	defaultKeyboard(key, x, y);

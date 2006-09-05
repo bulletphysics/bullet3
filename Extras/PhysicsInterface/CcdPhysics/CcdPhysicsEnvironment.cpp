@@ -278,6 +278,11 @@ public:
 		}
 	}
 
+	virtual void	SetCoordinateSystem(int rightIndex,int upIndex,int forwardIndex)
+	{
+		m_vehicle->SetCoordinateSystem(rightIndex,upIndex,forwardIndex);
+	}
+
 
 
 };

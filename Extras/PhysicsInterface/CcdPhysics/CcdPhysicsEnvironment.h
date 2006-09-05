@@ -43,7 +43,7 @@ class OverlappingPairCache;
 class IDebugDraw;
 class PHY_IVehicle;
 
-/// CcdPhysicsEnvironment is experimental mainloop for physics simulation using optional continuous collision detection.
+/// CcdPhysicsEnvironment is an experimental mainloop for physics simulation using optional continuous collision detection.
 /// Physics Environment takes care of stepping the simulation and is a container for physics entities.
 /// It stores rigidbodies,constraints, materials etc.
 /// A derived class may be able to 'construct' entities by loading and/or converting

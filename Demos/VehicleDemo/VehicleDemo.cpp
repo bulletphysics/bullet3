@@ -13,14 +13,19 @@ subject to the following restrictions:
 3. This notice may not be removed or altered from any source distribution.
 */
 
+//Ignore this USE_PARALLEL_DISPATCHER define, it is for future optimizations
 //#define USE_PARALLEL_DISPATCHER 1
+
+
+/// September 2006: VehicleDemo is work in progress, this file is mostly just a placeholder
+/// This VehicleDemo file is very early in development, please check it later
+
 
 
 #include "CcdPhysicsEnvironment.h"
 #include "ParallelPhysicsEnvironment.h"
 
 #include "CcdPhysicsController.h"
-#include "MyMotionState.h"
 //#include "GL_LineSegmentShape.h"
 #include "CollisionShapes/BoxShape.h"
 #include "CollisionShapes/SphereShape.h"
@@ -29,12 +34,17 @@ subject to the following restrictions:
 #include "CollisionShapes/CompoundShape.h"
 #include "CollisionShapes/Simplex1to4Shape.h"
 #include "CollisionShapes/EmptyShape.h"
+#include "CollisionShapes/CylinderShape.h"
+
 #include "CollisionShapes/TriangleMeshShape.h"
 #include "CollisionShapes/TriangleIndexVertexArray.h"
 #include "CollisionShapes/BvhTriangleMeshShape.h"
 #include "CollisionShapes/TriangleMesh.h"
 
 #include "Dynamics/RigidBody.h"
+#include "Vehicle/RaycastVehicle.h"
+#include "PHY_IVehicle.h"
+
 #include "CollisionDispatch/CollisionDispatcher.h"
 
 #include "ParallelIslandDispatcher.h"
@@ -94,20 +104,44 @@ const int maxProxies = 32766;
 const int maxOverlap = 65535;
 
 bool createConstraint = true;//false;
-bool useCompound = true;//false;
+bool useCompound = false;//true;//false;
 
 
 #ifdef _DEBUG
-const int numObjects = 50;
+const int numObjects = 2;
 #else
-const int numObjects = 120;
+const int numObjects = 2;
 #endif
-
 const int maxNumObjects = 32760;
-
-MyMotionState ms[maxNumObjects];
+DefaultMotionState ms[maxNumObjects];
 CcdPhysicsController* physObjects[maxNumObjects] = {0,0,0,0};
 int	shapeIndex[maxNumObjects];
+
+
+
+DefaultMotionState wheelMotionState[4];
+
+///PHY_IVehicle is the interface behind the constraint that implements the raycast vehicle (WrapperVehicle which holds a RaycastVehicle)
+///notice that for higher-quality slow-moving vehicles, another approach might be better
+///implementing explicit hinged-wheel constraints with cylinder collision, rather then raycasts
+PHY_IVehicle* gVehicleConstraint=0;
+float	gEngineForce = 0.f;
+float	maxEngineForce = 1.f;
+float	gVehicleSteering = 0.f;
+float steeringIncrement = 0.1f;
+float	steeringClamp = 0.3f;
+float	wheelRadius = 0.5f;
+float	wheelWidth = 0.2f;
+float wheelFriction = 100.f;
+float suspensionStiffness = 10.f;
+float suspensionDamping = 1.3f;
+float suspensionCompression = 2.4f;
+float rollInfluence = 0.1f;
+SimdVector3 wheelDirectionCS0(0,-1,0);
+SimdVector3 wheelAxleCS(1,0,0);
+SimdScalar suspensionRestLength(0.6);
+
+
 
 #ifdef USE_PARALLEL_DISPATCHER
 ParallelPhysicsEnvironment* physicsEnvironmentPtr = 0;
@@ -134,7 +168,7 @@ CollisionShape* shapePtr[numShapes] =
 	new BoxShape (SimdVector3(50,10,50)),
 #endif
 		
-		new BoxShape (SimdVector3(CUBE_HALF_EXTENTS,CUBE_HALF_EXTENTS,CUBE_HALF_EXTENTS)),
+		new BoxShape (SimdVector3(CUBE_HALF_EXTENTS,0.5f*CUBE_HALF_EXTENTS,2.f*CUBE_HALF_EXTENTS)),
 		new SphereShape (CUBE_HALF_EXTENTS- 0.05f),
 
 		//new ConeShape(CUBE_HALF_EXTENTS,2.f*CUBE_HALF_EXTENTS),
@@ -180,7 +214,7 @@ int main(int argc,char** argv)
 	physicsEnvironmentPtr->setGravity(0,-10,0);//0,0);//-10,0);
 	int i;
 
-//#define  USE_TRIMESH_GROUND 1
+#define  USE_TRIMESH_GROUND 1
 #ifdef USE_TRIMESH_GROUND
 
 
@@ -205,7 +239,7 @@ const float TRIANGLE_SIZE=20.f;
 	{
 		for (int j=0;j<NUM_VERTS_Y;j++)
 		{
-			gVertices[i+j*NUM_VERTS_X].setValue((i-NUM_VERTS_X*0.5f)*TRIANGLE_SIZE,2.f*sinf((float)i)*cosf((float)j),(j-NUM_VERTS_Y*0.5f)*TRIANGLE_SIZE);
+			gVertices[i+j*NUM_VERTS_X].setValue((i-NUM_VERTS_X*0.5f)*TRIANGLE_SIZE,2.f*sinf((float)i)*cosf((float)j)+10.f,(j-NUM_VERTS_Y*0.5f)*TRIANGLE_SIZE);
 		}
 	}
 
@@ -249,7 +283,7 @@ const float TRIANGLE_SIZE=20.f;
 	shapeProps.m_inertia = 1.f;
 	shapeProps.m_lin_drag = 0.2f;
 	shapeProps.m_ang_drag = 0.1f;
-	shapeProps.m_mass = 10.0f;
+	shapeProps.m_mass = 800.0f;
 
 	PHY_MaterialProps materialProps;
 	materialProps.m_friction = 10.5f;
@@ -281,7 +315,7 @@ const float TRIANGLE_SIZE=20.f;
 		ident.setIdentity();
 		ident.setOrigin(SimdVector3(0,0,0));	
 		compoundShape->AddChildShape(ident,oldShape);//
-		ident.setOrigin(SimdVector3(0,0,2));	
+		ident.setOrigin(SimdVector3(0,1,-1));	
 		compoundShape->AddChildShape(ident,new SphereShape(0.9));//
 	}
 
@@ -422,15 +456,70 @@ const float TRIANGLE_SIZE=20.f;
 
 
 		constraintId =physicsEnvironmentPtr->createConstraint(
-		physObjects[1],
-		//0,
-		physObjects[2],
-			////PHY_POINT2POINT_CONSTRAINT,
-			PHY_GENERIC_6DOF_CONSTRAINT,//can leave any of the 6 degree of freedom 'free' or 'locked'
-			//PHY_LINEHINGE_CONSTRAINT,
-			pivotX,pivotY,pivotZ,
-			axisX,axisY,axisZ
-			);
+		physObjects[1],0,
+			PHY_VEHICLE_CONSTRAINT,
+			0,0,0,
+			0,0,0);
+
+		///never deactivate the vehicle
+		physObjects[1]->GetRigidBody()->SetActivationState(DISABLE_DEACTIVATION);
+		
+		gVehicleConstraint = physicsEnvironmentPtr->getVehicleConstraint(constraintId);
+
+		SimdVector3 connectionPointCS0(CUBE_HALF_EXTENTS-(0.3*wheelWidth),0,2*CUBE_HALF_EXTENTS-wheelRadius);
+		RaycastVehicle::VehicleTuning tuning;
+		bool isFrontWheel=true;
+		int rightIndex = 0;
+		int upIndex = 1;
+		int forwardIndex = 2;
+
+		gVehicleConstraint->SetCoordinateSystem(rightIndex,upIndex,forwardIndex);
+
+		gVehicleConstraint->AddWheel(&wheelMotionState[0],
+			(PHY__Vector3&)connectionPointCS0,
+			(PHY__Vector3&)wheelDirectionCS0,(PHY__Vector3&)wheelAxleCS,suspensionRestLength,wheelRadius,isFrontWheel);
+
+		connectionPointCS0 = SimdVector3(-CUBE_HALF_EXTENTS+(0.3*wheelWidth),0,2*CUBE_HALF_EXTENTS-wheelRadius);
+		gVehicleConstraint->AddWheel(&wheelMotionState[1],
+			(PHY__Vector3&)connectionPointCS0,
+			(PHY__Vector3&)wheelDirectionCS0,(PHY__Vector3&)wheelAxleCS,suspensionRestLength,wheelRadius,isFrontWheel);
+
+		connectionPointCS0 = SimdVector3(-CUBE_HALF_EXTENTS+(0.3*wheelWidth),0,-2*CUBE_HALF_EXTENTS+wheelRadius);
+		isFrontWheel = false;
+		gVehicleConstraint->AddWheel(&wheelMotionState[2],
+			(PHY__Vector3&)connectionPointCS0,
+			(PHY__Vector3&)wheelDirectionCS0,(PHY__Vector3&)wheelAxleCS,suspensionRestLength,wheelRadius,isFrontWheel);
+		
+		connectionPointCS0 = SimdVector3(CUBE_HALF_EXTENTS-(0.3*wheelWidth),0,-2*CUBE_HALF_EXTENTS+wheelRadius);
+		gVehicleConstraint->AddWheel(&wheelMotionState[3],
+			(PHY__Vector3&)connectionPointCS0,
+			(PHY__Vector3&)wheelDirectionCS0,(PHY__Vector3&)wheelAxleCS,suspensionRestLength,wheelRadius,isFrontWheel);
+		
+	
+
+		gVehicleConstraint->SetSuspensionStiffness(suspensionStiffness,0);
+		gVehicleConstraint->SetSuspensionStiffness(suspensionStiffness,1);
+		gVehicleConstraint->SetSuspensionStiffness(suspensionStiffness,2);
+		gVehicleConstraint->SetSuspensionStiffness(suspensionStiffness,3);
+		
+		gVehicleConstraint->SetSuspensionDamping(suspensionDamping,0);
+		gVehicleConstraint->SetSuspensionDamping(suspensionDamping,1);
+		gVehicleConstraint->SetSuspensionDamping(suspensionDamping,2);
+		gVehicleConstraint->SetSuspensionDamping(suspensionDamping,3);
+		
+		gVehicleConstraint->SetSuspensionCompression(suspensionCompression,0);
+		gVehicleConstraint->SetSuspensionCompression(suspensionCompression,1);
+		gVehicleConstraint->SetSuspensionCompression(suspensionCompression,2);
+		gVehicleConstraint->SetSuspensionCompression(suspensionCompression,3);
+
+		gVehicleConstraint->SetWheelFriction(wheelFriction,0);
+		gVehicleConstraint->SetWheelFriction(wheelFriction,1);
+		gVehicleConstraint->SetWheelFriction(wheelFriction,2);
+		gVehicleConstraint->SetWheelFriction(wheelFriction,3);
+
+		
+
+
 
 	}
 
@@ -440,28 +529,27 @@ const float TRIANGLE_SIZE=20.f;
 	return glutmain(argc, argv,640,480,"Bullet Vehicle Demo. http://www.continuousphysics.com/Bullet/phpBB2/");
 }
 
+
 //to be implemented by the demo
 void renderme()
 {
 	debugDrawer.SetDebugMode(getDebugMode());
-
-	//render the hinge axis
-	if (createConstraint)
-	{
-		SimdVector3 color(1,0,0);
-		SimdVector3 dirLocal(0,1,0);
-		SimdVector3 pivotInA(CUBE_HALF_EXTENTS,-CUBE_HALF_EXTENTS,CUBE_HALF_EXTENTS);
-		SimdVector3 pivotInB(-CUBE_HALF_EXTENTS,-CUBE_HALF_EXTENTS,CUBE_HALF_EXTENTS);
-		SimdVector3 from = physObjects[1]->GetRigidBody()->getCenterOfMassTransform()(pivotInA);
-		SimdVector3 fromB = physObjects[2]->GetRigidBody()->getCenterOfMassTransform()(pivotInB);
-		SimdVector3 dirWorldA = physObjects[1]->GetRigidBody()->getCenterOfMassTransform().getBasis() * dirLocal ;
-		SimdVector3 dirWorldB = physObjects[2]->GetRigidBody()->getCenterOfMassTransform().getBasis() * dirLocal ;
-		debugDrawer.DrawLine(from,from+dirWorldA,color);
-		debugDrawer.DrawLine(fromB,fromB+dirWorldB,color);
-	}
-
 	float m[16];
 	int i;
+
+	CylinderShapeX wheelShape(SimdVector3(wheelWidth,wheelRadius,wheelRadius));
+	SimdVector3 wheelColor(1,0,0);
+
+	for (i=0;i<4;i++)
+	{
+		//draw wheels (cylinders)
+		wheelMotionState[i].m_worldTransform.getOpenGLMatrix(m);
+		GL_ShapeDrawer::DrawOpenGL(m,&wheelShape,wheelColor,getDebugMode());
+	//	debugDrawer.DrawLine(from,from+dirWorldA,color);
+	//	debugDrawer.DrawLine(fromB,fromB+dirWorldB,color);
+	}
+
+	
 
 
 	if (getDebugMode() & IDebugDraw::DBG_DisableBulletLCP)
@@ -581,13 +669,13 @@ void renderme()
 		SimdTransform ident;
 		ident.setIdentity();
 		ident.getOpenGLMatrix(vec);
-		glPushMatrix(); 
+		//glPushMatrix(); 
 	  
-		glLoadMatrixf(vec);
+		//glLoadMatrixf(vec);
 
 		GL_ShapeDrawer::DrawOpenGL(m,physObjects[i]->GetRigidBody()->GetCollisionShape(),wireColor,getDebugMode());
 
-		glPopMatrix(); 
+		//glPopMatrix(); 
 
 		///this block is just experimental code to show some internal issues with replacing shapes on the fly.
 		if (getDebugMode()!=0 && (i>0))
@@ -725,13 +813,29 @@ void clientMoveAndDisplay()
 	glClear(GL_COLOR_BUFFER_BIT | GL_DEPTH_BUFFER_BIT); 
 
 
+{			
+		int steerWheelIndex = 2;
+		gVehicleConstraint->ApplyEngineForce(gEngineForce,steerWheelIndex);
+		steerWheelIndex = 3;
+		gVehicleConstraint->ApplyEngineForce(gEngineForce,steerWheelIndex);
+
+		steerWheelIndex = 0;
+		gVehicleConstraint->SetSteeringValue(gVehicleSteering,steerWheelIndex);
+		steerWheelIndex = 1;
+		gVehicleConstraint->SetSteeringValue(gVehicleSteering,steerWheelIndex);
+
+	}
 
 	physicsEnvironmentPtr->proceedDeltaTime(0.f,deltaTime);
+
+	
+
 
 #ifdef USE_QUICKPROF 
         Profiler::beginBlock("render"); 
 #endif //USE_QUICKPROF 
-	
+
+
 	renderme(); 
 
 #ifdef USE_QUICKPROF 
@@ -768,6 +872,9 @@ void clientDisplay(void) {
 
 void clientResetScene()
 {
+
+	gEngineForce = 0.f;
+	gVehicleSteering = 0.f;
 
 	int i;
 	for (i=0;i<numObjects;i++)
@@ -828,8 +935,50 @@ void	shootBox(const SimdVector3& destination)
 	physObjects[i]->SetAngularVelocity(0,0,0,false);
 }
 
+void clientSpecialKeyboard(int key, int x, int y)
+{
+	printf("key = %i x=%i y=%i\n",key,x,y);
+
+    switch (key) 
+    {
+    case GLUT_KEY_LEFT : 
+		{
+			gVehicleSteering += steeringIncrement;
+			if (	gVehicleSteering > steeringClamp)
+					gVehicleSteering = steeringClamp;
+
+		break;
+		}
+    case GLUT_KEY_RIGHT : 
+		{
+			gVehicleSteering -= steeringIncrement;
+			if (	gVehicleSteering < -steeringClamp)
+					gVehicleSteering = -steeringClamp;
+
+		break;
+		}
+    case GLUT_KEY_UP :
+		{
+			gEngineForce = -maxEngineForce;
+		break;
+		}
+	case GLUT_KEY_DOWN :
+		{			
+			gEngineForce = maxEngineForce;
+		break;
+		}
+	default:
+			defaultSpecialKeyboard(key,x,y);
+        break;
+    }
+
+//	glutPostRedisplay();
+
+}
+
 void clientKeyboard(unsigned char key, int x, int y)
 {
+
 
 	if (key == '.')
 	{

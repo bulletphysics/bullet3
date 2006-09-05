@@ -136,6 +136,10 @@ void setCamera() {
 	eyePos[gForwardAxis] = -DISTANCE;
 
 	SimdVector3 forward(eyePos[0],eyePos[1],eyePos[2]);
+	if (forward.length2() < SIMD_EPSILON)
+	{
+		forward.setValue(1.f,0.f,0.f);
+	}
 	SimdVector3 right = gCameraUp.cross(forward);
 	SimdQuaternion roll(right,-rele);
 
@@ -289,7 +293,8 @@ void defaultKeyboard(unsigned char key, int x, int y)
 }
 
 
-void mySpecial(int key, int x, int y)
+
+void defaultSpecialKeyboard(int key, int x, int y)
 {
     switch (key) 
     {
@@ -372,7 +377,7 @@ int glutmain(int argc, char **argv,int width,int height,const char* title) {
 	
     myinit();
     glutKeyboardFunc(clientKeyboard);
-    glutSpecialFunc(mySpecial);
+    glutSpecialFunc(clientSpecialKeyboard);
     glutReshapeFunc(myReshape);
     //createMenu();
 	glutIdleFunc(clientMoveAndDisplay);

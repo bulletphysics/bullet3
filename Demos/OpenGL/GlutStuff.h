@@ -30,6 +30,9 @@ void	setDebugMode(int mode);
 void defaultKeyboard(unsigned char key, int x, int y);
 void clientKeyboard(unsigned char key, int x, int y);
 
+void defaultSpecialKeyboard(int key, int x, int y);
+void clientSpecialKeyboard(int key, int x, int y);
+
 void clientMouseFunc(int button, int state, int x, int y);
 void	clientMotionFunc(int x,int y);
 #endif //GLUT_STUFF_H

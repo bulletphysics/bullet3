@@ -143,6 +143,13 @@ public:
 		return m_indexForwardAxis;
 	}
 
+	virtual void	SetCoordinateSystem(int rightIndex,int upIndex,int forwardIndex)
+	{
+		m_indexRightAxis = rightIndex;
+		m_indexUpAxis = upIndex;
+		m_indexForwardAxis = forwardIndex;
+	}
+
 	virtual void	BuildJacobian()
 	{
 		//not yet

@@ -71,6 +71,11 @@ public:
 		return 1;
 	}
 
+	virtual float GetRadius() const
+	{
+		return GetHalfExtents().getX();
+	}
+
 	//debugging
 	virtual char*	GetName()const
 	{
@@ -98,6 +103,11 @@ public:
 		return "CylinderX";
 	}
 
+	virtual float GetRadius() const
+	{
+		return GetHalfExtents().getY();
+	}
+
 };
 
 class CylinderShapeZ : public CylinderShape
@@ -116,6 +126,11 @@ public:
 	virtual char*	GetName()const
 	{
 		return "CylinderZ";
+	}
+
+	virtual float GetRadius() const
+	{
+		return GetHalfExtents().getX();
 	}
 
 };

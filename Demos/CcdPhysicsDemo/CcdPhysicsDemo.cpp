@@ -851,6 +851,13 @@ void clientKeyboard(unsigned char key, int x, int y)
 	defaultKeyboard(key, x, y);
 }
 
+void clientSpecialKeyboard(int key, int x, int y)
+{
+	defaultSpecialKeyboard(key,x,y);
+}
+
+
+
 int gPickingConstraintId = 0;
 SimdVector3 gOldPickingPos;
 float gOldPickingDist  = 0.f;
