@@ -40,17 +40,37 @@ CollisionDispatcher::CollisionDispatcher ():
 {
 	int i;
 	
+	//default CreationFunctions, filling the m_doubleDispatch table
+	m_convexConvexCreateFunc = new ConvexConvexAlgorithm::CreateFunc;
+	m_convexConcaveCreateFunc = new ConvexConcaveCollisionAlgorithm::CreateFunc;
+	m_swappedConvexConcaveCreateFunc = new ConvexConcaveCollisionAlgorithm::SwappedCreateFunc;
+	m_compoundCreateFunc = new CompoundCollisionAlgorithm::CreateFunc;
+	m_swappedCompoundCreateFunc = new CompoundCollisionAlgorithm::SwappedCreateFunc;
+	m_emptyCreateFunc = new EmptyAlgorithm::CreateFunc;
+
 	for (i=0;i<MAX_BROADPHASE_COLLISION_TYPES;i++)
 	{
 		for (int j=0;j<MAX_BROADPHASE_COLLISION_TYPES;j++)
 		{
-			m_doubleDispatch[i][j] = 0;
+			m_doubleDispatch[i][j] = InternalFindCreateFunc(i,j);
+			assert(m_doubleDispatch[i][j]);
 		}
 	}
 	
 	
 };
-	
+
+
+CollisionDispatcher::~CollisionDispatcher()
+{
+	delete m_convexConvexCreateFunc;
+	delete m_convexConcaveCreateFunc;
+	delete m_swappedConvexConcaveCreateFunc;
+	delete m_compoundCreateFunc;
+	delete m_swappedCompoundCreateFunc;
+	delete m_emptyCreateFunc;
+}
+
 PersistentManifold*	CollisionDispatcher::GetNewManifold(void* b0,void* b1) 
 { 
 	gNumManifold++;
@@ -96,6 +116,56 @@ void CollisionDispatcher::ReleaseManifold(PersistentManifold* manifold)
 }
 
 	
+
+CollisionAlgorithm* CollisionDispatcher::FindAlgorithm(BroadphaseProxy& proxy0,BroadphaseProxy& proxy1)
+{
+#define USE_DISPATCH_REGISTRY_ARRAY 1
+#ifdef USE_DISPATCH_REGISTRY_ARRAY
+	CollisionObject* body0 = (CollisionObject*)proxy0.m_clientObject;
+	CollisionObject* body1 = (CollisionObject*)proxy1.m_clientObject;
+	CollisionAlgorithmConstructionInfo ci;
+	ci.m_dispatcher = this;
+	CollisionAlgorithm* algo = m_doubleDispatch[body0->m_collisionShape->GetShapeType()][body1->m_collisionShape->GetShapeType()]
+	->CreateCollisionAlgorithm(ci,&proxy0,&proxy1);
+#else
+	CollisionAlgorithm* algo = InternalFindAlgorithm(proxy0,proxy1);
+#endif //USE_DISPATCH_REGISTRY_ARRAY
+	return algo;
+}
+
+
+CollisionAlgorithmCreateFunc* CollisionDispatcher::InternalFindCreateFunc(int proxyType0,int proxyType1)
+{
+	
+	if (BroadphaseProxy::IsConvex(proxyType0) && BroadphaseProxy::IsConvex(proxyType1))
+	{
+		return m_convexConvexCreateFunc;
+	}
+
+	if (BroadphaseProxy::IsConvex(proxyType0) && BroadphaseProxy::IsConcave(proxyType1))
+	{
+		return m_convexConcaveCreateFunc;
+	}
+
+	if (BroadphaseProxy::IsConvex(proxyType1) && BroadphaseProxy::IsConcave(proxyType0))
+	{
+		return m_swappedConvexConcaveCreateFunc;
+	}
+
+	if (BroadphaseProxy::IsCompound(proxyType0))
+	{
+		return m_compoundCreateFunc;
+	} else
+	{
+		if (BroadphaseProxy::IsCompound(proxyType1))
+		{
+			return m_swappedCompoundCreateFunc;
+		}
+	}
+
+	//failed to find an algorithm
+	return m_emptyCreateFunc;
+}
 
 
 

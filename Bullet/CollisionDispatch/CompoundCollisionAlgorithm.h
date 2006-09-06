@@ -24,7 +24,7 @@ subject to the following restrictions:
 class Dispatcher;
 #include "BroadphaseCollision/BroadphaseProxy.h"
 #include <vector>
-
+#include "CollisionCreateFunc.h"
 
 /// CompoundCollisionAlgorithm  supports collision between CompoundCollisionShapes and other collision shapes
 /// Place holder, not fully implemented yet
@@ -50,6 +50,22 @@ public:
 	virtual void ProcessCollision (BroadphaseProxy* proxy0,BroadphaseProxy* proxy1,const DispatcherInfo& dispatchInfo);
 
 	float	CalculateTimeOfImpact(BroadphaseProxy* proxy0,BroadphaseProxy* proxy1,const DispatcherInfo& dispatchInfo);
+
+	struct CreateFunc :public 	CollisionAlgorithmCreateFunc
+	{
+		virtual	CollisionAlgorithm* CreateCollisionAlgorithm(CollisionAlgorithmConstructionInfo& ci, BroadphaseProxy* proxy0,BroadphaseProxy* proxy1)
+		{
+			return new CompoundCollisionAlgorithm(ci,proxy0,proxy1);
+		}
+	};
+
+	struct SwappedCreateFunc :public 	CollisionAlgorithmCreateFunc
+	{
+		virtual	CollisionAlgorithm* CreateCollisionAlgorithm(CollisionAlgorithmConstructionInfo& ci, BroadphaseProxy* proxy0,BroadphaseProxy* proxy1)
+		{
+			return new CompoundCollisionAlgorithm(ci,proxy1,proxy0);
+		}
+	};
 
 };
 

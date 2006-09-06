@@ -21,6 +21,7 @@ subject to the following restrictions:
 #include "NarrowPhaseCollision/PersistentManifold.h"
 #include "BroadphaseCollision/BroadphaseProxy.h"
 #include "NarrowPhaseCollision/VoronoiSimplexSolver.h"
+#include "CollisionCreateFunc.h"
 
 class ConvexPenetrationDepthSolver;
 
@@ -67,6 +68,15 @@ public:
 	{
 		return m_manifoldPtr;
 	}
+
+	struct CreateFunc :public 	CollisionAlgorithmCreateFunc
+	{
+		virtual	CollisionAlgorithm* CreateCollisionAlgorithm(CollisionAlgorithmConstructionInfo& ci, BroadphaseProxy* proxy0,BroadphaseProxy* proxy1)
+		{
+			return new ConvexConvexAlgorithm(0,ci,proxy0,proxy1);
+		}
+	};
+
 
 };
 

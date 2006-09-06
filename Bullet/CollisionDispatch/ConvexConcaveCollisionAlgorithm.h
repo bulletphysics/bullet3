@@ -23,7 +23,7 @@ subject to the following restrictions:
 #include "NarrowPhaseCollision/PersistentManifold.h"
 class Dispatcher;
 #include "BroadphaseCollision/BroadphaseProxy.h"
-
+#include "CollisionCreateFunc.h"
 
 ///For each triangle in the concave mesh that overlaps with the AABB of a convex (m_convexProxy), ProcessTriangle is called.
 class ConvexTriangleCallback : public TriangleCallback
@@ -89,6 +89,22 @@ public:
 	float	CalculateTimeOfImpact(BroadphaseProxy* proxy0,BroadphaseProxy* proxy1,const DispatcherInfo& dispatchInfo);
 
 	void	ClearCache();
+
+	struct CreateFunc :public 	CollisionAlgorithmCreateFunc
+	{
+		virtual	CollisionAlgorithm* CreateCollisionAlgorithm(CollisionAlgorithmConstructionInfo& ci, BroadphaseProxy* proxy0,BroadphaseProxy* proxy1)
+		{
+			return new ConvexConcaveCollisionAlgorithm(ci,proxy0,proxy1);
+		}
+	};
+
+	struct SwappedCreateFunc :public 	CollisionAlgorithmCreateFunc
+	{
+		virtual	CollisionAlgorithm* CreateCollisionAlgorithm(CollisionAlgorithmConstructionInfo& ci, BroadphaseProxy* proxy0,BroadphaseProxy* proxy1)
+		{
+			return new ConvexConcaveCollisionAlgorithm(ci,proxy1,proxy0);
+		}
+	};
 
 };
 

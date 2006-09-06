@@ -21,7 +21,7 @@ subject to the following restrictions:
 typedef std::vector<struct CollisionObject*> CollisionObjectArray;
 class CollisionAlgorithm;
 struct BroadphaseProxy;
-
+struct CollisionAlgorithmConstructionInfo;
 
 
 struct CollisionAlgorithmCreateFunc
@@ -34,7 +34,7 @@ struct CollisionAlgorithmCreateFunc
 	}
 	virtual ~CollisionAlgorithmCreateFunc(){};
 
-	virtual	CollisionAlgorithm* CreateCollisionAlgorithm(BroadphaseProxy& proxy0,BroadphaseProxy& proxy1)
+	virtual	CollisionAlgorithm* CreateCollisionAlgorithm(CollisionAlgorithmConstructionInfo& ci, BroadphaseProxy* proxy0,BroadphaseProxy* proxy1)
 	{
 		return 0;
 	}

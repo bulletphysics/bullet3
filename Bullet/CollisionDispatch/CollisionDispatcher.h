@@ -40,20 +40,26 @@ class CollisionDispatcher : public Dispatcher
 	
 	std::vector<PersistentManifold*>	m_manifoldsPtr;
 
-	
-
 	bool m_useIslands;
 	
 	ManifoldResult	m_defaultManifoldResult;
 	
 	CollisionAlgorithmCreateFunc* m_doubleDispatch[MAX_BROADPHASE_COLLISION_TYPES][MAX_BROADPHASE_COLLISION_TYPES];
 	
+	CollisionAlgorithmCreateFunc* InternalFindCreateFunc(int proxyType0,int proxyType1);
+
+	//default CreationFunctions, filling the m_doubleDispatch table
+	CollisionAlgorithmCreateFunc*	m_convexConvexCreateFunc;
+	CollisionAlgorithmCreateFunc*	m_convexConcaveCreateFunc;
+	CollisionAlgorithmCreateFunc*	m_swappedConvexConcaveCreateFunc;
+	CollisionAlgorithmCreateFunc*	m_compoundCreateFunc;
+	CollisionAlgorithmCreateFunc*	m_swappedCompoundCreateFunc;
+	CollisionAlgorithmCreateFunc*   m_emptyCreateFunc;
+
 public:
-	
-	
 
-	
-
+	///RegisterCollisionCreateFunc allows registration of custom/alternative collision create functions
+	void	RegisterCollisionCreateFunc(int proxyType0,int proxyType1, CollisionAlgorithmCreateFunc* createFunc);
 
 	int	GetNumManifolds() const
 	{ 
@@ -73,7 +79,7 @@ public:
 	int m_count;
 	
 	CollisionDispatcher ();
-	virtual ~CollisionDispatcher() {};
+	virtual ~CollisionDispatcher();
 
 	virtual PersistentManifold*	GetNewManifold(void* b0,void* b1);
 	
@@ -89,11 +95,7 @@ public:
 	virtual void ClearManifold(PersistentManifold* manifold);
 
 			
-	CollisionAlgorithm* FindAlgorithm(BroadphaseProxy& proxy0,BroadphaseProxy& proxy1)
-	{
-		CollisionAlgorithm* algo = InternalFindAlgorithm(proxy0,proxy1);
-		return algo;
-	}
+	CollisionAlgorithm* FindAlgorithm(BroadphaseProxy& proxy0,BroadphaseProxy& proxy1);
 	
 	CollisionAlgorithm* InternalFindAlgorithm(BroadphaseProxy& proxy0,BroadphaseProxy& proxy1);
 	

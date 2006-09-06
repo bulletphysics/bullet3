@@ -16,6 +16,7 @@ subject to the following restrictions:
 #ifndef EMPTY_ALGORITH
 #define EMPTY_ALGORITH
 #include "BroadphaseCollision/CollisionAlgorithm.h"
+#include "CollisionCreateFunc.h"
 
 #define ATTRIBUTE_ALIGNED(a)
 
@@ -32,8 +33,13 @@ public:
 
 	virtual float CalculateTimeOfImpact(BroadphaseProxy* proxy0,BroadphaseProxy* proxy1,const DispatcherInfo& dispatchInfo);
 
-
-
+	struct CreateFunc :public 	CollisionAlgorithmCreateFunc
+	{
+		virtual	CollisionAlgorithm* CreateCollisionAlgorithm(CollisionAlgorithmConstructionInfo& ci, BroadphaseProxy* proxy0,BroadphaseProxy* proxy1)
+		{
+			return new EmptyAlgorithm(ci);
+		}
+	};
 
 } ATTRIBUTE_ALIGNED(16);
 

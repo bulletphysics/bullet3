@@ -48,23 +48,22 @@ public:
 	///result is conservative
 	void CalculateTemporalAabb(const SimdTransform& curTrans,const SimdVector3& linvel,const SimdVector3& angvel,SimdScalar timeStep, SimdVector3& temporalAabbMin,SimdVector3& temporalAabbMax);
 
-	bool	IsPolyhedral() const
+	inline bool	IsPolyhedral() const
 	{
-		return (GetShapeType() < IMPLICIT_CONVEX_SHAPES_START_HERE);
+		return BroadphaseProxy::IsPolyhedral(GetShapeType());
 	}
 
-	bool	IsConvex() const
+	inline bool	IsConvex() const
 	{
-		return (GetShapeType() < CONCAVE_SHAPES_START_HERE);
+		return BroadphaseProxy::IsConvex(GetShapeType());
 	}
-	bool	IsConcave() const
+	inline bool	IsConcave() const
 	{
-		return ((GetShapeType() > CONCAVE_SHAPES_START_HERE) &&
-			(GetShapeType() < CONCAVE_SHAPES_END_HERE));
+		return BroadphaseProxy::IsConcave(GetShapeType());
 	}
-	bool	IsCompound() const
+	inline bool	IsCompound() const
 	{
-		return (GetShapeType() == COMPOUND_SHAPE_PROXYTYPE);
+		return BroadphaseProxy::IsCompound(GetShapeType());
 	}
 
 	virtual void	setLocalScaling(const SimdVector3& scaling) =0;

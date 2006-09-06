@@ -70,6 +70,26 @@ struct BroadphaseProxy
 		m_collisionFilterMask(collisionFilterMask)
 	{
 	}
+
+	static inline bool IsPolyhedral(int proxyType)
+	{
+		return (proxyType  < IMPLICIT_CONVEX_SHAPES_START_HERE);
+	}
+
+	static inline bool	IsConvex(int proxyType)
+	{
+		return (proxyType < CONCAVE_SHAPES_START_HERE);
+	}
+
+	static inline bool	IsConcave(int proxyType)
+	{
+		return ((proxyType > CONCAVE_SHAPES_START_HERE) &&
+			(proxyType < CONCAVE_SHAPES_END_HERE));
+	}
+	static inline bool	IsCompound(int proxyType)
+	{
+		return (proxyType == COMPOUND_SHAPE_PROXYTYPE);
+	}
 	
 };
 
@@ -77,7 +97,8 @@ class CollisionAlgorithm;
 
 struct BroadphaseProxy;
 
-#define SIMPLE_MAX_ALGORITHMS 2
+//Increase SIMPLE_MAX_ALGORITHMS to allow multiple Dispatchers caching their own algorithms
+#define SIMPLE_MAX_ALGORITHMS 1
 
 /// contains a pair of aabb-overlapping objects
 struct BroadphasePair
