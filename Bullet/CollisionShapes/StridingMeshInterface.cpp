@@ -23,62 +23,64 @@ StridingMeshInterface::~StridingMeshInterface()
 
 void	StridingMeshInterface::InternalProcessAllTriangles(InternalTriangleIndexCallback* callback,const SimdVector3& aabbMin,const SimdVector3& aabbMax) const
 {
+	int numtotalphysicsverts = 0;
+	int part,graphicssubparts = getNumSubParts();
+	const unsigned char * vertexbase;
+	const unsigned char * indexbase;
+	int indexstride;
+	PHY_ScalarType type;
+	PHY_ScalarType gfxindextype;
+	int stride,numverts,numtriangles;
+	int gfxindex;
+	SimdVector3 triangle[3];
+	int tempIndices[3] = {0,0,0};
+	int	graphicsindex=0;
+	float* graphicsbase;
 
 	SimdVector3 meshScaling = getScaling();
 
-	int numtotalphysicsverts = 0;
-	int part,graphicssubparts = getNumSubParts();
+	///if the number of parts is big, the performance might drop due to the innerloop switch on indextype
 	for (part=0;part<graphicssubparts ;part++)
 	{
-		const unsigned char * vertexbase;
-		const unsigned char * indexbase;
-		int indexstride;
-		PHY_ScalarType type;
-		PHY_ScalarType gfxindextype;
-		int stride,numverts,numtriangles;
 		getLockedReadOnlyVertexIndexBase(&vertexbase,numverts,type,stride,&indexbase,indexstride,numtriangles,gfxindextype,part);
-
 		numtotalphysicsverts+=numtriangles*3; //upper bound
 
-	
-		int gfxindex;
-		SimdVector3 triangle[3];
-
-		for (gfxindex=0;gfxindex<numtriangles;gfxindex++)
+		switch (gfxindextype)
 		{
-		
-			int	graphicsindex=0;
-
-#ifdef DEBUG_TRIANGLE_MESH
-			printf("triangle indices:\n");
-#endif //DEBUG_TRIANGLE_MESH
-			ASSERT(gfxindextype == PHY_INTEGER);
-			int* gfxbase = (int*)(indexbase+gfxindex*indexstride);
-
-			for (int j=2;j>=0;j--)
+		case PHY_INTEGER:
 			{
-				
-				graphicsindex = gfxbase[j];
-#ifdef DEBUG_TRIANGLE_MESH
-				printf("%d ,",graphicsindex);
-#endif //DEBUG_TRIANGLE_MESH
-				float* graphicsbase = (float*)(vertexbase+graphicsindex*stride);
-
-				triangle[j] = SimdVector3(
-					graphicsbase[0]*meshScaling.getX(),
-					graphicsbase[1]*meshScaling.getY(),
-					graphicsbase[2]*meshScaling.getZ());
-#ifdef DEBUG_TRIANGLE_MESH
-				printf("triangle vertices:%f,%f,%f\n",triangle[j].x(),triangle[j].y(),triangle[j].z());
-#endif //DEBUG_TRIANGLE_MESH
+				for (gfxindex=0;gfxindex<numtriangles;gfxindex++)
+				{
+					int* tri_indices= (int*)(indexbase+gfxindex*indexstride);
+					graphicsbase = (float*)(vertexbase+tri_indices[0]*stride);
+					triangle[0].setValue(graphicsbase[0]*meshScaling.getX(),graphicsbase[1]*meshScaling.getY(),graphicsbase[2]*meshScaling.getZ());
+					graphicsbase = (float*)(vertexbase+tri_indices[1]*stride);
+					triangle[1].setValue(graphicsbase[0]*meshScaling.getX(),graphicsbase[1]*meshScaling.getY(),	graphicsbase[2]*meshScaling.getZ());
+					graphicsbase = (float*)(vertexbase+tri_indices[2]*stride);
+					triangle[2].setValue(graphicsbase[0]*meshScaling.getX(),graphicsbase[1]*meshScaling.getY(),	graphicsbase[2]*meshScaling.getZ());
+					callback->InternalProcessTriangleIndex(triangle,part,gfxindex);
+				}
+				break;
 			}
-
-			
-			//check aabb in triangle-space, before doing this
-			callback->InternalProcessTriangleIndex(triangle,part,gfxindex);
-			
+		case PHY_SHORT:
+			{
+				for (gfxindex=0;gfxindex<numtriangles;gfxindex++)
+				{
+					short int* tri_indices= (short int*)(indexbase+gfxindex*indexstride);
+					graphicsbase = (float*)(vertexbase+tri_indices[0]*stride);
+					triangle[0].setValue(graphicsbase[0]*meshScaling.getX(),graphicsbase[1]*meshScaling.getY(),graphicsbase[2]*meshScaling.getZ());
+					graphicsbase = (float*)(vertexbase+tri_indices[1]*stride);
+					triangle[1].setValue(graphicsbase[0]*meshScaling.getX(),graphicsbase[1]*meshScaling.getY(),	graphicsbase[2]*meshScaling.getZ());
+					graphicsbase = (float*)(vertexbase+tri_indices[2]*stride);
+					triangle[2].setValue(graphicsbase[0]*meshScaling.getX(),graphicsbase[1]*meshScaling.getY(),	graphicsbase[2]*meshScaling.getZ());
+					callback->InternalProcessTriangleIndex(triangle,part,gfxindex);
+				}
+				break;
+			}
+		default:
+			ASSERT((gfxindextype == PHY_INTEGER) || (gfxindextype == PHY_SHORT));
 		}
-		
+
 		unLockReadOnlyVertexBase(part);
 	}
 }

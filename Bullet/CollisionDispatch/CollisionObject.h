@@ -60,7 +60,11 @@ struct	CollisionObject
 	BroadphaseProxy*	m_broadphaseHandle;
 	CollisionShape*		m_collisionShape;
 
-	void*			m_userPointer;//not use by Bullet internally
+	//users can point to their objects, m_userPointer is not used by Bullet
+	void*			m_userObjectPointer;
+
+	//m_internalOwner one is used by optional Bullet high level interface
+	void*			m_internalOwner;
 
 	///time of impact calculation
 	float			m_hitFraction; 

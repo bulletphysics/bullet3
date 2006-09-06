@@ -374,7 +374,7 @@ void	CcdPhysicsEnvironment::addCcdPhysicsController(CcdPhysicsController* ctrl)
 	RigidBody* body = ctrl->GetRigidBody();
 
 	//this m_userPointer is just used for triggers, see CallbackTriggers
-	body->m_userPointer = ctrl;
+	body->m_internalOwner = ctrl;
 
 	body->setGravity( m_gravity );
 	m_controllers.push_back(ctrl);
@@ -1429,7 +1429,7 @@ void		CcdPhysicsEnvironment::removeConstraint(int	constraintId)
 
 		virtual	float	AddSingleResult(const CollisionWorld::LocalRayResult& rayResult)
 		{
-			CcdPhysicsController* curHit = static_cast<CcdPhysicsController*>(rayResult.m_collisionObject->m_userPointer);
+			CcdPhysicsController* curHit = static_cast<CcdPhysicsController*>(rayResult.m_collisionObject->m_internalOwner);
 			//ignore client...
 			if (curHit != m_ignoreClient)
 			{		
@@ -1464,7 +1464,7 @@ PHY_IPhysicsController* CcdPhysicsEnvironment::rayTest(PHY_IPhysicsController* i
 	m_collisionWorld->RayTest(rayFrom,rayTo,rayCallback);
 	if (rayCallback.HasHit())
 	{
-		nearestHit = static_cast<CcdPhysicsController*>(rayCallback.m_collisionObject->m_userPointer);
+		nearestHit = static_cast<CcdPhysicsController*>(rayCallback.m_collisionObject->m_internalOwner);
 		hitX = 	rayCallback.m_hitPointWorld.getX();
 		hitY = 	rayCallback.m_hitPointWorld.getY();
 		hitZ = 	rayCallback.m_hitPointWorld.getZ();
@@ -1654,9 +1654,9 @@ void	CcdPhysicsEnvironment::CallbackTriggers()
 				RigidBody* obj0 = static_cast<RigidBody* >(manifold->GetBody0());
 				RigidBody* obj1 = static_cast<RigidBody* >(manifold->GetBody1());
 
-				//m_userPointer is set in 'addPhysicsController
-				CcdPhysicsController* ctrl0 = static_cast<CcdPhysicsController*>(obj0->m_userPointer);
-				CcdPhysicsController* ctrl1 = static_cast<CcdPhysicsController*>(obj1->m_userPointer);
+				//m_internalOwner is set in 'addPhysicsController'
+				CcdPhysicsController* ctrl0 = static_cast<CcdPhysicsController*>(obj0->m_internalOwner);
+				CcdPhysicsController* ctrl1 = static_cast<CcdPhysicsController*>(obj1->m_internalOwner);
 
 				std::vector<CcdPhysicsController*>::iterator i =
 					std::find(m_triggerControllers.begin(), m_triggerControllers.end(), ctrl0);

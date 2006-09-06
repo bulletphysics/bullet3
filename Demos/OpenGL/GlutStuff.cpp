@@ -149,7 +149,7 @@ void setCamera() {
 	eye[1] = eyePos.getY();
 	eye[2] = eyePos.getZ();
  
-    glFrustum(-1.0, 1.0, -1.0, 1.0, 1.0, 100.0);
+    glFrustum(-1.0, 1.0, -1.0, 1.0, 1.0, 10000.0);
     gluLookAt(eye[0], eye[1], eye[2], 
               center[0], center[1], center[2], 
 			  gCameraUp.getX(),gCameraUp.getY(),gCameraUp.getZ());
