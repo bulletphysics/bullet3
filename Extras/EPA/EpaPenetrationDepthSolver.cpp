@@ -45,8 +45,8 @@ bool EpaPenetrationDepthSolver::CalcPenDepth( SimplexSolverInterface& simplexSol
 											  SimdVector3& v, SimdPoint3& wWitnessOnA, SimdPoint3& wWitnessOnB,
 											  class IDebugDraw* debugDraw )
 {
-	assert( pConvexA && "Convex shape A is invalid!" );
-	assert( pConvexB && "Convex shape B is invalid!" );
+	EPA_DEBUG_ASSERT( pConvexA ,"Convex shape A is invalid!" );
+	EPA_DEBUG_ASSERT( pConvexB ,"Convex shape B is invalid!" );
 
 	SimdScalar penDepth;
 
@@ -60,7 +60,7 @@ bool EpaPenetrationDepthSolver::CalcPenDepth( SimplexSolverInterface& simplexSol
 		penDepth = EpaPenDepth( simplexSolver, pConvexA, pConvexB,
 								transformA, transformB,
 								wWitnessOnA, wWitnessOnB );
-		assert( ( penDepth > 0 ) &&  "EPA or Hybrid Technique failed to calculate penetration depth!" );
+		EPA_DEBUG_ASSERT( ( penDepth > 0 ) ,"EPA or Hybrid Technique failed to calculate penetration depth!" );
 
 #ifdef EPA_USE_HYBRID
 	}
@@ -193,7 +193,7 @@ SimdScalar EpaPenetrationDepthSolver::EpaPenDepth( SimplexSolverInterface& simpl
 
 	if ( !epa.Initialize( simplexSolver ) )
 	{
-		assert( false && "Epa failed to initialize!" );
+		EPA_DEBUG_ASSERT( false ,"Epa failed to initialize!" );
 		return 0;
 	}
 

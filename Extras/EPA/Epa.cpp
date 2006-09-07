@@ -83,20 +83,29 @@ bool Epa::Initialize( SimplexSolverInterface& simplexSolver )
 		delta = v.dot( w );
 
 		EPA_DEBUG_ASSERT( ( delta <= 0 ) ,"Shapes are disjoint, EPA should have never    been called!" );
+		if ( delta > 0.f )
+			return false;
+
 		EPA_DEBUG_ASSERT( !simplexSolver.inSimplex( w ) ,"Shapes are disjoint, EPA should have never been called!" );
+		if (simplexSolver.inSimplex( w ))
+			return false;
 
 		// Add support point to simplex
 		simplexSolver.addVertex( w, pWorld, qWorld );
 
 		bool closestOk = simplexSolver.closest( v );
 		EPA_DEBUG_ASSERT( closestOk ,"Shapes are disjoint, EPA should have never been called!" );
-
+		if (!closestOk)
+			return false;
+		
 		SimdScalar prevVSqrd = squaredDistance;
 		squaredDistance = v.length2();
 
 		// Is v converging to v(A-B) ?
 		EPA_DEBUG_ASSERT( ( ( prevVSqrd - squaredDistance ) > SIMD_EPSILON * prevVSqrd ) ,
 				"Shapes are disjoint, EPA should have never been called!" );
+		if (( ( prevVSqrd - squaredDistance ) <= SIMD_EPSILON * prevVSqrd ))
+			return false;
 
 		if ( simplexSolver.fullSimplex() || ( squaredDistance <= SIMD_EPSILON * simplexSolver.maxVertex() ) )
 		{
