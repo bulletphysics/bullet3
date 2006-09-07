@@ -57,5 +57,6 @@ LibColladaDom LibXML LibCcdPhysicsInterface LibOpenGLSupport LibBulletDynamics L
 
 ADD_EXECUTABLE(ColladaDemo
 	ColladaDemo.cpp
+	ColladaConverter.cpp
 )
 
