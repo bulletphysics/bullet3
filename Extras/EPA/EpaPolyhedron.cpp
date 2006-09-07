@@ -47,7 +47,7 @@ bool EpaPolyhedron::Create( SimdPoint3* pInitialPoints,
 							const int nbInitialPoints )
 {
 #ifndef EPA_POLYHEDRON_USE_PLANES
-	assert( ( nbInitialPoints <= 4 ) && "nbInitialPoints greater than 4!" );
+	EPA_DEBUG_ASSERT( ( nbInitialPoints <= 4 ) ,"nbInitialPoints greater than 4!" );
 #endif
 
 	if ( nbInitialPoints < 4 )
@@ -184,7 +184,7 @@ bool EpaPolyhedron::Create( SimdPoint3* pInitialPoints,
 	if ( nbSuccessfullAxis <= 1 )
 	{
 		// Degenerate input ?
-		assert( false && "nbSuccessfullAxis must be greater than 1!" );
+		EPA_DEBUG_ASSERT( false ,"nbSuccessfullAxis must be greater than 1!" );
 		return false;
 	}
 	
@@ -211,12 +211,24 @@ bool EpaPolyhedron::Create( SimdPoint3* pInitialPoints,
 #endif
 
 #ifdef EPA_POLYHEDRON_USE_PLANES
-	assert( SimdEqual( pInitialPoints[ finalPointsIndices[ 0 ] ].dot( planeNormal ) + planeDistance, PLANE_THICKNESS ) &&
-			"Point should be on plane!" );
-	assert( SimdEqual( pInitialPoints[ finalPointsIndices[ 1 ] ].dot( planeNormal ) + planeDistance, PLANE_THICKNESS ) &&
-			"Point should be on plane!" );
-	assert( SimdEqual( pInitialPoints[ finalPointsIndices[ 2 ] ].dot( planeNormal ) + planeDistance, PLANE_THICKNESS ) &&
-			"Point should be on plane!" );
+	bool pointOnPlane0 = SimdEqual( pInitialPoints[ finalPointsIndices[ 0 ] ].dot( planeNormal ) + planeDistance, PLANE_THICKNESS );
+	if (!pointOnPlane0)
+	{
+		EPA_DEBUG_ASSERT(0,"Point0 should be on plane!");
+		return false;
+	}
+	bool pointOnPlane1 = SimdEqual( pInitialPoints[ finalPointsIndices[ 1 ] ].dot( planeNormal ) + planeDistance, PLANE_THICKNESS );
+	if (!pointOnPlane1)
+	{
+		EPA_DEBUG_ASSERT(0,"Point1 should be on plane!");
+		return false;
+	}
+	bool pointOnPlane2 = SimdEqual( pInitialPoints[ finalPointsIndices[ 2 ] ].dot( planeNormal ) + planeDistance, PLANE_THICKNESS );
+	if (!pointOnPlane2)
+	{
+		EPA_DEBUG_ASSERT(0,"Point2 should be on plane!");
+		return false;
+	}
 #endif
 
 #ifndef EPA_POLYHEDRON_USE_PLANES
@@ -395,7 +407,7 @@ bool EpaPolyhedron::Create( SimdPoint3* pInitialPoints,
 	if ( !pFaceA->Initialize() || !pFaceB->Initialize() ||
 		 !pFaceC->Initialize() || !pFaceD->Initialize() )
 	{
-		assert( false && "One initial face failed to initialize!" );
+		EPA_DEBUG_ASSERT( false, "One initial face failed to initialize!" );
 		return false;
 	}
 
@@ -428,7 +440,7 @@ bool EpaPolyhedron::Create( SimdPoint3* pInitialPoints,
 							return false;
 						}
 
-						assert( !newFaces.empty() && "Polyhedron should have expanded!" );
+						EPA_DEBUG_ASSERT( !newFaces.empty() ,"Polyhedron should have expanded!" );
 						
 						break;
 					}
@@ -455,7 +467,7 @@ void EpaPolyhedron::Destroy()
 EpaFace* EpaPolyhedron::CreateFace()
 {
 	EpaFace* pNewFace = new EpaFace();
-	assert( pNewFace && "Failed to allocate memory for a new EpaFace!" );
+	EPA_DEBUG_ASSERT( pNewFace , "Failed to allocate memory for a new EpaFace!" );
 
 	m_faces.push_back( pNewFace );
 
@@ -467,7 +479,7 @@ EpaFace* EpaPolyhedron::CreateFace()
 EpaHalfEdge* EpaPolyhedron::CreateHalfEdge()
 {
 	EpaHalfEdge* pNewHalfEdge = new EpaHalfEdge();
-	assert( pNewHalfEdge && "Failed to allocate memory for a new EpaHalfEdge!" );
+	EPA_DEBUG_ASSERT( pNewHalfEdge ,"Failed to allocate memory for a new EpaHalfEdge!" );
 
 	m_halfEdges.push_back( pNewHalfEdge );
 
@@ -479,7 +491,7 @@ EpaVertex* EpaPolyhedron::CreateVertex( const SimdPoint3& wSupportPoint,
 									    const SimdPoint3& wSupportPointOnB )
 {
 	EpaVertex* pNewVertex = new EpaVertex( wSupportPoint, wSupportPointOnA, wSupportPointOnB );
-	assert( pNewVertex && "Failed to allocate memory for a new EpaVertex!" );
+	EPA_DEBUG_ASSERT( pNewVertex ,"Failed to allocate memory for a new EpaVertex!" );
 
 	m_vertices.push_back( pNewVertex );
 
@@ -535,10 +547,10 @@ bool EpaPolyhedron::Expand( const SimdPoint3& wSupportPoint,
 						    const SimdPoint3& wSupportPointOnB,
 						    EpaFace* pFace, std::list< EpaFace* >& newFaces )
 {
-	assert( !pFace->m_deleted && "Face is already deleted!" );
-	assert( newFaces.empty() && "NewFaces list must be empty!" );
+	EPA_DEBUG_ASSERT( !pFace->m_deleted ,"Face is already deleted!" );
+	EPA_DEBUG_ASSERT( newFaces.empty() ,"NewFaces list must be empty!" );
 
-	assert( !pFace->m_deleted && "Cannot expand deleted face!" );
+	EPA_DEBUG_ASSERT( !pFace->m_deleted ,"Cannot expand deleted face!" );
 
 	// wSupportPoint must be front of face's plane used to do the expansion
 
@@ -553,10 +565,10 @@ bool EpaPolyhedron::Expand( const SimdPoint3& wSupportPoint,
 	std::list< EpaHalfEdge* > coneBaseEdges;
 	DeleteVisibleFaces( wSupportPoint, pFace, coneBaseEdges );
 
-	assert( ( coneBaseEdges.size() >= 3 ) && "Cone base must have at least 3 edges!" );
+	EPA_DEBUG_ASSERT( ( coneBaseEdges.size() >= 3 ) ,"Cone base must have at least 3 edges!" );
 
 	EpaVertex* pConeAppex = CreateVertex( wSupportPoint, wSupportPointOnA, wSupportPointOnB );
-	assert( pConeAppex && "Failed to create vertex!" );
+	EPA_DEBUG_ASSERT( pConeAppex ,"Failed to create vertex!" );
 
 	CreateCone( pConeAppex, coneBaseEdges, newFaces );
 
@@ -592,7 +604,7 @@ int EpaPolyhedron::GetNbFaces() const
 void EpaPolyhedron::DeleteVisibleFaces( const SimdPoint3& point, EpaFace* pFace,
 										std::list< EpaHalfEdge* >& coneBaseTwinHalfEdges )
 {
-	assert( !pFace->m_deleted && "Face is already deleted!" );
+	EPA_DEBUG_ASSERT( !pFace->m_deleted ,"Face is already deleted!" );
 
 	DeleteFace( pFace );
 
@@ -600,15 +612,15 @@ void EpaPolyhedron::DeleteVisibleFaces( const SimdPoint3& point, EpaFace* pFace,
 
 	do
 	{
-		assert( pCurrentHalfEdge->m_pTwin && "Half-edge without a twin!" );
+		EPA_DEBUG_ASSERT( pCurrentHalfEdge->m_pTwin ,"Half-edge without a twin!" );
 
 		EpaFace* pAdjacentFace = pCurrentHalfEdge->m_pTwin->m_pFace;
-		assert( pAdjacentFace && "Invalid adjacent face!" );
+		EPA_DEBUG_ASSERT( pAdjacentFace ,"Invalid adjacent face!" );
 
 		if ( !pAdjacentFace->m_deleted )
 		{
 #ifdef EPA_POLYHEDRON_USE_PLANES
-			assert( ( pAdjacentFace->m_planeNormal.length2() > 0 ) && "Invalid plane!" );
+			EPA_DEBUG_ASSERT( ( pAdjacentFace->m_planeNormal.length2() > 0 ) ,"Invalid plane!" );
 
 			SimdScalar pointDist = pAdjacentFace->m_planeNormal.dot( point ) +
 								   pAdjacentFace->m_planeDistance;
@@ -635,7 +647,7 @@ void EpaPolyhedron::DeleteVisibleFaces( const SimdPoint3& point, EpaFace* pFace,
 void EpaPolyhedron::CreateCone( EpaVertex* pAppexVertex, std::list< EpaHalfEdge* >& baseTwinHalfEdges,
 								std::list< EpaFace* >& newFaces )
 {
-	assert( ( baseTwinHalfEdges.size() >= 3 ) && "DeleteVisibleFaces method didn't do its job right!" );
+	EPA_DEBUG_ASSERT( ( baseTwinHalfEdges.size() >= 3 ) ,"DeleteVisibleFaces method didn't do its job right!" );
 
 	std::list< EpaHalfEdge* >::iterator baseHalfEdgesItr( baseTwinHalfEdges.begin() );
 	std::list< EpaHalfEdge* > halfEdgesToLink;
@@ -651,7 +663,7 @@ void EpaPolyhedron::CreateCone( EpaVertex* pAppexVertex, std::list< EpaHalfEdge*
 
 	// Connect consecutive faces by linking twin half-edges
 
-	assert( ( halfEdgesToLink.size() % 2 == 0 ) && "Nb half-edges to link is odd!" );
+	EPA_DEBUG_ASSERT( ( halfEdgesToLink.size() % 2 == 0 ) ,"Nb half-edges to link is odd!" );
 
 	int nbLinksToCreate = halfEdgesToLink.size() / 2;
 	int nbLinksCreated  = 0;
@@ -682,7 +694,7 @@ void EpaPolyhedron::CreateCone( EpaVertex* pAppexVertex, std::list< EpaHalfEdge*
 		}
 	}
 
-	assert( ( nbLinksCreated == nbLinksToCreate ) && "Mesh topology not ok!" );
+	EPA_DEBUG_ASSERT( ( nbLinksCreated == nbLinksToCreate ) ,"Mesh topology not ok!" );
 }
 
 EpaFace* EpaPolyhedron::CreateConeFace( EpaVertex* pAppexVertex, EpaHalfEdge* pBaseTwinHalfEdge,

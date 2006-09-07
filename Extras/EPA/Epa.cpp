@@ -68,7 +68,7 @@ bool Epa::Initialize( SimplexSolverInterface& simplexSolver )
 
 	while ( true )
 	{
-		assert( ( v.length2() > 0 ) && "Warning : v has zero magnitude!" );
+		EPA_DEBUG_ASSERT( ( v.length2() > 0 ) ,"Warning : v has zero magnitude!" );
 
 		SimdVector3 seperatingAxisInA = -v * m_transformA.getBasis();
 		SimdVector3 seperatingAxisInB =  v * m_transformB.getBasis();
@@ -82,20 +82,20 @@ bool Epa::Initialize( SimplexSolverInterface& simplexSolver )
 		SimdVector3 w = pWorld - qWorld;
 		delta = v.dot( w );
 
-		assert( ( delta <= 0 ) && "Shapes are disjoint, EPA should have never    been called!" );
-		assert( !simplexSolver.inSimplex( w ) && "Shapes are disjoint, EPA should have never been called!" );
+		EPA_DEBUG_ASSERT( ( delta <= 0 ) ,"Shapes are disjoint, EPA should have never    been called!" );
+		EPA_DEBUG_ASSERT( !simplexSolver.inSimplex( w ) ,"Shapes are disjoint, EPA should have never been called!" );
 
 		// Add support point to simplex
 		simplexSolver.addVertex( w, pWorld, qWorld );
 
 		bool closestOk = simplexSolver.closest( v );
-		assert( closestOk && "Shapes are disjoint, EPA should have never been called!" );
+		EPA_DEBUG_ASSERT( closestOk ,"Shapes are disjoint, EPA should have never been called!" );
 
 		SimdScalar prevVSqrd = squaredDistance;
 		squaredDistance = v.length2();
 
 		// Is v converging to v(A-B) ?
-		assert( ( ( prevVSqrd - squaredDistance ) > SIMD_EPSILON * prevVSqrd ) && 
+		EPA_DEBUG_ASSERT( ( ( prevVSqrd - squaredDistance ) > SIMD_EPSILON * prevVSqrd ) ,
 				"Shapes are disjoint, EPA should have never been called!" );
 
 		if ( simplexSolver.fullSimplex() || ( squaredDistance <= SIMD_EPSILON * simplexSolver.maxVertex() ) )
@@ -114,7 +114,7 @@ bool Epa::Initialize( SimplexSolverInterface& simplexSolver )
 
 	// nbSimplexPoints can't be one because cases where the origin is on the boundary are handled
 	// by hybrid penetration depth
-	assert( ( ( nbSimplexPoints > 1 ) && ( nbSimplexPoints <= 4 ) ) &&
+	EPA_DEBUG_ASSERT( ( ( nbSimplexPoints > 1 ) ,( nbSimplexPoints <= 4 ) ) ,
 		    "Hybrid Penetration Depth algorithm failed!" );
 
 	int nbPolyhedronPoints = nbSimplexPoints;
@@ -302,7 +302,7 @@ bool Epa::Initialize( SimplexSolverInterface& simplexSolver )
 #ifdef _DEBUG
 	else if ( nbSimplexPoints == 4 )
 	{
-		assert( TetrahedronContainsOrigin( simplexPoints ) && "Initial tetrahedron does not contain the origin!" );
+		EPA_DEBUG_ASSERT( TetrahedronContainsOrigin( simplexPoints ) ,"Initial tetrahedron does not contain the origin!" );
 	}
 #endif
 
@@ -330,7 +330,7 @@ bool Epa::Initialize( SimplexSolverInterface& simplexSolver )
 #endif
 	{
 		// Failed to create initial polyhedron
-		assert( false && "Failed to create initial polyhedron!" );
+		EPA_DEBUG_ASSERT( false ,"Failed to create initial polyhedron!" );
 		return false;
 	}
 
@@ -360,13 +360,13 @@ bool Epa::Initialize( SimplexSolverInterface& simplexSolver )
 
 			if ( pFace->IsAffinelyDependent() )
 			{
-				assert( false && "One initial face is affinely dependent!" );
+				EPA_DEBUG_ASSERT( false ,"One initial face is affinely dependent!" );
 				return false;
 			}
 
 			if ( pFace->m_vSqrd <= 0 )
 			{
-				assert( false && "Face containing the origin!" );
+				EPA_DEBUG_ASSERT( false ,"Face containing the origin!" );
 				return false;
 			}
 
@@ -384,7 +384,7 @@ bool Epa::Initialize( SimplexSolverInterface& simplexSolver )
 	//m_polyhedron._dbgSaveToFile( "epa_start.dbg" );
 #endif
 
-	assert( !m_faceEntries.empty() && "No faces added to heap!" );
+	EPA_DEBUG_ASSERT( !m_faceEntries.empty() ,"No faces added to heap!" );
 
 	return true;
 }
@@ -432,9 +432,9 @@ SimdScalar Epa::CalcPenDepth( SimdPoint3& wWitnessOnA, SimdPoint3& wWitnessOnB )
 
 #ifdef _DEBUG
 			//assert_msg( vSqrd <= upperBoundSqrd, "A triangle was falsely rejected!" );
-			assert( ( vSqrd >= prevVSqrd ) && "vSqrd decreased!" );
+			EPA_DEBUG_ASSERT( ( vSqrd >= prevVSqrd ) ,"vSqrd decreased!" );
 #endif //_DEBUG
-			assert( ( v.length2() > 0 ) && "Zero vector not allowed!" );
+			EPA_DEBUG_ASSERT( ( v.length2() > 0 ) ,"Zero vector not allowed!" );
 
 			SimdVector3 seperatingAxisInA =  v * m_transformA.getBasis();
 			SimdVector3 seperatingAxisInB = -v * m_transformB.getBasis();
@@ -461,7 +461,7 @@ SimdScalar Epa::CalcPenDepth( SimdPoint3& wWitnessOnA, SimdPoint3& wWitnessOnB )
 
 				if ( expandOk )
 				{
-					assert( !newFaces.empty() && "EPA polyhedron not expanding ?" );
+					EPA_DEBUG_ASSERT( !newFaces.empty() ,"EPA polyhedron not expanding ?" );
 
 					bool check    = true;
 					bool areEqual = false;
@@ -469,12 +469,12 @@ SimdScalar Epa::CalcPenDepth( SimdPoint3& wWitnessOnA, SimdPoint3& wWitnessOnB )
 					while ( !newFaces.empty() )
 					{
 						EpaFace* pNewFace = newFaces.front();
-						assert( !pNewFace->m_deleted && "New face is deleted!" );
+						EPA_DEBUG_ASSERT( !pNewFace->m_deleted ,"New face is deleted!" );
 
 						if ( !pNewFace->m_deleted )
 						{
-							assert( ( pNewFace->m_vSqrd > 0 ) && "Face containing the origin!" );
-							assert( !pNewFace->IsAffinelyDependent() && "Face is affinely dependent!" );
+							EPA_DEBUG_ASSERT( ( pNewFace->m_vSqrd > 0 ) ,"Face containing the origin!" );
+							EPA_DEBUG_ASSERT( !pNewFace->IsAffinelyDependent() ,"Face is affinely dependent!" );
 
 //#ifdef EPA_POLYHEDRON_USE_PLANES
 ////							if ( pNewFace->m_planeDistance >= 0 )
@@ -527,7 +527,7 @@ SimdScalar Epa::CalcPenDepth( SimdPoint3& wWitnessOnA, SimdPoint3& wWitnessOnB )
 	//m_polyhedron._dbgSaveToFile( "epa_end.dbg" );
 #endif
 
-	assert( pEpaFace && "Invalid epa face!" );
+	EPA_DEBUG_ASSERT( pEpaFace ,"Invalid epa face!" );
 
 	pEpaFace->CalcClosestPointOnA( wWitnessOnA );
 	pEpaFace->CalcClosestPointOnB( wWitnessOnB );

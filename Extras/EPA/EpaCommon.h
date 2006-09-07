@@ -19,6 +19,11 @@ subject to the following restrictions:
 
 #define EPA_POLYHEDRON_USE_PLANES
 
+
+//#define EPA_DEBUG_ASSERT(c,a)
+//#define EPA_DEBUG_ASSERT(c,a) assert(c && a)
+#define EPA_DEBUG_ASSERT(c,a) if (!c) printf(a)
+
 //#define EPA_USE_HYBRID
 
 #endif

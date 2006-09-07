@@ -19,6 +19,8 @@ subject to the following restrictions:
 
 #define EPA_MAX_FACE_ENTRIES 256
 
+
+
 extern const SimdScalar EPA_MAX_RELATIVE_ERROR;
 extern const SimdScalar EPA_MAX_RELATIVE_ERROR_SQRD;
 
