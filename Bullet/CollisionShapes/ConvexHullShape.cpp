@@ -18,11 +18,16 @@ subject to the following restrictions:
 #include "SimdQuaternion.h"
 
 
-ConvexHullShape ::ConvexHullShape (SimdPoint3* points,int numPoints)
+ConvexHullShape ::ConvexHullShape (SimdPoint3* points,int numPoints,int stride)
 {
 	m_points.resize(numPoints);
+	unsigned char* pointsBaseAddress = (unsigned char*)points;
+
 	for (int i=0;i<numPoints;i++)
-		m_points[i] = points[i];
+	{
+		SimdPoint3* point = (SimdPoint3*)(pointsBaseAddress + i*stride);
+		m_points[i] = point[0];
+	}
 }
 
 SimdVector3	ConvexHullShape::LocalGetSupportingVertexWithoutMargin(const SimdVector3& vec0)const

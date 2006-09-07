@@ -30,7 +30,7 @@ class ConvexHullShape : public PolyhedralConvexShape
 	std::vector<SimdPoint3>	m_points;
 
 public:
-	ConvexHullShape(SimdPoint3* points,int numPoints);
+	ConvexHullShape(SimdPoint3* points,int numPoints, int stride=sizeof(SimdPoint3));
 
 	void AddPoint(const SimdPoint3& point)
 	{
