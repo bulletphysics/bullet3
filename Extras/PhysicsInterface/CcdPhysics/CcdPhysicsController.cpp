@@ -104,7 +104,9 @@ void CcdPhysicsController::CreateRigidbody()
 CcdPhysicsController::~CcdPhysicsController()
 {
 	//will be reference counted, due to sharing
-	m_cci.m_physicsEnv->removeCcdPhysicsController(this);
+	if (m_cci.m_physicsEnv)
+		m_cci.m_physicsEnv->removeCcdPhysicsController(this);
+
 	delete m_MotionState;
 	delete m_body;
 }
@@ -274,7 +276,7 @@ void		CcdPhysicsController::getOrientation(float &quatImag0,float &quatImag1,flo
 void		CcdPhysicsController::setOrientation(float quatImag0,float quatImag1,float quatImag2,float quatReal)
 {
 	m_body->activate();
-
+	m_MotionState->setWorldOrientation(quatImag0,quatImag1,quatImag2,quatReal);
 	SimdTransform xform  = m_body->getCenterOfMassTransform();
 	xform.setRotation(SimdQuaternion(quatImag0,quatImag1,quatImag2,quatReal));
 	m_body->setCenterOfMassTransform(xform);
@@ -284,7 +286,7 @@ void		CcdPhysicsController::setOrientation(float quatImag0,float quatImag1,float
 void		CcdPhysicsController::setPosition(float posX,float posY,float posZ)
 {
 	m_body->activate();
-
+	m_MotionState->setWorldPosition(posX,posY,posZ);
 	SimdTransform xform  = m_body->getCenterOfMassTransform();
 	xform.setOrigin(SimdVector3(posX,posY,posZ));
 	m_body->setCenterOfMassTransform(xform);
