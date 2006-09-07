@@ -20,11 +20,13 @@
 
 #ifdef WIN32
 
+//added __cdecl, thanks Jack
+
 // default new and delete overrides that guarantee 16 byte alignment and zero allocated memory
-void* operator new(size_t sz) throw();
-void* operator new[](size_t sz) throw();
-void operator delete(void* m) throw();
-void operator delete[](void* m) throw();
+void* __cdecl operator new(size_t sz) throw();
+void* __cdecl operator new[](size_t sz) throw();
+void __cdecl operator delete(void* m) throw();
+void __cdecl operator delete[](void* m) throw();
 
 #include <malloc.h>
 
