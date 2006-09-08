@@ -60,6 +60,10 @@ CollisionDispatcher::CollisionDispatcher ():
 	
 };
 
+void CollisionDispatcher::RegisterCollisionCreateFunc(int proxyType0, int proxyType1, CollisionAlgorithmCreateFunc *createFunc)
+{
+	m_doubleDispatch[proxyType0][proxyType1] = createFunc;
+}
 
 CollisionDispatcher::~CollisionDispatcher()
 {

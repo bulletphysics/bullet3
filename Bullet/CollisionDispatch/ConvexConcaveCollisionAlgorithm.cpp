@@ -113,6 +113,7 @@ void ConvexTriangleCallback::ProcessTriangle(SimdVector3* triangle,int partId, i
 		CollisionShape* tmpShape = ob->m_collisionShape;
 		ob->m_collisionShape = &tm;
 		
+		///this should use the Dispatcher, so the actual registered algorithm is used
 		ConvexConvexAlgorithm cvxcvxalgo(m_manifoldPtr,ci,m_convexProxy,&m_triangleProxy);
 		cvxcvxalgo.SetShapeIdentifiers(-1,-1,partId,triangleIndex);
 		cvxcvxalgo.ProcessCollision(m_convexProxy,&m_triangleProxy,*m_dispatchInfoPtr);
