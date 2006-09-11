@@ -30,7 +30,7 @@
 				OptimizeForProcessor="1"
 				ExceptionHandling="0"
 				AdditionalOptions=" "
-				AdditionalIncludeDirectories=".;..\..;..\..\Bullet;..\..\BulletDynamics;..\..\LinearMath;..\..\Extras\PhysicsInterface\Common;..\..\Extras\ConvexDecomposition;..\..\Extras\COLLADA_DOM\include;..\..\Extras\COLLADA_DOM\include\1.4;..\..\Extras\LibXML\include;..\..\Glut"
+				AdditionalIncludeDirectories=".;..\..;..\..\Bullet;..\..\BulletDynamics;..\..\LinearMath;..\..\Extras\PhysicsInterface\Common;..\..\Extras\ConvexDecomposition;..\..\Extras\COLLADA_DOM\include;..\..\Extras\COLLADA_DOM\include\1.4;..\..\Extras\LibXML\include;..\..\Extras\PhysicsInterface\CcdPhysics;..\..\Glut"
 				PrecompiledHeaderFile="..\..\out\release8\build\libbulletopenglsupport\libbulletopenglsupport.pch"
 				AssemblerListingLocation="..\..\out\release8\build\libbulletopenglsupport\"
 				ObjectFile="..\..\out\release8\build\libbulletopenglsupport\"
@@ -78,7 +78,7 @@
 			<Tool
 				Name="VCResourceCompilerTool"
 				PreprocessorDefinitions="NDEBUG;_LIB;_WINDOWS;PROJECTGEN_VERSION=8"
-				AdditionalIncludeDirectories=".;..\..;..\..\Bullet;..\..\BulletDynamics;..\..\LinearMath;..\..\Extras\PhysicsInterface\Common;..\..\Extras\ConvexDecomposition;..\..\Extras\COLLADA_DOM\include;..\..\Extras\COLLADA_DOM\include\1.4;..\..\Extras\LibXML\include;..\..\Glut"
+				AdditionalIncludeDirectories=".;..\..;..\..\Bullet;..\..\BulletDynamics;..\..\LinearMath;..\..\Extras\PhysicsInterface\Common;..\..\Extras\ConvexDecomposition;..\..\Extras\COLLADA_DOM\include;..\..\Extras\COLLADA_DOM\include\1.4;..\..\Extras\LibXML\include;..\..\Extras\PhysicsInterface\CcdPhysics;..\..\Glut"
 				Culture="1033"/>
 			<Tool
 				Name="VCWebServiceProxyGeneratorTool"/>
@@ -103,7 +103,7 @@
 				OptimizeForProcessor="1"
 				ExceptionHandling="0"
 				AdditionalOptions=" "
-				AdditionalIncludeDirectories=".;..\..;..\..\Bullet;..\..\BulletDynamics;..\..\LinearMath;..\..\Extras\PhysicsInterface\Common;..\..\Extras\ConvexDecomposition;..\..\Extras\COLLADA_DOM\include;..\..\Extras\COLLADA_DOM\include\1.4;..\..\Extras\LibXML\include;..\..\Glut"
+				AdditionalIncludeDirectories=".;..\..;..\..\Bullet;..\..\BulletDynamics;..\..\LinearMath;..\..\Extras\PhysicsInterface\Common;..\..\Extras\ConvexDecomposition;..\..\Extras\COLLADA_DOM\include;..\..\Extras\COLLADA_DOM\include\1.4;..\..\Extras\LibXML\include;..\..\Extras\PhysicsInterface\CcdPhysics;..\..\Glut"
 				PrecompiledHeaderFile="..\..\out\debug8\build\libbulletopenglsupport\libbulletopenglsupport.pch"
 				AssemblerListingLocation="..\..\out\debug8\build\libbulletopenglsupport\"
 				ObjectFile="..\..\out\debug8\build\libbulletopenglsupport\"
@@ -149,7 +149,7 @@
 			<Tool
 				Name="VCResourceCompilerTool"
 				PreprocessorDefinitions="_DEBUG;_LIB;_WINDOWS;PROJECTGEN_VERSION=8"
-				AdditionalIncludeDirectories=".;..\..;..\..\Bullet;..\..\BulletDynamics;..\..\LinearMath;..\..\Extras\PhysicsInterface\Common;..\..\Extras\ConvexDecomposition;..\..\Extras\COLLADA_DOM\include;..\..\Extras\COLLADA_DOM\include\1.4;..\..\Extras\LibXML\include;..\..\Glut"
+				AdditionalIncludeDirectories=".;..\..;..\..\Bullet;..\..\BulletDynamics;..\..\LinearMath;..\..\Extras\PhysicsInterface\Common;..\..\Extras\ConvexDecomposition;..\..\Extras\COLLADA_DOM\include;..\..\Extras\COLLADA_DOM\include\1.4;..\..\Extras\LibXML\include;..\..\Extras\PhysicsInterface\CcdPhysics;..\..\Glut"
 				Culture="1033"/>
 			<Tool
 				Name="VCWebServiceProxyGeneratorTool"/>
@@ -169,6 +169,9 @@
 			</File>
 			<File
 				RelativePath="..\..\Demos\OpenGL\BMF_font_helv10.cpp">
+			</File>
+			<File
+				RelativePath="..\..\Demos\OpenGL\DemoApplication.cpp">
 			</File>
 			<File
 				RelativePath="..\..\Demos\OpenGL\GL_ShapeDrawer.cpp">
@@ -206,6 +209,9 @@
 			</File>
 			<File
 				RelativePath="..\..\Demos\OpenGL\DebugCastResult.h">
+			</File>
+			<File
+				RelativePath="..\..\Demos\OpenGL\DemoApplication.h">
 			</File>
 			<File
 				RelativePath="..\..\Demos\OpenGL\GL_ShapeDrawer.h">
