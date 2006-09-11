@@ -12,29 +12,29 @@ subject to the following restrictions:
 2. Altered source versions must be plainly marked as such, and must not be misrepresented as being the original software.
 3. This notice may not be removed or altered from any source distribution.
 */
+#ifndef COLLADA_PHYSICS_DEMO_H
+#define COLLADA_PHYSICS_DEMO_H
 
-#ifndef BSP_CONVERTER_H
-#define BSP_CONVERTER_H
+#include "DemoApplication.h"
 
-class BspLoader;
-#include <vector>
-#include "SimdVector3.h"
-
-///BspConverter turns a loaded bsp level into convex parts (vertices)
-class BspConverter
+///ColladaDemo shows the loading and exporting of COLLADA physics xml files.
+///It uses COLLADA DOM
+class ColladaDemo : public DemoApplication
 {
 	public:
 
-		void convertBsp(BspLoader& bspLoader,float scaling);
+	void	initPhysics(const char* filename);
 
-		///Utility function to create vertices from a Quake Brush. Brute force but it works. 
-		///Bit overkill to use QHull package
-		void	getVerticesFromPlaneEquations(const std::vector<SimdVector3>& planeEquations , std::vector<SimdVector3>& verticesOut );
-		bool	isInside(const std::vector<SimdVector3>& planeEquations, const SimdVector3& point, float	margin);
+	virtual void clientMoveAndDisplay();
 
-		///this callback is called for each brush that succesfully converted into vertices
-		virtual void	AddConvexVerticesCollider(std::vector<SimdVector3>& vertices, bool isEntity, const SimdVector3& entityTargetLocation) = 0;
+	virtual void displayCallback();
+	
+	virtual void	clientResetScene()
+	{
+	}
+
+	virtual void keyboardCallback(unsigned char key, int x, int y);
 
 };
 
-#endif //BSP_CONVERTER_H
+#endif //COLLADA_PHYSICS_DEMO_H

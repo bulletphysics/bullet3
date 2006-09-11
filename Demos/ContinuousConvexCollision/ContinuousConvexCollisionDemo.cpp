@@ -36,19 +36,11 @@
 
 #include "CollisionShapes/Simplex1to4Shape.h"
 
-#include "GL_ShapeDrawer.h"
-#ifdef WIN32 //needed for glut.h
-#include <windows.h>
-#endif
-//think different
-#if defined(__APPLE__) && !defined (VMDMESA)
-#include <OpenGL/gl.h>
-#include <OpenGL/glu.h>
-#include <GLUT/glut.h>
-#else
-#include <GL/glut.h>
-#endif
+#include "NarrowPhaseCollision/VoronoiSimplexSolver.h"
+#include "NarrowPhaseCollision/ConvexPenetrationDepthSolver.h"
 
+#include "GL_ShapeDrawer.h"
+#include "ContinuousConvexCollision.h"
 #include "GlutStuff.h"
 
 
@@ -65,21 +57,24 @@ PolyhedralConvexShape*	shapePtr[maxNumObjects];
 SimdTransform	fromTrans[maxNumObjects];
 SimdTransform	toTrans[maxNumObjects];
 
-//SimdTransform tr[numObjects];
 
-void DrawRasterizerLine(float const* , float const*, int)
-{
-
-}
 int screenWidth = 640.f;
 int screenHeight = 480.f;
 
 
 int main(int argc,char** argv)
 {
+	ContinuousConvexCollisionDemo* ccdDemo = new ContinuousConvexCollisionDemo();
 
-	setCameraDistance(40.f);
+	ccdDemo->setCameraDistance(40.f);
 
+	ccdDemo->initPhysics();
+	
+	return glutmain(argc, argv,screenWidth,screenHeight,"Continuous Convex Collision Demo",ccdDemo);
+}
+
+void	ContinuousConvexCollisionDemo::initPhysics()
+{
 	fromTrans[0].setOrigin(SimdVector3(0,10,20));
 	  toTrans[0].setOrigin(SimdVector3(0,10,-20));
 	fromTrans[1].setOrigin(SimdVector3(-2,7,0));
@@ -101,17 +96,17 @@ int main(int argc,char** argv)
 	toTrans[1].setBasis(identBasis);
 	SimdVector3 boxHalfExtentsA(10,1,1);
 	SimdVector3 boxHalfExtentsB(1.1f,1.1f,1.1f);
-	BoxShape	boxA(boxHalfExtentsA);
-//	BU_Simplex1to4 boxA(SimdPoint3(-2,0,-2),SimdPoint3(2,0,-2),SimdPoint3(0,0,2),SimdPoint3(0,2,0));
-//	BU_Simplex1to4 boxA(SimdPoint3(-12,0,0),SimdPoint3(12,0,0));
+	BoxShape*	boxA = new BoxShape(boxHalfExtentsA);
+//	BU_Simplex1to4* boxA = new BU_Simplex1to4(SimdPoint3(-2,0,-2),SimdPoint3(2,0,-2),SimdPoint3(0,0,2),SimdPoint3(0,2,0));
+//	BU_Simplex1to4* boxA = new BU_Simplex1to4(SimdPoint3(-12,0,0),SimdPoint3(12,0,0));
 	
 
-	BoxShape	boxB(boxHalfExtentsB);
+	BoxShape*	boxB = new BoxShape(boxHalfExtentsB);
 //	BU_Simplex1to4 boxB(SimdPoint3(0,10,0),SimdPoint3(0,-10,0));
 
 
-	shapePtr[0] = &boxA;
-	shapePtr[1] = &boxB;
+	shapePtr[0] = boxA;
+	shapePtr[1] = boxB;
 
 	shapePtr[0]->SetMargin(0.01f);
 	shapePtr[1]->SetMargin(0.01f);
@@ -121,18 +116,15 @@ int main(int argc,char** argv)
 		SimdTransformUtil::CalculateVelocity(fromTrans[i],toTrans[i],1.f,linVels[i],angVels[i]);
 	}
 
-	return glutmain(argc, argv,screenWidth,screenHeight,"Continuous Convex Collision Demo");
 }
 
 //to be implemented by the demo
 
-void clientMoveAndDisplay()
+void ContinuousConvexCollisionDemo::clientMoveAndDisplay()
 {
-	clientDisplay();
+	displayCallback();
 }
 
-#include "NarrowPhaseCollision/VoronoiSimplexSolver.h"
-#include "NarrowPhaseCollision/ConvexPenetrationDepthSolver.h"
 
 static VoronoiSimplexSolver sVoronoiSimplexSolver;
 
@@ -145,7 +137,7 @@ int minlines = 0;
 int maxlines = 512;
 
 
-void clientDisplay(void) {
+void ContinuousConvexCollisionDemo::displayCallback(void) {
 
     glClear(GL_COLOR_BUFFER_BIT | GL_DEPTH_BUFFER_BIT); 
 	glDisable(GL_LIGHTING);
@@ -206,12 +198,10 @@ void clientDisplay(void) {
 	fromTrans[1].setRotation(orn);
 	toTrans[1].setRotation(orn);
 	
-	extern bool stepping;
-	extern bool singleStep;
 
-	if (stepping || singleStep)
+	if (m_stepping || m_singleStep)
 	{
-		singleStep = false;
+		m_singleStep = false;
 		pitch += 0.005f;
 //		yaw += 0.01f;
 	}
@@ -299,26 +289,4 @@ void clientDisplay(void) {
     glutSwapBuffers();
 }
 
-void clientResetScene()
-{
-}
 
-void clientSpecialKeyboard(int key, int x, int y)
-{
-	defaultSpecialKeyboard(key,x,y);
-}
-
-
-void clientKeyboard(unsigned char key, int x, int y)
-{
-	defaultKeyboard(key, x, y);
-}
-
-
-void clientMouseFunc(int button, int state, int x, int y)
-{
-
-}
-void	clientMotionFunc(int x,int y)
-{
-}

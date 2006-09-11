@@ -22,22 +22,10 @@ subject to the following restrictions:
 #include "SimdQuaternion.h"
 #include "SimdTransform.h"
 #include "GL_ShapeDrawer.h"
-#ifdef WIN32 //needed for glut.h
-#include <windows.h>
-#endif
-//think different
-#if defined(__APPLE__) && !defined (VMDMESA)
-#include <OpenGL/gl.h>
-#include <OpenGL/glu.h>
-#include <GLUT/glut.h>
-#else
-#include <GL/glut.h>
-#endif
-#include "GlutStuff.h"
-
-
 
 #include "NarrowPhaseCollision/VoronoiSimplexSolver.h"
+#include "SimplexDemo.h"
+#include "GlutStuff.h"
 
 VoronoiSimplexSolver	simplexSolver;
 
@@ -61,34 +49,26 @@ PolyhedralConvexShape*	shapePtr[maxNumObjects];
 int main(int argc,char** argv)
 {
 
-	simplex.SetSimplexSolver(&simplexSolver);
+	SimplexDemo* demo = new SimplexDemo();
 
-	simplex.AddVertex(SimdPoint3(-2,0,-2));
-	simplex.AddVertex(SimdPoint3(2,0,-2));
-	simplex.AddVertex(SimdPoint3(0,0,2));
-	simplex.AddVertex(SimdPoint3(0,2,0));
-
-	shapePtr[0] = &simplex;
-
-	SimdTransform tr;
-	tr.setIdentity();
-
-	return glutmain(argc, argv,screenWidth,screenHeight,"SimplexDemo");
+	demo->initPhysics();
+	
+	return glutmain(argc, argv,screenWidth,screenHeight,"SimplexDemo",demo);
 }
 
 //to be implemented by the demo
 
-void clientMoveAndDisplay()
+void SimplexDemo::clientMoveAndDisplay()
 {
 	
-	clientDisplay();
+	displayCallback();
 }
 
 
 
-void clientDisplay(void) {
-
-    glClear(GL_COLOR_BUFFER_BIT | GL_DEPTH_BUFFER_BIT); 
+void SimplexDemo::displayCallback()
+{
+	glClear(GL_COLOR_BUFFER_BIT | GL_DEPTH_BUFFER_BIT); 
 	glDisable(GL_LIGHTING);
 
 	GL_ShapeDrawer::DrawCoordSystem();
@@ -121,26 +101,18 @@ void clientDisplay(void) {
     glutSwapBuffers();
 }
 
-void clientResetScene()
+void	SimplexDemo::initPhysics()
 {
 
-}
+	simplex.SetSimplexSolver(&simplexSolver);
 
-void clientSpecialKeyboard(int key, int x, int y)
-{
-	defaultSpecialKeyboard(key,x,y);
-}
+	simplex.AddVertex(SimdPoint3(-2,0,-2));
+	simplex.AddVertex(SimdPoint3(2,0,-2));
+	simplex.AddVertex(SimdPoint3(0,0,2));
+	simplex.AddVertex(SimdPoint3(0,2,0));
 
-void clientKeyboard(unsigned char key, int x, int y)
-{
-	defaultKeyboard(key, x, y);
-}
+	shapePtr[0] = &simplex;
 
-
-void clientMouseFunc(int button, int state, int x, int y)
-{
-
-}
-void	clientMotionFunc(int x,int y)
-{
+	SimdTransform tr;
+	tr.setIdentity();
 }

@@ -153,7 +153,7 @@ void GL_ShapeDrawer::DrawOpenGL(float* m, const CollisionShape* shape, const Sim
 				{
 					const BU_Simplex1to4* tetra = static_cast<const BU_Simplex1to4*>(shape);
 					//todo:	
-					useWireframeFallback = false;
+//					useWireframeFallback = false;
 					break;
 				}
 			case CONVEX_HULL_SHAPE_PROXYTYPE:
@@ -307,10 +307,10 @@ void GL_ShapeDrawer::DrawOpenGL(float* m, const CollisionShape* shape, const Sim
 			TriangleMeshShape* concaveMesh = (TriangleMeshShape*) shape;
 			//SimdVector3 aabbMax(1e30f,1e30f,1e30f);
 			//SimdVector3 aabbMax(100,100,100);//1e30f,1e30f,1e30f);
-			
-			extern float eye[3];
-			SimdVector3 aabbMax(eye[0]+100,eye[1]+100,eye[2]+100);//1e30f,1e30f,1e30f);
-			SimdVector3 aabbMin(eye[0]-100,eye[1]-100,eye[2]-100);//1e30f,1e30f,1e30f);
+
+			//todo pass camera, for some culling
+			SimdVector3 aabbMax(1e30f,1e30f,1e30f);
+			SimdVector3 aabbMin(-1e30f,-1e30f,-1e30f);
 
 			GlDrawcallback drawCallback;
 
@@ -323,9 +323,9 @@ void GL_ShapeDrawer::DrawOpenGL(float* m, const CollisionShape* shape, const Sim
 		{
 			ConvexTriangleMeshShape* convexMesh = (ConvexTriangleMeshShape*) shape;
 			
-			extern float eye[3];
-			SimdVector3 aabbMax(eye[0]+100,eye[1]+100,eye[2]+100);
-			SimdVector3 aabbMin(eye[0]-100,eye[1]-100,eye[2]-100);
+			//todo: pass camera for some culling			
+			SimdVector3 aabbMax(1e30f,1e30f,1e30f);
+			SimdVector3 aabbMin(-1e30f,-1e30f,-1e30f);
 			TriangleGlDrawcallback drawCallback;
 			convexMesh->GetStridingMesh()->InternalProcessAllTriangles(&drawCallback,aabbMin,aabbMax);
 

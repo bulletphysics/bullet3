@@ -24,29 +24,14 @@ subject to the following restrictions:
 #include "CollisionShapes/ConvexHullShape.h"
 
 #include "CollisionShapes/BoxShape.h"
-
-
-
 #include "CollisionDispatch/CollisionWorld.h"
 #include "CollisionDispatch/CollisionObject.h"
 #include "CollisionDispatch/CollisionDispatcher.h"
 #include "BroadphaseCollision/SimpleBroadphase.h"
 #include "BroadphaseCollision/AxisSweep3.h"
-
-
-
+#include "IDebugDraw.h"
 #include "GL_ShapeDrawer.h"
-#ifdef WIN32 //needed for glut.h
-#include <windows.h>
-#endif
-//think different
-#if defined(__APPLE__) && !defined (VMDMESA)
-#include <OpenGL/gl.h>
-#include <OpenGL/glu.h>
-#include <GLUT/glut.h>
-#else
-#include <GL/glut.h>
-#endif
+#include "CollisionInterfaceDemo.h"
 #include "GlutStuff.h"
 
 
@@ -66,8 +51,20 @@ int screenHeight = 480.f;
 
 int main(int argc,char** argv)
 {
-	clientResetScene();
+	CollisionInterfaceDemo* collisionInterfaceDemo = new CollisionInterfaceDemo();
 
+	collisionInterfaceDemo->initPhysics();
+
+	collisionInterfaceDemo->clientResetScene();
+
+	return glutmain(argc, argv,screenWidth,screenHeight,"Collision Interface Demo",collisionInterfaceDemo);
+}
+
+void	CollisionInterfaceDemo::initPhysics()
+{
+			
+	m_debugMode |= IDebugDraw::DBG_DrawWireframe;
+	
 	SimdMatrix3x3 basisA;
 	basisA.setIdentity();
 
@@ -80,38 +77,39 @@ int main(int argc,char** argv)
 	SimdPoint3	points0[3]={SimdPoint3(1,0,0),SimdPoint3(0,1,0),SimdPoint3(0,0,1)};
 	SimdPoint3	points1[5]={SimdPoint3(1,0,0),SimdPoint3(0,1,0),SimdPoint3(0,0,1),SimdPoint3(0,0,-1),SimdPoint3(-1,-1,0)};
 	
-	BoxShape boxA(SimdVector3(1,1,1));
-	BoxShape boxB(SimdVector3(0.5,0.5,0.5));
+	BoxShape* boxA = new BoxShape(SimdVector3(1,1,1));
+	BoxShape* boxB = new BoxShape(SimdVector3(0.5,0.5,0.5));
 	//ConvexHullShape	hullA(points0,3);
 	//hullA.setLocalScaling(SimdVector3(3,3,3));
 	//ConvexHullShape	hullB(points1,4);
 	//hullB.setLocalScaling(SimdVector3(4,4,4));
 
+	objects[0].m_collisionShape = boxA;//&hullA;
+	objects[1].m_collisionShape = boxB;//&hullB;
 
-	objects[0].m_collisionShape = &boxA;//&hullA;
-	objects[1].m_collisionShape = &boxB;//&hullB;
-
-	CollisionDispatcher dispatcher;
-	//SimpleBroadphase	broadphase;
+	CollisionDispatcher* dispatcher = new CollisionDispatcher;
 	SimdVector3	worldAabbMin(-1000,-1000,-1000);
 	SimdVector3	worldAabbMax(1000,1000,1000);
 
-	AxisSweep3	broadphase(worldAabbMin,worldAabbMax);
+	AxisSweep3*	broadphase = new AxisSweep3(worldAabbMin,worldAabbMax);
+	
+	//SimpleBroadphase is a brute force alternative, performing N^2 aabb overlap tests
+	//SimpleBroadphase*	broadphase = new SimpleBroadphase;
 
-	collisionWorld = new CollisionWorld(&dispatcher,&broadphase);
+	collisionWorld = new CollisionWorld(dispatcher,broadphase);
 	
 	collisionWorld->AddCollisionObject(&objects[0]);
 	collisionWorld->AddCollisionObject(&objects[1]);
 
-	return glutmain(argc, argv,screenWidth,screenHeight,"Collision Interface Demo");
 }
+
 
 //to be implemented by the demo
 
-void clientMoveAndDisplay()
+void CollisionInterfaceDemo::clientMoveAndDisplay()
 {
 	
-	clientDisplay();
+	displayCallback();
 }
 
 
@@ -120,7 +118,7 @@ SimplexSolverInterface& gGjkSimplexSolver = sGjkSimplexSolver;
 
 
 
-void clientDisplay(void) {
+void CollisionInterfaceDemo::displayCallback(void) {
 
     glClear(GL_COLOR_BUFFER_BIT | GL_DEPTH_BUFFER_BIT); 
 	glDisable(GL_LIGHTING);
@@ -129,7 +127,7 @@ void clientDisplay(void) {
 		collisionWorld->PerformDiscreteCollisionDetection();
 	
 	int i;
-/*
+
 	///one way to draw all the contact points is iterating over contact manifolds / points:
 
 	int numManifolds = collisionWorld->GetDispatcher()->GetNumManifolds();
@@ -155,9 +153,10 @@ void clientDisplay(void) {
 			glVertex3d(ptB.x(),ptB.y(),ptB.z());
 			glEnd();
 		}
-	}
-*/
 
+		//you can un-comment out this line, and then all points are removed
+		//contactManifold->ClearManifold();	
+	}
 
 	//GL_ShapeDrawer::DrawCoordSystem();
 
@@ -178,7 +177,7 @@ void clientDisplay(void) {
 	orn.setEuler(yaw,pitch,roll);
 	objects[1].m_worldTransform.setOrigin(objects[1].m_worldTransform.getOrigin()+SimdVector3(0,-0.01,0));
 
-	//objects[0].m_worldTransform.setRotation(orn);
+	objects[0].m_worldTransform.setRotation(orn);
 
 	pitch += 0.005f;
 	yaw += 0.01f;
@@ -187,28 +186,10 @@ void clientDisplay(void) {
     glutSwapBuffers();
 }
 
-void clientResetScene()
+void CollisionInterfaceDemo::clientResetScene()
 {
 	objects[0].m_worldTransform.setOrigin(SimdVector3(0.0f,3.f,0.f));
 	objects[1].m_worldTransform.setOrigin(SimdVector3(0.0f,9.f,0.f));
 }
 
-void clientSpecialKeyboard(int key, int x, int y)
-{
-	defaultSpecialKeyboard(key,x,y);
-}
 
-void clientKeyboard(unsigned char key, int x, int y)
-{
-	defaultKeyboard(key, x, y);
-}
-
-
-
-void clientMouseFunc(int button, int state, int x, int y)
-{
-
-}
-void	clientMotionFunc(int x,int y)
-{
-}

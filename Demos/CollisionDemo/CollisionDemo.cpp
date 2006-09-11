@@ -30,19 +30,10 @@ subject to the following restrictions:
 #include "NarrowPhaseCollision/VoronoiSimplexSolver.h"
 #include "NarrowPhaseCollision/ConvexPenetrationDepthSolver.h"
 
+#include "CollisionDemo.h"
 #include "GL_ShapeDrawer.h"
-#ifdef WIN32 //needed for glut.h
-#include <windows.h>
-#endif
-//think different
-#if defined(__APPLE__) && !defined (VMDMESA)
-#include <OpenGL/gl.h>
-#include <OpenGL/glu.h>
-#include <GLUT/glut.h>
-#else
-#include <GL/glut.h>
-#endif
 #include "GlutStuff.h"
+#include "IDebugDraw.h"
 
 
 float yaw=0.f,pitch=0.f,roll=0.f;
@@ -64,7 +55,22 @@ void DrawRasterizerLine(float const* , float const*, int)
 
 int main(int argc,char** argv)
 {
-	setCameraDistance(20.f);
+	CollisionDemo* colDemo = new CollisionDemo();
+
+	colDemo->setCameraDistance(18.f);
+
+	colDemo->initPhysics();
+
+	
+	
+	return glutmain(argc, argv,screenWidth,screenHeight,"Collision Demo",colDemo);
+}
+
+void CollisionDemo::initPhysics()
+{
+	m_debugMode |= IDebugDraw::DBG_DrawWireframe;
+	m_azi = 250.f;
+	m_ele = 25.f;
 
 	tr[0].setOrigin(SimdVector3(0.0013328250f,8.1363249f,7.0390840f));
 	tr[1].setOrigin(SimdVector3(0.00000000f,9.1262732f,2.0343180f));
@@ -90,25 +96,17 @@ int main(int argc,char** argv)
 	SimdVector3 boxHalfExtentsA(1.0000004768371582f,1.0000004768371582f,1.0000001192092896f);
 	SimdVector3 boxHalfExtentsB(3.2836332321166992f,3.2836332321166992f,3.2836320400238037f);
 
-	BoxShape	boxA(boxHalfExtentsA);
-	BoxShape	boxB(boxHalfExtentsB);
-	shapePtr[0] = &boxA;
-	shapePtr[1] = &boxB;
-	
+	BoxShape*	boxA = new BoxShape(boxHalfExtentsA);
+	BoxShape*	boxB = new BoxShape(boxHalfExtentsB);
+	shapePtr[0] = boxA;
+	shapePtr[1] = boxB;
 
-	SimdTransform tr;
-	tr.setIdentity();
-
-
-	return glutmain(argc, argv,screenWidth,screenHeight,"Collision Demo");
 }
 
-//to be implemented by the demo
-
-void clientMoveAndDisplay()
+void CollisionDemo::clientMoveAndDisplay()
 {
 	
-	clientDisplay();
+	displayCallback();
 }
 
 
@@ -117,7 +115,7 @@ SimplexSolverInterface& gGjkSimplexSolver = sGjkSimplexSolver;
 
 
 
-void clientDisplay(void) {
+void CollisionDemo::displayCallback(void) {
 
     glClear(GL_COLOR_BUFFER_BIT | GL_DEPTH_BUFFER_BIT); 
 	glDisable(GL_LIGHTING);
@@ -182,37 +180,10 @@ void clientDisplay(void) {
 	orn.setEuler(yaw,pitch,roll);
 	tr[0].setRotation(orn);
 
-//	pitch += 0.005f;
-//	yaw += 0.01f;
+	pitch += 0.005f;
+	yaw += 0.01f;
 
 	glFlush();
     glutSwapBuffers();
 }
 
-
-
-
-
-void clientResetScene()
-{
-
-}
-
-void clientSpecialKeyboard(int key, int x, int y)
-{
-	defaultSpecialKeyboard(key,x,y);
-}
-
-void clientKeyboard(unsigned char key, int x, int y)
-{
-	defaultKeyboard(key, x, y);
-}
-
-
-void clientMouseFunc(int button, int state, int x, int y)
-{
-
-}
-void	clientMotionFunc(int x,int y)
-{
-}

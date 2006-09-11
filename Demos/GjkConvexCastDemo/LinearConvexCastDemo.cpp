@@ -35,21 +35,10 @@
 #endif //USE_ALGEBRAIC_CCD
 
 #include "CollisionShapes/SphereShape.h"
-
 #include "CollisionShapes/Simplex1to4Shape.h"
 
 #include "GL_ShapeDrawer.h"
-#ifdef WIN32 //needed for glut.h
-#include <windows.h>
-#endif
-//think different
-#if defined(__APPLE__) && !defined (VMDMESA)
-#include <OpenGL/gl.h>
-#include <OpenGL/glu.h>
-#include <GLUT/glut.h>
-#else
-#include <GL/glut.h>
-#endif
+#include "LinearConvexCastDemo.h"
 #include "GlutStuff.h"
 
 
@@ -71,6 +60,16 @@ void DrawRasterizerLine(float const* , float const*, int)
 int main(int argc,char** argv)
 {
 
+	LinearConvexCastDemo* linearCastDemo = new LinearConvexCastDemo();
+
+	linearCastDemo->initPhysics();
+
+
+	return glutmain(argc, argv,screenWidth,screenHeight,"Linear Convex Cast Demo",linearCastDemo);
+}
+
+void LinearConvexCastDemo::initPhysics()
+{
 	setCameraDistance(30.f);
 	tr[0].setOrigin(SimdVector3(0,0,0));
 	tr[1].setOrigin(SimdVector3(0,10,0));
@@ -93,7 +92,7 @@ int main(int argc,char** argv)
 	SimdVector3 boxHalfExtentsA(0.2,4,4);
 	SimdVector3 boxHalfExtentsB(6,6,6);
 
-	BoxShape	boxA(boxHalfExtentsA);
+	BoxShape*	boxA = new BoxShape(boxHalfExtentsA);
 /*	BU_Simplex1to4	boxB;
 	boxB.AddVertex(SimdPoint3(-5,0,-5));
 	boxB.AddVertex(SimdPoint3(5,0,-5));
@@ -101,30 +100,23 @@ int main(int argc,char** argv)
 	boxB.AddVertex(SimdPoint3(0,5,0));
 */
 
-	BoxShape	boxB(boxHalfExtentsB);
-	shapePtr[0] = &boxA;
-	shapePtr[1] = &boxB;
+	BoxShape*	boxB = new BoxShape(boxHalfExtentsB);
+	shapePtr[0] = boxA;
+	shapePtr[1] = boxB;
 
 	shapePtr[0]->SetMargin(0.01f);
 	shapePtr[1]->SetMargin(0.01f);
 
-//	boxA.SetMargin(1.f);
-//	boxB.SetMargin(1.f);
-
-
 	SimdTransform tr;
 	tr.setIdentity();
-
-
-	return glutmain(argc, argv,screenWidth,screenHeight,"Linear Convex Cast Demo");
 }
 
 //to be implemented by the demo
 
-void clientMoveAndDisplay()
+void LinearConvexCastDemo::clientMoveAndDisplay()
 {
 	
-	clientDisplay();
+	displayCallback();
 }
 
 #include "NarrowPhaseCollision/VoronoiSimplexSolver.h"
@@ -136,7 +128,9 @@ SimplexSolverInterface& gGjkSimplexSolver = sVoronoiSimplexSolver;
 
 bool drawLine= false;
 
-void clientDisplay(void) {
+void LinearConvexCastDemo::displayCallback(void) 
+{
+	updateCamera();
 
     glClear(GL_COLOR_BUFFER_BIT | GL_DEPTH_BUFFER_BIT); 
 	glDisable(GL_LIGHTING);
@@ -159,12 +153,10 @@ void clientDisplay(void) {
 	orn.setEuler(yaw,pitch,roll);
 	tr[shapeIndex].setRotation(orn);
 	
-	extern bool stepping;
-	extern bool singleStep;
 
-	if (stepping || singleStep)
+	if (m_stepping || m_singleStep)
 	{
-		singleStep = false;
+		m_singleStep = false;
 		pitch += 0.005f;
 		yaw += 0.01f;
 	}
@@ -238,26 +230,4 @@ void clientDisplay(void) {
 
 	glFlush();
     glutSwapBuffers();
-}
-void clientResetScene()
-{
-}
-
-void clientSpecialKeyboard(int key, int x, int y)
-{
-	defaultSpecialKeyboard(key,x,y);
-}
-
-void clientKeyboard(unsigned char key, int x, int y)
-{
-	defaultKeyboard(key, x, y);
-}
-
-
-void clientMouseFunc(int button, int state, int x, int y)
-{
-
-}
-void	clientMotionFunc(int x,int y)
-{
 }

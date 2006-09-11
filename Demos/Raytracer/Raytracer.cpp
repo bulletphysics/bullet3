@@ -20,17 +20,8 @@ Very basic raytracer, rendering into a texture.
 #include "SimdQuaternion.h"
 #include "SimdTransform.h"
 #include "GL_ShapeDrawer.h"
-#ifdef WIN32 //needed for glut.h
-#include <windows.h>
-#endif
-//think different
-#if defined(__APPLE__) && !defined (VMDMESA)
-#include <OpenGL/gl.h>
-#include <OpenGL/glu.h>
-#include <GLUT/glut.h>
-#else
-#include <GL/glut.h>
-#endif>
+
+#include "Raytracer.h"
 #include "GlutStuff.h"
 
 #include "NarrowPhaseCollision/VoronoiSimplexSolver.h"
@@ -86,6 +77,17 @@ MinkowskiSumShape myMink(&myCylinder,&myBox);
 ///
 int main(int argc,char** argv)
 {
+	Raytracer* raytraceDemo = new Raytracer();
+
+	raytraceDemo->initPhysics();
+	
+	raytraceDemo->setCameraDistance(6.f);
+
+	return glutmain(argc, argv,screenWidth,screenHeight,"Minkowski-Sum Raytracer Demo",raytraceDemo);
+}
+
+void	Raytracer::initPhysics()
+{
 	raytracePicture = new RenderTexture(screenWidth,screenHeight);
 
 	myBox.SetMargin(0.02f);
@@ -110,37 +112,35 @@ int main(int argc,char** argv)
 	};
 	SimdScalar radi[NUM_SPHERES] = { 0.35f,0.35f,0.45f,0.40f,0.40f };
 
-	MultiSphereShape multiSphereShape(inertiaHalfExtents,positions,radi,NUM_SPHERES);
-
-	ConvexHullShape convexHullShape(positions,3);
+	MultiSphereShape* multiSphereShape = new MultiSphereShape(inertiaHalfExtents,positions,radi,NUM_SPHERES);
+	ConvexHullShape* convexHullShape = new ConvexHullShape(positions,3);
 
 
 	//choose shape
 	shapePtr[0] = &myCone;
 	shapePtr[1] =&simplex;
-	shapePtr[2] =&convexHullShape;
-	shapePtr[3] =&myMink;//myBox;
+	shapePtr[2] =convexHullShape;
+	shapePtr[3] =&myMink;//myBox;//multiSphereShape
 
 	simplex.SetMargin(0.3f);
 
-	setCameraDistance(6.f);
 
-	return glutmain(argc, argv,screenWidth,screenHeight,"Minkowski-Sum Raytracer Demo");
 }
 
 //to be implemented by the demo
 
-void clientMoveAndDisplay()
+void Raytracer::clientMoveAndDisplay()
 {
-
-	clientDisplay();
+	displayCallback();
 }
 
 int once = 1;
-extern float eye[3];
 
-void clientDisplay(void) 
+
+void Raytracer::displayCallback() 
 {
+
+	updateCamera();
 
 	for (int i=0;i<numObjects;i++)
 	{
@@ -194,8 +194,8 @@ void clientDisplay(void)
 	float fov = 2.0 * atanf (tanFov);
 
 
-	SimdVector3	rayFrom(eye[0],eye[1],eye[2]);
-	SimdVector3 rayForward = -rayFrom;
+	SimdVector3	rayFrom = getCameraPosition();
+	SimdVector3 rayForward = getCameraTargetPosition()-getCameraPosition();
 	rayForward.normalize();
 	float farPlane = 600.f;
 	rayForward*= farPlane;
@@ -401,25 +401,3 @@ void clientDisplay(void)
 	glutSwapBuffers();
 }
 
-void clientResetScene()
-{
-}
-
-void clientSpecialKeyboard(int key, int x, int y)
-{
-	defaultSpecialKeyboard(key,x,y);
-}
-
-void clientKeyboard(unsigned char key, int x, int y)
-{
-	defaultKeyboard(key, x, y);
-}
-
-
-void clientMouseFunc(int button, int state, int x, int y)
-{
-
-}
-void	clientMotionFunc(int x,int y)
-{
-}
