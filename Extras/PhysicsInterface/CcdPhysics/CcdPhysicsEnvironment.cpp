@@ -519,7 +519,7 @@ bool	CcdPhysicsEnvironment::proceedDeltaTime(double curTime,float timeStep)
 
 #ifdef USE_QUICKPROF
 	//toggle Profiler
-	if ( m_debugDrawer->GetDebugMode() & IDebugDraw::DBG_ProfileTimings)
+	if ( m_debugDrawer && m_debugDrawer->GetDebugMode() & IDebugDraw::DBG_ProfileTimings)
 	{
 		if (!m_profileTimings)
 		{
