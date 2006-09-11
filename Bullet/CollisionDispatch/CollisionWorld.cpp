@@ -99,6 +99,7 @@ void	CollisionWorld::PerformDiscreteCollisionDetection()
 	SimdVector3 aabbMin,aabbMax;
 	for (size_t i=0;i<m_collisionObjects.size();i++)
 	{
+		m_collisionObjects[i]->m_cachedInvertedWorldTransform = m_collisionObjects[i]->m_worldTransform.inverse();
 		m_collisionObjects[i]->m_collisionShape->GetAabb(m_collisionObjects[i]->m_worldTransform,aabbMin,aabbMax);
 		m_pairCache->SetAabb(m_collisionObjects[i]->m_broadphaseHandle,aabbMin,aabbMax);
 	}
