@@ -38,9 +38,8 @@ DemoApplication::DemoApplication()
 		//see IDebugDraw.h for modes
 :
 m_physicsEnvironmentPtr(0),
-m_debugMode(0),
 	m_cameraDistance(15.0),
-
+	m_debugMode(0),
 	m_ele(0.f),
 	m_azi(0.f),
 	m_cameraPosition(0.f,0.f,0.f),

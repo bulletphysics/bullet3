@@ -1,5 +1,7 @@
 Bullet Continuous Collision Detection and Physics Library
 Erwin Coumans
+2006 Sept 10
+	Started cleaning up demos
 
 2006 Sept 4
 	Fixed concave collision bug (caused instability/missing collisions in meshes/compounds)
