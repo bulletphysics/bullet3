@@ -15,28 +15,9 @@ subject to the following restrictions:
 
 #include "UnionFind.h"
 #include <assert.h>
+#include <algorithm>
 
 
-int UnionFind::find(int x)
-{ 
-	assert(x < m_N);
-	assert(x >= 0);
-
-	while (x != m_id[x]) 
-	{
-//not really a reason not to use path compression, and it flattens the trees/improves find performance dramatically
-#define USE_PATH_COMPRESSION 1
-#ifdef USE_PATH_COMPRESSION
-		//
-		m_id[x] = m_id[m_id[x]];
-#endif //
-		x = m_id[x];
-		assert(x < m_N);
-		assert(x >= 0);
-
-	}
-	return x; 
-}
 
 UnionFind::~UnionFind()
 {
@@ -45,8 +26,7 @@ UnionFind::~UnionFind()
 }
 
 UnionFind::UnionFind()
-:m_id(0),
-m_sz(0),
+:m_elements(0),
 m_N(0)
 { 
 
@@ -56,11 +36,10 @@ void	UnionFind::Allocate(int N)
 {
 	if (m_N < N)
 	{
-		Free();
+		//Free(); //not necessary with stl vectors
 
 		m_N = N;
-		m_id = new int[N]; 
-		m_sz = new int[N];
+		m_elements.resize(N);// = new Element[N]; 
 	}
 }
 void	UnionFind::Free()
@@ -68,8 +47,7 @@ void	UnionFind::Free()
 	if (m_N)
 	{
 		m_N=0;
-		delete m_id;
-		delete m_sz;
+		m_elements.clear();
 	}
 }
 
@@ -80,29 +58,32 @@ void	UnionFind::reset(int N)
 
 	for (int i = 0; i < m_N; i++) 
 	{ 
-		m_id[i] = i; m_sz[i] = 1; 
+		m_elements[i].m_id = i; m_elements[i].m_sz = 1; 
 	} 
 }
 
-
-int UnionFind ::find(int p, int q)
-{ 
-	return (find(p) == find(q)); 
-}
-
-void UnionFind ::unite(int p, int q)
+bool UnionFindElementSortPredicate(const Element& lhs, const Element& rhs)
 {
-	int i = find(p), j = find(q);
-	if (i == j) 
-		return;
-
-	//weighted quick union, this keeps the 'trees' balanced, and keeps performance of unite O( log(n) )
-	if (m_sz[i] < m_sz[j])
-	{ 
-		m_id[i] = j; m_sz[j] += m_sz[i]; 
-	}
-	else 
-	{ 
-		m_id[j] = i; m_sz[i] += m_sz[j]; 
-	}
+	return lhs.m_id < rhs.m_id;
 }
+
+
+///this is a special operation, destroying the content of UnionFind.
+///it sorts the elements, based on island id, in order to make it easy to iterate over islands
+void	UnionFind::sortIslands()
+{
+
+	//first store the original body index, and islandId
+	int numElements = m_elements.size();
+	
+	for (int i=0;i<numElements;i++)
+	{
+		m_elements[i].m_id = find(i);
+		m_elements[i].m_sz = i;
+	}
+	
+	 // Sort the vector using predicate and std::sort
+	  std::sort(m_elements.begin(), m_elements.end(), UnionFindElementSortPredicate);
+
+}
+

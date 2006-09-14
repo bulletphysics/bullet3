@@ -16,21 +16,31 @@ subject to the following restrictions:
 #ifndef UNION_FIND_H
 #define UNION_FIND_H
 
+#include <vector>
+struct	Element
+{
+	int	m_id;
+	int	m_sz;
+};
+
 ///UnionFind calculates connected subsets
 // Implements weighted Quick Union with path compression
 // optimization: could use short ints instead of ints (halving memory, would limit the number of rigid bodies to 64k, sounds reasonable)
 class UnionFind
   {
     private:
-		int*	m_id;
-		int*	m_sz;
+		std::vector<Element>	m_elements;
 		int m_N;
 
     public:
-		int find(int x);
 	  
 		UnionFind();
 		~UnionFind();
+
+	
+		//this is a special operation, destroying the content of UnionFind.
+		//it sorts the elements, based on island id, in order to make it easy to iterate over islands
+		void	sortIslands();
 
 	  void	reset(int N);
 
@@ -40,14 +50,67 @@ class UnionFind
 	  }
 	  inline bool  isRoot(int x) const
 	  {
-		  return (x == m_id[x]);
+		  return (x == m_elements[x].m_id);
 	  }
 
-      int find(int p, int q);
-      void unite(int p, int q);
-
+	  Element&	getElement(int index)
+	  {
+		  return m_elements[index];
+	  }
+	  const Element& getElement(int index) const
+	  {
+		  return m_elements[index];
+	  }
+   
 	  void	Allocate(int N);
 	  void	Free();
+
+
+
+
+	  int find(int p, int q)
+		{ 
+			return (find(p) == find(q)); 
+		}
+
+		void unite(int p, int q)
+		{
+			int i = find(p), j = find(q);
+			if (i == j) 
+				return;
+
+			//weighted quick union, this keeps the 'trees' balanced, and keeps performance of unite O( log(n) )
+			if (m_elements[i].m_sz < m_elements[j].m_sz)
+			{ 
+				m_elements[i].m_id = j; m_elements[j].m_sz += m_elements[i].m_sz; 
+			}
+			else 
+			{ 
+				m_elements[j].m_id = i; m_elements[i].m_sz += m_elements[j].m_sz; 
+			}
+		}
+
+		int find(int x)
+		{ 
+			//assert(x < m_N);
+			//assert(x >= 0);
+
+			while (x != m_elements[x].m_id) 
+			{
+		//not really a reason not to use path compression, and it flattens the trees/improves find performance dramatically
+		#define USE_PATH_COMPRESSION 1
+		#ifdef USE_PATH_COMPRESSION
+				//
+				m_elements[x].m_id = m_elements[m_elements[x].m_id].m_id;
+		#endif //
+				x = m_elements[x].m_id;
+				//assert(x < m_N);
+				//assert(x >= 0);
+
+			}
+			return x; 
+		}
+
 
   };
 
