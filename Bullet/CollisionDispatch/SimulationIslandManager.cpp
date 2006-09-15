@@ -228,10 +228,10 @@ void SimulationIslandManager::BuildAndProcessIslands(Dispatcher* dispatcher,Coll
 
 	std::vector<PersistentManifold*>  islandmanifold;
 	int i;
-	int numManifolds = dispatcher->GetNumManifolds();
-	islandmanifold.reserve(numManifolds);
+	int maxNumManifolds = dispatcher->GetNumManifolds();
+	islandmanifold.reserve(maxNumManifolds);
 
-	for (i=0;i<numManifolds ;i++)
+	for (i=0;i<maxNumManifolds ;i++)
 	{
 		 PersistentManifold* manifold = dispatcher->GetManifoldByIndexInternal(i);
 		 
@@ -248,6 +248,7 @@ void SimulationIslandManager::BuildAndProcessIslands(Dispatcher* dispatcher,Coll
 		}
 	}
 
+	int numManifolds = islandmanifold.size();
 
 	// Sort manifolds, based on islands
 	// Sort the vector using predicate and std::sort
