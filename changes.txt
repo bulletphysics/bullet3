@@ -1,8 +1,13 @@
 Bullet Continuous Collision Detection and Physics Library
 Erwin Coumans
+
+2006 Sept 16
+	Added Bullet 2.0  User Manual
+	Allow registration of custom user collision algorithms
+
 2006 Sept 10
 	Started cleaning up demos
-
+	
 2006 Sept 4
 	Fixed concave collision bug (caused instability/missing collisions in meshes/compounds)
 	Fixed memoryleak in OptimizedBvh, added RayTestSingle to CollisionWorld
