@@ -1,0 +1,3 @@
+SubDir TOP Demos UserCollisionAlgorithm ;
+
+BulletDemo UserCollisionAlgorithm : [ Wildcard *.h *.cpp  ] ;
