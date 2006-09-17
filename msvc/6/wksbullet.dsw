@@ -300,6 +300,36 @@ Package=<4>
 
 ###############################################################################
 
+Project: "appForkLiftDemo"=.\appForkLiftDemo.dsp - Package Owner=<4>
+
+Package=<5>
+{{{
+}}}
+
+Package=<4>
+{{{
+    Begin Project Dependency
+    Project_Dep_Name libbullet
+    End Project Dependency
+    Begin Project Dependency
+    Project_Dep_Name libbulletccdphysics
+    End Project Dependency
+    Begin Project Dependency
+    Project_Dep_Name libbulletdynamics
+    End Project Dependency
+    Begin Project Dependency
+    Project_Dep_Name libbulletmath
+    End Project Dependency
+    Begin Project Dependency
+    Project_Dep_Name libbulletopenglsupport
+    End Project Dependency
+    Begin Project Dependency
+    Project_Dep_Name libbulletphysicsinterfacecommon
+    End Project Dependency
+}}}
+
+###############################################################################
+
 Project: "appGjkConvexCastDemo"=.\appGjkConvexCastDemo.dsp - Package Owner=<4>
 
 Package=<5>
@@ -361,6 +391,36 @@ Package=<4>
 ###############################################################################
 
 Project: "appSimplexDemo"=.\appSimplexDemo.dsp - Package Owner=<4>
+
+Package=<5>
+{{{
+}}}
+
+Package=<4>
+{{{
+    Begin Project Dependency
+    Project_Dep_Name libbullet
+    End Project Dependency
+    Begin Project Dependency
+    Project_Dep_Name libbulletccdphysics
+    End Project Dependency
+    Begin Project Dependency
+    Project_Dep_Name libbulletdynamics
+    End Project Dependency
+    Begin Project Dependency
+    Project_Dep_Name libbulletmath
+    End Project Dependency
+    Begin Project Dependency
+    Project_Dep_Name libbulletopenglsupport
+    End Project Dependency
+    Begin Project Dependency
+    Project_Dep_Name libbulletphysicsinterfacecommon
+    End Project Dependency
+}}}
+
+###############################################################################
+
+Project: "appUserCollisionAlgorithm"=.\appUserCollisionAlgorithm.dsp - Package Owner=<4>
 
 Package=<5>
 {{{
@@ -456,6 +516,9 @@ Package=<4>
     Project_Dep_Name appConvexDecompositionDemo
     End Project Dependency
     Begin Project Dependency
+    Project_Dep_Name appForkLiftDemo
+    End Project Dependency
+    Begin Project Dependency
     Project_Dep_Name appGjkConvexCastDemo
     End Project Dependency
     Begin Project Dependency
@@ -463,6 +526,9 @@ Package=<4>
     End Project Dependency
     Begin Project Dependency
     Project_Dep_Name appSimplexDemo
+    End Project Dependency
+    Begin Project Dependency
+    Project_Dep_Name appUserCollisionAlgorithm
     End Project Dependency
     Begin Project Dependency
     Project_Dep_Name appVehicleDemo
@@ -534,6 +600,9 @@ Package=<4>
     Project_Dep_Name appConvexDecompositionDemo
     End Project Dependency
     Begin Project Dependency
+    Project_Dep_Name appForkLiftDemo
+    End Project Dependency
+    Begin Project Dependency
     Project_Dep_Name appGjkConvexCastDemo
     End Project Dependency
     Begin Project Dependency
@@ -541,6 +610,9 @@ Package=<4>
     End Project Dependency
     Begin Project Dependency
     Project_Dep_Name appSimplexDemo
+    End Project Dependency
+    Begin Project Dependency
+    Project_Dep_Name appUserCollisionAlgorithm
     End Project Dependency
     Begin Project Dependency
     Project_Dep_Name appVehicleDemo
