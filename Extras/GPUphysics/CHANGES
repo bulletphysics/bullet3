@@ -1,0 +1,29 @@
+
+GPUphysics-0.0
+==============
+
+* Initial release
+
+
+GPUphysics-0.1
+==============
+
+* Fixes for stencil buffer problems on some systems.
+
+
+GPUphysics-0.2
+==============
+
+* Added MacOSX support.
+* Added a ton of command-line debug options (see DEBUG_README)
+* Changed to ZLib license.
+
+GPUphysics-0.3
+==============
+
+* Use signed initial velocities so everything doesn't slide off the screen!
+* The 'bounce' now slows down X/Z motion as well as Y so things actually
+  do stop moving eventually.
+
+* Added to the Bullet Subversion repository at Sourceforge.net 
+  See http://sf.net/projects/bullet

@@ -1,0 +1,19 @@
+
+HDRS  = fboSupport.h shaderSupport.h
+OBJS  = GPU_physics_demo.o fboSupport.o shaderSupport.o
+
+all: ${OBJS}
+	g++ -framework GLUT -framework OpenGL -L"/System/Library/Frameworks/OpenGL.framework/Libraries" -lGL -lGLU -o GPU_physics_demo ${OBJS} -L"/System/Library/Frameworks/OpenGL.framework/Libraries"  -lGLU -lGLEW -lGL -lGLU -lobjc
+
+shaderSupport.o : shaderSupport.cxx ${HDRS}
+	g++ -c shaderSupport.cxx
+
+fboSupport.o : fboSupport.cxx ${HDRS}
+	g++ -c fboSupport.cxx
+
+GPU_physics_demo.o : GPU_physics_demo.cxx ${HDRS}
+	g++ -c GPU_physics_demo.cxx
+
+clean:
+	-rm -f ${OBJS}
+
