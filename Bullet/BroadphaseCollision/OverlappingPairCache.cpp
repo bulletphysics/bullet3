@@ -97,7 +97,7 @@ void	OverlappingPairCache::AddOverlappingPair(BroadphaseProxy* proxy0,Broadphase
 ///use a different solution. It is mainly used for Removing overlapping pairs. Removal could be delayed.
 ///we could keep a linked list in each proxy, and store pair in one of the proxies (with lowest memory address)
 ///Also we can use a 2D bitmap, which can be useful for a future GPU implementation
-BroadphasePair*	OverlappingPairCache::FindPair(BroadphaseProxy* proxy0,BroadphaseProxy* proxy1)
+ BroadphasePair*	OverlappingPairCache::FindPair(BroadphaseProxy* proxy0,BroadphaseProxy* proxy1)
 {
 	if (!NeedsCollision(proxy0,proxy1))
 		return 0;
@@ -108,7 +108,7 @@ BroadphasePair*	OverlappingPairCache::FindPair(BroadphaseProxy* proxy0,Broadphas
 		return 0;
 
 	//assert(it != m_overlappingPairSet.end());
-	BroadphasePair* pair = &(*it);
+	 BroadphasePair* pair = (BroadphasePair*)(&(*it));
 	return pair;
 }
 
@@ -158,8 +158,9 @@ void	OverlappingPairCache::ProcessAllOverlappingPairs(OverlapCallback* callback)
 	std::set<BroadphasePair>::iterator it = m_overlappingPairSet.begin();
 	for (; !(it==m_overlappingPairSet.end());it++)
 	{
-		BroadphasePair& pair = (*it);
-		if (callback->ProcessOverlap(pair))
+	
+		BroadphasePair* pair = (BroadphasePair*)(&(*it));
+		if (callback->ProcessOverlap(*pair))
 		{
 			assert(0);
 			m_overlappingPairSet.erase(it);
