@@ -177,7 +177,7 @@ void	OverlappingPairCache::ProcessAllOverlappingPairs(OverlapCallback* callback)
 		if (callback->ProcessOverlap(*pair))
 		{
 			CleanOverlappingPair(*pair);
-\		
+
 			std::set<BroadphasePair>::iterator it2 = it;
 			it++;
 			//why does next line not compile under OS X??
