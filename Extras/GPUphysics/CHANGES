@@ -1,22 +1,13 @@
+(Add new stuff at the top!)
 
-GPUphysics-0.0
+
+------------------- FIRST ADDITION TO SUBVERSION ---------------------
+GPUphysics-0.4
 ==============
 
-* Initial release
-
-
-GPUphysics-0.1
-==============
-
-* Fixes for stencil buffer problems on some systems.
-
-
-GPUphysics-0.2
-==============
-
-* Added MacOSX support.
-* Added a ton of command-line debug options (see DEBUG_README)
-* Changed to ZLib license.
+* Test for availability of vertex shader textures.
+* Fixed 'status: xxxx' message.
+* Added support for running the demo in the absence of vertex shader textures.
 
 GPUphysics-0.3
 ==============
@@ -27,10 +18,20 @@ GPUphysics-0.3
 * Caught up with some portability issues for more recent versions of
   GLSL.
 
-GPUphysics-0.4
+GPUphysics-0.2
 ==============
 
-* Test for availability of vertex shader textures.
-* Fixed 'status: xxxx' message.
-* Added support for running the demo in the absence of vertex shader textures.
+* Added MacOSX support.
+* Added a ton of command-line debug options (see DEBUG_README)
+* Changed to ZLib license.
+
+GPUphysics-0.1
+==============
+
+* Fixes for stencil buffer problems on some systems.
+
+GPUphysics-0.0
+==============
+
+* Initial release
 
