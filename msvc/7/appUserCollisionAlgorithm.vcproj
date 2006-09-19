@@ -167,18 +167,12 @@
 			Name="Source Files"
 			Filter="">
 			<File
-				RelativePath="..\..\Demos\UserCollisionAlgorithm\SphereSphereCollisionAlgorithm.cpp">
-			</File>
-			<File
 				RelativePath="..\..\Demos\UserCollisionAlgorithm\UserCollisionAlgorithm.cpp">
 			</File>
 		</Filter>
 		<Filter
 			Name="Header Files"
 			Filter="">
-			<File
-				RelativePath="..\..\Demos\UserCollisionAlgorithm\SphereSphereCollisionAlgorithm.h">
-			</File>
 			<File
 				RelativePath="..\..\Demos\UserCollisionAlgorithm\UserCollisionAlgorithm.h">
 			</File>

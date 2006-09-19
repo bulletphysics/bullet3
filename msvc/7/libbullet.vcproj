@@ -207,6 +207,9 @@
 				RelativePath="..\..\Bullet\CollisionDispatch\SimulationIslandManager.cpp">
 			</File>
 			<File
+				RelativePath="..\..\Bullet\CollisionDispatch\SphereSphereCollisionAlgorithm.cpp">
+			</File>
+			<File
 				RelativePath="..\..\Bullet\CollisionDispatch\UnionFind.cpp">
 			</File>
 			<File
@@ -368,6 +371,9 @@
 			</File>
 			<File
 				RelativePath="..\..\Bullet\CollisionDispatch\SimulationIslandManager.h">
+			</File>
+			<File
+				RelativePath="..\..\Bullet\CollisionDispatch\SphereSphereCollisionAlgorithm.h">
 			</File>
 			<File
 				RelativePath="..\..\Bullet\CollisionDispatch\UnionFind.h">

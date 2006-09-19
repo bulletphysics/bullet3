@@ -104,20 +104,12 @@ SOURCE="$(InputPath)"
 # PROP Default_Filter ""
 # Begin Source File
 
-SOURCE=..\..\Demos\UserCollisionAlgorithm\SphereSphereCollisionAlgorithm.cpp
-# End Source File
-# Begin Source File
-
 SOURCE=..\..\Demos\UserCollisionAlgorithm\UserCollisionAlgorithm.cpp
 # End Source File
 # End Group
 # Begin Group "Header Files"
 
 # PROP Default_Filter ""
-# Begin Source File
-
-SOURCE=..\..\Demos\UserCollisionAlgorithm\SphereSphereCollisionAlgorithm.h
-# End Source File
 # Begin Source File
 
 SOURCE=..\..\Demos\UserCollisionAlgorithm\UserCollisionAlgorithm.h
