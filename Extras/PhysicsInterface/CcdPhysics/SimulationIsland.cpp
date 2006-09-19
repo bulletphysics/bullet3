@@ -102,7 +102,8 @@ bool	SimulationIsland::Simulate(IDebugDraw* debugDrawer,int numSolverIterations,
 	//pairCache->RefreshOverlappingPairs();
 	if (overlappingPairs.size())
 	{
-		dispatcher->DispatchAllCollisionPairs(&overlappingPairs[0],overlappingPairs.size(),dispatchInfo);///numsubstep,g);
+		assert(0);
+		//dispatcher->DispatchAllCollisionPairs(&overlappingPairs[0],overlappingPairs.size(),dispatchInfo);///numsubstep,g);
 	}
 
 	//scatter overlapping pair info, mainly the created algorithms/contact caches

@@ -21,35 +21,33 @@ subject to the following restrictions:
 #include "BroadphaseInterface.h"
 #include "BroadphaseProxy.h"
 #include "SimdPoint3.h"
+#include <set>
 
+
+struct	OverlapCallback
+{
+	//return true for deletion of the pair
+	virtual bool	ProcessOverlap(BroadphasePair& pair) = 0;
+};
 
 ///OverlappingPairCache maintains the objects with overlapping AABB
 ///Typically managed by the Broadphase, Axis3Sweep or SimpleBroadphase
 class	OverlappingPairCache : public BroadphaseInterface
 {
-
-	BroadphasePair*	m_OverlappingPairs;
-	int	m_NumOverlapBroadphasePair;
+	//avoid brute-force finding all the time
+	std::set<BroadphasePair>	m_overlappingPairSet;
+	
 	int m_maxOverlap;
 	
 	//during the dispatch, check that user doesn't destroy/create proxy
 	bool		m_blockedForChanges;
-
 	
 	public:
 		
 	OverlappingPairCache(int maxOverlap);	
 	virtual ~OverlappingPairCache();
-	
-	int		GetNumOverlappingPairs() const
-	{
-		return m_NumOverlapBroadphasePair;
-	}
 
-	BroadphasePair& GetOverlappingPair(int index)
-	{
-		return m_OverlappingPairs[index];
-	}
+	void	ProcessAllOverlappingPairs(OverlapCallback*);
 
 	void	RemoveOverlappingPair(BroadphasePair& pair);
 
@@ -58,8 +56,7 @@ class	OverlappingPairCache : public BroadphaseInterface
 	void	AddOverlappingPair(BroadphaseProxy* proxy0,BroadphaseProxy* proxy1);
 
 	BroadphasePair*	FindPair(BroadphaseProxy* proxy0,BroadphaseProxy* proxy1);
-	
-	
+		
 	
 	void	CleanProxyFromPairs(BroadphaseProxy* proxy);
 

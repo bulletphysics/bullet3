@@ -27,7 +27,7 @@ subject to the following restrictions:
 #include "BMF_Api.h"
 
 int numObjects = 0;
-const int maxNumObjects = 450;
+const int maxNumObjects = 4096;
 DefaultMotionState ms[maxNumObjects];
 CcdPhysicsController* physObjects[maxNumObjects];
 SimdTransform startTransforms[maxNumObjects];
@@ -334,6 +334,9 @@ void DemoApplication::keyboardCallback(unsigned char key, int x, int y)
 //        std::cout << "unused key : " << key << std::endl;
         break;
     }
+
+	if (m_physicsEnvironmentPtr)
+		m_physicsEnvironmentPtr->setDebugMode(m_debugMode);
 
 	glutPostRedisplay();
 

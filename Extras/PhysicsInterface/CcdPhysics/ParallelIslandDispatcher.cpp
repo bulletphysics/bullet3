@@ -282,7 +282,7 @@ void	ParallelIslandDispatcher::ReleaseManifoldResult(ManifoldResult*)
 }
 
 
-void	ParallelIslandDispatcher::DispatchAllCollisionPairs(BroadphasePair* pairs,int numPairs,DispatcherInfo& dispatchInfo)
+void	ParallelIslandDispatcher::DispatchAllCollisionPairs(OverlappingPairCache* pairCache,DispatcherInfo& dispatchInfo)
 {
 	//m_blockedForChanges = true;
 
@@ -290,8 +290,9 @@ void	ParallelIslandDispatcher::DispatchAllCollisionPairs(BroadphasePair* pairs,i
 
 	int dispatcherId = GetUniqueId();
 
+	assert(0);
 	
-
+/*
 	for (i=0;i<numPairs;i++)
 	{
 
@@ -342,7 +343,7 @@ void	ParallelIslandDispatcher::DispatchAllCollisionPairs(BroadphasePair* pairs,i
 		}
 
 	}
-
+*/
 	//m_blockedForChanges = false;
 
 }

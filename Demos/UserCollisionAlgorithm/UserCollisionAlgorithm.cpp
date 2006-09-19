@@ -27,6 +27,8 @@ subject to the following restrictions:
 #include "ConstraintSolver/SequentialImpulseConstraintSolver.h"
 #include "CollisionDispatch/CollisionDispatcher.h"
 #include "BroadphaseCollision/SimpleBroadphase.h"
+#include "BroadphaseCollision/AxisSweep3.h"
+
 #include "CollisionShapes/TriangleMeshShape.h"
 #include "CollisionShapes/TriangleIndexVertexArray.h"
 #include "CollisionShapes/BvhTriangleMeshShape.h"
@@ -39,7 +41,7 @@ subject to the following restrictions:
 #include "GlutStuff.h"
 
 //The user defined collision algorithm
-#include "SphereSphereCollisionAlgorithm.h"
+#include "CollisionDispatch/SphereSphereCollisionAlgorithm.h"
 
 GLDebugDrawer	debugDrawer;
 
@@ -139,7 +141,8 @@ void	UserCollisionAlgorithm::initPhysics()
 	
 	CollisionDispatcher* dispatcher = new	CollisionDispatcher();
 		
-	OverlappingPairCache* broadphase = new SimpleBroadphase();
+	SimdVector3 maxAabb(10000,10000,10000);
+	OverlappingPairCache* broadphase = new AxisSweep3(-maxAabb,maxAabb);//SimpleBroadphase();
 	dispatcher->RegisterCollisionCreateFunc(SPHERE_SHAPE_PROXYTYPE,SPHERE_SHAPE_PROXYTYPE,new SphereSphereCollisionAlgorithm::CreateFunc);
 	
 

@@ -23,6 +23,10 @@ subject to the following restrictions:
 
 
 class SimdTransform {
+	
+
+public:
+	
 	enum { 
 		TRANSLATION = 0x01,
 		ROTATION    = 0x02,
@@ -32,11 +36,7 @@ class SimdTransform {
 		AFFINE      = TRANSLATION | LINEAR
 	};
 
-public:
 	SimdTransform() {}
-
-	//	template <typename Scalar2>
-	//	explicit Transform(const Scalar2 *m) { setValue(m); }
 
 	explicit SIMD_FORCE_INLINE SimdTransform(const SimdQuaternion& q, 
 		const SimdVector3& c = SimdVector3(SimdScalar(0), SimdScalar(0), SimdScalar(0))) 

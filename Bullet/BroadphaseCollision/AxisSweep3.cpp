@@ -215,7 +215,7 @@ void AxisSweep3::RemoveHandle(unsigned short handle)
 {
 	Handle* pHandle = GetHandle(handle);
 
-	RemoveOverlappingPairsContainingProxy(pHandle);
+	//RemoveOverlappingPairsContainingProxy(pHandle);
 
 
 	// compute current limit of edge arrays

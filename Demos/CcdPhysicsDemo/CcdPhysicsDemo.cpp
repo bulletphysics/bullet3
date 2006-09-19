@@ -48,7 +48,7 @@ subject to the following restrictions:
 #include "IDebugDraw.h"
 
 #include "GLDebugDrawer.h"
-
+#include "CollisionDispatch/SphereSphereCollisionAlgorithm.h"
 
 
 
@@ -72,13 +72,13 @@ const int maxProxies = 32766;
 const int maxOverlap = 65535;
 
 bool createConstraint = true;//false;
-bool useCompound = true;//false;
+bool useCompound = false;//true;//false;
 
 
 #ifdef _DEBUG
-const int numObjects = 50;
+const int numObjects = 250;
 #else
-const int numObjects = 120;
+const int numObjects = 3250;
 #endif
 
 const int maxNumObjects = 32760;
@@ -255,6 +255,8 @@ void	CcdPhysicsDemo::initPhysics()
 	SimdVector3 worldAabbMax(30000,30000,30000);
 
 	OverlappingPairCache* broadphase = new AxisSweep3(worldAabbMin,worldAabbMax,maxProxies,maxOverlap);
+	dispatcher->RegisterCollisionCreateFunc(SPHERE_SHAPE_PROXYTYPE,SPHERE_SHAPE_PROXYTYPE,new SphereSphereCollisionAlgorithm::CreateFunc);
+	
 	//OverlappingPairCache* broadphase = new SimpleBroadphase(maxProxies,maxOverlap);
 
 #ifdef USE_PARALLEL_DISPATCHER

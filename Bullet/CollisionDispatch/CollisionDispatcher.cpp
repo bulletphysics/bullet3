@@ -265,7 +265,72 @@ void	CollisionDispatcher::ReleaseManifoldResult(ManifoldResult*)
 }
 
 
-void	CollisionDispatcher::DispatchAllCollisionPairs(BroadphasePair* pairs,int numPairs,DispatcherInfo& dispatchInfo)
+class CollisionPairCallback : public OverlapCallback
+{
+	DispatcherInfo& m_dispatchInfo;
+	CollisionDispatcher*	m_dispatcher;
+	int		m_dispatcherId;
+public:
+
+	CollisionPairCallback(DispatcherInfo& dispatchInfo,CollisionDispatcher*	dispatcher,int		dispatcherId)
+	:m_dispatchInfo(dispatchInfo),
+	m_dispatcher(dispatcher),
+	m_dispatcherId(dispatcherId)
+	{
+	}
+
+	virtual bool	ProcessOverlap(BroadphasePair& pair)
+	{
+		if (m_dispatcherId>= 0)
+		{
+			//dispatcher will keep algorithms persistent in the collision pair
+			if (!pair.m_algorithms[m_dispatcherId])
+			{
+				pair.m_algorithms[m_dispatcherId] = m_dispatcher->FindAlgorithm(
+					*pair.m_pProxy0,
+					*pair.m_pProxy1);
+			}
+
+			if (pair.m_algorithms[m_dispatcherId])
+			{
+				if (m_dispatchInfo.m_dispatchFunc == 		DispatcherInfo::DISPATCH_DISCRETE)
+				{
+					pair.m_algorithms[m_dispatcherId]->ProcessCollision(pair.m_pProxy0,pair.m_pProxy1,m_dispatchInfo);
+				} else
+				{
+					float toi = pair.m_algorithms[m_dispatcherId]->CalculateTimeOfImpact(pair.m_pProxy0,pair.m_pProxy1,m_dispatchInfo);
+					if (m_dispatchInfo.m_timeOfImpact > toi)
+						m_dispatchInfo.m_timeOfImpact = toi;
+
+				}
+			}
+		} else
+		{
+			//non-persistent algorithm dispatcher
+			CollisionAlgorithm* algo = m_dispatcher->FindAlgorithm(
+				*pair.m_pProxy0,
+				*pair.m_pProxy1);
+
+			if (algo)
+			{
+				if (m_dispatchInfo.m_dispatchFunc == 		DispatcherInfo::DISPATCH_DISCRETE)
+				{
+					algo->ProcessCollision(pair.m_pProxy0,pair.m_pProxy1,m_dispatchInfo);
+				} else
+				{
+					float toi = algo->CalculateTimeOfImpact(pair.m_pProxy0,pair.m_pProxy1,m_dispatchInfo);
+					if (m_dispatchInfo.m_timeOfImpact > toi)
+						m_dispatchInfo.m_timeOfImpact = toi;
+				}
+			}
+		}
+		return false;
+
+	}
+};
+
+
+void	CollisionDispatcher::DispatchAllCollisionPairs(OverlappingPairCache* pairCache,DispatcherInfo& dispatchInfo)
 {
 	//m_blockedForChanges = true;
 
@@ -273,58 +338,9 @@ void	CollisionDispatcher::DispatchAllCollisionPairs(BroadphasePair* pairs,int nu
 
 	int dispatcherId = GetUniqueId();
 
-	
+	CollisionPairCallback	collisionCallback(dispatchInfo,this,dispatcherId);
 
-	for (i=0;i<numPairs;i++)
-	{
-
-		BroadphasePair& pair = pairs[i];
-
-		if (dispatcherId>= 0)
-		{
-			//dispatcher will keep algorithms persistent in the collision pair
-			if (!pair.m_algorithms[dispatcherId])
-			{
-				pair.m_algorithms[dispatcherId] = FindAlgorithm(
-					*pair.m_pProxy0,
-					*pair.m_pProxy1);
-			}
-
-			if (pair.m_algorithms[dispatcherId])
-			{
-				if (dispatchInfo.m_dispatchFunc == 		DispatcherInfo::DISPATCH_DISCRETE)
-				{
-					pair.m_algorithms[dispatcherId]->ProcessCollision(pair.m_pProxy0,pair.m_pProxy1,dispatchInfo);
-				} else
-				{
-					float toi = pair.m_algorithms[dispatcherId]->CalculateTimeOfImpact(pair.m_pProxy0,pair.m_pProxy1,dispatchInfo);
-					if (dispatchInfo.m_timeOfImpact > toi)
-						dispatchInfo.m_timeOfImpact = toi;
-
-				}
-			}
-		} else
-		{
-			//non-persistent algorithm dispatcher
-			CollisionAlgorithm* algo = FindAlgorithm(
-				*pair.m_pProxy0,
-				*pair.m_pProxy1);
-
-			if (algo)
-			{
-				if (dispatchInfo.m_dispatchFunc == 		DispatcherInfo::DISPATCH_DISCRETE)
-				{
-					algo->ProcessCollision(pair.m_pProxy0,pair.m_pProxy1,dispatchInfo);
-				} else
-				{
-					float toi = algo->CalculateTimeOfImpact(pair.m_pProxy0,pair.m_pProxy1,dispatchInfo);
-					if (dispatchInfo.m_timeOfImpact > toi)
-						dispatchInfo.m_timeOfImpact = toi;
-				}
-			}
-		}
-
-	}
+	pairCache->ProcessAllOverlappingPairs(&collisionCallback);
 
 	//m_blockedForChanges = false;
 

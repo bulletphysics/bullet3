@@ -687,7 +687,8 @@ bool	CcdPhysicsEnvironment::proceedDeltaTimeOneStep(float timeStep)
 	dispatchInfo.m_debugDraw = this->m_debugDrawer;
 
 	scene->RefreshOverlappingPairs();
-	GetCollisionWorld()->GetDispatcher()->DispatchAllCollisionPairs(&scene->GetOverlappingPair(0),scene->GetNumOverlappingPairs(),dispatchInfo);
+	
+	GetCollisionWorld()->GetDispatcher()->DispatchAllCollisionPairs(scene,dispatchInfo);
 
 
 #ifdef USE_QUICKPROF
@@ -856,7 +857,7 @@ bool	CcdPhysicsEnvironment::proceedDeltaTimeOneStep(float timeStep)
 				dispatchInfo.m_dispatchFunc = DispatcherInfo::DISPATCH_CONTINUOUS;
 
 				//pairCache->RefreshOverlappingPairs();//??
-				GetCollisionWorld()->GetDispatcher()->DispatchAllCollisionPairs(&scene->GetOverlappingPair(0),scene->GetNumOverlappingPairs(),dispatchInfo);
+				GetCollisionWorld()->GetDispatcher()->DispatchAllCollisionPairs(scene,dispatchInfo);
 				
 				toi = dispatchInfo.m_timeOfImpact;
 

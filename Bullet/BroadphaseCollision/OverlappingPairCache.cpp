@@ -24,26 +24,24 @@ subject to the following restrictions:
 
 OverlappingPairCache::OverlappingPairCache(int maxOverlap):
 m_blockedForChanges(false),
-m_NumOverlapBroadphasePair(0),
+//m_NumOverlapBroadphasePair(0),
 m_maxOverlap(maxOverlap)
 {
-	m_OverlappingPairs = new BroadphasePair[maxOverlap];
 }
 
 
 OverlappingPairCache::~OverlappingPairCache()
 {
-	delete [] m_OverlappingPairs;
+	//todo/test: show we erase/delete data, or is it automatic
 }
 
 
 void	OverlappingPairCache::RemoveOverlappingPair(BroadphasePair& pair)
 {
 	CleanOverlappingPair(pair);
-	int	index = &pair - &m_OverlappingPairs[0];
-	//remove efficiently, swap with the last
-	m_OverlappingPairs[index] = m_OverlappingPairs[m_NumOverlapBroadphasePair-1];
-	m_NumOverlapBroadphasePair--;
+	std::set<BroadphasePair>::iterator it = m_overlappingPairSet.find(pair);
+	assert(it != m_overlappingPairSet.end());
+	m_overlappingPairSet.erase(pair);
 }
 
 
@@ -75,25 +73,22 @@ void	OverlappingPairCache::AddOverlappingPair(BroadphaseProxy* proxy0,Broadphase
 
 
 	BroadphasePair pair(*proxy0,*proxy1);
-	m_OverlappingPairs[m_NumOverlapBroadphasePair] = pair;
-
+	
+	m_overlappingPairSet.insert(pair);
+	
+	
+#ifdef _DEBUG
+	/*
+	BroadphasePair& pr = (*newElem);
 	int i;
 	for (i=0;i<SIMPLE_MAX_ALGORITHMS;i++)
 	{
 		assert(!m_OverlappingPairs[m_NumOverlapBroadphasePair].m_algorithms[i]);
-		m_OverlappingPairs[m_NumOverlapBroadphasePair].m_algorithms[i] = 0;
+		//m_OverlappingPairs[m_NumOverlapBroadphasePair].m_algorithms[i] = 0;
 	}
+	*/
 
-	if (m_NumOverlapBroadphasePair >= m_maxOverlap)
-	{
-		//printf("Error: too many overlapping objects: m_NumOverlapBroadphasePair: %d\n",m_NumOverlapBroadphasePair);
-#ifdef DEBUG
-		assert(0);
-#endif 
-	} else
-	{
-		m_NumOverlapBroadphasePair++;
-	}
+#endif _DEBUG
 
 
 }
@@ -104,27 +99,25 @@ void	OverlappingPairCache::AddOverlappingPair(BroadphaseProxy* proxy0,Broadphase
 ///Also we can use a 2D bitmap, which can be useful for a future GPU implementation
 BroadphasePair*	OverlappingPairCache::FindPair(BroadphaseProxy* proxy0,BroadphaseProxy* proxy1)
 {
-	BroadphasePair* foundPair = 0;
+	if (!NeedsCollision(proxy0,proxy1))
+		return 0;
 
-	int i;
-	for (i=m_NumOverlapBroadphasePair-1;i>=0;i--)
-	{
-		BroadphasePair& pair = m_OverlappingPairs[i];
-		if (((pair.m_pProxy0 == proxy0) && (pair.m_pProxy1 == proxy1)) ||
-			((pair.m_pProxy0 == proxy1) && (pair.m_pProxy1 == proxy0)))
-		{
-			foundPair = &pair;
-			return foundPair;
-		}
-	}	
+	BroadphasePair tmpPair(*proxy0,*proxy1);
+	std::set<BroadphasePair>::iterator it = m_overlappingPairSet.find(tmpPair);
+	if ((it == m_overlappingPairSet.end()))
+		return 0;
 
-	return foundPair;
+	//assert(it != m_overlappingPairSet.end());
+	BroadphasePair* pair = &(*it);
+	return pair;
 }
 
 
 
 void	OverlappingPairCache::CleanProxyFromPairs(BroadphaseProxy* proxy)
 {
+	assert(0);
+	/*
 	for (int i=0;i<m_NumOverlapBroadphasePair;i++)
 	{
 		BroadphasePair& pair = m_OverlappingPairs[i];
@@ -134,11 +127,17 @@ void	OverlappingPairCache::CleanProxyFromPairs(BroadphaseProxy* proxy)
 			CleanOverlappingPair(pair);
 		}
 	}
+	*/
+
 }
 
 void	OverlappingPairCache::RemoveOverlappingPairsContainingProxy(BroadphaseProxy* proxy)
 {
+
+	assert(0);
+	/*
 	int i;
+	
 	for ( i=m_NumOverlapBroadphasePair-1;i>=0;i--)
 	{
 		BroadphasePair& pair = m_OverlappingPairs[i];
@@ -148,7 +147,23 @@ void	OverlappingPairCache::RemoveOverlappingPairsContainingProxy(BroadphaseProxy
 			RemoveOverlappingPair(pair);
 		}
 	}
+	*/
+
 }
 
 
+
+void	OverlappingPairCache::ProcessAllOverlappingPairs(OverlapCallback* callback)
+{
+	std::set<BroadphasePair>::iterator it = m_overlappingPairSet.begin();
+	for (; !(it==m_overlappingPairSet.end());it++)
+	{
+		BroadphasePair& pair = (*it);
+		if (callback->ProcessOverlap(pair))
+		{
+			assert(0);
+			m_overlappingPairSet.erase(it);
+		}
+	}
+}
 

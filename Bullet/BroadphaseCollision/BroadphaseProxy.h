@@ -42,6 +42,9 @@ IMPLICIT_CONVEX_SHAPES_START_HERE,
 CONCAVE_SHAPES_START_HERE,
 	//keep all the convex shapetype below here, for the check IsConvexShape in broadphase proxy!
 	TRIANGLE_MESH_SHAPE_PROXYTYPE,
+	///used for demo integration FAST/Swift collision library and Bullet
+	FAST_CONCAVE_MESH_PROXYTYPE,
+
 	EMPTY_SHAPE_PROXYTYPE,
 	STATIC_PLANE_PROXYTYPE,
 CONCAVE_SHAPES_END_HERE,
@@ -124,23 +127,41 @@ struct BroadphasePair
 		}
 	}
 	BroadphasePair(BroadphaseProxy& proxy0,BroadphaseProxy& proxy1)
-		:
-		m_pProxy0(&proxy0),
-		m_pProxy1(&proxy1)
 	{
+
+		//keep them sorted, so the std::set operations work
+		if (&proxy0 < &proxy1)
+        { 
+            m_pProxy0 = &proxy0; 
+            m_pProxy1 = &proxy1; 
+        }
+        else 
+        { 
+			m_pProxy0 = &proxy1; 
+            m_pProxy1 = &proxy0; 
+        }
+
 		for (int i=0;i<SIMPLE_MAX_ALGORITHMS;i++)
-	{
+		{
 			m_algorithms[i] = 0;
 		}
 
 	}
-
 	
 	BroadphaseProxy* m_pProxy0;
 	BroadphaseProxy* m_pProxy1;
 	
 	mutable CollisionAlgorithm* m_algorithms[SIMPLE_MAX_ALGORITHMS];
 };
+
+
+//comparison for set operation, see Solid DT_Encounter
+inline bool operator<(const BroadphasePair& a, const BroadphasePair& b) 
+{ 
+    return a.m_pProxy0 < b.m_pProxy0 || 
+        (a.m_pProxy0 == b.m_pProxy0 && a.m_pProxy1 < b.m_pProxy1); 
+}
+
 
 #endif //BROADPHASE_PROXY_H
 
