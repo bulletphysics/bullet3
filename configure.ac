@@ -9,7 +9,7 @@ AC_PREREQ([2.54])
 #----------------------------------------------------------------------------
 AC_INIT(
     [bullet],
-    [1.9],
+    [2.0],
     [bullet@erwincoumans.com])
 CS_PACKAGEINFO(
     [Bullet Continuous Collision Detection and Physics Library],

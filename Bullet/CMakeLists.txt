@@ -15,6 +15,7 @@ ADD_LIBRARY(LibBulletCollision
 				CollisionDispatch/CollisionWorld.cpp
 				CollisionDispatch/CompoundCollisionAlgorithm.cpp
 				CollisionDispatch/ConvexConcaveCollisionAlgorithm.cpp
+				CollisionDispatch/SphereSphereCollisionAlgorithm.cpp
 				CollisionDispatch/ConvexConvexAlgorithm.cpp
 				CollisionDispatch/EmptyCollisionAlgorithm.cpp
 				CollisionDispatch/ManifoldResult.cpp

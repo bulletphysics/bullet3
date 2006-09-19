@@ -78,7 +78,7 @@ bool useCompound = false;//true;//false;
 #ifdef _DEBUG
 const int numObjects = 250;
 #else
-const int numObjects = 3250;
+const int numObjects = 250;
 #endif
 
 const int maxNumObjects = 32760;
