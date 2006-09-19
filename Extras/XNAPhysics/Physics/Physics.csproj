@@ -1,0 +1,66 @@
+﻿<Project DefaultTargets="Build" xmlns="http://schemas.microsoft.com/developer/msbuild/2003">
+  <PropertyGroup>
+    <ProjectGuid>{4AA0A1F5-0F11-4D86-9D43-85A12835572F}</ProjectGuid>
+    <ProjectTypeGuids>{9F340DF3-2AED-4330-AC16-78AC2D9B4738};{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}</ProjectTypeGuids>
+    <Configuration Condition=" '$(Configuration)' == '' ">Debug</Configuration>
+    <Platform Condition=" '$(Platform)' == '' ">AnyCPU</Platform>
+    <OutputType>WinExe</OutputType>
+    <AppDesignerFolder>Properties</AppDesignerFolder>
+    <RootNamespace>Physics</RootNamespace>
+    <AssemblyName>Physics</AssemblyName>
+  </PropertyGroup>
+  <PropertyGroup Condition=" '$(Configuration)|$(Platform)' == 'Debug|AnyCPU' ">
+    <DebugSymbols>true</DebugSymbols>
+    <DebugType>full</DebugType>
+    <Optimize>false</Optimize>
+    <OutputPath>bin\Debug\</OutputPath>
+    <DefineConstants>DEBUG;TRACE</DefineConstants>
+    <ErrorReport>prompt</ErrorReport>
+    <WarningLevel>4</WarningLevel>
+    <NoStdLib>true</NoStdLib>
+    <UseVSHostingProcess>false</UseVSHostingProcess>
+  </PropertyGroup>
+  <PropertyGroup Condition=" '$(Configuration)|$(Platform)' == 'Release|AnyCPU' ">
+    <DebugType>pdbonly</DebugType>
+    <Optimize>true</Optimize>
+    <OutputPath>bin\Release\</OutputPath>
+    <DefineConstants>TRACE</DefineConstants>
+    <ErrorReport>prompt</ErrorReport>
+    <WarningLevel>4</WarningLevel>
+    <NoStdLib>true</NoStdLib>
+    <UseVSHostingProcess>false</UseVSHostingProcess>
+  </PropertyGroup>
+  <ItemGroup>
+    <Reference Include="Microsoft.Xna.Framework, Version=1.0.0.0, Culture=neutral, PublicKeyToken=f48fa5f25d27e8ff, processorArchitecture=x86">
+      <SpecificVersion>true</SpecificVersion>
+    </Reference>
+    <Reference Include="Microsoft.Xna.Framework.Game, Version=1.0.0.0, Culture=neutral, PublicKeyToken=f48fa5f25d27e8ff, processorArchitecture=MSIL">
+      <SpecificVersion>true</SpecificVersion>
+    </Reference>
+    <Reference Include="mscorlib" />
+    <Reference Include="System" />
+    <Reference Include="System.Data" />
+    <Reference Include="System.Xml" />
+  </ItemGroup>
+  <ItemGroup>
+    <Compile Include="BoundingBox.cs" />
+    <Compile Include="BoundingVolume.cs" />
+    <Compile Include="Properties\AssemblyInfo.cs" />
+    <Compile Include="Game1.Designer.cs">
+      <DependentUpon>Game1.cs</DependentUpon>
+    </Compile>
+    <Compile Include="Program.cs">
+    </Compile>
+    <Compile Include="Game1.cs">
+      <SubType>Component</SubType>
+    </Compile>
+  </ItemGroup>
+  <Import Project="$(MSBuildBinPath)\Microsoft.CSharp.targets" />
+  <!-- To modify your build process, add your task inside one of the targets below and uncomment it. 
+       Other similar extension points exist, see Microsoft.Common.targets.
+  <Target Name="BeforeBuild">
+  </Target>
+  <Target Name="AfterBuild">
+  </Target>
+  -->
+</Project>
