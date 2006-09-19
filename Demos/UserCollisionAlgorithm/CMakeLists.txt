@@ -57,6 +57,5 @@ LibCcdPhysicsInterface LibOpenGLSupport LibBulletDynamics LibPhysicsCommonInterf
 
 ADD_EXECUTABLE(UserCollisionAlgorithm
 	UserCollisionAlgorithm.cpp
-	SphereSphereCollisionAlgorithm.cpp
 )
 
