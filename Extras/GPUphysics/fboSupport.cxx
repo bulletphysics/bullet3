@@ -1,18 +1,6 @@
-#include <stdio.h>
-#include <stdlib.h>
-#include <assert.h>
+#include "GPU_physics.h"
 
 // #define FBO_USE_NVIDIA_FLOAT_TEXTURE_EXTENSION  1
-#include <GL/glew.h>
-
-#if defined(__APPLE__) && !defined (VMDMESA)
-#include <OpenGL/gl.h>
-#include <OpenGL/glu.h>
-#include <GLUT/glut.h>
-#else
-#include <GL/glut.h>
-#include <GL/gl.h>
-#endif
 #include "fboSupport.h"
 
 #ifdef FBO_USE_NVIDIA_FLOAT_TEXTURE_EXTENSION
@@ -53,12 +41,18 @@ static void checkFrameBufferStatus ()
   {
     case GL_FRAMEBUFFER_COMPLETE_EXT :
       break ;
+
     case GL_FRAMEBUFFER_UNSUPPORTED_EXT :
-      /* choose different formats */
+      fprintf ( stderr, "ERROR: Unsupported FBO setup.\n" ) ;
+      exit ( 1 ) ;
+
+    case GL_FRAMEBUFFER_INCOMPLETE_ATTACHMENT_EXT :
+      fprintf ( stderr, "WARNING: Incomplete FBO setup.\n" ) ;
       break ;
+
     default :
-	printf("status : %i\n",status);
-      assert ( 1 ) ; /* programming error; will fail on all hardware */
+      fprintf ( stderr, "WARNING: Unexpected FBO status : 0x%04x\n", status ) ;
+      break ;
   }
 }
 
@@ -174,19 +168,58 @@ FrameBufferObject::FrameBufferObject ( int         _width ,
                                 GL_RENDERBUFFER_EXT, depth_rb ) ;
 
 #ifdef NEED_STENCIL_BUFFER
-  statuc GLuint stencil_rb ;
+  static GLuint stencil_rb ;
   glGenRenderbuffersEXT ( 1, & stencil_rb    ) ;
   // initialize stencil renderbuffer
   glBindRenderbufferEXT       ( GL_RENDERBUFFER_EXT, stencil_rb ) ;
   glRenderbufferStorageEXT    ( GL_RENDERBUFFER_EXT, GL_STENCIL_INDEX, width, height ) ;
   glFramebufferRenderbufferEXT( GL_FRAMEBUFFER_EXT, GL_STENCIL_ATTACHMENT_EXT,
                                 GL_RENDERBUFFER_EXT, stencil_rb ) ;
+#else
+  glDisable ( GL_STENCIL_TEST ) ;
 #endif
 
   // Check framebuffer completeness at the end of initialization.
 
   checkFrameBufferStatus () ;
   restoreFrameBuffer () ;
+}
+
+
+
+void FrameBufferObject::fetchTexture ( void *data )
+{
+  glBindTexture ( GL_TEXTURE_2D, textureHandle ) ;
+  glGetTexImage ( GL_TEXTURE_2D, 0,             /* MIP level...zero  */
+                                format,        /* External format   */
+                                type,          /* Data type         */
+                                data           /* Image data        */ ) ;
+}
+
+
+
+void FrameBufferObject::fetchTexture ( unsigned char *data )
+{
+  if ( type != FBO_UNSIGNED_BYTE )
+  {
+    fprintf ( stderr, "FBO: Data format mismatch!" ) ;
+    return ;
+  }
+
+  fetchTexture ( (void *)data ) ;
+}
+
+
+
+void FrameBufferObject::fetchTexture ( float *data )
+{
+  if ( type != FBO_FLOAT )
+  {
+    fprintf ( stderr, "FBO: Data format mismatch!" ) ;
+    return ;
+  }
+
+  fetchTexture ( (void *)data ) ;
 }
 
 

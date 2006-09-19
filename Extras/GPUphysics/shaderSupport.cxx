@@ -1,21 +1,4 @@
-#include <stdio.h>
-#include <stdlib.h>
-#include <string.h>
-#include <sys/types.h>
-#include <sys/stat.h>
-#ifndef WIN32
-#include <unistd.h>
-#endif
-#include <assert.h>
-#include <GL/glew.h>
-#if defined(__APPLE__) && !defined (VMDMESA)
-#include <OpenGL/gl.h>
-#include <OpenGL/glu.h>
-#include <GLUT/glut.h>
-#else
-#include <GL/glut.h>
-#include <GL/gl.h>
-#endif
+#include "GPU_physics.h"
 #include "shaderSupport.h"
 #include "fboSupport.h"
 
@@ -71,26 +54,22 @@ public:
 
 
 
-/************************************\
-*                                    *
-*       Low level File I/O junk      *
-*                                    *
-\************************************/
-
-static int fSize ( const char *fname )
-{
-  struct stat st ;
-  return ( stat ( fname, &st ) != -1 ) ? st . st_size : -1 ;
-}
-
-
 static char *readShaderText ( const char *fname )
 {
-  int size = fSize ( fname ) ;
+  
+  
 
-  char *shader = new char [ size + 1 ] ;
+	FILE *fd = fopen ( fname, "r" ) ;
 
-  FILE *fd = fopen ( fname, "r" ) ;
+	int size = 0;
+	/* File operations denied? ok, just close and return failure */
+	if (fseek(fd, 0, SEEK_END) || (size = ftell(fd)) == EOF || fseek(fd, 0, SEEK_SET)) 
+	{
+		printf("Error: cannot get filesize from %s\n", fname);
+		exit (1);
+	}
+
+	char *shader = new char [ size + 1 ] ;
 
   if ( fd == NULL )
   {

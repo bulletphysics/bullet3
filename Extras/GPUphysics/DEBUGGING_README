@@ -24,24 +24,10 @@ help with our debugging problems.
    something is amiss in shader-land.
 
    There are several possibilities - the nastiest of which might
-   be that either:
-
-   a) Your graphics card/driver doesn't support floating point
-      textures.  (This is pretty much 'Game Over' for you because
-      without that, doing physics in the GPU is going to be
-      virtually impossible).
-
-   b) Your graphics card/driver doesn't support vertex shader
-      textures (or it supports them but sets the maximum number
-      to zero - which is the same thing).  This means that we
-      can't move things around using GPU textures - but we can
-      still use the GPU to accellerate physics calculations.
-      In practical game scenarios, I think the CPU needs to know
-      where all the objects are - so this may not be the serious
-      issue it sounds like.  What it mostly does is to clobber
-      the idea of running physics on particle system types of
-      effect where a vast number of objects are involved but
-      where individual objects have zero effect on game play.
+   be that your graphics card/driver doesn't support floating point
+   textures.  (This is pretty much 'Game Over' for you because
+   without that, doing physics in the GPU is going to be
+   virtually impossible).
 
 3) Run without forces being applied:
 
@@ -63,5 +49,15 @@ help with our debugging problems.
 
    This is the most likely scenario.
 
+4) Run without vertex texturing:
 
+    GPU_physics_demo -v
+
+   On hardware that doesn't support vertex texturing, this flag
+   is turned on by default (and things run about 5x slower!)  
+
+   Use this flag to force the software to run without vertex
+   texturing on hardware that does actually support it.
+
+   You can use this flag in conjunction with any of the others.
 

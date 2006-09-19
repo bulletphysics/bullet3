@@ -24,6 +24,13 @@ GPUphysics-0.3
 * Use signed initial velocities so everything doesn't slide off the screen!
 * The 'bounce' now slows down X/Z motion as well as Y so things actually
   do stop moving eventually.
+* Caught up with some portability issues for more recent versions of
+  GLSL.
 
-* Added to the Bullet Subversion repository at Sourceforge.net 
-  See http://sf.net/projects/bullet
+GPUphysics-0.4
+==============
+
+* Test for availability of vertex shader textures.
+* Fixed 'status: xxxx' message.
+* Added support for running the demo in the absence of vertex shader textures.
+

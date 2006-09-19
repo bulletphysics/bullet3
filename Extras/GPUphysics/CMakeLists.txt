@@ -8,7 +8,7 @@ PROJECT(GPUphysics)
 
 
 # This is the variable for Windows.  I use this to define the root of my directory structure.
-SET(GLUT_ROOT ${GPUphysics_SOURCE_DIR}/Glut)
+SET(GLUT_ROOT ${GPUphysics_SOURCE_DIR}/../../Glut)
 
 # You shouldn't have to modify anything below this line 
 ########################################################
@@ -51,11 +51,11 @@ ELSE (WIN32)
 ENDIF (WIN32)
 
 INCLUDE_DIRECTORIES(
-glew/include
+../../Glut/GL/include
 )
 
 LINK_LIBRARIES(
-  glew/lib/glew32.lib ${GLUT_glut_LIBRARY} ${OPENGL_gl_LIBRARY} ${OPENGL_glU_LIBRARY}
+  ../../Glut/glew/lib/glew32.lib ${GLUT_glut_LIBRARY} ${OPENGL_gl_LIBRARY} ${OPENGL_glU_LIBRARY}
 )
 
 ADD_EXECUTABLE(GPUphysics

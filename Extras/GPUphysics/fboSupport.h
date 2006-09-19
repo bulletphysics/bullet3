@@ -3,6 +3,8 @@ GLuint makeTextureTarget ( GLuint textureHandle ) ;
 void renderTo2DTexture ( GLuint fboHandle ) ;
 void renderToFrameBuffer () ;
 
+//#define NEED_STENCIL_BUFFER 1
+
 enum fboDataType
 {
 #ifndef GL_BYTE
@@ -44,11 +46,12 @@ class FrameBufferObject
   GLuint fboHandle ;
   GLuint depth_rb ;
 
-#ifdef NEED_STENCIL
+#ifdef NEED_STENCIL_BUFFER
   GLuint stencil_rb ;
 #endif
 
-  void fillTexture ( void *data ) ;
+  void fillTexture  ( void *data ) ;
+  void fetchTexture ( void *data ) ;
 
 public:
   FrameBufferObject ( int _width,          /* Must be a power of two! */

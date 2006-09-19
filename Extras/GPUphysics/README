@@ -25,7 +25,8 @@ GPU_physics_demo.cxx -- The application code.
 GLSLShader Sources used in the Demo:
 
 cubeShader.vert
-cubeShader.frag  -- Used to render the cubes.
+cubeShaderNoVertexTexture.vert
+cubeShader.frag
 
 ----------------------------------------------------------
 The objective of this library is to provide a basis for the

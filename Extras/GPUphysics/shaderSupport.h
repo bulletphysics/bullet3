@@ -1,7 +1,4 @@
 
-#include <stdio.h>
-#include <stdlib.h>
-
 class GLSL_Shader ;
 class FrameBufferObject ;
 

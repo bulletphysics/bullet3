@@ -1,5 +1,5 @@
 
-HDRS  = fboSupport.h shaderSupport.h
+HDRS  = fboSupport.h shaderSupport.h GPU_physics.h
 OBJS  = GPU_physics_demo.o fboSupport.o shaderSupport.o
 
 all: ${OBJS}
