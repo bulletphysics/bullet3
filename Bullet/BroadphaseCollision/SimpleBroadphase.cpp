@@ -184,6 +184,19 @@ bool	SimpleBroadphase::AabbOverlap(SimpleBroadphaseProxy* proxy0,SimpleBroadphas
 		   proxy0->m_min[2] <= proxy1->m_max[2] && proxy1->m_min[2] <= proxy0->m_max[2];
 
 }
+
+
+
+//then remove non-overlapping ones
+class CheckOverlapCallback : public OverlapCallback
+{
+public:
+	virtual bool ProcessOverlap(BroadphasePair& pair)
+	{
+		return (!SimpleBroadphase::AabbOverlap(static_cast<SimpleBroadphaseProxy*>(pair.m_pProxy0),static_cast<SimpleBroadphaseProxy*>(pair.m_pProxy1)));
+	}
+};
+
 void	SimpleBroadphase::RefreshOverlappingPairs()
 {
 	//first check for new overlapping pairs
@@ -209,22 +222,10 @@ void	SimpleBroadphase::RefreshOverlappingPairs()
 		}
 	}
 
-	assert(0);
-	/*
-	//then remove non-overlapping ones
-	for (i=0;i<GetNumOverlappingPairs();i++)
-	{
-		BroadphasePair& pair = GetOverlappingPair(i);
 
-		SimpleBroadphaseProxy* proxy0 = GetSimpleProxyFromProxy(pair.m_pProxy0);
-		SimpleBroadphaseProxy* proxy1 = GetSimpleProxyFromProxy(pair.m_pProxy1);
-		if (!AabbOverlap(proxy0,proxy1))
-		{
-            RemoveOverlappingPair(pair);
-		}
-	}
+	CheckOverlapCallback	checkOverlap;
 
-	*/
+	ProcessAllOverlappingPairs(&checkOverlap);
 
 
 }

@@ -388,12 +388,9 @@ void AxisSweep3::SortMinUp(int axis, unsigned short edge, bool updateOverlaps)
 			{
 				Handle* handle0 = GetHandle(pEdge->m_handle);
 				Handle* handle1 = GetHandle(pNext->m_handle);
-				BroadphasePair* pair = FindPair(handle0,handle1);
-				//assert(pair);
-				if (pair)
-				{
-					RemoveOverlappingPair(*pair);
-				}
+				BroadphasePair tmpPair(*handle0,*handle1);
+				RemoveOverlappingPair(tmpPair);
+
 			}
 
 			// update edge reference in other handle

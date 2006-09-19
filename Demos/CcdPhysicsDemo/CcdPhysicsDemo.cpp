@@ -76,9 +76,9 @@ bool useCompound = false;//true;//false;
 
 
 #ifdef _DEBUG
-const int numObjects = 250;
+const int numObjects = 120;
 #else
-const int numObjects = 250;
+const int numObjects = 120;//try this in release mode: 3000. never go above 4095, unless you increate maxNumObjects  value in DemoApplication.cp
 #endif
 
 const int maxNumObjects = 32760;
@@ -251,13 +251,14 @@ void	CcdPhysicsDemo::initPhysics()
 	CollisionDispatcher* dispatcher = new	CollisionDispatcher();
 	ParallelIslandDispatcher* dispatcher2 = new	ParallelIslandDispatcher();
 	
-	SimdVector3 worldAabbMin(-30000,-30000,-30000);
-	SimdVector3 worldAabbMax(30000,30000,30000);
+	SimdVector3 worldAabbMin(-10000,-10000,-10000);
+	SimdVector3 worldAabbMax(10000,10000,10000);
 
 	OverlappingPairCache* broadphase = new AxisSweep3(worldAabbMin,worldAabbMax,maxProxies,maxOverlap);
+//	OverlappingPairCache* broadphase = new SimpleBroadphase;
+	
 	dispatcher->RegisterCollisionCreateFunc(SPHERE_SHAPE_PROXYTYPE,SPHERE_SHAPE_PROXYTYPE,new SphereSphereCollisionAlgorithm::CreateFunc);
 	
-	//OverlappingPairCache* broadphase = new SimpleBroadphase(maxProxies,maxOverlap);
 
 #ifdef USE_PARALLEL_DISPATCHER
 	m_physicsEnvironmentPtr = new ParallelPhysicsEnvironment(dispatcher2,broadphase);

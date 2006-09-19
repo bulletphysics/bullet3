@@ -40,8 +40,12 @@ void	OverlappingPairCache::RemoveOverlappingPair(BroadphasePair& pair)
 {
 	CleanOverlappingPair(pair);
 	std::set<BroadphasePair>::iterator it = m_overlappingPairSet.find(pair);
-	assert(it != m_overlappingPairSet.end());
-	m_overlappingPairSet.erase(pair);
+//	assert(it != m_overlappingPairSet.end());
+
+	if (it != m_overlappingPairSet.end())
+	{
+		m_overlappingPairSet.erase(it);
+	}
 }
 
 
@@ -76,21 +80,6 @@ void	OverlappingPairCache::AddOverlappingPair(BroadphaseProxy* proxy0,Broadphase
 	
 	m_overlappingPairSet.insert(pair);
 	
-	
-#ifdef _DEBUG
-	/*
-	BroadphasePair& pr = (*newElem);
-	int i;
-	for (i=0;i<SIMPLE_MAX_ALGORITHMS;i++)
-	{
-		assert(!m_OverlappingPairs[m_NumOverlapBroadphasePair].m_algorithms[i]);
-		//m_OverlappingPairs[m_NumOverlapBroadphasePair].m_algorithms[i] = 0;
-	}
-	*/
-
-#endif _DEBUG
-
-
 }
 
 ///this FindPair becomes really slow. Either sort the list to speedup the query, or
@@ -114,41 +103,66 @@ void	OverlappingPairCache::AddOverlappingPair(BroadphaseProxy* proxy0,Broadphase
 
 
 
+
+
 void	OverlappingPairCache::CleanProxyFromPairs(BroadphaseProxy* proxy)
 {
-	assert(0);
-	/*
-	for (int i=0;i<m_NumOverlapBroadphasePair;i++)
+
+	class	CleanPairCallback : public OverlapCallback
 	{
-		BroadphasePair& pair = m_OverlappingPairs[i];
-		if (pair.m_pProxy0 == proxy ||
-			pair.m_pProxy1 == proxy)
+		BroadphaseProxy* m_cleanProxy;
+		OverlappingPairCache*	m_pairCache;
+
+	public:
+		CleanPairCallback(BroadphaseProxy* cleanProxy,OverlappingPairCache* pairCache)
+			:m_cleanProxy(cleanProxy),
+			m_pairCache(pairCache)
 		{
-			CleanOverlappingPair(pair);
 		}
-	}
-	*/
+		virtual	bool	ProcessOverlap(BroadphasePair& pair)
+		{
+			if ((pair.m_pProxy0 == m_cleanProxy) ||
+				(pair.m_pProxy1 == m_cleanProxy))
+			{
+				m_pairCache->CleanOverlappingPair(pair);
+			}
+			return false;
+		}
+		
+	};
+
+	CleanPairCallback cleanPairs(proxy,this);
+
+	ProcessAllOverlappingPairs(&cleanPairs);
 
 }
+
+
 
 void	OverlappingPairCache::RemoveOverlappingPairsContainingProxy(BroadphaseProxy* proxy)
 {
 
-	assert(0);
-	/*
-	int i;
-	
-	for ( i=m_NumOverlapBroadphasePair-1;i>=0;i--)
+	class	RemovePairCallback : public OverlapCallback
 	{
-		BroadphasePair& pair = m_OverlappingPairs[i];
-		if (pair.m_pProxy0 == proxy ||
-			pair.m_pProxy1 == proxy)
-		{
-			RemoveOverlappingPair(pair);
-		}
-	}
-	*/
+		BroadphaseProxy* m_obsoleteProxy;
 
+	public:
+		RemovePairCallback(BroadphaseProxy* obsoleteProxy)
+			:m_obsoleteProxy(obsoleteProxy)
+		{
+		}
+		virtual	bool	ProcessOverlap(BroadphasePair& pair)
+		{
+			return ((pair.m_pProxy0 == m_obsoleteProxy) ||
+				(pair.m_pProxy1 == m_obsoleteProxy));
+		}
+		
+	};
+
+
+	RemovePairCallback removeCallback(proxy);
+
+	ProcessAllOverlappingPairs(&removeCallback);
 }
 
 
@@ -156,14 +170,16 @@ void	OverlappingPairCache::RemoveOverlappingPairsContainingProxy(BroadphaseProxy
 void	OverlappingPairCache::ProcessAllOverlappingPairs(OverlapCallback* callback)
 {
 	std::set<BroadphasePair>::iterator it = m_overlappingPairSet.begin();
-	for (; !(it==m_overlappingPairSet.end());it++)
+	for (; !(it==m_overlappingPairSet.end());)
 	{
 	
 		BroadphasePair* pair = (BroadphasePair*)(&(*it));
 		if (callback->ProcessOverlap(*pair))
 		{
-			assert(0);
-			m_overlappingPairSet.erase(it);
+			it = m_overlappingPairSet.erase(it);
+		} else
+		{
+			it++;
 		}
 	}
 }

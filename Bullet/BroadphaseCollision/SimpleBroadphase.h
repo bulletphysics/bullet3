@@ -58,7 +58,6 @@ class SimpleBroadphase : public OverlappingPairCache
 		return proxy0;
 	}
 
-	bool	AabbOverlap(SimpleBroadphaseProxy* proxy0,SimpleBroadphaseProxy* proxy1);
 
 	void	validate();
 
@@ -69,6 +68,9 @@ protected:
 public:
 	SimpleBroadphase(int maxProxies=4096,int maxOverlap=8192);
 	virtual ~SimpleBroadphase();
+
+
+		static bool	AabbOverlap(SimpleBroadphaseProxy* proxy0,SimpleBroadphaseProxy* proxy1);
 
 
 	virtual BroadphaseProxy*	CreateProxy(  const SimdVector3& min,  const SimdVector3& max,int shapeType,void* userPtr ,short int collisionFilterGroup,short int collisionFilterMask);
