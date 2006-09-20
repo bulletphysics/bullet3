@@ -57,6 +57,7 @@ MsvcGenConfig GLUT.LFLAGS : ;
 MsvcGenConfig GLUT.INCDIRS : "../../Glut" ;
 MsvcGenConfig GLUT.LIBDIRS : "../../Glut" ;
 MsvcGenConfig GLUT.LIBS : glut32.lib ;
+MsvcGenConfig GLEW.LIBS : glew32.lib ;
 
 SubInclude TOP LinearMath ;
 SubInclude TOP Bullet ;
