@@ -140,8 +140,19 @@ bool	ColladaConverter::load(const char* orgfilename)
 
 	if (res != DAE_OK)
 	{
-		printf("DAE/Collada-m_dom: Couldn't load %s\n",filename);
-	} else
+		//some platforms might require different path, try two additional locations
+		char newname[256];
+		sprintf(newname,"../../%s",orgfilename);
+		filename = fixFileName(newname);
+		res = m_collada->load(filename);
+		if (res != DAE_OK)
+		{
+			printf("DAE/Collada-m_dom: Couldn't load %s\n",filename);
+			return false;
+		}
+	}
+	
+	if (res == DAE_OK)
 	{
 
 		m_dom = m_collada->getDom(filename);

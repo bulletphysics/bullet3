@@ -267,17 +267,12 @@ char* makeExeToBspFilename(const char* lpCmdLine)
 	{
 		in++;
 	}
-	if(*(in+1) == ':')
-	{
-		// Second character is a :, assume we have a path with a drive letter and add a slash at the beginning
-		*(out++) = '/';
-	}
 	int i;
 	for(i =0; i<512; i++)
 	{
 		//if we get '.' we stop as well, unless it's the first character. Then we add .bsp as extension
 		// If we hit a null or a quote, stop copying.  This will get just the first filename.
-		if(i && (*in == '.'))
+		if(i && (in[0] == '.') && (in[1] == 'e') && (in[2] == 'x') && (in[3] == 'e'))
 			break;
 			
 		// If we hit a null or a quote, stop copying.  This will get just the first filename.
