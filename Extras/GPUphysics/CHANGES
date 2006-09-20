@@ -1,5 +1,10 @@
 (Add new stuff at the top!)
 
+* Merged in my latest changes into SVN repository.
+* Arranged to avoid reading/writing textures at same time.
+* Removed depth and stencil buffers from FBO's.
+* Eliminated 1-component FBO that caused grief for FBO completeness test.
+* Added back missing cubeShaderNoTexture.vert
 
 ------------------- FIRST ADDITION TO SUBVERSION ---------------------
 GPUphysics-0.4

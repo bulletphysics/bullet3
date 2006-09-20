@@ -73,7 +73,7 @@ static FrameBufferObject *rotation    ;
 static FrameBufferObject *velocity    ;
 static FrameBufferObject *rotvelocity ;
 static FrameBufferObject *force       ;
-static FrameBufferObject *mass        ;
+static FrameBufferObject *massXX      ;
 static FrameBufferObject *old         ;
 
 #define TEX_SIZE         128
@@ -139,7 +139,7 @@ void initMotionTextures ()
     velocity    = NULL ;
     rotvelocity = NULL ;
     force       = NULL ;
-    mass        = NULL ;
+    massXX      = NULL ;
   }
   else
   {
@@ -148,13 +148,13 @@ void initMotionTextures ()
 
     if ( debugOpt == DRAW_WITHOUT_FORCES )
     {
-      force = NULL ;
-      mass  = NULL ;
+      force  = NULL ;
+      massXX = NULL ;
     }
     else
     {
-      force = new FrameBufferObject ( TEX_SIZE, TEX_SIZE, 3, FBO_FLOAT ) ;
-      mass  = new FrameBufferObject ( TEX_SIZE, TEX_SIZE, 1, FBO_FLOAT ) ;
+      force  = new FrameBufferObject ( TEX_SIZE, TEX_SIZE, 3, FBO_FLOAT ) ;
+      massXX = new FrameBufferObject ( TEX_SIZE, TEX_SIZE, 3, FBO_FLOAT ) ;
     }
   }
 
@@ -164,14 +164,14 @@ void initMotionTextures ()
   float *velocityData    ;
   float *rotvelocityData ;
   float *forceData       ;
-  float *massData        ;
+  float *massXXData      ;
 
   if ( debugOpt == DRAW_WITHOUT_PHYSICS )
   {
     velocityData    = NULL ;
     rotvelocityData = NULL ;
     forceData       = NULL ;
-    massData        = NULL ;
+    massXXData      = NULL ;
   }
   else
   {
@@ -181,12 +181,12 @@ void initMotionTextures ()
     if ( debugOpt == DRAW_WITHOUT_FORCES )
     {
       forceData = NULL ;
-      massData  = NULL ;
+      massXXData= NULL ;
     }
     else
     {
-      forceData = new float [ TEX_SIZE * TEX_SIZE * 3 ] ;
-      massData  = new float [ TEX_SIZE * TEX_SIZE     ] ;
+      forceData  = new float [ TEX_SIZE * TEX_SIZE * 3 ] ;
+      massXXData = new float [ TEX_SIZE * TEX_SIZE * 3 ] ;
     }
   }
 
@@ -229,7 +229,9 @@ void initMotionTextures ()
           forceData       [ (i*TEX_SIZE + j) * 3 + 2 ] = 0.0f ;
 
           /* One kg in weight each */
-          massData        [ i*TEX_SIZE + j ] = 1.0f ;
+          massXXData      [ (i*TEX_SIZE + j) * 3 + 0 ] = 1.0f ;
+          massXXData      [ (i*TEX_SIZE + j) * 3 + 1 ] = 0.0f ;  /* Unused */
+          massXXData      [ (i*TEX_SIZE + j) * 3 + 2 ] = 0.0f ;  /* Unused */
         }
       }
     }
@@ -248,7 +250,7 @@ void initMotionTextures ()
     if ( debugOpt != DRAW_WITHOUT_FORCES )
     {
       force     -> fillTexture ( forceData ) ;
-      mass      -> fillTexture ( massData ) ;
+      massXX    -> fillTexture ( massXXData ) ;
     }
   }
 }
@@ -278,13 +280,13 @@ void initPhysicsShaders ()
       "uniform vec4      g_dt ;"
       "uniform sampler2D old_velocity ;"
       "uniform sampler2D force ;"
-      "uniform sampler2D mass ;"
+      "uniform sampler2D massXX ;"
       "void main() {"
       "   gl_FragColor = vec4 ("
       "                  texture2D ( old_velocity, gl_TexCoord[0].st ).xyz +"
       "                  g_dt.w * ( g_dt.xyz +"
       "                  texture2D ( force       , gl_TexCoord[0].st ).xyz /"
-      "                  texture2D ( mass        , gl_TexCoord[0].st ).x),"
+      "                  texture2D ( massXX      , gl_TexCoord[0].st ).x),"
       "                  1.0 ) ; }",
       "VelocityGenerator Frag Shader" ) ;
     assert ( velocityGenerator  -> compiledOK () ) ;
@@ -578,7 +580,7 @@ void display ( void )
       velocityGenerator -> use () ;
       velocityGenerator -> applyTexture ( "old_velocity", old     , 0 ) ;
       velocityGenerator -> applyTexture ( "force"       , force   , 1 ) ;
-      velocityGenerator -> applyTexture ( "mass"        , mass    , 2 ) ;
+      velocityGenerator -> applyTexture ( "massXX"      , massXX  , 2 ) ;
       velocityGenerator -> setUniform4f ( "g_dt", 0.0f, -9.8f, 0.0f, 0.016f ) ;
       velocity -> paint ()  ;
     }

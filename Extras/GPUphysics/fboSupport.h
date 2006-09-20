@@ -3,7 +3,9 @@ GLuint makeTextureTarget ( GLuint textureHandle ) ;
 void renderTo2DTexture ( GLuint fboHandle ) ;
 void renderToFrameBuffer () ;
 
-//#define NEED_STENCIL_BUFFER 1
+// #define NEED_STENCIL_BUFFER 1
+// #define NEED_DEPTH_BUFFER   1
+
 
 enum fboDataType
 {
@@ -44,11 +46,6 @@ class FrameBufferObject
 
   GLuint textureHandle ;
   GLuint fboHandle ;
-  GLuint depth_rb ;
-
-#ifdef NEED_STENCIL_BUFFER
-  GLuint stencil_rb ;
-#endif
 
   void fillTexture  ( void *data ) ;
   void fetchTexture ( void *data ) ;
@@ -61,6 +58,12 @@ public:
 
   void makeDestination ()
   {
+#ifndef NEED_DEPTH_BUFFER
+    glDepthMask   ( 0 ) ;
+#endif
+#ifndef NEED_STENCIL_BUFFER
+    glStencilMask ( 0 ) ;
+#endif
     glBindFramebufferEXT ( GL_FRAMEBUFFER_EXT, fboHandle ) ;
   }
 
@@ -83,5 +86,11 @@ public:
 inline void restoreFrameBuffer ()
 {
   glBindFramebufferEXT ( GL_FRAMEBUFFER_EXT, 0 ) ;
+#ifndef NEED_DEPTH_BUFFER
+  glDepthMask ( 1 ) ;
+#endif
+#ifndef NEED_STENCIL_BUFFER
+  glStencilMask ( 1 ) ;
+#endif
 }
 

@@ -46,8 +46,34 @@ static void checkFrameBufferStatus ()
       fprintf ( stderr, "ERROR: Unsupported FBO setup.\n" ) ;
       exit ( 1 ) ;
 
-    case GL_FRAMEBUFFER_INCOMPLETE_ATTACHMENT_EXT :
-      fprintf ( stderr, "WARNING: Incomplete FBO setup.\n" ) ;
+    case GL_FRAMEBUFFER_INCOMPLETE_ATTACHMENT_EXT          :
+      fprintf ( stderr, "WARNING: Incomplete FBO attachment.\n" ) ;
+      break ;
+
+    case GL_FRAMEBUFFER_INCOMPLETE_MISSING_ATTACHMENT_EXT  :
+      fprintf ( stderr, "WARNING: Incomplete FBO - missing attachment.\n" ) ;
+      break ;
+
+#ifdef GL_FRAMEBUFFER_INCOMPLETE_DUPLICATE_ATTACHMENT_EXT
+    case GL_FRAMEBUFFER_INCOMPLETE_DUPLICATE_ATTACHMENT_EXT:
+      fprintf ( stderr, "WARNING: Incomplete FBO - duplicate attachment.\n" ) ;
+      break ;
+#endif
+
+    case GL_FRAMEBUFFER_INCOMPLETE_DIMENSIONS_EXT          :
+      fprintf ( stderr, "WARNING: Incomplete FBO - improper dimensions.\n" ) ;
+      break ;
+
+    case GL_FRAMEBUFFER_INCOMPLETE_FORMATS_EXT             :
+      fprintf ( stderr, "WARNING: Incomplete FBO - improper formats.\n" ) ;
+      break ;
+
+    case GL_FRAMEBUFFER_INCOMPLETE_DRAW_BUFFER_EXT         :
+      fprintf ( stderr, "WARNING: Incomplete FBO draw buffer.\n" ) ;
+      break ;
+
+    case GL_FRAMEBUFFER_INCOMPLETE_READ_BUFFER_EXT         :
+      fprintf ( stderr, "WARNING: Incomplete FBO read buffer.\n" ) ;
       break ;
 
     default :
@@ -145,38 +171,61 @@ FrameBufferObject::FrameBufferObject ( int         _width ,
   }
 
   glGenTextures ( 1, & textureHandle ) ;
-
   glBindTexture   ( GL_TEXTURE_2D, textureHandle ) ;
   glTexParameterf ( GL_TEXTURE_2D, GL_TEXTURE_MIN_FILTER, GL_NEAREST ) ;
   glTexParameterf ( GL_TEXTURE_2D, GL_TEXTURE_MAG_FILTER, GL_NEAREST ) ;
-
+  glTexParameteri ( GL_TEXTURE_2D, GL_TEXTURE_WRAP_S, GL_CLAMP_TO_EDGE ) ;
+  glTexParameteri ( GL_TEXTURE_2D, GL_TEXTURE_WRAP_T, GL_CLAMP_TO_EDGE ) ;
   fillTexture ( (void *) NULL ) ;
 
   glGenFramebuffersEXT  ( 1, & fboHandle     ) ;
-  glGenRenderbuffersEXT ( 1, & depth_rb      ) ;
   glBindFramebufferEXT  ( GL_FRAMEBUFFER_EXT, fboHandle ) ;
 
   glFramebufferTexture2DEXT ( GL_FRAMEBUFFER_EXT, GL_COLOR_ATTACHMENT0_EXT,
                               GL_TEXTURE_2D, textureHandle, 0 ) ;
 
-  // initialize depth renderbuffer
+#ifdef NEED_DEPTH_BUFFER
+  static GLuint depth_rb = 0 ;
 
-  glBindRenderbufferEXT       ( GL_RENDERBUFFER_EXT, depth_rb ) ;
-  glRenderbufferStorageEXT    ( GL_RENDERBUFFER_EXT, GL_DEPTH_COMPONENT24,
-                                                     width, height ) ;
-  glFramebufferRenderbufferEXT( GL_FRAMEBUFFER_EXT,  GL_DEPTH_ATTACHMENT_EXT,
-                                GL_RENDERBUFFER_EXT, depth_rb ) ;
+  if ( depth_rb == 0 )
+  {
+    glGenRenderbuffersEXT        ( 1, & depth_rb ) ;
+    glBindRenderbufferEXT        ( GL_RENDERBUFFER_EXT, depth_rb ) ;
+    glRenderbufferStorageEXT     ( GL_RENDERBUFFER_EXT, GL_DEPTH_COMPONENT24,
+                                                        width, height ) ;
+    glFramebufferRenderbufferEXT ( GL_FRAMEBUFFER_EXT,  GL_DEPTH_ATTACHMENT_EXT,
+                                   GL_RENDERBUFFER_EXT, depth_rb ) ;
+  }
+  else
+    glFramebufferRenderbufferEXT ( GL_FRAMEBUFFER_EXT, GL_DEPTH_ATTACHMENT_EXT,
+                                   GL_RENDERBUFFER_EXT, depth_rb ) ;
+#else
+  glDisable ( GL_DEPTH_TEST ) ;
+  glDepthMask ( 0 ) ;
+  glFramebufferRenderbufferEXT ( GL_FRAMEBUFFER_EXT , GL_DEPTH_ATTACHMENT_EXT,
+                                 GL_RENDERBUFFER_EXT, 0 ) ;
+#endif
 
 #ifdef NEED_STENCIL_BUFFER
-  static GLuint stencil_rb ;
-  glGenRenderbuffersEXT ( 1, & stencil_rb    ) ;
-  // initialize stencil renderbuffer
-  glBindRenderbufferEXT       ( GL_RENDERBUFFER_EXT, stencil_rb ) ;
-  glRenderbufferStorageEXT    ( GL_RENDERBUFFER_EXT, GL_STENCIL_INDEX, width, height ) ;
-  glFramebufferRenderbufferEXT( GL_FRAMEBUFFER_EXT, GL_STENCIL_ATTACHMENT_EXT,
-                                GL_RENDERBUFFER_EXT, stencil_rb ) ;
+  static GLuint stencil_rb = 0 ;
+
+  if ( stencil_rb == 0 )
+  {
+    glGenRenderbuffersEXT        ( 1, & stencil_rb ) ;
+    glBindRenderbufferEXT        ( GL_RENDERBUFFER_EXT, stencil_rb ) ;
+    glRenderbufferStorageEXT     ( GL_RENDERBUFFER_EXT, GL_STENCIL_INDEX,
+                                                        width, height ) ;
+    glFramebufferRenderbufferEXT ( GL_FRAMEBUFFER_EXT , GL_STENCIL_ATTACHMENT_EXT,
+                                   GL_RENDERBUFFER_EXT, stencil_rb ) ;
+  }
+  else
+    glFramebufferRenderbufferEXT ( GL_FRAMEBUFFER_EXT , GL_STENCIL_ATTACHMENT_EXT,
+                                   GL_RENDERBUFFER_EXT, stencil_rb ) ;
 #else
   glDisable ( GL_STENCIL_TEST ) ;
+  glStencilMask ( 0 ) ;
+  glFramebufferRenderbufferEXT ( GL_FRAMEBUFFER_EXT , GL_STENCIL_ATTACHMENT_EXT,
+                                 GL_RENDERBUFFER_EXT, 0 ) ;
 #endif
 
   // Check framebuffer completeness at the end of initialization.
@@ -277,6 +326,7 @@ void FrameBufferObject::paint ()
   glDisable         ( GL_DEPTH_TEST ) ;
   glDisable         ( GL_CULL_FACE  ) ;
   glDisable         ( GL_BLEND      ) ;
+
 
   float s_min = 0.5f / (float) width ;
   float s_max = (((float) width) - 0.5f) / (float) width ;

@@ -2,15 +2,6 @@
 #include "shaderSupport.h"
 #include "fboSupport.h"
 
-static void showGLerror ()
-{
-  GLenum err ;
-
-  while ( (err = glGetError()) != GL_NO_ERROR )
-    fprintf ( stderr, "OpenGL Error: %s\n", gluErrorString ( err ) )  ;
-}
-
-
 #define DEFAULT_VERT_SHADER \
          "void main()" \
          "{" \
@@ -99,9 +90,9 @@ static void showShaderInfo ( const char *which,
 {
   int len = 0 ;
 
-  showGLerror () ;
+  showGLerror ( "showShaderInfo_0" ) ;
   glGetObjectParameterivARB ( handle, GL_OBJECT_INFO_LOG_LENGTH_ARB, (GLint*) &len ) ;
-  showGLerror () ;
+  showGLerror ( "showShaderInfo_1" ) ;
 
   if ( len > 0 )
   {
@@ -183,7 +174,7 @@ GLint GLSL_ShaderPair::getUniformLocation ( const char *uni_name )
                                                                 uni_name,
                                                                 name ) ;
   else
-    showGLerror () ;
+    showGLerror ( "GLSL_ShaderPair::getUniformLocation" ) ;
 
   return loc ;
 }

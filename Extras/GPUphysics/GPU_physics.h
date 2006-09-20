@@ -99,3 +99,15 @@
 #include <GL/gl.h>
 #endif
 
+#ifdef DISABLE_GL_ERROR_CHECKS
+inline void showGLerror ( const char * ) {}
+#else
+inline void showGLerror ( const char *msg )
+{
+  GLenum err ;
+
+  while ( (err = glGetError()) != GL_NO_ERROR )
+    fprintf ( stderr, "%s: OpenGL Error - %s\n", msg, gluErrorString ( err ) )  ;
+}
+#endif
+
