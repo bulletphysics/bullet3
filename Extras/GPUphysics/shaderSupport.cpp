@@ -51,6 +51,24 @@ static char *readShaderText ( const char *fname )
   
 
 	FILE *fd = fopen ( fname, "r" ) ;
+	if (!fd)
+	{
+		//some platforms might require different path, try two additional locations
+		char newname[256];
+		sprintf(newname,"../../Extras/GPUphysics/%s",fname);
+		fd = fopen( newname ,"r");
+		if (!fd)
+		{
+			sprintf("Extras/GPUphysics/%s",fname);
+			fd = fopen( newname,"r");
+		}
+	}
+
+	if (!fd)
+	{
+		printf("cannot open file %s\n",fname);
+		exit(1);
+	}
 
 	int size = 0;
 	/* File operations denied? ok, just close and return failure */
