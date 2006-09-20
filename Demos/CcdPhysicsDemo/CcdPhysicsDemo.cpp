@@ -13,8 +13,10 @@ subject to the following restrictions:
 3. This notice may not be removed or altered from any source distribution.
 */
 
-//#define USE_PARALLEL_DISPATCHER 1
 
+//#define USER_DEFINED_FRICTION_MODEL 1
+//#define PRINT_CONTACT_STATISTICS 1
+#define REGISTER_CUSTOM_COLLISION_ALGORITHM 1
 
 #include "CcdPhysicsEnvironment.h"
 #include "ParallelPhysicsEnvironment.h"
@@ -33,7 +35,7 @@ subject to the following restrictions:
 #include "CollisionShapes/TriangleIndexVertexArray.h"
 #include "CollisionShapes/BvhTriangleMeshShape.h"
 #include "CollisionShapes/TriangleMesh.h"
-
+#include "ConstraintSolver/SequentialImpulseConstraintSolver.h"
 #include "Dynamics/RigidBody.h"
 #include "CollisionDispatch/CollisionDispatcher.h"
 
@@ -76,9 +78,9 @@ bool useCompound = false;//true;//false;
 
 
 #ifdef _DEBUG
-const int numObjects = 120;
+const int gNumObjects = 120;
 #else
-const int numObjects = 120;//try this in release mode: 3000. never go above 4095, unless you increate maxNumObjects  value in DemoApplication.cp
+const int gNumObjects = 120;//try this in release mode: 3000. never go above 16384, unless you increate maxNumObjects  value in DemoApplication.cp
 #endif
 
 const int maxNumObjects = 32760;
@@ -147,6 +149,10 @@ int main(int argc,char** argv)
 
 
 
+extern int gNumManifold;
+extern int gOverlappingPairs;
+extern int gTotalContactPoints;
+
 void CcdPhysicsDemo::clientMoveAndDisplay()
 {
 	glClear(GL_COLOR_BUFFER_BIT | GL_DEPTH_BUFFER_BIT); 
@@ -166,6 +172,14 @@ void CcdPhysicsDemo::clientMoveAndDisplay()
         Profiler::endBlock("render"); 
 #endif 
 	glFlush();
+	//some additional debugging info
+#ifdef PRINT_CONTACT_STATISTICS
+	printf("num manifolds: %i\n",gNumManifold);
+	printf("num gOverlappingPairs: %i\n",gOverlappingPairs);
+	printf("num gTotalContactPoints : %i\n",gTotalContactPoints );
+#endif //PRINT_CONTACT_STATISTICS
+
+	gTotalContactPoints = 0;
 	glutSwapBuffers();
 
 }
@@ -184,7 +198,6 @@ void CcdPhysicsDemo::displayCallback(void) {
 	}
 
 	renderme();
-
 
 	glFlush();
 	glutSwapBuffers();
@@ -245,6 +258,13 @@ void CcdPhysicsDemo::clientResetScene()
 }
 
 
+///User-defined friction model, the most simple friction model available: no friction
+float myFrictionModel(	RigidBody& body1,	RigidBody& body2,	ManifoldPoint& contactPoint,	const ContactSolverInfo& solverInfo	)
+{
+	//don't do any friction
+	return 0.f;
+}
+
 void	CcdPhysicsDemo::initPhysics()
 {
 
@@ -254,11 +274,13 @@ void	CcdPhysicsDemo::initPhysics()
 	SimdVector3 worldAabbMin(-10000,-10000,-10000);
 	SimdVector3 worldAabbMax(10000,10000,10000);
 
-	OverlappingPairCache* broadphase = new AxisSweep3(worldAabbMin,worldAabbMax,maxProxies,maxOverlap);
+	OverlappingPairCache* broadphase = new AxisSweep3(worldAabbMin,worldAabbMax,maxProxies);
 //	OverlappingPairCache* broadphase = new SimpleBroadphase;
 	
+#ifdef REGISTER_CUSTOM_COLLISION_ALGORITHM
 	dispatcher->RegisterCollisionCreateFunc(SPHERE_SHAPE_PROXYTYPE,SPHERE_SHAPE_PROXYTYPE,new SphereSphereCollisionAlgorithm::CreateFunc);
-	
+#endif //REGISTER_CUSTOM_COLLISION_ALGORITHM
+
 
 #ifdef USE_PARALLEL_DISPATCHER
 	m_physicsEnvironmentPtr = new ParallelPhysicsEnvironment(dispatcher2,broadphase);
@@ -271,13 +293,23 @@ void	CcdPhysicsDemo::initPhysics()
 
 	m_physicsEnvironmentPtr->setDebugDrawer(&debugDrawer);
 
+#ifdef USER_DEFINED_FRICTION_MODEL
+	SequentialImpulseConstraintSolver* solver = (SequentialImpulseConstraintSolver*) m_physicsEnvironmentPtr->GetConstraintSolver();
+	//solver->SetContactSolverFunc(ContactSolverFunc func,USER_CONTACT_SOLVER_TYPE1,DEFAULT_CONTACT_SOLVER_TYPE);
+	solver->SetFrictionSolverFunc(myFrictionModel,USER_CONTACT_SOLVER_TYPE1,DEFAULT_CONTACT_SOLVER_TYPE);
+	solver->SetFrictionSolverFunc(myFrictionModel,DEFAULT_CONTACT_SOLVER_TYPE,USER_CONTACT_SOLVER_TYPE1);
+	solver->SetFrictionSolverFunc(myFrictionModel,USER_CONTACT_SOLVER_TYPE1,USER_CONTACT_SOLVER_TYPE1);
+	//m_physicsEnvironmentPtr->setNumIterations(2);
+#endif //USER_DEFINED_FRICTION_MODEL
+
+
 	int i;
 
 	SimdTransform tr;
 	tr.setIdentity();
 
 	
-	for (i=0;i<numObjects;i++)
+	for (i=0;i<gNumObjects;i++)
 	{
 		if (i>0)
 		{
@@ -301,7 +333,7 @@ void	CcdPhysicsDemo::initPhysics()
 		compoundShape->AddChildShape(ident,new SphereShape(0.9));//
 	}
 
-	for (i=0;i<numObjects;i++)
+	for (i=0;i<gNumObjects;i++)
 	{
 		CollisionShape* shape = shapePtr[shapeIndex[i]];
 		shape->SetMargin(0.05f);
@@ -311,7 +343,30 @@ void	CcdPhysicsDemo::initPhysics()
 		SimdTransform trans;
 		trans.setIdentity();
 		
-		trans.setOrigin(SimdVector3(0,-30+i*CUBE_HALF_EXTENTS*2,0));
+		if (i>0)
+		{
+			//stack them
+			int colsize = 10;
+			int row = (i*CUBE_HALF_EXTENTS*2)/(colsize*2*CUBE_HALF_EXTENTS);
+			int row2 = row;
+			int col = (i)%(colsize)-colsize/2;
+
+
+			if (col>3)
+			{
+				col=11;
+				row2 |=1;
+			}
+
+			SimdVector3 pos(col*2*CUBE_HALF_EXTENTS + (row2%2)*CUBE_HALF_EXTENTS,
+				row*2*CUBE_HALF_EXTENTS+CUBE_HALF_EXTENTS+EXTRA_HEIGHT,0);
+
+			trans.setOrigin(pos);
+		} else
+		{
+			trans.setOrigin(SimdVector3(0,-30,0));
+		}
+
 		float mass = 1.f;
 
 		if (!isDyna)
@@ -324,7 +379,10 @@ void	CcdPhysicsDemo::initPhysics()
 		
 		//Experimental: better estimation of CCD Time of Impact:
 		ctrl->GetRigidBody()->m_ccdSweptShereRadius = 0.2*CUBE_HALF_EXTENTS;
-		
+#ifdef USER_DEFINED_FRICTION_MODEL	
+		///Advanced use: override the friction solver
+		ctrl->GetRigidBody()->m_frictionSolverType = USER_CONTACT_SOLVER_TYPE1;
+#endif //USER_DEFINED_FRICTION_MODEL
 
 	}
 

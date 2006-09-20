@@ -47,16 +47,13 @@ void	AxisSweep3::SetAabb(BroadphaseProxy* proxy,const SimdVector3& aabbMin,const
 
 
 
-AxisSweep3::AxisSweep3(const SimdPoint3& worldAabbMin,const SimdPoint3& worldAabbMax, int maxHandles, int maxOverlaps)
-:OverlappingPairCache(maxOverlaps)
+AxisSweep3::AxisSweep3(const SimdPoint3& worldAabbMin,const SimdPoint3& worldAabbMax, int maxHandles)
+:OverlappingPairCache()
 {
 	//assert(bounds.HasVolume());
 
 	// 1 handle is reserved as sentinel
 	assert(maxHandles > 1 && maxHandles < 32767);
-
-	// doesn't need this limit right now, but I may want to use unsigned short indexes into overlaps array
-	assert(maxOverlaps > 0 && maxOverlaps < 65536);
 
 	// init bounds
 	m_worldAabbMin = worldAabbMin;

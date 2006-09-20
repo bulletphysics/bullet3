@@ -32,7 +32,9 @@ RigidBody::RigidBody( const MassProps& massProps,SimdScalar linearDamping,SimdSc
 	m_angularVelocity(0.f,0.f,0.f),
 	m_linearDamping(0.f),
 	m_angularDamping(0.5f),
-	m_kinematicTimeStep(0.f)
+	m_kinematicTimeStep(0.f),
+	m_contactSolverType(0),
+	m_frictionSolverType(0)
 {
 
 	//moved to CollisionObject

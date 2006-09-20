@@ -32,7 +32,7 @@ subject to the following restrictions:
 
 int totalCpd = 0;
 
-
+int	gTotalContactPoints = 0;
 
 bool  MyContactDestroyedCallback(void* userPersistentData)
 {
@@ -48,8 +48,17 @@ bool  MyContactDestroyedCallback(void* userPersistentData)
 SequentialImpulseConstraintSolver::SequentialImpulseConstraintSolver()
 {
 	gContactDestroyedCallback = &MyContactDestroyedCallback;
-}
 
+	//initialize default friction/contact funcs
+	int i,j;
+	for (i=0;i<MAX_CONTACT_SOLVER_TYPES;i++)
+		for (j=0;j<MAX_CONTACT_SOLVER_TYPES;j++)
+		{
+
+			m_contactDispatch[i][j] = resolveSingleCollision;
+			m_frictionDispatch[i][j] = resolveSingleFriction;
+		}
+}
 
 /// SequentialImpulseConstraintSolver Sequentially applies impulses
 float SequentialImpulseConstraintSolver::SolveGroup(PersistentManifold** manifoldPtr, int numManifolds,const ContactSolverInfo& infoGlobal,IDebugDraw* debugDrawer)
@@ -62,9 +71,22 @@ float SequentialImpulseConstraintSolver::SolveGroup(PersistentManifold** manifol
 	Profiler::beginBlock("Solve");
 #endif //USE_PROFILE
 
+	{
+		int j;
+		for (j=0;j<numManifolds;j++)
+		{
+			int k=j;
+			//interleaving the preparation with solving impacts the behaviour a lot, todo: find out why
+
+			PrepareConstraints(manifoldPtr[k],info,debugDrawer);
+			Solve(manifoldPtr[k],info,0,debugDrawer);
+		}
+	}
+	
+	
 	//should traverse the contacts random order...
 	int i;
-	for ( i = 0;i<numiter;i++)
+	for ( i = 0;i<numiter-1;i++)
 	{
 		int j;
 		for (j=0;j<numManifolds;j++)
@@ -84,7 +106,7 @@ float SequentialImpulseConstraintSolver::SolveGroup(PersistentManifold** manifol
 #endif //USE_PROFILE
 
 	//now solve the friction		
-	for (i = 0;i<numiter;i++)
+	for (i = 0;i<numiter-1;i++)
 	{
 		int j;
 	for (j=0;j<numManifolds;j++)
@@ -111,22 +133,20 @@ SimdScalar restitutionCurve(SimdScalar rel_vel, SimdScalar restitution)
 }
 
 
-
-
-float SequentialImpulseConstraintSolver::Solve(PersistentManifold* manifoldPtr, const ContactSolverInfo& info,int iter,IDebugDraw* debugDrawer)
+void	SequentialImpulseConstraintSolver::PrepareConstraints(PersistentManifold* manifoldPtr, const ContactSolverInfo& info,IDebugDraw* debugDrawer)
 {
 
 	RigidBody* body0 = (RigidBody*)manifoldPtr->GetBody0();
 	RigidBody* body1 = (RigidBody*)manifoldPtr->GetBody1();
 
-	float maxImpulse = 0.f;
 
 	//only necessary to refresh the manifold once (first iteration). The integration is done outside the loop
-	if (iter == 0)
 	{
 		manifoldPtr->RefreshContactPoints(body0->getCenterOfMassTransform(),body1->getCenterOfMassTransform());
 		
 		int numpoints = manifoldPtr->GetNumContacts();
+
+		gTotalContactPoints += numpoints;
 
 		SimdVector3 color(0,1,0);
 		for (int i=0;i<numpoints ;i++)
@@ -181,7 +201,12 @@ float SequentialImpulseConstraintSolver::Solve(PersistentManifold* manifoldPtr, 
 
 				cpd->m_jacDiagABInv = 1.f / jacDiagAB;
 
-
+				//Dependent on Rigidbody A and B types, fetch the contact/friction response func
+				//perhaps do a similar thing for friction/restutution combiner funcs...
+				
+				cpd->m_frictionSolverFunc = m_frictionDispatch[body0->m_frictionSolverType][body1->m_frictionSolverType];
+				cpd->m_contactSolverFunc = m_contactDispatch[body0->m_contactSolverType][body1->m_contactSolverType];
+				
 				SimdVector3 vel1 = body0->getVelocityInLocalPoint(rel_pos1);
 				SimdVector3 vel2 = body1->getVelocityInLocalPoint(rel_pos2);
 				SimdVector3 vel = vel1 - vel2;
@@ -250,6 +275,15 @@ float SequentialImpulseConstraintSolver::Solve(PersistentManifold* manifoldPtr, 
 			
 		}
 	}
+}
+
+float SequentialImpulseConstraintSolver::Solve(PersistentManifold* manifoldPtr, const ContactSolverInfo& info,int iter,IDebugDraw* debugDrawer)
+{
+
+	RigidBody* body0 = (RigidBody*)manifoldPtr->GetBody0();
+	RigidBody* body1 = (RigidBody*)manifoldPtr->GetBody1();
+
+	float maxImpulse = 0.f;
 
 	{
 		const int numpoints = manifoldPtr->GetNumContacts();
@@ -276,14 +310,12 @@ float SequentialImpulseConstraintSolver::Solve(PersistentManifold* manifoldPtr, 
 
 				{
 
-
-					//float dist =  cp.GetDistance();
-					//printf("dist(%i)=%f\n",j,dist);
-					float impulse = resolveSingleCollision(
+					ConstraintPersistentData* cpd = (ConstraintPersistentData*) cp.m_userPersistentData;
+					float impulse = cpd->m_contactSolverFunc(
 						*body0,*body1,
 						cp,
 						info);
-					
+
 					if (maxImpulse < impulse)
 						maxImpulse  = impulse;
 
@@ -312,13 +344,15 @@ float SequentialImpulseConstraintSolver::SolveFriction(PersistentManifold* manif
 			//	j = numpoints-1-i;
 
 			ManifoldPoint& cp = manifoldPtr->GetContactPoint(j);
-				if (cp.GetDistance() <= 0.f)
+			if (cp.GetDistance() <= 0.f)
 			{
 
-				resolveSingleFriction(
+				ConstraintPersistentData* cpd = (ConstraintPersistentData*) cp.m_userPersistentData;
+				cpd->m_frictionSolverFunc(
 					*body0,*body1,
 					cp,
 					info);
+
 				
 			}
 		}

@@ -19,6 +19,10 @@ subject to the following restrictions:
 #include "ConstraintSolver.h"
 class IDebugDraw;
 
+#include "ContactConstraint.h"
+	
+
+
 /// SequentialImpulseConstraintSolver uses a Propagation Method and Sequentially applies impulses
 /// The approach is the 3D version of Erin Catto's GDC 2006 tutorial. See http://www.gphysics.com
 /// Although Sequential Impulse is more intuitive, it is mathematically equivalent to Projected Successive Overrelaxation (iterative LCP)
@@ -27,11 +31,28 @@ class SequentialImpulseConstraintSolver : public ConstraintSolver
 {
 	float Solve(PersistentManifold* manifold, const ContactSolverInfo& info,int iter,IDebugDraw* debugDrawer);
 	float SolveFriction(PersistentManifold* manifoldPtr, const ContactSolverInfo& info,int iter,IDebugDraw* debugDrawer);
-	
+	void  PrepareConstraints(PersistentManifold* manifoldPtr, const ContactSolverInfo& info,IDebugDraw* debugDrawer);
+
+	ContactSolverFunc m_contactDispatch[MAX_CONTACT_SOLVER_TYPES][MAX_CONTACT_SOLVER_TYPES];
+	ContactSolverFunc m_frictionDispatch[MAX_CONTACT_SOLVER_TYPES][MAX_CONTACT_SOLVER_TYPES];
 
 public:
 
 	SequentialImpulseConstraintSolver();
+
+	///Advanced: Override the default contact solving function for contacts, for certain types of rigidbody
+	///See RigidBody::m_contactSolverType and RigidBody::m_frictionSolverType
+	void	SetContactSolverFunc(ContactSolverFunc func,int type0,int type1)
+	{
+		m_contactDispatch[type0][type1] = func;
+	}
+	
+	///Advanced: Override the default friction solving function for contacts, for certain types of rigidbody
+	///See RigidBody::m_contactSolverType and RigidBody::m_frictionSolverType
+	void	SetFrictionSolverFunc(ContactSolverFunc func,int type0,int type1)
+	{
+		m_frictionDispatch[type0][type1] = func;
+	}
 
 	virtual ~SequentialImpulseConstraintSolver() {}
 	

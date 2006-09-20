@@ -234,6 +234,11 @@ protected:
 			return m_islandManager;
 		}
 
+		class ConstraintSolver*	GetConstraintSolver()
+		{
+			return m_solver;
+		}
+
 	protected:
 		
 		

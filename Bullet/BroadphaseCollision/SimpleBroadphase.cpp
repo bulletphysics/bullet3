@@ -35,8 +35,8 @@ void	SimpleBroadphase::validate()
 	
 }
 
-SimpleBroadphase::SimpleBroadphase(int maxProxies,int maxOverlap)
-	:OverlappingPairCache(maxOverlap),
+SimpleBroadphase::SimpleBroadphase(int maxProxies)
+	:OverlappingPairCache(),
 	m_firstFreeProxy(0),
 	m_numProxies(0),
 	m_maxProxies(maxProxies)

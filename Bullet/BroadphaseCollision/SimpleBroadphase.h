@@ -66,7 +66,7 @@ protected:
 
 	virtual void	RefreshOverlappingPairs();
 public:
-	SimpleBroadphase(int maxProxies=4096,int maxOverlap=8192);
+	SimpleBroadphase(int maxProxies=16384);
 	virtual ~SimpleBroadphase();
 
 

@@ -21,11 +21,11 @@ subject to the following restrictions:
 #include "Dispatcher.h"
 #include "CollisionAlgorithm.h"
 
+int	gOverlappingPairs = 0;
 
-OverlappingPairCache::OverlappingPairCache(int maxOverlap):
-m_blockedForChanges(false),
-//m_NumOverlapBroadphasePair(0),
-m_maxOverlap(maxOverlap)
+OverlappingPairCache::OverlappingPairCache():
+m_blockedForChanges(false)
+//m_NumOverlapBroadphasePair(0)
 {
 }
 
@@ -36,14 +36,17 @@ OverlappingPairCache::~OverlappingPairCache()
 }
 
 
-void	OverlappingPairCache::RemoveOverlappingPair(BroadphasePair& pair)
+void	OverlappingPairCache::RemoveOverlappingPair(BroadphasePair& findPair)
 {
-	CleanOverlappingPair(pair);
-	std::set<BroadphasePair>::iterator it = m_overlappingPairSet.find(pair);
+	
+	std::set<BroadphasePair>::iterator it = m_overlappingPairSet.find(findPair);
 //	assert(it != m_overlappingPairSet.end());
 
 	if (it != m_overlappingPairSet.end())
 	{
+		gOverlappingPairs--;
+		BroadphasePair* pair = (BroadphasePair*)(&(*it));
+		CleanOverlappingPair(*pair);	
 		m_overlappingPairSet.erase(it);
 	}
 }
@@ -79,6 +82,7 @@ void	OverlappingPairCache::AddOverlappingPair(BroadphaseProxy* proxy0,Broadphase
 	BroadphasePair pair(*proxy0,*proxy1);
 	
 	m_overlappingPairSet.insert(pair);
+	gOverlappingPairs++;
 	
 }
 
@@ -179,10 +183,17 @@ void	OverlappingPairCache::ProcessAllOverlappingPairs(OverlapCallback* callback)
 			CleanOverlappingPair(*pair);
 
 			std::set<BroadphasePair>::iterator it2 = it;
-			it++;
 			//why does next line not compile under OS X??
-			//it = m_overlappingPairSet.erase(it2);
+#ifdef MAC_OSX_FIXED_STL_SET
+			it2++;
+			it = m_overlappingPairSet.erase(it);
+			assert(it == it2);
+#else
+			it++;
 			m_overlappingPairSet.erase(it2);
+#endif //MAC_OSX_FIXED_STL_SET
+
+			gOverlappingPairs--;
 		} else
 		{
 			it++;

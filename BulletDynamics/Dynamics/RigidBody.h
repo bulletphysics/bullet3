@@ -236,7 +236,10 @@ public:
 		m_broadphaseProxy = broadphaseProxy;
 	}
 	
-	
+	//for experimental overriding of friction/contact solver func
+	int	m_contactSolverType;
+	int	m_frictionSolverType;
+
 
 	/// for ode solver-binding
 	dMatrix3		m_R;//temp

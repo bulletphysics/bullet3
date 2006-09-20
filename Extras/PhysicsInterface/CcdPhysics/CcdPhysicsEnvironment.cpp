@@ -1707,11 +1707,17 @@ PHY_IVehicle*	CcdPhysicsEnvironment::getVehicleConstraint(int constraintId)
 #endif //NEW_BULLET_VEHICLE_SUPPORT
 
 
+int currentController = 0;
+int numController = 0;
+
 
 void	CcdPhysicsEnvironment::UpdateAabbs(float	timeStep)
 {
 	std::vector<CcdPhysicsController*>::iterator i;
 	BroadphaseInterface* scene =  GetBroadphase();
+
+	numController = m_controllers.size();
+	currentController = 0;
 
 	//
 			// update aabbs, only for moving objects (!)
@@ -1719,6 +1725,7 @@ void	CcdPhysicsEnvironment::UpdateAabbs(float	timeStep)
 			for (i=m_controllers.begin();
 				!(i==m_controllers.end()); i++)
 			{
+				currentController++;
 				CcdPhysicsController* ctrl = (*i);
 				RigidBody* body = ctrl->GetRigidBody();
 

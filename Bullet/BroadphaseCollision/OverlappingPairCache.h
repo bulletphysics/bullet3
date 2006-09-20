@@ -37,14 +37,12 @@ class	OverlappingPairCache : public BroadphaseInterface
 	//avoid brute-force finding all the time
 	std::set<BroadphasePair>	m_overlappingPairSet;
 	
-	int m_maxOverlap;
-	
 	//during the dispatch, check that user doesn't destroy/create proxy
 	bool		m_blockedForChanges;
 	
 	public:
 		
-	OverlappingPairCache(int maxOverlap);	
+	OverlappingPairCache();	
 	virtual ~OverlappingPairCache();
 
 	void	ProcessAllOverlappingPairs(OverlapCallback*);

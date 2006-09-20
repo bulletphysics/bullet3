@@ -24,6 +24,20 @@ class RigidBody;
 struct ContactSolverInfo;
 class ManifoldPoint;
 
+enum {
+	DEFAULT_CONTACT_SOLVER_TYPE=0,
+	CONTACT_SOLVER_TYPE1,
+	CONTACT_SOLVER_TYPE2,
+	USER_CONTACT_SOLVER_TYPE1,
+	MAX_CONTACT_SOLVER_TYPES
+};
+
+
+typedef float (*ContactSolverFunc)(RigidBody& body1,
+									 RigidBody& body2,
+									 class ManifoldPoint& contactPoint,
+									 const ContactSolverInfo& info);
+
 struct ConstraintPersistentData
 {
 	inline ConstraintPersistentData()
@@ -35,7 +49,9 @@ struct ConstraintPersistentData
 	m_persistentLifeTime(0),
 	m_restitution(0.f),
 	m_friction(0.f),
-	m_penetration(0.f)
+	m_penetration(0.f),
+	m_contactSolverFunc(0),
+	m_frictionSolverFunc(0)
 	{
 	}
 	
@@ -55,7 +71,9 @@ struct ConstraintPersistentData
 			float	m_penetration;
 			SimdVector3	m_frictionWorldTangential0;
 			SimdVector3	m_frictionWorldTangential1;
-
+		
+			ContactSolverFunc	m_contactSolverFunc;
+			ContactSolverFunc	m_frictionSolverFunc;
 
 };
 

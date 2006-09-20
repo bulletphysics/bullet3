@@ -91,7 +91,7 @@ private:
 	void SortMaxUp(int axis, unsigned short edge, bool updateOverlaps = true);
 
 public:
-	AxisSweep3(const SimdPoint3& worldAabbMin,const SimdPoint3& worldAabbMax, int maxHandles = 20000, int maxOverlaps = 60000);
+	AxisSweep3(const SimdPoint3& worldAabbMin,const SimdPoint3& worldAabbMax, int maxHandles = 16384);
 	virtual	~AxisSweep3();
 
 	virtual void	RefreshOverlappingPairs()

@@ -23,11 +23,11 @@ subject to the following restrictions:
 #include "CollisionShapes/CollisionShape.h"
 #include "CollisionShapes/BoxShape.h"
 #include "GL_ShapeDrawer.h"
-
+#include "quickprof.h"
 #include "BMF_Api.h"
 
 int numObjects = 0;
-const int maxNumObjects = 4096;
+const int maxNumObjects = 16384;
 DefaultMotionState ms[maxNumObjects];
 CcdPhysicsController* physObjects[maxNumObjects];
 SimdTransform startTransforms[maxNumObjects];
@@ -888,6 +888,7 @@ void DemoApplication::renderme()
 			sprintf(buf,"+- shooting speed = %10.2f",m_ShootBoxInitialSpeed);
 			BMF_DrawString(BMF_GetFont(BMF_kHelvetica10),buf);
 			yStart += yIncr;
+
 
 		}
 
