@@ -429,12 +429,13 @@ void initCubeVBO ()
     cubeShader = NULL ;
   else
   {
+	//the filenames have additional path to make it easier for some platforms
     if ( noVertexTextureSupport )
-      cubeShader = new GLSL_ShaderPair ( "CubeShader", "cubeShaderNoTexture.vert",
-                                                       "cubeShader.frag" ) ;
+      cubeShader = new GLSL_ShaderPair ( "CubeShader", "../../Extras/GPUphysics/cubeShaderNoTexture.vert",
+                                                       "../../Extras/GPUphysics/cubeShader.frag" ) ;
     else
-      cubeShader = new GLSL_ShaderPair ( "CubeShader", "cubeShader.vert",
-                                                       "cubeShader.frag" ) ;
+      cubeShader = new GLSL_ShaderPair ( "CubeShader", "../../Extras/GPUphysics/cubeShader.vert",
+                                                       "../../Extras/GPUphysics/cubeShader.frag" ) ;
     assert ( cubeShader -> compiledOK () ) ;
   }
 }

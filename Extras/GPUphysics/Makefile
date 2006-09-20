@@ -5,14 +5,14 @@ OBJS  = GPU_physics_demo.o fboSupport.o shaderSupport.o
 all: ${OBJS}
 	g++ -o GPU_physics_demo ${OBJS} -lglut -lGLEW -lGL
 
-shaderSupport.o : shaderSupport.cxx ${HDRS}
-	g++ -c shaderSupport.cxx
+shaderSupport.o : shaderSupport.cpp ${HDRS}
+	g++ -c shaderSupport.cpp
 
-fboSupport.o : fboSupport.cxx ${HDRS}
-	g++ -c fboSupport.cxx
+fboSupport.o : fboSupport.cpp ${HDRS}
+	g++ -c fboSupport.cpp
 
-GPU_physics_demo.o : GPU_physics_demo.cxx ${HDRS}
-	g++ -c GPU_physics_demo.cxx
+GPU_physics_demo.o : GPU_physics_demo.cpp ${HDRS}
+	g++ -c GPU_physics_demo.cpp
 
 clean:
 	-rm -f ${OBJS}
