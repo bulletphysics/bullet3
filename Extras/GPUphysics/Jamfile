@@ -1,0 +1,25 @@
+SubDir TOP Extras GPUphysics ;
+
+if $(GLUT.AVAILABLE) = "yes"
+{
+  # All demo apps have a lot in common, so use this rule to simply things
+  rule GPUDemo
+  {
+    Application $(<) : $(>) : noinstall console nomanifest ;
+    LinkWith $(<) :  GLUT ;
+    CFlags $(<) : 
+	  [ FIncludes $(TOP)/Demos/OpenGL ] 
+	  [ FIncludes $(TOP)/Extras/PhysicsInterface/CcdPhysics ] 
+	  [ FIncludes $(TOP)/Extras/PhysicsInterface/Common ] 
+    ;
+    MsvcIncDirs $(<) : 
+	"../../Demos/OpenGL" 
+	"../../Extras/PhysicsInterface/CcdPhysics" 
+	"../../Extras/PhysicsInterface/Common" ;
+	ExternalLibs $(<) : GLUT GLEW ;
+
+  }
+}
+
+
+GPUDemo GPUphysics : [ Wildcard *.h *.cpp  ] ;
