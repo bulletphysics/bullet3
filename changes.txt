@@ -1,6 +1,10 @@
 Bullet Continuous Collision Detection and Physics Library
 Erwin Coumans
 
+2006 Sept 19
+	Allow programmable friction and contact solver model. User can register their own functions for several interaction types.
+	Improved performance, and removed hardcoded maximum overlaps (switched from C-array to stl::set)
+	
 2006 Sept 16
 	Added Bullet 2.0  User Manual
 	Allow registration of custom user collision algorithms

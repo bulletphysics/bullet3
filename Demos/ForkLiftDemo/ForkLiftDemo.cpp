@@ -133,7 +133,7 @@ void ForkLiftDemo::setupPhysics()
 	SimdVector3 worldAabbMin(-30000,-30000,-30000);
 	SimdVector3 worldAabbMax(30000,30000,30000);
 
-	OverlappingPairCache* broadphase = new AxisSweep3(worldAabbMin,worldAabbMax,maxProxies,maxOverlap);
+	OverlappingPairCache* broadphase = new AxisSweep3(worldAabbMin,worldAabbMax,maxProxies);
 	//OverlappingPairCache* broadphase = new SimpleBroadphase(maxProxies,maxOverlap);
 
 #ifdef USE_PARALLEL_DISPATCHER
