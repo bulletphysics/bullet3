@@ -59,7 +59,7 @@ static char *readShaderText ( const char *fname )
 		fd = fopen( newname ,"r");
 		if (!fd)
 		{
-			sprintf("Extras/GPUphysics/%s",fname);
+			sprintf(newname,"Extras/GPUphysics/%s",fname);
 			fd = fopen( newname,"r");
 		}
 	}
