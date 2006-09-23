@@ -26,29 +26,17 @@ UnionFind::~UnionFind()
 }
 
 UnionFind::UnionFind()
-:m_elements(0),
-m_N(0)
 { 
 
 }
 
 void	UnionFind::Allocate(int N)
 {
-	if (m_N < N)
-	{
-		//Free(); //not necessary with stl vectors
-
-		m_N = N;
-		m_elements.resize(N);// = new Element[N]; 
-	}
+	m_elements.resize(N);
 }
 void	UnionFind::Free()
 {
-	if (m_N)
-	{
-		m_N=0;
-		m_elements.clear();
-	}
+	m_elements.clear();
 }
 
 
@@ -56,7 +44,7 @@ void	UnionFind::reset(int N)
 {
 	Allocate(N);
 
-	for (int i = 0; i < m_N; i++) 
+	for (int i = 0; i < N; i++) 
 	{ 
 		m_elements[i].m_id = i; m_elements[i].m_sz = 1; 
 	} 

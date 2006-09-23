@@ -212,7 +212,10 @@ void AxisSweep3::RemoveHandle(unsigned short handle)
 {
 	Handle* pHandle = GetHandle(handle);
 
-	//RemoveOverlappingPairsContainingProxy(pHandle);
+	//explicitly remove the pairs containing the proxy
+	//we could do it also in the SortMinUp (passing true)
+	//todo: compare performance
+	RemoveOverlappingPairsContainingProxy(pHandle);
 
 
 	// compute current limit of edge arrays

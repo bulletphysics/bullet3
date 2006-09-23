@@ -30,7 +30,6 @@ class UnionFind
   {
     private:
 		std::vector<Element>	m_elements;
-		int m_N;
 
     public:
 	  
@@ -46,7 +45,7 @@ class UnionFind
 
 	  inline int	getNumElements() const
 	  {
-		  return m_N;
+		  return m_elements.size();
 	  }
 	  inline bool  isRoot(int x) const
 	  {
