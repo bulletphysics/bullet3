@@ -34,3 +34,4 @@ class ConcaveDemo : public DemoApplication
 };
 
 #endif //CONCAVE_DEMO_H
+

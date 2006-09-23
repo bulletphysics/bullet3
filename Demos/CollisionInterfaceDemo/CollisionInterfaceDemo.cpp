@@ -45,8 +45,8 @@ GL_Simplex1to4 simplex;
 CollisionObject	objects[maxNumObjects];
 CollisionWorld*	collisionWorld = 0;
 
-int screenWidth = 640.f;
-int screenHeight = 480.f;
+int screenWidth = 640;
+int screenHeight = 480;
 
 
 int main(int argc,char** argv)
@@ -74,8 +74,8 @@ void	CollisionInterfaceDemo::initPhysics()
 	objects[0].m_worldTransform.setBasis(basisA);
 	objects[1].m_worldTransform.setBasis(basisB);
 
-	SimdPoint3	points0[3]={SimdPoint3(1,0,0),SimdPoint3(0,1,0),SimdPoint3(0,0,1)};
-	SimdPoint3	points1[5]={SimdPoint3(1,0,0),SimdPoint3(0,1,0),SimdPoint3(0,0,1),SimdPoint3(0,0,-1),SimdPoint3(-1,-1,0)};
+	//SimdPoint3	points0[3]={SimdPoint3(1,0,0),SimdPoint3(0,1,0),SimdPoint3(0,0,1)};
+	//SimdPoint3	points1[5]={SimdPoint3(1,0,0),SimdPoint3(0,1,0),SimdPoint3(0,0,1),SimdPoint3(0,0,-1),SimdPoint3(-1,-1,0)};
 	
 	BoxShape* boxA = new BoxShape(SimdVector3(1,1,1));
 	BoxShape* boxB = new BoxShape(SimdVector3(0.5,0.5,0.5));

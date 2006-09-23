@@ -88,7 +88,9 @@ typedef std::vector< float > FloatVector;
 class InPlaceParserInterface
 {
 public:
-	virtual int ParseLine(int lineno,int argc,const char **argv) =0;  // return TRUE to continue parsing, return FALSE to abort parsing process
+  virtual ~InPlaceParserInterface () {} ;
+
+  virtual int ParseLine(int lineno,int argc,const char **argv) =0;  // return TRUE to continue parsing, return FALSE to abort parsing process
 };
 
 enum SeparatorType
@@ -157,23 +159,23 @@ public:
 
 	void SetHardSeparator(char c) // add a hard separator
 	{
-		mHard[c] = ST_HARD;
+		mHard[(int)c] = ST_HARD;
 	}
 
 	void SetHard(char c) // add a hard separator
 	{
-		mHard[c] = ST_HARD;
+		mHard[(int)c] = ST_HARD;
 	}
 
 
 	void SetCommentSymbol(char c) // comment character, treated as 'end of string'
 	{
-		mHard[c] = ST_EOS;
+		mHard[(int)c] = ST_EOS;
 	}
 
 	void ClearHardSeparator(char c)
 	{
-		mHard[c] = ST_DATA;
+		mHard[(int)c] = ST_DATA;
 	}
 
 
@@ -181,7 +183,7 @@ public:
 
 	bool EOS(char c)
 	{
-		if ( mHard[c] == ST_EOS )
+		if ( mHard[(int)c] == ST_EOS )
 		{
 			return true;
 		}
@@ -261,7 +263,7 @@ InPlaceParser::~InPlaceParser(void)
 
 bool InPlaceParser::IsHard(char c)
 {
-	return mHard[c] == ST_HARD;
+	return mHard[(int)c] == ST_HARD;
 }
 
 char * InPlaceParser::AddHard(int &argc,const char **argv,char *foo)
@@ -280,7 +282,7 @@ char * InPlaceParser::AddHard(int &argc,const char **argv,char *foo)
 
 bool   InPlaceParser::IsWhiteSpace(char c)
 {
-	return mHard[c] == ST_SOFT;
+	return mHard[(int)c] == ST_SOFT;
 }
 
 char * InPlaceParser::SkipSpaces(char *foo)
@@ -550,10 +552,9 @@ class GeometryInterface
 {
 public:
 
-	virtual void NodeTriangle(const GeometryVertex *v1,const GeometryVertex *v2,const GeometryVertex *v3)
-	{
-	}
+  virtual void NodeTriangle(const GeometryVertex *v1,const GeometryVertex *v2,const GeometryVertex *v3) {}
 
+  virtual ~GeometryInterface () {}
 };
 
 

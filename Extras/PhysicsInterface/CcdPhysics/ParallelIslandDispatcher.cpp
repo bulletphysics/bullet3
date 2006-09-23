@@ -286,13 +286,13 @@ void	ParallelIslandDispatcher::DispatchAllCollisionPairs(OverlappingPairCache* p
 {
 	//m_blockedForChanges = true;
 
-	int i;
 
-	int dispatcherId = GetUniqueId();
 
 	assert(0);
 	
 /*
+	int dispatcherId = GetUniqueId();
+	int i;
 	for (i=0;i<numPairs;i++)
 	{
 

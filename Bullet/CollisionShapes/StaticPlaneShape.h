@@ -28,8 +28,8 @@ protected:
 	SimdVector3	m_localAabbMax;
 	
 	SimdVector3	m_planeNormal;
+	SimdScalar      m_planeConstant;
 	SimdVector3	m_localScaling;
-	SimdScalar m_planeConstant;
 
 public:
 	StaticPlaneShape(const SimdVector3& planeNormal,SimdScalar planeConstant);

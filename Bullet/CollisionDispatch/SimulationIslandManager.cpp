@@ -13,6 +13,11 @@ SimulationIslandManager::SimulationIslandManager()
 {
 }
 
+SimulationIslandManager::~SimulationIslandManager()
+{
+}
+
+
 void SimulationIslandManager::InitUnionFind(int n)
 {
 		m_unionFind.reset(n);
@@ -131,17 +136,13 @@ bool PersistentManifoldSortPredicate(const PersistentManifold* lhs, const Persis
 //
 void SimulationIslandManager::BuildAndProcessIslands(Dispatcher* dispatcher,CollisionObjectArray& collisionObjects, IslandCallback* callback)
 {
-	
-
-	int numBodies  = collisionObjects.size();
-
 	//we are going to sort the unionfind array, and store the element id in the size
 	//afterwards, we clean unionfind, to make sure no-one uses it anymore
 	
 	GetUnionFind().sortIslands();
 	int numElem = GetUnionFind().getNumElements();
 
-	int startIslandIndex=0,endIslandIndex=1;
+	int endIslandIndex=1;
 
 	//update the sleeping state for bodies, if all are sleeping
 	for (int startIslandIndex=0;startIslandIndex<numElem;startIslandIndex = endIslandIndex)

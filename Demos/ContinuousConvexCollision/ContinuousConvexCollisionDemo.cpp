@@ -58,8 +58,8 @@ SimdTransform	fromTrans[maxNumObjects];
 SimdTransform	toTrans[maxNumObjects];
 
 
-int screenWidth = 640.f;
-int screenHeight = 480.f;
+int screenWidth = 640;
+int screenHeight = 480;
 
 
 int main(int argc,char** argv)
@@ -158,16 +158,9 @@ void ContinuousConvexCollisionDemo::displayCallback(void) {
 	{
 		i=0;//for (i=1;i<numObjects;i++)
 		{
-			SimdScalar dt = 1.f;
-			SimdScalar boundingRadius = shapePtr[i]->GetAngularMotionDisc();
-			SimdScalar angspeed = angVels[i].length() * boundingRadius * dt;
-			SimdScalar linspeed = linVels[i].length() * dt;
-
-			SimdScalar	totalspeed = angspeed + linspeed;
-
 			//for each object, subdivide the from/to transform in 10 equal steps
 
-			int numSubSteps = 10.f;
+			int numSubSteps = 10;
 			for (int s=0;s<10;s++)
 			{
 				SimdScalar subStep = s * 1.f/(float)numSubSteps;
@@ -188,8 +181,6 @@ void ContinuousConvexCollisionDemo::displayCallback(void) {
 	}
 
 	
-	int shapeIndex = 1;
-
 	SimdMatrix3x3 mat;
 	mat.setEulerZYX(yaw,pitch,roll);
 	SimdQuaternion orn;

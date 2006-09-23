@@ -38,3 +38,4 @@ class ColladaDemo : public DemoApplication
 };
 
 #endif //COLLADA_PHYSICS_DEMO_H
+

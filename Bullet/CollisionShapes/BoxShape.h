@@ -31,11 +31,6 @@ class BoxShape: public PolyhedralConvexShape
 
 public:
 
-	virtual ~BoxShape()
-	{
-
-	}
-
 	SimdVector3 GetHalfExtents() const;
 	//{ return m_boxHalfExtents1 * m_localScaling;}
  	//const SimdVector3& GetHalfExtents() const{ return m_boxHalfExtents1;}
@@ -265,3 +260,4 @@ public:
 };
 
 #endif //OBB_BOX_MINKOWSKI_H
+

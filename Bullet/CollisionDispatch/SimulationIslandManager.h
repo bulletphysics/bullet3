@@ -29,6 +29,7 @@ class SimulationIslandManager
 
 public:
 	SimulationIslandManager();
+	virtual ~SimulationIslandManager();
 
 
 	void InitUnionFind(int n);	
@@ -56,3 +57,4 @@ public:
 };
 
 #endif //SIMULATION_ISLAND_MANAGER_H
+

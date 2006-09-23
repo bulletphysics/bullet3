@@ -42,7 +42,7 @@ void RenderTexture::Printf(char* str,	BMF_FontData* fontData, int startx,int sta
 	unsigned char c;
 	int rasterposx = startx;
 	int rasterposy = starty;
-	while (c = (unsigned char) *str++) {
+	while ((c = (unsigned char) *str++)) {
 		BMF_CharData & cd = fontData->chars[c];
 		
 		if (cd.data_offset!=-1) {

@@ -34,3 +34,5 @@ class SimplexDemo : public DemoApplication
 };
 
 #endif //SIMPLEX_DEMO_H
+
+

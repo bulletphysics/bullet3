@@ -75,7 +75,7 @@ SimdTransform	GetSimdTransformFromCOLLADA_DOM(domMatrix_Array& matrixArray,
 	SimdTransform	startTransform;
 	startTransform.setIdentity();
 	
-	int i;
+	unsigned int i;
 	//either load the matrix (worldspace) or incrementally build the transform from 'translate'/'rotate'
 	for (i=0;i<matrixArray.getCount();i++)
 	{
@@ -207,14 +207,14 @@ bool ColladaConverter::convert()
 			}
 
 
-			//we don't handle visual objects, physics objects are rendered as such
-			for (int s=0;s<m_dom->getLibrary_visual_scenes_array().getCount();s++)
+			//we don't handle visual objects, physics objects are rered as such
+			for (unsigned int s=0;s<m_dom->getLibrary_visual_scenes_array().getCount();s++)
 			{
 				domLibrary_visual_scenesRef scenesRef = m_dom->getLibrary_visual_scenes_array()[s];
-				for (int i=0;i<scenesRef->getVisual_scene_array().getCount();i++)
+				for (unsigned int i=0;i<scenesRef->getVisual_scene_array().getCount();i++)
 				{
 					domVisual_sceneRef sceneRef = scenesRef->getVisual_scene_array()[i];
-					for (int n=0;n<sceneRef->getNode_array().getCount();n++)
+					for (unsigned int n=0;n<sceneRef->getNode_array().getCount();n++)
 					{
 						domNodeRef nodeRef = sceneRef->getNode_array()[n];
 						nodeRef->getRotate_array();
@@ -229,12 +229,12 @@ bool ColladaConverter::convert()
 
 
 			// Load all the geometry libraries
-			for ( int i = 0; i < m_dom->getLibrary_geometries_array().getCount(); i++)
+			for ( unsigned int i = 0; i < m_dom->getLibrary_geometries_array().getCount(); i++)
 			{
 				domLibrary_geometriesRef libgeom = m_dom->getLibrary_geometries_array()[i];
 
 				printf(" CrtScene::Reading Geometry Library \n" );
-				for ( int  i = 0; i < libgeom->getGeometry_array().getCount(); i++)
+				for ( unsigned int  i = 0; i < libgeom->getGeometry_array().getCount(); i++)
 				{
 					//ReadGeometry(  ); 
 					domGeometryRef lib = libgeom->getGeometry_array()[i];
@@ -280,10 +280,10 @@ bool ColladaConverter::convert()
 
 			//m_dom->getLibrary_physics_models_array()
 
-			for ( int i = 0; i < m_dom->getLibrary_physics_scenes_array().getCount(); i++)
+			for ( unsigned int i = 0; i < m_dom->getLibrary_physics_scenes_array().getCount(); i++)
 			{
 				domLibrary_physics_scenesRef physicsScenesRef = m_dom->getLibrary_physics_scenes_array()[i];
-				for (int s=0;s<physicsScenesRef->getPhysics_scene_array().getCount();s++)
+				for (unsigned int s=0;s<physicsScenesRef->getPhysics_scene_array().getCount();s++)
 				{
 					domPhysics_sceneRef physicsSceneRef = physicsScenesRef->getPhysics_scene_array()[s];
 
@@ -299,7 +299,7 @@ bool ColladaConverter::convert()
 
 					} 
 
-					for (int m=0;m<physicsSceneRef->getInstance_physics_model_array().getCount();m++)
+					for (unsigned int m=0;m<physicsSceneRef->getInstance_physics_model_array().getCount();m++)
 					{
 						domInstance_physics_modelRef instance_physicsModelRef = physicsSceneRef->getInstance_physics_model_array()[m];
 
@@ -308,7 +308,7 @@ bool ColladaConverter::convert()
 						domPhysics_modelRef model = *(domPhysics_modelRef*)&ref; 
 
 
-						int p,r;
+						unsigned int p,r;
 						for ( p=0;p<model->getInstance_physics_model_array().getCount();p++)
 						{
 							domInstance_physics_modelRef	instancePhysicsModelRef = model->getInstance_physics_model_array()[p];
@@ -347,9 +347,8 @@ bool ColladaConverter::convert()
 								if (bodyName && model)
 								{
 									//try to find the rigid body
-									int numBody = model->getRigid_body_array().getCount();
 
-									for (int r=0;r<model->getRigid_body_array().getCount();r++)
+									for (unsigned int r=0;r<model->getRigid_body_array().getCount();r++)
 									{
 										domRigid_bodyRef rigidBodyRef = model->getRigid_body_array()[r];
 										if (rigidBodyRef->getSid() && !strcmp(rigidBodyRef->getSid(),bodyName))
@@ -423,9 +422,8 @@ bool ColladaConverter::convert()
 							if (bodyName && model)
 							{
 								//try to find the rigid body
-								int numBody = model->getRigid_body_array().getCount();
 
-								for (int r=0;r<model->getRigid_body_array().getCount();r++)
+								for (unsigned int r=0;r<model->getRigid_body_array().getCount();r++)
 								{
 									domRigid_bodyRef rigidBodyRef = model->getRigid_body_array()[r];
 									if (rigidBodyRef->getSid() && !strcmp(rigidBodyRef->getSid(),bodyName))
@@ -471,7 +469,7 @@ bool ColladaConverter::convert()
 
 					
 					//handle constraints
-					for (int m=0;m<physicsSceneRef->getInstance_physics_model_array().getCount();m++)
+					for (unsigned int m=0;m<physicsSceneRef->getInstance_physics_model_array().getCount();m++)
 					{
 						domInstance_physics_modelRef instance_physicsModelRef = physicsSceneRef->getInstance_physics_model_array()[m];
 
@@ -487,7 +485,7 @@ bool ColladaConverter::convert()
 						}
 
 						//also don't forget the model's 'instance_physics_models!
-						for ( int p=0;p<model->getInstance_physics_model_array().getCount();p++)
+						for ( unsigned int p=0;p<model->getInstance_physics_model_array().getCount();p++)
 						{
 							domInstance_physics_modelRef	instancePhysicsModelRef = model->getInstance_physics_model_array()[p];
 
@@ -516,7 +514,7 @@ void	ColladaConverter::PrepareConstraints(ConstraintInput& input)
 	domInstance_physics_modelRef instance_physicsModelRef = input.m_instance_physicsModelRef;
 	domPhysics_modelRef model = input.m_model;
 
-	for (int c=0;c<instance_physicsModelRef->getInstance_rigid_constraint_array().getCount();c++)
+	for (unsigned int c=0;c<instance_physicsModelRef->getInstance_rigid_constraint_array().getCount();c++)
 	{
 		domInstance_rigid_constraintRef constraintRef = instance_physicsModelRef->getInstance_rigid_constraint_array().get(c);
 		xsNCName constraintName = constraintRef->getConstraint();
@@ -537,7 +535,6 @@ void	ColladaConverter::PrepareConstraints(ConstraintInput& input)
 					const domRigid_constraint::domRef_attachmentRef attachRefBody = rigidConstraintRef->getRef_attachment();
 					const domRigid_constraint::domAttachmentRef attachBody1 = rigidConstraintRef->getAttachment();
 
-					daeString uri = attachRefBody->getRigid_body().getURI();
 					daeString orgUri0 = attachRefBody->getRigid_body().getOriginalURI();
 					daeString orgUri1 = attachBody1->getRigid_body().getOriginalURI();
 					CcdPhysicsController* ctrl0=0,*ctrl1=0;
@@ -690,7 +687,7 @@ void	ColladaConverter::PreparePhysicsObject(struct RigidBodyInput& input, bool i
 							node->getTranslate_array()
 							);
 
-		int i;
+		unsigned int i;
 		for (i=0;i<node->getScale_array().getCount();i++)
 		{
 			domScaleRef scaleRef = node->getScale_array()[i];
@@ -767,8 +764,6 @@ bool ColladaConverter::saveAs(const char* filename)
 				}
 
 				{
-					float quatIma0,quatIma1,quatIma2,quatReal;
-					
 					SimdQuaternion quat = m_physObjects[i]->GetRigidBody()->getCenterOfMassTransform().getRotation();
 					SimdVector3 axis(quat.getX(),quat.getY(),quat.getZ());
 					axis[3] = 0.f;
@@ -857,7 +852,7 @@ char* fixFileName(const char* lpCmdLine)
 	// displays the first filename
 	const char *in = lpCmdLine;
 	char* out = cleaned_filename;
-	*out = NULL;
+	*out = '\0';
 	// If the first character is a ", skip it (filenames with spaces in them are quoted)
 	if(*in == '\"')
 	{
@@ -872,7 +867,7 @@ char* fixFileName(const char* lpCmdLine)
 	for(i =0; i<512; i++)
 	{
 		// If we hit a null or a quote, stop copying.  This will get just the first filename.
-		if(*in == NULL || *in == '\"')
+		if(*in == '\0' || *in == '\"')
 			break;
 		// Copy while swapping backslashes for forward ones
 		if(*in == '\\')
@@ -908,7 +903,7 @@ void	ColladaConverter::ConvertRigidBodyRef( RigidBodyInput& rbInput,RigidBodyOut
 		}
 
 		//shapes
-		for (int s=0;s<techniqueRef->getShape_array().getCount();s++)
+		for (unsigned int s=0;s<techniqueRef->getShape_array().getCount();s++)
 		{
 			domRigid_body::domTechnique_common::domShapeRef shapeRef = techniqueRef->getShape_array()[s];
 
@@ -964,18 +959,16 @@ void	ColladaConverter::ConvertRigidBodyRef( RigidBodyInput& rbInput,RigidBodyOut
 				if (geom && geom->getMesh())
 				{
 					const domMeshRef meshRef = geom->getMesh();
-					TriangleIndexVertexArray* tindexArray = new TriangleIndexVertexArray();
 
 					TriangleMesh* trimesh = new TriangleMesh();
 
 					
-					for (int tg = 0;tg<meshRef->getTriangles_array().getCount();tg++)
+					for (unsigned int tg = 0;tg<meshRef->getTriangles_array().getCount();tg++)
 					{
 
 
 						domTrianglesRef triRef = meshRef->getTriangles_array()[tg];
 						const domPRef pRef = triRef->getP();
-						daeMemoryRef memRef = pRef->getValue().getRawData();
 						IndexedMesh meshPart;
 						meshPart.m_triangleIndexStride=0;
 
@@ -985,7 +978,7 @@ void	ColladaConverter::ConvertRigidBodyRef( RigidBodyInput& rbInput,RigidBodyOut
 						domInputLocalOffsetRef indexOffsetRef;
 						
 
-						for (int w=0;w<triRef->getInput_array().getCount();w++)
+						for (unsigned int w=0;w<triRef->getInput_array().getCount();w++)
 						{
 							int offset = triRef->getInput_array()[w]->getOffset();
 							daeString str = triRef->getInput_array()[w]->getSemantic();
@@ -1001,7 +994,6 @@ void	ColladaConverter::ConvertRigidBodyRef( RigidBodyInput& rbInput,RigidBodyOut
 						}
 						meshPart.m_triangleIndexStride++;
 						domListOfUInts indexArray =triRef->getP()->getValue(); 
-						int count = indexArray.getCount();
 
 						//int*		m_triangleIndexBase;
 
@@ -1025,17 +1017,15 @@ void	ColladaConverter::ConvertRigidBodyRef( RigidBodyInput& rbInput,RigidBodyOut
 								const domFloat_arrayRef flArray = node->getFloat_array();
 								if (flArray)
 								{
-									int numElem = flArray->getCount();
 									const domListOfFloats& listFloats = flArray->getValue();
 
-									int numVerts = listFloats.getCount()/3;
 									int k=vertexoffset;
 									int t=0;
 									int vertexStride = 3;//instead of hardcoded stride, should use the 'accessor'
 									for (;t<meshPart.m_numTriangles;t++)
 									{
 										SimdVector3 verts[3];
-										int index0,index1,index2;
+										int index0;
 										for (int i=0;i<3;i++)
 										{
 											index0 = indexArray.get(k)*vertexStride;
@@ -1112,13 +1102,13 @@ void	ColladaConverter::ConvertRigidBodyRef( RigidBodyInput& rbInput,RigidBodyOut
 						//		domGeometryRef linkedGeom = *(domGeometryRef*)&otherElemRef;
 
 						// Load all the geometry libraries
-						for ( int i = 0; i < m_dom->getLibrary_geometries_array().getCount(); i++)
+						for ( unsigned int i = 0; i < m_dom->getLibrary_geometries_array().getCount(); i++)
 						{
 							domLibrary_geometriesRef libgeom = m_dom->getLibrary_geometries_array()[i];
 							//int index = libgeom->findLastIndexOf(urlref2);
 							//can't find it
 
-							for ( int  i = 0; i < libgeom->getGeometry_array().getCount(); i++)
+							for ( unsigned int  i = 0; i < libgeom->getGeometry_array().getCount(); i++)
 							{
 								//ReadGeometry(  ); 
 								domGeometryRef lib = libgeom->getGeometry_array()[i];

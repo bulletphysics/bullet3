@@ -176,7 +176,6 @@ float resolveSingleFriction(
 
 	const SimdVector3& pos1 = contactPoint.GetPositionWorldOnA();
 	const SimdVector3& pos2 = contactPoint.GetPositionWorldOnB();
-	const SimdVector3& normal = contactPoint.m_normalWorldOnB;
 
 	SimdVector3 rel_pos1 = pos1 - body1.getCenterOfMassPosition(); 
 	SimdVector3 rel_pos2 = pos2 - body2.getCenterOfMassPosition();
@@ -192,7 +191,6 @@ float resolveSingleFriction(
 	{
 		//apply friction in the 2 tangential directions
 		
-		SimdScalar relaxation = solverInfo.m_damping;
 		{
 			// 1st tangent
 			SimdVector3 vel1 = body1.getVelocityInLocalPoint(rel_pos1);

@@ -110,9 +110,8 @@ void	Raytracer::initPhysics()
 		SimdVector3(-0.5f,	0.6f,	0.f),
 		SimdVector3(0.f,	0.f,	0.f)
 	};
-	SimdScalar radi[NUM_SPHERES] = { 0.35f,0.35f,0.45f,0.40f,0.40f };
 
-	MultiSphereShape* multiSphereShape = new MultiSphereShape(inertiaHalfExtents,positions,radi,NUM_SPHERES);
+	// MultiSphereShape* multiSphereShape = new MultiSphereShape(inertiaHalfExtents,positions,radi,NUM_SPHERES);
 	ConvexHullShape* convexHullShape = new ConvexHullShape(positions,3);
 
 

@@ -51,20 +51,13 @@ void	GL_Simplex1to4::CalcClosest(float* m)
 				bool res;
 
 				SimdVector3 v;
-				SimdPoint3 pBuf[4];
-				SimdPoint3 qBuf[4];
-				SimdPoint3 yBuf[4];
-
 
 				for (int i=0;i<m_numVertices;i++)
 				{
 					v =  tr(m_vertices[i]);
 					m_simplexSolver->addVertex(v,v,SimdPoint3(0.f,0.f,0.f));
 					res = m_simplexSolver->closest(v);
-					int res = m_simplexSolver->getSimplex(pBuf, qBuf, yBuf);
-
 				}
-
 
 				//draw v?
 				glDisable(GL_LIGHTING);

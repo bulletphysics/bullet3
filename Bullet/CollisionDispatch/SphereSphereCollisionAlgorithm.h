@@ -52,3 +52,4 @@ public:
 };
 
 #endif //SPHERE_SPHERE_COLLISION_ALGORITHM_H
+

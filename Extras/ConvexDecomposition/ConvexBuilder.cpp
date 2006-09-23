@@ -8,6 +8,10 @@
 #include "fitsphere.h"
 #include "bestfitobb.h"
 
+unsigned int MAXDEPTH = 8 ;
+float CONCAVE_PERCENT = 1.0f ;
+float MERGE_PERCENT   = 2.0f ;
+
 CHull::CHull(const ConvexResult &result)
 {
 	mResult = new ConvexResult(result);
@@ -146,8 +150,6 @@ CHull * ConvexBuilder::canMerge(CHull *a,CHull *b)
 	//don't do anything if hull is empty
 	if (!tcount)
 		return 0;
-
-	unsigned int *idx   = &indices[0];
 
 	HullResult hresult;
 	HullLibrary hl;

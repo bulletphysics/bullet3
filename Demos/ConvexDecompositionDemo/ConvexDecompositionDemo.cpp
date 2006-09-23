@@ -76,10 +76,6 @@ GLDebugDrawer debugDrawer;
 
 int main(int argc,char** argv)
 {
-
-
-	int i;
-	
 	char* filename = "file.obj";
 
 
@@ -308,7 +304,7 @@ void ConvexDecompositionDemo::initPhysics(const char* filename)
 		//convexDecomposition.performConvexDecomposition(desc);
 
 		ConvexBuilder cb(desc.mCallback);
-		int ret = cb.process(desc);
+		cb.process(desc);
 		
 		if (outputFile)
 			fclose(outputFile);

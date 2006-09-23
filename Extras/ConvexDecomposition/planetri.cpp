@@ -78,7 +78,6 @@ static void intersect(const float *p1,const float *p2,float *split,const float *
 {
 
   float dp1 = DistToPt(p1,plane);
-  float dp2 = DistToPt(p2,plane);
 
   float dir[3];
 

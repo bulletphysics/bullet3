@@ -92,7 +92,7 @@ bool	SimulationIsland::Simulate(IDebugDraw* debugDrawer,int numSolverIterations,
 	overlappingPairs.resize(this->m_overlappingPairIndices.size());
 
 	//gather overlapping pair info
-	int i;
+	unsigned int i;
 	for (i=0;i<m_overlappingPairIndices.size();i++)
 	{
 		overlappingPairs[i] = overlappingPairBaseAddress[m_overlappingPairIndices[i]];
@@ -117,13 +117,6 @@ bool	SimulationIsland::Simulate(IDebugDraw* debugDrawer,int numSolverIterations,
 	#ifdef USE_QUICKPROF
 	Profiler::endBlock("DispatchAllCollisionPairs");
 	#endif //USE_QUICKPROF
-
-
-
-
-	int numRigidBodies = m_controllers.size();
-
-
 
 
 	//contacts
@@ -407,8 +400,8 @@ void	SimulationIsland::UpdateAabbs(IDebugDraw* debugDrawer,BroadphaseInterface* 
 
 					SimdVector3 color (1,1,0);
 
-					class IDebugDraw*	m_debugDrawer = 0;
 /*
+					class IDebugDraw*	m_debugDrawer = 0;
 					if (m_debugDrawer)
 					{	
 						//draw aabb

@@ -340,7 +340,6 @@ float	ConvexConvexAlgorithm::CalculateTimeOfImpact(BroadphaseProxy* proxy0,Broad
 	CollisionObject* col0 = static_cast<CollisionObject*>(m_box0.m_clientObject);
 
 	float squareMot0 = (col0->m_interpolationWorldTransform.getOrigin() - col0->m_worldTransform.getOrigin()).length2();
-	float squareMot1 = (col1->m_interpolationWorldTransform.getOrigin() - col1->m_worldTransform.getOrigin()).length2();
     
 	if (squareMot0 < col0->m_ccdSquareMotionTreshold &&
 		squareMot0 < col0->m_ccdSquareMotionTreshold)

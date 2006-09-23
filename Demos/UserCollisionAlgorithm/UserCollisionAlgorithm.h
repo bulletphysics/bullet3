@@ -33,3 +33,4 @@ class UserCollisionAlgorithm : public DemoApplication
 };
 
 #endif //USER_COLLISION_ALGORITHM_DEMO_H
+

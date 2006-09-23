@@ -47,7 +47,6 @@ void BspConverter::convertBsp(BspLoader& bspLoader,float scaling)
 		{
 			printf("Reading bspLeaf %i from total %i (%f procent)\n",i, bspLoader.m_numleafs,(100.f*(float)i/float(bspLoader.m_numleafs)) );
 			
-			bool isValid = false;
 			bool isValidBrush = false;
 			
 			BSPLeaf&	leaf = bspLoader.m_dleafs[i];
@@ -96,11 +95,6 @@ void BspConverter::convertBsp(BspLoader& bspLoader,float scaling)
 						}
 					}
 				} 
-				else
-				{
-					int i=0;
-				}
-				
 			}
 		}
 
@@ -205,8 +199,6 @@ void BspConverter::convertBsp(BspLoader& bspLoader,float scaling)
 
 void	BspConverter::getVerticesFromPlaneEquations(const std::vector<SimdVector3>& planeEquations , std::vector<SimdVector3>& verticesOut )
 {
-	float minimumDotProduct = 1e30f;
-
 	const int numbrushes = planeEquations.size();
 	// brute force:
 	for (int i=0;i<numbrushes;i++)

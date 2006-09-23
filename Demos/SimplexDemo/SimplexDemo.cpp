@@ -34,8 +34,8 @@ VoronoiSimplexSolver	simplexSolver;
 float yaw=0.f,pitch=0.f,roll=0.f;
 const int maxNumObjects = 4;
 const int numObjects = 1;
-int screenWidth = 640.f;
-int screenHeight = 480.f;
+int screenWidth = 640;
+int screenHeight = 480;
 /// simplex contains the vertices, and some extra code to draw and debug
 GL_Simplex1to4	simplex;
 
@@ -116,3 +116,5 @@ void	SimplexDemo::initPhysics()
 	SimdTransform tr;
 	tr.setIdentity();
 }
+
+

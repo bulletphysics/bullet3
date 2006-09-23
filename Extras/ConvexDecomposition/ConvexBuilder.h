@@ -79,7 +79,7 @@ class ConvexBuilder : public ConvexDecompInterface
 public:
 	ConvexBuilder(ConvexDecompInterface *callback);
 
-	~ConvexBuilder(void);
+	virtual ~ConvexBuilder(void);
 
 	bool isDuplicate(unsigned int i1,unsigned int i2,unsigned int i3,
 		unsigned int ci1,unsigned int ci2,unsigned int ci3);
@@ -108,3 +108,4 @@ public:
 };
 
 #endif //CONVEX_BUILDER_H
+

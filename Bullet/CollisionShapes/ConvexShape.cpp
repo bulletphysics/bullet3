@@ -15,11 +15,6 @@ subject to the following restrictions:
 
 #include "ConvexShape.h"
 
-ConvexShape::~ConvexShape()
-{
-
-}
-
 ConvexShape::ConvexShape()
 :m_collisionMargin(CONVEX_DISTANCE_MARGIN),
 m_localScaling(1.f,1.f,1.f)

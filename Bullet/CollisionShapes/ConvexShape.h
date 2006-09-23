@@ -36,8 +36,6 @@ class ConvexShape : public CollisionShape
 public:
 	ConvexShape();
 
-	virtual ~ConvexShape();
-
 	virtual SimdVector3	LocalGetSupportingVertex(const SimdVector3& vec)const;
 	virtual SimdVector3	LocalGetSupportingVertexWithoutMargin(const SimdVector3& vec) const= 0;
 	

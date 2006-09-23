@@ -34,3 +34,4 @@ class ContinuousConvexCollisionDemo : public DemoApplication
 };
 
 #endif //CONTINUOUS_CONVEX_COLLISION_DEMO_H
+

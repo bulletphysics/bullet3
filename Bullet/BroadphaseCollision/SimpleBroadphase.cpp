@@ -97,6 +97,7 @@ BroadphaseProxy*	SimpleBroadphase::CreateProxy(  const SimdVector3& min,  const 
 
 class	RemovingOverlapCallback : public OverlapCallback
 {
+protected:
 	virtual bool	ProcessOverlap(BroadphasePair& pair)
 	{
 		assert(0);
@@ -107,7 +108,7 @@ class RemovePairContainingProxy
 {
 
 	BroadphaseProxy*	m_targetProxy;
-
+protected:
 	virtual bool ProcessOverlap(BroadphasePair& pair)
 	{
 		SimpleBroadphaseProxy* proxy0 = static_cast<SimpleBroadphaseProxy*>(pair.m_pProxy0);

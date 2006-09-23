@@ -722,6 +722,7 @@ xmlSchematronFreeParserCtxt(xmlSchematronParserCtxtPtr ctxt)
  *
  * Add an included document
  */
+#if 0
 static void
 xmlSchematronPushInclude(xmlSchematronParserCtxtPtr ctxt,
                         xmlDocPtr doc, xmlNodePtr cur)
@@ -754,6 +755,7 @@ xmlSchematronPushInclude(xmlSchematronParserCtxtPtr ctxt,
     ctxt->includes[2 * ctxt->nbIncludes + 1] = (xmlNodePtr) doc;
     ctxt->nbIncludes++;
 }
+#endif
 
 /**
  * xmlSchematronPopInclude:
@@ -996,6 +998,7 @@ xmlSchematronParsePattern(xmlSchematronParserCtxtPtr ctxt, xmlNodePtr pat)
  *
  * Returns the updated node pointer
  */
+#if 0
 static xmlNodePtr
 xmlSchematronLoadInclude(xmlSchematronParserCtxtPtr ctxt, xmlNodePtr cur)
 {
@@ -1051,6 +1054,7 @@ done:
         xmlFree(URI);
     return(ret);
 }
+#endif
 
 /**
  * xmlSchematronParse:

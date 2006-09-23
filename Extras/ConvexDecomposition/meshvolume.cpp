@@ -43,7 +43,6 @@ float computeMeshVolume(const float *vertices,unsigned int tcount,const unsigned
 {
 	float volume = 0;
 
-	const float *p0 = vertices;
 	for (unsigned int i=0; i<tcount; i++,indices+=3)
 	{
 

@@ -257,8 +257,6 @@ void RaycastVehicle::UpdateVehicle( SimdScalar step )
 	for (wheelIt = m_wheelInfo.begin();
 	!(wheelIt == m_wheelInfo.end());wheelIt++,i++)
 	{
-		WheelInfo& wheelInfo = *wheelIt;
-		
 		SimdScalar depth; 
 		depth = Raycast( *wheelIt );
 	}

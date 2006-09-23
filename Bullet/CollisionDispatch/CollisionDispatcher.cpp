@@ -334,8 +334,6 @@ void	CollisionDispatcher::DispatchAllCollisionPairs(OverlappingPairCache* pairCa
 {
 	//m_blockedForChanges = true;
 
-	int i;
-
 	int dispatcherId = GetUniqueId();
 
 	CollisionPairCallback	collisionCallback(dispatchInfo,this,dispatcherId);
@@ -345,3 +343,5 @@ void	CollisionDispatcher::DispatchAllCollisionPairs(OverlappingPairCache* pairCa
 	//m_blockedForChanges = false;
 
 }
+
+

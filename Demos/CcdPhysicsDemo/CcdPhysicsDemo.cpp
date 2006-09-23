@@ -269,8 +269,7 @@ void	CcdPhysicsDemo::initPhysics()
 {
 
 	CollisionDispatcher* dispatcher = new	CollisionDispatcher();
-	ParallelIslandDispatcher* dispatcher2 = new	ParallelIslandDispatcher();
-	
+
 	SimdVector3 worldAabbMin(-10000,-10000,-10000);
 	SimdVector3 worldAabbMax(10000,10000,10000);
 

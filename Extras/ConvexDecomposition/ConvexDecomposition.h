@@ -45,9 +45,9 @@ THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
 
 
 
-static unsigned int MAXDEPTH=8;
-static float        CONCAVE_PERCENT=1.0f;
-static float        MERGE_PERCENT=2.0f;
+extern unsigned int MAXDEPTH ;
+extern float CONCAVE_PERCENT ;
+extern float MERGE_PERCENT   ;
 
 #include <vector>
 typedef std::vector< unsigned int > UintVector;

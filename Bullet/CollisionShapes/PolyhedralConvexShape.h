@@ -28,7 +28,7 @@ class PolyhedralConvexShape : public ConvexShape
 public:
 
 	PolyhedralConvexShape();
-	
+
 	//brute force implementations
 	virtual SimdVector3	LocalGetSupportingVertexWithoutMargin(const SimdVector3& vec)const;
 	virtual void	BatchedUnitVectorGetSupportingVertexWithoutMargin(const SimdVector3* vectors,SimdVector3* supportVerticesOut,int numVectors) const;

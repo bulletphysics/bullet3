@@ -137,7 +137,7 @@ void	UserCollisionAlgorithm::initPhysics()
 		
 
 	
-	ConstraintSolver* solver = new SequentialImpulseConstraintSolver;
+	//ConstraintSolver* solver = new SequentialImpulseConstraintSolver;
 	
 	CollisionDispatcher* dispatcher = new	CollisionDispatcher();
 		
@@ -163,7 +163,7 @@ void	UserCollisionAlgorithm::initPhysics()
 		{
 			CollisionShape* sphereShape = new SphereShape(1);
 			startTransform.setOrigin(SimdVector3(1,2*i,1));
-			CcdPhysicsController* boxRigidBody = LocalCreatePhysicsObject(true, 1, startTransform,sphereShape);
+			LocalCreatePhysicsObject(true, 1, startTransform,sphereShape);
 		}
 	}
 	m_physicsEnvironmentPtr->setGravity(-1,-10,1);

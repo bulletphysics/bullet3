@@ -327,13 +327,13 @@ static void DrawAabb(IDebugDraw* debugDrawer,const SimdVector3& from,const SimdV
 
 
 CcdPhysicsEnvironment::CcdPhysicsEnvironment(Dispatcher* dispatcher,OverlappingPairCache* pairCache)
-:m_scalingPropagated(false),
-m_numIterations(10),
+: m_numIterations(10),
 m_numTimeSubSteps(1),
 m_ccdMode(0),
 m_solverType(-1),
 m_profileTimings(0),
-m_enableSatCollisionDetection(false)
+m_enableSatCollisionDetection(false),
+m_scalingPropagated(false)
 {
 
 	for (int i=0;i<PHY_NUM_RESPONSE;i++)
@@ -382,9 +382,6 @@ void	CcdPhysicsEnvironment::addCcdPhysicsController(CcdPhysicsController* ctrl)
 	m_collisionWorld->AddCollisionObject(body,ctrl->GetCollisionFilterGroup(),ctrl->GetCollisionFilterMask());
 
 	assert(body->m_broadphaseHandle);
-
-	BroadphaseInterface* scene =  GetBroadphase();
-
 
 	CollisionShape* shapeinterface = ctrl->GetCollisionShape();
 
@@ -695,10 +692,6 @@ bool	CcdPhysicsEnvironment::proceedDeltaTimeOneStep(float timeStep)
 	Profiler::endBlock("DispatchAllCollisionPairs");
 #endif //USE_QUICKPROF
 
-
-	int numRigidBodies = m_controllers.size();
-
-	
 	m_islandManager->UpdateActivationState(GetCollisionWorld(),GetCollisionWorld()->GetDispatcher());
 
 	{
@@ -1445,10 +1438,6 @@ void		CcdPhysicsEnvironment::removeConstraint(int	constraintId)
 PHY_IPhysicsController* CcdPhysicsEnvironment::rayTest(PHY_IPhysicsController* ignoreClient, float fromX,float fromY,float fromZ, float toX,float toY,float toZ, 
 													   float& hitX,float& hitY,float& hitZ,float& normalX,float& normalY,float& normalZ)
 {
-
-
-	float minFraction = 1.f;
-
 	SimdVector3 rayFrom(fromX,fromY,fromZ);
 	SimdVector3 rayTo(toX,toY,toZ);
 
@@ -1629,9 +1618,6 @@ void CcdPhysicsEnvironment::requestCollisionCallback(PHY_IPhysicsController* ctr
 
 void	CcdPhysicsEnvironment::CallbackTriggers()
 {
-	
-	CcdPhysicsController* ctrl0=0,*ctrl1=0;
-
 	if (m_triggerCallbacks[PHY_OBJECT_RESPONSE] || (m_debugDrawer && (m_debugDrawer->GetDebugMode() & IDebugDraw::DBG_DrawContactPoints)))
 	{
 		//walk over all overlapping pairs, and if one of the involved bodies is registered for trigger callback, perform callback

@@ -243,6 +243,7 @@ SimdScalar Generic6DofConstraint::ComputeAngle(int axis) const
 			angle = SimdAtan2( s, c );
 			}
 			break;
+                  default: assert ( 0 ) ; break ;
 		}
 
 	return angle;

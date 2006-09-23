@@ -134,15 +134,15 @@ bool	ParallelPhysicsEnvironment::proceedDeltaTimeOneStep(float timeStep)
 	*/
 	
 	//store constraint indices for each island
-	for (i=0;i<m_constraints.size();i++)
+	for (unsigned int ui=0;ui<m_constraints.size();ui++)
 	{
-		TypedConstraint& constraint = *m_constraints[i];
+		TypedConstraint& constraint = *m_constraints[ui];
 		if (constraint.GetRigidBodyA().m_islandTag1 > constraint.GetRigidBodyB().m_islandTag1)
 		{
-			simulationIslands[constraint.GetRigidBodyA().m_islandTag1].m_constraintIndices.push_back(i);
+			simulationIslands[constraint.GetRigidBodyA().m_islandTag1].m_constraintIndices.push_back(ui);
 		} else
 		{
-			simulationIslands[constraint.GetRigidBodyB().m_islandTag1].m_constraintIndices.push_back(i);
+			simulationIslands[constraint.GetRigidBodyB().m_islandTag1].m_constraintIndices.push_back(ui);
 		}
 
 	}

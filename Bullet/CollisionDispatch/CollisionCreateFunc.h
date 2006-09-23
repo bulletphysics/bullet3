@@ -40,3 +40,4 @@ struct CollisionAlgorithmCreateFunc
 	}
 };
 #endif //COLLISION_CREATE_FUNC
+

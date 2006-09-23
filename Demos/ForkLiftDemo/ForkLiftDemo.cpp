@@ -128,7 +128,7 @@ void ForkLiftDemo::setupPhysics()
 {
 
 	CollisionDispatcher* dispatcher = new	CollisionDispatcher();
-	ParallelIslandDispatcher* dispatcher2 = new	ParallelIslandDispatcher();
+	//ParallelIslandDispatcher* dispatcher2 = new	ParallelIslandDispatcher();
 	
 	SimdVector3 worldAabbMin(-30000,-30000,-30000);
 	SimdVector3 worldAabbMax(30000,30000,30000);

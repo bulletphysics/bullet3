@@ -142,3 +142,5 @@ float	CompoundCollisionAlgorithm::CalculateTimeOfImpact(BroadphaseProxy* proxy0,
 	return hitFraction;
 
 }
+
+

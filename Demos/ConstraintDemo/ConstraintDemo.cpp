@@ -60,9 +60,7 @@ int main(int argc,char** argv)
 
 void	ConstraintDemo::initPhysics()
 {
-	
-
-	ConstraintSolver* solver = new SequentialImpulseConstraintSolver;
+	//ConstraintSolver* solver = new SequentialImpulseConstraintSolver;
 	//ConstraintSolver* solver = new OdeConstraintSolver;
 
 	CollisionDispatcher* dispatcher = new	CollisionDispatcher();

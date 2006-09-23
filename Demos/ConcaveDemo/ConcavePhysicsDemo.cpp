@@ -164,7 +164,7 @@ void	ConcaveDemo::initPhysics()
 		
 
 	
-	ConstraintSolver* solver = new SequentialImpulseConstraintSolver;
+	// ConstraintSolver* solver = new SequentialImpulseConstraintSolver;
 	
 	CollisionDispatcher* dispatcher = new	CollisionDispatcher();
 		
@@ -188,7 +188,7 @@ void	ConcaveDemo::initPhysics()
 		{
 			CollisionShape* boxShape = new BoxShape(SimdVector3(1,1,1));
 			startTransform.setOrigin(SimdVector3(2*i,1,1));
-			CcdPhysicsController* boxRigidBody = LocalCreatePhysicsObject(true, 1, startTransform,boxShape);
+			LocalCreatePhysicsObject(true, 1, startTransform,boxShape);
 		}
 	}
 	m_physicsEnvironmentPtr->setGravity(-1,-10,1);

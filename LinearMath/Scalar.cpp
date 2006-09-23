@@ -36,3 +36,4 @@ const Scalar Scalar::Consts::AbsMask(0x7fffffff, true);
 
 #endif
 #endif //WIN32
+

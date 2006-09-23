@@ -33,7 +33,6 @@ CollisionWorld::~CollisionWorld()
 	//clean up remaining objects
 	std::vector<CollisionObject*>::iterator i;
 
-	int index = 0;
 	for (i=m_collisionObjects.begin();
 	!(i==m_collisionObjects.end()); i++)
 

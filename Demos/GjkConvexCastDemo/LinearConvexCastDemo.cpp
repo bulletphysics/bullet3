@@ -50,8 +50,8 @@ const int numObjects = 2;
 PolyhedralConvexShape*	shapePtr[maxNumObjects];
 
 SimdTransform tr[numObjects];
-int screenWidth = 640.f;
-int screenHeight = 480.f;
+int screenWidth = 640;
+int screenHeight = 480;
 void DrawRasterizerLine(float const* , float const*, int)
 {
 

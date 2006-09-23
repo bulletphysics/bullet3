@@ -151,7 +151,6 @@ void GL_ShapeDrawer::DrawOpenGL(float* m, const CollisionShape* shape, const Sim
 			case TRIANGLE_SHAPE_PROXYTYPE:
 			case TETRAHEDRAL_SHAPE_PROXYTYPE:
 				{
-					const BU_Simplex1to4* tetra = static_cast<const BU_Simplex1to4*>(shape);
 					//todo:	
 //					useWireframeFallback = false;
 					break;

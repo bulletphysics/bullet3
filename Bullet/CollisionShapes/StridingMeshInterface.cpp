@@ -33,8 +33,6 @@ void	StridingMeshInterface::InternalProcessAllTriangles(InternalTriangleIndexCal
 	int stride,numverts,numtriangles;
 	int gfxindex;
 	SimdVector3 triangle[3];
-	int tempIndices[3] = {0,0,0};
-	int	graphicsindex=0;
 	float* graphicsbase;
 
 	SimdVector3 meshScaling = getScaling();

@@ -40,8 +40,8 @@ public:
 
 	LocalSupportVertexCallback(const SimdVector3& supportVecLocal)
 		: m_supportVertexLocal(0.f,0.f,0.f),
-		m_supportVecLocal(supportVecLocal),
-		m_maxDot(-1e30f)
+		m_maxDot(-1e30f),
+                m_supportVecLocal(supportVecLocal)
 	{
 	}
 
@@ -72,7 +72,6 @@ public:
 SimdVector3	ConvexTriangleMeshShape::LocalGetSupportingVertexWithoutMargin(const SimdVector3& vec0)const
 {
 	SimdVector3 supVec(0.f,0.f,0.f);
-	SimdScalar newDot,maxDot = -1e30f;
 
 	SimdVector3 vec = vec0;
 	SimdScalar lenSqr = vec.length2();
@@ -95,7 +94,6 @@ SimdVector3	ConvexTriangleMeshShape::LocalGetSupportingVertexWithoutMargin(const
 
 void	ConvexTriangleMeshShape::BatchedUnitVectorGetSupportingVertexWithoutMargin(const SimdVector3* vectors,SimdVector3* supportVerticesOut,int numVectors) const
 {
-	SimdScalar newDot;
 	//use 'w' component of supportVerticesOut?
 	{
 		for (int i=0;i<numVectors;i++)

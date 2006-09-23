@@ -30,12 +30,12 @@ class Dispatcher;
 /// Place holder, not fully implemented yet
 class CompoundCollisionAlgorithm  : public CollisionAlgorithm
 {
+	Dispatcher*	m_dispatcher;
 	BroadphaseProxy	m_compoundProxy;
 	BroadphaseProxy	m_otherProxy;
 	std::vector<BroadphaseProxy> m_childProxies;
 	std::vector<CollisionAlgorithm*> m_childCollisionAlgorithms;
 
-	Dispatcher*		m_dispatcher;
 	BroadphaseProxy m_compound;
 
 	BroadphaseProxy m_other;

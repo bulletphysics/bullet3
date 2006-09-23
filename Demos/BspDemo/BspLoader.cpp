@@ -711,3 +711,4 @@ const BSPEntity * BspLoader::getEntityByValue( const char* name, const char* val
 	}
 	return entity;
 }
+

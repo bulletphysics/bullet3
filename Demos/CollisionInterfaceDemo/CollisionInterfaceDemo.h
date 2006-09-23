@@ -33,3 +33,4 @@ class CollisionInterfaceDemo : public DemoApplication
 };
 
 #endif //COLLISION_INTERFACE_DEMO_H
+

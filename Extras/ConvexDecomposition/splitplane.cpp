@@ -185,9 +185,6 @@ bool computeSplitPlane(unsigned int vcount,
                        ConvexDecompInterface *callback,
                        float *plane)
 {
-  bool cret = false;
-
-
   float bmin[3] = { 1e9, 1e9, 1e9 };
   float bmax[3] = { -1e9, -1e9, -1e9 };
 

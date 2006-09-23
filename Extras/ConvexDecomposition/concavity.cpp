@@ -113,7 +113,6 @@ static void intersect(const float *p1,const float *p2,float *split,const float *
 {
 
   float dp1 = DistToPt(p1,plane);
-  float dp2 = DistToPt(p2,plane);
 
   float dir[3];
 
@@ -129,7 +128,6 @@ static void intersect(const float *p1,const float *p2,float *split,const float *
   split[0] = (dir[0]*t)+p1[0];
   split[1] = (dir[1]*t)+p1[1];
   split[2] = (dir[2]*t)+p1[2];
-
 }
 
 
@@ -602,8 +600,6 @@ float computeConcavity(unsigned int vcount,
 		float bmin[3];
 		float bmax[3];
 
-    float diagonal = getBoundingRegion( result.mNumOutputVertices, result.mOutputVertices, sizeof(float)*3, bmin, bmax );
-
 		float dx = bmax[0] - bmin[0];
 		float dy = bmax[1] - bmin[1];
 		float dz = bmax[2] - bmin[2];
@@ -613,8 +609,6 @@ float computeConcavity(unsigned int vcount,
 		center.x = bmin[0] + dx*0.5f;
 		center.y = bmin[1] + dy*0.5f;
 		center.z = bmin[2] + dz*0.5f;
-
-		float boundVolume = dx*dy*dz;
 
 		volume = computeMeshVolume2( result.mOutputVertices, result.mNumFaces, result.mIndices );
 

@@ -34,3 +34,4 @@ class LinearConvexCastDemo : public DemoApplication
 };
 
 #endif //LINEAR_CONVEX_CAST_DEMO_H
+

@@ -25,11 +25,9 @@ subject to the following restrictions:
 ///CollisionShape provides generic interface for collidable objects
 class CollisionShape
 {
-
 public:
 
-	CollisionShape()
-	:m_tempDebug(0)
+	CollisionShape() :m_tempDebug(0)
 	{
 	}
 	virtual ~CollisionShape()

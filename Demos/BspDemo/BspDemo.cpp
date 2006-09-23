@@ -261,7 +261,7 @@ char* makeExeToBspFilename(const char* lpCmdLine)
 	// displays the first filename
 	const char *in = lpCmdLine;
 	char* out = cleaned_filename;
-	*out = NULL;
+	*out = '\0';
 	// If the first character is a ", skip it (filenames with spaces in them are quoted)
 	if(*in == '\"')
 	{
@@ -276,7 +276,7 @@ char* makeExeToBspFilename(const char* lpCmdLine)
 			break;
 			
 		// If we hit a null or a quote, stop copying.  This will get just the first filename.
-		if(*in == NULL || *in == '\"')
+		if(*in == '\0' || *in == '\"')
 			break;
 		// Copy while swapping backslashes for forward ones
 		if(*in == '\\')

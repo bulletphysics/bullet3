@@ -337,9 +337,6 @@ void calcConvexDecomposition(unsigned int           vcount,
 			}
 		}
 
-		unsigned int fsize = ifront.size()/3;
-		unsigned int bsize = iback.size()/3;
-
     // ok... here we recursively call
     if ( ifront.size() )
     {
