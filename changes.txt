@@ -1,6 +1,9 @@
 Bullet Continuous Collision Detection and Physics Library
 Erwin Coumans
 
+2006 Sept 23
+	Fixed 2 bugs, causing crashes when removing objects. Should do better unit-testing. UnionFind and 3D SAP were involved.
+	
 2006 Sept 19
 	Allow programmable friction and contact solver model. User can register their own functions for several interaction types.
 	Improved performance, and removed hardcoded maximum overlaps (switched from C-array to stl::set)
