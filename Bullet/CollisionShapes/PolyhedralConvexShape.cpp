@@ -66,20 +66,25 @@ void	PolyhedralConvexShape::BatchedUnitVectorGetSupportingVertexWithoutMargin(co
 	SimdVector3 vtx;
 	SimdScalar newDot;
 
+	for (int i=0;i<numVectors;i++)
+	{
+		supportVerticesOut[i][3] = -1e30f;
+	}
+
 	for (int j=0;j<numVectors;j++)
 	{
-		SimdScalar maxDot(-1e30f);
-
+	
 		const SimdVector3& vec = vectors[j];
 
 		for (i=0;i<GetNumVertices();i++)
 		{
 			GetVertex(i,vtx);
 			newDot = vec.dot(vtx);
-			if (newDot > maxDot)
+			if (newDot > supportVerticesOut[j][3])
 			{
-				maxDot = newDot;
-				supportVerticesOut[i] = vtx;
+				//WARNING: don't swap next lines, the w component would get overwritten!
+				supportVerticesOut[j] = vtx;
+				supportVerticesOut[j][3] = newDot;
 			}
 		}
 	}

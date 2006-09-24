@@ -77,7 +77,7 @@ int curIter = 0;
 		
 		while (true)
 		{
-			//rare failure case, perhaps deferate shapes?
+			//degeneracy, this is typically due to invalid/uninitialized worldtransforms for a CollisionObject
 			if (curIter++ > gGjkMaxIter)
 			{
 				#if defined(DEBUG) || defined (_DEBUG)
