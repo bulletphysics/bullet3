@@ -4,9 +4,7 @@ BUILDTOP ?= "@top_builddir@" ;
 SubDir TOP ;
 
 IncludeDir ;
-IncludeDir Bullet ;
-IncludeDir BulletDynamics ;
-IncludeDir LinearMath ;
+IncludeDir src ;
 
 IncludeDir $(BUILDTOP) : : literal transient ;
 
@@ -59,9 +57,7 @@ MsvcGenConfig GLUT.LIBDIRS : "../../Glut" ;
 MsvcGenConfig GLUT.LIBS : glut32.lib ;
 MsvcGenConfig GLEW.LIBS : glew32.lib ;
 
-SubInclude TOP LinearMath ;
-SubInclude TOP Bullet ;
-SubInclude TOP BulletDynamics ;
+SubInclude TOP src ;
 SubInclude TOP Extras ;
 SubInclude TOP Demos ;
 

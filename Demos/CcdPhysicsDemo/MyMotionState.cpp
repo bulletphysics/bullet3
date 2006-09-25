@@ -14,7 +14,7 @@ subject to the following restrictions:
 */
 
 #include "MyMotionState.h"
-#include "SimdPoint3.h"
+#include "LinearMath/SimdPoint3.h"
 
 MyMotionState::MyMotionState()
 {

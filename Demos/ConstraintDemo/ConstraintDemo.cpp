@@ -16,15 +16,8 @@ subject to the following restrictions:
 #include "CcdPhysicsEnvironment.h"
 #include "CcdPhysicsController.h"
 #include "MyMotionState.h"
-#include "CollisionShapes/BoxShape.h"
-#include "CollisionShapes/Simplex1to4Shape.h"
-#include "CollisionShapes/EmptyShape.h"
-
-#include "Dynamics/RigidBody.h"
-#include "ConstraintSolver/SequentialImpulseConstraintSolver.h"
-#include "CollisionDispatch/CollisionDispatcher.h"
-#include "BroadphaseCollision/SimpleBroadphase.h"
-#include "IDebugDraw.h"
+#include "btBulletDynamicsCommon.h"
+#include "LinearMath/GenIDebugDraw.h"
 
 #include "GLDebugDrawer.h"
 

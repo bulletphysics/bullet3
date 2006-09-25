@@ -35,9 +35,9 @@ subject to the following restrictions:
 #include <math.h>
 
 
-#include "SimdVector3.h"
-#include "SimdMatrix3x3.h"
-#include "SimdTransform.h"
+#include "LinearMath/SimdVector3.h"
+#include "LinearMath/SimdMatrix3x3.h"
+#include "LinearMath/SimdTransform.h"
 
 class CcdPhysicsEnvironment;
 class CcdPhysicsController;

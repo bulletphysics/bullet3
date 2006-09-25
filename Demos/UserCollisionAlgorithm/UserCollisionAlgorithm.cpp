@@ -15,25 +15,8 @@ subject to the following restrictions:
 
 #include "CcdPhysicsEnvironment.h"
 #include "CcdPhysicsController.h"
-
-#include "CollisionShapes/BoxShape.h"
-#include "CollisionShapes/SphereShape.h"
-
-
-#include "CollisionShapes/Simplex1to4Shape.h"
-#include "Dynamics/RigidBody.h"
-#include "BroadphaseCollision/AxisSweep3.h"
-
-#include "ConstraintSolver/SequentialImpulseConstraintSolver.h"
-#include "CollisionDispatch/CollisionDispatcher.h"
-#include "BroadphaseCollision/SimpleBroadphase.h"
-#include "BroadphaseCollision/AxisSweep3.h"
-
-#include "CollisionShapes/TriangleMeshShape.h"
-#include "CollisionShapes/TriangleIndexVertexArray.h"
-#include "CollisionShapes/BvhTriangleMeshShape.h"
-#include "CollisionShapes/TriangleMesh.h"
-#include "IDebugDraw.h"
+#include "btBulletDynamicsCommon.h"
+#include "LinearMath/GenIDebugDraw.h"
 #include "GLDebugDrawer.h"
 #include "PHY_Pro.h"
 #include "UserCollisionAlgorithm.h"
@@ -41,7 +24,7 @@ subject to the following restrictions:
 #include "GlutStuff.h"
 
 //The user defined collision algorithm
-#include "CollisionDispatch/SphereSphereCollisionAlgorithm.h"
+#include "BulletCollision/CollisionDispatch/btSphereSphereCollisionAlgorithm.h"
 
 GLDebugDrawer	debugDrawer;
 

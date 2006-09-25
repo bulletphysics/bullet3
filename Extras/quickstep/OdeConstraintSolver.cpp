@@ -17,15 +17,15 @@ subject to the following restrictions:
 
 #include "OdeConstraintSolver.h"
 
-#include "NarrowPhaseCollision/PersistentManifold.h"
-#include "Dynamics/RigidBody.h"
-#include "ContactConstraint.h"
+#include "BulletCollision/NarrowPhaseCollision/btPersistentManifold.h"
+#include "BulletDynamics/Dynamics/btRigidBody.h"
+#include "btContactConstraint.h"
 #include "Solve2LinearConstraint.h"
-#include "ContactSolverInfo.h"
+#include "btContactSolverInfo.h"
 #include "Dynamics/BU_Joint.h"
 #include "Dynamics/ContactJoint.h"
 
-#include "IDebugDraw.h"
+#include "LinearMath/GenIDebugDraw.h"
 
 #define USE_SOR_SOLVER
 

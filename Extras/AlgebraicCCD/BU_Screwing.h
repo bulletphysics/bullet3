@@ -18,9 +18,9 @@ subject to the following restrictions:
 #define B_SCREWING_H
 
 
-#include <SimdVector3.h>
-#include <SimdPoint3.h>
-#include <SimdTransform.h>
+#include <LinearMath/SimdVector3.h>
+#include <LinearMath/SimdPoint3.h>
+#include <LinearMath/SimdTransform.h>
 
 
 #define SCREWEPSILON 0.00001f

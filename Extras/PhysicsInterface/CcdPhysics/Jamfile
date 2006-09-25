@@ -4,7 +4,7 @@ IncludeDir Extras/PhysicsInterface/Common ;
 
 Library bulletccdphysics : [ Wildcard *.h *.cpp ] ;
 CFlags bulletccdphysics : [ FIncludes $(TOP)/Extras/PhysicsInterface/Common ] ;
-LibDepends bulletccdphysics : bullet bulletphysicsinterfacecommon bulletdynamics ;
+LibDepends bulletccdphysics : bulletcollision bulletphysicsinterfacecommon bulletdynamics ;
 
 
 InstallHeader [ Wildcard *.h ] : CcdPhysics ;

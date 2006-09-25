@@ -8,7 +8,7 @@ if $(GLUT.AVAILABLE) = "yes"
   rule BulletDemo
   {
     Application $(<) : $(>) : noinstall console nomanifest ;
-    LinkWith $(<) :  bullet bulletopenglsupport bulletphysicsinterfacecommon bulletccdphysics bulletmath ;
+    LinkWith $(<) :  bulletcollision bulletopenglsupport bulletphysicsinterfacecommon bulletccdphysics bulletmath ;
     CFlags $(<) : 
 	  [ FIncludes $(TOP)/Demos/OpenGL ] 
 	  [ FIncludes $(TOP)/Extras/PhysicsInterface/CcdPhysics ] 
@@ -24,7 +24,7 @@ if $(GLUT.AVAILABLE) = "yes"
   rule ExtraDemo
   {
     Application $(<) : $(>) : noinstall console nomanifest ;
-    LinkWith $(<) :   collada-dom libxml convexdecomposition bullet bulletopenglsupport bulletphysicsinterfacecommon bulletccdphysics bulletmath ;
+    LinkWith $(<) :   collada-dom libxml convexdecomposition bulletcollision bulletopenglsupport bulletphysicsinterfacecommon bulletccdphysics bulletmath ;
     CFlags $(<) :
           [ FIncludes $(TOP)/Demos/OpenGL ]
           [ FIncludes $(TOP)/Extras/PhysicsInterface/CcdPhysics ]
@@ -62,7 +62,7 @@ else
  rule BulletBasicDemo
   {
     Application $(<) : $(>) : noinstall console nomanifest ;
-    LinkWith $(<) :  bullet bulletphysicsinterfacecommon bulletccdphysics bulletmath ;
+    LinkWith $(<) :  bulletcollision bulletphysicsinterfacecommon bulletccdphysics bulletmath ;
     CFlags $(<) :
           [ FIncludes $(TOP)/Extras/PhysicsInterface/CcdPhysics ]
           [ FIncludes $(TOP)/Extras/PhysicsInterface/Common ]

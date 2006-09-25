@@ -17,9 +17,9 @@ subject to the following restrictions:
 
 #include "BU_VertexPoly.h"
 #include "BU_Screwing.h"
-#include <SimdTransform.h>
-#include <SimdPoint3.h>
-#include <SimdVector3.h>
+#include <LinearMath/SimdTransform.h>
+#include <LinearMath/SimdPoint3.h>
+#include <LinearMath/SimdVector3.h>
 
 #define USE_ALGEBRAIC
 #ifdef USE_ALGEBRAIC

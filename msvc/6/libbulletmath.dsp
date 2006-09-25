@@ -43,11 +43,11 @@ RSC=rc.exe
 # PROP Ignore_Export_Lib 0
 # PROP Target_Dir ""
 # ADD BASE CPP /nologo /vmb /vms /W3 /Gm /G5 /D "WIN32" /FD /c
-# ADD CPP /nologo /vmb /vms /W3 /Gm /G5 /FD /c /Gy /GF /MD /Ob2 /Og /Oi /Ot /Oy /D "_LIB" /D "_MT" /D "_MBCS" /D "NDEBUG" /D "_LIB" /D "_WINDOWS" /D "WIN32"  /I "." /I "..\.." /I "..\..\Bullet" /I "..\..\BulletDynamics" /I "..\..\LinearMath"
+# ADD CPP /nologo /vmb /vms /W3 /Gm /G5 /FD /c /Gy /GF /MD /Ob2 /Og /Oi /Ot /Oy /D "_LIB" /D "_MT" /D "_MBCS" /D "NDEBUG" /D "_LIB" /D "_WINDOWS" /D "WIN32"  /I "." /I "..\.." /I "..\..\src"
 # ADD BASE MTL /nologo /mktyplib203 /o "NUL" /win32
 # ADD MTL /nologo /mktyplib203 /o "NUL" /win32 /D "NDEBUG" /D "_LIB" /D "_WINDOWS"
 # ADD BASE RSC /l 0x409
-# ADD RSC /l 0x409 /fo".\..\..\out\release6\build\libbulletmath\libbulletmath.res" /i "." /i "..\.." /i "..\..\Bullet" /i "..\..\BulletDynamics" /i "..\..\LinearMath"
+# ADD RSC /l 0x409 /fo".\..\..\out\release6\build\libbulletmath\libbulletmath.res" /i "." /i "..\.." /i "..\..\src"
 BSC32=bscmake.exe
 # ADD BASE BSC32 /nologo
 # ADD BSC32 /nologo
@@ -75,11 +75,11 @@ SOURCE="$(InputPath)"
 # PROP Ignore_Export_Lib 0
 # PROP Target_Dir ""
 # ADD BASE CPP /nologo /vmb /vms /W3 /Gm /G5 /D "WIN32" /FD /c
-# ADD CPP /nologo /vmb /vms /W3 /Gm /G5 /FD /c /GR /MDd /ZI /Od /D "_LIB" /D "_MT" /D "_MBCS" /D "_DEBUG" /D "_LIB" /D "_WINDOWS" /D "WIN32"  /I "." /I "..\.." /I "..\..\Bullet" /I "..\..\BulletDynamics" /I "..\..\LinearMath"
+# ADD CPP /nologo /vmb /vms /W3 /Gm /G5 /FD /c /GR /MDd /ZI /Od /D "_LIB" /D "_MT" /D "_MBCS" /D "_DEBUG" /D "_LIB" /D "_WINDOWS" /D "WIN32"  /I "." /I "..\.." /I "..\..\src"
 # ADD BASE MTL /nologo /mktyplib203 /o "NUL" /win32
 # ADD MTL /nologo /mktyplib203 /o "NUL" /win32 /D "_DEBUG" /D "_LIB" /D "_WINDOWS"
 # ADD BASE RSC /l 0x409
-# ADD RSC /l 0x409 /fo".\..\..\out\debug6\build\libbulletmath\libbulletmath.res" /i "." /i "..\.." /i "..\..\Bullet" /i "..\..\BulletDynamics" /i "..\..\LinearMath"
+# ADD RSC /l 0x409 /fo".\..\..\out\debug6\build\libbulletmath\libbulletmath.res" /i "." /i "..\.." /i "..\..\src"
 BSC32=bscmake.exe
 # ADD BASE BSC32 /nologo
 # ADD BSC32 /nologo
@@ -104,31 +104,7 @@ SOURCE="$(InputPath)"
 # PROP Default_Filter ""
 # Begin Source File
 
-SOURCE=..\..\LinearMath\Geometry.cpp
-# End Source File
-# Begin Source File
-
-SOURCE=..\..\LinearMath\Matrix.cpp
-# End Source File
-# Begin Source File
-
-SOURCE=..\..\LinearMath\Quat.cpp
-# End Source File
-# Begin Source File
-
-SOURCE=..\..\LinearMath\quickprof.cpp
-# End Source File
-# Begin Source File
-
-SOURCE=..\..\LinearMath\Scalar.cpp
-# End Source File
-# Begin Source File
-
-SOURCE=..\..\LinearMath\Vector.cpp
-# End Source File
-# Begin Source File
-
-SOURCE=..\..\LinearMath\VectorBase.cpp
+SOURCE=..\..\src\LinearMath\GenQuickprof.cpp
 # End Source File
 # End Group
 # Begin Group "Header Files"
@@ -136,95 +112,63 @@ SOURCE=..\..\LinearMath\VectorBase.cpp
 # PROP Default_Filter ""
 # Begin Source File
 
-SOURCE=..\..\LinearMath\AabbUtil2.h
+SOURCE=..\..\src\LinearMath\GenAabbUtil2.h
 # End Source File
 # Begin Source File
 
-SOURCE=..\..\LinearMath\GEN_List.h
+SOURCE=..\..\src\LinearMath\GenIDebugDraw.h
 # End Source File
 # Begin Source File
 
-SOURCE=..\..\LinearMath\GEN_MinMax.h
+SOURCE=..\..\src\LinearMath\GenList.h
 # End Source File
 # Begin Source File
 
-SOURCE=..\..\LinearMath\GEN_random.h
+SOURCE=..\..\src\LinearMath\GenMinMax.h
 # End Source File
 # Begin Source File
 
-SOURCE=..\..\LinearMath\Geometry.h
+SOURCE=..\..\src\LinearMath\GenQuickprof.h
 # End Source File
 # Begin Source File
 
-SOURCE=..\..\LinearMath\IDebugDraw.h
+SOURCE=..\..\src\LinearMath\GenRandom.h
 # End Source File
 # Begin Source File
 
-SOURCE=..\..\LinearMath\Maths.h
+SOURCE=..\..\src\LinearMath\SimdMatrix3x3.h
 # End Source File
 # Begin Source File
 
-SOURCE=..\..\LinearMath\Matrix.h
+SOURCE=..\..\src\LinearMath\SimdMinMax.h
 # End Source File
 # Begin Source File
 
-SOURCE=..\..\LinearMath\Memory2.h
+SOURCE=..\..\src\LinearMath\SimdPoint3.h
 # End Source File
 # Begin Source File
 
-SOURCE=..\..\LinearMath\Quat.h
+SOURCE=..\..\src\LinearMath\SimdQuadWord.h
 # End Source File
 # Begin Source File
 
-SOURCE=..\..\LinearMath\quickprof.h
+SOURCE=..\..\src\LinearMath\SimdQuaternion.h
 # End Source File
 # Begin Source File
 
-SOURCE=..\..\LinearMath\Scalar.h
+SOURCE=..\..\src\LinearMath\SimdScalar.h
 # End Source File
 # Begin Source File
 
-SOURCE=..\..\LinearMath\SimdMatrix3x3.h
+SOURCE=..\..\src\LinearMath\SimdTransform.h
 # End Source File
 # Begin Source File
 
-SOURCE=..\..\LinearMath\SimdMinMax.h
+SOURCE=..\..\src\LinearMath\SimdTransformUtil.h
 # End Source File
 # Begin Source File
 
-SOURCE=..\..\LinearMath\SimdPoint3.h
-# End Source File
-# Begin Source File
-
-SOURCE=..\..\LinearMath\SimdQuadWord.h
-# End Source File
-# Begin Source File
-
-SOURCE=..\..\LinearMath\SimdQuaternion.h
-# End Source File
-# Begin Source File
-
-SOURCE=..\..\LinearMath\SimdScalar.h
-# End Source File
-# Begin Source File
-
-SOURCE=..\..\LinearMath\SimdTransform.h
-# End Source File
-# Begin Source File
-
-SOURCE=..\..\LinearMath\SimdTransformUtil.h
-# End Source File
-# Begin Source File
-
-SOURCE=..\..\LinearMath\SimdVector3.h
-# End Source File
-# Begin Source File
-
-SOURCE=..\..\LinearMath\Vector.h
-# End Source File
-# Begin Source File
-
-SOURCE=..\..\LinearMath\VectorBase.h
+SOURCE=..\..\src\LinearMath\SimdVector3.h
 # End Source File
 # End Group
 # End Target

@@ -14,9 +14,9 @@ subject to the following restrictions:
 */
 
 #include "SphereSphereCollisionAlgorithm.h"
-#include "CollisionDispatch/CollisionDispatcher.h"
-#include "CollisionShapes/SphereShape.h"
-#include "CollisionDispatch/CollisionObject.h"
+#include "BulletCollision/CollisionDispatch/btCollisionDispatcher.h"
+#include "BulletCollision/CollisionShapes/btSphereShape.h"
+#include "BulletCollision/CollisionDispatch/btCollisionObject.h"
 
 SphereSphereCollisionAlgorithm::SphereSphereCollisionAlgorithm(PersistentManifold* mf,const CollisionAlgorithmConstructionInfo& ci,BroadphaseProxy* proxy0,BroadphaseProxy* proxy1)
 : CollisionAlgorithm(ci),

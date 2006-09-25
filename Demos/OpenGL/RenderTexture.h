@@ -16,7 +16,7 @@ subject to the following restrictions:
 #ifndef RENDER_TEXTURE_H
 #define RENDER_TEXTURE_H
 
-#include "SimdVector3.h"
+#include "LinearMath/SimdVector3.h"
 #include "BMF_FontData.h"
 
 ///

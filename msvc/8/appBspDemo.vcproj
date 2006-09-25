@@ -32,7 +32,7 @@
 				OptimizeForProcessor="1"
 				ExceptionHandling="0"
 				AdditionalOptions=" "
-				AdditionalIncludeDirectories=".;..\..;..\..\Bullet;..\..\BulletDynamics;..\..\LinearMath;..\..\Extras\PhysicsInterface\Common;..\..\Extras\ConvexDecomposition;..\..\Extras\COLLADA_DOM\include;..\..\Extras\COLLADA_DOM\include\1.4;..\..\Extras\LibXML\include;..\..\Extras\PhysicsInterface\CcdPhysics;..\..\Glut;..\..\Demos\OpenGL;..\..\Extras\LibXML"
+				AdditionalIncludeDirectories=".;..\..;..\..\src;..\..\Extras\PhysicsInterface\Common;..\..\Extras\ConvexDecomposition;..\..\Extras\COLLADA_DOM\include;..\..\Extras\COLLADA_DOM\include\1.4;..\..\Extras\LibXML\include;..\..\Extras\PhysicsInterface\CcdPhysics;..\..\Glut;..\..\Demos\OpenGL;..\..\Extras\LibXML"
 				PrecompiledHeaderFile="..\..\out\release8\build\appBspDemo\appBspDemo.pch"
 				AssemblerListingLocation="..\..\out\release8\build\appBspDemo\"
 				ObjectFile="..\..\out\release8\build\appBspDemo\"
@@ -81,7 +81,7 @@
 			<Tool
 				Name="VCResourceCompilerTool"
 				PreprocessorDefinitions="NDEBUG;_CONSOLE;PROJECTGEN_VERSION=8"
-				AdditionalIncludeDirectories=".;..\..;..\..\Bullet;..\..\BulletDynamics;..\..\LinearMath;..\..\Extras\PhysicsInterface\Common;..\..\Extras\ConvexDecomposition;..\..\Extras\COLLADA_DOM\include;..\..\Extras\COLLADA_DOM\include\1.4;..\..\Extras\LibXML\include;..\..\Extras\PhysicsInterface\CcdPhysics;..\..\Glut;..\..\Demos\OpenGL;..\..\Extras\LibXML"
+				AdditionalIncludeDirectories=".;..\..;..\..\src;..\..\Extras\PhysicsInterface\Common;..\..\Extras\ConvexDecomposition;..\..\Extras\COLLADA_DOM\include;..\..\Extras\COLLADA_DOM\include\1.4;..\..\Extras\LibXML\include;..\..\Extras\PhysicsInterface\CcdPhysics;..\..\Glut;..\..\Demos\OpenGL;..\..\Extras\LibXML"
 				Culture="1033"/>
 			<Tool
 				Name="VCWebServiceProxyGeneratorTool"/>
@@ -107,7 +107,7 @@
 				OptimizeForProcessor="1"
 				ExceptionHandling="0"
 				AdditionalOptions=" "
-				AdditionalIncludeDirectories=".;..\..;..\..\Bullet;..\..\BulletDynamics;..\..\LinearMath;..\..\Extras\PhysicsInterface\Common;..\..\Extras\ConvexDecomposition;..\..\Extras\COLLADA_DOM\include;..\..\Extras\COLLADA_DOM\include\1.4;..\..\Extras\LibXML\include;..\..\Extras\PhysicsInterface\CcdPhysics;..\..\Glut;..\..\Demos\OpenGL;..\..\Extras\LibXML"
+				AdditionalIncludeDirectories=".;..\..;..\..\src;..\..\Extras\PhysicsInterface\Common;..\..\Extras\ConvexDecomposition;..\..\Extras\COLLADA_DOM\include;..\..\Extras\COLLADA_DOM\include\1.4;..\..\Extras\LibXML\include;..\..\Extras\PhysicsInterface\CcdPhysics;..\..\Glut;..\..\Demos\OpenGL;..\..\Extras\LibXML"
 				PrecompiledHeaderFile="..\..\out\debug8\build\appBspDemo\appBspDemo.pch"
 				AssemblerListingLocation="..\..\out\debug8\build\appBspDemo\"
 				ObjectFile="..\..\out\debug8\build\appBspDemo\"
@@ -154,7 +154,7 @@
 			<Tool
 				Name="VCResourceCompilerTool"
 				PreprocessorDefinitions="_DEBUG;_CONSOLE;PROJECTGEN_VERSION=8"
-				AdditionalIncludeDirectories=".;..\..;..\..\Bullet;..\..\BulletDynamics;..\..\LinearMath;..\..\Extras\PhysicsInterface\Common;..\..\Extras\ConvexDecomposition;..\..\Extras\COLLADA_DOM\include;..\..\Extras\COLLADA_DOM\include\1.4;..\..\Extras\LibXML\include;..\..\Extras\PhysicsInterface\CcdPhysics;..\..\Glut;..\..\Demos\OpenGL;..\..\Extras\LibXML"
+				AdditionalIncludeDirectories=".;..\..;..\..\src;..\..\Extras\PhysicsInterface\Common;..\..\Extras\ConvexDecomposition;..\..\Extras\COLLADA_DOM\include;..\..\Extras\COLLADA_DOM\include\1.4;..\..\Extras\LibXML\include;..\..\Extras\PhysicsInterface\CcdPhysics;..\..\Glut;..\..\Demos\OpenGL;..\..\Extras\LibXML"
 				Culture="1033"/>
 			<Tool
 				Name="VCWebServiceProxyGeneratorTool"/>

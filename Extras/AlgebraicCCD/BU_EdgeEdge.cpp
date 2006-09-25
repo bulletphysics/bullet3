@@ -16,8 +16,8 @@ subject to the following restrictions:
 
 #include "BU_EdgeEdge.h"
 #include "BU_Screwing.h"
-#include <SimdPoint3.h>
-#include <SimdPoint3.h>
+#include <LinearMath/SimdPoint3.h>
+#include <LinearMath/SimdPoint3.h>
 
 //#include "BU_IntervalArithmeticPolynomialSolver.h"
 #include "BU_AlgebraicPolynomialSolver.h"

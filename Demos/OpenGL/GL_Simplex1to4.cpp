@@ -13,7 +13,7 @@ subject to the following restrictions:
 3. This notice may not be removed or altered from any source distribution.
 */
 #include "GL_Simplex1to4.h"
-#include "NarrowPhaseCollision/SimplexSolverInterface.h"
+#include "BulletCollision/NarrowPhaseCollision/btSimplexSolverInterface.h"
 #include "GL_ShapeDrawer.h"
 #ifdef WIN32
 #include <windows.h>
@@ -26,7 +26,7 @@ subject to the following restrictions:
 #else
 #include <GL/gl.h>
 #endif
-#include "SimdTransform.h"
+#include "LinearMath/SimdTransform.h"
 
 GL_Simplex1to4::GL_Simplex1to4()
 :m_simplexSolver(0)

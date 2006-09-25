@@ -18,8 +18,8 @@ subject to the following restrictions:
 #ifndef COLLADA_CONVERTER_H
 #define COLLADA_CONVERTER_H
 
-#include "SimdTransform.h"
-#include "SimdVector3.h"
+#include "LinearMath/SimdTransform.h"
+#include "LinearMath/SimdVector3.h"
 
 class CollisionShape;
 class PHY_IPhysicsController;

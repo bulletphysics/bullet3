@@ -19,9 +19,9 @@ subject to the following restrictions:
 
 
 class BU_Screwing;
-#include <SimdTransform.h>
-#include <SimdPoint3.h>
-#include <SimdScalar.h>
+#include <LinearMath/SimdTransform.h>
+#include <LinearMath/SimdPoint3.h>
+#include <LinearMath/SimdScalar.h>
 
 ///BU_VertexPoly implements algebraic time of impact calculation between vertex and a plane.
 class BU_VertexPoly

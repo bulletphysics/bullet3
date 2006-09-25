@@ -1,0 +1,9 @@
+SubDir TOP src LinearMath ;
+
+Description bulletmath : "Bullet Math Library" ;
+
+Library bulletmath :
+[ Wildcard *.h *.cpp ]
+	;
+
+InstallHeader [ Wildcard *.h ] ;

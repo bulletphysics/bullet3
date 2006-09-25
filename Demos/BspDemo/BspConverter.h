@@ -18,7 +18,7 @@ subject to the following restrictions:
 
 class BspLoader;
 #include <vector>
-#include "SimdVector3.h"
+#include "LinearMath/SimdVector3.h"
 
 ///BspConverter turns a loaded bsp level into convex parts (vertices)
 class BspConverter
@@ -26,7 +26,9 @@ class BspConverter
 	public:
 
 		void convertBsp(BspLoader& bspLoader,float scaling);
-
+		virtual ~BspConverter()
+		{
+		}
 		///Utility function to create vertices from a Quake Brush. Brute force but it works. 
 		///Bit overkill to use QHull package
 		void	getVerticesFromPlaneEquations(const std::vector<SimdVector3>& planeEquations , std::vector<SimdVector3>& verticesOut );

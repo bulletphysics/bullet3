@@ -24,9 +24,9 @@
 #include "Solid3EpaPenetrationDepth.h"
 #include <algorithm>
 #include <vector>
-#include "NarrowPhaseCollision/SimplexSolverInterface.h"
-#include "CollisionShapes/ConvexShape.h"
-#include "GEN_MinMax.h"
+#include "BulletCollision/NarrowPhaseCollision/btSimplexSolverInterface.h"
+#include "BulletCollision/CollisionShapes/btConvexShape.h"
+#include "LinearMath/GenMinMax.h"
 
 #define ASSERT_MESSAGE
 

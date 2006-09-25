@@ -27,7 +27,7 @@
 #define SOR_LCP_H
 class RigidBody;
 class BU_Joint;
-#include "SimdScalar.h"
+#include "LinearMath/SimdScalar.h"
 
 struct ContactSolverInfo;
 

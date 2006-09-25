@@ -1,0 +1,6 @@
+SubDir TOP src ;
+
+SubInclude TOP src BulletCollision ;
+SubInclude TOP src BulletDynamics ;
+SubInclude TOP src LinearMath ;
+

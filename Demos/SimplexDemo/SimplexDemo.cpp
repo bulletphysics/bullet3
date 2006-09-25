@@ -19,11 +19,11 @@ subject to the following restrictions:
 */
 
 #include "GL_Simplex1to4.h"
-#include "SimdQuaternion.h"
-#include "SimdTransform.h"
+#include "LinearMath/SimdQuaternion.h"
+#include "LinearMath/SimdTransform.h"
 #include "GL_ShapeDrawer.h"
 
-#include "NarrowPhaseCollision/VoronoiSimplexSolver.h"
+#include "BulletCollision/NarrowPhaseCollision/btVoronoiSimplexSolver.h"
 #include "SimplexDemo.h"
 #include "GlutStuff.h"
 

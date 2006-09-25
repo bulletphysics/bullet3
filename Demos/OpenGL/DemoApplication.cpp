@@ -14,16 +14,16 @@ subject to the following restrictions:
 */
 
 #include "DemoApplication.h"
-#include "IDebugDraw.h"
+#include "LinearMath/GenIDebugDraw.h"
 
 #include "CcdPhysicsEnvironment.h"
 #include "CcdPhysicsController.h"
-#include "ConstraintSolver/Point2PointConstraint.h"//picking
+#include "BulletDynamics/ConstraintSolver/btPoint2PointConstraint.h"//picking
 #include "PHY_Pro.h"
-#include "CollisionShapes/CollisionShape.h"
-#include "CollisionShapes/BoxShape.h"
+#include "BulletCollision/CollisionShapes/btCollisionShape.h"
+#include "BulletCollision/CollisionShapes/btBoxShape.h"
 #include "GL_ShapeDrawer.h"
-#include "quickprof.h"
+#include "LinearMath/GenQuickprof.h"
 #include "BMF_Api.h"
 
 int numObjects = 0;

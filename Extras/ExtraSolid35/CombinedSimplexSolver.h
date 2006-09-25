@@ -12,8 +12,8 @@
 #ifndef COMBINED_SIMPLEX_SOLVER
 #define COMBINED_SIMPLEX_SOLVER
 
-#include "NarrowPhaseCollision/SimplexSolverInterface.h"
-#include "NarrowPhaseCollision/VoronoiSimplexSolver.h"
+#include "BulletCollision/NarrowPhaseCollision/btSimplexSolverInterface.h"
+#include "BulletCollision/NarrowPhaseCollision/btVoronoiSimplexSolver.h"
 #include "Solid3JohnsonSimplexSolver.h"
 
 /// CombinedSimplexSolver runs both Solid and Voronoi Simplex Solver for comparison

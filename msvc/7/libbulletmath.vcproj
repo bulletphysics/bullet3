@@ -30,7 +30,7 @@
 				OptimizeForProcessor="1"
 				ExceptionHandling="0"
 				AdditionalOptions=" "
-				AdditionalIncludeDirectories=".;..\..;..\..\Bullet;..\..\BulletDynamics;..\..\LinearMath"
+				AdditionalIncludeDirectories=".;..\..;..\..\src"
 				PrecompiledHeaderFile="..\..\out\release7\build\libbulletmath\libbulletmath.pch"
 				AssemblerListingLocation="..\..\out\release7\build\libbulletmath\"
 				ObjectFile="..\..\out\release7\build\libbulletmath\"
@@ -78,7 +78,7 @@
 			<Tool
 				Name="VCResourceCompilerTool"
 				PreprocessorDefinitions="NDEBUG;_LIB;_WINDOWS;PROJECTGEN_VERSION=7"
-				AdditionalIncludeDirectories=".;..\..;..\..\Bullet;..\..\BulletDynamics;..\..\LinearMath"
+				AdditionalIncludeDirectories=".;..\..;..\..\src"
 				Culture="1033"/>
 			<Tool
 				Name="VCWebServiceProxyGeneratorTool"/>
@@ -103,7 +103,7 @@
 				OptimizeForProcessor="1"
 				ExceptionHandling="0"
 				AdditionalOptions=" "
-				AdditionalIncludeDirectories=".;..\..;..\..\Bullet;..\..\BulletDynamics;..\..\LinearMath"
+				AdditionalIncludeDirectories=".;..\..;..\..\src"
 				PrecompiledHeaderFile="..\..\out\debug7\build\libbulletmath\libbulletmath.pch"
 				AssemblerListingLocation="..\..\out\debug7\build\libbulletmath\"
 				ObjectFile="..\..\out\debug7\build\libbulletmath\"
@@ -149,7 +149,7 @@
 			<Tool
 				Name="VCResourceCompilerTool"
 				PreprocessorDefinitions="_DEBUG;_LIB;_WINDOWS;PROJECTGEN_VERSION=7"
-				AdditionalIncludeDirectories=".;..\..;..\..\Bullet;..\..\BulletDynamics;..\..\LinearMath"
+				AdditionalIncludeDirectories=".;..\..;..\..\src"
 				Culture="1033"/>
 			<Tool
 				Name="VCWebServiceProxyGeneratorTool"/>
@@ -162,98 +162,56 @@
 			Name="Source Files"
 			Filter="">
 			<File
-				RelativePath="..\..\LinearMath\Geometry.cpp">
-			</File>
-			<File
-				RelativePath="..\..\LinearMath\Matrix.cpp">
-			</File>
-			<File
-				RelativePath="..\..\LinearMath\Quat.cpp">
-			</File>
-			<File
-				RelativePath="..\..\LinearMath\quickprof.cpp">
-			</File>
-			<File
-				RelativePath="..\..\LinearMath\Scalar.cpp">
-			</File>
-			<File
-				RelativePath="..\..\LinearMath\Vector.cpp">
-			</File>
-			<File
-				RelativePath="..\..\LinearMath\VectorBase.cpp">
+				RelativePath="..\..\src\LinearMath\GenQuickprof.cpp">
 			</File>
 		</Filter>
 		<Filter
 			Name="Header Files"
 			Filter="">
 			<File
-				RelativePath="..\..\LinearMath\AabbUtil2.h">
+				RelativePath="..\..\src\LinearMath\GenAabbUtil2.h">
 			</File>
 			<File
-				RelativePath="..\..\LinearMath\GEN_List.h">
+				RelativePath="..\..\src\LinearMath\GenIDebugDraw.h">
 			</File>
 			<File
-				RelativePath="..\..\LinearMath\GEN_MinMax.h">
+				RelativePath="..\..\src\LinearMath\GenList.h">
 			</File>
 			<File
-				RelativePath="..\..\LinearMath\GEN_random.h">
+				RelativePath="..\..\src\LinearMath\GenMinMax.h">
 			</File>
 			<File
-				RelativePath="..\..\LinearMath\Geometry.h">
+				RelativePath="..\..\src\LinearMath\GenQuickprof.h">
 			</File>
 			<File
-				RelativePath="..\..\LinearMath\IDebugDraw.h">
+				RelativePath="..\..\src\LinearMath\GenRandom.h">
 			</File>
 			<File
-				RelativePath="..\..\LinearMath\Maths.h">
+				RelativePath="..\..\src\LinearMath\SimdMatrix3x3.h">
 			</File>
 			<File
-				RelativePath="..\..\LinearMath\Matrix.h">
+				RelativePath="..\..\src\LinearMath\SimdMinMax.h">
 			</File>
 			<File
-				RelativePath="..\..\LinearMath\Memory2.h">
+				RelativePath="..\..\src\LinearMath\SimdPoint3.h">
 			</File>
 			<File
-				RelativePath="..\..\LinearMath\Quat.h">
+				RelativePath="..\..\src\LinearMath\SimdQuadWord.h">
 			</File>
 			<File
-				RelativePath="..\..\LinearMath\quickprof.h">
+				RelativePath="..\..\src\LinearMath\SimdQuaternion.h">
 			</File>
 			<File
-				RelativePath="..\..\LinearMath\Scalar.h">
+				RelativePath="..\..\src\LinearMath\SimdScalar.h">
 			</File>
 			<File
-				RelativePath="..\..\LinearMath\SimdMatrix3x3.h">
+				RelativePath="..\..\src\LinearMath\SimdTransform.h">
 			</File>
 			<File
-				RelativePath="..\..\LinearMath\SimdMinMax.h">
+				RelativePath="..\..\src\LinearMath\SimdTransformUtil.h">
 			</File>
 			<File
-				RelativePath="..\..\LinearMath\SimdPoint3.h">
-			</File>
-			<File
-				RelativePath="..\..\LinearMath\SimdQuadWord.h">
-			</File>
-			<File
-				RelativePath="..\..\LinearMath\SimdQuaternion.h">
-			</File>
-			<File
-				RelativePath="..\..\LinearMath\SimdScalar.h">
-			</File>
-			<File
-				RelativePath="..\..\LinearMath\SimdTransform.h">
-			</File>
-			<File
-				RelativePath="..\..\LinearMath\SimdTransformUtil.h">
-			</File>
-			<File
-				RelativePath="..\..\LinearMath\SimdVector3.h">
-			</File>
-			<File
-				RelativePath="..\..\LinearMath\Vector.h">
-			</File>
-			<File
-				RelativePath="..\..\LinearMath\VectorBase.h">
+				RelativePath="..\..\src\LinearMath\SimdVector3.h">
 			</File>
 		</Filter>
 	</Files>

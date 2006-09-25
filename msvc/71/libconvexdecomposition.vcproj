@@ -30,7 +30,7 @@
 				OptimizeForProcessor="1"
 				ExceptionHandling="0"
 				AdditionalOptions=" "
-				AdditionalIncludeDirectories=".;..\..;..\..\Bullet;..\..\BulletDynamics;..\..\LinearMath;..\..\Extras\PhysicsInterface\Common;..\..\Extras\ConvexDecomposition"
+				AdditionalIncludeDirectories=".;..\..;..\..\src;..\..\Extras\PhysicsInterface\Common;..\..\Extras\ConvexDecomposition"
 				PrecompiledHeaderFile="..\..\out\release71\build\libconvexdecomposition\libconvexdecomposition.pch"
 				AssemblerListingLocation="..\..\out\release71\build\libconvexdecomposition\"
 				ObjectFile="..\..\out\release71\build\libconvexdecomposition\"
@@ -78,7 +78,7 @@
 			<Tool
 				Name="VCResourceCompilerTool"
 				PreprocessorDefinitions="NDEBUG;_LIB;_WINDOWS;PROJECTGEN_VERSION=71"
-				AdditionalIncludeDirectories=".;..\..;..\..\Bullet;..\..\BulletDynamics;..\..\LinearMath;..\..\Extras\PhysicsInterface\Common;..\..\Extras\ConvexDecomposition"
+				AdditionalIncludeDirectories=".;..\..;..\..\src;..\..\Extras\PhysicsInterface\Common;..\..\Extras\ConvexDecomposition"
 				Culture="1033"/>
 			<Tool
 				Name="VCWebServiceProxyGeneratorTool"/>
@@ -103,7 +103,7 @@
 				OptimizeForProcessor="1"
 				ExceptionHandling="0"
 				AdditionalOptions=" "
-				AdditionalIncludeDirectories=".;..\..;..\..\Bullet;..\..\BulletDynamics;..\..\LinearMath;..\..\Extras\PhysicsInterface\Common;..\..\Extras\ConvexDecomposition"
+				AdditionalIncludeDirectories=".;..\..;..\..\src;..\..\Extras\PhysicsInterface\Common;..\..\Extras\ConvexDecomposition"
 				PrecompiledHeaderFile="..\..\out\debug71\build\libconvexdecomposition\libconvexdecomposition.pch"
 				AssemblerListingLocation="..\..\out\debug71\build\libconvexdecomposition\"
 				ObjectFile="..\..\out\debug71\build\libconvexdecomposition\"
@@ -149,7 +149,7 @@
 			<Tool
 				Name="VCResourceCompilerTool"
 				PreprocessorDefinitions="_DEBUG;_LIB;_WINDOWS;PROJECTGEN_VERSION=71"
-				AdditionalIncludeDirectories=".;..\..;..\..\Bullet;..\..\BulletDynamics;..\..\LinearMath;..\..\Extras\PhysicsInterface\Common;..\..\Extras\ConvexDecomposition"
+				AdditionalIncludeDirectories=".;..\..;..\..\src;..\..\Extras\PhysicsInterface\Common;..\..\Extras\ConvexDecomposition"
 				Culture="1033"/>
 			<Tool
 				Name="VCWebServiceProxyGeneratorTool"/>

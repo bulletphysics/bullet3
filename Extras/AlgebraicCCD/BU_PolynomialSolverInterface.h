@@ -15,7 +15,7 @@ subject to the following restrictions:
 #ifndef BUM_POLYNOMIAL_SOLVER_INTERFACE
 #define BUM_POLYNOMIAL_SOLVER_INTERFACE
 
-#include <SimdScalar.h>
+#include <LinearMath/SimdScalar.h>
 //
 //BUM_PolynomialSolverInterface is interface class for polynomial root finding.
 //The number of roots is returned as a result, query GetRoot to get the actual solution.

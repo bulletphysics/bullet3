@@ -30,7 +30,7 @@
 				OptimizeForProcessor="1"
 				ExceptionHandling="0"
 				AdditionalOptions=" "
-				AdditionalIncludeDirectories=".;..\..;..\..\Bullet;..\..\BulletDynamics;..\..\LinearMath"
+				AdditionalIncludeDirectories=".;..\..;..\..\src"
 				PrecompiledHeaderFile="..\..\out\release8\build\grplibs_bullet\grplibs_bullet.pch"
 				AssemblerListingLocation="..\..\out\release8\build\grplibs_bullet\"
 				ObjectFile="..\..\out\release8\build\grplibs_bullet\"
@@ -78,7 +78,7 @@
 			<Tool
 				Name="VCResourceCompilerTool"
 				PreprocessorDefinitions="NDEBUG;PROJECTGEN_VERSION=8"
-				AdditionalIncludeDirectories=".;..\..;..\..\Bullet;..\..\BulletDynamics;..\..\LinearMath"
+				AdditionalIncludeDirectories=".;..\..;..\..\src"
 				Culture="1033"/>
 			<Tool
 				Name="VCWebServiceProxyGeneratorTool"/>
@@ -103,7 +103,7 @@
 				OptimizeForProcessor="1"
 				ExceptionHandling="0"
 				AdditionalOptions=" "
-				AdditionalIncludeDirectories=".;..\..;..\..\Bullet;..\..\BulletDynamics;..\..\LinearMath"
+				AdditionalIncludeDirectories=".;..\..;..\..\src"
 				PrecompiledHeaderFile="..\..\out\debug8\build\grplibs_bullet\grplibs_bullet.pch"
 				AssemblerListingLocation="..\..\out\debug8\build\grplibs_bullet\"
 				ObjectFile="..\..\out\debug8\build\grplibs_bullet\"
@@ -149,7 +149,7 @@
 			<Tool
 				Name="VCResourceCompilerTool"
 				PreprocessorDefinitions="_DEBUG;PROJECTGEN_VERSION=8"
-				AdditionalIncludeDirectories=".;..\..;..\..\Bullet;..\..\BulletDynamics;..\..\LinearMath"
+				AdditionalIncludeDirectories=".;..\..;..\..\src"
 				Culture="1033"/>
 			<Tool
 				Name="VCWebServiceProxyGeneratorTool"/>

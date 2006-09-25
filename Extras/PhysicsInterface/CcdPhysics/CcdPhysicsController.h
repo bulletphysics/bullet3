@@ -21,15 +21,15 @@ subject to the following restrictions:
 
 ///	PHY_IPhysicsController is the abstract simplified Interface to a physical object.
 ///	It contains the IMotionState and IDeformableMesh Interfaces.
-#include "SimdVector3.h"
-#include "SimdScalar.h"	
-#include "SimdMatrix3x3.h"
-#include "SimdTransform.h"
-#include "Dynamics/RigidBody.h"
+#include "LinearMath/SimdVector3.h"
+#include "LinearMath/SimdScalar.h"	
+#include "LinearMath/SimdMatrix3x3.h"
+#include "LinearMath/SimdTransform.h"
+#include "BulletDynamics/Dynamics/btRigidBody.h"
 
 #include "PHY_IMotionState.h"
 
-#include "BroadphaseCollision/BroadphaseProxy.h" //for CollisionShape access
+#include "BulletCollision/BroadphaseCollision/btBroadphaseProxy.h" //for CollisionShape access
 class CollisionShape;
 
 extern float gDeactivationTime;

@@ -20,15 +20,15 @@ subject to the following restrictions:
 ///
 
 #include "GL_Simplex1to4.h"
-#include "SimdQuaternion.h"
-#include "SimdTransform.h"
-#include "NarrowPhaseCollision/VoronoiSimplexSolver.h"
-#include "CollisionShapes/ConvexHullShape.h"
+#include "LinearMath/SimdQuaternion.h"
+#include "LinearMath/SimdTransform.h"
+#include "BulletCollision/NarrowPhaseCollision/btVoronoiSimplexSolver.h"
+#include "BulletCollision/CollisionShapes/btConvexHullShape.h"
 
-#include "NarrowPhaseCollision/GjkPairDetector.h"
-#include "NarrowPhaseCollision/PointCollector.h"
-#include "NarrowPhaseCollision/VoronoiSimplexSolver.h"
-#include "NarrowPhaseCollision/ConvexPenetrationDepthSolver.h"
+#include "BulletCollision/NarrowPhaseCollision/btGjkPairDetector.h"
+#include "BulletDynamics/NarrowPhaseCollision/btPointCollector.h"
+#include "BulletCollision/NarrowPhaseCollision/btVoronoiSimplexSolver.h"
+#include "BulletCollision/NarrowPhaseCollision/btConvexPenetrationDepthSolver.h"
 
 #include "GL_ShapeDrawer.h"
 #ifdef WIN32 //needed for glut.h

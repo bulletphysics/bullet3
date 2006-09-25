@@ -16,33 +16,10 @@ subject to the following restrictions:
 #include "CcdPhysicsEnvironment.h"
 #include "CcdPhysicsController.h"
 
-//#include "GL_LineSegmentShape.h"
-#include "CollisionShapes/BoxShape.h"
-#include "CollisionShapes/SphereShape.h"
-#include "CollisionShapes/CylinderShape.h"
-#include "CollisionShapes/ConeShape.h"
-#include "CollisionShapes/StaticPlaneShape.h"
-#include "CollisionShapes/ConvexHullShape.h"
-#include "CollisionShapes/TriangleMesh.h"
-#include "CollisionShapes/ConvexTriangleMeshShape.h"
-#include "CollisionShapes/TriangleMeshShape.h"
-#include "CollisionShapes/TriangleIndexVertexArray.h"
-#include "CollisionShapes/CompoundShape.h"
+#include "btBulletDynamicsCommon.h"
 
-
-
-#include "CollisionShapes/Simplex1to4Shape.h"
-#include "CollisionShapes/EmptyShape.h"
-
-#include "Dynamics/RigidBody.h"
-#include "CollisionDispatch/CollisionDispatcher.h"
-#include "BroadphaseCollision/SimpleBroadphase.h"
-#include "BroadphaseCollision/AxisSweep3.h"
-#include "ConstraintSolver/Point2PointConstraint.h"
-#include "ConstraintSolver/HingeConstraint.h"
-
-#include "quickprof.h"
-#include "IDebugDraw.h"
+#include "LinearMath/GenQuickprof.h"
+#include "LinearMath/GenIDebugDraw.h"
 
 #include "GLDebugDrawer.h"
 

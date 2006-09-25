@@ -18,9 +18,9 @@ subject to the following restrictions:
 #include "ParallelPhysicsEnvironment.h"
 #include "CcdPhysicsController.h"
 #include "ParallelIslandDispatcher.h"
-#include "CollisionDispatch/CollisionWorld.h"
-#include "ConstraintSolver/TypedConstraint.h"
-#include "CollisionDispatch/SimulationIslandManager.h"
+#include "BulletCollision/CollisionDispatch/btCollisionWorld.h"
+#include "BulletDynamics/ConstraintSolver/btTypedConstraint.h"
+#include "BulletCollision/CollisionDispatch/btSimulationIslandManager.h"
 #include "SimulationIsland.h"
 
 

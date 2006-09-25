@@ -19,23 +19,25 @@
 	Also comparision with Algebraic CCD and Interval Arithmetic methods (Stephane Redon)
 */
 
-#include "SimdQuaternion.h"
-#include "SimdTransform.h"
-#include "NarrowPhaseCollision/VoronoiSimplexSolver.h"
-#include "CollisionShapes/BoxShape.h"
-#include "CollisionShapes/MinkowskiSumShape.h"
 
-#include "NarrowPhaseCollision/GjkPairDetector.h"
-#include "NarrowPhaseCollision/GjkConvexCast.h"
-#include "NarrowPhaseCollision/ContinuousConvexCollision.h"
-#include "NarrowPhaseCollision/SubSimplexConvexCast.h"
+///Low level demo, doesn't include btBulletCollisionCommon.h
+#include "LinearMath/SimdQuaternion.h"
+#include "LinearMath/SimdTransform.h"
+#include "BulletCollision/NarrowPhaseCollision/btVoronoiSimplexSolver.h"
+#include "BulletCollision/CollisionShapes/btBoxShape.h"
+#include "BulletCollision/CollisionShapes/btMinkowskiSumShape.h"
+
+#include "BulletCollision/NarrowPhaseCollision/btGjkPairDetector.h"
+#include "BulletCollision/NarrowPhaseCollision/btGjkConvexCast.h"
+#include "BulletCollision/NarrowPhaseCollision/btContinuousConvexCollision.h"
+#include "BulletCollision/NarrowPhaseCollision/btSubSimplexConvexCast.h"
 
 #ifdef USE_ALGEBRAIC_CCD
 #include "NarrowPhaseCollision/BU_CollisionPair.h"
 #endif //USE_ALGEBRAIC_CCD
 
-#include "CollisionShapes/SphereShape.h"
-#include "CollisionShapes/Simplex1to4Shape.h"
+#include "BulletCollision/CollisionShapes/btSphereShape.h"
+#include "BulletCollision/CollisionShapes/btTetrahedronShape.h"
 
 #include "GL_ShapeDrawer.h"
 #include "LinearConvexCastDemo.h"
@@ -119,8 +121,8 @@ void LinearConvexCastDemo::clientMoveAndDisplay()
 	displayCallback();
 }
 
-#include "NarrowPhaseCollision/VoronoiSimplexSolver.h"
-#include "NarrowPhaseCollision/ConvexPenetrationDepthSolver.h"
+#include "BulletCollision/NarrowPhaseCollision/btVoronoiSimplexSolver.h"
+#include "BulletCollision/NarrowPhaseCollision/btConvexPenetrationDepthSolver.h"
 
 static VoronoiSimplexSolver sVoronoiSimplexSolver;
 

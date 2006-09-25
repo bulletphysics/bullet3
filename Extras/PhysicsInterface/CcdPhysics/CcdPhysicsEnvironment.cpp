@@ -20,62 +20,62 @@ subject to the following restrictions:
 #include "CcdPhysicsController.h"
 
 #include <algorithm>
-#include "SimdTransform.h"
-#include "Dynamics/RigidBody.h"
-#include "BroadphaseCollision/BroadphaseInterface.h"
-#include "BroadphaseCollision/SimpleBroadphase.h"
-#include "BroadphaseCollision/AxisSweep3.h"
+#include "LinearMath/SimdTransform.h"
+#include "BulletDynamics/Dynamics/btRigidBody.h"
+#include "BulletCollision/BroadphaseCollision/btBroadphaseInterface.h"
+#include "BulletCollision/BroadphaseCollision/btSimpleBroadphase.h"
+#include "BulletCollision/BroadphaseCollision/btAxisSweep3.h"
 
-#include "CollisionDispatch/CollisionWorld.h"
+#include "BulletCollision/CollisionDispatch/btCollisionWorld.h"
 
-#include "CollisionShapes/ConvexShape.h"
-#include "CollisionShapes/ConeShape.h"
-#include "CollisionDispatch/SimulationIslandManager.h"
+#include "BulletCollision/CollisionShapes/btConvexShape.h"
+#include "BulletCollision/CollisionShapes/btConeShape.h"
+#include "BulletCollision/CollisionDispatch/btSimulationIslandManager.h"
 
-#include "BroadphaseCollision/Dispatcher.h"
-#include "NarrowPhaseCollision/PersistentManifold.h"
-#include "CollisionShapes/TriangleMeshShape.h"
-#include "ConstraintSolver/SequentialImpulseConstraintSolver.h"
+#include "BulletCollision/BroadphaseCollision/btDispatcher.h"
+#include "BulletCollision/NarrowPhaseCollision/btPersistentManifold.h"
+#include "BulletCollision/CollisionShapes/btTriangleMeshShape.h"
+#include "BulletDynamics/ConstraintSolver/btSequentialImpulseConstraintSolver.h"
 
 
 //profiling/timings
-#include "quickprof.h"
+#include "LinearMath/GenQuickprof.h"
 
 
-#include "IDebugDraw.h"
+#include "LinearMath/GenIDebugDraw.h"
 
-#include "NarrowPhaseCollision/VoronoiSimplexSolver.h"
-#include "NarrowPhaseCollision/SubSimplexConvexCast.h"
-#include "NarrowPhaseCollision/GjkConvexCast.h"
-#include "NarrowPhaseCollision/ContinuousConvexCollision.h"
+#include "BulletCollision/NarrowPhaseCollision/btVoronoiSimplexSolver.h"
+#include "BulletCollision/NarrowPhaseCollision/btSubSimplexConvexCast.h"
+#include "BulletCollision/NarrowPhaseCollision/btGjkConvexCast.h"
+#include "BulletCollision/NarrowPhaseCollision/btContinuousConvexCollision.h"
 
 
-#include "CollisionDispatch/CollisionDispatcher.h"
+#include "BulletCollision/CollisionDispatch/btCollisionDispatcher.h"
 #include "PHY_IMotionState.h"
 
-#include "CollisionDispatch/EmptyCollisionAlgorithm.h"
+#include "BulletCollision/CollisionDispatch/btEmptyCollisionAlgorithm.h"
 
 
 
-#include "CollisionShapes/SphereShape.h"
+#include "BulletCollision/CollisionShapes/btSphereShape.h"
 
 bool useIslands = true;
 
 #ifdef NEW_BULLET_VEHICLE_SUPPORT
-#include "Vehicle/RaycastVehicle.h"
-#include "Vehicle/VehicleRaycaster.h"
+#include "BulletDynamics/Vehicle/btRaycastVehicle.h"
+#include "BulletDynamics/Vehicle/btVehicleRaycaster.h"
 
-#include "Vehicle/WheelInfo.h"
+#include "BulletDynamics/Vehicle/btWheelInfo.h"
 #include "PHY_IVehicle.h"
 RaycastVehicle::VehicleTuning	gTuning;
 
 #endif //NEW_BULLET_VEHICLE_SUPPORT
-#include "AabbUtil2.h"
+#include "LinearMath/GenAabbUtil2.h"
 
-#include "ConstraintSolver/ConstraintSolver.h"
-#include "ConstraintSolver/Point2PointConstraint.h"
-#include "ConstraintSolver/HingeConstraint.h"
-#include "ConstraintSolver/Generic6DofConstraint.h"
+#include "BulletDynamics/ConstraintSolver/btConstraintSolver.h"
+#include "BulletDynamics/ConstraintSolver/btPoint2PointConstraint.h"
+#include "BulletDynamics/ConstraintSolver/btHingeConstraint.h"
+#include "BulletDynamics/ConstraintSolver/btGeneric6DofConstraint.h"
 
 
 //#include "BroadphaseCollision/QueryDispatcher.h"
@@ -87,7 +87,7 @@ void DrawRasterizerLine(const float* from,const float* to,int color);
 #endif
 
 
-#include "ConstraintSolver/ContactConstraint.h"
+#include "BulletDynamics/ConstraintSolver/btContactConstraint.h"
 
 
 #include <stdio.h>
@@ -1120,6 +1120,9 @@ public:
 	  {
 	  }
 
+		virtual ~DefaultVehicleRaycaster()
+		{
+		}
 	  /*	struct VehicleRaycasterResult
 	  {
 	  VehicleRaycasterResult() :m_distFraction(-1.f){};

@@ -16,7 +16,7 @@ subject to the following restrictions:
 #define GL_SHAPE_DRAWER_H
 
 class CollisionShape;
-#include "SimdVector3.h"
+#include "LinearMath/SimdVector3.h"
 
 /// OpenGL shape drawing
 class GL_ShapeDrawer

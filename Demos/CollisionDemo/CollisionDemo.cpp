@@ -19,21 +19,23 @@ subject to the following restrictions:
 /// See the define CATCH_DEGENERATE_TETRAHEDRON in Bullet's VoronoiSimplexSolver.cpp
 ///
 
-#include "GL_Simplex1to4.h"
-#include "SimdQuaternion.h"
-#include "SimdTransform.h"
-#include "NarrowPhaseCollision/VoronoiSimplexSolver.h"
-#include "CollisionShapes/BoxShape.h"
 
-#include "NarrowPhaseCollision/GjkPairDetector.h"
-#include "NarrowPhaseCollision/PointCollector.h"
-#include "NarrowPhaseCollision/VoronoiSimplexSolver.h"
-#include "NarrowPhaseCollision/ConvexPenetrationDepthSolver.h"
+///This low-level internal demo does intentionally NOT use the btBulletCollisionCommon.h header
+///It needs internal access
+#include "GL_Simplex1to4.h"
+#include "LinearMath/SimdQuaternion.h"
+#include "LinearMath/SimdTransform.h"
+#include "BulletCollision/NarrowPhaseCollision/btVoronoiSimplexSolver.h"
+#include "BulletCollision/CollisionShapes/btBoxShape.h"
+#include "BulletCollision/NarrowPhaseCollision/btGjkPairDetector.h"
+#include "BulletCollision/NarrowPhaseCollision/btPointCollector.h"
+#include "BulletCollision/NarrowPhaseCollision/btVoronoiSimplexSolver.h"
+#include "BulletCollision/NarrowPhaseCollision/btConvexPenetrationDepthSolver.h"
 
 #include "CollisionDemo.h"
 #include "GL_ShapeDrawer.h"
 #include "GlutStuff.h"
-#include "IDebugDraw.h"
+#include "LinearMath/GenIDebugDraw.h"
 
 
 float yaw=0.f,pitch=0.f,roll=0.f;

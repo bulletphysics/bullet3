@@ -14,15 +14,15 @@ subject to the following restrictions:
 */
 
 #include "SimulationIsland.h"
-#include "SimdTransform.h"
+#include "LinearMath/SimdTransform.h"
 #include "CcdPhysicsController.h"
-#include "BroadphaseCollision/OverlappingPairCache.h"
-#include "CollisionShapes/CollisionShape.h"
-#include "BroadphaseCollision/Dispatcher.h"
-#include "ConstraintSolver/ContactSolverInfo.h"
-#include "ConstraintSolver/ConstraintSolver.h"
-#include "ConstraintSolver/TypedConstraint.h"
-#include "IDebugDraw.h"
+#include "BulletCollision/BroadphaseCollision/btOverlappingPairCache.h"
+#include "BulletCollision/CollisionShapes/btCollisionShape.h"
+#include "BulletCollision/BroadphaseCollision/btDispatcher.h"
+#include "BulletDynamics/ConstraintSolver/btContactSolverInfo.h"
+#include "BulletDynamics/ConstraintSolver/btConstraintSolver.h"
+#include "BulletDynamics/ConstraintSolver/btTypedConstraint.h"
+#include "LinearMath/GenIDebugDraw.h"
 
 extern float gContactBreakingTreshold;
 

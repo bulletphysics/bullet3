@@ -17,7 +17,7 @@ subject to the following restrictions:
 #define MY_MOTIONSTATE_H
 
 #include "PHY_IMotionState.h"
-#include <SimdTransform.h>
+#include <LinearMath/SimdTransform.h>
 
 
 class	MyMotionState : public PHY_IMotionState

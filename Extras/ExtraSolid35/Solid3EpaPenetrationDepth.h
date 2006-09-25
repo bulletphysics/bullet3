@@ -25,7 +25,7 @@
 #define SOLID3_EPA_PENETRATION_DEPTH_H
 
 
-#include "NarrowPhaseCollision/ConvexPenetrationDepthSolver.h"
+#include "BulletCollision/NarrowPhaseCollision/btConvexPenetrationDepthSolver.h"
 
 /// Solid3EpaPenetrationDepth contains the 'Expanding Polytope Algorithm' from Solid 3.5
 class Solid3EpaPenetrationDepth : public ConvexPenetrationDepthSolver

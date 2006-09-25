@@ -22,7 +22,7 @@
  */
 
 #include "Solid3JohnsonSimplexSolver.h"
-#include "GEN_MinMax.h"
+#include "LinearMath/GenMinMax.h"
 
 //#define USE_BACKUP_PROCEDURE
 //#define FAST_CLOSEST

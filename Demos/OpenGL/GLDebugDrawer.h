@@ -1,7 +1,7 @@
 #ifndef GL_DEBUG_DRAWER_H
 #define GL_DEBUG_DRAWER_H
 
-#include "IDebugDraw.h"
+#include "LinearMath/GenIDebugDraw.h"
 
 
 

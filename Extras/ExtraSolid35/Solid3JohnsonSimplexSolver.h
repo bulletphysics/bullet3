@@ -24,7 +24,7 @@
 #ifndef SOLID3JOHNSON_SIMPLEX_SOLVER_H
 #define SOLID3JOHNSON_SIMPLEX_SOLVER_H
 
-#include "NarrowPhaseCollision/SimplexSolverInterface.h"
+#include "BulletCollision/NarrowPhaseCollision/btSimplexSolverInterface.h"
 
 //#define JOHNSON_ROBUST
 

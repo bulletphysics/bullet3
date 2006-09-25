@@ -16,18 +16,18 @@ subject to the following restrictions:
 #ifndef PARALLEL_ISLAND_DISPATCHER_H
 #define PARALLEL_ISLAND_DISPATCHER_H
 
-#include "BroadphaseCollision/Dispatcher.h"
-#include "NarrowPhaseCollision/PersistentManifold.h"
-#include "CollisionDispatch/UnionFind.h"
-#include "CollisionDispatch/ManifoldResult.h"
+#include "BulletCollision/BroadphaseCollision/btDispatcher.h"
+#include "BulletCollision/NarrowPhaseCollision/btPersistentManifold.h"
+#include "BulletCollision/CollisionDispatch/btUnionFind.h"
+#include "BulletCollision/CollisionDispatch/btManifoldResult.h"
 
-#include "BroadphaseCollision/BroadphaseProxy.h"
+#include "BulletCollision/BroadphaseCollision/btBroadphaseProxy.h"
 #include <vector>
 
 class IDebugDraw;
 
 
-#include "CollisionDispatch/CollisionCreateFunc.h"
+#include "BulletCollision/CollisionDispatch/btCollisionCreateFunc.h"
 
 
 

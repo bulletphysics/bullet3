@@ -30,7 +30,7 @@
 				OptimizeForProcessor="1"
 				ExceptionHandling="0"
 				AdditionalOptions=" "
-				AdditionalIncludeDirectories=".;..\..;..\..\Bullet;..\..\BulletDynamics;..\..\LinearMath"
+				AdditionalIncludeDirectories=".;..\..;..\..\src"
 				PrecompiledHeaderFile="..\..\out\release7\build\libbulletphysicsinterfacecommon\libbulletphysicsinterfacecommon.pch"
 				AssemblerListingLocation="..\..\out\release7\build\libbulletphysicsinterfacecommon\"
 				ObjectFile="..\..\out\release7\build\libbulletphysicsinterfacecommon\"
@@ -78,7 +78,7 @@
 			<Tool
 				Name="VCResourceCompilerTool"
 				PreprocessorDefinitions="NDEBUG;_LIB;_WINDOWS;PROJECTGEN_VERSION=7"
-				AdditionalIncludeDirectories=".;..\..;..\..\Bullet;..\..\BulletDynamics;..\..\LinearMath"
+				AdditionalIncludeDirectories=".;..\..;..\..\src"
 				Culture="1033"/>
 			<Tool
 				Name="VCWebServiceProxyGeneratorTool"/>
@@ -103,7 +103,7 @@
 				OptimizeForProcessor="1"
 				ExceptionHandling="0"
 				AdditionalOptions=" "
-				AdditionalIncludeDirectories=".;..\..;..\..\Bullet;..\..\BulletDynamics;..\..\LinearMath"
+				AdditionalIncludeDirectories=".;..\..;..\..\src"
 				PrecompiledHeaderFile="..\..\out\debug7\build\libbulletphysicsinterfacecommon\libbulletphysicsinterfacecommon.pch"
 				AssemblerListingLocation="..\..\out\debug7\build\libbulletphysicsinterfacecommon\"
 				ObjectFile="..\..\out\debug7\build\libbulletphysicsinterfacecommon\"
@@ -149,7 +149,7 @@
 			<Tool
 				Name="VCResourceCompilerTool"
 				PreprocessorDefinitions="_DEBUG;_LIB;_WINDOWS;PROJECTGEN_VERSION=7"
-				AdditionalIncludeDirectories=".;..\..;..\..\Bullet;..\..\BulletDynamics;..\..\LinearMath"
+				AdditionalIncludeDirectories=".;..\..;..\..\src"
 				Culture="1033"/>
 			<Tool
 				Name="VCWebServiceProxyGeneratorTool"/>

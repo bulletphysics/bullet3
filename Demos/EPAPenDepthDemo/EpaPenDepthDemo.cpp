@@ -24,8 +24,8 @@ subject to the following restrictions:
 */
 
 #include "GL_Simplex1to4.h"
-#include "SimdQuaternion.h"
-#include "SimdTransform.h"
+#include "LinearMath/SimdQuaternion.h"
+#include "LinearMath/SimdTransform.h"
 #include "GL_ShapeDrawer.h"
 #include <GL/glut.h>
 #include "GlutStuff.h"
@@ -34,11 +34,11 @@ subject to the following restrictions:
 #include <list>
 #include <time.h>
 
-#include "CollisionShapes/ConvexShape.h"
-#include "CollisionShapes/BoxShape.h"
-#include "CollisionShapes/SphereShape.h"
+#include "BulletCollision/CollisionShapes/btConvexShape.h"
+#include "BulletCollision/CollisionShapes/btBoxShape.h"
+#include "BulletCollision/CollisionShapes/btSphereShape.h"
 
-#include "NarrowPhaseCollision/VoronoiSimplexSolver.h"
+#include "BulletCollision/NarrowPhaseCollision/btVoronoiSimplexSolver.h"
 
 #include "NarrowPhaseCollision/EpaCommon.h"
 #include "NarrowPhaseCollision/EpaVertex.h"
@@ -46,7 +46,7 @@ subject to the following restrictions:
 #include "NarrowPhaseCollision/EpaFace.h"
 #include "NarrowPhaseCollision/EpaPolyhedron.h"
 #include "NarrowPhaseCollision/Epa.h"
-#include "NarrowPhaseCollision/ConvexPenetrationDepthSolver.h"
+#include "BulletCollision/NarrowPhaseCollision/btConvexPenetrationDepthSolver.h"
 #include "NarrowPhaseCollision/EpaPenetrationDepthSolver.h"
 EpaPenetrationDepthSolver epaPenDepthSolver;
 

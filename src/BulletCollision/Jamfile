@@ -1,0 +1,11 @@
+SubDir TOP src BulletCollision ;
+
+
+Description bulletcollision : "Bullet Collision Detection" ;
+Library bulletcollision :
+  [ Wildcard BroadphaseCollision : *.h *.cpp ] 
+  [ Wildcard CollisionDispatch : *.h *.cpp ] 
+  [ Wildcard CollisionShapes : *.h *.cpp ] 
+  [ Wildcard NarrowPhaseCollision : *.h *.cpp ] 
+;
+Recurse InstallHeader : .h  ;

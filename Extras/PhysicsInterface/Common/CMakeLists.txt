@@ -1,5 +1,5 @@
 INCLUDE_DIRECTORIES(
-${BULLET_PHYSICS_SOURCE_DIR}/LinearMath  ${BULLET_PHYSICS_SOURCE_DIR}/Extras/PhysicsInterface/Common }
+${BULLET_PHYSICS_SOURCE_DIR}src  ${BULLET_PHYSICS_SOURCE_DIR}/Extras/PhysicsInterface/Common }
 )
 	
 ADD_LIBRARY(LibPhysicsCommonInterface

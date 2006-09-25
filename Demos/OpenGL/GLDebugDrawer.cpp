@@ -1,6 +1,6 @@
 
 #include "GLDebugDrawer.h"
-#include "SimdPoint3.h"
+#include "LinearMath/SimdPoint3.h"
 
 #ifdef WIN32 //needed for glut.h
 #include <windows.h>

@@ -21,36 +21,17 @@ subject to the following restrictions:
 #include "CcdPhysicsEnvironment.h"
 #include "ParallelPhysicsEnvironment.h"
 
+#include "btBulletDynamicsCommon.h"
+
 #include "CcdPhysicsController.h"
 #include "MyMotionState.h"
-//#include "GL_LineSegmentShape.h"
-#include "CollisionShapes/BoxShape.h"
-#include "CollisionShapes/SphereShape.h"
-#include "CollisionShapes/ConeShape.h"
-#include "CollisionShapes/StaticPlaneShape.h"
-#include "CollisionShapes/CompoundShape.h"
-#include "CollisionShapes/Simplex1to4Shape.h"
-#include "CollisionShapes/EmptyShape.h"
-#include "CollisionShapes/TriangleMeshShape.h"
-#include "CollisionShapes/TriangleIndexVertexArray.h"
-#include "CollisionShapes/BvhTriangleMeshShape.h"
-#include "CollisionShapes/TriangleMesh.h"
-#include "ConstraintSolver/SequentialImpulseConstraintSolver.h"
-#include "Dynamics/RigidBody.h"
-#include "CollisionDispatch/CollisionDispatcher.h"
 
 #include "ParallelIslandDispatcher.h"
 
-#include "BroadphaseCollision/SimpleBroadphase.h"
-#include "BroadphaseCollision/AxisSweep3.h"
-#include "ConstraintSolver/Point2PointConstraint.h"
-#include "ConstraintSolver/HingeConstraint.h"
-
-#include "quickprof.h"
-#include "IDebugDraw.h"
+#include "LinearMath/GenQuickprof.h"
+#include "LinearMath/GenIDebugDraw.h"
 
 #include "GLDebugDrawer.h"
-#include "CollisionDispatch/SphereSphereCollisionAlgorithm.h"
 
 
 

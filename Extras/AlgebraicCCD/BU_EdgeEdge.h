@@ -18,13 +18,13 @@ subject to the following restrictions:
 #define BU_EDGEEDGE
 
 class BU_Screwing;
-#include <SimdTransform.h>
-#include <SimdPoint3.h>
-#include <SimdVector3.h>
+#include <LinearMath/SimdTransform.h>
+#include <LinearMath/SimdPoint3.h>
+#include <LinearMath/SimdVector3.h>
 
 //class BUM_Point2;
 
-#include <SimdScalar.h>
+#include <LinearMath/SimdScalar.h>
 
 ///BU_EdgeEdge implements algebraic time of impact calculation between two (angular + linear) moving edges.
 class BU_EdgeEdge

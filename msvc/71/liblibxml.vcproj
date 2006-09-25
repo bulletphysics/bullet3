@@ -30,7 +30,7 @@
 				OptimizeForProcessor="1"
 				ExceptionHandling="0"
 				AdditionalOptions=" "
-				AdditionalIncludeDirectories=".;..\..;..\..\Bullet;..\..\BulletDynamics;..\..\LinearMath;..\..\Extras\PhysicsInterface\Common;..\..\Extras\ConvexDecomposition;..\..\Extras\COLLADA_DOM\include;..\..\Extras\COLLADA_DOM\include\1.4;..\..\Extras\LibXML\include"
+				AdditionalIncludeDirectories=".;..\..;..\..\src;..\..\Extras\PhysicsInterface\Common;..\..\Extras\ConvexDecomposition;..\..\Extras\COLLADA_DOM\include;..\..\Extras\COLLADA_DOM\include\1.4;..\..\Extras\LibXML\include"
 				PrecompiledHeaderFile="..\..\out\release71\build\liblibxml\liblibxml.pch"
 				AssemblerListingLocation="..\..\out\release71\build\liblibxml\"
 				ObjectFile="..\..\out\release71\build\liblibxml\"
@@ -78,7 +78,7 @@
 			<Tool
 				Name="VCResourceCompilerTool"
 				PreprocessorDefinitions="NDEBUG;_LIB;_WINDOWS;PROJECTGEN_VERSION=71"
-				AdditionalIncludeDirectories=".;..\..;..\..\Bullet;..\..\BulletDynamics;..\..\LinearMath;..\..\Extras\PhysicsInterface\Common;..\..\Extras\ConvexDecomposition;..\..\Extras\COLLADA_DOM\include;..\..\Extras\COLLADA_DOM\include\1.4;..\..\Extras\LibXML\include"
+				AdditionalIncludeDirectories=".;..\..;..\..\src;..\..\Extras\PhysicsInterface\Common;..\..\Extras\ConvexDecomposition;..\..\Extras\COLLADA_DOM\include;..\..\Extras\COLLADA_DOM\include\1.4;..\..\Extras\LibXML\include"
 				Culture="1033"/>
 			<Tool
 				Name="VCWebServiceProxyGeneratorTool"/>
@@ -103,7 +103,7 @@
 				OptimizeForProcessor="1"
 				ExceptionHandling="0"
 				AdditionalOptions=" "
-				AdditionalIncludeDirectories=".;..\..;..\..\Bullet;..\..\BulletDynamics;..\..\LinearMath;..\..\Extras\PhysicsInterface\Common;..\..\Extras\ConvexDecomposition;..\..\Extras\COLLADA_DOM\include;..\..\Extras\COLLADA_DOM\include\1.4;..\..\Extras\LibXML\include"
+				AdditionalIncludeDirectories=".;..\..;..\..\src;..\..\Extras\PhysicsInterface\Common;..\..\Extras\ConvexDecomposition;..\..\Extras\COLLADA_DOM\include;..\..\Extras\COLLADA_DOM\include\1.4;..\..\Extras\LibXML\include"
 				PrecompiledHeaderFile="..\..\out\debug71\build\liblibxml\liblibxml.pch"
 				AssemblerListingLocation="..\..\out\debug71\build\liblibxml\"
 				ObjectFile="..\..\out\debug71\build\liblibxml\"
@@ -149,7 +149,7 @@
 			<Tool
 				Name="VCResourceCompilerTool"
 				PreprocessorDefinitions="_DEBUG;_LIB;_WINDOWS;PROJECTGEN_VERSION=71"
-				AdditionalIncludeDirectories=".;..\..;..\..\Bullet;..\..\BulletDynamics;..\..\LinearMath;..\..\Extras\PhysicsInterface\Common;..\..\Extras\ConvexDecomposition;..\..\Extras\COLLADA_DOM\include;..\..\Extras\COLLADA_DOM\include\1.4;..\..\Extras\LibXML\include"
+				AdditionalIncludeDirectories=".;..\..;..\..\src;..\..\Extras\PhysicsInterface\Common;..\..\Extras\ConvexDecomposition;..\..\Extras\COLLADA_DOM\include;..\..\Extras\COLLADA_DOM\include\1.4;..\..\Extras\LibXML\include"
 				Culture="1033"/>
 			<Tool
 				Name="VCWebServiceProxyGeneratorTool"/>

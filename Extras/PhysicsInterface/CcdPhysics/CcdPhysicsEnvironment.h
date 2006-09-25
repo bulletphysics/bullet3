@@ -19,8 +19,8 @@ subject to the following restrictions:
 #include "PHY_IPhysicsEnvironment.h"
 #include <vector>
 class CcdPhysicsController;
-#include "SimdVector3.h"
-#include "SimdTransform.h"
+#include "LinearMath/SimdVector3.h"
+#include "LinearMath/SimdTransform.h"
 
 
 
@@ -29,12 +29,12 @@ class TypedConstraint;
 class SimulationIslandManager;
 class CollisionDispatcher;
 class Dispatcher;
-//#include "BroadphaseInterface.h"
+//#include "btBroadphaseInterface.h"
 
 //switch on/off new vehicle support
 #define NEW_BULLET_VEHICLE_SUPPORT 1
 
-#include "ConstraintSolver/ContactSolverInfo.h"
+#include "BulletDynamics/ConstraintSolver/btContactSolverInfo.h"
 
 class WrapperVehicle;
 class PersistentManifold;

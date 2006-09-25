@@ -43,11 +43,11 @@ RSC=rc.exe
 # PROP Ignore_Export_Lib 0
 # PROP Target_Dir ""
 # ADD BASE CPP /nologo /vmb /vms /W3 /Gm /G5 /D "WIN32" /FD /c
-# ADD CPP /nologo /vmb /vms /W3 /Gm /G5 /FD /c /Gy /GF /MD /Ob2 /Og /Oi /Ot /Oy /D "_LIB" /D "_MT" /D "_MBCS" /D "NDEBUG" /D "_LIB" /D "_WINDOWS" /D "WIN32"  /I "." /I "..\.." /I "..\..\Bullet" /I "..\..\BulletDynamics" /I "..\..\LinearMath"
+# ADD CPP /nologo /vmb /vms /W3 /Gm /G5 /FD /c /Gy /GF /MD /Ob2 /Og /Oi /Ot /Oy /D "_LIB" /D "_MT" /D "_MBCS" /D "NDEBUG" /D "_LIB" /D "_WINDOWS" /D "WIN32"  /I "." /I "..\.." /I "..\..\src"
 # ADD BASE MTL /nologo /mktyplib203 /o "NUL" /win32
 # ADD MTL /nologo /mktyplib203 /o "NUL" /win32 /D "NDEBUG" /D "_LIB" /D "_WINDOWS"
 # ADD BASE RSC /l 0x409
-# ADD RSC /l 0x409 /fo".\..\..\out\release6\build\libbulletdynamics\libbulletdynamics.res" /i "." /i "..\.." /i "..\..\Bullet" /i "..\..\BulletDynamics" /i "..\..\LinearMath"
+# ADD RSC /l 0x409 /fo".\..\..\out\release6\build\libbulletdynamics\libbulletdynamics.res" /i "." /i "..\.." /i "..\..\src"
 BSC32=bscmake.exe
 # ADD BASE BSC32 /nologo
 # ADD BSC32 /nologo
@@ -75,11 +75,11 @@ SOURCE="$(InputPath)"
 # PROP Ignore_Export_Lib 0
 # PROP Target_Dir ""
 # ADD BASE CPP /nologo /vmb /vms /W3 /Gm /G5 /D "WIN32" /FD /c
-# ADD CPP /nologo /vmb /vms /W3 /Gm /G5 /FD /c /GR /MDd /ZI /Od /D "_LIB" /D "_MT" /D "_MBCS" /D "_DEBUG" /D "_LIB" /D "_WINDOWS" /D "WIN32"  /I "." /I "..\.." /I "..\..\Bullet" /I "..\..\BulletDynamics" /I "..\..\LinearMath"
+# ADD CPP /nologo /vmb /vms /W3 /Gm /G5 /FD /c /GR /MDd /ZI /Od /D "_LIB" /D "_MT" /D "_MBCS" /D "_DEBUG" /D "_LIB" /D "_WINDOWS" /D "WIN32"  /I "." /I "..\.." /I "..\..\src"
 # ADD BASE MTL /nologo /mktyplib203 /o "NUL" /win32
 # ADD MTL /nologo /mktyplib203 /o "NUL" /win32 /D "_DEBUG" /D "_LIB" /D "_WINDOWS"
 # ADD BASE RSC /l 0x409
-# ADD RSC /l 0x409 /fo".\..\..\out\debug6\build\libbulletdynamics\libbulletdynamics.res" /i "." /i "..\.." /i "..\..\Bullet" /i "..\..\BulletDynamics" /i "..\..\LinearMath"
+# ADD RSC /l 0x409 /fo".\..\..\out\debug6\build\libbulletdynamics\libbulletdynamics.res" /i "." /i "..\.." /i "..\..\src"
 BSC32=bscmake.exe
 # ADD BASE BSC32 /nologo
 # ADD BSC32 /nologo
@@ -104,51 +104,43 @@ SOURCE="$(InputPath)"
 # PROP Default_Filter ""
 # Begin Source File
 
-SOURCE=..\..\BulletDynamics\ConstraintSolver\ContactConstraint.cpp
+SOURCE=..\..\src\BulletDynamics\ConstraintSolver\btContactConstraint.cpp
 # End Source File
 # Begin Source File
 
-SOURCE=..\..\BulletDynamics\ConstraintSolver\Generic6DofConstraint.cpp
+SOURCE=..\..\src\BulletDynamics\ConstraintSolver\btGeneric6DofConstraint.cpp
 # End Source File
 # Begin Source File
 
-SOURCE=..\..\BulletDynamics\ConstraintSolver\HingeConstraint.cpp
+SOURCE=..\..\src\BulletDynamics\ConstraintSolver\btHingeConstraint.cpp
 # End Source File
 # Begin Source File
 
-SOURCE=..\..\BulletDynamics\ConstraintSolver\Point2PointConstraint.cpp
+SOURCE=..\..\src\BulletDynamics\ConstraintSolver\btPoint2PointConstraint.cpp
 # End Source File
 # Begin Source File
 
-SOURCE=..\..\BulletDynamics\ConstraintSolver\SequentialImpulseConstraintSolver.cpp
+SOURCE=..\..\src\BulletDynamics\ConstraintSolver\btSequentialImpulseConstraintSolver.cpp
 # End Source File
 # Begin Source File
 
-SOURCE=..\..\BulletDynamics\ConstraintSolver\Solve2LinearConstraint.cpp
+SOURCE=..\..\src\BulletDynamics\ConstraintSolver\btSolve2LinearConstraint.cpp
 # End Source File
 # Begin Source File
 
-SOURCE=..\..\BulletDynamics\ConstraintSolver\TypedConstraint.cpp
+SOURCE=..\..\src\BulletDynamics\ConstraintSolver\btTypedConstraint.cpp
 # End Source File
 # Begin Source File
 
-SOURCE=..\..\BulletDynamics\Dynamics\BU_Joint.cpp
+SOURCE=..\..\src\BulletDynamics\Dynamics\btRigidBody.cpp
 # End Source File
 # Begin Source File
 
-SOURCE=..\..\BulletDynamics\Dynamics\ContactJoint.cpp
+SOURCE=..\..\src\BulletDynamics\Vehicle\btRaycastVehicle.cpp
 # End Source File
 # Begin Source File
 
-SOURCE=..\..\BulletDynamics\Dynamics\RigidBody.cpp
-# End Source File
-# Begin Source File
-
-SOURCE=..\..\BulletDynamics\Vehicle\RaycastVehicle.cpp
-# End Source File
-# Begin Source File
-
-SOURCE=..\..\BulletDynamics\Vehicle\WheelInfo.cpp
+SOURCE=..\..\src\BulletDynamics\Vehicle\btWheelInfo.cpp
 # End Source File
 # End Group
 # Begin Group "Header Files"
@@ -156,71 +148,63 @@ SOURCE=..\..\BulletDynamics\Vehicle\WheelInfo.cpp
 # PROP Default_Filter ""
 # Begin Source File
 
-SOURCE=..\..\BulletDynamics\ConstraintSolver\ConstraintSolver.h
+SOURCE=..\..\src\BulletDynamics\ConstraintSolver\btConstraintSolver.h
 # End Source File
 # Begin Source File
 
-SOURCE=..\..\BulletDynamics\ConstraintSolver\ContactConstraint.h
+SOURCE=..\..\src\BulletDynamics\ConstraintSolver\btContactConstraint.h
 # End Source File
 # Begin Source File
 
-SOURCE=..\..\BulletDynamics\ConstraintSolver\ContactSolverInfo.h
+SOURCE=..\..\src\BulletDynamics\ConstraintSolver\btContactSolverInfo.h
 # End Source File
 # Begin Source File
 
-SOURCE=..\..\BulletDynamics\ConstraintSolver\Generic6DofConstraint.h
+SOURCE=..\..\src\BulletDynamics\ConstraintSolver\btGeneric6DofConstraint.h
 # End Source File
 # Begin Source File
 
-SOURCE=..\..\BulletDynamics\ConstraintSolver\HingeConstraint.h
+SOURCE=..\..\src\BulletDynamics\ConstraintSolver\btHingeConstraint.h
 # End Source File
 # Begin Source File
 
-SOURCE=..\..\BulletDynamics\ConstraintSolver\JacobianEntry.h
+SOURCE=..\..\src\BulletDynamics\ConstraintSolver\btJacobianEntry.h
 # End Source File
 # Begin Source File
 
-SOURCE=..\..\BulletDynamics\ConstraintSolver\Point2PointConstraint.h
+SOURCE=..\..\src\BulletDynamics\ConstraintSolver\btPoint2PointConstraint.h
 # End Source File
 # Begin Source File
 
-SOURCE=..\..\BulletDynamics\ConstraintSolver\SequentialImpulseConstraintSolver.h
+SOURCE=..\..\src\BulletDynamics\ConstraintSolver\btSequentialImpulseConstraintSolver.h
 # End Source File
 # Begin Source File
 
-SOURCE=..\..\BulletDynamics\ConstraintSolver\Solve2LinearConstraint.h
+SOURCE=..\..\src\BulletDynamics\ConstraintSolver\btSolve2LinearConstraint.h
 # End Source File
 # Begin Source File
 
-SOURCE=..\..\BulletDynamics\ConstraintSolver\TypedConstraint.h
+SOURCE=..\..\src\BulletDynamics\ConstraintSolver\btTypedConstraint.h
 # End Source File
 # Begin Source File
 
-SOURCE=..\..\BulletDynamics\Dynamics\BU_Joint.h
+SOURCE=..\..\src\BulletDynamics\Dynamics\btMassProps.h
 # End Source File
 # Begin Source File
 
-SOURCE=..\..\BulletDynamics\Dynamics\ContactJoint.h
+SOURCE=..\..\src\BulletDynamics\Dynamics\btRigidBody.h
 # End Source File
 # Begin Source File
 
-SOURCE=..\..\BulletDynamics\Dynamics\MassProps.h
+SOURCE=..\..\src\BulletDynamics\Vehicle\btRaycastVehicle.h
 # End Source File
 # Begin Source File
 
-SOURCE=..\..\BulletDynamics\Dynamics\RigidBody.h
+SOURCE=..\..\src\BulletDynamics\Vehicle\btVehicleRaycaster.h
 # End Source File
 # Begin Source File
 
-SOURCE=..\..\BulletDynamics\Vehicle\RaycastVehicle.h
-# End Source File
-# Begin Source File
-
-SOURCE=..\..\BulletDynamics\Vehicle\VehicleRaycaster.h
-# End Source File
-# Begin Source File
-
-SOURCE=..\..\BulletDynamics\Vehicle\WheelInfo.h
+SOURCE=..\..\src\BulletDynamics\Vehicle\btWheelInfo.h
 # End Source File
 # End Group
 # End Target

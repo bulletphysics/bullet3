@@ -28,9 +28,9 @@
 // todo: write own successive overrelaxation gauss-seidel, or jacobi iterative solver
 
 
-#include "SimdScalar.h"
+#include "LinearMath/SimdScalar.h"
 
-#include "Dynamics/RigidBody.h"
+#include "BulletDynamics/Dynamics/btRigidBody.h"
 #include <math.h>
 #include <float.h>//FLT_MAX
 #ifdef WIN32
@@ -50,7 +50,7 @@
 #endif
 
 #include "Dynamics/BU_Joint.h"
-#include "ContactSolverInfo.h"
+#include "btContactSolverInfo.h"
 
 ////////////////////////////////////////////////////////////////////
 //math stuff

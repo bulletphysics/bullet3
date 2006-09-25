@@ -18,8 +18,8 @@ subject to the following restrictions:
 #define BU_MOTIONSTATE
 
 
-#include <SimdTransform.h>
-#include <SimdPoint3.h>
+#include <LinearMath/SimdTransform.h>
+#include <LinearMath/SimdPoint3.h>
 #include <SimdQuaternion.h>
 
 class BU_MotionStateInterface
