@@ -13,25 +13,31 @@ subject to the following restrictions:
 3. This notice may not be removed or altered from any source distribution.
 */
 
-#ifndef BT_SIMPLE_DYNAMICS_WORLD_H
-#define BT_SIMPLE_DYNAMICS_WORLD_H
+#ifndef BT_DISCRETE_DYNAMICS_WORLD_H
+#define BT_DISCRETE_DYNAMICS_WORLD_H
 
 #include "btDynamicsWorld.h"
 
 class Dispatcher;
 class OverlappingPairCache;
 class ConstraintSolver;
+class SimulationIslandManager;
+class TypedConstraint;
+struct ContactSolverInfo;
 
-///btSimpleDynamicsWorld demonstrates very basic usage of Bullet rigid body dynamics
-///It can be used for basic simulations, and as a starting point for porting Bullet
-///btSimpleDynamicsWorld lacks object deactivation, island management and other concepts.
-///For more complicated simulations, btDiscreteDynamicsWorld and btContinuousDynamicsWorld are recommended
+#include <vector>
+
+///btDiscreteDynamicsWorld provides discrete rigid body simulation
 ///those classes replace the obsolete CcdPhysicsEnvironment/CcdPhysicsController
-class btSimpleDynamicsWorld : public btDynamicsWorld
+class btDiscreteDynamicsWorld : public btDynamicsWorld
 {
 protected:
 
 	ConstraintSolver*	m_constraintSolver;
+
+	SimulationIslandManager*	m_islandManager;
+
+	std::vector<TypedConstraint*> m_constraints;
 
 	void	predictUnconstraintMotion(float timeStep);
 	
@@ -39,17 +45,45 @@ protected:
 		
 	void	updateAabbs();
 
+	void	calculateSimulationIslands();
+
+	void	solveNoncontactConstraints(ContactSolverInfo& solverInfo);
+
+	void	solveContactConstraints(ContactSolverInfo& solverInfo);
+
+	void	updateActivationState(float timeStep);
+
+
 public:
 
 
-	btSimpleDynamicsWorld(Dispatcher* dispatcher,OverlappingPairCache* pairCache,ConstraintSolver* constraintSolver);
+	btDiscreteDynamicsWorld(Dispatcher* dispatcher,OverlappingPairCache* pairCache,ConstraintSolver* constraintSolver);
 
-	btSimpleDynamicsWorld();
-
-	virtual ~btSimpleDynamicsWorld();
+	btDiscreteDynamicsWorld();
+		
+	virtual ~btDiscreteDynamicsWorld();
 		
 	virtual void	stepSimulation( float timeStep);
 
+	void	addConstraint(TypedConstraint* constraint);
+
+	void	removeConstraint(TypedConstraint* constraint);
+
+	SimulationIslandManager*	GetSimulationIslandManager()
+	{
+		return m_islandManager;
+	}
+
+	const SimulationIslandManager*	GetSimulationIslandManager() const 
+	{
+		return m_islandManager;
+	}
+
+	CollisionWorld*	GetCollisionWorld()
+	{
+		return this;
+	}
+
 };
 
-#endif //BT_SIMPLE_DYNAMICS_WORLD_H
+#endif //BT_DISCRETE_DYNAMICS_WORLD_H

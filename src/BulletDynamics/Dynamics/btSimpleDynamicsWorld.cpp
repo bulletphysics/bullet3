@@ -9,11 +9,19 @@
 
 
 btSimpleDynamicsWorld::btSimpleDynamicsWorld()
-:CollisionWorld(new	CollisionDispatcher(),new SimpleBroadphase()),
+:btDynamicsWorld(new	CollisionDispatcher(),new SimpleBroadphase()),
 m_constraintSolver(new SequentialImpulseConstraintSolver)
 {
 
 }
+
+btSimpleDynamicsWorld::btSimpleDynamicsWorld(Dispatcher* dispatcher,OverlappingPairCache* pairCache,ConstraintSolver* constraintSolver)
+:btDynamicsWorld(dispatcher,pairCache),
+m_constraintSolver(constraintSolver)
+{
+
+}
+
 
 btSimpleDynamicsWorld::~btSimpleDynamicsWorld()
 {
@@ -48,6 +56,8 @@ void	btSimpleDynamicsWorld::stepSimulation(float timeStep)
 	updateAabbs();
 
 }
+
+
 
 void	btSimpleDynamicsWorld::updateAabbs()
 {
