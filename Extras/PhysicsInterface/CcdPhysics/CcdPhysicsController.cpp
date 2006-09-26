@@ -107,7 +107,7 @@ CcdPhysicsController::~CcdPhysicsController()
 	if (m_cci.m_physicsEnv)
 		m_cci.m_physicsEnv->removeCcdPhysicsController(this);
 
-	delete m_MotionState;
+	///this should not be deleted, it has been allocated by the user//delete m_MotionState;
 	delete m_body;
 }
 

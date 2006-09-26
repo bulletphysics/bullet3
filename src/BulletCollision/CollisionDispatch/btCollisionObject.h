@@ -34,7 +34,9 @@ class	CollisionShape;
 struct	CollisionObject
 {
 	SimdTransform	m_worldTransform;
-	
+	BroadphaseProxy*	m_broadphaseHandle;
+	CollisionShape*		m_collisionShape;
+
 	//m_interpolationWorldTransform is used for CCD and interpolation
 	//it can be either previous or future (predicted) transform
 	SimdTransform	m_interpolationWorldTransform;
@@ -57,8 +59,7 @@ struct	CollisionObject
 	SimdScalar		m_friction;
 	SimdScalar		m_restitution;
 
-	BroadphaseProxy*	m_broadphaseHandle;
-	CollisionShape*		m_collisionShape;
+	
 
 	//users can point to their objects, m_userPointer is not used by Bullet
 	void*			m_userObjectPointer;

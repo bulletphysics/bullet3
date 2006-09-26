@@ -330,18 +330,19 @@ void GL_ShapeDrawer::DrawOpenGL(float* m, const CollisionShape* shape, const Sim
 
 		}
 		
-		/*glDisable(GL_DEPTH_BUFFER_BIT);
-		if (debugMode==IDebugDraw::DBG_DrawText)
+		glDisable(GL_DEPTH_BUFFER_BIT);
+		glRasterPos3f(0,0,0);//mvtx.x(),  vtx.y(),  vtx.z());
+		if (debugMode&IDebugDraw::DBG_DrawText)
 		{
 			BMF_DrawString(BMF_GetFont(BMF_kHelvetica10),shape->GetName());
 		}
 
-		if (debugMode==IDebugDraw::DBG_DrawFeaturesText)
+		if (debugMode&IDebugDraw::DBG_DrawFeaturesText)
 		{
 			BMF_DrawString(BMF_GetFont(BMF_kHelvetica10),shape->GetExtraDebugInfo());
 		}
 		glEnable(GL_DEPTH_BUFFER_BIT);
-		*/
+		
 
 	//	glPopMatrix();
 	}

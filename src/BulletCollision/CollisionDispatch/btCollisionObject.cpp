@@ -52,5 +52,6 @@ void CollisionObject::activate()
 
 bool CollisionObject::mergesSimulationIslands() const
 {
-	return ( !(m_collisionFlags & isStatic));
+	//static objects, and object without contact response don't merge islands
+	return ( !(m_collisionFlags & (isStatic |noContactResponse )));
 }

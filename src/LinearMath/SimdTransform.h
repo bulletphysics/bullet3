@@ -21,6 +21,7 @@ subject to the following restrictions:
 #include "LinearMath/SimdMatrix3x3.h"
 
 
+#define IGNORE_TYPE 1
 
 class SimdTransform {
 	
@@ -41,37 +42,49 @@ public:
 	explicit SIMD_FORCE_INLINE SimdTransform(const SimdQuaternion& q, 
 		const SimdVector3& c = SimdVector3(SimdScalar(0), SimdScalar(0), SimdScalar(0))) 
 		: m_basis(q),
-		m_origin(c),
-		m_type(RIGID)
+		m_origin(c)
+#ifndef IGNORE_TYPE
+		,	m_type(RIGID)
+#endif //IGNORE_TYPE
 	{}
 
 	explicit SIMD_FORCE_INLINE SimdTransform(const SimdMatrix3x3& b, 
 		const SimdVector3& c = SimdVector3(SimdScalar(0), SimdScalar(0), SimdScalar(0)), 
 		unsigned int type = AFFINE)
 		: m_basis(b),
-		m_origin(c),
-		m_type(type)
+		m_origin(c)
+#ifndef IGNORE_TYPE
+		,	m_type(type)
+#endif //IGNORE_TYPE
 	{}
 
 
 		SIMD_FORCE_INLINE void mult(const SimdTransform& t1, const SimdTransform& t2) {
 			m_basis = t1.m_basis * t2.m_basis;
 			m_origin = t1(t2.m_origin);
+#ifndef IGNORE_TYPE
 			m_type = t1.m_type | t2.m_type;
+#endif //IGNORE_TYPE
 		}
 
 		void multInverseLeft(const SimdTransform& t1, const SimdTransform& t2) {
 			SimdVector3 v = t2.m_origin - t1.m_origin;
+#ifndef  IGNORE_TYPE
 			if (t1.m_type & SCALING) {
 				SimdMatrix3x3 inv = t1.m_basis.inverse();
 				m_basis = inv * t2.m_basis;
 				m_origin = inv * v;
 			}
-			else {
+			else 
+#else
+			{
 				m_basis = SimdMultTransposeLeft(t1.m_basis, t2.m_basis);
 				m_origin = v * t1.m_basis;
+#endif //IGNORE_TYPE
 			}
+#ifndef IGNORE_TYPE
 			m_type = t1.m_type | t2.m_type;
+#endif //IGNORE_TYPE
 		}
 
 	SIMD_FORCE_INLINE SimdVector3 operator()(const SimdVector3& x) const
@@ -102,7 +115,9 @@ public:
 	{
 		m_basis.setValue(m);
 		m_origin.setValue(&m[12]);
+#ifndef IGNORE_TYPE
 		m_type = AFFINE;
+#endif //IGNORE_TYPE
 	}
 
 	
@@ -126,7 +141,9 @@ public:
 	SIMD_FORCE_INLINE void setOrigin(const SimdVector3& origin) 
 	{ 
 		m_origin = origin;
+#ifndef IGNORE_TYPE
 		m_type |= TRANSLATION;
+#endif //IGNORE_TYPE
 	}
 
 	SIMD_FORCE_INLINE SimdVector3 invXform(const SimdVector3& inVec) const;
@@ -136,40 +153,60 @@ public:
 	SIMD_FORCE_INLINE void setBasis(const SimdMatrix3x3& basis)
 	{ 
 		m_basis = basis;
+#ifndef IGNORE_TYPE
 		m_type |= LINEAR;
+#endif //IGNORE_TYPE
 	}
 
 	SIMD_FORCE_INLINE void setRotation(const SimdQuaternion& q)
 	{
 		m_basis.setRotation(q);
+#ifndef IGNORE_TYPE
 		m_type = (m_type & ~LINEAR) | ROTATION;
+#endif //IGNORE_TYPE
 	}
 
 	SIMD_FORCE_INLINE void scale(const SimdVector3& scaling)
 	{
 		m_basis = m_basis.scaled(scaling);
+#ifndef IGNORE_TYPE
 		m_type |= SCALING;
+#endif //IGNORE_TYPE
 	}
 
 	void setIdentity()
 	{
 		m_basis.setIdentity();
 		m_origin.setValue(SimdScalar(0.0), SimdScalar(0.0), SimdScalar(0.0));
+#ifndef IGNORE_TYPE
 		m_type = 0x0;
+#endif //IGNORE_TYPE
 	}
 
-	SIMD_FORCE_INLINE bool isIdentity() const { return m_type == 0x0; }
+	SIMD_FORCE_INLINE bool isIdentity() const { 
+#ifdef IGNORE_TYPE
+		return false;
+#else
+		return m_type == 0x0; 
+#endif
+	}
 
 	SimdTransform& operator*=(const SimdTransform& t) 
 	{
 		m_origin += m_basis * t.m_origin;
 		m_basis *= t.m_basis;
+#ifndef IGNORE_TYPE
 		m_type |= t.m_type; 
+#endif //IGNORE_TYPE
 		return *this;
 	}
 
 	SimdTransform inverse() const
 	{ 
+#ifdef IGNORE_TYPE
+		SimdMatrix3x3 inv = m_basis.transpose();
+		return SimdTransform(inv, inv * -m_origin, 0);
+#else
 		if (m_type)
 		{
 			SimdMatrix3x3 inv = (m_type & SCALING) ? 
@@ -180,6 +217,7 @@ public:
 		}
 
 		return *this;
+#endif //IGNORE_TYPE
 	}
 
 	SimdTransform inverseTimes(const SimdTransform& t) const;  
@@ -190,7 +228,9 @@ private:
 
 	SimdMatrix3x3 m_basis;
 	SimdVector3   m_origin;
+#ifndef IGNORE_TYPE
 	unsigned int      m_type;
+#endif //IGNORE_TYPE
 };
 
 
@@ -205,6 +245,7 @@ SIMD_FORCE_INLINE SimdTransform
 SimdTransform::inverseTimes(const SimdTransform& t) const  
 {
 	SimdVector3 v = t.getOrigin() - m_origin;
+#ifndef IGNORE_TYPE
 	if (m_type & SCALING) 
 	{
 		SimdMatrix3x3 inv = m_basis.inverse();
@@ -212,10 +253,12 @@ SimdTransform::inverseTimes(const SimdTransform& t) const
 			m_type | t.m_type);
 	}
 	else 
+#else
 	{
 		return SimdTransform(m_basis.transposeTimes(t.m_basis),
-			v * m_basis, m_type | t.m_type);
+			v * m_basis, 0);
 	}
+#endif //IGNORE_TYPE
 }
 
 SIMD_FORCE_INLINE SimdTransform 
@@ -223,7 +266,11 @@ SimdTransform::operator*(const SimdTransform& t) const
 {
 	return SimdTransform(m_basis * t.m_basis, 
 		(*this)(t.m_origin), 
+#ifndef IGNORE_TYPE
 		m_type | t.m_type);
+#else
+		0);
+#endif
 }	
 
 

@@ -37,6 +37,24 @@ extern bool gUseEpa;
 /// 
 class RigidBody  : public CollisionObject
 {
+
+	SimdMatrix3x3	m_invInertiaTensorWorld;
+	SimdVector3		m_linearVelocity;
+	SimdVector3		m_angularVelocity;
+	SimdScalar		m_inverseMass;
+
+	SimdVector3		m_gravity;	
+	SimdVector3		m_invInertiaLocal;
+	SimdVector3		m_totalForce;
+	SimdVector3		m_totalTorque;
+	
+	SimdScalar		m_linearDamping;
+	SimdScalar		m_angularDamping;
+	
+	SimdScalar		m_kinematicTimeStep;
+
+	BroadphaseProxy*	m_broadphaseProxy;
+
 public:
 
 	RigidBody(const MassProps& massProps,SimdScalar linearDamping,SimdScalar angularDamping,SimdScalar friction,SimdScalar restitution);
@@ -197,29 +215,6 @@ public:
 
 private:
 	
-	SimdMatrix3x3	m_invInertiaTensorWorld;
-	SimdVector3		m_gravity;	
-	SimdVector3		m_invInertiaLocal;
-	SimdVector3		m_totalForce;
-	SimdVector3		m_totalTorque;
-//	SimdQuaternion	m_orn1;
-	
-	SimdVector3		m_linearVelocity;
-	
-	SimdVector3		m_angularVelocity;
-	
-	SimdScalar		m_linearDamping;
-	SimdScalar		m_angularDamping;
-	SimdScalar		m_inverseMass;
-
-
-	SimdScalar		m_kinematicTimeStep;
-
-	BroadphaseProxy*	m_broadphaseProxy;
-
-
-	
-
 
 	
 public:
@@ -240,7 +235,8 @@ public:
 	int	m_contactSolverType;
 	int	m_frictionSolverType;
 
-
+/*
+//unused
 	/// for ode solver-binding
 	dMatrix3		m_R;//temp
 	dMatrix3		m_I;
@@ -250,8 +246,8 @@ public:
 	
 	SimdVector3		m_tacc;//temp
 	SimdVector3		m_facc;
-
-
+*/
+	
 
 	int	m_debugBodyId;
 };
