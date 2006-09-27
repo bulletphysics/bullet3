@@ -1,5 +1,15 @@
 (Add new stuff at the top!)
 
+Sept 27th:
+==========
+* Added a 'collisionMap' and pre-populated it with the handles of
+  four of the cubes (which are coloured RED so you can see them).
+* Non-red cubes are painted in shades of blue/green.
+* Every cube (including the red ones) is gravitationally attracted
+  to all four red cubes in inverse proportion to their ranges.
+
+Sept 9th:
+=========
 * Merged in my latest changes into SVN repository.
 * Arranged to avoid reading/writing textures at same time.
 * Removed depth and stencil buffers from FBO's.

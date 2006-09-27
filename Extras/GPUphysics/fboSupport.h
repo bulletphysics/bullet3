@@ -75,11 +75,13 @@ public:
 
   void paint () ;
 
-  void fillTexture ( float         *data ) ;
-  void fillTexture ( unsigned char *data ) ;
+  void fillTexture ( float          *data ) ;
+  void fillTexture ( unsigned short *data ) ;
+  void fillTexture ( unsigned char  *data ) ;
 
-  void fetchTexture ( float         *data ) ;
-  void fetchTexture ( unsigned char *data ) ;
+  void fetchTexture ( float          *data ) ;
+  void fetchTexture ( unsigned short *data ) ;
+  void fetchTexture ( unsigned char  *data ) ;
 } ;
 
 

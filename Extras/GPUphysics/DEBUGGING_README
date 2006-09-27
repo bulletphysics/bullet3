@@ -29,27 +29,7 @@ help with our debugging problems.
    without that, doing physics in the GPU is going to be
    virtually impossible).
 
-3) Run without forces being applied:
-
-     GPU_physics -f
-
-   This sets the cubes off moving at constant speed (each cube
-   going at a different speed and spinning).
-
-   Run without collision against the ground:
-
-     GPU_physics -c
-
-   The cubes move under gravity - but don't interact with the
-   notional ground plane so the eventually fall off the bottom
-   of the screen..
-
-   If either (3) or (4) fails but (1) and (2) worked then the
-   problem is probably something to do with render-to-texture.
-
-   This is the most likely scenario.
-
-4) Run without vertex texturing:
+3) Run without vertex texturing:
 
     GPU_physics_demo -v
 

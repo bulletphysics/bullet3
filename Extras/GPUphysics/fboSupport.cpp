@@ -174,8 +174,8 @@ FrameBufferObject::FrameBufferObject ( int         _width ,
   glBindTexture   ( GL_TEXTURE_2D, textureHandle ) ;
   glTexParameterf ( GL_TEXTURE_2D, GL_TEXTURE_MIN_FILTER, GL_NEAREST ) ;
   glTexParameterf ( GL_TEXTURE_2D, GL_TEXTURE_MAG_FILTER, GL_NEAREST ) ;
-  glTexParameteri ( GL_TEXTURE_2D, GL_TEXTURE_WRAP_S, GL_CLAMP_TO_EDGE ) ;
-  glTexParameteri ( GL_TEXTURE_2D, GL_TEXTURE_WRAP_T, GL_CLAMP_TO_EDGE ) ;
+  //glTexParameteri ( GL_TEXTURE_2D, GL_TEXTURE_WRAP_S, GL_CLAMP_TO_EDGE ) ;
+  //glTexParameteri ( GL_TEXTURE_2D, GL_TEXTURE_WRAP_T, GL_CLAMP_TO_EDGE ) ;
   fillTexture ( (void *) NULL ) ;
 
   glGenFramebuffersEXT  ( 1, & fboHandle     ) ;
@@ -260,6 +260,19 @@ void FrameBufferObject::fetchTexture ( unsigned char *data )
 
 
 
+void FrameBufferObject::fetchTexture ( unsigned short *data )
+{
+  if ( type != FBO_UNSIGNED_SHORT )
+  {
+    fprintf ( stderr, "FBO: Data format mismatch!" ) ;
+    return ;
+  }
+
+  fetchTexture ( (void *)data ) ;
+}
+
+
+
 void FrameBufferObject::fetchTexture ( float *data )
 {
   if ( type != FBO_FLOAT )
@@ -297,6 +310,18 @@ void FrameBufferObject::fillTexture ( unsigned char *data )
 
   fillTexture ( (void *)data ) ;
 }
+
+void FrameBufferObject::fillTexture ( unsigned short *data )
+{
+  if ( type != FBO_UNSIGNED_SHORT )
+  {
+    fprintf ( stderr, "FBO: Data format mismatch!" ) ;
+    return ;
+  }
+
+  fillTexture ( (void *)data ) ;
+}
+
 
 void FrameBufferObject::fillTexture ( float *data )
 {
