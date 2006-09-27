@@ -1,14 +1,23 @@
 
 #include "btDiscreteDynamicsWorld.h"
+
+//collision detection
 #include "BulletCollision/CollisionDispatch/btCollisionDispatcher.h"
 #include "BulletCollision/BroadphaseCollision/btSimpleBroadphase.h"
 #include "BulletCollision/CollisionShapes/btCollisionShape.h"
 #include "BulletCollision/CollisionDispatch/btSimulationIslandManager.h"
 
+//rigidbody & constraints
 #include "BulletDynamics/Dynamics/btRigidBody.h"
 #include "BulletDynamics/ConstraintSolver/btSequentialImpulseConstraintSolver.h"
 #include "BulletDynamics/ConstraintSolver/btContactSolverInfo.h"
 #include "BulletDynamics/ConstraintSolver/btTypedConstraint.h"
+
+//vehicle
+#include "BulletDynamics/Vehicle/btRaycastVehicle.h"
+#include "BulletDynamics/Vehicle/btVehicleRaycaster.h"
+#include "BulletDynamics/Vehicle/btWheelInfo.h"
+
 #include <algorithm>
 
 btDiscreteDynamicsWorld::btDiscreteDynamicsWorld()
@@ -41,6 +50,9 @@ btDiscreteDynamicsWorld::~btDiscreteDynamicsWorld()
 
 void	btDiscreteDynamicsWorld::stepSimulation(float timeStep)
 {
+	///update aabbs information
+	updateAabbs();
+
 	///apply gravity, predict motion
 	predictUnconstraintMotion(timeStep);
 
@@ -55,17 +67,30 @@ void	btDiscreteDynamicsWorld::stepSimulation(float timeStep)
 	///solve non-contact constraints
 	solveNoncontactConstraints(infoGlobal);
 	
+	///solve contact constraints
 	solveContactConstraints(infoGlobal);
 
-	//CallbackTriggers();
+	///update vehicle simulation
+	updateVehicles(timeStep);
+	
+	///CallbackTriggers();
 
 	///integrate transforms
 	integrateTransforms(timeStep);
 		
 	updateActivationState( timeStep );
 
-	updateAabbs();
+	
 
+}
+
+void	btDiscreteDynamicsWorld::updateVehicles(float timeStep)
+{
+	for (int i=0;i<m_vehicles.size();i++)
+	{
+		RaycastVehicle* vehicle = m_vehicles[i];
+		vehicle->UpdateVehicle( timeStep);
+	}
 }
 
 void	btDiscreteDynamicsWorld::updateActivationState(float timeStep)
@@ -105,6 +130,21 @@ void	btDiscreteDynamicsWorld::removeConstraint(TypedConstraint* constraint)
 		m_constraints.erase(cit);
 	}
 }
+
+void	btDiscreteDynamicsWorld::addVehicle(RaycastVehicle* vehicle)
+{
+	m_vehicles.push_back(vehicle);
+}
+
+void	btDiscreteDynamicsWorld::removeVehicle(RaycastVehicle* vehicle)
+{
+	std::vector<RaycastVehicle*>::iterator vit = std::find(m_vehicles.begin(),m_vehicles.end(),vehicle);
+	if (!(vit==m_vehicles.end()))
+	{
+		m_vehicles.erase(vit);
+	}
+}
+
 
 void	btDiscreteDynamicsWorld::solveContactConstraints(ContactSolverInfo& solverInfo)
 {

@@ -24,6 +24,7 @@ class ConstraintSolver;
 class SimulationIslandManager;
 class TypedConstraint;
 struct ContactSolverInfo;
+class RaycastVehicle;
 
 #include <vector>
 
@@ -39,6 +40,8 @@ protected:
 
 	std::vector<TypedConstraint*> m_constraints;
 
+	std::vector<RaycastVehicle*>	m_vehicles;
+
 	void	predictUnconstraintMotion(float timeStep);
 	
 	void	integrateTransforms(float timeStep);
@@ -53,6 +56,7 @@ protected:
 
 	void	updateActivationState(float timeStep);
 
+	void	updateVehicles(float timeStep);
 
 public:
 
@@ -68,6 +72,10 @@ public:
 	void	addConstraint(TypedConstraint* constraint);
 
 	void	removeConstraint(TypedConstraint* constraint);
+
+	void	addVehicle(RaycastVehicle* vehicle);
+
+	void	removeVehicle(RaycastVehicle* vehicle);
 
 	SimulationIslandManager*	GetSimulationIslandManager()
 	{
