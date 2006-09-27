@@ -15,11 +15,11 @@ subject to the following restrictions:
 
 #include "BulletCollision/CollisionShapes/btCollisionShape.h"
 
-void	CollisionShape::GetBoundingSphere(SimdVector3& center,SimdScalar& radius) const
+void	btCollisionShape::GetBoundingSphere(btVector3& center,btScalar& radius) const
 {
-	SimdTransform tr;
+	btTransform tr;
 	tr.setIdentity();
-	SimdVector3 aabbMin,aabbMax;
+	btVector3 aabbMin,aabbMax;
 
 	GetAabb(tr,aabbMin,aabbMax);
 
@@ -27,16 +27,16 @@ void	CollisionShape::GetBoundingSphere(SimdVector3& center,SimdScalar& radius) c
 	center = (aabbMin+aabbMax)*0.5f;
 }
 
-float	CollisionShape::GetAngularMotionDisc() const
+float	btCollisionShape::GetAngularMotionDisc() const
 {
-	SimdVector3	center;
+	btVector3	center;
 	float disc;
 	GetBoundingSphere(center,disc);
 	disc += (center).length();
 	return disc;
 }
 
-void CollisionShape::CalculateTemporalAabb(const SimdTransform& curTrans,const SimdVector3& linvel,const SimdVector3& angvel,SimdScalar timeStep, SimdVector3& temporalAabbMin,SimdVector3& temporalAabbMax)
+void btCollisionShape::CalculateTemporalAabb(const btTransform& curTrans,const btVector3& linvel,const btVector3& angvel,btScalar timeStep, btVector3& temporalAabbMin,btVector3& temporalAabbMax)
 {
 	//start with static aabb
 	GetAabb(curTrans,temporalAabbMin,temporalAabbMax);
@@ -49,7 +49,7 @@ void CollisionShape::CalculateTemporalAabb(const SimdTransform& curTrans,const S
 	float temporalAabbMinz = temporalAabbMin.getZ();
 
 	// add linear motion
-	SimdVector3 linMotion = linvel*timeStep;
+	btVector3 linMotion = linvel*timeStep;
 	//todo: simd would have a vector max/min operation, instead of per-element access
 	if (linMotion.x() > 0.f)
 		temporalAabbMaxx += linMotion.x(); 
@@ -65,10 +65,10 @@ void CollisionShape::CalculateTemporalAabb(const SimdTransform& curTrans,const S
 		temporalAabbMinz += linMotion.z();
 
 	//add conservative angular motion
-	SimdScalar angularMotion = angvel.length() * GetAngularMotionDisc() * timeStep;
-	SimdVector3 angularMotion3d(angularMotion,angularMotion,angularMotion);
-	temporalAabbMin = SimdVector3(temporalAabbMinx,temporalAabbMiny,temporalAabbMinz);
-	temporalAabbMax = SimdVector3(temporalAabbMaxx,temporalAabbMaxy,temporalAabbMaxz);
+	btScalar angularMotion = angvel.length() * GetAngularMotionDisc() * timeStep;
+	btVector3 angularMotion3d(angularMotion,angularMotion,angularMotion);
+	temporalAabbMin = btVector3(temporalAabbMinx,temporalAabbMiny,temporalAabbMinz);
+	temporalAabbMax = btVector3(temporalAabbMaxx,temporalAabbMaxy,temporalAabbMaxz);
 
 	temporalAabbMin -= angularMotion3d;
 	temporalAabbMax += angularMotion3d;

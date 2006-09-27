@@ -25,20 +25,20 @@ subject to the following restrictions:
 ///No connectivity is needed. LocalGetSupportingVertex iterates linearly though all vertices.
 ///on modern hardware, due to cache coherency this isn't that bad. Complex algorithms tend to trash the cash.
 ///(memory is much slower then the cpu)
-class ConvexHullShape : public PolyhedralConvexShape
+class btConvexHullShape : public btPolyhedralConvexShape
 {
-	std::vector<SimdPoint3>	m_points;
+	std::vector<btPoint3>	m_points;
 
 public:
-	ConvexHullShape(SimdPoint3* points,int numPoints, int stride=sizeof(SimdPoint3));
+	btConvexHullShape(btPoint3* points,int numPoints, int stride=sizeof(btPoint3));
 
-	void AddPoint(const SimdPoint3& point)
+	void AddPoint(const btPoint3& point)
 	{
 		m_points.push_back(point);
 	}
-	virtual SimdVector3	LocalGetSupportingVertex(const SimdVector3& vec)const;
-	virtual SimdVector3	LocalGetSupportingVertexWithoutMargin(const SimdVector3& vec)const;
-	virtual void	BatchedUnitVectorGetSupportingVertexWithoutMargin(const SimdVector3* vectors,SimdVector3* supportVerticesOut,int numVectors) const;
+	virtual btVector3	LocalGetSupportingVertex(const btVector3& vec)const;
+	virtual btVector3	LocalGetSupportingVertexWithoutMargin(const btVector3& vec)const;
+	virtual void	BatchedUnitVectorGetSupportingVertexWithoutMargin(const btVector3* vectors,btVector3* supportVerticesOut,int numVectors) const;
 	
 
 	virtual int	GetShapeType()const { return CONVEX_HULL_SHAPE_PROXYTYPE; }
@@ -49,11 +49,11 @@ public:
 	
 	virtual int	GetNumVertices() const;
 	virtual int GetNumEdges() const;
-	virtual void GetEdge(int i,SimdPoint3& pa,SimdPoint3& pb) const;
-	virtual void GetVertex(int i,SimdPoint3& vtx) const;
+	virtual void GetEdge(int i,btPoint3& pa,btPoint3& pb) const;
+	virtual void GetVertex(int i,btPoint3& vtx) const;
 	virtual int	GetNumPlanes() const;
-	virtual void GetPlane(SimdVector3& planeNormal,SimdPoint3& planeSupport,int i ) const;
-	virtual	bool IsInside(const SimdPoint3& pt,SimdScalar tolerance) const;
+	virtual void GetPlane(btVector3& planeNormal,btPoint3& planeSupport,int i ) const;
+	virtual	bool IsInside(const btPoint3& pt,btScalar tolerance) const;
 
 
 

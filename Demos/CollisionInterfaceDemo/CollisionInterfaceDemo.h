@@ -17,7 +17,7 @@ subject to the following restrictions:
 
 #include "DemoApplication.h"
 
-///CollisionInterfaceDemo shows how to use the collision detection without dynamics (CollisionWorld/CollisionObject)
+///CollisionInterfaceDemo shows how to use the collision detection without dynamics (btCollisionWorld/CollisionObject)
 class CollisionInterfaceDemo : public DemoApplication
 {
 	public:

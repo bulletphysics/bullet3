@@ -16,16 +16,16 @@ subject to the following restrictions:
 #ifndef POINT2POINTCONSTRAINT_H
 #define POINT2POINTCONSTRAINT_H
 
-#include "LinearMath/SimdVector3.h"
+#include "LinearMath/btVector3.h"
 
 #include "BulletDynamics/ConstraintSolver/btJacobianEntry.h"
 #include "btTypedConstraint.h"
 
-class RigidBody;
+class btRigidBody;
 
-struct	ConstraintSetting
+struct	btConstraintSetting
 {
-	ConstraintSetting()	:
+	btConstraintSetting()	:
 		m_tau(0.3f),
 		m_damping(1.f)
 	{
@@ -35,38 +35,38 @@ struct	ConstraintSetting
 };
 
 /// point to point constraint between two rigidbodies each with a pivotpoint that descibes the 'ballsocket' location in local space
-class Point2PointConstraint : public TypedConstraint
+class btPoint2PointConstraint : public btTypedConstraint
 {
-	JacobianEntry	m_jac[3]; //3 orthogonal linear constraints
+	btJacobianEntry	m_jac[3]; //3 orthogonal linear constraints
 	
-	SimdVector3	m_pivotInA;
-	SimdVector3	m_pivotInB;
+	btVector3	m_pivotInA;
+	btVector3	m_pivotInB;
 	
 	
 	
 public:
 
-	ConstraintSetting	m_setting;
+	btConstraintSetting	m_setting;
 
-	Point2PointConstraint(RigidBody& rbA,RigidBody& rbB, const SimdVector3& pivotInA,const SimdVector3& pivotInB);
+	btPoint2PointConstraint(btRigidBody& rbA,btRigidBody& rbB, const btVector3& pivotInA,const btVector3& pivotInB);
 
-	Point2PointConstraint(RigidBody& rbA,const SimdVector3& pivotInA);
+	btPoint2PointConstraint(btRigidBody& rbA,const btVector3& pivotInA);
 
-	Point2PointConstraint();
+	btPoint2PointConstraint();
 
 	virtual void	BuildJacobian();
 
 
-	virtual	void	SolveConstraint(SimdScalar	timeStep);
+	virtual	void	SolveConstraint(btScalar	timeStep);
 
-	void	UpdateRHS(SimdScalar	timeStep);
+	void	UpdateRHS(btScalar	timeStep);
 
-	void	SetPivotA(const SimdVector3& pivotA)
+	void	SetPivotA(const btVector3& pivotA)
 	{
 		m_pivotInA = pivotA;
 	}
 
-	void	SetPivotB(const SimdVector3& pivotB)
+	void	SetPivotB(const btVector3& pivotB)
 	{
 		m_pivotInB = pivotB;
 	}

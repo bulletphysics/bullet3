@@ -16,7 +16,7 @@ subject to the following restrictions:
 #ifndef RENDER_TEXTURE_H
 #define RENDER_TEXTURE_H
 
-#include "LinearMath/SimdVector3.h"
+#include "LinearMath/btVector3.h"
 #include "BMF_FontData.h"
 
 ///
@@ -33,7 +33,7 @@ public:
 	RenderTexture(int width,int height);
 	~RenderTexture();
 
-	inline void	SetPixel(int x,int y,const SimdVector4& rgba)
+	inline void	SetPixel(int x,int y,const btVector4& rgba)
 	{
 		unsigned char* pixel = &m_buffer[ (x+y*m_width) * 4];
 

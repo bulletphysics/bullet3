@@ -18,69 +18,69 @@ subject to the following restrictions:
 
 #include "btCollisionShape.h"
 
-#include "LinearMath/SimdVector3.h"
-#include "LinearMath/SimdTransform.h"
-#include "LinearMath/SimdMatrix3x3.h"
+#include "LinearMath/btVector3.h"
+#include "LinearMath/btTransform.h"
+#include "LinearMath/btMatrix3x3.h"
 #include <vector>
 #include "BulletCollision/CollisionShapes/btCollisionMargin.h"
 
-class OptimizedBvh;
+class btOptimizedBvh;
 
-/// CompoundShape allows to store multiple other CollisionShapes
-/// This allows for concave collision objects. This is more general then the Static Concave TriangleMeshShape.
-class CompoundShape	: public CollisionShape
+/// btCompoundShape allows to store multiple other btCollisionShapes
+/// This allows for concave collision objects. This is more general then the Static Concave btTriangleMeshShape.
+class btCompoundShape	: public btCollisionShape
 {
-	std::vector<SimdTransform>		m_childTransforms;
-	std::vector<CollisionShape*>	m_childShapes;
-	SimdVector3						m_localAabbMin;
-	SimdVector3						m_localAabbMax;
+	std::vector<btTransform>		m_childTransforms;
+	std::vector<btCollisionShape*>	m_childShapes;
+	btVector3						m_localAabbMin;
+	btVector3						m_localAabbMax;
 
-	OptimizedBvh*					m_aabbTree;
+	btOptimizedBvh*					m_aabbTree;
 
 public:
-	CompoundShape();
+	btCompoundShape();
 
-	virtual ~CompoundShape();
+	virtual ~btCompoundShape();
 
-	void	AddChildShape(const SimdTransform& localTransform,CollisionShape* shape);
+	void	AddChildShape(const btTransform& localTransform,btCollisionShape* shape);
 
 	int		GetNumChildShapes() const
 	{
 		return m_childShapes.size();
 	}
 
-	CollisionShape* GetChildShape(int index)
+	btCollisionShape* GetChildShape(int index)
 	{
 		return m_childShapes[index];
 	}
-	const CollisionShape* GetChildShape(int index) const
+	const btCollisionShape* GetChildShape(int index) const
 	{
 		return m_childShapes[index];
 	}
 
-	SimdTransform	GetChildTransform(int index)
+	btTransform	GetChildTransform(int index)
 	{
 		return m_childTransforms[index];
 	}
-	const SimdTransform	GetChildTransform(int index) const
+	const btTransform	GetChildTransform(int index) const
 	{
 		return m_childTransforms[index];
 	}
 
 	///GetAabb's default implementation is brute force, expected derived classes to implement a fast dedicated version
-	void GetAabb(const SimdTransform& t,SimdVector3& aabbMin,SimdVector3& aabbMax) const;
+	void GetAabb(const btTransform& t,btVector3& aabbMin,btVector3& aabbMax) const;
 
 
-	virtual void	setLocalScaling(const SimdVector3& scaling)
+	virtual void	setLocalScaling(const btVector3& scaling)
 	{
 		m_localScaling = scaling;
 	}
-	virtual const SimdVector3& getLocalScaling() const 
+	virtual const btVector3& getLocalScaling() const 
 	{
 		return m_localScaling;
 	}
 
-	virtual void	CalculateLocalInertia(SimdScalar mass,SimdVector3& inertia);
+	virtual void	CalculateLocalInertia(btScalar mass,btVector3& inertia);
 	
 	virtual int	GetShapeType() const { return COMPOUND_SHAPE_PROXYTYPE;}
 
@@ -100,15 +100,15 @@ public:
 	//this is optional, but should make collision queries faster, by culling non-overlapping nodes
 	void	CreateAabbTreeFromChildren();
 
-	const OptimizedBvh*					GetAabbTree() const
+	const btOptimizedBvh*					GetAabbTree() const
 	{
 		return m_aabbTree;
 	}
 
 private:
-	SimdScalar	m_collisionMargin;
+	btScalar	m_collisionMargin;
 protected:
-	SimdVector3	m_localScaling;
+	btVector3	m_localScaling;
 
 };
 

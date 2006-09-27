@@ -19,16 +19,16 @@ subject to the following restrictions:
 #include "PHY_IPhysicsEnvironment.h"
 #include <vector>
 class CcdPhysicsController;
-#include "LinearMath/SimdVector3.h"
-#include "LinearMath/SimdTransform.h"
+#include "LinearMath/btVector3.h"
+#include "LinearMath/btTransform.h"
 
 
 
 
-class TypedConstraint;
-class SimulationIslandManager;
-class CollisionDispatcher;
-class Dispatcher;
+class btTypedConstraint;
+class btSimulationIslandManager;
+class btCollisionDispatcher;
+class btDispatcher;
 //#include "btBroadphaseInterface.h"
 
 //switch on/off new vehicle support
@@ -37,10 +37,10 @@ class Dispatcher;
 #include "BulletDynamics/ConstraintSolver/btContactSolverInfo.h"
 
 class WrapperVehicle;
-class PersistentManifold;
-class BroadphaseInterface;
-class OverlappingPairCache;
-class IDebugDraw;
+class btPersistentManifold;
+class btBroadphaseInterface;
+class btOverlappingPairCache;
+class btIDebugDraw;
 class PHY_IVehicle;
 
 /// CcdPhysicsEnvironment is an experimental mainloop for physics simulation using optional continuous collision detection.
@@ -49,12 +49,12 @@ class PHY_IVehicle;
 /// A derived class may be able to 'construct' entities by loading and/or converting
 class CcdPhysicsEnvironment : public PHY_IPhysicsEnvironment
 {
-	SimdVector3 m_gravity;
+	btVector3 m_gravity;
 	
 	
 
 protected:
-	IDebugDraw*	m_debugDrawer;
+	btIDebugDraw*	m_debugDrawer;
 	//solver iterations
 	int	m_numIterations;
 	
@@ -67,12 +67,12 @@ protected:
 	int	m_profileTimings;
 	bool m_enableSatCollisionDetection;
 
-	ContactSolverInfo	m_solverInfo;
+	btContactSolverInfo	m_solverInfo;
 	
-	SimulationIslandManager*	m_islandManager;
+	btSimulationIslandManager*	m_islandManager;
 
 	public:
-		CcdPhysicsEnvironment(Dispatcher* dispatcher=0, OverlappingPairCache* pairCache=0);
+		CcdPhysicsEnvironment(btDispatcher* dispatcher=0, btOverlappingPairCache* pairCache=0);
 
 		virtual		~CcdPhysicsEnvironment();
 
@@ -82,7 +82,7 @@ protected:
 
 		/// Perform an integration step of duration 'timeStep'.
 
-		virtual void setDebugDrawer(IDebugDraw* debugDrawer)
+		virtual void setDebugDrawer(btIDebugDraw* debugDrawer)
 		{
 			m_debugDrawer = debugDrawer;
 		}
@@ -127,12 +127,12 @@ protected:
 		//Following the COLLADA physics specification for constraints
 		virtual int			createUniversalD6Constraint(
 		class PHY_IPhysicsController* ctrlRef,class PHY_IPhysicsController* ctrlOther,
-			SimdTransform& localAttachmentFrameRef,
-			SimdTransform& localAttachmentOther,
-			const SimdVector3& linearMinLimits,
-			const SimdVector3& linearMaxLimits,
-			const SimdVector3& angularMinLimits,
-			const SimdVector3& angularMaxLimits
+			btTransform& localAttachmentFrameRef,
+			btTransform& localAttachmentOther,
+			const btVector3& linearMinLimits,
+			const btVector3& linearMaxLimits,
+			const btVector3& angularMinLimits,
+			const btVector3& angularMaxLimits
 			);
 
 
@@ -154,7 +154,7 @@ protected:
 		}
 #endif //NEW_BULLET_VEHICLE_SUPPORT
 
-		TypedConstraint*	getConstraintById(int constraintId);
+		btTypedConstraint*	getConstraintById(int constraintId);
 
 		virtual PHY_IPhysicsController* rayTest(PHY_IPhysicsController* ignoreClient, float fromX,float fromY,float fromZ, float toX,float toY,float toZ, 
 										float& hitX,float& hitY,float& hitZ,float& normalX,float& normalY,float& normalZ);
@@ -183,7 +183,7 @@ protected:
 
 		void	removeCcdPhysicsController(CcdPhysicsController* ctrl);
 
-		BroadphaseInterface*	GetBroadphase();
+		btBroadphaseInterface*	GetBroadphase();
 
 		
 		
@@ -207,34 +207,34 @@ protected:
 
 		
 
-		const PersistentManifold*	GetManifold(int index) const;
+		const btPersistentManifold*	GetManifold(int index) const;
 
-		std::vector<TypedConstraint*> m_constraints;
+		std::vector<btTypedConstraint*> m_constraints;
 
 		void	SyncMotionStates(float timeStep);
 
 		
-		class CollisionWorld*	GetCollisionWorld()
+		class btCollisionWorld*	GetCollisionWorld()
 		{
 			return m_collisionWorld;
 		}
 
-		const class CollisionWorld*	GetCollisionWorld() const
+		const class btCollisionWorld*	GetCollisionWorld() const
 		{
 			return m_collisionWorld;
 		}
 
-		SimulationIslandManager*	GetSimulationIslandManager()
+		btSimulationIslandManager*	GetSimulationIslandManager()
 		{
 			return m_islandManager;
 		}
 
-		const SimulationIslandManager*	GetSimulationIslandManager() const 
+		const btSimulationIslandManager*	GetSimulationIslandManager() const 
 		{
 			return m_islandManager;
 		}
 
-		class ConstraintSolver*	GetConstraintSolver()
+		class btConstraintSolver*	GetConstraintSolver()
 		{
 			return m_solver;
 		}
@@ -253,9 +253,9 @@ protected:
 		
 		std::vector<WrapperVehicle*>	m_wrapperVehicles;
 
-		class CollisionWorld*	m_collisionWorld;
+		class btCollisionWorld*	m_collisionWorld;
 		
-		class ConstraintSolver*	m_solver;
+		class btConstraintSolver*	m_solver;
 
 		bool	m_scalingPropagated;
 

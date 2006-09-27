@@ -15,6 +15,6 @@ subject to the following restrictions:
 
 #include "btConvexCast.h"
 
-ConvexCast::~ConvexCast()
+btConvexCast::~btConvexCast()
 {
 }

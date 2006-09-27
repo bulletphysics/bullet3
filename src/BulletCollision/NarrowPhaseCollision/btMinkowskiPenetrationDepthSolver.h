@@ -20,15 +20,15 @@ subject to the following restrictions:
 
 ///MinkowskiPenetrationDepthSolver implements bruteforce penetration depth estimation.
 ///Implementation is based on sampling the depth using support mapping, and using GJK step to get the witness points.
-class MinkowskiPenetrationDepthSolver : public ConvexPenetrationDepthSolver
+class btMinkowskiPenetrationDepthSolver : public btConvexPenetrationDepthSolver
 {
 public:
 
-	virtual bool CalcPenDepth( SimplexSolverInterface& simplexSolver,
-	ConvexShape* convexA,ConvexShape* convexB,
-				const SimdTransform& transA,const SimdTransform& transB,
-			SimdVector3& v, SimdPoint3& pa, SimdPoint3& pb,
-			class IDebugDraw* debugDraw
+	virtual bool CalcPenDepth( btSimplexSolverInterface& simplexSolver,
+	btConvexShape* convexA,btConvexShape* convexB,
+				const btTransform& transA,const btTransform& transB,
+			btVector3& v, btPoint3& pa, btPoint3& pb,
+			class btIDebugDraw* debugDraw
 			);
 
 };

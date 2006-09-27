@@ -18,19 +18,19 @@ subject to the following restrictions:
 #define MANIFOLD_CONTACT_ADD_RESULT_H
 
 #include "BulletCollision/NarrowPhaseCollision/btDiscreteCollisionDetectorInterface.h"
-class PersistentManifold;
+class btPersistentManifold;
 
-class ManifoldContactAddResult : public DiscreteCollisionDetectorInterface::Result
+class btManifoldContactAddResult : public btDiscreteCollisionDetectorInterface::Result
 {
-	PersistentManifold* m_manifoldPtr;
-	SimdTransform	m_transAInv;
-	SimdTransform	m_transBInv;
+	btPersistentManifold* m_manifoldPtr;
+	btTransform	m_transAInv;
+	btTransform	m_transBInv;
 
 public:
 
-	ManifoldContactAddResult(SimdTransform transA,SimdTransform transB,PersistentManifold* manifoldPtr);
+	btManifoldContactAddResult(btTransform transA,btTransform transB,btPersistentManifold* manifoldPtr);
 
-	virtual void AddContactPoint(const SimdVector3& normalOnBInWorld,const SimdVector3& pointInWorld,float depth);
+	virtual void AddContactPoint(const btVector3& normalOnBInWorld,const btVector3& pointInWorld,float depth);
 
 };
 

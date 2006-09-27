@@ -16,22 +16,22 @@ subject to the following restrictions:
 #ifndef CONSTRAINT_SOLVER_H
 #define CONSTRAINT_SOLVER_H
 
-class PersistentManifold;
-class RigidBody;
+class btPersistentManifold;
+class btRigidBody;
 
-struct ContactSolverInfo;
-struct BroadphaseProxy;
-class IDebugDraw;
+struct btContactSolverInfo;
+struct btBroadphaseProxy;
+class btIDebugDraw;
 
-/// ConstraintSolver provides solver interface
-class ConstraintSolver
+/// btConstraintSolver provides solver interface
+class btConstraintSolver
 {
 
 public:
 
-	virtual ~ConstraintSolver() {}
+	virtual ~btConstraintSolver() {}
 	
-	virtual float SolveGroup(PersistentManifold** manifold,int numManifolds,const ContactSolverInfo& info,class IDebugDraw* debugDrawer = 0) = 0;
+	virtual float SolveGroup(btPersistentManifold** manifold,int numManifolds,const btContactSolverInfo& info,class btIDebugDraw* debugDrawer = 0) = 0;
 
 };
 

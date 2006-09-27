@@ -138,8 +138,8 @@ public:
 
 	Point3 GetFaceCentroid(short face) const;
 
-	//static void ProcessHullHull(Separation& sep);
-	static void ProcessHullHull(Separation& sep,const Hull& shapeA,const Hull& shapeB,const Transform& trA,const Transform& trB, HullContactCollector* collector);
+	//static void ProcessHullHull(btSeparation& sep);
+	static void ProcessHullHull(btSeparation& sep,const Hull& shapeA,const Hull& shapeB,const Transform& trA,const Transform& trB, HullContactCollector* collector);
 
 	virtual void ComputeInertia(const Transform& transform, Point3& centerOfMass, Matrix33& inertia, float totalMass) const;
 	virtual Bounds3 ComputeBounds(const Transform& transform) const;
@@ -153,13 +153,13 @@ public:
 	/// Clips a face to the back of a plane
 	static int ClipFace(int numVerts, Point3** ppVtxIn, Point3** ppVtxOut, const Plane& plane);
 
-	static bool GetSeparationHullHull(Separation& sep, const Point3* pVertsA, const Point3* pVertsB,
+	static bool GetSeparationHullHull(btSeparation& sep, const Point3* pVertsA, const Point3* pVertsB,
 										  const Transform& trA, const Transform& trB,
 										  const Hull& hullA,
 										  const Hull& hullB
 										  );
 
-	static int AddContactsHullHull(Separation& sep, const Point3* pVertsA, const Point3* pVertsB,
+	static int AddContactsHullHull(btSeparation& sep, const Point3* pVertsA, const Point3* pVertsB,
 									   const Transform& trA, const Transform& trB,const Hull& hullA,const Hull& hullB,
 									   HullContactCollector* hullContactCollector);
 

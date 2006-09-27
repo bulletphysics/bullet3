@@ -17,15 +17,15 @@ subject to the following restrictions:
 #ifndef AABB_UTIL2
 #define AABB_UTIL2
 
-#include "LinearMath/SimdVector3.h"
+#include "LinearMath/btVector3.h"
 
-#define SimdMin(a,b) ((a < b ? a : b))
-#define SimdMax(a,b) ((a > b ? a : b))
+#define btMin(a,b) ((a < b ? a : b))
+#define btMax(a,b) ((a > b ? a : b))
 
 
 /// conservative test for overlap between two aabbs
-SIMD_FORCE_INLINE bool TestAabbAgainstAabb2(const SimdVector3 &aabbMin1, const SimdVector3 &aabbMax1,
-								const SimdVector3 &aabbMin2, const SimdVector3 &aabbMax2)
+SIMD_FORCE_INLINE bool TestAabbAgainstAabb2(const btVector3 &aabbMin1, const btVector3 &aabbMax1,
+								const btVector3 &aabbMin2, const btVector3 &aabbMax2)
 {
 	bool overlap = true;
 	overlap = (aabbMin1[0] > aabbMax2[0] || aabbMax1[0] < aabbMin2[0]) ? false : overlap;
@@ -35,21 +35,21 @@ SIMD_FORCE_INLINE bool TestAabbAgainstAabb2(const SimdVector3 &aabbMin1, const S
 }
 
 /// conservative test for overlap between triangle and aabb
-SIMD_FORCE_INLINE bool TestTriangleAgainstAabb2(const SimdVector3 *vertices,
-									const SimdVector3 &aabbMin, const SimdVector3 &aabbMax)
+SIMD_FORCE_INLINE bool TestTriangleAgainstAabb2(const btVector3 *vertices,
+									const btVector3 &aabbMin, const btVector3 &aabbMax)
 {
-	const SimdVector3 &p1 = vertices[0];
-	const SimdVector3 &p2 = vertices[1];
-	const SimdVector3 &p3 = vertices[2];
+	const btVector3 &p1 = vertices[0];
+	const btVector3 &p2 = vertices[1];
+	const btVector3 &p3 = vertices[2];
 
-	if (SimdMin(SimdMin(p1[0], p2[0]), p3[0]) > aabbMax[0]) return false;
-	if (SimdMax(SimdMax(p1[0], p2[0]), p3[0]) < aabbMin[0]) return false;
+	if (btMin(btMin(p1[0], p2[0]), p3[0]) > aabbMax[0]) return false;
+	if (btMax(btMax(p1[0], p2[0]), p3[0]) < aabbMin[0]) return false;
 
-	if (SimdMin(SimdMin(p1[2], p2[2]), p3[2]) > aabbMax[2]) return false;
-	if (SimdMax(SimdMax(p1[2], p2[2]), p3[2]) < aabbMin[2]) return false;
+	if (btMin(btMin(p1[2], p2[2]), p3[2]) > aabbMax[2]) return false;
+	if (btMax(btMax(p1[2], p2[2]), p3[2]) < aabbMin[2]) return false;
   
-	if (SimdMin(SimdMin(p1[1], p2[1]), p3[1]) > aabbMax[1]) return false;
-	if (SimdMax(SimdMax(p1[1], p2[1]), p3[1]) < aabbMin[1]) return false;
+	if (btMin(btMin(p1[1], p2[1]), p3[1]) > aabbMax[1]) return false;
+	if (btMax(btMax(p1[1], p2[1]), p3[1]) < aabbMin[1]) return false;
 	return true;
 }
 

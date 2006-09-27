@@ -19,20 +19,20 @@ subject to the following restrictions:
 #include "btCollisionShape.h"
 
 
-EmptyShape::EmptyShape()
+btEmptyShape::btEmptyShape()
 {
 }
 
 
-EmptyShape::~EmptyShape()
+btEmptyShape::~btEmptyShape()
 {
 }
 
 
 	///GetAabb's default implementation is brute force, expected derived classes to implement a fast dedicated version
-void EmptyShape::GetAabb(const SimdTransform& t,SimdVector3& aabbMin,SimdVector3& aabbMax) const
+void btEmptyShape::GetAabb(const btTransform& t,btVector3& aabbMin,btVector3& aabbMax) const
 {
-	SimdVector3 margin(GetMargin(),GetMargin(),GetMargin());
+	btVector3 margin(GetMargin(),GetMargin(),GetMargin());
 
 	aabbMin = t.getOrigin() - margin;
 
@@ -40,7 +40,7 @@ void EmptyShape::GetAabb(const SimdTransform& t,SimdVector3& aabbMin,SimdVector3
 
 }
 
-void	EmptyShape::CalculateLocalInertia(SimdScalar mass,SimdVector3& inertia)
+void	btEmptyShape::CalculateLocalInertia(btScalar mass,btVector3& inertia)
 {
 	assert(0);
 }

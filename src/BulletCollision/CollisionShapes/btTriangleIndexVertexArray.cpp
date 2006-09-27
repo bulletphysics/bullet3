@@ -15,9 +15,9 @@ subject to the following restrictions:
 
 #include "btTriangleIndexVertexArray.h"
 
-TriangleIndexVertexArray::TriangleIndexVertexArray(int numTriangles,int* triangleIndexBase,int triangleIndexStride,int numVertices,float* vertexBase,int vertexStride)
+btTriangleIndexVertexArray::btTriangleIndexVertexArray(int numTriangles,int* triangleIndexBase,int triangleIndexStride,int numVertices,float* vertexBase,int vertexStride)
 {
-	IndexedMesh mesh;
+	btIndexedMesh mesh;
 	
 	mesh.m_numTriangles = numTriangles;
 	mesh.m_triangleIndexBase = triangleIndexBase;
@@ -30,11 +30,11 @@ TriangleIndexVertexArray::TriangleIndexVertexArray(int numTriangles,int* triangl
 
 }
 
-void	TriangleIndexVertexArray::getLockedVertexIndexBase(unsigned char **vertexbase, int& numverts,PHY_ScalarType& type, int& vertexStride,unsigned char **indexbase,int & indexstride,int& numfaces,PHY_ScalarType& indicestype,int subpart)
+void	btTriangleIndexVertexArray::getLockedVertexIndexBase(unsigned char **vertexbase, int& numverts,PHY_ScalarType& type, int& vertexStride,unsigned char **indexbase,int & indexstride,int& numfaces,PHY_ScalarType& indicestype,int subpart)
 {
 	ASSERT(subpart< getNumSubParts() );
 	
-	IndexedMesh& mesh = m_indexedMeshes[subpart];
+	btIndexedMesh& mesh = m_indexedMeshes[subpart];
 
 	numverts = mesh.m_numVertices;
 	(*vertexbase) = (unsigned char *) mesh.m_vertexBase;
@@ -48,9 +48,9 @@ void	TriangleIndexVertexArray::getLockedVertexIndexBase(unsigned char **vertexba
 	indicestype = PHY_INTEGER;
 }
 
-void	TriangleIndexVertexArray::getLockedReadOnlyVertexIndexBase(const unsigned char **vertexbase, int& numverts,PHY_ScalarType& type, int& vertexStride,const unsigned char **indexbase,int & indexstride,int& numfaces,PHY_ScalarType& indicestype,int subpart) const
+void	btTriangleIndexVertexArray::getLockedReadOnlyVertexIndexBase(const unsigned char **vertexbase, int& numverts,PHY_ScalarType& type, int& vertexStride,const unsigned char **indexbase,int & indexstride,int& numfaces,PHY_ScalarType& indicestype,int subpart) const
 {
-	const IndexedMesh& mesh = m_indexedMeshes[subpart];
+	const btIndexedMesh& mesh = m_indexedMeshes[subpart];
 
 	numverts = mesh.m_numVertices;
 	(*vertexbase) = (const unsigned char *)mesh.m_vertexBase;

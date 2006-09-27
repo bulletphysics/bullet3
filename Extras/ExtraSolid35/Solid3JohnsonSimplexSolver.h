@@ -8,7 +8,7 @@
  * LICENSE.QPL included in the packaging of this file.
  *
  * This library may be distributed and/or modified under the terms of the
- * GNU General Public License (GPL) version 2 as published by the Free Software
+ * GNU bteral Public License (GPL) version 2 as published by the Free Software
  * Foundation and appearing in the file LICENSE.GPL included in the
  * packaging of this file.
  *
@@ -30,7 +30,7 @@
 
 
 /// Solid3JohnsonSimplexSolver contains Johnson subdistance algorithm from Solid 3.5 library
-class Solid3JohnsonSimplexSolver : public SimplexSolverInterface
+class Solid3JohnsonSimplexSolver : public btSimplexSolverInterface
 {
 
 private:
@@ -42,22 +42,22 @@ private:
 	void compute_det();
 	bool valid(T_Bits s);
 	bool proper(T_Bits s);
-	void compute_vector(T_Bits s, SimdVector3& v);
+	void compute_vector(T_Bits s, btVector3& v);
 
 
-	SimdScalar	m_det[16][4]; // cached sub-determinants
-    SimdVector3	m_edge[4][4];
+	btScalar	m_det[16][4]; // cached sub-determinants
+    btVector3	m_edge[4][4];
 
 #ifdef JOHNSON_ROBUST
-    SimdScalar	m_norm[4][4];
+    btScalar	m_norm[4][4];
 #endif
 
-	SimdPoint3	m_p[4];    // support points of object A in local coordinates 
-	SimdPoint3	m_q[4];    // support points of object B in local coordinates 
-	SimdVector3	m_y[4];   // support points of A - B in world coordinates
-	SimdScalar	m_ylen2[4];   // Squared lengths support points y
+	btPoint3	m_p[4];    // support points of object A in local coordinates 
+	btPoint3	m_q[4];    // support points of object B in local coordinates 
+	btVector3	m_y[4];   // support points of A - B in world coordinates
+	btScalar	m_ylen2[4];   // Squared lengths support points y
 
-	SimdScalar	m_maxlen2; // Maximum squared length to a vertex of the current 
+	btScalar	m_maxlen2; // Maximum squared length to a vertex of the current 
 	                      // simplex
 	T_Bits		m_bits1;      // identifies current simplex
 	T_Bits		m_last;      // identifies last found support point
@@ -69,7 +69,7 @@ private:
 private:
 	
 
-	void addVertex(const SimdVector3& w);
+	void addVertex(const btVector3& w);
 
 public:
 	Solid3JohnsonSimplexSolver();
@@ -78,23 +78,23 @@ public:
 
 	virtual void reset();
 
-	virtual void addVertex(const SimdVector3& w, const SimdPoint3& p, const SimdPoint3& q);
+	virtual void addVertex(const btVector3& w, const btPoint3& p, const btPoint3& q);
 	
-	virtual bool closest(SimdVector3& v);
+	virtual bool closest(btVector3& v);
 
-	virtual SimdScalar maxVertex();
+	virtual btScalar maxVertex();
 
 	virtual bool fullSimplex() const;
 
-	virtual int getSimplex(SimdPoint3 *pBuf, SimdPoint3 *qBuf, SimdVector3 *yBuf) const;
+	virtual int getSimplex(btPoint3 *pBuf, btPoint3 *qBuf, btVector3 *yBuf) const;
 
-	virtual bool inSimplex(const SimdVector3& w);
+	virtual bool inSimplex(const btVector3& w);
 	
-	virtual void backup_closest(SimdVector3& v) ;
+	virtual void backup_closest(btVector3& v) ;
 
 	virtual bool emptySimplex() const ;
 
-	virtual void compute_points(SimdPoint3& p1, SimdPoint3& p2) ;
+	virtual void compute_points(btPoint3& p1, btPoint3& p2) ;
 
 	virtual int numVertices() const ;
 

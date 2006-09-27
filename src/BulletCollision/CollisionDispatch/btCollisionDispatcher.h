@@ -24,8 +24,8 @@ subject to the following restrictions:
 #include "BulletCollision/BroadphaseCollision/btBroadphaseProxy.h"
 
 
-class IDebugDraw;
-class OverlappingPairCache;
+class btIDebugDraw;
+class btOverlappingPairCache;
 
 
 #include "btCollisionCreateFunc.h"
@@ -35,77 +35,82 @@ class OverlappingPairCache;
 
 ///CollisionDispatcher supports algorithms that handle ConvexConvex and ConvexConcave collision pairs.
 ///Time of Impact, Closest Points and Penetration Depth.
-class CollisionDispatcher : public Dispatcher
+class btCollisionDispatcher : public btDispatcher
 {
 	
-	std::vector<PersistentManifold*>	m_manifoldsPtr;
+	std::vector<btPersistentManifold*>	m_manifoldsPtr;
 
 	bool m_useIslands;
 	
-	ManifoldResult	m_defaultManifoldResult;
+	btManifoldResult	m_defaultManifoldResult;
 	
-	CollisionAlgorithmCreateFunc* m_doubleDispatch[MAX_BROADPHASE_COLLISION_TYPES][MAX_BROADPHASE_COLLISION_TYPES];
+	btCollisionAlgorithmCreateFunc* m_doubleDispatch[MAX_BROADPHASE_COLLISION_TYPES][MAX_BROADPHASE_COLLISION_TYPES];
 	
-	CollisionAlgorithmCreateFunc* InternalFindCreateFunc(int proxyType0,int proxyType1);
+	btCollisionAlgorithmCreateFunc* InternalFindCreateFunc(int proxyType0,int proxyType1);
 
 	//default CreationFunctions, filling the m_doubleDispatch table
-	CollisionAlgorithmCreateFunc*	m_convexConvexCreateFunc;
-	CollisionAlgorithmCreateFunc*	m_convexConcaveCreateFunc;
-	CollisionAlgorithmCreateFunc*	m_swappedConvexConcaveCreateFunc;
-	CollisionAlgorithmCreateFunc*	m_compoundCreateFunc;
-	CollisionAlgorithmCreateFunc*	m_swappedCompoundCreateFunc;
-	CollisionAlgorithmCreateFunc*   m_emptyCreateFunc;
+	btCollisionAlgorithmCreateFunc*	m_convexConvexCreateFunc;
+	btCollisionAlgorithmCreateFunc*	m_convexConcaveCreateFunc;
+	btCollisionAlgorithmCreateFunc*	m_swappedConvexConcaveCreateFunc;
+	btCollisionAlgorithmCreateFunc*	m_compoundCreateFunc;
+	btCollisionAlgorithmCreateFunc*	m_swappedCompoundCreateFunc;
+	btCollisionAlgorithmCreateFunc*   m_emptyCreateFunc;
 
 public:
 
 	///RegisterCollisionCreateFunc allows registration of custom/alternative collision create functions
-	void	RegisterCollisionCreateFunc(int proxyType0,int proxyType1, CollisionAlgorithmCreateFunc* createFunc);
+	void	RegisterCollisionCreateFunc(int proxyType0,int proxyType1, btCollisionAlgorithmCreateFunc* createFunc);
 
 	int	GetNumManifolds() const
 	{ 
 		return m_manifoldsPtr.size();
 	}
 
-	 PersistentManifold* GetManifoldByIndexInternal(int index)
+	btPersistentManifold**	getInternalManifoldPointer()
+	{
+		return &m_manifoldsPtr[0];
+	}
+
+	 btPersistentManifold* GetManifoldByIndexInternal(int index)
 	{
 		return m_manifoldsPtr[index];
 	}
 
-	 const PersistentManifold* GetManifoldByIndexInternal(int index) const
+	 const btPersistentManifold* GetManifoldByIndexInternal(int index) const
 	{
 		return m_manifoldsPtr[index];
 	}
 
 	int m_count;
 	
-	CollisionDispatcher ();
-	virtual ~CollisionDispatcher();
+	btCollisionDispatcher ();
+	virtual ~btCollisionDispatcher();
 
-	virtual PersistentManifold*	GetNewManifold(void* b0,void* b1);
+	virtual btPersistentManifold*	GetNewManifold(void* b0,void* b1);
 	
-	virtual void ReleaseManifold(PersistentManifold* manifold);
+	virtual void ReleaseManifold(btPersistentManifold* manifold);
 
 	
 	///allows the user to get contact point callbacks 
-	virtual	ManifoldResult*	GetNewManifoldResult(CollisionObject* obj0,CollisionObject* obj1,PersistentManifold* manifold);
+	virtual	btManifoldResult*	GetNewManifoldResult(btCollisionObject* obj0,btCollisionObject* obj1,btPersistentManifold* manifold);
 
 	///allows the user to get contact point callbacks 
-	virtual	void	ReleaseManifoldResult(ManifoldResult*);
+	virtual	void	ReleaseManifoldResult(btManifoldResult*);
 
-	virtual void ClearManifold(PersistentManifold* manifold);
+	virtual void ClearManifold(btPersistentManifold* manifold);
 
 			
-	CollisionAlgorithm* FindAlgorithm(BroadphaseProxy& proxy0,BroadphaseProxy& proxy1);
+	btCollisionAlgorithm* FindAlgorithm(btBroadphaseProxy& proxy0,btBroadphaseProxy& proxy1);
 	
-	CollisionAlgorithm* InternalFindAlgorithm(BroadphaseProxy& proxy0,BroadphaseProxy& proxy1);
+	btCollisionAlgorithm* InternalFindAlgorithm(btBroadphaseProxy& proxy0,btBroadphaseProxy& proxy1);
 	
-	virtual bool	NeedsCollision(BroadphaseProxy& proxy0,BroadphaseProxy& proxy1);
+	virtual bool	NeedsCollision(btBroadphaseProxy& proxy0,btBroadphaseProxy& proxy1);
 	
-	virtual bool	NeedsResponse(const CollisionObject& colObj0,const CollisionObject& colObj1);
+	virtual bool	NeedsResponse(const btCollisionObject& colObj0,const btCollisionObject& colObj1);
 
 	virtual int GetUniqueId() { return RIGIDBODY_DISPATCHER;}
 	
-	virtual void	DispatchAllCollisionPairs(OverlappingPairCache* pairCache,DispatcherInfo& dispatchInfo);
+	virtual void	DispatchAllCollisionPairs(btOverlappingPairCache* pairCache,btDispatcherInfo& dispatchInfo);
 
 	
 

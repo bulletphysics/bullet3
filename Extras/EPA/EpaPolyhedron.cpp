@@ -14,9 +14,9 @@ subject to the following restrictions:
 2. Altered source versions must be plainly marked as such, and must not be misrepresented as being the original software.
 3. This notice may not be removed or altered from any source distribution.
 */
-#include "LinearMath/SimdScalar.h"
-#include "LinearMath/SimdVector3.h"
-#include "LinearMath/SimdPoint3.h"
+#include "LinearMath/btScalar.h"
+#include "LinearMath/btVector3.h"
+#include "LinearMath/btPoint3.h"
 #include "Memory2.h"
 
 #include <list>
@@ -42,8 +42,8 @@ EpaPolyhedron::~EpaPolyhedron()
 	Destroy();
 }
 
-bool EpaPolyhedron::Create( SimdPoint3* pInitialPoints,
-							SimdPoint3* pSupportPointsOnA, SimdPoint3* pSupportPointsOnB,
+bool EpaPolyhedron::Create( btPoint3* pInitialPoints,
+							btPoint3* pSupportPointsOnA, btPoint3* pSupportPointsOnB,
 							const int nbInitialPoints )
 {
 #ifndef EPA_POLYHEDRON_USE_PLANES
@@ -134,8 +134,8 @@ bool EpaPolyhedron::Create( SimdPoint3* pInitialPoints,
 	{
 		int axisIndex = axisOrderIndices[ axis ];
 			
-		SimdScalar axisMin =  SIMD_INFINITY;
-		SimdScalar axisMax = -SIMD_INFINITY;
+		btScalar axisMin =  SIMD_INFINITY;
+		btScalar axisMax = -SIMD_INFINITY;
 
 		for ( int i = 0; i < 4; ++i )
 		{
@@ -194,36 +194,36 @@ bool EpaPolyhedron::Create( SimdPoint3* pInitialPoints,
 	//////////////////////////////////////////////////////////////////////////
 
 #ifdef EPA_POLYHEDRON_USE_PLANES
-	SimdVector3 v0 = pInitialPoints[ finalPointsIndices[ 1 ] ] - pInitialPoints[ finalPointsIndices[ 0 ] ];
-	SimdVector3 v1 = pInitialPoints[ finalPointsIndices[ 2 ] ] - pInitialPoints[ finalPointsIndices[ 0 ] ];
+	btVector3 v0 = pInitialPoints[ finalPointsIndices[ 1 ] ] - pInitialPoints[ finalPointsIndices[ 0 ] ];
+	btVector3 v1 = pInitialPoints[ finalPointsIndices[ 2 ] ] - pInitialPoints[ finalPointsIndices[ 0 ] ];
 #else
-	SimdVector3 v0 = pInitialPoints[ 1 ] - pInitialPoints[ 0 ];
-	SimdVector3 v1 = pInitialPoints[ 2 ] - pInitialPoints[ 0 ];
+	btVector3 v0 = pInitialPoints[ 1 ] - pInitialPoints[ 0 ];
+	btVector3 v1 = pInitialPoints[ 2 ] - pInitialPoints[ 0 ];
 #endif
 
-	SimdVector3 planeNormal = v1.cross( v0 );
+	btVector3 planeNormal = v1.cross( v0 );
 	planeNormal.normalize();
 
 #ifdef EPA_POLYHEDRON_USE_PLANES
-	SimdScalar planeDistance = pInitialPoints[ finalPointsIndices[ 0 ] ].dot( -planeNormal );
+	btScalar planeDistance = pInitialPoints[ finalPointsIndices[ 0 ] ].dot( -planeNormal );
 #else
-	SimdScalar planeDistance = pInitialPoints[ 0 ].dot( -planeNormal );
+	btScalar planeDistance = pInitialPoints[ 0 ].dot( -planeNormal );
 #endif
 
 #ifdef EPA_POLYHEDRON_USE_PLANES
-	bool pointOnPlane0 = SimdEqual( pInitialPoints[ finalPointsIndices[ 0 ] ].dot( planeNormal ) + planeDistance, PLANE_THICKNESS );
+	bool pointOnPlane0 = btEqual( pInitialPoints[ finalPointsIndices[ 0 ] ].dot( planeNormal ) + planeDistance, PLANE_THICKNESS );
 	if (!pointOnPlane0)
 	{
 		EPA_DEBUG_ASSERT(0,"Point0 should be on plane!");
 		return false;
 	}
-	bool pointOnPlane1 = SimdEqual( pInitialPoints[ finalPointsIndices[ 1 ] ].dot( planeNormal ) + planeDistance, PLANE_THICKNESS );
+	bool pointOnPlane1 = btEqual( pInitialPoints[ finalPointsIndices[ 1 ] ].dot( planeNormal ) + planeDistance, PLANE_THICKNESS );
 	if (!pointOnPlane1)
 	{
 		EPA_DEBUG_ASSERT(0,"Point1 should be on plane!");
 		return false;
 	}
-	bool pointOnPlane2 = SimdEqual( pInitialPoints[ finalPointsIndices[ 2 ] ].dot( planeNormal ) + planeDistance, PLANE_THICKNESS );
+	bool pointOnPlane2 = btEqual( pInitialPoints[ finalPointsIndices[ 2 ] ].dot( planeNormal ) + planeDistance, PLANE_THICKNESS );
 	if (!pointOnPlane2)
 	{
 		EPA_DEBUG_ASSERT(0,"Point2 should be on plane!");
@@ -235,7 +235,7 @@ bool EpaPolyhedron::Create( SimdPoint3* pInitialPoints,
 	{
 		if ( planeDistance > 0 )
 		{
-			SimdVector3 tmp = pInitialPoints[ 1 ];
+			btVector3 tmp = pInitialPoints[ 1 ];
 			pInitialPoints[ 1 ] = pInitialPoints[ 2 ];
 			pInitialPoints[ 2 ] = tmp;
 
@@ -256,16 +256,16 @@ bool EpaPolyhedron::Create( SimdPoint3* pInitialPoints,
 #else
 	finalPointsIndices[ 3 ] = -1;
 
-	SimdScalar absMaxDist = -SIMD_INFINITY;
-	SimdScalar maxDist;
+	btScalar absMaxDist = -SIMD_INFINITY;
+	btScalar maxDist;
 
 	for ( int pointIndex = 0; pointIndex < nbInitialPoints; ++pointIndex )
 	{
-		SimdScalar dist    = planeNormal.dot( pInitialPoints[ pointIndex ] ) + planeDistance;
-		SimdScalar absDist = abs( dist );
+		btScalar dist    = planeNormal.dot( pInitialPoints[ pointIndex ] ) + planeDistance;
+		btScalar absDist = abs( dist );
 
 		if ( ( absDist > absMaxDist ) &&
-			!SimdEqual( dist, PLANE_THICKNESS ) )
+			!btEqual( dist, PLANE_THICKNESS ) )
 		{
 			absMaxDist = absDist;
 			maxDist    = dist;
@@ -283,7 +283,7 @@ bool EpaPolyhedron::Create( SimdPoint3* pInitialPoints,
 	{
 		// Can swap indices only
 
-		SimdPoint3 tmp = pInitialPoints[ finalPointsIndices[ 1 ] ];
+		btPoint3 tmp = pInitialPoints[ finalPointsIndices[ 1 ] ];
 		pInitialPoints[ finalPointsIndices[ 1 ] ] = pInitialPoints[ finalPointsIndices[ 2 ] ];
 		pInitialPoints[ finalPointsIndices[ 2 ] ] = tmp;
 
@@ -425,7 +425,7 @@ bool EpaPolyhedron::Create( SimdPoint3* pInitialPoints,
 				{
 					EpaFace* pFace = *facesItr;
 
-					SimdScalar dist = pFace->m_planeNormal.dot( pInitialPoints[ i ] ) + pFace->m_planeDistance;
+					btScalar dist = pFace->m_planeNormal.dot( pInitialPoints[ i ] ) + pFace->m_planeDistance;
 
 					if ( dist > PLANE_THICKNESS )
 					{
@@ -486,9 +486,9 @@ EpaHalfEdge* EpaPolyhedron::CreateHalfEdge()
 	return pNewHalfEdge;
 }
 
-EpaVertex* EpaPolyhedron::CreateVertex( const SimdPoint3& wSupportPoint,
-									    const SimdPoint3& wSupportPointOnA,
-									    const SimdPoint3& wSupportPointOnB )
+EpaVertex* EpaPolyhedron::CreateVertex( const btPoint3& wSupportPoint,
+									    const btPoint3& wSupportPointOnA,
+									    const btPoint3& wSupportPointOnB )
 {
 	EpaVertex* pNewVertex = new EpaVertex( wSupportPoint, wSupportPointOnA, wSupportPointOnB );
 	EPA_DEBUG_ASSERT( pNewVertex ,"Failed to allocate memory for a new EpaVertex!" );
@@ -542,9 +542,9 @@ void EpaPolyhedron::DestroyAllVertices()
 	}
 }
 
-bool EpaPolyhedron::Expand( const SimdPoint3& wSupportPoint,
-						    const SimdPoint3& wSupportPointOnA,
-						    const SimdPoint3& wSupportPointOnB,
+bool EpaPolyhedron::Expand( const btPoint3& wSupportPoint,
+						    const btPoint3& wSupportPointOnA,
+						    const btPoint3& wSupportPointOnB,
 						    EpaFace* pFace, std::list< EpaFace* >& newFaces )
 {
 	EPA_DEBUG_ASSERT( !pFace->m_deleted ,"Face is already deleted!" );
@@ -555,7 +555,7 @@ bool EpaPolyhedron::Expand( const SimdPoint3& wSupportPoint,
 	// wSupportPoint must be front of face's plane used to do the expansion
 
 #ifdef EPA_POLYHEDRON_USE_PLANES
-	SimdScalar dist = pFace->m_planeNormal.dot( wSupportPoint ) + pFace->m_planeDistance;
+	btScalar dist = pFace->m_planeNormal.dot( wSupportPoint ) + pFace->m_planeDistance;
 	if ( dist <= PLANE_THICKNESS )
 	{
 		return false;
@@ -601,7 +601,7 @@ int EpaPolyhedron::GetNbFaces() const
 	return m_faces.size();
 }
 
-void EpaPolyhedron::DeleteVisibleFaces( const SimdPoint3& point, EpaFace* pFace,
+void EpaPolyhedron::DeleteVisibleFaces( const btPoint3& point, EpaFace* pFace,
 										std::list< EpaHalfEdge* >& coneBaseTwinHalfEdges )
 {
 	EPA_DEBUG_ASSERT( !pFace->m_deleted ,"Face is already deleted!" );
@@ -622,12 +622,12 @@ void EpaPolyhedron::DeleteVisibleFaces( const SimdPoint3& point, EpaFace* pFace,
 #ifdef EPA_POLYHEDRON_USE_PLANES
 			EPA_DEBUG_ASSERT( ( pAdjacentFace->m_planeNormal.length2() > 0 ) ,"Invalid plane!" );
 
-			SimdScalar pointDist = pAdjacentFace->m_planeNormal.dot( point ) +
+			btScalar pointDist = pAdjacentFace->m_planeNormal.dot( point ) +
 								   pAdjacentFace->m_planeDistance;
 
 			if ( pointDist > PLANE_THICKNESS )
 #else
-			SimdScalar dot = pAdjacentFace->m_v.dot( point );
+			btScalar dot = pAdjacentFace->m_v.dot( point );
 			if ( dot >= pAdjacentFace->m_vSqrd )
 #endif
 			{

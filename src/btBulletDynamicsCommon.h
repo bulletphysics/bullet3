@@ -19,6 +19,8 @@ subject to the following restrictions:
 ///Common headerfile includes for Bullet Dynamics, including Collision Detection
 #include "btBulletCollisionCommon.h"
 
+#include "BulletDynamics/Dynamics/btDiscreteDynamicsWorld.h"
+#include "BulletDynamics/Dynamics/btSimpleDynamicsWorld.h"
 #include "BulletDynamics/Dynamics/btRigidBody.h"
 #include "BulletDynamics/ConstraintSolver/btPoint2PointConstraint.h"
 #include "BulletDynamics/ConstraintSolver/btHingeConstraint.h"
@@ -29,3 +31,4 @@ subject to the following restrictions:
 
 
 #endif //BULLET_DYNAMICS_COMMON_H
+

@@ -22,7 +22,7 @@ subject to the following restrictions:
  *
  * Bullet is a Collision Detection and Rigid Body Dynamics Library. The Library is Open Source and free for commercial use, under the ZLib license ( http://opensource.org/licenses/zlib-license.php ).
  *
- * There is the Physics Forum for Feedback and General Collision Detection and Physics discussions.
+ * There is the Physics Forum for Feedback and bteral Collision Detection and Physics discussions.
  * Please visit http://www.continuousphysics.com/Bullet/phpBB2/index.php
  *
  * @section install_sec Installation
@@ -44,12 +44,12 @@ subject to the following restrictions:
  * The Dependencies can be seen in this documentation under Directories
  * 
  * @subsection step4 Step 4: Integrating in your application, Full Rigid Body Simulation
- * Check out CcdPhysicsDemo how to create a CcdPhysicsEnvironment , CollisionShape and RigidBody, Stepping the simulation and synchronizing your derived version of the PHY_IMotionState class.
+ * Check out CcdPhysicsDemo how to create a CcdPhysicsEnvironment , btCollisionShape and btRigidBody, Stepping the simulation and synchronizing your derived version of the PHY_IMotionState class.
  * @subsection step5 Step 5 : Integrate the Collision Detection Library (without Dynamics and other Extras)
  * Bullet Collision Detection can also be used without the Dynamics/Extras.
- * Check out CollisionWorld and CollisionObject, and the CollisionInterfaceDemo. Also in Extras/test_BulletOde.cpp there is a sample Collision Detection integration with Open Dynamics Engine, ODE, http://www.ode.org
+ * Check out btCollisionWorld and btCollisionObject, and the CollisionInterfaceDemo. Also in Extras/test_BulletOde.cpp there is a sample Collision Detection integration with Open Dynamics Engine, ODE, http://www.ode.org
  * @subsection step6 Step 6 : Use Snippets like the GJK Closest Point calculation.
- * Bullet has been designed in a modular way keeping dependencies to a minimum. The ConvexHullDistance demo demonstrates direct use of GjkPairDetector.
+ * Bullet has been designed in a modular way keeping dependencies to a minimum. The ConvexHullDistance demo demonstrates direct use of btGjkPairDetector.
  *
  * @section copyright Copyright
  * Copyright (C) 2005-2006 Erwin Coumans, some contributions Copyright Gino van den Bergen, Christer Ericson, Simon Hobbs, Ricardo Padrela, F Richter(res), Stephane Redon
@@ -64,12 +64,12 @@ subject to the following restrictions:
 #define COLLISION_WORLD_H
 
 
-class CollisionShape;
-class BroadphaseInterface;
-#include "LinearMath/SimdVector3.h"
-#include "LinearMath/SimdTransform.h"
+class btCollisionShape;
+class btBroadphaseInterface;
+#include "LinearMath/btVector3.h"
+#include "LinearMath/btTransform.h"
 #include "btCollisionObject.h"
-#include "btCollisionDispatcher.h" //for definition of CollisionObjectArray
+#include "btCollisionDispatcher.h" //for definition of btCollisionObjectArray
 #include "BulletCollision/BroadphaseCollision/btOverlappingPairCache.h"
 
 #include <vector>
@@ -77,61 +77,62 @@ class BroadphaseInterface;
 
 
 ///CollisionWorld is interface and container for the collision detection
-class CollisionWorld
+class btCollisionWorld
 {
 
 	
+protected:
 
-	std::vector<CollisionObject*>	m_collisionObjects;
+	std::vector<btCollisionObject*>	m_collisionObjects;
 	
-	Dispatcher*	m_dispatcher1;
+	btDispatcher*	m_dispatcher1;
 
-	OverlappingPairCache*	m_pairCache;
+	btOverlappingPairCache*	m_pairCache;
 	
 
 public:
 
-	CollisionWorld(Dispatcher* dispatcher,OverlappingPairCache* pairCache)
+	btCollisionWorld(btDispatcher* dispatcher,btOverlappingPairCache* pairCache)
 		:m_dispatcher1(dispatcher),
 		m_pairCache(pairCache)
 	{
 
 	}
-	virtual ~CollisionWorld();
+	virtual ~btCollisionWorld();
 
 
-	BroadphaseInterface*	GetBroadphase()
+	btBroadphaseInterface*	GetBroadphase()
 	{
 		return m_pairCache;
 	}
 
-	OverlappingPairCache*	GetPairCache()
+	btOverlappingPairCache*	GetPairCache()
 	{
 		return m_pairCache;
 	}
 
 
-	Dispatcher*	GetDispatcher()
+	btDispatcher*	GetDispatcher()
 	{
 		return m_dispatcher1;
 	}
 
 	///LocalShapeInfo gives extra information for complex shapes
-	///Currently, only TriangleMeshShape is available, so it just contains triangleIndex and subpart
+	///Currently, only btTriangleMeshShape is available, so it just contains triangleIndex and subpart
 	struct	LocalShapeInfo
 	{
 		int	m_shapePart;
 		int	m_triangleIndex;
 		
-		//const CollisionShape*	m_shapeTemp;
-		//const SimdTransform*	m_shapeLocalTransform;
+		//const btCollisionShape*	m_shapeTemp;
+		//const btTransform*	m_shapeLocalTransform;
 	};
 
 	struct	LocalRayResult
 	{
-		LocalRayResult(const CollisionObject*	collisionObject, 
+		LocalRayResult(const btCollisionObject*	collisionObject, 
 			LocalShapeInfo*	localShapeInfo,
-			const SimdVector3&		hitNormalLocal,
+			const btVector3&		hitNormalLocal,
 			float hitFraction)
 		:m_collisionObject(collisionObject),
 		m_localShapeInfo(m_localShapeInfo),
@@ -140,9 +141,9 @@ public:
 		{
 		}
 
-		const CollisionObject*	m_collisionObject;
+		const btCollisionObject*	m_collisionObject;
 		LocalShapeInfo*			m_localShapeInfo;
-		const SimdVector3&		m_hitNormalLocal;
+		const btVector3&		m_hitNormalLocal;
 		float					m_hitFraction;
 
 	};
@@ -168,19 +169,19 @@ public:
 
 	struct	ClosestRayResultCallback : public RayResultCallback
 	{
-		ClosestRayResultCallback(SimdVector3	rayFromWorld,SimdVector3	rayToWorld)
+		ClosestRayResultCallback(btVector3	rayFromWorld,btVector3	rayToWorld)
 		:m_rayFromWorld(rayFromWorld),
 		m_rayToWorld(rayToWorld),
 		m_collisionObject(0)
 		{
 		}
 
-		SimdVector3	m_rayFromWorld;//used to calculate hitPointWorld from hitFraction
-		SimdVector3	m_rayToWorld;
+		btVector3	m_rayFromWorld;//used to calculate hitPointWorld from hitFraction
+		btVector3	m_rayToWorld;
 
-		SimdVector3	m_hitNormalWorld;
-		SimdVector3	m_hitPointWorld;
-		const CollisionObject*	m_collisionObject;
+		btVector3	m_hitNormalWorld;
+		btVector3	m_hitPointWorld;
+		const btCollisionObject*	m_collisionObject;
 		
 		virtual	float	AddSingleResult(const LocalRayResult& rayResult)
 		{
@@ -204,33 +205,33 @@ public:
 		return m_collisionObjects.size();
 	}
 
-	/// RayTest performs a raycast on all objects in the CollisionWorld, and calls the resultCallback
+	/// RayTest performs a raycast on all objects in the btCollisionWorld, and calls the resultCallback
 	/// This allows for several queries: first hit, all hits, any hit, dependent on the value returned by the callback.
-	void	RayTest(const SimdVector3& rayFromWorld, const SimdVector3& rayToWorld, RayResultCallback& resultCallback);
+	void	RayTest(const btVector3& rayFromWorld, const btVector3& rayToWorld, RayResultCallback& resultCallback);
 
 	/// RayTestSingle performs a raycast call and calls the resultCallback. It is used internally by RayTest.
-	/// In a future implementation, we consider moving the ray test as a virtual method in CollisionShape.
+	/// In a future implementation, we consider moving the ray test as a virtual method in btCollisionShape.
 	/// This allows more customization.
-	void	RayTestSingle(const SimdTransform& rayFromTrans,const SimdTransform& rayToTrans,
-					  CollisionObject* collisionObject,
-					  const CollisionShape* collisionShape,
-					  const SimdTransform& colObjWorldTransform,
+	void	RayTestSingle(const btTransform& rayFromTrans,const btTransform& rayToTrans,
+					  btCollisionObject* collisionObject,
+					  const btCollisionShape* collisionShape,
+					  const btTransform& colObjWorldTransform,
 					  RayResultCallback& resultCallback);
 
-	void	AddCollisionObject(CollisionObject* collisionObject,short int collisionFilterGroup=1,short int collisionFilterMask=1);
+	void	AddCollisionObject(btCollisionObject* collisionObject,short int collisionFilterGroup=1,short int collisionFilterMask=1);
 
-	CollisionObjectArray& GetCollisionObjectArray()
+	btCollisionObjectArray& GetCollisionObjectArray()
 	{
 		return m_collisionObjects;
 	}
 
-	const CollisionObjectArray& GetCollisionObjectArray() const
+	const btCollisionObjectArray& GetCollisionObjectArray() const
 	{
 		return m_collisionObjects;
 	}
 
 
-	void	RemoveCollisionObject(CollisionObject* collisionObject);
+	void	RemoveCollisionObject(btCollisionObject* collisionObject);
 
 	virtual void	PerformDiscreteCollisionDetection();
 

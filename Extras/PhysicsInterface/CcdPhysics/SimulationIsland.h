@@ -17,9 +17,9 @@ subject to the following restrictions:
 #define SIMULATION_ISLAND_H
 
 #include <vector>
-class BroadphaseInterface;
-class Dispatcher;
-class IDebugDraw;
+class btBroadphaseInterface;
+class btDispatcher;
+class btIDebugDraw;
 
 ///SimulationIsland groups all computations and data (for collision detection and dynamics) that can execute in parallel with other SimulationIsland's
 ///The ParallelPhysicsEnvironment and ParallelIslandDispatcher will dispatch SimulationIsland's
@@ -30,12 +30,12 @@ class SimulationIsland
 	
 	public:
 	std::vector<class CcdPhysicsController*> m_controllers;
-	std::vector<class PersistentManifold*> m_manifolds;
+	std::vector<class btPersistentManifold*> m_manifolds;
 	
 	std::vector<int> m_overlappingPairIndices;
 	std::vector<int> m_constraintIndices;
 
-	bool	Simulate(IDebugDraw* debugDrawer,int numSolverIterations,class TypedConstraint** constraintsBaseAddress,struct BroadphasePair*	overlappingPairBaseAddress, Dispatcher* dispatcher,BroadphaseInterface* broadphase,	class ConstraintSolver*	solver, float timeStep);
+	bool	Simulate(btIDebugDraw* debugDrawer,int numSolverIterations,class btTypedConstraint** constraintsBaseAddress,struct btBroadphasePair*	overlappingPairBaseAddress, btDispatcher* dispatcher,btBroadphaseInterface* broadphase,	class btConstraintSolver*	solver, float timeStep);
 	
 	
 	int	GetNumControllers()
@@ -47,7 +47,7 @@ class SimulationIsland
 	
 
 	void	SyncMotionStates(float timeStep);
-	void	UpdateAabbs(IDebugDraw* debugDrawer,BroadphaseInterface* broadphase,float timeStep);
+	void	UpdateAabbs(btIDebugDraw* debugDrawer,btBroadphaseInterface* broadphase,float timeStep);
 };
 
 #endif //SIMULATION_ISLAND_H

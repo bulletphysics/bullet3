@@ -15,26 +15,26 @@ subject to the following restrictions:
 
 #ifndef OPTIMIZED_BVH_H
 #define OPTIMIZED_BVH_H
-#include "LinearMath/SimdVector3.h"
+#include "LinearMath/btVector3.h"
 #include <vector>
 
-class StridingMeshInterface;
+class btStridingMeshInterface;
 
-/// OptimizedBvhNode contains both internal and leaf node information.
+/// btOptimizedBvhNode contains both internal and leaf node information.
 /// It hasn't been optimized yet for storage. Some obvious optimizations are:
 /// Removal of the pointers (can already be done, they are not used for traversal)
 /// and storing aabbmin/max as quantized integers.
 /// 'subpart' doesn't need an integer either. It allows to re-use graphics triangle
 /// meshes stored in a non-uniform way (like batches/subparts of triangle-fans
-struct OptimizedBvhNode
+struct btOptimizedBvhNode
 {
 
-	SimdVector3	m_aabbMin;
-	SimdVector3	m_aabbMax;
+	btVector3	m_aabbMin;
+	btVector3	m_aabbMax;
 
 //these 2 pointers are obsolete, the stackless traversal just uses the escape index
-	OptimizedBvhNode*	m_leftChild;
-	OptimizedBvhNode*	m_rightChild;
+	btOptimizedBvhNode*	m_leftChild;
+	btOptimizedBvhNode*	m_rightChild;
 
 	int	m_escapeIndex;
 
@@ -44,23 +44,23 @@ struct OptimizedBvhNode
 
 };
 
-class NodeOverlapCallback
+class btNodeOverlapCallback
 {
 public:
-	virtual ~NodeOverlapCallback() {};
+	virtual ~btNodeOverlapCallback() {};
 
-	virtual void ProcessNode(const OptimizedBvhNode* node) = 0;
+	virtual void ProcessNode(const btOptimizedBvhNode* node) = 0;
 };
 
-typedef std::vector<OptimizedBvhNode>	NodeArray;
+typedef std::vector<btOptimizedBvhNode>	NodeArray;
 
 
 ///OptimizedBvh store an AABB tree that can be quickly traversed on CPU (and SPU,GPU in future)
-class OptimizedBvh
+class btOptimizedBvh
 {
-	OptimizedBvhNode*	m_rootNode1;
+	btOptimizedBvhNode*	m_rootNode1;
 	
-	OptimizedBvhNode*	m_contiguousNodes;
+	btOptimizedBvhNode*	m_contiguousNodes;
 	int					m_curNodeIndex;
 
 	int					m_numNodes;
@@ -68,29 +68,29 @@ class OptimizedBvh
 	NodeArray			m_leafNodes;
 
 public:
-	OptimizedBvh() :m_rootNode1(0), m_numNodes(0) { }
-	virtual ~OptimizedBvh();
+	btOptimizedBvh() :m_rootNode1(0), m_numNodes(0) { }
+	virtual ~btOptimizedBvh();
 	
-	void	Build(StridingMeshInterface* triangles);
+	void	Build(btStridingMeshInterface* triangles);
 
-	OptimizedBvhNode*	BuildTree	(NodeArray&	leafNodes,int startIndex,int endIndex);
+	btOptimizedBvhNode*	BuildTree	(NodeArray&	leafNodes,int startIndex,int endIndex);
 
 	int	CalcSplittingAxis(NodeArray&	leafNodes,int startIndex,int endIndex);
 
 	int	SortAndCalcSplittingIndex(NodeArray&	leafNodes,int startIndex,int endIndex,int splitAxis);
 	
-	void	WalkTree(OptimizedBvhNode* rootNode,NodeOverlapCallback* nodeCallback,const SimdVector3& aabbMin,const SimdVector3& aabbMax) const;
+	void	WalkTree(btOptimizedBvhNode* rootNode,btNodeOverlapCallback* nodeCallback,const btVector3& aabbMin,const btVector3& aabbMax) const;
 	
-	void	WalkStacklessTree(OptimizedBvhNode* rootNode,NodeOverlapCallback* nodeCallback,const SimdVector3& aabbMin,const SimdVector3& aabbMax) const;
+	void	WalkStacklessTree(btOptimizedBvhNode* rootNode,btNodeOverlapCallback* nodeCallback,const btVector3& aabbMin,const btVector3& aabbMax) const;
 	
 
 	//OptimizedBvhNode*	GetRootNode() { return m_rootNode1;}
 
 	int					GetNumNodes() { return m_numNodes;}
 
-	void	ReportAabbOverlappingNodex(NodeOverlapCallback* nodeCallback,const SimdVector3& aabbMin,const SimdVector3& aabbMax) const;
+	void	ReportAabbOverlappingNodex(btNodeOverlapCallback* nodeCallback,const btVector3& aabbMin,const btVector3& aabbMax) const;
 
-	void	ReportSphereOverlappingNodex(NodeOverlapCallback* nodeCallback,const SimdVector3& aabbMin,const SimdVector3& aabbMax) const;
+	void	ReportSphereOverlappingNodex(btNodeOverlapCallback* nodeCallback,const btVector3& aabbMin,const btVector3& aabbMax) const;
 
 
 };

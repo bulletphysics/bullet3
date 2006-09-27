@@ -19,7 +19,7 @@ subject to the following restrictions:
 ///IndexedMesh indexes into existing vertex and index arrays, in a similar way OpenGL glDrawElements
 ///instead of the number of indices, we pass the number of triangles
 ///todo: explain with pictures
-struct	IndexedMesh
+struct	btIndexedMesh
 	{
 		int			m_numTriangles;
 		int*		m_triangleIndexBase;
@@ -32,24 +32,24 @@ struct	IndexedMesh
 ///TriangleIndexVertexArray allows to use multiple meshes, by indexing into existing triangle/index arrays.
 ///Additional meshes can be added using AddIndexedMesh
 ///No duplcate is made of the vertex/index data, it only indexes into external vertex/index arrays.
-///So keep those arrays around during the lifetime of this TriangleIndexVertexArray.
-class TriangleIndexVertexArray : public StridingMeshInterface
+///So keep those arrays around during the lifetime of this btTriangleIndexVertexArray.
+class btTriangleIndexVertexArray : public btStridingMeshInterface
 {
-	std::vector<IndexedMesh>	m_indexedMeshes;
+	std::vector<btIndexedMesh>	m_indexedMeshes;
 
 		
 public:
 
 	
 
-	TriangleIndexVertexArray()
+	btTriangleIndexVertexArray()
 	{
 	}
 
 	//just to be backwards compatible
-	TriangleIndexVertexArray(int numTriangleIndices,int* triangleIndexBase,int triangleIndexStride,int numVertices,float* vertexBase,int vertexStride);
+	btTriangleIndexVertexArray(int numTriangleIndices,int* triangleIndexBase,int triangleIndexStride,int numVertices,float* vertexBase,int vertexStride);
 	
-	void	AddIndexedMesh(const IndexedMesh& mesh)
+	void	AddIndexedMesh(const btIndexedMesh& mesh)
 	{
 		m_indexedMeshes.push_back(mesh);
 	}

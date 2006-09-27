@@ -16,23 +16,23 @@ subject to the following restrictions:
 #ifndef SOLVE_2LINEAR_CONSTRAINT_H
 #define SOLVE_2LINEAR_CONSTRAINT_H
 
-#include "LinearMath/SimdMatrix3x3.h"
-#include "LinearMath/SimdVector3.h"
+#include "LinearMath/btMatrix3x3.h"
+#include "LinearMath/btVector3.h"
 
 
-class RigidBody;
+class btRigidBody;
 
 
 
 /// constraint class used for lateral tyre friction.
-class	Solve2LinearConstraint
+class	btSolve2LinearConstraint
 {
-	SimdScalar	m_tau;
-	SimdScalar	m_damping;
+	btScalar	m_tau;
+	btScalar	m_damping;
 
 public:
 
-	Solve2LinearConstraint(SimdScalar tau,SimdScalar damping)
+	btSolve2LinearConstraint(btScalar tau,btScalar damping)
 	{
 		m_tau = tau;
 		m_damping = damping;
@@ -41,64 +41,64 @@ public:
 	// solve unilateral constraint (equality, direct method)
 	//
 	void resolveUnilateralPairConstraint(		
-														   RigidBody* body0,
-		RigidBody* body1,
+														   btRigidBody* body0,
+		btRigidBody* body1,
 
-		const SimdMatrix3x3& world2A,
-						const SimdMatrix3x3& world2B,
+		const btMatrix3x3& world2A,
+						const btMatrix3x3& world2B,
 						
-						const SimdVector3& invInertiaADiag,
-						const SimdScalar invMassA,
-						const SimdVector3& linvelA,const SimdVector3& angvelA,
-						const SimdVector3& rel_posA1,
-						const SimdVector3& invInertiaBDiag,
-						const SimdScalar invMassB,
-						const SimdVector3& linvelB,const SimdVector3& angvelB,
-						const SimdVector3& rel_posA2,
+						const btVector3& invInertiaADiag,
+						const btScalar invMassA,
+						const btVector3& linvelA,const btVector3& angvelA,
+						const btVector3& rel_posA1,
+						const btVector3& invInertiaBDiag,
+						const btScalar invMassB,
+						const btVector3& linvelB,const btVector3& angvelB,
+						const btVector3& rel_posA2,
 
-					  SimdScalar depthA, const SimdVector3& normalA, 
-					  const SimdVector3& rel_posB1,const SimdVector3& rel_posB2,
-					  SimdScalar depthB, const SimdVector3& normalB, 
-					  SimdScalar& imp0,SimdScalar& imp1);
+					  btScalar depthA, const btVector3& normalA, 
+					  const btVector3& rel_posB1,const btVector3& rel_posB2,
+					  btScalar depthB, const btVector3& normalB, 
+					  btScalar& imp0,btScalar& imp1);
 
 
 	//
 	// solving 2x2 lcp problem (inequality, direct solution )
 	//
 	void resolveBilateralPairConstraint(
-			RigidBody* body0,
-						RigidBody* body1,
-		const SimdMatrix3x3& world2A,
-						const SimdMatrix3x3& world2B,
+			btRigidBody* body0,
+						btRigidBody* body1,
+		const btMatrix3x3& world2A,
+						const btMatrix3x3& world2B,
 						
-						const SimdVector3& invInertiaADiag,
-						const SimdScalar invMassA,
-						const SimdVector3& linvelA,const SimdVector3& angvelA,
-						const SimdVector3& rel_posA1,
-						const SimdVector3& invInertiaBDiag,
-						const SimdScalar invMassB,
-						const SimdVector3& linvelB,const SimdVector3& angvelB,
-						const SimdVector3& rel_posA2,
+						const btVector3& invInertiaADiag,
+						const btScalar invMassA,
+						const btVector3& linvelA,const btVector3& angvelA,
+						const btVector3& rel_posA1,
+						const btVector3& invInertiaBDiag,
+						const btScalar invMassB,
+						const btVector3& linvelB,const btVector3& angvelB,
+						const btVector3& rel_posA2,
 
-					  SimdScalar depthA, const SimdVector3& normalA, 
-					  const SimdVector3& rel_posB1,const SimdVector3& rel_posB2,
-					  SimdScalar depthB, const SimdVector3& normalB, 
-					  SimdScalar& imp0,SimdScalar& imp1);
+					  btScalar depthA, const btVector3& normalA, 
+					  const btVector3& rel_posB1,const btVector3& rel_posB2,
+					  btScalar depthB, const btVector3& normalB, 
+					  btScalar& imp0,btScalar& imp1);
 
 
-	void resolveAngularConstraint(	const SimdMatrix3x3& invInertiaAWS,
-						const SimdScalar invMassA,
-						const SimdVector3& linvelA,const SimdVector3& angvelA,
-						const SimdVector3& rel_posA1,
-						const SimdMatrix3x3& invInertiaBWS,
-						const SimdScalar invMassB,
-						const SimdVector3& linvelB,const SimdVector3& angvelB,
-						const SimdVector3& rel_posA2,
+	void resolveAngularConstraint(	const btMatrix3x3& invInertiaAWS,
+						const btScalar invMassA,
+						const btVector3& linvelA,const btVector3& angvelA,
+						const btVector3& rel_posA1,
+						const btMatrix3x3& invInertiaBWS,
+						const btScalar invMassB,
+						const btVector3& linvelB,const btVector3& angvelB,
+						const btVector3& rel_posA2,
 
-					  SimdScalar depthA, const SimdVector3& normalA, 
-					  const SimdVector3& rel_posB1,const SimdVector3& rel_posB2,
-					  SimdScalar depthB, const SimdVector3& normalB, 
-					  SimdScalar& imp0,SimdScalar& imp1);
+					  btScalar depthA, const btVector3& normalA, 
+					  const btVector3& rel_posB1,const btVector3& rel_posB2,
+					  btScalar depthB, const btVector3& normalB, 
+					  btScalar& imp0,btScalar& imp1);
 
 
 };

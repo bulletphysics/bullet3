@@ -16,8 +16,8 @@ subject to the following restrictions:
 
 #ifndef DISCRETE_COLLISION_DETECTOR_INTERFACE_H
 #define DISCRETE_COLLISION_DETECTOR_INTERFACE_H
-#include "LinearMath/SimdTransform.h"
-#include "LinearMath/SimdVector3.h"
+#include "LinearMath/btTransform.h"
+#include "LinearMath/btVector3.h"
 
 
 /// This interface is made to be used by an iterative approach to do TimeOfImpact calculations
@@ -25,7 +25,7 @@ subject to the following restrictions:
 /// the closest point is on the second object (B), and the normal points from the surface on B towards A.
 /// distance is between closest points on B and closest point on A. So you can calculate closest point on A
 /// by taking closestPointInA = closestPointInB + m_distance * m_normalOnSurfaceB
-struct DiscreteCollisionDetectorInterface
+struct btDiscreteCollisionDetectorInterface
 {
 	void operator delete(void* ptr) {};
 
@@ -37,7 +37,7 @@ struct DiscreteCollisionDetectorInterface
 
 		///SetShapeIdentifiers provides experimental support for per-triangle material / custom material combiner
 		virtual void SetShapeIdentifiers(int partId0,int index0,	int partId1,int index1)=0;
-		virtual void AddContactPoint(const SimdVector3& normalOnBInWorld,const SimdVector3& pointInWorld,float depth)=0;
+		virtual void AddContactPoint(const btVector3& normalOnBInWorld,const btVector3& pointInWorld,float depth)=0;
 	};
 
 	struct ClosestPointInput
@@ -47,35 +47,35 @@ struct DiscreteCollisionDetectorInterface
 		{
 		}
 
-		SimdTransform m_transformA;
-		SimdTransform m_transformB;
-		SimdScalar	m_maximumDistanceSquared;
+		btTransform m_transformA;
+		btTransform m_transformB;
+		btScalar	m_maximumDistanceSquared;
 	};
 
-	virtual ~DiscreteCollisionDetectorInterface() {};
+	virtual ~btDiscreteCollisionDetectorInterface() {};
 
 	//
 	// give either closest points (distance > 0) or penetration (distance)
 	// the normal always points from B towards A
 	//
-	virtual void	GetClosestPoints(const ClosestPointInput& input,Result& output,class IDebugDraw* debugDraw) = 0;
+	virtual void	GetClosestPoints(const ClosestPointInput& input,Result& output,class btIDebugDraw* debugDraw) = 0;
 
-	SimdScalar	getCollisionMargin() { return 0.2f;}
+	btScalar	getCollisionMargin() { return 0.2f;}
 };
 
-struct StorageResult : public DiscreteCollisionDetectorInterface::Result
+struct btStorageResult : public btDiscreteCollisionDetectorInterface::Result
 {
-		SimdVector3	m_normalOnSurfaceB;
-		SimdVector3	m_closestPointInB;
-		SimdScalar	m_distance; //negative means penetration !
+		btVector3	m_normalOnSurfaceB;
+		btVector3	m_closestPointInB;
+		btScalar	m_distance; //negative means penetration !
 
-		StorageResult() : m_distance(1e30f)
+		btStorageResult() : m_distance(1e30f)
 		{
 
 		}
-		virtual ~StorageResult() {};
+		virtual ~btStorageResult() {};
 
-		virtual void AddContactPoint(const SimdVector3& normalOnBInWorld,const SimdVector3& pointInWorld,float depth)
+		virtual void AddContactPoint(const btVector3& normalOnBInWorld,const btVector3& pointInWorld,float depth)
 		{
 			if (depth < m_distance)
 			{

@@ -20,7 +20,7 @@ subject to the following restrictions:
 #include "BulletCollision/NarrowPhaseCollision/btSimplexSolverInterface.h"
 
 
-SubsimplexConvexCast::SubsimplexConvexCast (ConvexShape* convexA,ConvexShape* convexB,SimplexSolverInterface* simplexSolver)
+btSubsimplexConvexCast::btSubsimplexConvexCast (btConvexShape* convexA,btConvexShape* convexB,btSimplexSolverInterface* simplexSolver)
 :m_simplexSolver(simplexSolver),
 m_convexA(convexA),m_convexB(convexB)
 {
@@ -29,19 +29,19 @@ m_convexA(convexA),m_convexB(convexB)
 
 #define MAX_ITERATIONS 1000
 
-bool	SubsimplexConvexCast::calcTimeOfImpact(
-		const SimdTransform& fromA,
-		const SimdTransform& toA,
-		const SimdTransform& fromB,
-		const SimdTransform& toB,
+bool	btSubsimplexConvexCast::calcTimeOfImpact(
+		const btTransform& fromA,
+		const btTransform& toA,
+		const btTransform& fromB,
+		const btTransform& toB,
 		CastResult& result)
 {
 
-	MinkowskiSumShape combi(m_convexA,m_convexB);
-	MinkowskiSumShape* convex = &combi;
+	btMinkowskiSumShape combi(m_convexA,m_convexB);
+	btMinkowskiSumShape* convex = &combi;
 
-	SimdTransform	rayFromLocalA;
-	SimdTransform	rayToLocalA;
+	btTransform	rayFromLocalA;
+	btTransform	rayToLocalA;
 
 	rayFromLocalA = fromA.inverse()* fromB;
 	rayToLocalA = toA.inverse()* toB;
@@ -49,28 +49,28 @@ bool	SubsimplexConvexCast::calcTimeOfImpact(
 
 	m_simplexSolver->reset();
 
-	convex->SetTransformB(SimdTransform(rayFromLocalA.getBasis()));
+	convex->SetTransformB(btTransform(rayFromLocalA.getBasis()));
 
 	//float radius = 0.01f;
 
-	SimdScalar lambda = 0.f;
+	btScalar lambda = 0.f;
 	//todo: need to verify this:
 	//because of minkowski difference, we need the inverse direction
 	
-	SimdVector3 s = -rayFromLocalA.getOrigin();
-	SimdVector3 r = -(rayToLocalA.getOrigin()-rayFromLocalA.getOrigin());
-	SimdVector3 x = s;
-	SimdVector3 v;
-	SimdVector3 arbitraryPoint = convex->LocalGetSupportingVertex(r);
+	btVector3 s = -rayFromLocalA.getOrigin();
+	btVector3 r = -(rayToLocalA.getOrigin()-rayFromLocalA.getOrigin());
+	btVector3 x = s;
+	btVector3 v;
+	btVector3 arbitraryPoint = convex->LocalGetSupportingVertex(r);
 	
 	v = x - arbitraryPoint;
 
 	int maxIter = MAX_ITERATIONS;
 
-	SimdVector3 n;
+	btVector3 n;
 	n.setValue(0.f,0.f,0.f);
 	bool hasResult = false;
-	SimdVector3 c;
+	btVector3 c;
 
 	float lastLambda = lambda;
 
@@ -78,7 +78,7 @@ bool	SubsimplexConvexCast::calcTimeOfImpact(
 	float dist2 = v.length2();
 	float epsilon = 0.0001f;
 
-	SimdVector3	w,p;
+	btVector3	w,p;
 	float VdotR;
 	
 	while ( (dist2 > epsilon) && maxIter--)

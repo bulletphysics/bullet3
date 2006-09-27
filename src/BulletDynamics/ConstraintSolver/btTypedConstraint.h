@@ -16,48 +16,48 @@ subject to the following restrictions:
 #ifndef TYPED_CONSTRAINT_H
 #define TYPED_CONSTRAINT_H
 
-class RigidBody;
-#include "LinearMath/SimdScalar.h"
+class btRigidBody;
+#include "LinearMath/btScalar.h"
 
 //TypedConstraint is the baseclass for Bullet constraints and vehicles
-class TypedConstraint
+class btTypedConstraint
 {
 	int	m_userConstraintType;
 	int	m_userConstraintId;
 	
 
 protected:
-	RigidBody&	m_rbA;
-	RigidBody&	m_rbB;
+	btRigidBody&	m_rbA;
+	btRigidBody&	m_rbB;
 	float	m_appliedImpulse;
 
 
 public:
 
-	TypedConstraint();
-	virtual ~TypedConstraint() {};
-	TypedConstraint(RigidBody& rbA);
+	btTypedConstraint();
+	virtual ~btTypedConstraint() {};
+	btTypedConstraint(btRigidBody& rbA);
 
-	TypedConstraint(RigidBody& rbA,RigidBody& rbB);
+	btTypedConstraint(btRigidBody& rbA,btRigidBody& rbB);
 
 	virtual void	BuildJacobian() = 0;
 
-	virtual	void	SolveConstraint(SimdScalar	timeStep) = 0;
+	virtual	void	SolveConstraint(btScalar	timeStep) = 0;
 
-	const RigidBody& GetRigidBodyA() const
+	const btRigidBody& GetRigidBodyA() const
 	{
 		return m_rbA;
 	}
-	const RigidBody& GetRigidBodyB() const
+	const btRigidBody& GetRigidBodyB() const
 	{
 		return m_rbB;
 	}
 
-	RigidBody& GetRigidBodyA()
+	btRigidBody& GetRigidBodyA()
 	{
 		return m_rbA;
 	}
-	RigidBody& GetRigidBodyB()
+	btRigidBody& GetRigidBodyB()
 	{
 		return m_rbB;
 	}

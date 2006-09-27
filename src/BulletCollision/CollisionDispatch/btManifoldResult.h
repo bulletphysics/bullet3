@@ -18,30 +18,30 @@ subject to the following restrictions:
 #define MANIFOLD_RESULT_H
 
 #include "BulletCollision/NarrowPhaseCollision/btDiscreteCollisionDetectorInterface.h"
-struct CollisionObject;
-class PersistentManifold;
-class ManifoldPoint;
+struct btCollisionObject;
+class btPersistentManifold;
+class btManifoldPoint;
 
-typedef bool (*ContactAddedCallback)(ManifoldPoint& cp,	const CollisionObject* colObj0,int partId0,int index0,const CollisionObject* colObj1,int partId1,int index1);
+typedef bool (*ContactAddedCallback)(btManifoldPoint& cp,	const btCollisionObject* colObj0,int partId0,int index0,const btCollisionObject* colObj1,int partId1,int index1);
 extern ContactAddedCallback		gContactAddedCallback;
 
 
 
 ///ManifoldResult is a helper class to manage  contact results.
-class ManifoldResult : public DiscreteCollisionDetectorInterface::Result
+class btManifoldResult : public btDiscreteCollisionDetectorInterface::Result
 {
-	PersistentManifold* m_manifoldPtr;
-	CollisionObject* m_body0;
-	CollisionObject* m_body1;
+	btPersistentManifold* m_manifoldPtr;
+	btCollisionObject* m_body0;
+	btCollisionObject* m_body1;
 	int	m_partId0;
 	int m_partId1;
 	int m_index0;
 	int m_index1;
 public:
 
-	ManifoldResult(CollisionObject* body0,CollisionObject* body1,PersistentManifold* manifoldPtr);
+	btManifoldResult(btCollisionObject* body0,btCollisionObject* body1,btPersistentManifold* manifoldPtr);
 
-	virtual ~ManifoldResult() {};
+	virtual ~btManifoldResult() {};
 
 	virtual void SetShapeIdentifiers(int partId0,int index0,	int partId1,int index1)
 	{
@@ -51,7 +51,7 @@ public:
 			m_index1=index1;		
 	}
 
-	virtual void AddContactPoint(const SimdVector3& normalOnBInWorld,const SimdVector3& pointInWorld,float depth);
+	virtual void AddContactPoint(const btVector3& normalOnBInWorld,const btVector3& pointInWorld,float depth);
 
 
 

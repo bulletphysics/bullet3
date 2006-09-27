@@ -16,23 +16,23 @@ subject to the following restrictions:
 #ifndef TRIANGLE_CALLBACK_H
 #define TRIANGLE_CALLBACK_H
 
-#include "LinearMath/SimdVector3.h"
+#include "LinearMath/btVector3.h"
 
 
-class TriangleCallback
+class btTriangleCallback
 {
 public:
 
-	virtual ~TriangleCallback();
-	virtual void ProcessTriangle(SimdVector3* triangle, int partId, int triangleIndex) = 0;
+	virtual ~btTriangleCallback();
+	virtual void ProcessTriangle(btVector3* triangle, int partId, int triangleIndex) = 0;
 };
 
-class InternalTriangleIndexCallback
+class btInternalTriangleIndexCallback
 {
 public:
 
-	virtual ~InternalTriangleIndexCallback();
-	virtual void InternalProcessTriangleIndex(SimdVector3* triangle,int partId,int  triangleIndex) = 0;
+	virtual ~btInternalTriangleIndexCallback();
+	virtual void InternalProcessTriangleIndex(btVector3* triangle,int partId,int  triangleIndex) = 0;
 };
 
 

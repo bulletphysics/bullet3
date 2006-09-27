@@ -19,13 +19,13 @@ subject to the following restrictions:
 
 /**
 *	Sample that shows the Expanding Polytope Algorithm ( EPA )
-*	Generates two convex shapes and calculates the penetration depth
+*	bterates two convex shapes and calculates the penetration depth
 *	between them in case they are penetrating
 */
 
 #include "GL_Simplex1to4.h"
-#include "LinearMath/SimdQuaternion.h"
-#include "LinearMath/SimdTransform.h"
+#include "LinearMath/btQuaternion.h"
+#include "LinearMath/btTransform.h"
 #include "GL_ShapeDrawer.h"
 #include <GL/glut.h>
 #include "GlutStuff.h"
@@ -51,34 +51,34 @@ subject to the following restrictions:
 EpaPenetrationDepthSolver epaPenDepthSolver;
 
 
-SimplexSolverInterface	simplexSolver;
+btSimplexSolverInterface	simplexSolver;
 
 
 int screenWidth = 640.f;
 int screenHeight = 480.f;
 
 // Scene stuff
-SimdPoint3	g_sceneVolumeMin( -1, -1, -1 );
-SimdPoint3	g_sceneVolumeMax( 1, 1, 1 );
+btPoint3	g_sceneVolumeMin( -1, -1, -1 );
+btPoint3	g_sceneVolumeMax( 1, 1, 1 );
 
 bool		g_shapesPenetrate = false;
 
-SimdVector3	g_wWitnesses[ 2 ];
+btVector3	g_wWitnesses[ 2 ];
 
 // Shapes stuff
-ConvexShape*	g_pConvexShapes[ 2 ] = { 0 };
-SimdTransform	g_convexShapesTransform[ 2 ];
+btConvexShape*	g_pConvexShapes[ 2 ] = { 0 };
+btTransform	g_convexShapesTransform[ 2 ];
 
-SimdScalar		g_animAngle = SIMD_RADS_PER_DEG;
+btScalar		g_animAngle = SIMD_RADS_PER_DEG;
 bool			g_pauseAnim = true;
 
 // 0 - Box ; 1 - Sphere
 int g_shapesType[ 2 ] = { 0 };
 
 // Box config
-SimdVector3 g_boxExtents( 1, 1, 1 );
+btVector3 g_boxExtents( 1, 1, 1 );
 // Sphere config
-SimdScalar	g_sphereRadius = 1;
+btScalar	g_sphereRadius = 1;
 
 float randomFloat( float rangeMin, float rangeMax )
 {
@@ -90,9 +90,9 @@ int randomShapeType( int minShapeType, int maxShapeType )
 	return ( ( ( ( maxShapeType - minShapeType ) + 1 ) * rand() ) / ( ( RAND_MAX + 1 ) + minShapeType ) );
 }
 
-SimdVector3 randomPosition( const SimdPoint3& minPoint, const SimdPoint3& maxPoint )
+btVector3 randomPosition( const btPoint3& minPoint, const btPoint3& maxPoint )
 {
-	return SimdVector3( randomFloat( minPoint.getX(), maxPoint.getX() ),
+	return btVector3( randomFloat( minPoint.getX(), maxPoint.getX() ),
 		randomFloat( minPoint.getY(), maxPoint.getY() ),
 		randomFloat( minPoint.getZ(), maxPoint.getZ() ) );
 }
@@ -104,39 +104,39 @@ bool createBoxShape( int shapeIndex )
 	//
 	//if ( b )
 	//{
-	//	g_pConvexShapes[ shapeIndex ] = new BoxShape( SimdVector3( 1, 1, 1 ) );
+	//	g_pConvexShapes[ shapeIndex ] = new btBoxShape( btVector3( 1, 1, 1 ) );
 
 	//	g_pConvexShapes[ shapeIndex ]->SetMargin( 0.05 );
 
 	//	g_convexShapesTransform[ shapeIndex ].setIdentity();
 
-	//	SimdMatrix3x3 basis(  0.99365157, 0.024418538, -0.10981932,
+	//	btMatrix3x3 basis(  0.99365157, 0.024418538, -0.10981932,
 	//						 -0.025452739, 0.99964380, -0.0080251107,
 	//						  0.10958424, 0.010769366, 0.99391919 );
 
-	//	g_convexShapesTransform[ shapeIndex ].setOrigin( SimdVector3( 4.4916530, -19.059078, -0.22695254 ) );
+	//	g_convexShapesTransform[ shapeIndex ].setOrigin( btVector3( 4.4916530, -19.059078, -0.22695254 ) );
 	//	g_convexShapesTransform[ shapeIndex ].setBasis( basis );
 
 	//	b = false;
 	//}
 	//else
 	//{
-	//	g_pConvexShapes[ shapeIndex ] = new BoxShape( SimdVector3( 25, 10, 25 ) );
+	//	g_pConvexShapes[ shapeIndex ] = new btBoxShape( btVector3( 25, 10, 25 ) );
 
 	//	g_pConvexShapes[ shapeIndex ]->SetMargin( 0.05 );
 
-	//	//SimdMatrix3x3 basis( 0.658257, 0.675022, -0.333709,
+	//	//btMatrix3x3 basis( 0.658257, 0.675022, -0.333709,
 	//	//					-0.333120, 0.658556, 0.675023,
 	//	//					 0.675314, -0.333120, 0.658256 );
 
 	//	g_convexShapesTransform[ shapeIndex ].setIdentity();
 
-	//	g_convexShapesTransform[ shapeIndex ].setOrigin( SimdVector3( 0, -30, 0/*0.326090, -0.667531, 0.214331*/ ) );
+	//	g_convexShapesTransform[ shapeIndex ].setOrigin( btVector3( 0, -30, 0/*0.326090, -0.667531, 0.214331*/ ) );
 	//	//g_convexShapesTransform[ shapeIndex ].setBasis( basis );
 	//}
 	//#endif
 
-	g_pConvexShapes[ shapeIndex ] = new BoxShape( SimdVector3( 1, 1, 1 ) );
+	g_pConvexShapes[ shapeIndex ] = new btBoxShape( btVector3( 1, 1, 1 ) );
 
 	g_pConvexShapes[ shapeIndex ]->SetMargin( 1e-1 );
 
@@ -149,7 +149,7 @@ bool createBoxShape( int shapeIndex )
 
 bool createSphereShape( int shapeIndex )
 {
-	g_pConvexShapes[ shapeIndex ] = new SphereShape( g_sphereRadius );
+	g_pConvexShapes[ shapeIndex ] = new btSphereShape( g_sphereRadius );
 
 	g_pConvexShapes[ shapeIndex ]->SetMargin( 1e-1 );
 
@@ -160,12 +160,12 @@ bool createSphereShape( int shapeIndex )
 	//static bool b = true;
 	//if ( b )
 	//{
-	//	g_convexShapesTransform[ shapeIndex ].setOrigin( SimdVector3( 0.001, 0, 0 ) );
+	//	g_convexShapesTransform[ shapeIndex ].setOrigin( btVector3( 0.001, 0, 0 ) );
 	//	b = false;
 	//}
 	//else
 	//{
-	//	g_convexShapesTransform[ shapeIndex ].setOrigin( SimdVector3( 0, 0, 0 ) );
+	//	g_convexShapesTransform[ shapeIndex ].setOrigin( btVector3( 0, 0, 0 ) );
 	//}
 	//#endif
 
@@ -191,15 +191,15 @@ bool calcPenDepth()
 {
 	// Ryn Hybrid Pen Depth and EPA if necessary
 
-	SimdVector3 v( 1, 0, 0 );
+	btVector3 v( 1, 0, 0 );
 
-	SimdScalar squaredDistance = SIMD_INFINITY;
-	SimdScalar delta = 0.f;
+	btScalar squaredDistance = SIMD_INFINITY;
+	btScalar delta = 0.f;
 
-	const SimdScalar margin     = g_pConvexShapes[ 0 ]->GetMargin() + g_pConvexShapes[ 1 ]->GetMargin();
-	const SimdScalar marginSqrd = margin * margin;
+	const btScalar margin     = g_pConvexShapes[ 0 ]->GetMargin() + g_pConvexShapes[ 1 ]->GetMargin();
+	const btScalar marginSqrd = margin * margin;
 
-	SimdScalar maxRelErrorSqrd = 1e-3 * 1e-3;
+	btScalar maxRelErrorSqrd = 1e-3 * 1e-3;
 
 	simplexSolver.reset();
 
@@ -207,16 +207,16 @@ bool calcPenDepth()
 	{
 		assert( ( v.length2() > 0 ) && "Warning: v is the zero vector!" );
 
-		SimdVector3 seperatingAxisInA = -v * g_convexShapesTransform[ 0 ].getBasis();
-		SimdVector3 seperatingAxisInB =  v * g_convexShapesTransform[ 1 ].getBasis();
+		btVector3 seperatingAxisInA = -v * g_convexShapesTransform[ 0 ].getBasis();
+		btVector3 seperatingAxisInB =  v * g_convexShapesTransform[ 1 ].getBasis();
 
-		SimdVector3 pInA = g_pConvexShapes[ 0 ]->LocalGetSupportingVertexWithoutMargin( seperatingAxisInA );
-		SimdVector3 qInB = g_pConvexShapes[ 1 ]->LocalGetSupportingVertexWithoutMargin( seperatingAxisInB );
+		btVector3 pInA = g_pConvexShapes[ 0 ]->LocalGetSupportingVertexWithoutMargin( seperatingAxisInA );
+		btVector3 qInB = g_pConvexShapes[ 1 ]->LocalGetSupportingVertexWithoutMargin( seperatingAxisInB );
 
-		SimdPoint3  pWorld = g_convexShapesTransform[ 0 ]( pInA );
-		SimdPoint3  qWorld = g_convexShapesTransform[ 1 ]( qInB );
+		btPoint3  pWorld = g_convexShapesTransform[ 0 ]( pInA );
+		btPoint3  qWorld = g_convexShapesTransform[ 1 ]( qInB );
 
-		SimdVector3 w = pWorld - qWorld;
+		btVector3 w = pWorld - qWorld;
 		delta = v.dot( w );
 
 		// potential exit, they don't overlap
@@ -232,7 +232,7 @@ bool calcPenDepth()
 			simplexSolver.compute_points( g_wWitnesses[ 0 ], g_wWitnesses[ 1 ] );
 
 			assert( ( squaredDistance > 0 ) && "squaredDistance is zero!" );
-			SimdScalar vLength = sqrt( squaredDistance );
+			btScalar vLength = sqrt( squaredDistance );
 
 			g_wWitnesses[ 0 ] -= v * ( g_pConvexShapes[ 0 ]->GetMargin() / vLength );
 			g_wWitnesses[ 1 ] += v * ( g_pConvexShapes[ 1 ]->GetMargin() / vLength );
@@ -249,7 +249,7 @@ bool calcPenDepth()
 			simplexSolver.compute_points( g_wWitnesses[ 0 ], g_wWitnesses[ 1 ] );
 
 			assert( ( squaredDistance > 0 ) && "squaredDistance is zero!" );
-			SimdScalar vLength = sqrt( squaredDistance );
+			btScalar vLength = sqrt( squaredDistance );
 
 			g_wWitnesses[ 0 ] -= v * ( g_pConvexShapes[ 0 ]->GetMargin() / vLength );
 			g_wWitnesses[ 1 ] += v * ( g_pConvexShapes[ 1 ]->GetMargin() / vLength );
@@ -257,7 +257,7 @@ bool calcPenDepth()
 			return true;
 		}
 
-		SimdScalar previousSquaredDistance = squaredDistance;
+		btScalar previousSquaredDistance = squaredDistance;
 		squaredDistance = v.length2();
 
 		//are we getting any closer ?
@@ -269,7 +269,7 @@ bool calcPenDepth()
 			simplexSolver.compute_points( g_wWitnesses[ 0 ], g_wWitnesses[ 1 ] );
 
 			assert( ( squaredDistance > 0 ) && "squaredDistance is zero!" );
-			SimdScalar vLength = sqrt( squaredDistance );
+			btScalar vLength = sqrt( squaredDistance );
 
 			g_wWitnesses[ 0 ] -= v * ( g_pConvexShapes[ 0 ]->GetMargin() / vLength );
 			g_wWitnesses[ 1 ] += v * ( g_pConvexShapes[ 1 ]->GetMargin() / vLength );
@@ -313,7 +313,7 @@ void drawShape( int shapeIndex )
 
 	if ( g_pConvexShapes[ shapeIndex ]->GetShapeType() == BOX_SHAPE_PROXYTYPE )
 	{
-		glutWireCube( ( ( BoxShape* ) g_pConvexShapes[ shapeIndex ] )->GetHalfExtents().x() * 2 );
+		glutWireCube( ( ( btBoxShape* ) g_pConvexShapes[ shapeIndex ] )->GetHalfExtents().x() * 2 );
 	}
 	else if ( g_pConvexShapes[ shapeIndex ]->GetShapeType() == SPHERE_SHAPE_PROXYTYPE )
 	{
@@ -349,10 +349,10 @@ void clientMoveAndDisplay()
 {
 	if ( !g_pauseAnim )
 	{
-		SimdMatrix3x3 rot;
+		btMatrix3x3 rot;
 		rot.setEulerZYX( g_animAngle * 0.05, g_animAngle * 0.05, g_animAngle * 0.05 );
 
-		SimdTransform t;
+		btTransform t;
 		t.setIdentity();
 		t.setBasis( rot );
 
@@ -419,11 +419,11 @@ void clientKeyboard(unsigned char key, int x, int y)
 	else if ( key == 'T' || key == 't' )
 	{
 #ifdef DEBUG_ME
-		SimdVector3 shapeAPos = g_convexShapesTransform[ 0 ].getOrigin();
-		SimdVector3 shapeBPos = g_convexShapesTransform[ 1 ].getOrigin();
+		btVector3 shapeAPos = g_convexShapesTransform[ 0 ].getOrigin();
+		btVector3 shapeBPos = g_convexShapesTransform[ 1 ].getOrigin();
 
-		SimdMatrix3x3 shapeARot = g_convexShapesTransform[ 0 ].getBasis();
-		SimdMatrix3x3 shapeBRot = g_convexShapesTransform[ 1 ].getBasis();
+		btMatrix3x3 shapeARot = g_convexShapesTransform[ 0 ].getBasis();
+		btMatrix3x3 shapeBRot = g_convexShapesTransform[ 1 ].getBasis();
 
 		FILE* fp = 0;
 

@@ -4,7 +4,7 @@
 
 
 //
-// AxisSweep3
+// btAxisSweep3
 //
 // Copyright (c) 2006 Simon Hobbs
 //
@@ -21,7 +21,7 @@
 
 #include <assert.h>
 
-BroadphaseProxy*	AxisSweep3::CreateProxy(  const SimdVector3& min,  const SimdVector3& max,int shapeType,void* userPtr,short int collisionFilterGroup,short int collisionFilterMask)
+btBroadphaseProxy*	btAxisSweep3::CreateProxy(  const btVector3& min,  const btVector3& max,int shapeType,void* userPtr,short int collisionFilterGroup,short int collisionFilterMask)
 {
 		unsigned short handleId = AddHandle(min,max, userPtr,collisionFilterGroup,collisionFilterMask);
 		
@@ -30,13 +30,13 @@ BroadphaseProxy*	AxisSweep3::CreateProxy(  const SimdVector3& min,  const SimdVe
 		return handle;
 }
 
-void	AxisSweep3::DestroyProxy(BroadphaseProxy* proxy)
+void	btAxisSweep3::DestroyProxy(btBroadphaseProxy* proxy)
 {
 	Handle* handle = static_cast<Handle*>(proxy);
 	RemoveHandle(handle->m_handleId);
 }
 
-void	AxisSweep3::SetAabb(BroadphaseProxy* proxy,const SimdVector3& aabbMin,const SimdVector3& aabbMax)
+void	btAxisSweep3::SetAabb(btBroadphaseProxy* proxy,const btVector3& aabbMin,const btVector3& aabbMax)
 {
 	Handle* handle = static_cast<Handle*>(proxy);
 	UpdateHandle(handle->m_handleId,aabbMin,aabbMax);
@@ -47,8 +47,8 @@ void	AxisSweep3::SetAabb(BroadphaseProxy* proxy,const SimdVector3& aabbMin,const
 
 
 
-AxisSweep3::AxisSweep3(const SimdPoint3& worldAabbMin,const SimdPoint3& worldAabbMax, int maxHandles)
-:OverlappingPairCache()
+btAxisSweep3::btAxisSweep3(const btPoint3& worldAabbMin,const btPoint3& worldAabbMax, int maxHandles)
+:btOverlappingPairCache()
 {
 	//assert(bounds.HasVolume());
 
@@ -59,9 +59,9 @@ AxisSweep3::AxisSweep3(const SimdPoint3& worldAabbMin,const SimdPoint3& worldAab
 	m_worldAabbMin = worldAabbMin;
 	m_worldAabbMax = worldAabbMax;
 
-	SimdVector3 aabbSize = m_worldAabbMax - m_worldAabbMin;
+	btVector3 aabbSize = m_worldAabbMax - m_worldAabbMin;
 
-	m_quantize = SimdVector3(65535.0f,65535.0f,65535.0f) / aabbSize;
+	m_quantize = btVector3(65535.0f,65535.0f,65535.0f) / aabbSize;
 
 	// allocate handles buffer and put all handles on free list
 	m_pHandles = new Handle[maxHandles];
@@ -99,7 +99,7 @@ AxisSweep3::AxisSweep3(const SimdPoint3& worldAabbMin,const SimdPoint3& worldAab
 	}
 }
 
-AxisSweep3::~AxisSweep3()
+btAxisSweep3::~btAxisSweep3()
 {
 	
 	for (int i = 2; i >= 0; i--)
@@ -107,15 +107,15 @@ AxisSweep3::~AxisSweep3()
 	delete[] m_pHandles;
 }
 
-void AxisSweep3::Quantize(unsigned short* out, const SimdPoint3& point, int isMax) const
+void btAxisSweep3::Quantize(unsigned short* out, const btPoint3& point, int isMax) const
 {
-	SimdPoint3 clampedPoint(point);
+	btPoint3 clampedPoint(point);
 	/*
 	if (isMax)
-		clampedPoint += SimdVector3(10,10,10);
+		clampedPoint += btVector3(10,10,10);
 	else
 	{
-		clampedPoint -= SimdVector3(10,10,10);
+		clampedPoint -= btVector3(10,10,10);
 	}
 	*/
 
@@ -123,7 +123,7 @@ void AxisSweep3::Quantize(unsigned short* out, const SimdPoint3& point, int isMa
 	clampedPoint.setMax(m_worldAabbMin);
 	clampedPoint.setMin(m_worldAabbMax);
 
-	SimdVector3 v = (clampedPoint - m_worldAabbMin) * m_quantize;
+	btVector3 v = (clampedPoint - m_worldAabbMin) * m_quantize;
 	out[0] = (unsigned short)(((int)v.getX() & 0xfffc) | isMax);
 	out[1] = (unsigned short)(((int)v.getY() & 0xfffc) | isMax);
 	out[2] = (unsigned short)(((int)v.getZ() & 0xfffc) | isMax);
@@ -132,7 +132,7 @@ void AxisSweep3::Quantize(unsigned short* out, const SimdPoint3& point, int isMa
 
 
 
-unsigned short AxisSweep3::AllocHandle()
+unsigned short btAxisSweep3::AllocHandle()
 {
 	assert(m_firstFreeHandle);
 
@@ -143,7 +143,7 @@ unsigned short AxisSweep3::AllocHandle()
 	return handle;
 }
 
-void AxisSweep3::FreeHandle(unsigned short handle)
+void btAxisSweep3::FreeHandle(unsigned short handle)
 {
 	assert(handle > 0 && handle < m_maxHandles);
 
@@ -155,7 +155,7 @@ void AxisSweep3::FreeHandle(unsigned short handle)
 
 
 
-unsigned short AxisSweep3::AddHandle(const SimdPoint3& aabbMin,const SimdPoint3& aabbMax, void* pOwner,short int collisionFilterGroup,short int collisionFilterMask)
+unsigned short btAxisSweep3::AddHandle(const btPoint3& aabbMin,const btPoint3& aabbMax, void* pOwner,short int collisionFilterGroup,short int collisionFilterMask)
 {
 	// quantize the bounds
 	unsigned short min[3], max[3];
@@ -208,7 +208,7 @@ unsigned short AxisSweep3::AddHandle(const SimdPoint3& aabbMin,const SimdPoint3&
 }
 
 
-void AxisSweep3::RemoveHandle(unsigned short handle)
+void btAxisSweep3::RemoveHandle(unsigned short handle)
 {
 	Handle* pHandle = GetHandle(handle);
 
@@ -256,7 +256,7 @@ void AxisSweep3::RemoveHandle(unsigned short handle)
 	
 }
 
-bool AxisSweep3::TestOverlap(int ignoreAxis,const Handle* pHandleA, const Handle* pHandleB)
+bool btAxisSweep3::TestOverlap(int ignoreAxis,const Handle* pHandleA, const Handle* pHandleB)
 {
 	//optimization 1: check the array index (memory address), instead of the m_pos
 
@@ -287,7 +287,7 @@ bool AxisSweep3::TestOverlap(int ignoreAxis,const Handle* pHandleA, const Handle
 	return true;
 }
 
-void AxisSweep3::UpdateHandle(unsigned short handle, const SimdPoint3& aabbMin,const SimdPoint3& aabbMax)
+void btAxisSweep3::UpdateHandle(unsigned short handle, const btPoint3& aabbMin,const btPoint3& aabbMax)
 {
 //	assert(bounds.IsFinite());
 	//assert(bounds.HasVolume());
@@ -330,7 +330,7 @@ void AxisSweep3::UpdateHandle(unsigned short handle, const SimdPoint3& aabbMin,c
 }
 
 // sorting a min edge downwards can only ever *add* overlaps
-void AxisSweep3::SortMinDown(int axis, unsigned short edge, bool updateOverlaps)
+void btAxisSweep3::SortMinDown(int axis, unsigned short edge, bool updateOverlaps)
 {
 	Edge* pEdge = m_pEdges[axis] + edge;
 	Edge* pPrev = pEdge - 1;
@@ -371,7 +371,7 @@ void AxisSweep3::SortMinDown(int axis, unsigned short edge, bool updateOverlaps)
 }
 
 // sorting a min edge upwards can only ever *remove* overlaps
-void AxisSweep3::SortMinUp(int axis, unsigned short edge, bool updateOverlaps)
+void btAxisSweep3::SortMinUp(int axis, unsigned short edge, bool updateOverlaps)
 {
 	Edge* pEdge = m_pEdges[axis] + edge;
 	Edge* pNext = pEdge + 1;
@@ -388,7 +388,7 @@ void AxisSweep3::SortMinUp(int axis, unsigned short edge, bool updateOverlaps)
 			{
 				Handle* handle0 = GetHandle(pEdge->m_handle);
 				Handle* handle1 = GetHandle(pNext->m_handle);
-				BroadphasePair tmpPair(*handle0,*handle1);
+				btBroadphasePair tmpPair(*handle0,*handle1);
 				RemoveOverlappingPair(tmpPair);
 
 			}
@@ -413,7 +413,7 @@ void AxisSweep3::SortMinUp(int axis, unsigned short edge, bool updateOverlaps)
 }
 
 // sorting a max edge downwards can only ever *remove* overlaps
-void AxisSweep3::SortMaxDown(int axis, unsigned short edge, bool updateOverlaps)
+void btAxisSweep3::SortMaxDown(int axis, unsigned short edge, bool updateOverlaps)
 {
 	Edge* pEdge = m_pEdges[axis] + edge;
 	Edge* pPrev = pEdge - 1;
@@ -430,7 +430,7 @@ void AxisSweep3::SortMaxDown(int axis, unsigned short edge, bool updateOverlaps)
 			{
 				Handle* handle0 = GetHandle(pEdge->m_handle);
 				Handle* handle1 = GetHandle(pPrev->m_handle);
-				BroadphasePair* pair = FindPair(handle0,handle1);
+				btBroadphasePair* pair = FindPair(handle0,handle1);
 				//assert(pair);
 
 				if (pair)
@@ -459,7 +459,7 @@ void AxisSweep3::SortMaxDown(int axis, unsigned short edge, bool updateOverlaps)
 }
 
 // sorting a max edge upwards can only ever *add* overlaps
-void AxisSweep3::SortMaxUp(int axis, unsigned short edge, bool updateOverlaps)
+void btAxisSweep3::SortMaxUp(int axis, unsigned short edge, bool updateOverlaps)
 {
 	Edge* pEdge = m_pEdges[axis] + edge;
 	Edge* pNext = pEdge + 1;

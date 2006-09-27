@@ -16,27 +16,27 @@ subject to the following restrictions:
 #ifndef COLLISION_SHAPE_H
 #define COLLISION_SHAPE_H
 
-#include "LinearMath/SimdTransform.h"
-#include "LinearMath/SimdVector3.h"
-#include <LinearMath/SimdMatrix3x3.h>
-#include "LinearMath/SimdPoint3.h"
+#include "LinearMath/btTransform.h"
+#include "LinearMath/btVector3.h"
+#include <LinearMath/btMatrix3x3.h>
+#include "LinearMath/btPoint3.h"
 #include "BulletCollision/BroadphaseCollision/btBroadphaseProxy.h" //for the shape types
 
 ///CollisionShape provides generic interface for collidable objects
-class CollisionShape
+class btCollisionShape
 {
 public:
 
-	CollisionShape() :m_tempDebug(0)
+	btCollisionShape() :m_tempDebug(0)
 	{
 	}
-	virtual ~CollisionShape()
+	virtual ~btCollisionShape()
 	{
 	}
 
-	virtual void GetAabb(const SimdTransform& t,SimdVector3& aabbMin,SimdVector3& aabbMax) const =0;
+	virtual void GetAabb(const btTransform& t,btVector3& aabbMin,btVector3& aabbMax) const =0;
 
-	virtual void	GetBoundingSphere(SimdVector3& center,SimdScalar& radius) const;
+	virtual void	GetBoundingSphere(btVector3& center,btScalar& radius) const;
 
 	virtual float	GetAngularMotionDisc() const;
 
@@ -44,30 +44,30 @@ public:
 
 	///CalculateTemporalAabb calculates the enclosing aabb for the moving object over interval [0..timeStep)
 	///result is conservative
-	void CalculateTemporalAabb(const SimdTransform& curTrans,const SimdVector3& linvel,const SimdVector3& angvel,SimdScalar timeStep, SimdVector3& temporalAabbMin,SimdVector3& temporalAabbMax);
+	void CalculateTemporalAabb(const btTransform& curTrans,const btVector3& linvel,const btVector3& angvel,btScalar timeStep, btVector3& temporalAabbMin,btVector3& temporalAabbMax);
 
 	inline bool	IsPolyhedral() const
 	{
-		return BroadphaseProxy::IsPolyhedral(GetShapeType());
+		return btBroadphaseProxy::IsPolyhedral(GetShapeType());
 	}
 
 	inline bool	IsConvex() const
 	{
-		return BroadphaseProxy::IsConvex(GetShapeType());
+		return btBroadphaseProxy::IsConvex(GetShapeType());
 	}
 	inline bool	IsConcave() const
 	{
-		return BroadphaseProxy::IsConcave(GetShapeType());
+		return btBroadphaseProxy::IsConcave(GetShapeType());
 	}
 	inline bool	IsCompound() const
 	{
-		return BroadphaseProxy::IsCompound(GetShapeType());
+		return btBroadphaseProxy::IsCompound(GetShapeType());
 	}
 
-	virtual void	setLocalScaling(const SimdVector3& scaling) =0;
-	virtual const SimdVector3& getLocalScaling() const =0;
+	virtual void	setLocalScaling(const btVector3& scaling) =0;
+	virtual const btVector3& getLocalScaling() const =0;
 
-	virtual void	CalculateLocalInertia(SimdScalar mass,SimdVector3& inertia) = 0;
+	virtual void	CalculateLocalInertia(btScalar mass,btVector3& inertia) = 0;
 
 //debugging support
 	virtual char*	GetName()const =0 ;

@@ -37,7 +37,7 @@ char* getLastFileName();
 char* fixFileName(const char* lpCmdLine);
 //todo: sort out this domInstance_rigid_bodyRef forward definition, put it in the headerfile and make it virtual (make code more re-usable)
 
-struct	RigidBodyInput
+struct	btRigidBodyInput
 {
 	domInstance_rigid_bodyRef	m_instanceRigidBodyRef;
 	domRigid_bodyRef	m_rigidBodyRef2;
@@ -52,12 +52,12 @@ struct	ConstraintInput
 };
 
 
-struct	RigidBodyOutput
+struct	btRigidBodyOutput
 {
 	float	m_mass;
 	bool	m_isDynamics;
-	CollisionShape*	m_colShape;
-	CompoundShape*	m_compoundShape;
+	btCollisionShape*	m_colShape;
+	btCompoundShape*	m_compoundShape;
 };
 
 
@@ -66,13 +66,13 @@ domMatrix_Array emptyMatrixArray;
 domNodeRef	m_colladadomNodes[COLLADA_CONVERTER_MAX_NUM_OBJECTS];
 
 
-SimdTransform	GetSimdTransformFromCOLLADA_DOM(domMatrix_Array& matrixArray,
+btTransform	GetbtTransformFromCOLLADA_DOM(domMatrix_Array& matrixArray,
 														domRotate_Array& rotateArray,
 														domTranslate_Array& translateArray
 														)
 
 {
-	SimdTransform	startTransform;
+	btTransform	startTransform;
 	startTransform.setIdentity();
 	
 	unsigned int i;
@@ -81,9 +81,9 @@ SimdTransform	GetSimdTransformFromCOLLADA_DOM(domMatrix_Array& matrixArray,
 	{
 		domMatrixRef matrixRef = matrixArray[i];
 		domFloat4x4 fl16 = matrixRef->getValue();
-		SimdVector3 origin(fl16.get(3),fl16.get(7),fl16.get(11));
+		btVector3 origin(fl16.get(3),fl16.get(7),fl16.get(11));
 		startTransform.setOrigin(origin);
-		SimdMatrix3x3 basis(fl16.get(0),fl16.get(1),fl16.get(2),
+		btMatrix3x3 basis(fl16.get(0),fl16.get(1),fl16.get(2),
 							fl16.get(4),fl16.get(5),fl16.get(6),
 							fl16.get(8),fl16.get(9),fl16.get(10));
 		startTransform.setBasis(basis);
@@ -94,15 +94,15 @@ SimdTransform	GetSimdTransformFromCOLLADA_DOM(domMatrix_Array& matrixArray,
 		domRotateRef rotateRef = rotateArray[i];
 		domFloat4 fl4 = rotateRef->getValue();
 		float angleRad = SIMD_RADS_PER_DEG*fl4.get(3);
-		SimdQuaternion rotQuat(SimdVector3(fl4.get(0),fl4.get(1),fl4.get(2)),angleRad);
-		startTransform.getBasis() = startTransform.getBasis() * SimdMatrix3x3(rotQuat);
+		btQuaternion rotQuat(btVector3(fl4.get(0),fl4.get(1),fl4.get(2)),angleRad);
+		startTransform.getBasis() = startTransform.getBasis() * btMatrix3x3(rotQuat);
 	}
 
 	for (i=0;i<translateArray.getCount();i++)
 	{
 		domTranslateRef translateRef = translateArray[i];
 		domFloat3 fl3 = translateRef->getValue();
-		startTransform.getOrigin() += SimdVector3(fl3.get(0),fl3.get(1),fl3.get(2));
+		startTransform.getOrigin() += btVector3(fl3.get(0),fl3.get(1),fl3.get(2));
 	}
 	return startTransform;
 }
@@ -185,20 +185,20 @@ bool ColladaConverter::convert()
 					printf("	X is Up Data and Hiearchies must be converted!\n" ); 
 					printf("  Conversion to X axis Up isn't currently supported!\n" ); 
 					printf("  COLLADA_RT defaulting to Y Up \n" ); 
-					SetGravity(SimdVector3(-10,0,0));
-					SetCameraInfo(SimdVector3(1,0,0),1);
+					SetGravity(btVector3(-10,0,0));
+					SetCameraInfo(btVector3(1,0,0),1);
 					break; 
 				case UPAXISTYPE_Y_UP:
 					printf("	Y Axis is Up for this file \n" ); 
 					printf("  COLLADA_RT set to Y Up \n" ); 
-					SetGravity(SimdVector3(0,-10,0));
-					SetCameraInfo(SimdVector3(0,1,0),0);
+					SetGravity(btVector3(0,-10,0));
+					SetCameraInfo(btVector3(0,1,0),0);
 
 					break;
 				case UPAXISTYPE_Z_UP:
 					printf("	Z Axis is Up for this file \n" ); 
 					printf("  All Geometry and Hiearchies must be converted!\n" ); 
-					SetGravity(SimdVector3(0,0,-10));
+					SetGravity(btVector3(0,0,-10));
 					break; 
 				default:
 
@@ -294,7 +294,7 @@ bool ColladaConverter::convert()
 							const domFloat3 grav = physicsSceneRef->getTechnique_common()->getGravity()->getValue();
 							printf("gravity set to %f,%f,%f\n",grav.get(0),grav.get(1),grav.get(2));
 
-							SetGravity(SimdVector3(grav.get(0),grav.get(1),grav.get(2)));
+							SetGravity(btVector3(grav.get(0),grav.get(1),grav.get(2)));
 						}
 
 					} 
@@ -324,8 +324,8 @@ bool ColladaConverter::convert()
 
 								float mass = 1.f;
 								bool isDynamics = true;
-								CollisionShape* colShape = 0;
-								CompoundShape* compoundShape = 0;
+								btCollisionShape* colShape = 0;
+								btCompoundShape* compoundShape = 0;
 
 								xsNCName bodyName = instRigidbodyRef->getBody();
 
@@ -355,11 +355,11 @@ bool ColladaConverter::convert()
 										{
 
 
-											RigidBodyOutput output;
+											btRigidBodyOutput output;
 											output.m_colShape = colShape;
 											output.m_compoundShape = compoundShape;
 
-											RigidBodyInput rbInput;
+											btRigidBodyInput rbInput;
 											rbInput.m_rigidBodyRef2 = rigidBodyRef;
 											rbInput.m_instanceRigidBodyRef = instRigidbodyRef;
 											ConvertRigidBodyRef( rbInput , output );
@@ -380,7 +380,7 @@ bool ColladaConverter::convert()
 
 								if (colShape)
 								{
-									RigidBodyInput input;
+									btRigidBodyInput input;
 									input.m_instanceRigidBodyRef = instRigidbodyRef;
 									input.m_rigidBodyRef2 = 0;
 									input.m_bodyName = (char*)bodyName;
@@ -399,8 +399,8 @@ bool ColladaConverter::convert()
 
 							float mass = 1.f;
 							bool isDynamics = true;
-							CollisionShape* colShape = 0;
-							CompoundShape* compoundShape = 0;
+							btCollisionShape* colShape = 0;
+							btCompoundShape* compoundShape = 0;
 
 							xsNCName bodyName = instRigidbodyRef->getBody();
 
@@ -430,11 +430,11 @@ bool ColladaConverter::convert()
 									{
 
 
-										RigidBodyOutput output;
+										btRigidBodyOutput output;
 										output.m_colShape = colShape;
 										output.m_compoundShape = compoundShape;
 
-										RigidBodyInput rbInput;
+										btRigidBodyInput rbInput;
 										rbInput.m_rigidBodyRef2 = rigidBodyRef;
 										rbInput.m_instanceRigidBodyRef = instRigidbodyRef;
 										ConvertRigidBodyRef( rbInput , output );
@@ -455,7 +455,7 @@ bool ColladaConverter::convert()
 
 							if (colShape)
 							{
-								RigidBodyInput input;
+								btRigidBodyInput input;
 								input.m_instanceRigidBodyRef = instRigidbodyRef;
 								input.m_rigidBodyRef2 = 0;
 								input.m_bodyName = (char*)bodyName;
@@ -560,31 +560,31 @@ void	ColladaConverter::PrepareConstraints(ConstraintInput& input)
 					const domRigid_constraint::domTechnique_commonRef commonRef = rigidConstraintRef->getTechnique_common();
 					
 					domFloat3 flMin = commonRef->getLimits()->getLinear()->getMin()->getValue();
-					SimdVector3 minLinearLimit(flMin.get(0),flMin.get(1),flMin.get(2));
+					btVector3 minLinearLimit(flMin.get(0),flMin.get(1),flMin.get(2));
 					
 					domFloat3 flMax = commonRef->getLimits()->getLinear()->getMax()->getValue();
-					SimdVector3 maxLinearLimit(flMax.get(0),flMax.get(1),flMax.get(2));
+					btVector3 maxLinearLimit(flMax.get(0),flMax.get(1),flMax.get(2));
 														
 					domFloat3 coneMinLimit = commonRef->getLimits()->getSwing_cone_and_twist()->getMin()->getValue();
-					SimdVector3 angularMin(coneMinLimit.get(0),coneMinLimit.get(1),coneMinLimit.get(2));
+					btVector3 angularMin(coneMinLimit.get(0),coneMinLimit.get(1),coneMinLimit.get(2));
 
 					domFloat3 coneMaxLimit = commonRef->getLimits()->getSwing_cone_and_twist()->getMax()->getValue();
-					SimdVector3 angularMax(coneMaxLimit.get(0),coneMaxLimit.get(1),coneMaxLimit.get(2));
+					btVector3 angularMax(coneMaxLimit.get(0),coneMaxLimit.get(1),coneMaxLimit.get(2));
 
 					{
 						int constraintId;
 
-						SimdTransform attachFrameRef0;
+						btTransform attachFrameRef0;
 						attachFrameRef0 = 
-							GetSimdTransformFromCOLLADA_DOM
+							GetbtTransformFromCOLLADA_DOM
 							(
 							emptyMatrixArray,
 							attachRefBody->getRotate_array(),
 							attachRefBody->getTranslate_array());
 
-						SimdTransform attachFrameOther;
+						btTransform attachFrameOther;
 						attachFrameOther =
-							GetSimdTransformFromCOLLADA_DOM
+							GetbtTransformFromCOLLADA_DOM
 							(
 							emptyMatrixArray,
 							attachBody1->getRotate_array(),
@@ -609,10 +609,10 @@ void	ColladaConverter::PrepareConstraints(ConstraintInput& input)
 						//limited means upper > lower
 						//limitIndex: first 3 are linear, next 3 are angular
 
-						SimdVector3 linearLowerLimits = minLinearLimit;
-						SimdVector3 linearUpperLimits = maxLinearLimit;
-						SimdVector3 angularLowerLimits = angularMin;
-						SimdVector3 angularUpperLimits = angularMax;
+						btVector3 linearLowerLimits = minLinearLimit;
+						btVector3 linearUpperLimits = maxLinearLimit;
+						btVector3 angularLowerLimits = angularMin;
+						btVector3 angularUpperLimits = angularMax;
 						{
 							for (int i=0;i<3;i++)
 							{
@@ -665,11 +665,11 @@ void	ColladaConverter::PrepareConstraints(ConstraintInput& input)
 
 }
 
-void	ColladaConverter::PreparePhysicsObject(struct RigidBodyInput& input, bool isDynamics, float mass,CollisionShape* colShape)
+void	ColladaConverter::PreparePhysicsObject(struct btRigidBodyInput& input, bool isDynamics, float mass,btCollisionShape* colShape)
 {
-	SimdTransform startTransform;
+	btTransform startTransform;
 	startTransform.setIdentity();
-	SimdVector3 startScale(1.f,1.f,1.f);
+	btVector3 startScale(1.f,1.f,1.f);
 
 	//The 'target' points to a graphics element/node, which contains the start (world) transform
 	daeElementRef elem = input.m_instanceRigidBodyRef->getTarget().getElement();
@@ -681,7 +681,7 @@ void	ColladaConverter::PreparePhysicsObject(struct RigidBodyInput& input, bool i
 		//find transform of the node that this rigidbody maps to
 
 
-		startTransform = GetSimdTransformFromCOLLADA_DOM(
+		startTransform = GetbtTransformFromCOLLADA_DOM(
 							node->getMatrix_array(),
 							node->getRotate_array(),
 							node->getTranslate_array()
@@ -692,7 +692,7 @@ void	ColladaConverter::PreparePhysicsObject(struct RigidBodyInput& input, bool i
 		{
 			domScaleRef scaleRef = node->getScale_array()[i];
 			domFloat3 fl3 = scaleRef->getValue();
-			startScale = SimdVector3(fl3.get(0),fl3.get(1),fl3.get(2));
+			startScale = btVector3(fl3.get(0),fl3.get(1),fl3.get(2));
 		}
 
 	}
@@ -764,15 +764,15 @@ bool ColladaConverter::saveAs(const char* filename)
 				}
 
 				{
-					SimdQuaternion quat = m_physObjects[i]->GetRigidBody()->getCenterOfMassTransform().getRotation();
-					SimdVector3 axis(quat.getX(),quat.getY(),quat.getZ());
+					btQuaternion quat = m_physObjects[i]->GetRigidBody()->getCenterOfMassTransform().getRotation();
+					btVector3 axis(quat.getX(),quat.getY(),quat.getZ());
 					axis[3] = 0.f;
 					//check for axis length
-					SimdScalar len = axis.length2();
+					btScalar len = axis.length2();
 					if (len < SIMD_EPSILON*SIMD_EPSILON)
-						axis = SimdVector3(1.f,0.f,0.f);
+						axis = btVector3(1.f,0.f,0.f);
 					else
-						axis /= SimdSqrt(len);
+						axis /= btSqrt(len);
 					m_colladadomNodes[i]->getRotate_array().get(0)->getValue().set(0,axis[0]);
 					m_colladadomNodes[i]->getRotate_array().get(0)->getValue().set(1,axis[1]);
 					m_colladadomNodes[i]->getRotate_array().get(0)->getValue().set(2,axis[2]);
@@ -886,7 +886,7 @@ char* fixFileName(const char* lpCmdLine)
 }
 
 
-void	ColladaConverter::ConvertRigidBodyRef( RigidBodyInput& rbInput,RigidBodyOutput& rbOutput)
+void	ColladaConverter::ConvertRigidBodyRef( btRigidBodyInput& rbInput,btRigidBodyOutput& rbOutput)
 {
 	
 	const domRigid_body::domTechnique_commonRef techniqueRef = rbInput.m_rigidBodyRef2->getTechnique_common();
@@ -913,9 +913,9 @@ void	ColladaConverter::ConvertRigidBodyRef( RigidBodyInput& rbInput,RigidBodyOut
 				if (planeRef->getEquation())
 				{
 					const domFloat4 planeEq = planeRef->getEquation()->getValue();
-					SimdVector3 planeNormal(planeEq.get(0),planeEq.get(1),planeEq.get(2));
-					SimdScalar planeConstant = planeEq.get(3);
-					rbOutput.m_colShape = new StaticPlaneShape(planeNormal,planeConstant);
+					btVector3 planeNormal(planeEq.get(0),planeEq.get(1),planeEq.get(2));
+					btScalar planeConstant = planeEq.get(3);
+					rbOutput.m_colShape = new btStaticPlaneShape(planeNormal,planeConstant);
 				}
 
 			}
@@ -928,14 +928,14 @@ void	ColladaConverter::ConvertRigidBodyRef( RigidBodyInput& rbInput,RigidBodyOut
 				float x = halfExtents.get(0);
 				float y = halfExtents.get(1);
 				float z = halfExtents.get(2);
-				rbOutput.m_colShape = new BoxShape(SimdVector3(x,y,z));
+				rbOutput.m_colShape = new btBoxShape(btVector3(x,y,z));
 			}
 			if (shapeRef->getSphere())
 			{
 				domSphereRef sphereRef = shapeRef->getSphere();
 				domSphere::domRadiusRef radiusRef = sphereRef->getRadius();
 				domFloat radius = radiusRef->getValue();
-				rbOutput.m_colShape = new SphereShape(radius);
+				rbOutput.m_colShape = new btSphereShape(radius);
 			}
 
 			if (shapeRef->getCylinder())
@@ -946,7 +946,7 @@ void	ColladaConverter::ConvertRigidBodyRef( RigidBodyInput& rbInput,RigidBodyOut
 				domFloat radius0 = radius2.get(0);
 
 				//Cylinder around the local Y axis
-				rbOutput.m_colShape = new CylinderShape(SimdVector3(radius0,height,radius0));
+				rbOutput.m_colShape = new btCylinderShape(btVector3(radius0,height,radius0));
 
 			}
 
@@ -960,7 +960,7 @@ void	ColladaConverter::ConvertRigidBodyRef( RigidBodyInput& rbInput,RigidBodyOut
 				{
 					const domMeshRef meshRef = geom->getMesh();
 
-					TriangleMesh* trimesh = new TriangleMesh();
+					btTriangleMesh* trimesh = new btTriangleMesh();
 
 					
 					for (unsigned int tg = 0;tg<meshRef->getTriangles_array().getCount();tg++)
@@ -969,7 +969,7 @@ void	ColladaConverter::ConvertRigidBodyRef( RigidBodyInput& rbInput,RigidBodyOut
 
 						domTrianglesRef triRef = meshRef->getTriangles_array()[tg];
 						const domPRef pRef = triRef->getP();
-						IndexedMesh meshPart;
+						btIndexedMesh meshPart;
 						meshPart.m_triangleIndexStride=0;
 
 
@@ -1024,7 +1024,7 @@ void	ColladaConverter::ConvertRigidBodyRef( RigidBodyInput& rbInput,RigidBodyOut
 									int vertexStride = 3;//instead of hardcoded stride, should use the 'accessor'
 									for (;t<meshPart.m_numTriangles;t++)
 									{
-										SimdVector3 verts[3];
+										btVector3 verts[3];
 										int index0;
 										for (int i=0;i<3;i++)
 										{
@@ -1055,11 +1055,11 @@ void	ColladaConverter::ConvertRigidBodyRef( RigidBodyInput& rbInput,RigidBodyOut
 						if (rbOutput.m_isDynamics)
 						{
 							printf("moving concave <mesh> not supported, transformed into convex\n");
-							rbOutput.m_colShape = new ConvexTriangleMeshShape(trimesh);
+							rbOutput.m_colShape = new btConvexTriangleMeshShape(trimesh);
 						} else
 						{
 							printf("static concave triangle <mesh> added\n");
-							rbOutput.m_colShape = new TriangleMeshShape(trimesh);
+							rbOutput.m_colShape = new btTriangleMeshShape(trimesh);
 						}
 
 					}
@@ -1086,7 +1086,7 @@ void	ColladaConverter::ConvertRigidBodyRef( RigidBodyInput& rbInput,RigidBodyOut
 
 
 
-					ConvexHullShape* convexHullShape = new ConvexHullShape(0,0);
+					btConvexHullShape* convexHullShape = new btConvexHullShape(0,0);
 
 					//it is quite a trick to get to the vertices, using Collada.
 					//we are not there yet...
@@ -1144,7 +1144,7 @@ void	ColladaConverter::ConvertRigidBodyRef( RigidBodyInput& rbInput,RigidBodyOut
 														domFloat fl2 = listFloats.get(k+2);
 														//printf("float %f %f %f\n",fl0,fl1,fl2);
 
-														convexHullShape->AddPoint(SimdPoint3(fl0,fl1,fl2));
+														convexHullShape->AddPoint(btPoint3(fl0,fl1,fl2));
 													}
 
 												}
@@ -1192,7 +1192,7 @@ void	ColladaConverter::ConvertRigidBodyRef( RigidBodyInput& rbInput,RigidBodyOut
 										domFloat fl2 = listFloats.get(k+2);
 										//printf("float %f %f %f\n",fl0,fl1,fl2);
 
-										convexHullShape->AddPoint(SimdPoint3(fl0,fl1,fl2));
+										convexHullShape->AddPoint(btPoint3(fl0,fl1,fl2));
 									}
 
 								}
@@ -1237,14 +1237,14 @@ void	ColladaConverter::ConvertRigidBodyRef( RigidBodyInput& rbInput,RigidBodyOut
 					
 					if (!rbOutput.m_compoundShape)
 					{
-						rbOutput.m_compoundShape = new CompoundShape();
+						rbOutput.m_compoundShape = new btCompoundShape();
 					}
 
-					SimdTransform localTransform;
+					btTransform localTransform;
 					localTransform.setIdentity();
 					if (hasShapeLocalTransform)
 					{
-					localTransform = GetSimdTransformFromCOLLADA_DOM(
+					localTransform = GetbtTransformFromCOLLADA_DOM(
 						emptyMatrixArray,
 						shapeRef->getRotate_array(),
 						shapeRef->getTranslate_array()

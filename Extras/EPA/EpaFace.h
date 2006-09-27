@@ -21,7 +21,7 @@ class EpaVertex;
 class EpaHalfEdge;
 
 #ifdef EPA_POLYHEDRON_USE_PLANES
-extern SimdScalar PLANE_THICKNESS;
+extern btScalar PLANE_THICKNESS;
 #endif
 
 //! Note : This class is not supposed to be a base class
@@ -44,8 +44,8 @@ class EpaFace
 		bool			CalculatePlane();
 #endif
 		void			CalcClosestPoint();
-		void			CalcClosestPointOnA( SimdVector3& closestPointOnA );
-		void			CalcClosestPointOnB( SimdVector3& closestPointOnB );
+		void			CalcClosestPointOnA( btVector3& closestPointOnA );
+		void			CalcClosestPointOnB( btVector3& closestPointOnB );
 
 		bool			IsAffinelyDependent()							const;
 		bool			IsClosestPointInternal()						const;
@@ -63,18 +63,18 @@ class EpaFace
 		EpaVertex*		m_pVertices[ 3 ];
 
 #ifdef EPA_POLYHEDRON_USE_PLANES
-		SimdVector3		m_planeNormal;
-		SimdScalar		m_planeDistance;
+		btVector3		m_planeNormal;
+		btScalar		m_planeDistance;
 			
-		//SimdVector3		m_robustPlaneNormal;
-		//SimdScalar		m_robustPlaneDistance;
+		//btVector3		m_robustPlaneNormal;
+		//btScalar		m_robustPlaneDistance;
 #endif
 
-		SimdVector3		m_v;
-		SimdScalar		m_vSqrd;
+		btVector3		m_v;
+		btScalar		m_vSqrd;
 
-		SimdScalar		m_determinant;
-		SimdScalar		m_lambdas[ 2 ];
+		btScalar		m_determinant;
+		btScalar		m_lambdas[ 2 ];
 
 		bool			m_deleted;
 };

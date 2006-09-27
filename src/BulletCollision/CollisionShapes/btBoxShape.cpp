@@ -15,23 +15,23 @@ subject to the following restrictions:
 
 #include "btBoxShape.h"
 
-SimdVector3 BoxShape::GetHalfExtents() const
+btVector3 btBoxShape::GetHalfExtents() const
 {
 	return m_boxHalfExtents1 * m_localScaling;
 }
 //{ 
 
 
-void BoxShape::GetAabb(const SimdTransform& t,SimdVector3& aabbMin,SimdVector3& aabbMax) const
+void btBoxShape::GetAabb(const btTransform& t,btVector3& aabbMin,btVector3& aabbMax) const
 {
-	SimdVector3 halfExtents = GetHalfExtents();
+	btVector3 halfExtents = GetHalfExtents();
 
-	SimdMatrix3x3 abs_b = t.getBasis().absolute();  
-	SimdPoint3 center = t.getOrigin();
-	SimdVector3 extent = SimdVector3(abs_b[0].dot(halfExtents),
+	btMatrix3x3 abs_b = t.getBasis().absolute();  
+	btPoint3 center = t.getOrigin();
+	btVector3 extent = btVector3(abs_b[0].dot(halfExtents),
 		   abs_b[1].dot(halfExtents),
 		  abs_b[2].dot(halfExtents));
-	extent += SimdVector3(GetMargin(),GetMargin(),GetMargin());
+	extent += btVector3(GetMargin(),GetMargin(),GetMargin());
 
 	aabbMin = center - extent;
 	aabbMax = center + extent;
@@ -40,14 +40,14 @@ void BoxShape::GetAabb(const SimdTransform& t,SimdVector3& aabbMin,SimdVector3& 
 }
 
 
-void	BoxShape::CalculateLocalInertia(SimdScalar mass,SimdVector3& inertia)
+void	btBoxShape::CalculateLocalInertia(btScalar mass,btVector3& inertia)
 {
 	//float margin = 0.f;
-	SimdVector3 halfExtents = GetHalfExtents();
+	btVector3 halfExtents = GetHalfExtents();
 
-	SimdScalar lx=2.f*(halfExtents.x());
-	SimdScalar ly=2.f*(halfExtents.y());
-	SimdScalar lz=2.f*(halfExtents.z());
+	btScalar lx=2.f*(halfExtents.x());
+	btScalar ly=2.f*(halfExtents.y());
+	btScalar lz=2.f*(halfExtents.z());
 
 	inertia[0] = mass/(12.0f) * (ly*ly + lz*lz);
 	inertia[1] = mass/(12.0f) * (lx*lx + lz*lz);

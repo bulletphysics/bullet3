@@ -20,51 +20,51 @@ subject to the following restrictions:
 
 #include "btBroadphaseInterface.h"
 #include "btBroadphaseProxy.h"
-#include "LinearMath/SimdPoint3.h"
+#include "LinearMath/btPoint3.h"
 #include <set>
 
 
-struct	OverlapCallback
+struct	btOverlapCallback
 {
-virtual ~OverlapCallback()
+virtual ~btOverlapCallback()
 {
 }
 	//return true for deletion of the pair
-	virtual bool	ProcessOverlap(BroadphasePair& pair) = 0;
+	virtual bool	ProcessOverlap(btBroadphasePair& pair) = 0;
 };
 
 ///OverlappingPairCache maintains the objects with overlapping AABB
-///Typically managed by the Broadphase, Axis3Sweep or SimpleBroadphase
-class	OverlappingPairCache : public BroadphaseInterface
+///Typically managed by the Broadphase, Axis3Sweep or btSimpleBroadphase
+class	btOverlappingPairCache : public btBroadphaseInterface
 {
 	//avoid brute-force finding all the time
-	std::set<BroadphasePair>	m_overlappingPairSet;
+	std::set<btBroadphasePair>	m_overlappingPairSet;
 	
 	//during the dispatch, check that user doesn't destroy/create proxy
 	bool		m_blockedForChanges;
 	
 	public:
 		
-	OverlappingPairCache();	
-	virtual ~OverlappingPairCache();
+	btOverlappingPairCache();	
+	virtual ~btOverlappingPairCache();
 
-	void	ProcessAllOverlappingPairs(OverlapCallback*);
+	void	ProcessAllOverlappingPairs(btOverlapCallback*);
 
-	void	RemoveOverlappingPair(BroadphasePair& pair);
+	void	RemoveOverlappingPair(btBroadphasePair& pair);
 
-	void	CleanOverlappingPair(BroadphasePair& pair);
+	void	CleanOverlappingPair(btBroadphasePair& pair);
 	
-	void	AddOverlappingPair(BroadphaseProxy* proxy0,BroadphaseProxy* proxy1);
+	void	AddOverlappingPair(btBroadphaseProxy* proxy0,btBroadphaseProxy* proxy1);
 
-	BroadphasePair*	FindPair(BroadphaseProxy* proxy0,BroadphaseProxy* proxy1);
+	btBroadphasePair*	FindPair(btBroadphaseProxy* proxy0,btBroadphaseProxy* proxy1);
 		
 	
-	void	CleanProxyFromPairs(BroadphaseProxy* proxy);
+	void	CleanProxyFromPairs(btBroadphaseProxy* proxy);
 
-	void	RemoveOverlappingPairsContainingProxy(BroadphaseProxy* proxy);
+	void	RemoveOverlappingPairsContainingProxy(btBroadphaseProxy* proxy);
 
 
-	inline bool NeedsCollision(BroadphaseProxy* proxy0,BroadphaseProxy* proxy1) const
+	inline bool NeedsCollision(btBroadphaseProxy* proxy0,btBroadphaseProxy* proxy1) const
 	{
 		bool collides = proxy0->m_collisionFilterGroup & proxy1->m_collisionFilterMask;
 		collides = collides && (proxy1->m_collisionFilterGroup & proxy0->m_collisionFilterMask);

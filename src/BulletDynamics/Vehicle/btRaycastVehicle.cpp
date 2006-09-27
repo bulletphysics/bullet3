@@ -12,8 +12,8 @@
 #include "btRaycastVehicle.h"
 #include "BulletDynamics/ConstraintSolver/btSolve2LinearConstraint.h"
 #include "BulletDynamics/ConstraintSolver/btJacobianEntry.h"
-#include "LinearMath/SimdQuaternion.h"
-#include "LinearMath/SimdVector3.h"
+#include "LinearMath/btQuaternion.h"
+#include "LinearMath/btVector3.h"
 #include "btVehicleRaycaster.h"
 #include "btWheelInfo.h"
 
@@ -23,9 +23,9 @@
 
 
 
-static RigidBody s_fixedObject( MassProps ( 0.0f, SimdVector3(0,0,0) ),0.f,0.f,0.f,0.f);
+static btRigidBody s_fixedObject( btMassProps ( 0.0f, btVector3(0,0,0) ),0.f,0.f,0.f,0.f);
 
-RaycastVehicle::RaycastVehicle(const VehicleTuning& tuning,RigidBody* chassis,	VehicleRaycaster* raycaster )
+btRaycastVehicle::btRaycastVehicle(const btVehicleTuning& tuning,btRigidBody* chassis,	btVehicleRaycaster* raycaster )
 :m_vehicleRaycaster(raycaster),
 m_pitchControl(0.f)
 {
@@ -37,7 +37,7 @@ m_pitchControl(0.f)
 }
 
 
-void RaycastVehicle::DefaultInit(const VehicleTuning& tuning)
+void btRaycastVehicle::DefaultInit(const btVehicleTuning& tuning)
 {
 	m_currentVehicleSpeedKmHour = 0.f;
 	m_steeringValue = 0.f;
@@ -46,7 +46,7 @@ void RaycastVehicle::DefaultInit(const VehicleTuning& tuning)
 
 	
 
-RaycastVehicle::~RaycastVehicle()
+btRaycastVehicle::~btRaycastVehicle()
 {
 }
 
@@ -54,10 +54,10 @@ RaycastVehicle::~RaycastVehicle()
 //
 // basically most of the code is general for 2 or 4 wheel vehicles, but some of it needs to be reviewed
 //
-WheelInfo&	RaycastVehicle::AddWheel( const SimdVector3& connectionPointCS, const SimdVector3& wheelDirectionCS0,const SimdVector3& wheelAxleCS, SimdScalar suspensionRestLength, SimdScalar wheelRadius,const VehicleTuning& tuning, bool isFrontWheel)
+btWheelInfo&	btRaycastVehicle::AddWheel( const btVector3& connectionPointCS, const btVector3& wheelDirectionCS0,const btVector3& wheelAxleCS, btScalar suspensionRestLength, btScalar wheelRadius,const btVehicleTuning& tuning, bool isFrontWheel)
 {
 
-	WheelInfoConstructionInfo ci;
+	btWheelInfoConstructionInfo ci;
 
 	ci.m_chassisConnectionCS = connectionPointCS;
 	ci.m_wheelDirectionCS = wheelDirectionCS0;
@@ -71,9 +71,9 @@ WheelInfo&	RaycastVehicle::AddWheel( const SimdVector3& connectionPointCS, const
 	ci.m_bIsFrontWheel = isFrontWheel;
 	ci.m_maxSuspensionTravelCm = tuning.m_maxSuspensionTravelCm;
 
-	m_wheelInfo.push_back( WheelInfo(ci));
+	m_wheelInfo.push_back( btWheelInfo(ci));
 	
-	WheelInfo& wheel = m_wheelInfo[GetNumWheels()-1];
+	btWheelInfo& wheel = m_wheelInfo[GetNumWheels()-1];
 	
 	UpdateWheelTransformsWS( wheel );
 	UpdateWheelTransform(GetNumWheels()-1);
@@ -83,33 +83,33 @@ WheelInfo&	RaycastVehicle::AddWheel( const SimdVector3& connectionPointCS, const
 
 
 
-const SimdTransform&	RaycastVehicle::GetWheelTransformWS( int wheelIndex ) const
+const btTransform&	btRaycastVehicle::GetWheelTransformWS( int wheelIndex ) const
 {
 	assert(wheelIndex < GetNumWheels());
-	const WheelInfo& wheel = m_wheelInfo[wheelIndex];
+	const btWheelInfo& wheel = m_wheelInfo[wheelIndex];
 	return wheel.m_worldTransform;
 
 }
 
-void	RaycastVehicle::UpdateWheelTransform( int wheelIndex )
+void	btRaycastVehicle::UpdateWheelTransform( int wheelIndex )
 {
 	
-	WheelInfo& wheel = m_wheelInfo[ wheelIndex ];
+	btWheelInfo& wheel = m_wheelInfo[ wheelIndex ];
 	UpdateWheelTransformsWS(wheel);
-	SimdVector3 up = -wheel.m_raycastInfo.m_wheelDirectionWS;
-	const SimdVector3& right = wheel.m_raycastInfo.m_wheelAxleWS;
-	SimdVector3 fwd = up.cross(right);
+	btVector3 up = -wheel.m_raycastInfo.m_wheelDirectionWS;
+	const btVector3& right = wheel.m_raycastInfo.m_wheelAxleWS;
+	btVector3 fwd = up.cross(right);
 	fwd = fwd.normalize();
 	//rotate around steering over de wheelAxleWS
 	float steering = wheel.m_steering;
 	
-	SimdQuaternion steeringOrn(up,steering);//wheel.m_steering);
-	SimdMatrix3x3 steeringMat(steeringOrn);
+	btQuaternion steeringOrn(up,steering);//wheel.m_steering);
+	btMatrix3x3 steeringMat(steeringOrn);
 
-	SimdQuaternion rotatingOrn(right,wheel.m_rotation);
-	SimdMatrix3x3 rotatingMat(rotatingOrn);
+	btQuaternion rotatingOrn(right,wheel.m_rotation);
+	btMatrix3x3 rotatingMat(rotatingOrn);
 
-	SimdMatrix3x3 basis2(
+	btMatrix3x3 basis2(
 		right[0],fwd[0],up[0],
 		right[1],fwd[1],up[1],
 		right[2],fwd[2],up[2]
@@ -121,14 +121,14 @@ void	RaycastVehicle::UpdateWheelTransform( int wheelIndex )
 	);
 }
 
-void RaycastVehicle::ResetSuspension()
+void btRaycastVehicle::ResetSuspension()
 {
 
-	std::vector<WheelInfo>::iterator wheelIt;
+	std::vector<btWheelInfo>::iterator wheelIt;
 	for (wheelIt = m_wheelInfo.begin();
 	!(wheelIt == m_wheelInfo.end());wheelIt++)
 	{
-			WheelInfo& wheel = *wheelIt;
+			btWheelInfo& wheel = *wheelIt;
 			wheel.m_raycastInfo.m_suspensionLength = wheel.GetSuspensionRestLength();
 			wheel.m_suspensionRelativeVelocity = 0.0f;
 			
@@ -138,34 +138,34 @@ void RaycastVehicle::ResetSuspension()
 	}
 }
 
-void	RaycastVehicle::UpdateWheelTransformsWS(WheelInfo& wheel )
+void	btRaycastVehicle::UpdateWheelTransformsWS(btWheelInfo& wheel )
 {
 	wheel.m_raycastInfo.m_isInContact = false;
 
-	const SimdTransform& chassisTrans = GetRigidBody()->getCenterOfMassTransform();
+	const btTransform& chassisTrans = GetRigidBody()->getCenterOfMassTransform();
 
 	wheel.m_raycastInfo.m_hardPointWS = chassisTrans( wheel.m_chassisConnectionPointCS );
 	wheel.m_raycastInfo.m_wheelDirectionWS = chassisTrans.getBasis() *  wheel.m_wheelDirectionCS ;
 	wheel.m_raycastInfo.m_wheelAxleWS = chassisTrans.getBasis() * wheel.m_wheelAxleCS;
 }
 
-SimdScalar RaycastVehicle::Raycast(WheelInfo& wheel)
+btScalar btRaycastVehicle::Raycast(btWheelInfo& wheel)
 {
 	UpdateWheelTransformsWS( wheel );
 
 	
-	SimdScalar depth = -1;
+	btScalar depth = -1;
 	
-	SimdScalar raylen = wheel.GetSuspensionRestLength()+wheel.m_wheelsRadius;
+	btScalar raylen = wheel.GetSuspensionRestLength()+wheel.m_wheelsRadius;
 
-	SimdVector3 rayvector = wheel.m_raycastInfo.m_wheelDirectionWS * (raylen);
-	const SimdVector3& source = wheel.m_raycastInfo.m_hardPointWS;
+	btVector3 rayvector = wheel.m_raycastInfo.m_wheelDirectionWS * (raylen);
+	const btVector3& source = wheel.m_raycastInfo.m_hardPointWS;
 	wheel.m_raycastInfo.m_contactPointWS = source + rayvector;
-	const SimdVector3& target = wheel.m_raycastInfo.m_contactPointWS;
+	const btVector3& target = wheel.m_raycastInfo.m_contactPointWS;
 
-	SimdScalar param = 0.f;
+	btScalar param = 0.f;
 	
-	VehicleRaycaster::VehicleRaycasterResult	rayResults;
+	btVehicleRaycaster::btVehicleRaycasterResult	rayResults;
 
 	void* object = m_vehicleRaycaster->CastRay(source,target,rayResults);
 
@@ -182,7 +182,7 @@ SimdScalar RaycastVehicle::Raycast(WheelInfo& wheel)
 		//wheel.m_raycastInfo.m_groundObject = object;
 
 
-		SimdScalar hitDistance = param*raylen;
+		btScalar hitDistance = param*raylen;
 		wheel.m_raycastInfo.m_suspensionLength = hitDistance - wheel.m_wheelsRadius;
 		//clamp on max suspension travel
 
@@ -199,14 +199,14 @@ SimdScalar RaycastVehicle::Raycast(WheelInfo& wheel)
 
 		wheel.m_raycastInfo.m_contactPointWS = rayResults.m_hitPointInWorld;
 
-		SimdScalar denominator= wheel.m_raycastInfo.m_contactNormalWS.dot( wheel.m_raycastInfo.m_wheelDirectionWS );
+		btScalar denominator= wheel.m_raycastInfo.m_contactNormalWS.dot( wheel.m_raycastInfo.m_wheelDirectionWS );
 
-		SimdVector3 chassis_velocity_at_contactPoint;
-		SimdVector3 relpos = wheel.m_raycastInfo.m_contactPointWS-GetRigidBody()->getCenterOfMassPosition();
+		btVector3 chassis_velocity_at_contactPoint;
+		btVector3 relpos = wheel.m_raycastInfo.m_contactPointWS-GetRigidBody()->getCenterOfMassPosition();
 
 		chassis_velocity_at_contactPoint = GetRigidBody()->getVelocityInLocalPoint(relpos);
 
-		SimdScalar projVel = wheel.m_raycastInfo.m_contactNormalWS.dot( chassis_velocity_at_contactPoint );
+		btScalar projVel = wheel.m_raycastInfo.m_contactNormalWS.dot( chassis_velocity_at_contactPoint );
 
 		if ( denominator >= -0.1f)
 		{
@@ -215,7 +215,7 @@ SimdScalar RaycastVehicle::Raycast(WheelInfo& wheel)
 		}
 		else
 		{
-			SimdScalar inv = -1.f / denominator;
+			btScalar inv = -1.f / denominator;
 			wheel.m_suspensionRelativeVelocity = projVel * inv;
 			wheel.m_clippedInvContactDotSuspension = inv;
 		}
@@ -233,13 +233,13 @@ SimdScalar RaycastVehicle::Raycast(WheelInfo& wheel)
 }
 
 
-void RaycastVehicle::UpdateVehicle( SimdScalar step )
+void btRaycastVehicle::UpdateVehicle( btScalar step )
 {
 
 	m_currentVehicleSpeedKmHour = 3.6f * GetRigidBody()->getLinearVelocity().length();
 	
-	const SimdTransform& chassisTrans = GetRigidBody()->getCenterOfMassTransform();
-	SimdVector3 forwardW (
+	const btTransform& chassisTrans = GetRigidBody()->getCenterOfMassTransform();
+	btVector3 forwardW (
 		chassisTrans.getBasis()[0][m_indexForwardAxis],
 		chassisTrans.getBasis()[1][m_indexForwardAxis],
 		chassisTrans.getBasis()[2][m_indexForwardAxis]);
@@ -252,12 +252,12 @@ void RaycastVehicle::UpdateVehicle( SimdScalar step )
 	//
 	// simulate suspension
 	//
-	std::vector<WheelInfo>::iterator wheelIt;
+	std::vector<btWheelInfo>::iterator wheelIt;
 	int i=0;
 	for (wheelIt = m_wheelInfo.begin();
 	!(wheelIt == m_wheelInfo.end());wheelIt++,i++)
 	{
-		SimdScalar depth; 
+		btScalar depth; 
 		depth = Raycast( *wheelIt );
 	}
 
@@ -268,7 +268,7 @@ void RaycastVehicle::UpdateVehicle( SimdScalar step )
 	!(wheelIt == m_wheelInfo.end());wheelIt++)
 	{
 		//apply suspension force
-		WheelInfo& wheel = *wheelIt;
+		btWheelInfo& wheel = *wheelIt;
 		
 		float suspensionForce = wheel.m_wheelsSuspensionForce;
 		
@@ -277,8 +277,8 @@ void RaycastVehicle::UpdateVehicle( SimdScalar step )
 		{
 			suspensionForce = gMaxSuspensionForce;
 		}
-		SimdVector3 impulse = wheel.m_raycastInfo.m_contactNormalWS * suspensionForce * step;
-		SimdVector3 relpos = wheel.m_raycastInfo.m_contactPointWS - GetRigidBody()->getCenterOfMassPosition();
+		btVector3 impulse = wheel.m_raycastInfo.m_contactNormalWS * suspensionForce * step;
+		btVector3 relpos = wheel.m_raycastInfo.m_contactPointWS - GetRigidBody()->getCenterOfMassPosition();
 		
 		GetRigidBody()->applyImpulse(impulse, relpos);
 	
@@ -292,21 +292,21 @@ void RaycastVehicle::UpdateVehicle( SimdScalar step )
 	for (wheelIt = m_wheelInfo.begin();
 	!(wheelIt == m_wheelInfo.end());wheelIt++)
 	{
-		WheelInfo& wheel = *wheelIt;
-		SimdVector3 relpos = wheel.m_raycastInfo.m_hardPointWS - GetRigidBody()->getCenterOfMassPosition();
-		SimdVector3 vel = GetRigidBody()->getVelocityInLocalPoint( relpos );
+		btWheelInfo& wheel = *wheelIt;
+		btVector3 relpos = wheel.m_raycastInfo.m_hardPointWS - GetRigidBody()->getCenterOfMassPosition();
+		btVector3 vel = GetRigidBody()->getVelocityInLocalPoint( relpos );
 
 		if (wheel.m_raycastInfo.m_isInContact)
 		{
-			SimdVector3 fwd (
+			btVector3 fwd (
 				GetRigidBody()->getCenterOfMassTransform().getBasis()[0][m_indexForwardAxis],
 				GetRigidBody()->getCenterOfMassTransform().getBasis()[1][m_indexForwardAxis],
 				GetRigidBody()->getCenterOfMassTransform().getBasis()[2][m_indexForwardAxis]);
 
-			SimdScalar proj = fwd.dot(wheel.m_raycastInfo.m_contactNormalWS);
+			btScalar proj = fwd.dot(wheel.m_raycastInfo.m_contactNormalWS);
 			fwd -= wheel.m_raycastInfo.m_contactNormalWS * proj;
 
-			SimdScalar proj2 = fwd.dot(vel);
+			btScalar proj2 = fwd.dot(vel);
 			
 			wheel.m_deltaRotation = (proj2 * step) / (wheel.m_wheelsRadius);
 			wheel.m_rotation += wheel.m_deltaRotation;
@@ -325,69 +325,69 @@ void RaycastVehicle::UpdateVehicle( SimdScalar step )
 }
 
 
-void	RaycastVehicle::SetSteeringValue(SimdScalar steering,int wheel)
+void	btRaycastVehicle::SetSteeringValue(btScalar steering,int wheel)
 {
 	assert(wheel>=0 && wheel < GetNumWheels());
 
-	WheelInfo& wheelInfo = GetWheelInfo(wheel);
+	btWheelInfo& wheelInfo = GetWheelInfo(wheel);
 	wheelInfo.m_steering = steering;
 }
 
 
 
-SimdScalar	RaycastVehicle::GetSteeringValue(int wheel) const
+btScalar	btRaycastVehicle::GetSteeringValue(int wheel) const
 {
 	return GetWheelInfo(wheel).m_steering;
 }
 
 
-void	RaycastVehicle::ApplyEngineForce(SimdScalar force, int wheel)
+void	btRaycastVehicle::ApplyEngineForce(btScalar force, int wheel)
 {
 	assert(wheel>=0 && wheel < GetNumWheels());
-	WheelInfo& wheelInfo = GetWheelInfo(wheel);
+	btWheelInfo& wheelInfo = GetWheelInfo(wheel);
 	wheelInfo.m_engineForce = force;
 }
 
 
-const WheelInfo&	RaycastVehicle::GetWheelInfo(int index) const
+const btWheelInfo&	btRaycastVehicle::GetWheelInfo(int index) const
 {
 	ASSERT((index >= 0) && (index < 	GetNumWheels()));
 	
 	return m_wheelInfo[index];
 }
 
-WheelInfo&	RaycastVehicle::GetWheelInfo(int index) 
+btWheelInfo&	btRaycastVehicle::GetWheelInfo(int index) 
 {
 	ASSERT((index >= 0) && (index < 	GetNumWheels()));
 	
 	return m_wheelInfo[index];
 }
 
-void RaycastVehicle::SetBrake(float brake,int wheelIndex)
+void btRaycastVehicle::SetBrake(float brake,int wheelIndex)
 {
 	ASSERT((wheelIndex >= 0) && (wheelIndex < 	GetNumWheels()));
 	GetWheelInfo(wheelIndex).m_brake;
 }
 
 
-void	RaycastVehicle::UpdateSuspension(SimdScalar deltaTime)
+void	btRaycastVehicle::UpdateSuspension(btScalar deltaTime)
 {
 
-	SimdScalar chassisMass = 1.f / m_chassisBody->getInvMass();
+	btScalar chassisMass = 1.f / m_chassisBody->getInvMass();
 	
 	for (int w_it=0; w_it<GetNumWheels(); w_it++)
 	{
-		WheelInfo &wheel_info = m_wheelInfo[w_it];
+		btWheelInfo &wheel_info = m_wheelInfo[w_it];
 		
 		if ( wheel_info.m_raycastInfo.m_isInContact )
 		{
-			SimdScalar force;
+			btScalar force;
 			//	Spring
 			{
-				SimdScalar	susp_length			= wheel_info.GetSuspensionRestLength();
-				SimdScalar	current_length = wheel_info.m_raycastInfo.m_suspensionLength;
+				btScalar	susp_length			= wheel_info.GetSuspensionRestLength();
+				btScalar	current_length = wheel_info.m_raycastInfo.m_suspensionLength;
 
-				SimdScalar length_diff = (susp_length - current_length);
+				btScalar length_diff = (susp_length - current_length);
 
 				force = wheel_info.m_suspensionStiffness
 					* length_diff * wheel_info.m_clippedInvContactDotSuspension;
@@ -395,9 +395,9 @@ void	RaycastVehicle::UpdateSuspension(SimdScalar deltaTime)
 		
 			// Damper
 			{
-				SimdScalar projected_rel_vel = wheel_info.m_suspensionRelativeVelocity;
+				btScalar projected_rel_vel = wheel_info.m_suspensionRelativeVelocity;
 				{
-					SimdScalar	susp_damping;
+					btScalar	susp_damping;
 					if ( projected_rel_vel < 0.0f )
 					{
 						susp_damping = wheel_info.m_wheelsDampingCompression;
@@ -426,7 +426,7 @@ void	RaycastVehicle::UpdateSuspension(SimdScalar deltaTime)
 }
 
 float sideFrictionStiffness2 = 1.0f;
-void	RaycastVehicle::UpdateFriction(SimdScalar	timeStep)
+void	btRaycastVehicle::UpdateFriction(btScalar	timeStep)
 {
 
 		//calculate the impulse, so that the wheels don't move sidewards
@@ -435,10 +435,10 @@ void	RaycastVehicle::UpdateFriction(SimdScalar	timeStep)
 			return;
 
 
-		SimdVector3*	forwardWS = new	SimdVector3[numWheel];
-		SimdVector3*	axle = new SimdVector3[numWheel];
-		SimdScalar* forwardImpulse = new SimdScalar[numWheel];
-		SimdScalar* sideImpulse = new SimdScalar[numWheel];
+		btVector3*	forwardWS = new	btVector3[numWheel];
+		btVector3*	axle = new btVector3[numWheel];
+		btScalar* forwardImpulse = new btScalar[numWheel];
+		btScalar* sideImpulse = new btScalar[numWheel];
 		
 		int numWheelsOnGround = 0;
 	
@@ -446,8 +446,8 @@ void	RaycastVehicle::UpdateFriction(SimdScalar	timeStep)
 		//collapse all those loops into one!
 		for (int i=0;i<GetNumWheels();i++)
 		{
-			WheelInfo& wheelInfo = m_wheelInfo[i];
-			class RigidBody* groundObject = (class RigidBody*) wheelInfo.m_raycastInfo.m_groundObject;
+			btWheelInfo& wheelInfo = m_wheelInfo[i];
+			class btRigidBody* groundObject = (class btRigidBody*) wheelInfo.m_raycastInfo.m_groundObject;
 			if (groundObject)
 				numWheelsOnGround++;
 			sideImpulse[i] = 0.f;
@@ -460,23 +460,23 @@ void	RaycastVehicle::UpdateFriction(SimdScalar	timeStep)
 			for (int i=0;i<GetNumWheels();i++)
 			{
 
-				WheelInfo& wheelInfo = m_wheelInfo[i];
+				btWheelInfo& wheelInfo = m_wheelInfo[i];
 					
-				class RigidBody* groundObject = (class RigidBody*) wheelInfo.m_raycastInfo.m_groundObject;
+				class btRigidBody* groundObject = (class btRigidBody*) wheelInfo.m_raycastInfo.m_groundObject;
 
 				if (groundObject)
 				{
 
-					const SimdTransform& wheelTrans = GetWheelTransformWS( i );
+					const btTransform& wheelTrans = GetWheelTransformWS( i );
 
-					SimdMatrix3x3 wheelBasis0 = wheelTrans.getBasis();
-					axle[i] = SimdVector3(	
+					btMatrix3x3 wheelBasis0 = wheelTrans.getBasis();
+					axle[i] = btVector3(	
 						wheelBasis0[0][m_indexRightAxis],
 						wheelBasis0[1][m_indexRightAxis],
 						wheelBasis0[2][m_indexRightAxis]);
 					
-					const SimdVector3& surfNormalWS = wheelInfo.m_raycastInfo.m_contactNormalWS;
-					SimdScalar proj = axle[i].dot(surfNormalWS);
+					const btVector3& surfNormalWS = wheelInfo.m_raycastInfo.m_contactNormalWS;
+					btScalar proj = axle[i].dot(surfNormalWS);
 					axle[i] -= surfNormalWS * proj;
 					axle[i] = axle[i].normalize();
 					
@@ -496,15 +496,15 @@ void	RaycastVehicle::UpdateFriction(SimdScalar	timeStep)
 			}
 		}
 
-	SimdScalar sideFactor = 1.f;
-	SimdScalar fwdFactor = 0.5;
+	btScalar sideFactor = 1.f;
+	btScalar fwdFactor = 0.5;
 
 	bool sliding = false;
 	{
 		for (int wheel =0;wheel <GetNumWheels();wheel++)
 		{
-			WheelInfo& wheelInfo = m_wheelInfo[wheel];
-			class RigidBody* groundObject = (class RigidBody*) wheelInfo.m_raycastInfo.m_groundObject;
+			btWheelInfo& wheelInfo = m_wheelInfo[wheel];
+			class btRigidBody* groundObject = (class btRigidBody*) wheelInfo.m_raycastInfo.m_groundObject;
 
 
 			forwardImpulse[wheel] = 0.f;
@@ -514,10 +514,10 @@ void	RaycastVehicle::UpdateFriction(SimdScalar	timeStep)
 			{
 				m_wheelInfo[wheel].m_skidInfo= 1.f;
 				
-				SimdScalar maximp = wheelInfo.m_wheelsSuspensionForce * timeStep * wheelInfo.m_frictionSlip;
-				SimdScalar maximpSide = maximp;
+				btScalar maximp = wheelInfo.m_wheelsSuspensionForce * timeStep * wheelInfo.m_frictionSlip;
+				btScalar maximpSide = maximp;
 
-				SimdScalar maximpSquared = maximp * maximpSide;
+				btScalar maximpSquared = maximp * maximpSide;
 
 				forwardImpulse[wheel] = wheelInfo.m_engineForce* timeStep;
 
@@ -530,7 +530,7 @@ void	RaycastVehicle::UpdateFriction(SimdScalar	timeStep)
 				{
 					sliding = true;
 					
-					SimdScalar factor = maximp / SimdSqrt(impulseSquared);
+					btScalar factor = maximp / btSqrt(impulseSquared);
 					
 					m_wheelInfo[wheel].m_skidInfo *= factor;
 				}
@@ -561,9 +561,9 @@ void	RaycastVehicle::UpdateFriction(SimdScalar	timeStep)
 		{
 			for (int wheel = 0;wheel<GetNumWheels() ; wheel++)
 			{
-				WheelInfo& wheelInfo = m_wheelInfo[wheel];
+				btWheelInfo& wheelInfo = m_wheelInfo[wheel];
 
-				SimdVector3 rel_pos = wheelInfo.m_raycastInfo.m_contactPointWS - 
+				btVector3 rel_pos = wheelInfo.m_raycastInfo.m_contactPointWS - 
 						m_chassisBody->getCenterOfMassPosition();
 
 				if (forwardImpulse[wheel] != 0.f)
@@ -572,13 +572,13 @@ void	RaycastVehicle::UpdateFriction(SimdScalar	timeStep)
 				}
 				if (sideImpulse[wheel] != 0.f)
 				{
-					class RigidBody* groundObject = (class RigidBody*) m_wheelInfo[wheel].m_raycastInfo.m_groundObject;
+					class btRigidBody* groundObject = (class btRigidBody*) m_wheelInfo[wheel].m_raycastInfo.m_groundObject;
 
-					SimdVector3 rel_pos2 = wheelInfo.m_raycastInfo.m_contactPointWS - 
+					btVector3 rel_pos2 = wheelInfo.m_raycastInfo.m_contactPointWS - 
 						groundObject->getCenterOfMassPosition();
 
 					
-					SimdVector3 sideImp = axle[wheel] * sideImpulse[wheel];
+					btVector3 sideImp = axle[wheel] * sideImpulse[wheel];
 
 					rel_pos[2] *= wheelInfo.m_rollInfluence;
 					m_chassisBody->applyImpulse(sideImp,rel_pos);

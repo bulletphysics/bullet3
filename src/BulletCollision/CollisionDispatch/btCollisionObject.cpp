@@ -15,7 +15,7 @@ subject to the following restrictions:
 
 #include "btCollisionObject.h"
 
-CollisionObject::CollisionObject()
+btCollisionObject::btCollisionObject()
 	:	m_collisionFlags(0),
 		m_activationState1(1),
 		m_deactivationTime(0.f),
@@ -30,18 +30,18 @@ CollisionObject::CollisionObject()
 }
 
 
-void CollisionObject::SetActivationState(int newState) 
+void btCollisionObject::SetActivationState(int newState) 
 { 
 	if ( (m_activationState1 != DISABLE_DEACTIVATION) && (m_activationState1 != DISABLE_SIMULATION))
 		m_activationState1 = newState;
 }
 
-void CollisionObject::ForceActivationState(int newState)
+void btCollisionObject::ForceActivationState(int newState)
 {
 	m_activationState1 = newState;
 }
 
-void CollisionObject::activate()
+void btCollisionObject::activate()
 {
 	if (!(m_collisionFlags & isStatic))
 	{
@@ -50,8 +50,8 @@ void CollisionObject::activate()
 	}
 }
 
-bool CollisionObject::mergesSimulationIslands() const
+bool btCollisionObject::mergesSimulationIslands() const
 {
 	//static objects, and object without contact response don't merge islands
-	return ( !(m_collisionFlags & (isStatic |noContactResponse )));
+	return ( !(m_collisionFlags & (isStatic | noContactResponse)));
 }

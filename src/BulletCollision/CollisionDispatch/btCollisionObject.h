@@ -16,7 +16,7 @@ subject to the following restrictions:
 #ifndef COLLISION_OBJECT_H
 #define COLLISION_OBJECT_H
 
-#include "LinearMath/SimdTransform.h"
+#include "LinearMath/btTransform.h"
 
 //island management, m_activationState1
 #define ACTIVE_TAG 1
@@ -25,23 +25,23 @@ subject to the following restrictions:
 #define DISABLE_DEACTIVATION 4
 #define DISABLE_SIMULATION 5
 
-struct	BroadphaseProxy;
-class	CollisionShape;
+struct	btBroadphaseProxy;
+class	btCollisionShape;
 
-/// CollisionObject can be used to manage collision detection objects. 
-/// CollisionObject maintains all information that is needed for a collision detection: Shape, Transform and AABB proxy.
-/// They can be added to the CollisionWorld.
-struct	CollisionObject
+/// btCollisionObject can be used to manage collision detection objects. 
+/// btCollisionObject maintains all information that is needed for a collision detection: Shape, Transform and AABB proxy.
+/// They can be added to the btCollisionWorld.
+struct	btCollisionObject
 {
-	SimdTransform	m_worldTransform;
+	btTransform	m_worldTransform;
 	BroadphaseProxy*	m_broadphaseHandle;
 	CollisionShape*		m_collisionShape;
 
 	//m_interpolationWorldTransform is used for CCD and interpolation
 	//it can be either previous or future (predicted) transform
-	SimdTransform	m_interpolationWorldTransform;
+	btTransform	m_interpolationWorldTransform;
 
-	SimdTransform	m_cachedInvertedWorldTransform;
+	btTransform	m_cachedInvertedWorldTransform;
 
 	enum CollisionFlags
 	{
@@ -56,10 +56,8 @@ struct	CollisionObject
 	int				m_activationState1;
 	float			m_deactivationTime;
 
-	SimdScalar		m_friction;
-	SimdScalar		m_restitution;
-
-	
+	btScalar		m_friction;
+	btScalar		m_restitution;
 
 	//users can point to their objects, m_userPointer is not used by Bullet
 	void*			m_userObjectPointer;
@@ -70,7 +68,7 @@ struct	CollisionObject
 	///time of impact calculation
 	float			m_hitFraction; 
 	
-	///Swept sphere radius (0.0 by default), see ConvexConvexAlgorithm::
+	///Swept sphere radius (0.0 by default), see btConvexConvexAlgorithm::
 	float			m_ccdSweptShereRadius;
 
 	/// Don't do continuous collision detection if square motion (in one step) is less then m_ccdSquareMotionTreshold
@@ -89,10 +87,10 @@ struct	CollisionObject
 	
 
 
-	CollisionObject();
+	btCollisionObject();
 
 
-	void	SetCollisionShape(CollisionShape* collisionShape)
+	void	SetCollisionShape(btCollisionShape* collisionShape)
 	{
 		m_collisionShape = collisionShape;
 	}

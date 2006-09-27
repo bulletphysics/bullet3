@@ -28,10 +28,10 @@ DEALINGS IN THE SOFTWARE.
 #ifndef IDEBUG_DRAW__H
 #define IDEBUG_DRAW__H
 
-#include "LinearMath/SimdVector3.h"
+#include "LinearMath/btVector3.h"
 
 
-class	IDebugDraw
+class	btIDebugDraw
 {
 	public:
 
@@ -52,11 +52,11 @@ class	IDebugDraw
 		DBG_MAX_DEBUG_DRAW_MODE
 	};
 
-	virtual ~IDebugDraw() {};
+	virtual ~btIDebugDraw() {};
 
-	virtual void	DrawLine(const SimdVector3& from,const SimdVector3& to,const SimdVector3& color)=0;
+	virtual void	DrawLine(const btVector3& from,const btVector3& to,const btVector3& color)=0;
 
-	virtual void	DrawContactPoint(const SimdVector3& PointOnB,const SimdVector3& normalOnB,float distance,int lifeTime,const SimdVector3& color)=0;
+	virtual void	DrawContactPoint(const btVector3& PointOnB,const btVector3& normalOnB,float distance,int lifeTime,const btVector3& color)=0;
 
 	virtual void	SetDebugMode(int debugMode) =0;
 	

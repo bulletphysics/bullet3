@@ -16,12 +16,12 @@ subject to the following restrictions:
 #include "BspConverter.h"
 #include "BspLoader.h"
 #include "CcdPhysicsEnvironment.h"
-#include "LinearMath/SimdVector3.h"
+#include "LinearMath/btVector3.h"
 
 void BspConverter::convertBsp(BspLoader& bspLoader,float scaling)
 {
 	{
-		SimdVector3 playerStart (0.f, 0.f, 100.f);
+		btVector3 playerStart (0.f, 0.f, 100.f);
 
 		if (bspLoader.findVectorByName(&playerStart[0],"info_player_start"))
 		{
@@ -53,7 +53,7 @@ void BspConverter::convertBsp(BspLoader& bspLoader,float scaling)
 	
 			for (int b=0;b<leaf.numLeafBrushes;b++)
 			{
-				std::vector<SimdVector3> planeEquations;
+				std::vector<btVector3> planeEquations;
 				
 				int brushid = bspLoader.m_dleafbrushes[leaf.firstLeafBrush+b];
 
@@ -70,7 +70,7 @@ void BspConverter::convertBsp(BspLoader& bspLoader,float scaling)
 							BSPBrushSide& brushside = bspLoader.m_dbrushsides[sideid];
 							int planeid = brushside.planeNum;
 							BSPPlane& plane = bspLoader.m_dplanes[planeid];
-							SimdVector3 planeEq;
+							btVector3 planeEq;
 							planeEq.setValue(
 								plane.normal[0],
 								plane.normal[1],
@@ -83,13 +83,13 @@ void BspConverter::convertBsp(BspLoader& bspLoader,float scaling)
 						if (isValidBrush)
 						{
 
-							std::vector<SimdVector3>	vertices;
+							std::vector<btVector3>	vertices;
 							
 							getVerticesFromPlaneEquations(planeEquations,vertices);
 							printf("getVerticesFromPlaneEquations returned %i\n",(int)vertices.size());
 
 							bool isEntity = false;
-							SimdVector3 entityTarget(0.f,0.f,0.f);
+							btVector3 entityTarget(0.f,0.f,0.f);
 							AddConvexVerticesCollider(vertices,isEntity,entityTarget);
 						
 						}
@@ -109,7 +109,7 @@ void BspConverter::convertBsp(BspLoader& bspLoader,float scaling)
 					const BSPEntity& entity = bspLoader.m_entities[i];
 					const char* cl = bspLoader.ValueForKey(&entity,"classname");
 					if ( !strcmp( cl, "trigger_push" ) ) {
-						SimdVector3 targetLocation(0.f,0.f,0.f);
+						btVector3 targetLocation(0.f,0.f,0.f);
 
 						cl = bspLoader.ValueForKey(&entity,"target");
 						if ( strcmp( cl, "" ) ) {
@@ -136,7 +136,7 @@ void BspConverter::convertBsp(BspLoader& bspLoader,float scaling)
 										const BSPModel& model = bspLoader.m_dmodels[modelnr];
 										for (int n=0;n<model.numBrushes;n++)
 										{
-											std::vector<SimdVector3> planeEquations;
+											std::vector<btVector3> planeEquations;
 											bool	isValidBrush = false;
 
 											//convert brush
@@ -148,7 +148,7 @@ void BspConverter::convertBsp(BspLoader& bspLoader,float scaling)
 													BSPBrushSide& brushside = bspLoader.m_dbrushsides[sideid];
 													int planeid = brushside.planeNum;
 													BSPPlane& plane = bspLoader.m_dplanes[planeid];
-													SimdVector3 planeEq;
+													btVector3 planeEq;
 													planeEq.setValue(
 														plane.normal[0],
 														plane.normal[1],
@@ -160,7 +160,7 @@ void BspConverter::convertBsp(BspLoader& bspLoader,float scaling)
 												if (isValidBrush)
 												{
 													
-													std::vector<SimdVector3>	vertices;
+													std::vector<btVector3>	vertices;
 													getVerticesFromPlaneEquations(planeEquations,vertices);
 
 													bool isEntity=true;
@@ -197,27 +197,27 @@ void BspConverter::convertBsp(BspLoader& bspLoader,float scaling)
 
 
 
-void	BspConverter::getVerticesFromPlaneEquations(const std::vector<SimdVector3>& planeEquations , std::vector<SimdVector3>& verticesOut )
+void	BspConverter::getVerticesFromPlaneEquations(const std::vector<btVector3>& planeEquations , std::vector<btVector3>& verticesOut )
 {
 	const int numbrushes = planeEquations.size();
 	// brute force:
 	for (int i=0;i<numbrushes;i++)
 	{
-		const SimdVector3& N1 = planeEquations[i];
+		const btVector3& N1 = planeEquations[i];
 		
 
 		for (int j=i+1;j<numbrushes;j++)
 		{
-			const SimdVector3& N2 = planeEquations[j];
+			const btVector3& N2 = planeEquations[j];
 				
 			for (int k=j+1;k<numbrushes;k++)
 			{
 
-				const SimdVector3& N3 = planeEquations[k];
+				const btVector3& N3 = planeEquations[k];
 
-				SimdVector3 n2n3; n2n3 = N2.cross(N3);
-				SimdVector3 n3n1; n3n1 = N3.cross(N1);
-				SimdVector3 n1n2; n1n2 = N1.cross(N2);
+				btVector3 n2n3; n2n3 = N2.cross(N3);
+				btVector3 n3n1; n3n1 = N3.cross(N1);
+				btVector3 n1n2; n1n2 = N1.cross(N2);
 				
 				if ( ( n2n3.length2() > 0.0001f ) &&
 					 ( n3n1.length2() > 0.0001f ) &&
@@ -231,13 +231,13 @@ void	BspConverter::getVerticesFromPlaneEquations(const std::vector<SimdVector3>&
 
 
 					float quotient = (N1.dot(n2n3));
-					if (SimdFabs(quotient) > 0.000001f)
+					if (btFabs(quotient) > 0.000001f)
 					{
 						quotient = -1.f / quotient;
 						n2n3 *= N1[3];
 						n3n1 *= N2[3];
 						n1n2 *= N3[3];
-						SimdVector3 potentialVertex = n2n3;
+						btVector3 potentialVertex = n2n3;
 						potentialVertex += n3n1;
 						potentialVertex += n1n2;
 						potentialVertex *= quotient;
@@ -257,12 +257,12 @@ void	BspConverter::getVerticesFromPlaneEquations(const std::vector<SimdVector3>&
 
 
 
-bool	BspConverter::isInside(const std::vector<SimdVector3>& planeEquations, const SimdVector3& point, float	margin)
+bool	BspConverter::isInside(const std::vector<btVector3>& planeEquations, const btVector3& point, float	margin)
 {
 	int numbrushes = planeEquations.size();
 	for (int i=0;i<numbrushes;i++)
 	{
-		const SimdVector3& N1 = planeEquations[i];
+		const btVector3& N1 = planeEquations[i];
 		float dist = float(N1.dot(point))+float(N1[3])-margin;
 		if (dist>0.f)
 		{

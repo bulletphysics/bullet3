@@ -17,9 +17,9 @@ subject to the following restrictions:
 
 #include "BU_VertexPoly.h"
 #include "BU_Screwing.h"
-#include <LinearMath/SimdTransform.h>
-#include <LinearMath/SimdPoint3.h>
-#include <LinearMath/SimdVector3.h>
+#include <LinearMath/btTransform.h>
+#include <LinearMath/btPoint3.h>
+#include <LinearMath/btVector3.h>
 
 #define USE_ALGEBRAIC
 #ifdef USE_ALGEBRAIC
@@ -30,7 +30,7 @@ subject to the following restrictions:
 	#define BU_Polynomial BU_IntervalArithmeticPolynomialSolver
 #endif
 
-inline bool      TestFuzzyZero(SimdScalar x) { return SimdFabs(x) < 0.0001f; }
+inline bool      TestFuzzyZero(btScalar x) { return btFabs(x) < 0.0001f; }
 
 
 BU_VertexPoly::BU_VertexPoly()
@@ -41,9 +41,9 @@ BU_VertexPoly::BU_VertexPoly()
 //false otherwise. If true, minTime contains the time of impact
 bool BU_VertexPoly::GetTimeOfImpact(
 		const BU_Screwing& screwAB,
-		const SimdPoint3& a,
-		const SimdVector4& planeEq,
-		SimdScalar &minTime,bool swapAB)
+		const btPoint3& a,
+		const btVector4& planeEq,
+		btScalar &minTime,bool swapAB)
 {
 
 	bool hit = false;
@@ -57,21 +57,21 @@ bool BU_VertexPoly::GetTimeOfImpact(
 
 
 	//case w<>0 and s<> 0
-	const SimdScalar w=screwAB.GetW();
-	const SimdScalar s=screwAB.GetS();
+	const btScalar w=screwAB.GetW();
+	const btScalar s=screwAB.GetS();
 
-	SimdScalar coefs[4];
-	const SimdScalar p=planeEq[0];
-	const SimdScalar q=planeEq[1];
-	const SimdScalar r=planeEq[2];
-	const SimdScalar d=planeEq[3];
+	btScalar coefs[4];
+	const btScalar p=planeEq[0];
+	const btScalar q=planeEq[1];
+	const btScalar r=planeEq[2];
+	const btScalar d=planeEq[3];
 
-	const SimdVector3 norm(p,q,r);
+	const btVector3 norm(p,q,r);
 	BU_Polynomial polynomialSolver;
 	int numroots = 0;
 
-	//SimdScalar eps=1e-80f;
-	//SimdScalar eps2=1e-100f;
+	//btScalar eps=1e-80f;
+	//btScalar eps2=1e-100f;
 	
 	if (TestFuzzyZero(screwAB.GetS()) )	
 	{
@@ -93,7 +93,7 @@ bool BU_VertexPoly::GetTimeOfImpact(
 			// W = 0 , S <> 0
 			//pax+qay+r(az+st)=d
 			
-			SimdScalar dist = (d - a.dot(norm));
+			btScalar dist = (d - a.dot(norm));
 
 			if (TestFuzzyZero(r))
 			{
@@ -108,7 +108,7 @@ bool BU_VertexPoly::GetTimeOfImpact(
 				
 			} else
 			{
-				SimdScalar etoi = (dist)/(r*screwAB.GetS());
+				btScalar etoi = (dist)/(r*screwAB.GetS());
 				if (swapAB)
 					etoi *= -1;
 
@@ -124,7 +124,7 @@ bool BU_VertexPoly::GetTimeOfImpact(
 				//ax^3+bx^2+cx+d=0
 
 				//degenerate coefficients mess things up :(
-				SimdScalar ietsje = (r*s)/SimdTan(w/2.f);
+				btScalar ietsje = (r*s)/btTan(w/2.f);
 				if (ietsje*ietsje < 0.01f)
 					ietsje = 0.f;
 
@@ -140,9 +140,9 @@ bool BU_VertexPoly::GetTimeOfImpact(
 
 	for (int i=0;i<numroots;i++)
 	{
-		SimdScalar tau = polynomialSolver.GetRoot(i);
+		btScalar tau = polynomialSolver.GetRoot(i);
 
-		SimdScalar t = 2.f*SimdAtan(tau)/w;
+		btScalar t = 2.f*btAtan(tau)/w;
 		//tau = tan (wt/2) so 2*atan (tau)/w
 		if (swapAB)
 		{

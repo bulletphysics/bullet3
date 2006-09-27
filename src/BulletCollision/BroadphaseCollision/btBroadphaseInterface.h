@@ -18,21 +18,21 @@ subject to the following restrictions:
 
 
 
-struct DispatcherInfo;
-class Dispatcher;
-struct BroadphaseProxy;
-#include "LinearMath/SimdVector3.h"
+struct btDispatcherInfo;
+class btDispatcher;
+struct btBroadphaseProxy;
+#include "LinearMath/btVector3.h"
 
 ///BroadphaseInterface for aabb-overlapping object pairs
-class BroadphaseInterface
+class btBroadphaseInterface
 {
 public:
-	virtual ~BroadphaseInterface() {}
+	virtual ~btBroadphaseInterface() {}
 
-	virtual BroadphaseProxy*	CreateProxy(  const SimdVector3& min,  const SimdVector3& max,int shapeType,void* userPtr, short int collisionFilterGroup,short int collisionFilterMask) =0;
-	virtual void	DestroyProxy(BroadphaseProxy* proxy)=0;
-	virtual void	SetAabb(BroadphaseProxy* proxy,const SimdVector3& aabbMin,const SimdVector3& aabbMax)=0;
-	virtual void	CleanProxyFromPairs(BroadphaseProxy* proxy)=0;
+	virtual btBroadphaseProxy*	CreateProxy(  const btVector3& min,  const btVector3& max,int shapeType,void* userPtr, short int collisionFilterGroup,short int collisionFilterMask) =0;
+	virtual void	DestroyProxy(btBroadphaseProxy* proxy)=0;
+	virtual void	SetAabb(btBroadphaseProxy* proxy,const btVector3& aabbMin,const btVector3& aabbMax)=0;
+	virtual void	CleanProxyFromPairs(btBroadphaseProxy* proxy)=0;
 	
 
 };

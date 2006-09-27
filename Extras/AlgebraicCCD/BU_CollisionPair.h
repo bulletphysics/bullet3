@@ -21,34 +21,34 @@ subject to the following restrictions:
 #include <NarrowPhaseCollision/ConvexCast.h>
 
 
-#include <SimdQuaternion.h>
+#include <btQuaternion.h>
 
-class PolyhedralConvexShape;
+class btPolyhedralConvexShape;
 
 
 ///BU_CollisionPair implements collision algorithm for algebraic time of impact calculation of feature based shapes.
-class BU_CollisionPair : public ConvexCast
+class BU_CollisionPair : public btConvexCast
 {
 	
 public:
-	BU_CollisionPair(const PolyhedralConvexShape* convexA,const PolyhedralConvexShape* convexB,SimdScalar tolerance=0.2f);
+	BU_CollisionPair(const btPolyhedralConvexShape* convexA,const btPolyhedralConvexShape* convexB,btScalar tolerance=0.2f);
 	//toi
 
 	virtual bool	calcTimeOfImpact(
-					const SimdTransform& fromA,
-					const SimdTransform& toA,
-					const SimdTransform& fromB,
-					const SimdTransform& toB,
+					const btTransform& fromA,
+					const btTransform& toA,
+					const btTransform& fromB,
+					const btTransform& toB,
 					CastResult& result);
 
 	
 	
 
 private:
-	const PolyhedralConvexShape*	m_convexA;
-	const PolyhedralConvexShape*	m_convexB;
+	const btPolyhedralConvexShape*	m_convexA;
+	const btPolyhedralConvexShape*	m_convexB;
 	BU_Screwing	m_screwing;
-	SimdScalar	m_tolerance;
+	btScalar	m_tolerance;
 	
 };
 #endif //BU_COLLISIONPAIR

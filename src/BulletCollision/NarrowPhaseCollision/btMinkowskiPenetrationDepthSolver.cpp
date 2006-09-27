@@ -20,22 +20,22 @@ subject to the following restrictions:
 #include "BulletCollision/NarrowPhaseCollision/btGjkPairDetector.h"
 
 
-struct MyResult : public DiscreteCollisionDetectorInterface::Result
+struct MyResult : public btDiscreteCollisionDetectorInterface::Result
 {
 
 	MyResult():m_hasResult(false)
 	{
 	}
 	
-	SimdVector3 m_normalOnBInWorld;
-	SimdVector3 m_pointInWorld;
+	btVector3 m_normalOnBInWorld;
+	btVector3 m_pointInWorld;
 	float m_depth;
 	bool	m_hasResult;
 
 	virtual void SetShapeIdentifiers(int partId0,int index0,	int partId1,int index1)
 	{
 	}
-	void AddContactPoint(const SimdVector3& normalOnBInWorld,const SimdVector3& pointInWorld,float depth)
+	void AddContactPoint(const btVector3& normalOnBInWorld,const btVector3& pointInWorld,float depth)
 	{
 		m_normalOnBInWorld = normalOnBInWorld;
 		m_pointInWorld = pointInWorld;
@@ -45,80 +45,80 @@ struct MyResult : public DiscreteCollisionDetectorInterface::Result
 };
 
 #define NUM_UNITSPHERE_POINTS 42
-static SimdVector3	sPenetrationDirections[NUM_UNITSPHERE_POINTS] = 
+static btVector3	sPenetrationDirections[NUM_UNITSPHERE_POINTS] = 
 {
-SimdVector3(0.000000f , -0.000000f,-1.000000f),
-SimdVector3(0.723608f , -0.525725f,-0.447219f),
-SimdVector3(-0.276388f , -0.850649f,-0.447219f),
-SimdVector3(-0.894426f , -0.000000f,-0.447216f),
-SimdVector3(-0.276388f , 0.850649f,-0.447220f),
-SimdVector3(0.723608f , 0.525725f,-0.447219f),
-SimdVector3(0.276388f , -0.850649f,0.447220f),
-SimdVector3(-0.723608f , -0.525725f,0.447219f),
-SimdVector3(-0.723608f , 0.525725f,0.447219f),
-SimdVector3(0.276388f , 0.850649f,0.447219f),
-SimdVector3(0.894426f , 0.000000f,0.447216f),
-SimdVector3(-0.000000f , 0.000000f,1.000000f),
-SimdVector3(0.425323f , -0.309011f,-0.850654f),
-SimdVector3(-0.162456f , -0.499995f,-0.850654f),
-SimdVector3(0.262869f , -0.809012f,-0.525738f),
-SimdVector3(0.425323f , 0.309011f,-0.850654f),
-SimdVector3(0.850648f , -0.000000f,-0.525736f),
-SimdVector3(-0.525730f , -0.000000f,-0.850652f),
-SimdVector3(-0.688190f , -0.499997f,-0.525736f),
-SimdVector3(-0.162456f , 0.499995f,-0.850654f),
-SimdVector3(-0.688190f , 0.499997f,-0.525736f),
-SimdVector3(0.262869f , 0.809012f,-0.525738f),
-SimdVector3(0.951058f , 0.309013f,0.000000f),
-SimdVector3(0.951058f , -0.309013f,0.000000f),
-SimdVector3(0.587786f , -0.809017f,0.000000f),
-SimdVector3(0.000000f , -1.000000f,0.000000f),
-SimdVector3(-0.587786f , -0.809017f,0.000000f),
-SimdVector3(-0.951058f , -0.309013f,-0.000000f),
-SimdVector3(-0.951058f , 0.309013f,-0.000000f),
-SimdVector3(-0.587786f , 0.809017f,-0.000000f),
-SimdVector3(-0.000000f , 1.000000f,-0.000000f),
-SimdVector3(0.587786f , 0.809017f,-0.000000f),
-SimdVector3(0.688190f , -0.499997f,0.525736f),
-SimdVector3(-0.262869f , -0.809012f,0.525738f),
-SimdVector3(-0.850648f , 0.000000f,0.525736f),
-SimdVector3(-0.262869f , 0.809012f,0.525738f),
-SimdVector3(0.688190f , 0.499997f,0.525736f),
-SimdVector3(0.525730f , 0.000000f,0.850652f),
-SimdVector3(0.162456f , -0.499995f,0.850654f),
-SimdVector3(-0.425323f , -0.309011f,0.850654f),
-SimdVector3(-0.425323f , 0.309011f,0.850654f),
-SimdVector3(0.162456f , 0.499995f,0.850654f)
+btVector3(0.000000f , -0.000000f,-1.000000f),
+btVector3(0.723608f , -0.525725f,-0.447219f),
+btVector3(-0.276388f , -0.850649f,-0.447219f),
+btVector3(-0.894426f , -0.000000f,-0.447216f),
+btVector3(-0.276388f , 0.850649f,-0.447220f),
+btVector3(0.723608f , 0.525725f,-0.447219f),
+btVector3(0.276388f , -0.850649f,0.447220f),
+btVector3(-0.723608f , -0.525725f,0.447219f),
+btVector3(-0.723608f , 0.525725f,0.447219f),
+btVector3(0.276388f , 0.850649f,0.447219f),
+btVector3(0.894426f , 0.000000f,0.447216f),
+btVector3(-0.000000f , 0.000000f,1.000000f),
+btVector3(0.425323f , -0.309011f,-0.850654f),
+btVector3(-0.162456f , -0.499995f,-0.850654f),
+btVector3(0.262869f , -0.809012f,-0.525738f),
+btVector3(0.425323f , 0.309011f,-0.850654f),
+btVector3(0.850648f , -0.000000f,-0.525736f),
+btVector3(-0.525730f , -0.000000f,-0.850652f),
+btVector3(-0.688190f , -0.499997f,-0.525736f),
+btVector3(-0.162456f , 0.499995f,-0.850654f),
+btVector3(-0.688190f , 0.499997f,-0.525736f),
+btVector3(0.262869f , 0.809012f,-0.525738f),
+btVector3(0.951058f , 0.309013f,0.000000f),
+btVector3(0.951058f , -0.309013f,0.000000f),
+btVector3(0.587786f , -0.809017f,0.000000f),
+btVector3(0.000000f , -1.000000f,0.000000f),
+btVector3(-0.587786f , -0.809017f,0.000000f),
+btVector3(-0.951058f , -0.309013f,-0.000000f),
+btVector3(-0.951058f , 0.309013f,-0.000000f),
+btVector3(-0.587786f , 0.809017f,-0.000000f),
+btVector3(-0.000000f , 1.000000f,-0.000000f),
+btVector3(0.587786f , 0.809017f,-0.000000f),
+btVector3(0.688190f , -0.499997f,0.525736f),
+btVector3(-0.262869f , -0.809012f,0.525738f),
+btVector3(-0.850648f , 0.000000f,0.525736f),
+btVector3(-0.262869f , 0.809012f,0.525738f),
+btVector3(0.688190f , 0.499997f,0.525736f),
+btVector3(0.525730f , 0.000000f,0.850652f),
+btVector3(0.162456f , -0.499995f,0.850654f),
+btVector3(-0.425323f , -0.309011f,0.850654f),
+btVector3(-0.425323f , 0.309011f,0.850654f),
+btVector3(0.162456f , 0.499995f,0.850654f)
 };
 
 
-bool MinkowskiPenetrationDepthSolver::CalcPenDepth(SimplexSolverInterface& simplexSolver,
-												   ConvexShape* convexA,ConvexShape* convexB,
-												   const SimdTransform& transA,const SimdTransform& transB,
-												   SimdVector3& v, SimdPoint3& pa, SimdPoint3& pb,
-												   class IDebugDraw* debugDraw
+bool btMinkowskiPenetrationDepthSolver::CalcPenDepth(btSimplexSolverInterface& simplexSolver,
+												   btConvexShape* convexA,btConvexShape* convexB,
+												   const btTransform& transA,const btTransform& transB,
+												   btVector3& v, btPoint3& pa, btPoint3& pb,
+												   class btIDebugDraw* debugDraw
 												   )
 {
 
 	//just take fixed number of orientation, and sample the penetration depth in that direction
 	float minProj = 1e30f;
-	SimdVector3 minNorm;
-	SimdVector3 minVertex;
-	SimdVector3 minA,minB;
-	SimdVector3 seperatingAxisInA,seperatingAxisInB;
-	SimdVector3 pInA,qInB,pWorld,qWorld,w;
+	btVector3 minNorm;
+	btVector3 minVertex;
+	btVector3 minA,minB;
+	btVector3 seperatingAxisInA,seperatingAxisInB;
+	btVector3 pInA,qInB,pWorld,qWorld,w;
 
 #define USE_BATCHED_SUPPORT 1
 #ifdef USE_BATCHED_SUPPORT
-	SimdVector3	supportVerticesABatch[NUM_UNITSPHERE_POINTS];
-	SimdVector3	supportVerticesBBatch[NUM_UNITSPHERE_POINTS];
-	SimdVector3	seperatingAxisInABatch[NUM_UNITSPHERE_POINTS];
-	SimdVector3	seperatingAxisInBBatch[NUM_UNITSPHERE_POINTS];
+	btVector3	supportVerticesABatch[NUM_UNITSPHERE_POINTS];
+	btVector3	supportVerticesBBatch[NUM_UNITSPHERE_POINTS];
+	btVector3	seperatingAxisInABatch[NUM_UNITSPHERE_POINTS];
+	btVector3	seperatingAxisInBBatch[NUM_UNITSPHERE_POINTS];
 	int i;
 
 	for (i=0;i<NUM_UNITSPHERE_POINTS;i++)
 	{
-		const SimdVector3& norm = sPenetrationDirections[i];
+		const btVector3& norm = sPenetrationDirections[i];
 		seperatingAxisInABatch[i] = (-norm)* transA.getBasis();
 		seperatingAxisInBBatch[i] = norm * transB.getBasis();
 	}
@@ -127,7 +127,7 @@ bool MinkowskiPenetrationDepthSolver::CalcPenDepth(SimplexSolverInterface& simpl
 	convexB->BatchedUnitVectorGetSupportingVertexWithoutMargin(seperatingAxisInBBatch,supportVerticesBBatch,NUM_UNITSPHERE_POINTS);
 	for (i=0;i<NUM_UNITSPHERE_POINTS;i++)
 	{
-		const SimdVector3& norm = sPenetrationDirections[i];
+		const btVector3& norm = sPenetrationDirections[i];
 		seperatingAxisInA = seperatingAxisInABatch[i];
 		seperatingAxisInB = seperatingAxisInBBatch[i];
 
@@ -150,7 +150,7 @@ bool MinkowskiPenetrationDepthSolver::CalcPenDepth(SimplexSolverInterface& simpl
 #else
 	for (int i=0;i<NUM_UNITSPHERE_POINTS;i++)
 	{
-		const SimdVector3& norm = sPenetrationDirections[i];
+		const btVector3& norm = sPenetrationDirections[i];
 		seperatingAxisInA = (-norm)* transA.getBasis();
 		seperatingAxisInB = norm* transB.getBasis();
 		pInA = convexA->LocalGetSupportingVertexWithoutMargin(seperatingAxisInA);
@@ -183,10 +183,10 @@ bool MinkowskiPenetrationDepthSolver::CalcPenDepth(SimplexSolverInterface& simpl
 #ifdef DEBUG_DRAW
 	if (debugDraw)
 	{
-		SimdVector3 color(0,1,0);
+		btVector3 color(0,1,0);
 		debugDraw->DrawLine(minA,minB,color);
-		color = SimdVector3 (1,1,1);
-		SimdVector3 vec = minB-minA;
+		color = btVector3 (1,1,1);
+		btVector3 vec = minB-minA;
 		float prj2 = minNorm.dot(vec);
 		debugDraw->DrawLine(minA,minA+(minNorm*minProj),color);
 
@@ -195,18 +195,18 @@ bool MinkowskiPenetrationDepthSolver::CalcPenDepth(SimplexSolverInterface& simpl
 
 	
 
-	GjkPairDetector gjkdet(convexA,convexB,&simplexSolver,0);
+	btGjkPairDetector gjkdet(convexA,convexB,&simplexSolver,0);
 
-	SimdScalar offsetDist = minProj;
-	SimdVector3 offset = minNorm * offsetDist;
+	btScalar offsetDist = minProj;
+	btVector3 offset = minNorm * offsetDist;
 	
 
 
-	GjkPairDetector::ClosestPointInput input;
+	btGjkPairDetector::ClosestPointInput input;
 		
-	SimdVector3 newOrg = transA.getOrigin() + offset;
+	btVector3 newOrg = transA.getOrigin() + offset;
 
-	SimdTransform displacedTrans = transA;
+	btTransform displacedTrans = transA;
 	displacedTrans.setOrigin(newOrg);
 
 	input.m_transformA = displacedTrans;
@@ -232,7 +232,7 @@ bool MinkowskiPenetrationDepthSolver::CalcPenDepth(SimplexSolverInterface& simpl
 #ifdef DEBUG_DRAW
 		if (debugDraw)
 		{
-			SimdVector3 color(1,0,0);
+			btVector3 color(1,0,0);
 			debugDraw->DrawLine(pa,pb,color);
 		}
 #endif//DEBUG_DRAW

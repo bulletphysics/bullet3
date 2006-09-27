@@ -16,7 +16,7 @@ subject to the following restrictions:
 #include "btMinkowskiSumShape.h"
 
 
-MinkowskiSumShape::MinkowskiSumShape(ConvexShape* shapeA,ConvexShape* shapeB)
+btMinkowskiSumShape::btMinkowskiSumShape(btConvexShape* shapeA,btConvexShape* shapeB)
 :m_shapeA(shapeA),
 m_shapeB(shapeB)
 {
@@ -24,14 +24,14 @@ m_shapeB(shapeB)
 	m_transB.setIdentity();
 }
 
-SimdVector3 MinkowskiSumShape::LocalGetSupportingVertexWithoutMargin(const SimdVector3& vec)const
+btVector3 btMinkowskiSumShape::LocalGetSupportingVertexWithoutMargin(const btVector3& vec)const
 {
-	SimdVector3 supVertexA = m_transA(m_shapeA->LocalGetSupportingVertexWithoutMargin(vec*m_transA.getBasis()));
-	SimdVector3 supVertexB = m_transB(m_shapeB->LocalGetSupportingVertexWithoutMargin(vec*m_transB.getBasis()));
+	btVector3 supVertexA = m_transA(m_shapeA->LocalGetSupportingVertexWithoutMargin(vec*m_transA.getBasis()));
+	btVector3 supVertexB = m_transB(m_shapeB->LocalGetSupportingVertexWithoutMargin(vec*m_transB.getBasis()));
 	return supVertexA + supVertexB;
 }
 
-void	MinkowskiSumShape::BatchedUnitVectorGetSupportingVertexWithoutMargin(const SimdVector3* vectors,SimdVector3* supportVerticesOut,int numVectors) const
+void	btMinkowskiSumShape::BatchedUnitVectorGetSupportingVertexWithoutMargin(const btVector3* vectors,btVector3* supportVerticesOut,int numVectors) const
 {
 	//todo: could make recursive use of batching. probably this shape is not used frequently.
 	for (int i=0;i<numVectors;i++)
@@ -43,13 +43,13 @@ void	MinkowskiSumShape::BatchedUnitVectorGetSupportingVertexWithoutMargin(const 
 
 
 
-float	MinkowskiSumShape::GetMargin() const
+float	btMinkowskiSumShape::GetMargin() const
 {
 	return m_shapeA->GetMargin() + m_shapeB->GetMargin();
 }
 
 
-void	MinkowskiSumShape::CalculateLocalInertia(SimdScalar mass,SimdVector3& inertia)
+void	btMinkowskiSumShape::CalculateLocalInertia(btScalar mass,btVector3& inertia)
 {
 	assert(0);
 	inertia.setValue(0,0,0);

@@ -35,14 +35,16 @@ subject to the following restrictions:
 #include <math.h>
 
 
-#include "LinearMath/SimdVector3.h"
-#include "LinearMath/SimdMatrix3x3.h"
-#include "LinearMath/SimdTransform.h"
+#include "LinearMath/btVector3.h"
+#include "LinearMath/btMatrix3x3.h"
+#include "LinearMath/btTransform.h"
 
-class CcdPhysicsEnvironment;
-class CcdPhysicsController;
-class CollisionShape;
-
+class	CcdPhysicsEnvironment;
+class	CcdPhysicsController;
+class	btCollisionShape;
+class	btDynamicsWorld;
+class	btRigidBody;
+class	btTypedConstraint;
 
 class DemoApplication
 {
@@ -53,18 +55,21 @@ class DemoApplication
 	///this is the most important class
 	CcdPhysicsEnvironment* m_physicsEnvironmentPtr;
 	
+	btDynamicsWorld*		m_dynamicsWorld;
+
+	btTypedConstraint*		m_pickConstraint;
 
 	float	m_cameraDistance;
 	int	m_debugMode;
 	
 	float m_ele;
 	float m_azi;
-	SimdVector3 m_cameraPosition;
-	SimdVector3 m_cameraTargetPosition;//look at
+	btVector3 m_cameraPosition;
+	btVector3 m_cameraTargetPosition;//look at
 
 	float m_scaleBottom;
 	float m_scaleFactor;
-	SimdVector3 m_cameraUp;
+	btVector3 m_cameraUp;
 	int	m_forwardAxis;
 
 	int m_glutScreenWidth;
@@ -99,7 +104,7 @@ class DemoApplication
 		return m_physicsEnvironmentPtr;
 	}
 	
-	void	setCameraUp(const SimdVector3& camUp)
+	void	setCameraUp(const btVector3& camUp)
 	{
 		m_cameraUp = camUp;
 	}
@@ -114,11 +119,11 @@ class DemoApplication
 	
 	virtual void updateCamera();
 
-	SimdVector3	getCameraPosition()
+	btVector3	getCameraPosition()
 	{
 		return m_cameraPosition;
 	}
-	SimdVector3	getCameraTargetPosition()
+	btVector3	getCameraTargetPosition()
 	{
 		return m_cameraTargetPosition;
 	}
@@ -135,11 +140,13 @@ class DemoApplication
 	virtual void	clientResetScene() =0 ;
 
 	///Demo functions
-	void	shootBox(const SimdVector3& destination);
+	void	shootBox(const btVector3& destination);
 
-	SimdVector3	GetRayTo(int x,int y);
+	btVector3	GetRayTo(int x,int y);
 
-	CcdPhysicsController*  LocalCreatePhysicsObject(bool isDynamic, float mass, const SimdTransform& startTransform,CollisionShape* shape);
+	CcdPhysicsController*  LocalCreatePhysicsObject(bool isDynamic, float mass, const btTransform& startTransform,btCollisionShape* shape);
+
+	btRigidBody*	LocalCreateRigidBody(bool isDynamic, float mass, const btTransform& startTransform,btCollisionShape* shape);
 
 	///callback methods by glut	
 

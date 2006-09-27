@@ -20,12 +20,12 @@ subject to the following restrictions:
 #include "btContactConstraint.h"
 #include "btSolve2LinearConstraint.h"
 #include "btContactSolverInfo.h"
-#include "LinearMath/GenIDebugDraw.h"
+#include "LinearMath/btIDebugDraw.h"
 #include "btJacobianEntry.h"
-#include "LinearMath/GenMinMax.h"
+#include "LinearMath/btMinMax.h"
 
 #ifdef USE_PROFILE
-#include "LinearMath/GenQuickprof.h"
+#include "LinearMath/btQuickprof.h"
 #endif //USE_PROFILE
 
 int totalCpd = 0;
@@ -35,7 +35,7 @@ int	gTotalContactPoints = 0;
 bool  MyContactDestroyedCallback(void* userPersistentData)
 {
 	assert (userPersistentData);
-	ConstraintPersistentData* cpd = (ConstraintPersistentData*)userPersistentData;
+	btConstraintPersistentData* cpd = (btConstraintPersistentData*)userPersistentData;
 	delete cpd;
 	totalCpd--;
 	//printf("totalCpd = %i. DELETED Ptr %x\n",totalCpd,userPersistentData);
@@ -43,7 +43,7 @@ bool  MyContactDestroyedCallback(void* userPersistentData)
 }
 
 
-SequentialImpulseConstraintSolver::SequentialImpulseConstraintSolver()
+btSequentialImpulseConstraintSolver::btSequentialImpulseConstraintSolver()
 {
 	gContactDestroyedCallback = &MyContactDestroyedCallback;
 
@@ -58,15 +58,15 @@ SequentialImpulseConstraintSolver::SequentialImpulseConstraintSolver()
 		}
 }
 
-/// SequentialImpulseConstraintSolver Sequentially applies impulses
-float SequentialImpulseConstraintSolver::SolveGroup(PersistentManifold** manifoldPtr, int numManifolds,const ContactSolverInfo& infoGlobal,IDebugDraw* debugDrawer)
+/// btSequentialImpulseConstraintSolver Sequentially applies impulses
+float btSequentialImpulseConstraintSolver::SolveGroup(btPersistentManifold** manifoldPtr, int numManifolds,const btContactSolverInfo& infoGlobal,btIDebugDraw* debugDrawer)
 {
 	
-	ContactSolverInfo info = infoGlobal;
+	btContactSolverInfo info = infoGlobal;
 
 	int numiter = infoGlobal.m_numIterations;
 #ifdef USE_PROFILE
-	Profiler::beginBlock("Solve");
+	btProfiler::beginBlock("Solve");
 #endif //USE_PROFILE
 
 	{
@@ -98,9 +98,9 @@ float SequentialImpulseConstraintSolver::SolveGroup(PersistentManifold** manifol
 		
 	}
 #ifdef USE_PROFILE
-	Profiler::endBlock("Solve");
+	btProfiler::endBlock("Solve");
 
-	Profiler::beginBlock("SolveFriction");
+	btProfiler::beginBlock("SolveFriction");
 #endif //USE_PROFILE
 
 	//now solve the friction		
@@ -116,7 +116,7 @@ float SequentialImpulseConstraintSolver::SolveGroup(PersistentManifold** manifol
 		}
 	}
 #ifdef USE_PROFILE
-	Profiler::endBlock("SolveFriction");
+	btProfiler::endBlock("SolveFriction");
 #endif //USE_PROFILE
 
 	return 0.f;
@@ -124,18 +124,18 @@ float SequentialImpulseConstraintSolver::SolveGroup(PersistentManifold** manifol
 
 
 float penetrationResolveFactor = 0.9f;
-SimdScalar restitutionCurve(SimdScalar rel_vel, SimdScalar restitution)
+btScalar restitutionCurve(btScalar rel_vel, btScalar restitution)
 {
-	SimdScalar rest = restitution * -rel_vel;
+	btScalar rest = restitution * -rel_vel;
 	return rest;
 }
 
 
-void	SequentialImpulseConstraintSolver::PrepareConstraints(PersistentManifold* manifoldPtr, const ContactSolverInfo& info,IDebugDraw* debugDrawer)
+void	btSequentialImpulseConstraintSolver::PrepareConstraints(btPersistentManifold* manifoldPtr, const btContactSolverInfo& info,btIDebugDraw* debugDrawer)
 {
 
-	RigidBody* body0 = (RigidBody*)manifoldPtr->GetBody0();
-	RigidBody* body1 = (RigidBody*)manifoldPtr->GetBody1();
+	btRigidBody* body0 = (btRigidBody*)manifoldPtr->GetBody0();
+	btRigidBody* body1 = (btRigidBody*)manifoldPtr->GetBody1();
 
 
 	//only necessary to refresh the manifold once (first iteration). The integration is done outside the loop
@@ -146,29 +146,29 @@ void	SequentialImpulseConstraintSolver::PrepareConstraints(PersistentManifold* m
 
 		gTotalContactPoints += numpoints;
 
-		SimdVector3 color(0,1,0);
+		btVector3 color(0,1,0);
 		for (int i=0;i<numpoints ;i++)
 		{
-			ManifoldPoint& cp = manifoldPtr->GetContactPoint(i);
+			btManifoldPoint& cp = manifoldPtr->GetContactPoint(i);
 			if (cp.GetDistance() <= 0.f)
 			{
-				const SimdVector3& pos1 = cp.GetPositionWorldOnA();
-				const SimdVector3& pos2 = cp.GetPositionWorldOnB();
+				const btVector3& pos1 = cp.GetPositionWorldOnA();
+				const btVector3& pos2 = cp.GetPositionWorldOnB();
 
-				SimdVector3 rel_pos1 = pos1 - body0->getCenterOfMassPosition(); 
-				SimdVector3 rel_pos2 = pos2 - body1->getCenterOfMassPosition();
+				btVector3 rel_pos1 = pos1 - body0->getCenterOfMassPosition(); 
+				btVector3 rel_pos2 = pos2 - body1->getCenterOfMassPosition();
 				
 
 				//this jacobian entry is re-used for all iterations
-				JacobianEntry jac(body0->getCenterOfMassTransform().getBasis().transpose(),
+				btJacobianEntry jac(body0->getCenterOfMassTransform().getBasis().transpose(),
 					body1->getCenterOfMassTransform().getBasis().transpose(),
 					rel_pos1,rel_pos2,cp.m_normalWorldOnB,body0->getInvInertiaDiagLocal(),body0->getInvMass(),
 					body1->getInvInertiaDiagLocal(),body1->getInvMass());
 
 				
-				SimdScalar jacDiagAB = jac.getDiagonal();
+				btScalar jacDiagAB = jac.getDiagonal();
 
-				ConstraintPersistentData* cpd = (ConstraintPersistentData*) cp.m_userPersistentData;
+				btConstraintPersistentData* cpd = (btConstraintPersistentData*) cp.m_userPersistentData;
 				if (cpd)
 				{
 					//might be invalid
@@ -176,7 +176,7 @@ void	SequentialImpulseConstraintSolver::PrepareConstraints(PersistentManifold* m
 					if (cpd->m_persistentLifeTime != cp.GetLifeTime())
 					{
 						//printf("Invalid: cpd->m_persistentLifeTime = %i cp.GetLifeTime() = %i\n",cpd->m_persistentLifeTime,cp.GetLifeTime());
-						new (cpd) ConstraintPersistentData;
+						new (cpd) btConstraintPersistentData;
 						cpd->m_persistentLifeTime = cp.GetLifeTime();
 
 					} else
@@ -187,7 +187,7 @@ void	SequentialImpulseConstraintSolver::PrepareConstraints(PersistentManifold* m
 				} else
 				{
 						
-					cpd = new ConstraintPersistentData();
+					cpd = new btConstraintPersistentData();
 					totalCpd ++;
 					//printf("totalCpd = %i Created Ptr %x\n",totalCpd,cpd);
 					cp.m_userPersistentData = cpd;
@@ -205,10 +205,10 @@ void	SequentialImpulseConstraintSolver::PrepareConstraints(PersistentManifold* m
 				cpd->m_frictionSolverFunc = m_frictionDispatch[body0->m_frictionSolverType][body1->m_frictionSolverType];
 				cpd->m_contactSolverFunc = m_contactDispatch[body0->m_contactSolverType][body1->m_contactSolverType];
 				
-				SimdVector3 vel1 = body0->getVelocityInLocalPoint(rel_pos1);
-				SimdVector3 vel2 = body1->getVelocityInLocalPoint(rel_pos2);
-				SimdVector3 vel = vel1 - vel2;
-				SimdScalar rel_vel;
+				btVector3 vel1 = body0->getVelocityInLocalPoint(rel_pos1);
+				btVector3 vel2 = body1->getVelocityInLocalPoint(rel_pos2);
+				btVector3 vel = vel1 - vel2;
+				btScalar rel_vel;
 				rel_vel = cp.m_normalWorldOnB.dot(vel);
 				
 				float combinedRestitution = cp.m_combinedRestitution;
@@ -225,7 +225,7 @@ void	SequentialImpulseConstraintSolver::PrepareConstraints(PersistentManifold* m
 				//restitution and penetration work in same direction so
 				//rel_vel 
 				
-				SimdScalar penVel = -cpd->m_penetration/info.m_timeStep;
+				btScalar penVel = -cpd->m_penetration/info.m_timeStep;
 
 				if (cpd->m_restitution >= penVel)
 				{
@@ -239,7 +239,7 @@ void	SequentialImpulseConstraintSolver::PrepareConstraints(PersistentManifold* m
 				cpd->m_prevAppliedImpulse = cpd->m_appliedImpulse;
 				
 				//re-calculate friction direction every frame, todo: check if this is really needed
-				SimdPlaneSpace1(cp.m_normalWorldOnB,cpd->m_frictionWorldTangential0,cpd->m_frictionWorldTangential1);
+				btPlaneSpace1(cp.m_normalWorldOnB,cpd->m_frictionWorldTangential0,cpd->m_frictionWorldTangential1);
 
 
 #define NO_FRICTION_WARMSTART 1
@@ -259,7 +259,7 @@ void	SequentialImpulseConstraintSolver::PrepareConstraints(PersistentManifold* m
 				denom = relaxation/(denom0+denom1);
 				cpd->m_jacDiagABInvTangent1 = denom;
 
-				SimdVector3 totalImpulse = 
+				btVector3 totalImpulse = 
 	#ifndef NO_FRICTION_WARMSTART
 					cp.m_frictionWorldTangential0*cp.m_accumulatedTangentImpulse0+
 					cp.m_frictionWorldTangential1*cp.m_accumulatedTangentImpulse1+
@@ -275,18 +275,18 @@ void	SequentialImpulseConstraintSolver::PrepareConstraints(PersistentManifold* m
 	}
 }
 
-float SequentialImpulseConstraintSolver::Solve(PersistentManifold* manifoldPtr, const ContactSolverInfo& info,int iter,IDebugDraw* debugDrawer)
+float btSequentialImpulseConstraintSolver::Solve(btPersistentManifold* manifoldPtr, const btContactSolverInfo& info,int iter,btIDebugDraw* debugDrawer)
 {
 
-	RigidBody* body0 = (RigidBody*)manifoldPtr->GetBody0();
-	RigidBody* body1 = (RigidBody*)manifoldPtr->GetBody1();
+	btRigidBody* body0 = (btRigidBody*)manifoldPtr->GetBody0();
+	btRigidBody* body1 = (btRigidBody*)manifoldPtr->GetBody1();
 
 	float maxImpulse = 0.f;
 
 	{
 		const int numpoints = manifoldPtr->GetNumContacts();
 
-		SimdVector3 color(0,1,0);
+		btVector3 color(0,1,0);
 		for (int i=0;i<numpoints ;i++)
 		{
 
@@ -296,7 +296,7 @@ float SequentialImpulseConstraintSolver::Solve(PersistentManifold* manifoldPtr, 
 			else
 				j=i;
 
-			ManifoldPoint& cp = manifoldPtr->GetContactPoint(j);
+			btManifoldPoint& cp = manifoldPtr->GetContactPoint(j);
 				if (cp.GetDistance() <= 0.f)
 			{
 
@@ -308,7 +308,7 @@ float SequentialImpulseConstraintSolver::Solve(PersistentManifold* manifoldPtr, 
 
 				{
 
-					ConstraintPersistentData* cpd = (ConstraintPersistentData*) cp.m_userPersistentData;
+					btConstraintPersistentData* cpd = (btConstraintPersistentData*) cp.m_userPersistentData;
 					float impulse = cpd->m_contactSolverFunc(
 						*body0,*body1,
 						cp,
@@ -324,16 +324,16 @@ float SequentialImpulseConstraintSolver::Solve(PersistentManifold* manifoldPtr, 
 	return maxImpulse;
 }
 
-float SequentialImpulseConstraintSolver::SolveFriction(PersistentManifold* manifoldPtr, const ContactSolverInfo& info,int iter,IDebugDraw* debugDrawer)
+float btSequentialImpulseConstraintSolver::SolveFriction(btPersistentManifold* manifoldPtr, const btContactSolverInfo& info,int iter,btIDebugDraw* debugDrawer)
 {
-	RigidBody* body0 = (RigidBody*)manifoldPtr->GetBody0();
-	RigidBody* body1 = (RigidBody*)manifoldPtr->GetBody1();
+	btRigidBody* body0 = (btRigidBody*)manifoldPtr->GetBody0();
+	btRigidBody* body1 = (btRigidBody*)manifoldPtr->GetBody1();
 
 
 	{
 		const int numpoints = manifoldPtr->GetNumContacts();
 
-		SimdVector3 color(0,1,0);
+		btVector3 color(0,1,0);
 		for (int i=0;i<numpoints ;i++)
 		{
 
@@ -341,11 +341,11 @@ float SequentialImpulseConstraintSolver::SolveFriction(PersistentManifold* manif
 			//if (iter % 2)
 			//	j = numpoints-1-i;
 
-			ManifoldPoint& cp = manifoldPtr->GetContactPoint(j);
+			btManifoldPoint& cp = manifoldPtr->GetContactPoint(j);
 			if (cp.GetDistance() <= 0.f)
 			{
 
-				ConstraintPersistentData* cpd = (ConstraintPersistentData*) cp.m_userPersistentData;
+				btConstraintPersistentData* cpd = (btConstraintPersistentData*) cp.m_userPersistentData;
 				cpd->m_frictionSolverFunc(
 					*body0,*body1,
 					cp,

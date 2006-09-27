@@ -15,8 +15,8 @@ subject to the following restrictions:
 
 
 
-#ifndef VoronoiSimplexSolver_H
-#define VoronoiSimplexSolver_H
+#ifndef btVoronoiSimplexSolver_H
+#define btVoronoiSimplexSolver_H
 
 #include "btSimplexSolverInterface.h"
 
@@ -24,8 +24,8 @@ subject to the following restrictions:
 
 #define VORONOI_SIMPLEX_MAX_VERTS 5
 
-struct UsageBitfield{
-	UsageBitfield()
+struct btUsageBitfield{
+	btUsageBitfield()
 	{
 		reset();
 	}
@@ -48,13 +48,13 @@ struct UsageBitfield{
 };
 
 
-struct	SubSimplexClosestResult
+struct	btSubSimplexClosestResult
 {
-	SimdPoint3	m_closestPointOnSimplex;
+	btPoint3	m_closestPointOnSimplex;
 	//MASK for m_usedVertices
 	//stores the simplex vertex-usage, using the MASK, 
 	// if m_usedVertices & MASK then the related vertex is used
-	UsageBitfield	m_usedVertices;
+	btUsageBitfield	m_usedVertices;
 	float	m_barycentricCoords[4];
 	bool m_degenerate;
 
@@ -84,67 +84,67 @@ struct	SubSimplexClosestResult
 
 };
 
-/// VoronoiSimplexSolver is an implementation of the closest point distance algorithm from a 1-4 points simplex to the origin.
+/// btVoronoiSimplexSolver is an implementation of the closest point distance algorithm from a 1-4 points simplex to the origin.
 /// Can be used with GJK, as an alternative to Johnson distance algorithm.
 #ifdef NO_VIRTUAL_INTERFACE
-class VoronoiSimplexSolver
+class btVoronoiSimplexSolver
 #else
-class VoronoiSimplexSolver : public SimplexSolverInterface
+class btVoronoiSimplexSolver : public btSimplexSolverInterface
 #endif
 {
 public:
 
 	int	m_numVertices;
 
-	SimdVector3	m_simplexVectorW[VORONOI_SIMPLEX_MAX_VERTS];
-	SimdPoint3	m_simplexPointsP[VORONOI_SIMPLEX_MAX_VERTS];
-	SimdPoint3	m_simplexPointsQ[VORONOI_SIMPLEX_MAX_VERTS];
+	btVector3	m_simplexVectorW[VORONOI_SIMPLEX_MAX_VERTS];
+	btPoint3	m_simplexPointsP[VORONOI_SIMPLEX_MAX_VERTS];
+	btPoint3	m_simplexPointsQ[VORONOI_SIMPLEX_MAX_VERTS];
 
 	
 
-	SimdPoint3	m_cachedP1;
-	SimdPoint3	m_cachedP2;
-	SimdVector3	m_cachedV;
-	SimdVector3	m_lastW;
+	btPoint3	m_cachedP1;
+	btPoint3	m_cachedP2;
+	btVector3	m_cachedV;
+	btVector3	m_lastW;
 	bool		m_cachedValidClosest;
 
-	SubSimplexClosestResult m_cachedBC;
+	btSubSimplexClosestResult m_cachedBC;
 
 	bool	m_needsUpdate;
 	
 	void	removeVertex(int index);
-	void	ReduceVertices (const UsageBitfield& usedVerts);
+	void	ReduceVertices (const btUsageBitfield& usedVerts);
 	bool	UpdateClosestVectorAndPoints();
 
-	bool	ClosestPtPointTetrahedron(const SimdPoint3& p, const SimdPoint3& a, const SimdPoint3& b, const SimdPoint3& c, const SimdPoint3& d, SubSimplexClosestResult& finalResult);
-	int		PointOutsideOfPlane(const SimdPoint3& p, const SimdPoint3& a, const SimdPoint3& b, const SimdPoint3& c, const SimdPoint3& d);
-	bool	ClosestPtPointTriangle(const SimdPoint3& p, const SimdPoint3& a, const SimdPoint3& b, const SimdPoint3& c,SubSimplexClosestResult& result);
+	bool	ClosestPtPointTetrahedron(const btPoint3& p, const btPoint3& a, const btPoint3& b, const btPoint3& c, const btPoint3& d, btSubSimplexClosestResult& finalResult);
+	int		PointOutsideOfPlane(const btPoint3& p, const btPoint3& a, const btPoint3& b, const btPoint3& c, const btPoint3& d);
+	bool	ClosestPtPointTriangle(const btPoint3& p, const btPoint3& a, const btPoint3& b, const btPoint3& c,btSubSimplexClosestResult& result);
 
 public:
 
 	 void reset();
 
-	 void addVertex(const SimdVector3& w, const SimdPoint3& p, const SimdPoint3& q);
+	 void addVertex(const btVector3& w, const btPoint3& p, const btPoint3& q);
 
 
-	 bool closest(SimdVector3& v);
+	 bool closest(btVector3& v);
 
-	 SimdScalar maxVertex();
+	 btScalar maxVertex();
 
 	 bool fullSimplex() const
 	 {
 		 return (m_numVertices == 4);
 	 }
 
-	 int getSimplex(SimdPoint3 *pBuf, SimdPoint3 *qBuf, SimdVector3 *yBuf) const;
+	 int getSimplex(btPoint3 *pBuf, btPoint3 *qBuf, btVector3 *yBuf) const;
 
-	 bool inSimplex(const SimdVector3& w);
+	 bool inSimplex(const btVector3& w);
 	
-	 void backup_closest(SimdVector3& v) ;
+	 void backup_closest(btVector3& v) ;
 
 	 bool emptySimplex() const ;
 
-	 void compute_points(SimdPoint3& p1, SimdPoint3& p2) ;
+	 void compute_points(btPoint3& p1, btPoint3& p2) ;
 
 	 int numVertices() const 
 	 {

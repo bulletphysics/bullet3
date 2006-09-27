@@ -14,9 +14,9 @@ subject to the following restrictions:
 2. Altered source versions must be plainly marked as such, and must not be misrepresented as being the original software.
 3. This notice may not be removed or altered from any source distribution.
 */
-#include "LinearMath/SimdScalar.h"
-#include "LinearMath/SimdVector3.h"
-#include "LinearMath/SimdPoint3.h"
+#include "LinearMath/btScalar.h"
+#include "LinearMath/btVector3.h"
+#include "LinearMath/btPoint3.h"
 
 #include "NarrowPhaseCollision/EpaCommon.h"
 
@@ -25,7 +25,7 @@ subject to the following restrictions:
 #include "NarrowPhaseCollision/EpaFace.h"
 
 #ifdef EPA_POLYHEDRON_USE_PLANES
-SimdScalar PLANE_THICKNESS = 1e-5f;
+btScalar PLANE_THICKNESS = 1e-5f;
 #endif
 
 EpaFace::EpaFace() : m_pHalfEdge( 0 ), m_deleted( false )
@@ -43,17 +43,17 @@ bool EpaFace::Initialize()
 
 	CollectVertices( m_pVertices );
 	
-	const SimdVector3 e0 = m_pVertices[ 1 ]->m_point - m_pVertices[ 0 ]->m_point;
-	const SimdVector3 e1 = m_pVertices[ 2 ]->m_point - m_pVertices[ 0 ]->m_point;
+	const btVector3 e0 = m_pVertices[ 1 ]->m_point - m_pVertices[ 0 ]->m_point;
+	const btVector3 e1 = m_pVertices[ 2 ]->m_point - m_pVertices[ 0 ]->m_point;
 
-	const SimdScalar e0Sqrd = e0.length2();
-	const SimdScalar e1Sqrd = e1.length2();
-	const SimdScalar e0e1   = e0.dot( e1 );
+	const btScalar e0Sqrd = e0.length2();
+	const btScalar e1Sqrd = e1.length2();
+	const btScalar e0e1   = e0.dot( e1 );
 
 	m_determinant = e0Sqrd * e1Sqrd - e0e1 * e0e1;
 
-	const SimdScalar e0v0 = e0.dot( m_pVertices[ 0 ]->m_point );
-	const SimdScalar e1v0 = e1.dot( m_pVertices[ 0 ]->m_point );
+	const btScalar e0v0 = e0.dot( m_pVertices[ 0 ]->m_point );
+	const btScalar e1v0 = e1.dot( m_pVertices[ 0 ]->m_point );
 
 	m_lambdas[ 0 ] = e0e1 * e1v0 - e1Sqrd * e0v0;
 	m_lambdas[ 1 ] = e0e1 * e0v0 - e0Sqrd * e1v0;
@@ -83,8 +83,8 @@ bool EpaFace::CalculatePlane()
 
 	// Traditional method
 
-	const SimdVector3 v1 = m_pVertices[ 1 ]->m_point - m_pVertices[ 0 ]->m_point;
-	const SimdVector3 v2 = m_pVertices[ 2 ]->m_point - m_pVertices[ 0 ]->m_point;
+	const btVector3 v1 = m_pVertices[ 1 ]->m_point - m_pVertices[ 0 ]->m_point;
+	const btVector3 v2 = m_pVertices[ 2 ]->m_point - m_pVertices[ 0 ]->m_point;
 
 	m_planeNormal = v2.cross( v1 );
 
@@ -99,10 +99,10 @@ bool EpaFace::CalculatePlane()
 
 	// Robust method
 
-	//SimdVector3 _v1 = m_pVertices[ 1 ]->m_point - m_pVertices[ 0 ]->m_point;
-	//SimdVector3 _v2 = m_pVertices[ 2 ]->m_point - m_pVertices[ 0 ]->m_point;
+	//btVector3 _v1 = m_pVertices[ 1 ]->m_point - m_pVertices[ 0 ]->m_point;
+	//btVector3 _v2 = m_pVertices[ 2 ]->m_point - m_pVertices[ 0 ]->m_point;
 
-	//SimdVector3 n;
+	//btVector3 n;
 
 	//n = _v2.cross( _v1 );
 
@@ -119,8 +119,8 @@ bool EpaFace::CalculatePlane()
 	//n /= 3;	
 	//n.normalize();
 
-	//SimdVector3 c = ( m_pVertices[ 0 ]->m_point + m_pVertices[ 1 ]->m_point + m_pVertices[ 2 ]->m_point ) / 3;
-	//SimdScalar d  = c.dot( -n );
+	//btVector3 c = ( m_pVertices[ 0 ]->m_point + m_pVertices[ 1 ]->m_point + m_pVertices[ 2 ]->m_point ) / 3;
+	//btScalar d  = c.dot( -n );
 
 	//m_robustPlaneNormal   = n;
 	//m_robustPlaneDistance = d;
@@ -142,8 +142,8 @@ bool EpaFace::CalculatePlane()
 
 void EpaFace::CalcClosestPoint()
 {
-	const SimdVector3 e0 = m_pVertices[ 1 ]->m_point - m_pVertices[ 0 ]->m_point;
-	const SimdVector3 e1 = m_pVertices[ 2 ]->m_point - m_pVertices[ 0 ]->m_point;
+	const btVector3 e0 = m_pVertices[ 1 ]->m_point - m_pVertices[ 0 ]->m_point;
+	const btVector3 e1 = m_pVertices[ 2 ]->m_point - m_pVertices[ 0 ]->m_point;
 
 	m_v =  m_pVertices[ 0 ]->m_point +
 		 ( e0 * m_lambdas[ 0 ] + e1 * m_lambdas[ 1 ] ) / m_determinant;
@@ -151,20 +151,20 @@ void EpaFace::CalcClosestPoint()
 	m_vSqrd = m_v.length2();
 }
 
-void EpaFace::CalcClosestPointOnA( SimdVector3& closestPointOnA )
+void EpaFace::CalcClosestPointOnA( btVector3& closestPointOnA )
 {
-	const SimdVector3 e0 = m_pVertices[ 1 ]->m_wSupportPointOnA - m_pVertices[ 0 ]->m_wSupportPointOnA;
-	const SimdVector3 e1 = m_pVertices[ 2 ]->m_wSupportPointOnA - m_pVertices[ 0 ]->m_wSupportPointOnA;
+	const btVector3 e0 = m_pVertices[ 1 ]->m_wSupportPointOnA - m_pVertices[ 0 ]->m_wSupportPointOnA;
+	const btVector3 e1 = m_pVertices[ 2 ]->m_wSupportPointOnA - m_pVertices[ 0 ]->m_wSupportPointOnA;
 
 	closestPointOnA =  m_pVertices[ 0 ]->m_wSupportPointOnA +
 					 ( e0 * m_lambdas[ 0 ] + e1 * m_lambdas[ 1 ] ) /
 					   m_determinant;
 }
 
-void EpaFace::CalcClosestPointOnB( SimdVector3& closestPointOnB )
+void EpaFace::CalcClosestPointOnB( btVector3& closestPointOnB )
 {
-	const SimdVector3 e0 = m_pVertices[ 1 ]->m_wSupportPointOnB - m_pVertices[ 0 ]->m_wSupportPointOnB;
-	const SimdVector3 e1 = m_pVertices[ 2 ]->m_wSupportPointOnB - m_pVertices[ 0 ]->m_wSupportPointOnB;
+	const btVector3 e0 = m_pVertices[ 1 ]->m_wSupportPointOnB - m_pVertices[ 0 ]->m_wSupportPointOnB;
+	const btVector3 e1 = m_pVertices[ 2 ]->m_wSupportPointOnB - m_pVertices[ 0 ]->m_wSupportPointOnB;
 
 	closestPointOnB =  m_pVertices[ 0 ]->m_wSupportPointOnB +
 					 ( e0 * m_lambdas[  0 ] + e1 * m_lambdas[ 1 ] ) /

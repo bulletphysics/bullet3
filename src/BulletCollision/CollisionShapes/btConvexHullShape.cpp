@@ -15,41 +15,41 @@ subject to the following restrictions:
 #include "btConvexHullShape.h"
 #include "BulletCollision/CollisionShapes/btCollisionMargin.h"
 
-#include "LinearMath/SimdQuaternion.h"
+#include "LinearMath/btQuaternion.h"
 
 
-ConvexHullShape ::ConvexHullShape (SimdPoint3* points,int numPoints,int stride)
+btConvexHullShape ::btConvexHullShape (btPoint3* points,int numPoints,int stride)
 {
 	m_points.resize(numPoints);
 	unsigned char* pointsBaseAddress = (unsigned char*)points;
 
 	for (int i=0;i<numPoints;i++)
 	{
-		SimdPoint3* point = (SimdPoint3*)(pointsBaseAddress + i*stride);
+		btPoint3* point = (btPoint3*)(pointsBaseAddress + i*stride);
 		m_points[i] = point[0];
 	}
 }
 
-SimdVector3	ConvexHullShape::LocalGetSupportingVertexWithoutMargin(const SimdVector3& vec0)const
+btVector3	btConvexHullShape::LocalGetSupportingVertexWithoutMargin(const btVector3& vec0)const
 {
-	SimdVector3 supVec(0.f,0.f,0.f);
-	SimdScalar newDot,maxDot = -1e30f;
+	btVector3 supVec(0.f,0.f,0.f);
+	btScalar newDot,maxDot = -1e30f;
 
-	SimdVector3 vec = vec0;
-	SimdScalar lenSqr = vec.length2();
+	btVector3 vec = vec0;
+	btScalar lenSqr = vec.length2();
 	if (lenSqr < 0.0001f)
 	{
 		vec.setValue(1,0,0);
 	} else
 	{
-		float rlen = 1.f / SimdSqrt(lenSqr );
+		float rlen = 1.f / btSqrt(lenSqr );
 		vec *= rlen;
 	}
 
 
 	for (size_t i=0;i<m_points.size();i++)
 	{
-		SimdPoint3 vtx = m_points[i] * m_localScaling;
+		btPoint3 vtx = m_points[i] * m_localScaling;
 
 		newDot = vec.dot(vtx);
 		if (newDot > maxDot)
@@ -61,9 +61,9 @@ SimdVector3	ConvexHullShape::LocalGetSupportingVertexWithoutMargin(const SimdVec
 	return supVec;
 }
 
-void	ConvexHullShape::BatchedUnitVectorGetSupportingVertexWithoutMargin(const SimdVector3* vectors,SimdVector3* supportVerticesOut,int numVectors) const
+void	btConvexHullShape::BatchedUnitVectorGetSupportingVertexWithoutMargin(const btVector3* vectors,btVector3* supportVerticesOut,int numVectors) const
 {
-	SimdScalar newDot;
+	btScalar newDot;
 	//use 'w' component of supportVerticesOut?
 	{
 		for (int i=0;i<numVectors;i++)
@@ -73,11 +73,11 @@ void	ConvexHullShape::BatchedUnitVectorGetSupportingVertexWithoutMargin(const Si
 	}
 	for (size_t i=0;i<m_points.size();i++)
 	{
-		SimdPoint3 vtx = m_points[i] * m_localScaling;
+		btPoint3 vtx = m_points[i] * m_localScaling;
 
 		for (int j=0;j<numVectors;j++)
 		{
-			const SimdVector3& vec = vectors[j];
+			const btVector3& vec = vectors[j];
 			
 			newDot = vec.dot(vtx);
 			if (newDot > supportVerticesOut[j][3])
@@ -95,13 +95,13 @@ void	ConvexHullShape::BatchedUnitVectorGetSupportingVertexWithoutMargin(const Si
 	
 
 
-SimdVector3	ConvexHullShape::LocalGetSupportingVertex(const SimdVector3& vec)const
+btVector3	btConvexHullShape::LocalGetSupportingVertex(const btVector3& vec)const
 {
-	SimdVector3 supVertex = LocalGetSupportingVertexWithoutMargin(vec);
+	btVector3 supVertex = LocalGetSupportingVertexWithoutMargin(vec);
 
 	if ( GetMargin()!=0.f )
 	{
-		SimdVector3 vecnorm = vec;
+		btVector3 vecnorm = vec;
 		if (vecnorm .length2() < (SIMD_EPSILON*SIMD_EPSILON))
 		{
 			vecnorm.setValue(-1.f,-1.f,-1.f);
@@ -121,18 +121,18 @@ SimdVector3	ConvexHullShape::LocalGetSupportingVertex(const SimdVector3& vec)con
 
 
 //currently just for debugging (drawing), perhaps future support for algebraic continuous collision detection
-//Please note that you can debug-draw ConvexHullShape with the Raytracer Demo
-int	ConvexHullShape::GetNumVertices() const
+//Please note that you can debug-draw btConvexHullShape with the Raytracer Demo
+int	btConvexHullShape::GetNumVertices() const
 {
 	return m_points.size();
 }
 
-int ConvexHullShape::GetNumEdges() const
+int btConvexHullShape::GetNumEdges() const
 {
 	return m_points.size()*m_points.size();
 }
 
-void ConvexHullShape::GetEdge(int i,SimdPoint3& pa,SimdPoint3& pb) const
+void btConvexHullShape::GetEdge(int i,btPoint3& pa,btPoint3& pb) const
 {
 
 	int index0 = i%m_points.size();
@@ -141,23 +141,23 @@ void ConvexHullShape::GetEdge(int i,SimdPoint3& pa,SimdPoint3& pb) const
 	pb = m_points[index1]*m_localScaling;
 }
 
-void ConvexHullShape::GetVertex(int i,SimdPoint3& vtx) const
+void btConvexHullShape::GetVertex(int i,btPoint3& vtx) const
 {
 	vtx = m_points[i]*m_localScaling;
 }
 
-int	ConvexHullShape::GetNumPlanes() const
+int	btConvexHullShape::GetNumPlanes() const
 {
 	return 0;
 }
 
-void ConvexHullShape::GetPlane(SimdVector3& planeNormal,SimdPoint3& planeSupport,int i ) const
+void btConvexHullShape::GetPlane(btVector3& planeNormal,btPoint3& planeSupport,int i ) const
 {
 	assert(0);
 }
 
 //not yet
-bool ConvexHullShape::IsInside(const SimdPoint3& pt,SimdScalar tolerance) const
+bool btConvexHullShape::IsInside(const btPoint3& pt,btScalar tolerance) const
 {
 	assert(0);
 	return false;

@@ -21,20 +21,20 @@ subject to the following restrictions:
 
 ///StaticPlaneShape simulates an 'infinite' plane by dynamically reporting triangles approximated by intersection of the plane with the AABB.
 ///Assumed is that the other objects is not also infinite, so a reasonable sized AABB.
-class StaticPlaneShape : public ConcaveShape
+class btStaticPlaneShape : public ConcaveShape
 {
 protected:
-	SimdVector3	m_localAabbMin;
-	SimdVector3	m_localAabbMax;
+	btVector3	m_localAabbMin;
+	btVector3	m_localAabbMax;
 	
-	SimdVector3	m_planeNormal;
-	SimdScalar      m_planeConstant;
-	SimdVector3	m_localScaling;
+	btVector3	m_planeNormal;
+	btScalar      m_planeConstant;
+	btVector3	m_localScaling;
 
 public:
-	StaticPlaneShape(const SimdVector3& planeNormal,SimdScalar planeConstant);
+	btStaticPlaneShape(const btVector3& planeNormal,btScalar planeConstant);
 
-	virtual ~StaticPlaneShape();
+	virtual ~btStaticPlaneShape();
 
 
 	virtual int	GetShapeType() const
@@ -42,14 +42,14 @@ public:
 		return STATIC_PLANE_PROXYTYPE;
 	}
 
-	virtual void GetAabb(const SimdTransform& t,SimdVector3& aabbMin,SimdVector3& aabbMax) const;
+	virtual void GetAabb(const btTransform& t,btVector3& aabbMin,btVector3& aabbMax) const;
 
-	virtual void	ProcessAllTriangles(TriangleCallback* callback,const SimdVector3& aabbMin,const SimdVector3& aabbMax) const;
+	virtual void	ProcessAllTriangles(btTriangleCallback* callback,const btVector3& aabbMin,const btVector3& aabbMax) const;
 
-	virtual void	CalculateLocalInertia(SimdScalar mass,SimdVector3& inertia);
+	virtual void	CalculateLocalInertia(btScalar mass,btVector3& inertia);
 
-	virtual void	setLocalScaling(const SimdVector3& scaling);
-	virtual const SimdVector3& getLocalScaling() const;
+	virtual void	setLocalScaling(const btVector3& scaling);
+	virtual const btVector3& getLocalScaling() const;
 	
 
 	//debugging

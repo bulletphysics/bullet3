@@ -15,32 +15,32 @@ subject to the following restrictions:
 
 #include "btConvexShape.h"
 
-ConvexShape::ConvexShape()
+btConvexShape::btConvexShape()
 :m_collisionMargin(CONVEX_DISTANCE_MARGIN),
 m_localScaling(1.f,1.f,1.f)
 {
 }
 
 
-void	ConvexShape::setLocalScaling(const SimdVector3& scaling)
+void	btConvexShape::setLocalScaling(const btVector3& scaling)
 {
 	m_localScaling = scaling;
 }
 
 
 
-void	ConvexShape::GetAabbSlow(const SimdTransform& trans,SimdVector3&minAabb,SimdVector3&maxAabb) const
+void	btConvexShape::GetAabbSlow(const btTransform& trans,btVector3&minAabb,btVector3&maxAabb) const
 {
 
-	SimdScalar margin = GetMargin();
+	btScalar margin = GetMargin();
 	for (int i=0;i<3;i++)
 	{
-		SimdVector3 vec(0.f,0.f,0.f);
+		btVector3 vec(0.f,0.f,0.f);
 		vec[i] = 1.f;
 
-		SimdVector3 sv = LocalGetSupportingVertex(vec*trans.getBasis());
+		btVector3 sv = LocalGetSupportingVertex(vec*trans.getBasis());
 
-		SimdVector3 tmp = trans(sv);
+		btVector3 tmp = trans(sv);
 		maxAabb[i] = tmp[i]+margin;
 		vec[i] = -1.f;
 		tmp = trans(LocalGetSupportingVertex(vec*trans.getBasis()));
@@ -48,13 +48,13 @@ void	ConvexShape::GetAabbSlow(const SimdTransform& trans,SimdVector3&minAabb,Sim
 	}
 };
 
-SimdVector3	ConvexShape::LocalGetSupportingVertex(const SimdVector3& vec)const
+btVector3	btConvexShape::LocalGetSupportingVertex(const btVector3& vec)const
  {
-	 SimdVector3	supVertex = LocalGetSupportingVertexWithoutMargin(vec);
+	 btVector3	supVertex = LocalGetSupportingVertexWithoutMargin(vec);
 
 	if ( GetMargin()!=0.f )
 	{
-		SimdVector3 vecnorm = vec;
+		btVector3 vecnorm = vec;
 		if (vecnorm .length2() < (SIMD_EPSILON*SIMD_EPSILON))
 		{
 			vecnorm.setValue(-1.f,-1.f,-1.f);

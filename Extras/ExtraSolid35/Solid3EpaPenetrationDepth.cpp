@@ -8,7 +8,7 @@
  * LICENSE.QPL included in the packaging of this file.
  *
  * This library may be distributed and/or modified under the terms of the
- * GNU General Public License (GPL) version 2 as published by the Free Software
+ * GNU bteral Public License (GPL) version 2 as published by the Free Software
  * Foundation and appearing in the file LICENSE.GPL included in the
  * packaging of this file.
  *
@@ -26,34 +26,34 @@
 #include <vector>
 #include "BulletCollision/NarrowPhaseCollision/btSimplexSolverInterface.h"
 #include "BulletCollision/CollisionShapes/btConvexShape.h"
-#include "LinearMath/GenMinMax.h"
+#include "LinearMath/btMinMax.h"
 
 #define ASSERT_MESSAGE
 
 class ReplaceMeAccuracy {
 public:
-	static SimdScalar rel_error2; // squared relative error in the computed distance
-	static SimdScalar depth_tolerance; // terminate EPA if upper_bound <= depth_tolerance * dist2
-	static SimdScalar tol_error; // error tolerance if the distance is almost zero
+	static btScalar rel_error2; // squared relative error in the computed distance
+	static btScalar depth_tolerance; // terminate EPA if upper_bound <= depth_tolerance * dist2
+	static btScalar tol_error; // error tolerance if the distance is almost zero
 	
-	static void setAccuracy(SimdScalar rel_error) 
+	static void setAccuracy(btScalar rel_error) 
 	{ 
 		rel_error2 = rel_error * rel_error;
-		depth_tolerance = SimdScalar(1.0f) + SimdScalar(2.0f) * rel_error;
+		depth_tolerance = btScalar(1.0f) + btScalar(2.0f) * rel_error;
 	}	
    
-	static void setTolerance(SimdScalar epsilon) 
+	static void setTolerance(btScalar epsilon) 
 	{ 
 		tol_error = epsilon;
 	}
 };
 
 
-static const SimdScalar rel_error = SimdScalar(1.0e-3);
+static const btScalar rel_error = btScalar(1.0e-3);
 
-SimdScalar ReplaceMeAccuracy::rel_error2 = rel_error * rel_error;
-SimdScalar ReplaceMeAccuracy::depth_tolerance = SimdScalar(1.0) + SimdScalar(2.0) * rel_error; 
-SimdScalar ReplaceMeAccuracy::tol_error = SIMD_EPSILON;
+btScalar ReplaceMeAccuracy::rel_error2 = rel_error * rel_error;
+btScalar ReplaceMeAccuracy::depth_tolerance = btScalar(1.0) + btScalar(2.0) * rel_error; 
+btScalar ReplaceMeAccuracy::tol_error = SIMD_EPSILON;
 
 
 
@@ -101,28 +101,28 @@ public:
     bool isObsolete() const { return m_obsolete; }
     
 
-    bool computeClosest(const SimdVector3 *verts);
+    bool computeClosest(const btVector3 *verts);
     
-    const SimdVector3& getClosest() const { return m_closest; } 
+    const btVector3& getClosest() const { return m_closest; } 
     
     bool isClosestInternal() const
 	{ 
-		return m_lambda1 >= SimdScalar(0.0) && 
-			m_lambda2 >= SimdScalar(0.0) && 
+		return m_lambda1 >= btScalar(0.0) && 
+			m_lambda2 >= btScalar(0.0) && 
 			m_lambda1 + m_lambda2 <= m_det;
     } 
 
-    SimdScalar getDist2() const { return m_dist2; }
+    btScalar getDist2() const { return m_dist2; }
 	
-    SimdPoint3 getClosestPoint(const SimdPoint3 *points) const 
+    btPoint3 getClosestPoint(const btPoint3 *points) const 
 	{
-		const SimdPoint3& p0 = points[m_indices[0]];
+		const btPoint3& p0 = points[m_indices[0]];
 		
 		return p0 + (m_lambda1 * (points[m_indices[1]] - p0) + 
 					 m_lambda2 * (points[m_indices[2]] - p0)) / m_det;
     }
     
-    void silhouette(const SimdVector3& w, ReplaceMeEdgeBuffer& edgeBuffer) 
+    void silhouette(const btVector3& w, ReplaceMeEdgeBuffer& edgeBuffer) 
 	{
 		edgeBuffer.clear();
 		m_obsolete = true;
@@ -132,18 +132,18 @@ public:
     }
 	
 private:
-    void silhouette(int index, const SimdVector3& w, ReplaceMeEdgeBuffer& edgeBuffer);
+    void silhouette(int index, const btVector3& w, ReplaceMeEdgeBuffer& edgeBuffer);
 	
     int         m_indices[3];
     bool        m_obsolete;
     ReplaceMeFacet   *m_adjFacets[3];
     int         m_adjEdges[3];
 	
-    SimdScalar   m_det;
-    SimdScalar   m_lambda1;
-    SimdScalar   m_lambda2;
-    SimdVector3  m_closest;
-    SimdScalar   m_dist2;
+    btScalar   m_det;
+    btScalar   m_lambda1;
+    btScalar   m_lambda2;
+    btVector3  m_closest;
+    btScalar   m_dist2;
 };
 
 
@@ -163,17 +163,17 @@ bool ReplaceMeFacet::link(int edge0, ReplaceMeFacet *facet, int edge1)
 }
 
 
-bool ReplaceMeFacet::computeClosest(const SimdVector3 *verts)
+bool ReplaceMeFacet::computeClosest(const btVector3 *verts)
 {
-    const SimdVector3& p0 = verts[m_indices[0]]; 
+    const btVector3& p0 = verts[m_indices[0]]; 
 
-    SimdVector3 v1 = verts[m_indices[1]] - p0;
-    SimdVector3 v2 = verts[m_indices[2]] - p0;
-    SimdScalar v1dv1 = v1.length2();
-    SimdScalar v1dv2 = v1.dot(v2);
-    SimdScalar v2dv2 = v2.length2();
-    SimdScalar p0dv1 = p0.dot(v1); 
-    SimdScalar p0dv2 = p0.dot(v2);
+    btVector3 v1 = verts[m_indices[1]] - p0;
+    btVector3 v2 = verts[m_indices[2]] - p0;
+    btScalar v1dv1 = v1.length2();
+    btScalar v1dv2 = v1.dot(v2);
+    btScalar v2dv2 = v2.length2();
+    btScalar p0dv1 = p0.dot(v1); 
+    btScalar p0dv2 = p0.dot(v2);
 
     m_det = v1dv1 * v2dv2 - v1dv2 * v1dv2; // non-negative
     //printf("m_det = %f\n",m_det);
@@ -192,7 +192,7 @@ bool ReplaceMeFacet::computeClosest(const SimdVector3 *verts)
     return false;
 } 
 
-void ReplaceMeFacet::silhouette(int index, const SimdVector3& w, 
+void ReplaceMeFacet::silhouette(int index, const btVector3& w, 
 			  ReplaceMeEdgeBuffer& edgeBuffer) 
 {
     if (!m_obsolete) {
@@ -227,9 +227,9 @@ inline int ReplaceMeEdge::getTarget() const
 const int       MaxSupportPoints = 100;//1000;
 const int       MaxFacets         = 200;//b2000;
 
-static SimdPoint3  pBuf[MaxSupportPoints];
-static SimdPoint3  qBuf[MaxSupportPoints];
-static SimdVector3 yBuf[MaxSupportPoints];
+static btPoint3  pBuf[MaxSupportPoints];
+static btPoint3  qBuf[MaxSupportPoints];
+static btVector3 yBuf[MaxSupportPoints];
 
 static ReplaceMeFacet facetBuf[MaxFacets];
 static int  freeFacet = 0;
@@ -249,7 +249,7 @@ public:
 ReplaceMeFacetComp myFacetComp;
 
 inline ReplaceMeFacet *addFacet(int i0, int i1, int i2,
-						  SimdScalar lower2, SimdScalar upper2) 
+						  btScalar lower2, btScalar upper2) 
 {
     assert(i0 != i1 && i0 != i2 && i1 != i2);
     if (freeFacet < MaxFacets)
@@ -300,27 +300,27 @@ inline ReplaceMeFacet *addFacet(int i0, int i1, int i2,
 
 
 
-inline bool originInTetrahedron(const SimdVector3& p1, const SimdVector3& p2, 
-								const SimdVector3& p3, const SimdVector3& p4)
+inline bool originInTetrahedron(const btVector3& p1, const btVector3& p2, 
+								const btVector3& p3, const btVector3& p4)
 {
-    SimdVector3 normal1 = (p2 - p1).cross(p3 - p1);
-    SimdVector3 normal2 = (p3 - p2).cross(p4 - p2);
-    SimdVector3 normal3 = (p4 - p3).cross(p1 - p3);
-    SimdVector3 normal4 = (p1 - p4).cross(p2 - p4);
+    btVector3 normal1 = (p2 - p1).cross(p3 - p1);
+    btVector3 normal2 = (p3 - p2).cross(p4 - p2);
+    btVector3 normal3 = (p4 - p3).cross(p1 - p3);
+    btVector3 normal4 = (p1 - p4).cross(p2 - p4);
     
     return 
-		(normal1.dot(p1) > SimdScalar(0.0)) != (normal1.dot(p4) > SimdScalar(0.0)) &&
-		(normal2.dot(p2) > SimdScalar(0.0)) != (normal2.dot(p1) > SimdScalar(0.0)) &&
-		(normal3.dot(p3) > SimdScalar(0.0)) != (normal3.dot(p2) > SimdScalar(0.0)) &&
-		(normal4.dot(p4) > SimdScalar(0.0)) != (normal4.dot(p3) > SimdScalar(0.0));
+		(normal1.dot(p1) > btScalar(0.0)) != (normal1.dot(p4) > btScalar(0.0)) &&
+		(normal2.dot(p2) > btScalar(0.0)) != (normal2.dot(p1) > btScalar(0.0)) &&
+		(normal3.dot(p3) > btScalar(0.0)) != (normal3.dot(p2) > btScalar(0.0)) &&
+		(normal4.dot(p4) > btScalar(0.0)) != (normal4.dot(p3) > btScalar(0.0));
 }
 
 
 
-bool Solid3EpaPenetrationDepth::CalcPenDepth( SimplexSolverInterface& simplexSolver,
-			ConvexShape* convexA,ConvexShape* convexB,
-			const SimdTransform& transformA,const SimdTransform& transformB,
-			SimdVector3& v, SimdPoint3& pa, SimdPoint3& pb)
+bool Solid3EpaPenetrationDepth::CalcPenDepth( btSimplexSolverInterface& simplexSolver,
+			btConvexShape* convexA,btConvexShape* convexB,
+			const btTransform& transformA,const btTransform& transformB,
+			btVector3& v, btPoint3& pa, btPoint3& pb)
 {
 	
     int num_verts = simplexSolver.getSimplex(pBuf, qBuf, yBuf);
@@ -336,17 +336,17 @@ bool Solid3EpaPenetrationDepth::CalcPenDepth( SimplexSolverInterface& simplexSol
 	    // We have a line segment inside the Minkowski sum containing the
 	    // origin. Blow it up by adding three additional support points.
 	    
-	    SimdVector3 dir  = (yBuf[1] - yBuf[0]).normalized();
+	    btVector3 dir  = (yBuf[1] - yBuf[0]).normalized();
 	    int        axis = dir.furthestAxis();
 	    
-	    static SimdScalar sin_60 = 0.8660254037f;//84438646763723170752941.22474487f;//13915890490986420373529;//
+	    static btScalar sin_60 = 0.8660254037f;//84438646763723170752941.22474487f;//13915890490986420373529;//
 	    
-	    SimdQuaternion rot(dir[0] * sin_60, dir[1] * sin_60, dir[2] * sin_60, SimdScalar(0.5));
-	    SimdMatrix3x3 rot_mat(rot);
+	    btQuaternion rot(dir[0] * sin_60, dir[1] * sin_60, dir[2] * sin_60, btScalar(0.5));
+	    btMatrix3x3 rot_mat(rot);
 	    
-	    SimdVector3 aux1 = dir.cross(SimdVector3(axis == 0, axis == 1, axis == 2));
-	    SimdVector3 aux2 = rot_mat * aux1;
-	    SimdVector3 aux3 = rot_mat * aux2;
+	    btVector3 aux1 = dir.cross(btVector3(axis == 0, axis == 1, axis == 2));
+	    btVector3 aux2 = rot_mat * aux1;
+	    btVector3 aux3 = rot_mat * aux2;
 	    
 	    pBuf[2] = transformA(convexA->LocalGetSupportingVertex(aux1*transformA.getBasis()));
 		qBuf[2] = transformB(convexB->LocalGetSupportingVertex((-aux1)*transformB.getBasis()));
@@ -387,9 +387,9 @@ bool Solid3EpaPenetrationDepth::CalcPenDepth( SimplexSolverInterface& simplexSol
 	    // We have a triangle inside the Minkowski sum containing
 	    // the origin. First blow it up.
 	    
-	    SimdVector3 v1     = yBuf[1] - yBuf[0];
-	    SimdVector3 v2     = yBuf[2] - yBuf[0];
-	    SimdVector3 vv     = v1.cross(v2);
+	    btVector3 v1     = yBuf[1] - yBuf[0];
+	    btVector3 v2     = yBuf[2] - yBuf[0];
+	    btVector3 vv     = v1.cross(v2);
 	    
 		pBuf[3] = transformA(convexA->LocalGetSupportingVertex(vv*transformA.getBasis()));
 		qBuf[3] = transformB(convexB->LocalGetSupportingVertex((-vv)*transformB.getBasis()));
@@ -430,15 +430,15 @@ bool Solid3EpaPenetrationDepth::CalcPenDepth( SimplexSolverInterface& simplexSol
 	num_facets = 0;
     freeFacet = 0;
 
-    ReplaceMeFacet *f0 = addFacet(0, 1, 2, SimdScalar(0.0), SIMD_INFINITY);
-    ReplaceMeFacet *f1 = addFacet(0, 3, 1, SimdScalar(0.0), SIMD_INFINITY);
-    ReplaceMeFacet *f2 = addFacet(0, 2, 3, SimdScalar(0.0), SIMD_INFINITY);
-    ReplaceMeFacet *f3 = addFacet(1, 3, 2, SimdScalar(0.0), SIMD_INFINITY);
+    ReplaceMeFacet *f0 = addFacet(0, 1, 2, btScalar(0.0), SIMD_INFINITY);
+    ReplaceMeFacet *f1 = addFacet(0, 3, 1, btScalar(0.0), SIMD_INFINITY);
+    ReplaceMeFacet *f2 = addFacet(0, 2, 3, btScalar(0.0), SIMD_INFINITY);
+    ReplaceMeFacet *f3 = addFacet(1, 3, 2, btScalar(0.0), SIMD_INFINITY);
     
-    if (!f0 || f0->getDist2() == SimdScalar(0.0) ||
-		!f1 || f1->getDist2() == SimdScalar(0.0) ||
-		!f2 || f2->getDist2() == SimdScalar(0.0) ||
-		!f3 || f3->getDist2() == SimdScalar(0.0)) 
+    if (!f0 || f0->getDist2() == btScalar(0.0) ||
+		!f1 || f1->getDist2() == btScalar(0.0) ||
+		!f2 || f2->getDist2() == btScalar(0.0) ||
+		!f3 || f3->getDist2() == btScalar(0.0)) 
 	{
 		return false;
     }
@@ -461,7 +461,7 @@ bool Solid3EpaPenetrationDepth::CalcPenDepth( SimplexSolverInterface& simplexSol
 
     ReplaceMeFacet *facet = 0;
     
-    SimdScalar upper_bound2 = SIMD_INFINITY; 	
+    btScalar upper_bound2 = SIMD_INFINITY; 	
     
     do {
         facet = facetHeap[0];
@@ -470,7 +470,7 @@ bool Solid3EpaPenetrationDepth::CalcPenDepth( SimplexSolverInterface& simplexSol
 		
 		if (!facet->isObsolete()) 
 		{
-			assert(facet->getDist2() > SimdScalar(0.0));
+			assert(facet->getDist2() > btScalar(0.0));
 			
 			if (num_verts == MaxSupportPoints)
 			{
@@ -487,16 +487,16 @@ bool Solid3EpaPenetrationDepth::CalcPenDepth( SimplexSolverInterface& simplexSol
 			
 
 			int index = num_verts++;
-			SimdScalar far_dist2 = yBuf[index].dot(facet->getClosest());
+			btScalar far_dist2 = yBuf[index].dot(facet->getClosest());
 			
 
 			// Make sure the support mapping is OK.
-			//assert(far_dist2 > SimdScalar(0.0));
+			//assert(far_dist2 > btScalar(0.0));
 			
 			//
 			// this is to avoid problems with implicit-sphere-touching contact
 			//
-			if (far_dist2 < SimdScalar(0.0))
+			if (far_dist2 < btScalar(0.0))
 			{
 				return false;
 			}

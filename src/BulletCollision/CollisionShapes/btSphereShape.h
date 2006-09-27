@@ -20,41 +20,41 @@ subject to the following restrictions:
 #include "BulletCollision/BroadphaseCollision/btBroadphaseProxy.h" // for the types
 
 ///SphereShape implements an implicit (getSupportingVertex) Sphere
-class SphereShape : public ConvexShape
+class btSphereShape : public btConvexShape
 
 {
-	SimdScalar m_radius;
+	btScalar m_radius;
 	
 public:
-	SphereShape (SimdScalar radius);
+	btSphereShape (btScalar radius);
 	
 	
-	virtual SimdVector3	LocalGetSupportingVertex(const SimdVector3& vec)const;
-	virtual SimdVector3	LocalGetSupportingVertexWithoutMargin(const SimdVector3& vec)const;
+	virtual btVector3	LocalGetSupportingVertex(const btVector3& vec)const;
+	virtual btVector3	LocalGetSupportingVertexWithoutMargin(const btVector3& vec)const;
 	//notice that the vectors should be unit length
-	virtual void	BatchedUnitVectorGetSupportingVertexWithoutMargin(const SimdVector3* vectors,SimdVector3* supportVerticesOut,int numVectors) const;
+	virtual void	BatchedUnitVectorGetSupportingVertexWithoutMargin(const btVector3* vectors,btVector3* supportVerticesOut,int numVectors) const;
 
 
-	virtual void	CalculateLocalInertia(SimdScalar mass,SimdVector3& inertia);
+	virtual void	CalculateLocalInertia(btScalar mass,btVector3& inertia);
 
-	virtual void GetAabb(const SimdTransform& t,SimdVector3& aabbMin,SimdVector3& aabbMax) const;
+	virtual void GetAabb(const btTransform& t,btVector3& aabbMin,btVector3& aabbMax) const;
 
 	virtual int	GetShapeType() const { return SPHERE_SHAPE_PROXYTYPE; }
 
-	SimdScalar	GetRadius() const { return m_radius;}
+	btScalar	GetRadius() const { return m_radius;}
 
 	//debugging
 	virtual char*	GetName()const {return "SPHERE";}
 
 	virtual void	SetMargin(float margin)
 	{
-		ConvexShape::SetMargin(margin);
+		btConvexShape::SetMargin(margin);
 	}
 	virtual float	GetMargin() const
 	{
 		//to improve gjk behaviour, use radius+margin as the full margin, so never get into the penetration case
 		//this means, non-uniform scaling is not supported anymore
-		return m_localScaling[0] * m_radius + ConvexShape::GetMargin();
+		return m_localScaling[0] * m_radius + btConvexShape::GetMargin();
 	}
 
 

@@ -16,30 +16,30 @@ subject to the following restrictions:
 #ifndef SIMD_QUADWORD_H
 #define SIMD_QUADWORD_H
 
-#include "LinearMath/SimdScalar.h"
+#include "LinearMath/btScalar.h"
 
 
 
 
 
-class	SimdQuadWord
+class	btQuadWord
 {
 	protected:
-		ATTRIBUTE_ALIGNED16	(SimdScalar	m_x);
-		SimdScalar	m_y;
-		SimdScalar	m_z;
-		SimdScalar	m_unusedW;
+		ATTRIBUTE_ALIGNED16	(btScalar	m_x);
+		btScalar	m_y;
+		btScalar	m_z;
+		btScalar	m_unusedW;
 
 	public:
 	
-		SIMD_FORCE_INLINE SimdScalar&       operator[](int i)       { return (&m_x)[i];	}      
-		SIMD_FORCE_INLINE const SimdScalar& operator[](int i) const { return (&m_x)[i]; }
+		SIMD_FORCE_INLINE btScalar&       operator[](int i)       { return (&m_x)[i];	}      
+		SIMD_FORCE_INLINE const btScalar& operator[](int i) const { return (&m_x)[i]; }
 
-		SIMD_FORCE_INLINE const SimdScalar& getX() const { return m_x; }
+		SIMD_FORCE_INLINE const btScalar& getX() const { return m_x; }
 
-		SIMD_FORCE_INLINE const SimdScalar& getY() const { return m_y; }
+		SIMD_FORCE_INLINE const btScalar& getY() const { return m_y; }
 
-		SIMD_FORCE_INLINE const SimdScalar& getZ() const { return m_z; }
+		SIMD_FORCE_INLINE const btScalar& getZ() const { return m_z; }
 
 		SIMD_FORCE_INLINE void	setX(float x) { m_x = x;};
 
@@ -47,31 +47,31 @@ class	SimdQuadWord
 
 		SIMD_FORCE_INLINE void	setZ(float z) { m_z = z;};
 
-		SIMD_FORCE_INLINE const SimdScalar& x() const { return m_x; }
+		SIMD_FORCE_INLINE const btScalar& x() const { return m_x; }
 
-		SIMD_FORCE_INLINE const SimdScalar& y() const { return m_y; }
+		SIMD_FORCE_INLINE const btScalar& y() const { return m_y; }
 
-		SIMD_FORCE_INLINE const SimdScalar& z() const { return m_z; }
+		SIMD_FORCE_INLINE const btScalar& z() const { return m_z; }
 
 
-		operator       SimdScalar *()       { return &m_x; }
-		operator const SimdScalar *() const { return &m_x; }
+		operator       btScalar *()       { return &m_x; }
+		operator const btScalar *() const { return &m_x; }
 
-		SIMD_FORCE_INLINE void 	setValue(const SimdScalar& x, const SimdScalar& y, const SimdScalar& z)
+		SIMD_FORCE_INLINE void 	setValue(const btScalar& x, const btScalar& y, const btScalar& z)
 		{
 			m_x=x;
 			m_y=y;
 			m_z=z;
 		}
 
-/*		void getValue(SimdScalar *m) const 
+/*		void getValue(btScalar *m) const 
 		{
 			m[0] = m_x;
 			m[1] = m_y;
 			m[2] = m_z;
 		}
 */
-		SIMD_FORCE_INLINE void	setValue(const SimdScalar& x, const SimdScalar& y, const SimdScalar& z,const SimdScalar& w)
+		SIMD_FORCE_INLINE void	setValue(const btScalar& x, const btScalar& y, const btScalar& z,const btScalar& w)
 		{
 			m_x=x;
 			m_y=y;
@@ -79,25 +79,25 @@ class	SimdQuadWord
 			m_unusedW=w;
 		}
 
-		SIMD_FORCE_INLINE SimdQuadWord() :
+		SIMD_FORCE_INLINE btQuadWord() :
 		m_x(0.f),m_y(0.f),m_z(0.f),m_unusedW(0.f)
 		{
 		}
 
-		SIMD_FORCE_INLINE SimdQuadWord(const SimdScalar& x, const SimdScalar& y, const SimdScalar& z) 
+		SIMD_FORCE_INLINE btQuadWord(const btScalar& x, const btScalar& y, const btScalar& z) 
 		:m_x(x),m_y(y),m_z(z)
 		//todo, remove this in release/simd ?
 		,m_unusedW(0.f)
 		{
 		}
 
-		SIMD_FORCE_INLINE SimdQuadWord(const SimdScalar& x, const SimdScalar& y, const SimdScalar& z,const SimdScalar& w) 
+		SIMD_FORCE_INLINE btQuadWord(const btScalar& x, const btScalar& y, const btScalar& z,const btScalar& w) 
 			:m_x(x),m_y(y),m_z(z),m_unusedW(w)
 		{
 		}
 
 
-		SIMD_FORCE_INLINE void	setMax(const SimdQuadWord& other)
+		SIMD_FORCE_INLINE void	setMax(const btQuadWord& other)
 		{
 			if (other.m_x > m_x)
 				m_x = other.m_x;
@@ -112,7 +112,7 @@ class	SimdQuadWord
 				m_unusedW = other.m_unusedW;
 		}
 
-		SIMD_FORCE_INLINE void	setMin(const SimdQuadWord& other)
+		SIMD_FORCE_INLINE void	setMin(const btQuadWord& other)
 		{
 			if (other.m_x < m_x)
 				m_x = other.m_x;

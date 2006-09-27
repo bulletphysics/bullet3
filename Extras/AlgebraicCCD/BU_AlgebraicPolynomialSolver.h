@@ -26,19 +26,19 @@ class BU_AlgebraicPolynomialSolver : public BUM_PolynomialSolverInterface
 public:
 	BU_AlgebraicPolynomialSolver() {};
 
-	int Solve2Quadratic(SimdScalar p, SimdScalar q);
-	int Solve2QuadraticFull(SimdScalar a,SimdScalar b, SimdScalar c);
-	int	Solve3Cubic(SimdScalar lead, SimdScalar a, SimdScalar b, SimdScalar c);
-	int Solve4Quartic(SimdScalar lead, SimdScalar a, SimdScalar b, SimdScalar c, SimdScalar d);
+	int Solve2Quadratic(btScalar p, btScalar q);
+	int Solve2QuadraticFull(btScalar a,btScalar b, btScalar c);
+	int	Solve3Cubic(btScalar lead, btScalar a, btScalar b, btScalar c);
+	int Solve4Quartic(btScalar lead, btScalar a, btScalar b, btScalar c, btScalar d);
 	
 
-	SimdScalar GetRoot(int i) const 
+	btScalar GetRoot(int i) const 
 	{
 		return m_roots[i];
 	}
 
 private:
-	SimdScalar	m_roots[4];
+	btScalar	m_roots[4];
 
 };
 

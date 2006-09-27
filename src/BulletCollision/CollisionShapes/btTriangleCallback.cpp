@@ -15,13 +15,13 @@ subject to the following restrictions:
 
 #include "btTriangleCallback.h"
 
-TriangleCallback::~TriangleCallback()
+btTriangleCallback::~btTriangleCallback()
 {
 
 }
 
 
-InternalTriangleIndexCallback::~InternalTriangleIndexCallback()
+btInternalTriangleIndexCallback::~btInternalTriangleIndexCallback()
 {
 
 }

@@ -17,24 +17,24 @@ subject to the following restrictions:
 #define RAYCAST_TRI_CALLBACK_H
 
 #include "BulletCollision/CollisionShapes/btTriangleCallback.h"
-struct BroadphaseProxy;
+struct btBroadphaseProxy;
 
 
-class  TriangleRaycastCallback: public TriangleCallback
+class  btTriangleRaycastCallback: public btTriangleCallback
 {
 public:
 
 		//input
-	SimdVector3 m_from;
-	SimdVector3 m_to;
+	btVector3 m_from;
+	btVector3 m_to;
 
 	float	m_hitFraction;
 
-	TriangleRaycastCallback(const SimdVector3& from,const SimdVector3& to);
+	btTriangleRaycastCallback(const btVector3& from,const btVector3& to);
 	
-	virtual void ProcessTriangle(SimdVector3* triangle, int partId, int triangleIndex);
+	virtual void ProcessTriangle(btVector3* triangle, int partId, int triangleIndex);
 
-	virtual float ReportHit(const SimdVector3& hitNormalLocal, float hitFraction, int partId, int triangleIndex ) = 0;
+	virtual float ReportHit(const btVector3& hitNormalLocal, float hitFraction, int partId, int triangleIndex ) = 0;
 	
 };
 

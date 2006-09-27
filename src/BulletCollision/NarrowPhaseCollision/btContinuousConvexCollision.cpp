@@ -18,7 +18,7 @@ subject to the following restrictions:
 #include "BulletCollision/CollisionShapes/btConvexShape.h"
 #include "BulletCollision/CollisionShapes/btMinkowskiSumShape.h"
 #include "BulletCollision/NarrowPhaseCollision/btSimplexSolverInterface.h"
-#include "LinearMath/SimdTransformUtil.h"
+#include "LinearMath/btTransformUtil.h"
 #include "BulletCollision/CollisionShapes/btSphereShape.h"
 
 #include "btGjkPairDetector.h"
@@ -26,7 +26,7 @@ subject to the following restrictions:
 
 
 
-ContinuousConvexCollision::ContinuousConvexCollision ( ConvexShape*	convexA,ConvexShape*	convexB,SimplexSolverInterface* simplexSolver, ConvexPenetrationDepthSolver* penetrationDepthSolver)
+btContinuousConvexCollision::btContinuousConvexCollision ( btConvexShape*	convexA,btConvexShape*	convexB,btSimplexSolverInterface* simplexSolver, btConvexPenetrationDepthSolver* penetrationDepthSolver)
 :m_simplexSolver(simplexSolver),
 m_penetrationDepthSolver(penetrationDepthSolver),
 m_convexA(convexA),m_convexB(convexB)
@@ -37,37 +37,37 @@ m_convexA(convexA),m_convexB(convexB)
 /// You don't want your game ever to lock-up.
 #define MAX_ITERATIONS 1000
 
-bool	ContinuousConvexCollision::calcTimeOfImpact(
-				const SimdTransform& fromA,
-				const SimdTransform& toA,
-				const SimdTransform& fromB,
-				const SimdTransform& toB,
+bool	btContinuousConvexCollision::calcTimeOfImpact(
+				const btTransform& fromA,
+				const btTransform& toA,
+				const btTransform& fromB,
+				const btTransform& toB,
 				CastResult& result)
 {
 
 	m_simplexSolver->reset();
 
 	/// compute linear and angular velocity for this interval, to interpolate
-	SimdVector3 linVelA,angVelA,linVelB,angVelB;
-	SimdTransformUtil::CalculateVelocity(fromA,toA,1.f,linVelA,angVelA);
-	SimdTransformUtil::CalculateVelocity(fromB,toB,1.f,linVelB,angVelB);
+	btVector3 linVelA,angVelA,linVelB,angVelB;
+	btTransformUtil::CalculateVelocity(fromA,toA,1.f,linVelA,angVelA);
+	btTransformUtil::CalculateVelocity(fromB,toB,1.f,linVelB,angVelB);
 
-	SimdScalar boundingRadiusA = m_convexA->GetAngularMotionDisc();
-	SimdScalar boundingRadiusB = m_convexB->GetAngularMotionDisc();
+	btScalar boundingRadiusA = m_convexA->GetAngularMotionDisc();
+	btScalar boundingRadiusB = m_convexB->GetAngularMotionDisc();
 
-	SimdScalar maxAngularProjectedVelocity = angVelA.length() * boundingRadiusA + angVelB.length() * boundingRadiusB;
+	btScalar maxAngularProjectedVelocity = angVelA.length() * boundingRadiusA + angVelB.length() * boundingRadiusB;
 
 	float radius = 0.001f;
 
-	SimdScalar lambda = 0.f;
-	SimdVector3 v(1,0,0);
+	btScalar lambda = 0.f;
+	btVector3 v(1,0,0);
 
 	int maxIter = MAX_ITERATIONS;
 
-	SimdVector3 n;
+	btVector3 n;
 	n.setValue(0.f,0.f,0.f);
 	bool hasResult = false;
-	SimdVector3 c;
+	btVector3 c;
 
 	float lastLambda = lambda;
 	//float epsilon = 0.001f;
@@ -76,21 +76,21 @@ bool	ContinuousConvexCollision::calcTimeOfImpact(
 	//first solution, using GJK
 
 
-	SimdTransform identityTrans;
+	btTransform identityTrans;
 	identityTrans.setIdentity();
 
-	SphereShape	raySphere(0.0f);
+	btSphereShape	raySphere(0.0f);
 	raySphere.SetMargin(0.f);
 
 
 //	result.DrawCoordSystem(sphereTr);
 
-	PointCollector	pointCollector1;
+	btPointCollector	pointCollector1;
 
 	{
 		
-		GjkPairDetector gjk(m_convexA,m_convexB,m_simplexSolver,m_penetrationDepthSolver);		
-		GjkPairDetector::ClosestPointInput input;
+		btGjkPairDetector gjk(m_convexA,m_convexB,m_simplexSolver,m_penetrationDepthSolver);		
+		btGjkPairDetector::ClosestPointInput input;
 	
 		//we don't use margins during CCD
 		gjk.SetIgnoreMargin(true);
@@ -105,7 +105,7 @@ bool	ContinuousConvexCollision::calcTimeOfImpact(
 
 	if (hasResult)
 	{
-		SimdScalar dist;
+		btScalar dist;
 		dist = pointCollector1.m_distance;
 		n = pointCollector1.m_normalOnBInWorld;
 		
@@ -143,17 +143,17 @@ bool	ContinuousConvexCollision::calcTimeOfImpact(
 			
 
 			//interpolate to next lambda
-			SimdTransform interpolatedTransA,interpolatedTransB,relativeTrans;
+			btTransform interpolatedTransA,interpolatedTransB,relativeTrans;
 
-			SimdTransformUtil::IntegrateTransform(fromA,linVelA,angVelA,lambda,interpolatedTransA);
-			SimdTransformUtil::IntegrateTransform(fromB,linVelB,angVelB,lambda,interpolatedTransB);
+			btTransformUtil::IntegrateTransform(fromA,linVelA,angVelA,lambda,interpolatedTransA);
+			btTransformUtil::IntegrateTransform(fromB,linVelB,angVelB,lambda,interpolatedTransB);
 			relativeTrans = interpolatedTransB.inverseTimes(interpolatedTransA);
 
 			result.DebugDraw( lambda );
 
-			PointCollector	pointCollector;
-			GjkPairDetector gjk(m_convexA,m_convexB,m_simplexSolver,m_penetrationDepthSolver);
-			GjkPairDetector::ClosestPointInput input;
+			btPointCollector	pointCollector;
+			btGjkPairDetector gjk(m_convexA,m_convexB,m_simplexSolver,m_penetrationDepthSolver);
+			btGjkPairDetector::ClosestPointInput input;
 			input.m_transformA = interpolatedTransA;
 			input.m_transformB = interpolatedTransB;
 			gjk.GetClosestPoints(input,pointCollector,0);
@@ -187,7 +187,7 @@ bool	ContinuousConvexCollision::calcTimeOfImpact(
 /*
 //todo:
 	//if movement away from normal, discard result
-	SimdVector3 move = transBLocalTo.getOrigin() - transBLocalFrom.getOrigin();
+	btVector3 move = transBLocalTo.getOrigin() - transBLocalFrom.getOrigin();
 	if (result.m_fraction < 1.f)
 	{
 		if (move.dot(result.m_normal) <= 0.f)

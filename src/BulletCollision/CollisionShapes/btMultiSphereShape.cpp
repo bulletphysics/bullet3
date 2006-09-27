@@ -15,9 +15,9 @@ subject to the following restrictions:
 
 #include "btMultiSphereShape.h"
 #include "BulletCollision/CollisionShapes/btCollisionMargin.h"
-#include "LinearMath/SimdQuaternion.h"
+#include "LinearMath/btQuaternion.h"
 
-MultiSphereShape::MultiSphereShape (const SimdVector3& inertiaHalfExtents,const SimdVector3* positions,const SimdScalar* radi,int numSpheres)
+btMultiSphereShape::btMultiSphereShape (const btVector3& inertiaHalfExtents,const btVector3* positions,const btScalar* radi,int numSpheres)
 :m_inertiaHalfExtents(inertiaHalfExtents)
 {
 	m_minRadius = 1e30f;
@@ -37,30 +37,30 @@ MultiSphereShape::MultiSphereShape (const SimdVector3& inertiaHalfExtents,const 
 
 
  
- SimdVector3	MultiSphereShape::LocalGetSupportingVertexWithoutMargin(const SimdVector3& vec0)const
+ btVector3	btMultiSphereShape::LocalGetSupportingVertexWithoutMargin(const btVector3& vec0)const
 {
 	int i;
-	SimdVector3 supVec(0,0,0);
+	btVector3 supVec(0,0,0);
 
-	SimdScalar maxDot(-1e30f);
+	btScalar maxDot(-1e30f);
 
 
-	SimdVector3 vec = vec0;
-	SimdScalar lenSqr = vec.length2();
+	btVector3 vec = vec0;
+	btScalar lenSqr = vec.length2();
 	if (lenSqr < 0.0001f)
 	{
 		vec.setValue(1,0,0);
 	} else
 	{
-		float rlen = 1.f / SimdSqrt(lenSqr );
+		float rlen = 1.f / btSqrt(lenSqr );
 		vec *= rlen;
 	}
 
-	SimdVector3 vtx;
-	SimdScalar newDot;
+	btVector3 vtx;
+	btScalar newDot;
 
-	const SimdVector3* pos = &m_localPositions[0];
-	const SimdScalar* rad = &m_radi[0];
+	const btVector3* pos = &m_localPositions[0];
+	const btScalar* rad = &m_radi[0];
 
 	for (i=0;i<m_numSpheres;i++)
 	{
@@ -79,20 +79,20 @@ MultiSphereShape::MultiSphereShape (const SimdVector3& inertiaHalfExtents,const 
 
 }
 
- void	MultiSphereShape::BatchedUnitVectorGetSupportingVertexWithoutMargin(const SimdVector3* vectors,SimdVector3* supportVerticesOut,int numVectors) const
+ void	btMultiSphereShape::BatchedUnitVectorGetSupportingVertexWithoutMargin(const btVector3* vectors,btVector3* supportVerticesOut,int numVectors) const
 {
 
 	for (int j=0;j<numVectors;j++)
 	{
-		SimdScalar maxDot(-1e30f);
+		btScalar maxDot(-1e30f);
 
-		const SimdVector3& vec = vectors[j];
+		const btVector3& vec = vectors[j];
 
-		SimdVector3 vtx;
-		SimdScalar newDot;
+		btVector3 vtx;
+		btScalar newDot;
 
-		const SimdVector3* pos = &m_localPositions[0];
-		const SimdScalar* rad = &m_radi[0];
+		const btVector3* pos = &m_localPositions[0];
+		const btScalar* rad = &m_radi[0];
 
 		for (int i=0;i<m_numSpheres;i++)
 		{
@@ -116,27 +116,27 @@ MultiSphereShape::MultiSphereShape (const SimdVector3& inertiaHalfExtents,const 
 
 
 
-void	MultiSphereShape::CalculateLocalInertia(SimdScalar mass,SimdVector3& inertia)
+void	btMultiSphereShape::CalculateLocalInertia(btScalar mass,btVector3& inertia)
 {
 	//as an approximation, take the inertia of the box that bounds the spheres
 
-	SimdTransform ident;
+	btTransform ident;
 	ident.setIdentity();
-//	SimdVector3 aabbMin,aabbMax;
+//	btVector3 aabbMin,aabbMax;
 
 //	GetAabb(ident,aabbMin,aabbMax);
 
-	SimdVector3 halfExtents = m_inertiaHalfExtents;//(aabbMax - aabbMin)* 0.5f;
+	btVector3 halfExtents = m_inertiaHalfExtents;//(aabbMax - aabbMin)* 0.5f;
 
 	float margin = CONVEX_DISTANCE_MARGIN;
 
-	SimdScalar lx=2.f*(halfExtents[0]+margin);
-	SimdScalar ly=2.f*(halfExtents[1]+margin);
-	SimdScalar lz=2.f*(halfExtents[2]+margin);
-	const SimdScalar x2 = lx*lx;
-	const SimdScalar y2 = ly*ly;
-	const SimdScalar z2 = lz*lz;
-	const SimdScalar scaledmass = mass * 0.08333333f;
+	btScalar lx=2.f*(halfExtents[0]+margin);
+	btScalar ly=2.f*(halfExtents[1]+margin);
+	btScalar lz=2.f*(halfExtents[2]+margin);
+	const btScalar x2 = lx*lx;
+	const btScalar y2 = ly*ly;
+	const btScalar z2 = lz*lz;
+	const btScalar scaledmass = mass * 0.08333333f;
 
 	inertia[0] = scaledmass * (y2+z2);
 	inertia[1] = scaledmass * (x2+z2);

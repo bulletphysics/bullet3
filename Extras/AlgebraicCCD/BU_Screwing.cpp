@@ -18,15 +18,15 @@ subject to the following restrictions:
 #include "BU_Screwing.h"
 
 
-BU_Screwing::BU_Screwing(const SimdVector3& relLinVel,const SimdVector3& relAngVel) {
+BU_Screwing::BU_Screwing(const btVector3& relLinVel,const btVector3& relAngVel) {
 
 
-	const SimdScalar dx=relLinVel[0];
-	const SimdScalar dy=relLinVel[1];
-	const SimdScalar dz=relLinVel[2];
-	const SimdScalar wx=relAngVel[0];
-	const SimdScalar wy=relAngVel[1];
-	const SimdScalar wz=relAngVel[2];
+	const btScalar dx=relLinVel[0];
+	const btScalar dy=relLinVel[1];
+	const btScalar dz=relLinVel[2];
+	const btScalar wx=relAngVel[0];
+	const btScalar wy=relAngVel[1];
+	const btScalar wz=relAngVel[2];
 
 	// Compute the screwing parameters :
 	// w : total amount of rotation
@@ -34,25 +34,25 @@ BU_Screwing::BU_Screwing(const SimdVector3& relLinVel,const SimdVector3& relAngV
 	// u : vector along the screwing axis (||u||=1)
 	// o : point on the screwing axis
 	
-	m_w=SimdSqrt(wx*wx+wy*wy+wz*wz);
+	m_w=btSqrt(wx*wx+wy*wy+wz*wz);
 	//if (!w) {
 	if (fabs(m_w)<SCREWEPSILON ) {
 
 		assert(m_w == 0.f);
 
 		m_w=0.;
-		m_s=SimdSqrt(dx*dx+dy*dy+dz*dz);
+		m_s=btSqrt(dx*dx+dy*dy+dz*dz);
 		if (fabs(m_s)<SCREWEPSILON ) {
 			assert(m_s == 0.);
 
 			m_s=0.;
-			m_u=SimdPoint3(0.,0.,1.);
-			m_o=SimdPoint3(0.,0.,0.);
+			m_u=btPoint3(0.,0.,1.);
+			m_o=btPoint3(0.,0.,0.);
 		}
 		else {
 			float t=1.f/m_s;
-			m_u=SimdPoint3(dx*t,dy*t,dz*t);
-			m_o=SimdPoint3(0.f,0.f,0.f);
+			m_u=btPoint3(dx*t,dy*t,dz*t);
+			m_o=btPoint3(0.f,0.f,0.f);
 		}
 	}
 	else { // there is some rotation
@@ -60,35 +60,35 @@ BU_Screwing::BU_Screwing(const SimdVector3& relLinVel,const SimdVector3& relAngV
 		// we compute u
 		
 		float v(1.f/m_w);
-		m_u=SimdPoint3(wx*v,wy*v,wz*v); // normalization
+		m_u=btPoint3(wx*v,wy*v,wz*v); // normalization
 		
 		// decomposition of the translation along u and one orthogonal vector
 		
-		SimdPoint3 t(dx,dy,dz);
+		btPoint3 t(dx,dy,dz);
 		m_s=t.dot(m_u); // component along u
 		if (fabs(m_s)<SCREWEPSILON)
 		{
 			//printf("m_s component along u < SCREWEPSILION\n");
 			m_s=0.f;
 		}
-		SimdPoint3 n1(t-(m_s*m_u)); // the remaining part (which is orthogonal to u)
+		btPoint3 n1(t-(m_s*m_u)); // the remaining part (which is orthogonal to u)
 		
 		// now we have to compute o
 		
-		//SimdScalar len = n1.length2();
+		//btScalar len = n1.length2();
 		//(len >= BUM_EPSILON2) {
 		if (n1[0] || n1[1] || n1[2]) { // n1 is not the zero vector
 			n1.normalize();
-			SimdVector3 n1orth=m_u.cross(n1);
+			btVector3 n1orth=m_u.cross(n1);
 
-			float n2x=SimdCos(0.5f*m_w);
-			float n2y=SimdSin(0.5f*m_w);
+			float n2x=btCos(0.5f*m_w);
+			float n2y=btSin(0.5f*m_w);
 			
 			m_o=0.5f*t.dot(n1)*(n1+n2x/n2y*n1orth);
 		}
 		else 
 		{
-			m_o=SimdPoint3(0.f,0.f,0.f);
+			m_o=btPoint3(0.f,0.f,0.f);
 		}
 		
 	}
@@ -99,7 +99,7 @@ BU_Screwing::BU_Screwing(const SimdVector3& relLinVel,const SimdVector3& relAngV
 //the screwing frame :
 
 
-void BU_Screwing::LocalMatrix(SimdTransform &t) const {
+void BU_Screwing::LocalMatrix(btTransform &t) const {
 //So the whole computations do this : align the Oz axis along the
 //	screwing axis (thanks to u), and then find two others orthogonal axes to
 //	complete the basis.
@@ -107,9 +107,9 @@ void BU_Screwing::LocalMatrix(SimdTransform &t) const {
 		if ((m_u[0]>SCREWEPSILON)||(m_u[0]<-SCREWEPSILON)||(m_u[1]>SCREWEPSILON)||(m_u[1]<-SCREWEPSILON)) 
 		{ 
 			// to avoid numerical problems
-			float n=SimdSqrt(m_u[0]*m_u[0]+m_u[1]*m_u[1]);
+			float n=btSqrt(m_u[0]*m_u[0]+m_u[1]*m_u[1]);
 			float invn=1.0f/n;
-			SimdMatrix3x3 mat;
+			btMatrix3x3 mat;
 
 	  		mat[0][0]=-m_u[1]*invn;
 			mat[0][1]=m_u[0]*invn;
@@ -123,7 +123,7 @@ void BU_Screwing::LocalMatrix(SimdTransform &t) const {
 			mat[2][1]=m_u[1];
 			mat[2][2]=m_u[2];
 			
-			t.setOrigin(SimdPoint3(
+			t.setOrigin(btPoint3(
 				  m_o[0]*m_u[1]*invn-m_o[1]*m_u[0]*invn,
 				-(m_o[0]*mat[1][0]+m_o[1]*mat[1][1]+m_o[2]*n),
 				-(m_o[0]*m_u[0]+m_o[1]*m_u[1]+m_o[2]*m_u[2])));
@@ -133,24 +133,24 @@ void BU_Screwing::LocalMatrix(SimdTransform &t) const {
 		}
 		else {
 
-			SimdMatrix3x3 m;
+			btMatrix3x3 m;
 
 			m[0][0]=1.;
 			m[1][0]=0.;
 			m[2][0]=0.;
 
 			m[0][1]=0.f;
-			m[1][1]=float(SimdSign(m_u[2]));
+			m[1][1]=float(btSign(m_u[2]));
 			m[2][1]=0.f;
 
 			m[0][2]=0.f;
 			m[1][2]=0.f;
-			m[2][2]=float(SimdSign(m_u[2]));
+			m[2][2]=float(btSign(m_u[2]));
 
-			t.setOrigin(SimdPoint3(
+			t.setOrigin(btPoint3(
 					-m_o[0],
-					-SimdSign(m_u[2])*m_o[1],
-					-SimdSign(m_u[2])*m_o[2]
+					-btSign(m_u[2])*m_o[1],
+					-btSign(m_u[2])*m_o[2]
 				));
 			t.setBasis(m);
 
@@ -158,42 +158,42 @@ void BU_Screwing::LocalMatrix(SimdTransform &t) const {
 }
 
 //gives interpolated transform for time in [0..1] in screwing frame
-SimdTransform	BU_Screwing::InBetweenTransform(const SimdTransform& tr,SimdScalar t) const
+btTransform	BU_Screwing::InBetweenTransform(const btTransform& tr,btScalar t) const
 {
-	SimdPoint3 org = tr.getOrigin();
+	btPoint3 org = tr.getOrigin();
 
-	SimdPoint3 neworg (
-	org.x()*SimdCos(m_w*t)-org.y()*SimdSin(m_w*t),
-	org.x()*SimdSin(m_w*t)+org.y()*SimdCos(m_w*t),
+	btPoint3 neworg (
+	org.x()*btCos(m_w*t)-org.y()*btSin(m_w*t),
+	org.x()*btSin(m_w*t)+org.y()*btCos(m_w*t),
 	org.z()+m_s*CalculateF(t));
 		
-	SimdTransform newtr;
+	btTransform newtr;
 	newtr.setOrigin(neworg);
-	SimdMatrix3x3 basis = tr.getBasis();
-	SimdMatrix3x3 basisorg = tr.getBasis();
+	btMatrix3x3 basis = tr.getBasis();
+	btMatrix3x3 basisorg = tr.getBasis();
 
-	SimdQuaternion rot(SimdVector3(0.,0.,1.),m_w*t);
-	SimdQuaternion tmpOrn;
+	btQuaternion rot(btVector3(0.,0.,1.),m_w*t);
+	btQuaternion tmpOrn;
 	tr.getBasis().getRotation(tmpOrn);
 	rot = rot *  tmpOrn;
 
 	//to avoid numerical drift, normalize quaternion
 	rot.normalize();
-	newtr.setBasis(SimdMatrix3x3(rot));
+	newtr.setBasis(btMatrix3x3(rot));
 	return newtr;
 
 }
 
 
-SimdScalar BU_Screwing::CalculateF(SimdScalar t) const
+btScalar BU_Screwing::CalculateF(btScalar t) const
 {
-	SimdScalar result;
+	btScalar result;
 	if (!m_w)
 	{
 		result = t;
 	} else
 	{
-		result = ( SimdTan((m_w*t)/2.f) / SimdTan(m_w/2.f));
+		result = ( btTan((m_w*t)/2.f) / btTan(m_w/2.f));
 	}
 	return result;
 }

@@ -17,7 +17,7 @@ subject to the following restrictions:
 #define PHY_PROPSH
 
 
-class CollisionShape;
+class btCollisionShape;
 
 // Properties of dynamic objects
 struct PHY_ShapeProps {
@@ -29,7 +29,7 @@ struct PHY_ShapeProps {
 	bool       m_do_anisotropic;        // Should I do anisotropic friction? 
 	bool       m_do_fh;                 // Should the object have a linear Fh spring?
 	bool       m_do_rot_fh;             // Should the object have an angular Fh spring?
-	CollisionShape*	m_shape;
+	btCollisionShape*	m_shape;
 };
 
 

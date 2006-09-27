@@ -13,29 +13,29 @@ subject to the following restrictions:
 3. This notice may not be removed or altered from any source distribution.
 */
 #include "btCylinderShape.h"
-#include "LinearMath/SimdPoint3.h"
+#include "LinearMath/btPoint3.h"
 
-CylinderShape::CylinderShape (const SimdVector3& halfExtents)
-:BoxShape(halfExtents)
+btCylinderShape::btCylinderShape (const btVector3& halfExtents)
+:btBoxShape(halfExtents)
 {
 
 }
 
 
-CylinderShapeX::CylinderShapeX (const SimdVector3& halfExtents)
-:CylinderShape(halfExtents)
+btCylinderShapeX::btCylinderShapeX (const btVector3& halfExtents)
+:btCylinderShape(halfExtents)
 {
 }
 
 
-CylinderShapeZ::CylinderShapeZ (const SimdVector3& halfExtents)
-:CylinderShape(halfExtents)
+btCylinderShapeZ::btCylinderShapeZ (const btVector3& halfExtents)
+:btCylinderShape(halfExtents)
 {
 }
 
 
 
-inline SimdVector3 CylinderLocalSupportX(const SimdVector3& halfExtents,const SimdVector3& v) 
+inline btVector3 CylinderLocalSupportX(const btVector3& halfExtents,const btVector3& v) 
 {
 const int cylinderUpAxis = 0;
 const int XX = 1;
@@ -50,11 +50,11 @@ const int ZZ = 2;
 	float halfHeight = halfExtents[cylinderUpAxis];
 
 
-    SimdVector3 tmp;
-	SimdScalar d ;
+    btVector3 tmp;
+	btScalar d ;
 
-    SimdScalar s = SimdSqrt(v[XX] * v[XX] + v[ZZ] * v[ZZ]);
-    if (s != SimdScalar(0.0))
+    btScalar s = btSqrt(v[XX] * v[XX] + v[ZZ] * v[ZZ]);
+    if (s != btScalar(0.0))
 	{
         d = radius / s;  
 		tmp[XX] = v[XX] * d;
@@ -66,7 +66,7 @@ const int ZZ = 2;
 	{
 	    tmp[XX] = radius;
 		tmp[YY] = v[YY] < 0.0 ? -halfHeight : halfHeight;
-		tmp[ZZ] = SimdScalar(0.0);
+		tmp[ZZ] = btScalar(0.0);
 		return tmp;
     }
 
@@ -78,7 +78,7 @@ const int ZZ = 2;
 
 
 
-inline  SimdVector3 CylinderLocalSupportY(const SimdVector3& halfExtents,const SimdVector3& v) 
+inline  btVector3 CylinderLocalSupportY(const btVector3& halfExtents,const btVector3& v) 
 {
 
 const int cylinderUpAxis = 1;
@@ -91,11 +91,11 @@ const int ZZ = 2;
 	float halfHeight = halfExtents[cylinderUpAxis];
 
 
-    SimdVector3 tmp;
-	SimdScalar d ;
+    btVector3 tmp;
+	btScalar d ;
 
-    SimdScalar s = SimdSqrt(v[XX] * v[XX] + v[ZZ] * v[ZZ]);
-    if (s != SimdScalar(0.0))
+    btScalar s = btSqrt(v[XX] * v[XX] + v[ZZ] * v[ZZ]);
+    if (s != btScalar(0.0))
 	{
         d = radius / s;  
 		tmp[XX] = v[XX] * d;
@@ -107,13 +107,13 @@ const int ZZ = 2;
 	{
 	    tmp[XX] = radius;
 		tmp[YY] = v[YY] < 0.0 ? -halfHeight : halfHeight;
-		tmp[ZZ] = SimdScalar(0.0);
+		tmp[ZZ] = btScalar(0.0);
 		return tmp;
     }
 
 }
 
-inline SimdVector3 CylinderLocalSupportZ(const SimdVector3& halfExtents,const SimdVector3& v) 
+inline btVector3 CylinderLocalSupportZ(const btVector3& halfExtents,const btVector3& v) 
 {
 const int cylinderUpAxis = 2;
 const int XX = 0;
@@ -128,11 +128,11 @@ const int ZZ = 1;
 	float halfHeight = halfExtents[cylinderUpAxis];
 
 
-    SimdVector3 tmp;
-	SimdScalar d ;
+    btVector3 tmp;
+	btScalar d ;
 
-    SimdScalar s = SimdSqrt(v[XX] * v[XX] + v[ZZ] * v[ZZ]);
-    if (s != SimdScalar(0.0))
+    btScalar s = btSqrt(v[XX] * v[XX] + v[ZZ] * v[ZZ]);
+    if (s != btScalar(0.0))
 	{
         d = radius / s;  
 		tmp[XX] = v[XX] * d;
@@ -144,29 +144,29 @@ const int ZZ = 1;
 	{
 	    tmp[XX] = radius;
 		tmp[YY] = v[YY] < 0.0 ? -halfHeight : halfHeight;
-		tmp[ZZ] = SimdScalar(0.0);
+		tmp[ZZ] = btScalar(0.0);
 		return tmp;
     }
 
 
 }
 
-SimdVector3	CylinderShapeX::LocalGetSupportingVertexWithoutMargin(const SimdVector3& vec)const
+btVector3	btCylinderShapeX::LocalGetSupportingVertexWithoutMargin(const btVector3& vec)const
 {
 	return CylinderLocalSupportX(GetHalfExtents(),vec);
 }
 
 
-SimdVector3	CylinderShapeZ::LocalGetSupportingVertexWithoutMargin(const SimdVector3& vec)const
+btVector3	btCylinderShapeZ::LocalGetSupportingVertexWithoutMargin(const btVector3& vec)const
 {
 	return CylinderLocalSupportZ(GetHalfExtents(),vec);
 }
-SimdVector3	CylinderShape::LocalGetSupportingVertexWithoutMargin(const SimdVector3& vec)const
+btVector3	btCylinderShape::LocalGetSupportingVertexWithoutMargin(const btVector3& vec)const
 {
 	return CylinderLocalSupportY(GetHalfExtents(),vec);
 }
 
-void	CylinderShape::BatchedUnitVectorGetSupportingVertexWithoutMargin(const SimdVector3* vectors,SimdVector3* supportVerticesOut,int numVectors) const
+void	btCylinderShape::BatchedUnitVectorGetSupportingVertexWithoutMargin(const btVector3* vectors,btVector3* supportVerticesOut,int numVectors) const
 {
 	for (int i=0;i<numVectors;i++)
 	{
@@ -174,7 +174,7 @@ void	CylinderShape::BatchedUnitVectorGetSupportingVertexWithoutMargin(const Simd
 	}
 }
 
-void	CylinderShapeZ::BatchedUnitVectorGetSupportingVertexWithoutMargin(const SimdVector3* vectors,SimdVector3* supportVerticesOut,int numVectors) const
+void	btCylinderShapeZ::BatchedUnitVectorGetSupportingVertexWithoutMargin(const btVector3* vectors,btVector3* supportVerticesOut,int numVectors) const
 {
 	for (int i=0;i<numVectors;i++)
 	{
@@ -185,7 +185,7 @@ void	CylinderShapeZ::BatchedUnitVectorGetSupportingVertexWithoutMargin(const Sim
 
 
 
-void	CylinderShapeX::BatchedUnitVectorGetSupportingVertexWithoutMargin(const SimdVector3* vectors,SimdVector3* supportVerticesOut,int numVectors) const
+void	btCylinderShapeX::BatchedUnitVectorGetSupportingVertexWithoutMargin(const btVector3* vectors,btVector3* supportVerticesOut,int numVectors) const
 {
 	for (int i=0;i<numVectors;i++)
 	{

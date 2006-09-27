@@ -18,9 +18,9 @@ subject to the following restrictions:
 #define B_SCREWING_H
 
 
-#include <LinearMath/SimdVector3.h>
-#include <LinearMath/SimdPoint3.h>
-#include <LinearMath/SimdTransform.h>
+#include <LinearMath/btVector3.h>
+#include <LinearMath/btPoint3.h>
+#include <LinearMath/btTransform.h>
 
 
 #define SCREWEPSILON 0.00001f
@@ -31,47 +31,47 @@ class BU_Screwing
 public:
 
 	
-	BU_Screwing(const SimdVector3& relLinVel,const SimdVector3& relAngVel);
+	BU_Screwing(const btVector3& relLinVel,const btVector3& relAngVel);
 
 	~BU_Screwing() {
 	};
 	
-	SimdScalar CalculateF(SimdScalar t) const;
+	btScalar CalculateF(btScalar t) const;
 	//gives interpolated position for time in [0..1] in screwing frame
 
-	inline SimdPoint3	InBetweenPosition(const SimdPoint3& pt,SimdScalar t) const
+	inline btPoint3	InBetweenPosition(const btPoint3& pt,btScalar t) const
 	{
-		return SimdPoint3(
-		pt.x()*SimdCos(m_w*t)-pt.y()*SimdSin(m_w*t),
-		pt.x()*SimdSin(m_w*t)+pt.y()*SimdCos(m_w*t),
+		return btPoint3(
+		pt.x()*btCos(m_w*t)-pt.y()*btSin(m_w*t),
+		pt.x()*btSin(m_w*t)+pt.y()*btCos(m_w*t),
 		pt.z()+m_s*CalculateF(t));
 	}
 
-	inline SimdVector3	InBetweenVector(const SimdVector3& vec,SimdScalar t) const
+	inline btVector3	InBetweenVector(const btVector3& vec,btScalar t) const
 	{
-		return SimdVector3(
-		vec.x()*SimdCos(m_w*t)-vec.y()*SimdSin(m_w*t),
-		vec.x()*SimdSin(m_w*t)+vec.y()*SimdCos(m_w*t),
+		return btVector3(
+		vec.x()*btCos(m_w*t)-vec.y()*btSin(m_w*t),
+		vec.x()*btSin(m_w*t)+vec.y()*btCos(m_w*t),
 		vec.z());
 	}
 
 	//gives interpolated transform for time in [0..1] in screwing frame
-	SimdTransform	InBetweenTransform(const SimdTransform& tr,SimdScalar t) const;
+	btTransform	InBetweenTransform(const btTransform& tr,btScalar t) const;
 
 	
 	//gives matrix from global frame into screwing frame
-	void	LocalMatrix(SimdTransform &t) const;
+	void	LocalMatrix(btTransform &t) const;
 
-	inline const SimdVector3& GetU() const {	return m_u;}
-	inline const SimdVector3& GetO() const {return m_o;}
-	inline const SimdScalar GetS() const{ return m_s;}
-	inline const SimdScalar GetW() const { return m_w;}
+	inline const btVector3& GetU() const {	return m_u;}
+	inline const btVector3& GetO() const {return m_o;}
+	inline const btScalar GetS() const{ return m_s;}
+	inline const btScalar GetW() const { return m_w;}
 	
 private:
 	float		m_w;
 	float		m_s;
-	SimdVector3 m_u;
-	SimdVector3	m_o;
+	btVector3 m_u;
+	btVector3	m_o;
 };
 
 #endif //B_SCREWING_H

@@ -17,7 +17,7 @@ subject to the following restrictions:
 #define MY_MOTIONSTATE_H
 
 #include "PHY_IMotionState.h"
-#include <LinearMath/SimdTransform.h>
+#include <LinearMath/btTransform.h>
 
 
 class	MyMotionState : public PHY_IMotionState
@@ -37,7 +37,7 @@ class	MyMotionState : public PHY_IMotionState
 		
 		virtual	void	calculateWorldTransformations();
 		
-		SimdTransform	m_worldTransform;
+		btTransform	m_worldTransform;
 
 };
 

@@ -17,10 +17,10 @@ subject to the following restrictions:
 #define CONTACT_SOLVER_INFO
 
 
-struct ContactSolverInfo
+struct btContactSolverInfo
 {
 
-	inline ContactSolverInfo()
+	inline btContactSolverInfo()
 	{
 		m_tau = 0.6f;
 		m_damping = 1.0f;

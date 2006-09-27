@@ -18,11 +18,11 @@ subject to the following restrictions:
 
 //todo: make into a proper class working with the iterative constraint solver
 
-class RigidBody;
-#include "LinearMath/SimdVector3.h"
-#include "LinearMath/SimdScalar.h"
-struct ContactSolverInfo;
-class ManifoldPoint;
+class btRigidBody;
+#include "LinearMath/btVector3.h"
+#include "LinearMath/btScalar.h"
+struct btContactSolverInfo;
+class btManifoldPoint;
 
 enum {
 	DEFAULT_CONTACT_SOLVER_TYPE=0,
@@ -33,14 +33,14 @@ enum {
 };
 
 
-typedef float (*ContactSolverFunc)(RigidBody& body1,
-									 RigidBody& body2,
-									 class ManifoldPoint& contactPoint,
-									 const ContactSolverInfo& info);
+typedef float (*ContactSolverFunc)(btRigidBody& body1,
+									 btRigidBody& body2,
+									 class btManifoldPoint& contactPoint,
+									 const btContactSolverInfo& info);
 
-struct ConstraintPersistentData
+struct btConstraintPersistentData
 {
-	inline ConstraintPersistentData()
+	inline btConstraintPersistentData()
 	:m_appliedImpulse(0.f),
 	m_prevAppliedImpulse(0.f),
 	m_accumulatedTangentImpulse0(0.f),
@@ -69,8 +69,8 @@ struct ConstraintPersistentData
 			float	m_restitution;
 			float	m_friction;
 			float	m_penetration;
-			SimdVector3	m_frictionWorldTangential0;
-			SimdVector3	m_frictionWorldTangential1;
+			btVector3	m_frictionWorldTangential0;
+			btVector3	m_frictionWorldTangential1;
 		
 			ContactSolverFunc	m_contactSolverFunc;
 			ContactSolverFunc	m_frictionSolverFunc;
@@ -79,25 +79,25 @@ struct ConstraintPersistentData
 
 ///bilateral constraint between two dynamic objects
 ///positive distance = separation, negative distance = penetration
-void resolveSingleBilateral(RigidBody& body1, const SimdVector3& pos1,
-                      RigidBody& body2, const SimdVector3& pos2,
-                      SimdScalar distance, const SimdVector3& normal,SimdScalar& impulse ,float timeStep);
+void resolveSingleBilateral(btRigidBody& body1, const btVector3& pos1,
+                      btRigidBody& body2, const btVector3& pos2,
+                      btScalar distance, const btVector3& normal,btScalar& impulse ,float timeStep);
 
 
 ///contact constraint resolution:
 ///calculate and apply impulse to satisfy non-penetration and non-negative relative velocity constraint
 ///positive distance = separation, negative distance = penetration
 float resolveSingleCollision(
-	RigidBody& body1,
-	RigidBody& body2,
-		ManifoldPoint& contactPoint,
-		 const ContactSolverInfo& info);
+	btRigidBody& body1,
+	btRigidBody& body2,
+		btManifoldPoint& contactPoint,
+		 const btContactSolverInfo& info);
 
 float resolveSingleFriction(
-	RigidBody& body1,
-	RigidBody& body2,
-	ManifoldPoint& contactPoint,
-	const ContactSolverInfo& solverInfo
+	btRigidBody& body1,
+	btRigidBody& body2,
+	btManifoldPoint& contactPoint,
+	const btContactSolverInfo& solverInfo
 		);
 
 #endif //CONTACT_CONSTRAINT_H

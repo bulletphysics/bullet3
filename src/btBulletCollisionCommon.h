@@ -18,7 +18,7 @@ subject to the following restrictions:
 
 ///Common headerfile includes for Bullet Collision Detection
 
-///Bullet's CollisionWorld and CollisionObject definitions
+///Bullet's btCollisionWorld and btCollisionObject definitions
 #include "BulletCollision/CollisionDispatch/btCollisionWorld.h"
 #include "BulletCollision/CollisionDispatch/btCollisionObject.h"
 
@@ -50,9 +50,10 @@ subject to the following restrictions:
 
 
 ///Math library
-#include "LinearMath/SimdQuaternion.h"
-#include "LinearMath/SimdTransform.h"
+#include "LinearMath/btQuaternion.h"
+#include "LinearMath/btTransform.h"
 
 
 
 #endif //BULLET_COLLISION_COMMON_H
+

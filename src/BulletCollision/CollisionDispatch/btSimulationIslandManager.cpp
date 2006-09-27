@@ -9,32 +9,32 @@
 #include <algorithm>
 
 
-SimulationIslandManager::SimulationIslandManager()
+btSimulationIslandManager::btSimulationIslandManager()
 {
 }
 
-SimulationIslandManager::~SimulationIslandManager()
+btSimulationIslandManager::~btSimulationIslandManager()
 {
 }
 
 
-void SimulationIslandManager::InitUnionFind(int n)
+void btSimulationIslandManager::InitUnionFind(int n)
 {
 		m_unionFind.reset(n);
 }
 		
 
-void SimulationIslandManager::FindUnions(Dispatcher* dispatcher)
+void btSimulationIslandManager::FindUnions(btDispatcher* dispatcher)
 {
 	
 	{
 		for (int i=0;i<dispatcher->GetNumManifolds();i++)
 		{
-			const PersistentManifold* manifold = dispatcher->GetManifoldByIndexInternal(i);
+			const btPersistentManifold* manifold = dispatcher->GetManifoldByIndexInternal(i);
 			//static objects (invmass 0.f) don't merge !
 
-			 const  CollisionObject* colObj0 = static_cast<const CollisionObject*>(manifold->GetBody0());
-			 const  CollisionObject* colObj1 = static_cast<const CollisionObject*>(manifold->GetBody1());
+			 const  btCollisionObject* colObj0 = static_cast<const btCollisionObject*>(manifold->GetBody0());
+			 const  btCollisionObject* colObj1 = static_cast<const btCollisionObject*>(manifold->GetBody1());
 
 			if (((colObj0) && ((colObj0)->mergesSimulationIslands())) &&
 				((colObj1) && ((colObj1)->mergesSimulationIslands())))
@@ -43,29 +43,26 @@ void SimulationIslandManager::FindUnions(Dispatcher* dispatcher)
 				m_unionFind.unite((colObj0)->m_islandTag1,
 					(colObj1)->m_islandTag1);
 			}
-			
-			
 		}
 	}
-	
 }
 
 
-void	SimulationIslandManager::UpdateActivationState(CollisionWorld* colWorld,Dispatcher* dispatcher)
+void	btSimulationIslandManager::UpdateActivationState(btCollisionWorld* colWorld,btDispatcher* dispatcher)
 {
 	
 	InitUnionFind(colWorld->GetCollisionObjectArray().size());
 	
 	// put the index into m_controllers into m_tag	
 	{
-		std::vector<CollisionObject*>::iterator i;
+		std::vector<btCollisionObject*>::iterator i;
 		
 		int index = 0;
 		for (i=colWorld->GetCollisionObjectArray().begin();
 		!(i==colWorld->GetCollisionObjectArray().end()); i++)
 		{
 			
-			CollisionObject*	collisionObject= (*i);
+			btCollisionObject*	collisionObject= (*i);
 			collisionObject->m_islandTag1 = index;
 			collisionObject->m_hitFraction = 1.f;
 			index++;
@@ -83,19 +80,19 @@ void	SimulationIslandManager::UpdateActivationState(CollisionWorld* colWorld,Dis
 
 
 
-void	SimulationIslandManager::StoreIslandActivationState(CollisionWorld* colWorld)
+void	btSimulationIslandManager::StoreIslandActivationState(btCollisionWorld* colWorld)
 {
 	// put the islandId ('find' value) into m_tag	
 	{
 		
 		
-		std::vector<CollisionObject*>::iterator i;
+		std::vector<btCollisionObject*>::iterator i;
 		
 		int index = 0;
 		for (i=colWorld->GetCollisionObjectArray().begin();
 		!(i==colWorld->GetCollisionObjectArray().end()); i++)
 		{
-			CollisionObject* collisionObject= (*i);
+			btCollisionObject* collisionObject= (*i);
 			
 			if (collisionObject->mergesSimulationIslands())
 			{
@@ -109,17 +106,17 @@ void	SimulationIslandManager::StoreIslandActivationState(CollisionWorld* colWorl
 	}
 }
 
-inline	int	getIslandId(const PersistentManifold* lhs)
+inline	int	getIslandId(const btPersistentManifold* lhs)
 {
 	int islandId;
-	const CollisionObject* rcolObj0 = static_cast<const CollisionObject*>(lhs->GetBody0());
-	const CollisionObject* rcolObj1 = static_cast<const CollisionObject*>(lhs->GetBody1());
+	const btCollisionObject* rcolObj0 = static_cast<const btCollisionObject*>(lhs->GetBody0());
+	const btCollisionObject* rcolObj1 = static_cast<const btCollisionObject*>(lhs->GetBody1());
 	islandId= rcolObj0->m_islandTag1>=0?rcolObj0->m_islandTag1:rcolObj1->m_islandTag1;
 	return islandId;
 
 }
 
-bool PersistentManifoldSortPredicate(const PersistentManifold* lhs, const PersistentManifold* rhs)
+bool btPersistentManifoldSortPredicate(const btPersistentManifold* lhs, const btPersistentManifold* rhs)
 {
 	int rIslandId0,lIslandId0;
 	rIslandId0 = getIslandId(rhs);
@@ -131,7 +128,7 @@ bool PersistentManifoldSortPredicate(const PersistentManifold* lhs, const Persis
 //
 // todo: this is random access, it can be walked 'cache friendly'!
 //
-void SimulationIslandManager::BuildAndProcessIslands(Dispatcher* dispatcher,CollisionObjectArray& collisionObjects, IslandCallback* callback)
+void btSimulationIslandManager::BuildAndProcessIslands(btDispatcher* dispatcher,btCollisionObjectArray& collisionObjects, IslandCallback* callback)
 {
 	//we are going to sort the unionfind array, and store the element id in the size
 	//afterwards, we clean unionfind, to make sure no-one uses it anymore
@@ -158,7 +155,7 @@ void SimulationIslandManager::BuildAndProcessIslands(Dispatcher* dispatcher,Coll
 		{
 			int i = GetUnionFind().getElement(idx).m_sz;
 
-			CollisionObject* colObj0 = collisionObjects[i];
+			btCollisionObject* colObj0 = collisionObjects[i];
 			if ((colObj0->m_islandTag1 != islandId) && (colObj0->m_islandTag1 != -1))
 			{
 				printf("error in island management\n");
@@ -184,7 +181,7 @@ void SimulationIslandManager::BuildAndProcessIslands(Dispatcher* dispatcher,Coll
 			for (idx=startIslandIndex;idx<endIslandIndex;idx++)
 			{
 				int i = GetUnionFind().getElement(idx).m_sz;
-				CollisionObject* colObj0 = collisionObjects[i];
+				btCollisionObject* colObj0 = collisionObjects[i];
 				if ((colObj0->m_islandTag1 != islandId) && (colObj0->m_islandTag1 != -1))
 				{
 					printf("error in island management\n");
@@ -205,7 +202,7 @@ void SimulationIslandManager::BuildAndProcessIslands(Dispatcher* dispatcher,Coll
 			{
 				int i = GetUnionFind().getElement(idx).m_sz;
 
-				CollisionObject* colObj0 = collisionObjects[i];
+				btCollisionObject* colObj0 = collisionObjects[i];
 				if ((colObj0->m_islandTag1 != islandId) && (colObj0->m_islandTag1 != -1))
 				{
 					printf("error in island management\n");
@@ -224,17 +221,17 @@ void SimulationIslandManager::BuildAndProcessIslands(Dispatcher* dispatcher,Coll
 		}
 	}
 
-	std::vector<PersistentManifold*>  islandmanifold;
+	std::vector<btPersistentManifold*>  islandmanifold;
 	int i;
 	int maxNumManifolds = dispatcher->GetNumManifolds();
 	islandmanifold.reserve(maxNumManifolds);
 
 	for (i=0;i<maxNumManifolds ;i++)
 	{
-		 PersistentManifold* manifold = dispatcher->GetManifoldByIndexInternal(i);
+		 btPersistentManifold* manifold = dispatcher->GetManifoldByIndexInternal(i);
 		 
-		 CollisionObject* colObj0 = static_cast<CollisionObject*>(manifold->GetBody0());
-		 CollisionObject* colObj1 = static_cast<CollisionObject*>(manifold->GetBody1());
+		 btCollisionObject* colObj0 = static_cast<btCollisionObject*>(manifold->GetBody0());
+		 btCollisionObject* colObj1 = static_cast<btCollisionObject*>(manifold->GetBody1());
 		
 		 //todo: check sleeping conditions!
 		 if (((colObj0) && colObj0->GetActivationState() != ISLAND_SLEEPING) ||
@@ -250,7 +247,7 @@ void SimulationIslandManager::BuildAndProcessIslands(Dispatcher* dispatcher,Coll
 
 	// Sort manifolds, based on islands
 	// Sort the vector using predicate and std::sort
-	std::sort(islandmanifold.begin(), islandmanifold.end(), PersistentManifoldSortPredicate);
+	std::sort(islandmanifold.begin(), islandmanifold.end(), btPersistentManifoldSortPredicate);
 
 	//now process all active islands (sets of manifolds for now)
 

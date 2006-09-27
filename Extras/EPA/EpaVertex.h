@@ -30,13 +30,13 @@ class EpaVertex
 
 	public :
 
-		EpaVertex( const SimdPoint3& point ) : /*m_pHalfEdge( 0 ),*/ m_point( point )
+		EpaVertex( const btPoint3& point ) : /*m_pHalfEdge( 0 ),*/ m_point( point )
 		{
 		}
 
-		EpaVertex( const SimdPoint3& point,
-				   const SimdPoint3& wSupportPointOnA,
-				   const SimdPoint3& wSupportPointOnB ) : /*m_pHalfEdge( 0 ),*/ m_point( point ),
+		EpaVertex( const btPoint3& point,
+				   const btPoint3& wSupportPointOnA,
+				   const btPoint3& wSupportPointOnB ) : /*m_pHalfEdge( 0 ),*/ m_point( point ),
 														  m_wSupportPointOnA( wSupportPointOnA ),
 														  m_wSupportPointOnB( wSupportPointOnB )
 		{
@@ -51,10 +51,10 @@ class EpaVertex
 		//! This is not necessary
 		//EpaHalfEdge*		m_pHalfEdge;
 
-		SimdPoint3			m_point;
+		btPoint3			m_point;
 
-		SimdPoint3			m_wSupportPointOnA;
-		SimdPoint3			m_wSupportPointOnB;
+		btPoint3			m_wSupportPointOnA;
+		btPoint3			m_wSupportPointOnB;
 };
 
 #endif

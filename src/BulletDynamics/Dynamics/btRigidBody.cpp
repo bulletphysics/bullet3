@@ -16,14 +16,14 @@ subject to the following restrictions:
 #include "btRigidBody.h"
 #include "btMassProps.h"
 #include "BulletCollision/CollisionShapes/btConvexShape.h"
-#include "LinearMath/GenMinMax.h"
-#include <LinearMath/SimdTransformUtil.h>
+#include "LinearMath/btMinMax.h"
+#include <LinearMath/btTransformUtil.h>
 
 float gLinearAirDamping = 1.f;
 
 static int uniqueId = 0;
 
-RigidBody::RigidBody( const MassProps& massProps,SimdScalar linearDamping,SimdScalar angularDamping,SimdScalar friction,SimdScalar restitution)
+btRigidBody::btRigidBody( const btMassProps& massProps,btScalar linearDamping,btScalar angularDamping,btScalar friction,btScalar restitution)
 : 
 	m_gravity(0.0f, 0.0f, 0.0f),
 	m_totalForce(0.0f, 0.0f, 0.0f),
@@ -37,7 +37,7 @@ RigidBody::RigidBody( const MassProps& massProps,SimdScalar linearDamping,SimdSc
 	m_frictionSolverType(0)
 {
 
-	//moved to CollisionObject
+	//moved to btCollisionObject
 	m_friction = friction;
 	m_restitution = restitution;
 
@@ -51,25 +51,25 @@ RigidBody::RigidBody( const MassProps& massProps,SimdScalar linearDamping,SimdSc
 }
 
 
-void RigidBody::setLinearVelocity(const SimdVector3& lin_vel)
+void btRigidBody::setLinearVelocity(const btVector3& lin_vel)
 { 
 
 	m_linearVelocity = lin_vel; 
 }
 
 
-void RigidBody::predictIntegratedTransform(SimdScalar timeStep,SimdTransform& predictedTransform) const
+void btRigidBody::predictIntegratedTransform(btScalar timeStep,btTransform& predictedTransform) const
 {
-	SimdTransformUtil::IntegrateTransform(m_worldTransform,m_linearVelocity,m_angularVelocity,timeStep,predictedTransform);
+	btTransformUtil::IntegrateTransform(m_worldTransform,m_linearVelocity,m_angularVelocity,timeStep,predictedTransform);
 }
 
-void			RigidBody::saveKinematicState(SimdScalar timeStep)
+void			btRigidBody::saveKinematicState(btScalar timeStep)
 {
 	
 	if (m_kinematicTimeStep)
 	{
-		SimdVector3 linVel,angVel;
-		SimdTransformUtil::CalculateVelocity(m_interpolationWorldTransform,m_worldTransform,m_kinematicTimeStep,m_linearVelocity,m_angularVelocity);
+		btVector3 linVel,angVel;
+		btTransformUtil::CalculateVelocity(m_interpolationWorldTransform,m_worldTransform,m_kinematicTimeStep,m_linearVelocity,m_angularVelocity);
 		//printf("angular = %f %f %f\n",m_angularVelocity.getX(),m_angularVelocity.getY(),m_angularVelocity.getZ());
 	}
 	
@@ -79,7 +79,7 @@ void			RigidBody::saveKinematicState(SimdScalar timeStep)
 	m_kinematicTimeStep = timeStep;
 }
 	
-void	RigidBody::getAabb(SimdVector3& aabbMin,SimdVector3& aabbMax) const
+void	btRigidBody::getAabb(btVector3& aabbMin,btVector3& aabbMax) const
 {
 	GetCollisionShape()->GetAabb(m_worldTransform,aabbMin,aabbMax);
 }
@@ -87,7 +87,7 @@ void	RigidBody::getAabb(SimdVector3& aabbMin,SimdVector3& aabbMax) const
 
 
 
-void RigidBody::setGravity(const SimdVector3& acceleration) 
+void btRigidBody::setGravity(const btVector3& acceleration) 
 {
 	if (m_inverseMass != 0.0f)
 	{
@@ -100,7 +100,7 @@ void RigidBody::setGravity(const SimdVector3& acceleration)
 
 
 
-void RigidBody::setDamping(SimdScalar lin_damping, SimdScalar ang_damping)
+void btRigidBody::setDamping(btScalar lin_damping, btScalar ang_damping)
 {
 	m_linearDamping = GEN_clamped(lin_damping, 0.0f, 1.0f);
 	m_angularDamping = GEN_clamped(ang_damping, 0.0f, 1.0f);
@@ -111,7 +111,7 @@ void RigidBody::setDamping(SimdScalar lin_damping, SimdScalar ang_damping)
 #include <stdio.h>
 
 
-void RigidBody::applyForces(SimdScalar step)
+void btRigidBody::applyForces(btScalar step)
 {
 	if (IsStatic())
 		return;
@@ -130,7 +130,7 @@ void RigidBody::applyForces(SimdScalar step)
 		float dampVel = 0.005f;
 		if (speed > dampVel)
 		{
-			SimdVector3 dir = m_linearVelocity.normalized();
+			btVector3 dir = m_linearVelocity.normalized();
 			m_linearVelocity -=  dir * dampVel;
 		} else
 		{
@@ -144,7 +144,7 @@ void RigidBody::applyForces(SimdScalar step)
 		float angDampVel = 0.005f;
 		if (angSpeed > angDampVel)
 		{
-			SimdVector3 dir = m_angularVelocity.normalized();
+			btVector3 dir = m_angularVelocity.normalized();
 			m_angularVelocity -=  dir * angDampVel;
 		} else
 		{
@@ -155,17 +155,17 @@ void RigidBody::applyForces(SimdScalar step)
 	
 }
 
-void RigidBody::proceedToTransform(const SimdTransform& newTrans)
+void btRigidBody::proceedToTransform(const btTransform& newTrans)
 {
 	setCenterOfMassTransform( newTrans );
 }
 	
 
-void RigidBody::setMassProps(SimdScalar mass, const SimdVector3& inertia)
+void btRigidBody::setMassProps(btScalar mass, const btVector3& inertia)
 {
 	if (mass == 0.f)
 	{
-		m_collisionFlags = CollisionObject::isStatic;
+		m_collisionFlags = btCollisionObject::isStatic;
 		m_inverseMass = 0.f;
 	} else
 	{
@@ -182,13 +182,13 @@ void RigidBody::setMassProps(SimdScalar mass, const SimdVector3& inertia)
 
 	
 
-void RigidBody::updateInertiaTensor() 
+void btRigidBody::updateInertiaTensor() 
 {
 	m_invInertiaTensorWorld = m_worldTransform.getBasis().scaled(m_invInertiaLocal) * m_worldTransform.getBasis().transpose();
 }
 
 
-void RigidBody::integrateVelocities(SimdScalar step) 
+void btRigidBody::integrateVelocities(btScalar step) 
 {
 	if (IsStatic())
 		return;
@@ -207,15 +207,15 @@ void RigidBody::integrateVelocities(SimdScalar step)
 	clearForces();
 }
 
-SimdQuaternion RigidBody::getOrientation() const
+btQuaternion btRigidBody::getOrientation() const
 {
-		SimdQuaternion orn;
+		btQuaternion orn;
 		m_worldTransform.getBasis().getRotation(orn);
 		return orn;
 }
 	
 	
-void RigidBody::setCenterOfMassTransform(const SimdTransform& xform)
+void btRigidBody::setCenterOfMassTransform(const btTransform& xform)
 {
 	m_worldTransform = xform;
 	updateInertiaTensor();

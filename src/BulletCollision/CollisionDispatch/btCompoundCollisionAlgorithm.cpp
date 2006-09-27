@@ -18,29 +18,29 @@ subject to the following restrictions:
 #include "BulletCollision/CollisionShapes/btCompoundShape.h"
 
 
-CompoundCollisionAlgorithm::CompoundCollisionAlgorithm( const CollisionAlgorithmConstructionInfo& ci,BroadphaseProxy* proxy0,BroadphaseProxy* proxy1)
+btCompoundCollisionAlgorithm::btCompoundCollisionAlgorithm( const btCollisionAlgorithmConstructionInfo& ci,btBroadphaseProxy* proxy0,btBroadphaseProxy* proxy1)
 :m_dispatcher(ci.m_dispatcher),
 m_compoundProxy(*proxy0),
 m_otherProxy(*proxy1)
 {
-	CollisionObject* colObj = static_cast<CollisionObject*>(m_compoundProxy.m_clientObject);
+	btCollisionObject* colObj = static_cast<btCollisionObject*>(m_compoundProxy.m_clientObject);
 	assert (colObj->m_collisionShape->IsCompound());
 	
-	CompoundShape* compoundShape = static_cast<CompoundShape*>(colObj->m_collisionShape);
+	btCompoundShape* compoundShape = static_cast<btCompoundShape*>(colObj->m_collisionShape);
 	int numChildren = compoundShape->GetNumChildShapes();
 	m_childProxies.resize( numChildren );
 	int i;
 	for (i=0;i<numChildren;i++)
 	{
-		m_childProxies[i] = BroadphaseProxy(*proxy0);
+		m_childProxies[i] = btBroadphaseProxy(*proxy0);
 	}
 
 	m_childCollisionAlgorithms.resize(numChildren);
 	for (i=0;i<numChildren;i++)
 	{
-		CollisionShape* childShape = compoundShape->GetChildShape(i);
-		CollisionObject* colObj = static_cast<CollisionObject*>(m_childProxies[i].m_clientObject);
-		CollisionShape* orgShape = colObj->m_collisionShape;
+		btCollisionShape* childShape = compoundShape->GetChildShape(i);
+		btCollisionObject* colObj = static_cast<btCollisionObject*>(m_childProxies[i].m_clientObject);
+		btCollisionShape* orgShape = colObj->m_collisionShape;
 		colObj->m_collisionShape = childShape;
 		m_childCollisionAlgorithms[i] = m_dispatcher->FindAlgorithm(m_childProxies[i],m_otherProxy);
 		colObj->m_collisionShape =orgShape;
@@ -48,7 +48,7 @@ m_otherProxy(*proxy1)
 }
 
 
-CompoundCollisionAlgorithm::~CompoundCollisionAlgorithm()
+btCompoundCollisionAlgorithm::~btCompoundCollisionAlgorithm()
 {
 	int numChildren = m_childCollisionAlgorithms.size();
 	int i;
@@ -58,12 +58,12 @@ CompoundCollisionAlgorithm::~CompoundCollisionAlgorithm()
 	}
 }
 
-void CompoundCollisionAlgorithm::ProcessCollision (BroadphaseProxy* ,BroadphaseProxy* ,const DispatcherInfo& dispatchInfo)
+void btCompoundCollisionAlgorithm::ProcessCollision (btBroadphaseProxy* ,btBroadphaseProxy* ,const btDispatcherInfo& dispatchInfo)
 {
-	CollisionObject* colObj = static_cast<CollisionObject*>(m_compoundProxy.m_clientObject);
+	btCollisionObject* colObj = static_cast<btCollisionObject*>(m_compoundProxy.m_clientObject);
 	assert (colObj->m_collisionShape->IsCompound());
 	
-	CompoundShape* compoundShape = static_cast<CompoundShape*>(colObj->m_collisionShape);
+	btCompoundShape* compoundShape = static_cast<btCompoundShape*>(colObj->m_collisionShape);
 
 	//We will use the OptimizedBVH, AABB tree to cull potential child-overlaps
 	//If both proxies are Compound, we will deal with that directly, by performing sequential/parallel tree traversals
@@ -77,16 +77,16 @@ void CompoundCollisionAlgorithm::ProcessCollision (BroadphaseProxy* ,BroadphaseP
 	int i;
 	for (i=0;i<numChildren;i++)
 	{
-		//temporarily exchange parent CollisionShape with childShape, and recurse
-		CollisionShape* childShape = compoundShape->GetChildShape(i);
-		CollisionObject* colObj = static_cast<CollisionObject*>(m_childProxies[i].m_clientObject);
+		//temporarily exchange parent btCollisionShape with childShape, and recurse
+		btCollisionShape* childShape = compoundShape->GetChildShape(i);
+		btCollisionObject* colObj = static_cast<btCollisionObject*>(m_childProxies[i].m_clientObject);
 
 		//backup
-		SimdTransform	orgTrans = colObj->m_worldTransform;
-		CollisionShape* orgShape = colObj->m_collisionShape;
+		btTransform	orgTrans = colObj->m_worldTransform;
+		btCollisionShape* orgShape = colObj->m_collisionShape;
 
-		SimdTransform childTrans = compoundShape->GetChildTransform(i);
-		SimdTransform	newChildWorldTrans = orgTrans*childTrans ;
+		btTransform childTrans = compoundShape->GetChildTransform(i);
+		btTransform	newChildWorldTrans = orgTrans*childTrans ;
 		colObj->m_worldTransform = newChildWorldTrans;
 
 		colObj->m_collisionShape = childShape;
@@ -97,12 +97,12 @@ void CompoundCollisionAlgorithm::ProcessCollision (BroadphaseProxy* ,BroadphaseP
 	}
 }
 
-float	CompoundCollisionAlgorithm::CalculateTimeOfImpact(BroadphaseProxy* proxy0,BroadphaseProxy* proxy1,const DispatcherInfo& dispatchInfo)
+float	btCompoundCollisionAlgorithm::CalculateTimeOfImpact(btBroadphaseProxy* proxy0,btBroadphaseProxy* proxy1,const btDispatcherInfo& dispatchInfo)
 {
-	CollisionObject* colObj = static_cast<CollisionObject*>(m_compoundProxy.m_clientObject);
+	btCollisionObject* colObj = static_cast<btCollisionObject*>(m_compoundProxy.m_clientObject);
 	assert (colObj->m_collisionShape->IsCompound());
 	
-	CompoundShape* compoundShape = static_cast<CompoundShape*>(colObj->m_collisionShape);
+	btCompoundShape* compoundShape = static_cast<btCompoundShape*>(colObj->m_collisionShape);
 
 	//We will use the OptimizedBVH, AABB tree to cull potential child-overlaps
 	//If both proxies are Compound, we will deal with that directly, by performing sequential/parallel tree traversals
@@ -117,16 +117,16 @@ float	CompoundCollisionAlgorithm::CalculateTimeOfImpact(BroadphaseProxy* proxy0,
 	int i;
 	for (i=0;i<numChildren;i++)
 	{
-		//temporarily exchange parent CollisionShape with childShape, and recurse
-		CollisionShape* childShape = compoundShape->GetChildShape(i);
-		CollisionObject* colObj = static_cast<CollisionObject*>(m_childProxies[i].m_clientObject);
+		//temporarily exchange parent btCollisionShape with childShape, and recurse
+		btCollisionShape* childShape = compoundShape->GetChildShape(i);
+		btCollisionObject* colObj = static_cast<btCollisionObject*>(m_childProxies[i].m_clientObject);
 
 		//backup
-		SimdTransform	orgTrans = colObj->m_worldTransform;
-		CollisionShape* orgShape = colObj->m_collisionShape;
+		btTransform	orgTrans = colObj->m_worldTransform;
+		btCollisionShape* orgShape = colObj->m_collisionShape;
 
-		SimdTransform childTrans = compoundShape->GetChildTransform(i);
-		SimdTransform	newChildWorldTrans = orgTrans*childTrans ;
+		btTransform childTrans = compoundShape->GetChildTransform(i);
+		btTransform	newChildWorldTrans = orgTrans*childTrans ;
 		colObj->m_worldTransform = newChildWorldTrans;
 
 		colObj->m_collisionShape = childShape;

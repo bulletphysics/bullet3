@@ -18,23 +18,23 @@ subject to the following restrictions:
 
 #include <vector>
 
-typedef std::vector<struct CollisionObject*> CollisionObjectArray;
-class CollisionAlgorithm;
-struct BroadphaseProxy;
-struct CollisionAlgorithmConstructionInfo;
+typedef std::vector<struct btCollisionObject*> btCollisionObjectArray;
+class btCollisionAlgorithm;
+struct btBroadphaseProxy;
+struct btCollisionAlgorithmConstructionInfo;
 
 
-struct CollisionAlgorithmCreateFunc
+struct btCollisionAlgorithmCreateFunc
 {
 	bool m_swapped;
 	
-	CollisionAlgorithmCreateFunc()
+	btCollisionAlgorithmCreateFunc()
 		:m_swapped(false)
 	{
 	}
-	virtual ~CollisionAlgorithmCreateFunc(){};
+	virtual ~btCollisionAlgorithmCreateFunc(){};
 
-	virtual	CollisionAlgorithm* CreateCollisionAlgorithm(CollisionAlgorithmConstructionInfo& ci, BroadphaseProxy* proxy0,BroadphaseProxy* proxy1)
+	virtual	btCollisionAlgorithm* CreateCollisionAlgorithm(btCollisionAlgorithmConstructionInfo& ci, btBroadphaseProxy* proxy0,btBroadphaseProxy* proxy1)
 	{
 		return 0;
 	}

@@ -16,14 +16,14 @@ subject to the following restrictions:
 #ifndef ODE_CONSTRAINT_SOLVER_H
 #define ODE_CONSTRAINT_SOLVER_H
 
-#include "ConstraintSolver.h"
+#include "btConstraintSolver.h"
 
-class RigidBody;
+class btRigidBody;
 class BU_Joint;
 
 /// OdeConstraintSolver is one of the available solvers for Bullet dynamics framework
 /// It uses the the unmodified version of quickstep solver from the open dynamics project
-class OdeConstraintSolver : public ConstraintSolver
+class OdeConstraintSolver : public btConstraintSolver
 {
 private:
 
@@ -34,9 +34,9 @@ private:
 	float	m_erp;
 	
 
-	int ConvertBody(RigidBody* body,RigidBody** bodies,int& numBodies);
-	void ConvertConstraint(PersistentManifold* manifold,BU_Joint** joints,int& numJoints,
-					   RigidBody** bodies,int _bodyId0,int _bodyId1,IDebugDraw* debugDrawer);
+	int ConvertBody(btRigidBody* body,btRigidBody** bodies,int& numBodies);
+	void ConvertConstraint(btPersistentManifold* manifold,BU_Joint** joints,int& numJoints,
+					   btRigidBody** bodies,int _bodyId0,int _bodyId1,btIDebugDraw* debugDrawer);
 
 public:
 
@@ -44,7 +44,7 @@ public:
 
 	virtual ~OdeConstraintSolver() {}
 	
-	virtual float SolveGroup(PersistentManifold** manifold,int numManifolds,const ContactSolverInfo& info,IDebugDraw* debugDrawer = 0);
+	virtual float SolveGroup(btPersistentManifold** manifold,int numManifolds,const btContactSolverInfo& info,btIDebugDraw* debugDrawer = 0);
 
 	///setConstraintForceMixing, the cfm adds some positive value to the main diagonal
 	///This can improve convergence (make matrix positive semidefinite), but it can make the simulation look more 'springy'

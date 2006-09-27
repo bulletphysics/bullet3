@@ -27,8 +27,8 @@ subject to the following restrictions:
 
 #include "PHY_IVehicle.h"
 #include "ParallelIslandDispatcher.h"
-#include "LinearMath/GenQuickprof.h"
-#include "LinearMath/GenIDebugDraw.h"
+#include "LinearMath/btQuickprof.h"
+#include "LinearMath/btIDebugDraw.h"
 
 #include "GLDebugDrawer.h"
 
@@ -50,7 +50,7 @@ const int maxOverlap = 65535;
 
 DefaultMotionState wheelMotionState[4];
 
-///PHY_IVehicle is the interface behind the constraint that implements the raycast vehicle (WrapperVehicle which holds a RaycastVehicle)
+///PHY_IVehicle is the interface behind the constraint that implements the raycast vehicle (WrapperVehicle which holds a btRaycastVehicle)
 ///notice that for higher-quality slow-moving vehicles, another approach might be better
 ///implementing explicit hinged-wheel constraints with cylinder collision, rather then raycasts
 PHY_IVehicle* gVehicleConstraint=0;
@@ -66,9 +66,9 @@ float	suspensionStiffness = 10.f;
 float	suspensionDamping = 1.3f;
 float	suspensionCompression = 2.4f;
 float	rollInfluence = 0.1f;
-SimdVector3 wheelDirectionCS0(0,-1,0);
-SimdVector3 wheelAxleCS(1,0,0);
-SimdScalar suspensionRestLength(0.6);
+btVector3 wheelDirectionCS0(0,-1,0);
+btVector3 wheelAxleCS(1,0,0);
+btScalar suspensionRestLength(0.6);
 
 #define CUBE_HALF_EXTENTS 1
 
@@ -97,20 +97,20 @@ m_cameraHeight(4.f),
 m_minCameraDistance(3.f),
 m_maxCameraDistance(10.f)
 {
-	m_cameraPosition = SimdVector3(30,30,30);
+	m_cameraPosition = btVector3(30,30,30);
 }
 
 void ForkLiftDemo::setupPhysics()
 {
 
-	CollisionDispatcher* dispatcher = new	CollisionDispatcher();
+	btCollisionDispatcher* dispatcher = new	btCollisionDispatcher();
 	//ParallelIslandDispatcher* dispatcher2 = new	ParallelIslandDispatcher();
 	
-	SimdVector3 worldAabbMin(-30000,-30000,-30000);
-	SimdVector3 worldAabbMax(30000,30000,30000);
+	btVector3 worldAabbMin(-30000,-30000,-30000);
+	btVector3 worldAabbMax(30000,30000,30000);
 
-	OverlappingPairCache* broadphase = new AxisSweep3(worldAabbMin,worldAabbMax,maxProxies);
-	//OverlappingPairCache* broadphase = new SimpleBroadphase(maxProxies,maxOverlap);
+	btOverlappingPairCache* broadphase = new btAxisSweep3(worldAabbMin,worldAabbMax,maxProxies);
+	//OverlappingPairCache* broadphase = new btSimpleBroadphase(maxProxies,maxOverlap);
 
 #ifdef USE_PARALLEL_DISPATCHER
 	m_physicsEnvironmentPtr = new ParallelPhysicsEnvironment(dispatcher2,broadphase);
@@ -124,7 +124,7 @@ void ForkLiftDemo::setupPhysics()
 	m_physicsEnvironmentPtr->setGravity(0,-10,0);//0,0);//-10,0);
 	int i;
 
-	CollisionShape* groundShape = new BoxShape(SimdVector3(50,3,50));
+	btCollisionShape* groundShape = new btBoxShape(btVector3(50,3,50));
 
 #define  USE_TRIMESH_GROUND 1
 #ifdef USE_TRIMESH_GROUND
@@ -133,7 +133,7 @@ void ForkLiftDemo::setupPhysics()
 const float TRIANGLE_SIZE=20.f;
 
 	//create a triangle-mesh ground
-	int vertStride = sizeof(SimdVector3);
+	int vertStride = sizeof(btVector3);
 	int indexStride = 3*sizeof(int);
 
 	const int NUM_VERTS_X = 50;
@@ -142,7 +142,7 @@ const float TRIANGLE_SIZE=20.f;
 	
 	const int totalTriangles = 2*(NUM_VERTS_X-1)*(NUM_VERTS_Y-1);
 
-	SimdVector3*	gVertices = new SimdVector3[totalVerts];
+	btVector3*	gVertices = new btVector3[totalVerts];
 	int*	gIndices = new int[totalTriangles*3];
 
 	
@@ -170,25 +170,25 @@ const float TRIANGLE_SIZE=20.f;
 		}
 	}
 	
-	TriangleIndexVertexArray* indexVertexArrays = new TriangleIndexVertexArray(totalTriangles,
+	btTriangleIndexVertexArray* indexVertexArrays = new btTriangleIndexVertexArray(totalTriangles,
 		gIndices,
 		indexStride,
 		totalVerts,(float*) &gVertices[0].x(),vertStride);
 
-	groundShape = new BvhTriangleMeshShape(indexVertexArrays);
+	groundShape = new btBvhTriangleMeshShape(indexVertexArrays);
 	
 #endif //
 
-	SimdTransform tr;
+	btTransform tr;
 	tr.setIdentity();
 
-	tr.setOrigin(SimdVector3(0,-20.f,0));
+	tr.setOrigin(btVector3(0,-20.f,0));
 
 	//create ground object
 	LocalCreatePhysicsObject(false,0,tr,groundShape);
 
-	CollisionShape* chassisShape = new BoxShape(SimdVector3(1.f,0.5f,2.f));
-	tr.setOrigin(SimdVector3(0,0.f,0));
+	btCollisionShape* chassisShape = new btBoxShape(btVector3(1.f,0.5f,2.f));
+	tr.setOrigin(btVector3(0,0.f,0));
 
 	m_carChassis = LocalCreatePhysicsObject(true,800,tr,chassisShape);
 	
@@ -211,8 +211,8 @@ const float TRIANGLE_SIZE=20.f;
 		
 		gVehicleConstraint = m_physicsEnvironmentPtr->getVehicleConstraint(constraintId);
 
-		SimdVector3 connectionPointCS0(CUBE_HALF_EXTENTS-(0.3*wheelWidth),0,2*CUBE_HALF_EXTENTS-wheelRadius);
-		RaycastVehicle::VehicleTuning tuning;
+		btVector3 connectionPointCS0(CUBE_HALF_EXTENTS-(0.3*wheelWidth),0,2*CUBE_HALF_EXTENTS-wheelRadius);
+		btRaycastVehicle::btVehicleTuning tuning;
 		bool isFrontWheel=true;
 		int rightIndex = 0;
 		int upIndex = 1;
@@ -224,18 +224,18 @@ const float TRIANGLE_SIZE=20.f;
 			(PHY__Vector3&)connectionPointCS0,
 			(PHY__Vector3&)wheelDirectionCS0,(PHY__Vector3&)wheelAxleCS,suspensionRestLength,wheelRadius,isFrontWheel);
 
-		connectionPointCS0 = SimdVector3(-CUBE_HALF_EXTENTS+(0.3*wheelWidth),0,2*CUBE_HALF_EXTENTS-wheelRadius);
+		connectionPointCS0 = btVector3(-CUBE_HALF_EXTENTS+(0.3*wheelWidth),0,2*CUBE_HALF_EXTENTS-wheelRadius);
 		gVehicleConstraint->AddWheel(&wheelMotionState[1],
 			(PHY__Vector3&)connectionPointCS0,
 			(PHY__Vector3&)wheelDirectionCS0,(PHY__Vector3&)wheelAxleCS,suspensionRestLength,wheelRadius,isFrontWheel);
 
-		connectionPointCS0 = SimdVector3(-CUBE_HALF_EXTENTS+(0.3*wheelWidth),0,-2*CUBE_HALF_EXTENTS+wheelRadius);
+		connectionPointCS0 = btVector3(-CUBE_HALF_EXTENTS+(0.3*wheelWidth),0,-2*CUBE_HALF_EXTENTS+wheelRadius);
 		isFrontWheel = false;
 		gVehicleConstraint->AddWheel(&wheelMotionState[2],
 			(PHY__Vector3&)connectionPointCS0,
 			(PHY__Vector3&)wheelDirectionCS0,(PHY__Vector3&)wheelAxleCS,suspensionRestLength,wheelRadius,isFrontWheel);
 		
-		connectionPointCS0 = SimdVector3(CUBE_HALF_EXTENTS-(0.3*wheelWidth),0,-2*CUBE_HALF_EXTENTS+wheelRadius);
+		connectionPointCS0 = btVector3(CUBE_HALF_EXTENTS-(0.3*wheelWidth),0,-2*CUBE_HALF_EXTENTS+wheelRadius);
 		gVehicleConstraint->AddWheel(&wheelMotionState[3],
 			(PHY__Vector3&)connectionPointCS0,
 			(PHY__Vector3&)wheelDirectionCS0,(PHY__Vector3&)wheelAxleCS,suspensionRestLength,wheelRadius,isFrontWheel);
@@ -280,8 +280,8 @@ void ForkLiftDemo::renderme()
 	float m[16];
 	int i;
 
-	CylinderShapeX wheelShape(SimdVector3(wheelWidth,wheelRadius,wheelRadius));
-	SimdVector3 wheelColor(1,0,0);
+	btCylinderShapeX wheelShape(btVector3(wheelWidth,wheelRadius,wheelRadius));
+	btVector3 wheelColor(1,0,0);
 
 	for (i=0;i<4;i++)
 	{
@@ -318,14 +318,14 @@ void ForkLiftDemo::clientMoveAndDisplay()
 
 
 #ifdef USE_QUICKPROF 
-        Profiler::beginBlock("render"); 
+        btProfiler::beginBlock("render"); 
 #endif //USE_QUICKPROF 
 
 
 	renderme(); 
 
 #ifdef USE_QUICKPROF 
-        Profiler::endBlock("render"); 
+        btProfiler::endBlock("render"); 
 #endif 
 	glFlush();
 	glutSwapBuffers();
@@ -419,7 +419,7 @@ void	ForkLiftDemo::updateCamera()
 	//interpolate the camera height
 	m_cameraPosition[1] = (15.0*m_cameraPosition[1] + m_cameraTargetPosition[1] + m_cameraHeight)/16.0;
 
-	SimdVector3 camToObject = m_cameraTargetPosition - m_cameraPosition;
+	btVector3 camToObject = m_cameraTargetPosition - m_cameraPosition;
 
 	//keep distance between min and max distance
 	float cameraDistance = camToObject.length();

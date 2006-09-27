@@ -22,14 +22,14 @@ subject to the following restrictions:
 #include <stdio.h> //for debug printf
 #endif
 
-static const SimdScalar rel_error = SimdScalar(1.0e-5);
-SimdScalar rel_error2 = rel_error * rel_error;
+static const btScalar rel_error = btScalar(1.0e-5);
+btScalar rel_error2 = rel_error * rel_error;
 float maxdist2 = 1.e30f;
 
 
 int gGjkMaxIter=1000;
 
-GjkPairDetector::GjkPairDetector(ConvexShape* objectA,ConvexShape* objectB,SimplexSolverInterface* simplexSolver,ConvexPenetrationDepthSolver*	penetrationDepthSolver)
+btGjkPairDetector::btGjkPairDetector(btConvexShape* objectA,btConvexShape* objectB,btSimplexSolverInterface* simplexSolver,btConvexPenetrationDepthSolver*	penetrationDepthSolver)
 :m_cachedSeparatingAxis(0.f,0.f,1.f),
 m_penetrationDepthSolver(penetrationDepthSolver),
 m_simplexSolver(simplexSolver),
@@ -43,11 +43,11 @@ m_index1(-1)
 {
 }
 
-void GjkPairDetector::GetClosestPoints(const ClosestPointInput& input,Result& output,class IDebugDraw* debugDraw)
+void btGjkPairDetector::GetClosestPoints(const ClosestPointInput& input,Result& output,class btIDebugDraw* debugDraw)
 {
-	SimdScalar distance=0.f;
-	SimdVector3	normalInB(0.f,0.f,0.f);
-	SimdVector3 pointOnA,pointOnB;
+	btScalar distance=0.f;
+	btVector3	normalInB(0.f,0.f,0.f);
+	btVector3 pointOnA,pointOnB;
 
 	float marginA = m_minkowskiA->GetMargin();
 	float marginB = m_minkowskiB->GetMargin();
@@ -66,10 +66,10 @@ int curIter = 0;
 	bool checkPenetration = true;
 
 	{
-		SimdScalar squaredDistance = SIMD_INFINITY;
-		SimdScalar delta = 0.f;
+		btScalar squaredDistance = SIMD_INFINITY;
+		btScalar delta = 0.f;
 		
-		SimdScalar margin = marginA + marginB;
+		btScalar margin = marginA + marginB;
 		
 		
 
@@ -77,11 +77,11 @@ int curIter = 0;
 		
 		while (true)
 		{
-			//degeneracy, this is typically due to invalid/uninitialized worldtransforms for a CollisionObject
+			//degeneracy, this is typically due to invalid/uninitialized worldtransforms for a btCollisionObject
 			if (curIter++ > gGjkMaxIter)
 			{
 				#if defined(DEBUG) || defined (_DEBUG)
-					printf("GjkPairDetector maxIter exceeded:%i\n",curIter);
+					printf("btGjkPairDetector maxIter exceeded:%i\n",curIter);
 					printf("sepAxis=(%f,%f,%f), squaredDistance = %f, shapeTypeA=%i,shapeTypeB=%i\n",
 					m_cachedSeparatingAxis.getX(),
 					m_cachedSeparatingAxis.getY(),
@@ -94,19 +94,19 @@ int curIter = 0;
 
 			}
 
-			SimdVector3 seperatingAxisInA = (-m_cachedSeparatingAxis)* input.m_transformA.getBasis();
-			SimdVector3 seperatingAxisInB = m_cachedSeparatingAxis* input.m_transformB.getBasis();
+			btVector3 seperatingAxisInA = (-m_cachedSeparatingAxis)* input.m_transformA.getBasis();
+			btVector3 seperatingAxisInB = m_cachedSeparatingAxis* input.m_transformB.getBasis();
 
-			SimdVector3 pInA = m_minkowskiA->LocalGetSupportingVertexWithoutMargin(seperatingAxisInA);
-			SimdVector3 qInB = m_minkowskiB->LocalGetSupportingVertexWithoutMargin(seperatingAxisInB);
-			SimdPoint3  pWorld = input.m_transformA(pInA);	
-			SimdPoint3  qWorld = input.m_transformB(qInB);
+			btVector3 pInA = m_minkowskiA->LocalGetSupportingVertexWithoutMargin(seperatingAxisInA);
+			btVector3 qInB = m_minkowskiB->LocalGetSupportingVertexWithoutMargin(seperatingAxisInB);
+			btPoint3  pWorld = input.m_transformA(pInA);	
+			btPoint3  qWorld = input.m_transformB(qInB);
 			
-			SimdVector3 w	= pWorld - qWorld;
+			btVector3 w	= pWorld - qWorld;
 			delta = m_cachedSeparatingAxis.dot(w);
 
 			// potential exit, they don't overlap
-			if ((delta > SimdScalar(0.0)) && (delta * delta > squaredDistance * input.m_maximumDistanceSquared)) 
+			if ((delta > btScalar(0.0)) && (delta * delta > squaredDistance * input.m_maximumDistanceSquared)) 
 			{
 				checkPenetration = false;
 				break;
@@ -134,7 +134,7 @@ int curIter = 0;
 				break;
 			}
 
-			SimdScalar previousSquaredDistance = squaredDistance;
+			btScalar previousSquaredDistance = squaredDistance;
 			squaredDistance = m_cachedSeparatingAxis.length2();
 			
 			//redundant m_simplexSolver->compute_points(pointOnA, pointOnB);
@@ -165,10 +165,10 @@ int curIter = 0;
 			//valid normal
 			if (lenSqr > (SIMD_EPSILON*SIMD_EPSILON))
 			{
-				float rlen = 1.f / SimdSqrt(lenSqr );
+				float rlen = 1.f / btSqrt(lenSqr );
 				normalInB *= rlen; //normalize
-				SimdScalar s = SimdSqrt(squaredDistance);
-				ASSERT(s > SimdScalar(0.0));
+				btScalar s = btSqrt(squaredDistance);
+				ASSERT(s > btScalar(0.0));
 				pointOnA -= m_cachedSeparatingAxis * (marginA / s);
 				pointOnB += m_cachedSeparatingAxis * (marginB / s);
 				distance = ((1.f/rlen) - margin);
@@ -198,7 +198,7 @@ int curIter = 0;
 					float lenSqr = normalInB.length2();
 					if (lenSqr > (SIMD_EPSILON*SIMD_EPSILON))
 					{
-						normalInB /= SimdSqrt(lenSqr);
+						normalInB /= btSqrt(lenSqr);
 						distance = -(pointOnA-pointOnB).length();
 					} else
 					{

@@ -19,15 +19,15 @@ subject to the following restrictions:
 */
 
 #include "GL_Simplex1to4.h"
-#include "LinearMath/SimdQuaternion.h"
-#include "LinearMath/SimdTransform.h"
+#include "LinearMath/btQuaternion.h"
+#include "LinearMath/btTransform.h"
 #include "GL_ShapeDrawer.h"
 
 #include "BulletCollision/NarrowPhaseCollision/btVoronoiSimplexSolver.h"
 #include "SimplexDemo.h"
 #include "GlutStuff.h"
 
-VoronoiSimplexSolver	simplexSolver;
+btVoronoiSimplexSolver	simplexSolver;
 
 
 
@@ -40,7 +40,7 @@ int screenHeight = 480;
 GL_Simplex1to4	simplex;
 
 
-PolyhedralConvexShape*	shapePtr[maxNumObjects];
+btPolyhedralConvexShape*	shapePtr[maxNumObjects];
 
 
 ///
@@ -78,17 +78,17 @@ void SimplexDemo::displayCallback()
 
 	for (i=0;i<numObjects;i++)
 	{
-		SimdTransform transA;
+		btTransform transA;
 		transA.setIdentity();
-		SimdVector3	dpos(0.f,5.f,0.f);
+		btVector3	dpos(0.f,5.f,0.f);
 		transA.setOrigin( dpos );
-		SimdQuaternion orn;
+		btQuaternion orn;
 		orn.setEuler(yaw,pitch,roll);
 		transA.setRotation(orn);
 		transA.getOpenGLMatrix( m );
 
 		/// draw the simplex
-		GL_ShapeDrawer::DrawOpenGL(m,shapePtr[i],SimdVector3(1,1,1),getDebugMode());
+		GL_ShapeDrawer::DrawOpenGL(m,shapePtr[i],btVector3(1,1,1),getDebugMode());
 
 		/// calculate closest point from simplex to the origin, and draw this vector
 		simplex.CalcClosest(m);
@@ -106,14 +106,14 @@ void	SimplexDemo::initPhysics()
 
 	simplex.SetSimplexSolver(&simplexSolver);
 
-	simplex.AddVertex(SimdPoint3(-2,0,-2));
-	simplex.AddVertex(SimdPoint3(2,0,-2));
-	simplex.AddVertex(SimdPoint3(0,0,2));
-	simplex.AddVertex(SimdPoint3(0,2,0));
+	simplex.AddVertex(btPoint3(-2,0,-2));
+	simplex.AddVertex(btPoint3(2,0,-2));
+	simplex.AddVertex(btPoint3(0,0,2));
+	simplex.AddVertex(btPoint3(0,2,0));
 
 	shapePtr[0] = &simplex;
 
-	SimdTransform tr;
+	btTransform tr;
 	tr.setIdentity();
 }
 

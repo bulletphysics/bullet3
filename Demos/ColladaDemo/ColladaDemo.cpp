@@ -16,8 +16,8 @@ subject to the following restrictions:
 #include "CcdPhysicsEnvironment.h"
 #include "CcdPhysicsController.h"
 #include "btBulletDynamicsCommon.h"
-#include "LinearMath/GenQuickprof.h"
-#include "LinearMath/GenIDebugDraw.h"
+#include "LinearMath/btQuickprof.h"
+#include "LinearMath/btIDebugDraw.h"
 #include "GLDebugDrawer.h"
 
 
@@ -50,12 +50,12 @@ class MyColladaConverter : public ColladaConverter
 		///those 2 virtuals are called for each constraint/physics object
 	virtual int			createUniversalD6Constraint(
 		class PHY_IPhysicsController* ctrlRef,class PHY_IPhysicsController* ctrlOther,
-			SimdTransform& localAttachmentFrameRef,
-			SimdTransform& localAttachmentOther,
-			const SimdVector3& linearMinLimits,
-			const SimdVector3& linearMaxLimits,
-			const SimdVector3& angularMinLimits,
-			const SimdVector3& angularMaxLimits
+			btTransform& localAttachmentFrameRef,
+			btTransform& localAttachmentOther,
+			const btVector3& linearMinLimits,
+			const btVector3& linearMaxLimits,
+			const btVector3& angularMinLimits,
+			const btVector3& angularMaxLimits
 			)
 		{
 			return m_demoApp->GetPhysicsEnvironment()->createUniversalD6Constraint(
@@ -71,19 +71,19 @@ class MyColladaConverter : public ColladaConverter
 
 	virtual CcdPhysicsController*  CreatePhysicsObject(bool isDynamic, 
 		float mass, 
-		const SimdTransform& startTransform,
-		CollisionShape* shape)
+		const btTransform& startTransform,
+		btCollisionShape* shape)
 	{
 		CcdPhysicsController*  ctrl = m_demoApp->LocalCreatePhysicsObject(isDynamic, mass, startTransform,shape);
 		return ctrl;
 	}
 
 
-	virtual	void	SetGravity(const SimdVector3& grav)
+	virtual	void	SetGravity(const btVector3& grav)
 	{
 		m_demoApp->GetPhysicsEnvironment()->setGravity(grav.getX(),grav.getY(),grav.getZ());
 	}
-	virtual void	SetCameraInfo(const SimdVector3& camUp,int forwardAxis) 
+	virtual void	SetCameraInfo(const btVector3& camUp,int forwardAxis) 
 	{
 		m_demoApp->setCameraUp(camUp);
 		m_demoApp->setCameraForwardAxis(forwardAxis);
@@ -138,15 +138,15 @@ int main(int argc,char** argv)
 
 void	ColladaDemo::initPhysics(const char* filename)
 {
-	m_cameraUp = SimdVector3(0,0,1);
+	m_cameraUp = btVector3(0,0,1);
 	m_forwardAxis = 1;
 
 	///Setup a Physics Simulation Environment
-	CollisionDispatcher* dispatcher = new	CollisionDispatcher();
-	SimdVector3 worldAabbMin(-10000,-10000,-10000);
-	SimdVector3 worldAabbMax(10000,10000,10000);
-	OverlappingPairCache* broadphase = new AxisSweep3(worldAabbMin,worldAabbMax);
-	//BroadphaseInterface* broadphase = new SimpleBroadphase();
+	btCollisionDispatcher* dispatcher = new	btCollisionDispatcher();
+	btVector3 worldAabbMin(-10000,-10000,-10000);
+	btVector3 worldAabbMax(10000,10000,10000);
+	btOverlappingPairCache* broadphase = new btAxisSweep3(worldAabbMin,worldAabbMax);
+	//BroadphaseInterface* broadphase = new btSimpleBroadphase();
 	m_physicsEnvironmentPtr = new CcdPhysicsEnvironment(dispatcher,broadphase);
 	m_physicsEnvironmentPtr->setDeactivationTime(2.f);
 	m_physicsEnvironmentPtr->setGravity(0,0,-10);

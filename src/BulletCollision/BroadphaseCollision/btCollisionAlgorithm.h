@@ -16,50 +16,50 @@ subject to the following restrictions:
 #ifndef COLLISION_ALGORITHM_H
 #define COLLISION_ALGORITHM_H
 
-struct BroadphaseProxy;
-class Dispatcher;
+struct btBroadphaseProxy;
+class btDispatcher;
 
-struct CollisionAlgorithmConstructionInfo
+struct btCollisionAlgorithmConstructionInfo
 {
-	CollisionAlgorithmConstructionInfo()
+	btCollisionAlgorithmConstructionInfo()
 		:m_dispatcher(0)
 	{
 	}
-	CollisionAlgorithmConstructionInfo(Dispatcher* dispatcher,int temp)
+	btCollisionAlgorithmConstructionInfo(btDispatcher* dispatcher,int temp)
 		:m_dispatcher(dispatcher)
 	{
 	}
 
-	Dispatcher*	m_dispatcher;
+	btDispatcher*	m_dispatcher;
 
 	int	GetDispatcherId();
 
 };
 
 
-///CollisionAlgorithm is an collision interface that is compatible with the Broadphase and Dispatcher.
+///CollisionAlgorithm is an collision interface that is compatible with the Broadphase and btDispatcher.
 ///It is persistent over frames
-class CollisionAlgorithm
+class btCollisionAlgorithm
 {
 
 protected:
 
-	Dispatcher*	m_dispatcher;
+	btDispatcher*	m_dispatcher;
 
 protected:
 	int	GetDispatcherId();
 	
 public:
 
-	CollisionAlgorithm() {};
+	btCollisionAlgorithm() {};
 
-	CollisionAlgorithm(const CollisionAlgorithmConstructionInfo& ci);
+	btCollisionAlgorithm(const btCollisionAlgorithmConstructionInfo& ci);
 
-	virtual ~CollisionAlgorithm() {};
+	virtual ~btCollisionAlgorithm() {};
 
-	virtual void ProcessCollision (BroadphaseProxy* proxy0,BroadphaseProxy* proxy1,const struct DispatcherInfo& dispatchInfo) = 0;
+	virtual void ProcessCollision (btBroadphaseProxy* proxy0,btBroadphaseProxy* proxy1,const struct btDispatcherInfo& dispatchInfo) = 0;
 
-	virtual float CalculateTimeOfImpact(BroadphaseProxy* proxy0,BroadphaseProxy* proxy1,const struct DispatcherInfo& dispatchInfo) = 0;
+	virtual float CalculateTimeOfImpact(btBroadphaseProxy* proxy0,btBroadphaseProxy* proxy1,const struct btDispatcherInfo& dispatchInfo) = 0;
 
 };
 

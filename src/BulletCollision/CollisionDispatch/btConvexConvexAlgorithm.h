@@ -23,21 +23,21 @@ subject to the following restrictions:
 #include "BulletCollision/NarrowPhaseCollision/btVoronoiSimplexSolver.h"
 #include "btCollisionCreateFunc.h"
 
-class ConvexPenetrationDepthSolver;
+class btConvexPenetrationDepthSolver;
 
 ///ConvexConvexAlgorithm collision algorithm implements time of impact, convex closest points and penetration depth calculations.
-class ConvexConvexAlgorithm : public CollisionAlgorithm
+class btConvexConvexAlgorithm : public btCollisionAlgorithm
 {
 	//ConvexPenetrationDepthSolver*	m_penetrationDepthSolver;
-	VoronoiSimplexSolver	m_simplexSolver;
-	GjkPairDetector m_gjkPairDetector;
+	btVoronoiSimplexSolver	m_simplexSolver;
+	btGjkPairDetector m_gjkPairDetector;
 	bool	m_useEpa;
 public:
-	BroadphaseProxy	m_box0;
-	BroadphaseProxy	m_box1;
+	btBroadphaseProxy	m_box0;
+	btBroadphaseProxy	m_box1;
 
 	bool	m_ownManifold;
-	PersistentManifold*	m_manifoldPtr;
+	btPersistentManifold*	m_manifoldPtr;
 	bool			m_lowLevelOfDetail;
 
 	void	CheckPenetrationDepthSolver();
@@ -46,13 +46,13 @@ public:
 
 public:
 
-	ConvexConvexAlgorithm(PersistentManifold* mf,const CollisionAlgorithmConstructionInfo& ci,BroadphaseProxy* proxy0,BroadphaseProxy* proxy1);
+	btConvexConvexAlgorithm(btPersistentManifold* mf,const btCollisionAlgorithmConstructionInfo& ci,btBroadphaseProxy* proxy0,btBroadphaseProxy* proxy1);
 
-	virtual ~ConvexConvexAlgorithm();
+	virtual ~btConvexConvexAlgorithm();
 
-	virtual void ProcessCollision (BroadphaseProxy* proxy0,BroadphaseProxy* proxy1,const DispatcherInfo& dispatchInfo);
+	virtual void ProcessCollision (btBroadphaseProxy* proxy0,btBroadphaseProxy* proxy1,const btDispatcherInfo& dispatchInfo);
 
-	virtual float CalculateTimeOfImpact(BroadphaseProxy* proxy0,BroadphaseProxy* proxy1,const DispatcherInfo& dispatchInfo);
+	virtual float CalculateTimeOfImpact(btBroadphaseProxy* proxy0,btBroadphaseProxy* proxy1,const btDispatcherInfo& dispatchInfo);
 
 	void	SetLowLevelOfDetail(bool useLowLevel);
 
@@ -64,16 +64,16 @@ public:
 			m_gjkPairDetector.m_index1=index1;		
 	}
 
-	const PersistentManifold*	GetManifold()
+	const btPersistentManifold*	GetManifold()
 	{
 		return m_manifoldPtr;
 	}
 
-	struct CreateFunc :public 	CollisionAlgorithmCreateFunc
+	struct CreateFunc :public 	btCollisionAlgorithmCreateFunc
 	{
-		virtual	CollisionAlgorithm* CreateCollisionAlgorithm(CollisionAlgorithmConstructionInfo& ci, BroadphaseProxy* proxy0,BroadphaseProxy* proxy1)
+		virtual	btCollisionAlgorithm* CreateCollisionAlgorithm(btCollisionAlgorithmConstructionInfo& ci, btBroadphaseProxy* proxy0,btBroadphaseProxy* proxy1)
 		{
-			return new ConvexConvexAlgorithm(0,ci,proxy0,proxy1);
+			return new btConvexConvexAlgorithm(0,ci,proxy0,proxy1);
 		}
 	};
 

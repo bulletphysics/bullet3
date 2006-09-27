@@ -26,7 +26,7 @@
 
 
 
-struct Separation
+struct btSeparation
 {
 
 	short m_featureA;

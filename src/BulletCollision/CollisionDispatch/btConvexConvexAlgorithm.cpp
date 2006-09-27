@@ -81,8 +81,8 @@ bool gDisableConvexCollision = false;
 
 
 
-ConvexConvexAlgorithm::ConvexConvexAlgorithm(PersistentManifold* mf,const CollisionAlgorithmConstructionInfo& ci,BroadphaseProxy* proxy0,BroadphaseProxy* proxy1)
-: CollisionAlgorithm(ci),
+btConvexConvexAlgorithm::btConvexConvexAlgorithm(btPersistentManifold* mf,const btCollisionAlgorithmConstructionInfo& ci,btBroadphaseProxy* proxy0,btBroadphaseProxy* proxy1)
+: btCollisionAlgorithm(ci),
 m_gjkPairDetector(0,0,&m_simplexSolver,0),
 m_useEpa(!gUseEpa),
 m_box0(*proxy0),
@@ -105,7 +105,7 @@ m_lowLevelOfDetail(false)
 
 
 
-ConvexConvexAlgorithm::~ConvexConvexAlgorithm()
+btConvexConvexAlgorithm::~btConvexConvexAlgorithm()
 {
 	if (m_ownManifold)
 	{
@@ -114,35 +114,35 @@ ConvexConvexAlgorithm::~ConvexConvexAlgorithm()
 	}
 }
 
-void	ConvexConvexAlgorithm ::SetLowLevelOfDetail(bool useLowLevel)
+void	btConvexConvexAlgorithm ::SetLowLevelOfDetail(bool useLowLevel)
 {
 	m_lowLevelOfDetail = useLowLevel;
 }
 
 
 
-class FlippedContactResult : public DiscreteCollisionDetectorInterface::Result
+class FlippedContactResult : public btDiscreteCollisionDetectorInterface::Result
 {
-	DiscreteCollisionDetectorInterface::Result* m_org;
+	btDiscreteCollisionDetectorInterface::Result* m_org;
 
 public:
 
-	FlippedContactResult(DiscreteCollisionDetectorInterface::Result* org)
+	FlippedContactResult(btDiscreteCollisionDetectorInterface::Result* org)
 		: m_org(org)
 	{
 
 	}
 
-	virtual void AddContactPoint(const SimdVector3& normalOnBInWorld,const SimdVector3& pointInWorld,float depth)
+	virtual void AddContactPoint(const btVector3& normalOnBInWorld,const btVector3& pointInWorld,float depth)
 	{
-		SimdVector3 flippedNormal = -normalOnBInWorld;
+		btVector3 flippedNormal = -normalOnBInWorld;
 
 		m_org->AddContactPoint(flippedNormal,pointInWorld,depth);
 	}
 
 };
 
-static MinkowskiPenetrationDepthSolver	gPenetrationDepthSolver;
+static btMinkowskiPenetrationDepthSolver	gPenetrationDepthSolver;
 
 //static EpaPenetrationDepthSolver	gEpaPenetrationDepthSolver;
 
@@ -150,7 +150,7 @@ static MinkowskiPenetrationDepthSolver	gPenetrationDepthSolver;
 Solid3EpaPenetrationDepth	gSolidEpaPenetrationSolver;
 #endif //USE_EPA
 
-void	ConvexConvexAlgorithm::CheckPenetrationDepthSolver()
+void	btConvexConvexAlgorithm::CheckPenetrationDepthSolver()
 {
 	if (m_useEpa != gUseEpa)
 	{
@@ -171,15 +171,15 @@ void	ConvexConvexAlgorithm::CheckPenetrationDepthSolver()
 
 #ifdef USE_HULL
 
-Transform	GetTransformFromSimdTransform(const SimdTransform& trans)
+Transform	GetTransformFrombtTransform(const btTransform& trans)
 {
-			//const SimdVector3& rowA0 = trans.getBasis().getRow(0);
-			////const SimdVector3& rowA1 = trans.getBasis().getRow(1);
-			//const SimdVector3& rowA2 = trans.getBasis().getRow(2);
+			//const btVector3& rowA0 = trans.getBasis().getRow(0);
+			////const btVector3& rowA1 = trans.getBasis().getRow(1);
+			//const btVector3& rowA2 = trans.getBasis().getRow(2);
 
-			SimdVector3 rowA0 = trans.getBasis().getColumn(0);
-			SimdVector3 rowA1 = trans.getBasis().getColumn(1);
-			SimdVector3 rowA2 = trans.getBasis().getColumn(2);
+			btVector3 rowA0 = trans.getBasis().getColumn(0);
+			btVector3 rowA1 = trans.getBasis().getColumn(1);
+			btVector3 rowA2 = trans.getBasis().getColumn(2);
 
 
 			Vector3	x(rowA0.getX(),rowA0.getY(),rowA0.getZ());
@@ -196,28 +196,28 @@ Transform	GetTransformFromSimdTransform(const SimdTransform& trans)
 			return Transform(ornA,transA);
 }
 
-class ManifoldResultCollector : public HullContactCollector
+class btManifoldResultCollector : public HullContactCollector
 {
 public:
-	ManifoldResult& m_manifoldResult;
+	btManifoldResult& m_manifoldResult;
 
-	ManifoldResultCollector(ManifoldResult& manifoldResult)
+	btManifoldResultCollector(btManifoldResult& manifoldResult)
 		:m_manifoldResult(manifoldResult)
 	{
 
 	}
 	
 
-	virtual ~ManifoldResultCollector() {};
+	virtual ~btManifoldResultCollector() {};
 
-	virtual int	BatchAddContactGroup(const Separation& sep,int numContacts,const Vector3& normalWorld,const Vector3& tangent,const Point3* positionsWorld,const float* depths)
+	virtual int	BatchAddContactGroup(const btSeparation& sep,int numContacts,const Vector3& normalWorld,const Vector3& tangent,const Point3* positionsWorld,const float* depths)
 	{
 		for (int i=0;i<numContacts;i++)
 		{
 			//printf("numContacts = %i\n",numContacts);
-			SimdVector3 normalOnBInWorld(sep.m_axis.GetX(),sep.m_axis.GetY(),sep.m_axis.GetZ());
+			btVector3 normalOnBInWorld(sep.m_axis.GetX(),sep.m_axis.GetY(),sep.m_axis.GetZ());
 			//normalOnBInWorld.normalize();
-			SimdVector3 pointInWorld(positionsWorld[i].GetX(),positionsWorld[i].GetY(),positionsWorld[i].GetZ());
+			btVector3 pointInWorld(positionsWorld[i].GetX(),positionsWorld[i].GetY(),positionsWorld[i].GetZ());
 			float depth = -depths[i];
 			m_manifoldResult.AddContactPoint(normalOnBInWorld,pointInWorld,depth);
 
@@ -237,7 +237,7 @@ public:
 //
 // Convex-Convex collision algorithm
 //
-void ConvexConvexAlgorithm ::ProcessCollision (BroadphaseProxy* ,BroadphaseProxy* ,const DispatcherInfo& dispatchInfo)
+void btConvexConvexAlgorithm ::ProcessCollision (btBroadphaseProxy* ,btBroadphaseProxy* ,const btDispatcherInfo& dispatchInfo)
 {
 
 	if (!m_manifoldPtr)
@@ -245,14 +245,14 @@ void ConvexConvexAlgorithm ::ProcessCollision (BroadphaseProxy* ,BroadphaseProxy
 
 	CheckPenetrationDepthSolver();
 
-//	printf("ConvexConvexAlgorithm::ProcessCollision\n");
+//	printf("btConvexConvexAlgorithm::ProcessCollision\n");
 
 	bool needsCollision = m_dispatcher->NeedsCollision(m_box0,m_box1);
 	if (!needsCollision)
 		return;
 	
-	CollisionObject*	col0 = static_cast<CollisionObject*>(m_box0.m_clientObject);
-	CollisionObject*	col1 = static_cast<CollisionObject*>(m_box1.m_clientObject);
+	btCollisionObject*	col0 = static_cast<btCollisionObject*>(m_box0.m_clientObject);
+	btCollisionObject*	col1 = static_cast<btCollisionObject*>(m_box1.m_clientObject);
 
 #ifdef USE_HULL
 
@@ -264,29 +264,29 @@ void ConvexConvexAlgorithm ::ProcessCollision (BroadphaseProxy* ,BroadphaseProxy
 		{
 		
 			
-			PolyhedralConvexShape* polyhedron0 = static_cast<PolyhedralConvexShape*>(col0->m_collisionShape);
-			PolyhedralConvexShape* polyhedron1 = static_cast<PolyhedralConvexShape*>(col1->m_collisionShape);
+			btPolyhedralConvexShape* polyhedron0 = static_cast<btPolyhedralConvexShape*>(col0->m_collisionShape);
+			btPolyhedralConvexShape* polyhedron1 = static_cast<btPolyhedralConvexShape*>(col1->m_collisionShape);
 			if (polyhedron0->m_optionalHull && polyhedron1->m_optionalHull)
 			{
 				//printf("Hull-Hull");
 
 				//todo: cache this information, rather then initialize
-				Separation sep;
+				btSeparation sep;
 				sep.m_featureA = 0;
 				sep.m_featureB = 0;
 				sep.m_contact = -1;
 				sep.m_separator = 0;
 
-				//convert from SimdTransform to Transform
+				//convert from btTransform to Transform
 				
-				Transform trA = GetTransformFromSimdTransform(col0->m_worldTransform);
-				Transform trB = GetTransformFromSimdTransform(col1->m_worldTransform);
+				Transform trA = GetTransformFrombtTransform(col0->m_worldTransform);
+				Transform trB = GetTransformFrombtTransform(col1->m_worldTransform);
 
 				//either use persistent manifold or clear it every time
 				m_dispatcher->ClearManifold(m_manifoldPtr);
-				ManifoldResult* resultOut = m_dispatcher->GetNewManifoldResult(col0,col1,m_manifoldPtr);
+				btManifoldResult* resultOut = m_dispatcher->GetNewManifoldResult(col0,col1,m_manifoldPtr);
 
-				ManifoldResultCollector hullContactCollector(*resultOut);
+				btManifoldResultCollector hullContactCollector(*resultOut);
 				
 				Hull::ProcessHullHull(sep,*polyhedron0->m_optionalHull,*polyhedron1->m_optionalHull,
 					trA,trB,&hullContactCollector);
@@ -301,12 +301,12 @@ void ConvexConvexAlgorithm ::ProcessCollision (BroadphaseProxy* ,BroadphaseProxy
 #endif //USE_HULL
 
 	
-	ManifoldResult* resultOut = m_dispatcher->GetNewManifoldResult(col0,col1,m_manifoldPtr);
+	btManifoldResult* resultOut = m_dispatcher->GetNewManifoldResult(col0,col1,m_manifoldPtr);
 	
-	ConvexShape* min0 = static_cast<ConvexShape*>(col0->m_collisionShape);
-	ConvexShape* min1 = static_cast<ConvexShape*>(col1->m_collisionShape);
+	btConvexShape* min0 = static_cast<btConvexShape*>(col0->m_collisionShape);
+	btConvexShape* min1 = static_cast<btConvexShape*>(col1->m_collisionShape);
 	
-	GjkPairDetector::ClosestPointInput input;
+	btGjkPairDetector::ClosestPointInput input;
 
 
 	//TODO: if (dispatchInfo.m_useContinuous)
@@ -328,7 +328,7 @@ void ConvexConvexAlgorithm ::ProcessCollision (BroadphaseProxy* ,BroadphaseProxy
 
 
 bool disableCcd = false;
-float	ConvexConvexAlgorithm::CalculateTimeOfImpact(BroadphaseProxy* proxy0,BroadphaseProxy* proxy1,const DispatcherInfo& dispatchInfo)
+float	btConvexConvexAlgorithm::CalculateTimeOfImpact(btBroadphaseProxy* proxy0,btBroadphaseProxy* proxy1,const btDispatcherInfo& dispatchInfo)
 {
 	///Rather then checking ALL pairs, only calculate TOI when motion exceeds treshold
     
@@ -336,8 +336,8 @@ float	ConvexConvexAlgorithm::CalculateTimeOfImpact(BroadphaseProxy* proxy0,Broad
 	///col0->m_worldTransform,
 	float resultFraction = 1.f;
 
-	CollisionObject* col1 = static_cast<CollisionObject*>(m_box1.m_clientObject);
-	CollisionObject* col0 = static_cast<CollisionObject*>(m_box0.m_clientObject);
+	btCollisionObject* col1 = static_cast<btCollisionObject*>(m_box1.m_clientObject);
+	btCollisionObject* col0 = static_cast<btCollisionObject*>(m_box0.m_clientObject);
 
 	float squareMot0 = (col0->m_interpolationWorldTransform.getOrigin() - col0->m_worldTransform.getOrigin()).length2();
     
@@ -366,14 +366,14 @@ float	ConvexConvexAlgorithm::CalculateTimeOfImpact(BroadphaseProxy* proxy0,Broad
 		
 	/// Convex0 against sphere for Convex1
 	{
-		ConvexShape* convex0 = static_cast<ConvexShape*>(col0->m_collisionShape);
+		btConvexShape* convex0 = static_cast<btConvexShape*>(col0->m_collisionShape);
 
-		SphereShape	sphere1(col1->m_ccdSweptShereRadius); //todo: allow non-zero sphere sizes, for better approximation
-		ConvexCast::CastResult result;
-		VoronoiSimplexSolver voronoiSimplex;
+		btSphereShape	sphere1(col1->m_ccdSweptShereRadius); //todo: allow non-zero sphere sizes, for better approximation
+		btConvexCast::CastResult result;
+		btVoronoiSimplexSolver voronoiSimplex;
 		//SubsimplexConvexCast ccd0(&sphere,min0,&voronoiSimplex);
 		///Simplification, one object is simplified as a sphere
-		GjkConvexCast ccd1( convex0 ,&sphere1,&voronoiSimplex);
+		btGjkConvexCast ccd1( convex0 ,&sphere1,&voronoiSimplex);
 		//ContinuousConvexCollision ccd(min0,min1,&voronoiSimplex,0);
 		if (ccd1.calcTimeOfImpact(col0->m_worldTransform,col0->m_interpolationWorldTransform,
 			col1->m_worldTransform,col1->m_interpolationWorldTransform,result))
@@ -399,14 +399,14 @@ float	ConvexConvexAlgorithm::CalculateTimeOfImpact(BroadphaseProxy* proxy0,Broad
 
 	/// Sphere (for convex0) against Convex1
 	{
-		ConvexShape* convex1 = static_cast<ConvexShape*>(col1->m_collisionShape);
+		btConvexShape* convex1 = static_cast<btConvexShape*>(col1->m_collisionShape);
 
-		SphereShape	sphere0(col0->m_ccdSweptShereRadius); //todo: allow non-zero sphere sizes, for better approximation
-		ConvexCast::CastResult result;
-		VoronoiSimplexSolver voronoiSimplex;
+		btSphereShape	sphere0(col0->m_ccdSweptShereRadius); //todo: allow non-zero sphere sizes, for better approximation
+		btConvexCast::CastResult result;
+		btVoronoiSimplexSolver voronoiSimplex;
 		//SubsimplexConvexCast ccd0(&sphere,min0,&voronoiSimplex);
 		///Simplification, one object is simplified as a sphere
-		GjkConvexCast ccd1(&sphere0,convex1,&voronoiSimplex);
+		btGjkConvexCast ccd1(&sphere0,convex1,&voronoiSimplex);
 		//ContinuousConvexCollision ccd(min0,min1,&voronoiSimplex,0);
 		if (ccd1.calcTimeOfImpact(col0->m_worldTransform,col0->m_interpolationWorldTransform,
 			col1->m_worldTransform,col1->m_interpolationWorldTransform,result))

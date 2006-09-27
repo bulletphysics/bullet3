@@ -18,7 +18,7 @@ subject to the following restrictions:
 
 
 
-/// Dispatcher uses these types
+/// btDispatcher uses these types
 /// IMPORTANT NOTE:The types are ordered polyhedral, implicit convex and concave
 /// to facilitate type checking
 enum BroadphaseNativeTypes
@@ -56,18 +56,18 @@ CONCAVE_SHAPES_END_HERE,
 
 
 ///BroadphaseProxy
-struct BroadphaseProxy
+struct btBroadphaseProxy
 {
 	
-	//Usually the client CollisionObject or Rigidbody class
+	//Usually the client btCollisionObject or Rigidbody class
 	void*	m_clientObject;
 	short int m_collisionFilterGroup;
 	short int m_collisionFilterMask;
 
 	//used for memory pools
-	BroadphaseProxy() :m_clientObject(0){}
+	btBroadphaseProxy() :m_clientObject(0){}
 
-	BroadphaseProxy(void* userPtr,short int collisionFilterGroup, short int collisionFilterMask)
+	btBroadphaseProxy(void* userPtr,short int collisionFilterGroup, short int collisionFilterMask)
 		:m_clientObject(userPtr),
 		m_collisionFilterGroup(collisionFilterGroup),
 		m_collisionFilterMask(collisionFilterMask)
@@ -96,17 +96,17 @@ struct BroadphaseProxy
 	
 };
 
-class CollisionAlgorithm;
+class btCollisionAlgorithm;
 
-struct BroadphaseProxy;
+struct btBroadphaseProxy;
 
-//Increase SIMPLE_MAX_ALGORITHMS to allow multiple Dispatchers caching their own algorithms
+//Increase SIMPLE_MAX_ALGORITHMS to allow multiple btDispatchers caching their own algorithms
 #define SIMPLE_MAX_ALGORITHMS 1
 
 /// contains a pair of aabb-overlapping objects
-struct BroadphasePair
+struct btBroadphasePair
 {
-	BroadphasePair ()
+	btBroadphasePair ()
 		:
 	m_pProxy0(0),
 		m_pProxy1(0)
@@ -117,7 +117,7 @@ struct BroadphasePair
 		}
 	}
 
-	BroadphasePair(const BroadphasePair& other)
+	btBroadphasePair(const btBroadphasePair& other)
 		:		m_pProxy0(other.m_pProxy0),
 				m_pProxy1(other.m_pProxy1)
 	{
@@ -126,7 +126,7 @@ struct BroadphasePair
 			m_algorithms[i] = other.m_algorithms[i];
 		}
 	}
-	BroadphasePair(BroadphaseProxy& proxy0,BroadphaseProxy& proxy1)
+	btBroadphasePair(btBroadphaseProxy& proxy0,btBroadphaseProxy& proxy1)
 	{
 
 		//keep them sorted, so the std::set operations work
@@ -148,15 +148,15 @@ struct BroadphasePair
 
 	}
 	
-	BroadphaseProxy* m_pProxy0;
-	BroadphaseProxy* m_pProxy1;
+	btBroadphaseProxy* m_pProxy0;
+	btBroadphaseProxy* m_pProxy1;
 	
-	mutable CollisionAlgorithm* m_algorithms[SIMPLE_MAX_ALGORITHMS];
+	mutable btCollisionAlgorithm* m_algorithms[SIMPLE_MAX_ALGORITHMS];
 };
 
 
 //comparison for set operation, see Solid DT_Encounter
-inline bool operator<(const BroadphasePair& a, const BroadphasePair& b) 
+inline bool operator<(const btBroadphasePair& a, const btBroadphasePair& b) 
 { 
     return a.m_pProxy0 < b.m_pProxy0 || 
         (a.m_pProxy0 == b.m_pProxy0 && a.m_pProxy1 < b.m_pProxy1); 

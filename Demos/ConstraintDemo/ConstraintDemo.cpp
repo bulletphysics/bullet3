@@ -17,7 +17,7 @@ subject to the following restrictions:
 #include "CcdPhysicsController.h"
 #include "MyMotionState.h"
 #include "btBulletDynamicsCommon.h"
-#include "LinearMath/GenIDebugDraw.h"
+#include "LinearMath/btIDebugDraw.h"
 
 #include "GLDebugDrawer.h"
 
@@ -53,12 +53,12 @@ int main(int argc,char** argv)
 
 void	ConstraintDemo::initPhysics()
 {
-	//ConstraintSolver* solver = new SequentialImpulseConstraintSolver;
+	//ConstraintSolver* solver = new btSequentialImpulseConstraintSolver;
 	//ConstraintSolver* solver = new OdeConstraintSolver;
 
-	CollisionDispatcher* dispatcher = new	CollisionDispatcher();
+	btCollisionDispatcher* dispatcher = new	btCollisionDispatcher();
 		
-	OverlappingPairCache* broadphase = new SimpleBroadphase();
+	btOverlappingPairCache* broadphase = new btSimpleBroadphase();
 
 
 	m_physicsEnvironmentPtr = new CcdPhysicsEnvironment(dispatcher,broadphase);
@@ -66,16 +66,16 @@ void	ConstraintDemo::initPhysics()
 	m_physicsEnvironmentPtr->setGravity(0,-10,0);
 
 
-	CollisionShape* shape = new BoxShape(SimdVector3(CUBE_HALF_EXTENTS,CUBE_HALF_EXTENTS,CUBE_HALF_EXTENTS));
-	SimdTransform trans;
+	btCollisionShape* shape = new btBoxShape(btVector3(CUBE_HALF_EXTENTS,CUBE_HALF_EXTENTS,CUBE_HALF_EXTENTS));
+	btTransform trans;
 	trans.setIdentity();
-	trans.setOrigin(SimdVector3(0,20,0));
+	trans.setOrigin(btVector3(0,20,0));
 
 	bool isDynamic = false;
 	float mass = 1.f;
 
 	CcdPhysicsController* ctrl0 = LocalCreatePhysicsObject( isDynamic,mass,trans,shape);
-	trans.setOrigin(SimdVector3(2*CUBE_HALF_EXTENTS,20,0));
+	trans.setOrigin(btVector3(2*CUBE_HALF_EXTENTS,20,0));
 	isDynamic = true;
 	CcdPhysicsController* ctrl1 = LocalCreatePhysicsObject( isDynamic,mass,trans,shape);
 	

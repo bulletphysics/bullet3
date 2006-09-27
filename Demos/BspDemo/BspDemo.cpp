@@ -18,8 +18,8 @@ subject to the following restrictions:
 
 #include "btBulletDynamicsCommon.h"
 
-#include "LinearMath/GenQuickprof.h"
-#include "LinearMath/GenIDebugDraw.h"
+#include "LinearMath/btQuickprof.h"
+#include "LinearMath/btIDebugDraw.h"
 
 #include "GLDebugDrawer.h"
 
@@ -60,7 +60,7 @@ public:
 	{
 	}
 
-		virtual void	AddConvexVerticesCollider(std::vector<SimdVector3>& vertices, bool isEntity, const SimdVector3& entityTargetLocation)
+		virtual void	AddConvexVerticesCollider(std::vector<btVector3>& vertices, bool isEntity, const btVector3& entityTargetLocation)
 		{
 			///perhaps we can do something special with entities (isEntity)
 			///like adding a collision Triggering (as example)
@@ -69,12 +69,12 @@ public:
 			{
 				bool isDynamic = false;
 				float mass = 0.f;
-				SimdTransform startTransform;
+				btTransform startTransform;
 				//can use a shift
 				startTransform.setIdentity();
-				startTransform.setOrigin(SimdVector3(0,0,-10.f));
+				startTransform.setOrigin(btVector3(0,0,-10.f));
 				//this create an internal copy of the vertices
-				CollisionShape* shape = new ConvexHullShape(&vertices[0],vertices.size());
+				btCollisionShape* shape = new btConvexHullShape(&vertices[0],vertices.size());
 
 				m_demoApp->LocalCreatePhysicsObject(isDynamic, mass, startTransform,shape);
 			}
@@ -128,15 +128,15 @@ void	BspDemo::initPhysics(char* bspfilename)
 {
 	
 
-	m_cameraUp = SimdVector3(0,0,1);
+	m_cameraUp = btVector3(0,0,1);
 	m_forwardAxis = 1;
 
 	///Setup a Physics Simulation Environment
-	CollisionDispatcher* dispatcher = new	CollisionDispatcher();
-	SimdVector3 worldAabbMin(-10000,-10000,-10000);
-	SimdVector3 worldAabbMax(10000,10000,10000);
-	OverlappingPairCache* broadphase = new AxisSweep3(worldAabbMin,worldAabbMax);
-	//BroadphaseInterface* broadphase = new SimpleBroadphase();
+	btCollisionDispatcher* dispatcher = new	btCollisionDispatcher();
+	btVector3 worldAabbMin(-10000,-10000,-10000);
+	btVector3 worldAabbMax(10000,10000,10000);
+	btOverlappingPairCache* broadphase = new btAxisSweep3(worldAabbMin,worldAabbMax);
+	//BroadphaseInterface* broadphase = new btSimpleBroadphase();
 	m_physicsEnvironmentPtr = new CcdPhysicsEnvironment(dispatcher,broadphase);
 	m_physicsEnvironmentPtr->setDeactivationTime(2.f);
 	m_physicsEnvironmentPtr->setGravity(0,0,-10);

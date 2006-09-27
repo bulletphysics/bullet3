@@ -19,13 +19,13 @@ subject to the following restrictions:
 #include "btConvexShape.h"
 #include "BulletCollision/CollisionShapes/btBoxShape.h"
 
-class TriangleShape : public PolyhedralConvexShape
+class btTriangleShape : public btPolyhedralConvexShape
 {
 
 
 public:
 
-	SimdVector3	m_vertices1[3];
+	btVector3	m_vertices1[3];
 
 
 	virtual int GetNumVertices() const
@@ -33,11 +33,11 @@ public:
 		return 3;
 	}
 
-	const SimdVector3& GetVertexPtr(int index) const
+	const btVector3& GetVertexPtr(int index) const
 	{
 		return m_vertices1[index];
 	}
-	virtual void GetVertex(int index,SimdVector3& vert) const
+	virtual void GetVertex(int index,btVector3& vert) const
 	{
 		vert = m_vertices1[index];
 	}
@@ -51,31 +51,31 @@ public:
 		return 3;
 	}
 	
-	virtual void GetEdge(int i,SimdPoint3& pa,SimdPoint3& pb) const
+	virtual void GetEdge(int i,btPoint3& pa,btPoint3& pb) const
 	{
 		GetVertex(i,pa);
 		GetVertex((i+1)%3,pb);
 	}
 
-	virtual void GetAabb(const SimdTransform& t,SimdVector3& aabbMin,SimdVector3& aabbMax)const 
+	virtual void GetAabb(const btTransform& t,btVector3& aabbMin,btVector3& aabbMax)const 
 	{
 //		ASSERT(0);
 		GetAabbSlow(t,aabbMin,aabbMax);
 	}
 
-	SimdVector3 LocalGetSupportingVertexWithoutMargin(const SimdVector3& dir)const 
+	btVector3 LocalGetSupportingVertexWithoutMargin(const btVector3& dir)const 
 	{
-		SimdVector3 dots(dir.dot(m_vertices1[0]), dir.dot(m_vertices1[1]), dir.dot(m_vertices1[2]));
+		btVector3 dots(dir.dot(m_vertices1[0]), dir.dot(m_vertices1[1]), dir.dot(m_vertices1[2]));
 	  	return m_vertices1[dots.maxAxis()];
 
 	}
 
-	virtual void	BatchedUnitVectorGetSupportingVertexWithoutMargin(const SimdVector3* vectors,SimdVector3* supportVerticesOut,int numVectors) const
+	virtual void	BatchedUnitVectorGetSupportingVertexWithoutMargin(const btVector3* vectors,btVector3* supportVerticesOut,int numVectors) const
 	{
 		for (int i=0;i<numVectors;i++)
 		{
-			const SimdVector3& dir = vectors[i];
-			SimdVector3 dots(dir.dot(m_vertices1[0]), dir.dot(m_vertices1[1]), dir.dot(m_vertices1[2]));
+			const btVector3& dir = vectors[i];
+			btVector3 dots(dir.dot(m_vertices1[0]), dir.dot(m_vertices1[1]), dir.dot(m_vertices1[2]));
   			supportVerticesOut[i] = m_vertices1[dots.maxAxis()];
 		}
 
@@ -83,7 +83,7 @@ public:
 
 
 
-	TriangleShape(const SimdVector3& p0,const SimdVector3& p1,const SimdVector3& p2)
+	btTriangleShape(const btVector3& p0,const btVector3& p1,const btVector3& p2)
 	{
 		m_vertices1[0] = p0;
 		m_vertices1[1] = p1;
@@ -92,7 +92,7 @@ public:
 
 	
 
-	virtual void GetPlane(SimdVector3& planeNormal,SimdPoint3& planeSupport,int i) const
+	virtual void GetPlane(btVector3& planeNormal,btPoint3& planeSupport,int i) const
 	{
 		GetPlaneEquation(i,planeNormal,planeSupport);
 	}
@@ -102,31 +102,31 @@ public:
 		return 1;
 	}
 
-	void CalcNormal(SimdVector3& normal) const
+	void CalcNormal(btVector3& normal) const
 	{
 		normal = (m_vertices1[1]-m_vertices1[0]).cross(m_vertices1[2]-m_vertices1[0]);
 		normal.normalize();
 	}
 
-	virtual void GetPlaneEquation(int i, SimdVector3& planeNormal,SimdPoint3& planeSupport) const
+	virtual void GetPlaneEquation(int i, btVector3& planeNormal,btPoint3& planeSupport) const
 	{
 		CalcNormal(planeNormal);
 		planeSupport = m_vertices1[0];
 	}
 
-	virtual void	CalculateLocalInertia(SimdScalar mass,SimdVector3& inertia)
+	virtual void	CalculateLocalInertia(btScalar mass,btVector3& inertia)
 	{
 		ASSERT(0);
 		inertia.setValue(0.f,0.f,0.f);
 	}
 
-		virtual	bool IsInside(const SimdPoint3& pt,SimdScalar tolerance) const
+		virtual	bool IsInside(const btPoint3& pt,btScalar tolerance) const
 	{
-		SimdVector3 normal;
+		btVector3 normal;
 		CalcNormal(normal);
 		//distance to plane
-		SimdScalar dist = pt.dot(normal);
-		SimdScalar planeconst = m_vertices1[0].dot(normal);
+		btScalar dist = pt.dot(normal);
+		btScalar planeconst = m_vertices1[0].dot(normal);
 		dist -= planeconst;
 		if (dist >= -tolerance && dist <= tolerance)
 		{
@@ -134,13 +134,13 @@ public:
 			int i;
 			for (i=0;i<3;i++)
 			{
-				SimdPoint3 pa,pb;
+				btPoint3 pa,pb;
 				GetEdge(i,pa,pb);
-				SimdVector3 edge = pb-pa;
-				SimdVector3 edgeNormal = edge.cross(normal);
+				btVector3 edge = pb-pa;
+				btVector3 edgeNormal = edge.cross(normal);
 				edgeNormal.normalize();
-				SimdScalar dist = pt.dot( edgeNormal);
-				SimdScalar edgeConst = pa.dot(edgeNormal);
+				btScalar dist = pt.dot( edgeNormal);
+				btScalar edgeConst = pa.dot(edgeNormal);
 				dist -= edgeConst;
 				if (dist < -tolerance)
 					return false;

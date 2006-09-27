@@ -7,10 +7,10 @@
 *                                                                       *
 * This library is free software; you can redistribute it and/or         *
 * modify it under the terms of EITHER:                                  *
-*   (1) The GNU Lesser General Public License as published by the Free  *
+*   (1) The GNU Lesser bteral Public License as published by the Free  *
 *       Software Foundation; either version 2.1 of the License, or (at  *
 *       your option) any later version. The text of the GNU Lesser      *
-*       General Public License is included with this library in the     *
+*       bteral Public License is included with this library in the     *
 *       file license-LGPL.txt.                                          *
 *   (2) The BSD-style license that is included with this library in     *
 *       the file license-BSD.txt.                                       *
@@ -255,7 +255,7 @@ namespace hidden
 };
 
 /// A static class that manages timing for a set of profiling blocks.
-class Profiler
+class btProfiler
 {
 public:
 	/// A set of ways to retrieve block timing data.
@@ -333,9 +333,9 @@ public:
 		BlockTimingMethod method=BLOCK_TOTAL_PERCENT);
 
 //private:
-	inline Profiler();
+	inline btProfiler();
 
-	inline ~Profiler();
+	inline ~btProfiler();
 
 	/// Prints an error message to standard output.
 	inline static void printError(const std::string& msg)
@@ -372,19 +372,19 @@ public:
 };
 
 
-Profiler::Profiler()
+btProfiler::btProfiler()
 {
-	// This never gets called because a Profiler instance is never 
+	// This never gets called because a btProfiler instance is never 
 	// created.
 }
 
-Profiler::~Profiler()
+btProfiler::~btProfiler()
 {
-	// This never gets called because a Profiler instance is never 
+	// This never gets called because a btProfiler instance is never 
 	// created.
 }
 
-void Profiler::init(const std::string outputFilename, 
+void btProfiler::init(const std::string outputFilename, 
 	BlockTimingMethod outputMethod)
 {
 	mEnabled = true;
@@ -402,7 +402,7 @@ void Profiler::init(const std::string outputFilename,
 	mCurrentCycleStartMicroseconds = mClock.getTimeMicroseconds();
 }
 
-void Profiler::destroy()
+void btProfiler::destroy()
 {
 	if (!mEnabled)
 	{
@@ -422,7 +422,7 @@ void Profiler::destroy()
 	}
 }
 
-void Profiler::beginBlock(const std::string& name)
+void btProfiler::beginBlock(const std::string& name)
 {
 	if (!mEnabled)
 	{
@@ -448,7 +448,7 @@ void Profiler::beginBlock(const std::string& name)
 	block->currentBlockStartMicroseconds = mClock.getTimeMicroseconds();
 }
 
-void Profiler::endBlock(const std::string& name)
+void btProfiler::endBlock(const std::string& name)
 {
 	if (!mEnabled)
 	{
@@ -474,7 +474,7 @@ void Profiler::endBlock(const std::string& name)
 	block->totalMicroseconds += blockDuration;
 }
 
-double Profiler::getBlockTime(const std::string& name, 
+double btProfiler::getBlockTime(const std::string& name, 
 	BlockTimingMethod method)
 {
 	if (!mEnabled)
@@ -552,7 +552,7 @@ double Profiler::getBlockTime(const std::string& name,
 	return result;
 }
 
-void Profiler::endProfilingCycle()
+void btProfiler::endProfilingCycle()
 {
 	if (!mEnabled)
 	{
@@ -608,7 +608,7 @@ void Profiler::endProfilingCycle()
 	mCurrentCycleStartMicroseconds = mClock.getTimeMicroseconds();
 }
 
-std::string Profiler::createStatsString(BlockTimingMethod method)
+std::string btProfiler::createStatsString(BlockTimingMethod method)
 {
 	if (!mEnabled)
 	{

@@ -5,10 +5,10 @@
  *                                                                       *
  * This library is free software; you can redistribute it and/or         *
  * modify it under the terms of EITHER:                                  *
- *   (1) The GNU Lesser General Public License as published by the Free  *
+ *   (1) The GNU Lesser bteral Public License as published by the Free  *
  *       Software Foundation; either version 2.1 of the License, or (at  *
  *       your option) any later version. The text of the GNU Lesser      *
- *       General Public License is included with this library in the     *
+ *       bteral Public License is included with this library in the     *
  *       file LICENSE.TXT.                                               *
  *   (2) The BSD-style license that is included with this library in     *
  *       the file LICENSE-BSD.TXT.                                       *
@@ -69,14 +69,14 @@
 
 struct MyObject {
   dBodyID body;			// the body
-  CollisionObject	collider; //the collisionShape
+  btCollisionObject	collider; //the collisionShape
 };
 
 static int num=0;		// number of objects in simulation
 static int nextobj=0;		// next object to recycle if num==NUM
 static dWorldID world;
 
-CollisionWorld*	collisionWorld = 0;
+btCollisionWorld*	collisionWorld = 0;
 
 static MyObject obj[NUM];
 static dJointGroupID contactgroup;
@@ -88,24 +88,24 @@ static int write_world = 0;
 
 
 
-SimdTransform	GetTransformFromOde(const dReal* pos,const dReal* rot)
+btTransform	GetTransformFromOde(const dReal* pos,const dReal* rot)
 {
-	SimdTransform trans;
+	btTransform trans;
 	trans.setIdentity();
 
 // rot is pointer to object's rotation matrix, 4*3 format!
 	
-	SimdMatrix3x3 orn(rot[0],rot[1],rot[2],
+	btMatrix3x3 orn(rot[0],rot[1],rot[2],
 		rot[4],rot[5],rot[6],
 		rot[8],rot[9],rot[10]);
 
-	trans.setOrigin(SimdVector3(pos[0],pos[1],pos[2]));
+	trans.setOrigin(btVector3(pos[0],pos[1],pos[2]));
 	trans.setBasis(orn);
 
   return trans;
 }
 
-void	GetOdeFromTransform(const SimdTransform& trans,dReal* pos,dReal* rot)
+void	GetOdeFromTransform(const btTransform& trans,dReal* pos,dReal* rot)
 {
 	pos[0] = trans.getOrigin().x();
 	pos[1] = trans.getOrigin().y();
@@ -180,7 +180,7 @@ static void command (int cmd)
       // destroy the body and geoms for slot i
       dBodyDestroy (obj[i].body);
 	  collisionWorld->RemoveCollisionObject(&obj[i].collider);
-	  obj[i].collider.m_broadphaseHandle = (BroadphaseProxy*)(-1);
+	  obj[i].collider.m_broadphaseHandle = (btBroadphaseProxy*)(-1);
 
 
     //todo: destroy collider
@@ -210,7 +210,7 @@ static void command (int cmd)
 
     if (cmd == 'b') {
       dMassSetBox (&m,DENSITY,sides[0],sides[1],sides[2]);
-	  obj[i].collider.m_collisionShape = new BoxShape(SimdVector3(0.5*sides[0],0.5*sides[1],0.5*sides[2]));
+	  obj[i].collider.m_collisionShape = new btBoxShape(btVector3(0.5*sides[0],0.5*sides[1],0.5*sides[2]));
 	  obj[i].collider.m_worldTransform = GetTransformFromOde(dBodyGetPosition(obj[i].body),dBodyGetRotation(obj[i].body));
 	  collisionWorld->AddCollisionObject(&obj[i].collider);
 	  obj[i].collider.m_userPointer = obj[i].body;
@@ -221,7 +221,7 @@ static void command (int cmd)
 	  sides[1] *= 0.2;
 	  sides[2] *= 0.2;
       dMassSetCappedCylinder (&m,DENSITY,3,sides[0],sides[1]);
-		obj[i].collider.m_collisionShape = new CylinderShapeZ(SimdVector3(sides[0],sides[1],sides[1]));
+		obj[i].collider.m_collisionShape = new btCylinderShapeZ(btVector3(sides[0],sides[1],sides[1]));
 	  obj[i].collider.m_worldTransform = GetTransformFromOde(dBodyGetPosition(obj[i].body),dBodyGetRotation(obj[i].body));
 	  collisionWorld->AddCollisionObject(&obj[i].collider);
 	  obj[i].collider.m_userPointer = obj[i].body;
@@ -238,7 +238,7 @@ static void command (int cmd)
     else if (cmd == 's') {
       sides[0] *= 0.5;
       dMassSetSphere (&m,DENSITY,sides[0]);
-	  obj[i].collider.m_collisionShape = new SphereShape(sides[0]);
+	  obj[i].collider.m_collisionShape = new btSphereShape(sides[0]);
 	  
 
 	  obj[i].collider.m_worldTransform = GetTransformFromOde(dBodyGetPosition(obj[i].body),dBodyGetRotation(obj[i].body));
@@ -289,7 +289,7 @@ static void command (int cmd)
 
 // draw a geom
 
-void drawGeom (CollisionObject& collider)//, const dReal *pos, const dReal *R, int show_aabb)
+void drawGeom (btCollisionObject& collider)//, const dReal *pos, const dReal *R, int show_aabb)
 {
 	dReal pos[4];
 	dReal R[16];
@@ -304,7 +304,7 @@ void drawGeom (CollisionObject& collider)//, const dReal *pos, const dReal *R, i
   
   if (type == BOX_SHAPE_PROXYTYPE) {
     dVector3 sides;
-    BoxShape* boxShape = static_cast<BoxShape*>(collider.m_collisionShape);
+    btBoxShape* boxShape = static_cast<btBoxShape*>(collider.m_collisionShape);
 	sides[0] = 2.f*boxShape->GetHalfExtents().x();
 	sides[1] = 2.f*boxShape->GetHalfExtents().y();
 	sides[2] = 2.f*boxShape->GetHalfExtents().z();
@@ -313,7 +313,7 @@ void drawGeom (CollisionObject& collider)//, const dReal *pos, const dReal *R, i
 
   }
   else if (type == SPHERE_SHAPE_PROXYTYPE) {
-    SphereShape* sphereShape = static_cast<SphereShape*>(collider.m_collisionShape);
+    btSphereShape* sphereShape = static_cast<btSphereShape*>(collider.m_collisionShape);
 	dReal radius = sphereShape->GetMargin();
 	
     dsDrawSphere (pos,R,radius);
@@ -322,7 +322,7 @@ void drawGeom (CollisionObject& collider)//, const dReal *pos, const dReal *R, i
 
   else if (type == CYLINDER_SHAPE_PROXYTYPE) {
     
-	CylinderShapeZ* cylinder = static_cast<CylinderShapeZ*>(collider.m_collisionShape);
+	btCylinderShapeZ* cylinder = static_cast<btCylinderShapeZ*>(collider.m_collisionShape);
 	dReal radius = cylinder->GetHalfExtents()[0];
 	dReal length = 2.f*cylinder->GetHalfExtents()[1];
 	radius += cylinder->GetMargin();
@@ -381,15 +381,15 @@ static void simLoop (int pause)
 
   for (int i=0;i<collisionWorld->GetDispatcher()->GetNumManifolds();i++)
   {
-	  PersistentManifold* manifold = collisionWorld->GetDispatcher()->GetManifoldByIndexInternal(i);
-	  CollisionObject* obj0 = static_cast<CollisionObject*>(manifold->GetBody0());
-	  CollisionObject* obj1 = static_cast<CollisionObject*>(manifold->GetBody1());
+	  btPersistentManifold* manifold = collisionWorld->GetDispatcher()->GetManifoldByIndexInternal(i);
+	  btCollisionObject* obj0 = static_cast<btCollisionObject*>(manifold->GetBody0());
+	  btCollisionObject* obj1 = static_cast<btCollisionObject*>(manifold->GetBody1());
 	  
 	  //RefreshContactPoints will update and/or remove existing contactpoints from previous frames
 	  manifold->RefreshContactPoints(obj0->m_worldTransform,obj1->m_worldTransform);
       for (int j=0;j<manifold->GetNumContacts();j++)
 	  {
-		  ManifoldPoint& pt = manifold->GetContactPoint(j);
+		  btManifoldPoint& pt = manifold->GetContactPoint(j);
 		  if (pt.GetDistance()<0.f)
 		  {
 			//report point to ODE
@@ -495,11 +495,11 @@ int main (int argc, char **argv)
   //space = dHashSpaceCreate (0);
 
   float bpsize = 1000.f;
-  AxisSweep3 broadphase(SimdVector3(-bpsize,-bpsize,-bpsize),SimdVector3(bpsize,bpsize,bpsize));
+  btAxisSweep3 broadphase(btVector3(-bpsize,-bpsize,-bpsize),btVector3(bpsize,bpsize,bpsize));
   //SimpleBroadphase broadphase;
 
-  CollisionDispatcher dispatcher;
-  collisionWorld = new CollisionWorld(&dispatcher,&broadphase);
+  btCollisionDispatcher dispatcher;
+  collisionWorld = new btCollisionWorld(&dispatcher,&broadphase);
 
   contactgroup = dJointGroupCreate (0);
   dWorldSetGravity (world,0,0,-0.5);
@@ -510,9 +510,9 @@ int main (int argc, char **argv)
   dWorldSetContactSurfaceLayer (world,0.001);
   //dCreatePlane (space,0,0,1,0);
   
-  CollisionObject groundPlane;
+  btCollisionObject groundPlane;
   groundPlane.m_worldTransform.setIdentity();
-  groundPlane.m_collisionShape = new BoxShape(SimdVector3(50,50,0.04));
+  groundPlane.m_collisionShape = new btBoxShape(btVector3(50,50,0.04));
    groundPlane.m_collisionShape->SetMargin(0.005f);
   collisionWorld->AddCollisionObject(&groundPlane);
   groundPlane.m_userPointer = 0;

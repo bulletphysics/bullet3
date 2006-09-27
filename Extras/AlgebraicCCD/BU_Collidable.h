@@ -18,14 +18,14 @@ subject to the following restrictions:
 #define BU_COLLIDABLE
 
 
-class PolyhedralConvexShape;
+class btPolyhedralConvexShape;
 class BU_MotionStateInterface;
-#include <LinearMath/SimdPoint3.h>
+#include <LinearMath/btPoint3.h>
 
 class BU_Collidable
 {
 public:
-	BU_Collidable(BU_MotionStateInterface& motion,PolyhedralConvexShape& shape, void* userPointer);
+	BU_Collidable(BU_MotionStateInterface& motion,btPolyhedralConvexShape& shape, void* userPointer);
 
 	void*		GetUserPointer() const
 	{
@@ -41,7 +41,7 @@ public:
 		return m_motionState;
 	}
 	
-	inline const PolyhedralConvexShape&	GetShape() const
+	inline const btPolyhedralConvexShape&	GetShape() const
 	{
 		return m_shape;
 	};
@@ -49,7 +49,7 @@ public:
 
 private:
 	BU_MotionStateInterface& m_motionState;
-	PolyhedralConvexShape&	m_shape;
+	btPolyhedralConvexShape&	m_shape;
 	void*		m_userPointer;
 
 };

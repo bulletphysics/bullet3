@@ -20,24 +20,24 @@ subject to the following restrictions:
 #define GJK_PAIR_DETECTOR_H
 
 #include "btDiscreteCollisionDetectorInterface.h"
-#include "LinearMath/SimdPoint3.h"
+#include "LinearMath/btPoint3.h"
 
 #include <BulletCollision/CollisionShapes/btCollisionMargin.h>
 
-class ConvexShape;
+class btConvexShape;
 #include "btSimplexSolverInterface.h"
-class ConvexPenetrationDepthSolver;
+class btConvexPenetrationDepthSolver;
 
-/// GjkPairDetector uses GJK to implement the DiscreteCollisionDetectorInterface
-class GjkPairDetector : public DiscreteCollisionDetectorInterface
+/// btGjkPairDetector uses GJK to implement the btDiscreteCollisionDetectorInterface
+class btGjkPairDetector : public btDiscreteCollisionDetectorInterface
 {
 	
 
-	SimdVector3	m_cachedSeparatingAxis;
-	ConvexPenetrationDepthSolver*	m_penetrationDepthSolver;
-	SimplexSolverInterface* m_simplexSolver;
-	ConvexShape* m_minkowskiA;
-	ConvexShape* m_minkowskiB;
+	btVector3	m_cachedSeparatingAxis;
+	btConvexPenetrationDepthSolver*	m_penetrationDepthSolver;
+	btSimplexSolverInterface* m_simplexSolver;
+	btConvexShape* m_minkowskiA;
+	btConvexShape* m_minkowskiB;
 	bool		m_ignoreMargin;
 	
 
@@ -50,26 +50,26 @@ public:
 	int	m_partId1;
 	int	m_index1;
 
-	GjkPairDetector(ConvexShape* objectA,ConvexShape* objectB,SimplexSolverInterface* simplexSolver,ConvexPenetrationDepthSolver*	penetrationDepthSolver);
-	virtual ~GjkPairDetector() {};
+	btGjkPairDetector(btConvexShape* objectA,btConvexShape* objectB,btSimplexSolverInterface* simplexSolver,btConvexPenetrationDepthSolver*	penetrationDepthSolver);
+	virtual ~btGjkPairDetector() {};
 
-	virtual void	GetClosestPoints(const ClosestPointInput& input,Result& output,class IDebugDraw* debugDraw);
+	virtual void	GetClosestPoints(const ClosestPointInput& input,Result& output,class btIDebugDraw* debugDraw);
 
-	void SetMinkowskiA(ConvexShape* minkA)
+	void SetMinkowskiA(btConvexShape* minkA)
 	{
 		m_minkowskiA = minkA;
 	}
 
-	void SetMinkowskiB(ConvexShape* minkB)
+	void SetMinkowskiB(btConvexShape* minkB)
 	{
 		m_minkowskiB = minkB;
 	}
-	void SetCachedSeperatingAxis(const SimdVector3& seperatingAxis)
+	void SetCachedSeperatingAxis(const btVector3& seperatingAxis)
 	{
 		m_cachedSeparatingAxis = seperatingAxis;
 	}
 
-	void	SetPenetrationDepthSolver(ConvexPenetrationDepthSolver*	penetrationDepthSolver)
+	void	SetPenetrationDepthSolver(btConvexPenetrationDepthSolver*	penetrationDepthSolver)
 	{
 		m_penetrationDepthSolver = penetrationDepthSolver;
 	}

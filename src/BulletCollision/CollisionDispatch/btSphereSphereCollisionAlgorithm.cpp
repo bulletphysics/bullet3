@@ -18,8 +18,8 @@ subject to the following restrictions:
 #include "BulletCollision/CollisionShapes/btSphereShape.h"
 #include "BulletCollision/CollisionDispatch/btCollisionObject.h"
 
-SphereSphereCollisionAlgorithm::SphereSphereCollisionAlgorithm(PersistentManifold* mf,const CollisionAlgorithmConstructionInfo& ci,BroadphaseProxy* proxy0,BroadphaseProxy* proxy1)
-: CollisionAlgorithm(ci),
+btSphereSphereCollisionAlgorithm::btSphereSphereCollisionAlgorithm(btPersistentManifold* mf,const btCollisionAlgorithmConstructionInfo& ci,btBroadphaseProxy* proxy0,btBroadphaseProxy* proxy1)
+: btCollisionAlgorithm(ci),
 m_ownManifold(false),
 m_manifoldPtr(mf)
 {
@@ -30,7 +30,7 @@ m_manifoldPtr(mf)
 	}
 }
 
-SphereSphereCollisionAlgorithm::~SphereSphereCollisionAlgorithm()
+btSphereSphereCollisionAlgorithm::~btSphereSphereCollisionAlgorithm()
 {
 	if (m_ownManifold)
 	{
@@ -39,42 +39,42 @@ SphereSphereCollisionAlgorithm::~SphereSphereCollisionAlgorithm()
 	}
 }
 
-void SphereSphereCollisionAlgorithm::ProcessCollision (BroadphaseProxy* proxy0,BroadphaseProxy* proxy1,const DispatcherInfo& dispatchInfo)
+void btSphereSphereCollisionAlgorithm::ProcessCollision (btBroadphaseProxy* proxy0,btBroadphaseProxy* proxy1,const btDispatcherInfo& dispatchInfo)
 {
 	if (!m_manifoldPtr)
 		return;
 
-	CollisionObject*	col0 = static_cast<CollisionObject*>(proxy0->m_clientObject);
-	CollisionObject*	col1 = static_cast<CollisionObject*>(proxy1->m_clientObject);
-	SphereShape* sphere0 = (SphereShape*)col0->m_collisionShape;
-	SphereShape* sphere1 = (SphereShape*)col1->m_collisionShape;
+	btCollisionObject*	col0 = static_cast<btCollisionObject*>(proxy0->m_clientObject);
+	btCollisionObject*	col1 = static_cast<btCollisionObject*>(proxy1->m_clientObject);
+	btSphereShape* sphere0 = (btSphereShape*)col0->m_collisionShape;
+	btSphereShape* sphere1 = (btSphereShape*)col1->m_collisionShape;
 
-	SimdVector3 diff = col0->m_worldTransform.getOrigin()-  col1->m_worldTransform.getOrigin();
+	btVector3 diff = col0->m_worldTransform.getOrigin()-  col1->m_worldTransform.getOrigin();
 	float len = diff.length();
-	SimdScalar radius0 = sphere0->GetRadius();
-	SimdScalar radius1 = sphere1->GetRadius();
+	btScalar radius0 = sphere0->GetRadius();
+	btScalar radius1 = sphere1->GetRadius();
 
 	///iff distance positive, don't generate a new contact
 	if ( len > (radius0+radius1))
 		return;
 
 	///distance (negative means penetration)
-	SimdScalar dist = len - (radius0+radius1);
+	btScalar dist = len - (radius0+radius1);
 
-	SimdVector3 normalOnSurfaceB = diff / len;
+	btVector3 normalOnSurfaceB = diff / len;
 	///point on A (worldspace)
-	SimdVector3 pos0 = col0->m_worldTransform.getOrigin() - radius0 * normalOnSurfaceB;
+	btVector3 pos0 = col0->m_worldTransform.getOrigin() - radius0 * normalOnSurfaceB;
 	///point on B (worldspace)
-	SimdVector3 pos1 = col1->m_worldTransform.getOrigin() + radius1* normalOnSurfaceB;
+	btVector3 pos1 = col1->m_worldTransform.getOrigin() + radius1* normalOnSurfaceB;
 
 	/// report a contact. internally this will be kept persistent, and contact reduction is done
-	ManifoldResult* resultOut = m_dispatcher->GetNewManifoldResult(col0,col1,m_manifoldPtr);
+	btManifoldResult* resultOut = m_dispatcher->GetNewManifoldResult(col0,col1,m_manifoldPtr);
 	resultOut->AddContactPoint(normalOnSurfaceB,pos1,dist);
 	m_dispatcher->ReleaseManifoldResult(resultOut);
 
 }
 
-float SphereSphereCollisionAlgorithm::CalculateTimeOfImpact(BroadphaseProxy* proxy0,BroadphaseProxy* proxy1,const DispatcherInfo& dispatchInfo)
+float btSphereSphereCollisionAlgorithm::CalculateTimeOfImpact(btBroadphaseProxy* proxy0,btBroadphaseProxy* proxy1,const btDispatcherInfo& dispatchInfo)
 {
 	//not yet
 	return 1.f;

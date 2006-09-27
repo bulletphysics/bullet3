@@ -18,13 +18,13 @@ subject to the following restrictions:
 #define BU_EDGEEDGE
 
 class BU_Screwing;
-#include <LinearMath/SimdTransform.h>
-#include <LinearMath/SimdPoint3.h>
-#include <LinearMath/SimdVector3.h>
+#include <LinearMath/btTransform.h>
+#include <LinearMath/btPoint3.h>
+#include <LinearMath/btVector3.h>
 
 //class BUM_Point2;
 
-#include <LinearMath/SimdScalar.h>
+#include <LinearMath/btScalar.h>
 
 ///BU_EdgeEdge implements algebraic time of impact calculation between two (angular + linear) moving edges.
 class BU_EdgeEdge
@@ -35,39 +35,39 @@ public:
 	BU_EdgeEdge();
 	bool GetTimeOfImpact(
 		const BU_Screwing& screwAB,
-		const SimdPoint3& a,//edge in object A
-		const SimdVector3& u,
-		const SimdPoint3& c,//edge in object B
-		const SimdVector3& v,
-		SimdScalar &minTime,
-		SimdScalar &lamda,
-		SimdScalar& mu
+		const btPoint3& a,//edge in object A
+		const btVector3& u,
+		const btPoint3& c,//edge in object B
+		const btVector3& v,
+		btScalar &minTime,
+		btScalar &lamda,
+		btScalar& mu
 		);
 private:
 
-	bool Calc2DRotationPointPoint(const SimdPoint3& rotPt, SimdScalar rotRadius, SimdScalar rotW,const SimdPoint3& intersectPt,SimdScalar& minTime);
-	bool GetTimeOfImpactGeneralCase(
+	bool Calc2DRotationPointPoint(const btPoint3& rotPt, btScalar rotRadius, btScalar rotW,const btPoint3& intersectPt,btScalar& minTime);
+	bool GetTimeOfImpactbteralCase(
 		const BU_Screwing& screwAB,
-		const SimdPoint3& a,//edge in object A
-		const SimdVector3& u,
-		const SimdPoint3& c,//edge in object B
-		const SimdVector3& v,
-		SimdScalar &minTime,
-		SimdScalar &lamda,
-		SimdScalar& mu
+		const btPoint3& a,//edge in object A
+		const btVector3& u,
+		const btPoint3& c,//edge in object B
+		const btVector3& v,
+		btScalar &minTime,
+		btScalar &lamda,
+		btScalar& mu
 
 		);
 
 	
 	bool GetTimeOfImpactVertexEdge(
 		const BU_Screwing& screwAB,
-		const SimdPoint3& a,//edge in object A
-		const SimdVector3& u,
-		const SimdPoint3& c,//edge in object B
-		const SimdVector3& v,
-		SimdScalar &minTime,
-		SimdScalar &lamda,
-		SimdScalar& mu
+		const btPoint3& a,//edge in object A
+		const btVector3& u,
+		const btPoint3& c,//edge in object B
+		const btVector3& v,
+		btScalar &minTime,
+		btScalar &lamda,
+		btScalar& mu
 
 		);
 

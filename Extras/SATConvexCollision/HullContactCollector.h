@@ -20,7 +20,7 @@ subject to the following restrictions:
 class Vector3;
 class Point3;
 class Scalar;
-struct Separation;
+struct btSeparation;
 
 ///HullContactCollector  collects the Hull computation to the contact point results
 class HullContactCollector
@@ -29,7 +29,7 @@ public:
 
 	virtual ~HullContactCollector() {};
 
-	virtual int	BatchAddContactGroup(const Separation& sep,int numContacts,const Vector3& normalWorld,const Vector3& tangent,const Point3* positionsWorld,const float* depths)=0;
+	virtual int	BatchAddContactGroup(const btSeparation& sep,int numContacts,const Vector3& normalWorld,const Vector3& tangent,const Point3* positionsWorld,const float* depths)=0;
 
 	virtual int		GetMaxNumContacts() const = 0;
 

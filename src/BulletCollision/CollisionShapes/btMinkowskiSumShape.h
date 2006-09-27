@@ -19,39 +19,39 @@ subject to the following restrictions:
 #include "btConvexShape.h"
 #include "BulletCollision/BroadphaseCollision/btBroadphaseProxy.h" // for the types
 
-/// MinkowskiSumShape represents implicit (getSupportingVertex) based minkowski sum of two convex implicit shapes.
-class MinkowskiSumShape : public ConvexShape
+/// btMinkowskiSumShape represents implicit (getSupportingVertex) based minkowski sum of two convex implicit shapes.
+class btMinkowskiSumShape : public btConvexShape
 {
 
-	SimdTransform	m_transA;
-	SimdTransform	m_transB;
-	ConvexShape*	m_shapeA;
-	ConvexShape*	m_shapeB;
+	btTransform	m_transA;
+	btTransform	m_transB;
+	btConvexShape*	m_shapeA;
+	btConvexShape*	m_shapeB;
 
 public:
 
-	MinkowskiSumShape(ConvexShape* shapeA,ConvexShape* shapeB);
+	btMinkowskiSumShape(btConvexShape* shapeA,btConvexShape* shapeB);
 
-	virtual SimdVector3	LocalGetSupportingVertexWithoutMargin(const SimdVector3& vec)const;
+	virtual btVector3	LocalGetSupportingVertexWithoutMargin(const btVector3& vec)const;
 
-	virtual void	BatchedUnitVectorGetSupportingVertexWithoutMargin(const SimdVector3* vectors,SimdVector3* supportVerticesOut,int numVectors) const;
+	virtual void	BatchedUnitVectorGetSupportingVertexWithoutMargin(const btVector3* vectors,btVector3* supportVerticesOut,int numVectors) const;
 
 
-	virtual void	CalculateLocalInertia(SimdScalar mass,SimdVector3& inertia);
+	virtual void	CalculateLocalInertia(btScalar mass,btVector3& inertia);
 
-	void	SetTransformA(const SimdTransform&	transA) { m_transA = transA;}
-	void	SetTransformB(const SimdTransform&	transB) { m_transB = transB;}
+	void	SetTransformA(const btTransform&	transA) { m_transA = transA;}
+	void	SetTransformB(const btTransform&	transB) { m_transB = transB;}
 
-	const SimdTransform& GetTransformA()const  { return m_transA;}
-	const SimdTransform& GetTransformB()const  { return m_transB;}
+	const btTransform& GetTransformA()const  { return m_transA;}
+	const btTransform& GetTransformB()const  { return m_transB;}
 
 
 	virtual int	GetShapeType() const { return MINKOWSKI_SUM_SHAPE_PROXYTYPE; }
 
 	virtual float	GetMargin() const;
 
-	const ConvexShape*	GetShapeA() const { return m_shapeA;}
-	const ConvexShape*	GetShapeB() const { return m_shapeB;}
+	const btConvexShape*	GetShapeA() const { return m_shapeA;}
+	const btConvexShape*	GetShapeB() const { return m_shapeB;}
 
 	virtual char*	GetName()const 
 	{

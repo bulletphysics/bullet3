@@ -21,43 +21,43 @@ subject to the following restrictions:
 #include "BulletCollision/BroadphaseCollision/btBroadphaseInterface.h"
 #include "BulletCollision/CollisionShapes/btTriangleCallback.h"
 #include "BulletCollision/NarrowPhaseCollision/btPersistentManifold.h"
-class Dispatcher;
+class btDispatcher;
 #include "BulletCollision/BroadphaseCollision/btBroadphaseProxy.h"
 #include "btCollisionCreateFunc.h"
 
 ///For each triangle in the concave mesh that overlaps with the AABB of a convex (m_convexProxy), ProcessTriangle is called.
-class ConvexTriangleCallback : public TriangleCallback
+class btConvexTriangleCallback : public btTriangleCallback
 {
-	BroadphaseProxy* m_convexProxy;
-	BroadphaseProxy m_triangleProxy;
+	btBroadphaseProxy* m_convexProxy;
+	btBroadphaseProxy m_triangleProxy;
 
-	SimdVector3	m_aabbMin;
-	SimdVector3	m_aabbMax ;
+	btVector3	m_aabbMin;
+	btVector3	m_aabbMax ;
 
-	Dispatcher*	m_dispatcher;
-	const DispatcherInfo* m_dispatchInfoPtr;
+	btDispatcher*	m_dispatcher;
+	const btDispatcherInfo* m_dispatchInfoPtr;
 	float m_collisionMarginTriangle;
 	
 public:
 int	m_triangleCount;
 	
-	PersistentManifold*	m_manifoldPtr;
+	btPersistentManifold*	m_manifoldPtr;
 
-	ConvexTriangleCallback(Dispatcher* dispatcher,BroadphaseProxy* proxy0,BroadphaseProxy* proxy1);
+	btConvexTriangleCallback(btDispatcher* dispatcher,btBroadphaseProxy* proxy0,btBroadphaseProxy* proxy1);
 
-	void	SetTimeStepAndCounters(float collisionMarginTriangle,const DispatcherInfo& dispatchInfo);
+	void	SetTimeStepAndCounters(float collisionMarginTriangle,const btDispatcherInfo& dispatchInfo);
 
-	virtual ~ConvexTriangleCallback();
+	virtual ~btConvexTriangleCallback();
 
-	virtual void ProcessTriangle(SimdVector3* triangle, int partId, int triangleIndex);
+	virtual void ProcessTriangle(btVector3* triangle, int partId, int triangleIndex);
 	
 	void ClearCache();
 
-	inline const SimdVector3& GetAabbMin() const
+	inline const btVector3& GetAabbMin() const
 	{
 		return m_aabbMin;
 	}
-	inline const SimdVector3& GetAabbMax() const
+	inline const btVector3& GetAabbMax() const
 	{
 		return m_aabbMax;
 	}
@@ -67,42 +67,42 @@ int	m_triangleCount;
 
 
 
-/// ConvexConcaveCollisionAlgorithm  supports collision between convex shapes and (concave) trianges meshes.
-class ConvexConcaveCollisionAlgorithm  : public CollisionAlgorithm
+/// btConvexConcaveCollisionAlgorithm  supports collision between convex shapes and (concave) trianges meshes.
+class btConvexConcaveCollisionAlgorithm  : public btCollisionAlgorithm
 {
 
-	BroadphaseProxy m_convex;
+	btBroadphaseProxy m_convex;
 
-	BroadphaseProxy m_concave;
+	btBroadphaseProxy m_concave;
 
-	ConvexTriangleCallback m_ConvexTriangleCallback;
+	btConvexTriangleCallback m_btConvexTriangleCallback;
 
 
 public:
 
-	ConvexConcaveCollisionAlgorithm( const CollisionAlgorithmConstructionInfo& ci,BroadphaseProxy* proxy0,BroadphaseProxy* proxy1);
+	btConvexConcaveCollisionAlgorithm( const btCollisionAlgorithmConstructionInfo& ci,btBroadphaseProxy* proxy0,btBroadphaseProxy* proxy1);
 
-	virtual ~ConvexConcaveCollisionAlgorithm();
+	virtual ~btConvexConcaveCollisionAlgorithm();
 
-	virtual void ProcessCollision (BroadphaseProxy* proxy0,BroadphaseProxy* proxy1,const DispatcherInfo& dispatchInfo);
+	virtual void ProcessCollision (btBroadphaseProxy* proxy0,btBroadphaseProxy* proxy1,const btDispatcherInfo& dispatchInfo);
 
-	float	CalculateTimeOfImpact(BroadphaseProxy* proxy0,BroadphaseProxy* proxy1,const DispatcherInfo& dispatchInfo);
+	float	CalculateTimeOfImpact(btBroadphaseProxy* proxy0,btBroadphaseProxy* proxy1,const btDispatcherInfo& dispatchInfo);
 
 	void	ClearCache();
 
-	struct CreateFunc :public 	CollisionAlgorithmCreateFunc
+	struct CreateFunc :public 	btCollisionAlgorithmCreateFunc
 	{
-		virtual	CollisionAlgorithm* CreateCollisionAlgorithm(CollisionAlgorithmConstructionInfo& ci, BroadphaseProxy* proxy0,BroadphaseProxy* proxy1)
+		virtual	btCollisionAlgorithm* CreateCollisionAlgorithm(btCollisionAlgorithmConstructionInfo& ci, btBroadphaseProxy* proxy0,btBroadphaseProxy* proxy1)
 		{
-			return new ConvexConcaveCollisionAlgorithm(ci,proxy0,proxy1);
+			return new btConvexConcaveCollisionAlgorithm(ci,proxy0,proxy1);
 		}
 	};
 
-	struct SwappedCreateFunc :public 	CollisionAlgorithmCreateFunc
+	struct SwappedCreateFunc :public 	btCollisionAlgorithmCreateFunc
 	{
-		virtual	CollisionAlgorithm* CreateCollisionAlgorithm(CollisionAlgorithmConstructionInfo& ci, BroadphaseProxy* proxy0,BroadphaseProxy* proxy1)
+		virtual	btCollisionAlgorithm* CreateCollisionAlgorithm(btCollisionAlgorithmConstructionInfo& ci, btBroadphaseProxy* proxy0,btBroadphaseProxy* proxy1)
 		{
-			return new ConvexConcaveCollisionAlgorithm(ci,proxy1,proxy0);
+			return new btConvexConcaveCollisionAlgorithm(ci,proxy1,proxy0);
 		}
 	};
 

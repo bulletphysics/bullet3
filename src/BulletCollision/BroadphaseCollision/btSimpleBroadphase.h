@@ -20,15 +20,15 @@ subject to the following restrictions:
 #include "btOverlappingPairCache.h"
 
 
-struct SimpleBroadphaseProxy : public BroadphaseProxy
+struct btSimpleBroadphaseProxy : public btBroadphaseProxy
 {
-	SimdVector3	m_min;
-	SimdVector3	m_max;
+	btVector3	m_min;
+	btVector3	m_max;
 	
-	SimpleBroadphaseProxy() {};
+	btSimpleBroadphaseProxy() {};
 
-	SimpleBroadphaseProxy(const SimdPoint3& minpt,const SimdPoint3& maxpt,int shapeType,void* userPtr,short int collisionFilterGroup,short int collisionFilterMask)
-	:BroadphaseProxy(userPtr,collisionFilterGroup,collisionFilterMask),
+	btSimpleBroadphaseProxy(const btPoint3& minpt,const btPoint3& maxpt,int shapeType,void* userPtr,short int collisionFilterGroup,short int collisionFilterMask)
+	:btBroadphaseProxy(userPtr,collisionFilterGroup,collisionFilterMask),
 	m_min(minpt),m_max(maxpt)		
 	{
 	}
@@ -37,14 +37,14 @@ struct SimpleBroadphaseProxy : public BroadphaseProxy
 };
 
 ///SimpleBroadphase is a brute force aabb culling broadphase based on O(n^2) aabb checks
-class SimpleBroadphase : public OverlappingPairCache
+class btSimpleBroadphase : public btOverlappingPairCache
 {
 
-	SimpleBroadphaseProxy*	m_proxies;
+	btSimpleBroadphaseProxy*	m_proxies;
 	int*				m_freeProxies;
 	int				m_firstFreeProxy;
 
-	SimpleBroadphaseProxy** m_pProxies;
+	btSimpleBroadphaseProxy** m_pProxies;
 	int				m_numProxies;
 
 	
@@ -52,9 +52,9 @@ class SimpleBroadphase : public OverlappingPairCache
 	int m_maxProxies;
 	
 	
-	inline SimpleBroadphaseProxy*	GetSimpleProxyFromProxy(BroadphaseProxy* proxy)
+	inline btSimpleBroadphaseProxy*	GetSimpleProxyFromProxy(btBroadphaseProxy* proxy)
 	{
-		SimpleBroadphaseProxy* proxy0 = static_cast<SimpleBroadphaseProxy*>(proxy);
+		btSimpleBroadphaseProxy* proxy0 = static_cast<btSimpleBroadphaseProxy*>(proxy);
 		return proxy0;
 	}
 
@@ -66,18 +66,18 @@ protected:
 
 	virtual void	RefreshOverlappingPairs();
 public:
-	SimpleBroadphase(int maxProxies=16384);
-	virtual ~SimpleBroadphase();
+	btSimpleBroadphase(int maxProxies=16384);
+	virtual ~btSimpleBroadphase();
 
 
-		static bool	AabbOverlap(SimpleBroadphaseProxy* proxy0,SimpleBroadphaseProxy* proxy1);
+		static bool	AabbOverlap(btSimpleBroadphaseProxy* proxy0,btSimpleBroadphaseProxy* proxy1);
 
 
-	virtual BroadphaseProxy*	CreateProxy(  const SimdVector3& min,  const SimdVector3& max,int shapeType,void* userPtr ,short int collisionFilterGroup,short int collisionFilterMask);
+	virtual btBroadphaseProxy*	CreateProxy(  const btVector3& min,  const btVector3& max,int shapeType,void* userPtr ,short int collisionFilterGroup,short int collisionFilterMask);
 
 
-	virtual void	DestroyProxy(BroadphaseProxy* proxy);
-	virtual void	SetAabb(BroadphaseProxy* proxy,const SimdVector3& aabbMin,const SimdVector3& aabbMax);
+	virtual void	DestroyProxy(btBroadphaseProxy* proxy);
+	virtual void	SetAabb(btBroadphaseProxy* proxy,const btVector3& aabbMin,const btVector3& aabbMax);
 		
 	
 	

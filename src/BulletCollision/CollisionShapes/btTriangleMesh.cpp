@@ -18,17 +18,17 @@ subject to the following restrictions:
 
 static int	myindices[3] = {0,1,2};
 
-TriangleMesh::TriangleMesh ()
+btTriangleMesh::btTriangleMesh ()
 {
 
 }
 
-void	TriangleMesh::getLockedVertexIndexBase(unsigned char **vertexbase, int& numverts,PHY_ScalarType& type, int& stride,unsigned char **indexbase,int & indexstride,int& numfaces,PHY_ScalarType& indicestype,int subpart)
+void	btTriangleMesh::getLockedVertexIndexBase(unsigned char **vertexbase, int& numverts,PHY_ScalarType& type, int& stride,unsigned char **indexbase,int & indexstride,int& numfaces,PHY_ScalarType& indicestype,int subpart)
 {
 	numverts = 3;
 	*vertexbase = (unsigned char*)&m_triangles[subpart];
 	type = PHY_FLOAT;
-	stride = sizeof(SimdVector3);
+	stride = sizeof(btVector3);
 
 
 	numfaces = 1;
@@ -38,12 +38,12 @@ void	TriangleMesh::getLockedVertexIndexBase(unsigned char **vertexbase, int& num
 
 }
 
-void	TriangleMesh::getLockedReadOnlyVertexIndexBase(const unsigned char **vertexbase, int& numverts,PHY_ScalarType& type, int& stride,const unsigned char **indexbase,int & indexstride,int& numfaces,PHY_ScalarType& indicestype,int subpart) const
+void	btTriangleMesh::getLockedReadOnlyVertexIndexBase(const unsigned char **vertexbase, int& numverts,PHY_ScalarType& type, int& stride,const unsigned char **indexbase,int & indexstride,int& numfaces,PHY_ScalarType& indicestype,int subpart) const
 {
 	numverts = 3;
 	*vertexbase = (unsigned char*)&m_triangles[subpart];
 	type = PHY_FLOAT;
-	stride = sizeof(SimdVector3);
+	stride = sizeof(btVector3);
 
 
 	numfaces = 1;
@@ -55,7 +55,7 @@ void	TriangleMesh::getLockedReadOnlyVertexIndexBase(const unsigned char **vertex
 
 
 
-int		TriangleMesh::getNumSubParts() const
+int		btTriangleMesh::getNumSubParts() const
 {
 	return m_triangles.size();
 }

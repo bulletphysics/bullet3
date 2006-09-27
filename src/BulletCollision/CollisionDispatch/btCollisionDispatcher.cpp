@@ -33,7 +33,7 @@ int gNumManifold = 0;
 	
 
 	
-CollisionDispatcher::CollisionDispatcher (): 
+btCollisionDispatcher::btCollisionDispatcher (): 
 	m_useIslands(true),
 		m_defaultManifoldResult(0,0,0),
 		m_count(0)
@@ -41,12 +41,12 @@ CollisionDispatcher::CollisionDispatcher ():
 	int i;
 	
 	//default CreationFunctions, filling the m_doubleDispatch table
-	m_convexConvexCreateFunc = new ConvexConvexAlgorithm::CreateFunc;
-	m_convexConcaveCreateFunc = new ConvexConcaveCollisionAlgorithm::CreateFunc;
-	m_swappedConvexConcaveCreateFunc = new ConvexConcaveCollisionAlgorithm::SwappedCreateFunc;
-	m_compoundCreateFunc = new CompoundCollisionAlgorithm::CreateFunc;
-	m_swappedCompoundCreateFunc = new CompoundCollisionAlgorithm::SwappedCreateFunc;
-	m_emptyCreateFunc = new EmptyAlgorithm::CreateFunc;
+	m_convexConvexCreateFunc = new btConvexConvexAlgorithm::CreateFunc;
+	m_convexConcaveCreateFunc = new btConvexConcaveCollisionAlgorithm::CreateFunc;
+	m_swappedConvexConcaveCreateFunc = new btConvexConcaveCollisionAlgorithm::SwappedCreateFunc;
+	m_compoundCreateFunc = new btCompoundCollisionAlgorithm::CreateFunc;
+	m_swappedCompoundCreateFunc = new btCompoundCollisionAlgorithm::SwappedCreateFunc;
+	m_emptyCreateFunc = new btEmptyAlgorithm::CreateFunc;
 
 	for (i=0;i<MAX_BROADPHASE_COLLISION_TYPES;i++)
 	{
@@ -60,12 +60,12 @@ CollisionDispatcher::CollisionDispatcher ():
 	
 };
 
-void CollisionDispatcher::RegisterCollisionCreateFunc(int proxyType0, int proxyType1, CollisionAlgorithmCreateFunc *createFunc)
+void btCollisionDispatcher::RegisterCollisionCreateFunc(int proxyType0, int proxyType1, btCollisionAlgorithmCreateFunc *createFunc)
 {
 	m_doubleDispatch[proxyType0][proxyType1] = createFunc;
 }
 
-CollisionDispatcher::~CollisionDispatcher()
+btCollisionDispatcher::~btCollisionDispatcher()
 {
 	delete m_convexConvexCreateFunc;
 	delete m_convexConcaveCreateFunc;
@@ -75,29 +75,29 @@ CollisionDispatcher::~CollisionDispatcher()
 	delete m_emptyCreateFunc;
 }
 
-PersistentManifold*	CollisionDispatcher::GetNewManifold(void* b0,void* b1) 
+btPersistentManifold*	btCollisionDispatcher::GetNewManifold(void* b0,void* b1) 
 { 
 	gNumManifold++;
 	
 	//ASSERT(gNumManifold < 65535);
 	
 
-	CollisionObject* body0 = (CollisionObject*)b0;
-	CollisionObject* body1 = (CollisionObject*)b1;
+	btCollisionObject* body0 = (btCollisionObject*)b0;
+	btCollisionObject* body1 = (btCollisionObject*)b1;
 	
-	PersistentManifold* manifold = new PersistentManifold (body0,body1);
+	btPersistentManifold* manifold = new btPersistentManifold (body0,body1);
 	m_manifoldsPtr.push_back(manifold);
 
 	return manifold;
 }
 
-void CollisionDispatcher::ClearManifold(PersistentManifold* manifold)
+void btCollisionDispatcher::ClearManifold(btPersistentManifold* manifold)
 {
 	manifold->ClearManifold();
 }
 
 	
-void CollisionDispatcher::ReleaseManifold(PersistentManifold* manifold)
+void btCollisionDispatcher::ReleaseManifold(btPersistentManifold* manifold)
 {
 	
 	gNumManifold--;
@@ -106,7 +106,7 @@ void CollisionDispatcher::ReleaseManifold(PersistentManifold* manifold)
 
 	ClearManifold(manifold);
 
-	std::vector<PersistentManifold*>::iterator i =
+	std::vector<btPersistentManifold*>::iterator i =
 		std::find(m_manifoldsPtr.begin(), m_manifoldsPtr.end(), manifold);
 	if (!(i == m_manifoldsPtr.end()))
 	{
@@ -121,47 +121,47 @@ void CollisionDispatcher::ReleaseManifold(PersistentManifold* manifold)
 
 	
 
-CollisionAlgorithm* CollisionDispatcher::FindAlgorithm(BroadphaseProxy& proxy0,BroadphaseProxy& proxy1)
+btCollisionAlgorithm* btCollisionDispatcher::FindAlgorithm(btBroadphaseProxy& proxy0,btBroadphaseProxy& proxy1)
 {
 #define USE_DISPATCH_REGISTRY_ARRAY 1
 #ifdef USE_DISPATCH_REGISTRY_ARRAY
-	CollisionObject* body0 = (CollisionObject*)proxy0.m_clientObject;
-	CollisionObject* body1 = (CollisionObject*)proxy1.m_clientObject;
-	CollisionAlgorithmConstructionInfo ci;
+	btCollisionObject* body0 = (btCollisionObject*)proxy0.m_clientObject;
+	btCollisionObject* body1 = (btCollisionObject*)proxy1.m_clientObject;
+	btCollisionAlgorithmConstructionInfo ci;
 	ci.m_dispatcher = this;
-	CollisionAlgorithm* algo = m_doubleDispatch[body0->m_collisionShape->GetShapeType()][body1->m_collisionShape->GetShapeType()]
+	btCollisionAlgorithm* algo = m_doubleDispatch[body0->m_collisionShape->GetShapeType()][body1->m_collisionShape->GetShapeType()]
 	->CreateCollisionAlgorithm(ci,&proxy0,&proxy1);
 #else
-	CollisionAlgorithm* algo = InternalFindAlgorithm(proxy0,proxy1);
+	btCollisionAlgorithm* algo = InternalFindAlgorithm(proxy0,proxy1);
 #endif //USE_DISPATCH_REGISTRY_ARRAY
 	return algo;
 }
 
 
-CollisionAlgorithmCreateFunc* CollisionDispatcher::InternalFindCreateFunc(int proxyType0,int proxyType1)
+btCollisionAlgorithmCreateFunc* btCollisionDispatcher::InternalFindCreateFunc(int proxyType0,int proxyType1)
 {
 	
-	if (BroadphaseProxy::IsConvex(proxyType0) && BroadphaseProxy::IsConvex(proxyType1))
+	if (btBroadphaseProxy::IsConvex(proxyType0) && btBroadphaseProxy::IsConvex(proxyType1))
 	{
 		return m_convexConvexCreateFunc;
 	}
 
-	if (BroadphaseProxy::IsConvex(proxyType0) && BroadphaseProxy::IsConcave(proxyType1))
+	if (btBroadphaseProxy::IsConvex(proxyType0) && btBroadphaseProxy::IsConcave(proxyType1))
 	{
 		return m_convexConcaveCreateFunc;
 	}
 
-	if (BroadphaseProxy::IsConvex(proxyType1) && BroadphaseProxy::IsConcave(proxyType0))
+	if (btBroadphaseProxy::IsConvex(proxyType1) && btBroadphaseProxy::IsConcave(proxyType0))
 	{
 		return m_swappedConvexConcaveCreateFunc;
 	}
 
-	if (BroadphaseProxy::IsCompound(proxyType0))
+	if (btBroadphaseProxy::IsCompound(proxyType0))
 	{
 		return m_compoundCreateFunc;
 	} else
 	{
-		if (BroadphaseProxy::IsCompound(proxyType1))
+		if (btBroadphaseProxy::IsCompound(proxyType1))
 		{
 			return m_swappedCompoundCreateFunc;
 		}
@@ -173,72 +173,72 @@ CollisionAlgorithmCreateFunc* CollisionDispatcher::InternalFindCreateFunc(int pr
 
 
 
-CollisionAlgorithm* CollisionDispatcher::InternalFindAlgorithm(BroadphaseProxy& proxy0,BroadphaseProxy& proxy1)
+btCollisionAlgorithm* btCollisionDispatcher::InternalFindAlgorithm(btBroadphaseProxy& proxy0,btBroadphaseProxy& proxy1)
 {
 	m_count++;
-	CollisionObject* body0 = (CollisionObject*)proxy0.m_clientObject;
-	CollisionObject* body1 = (CollisionObject*)proxy1.m_clientObject;
+	btCollisionObject* body0 = (btCollisionObject*)proxy0.m_clientObject;
+	btCollisionObject* body1 = (btCollisionObject*)proxy1.m_clientObject;
 
-	CollisionAlgorithmConstructionInfo ci;
+	btCollisionAlgorithmConstructionInfo ci;
 	ci.m_dispatcher = this;
 	
 	if (body0->m_collisionShape->IsConvex() && body1->m_collisionShape->IsConvex() )
 	{
-		return new ConvexConvexAlgorithm(0,ci,&proxy0,&proxy1);			
+		return new btConvexConvexAlgorithm(0,ci,&proxy0,&proxy1);			
 	}
 
 	if (body0->m_collisionShape->IsConvex() && body1->m_collisionShape->IsConcave())
 	{
-		return new ConvexConcaveCollisionAlgorithm(ci,&proxy0,&proxy1);
+		return new btConvexConcaveCollisionAlgorithm(ci,&proxy0,&proxy1);
 	}
 
 	if (body1->m_collisionShape->IsConvex() && body0->m_collisionShape->IsConcave())
 	{
-		return new ConvexConcaveCollisionAlgorithm(ci,&proxy1,&proxy0);
+		return new btConvexConcaveCollisionAlgorithm(ci,&proxy1,&proxy0);
 	}
 
 	if (body0->m_collisionShape->IsCompound())
 	{
-		return new CompoundCollisionAlgorithm(ci,&proxy0,&proxy1);
+		return new btCompoundCollisionAlgorithm(ci,&proxy0,&proxy1);
 	} else
 	{
 		if (body1->m_collisionShape->IsCompound())
 		{
-			return new CompoundCollisionAlgorithm(ci,&proxy1,&proxy0);
+			return new btCompoundCollisionAlgorithm(ci,&proxy1,&proxy0);
 		}
 	}
 
 	//failed to find an algorithm
-	return new EmptyAlgorithm(ci);
+	return new btEmptyAlgorithm(ci);
 	
 }
 
-bool	CollisionDispatcher::NeedsResponse(const  CollisionObject& colObj0,const CollisionObject& colObj1)
+bool	btCollisionDispatcher::NeedsResponse(const  btCollisionObject& colObj0,const btCollisionObject& colObj1)
 {
 
 	
 	//here you can do filtering
 	bool hasResponse = 
-		(!(colObj0.m_collisionFlags & CollisionObject::noContactResponse)) &&
-		(!(colObj1.m_collisionFlags & CollisionObject::noContactResponse));
+		(!(colObj0.m_collisionFlags & btCollisionObject::noContactResponse)) &&
+		(!(colObj1.m_collisionFlags & btCollisionObject::noContactResponse));
 	hasResponse = hasResponse &&
 		(colObj0.IsActive() || colObj1.IsActive());
 	return hasResponse;
 }
 
-bool	CollisionDispatcher::NeedsCollision(BroadphaseProxy& proxy0,BroadphaseProxy& proxy1)
+bool	btCollisionDispatcher::NeedsCollision(btBroadphaseProxy& proxy0,btBroadphaseProxy& proxy1)
 {
 
-	CollisionObject* body0 = (CollisionObject*)proxy0.m_clientObject;
-	CollisionObject* body1 = (CollisionObject*)proxy1.m_clientObject;
+	btCollisionObject* body0 = (btCollisionObject*)proxy0.m_clientObject;
+	btCollisionObject* body1 = (btCollisionObject*)proxy1.m_clientObject;
 
 	assert(body0);
 	assert(body1);
 
 	bool needsCollision = true;
 
-	if ((body0->m_collisionFlags & CollisionObject::isStatic) && 
-		(body1->m_collisionFlags & CollisionObject::isStatic))
+	if ((body0->m_collisionFlags & btCollisionObject::isStatic) && 
+		(body1->m_collisionFlags & btCollisionObject::isStatic))
 		needsCollision = false;
 		
 	if ((!body0->IsActive()) && (!body1->IsActive()))
@@ -249,37 +249,37 @@ bool	CollisionDispatcher::NeedsCollision(BroadphaseProxy& proxy0,BroadphaseProxy
 }
 
 ///allows the user to get contact point callbacks 
-ManifoldResult*	CollisionDispatcher::GetNewManifoldResult(CollisionObject* obj0,CollisionObject* obj1,PersistentManifold* manifold)
+btManifoldResult*	btCollisionDispatcher::GetNewManifoldResult(btCollisionObject* obj0,btCollisionObject* obj1,btPersistentManifold* manifold)
 {
 
 
 	//in-place, this prevents parallel dispatching, but just adding a list would fix that.
-	ManifoldResult* manifoldResult = new (&m_defaultManifoldResult)	ManifoldResult(obj0,obj1,manifold);
+	btManifoldResult* manifoldResult = new (&m_defaultManifoldResult)	btManifoldResult(obj0,obj1,manifold);
 	return manifoldResult;
 }
 	
 ///allows the user to get contact point callbacks 
-void	CollisionDispatcher::ReleaseManifoldResult(ManifoldResult*)
+void	btCollisionDispatcher::ReleaseManifoldResult(btManifoldResult*)
 {
 
 }
 
 
-class CollisionPairCallback : public OverlapCallback
+class CollisionPairCallback : public btOverlapCallback
 {
-	DispatcherInfo& m_dispatchInfo;
-	CollisionDispatcher*	m_dispatcher;
+	btDispatcherInfo& m_dispatchInfo;
+	btCollisionDispatcher*	m_dispatcher;
 	int		m_dispatcherId;
 public:
 
-	CollisionPairCallback(DispatcherInfo& dispatchInfo,CollisionDispatcher*	dispatcher,int		dispatcherId)
+	CollisionPairCallback(btDispatcherInfo& dispatchInfo,btCollisionDispatcher*	dispatcher,int		dispatcherId)
 	:m_dispatchInfo(dispatchInfo),
 	m_dispatcher(dispatcher),
 	m_dispatcherId(dispatcherId)
 	{
 	}
 
-	virtual bool	ProcessOverlap(BroadphasePair& pair)
+	virtual bool	ProcessOverlap(btBroadphasePair& pair)
 	{
 		if (m_dispatcherId>= 0)
 		{
@@ -293,7 +293,7 @@ public:
 
 			if (pair.m_algorithms[m_dispatcherId])
 			{
-				if (m_dispatchInfo.m_dispatchFunc == 		DispatcherInfo::DISPATCH_DISCRETE)
+				if (m_dispatchInfo.m_dispatchFunc == 		btDispatcherInfo::DISPATCH_DISCRETE)
 				{
 					pair.m_algorithms[m_dispatcherId]->ProcessCollision(pair.m_pProxy0,pair.m_pProxy1,m_dispatchInfo);
 				} else
@@ -307,13 +307,13 @@ public:
 		} else
 		{
 			//non-persistent algorithm dispatcher
-			CollisionAlgorithm* algo = m_dispatcher->FindAlgorithm(
+			btCollisionAlgorithm* algo = m_dispatcher->FindAlgorithm(
 				*pair.m_pProxy0,
 				*pair.m_pProxy1);
 
 			if (algo)
 			{
-				if (m_dispatchInfo.m_dispatchFunc == 		DispatcherInfo::DISPATCH_DISCRETE)
+				if (m_dispatchInfo.m_dispatchFunc == 		btDispatcherInfo::DISPATCH_DISCRETE)
 				{
 					algo->ProcessCollision(pair.m_pProxy0,pair.m_pProxy1,m_dispatchInfo);
 				} else
@@ -330,7 +330,7 @@ public:
 };
 
 
-void	CollisionDispatcher::DispatchAllCollisionPairs(OverlappingPairCache* pairCache,DispatcherInfo& dispatchInfo)
+void	btCollisionDispatcher::DispatchAllCollisionPairs(btOverlappingPairCache* pairCache,btDispatcherInfo& dispatchInfo)
 {
 	//m_blockedForChanges = true;
 

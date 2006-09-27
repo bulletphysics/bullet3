@@ -21,50 +21,50 @@ subject to the following restrictions:
 
 ///Bvh Concave triangle mesh is a static-triangle mesh shape with Bounding Volume Hierarchy optimization.
 ///Uses an interface to access the triangles to allow for sharing graphics/physics triangles.
-BvhTriangleMeshShape::BvhTriangleMeshShape(StridingMeshInterface* meshInterface)
-:TriangleMeshShape(meshInterface)
+btBvhTriangleMeshShape::btBvhTriangleMeshShape(btStridingMeshInterface* meshInterface)
+:btTriangleMeshShape(meshInterface)
 {
 	//construct bvh from meshInterface
 #ifndef DISABLE_BVH
 
-	m_bvh = new OptimizedBvh();
+	m_bvh = new btOptimizedBvh();
 	m_bvh->Build(meshInterface);
 
 #endif //DISABLE_BVH
 
 }
 
-BvhTriangleMeshShape::~BvhTriangleMeshShape()
+btBvhTriangleMeshShape::~btBvhTriangleMeshShape()
 {
 	delete m_bvh;
 }
 
 //perform bvh tree traversal and report overlapping triangles to 'callback'
-void	BvhTriangleMeshShape::ProcessAllTriangles(TriangleCallback* callback,const SimdVector3& aabbMin,const SimdVector3& aabbMax) const
+void	btBvhTriangleMeshShape::ProcessAllTriangles(btTriangleCallback* callback,const btVector3& aabbMin,const btVector3& aabbMax) const
 {
 
 #ifdef DISABLE_BVH
 	//brute force traverse all triangles
-	TriangleMeshShape::ProcessAllTriangles(callback,aabbMin,aabbMax);
+	btTriangleMeshShape::ProcessAllTriangles(callback,aabbMin,aabbMax);
 #else
 
 	//first get all the nodes
 
 	
-	struct	MyNodeOverlapCallback : public NodeOverlapCallback
+	struct	MyNodeOverlapCallback : public btNodeOverlapCallback
 	{
-		StridingMeshInterface*	m_meshInterface;
-		TriangleCallback*		m_callback;
-		SimdVector3				m_triangle[3];
+		btStridingMeshInterface*	m_meshInterface;
+		btTriangleCallback*		m_callback;
+		btVector3				m_triangle[3];
 
 
-		MyNodeOverlapCallback(TriangleCallback* callback,StridingMeshInterface* meshInterface)
+		MyNodeOverlapCallback(btTriangleCallback* callback,btStridingMeshInterface* meshInterface)
 			:m_meshInterface(meshInterface),
 			m_callback(callback)
 		{
 		}
 				
-		virtual void ProcessNode(const OptimizedBvhNode* node)
+		virtual void ProcessNode(const btOptimizedBvhNode* node)
 		{
 			const unsigned char *vertexbase;
 			int numverts;
@@ -89,7 +89,7 @@ void	BvhTriangleMeshShape::ProcessAllTriangles(TriangleCallback* callback,const 
 
 			int* gfxbase = (int*)(indexbase+node->m_triangleIndex*indexstride);
 			
-			const SimdVector3& meshScaling = m_meshInterface->getScaling();
+			const btVector3& meshScaling = m_meshInterface->getScaling();
 			for (int j=2;j>=0;j--)
 			{
 				
@@ -99,7 +99,7 @@ void	BvhTriangleMeshShape::ProcessAllTriangles(TriangleCallback* callback,const 
 #endif //DEBUG_TRIANGLE_MESH
 				float* graphicsbase = (float*)(vertexbase+graphicsindex*stride);
 
-				m_triangle[j] = SimdVector3(
+				m_triangle[j] = btVector3(
 					graphicsbase[0]*meshScaling.getX(),
 					graphicsbase[1]*meshScaling.getY(),
 					graphicsbase[2]*meshScaling.getZ());
@@ -125,13 +125,13 @@ void	BvhTriangleMeshShape::ProcessAllTriangles(TriangleCallback* callback,const 
 }
 
 
-void	BvhTriangleMeshShape::setLocalScaling(const SimdVector3& scaling)
+void	btBvhTriangleMeshShape::setLocalScaling(const btVector3& scaling)
 {
 	if ((getLocalScaling() -scaling).length2() > SIMD_EPSILON)
 	{
-		TriangleMeshShape::setLocalScaling(scaling);
+		btTriangleMeshShape::setLocalScaling(scaling);
 		delete m_bvh;
-		m_bvh = new OptimizedBvh();
+		m_bvh = new btOptimizedBvh();
 		m_bvh->Build(m_meshInterface);
 		//rebuild the bvh...
 	}

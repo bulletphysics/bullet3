@@ -17,11 +17,11 @@ subject to the following restrictions:
 #define PERSISTENT_MANIFOLD_H
 
 
-#include "LinearMath/SimdVector3.h"
-#include "LinearMath/SimdTransform.h"
+#include "LinearMath/btVector3.h"
+#include "LinearMath/btTransform.h"
 #include "btManifoldPoint.h"
 
-struct CollisionResult;
+struct btCollisionResult;
 
 ///contact breaking and merging treshold
 extern float gContactBreakingTreshold;
@@ -36,10 +36,10 @@ extern ContactDestroyedCallback	gContactDestroyedCallback;
 
 ///PersistentManifold maintains contact points, and reduces them to 4.
 ///It does contact filtering/contact reduction.
-class PersistentManifold 
+class btPersistentManifold 
 {
 
-	ManifoldPoint m_pointCache[MANIFOLD_CACHE_SIZE];
+	btManifoldPoint m_pointCache[MANIFOLD_CACHE_SIZE];
 
 	/// this two body pointers can point to the physics rigidbody class.
 	/// void* will allow any rigidbody class
@@ -49,17 +49,17 @@ class PersistentManifold
 
 	
 	/// sort cached points so most isolated points come first
-	int	SortCachedPoints(const ManifoldPoint& pt);
+	int	SortCachedPoints(const btManifoldPoint& pt);
 
-	int		FindContactPoint(const ManifoldPoint* unUsed, int numUnused,const ManifoldPoint& pt);
+	int		FindContactPoint(const btManifoldPoint* unUsed, int numUnused,const btManifoldPoint& pt);
 
 public:
 
 	int m_index1;
 
-	PersistentManifold();
+	btPersistentManifold();
 
-	PersistentManifold(void* body0,void* body1)
+	btPersistentManifold(void* body0,void* body1)
 		: m_body0(body0),m_body1(body1),m_cachedPoints(0)
 	{
 	}
@@ -76,7 +76,7 @@ public:
 		m_body1 = body1;
 	}
 
-	void ClearUserCache(ManifoldPoint& pt);
+	void ClearUserCache(btManifoldPoint& pt);
 
 #ifdef DEBUG_PERSISTENCY
 	void	DebugPersistency();
@@ -84,13 +84,13 @@ public:
 	
 	inline int	GetNumContacts() const { return m_cachedPoints;}
 
-	inline const ManifoldPoint& GetContactPoint(int index) const
+	inline const btManifoldPoint& GetContactPoint(int index) const
 	{
 		ASSERT(index < m_cachedPoints);
 		return m_pointCache[index];
 	}
 
-	inline ManifoldPoint& GetContactPoint(int index)
+	inline btManifoldPoint& GetContactPoint(int index)
 	{
 		ASSERT(index < m_cachedPoints);
 		return m_pointCache[index];
@@ -99,9 +99,9 @@ public:
 	/// todo: get this margin from the current physics / collision environment
 	float	GetContactBreakingTreshold() const;
 	
-	int GetCacheEntry(const ManifoldPoint& newPoint) const;
+	int GetCacheEntry(const btManifoldPoint& newPoint) const;
 
-	void AddManifoldPoint( const ManifoldPoint& newPoint);
+	void AddManifoldPoint( const btManifoldPoint& newPoint);
 
 	void RemoveContactPoint (int index)
 	{
@@ -113,7 +113,7 @@ public:
 		m_pointCache[lastUsedIndex].m_userPersistentData = 0;
 		m_cachedPoints--;
 	}
-	void ReplaceContactPoint(const ManifoldPoint& newPoint,int insertIndex)
+	void ReplaceContactPoint(const btManifoldPoint& newPoint,int insertIndex)
 	{
 		assert(ValidContactDistance(newPoint));
 
@@ -122,12 +122,12 @@ public:
 		m_pointCache[insertIndex] = newPoint;
 	}
 
-	bool ValidContactDistance(const ManifoldPoint& pt) const
+	bool ValidContactDistance(const btManifoldPoint& pt) const
 	{
 		return pt.m_distance1 <= GetContactBreakingTreshold();
 	}
 	/// calculated new worldspace coordinates and depth, and reject points that exceed the collision margin
-	void	RefreshContactPoints(  const SimdTransform& trA,const SimdTransform& trB);
+	void	RefreshContactPoints(  const btTransform& trA,const btTransform& trB);
 
 	void	ClearManifold();
 

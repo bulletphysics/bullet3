@@ -19,30 +19,30 @@ subject to the following restrictions:
 
 #include "btConvexCast.h"
 #include "btSimplexSolverInterface.h"
-class ConvexPenetrationDepthSolver;
-class ConvexShape;
+class btConvexPenetrationDepthSolver;
+class btConvexShape;
 
-/// ContinuousConvexCollision implements angular and linear time of impact for convex objects.
+/// btContinuousConvexCollision implements angular and linear time of impact for convex objects.
 /// Based on Brian Mirtich's Conservative Advancement idea (PhD thesis).
 /// Algorithm operates in worldspace, in order to keep inbetween motion globally consistent.
 /// It uses GJK at the moment. Future improvement would use minkowski sum / supporting vertex, merging innerloops
-class ContinuousConvexCollision : public ConvexCast
+class btContinuousConvexCollision : public btConvexCast
 {
-	SimplexSolverInterface* m_simplexSolver;
-	ConvexPenetrationDepthSolver*	m_penetrationDepthSolver;
-	ConvexShape*	m_convexA;
-	ConvexShape*	m_convexB;
+	btSimplexSolverInterface* m_simplexSolver;
+	btConvexPenetrationDepthSolver*	m_penetrationDepthSolver;
+	btConvexShape*	m_convexA;
+	btConvexShape*	m_convexB;
 
 
 public:
 
-	ContinuousConvexCollision (ConvexShape*	shapeA,ConvexShape*	shapeB ,SimplexSolverInterface* simplexSolver,ConvexPenetrationDepthSolver* penetrationDepthSolver);
+	btContinuousConvexCollision (btConvexShape*	shapeA,btConvexShape*	shapeB ,btSimplexSolverInterface* simplexSolver,btConvexPenetrationDepthSolver* penetrationDepthSolver);
 
 	virtual bool	calcTimeOfImpact(
-				const SimdTransform& fromA,
-				const SimdTransform& toA,
-				const SimdTransform& fromB,
-				const SimdTransform& toB,
+				const btTransform& fromA,
+				const btTransform& toA,
+				const btTransform& fromB,
+				const btTransform& toB,
 				CastResult& result);
 
 

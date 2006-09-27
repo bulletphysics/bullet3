@@ -22,20 +22,20 @@ subject to the following restrictions:
 
 
 ///BU_Simplex1to4 implements feature based and implicit simplex of up to 4 vertices (tetrahedron, triangle, line, vertex).
-class BU_Simplex1to4 : public PolyhedralConvexShape
+class btBU_Simplex1to4 : public btPolyhedralConvexShape
 {
 protected:
 
 	int	m_numVertices;
-	SimdPoint3	m_vertices[4];
+	btPoint3	m_vertices[4];
 
 public:
-	BU_Simplex1to4();
+	btBU_Simplex1to4();
 
-	BU_Simplex1to4(const SimdPoint3& pt0);
-	BU_Simplex1to4(const SimdPoint3& pt0,const SimdPoint3& pt1);
-	BU_Simplex1to4(const SimdPoint3& pt0,const SimdPoint3& pt1,const SimdPoint3& pt2);
-	BU_Simplex1to4(const SimdPoint3& pt0,const SimdPoint3& pt1,const SimdPoint3& pt2,const SimdPoint3& pt3);
+	btBU_Simplex1to4(const btPoint3& pt0);
+	btBU_Simplex1to4(const btPoint3& pt0,const btPoint3& pt1);
+	btBU_Simplex1to4(const btPoint3& pt0,const btPoint3& pt1,const btPoint3& pt2);
+	btBU_Simplex1to4(const btPoint3& pt0,const btPoint3& pt1,const btPoint3& pt2,const btPoint3& pt3);
 
     
 	void	Reset()
@@ -46,7 +46,7 @@ public:
 
 	virtual int	GetShapeType() const{ return TETRAHEDRAL_SHAPE_PROXYTYPE; }
 
-	void AddVertex(const SimdPoint3& pt);
+	void AddVertex(const btPoint3& pt);
 
 	//PolyhedralConvexShape interface
 
@@ -54,21 +54,21 @@ public:
 
 	virtual int GetNumEdges() const;
 
-	virtual void GetEdge(int i,SimdPoint3& pa,SimdPoint3& pb) const;
+	virtual void GetEdge(int i,btPoint3& pa,btPoint3& pb) const;
 	
-	virtual void GetVertex(int i,SimdPoint3& vtx) const;
+	virtual void GetVertex(int i,btPoint3& vtx) const;
 
 	virtual int	GetNumPlanes() const;
 
-	virtual void GetPlane(SimdVector3& planeNormal,SimdPoint3& planeSupport,int i) const;
+	virtual void GetPlane(btVector3& planeNormal,btPoint3& planeSupport,int i) const;
 
 	virtual int GetIndex(int i) const;
 
-	virtual	bool IsInside(const SimdPoint3& pt,SimdScalar tolerance) const;
+	virtual	bool IsInside(const btPoint3& pt,btScalar tolerance) const;
 
 
 	///GetName is for debugging
-	virtual  char*	GetName()const { return "BU_Simplex1to4";}
+	virtual  char*	GetName()const { return "btBU_Simplex1to4";}
 
 };
 

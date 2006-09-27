@@ -24,7 +24,7 @@ subject to the following restrictions:
 #include "BulletCollision/BroadphaseCollision/btBroadphaseProxy.h"
 #include <vector>
 
-class IDebugDraw;
+class btIDebugDraw;
 
 
 #include "BulletCollision/CollisionDispatch/btCollisionCreateFunc.h"
@@ -35,28 +35,28 @@ class IDebugDraw;
 ///ParallelIslandDispatcher dispatches entire simulation islands in parallel.
 ///For both collision detection and constraint solving.
 ///This development heads toward multi-core, CELL SPU and GPU approach
-class ParallelIslandDispatcher : public Dispatcher
+class ParallelIslandDispatcher : public btDispatcher
 {
 	
-	std::vector<PersistentManifold*>	m_manifoldsPtr;
+	std::vector<btPersistentManifold*>	m_manifoldsPtr;
 
-	UnionFind m_unionFind;
+	btUnionFind m_unionFind;
 
 	bool m_useIslands;
 	
-	ManifoldResult	m_defaultManifoldResult;
+	btManifoldResult	m_defaultManifoldResult;
 	
-	CollisionAlgorithmCreateFunc* m_doubleDispatch[MAX_BROADPHASE_COLLISION_TYPES][MAX_BROADPHASE_COLLISION_TYPES];
+	btCollisionAlgorithmCreateFunc* m_doubleDispatch[MAX_BROADPHASE_COLLISION_TYPES][MAX_BROADPHASE_COLLISION_TYPES];
 	
 public:
 	
-	UnionFind& GetUnionFind() { return m_unionFind;}
+	btUnionFind& GetUnionFind() { return m_unionFind;}
 
 	struct	IslandCallback
 	{
 		virtual ~IslandCallback() {};
 
-		virtual	void	ProcessIsland(PersistentManifold**	manifolds,int numManifolds) = 0;
+		virtual	void	ProcessIsland(btPersistentManifold**	manifolds,int numManifolds) = 0;
 	};
 
 
@@ -65,12 +65,12 @@ public:
 		return m_manifoldsPtr.size();
 	}
 
-	 PersistentManifold* GetManifoldByIndexInternal(int index)
+	 btPersistentManifold* GetManifoldByIndexInternal(int index)
 	{
 		return m_manifoldsPtr[index];
 	}
 
-	 const PersistentManifold* GetManifoldByIndexInternal(int index) const
+	 const btPersistentManifold* GetManifoldByIndexInternal(int index) const
 	{
 		return m_manifoldsPtr[index];
 	}
@@ -88,37 +88,37 @@ public:
 	ParallelIslandDispatcher ();
 	virtual ~ParallelIslandDispatcher() {};
 
-	virtual PersistentManifold*	GetNewManifold(void* b0,void* b1);
+	virtual btPersistentManifold*	GetNewManifold(void* b0,void* b1);
 	
-	virtual void ReleaseManifold(PersistentManifold* manifold);
+	virtual void ReleaseManifold(btPersistentManifold* manifold);
 
 	
-	virtual void BuildAndProcessIslands(CollisionObjectArray& collisionObjects, IslandCallback* callback);
+	virtual void BuildAndProcessIslands(btCollisionObjectArray& collisionObjects, IslandCallback* callback);
 
 	///allows the user to get contact point callbacks 
-	virtual	ManifoldResult*	GetNewManifoldResult(CollisionObject* obj0,CollisionObject* obj1,PersistentManifold* manifold);
+	virtual	btManifoldResult*	GetNewManifoldResult(btCollisionObject* obj0,btCollisionObject* obj1,btPersistentManifold* manifold);
 
 	///allows the user to get contact point callbacks 
-	virtual	void	ReleaseManifoldResult(ManifoldResult*);
+	virtual	void	ReleaseManifoldResult(btManifoldResult*);
 
-	virtual void ClearManifold(PersistentManifold* manifold);
+	virtual void ClearManifold(btPersistentManifold* manifold);
 
 			
-	CollisionAlgorithm* FindAlgorithm(BroadphaseProxy& proxy0,BroadphaseProxy& proxy1)
+	btCollisionAlgorithm* FindAlgorithm(btBroadphaseProxy& proxy0,btBroadphaseProxy& proxy1)
 	{
-		CollisionAlgorithm* algo = InternalFindAlgorithm(proxy0,proxy1);
+		btCollisionAlgorithm* algo = InternalFindAlgorithm(proxy0,proxy1);
 		return algo;
 	}
 	
-	CollisionAlgorithm* InternalFindAlgorithm(BroadphaseProxy& proxy0,BroadphaseProxy& proxy1);
+	btCollisionAlgorithm* InternalFindAlgorithm(btBroadphaseProxy& proxy0,btBroadphaseProxy& proxy1);
 	
-	virtual bool	NeedsCollision(BroadphaseProxy& proxy0,BroadphaseProxy& proxy1);
+	virtual bool	NeedsCollision(btBroadphaseProxy& proxy0,btBroadphaseProxy& proxy1);
 	
-	virtual bool	NeedsResponse(const CollisionObject& colObj0,const CollisionObject& colObj1);
+	virtual bool	NeedsResponse(const btCollisionObject& colObj0,const btCollisionObject& colObj1);
 
 	virtual int GetUniqueId() { return RIGIDBODY_DISPATCHER;}
 
-	virtual void	DispatchAllCollisionPairs(OverlappingPairCache* pairCache,DispatcherInfo& dispatchInfo);
+	virtual void	DispatchAllCollisionPairs(btOverlappingPairCache* pairCache,btDispatcherInfo& dispatchInfo);
 	
 	
 

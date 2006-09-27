@@ -21,23 +21,23 @@ subject to the following restrictions:
 #define ATTRIBUTE_ALIGNED(a)
 
 ///EmptyAlgorithm is a stub for unsupported collision pairs.
-///The dispatcher can dispatch a persistent EmptyAlgorithm to avoid a search every frame.
-class EmptyAlgorithm : public CollisionAlgorithm
+///The dispatcher can dispatch a persistent btEmptyAlgorithm to avoid a search every frame.
+class btEmptyAlgorithm : public btCollisionAlgorithm
 {
 
 public:
 	
-	EmptyAlgorithm(const CollisionAlgorithmConstructionInfo& ci);
+	btEmptyAlgorithm(const btCollisionAlgorithmConstructionInfo& ci);
 
-	virtual void ProcessCollision (BroadphaseProxy* proxy0,BroadphaseProxy* proxy1,const DispatcherInfo& dispatchInfo);
+	virtual void ProcessCollision (btBroadphaseProxy* proxy0,btBroadphaseProxy* proxy1,const btDispatcherInfo& dispatchInfo);
 
-	virtual float CalculateTimeOfImpact(BroadphaseProxy* proxy0,BroadphaseProxy* proxy1,const DispatcherInfo& dispatchInfo);
+	virtual float CalculateTimeOfImpact(btBroadphaseProxy* proxy0,btBroadphaseProxy* proxy1,const btDispatcherInfo& dispatchInfo);
 
-	struct CreateFunc :public 	CollisionAlgorithmCreateFunc
+	struct CreateFunc :public 	btCollisionAlgorithmCreateFunc
 	{
-		virtual	CollisionAlgorithm* CreateCollisionAlgorithm(CollisionAlgorithmConstructionInfo& ci, BroadphaseProxy* proxy0,BroadphaseProxy* proxy1)
+		virtual	btCollisionAlgorithm* CreateCollisionAlgorithm(btCollisionAlgorithmConstructionInfo& ci, btBroadphaseProxy* proxy0,btBroadphaseProxy* proxy1)
 		{
-			return new EmptyAlgorithm(ci);
+			return new btEmptyAlgorithm(ci);
 		}
 	};
 

@@ -18,10 +18,10 @@ subject to the following restrictions:
 #ifndef COLLADA_CONVERTER_H
 #define COLLADA_CONVERTER_H
 
-#include "LinearMath/SimdTransform.h"
-#include "LinearMath/SimdVector3.h"
+#include "LinearMath/btTransform.h"
+#include "LinearMath/btVector3.h"
 
-class CollisionShape;
+class btCollisionShape;
 class PHY_IPhysicsController;
 class CcdPhysicsController;
 class ConstraintInput;
@@ -44,11 +44,11 @@ protected:
 	int	m_numObjects;
 	CcdPhysicsController* m_physObjects[COLLADA_CONVERTER_MAX_NUM_OBJECTS];
 	
-	void	PreparePhysicsObject(struct RigidBodyInput& input, bool isDynamics, float mass,CollisionShape* colShape);
+	void	PreparePhysicsObject(struct btRigidBodyInput& input, bool isDynamics, float mass,btCollisionShape* colShape);
 	
 	void	PrepareConstraints(ConstraintInput& input);
 
-	void	ConvertRigidBodyRef( struct RigidBodyInput& , struct RigidBodyOutput& output );
+	void	ConvertRigidBodyRef( struct btRigidBodyInput& , struct btRigidBodyOutput& output );
 
 
 public:
@@ -68,22 +68,22 @@ public:
 	///those 2 virtuals are called for each constraint/physics object
 	virtual int			createUniversalD6Constraint(
 		class PHY_IPhysicsController* ctrlRef,class PHY_IPhysicsController* ctrlOther,
-			SimdTransform& localAttachmentFrameRef,
-			SimdTransform& localAttachmentOther,
-			const SimdVector3& linearMinLimits,
-			const SimdVector3& linearMaxLimits,
-			const SimdVector3& angularMinLimits,
-			const SimdVector3& angularMaxLimits
+			btTransform& localAttachmentFrameRef,
+			btTransform& localAttachmentOther,
+			const btVector3& linearMinLimits,
+			const btVector3& linearMaxLimits,
+			const btVector3& angularMinLimits,
+			const btVector3& angularMaxLimits
 			) = 0;
 
 	virtual CcdPhysicsController*  CreatePhysicsObject(bool isDynamic, 
 		float mass, 
-		const SimdTransform& startTransform,
-		CollisionShape* shape) = 0;
+		const btTransform& startTransform,
+		btCollisionShape* shape) = 0;
 
-	virtual	void	SetGravity(const SimdVector3& gravity) = 0;
+	virtual	void	SetGravity(const btVector3& gravity) = 0;
 	
-	virtual	void	SetCameraInfo(const SimdVector3& up, int forwardAxis) = 0;
+	virtual	void	SetCameraInfo(const btVector3& up, int forwardAxis) = 0;
 
 };
 

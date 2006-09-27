@@ -11,6 +11,8 @@ ADD_LIBRARY(LibBulletDynamics
 	ConstraintSolver/btSequentialImpulseConstraintSolver.cpp
 	ConstraintSolver/btSolve2LinearConstraint.cpp
 	ConstraintSolver/btTypedConstraint.cpp
+	Dynamics/btDiscreteDynamicsWorld.cpp
+	Dynamics/btSimpleDynamicsWorld.cpp
 	Dynamics/btRigidBody.cpp
 	Vehicle/btRaycastVehicle.cpp
 	Vehicle/btWheelInfo.cpp

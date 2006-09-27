@@ -19,30 +19,30 @@ subject to the following restrictions:
 
 #include "btConvexCast.h"
 #include "btSimplexSolverInterface.h"
-class ConvexShape;
+class btConvexShape;
 
-/// SubsimplexConvexCast implements Gino van den Bergens' paper
-///"Ray Casting against General Convex Objects with Application to Continuous Collision Detection"
+/// btSubsimplexConvexCast implements Gino van den Bergens' paper
+///"Ray Casting against bteral Convex Objects with Application to Continuous Collision Detection"
 /// GJK based Ray Cast, optimized version
 /// Objects should not start in overlap, otherwise results are not defined.
-class SubsimplexConvexCast : public ConvexCast
+class btSubsimplexConvexCast : public btConvexCast
 {
-	SimplexSolverInterface* m_simplexSolver;
-	ConvexShape*	m_convexA;
-	ConvexShape*	m_convexB;
+	btSimplexSolverInterface* m_simplexSolver;
+	btConvexShape*	m_convexA;
+	btConvexShape*	m_convexB;
 
 public:
 
-	SubsimplexConvexCast (ConvexShape*	shapeA,ConvexShape*	shapeB,SimplexSolverInterface* simplexSolver);
+	btSubsimplexConvexCast (btConvexShape*	shapeA,btConvexShape*	shapeB,btSimplexSolverInterface* simplexSolver);
 
-	//virtual ~SubsimplexConvexCast();
+	//virtual ~btSubsimplexConvexCast();
 	///SimsimplexConvexCast calculateTimeOfImpact calculates the time of impact+normal for the linear cast (sweep) between two moving objects.
-	///Precondition is that objects should not penetration/overlap at the start from the interval. Overlap can be tested using GjkPairDetector.
+	///Precondition is that objects should not penetration/overlap at the start from the interval. Overlap can be tested using btGjkPairDetector.
 	virtual bool	calcTimeOfImpact(
-			const SimdTransform& fromA,
-			const SimdTransform& toA,
-			const SimdTransform& fromB,
-			const SimdTransform& toB,
+			const btTransform& fromA,
+			const btTransform& toA,
+			const btTransform& fromB,
+			const btTransform& toB,
 			CastResult& result);
 
 };

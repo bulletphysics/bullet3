@@ -22,13 +22,13 @@ subject to the following restrictions:
 #define MAX_NUM_SPHERES 5
 
 ///MultiSphereShape represents implicit convex hull of a collection of spheres (using getSupportingVertex)
-class MultiSphereShape : public ConvexShape
+class btMultiSphereShape : public btConvexShape
 
 {
 	
-	SimdVector3 m_localPositions[MAX_NUM_SPHERES];
-	SimdScalar  m_radi[MAX_NUM_SPHERES];
-	SimdVector3	m_inertiaHalfExtents;
+	btVector3 m_localPositions[MAX_NUM_SPHERES];
+	btScalar  m_radi[MAX_NUM_SPHERES];
+	btVector3	m_inertiaHalfExtents;
 
 	int m_numSpheres;
 	float m_minRadius;
@@ -38,15 +38,15 @@ class MultiSphereShape : public ConvexShape
 
 
 public:
-	MultiSphereShape (const SimdVector3& inertiaHalfExtents,const SimdVector3* positions,const SimdScalar* radi,int numSpheres);
+	btMultiSphereShape (const btVector3& inertiaHalfExtents,const btVector3* positions,const btScalar* radi,int numSpheres);
 
 	///CollisionShape Interface
-	virtual void	CalculateLocalInertia(SimdScalar mass,SimdVector3& inertia);
+	virtual void	CalculateLocalInertia(btScalar mass,btVector3& inertia);
 
-	/// ConvexShape Interface
-	virtual SimdVector3	LocalGetSupportingVertexWithoutMargin(const SimdVector3& vec)const;
+	/// btConvexShape Interface
+	virtual btVector3	LocalGetSupportingVertexWithoutMargin(const btVector3& vec)const;
 
-	virtual void	BatchedUnitVectorGetSupportingVertexWithoutMargin(const SimdVector3* vectors,SimdVector3* supportVerticesOut,int numVectors) const;
+	virtual void	BatchedUnitVectorGetSupportingVertexWithoutMargin(const btVector3* vectors,btVector3* supportVerticesOut,int numVectors) const;
 	
 
 	virtual int	GetShapeType() const { return MULTI_SPHERE_SHAPE_PROXYTYPE; }

@@ -15,10 +15,10 @@ subject to the following restrictions:
 
 #include "btStaticPlaneShape.h"
 
-#include "LinearMath/SimdTransformUtil.h"
+#include "LinearMath/btTransformUtil.h"
 
 
-StaticPlaneShape::StaticPlaneShape(const SimdVector3& planeNormal,SimdScalar planeConstant)
+btStaticPlaneShape::btStaticPlaneShape(const btVector3& planeNormal,btScalar planeConstant)
 :m_planeNormal(planeNormal),
 m_planeConstant(planeConstant),
 m_localScaling(0.f,0.f,0.f)
@@ -26,17 +26,17 @@ m_localScaling(0.f,0.f,0.f)
 }
 
 
-StaticPlaneShape::~StaticPlaneShape()
+btStaticPlaneShape::~btStaticPlaneShape()
 {
 }
 
 
 
-void StaticPlaneShape::GetAabb(const SimdTransform& t,SimdVector3& aabbMin,SimdVector3& aabbMax) const
+void btStaticPlaneShape::GetAabb(const btTransform& t,btVector3& aabbMin,btVector3& aabbMax) const
 {
-	SimdVector3 infvec (1e30f,1e30f,1e30f);
+	btVector3 infvec (1e30f,1e30f,1e30f);
 
-	SimdVector3 center = m_planeNormal*m_planeConstant;
+	btVector3 center = m_planeNormal*m_planeConstant;
 	aabbMin = center + infvec*m_planeNormal;
 	aabbMax = aabbMin;
 	aabbMin.setMin(center - infvec*m_planeNormal);
@@ -50,25 +50,25 @@ void StaticPlaneShape::GetAabb(const SimdTransform& t,SimdVector3& aabbMin,SimdV
 
 
 
-void	StaticPlaneShape::ProcessAllTriangles(TriangleCallback* callback,const SimdVector3& aabbMin,const SimdVector3& aabbMax) const
+void	btStaticPlaneShape::ProcessAllTriangles(btTriangleCallback* callback,const btVector3& aabbMin,const btVector3& aabbMax) const
 {
 
-	SimdVector3 halfExtents = (aabbMax - aabbMin) * 0.5f;
-	SimdScalar radius = halfExtents.length();
-	SimdVector3 center = (aabbMax + aabbMin) * 0.5f;
+	btVector3 halfExtents = (aabbMax - aabbMin) * 0.5f;
+	btScalar radius = halfExtents.length();
+	btVector3 center = (aabbMax + aabbMin) * 0.5f;
 	
 	//this is where the triangles are generated, given AABB and plane equation (normal/constant)
 
-	SimdVector3 tangentDir0,tangentDir1;
+	btVector3 tangentDir0,tangentDir1;
 
 	//tangentDir0/tangentDir1 can be precalculated
-	SimdPlaneSpace1(m_planeNormal,tangentDir0,tangentDir1);
+	btPlaneSpace1(m_planeNormal,tangentDir0,tangentDir1);
 
-	SimdVector3 supVertex0,supVertex1;
+	btVector3 supVertex0,supVertex1;
 
-	SimdVector3 projectedCenter = center - (m_planeNormal.dot(center) - m_planeConstant)*m_planeNormal;
+	btVector3 projectedCenter = center - (m_planeNormal.dot(center) - m_planeConstant)*m_planeNormal;
 	
-	SimdVector3 triangle[3];
+	btVector3 triangle[3];
 	triangle[0] = projectedCenter + tangentDir0*radius + tangentDir1*radius;
 	triangle[1] = projectedCenter + tangentDir0*radius - tangentDir1*radius;
 	triangle[2] = projectedCenter - tangentDir0*radius - tangentDir1*radius;
@@ -83,18 +83,18 @@ void	StaticPlaneShape::ProcessAllTriangles(TriangleCallback* callback,const Simd
 
 }
 
-void	StaticPlaneShape::CalculateLocalInertia(SimdScalar mass,SimdVector3& inertia)
+void	btStaticPlaneShape::CalculateLocalInertia(btScalar mass,btVector3& inertia)
 {
 	//moving concave objects not supported
 	
 	inertia.setValue(0.f,0.f,0.f);
 }
 
-void	StaticPlaneShape::setLocalScaling(const SimdVector3& scaling)
+void	btStaticPlaneShape::setLocalScaling(const btVector3& scaling)
 {
 	m_localScaling = scaling;
 }
-const SimdVector3& StaticPlaneShape::getLocalScaling() const
+const btVector3& btStaticPlaneShape::getLocalScaling() const
 {
 	return m_localScaling;
 }

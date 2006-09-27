@@ -5,10 +5,10 @@
  *                                                                       *
  * This library is free software; you can redistribute it and/or         *
  * modify it under the terms of EITHER:                                  *
- *   (1) The GNU Lesser General Public License as published by the Free  *
+ *   (1) The GNU Lesser bteral Public License as published by the Free  *
  *       Software Foundation; either version 2.1 of the License, or (at  *
  *       your option) any later version. The text of the GNU Lesser      *
- *       General Public License is included with this library in the     *
+ *       bteral Public License is included with this library in the     *
  *       file LICENSE.TXT.                                               *
  *   (2) The BSD-style license that is included with this library in     *
  *       the file LICENSE-BSD.TXT.                                       *
@@ -28,7 +28,7 @@
 // todo: write own successive overrelaxation gauss-seidel, or jacobi iterative solver
 
 
-#include "LinearMath/SimdScalar.h"
+#include "LinearMath/btScalar.h"
 
 #include "BulletDynamics/Dynamics/btRigidBody.h"
 #include <math.h>
@@ -55,8 +55,8 @@
 ////////////////////////////////////////////////////////////////////
 //math stuff
 
-typedef SimdScalar dVector4[4];
-typedef SimdScalar dMatrix3[4*3];
+typedef btScalar dVector4[4];
+typedef btScalar dMatrix3[4*3];
 #define dInfinity FLT_MAX
 
 
@@ -85,7 +85,7 @@ typedef SimdScalar dMatrix3[4*3];
 
 #define REAL float
 #define dDOTpq(a,b,p,q) ((a)[0]*(b)[0] + (a)[p]*(b)[q] + (a)[2*(p)]*(b)[2*(q)])
-SimdScalar dDOT1  (const SimdScalar *a, const SimdScalar *b) { return dDOTpq(a,b,1,1); }
+btScalar dDOT1  (const btScalar *a, const btScalar *b) { return dDOTpq(a,b,1,1); }
 #define dDOT14(a,b) dDOTpq(a,b,1,4)
 
 #define dCROSS(a,op,b,c) \
@@ -171,12 +171,12 @@ extern "C" {
 
 #define ALLOCA dALLOCA16
 
-typedef const SimdScalar *dRealPtr;
-typedef SimdScalar *dRealMutablePtr;
-#define dRealArray(name,n) SimdScalar name[n];
-#define dRealAllocaArray(name,n) SimdScalar *name = (SimdScalar*) ALLOCA ((n)*sizeof(SimdScalar));
+typedef const btScalar *dRealPtr;
+typedef btScalar *dRealMutablePtr;
+#define dRealArray(name,n) btScalar name[n];
+#define dRealAllocaArray(name,n) btScalar *name = (btScalar*) ALLOCA ((n)*sizeof(btScalar));
 
-void dSetZero1 (SimdScalar *a, int n)
+void dSetZero1 (btScalar *a, int n)
 {
   dAASSERT (a && n >= 0);
   while (n > 0) {
@@ -185,7 +185,7 @@ void dSetZero1 (SimdScalar *a, int n)
   }
 }
 
-void dSetValue1 (SimdScalar *a, int n, SimdScalar value)
+void dSetValue1 (btScalar *a, int n, btScalar value)
 {
   dAASSERT (a && n >= 0);
   while (n > 0) {
@@ -220,7 +220,7 @@ void dSetValue1 (SimdScalar *a, int n, SimdScalar value)
 // compute iMJ = inv(M)*J'
 
 static void compute_invM_JT (int m, dRealMutablePtr J, dRealMutablePtr iMJ, int *jb,
-	RigidBody * const *body, dRealPtr invI)
+	btRigidBody * const *body, dRealPtr invI)
 {
 	int i,j;
 	dRealMutablePtr iMJ_ptr = iMJ;
@@ -228,7 +228,7 @@ static void compute_invM_JT (int m, dRealMutablePtr J, dRealMutablePtr iMJ, int 
 	for (i=0; i<m; i++) {
 		int b1 = jb[i*2];	
 		int b2 = jb[i*2+1];
-		SimdScalar k = body[b1]->getInvMass();
+		btScalar k = body[b1]->getInvMass();
 		for (j=0; j<3; j++) iMJ_ptr[j] = k*J_ptr[j];
 		dMULTIPLY0_331 (iMJ_ptr + 3, invI + 12*b1, J_ptr + 3);
 		if (b2 >= 0) {
@@ -330,7 +330,7 @@ static void multiply_J (int m, dRealMutablePtr J, int *jb,
 	for (i=0; i<m; i++) {
 		int b1 = jb[i*2];	
 		int b2 = jb[i*2+1];
-		SimdScalar sum = 0;
+		btScalar sum = 0;
 		dRealMutablePtr in_ptr = in + b1*6;
 		for (j=0; j<6; j++) sum += J_ptr[j] * in_ptr[j];				
 		J_ptr += 6;
@@ -358,7 +358,7 @@ static void multiply_J (int m, dRealMutablePtr J, int *jb,
 
 
 struct IndexError {
-	SimdScalar error;		// error to sort on
+	btScalar error;		// error to sort on
 	int findex;
 	int index;		// row index
 };
@@ -378,7 +378,7 @@ int dRandInt2 (int n)
 }
 
 
-static void SOR_LCP (int m, int nb, dRealMutablePtr J, int *jb, RigidBody * const *body,
+static void SOR_LCP (int m, int nb, dRealMutablePtr J, int *jb, btRigidBody * const *body,
 	dRealPtr invI, dRealMutablePtr lambda, dRealMutablePtr invMforce, dRealMutablePtr rhs,
 	dRealMutablePtr lo, dRealMutablePtr hi, dRealPtr cfm, int *findex,
 	int numiter,float overRelax)
@@ -527,7 +527,7 @@ static void SOR_LCP (int m, int nb, dRealMutablePtr J, int *jb, RigidBody * cons
 			// the constraints are ordered so that all lambda[] values needed have
 			// already been computed.
 			if (findex[index] >= 0) {
-				hi[index] = SimdFabs (hicopy[index] * lambda[findex[index]]);
+				hi[index] = btFabs (hicopy[index] * lambda[findex[index]]);
 				lo[index] = -hi[index];
 			}
 
@@ -597,10 +597,10 @@ static void SOR_LCP (int m, int nb, dRealMutablePtr J, int *jb, RigidBody * cons
 
 void SolveInternal1 (float global_cfm,
 					 float global_erp,
-					 RigidBody * const *body, int nb,
+					 btRigidBody * const *body, int nb,
 					BU_Joint * const *_joint, 
 					int nj, 
-					const ContactSolverInfo& solverInfo)
+					const btContactSolverInfo& solverInfo)
 {
 
 	int numIter = solverInfo.m_numIterations;
@@ -608,7 +608,7 @@ void SolveInternal1 (float global_cfm,
 
 	int i,j;
 	
-	SimdScalar stepsize1 = dRecip(solverInfo.m_timeStep);
+	btScalar stepsize1 = dRecip(solverInfo.m_timeStep);
 
 	// number all bodies in the body list - set their tag values
 	for (i=0; i<nb; i++) 
@@ -755,7 +755,7 @@ void SolveInternal1 (float global_cfm,
 		dRealAllocaArray (tmp1,nb*6);
 		// put v/h + invM*fe into tmp1
 		for (i=0; i<nb; i++) {
-			SimdScalar body_invMass = body[i]->getInvMass();
+			btScalar body_invMass = body[i]->getInvMass();
 			for (j=0; j<3; j++) 
 				tmp1[i*6+j] = body[i]->m_facc[j] * body_invMass + body[i]->getLinearVelocity()[j] * stepsize1;
 			dMULTIPLY0_331NEW (tmp1 + i*6 + 3,=,invI + i*12,body[i]->m_tacc);
@@ -779,7 +779,7 @@ void SolveInternal1 (float global_cfm,
 #ifdef WARM_STARTING
 		dSetZero1 (lambda,m);	//@@@ shouldn't be necessary
 		for (i=0; i<nj; i++) {
-			memcpy (lambda+ofs[i],joint[i]->lambda,info[i].m * sizeof(SimdScalar));
+			memcpy (lambda+ofs[i],joint[i]->lambda,info[i].m * sizeof(btScalar));
 		}
 #endif
 
@@ -793,7 +793,7 @@ void SolveInternal1 (float global_cfm,
 		//@@@ note that this doesn't work for contact joints yet, as they are
 		// recreated every iteration
 		for (i=0; i<nj; i++) {
-			memcpy (joint[i]->lambda,lambda+ofs[i],info[i].m * sizeof(SimdScalar));
+			memcpy (joint[i]->lambda,lambda+ofs[i],info[i].m * sizeof(btScalar));
 		}
 #endif
 
@@ -803,8 +803,8 @@ void SolveInternal1 (float global_cfm,
 		
 		// add stepsize * cforce to the body velocity
 		for (i=0; i<nb; i++) {
-			SimdVector3 linvel = body[i]->getLinearVelocity();
-			SimdVector3 angvel = body[i]->getAngularVelocity();
+			btVector3 linvel = body[i]->getLinearVelocity();
+			btVector3 angvel = body[i]->getAngularVelocity();
 			
 			for (j=0; j<3; j++) 
 				linvel[j] += solverInfo.m_timeStep* cforce[i*6+j];
@@ -824,9 +824,9 @@ void SolveInternal1 (float global_cfm,
 	// add stepsize * invM * fe to the body velocity
 
 	for (i=0; i<nb; i++) {
-		SimdScalar body_invMass = body[i]->getInvMass();
-		SimdVector3 linvel = body[i]->getLinearVelocity();
-		SimdVector3 angvel = body[i]->getAngularVelocity();
+		btScalar body_invMass = body[i]->getInvMass();
+		btVector3 linvel = body[i]->getLinearVelocity();
+		btVector3 angvel = body[i]->getAngularVelocity();
 
 		for (j=0; j<3; j++) 
 		{

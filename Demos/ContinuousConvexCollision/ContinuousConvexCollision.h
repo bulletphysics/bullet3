@@ -18,7 +18,7 @@ subject to the following restrictions:
 #include "DemoApplication.h"
 
 ///ContinuousConvexCollisionDemo shows the working of the continuous collision detection, including linear and angular motion
-class ContinuousConvexCollisionDemo : public DemoApplication
+class btContinuousConvexCollisionDemo : public DemoApplication
 {
 	public:
 

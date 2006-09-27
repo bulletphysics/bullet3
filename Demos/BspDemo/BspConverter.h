@@ -18,7 +18,7 @@ subject to the following restrictions:
 
 class BspLoader;
 #include <vector>
-#include "LinearMath/SimdVector3.h"
+#include "LinearMath/btVector3.h"
 
 ///BspConverter turns a loaded bsp level into convex parts (vertices)
 class BspConverter
@@ -31,11 +31,11 @@ class BspConverter
 		}
 		///Utility function to create vertices from a Quake Brush. Brute force but it works. 
 		///Bit overkill to use QHull package
-		void	getVerticesFromPlaneEquations(const std::vector<SimdVector3>& planeEquations , std::vector<SimdVector3>& verticesOut );
-		bool	isInside(const std::vector<SimdVector3>& planeEquations, const SimdVector3& point, float	margin);
+		void	getVerticesFromPlaneEquations(const std::vector<btVector3>& planeEquations , std::vector<btVector3>& verticesOut );
+		bool	isInside(const std::vector<btVector3>& planeEquations, const btVector3& point, float	margin);
 
 		///this callback is called for each brush that succesfully converted into vertices
-		virtual void	AddConvexVerticesCollider(std::vector<SimdVector3>& vertices, bool isEntity, const SimdVector3& entityTargetLocation) = 0;
+		virtual void	AddConvexVerticesCollider(std::vector<btVector3>& vertices, bool isEntity, const btVector3& entityTargetLocation) = 0;
 
 };
 

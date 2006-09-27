@@ -34,16 +34,16 @@ class EpaPolyhedron
 		EpaPolyhedron();
 		~EpaPolyhedron();
 
-		bool					Create( SimdPoint3* pInitialPoints,
-										SimdPoint3* pSupportPointsOnA, SimdPoint3* pSupportPointsOnB,
+		bool					Create( btPoint3* pInitialPoints,
+										btPoint3* pSupportPointsOnA, btPoint3* pSupportPointsOnB,
 										const int nbInitialPoints );
 		void					Destroy();
 
 		EpaFace*				CreateFace();
 		EpaHalfEdge*			CreateHalfEdge();
-		EpaVertex*				CreateVertex( const SimdPoint3& wSupportPoint,
-											  const SimdPoint3& wSupportPointOnA,
-											  const SimdPoint3& wSupportPointOnB );
+		EpaVertex*				CreateVertex( const btPoint3& wSupportPoint,
+											  const btPoint3& wSupportPointOnA,
+											  const btPoint3& wSupportPointOnB );
 
 		void					DeleteFace( EpaFace* pFace );
 
@@ -51,9 +51,9 @@ class EpaPolyhedron
 		void					DestroyAllHalfEdges();
 		void					DestroyAllVertices();
 
-		bool					Expand( const SimdPoint3& wSupportPoint,
-										const SimdPoint3& wSupportPointOnA,
-										const SimdPoint3& wSupportPointOnB,
+		bool					Expand( const btPoint3& wSupportPoint,
+										const btPoint3& wSupportPointOnA,
+										const btPoint3& wSupportPointOnB,
 										EpaFace* pFace, std::list< EpaFace* >& newFaces );
 
 		std::list< EpaFace* >&	GetFaces();
@@ -61,7 +61,7 @@ class EpaPolyhedron
 
 	private :
 
-		void					DeleteVisibleFaces( const SimdPoint3& point, EpaFace* pFace,
+		void					DeleteVisibleFaces( const btPoint3& point, EpaFace* pFace,
 													std::list< EpaHalfEdge* >& coneBaseTwinHalfEdges );
 
 		void					CreateCone( EpaVertex* pAppexVertex, std::list< EpaHalfEdge* >& baseTwinHalfEdges,

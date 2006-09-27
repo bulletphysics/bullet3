@@ -14,11 +14,27 @@ subject to the following restrictions:
 
 
 
-#ifndef SimdPoint3_H
-#define SimdPoint3_H
+#ifndef SIMD_MINMAX_H
+#define SIMD_MINMAX_H
 
-#include "LinearMath/SimdVector3.h"
+template <class T>
+SIMD_FORCE_INLINE const T& btMin(const T& a, const T& b) {
+  return b < a ? b : a;
+}
 
-typedef SimdVector3 SimdPoint3;
+template <class T>
+SIMD_FORCE_INLINE const T& btMax(const T& a, const T& b) {
+  return  a < b ? b : a;
+}
+
+template <class T>
+SIMD_FORCE_INLINE void btSetMin(T& a, const T& b) {
+    if (a > b) a = b;
+}
+
+template <class T>
+SIMD_FORCE_INLINE void btSetMax(T& a, const T& b) {
+    if (a < b) a = b;
+}
 
 #endif

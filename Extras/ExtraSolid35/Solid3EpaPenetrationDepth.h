@@ -8,7 +8,7 @@
  * LICENSE.QPL included in the packaging of this file.
  *
  * This library may be distributed and/or modified under the terms of the
- * GNU General Public License (GPL) version 2 as published by the Free Software
+ * GNU bteral Public License (GPL) version 2 as published by the Free Software
  * Foundation and appearing in the file LICENSE.GPL included in the
  * packaging of this file.
  *
@@ -28,14 +28,14 @@
 #include "BulletCollision/NarrowPhaseCollision/btConvexPenetrationDepthSolver.h"
 
 /// Solid3EpaPenetrationDepth contains the 'Expanding Polytope Algorithm' from Solid 3.5
-class Solid3EpaPenetrationDepth : public ConvexPenetrationDepthSolver
+class Solid3EpaPenetrationDepth : public btConvexPenetrationDepthSolver
 {
 public:
 
-	virtual bool CalcPenDepth(SimplexSolverInterface& simplexSolver,
-		ConvexShape* convexA,ConvexShape* convexB,
-		const SimdTransform& transformA,const SimdTransform& transformB,
-				SimdVector3& v, SimdPoint3& pa, SimdPoint3& pb);
+	virtual bool CalcPenDepth(btSimplexSolverInterface& simplexSolver,
+		btConvexShape* convexA,btConvexShape* convexB,
+		const btTransform& transformA,const btTransform& transformB,
+				btVector3& v, btPoint3& pa, btPoint3& pb);
 
 };
 

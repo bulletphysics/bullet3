@@ -17,7 +17,7 @@ subject to the following restrictions:
 #include "CcdPhysicsController.h"
 #include "MyMotionState.h"
 #include "btBulletDynamicsCommon.h"
-#include "LinearMath/GenIDebugDraw.h"
+#include "LinearMath/btIDebugDraw.h"
 #include "GLDebugDrawer.h"
 #include "PHY_Pro.h"
 #include "ConcaveDemo.h"
@@ -30,17 +30,17 @@ GLDebugDrawer	debugDrawer;
 static const int NUM_VERTICES = 5;
 static const int NUM_TRIANGLES=4;
 
-SimdVector3	gVertices[NUM_VERTICES];
+btVector3	gVertices[NUM_VERTICES];
 int	gIndices[NUM_TRIANGLES*3];
 const float TRIANGLE_SIZE=80.f;
 
 
-///User can override this material combiner by implementing gContactAddedCallback and setting body0->m_collisionFlags |= CollisionObject::customMaterialCallback;
-inline SimdScalar	calculateCombinedFriction(float friction0,float friction1)
+///User can override this material combiner by implementing gContactAddedCallback and setting body0->m_collisionFlags |= btCollisionObject::customMaterialCallback;
+inline btScalar	calculateCombinedFriction(float friction0,float friction1)
 {
-	SimdScalar friction = friction0 * friction1;
+	btScalar friction = friction0 * friction1;
 
-	const SimdScalar MAX_FRICTION  = 10.f;
+	const btScalar MAX_FRICTION  = 10.f;
 	if (friction < -MAX_FRICTION)
 		friction = -MAX_FRICTION;
 	if (friction > MAX_FRICTION)
@@ -49,14 +49,14 @@ inline SimdScalar	calculateCombinedFriction(float friction0,float friction1)
 
 }
 
-inline SimdScalar	calculateCombinedRestitution(float restitution0,float restitution1)
+inline btScalar	calculateCombinedRestitution(float restitution0,float restitution1)
 {
 	return restitution0 * restitution1;
 }
 
 
 
-bool CustomMaterialCombinerCallback(ManifoldPoint& cp,	const CollisionObject* colObj0,int partId0,int index0,const CollisionObject* colObj1,int partId1,int index1)
+bool CustomMaterialCombinerCallback(btManifoldPoint& cp,	const btCollisionObject* colObj0,int partId0,int index0,const btCollisionObject* colObj1,int partId1,int index1)
 {
 
 	float friction0 = colObj0->getFriction();
@@ -64,12 +64,12 @@ bool CustomMaterialCombinerCallback(ManifoldPoint& cp,	const CollisionObject* co
 	float restitution0 = colObj0->getRestitution();
 	float restitution1 = colObj1->getRestitution();
 
-	if (colObj0->m_collisionFlags & CollisionObject::customMaterialCallback)
+	if (colObj0->m_collisionFlags & btCollisionObject::customMaterialCallback)
 	{
 		friction0 = 1.0;//partId0,index0
 		restitution0 = 0.f;
 	}
-	if (colObj1->m_collisionFlags & CollisionObject::customMaterialCallback)
+	if (colObj1->m_collisionFlags & btCollisionObject::customMaterialCallback)
 	{
 		if (index1&1)
 		{
@@ -107,7 +107,7 @@ void	ConcaveDemo::initPhysics()
 {
 	#define TRISIZE 10.f
 
-	int vertStride = sizeof(SimdVector3);
+	int vertStride = sizeof(btVector3);
 	int indexStride = 3*sizeof(int);
 
 	const int NUM_VERTS_X = 50;
@@ -116,7 +116,7 @@ void	ConcaveDemo::initPhysics()
 	
 	const int totalTriangles = 2*(NUM_VERTS_X-1)*(NUM_VERTS_Y-1);
 
-	SimdVector3*	gVertices = new SimdVector3[totalVerts];
+	btVector3*	gVertices = new btVector3[totalVerts];
 	int*	gIndices = new int[totalTriangles*3];
 
 	int i;
@@ -144,39 +144,39 @@ void	ConcaveDemo::initPhysics()
 		}
 	}
 	
-	TriangleIndexVertexArray* indexVertexArrays = new TriangleIndexVertexArray(totalTriangles,
+	btTriangleIndexVertexArray* indexVertexArrays = new btTriangleIndexVertexArray(totalTriangles,
 		gIndices,
 		indexStride,
 		totalVerts,(float*) &gVertices[0].x(),vertStride);
 
-	CollisionShape* trimeshShape  = new BvhTriangleMeshShape(indexVertexArrays);
+	btCollisionShape* trimeshShape  = new btBvhTriangleMeshShape(indexVertexArrays);
 		
 
 	
-	// ConstraintSolver* solver = new SequentialImpulseConstraintSolver;
+	// btConstraintSolver* solver = new btSequentialImpulseConstraintSolver;
 	
-	CollisionDispatcher* dispatcher = new	CollisionDispatcher();
+	btCollisionDispatcher* dispatcher = new	btCollisionDispatcher();
 		
-	OverlappingPairCache* broadphase = new SimpleBroadphase();
+	btOverlappingPairCache* broadphase = new btSimpleBroadphase();
 
 
 	m_physicsEnvironmentPtr = new CcdPhysicsEnvironment(dispatcher,broadphase);
 	
 		bool isDynamic = false;
 	float mass = 0.f;
-	SimdTransform	startTransform;
+	btTransform	startTransform;
 	startTransform.setIdentity();
-	startTransform.setOrigin(SimdVector3(0,-2,0));
+	startTransform.setOrigin(btVector3(0,-2,0));
 
 	CcdPhysicsController* staticTrimesh = LocalCreatePhysicsObject(isDynamic, mass, startTransform,trimeshShape);
 	//enable custom material callback
-	staticTrimesh->GetRigidBody()->m_collisionFlags |= CollisionObject::customMaterialCallback;
+	staticTrimesh->GetRigidBody()->m_collisionFlags |= btCollisionObject::customMaterialCallback;
 
 	{
 		for (int i=0;i<10;i++)
 		{
-			CollisionShape* boxShape = new BoxShape(SimdVector3(1,1,1));
-			startTransform.setOrigin(SimdVector3(2*i,1,1));
+			btCollisionShape* boxShape = new btBoxShape(btVector3(1,1,1));
+			startTransform.setOrigin(btVector3(2*i,1,1));
 			LocalCreatePhysicsObject(true, 1, startTransform,boxShape);
 		}
 	}

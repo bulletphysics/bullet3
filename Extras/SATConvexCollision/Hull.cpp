@@ -540,7 +540,7 @@ Hull* Hull::MakeHullFromTemp()
 
 
 
-void Hull::ProcessHullHull(Separation& sep,const Hull& shapeA,const Hull& shapeB,const Transform& trA,const Transform& trB,HullContactCollector* collector)
+void Hull::ProcessHullHull(btSeparation& sep,const Hull& shapeA,const Hull& shapeB,const Transform& trA,const Transform& trB,HullContactCollector* collector)
 {
 	Point3 vertsA[Hull::kMaxVerts];
 	Point3 vertsB[Hull::kMaxVerts];
@@ -563,7 +563,7 @@ void Hull::ProcessHullHull(Separation& sep,const Hull& shapeA,const Hull& shapeB
 
 #ifdef SHAPE_COLLIDER_USE_CACHING
 	// update cached pair
-	if (sep.m_separator != Separation::kFeatureNone)
+	if (sep.m_separator != btSeparation::kFeatureNone)
 	{
 		// re-use the separation
 		if (UpdateSeparationHullHull(sep, pVertsA, pVertsB, trA, trB) == true)
@@ -756,7 +756,7 @@ int Hull::ClipFace(int numVerts, Point3** ppVtxIn, Point3** ppVtxOut, const Plan
 
 
 
-int Hull::AddContactsHullHull(Separation& sep, const Point3* pVertsA, const Point3* pVertsB,
+int Hull::AddContactsHullHull(btSeparation& sep, const Point3* pVertsA, const Point3* pVertsB,
 									   const Transform& trA, const Transform& trB,const Hull& hullA,const Hull& hullB,
 									   HullContactCollector* hullContactCollector)
 {
@@ -765,7 +765,7 @@ int Hull::AddContactsHullHull(Separation& sep, const Point3* pVertsA, const Poin
 	Vector3 normalWorld = sep.m_axis;
 
 	// edge->edge contact is always a single point
-	if (sep.m_separator == Separation::kFeatureBoth)
+	if (sep.m_separator == btSeparation::kFeatureBoth)
 	{
 		const Hull::Edge& edgeA = hullA.GetEdge(sep.m_featureA);
 		const Hull::Edge& edgeB = hullB.GetEdge(sep.m_featureB);
@@ -799,7 +799,7 @@ int Hull::AddContactsHullHull(Separation& sep, const Point3* pVertsA, const Poin
 
 		// find face of hull A that is most opposite contact axis
 		// TODO: avoid having to transform planes here
-		if (sep.m_separator == Separation::kFeatureB)
+		if (sep.m_separator == btSeparation::kFeatureB)
 		{
 			const Hull::Edge& edgeB = hullB.GetEdge(hullB.GetFaceFirstEdge(faceB));
 			tangent = Normalize(pVertsB[edgeB.m_verts[1]] - pVertsB[edgeB.m_verts[0]]);
@@ -921,7 +921,7 @@ int Hull::AddContactsHullHull(Separation& sep, const Point3* pVertsA, const Poin
 // if no separating axis was found then details of least penetrating axis are returned
 // resulting axis always points away from hullB
 // either transform can be null in which case it is treated as identity (this avoids a bunch of work)
-bool Hull::GetSeparationHullHull(Separation& sep, const Point3* pVertsA, const Point3* pVertsB,
+bool Hull::GetSeparationHullHull(btSeparation& sep, const Point3* pVertsA, const Point3* pVertsB,
 										  const Transform& trA, const Transform& trB,
 										  const Hull& hullA,
 										  const Hull& hullB
@@ -930,7 +930,7 @@ bool Hull::GetSeparationHullHull(Separation& sep, const Point3* pVertsA, const P
 	//const Hull& hullA((const Hull&)*sep.m_pShapeA->GetShape());
 	//const Hull& hullB((const Hull&)*sep.m_pShapeB->GetShape());
 
-	sep.m_separator = Separation::kFeatureNone;
+	sep.m_separator = btSeparation::kFeatureNone;
 	sep.m_dist = MinValueF;
 	sep.m_featureA = sep.m_featureB = -1;
 	sep.m_contact = -1;
@@ -952,7 +952,7 @@ bool Hull::GetSeparationHullHull(Separation& sep, const Point3* pVertsA, const P
 			sep.m_featureB = p;
 			sep.m_dist = minDist;
 			sep.m_axis = planeWorld.GetNormal();
-			sep.m_separator = Separation::kFeatureB;
+			sep.m_separator = btSeparation::kFeatureB;
 		}
 
 		// got a separating plane?
@@ -982,7 +982,7 @@ bool Hull::GetSeparationHullHull(Separation& sep, const Point3* pVertsA, const P
 			{
 				sep.m_dist = (float)minDist;
 				sep.m_axis = -planeWorld.GetNormal();
-				sep.m_separator = Separation::kFeatureA;
+				sep.m_separator = btSeparation::kFeatureA;
 			}
 		}
 
@@ -1048,7 +1048,7 @@ bool Hull::GetSeparationHullHull(Separation& sep, const Point3* pVertsA, const P
 				sep.m_featureB = eb;
 				sep.m_dist = dminA;
 				sep.m_axis = axis;
-				sep.m_separator = Separation::kFeatureBoth;
+				sep.m_separator = btSeparation::kFeatureBoth;
 				return true;
 			}
 
@@ -1065,7 +1065,7 @@ bool Hull::GetSeparationHullHull(Separation& sep, const Point3* pVertsA, const P
 //					sep.m_featureB = eb;
 					sep.m_dist = dminA;
 					sep.m_axis = axis;
-//					sep.m_separator = Separation::kFeatureBoth;
+//					sep.m_separator = btSeparation::kFeatureBoth;
 				}
 			}
 

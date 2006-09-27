@@ -17,7 +17,7 @@ subject to the following restrictions:
 
 #include "DemoApplication.h"
 
-///ConstraintDemo shows how to create a constraint, like Hinge or GenericD6constraint
+///ConstraintDemo shows how to create a constraint, like Hinge or btGenericD6constraint
 class ConstraintDemo : public DemoApplication
 {
 	public:

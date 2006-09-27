@@ -17,7 +17,7 @@ subject to the following restrictions:
 #define UNION_FIND_H
 
 #include <vector>
-struct	Element
+struct	btElement
 {
 	int	m_id;
 	int	m_sz;
@@ -26,18 +26,18 @@ struct	Element
 ///UnionFind calculates connected subsets
 // Implements weighted Quick Union with path compression
 // optimization: could use short ints instead of ints (halving memory, would limit the number of rigid bodies to 64k, sounds reasonable)
-class UnionFind
+class btUnionFind
   {
     private:
-		std::vector<Element>	m_elements;
+		std::vector<btElement>	m_elements;
 
     public:
 	  
-		UnionFind();
-		~UnionFind();
+		btUnionFind();
+		~btUnionFind();
 
 	
-		//this is a special operation, destroying the content of UnionFind.
+		//this is a special operation, destroying the content of btUnionFind.
 		//it sorts the elements, based on island id, in order to make it easy to iterate over islands
 		void	sortIslands();
 
@@ -52,11 +52,11 @@ class UnionFind
 		  return (x == m_elements[x].m_id);
 	  }
 
-	  Element&	getElement(int index)
+	  btElement&	getElement(int index)
 	  {
 		  return m_elements[index];
 	  }
-	  const Element& getElement(int index) const
+	  const btElement& getElement(int index) const
 	  {
 		  return m_elements[index];
 	  }

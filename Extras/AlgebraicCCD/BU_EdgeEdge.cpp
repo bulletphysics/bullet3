@@ -16,8 +16,8 @@ subject to the following restrictions:
 
 #include "BU_EdgeEdge.h"
 #include "BU_Screwing.h"
-#include <LinearMath/SimdPoint3.h>
-#include <LinearMath/SimdPoint3.h>
+#include <LinearMath/btPoint3.h>
+#include <LinearMath/btPoint3.h>
 
 //#include "BU_IntervalArithmeticPolynomialSolver.h"
 #include "BU_AlgebraicPolynomialSolver.h"
@@ -36,37 +36,37 @@ BU_EdgeEdge::BU_EdgeEdge()
 
 bool BU_EdgeEdge::GetTimeOfImpact(
 								  const BU_Screwing& screwAB,
-								  const SimdPoint3& a,//edge in object A
-								  const SimdVector3& u,
-								  const SimdPoint3& c,//edge in object B
-								  const SimdVector3& v,
-								  SimdScalar &minTime,
-								  SimdScalar &lambda1,
-								  SimdScalar& mu1
+								  const btPoint3& a,//edge in object A
+								  const btVector3& u,
+								  const btPoint3& c,//edge in object B
+								  const btVector3& v,
+								  btScalar &minTime,
+								  btScalar &lambda1,
+								  btScalar& mu1
 								  
 								  )
 {
 	bool hit=false;
 	
-	SimdScalar lambda;
-	SimdScalar mu;
+	btScalar lambda;
+	btScalar mu;
 	
-	const SimdScalar w=screwAB.GetW();
-	const SimdScalar s=screwAB.GetS();
+	const btScalar w=screwAB.GetW();
+	const btScalar s=screwAB.GetS();
 	
-	if (SimdFuzzyZero(s) &&
-		SimdFuzzyZero(w))
+	if (btFuzzyZero(s) &&
+		btFuzzyZero(w))
 	{
 		//no motion, no collision
 		return false;
 	}
 	
-	if (SimdFuzzyZero(w) )
+	if (btFuzzyZero(w) )
 	{
 		//pure translation W=0, S <> 0
 		//no trig, f(t)=t
-		SimdScalar det = u.y()*v.x()-u.x()*v.y();
-		if (!SimdFuzzyZero(det))
+		btScalar det = u.y()*v.x()-u.x()*v.y();
+		if (!btFuzzyZero(det))
 		{		
 			lambda = (a.x()*v.y() - c.x() * v.y() - v.x() * a.y() + v.x() * c.y()) / det;
 			mu = (u.y() * a.x() - u.y() * c.x() - u.x() * a.y() + u.x() * c.y()) / det;
@@ -74,7 +74,7 @@ bool BU_EdgeEdge::GetTimeOfImpact(
 			if (mu >=0 && mu <= 1 && lambda >= 0 && lambda <= 1)
 			{
 				// single potential collision is
-				SimdScalar t = (c.z()-a.z()+mu*v.z()-lambda*u.z())/s;
+				btScalar t = (c.z()-a.z()+mu*v.z()-lambda*u.z())/s;
 				//if this is on the edge, and time t within [0..1] report hit
 				if (t>=0 && t <= minTime)
 				{
@@ -91,14 +91,14 @@ bool BU_EdgeEdge::GetTimeOfImpact(
 		}
 	} else
 	{
-		if (SimdFuzzyZero(s) )
+		if (btFuzzyZero(s) )
 		{
-			if (SimdFuzzyZero(u.z()) )
+			if (btFuzzyZero(u.z()) )
 			{
-				if (SimdFuzzyZero(v.z()) )
+				if (btFuzzyZero(v.z()) )
 				{
 					//u.z()=0,v.z()=0
-					if (SimdFuzzyZero(a.z()-c.z()))
+					if (btFuzzyZero(a.z()-c.z()))
 					{
 						//printf("NOT YET planar problem, 4 vertex=edge cases\n");
 						
@@ -110,7 +110,7 @@ bool BU_EdgeEdge::GetTimeOfImpact(
 					
 				} else
 				{
-					SimdScalar mu = (a.z() - c.z())/v.z();
+					btScalar mu = (a.z() - c.z())/v.z();
 					if (0<=mu && mu <= 1)
 					{
 					//	printf("NOT YET//u.z()=0,v.z()<>0\n");
@@ -124,22 +124,22 @@ bool BU_EdgeEdge::GetTimeOfImpact(
 			{
 				//u.z()<>0
 				
-				if (SimdFuzzyZero(v.z()) )
+				if (btFuzzyZero(v.z()) )
 				{
 					//printf("u.z()<>0,v.z()=0\n");
 					lambda =  (c.z() - a.z())/u.z();
 					if (0<=lambda && lambda <= 1)
 					{
 						//printf("u.z()<>0,v.z()=0\n");
-						SimdPoint3 rotPt(a.x()+lambda * u.x(), a.y()+lambda * u.y(),0.f);
-						SimdScalar r2 = rotPt.length2();//px*px + py*py;
+						btPoint3 rotPt(a.x()+lambda * u.x(), a.y()+lambda * u.y(),0.f);
+						btScalar r2 = rotPt.length2();//px*px + py*py;
 						
 						//either y=a*x+b, or x = a*x+b...
 						//depends on whether value v.x() is zero or not
-						SimdScalar aa;
-						SimdScalar bb;
+						btScalar aa;
+						btScalar bb;
 						
-						if (SimdFuzzyZero(v.x()))
+						if (btFuzzyZero(v.x()))
 						{
 							aa = v.x()/v.y();
 							bb= c.x()+  (-c.y() /v.y()) *v.x();
@@ -155,21 +155,21 @@ bool BU_EdgeEdge::GetTimeOfImpact(
 							bb= c.y()+  (-c.x() /v.x()) *v.y();
 						}
 						
-						SimdScalar disc = aa*aa*r2 + r2 - bb*bb;
+						btScalar disc = aa*aa*r2 + r2 - bb*bb;
 						if (disc <0)
 						{
 							//edge doesn't intersect the circle (motion of the vertex)
 							return false;
 						}
-						SimdScalar rad = SimdSqrt(r2);
+						btScalar rad = btSqrt(r2);
 						
-						if (SimdFuzzyZero(disc))
+						if (btFuzzyZero(disc))
 						{
-							SimdPoint3 intersectPt;
+							btPoint3 intersectPt;
 							
-							SimdScalar mu;
+							btScalar mu;
 							//intersectionPoint edge with circle;
-							if (SimdFuzzyZero(v.x()))
+							if (btFuzzyZero(v.x()))
 							{
 								intersectPt.setY( (-2*aa*bb)/(2*(aa*aa+1)));
 								intersectPt.setX( aa*intersectPt.y()+bb );
@@ -191,20 +191,20 @@ bool BU_EdgeEdge::GetTimeOfImpact(
 						{
 							//two points...
 							//intersectionPoint edge with circle;
-							SimdPoint3 intersectPt;
+							btPoint3 intersectPt;
 							//intersectionPoint edge with circle;
-							if (SimdFuzzyZero(v.x()))
+							if (btFuzzyZero(v.x()))
 							{
-								SimdScalar mu;
+								btScalar mu;
 								
-								intersectPt.setY((-2.f*aa*bb+2.f*SimdSqrt(disc))/(2.f*(aa*aa+1.f)));
+								intersectPt.setY((-2.f*aa*bb+2.f*btSqrt(disc))/(2.f*(aa*aa+1.f)));
 								intersectPt.setX(aa*intersectPt.y()+bb);
 								mu = ((intersectPt.getY()-c.getY())/v.getY());
 								if (0.f <= mu && mu <= 1.f)
 								{
 									hit = Calc2DRotationPointPoint(rotPt,rad,screwAB.GetW(),intersectPt,minTime);
 								}
-								intersectPt.setY((-2.f*aa*bb-2.f*SimdSqrt(disc))/(2.f*(aa*aa+1.f)));
+								intersectPt.setY((-2.f*aa*bb-2.f*btSqrt(disc))/(2.f*(aa*aa+1.f)));
 								intersectPt.setX(aa*intersectPt.y()+bb);
 								mu = ((intersectPt.getY()-c.getY())/v.getY());
 								if (0 <= mu && mu <= 1)
@@ -214,16 +214,16 @@ bool BU_EdgeEdge::GetTimeOfImpact(
 								
 							} else
 							{
-								SimdScalar mu;
+								btScalar mu;
 								
-								intersectPt.setX((-2.f*aa*bb+2.f*SimdSqrt(disc))/(2*(aa*aa+1.f)));
+								intersectPt.setX((-2.f*aa*bb+2.f*btSqrt(disc))/(2*(aa*aa+1.f)));
 								intersectPt.setY(aa*intersectPt.x()+bb);
 								mu = ((intersectPt.getX()-c.getX())/v.getX());
 								if (0 <= mu && mu <= 1)
 								{
 									hit = Calc2DRotationPointPoint(rotPt,rad,screwAB.GetW(),intersectPt,minTime);
 								}
-								intersectPt.setX((-2.f*aa*bb-2.f*SimdSqrt(disc))/(2.f*(aa*aa+1.f)));
+								intersectPt.setX((-2.f*aa*bb-2.f*btSqrt(disc))/(2.f*(aa*aa+1.f)));
 								intersectPt.setY(aa*intersectPt.x()+bb);
 								mu = ((intersectPt.getX()-c.getX())/v.getX());
 								if (0.f <= mu && mu <= 1.f)
@@ -247,7 +247,7 @@ bool BU_EdgeEdge::GetTimeOfImpact(
 				{
 					//u.z()<>0,v.z()<>0
 					//printf("general case with s=0\n");
-					hit = GetTimeOfImpactGeneralCase(screwAB,a,u,c,v,minTime,lambda,mu);
+					hit = GetTimeOfImpactbteralCase(screwAB,a,u,c,v,minTime,lambda,mu);
 					if (hit)
 					{
 						lambda1 = lambda;
@@ -260,7 +260,7 @@ bool BU_EdgeEdge::GetTimeOfImpact(
 		} else
 		{
 			//printf("general case, W<>0,S<>0\n");
-			hit = GetTimeOfImpactGeneralCase(screwAB,a,u,c,v,minTime,lambda,mu);
+			hit = GetTimeOfImpactbteralCase(screwAB,a,u,c,v,minTime,lambda,mu);
 			if (hit)
 			{
 				lambda1 = lambda;
@@ -277,60 +277,60 @@ bool BU_EdgeEdge::GetTimeOfImpact(
 }
 
 
-bool BU_EdgeEdge::GetTimeOfImpactGeneralCase(
+bool BU_EdgeEdge::GetTimeOfImpactbteralCase(
 											 const BU_Screwing& screwAB,
-											 const SimdPoint3& a,//edge in object A
-											 const SimdVector3& u,
-											 const SimdPoint3& c,//edge in object B
-											 const SimdVector3& v,
-											 SimdScalar &minTime,
-											 SimdScalar &lambda,
-											 SimdScalar& mu
+											 const btPoint3& a,//edge in object A
+											 const btVector3& u,
+											 const btPoint3& c,//edge in object B
+											 const btVector3& v,
+											 btScalar &minTime,
+											 btScalar &lambda,
+											 btScalar& mu
 											 
 											 )
 {
 	bool hit = false;
 	
-	SimdScalar coefs[4]={0.f,0.f,0.f,0.f};
+	btScalar coefs[4]={0.f,0.f,0.f,0.f};
 	BU_Polynomial polynomialSolver;
 	int numroots = 0;
 	
-	//SimdScalar eps=1e-15f;
-	//SimdScalar eps2=1e-20f;
-	SimdScalar s=screwAB.GetS();
-	SimdScalar w = screwAB.GetW();
+	//btScalar eps=1e-15f;
+	//btScalar eps2=1e-20f;
+	btScalar s=screwAB.GetS();
+	btScalar w = screwAB.GetW();
 	
-	SimdScalar ax = a.x();
-	SimdScalar ay = a.y();
-	SimdScalar az = a.z();
-	SimdScalar cx = c.x();
-	SimdScalar cy = c.y();
-	SimdScalar cz = c.z();
-	SimdScalar vx = v.x();
-	SimdScalar vy = v.y();
-	SimdScalar vz = v.z();
-	SimdScalar ux = u.x();
-	SimdScalar uy = u.y();
-	SimdScalar uz = u.z();
+	btScalar ax = a.x();
+	btScalar ay = a.y();
+	btScalar az = a.z();
+	btScalar cx = c.x();
+	btScalar cy = c.y();
+	btScalar cz = c.z();
+	btScalar vx = v.x();
+	btScalar vy = v.y();
+	btScalar vz = v.z();
+	btScalar ux = u.x();
+	btScalar uy = u.y();
+	btScalar uz = u.z();
 	
 	
-	if (!SimdFuzzyZero(v.z()))
+	if (!btFuzzyZero(v.z()))
 	{
 		
 		//Maple Autogenerated C code
-		SimdScalar t1,t2,t3,t4,t7,t8,t10;
-		SimdScalar t13,t14,t15,t16,t17,t18,t19,t20;
-		SimdScalar t21,t22,t23,t24,t25,t26,t27,t28,t29,t30;
-		SimdScalar t31,t32,t33,t34,t35,t36,t39,t40;
-		SimdScalar t41,t43,t48;
-		SimdScalar t63;
+		btScalar t1,t2,t3,t4,t7,t8,t10;
+		btScalar t13,t14,t15,t16,t17,t18,t19,t20;
+		btScalar t21,t22,t23,t24,t25,t26,t27,t28,t29,t30;
+		btScalar t31,t32,t33,t34,t35,t36,t39,t40;
+		btScalar t41,t43,t48;
+		btScalar t63;
 		
-		SimdScalar aa,bb,cc,dd;//the coefficients
+		btScalar aa,bb,cc,dd;//the coefficients
 		
 		t1 = v.y()*s;      t2 = t1*u.x();
 		t3 = v.x()*s;
 		t4 = t3*u.y();
-		t7 = SimdTan(w/2.0f);
+		t7 = btTan(w/2.0f);
 		t8 = 1.0f/t7;
 		t10 = 1.0f/v.z();
 		aa = (t2-t4)*t8*t10;
@@ -377,17 +377,17 @@ bool BU_EdgeEdge::GetTimeOfImpactGeneralCase(
 	} else
 	{
 		
-		SimdScalar t1,t2,t3,t4,t7,t8,t10;
-		SimdScalar t13,t14,t15,t16,t17,t18,t19,t20;
-		SimdScalar t21,t22,t23,t24,t25,t26,t27,t28,t29,t30;
-		SimdScalar t31,t32,t33,t34,t35,t36,t37,t38,t57;
-		SimdScalar p1,p2,p3,p4;
+		btScalar t1,t2,t3,t4,t7,t8,t10;
+		btScalar t13,t14,t15,t16,t17,t18,t19,t20;
+		btScalar t21,t22,t23,t24,t25,t26,t27,t28,t29,t30;
+		btScalar t31,t32,t33,t34,t35,t36,t37,t38,t57;
+		btScalar p1,p2,p3,p4;
 
 	  t1 = uy*s;
       t2 = t1*vx;
       t3 = ux*s;
       t4 = t3*vy;
-      t7 = SimdTan(w/2.0f);
+      t7 = btTan(w/2.0f);
       t8 = 1/t7;
       t10 = 1/uz;
       t13 = ux*az;
@@ -435,38 +435,38 @@ bool BU_EdgeEdge::GetTimeOfImpactGeneralCase(
 	
 	for (int i=0;i<numroots;i++)
 	{
-		//SimdScalar tau = roots[i];//polynomialSolver.GetRoot(i);
-		SimdScalar tau = polynomialSolver.GetRoot(i);
+		//btScalar tau = roots[i];//polynomialSolver.GetRoot(i);
+		btScalar tau = polynomialSolver.GetRoot(i);
 		
 		//check whether mu and lambda are in range [0..1]
 		
-		if (!SimdFuzzyZero(v.z()))
+		if (!btFuzzyZero(v.z()))
 		{
-			SimdScalar A1=(ux-ux*tau*tau-2.f*tau*uy)-((1.f+tau*tau)*vx*uz/vz);
-			SimdScalar B1=((1.f+tau*tau)*(cx*SimdTan(1.f/2.f*w)*vz+
-				vx*az*SimdTan(1.f/2.f*w)-vx*cz*SimdTan(1.f/2.f*w)+
-				vx*s*tau)/SimdTan(1.f/2.f*w)/vz)-(ax-ax*tau*tau-2.f*tau*ay);
+			btScalar A1=(ux-ux*tau*tau-2.f*tau*uy)-((1.f+tau*tau)*vx*uz/vz);
+			btScalar B1=((1.f+tau*tau)*(cx*btTan(1.f/2.f*w)*vz+
+				vx*az*btTan(1.f/2.f*w)-vx*cz*btTan(1.f/2.f*w)+
+				vx*s*tau)/btTan(1.f/2.f*w)/vz)-(ax-ax*tau*tau-2.f*tau*ay);
 			lambda = B1/A1;
 			
-			mu = (a.z()-c.z()+lambda*u.z()+(s*tau)/(SimdTan(w/2.f)))/v.z();
+			mu = (a.z()-c.z()+lambda*u.z()+(s*tau)/(btTan(w/2.f)))/v.z();
 			
 			
 			//double check in original equation
 			
-			SimdScalar lhs = (a.x()+lambda*u.x())
+			btScalar lhs = (a.x()+lambda*u.x())
 				*((1.f-tau*tau)/(1.f+tau*tau))-
 				(a.y()+lambda*u.y())*((2.f*tau)/(1.f+tau*tau));
 			
 			lhs = lambda*((ux-ux*tau*tau-2.f*tau*uy)-((1.f+tau*tau)*vx*uz/vz));
 			
-			SimdScalar rhs = c.x()+mu*v.x();
+			btScalar rhs = c.x()+mu*v.x();
 			
-			rhs = ((1.f+tau*tau)*(cx*SimdTan(1.f/2.f*w)*vz+vx*az*SimdTan(1.f/2.f*w)-
-				vx*cz*SimdTan(1.f/2.f*w)+vx*s*tau)/(SimdTan(1.f/2.f*w)*vz))-
+			rhs = ((1.f+tau*tau)*(cx*btTan(1.f/2.f*w)*vz+vx*az*btTan(1.f/2.f*w)-
+				vx*cz*btTan(1.f/2.f*w)+vx*s*tau)/(btTan(1.f/2.f*w)*vz))-
 				
 				(ax-ax*tau*tau-2.f*tau*ay);
 			
-			/*SimdScalar res = coefs[0]*tau*tau*tau+
+			/*btScalar res = coefs[0]*tau*tau*tau+
 				coefs[1]*tau*tau+
 				coefs[2]*tau+
 				coefs[3];*/
@@ -484,7 +484,7 @@ bool BU_EdgeEdge::GetTimeOfImpactGeneralCase(
 			
 		}
 		
-		SimdScalar t = 2.f*SimdAtan(tau)/screwAB.GetW();
+		btScalar t = 2.f*btAtan(tau)/screwAB.GetW();
 		//tau = tan (wt/2) so 2*atan (tau)/w
 		if (t>=0.f && t<minTime)
 		{
@@ -517,24 +517,24 @@ bool BU_EdgeEdge::GetTimeOfImpactGeneralCase(
 //C -S
 //S C
 
-bool BU_EdgeEdge::Calc2DRotationPointPoint(const SimdPoint3& rotPt, SimdScalar rotRadius, SimdScalar rotW,const SimdPoint3& intersectPt,SimdScalar& minTime)
+bool BU_EdgeEdge::Calc2DRotationPointPoint(const btPoint3& rotPt, btScalar rotRadius, btScalar rotW,const btPoint3& intersectPt,btScalar& minTime)
 {
 	bool hit = false;
 	
 	// now calculate the planeEquation for the vertex motion,
 	// and check if the intersectionpoint is at the positive side
-	SimdPoint3 rotPt1(SimdCos(rotW)*rotPt.x()-SimdSin(rotW)*rotPt.y(),
-	SimdSin(rotW)*rotPt.x()+SimdCos(rotW)*rotPt.y(),
+	btPoint3 rotPt1(btCos(rotW)*rotPt.x()-btSin(rotW)*rotPt.y(),
+	btSin(rotW)*rotPt.x()+btCos(rotW)*rotPt.y(),
 	0.f);
 
-	SimdVector3 rotVec = rotPt1-rotPt;
+	btVector3 rotVec = rotPt1-rotPt;
 	
-	SimdVector3 planeNormal( -rotVec.y() , rotVec.x() ,0.f);
+	btVector3 planeNormal( -rotVec.y() , rotVec.x() ,0.f);
 	
-	//SimdPoint3 pt(a.x(),a.y());//for sake of readability,could write dot directly
-	SimdScalar planeD = planeNormal.dot(rotPt1);
+	//btPoint3 pt(a.x(),a.y());//for sake of readability,could write dot directly
+	btScalar planeD = planeNormal.dot(rotPt1);
 	
-	SimdScalar dist = (planeNormal.dot(intersectPt)-planeD);
+	btScalar dist = (planeNormal.dot(intersectPt)-planeD);
 	hit = (dist >= -0.001);
 	
 	//if (hit)
@@ -545,10 +545,10 @@ bool BU_EdgeEdge::Calc2DRotationPointPoint(const SimdPoint3& rotPt, SimdScalar r
 		// cos (alpha) = adjacent/hypothenuse;
 		//adjacent = dotproduct(ipedge,point);
 		//hypothenuse = sqrt(r2);
-		SimdScalar adjacent = intersectPt.dot(rotPt)/rotRadius;
-		SimdScalar hypo = rotRadius;
-		SimdScalar alpha = SimdAcos(adjacent/hypo);
-		SimdScalar t = alpha / rotW;
+		btScalar adjacent = intersectPt.dot(rotPt)/rotRadius;
+		btScalar hypo = rotRadius;
+		btScalar alpha = btAcos(adjacent/hypo);
+		btScalar t = alpha / rotW;
 		if (t >= 0 && t < minTime)
 		{
 			hit = true;
@@ -564,13 +564,13 @@ bool BU_EdgeEdge::Calc2DRotationPointPoint(const SimdPoint3& rotPt, SimdScalar r
 
 bool BU_EdgeEdge::GetTimeOfImpactVertexEdge(
 											const BU_Screwing& screwAB,
-											const SimdPoint3& a,//edge in object A
-											const SimdVector3& u,
-											const SimdPoint3& c,//edge in object B
-											const SimdVector3& v,
-											SimdScalar &minTime,
-											SimdScalar &lamda,
-											SimdScalar& mu
+											const btPoint3& a,//edge in object A
+											const btVector3& u,
+											const btPoint3& c,//edge in object B
+											const btVector3& v,
+											btScalar &minTime,
+											btScalar &lamda,
+											btScalar& mu
 											
 											)
 {

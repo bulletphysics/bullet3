@@ -16,11 +16,11 @@ subject to the following restrictions:
 #ifndef STRIDING_MESHINTERFACE_H
 #define STRIDING_MESHINTERFACE_H
 
-#include "LinearMath/SimdVector3.h"
+#include "LinearMath/btVector3.h"
 #include "btTriangleCallback.h"
 
 /// PHY_ScalarType enumerates possible scalar types.
-/// See the StridingMeshInterface for its use
+/// See the btStridingMeshInterface for its use
 typedef enum PHY_ScalarType {
 	PHY_FLOAT,
 	PHY_DOUBLE,
@@ -29,25 +29,25 @@ typedef enum PHY_ScalarType {
 	PHY_FIXEDPOINT88
 } PHY_ScalarType;
 
-///	StridingMeshInterface is the interface class for high performance access to triangle meshes
+///	btStridingMeshInterface is the interface class for high performance access to triangle meshes
 /// It allows for sharing graphics and collision meshes. Also it provides locking/unlocking of graphics meshes that are in gpu memory.
-class  StridingMeshInterface
+class  btStridingMeshInterface
 {
 	protected:
 	
-		SimdVector3 m_scaling;
+		btVector3 m_scaling;
 
 	public:
-		StridingMeshInterface() :m_scaling(1.f,1.f,1.f)
+		btStridingMeshInterface() :m_scaling(1.f,1.f,1.f)
 		{
 
 		}
 
-		virtual ~StridingMeshInterface();
+		virtual ~btStridingMeshInterface();
 
 
 
-		void	InternalProcessAllTriangles(InternalTriangleIndexCallback* callback,const SimdVector3& aabbMin,const SimdVector3& aabbMax) const;
+		void	InternalProcessAllTriangles(btInternalTriangleIndexCallback* callback,const btVector3& aabbMin,const btVector3& aabbMax) const;
 
 
 		/// get read and write access to a subpart of a triangle mesh
@@ -73,10 +73,10 @@ class  StridingMeshInterface
 		virtual void	preallocateVertices(int numverts)=0;
 		virtual void	preallocateIndices(int numindices)=0;
 
-		const SimdVector3&	getScaling() const {
+		const btVector3&	getScaling() const {
 			return m_scaling;
 		}
-		void	setScaling(const SimdVector3& scaling)
+		void	setScaling(const btVector3& scaling)
 		{
 			m_scaling = scaling;
 		}

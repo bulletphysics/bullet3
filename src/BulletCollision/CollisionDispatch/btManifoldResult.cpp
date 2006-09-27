@@ -22,12 +22,12 @@ subject to the following restrictions:
 ///This is to allow MaterialCombiner/Custom Friction/Restitution values
 ContactAddedCallback		gContactAddedCallback=0;
 
-///User can override this material combiner by implementing gContactAddedCallback and setting body0->m_collisionFlags |= CollisionObject::customMaterialCallback;
-inline SimdScalar	calculateCombinedFriction(const CollisionObject* body0,const CollisionObject* body1)
+///User can override this material combiner by implementing gContactAddedCallback and setting body0->m_collisionFlags |= btCollisionObject::customMaterialCallback;
+inline btScalar	calculateCombinedFriction(const btCollisionObject* body0,const btCollisionObject* body1)
 {
-	SimdScalar friction = body0->getFriction() * body1->getFriction();
+	btScalar friction = body0->getFriction() * body1->getFriction();
 
-	const SimdScalar MAX_FRICTION  = 10.f;
+	const btScalar MAX_FRICTION  = 10.f;
 	if (friction < -MAX_FRICTION)
 		friction = -MAX_FRICTION;
 	if (friction > MAX_FRICTION)
@@ -36,14 +36,14 @@ inline SimdScalar	calculateCombinedFriction(const CollisionObject* body0,const C
 
 }
 
-inline SimdScalar	calculateCombinedRestitution(const CollisionObject* body0,const CollisionObject* body1)
+inline btScalar	calculateCombinedRestitution(const btCollisionObject* body0,const btCollisionObject* body1)
 {
 	return body0->getRestitution() * body1->getRestitution();
 }
 
 
 
-ManifoldResult::ManifoldResult(CollisionObject* body0,CollisionObject* body1,PersistentManifold* manifoldPtr)
+btManifoldResult::btManifoldResult(btCollisionObject* body0,btCollisionObject* body1,btPersistentManifold* manifoldPtr)
 		:m_manifoldPtr(manifoldPtr),
 		m_body0(body0),
 		m_body1(body1)
@@ -51,21 +51,21 @@ ManifoldResult::ManifoldResult(CollisionObject* body0,CollisionObject* body1,Per
 	}
 
 
-void ManifoldResult::AddContactPoint(const SimdVector3& normalOnBInWorld,const SimdVector3& pointInWorld,float depth)
+void btManifoldResult::AddContactPoint(const btVector3& normalOnBInWorld,const btVector3& pointInWorld,float depth)
 {
 	if (depth > m_manifoldPtr->GetContactBreakingTreshold())
 		return;
 
 
-	SimdTransform transAInv = m_body0->m_cachedInvertedWorldTransform;
-	SimdTransform transBInv= m_body1->m_cachedInvertedWorldTransform;
+	btTransform transAInv = m_body0->m_cachedInvertedWorldTransform;
+	btTransform transBInv= m_body1->m_cachedInvertedWorldTransform;
 
 	//transAInv = m_body0->m_worldTransform.inverse();
 	//transBInv= m_body1->m_worldTransform.inverse();
-	SimdVector3 pointA = pointInWorld + normalOnBInWorld * depth;
-	SimdVector3 localA = transAInv(pointA );
-	SimdVector3 localB = transBInv(pointInWorld);
-	ManifoldPoint newPt(localA,localB,normalOnBInWorld,depth);
+	btVector3 pointA = pointInWorld + normalOnBInWorld * depth;
+	btVector3 localA = transAInv(pointA );
+	btVector3 localB = transBInv(pointInWorld);
+	btManifoldPoint newPt(localA,localB,normalOnBInWorld,depth);
 
 	
 
@@ -74,7 +74,7 @@ void ManifoldResult::AddContactPoint(const SimdVector3& normalOnBInWorld,const S
 	{
 
 // This is not needed, just use the old info!
-//		const ManifoldPoint& oldPoint = m_manifoldPtr->GetContactPoint(insertIndex);
+//		const btManifoldPoint& oldPoint = m_manifoldPtr->GetContactPoint(insertIndex);
 //		newPt.CopyPersistentInformation(oldPoint);
 //		m_manifoldPtr->ReplaceContactPoint(newPt,insertIndex);
 
@@ -88,8 +88,8 @@ void ManifoldResult::AddContactPoint(const SimdVector3& normalOnBInWorld,const S
 		//User can override friction and/or restitution
 		if (gContactAddedCallback &&
 			//and if either of the two bodies requires custom material
-			 ((m_body0->m_collisionFlags & CollisionObject::customMaterialCallback) ||
-			   (m_body1->m_collisionFlags & CollisionObject::customMaterialCallback)))
+			 ((m_body0->m_collisionFlags & btCollisionObject::customMaterialCallback) ||
+			   (m_body1->m_collisionFlags & btCollisionObject::customMaterialCallback)))
 		{
 			//experimental feature info, for per-triangle material etc.
 			(*gContactAddedCallback)(newPt,m_body0,m_partId0,m_index0,m_body1,m_partId1,m_index1);

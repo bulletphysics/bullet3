@@ -51,29 +51,29 @@ ParallelIslandDispatcher::ParallelIslandDispatcher ():
 	
 };
 	
-PersistentManifold*	ParallelIslandDispatcher::GetNewManifold(void* b0,void* b1) 
+btPersistentManifold*	ParallelIslandDispatcher::GetNewManifold(void* b0,void* b1) 
 { 
 	gNumManifold2++;
 	
 	//ASSERT(gNumManifold < 65535);
 	
 
-	CollisionObject* body0 = (CollisionObject*)b0;
-	CollisionObject* body1 = (CollisionObject*)b1;
+	btCollisionObject* body0 = (btCollisionObject*)b0;
+	btCollisionObject* body1 = (btCollisionObject*)b1;
 	
-	PersistentManifold* manifold = new PersistentManifold (body0,body1);
+	btPersistentManifold* manifold = new btPersistentManifold (body0,body1);
 	m_manifoldsPtr.push_back(manifold);
 
 	return manifold;
 }
 
-void ParallelIslandDispatcher::ClearManifold(PersistentManifold* manifold)
+void ParallelIslandDispatcher::ClearManifold(btPersistentManifold* manifold)
 {
 	manifold->ClearManifold();
 }
 
 	
-void ParallelIslandDispatcher::ReleaseManifold(PersistentManifold* manifold)
+void ParallelIslandDispatcher::ReleaseManifold(btPersistentManifold* manifold)
 {
 	
 	gNumManifold2--;
@@ -82,7 +82,7 @@ void ParallelIslandDispatcher::ReleaseManifold(PersistentManifold* manifold)
 
 	ClearManifold(manifold);
 
-	std::vector<PersistentManifold*>::iterator i =
+	std::vector<btPersistentManifold*>::iterator i =
 		std::find(m_manifoldsPtr.begin(), m_manifoldsPtr.end(), manifold);
 	if (!(i == m_manifoldsPtr.end()))
 	{
@@ -99,14 +99,14 @@ void ParallelIslandDispatcher::ReleaseManifold(PersistentManifold* manifold)
 //
 // todo: this is random access, it can be walked 'cache friendly'!
 //
-void ParallelIslandDispatcher::BuildAndProcessIslands(CollisionObjectArray& collisionObjects, IslandCallback* callback)
+void ParallelIslandDispatcher::BuildAndProcessIslands(btCollisionObjectArray& collisionObjects, IslandCallback* callback)
 {
 	int numBodies  = collisionObjects.size();
 
 	for (int islandId=0;islandId<numBodies;islandId++)
 	{
 
-		std::vector<PersistentManifold*>  islandmanifold;
+		std::vector<btPersistentManifold*>  islandmanifold;
 		
 		//int numSleeping = 0;
 
@@ -115,7 +115,7 @@ void ParallelIslandDispatcher::BuildAndProcessIslands(CollisionObjectArray& coll
 		int i;
 		for (i=0;i<numBodies;i++)
 		{
-			CollisionObject* colObj0 = collisionObjects[i];
+			btCollisionObject* colObj0 = collisionObjects[i];
 			if (colObj0->m_islandTag1 == islandId)
 			{
 				if (colObj0->GetActivationState()== ACTIVE_TAG)
@@ -132,12 +132,12 @@ void ParallelIslandDispatcher::BuildAndProcessIslands(CollisionObjectArray& coll
 		
 		for (i=0;i<GetNumManifolds();i++)
 		{
-			 PersistentManifold* manifold = this->GetManifoldByIndexInternal(i);
+			 btPersistentManifold* manifold = this->GetManifoldByIndexInternal(i);
 			 
 			 //filtering for response
 
-			 CollisionObject* colObj0 = static_cast<CollisionObject*>(manifold->GetBody0());
-			 CollisionObject* colObj1 = static_cast<CollisionObject*>(manifold->GetBody1());
+			 btCollisionObject* colObj0 = static_cast<btCollisionObject*>(manifold->GetBody0());
+			 btCollisionObject* colObj1 = static_cast<btCollisionObject*>(manifold->GetBody1());
 			 {
 				if (((colObj0) && (colObj0)->m_islandTag1 == (islandId)) ||
 					((colObj1) && (colObj1)->m_islandTag1 == (islandId)))
@@ -153,7 +153,7 @@ void ParallelIslandDispatcher::BuildAndProcessIslands(CollisionObjectArray& coll
 			int i;
 			for (i=0;i<numBodies;i++)
 			{
-				CollisionObject* colObj0 = collisionObjects[i];
+				btCollisionObject* colObj0 = collisionObjects[i];
 				if (colObj0->m_islandTag1 == islandId)
 				{
 					colObj0->SetActivationState( ISLAND_SLEEPING );
@@ -167,7 +167,7 @@ void ParallelIslandDispatcher::BuildAndProcessIslands(CollisionObjectArray& coll
 			int i;
 			for (i=0;i<numBodies;i++)
 			{
-				CollisionObject* colObj0 = collisionObjects[i];
+				btCollisionObject* colObj0 = collisionObjects[i];
 				if (colObj0->m_islandTag1 == islandId)
 				{
 					if ( colObj0->GetActivationState() == ISLAND_SLEEPING)
@@ -189,73 +189,73 @@ void ParallelIslandDispatcher::BuildAndProcessIslands(CollisionObjectArray& coll
 
 
 
-CollisionAlgorithm* ParallelIslandDispatcher::InternalFindAlgorithm(BroadphaseProxy& proxy0,BroadphaseProxy& proxy1)
+btCollisionAlgorithm* ParallelIslandDispatcher::InternalFindAlgorithm(btBroadphaseProxy& proxy0,btBroadphaseProxy& proxy1)
 {
 	m_count++;
-	CollisionObject* body0 = (CollisionObject*)proxy0.m_clientObject;
-	CollisionObject* body1 = (CollisionObject*)proxy1.m_clientObject;
+	btCollisionObject* body0 = (btCollisionObject*)proxy0.m_clientObject;
+	btCollisionObject* body1 = (btCollisionObject*)proxy1.m_clientObject;
 
-	CollisionAlgorithmConstructionInfo ci;
+	btCollisionAlgorithmConstructionInfo ci;
 	ci.m_dispatcher = this;
 	
 	if (body0->m_collisionShape->IsConvex() && body1->m_collisionShape->IsConvex() )
 	{
-		return new ConvexConvexAlgorithm(0,ci,&proxy0,&proxy1);			
+		return new btConvexConvexAlgorithm(0,ci,&proxy0,&proxy1);			
 	}
 
 	if (body0->m_collisionShape->IsConvex() && body1->m_collisionShape->IsConcave())
 	{
-		return new ConvexConcaveCollisionAlgorithm(ci,&proxy0,&proxy1);
+		return new btConvexConcaveCollisionAlgorithm(ci,&proxy0,&proxy1);
 	}
 
 	if (body1->m_collisionShape->IsConvex() && body0->m_collisionShape->IsConcave())
 	{
-		return new ConvexConcaveCollisionAlgorithm(ci,&proxy1,&proxy0);
+		return new btConvexConcaveCollisionAlgorithm(ci,&proxy1,&proxy0);
 	}
 
 	if (body0->m_collisionShape->IsCompound())
 	{
-		return new CompoundCollisionAlgorithm(ci,&proxy0,&proxy1);
+		return new btCompoundCollisionAlgorithm(ci,&proxy0,&proxy1);
 	} else
 	{
 		if (body1->m_collisionShape->IsCompound())
 		{
-			return new CompoundCollisionAlgorithm(ci,&proxy1,&proxy0);
+			return new btCompoundCollisionAlgorithm(ci,&proxy1,&proxy0);
 		}
 	}
 
 
 	//failed to find an algorithm
-	return new EmptyAlgorithm(ci);
+	return new btEmptyAlgorithm(ci);
 	
 }
 
-bool	ParallelIslandDispatcher::NeedsResponse(const  CollisionObject& colObj0,const CollisionObject& colObj1)
+bool	ParallelIslandDispatcher::NeedsResponse(const  btCollisionObject& colObj0,const btCollisionObject& colObj1)
 {
 
 	
 	//here you can do filtering
 	bool hasResponse = 
-		(!(colObj0.m_collisionFlags & CollisionObject::noContactResponse)) &&
-		(!(colObj1.m_collisionFlags & CollisionObject::noContactResponse));
+		(!(colObj0.m_collisionFlags & btCollisionObject::noContactResponse)) &&
+		(!(colObj1.m_collisionFlags & btCollisionObject::noContactResponse));
 	hasResponse = hasResponse &&
 		(colObj0.IsActive() || colObj1.IsActive());
 	return hasResponse;
 }
 
-bool	ParallelIslandDispatcher::NeedsCollision(BroadphaseProxy& proxy0,BroadphaseProxy& proxy1)
+bool	ParallelIslandDispatcher::NeedsCollision(btBroadphaseProxy& proxy0,btBroadphaseProxy& proxy1)
 {
 
-	CollisionObject* body0 = (CollisionObject*)proxy0.m_clientObject;
-	CollisionObject* body1 = (CollisionObject*)proxy1.m_clientObject;
+	btCollisionObject* body0 = (btCollisionObject*)proxy0.m_clientObject;
+	btCollisionObject* body1 = (btCollisionObject*)proxy1.m_clientObject;
 
 	assert(body0);
 	assert(body1);
 
 	bool needsCollision = true;
 
-	if ((body0->m_collisionFlags & CollisionObject::isStatic) && 
-		(body1->m_collisionFlags & CollisionObject::isStatic))
+	if ((body0->m_collisionFlags & btCollisionObject::isStatic) && 
+		(body1->m_collisionFlags & btCollisionObject::isStatic))
 		needsCollision = false;
 		
 	if ((!body0->IsActive()) && (!body1->IsActive()))
@@ -266,23 +266,23 @@ bool	ParallelIslandDispatcher::NeedsCollision(BroadphaseProxy& proxy0,Broadphase
 }
 
 ///allows the user to get contact point callbacks 
-ManifoldResult*	ParallelIslandDispatcher::GetNewManifoldResult(CollisionObject* obj0,CollisionObject* obj1,PersistentManifold* manifold)
+btManifoldResult*	ParallelIslandDispatcher::GetNewManifoldResult(btCollisionObject* obj0,btCollisionObject* obj1,btPersistentManifold* manifold)
 {
 
 
 	//in-place, this prevents parallel dispatching, but just adding a list would fix that.
-	ManifoldResult* manifoldResult = new (&m_defaultManifoldResult)	ManifoldResult(obj0,obj1,manifold);
+	btManifoldResult* manifoldResult = new (&m_defaultManifoldResult)	btManifoldResult(obj0,obj1,manifold);
 	return manifoldResult;
 }
 	
 ///allows the user to get contact point callbacks 
-void	ParallelIslandDispatcher::ReleaseManifoldResult(ManifoldResult*)
+void	ParallelIslandDispatcher::ReleaseManifoldResult(btManifoldResult*)
 {
 
 }
 
 
-void	ParallelIslandDispatcher::DispatchAllCollisionPairs(OverlappingPairCache* pairCache,DispatcherInfo& dispatchInfo)
+void	ParallelIslandDispatcher::DispatchAllCollisionPairs(btOverlappingPairCache* pairCache,btDispatcherInfo& dispatchInfo)
 {
 	//m_blockedForChanges = true;
 
@@ -296,7 +296,7 @@ void	ParallelIslandDispatcher::DispatchAllCollisionPairs(OverlappingPairCache* p
 	for (i=0;i<numPairs;i++)
 	{
 
-		BroadphasePair& pair = pairs[i];
+		btBroadphasePair& pair = pairs[i];
 
 		if (dispatcherId>= 0)
 		{
@@ -310,7 +310,7 @@ void	ParallelIslandDispatcher::DispatchAllCollisionPairs(OverlappingPairCache* p
 
 			if (pair.m_algorithms[dispatcherId])
 			{
-				if (dispatchInfo.m_dispatchFunc == 		DispatcherInfo::DISPATCH_DISCRETE)
+				if (dispatchInfo.m_dispatchFunc == 		btDispatcherInfo::DISPATCH_DISCRETE)
 				{
 					pair.m_algorithms[dispatcherId]->ProcessCollision(pair.m_pProxy0,pair.m_pProxy1,dispatchInfo);
 				} else
@@ -324,13 +324,13 @@ void	ParallelIslandDispatcher::DispatchAllCollisionPairs(OverlappingPairCache* p
 		} else
 		{
 			//non-persistent algorithm dispatcher
-			CollisionAlgorithm* algo = FindAlgorithm(
+			btCollisionAlgorithm* algo = FindAlgorithm(
 				*pair.m_pProxy0,
 				*pair.m_pProxy1);
 
 			if (algo)
 			{
-				if (dispatchInfo.m_dispatchFunc == 		DispatcherInfo::DISPATCH_DISCRETE)
+				if (dispatchInfo.m_dispatchFunc == 		btDispatcherInfo::DISPATCH_DISCRETE)
 				{
 					algo->ProcessCollision(pair.m_pProxy0,pair.m_pProxy1,dispatchInfo);
 				} else

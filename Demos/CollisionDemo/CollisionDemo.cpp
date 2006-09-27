@@ -16,15 +16,15 @@ subject to the following restrictions:
 
 ///
 /// Collision Demo shows a degenerate case, where the Simplex solver has to deal with near-affine dependent cases
-/// See the define CATCH_DEGENERATE_TETRAHEDRON in Bullet's VoronoiSimplexSolver.cpp
+/// See the define CATCH_DEGENERATE_TETRAHEDRON in Bullet's btVoronoiSimplexSolver.cpp
 ///
 
 
 ///This low-level internal demo does intentionally NOT use the btBulletCollisionCommon.h header
 ///It needs internal access
 #include "GL_Simplex1to4.h"
-#include "LinearMath/SimdQuaternion.h"
-#include "LinearMath/SimdTransform.h"
+#include "LinearMath/btQuaternion.h"
+#include "LinearMath/btTransform.h"
 #include "BulletCollision/NarrowPhaseCollision/btVoronoiSimplexSolver.h"
 #include "BulletCollision/CollisionShapes/btBoxShape.h"
 #include "BulletCollision/NarrowPhaseCollision/btGjkPairDetector.h"
@@ -35,7 +35,7 @@ subject to the following restrictions:
 #include "CollisionDemo.h"
 #include "GL_ShapeDrawer.h"
 #include "GlutStuff.h"
-#include "LinearMath/GenIDebugDraw.h"
+#include "LinearMath/btIDebugDraw.h"
 
 
 float yaw=0.f,pitch=0.f,roll=0.f;
@@ -44,9 +44,9 @@ const int numObjects = 2;
 
 GL_Simplex1to4 simplex;
 
-PolyhedralConvexShape*	shapePtr[maxNumObjects];
+btPolyhedralConvexShape*	shapePtr[maxNumObjects];
 
-SimdTransform tr[numObjects];
+btTransform tr[numObjects];
 int screenWidth = 640;
 int screenHeight = 480;
 
@@ -70,22 +70,22 @@ int main(int argc,char** argv)
 
 void CollisionDemo::initPhysics()
 {
-	m_debugMode |= IDebugDraw::DBG_DrawWireframe;
+	m_debugMode |= btIDebugDraw::DBG_DrawWireframe;
 	m_azi = 250.f;
 	m_ele = 25.f;
 
-	tr[0].setOrigin(SimdVector3(0.0013328250f,8.1363249f,7.0390840f));
-	tr[1].setOrigin(SimdVector3(0.00000000f,9.1262732f,2.0343180f));
+	tr[0].setOrigin(btVector3(0.0013328250f,8.1363249f,7.0390840f));
+	tr[1].setOrigin(btVector3(0.00000000f,9.1262732f,2.0343180f));
 
-	//tr[0].setOrigin(SimdVector3(0,0,0));
-	//tr[1].setOrigin(SimdVector3(0,10,0));
+	//tr[0].setOrigin(btVector3(0,0,0));
+	//tr[1].setOrigin(btVector3(0,10,0));
 
-	SimdMatrix3x3 basisA;
+	btMatrix3x3 basisA;
 	basisA.setValue(0.99999958f,0.00022980258f,0.00090992288f,
 		-0.00029313788f,0.99753088f,0.070228584f,
 		-0.00089153741f,-0.070228823f,0.99753052f);
 
-	SimdMatrix3x3 basisB;
+	btMatrix3x3 basisB;
 	basisB.setValue(1.0000000f,4.4865553e-018f,-4.4410586e-017f,
 		4.4865495e-018f,0.97979438f,0.20000751f,
 		4.4410586e-017f,-0.20000751f,0.97979438f);
@@ -95,11 +95,11 @@ void CollisionDemo::initPhysics()
 
 
 
-	SimdVector3 boxHalfExtentsA(1.0000004768371582f,1.0000004768371582f,1.0000001192092896f);
-	SimdVector3 boxHalfExtentsB(3.2836332321166992f,3.2836332321166992f,3.2836320400238037f);
+	btVector3 boxHalfExtentsA(1.0000004768371582f,1.0000004768371582f,1.0000001192092896f);
+	btVector3 boxHalfExtentsB(3.2836332321166992f,3.2836332321166992f,3.2836320400238037f);
 
-	BoxShape*	boxA = new BoxShape(boxHalfExtentsA);
-	BoxShape*	boxB = new BoxShape(boxHalfExtentsB);
+	btBoxShape*	boxA = new btBoxShape(boxHalfExtentsA);
+	btBoxShape*	boxB = new btBoxShape(boxHalfExtentsB);
 	shapePtr[0] = boxA;
 	shapePtr[1] = boxB;
 
@@ -112,8 +112,8 @@ void CollisionDemo::clientMoveAndDisplay()
 }
 
 
-static VoronoiSimplexSolver sGjkSimplexSolver;
-SimplexSolverInterface& gGjkSimplexSolver = sGjkSimplexSolver;
+static btVoronoiSimplexSolver sGjkSimplexSolver;
+btSimplexSolverInterface& gGjkSimplexSolver = sGjkSimplexSolver;
 
 
 
@@ -127,13 +127,13 @@ void CollisionDemo::displayCallback(void) {
 	float m[16];
 	int i;
 
-	GjkPairDetector	convexConvex(shapePtr[0],shapePtr[1],&sGjkSimplexSolver,0);
+	btGjkPairDetector	convexConvex(shapePtr[0],shapePtr[1],&sGjkSimplexSolver,0);
 
-	SimdVector3 seperatingAxis(0.00000000f,0.059727669f,0.29259586f);
+	btVector3 seperatingAxis(0.00000000f,0.059727669f,0.29259586f);
 	convexConvex.SetCachedSeperatingAxis(seperatingAxis);
 
-	PointCollector gjkOutput;
-	GjkPairDetector::ClosestPointInput input;
+	btPointCollector gjkOutput;
+	btGjkPairDetector::ClosestPointInput input;
 	input.m_transformA = tr[0];
 	input.m_transformB = tr[1];
 
@@ -141,7 +141,7 @@ void CollisionDemo::displayCallback(void) {
 
 	if (gjkOutput.m_hasResult)
 	{
-		SimdVector3 endPt = gjkOutput.m_pointInWorld +
+		btVector3 endPt = gjkOutput.m_pointInWorld +
 			gjkOutput.m_normalOnBInWorld*gjkOutput.m_distance;
 
 		 glBegin(GL_LINES);
@@ -159,26 +159,26 @@ void CollisionDemo::displayCallback(void) {
 		
 		tr[i].getOpenGLMatrix( m );
 
-		GL_ShapeDrawer::DrawOpenGL(m,shapePtr[i],SimdVector3(1,1,1),getDebugMode());
+		GL_ShapeDrawer::DrawOpenGL(m,shapePtr[i],btVector3(1,1,1),getDebugMode());
 
 
 	}
 
 	simplex.SetSimplexSolver(&sGjkSimplexSolver);
-	SimdPoint3 ybuf[4],pbuf[4],qbuf[4];
+	btPoint3 ybuf[4],pbuf[4],qbuf[4];
 	int numpoints = sGjkSimplexSolver.getSimplex(pbuf,qbuf,ybuf);
 	simplex.Reset();
 	
 	for (i=0;i<numpoints;i++)
 		simplex.AddVertex(ybuf[i]);
 
-	SimdTransform ident;
+	btTransform ident;
 	ident.setIdentity();
 	ident.getOpenGLMatrix(m);
-	GL_ShapeDrawer::DrawOpenGL(m,&simplex,SimdVector3(1,1,1),getDebugMode());
+	GL_ShapeDrawer::DrawOpenGL(m,&simplex,btVector3(1,1,1),getDebugMode());
 
 
-	SimdQuaternion orn;
+	btQuaternion orn;
 	orn.setEuler(yaw,pitch,roll);
 	tr[0].setRotation(orn);
 

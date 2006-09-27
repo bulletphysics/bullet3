@@ -20,12 +20,12 @@ subject to the following restrictions:
 #include "BulletCollision/NarrowPhaseCollision/btPersistentManifold.h"
 #include "BulletDynamics/Dynamics/btRigidBody.h"
 #include "btContactConstraint.h"
-#include "Solve2LinearConstraint.h"
+#include "btSolve2LinearConstraint.h"
 #include "btContactSolverInfo.h"
 #include "Dynamics/BU_Joint.h"
 #include "Dynamics/ContactJoint.h"
 
-#include "LinearMath/GenIDebugDraw.h"
+#include "LinearMath/btIDebugDraw.h"
 
 #define USE_SOR_SOLVER
 
@@ -69,13 +69,13 @@ m_erp(0.4f)
 
 
 //iterative lcp and penalty method
-float OdeConstraintSolver::SolveGroup(PersistentManifold** manifoldPtr, int numManifolds,const ContactSolverInfo& infoGlobal,IDebugDraw* debugDrawer)
+float OdeConstraintSolver::SolveGroup(btPersistentManifold** manifoldPtr, int numManifolds,const btContactSolverInfo& infoGlobal,btIDebugDraw* debugDrawer)
 {
 	m_CurBody = 0;
 	m_CurJoint = 0;
 
 
-	RigidBody* bodies [MAX_QUICKSTEP_RIGIDBODIES];
+	btRigidBody* bodies [MAX_QUICKSTEP_RIGIDBODIES];
 
 	int numBodies = 0;
 	BU_Joint* joints [MAX_QUICKSTEP_RIGIDBODIES*4];
@@ -86,11 +86,11 @@ float OdeConstraintSolver::SolveGroup(PersistentManifold** manifoldPtr, int numM
 
 		int body0=-1,body1=-1;
 
-		PersistentManifold* manifold = manifoldPtr[j];
+		btPersistentManifold* manifold = manifoldPtr[j];
 		if (manifold->GetNumContacts() > 0)
 		{
-			body0 = ConvertBody((RigidBody*)manifold->GetBody0(),bodies,numBodies);
-			body1 = ConvertBody((RigidBody*)manifold->GetBody1(),bodies,numBodies);
+			body0 = ConvertBody((btRigidBody*)manifold->GetBody0(),bodies,numBodies);
+			body1 = ConvertBody((btRigidBody*)manifold->GetBody1(),bodies,numBodies);
 			ConvertConstraint(manifold,joints,numJoints,bodies,body0,body1,debugDrawer);
 		}
 	}
@@ -104,15 +104,15 @@ float OdeConstraintSolver::SolveGroup(PersistentManifold** manifoldPtr, int numM
 /////////////////////////////////////////////////////////////////////////////////
 
 
-typedef SimdScalar dQuaternion[4];
+typedef btScalar dQuaternion[4];
 #define _R(i,j) R[(i)*4+(j)]
 
 void dRfromQ1 (dMatrix3 R, const dQuaternion q)
 {
   // q = (s,vx,vy,vz)
-  SimdScalar qq1 = 2.f*q[1]*q[1];
-  SimdScalar qq2 = 2.f*q[2]*q[2];
-  SimdScalar qq3 = 2.f*q[3]*q[3];
+  btScalar qq1 = 2.f*q[1]*q[1];
+  btScalar qq2 = 2.f*q[2]*q[2];
+  btScalar qq3 = 2.f*q[3]*q[3];
   _R(0,0) = 1.f - qq2 - qq3;
   _R(0,1) = 2*(q[1]*q[2] - q[0]*q[3]);
   _R(0,2) = 2*(q[1]*q[3] + q[0]*q[2]);
@@ -132,7 +132,7 @@ void dRfromQ1 (dMatrix3 R, const dQuaternion q)
 
 
 
-int OdeConstraintSolver::ConvertBody(RigidBody* body,RigidBody** bodies,int& numBodies)
+int OdeConstraintSolver::ConvertBody(btRigidBody* body,btRigidBody** bodies,int& numBodies)
 {
 	if (!body || (body->getInvMass() == 0.f) )
 	{
@@ -194,13 +194,13 @@ int OdeConstraintSolver::ConvertBody(RigidBody* body,RigidBody** bodies,int& num
 static ContactJoint gJointArray[MAX_JOINTS_1];
 
 
-void OdeConstraintSolver::ConvertConstraint(PersistentManifold* manifold,BU_Joint** joints,int& numJoints,
-					   RigidBody** bodies,int _bodyId0,int _bodyId1,IDebugDraw* debugDrawer)
+void OdeConstraintSolver::ConvertConstraint(btPersistentManifold* manifold,BU_Joint** joints,int& numJoints,
+					   btRigidBody** bodies,int _bodyId0,int _bodyId1,btIDebugDraw* debugDrawer)
 {
 
 
-	manifold->RefreshContactPoints(((RigidBody*)manifold->GetBody0())->getCenterOfMassTransform(),
-		((RigidBody*)manifold->GetBody1())->getCenterOfMassTransform());
+	manifold->RefreshContactPoints(((btRigidBody*)manifold->GetBody0())->getCenterOfMassTransform(),
+		((btRigidBody*)manifold->GetBody1())->getCenterOfMassTransform());
 
 	int bodyId0 = _bodyId0,bodyId1 = _bodyId1;
 
@@ -209,31 +209,31 @@ void OdeConstraintSolver::ConvertConstraint(PersistentManifold* manifold,BU_Join
 	bool swapBodies = (bodyId0 < 0);
 
 	
-	RigidBody* body0,*body1;
+	btRigidBody* body0,*body1;
 
 	if (swapBodies)
 	{
 		bodyId0 = _bodyId1;
 		bodyId1 = _bodyId0;
 
-		body0 = (RigidBody*)manifold->GetBody1();
-		body1 = (RigidBody*)manifold->GetBody0();
+		body0 = (btRigidBody*)manifold->GetBody1();
+		body1 = (btRigidBody*)manifold->GetBody0();
 
 	} else
 	{
-		body0 = (RigidBody*)manifold->GetBody0();
-		body1 = (RigidBody*)manifold->GetBody1();
+		body0 = (btRigidBody*)manifold->GetBody0();
+		body1 = (btRigidBody*)manifold->GetBody1();
 	}
 
 	assert(bodyId0 >= 0);
 
-	SimdVector3 color(0,1,0);
+	btVector3 color(0,1,0);
 	for (i=0;i<numContacts;i++)
 	{
 
 		if (debugDrawer)
 		{
-			const ManifoldPoint& cp = manifold->GetContactPoint(i);
+			const btManifoldPoint& cp = manifold->GetContactPoint(i);
 
 			debugDrawer->DrawContactPoint(
 				cp.m_positionWorldOnB,

@@ -18,45 +18,45 @@ subject to the following restrictions:
 
 #include "btCollisionShape.h"
 
-#include "LinearMath/SimdVector3.h"
-#include "LinearMath/SimdTransform.h"
-#include "LinearMath/SimdMatrix3x3.h"
+#include "LinearMath/btVector3.h"
+#include "LinearMath/btTransform.h"
+#include "LinearMath/btMatrix3x3.h"
 #include <vector>
 #include "BulletCollision/CollisionShapes/btCollisionMargin.h"
 
-//todo: get rid of this ConvexCastResult thing!
-struct ConvexCastResult;
+//todo: get rid of this btConvexCastResult thing!
+struct btConvexCastResult;
 
 
-/// ConvexShape is an abstract shape interface.
+/// btConvexShape is an abstract shape interface.
 /// The explicit part provides plane-equations, the implicit part provides GetClosestPoint interface.
-/// used in combination with GJK or ConvexCast
-class ConvexShape : public CollisionShape
+/// used in combination with GJK or btConvexCast
+class btConvexShape : public btCollisionShape
 {
 public:
-	ConvexShape();
+	btConvexShape();
 
-	virtual SimdVector3	LocalGetSupportingVertex(const SimdVector3& vec)const;
-	virtual SimdVector3	LocalGetSupportingVertexWithoutMargin(const SimdVector3& vec) const= 0;
+	virtual btVector3	LocalGetSupportingVertex(const btVector3& vec)const;
+	virtual btVector3	LocalGetSupportingVertexWithoutMargin(const btVector3& vec) const= 0;
 	
 	//notice that the vectors should be unit length
-	virtual void	BatchedUnitVectorGetSupportingVertexWithoutMargin(const SimdVector3* vectors,SimdVector3* supportVerticesOut,int numVectors) const= 0;
+	virtual void	BatchedUnitVectorGetSupportingVertexWithoutMargin(const btVector3* vectors,btVector3* supportVerticesOut,int numVectors) const= 0;
 
 	// testing for hullnode code
 
 	///GetAabb's default implementation is brute force, expected derived classes to implement a fast dedicated version
-	void GetAabb(const SimdTransform& t,SimdVector3& aabbMin,SimdVector3& aabbMax) const
+	void GetAabb(const btTransform& t,btVector3& aabbMin,btVector3& aabbMax) const
 	{
 		GetAabbSlow(t,aabbMin,aabbMax);
 	}
 
 
 	
-	virtual void GetAabbSlow(const SimdTransform& t,SimdVector3& aabbMin,SimdVector3& aabbMax) const;
+	virtual void GetAabbSlow(const btTransform& t,btVector3& aabbMin,btVector3& aabbMax) const;
 
 
-	virtual void	setLocalScaling(const SimdVector3& scaling);
-	virtual const SimdVector3& getLocalScaling() const 
+	virtual void	setLocalScaling(const btVector3& scaling);
+	virtual const btVector3& getLocalScaling() const 
 	{
 		return m_localScaling;
 	}
@@ -71,10 +71,10 @@ public:
 		return m_collisionMargin;
 	}
 private:
-	SimdScalar	m_collisionMargin;
+	btScalar	m_collisionMargin;
 	//local scaling. collisionMargin is not scaled !
 protected:
-	SimdVector3	m_localScaling;
+	btVector3	m_localScaling;
 
 };
 

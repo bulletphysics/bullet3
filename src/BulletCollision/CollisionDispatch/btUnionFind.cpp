@@ -19,28 +19,28 @@ subject to the following restrictions:
 
 
 
-UnionFind::~UnionFind()
+btUnionFind::~btUnionFind()
 {
 	Free();
 
 }
 
-UnionFind::UnionFind()
+btUnionFind::btUnionFind()
 { 
 
 }
 
-void	UnionFind::Allocate(int N)
+void	btUnionFind::Allocate(int N)
 {
 	m_elements.resize(N);
 }
-void	UnionFind::Free()
+void	btUnionFind::Free()
 {
 	m_elements.clear();
 }
 
 
-void	UnionFind::reset(int N)
+void	btUnionFind::reset(int N)
 {
 	Allocate(N);
 
@@ -50,15 +50,15 @@ void	UnionFind::reset(int N)
 	} 
 }
 
-bool UnionFindElementSortPredicate(const Element& lhs, const Element& rhs)
+bool btUnionFindElementSortPredicate(const btElement& lhs, const btElement& rhs)
 {
 	return lhs.m_id < rhs.m_id;
 }
 
 
-///this is a special operation, destroying the content of UnionFind.
+///this is a special operation, destroying the content of btUnionFind.
 ///it sorts the elements, based on island id, in order to make it easy to iterate over islands
-void	UnionFind::sortIslands()
+void	btUnionFind::sortIslands()
 {
 
 	//first store the original body index, and islandId
@@ -71,7 +71,7 @@ void	UnionFind::sortIslands()
 	}
 	
 	 // Sort the vector using predicate and std::sort
-	  std::sort(m_elements.begin(), m_elements.end(), UnionFindElementSortPredicate);
+	  std::sort(m_elements.begin(), m_elements.end(), btUnionFindElementSortPredicate);
 
 }
 

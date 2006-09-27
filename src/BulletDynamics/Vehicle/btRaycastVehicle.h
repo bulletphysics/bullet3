@@ -14,21 +14,21 @@
 #include "BulletDynamics/Dynamics/btRigidBody.h"
 #include "BulletDynamics/ConstraintSolver/btTypedConstraint.h"
 
-struct MassProps;
+struct btMassProps;
 #include "btWheelInfo.h"
 
-struct	VehicleRaycaster;
-class VehicleTuning;
+struct	btVehicleRaycaster;
+class btVehicleTuning;
 
 ///Raycast vehicle, very special constraint that turn a rigidbody into a vehicle.
-class RaycastVehicle : public TypedConstraint
+class btRaycastVehicle : public btTypedConstraint
 {
 public:
-	class VehicleTuning
+	class btVehicleTuning
 		{
 			public:
 
-			VehicleTuning()
+			btVehicleTuning()
 				:m_suspensionStiffness(5.88f),
 				m_suspensionCompression(0.83f),
 				m_suspensionDamping(0.88f),
@@ -45,65 +45,65 @@ public:
 		};
 private:
 
-	SimdScalar	m_tau;
-	SimdScalar	m_damping;
-	VehicleRaycaster*	m_vehicleRaycaster;
+	btScalar	m_tau;
+	btScalar	m_damping;
+	btVehicleRaycaster*	m_vehicleRaycaster;
 	float		m_pitchControl;
 	float	m_steeringValue; 
 	float m_currentVehicleSpeedKmHour;
 
-	RigidBody* m_chassisBody;
+	btRigidBody* m_chassisBody;
 
 	int m_indexRightAxis;
 	int m_indexUpAxis;
 	int	m_indexForwardAxis;
 
-	void DefaultInit(const VehicleTuning& tuning);
+	void DefaultInit(const btVehicleTuning& tuning);
 
 public:
 
 	//constructor to create a car from an existing rigidbody
-	RaycastVehicle(const VehicleTuning& tuning,RigidBody* chassis,	VehicleRaycaster* raycaster );
+	btRaycastVehicle(const btVehicleTuning& tuning,btRigidBody* chassis,	btVehicleRaycaster* raycaster );
 
-	virtual ~RaycastVehicle() ;
+	virtual ~btRaycastVehicle() ;
 
 		
 
 
 
-	SimdScalar Raycast(WheelInfo& wheel);
+	btScalar Raycast(btWheelInfo& wheel);
 
-	virtual void UpdateVehicle(SimdScalar step);
+	virtual void UpdateVehicle(btScalar step);
 
 	void ResetSuspension();
 
-	SimdScalar	GetSteeringValue(int wheel) const;
+	btScalar	GetSteeringValue(int wheel) const;
 
-	void	SetSteeringValue(SimdScalar steering,int wheel);
+	void	SetSteeringValue(btScalar steering,int wheel);
 
 
-	void	ApplyEngineForce(SimdScalar force, int wheel);
+	void	ApplyEngineForce(btScalar force, int wheel);
 
-	const SimdTransform&	GetWheelTransformWS( int wheelIndex ) const;
+	const btTransform&	GetWheelTransformWS( int wheelIndex ) const;
 
 	void	UpdateWheelTransform( int wheelIndex );
 	
-	void	SetRaycastWheelInfo( int wheelIndex , bool isInContact, const SimdVector3& hitPoint, const SimdVector3& hitNormal,SimdScalar depth);
+	void	SetRaycastWheelInfo( int wheelIndex , bool isInContact, const btVector3& hitPoint, const btVector3& hitNormal,btScalar depth);
 
-	WheelInfo&	AddWheel( const SimdVector3& connectionPointCS0, const SimdVector3& wheelDirectionCS0,const SimdVector3& wheelAxleCS,SimdScalar suspensionRestLength,SimdScalar wheelRadius,const VehicleTuning& tuning, bool isFrontWheel);
+	btWheelInfo&	AddWheel( const btVector3& connectionPointCS0, const btVector3& wheelDirectionCS0,const btVector3& wheelAxleCS,btScalar suspensionRestLength,btScalar wheelRadius,const btVehicleTuning& tuning, bool isFrontWheel);
 
 	inline int		GetNumWheels() const {
 		return m_wheelInfo.size();
 	}
 	
-	std::vector<WheelInfo>	m_wheelInfo;
+	std::vector<btWheelInfo>	m_wheelInfo;
 
 
-	const WheelInfo&	GetWheelInfo(int index) const;
+	const btWheelInfo&	GetWheelInfo(int index) const;
 
-	WheelInfo&	GetWheelInfo(int index);
+	btWheelInfo&	GetWheelInfo(int index);
 
-	void	UpdateWheelTransformsWS(WheelInfo& wheel );
+	void	UpdateWheelTransformsWS(btWheelInfo& wheel );
 
 	
 	void SetBrake(float brake,int wheelIndex);
@@ -113,18 +113,18 @@ public:
 		m_pitchControl = pitch;
 	}
 	
-	void	UpdateSuspension(SimdScalar deltaTime);
+	void	UpdateSuspension(btScalar deltaTime);
 
-	void	UpdateFriction(SimdScalar	timeStep);
+	void	UpdateFriction(btScalar	timeStep);
 
 
 
-	inline RigidBody* GetRigidBody()
+	inline btRigidBody* GetRigidBody()
 	{
 		return m_chassisBody;
 	}
 
-	const RigidBody* GetRigidBody() const
+	const btRigidBody* GetRigidBody() const
 	{
 		return m_chassisBody;
 	}
@@ -155,7 +155,7 @@ public:
 		//not yet
 	}
 
-	virtual	void	SolveConstraint(SimdScalar	timeStep)
+	virtual	void	SolveConstraint(btScalar	timeStep)
 	{
 		//not yet
 	}

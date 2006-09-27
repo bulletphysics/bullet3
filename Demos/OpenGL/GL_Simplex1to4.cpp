@@ -26,7 +26,7 @@ subject to the following restrictions:
 #else
 #include <GL/gl.h>
 #endif
-#include "LinearMath/SimdTransform.h"
+#include "LinearMath/btTransform.h"
 
 GL_Simplex1to4::GL_Simplex1to4()
 :m_simplexSolver(0)
@@ -38,7 +38,7 @@ GL_Simplex1to4::GL_Simplex1to4()
 ///
 void	GL_Simplex1to4::CalcClosest(float* m)
 {
-	SimdTransform tr;
+	btTransform tr;
 	tr.setFromOpenGLMatrix(m);
 	
 
@@ -50,12 +50,12 @@ void	GL_Simplex1to4::CalcClosest(float* m)
 				m_simplexSolver->reset();
 				bool res;
 
-				SimdVector3 v;
+				btVector3 v;
 
 				for (int i=0;i<m_numVertices;i++)
 				{
 					v =  tr(m_vertices[i]);
-					m_simplexSolver->addVertex(v,v,SimdPoint3(0.f,0.f,0.f));
+					m_simplexSolver->addVertex(v,v,btPoint3(0.f,0.f,0.f));
 					res = m_simplexSolver->closest(v);
 				}
 

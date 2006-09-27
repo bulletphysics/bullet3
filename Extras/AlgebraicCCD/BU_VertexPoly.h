@@ -19,9 +19,9 @@ subject to the following restrictions:
 
 
 class BU_Screwing;
-#include <LinearMath/SimdTransform.h>
-#include <LinearMath/SimdPoint3.h>
-#include <LinearMath/SimdScalar.h>
+#include <LinearMath/btTransform.h>
+#include <LinearMath/btPoint3.h>
+#include <LinearMath/btScalar.h>
 
 ///BU_VertexPoly implements algebraic time of impact calculation between vertex and a plane.
 class BU_VertexPoly
@@ -30,9 +30,9 @@ public:
 	BU_VertexPoly();
 	bool GetTimeOfImpact(
 		const BU_Screwing& screwAB,
-		const SimdPoint3& vtx,
-		const SimdVector4& planeEq,
-		SimdScalar &minTime,
+		const btPoint3& vtx,
+		const btVector4& planeEq,
+		btScalar &minTime,
 		bool swapAB);
 
 private:

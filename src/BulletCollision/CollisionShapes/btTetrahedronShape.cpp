@@ -14,27 +14,27 @@ subject to the following restrictions:
 3. This notice may not be removed or altered from any source distribution.
 */
 #include "btTetrahedronShape.h"
-#include "LinearMath/SimdMatrix3x3.h"
+#include "LinearMath/btMatrix3x3.h"
 
-BU_Simplex1to4::BU_Simplex1to4()
+btBU_Simplex1to4::btBU_Simplex1to4()
 :m_numVertices(0)
 {
 }
 
-BU_Simplex1to4::BU_Simplex1to4(const SimdPoint3& pt0)
+btBU_Simplex1to4::btBU_Simplex1to4(const btPoint3& pt0)
 :m_numVertices(0)
 {
 	AddVertex(pt0);
 }
 
-BU_Simplex1to4::BU_Simplex1to4(const SimdPoint3& pt0,const SimdPoint3& pt1)
+btBU_Simplex1to4::btBU_Simplex1to4(const btPoint3& pt0,const btPoint3& pt1)
 :m_numVertices(0)
 {
 	AddVertex(pt0);
 	AddVertex(pt1);
 }
 
-BU_Simplex1to4::BU_Simplex1to4(const SimdPoint3& pt0,const SimdPoint3& pt1,const SimdPoint3& pt2)
+btBU_Simplex1to4::btBU_Simplex1to4(const btPoint3& pt0,const btPoint3& pt1,const btPoint3& pt2)
 :m_numVertices(0)
 {
 	AddVertex(pt0);
@@ -42,7 +42,7 @@ BU_Simplex1to4::BU_Simplex1to4(const SimdPoint3& pt0,const SimdPoint3& pt1,const
 	AddVertex(pt2);
 }
 
-BU_Simplex1to4::BU_Simplex1to4(const SimdPoint3& pt0,const SimdPoint3& pt1,const SimdPoint3& pt2,const SimdPoint3& pt3)
+btBU_Simplex1to4::btBU_Simplex1to4(const btPoint3& pt0,const btPoint3& pt1,const btPoint3& pt2,const btPoint3& pt3)
 :m_numVertices(0)
 {
 	AddVertex(pt0);
@@ -55,18 +55,18 @@ BU_Simplex1to4::BU_Simplex1to4(const SimdPoint3& pt0,const SimdPoint3& pt1,const
 
 
 
-void BU_Simplex1to4::AddVertex(const SimdPoint3& pt)
+void btBU_Simplex1to4::AddVertex(const btPoint3& pt)
 {
 	m_vertices[m_numVertices++] = pt;
 }
 
 
-int	BU_Simplex1to4::GetNumVertices() const
+int	btBU_Simplex1to4::GetNumVertices() const
 {
 	return m_numVertices;
 }
 
-int BU_Simplex1to4::GetNumEdges() const
+int btBU_Simplex1to4::GetNumEdges() const
 {
 	//euler formula, F-E+V = 2, so E = F+V-2
 
@@ -85,7 +85,7 @@ int BU_Simplex1to4::GetNumEdges() const
 	return 0;
 }
 
-void BU_Simplex1to4::GetEdge(int i,SimdPoint3& pa,SimdPoint3& pb) const
+void btBU_Simplex1to4::GetEdge(int i,btPoint3& pa,btPoint3& pb) const
 {
 	
     switch (m_numVertices)
@@ -149,12 +149,12 @@ void BU_Simplex1to4::GetEdge(int i,SimdPoint3& pa,SimdPoint3& pb) const
 
 }
 
-void BU_Simplex1to4::GetVertex(int i,SimdPoint3& vtx) const
+void btBU_Simplex1to4::GetVertex(int i,btPoint3& vtx) const
 {
 	vtx = m_vertices[i];
 }
 
-int	BU_Simplex1to4::GetNumPlanes() const
+int	btBU_Simplex1to4::GetNumPlanes() const
 {
 	switch (m_numVertices)
 	{
@@ -176,17 +176,17 @@ int	BU_Simplex1to4::GetNumPlanes() const
 }
 
 
-void BU_Simplex1to4::GetPlane(SimdVector3& planeNormal,SimdPoint3& planeSupport,int i) const
+void btBU_Simplex1to4::GetPlane(btVector3& planeNormal,btPoint3& planeSupport,int i) const
 {
 	
 }
 
-int BU_Simplex1to4::GetIndex(int i) const
+int btBU_Simplex1to4::GetIndex(int i) const
 {
 	return 0;
 }
 
-bool BU_Simplex1to4::IsInside(const SimdPoint3& pt,SimdScalar tolerance) const
+bool btBU_Simplex1to4::IsInside(const btPoint3& pt,btScalar tolerance) const
 {
 	return false;
 }

@@ -16,7 +16,7 @@ subject to the following restrictions:
 #include "btCollisionAlgorithm.h"
 #include "btDispatcher.h"
 
-CollisionAlgorithm::CollisionAlgorithm(const CollisionAlgorithmConstructionInfo& ci)
+btCollisionAlgorithm::btCollisionAlgorithm(const btCollisionAlgorithmConstructionInfo& ci)
 {
 	m_dispatcher = ci.m_dispatcher;
 }

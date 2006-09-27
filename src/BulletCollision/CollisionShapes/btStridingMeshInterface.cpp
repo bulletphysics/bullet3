@@ -15,13 +15,13 @@ subject to the following restrictions:
 
 #include "btStridingMeshInterface.h"
 
-StridingMeshInterface::~StridingMeshInterface()
+btStridingMeshInterface::~btStridingMeshInterface()
 {
 
 }
 
 
-void	StridingMeshInterface::InternalProcessAllTriangles(InternalTriangleIndexCallback* callback,const SimdVector3& aabbMin,const SimdVector3& aabbMax) const
+void	btStridingMeshInterface::InternalProcessAllTriangles(btInternalTriangleIndexCallback* callback,const btVector3& aabbMin,const btVector3& aabbMax) const
 {
 	int numtotalphysicsverts = 0;
 	int part,graphicssubparts = getNumSubParts();
@@ -32,10 +32,10 @@ void	StridingMeshInterface::InternalProcessAllTriangles(InternalTriangleIndexCal
 	PHY_ScalarType gfxindextype;
 	int stride,numverts,numtriangles;
 	int gfxindex;
-	SimdVector3 triangle[3];
+	btVector3 triangle[3];
 	float* graphicsbase;
 
-	SimdVector3 meshScaling = getScaling();
+	btVector3 meshScaling = getScaling();
 
 	///if the number of parts is big, the performance might drop due to the innerloop switch on indextype
 	for (part=0;part<graphicssubparts ;part++)

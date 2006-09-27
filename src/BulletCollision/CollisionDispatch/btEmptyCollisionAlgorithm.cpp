@@ -17,17 +17,17 @@ subject to the following restrictions:
 
 
 
-EmptyAlgorithm::EmptyAlgorithm(const CollisionAlgorithmConstructionInfo& ci)
-	: CollisionAlgorithm(ci)
+btEmptyAlgorithm::btEmptyAlgorithm(const btCollisionAlgorithmConstructionInfo& ci)
+	: btCollisionAlgorithm(ci)
 {
 }
 
-void EmptyAlgorithm::ProcessCollision (BroadphaseProxy* proxy0,BroadphaseProxy* proxy1,const DispatcherInfo& dispatchInfo)
+void btEmptyAlgorithm::ProcessCollision (btBroadphaseProxy* proxy0,btBroadphaseProxy* proxy1,const btDispatcherInfo& dispatchInfo)
 {
 
 }
 
-float EmptyAlgorithm::CalculateTimeOfImpact(BroadphaseProxy* proxy0,BroadphaseProxy* proxy1,const DispatcherInfo& dispatchInfo)
+float btEmptyAlgorithm::CalculateTimeOfImpact(btBroadphaseProxy* proxy0,btBroadphaseProxy* proxy1,const btDispatcherInfo& dispatchInfo)
 {
 	return 1.f;
 }

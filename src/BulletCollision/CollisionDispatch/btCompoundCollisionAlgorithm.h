@@ -21,49 +21,49 @@ subject to the following restrictions:
 #include "BulletCollision/BroadphaseCollision/btBroadphaseInterface.h"
 
 #include "BulletCollision/NarrowPhaseCollision/btPersistentManifold.h"
-class Dispatcher;
+class btDispatcher;
 #include "BulletCollision/BroadphaseCollision/btBroadphaseProxy.h"
 #include <vector>
 #include "btCollisionCreateFunc.h"
 
-/// CompoundCollisionAlgorithm  supports collision between CompoundCollisionShapes and other collision shapes
+/// btCompoundCollisionAlgorithm  supports collision between CompoundCollisionShapes and other collision shapes
 /// Place holder, not fully implemented yet
-class CompoundCollisionAlgorithm  : public CollisionAlgorithm
+class btCompoundCollisionAlgorithm  : public btCollisionAlgorithm
 {
-	Dispatcher*	m_dispatcher;
-	BroadphaseProxy	m_compoundProxy;
-	BroadphaseProxy	m_otherProxy;
-	std::vector<BroadphaseProxy> m_childProxies;
-	std::vector<CollisionAlgorithm*> m_childCollisionAlgorithms;
+	btDispatcher*	m_dispatcher;
+	btBroadphaseProxy	m_compoundProxy;
+	btBroadphaseProxy	m_otherProxy;
+	std::vector<btBroadphaseProxy> m_childProxies;
+	std::vector<btCollisionAlgorithm*> m_childCollisionAlgorithms;
 
-	BroadphaseProxy m_compound;
+	btBroadphaseProxy m_compound;
 
-	BroadphaseProxy m_other;
+	btBroadphaseProxy m_other;
 
 	
 public:
 
-	CompoundCollisionAlgorithm( const CollisionAlgorithmConstructionInfo& ci,BroadphaseProxy* proxy0,BroadphaseProxy* proxy1);
+	btCompoundCollisionAlgorithm( const btCollisionAlgorithmConstructionInfo& ci,btBroadphaseProxy* proxy0,btBroadphaseProxy* proxy1);
 
-	virtual ~CompoundCollisionAlgorithm();
+	virtual ~btCompoundCollisionAlgorithm();
 
-	virtual void ProcessCollision (BroadphaseProxy* proxy0,BroadphaseProxy* proxy1,const DispatcherInfo& dispatchInfo);
+	virtual void ProcessCollision (btBroadphaseProxy* proxy0,btBroadphaseProxy* proxy1,const btDispatcherInfo& dispatchInfo);
 
-	float	CalculateTimeOfImpact(BroadphaseProxy* proxy0,BroadphaseProxy* proxy1,const DispatcherInfo& dispatchInfo);
+	float	CalculateTimeOfImpact(btBroadphaseProxy* proxy0,btBroadphaseProxy* proxy1,const btDispatcherInfo& dispatchInfo);
 
-	struct CreateFunc :public 	CollisionAlgorithmCreateFunc
+	struct CreateFunc :public 	btCollisionAlgorithmCreateFunc
 	{
-		virtual	CollisionAlgorithm* CreateCollisionAlgorithm(CollisionAlgorithmConstructionInfo& ci, BroadphaseProxy* proxy0,BroadphaseProxy* proxy1)
+		virtual	btCollisionAlgorithm* CreateCollisionAlgorithm(btCollisionAlgorithmConstructionInfo& ci, btBroadphaseProxy* proxy0,btBroadphaseProxy* proxy1)
 		{
-			return new CompoundCollisionAlgorithm(ci,proxy0,proxy1);
+			return new btCompoundCollisionAlgorithm(ci,proxy0,proxy1);
 		}
 	};
 
-	struct SwappedCreateFunc :public 	CollisionAlgorithmCreateFunc
+	struct SwappedCreateFunc :public 	btCollisionAlgorithmCreateFunc
 	{
-		virtual	CollisionAlgorithm* CreateCollisionAlgorithm(CollisionAlgorithmConstructionInfo& ci, BroadphaseProxy* proxy0,BroadphaseProxy* proxy1)
+		virtual	btCollisionAlgorithm* CreateCollisionAlgorithm(btCollisionAlgorithmConstructionInfo& ci, btBroadphaseProxy* proxy0,btBroadphaseProxy* proxy1)
 		{
-			return new CompoundCollisionAlgorithm(ci,proxy1,proxy0);
+			return new btCompoundCollisionAlgorithm(ci,proxy1,proxy0);
 		}
 	};
 

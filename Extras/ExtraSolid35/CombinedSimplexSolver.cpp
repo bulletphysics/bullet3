@@ -30,7 +30,7 @@ void CombinedSimplexSolver::reset()
 }
 
 
-void CombinedSimplexSolver::addVertex(const SimdVector3& w, const SimdPoint3& p, const SimdPoint3& q)
+void CombinedSimplexSolver::addVertex(const btVector3& w, const btPoint3& p, const btPoint3& q)
 {
 	printf("addVertex (%f %f %f)\n",w[0],w[1],w[2]);
 	m_voronoiSolver.addVertex(w,p,q);
@@ -38,8 +38,8 @@ void CombinedSimplexSolver::addVertex(const SimdVector3& w, const SimdPoint3& p,
 	int i;
 	i=0;
 
-	SimdPoint3 vp1,vp2;
-	SimdPoint3 jp1,jp2;
+	btPoint3 vp1,vp2;
+	btPoint3 jp1,jp2;
 /*
 	bool isClosest0 = m_voronoiSolver.closest(vp1);
 	bool isClosest1 = m_johnsonSolver.closest(vp1);
@@ -52,12 +52,12 @@ void CombinedSimplexSolver::addVertex(const SimdVector3& w, const SimdPoint3& p,
 
 
 
-bool CombinedSimplexSolver::closest(SimdVector3& v)
+bool CombinedSimplexSolver::closest(btVector3& v)
 {
 	bool result0 = 0;
 	bool result1 = 0;
 	
-	SimdVector3 v0,v1;
+	btVector3 v0,v1;
 
 	result0 = m_voronoiSolver.closest(v0);
 	result1 = m_johnsonSolver.closest(v1);
@@ -79,10 +79,10 @@ bool CombinedSimplexSolver::closest(SimdVector3& v)
 	return result1;
 }
 
-SimdScalar CombinedSimplexSolver::maxVertex()
+btScalar CombinedSimplexSolver::maxVertex()
 {
-	SimdScalar maxv0 = m_voronoiSolver.maxVertex();
-	SimdScalar maxv1 = m_johnsonSolver.maxVertex();
+	btScalar maxv0 = m_voronoiSolver.maxVertex();
+	btScalar maxv1 = m_johnsonSolver.maxVertex();
 	MY_ASSERT(maxv0 = maxv1);
 	if (m_useVoronoiSolver)
 		return maxv0;
@@ -102,7 +102,7 @@ bool CombinedSimplexSolver::fullSimplex() const
 	return fullSimplex1;
 }
 
-int CombinedSimplexSolver::getSimplex(SimdPoint3 *pBuf, SimdPoint3 *qBuf, SimdVector3 *yBuf) const
+int CombinedSimplexSolver::getSimplex(btPoint3 *pBuf, btPoint3 *qBuf, btVector3 *yBuf) const
 {
 
 
@@ -119,12 +119,12 @@ int CombinedSimplexSolver::getSimplex(SimdPoint3 *pBuf, SimdPoint3 *qBuf, SimdVe
 
 void	CombinedSimplexSolver::debugPrint()
 {
-	SimdPoint3 pBuf0[4];
-	SimdPoint3 qBuf0[4];
-	SimdPoint3 yBuf0[4];
-	SimdPoint3 pBuf1[4];
-	SimdPoint3 qBuf1[4];
-	SimdPoint3 yBuf1[4];
+	btPoint3 pBuf0[4];
+	btPoint3 qBuf0[4];
+	btPoint3 yBuf0[4];
+	btPoint3 pBuf1[4];
+	btPoint3 qBuf1[4];
+	btPoint3 yBuf1[4];
 	int verts0,verts1;
 
 	verts0 = m_voronoiSolver.getSimplex(&pBuf0[0], &qBuf0[0], &yBuf0[0]);
@@ -146,7 +146,7 @@ void	CombinedSimplexSolver::debugPrint()
 
 
 }
-bool CombinedSimplexSolver::inSimplex(const SimdVector3& w)
+bool CombinedSimplexSolver::inSimplex(const btVector3& w)
 {
 	bool insimplex0 = m_voronoiSolver.inSimplex(w);
 	bool insimplex1 = m_johnsonSolver.inSimplex(w);
@@ -163,9 +163,9 @@ bool CombinedSimplexSolver::inSimplex(const SimdVector3& w)
 	return insimplex1;
 
 }
-void CombinedSimplexSolver::backup_closest(SimdVector3& v) 
+void CombinedSimplexSolver::backup_closest(btVector3& v) 
 {
-	SimdVector3 v0,v1;
+	btVector3 v0,v1;
 
 	m_voronoiSolver.backup_closest(v0);
 	m_johnsonSolver.backup_closest(v1);
@@ -189,10 +189,10 @@ bool CombinedSimplexSolver::emptySimplex() const
 	return empty1;
 }
 
-void CombinedSimplexSolver::compute_points(SimdPoint3& p1, SimdPoint3& p2)
+void CombinedSimplexSolver::compute_points(btPoint3& p1, btPoint3& p2)
 {
-	SimdPoint3	tmpP1,tmpP2;
-	SimdPoint3	tmpJP1,tmpJP2;
+	btPoint3	tmpP1,tmpP2;
+	btPoint3	tmpJP1,tmpJP2;
 
 	m_voronoiSolver.compute_points(tmpP1,tmpP2);
 	m_johnsonSolver.compute_points(tmpJP1,tmpJP2);

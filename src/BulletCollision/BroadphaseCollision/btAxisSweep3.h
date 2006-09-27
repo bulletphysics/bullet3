@@ -2,7 +2,7 @@
 //Copyright (c) 2003-2006 Erwin Coumans  http://continuousphysics.com/Bullet/
 
 //
-// AxisSweep3.h
+// btAxisSweep3.h
 //
 // Copyright (c) 2006 Simon Hobbs
 //
@@ -19,15 +19,15 @@
 #ifndef AXIS_SWEEP_3_H
 #define AXIS_SWEEP_3_H
 
-#include "LinearMath/SimdPoint3.h"
-#include "LinearMath/SimdVector3.h"
+#include "LinearMath/btPoint3.h"
+#include "LinearMath/btVector3.h"
 #include "btOverlappingPairCache.h"
 #include "btBroadphaseProxy.h"
 
-/// AxisSweep3 is an efficient implementation of the 3d axis sweep and prune broadphase.
+/// btAxisSweep3 is an efficient implementation of the 3d axis sweep and prune broadphase.
 /// It uses arrays rather then lists for storage of the 3 axis. Also it operates using integer coordinates instead of floats.
 /// The TestOverlap check is optimized to check the array index, rather then the actual AABB coordinates/pos
-class AxisSweep3 : public OverlappingPairCache
+class btAxisSweep3 : public btOverlappingPairCache
 {
 
 public:
@@ -43,7 +43,7 @@ public:
 	};
 
 public:
-	class Handle : public BroadphaseProxy
+	class Handle : public btBroadphaseProxy
 	{
 	public:
 		
@@ -52,7 +52,7 @@ public:
 		unsigned short m_handleId;
 		unsigned short m_pad;
 		
-		//void* m_pOwner; this is now in BroadphaseProxy.m_clientObject
+		//void* m_pOwner; this is now in btBroadphaseProxy.m_clientObject
 	
 		inline void SetNextFree(unsigned short next) {m_minEdges[0] = next;}
 		inline unsigned short GetNextFree() const {return m_minEdges[0];}
@@ -60,10 +60,10 @@ public:
 
 	
 private:
-	SimdPoint3 m_worldAabbMin;						// overall system bounds
-	SimdPoint3 m_worldAabbMax;						// overall system bounds
+	btPoint3 m_worldAabbMin;						// overall system bounds
+	btPoint3 m_worldAabbMax;						// overall system bounds
 
-	SimdVector3 m_quantize;						// scaling factor for quantization
+	btVector3 m_quantize;						// scaling factor for quantization
 
 	int m_numHandles;						// number of active handles
 	int m_maxHandles;						// max number of handles
@@ -83,7 +83,7 @@ private:
 	//Overlap* AddOverlap(unsigned short handleA, unsigned short handleB);
 	//void RemoveOverlap(unsigned short handleA, unsigned short handleB);
 
-	void Quantize(unsigned short* out, const SimdPoint3& point, int isMax) const;
+	void Quantize(unsigned short* out, const btPoint3& point, int isMax) const;
 
 	void SortMinDown(int axis, unsigned short edge, bool updateOverlaps = true);
 	void SortMinUp(int axis, unsigned short edge, bool updateOverlaps = true);
@@ -91,24 +91,24 @@ private:
 	void SortMaxUp(int axis, unsigned short edge, bool updateOverlaps = true);
 
 public:
-	AxisSweep3(const SimdPoint3& worldAabbMin,const SimdPoint3& worldAabbMax, int maxHandles = 16384);
-	virtual	~AxisSweep3();
+	btAxisSweep3(const btPoint3& worldAabbMin,const btPoint3& worldAabbMax, int maxHandles = 16384);
+	virtual	~btAxisSweep3();
 
 	virtual void	RefreshOverlappingPairs()
 	{
 		//this is replace by sweep and prune
 	}
 	
-	unsigned short AddHandle(const SimdPoint3& aabbMin,const SimdPoint3& aabbMax, void* pOwner,short int collisionFilterGroup,short int collisionFilterMask);
+	unsigned short AddHandle(const btPoint3& aabbMin,const btPoint3& aabbMax, void* pOwner,short int collisionFilterGroup,short int collisionFilterMask);
 	void RemoveHandle(unsigned short handle);
-	void UpdateHandle(unsigned short handle, const SimdPoint3& aabbMin,const SimdPoint3& aabbMax);
+	void UpdateHandle(unsigned short handle, const btPoint3& aabbMin,const btPoint3& aabbMax);
 	inline Handle* GetHandle(unsigned short index) const {return m_pHandles + index;}
 
 
 	//Broadphase Interface
-	virtual BroadphaseProxy*	CreateProxy(  const SimdVector3& min,  const SimdVector3& max,int shapeType,void* userPtr ,short int collisionFilterGroup,short int collisionFilterMask);
-	virtual void	DestroyProxy(BroadphaseProxy* proxy);
-	virtual void	SetAabb(BroadphaseProxy* proxy,const SimdVector3& aabbMin,const SimdVector3& aabbMax);
+	virtual btBroadphaseProxy*	CreateProxy(  const btVector3& min,  const btVector3& max,int shapeType,void* userPtr ,short int collisionFilterGroup,short int collisionFilterMask);
+	virtual void	DestroyProxy(btBroadphaseProxy* proxy);
+	virtual void	SetAabb(btBroadphaseProxy* proxy,const btVector3& aabbMin,const btVector3& aabbMax);
 
 };
 

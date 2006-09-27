@@ -16,32 +16,32 @@ subject to the following restrictions:
 #ifndef JACOBIAN_ENTRY_H
 #define JACOBIAN_ENTRY_H
 
-#include "LinearMath/SimdVector3.h"
+#include "LinearMath/btVector3.h"
 #include "BulletDynamics/Dynamics/btRigidBody.h"
 
 
 //notes:
 // Another memory optimization would be to store m_1MinvJt in the remaining 3 w components
-// which makes the JacobianEntry memory layout 16 bytes
+// which makes the btJacobianEntry memory layout 16 bytes
 // if you only are interested in angular part, just feed massInvA and massInvB zero
 
 /// Jacobian entry is an abstraction that allows to describe constraints
 /// it can be used in combination with a constraint solver
 /// Can be used to relate the effect of an impulse to the constraint error
-class JacobianEntry
+class btJacobianEntry
 {
 public:
-	JacobianEntry() {};
+	btJacobianEntry() {};
 	//constraint between two different rigidbodies
-	JacobianEntry(
-		const SimdMatrix3x3& world2A,
-		const SimdMatrix3x3& world2B,
-		const SimdVector3& rel_pos1,const SimdVector3& rel_pos2,
-		const SimdVector3& jointAxis,
-		const SimdVector3& inertiaInvA, 
-		const SimdScalar massInvA,
-		const SimdVector3& inertiaInvB,
-		const SimdScalar massInvB)
+	btJacobianEntry(
+		const btMatrix3x3& world2A,
+		const btMatrix3x3& world2B,
+		const btVector3& rel_pos1,const btVector3& rel_pos2,
+		const btVector3& jointAxis,
+		const btVector3& inertiaInvA, 
+		const btScalar massInvA,
+		const btVector3& inertiaInvB,
+		const btScalar massInvB)
 		:m_linearJointAxis(jointAxis)
 	{
 		m_aJ = world2A*(rel_pos1.cross(m_linearJointAxis));
@@ -54,12 +54,12 @@ public:
 	}
 
 	//angular constraint between two different rigidbodies
-	JacobianEntry(const SimdVector3& jointAxis,
-		const SimdMatrix3x3& world2A,
-		const SimdMatrix3x3& world2B,
-		const SimdVector3& inertiaInvA,
-		const SimdVector3& inertiaInvB)
-		:m_linearJointAxis(SimdVector3(0.f,0.f,0.f))
+	btJacobianEntry(const btVector3& jointAxis,
+		const btMatrix3x3& world2A,
+		const btMatrix3x3& world2B,
+		const btVector3& inertiaInvA,
+		const btVector3& inertiaInvB)
+		:m_linearJointAxis(btVector3(0.f,0.f,0.f))
 	{
 		m_aJ= world2A*jointAxis;
 		m_bJ = world2B*-jointAxis;
@@ -71,11 +71,11 @@ public:
 	}
 
 	//angular constraint between two different rigidbodies
-	JacobianEntry(const SimdVector3& axisInA,
-		const SimdVector3& axisInB,
-		const SimdVector3& inertiaInvA,
-		const SimdVector3& inertiaInvB)
-		: m_linearJointAxis(SimdVector3(0.f,0.f,0.f))
+	btJacobianEntry(const btVector3& axisInA,
+		const btVector3& axisInB,
+		const btVector3& inertiaInvA,
+		const btVector3& inertiaInvB)
+		: m_linearJointAxis(btVector3(0.f,0.f,0.f))
 		, m_aJ(axisInA)
 		, m_bJ(-axisInB)
 	{
@@ -87,69 +87,69 @@ public:
 	}
 
 	//constraint on one rigidbody
-	JacobianEntry(
-		const SimdMatrix3x3& world2A,
-		const SimdVector3& rel_pos1,const SimdVector3& rel_pos2,
-		const SimdVector3& jointAxis,
-		const SimdVector3& inertiaInvA, 
-		const SimdScalar massInvA)
+	btJacobianEntry(
+		const btMatrix3x3& world2A,
+		const btVector3& rel_pos1,const btVector3& rel_pos2,
+		const btVector3& jointAxis,
+		const btVector3& inertiaInvA, 
+		const btScalar massInvA)
 		:m_linearJointAxis(jointAxis)
 	{
 		m_aJ= world2A*(rel_pos1.cross(jointAxis));
 		m_bJ = world2A*(rel_pos2.cross(-jointAxis));
 		m_0MinvJt	= inertiaInvA * m_aJ;
-		m_1MinvJt = SimdVector3(0.f,0.f,0.f);
+		m_1MinvJt = btVector3(0.f,0.f,0.f);
 		m_Adiag = massInvA + m_0MinvJt.dot(m_aJ);
 
 		ASSERT(m_Adiag > 0.0f);
 	}
 
-	SimdScalar	getDiagonal() const { return m_Adiag; }
+	btScalar	getDiagonal() const { return m_Adiag; }
 
 	// for two constraints on the same rigidbody (for example vehicle friction)
-	SimdScalar	getNonDiagonal(const JacobianEntry& jacB, const SimdScalar massInvA) const
+	btScalar	getNonDiagonal(const btJacobianEntry& jacB, const btScalar massInvA) const
 	{
-		const JacobianEntry& jacA = *this;
-		SimdScalar lin = massInvA * jacA.m_linearJointAxis.dot(jacB.m_linearJointAxis);
-		SimdScalar ang = jacA.m_0MinvJt.dot(jacB.m_aJ);
+		const btJacobianEntry& jacA = *this;
+		btScalar lin = massInvA * jacA.m_linearJointAxis.dot(jacB.m_linearJointAxis);
+		btScalar ang = jacA.m_0MinvJt.dot(jacB.m_aJ);
 		return lin + ang;
 	}
 
 	
 
 	// for two constraints on sharing two same rigidbodies (for example two contact points between two rigidbodies)
-	SimdScalar	getNonDiagonal(const JacobianEntry& jacB,const SimdScalar massInvA,const SimdScalar massInvB) const
+	btScalar	getNonDiagonal(const btJacobianEntry& jacB,const btScalar massInvA,const btScalar massInvB) const
 	{
-		const JacobianEntry& jacA = *this;
-		SimdVector3 lin = jacA.m_linearJointAxis * jacB.m_linearJointAxis;
-		SimdVector3 ang0 = jacA.m_0MinvJt * jacB.m_aJ;
-		SimdVector3 ang1 = jacA.m_1MinvJt * jacB.m_bJ;
-		SimdVector3 lin0 = massInvA * lin ;
-		SimdVector3 lin1 = massInvB * lin;
-		SimdVector3 sum = ang0+ang1+lin0+lin1;
+		const btJacobianEntry& jacA = *this;
+		btVector3 lin = jacA.m_linearJointAxis * jacB.m_linearJointAxis;
+		btVector3 ang0 = jacA.m_0MinvJt * jacB.m_aJ;
+		btVector3 ang1 = jacA.m_1MinvJt * jacB.m_bJ;
+		btVector3 lin0 = massInvA * lin ;
+		btVector3 lin1 = massInvB * lin;
+		btVector3 sum = ang0+ang1+lin0+lin1;
 		return sum[0]+sum[1]+sum[2];
 	}
 
-	SimdScalar getRelativeVelocity(const SimdVector3& linvelA,const SimdVector3& angvelA,const SimdVector3& linvelB,const SimdVector3& angvelB)
+	btScalar getRelativeVelocity(const btVector3& linvelA,const btVector3& angvelA,const btVector3& linvelB,const btVector3& angvelB)
 	{
-		SimdVector3 linrel = linvelA - linvelB;
-		SimdVector3 angvela  = angvelA * m_aJ;
-		SimdVector3 angvelb  = angvelB * m_bJ;
+		btVector3 linrel = linvelA - linvelB;
+		btVector3 angvela  = angvelA * m_aJ;
+		btVector3 angvelb  = angvelB * m_bJ;
 		linrel *= m_linearJointAxis;
 		angvela += angvelb;
 		angvela += linrel;
-		SimdScalar rel_vel2 = angvela[0]+angvela[1]+angvela[2];
+		btScalar rel_vel2 = angvela[0]+angvela[1]+angvela[2];
 		return rel_vel2 + SIMD_EPSILON;
 	}
 //private:
 
-	SimdVector3	m_linearJointAxis;
-	SimdVector3	m_aJ;
-	SimdVector3	m_bJ;
-	SimdVector3	m_0MinvJt;
-	SimdVector3	m_1MinvJt;
+	btVector3	m_linearJointAxis;
+	btVector3	m_aJ;
+	btVector3	m_bJ;
+	btVector3	m_0MinvJt;
+	btVector3	m_1MinvJt;
 	//Optimization: can be stored in the w/last component of one of the vectors
-	SimdScalar	m_Adiag;
+	btScalar	m_Adiag;
 
 };
 

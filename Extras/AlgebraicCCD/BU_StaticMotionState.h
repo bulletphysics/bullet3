@@ -18,62 +18,62 @@ subject to the following restrictions:
 #define BU_STATIC_MOTIONSTATE
 
 
-#include <CollisionShapes/BU_MotionStateInterface.h>
+#include <btCollisionShapes/BU_MotionStateInterface.h>
 
 class BU_StaticMotionState :public BU_MotionStateInterface
 {
 public:
 	virtual ~BU_StaticMotionState(){};
 
-	virtual void	SetTransform(const SimdTransform& trans)
+	virtual void	SetTransform(const btTransform& trans)
 	{
 		m_trans = trans;
 	}
-	virtual void	GetTransform(SimdTransform& trans) const
+	virtual void	GetTransform(btTransform& trans) const
 	{
 		trans = m_trans;
 	}
-	virtual void	SetPosition(const SimdPoint3& position)
+	virtual void	SetPosition(const btPoint3& position)
 	{
 		m_trans.setOrigin( position );
 	}
-	virtual void	GetPosition(SimdPoint3& position) const
+	virtual void	GetPosition(btPoint3& position) const
 	{
 		position = m_trans.getOrigin();
 	}
 
-	virtual void	SetOrientation(const SimdQuaternion& orientation)
+	virtual void	SetOrientation(const btQuaternion& orientation)
 	{
 		m_trans.setRotation( orientation);
 	}
-	virtual void	GetOrientation(SimdQuaternion& orientation) const
+	virtual void	GetOrientation(btQuaternion& orientation) const
 	{
 		orientation = m_trans.getRotation();
 	}
 
-	virtual void	SetBasis(const SimdMatrix3x3& basis)
+	virtual void	SetBasis(const btMatrix3x3& basis)
 	{
 		m_trans.setBasis( basis);
 	}
-	virtual void	GetBasis(SimdMatrix3x3& basis) const
+	virtual void	GetBasis(btMatrix3x3& basis) const
 	{ 
 		basis = m_trans.getBasis();
 	}
 
-	virtual void	SetLinearVelocity(const SimdVector3& linvel)
+	virtual void	SetLinearVelocity(const btVector3& linvel)
 	{
 		m_linearVelocity = linvel;
 	}
-	virtual void	GetLinearVelocity(SimdVector3& linvel) const
+	virtual void	GetLinearVelocity(btVector3& linvel) const
 	{
 		linvel = m_linearVelocity;
 	}
 	
-	virtual void	SetAngularVelocity(const SimdVector3& angvel)
+	virtual void	SetAngularVelocity(const btVector3& angvel)
 	{
 		m_angularVelocity = angvel;
 	}
-	virtual void	GetAngularVelocity(SimdVector3& angvel) const
+	virtual void	GetAngularVelocity(btVector3& angvel) const
 	{
 		angvel = m_angularVelocity;
 	}
@@ -82,9 +82,9 @@ public:
 
 protected:
 
-	SimdTransform	m_trans;
-	SimdVector3		m_angularVelocity;
-	SimdVector3		m_linearVelocity;
+	btTransform	m_trans;
+	btVector3		m_angularVelocity;
+	btVector3		m_linearVelocity;
 
 };
 

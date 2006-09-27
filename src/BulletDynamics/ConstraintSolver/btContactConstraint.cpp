@@ -16,10 +16,10 @@ subject to the following restrictions:
 
 #include "btContactConstraint.h"
 #include "BulletDynamics/Dynamics/btRigidBody.h"
-#include "LinearMath/SimdVector3.h"
+#include "LinearMath/btVector3.h"
 #include "btJacobianEntry.h"
 #include "btContactSolverInfo.h"
-#include "LinearMath/GenMinMax.h"
+#include "LinearMath/btMinMax.h"
 #include "BulletCollision/NarrowPhaseCollision/btManifoldPoint.h"
 
 #define ASSERT2 assert
@@ -27,8 +27,8 @@ subject to the following restrictions:
 //some values to find stable tresholds
 
 float useGlobalSettingContacts = false;//true;
-SimdScalar contactDamping = 0.2f;
-SimdScalar contactTau = .02f;//0.02f;//*0.02f;
+btScalar contactDamping = 0.2f;
+btScalar contactTau = .02f;//0.02f;//*0.02f;
 
 
 
@@ -37,9 +37,9 @@ SimdScalar contactTau = .02f;//0.02f;//*0.02f;
 
 
 //bilateral constraint between two dynamic objects
-void resolveSingleBilateral(RigidBody& body1, const SimdVector3& pos1,
-                      RigidBody& body2, const SimdVector3& pos2,
-                      SimdScalar distance, const SimdVector3& normal,SimdScalar& impulse ,float timeStep)
+void resolveSingleBilateral(btRigidBody& body1, const btVector3& pos1,
+                      btRigidBody& body2, const btVector3& pos2,
+                      btScalar distance, const btVector3& normal,btScalar& impulse ,float timeStep)
 {
 	float normalLenSqr = normal.length2();
 	ASSERT2(fabs(normalLenSqr) < 1.1f);
@@ -48,24 +48,24 @@ void resolveSingleBilateral(RigidBody& body1, const SimdVector3& pos1,
 		impulse = 0.f;
 		return;
 	}
-	SimdVector3 rel_pos1 = pos1 - body1.getCenterOfMassPosition(); 
-	SimdVector3 rel_pos2 = pos2 - body2.getCenterOfMassPosition();
+	btVector3 rel_pos1 = pos1 - body1.getCenterOfMassPosition(); 
+	btVector3 rel_pos2 = pos2 - body2.getCenterOfMassPosition();
 	//this jacobian entry could be re-used for all iterations
 	
-	SimdVector3 vel1 = body1.getVelocityInLocalPoint(rel_pos1);
-	SimdVector3 vel2 = body2.getVelocityInLocalPoint(rel_pos2);
-	SimdVector3 vel = vel1 - vel2;
+	btVector3 vel1 = body1.getVelocityInLocalPoint(rel_pos1);
+	btVector3 vel2 = body2.getVelocityInLocalPoint(rel_pos2);
+	btVector3 vel = vel1 - vel2;
 	
 
-	  JacobianEntry jac(body1.getCenterOfMassTransform().getBasis().transpose(),
+	  btJacobianEntry jac(body1.getCenterOfMassTransform().getBasis().transpose(),
 		body2.getCenterOfMassTransform().getBasis().transpose(),
 		rel_pos1,rel_pos2,normal,body1.getInvInertiaDiagLocal(),body1.getInvMass(),
 		body2.getInvInertiaDiagLocal(),body2.getInvMass());
 
-	SimdScalar jacDiagAB = jac.getDiagonal();
-	SimdScalar jacDiagABInv = 1.f / jacDiagAB;
+	btScalar jacDiagAB = jac.getDiagonal();
+	btScalar jacDiagABInv = 1.f / jacDiagAB;
 	
-	  SimdScalar rel_vel = jac.getRelativeVelocity(
+	  btScalar rel_vel = jac.getRelativeVelocity(
 		body1.getLinearVelocity(),
 		body1.getCenterOfMassTransform().getBasis().transpose() * body1.getAngularVelocity(),
 		body2.getLinearVelocity(),
@@ -78,10 +78,10 @@ void resolveSingleBilateral(RigidBody& body1, const SimdVector3& pos1,
 		
 
 #ifdef ONLY_USE_LINEAR_MASS
-	SimdScalar massTerm = 1.f / (body1.getInvMass() + body2.getInvMass());
+	btScalar massTerm = 1.f / (body1.getInvMass() + body2.getInvMass());
 	impulse = - contactDamping * rel_vel * massTerm;
 #else	
-	SimdScalar velocityImpulse = -contactDamping * rel_vel * jacDiagABInv;
+	btScalar velocityImpulse = -contactDamping * rel_vel * jacDiagABInv;
 	impulse = velocityImpulse;
 #endif
 }
@@ -92,33 +92,33 @@ void resolveSingleBilateral(RigidBody& body1, const SimdVector3& pos1,
 //velocity + friction
 //response  between two dynamic objects with friction
 float resolveSingleCollision(
-	RigidBody& body1,
-	RigidBody& body2,
-	ManifoldPoint& contactPoint,
-	const ContactSolverInfo& solverInfo
+	btRigidBody& body1,
+	btRigidBody& body2,
+	btManifoldPoint& contactPoint,
+	const btContactSolverInfo& solverInfo
 
 		)
 {
 
-	const SimdVector3& pos1 = contactPoint.GetPositionWorldOnA();
-	const SimdVector3& pos2 = contactPoint.GetPositionWorldOnB();
+	const btVector3& pos1 = contactPoint.GetPositionWorldOnA();
+	const btVector3& pos2 = contactPoint.GetPositionWorldOnB();
     
 	
 //	printf("distance=%f\n",distance);
 
-	const SimdVector3& normal = contactPoint.m_normalWorldOnB;
+	const btVector3& normal = contactPoint.m_normalWorldOnB;
 
-	SimdVector3 rel_pos1 = pos1 - body1.getCenterOfMassPosition(); 
-	SimdVector3 rel_pos2 = pos2 - body2.getCenterOfMassPosition();
+	btVector3 rel_pos1 = pos1 - body1.getCenterOfMassPosition(); 
+	btVector3 rel_pos2 = pos2 - body2.getCenterOfMassPosition();
 	
-	SimdVector3 vel1 = body1.getVelocityInLocalPoint(rel_pos1);
-	SimdVector3 vel2 = body2.getVelocityInLocalPoint(rel_pos2);
-	SimdVector3 vel = vel1 - vel2;
-	SimdScalar rel_vel;
+	btVector3 vel1 = body1.getVelocityInLocalPoint(rel_pos1);
+	btVector3 vel2 = body2.getVelocityInLocalPoint(rel_pos2);
+	btVector3 vel = vel1 - vel2;
+	btScalar rel_vel;
 	rel_vel = normal.dot(vel);
 	
 
-	SimdScalar Kfps = 1.f / solverInfo.m_timeStep ;
+	btScalar Kfps = 1.f / solverInfo.m_timeStep ;
 
 	float damping = solverInfo.m_damping ;
 	float Kerp = solverInfo.m_erp;
@@ -133,23 +133,23 @@ float resolveSingleCollision(
 
 	//printf("dist=%f\n",distance);
 
-		ConstraintPersistentData* cpd = (ConstraintPersistentData*) contactPoint.m_userPersistentData;
+		btConstraintPersistentData* cpd = (btConstraintPersistentData*) contactPoint.m_userPersistentData;
 	assert(cpd);
 
-	SimdScalar distance = cpd->m_penetration;//contactPoint.GetDistance();
+	btScalar distance = cpd->m_penetration;//contactPoint.GetDistance();
 	
 
 	//distance = 0.f;
-	SimdScalar positionalError = Kcor *-distance;
+	btScalar positionalError = Kcor *-distance;
 	//jacDiagABInv;
-	SimdScalar velocityError = cpd->m_restitution - rel_vel;// * damping;
+	btScalar velocityError = cpd->m_restitution - rel_vel;// * damping;
 
 	
-	SimdScalar penetrationImpulse = positionalError * cpd->m_jacDiagABInv;
+	btScalar penetrationImpulse = positionalError * cpd->m_jacDiagABInv;
 
-	SimdScalar	velocityImpulse = velocityError * cpd->m_jacDiagABInv;
+	btScalar	velocityImpulse = velocityError * cpd->m_jacDiagABInv;
 
-	SimdScalar normalImpulse = penetrationImpulse+velocityImpulse;
+	btScalar normalImpulse = penetrationImpulse+velocityImpulse;
 	
 	// See Erin Catto's GDC 2006 paper: Clamp the accumulated impulse
 	float oldNormalImpulse = cpd->m_appliedImpulse;
@@ -166,26 +166,26 @@ float resolveSingleCollision(
 
 
 float resolveSingleFriction(
-	RigidBody& body1,
-	RigidBody& body2,
-	ManifoldPoint& contactPoint,
-	const ContactSolverInfo& solverInfo
+	btRigidBody& body1,
+	btRigidBody& body2,
+	btManifoldPoint& contactPoint,
+	const btContactSolverInfo& solverInfo
 
 		)
 {
 
-	const SimdVector3& pos1 = contactPoint.GetPositionWorldOnA();
-	const SimdVector3& pos2 = contactPoint.GetPositionWorldOnB();
+	const btVector3& pos1 = contactPoint.GetPositionWorldOnA();
+	const btVector3& pos2 = contactPoint.GetPositionWorldOnB();
 
-	SimdVector3 rel_pos1 = pos1 - body1.getCenterOfMassPosition(); 
-	SimdVector3 rel_pos2 = pos2 - body2.getCenterOfMassPosition();
+	btVector3 rel_pos1 = pos1 - body1.getCenterOfMassPosition(); 
+	btVector3 rel_pos2 = pos2 - body2.getCenterOfMassPosition();
 	
-	ConstraintPersistentData* cpd = (ConstraintPersistentData*) contactPoint.m_userPersistentData;
+	btConstraintPersistentData* cpd = (btConstraintPersistentData*) contactPoint.m_userPersistentData;
 	assert(cpd);
 
 	float combinedFriction = cpd->m_friction;
 	
-	SimdScalar limit = cpd->m_appliedImpulse * combinedFriction;
+	btScalar limit = cpd->m_appliedImpulse * combinedFriction;
 	//if (contactPoint.m_appliedImpulse>0.f)
 	//friction
 	{
@@ -193,14 +193,14 @@ float resolveSingleFriction(
 		
 		{
 			// 1st tangent
-			SimdVector3 vel1 = body1.getVelocityInLocalPoint(rel_pos1);
-			SimdVector3 vel2 = body2.getVelocityInLocalPoint(rel_pos2);
-			SimdVector3 vel = vel1 - vel2;
+			btVector3 vel1 = body1.getVelocityInLocalPoint(rel_pos1);
+			btVector3 vel2 = body2.getVelocityInLocalPoint(rel_pos2);
+			btVector3 vel = vel1 - vel2;
 			
-			SimdScalar vrel = cpd->m_frictionWorldTangential0.dot(vel);
+			btScalar vrel = cpd->m_frictionWorldTangential0.dot(vel);
 
 			// calculate j that moves us to zero relative velocity
-			SimdScalar j = -vrel * cpd->m_jacDiagABInvTangent0;
+			btScalar j = -vrel * cpd->m_jacDiagABInvTangent0;
 			float total = cpd->m_accumulatedTangentImpulse0 + j;
 			GEN_set_min(total, limit);
 			GEN_set_max(total, -limit);
@@ -213,14 +213,14 @@ float resolveSingleFriction(
 				
 		{
 			// 2nd tangent
-			SimdVector3 vel1 = body1.getVelocityInLocalPoint(rel_pos1);
-			SimdVector3 vel2 = body2.getVelocityInLocalPoint(rel_pos2);
-			SimdVector3 vel = vel1 - vel2;
+			btVector3 vel1 = body1.getVelocityInLocalPoint(rel_pos1);
+			btVector3 vel2 = body2.getVelocityInLocalPoint(rel_pos2);
+			btVector3 vel = vel1 - vel2;
 
-			SimdScalar vrel = cpd->m_frictionWorldTangential1.dot(vel);
+			btScalar vrel = cpd->m_frictionWorldTangential1.dot(vel);
 			
 			// calculate j that moves us to zero relative velocity
-			SimdScalar j = -vrel * cpd->m_jacDiagABInvTangent1;
+			btScalar j = -vrel * cpd->m_jacDiagABInvTangent1;
 			float total = cpd->m_accumulatedTangentImpulse1 + j;
 			GEN_set_min(total, limit);
 			GEN_set_max(total, -limit);

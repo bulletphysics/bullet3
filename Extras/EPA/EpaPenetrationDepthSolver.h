@@ -22,34 +22,34 @@ subject to the following restrictions:
 *	calculate the penetration depth between two convex shapes.
 */
 
-extern SimdScalar	g_GJKMaxRelError;
-extern SimdScalar	g_GJKMaxRelErrorSqrd;
+extern btScalar	g_GJKMaxRelError;
+extern btScalar	g_GJKMaxRelErrorSqrd;
 
 //! Note : This class is not supposed to be a base class
-class EpaPenetrationDepthSolver : public ConvexPenetrationDepthSolver
+class EpaPenetrationDepthSolver : public btConvexPenetrationDepthSolver
 {
 	public :
 
-		bool			CalcPenDepth( SimplexSolverInterface& simplexSolver,
-									  ConvexShape* pConvexA, ConvexShape* pConvexB,
-									  const SimdTransform& transformA, const SimdTransform& transformB,
-									  SimdVector3& v, SimdPoint3& wWitnessOnA, SimdPoint3& wWitnessOnB,
-									  class IDebugDraw* debugDraw );
+		bool			CalcPenDepth( btSimplexSolverInterface& simplexSolver,
+									  btConvexShape* pConvexA, btConvexShape* pConvexB,
+									  const btTransform& transformA, const btTransform& transformB,
+									  btVector3& v, btPoint3& wWitnessOnA, btPoint3& wWitnessOnB,
+									  class btIDebugDraw* debugDraw );
 
 	private :
 
 #ifdef EPA_USE_HYBRID
-		bool			HybridPenDepth( SimplexSolverInterface& simplexSolver,
-										ConvexShape* pConvexA, ConvexShape* pConvexB,
-										const SimdTransform& transformA, const SimdTransform& transformB,
-										SimdPoint3& wWitnessOnA, SimdPoint3& wWitnessOnB,
-										SimdScalar& penDepth, SimdVector3& v );
+		bool			HybridPenDepth( btSimplexSolverInterface& simplexSolver,
+										btConvexShape* pConvexA, btConvexShape* pConvexB,
+										const btTransform& transformA, const btTransform& transformB,
+										btPoint3& wWitnessOnA, btPoint3& wWitnessOnB,
+										btScalar& penDepth, btVector3& v );
 #endif
 
-		SimdScalar		EpaPenDepth( SimplexSolverInterface& simplexSolver,
-									 ConvexShape* pConvexA, ConvexShape* pConvexB,
-									 const SimdTransform& transformA, const SimdTransform& transformB,
-									 SimdPoint3& wWitnessOnA, SimdPoint3& wWitnessOnB );
+		btScalar		EpaPenDepth( btSimplexSolverInterface& simplexSolver,
+									 btConvexShape* pConvexA, btConvexShape* pConvexB,
+									 const btTransform& transformA, const btTransform& transformB,
+									 btPoint3& wWitnessOnA, btPoint3& wWitnessOnB );
 };
 
 #endif	// EPA_PENETRATION_DEPTH_H

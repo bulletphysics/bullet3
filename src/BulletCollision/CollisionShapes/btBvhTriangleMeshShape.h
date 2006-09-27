@@ -21,16 +21,16 @@ subject to the following restrictions:
 
 ///Bvh Concave triangle mesh is a static-triangle mesh shape with Bounding Volume Hierarchy optimization.
 ///Uses an interface to access the triangles to allow for sharing graphics/physics triangles.
-class BvhTriangleMeshShape : public TriangleMeshShape
+class btBvhTriangleMeshShape : public btTriangleMeshShape
 {
 
-	OptimizedBvh*	m_bvh;
+	btOptimizedBvh*	m_bvh;
 	
 	
 public:
-	BvhTriangleMeshShape(StridingMeshInterface* meshInterface);
+	btBvhTriangleMeshShape(btStridingMeshInterface* meshInterface);
 
-	virtual ~BvhTriangleMeshShape();
+	virtual ~btBvhTriangleMeshShape();
 
 	
 	/*
@@ -42,14 +42,14 @@ public:
 
 
 
-	virtual void	ProcessAllTriangles(TriangleCallback* callback,const SimdVector3& aabbMin,const SimdVector3& aabbMax) const;
+	virtual void	ProcessAllTriangles(btTriangleCallback* callback,const btVector3& aabbMin,const btVector3& aabbMax) const;
 
 
 	//debugging
 	virtual char*	GetName()const {return "BVHTRIANGLEMESH";}
 
 
-	virtual void	setLocalScaling(const SimdVector3& scaling);
+	virtual void	setLocalScaling(const btVector3& scaling);
 	
 
 

@@ -16,29 +16,29 @@ subject to the following restrictions:
 #ifndef _DISPATCHER_H
 #define _DISPATCHER_H
 
-class CollisionAlgorithm;
-struct BroadphaseProxy;
-class RigidBody;
-struct	CollisionObject;
-class ManifoldResult;
-class OverlappingPairCache;
+class btCollisionAlgorithm;
+struct btBroadphaseProxy;
+class btRigidBody;
+struct	btCollisionObject;
+class btManifoldResult;
+class btOverlappingPairCache;
 
-enum CollisionDispatcherId
+enum btCollisionDispatcherId
 {
 	RIGIDBODY_DISPATCHER = 0,
 	USERCALLBACK_DISPATCHER
 };
 
-class PersistentManifold;
+class btPersistentManifold;
 
-struct DispatcherInfo
+struct btDispatcherInfo
 {
 	enum DispatchFunc
 	{
 		DISPATCH_DISCRETE = 1,
 		DISPATCH_CONTINUOUS
 	};
-	DispatcherInfo()
+	btDispatcherInfo()
 		:m_dispatchFunc(DISPATCH_DISCRETE),
 		m_timeOfImpact(1.f),
 		m_useContinuous(false),
@@ -52,46 +52,46 @@ struct DispatcherInfo
 	int		m_dispatchFunc;
 	float	m_timeOfImpact;
 	bool	m_useContinuous;
-	class IDebugDraw*	m_debugDraw;
+	class btIDebugDraw*	m_debugDraw;
 	bool	m_enableSatConvex;
 	
 };
 
-/// Dispatcher can be used in combination with broadphase to dispatch overlapping pairs.
+/// btDispatcher can be used in combination with broadphase to dispatch overlapping pairs.
 /// For example for pairwise collision detection or user callbacks (game logic).
-class Dispatcher
+class btDispatcher
 {
 
 
 public:
-	virtual ~Dispatcher() ;
+	virtual ~btDispatcher() ;
 
-	virtual CollisionAlgorithm* FindAlgorithm(BroadphaseProxy& proxy0,BroadphaseProxy& proxy1) = 0;
+	virtual btCollisionAlgorithm* FindAlgorithm(btBroadphaseProxy& proxy0,btBroadphaseProxy& proxy1) = 0;
 
 	//
 	// asume dispatchers to have unique id's in the range [0..max dispacher]
 	//
 	virtual int GetUniqueId() = 0;
 
-	virtual PersistentManifold*	GetNewManifold(void* body0,void* body1)=0;
+	virtual btPersistentManifold*	GetNewManifold(void* body0,void* body1)=0;
 
-	virtual void ReleaseManifold(PersistentManifold* manifold)=0;
+	virtual void ReleaseManifold(btPersistentManifold* manifold)=0;
 
-	virtual void ClearManifold(PersistentManifold* manifold)=0;
+	virtual void ClearManifold(btPersistentManifold* manifold)=0;
 
-	virtual bool	NeedsCollision(BroadphaseProxy& proxy0,BroadphaseProxy& proxy1) = 0;
+	virtual bool	NeedsCollision(btBroadphaseProxy& proxy0,btBroadphaseProxy& proxy1) = 0;
 
-	virtual bool	NeedsResponse(const CollisionObject& colObj0,const CollisionObject& colObj1)=0;
+	virtual bool	NeedsResponse(const btCollisionObject& colObj0,const btCollisionObject& colObj1)=0;
 
-	virtual	ManifoldResult* GetNewManifoldResult(CollisionObject* obj0,CollisionObject* obj1,PersistentManifold* manifold) =0;
+	virtual	btManifoldResult* GetNewManifoldResult(btCollisionObject* obj0,btCollisionObject* obj1,btPersistentManifold* manifold) =0;
 
-	virtual	void	ReleaseManifoldResult(ManifoldResult*)=0;
+	virtual	void	ReleaseManifoldResult(btManifoldResult*)=0;
 
-	virtual void	DispatchAllCollisionPairs(OverlappingPairCache* pairCache,DispatcherInfo& dispatchInfo)=0;
+	virtual void	DispatchAllCollisionPairs(btOverlappingPairCache* pairCache,btDispatcherInfo& dispatchInfo)=0;
 
 	virtual int GetNumManifolds() const = 0;
 
-	virtual PersistentManifold* GetManifoldByIndexInternal(int index) = 0;
+	virtual btPersistentManifold* GetManifoldByIndexInternal(int index) = 0;
 
 };
 

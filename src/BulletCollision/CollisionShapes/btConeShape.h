@@ -20,7 +20,7 @@ subject to the following restrictions:
 #include "BulletCollision/BroadphaseCollision/btBroadphaseProxy.h" // for the types
 
 /// implements cone shape interface
-class ConeShape : public ConvexShape
+class btConeShape : public btConvexShape
 
 {
 
@@ -28,40 +28,40 @@ class ConeShape : public ConvexShape
 	float m_radius;
 	float m_height;
 	
-	SimdVector3 ConeLocalSupport(const SimdVector3& v) const;
+	btVector3 ConeLocalSupport(const btVector3& v) const;
 
 
 public:
-	ConeShape (SimdScalar radius,SimdScalar height);
+	btConeShape (btScalar radius,btScalar height);
 	
-	virtual SimdVector3	LocalGetSupportingVertex(const SimdVector3& vec) const;
-	virtual SimdVector3	LocalGetSupportingVertexWithoutMargin(const SimdVector3& vec) const;
-	virtual void	BatchedUnitVectorGetSupportingVertexWithoutMargin(const SimdVector3* vectors,SimdVector3* supportVerticesOut,int numVectors) const;
+	virtual btVector3	LocalGetSupportingVertex(const btVector3& vec) const;
+	virtual btVector3	LocalGetSupportingVertexWithoutMargin(const btVector3& vec) const;
+	virtual void	BatchedUnitVectorGetSupportingVertexWithoutMargin(const btVector3* vectors,btVector3* supportVerticesOut,int numVectors) const;
 
 	float GetRadius() const { return m_radius;}
 	float GetHeight() const { return m_height;}
 
 
-	virtual void	CalculateLocalInertia(SimdScalar mass,SimdVector3& inertia)
+	virtual void	CalculateLocalInertia(btScalar mass,btVector3& inertia)
 	{
-		SimdTransform identity;
+		btTransform identity;
 		identity.setIdentity();
-		SimdVector3 aabbMin,aabbMax;
+		btVector3 aabbMin,aabbMax;
 		GetAabb(identity,aabbMin,aabbMax);
 
-		SimdVector3 halfExtents = (aabbMax-aabbMin)*0.5f;
+		btVector3 halfExtents = (aabbMax-aabbMin)*0.5f;
 
 		float margin = GetMargin();
 
-		SimdScalar lx=2.f*(halfExtents.x()+margin);
-		SimdScalar ly=2.f*(halfExtents.y()+margin);
-		SimdScalar lz=2.f*(halfExtents.z()+margin);
-		const SimdScalar x2 = lx*lx;
-		const SimdScalar y2 = ly*ly;
-		const SimdScalar z2 = lz*lz;
-		const SimdScalar scaledmass = mass * 0.08333333f;
+		btScalar lx=2.f*(halfExtents.x()+margin);
+		btScalar ly=2.f*(halfExtents.y()+margin);
+		btScalar lz=2.f*(halfExtents.z()+margin);
+		const btScalar x2 = lx*lx;
+		const btScalar y2 = ly*ly;
+		const btScalar z2 = lz*lz;
+		const btScalar scaledmass = mass * 0.08333333f;
 
-		inertia = scaledmass * (SimdVector3(y2+z2,x2+z2,x2+y2));
+		inertia = scaledmass * (btVector3(y2+z2,x2+z2,x2+y2));
 
 //		inertia.x() = scaledmass * (y2+z2);
 //		inertia.y() = scaledmass * (x2+z2);

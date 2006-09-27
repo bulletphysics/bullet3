@@ -15,7 +15,7 @@ subject to the following restrictions:
 
 #include "btDispatcher.h"
 
-Dispatcher::~Dispatcher()
+btDispatcher::~btDispatcher()
 {
 
 }

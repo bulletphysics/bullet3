@@ -29,7 +29,7 @@ class ParallelPhysicsEnvironment : public CcdPhysicsEnvironment
 	
 
 	public:
-		ParallelPhysicsEnvironment(ParallelIslandDispatcher* dispatcher=0, OverlappingPairCache* pairCache=0);
+		ParallelPhysicsEnvironment(ParallelIslandDispatcher* dispatcher=0, btOverlappingPairCache* pairCache=0);
 
 		virtual		~ParallelPhysicsEnvironment();
 

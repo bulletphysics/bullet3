@@ -20,29 +20,29 @@ subject to the following restrictions:
 
 #include <BulletCollision/CollisionShapes/btCollisionMargin.h>
 
-#include "LinearMath/SimdVector3.h"
+#include "LinearMath/btVector3.h"
 #include "btConvexCast.h"
-class ConvexShape;
-class MinkowskiSumShape;
+class btConvexShape;
+class btMinkowskiSumShape;
 #include "btSimplexSolverInterface.h"
 
 ///GjkConvexCast performs a raycast on a convex object using support mapping.
-class GjkConvexCast : public ConvexCast
+class btGjkConvexCast : public btConvexCast
 {
-	SimplexSolverInterface*	m_simplexSolver;
-	ConvexShape*	m_convexA;
-	ConvexShape*	m_convexB;
+	btSimplexSolverInterface*	m_simplexSolver;
+	btConvexShape*	m_convexA;
+	btConvexShape*	m_convexB;
 
 public:
 
-	GjkConvexCast(ConvexShape*	convexA,ConvexShape* convexB,SimplexSolverInterface* simplexSolver);
+	btGjkConvexCast(btConvexShape*	convexA,btConvexShape* convexB,btSimplexSolverInterface* simplexSolver);
 
 	/// cast a convex against another convex object
 	virtual bool	calcTimeOfImpact(
-					const SimdTransform& fromA,
-					const SimdTransform& toA,
-					const SimdTransform& fromB,
-					const SimdTransform& toB,
+					const btTransform& fromA,
+					const btTransform& toA,
+					const btTransform& fromB,
+					const btTransform& toB,
 					CastResult& result);
 
 };

@@ -23,13 +23,13 @@ subject to the following restrictions:
 
 #include "BU_MotionStateInterface.h"
 #include "BulletCollision/CollisionShapes/btPolyhedralConvexShape.h"
-#include <SimdMinMax.h>
-#include "LinearMath/SimdTransformUtil.h"
+#include <btSimdMinMax.h>
+#include "LinearMath/btTransformUtil.h"
 
 
 
-BU_CollisionPair::BU_CollisionPair(const PolyhedralConvexShape* convexA,const PolyhedralConvexShape* convexB,SimdScalar tolerance)
-: m_convexA(convexA),m_convexB(convexB),m_screwing(SimdVector3(0,0,0),SimdVector3(0,0,0)),
+BU_CollisionPair::BU_CollisionPair(const btPolyhedralConvexShape* convexA,const btPolyhedralConvexShape* convexB,btScalar tolerance)
+: m_convexA(convexA),m_convexB(convexB),m_screwing(btVector3(0,0,0),btVector3(0,0,0)),
 m_tolerance(tolerance)
 {
 
@@ -40,55 +40,55 @@ m_tolerance(tolerance)
 
 
 /*
-bool BU_CollisionPair::GetTimeOfImpact(const SimdVector3& linearMotionA,const SimdQuaternion& angularMotionA,const SimdVector3& linearMotionB,const SimdQuaternion& angularMotionB, SimdScalar& toi,SimdTransform& impactTransA,SimdTransform& impactTransB)
+bool BU_CollisionPair::GetTimeOfImpact(const btVector3& linearMotionA,const btQuaternion& angularMotionA,const btVector3& linearMotionB,const btQuaternion& angularMotionB, btScalar& toi,btTransform& impactTransA,btTransform& impactTransB)
 
 */
 
 bool BU_CollisionPair::calcTimeOfImpact(
-					const SimdTransform& fromA,
-					const SimdTransform& toA,
-					const SimdTransform& fromB,
-					const SimdTransform& toB,
+					const btTransform& fromA,
+					const btTransform& toA,
+					const btTransform& fromB,
+					const btTransform& toB,
 					CastResult& result)
 {
 
 
 
 	
-	SimdVector3 linvelA,angvelA;
-	SimdVector3 linvelB,angvelB;
+	btVector3 linvelA,angvelA;
+	btVector3 linvelB,angvelB;
 
-	SimdTransformUtil::CalculateVelocity(fromA,toA,1.f,linvelA,angvelA);
-	SimdTransformUtil::CalculateVelocity(fromB,toB,1.f,linvelB,angvelB);
+	btTransformUtil::CalculateVelocity(fromA,toA,1.f,linvelA,angvelA);
+	btTransformUtil::CalculateVelocity(fromB,toB,1.f,linvelB,angvelB);
 
 
-	SimdVector3 linearMotionA = toA.getOrigin() - fromA.getOrigin();
-	SimdQuaternion angularMotionA(0,0,0,1.f);
-	SimdVector3 linearMotionB = toB.getOrigin() - fromB.getOrigin();
-	SimdQuaternion angularMotionB(0,0,0,1);
+	btVector3 linearMotionA = toA.getOrigin() - fromA.getOrigin();
+	btQuaternion angularMotionA(0,0,0,1.f);
+	btVector3 linearMotionB = toB.getOrigin() - fromB.getOrigin();
+	btQuaternion angularMotionB(0,0,0,1);
 	
 
 
 	result.m_fraction = 1.f;
 
-	SimdTransform impactTransA;
-	SimdTransform impactTransB;
+	btTransform impactTransA;
+	btTransform impactTransB;
 
 	int index=0;
 
-	SimdScalar toiUnscaled=result.m_fraction;
-	const SimdScalar toiUnscaledLimit = result.m_fraction;
+	btScalar toiUnscaled=result.m_fraction;
+	const btScalar toiUnscaledLimit = result.m_fraction;
 
-	SimdTransform a2w;
+	btTransform a2w;
 	a2w = fromA;
-	SimdTransform b2w = fromB;
+	btTransform b2w = fromB;
 
 /* debugging code
 	{
 		const int numvertsB = m_convexB->GetNumVertices();
 		for (int v=0;v<numvertsB;v++)
 		{
-			SimdPoint3 pt;
+			btPoint3 pt;
 			m_convexB->GetVertex(v,pt);
 			pt = b2w * pt;
 			char buf[1000];
@@ -110,52 +110,52 @@ bool BU_CollisionPair::calcTimeOfImpact(
 */
 
 
-	SimdTransform b2wp = b2w;
+	btTransform b2wp = b2w;
 	
 	b2wp.setOrigin(b2w.getOrigin() + linearMotionB);
 	b2wp.setRotation( b2w.getRotation() + angularMotionB);
 
 	impactTransB = b2wp;
 	
-	SimdTransform a2wp;
+	btTransform a2wp;
 	a2wp.setOrigin(a2w.getOrigin()+ linearMotionA);
 	a2wp.setRotation(a2w.getRotation()+angularMotionA);
 
 	impactTransA = a2wp;
 
-	SimdTransform a2winv;
+	btTransform a2winv;
 	a2winv = a2w.inverse();
 
-	SimdTransform b2wpinv;
+	btTransform b2wpinv;
 	b2wpinv = b2wp.inverse();
 
-	SimdTransform b2winv;
+	btTransform b2winv;
 	b2winv = b2w.inverse();
 
-	SimdTransform a2wpinv;
+	btTransform a2wpinv;
 	a2wpinv = a2wp.inverse();
 
 		//Redon's version with concatenated transforms
 
-	SimdTransform relative;
+	btTransform relative;
 
 	relative = b2w * b2wpinv * a2wp * a2winv;
 
 	//relative = a2winv * a2wp  * b2wpinv * b2w;
 
-	SimdQuaternion qrel;
+	btQuaternion qrel;
 	relative.getBasis().getRotation(qrel);
 
-	SimdVector3 linvel = relative.getOrigin();
+	btVector3 linvel = relative.getOrigin();
 
 	if (linvel.length() < SCREWEPSILON)
 	{
 		linvel.setValue(0.,0.,0.);
 	}
-	SimdVector3 angvel;
-	angvel[0] = 2.f * SimdAsin (qrel[0]);
-	angvel[1] = 2.f * SimdAsin (qrel[1]);
-	angvel[2] = 2.f * SimdAsin (qrel[2]);
+	btVector3 angvel;
+	angvel[0] = 2.f * btAsin (qrel[0]);
+	angvel[1] = 2.f * btAsin (qrel[1]);
+	angvel[2] = 2.f * btAsin (qrel[2]);
 	
 	if (angvel.length() < SCREWEPSILON)
 	{
@@ -165,10 +165,10 @@ bool BU_CollisionPair::calcTimeOfImpact(
 	//Redon's version with concatenated transforms
 	m_screwing = BU_Screwing(linvel,angvel);
 	
-	SimdTransform w2s;
+	btTransform w2s;
 	m_screwing.LocalMatrix(w2s);
 
-	SimdTransform s2w;
+	btTransform s2w;
 	s2w = w2s.inverse();
 
 	//impactTransA = a2w;
@@ -176,7 +176,7 @@ bool BU_CollisionPair::calcTimeOfImpact(
 
 	bool hit = false;
 	
-	if (SimdFuzzyZero(m_screwing.GetS()) && SimdFuzzyZero(m_screwing.GetW()))
+	if (btFuzzyZero(m_screwing.GetS()) && btFuzzyZero(m_screwing.GetW()))
 	{
 		//W = 0 , S = 0 , no collision
 		//toi = 0;
@@ -185,7 +185,7 @@ bool BU_CollisionPair::calcTimeOfImpact(
 			const int numvertsB = m_convexB->GetNumVertices();
 			for (int v=0;v<numvertsB;v++)
 			{
-				SimdPoint3 pt;
+				btPoint3 pt;
 				m_convexB->GetVertex(v,pt);
 				pt = impactTransB * pt;
 				char buf[1000];
@@ -217,7 +217,7 @@ bool BU_CollisionPair::calcTimeOfImpact(
 	//for all edged in A check agains all edges in B
 	for (int ea = 0;ea < m_convexA->GetNumEdges();ea++)
 	{
-		SimdPoint3 pA0,pA1;
+		btPoint3 pA0,pA1;
 
 		m_convexA->GetEdge(ea,pA0,pA1);
 
@@ -231,7 +231,7 @@ bool BU_CollisionPair::calcTimeOfImpact(
 		for (int eb = 0; eb < numedgesB;eb++)
 		{
 			{
-				SimdPoint3 pB0,pB1;
+				btPoint3 pB0,pB1;
 				m_convexB->GetEdge(eb,pB0,pB1);
 
 				pB0= b2w * pB0;//in world space
@@ -241,12 +241,12 @@ bool BU_CollisionPair::calcTimeOfImpact(
 				pB1 = w2s * pB1;//in screwing space
 
 
-				SimdScalar lambda,mu;
+				btScalar lambda,mu;
 				
 				toiUnscaled = 1.;
 
-				SimdVector3 edgeDirA(pA1-pA0);
-				SimdVector3 edgeDirB(pB1-pB0);
+				btVector3 edgeDirA(pA1-pA0);
+				btVector3 edgeDirB(pB1-pB0);
 
 				if (edgeEdge.GetTimeOfImpact(m_screwing,pA0,edgeDirA,pB0,edgeDirB,toiUnscaled,lambda,mu))
 				{
@@ -258,10 +258,10 @@ bool BU_CollisionPair::calcTimeOfImpact(
 		
 							//inside check is already done by checking the mu and gamma !
 
-							SimdPoint3 vtx  = pA0+lambda * (pA1-pA0);
-							SimdPoint3 hitpt = m_screwing.InBetweenPosition(vtx,toiUnscaled);
+							btPoint3 vtx  = pA0+lambda * (pA1-pA0);
+							btPoint3 hitpt = m_screwing.InBetweenPosition(vtx,toiUnscaled);
 							
-							SimdPoint3 hitptWorld =   s2w * hitpt;
+							btPoint3 hitptWorld =   s2w * hitpt;
 							{
 
 								if (toiUnscaled < result.m_fraction)
@@ -269,7 +269,7 @@ bool BU_CollisionPair::calcTimeOfImpact(
 
 								hit = true;
 
-								SimdVector3 hitNormal = edgeDirB.cross(edgeDirA);
+								btVector3 hitNormal = edgeDirB.cross(edgeDirA);
 								
 								hitNormal = m_screwing.InBetweenVector(hitNormal,toiUnscaled);
 							
@@ -279,9 +279,9 @@ bool BU_CollisionPair::calcTimeOfImpact(
 								//an approximated normal can be calculated by taking the cross product of both edges
 								//take care of the sign !
 								
-								SimdVector3 hitNormalWorld = s2w.getBasis() * hitNormal ;
+								btVector3 hitNormalWorld = s2w.getBasis() * hitNormal ;
 						
-								SimdScalar dist = m_screwing.GetU().dot(hitNormalWorld);
+								btScalar dist = m_screwing.GetU().dot(hitNormalWorld);
 								if (dist > 0)
 									hitNormalWorld *= -1;
 								
@@ -312,7 +312,7 @@ bool BU_CollisionPair::calcTimeOfImpact(
 		//int v=3;
 
 		{
-			SimdPoint3 vtx;
+			btPoint3 vtx;
 			m_convexA->GetVertex(v,vtx);
 
 			vtx = a2w * vtx;//in world space
@@ -326,23 +326,23 @@ bool BU_CollisionPair::calcTimeOfImpact(
 
 				{
 				
-					SimdVector3 planeNorm;
-					SimdPoint3 planeSupport;
+					btVector3 planeNorm;
+					btPoint3 planeSupport;
 
 					m_convexB->GetPlane(planeNorm,planeSupport,p);
 
 
 					planeSupport = b2w * planeSupport;//transform to world space
-					SimdVector3 planeNormWorld =  b2w.getBasis() * planeNorm;
+					btVector3 planeNormWorld =  b2w.getBasis() * planeNorm;
 				
 					planeSupport =  w2s * planeSupport  ; //transform to screwing space
 					planeNorm =  w2s.getBasis() * planeNormWorld;
 
 					planeNorm.normalize();
 
-					SimdScalar d = planeSupport.dot(planeNorm);
+					btScalar d = planeSupport.dot(planeNorm);
 					
-					SimdVector4 planeEq(planeNorm[0],planeNorm[1],planeNorm[2],d);
+					btVector4 planeEq(planeNorm[0],planeNorm[1],planeNorm[2],d);
 				
 					BU_VertexPoly vtxApolyB;
 
@@ -368,11 +368,11 @@ bool BU_CollisionPair::calcTimeOfImpact(
 							{
 	//							printf("toiUnscaled %f\n",toiUnscaled );
 
-								SimdPoint3 hitpt = m_screwing.InBetweenPosition(vtx,toiUnscaled);
-								SimdVector3 hitNormal = m_screwing.InBetweenVector(planeNorm ,toiUnscaled);
+								btPoint3 hitpt = m_screwing.InBetweenPosition(vtx,toiUnscaled);
+								btVector3 hitNormal = m_screwing.InBetweenVector(planeNorm ,toiUnscaled);
 
-								SimdVector3 hitNormalWorld = s2w.getBasis() * hitNormal ;
-								SimdPoint3 hitptWorld = s2w * hitpt;
+								btVector3 hitNormalWorld = s2w.getBasis() * hitNormal ;
+								btPoint3 hitptWorld = s2w * hitpt;
 
 
 								hitpt = b2winv * hitptWorld;
@@ -408,7 +408,7 @@ bool BU_CollisionPair::calcTimeOfImpact(
 		//int v=0;
 
 		{
-			SimdPoint3 vtx;
+			btPoint3 vtx;
 			m_convexB->GetVertex(v,vtx);
 
 			vtx = b2w * vtx;//in world space
@@ -436,23 +436,23 @@ bool BU_CollisionPair::calcTimeOfImpact(
 			{
 
 				{
-					SimdVector3 planeNorm;
-					SimdPoint3 planeSupport;
+					btVector3 planeNorm;
+					btPoint3 planeSupport;
 
 					m_convexA->GetPlane(planeNorm,planeSupport,p);
 
 
 					planeSupport = a2w * planeSupport;//transform to world space
-					SimdVector3 planeNormWorld =  a2w.getBasis() * planeNorm;
+					btVector3 planeNormWorld =  a2w.getBasis() * planeNorm;
 				
 					planeSupport =  w2s * planeSupport  ; //transform to screwing space
 					planeNorm =  w2s.getBasis() * planeNormWorld;
 
 					planeNorm.normalize();
 
-					SimdScalar d = planeSupport.dot(planeNorm);
+					btScalar d = planeSupport.dot(planeNorm);
 					
-					SimdVector4 planeEq(planeNorm[0],planeNorm[1],planeNorm[2],d);
+					btVector4 planeEq(planeNorm[0],planeNorm[1],planeNorm[2],d);
 				
 					BU_VertexPoly vtxBpolyA;
 
@@ -464,15 +464,15 @@ bool BU_CollisionPair::calcTimeOfImpact(
 						{
 							if (toiUnscaled < toiUnscaledLimit)
 							{
-								SimdPoint3 hitpt = m_screwing.InBetweenPosition( vtx , -toiUnscaled);
-								SimdVector3 hitNormal = m_screwing.InBetweenVector(-planeNorm ,-toiUnscaled);
-								//SimdScalar len =  hitNormal.length()-1;
+								btPoint3 hitpt = m_screwing.InBetweenPosition( vtx , -toiUnscaled);
+								btVector3 hitNormal = m_screwing.InBetweenVector(-planeNorm ,-toiUnscaled);
+								//btScalar len =  hitNormal.length()-1;
 
-								//assert( SimdFuzzyZero(len) );
+								//assert( btFuzzyZero(len) );
 
 								
-								SimdVector3 hitNormalWorld = s2w.getBasis() * hitNormal ;
-								SimdPoint3 hitptWorld = s2w * hitpt;
+								btVector3 hitNormalWorld = s2w.getBasis() * hitNormal ;
+								btPoint3 hitptWorld = s2w * hitpt;
 								hitpt = a2winv * hitptWorld;
 							
 							
@@ -522,19 +522,19 @@ bool BU_CollisionPair::calcTimeOfImpact(
 		} else
 		{
 
-			//SimdScalar vel = linearMotionB.length();
+			//btScalar vel = linearMotionB.length();
 			
 			//todo: check this margin
 			result.m_fraction *= 0.99f;
 
 			//move B to new position
 			impactTransB.setOrigin(b2w.getOrigin()+ result.m_fraction*linearMotionB);
-			SimdQuaternion ornB = b2w.getRotation()+angularMotionB*result.m_fraction;
+			btQuaternion ornB = b2w.getRotation()+angularMotionB*result.m_fraction;
 			ornB.normalize();
 			impactTransB.setRotation(ornB);
 
 			//now transform A
-			SimdTransform a2s,a2b;
+			btTransform a2s,a2b;
 			a2s.mult( w2s , a2w);
 			a2s= m_screwing.InBetweenTransform(a2s,result.m_fraction);
 			a2s.multInverseLeft(w2s,a2s);
@@ -543,10 +543,10 @@ bool BU_CollisionPair::calcTimeOfImpact(
 			//transform by motion B
 			impactTransA.mult(impactTransB, a2b);
 			//normalize rotation
-			SimdQuaternion orn;
+			btQuaternion orn;
 			impactTransA.getBasis().getRotation(orn);
 			orn.normalize();
-			impactTransA.setBasis(SimdMatrix3x3(orn));
+			impactTransA.setBasis(btMatrix3x3(orn));
 		}
 	}
 
@@ -555,7 +555,7 @@ bool BU_CollisionPair::calcTimeOfImpact(
 		const int numvertsB = m_convexB->GetNumVertices();
 		for (int v=0;v<numvertsB;v++)
 		{
-			SimdPoint3 pt;
+			btPoint3 pt;
 			m_convexB->GetVertex(v,pt);
 			pt = impactTransB * pt;
 			char buf[1000];
