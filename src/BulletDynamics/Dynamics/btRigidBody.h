@@ -42,22 +42,22 @@ extern float gAngularSleepingTreshold;
 class btRigidBody  : public btCollisionObject
 {
 
-	SimdMatrix3x3	m_invInertiaTensorWorld;
-	SimdVector3		m_linearVelocity;
-	SimdVector3		m_angularVelocity;
-	SimdScalar		m_inverseMass;
+	btMatrix3x3	m_invInertiaTensorWorld;
+	btVector3		m_linearVelocity;
+	btVector3		m_angularVelocity;
+	btScalar		m_inverseMass;
 
-	SimdVector3		m_gravity;	
-	SimdVector3		m_invInertiaLocal;
-	SimdVector3		m_totalForce;
-	SimdVector3		m_totalTorque;
+	btVector3		m_gravity;	
+	btVector3		m_invInertiaLocal;
+	btVector3		m_totalForce;
+	btVector3		m_totalTorque;
 	
-	SimdScalar		m_linearDamping;
-	SimdScalar		m_angularDamping;
+	btScalar		m_linearDamping;
+	btScalar		m_angularDamping;
 	
-	SimdScalar		m_kinematicTimeStep;
+	btScalar		m_kinematicTimeStep;
 
-	BroadphaseProxy*	m_broadphaseProxy;
+	btBroadphaseProxy*	m_broadphaseProxy;
 
 public:
 

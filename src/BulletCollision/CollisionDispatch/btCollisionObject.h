@@ -34,8 +34,8 @@ class	btCollisionShape;
 struct	btCollisionObject
 {
 	btTransform	m_worldTransform;
-	BroadphaseProxy*	m_broadphaseHandle;
-	CollisionShape*		m_collisionShape;
+	btBroadphaseProxy*	m_broadphaseHandle;
+	btCollisionShape*		m_collisionShape;
 
 	//m_interpolationWorldTransform is used for CCD and interpolation
 	//it can be either previous or future (predicted) transform
