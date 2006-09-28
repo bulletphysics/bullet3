@@ -164,6 +164,10 @@ SOURCE=..\..\src\BulletCollision\CollisionDispatch\btSimulationIslandManager.cpp
 # End Source File
 # Begin Source File
 
+SOURCE=..\..\src\BulletCollision\CollisionDispatch\btSphereBoxCollisionAlgorithm.cpp
+# End Source File
+# Begin Source File
+
 SOURCE=..\..\src\BulletCollision\CollisionDispatch\btSphereSphereCollisionAlgorithm.cpp
 # End Source File
 # Begin Source File
@@ -373,6 +377,10 @@ SOURCE=..\..\src\BulletCollision\CollisionDispatch\btManifoldResult.h
 # Begin Source File
 
 SOURCE=..\..\src\BulletCollision\CollisionDispatch\btSimulationIslandManager.h
+# End Source File
+# Begin Source File
+
+SOURCE=..\..\src\BulletCollision\CollisionDispatch\btSphereBoxCollisionAlgorithm.h
 # End Source File
 # Begin Source File
 

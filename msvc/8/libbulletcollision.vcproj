@@ -207,6 +207,9 @@
 				RelativePath="..\..\src\BulletCollision\CollisionDispatch\btSimulationIslandManager.cpp">
 			</File>
 			<File
+				RelativePath="..\..\src\BulletCollision\CollisionDispatch\btSphereBoxCollisionAlgorithm.cpp">
+			</File>
+			<File
 				RelativePath="..\..\src\BulletCollision\CollisionDispatch\btSphereSphereCollisionAlgorithm.cpp">
 			</File>
 			<File
@@ -365,6 +368,9 @@
 			</File>
 			<File
 				RelativePath="..\..\src\BulletCollision\CollisionDispatch\btSimulationIslandManager.h">
+			</File>
+			<File
+				RelativePath="..\..\src\BulletCollision\CollisionDispatch\btSphereBoxCollisionAlgorithm.h">
 			</File>
 			<File
 				RelativePath="..\..\src\BulletCollision\CollisionDispatch\btSphereSphereCollisionAlgorithm.h">
