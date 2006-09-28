@@ -52,7 +52,7 @@ ${BULLET_PHYSICS_SOURCE_DIR}/src ${BULLET_PHYSICS_SOURCE_DIR}/Demos/OpenGL ${BUL
 )
 
 LINK_LIBRARIES(
-LibCcdPhysicsInterface LibOpenGLSupport LibBulletDynamics LibPhysicsCommonInterface LibBulletCollision LibLinearMath    ${GLUT_glut_LIBRARY} ${OPENGL_gl_LIBRARY} ${OPENGL_glU_LIBRARY}
+LibOpenGLSupport LibCcdPhysicsInterface LibBulletDynamics LibPhysicsCommonInterface LibBulletCollision LibLinearMath    ${GLUT_glut_LIBRARY} ${OPENGL_gl_LIBRARY} ${OPENGL_glU_LIBRARY}
 )
 
 ADD_EXECUTABLE(CcdPhysicsDemo
