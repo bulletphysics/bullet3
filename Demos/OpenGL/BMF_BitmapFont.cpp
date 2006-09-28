@@ -64,7 +64,7 @@ BMF_BitmapFont::~BMF_BitmapFont(void)
 }
 
 
-void BMF_BitmapFont::DrawString(const char* str)
+void BMF_BitmapFont::drawString(const char* str)
 {
 	if (!str)
 		return;
@@ -93,7 +93,7 @@ void BMF_BitmapFont::DrawString(const char* str)
 }
 
 
-int BMF_BitmapFont::GetStringWidth(char* str)
+int BMF_BitmapFont::getStringWidth(char* str)
 {
 	unsigned char c;
 	int length = 0;
@@ -105,7 +105,7 @@ int BMF_BitmapFont::GetStringWidth(char* str)
 	return length;
 }
 
-void BMF_BitmapFont::GetBoundingBox(int & xMin, int & yMin, int & xMax, int & yMax)
+void BMF_BitmapFont::getBoundingBox(int & xMin, int & yMin, int & xMax, int & yMax)
 {
 	xMin = m_fontData->xmin;
 	yMin = m_fontData->ymin;
@@ -113,7 +113,7 @@ void BMF_BitmapFont::GetBoundingBox(int & xMin, int & yMin, int & xMax, int & yM
 	yMax = m_fontData->ymax;
 }
 
-int BMF_BitmapFont::GetTexture()
+int BMF_BitmapFont::getTexture()
 {
 	int fWidth = m_fontData->xmax - m_fontData->xmin;
 	int fHeight = m_fontData->ymax - m_fontData->ymin;
@@ -174,7 +174,7 @@ int BMF_BitmapFont::GetTexture()
 	return texId;
 }
 
-void BMF_BitmapFont::DrawStringTexture(char *str, float x, float y, float z)
+void BMF_BitmapFont::drawStringTexture(char *str, float x, float y, float z)
 {
 	unsigned char c;
 	float pos = 0;

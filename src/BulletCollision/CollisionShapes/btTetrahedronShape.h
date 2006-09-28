@@ -38,37 +38,37 @@ public:
 	btBU_Simplex1to4(const btPoint3& pt0,const btPoint3& pt1,const btPoint3& pt2,const btPoint3& pt3);
 
     
-	void	Reset()
+	void	reset()
 	{
 		m_numVertices = 0;
 	}
 	
 
-	virtual int	GetShapeType() const{ return TETRAHEDRAL_SHAPE_PROXYTYPE; }
+	virtual int	getShapeType() const{ return TETRAHEDRAL_SHAPE_PROXYTYPE; }
 
-	void AddVertex(const btPoint3& pt);
+	void addVertex(const btPoint3& pt);
 
 	//PolyhedralConvexShape interface
 
-	virtual int	GetNumVertices() const;
+	virtual int	getNumVertices() const;
 
-	virtual int GetNumEdges() const;
+	virtual int getNumEdges() const;
 
-	virtual void GetEdge(int i,btPoint3& pa,btPoint3& pb) const;
+	virtual void getEdge(int i,btPoint3& pa,btPoint3& pb) const;
 	
-	virtual void GetVertex(int i,btPoint3& vtx) const;
+	virtual void getVertex(int i,btPoint3& vtx) const;
 
-	virtual int	GetNumPlanes() const;
+	virtual int	getNumPlanes() const;
 
-	virtual void GetPlane(btVector3& planeNormal,btPoint3& planeSupport,int i) const;
+	virtual void getPlane(btVector3& planeNormal,btPoint3& planeSupport,int i) const;
 
-	virtual int GetIndex(int i) const;
+	virtual int getIndex(int i) const;
 
-	virtual	bool IsInside(const btPoint3& pt,btScalar tolerance) const;
+	virtual	bool isInside(const btPoint3& pt,btScalar tolerance) const;
 
 
-	///GetName is for debugging
-	virtual  char*	GetName()const { return "btBU_Simplex1to4";}
+	///getName is for debugging
+	virtual  char*	getName()const { return "btBU_Simplex1to4";}
 
 };
 

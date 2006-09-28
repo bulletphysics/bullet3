@@ -36,7 +36,7 @@ btOverlappingPairCache::~btOverlappingPairCache()
 }
 
 
-void	btOverlappingPairCache::RemoveOverlappingPair(btBroadphasePair& findPair)
+void	btOverlappingPairCache::removeOverlappingPair(btBroadphasePair& findPair)
 {
 	
 	std::set<btBroadphasePair>::iterator it = m_overlappingPairSet.find(findPair);
@@ -46,13 +46,13 @@ void	btOverlappingPairCache::RemoveOverlappingPair(btBroadphasePair& findPair)
 	{
 		gOverlappingPairs--;
 		btBroadphasePair* pair = (btBroadphasePair*)(&(*it));
-		CleanOverlappingPair(*pair);	
+		cleanOverlappingPair(*pair);	
 		m_overlappingPairSet.erase(it);
 	}
 }
 
 
-void	btOverlappingPairCache::CleanOverlappingPair(btBroadphasePair& pair)
+void	btOverlappingPairCache::cleanOverlappingPair(btBroadphasePair& pair)
 {
 	for (int dispatcherId=0;dispatcherId<SIMPLE_MAX_ALGORITHMS;dispatcherId++)
 	{
@@ -70,12 +70,12 @@ void	btOverlappingPairCache::CleanOverlappingPair(btBroadphasePair& pair)
 
 
 
-void	btOverlappingPairCache::AddOverlappingPair(btBroadphaseProxy* proxy0,btBroadphaseProxy* proxy1)
+void	btOverlappingPairCache::addOverlappingPair(btBroadphaseProxy* proxy0,btBroadphaseProxy* proxy1)
 {
 	//don't add overlap with own
 	assert(proxy0 != proxy1);
 
-	if (!NeedsCollision(proxy0,proxy1))
+	if (!needsCollision(proxy0,proxy1))
 		return;
 
 
@@ -86,13 +86,13 @@ void	btOverlappingPairCache::AddOverlappingPair(btBroadphaseProxy* proxy0,btBroa
 	
 }
 
-///this FindPair becomes really slow. Either sort the list to speedup the query, or
+///this findPair becomes really slow. Either sort the list to speedup the query, or
 ///use a different solution. It is mainly used for Removing overlapping pairs. Removal could be delayed.
 ///we could keep a linked list in each proxy, and store pair in one of the proxies (with lowest memory address)
 ///Also we can use a 2D bitmap, which can be useful for a future GPU implementation
- btBroadphasePair*	btOverlappingPairCache::FindPair(btBroadphaseProxy* proxy0,btBroadphaseProxy* proxy1)
+ btBroadphasePair*	btOverlappingPairCache::findPair(btBroadphaseProxy* proxy0,btBroadphaseProxy* proxy1)
 {
-	if (!NeedsCollision(proxy0,proxy1))
+	if (!needsCollision(proxy0,proxy1))
 		return 0;
 
 	btBroadphasePair tmpPair(*proxy0,*proxy1);
@@ -109,7 +109,7 @@ void	btOverlappingPairCache::AddOverlappingPair(btBroadphaseProxy* proxy0,btBroa
 
 
 
-void	btOverlappingPairCache::CleanProxyFromPairs(btBroadphaseProxy* proxy)
+void	btOverlappingPairCache::cleanProxyFromPairs(btBroadphaseProxy* proxy)
 {
 
 	class	CleanPairCallback : public btOverlapCallback
@@ -123,12 +123,12 @@ void	btOverlappingPairCache::CleanProxyFromPairs(btBroadphaseProxy* proxy)
 			m_pairCache(pairCache)
 		{
 		}
-		virtual	bool	ProcessOverlap(btBroadphasePair& pair)
+		virtual	bool	processOverlap(btBroadphasePair& pair)
 		{
 			if ((pair.m_pProxy0 == m_cleanProxy) ||
 				(pair.m_pProxy1 == m_cleanProxy))
 			{
-				m_pairCache->CleanOverlappingPair(pair);
+				m_pairCache->cleanOverlappingPair(pair);
 			}
 			return false;
 		}
@@ -137,13 +137,13 @@ void	btOverlappingPairCache::CleanProxyFromPairs(btBroadphaseProxy* proxy)
 
 	CleanPairCallback cleanPairs(proxy,this);
 
-	ProcessAllOverlappingPairs(&cleanPairs);
+	processAllOverlappingPairs(&cleanPairs);
 
 }
 
 
 
-void	btOverlappingPairCache::RemoveOverlappingPairsContainingProxy(btBroadphaseProxy* proxy)
+void	btOverlappingPairCache::removeOverlappingPairsContainingProxy(btBroadphaseProxy* proxy)
 {
 
 	class	RemovePairCallback : public btOverlapCallback
@@ -155,7 +155,7 @@ void	btOverlappingPairCache::RemoveOverlappingPairsContainingProxy(btBroadphaseP
 			:m_obsoleteProxy(obsoleteProxy)
 		{
 		}
-		virtual	bool	ProcessOverlap(btBroadphasePair& pair)
+		virtual	bool	processOverlap(btBroadphasePair& pair)
 		{
 			return ((pair.m_pProxy0 == m_obsoleteProxy) ||
 				(pair.m_pProxy1 == m_obsoleteProxy));
@@ -166,21 +166,21 @@ void	btOverlappingPairCache::RemoveOverlappingPairsContainingProxy(btBroadphaseP
 
 	RemovePairCallback removeCallback(proxy);
 
-	ProcessAllOverlappingPairs(&removeCallback);
+	processAllOverlappingPairs(&removeCallback);
 }
 
 
 
-void	btOverlappingPairCache::ProcessAllOverlappingPairs(btOverlapCallback* callback)
+void	btOverlappingPairCache::processAllOverlappingPairs(btOverlapCallback* callback)
 {
 	std::set<btBroadphasePair>::iterator it = m_overlappingPairSet.begin();
 	for (; !(it==m_overlappingPairSet.end());)
 	{
 	
 		btBroadphasePair* pair = (btBroadphasePair*)(&(*it));
-		if (callback->ProcessOverlap(*pair))
+		if (callback->processOverlap(*pair))
 		{
-			CleanOverlappingPair(*pair);
+			cleanOverlappingPair(*pair);
 
 			std::set<btBroadphasePair>::iterator it2 = it;
 			//why does next line not compile under OS X??

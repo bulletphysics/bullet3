@@ -13,13 +13,13 @@ public:
 
 	GLDebugDrawer();
 
-	virtual void	DrawLine(const btVector3& from,const btVector3& to,const btVector3& color);
+	virtual void	drawLine(const btVector3& from,const btVector3& to,const btVector3& color);
 
-	virtual void	DrawContactPoint(const btVector3& PointOnB,const btVector3& normalOnB,float distance,int lifeTime,const btVector3& color);
+	virtual void	drawContactPoint(const btVector3& PointOnB,const btVector3& normalOnB,float distance,int lifeTime,const btVector3& color);
 
-	virtual void	SetDebugMode(int debugMode);
+	virtual void	setDebugMode(int debugMode);
 
-	virtual int		GetDebugMode() const { return m_debugMode;}
+	virtual int		getDebugMode() const { return m_debugMode;}
 
 };
 

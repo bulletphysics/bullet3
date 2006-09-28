@@ -22,7 +22,7 @@ subject to the following restrictions:
 #include <vector>
 
 ///ConvexHullShape implements an implicit (getSupportingVertex) Convex Hull of a Point Cloud (vertices)
-///No connectivity is needed. LocalGetSupportingVertex iterates linearly though all vertices.
+///No connectivity is needed. localGetSupportingVertex iterates linearly though all vertices.
 ///on modern hardware, due to cache coherency this isn't that bad. Complex algorithms tend to trash the cash.
 ///(memory is much slower then the cpu)
 class btConvexHullShape : public btPolyhedralConvexShape
@@ -32,28 +32,28 @@ class btConvexHullShape : public btPolyhedralConvexShape
 public:
 	btConvexHullShape(btPoint3* points,int numPoints, int stride=sizeof(btPoint3));
 
-	void AddPoint(const btPoint3& point)
+	void addPoint(const btPoint3& point)
 	{
 		m_points.push_back(point);
 	}
-	virtual btVector3	LocalGetSupportingVertex(const btVector3& vec)const;
-	virtual btVector3	LocalGetSupportingVertexWithoutMargin(const btVector3& vec)const;
-	virtual void	BatchedUnitVectorGetSupportingVertexWithoutMargin(const btVector3* vectors,btVector3* supportVerticesOut,int numVectors) const;
+	virtual btVector3	localGetSupportingVertex(const btVector3& vec)const;
+	virtual btVector3	localGetSupportingVertexWithoutMargin(const btVector3& vec)const;
+	virtual void	batchedUnitVectorGetSupportingVertexWithoutMargin(const btVector3* vectors,btVector3* supportVerticesOut,int numVectors) const;
 	
 
-	virtual int	GetShapeType()const { return CONVEX_HULL_SHAPE_PROXYTYPE; }
+	virtual int	getShapeType()const { return CONVEX_HULL_SHAPE_PROXYTYPE; }
 
 	//debugging
-	virtual char*	GetName()const {return "Convex";}
+	virtual char*	getName()const {return "Convex";}
 
 	
-	virtual int	GetNumVertices() const;
-	virtual int GetNumEdges() const;
-	virtual void GetEdge(int i,btPoint3& pa,btPoint3& pb) const;
-	virtual void GetVertex(int i,btPoint3& vtx) const;
-	virtual int	GetNumPlanes() const;
-	virtual void GetPlane(btVector3& planeNormal,btPoint3& planeSupport,int i ) const;
-	virtual	bool IsInside(const btPoint3& pt,btScalar tolerance) const;
+	virtual int	getNumVertices() const;
+	virtual int getNumEdges() const;
+	virtual void getEdge(int i,btPoint3& pa,btPoint3& pb) const;
+	virtual void getVertex(int i,btPoint3& vtx) const;
+	virtual int	getNumPlanes() const;
+	virtual void getPlane(btVector3& planeNormal,btPoint3& planeSupport,int i ) const;
+	virtual	bool isInside(const btPoint3& pt,btScalar tolerance) const;
 
 
 

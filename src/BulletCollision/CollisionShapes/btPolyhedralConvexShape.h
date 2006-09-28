@@ -30,22 +30,22 @@ public:
 	btPolyhedralConvexShape();
 
 	//brute force implementations
-	virtual btVector3	LocalGetSupportingVertexWithoutMargin(const btVector3& vec)const;
-	virtual void	BatchedUnitVectorGetSupportingVertexWithoutMargin(const btVector3* vectors,btVector3* supportVerticesOut,int numVectors) const;
+	virtual btVector3	localGetSupportingVertexWithoutMargin(const btVector3& vec)const;
+	virtual void	batchedUnitVectorGetSupportingVertexWithoutMargin(const btVector3* vectors,btVector3* supportVerticesOut,int numVectors) const;
 	
-	virtual void	CalculateLocalInertia(btScalar mass,btVector3& inertia);
+	virtual void	calculateLocalInertia(btScalar mass,btVector3& inertia);
 
 
 
-	virtual int	GetNumVertices() const = 0 ;
-	virtual int GetNumEdges() const = 0;
-	virtual void GetEdge(int i,btPoint3& pa,btPoint3& pb) const = 0;
-	virtual void GetVertex(int i,btPoint3& vtx) const = 0;
-	virtual int	GetNumPlanes() const = 0;
-	virtual void GetPlane(btVector3& planeNormal,btPoint3& planeSupport,int i ) const = 0;
-//	virtual int GetIndex(int i) const = 0 ; 
+	virtual int	getNumVertices() const = 0 ;
+	virtual int getNumEdges() const = 0;
+	virtual void getEdge(int i,btPoint3& pa,btPoint3& pb) const = 0;
+	virtual void getVertex(int i,btPoint3& vtx) const = 0;
+	virtual int	getNumPlanes() const = 0;
+	virtual void getPlane(btVector3& planeNormal,btPoint3& planeSupport,int i ) const = 0;
+//	virtual int getIndex(int i) const = 0 ; 
 
-	virtual	bool IsInside(const btPoint3& pt,btScalar tolerance) const = 0;
+	virtual	bool isInside(const btPoint3& pt,btScalar tolerance) const = 0;
 	
 	/// optional Hull is for optional Separating Axis Test Hull collision detection, see Hull.cpp
 	class	Hull*	m_optionalHull;

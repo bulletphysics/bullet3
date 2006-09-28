@@ -72,7 +72,7 @@ void	btDiscreteDynamicsWorld::stepSimulation(float timeStep)
 	predictUnconstraintMotion(timeStep);
 
 	///perform collision detection
-	PerformDiscreteCollisionDetection();
+	performDiscreteCollisionDetection();
 
 	calculateSimulationIslands();
 
@@ -104,7 +104,7 @@ void	btDiscreteDynamicsWorld::updateVehicles(float timeStep)
 	for (int i=0;i<m_vehicles.size();i++)
 	{
 		btRaycastVehicle* vehicle = m_vehicles[i];
-		vehicle->UpdateVehicle( timeStep);
+		vehicle->updateVehicle( timeStep);
 	}
 }
 
@@ -184,7 +184,7 @@ void	btDiscreteDynamicsWorld::solveContactConstraints(btContactSolverInfo& solve
 
 		virtual	void	ProcessIsland(btPersistentManifold**	manifolds,int numManifolds)
 		{
-			m_solver->SolveGroup( manifolds, numManifolds,m_solverInfo,m_debugDrawer);
+			m_solver->solveGroup( manifolds, numManifolds,m_solverInfo,m_debugDrawer);
 		}
 
 	};
@@ -194,7 +194,7 @@ void	btDiscreteDynamicsWorld::solveContactConstraints(btContactSolverInfo& solve
 
 	
 	/// solve all the contact points and contact friction
-	m_islandManager->BuildAndProcessIslands(GetCollisionWorld()->GetDispatcher(),GetCollisionWorld()->GetCollisionObjectArray(),&solverCallback);
+	m_islandManager->buildAndProcessIslands(getCollisionWorld()->getDispatcher(),getCollisionWorld()->getCollisionObjectArray(),&solverCallback);
 
 
 }
@@ -203,7 +203,7 @@ void	btDiscreteDynamicsWorld::solveContactConstraints(btContactSolverInfo& solve
 void	btDiscreteDynamicsWorld::solveNoncontactConstraints(btContactSolverInfo& solverInfo)
 {
 	#ifdef USE_QUICKPROF
-	Profiler::beginBlock("SolveConstraint");
+	Profiler::beginBlock("solveConstraint");
 #endif //USE_QUICKPROF
 
 
@@ -215,7 +215,7 @@ void	btDiscreteDynamicsWorld::solveNoncontactConstraints(btContactSolverInfo& so
 	for (i=0;i< numConstraints ; i++ )
 	{
 		btTypedConstraint* constraint = m_constraints[i];
-		constraint->BuildJacobian();
+		constraint->buildJacobian();
 	}
 
 	//solve the regular non-contact constraints (point 2 point, hinge, generic d6)
@@ -227,12 +227,12 @@ void	btDiscreteDynamicsWorld::solveNoncontactConstraints(btContactSolverInfo& so
 		for (i=0;i< numConstraints ; i++ )
 		{
 			btTypedConstraint* constraint = m_constraints[i];
-			constraint->SolveConstraint( solverInfo.m_timeStep );
+			constraint->solveConstraint( solverInfo.m_timeStep );
 		}
 	}
 
 #ifdef USE_QUICKPROF
-	Profiler::endBlock("SolveConstraint");
+	Profiler::endBlock("solveConstraint");
 #endif //USE_QUICKPROF
 
 }
@@ -244,7 +244,7 @@ void	btDiscreteDynamicsWorld::calculateSimulationIslands()
 	Profiler::beginBlock("IslandUnionFind");
 #endif //USE_QUICKPROF
 
-	GetSimulationIslandManager()->UpdateActivationState(GetCollisionWorld(),GetCollisionWorld()->GetDispatcher());
+	getSimulationIslandManager()->updateActivationState(getCollisionWorld(),getCollisionWorld()->getDispatcher());
 
 	{
 		int i;
@@ -253,8 +253,8 @@ void	btDiscreteDynamicsWorld::calculateSimulationIslands()
 		{
 			btTypedConstraint* constraint = m_constraints[i];
 
-			const btRigidBody* colObj0 = &constraint->GetRigidBodyA();
-			const btRigidBody* colObj1 = &constraint->GetRigidBodyB();
+			const btRigidBody* colObj0 = &constraint->getRigidBodyA();
+			const btRigidBody* colObj1 = &constraint->getRigidBodyB();
 
 			if (((colObj0) && ((colObj0)->mergesSimulationIslands())) &&
 				((colObj1) && ((colObj1)->mergesSimulationIslands())))
@@ -262,7 +262,7 @@ void	btDiscreteDynamicsWorld::calculateSimulationIslands()
 				if (colObj0->IsActive() || colObj1->IsActive())
 				{
 
-					GetSimulationIslandManager()->GetUnionFind().unite((colObj0)->m_islandTag1,
+					getSimulationIslandManager()->getUnionFind().unite((colObj0)->m_islandTag1,
 						(colObj1)->m_islandTag1);
 				}
 			}
@@ -270,7 +270,7 @@ void	btDiscreteDynamicsWorld::calculateSimulationIslands()
 	}
 
 	//Store the island id in each body
-	GetSimulationIslandManager()->StoreIslandActivationState(GetCollisionWorld());
+	getSimulationIslandManager()->storeIslandActivationState(getCollisionWorld());
 
 #ifdef USE_QUICKPROF
 	Profiler::endBlock("IslandUnionFind");
@@ -290,9 +290,9 @@ void	btDiscreteDynamicsWorld::updateAabbs()
 			if (body->IsActive() && (!body->IsStatic()))
 			{
 				btPoint3 minAabb,maxAabb;
-				colObj->m_collisionShape->GetAabb(colObj->m_worldTransform, minAabb,maxAabb);
+				colObj->m_collisionShape->getAabb(colObj->m_worldTransform, minAabb,maxAabb);
 				btSimpleBroadphase* bp = (btSimpleBroadphase*)m_pairCache;
-				bp->SetAabb(body->m_broadphaseHandle,minAabb,maxAabb);
+				bp->setAabb(body->m_broadphaseHandle,minAabb,maxAabb);
 			}
 		}
 	}

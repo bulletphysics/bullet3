@@ -119,14 +119,14 @@ public:
 
 //	ObjectType GetObjectType() const {return kTypeHull;}
 
-	short GetNumVertices() const;
+	short getNumVertices() const;
 	short GetNumFaces() const;
-	short GetNumEdges() const;
+	short getNumEdges() const;
 
-	const Point3& GetVertex(short index) const;
+	const Point3& getVertex(short index) const;
 	const Face& GetFace(short index) const;
-	const Edge& GetEdge(short index) const;
-	const Plane& GetPlane(short index) const;
+	const Edge& getEdge(short index) const;
+	const Plane& getPlane(short index) const;
 
 	short GetFaceFirstEdge(short face) const;
 	short GetFaceNextEdge(short face, short prevEdge) const;

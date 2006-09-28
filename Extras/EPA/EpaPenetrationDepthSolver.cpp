@@ -39,7 +39,7 @@ subject to the following restrictions:
 btScalar	g_GJKMaxRelError = 1e-3f;
 btScalar	g_GJKMaxRelErrorSqrd = g_GJKMaxRelError * g_GJKMaxRelError;
 
-bool EpaPenetrationDepthSolver::CalcPenDepth( btSimplexSolverInterface& simplexSolver,
+bool EpaPenetrationDepthSolver::calcPenDepth( btSimplexSolverInterface& simplexSolver,
 											  btConvexShape* pConvexA, btConvexShape* pConvexB,
 											  const btTransform& transformA, const btTransform& transformB,
 											  btVector3& v, btPoint3& wWitnessOnA, btPoint3& wWitnessOnB,
@@ -79,7 +79,7 @@ bool EpaPenetrationDepthSolver::HybridPenDepth( btSimplexSolverInterface& simple
 	btScalar squaredDistance = SIMD_INFINITY;
 	btScalar delta = 0.f;
 
-	const btScalar margin     = pConvexA->GetMargin() + pConvexB->GetMargin();
+	const btScalar margin     = pConvexA->getMargin() + pConvexB->getMargin();
 	const btScalar marginSqrd = margin * margin;
 
 	simplexSolver.reset();
@@ -93,8 +93,8 @@ bool EpaPenetrationDepthSolver::HybridPenDepth( btSimplexSolverInterface& simple
 		btVector3 seperatingAxisInA = -v * transformA.getBasis();
 		btVector3 seperatingAxisInB =  v * transformB.getBasis();
 
-		btVector3 pInA = pConvexA->LocalGetSupportingVertexWithoutMargin( seperatingAxisInA );
-		btVector3 qInB = pConvexB->LocalGetSupportingVertexWithoutMargin( seperatingAxisInB );
+		btVector3 pInA = pConvexA->localGetSupportingVertexWithoutMargin( seperatingAxisInA );
+		btVector3 qInB = pConvexB->localGetSupportingVertexWithoutMargin( seperatingAxisInB );
 
 		btPoint3  pWorld = transformA( pInA );
 		btPoint3  qWorld = transformB( qInB );
@@ -119,10 +119,10 @@ bool EpaPenetrationDepthSolver::HybridPenDepth( btSimplexSolverInterface& simple
 			assert( ( squaredDistance > 0 ) && "squaredDistance is zero!" );
 			btScalar vLength = sqrt( squaredDistance );
 
-			wWitnessOnA -= v * ( pConvexA->GetMargin() / vLength );
-			wWitnessOnB += v * ( pConvexB->GetMargin() / vLength );
+			wWitnessOnA -= v * ( pConvexA->getMargin() / vLength );
+			wWitnessOnB += v * ( pConvexB->getMargin() / vLength );
 
-			penDepth = pConvexA->GetMargin() + pConvexB->GetMargin() - vLength;
+			penDepth = pConvexA->getMargin() + pConvexB->getMargin() - vLength;
 
 			// Returning true means that Hybrid's result is ok and there's no need to run EPA
 			return true;
@@ -139,10 +139,10 @@ bool EpaPenetrationDepthSolver::HybridPenDepth( btSimplexSolverInterface& simple
 			assert( ( squaredDistance > 0 ) && "squaredDistance is zero!" );
 			btScalar vLength = sqrt( squaredDistance );
 
-			wWitnessOnA -= v * ( pConvexA->GetMargin() / vLength );
-			wWitnessOnB += v * ( pConvexB->GetMargin() / vLength );
+			wWitnessOnA -= v * ( pConvexA->getMargin() / vLength );
+			wWitnessOnB += v * ( pConvexB->getMargin() / vLength );
 
-			penDepth = pConvexA->GetMargin() + pConvexB->GetMargin() - vLength;
+			penDepth = pConvexA->getMargin() + pConvexB->getMargin() - vLength;
 
 			// Returning true means that Hybrid's result is ok and there's no need to run EPA
 			return true;
@@ -162,10 +162,10 @@ bool EpaPenetrationDepthSolver::HybridPenDepth( btSimplexSolverInterface& simple
 			assert( ( squaredDistance > 0 ) && "squaredDistance is zero!" );
 			btScalar vLength = sqrt( squaredDistance );
 
-			wWitnessOnA -= v * ( pConvexA->GetMargin() / vLength );
-			wWitnessOnB += v * ( pConvexB->GetMargin() / vLength );
+			wWitnessOnA -= v * ( pConvexA->getMargin() / vLength );
+			wWitnessOnB += v * ( pConvexB->getMargin() / vLength );
 
-			penDepth = pConvexA->GetMargin() + pConvexB->GetMargin() - vLength;
+			penDepth = pConvexA->getMargin() + pConvexB->getMargin() - vLength;
 
 			// Returning true means that Hybrid's result is ok and there's no need to run EPA
 			return true;
@@ -197,6 +197,6 @@ btScalar EpaPenetrationDepthSolver::EpaPenDepth( btSimplexSolverInterface& simpl
 		return 0;
 	}
 
-	return epa.CalcPenDepth( wWitnessOnA, wWitnessOnB );
+	return epa.calcPenDepth( wWitnessOnA, wWitnessOnB );
 }
 

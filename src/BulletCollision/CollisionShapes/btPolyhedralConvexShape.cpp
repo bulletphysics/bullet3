@@ -23,7 +23,7 @@ btPolyhedralConvexShape::btPolyhedralConvexShape()
 
 
 
-btVector3	btPolyhedralConvexShape::LocalGetSupportingVertexWithoutMargin(const btVector3& vec0)const
+btVector3	btPolyhedralConvexShape::localGetSupportingVertexWithoutMargin(const btVector3& vec0)const
 {
 	int i;
 	btVector3 supVec(0,0,0);
@@ -44,9 +44,9 @@ btVector3	btPolyhedralConvexShape::LocalGetSupportingVertexWithoutMargin(const b
 	btVector3 vtx;
 	btScalar newDot;
 
-	for (i=0;i<GetNumVertices();i++)
+	for (i=0;i<getNumVertices();i++)
 	{
-		GetVertex(i,vtx);
+		getVertex(i,vtx);
 		newDot = vec.dot(vtx);
 		if (newDot > maxDot)
 		{
@@ -59,7 +59,7 @@ btVector3	btPolyhedralConvexShape::LocalGetSupportingVertexWithoutMargin(const b
 
 }
 
-void	btPolyhedralConvexShape::BatchedUnitVectorGetSupportingVertexWithoutMargin(const btVector3* vectors,btVector3* supportVerticesOut,int numVectors) const
+void	btPolyhedralConvexShape::batchedUnitVectorGetSupportingVertexWithoutMargin(const btVector3* vectors,btVector3* supportVerticesOut,int numVectors) const
 {
 	int i;
 
@@ -76,9 +76,9 @@ void	btPolyhedralConvexShape::BatchedUnitVectorGetSupportingVertexWithoutMargin(
 	
 		const btVector3& vec = vectors[j];
 
-		for (i=0;i<GetNumVertices();i++)
+		for (i=0;i<getNumVertices();i++)
 		{
-			GetVertex(i,vtx);
+			getVertex(i,vtx);
 			newDot = vec.dot(vtx);
 			if (newDot > supportVerticesOut[j][3])
 			{
@@ -92,16 +92,16 @@ void	btPolyhedralConvexShape::BatchedUnitVectorGetSupportingVertexWithoutMargin(
 
 
 
-void	btPolyhedralConvexShape::CalculateLocalInertia(btScalar mass,btVector3& inertia)
+void	btPolyhedralConvexShape::calculateLocalInertia(btScalar mass,btVector3& inertia)
 {
 	//not yet, return box inertia
 
-	float margin = GetMargin();
+	float margin = getMargin();
 
 	btTransform ident;
 	ident.setIdentity();
 	btVector3 aabbMin,aabbMax;
-	GetAabb(ident,aabbMin,aabbMax);
+	getAabb(ident,aabbMin,aabbMax);
 	btVector3 halfExtents = (aabbMax-aabbMin)*0.5f;
 
 	btScalar lx=2.f*(halfExtents.x()+margin);

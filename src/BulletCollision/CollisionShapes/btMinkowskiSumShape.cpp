@@ -24,32 +24,32 @@ m_shapeB(shapeB)
 	m_transB.setIdentity();
 }
 
-btVector3 btMinkowskiSumShape::LocalGetSupportingVertexWithoutMargin(const btVector3& vec)const
+btVector3 btMinkowskiSumShape::localGetSupportingVertexWithoutMargin(const btVector3& vec)const
 {
-	btVector3 supVertexA = m_transA(m_shapeA->LocalGetSupportingVertexWithoutMargin(vec*m_transA.getBasis()));
-	btVector3 supVertexB = m_transB(m_shapeB->LocalGetSupportingVertexWithoutMargin(vec*m_transB.getBasis()));
+	btVector3 supVertexA = m_transA(m_shapeA->localGetSupportingVertexWithoutMargin(vec*m_transA.getBasis()));
+	btVector3 supVertexB = m_transB(m_shapeB->localGetSupportingVertexWithoutMargin(vec*m_transB.getBasis()));
 	return supVertexA + supVertexB;
 }
 
-void	btMinkowskiSumShape::BatchedUnitVectorGetSupportingVertexWithoutMargin(const btVector3* vectors,btVector3* supportVerticesOut,int numVectors) const
+void	btMinkowskiSumShape::batchedUnitVectorGetSupportingVertexWithoutMargin(const btVector3* vectors,btVector3* supportVerticesOut,int numVectors) const
 {
 	//todo: could make recursive use of batching. probably this shape is not used frequently.
 	for (int i=0;i<numVectors;i++)
 	{
-		supportVerticesOut[i] = LocalGetSupportingVertexWithoutMargin(vectors[i]);
+		supportVerticesOut[i] = localGetSupportingVertexWithoutMargin(vectors[i]);
 	}
 
 }
 
 
 
-float	btMinkowskiSumShape::GetMargin() const
+float	btMinkowskiSumShape::getMargin() const
 {
-	return m_shapeA->GetMargin() + m_shapeB->GetMargin();
+	return m_shapeA->getMargin() + m_shapeB->getMargin();
 }
 
 
-void	btMinkowskiSumShape::CalculateLocalInertia(btScalar mass,btVector3& inertia)
+void	btMinkowskiSumShape::calculateLocalInertia(btScalar mass,btVector3& inertia)
 {
 	assert(0);
 	inertia.setValue(0,0,0);

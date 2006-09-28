@@ -25,7 +25,7 @@ subject to the following restrictions:
 btTriangleMeshShape::btTriangleMeshShape(btStridingMeshInterface* meshInterface)
 : m_meshInterface(meshInterface)
 {
-	RecalcLocalAabb();
+	recalcLocalAabb();
 }
 
 
@@ -37,7 +37,7 @@ btTriangleMeshShape::~btTriangleMeshShape()
 
 
 
-void btTriangleMeshShape::GetAabb(const btTransform& trans,btVector3& aabbMin,btVector3& aabbMax) const
+void btTriangleMeshShape::getAabb(const btTransform& trans,btVector3& aabbMin,btVector3& aabbMax) const
 {
 
 	btVector3 localHalfExtents = 0.5f*(m_localAabbMax-m_localAabbMin);
@@ -50,7 +50,7 @@ void btTriangleMeshShape::GetAabb(const btTransform& trans,btVector3& aabbMin,bt
 	btVector3 extent = btVector3(abs_b[0].dot(localHalfExtents),
 		   abs_b[1].dot(localHalfExtents),
 		  abs_b[2].dot(localHalfExtents));
-	extent += btVector3(GetMargin(),GetMargin(),GetMargin());
+	extent += btVector3(getMargin(),getMargin(),getMargin());
 
 	aabbMin = center - extent;
 	aabbMax = center + extent;
@@ -58,16 +58,16 @@ void btTriangleMeshShape::GetAabb(const btTransform& trans,btVector3& aabbMin,bt
 	
 }
 
-void	btTriangleMeshShape::RecalcLocalAabb()
+void	btTriangleMeshShape::recalcLocalAabb()
 {
 	for (int i=0;i<3;i++)
 	{
 		btVector3 vec(0.f,0.f,0.f);
 		vec[i] = 1.f;
-		btVector3 tmp = LocalGetSupportingVertex(vec);
+		btVector3 tmp = localGetSupportingVertex(vec);
 		m_localAabbMax[i] = tmp[i]+m_collisionMargin;
 		vec[i] = -1.f;
-		tmp = LocalGetSupportingVertex(vec);
+		tmp = localGetSupportingVertex(vec);
 		m_localAabbMin[i] = tmp[i]-m_collisionMargin;
 	}
 }
@@ -91,7 +91,7 @@ public:
 		m_supportVecLocal = supportVecWorld * m_worldTrans.getBasis();
 	}
 
-	virtual void ProcessTriangle( btVector3* triangle,int partId, int triangleIndex)
+	virtual void processTriangle( btVector3* triangle,int partId, int triangleIndex)
 	{
 		for (int i=0;i<3;i++)
 		{
@@ -120,7 +120,7 @@ public:
 void btTriangleMeshShape::setLocalScaling(const btVector3& scaling)
 {
 	m_meshInterface->setScaling(scaling);
-	RecalcLocalAabb();
+	recalcLocalAabb();
 }
 
 const btVector3& btTriangleMeshShape::getLocalScaling() const
@@ -136,7 +136,7 @@ const btVector3& btTriangleMeshShape::getLocalScaling() const
 //#define DEBUG_TRIANGLE_MESH
 
 
-void	btTriangleMeshShape::ProcessAllTriangles(btTriangleCallback* callback,const btVector3& aabbMin,const btVector3& aabbMax) const
+void	btTriangleMeshShape::processAllTriangles(btTriangleCallback* callback,const btVector3& aabbMin,const btVector3& aabbMax) const
 {
 
 	struct FilteredCallback : public btInternalTriangleIndexCallback
@@ -152,12 +152,12 @@ void	btTriangleMeshShape::ProcessAllTriangles(btTriangleCallback* callback,const
 		{
 		}
 
-		virtual void InternalProcessTriangleIndex(btVector3* triangle,int partId,int triangleIndex)
+		virtual void internalProcessTriangleIndex(btVector3* triangle,int partId,int triangleIndex)
 		{
 			if (TestTriangleAgainstAabb2(&triangle[0],m_aabbMin,m_aabbMax))
 			{
 				//check aabb in triangle-space, before doing this
-				m_callback->ProcessTriangle(triangle,partId,triangleIndex);
+				m_callback->processTriangle(triangle,partId,triangleIndex);
 			}
 			
 		}
@@ -174,7 +174,7 @@ void	btTriangleMeshShape::ProcessAllTriangles(btTriangleCallback* callback,const
 
 
 
-void	btTriangleMeshShape::CalculateLocalInertia(btScalar mass,btVector3& inertia)
+void	btTriangleMeshShape::calculateLocalInertia(btScalar mass,btVector3& inertia)
 {
 	//moving concave objects not supported
 	assert(0);
@@ -182,7 +182,7 @@ void	btTriangleMeshShape::CalculateLocalInertia(btScalar mass,btVector3& inertia
 }
 
 
-btVector3 btTriangleMeshShape::LocalGetSupportingVertex(const btVector3& vec) const
+btVector3 btTriangleMeshShape::localGetSupportingVertex(const btVector3& vec) const
 {
 	btVector3 supportVertex;
 
@@ -193,7 +193,7 @@ btVector3 btTriangleMeshShape::LocalGetSupportingVertex(const btVector3& vec) co
 
 	btVector3 aabbMax(1e30f,1e30f,1e30f);
 	
-	ProcessAllTriangles(&supportCallback,-aabbMax,aabbMax);
+	processAllTriangles(&supportCallback,-aabbMax,aabbMax);
 		
 	supportVertex = supportCallback.GetSupportVertexLocal();
 

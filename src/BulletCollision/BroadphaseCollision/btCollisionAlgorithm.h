@@ -32,7 +32,7 @@ struct btCollisionAlgorithmConstructionInfo
 
 	btDispatcher*	m_dispatcher;
 
-	int	GetDispatcherId();
+	int	getDispatcherId();
 
 };
 
@@ -47,7 +47,7 @@ protected:
 	btDispatcher*	m_dispatcher;
 
 protected:
-	int	GetDispatcherId();
+	int	getDispatcherId();
 	
 public:
 
@@ -57,9 +57,9 @@ public:
 
 	virtual ~btCollisionAlgorithm() {};
 
-	virtual void ProcessCollision (btBroadphaseProxy* proxy0,btBroadphaseProxy* proxy1,const struct btDispatcherInfo& dispatchInfo) = 0;
+	virtual void processCollision (btBroadphaseProxy* proxy0,btBroadphaseProxy* proxy1,const struct btDispatcherInfo& dispatchInfo) = 0;
 
-	virtual float CalculateTimeOfImpact(btBroadphaseProxy* proxy0,btBroadphaseProxy* proxy1,const struct btDispatcherInfo& dispatchInfo) = 0;
+	virtual float calculateTimeOfImpact(btBroadphaseProxy* proxy0,btBroadphaseProxy* proxy1,const struct btDispatcherInfo& dispatchInfo) = 0;
 
 };
 

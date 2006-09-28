@@ -40,7 +40,7 @@ class Epa
 
 		bool				Initialize( btSimplexSolverInterface& simplexSolver );
 
-		btScalar			CalcPenDepth( btPoint3& wWitnessOnA, btPoint3& wWitnessOnB );
+		btScalar			calcPenDepth( btPoint3& wWitnessOnA, btPoint3& wWitnessOnB );
 
 	private :
 

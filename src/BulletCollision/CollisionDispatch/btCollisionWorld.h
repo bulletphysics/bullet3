@@ -44,7 +44,8 @@ subject to the following restrictions:
  * The Dependencies can be seen in this documentation under Directories
  * 
  * @subsection step4 Step 4: Integrating in your application, Full Rigid Body Simulation
- * Check out CcdPhysicsDemo how to create a CcdPhysicsEnvironment , btCollisionShape and btRigidBody, Stepping the simulation and synchronizing your derived version of the PHY_IMotionState class.
+ * Check out CcdPhysicsDemo how to create a btDynamicsWorld, btRigidBody and btCollisionShape, Stepping the simulation and synchronizing your graphics object transform.
+ * PLEASE NOTE THE CcdPhysicsEnvironment and CcdPhysicsController is obsolete and will be removed. It has been replaced by classes derived frmo btDynamicsWorld and btRididBody
  * @subsection step5 Step 5 : Integrate the Collision Detection Library (without Dynamics and other Extras)
  * Bullet Collision Detection can also be used without the Dynamics/Extras.
  * Check out btCollisionWorld and btCollisionObject, and the CollisionInterfaceDemo. Also in Extras/test_BulletOde.cpp there is a sample Collision Detection integration with Open Dynamics Engine, ODE, http://www.ode.org
@@ -101,18 +102,18 @@ public:
 	virtual ~btCollisionWorld();
 
 
-	btBroadphaseInterface*	GetBroadphase()
+	btBroadphaseInterface*	getBroadphase()
 	{
 		return m_pairCache;
 	}
 
-	btOverlappingPairCache*	GetPairCache()
+	btOverlappingPairCache*	getPairCache()
 	{
 		return m_pairCache;
 	}
 
 
-	btDispatcher*	GetDispatcher()
+	btDispatcher*	getDispatcher()
 	{
 		return m_dispatcher1;
 	}
@@ -200,40 +201,40 @@ public:
 
 	
 
-	int	GetNumCollisionObjects() const
+	int	getNumCollisionObjects() const
 	{
 		return m_collisionObjects.size();
 	}
 
-	/// RayTest performs a raycast on all objects in the btCollisionWorld, and calls the resultCallback
+	/// rayTest performs a raycast on all objects in the btCollisionWorld, and calls the resultCallback
 	/// This allows for several queries: first hit, all hits, any hit, dependent on the value returned by the callback.
-	void	RayTest(const btVector3& rayFromWorld, const btVector3& rayToWorld, RayResultCallback& resultCallback);
+	void	rayTest(const btVector3& rayFromWorld, const btVector3& rayToWorld, RayResultCallback& resultCallback);
 
-	/// RayTestSingle performs a raycast call and calls the resultCallback. It is used internally by RayTest.
+	/// rayTestSingle performs a raycast call and calls the resultCallback. It is used internally by rayTest.
 	/// In a future implementation, we consider moving the ray test as a virtual method in btCollisionShape.
 	/// This allows more customization.
-	void	RayTestSingle(const btTransform& rayFromTrans,const btTransform& rayToTrans,
+	void	rayTestSingle(const btTransform& rayFromTrans,const btTransform& rayToTrans,
 					  btCollisionObject* collisionObject,
 					  const btCollisionShape* collisionShape,
 					  const btTransform& colObjWorldTransform,
 					  RayResultCallback& resultCallback);
 
-	void	AddCollisionObject(btCollisionObject* collisionObject,short int collisionFilterGroup=1,short int collisionFilterMask=1);
+	void	addCollisionObject(btCollisionObject* collisionObject,short int collisionFilterGroup=1,short int collisionFilterMask=1);
 
-	btCollisionObjectArray& GetCollisionObjectArray()
+	btCollisionObjectArray& getCollisionObjectArray()
 	{
 		return m_collisionObjects;
 	}
 
-	const btCollisionObjectArray& GetCollisionObjectArray() const
+	const btCollisionObjectArray& getCollisionObjectArray() const
 	{
 		return m_collisionObjects;
 	}
 
 
-	void	RemoveCollisionObject(btCollisionObject* collisionObject);
+	void	removeCollisionObject(btCollisionObject* collisionObject);
 
-	virtual void	PerformDiscreteCollisionDetection();
+	virtual void	performDiscreteCollisionDetection();
 
 };
 

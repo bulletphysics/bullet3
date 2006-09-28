@@ -49,9 +49,9 @@ class btPersistentManifold
 
 	
 	/// sort cached points so most isolated points come first
-	int	SortCachedPoints(const btManifoldPoint& pt);
+	int	sortCachedPoints(const btManifoldPoint& pt);
 
-	int		FindContactPoint(const btManifoldPoint* unUsed, int numUnused,const btManifoldPoint& pt);
+	int		findContactPoint(const btManifoldPoint* unUsed, int numUnused,const btManifoldPoint& pt);
 
 public:
 
@@ -64,72 +64,72 @@ public:
 	{
 	}
 
-	inline void* GetBody0() { return m_body0;}
-	inline void* GetBody1() { return m_body1;}
+	inline void* getBody0() { return m_body0;}
+	inline void* getBody1() { return m_body1;}
 
-	inline const void* GetBody0() const { return m_body0;}
-	inline const void* GetBody1() const { return m_body1;}
+	inline const void* getBody0() const { return m_body0;}
+	inline const void* getBody1() const { return m_body1;}
 
-	void	SetBodies(void* body0,void* body1)
+	void	setBodies(void* body0,void* body1)
 	{
 		m_body0 = body0;
 		m_body1 = body1;
 	}
 
-	void ClearUserCache(btManifoldPoint& pt);
+	void clearUserCache(btManifoldPoint& pt);
 
 #ifdef DEBUG_PERSISTENCY
 	void	DebugPersistency();
 #endif //
 	
-	inline int	GetNumContacts() const { return m_cachedPoints;}
+	inline int	getNumContacts() const { return m_cachedPoints;}
 
-	inline const btManifoldPoint& GetContactPoint(int index) const
+	inline const btManifoldPoint& getContactPoint(int index) const
 	{
 		ASSERT(index < m_cachedPoints);
 		return m_pointCache[index];
 	}
 
-	inline btManifoldPoint& GetContactPoint(int index)
+	inline btManifoldPoint& getContactPoint(int index)
 	{
 		ASSERT(index < m_cachedPoints);
 		return m_pointCache[index];
 	}
 
 	/// todo: get this margin from the current physics / collision environment
-	float	GetContactBreakingTreshold() const;
+	float	getContactBreakingTreshold() const;
 	
-	int GetCacheEntry(const btManifoldPoint& newPoint) const;
+	int getCacheEntry(const btManifoldPoint& newPoint) const;
 
 	void AddManifoldPoint( const btManifoldPoint& newPoint);
 
-	void RemoveContactPoint (int index)
+	void removeContactPoint (int index)
 	{
-		ClearUserCache(m_pointCache[index]);
+		clearUserCache(m_pointCache[index]);
 
-		int lastUsedIndex = GetNumContacts() - 1;
+		int lastUsedIndex = getNumContacts() - 1;
 		m_pointCache[index] = m_pointCache[lastUsedIndex];
 		//get rid of duplicated userPersistentData pointer
 		m_pointCache[lastUsedIndex].m_userPersistentData = 0;
 		m_cachedPoints--;
 	}
-	void ReplaceContactPoint(const btManifoldPoint& newPoint,int insertIndex)
+	void replaceContactPoint(const btManifoldPoint& newPoint,int insertIndex)
 	{
-		assert(ValidContactDistance(newPoint));
+		assert(validContactDistance(newPoint));
 
-		ClearUserCache(m_pointCache[insertIndex]);
+		clearUserCache(m_pointCache[insertIndex]);
 		
 		m_pointCache[insertIndex] = newPoint;
 	}
 
-	bool ValidContactDistance(const btManifoldPoint& pt) const
+	bool validContactDistance(const btManifoldPoint& pt) const
 	{
-		return pt.m_distance1 <= GetContactBreakingTreshold();
+		return pt.m_distance1 <= getContactBreakingTreshold();
 	}
 	/// calculated new worldspace coordinates and depth, and reject points that exceed the collision margin
-	void	RefreshContactPoints(  const btTransform& trA,const btTransform& trB);
+	void	refreshContactPoints(  const btTransform& trA,const btTransform& trB);
 
-	void	ClearManifold();
+	void	clearManifold();
 
 
 

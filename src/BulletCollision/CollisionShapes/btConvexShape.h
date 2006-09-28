@@ -36,23 +36,23 @@ class btConvexShape : public btCollisionShape
 public:
 	btConvexShape();
 
-	virtual btVector3	LocalGetSupportingVertex(const btVector3& vec)const;
-	virtual btVector3	LocalGetSupportingVertexWithoutMargin(const btVector3& vec) const= 0;
+	virtual btVector3	localGetSupportingVertex(const btVector3& vec)const;
+	virtual btVector3	localGetSupportingVertexWithoutMargin(const btVector3& vec) const= 0;
 	
 	//notice that the vectors should be unit length
-	virtual void	BatchedUnitVectorGetSupportingVertexWithoutMargin(const btVector3* vectors,btVector3* supportVerticesOut,int numVectors) const= 0;
+	virtual void	batchedUnitVectorGetSupportingVertexWithoutMargin(const btVector3* vectors,btVector3* supportVerticesOut,int numVectors) const= 0;
 
 	// testing for hullnode code
 
-	///GetAabb's default implementation is brute force, expected derived classes to implement a fast dedicated version
-	void GetAabb(const btTransform& t,btVector3& aabbMin,btVector3& aabbMax) const
+	///getAabb's default implementation is brute force, expected derived classes to implement a fast dedicated version
+	void getAabb(const btTransform& t,btVector3& aabbMin,btVector3& aabbMax) const
 	{
-		GetAabbSlow(t,aabbMin,aabbMax);
+		getAabbSlow(t,aabbMin,aabbMax);
 	}
 
 
 	
-	virtual void GetAabbSlow(const btTransform& t,btVector3& aabbMin,btVector3& aabbMax) const;
+	virtual void getAabbSlow(const btTransform& t,btVector3& aabbMin,btVector3& aabbMax) const;
 
 
 	virtual void	setLocalScaling(const btVector3& scaling);
@@ -62,11 +62,11 @@ public:
 	}
 
 
-	virtual void	SetMargin(float margin)
+	virtual void	setMargin(float margin)
 	{
 		m_collisionMargin = margin;
 	}
-	virtual float	GetMargin() const
+	virtual float	getMargin() const
 	{
 		return m_collisionMargin;
 	}

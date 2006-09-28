@@ -69,7 +69,7 @@ m_erp(0.4f)
 
 
 //iterative lcp and penalty method
-float OdeConstraintSolver::SolveGroup(btPersistentManifold** manifoldPtr, int numManifolds,const btContactSolverInfo& infoGlobal,btIDebugDraw* debugDrawer)
+float OdeConstraintSolver::solveGroup(btPersistentManifold** manifoldPtr, int numManifolds,const btContactSolverInfo& infoGlobal,btIDebugDraw* debugDrawer)
 {
 	m_CurBody = 0;
 	m_CurJoint = 0;
@@ -87,10 +87,10 @@ float OdeConstraintSolver::SolveGroup(btPersistentManifold** manifoldPtr, int nu
 		int body0=-1,body1=-1;
 
 		btPersistentManifold* manifold = manifoldPtr[j];
-		if (manifold->GetNumContacts() > 0)
+		if (manifold->getNumContacts() > 0)
 		{
-			body0 = ConvertBody((btRigidBody*)manifold->GetBody0(),bodies,numBodies);
-			body1 = ConvertBody((btRigidBody*)manifold->GetBody1(),bodies,numBodies);
+			body0 = ConvertBody((btRigidBody*)manifold->getBody0(),bodies,numBodies);
+			body1 = ConvertBody((btRigidBody*)manifold->getBody1(),bodies,numBodies);
 			ConvertConstraint(manifold,joints,numJoints,bodies,body0,body1,debugDrawer);
 		}
 	}
@@ -199,12 +199,12 @@ void OdeConstraintSolver::ConvertConstraint(btPersistentManifold* manifold,BU_Jo
 {
 
 
-	manifold->RefreshContactPoints(((btRigidBody*)manifold->GetBody0())->getCenterOfMassTransform(),
-		((btRigidBody*)manifold->GetBody1())->getCenterOfMassTransform());
+	manifold->refreshContactPoints(((btRigidBody*)manifold->getBody0())->getCenterOfMassTransform(),
+		((btRigidBody*)manifold->getBody1())->getCenterOfMassTransform());
 
 	int bodyId0 = _bodyId0,bodyId1 = _bodyId1;
 
-	int i,numContacts = manifold->GetNumContacts();
+	int i,numContacts = manifold->getNumContacts();
 	
 	bool swapBodies = (bodyId0 < 0);
 
@@ -216,13 +216,13 @@ void OdeConstraintSolver::ConvertConstraint(btPersistentManifold* manifold,BU_Jo
 		bodyId0 = _bodyId1;
 		bodyId1 = _bodyId0;
 
-		body0 = (btRigidBody*)manifold->GetBody1();
-		body1 = (btRigidBody*)manifold->GetBody0();
+		body0 = (btRigidBody*)manifold->getBody1();
+		body1 = (btRigidBody*)manifold->getBody0();
 
 	} else
 	{
-		body0 = (btRigidBody*)manifold->GetBody0();
-		body1 = (btRigidBody*)manifold->GetBody1();
+		body0 = (btRigidBody*)manifold->getBody0();
+		body1 = (btRigidBody*)manifold->getBody1();
 	}
 
 	assert(bodyId0 >= 0);
@@ -233,19 +233,19 @@ void OdeConstraintSolver::ConvertConstraint(btPersistentManifold* manifold,BU_Jo
 
 		if (debugDrawer)
 		{
-			const btManifoldPoint& cp = manifold->GetContactPoint(i);
+			const btManifoldPoint& cp = manifold->getContactPoint(i);
 
-			debugDrawer->DrawContactPoint(
+			debugDrawer->drawContactPoint(
 				cp.m_positionWorldOnB,
 				cp.m_normalWorldOnB,
-				cp.GetDistance(),
-				cp.GetLifeTime(),
+				cp.getDistance(),
+				cp.getLifeTime(),
 				color);
 
 		}
 		assert (m_CurJoint < MAX_JOINTS_1);
 
-//		if (manifold->GetContactPoint(i).GetDistance() < 0.0f)
+//		if (manifold->getContactPoint(i).getDistance() < 0.0f)
 		{
 			ContactJoint* cont = new (&gJointArray[m_CurJoint++]) ContactJoint( manifold ,i, swapBodies,body0,body1);
 

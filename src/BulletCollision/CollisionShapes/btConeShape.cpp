@@ -31,7 +31,7 @@ m_height(height)
 }
 
 
-btVector3 btConeShape::ConeLocalSupport(const btVector3& v) const
+btVector3 btConeShape::coneLocalSupport(const btVector3& v) const
 {
 	
 	float halfHeight = m_height * 0.5f;
@@ -66,25 +66,25 @@ btVector3 btConeShape::ConeLocalSupport(const btVector3& v) const
 
 }
 
-btVector3	btConeShape::LocalGetSupportingVertexWithoutMargin(const btVector3& vec) const
+btVector3	btConeShape::localGetSupportingVertexWithoutMargin(const btVector3& vec) const
 {
-		return ConeLocalSupport(vec);
+		return coneLocalSupport(vec);
 }
 
-void	btConeShape::BatchedUnitVectorGetSupportingVertexWithoutMargin(const btVector3* vectors,btVector3* supportVerticesOut,int numVectors) const
+void	btConeShape::batchedUnitVectorGetSupportingVertexWithoutMargin(const btVector3* vectors,btVector3* supportVerticesOut,int numVectors) const
 {
 	for (int i=0;i<numVectors;i++)
 	{
 		const btVector3& vec = vectors[i];
-		supportVerticesOut[i] = ConeLocalSupport(vec);
+		supportVerticesOut[i] = coneLocalSupport(vec);
 	}
 }
 
 
-btVector3	btConeShape::LocalGetSupportingVertex(const btVector3& vec)  const
+btVector3	btConeShape::localGetSupportingVertex(const btVector3& vec)  const
 {
-	btVector3 supVertex = ConeLocalSupport(vec);
-	if ( GetMargin()!=0.f )
+	btVector3 supVertex = coneLocalSupport(vec);
+	if ( getMargin()!=0.f )
 	{
 		btVector3 vecnorm = vec;
 		if (vecnorm .length2() < (SIMD_EPSILON*SIMD_EPSILON))
@@ -92,7 +92,7 @@ btVector3	btConeShape::LocalGetSupportingVertex(const btVector3& vec)  const
 			vecnorm.setValue(-1.f,-1.f,-1.f);
 		} 
 		vecnorm.normalize();
-		supVertex+= GetMargin() * vecnorm;
+		supVertex+= getMargin() * vecnorm;
 	}
 	return supVertex;
 }

@@ -49,7 +49,7 @@ bool	btSubsimplexConvexCast::calcTimeOfImpact(
 
 	m_simplexSolver->reset();
 
-	convex->SetTransformB(btTransform(rayFromLocalA.getBasis()));
+	convex->setTransformB(btTransform(rayFromLocalA.getBasis()));
 
 	//float radius = 0.01f;
 
@@ -61,7 +61,7 @@ bool	btSubsimplexConvexCast::calcTimeOfImpact(
 	btVector3 r = -(rayToLocalA.getOrigin()-rayFromLocalA.getOrigin());
 	btVector3 x = s;
 	btVector3 v;
-	btVector3 arbitraryPoint = convex->LocalGetSupportingVertex(r);
+	btVector3 arbitraryPoint = convex->localGetSupportingVertex(r);
 	
 	v = x - arbitraryPoint;
 
@@ -83,7 +83,7 @@ bool	btSubsimplexConvexCast::calcTimeOfImpact(
 	
 	while ( (dist2 > epsilon) && maxIter--)
 	{
-		p = convex->LocalGetSupportingVertex( v);
+		p = convex->localGetSupportingVertex( v);
 		 w = x - p;
 
 		float VdotW = v.dot(w);

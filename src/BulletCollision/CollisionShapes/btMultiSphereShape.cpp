@@ -30,14 +30,14 @@ btMultiSphereShape::btMultiSphereShape (const btVector3& inertiaHalfExtents,cons
 		if (radi[i] < m_minRadius)
 			m_minRadius = radi[i];
 	}
-	SetMargin(m_minRadius);
+	setMargin(m_minRadius);
 
 }
 
 
 
  
- btVector3	btMultiSphereShape::LocalGetSupportingVertexWithoutMargin(const btVector3& vec0)const
+ btVector3	btMultiSphereShape::localGetSupportingVertexWithoutMargin(const btVector3& vec0)const
 {
 	int i;
 	btVector3 supVec(0,0,0);
@@ -79,7 +79,7 @@ btMultiSphereShape::btMultiSphereShape (const btVector3& inertiaHalfExtents,cons
 
 }
 
- void	btMultiSphereShape::BatchedUnitVectorGetSupportingVertexWithoutMargin(const btVector3* vectors,btVector3* supportVerticesOut,int numVectors) const
+ void	btMultiSphereShape::batchedUnitVectorGetSupportingVertexWithoutMargin(const btVector3* vectors,btVector3* supportVerticesOut,int numVectors) const
 {
 
 	for (int j=0;j<numVectors;j++)
@@ -116,7 +116,7 @@ btMultiSphereShape::btMultiSphereShape (const btVector3& inertiaHalfExtents,cons
 
 
 
-void	btMultiSphereShape::CalculateLocalInertia(btScalar mass,btVector3& inertia)
+void	btMultiSphereShape::calculateLocalInertia(btScalar mass,btVector3& inertia)
 {
 	//as an approximation, take the inertia of the box that bounds the spheres
 
@@ -124,7 +124,7 @@ void	btMultiSphereShape::CalculateLocalInertia(btScalar mass,btVector3& inertia)
 	ident.setIdentity();
 //	btVector3 aabbMin,aabbMax;
 
-//	GetAabb(ident,aabbMin,aabbMax);
+//	getAabb(ident,aabbMin,aabbMax);
 
 	btVector3 halfExtents = m_inertiaHalfExtents;//(aabbMax - aabbMin)* 0.5f;
 

@@ -24,12 +24,12 @@ btSphereShape ::btSphereShape (btScalar radius)
 {	
 }
 
-btVector3	btSphereShape::LocalGetSupportingVertexWithoutMargin(const btVector3& vec)const
+btVector3	btSphereShape::localGetSupportingVertexWithoutMargin(const btVector3& vec)const
 {
 	return btVector3(0.f,0.f,0.f);
 }
 
-void	btSphereShape::BatchedUnitVectorGetSupportingVertexWithoutMargin(const btVector3* vectors,btVector3* supportVerticesOut,int numVectors) const
+void	btSphereShape::batchedUnitVectorGetSupportingVertexWithoutMargin(const btVector3* vectors,btVector3* supportVerticesOut,int numVectors) const
 {
 	for (int i=0;i<numVectors;i++)
 	{
@@ -38,10 +38,10 @@ void	btSphereShape::BatchedUnitVectorGetSupportingVertexWithoutMargin(const btVe
 }
 
 
-btVector3	btSphereShape::LocalGetSupportingVertex(const btVector3& vec)const
+btVector3	btSphereShape::localGetSupportingVertex(const btVector3& vec)const
 {
 	btVector3 supVertex;
-	supVertex = LocalGetSupportingVertexWithoutMargin(vec);
+	supVertex = localGetSupportingVertexWithoutMargin(vec);
 
 	btVector3 vecnorm = vec;
 	if (vecnorm .length2() < (SIMD_EPSILON*SIMD_EPSILON))
@@ -49,25 +49,25 @@ btVector3	btSphereShape::LocalGetSupportingVertex(const btVector3& vec)const
 		vecnorm.setValue(-1.f,-1.f,-1.f);
 	} 
 	vecnorm.normalize();
-	supVertex+= GetMargin() * vecnorm;
+	supVertex+= getMargin() * vecnorm;
 	return supVertex;
 }
 
 
 //broken due to scaling
-void btSphereShape::GetAabb(const btTransform& t,btVector3& aabbMin,btVector3& aabbMax) const
+void btSphereShape::getAabb(const btTransform& t,btVector3& aabbMin,btVector3& aabbMax) const
 {
 	const btVector3& center = t.getOrigin();
-	btVector3 extent(GetMargin(),GetMargin(),GetMargin());
+	btVector3 extent(getMargin(),getMargin(),getMargin());
 	aabbMin = center - extent;
 	aabbMax = center + extent;
 }
 
 
 
-void	btSphereShape::CalculateLocalInertia(btScalar mass,btVector3& inertia)
+void	btSphereShape::calculateLocalInertia(btScalar mass,btVector3& inertia)
 {
-	btScalar elem = 0.4f * mass * GetMargin()*GetMargin();
+	btScalar elem = 0.4f * mass * getMargin()*getMargin();
 	inertia[0] = inertia[1] = inertia[2] = elem;
 
 }

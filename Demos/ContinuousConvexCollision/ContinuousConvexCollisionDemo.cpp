@@ -110,12 +110,12 @@ void	btContinuousConvexCollisionDemo::initPhysics()
 	shapePtr[0] = boxA;
 	shapePtr[1] = boxB;
 
-	shapePtr[0]->SetMargin(0.01f);
-	shapePtr[1]->SetMargin(0.01f);
+	shapePtr[0]->setMargin(0.01f);
+	shapePtr[1]->setMargin(0.01f);
 
 	for (int i=0;i<numObjects;i++)
 	{
-		btTransformUtil::CalculateVelocity(fromTrans[i],toTrans[i],1.f,linVels[i],angVels[i]);
+		btTransformUtil::calculateVelocity(fromTrans[i],toTrans[i],1.f,linVels[i],angVels[i]);
 	}
 
 }
@@ -144,7 +144,7 @@ void btContinuousConvexCollisionDemo::displayCallback(void) {
     glClear(GL_COLOR_BUFFER_BIT | GL_DEPTH_BUFFER_BIT); 
 	glDisable(GL_LIGHTING);
 
-	//GL_ShapeDrawer::DrawCoordSystem();
+	//GL_ShapeDrawer::drawCoordSystem();
 
 	float m[16];
 	int i;
@@ -152,7 +152,7 @@ void btContinuousConvexCollisionDemo::displayCallback(void) {
 	/*for (i=0;i<numObjects;i++)
 	{
 		fromTrans[i].getOpenGLMatrix( m );
-		GL_ShapeDrawer::DrawOpenGL(m,shapePtr[i]);
+		GL_ShapeDrawer::drawOpenGL(m,shapePtr[i]);
 	}
 */
 
@@ -168,16 +168,16 @@ void btContinuousConvexCollisionDemo::displayCallback(void) {
 				btScalar subStep = s * 1.f/(float)numSubSteps;
 				btTransform interpolatedTrans;
 				
-				btTransformUtil::IntegrateTransform(fromTrans[i],linVels[i],angVels[i],subStep,interpolatedTrans);
+				btTransformUtil::integrateTransform(fromTrans[i],linVels[i],angVels[i],subStep,interpolatedTrans);
 
 				//fromTrans[i].getOpenGLMatrix(m);
-				//GL_ShapeDrawer::DrawOpenGL(m,shapePtr[i]);
+				//GL_ShapeDrawer::drawOpenGL(m,shapePtr[i]);
 
 				//toTrans[i].getOpenGLMatrix(m);
-				//GL_ShapeDrawer::DrawOpenGL(m,shapePtr[i]);
+				//GL_ShapeDrawer::drawOpenGL(m,shapePtr[i]);
 
 				interpolatedTrans.getOpenGLMatrix( m );
-				GL_ShapeDrawer::DrawOpenGL(m,shapePtr[i],btVector3(1,0,1),getDebugMode());
+				GL_ShapeDrawer::drawOpenGL(m,shapePtr[i],btVector3(1,0,1),getDebugMode());
 			}
 		}
 	}
@@ -229,7 +229,7 @@ void btContinuousConvexCollisionDemo::displayCallback(void) {
 	for (i=0;i<numObjects;i++)
 	{	
 		fromTrans[i].getOpenGLMatrix(m);
-		GL_ShapeDrawer::DrawOpenGL(m,shapePtr[i],btVector3(1,1,1),getDebugMode());
+		GL_ShapeDrawer::drawOpenGL(m,shapePtr[i],btVector3(1,1,1),getDebugMode());
 	}
 
 	btDebugCastResult	rayResult1(fromTrans[0],shapePtr[0],linVels[0],angVels[0]);
@@ -264,15 +264,15 @@ void btContinuousConvexCollisionDemo::displayCallback(void) {
 			glDisable(GL_DEPTH_TEST);
 
 			btTransform hitTrans;
-			btTransformUtil::IntegrateTransform(fromTrans[0],linVels[0],angVels[0],rayResultPtr->m_fraction,hitTrans);
+			btTransformUtil::integrateTransform(fromTrans[0],linVels[0],angVels[0],rayResultPtr->m_fraction,hitTrans);
 
 			hitTrans.getOpenGLMatrix(m);
-			GL_ShapeDrawer::DrawOpenGL(m,shapePtr[0],btVector3(0,1,0),getDebugMode());
+			GL_ShapeDrawer::drawOpenGL(m,shapePtr[0],btVector3(0,1,0),getDebugMode());
 
-			btTransformUtil::IntegrateTransform(fromTrans[i],linVels[i],angVels[i],rayResultPtr->m_fraction,hitTrans);
+			btTransformUtil::integrateTransform(fromTrans[i],linVels[i],angVels[i],rayResultPtr->m_fraction,hitTrans);
 
 			hitTrans.getOpenGLMatrix(m);
-			GL_ShapeDrawer::DrawOpenGL(m,shapePtr[i],btVector3(0,1,1),getDebugMode());
+			GL_ShapeDrawer::drawOpenGL(m,shapePtr[i],btVector3(0,1,1),getDebugMode());
 	
 
 		}

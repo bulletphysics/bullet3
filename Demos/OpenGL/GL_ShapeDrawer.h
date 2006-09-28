@@ -23,8 +23,8 @@ class GL_ShapeDrawer
 {
 	public:
 
-		static 	void	DrawOpenGL(float* m, const btCollisionShape* shape, const btVector3& color,int	debugMode);
-		static void		DrawCoordSystem();
+		static 	void	drawOpenGL(float* m, const btCollisionShape* shape, const btVector3& color,int	debugMode);
+		static void		drawCoordSystem();
 		
 };
 

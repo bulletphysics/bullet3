@@ -30,7 +30,7 @@ struct	btIndexedMesh
 	};
 
 ///TriangleIndexVertexArray allows to use multiple meshes, by indexing into existing triangle/index arrays.
-///Additional meshes can be added using AddIndexedMesh
+///Additional meshes can be added using addIndexedMesh
 ///No duplcate is made of the vertex/index data, it only indexes into external vertex/index arrays.
 ///So keep those arrays around during the lifetime of this btTriangleIndexVertexArray.
 class btTriangleIndexVertexArray : public btStridingMeshInterface
@@ -49,7 +49,7 @@ public:
 	//just to be backwards compatible
 	btTriangleIndexVertexArray(int numTriangleIndices,int* triangleIndexBase,int triangleIndexStride,int numVertices,float* vertexBase,int vertexStride);
 	
-	void	AddIndexedMesh(const btIndexedMesh& mesh)
+	void	addIndexedMesh(const btIndexedMesh& mesh)
 	{
 		m_indexedMeshes.push_back(mesh);
 	}

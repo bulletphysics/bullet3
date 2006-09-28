@@ -41,17 +41,17 @@ public:
 	btMultiSphereShape (const btVector3& inertiaHalfExtents,const btVector3* positions,const btScalar* radi,int numSpheres);
 
 	///CollisionShape Interface
-	virtual void	CalculateLocalInertia(btScalar mass,btVector3& inertia);
+	virtual void	calculateLocalInertia(btScalar mass,btVector3& inertia);
 
 	/// btConvexShape Interface
-	virtual btVector3	LocalGetSupportingVertexWithoutMargin(const btVector3& vec)const;
+	virtual btVector3	localGetSupportingVertexWithoutMargin(const btVector3& vec)const;
 
-	virtual void	BatchedUnitVectorGetSupportingVertexWithoutMargin(const btVector3* vectors,btVector3* supportVerticesOut,int numVectors) const;
+	virtual void	batchedUnitVectorGetSupportingVertexWithoutMargin(const btVector3* vectors,btVector3* supportVerticesOut,int numVectors) const;
 	
 
-	virtual int	GetShapeType() const { return MULTI_SPHERE_SHAPE_PROXYTYPE; }
+	virtual int	getShapeType() const { return MULTI_SPHERE_SHAPE_PROXYTYPE; }
 
-	virtual char*	GetName()const 
+	virtual char*	getName()const 
 	{
 		return "MultiSphere";
 	}

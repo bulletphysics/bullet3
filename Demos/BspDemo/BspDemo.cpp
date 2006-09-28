@@ -60,7 +60,7 @@ public:
 	{
 	}
 
-		virtual void	AddConvexVerticesCollider(std::vector<btVector3>& vertices, bool isEntity, const btVector3& entityTargetLocation)
+		virtual void	addConvexVerticesCollider(std::vector<btVector3>& vertices, bool isEntity, const btVector3& entityTargetLocation)
 		{
 			///perhaps we can do something special with entities (isEntity)
 			///like adding a collision Triggering (as example)
@@ -76,7 +76,7 @@ public:
 				//this create an internal copy of the vertices
 				btCollisionShape* shape = new btConvexHullShape(&vertices[0],vertices.size());
 
-				m_demoApp->LocalCreatePhysicsObject(isDynamic, mass, startTransform,shape);
+				m_demoApp->localCreatePhysicsObject(isDynamic, mass, startTransform,shape);
 			}
 		}
 };
@@ -168,7 +168,7 @@ void	BspDemo::initPhysics(char* bspfilename)
 			//how to detect file size?
 			memoryBuffer = malloc(size+1);
 			fread(memoryBuffer,1,size,file);
-			bspLoader.LoadBSPFile( memoryBuffer);
+			bspLoader.loadBSPFile( memoryBuffer);
 
 			BspToBulletConverter bsp2bullet(this);
 			float bspScaling = 0.1f;

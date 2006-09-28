@@ -28,23 +28,23 @@ class btCylinderShape : public btBoxShape
 public:
 	btCylinderShape (const btVector3& halfExtents);
 	
-	///GetAabb's default implementation is brute force, expected derived classes to implement a fast dedicated version
-	void GetAabb(const btTransform& t,btVector3& aabbMin,btVector3& aabbMax) const
+	///getAabb's default implementation is brute force, expected derived classes to implement a fast dedicated version
+	void getAabb(const btTransform& t,btVector3& aabbMin,btVector3& aabbMax) const
 	{
-		GetAabbSlow(t,aabbMin,aabbMax);
+		getAabbSlow(t,aabbMin,aabbMax);
 	}
 
-	virtual btVector3	LocalGetSupportingVertexWithoutMargin(const btVector3& vec)const;
+	virtual btVector3	localGetSupportingVertexWithoutMargin(const btVector3& vec)const;
 
-	virtual void	BatchedUnitVectorGetSupportingVertexWithoutMargin(const btVector3* vectors,btVector3* supportVerticesOut,int numVectors) const;
+	virtual void	batchedUnitVectorGetSupportingVertexWithoutMargin(const btVector3* vectors,btVector3* supportVerticesOut,int numVectors) const;
 
-	virtual btVector3	LocalGetSupportingVertex(const btVector3& vec) const
+	virtual btVector3	localGetSupportingVertex(const btVector3& vec) const
 	{
 
 		btVector3 supVertex;
-		supVertex = LocalGetSupportingVertexWithoutMargin(vec);
+		supVertex = localGetSupportingVertexWithoutMargin(vec);
 		
-		if ( GetMargin()!=0.f )
+		if ( getMargin()!=0.f )
 		{
 			btVector3 vecnorm = vec;
 			if (vecnorm .length2() < (SIMD_EPSILON*SIMD_EPSILON))
@@ -52,32 +52,32 @@ public:
 				vecnorm.setValue(-1.f,-1.f,-1.f);
 			} 
 			vecnorm.normalize();
-			supVertex+= GetMargin() * vecnorm;
+			supVertex+= getMargin() * vecnorm;
 		}
 		return supVertex;
 	}
 
 
 	//use box inertia
-	//	virtual void	CalculateLocalInertia(btScalar mass,btVector3& inertia);
+	//	virtual void	calculateLocalInertia(btScalar mass,btVector3& inertia);
 
-	virtual int	GetShapeType() const
+	virtual int	getShapeType() const
 	{
 		return CYLINDER_SHAPE_PROXYTYPE;
 	}
 	
-	virtual int	GetUpAxis() const
+	virtual int	getUpAxis() const
 	{
 		return 1;
 	}
 
-	virtual float GetRadius() const
+	virtual float getRadius() const
 	{
-		return GetHalfExtents().getX();
+		return getHalfExtents().getX();
 	}
 
 	//debugging
-	virtual char*	GetName()const
+	virtual char*	getName()const
 	{
 		return "CylinderY";
 	}
@@ -91,21 +91,21 @@ class btCylinderShapeX : public btCylinderShape
 public:
 	btCylinderShapeX (const btVector3& halfExtents);
 
-	virtual btVector3	LocalGetSupportingVertexWithoutMargin(const btVector3& vec)const;
-	virtual void	BatchedUnitVectorGetSupportingVertexWithoutMargin(const btVector3* vectors,btVector3* supportVerticesOut,int numVectors) const;
-	virtual int	GetUpAxis() const
+	virtual btVector3	localGetSupportingVertexWithoutMargin(const btVector3& vec)const;
+	virtual void	batchedUnitVectorGetSupportingVertexWithoutMargin(const btVector3* vectors,btVector3* supportVerticesOut,int numVectors) const;
+	virtual int	getUpAxis() const
 	{
 		return 0;
 	}
 		//debugging
-	virtual char*	GetName()const
+	virtual char*	getName()const
 	{
 		return "CylinderX";
 	}
 
-	virtual float GetRadius() const
+	virtual float getRadius() const
 	{
-		return GetHalfExtents().getY();
+		return getHalfExtents().getY();
 	}
 
 };
@@ -115,22 +115,22 @@ class btCylinderShapeZ : public btCylinderShape
 public:
 	btCylinderShapeZ (const btVector3& halfExtents);
 
-	virtual btVector3	LocalGetSupportingVertexWithoutMargin(const btVector3& vec)const;
-	virtual void	BatchedUnitVectorGetSupportingVertexWithoutMargin(const btVector3* vectors,btVector3* supportVerticesOut,int numVectors) const;
+	virtual btVector3	localGetSupportingVertexWithoutMargin(const btVector3& vec)const;
+	virtual void	batchedUnitVectorGetSupportingVertexWithoutMargin(const btVector3* vectors,btVector3* supportVerticesOut,int numVectors) const;
 
-	virtual int	GetUpAxis() const
+	virtual int	getUpAxis() const
 	{
 		return 2;
 	}
 		//debugging
-	virtual char*	GetName()const
+	virtual char*	getName()const
 	{
 		return "CylinderZ";
 	}
 
-	virtual float GetRadius() const
+	virtual float getRadius() const
 	{
-		return GetHalfExtents().getX();
+		return getHalfExtents().getX();
 	}
 
 };

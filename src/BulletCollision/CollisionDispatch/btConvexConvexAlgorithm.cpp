@@ -91,12 +91,12 @@ m_ownManifold (false),
 m_manifoldPtr(mf),
 m_lowLevelOfDetail(false)
 {
-	CheckPenetrationDepthSolver();
+	checkPenetrationDepthSolver();
 
 	{
-		if (!m_manifoldPtr && m_dispatcher->NeedsCollision(m_box0,m_box1))
+		if (!m_manifoldPtr && m_dispatcher->needsCollision(m_box0,m_box1))
 		{
-			m_manifoldPtr = m_dispatcher->GetNewManifold(proxy0->m_clientObject,proxy1->m_clientObject);
+			m_manifoldPtr = m_dispatcher->getNewManifold(proxy0->m_clientObject,proxy1->m_clientObject);
 			m_ownManifold = true;
 		}
 	}
@@ -110,11 +110,11 @@ btConvexConvexAlgorithm::~btConvexConvexAlgorithm()
 	if (m_ownManifold)
 	{
 		if (m_manifoldPtr)
-			m_dispatcher->ReleaseManifold(m_manifoldPtr);
+			m_dispatcher->releaseManifold(m_manifoldPtr);
 	}
 }
 
-void	btConvexConvexAlgorithm ::SetLowLevelOfDetail(bool useLowLevel)
+void	btConvexConvexAlgorithm ::setLowLevelOfDetail(bool useLowLevel)
 {
 	m_lowLevelOfDetail = useLowLevel;
 }
@@ -133,11 +133,11 @@ public:
 
 	}
 
-	virtual void AddContactPoint(const btVector3& normalOnBInWorld,const btVector3& pointInWorld,float depth)
+	virtual void addContactPoint(const btVector3& normalOnBInWorld,const btVector3& pointInWorld,float depth)
 	{
 		btVector3 flippedNormal = -normalOnBInWorld;
 
-		m_org->AddContactPoint(flippedNormal,pointInWorld,depth);
+		m_org->addContactPoint(flippedNormal,pointInWorld,depth);
 	}
 
 };
@@ -150,7 +150,7 @@ static btMinkowskiPenetrationDepthSolver	gPenetrationDepthSolver;
 Solid3EpaPenetrationDepth	gSolidEpaPenetrationSolver;
 #endif //USE_EPA
 
-void	btConvexConvexAlgorithm::CheckPenetrationDepthSolver()
+void	btConvexConvexAlgorithm::checkPenetrationDepthSolver()
 {
 	if (m_useEpa != gUseEpa)
 	{
@@ -158,12 +158,12 @@ void	btConvexConvexAlgorithm::CheckPenetrationDepthSolver()
 		if (m_useEpa)
 		{
 			
-		//	m_gjkPairDetector.SetPenetrationDepthSolver(&gEpaPenetrationDepthSolver);
+		//	m_gjkPairDetector.setPenetrationDepthSolver(&gEpaPenetrationDepthSolver);
 						
 			
 		} else
 		{
-			m_gjkPairDetector.SetPenetrationDepthSolver(&gPenetrationDepthSolver);
+			m_gjkPairDetector.setPenetrationDepthSolver(&gPenetrationDepthSolver);
 		}
 	}
 	
@@ -219,7 +219,7 @@ public:
 			//normalOnBInWorld.normalize();
 			btVector3 pointInWorld(positionsWorld[i].GetX(),positionsWorld[i].GetY(),positionsWorld[i].GetZ());
 			float depth = -depths[i];
-			m_manifoldResult.AddContactPoint(normalOnBInWorld,pointInWorld,depth);
+			m_manifoldResult.addContactPoint(normalOnBInWorld,pointInWorld,depth);
 
 		}
 		return 0;
@@ -237,17 +237,17 @@ public:
 //
 // Convex-Convex collision algorithm
 //
-void btConvexConvexAlgorithm ::ProcessCollision (btBroadphaseProxy* ,btBroadphaseProxy* ,const btDispatcherInfo& dispatchInfo)
+void btConvexConvexAlgorithm ::processCollision (btBroadphaseProxy* ,btBroadphaseProxy* ,const btDispatcherInfo& dispatchInfo)
 {
 
 	if (!m_manifoldPtr)
 		return;
 
-	CheckPenetrationDepthSolver();
+	checkPenetrationDepthSolver();
 
-//	printf("btConvexConvexAlgorithm::ProcessCollision\n");
+//	printf("btConvexConvexAlgorithm::processCollision\n");
 
-	bool needsCollision = m_dispatcher->NeedsCollision(m_box0,m_box1);
+	bool needsCollision = m_dispatcher->needsCollision(m_box0,m_box1);
 	if (!needsCollision)
 		return;
 	
@@ -259,8 +259,8 @@ void btConvexConvexAlgorithm ::ProcessCollision (btBroadphaseProxy* ,btBroadphas
 
 	if (dispatchInfo.m_enableSatConvex)
 	{
-		if ((col0->m_collisionShape->IsPolyhedral()) &&
-			(col1->m_collisionShape->IsPolyhedral()))
+		if ((col0->m_collisionShape->isPolyhedral()) &&
+			(col1->m_collisionShape->isPolyhedral()))
 		{
 		
 			
@@ -283,8 +283,8 @@ void btConvexConvexAlgorithm ::ProcessCollision (btBroadphaseProxy* ,btBroadphas
 				Transform trB = GetTransformFrombtTransform(col1->m_worldTransform);
 
 				//either use persistent manifold or clear it every time
-				m_dispatcher->ClearManifold(m_manifoldPtr);
-				btManifoldResult* resultOut = m_dispatcher->GetNewManifoldResult(col0,col1,m_manifoldPtr);
+				m_dispatcher->clearManifold(m_manifoldPtr);
+				btManifoldResult* resultOut = m_dispatcher->getNewManifoldResult(col0,col1,m_manifoldPtr);
 
 				btManifoldResultCollector hullContactCollector(*resultOut);
 				
@@ -301,7 +301,7 @@ void btConvexConvexAlgorithm ::ProcessCollision (btBroadphaseProxy* ,btBroadphas
 #endif //USE_HULL
 
 	
-	btManifoldResult* resultOut = m_dispatcher->GetNewManifoldResult(col0,col1,m_manifoldPtr);
+	btManifoldResult* resultOut = m_dispatcher->getNewManifoldResult(col0,col1,m_manifoldPtr);
 	
 	btConvexShape* min0 = static_cast<btConvexShape*>(col0->m_collisionShape);
 	btConvexShape* min1 = static_cast<btConvexShape*>(col1->m_collisionShape);
@@ -310,9 +310,9 @@ void btConvexConvexAlgorithm ::ProcessCollision (btBroadphaseProxy* ,btBroadphas
 
 
 	//TODO: if (dispatchInfo.m_useContinuous)
-	m_gjkPairDetector.SetMinkowskiA(min0);
-	m_gjkPairDetector.SetMinkowskiB(min1);
-	input.m_maximumDistanceSquared = min0->GetMargin() + min1->GetMargin() + m_manifoldPtr->GetContactBreakingTreshold();
+	m_gjkPairDetector.setMinkowskiA(min0);
+	m_gjkPairDetector.setMinkowskiB(min1);
+	input.m_maximumDistanceSquared = min0->getMargin() + min1->getMargin() + m_manifoldPtr->getContactBreakingTreshold();
 	input.m_maximumDistanceSquared*= input.m_maximumDistanceSquared;
 	
 //	input.m_maximumDistanceSquared = 1e30f;
@@ -320,15 +320,15 @@ void btConvexConvexAlgorithm ::ProcessCollision (btBroadphaseProxy* ,btBroadphas
 	input.m_transformA = col0->m_worldTransform;
 	input.m_transformB = col1->m_worldTransform;
     
-	m_gjkPairDetector.GetClosestPoints(input,*resultOut,dispatchInfo.m_debugDraw);
+	m_gjkPairDetector.getClosestPoints(input,*resultOut,dispatchInfo.m_debugDraw);
 
-	m_dispatcher->ReleaseManifoldResult(resultOut);
+	m_dispatcher->releaseManifoldResult(resultOut);
 }
 
 
 
 bool disableCcd = false;
-float	btConvexConvexAlgorithm::CalculateTimeOfImpact(btBroadphaseProxy* proxy0,btBroadphaseProxy* proxy1,const btDispatcherInfo& dispatchInfo)
+float	btConvexConvexAlgorithm::calculateTimeOfImpact(btBroadphaseProxy* proxy0,btBroadphaseProxy* proxy1,const btDispatcherInfo& dispatchInfo)
 {
 	///Rather then checking ALL pairs, only calculate TOI when motion exceeds treshold
     
@@ -350,7 +350,7 @@ float	btConvexConvexAlgorithm::CalculateTimeOfImpact(btBroadphaseProxy* proxy0,b
 	if (disableCcd)
 		return 1.f;
 
-	CheckPenetrationDepthSolver();
+	checkPenetrationDepthSolver();
 
 	//An adhoc way of testing the Continuous Collision Detection algorithms
 	//One object is approximated as a sphere, to simplify things
@@ -358,7 +358,7 @@ float	btConvexConvexAlgorithm::CalculateTimeOfImpact(btBroadphaseProxy* proxy0,b
 	//For proper CCD, better accuracy and handling of 'allowed' penetration should be added
 	//also the mainloop of the physics should have a kind of toi queue (something like Brian Mirtich's application of Timewarp for Rigidbodies)
 
-	bool needsCollision = m_dispatcher->NeedsCollision(m_box0,m_box1);
+	bool needsCollision = m_dispatcher->needsCollision(m_box0,m_box1);
 
 	if (!needsCollision)
 		return 1.f;

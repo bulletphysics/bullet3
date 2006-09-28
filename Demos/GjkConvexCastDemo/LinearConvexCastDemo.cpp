@@ -96,18 +96,18 @@ void LinearConvexCastDemo::initPhysics()
 
 	btBoxShape*	boxA = new btBoxShape(boxHalfExtentsA);
 /*	btBU_Simplex1to4	boxB;
-	boxB.AddVertex(btPoint3(-5,0,-5));
-	boxB.AddVertex(btPoint3(5,0,-5));
-	boxB.AddVertex(btPoint3(0,0,5));
-	boxB.AddVertex(btPoint3(0,5,0));
+	boxB.addVertex(btPoint3(-5,0,-5));
+	boxB.addVertex(btPoint3(5,0,-5));
+	boxB.addVertex(btPoint3(0,0,5));
+	boxB.addVertex(btPoint3(0,5,0));
 */
 
 	btBoxShape*	boxB = new btBoxShape(boxHalfExtentsB);
 	shapePtr[0] = boxA;
 	shapePtr[1] = boxB;
 
-	shapePtr[0]->SetMargin(0.01f);
-	shapePtr[1]->SetMargin(0.01f);
+	shapePtr[0]->setMargin(0.01f);
+	shapePtr[1]->setMargin(0.01f);
 
 	btTransform tr;
 	tr.setIdentity();
@@ -137,7 +137,7 @@ void LinearConvexCastDemo::displayCallback(void)
     glClear(GL_COLOR_BUFFER_BIT | GL_DEPTH_BUFFER_BIT); 
 	glDisable(GL_LIGHTING);
 
-	//GL_ShapeDrawer::DrawCoordSystem();
+	//GL_ShapeDrawer::drawCoordSystem();
 
 	float m[16];
 	int i;
@@ -145,7 +145,7 @@ void LinearConvexCastDemo::displayCallback(void)
 	for (i=0;i<numObjects;i++)
 	{
 		tr[i].getOpenGLMatrix( m );
-		GL_ShapeDrawer::DrawOpenGL(m,shapePtr[i],btVector3(1,1,1),getDebugMode());
+		GL_ShapeDrawer::drawOpenGL(m,shapePtr[i],btVector3(1,1,1),getDebugMode());
 	}
 
 	
@@ -224,7 +224,7 @@ void LinearConvexCastDemo::displayCallback(void)
 			toTransWorld.setOrigin(hitPoint);
 
 			toTransWorld.getOpenGLMatrix( m );
-			GL_ShapeDrawer::DrawOpenGL(m,shapePtr[0],btVector3(0,1,1),getDebugMode());
+			GL_ShapeDrawer::drawOpenGL(m,shapePtr[0],btVector3(0,1,1),getDebugMode());
 
 
 		}

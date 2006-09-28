@@ -26,7 +26,7 @@
 
 /// btAxisSweep3 is an efficient implementation of the 3d axis sweep and prune broadphase.
 /// It uses arrays rather then lists for storage of the 3 axis. Also it operates using integer coordinates instead of floats.
-/// The TestOverlap check is optimized to check the array index, rather then the actual AABB coordinates/pos
+/// The testOverlap check is optimized to check the array index, rather then the actual AABB coordinates/pos
 class btAxisSweep3 : public btOverlappingPairCache
 {
 
@@ -74,41 +74,41 @@ private:
 
 
 	// allocation/deallocation
-	unsigned short AllocHandle();
-	void FreeHandle(unsigned short handle);
+	unsigned short allocHandle();
+	void freeHandle(unsigned short handle);
 	
 
-	bool TestOverlap(int ignoreAxis,const Handle* pHandleA, const Handle* pHandleB);
+	bool testOverlap(int ignoreAxis,const Handle* pHandleA, const Handle* pHandleB);
 
 	//Overlap* AddOverlap(unsigned short handleA, unsigned short handleB);
 	//void RemoveOverlap(unsigned short handleA, unsigned short handleB);
 
-	void Quantize(unsigned short* out, const btPoint3& point, int isMax) const;
+	void quantize(unsigned short* out, const btPoint3& point, int isMax) const;
 
-	void SortMinDown(int axis, unsigned short edge, bool updateOverlaps = true);
-	void SortMinUp(int axis, unsigned short edge, bool updateOverlaps = true);
-	void SortMaxDown(int axis, unsigned short edge, bool updateOverlaps = true);
-	void SortMaxUp(int axis, unsigned short edge, bool updateOverlaps = true);
+	void sortMinDown(int axis, unsigned short edge, bool updateOverlaps = true);
+	void sortMinUp(int axis, unsigned short edge, bool updateOverlaps = true);
+	void sortMaxDown(int axis, unsigned short edge, bool updateOverlaps = true);
+	void sortMaxUp(int axis, unsigned short edge, bool updateOverlaps = true);
 
 public:
 	btAxisSweep3(const btPoint3& worldAabbMin,const btPoint3& worldAabbMax, int maxHandles = 16384);
 	virtual	~btAxisSweep3();
 
-	virtual void	RefreshOverlappingPairs()
+	virtual void	refreshOverlappingPairs()
 	{
 		//this is replace by sweep and prune
 	}
 	
-	unsigned short AddHandle(const btPoint3& aabbMin,const btPoint3& aabbMax, void* pOwner,short int collisionFilterGroup,short int collisionFilterMask);
-	void RemoveHandle(unsigned short handle);
-	void UpdateHandle(unsigned short handle, const btPoint3& aabbMin,const btPoint3& aabbMax);
-	inline Handle* GetHandle(unsigned short index) const {return m_pHandles + index;}
+	unsigned short addHandle(const btPoint3& aabbMin,const btPoint3& aabbMax, void* pOwner,short int collisionFilterGroup,short int collisionFilterMask);
+	void removeHandle(unsigned short handle);
+	void updateHandle(unsigned short handle, const btPoint3& aabbMin,const btPoint3& aabbMax);
+	inline Handle* getHandle(unsigned short index) const {return m_pHandles + index;}
 
 
 	//Broadphase Interface
-	virtual btBroadphaseProxy*	CreateProxy(  const btVector3& min,  const btVector3& max,int shapeType,void* userPtr ,short int collisionFilterGroup,short int collisionFilterMask);
-	virtual void	DestroyProxy(btBroadphaseProxy* proxy);
-	virtual void	SetAabb(btBroadphaseProxy* proxy,const btVector3& aabbMin,const btVector3& aabbMax);
+	virtual btBroadphaseProxy*	createProxy(  const btVector3& min,  const btVector3& max,int shapeType,void* userPtr ,short int collisionFilterGroup,short int collisionFilterMask);
+	virtual void	destroyProxy(btBroadphaseProxy* proxy);
+	virtual void	setAabb(btBroadphaseProxy* proxy,const btVector3& aabbMin,const btVector3& aabbMax);
 
 };
 

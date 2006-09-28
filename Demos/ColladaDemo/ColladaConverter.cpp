@@ -185,20 +185,20 @@ bool ColladaConverter::convert()
 					printf("	X is Up Data and Hiearchies must be converted!\n" ); 
 					printf("  Conversion to X axis Up isn't currently supported!\n" ); 
 					printf("  COLLADA_RT defaulting to Y Up \n" ); 
-					SetGravity(btVector3(-10,0,0));
-					SetCameraInfo(btVector3(1,0,0),1);
+					setGravity(btVector3(-10,0,0));
+					setCameraInfo(btVector3(1,0,0),1);
 					break; 
 				case UPAXISTYPE_Y_UP:
 					printf("	Y Axis is Up for this file \n" ); 
 					printf("  COLLADA_RT set to Y Up \n" ); 
-					SetGravity(btVector3(0,-10,0));
-					SetCameraInfo(btVector3(0,1,0),0);
+					setGravity(btVector3(0,-10,0));
+					setCameraInfo(btVector3(0,1,0),0);
 
 					break;
 				case UPAXISTYPE_Z_UP:
 					printf("	Z Axis is Up for this file \n" ); 
 					printf("  All Geometry and Hiearchies must be converted!\n" ); 
-					SetGravity(btVector3(0,0,-10));
+					setGravity(btVector3(0,0,-10));
 					break; 
 				default:
 
@@ -294,7 +294,7 @@ bool ColladaConverter::convert()
 							const domFloat3 grav = physicsSceneRef->getTechnique_common()->getGravity()->getValue();
 							printf("gravity set to %f,%f,%f\n",grav.get(0),grav.get(1),grav.get(2));
 
-							SetGravity(btVector3(grav.get(0),grav.get(1),grav.get(2)));
+							setGravity(btVector3(grav.get(0),grav.get(1),grav.get(2)));
 						}
 
 					} 
@@ -481,7 +481,7 @@ bool ColladaConverter::convert()
 							ConstraintInput cInput;
 							cInput.m_instance_physicsModelRef = instance_physicsModelRef;
 							cInput.m_model = model;
-							PrepareConstraints(cInput);
+							prepareConstraints(cInput);
 						}
 
 						//also don't forget the model's 'instance_physics_models!
@@ -496,7 +496,7 @@ bool ColladaConverter::convert()
 							ConstraintInput cInput;
 							cInput.m_instance_physicsModelRef = instancePhysicsModelRef;
 							cInput.m_model = model;
-							PrepareConstraints(cInput);
+							prepareConstraints(cInput);
 						}
 
 											
@@ -509,7 +509,7 @@ bool ColladaConverter::convert()
 }
 
 
-void	ColladaConverter::PrepareConstraints(ConstraintInput& input)
+void	ColladaConverter::prepareConstraints(ConstraintInput& input)
 {
 	domInstance_physics_modelRef instance_physicsModelRef = input.m_instance_physicsModelRef;
 	domPhysics_modelRef model = input.m_model;
@@ -699,7 +699,7 @@ void	ColladaConverter::PreparePhysicsObject(struct btRigidBodyInput& input, bool
 
 
 
-	CcdPhysicsController* ctrl = CreatePhysicsObject(isDynamics,mass,startTransform,colShape);
+	CcdPhysicsController* ctrl = createPhysicsObject(isDynamics,mass,startTransform,colShape);
 	if (ctrl)
 	{
 		//for bodyName lookup in constraints
@@ -764,7 +764,7 @@ bool ColladaConverter::saveAs(const char* filename)
 				}
 
 				{
-					btQuaternion quat = m_physObjects[i]->GetRigidBody()->getCenterOfMassTransform().getRotation();
+					btQuaternion quat = m_physObjects[i]->getRigidBody()->getCenterOfMassTransform().getRotation();
 					btVector3 axis(quat.getX(),quat.getY(),quat.getZ());
 					axis[3] = 0.f;
 					//check for axis length
@@ -1035,7 +1035,7 @@ void	ColladaConverter::ConvertRigidBodyRef( btRigidBodyInput& rbInput,btRigidBod
 											k+=meshPart.m_triangleIndexStride;
 											verts[i].setValue(fl0,fl1,fl2);
 										}
-										trimesh->AddTriangle(verts[0],verts[1],verts[2]);
+										trimesh->addTriangle(verts[0],verts[1],verts[2]);
 									}
 								}
 							}
@@ -1051,7 +1051,7 @@ void	ColladaConverter::ConvertRigidBodyRef( btRigidBodyInput& rbInput,btRigidBod
 							//int			m_vertexStride;//use the accessor for this
 
 						//};
-						//tindexArray->AddIndexedMesh(meshPart);
+						//tindexArray->addIndexedMesh(meshPart);
 						if (rbOutput.m_isDynamics)
 						{
 							printf("moving concave <mesh> not supported, transformed into convex\n");
@@ -1144,7 +1144,7 @@ void	ColladaConverter::ConvertRigidBodyRef( btRigidBodyInput& rbInput,btRigidBod
 														domFloat fl2 = listFloats.get(k+2);
 														//printf("float %f %f %f\n",fl0,fl1,fl2);
 
-														convexHullShape->AddPoint(btPoint3(fl0,fl1,fl2));
+														convexHullShape->addPoint(btPoint3(fl0,fl1,fl2));
 													}
 
 												}
@@ -1192,7 +1192,7 @@ void	ColladaConverter::ConvertRigidBodyRef( btRigidBodyInput& rbInput,btRigidBod
 										domFloat fl2 = listFloats.get(k+2);
 										//printf("float %f %f %f\n",fl0,fl1,fl2);
 
-										convexHullShape->AddPoint(btPoint3(fl0,fl1,fl2));
+										convexHullShape->addPoint(btPoint3(fl0,fl1,fl2));
 									}
 
 								}
@@ -1205,10 +1205,10 @@ void	ColladaConverter::ConvertRigidBodyRef( btRigidBodyInput& rbInput,btRigidBod
 
 					}
 
-					if (convexHullShape->GetNumVertices())
+					if (convexHullShape->getNumVertices())
 					{
 						rbOutput.m_colShape = convexHullShape;
-						printf("created convexHullShape with %i points\n",convexHullShape->GetNumVertices());
+						printf("created convexHullShape with %i points\n",convexHullShape->getNumVertices());
 					} else
 					{
 						delete convexHullShape;
@@ -1251,7 +1251,7 @@ void	ColladaConverter::ConvertRigidBodyRef( btRigidBodyInput& rbInput,btRigidBod
 						);
 					}
 
-					rbOutput.m_compoundShape->AddChildShape(localTransform,rbOutput.m_colShape);
+					rbOutput.m_compoundShape->addChildShape(localTransform,rbOutput.m_colShape);
 					rbOutput.m_colShape = 0;
 				}
 			}

@@ -30,7 +30,7 @@ virtual ~btOverlapCallback()
 {
 }
 	//return true for deletion of the pair
-	virtual bool	ProcessOverlap(btBroadphasePair& pair) = 0;
+	virtual bool	processOverlap(btBroadphasePair& pair) = 0;
 };
 
 ///OverlappingPairCache maintains the objects with overlapping AABB
@@ -48,23 +48,23 @@ class	btOverlappingPairCache : public btBroadphaseInterface
 	btOverlappingPairCache();	
 	virtual ~btOverlappingPairCache();
 
-	void	ProcessAllOverlappingPairs(btOverlapCallback*);
+	void	processAllOverlappingPairs(btOverlapCallback*);
 
-	void	RemoveOverlappingPair(btBroadphasePair& pair);
+	void	removeOverlappingPair(btBroadphasePair& pair);
 
-	void	CleanOverlappingPair(btBroadphasePair& pair);
+	void	cleanOverlappingPair(btBroadphasePair& pair);
 	
-	void	AddOverlappingPair(btBroadphaseProxy* proxy0,btBroadphaseProxy* proxy1);
+	void	addOverlappingPair(btBroadphaseProxy* proxy0,btBroadphaseProxy* proxy1);
 
-	btBroadphasePair*	FindPair(btBroadphaseProxy* proxy0,btBroadphaseProxy* proxy1);
+	btBroadphasePair*	findPair(btBroadphaseProxy* proxy0,btBroadphaseProxy* proxy1);
 		
 	
-	void	CleanProxyFromPairs(btBroadphaseProxy* proxy);
+	void	cleanProxyFromPairs(btBroadphaseProxy* proxy);
 
-	void	RemoveOverlappingPairsContainingProxy(btBroadphaseProxy* proxy);
+	void	removeOverlappingPairsContainingProxy(btBroadphaseProxy* proxy);
 
 
-	inline bool NeedsCollision(btBroadphaseProxy* proxy0,btBroadphaseProxy* proxy1) const
+	inline bool needsCollision(btBroadphaseProxy* proxy0,btBroadphaseProxy* proxy1) const
 	{
 		bool collides = proxy0->m_collisionFilterGroup & proxy1->m_collisionFilterMask;
 		collides = collides && (proxy1->m_collisionFilterGroup & proxy0->m_collisionFilterMask);
@@ -74,7 +74,7 @@ class	btOverlappingPairCache : public btBroadphaseInterface
 		
 	
 
-	virtual void	RefreshOverlappingPairs() =0;
+	virtual void	refreshOverlappingPairs() =0;
 
 
 

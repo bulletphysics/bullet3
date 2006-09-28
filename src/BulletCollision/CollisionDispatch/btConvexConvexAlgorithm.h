@@ -40,7 +40,7 @@ public:
 	btPersistentManifold*	m_manifoldPtr;
 	bool			m_lowLevelOfDetail;
 
-	void	CheckPenetrationDepthSolver();
+	void	checkPenetrationDepthSolver();
 
 	
 
@@ -50,13 +50,13 @@ public:
 
 	virtual ~btConvexConvexAlgorithm();
 
-	virtual void ProcessCollision (btBroadphaseProxy* proxy0,btBroadphaseProxy* proxy1,const btDispatcherInfo& dispatchInfo);
+	virtual void processCollision (btBroadphaseProxy* proxy0,btBroadphaseProxy* proxy1,const btDispatcherInfo& dispatchInfo);
 
-	virtual float CalculateTimeOfImpact(btBroadphaseProxy* proxy0,btBroadphaseProxy* proxy1,const btDispatcherInfo& dispatchInfo);
+	virtual float calculateTimeOfImpact(btBroadphaseProxy* proxy0,btBroadphaseProxy* proxy1,const btDispatcherInfo& dispatchInfo);
 
-	void	SetLowLevelOfDetail(bool useLowLevel);
+	void	setLowLevelOfDetail(bool useLowLevel);
 
-	virtual void SetShapeIdentifiers(int partId0,int index0,	int partId1,int index1)
+	virtual void setShapeIdentifiers(int partId0,int index0,	int partId1,int index1)
 	{
 			m_gjkPairDetector.m_partId0=partId0;
 			m_gjkPairDetector.m_partId1=partId1;
@@ -64,7 +64,7 @@ public:
 			m_gjkPairDetector.m_index1=index1;		
 	}
 
-	const btPersistentManifold*	GetManifold()
+	const btPersistentManifold*	getManifold()
 	{
 		return m_manifoldPtr;
 	}

@@ -27,7 +27,7 @@ btTriangleRaycastCallback::btTriangleRaycastCallback(const btVector3& from,const
 
 
 
-void btTriangleRaycastCallback::ProcessTriangle(btVector3* triangle,int partId, int triangleIndex)
+void btTriangleRaycastCallback::processTriangle(btVector3* triangle,int partId, int triangleIndex)
 {
 	
 
@@ -87,11 +87,11 @@ void btTriangleRaycastCallback::ProcessTriangle(btVector3* triangle,int partId, 
 
 						if ( dist_a > 0 )
 						{
-							m_hitFraction = ReportHit(triangleNormal,distance,partId,triangleIndex);
+							m_hitFraction = reportHit(triangleNormal,distance,partId,triangleIndex);
 						}
 						else
 						{
-							m_hitFraction = ReportHit(-triangleNormal,distance,partId,triangleIndex);
+							m_hitFraction = reportHit(-triangleNormal,distance,partId,triangleIndex);
 						}
 					}
 				}

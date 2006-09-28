@@ -21,25 +21,25 @@
 
 #include <assert.h>
 
-btBroadphaseProxy*	btAxisSweep3::CreateProxy(  const btVector3& min,  const btVector3& max,int shapeType,void* userPtr,short int collisionFilterGroup,short int collisionFilterMask)
+btBroadphaseProxy*	btAxisSweep3::createProxy(  const btVector3& min,  const btVector3& max,int shapeType,void* userPtr,short int collisionFilterGroup,short int collisionFilterMask)
 {
-		unsigned short handleId = AddHandle(min,max, userPtr,collisionFilterGroup,collisionFilterMask);
+		unsigned short handleId = addHandle(min,max, userPtr,collisionFilterGroup,collisionFilterMask);
 		
-		Handle* handle = GetHandle(handleId);
+		Handle* handle = getHandle(handleId);
 				
 		return handle;
 }
 
-void	btAxisSweep3::DestroyProxy(btBroadphaseProxy* proxy)
+void	btAxisSweep3::destroyProxy(btBroadphaseProxy* proxy)
 {
 	Handle* handle = static_cast<Handle*>(proxy);
-	RemoveHandle(handle->m_handleId);
+	removeHandle(handle->m_handleId);
 }
 
-void	btAxisSweep3::SetAabb(btBroadphaseProxy* proxy,const btVector3& aabbMin,const btVector3& aabbMax)
+void	btAxisSweep3::setAabb(btBroadphaseProxy* proxy,const btVector3& aabbMin,const btVector3& aabbMax)
 {
 	Handle* handle = static_cast<Handle*>(proxy);
-	UpdateHandle(handle->m_handleId,aabbMin,aabbMax);
+	updateHandle(handle->m_handleId,aabbMin,aabbMax);
 }
 
 
@@ -107,7 +107,7 @@ btAxisSweep3::~btAxisSweep3()
 	delete[] m_pHandles;
 }
 
-void btAxisSweep3::Quantize(unsigned short* out, const btPoint3& point, int isMax) const
+void btAxisSweep3::quantize(unsigned short* out, const btPoint3& point, int isMax) const
 {
 	btPoint3 clampedPoint(point);
 	/*
@@ -132,22 +132,22 @@ void btAxisSweep3::Quantize(unsigned short* out, const btPoint3& point, int isMa
 
 
 
-unsigned short btAxisSweep3::AllocHandle()
+unsigned short btAxisSweep3::allocHandle()
 {
 	assert(m_firstFreeHandle);
 
 	unsigned short handle = m_firstFreeHandle;
-	m_firstFreeHandle = GetHandle(handle)->GetNextFree();
+	m_firstFreeHandle = getHandle(handle)->GetNextFree();
 	m_numHandles++;
 
 	return handle;
 }
 
-void btAxisSweep3::FreeHandle(unsigned short handle)
+void btAxisSweep3::freeHandle(unsigned short handle)
 {
 	assert(handle > 0 && handle < m_maxHandles);
 
-	GetHandle(handle)->SetNextFree(m_firstFreeHandle);
+	getHandle(handle)->SetNextFree(m_firstFreeHandle);
 	m_firstFreeHandle = handle;
 
 	m_numHandles--;
@@ -155,18 +155,18 @@ void btAxisSweep3::FreeHandle(unsigned short handle)
 
 
 
-unsigned short btAxisSweep3::AddHandle(const btPoint3& aabbMin,const btPoint3& aabbMax, void* pOwner,short int collisionFilterGroup,short int collisionFilterMask)
+unsigned short btAxisSweep3::addHandle(const btPoint3& aabbMin,const btPoint3& aabbMax, void* pOwner,short int collisionFilterGroup,short int collisionFilterMask)
 {
 	// quantize the bounds
 	unsigned short min[3], max[3];
-	Quantize(min, aabbMin, 0);
-	Quantize(max, aabbMax, 1);
+	quantize(min, aabbMin, 0);
+	quantize(max, aabbMax, 1);
 
 	// allocate a handle
-	unsigned short handle = AllocHandle();
+	unsigned short handle = allocHandle();
 	assert(handle!= 0xcdcd);
 
-	Handle* pHandle = GetHandle(handle);
+	Handle* pHandle = getHandle(handle);
 	
 	pHandle->m_handleId = handle;
 	//pHandle->m_pOverlaps = 0;
@@ -195,12 +195,12 @@ unsigned short btAxisSweep3::AddHandle(const btPoint3& aabbMin,const btPoint3& a
 	}
 
 	// now sort the new edges to their correct position
-	SortMinDown(0, pHandle->m_minEdges[0], false);
-	SortMaxDown(0, pHandle->m_maxEdges[0], false);
-	SortMinDown(1, pHandle->m_minEdges[1], false);
-	SortMaxDown(1, pHandle->m_maxEdges[1], false);
-	SortMinDown(2, pHandle->m_minEdges[2], true);
-	SortMaxDown(2, pHandle->m_maxEdges[2], true);
+	sortMinDown(0, pHandle->m_minEdges[0], false);
+	sortMaxDown(0, pHandle->m_maxEdges[0], false);
+	sortMinDown(1, pHandle->m_minEdges[1], false);
+	sortMaxDown(1, pHandle->m_maxEdges[1], false);
+	sortMinDown(2, pHandle->m_minEdges[2], true);
+	sortMaxDown(2, pHandle->m_maxEdges[2], true);
 
 	//PrintAxis(1);
 
@@ -208,14 +208,14 @@ unsigned short btAxisSweep3::AddHandle(const btPoint3& aabbMin,const btPoint3& a
 }
 
 
-void btAxisSweep3::RemoveHandle(unsigned short handle)
+void btAxisSweep3::removeHandle(unsigned short handle)
 {
-	Handle* pHandle = GetHandle(handle);
+	Handle* pHandle = getHandle(handle);
 
 	//explicitly remove the pairs containing the proxy
-	//we could do it also in the SortMinUp (passing true)
+	//we could do it also in the sortMinUp (passing true)
 	//todo: compare performance
-	RemoveOverlappingPairsContainingProxy(pHandle);
+	removeOverlappingPairsContainingProxy(pHandle);
 
 
 	// compute current limit of edge arrays
@@ -238,12 +238,12 @@ void btAxisSweep3::RemoveHandle(unsigned short handle)
 		int max = pHandle->m_maxEdges[axis];
 		pEdges[max].m_pos = 0xffff;
 
-		SortMaxUp(axis,max,false);
+		sortMaxUp(axis,max,false);
 		
 		int i = pHandle->m_minEdges[axis];
 		pEdges[i].m_pos = 0xffff;
 
-		SortMinUp(axis,i,false);
+		sortMinUp(axis,i,false);
 
 		pEdges[limit-1].m_handle = 0;
 		pEdges[limit-1].m_pos = 0xffff;
@@ -251,12 +251,12 @@ void btAxisSweep3::RemoveHandle(unsigned short handle)
 	}
 
 	// free the handle
-	FreeHandle(handle);
+	freeHandle(handle);
 
 	
 }
 
-bool btAxisSweep3::TestOverlap(int ignoreAxis,const Handle* pHandleA, const Handle* pHandleB)
+bool btAxisSweep3::testOverlap(int ignoreAxis,const Handle* pHandleA, const Handle* pHandleB)
 {
 	//optimization 1: check the array index (memory address), instead of the m_pos
 
@@ -287,17 +287,17 @@ bool btAxisSweep3::TestOverlap(int ignoreAxis,const Handle* pHandleA, const Hand
 	return true;
 }
 
-void btAxisSweep3::UpdateHandle(unsigned short handle, const btPoint3& aabbMin,const btPoint3& aabbMax)
+void btAxisSweep3::updateHandle(unsigned short handle, const btPoint3& aabbMin,const btPoint3& aabbMax)
 {
 //	assert(bounds.IsFinite());
 	//assert(bounds.HasVolume());
 
-	Handle* pHandle = GetHandle(handle);
+	Handle* pHandle = getHandle(handle);
 
 	// quantize the new bounds
 	unsigned short min[3], max[3];
-	Quantize(min, aabbMin, 0);
-	Quantize(max, aabbMax, 1);
+	quantize(min, aabbMin, 0);
+	quantize(max, aabbMax, 1);
 
 	// update changed edges
 	for (int axis = 0; axis < 3; axis++)
@@ -313,39 +313,39 @@ void btAxisSweep3::UpdateHandle(unsigned short handle, const btPoint3& aabbMin,c
 
 		// expand (only adds overlaps)
 		if (dmin < 0)
-			SortMinDown(axis, emin);
+			sortMinDown(axis, emin);
 
 		if (dmax > 0)
-			SortMaxUp(axis, emax);
+			sortMaxUp(axis, emax);
 
 		// shrink (only removes overlaps)
 		if (dmin > 0)
-			SortMinUp(axis, emin);
+			sortMinUp(axis, emin);
 
 		if (dmax < 0)
-			SortMaxDown(axis, emax);
+			sortMaxDown(axis, emax);
 	}
 
 	//PrintAxis(1);
 }
 
 // sorting a min edge downwards can only ever *add* overlaps
-void btAxisSweep3::SortMinDown(int axis, unsigned short edge, bool updateOverlaps)
+void btAxisSweep3::sortMinDown(int axis, unsigned short edge, bool updateOverlaps)
 {
 	Edge* pEdge = m_pEdges[axis] + edge;
 	Edge* pPrev = pEdge - 1;
-	Handle* pHandleEdge = GetHandle(pEdge->m_handle);
+	Handle* pHandleEdge = getHandle(pEdge->m_handle);
 
 	while (pEdge->m_pos < pPrev->m_pos)
 	{
-		Handle* pHandlePrev = GetHandle(pPrev->m_handle);
+		Handle* pHandlePrev = getHandle(pPrev->m_handle);
 
 		if (pPrev->IsMax())
 		{
 			// if previous edge is a maximum check the bounds and add an overlap if necessary
-			if (updateOverlaps && TestOverlap(axis,pHandleEdge, pHandlePrev))
+			if (updateOverlaps && testOverlap(axis,pHandleEdge, pHandlePrev))
 			{
-				AddOverlappingPair(pHandleEdge,pHandlePrev);
+				addOverlappingPair(pHandleEdge,pHandlePrev);
 
 				//AddOverlap(pEdge->m_handle, pPrev->m_handle);
 
@@ -371,25 +371,25 @@ void btAxisSweep3::SortMinDown(int axis, unsigned short edge, bool updateOverlap
 }
 
 // sorting a min edge upwards can only ever *remove* overlaps
-void btAxisSweep3::SortMinUp(int axis, unsigned short edge, bool updateOverlaps)
+void btAxisSweep3::sortMinUp(int axis, unsigned short edge, bool updateOverlaps)
 {
 	Edge* pEdge = m_pEdges[axis] + edge;
 	Edge* pNext = pEdge + 1;
-	Handle* pHandleEdge = GetHandle(pEdge->m_handle);
+	Handle* pHandleEdge = getHandle(pEdge->m_handle);
 
 	while (pEdge->m_pos > pNext->m_pos)
 	{
-		Handle* pHandleNext = GetHandle(pNext->m_handle);
+		Handle* pHandleNext = getHandle(pNext->m_handle);
 
 		if (pNext->IsMax())
 		{
 			// if next edge is maximum remove any overlap between the two handles
 			if (updateOverlaps)
 			{
-				Handle* handle0 = GetHandle(pEdge->m_handle);
-				Handle* handle1 = GetHandle(pNext->m_handle);
+				Handle* handle0 = getHandle(pEdge->m_handle);
+				Handle* handle1 = getHandle(pNext->m_handle);
 				btBroadphasePair tmpPair(*handle0,*handle1);
-				RemoveOverlappingPair(tmpPair);
+				removeOverlappingPair(tmpPair);
 
 			}
 
@@ -413,29 +413,29 @@ void btAxisSweep3::SortMinUp(int axis, unsigned short edge, bool updateOverlaps)
 }
 
 // sorting a max edge downwards can only ever *remove* overlaps
-void btAxisSweep3::SortMaxDown(int axis, unsigned short edge, bool updateOverlaps)
+void btAxisSweep3::sortMaxDown(int axis, unsigned short edge, bool updateOverlaps)
 {
 	Edge* pEdge = m_pEdges[axis] + edge;
 	Edge* pPrev = pEdge - 1;
-	Handle* pHandleEdge = GetHandle(pEdge->m_handle);
+	Handle* pHandleEdge = getHandle(pEdge->m_handle);
 
 	while (pEdge->m_pos < pPrev->m_pos)
 	{
-		Handle* pHandlePrev = GetHandle(pPrev->m_handle);
+		Handle* pHandlePrev = getHandle(pPrev->m_handle);
 
 		if (!pPrev->IsMax())
 		{
 			// if previous edge was a minimum remove any overlap between the two handles
 			if (updateOverlaps)
 			{
-				Handle* handle0 = GetHandle(pEdge->m_handle);
-				Handle* handle1 = GetHandle(pPrev->m_handle);
-				btBroadphasePair* pair = FindPair(handle0,handle1);
+				Handle* handle0 = getHandle(pEdge->m_handle);
+				Handle* handle1 = getHandle(pPrev->m_handle);
+				btBroadphasePair* pair = findPair(handle0,handle1);
 				//assert(pair);
 
 				if (pair)
 				{
-					RemoveOverlappingPair(*pair);
+					removeOverlappingPair(*pair);
 				}
 			}
 
@@ -459,24 +459,24 @@ void btAxisSweep3::SortMaxDown(int axis, unsigned short edge, bool updateOverlap
 }
 
 // sorting a max edge upwards can only ever *add* overlaps
-void btAxisSweep3::SortMaxUp(int axis, unsigned short edge, bool updateOverlaps)
+void btAxisSweep3::sortMaxUp(int axis, unsigned short edge, bool updateOverlaps)
 {
 	Edge* pEdge = m_pEdges[axis] + edge;
 	Edge* pNext = pEdge + 1;
-	Handle* pHandleEdge = GetHandle(pEdge->m_handle);
+	Handle* pHandleEdge = getHandle(pEdge->m_handle);
 
 	while (pEdge->m_pos > pNext->m_pos)
 	{
-		Handle* pHandleNext = GetHandle(pNext->m_handle);
+		Handle* pHandleNext = getHandle(pNext->m_handle);
 
 		if (!pNext->IsMax())
 		{
 			// if next edge is a minimum check the bounds and add an overlap if necessary
-			if (updateOverlaps && TestOverlap(axis, pHandleEdge, pHandleNext))
+			if (updateOverlaps && testOverlap(axis, pHandleEdge, pHandleNext))
 			{
-				Handle* handle0 = GetHandle(pEdge->m_handle);
-				Handle* handle1 = GetHandle(pNext->m_handle);
-				AddOverlappingPair(handle0,handle1);
+				Handle* handle0 = getHandle(pEdge->m_handle);
+				Handle* handle1 = getHandle(pNext->m_handle);
+				addOverlappingPair(handle0,handle1);
 			}
 
 			// update edge reference in other handle

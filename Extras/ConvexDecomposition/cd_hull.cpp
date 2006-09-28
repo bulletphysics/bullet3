@@ -2916,7 +2916,7 @@ HullError HullLibrary::ReleaseResult(HullResult &result) // release memory alloc
 }
 
 
-static void AddPoint(unsigned int &vcount,float *p,float x,float y,float z)
+static void addPoint(unsigned int &vcount,float *p,float x,float y,float z)
 {
 	float *dest = &p[vcount*3];
 	dest[0] = x;
@@ -3022,14 +3022,14 @@ bool  HullLibrary::CleanupVertices(unsigned int svcount,
 		float z1 = center[2] - dz;
 		float z2 = center[2] + dz;
 
-		AddPoint(vcount,vertices,x1,y1,z1);
-		AddPoint(vcount,vertices,x2,y1,z1);
-		AddPoint(vcount,vertices,x2,y2,z1);
-		AddPoint(vcount,vertices,x1,y2,z1);
-		AddPoint(vcount,vertices,x1,y1,z2);
-		AddPoint(vcount,vertices,x2,y1,z2);
-		AddPoint(vcount,vertices,x2,y2,z2);
-		AddPoint(vcount,vertices,x1,y2,z2);
+		addPoint(vcount,vertices,x1,y1,z1);
+		addPoint(vcount,vertices,x2,y1,z1);
+		addPoint(vcount,vertices,x2,y2,z1);
+		addPoint(vcount,vertices,x1,y2,z1);
+		addPoint(vcount,vertices,x1,y1,z2);
+		addPoint(vcount,vertices,x2,y1,z2);
+		addPoint(vcount,vertices,x2,y2,z2);
+		addPoint(vcount,vertices,x1,y2,z2);
 
 		return true; // return cube
 
@@ -3177,14 +3177,14 @@ bool  HullLibrary::CleanupVertices(unsigned int svcount,
 
 			vcount = 0; // add box
 
-			AddPoint(vcount,vertices,x1,y1,z1);
-			AddPoint(vcount,vertices,x2,y1,z1);
-			AddPoint(vcount,vertices,x2,y2,z1);
-			AddPoint(vcount,vertices,x1,y2,z1);
-			AddPoint(vcount,vertices,x1,y1,z2);
-			AddPoint(vcount,vertices,x2,y1,z2);
-			AddPoint(vcount,vertices,x2,y2,z2);
-			AddPoint(vcount,vertices,x1,y2,z2);
+			addPoint(vcount,vertices,x1,y1,z1);
+			addPoint(vcount,vertices,x2,y1,z1);
+			addPoint(vcount,vertices,x2,y2,z1);
+			addPoint(vcount,vertices,x1,y2,z1);
+			addPoint(vcount,vertices,x1,y1,z2);
+			addPoint(vcount,vertices,x2,y1,z2);
+			addPoint(vcount,vertices,x2,y2,z2);
+			addPoint(vcount,vertices,x1,y2,z2);
 
 			return true;
 		}

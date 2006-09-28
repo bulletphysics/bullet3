@@ -40,12 +40,12 @@ bool endofscript;
 bool tokenready;                     // only true if UnGetToken was just called
 
 //
-//LoadBSPFile
+//loadBSPFile
 //
 
 int extrasize = 100;
 
-bool	BspLoader::LoadBSPFile( void* memoryBuffer) {
+bool	BspLoader::loadBSPFile( void* memoryBuffer) {
 	
 	BSPHeader	*header = (BSPHeader*) memoryBuffer;
 
@@ -53,73 +53,73 @@ bool	BspLoader::LoadBSPFile( void* memoryBuffer) {
 	if (header)
 	{
 		// swap the header
-		SwapBlock( (int *)header, sizeof(*header) );
+		swapBlock( (int *)header, sizeof(*header) );
 		
 		int length = (header->lumps[BSPLUMP_SHADERS].filelen) / sizeof(BSPShader);
 		m_dshaders.resize(length+extrasize);
-		m_numShaders = CopyLump( header, BSPLUMP_SHADERS, &m_dshaders[0], sizeof(BSPShader) );
+		m_numShaders = copyLump( header, BSPLUMP_SHADERS, &m_dshaders[0], sizeof(BSPShader) );
 
 		length = (header->lumps[LUMP_MODELS].filelen) / sizeof(BSPModel);
 		m_dmodels.resize(length+extrasize);
-		m_nummodels = CopyLump( header, LUMP_MODELS, &m_dmodels[0], sizeof(BSPModel) );
+		m_nummodels = copyLump( header, LUMP_MODELS, &m_dmodels[0], sizeof(BSPModel) );
 
 		length = (header->lumps[BSPLUMP_PLANES].filelen) / sizeof(BSPPlane);
 		m_dplanes.resize(length+extrasize);
-		m_numplanes = CopyLump( header, BSPLUMP_PLANES, &m_dplanes[0], sizeof(BSPPlane) );
+		m_numplanes = copyLump( header, BSPLUMP_PLANES, &m_dplanes[0], sizeof(BSPPlane) );
 
 		length = (header->lumps[BSPLUMP_LEAFS].filelen) / sizeof(BSPLeaf);
 		m_dleafs.resize(length+extrasize);
-		m_numleafs = CopyLump( header, BSPLUMP_LEAFS, &m_dleafs[0], sizeof(BSPLeaf) );
+		m_numleafs = copyLump( header, BSPLUMP_LEAFS, &m_dleafs[0], sizeof(BSPLeaf) );
 
 		length = (header->lumps[BSPLUMP_NODES].filelen) / sizeof(BSPNode);
 		m_dnodes.resize(length+extrasize);
-		m_numnodes = CopyLump( header, BSPLUMP_NODES, &m_dnodes[0], sizeof(BSPNode) );
+		m_numnodes = copyLump( header, BSPLUMP_NODES, &m_dnodes[0], sizeof(BSPNode) );
 
 		length = (header->lumps[BSPLUMP_LEAFSURFACES].filelen) / sizeof(m_dleafsurfaces[0]);
 		m_dleafsurfaces.resize(length+extrasize);
-		m_numleafsurfaces = CopyLump( header, BSPLUMP_LEAFSURFACES, &m_dleafsurfaces[0], sizeof(m_dleafsurfaces[0]) );
+		m_numleafsurfaces = copyLump( header, BSPLUMP_LEAFSURFACES, &m_dleafsurfaces[0], sizeof(m_dleafsurfaces[0]) );
 
 		length = (header->lumps[BSPLUMP_LEAFBRUSHES].filelen) / sizeof(m_dleafbrushes[0]) ;
 		m_dleafbrushes.resize(length+extrasize);
-		m_numleafbrushes = CopyLump( header, BSPLUMP_LEAFBRUSHES, &m_dleafbrushes[0], sizeof(m_dleafbrushes[0]) );
+		m_numleafbrushes = copyLump( header, BSPLUMP_LEAFBRUSHES, &m_dleafbrushes[0], sizeof(m_dleafbrushes[0]) );
 
 		length = (header->lumps[LUMP_BRUSHES].filelen) / sizeof(BSPBrush);
 		m_dbrushes.resize(length+extrasize);
-		m_numbrushes = CopyLump( header, LUMP_BRUSHES, &m_dbrushes[0], sizeof(BSPBrush) );
+		m_numbrushes = copyLump( header, LUMP_BRUSHES, &m_dbrushes[0], sizeof(BSPBrush) );
 
 
 		length = (header->lumps[LUMP_BRUSHSIDES].filelen) / sizeof(BSPBrushSide);
 		m_dbrushsides.resize(length+extrasize);
-		m_numbrushsides = CopyLump( header, LUMP_BRUSHSIDES, &m_dbrushsides[0], sizeof(BSPBrushSide) );
+		m_numbrushsides = copyLump( header, LUMP_BRUSHSIDES, &m_dbrushsides[0], sizeof(BSPBrushSide) );
 
 		
 		length = (header->lumps[LUMP_SURFACES].filelen) / sizeof(BSPSurface);
 		m_drawSurfaces.resize(length+extrasize);
-		m_numDrawSurfaces = CopyLump( header, LUMP_SURFACES, &m_drawSurfaces[0], sizeof(BSPSurface) );
+		m_numDrawSurfaces = copyLump( header, LUMP_SURFACES, &m_drawSurfaces[0], sizeof(BSPSurface) );
 
 
 		length = (header->lumps[LUMP_DRAWINDEXES].filelen) / sizeof(m_drawIndexes[0]);
 		m_drawIndexes.resize(length+extrasize);
-		m_numDrawIndexes = CopyLump( header, LUMP_DRAWINDEXES, &m_drawIndexes[0], sizeof(m_drawIndexes[0]) );
+		m_numDrawIndexes = copyLump( header, LUMP_DRAWINDEXES, &m_drawIndexes[0], sizeof(m_drawIndexes[0]) );
 
 		length = (header->lumps[LUMP_VISIBILITY].filelen) / 1;
 		m_visBytes.resize(length+extrasize);
-		m_numVisBytes = CopyLump( header, LUMP_VISIBILITY, &m_visBytes[0], 1 );
+		m_numVisBytes = copyLump( header, LUMP_VISIBILITY, &m_visBytes[0], 1 );
 
 		length = (header->lumps[LUMP_LIGHTMAPS].filelen) / 1;
 		m_lightBytes.resize(length+extrasize);
-		m_numLightBytes = CopyLump( header, LUMP_LIGHTMAPS, &m_lightBytes[0], 1 );
+		m_numLightBytes = copyLump( header, LUMP_LIGHTMAPS, &m_lightBytes[0], 1 );
 
 		length = (header->lumps[BSPLUMP_ENTITIES].filelen) / 1;
 		m_dentdata.resize(length+extrasize);
-		m_entdatasize = CopyLump( header, BSPLUMP_ENTITIES, &m_dentdata[0], 1);
+		m_entdatasize = copyLump( header, BSPLUMP_ENTITIES, &m_dentdata[0], 1);
 
 		length = (header->lumps[LUMP_LIGHTGRID].filelen) / 1;
 		m_gridData.resize(length+extrasize);
-		m_numGridPoints = CopyLump( header, LUMP_LIGHTGRID, &m_gridData[0], 8 );
+		m_numGridPoints = copyLump( header, LUMP_LIGHTGRID, &m_gridData[0], 8 );
 
 		// swap everything
-		SwapBSPFile();
+		swapBSPFile();
 
 		return true;
 
@@ -129,7 +129,7 @@ bool	BspLoader::LoadBSPFile( void* memoryBuffer) {
 
 
 
-const char* BspLoader::ValueForKey( const  BSPEntity* ent, const char* key ) const {
+const char* BspLoader::getValueForKey( const  BSPEntity* ent, const char* key ) const {
 
 	const BSPKeyValuePair* ep;
 	
@@ -141,17 +141,17 @@ const char* BspLoader::ValueForKey( const  BSPEntity* ent, const char* key ) con
 	return "";
 }
 
-float	BspLoader::FloatForKey( const BSPEntity *ent, const char *key ) {
+float	BspLoader::getFloatForKey( const BSPEntity *ent, const char *key ) {
 	const char	*k;
 	
-	k = ValueForKey( ent, key );
+	k = getValueForKey( ent, key );
 	return float(atof(k));
 }
 
-bool 	BspLoader::GetVectorForKey( const BSPEntity *ent, const char *key, BSPVector3 vec ) {
+bool 	BspLoader::getVectorForKey( const BSPEntity *ent, const char *key, BSPVector3 vec ) {
 
 	const char	*k;
-	k = ValueForKey (ent, key);
+	k = getValueForKey (ent, key);
 	if (strcmp(k, ""))
 	{
 		sscanf (k, "%f %f %f", &vec[0], &vec[1], &vec[2]);
@@ -165,10 +165,10 @@ bool 	BspLoader::GetVectorForKey( const BSPEntity *ent, const char *key, BSPVect
 
 /*
 ==============
-ParseFromMemory
+parseFromMemory
 ==============
 */
-void BspLoader::ParseFromMemory (char *buffer, int size)
+void BspLoader::parseFromMemory (char *buffer, int size)
 {
 	script = scriptstack;
 	script++;
@@ -188,7 +188,7 @@ void BspLoader::ParseFromMemory (char *buffer, int size)
 }
 
 
-bool BspLoader::EndOfScript (bool crossline)
+bool BspLoader::isEndOfScript (bool crossline)
 {
 	if (!crossline)
 		//printf("Line %i is incomplete\n",scriptline);
@@ -208,16 +208,16 @@ bool BspLoader::EndOfScript (bool crossline)
 	script--;
 	scriptline = script->line;
 	//printf ("returning to %s\n", script->filename);
-	return GetToken (crossline);
+	return getToken (crossline);
 }
 
 /*
 
 ==============
-GetToken
+getToken
 ==============
 */
-bool BspLoader::GetToken (bool crossline)
+bool BspLoader::getToken (bool crossline)
 {
 	char    *token_p;
 
@@ -228,7 +228,7 @@ bool BspLoader::GetToken (bool crossline)
 	}
 
 	if (script->script_p >= script->end_p)
-		return EndOfScript (crossline);
+		return isEndOfScript (crossline);
 
 //
 // skip space
@@ -237,7 +237,7 @@ skipspace:
 	while (*script->script_p <= 32)
 	{
 		if (script->script_p >= script->end_p)
-			return EndOfScript (crossline);
+			return isEndOfScript (crossline);
 		if (*script->script_p++ == '\n')
 		{
 			if (!crossline)
@@ -249,7 +249,7 @@ skipspace:
 	}
 
 	if (script->script_p >= script->end_p)
-		return EndOfScript (crossline);
+		return isEndOfScript (crossline);
 
 	// ; # // comments
 	if (*script->script_p == ';' || *script->script_p == '#'
@@ -261,7 +261,7 @@ skipspace:
 		}
 		while (*script->script_p++ != '\n')
 			if (script->script_p >= script->end_p)
-				return EndOfScript (crossline);
+				return isEndOfScript (crossline);
 		scriptline = script->line++;
 		goto skipspace;
 	}
@@ -281,7 +281,7 @@ skipspace:
 			}
 			script->script_p++;
 			if (script->script_p >= script->end_p)
-				return EndOfScript (crossline);
+				return isEndOfScript (crossline);
 		}
 		script->script_p += 2;
 		goto skipspace;
@@ -324,9 +324,9 @@ skipspace:
 
 	if (!strcmp (token, "$include"))
 	{
-		//GetToken (false);
+		//getToken (false);
 		//AddScriptToStack (token);
-		return false;//GetToken (crossline);
+		return false;//getToken (crossline);
 	}
 
 	return true;
@@ -340,7 +340,7 @@ char *BspLoader::copystring(const char *s)
 	return b;
 }
 
-void BspLoader::StripTrailing( char *e ) {
+void BspLoader::stripTrailing( char *e ) {
 	char	*s;
 
 	s = e + strlen(e)-1;
@@ -352,10 +352,10 @@ void BspLoader::StripTrailing( char *e ) {
 }
 /*
 =================
-ParseEpair
+parseEpair
 =================
 */
-BSPKeyValuePair *BspLoader::ParseEpair( void ) {
+BSPKeyValuePair *BspLoader::parseEpair( void ) {
 	BSPKeyValuePair	*e;
 
 	e = (struct BSPPair*) malloc( sizeof(BSPKeyValuePair));
@@ -365,7 +365,7 @@ BSPKeyValuePair *BspLoader::ParseEpair( void ) {
 		//printf ("ParseEpar: token too long");
 	}
 	e->key = copystring( token );
-	GetToken( false );
+	getToken( false );
 	if ( strlen(token) >= BSPMAX_VALUE-1 ) {
 
 		//printf ("ParseEpar: token too long");
@@ -374,8 +374,8 @@ BSPKeyValuePair *BspLoader::ParseEpair( void ) {
 
 	// strip trailing spaces that sometimes get accidentally
 	// added in the editor
-	StripTrailing( e->key );
-	StripTrailing( e->value );
+	stripTrailing( e->key );
+	stripTrailing( e->value );
 
 	return e;
 }
@@ -383,20 +383,20 @@ BSPKeyValuePair *BspLoader::ParseEpair( void ) {
 
 /*
 ================
-ParseEntity
+parseEntity
 ================
 */
-bool	BspLoader::ParseEntity( void ) {
+bool	BspLoader::parseEntity( void ) {
 	BSPKeyValuePair		*e;
 	BSPEntity	*mapent;
 
-	if ( !GetToken (true) ) {
+	if ( !getToken (true) ) {
 		return false;
 	}
 
 	if ( strcmp (token, "{") ) {
 
-		//printf ("ParseEntity: { not found");
+		//printf ("parseEntity: { not found");
 	}
 
 	BSPEntity bla;
@@ -413,13 +413,13 @@ bool	BspLoader::ParseEntity( void ) {
 	m_num_entities++;
 
 	do {
-		if ( !GetToken (true) ) {
-			//printf("ParseEntity: EOF without closing brace");
+		if ( !getToken (true) ) {
+			//printf("parseEntity: EOF without closing brace");
 		}
 		if ( !strcmp (token, "}") ) {
 			break;
 		}
-		e = (struct BSPPair*)ParseEpair ();
+		e = (struct BSPPair*)parseEpair ();
 		e->next = mapent->epairs;
 		mapent->epairs = e;
 	} while (1);
@@ -429,18 +429,18 @@ bool	BspLoader::ParseEntity( void ) {
 
 /*
 ================
-ParseEntities
+parseEntities
 
 Parses the dentdata string into entities
 ================
 */
-void BspLoader::ParseEntities( void ) {
+void BspLoader::parseEntities( void ) {
 	m_num_entities = 0;
 	m_entities.clear();
 
-	ParseFromMemory( &m_dentdata[0], m_entdatasize );
+	parseFromMemory( &m_dentdata[0], m_entdatasize );
 
-	while ( ParseEntity () ) {
+	while ( parseEntity () ) {
 	}	
 }
 
@@ -456,7 +456,7 @@ int BspLoader::getMachineEndianness()
 	   return BSP_BIG_ENDIAN;
 }
 
-short   BspLoader::LittleShort (short l)
+short   BspLoader::isLittleShort (short l)
 {
 	if (machineEndianness() == BSP_BIG_ENDIAN)
 	{
@@ -471,7 +471,7 @@ short   BspLoader::LittleShort (short l)
 	return l;
 }
 
-short   BspLoader::BigShort (short l)
+short   BspLoader::isBigShort (short l)
 {
 	if (machineEndianness() == BSP_BIG_ENDIAN)
 	{
@@ -490,7 +490,7 @@ short   BspLoader::BigShort (short l)
 }
 
 
-int    BspLoader::LittleLong (int l)
+int    BspLoader::isLittleLong (int l)
 {
 	if (machineEndianness() == BSP_BIG_ENDIAN)
 	{
@@ -509,7 +509,7 @@ int    BspLoader::LittleLong (int l)
 
 }
 
-int    BspLoader::BigLong (int l)
+int    BspLoader::isBigLong (int l)
 {
 	if (machineEndianness() == BSP_BIG_ENDIAN)
 	{
@@ -529,7 +529,7 @@ int    BspLoader::BigLong (int l)
 }
 
 
-float	BspLoader::LittleFloat (float l)
+float	BspLoader::isLittleFloat (float l)
 {
 	if (machineEndianness() == BSP_BIG_ENDIAN)
 	{
@@ -548,7 +548,7 @@ float	BspLoader::LittleFloat (float l)
 	return l;
 }
 
-float	BspLoader::BigFloat (float l)
+float	BspLoader::isBigFloat (float l)
 {
 	if (machineEndianness() == BSP_BIG_ENDIAN)
 	{
@@ -572,31 +572,31 @@ float	BspLoader::BigFloat (float l)
 
 
 //
-// SwapBlock
+// swapBlock
 // If all values are 32 bits, this can be used to swap everything
 //
 
-void BspLoader::SwapBlock( int *block, int sizeOfBlock ) {
+void BspLoader::swapBlock( int *block, int sizeOfBlock ) {
 	int		i;
 
 	sizeOfBlock >>= 2;
 	for ( i = 0 ; i < sizeOfBlock ; i++ ) {
-		block[i] = LittleLong( block[i] );
+		block[i] = isLittleLong( block[i] );
 	}
 }
 
 //
-// CopyLump
+// copyLump
 //
 
-int BspLoader::CopyLump( BSPHeader	*header, int lump, void *dest, int size ) {
+int BspLoader::copyLump( BSPHeader	*header, int lump, void *dest, int size ) {
 	int		length, ofs;
 
 	length = header->lumps[lump].filelen;
 	ofs = header->lumps[lump].fileofs;
 	
 	//if ( length % size ) {
-	//	printf ("LoadBSPFile: odd lump size");
+	//	printf ("loadBSPFile: odd lump size");
 	//}
 
 	memcpy( dest, (unsigned char *)header + ofs, length );
@@ -608,52 +608,52 @@ int BspLoader::CopyLump( BSPHeader	*header, int lump, void *dest, int size ) {
 
 
 //
-// SwapBSPFile
+// swapBSPFile
 //
 
-void BspLoader::SwapBSPFile( void ) {
+void BspLoader::swapBSPFile( void ) {
 	int				i;
 	
 	// models	
-	SwapBlock( (int *) &m_dmodels[0], m_nummodels * sizeof( m_dmodels[0] ) );
+	swapBlock( (int *) &m_dmodels[0], m_nummodels * sizeof( m_dmodels[0] ) );
 
 	// shaders (don't swap the name)
 	for ( i = 0 ; i < m_numShaders ; i++ ) {
-		m_dshaders[i].contentFlags = LittleLong( m_dshaders[i].contentFlags );
-		m_dshaders[i].surfaceFlags = LittleLong( m_dshaders[i].surfaceFlags );
+		m_dshaders[i].contentFlags = isLittleLong( m_dshaders[i].contentFlags );
+		m_dshaders[i].surfaceFlags = isLittleLong( m_dshaders[i].surfaceFlags );
 	}
 
 	// planes
-	SwapBlock( (int *)&m_dplanes[0], m_numplanes * sizeof( m_dplanes[0] ) );
+	swapBlock( (int *)&m_dplanes[0], m_numplanes * sizeof( m_dplanes[0] ) );
 	
 	// nodes
-	SwapBlock( (int *)&m_dnodes[0], m_numnodes * sizeof( m_dnodes[0] ) );
+	swapBlock( (int *)&m_dnodes[0], m_numnodes * sizeof( m_dnodes[0] ) );
 
 	// leafs
-	SwapBlock( (int *)&m_dleafs[0], m_numleafs * sizeof( m_dleafs[0] ) );
+	swapBlock( (int *)&m_dleafs[0], m_numleafs * sizeof( m_dleafs[0] ) );
 
 	// leaffaces
-	SwapBlock( (int *)&m_dleafsurfaces[0], m_numleafsurfaces * sizeof( m_dleafsurfaces[0] ) );
+	swapBlock( (int *)&m_dleafsurfaces[0], m_numleafsurfaces * sizeof( m_dleafsurfaces[0] ) );
 
 	// leafbrushes
-	SwapBlock( (int *)&m_dleafbrushes[0], m_numleafbrushes * sizeof( m_dleafbrushes[0] ) );
+	swapBlock( (int *)&m_dleafbrushes[0], m_numleafbrushes * sizeof( m_dleafbrushes[0] ) );
 
 	// brushes
-	SwapBlock( (int *)&m_dbrushes[0], m_numbrushes * sizeof( m_dbrushes[0] ) );
+	swapBlock( (int *)&m_dbrushes[0], m_numbrushes * sizeof( m_dbrushes[0] ) );
 
 	// brushsides
-	SwapBlock( (int *)&m_dbrushsides[0], m_numbrushsides * sizeof( m_dbrushsides[0] ) );
+	swapBlock( (int *)&m_dbrushsides[0], m_numbrushsides * sizeof( m_dbrushsides[0] ) );
 
 	// vis
-	((int *)&m_visBytes)[0] = LittleLong( ((int *)&m_visBytes)[0] );
-	((int *)&m_visBytes)[1] = LittleLong( ((int *)&m_visBytes)[1] );
+	((int *)&m_visBytes)[0] = isLittleLong( ((int *)&m_visBytes)[0] );
+	((int *)&m_visBytes)[1] = isLittleLong( ((int *)&m_visBytes)[1] );
 
 
 	// drawindexes
-	SwapBlock( (int *)&m_drawIndexes[0], m_numDrawIndexes * sizeof( m_drawIndexes[0] ) );
+	swapBlock( (int *)&m_drawIndexes[0], m_numDrawIndexes * sizeof( m_drawIndexes[0] ) );
 
 	// drawsurfs
-	SwapBlock( (int *)&m_drawSurfaces[0], m_numDrawSurfaces * sizeof( m_drawSurfaces[0] ) );
+	swapBlock( (int *)&m_drawSurfaces[0], m_numDrawSurfaces * sizeof( m_drawSurfaces[0] ) );
 
 }
 
@@ -668,17 +668,17 @@ bool BspLoader::findVectorByName(float* outvec,const char* name)
 	
 	bool found = false;
 
-	ParseEntities();
+	parseEntities();
 
 	for ( int i = 1; i < m_num_entities; i++ ) {
-		cl = ValueForKey (&m_entities[i], "classname");
+		cl = getValueForKey (&m_entities[i], "classname");
 		if ( !strcmp( cl, "info_player_start" ) ) {
-				GetVectorForKey( &m_entities[i], "origin", origin );
+				getVectorForKey( &m_entities[i], "origin", origin );
 				found = true;
 				break;
 			}
 		if ( !strcmp( cl, "info_player_deathmatch" ) ) {
-				GetVectorForKey( &m_entities[i], "origin", origin );
+				getVectorForKey( &m_entities[i], "origin", origin );
 				found = true;
 				break;
 			}
@@ -703,7 +703,7 @@ const BSPEntity * BspLoader::getEntityByValue( const char* name, const char* val
 
 		const BSPEntity& ent = m_entities[i];
 
-		const char* cl = ValueForKey (&m_entities[i], name);
+		const char* cl = getValueForKey (&m_entities[i], name);
 		if ( !strcmp( cl, value ) ) {
 			entity = &ent;
 			break;

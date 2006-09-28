@@ -74,10 +74,10 @@ void	ConstraintDemo::initPhysics()
 	bool isDynamic = false;
 	float mass = 1.f;
 
-	CcdPhysicsController* ctrl0 = LocalCreatePhysicsObject( isDynamic,mass,trans,shape);
+	CcdPhysicsController* ctrl0 = localCreatePhysicsObject( isDynamic,mass,trans,shape);
 	trans.setOrigin(btVector3(2*CUBE_HALF_EXTENTS,20,0));
 	isDynamic = true;
-	CcdPhysicsController* ctrl1 = LocalCreatePhysicsObject( isDynamic,mass,trans,shape);
+	CcdPhysicsController* ctrl1 = localCreatePhysicsObject( isDynamic,mass,trans,shape);
 	
 	
 	clientResetScene();

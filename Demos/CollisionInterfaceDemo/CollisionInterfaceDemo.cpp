@@ -92,8 +92,8 @@ void	CollisionInterfaceDemo::initPhysics()
 
 	collisionWorld = new btCollisionWorld(dispatcher,broadphase);
 	
-	collisionWorld->AddCollisionObject(&objects[0]);
-	collisionWorld->AddCollisionObject(&objects[1]);
+	collisionWorld->addCollisionObject(&objects[0]);
+	collisionWorld->addCollisionObject(&objects[1]);
 
 }
 
@@ -118,30 +118,30 @@ void CollisionInterfaceDemo::displayCallback(void) {
 	glDisable(GL_LIGHTING);
 
 	if (collisionWorld)
-		collisionWorld->PerformDiscreteCollisionDetection();
+		collisionWorld->performDiscreteCollisionDetection();
 	
 	int i;
 
 	///one way to draw all the contact points is iterating over contact manifolds / points:
 
-	int numManifolds = collisionWorld->GetDispatcher()->GetNumManifolds();
+	int numManifolds = collisionWorld->getDispatcher()->getNumManifolds();
 	for (i=0;i<numManifolds;i++)
 	{
-		btPersistentManifold* contactManifold = collisionWorld->GetDispatcher()->GetManifoldByIndexInternal(i);
-		btCollisionObject* obA = static_cast<btCollisionObject*>(contactManifold->GetBody0());
-		btCollisionObject* obB = static_cast<btCollisionObject*>(contactManifold->GetBody1());
-		contactManifold->RefreshContactPoints(obA->m_worldTransform,obB->m_worldTransform);
+		btPersistentManifold* contactManifold = collisionWorld->getDispatcher()->getManifoldByIndexInternal(i);
+		btCollisionObject* obA = static_cast<btCollisionObject*>(contactManifold->getBody0());
+		btCollisionObject* obB = static_cast<btCollisionObject*>(contactManifold->getBody1());
+		contactManifold->refreshContactPoints(obA->m_worldTransform,obB->m_worldTransform);
 
-		int numContacts = contactManifold->GetNumContacts();
+		int numContacts = contactManifold->getNumContacts();
 		for (int j=0;j<numContacts;j++)
 		{
-			btManifoldPoint& pt = contactManifold->GetContactPoint(j);
+			btManifoldPoint& pt = contactManifold->getContactPoint(j);
 
 			glBegin(GL_LINES);
 			glColor3f(1, 0, 1);
 			
-			btVector3 ptA = pt.GetPositionWorldOnA();
-			btVector3 ptB = pt.GetPositionWorldOnB();
+			btVector3 ptA = pt.getPositionWorldOnA();
+			btVector3 ptB = pt.getPositionWorldOnB();
 
 			glVertex3d(ptA.x(),ptA.y(),ptA.z());
 			glVertex3d(ptB.x(),ptB.y(),ptB.z());
@@ -149,10 +149,10 @@ void CollisionInterfaceDemo::displayCallback(void) {
 		}
 
 		//you can un-comment out this line, and then all points are removed
-		//contactManifold->ClearManifold();	
+		//contactManifold->clearManifold();	
 	}
 
-	//GL_ShapeDrawer::DrawCoordSystem();
+	//GL_ShapeDrawer::drawCoordSystem();
 
 	float m[16];
 	
@@ -162,7 +162,7 @@ void CollisionInterfaceDemo::displayCallback(void) {
 	{
 		
 		objects[i].m_worldTransform.getOpenGLMatrix( m );
-		GL_ShapeDrawer::DrawOpenGL(m,objects[i].m_collisionShape,btVector3(1,1,1),getDebugMode());
+		GL_ShapeDrawer::drawOpenGL(m,objects[i].m_collisionShape,btVector3(1,1,1),getDebugMode());
 
 	}
 

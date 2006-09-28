@@ -28,7 +28,7 @@ btBvhTriangleMeshShape::btBvhTriangleMeshShape(btStridingMeshInterface* meshInte
 #ifndef DISABLE_BVH
 
 	m_bvh = new btOptimizedBvh();
-	m_bvh->Build(meshInterface);
+	m_bvh->build(meshInterface);
 
 #endif //DISABLE_BVH
 
@@ -40,12 +40,12 @@ btBvhTriangleMeshShape::~btBvhTriangleMeshShape()
 }
 
 //perform bvh tree traversal and report overlapping triangles to 'callback'
-void	btBvhTriangleMeshShape::ProcessAllTriangles(btTriangleCallback* callback,const btVector3& aabbMin,const btVector3& aabbMax) const
+void	btBvhTriangleMeshShape::processAllTriangles(btTriangleCallback* callback,const btVector3& aabbMin,const btVector3& aabbMax) const
 {
 
 #ifdef DISABLE_BVH
 	//brute force traverse all triangles
-	btTriangleMeshShape::ProcessAllTriangles(callback,aabbMin,aabbMax);
+	btTriangleMeshShape::processAllTriangles(callback,aabbMin,aabbMax);
 #else
 
 	//first get all the nodes
@@ -64,7 +64,7 @@ void	btBvhTriangleMeshShape::ProcessAllTriangles(btTriangleCallback* callback,co
 		{
 		}
 				
-		virtual void ProcessNode(const btOptimizedBvhNode* node)
+		virtual void processNode(const btOptimizedBvhNode* node)
 		{
 			const unsigned char *vertexbase;
 			int numverts;
@@ -108,7 +108,7 @@ void	btBvhTriangleMeshShape::ProcessAllTriangles(btTriangleCallback* callback,co
 #endif //DEBUG_TRIANGLE_MESH
 			}
 
-			m_callback->ProcessTriangle(m_triangle,node->m_subPart,node->m_triangleIndex);
+			m_callback->processTriangle(m_triangle,node->m_subPart,node->m_triangleIndex);
 			m_meshInterface->unLockReadOnlyVertexBase(node->m_subPart);
 		}
 
@@ -116,7 +116,7 @@ void	btBvhTriangleMeshShape::ProcessAllTriangles(btTriangleCallback* callback,co
 
 	MyNodeOverlapCallback	myNodeCallback(callback,m_meshInterface);
 
-	m_bvh->ReportAabbOverlappingNodex(&myNodeCallback,aabbMin,aabbMax);
+	m_bvh->reportAabbOverlappingNodex(&myNodeCallback,aabbMin,aabbMax);
 
 
 #endif//DISABLE_BVH
@@ -132,7 +132,7 @@ void	btBvhTriangleMeshShape::setLocalScaling(const btVector3& scaling)
 		btTriangleMeshShape::setLocalScaling(scaling);
 		delete m_bvh;
 		m_bvh = new btOptimizedBvh();
-		m_bvh->Build(m_meshInterface);
+		m_bvh->build(m_meshInterface);
 		//rebuild the bvh...
 	}
 }

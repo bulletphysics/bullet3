@@ -20,9 +20,9 @@ subject to the following restrictions:
 #include "BMF_FontData.h"
 
 ///
-///RenderTexture provides a software-render context (setpixel/printf)
+///renderTexture provides a software-render context (setpixel/printf)
 ///
-class RenderTexture
+class renderTexture
 {
 	int m_height;
 	int m_width;
@@ -30,10 +30,10 @@ class RenderTexture
 
 public:
 
-	RenderTexture(int width,int height);
-	~RenderTexture();
+	renderTexture(int width,int height);
+	~renderTexture();
 
-	inline void	SetPixel(int x,int y,const btVector4& rgba)
+	inline void	setPixel(int x,int y,const btVector4& rgba)
 	{
 		unsigned char* pixel = &m_buffer[ (x+y*m_width) * 4];
 
@@ -43,10 +43,10 @@ public:
 		pixel[3] = (unsigned char)(255*rgba.getW());
 	}
 
-	const unsigned char*	GetBuffer() const { return m_buffer;}
-	int	GetWidth() const { return m_width;}
-	int	GetHeight() const { return m_height;}
-	void Printf(char* str,	BMF_FontData* fontData, int startx = 0,int starty=0);
+	const unsigned char*	getBuffer() const { return m_buffer;}
+	int	getWidth() const { return m_width;}
+	int	getHeight() const { return m_height;}
+	void grapicalPrintf(char* str,	BMF_FontData* fontData, int startx = 0,int starty=0);
 
 };
 

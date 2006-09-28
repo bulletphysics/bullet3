@@ -12,14 +12,14 @@
 #include "BulletDynamics/Dynamics/btRigidBody.h" // for pointvelocity
 
 
-btScalar btWheelInfo::GetSuspensionRestLength() const
+btScalar btWheelInfo::getSuspensionRestLength() const
 {
 
 	return m_suspensionRestLength1;
 
 }
 
-void	btWheelInfo::UpdateWheel(const btRigidBody& chassis,RaycastInfo& raycastInfo)
+void	btWheelInfo::updateWheel(const btRigidBody& chassis,RaycastInfo& raycastInfo)
 {
 
 	
@@ -47,7 +47,7 @@ void	btWheelInfo::UpdateWheel(const btRigidBody& chassis,RaycastInfo& raycastInf
 
 	else	// Not in contact : position wheel in a nice (rest length) position
 	{
-		m_raycastInfo.m_suspensionLength = this->GetSuspensionRestLength();
+		m_raycastInfo.m_suspensionLength = this->getSuspensionRestLength();
 		m_suspensionRelativeVelocity = 0.0f;
 		m_raycastInfo.m_contactNormalWS = -m_raycastInfo.m_wheelDirectionWS;
 		m_clippedInvContactDotSuspension = 1.0f;

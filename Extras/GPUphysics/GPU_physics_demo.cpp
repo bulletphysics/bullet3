@@ -122,7 +122,7 @@ void initGLcontext ( int argc, char **argv,
   glutInit            ( &argc, argv ) ;
   glutInitDisplayMode ( GLUT_RGB | GLUT_DEPTH | GLUT_DOUBLE ) ;
   glutInitWindowSize  ( win_width, win_height ) ;
-  glutCreateWindow    ( "Shader Math Demo" ) ;
+  glutCreateWindow    ( "Bullet GPU Physics Demo. http://bullet.sf.net" ) ;
   glutDisplayFunc     ( display  ) ;
   glutKeyboardFunc    ( keybd    ) ;
   glutReshapeFunc     ( reshape  ) ;
@@ -703,7 +703,7 @@ void help ()
 
 int main ( int argc, char **argv )
 {
-  bool disableVertexTextureSupport = false ;
+  bool disableVertexTextureSupport = true ;
   debugOpt = DRAW_ALL ;
 
   for ( int i = 1 ; i < argc ; i++ )

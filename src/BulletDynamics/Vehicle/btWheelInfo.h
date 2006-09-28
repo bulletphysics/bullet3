@@ -58,7 +58,7 @@ struct btWheelInfo
 	btVector3	m_wheelAxleCS; // const or modified by steering
 	btScalar	m_suspensionRestLength1;//const
 	btScalar	m_maxSuspensionTravelCm;
-	btScalar GetSuspensionRestLength() const;
+	btScalar getSuspensionRestLength() const;
 	btScalar	m_wheelsRadius;//const
 	btScalar	m_suspensionStiffness;//const
 	btScalar	m_wheelsDampingCompression;//const
@@ -102,7 +102,7 @@ struct btWheelInfo
 
 	}
 
-	void	UpdateWheel(const btRigidBody& chassis,RaycastInfo& raycastInfo);
+	void	updateWheel(const btRigidBody& chassis,RaycastInfo& raycastInfo);
 
 	btScalar	m_clippedInvContactDotSuspension;
 	btScalar	m_suspensionRelativeVelocity;

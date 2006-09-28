@@ -48,27 +48,27 @@ btConvexTriangleCallback::btConvexTriangleCallback(btDispatcher*  dispatcher,btB
 	  //
 	  // create the manifold from the dispatcher 'manifold pool'
 	  //
-	  m_manifoldPtr = m_dispatcher->GetNewManifold(proxy0->m_clientObject,proxy1->m_clientObject);
+	  m_manifoldPtr = m_dispatcher->getNewManifold(proxy0->m_clientObject,proxy1->m_clientObject);
 
-  	  ClearCache();
+  	  clearCache();
 }
 
 btConvexTriangleCallback::~btConvexTriangleCallback()
 {
-	ClearCache();
-	m_dispatcher->ReleaseManifold( m_manifoldPtr );
+	clearCache();
+	m_dispatcher->releaseManifold( m_manifoldPtr );
   
 }
   
 
-void	btConvexTriangleCallback::ClearCache()
+void	btConvexTriangleCallback::clearCache()
 {
-	m_dispatcher->ClearManifold(m_manifoldPtr);
+	m_dispatcher->clearManifold(m_manifoldPtr);
 };
 
 
 
-void btConvexTriangleCallback::ProcessTriangle(btVector3* triangle,int partId, int triangleIndex)
+void btConvexTriangleCallback::processTriangle(btVector3* triangle,int partId, int triangleIndex)
 {
  
 	//just for debugging purposes
@@ -85,29 +85,29 @@ void btConvexTriangleCallback::ProcessTriangle(btVector3* triangle,int partId, i
 
 	
 	///debug drawing of the overlapping triangles
-	if (m_dispatchInfoPtr && m_dispatchInfoPtr->m_debugDraw && m_dispatchInfoPtr->m_debugDraw->GetDebugMode() > 0)
+	if (m_dispatchInfoPtr && m_dispatchInfoPtr->m_debugDraw && m_dispatchInfoPtr->m_debugDraw->getDebugMode() > 0)
 	{
 		btVector3 color(255,255,0);
 		btTransform& tr = ob->m_worldTransform;
-		m_dispatchInfoPtr->m_debugDraw->DrawLine(tr(triangle[0]),tr(triangle[1]),color);
-		m_dispatchInfoPtr->m_debugDraw->DrawLine(tr(triangle[1]),tr(triangle[2]),color);
-		m_dispatchInfoPtr->m_debugDraw->DrawLine(tr(triangle[2]),tr(triangle[0]),color);
+		m_dispatchInfoPtr->m_debugDraw->drawLine(tr(triangle[0]),tr(triangle[1]),color);
+		m_dispatchInfoPtr->m_debugDraw->drawLine(tr(triangle[1]),tr(triangle[2]),color);
+		m_dispatchInfoPtr->m_debugDraw->drawLine(tr(triangle[2]),tr(triangle[0]),color);
 
 		//btVector3 center = triangle[0] + triangle[1]+triangle[2];
 		//center *= 0.333333f;
-		//m_dispatchInfoPtr->m_debugDraw->DrawLine(tr(triangle[0]),tr(center),color);
-		//m_dispatchInfoPtr->m_debugDraw->DrawLine(tr(triangle[1]),tr(center),color);
-		//m_dispatchInfoPtr->m_debugDraw->DrawLine(tr(triangle[2]),tr(center),color);
+		//m_dispatchInfoPtr->m_debugDraw->drawLine(tr(triangle[0]),tr(center),color);
+		//m_dispatchInfoPtr->m_debugDraw->drawLine(tr(triangle[1]),tr(center),color);
+		//m_dispatchInfoPtr->m_debugDraw->drawLine(tr(triangle[2]),tr(center),color);
 
 	}
 
 
 	btCollisionObject* colObj = static_cast<btCollisionObject*>(m_convexProxy->m_clientObject);
 	
-	if (colObj->m_collisionShape->IsConvex())
+	if (colObj->m_collisionShape->isConvex())
 	{
 		btTriangleShape tm(triangle[0],triangle[1],triangle[2]);	
-		tm.SetMargin(m_collisionMarginTriangle);
+		tm.setMargin(m_collisionMarginTriangle);
 	
 		
 		btCollisionShape* tmpShape = ob->m_collisionShape;
@@ -115,8 +115,8 @@ void btConvexTriangleCallback::ProcessTriangle(btVector3* triangle,int partId, i
 		
 		///this should use the btDispatcher, so the actual registered algorithm is used
 		btConvexConvexAlgorithm cvxcvxalgo(m_manifoldPtr,ci,m_convexProxy,&m_triangleProxy);
-		cvxcvxalgo.SetShapeIdentifiers(-1,-1,partId,triangleIndex);
-		cvxcvxalgo.ProcessCollision(m_convexProxy,&m_triangleProxy,*m_dispatchInfoPtr);
+		cvxcvxalgo.setShapeIdentifiers(-1,-1,partId,triangleIndex);
+		cvxcvxalgo.processCollision(m_convexProxy,&m_triangleProxy,*m_dispatchInfoPtr);
 		ob->m_collisionShape = tmpShape;
 
 	}
@@ -127,7 +127,7 @@ void btConvexTriangleCallback::ProcessTriangle(btVector3* triangle,int partId, i
 
 
 
-void	btConvexTriangleCallback::SetTimeStepAndCounters(float collisionMarginTriangle,const btDispatcherInfo& dispatchInfo)
+void	btConvexTriangleCallback::setTimeStepAndCounters(float collisionMarginTriangle,const btDispatcherInfo& dispatchInfo)
 {
 	m_dispatchInfoPtr = &dispatchInfo;
 	m_collisionMarginTriangle = collisionMarginTriangle;
@@ -142,7 +142,7 @@ void	btConvexTriangleCallback::SetTimeStepAndCounters(float collisionMarginTrian
 	btCollisionShape* convexShape = static_cast<btCollisionShape*>(convexBody->m_collisionShape);
 	//CollisionShape* triangleShape = static_cast<btCollisionShape*>(triBody->m_collisionShape);
 
-	convexShape->GetAabb(convexInTriangleSpace,m_aabbMin,m_aabbMax);
+	convexShape->getAabb(convexInTriangleSpace,m_aabbMin,m_aabbMax);
 
 	float extraMargin = collisionMarginTriangle;//CONVEX_DISTANCE_MARGIN;//+0.1f;
 
@@ -153,22 +153,22 @@ void	btConvexTriangleCallback::SetTimeStepAndCounters(float collisionMarginTrian
 	
 }
 
-void btConvexConcaveCollisionAlgorithm::ClearCache()
+void btConvexConcaveCollisionAlgorithm::clearCache()
 {
-	m_btConvexTriangleCallback.ClearCache();
+	m_btConvexTriangleCallback.clearCache();
 
 }
 
-void btConvexConcaveCollisionAlgorithm::ProcessCollision (btBroadphaseProxy* ,btBroadphaseProxy* ,const btDispatcherInfo& dispatchInfo)
+void btConvexConcaveCollisionAlgorithm::processCollision (btBroadphaseProxy* ,btBroadphaseProxy* ,const btDispatcherInfo& dispatchInfo)
 {
 	
 	btCollisionObject* convexBody = static_cast<btCollisionObject* >(m_convex.m_clientObject);
 	btCollisionObject* triBody = static_cast<btCollisionObject* >(m_concave.m_clientObject);
 
-	if (triBody->m_collisionShape->IsConcave())
+	if (triBody->m_collisionShape->isConcave())
 	{
 
-		if (!m_dispatcher->NeedsCollision(m_convex,m_concave))
+		if (!m_dispatcher->needsCollision(m_convex,m_concave))
 			return;
 
 		
@@ -176,19 +176,19 @@ void btConvexConcaveCollisionAlgorithm::ProcessCollision (btBroadphaseProxy* ,bt
 		btCollisionObject*	triOb = static_cast<btCollisionObject*>(m_concave.m_clientObject);
 		ConcaveShape* concaveShape = static_cast<ConcaveShape*>( triOb->m_collisionShape);
 		
-		if (convexBody->m_collisionShape->IsConvex())
+		if (convexBody->m_collisionShape->isConvex())
 		{
-			float collisionMarginTriangle = concaveShape->GetMargin();
+			float collisionMarginTriangle = concaveShape->getMargin();
 					
-			m_btConvexTriangleCallback.SetTimeStepAndCounters(collisionMarginTriangle,dispatchInfo);
+			m_btConvexTriangleCallback.setTimeStepAndCounters(collisionMarginTriangle,dispatchInfo);
 
 			//Disable persistency. previously, some older algorithm calculated all contacts in one go, so you can clear it here.
-			//m_dispatcher->ClearManifold(m_btConvexTriangleCallback.m_manifoldPtr);
+			//m_dispatcher->clearManifold(m_btConvexTriangleCallback.m_manifoldPtr);
 
 
-			m_btConvexTriangleCallback.m_manifoldPtr->SetBodies(m_convex.m_clientObject,m_concave.m_clientObject);
+			m_btConvexTriangleCallback.m_manifoldPtr->setBodies(m_convex.m_clientObject,m_concave.m_clientObject);
 
-			concaveShape->ProcessAllTriangles( &m_btConvexTriangleCallback,m_btConvexTriangleCallback.GetAabbMin(),m_btConvexTriangleCallback.GetAabbMax());
+			concaveShape->processAllTriangles( &m_btConvexTriangleCallback,m_btConvexTriangleCallback.getAabbMin(),m_btConvexTriangleCallback.getAabbMax());
 			
 	
 		}
@@ -198,7 +198,7 @@ void btConvexConcaveCollisionAlgorithm::ProcessCollision (btBroadphaseProxy* ,bt
 }
 
 
-float btConvexConcaveCollisionAlgorithm::CalculateTimeOfImpact(btBroadphaseProxy* ,btBroadphaseProxy* ,const btDispatcherInfo& dispatchInfo)
+float btConvexConcaveCollisionAlgorithm::calculateTimeOfImpact(btBroadphaseProxy* ,btBroadphaseProxy* ,const btDispatcherInfo& dispatchInfo)
 {
 
 	//quick approximation using raycast, todo: hook up to the continuous collision detection (one of the btConvexCast)
@@ -239,7 +239,7 @@ float btConvexConcaveCollisionAlgorithm::CalculateTimeOfImpact(btBroadphaseProxy
 		}
 		
 		
-		virtual void ProcessTriangle(btVector3* triangle, int partId, int triangleIndex)
+		virtual void processTriangle(btVector3* triangle, int partId, int triangleIndex)
 		{
 			//do a swept sphere for now
 			btTransform ident;
@@ -269,7 +269,7 @@ float btConvexConcaveCollisionAlgorithm::CalculateTimeOfImpact(btBroadphaseProxy
 	
 
 	
-	if (triBody->m_collisionShape->IsConcave())
+	if (triBody->m_collisionShape->isConcave())
 	{
 		btVector3 rayAabbMin = convexFromLocal.getOrigin();
 		rayAabbMin.setMin(convexToLocal.getOrigin());
@@ -290,7 +290,7 @@ float btConvexConcaveCollisionAlgorithm::CalculateTimeOfImpact(btBroadphaseProxy
 		
 		if (triangleMesh)
 		{
-			triangleMesh->ProcessAllTriangles(&raycastCallback,rayAabbMin,rayAabbMax);
+			triangleMesh->processAllTriangles(&raycastCallback,rayAabbMin,rayAabbMax);
 		}
 	
 

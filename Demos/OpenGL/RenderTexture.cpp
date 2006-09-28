@@ -13,11 +13,11 @@ subject to the following restrictions:
 3. This notice may not be removed or altered from any source distribution.
 */
 
-#include "RenderTexture.h"
+#include "renderTexture.h"
 #include <memory.h>
 #include "BMF_FontData.h"
 
-RenderTexture::RenderTexture(int width,int height)
+renderTexture::renderTexture(int width,int height)
 :m_height(height),m_width(width)
 {
 	m_buffer = new unsigned char[m_width*m_height*4];
@@ -30,14 +30,14 @@ RenderTexture::RenderTexture(int width,int height)
 	{
 		for (int y=0;y<m_height;y++)
 		{
-			SetPixel(x,y,btVector4(float(x),float(y),0.f,1.f));
+			setPixel(x,y,btVector4(float(x),float(y),0.f,1.f));
 		}
 
 	}
 
 }
 
-void RenderTexture::Printf(char* str,	BMF_FontData* fontData, int startx,int starty)
+void renderTexture::grapicalPrintf(char* str,	BMF_FontData* fontData, int startx,int starty)
 {
 	unsigned char c;
 	int rasterposx = startx;
@@ -55,7 +55,7 @@ void RenderTexture::Printf(char* str,	BMF_FontData* fontData, int startx,int sta
 					char packedColor = bitmap[y];
 					float colorf = packedColor & bit ? 1.f : 0.f;
 					btVector4 rgba(colorf,colorf,colorf,1.f);
-					SetPixel(rasterposx+x,rasterposy+8-y-1,rgba);
+					setPixel(rasterposx+x,rasterposy+8-y-1,rgba);
 					bit >>=1;
 				}
 			}
@@ -64,7 +64,7 @@ void RenderTexture::Printf(char* str,	BMF_FontData* fontData, int startx,int sta
 	}
 }
 
-RenderTexture::~RenderTexture()
+renderTexture::~renderTexture()
 {
 	delete [] m_buffer;
 }

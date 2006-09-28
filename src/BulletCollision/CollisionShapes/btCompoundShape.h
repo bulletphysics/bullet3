@@ -42,33 +42,33 @@ public:
 
 	virtual ~btCompoundShape();
 
-	void	AddChildShape(const btTransform& localTransform,btCollisionShape* shape);
+	void	addChildShape(const btTransform& localTransform,btCollisionShape* shape);
 
-	int		GetNumChildShapes() const
+	int		getNumChildShapes() const
 	{
 		return m_childShapes.size();
 	}
 
-	btCollisionShape* GetChildShape(int index)
+	btCollisionShape* getChildShape(int index)
 	{
 		return m_childShapes[index];
 	}
-	const btCollisionShape* GetChildShape(int index) const
+	const btCollisionShape* getChildShape(int index) const
 	{
 		return m_childShapes[index];
 	}
 
-	btTransform	GetChildTransform(int index)
+	btTransform	getChildTransform(int index)
 	{
 		return m_childTransforms[index];
 	}
-	const btTransform	GetChildTransform(int index) const
+	const btTransform	getChildTransform(int index) const
 	{
 		return m_childTransforms[index];
 	}
 
-	///GetAabb's default implementation is brute force, expected derived classes to implement a fast dedicated version
-	void GetAabb(const btTransform& t,btVector3& aabbMin,btVector3& aabbMax) const;
+	///getAabb's default implementation is brute force, expected derived classes to implement a fast dedicated version
+	void getAabb(const btTransform& t,btVector3& aabbMin,btVector3& aabbMax) const;
 
 
 	virtual void	setLocalScaling(const btVector3& scaling)
@@ -80,27 +80,27 @@ public:
 		return m_localScaling;
 	}
 
-	virtual void	CalculateLocalInertia(btScalar mass,btVector3& inertia);
+	virtual void	calculateLocalInertia(btScalar mass,btVector3& inertia);
 	
-	virtual int	GetShapeType() const { return COMPOUND_SHAPE_PROXYTYPE;}
+	virtual int	getShapeType() const { return COMPOUND_SHAPE_PROXYTYPE;}
 
-	virtual void	SetMargin(float margin)
+	virtual void	setMargin(float margin)
 	{
 		m_collisionMargin = margin;
 	}
-	virtual float	GetMargin() const
+	virtual float	getMargin() const
 	{
 		return m_collisionMargin;
 	}
-	virtual char*	GetName()const
+	virtual char*	getName()const
 	{
 		return "Compound";
 	}
 
 	//this is optional, but should make collision queries faster, by culling non-overlapping nodes
-	void	CreateAabbTreeFromChildren();
+	void	createAabbTreeFromChildren();
 
-	const btOptimizedBvh*					GetAabbTree() const
+	const btOptimizedBvh*					getAabbTree() const
 	{
 		return m_aabbTree;
 	}

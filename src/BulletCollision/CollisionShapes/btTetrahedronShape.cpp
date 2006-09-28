@@ -24,49 +24,49 @@ btBU_Simplex1to4::btBU_Simplex1to4()
 btBU_Simplex1to4::btBU_Simplex1to4(const btPoint3& pt0)
 :m_numVertices(0)
 {
-	AddVertex(pt0);
+	addVertex(pt0);
 }
 
 btBU_Simplex1to4::btBU_Simplex1to4(const btPoint3& pt0,const btPoint3& pt1)
 :m_numVertices(0)
 {
-	AddVertex(pt0);
-	AddVertex(pt1);
+	addVertex(pt0);
+	addVertex(pt1);
 }
 
 btBU_Simplex1to4::btBU_Simplex1to4(const btPoint3& pt0,const btPoint3& pt1,const btPoint3& pt2)
 :m_numVertices(0)
 {
-	AddVertex(pt0);
-	AddVertex(pt1);
-	AddVertex(pt2);
+	addVertex(pt0);
+	addVertex(pt1);
+	addVertex(pt2);
 }
 
 btBU_Simplex1to4::btBU_Simplex1to4(const btPoint3& pt0,const btPoint3& pt1,const btPoint3& pt2,const btPoint3& pt3)
 :m_numVertices(0)
 {
-	AddVertex(pt0);
-	AddVertex(pt1);
-	AddVertex(pt2);
-	AddVertex(pt3);
+	addVertex(pt0);
+	addVertex(pt1);
+	addVertex(pt2);
+	addVertex(pt3);
 }
 
 
 
 
 
-void btBU_Simplex1to4::AddVertex(const btPoint3& pt)
+void btBU_Simplex1to4::addVertex(const btPoint3& pt)
 {
 	m_vertices[m_numVertices++] = pt;
 }
 
 
-int	btBU_Simplex1to4::GetNumVertices() const
+int	btBU_Simplex1to4::getNumVertices() const
 {
 	return m_numVertices;
 }
 
-int btBU_Simplex1to4::GetNumEdges() const
+int btBU_Simplex1to4::getNumEdges() const
 {
 	//euler formula, F-E+V = 2, so E = F+V-2
 
@@ -85,7 +85,7 @@ int btBU_Simplex1to4::GetNumEdges() const
 	return 0;
 }
 
-void btBU_Simplex1to4::GetEdge(int i,btPoint3& pa,btPoint3& pb) const
+void btBU_Simplex1to4::getEdge(int i,btPoint3& pa,btPoint3& pb) const
 {
 	
     switch (m_numVertices)
@@ -149,12 +149,12 @@ void btBU_Simplex1to4::GetEdge(int i,btPoint3& pa,btPoint3& pb) const
 
 }
 
-void btBU_Simplex1to4::GetVertex(int i,btPoint3& vtx) const
+void btBU_Simplex1to4::getVertex(int i,btPoint3& vtx) const
 {
 	vtx = m_vertices[i];
 }
 
-int	btBU_Simplex1to4::GetNumPlanes() const
+int	btBU_Simplex1to4::getNumPlanes() const
 {
 	switch (m_numVertices)
 	{
@@ -176,17 +176,17 @@ int	btBU_Simplex1to4::GetNumPlanes() const
 }
 
 
-void btBU_Simplex1to4::GetPlane(btVector3& planeNormal,btPoint3& planeSupport,int i) const
+void btBU_Simplex1to4::getPlane(btVector3& planeNormal,btPoint3& planeSupport,int i) const
 {
 	
 }
 
-int btBU_Simplex1to4::GetIndex(int i) const
+int btBU_Simplex1to4::getIndex(int i) const
 {
 	return 0;
 }
 
-bool btBU_Simplex1to4::IsInside(const btPoint3& pt,btScalar tolerance) const
+bool btBU_Simplex1to4::isInside(const btPoint3& pt,btScalar tolerance) const
 {
 	return false;
 }

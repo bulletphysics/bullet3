@@ -99,7 +99,7 @@ class DemoApplication
 		m_debugMode = mode;
 	}
 
-	CcdPhysicsEnvironment*	GetPhysicsEnvironment()
+	CcdPhysicsEnvironment*	getPhysicsEnvironment()
 	{
 		return m_physicsEnvironmentPtr;
 	}
@@ -142,11 +142,11 @@ class DemoApplication
 	///Demo functions
 	void	shootBox(const btVector3& destination);
 
-	btVector3	GetRayTo(int x,int y);
+	btVector3	getRayTo(int x,int y);
 
-	CcdPhysicsController*  LocalCreatePhysicsObject(bool isDynamic, float mass, const btTransform& startTransform,btCollisionShape* shape);
+	CcdPhysicsController*  localCreatePhysicsObject(bool isDynamic, float mass, const btTransform& startTransform,btCollisionShape* shape);
 
-	btRigidBody*	LocalCreateRigidBody(bool isDynamic, float mass, const btTransform& startTransform,btCollisionShape* shape);
+	btRigidBody*	localCreateRigidBody(bool isDynamic, float mass, const btTransform& startTransform,btCollisionShape* shape);
 
 	///callback methods by glut	
 

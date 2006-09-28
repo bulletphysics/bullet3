@@ -41,8 +41,8 @@ ParallelPhysicsEnvironment::~ParallelPhysicsEnvironment()
 bool	ParallelPhysicsEnvironment::proceedDeltaTimeOneStep(float timeStep)
 {
 	// Make sure the broadphase / overlapping AABB paircache is up-to-date
-	btOverlappingPairCache*	scene = m_collisionWorld->GetPairCache();
-	scene->RefreshOverlappingPairs();
+	btOverlappingPairCache*	scene = m_collisionWorld->getPairCache();
+	scene->refreshOverlappingPairs();
 
 	// Find the connected sets that can be simulated in parallel
 	// Using union find
@@ -51,7 +51,7 @@ bool	ParallelPhysicsEnvironment::proceedDeltaTimeOneStep(float timeStep)
 	btProfiler::beginBlock("IslandUnionFind");
 #endif //USE_QUICKPROF
 
-	GetSimulationIslandManager()->UpdateActivationState(GetCollisionWorld(),GetCollisionWorld()->GetDispatcher());
+	getSimulationIslandManager()->updateActivationState(getCollisionWorld(),getCollisionWorld()->getDispatcher());
 
 	{
 		int i;
@@ -60,8 +60,8 @@ bool	ParallelPhysicsEnvironment::proceedDeltaTimeOneStep(float timeStep)
 		{
 			btTypedConstraint* constraint = m_constraints[i];
 
-			const btRigidBody* colObj0 = &constraint->GetRigidBodyA();
-			const btRigidBody* colObj1 = &constraint->GetRigidBodyB();
+			const btRigidBody* colObj0 = &constraint->getRigidBodyA();
+			const btRigidBody* colObj1 = &constraint->getRigidBodyB();
 
 			if (((colObj0) && ((colObj0)->mergesSimulationIslands())) &&
 				((colObj1) && ((colObj1)->mergesSimulationIslands())))
@@ -69,7 +69,7 @@ bool	ParallelPhysicsEnvironment::proceedDeltaTimeOneStep(float timeStep)
 				if (colObj0->IsActive() || colObj1->IsActive())
 				{
 
-					GetSimulationIslandManager()->GetUnionFind().unite((colObj0)->m_islandTag1,
+					getSimulationIslandManager()->getUnionFind().unite((colObj0)->m_islandTag1,
 						(colObj1)->m_islandTag1);
 				}
 			}
@@ -77,7 +77,7 @@ bool	ParallelPhysicsEnvironment::proceedDeltaTimeOneStep(float timeStep)
 	}
 
 	//Store the island id in each body
-	GetSimulationIslandManager()->StoreIslandActivationState(GetCollisionWorld());
+	getSimulationIslandManager()->storeIslandActivationState(getCollisionWorld());
 
 #ifdef USE_QUICKPROF
 	btProfiler::endBlock("IslandUnionFind");
@@ -98,14 +98,14 @@ bool	ParallelPhysicsEnvironment::proceedDeltaTimeOneStep(float timeStep)
 	for (k=0;k<GetNumControllers();k++)
 	{
 			CcdPhysicsController* ctrl = m_controllers[k];
-			int tag = ctrl->GetRigidBody()->m_islandTag1;
+			int tag = ctrl->getRigidBody()->m_islandTag1;
 			if (tag>=0)
 			{
 				simulationIslands[tag].m_controllers.push_back(ctrl);
 			}
 	}
 
-	btDispatcher* dispatcher = GetCollisionWorld()->GetDispatcher();
+	btDispatcher* dispatcher = getCollisionWorld()->getDispatcher();
 
 	
 	//this is a brute force approach, will rethink later about more subtle ways
@@ -137,32 +137,32 @@ bool	ParallelPhysicsEnvironment::proceedDeltaTimeOneStep(float timeStep)
 	for (unsigned int ui=0;ui<m_constraints.size();ui++)
 	{
 		btTypedConstraint& constraint = *m_constraints[ui];
-		if (constraint.GetRigidBodyA().m_islandTag1 > constraint.GetRigidBodyB().m_islandTag1)
+		if (constraint.getRigidBodyA().m_islandTag1 > constraint.getRigidBodyB().m_islandTag1)
 		{
-			simulationIslands[constraint.GetRigidBodyA().m_islandTag1].m_constraintIndices.push_back(ui);
+			simulationIslands[constraint.getRigidBodyA().m_islandTag1].m_constraintIndices.push_back(ui);
 		} else
 		{
-			simulationIslands[constraint.GetRigidBodyB().m_islandTag1].m_constraintIndices.push_back(ui);
+			simulationIslands[constraint.getRigidBodyB().m_islandTag1].m_constraintIndices.push_back(ui);
 		}
 
 	}
 
 	//add all overlapping pairs for each island
 
-	for (i=0;i<dispatcher->GetNumManifolds();i++)
+	for (i=0;i<dispatcher->getNumManifolds();i++)
 	{
-		 btPersistentManifold* manifold = dispatcher->GetManifoldByIndexInternal(i);
+		 btPersistentManifold* manifold = dispatcher->getManifoldByIndexInternal(i);
 		 
 		 //filtering for response
 
-		 btCollisionObject* colObj0 = static_cast<btCollisionObject*>(manifold->GetBody0());
-		 btCollisionObject* colObj1 = static_cast<btCollisionObject*>(manifold->GetBody1());
+		 btCollisionObject* colObj0 = static_cast<btCollisionObject*>(manifold->getBody0());
+		 btCollisionObject* colObj1 = static_cast<btCollisionObject*>(manifold->getBody1());
 		 {
 			 int islandTag = colObj0->m_islandTag1;
 			 if (colObj1->m_islandTag1 > islandTag)
 				 islandTag = colObj1->m_islandTag1;
 
-				if (dispatcher->NeedsResponse(*colObj0,*colObj1))
+				if (dispatcher->needsResponse(*colObj0,*colObj1))
 					simulationIslands[islandTag].m_manifolds.push_back(manifold);
 			
 		 }
@@ -191,7 +191,7 @@ bool	ParallelPhysicsEnvironment::proceedDeltaTimeOneStep(float timeStep)
 		if (simulationIslands[k].m_controllers.size())
 		{
 			assert(0);//seems to be wrong, passing ALL overlapping pairs
-			simulationIslands[k].Simulate(m_debugDrawer,m_numIterations, constraintBase ,&scene->GetOverlappingPair(0),dispatcher,GetBroadphase(),m_solver,timeStep);
+			simulationIslands[k].Simulate(m_debugDrawer,m_numIterations, constraintBase ,&scene->GetOverlappingPair(0),dispatcher,getBroadphase(),m_solver,timeStep);
 		}
 	}
 	*/

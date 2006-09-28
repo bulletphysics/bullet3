@@ -30,7 +30,7 @@ btConvexHullShape ::btConvexHullShape (btPoint3* points,int numPoints,int stride
 	}
 }
 
-btVector3	btConvexHullShape::LocalGetSupportingVertexWithoutMargin(const btVector3& vec0)const
+btVector3	btConvexHullShape::localGetSupportingVertexWithoutMargin(const btVector3& vec0)const
 {
 	btVector3 supVec(0.f,0.f,0.f);
 	btScalar newDot,maxDot = -1e30f;
@@ -61,7 +61,7 @@ btVector3	btConvexHullShape::LocalGetSupportingVertexWithoutMargin(const btVecto
 	return supVec;
 }
 
-void	btConvexHullShape::BatchedUnitVectorGetSupportingVertexWithoutMargin(const btVector3* vectors,btVector3* supportVerticesOut,int numVectors) const
+void	btConvexHullShape::batchedUnitVectorGetSupportingVertexWithoutMargin(const btVector3* vectors,btVector3* supportVerticesOut,int numVectors) const
 {
 	btScalar newDot;
 	//use 'w' component of supportVerticesOut?
@@ -95,11 +95,11 @@ void	btConvexHullShape::BatchedUnitVectorGetSupportingVertexWithoutMargin(const 
 	
 
 
-btVector3	btConvexHullShape::LocalGetSupportingVertex(const btVector3& vec)const
+btVector3	btConvexHullShape::localGetSupportingVertex(const btVector3& vec)const
 {
-	btVector3 supVertex = LocalGetSupportingVertexWithoutMargin(vec);
+	btVector3 supVertex = localGetSupportingVertexWithoutMargin(vec);
 
-	if ( GetMargin()!=0.f )
+	if ( getMargin()!=0.f )
 	{
 		btVector3 vecnorm = vec;
 		if (vecnorm .length2() < (SIMD_EPSILON*SIMD_EPSILON))
@@ -107,7 +107,7 @@ btVector3	btConvexHullShape::LocalGetSupportingVertex(const btVector3& vec)const
 			vecnorm.setValue(-1.f,-1.f,-1.f);
 		} 
 		vecnorm.normalize();
-		supVertex+= GetMargin() * vecnorm;
+		supVertex+= getMargin() * vecnorm;
 	}
 	return supVertex;
 }
@@ -122,17 +122,17 @@ btVector3	btConvexHullShape::LocalGetSupportingVertex(const btVector3& vec)const
 
 //currently just for debugging (drawing), perhaps future support for algebraic continuous collision detection
 //Please note that you can debug-draw btConvexHullShape with the Raytracer Demo
-int	btConvexHullShape::GetNumVertices() const
+int	btConvexHullShape::getNumVertices() const
 {
 	return m_points.size();
 }
 
-int btConvexHullShape::GetNumEdges() const
+int btConvexHullShape::getNumEdges() const
 {
 	return m_points.size()*m_points.size();
 }
 
-void btConvexHullShape::GetEdge(int i,btPoint3& pa,btPoint3& pb) const
+void btConvexHullShape::getEdge(int i,btPoint3& pa,btPoint3& pb) const
 {
 
 	int index0 = i%m_points.size();
@@ -141,23 +141,23 @@ void btConvexHullShape::GetEdge(int i,btPoint3& pa,btPoint3& pb) const
 	pb = m_points[index1]*m_localScaling;
 }
 
-void btConvexHullShape::GetVertex(int i,btPoint3& vtx) const
+void btConvexHullShape::getVertex(int i,btPoint3& vtx) const
 {
 	vtx = m_points[i]*m_localScaling;
 }
 
-int	btConvexHullShape::GetNumPlanes() const
+int	btConvexHullShape::getNumPlanes() const
 {
 	return 0;
 }
 
-void btConvexHullShape::GetPlane(btVector3& planeNormal,btPoint3& planeSupport,int i ) const
+void btConvexHullShape::getPlane(btVector3& planeNormal,btPoint3& planeSupport,int i ) const
 {
 	assert(0);
 }
 
 //not yet
-bool btConvexHullShape::IsInside(const btPoint3& pt,btScalar tolerance) const
+bool btConvexHullShape::isInside(const btPoint3& pt,btScalar tolerance) const
 {
 	assert(0);
 	return false;

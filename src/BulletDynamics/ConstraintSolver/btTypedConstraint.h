@@ -40,48 +40,48 @@ public:
 
 	btTypedConstraint(btRigidBody& rbA,btRigidBody& rbB);
 
-	virtual void	BuildJacobian() = 0;
+	virtual void	buildJacobian() = 0;
 
-	virtual	void	SolveConstraint(btScalar	timeStep) = 0;
+	virtual	void	solveConstraint(btScalar	timeStep) = 0;
 
-	const btRigidBody& GetRigidBodyA() const
+	const btRigidBody& getRigidBodyA() const
 	{
 		return m_rbA;
 	}
-	const btRigidBody& GetRigidBodyB() const
+	const btRigidBody& getRigidBodyB() const
 	{
 		return m_rbB;
 	}
 
-	btRigidBody& GetRigidBodyA()
+	btRigidBody& getRigidBodyA()
 	{
 		return m_rbA;
 	}
-	btRigidBody& GetRigidBodyB()
+	btRigidBody& getRigidBodyB()
 	{
 		return m_rbB;
 	}
 
-	int GetUserConstraintType() const
+	int getUserConstraintType() const
 	{
 		return m_userConstraintType ;
 	}
 
-	void	SetUserConstraintType(int userConstraintType)
+	void	setUserConstraintType(int userConstraintType)
 	{
 		m_userConstraintType = userConstraintType;
 	};
 
-	void	SetUserConstraintId(int uid)
+	void	setUserConstraintId(int uid)
 	{
 		m_userConstraintId = uid;
 	}
 	
-	int GetUserConstraintId()
+	int getUserConstraintId()
 	{
 		return m_userConstraintId;
 	}
-	float	GetAppliedImpulse()
+	float	getAppliedImpulse()
 	{
 		return m_appliedImpulse;
 	}

@@ -173,7 +173,7 @@ public:
 	typedef std::set<int, VertexLess > VertexSet;
 	typedef std::vector< Type > VertexVector;
 
-	int GetVertex(const Type& vtx)
+	int getVertex(const Type& vtx)
 	{
 		VertexLess::SetSearch(vtx,&mVtxs);
 		VertexSet::iterator found;
@@ -224,7 +224,7 @@ public:
 	};
 
 
-	Type * GetBuffer(void)
+	Type * getBuffer(void)
 	{
 		return &mVtxs[0];
 	};
@@ -289,7 +289,7 @@ unsigned int  Vl_getIndex(VertexLookup vlook,const float *pos)  // get index.
 {
   VertexPool< VertexPosition > *vp = (VertexPool< VertexPosition > *) vlook;
   VertexPosition p(pos);
-  return vp->GetVertex(p);
+  return vp->getVertex(p);
 }
 
 const float * Vl_getVertices(VertexLookup vlook)

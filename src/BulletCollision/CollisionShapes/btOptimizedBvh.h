@@ -49,7 +49,7 @@ class btNodeOverlapCallback
 public:
 	virtual ~btNodeOverlapCallback() {};
 
-	virtual void ProcessNode(const btOptimizedBvhNode* node) = 0;
+	virtual void processNode(const btOptimizedBvhNode* node) = 0;
 };
 
 typedef std::vector<btOptimizedBvhNode>	NodeArray;
@@ -71,26 +71,26 @@ public:
 	btOptimizedBvh() :m_rootNode1(0), m_numNodes(0) { }
 	virtual ~btOptimizedBvh();
 	
-	void	Build(btStridingMeshInterface* triangles);
+	void	build(btStridingMeshInterface* triangles);
 
-	btOptimizedBvhNode*	BuildTree	(NodeArray&	leafNodes,int startIndex,int endIndex);
+	btOptimizedBvhNode*	buildTree	(NodeArray&	leafNodes,int startIndex,int endIndex);
 
-	int	CalcSplittingAxis(NodeArray&	leafNodes,int startIndex,int endIndex);
+	int	calcSplittingAxis(NodeArray&	leafNodes,int startIndex,int endIndex);
 
-	int	SortAndCalcSplittingIndex(NodeArray&	leafNodes,int startIndex,int endIndex,int splitAxis);
+	int	sortAndCalcSplittingIndex(NodeArray&	leafNodes,int startIndex,int endIndex,int splitAxis);
 	
-	void	WalkTree(btOptimizedBvhNode* rootNode,btNodeOverlapCallback* nodeCallback,const btVector3& aabbMin,const btVector3& aabbMax) const;
+	void	walkTree(btOptimizedBvhNode* rootNode,btNodeOverlapCallback* nodeCallback,const btVector3& aabbMin,const btVector3& aabbMax) const;
 	
-	void	WalkStacklessTree(btOptimizedBvhNode* rootNode,btNodeOverlapCallback* nodeCallback,const btVector3& aabbMin,const btVector3& aabbMax) const;
+	void	walkStacklessTree(btOptimizedBvhNode* rootNode,btNodeOverlapCallback* nodeCallback,const btVector3& aabbMin,const btVector3& aabbMax) const;
 	
 
 	//OptimizedBvhNode*	GetRootNode() { return m_rootNode1;}
 
-	int					GetNumNodes() { return m_numNodes;}
+	int					getNumNodes() { return m_numNodes;}
 
-	void	ReportAabbOverlappingNodex(btNodeOverlapCallback* nodeCallback,const btVector3& aabbMin,const btVector3& aabbMax) const;
+	void	reportAabbOverlappingNodex(btNodeOverlapCallback* nodeCallback,const btVector3& aabbMin,const btVector3& aabbMax) const;
 
-	void	ReportSphereOverlappingNodex(btNodeOverlapCallback* nodeCallback,const btVector3& aabbMin,const btVector3& aabbMax) const;
+	void	reportSphereOverlappingNodex(btNodeOverlapCallback* nodeCallback,const btVector3& aabbMin,const btVector3& aabbMax) const;
 
 
 };

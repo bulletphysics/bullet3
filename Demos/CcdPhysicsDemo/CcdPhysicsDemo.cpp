@@ -29,7 +29,7 @@ subject to the following restrictions:
 #include <stdio.h> //printf debugging
 
 float deltaTime = 1.f/60.f;
-
+float	gCollisionMargin = 0.05f;
 #include "CcdPhysicsDemo.h"
 #include "GL_ShapeDrawer.h"
 
@@ -77,7 +77,8 @@ btCollisionShape* shapePtr[numShapes] =
 	new btBoxShape (btVector3(50,10,50)),
 #endif
 		
-		new btBoxShape (btVector3(CUBE_HALF_EXTENTS,CUBE_HALF_EXTENTS,CUBE_HALF_EXTENTS)),
+		new btCylinderShape (btVector3(CUBE_HALF_EXTENTS-gCollisionMargin,CUBE_HALF_EXTENTS-gCollisionMargin,CUBE_HALF_EXTENTS-gCollisionMargin)),
+		//new btBoxShape (btVector3(CUBE_HALF_EXTENTS,CUBE_HALF_EXTENTS,CUBE_HALF_EXTENTS)),
 		new btSphereShape (CUBE_HALF_EXTENTS- 0.05f),
 
 		//new btConeShape(CUBE_HALF_EXTENTS,2.f*CUBE_HALF_EXTENTS),
@@ -109,7 +110,7 @@ int main(int argc,char** argv)
 
 	ccdDemo->setCameraDistance(26.f);
 
-	return glutmain(argc, argv,640,480,"Bullet Physics Demo. http://www.continuousphysics.com/Bullet/phpBB2/",ccdDemo);
+	return glutmain(argc, argv,640,480,"Bullet Physics Demo. http://bullet.sf.net",ccdDemo);
 }
 
 
@@ -190,16 +191,16 @@ void CcdPhysicsDemo::clientResetScene()
 
 			if ((getDebugMode() & btIDebugDraw::DBG_NoHelpText))
 			{
-				if (ctrl->GetRigidBody()->GetCollisionShape()->GetShapeType() != SPHERE_SHAPE_PROXYTYPE)
+				if (ctrl->getRigidBody()->getCollisionShape()->getShapeType() != SPHERE_SHAPE_PROXYTYPE)
 				{
-					ctrl->GetRigidBody()->SetCollisionShape(shapePtr[2]);
+					ctrl->getRigidBody()->SetCollisionShape(shapePtr[2]);
 				} else
 				{
-					ctrl->GetRigidBody()->SetCollisionShape(shapePtr[1]);
+					ctrl->getRigidBody()->SetCollisionShape(shapePtr[1]);
 				}
 
-				btBroadphaseProxy* bpproxy = ctrl->GetRigidBody()->m_broadphaseHandle;
-				m_physicsEnvironmentPtr->GetBroadphase()->CleanProxyFromPairs(bpproxy);
+				btBroadphaseProxy* bpproxy = ctrl->getRigidBody()->m_broadphaseHandle;
+				m_physicsEnvironmentPtr->getBroadphase()->cleanProxyFromPairs(bpproxy);
 			}
 
 			//stack them
@@ -245,7 +246,7 @@ void	CcdPhysicsDemo::initPhysics()
 //	btOverlappingPairCache* broadphase = new btSimpleBroadphase;
 	
 #ifdef REGISTER_CUSTOM_COLLISION_ALGORITHM
-	dispatcher->RegisterCollisionCreateFunc(SPHERE_SHAPE_PROXYTYPE,SPHERE_SHAPE_PROXYTYPE,new btSphereSphereCollisionAlgorithm::CreateFunc);
+	dispatcher->registerCollisionCreateFunc(SPHERE_SHAPE_PROXYTYPE,SPHERE_SHAPE_PROXYTYPE,new btSphereSphereCollisionAlgorithm::CreateFunc);
 #endif //REGISTER_CUSTOM_COLLISION_ALGORITHM
 
 		btSequentialImpulseConstraintSolver* solver = new btSequentialImpulseConstraintSolver;
@@ -255,7 +256,7 @@ void	CcdPhysicsDemo::initPhysics()
 
 #ifdef USER_DEFINED_FRICTION_MODEL
 	btSequentialImpulseConstraintSolver* solver = (btSequentialImpulseConstraintSolver*) m_physicsEnvironmentPtr->GetConstraintSolver();
-	//solver->SetContactSolverFunc(ContactSolverFunc func,USER_CONTACT_SOLVER_TYPE1,DEFAULT_CONTACT_SOLVER_TYPE);
+	//solver->setContactSolverFunc(ContactSolverFunc func,USER_CONTACT_SOLVER_TYPE1,DEFAULT_CONTACT_SOLVER_TYPE);
 	solver->SetFrictionSolverFunc(myFrictionModel,USER_CONTACT_SOLVER_TYPE1,DEFAULT_CONTACT_SOLVER_TYPE);
 	solver->SetFrictionSolverFunc(myFrictionModel,DEFAULT_CONTACT_SOLVER_TYPE,USER_CONTACT_SOLVER_TYPE1);
 	solver->SetFrictionSolverFunc(myFrictionModel,USER_CONTACT_SOLVER_TYPE1,USER_CONTACT_SOLVER_TYPE1);
@@ -288,15 +289,15 @@ void	CcdPhysicsDemo::initPhysics()
 		btTransform ident;
 		ident.setIdentity();
 		ident.setOrigin(btVector3(0,0,0));	
-		compoundShape->AddChildShape(ident,oldShape);//
+		compoundShape->addChildShape(ident,oldShape);//
 		ident.setOrigin(btVector3(0,0,2));	
-		compoundShape->AddChildShape(ident,new btSphereShape(0.9));//
+		compoundShape->addChildShape(ident,new btSphereShape(0.9));//
 	}
 
 	for (i=0;i<gNumObjects;i++)
 	{
 		btCollisionShape* shape = shapePtr[shapeIndex[i]];
-		shape->SetMargin(0.05f);
+		shape->setMargin(gCollisionMargin);
 
 		bool isDyna = i>0;
 
@@ -332,9 +333,9 @@ void	CcdPhysicsDemo::initPhysics()
 		if (!isDyna)
 			mass = 0.f;
 	
-		btRigidBody* body = LocalCreateRigidBody(isDyna,mass,trans,shape);
+		btRigidBody* body = localCreateRigidBody(isDyna,mass,trans,shape);
 		
-		m_dynamicsWorld->AddCollisionObject(body);
+		m_dynamicsWorld->addCollisionObject(body);
 		
 		// Only do CCD if  motion in one timestep (1.f/60.f) exceeds CUBE_HALF_EXTENTS
 		body->m_ccdSquareMotionTreshold = CUBE_HALF_EXTENTS;
@@ -344,7 +345,7 @@ void	CcdPhysicsDemo::initPhysics()
 
 #ifdef USER_DEFINED_FRICTION_MODEL	
 		///Advanced use: override the friction solver
-		ctrl->GetRigidBody()->m_frictionSolverType = USER_CONTACT_SOLVER_TYPE1;
+		ctrl->getRigidBody()->m_frictionSolverType = USER_CONTACT_SOLVER_TYPE1;
 #endif //USER_DEFINED_FRICTION_MODEL
 
 	}

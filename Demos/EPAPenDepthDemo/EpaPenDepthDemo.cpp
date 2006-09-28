@@ -106,7 +106,7 @@ bool createBoxShape( int shapeIndex )
 	//{
 	//	g_pConvexShapes[ shapeIndex ] = new btBoxShape( btVector3( 1, 1, 1 ) );
 
-	//	g_pConvexShapes[ shapeIndex ]->SetMargin( 0.05 );
+	//	g_pConvexShapes[ shapeIndex ]->setMargin( 0.05 );
 
 	//	g_convexShapesTransform[ shapeIndex ].setIdentity();
 
@@ -123,7 +123,7 @@ bool createBoxShape( int shapeIndex )
 	//{
 	//	g_pConvexShapes[ shapeIndex ] = new btBoxShape( btVector3( 25, 10, 25 ) );
 
-	//	g_pConvexShapes[ shapeIndex ]->SetMargin( 0.05 );
+	//	g_pConvexShapes[ shapeIndex ]->setMargin( 0.05 );
 
 	//	//btMatrix3x3 basis( 0.658257, 0.675022, -0.333709,
 	//	//					-0.333120, 0.658556, 0.675023,
@@ -138,7 +138,7 @@ bool createBoxShape( int shapeIndex )
 
 	g_pConvexShapes[ shapeIndex ] = new btBoxShape( btVector3( 1, 1, 1 ) );
 
-	g_pConvexShapes[ shapeIndex ]->SetMargin( 1e-1 );
+	g_pConvexShapes[ shapeIndex ]->setMargin( 1e-1 );
 
 	g_convexShapesTransform[ shapeIndex ].setIdentity();
 
@@ -151,7 +151,7 @@ bool createSphereShape( int shapeIndex )
 {
 	g_pConvexShapes[ shapeIndex ] = new btSphereShape( g_sphereRadius );
 
-	g_pConvexShapes[ shapeIndex ]->SetMargin( 1e-1 );
+	g_pConvexShapes[ shapeIndex ]->setMargin( 1e-1 );
 
 	g_convexShapesTransform[ shapeIndex ].setIdentity();
 	g_convexShapesTransform[ shapeIndex ].setOrigin( randomPosition( g_sceneVolumeMin, g_sceneVolumeMax ) );
@@ -196,7 +196,7 @@ bool calcPenDepth()
 	btScalar squaredDistance = SIMD_INFINITY;
 	btScalar delta = 0.f;
 
-	const btScalar margin     = g_pConvexShapes[ 0 ]->GetMargin() + g_pConvexShapes[ 1 ]->GetMargin();
+	const btScalar margin     = g_pConvexShapes[ 0 ]->getMargin() + g_pConvexShapes[ 1 ]->getMargin();
 	const btScalar marginSqrd = margin * margin;
 
 	btScalar maxRelErrorSqrd = 1e-3 * 1e-3;
@@ -210,8 +210,8 @@ bool calcPenDepth()
 		btVector3 seperatingAxisInA = -v * g_convexShapesTransform[ 0 ].getBasis();
 		btVector3 seperatingAxisInB =  v * g_convexShapesTransform[ 1 ].getBasis();
 
-		btVector3 pInA = g_pConvexShapes[ 0 ]->LocalGetSupportingVertexWithoutMargin( seperatingAxisInA );
-		btVector3 qInB = g_pConvexShapes[ 1 ]->LocalGetSupportingVertexWithoutMargin( seperatingAxisInB );
+		btVector3 pInA = g_pConvexShapes[ 0 ]->localGetSupportingVertexWithoutMargin( seperatingAxisInA );
+		btVector3 qInB = g_pConvexShapes[ 1 ]->localGetSupportingVertexWithoutMargin( seperatingAxisInB );
 
 		btPoint3  pWorld = g_convexShapesTransform[ 0 ]( pInA );
 		btPoint3  qWorld = g_convexShapesTransform[ 1 ]( qInB );
@@ -234,8 +234,8 @@ bool calcPenDepth()
 			assert( ( squaredDistance > 0 ) && "squaredDistance is zero!" );
 			btScalar vLength = sqrt( squaredDistance );
 
-			g_wWitnesses[ 0 ] -= v * ( g_pConvexShapes[ 0 ]->GetMargin() / vLength );
-			g_wWitnesses[ 1 ] += v * ( g_pConvexShapes[ 1 ]->GetMargin() / vLength );
+			g_wWitnesses[ 0 ] -= v * ( g_pConvexShapes[ 0 ]->getMargin() / vLength );
+			g_wWitnesses[ 1 ] += v * ( g_pConvexShapes[ 1 ]->getMargin() / vLength );
 
 			return true;
 		}
@@ -251,8 +251,8 @@ bool calcPenDepth()
 			assert( ( squaredDistance > 0 ) && "squaredDistance is zero!" );
 			btScalar vLength = sqrt( squaredDistance );
 
-			g_wWitnesses[ 0 ] -= v * ( g_pConvexShapes[ 0 ]->GetMargin() / vLength );
-			g_wWitnesses[ 1 ] += v * ( g_pConvexShapes[ 1 ]->GetMargin() / vLength );
+			g_wWitnesses[ 0 ] -= v * ( g_pConvexShapes[ 0 ]->getMargin() / vLength );
+			g_wWitnesses[ 1 ] += v * ( g_pConvexShapes[ 1 ]->getMargin() / vLength );
 
 			return true;
 		}
@@ -271,8 +271,8 @@ bool calcPenDepth()
 			assert( ( squaredDistance > 0 ) && "squaredDistance is zero!" );
 			btScalar vLength = sqrt( squaredDistance );
 
-			g_wWitnesses[ 0 ] -= v * ( g_pConvexShapes[ 0 ]->GetMargin() / vLength );
-			g_wWitnesses[ 1 ] += v * ( g_pConvexShapes[ 1 ]->GetMargin() / vLength );
+			g_wWitnesses[ 0 ] -= v * ( g_pConvexShapes[ 0 ]->getMargin() / vLength );
+			g_wWitnesses[ 1 ] += v * ( g_pConvexShapes[ 1 ]->getMargin() / vLength );
 
 			return true;
 		}
@@ -284,7 +284,7 @@ bool calcPenDepth()
 		}
 	}
 
-	return epaPenDepthSolver.CalcPenDepth( simplexSolver, g_pConvexShapes[ 0 ], g_pConvexShapes[ 1 ],
+	return epaPenDepthSolver.calcPenDepth( simplexSolver, g_pConvexShapes[ 0 ], g_pConvexShapes[ 1 ],
 		g_convexShapesTransform[ 0 ], g_convexShapesTransform[ 1 ], v,
 		g_wWitnesses[ 0 ], g_wWitnesses[ 1 ], 0 );
 }
@@ -311,11 +311,11 @@ void drawShape( int shapeIndex )
 
 	glMultMatrixf( m );
 
-	if ( g_pConvexShapes[ shapeIndex ]->GetShapeType() == BOX_SHAPE_PROXYTYPE )
+	if ( g_pConvexShapes[ shapeIndex ]->getShapeType() == BOX_SHAPE_PROXYTYPE )
 	{
-		glutWireCube( ( ( btBoxShape* ) g_pConvexShapes[ shapeIndex ] )->GetHalfExtents().x() * 2 );
+		glutWireCube( ( ( btBoxShape* ) g_pConvexShapes[ shapeIndex ] )->getHalfExtents().x() * 2 );
 	}
-	else if ( g_pConvexShapes[ shapeIndex ]->GetShapeType() == SPHERE_SHAPE_PROXYTYPE )
+	else if ( g_pConvexShapes[ shapeIndex ]->getShapeType() == SPHERE_SHAPE_PROXYTYPE )
 	{
 		glutWireSphere( 1, 16, 16 );
 	}
@@ -370,7 +370,7 @@ void clientDisplay(void) {
 	glClear( GL_COLOR_BUFFER_BIT | GL_DEPTH_BUFFER_BIT );
 	glDisable( GL_LIGHTING );
 
-	GL_ShapeDrawer::DrawCoordSystem();
+	GL_ShapeDrawer::drawCoordSystem();
 
 	glMatrixMode( GL_MODELVIEW );
 

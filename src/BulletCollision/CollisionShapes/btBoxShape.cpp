@@ -15,23 +15,23 @@ subject to the following restrictions:
 
 #include "btBoxShape.h"
 
-btVector3 btBoxShape::GetHalfExtents() const
+btVector3 btBoxShape::getHalfExtents() const
 {
 	return m_boxHalfExtents1 * m_localScaling;
 }
 //{ 
 
 
-void btBoxShape::GetAabb(const btTransform& t,btVector3& aabbMin,btVector3& aabbMax) const
+void btBoxShape::getAabb(const btTransform& t,btVector3& aabbMin,btVector3& aabbMax) const
 {
-	btVector3 halfExtents = GetHalfExtents();
+	btVector3 halfExtents = getHalfExtents();
 
 	btMatrix3x3 abs_b = t.getBasis().absolute();  
 	btPoint3 center = t.getOrigin();
 	btVector3 extent = btVector3(abs_b[0].dot(halfExtents),
 		   abs_b[1].dot(halfExtents),
 		  abs_b[2].dot(halfExtents));
-	extent += btVector3(GetMargin(),GetMargin(),GetMargin());
+	extent += btVector3(getMargin(),getMargin(),getMargin());
 
 	aabbMin = center - extent;
 	aabbMax = center + extent;
@@ -40,10 +40,10 @@ void btBoxShape::GetAabb(const btTransform& t,btVector3& aabbMin,btVector3& aabb
 }
 
 
-void	btBoxShape::CalculateLocalInertia(btScalar mass,btVector3& inertia)
+void	btBoxShape::calculateLocalInertia(btScalar mass,btVector3& inertia)
 {
 	//float margin = 0.f;
-	btVector3 halfExtents = GetHalfExtents();
+	btVector3 halfExtents = getHalfExtents();
 
 	btScalar lx=2.f*(halfExtents.x());
 	btScalar ly=2.f*(halfExtents.y());

@@ -19,7 +19,7 @@ subject to the following restrictions:
 
 
 
-void btOptimizedBvh::Build(btStridingMeshInterface* triangles)
+void btOptimizedBvh::build(btStridingMeshInterface* triangles)
 {
 	//int countTriangles = 0;
 
@@ -37,7 +37,7 @@ void btOptimizedBvh::Build(btStridingMeshInterface* triangles)
 
 		}
 
-		virtual void InternalProcessTriangleIndex(btVector3* triangle,int partId,int  triangleIndex)
+		virtual void internalProcessTriangleIndex(btVector3* triangle,int partId,int  triangleIndex)
 		{
 
 			btOptimizedBvhNode node;
@@ -78,7 +78,7 @@ void btOptimizedBvh::Build(btStridingMeshInterface* triangles)
 	m_contiguousNodes = new btOptimizedBvhNode[2*m_leafNodes.size()];
 	m_curNodeIndex = 0;
 
-	m_rootNode1 = BuildTree(m_leafNodes,0,m_leafNodes.size());
+	m_rootNode1 = buildTree(m_leafNodes,0,m_leafNodes.size());
 
 
 	///create the leafnodes first
@@ -91,7 +91,7 @@ btOptimizedBvh::~btOptimizedBvh()
 		delete m_contiguousNodes;
 }
 
-btOptimizedBvhNode*	btOptimizedBvh::BuildTree	(NodeArray&	leafNodes,int startIndex,int endIndex)
+btOptimizedBvhNode*	btOptimizedBvh::buildTree	(NodeArray&	leafNodes,int startIndex,int endIndex)
 {
 	btOptimizedBvhNode* internalNode;
 
@@ -107,9 +107,9 @@ btOptimizedBvhNode*	btOptimizedBvh::BuildTree	(NodeArray&	leafNodes,int startInd
 	}
 	//calculate Best Splitting Axis and where to split it. Sort the incoming 'leafNodes' array within range 'startIndex/endIndex'.
 	
-	splitAxis = CalcSplittingAxis(leafNodes,startIndex,endIndex);
+	splitAxis = calcSplittingAxis(leafNodes,startIndex,endIndex);
 
-	splitIndex = SortAndCalcSplittingIndex(leafNodes,startIndex,endIndex,splitAxis);
+	splitIndex = sortAndCalcSplittingIndex(leafNodes,startIndex,endIndex,splitAxis);
 
 	internalNode = &m_contiguousNodes[m_curNodeIndex++];
 	
@@ -125,14 +125,14 @@ btOptimizedBvhNode*	btOptimizedBvh::BuildTree	(NodeArray&	leafNodes,int startInd
 	
 
 	//internalNode->m_escapeIndex;
-	internalNode->m_leftChild = BuildTree(leafNodes,startIndex,splitIndex);
-	internalNode->m_rightChild = BuildTree(leafNodes,splitIndex,endIndex);
+	internalNode->m_leftChild = buildTree(leafNodes,startIndex,splitIndex);
+	internalNode->m_rightChild = buildTree(leafNodes,splitIndex,endIndex);
 
 	internalNode->m_escapeIndex  = m_curNodeIndex - curIndex;
 	return internalNode;
 }
 
-int	btOptimizedBvh::SortAndCalcSplittingIndex(NodeArray&	leafNodes,int startIndex,int endIndex,int splitAxis)
+int	btOptimizedBvh::sortAndCalcSplittingIndex(NodeArray&	leafNodes,int startIndex,int endIndex,int splitAxis)
 {
 	int i;
 	int splitIndex =startIndex;
@@ -170,7 +170,7 @@ int	btOptimizedBvh::SortAndCalcSplittingIndex(NodeArray&	leafNodes,int startInde
 }
 
 
-int	btOptimizedBvh::CalcSplittingAxis(NodeArray&	leafNodes,int startIndex,int endIndex)
+int	btOptimizedBvh::calcSplittingAxis(NodeArray&	leafNodes,int startIndex,int endIndex)
 {
 	int i;
 
@@ -199,16 +199,16 @@ int	btOptimizedBvh::CalcSplittingAxis(NodeArray&	leafNodes,int startIndex,int en
 
 
 
-void	btOptimizedBvh::ReportAabbOverlappingNodex(btNodeOverlapCallback* nodeCallback,const btVector3& aabbMin,const btVector3& aabbMax) const
+void	btOptimizedBvh::reportAabbOverlappingNodex(btNodeOverlapCallback* nodeCallback,const btVector3& aabbMin,const btVector3& aabbMax) const
 {
-	//either choose recursive traversal (WalkTree) or stackless (WalkStacklessTree)
+	//either choose recursive traversal (walkTree) or stackless (walkStacklessTree)
 
-	//WalkTree(m_rootNode1,nodeCallback,aabbMin,aabbMax);
+	//walkTree(m_rootNode1,nodeCallback,aabbMin,aabbMax);
 
-	WalkStacklessTree(m_rootNode1,nodeCallback,aabbMin,aabbMax);
+	walkStacklessTree(m_rootNode1,nodeCallback,aabbMin,aabbMax);
 }
 
-void	btOptimizedBvh::WalkTree(btOptimizedBvhNode* rootNode,btNodeOverlapCallback* nodeCallback,const btVector3& aabbMin,const btVector3& aabbMax) const
+void	btOptimizedBvh::walkTree(btOptimizedBvhNode* rootNode,btNodeOverlapCallback* nodeCallback,const btVector3& aabbMin,const btVector3& aabbMax) const
 {
 	bool isLeafNode, aabbOverlap = TestAabbAgainstAabb2(aabbMin,aabbMax,rootNode->m_aabbMin,rootNode->m_aabbMax);
 	if (aabbOverlap)
@@ -216,11 +216,11 @@ void	btOptimizedBvh::WalkTree(btOptimizedBvhNode* rootNode,btNodeOverlapCallback
 		isLeafNode = (!rootNode->m_leftChild && !rootNode->m_rightChild);
 		if (isLeafNode)
 		{
-			nodeCallback->ProcessNode(rootNode);
+			nodeCallback->processNode(rootNode);
 		} else
 		{
-			WalkTree(rootNode->m_leftChild,nodeCallback,aabbMin,aabbMax);
-			WalkTree(rootNode->m_rightChild,nodeCallback,aabbMin,aabbMax);
+			walkTree(rootNode->m_leftChild,nodeCallback,aabbMin,aabbMax);
+			walkTree(rootNode->m_rightChild,nodeCallback,aabbMin,aabbMax);
 		}
 	}
 
@@ -228,7 +228,7 @@ void	btOptimizedBvh::WalkTree(btOptimizedBvhNode* rootNode,btNodeOverlapCallback
 
 int maxIterations = 0;
 
-void	btOptimizedBvh::WalkStacklessTree(btOptimizedBvhNode* rootNode,btNodeOverlapCallback* nodeCallback,const btVector3& aabbMin,const btVector3& aabbMax) const
+void	btOptimizedBvh::walkStacklessTree(btOptimizedBvhNode* rootNode,btNodeOverlapCallback* nodeCallback,const btVector3& aabbMin,const btVector3& aabbMax) const
 {
 	int escapeIndex, curIndex = 0;
 	int walkIterations = 0;
@@ -245,7 +245,7 @@ void	btOptimizedBvh::WalkStacklessTree(btOptimizedBvhNode* rootNode,btNodeOverla
 		
 		if (isLeafNode && aabbOverlap)
 		{
-			nodeCallback->ProcessNode(rootNode);
+			nodeCallback->processNode(rootNode);
 		} 
 		
 		if (aabbOverlap || isLeafNode)
@@ -267,7 +267,7 @@ void	btOptimizedBvh::WalkStacklessTree(btOptimizedBvhNode* rootNode,btNodeOverla
 }
 
 
-void	btOptimizedBvh::ReportSphereOverlappingNodex(btNodeOverlapCallback* nodeCallback,const btVector3& aabbMin,const btVector3& aabbMax) const
+void	btOptimizedBvh::reportSphereOverlappingNodex(btNodeOverlapCallback* nodeCallback,const btVector3& aabbMin,const btVector3& aabbMax) const
 {
 
 }

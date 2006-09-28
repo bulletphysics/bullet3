@@ -131,7 +131,7 @@ bool		CcdPhysicsController::SynchronizeMotionStates(float time)
 		float scale[3];
 		m_MotionState->getWorldScaling(scale[0],scale[1],scale[2]);
 		btVector3 scaling(scale[0],scale[1],scale[2]);
-		GetCollisionShape()->setLocalScaling(scaling);
+		getCollisionShape()->setLocalScaling(scaling);
 	} else
 	{
 		btVector3 worldPos;
@@ -150,7 +150,7 @@ bool		CcdPhysicsController::SynchronizeMotionStates(float time)
 		float scale[3];
 		m_MotionState->getWorldScaling(scale[0],scale[1],scale[2]);
 		btVector3 scaling(scale[0],scale[1],scale[2]);
-		GetCollisionShape()->setLocalScaling(scaling);
+		getCollisionShape()->setLocalScaling(scaling);
 	}
 	return true;
 
@@ -312,10 +312,10 @@ void		CcdPhysicsController::setScaling(float scaleX,float scaleY,float scaleZ)
 	{
 		m_cci.m_scaling = btVector3(scaleX,scaleY,scaleZ);
 
-		if (m_body && m_body->GetCollisionShape())
+		if (m_body && m_body->getCollisionShape())
 		{
-			m_body->GetCollisionShape()->setLocalScaling(m_cci.m_scaling);
-			m_body->GetCollisionShape()->CalculateLocalInertia(m_cci.m_mass, m_cci.m_localInertiaTensor);
+			m_body->getCollisionShape()->setLocalScaling(m_cci.m_scaling);
+			m_body->getCollisionShape()->calculateLocalInertia(m_cci.m_mass, m_cci.m_localInertiaTensor);
 			m_body->setMassProps(m_cci.m_mass, m_cci.m_localInertiaTensor * m_cci.m_inertiaFactor);
 		}
 	}
@@ -499,7 +499,7 @@ PHY_IPhysicsController*	CcdPhysicsController::GetReplica()
 	btCcdConstructionInfo cinfo = m_cci;
 	if (cinfo.m_collisionShape)
 	{
-		switch (cinfo.m_collisionShape->GetShapeType())
+		switch (cinfo.m_collisionShape->getShapeType())
 		{
 		case SPHERE_SHAPE_PROXYTYPE:
 			{

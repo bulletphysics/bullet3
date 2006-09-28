@@ -184,15 +184,15 @@ class BspLoader
 				printf("Machine is Little Endian\n");
 			}
 		}
-		bool	LoadBSPFile( void* memoryBuffer);
+		bool	loadBSPFile( void* memoryBuffer);
 
-		const char* ValueForKey( const BSPEntity *ent, const char *key ) const;
+		const char* getValueForKey( const BSPEntity *ent, const char *key ) const;
 
-		bool	GetVectorForKey( const BSPEntity *ent, const char *key, BSPVector3 vec );
+		bool	getVectorForKey( const BSPEntity *ent, const char *key, BSPVector3 vec );
 		
-		float	FloatForKey( const BSPEntity *ent, const char *key );
+		float	getFloatForKey( const BSPEntity *ent, const char *key );
 
-		void ParseEntities( void );
+		void parseEntities( void );
 
 		bool findVectorByName(float* outvec,const char* name);
 
@@ -201,35 +201,35 @@ class BspLoader
 
 	protected:
 
-		void ParseFromMemory (char *buffer, int size);
+		void parseFromMemory (char *buffer, int size);
 		
 
 
-		bool EndOfScript (bool crossline);
+		bool isEndOfScript (bool crossline);
 
-		bool GetToken (bool crossline);
+		bool getToken (bool crossline);
 
 		char *copystring(const char *s);
 	
-		void StripTrailing( char *e );
+		void stripTrailing( char *e );
 
-		BSPKeyValuePair * ParseEpair( void );
+		BSPKeyValuePair * parseEpair( void );
 
-		bool	ParseEntity( void );
+		bool	parseEntity( void );
 
-		short   LittleShort (short l);
-		int    LittleLong (int l);
-		float	LittleFloat (float l);
+		short   isLittleShort (short l);
+		int    isLittleLong (int l);
+		float	isLittleFloat (float l);
 
-		int    BigLong (int l);
-		short   BigShort (short l);
-		float	BigFloat (float l);
+		int    isBigLong (int l);
+		short   isBigShort (short l);
+		float	isBigFloat (float l);
 
-		void SwapBlock( int *block, int sizeOfBlock );
+		void swapBlock( int *block, int sizeOfBlock );
 
-		int CopyLump( BSPHeader	*header, int lump, void *dest, int size );
+		int copyLump( BSPHeader	*header, int lump, void *dest, int size );
 
-		void SwapBSPFile( void );
+		void swapBSPFile( void );
 		
 	
 

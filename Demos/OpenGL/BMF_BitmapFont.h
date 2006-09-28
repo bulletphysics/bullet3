@@ -58,9 +58,9 @@ public:
 	 * Draws a string at the current raster position.
 	 * @param str	The string to draw.
 	 */
-	void DrawString(const char* str);
+	void drawString(const char* str);
 
-	void DrawStringMemory(char* str);
+	void drawStringMemory(char* str);
 
 
 	/**
@@ -68,7 +68,7 @@ public:
 	 * @param str	The string to draw.
 	 * @return The width of the string.
 	 */
-	int GetStringWidth(char* str);
+	int getStringWidth(char* str);
 
 	/**
 	 * Returns the bounding box of the font. The width and
@@ -77,22 +77,22 @@ public:
 	 * box represent the extent of the font and its positioning
 	 * about the origin.
 	 */
-	void GetBoundingBox(int & xMin, int & yMin, int & xMax, int & yMax);
+	void getBoundingBox(int & xMin, int & yMin, int & xMax, int & yMax);
 
 	/**
 	 * Convert the font to a texture, and return the GL texture
 	 * ID of the texture. If the texture ID is bound, text can
-	 * be drawn using the texture by calling DrawStringTexture.
+	 * be drawn using the texture by calling drawStringTexture.
 	 * 
 	 * @return The GL texture ID of the new texture, or -1 if unable
 	 * to create.
 	 */
-	int GetTexture();
+	int getTexture();
 	
 	/**
 	 * Draw the given @a string at the point @a x, @a y, @a z, using
 	 * texture coordinates. This assumes that an appropriate texture
-	 * has been bound, see BMF_BitmapFont::GetTexture(). The string
+	 * has been bound, see BMF_BitmapFont::getTexture(). The string
 	 * is drawn along the positive X axis.
 	 * 
 	 * @param string The c-string to draw.
@@ -100,7 +100,7 @@ public:
 	 * @param y The y coordinate to start drawing at.
 	 * @param z The z coordinate to start drawing at.
 	 */
-	void DrawStringTexture(char* string, float x, float y, float z);
+	void drawStringTexture(char* string, float x, float y, float z);
 	
 protected:
 	/** Pointer to the font data. */

@@ -34,7 +34,7 @@ public:
 
 	
 	/*
-	virtual int	GetShapeType() const
+	virtual int	getShapeType() const
 	{
 		return TRIANGLE_MESH_SHAPE_PROXYTYPE;
 	}
@@ -42,11 +42,11 @@ public:
 
 
 
-	virtual void	ProcessAllTriangles(btTriangleCallback* callback,const btVector3& aabbMin,const btVector3& aabbMax) const;
+	virtual void	processAllTriangles(btTriangleCallback* callback,const btVector3& aabbMin,const btVector3& aabbMax) const;
 
 
 	//debugging
-	virtual char*	GetName()const {return "BVHTRIANGLEMESH";}
+	virtual char*	getName()const {return "BVHTRIANGLEMESH";}
 
 
 	virtual void	setLocalScaling(const btVector3& scaling);

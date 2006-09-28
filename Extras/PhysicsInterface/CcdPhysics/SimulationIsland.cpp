@@ -45,7 +45,7 @@ bool	SimulationIsland::Simulate(btIDebugDraw* debugDrawer,int numSolverIteration
 		{
 			CcdPhysicsController* ctrl = m_controllers[k];
 			//		btTransform predictedTrans;
-			btRigidBody* body = ctrl->GetRigidBody();
+			btRigidBody* body = ctrl->getRigidBody();
 			//todo: only do this when necessary, it's used for contact points
 			body->m_cachedInvertedWorldTransform = body->m_worldTransform.inverse();
 
@@ -66,7 +66,7 @@ bool	SimulationIsland::Simulate(btIDebugDraw* debugDrawer,int numSolverIteration
 	btProfiler::endBlock("predictIntegratedTransform");
 #endif //USE_QUICKPROF
 	
-	//BroadphaseInterface*	scene = GetBroadphase();
+	//BroadphaseInterface*	scene = getBroadphase();
 
 
 	//
@@ -75,7 +75,7 @@ bool	SimulationIsland::Simulate(btIDebugDraw* debugDrawer,int numSolverIteration
 
 
 	#ifdef USE_QUICKPROF
-	btProfiler::beginBlock("DispatchAllCollisionPairs");
+	btProfiler::beginBlock("dispatchAllCollisionPairs");
 	#endif //USE_QUICKPROF
 
 
@@ -99,11 +99,11 @@ bool	SimulationIsland::Simulate(btIDebugDraw* debugDrawer,int numSolverIteration
 	}
 
 	
-	//pairCache->RefreshOverlappingPairs();
+	//pairCache->refreshOverlappingPairs();
 	if (overlappingPairs.size())
 	{
 		assert(0);
-		//dispatcher->DispatchAllCollisionPairs(&overlappingPairs[0],overlappingPairs.size(),dispatchInfo);///numsubstep,g);
+		//dispatcher->dispatchAllCollisionPairs(&overlappingPairs[0],overlappingPairs.size(),dispatchInfo);///numsubstep,g);
 	}
 
 	//scatter overlapping pair info, mainly the created algorithms/contact caches
@@ -115,13 +115,13 @@ bool	SimulationIsland::Simulate(btIDebugDraw* debugDrawer,int numSolverIteration
 
 
 	#ifdef USE_QUICKPROF
-	btProfiler::endBlock("DispatchAllCollisionPairs");
+	btProfiler::endBlock("dispatchAllCollisionPairs");
 	#endif //USE_QUICKPROF
 
 
 	//contacts
 	#ifdef USE_QUICKPROF
-	btProfiler::beginBlock("SolveConstraint");
+	btProfiler::beginBlock("solveConstraint");
 	#endif //USE_QUICKPROF
 
 
@@ -140,8 +140,8 @@ bool	SimulationIsland::Simulate(btIDebugDraw* debugDrawer,int numSolverIteration
 		for (i=0;i< numConstraints ; i++ )
 		{
 			btTypedConstraint* constraint = constraintsBaseAddress[m_constraintIndices[i]];
-			constraint->BuildJacobian();
-			constraint->SolveConstraint( timeStep );
+			constraint->buildJacobian();
+			constraint->solveConstraint( timeStep );
 
 		}
 
@@ -149,7 +149,7 @@ bool	SimulationIsland::Simulate(btIDebugDraw* debugDrawer,int numSolverIteration
 	}
 
 	#ifdef USE_QUICKPROF
-	btProfiler::endBlock("SolveConstraint");
+	btProfiler::endBlock("solveConstraint");
 	#endif //USE_QUICKPROF
 
 	/*
@@ -163,7 +163,7 @@ bool	SimulationIsland::Simulate(btIDebugDraw* debugDrawer,int numSolverIteration
 	{
 	WrapperVehicle* wrapperVehicle = m_wrapperVehicles[i];
 	btRaycastVehicle* vehicle = wrapperVehicle->GetVehicle();
-	vehicle->UpdateVehicle( timeStep);
+	vehicle->updateVehicle( timeStep);
 	}
 	#endif //NEW_BULLET_VEHICLE_SUPPORT
 */
@@ -181,7 +181,7 @@ bool	SimulationIsland::Simulate(btIDebugDraw* debugDrawer,int numSolverIteration
 	}
 	*/
 
-	//OverlappingPairCache*	scene = GetCollisionWorld()->GetPairCache();
+	//OverlappingPairCache*	scene = getCollisionWorld()->getPairCache();
 	
 	btContactSolverInfo	solverInfo;
 
@@ -193,7 +193,7 @@ bool	SimulationIsland::Simulate(btIDebugDraw* debugDrawer,int numSolverIteration
 
 	if (m_manifolds.size())
 	{
-		solver->SolveGroup( &m_manifolds[0],m_manifolds.size(),solverInfo,0);
+		solver->solveGroup( &m_manifolds[0],m_manifolds.size(),solverInfo,0);
 	}
 
 
@@ -221,7 +221,7 @@ bool	SimulationIsland::Simulate(btIDebugDraw* debugDrawer,int numSolverIteration
 				dispatchInfo.m_stepCount = 0;
 				dispatchInfo.m_dispatchFunc = btDispatcherInfo::DISPATCH_CONTINUOUS;
 
-				//			GetCollisionWorld()->GetDispatcher()->DispatchAllCollisionPairs(scene,dispatchInfo);
+				//			getCollisionWorld()->getDispatcher()->dispatchAllCollisionPairs(scene,dispatchInfo);
 				toi = dispatchInfo.m_timeOfImpact;
 
 			}
@@ -244,7 +244,7 @@ bool	SimulationIsland::Simulate(btIDebugDraw* debugDrawer,int numSolverIteration
 					CcdPhysicsController* ctrl = *i;
 
 					btTransform predictedTrans;
-					btRigidBody* body = ctrl->GetRigidBody();
+					btRigidBody* body = ctrl->getRigidBody();
 
 					if (body->IsActive())
 					{
@@ -276,7 +276,7 @@ bool	SimulationIsland::Simulate(btIDebugDraw* debugDrawer,int numSolverIteration
 				!(i==m_controllers.end()); i++)
 			{
 				CcdPhysicsController* ctrl = (*i);
-				btRigidBody* body = ctrl->GetRigidBody();
+				btRigidBody* body = ctrl->getRigidBody();
 
 				ctrl->UpdateDeactivation(timeStep);
 
@@ -375,15 +375,15 @@ void	SimulationIsland::UpdateAabbs(btIDebugDraw* debugDrawer,btBroadphaseInterfa
 				!(i==m_controllers.end()); i++)
 			{
 				CcdPhysicsController* ctrl = (*i);
-				btRigidBody* body = ctrl->GetRigidBody();
+				btRigidBody* body = ctrl->getRigidBody();
 
 
 				btPoint3 minAabb,maxAabb;
-				btCollisionShape* shapeinterface = ctrl->GetCollisionShape();
+				btCollisionShape* shapeinterface = ctrl->getCollisionShape();
 
 
 
-				shapeinterface->CalculateTemporalAabb(body->getCenterOfMassTransform(),
+				shapeinterface->calculateTemporalAabb(body->getCenterOfMassTransform(),
 					body->getLinearVelocity(),
 					//body->getAngularVelocity(),
 					btVector3(0.f,0.f,0.f),//no angular effect for now //body->getAngularVelocity(),
@@ -428,7 +428,7 @@ void	SimulationIsland::UpdateAabbs(btIDebugDraw* debugDrawer,btBroadphaseInterfa
 
 						};
 
-						if (m_debugDrawer->GetDebugMode() & btIDebugDraw::DBG_DrawAabb)
+						if (m_debugDrawer->getDebugMode() & btIDebugDraw::DBG_DrawAabb)
 						{
 							DrawAabb(m_debugDrawer,minAabb,maxAabb,color);
 						}
@@ -438,7 +438,7 @@ void	SimulationIsland::UpdateAabbs(btIDebugDraw* debugDrawer,btBroadphaseInterfa
 			
 					if ( (maxAabb-minAabb).length2() < 1e12f)
 					{
-						scene->SetAabb(bp,minAabb,maxAabb);
+						scene->setAabb(bp,minAabb,maxAabb);
 					} else
 					{
 						//something went wrong, investigate

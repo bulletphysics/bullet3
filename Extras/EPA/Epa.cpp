@@ -73,8 +73,8 @@ bool Epa::Initialize( btSimplexSolverInterface& simplexSolver )
 		btVector3 seperatingAxisInA = -v * m_transformA.getBasis();
 		btVector3 seperatingAxisInB =  v * m_transformB.getBasis();
 
-		btVector3 pInA = m_pConvexShapeA->LocalGetSupportingVertex( seperatingAxisInA );
-		btVector3 qInB = m_pConvexShapeB->LocalGetSupportingVertex( seperatingAxisInB );
+		btVector3 pInA = m_pConvexShapeA->localGetSupportingVertex( seperatingAxisInA );
+		btVector3 qInB = m_pConvexShapeB->localGetSupportingVertex( seperatingAxisInB );
 
 		btPoint3  pWorld = m_transformA( pInA );
 		btPoint3  qWorld = m_transformB( qInB );
@@ -189,8 +189,8 @@ bool Epa::Initialize( btSimplexSolverInterface& simplexSolver )
 		btVector3 seperatingAxisInA =  v1 * m_transformA.getBasis();
 		btVector3 seperatingAxisInB = -v1 * m_transformB.getBasis();
 
-		btVector3 p = m_pConvexShapeA->LocalGetSupportingVertex( seperatingAxisInA );
-		btVector3 q = m_pConvexShapeB->LocalGetSupportingVertex( seperatingAxisInB );
+		btVector3 p = m_pConvexShapeA->localGetSupportingVertex( seperatingAxisInA );
+		btVector3 q = m_pConvexShapeB->localGetSupportingVertex( seperatingAxisInB );
 
 		btPoint3 pWorld = m_transformA( p );
 		btPoint3 qWorld = m_transformB( q );
@@ -202,8 +202,8 @@ bool Epa::Initialize( btSimplexSolverInterface& simplexSolver )
 		seperatingAxisInA =  v2 * m_transformA.getBasis();
 		seperatingAxisInB = -v2 * m_transformB.getBasis();
 
-		p = m_pConvexShapeA->LocalGetSupportingVertex( seperatingAxisInA );
-		q = m_pConvexShapeB->LocalGetSupportingVertex( seperatingAxisInB );
+		p = m_pConvexShapeA->localGetSupportingVertex( seperatingAxisInA );
+		q = m_pConvexShapeB->localGetSupportingVertex( seperatingAxisInB );
 
 		pWorld = m_transformA( p );
 		qWorld = m_transformB( q );
@@ -215,8 +215,8 @@ bool Epa::Initialize( btSimplexSolverInterface& simplexSolver )
 		seperatingAxisInA =  v3 * m_transformA.getBasis();
 		seperatingAxisInB = -v3 * m_transformB.getBasis();
 
-		p = m_pConvexShapeA->LocalGetSupportingVertex( seperatingAxisInA );
-		q = m_pConvexShapeB->LocalGetSupportingVertex( seperatingAxisInB );
+		p = m_pConvexShapeA->localGetSupportingVertex( seperatingAxisInA );
+		q = m_pConvexShapeB->localGetSupportingVertex( seperatingAxisInB );
 
 		pWorld = m_transformA( p );
 		qWorld = m_transformB( q );
@@ -265,8 +265,8 @@ bool Epa::Initialize( btSimplexSolverInterface& simplexSolver )
 		btVector3 seperatingAxisInA =  triangleNormal * m_transformA.getBasis();
 		btVector3 seperatingAxisInB = -triangleNormal * m_transformB.getBasis();
 
-		btVector3 p = m_pConvexShapeA->LocalGetSupportingVertex( seperatingAxisInA );
-		btVector3 q = m_pConvexShapeB->LocalGetSupportingVertex( seperatingAxisInB );
+		btVector3 p = m_pConvexShapeA->localGetSupportingVertex( seperatingAxisInA );
+		btVector3 q = m_pConvexShapeB->localGetSupportingVertex( seperatingAxisInB );
 
 		btPoint3 pWorld = m_transformA( p );
 		btPoint3 qWorld = m_transformB( q );
@@ -284,8 +284,8 @@ bool Epa::Initialize( btSimplexSolverInterface& simplexSolver )
 			seperatingAxisInA = -triangleNormal * m_transformA.getBasis();
 			seperatingAxisInB =  triangleNormal * m_transformB.getBasis();
 
-			p = m_pConvexShapeA->LocalGetSupportingVertex( seperatingAxisInA );
-			q = m_pConvexShapeB->LocalGetSupportingVertex( seperatingAxisInB );
+			p = m_pConvexShapeA->localGetSupportingVertex( seperatingAxisInA );
+			q = m_pConvexShapeB->localGetSupportingVertex( seperatingAxisInB );
 
 			pWorld = m_transformA( p );
 			qWorld = m_transformB( q );
@@ -398,7 +398,7 @@ bool Epa::Initialize( btSimplexSolverInterface& simplexSolver )
 	return true;
 }
 
-btScalar Epa::CalcPenDepth( btPoint3& wWitnessOnA, btPoint3& wWitnessOnB )
+btScalar Epa::calcPenDepth( btPoint3& wWitnessOnA, btPoint3& wWitnessOnB )
 {
 	btVector3 v;
 
@@ -448,8 +448,8 @@ btScalar Epa::CalcPenDepth( btPoint3& wWitnessOnA, btPoint3& wWitnessOnB )
 			btVector3 seperatingAxisInA =  v * m_transformA.getBasis();
 			btVector3 seperatingAxisInB = -v * m_transformB.getBasis();
 
-			btVector3 p = m_pConvexShapeA->LocalGetSupportingVertex( seperatingAxisInA );
-			btVector3 q = m_pConvexShapeB->LocalGetSupportingVertex( seperatingAxisInB );
+			btVector3 p = m_pConvexShapeA->localGetSupportingVertex( seperatingAxisInA );
+			btVector3 q = m_pConvexShapeB->localGetSupportingVertex( seperatingAxisInB );
 
 			btPoint3 pWorld = m_transformA( p );
 			btPoint3 qWorld = m_transformB( q );

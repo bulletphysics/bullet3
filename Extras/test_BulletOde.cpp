@@ -179,7 +179,7 @@ static void command (int cmd)
 
       // destroy the body and geoms for slot i
       dBodyDestroy (obj[i].body);
-	  collisionWorld->RemoveCollisionObject(&obj[i].collider);
+	  collisionWorld->removeCollisionObject(&obj[i].collider);
 	  obj[i].collider.m_broadphaseHandle = (btBroadphaseProxy*)(-1);
 
 
@@ -212,7 +212,7 @@ static void command (int cmd)
       dMassSetBox (&m,DENSITY,sides[0],sides[1],sides[2]);
 	  obj[i].collider.m_collisionShape = new btBoxShape(btVector3(0.5*sides[0],0.5*sides[1],0.5*sides[2]));
 	  obj[i].collider.m_worldTransform = GetTransformFromOde(dBodyGetPosition(obj[i].body),dBodyGetRotation(obj[i].body));
-	  collisionWorld->AddCollisionObject(&obj[i].collider);
+	  collisionWorld->addCollisionObject(&obj[i].collider);
 	  obj[i].collider.m_userPointer = obj[i].body;
 
     }
@@ -223,7 +223,7 @@ static void command (int cmd)
       dMassSetCappedCylinder (&m,DENSITY,3,sides[0],sides[1]);
 		obj[i].collider.m_collisionShape = new btCylinderShapeZ(btVector3(sides[0],sides[1],sides[1]));
 	  obj[i].collider.m_worldTransform = GetTransformFromOde(dBodyGetPosition(obj[i].body),dBodyGetRotation(obj[i].body));
-	  collisionWorld->AddCollisionObject(&obj[i].collider);
+	  collisionWorld->addCollisionObject(&obj[i].collider);
 	  obj[i].collider.m_userPointer = obj[i].body;
       //obj[i].geom[0] = dCreateCCylinder (space,sides[0],sides[1]);
     }
@@ -242,7 +242,7 @@ static void command (int cmd)
 	  
 
 	  obj[i].collider.m_worldTransform = GetTransformFromOde(dBodyGetPosition(obj[i].body),dBodyGetRotation(obj[i].body));
-	  collisionWorld->AddCollisionObject(&obj[i].collider);
+	  collisionWorld->addCollisionObject(&obj[i].collider);
 	  obj[i].collider.m_userPointer = obj[i].body;
 
       //obj[i].geom[0] = dCreateSphere (space,sides[0]);
@@ -300,21 +300,21 @@ void drawGeom (btCollisionObject& collider)//, const dReal *pos, const dReal *R,
 	
   if (!collider.m_collisionShape) return;
   
-  int type = collider.m_collisionShape->GetShapeType();
+  int type = collider.m_collisionShape->getShapeType();
   
   if (type == BOX_SHAPE_PROXYTYPE) {
     dVector3 sides;
     btBoxShape* boxShape = static_cast<btBoxShape*>(collider.m_collisionShape);
-	sides[0] = 2.f*boxShape->GetHalfExtents().x();
-	sides[1] = 2.f*boxShape->GetHalfExtents().y();
-	sides[2] = 2.f*boxShape->GetHalfExtents().z();
+	sides[0] = 2.f*boxShape->getHalfExtents().x();
+	sides[1] = 2.f*boxShape->getHalfExtents().y();
+	sides[2] = 2.f*boxShape->getHalfExtents().z();
 	///boxshape already has margins 'inside'
     dsDrawBox (pos,R,sides);
 
   }
   else if (type == SPHERE_SHAPE_PROXYTYPE) {
     btSphereShape* sphereShape = static_cast<btSphereShape*>(collider.m_collisionShape);
-	dReal radius = sphereShape->GetMargin();
+	dReal radius = sphereShape->getMargin();
 	
     dsDrawSphere (pos,R,radius);
 
@@ -323,10 +323,10 @@ void drawGeom (btCollisionObject& collider)//, const dReal *pos, const dReal *R,
   else if (type == CYLINDER_SHAPE_PROXYTYPE) {
     
 	btCylinderShapeZ* cylinder = static_cast<btCylinderShapeZ*>(collider.m_collisionShape);
-	dReal radius = cylinder->GetHalfExtents()[0];
-	dReal length = 2.f*cylinder->GetHalfExtents()[1];
-	radius += cylinder->GetMargin();
-	length += 2.f*cylinder->GetMargin();
+	dReal radius = cylinder->getHalfExtents()[0];
+	dReal length = 2.f*cylinder->getHalfExtents()[1];
+	radius += cylinder->getMargin();
+	length += 2.f*cylinder->getMargin();
 
     //dGeomCCylinderGetParams (g,&radius,&length);
     dsDrawCylinder (pos,R,length,radius);
@@ -376,21 +376,21 @@ static void simLoop (int pause)
 {
   dsSetColor (0,0,2);
   //dSpaceCollide (space,0,&nearCallback);
-  collisionWorld->PerformDiscreteCollisionDetection();
+  collisionWorld->performDiscreteCollisionDetection();
   //now the collisionWorld contains all contact points... just copy them over to ODE and that's it
 
-  for (int i=0;i<collisionWorld->GetDispatcher()->GetNumManifolds();i++)
+  for (int i=0;i<collisionWorld->getDispatcher()->getNumManifolds();i++)
   {
-	  btPersistentManifold* manifold = collisionWorld->GetDispatcher()->GetManifoldByIndexInternal(i);
-	  btCollisionObject* obj0 = static_cast<btCollisionObject*>(manifold->GetBody0());
-	  btCollisionObject* obj1 = static_cast<btCollisionObject*>(manifold->GetBody1());
+	  btPersistentManifold* manifold = collisionWorld->getDispatcher()->getManifoldByIndexInternal(i);
+	  btCollisionObject* obj0 = static_cast<btCollisionObject*>(manifold->getBody0());
+	  btCollisionObject* obj1 = static_cast<btCollisionObject*>(manifold->getBody1());
 	  
-	  //RefreshContactPoints will update and/or remove existing contactpoints from previous frames
-	  manifold->RefreshContactPoints(obj0->m_worldTransform,obj1->m_worldTransform);
-      for (int j=0;j<manifold->GetNumContacts();j++)
+	  //refreshContactPoints will update and/or remove existing contactpoints from previous frames
+	  manifold->refreshContactPoints(obj0->m_worldTransform,obj1->m_worldTransform);
+      for (int j=0;j<manifold->getNumContacts();j++)
 	  {
-		  btManifoldPoint& pt = manifold->GetContactPoint(j);
-		  if (pt.GetDistance()<0.f)
+		  btManifoldPoint& pt = manifold->getContactPoint(j);
+		  if (pt.getDistance()<0.f)
 		  {
 			//report point to ODE
 
@@ -401,7 +401,7 @@ static void simLoop (int pause)
 				contact.surface.bounce = 0.1;
 				contact.surface.bounce_vel = 0.1;
 				contact.surface.soft_cfm = 0.01;
-				contact.geom.depth = -pt.GetDistance();
+				contact.geom.depth = -pt.getDistance();
 				
 
 				contact.geom.normal[0] = pt.m_normalWorldOnB.x();
@@ -410,9 +410,9 @@ static void simLoop (int pause)
 				//contact.geom.g1 does it really need this?
 				contact.geom.g1 = 0;
 				contact.geom.g2 = 0;
-				contact.geom.pos[0] = pt.GetPositionWorldOnB().x();
-				contact.geom.pos[1] = pt.GetPositionWorldOnB().y();
-				contact.geom.pos[2] = pt.GetPositionWorldOnB().z();
+				contact.geom.pos[0] = pt.getPositionWorldOnB().x();
+				contact.geom.pos[1] = pt.getPositionWorldOnB().y();
+				contact.geom.pos[2] = pt.getPositionWorldOnB().z();
 
 				contact.fdir1[0] = 0.f;
 				contact.fdir1[1] = 0.f;
@@ -513,8 +513,8 @@ int main (int argc, char **argv)
   btCollisionObject groundPlane;
   groundPlane.m_worldTransform.setIdentity();
   groundPlane.m_collisionShape = new btBoxShape(btVector3(50,50,0.04));
-   groundPlane.m_collisionShape->SetMargin(0.005f);
-  collisionWorld->AddCollisionObject(&groundPlane);
+   groundPlane.m_collisionShape->setMargin(0.005f);
+  collisionWorld->addCollisionObject(&groundPlane);
   groundPlane.m_userPointer = 0;
 
   memset (obj,0,sizeof(obj));

@@ -53,28 +53,28 @@ public:
 	btGjkPairDetector(btConvexShape* objectA,btConvexShape* objectB,btSimplexSolverInterface* simplexSolver,btConvexPenetrationDepthSolver*	penetrationDepthSolver);
 	virtual ~btGjkPairDetector() {};
 
-	virtual void	GetClosestPoints(const ClosestPointInput& input,Result& output,class btIDebugDraw* debugDraw);
+	virtual void	getClosestPoints(const ClosestPointInput& input,Result& output,class btIDebugDraw* debugDraw);
 
-	void SetMinkowskiA(btConvexShape* minkA)
+	void setMinkowskiA(btConvexShape* minkA)
 	{
 		m_minkowskiA = minkA;
 	}
 
-	void SetMinkowskiB(btConvexShape* minkB)
+	void setMinkowskiB(btConvexShape* minkB)
 	{
 		m_minkowskiB = minkB;
 	}
-	void SetCachedSeperatingAxis(const btVector3& seperatingAxis)
+	void setCachedSeperatingAxis(const btVector3& seperatingAxis)
 	{
 		m_cachedSeparatingAxis = seperatingAxis;
 	}
 
-	void	SetPenetrationDepthSolver(btConvexPenetrationDepthSolver*	penetrationDepthSolver)
+	void	setPenetrationDepthSolver(btConvexPenetrationDepthSolver*	penetrationDepthSolver)
 	{
 		m_penetrationDepthSolver = penetrationDepthSolver;
 	}
 
-	void	SetIgnoreMargin(bool ignoreMargin)
+	void	setIgnoreMargin(bool ignoreMargin)
 	{
 		m_ignoreMargin = ignoreMargin;
 	}

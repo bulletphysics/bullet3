@@ -151,45 +151,45 @@ const int ZZ = 1;
 
 }
 
-btVector3	btCylinderShapeX::LocalGetSupportingVertexWithoutMargin(const btVector3& vec)const
+btVector3	btCylinderShapeX::localGetSupportingVertexWithoutMargin(const btVector3& vec)const
 {
-	return CylinderLocalSupportX(GetHalfExtents(),vec);
+	return CylinderLocalSupportX(getHalfExtents(),vec);
 }
 
 
-btVector3	btCylinderShapeZ::LocalGetSupportingVertexWithoutMargin(const btVector3& vec)const
+btVector3	btCylinderShapeZ::localGetSupportingVertexWithoutMargin(const btVector3& vec)const
 {
-	return CylinderLocalSupportZ(GetHalfExtents(),vec);
+	return CylinderLocalSupportZ(getHalfExtents(),vec);
 }
-btVector3	btCylinderShape::LocalGetSupportingVertexWithoutMargin(const btVector3& vec)const
+btVector3	btCylinderShape::localGetSupportingVertexWithoutMargin(const btVector3& vec)const
 {
-	return CylinderLocalSupportY(GetHalfExtents(),vec);
+	return CylinderLocalSupportY(getHalfExtents(),vec);
 }
 
-void	btCylinderShape::BatchedUnitVectorGetSupportingVertexWithoutMargin(const btVector3* vectors,btVector3* supportVerticesOut,int numVectors) const
+void	btCylinderShape::batchedUnitVectorGetSupportingVertexWithoutMargin(const btVector3* vectors,btVector3* supportVerticesOut,int numVectors) const
 {
 	for (int i=0;i<numVectors;i++)
 	{
-		supportVerticesOut[i] = CylinderLocalSupportY(GetHalfExtents(),vectors[i]);
+		supportVerticesOut[i] = CylinderLocalSupportY(getHalfExtents(),vectors[i]);
 	}
 }
 
-void	btCylinderShapeZ::BatchedUnitVectorGetSupportingVertexWithoutMargin(const btVector3* vectors,btVector3* supportVerticesOut,int numVectors) const
+void	btCylinderShapeZ::batchedUnitVectorGetSupportingVertexWithoutMargin(const btVector3* vectors,btVector3* supportVerticesOut,int numVectors) const
 {
 	for (int i=0;i<numVectors;i++)
 	{
-		supportVerticesOut[i] = CylinderLocalSupportZ(GetHalfExtents(),vectors[i]);
+		supportVerticesOut[i] = CylinderLocalSupportZ(getHalfExtents(),vectors[i]);
 	}
 }
 
 
 
 
-void	btCylinderShapeX::BatchedUnitVectorGetSupportingVertexWithoutMargin(const btVector3* vectors,btVector3* supportVerticesOut,int numVectors) const
+void	btCylinderShapeX::batchedUnitVectorGetSupportingVertexWithoutMargin(const btVector3* vectors,btVector3* supportVerticesOut,int numVectors) const
 {
 	for (int i=0;i<numVectors;i++)
 	{
-		supportVerticesOut[i] = CylinderLocalSupportX(GetHalfExtents(),vectors[i]);
+		supportVerticesOut[i] = CylinderLocalSupportX(getHalfExtents(),vectors[i]);
 	}
 }
 

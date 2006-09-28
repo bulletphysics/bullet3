@@ -54,19 +54,19 @@ public:
 
 	btPoint2PointConstraint();
 
-	virtual void	BuildJacobian();
+	virtual void	buildJacobian();
 
 
-	virtual	void	SolveConstraint(btScalar	timeStep);
+	virtual	void	solveConstraint(btScalar	timeStep);
 
-	void	UpdateRHS(btScalar	timeStep);
+	void	updateRHS(btScalar	timeStep);
 
-	void	SetPivotA(const btVector3& pivotA)
+	void	setPivotA(const btVector3& pivotA)
 	{
 		m_pivotInA = pivotA;
 	}
 
-	void	SetPivotB(const btVector3& pivotB)
+	void	setPivotB(const btVector3& pivotB)
 	{
 		m_pivotInB = pivotB;
 	}

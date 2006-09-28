@@ -32,10 +32,10 @@ struct MyResult : public btDiscreteCollisionDetectorInterface::Result
 	float m_depth;
 	bool	m_hasResult;
 
-	virtual void SetShapeIdentifiers(int partId0,int index0,	int partId1,int index1)
+	virtual void setShapeIdentifiers(int partId0,int index0,	int partId1,int index1)
 	{
 	}
-	void AddContactPoint(const btVector3& normalOnBInWorld,const btVector3& pointInWorld,float depth)
+	void addContactPoint(const btVector3& normalOnBInWorld,const btVector3& pointInWorld,float depth)
 	{
 		m_normalOnBInWorld = normalOnBInWorld;
 		m_pointInWorld = pointInWorld;
@@ -92,7 +92,7 @@ btVector3(0.162456f , 0.499995f,0.850654f)
 };
 
 
-bool btMinkowskiPenetrationDepthSolver::CalcPenDepth(btSimplexSolverInterface& simplexSolver,
+bool btMinkowskiPenetrationDepthSolver::calcPenDepth(btSimplexSolverInterface& simplexSolver,
 												   btConvexShape* convexA,btConvexShape* convexB,
 												   const btTransform& transA,const btTransform& transB,
 												   btVector3& v, btPoint3& pa, btPoint3& pb,
@@ -123,8 +123,8 @@ bool btMinkowskiPenetrationDepthSolver::CalcPenDepth(btSimplexSolverInterface& s
 		seperatingAxisInBBatch[i] = norm * transB.getBasis();
 	}
 
-	convexA->BatchedUnitVectorGetSupportingVertexWithoutMargin(seperatingAxisInABatch,supportVerticesABatch,NUM_UNITSPHERE_POINTS);
-	convexB->BatchedUnitVectorGetSupportingVertexWithoutMargin(seperatingAxisInBBatch,supportVerticesBBatch,NUM_UNITSPHERE_POINTS);
+	convexA->batchedUnitVectorGetSupportingVertexWithoutMargin(seperatingAxisInABatch,supportVerticesABatch,NUM_UNITSPHERE_POINTS);
+	convexB->batchedUnitVectorGetSupportingVertexWithoutMargin(seperatingAxisInBBatch,supportVerticesBBatch,NUM_UNITSPHERE_POINTS);
 	for (i=0;i<NUM_UNITSPHERE_POINTS;i++)
 	{
 		const btVector3& norm = sPenetrationDirections[i];
@@ -153,8 +153,8 @@ bool btMinkowskiPenetrationDepthSolver::CalcPenDepth(btSimplexSolverInterface& s
 		const btVector3& norm = sPenetrationDirections[i];
 		seperatingAxisInA = (-norm)* transA.getBasis();
 		seperatingAxisInB = norm* transB.getBasis();
-		pInA = convexA->LocalGetSupportingVertexWithoutMargin(seperatingAxisInA);
-		qInB = convexB->LocalGetSupportingVertexWithoutMargin(seperatingAxisInB);
+		pInA = convexA->localGetSupportingVertexWithoutMargin(seperatingAxisInA);
+		qInB = convexB->localGetSupportingVertexWithoutMargin(seperatingAxisInB);
 		pWorld = transA(pInA);	
 		qWorld = transB(qInB);
 		w	= qWorld - pWorld;
@@ -172,9 +172,9 @@ bool btMinkowskiPenetrationDepthSolver::CalcPenDepth(btSimplexSolverInterface& s
 
 	//add the margins
 
-	minA += minNorm*convexA->GetMargin();
-	minB -= minNorm*convexB->GetMargin();
-	minProj += (convexA->GetMargin() + convexB->GetMargin());
+	minA += minNorm*convexA->getMargin();
+	minB -= minNorm*convexB->getMargin();
+	minProj += (convexA->getMargin() + convexB->getMargin());
 
 
 	
@@ -184,11 +184,11 @@ bool btMinkowskiPenetrationDepthSolver::CalcPenDepth(btSimplexSolverInterface& s
 	if (debugDraw)
 	{
 		btVector3 color(0,1,0);
-		debugDraw->DrawLine(minA,minB,color);
+		debugDraw->drawLine(minA,minB,color);
 		color = btVector3 (1,1,1);
 		btVector3 vec = minB-minA;
 		float prj2 = minNorm.dot(vec);
-		debugDraw->DrawLine(minA,minA+(minNorm*minProj),color);
+		debugDraw->drawLine(minA,minA+(minNorm*minProj),color);
 
 	}
 #endif //DEBUG_DRAW
@@ -214,7 +214,7 @@ bool btMinkowskiPenetrationDepthSolver::CalcPenDepth(btSimplexSolverInterface& s
 	input.m_maximumDistanceSquared = 1e30f;//minProj;
 	
 	MyResult res;
-	gjkdet.GetClosestPoints(input,res,debugDraw);
+	gjkdet.getClosestPoints(input,res,debugDraw);
 
 	float correctedMinNorm = minProj - res.m_depth;
 
@@ -233,7 +233,7 @@ bool btMinkowskiPenetrationDepthSolver::CalcPenDepth(btSimplexSolverInterface& s
 		if (debugDraw)
 		{
 			btVector3 color(1,0,0);
-			debugDraw->DrawLine(pa,pb,color);
+			debugDraw->drawLine(pa,pb,color);
 		}
 #endif//DEBUG_DRAW
 

@@ -110,7 +110,7 @@ public:
 
 	// element access
 	const Vector3 GetNormal() const;
-	const Scalar GetDistance() const;
+	const Scalar getDistance() const;
 
 	// transformations
 	friend const Plane operator-(const Plane& p);

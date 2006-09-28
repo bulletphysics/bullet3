@@ -29,9 +29,9 @@ class btIDebugDraw;
 /// Applies impulses for combined restitution and penetration recovery and to simulate friction
 class btSequentialImpulseConstraintSolver : public btConstraintSolver
 {
-	float Solve(btPersistentManifold* manifold, const btContactSolverInfo& info,int iter,btIDebugDraw* debugDrawer);
-	float SolveFriction(btPersistentManifold* manifoldPtr, const btContactSolverInfo& info,int iter,btIDebugDraw* debugDrawer);
-	void  PrepareConstraints(btPersistentManifold* manifoldPtr, const btContactSolverInfo& info,btIDebugDraw* debugDrawer);
+	float solve(btPersistentManifold* manifold, const btContactSolverInfo& info,int iter,btIDebugDraw* debugDrawer);
+	float solveFriction(btPersistentManifold* manifoldPtr, const btContactSolverInfo& info,int iter,btIDebugDraw* debugDrawer);
+	void  prepareConstraints(btPersistentManifold* manifoldPtr, const btContactSolverInfo& info,btIDebugDraw* debugDrawer);
 
 	ContactSolverFunc m_contactDispatch[MAX_CONTACT_SOLVER_TYPES][MAX_CONTACT_SOLVER_TYPES];
 	ContactSolverFunc m_frictionDispatch[MAX_CONTACT_SOLVER_TYPES][MAX_CONTACT_SOLVER_TYPES];
@@ -42,7 +42,7 @@ public:
 
 	///Advanced: Override the default contact solving function for contacts, for certain types of rigidbody
 	///See btRigidBody::m_contactSolverType and btRigidBody::m_frictionSolverType
-	void	SetContactSolverFunc(ContactSolverFunc func,int type0,int type1)
+	void	setContactSolverFunc(ContactSolverFunc func,int type0,int type1)
 	{
 		m_contactDispatch[type0][type1] = func;
 	}
@@ -56,7 +56,7 @@ public:
 
 	virtual ~btSequentialImpulseConstraintSolver() {}
 	
-	virtual float SolveGroup(btPersistentManifold** manifold,int numManifolds,const btContactSolverInfo& info, btIDebugDraw* debugDrawer=0);
+	virtual float solveGroup(btPersistentManifold** manifold,int numManifolds,const btContactSolverInfo& info, btIDebugDraw* debugDrawer=0);
 
 };
 

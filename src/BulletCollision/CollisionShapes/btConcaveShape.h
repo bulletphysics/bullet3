@@ -34,12 +34,12 @@ public:
 
 	virtual ~ConcaveShape();
 
-	virtual void	ProcessAllTriangles(btTriangleCallback* callback,const btVector3& aabbMin,const btVector3& aabbMax) const = 0;
+	virtual void	processAllTriangles(btTriangleCallback* callback,const btVector3& aabbMin,const btVector3& aabbMax) const = 0;
 
-	virtual float GetMargin() const {
+	virtual float getMargin() const {
 		return m_collisionMargin;
 	}
-	virtual void SetMargin(float collisionMargin)
+	virtual void setMargin(float collisionMargin)
 	{
 		m_collisionMargin = collisionMargin;
 	}

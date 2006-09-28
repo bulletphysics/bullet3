@@ -15,31 +15,31 @@ subject to the following restrictions:
 
 #include "BulletCollision/CollisionShapes/btCollisionShape.h"
 
-void	btCollisionShape::GetBoundingSphere(btVector3& center,btScalar& radius) const
+void	btCollisionShape::getBoundingSphere(btVector3& center,btScalar& radius) const
 {
 	btTransform tr;
 	tr.setIdentity();
 	btVector3 aabbMin,aabbMax;
 
-	GetAabb(tr,aabbMin,aabbMax);
+	getAabb(tr,aabbMin,aabbMax);
 
 	radius = (aabbMax-aabbMin).length()*0.5f;
 	center = (aabbMin+aabbMax)*0.5f;
 }
 
-float	btCollisionShape::GetAngularMotionDisc() const
+float	btCollisionShape::getAngularMotionDisc() const
 {
 	btVector3	center;
 	float disc;
-	GetBoundingSphere(center,disc);
+	getBoundingSphere(center,disc);
 	disc += (center).length();
 	return disc;
 }
 
-void btCollisionShape::CalculateTemporalAabb(const btTransform& curTrans,const btVector3& linvel,const btVector3& angvel,btScalar timeStep, btVector3& temporalAabbMin,btVector3& temporalAabbMax)
+void btCollisionShape::calculateTemporalAabb(const btTransform& curTrans,const btVector3& linvel,const btVector3& angvel,btScalar timeStep, btVector3& temporalAabbMin,btVector3& temporalAabbMax)
 {
 	//start with static aabb
-	GetAabb(curTrans,temporalAabbMin,temporalAabbMax);
+	getAabb(curTrans,temporalAabbMin,temporalAabbMax);
 
 	float temporalAabbMaxx = temporalAabbMax.getX();
 	float temporalAabbMaxy = temporalAabbMax.getY();
@@ -65,7 +65,7 @@ void btCollisionShape::CalculateTemporalAabb(const btTransform& curTrans,const b
 		temporalAabbMinz += linMotion.z();
 
 	//add conservative angular motion
-	btScalar angularMotion = angvel.length() * GetAngularMotionDisc() * timeStep;
+	btScalar angularMotion = angvel.length() * getAngularMotionDisc() * timeStep;
 	btVector3 angularMotion3d(angularMotion,angularMotion,angularMotion);
 	temporalAabbMin = btVector3(temporalAabbMinx,temporalAabbMiny,temporalAabbMinz);
 	temporalAabbMax = btVector3(temporalAabbMaxx,temporalAabbMaxy,temporalAabbMaxz);

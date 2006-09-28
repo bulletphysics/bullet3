@@ -45,7 +45,7 @@ public:
 	{
 	}
 
-	virtual void InternalProcessTriangleIndex(btVector3* triangle,int partId,int  triangleIndex)
+	virtual void internalProcessTriangleIndex(btVector3* triangle,int partId,int  triangleIndex)
 	{
 		for (int i=0;i<3;i++)
 		{
@@ -69,7 +69,7 @@ public:
 
 
 
-btVector3	btConvexTriangleMeshShape::LocalGetSupportingVertexWithoutMargin(const btVector3& vec0)const
+btVector3	btConvexTriangleMeshShape::localGetSupportingVertexWithoutMargin(const btVector3& vec0)const
 {
 	btVector3 supVec(0.f,0.f,0.f);
 
@@ -92,7 +92,7 @@ btVector3	btConvexTriangleMeshShape::LocalGetSupportingVertexWithoutMargin(const
 	return supVec;
 }
 
-void	btConvexTriangleMeshShape::BatchedUnitVectorGetSupportingVertexWithoutMargin(const btVector3* vectors,btVector3* supportVerticesOut,int numVectors) const
+void	btConvexTriangleMeshShape::batchedUnitVectorGetSupportingVertexWithoutMargin(const btVector3* vectors,btVector3* supportVerticesOut,int numVectors) const
 {
 	//use 'w' component of supportVerticesOut?
 	{
@@ -118,11 +118,11 @@ void	btConvexTriangleMeshShape::BatchedUnitVectorGetSupportingVertexWithoutMargi
 	
 
 
-btVector3	btConvexTriangleMeshShape::LocalGetSupportingVertex(const btVector3& vec)const
+btVector3	btConvexTriangleMeshShape::localGetSupportingVertex(const btVector3& vec)const
 {
-	btVector3 supVertex = LocalGetSupportingVertexWithoutMargin(vec);
+	btVector3 supVertex = localGetSupportingVertexWithoutMargin(vec);
 
-	if ( GetMargin()!=0.f )
+	if ( getMargin()!=0.f )
 	{
 		btVector3 vecnorm = vec;
 		if (vecnorm .length2() < (SIMD_EPSILON*SIMD_EPSILON))
@@ -130,7 +130,7 @@ btVector3	btConvexTriangleMeshShape::LocalGetSupportingVertex(const btVector3& v
 			vecnorm.setValue(-1.f,-1.f,-1.f);
 		} 
 		vecnorm.normalize();
-		supVertex+= GetMargin() * vecnorm;
+		supVertex+= getMargin() * vecnorm;
 	}
 	return supVertex;
 }
@@ -145,7 +145,7 @@ btVector3	btConvexTriangleMeshShape::LocalGetSupportingVertex(const btVector3& v
 
 //currently just for debugging (drawing), perhaps future support for algebraic continuous collision detection
 //Please note that you can debug-draw btConvexTriangleMeshShape with the Raytracer Demo
-int	btConvexTriangleMeshShape::GetNumVertices() const
+int	btConvexTriangleMeshShape::getNumVertices() const
 {
 	//cache this?
 	assert(0);
@@ -153,34 +153,34 @@ int	btConvexTriangleMeshShape::GetNumVertices() const
 	
 }
 
-int btConvexTriangleMeshShape::GetNumEdges() const
+int btConvexTriangleMeshShape::getNumEdges() const
 {
 	assert(0);	
 	return 0;
 }
 
-void btConvexTriangleMeshShape::GetEdge(int i,btPoint3& pa,btPoint3& pb) const
+void btConvexTriangleMeshShape::getEdge(int i,btPoint3& pa,btPoint3& pb) const
 {
 	assert(0);	
 }
 
-void btConvexTriangleMeshShape::GetVertex(int i,btPoint3& vtx) const
+void btConvexTriangleMeshShape::getVertex(int i,btPoint3& vtx) const
 {
 	assert(0);
 }
 
-int	btConvexTriangleMeshShape::GetNumPlanes() const
+int	btConvexTriangleMeshShape::getNumPlanes() const
 {
 	return 0;
 }
 
-void btConvexTriangleMeshShape::GetPlane(btVector3& planeNormal,btPoint3& planeSupport,int i ) const
+void btConvexTriangleMeshShape::getPlane(btVector3& planeNormal,btPoint3& planeSupport,int i ) const
 {
 	assert(0);
 }
 
 //not yet
-bool btConvexTriangleMeshShape::IsInside(const btPoint3& pt,btScalar tolerance) const
+bool btConvexTriangleMeshShape::isInside(const btPoint3& pt,btScalar tolerance) const
 {
 	assert(0);
 	return false;

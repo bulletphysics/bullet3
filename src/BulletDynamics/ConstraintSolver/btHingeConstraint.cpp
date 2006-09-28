@@ -45,7 +45,7 @@ m_angularOnly(false)
 	
 }
 
-void	btHingeConstraint::BuildJacobian()
+void	btHingeConstraint::buildJacobian()
 {
 	m_appliedImpulse = 0.f;
 
@@ -74,7 +74,7 @@ void	btHingeConstraint::BuildJacobian()
 	//these two jointAxis require equal angular velocities for both bodies
 
 	//this is unused for now, it's a todo
-	btVector3 axisWorldA = GetRigidBodyA().getCenterOfMassTransform().getBasis() * m_axisInA;
+	btVector3 axisWorldA = getRigidBodyA().getCenterOfMassTransform().getBasis() * m_axisInA;
 	btVector3 jointAxis0;
 	btVector3 jointAxis1;
 	btPlaneSpace1(axisWorldA,jointAxis0,jointAxis1);
@@ -94,7 +94,7 @@ void	btHingeConstraint::BuildJacobian()
 
 }
 
-void	btHingeConstraint::SolveConstraint(btScalar	timeStep)
+void	btHingeConstraint::solveConstraint(btScalar	timeStep)
 {
 //#define NEW_IMPLEMENTATION
 
@@ -150,8 +150,8 @@ void	btHingeConstraint::SolveConstraint(btScalar	timeStep)
 	///solve angular part
 
 	// get axes in world space
-	btVector3 axisA = GetRigidBodyA().getCenterOfMassTransform().getBasis() * m_axisInA;
-	btVector3 axisB = GetRigidBodyB().getCenterOfMassTransform().getBasis() * m_axisInB;
+	btVector3 axisA = getRigidBodyA().getCenterOfMassTransform().getBasis() * m_axisInA;
+	btVector3 axisB = getRigidBodyB().getCenterOfMassTransform().getBasis() * m_axisInB;
 
 	// constraint axes in world space
 	btVector3 jointAxis0;
@@ -230,11 +230,11 @@ void	btHingeConstraint::SolveConstraint(btScalar	timeStep)
 	///solve angular part
 
 	// get axes in world space
-	btVector3 axisA = GetRigidBodyA().getCenterOfMassTransform().getBasis() * m_axisInA;
-	btVector3 axisB = GetRigidBodyB().getCenterOfMassTransform().getBasis() * m_axisInB;
+	btVector3 axisA = getRigidBodyA().getCenterOfMassTransform().getBasis() * m_axisInA;
+	btVector3 axisB = getRigidBodyB().getCenterOfMassTransform().getBasis() * m_axisInB;
 
-	const btVector3& angVelA = GetRigidBodyA().getAngularVelocity();
-	const btVector3& angVelB = GetRigidBodyB().getAngularVelocity();
+	const btVector3& angVelA = getRigidBodyA().getAngularVelocity();
+	const btVector3& angVelB = getRigidBodyB().getAngularVelocity();
 	btVector3 angA = angVelA - axisA * axisA.dot(angVelA);
 	btVector3 angB = angVelB - axisB * axisB.dot(angVelB);
 	btVector3 velrel = angA-angB;
@@ -245,8 +245,8 @@ void	btHingeConstraint::SolveConstraint(btScalar	timeStep)
 	if (len > 0.00001f)
 	{
 		btVector3 normal = velrel.normalized();
-		float denom = GetRigidBodyA().ComputeAngularImpulseDenominator(normal) +
-			GetRigidBodyB().ComputeAngularImpulseDenominator(normal);
+		float denom = getRigidBodyA().computeAngularImpulseDenominator(normal) +
+			getRigidBodyB().computeAngularImpulseDenominator(normal);
 		// scale for mass and relaxation
 		velrel *= (1.f/denom) * 0.9;
 	}
@@ -257,8 +257,8 @@ void	btHingeConstraint::SolveConstraint(btScalar	timeStep)
 	if (len2>0.00001f)
 	{
 		btVector3 normal2 = angularError.normalized();
-		float denom2 = GetRigidBodyA().ComputeAngularImpulseDenominator(normal2) +
-				GetRigidBodyB().ComputeAngularImpulseDenominator(normal2);
+		float denom2 = getRigidBodyA().computeAngularImpulseDenominator(normal2) +
+				getRigidBodyB().computeAngularImpulseDenominator(normal2);
 		angularError *= (1.f/denom2) * relaxation;
 	}
 
@@ -269,7 +269,7 @@ void	btHingeConstraint::SolveConstraint(btScalar	timeStep)
 
 }
 
-void	btHingeConstraint::UpdateRHS(btScalar	timeStep)
+void	btHingeConstraint::updateRHS(btScalar	timeStep)
 {
 
 }

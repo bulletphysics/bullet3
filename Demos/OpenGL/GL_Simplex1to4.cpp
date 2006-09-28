@@ -34,16 +34,16 @@ GL_Simplex1to4::GL_Simplex1to4()
 }
 
 ///
-/// Debugging method CalcClosest calculates the closest point to the origin, using m_simplexSolver
+/// Debugging method calcClosest calculates the closest point to the origin, using m_simplexSolver
 ///
-void	GL_Simplex1to4::CalcClosest(float* m)
+void	GL_Simplex1to4::calcClosest(float* m)
 {
 	btTransform tr;
 	tr.setFromOpenGLMatrix(m);
 	
 
 
-			GL_ShapeDrawer::DrawCoordSystem();
+			GL_ShapeDrawer::drawCoordSystem();
 			
 			if (m_simplexSolver)
 			{

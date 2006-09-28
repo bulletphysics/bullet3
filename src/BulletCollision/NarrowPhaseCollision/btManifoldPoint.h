@@ -54,7 +54,7 @@ class btManifoldPoint
 			btVector3 m_localPointA;			
 			btVector3 m_localPointB;			
 			btVector3	m_positionWorldOnB;
-			///m_positionWorldOnA is redundant information, see GetPositionWorldOnA(), but for clarity
+			///m_positionWorldOnA is redundant information, see getPositionWorldOnA(), but for clarity
 			btVector3	m_positionWorldOnA;
 			btVector3 m_normalWorldOnB;
 		
@@ -67,26 +67,26 @@ class btManifoldPoint
 
 			int		m_lifeTime;//lifetime of the contactpoint in frames
 			
-			float GetDistance() const
+			float getDistance() const
 			{
 				return m_distance1;
 			}
-			int	GetLifeTime() const
+			int	getLifeTime() const
 			{
 				return m_lifeTime;
 			}
 
-			btVector3 GetPositionWorldOnA() {
+			btVector3 getPositionWorldOnA() {
 				return m_positionWorldOnA;
 //				return m_positionWorldOnB + m_normalWorldOnB * m_distance1;
 			}
 
-			const btVector3& GetPositionWorldOnB()
+			const btVector3& getPositionWorldOnB()
 			{
 				return m_positionWorldOnB;
 			}
 
-			void	SetDistance(float dist)
+			void	setDistance(float dist)
 			{
 				m_distance1 = dist;
 			}

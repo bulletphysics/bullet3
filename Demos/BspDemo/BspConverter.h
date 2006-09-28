@@ -35,7 +35,7 @@ class BspConverter
 		bool	isInside(const std::vector<btVector3>& planeEquations, const btVector3& point, float	margin);
 
 		///this callback is called for each brush that succesfully converted into vertices
-		virtual void	AddConvexVerticesCollider(std::vector<btVector3>& vertices, bool isEntity, const btVector3& entityTargetLocation) = 0;
+		virtual void	addConvexVerticesCollider(std::vector<btVector3>& vertices, bool isEntity, const btVector3& entityTargetLocation) = 0;
 
 };
 

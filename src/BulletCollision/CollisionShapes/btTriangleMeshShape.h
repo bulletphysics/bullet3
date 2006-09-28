@@ -34,33 +34,33 @@ public:
 
 	virtual ~btTriangleMeshShape();
 
-	virtual btVector3 LocalGetSupportingVertex(const btVector3& vec) const;
+	virtual btVector3 localGetSupportingVertex(const btVector3& vec) const;
 
-	virtual btVector3	LocalGetSupportingVertexWithoutMargin(const btVector3& vec)const
+	virtual btVector3	localGetSupportingVertexWithoutMargin(const btVector3& vec)const
 	{
 		assert(0);
-		return LocalGetSupportingVertex(vec);
+		return localGetSupportingVertex(vec);
 	}
 
-	void	RecalcLocalAabb();
+	void	recalcLocalAabb();
 
-	virtual int	GetShapeType() const
+	virtual int	getShapeType() const
 	{
 		return TRIANGLE_MESH_SHAPE_PROXYTYPE;
 	}
 
-	virtual void GetAabb(const btTransform& t,btVector3& aabbMin,btVector3& aabbMax) const;
+	virtual void getAabb(const btTransform& t,btVector3& aabbMin,btVector3& aabbMax) const;
 
-	virtual void	ProcessAllTriangles(btTriangleCallback* callback,const btVector3& aabbMin,const btVector3& aabbMax) const;
+	virtual void	processAllTriangles(btTriangleCallback* callback,const btVector3& aabbMin,const btVector3& aabbMax) const;
 
-	virtual void	CalculateLocalInertia(btScalar mass,btVector3& inertia);
+	virtual void	calculateLocalInertia(btScalar mass,btVector3& inertia);
 
 	virtual void	setLocalScaling(const btVector3& scaling);
 	virtual const btVector3& getLocalScaling() const;
 	
 
 	//debugging
-	virtual char*	GetName()const {return "TRIANGLEMESH";}
+	virtual char*	getName()const {return "TRIANGLEMESH";}
 
 
 };

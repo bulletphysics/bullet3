@@ -58,13 +58,13 @@ struct	btSubSimplexClosestResult
 	float	m_barycentricCoords[4];
 	bool m_degenerate;
 
-	void	Reset()
+	void	reset()
 	{
 		m_degenerate = false;
-		SetBarycentricCoordinates();
+		setBarycentricCoordinates();
 		m_usedVertices.reset();
 	}
-	bool	IsValid()
+	bool	isValid()
 	{
 		bool valid = (m_barycentricCoords[0] >= 0.f) &&
 			(m_barycentricCoords[1] >= 0.f) &&
@@ -74,7 +74,7 @@ struct	btSubSimplexClosestResult
 
 		return valid;
 	}
-	void	SetBarycentricCoordinates(float a=0.f,float b=0.f,float c=0.f,float d=0.f)
+	void	setBarycentricCoordinates(float a=0.f,float b=0.f,float c=0.f,float d=0.f)
 	{
 		m_barycentricCoords[0] = a;
 		m_barycentricCoords[1] = b;
@@ -113,12 +113,12 @@ public:
 	bool	m_needsUpdate;
 	
 	void	removeVertex(int index);
-	void	ReduceVertices (const btUsageBitfield& usedVerts);
-	bool	UpdateClosestVectorAndPoints();
+	void	reduceVertices (const btUsageBitfield& usedVerts);
+	bool	updateClosestVectorAndPoints();
 
-	bool	ClosestPtPointTetrahedron(const btPoint3& p, const btPoint3& a, const btPoint3& b, const btPoint3& c, const btPoint3& d, btSubSimplexClosestResult& finalResult);
-	int		PointOutsideOfPlane(const btPoint3& p, const btPoint3& a, const btPoint3& b, const btPoint3& c, const btPoint3& d);
-	bool	ClosestPtPointTriangle(const btPoint3& p, const btPoint3& a, const btPoint3& b, const btPoint3& c,btSubSimplexClosestResult& result);
+	bool	closestPtPointTetrahedron(const btPoint3& p, const btPoint3& a, const btPoint3& b, const btPoint3& c, const btPoint3& d, btSubSimplexClosestResult& finalResult);
+	int		pointOutsideOfPlane(const btPoint3& p, const btPoint3& a, const btPoint3& b, const btPoint3& c, const btPoint3& d);
+	bool	closestPtPointTriangle(const btPoint3& p, const btPoint3& a, const btPoint3& b, const btPoint3& c,btSubSimplexClosestResult& result);
 
 public:
 

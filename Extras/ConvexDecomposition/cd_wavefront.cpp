@@ -570,7 +570,7 @@ public:
   int ParseLine(int lineno,int argc,const char **argv);  // return TRUE to continue parsing, return FALSE to abort parsing process
 private:
 
-  void GetVertex(GeometryVertex &v,const char *face) const;
+  void getVertex(GeometryVertex &v,const char *face) const;
 
   FloatVector     mVerts;
   FloatVector     mTexels;
@@ -609,7 +609,7 @@ static const char * GetArg(const char **argv,int i,int argc)
   return ret;
 }
 
-void OBJ::GetVertex(GeometryVertex &v,const char *face) const
+void OBJ::getVertex(GeometryVertex &v,const char *face) const
 {
   v.mPos[0] = 0;
   v.mPos[1] = 0;
@@ -717,7 +717,7 @@ int OBJ::ParseLine(int lineno,int argc,const char **argv)  // return TRUE to con
 
         for (int i=1; i<argc; i++)
         {
-          GetVertex(v[i-1],argv[i] );
+          getVertex(v[i-1],argv[i] );
         }
 
         // need to generate a normal!
@@ -765,7 +765,7 @@ class BuildMesh : public GeometryInterface
 {
 public:
 
-	int GetIndex(const float *p)
+	int getIndex(const float *p)
 	{
 
 		int vcount = mVertices.size()/3;
@@ -791,9 +791,9 @@ public:
 
 	virtual void NodeTriangle(const GeometryVertex *v1,const GeometryVertex *v2,const GeometryVertex *v3)
 	{
-		mIndices.push_back( GetIndex(v1->mPos) );
-		mIndices.push_back( GetIndex(v2->mPos) );
-		mIndices.push_back( GetIndex(v3->mPos) );
+		mIndices.push_back( getIndex(v1->mPos) );
+		mIndices.push_back( getIndex(v2->mPos) );
+		mIndices.push_back( getIndex(v3->mPos) );
 	}
 
   const FloatVector& GetVertices(void) const { return mVertices; };

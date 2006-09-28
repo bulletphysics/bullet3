@@ -30,7 +30,7 @@ btUnionFind::btUnionFind()
 
 }
 
-void	btUnionFind::Allocate(int N)
+void	btUnionFind::allocate(int N)
 {
 	m_elements.resize(N);
 }
@@ -42,7 +42,7 @@ void	btUnionFind::Free()
 
 void	btUnionFind::reset(int N)
 {
-	Allocate(N);
+	allocate(N);
 
 	for (int i = 0; i < N; i++) 
 	{ 

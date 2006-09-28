@@ -32,28 +32,28 @@ public:
 
 	btMinkowskiSumShape(btConvexShape* shapeA,btConvexShape* shapeB);
 
-	virtual btVector3	LocalGetSupportingVertexWithoutMargin(const btVector3& vec)const;
+	virtual btVector3	localGetSupportingVertexWithoutMargin(const btVector3& vec)const;
 
-	virtual void	BatchedUnitVectorGetSupportingVertexWithoutMargin(const btVector3* vectors,btVector3* supportVerticesOut,int numVectors) const;
+	virtual void	batchedUnitVectorGetSupportingVertexWithoutMargin(const btVector3* vectors,btVector3* supportVerticesOut,int numVectors) const;
 
 
-	virtual void	CalculateLocalInertia(btScalar mass,btVector3& inertia);
+	virtual void	calculateLocalInertia(btScalar mass,btVector3& inertia);
 
-	void	SetTransformA(const btTransform&	transA) { m_transA = transA;}
-	void	SetTransformB(const btTransform&	transB) { m_transB = transB;}
+	void	setTransformA(const btTransform&	transA) { m_transA = transA;}
+	void	setTransformB(const btTransform&	transB) { m_transB = transB;}
 
-	const btTransform& GetTransformA()const  { return m_transA;}
+	const btTransform& getTransformA()const  { return m_transA;}
 	const btTransform& GetTransformB()const  { return m_transB;}
 
 
-	virtual int	GetShapeType() const { return MINKOWSKI_SUM_SHAPE_PROXYTYPE; }
+	virtual int	getShapeType() const { return MINKOWSKI_SUM_SHAPE_PROXYTYPE; }
 
-	virtual float	GetMargin() const;
+	virtual float	getMargin() const;
 
-	const btConvexShape*	GetShapeA() const { return m_shapeA;}
-	const btConvexShape*	GetShapeB() const { return m_shapeB;}
+	const btConvexShape*	getShapeA() const { return m_shapeA;}
+	const btConvexShape*	getShapeB() const { return m_shapeB;}
 
-	virtual char*	GetName()const 
+	virtual char*	getName()const 
 	{
 		return "MinkowskiSum";
 	}

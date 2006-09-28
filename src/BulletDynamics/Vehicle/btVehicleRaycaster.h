@@ -27,7 +27,7 @@ virtual ~btVehicleRaycaster()
 		btScalar	m_distFraction;
 	};
 
-	virtual void* CastRay(const btVector3& from,const btVector3& to, btVehicleRaycasterResult& result) = 0;
+	virtual void* castRay(const btVector3& from,const btVector3& to, btVehicleRaycasterResult& result) = 0;
 
 };
 

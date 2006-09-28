@@ -22,7 +22,7 @@ GLDebugDrawer::GLDebugDrawer()
 {
 
 }
-void	GLDebugDrawer::DrawLine(const btVector3& from,const btVector3& to,const btVector3& color)
+void	GLDebugDrawer::drawLine(const btVector3& from,const btVector3& to,const btVector3& color)
 {
 	if (m_debugMode > 0)
 	{
@@ -34,13 +34,13 @@ void	GLDebugDrawer::DrawLine(const btVector3& from,const btVector3& to,const btV
 	}
 }
 
-void	GLDebugDrawer::SetDebugMode(int debugMode)
+void	GLDebugDrawer::setDebugMode(int debugMode)
 {
 	m_debugMode = debugMode;
 
 }
 
-void	GLDebugDrawer::DrawContactPoint(const btVector3& pointOnB,const btVector3& normalOnB,float distance,int lifeTime,const btVector3& color)
+void	GLDebugDrawer::drawContactPoint(const btVector3& pointOnB,const btVector3& normalOnB,float distance,int lifeTime,const btVector3& color)
 {
 	if (m_debugMode & btIDebugDraw::DBG_DrawContactPoints)
 	{

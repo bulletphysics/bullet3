@@ -54,13 +54,13 @@ class	btIDebugDraw
 
 	virtual ~btIDebugDraw() {};
 
-	virtual void	DrawLine(const btVector3& from,const btVector3& to,const btVector3& color)=0;
+	virtual void	drawLine(const btVector3& from,const btVector3& to,const btVector3& color)=0;
 
-	virtual void	DrawContactPoint(const btVector3& PointOnB,const btVector3& normalOnB,float distance,int lifeTime,const btVector3& color)=0;
+	virtual void	drawContactPoint(const btVector3& PointOnB,const btVector3& normalOnB,float distance,int lifeTime,const btVector3& color)=0;
 
-	virtual void	SetDebugMode(int debugMode) =0;
+	virtual void	setDebugMode(int debugMode) =0;
 	
-	virtual int		GetDebugMode() const = 0;
+	virtual int		getDebugMode() const = 0;
 
 
 };

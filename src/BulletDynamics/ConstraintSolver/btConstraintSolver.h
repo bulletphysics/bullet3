@@ -31,7 +31,7 @@ public:
 
 	virtual ~btConstraintSolver() {}
 	
-	virtual float SolveGroup(btPersistentManifold** manifold,int numManifolds,const btContactSolverInfo& info,class btIDebugDraw* debugDrawer = 0) = 0;
+	virtual float solveGroup(btPersistentManifold** manifold,int numManifolds,const btContactSolverInfo& info,class btIDebugDraw* debugDrawer = 0) = 0;
 
 };
 

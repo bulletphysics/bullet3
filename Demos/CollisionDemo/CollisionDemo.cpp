@@ -122,7 +122,7 @@ void CollisionDemo::displayCallback(void) {
     glClear(GL_COLOR_BUFFER_BIT | GL_DEPTH_BUFFER_BIT); 
 	glDisable(GL_LIGHTING);
 
-	//GL_ShapeDrawer::DrawCoordSystem();
+	//GL_ShapeDrawer::drawCoordSystem();
 
 	float m[16];
 	int i;
@@ -130,14 +130,14 @@ void CollisionDemo::displayCallback(void) {
 	btGjkPairDetector	convexConvex(shapePtr[0],shapePtr[1],&sGjkSimplexSolver,0);
 
 	btVector3 seperatingAxis(0.00000000f,0.059727669f,0.29259586f);
-	convexConvex.SetCachedSeperatingAxis(seperatingAxis);
+	convexConvex.setCachedSeperatingAxis(seperatingAxis);
 
 	btPointCollector gjkOutput;
 	btGjkPairDetector::ClosestPointInput input;
 	input.m_transformA = tr[0];
 	input.m_transformB = tr[1];
 
-	convexConvex.GetClosestPoints(input ,gjkOutput,0);
+	convexConvex.getClosestPoints(input ,gjkOutput,0);
 
 	if (gjkOutput.m_hasResult)
 	{
@@ -159,23 +159,23 @@ void CollisionDemo::displayCallback(void) {
 		
 		tr[i].getOpenGLMatrix( m );
 
-		GL_ShapeDrawer::DrawOpenGL(m,shapePtr[i],btVector3(1,1,1),getDebugMode());
+		GL_ShapeDrawer::drawOpenGL(m,shapePtr[i],btVector3(1,1,1),getDebugMode());
 
 
 	}
 
-	simplex.SetSimplexSolver(&sGjkSimplexSolver);
+	simplex.setSimplexSolver(&sGjkSimplexSolver);
 	btPoint3 ybuf[4],pbuf[4],qbuf[4];
 	int numpoints = sGjkSimplexSolver.getSimplex(pbuf,qbuf,ybuf);
-	simplex.Reset();
+	simplex.reset();
 	
 	for (i=0;i<numpoints;i++)
-		simplex.AddVertex(ybuf[i]);
+		simplex.addVertex(ybuf[i]);
 
 	btTransform ident;
 	ident.setIdentity();
 	ident.getOpenGLMatrix(m);
-	GL_ShapeDrawer::DrawOpenGL(m,&simplex,btVector3(1,1,1),getDebugMode());
+	GL_ShapeDrawer::drawOpenGL(m,&simplex,btVector3(1,1,1),getDebugMode());
 
 
 	btQuaternion orn;

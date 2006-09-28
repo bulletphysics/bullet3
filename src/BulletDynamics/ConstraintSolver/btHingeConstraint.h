@@ -46,17 +46,17 @@ public:
 
 	btHingeConstraint();
 
-	virtual void	BuildJacobian();
+	virtual void	buildJacobian();
 
-	virtual	void	SolveConstraint(btScalar	timeStep);
+	virtual	void	solveConstraint(btScalar	timeStep);
 
-	void	UpdateRHS(btScalar	timeStep);
+	void	updateRHS(btScalar	timeStep);
 
-	const btRigidBody& GetRigidBodyA() const
+	const btRigidBody& getRigidBodyA() const
 	{
 		return m_rbA;
 	}
-	const btRigidBody& GetRigidBodyB() const
+	const btRigidBody& getRigidBodyB() const
 	{
 		return m_rbB;
 	}

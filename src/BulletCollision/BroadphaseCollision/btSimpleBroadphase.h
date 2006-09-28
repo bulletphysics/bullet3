@@ -52,7 +52,7 @@ class btSimpleBroadphase : public btOverlappingPairCache
 	int m_maxProxies;
 	
 	
-	inline btSimpleBroadphaseProxy*	GetSimpleProxyFromProxy(btBroadphaseProxy* proxy)
+	inline btSimpleBroadphaseProxy*	getSimpleProxyFromProxy(btBroadphaseProxy* proxy)
 	{
 		btSimpleBroadphaseProxy* proxy0 = static_cast<btSimpleBroadphaseProxy*>(proxy);
 		return proxy0;
@@ -64,20 +64,20 @@ class btSimpleBroadphase : public btOverlappingPairCache
 protected:
 
 
-	virtual void	RefreshOverlappingPairs();
+	virtual void	refreshOverlappingPairs();
 public:
 	btSimpleBroadphase(int maxProxies=16384);
 	virtual ~btSimpleBroadphase();
 
 
-		static bool	AabbOverlap(btSimpleBroadphaseProxy* proxy0,btSimpleBroadphaseProxy* proxy1);
+		static bool	aabbOverlap(btSimpleBroadphaseProxy* proxy0,btSimpleBroadphaseProxy* proxy1);
 
 
-	virtual btBroadphaseProxy*	CreateProxy(  const btVector3& min,  const btVector3& max,int shapeType,void* userPtr ,short int collisionFilterGroup,short int collisionFilterMask);
+	virtual btBroadphaseProxy*	createProxy(  const btVector3& min,  const btVector3& max,int shapeType,void* userPtr ,short int collisionFilterGroup,short int collisionFilterMask);
 
 
-	virtual void	DestroyProxy(btBroadphaseProxy* proxy);
-	virtual void	SetAabb(btBroadphaseProxy* proxy,const btVector3& aabbMin,const btVector3& aabbMax);
+	virtual void	destroyProxy(btBroadphaseProxy* proxy);
+	virtual void	setAabb(btBroadphaseProxy* proxy,const btVector3& aabbMin,const btVector3& aabbMax);
 		
 	
 	

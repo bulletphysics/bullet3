@@ -37,8 +37,8 @@ public:
 	virtual ~btEmptyShape();
 
 
-	///GetAabb's default implementation is brute force, expected derived classes to implement a fast dedicated version
-	void GetAabb(const btTransform& t,btVector3& aabbMin,btVector3& aabbMax) const;
+	///getAabb's default implementation is brute force, expected derived classes to implement a fast dedicated version
+	void getAabb(const btTransform& t,btVector3& aabbMin,btVector3& aabbMax) const;
 
 
 	virtual void	setLocalScaling(const btVector3& scaling)
@@ -50,12 +50,12 @@ public:
 		return m_localScaling;
 	}
 
-	virtual void	CalculateLocalInertia(btScalar mass,btVector3& inertia);
+	virtual void	calculateLocalInertia(btScalar mass,btVector3& inertia);
 	
-	virtual int	GetShapeType() const { return EMPTY_SHAPE_PROXYTYPE;}
+	virtual int	getShapeType() const { return EMPTY_SHAPE_PROXYTYPE;}
 
 	
-	virtual char*	GetName()const
+	virtual char*	getName()const
 	{
 		return "Empty";
 	}

@@ -29,10 +29,10 @@ btEmptyShape::~btEmptyShape()
 }
 
 
-	///GetAabb's default implementation is brute force, expected derived classes to implement a fast dedicated version
-void btEmptyShape::GetAabb(const btTransform& t,btVector3& aabbMin,btVector3& aabbMax) const
+	///getAabb's default implementation is brute force, expected derived classes to implement a fast dedicated version
+void btEmptyShape::getAabb(const btTransform& t,btVector3& aabbMin,btVector3& aabbMax) const
 {
-	btVector3 margin(GetMargin(),GetMargin(),GetMargin());
+	btVector3 margin(getMargin(),getMargin(),getMargin());
 
 	aabbMin = t.getOrigin() - margin;
 
@@ -40,7 +40,7 @@ void btEmptyShape::GetAabb(const btTransform& t,btVector3& aabbMin,btVector3& aa
 
 }
 
-void	btEmptyShape::CalculateLocalInertia(btScalar mass,btVector3& inertia)
+void	btEmptyShape::calculateLocalInertia(btScalar mass,btVector3& inertia)
 {
 	assert(0);
 }

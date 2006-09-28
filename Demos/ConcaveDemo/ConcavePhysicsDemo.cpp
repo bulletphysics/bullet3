@@ -168,16 +168,16 @@ void	ConcaveDemo::initPhysics()
 	startTransform.setIdentity();
 	startTransform.setOrigin(btVector3(0,-2,0));
 
-	CcdPhysicsController* staticTrimesh = LocalCreatePhysicsObject(isDynamic, mass, startTransform,trimeshShape);
+	CcdPhysicsController* staticTrimesh = localCreatePhysicsObject(isDynamic, mass, startTransform,trimeshShape);
 	//enable custom material callback
-	staticTrimesh->GetRigidBody()->m_collisionFlags |= btCollisionObject::customMaterialCallback;
+	staticTrimesh->getRigidBody()->m_collisionFlags |= btCollisionObject::customMaterialCallback;
 
 	{
 		for (int i=0;i<10;i++)
 		{
 			btCollisionShape* boxShape = new btBoxShape(btVector3(1,1,1));
 			startTransform.setOrigin(btVector3(2*i,1,1));
-			LocalCreatePhysicsObject(true, 1, startTransform,boxShape);
+			localCreatePhysicsObject(true, 1, startTransform,boxShape);
 		}
 	}
 	m_physicsEnvironmentPtr->setGravity(-1,-10,1);

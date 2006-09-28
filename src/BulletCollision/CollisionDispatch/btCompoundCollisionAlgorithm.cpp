@@ -24,10 +24,10 @@ m_compoundProxy(*proxy0),
 m_otherProxy(*proxy1)
 {
 	btCollisionObject* colObj = static_cast<btCollisionObject*>(m_compoundProxy.m_clientObject);
-	assert (colObj->m_collisionShape->IsCompound());
+	assert (colObj->m_collisionShape->isCompound());
 	
 	btCompoundShape* compoundShape = static_cast<btCompoundShape*>(colObj->m_collisionShape);
-	int numChildren = compoundShape->GetNumChildShapes();
+	int numChildren = compoundShape->getNumChildShapes();
 	m_childProxies.resize( numChildren );
 	int i;
 	for (i=0;i<numChildren;i++)
@@ -38,11 +38,11 @@ m_otherProxy(*proxy1)
 	m_childCollisionAlgorithms.resize(numChildren);
 	for (i=0;i<numChildren;i++)
 	{
-		btCollisionShape* childShape = compoundShape->GetChildShape(i);
+		btCollisionShape* childShape = compoundShape->getChildShape(i);
 		btCollisionObject* colObj = static_cast<btCollisionObject*>(m_childProxies[i].m_clientObject);
 		btCollisionShape* orgShape = colObj->m_collisionShape;
 		colObj->m_collisionShape = childShape;
-		m_childCollisionAlgorithms[i] = m_dispatcher->FindAlgorithm(m_childProxies[i],m_otherProxy);
+		m_childCollisionAlgorithms[i] = m_dispatcher->findAlgorithm(m_childProxies[i],m_otherProxy);
 		colObj->m_collisionShape =orgShape;
 	}
 }
@@ -58,10 +58,10 @@ btCompoundCollisionAlgorithm::~btCompoundCollisionAlgorithm()
 	}
 }
 
-void btCompoundCollisionAlgorithm::ProcessCollision (btBroadphaseProxy* ,btBroadphaseProxy* ,const btDispatcherInfo& dispatchInfo)
+void btCompoundCollisionAlgorithm::processCollision (btBroadphaseProxy* ,btBroadphaseProxy* ,const btDispatcherInfo& dispatchInfo)
 {
 	btCollisionObject* colObj = static_cast<btCollisionObject*>(m_compoundProxy.m_clientObject);
-	assert (colObj->m_collisionShape->IsCompound());
+	assert (colObj->m_collisionShape->isCompound());
 	
 	btCompoundShape* compoundShape = static_cast<btCompoundShape*>(colObj->m_collisionShape);
 
@@ -78,29 +78,29 @@ void btCompoundCollisionAlgorithm::ProcessCollision (btBroadphaseProxy* ,btBroad
 	for (i=0;i<numChildren;i++)
 	{
 		//temporarily exchange parent btCollisionShape with childShape, and recurse
-		btCollisionShape* childShape = compoundShape->GetChildShape(i);
+		btCollisionShape* childShape = compoundShape->getChildShape(i);
 		btCollisionObject* colObj = static_cast<btCollisionObject*>(m_childProxies[i].m_clientObject);
 
 		//backup
 		btTransform	orgTrans = colObj->m_worldTransform;
 		btCollisionShape* orgShape = colObj->m_collisionShape;
 
-		btTransform childTrans = compoundShape->GetChildTransform(i);
+		btTransform childTrans = compoundShape->getChildTransform(i);
 		btTransform	newChildWorldTrans = orgTrans*childTrans ;
 		colObj->m_worldTransform = newChildWorldTrans;
 
 		colObj->m_collisionShape = childShape;
-		m_childCollisionAlgorithms[i]->ProcessCollision(&m_childProxies[i],&m_otherProxy,dispatchInfo);
+		m_childCollisionAlgorithms[i]->processCollision(&m_childProxies[i],&m_otherProxy,dispatchInfo);
 		//revert back
 		colObj->m_collisionShape =orgShape;
 		colObj->m_worldTransform = orgTrans;
 	}
 }
 
-float	btCompoundCollisionAlgorithm::CalculateTimeOfImpact(btBroadphaseProxy* proxy0,btBroadphaseProxy* proxy1,const btDispatcherInfo& dispatchInfo)
+float	btCompoundCollisionAlgorithm::calculateTimeOfImpact(btBroadphaseProxy* proxy0,btBroadphaseProxy* proxy1,const btDispatcherInfo& dispatchInfo)
 {
 	btCollisionObject* colObj = static_cast<btCollisionObject*>(m_compoundProxy.m_clientObject);
-	assert (colObj->m_collisionShape->IsCompound());
+	assert (colObj->m_collisionShape->isCompound());
 	
 	btCompoundShape* compoundShape = static_cast<btCompoundShape*>(colObj->m_collisionShape);
 
@@ -118,19 +118,19 @@ float	btCompoundCollisionAlgorithm::CalculateTimeOfImpact(btBroadphaseProxy* pro
 	for (i=0;i<numChildren;i++)
 	{
 		//temporarily exchange parent btCollisionShape with childShape, and recurse
-		btCollisionShape* childShape = compoundShape->GetChildShape(i);
+		btCollisionShape* childShape = compoundShape->getChildShape(i);
 		btCollisionObject* colObj = static_cast<btCollisionObject*>(m_childProxies[i].m_clientObject);
 
 		//backup
 		btTransform	orgTrans = colObj->m_worldTransform;
 		btCollisionShape* orgShape = colObj->m_collisionShape;
 
-		btTransform childTrans = compoundShape->GetChildTransform(i);
+		btTransform childTrans = compoundShape->getChildTransform(i);
 		btTransform	newChildWorldTrans = orgTrans*childTrans ;
 		colObj->m_worldTransform = newChildWorldTrans;
 
 		colObj->m_collisionShape = childShape;
-		float frac = m_childCollisionAlgorithms[i]->CalculateTimeOfImpact(&m_childProxies[i],&m_otherProxy,dispatchInfo);
+		float frac = m_childCollisionAlgorithms[i]->calculateTimeOfImpact(&m_childProxies[i],&m_otherProxy,dispatchInfo);
 		if (frac<hitFraction)
 		{
 			hitFraction = frac;

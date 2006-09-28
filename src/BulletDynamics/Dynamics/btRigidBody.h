@@ -78,11 +78,11 @@ public:
 	
 	void			setDamping(btScalar lin_damping, btScalar ang_damping);
 	
-	inline const btCollisionShape*	GetCollisionShape() const {
+	inline const btCollisionShape*	getCollisionShape() const {
 		return m_collisionShape;
 	}
 
-	inline btCollisionShape*	GetCollisionShape() {
+	inline btCollisionShape*	getCollisionShape() {
 			return m_collisionShape;
 	}
 	
@@ -197,7 +197,7 @@ public:
 
 
 	
-	inline float ComputeImpulseDenominator(const btPoint3& pos, const btVector3& normal) const
+	inline float computeImpulseDenominator(const btPoint3& pos, const btVector3& normal) const
 	{
 		btVector3 r0 = pos - getCenterOfMassPosition();
 
@@ -209,7 +209,7 @@ public:
 
 	}
 
-	inline float ComputeAngularImpulseDenominator(const btVector3& axis) const
+	inline float computeAngularImpulseDenominator(const btVector3& axis) const
 	{
 		btVector3 vec = axis * getInvInertiaTensorWorld();
 		return axis.dot(vec);
@@ -254,15 +254,15 @@ public:
 
 
 	
-	const btBroadphaseProxy*	GetBroadphaseProxy() const
+	const btBroadphaseProxy*	getBroadphaseProxy() const
 	{
 		return m_broadphaseProxy;
 	}
-	btBroadphaseProxy*	GetBroadphaseProxy() 
+	btBroadphaseProxy*	getBroadphaseProxy() 
 	{
 		return m_broadphaseProxy;
 	}
-	void	SetBroadphaseProxy(btBroadphaseProxy* broadphaseProxy)
+	void	setBroadphaseProxy(btBroadphaseProxy* broadphaseProxy)
 	{
 		m_broadphaseProxy = broadphaseProxy;
 	}

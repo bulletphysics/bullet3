@@ -29,7 +29,7 @@ class btConvexPenetrationDepthSolver
 public:	
 	
 	virtual ~btConvexPenetrationDepthSolver() {};
-	virtual bool CalcPenDepth( btSimplexSolverInterface& simplexSolver,
+	virtual bool calcPenDepth( btSimplexSolverInterface& simplexSolver,
 		btConvexShape* convexA,btConvexShape* convexB,
 					const btTransform& transA,const btTransform& transB,
 				btVector3& v, btPoint3& pa, btPoint3& pb,

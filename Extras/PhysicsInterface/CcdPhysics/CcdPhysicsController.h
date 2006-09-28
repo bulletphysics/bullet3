@@ -46,7 +46,7 @@ struct btCcdConstructionInfo
 
 	///CollisionFilterGroups provides some optional usage of basic collision filtering
 	///this is done during broadphase, so very early in the pipeline
-	///more advanced collision filtering should be done in btCollisionDispatcher::NeedsCollision
+	///more advanced collision filtering should be done in btCollisionDispatcher::needsCollision
 	enum CollisionFilterGroups
 	{
 	        DefaultFilter = 1,
@@ -87,7 +87,7 @@ struct btCcdConstructionInfo
 	///optional use of collision group/mask:
 	///only collision with object goups that match the collision mask.
 	///this is very basic early out. advanced collision filtering should be
-	///done in the btCollisionDispatcher::NeedsCollision and NeedsResponse
+	///done in the btCollisionDispatcher::needsCollision and needsResponse
 	///both values default to 1
 	short int	m_collisionFilterGroup;
 	short int	m_collisionFilterMask;
@@ -127,10 +127,10 @@ class CcdPhysicsController : public PHY_IPhysicsController
 		virtual ~CcdPhysicsController();
 
 
-		btRigidBody* GetRigidBody() { return m_body;}
+		btRigidBody* getRigidBody() { return m_body;}
 
-		btCollisionShape*	GetCollisionShape() { 
-			return m_body->GetCollisionShape();
+		btCollisionShape*	getCollisionShape() { 
+			return m_body->getCollisionShape();
 		}
 		////////////////////////////////////
 		// PHY_IPhysicsController interface
@@ -198,8 +198,8 @@ class CcdPhysicsController : public PHY_IPhysicsController
 
 
 		virtual void	calcXform() {} ;
-		virtual void SetMargin(float margin) {};
-		virtual float GetMargin() const {return 0.f;};
+		virtual void setMargin(float margin) {};
+		virtual float getMargin() const {return 0.f;};
 
 
 		bool	wantsSleeping();
@@ -208,7 +208,7 @@ class CcdPhysicsController : public PHY_IPhysicsController
 
 		static btTransform	GetTransformFromMotionState(PHY_IMotionState* motionState);
 
-		void	SetAabb(const btVector3& aabbMin,const btVector3& aabbMax);
+		void	setAabb(const btVector3& aabbMin,const btVector3& aabbMax);
 
 
 		class	PHY_IMotionState*			GetMotionState()

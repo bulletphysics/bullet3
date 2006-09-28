@@ -58,7 +58,7 @@ class MyColladaConverter : public ColladaConverter
 			const btVector3& angularMaxLimits
 			)
 		{
-			return m_demoApp->GetPhysicsEnvironment()->createUniversalD6Constraint(
+			return m_demoApp->getPhysicsEnvironment()->createUniversalD6Constraint(
 					ctrlRef,ctrlOther,
 					localAttachmentFrameRef,
 					localAttachmentOther,
@@ -69,21 +69,21 @@ class MyColladaConverter : public ColladaConverter
 				);
 		}
 
-	virtual CcdPhysicsController*  CreatePhysicsObject(bool isDynamic, 
+	virtual CcdPhysicsController*  createPhysicsObject(bool isDynamic, 
 		float mass, 
 		const btTransform& startTransform,
 		btCollisionShape* shape)
 	{
-		CcdPhysicsController*  ctrl = m_demoApp->LocalCreatePhysicsObject(isDynamic, mass, startTransform,shape);
+		CcdPhysicsController*  ctrl = m_demoApp->localCreatePhysicsObject(isDynamic, mass, startTransform,shape);
 		return ctrl;
 	}
 
 
-	virtual	void	SetGravity(const btVector3& grav)
+	virtual	void	setGravity(const btVector3& grav)
 	{
-		m_demoApp->GetPhysicsEnvironment()->setGravity(grav.getX(),grav.getY(),grav.getZ());
+		m_demoApp->getPhysicsEnvironment()->setGravity(grav.getX(),grav.getY(),grav.getZ());
 	}
-	virtual void	SetCameraInfo(const btVector3& camUp,int forwardAxis) 
+	virtual void	setCameraInfo(const btVector3& camUp,int forwardAxis) 
 	{
 		m_demoApp->setCameraUp(camUp);
 		m_demoApp->setCameraForwardAxis(forwardAxis);

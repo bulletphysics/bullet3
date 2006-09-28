@@ -44,7 +44,7 @@ subject to the following restrictions:
 #include "BMF_Api.h"
 #include <stdio.h> //printf debugging
 
-void GL_ShapeDrawer::DrawCoordSystem()  {
+void GL_ShapeDrawer::drawCoordSystem()  {
     glBegin(GL_LINES);
     glColor3f(1, 0, 0);
     glVertex3d(0, 0, 0);
@@ -67,7 +67,7 @@ class GlDrawcallback : public btTriangleCallback
 {
 public:
 
-	virtual void ProcessTriangle(btVector3* triangle,int partId, int triangleIndex)
+	virtual void processTriangle(btVector3* triangle,int partId, int triangleIndex)
 	{
 		glBegin(GL_LINES);
 		glColor3f(1, 0, 0);
@@ -87,7 +87,7 @@ public:
 class TriangleGlDrawcallback : public btInternalTriangleIndexCallback
 {
 public:
-	virtual void InternalProcessTriangleIndex(btVector3* triangle,int partId,int  triangleIndex)
+	virtual void internalProcessTriangleIndex(btVector3* triangle,int partId,int  triangleIndex)
 	{
 		glBegin(GL_TRIANGLES);//LINES);
 		glColor3f(1, 0, 0);
@@ -104,28 +104,28 @@ public:
 };
 
 
-void GL_ShapeDrawer::DrawOpenGL(float* m, const btCollisionShape* shape, const btVector3& color,int	debugMode)
+void GL_ShapeDrawer::drawOpenGL(float* m, const btCollisionShape* shape, const btVector3& color,int	debugMode)
 {
 
 	
 	glPushMatrix(); 
     glMultMatrixf(m);
 
-	if (shape->GetShapeType() == COMPOUND_SHAPE_PROXYTYPE)
+	if (shape->getShapeType() == COMPOUND_SHAPE_PROXYTYPE)
 	{
 		const btCompoundShape* compoundShape = static_cast<const btCompoundShape*>(shape);
-		for (int i=compoundShape->GetNumChildShapes()-1;i>=0;i--)
+		for (int i=compoundShape->getNumChildShapes()-1;i>=0;i--)
 		{
-			btTransform childTrans = compoundShape->GetChildTransform(i);
-			const btCollisionShape* colShape = compoundShape->GetChildShape(i);
+			btTransform childTrans = compoundShape->getChildTransform(i);
+			const btCollisionShape* colShape = compoundShape->getChildShape(i);
 			float childMat[16];
 			childTrans.getOpenGLMatrix(childMat);
-			DrawOpenGL(childMat,colShape,color,debugMode);
+			drawOpenGL(childMat,colShape,color,debugMode);
 		}
 
 	} else
 	{
-		//DrawCoordSystem();
+		//drawCoordSystem();
 	    
 		//glPushMatrix();
 		glEnable(GL_COLOR_MATERIAL);
@@ -137,12 +137,12 @@ void GL_ShapeDrawer::DrawOpenGL(float* m, const btCollisionShape* shape, const b
 
 		if (!(debugMode & btIDebugDraw::DBG_DrawWireframe))
 		{
-			switch (shape->GetShapeType())
+			switch (shape->getShapeType())
 			{
 			case BOX_SHAPE_PROXYTYPE:
 				{
 					const btBoxShape* boxShape = static_cast<const btBoxShape*>(shape);
-					btVector3 halfExtent = boxShape->GetHalfExtents();
+					btVector3 halfExtent = boxShape->getHalfExtents();
 					glScaled(2*halfExtent[0], 2*halfExtent[1], 2*halfExtent[2]);
 					glutSolidCube(1.0);
 					useWireframeFallback = false;
@@ -160,7 +160,7 @@ void GL_ShapeDrawer::DrawOpenGL(float* m, const btCollisionShape* shape, const b
 			case SPHERE_SHAPE_PROXYTYPE:
 				{
 					const btSphereShape* sphereShape = static_cast<const btSphereShape*>(shape);
-					float radius = sphereShape->GetMargin();//radius doesn't include the margin, so draw with margin
+					float radius = sphereShape->getMargin();//radius doesn't include the margin, so draw with margin
 					glutSolidSphere(radius,10,10);
 					useWireframeFallback = false;
 					break;
@@ -169,8 +169,8 @@ void GL_ShapeDrawer::DrawOpenGL(float* m, const btCollisionShape* shape, const b
 			case CONE_SHAPE_PROXYTYPE:
 				{
 					const btConeShape* coneShape = static_cast<const btConeShape*>(shape);
-					float radius = coneShape->GetRadius();//+coneShape->GetMargin();
-					float height = coneShape->GetHeight();//+coneShape->GetMargin();
+					float radius = coneShape->getRadius();//+coneShape->getMargin();
+					float height = coneShape->getHeight();//+coneShape->getMargin();
 					//glRotatef(-90.0, 1.0, 0.0, 0.0);
 					glTranslatef(0.0, 0.0, -0.5*height);
 					glutSolidCone(radius,height,10,10);
@@ -188,11 +188,11 @@ void GL_ShapeDrawer::DrawOpenGL(float* m, const btCollisionShape* shape, const b
 			case CYLINDER_SHAPE_PROXYTYPE:
 				{
 					const btCylinderShape* cylinder = static_cast<const btCylinderShape*>(shape);
-					int upAxis = cylinder->GetUpAxis();
+					int upAxis = cylinder->getUpAxis();
 					
 					GLUquadricObj *quadObj = gluNewQuadric();
-					float radius = cylinder->GetRadius();
-					float halfHeight = cylinder->GetHalfExtents()[upAxis];
+					float radius = cylinder->getRadius();
+					float halfHeight = cylinder->getHalfExtents()[upAxis];
 
 					glPushMatrix();
 					switch (upAxis)
@@ -244,7 +244,7 @@ void GL_ShapeDrawer::DrawOpenGL(float* m, const btCollisionShape* shape, const b
 		if (useWireframeFallback)
 		{
 			/// for polyhedral shapes
-			if (shape->IsPolyhedral())
+			if (shape->isPolyhedral())
 			{
 				btPolyhedralConvexShape* polyshape = (btPolyhedralConvexShape*) shape;
 				
@@ -253,10 +253,10 @@ void GL_ShapeDrawer::DrawOpenGL(float* m, const btCollisionShape* shape, const b
 
 
 				int i;
-				for (i=0;i<polyshape->GetNumEdges();i++)
+				for (i=0;i<polyshape->getNumEdges();i++)
 				{
 					btPoint3 a,b;
-					polyshape->GetEdge(i,a,b);
+					polyshape->getEdge(i,a,b);
 
 					glVertex3f(a.getX(),a.getY(),a.getZ());
 					glVertex3f(b.getX(),b.getY(),b.getZ());
@@ -269,24 +269,24 @@ void GL_ShapeDrawer::DrawOpenGL(float* m, const btCollisionShape* shape, const b
 				if (debugMode==btIDebugDraw::DBG_DrawFeaturesText)
 				{
 					glRasterPos3f(0.0,  0.0,  0.0);
-					BMF_DrawString(BMF_GetFont(BMF_kHelvetica10),polyshape->GetExtraDebugInfo());
+					BMF_DrawString(BMF_GetFont(BMF_kHelvetica10),polyshape->getExtraDebugInfo());
 
 					glColor3f(1.f, 1.f, 1.f);
-					for (i=0;i<polyshape->GetNumVertices();i++)
+					for (i=0;i<polyshape->getNumVertices();i++)
 					{
 						btPoint3 vtx;
-						polyshape->GetVertex(i,vtx);
+						polyshape->getVertex(i,vtx);
 						glRasterPos3f(vtx.x(),  vtx.y(),  vtx.z());
 						char buf[12];
 						sprintf(buf," %d",i);
 						BMF_DrawString(BMF_GetFont(BMF_kHelvetica10),buf);
 					}
 
-					for (i=0;i<polyshape->GetNumPlanes();i++)
+					for (i=0;i<polyshape->getNumPlanes();i++)
 					{
 						btVector3 normal;
 						btPoint3 vtx;
-						polyshape->GetPlane(normal,vtx,i);
+						polyshape->getPlane(normal,vtx,i);
 						btScalar d = vtx.dot(normal);
 
 						glRasterPos3f(normal.x()*d,  normal.y()*d, normal.z()*d);
@@ -301,7 +301,7 @@ void GL_ShapeDrawer::DrawOpenGL(float* m, const btCollisionShape* shape, const b
 			}
 		}
 
-		if (shape->GetShapeType() == TRIANGLE_MESH_SHAPE_PROXYTYPE)
+		if (shape->getShapeType() == TRIANGLE_MESH_SHAPE_PROXYTYPE)
 		{
 			btTriangleMeshShape* concaveMesh = (btTriangleMeshShape*) shape;
 			//btVector3 aabbMax(1e30f,1e30f,1e30f);
@@ -313,12 +313,12 @@ void GL_ShapeDrawer::DrawOpenGL(float* m, const btCollisionShape* shape, const b
 
 			GlDrawcallback drawCallback;
 
-			concaveMesh->ProcessAllTriangles(&drawCallback,aabbMin,aabbMax);
+			concaveMesh->processAllTriangles(&drawCallback,aabbMin,aabbMax);
 
 
 		}
 
-		if (shape->GetShapeType() == CONVEX_TRIANGLEMESH_SHAPE_PROXYTYPE)
+		if (shape->getShapeType() == CONVEX_TRIANGLEMESH_SHAPE_PROXYTYPE)
 		{
 			btConvexTriangleMeshShape* convexMesh = (btConvexTriangleMeshShape*) shape;
 			
@@ -326,7 +326,7 @@ void GL_ShapeDrawer::DrawOpenGL(float* m, const btCollisionShape* shape, const b
 			btVector3 aabbMax(1e30f,1e30f,1e30f);
 			btVector3 aabbMin(-1e30f,-1e30f,-1e30f);
 			TriangleGlDrawcallback drawCallback;
-			convexMesh->GetStridingMesh()->InternalProcessAllTriangles(&drawCallback,aabbMin,aabbMax);
+			convexMesh->getStridingMesh()->InternalProcessAllTriangles(&drawCallback,aabbMin,aabbMax);
 
 		}
 		
@@ -335,12 +335,12 @@ void GL_ShapeDrawer::DrawOpenGL(float* m, const btCollisionShape* shape, const b
 		glRasterPos3f(0,0,0);//mvtx.x(),  vtx.y(),  vtx.z());
 		if (debugMode&btIDebugDraw::DBG_DrawText)
 		{
-			BMF_DrawString(BMF_GetFont(BMF_kHelvetica10),shape->GetName());
+			BMF_DrawString(BMF_GetFont(BMF_kHelvetica10),shape->getName());
 		}
 
 		if (debugMode& btIDebugDraw::DBG_DrawFeaturesText)
 		{
-			BMF_DrawString(BMF_GetFont(BMF_kHelvetica10),shape->GetExtraDebugInfo());
+			BMF_DrawString(BMF_GetFont(BMF_kHelvetica10),shape->getExtraDebugInfo());
 		}
 		glEnable(GL_DEPTH_BUFFER_BIT);
 

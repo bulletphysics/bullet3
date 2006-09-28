@@ -38,7 +38,7 @@ btPoint2PointConstraint::btPoint2PointConstraint(btRigidBody& rbA,const btVector
 	
 }
 
-void	btPoint2PointConstraint::BuildJacobian()
+void	btPoint2PointConstraint::buildJacobian()
 {
 	m_appliedImpulse = 0.f;
 
@@ -62,7 +62,7 @@ void	btPoint2PointConstraint::BuildJacobian()
 
 }
 
-void	btPoint2PointConstraint::SolveConstraint(btScalar	timeStep)
+void	btPoint2PointConstraint::solveConstraint(btScalar	timeStep)
 {
 	btVector3 pivotAInW = m_rbA.getCenterOfMassTransform()*m_pivotInA;
 	btVector3 pivotBInW = m_rbB.getCenterOfMassTransform()*m_pivotInB;
@@ -109,7 +109,7 @@ void	btPoint2PointConstraint::SolveConstraint(btScalar	timeStep)
 	}
 }
 
-void	btPoint2PointConstraint::UpdateRHS(btScalar	timeStep)
+void	btPoint2PointConstraint::updateRHS(btScalar	timeStep)
 {
 
 }

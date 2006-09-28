@@ -183,7 +183,7 @@ protected:
 
 		void	removeCcdPhysicsController(CcdPhysicsController* ctrl);
 
-		btBroadphaseInterface*	GetBroadphase();
+		btBroadphaseInterface*	getBroadphase();
 
 		
 		
@@ -207,29 +207,29 @@ protected:
 
 		
 
-		const btPersistentManifold*	GetManifold(int index) const;
+		const btPersistentManifold*	getManifold(int index) const;
 
 		std::vector<btTypedConstraint*> m_constraints;
 
 		void	SyncMotionStates(float timeStep);
 
 		
-		class btCollisionWorld*	GetCollisionWorld()
+		class btCollisionWorld*	getCollisionWorld()
 		{
 			return m_collisionWorld;
 		}
 
-		const class btCollisionWorld*	GetCollisionWorld() const
+		const class btCollisionWorld*	getCollisionWorld() const
 		{
 			return m_collisionWorld;
 		}
 
-		btSimulationIslandManager*	GetSimulationIslandManager()
+		btSimulationIslandManager*	getSimulationIslandManager()
 		{
 			return m_islandManager;
 		}
 
-		const btSimulationIslandManager*	GetSimulationIslandManager() const 
+		const btSimulationIslandManager*	getSimulationIslandManager() const 
 		{
 			return m_islandManager;
 		}

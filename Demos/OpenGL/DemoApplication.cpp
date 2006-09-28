@@ -397,8 +397,8 @@ void	DemoApplication::shootBox(const btVector3& destination)
 		startTransform.setOrigin(camPos);
 		btCollisionShape* boxShape = new btBoxShape(btVector3(1.f,1.f,1.f));
 
-		btRigidBody* body = this->LocalCreateRigidBody(isDynamic, mass, startTransform,boxShape);
-		m_dynamicsWorld->AddCollisionObject(body);
+		btRigidBody* body = this->localCreateRigidBody(isDynamic, mass, startTransform,boxShape);
+		m_dynamicsWorld->addCollisionObject(body);
 
 		btVector3 linVel(destination[0]-camPos[0],destination[1]-camPos[1],destination[2]-camPos[2]);
 		linVel.normalize();
@@ -420,7 +420,7 @@ void	DemoApplication::shootBox(const btVector3& destination)
 		startTransform.setOrigin(camPos);
 		btCollisionShape* boxShape = new btBoxShape(btVector3(1.f,1.f,1.f));
 
-		CcdPhysicsController* newBox = LocalCreatePhysicsObject(isDynamic, mass, startTransform,boxShape);
+		CcdPhysicsController* newBox = localCreatePhysicsObject(isDynamic, mass, startTransform,boxShape);
 
 		btVector3 linVel(destination[0]-camPos[0],destination[1]-camPos[1],destination[2]-camPos[2]);
 		linVel.normalize();
@@ -440,7 +440,7 @@ float gOldPickingDist  = 0.f;
 btRigidBody* pickedBody = 0;//for deactivation state
 
 
-btVector3	DemoApplication::GetRayTo(int x,int y)
+btVector3	DemoApplication::getRayTo(int x,int y)
 {
 
 		float top = 1.f;
@@ -482,7 +482,7 @@ void DemoApplication::mouseFunc(int button, int state, int x, int y)
 	//printf("button %i, state %i, x=%i,y=%i\n",button,state,x,y);
 	//button 0, state 0 means left mouse down
 
-	btVector3 rayTo = GetRayTo(x,y);
+	btVector3 rayTo = getRayTo(x,y);
 
 	switch (button)
 	{
@@ -508,7 +508,7 @@ void DemoApplication::mouseFunc(int button, int state, int x, int y)
 					float normal[3];
 					
 					btCollisionWorld::ClosestRayResultCallback rayCallback(m_cameraPosition,rayTo);
-					m_dynamicsWorld->RayTest(m_cameraPosition,rayTo,rayCallback);
+					m_dynamicsWorld->rayTest(m_cameraPosition,rayTo,rayCallback);
 					if (rayCallback.HasHit())
 					{
 						
@@ -539,7 +539,7 @@ void DemoApplication::mouseFunc(int button, int state, int x, int y)
 					if (hitObj)
 					{
 						CcdPhysicsController* physCtrl = static_cast<CcdPhysicsController*>(hitObj);
-						btRigidBody* body = physCtrl->GetRigidBody();
+						btRigidBody* body = physCtrl->getRigidBody();
 						if (body)
 						{
 							body->SetActivationState(ACTIVE_TAG);
@@ -576,7 +576,7 @@ void DemoApplication::mouseFunc(int button, int state, int x, int y)
 					float hit[3];
 					float normal[3];
 					btCollisionWorld::ClosestRayResultCallback rayCallback(m_cameraPosition,rayTo);
-					m_dynamicsWorld->RayTest(m_cameraPosition,rayTo,rayCallback);
+					m_dynamicsWorld->rayTest(m_cameraPosition,rayTo,rayCallback);
 					if (rayCallback.HasHit())
 					{
 						
@@ -621,7 +621,7 @@ void DemoApplication::mouseFunc(int button, int state, int x, int y)
 					{
 
 						CcdPhysicsController* physCtrl = static_cast<CcdPhysicsController*>(hitObj);
-						btRigidBody* body = physCtrl->GetRigidBody();
+						btRigidBody* body = physCtrl->getRigidBody();
 
 						if (body && !body->IsStatic())
 						{
@@ -704,14 +704,14 @@ void	DemoApplication::mouseMotionFunc(int x,int y)
 		{
 			//keep it at the same picking distance
 
-			btVector3 newRayTo = GetRayTo(x,y);
+			btVector3 newRayTo = getRayTo(x,y);
 			btVector3 eyePos(m_cameraPosition[0],m_cameraPosition[1],m_cameraPosition[2]);
 			btVector3 dir = newRayTo-eyePos;
 			dir.normalize();
 			dir *= gOldPickingDist;
 
 			btVector3 newPos = eyePos + dir;
-			p2p->SetPivotB(newPos);
+			p2p->setPivotB(newPos);
 		}
 
 	}
@@ -726,14 +726,14 @@ void	DemoApplication::mouseMotionFunc(int x,int y)
 		{
 			//keep it at the same picking distance
 
-			btVector3 newRayTo = GetRayTo(x,y);
+			btVector3 newRayTo = getRayTo(x,y);
 			btVector3 eyePos(m_cameraPosition[0],m_cameraPosition[1],m_cameraPosition[2]);
 			btVector3 dir = newRayTo-eyePos;
 			dir.normalize();
 			dir *= gOldPickingDist;
 
 			btVector3 newPos = eyePos + dir;
-			p2p->SetPivotB(newPos);
+			p2p->setPivotB(newPos);
 		}
 
 	}
@@ -741,11 +741,11 @@ void	DemoApplication::mouseMotionFunc(int x,int y)
 
 
 
-btRigidBody*	DemoApplication::LocalCreateRigidBody(bool isDynamic, float mass, const btTransform& startTransform,btCollisionShape* shape)
+btRigidBody*	DemoApplication::localCreateRigidBody(bool isDynamic, float mass, const btTransform& startTransform,btCollisionShape* shape)
 {
 	btVector3 localInertia(0,0,0);
 	if (isDynamic)
-		shape->CalculateLocalInertia(mass,localInertia);
+		shape->calculateLocalInertia(mass,localInertia);
 
 	btMassProps massProps(0.f,localInertia);
 	
@@ -765,7 +765,7 @@ btRigidBody*	DemoApplication::LocalCreateRigidBody(bool isDynamic, float mass, c
 
 
 ///Very basic import
-CcdPhysicsController*  DemoApplication::LocalCreatePhysicsObject(bool isDynamic, float mass, const btTransform& startTransform,btCollisionShape* shape)
+CcdPhysicsController*  DemoApplication::localCreatePhysicsObject(bool isDynamic, float mass, const btTransform& startTransform,btCollisionShape* shape)
 {
 
 	startTransforms[numObjects] = startTransform;
@@ -779,7 +779,7 @@ CcdPhysicsController*  DemoApplication::LocalCreatePhysicsObject(bool isDynamic,
 	int i = numObjects;
 	{
 		gShapePtr[i] = shape;
-		gShapePtr[i]->SetMargin(0.05f);
+		gShapePtr[i]->setMargin(0.05f);
 
 		btQuaternion orn = startTransform.getRotation();
 
@@ -806,7 +806,7 @@ CcdPhysicsController*  DemoApplication::LocalCreatePhysicsObject(bool isDynamic,
 
 		if (isDynamic)
 		{
-			gShapePtr[i]->CalculateLocalInertia(ccdObjectCi.m_mass,localInertia);
+			gShapePtr[i]->calculateLocalInertia(ccdObjectCi.m_mass,localInertia);
 		}
 
 		ccdObjectCi.m_localInertiaTensor = localInertia;
@@ -816,10 +816,10 @@ CcdPhysicsController*  DemoApplication::LocalCreatePhysicsObject(bool isDynamic,
 		physObjects[i]= new CcdPhysicsController( ccdObjectCi);
 
 		// Only do CCD if  motion in one timestep (1.f/60.f) exceeds CUBE_HALF_EXTENTS
-		physObjects[i]->GetRigidBody()->m_ccdSquareMotionTreshold = 0.f; 
+		physObjects[i]->getRigidBody()->m_ccdSquareMotionTreshold = 0.f; 
 
 		//Experimental: better estimation of CCD Time of Impact:
-		//physObjects[i]->GetRigidBody()->m_ccdSweptShereRadius = 0.5*CUBE_HALF_EXTENTS;
+		//physObjects[i]->getRigidBody()->m_ccdSweptShereRadius = 0.5*CUBE_HALF_EXTENTS;
 
 		m_physicsEnvironmentPtr->addCcdPhysicsController( physObjects[i]);
 
@@ -837,11 +837,11 @@ void DemoApplication::renderme()
 
 	if (m_dynamicsWorld)
 	{
-		int numObjects = m_dynamicsWorld->GetNumCollisionObjects();
+		int numObjects = m_dynamicsWorld->getNumCollisionObjects();
 		btVector3 wireColor(1,0,0);
 		for (int i=0;i<numObjects;i++)
 		{
-			btCollisionObject* colObj = m_dynamicsWorld->GetCollisionObjectArray()[i];
+			btCollisionObject* colObj = m_dynamicsWorld->getCollisionObjectArray()[i];
 			colObj->m_worldTransform.getOpenGLMatrix(m);
 
 			btVector3 wireColor(1.f,1.0f,0.5f); //wants deactivation
@@ -871,7 +871,7 @@ void DemoApplication::renderme()
 				}
 			}
 
-			GL_ShapeDrawer::DrawOpenGL(m,colObj->m_collisionShape,wireColor,getDebugMode());
+			GL_ShapeDrawer::drawOpenGL(m,colObj->m_collisionShape,wireColor,getDebugMode());
 		}
 	}
 
@@ -909,7 +909,7 @@ void DemoApplication::renderme()
 		{
 
 			CcdPhysicsController* ctrl = m_physicsEnvironmentPtr->GetPhysicsController(i);
-			btRigidBody* body = ctrl->GetRigidBody();
+			btRigidBody* body = ctrl->getRigidBody();
 			
 			body->m_worldTransform.getOpenGLMatrix( m );
 
@@ -919,7 +919,7 @@ void DemoApplication::renderme()
 				wireColor = btVector3(0.f,0.0f,1.f);
 			}
 			///color differently for active, sleeping, wantsdeactivation states
-			if (ctrl->GetRigidBody()->GetActivationState() == 1) //active
+			if (ctrl->getRigidBody()->GetActivationState() == 1) //active
 			{
 				if (i & 1)
 				{
@@ -929,7 +929,7 @@ void DemoApplication::renderme()
 					wireColor += btVector3 (.5f,0.f,0.f);
 				}
 			}
-			if (ctrl->GetRigidBody()->GetActivationState() == 2) //ISLAND_SLEEPING
+			if (ctrl->getRigidBody()->GetActivationState() == 2) //ISLAND_SLEEPING
 			{
 				if (i & 1)
 				{
@@ -941,8 +941,8 @@ void DemoApplication::renderme()
 			}
 
 			char	extraDebug[125];
-			sprintf(extraDebug,"Island:%i, Body:%i",ctrl->GetRigidBody()->m_islandTag1,ctrl->GetRigidBody()->m_debugBodyId);
-			ctrl->GetRigidBody()->GetCollisionShape()->SetExtraDebugInfo(extraDebug);
+			sprintf(extraDebug,"Island:%i, Body:%i",ctrl->getRigidBody()->m_islandTag1,ctrl->getRigidBody()->m_debugBodyId);
+			ctrl->getRigidBody()->getCollisionShape()->setExtraDebugInfo(extraDebug);
 
 			float vec[16];
 			btTransform ident;
@@ -950,7 +950,7 @@ void DemoApplication::renderme()
 			ident.getOpenGLMatrix(vec);
 			
 
-			GL_ShapeDrawer::DrawOpenGL(m,ctrl->GetRigidBody()->GetCollisionShape(),wireColor,getDebugMode());
+			GL_ShapeDrawer::drawOpenGL(m,ctrl->getRigidBody()->getCollisionShape(),wireColor,getDebugMode());
 
 			
 

@@ -35,9 +35,9 @@ struct btDiscreteCollisionDetectorInterface
 	
 		virtual ~Result(){}	
 
-		///SetShapeIdentifiers provides experimental support for per-triangle material / custom material combiner
-		virtual void SetShapeIdentifiers(int partId0,int index0,	int partId1,int index1)=0;
-		virtual void AddContactPoint(const btVector3& normalOnBInWorld,const btVector3& pointInWorld,float depth)=0;
+		///setShapeIdentifiers provides experimental support for per-triangle material / custom material combiner
+		virtual void setShapeIdentifiers(int partId0,int index0,	int partId1,int index1)=0;
+		virtual void addContactPoint(const btVector3& normalOnBInWorld,const btVector3& pointInWorld,float depth)=0;
 	};
 
 	struct ClosestPointInput
@@ -58,7 +58,7 @@ struct btDiscreteCollisionDetectorInterface
 	// give either closest points (distance > 0) or penetration (distance)
 	// the normal always points from B towards A
 	//
-	virtual void	GetClosestPoints(const ClosestPointInput& input,Result& output,class btIDebugDraw* debugDraw) = 0;
+	virtual void	getClosestPoints(const ClosestPointInput& input,Result& output,class btIDebugDraw* debugDraw) = 0;
 
 	btScalar	getCollisionMargin() { return 0.2f;}
 };
@@ -75,7 +75,7 @@ struct btStorageResult : public btDiscreteCollisionDetectorInterface::Result
 		}
 		virtual ~btStorageResult() {};
 
-		virtual void AddContactPoint(const btVector3& normalOnBInWorld,const btVector3& pointInWorld,float depth)
+		virtual void addContactPoint(const btVector3& normalOnBInWorld,const btVector3& pointInWorld,float depth)
 		{
 			if (depth < m_distance)
 			{

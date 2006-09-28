@@ -46,7 +46,7 @@ protected:
 	
 	void	PreparePhysicsObject(struct btRigidBodyInput& input, bool isDynamics, float mass,btCollisionShape* colShape);
 	
-	void	PrepareConstraints(ConstraintInput& input);
+	void	prepareConstraints(ConstraintInput& input);
 
 	void	ConvertRigidBodyRef( struct btRigidBodyInput& , struct btRigidBodyOutput& output );
 
@@ -76,14 +76,14 @@ public:
 			const btVector3& angularMaxLimits
 			) = 0;
 
-	virtual CcdPhysicsController*  CreatePhysicsObject(bool isDynamic, 
+	virtual CcdPhysicsController*  createPhysicsObject(bool isDynamic, 
 		float mass, 
 		const btTransform& startTransform,
 		btCollisionShape* shape) = 0;
 
-	virtual	void	SetGravity(const btVector3& gravity) = 0;
+	virtual	void	setGravity(const btVector3& gravity) = 0;
 	
-	virtual	void	SetCameraInfo(const btVector3& up, int forwardAxis) = 0;
+	virtual	void	setCameraInfo(const btVector3& up, int forwardAxis) = 0;
 
 };
 

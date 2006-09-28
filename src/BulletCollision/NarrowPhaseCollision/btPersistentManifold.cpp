@@ -32,12 +32,12 @@ m_index1(0)
 }
 
 
-void	btPersistentManifold::ClearManifold()
+void	btPersistentManifold::clearManifold()
 {
 	int i;
 	for (i=0;i<m_cachedPoints;i++)
 	{
-		ClearUserCache(m_pointCache[i]);
+		clearUserCache(m_pointCache[i]);
 	}
 	m_cachedPoints = 0;
 }
@@ -55,7 +55,7 @@ void	btPersistentManifold::DebugPersistency()
 }
 #endif //DEBUG_PERSISTENCY
 
-void btPersistentManifold::ClearUserCache(btManifoldPoint& pt)
+void btPersistentManifold::clearUserCache(btManifoldPoint& pt)
 {
 
 	void* oldPtr = pt.m_userPersistentData;
@@ -70,7 +70,7 @@ void btPersistentManifold::ClearUserCache(btManifoldPoint& pt)
 			{
 				occurance++;
 				if (occurance>1)
-					printf("error in ClearUserCache\n");
+					printf("error in clearUserCache\n");
 			}
 		}
 		assert(occurance<=0);
@@ -91,7 +91,7 @@ void btPersistentManifold::ClearUserCache(btManifoldPoint& pt)
 }
 
 
-int btPersistentManifold::SortCachedPoints(const btManifoldPoint& pt) 
+int btPersistentManifold::sortCachedPoints(const btManifoldPoint& pt) 
 {
 
 		//calculate 4 possible cases areas, and take biggest area
@@ -100,13 +100,13 @@ int btPersistentManifold::SortCachedPoints(const btManifoldPoint& pt)
 		int maxPenetrationIndex = -1;
 #define KEEP_DEEPEST_POINT 1
 #ifdef KEEP_DEEPEST_POINT
-		float maxPenetration = pt.GetDistance();
+		float maxPenetration = pt.getDistance();
 		for (int i=0;i<4;i++)
 		{
-			if (m_pointCache[i].GetDistance() < maxPenetration)
+			if (m_pointCache[i].getDistance() < maxPenetration)
 			{
 				maxPenetrationIndex = i;
-				maxPenetration = m_pointCache[i].GetDistance();
+				maxPenetration = m_pointCache[i].getDistance();
 			}
 		}
 #endif //KEEP_DEEPEST_POINT
@@ -149,10 +149,10 @@ int btPersistentManifold::SortCachedPoints(const btManifoldPoint& pt)
 }
 
 
-int btPersistentManifold::GetCacheEntry(const btManifoldPoint& newPoint) const
+int btPersistentManifold::getCacheEntry(const btManifoldPoint& newPoint) const
 {
-	btScalar shortestDist =  GetContactBreakingTreshold() * GetContactBreakingTreshold();
-	int size = GetNumContacts();
+	btScalar shortestDist =  getContactBreakingTreshold() * getContactBreakingTreshold();
+	int size = getNumContacts();
 	int nearestPoint = -1;
 	for( int i = 0; i < size; i++ )
 	{
@@ -171,14 +171,14 @@ int btPersistentManifold::GetCacheEntry(const btManifoldPoint& newPoint) const
 
 void btPersistentManifold::AddManifoldPoint(const btManifoldPoint& newPoint)
 {
-	assert(ValidContactDistance(newPoint));
+	assert(validContactDistance(newPoint));
 
-	int insertIndex = GetNumContacts();
+	int insertIndex = getNumContacts();
 	if (insertIndex == MANIFOLD_CACHE_SIZE)
 	{
 #if MANIFOLD_CACHE_SIZE >= 4
 		//sort cache so best points come first, based on area
-		insertIndex = SortCachedPoints(newPoint);
+		insertIndex = sortCachedPoints(newPoint);
 #else
 		insertIndex = 0;
 #endif
@@ -190,20 +190,20 @@ void btPersistentManifold::AddManifoldPoint(const btManifoldPoint& newPoint)
 
 		
 	}
-	ReplaceContactPoint(newPoint,insertIndex);
+	replaceContactPoint(newPoint,insertIndex);
 }
 
-float	btPersistentManifold::GetContactBreakingTreshold() const
+float	btPersistentManifold::getContactBreakingTreshold() const
 {
 	return gContactBreakingTreshold;
 }
 
-void btPersistentManifold::RefreshContactPoints(const btTransform& trA,const btTransform& trB)
+void btPersistentManifold::refreshContactPoints(const btTransform& trA,const btTransform& trB)
 {
 	int i;
 
 	/// first refresh worldspace positions and distance
-	for (i=GetNumContacts()-1;i>=0;i--)
+	for (i=getNumContacts()-1;i>=0;i--)
 	{
 		btManifoldPoint &manifoldPoint = m_pointCache[i];
 		manifoldPoint.m_positionWorldOnA = trA( manifoldPoint.m_localPointA );
@@ -215,23 +215,23 @@ void btPersistentManifold::RefreshContactPoints(const btTransform& trA,const btT
 	/// then 
 	btScalar distance2d;
 	btVector3 projectedDifference,projectedPoint;
-	for (i=GetNumContacts()-1;i>=0;i--)
+	for (i=getNumContacts()-1;i>=0;i--)
 	{
 		
 		btManifoldPoint &manifoldPoint = m_pointCache[i];
 		//contact becomes invalid when signed distance exceeds margin (projected on contactnormal direction)
-		if (!ValidContactDistance(manifoldPoint))
+		if (!validContactDistance(manifoldPoint))
 		{
-			RemoveContactPoint(i);
+			removeContactPoint(i);
 		} else
 		{
 			//contact also becomes invalid when relative movement orthogonal to normal exceeds margin
 			projectedPoint = manifoldPoint.m_positionWorldOnA - manifoldPoint.m_normalWorldOnB * manifoldPoint.m_distance1;
 			projectedDifference = manifoldPoint.m_positionWorldOnB - projectedPoint;
 			distance2d = projectedDifference.dot(projectedDifference);
-			if (distance2d  > GetContactBreakingTreshold()*GetContactBreakingTreshold() )
+			if (distance2d  > getContactBreakingTreshold()*getContactBreakingTreshold() )
 			{
-				RemoveContactPoint(i);
+				removeContactPoint(i);
 			}
 		}
 	}

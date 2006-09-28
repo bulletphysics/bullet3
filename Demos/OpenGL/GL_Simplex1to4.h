@@ -29,9 +29,9 @@ class GL_Simplex1to4 : public btBU_Simplex1to4
 
 	GL_Simplex1to4();
 
-	void	CalcClosest(float* m);
+	void	calcClosest(float* m);
 
-	void	SetSimplexSolver(btSimplexSolverInterface* simplexSolver) {
+	void	setSimplexSolver(btSimplexSolverInterface* simplexSolver) {
 		m_simplexSolver = simplexSolver;
 	}
 

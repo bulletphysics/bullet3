@@ -49,10 +49,10 @@ Point3 Hull::GetFaceCentroid(short face) const
 	short edge;
 
 	edge = GetFaceFirstEdge(face);
-	Vector3 c = Vector3(GetVertex(GetEdgeVertex0(face, edge)));
+	Vector3 c = Vector3(getVertex(GetEdgeVertex0(face, edge)));
 
 	for (edge = GetFaceNextEdge(face, edge); edge >= 0; edge = GetFaceNextEdge(face, edge))
-		c += Vector3(GetVertex(GetEdgeVertex0(face, edge)));
+		c += Vector3(getVertex(GetEdgeVertex0(face, edge)));
 
 	c /= Scalar(GetFace(face).m_numEdges);
 
@@ -767,8 +767,8 @@ int Hull::AddContactsHullHull(btSeparation& sep, const Point3* pVertsA, const Po
 	// edge->edge contact is always a single point
 	if (sep.m_separator == btSeparation::kFeatureBoth)
 	{
-		const Hull::Edge& edgeA = hullA.GetEdge(sep.m_featureA);
-		const Hull::Edge& edgeB = hullB.GetEdge(sep.m_featureB);
+		const Hull::Edge& edgeA = hullA.getEdge(sep.m_featureA);
+		const Hull::Edge& edgeB = hullB.getEdge(sep.m_featureB);
 
 		float ta, tb;
 		Line la(pVertsA[edgeA.m_verts[0]], pVertsA[edgeA.m_verts[1]]);
@@ -801,13 +801,13 @@ int Hull::AddContactsHullHull(btSeparation& sep, const Point3* pVertsA, const Po
 		// TODO: avoid having to transform planes here
 		if (sep.m_separator == btSeparation::kFeatureB)
 		{
-			const Hull::Edge& edgeB = hullB.GetEdge(hullB.GetFaceFirstEdge(faceB));
+			const Hull::Edge& edgeB = hullB.getEdge(hullB.GetFaceFirstEdge(faceB));
 			tangent = Normalize(pVertsB[edgeB.m_verts[1]] - pVertsB[edgeB.m_verts[0]]);
 
 			Scalar dmin = Scalar::Consts::MaxValue;
 			for (short face = 0; face < hullA.m_numFaces; face++)
 			{
-				Vector3 normal = hullA.GetPlane(face).GetNormal() * trA;
+				Vector3 normal = hullA.getPlane(face).GetNormal() * trA;
 				Scalar d = Dot(normal, sep.m_axis);
 				if (d < dmin)
 				{
@@ -818,13 +818,13 @@ int Hull::AddContactsHullHull(btSeparation& sep, const Point3* pVertsA, const Po
 		}
 		else
 		{
-			const Hull::Edge& edgeA = hullA.GetEdge(hullA.GetFaceFirstEdge(faceA));
+			const Hull::Edge& edgeA = hullA.getEdge(hullA.GetFaceFirstEdge(faceA));
 			tangent = Normalize(pVertsA[edgeA.m_verts[1]] - pVertsA[edgeA.m_verts[0]]);
 
 			Scalar dmin = Scalar::Consts::MaxValue;
 			for (short face = 0; face < hullB.m_numFaces; face++)
 			{
-				Vector3 normal = hullB.GetPlane(face).GetNormal() * trB;
+				Vector3 normal = hullB.getPlane(face).GetNormal() * trB;
 				Scalar d = Dot(normal, -sep.m_axis);
 				if (d < dmin)
 				{
@@ -848,19 +848,19 @@ int Hull::AddContactsHullHull(btSeparation& sep, const Point3* pVertsA, const Po
 #if 0
 		for (short edge = hullA.GetFaceFirstEdge(faceA); edge != -1; edge = hullA.GetFaceNextEdge(faceA, edge))
 		{
-			Plane planeA = hullA.GetPlane( hullA.GetEdgeOtherFace(edge, faceA) ) * trA;
+			Plane planeA = hullA.getPlane( hullA.GetEdgeOtherFace(edge, faceA) ) * trA;
 			numContacts = ClipFace(numContacts, &pVtxIn, &pVtxOut, planeA);
 		}
 #else
 		for (short f = 0; f < hullA.GetNumFaces(); f++)
 		{
-			Plane planeA = hullA.GetPlane(f) * trA;
+			Plane planeA = hullA.getPlane(f) * trA;
 			numContacts = ClipFace(numContacts, &pVtxIn, &pVtxOut, planeA);
 		}
 #endif
 
 		// only keep points that are behind the witness face
-		Plane planeA = hullA.GetPlane(faceA) * trA;
+		Plane planeA = hullA.getPlane(faceA) * trA;
 
 		float depths[Hull::kMaxVerts];
 		int numPoints = 0;
@@ -1002,11 +1002,11 @@ bool Hull::GetSeparationHullHull(btSeparation& sep, const Point3* pVertsA, const
 
 	for (short ea = hullA.GetFaceFirstEdge(faceA); ea != -1; ea = hullA.GetFaceNextEdge(faceA, ea))
 	{
-		const Hull::Edge& edgeA = hullA.GetEdge(ea);
+		const Hull::Edge& edgeA = hullA.getEdge(ea);
 
 		for (short eb = hullB.GetFaceFirstEdge(faceB); eb != -1; eb = hullB.GetFaceNextEdge(faceB, eb))
 		{
-			const Hull::Edge& edgeB = hullB.GetEdge(eb);
+			const Hull::Edge& edgeB = hullB.getEdge(eb);
 
 			Vector3 va = pVertsA[edgeA.m_verts[1]] - pVertsA[edgeA.m_verts[0]];
 			Vector3 vb = pVertsB[edgeB.m_verts[1]] - pVertsB[edgeB.m_verts[0]];

@@ -61,7 +61,7 @@ class btUnionFind
 		  return m_elements[index];
 	  }
    
-	  void	Allocate(int N);
+	  void	allocate(int N);
 	  void	Free();
 
 

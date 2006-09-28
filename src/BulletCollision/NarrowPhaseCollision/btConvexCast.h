@@ -38,7 +38,7 @@ public:
 		//virtual bool	addRayResult(const btVector3& normal,btScalar	fraction) = 0;
 				
 		virtual void	DebugDraw(btScalar	fraction) {}
-		virtual void	DrawCoordSystem(const btTransform& trans) {}
+		virtual void	drawCoordSystem(const btTransform& trans) {}
 
 		CastResult()
 			:m_fraction(1e30f),

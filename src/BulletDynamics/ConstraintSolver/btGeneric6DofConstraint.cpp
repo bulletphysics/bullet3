@@ -46,7 +46,7 @@ btGeneric6DofConstraint::btGeneric6DofConstraint(btRigidBody& rbA, btRigidBody& 
 }
 
 
-void btGeneric6DofConstraint::BuildJacobian()
+void btGeneric6DofConstraint::buildJacobian()
 {
 	btVector3	normal(0,0,0);
 
@@ -116,7 +116,7 @@ void btGeneric6DofConstraint::BuildJacobian()
 	}
 }
 
-void	btGeneric6DofConstraint::SolveConstraint(btScalar	timeStep)
+void	btGeneric6DofConstraint::solveConstraint(btScalar	timeStep)
 {
 	btScalar tau = 0.1f;
 	btScalar damping = 1.0f;
@@ -194,12 +194,12 @@ void	btGeneric6DofConstraint::SolveConstraint(btScalar	timeStep)
 	}
 }
 
-void	btGeneric6DofConstraint::UpdateRHS(btScalar	timeStep)
+void	btGeneric6DofConstraint::updateRHS(btScalar	timeStep)
 {
 
 }
 
-btScalar btGeneric6DofConstraint::ComputeAngle(int axis) const
+btScalar btGeneric6DofConstraint::computeAngle(int axis) const
 	{
 	btScalar angle;
 

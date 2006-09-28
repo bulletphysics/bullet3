@@ -66,32 +66,32 @@ class btDispatcher
 public:
 	virtual ~btDispatcher() ;
 
-	virtual btCollisionAlgorithm* FindAlgorithm(btBroadphaseProxy& proxy0,btBroadphaseProxy& proxy1) = 0;
+	virtual btCollisionAlgorithm* findAlgorithm(btBroadphaseProxy& proxy0,btBroadphaseProxy& proxy1) = 0;
 
 	//
 	// asume dispatchers to have unique id's in the range [0..max dispacher]
 	//
-	virtual int GetUniqueId() = 0;
+	virtual int getUniqueId() = 0;
 
-	virtual btPersistentManifold*	GetNewManifold(void* body0,void* body1)=0;
+	virtual btPersistentManifold*	getNewManifold(void* body0,void* body1)=0;
 
-	virtual void ReleaseManifold(btPersistentManifold* manifold)=0;
+	virtual void releaseManifold(btPersistentManifold* manifold)=0;
 
-	virtual void ClearManifold(btPersistentManifold* manifold)=0;
+	virtual void clearManifold(btPersistentManifold* manifold)=0;
 
-	virtual bool	NeedsCollision(btBroadphaseProxy& proxy0,btBroadphaseProxy& proxy1) = 0;
+	virtual bool	needsCollision(btBroadphaseProxy& proxy0,btBroadphaseProxy& proxy1) = 0;
 
-	virtual bool	NeedsResponse(const btCollisionObject& colObj0,const btCollisionObject& colObj1)=0;
+	virtual bool	needsResponse(const btCollisionObject& colObj0,const btCollisionObject& colObj1)=0;
 
-	virtual	btManifoldResult* GetNewManifoldResult(btCollisionObject* obj0,btCollisionObject* obj1,btPersistentManifold* manifold) =0;
+	virtual	btManifoldResult* getNewManifoldResult(btCollisionObject* obj0,btCollisionObject* obj1,btPersistentManifold* manifold) =0;
 
-	virtual	void	ReleaseManifoldResult(btManifoldResult*)=0;
+	virtual	void	releaseManifoldResult(btManifoldResult*)=0;
 
-	virtual void	DispatchAllCollisionPairs(btOverlappingPairCache* pairCache,btDispatcherInfo& dispatchInfo)=0;
+	virtual void	dispatchAllCollisionPairs(btOverlappingPairCache* pairCache,btDispatcherInfo& dispatchInfo)=0;
 
-	virtual int GetNumManifolds() const = 0;
+	virtual int getNumManifolds() const = 0;
 
-	virtual btPersistentManifold* GetManifoldByIndexInternal(int index) = 0;
+	virtual btPersistentManifold* getManifoldByIndexInternal(int index) = 0;
 
 };
 

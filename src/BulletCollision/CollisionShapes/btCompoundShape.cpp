@@ -33,14 +33,14 @@ btCompoundShape::~btCompoundShape()
 {
 }
 
-void	btCompoundShape::AddChildShape(const btTransform& localTransform,btCollisionShape* shape)
+void	btCompoundShape::addChildShape(const btTransform& localTransform,btCollisionShape* shape)
 {
 	m_childTransforms.push_back(localTransform);
 	m_childShapes.push_back(shape);
 
 	//extend the local aabbMin/aabbMax
 	btVector3 localAabbMin,localAabbMax;
-	shape->GetAabb(localTransform,localAabbMin,localAabbMax);
+	shape->getAabb(localTransform,localAabbMin,localAabbMax);
 	for (int i=0;i<3;i++)
 	{
 		if (m_localAabbMin[i] > localAabbMin[i])
@@ -57,8 +57,8 @@ void	btCompoundShape::AddChildShape(const btTransform& localTransform,btCollisio
 
 
 
-	///GetAabb's default implementation is brute force, expected derived classes to implement a fast dedicated version
-void btCompoundShape::GetAabb(const btTransform& trans,btVector3& aabbMin,btVector3& aabbMax) const
+	///getAabb's default implementation is brute force, expected derived classes to implement a fast dedicated version
+void btCompoundShape::getAabb(const btTransform& trans,btVector3& aabbMin,btVector3& aabbMax) const
 {
 	btVector3 localHalfExtents = 0.5f*(m_localAabbMax-m_localAabbMin);
 	btVector3 localCenter = 0.5f*(m_localAabbMax+m_localAabbMin);
@@ -70,19 +70,19 @@ void btCompoundShape::GetAabb(const btTransform& trans,btVector3& aabbMin,btVect
 	btVector3 extent = btVector3(abs_b[0].dot(localHalfExtents),
 		   abs_b[1].dot(localHalfExtents),
 		  abs_b[2].dot(localHalfExtents));
-	extent += btVector3(GetMargin(),GetMargin(),GetMargin());
+	extent += btVector3(getMargin(),getMargin(),getMargin());
 
 	aabbMin = center - extent;
 	aabbMax = center + extent;
 }
 
-void	btCompoundShape::CalculateLocalInertia(btScalar mass,btVector3& inertia)
+void	btCompoundShape::calculateLocalInertia(btScalar mass,btVector3& inertia)
 {
 	//approximation: take the inertia from the aabb for now
 	btTransform ident;
 	ident.setIdentity();
 	btVector3 aabbMin,aabbMax;
-	GetAabb(ident,aabbMin,aabbMax);
+	getAabb(ident,aabbMin,aabbMax);
 	
 	btVector3 halfExtents = (aabbMax-aabbMin)*0.5f;
 	

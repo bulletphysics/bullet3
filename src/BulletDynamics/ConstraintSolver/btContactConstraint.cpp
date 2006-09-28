@@ -100,8 +100,8 @@ float resolveSingleCollision(
 		)
 {
 
-	const btVector3& pos1 = contactPoint.GetPositionWorldOnA();
-	const btVector3& pos2 = contactPoint.GetPositionWorldOnB();
+	const btVector3& pos1 = contactPoint.getPositionWorldOnA();
+	const btVector3& pos2 = contactPoint.getPositionWorldOnB();
     
 	
 //	printf("distance=%f\n",distance);
@@ -136,7 +136,7 @@ float resolveSingleCollision(
 		btConstraintPersistentData* cpd = (btConstraintPersistentData*) contactPoint.m_userPersistentData;
 	assert(cpd);
 
-	btScalar distance = cpd->m_penetration;//contactPoint.GetDistance();
+	btScalar distance = cpd->m_penetration;//contactPoint.getDistance();
 	
 
 	//distance = 0.f;
@@ -174,8 +174,8 @@ float resolveSingleFriction(
 		)
 {
 
-	const btVector3& pos1 = contactPoint.GetPositionWorldOnA();
-	const btVector3& pos2 = contactPoint.GetPositionWorldOnB();
+	const btVector3& pos1 = contactPoint.getPositionWorldOnA();
+	const btVector3& pos2 = contactPoint.getPositionWorldOnB();
 
 	btVector3 rel_pos1 = pos1 - body1.getCenterOfMassPosition(); 
 	btVector3 rel_pos2 = pos2 - body2.getCenterOfMassPosition();

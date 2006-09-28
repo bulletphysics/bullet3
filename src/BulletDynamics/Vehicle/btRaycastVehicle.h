@@ -20,7 +20,7 @@ struct btMassProps;
 struct	btVehicleRaycaster;
 class btVehicleTuning;
 
-///Raycast vehicle, very special constraint that turn a rigidbody into a vehicle.
+///rayCast vehicle, very special constraint that turn a rigidbody into a vehicle.
 class btRaycastVehicle : public btTypedConstraint
 {
 public:
@@ -58,7 +58,7 @@ private:
 	int m_indexUpAxis;
 	int	m_indexForwardAxis;
 
-	void DefaultInit(const btVehicleTuning& tuning);
+	void defaultInit(const btVehicleTuning& tuning);
 
 public:
 
@@ -71,91 +71,91 @@ public:
 
 
 
-	btScalar Raycast(btWheelInfo& wheel);
+	btScalar rayCast(btWheelInfo& wheel);
 
-	virtual void UpdateVehicle(btScalar step);
+	virtual void updateVehicle(btScalar step);
 
-	void ResetSuspension();
+	void resetSuspension();
 
-	btScalar	GetSteeringValue(int wheel) const;
+	btScalar	getSteeringValue(int wheel) const;
 
-	void	SetSteeringValue(btScalar steering,int wheel);
+	void	setSteeringValue(btScalar steering,int wheel);
 
 
-	void	ApplyEngineForce(btScalar force, int wheel);
+	void	applyEngineForce(btScalar force, int wheel);
 
-	const btTransform&	GetWheelTransformWS( int wheelIndex ) const;
+	const btTransform&	getWheelTransformWS( int wheelIndex ) const;
 
-	void	UpdateWheelTransform( int wheelIndex );
+	void	updateWheelTransform( int wheelIndex );
 	
-	void	SetRaycastWheelInfo( int wheelIndex , bool isInContact, const btVector3& hitPoint, const btVector3& hitNormal,btScalar depth);
+	void	setRaycastWheelInfo( int wheelIndex , bool isInContact, const btVector3& hitPoint, const btVector3& hitNormal,btScalar depth);
 
-	btWheelInfo&	AddWheel( const btVector3& connectionPointCS0, const btVector3& wheelDirectionCS0,const btVector3& wheelAxleCS,btScalar suspensionRestLength,btScalar wheelRadius,const btVehicleTuning& tuning, bool isFrontWheel);
+	btWheelInfo&	addWheel( const btVector3& connectionPointCS0, const btVector3& wheelDirectionCS0,const btVector3& wheelAxleCS,btScalar suspensionRestLength,btScalar wheelRadius,const btVehicleTuning& tuning, bool isFrontWheel);
 
-	inline int		GetNumWheels() const {
+	inline int		getNumWheels() const {
 		return m_wheelInfo.size();
 	}
 	
 	std::vector<btWheelInfo>	m_wheelInfo;
 
 
-	const btWheelInfo&	GetWheelInfo(int index) const;
+	const btWheelInfo&	getWheelInfo(int index) const;
 
-	btWheelInfo&	GetWheelInfo(int index);
+	btWheelInfo&	getWheelInfo(int index);
 
-	void	UpdateWheelTransformsWS(btWheelInfo& wheel );
+	void	updateWheelTransformsWS(btWheelInfo& wheel );
 
 	
-	void SetBrake(float brake,int wheelIndex);
+	void setBrake(float brake,int wheelIndex);
 
-	void	SetPitchControl(float pitch)
+	void	setPitchControl(float pitch)
 	{
 		m_pitchControl = pitch;
 	}
 	
-	void	UpdateSuspension(btScalar deltaTime);
+	void	updateSuspension(btScalar deltaTime);
 
-	void	UpdateFriction(btScalar	timeStep);
+	void	updateFriction(btScalar	timeStep);
 
 
 
-	inline btRigidBody* GetRigidBody()
+	inline btRigidBody* getRigidBody()
 	{
 		return m_chassisBody;
 	}
 
-	const btRigidBody* GetRigidBody() const
+	const btRigidBody* getRigidBody() const
 	{
 		return m_chassisBody;
 	}
 
-	inline int	GetRightAxis() const
+	inline int	getRightAxis() const
 	{
 		return m_indexRightAxis;
 	}
-	inline int GetUpAxis() const
+	inline int getUpAxis() const
 	{
 		return m_indexUpAxis;
 	}
 
-	inline int GetForwardAxis() const
+	inline int getForwardAxis() const
 	{
 		return m_indexForwardAxis;
 	}
 
-	virtual void	SetCoordinateSystem(int rightIndex,int upIndex,int forwardIndex)
+	virtual void	setCoordinateSystem(int rightIndex,int upIndex,int forwardIndex)
 	{
 		m_indexRightAxis = rightIndex;
 		m_indexUpAxis = upIndex;
 		m_indexForwardAxis = forwardIndex;
 	}
 
-	virtual void	BuildJacobian()
+	virtual void	buildJacobian()
 	{
 		//not yet
 	}
 
-	virtual	void	SolveConstraint(btScalar	timeStep)
+	virtual	void	solveConstraint(btScalar	timeStep)
 	{
 		//not yet
 	}

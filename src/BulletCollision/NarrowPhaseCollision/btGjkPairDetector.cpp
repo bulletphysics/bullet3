@@ -43,14 +43,14 @@ m_index1(-1)
 {
 }
 
-void btGjkPairDetector::GetClosestPoints(const ClosestPointInput& input,Result& output,class btIDebugDraw* debugDraw)
+void btGjkPairDetector::getClosestPoints(const ClosestPointInput& input,Result& output,class btIDebugDraw* debugDraw)
 {
 	btScalar distance=0.f;
 	btVector3	normalInB(0.f,0.f,0.f);
 	btVector3 pointOnA,pointOnB;
 
-	float marginA = m_minkowskiA->GetMargin();
-	float marginB = m_minkowskiB->GetMargin();
+	float marginA = m_minkowskiA->getMargin();
+	float marginB = m_minkowskiB->getMargin();
 
 	//for CCD we don't use margins
 	if (m_ignoreMargin)
@@ -87,8 +87,8 @@ int curIter = 0;
 					m_cachedSeparatingAxis.getY(),
 					m_cachedSeparatingAxis.getZ(),
 					squaredDistance,
-					m_minkowskiA->GetShapeType(),
-					m_minkowskiB->GetShapeType());
+					m_minkowskiA->getShapeType(),
+					m_minkowskiB->getShapeType());
 				#endif
 				break;
 
@@ -97,8 +97,8 @@ int curIter = 0;
 			btVector3 seperatingAxisInA = (-m_cachedSeparatingAxis)* input.m_transformA.getBasis();
 			btVector3 seperatingAxisInB = m_cachedSeparatingAxis* input.m_transformB.getBasis();
 
-			btVector3 pInA = m_minkowskiA->LocalGetSupportingVertexWithoutMargin(seperatingAxisInA);
-			btVector3 qInB = m_minkowskiB->LocalGetSupportingVertexWithoutMargin(seperatingAxisInB);
+			btVector3 pInA = m_minkowskiA->localGetSupportingVertexWithoutMargin(seperatingAxisInA);
+			btVector3 qInB = m_minkowskiB->localGetSupportingVertexWithoutMargin(seperatingAxisInB);
 			btPoint3  pWorld = input.m_transformA(pInA);	
 			btPoint3  qWorld = input.m_transformB(qInB);
 			
@@ -184,7 +184,7 @@ int curIter = 0;
 			if (m_penetrationDepthSolver)
 			{
 				// Penetration depth case.
-				isValid = m_penetrationDepthSolver->CalcPenDepth( 
+				isValid = m_penetrationDepthSolver->calcPenDepth( 
 					*m_simplexSolver, 
 					m_minkowskiA,m_minkowskiB,
 					input.m_transformA,input.m_transformB,
@@ -211,9 +211,9 @@ int curIter = 0;
 
 	if (isValid)
 	{
-		output.SetShapeIdentifiers(m_partId0,m_index0,m_partId1,m_index1);
+		output.setShapeIdentifiers(m_partId0,m_index0,m_partId1,m_index1);
 
-		output.AddContactPoint(
+		output.addContactPoint(
 			normalInB,
 			pointOnB,
 			distance);

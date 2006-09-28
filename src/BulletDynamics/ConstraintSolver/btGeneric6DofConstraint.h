@@ -47,13 +47,13 @@ public:
 
 	btGeneric6DofConstraint();
 
-	virtual void	BuildJacobian();
+	virtual void	buildJacobian();
 
-	virtual	void	SolveConstraint(btScalar	timeStep);
+	virtual	void	solveConstraint(btScalar	timeStep);
 
-	void	UpdateRHS(btScalar	timeStep);
+	void	updateRHS(btScalar	timeStep);
 
-	btScalar ComputeAngle(int axis) const;
+	btScalar computeAngle(int axis) const;
 
 	void	setLinearLowerLimit(const btVector3& linearLower)
 	{
@@ -99,11 +99,11 @@ public:
 		return (m_upperLimit[limitIndex] >= m_lowerLimit[limitIndex]);
 	}
 
-	const btRigidBody& GetRigidBodyA() const
+	const btRigidBody& getRigidBodyA() const
 	{
 		return m_rbA;
 	}
-	const btRigidBody& GetRigidBodyB() const
+	const btRigidBody& getRigidBodyB() const
 	{
 		return m_rbB;
 	}

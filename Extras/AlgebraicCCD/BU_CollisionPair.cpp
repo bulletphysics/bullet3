@@ -58,8 +58,8 @@ bool BU_CollisionPair::calcTimeOfImpact(
 	btVector3 linvelA,angvelA;
 	btVector3 linvelB,angvelB;
 
-	btTransformUtil::CalculateVelocity(fromA,toA,1.f,linvelA,angvelA);
-	btTransformUtil::CalculateVelocity(fromB,toB,1.f,linvelB,angvelB);
+	btTransformUtil::calculateVelocity(fromA,toA,1.f,linvelA,angvelA);
+	btTransformUtil::calculateVelocity(fromB,toB,1.f,linvelB,angvelB);
 
 
 	btVector3 linearMotionA = toA.getOrigin() - fromA.getOrigin();
@@ -85,11 +85,11 @@ bool BU_CollisionPair::calcTimeOfImpact(
 
 /* debugging code
 	{
-		const int numvertsB = m_convexB->GetNumVertices();
+		const int numvertsB = m_convexB->getNumVertices();
 		for (int v=0;v<numvertsB;v++)
 		{
 			btPoint3 pt;
-			m_convexB->GetVertex(v,pt);
+			m_convexB->getVertex(v,pt);
 			pt = b2w * pt;
 			char buf[1000];
 
@@ -182,11 +182,11 @@ bool BU_CollisionPair::calcTimeOfImpact(
 		//toi = 0;
 	/*	
 		{
-			const int numvertsB = m_convexB->GetNumVertices();
+			const int numvertsB = m_convexB->getNumVertices();
 			for (int v=0;v<numvertsB;v++)
 			{
 				btPoint3 pt;
-				m_convexB->GetVertex(v,pt);
+				m_convexB->getVertex(v,pt);
 				pt = impactTransB * pt;
 				char buf[1000];
 				
@@ -215,11 +215,11 @@ bool BU_CollisionPair::calcTimeOfImpact(
 	BU_EdgeEdge edgeEdge;
 
 	//for all edged in A check agains all edges in B
-	for (int ea = 0;ea < m_convexA->GetNumEdges();ea++)
+	for (int ea = 0;ea < m_convexA->getNumEdges();ea++)
 	{
 		btPoint3 pA0,pA1;
 
-		m_convexA->GetEdge(ea,pA0,pA1);
+		m_convexA->getEdge(ea,pA0,pA1);
 
 		pA0= a2w * pA0;//in world space
 		pA0 = w2s * pA0;//in screwing space
@@ -227,12 +227,12 @@ bool BU_CollisionPair::calcTimeOfImpact(
 		pA1= a2w * pA1;//in world space
 		pA1 = w2s * pA1;//in screwing space
 
-		int numedgesB = m_convexB->GetNumEdges();
+		int numedgesB = m_convexB->getNumEdges();
 		for (int eb = 0; eb < numedgesB;eb++)
 		{
 			{
 				btPoint3 pB0,pB1;
-				m_convexB->GetEdge(eb,pB0,pB1);
+				m_convexB->getEdge(eb,pB0,pB1);
 
 				pB0= b2w * pB0;//in world space
 				pB0 = w2s * pB0;//in screwing space
@@ -307,18 +307,18 @@ bool BU_CollisionPair::calcTimeOfImpact(
 
 	// for all vertices in A, for each face in B,do vertex-face
 	{
-		const int numvertsA = m_convexA->GetNumVertices();
+		const int numvertsA = m_convexA->getNumVertices();
 		for (int v=0;v<numvertsA;v++)
 		//int v=3;
 
 		{
 			btPoint3 vtx;
-			m_convexA->GetVertex(v,vtx);
+			m_convexA->getVertex(v,vtx);
 
 			vtx = a2w * vtx;//in world space
 			vtx = w2s * vtx;//in screwing space
 
-			const int numplanesB = m_convexB->GetNumPlanes();
+			const int numplanesB = m_convexB->getNumPlanes();
 
 			for (int p = 0 ; p < numplanesB; p++)
 			//int p=2;
@@ -329,7 +329,7 @@ bool BU_CollisionPair::calcTimeOfImpact(
 					btVector3 planeNorm;
 					btPoint3 planeSupport;
 
-					m_convexB->GetPlane(planeNorm,planeSupport,p);
+					m_convexB->getPlane(planeNorm,planeSupport,p);
 
 
 					planeSupport = b2w * planeSupport;//transform to world space
@@ -377,7 +377,7 @@ bool BU_CollisionPair::calcTimeOfImpact(
 
 								hitpt = b2winv * hitptWorld;
 								//vertex has to be 'within' the facet's boundary
-								if (m_convexB->IsInside(hitpt,m_tolerance))
+								if (m_convexB->isInside(hitpt,m_tolerance))
 								{
 //									m_manifold.SetContactPoint(BUM_FeatureVertexFace, index,v,p,hitptWorld,hitNormalWorld);
 									
@@ -403,13 +403,13 @@ bool BU_CollisionPair::calcTimeOfImpact(
 	//todo: make this into one method with a kind of 'swapped' logic
 	//
 	{
-		const int numvertsB = m_convexB->GetNumVertices();
+		const int numvertsB = m_convexB->getNumVertices();
 		for (int v=0;v<numvertsB;v++)
 		//int v=0;
 
 		{
 			btPoint3 vtx;
-			m_convexB->GetVertex(v,vtx);
+			m_convexB->getVertex(v,vtx);
 
 			vtx = b2w * vtx;//in world space
 /*
@@ -429,7 +429,7 @@ bool BU_CollisionPair::calcTimeOfImpact(
 */			
 			vtx = w2s * vtx;//in screwing space
 
-			const int numplanesA = m_convexA->GetNumPlanes();
+			const int numplanesA = m_convexA->getNumPlanes();
 
 			for (int p = 0 ; p < numplanesA; p++)
 			//int p=2;
@@ -439,7 +439,7 @@ bool BU_CollisionPair::calcTimeOfImpact(
 					btVector3 planeNorm;
 					btPoint3 planeSupport;
 
-					m_convexA->GetPlane(planeNorm,planeSupport,p);
+					m_convexA->getPlane(planeNorm,planeSupport,p);
 
 
 					planeSupport = a2w * planeSupport;//transform to world space
@@ -477,7 +477,7 @@ bool BU_CollisionPair::calcTimeOfImpact(
 							
 							
 								//vertex has to be 'within' the facet's boundary
-								if (m_convexA->IsInside(hitpt,m_tolerance))
+								if (m_convexA->isInside(hitpt,m_tolerance))
 								{
 									
 //									m_manifold.SetContactPoint(BUM_FeatureFaceVertex,index,p,v,hitptWorld,hitNormalWorld);
@@ -552,11 +552,11 @@ bool BU_CollisionPair::calcTimeOfImpact(
 
 /*
 	{
-		const int numvertsB = m_convexB->GetNumVertices();
+		const int numvertsB = m_convexB->getNumVertices();
 		for (int v=0;v<numvertsB;v++)
 		{
 			btPoint3 pt;
-			m_convexB->GetVertex(v,pt);
+			m_convexB->getVertex(v,pt);
 			pt = impactTransB * pt;
 			char buf[1000];
 

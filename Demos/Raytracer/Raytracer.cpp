@@ -12,7 +12,7 @@
 
 
 /*
-Raytracer uses the Convex Raycast to visualize the Collision Shapes/Minkowski Sum.
+Raytracer uses the Convex rayCast to visualize the Collision Shapes/Minkowski Sum.
 Very basic raytracer, rendering into a texture.
 */
 
@@ -46,7 +46,7 @@ Very basic raytracer, rendering into a texture.
 
 
 
-#include "RenderTexture.h"
+#include "renderTexture.h"
 
 btVoronoiSimplexSolver	simplexSolver;
 
@@ -60,7 +60,7 @@ GL_Simplex1to4	simplex;
 btConvexShape*	shapePtr[maxNumObjects];
 btTransform transforms[maxNumObjects];
 
-RenderTexture*	raytracePicture = 0;
+renderTexture*	raytracePicture = 0;
 
 int screenWidth = 128;
 int screenHeight = 128;
@@ -90,16 +90,16 @@ int main(int argc,char** argv)
 
 void	Raytracer::initPhysics()
 {
-	raytracePicture = new RenderTexture(screenWidth,screenHeight);
+	raytracePicture = new renderTexture(screenWidth,screenHeight);
 
-	myBox.SetMargin(0.02f);
-	myCone.SetMargin(0.2f);
+	myBox.setMargin(0.02f);
+	myCone.setMargin(0.2f);
 
-	simplex.SetSimplexSolver(&simplexSolver);
-	simplex.AddVertex(btPoint3(-1,0,-1));
-	simplex.AddVertex(btPoint3(1,0,-1));
-	simplex.AddVertex(btPoint3(0,0,1));
-	simplex.AddVertex(btPoint3(0,1,0));
+	simplex.setSimplexSolver(&simplexSolver);
+	simplex.addVertex(btPoint3(-1,0,-1));
+	simplex.addVertex(btPoint3(1,0,-1));
+	simplex.addVertex(btPoint3(0,0,1));
+	simplex.addVertex(btPoint3(0,1,0));
 	
 	
 	/// convex hull of 5 spheres
@@ -123,7 +123,7 @@ void	Raytracer::initPhysics()
 	shapePtr[2] =convexHullShape;
 	shapePtr[3] =&myMink;//myBox;//multiSphereShape
 
-	simplex.SetMargin(0.3f);
+	simplex.setMargin(0.3f);
 
 
 }
@@ -155,7 +155,7 @@ void Raytracer::displayCallback()
 			transforms[i].setRotation(orn);
 		}
 	}
-	myMink.SetTransformA(btTransform(transforms[0].getRotation()));
+	myMink.setTransformA(btTransform(transforms[0].getRotation()));
 
 	glClear(GL_COLOR_BUFFER_BIT | GL_DEPTH_BUFFER_BIT); 
 	glDisable(GL_LIGHTING);
@@ -236,7 +236,7 @@ void Raytracer::displayCallback()
 		for (int y=0;y<screenHeight;y++)
 		{
 			btVector4 rgba(0.f,0.f,0.f,0.f);
-			raytracePicture->SetPixel(x,y,rgba);
+			raytracePicture->setPixel(x,y,rgba);
 		}
 	}
 	
@@ -286,12 +286,12 @@ void Raytracer::displayCallback()
 						light = 1.f;
 
 					rgba = btVector4(light,light,light,1.f);
-					raytracePicture->SetPixel(x,y,rgba);
+					raytracePicture->setPixel(x,y,rgba);
 				} else
 				{
 					//clear is already done
 					//rgba = btVector4(0.f,0.f,0.f,0.f);
-					//raytracePicture->SetPixel(x,y,rgba);
+					//raytracePicture->setPixel(x,y,rgba);
 
 				}
 
@@ -306,10 +306,10 @@ void Raytracer::displayCallback()
 	
 	extern BMF_FontData BMF_font_helv10;
 	
-	raytracePicture->Printf("CCD RAYTRACER",&BMF_font_helv10);
+	raytracePicture->grapicalPrintf("CCD RAYTRACER",&BMF_font_helv10);
 	char buffer[256];
 	sprintf(buffer,"%d RAYS / Frame",screenWidth*screenHeight*numObjects);
-	raytracePicture->Printf(buffer,&BMF_font_helv10,0,10);
+	raytracePicture->grapicalPrintf(buffer,&BMF_font_helv10,0,10);
 	
 
 #endif //TEST_PRINTF
@@ -321,7 +321,7 @@ void Raytracer::displayCallback()
 
 	glMatrixMode(GL_MODELVIEW);
 	glPushMatrix();
-	glLoadIdentity();									// Reset The Modelview Matrix
+	glLoadIdentity();									// reset The Modelview Matrix
 	glTranslatef(0.0f,0.0f,-3.0f);						// Move Into The Screen 5 Units
 
 
@@ -329,11 +329,11 @@ void Raytracer::displayCallback()
 	glEnable(GL_TEXTURE_2D);
 	glBindTexture(GL_TEXTURE_2D,glTextureId );
 
-	const unsigned char *ptr = raytracePicture->GetBuffer();
+	const unsigned char *ptr = raytracePicture->getBuffer();
 	glTexImage2D(GL_TEXTURE_2D, 
 		0, 
 		GL_RGBA, 
-		raytracePicture->GetWidth(),raytracePicture->GetHeight(), 
+		raytracePicture->getWidth(),raytracePicture->getHeight(), 
 		0, 
 		GL_RGBA, 
 		GL_UNSIGNED_BYTE, 
@@ -368,7 +368,7 @@ void Raytracer::displayCallback()
 	glDisable(GL_TEXTURE_2D);
 	glDisable(GL_DEPTH_TEST);
 
-	GL_ShapeDrawer::DrawCoordSystem();
+	GL_ShapeDrawer::drawCoordSystem();
 
 	glPushMatrix();
 
@@ -386,9 +386,9 @@ void Raytracer::displayCallback()
 
 		transA.getOpenGLMatrix( m );
 		/// draw the simplex
-		GL_ShapeDrawer::DrawOpenGL(m,shapePtr[i],btVector3(1,1,1));
+		GL_ShapeDrawer::drawOpenGL(m,shapePtr[i],btVector3(1,1,1));
 		/// calculate closest point from simplex to the origin, and draw this vector
-		simplex.CalcClosest(m);
+		simplex.calcClosest(m);
 
 	}
 	*/

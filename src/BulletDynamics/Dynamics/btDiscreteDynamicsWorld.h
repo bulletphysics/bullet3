@@ -77,17 +77,17 @@ public:
 
 	void	removeVehicle(btRaycastVehicle* vehicle);
 
-	btSimulationIslandManager*	GetSimulationIslandManager()
+	btSimulationIslandManager*	getSimulationIslandManager()
 	{
 		return m_islandManager;
 	}
 
-	const btSimulationIslandManager*	GetSimulationIslandManager() const 
+	const btSimulationIslandManager*	getSimulationIslandManager() const 
 	{
 		return m_islandManager;
 	}
 
-	btCollisionWorld*	GetCollisionWorld()
+	btCollisionWorld*	getCollisionWorld()
 	{
 		return this;
 	}

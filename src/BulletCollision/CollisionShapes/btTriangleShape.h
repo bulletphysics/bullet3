@@ -28,49 +28,49 @@ public:
 	btVector3	m_vertices1[3];
 
 
-	virtual int GetNumVertices() const
+	virtual int getNumVertices() const
 	{
 		return 3;
 	}
 
-	const btVector3& GetVertexPtr(int index) const
+	const btVector3& getVertexPtr(int index) const
 	{
 		return m_vertices1[index];
 	}
-	virtual void GetVertex(int index,btVector3& vert) const
+	virtual void getVertex(int index,btVector3& vert) const
 	{
 		vert = m_vertices1[index];
 	}
-	virtual int	GetShapeType() const
+	virtual int	getShapeType() const
 	{
 		return TRIANGLE_SHAPE_PROXYTYPE;
 	}
 
-	virtual int GetNumEdges() const
+	virtual int getNumEdges() const
 	{
 		return 3;
 	}
 	
-	virtual void GetEdge(int i,btPoint3& pa,btPoint3& pb) const
+	virtual void getEdge(int i,btPoint3& pa,btPoint3& pb) const
 	{
-		GetVertex(i,pa);
-		GetVertex((i+1)%3,pb);
+		getVertex(i,pa);
+		getVertex((i+1)%3,pb);
 	}
 
-	virtual void GetAabb(const btTransform& t,btVector3& aabbMin,btVector3& aabbMax)const 
+	virtual void getAabb(const btTransform& t,btVector3& aabbMin,btVector3& aabbMax)const 
 	{
 //		ASSERT(0);
-		GetAabbSlow(t,aabbMin,aabbMax);
+		getAabbSlow(t,aabbMin,aabbMax);
 	}
 
-	btVector3 LocalGetSupportingVertexWithoutMargin(const btVector3& dir)const 
+	btVector3 localGetSupportingVertexWithoutMargin(const btVector3& dir)const 
 	{
 		btVector3 dots(dir.dot(m_vertices1[0]), dir.dot(m_vertices1[1]), dir.dot(m_vertices1[2]));
 	  	return m_vertices1[dots.maxAxis()];
 
 	}
 
-	virtual void	BatchedUnitVectorGetSupportingVertexWithoutMargin(const btVector3* vectors,btVector3* supportVerticesOut,int numVectors) const
+	virtual void	batchedUnitVectorGetSupportingVertexWithoutMargin(const btVector3* vectors,btVector3* supportVerticesOut,int numVectors) const
 	{
 		for (int i=0;i<numVectors;i++)
 		{
@@ -92,38 +92,38 @@ public:
 
 	
 
-	virtual void GetPlane(btVector3& planeNormal,btPoint3& planeSupport,int i) const
+	virtual void getPlane(btVector3& planeNormal,btPoint3& planeSupport,int i) const
 	{
-		GetPlaneEquation(i,planeNormal,planeSupport);
+		getPlaneEquation(i,planeNormal,planeSupport);
 	}
 
-	virtual int	GetNumPlanes() const
+	virtual int	getNumPlanes() const
 	{
 		return 1;
 	}
 
-	void CalcNormal(btVector3& normal) const
+	void calcNormal(btVector3& normal) const
 	{
 		normal = (m_vertices1[1]-m_vertices1[0]).cross(m_vertices1[2]-m_vertices1[0]);
 		normal.normalize();
 	}
 
-	virtual void GetPlaneEquation(int i, btVector3& planeNormal,btPoint3& planeSupport) const
+	virtual void getPlaneEquation(int i, btVector3& planeNormal,btPoint3& planeSupport) const
 	{
-		CalcNormal(planeNormal);
+		calcNormal(planeNormal);
 		planeSupport = m_vertices1[0];
 	}
 
-	virtual void	CalculateLocalInertia(btScalar mass,btVector3& inertia)
+	virtual void	calculateLocalInertia(btScalar mass,btVector3& inertia)
 	{
 		ASSERT(0);
 		inertia.setValue(0.f,0.f,0.f);
 	}
 
-		virtual	bool IsInside(const btPoint3& pt,btScalar tolerance) const
+		virtual	bool isInside(const btPoint3& pt,btScalar tolerance) const
 	{
 		btVector3 normal;
-		CalcNormal(normal);
+		calcNormal(normal);
 		//distance to plane
 		btScalar dist = pt.dot(normal);
 		btScalar planeconst = m_vertices1[0].dot(normal);
@@ -135,7 +135,7 @@ public:
 			for (i=0;i<3;i++)
 			{
 				btPoint3 pa,pb;
-				GetEdge(i,pa,pb);
+				getEdge(i,pa,pb);
 				btVector3 edge = pb-pa;
 				btVector3 edgeNormal = edge.cross(normal);
 				edgeNormal.normalize();
@@ -152,7 +152,7 @@ public:
 		return false;
 	}
 		//debugging
-		virtual char*	GetName()const
+		virtual char*	getName()const
 		{
 			return "Triangle";
 		}

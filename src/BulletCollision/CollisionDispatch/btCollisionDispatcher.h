@@ -46,7 +46,7 @@ class btCollisionDispatcher : public btDispatcher
 	
 	btCollisionAlgorithmCreateFunc* m_doubleDispatch[MAX_BROADPHASE_COLLISION_TYPES][MAX_BROADPHASE_COLLISION_TYPES];
 	
-	btCollisionAlgorithmCreateFunc* InternalFindCreateFunc(int proxyType0,int proxyType1);
+	btCollisionAlgorithmCreateFunc* internalFindCreateFunc(int proxyType0,int proxyType1);
 
 	//default CreationFunctions, filling the m_doubleDispatch table
 	btCollisionAlgorithmCreateFunc*	m_convexConvexCreateFunc;
@@ -58,10 +58,10 @@ class btCollisionDispatcher : public btDispatcher
 
 public:
 
-	///RegisterCollisionCreateFunc allows registration of custom/alternative collision create functions
-	void	RegisterCollisionCreateFunc(int proxyType0,int proxyType1, btCollisionAlgorithmCreateFunc* createFunc);
+	///registerCollisionCreateFunc allows registration of custom/alternative collision create functions
+	void	registerCollisionCreateFunc(int proxyType0,int proxyType1, btCollisionAlgorithmCreateFunc* createFunc);
 
-	int	GetNumManifolds() const
+	int	getNumManifolds() const
 	{ 
 		return m_manifoldsPtr.size();
 	}
@@ -71,12 +71,12 @@ public:
 		return &m_manifoldsPtr[0];
 	}
 
-	 btPersistentManifold* GetManifoldByIndexInternal(int index)
+	 btPersistentManifold* getManifoldByIndexInternal(int index)
 	{
 		return m_manifoldsPtr[index];
 	}
 
-	 const btPersistentManifold* GetManifoldByIndexInternal(int index) const
+	 const btPersistentManifold* getManifoldByIndexInternal(int index) const
 	{
 		return m_manifoldsPtr[index];
 	}
@@ -86,31 +86,31 @@ public:
 	btCollisionDispatcher ();
 	virtual ~btCollisionDispatcher();
 
-	virtual btPersistentManifold*	GetNewManifold(void* b0,void* b1);
+	virtual btPersistentManifold*	getNewManifold(void* b0,void* b1);
 	
-	virtual void ReleaseManifold(btPersistentManifold* manifold);
+	virtual void releaseManifold(btPersistentManifold* manifold);
 
 	
 	///allows the user to get contact point callbacks 
-	virtual	btManifoldResult*	GetNewManifoldResult(btCollisionObject* obj0,btCollisionObject* obj1,btPersistentManifold* manifold);
+	virtual	btManifoldResult*	getNewManifoldResult(btCollisionObject* obj0,btCollisionObject* obj1,btPersistentManifold* manifold);
 
 	///allows the user to get contact point callbacks 
-	virtual	void	ReleaseManifoldResult(btManifoldResult*);
+	virtual	void	releaseManifoldResult(btManifoldResult*);
 
-	virtual void ClearManifold(btPersistentManifold* manifold);
+	virtual void clearManifold(btPersistentManifold* manifold);
 
 			
-	btCollisionAlgorithm* FindAlgorithm(btBroadphaseProxy& proxy0,btBroadphaseProxy& proxy1);
+	btCollisionAlgorithm* findAlgorithm(btBroadphaseProxy& proxy0,btBroadphaseProxy& proxy1);
 	
-	btCollisionAlgorithm* InternalFindAlgorithm(btBroadphaseProxy& proxy0,btBroadphaseProxy& proxy1);
+	btCollisionAlgorithm* internalFindAlgorithm(btBroadphaseProxy& proxy0,btBroadphaseProxy& proxy1);
 	
-	virtual bool	NeedsCollision(btBroadphaseProxy& proxy0,btBroadphaseProxy& proxy1);
+	virtual bool	needsCollision(btBroadphaseProxy& proxy0,btBroadphaseProxy& proxy1);
 	
-	virtual bool	NeedsResponse(const btCollisionObject& colObj0,const btCollisionObject& colObj1);
+	virtual bool	needsResponse(const btCollisionObject& colObj0,const btCollisionObject& colObj1);
 
-	virtual int GetUniqueId() { return RIGIDBODY_DISPATCHER;}
+	virtual int getUniqueId() { return RIGIDBODY_DISPATCHER;}
 	
-	virtual void	DispatchAllCollisionPairs(btOverlappingPairCache* pairCache,btDispatcherInfo& dispatchInfo);
+	virtual void	dispatchAllCollisionPairs(btOverlappingPairCache* pairCache,btDispatcherInfo& dispatchInfo);
 
 	
 

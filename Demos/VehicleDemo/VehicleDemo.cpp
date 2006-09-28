@@ -186,12 +186,12 @@ const float TRIANGLE_SIZE=20.f;
 	tr.setOrigin(btVector3(0,-20.f,0));
 
 	//create ground object
-	LocalCreatePhysicsObject(false,0,tr,groundShape);
+	localCreatePhysicsObject(false,0,tr,groundShape);
 
 	btCollisionShape* chassisShape = new btBoxShape(btVector3(1.f,0.5f,2.f));
 	tr.setOrigin(btVector3(0,0.f,0));
 
-	m_carChassis = LocalCreatePhysicsObject(true,800,tr,chassisShape);
+	m_carChassis = localCreatePhysicsObject(true,800,tr,chassisShape);
 	
 	clientResetScene();
 
@@ -208,7 +208,7 @@ const float TRIANGLE_SIZE=20.f;
 			0,0,0);
 
 		///never deactivate the vehicle
-		m_carChassis->GetRigidBody()->SetActivationState(DISABLE_DEACTIVATION);
+		m_carChassis->getRigidBody()->SetActivationState(DISABLE_DEACTIVATION);
 		
 		gVehicleConstraint = m_physicsEnvironmentPtr->getVehicleConstraint(constraintId);
 
@@ -219,25 +219,25 @@ const float TRIANGLE_SIZE=20.f;
 		int upIndex = 1;
 		int forwardIndex = 2;
 
-		gVehicleConstraint->SetCoordinateSystem(rightIndex,upIndex,forwardIndex);
+		gVehicleConstraint->setCoordinateSystem(rightIndex,upIndex,forwardIndex);
 
-		gVehicleConstraint->AddWheel(&wheelMotionState[0],
+		gVehicleConstraint->addWheel(&wheelMotionState[0],
 			(PHY__Vector3&)connectionPointCS0,
 			(PHY__Vector3&)wheelDirectionCS0,(PHY__Vector3&)wheelAxleCS,suspensionRestLength,wheelRadius,isFrontWheel);
 
 		connectionPointCS0 = btVector3(-CUBE_HALF_EXTENTS+(0.3*wheelWidth),0,2*CUBE_HALF_EXTENTS-wheelRadius);
-		gVehicleConstraint->AddWheel(&wheelMotionState[1],
+		gVehicleConstraint->addWheel(&wheelMotionState[1],
 			(PHY__Vector3&)connectionPointCS0,
 			(PHY__Vector3&)wheelDirectionCS0,(PHY__Vector3&)wheelAxleCS,suspensionRestLength,wheelRadius,isFrontWheel);
 
 		connectionPointCS0 = btVector3(-CUBE_HALF_EXTENTS+(0.3*wheelWidth),0,-2*CUBE_HALF_EXTENTS+wheelRadius);
 		isFrontWheel = false;
-		gVehicleConstraint->AddWheel(&wheelMotionState[2],
+		gVehicleConstraint->addWheel(&wheelMotionState[2],
 			(PHY__Vector3&)connectionPointCS0,
 			(PHY__Vector3&)wheelDirectionCS0,(PHY__Vector3&)wheelAxleCS,suspensionRestLength,wheelRadius,isFrontWheel);
 		
 		connectionPointCS0 = btVector3(CUBE_HALF_EXTENTS-(0.3*wheelWidth),0,-2*CUBE_HALF_EXTENTS+wheelRadius);
-		gVehicleConstraint->AddWheel(&wheelMotionState[3],
+		gVehicleConstraint->addWheel(&wheelMotionState[3],
 			(PHY__Vector3&)connectionPointCS0,
 			(PHY__Vector3&)wheelDirectionCS0,(PHY__Vector3&)wheelAxleCS,suspensionRestLength,wheelRadius,isFrontWheel);
 		
@@ -277,7 +277,7 @@ void VehicleDemo::renderme()
 {
 	updateCamera();
 
-	debugDrawer.SetDebugMode(getDebugMode());
+	debugDrawer.setDebugMode(getDebugMode());
 	float m[16];
 	int i;
 
@@ -288,7 +288,7 @@ void VehicleDemo::renderme()
 	{
 		//draw wheels (cylinders)
 		wheelMotionState[i].m_worldTransform.getOpenGLMatrix(m);
-		GL_ShapeDrawer::DrawOpenGL(m,&wheelShape,wheelColor,getDebugMode());
+		GL_ShapeDrawer::drawOpenGL(m,&wheelShape,wheelColor,getDebugMode());
 	}
 
 	DemoApplication::renderme();
@@ -302,14 +302,14 @@ void VehicleDemo::clientMoveAndDisplay()
 
 {			
 		int steerWheelIndex = 2;
-		gVehicleConstraint->ApplyEngineForce(gEngineForce,steerWheelIndex);
+		gVehicleConstraint->applyEngineForce(gEngineForce,steerWheelIndex);
 		steerWheelIndex = 3;
-		gVehicleConstraint->ApplyEngineForce(gEngineForce,steerWheelIndex);
+		gVehicleConstraint->applyEngineForce(gEngineForce,steerWheelIndex);
 
 		steerWheelIndex = 0;
-		gVehicleConstraint->SetSteeringValue(gVehicleSteering,steerWheelIndex);
+		gVehicleConstraint->setSteeringValue(gVehicleSteering,steerWheelIndex);
 		steerWheelIndex = 1;
-		gVehicleConstraint->SetSteeringValue(gVehicleSteering,steerWheelIndex);
+		gVehicleConstraint->setSteeringValue(gVehicleSteering,steerWheelIndex);
 
 	}
 
@@ -415,7 +415,7 @@ void	VehicleDemo::updateCamera()
 	glLoadIdentity();
 
 	//look at the vehicle
-	m_cameraTargetPosition = m_carChassis->GetRigidBody()->m_worldTransform.getOrigin();
+	m_cameraTargetPosition = m_carChassis->getRigidBody()->m_worldTransform.getOrigin();
 
 	//interpolate the camera height
 	m_cameraPosition[1] = (15.0*m_cameraPosition[1] + m_cameraTargetPosition[1] + m_cameraHeight)/16.0;

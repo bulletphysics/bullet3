@@ -90,7 +90,7 @@ void BspConverter::convertBsp(BspLoader& bspLoader,float scaling)
 
 							bool isEntity = false;
 							btVector3 entityTarget(0.f,0.f,0.f);
-							AddConvexVerticesCollider(vertices,isEntity,entityTarget);
+							addConvexVerticesCollider(vertices,isEntity,entityTarget);
 						
 						}
 					}
@@ -107,11 +107,11 @@ void BspConverter::convertBsp(BspLoader& bspLoader,float scaling)
 			for (i=0;i<bspLoader.m_num_entities;i++)
 				{
 					const BSPEntity& entity = bspLoader.m_entities[i];
-					const char* cl = bspLoader.ValueForKey(&entity,"classname");
+					const char* cl = bspLoader.getValueForKey(&entity,"classname");
 					if ( !strcmp( cl, "trigger_push" ) ) {
 						btVector3 targetLocation(0.f,0.f,0.f);
 
-						cl = bspLoader.ValueForKey(&entity,"target");
+						cl = bspLoader.getValueForKey(&entity,"target");
 						if ( strcmp( cl, "" ) ) {
 							//its not empty so ...
 
@@ -119,13 +119,13 @@ void BspConverter::convertBsp(BspLoader& bspLoader,float scaling)
 							const BSPEntity* targetentity = bspLoader.getEntityByValue( "targetname" , cl );
 							if (targetentity)
 							{
-								if (bspLoader.GetVectorForKey( targetentity , "origin",&targetLocation[0]))
+								if (bspLoader.getVectorForKey( targetentity , "origin",&targetLocation[0]))
 								{
 																	
 								}
 							}
 
-							cl = bspLoader.ValueForKey(&entity,"model");
+							cl = bspLoader.getValueForKey(&entity,"model");
 							if ( strcmp( cl, "" ) ) {
 								// add the model as a brush
 								if (cl[0] == '*')
@@ -164,7 +164,7 @@ void BspConverter::convertBsp(BspLoader& bspLoader,float scaling)
 													getVerticesFromPlaneEquations(planeEquations,vertices);
 
 													bool isEntity=true;
-													AddConvexVerticesCollider(vertices,isEntity,targetLocation);
+													addConvexVerticesCollider(vertices,isEntity,targetLocation);
 													
 												}
 											}

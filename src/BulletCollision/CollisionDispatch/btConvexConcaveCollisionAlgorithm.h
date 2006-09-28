@@ -25,7 +25,7 @@ class btDispatcher;
 #include "BulletCollision/BroadphaseCollision/btBroadphaseProxy.h"
 #include "btCollisionCreateFunc.h"
 
-///For each triangle in the concave mesh that overlaps with the AABB of a convex (m_convexProxy), ProcessTriangle is called.
+///For each triangle in the concave mesh that overlaps with the AABB of a convex (m_convexProxy), processTriangle is called.
 class btConvexTriangleCallback : public btTriangleCallback
 {
 	btBroadphaseProxy* m_convexProxy;
@@ -45,19 +45,19 @@ int	m_triangleCount;
 
 	btConvexTriangleCallback(btDispatcher* dispatcher,btBroadphaseProxy* proxy0,btBroadphaseProxy* proxy1);
 
-	void	SetTimeStepAndCounters(float collisionMarginTriangle,const btDispatcherInfo& dispatchInfo);
+	void	setTimeStepAndCounters(float collisionMarginTriangle,const btDispatcherInfo& dispatchInfo);
 
 	virtual ~btConvexTriangleCallback();
 
-	virtual void ProcessTriangle(btVector3* triangle, int partId, int triangleIndex);
+	virtual void processTriangle(btVector3* triangle, int partId, int triangleIndex);
 	
-	void ClearCache();
+	void clearCache();
 
-	inline const btVector3& GetAabbMin() const
+	inline const btVector3& getAabbMin() const
 	{
 		return m_aabbMin;
 	}
-	inline const btVector3& GetAabbMax() const
+	inline const btVector3& getAabbMax() const
 	{
 		return m_aabbMax;
 	}
@@ -84,11 +84,11 @@ public:
 
 	virtual ~btConvexConcaveCollisionAlgorithm();
 
-	virtual void ProcessCollision (btBroadphaseProxy* proxy0,btBroadphaseProxy* proxy1,const btDispatcherInfo& dispatchInfo);
+	virtual void processCollision (btBroadphaseProxy* proxy0,btBroadphaseProxy* proxy1,const btDispatcherInfo& dispatchInfo);
 
-	float	CalculateTimeOfImpact(btBroadphaseProxy* proxy0,btBroadphaseProxy* proxy1,const btDispatcherInfo& dispatchInfo);
+	float	calculateTimeOfImpact(btBroadphaseProxy* proxy0,btBroadphaseProxy* proxy1,const btDispatcherInfo& dispatchInfo);
 
-	void	ClearCache();
+	void	clearCache();
 
 	struct CreateFunc :public 	btCollisionAlgorithmCreateFunc
 	{

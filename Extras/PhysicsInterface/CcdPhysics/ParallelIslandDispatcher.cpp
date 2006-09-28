@@ -51,7 +51,7 @@ ParallelIslandDispatcher::ParallelIslandDispatcher ():
 	
 };
 	
-btPersistentManifold*	ParallelIslandDispatcher::GetNewManifold(void* b0,void* b1) 
+btPersistentManifold*	ParallelIslandDispatcher::getNewManifold(void* b0,void* b1) 
 { 
 	gNumManifold2++;
 	
@@ -67,20 +67,20 @@ btPersistentManifold*	ParallelIslandDispatcher::GetNewManifold(void* b0,void* b1
 	return manifold;
 }
 
-void ParallelIslandDispatcher::ClearManifold(btPersistentManifold* manifold)
+void ParallelIslandDispatcher::clearManifold(btPersistentManifold* manifold)
 {
-	manifold->ClearManifold();
+	manifold->clearManifold();
 }
 
 	
-void ParallelIslandDispatcher::ReleaseManifold(btPersistentManifold* manifold)
+void ParallelIslandDispatcher::releaseManifold(btPersistentManifold* manifold)
 {
 	
 	gNumManifold2--;
 
-	//printf("ReleaseManifold: gNumManifold2 %d\n",gNumManifold2);
+	//printf("releaseManifold: gNumManifold2 %d\n",gNumManifold2);
 
-	ClearManifold(manifold);
+	clearManifold(manifold);
 
 	std::vector<btPersistentManifold*>::iterator i =
 		std::find(m_manifoldsPtr.begin(), m_manifoldsPtr.end(), manifold);
@@ -99,7 +99,7 @@ void ParallelIslandDispatcher::ReleaseManifold(btPersistentManifold* manifold)
 //
 // todo: this is random access, it can be walked 'cache friendly'!
 //
-void ParallelIslandDispatcher::BuildAndProcessIslands(btCollisionObjectArray& collisionObjects, IslandCallback* callback)
+void ParallelIslandDispatcher::buildAndProcessIslands(btCollisionObjectArray& collisionObjects, IslandCallback* callback)
 {
 	int numBodies  = collisionObjects.size();
 
@@ -130,20 +130,20 @@ void ParallelIslandDispatcher::BuildAndProcessIslands(btCollisionObjectArray& co
 		}
 
 		
-		for (i=0;i<GetNumManifolds();i++)
+		for (i=0;i<getNumManifolds();i++)
 		{
-			 btPersistentManifold* manifold = this->GetManifoldByIndexInternal(i);
+			 btPersistentManifold* manifold = this->getManifoldByIndexInternal(i);
 			 
 			 //filtering for response
 
-			 btCollisionObject* colObj0 = static_cast<btCollisionObject*>(manifold->GetBody0());
-			 btCollisionObject* colObj1 = static_cast<btCollisionObject*>(manifold->GetBody1());
+			 btCollisionObject* colObj0 = static_cast<btCollisionObject*>(manifold->getBody0());
+			 btCollisionObject* colObj1 = static_cast<btCollisionObject*>(manifold->getBody1());
 			 {
 				if (((colObj0) && (colObj0)->m_islandTag1 == (islandId)) ||
 					((colObj1) && (colObj1)->m_islandTag1 == (islandId)))
 				{
 
-					if (NeedsResponse(*colObj0,*colObj1))
+					if (needsResponse(*colObj0,*colObj1))
 						islandmanifold.push_back(manifold);
 				}
 			 }
@@ -189,7 +189,7 @@ void ParallelIslandDispatcher::BuildAndProcessIslands(btCollisionObjectArray& co
 
 
 
-btCollisionAlgorithm* ParallelIslandDispatcher::InternalFindAlgorithm(btBroadphaseProxy& proxy0,btBroadphaseProxy& proxy1)
+btCollisionAlgorithm* ParallelIslandDispatcher::internalFindAlgorithm(btBroadphaseProxy& proxy0,btBroadphaseProxy& proxy1)
 {
 	m_count++;
 	btCollisionObject* body0 = (btCollisionObject*)proxy0.m_clientObject;
@@ -198,27 +198,27 @@ btCollisionAlgorithm* ParallelIslandDispatcher::InternalFindAlgorithm(btBroadpha
 	btCollisionAlgorithmConstructionInfo ci;
 	ci.m_dispatcher = this;
 	
-	if (body0->m_collisionShape->IsConvex() && body1->m_collisionShape->IsConvex() )
+	if (body0->m_collisionShape->isConvex() && body1->m_collisionShape->isConvex() )
 	{
 		return new btConvexConvexAlgorithm(0,ci,&proxy0,&proxy1);			
 	}
 
-	if (body0->m_collisionShape->IsConvex() && body1->m_collisionShape->IsConcave())
+	if (body0->m_collisionShape->isConvex() && body1->m_collisionShape->isConcave())
 	{
 		return new btConvexConcaveCollisionAlgorithm(ci,&proxy0,&proxy1);
 	}
 
-	if (body1->m_collisionShape->IsConvex() && body0->m_collisionShape->IsConcave())
+	if (body1->m_collisionShape->isConvex() && body0->m_collisionShape->isConcave())
 	{
 		return new btConvexConcaveCollisionAlgorithm(ci,&proxy1,&proxy0);
 	}
 
-	if (body0->m_collisionShape->IsCompound())
+	if (body0->m_collisionShape->isCompound())
 	{
 		return new btCompoundCollisionAlgorithm(ci,&proxy0,&proxy1);
 	} else
 	{
-		if (body1->m_collisionShape->IsCompound())
+		if (body1->m_collisionShape->isCompound())
 		{
 			return new btCompoundCollisionAlgorithm(ci,&proxy1,&proxy0);
 		}
@@ -230,7 +230,7 @@ btCollisionAlgorithm* ParallelIslandDispatcher::InternalFindAlgorithm(btBroadpha
 	
 }
 
-bool	ParallelIslandDispatcher::NeedsResponse(const  btCollisionObject& colObj0,const btCollisionObject& colObj1)
+bool	ParallelIslandDispatcher::needsResponse(const  btCollisionObject& colObj0,const btCollisionObject& colObj1)
 {
 
 	
@@ -243,7 +243,7 @@ bool	ParallelIslandDispatcher::NeedsResponse(const  btCollisionObject& colObj0,c
 	return hasResponse;
 }
 
-bool	ParallelIslandDispatcher::NeedsCollision(btBroadphaseProxy& proxy0,btBroadphaseProxy& proxy1)
+bool	ParallelIslandDispatcher::needsCollision(btBroadphaseProxy& proxy0,btBroadphaseProxy& proxy1)
 {
 
 	btCollisionObject* body0 = (btCollisionObject*)proxy0.m_clientObject;
@@ -266,7 +266,7 @@ bool	ParallelIslandDispatcher::NeedsCollision(btBroadphaseProxy& proxy0,btBroadp
 }
 
 ///allows the user to get contact point callbacks 
-btManifoldResult*	ParallelIslandDispatcher::GetNewManifoldResult(btCollisionObject* obj0,btCollisionObject* obj1,btPersistentManifold* manifold)
+btManifoldResult*	ParallelIslandDispatcher::getNewManifoldResult(btCollisionObject* obj0,btCollisionObject* obj1,btPersistentManifold* manifold)
 {
 
 
@@ -276,13 +276,13 @@ btManifoldResult*	ParallelIslandDispatcher::GetNewManifoldResult(btCollisionObje
 }
 	
 ///allows the user to get contact point callbacks 
-void	ParallelIslandDispatcher::ReleaseManifoldResult(btManifoldResult*)
+void	ParallelIslandDispatcher::releaseManifoldResult(btManifoldResult*)
 {
 
 }
 
 
-void	ParallelIslandDispatcher::DispatchAllCollisionPairs(btOverlappingPairCache* pairCache,btDispatcherInfo& dispatchInfo)
+void	ParallelIslandDispatcher::dispatchAllCollisionPairs(btOverlappingPairCache* pairCache,btDispatcherInfo& dispatchInfo)
 {
 	//m_blockedForChanges = true;
 
@@ -291,7 +291,7 @@ void	ParallelIslandDispatcher::DispatchAllCollisionPairs(btOverlappingPairCache*
 	assert(0);
 	
 /*
-	int dispatcherId = GetUniqueId();
+	int dispatcherId = getUniqueId();
 	int i;
 	for (i=0;i<numPairs;i++)
 	{
@@ -303,7 +303,7 @@ void	ParallelIslandDispatcher::DispatchAllCollisionPairs(btOverlappingPairCache*
 			//dispatcher will keep algorithms persistent in the collision pair
 			if (!pair.m_algorithms[dispatcherId])
 			{
-				pair.m_algorithms[dispatcherId] = FindAlgorithm(
+				pair.m_algorithms[dispatcherId] = findAlgorithm(
 					*pair.m_pProxy0,
 					*pair.m_pProxy1);
 			}
@@ -312,10 +312,10 @@ void	ParallelIslandDispatcher::DispatchAllCollisionPairs(btOverlappingPairCache*
 			{
 				if (dispatchInfo.m_dispatchFunc == 		btDispatcherInfo::DISPATCH_DISCRETE)
 				{
-					pair.m_algorithms[dispatcherId]->ProcessCollision(pair.m_pProxy0,pair.m_pProxy1,dispatchInfo);
+					pair.m_algorithms[dispatcherId]->processCollision(pair.m_pProxy0,pair.m_pProxy1,dispatchInfo);
 				} else
 				{
-					float toi = pair.m_algorithms[dispatcherId]->CalculateTimeOfImpact(pair.m_pProxy0,pair.m_pProxy1,dispatchInfo);
+					float toi = pair.m_algorithms[dispatcherId]->calculateTimeOfImpact(pair.m_pProxy0,pair.m_pProxy1,dispatchInfo);
 					if (dispatchInfo.m_timeOfImpact > toi)
 						dispatchInfo.m_timeOfImpact = toi;
 
@@ -324,7 +324,7 @@ void	ParallelIslandDispatcher::DispatchAllCollisionPairs(btOverlappingPairCache*
 		} else
 		{
 			//non-persistent algorithm dispatcher
-			btCollisionAlgorithm* algo = FindAlgorithm(
+			btCollisionAlgorithm* algo = findAlgorithm(
 				*pair.m_pProxy0,
 				*pair.m_pProxy1);
 
@@ -332,10 +332,10 @@ void	ParallelIslandDispatcher::DispatchAllCollisionPairs(btOverlappingPairCache*
 			{
 				if (dispatchInfo.m_dispatchFunc == 		btDispatcherInfo::DISPATCH_DISCRETE)
 				{
-					algo->ProcessCollision(pair.m_pProxy0,pair.m_pProxy1,dispatchInfo);
+					algo->processCollision(pair.m_pProxy0,pair.m_pProxy1,dispatchInfo);
 				} else
 				{
-					float toi = algo->CalculateTimeOfImpact(pair.m_pProxy0,pair.m_pProxy1,dispatchInfo);
+					float toi = algo->calculateTimeOfImpact(pair.m_pProxy0,pair.m_pProxy1,dispatchInfo);
 					if (dispatchInfo.m_timeOfImpact > toi)
 						dispatchInfo.m_timeOfImpact = toi;
 				}

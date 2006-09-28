@@ -32,16 +32,16 @@ public:
 	virtual ~btSimulationIslandManager();
 
 
-	void InitUnionFind(int n);	
+	void initUnionFind(int n);	
 	
 		
-	btUnionFind& GetUnionFind() { return m_unionFind;}
+	btUnionFind& getUnionFind() { return m_unionFind;}
 
-	virtual	void	UpdateActivationState(btCollisionWorld* colWorld,btDispatcher* dispatcher);
-	virtual	void	StoreIslandActivationState(btCollisionWorld* world);
+	virtual	void	updateActivationState(btCollisionWorld* colWorld,btDispatcher* dispatcher);
+	virtual	void	storeIslandActivationState(btCollisionWorld* world);
 
 
-	void	FindUnions(btDispatcher* dispatcher);
+	void	findUnions(btDispatcher* dispatcher);
 
 	
 
@@ -52,7 +52,7 @@ public:
 		virtual	void	ProcessIsland(class btPersistentManifold**	manifolds,int numManifolds) = 0;
 	};
 
-	void	BuildAndProcessIslands(btDispatcher* dispatcher,btCollisionObjectArray& collisionObjects, IslandCallback* callback);
+	void	buildAndProcessIslands(btDispatcher* dispatcher,btCollisionObjectArray& collisionObjects, IslandCallback* callback);
 
 };
 

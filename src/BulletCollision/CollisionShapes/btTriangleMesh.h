@@ -37,7 +37,7 @@ class btTriangleMesh : public btStridingMeshInterface
 	public:
 		btTriangleMesh ();
 
-		void	AddTriangle(const btVector3& vertex0,const btVector3& vertex1,const btVector3& vertex2)
+		void	addTriangle(const btVector3& vertex0,const btVector3& vertex1,const btVector3& vertex2)
 		{
 			btMyTriangle tri;
 			tri.m_vert0 = vertex0;

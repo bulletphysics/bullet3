@@ -54,15 +54,15 @@ void	btSimpleDynamicsWorld::stepSimulation(float timeStep)
 	predictUnconstraintMotion(timeStep);
 
 	///perform collision detection
-	PerformDiscreteCollisionDetection();
+	performDiscreteCollisionDetection();
 
 	///solve contact constraints
 	btPersistentManifold** manifoldPtr = ((btCollisionDispatcher*)m_dispatcher1)->getInternalManifoldPointer();
-	int numManifolds = m_dispatcher1->GetNumManifolds();
+	int numManifolds = m_dispatcher1->getNumManifolds();
 	btContactSolverInfo infoGlobal;
 	infoGlobal.m_timeStep = timeStep;
 	btIDebugDraw* debugDrawer=0;
-	m_constraintSolver->SolveGroup(manifoldPtr, numManifolds,infoGlobal,debugDrawer);
+	m_constraintSolver->solveGroup(manifoldPtr, numManifolds,infoGlobal,debugDrawer);
 
 	///integrate transforms
 	integrateTransforms(timeStep);
@@ -85,9 +85,9 @@ void	btSimpleDynamicsWorld::updateAabbs()
 			if (body->IsActive() && (!body->IsStatic()))
 			{
 				btPoint3 minAabb,maxAabb;
-				colObj->m_collisionShape->GetAabb(colObj->m_worldTransform, minAabb,maxAabb);
+				colObj->m_collisionShape->getAabb(colObj->m_worldTransform, minAabb,maxAabb);
 				btSimpleBroadphase* bp = (btSimpleBroadphase*)m_pairCache;
-				bp->SetAabb(body->m_broadphaseHandle,minAabb,maxAabb);
+				bp->setAabb(body->m_broadphaseHandle,minAabb,maxAabb);
 			}
 		}
 	}

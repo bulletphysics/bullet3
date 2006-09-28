@@ -28,30 +28,30 @@ class btConeShape : public btConvexShape
 	float m_radius;
 	float m_height;
 	
-	btVector3 ConeLocalSupport(const btVector3& v) const;
+	btVector3 coneLocalSupport(const btVector3& v) const;
 
 
 public:
 	btConeShape (btScalar radius,btScalar height);
 	
-	virtual btVector3	LocalGetSupportingVertex(const btVector3& vec) const;
-	virtual btVector3	LocalGetSupportingVertexWithoutMargin(const btVector3& vec) const;
-	virtual void	BatchedUnitVectorGetSupportingVertexWithoutMargin(const btVector3* vectors,btVector3* supportVerticesOut,int numVectors) const;
+	virtual btVector3	localGetSupportingVertex(const btVector3& vec) const;
+	virtual btVector3	localGetSupportingVertexWithoutMargin(const btVector3& vec) const;
+	virtual void	batchedUnitVectorGetSupportingVertexWithoutMargin(const btVector3* vectors,btVector3* supportVerticesOut,int numVectors) const;
 
-	float GetRadius() const { return m_radius;}
-	float GetHeight() const { return m_height;}
+	float getRadius() const { return m_radius;}
+	float getHeight() const { return m_height;}
 
 
-	virtual void	CalculateLocalInertia(btScalar mass,btVector3& inertia)
+	virtual void	calculateLocalInertia(btScalar mass,btVector3& inertia)
 	{
 		btTransform identity;
 		identity.setIdentity();
 		btVector3 aabbMin,aabbMax;
-		GetAabb(identity,aabbMin,aabbMax);
+		getAabb(identity,aabbMin,aabbMax);
 
 		btVector3 halfExtents = (aabbMax-aabbMin)*0.5f;
 
-		float margin = GetMargin();
+		float margin = getMargin();
 
 		btScalar lx=2.f*(halfExtents.x()+margin);
 		btScalar ly=2.f*(halfExtents.y()+margin);
@@ -70,9 +70,9 @@ public:
 
 
 
-		virtual int	GetShapeType() const { return CONE_SHAPE_PROXYTYPE; }
+		virtual int	getShapeType() const { return CONE_SHAPE_PROXYTYPE; }
 
-		virtual char*	GetName()const 
+		virtual char*	getName()const 
 		{
 			return "Cone";
 		}

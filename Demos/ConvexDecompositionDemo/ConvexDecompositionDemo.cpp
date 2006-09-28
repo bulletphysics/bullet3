@@ -99,7 +99,7 @@ void ConvexDecompositionDemo::initPhysics(const char* filename)
 	startTransform.setIdentity();
 	startTransform.setOrigin(btVector3(0,-4,0));
 
-	LocalCreatePhysicsObject(false,0,startTransform,new btBoxShape(btVector3(30,2,30)));
+	localCreatePhysicsObject(false,0,startTransform,new btBoxShape(btVector3(30,2,30)));
 
 	class MyConvexDecomposition : public ConvexDecomposition::ConvexDecompInterface
 	{
@@ -184,7 +184,7 @@ void ConvexDecompositionDemo::initPhysics(const char* filename)
 							vertex1 -= centroid;
 							vertex2 -= centroid;
 
-							trimesh->AddTriangle(vertex0,vertex1,vertex2);
+							trimesh->addTriangle(vertex0,vertex1,vertex2);
 
 							index0+=mBaseCount;
 							index1+=mBaseCount;
@@ -200,7 +200,7 @@ void ConvexDecompositionDemo::initPhysics(const char* filename)
 					btTransform trans;
 					trans.setIdentity();
 					trans.setOrigin(centroid);
-					m_convexDemo->LocalCreatePhysicsObject(isDynamic, mass, trans,convexShape);
+					m_convexDemo->localCreatePhysicsObject(isDynamic, mass, trans,convexShape);
 
 					mBaseCount+=result.mHullVcount; // advance the 'base index' counter.
 
@@ -234,7 +234,7 @@ void ConvexDecompositionDemo::initPhysics(const char* filename)
 			vertex1 *= localScaling;
 			vertex2 *= localScaling;
 
-			trimesh->AddTriangle(vertex0,vertex1,vertex2);
+			trimesh->addTriangle(vertex0,vertex1,vertex2);
 		}
 
 		btCollisionShape* convexShape = new btConvexTriangleMeshShape(trimesh);
@@ -245,7 +245,7 @@ void ConvexDecompositionDemo::initPhysics(const char* filename)
 		startTransform.setIdentity();
 		startTransform.setOrigin(btVector3(20,2,0));
 
-		LocalCreatePhysicsObject(isDynamic, mass, startTransform,convexShape);
+		localCreatePhysicsObject(isDynamic, mass, startTransform,convexShape);
 
 	}
 			

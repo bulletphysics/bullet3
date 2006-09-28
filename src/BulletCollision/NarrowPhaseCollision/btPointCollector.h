@@ -35,12 +35,12 @@ struct btPointCollector : public btDiscreteCollisionDetectorInterface::Result
 	{
 	}
 
-	virtual void SetShapeIdentifiers(int partId0,int index0,	int partId1,int index1)
+	virtual void setShapeIdentifiers(int partId0,int index0,	int partId1,int index1)
 	{
 		//??
 	}
 
-	virtual void AddContactPoint(const btVector3& normalOnBInWorld,const btVector3& pointInWorld,float depth)
+	virtual void addContactPoint(const btVector3& normalOnBInWorld,const btVector3& pointInWorld,float depth)
 	{
 		if (depth< m_distance)
 		{

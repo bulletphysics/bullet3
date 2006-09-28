@@ -31,18 +31,18 @@ class btBoxShape: public btPolyhedralConvexShape
 
 public:
 
-	btVector3 GetHalfExtents() const;
+	btVector3 getHalfExtents() const;
 	//{ return m_boxHalfExtents1 * m_localScaling;}
- 	//const btVector3& GetHalfExtents() const{ return m_boxHalfExtents1;}
+ 	//const btVector3& getHalfExtents() const{ return m_boxHalfExtents1;}
 
 
 	
-	virtual int	GetShapeType() const { return BOX_SHAPE_PROXYTYPE;}
+	virtual int	getShapeType() const { return BOX_SHAPE_PROXYTYPE;}
 
-	virtual btVector3	LocalGetSupportingVertex(const btVector3& vec) const
+	virtual btVector3	localGetSupportingVertex(const btVector3& vec) const
 	{
 		
-		btVector3 halfExtents = GetHalfExtents();
+		btVector3 halfExtents = getHalfExtents();
 		
 		btVector3 supVertex;
 		supVertex = btPoint3(vec.x() < btScalar(0.0f) ? -halfExtents.x() : halfExtents.x(),
@@ -52,10 +52,10 @@ public:
 		return supVertex;
 	}
 
-	virtual inline btVector3	LocalGetSupportingVertexWithoutMargin(const btVector3& vec)const
+	virtual inline btVector3	localGetSupportingVertexWithoutMargin(const btVector3& vec)const
 	{
-		btVector3 halfExtents = GetHalfExtents();
-		btVector3 margin(GetMargin(),GetMargin(),GetMargin());
+		btVector3 halfExtents = getHalfExtents();
+		btVector3 margin(getMargin(),getMargin(),getMargin());
 		halfExtents -= margin;
 
 		return btVector3(vec.x() < btScalar(0.0f) ? -halfExtents.x() : halfExtents.x(),
@@ -63,10 +63,10 @@ public:
                     vec.z() < btScalar(0.0f) ? -halfExtents.z() : halfExtents.z()); 
 	}
 
-	virtual void	BatchedUnitVectorGetSupportingVertexWithoutMargin(const btVector3* vectors,btVector3* supportVerticesOut,int numVectors) const
+	virtual void	batchedUnitVectorGetSupportingVertexWithoutMargin(const btVector3* vectors,btVector3* supportVerticesOut,int numVectors) const
 	{
-		btVector3 halfExtents = GetHalfExtents();
-		btVector3 margin(GetMargin(),GetMargin(),GetMargin());
+		btVector3 halfExtents = getHalfExtents();
+		btVector3 margin(getMargin(),getMargin(),getMargin());
 		halfExtents -= margin;
 
 
@@ -83,41 +83,41 @@ public:
 
 	btBoxShape( const btVector3& boxHalfExtents) :  m_boxHalfExtents1(boxHalfExtents){};
 	
-	virtual void GetAabb(const btTransform& t,btVector3& aabbMin,btVector3& aabbMax) const;
+	virtual void getAabb(const btTransform& t,btVector3& aabbMin,btVector3& aabbMax) const;
 
 	
 
-	virtual void	CalculateLocalInertia(btScalar mass,btVector3& inertia);
+	virtual void	calculateLocalInertia(btScalar mass,btVector3& inertia);
 
-	virtual void GetPlane(btVector3& planeNormal,btPoint3& planeSupport,int i ) const
+	virtual void getPlane(btVector3& planeNormal,btPoint3& planeSupport,int i ) const
 	{
 		//this plane might not be aligned...
 		btVector4 plane ;
-		GetPlaneEquation(plane,i);
+		getPlaneEquation(plane,i);
 		planeNormal = btVector3(plane.getX(),plane.getY(),plane.getZ());
-		planeSupport = LocalGetSupportingVertex(-planeNormal);
+		planeSupport = localGetSupportingVertex(-planeNormal);
 	}
 
 	
-	virtual int GetNumPlanes() const
+	virtual int getNumPlanes() const
 	{
 		return 6;
 	}	
 	
-	virtual int	GetNumVertices() const 
+	virtual int	getNumVertices() const 
 	{
 		return 8;
 	}
 
-	virtual int GetNumEdges() const
+	virtual int getNumEdges() const
 	{
 		return 12;
 	}
 
 
-	virtual void GetVertex(int i,btVector3& vtx) const
+	virtual void getVertex(int i,btVector3& vtx) const
 	{
-		btVector3 halfExtents = GetHalfExtents();
+		btVector3 halfExtents = getHalfExtents();
 
 		vtx = btVector3(
 				halfExtents.x() * (1-(i&1)) - halfExtents.x() * (i&1),
@@ -126,9 +126,9 @@ public:
 	}
 	
 
-	virtual void	GetPlaneEquation(btVector4& plane,int i) const
+	virtual void	getPlaneEquation(btVector4& plane,int i) const
 	{
-		btVector3 halfExtents = GetHalfExtents();
+		btVector3 halfExtents = getHalfExtents();
 
 		switch (i)
 		{
@@ -162,8 +162,8 @@ public:
 	}
 
 	
-	virtual void GetEdge(int i,btPoint3& pa,btPoint3& pb) const
-	//virtual void GetEdge(int i,Edge& edge) const
+	virtual void getEdge(int i,btPoint3& pa,btPoint3& pb) const
+	//virtual void getEdge(int i,Edge& edge) const
 	{
 		int edgeVert0 = 0;
 		int edgeVert1 = 0;
@@ -225,17 +225,17 @@ public:
 
 		}
 
-		GetVertex(edgeVert0,pa );
-		GetVertex(edgeVert1,pb );
+		getVertex(edgeVert0,pa );
+		getVertex(edgeVert1,pb );
 	}
 
 
 
 
 	
-	virtual	bool IsInside(const btPoint3& pt,btScalar tolerance) const
+	virtual	bool isInside(const btPoint3& pt,btScalar tolerance) const
 	{
-		btVector3 halfExtents = GetHalfExtents();
+		btVector3 halfExtents = getHalfExtents();
 
 		//btScalar minDist = 2*tolerance;
 		
@@ -251,7 +251,7 @@ public:
 
 
 	//debugging
-	virtual char*	GetName()const
+	virtual char*	getName()const
 	{
 		return "Box";
 	}

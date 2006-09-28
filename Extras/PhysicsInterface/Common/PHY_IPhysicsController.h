@@ -77,9 +77,9 @@ class PHY_IPhysicsController
 		virtual PHY_IPhysicsController*	GetReplica() {return 0;}
 
 		virtual void	calcXform() =0;
-		virtual void SetMargin(float margin) =0;
-		virtual float GetMargin() const=0;
-		virtual float GetRadius() const { return 0.f;}
+		virtual void setMargin(float margin) =0;
+		virtual float getMargin() const=0;
+		virtual float getRadius() const { return 0.f;}
 		PHY__Vector3	GetWorldPosition(PHY__Vector3& localpos);
 
 };

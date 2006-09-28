@@ -51,9 +51,9 @@ btManifoldResult::btManifoldResult(btCollisionObject* body0,btCollisionObject* b
 	}
 
 
-void btManifoldResult::AddContactPoint(const btVector3& normalOnBInWorld,const btVector3& pointInWorld,float depth)
+void btManifoldResult::addContactPoint(const btVector3& normalOnBInWorld,const btVector3& pointInWorld,float depth)
 {
-	if (depth > m_manifoldPtr->GetContactBreakingTreshold())
+	if (depth > m_manifoldPtr->getContactBreakingTreshold())
 		return;
 
 
@@ -69,14 +69,14 @@ void btManifoldResult::AddContactPoint(const btVector3& normalOnBInWorld,const b
 
 	
 
-	int insertIndex = m_manifoldPtr->GetCacheEntry(newPt);
+	int insertIndex = m_manifoldPtr->getCacheEntry(newPt);
 	if (insertIndex >= 0)
 	{
 
 // This is not needed, just use the old info!
-//		const btManifoldPoint& oldPoint = m_manifoldPtr->GetContactPoint(insertIndex);
+//		const btManifoldPoint& oldPoint = m_manifoldPtr->getContactPoint(insertIndex);
 //		newPt.CopyPersistentInformation(oldPoint);
-//		m_manifoldPtr->ReplaceContactPoint(newPt,insertIndex);
+//		m_manifoldPtr->replaceContactPoint(newPt,insertIndex);
 
 
 	} else

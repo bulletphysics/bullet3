@@ -69,7 +69,7 @@ class btTransformUtil
 
 public:
 
-	static void IntegrateTransform(const btTransform& curTrans,const btVector3& linvel,const btVector3& angvel,btScalar timeStep,btTransform& predictedTransform)
+	static void integrateTransform(const btTransform& curTrans,const btVector3& linvel,const btVector3& angvel,btScalar timeStep,btTransform& predictedTransform)
 	{
 		predictedTransform.setOrigin(curTrans.getOrigin() + linvel * timeStep);
 //	#define QUATERNION_DERIVATIVE
@@ -105,7 +105,7 @@ public:
 		predictedTransform.setRotation(predictedOrn);
 	}
 
-	static void	CalculateVelocity(const btTransform& transform0,const btTransform& transform1,btScalar timeStep,btVector3& linVel,btVector3& angVel)
+	static void	calculateVelocity(const btTransform& transform0,const btTransform& transform1,btScalar timeStep,btVector3& linVel,btVector3& angVel)
 	{
 		linVel = (transform1.getOrigin() - transform0.getOrigin()) / timeStep;
 #ifdef USE_QUATERNION_DIFF

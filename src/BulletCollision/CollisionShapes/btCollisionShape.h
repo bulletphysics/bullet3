@@ -34,50 +34,50 @@ public:
 	{
 	}
 
-	virtual void GetAabb(const btTransform& t,btVector3& aabbMin,btVector3& aabbMax) const =0;
+	virtual void getAabb(const btTransform& t,btVector3& aabbMin,btVector3& aabbMax) const =0;
 
-	virtual void	GetBoundingSphere(btVector3& center,btScalar& radius) const;
+	virtual void	getBoundingSphere(btVector3& center,btScalar& radius) const;
 
-	virtual float	GetAngularMotionDisc() const;
+	virtual float	getAngularMotionDisc() const;
 
-	virtual int		GetShapeType() const=0;
+	virtual int		getShapeType() const=0;
 
-	///CalculateTemporalAabb calculates the enclosing aabb for the moving object over interval [0..timeStep)
+	///calculateTemporalAabb calculates the enclosing aabb for the moving object over interval [0..timeStep)
 	///result is conservative
-	void CalculateTemporalAabb(const btTransform& curTrans,const btVector3& linvel,const btVector3& angvel,btScalar timeStep, btVector3& temporalAabbMin,btVector3& temporalAabbMax);
+	void calculateTemporalAabb(const btTransform& curTrans,const btVector3& linvel,const btVector3& angvel,btScalar timeStep, btVector3& temporalAabbMin,btVector3& temporalAabbMax);
 
-	inline bool	IsPolyhedral() const
+	inline bool	isPolyhedral() const
 	{
-		return btBroadphaseProxy::IsPolyhedral(GetShapeType());
+		return btBroadphaseProxy::isPolyhedral(getShapeType());
 	}
 
-	inline bool	IsConvex() const
+	inline bool	isConvex() const
 	{
-		return btBroadphaseProxy::IsConvex(GetShapeType());
+		return btBroadphaseProxy::isConvex(getShapeType());
 	}
-	inline bool	IsConcave() const
+	inline bool	isConcave() const
 	{
-		return btBroadphaseProxy::IsConcave(GetShapeType());
+		return btBroadphaseProxy::isConcave(getShapeType());
 	}
-	inline bool	IsCompound() const
+	inline bool	isCompound() const
 	{
-		return btBroadphaseProxy::IsCompound(GetShapeType());
+		return btBroadphaseProxy::isCompound(getShapeType());
 	}
 
 	virtual void	setLocalScaling(const btVector3& scaling) =0;
 	virtual const btVector3& getLocalScaling() const =0;
 
-	virtual void	CalculateLocalInertia(btScalar mass,btVector3& inertia) = 0;
+	virtual void	calculateLocalInertia(btScalar mass,btVector3& inertia) = 0;
 
 //debugging support
-	virtual char*	GetName()const =0 ;
-	const char* GetExtraDebugInfo() const { return m_tempDebug;}
-	void  SetExtraDebugInfo(const char* extraDebugInfo) { m_tempDebug = extraDebugInfo;}
+	virtual char*	getName()const =0 ;
+	const char* getExtraDebugInfo() const { return m_tempDebug;}
+	void  setExtraDebugInfo(const char* extraDebugInfo) { m_tempDebug = extraDebugInfo;}
 	const char * m_tempDebug;
 //endif debugging support
 
-	virtual void	SetMargin(float margin) = 0;
-	virtual float	GetMargin() const = 0;
+	virtual void	setMargin(float margin) = 0;
+	virtual float	getMargin() const = 0;
 
 };	
 

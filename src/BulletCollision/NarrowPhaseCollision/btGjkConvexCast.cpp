@@ -54,8 +54,8 @@ bool	btGjkConvexCast::calcTimeOfImpact(
 	trA.setOrigin(btPoint3(0,0,0));
 	trB.setOrigin(btPoint3(0,0,0));
 
-	convex->SetTransformA(trA);
-	convex->SetTransformB(trB);
+	convex->setTransformA(trA);
+	convex->setTransformB(trB);
 
 
 
@@ -82,13 +82,13 @@ bool	btGjkConvexCast::calcTimeOfImpact(
 	identityTrans.setIdentity();
 
 	btSphereShape	raySphere(0.0f);
-	raySphere.SetMargin(0.f);
+	raySphere.setMargin(0.f);
 
 	btTransform sphereTr;
 	sphereTr.setIdentity();
 	sphereTr.setOrigin( rayFromLocalA.getOrigin());
 
-	result.DrawCoordSystem(sphereTr);
+	result.drawCoordSystem(sphereTr);
 	{
 		btPointCollector	pointCollector1;
 		btGjkPairDetector gjk(&raySphere,convex,m_simplexSolver,penSolverPtr);		
@@ -96,7 +96,7 @@ bool	btGjkConvexCast::calcTimeOfImpact(
 		btGjkPairDetector::ClosestPointInput input;
 		input.m_transformA = sphereTr;
 		input.m_transformB = identityTrans;
-		gjk.GetClosestPoints(input,pointCollector1,0);
+		gjk.getClosestPoints(input,pointCollector1,0);
 
 		hasResult = pointCollector1.m_hasResult;
 		c = pointCollector1.m_pointInWorld;
@@ -134,13 +134,13 @@ bool	btGjkConvexCast::calcTimeOfImpact(
 			x = s + lambda * r;
 
 			sphereTr.setOrigin( x );
-			result.DrawCoordSystem(sphereTr);
+			result.drawCoordSystem(sphereTr);
 			btPointCollector	pointCollector;
 			btGjkPairDetector gjk(&raySphere,convex,m_simplexSolver,penSolverPtr);
 			btGjkPairDetector::ClosestPointInput input;
 			input.m_transformA = sphereTr;
 			input.m_transformB = identityTrans;
-			gjk.GetClosestPoints(input,pointCollector,0);
+			gjk.getClosestPoints(input,pointCollector,0);
 			if (pointCollector.m_hasResult)
 			{
 				if (pointCollector.m_distance < 0.f)

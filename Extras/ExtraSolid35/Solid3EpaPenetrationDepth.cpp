@@ -317,7 +317,7 @@ inline bool originInTetrahedron(const btVector3& p1, const btVector3& p2,
 
 
 
-bool Solid3EpaPenetrationDepth::CalcPenDepth( btSimplexSolverInterface& simplexSolver,
+bool Solid3EpaPenetrationDepth::calcPenDepth( btSimplexSolverInterface& simplexSolver,
 			btConvexShape* convexA,btConvexShape* convexB,
 			const btTransform& transformA,const btTransform& transformB,
 			btVector3& v, btPoint3& pa, btPoint3& pb)
@@ -348,16 +348,16 @@ bool Solid3EpaPenetrationDepth::CalcPenDepth( btSimplexSolverInterface& simplexS
 	    btVector3 aux2 = rot_mat * aux1;
 	    btVector3 aux3 = rot_mat * aux2;
 	    
-	    pBuf[2] = transformA(convexA->LocalGetSupportingVertex(aux1*transformA.getBasis()));
-		qBuf[2] = transformB(convexB->LocalGetSupportingVertex((-aux1)*transformB.getBasis()));
+	    pBuf[2] = transformA(convexA->localGetSupportingVertex(aux1*transformA.getBasis()));
+		qBuf[2] = transformB(convexB->localGetSupportingVertex((-aux1)*transformB.getBasis()));
 	    yBuf[2] = pBuf[2] - qBuf[2];
 	    
-	    pBuf[3] = transformA(convexA->LocalGetSupportingVertex(aux2*transformA.getBasis()));
-		qBuf[3] = transformB(convexB->LocalGetSupportingVertex((-aux2)*transformB.getBasis()));
+	    pBuf[3] = transformA(convexA->localGetSupportingVertex(aux2*transformA.getBasis()));
+		qBuf[3] = transformB(convexB->localGetSupportingVertex((-aux2)*transformB.getBasis()));
 	    yBuf[3] = pBuf[3] - qBuf[3];
 	    
-		pBuf[4] = transformA(convexA->LocalGetSupportingVertex(aux3*transformA.getBasis()));
-		qBuf[4] = transformB(convexB->LocalGetSupportingVertex((-aux3)*transformB.getBasis()));
+		pBuf[4] = transformA(convexA->localGetSupportingVertex(aux3*transformA.getBasis()));
+		qBuf[4] = transformB(convexB->localGetSupportingVertex((-aux3)*transformB.getBasis()));
 	    yBuf[4] = pBuf[4] - qBuf[4];
 	    
 	    if (originInTetrahedron(yBuf[0], yBuf[2], yBuf[3], yBuf[4])) 
@@ -391,11 +391,11 @@ bool Solid3EpaPenetrationDepth::CalcPenDepth( btSimplexSolverInterface& simplexS
 	    btVector3 v2     = yBuf[2] - yBuf[0];
 	    btVector3 vv     = v1.cross(v2);
 	    
-		pBuf[3] = transformA(convexA->LocalGetSupportingVertex(vv*transformA.getBasis()));
-		qBuf[3] = transformB(convexB->LocalGetSupportingVertex((-vv)*transformB.getBasis()));
+		pBuf[3] = transformA(convexA->localGetSupportingVertex(vv*transformA.getBasis()));
+		qBuf[3] = transformB(convexB->localGetSupportingVertex((-vv)*transformB.getBasis()));
 	    yBuf[3] = pBuf[3] - qBuf[3];
-		pBuf[4] = transformA(convexA->LocalGetSupportingVertex((-vv)*transformA.getBasis()));
-		qBuf[4] = transformB(convexB->LocalGetSupportingVertex(vv*transformB.getBasis()));
+		pBuf[4] = transformA(convexA->localGetSupportingVertex((-vv)*transformA.getBasis()));
+		qBuf[4] = transformB(convexB->localGetSupportingVertex(vv*transformB.getBasis()));
 	    yBuf[4] = pBuf[4] - qBuf[4];
 	    
 	   
@@ -481,8 +481,8 @@ bool Solid3EpaPenetrationDepth::CalcPenDepth( btSimplexSolverInterface& simplexS
 				break;
 			}
 			
-			pBuf[num_verts] = transformA(convexA->LocalGetSupportingVertex((facet->getClosest())*transformA.getBasis()));
-			qBuf[num_verts] = transformB(convexB->LocalGetSupportingVertex((-facet->getClosest())*transformB.getBasis()));
+			pBuf[num_verts] = transformA(convexA->localGetSupportingVertex((facet->getClosest())*transformA.getBasis()));
+			qBuf[num_verts] = transformB(convexB->localGetSupportingVertex((-facet->getClosest())*transformB.getBasis()));
 			yBuf[num_verts] = pBuf[num_verts] - qBuf[num_verts];
 			
 

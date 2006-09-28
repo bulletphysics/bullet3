@@ -32,7 +32,7 @@ btStaticPlaneShape::~btStaticPlaneShape()
 
 
 
-void btStaticPlaneShape::GetAabb(const btTransform& t,btVector3& aabbMin,btVector3& aabbMax) const
+void btStaticPlaneShape::getAabb(const btTransform& t,btVector3& aabbMin,btVector3& aabbMax) const
 {
 	btVector3 infvec (1e30f,1e30f,1e30f);
 
@@ -50,7 +50,7 @@ void btStaticPlaneShape::GetAabb(const btTransform& t,btVector3& aabbMin,btVecto
 
 
 
-void	btStaticPlaneShape::ProcessAllTriangles(btTriangleCallback* callback,const btVector3& aabbMin,const btVector3& aabbMax) const
+void	btStaticPlaneShape::processAllTriangles(btTriangleCallback* callback,const btVector3& aabbMin,const btVector3& aabbMax) const
 {
 
 	btVector3 halfExtents = (aabbMax - aabbMin) * 0.5f;
@@ -73,17 +73,17 @@ void	btStaticPlaneShape::ProcessAllTriangles(btTriangleCallback* callback,const 
 	triangle[1] = projectedCenter + tangentDir0*radius - tangentDir1*radius;
 	triangle[2] = projectedCenter - tangentDir0*radius - tangentDir1*radius;
 
-	callback->ProcessTriangle(triangle,0,0);
+	callback->processTriangle(triangle,0,0);
 
 	triangle[0] = projectedCenter - tangentDir0*radius - tangentDir1*radius;
 	triangle[1] = projectedCenter - tangentDir0*radius + tangentDir1*radius;
 	triangle[2] = projectedCenter + tangentDir0*radius + tangentDir1*radius;
 
-	callback->ProcessTriangle(triangle,0,1);
+	callback->processTriangle(triangle,0,1);
 
 }
 
-void	btStaticPlaneShape::CalculateLocalInertia(btScalar mass,btVector3& inertia)
+void	btStaticPlaneShape::calculateLocalInertia(btScalar mass,btVector3& inertia)
 {
 	//moving concave objects not supported
 	

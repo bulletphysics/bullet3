@@ -71,7 +71,7 @@ void SimplexDemo::displayCallback()
 	glClear(GL_COLOR_BUFFER_BIT | GL_DEPTH_BUFFER_BIT); 
 	glDisable(GL_LIGHTING);
 
-	GL_ShapeDrawer::DrawCoordSystem();
+	GL_ShapeDrawer::drawCoordSystem();
 
 	float m[16];
 	int i;
@@ -88,10 +88,10 @@ void SimplexDemo::displayCallback()
 		transA.getOpenGLMatrix( m );
 
 		/// draw the simplex
-		GL_ShapeDrawer::DrawOpenGL(m,shapePtr[i],btVector3(1,1,1),getDebugMode());
+		GL_ShapeDrawer::drawOpenGL(m,shapePtr[i],btVector3(1,1,1),getDebugMode());
 
 		/// calculate closest point from simplex to the origin, and draw this vector
-		simplex.CalcClosest(m);
+		simplex.calcClosest(m);
 
 	}
 	pitch += 0.005f;
@@ -104,12 +104,12 @@ void SimplexDemo::displayCallback()
 void	SimplexDemo::initPhysics()
 {
 
-	simplex.SetSimplexSolver(&simplexSolver);
+	simplex.setSimplexSolver(&simplexSolver);
 
-	simplex.AddVertex(btPoint3(-2,0,-2));
-	simplex.AddVertex(btPoint3(2,0,-2));
-	simplex.AddVertex(btPoint3(0,0,2));
-	simplex.AddVertex(btPoint3(0,2,0));
+	simplex.addVertex(btPoint3(-2,0,-2));
+	simplex.addVertex(btPoint3(2,0,-2));
+	simplex.addVertex(btPoint3(0,0,2));
+	simplex.addVertex(btPoint3(0,2,0));
 
 	shapePtr[0] = &simplex;
 

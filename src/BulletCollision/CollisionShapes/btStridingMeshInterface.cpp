@@ -56,7 +56,7 @@ void	btStridingMeshInterface::InternalProcessAllTriangles(btInternalTriangleInde
 					triangle[1].setValue(graphicsbase[0]*meshScaling.getX(),graphicsbase[1]*meshScaling.getY(),	graphicsbase[2]*meshScaling.getZ());
 					graphicsbase = (float*)(vertexbase+tri_indices[2]*stride);
 					triangle[2].setValue(graphicsbase[0]*meshScaling.getX(),graphicsbase[1]*meshScaling.getY(),	graphicsbase[2]*meshScaling.getZ());
-					callback->InternalProcessTriangleIndex(triangle,part,gfxindex);
+					callback->internalProcessTriangleIndex(triangle,part,gfxindex);
 				}
 				break;
 			}
@@ -71,7 +71,7 @@ void	btStridingMeshInterface::InternalProcessAllTriangles(btInternalTriangleInde
 					triangle[1].setValue(graphicsbase[0]*meshScaling.getX(),graphicsbase[1]*meshScaling.getY(),	graphicsbase[2]*meshScaling.getZ());
 					graphicsbase = (float*)(vertexbase+tri_indices[2]*stride);
 					triangle[2].setValue(graphicsbase[0]*meshScaling.getX(),graphicsbase[1]*meshScaling.getY(),	graphicsbase[2]*meshScaling.getZ());
-					callback->InternalProcessTriangleIndex(triangle,part,gfxindex);
+					callback->internalProcessTriangleIndex(triangle,part,gfxindex);
 				}
 				break;
 			}

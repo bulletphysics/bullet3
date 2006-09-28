@@ -46,7 +46,7 @@ struct btDebugCastResult : public btConvexCast::CastResult
 	{
 	}
 
-	virtual void DrawCoordSystem(const btTransform& tr)  
+	virtual void drawCoordSystem(const btTransform& tr)  
 	{
 		float m[16];
 		tr.getOpenGLMatrix(m);
@@ -71,9 +71,9 @@ struct btDebugCastResult : public btConvexCast::CastResult
 	
 		float m[16];
 		btTransform hitTrans;
-		btTransformUtil::IntegrateTransform(m_fromTrans,m_linVel,m_angVel,fraction,hitTrans);
+		btTransformUtil::integrateTransform(m_fromTrans,m_linVel,m_angVel,fraction,hitTrans);
 		hitTrans.getOpenGLMatrix(m);
-		GL_ShapeDrawer::DrawOpenGL(m,m_shape,btVector3(1,0,0),btIDebugDraw::DBG_NoDebug);
+		GL_ShapeDrawer::drawOpenGL(m,m_shape,btVector3(1,0,0),btIDebugDraw::DBG_NoDebug);
 	
 	}
 };

@@ -126,7 +126,7 @@ void	UserCollisionAlgorithm::initPhysics()
 		
 	btVector3 maxAabb(10000,10000,10000);
 	btOverlappingPairCache* broadphase = new btAxisSweep3(-maxAabb,maxAabb);//SimpleBroadphase();
-	dispatcher->RegisterCollisionCreateFunc(SPHERE_SHAPE_PROXYTYPE,SPHERE_SHAPE_PROXYTYPE,new btSphereSphereCollisionAlgorithm::CreateFunc);
+	dispatcher->registerCollisionCreateFunc(SPHERE_SHAPE_PROXYTYPE,SPHERE_SHAPE_PROXYTYPE,new btSphereSphereCollisionAlgorithm::CreateFunc);
 	
 
 	m_physicsEnvironmentPtr = new CcdPhysicsEnvironment(dispatcher,broadphase);
@@ -137,16 +137,16 @@ void	UserCollisionAlgorithm::initPhysics()
 	startTransform.setIdentity();
 	startTransform.setOrigin(btVector3(0,-2,0));
 
-	CcdPhysicsController* staticTrimesh = LocalCreatePhysicsObject(isDynamic, mass, startTransform,trimeshShape);
+	CcdPhysicsController* staticTrimesh = localCreatePhysicsObject(isDynamic, mass, startTransform,trimeshShape);
 	//enable custom material callback
-	staticTrimesh->GetRigidBody()->m_collisionFlags |= btCollisionObject::customMaterialCallback;
+	staticTrimesh->getRigidBody()->m_collisionFlags |= btCollisionObject::customMaterialCallback;
 
 	{
 		for (int i=0;i<10;i++)
 		{
 			btCollisionShape* sphereShape = new btSphereShape(1);
 			startTransform.setOrigin(btVector3(1,2*i,1));
-			LocalCreatePhysicsObject(true, 1, startTransform,sphereShape);
+			localCreatePhysicsObject(true, 1, startTransform,sphereShape);
 		}
 	}
 	m_physicsEnvironmentPtr->setGravity(-1,-10,1);

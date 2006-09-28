@@ -26,7 +26,7 @@ btTriangleIndexVertexArray::btTriangleIndexVertexArray(int numTriangles,int* tri
 	mesh.m_vertexBase = vertexBase;
 	mesh.m_vertexStride = vertexStride;
 	
-	AddIndexedMesh(mesh);
+	addIndexedMesh(mesh);
 
 }
 

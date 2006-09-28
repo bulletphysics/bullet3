@@ -70,7 +70,7 @@ btSimpleBroadphase::~btSimpleBroadphase()
 }
 
 
-btBroadphaseProxy*	btSimpleBroadphase::CreateProxy(  const btVector3& min,  const btVector3& max,int shapeType,void* userPtr ,short int collisionFilterGroup,short int collisionFilterMask)
+btBroadphaseProxy*	btSimpleBroadphase::createProxy(  const btVector3& min,  const btVector3& max,int shapeType,void* userPtr ,short int collisionFilterGroup,short int collisionFilterMask)
 {
 	if (m_numProxies >= m_maxProxies)
 	{
@@ -98,7 +98,7 @@ btBroadphaseProxy*	btSimpleBroadphase::CreateProxy(  const btVector3& min,  cons
 class	RemovingOverlapCallback : public btOverlapCallback
 {
 protected:
-	virtual bool	ProcessOverlap(btBroadphasePair& pair)
+	virtual bool	processOverlap(btBroadphasePair& pair)
 	{
 		assert(0);
 	}
@@ -113,7 +113,7 @@ class RemovePairContainingProxy
 	{
 	}
 protected:
-	virtual bool ProcessOverlap(btBroadphasePair& pair)
+	virtual bool processOverlap(btBroadphasePair& pair)
 	{
 		btSimpleBroadphaseProxy* proxy0 = static_cast<btSimpleBroadphaseProxy*>(pair.m_pProxy0);
 		btSimpleBroadphaseProxy* proxy1 = static_cast<btSimpleBroadphaseProxy*>(pair.m_pProxy1);
@@ -122,7 +122,7 @@ protected:
 	};
 };
 
-void	btSimpleBroadphase::DestroyProxy(btBroadphaseProxy* proxyOrg)
+void	btSimpleBroadphase::destroyProxy(btBroadphaseProxy* proxyOrg)
 {
 		
 		int i;
@@ -134,7 +134,7 @@ void	btSimpleBroadphase::DestroyProxy(btBroadphaseProxy* proxyOrg)
 		assert (index < m_maxProxies);
 		m_freeProxies[--m_firstFreeProxy] = index;
 
-		//RemoveOverlappingPairsContainingProxy(proxyOrg);
+		//removeOverlappingPairsContainingProxy(proxyOrg);
 
 		assert(0);
 		//then remove non-overlapping ones
@@ -142,11 +142,11 @@ void	btSimpleBroadphase::DestroyProxy(btBroadphaseProxy* proxyOrg)
 		{
 			btBroadphasePair& pair = GetOverlappingPair(i);
 
-			btSimpleBroadphaseProxy* proxy0 = GetSimpleProxyFromProxy(pair.m_pProxy0);
-			btSimpleBroadphaseProxy* proxy1 = GetSimpleProxyFromProxy(pair.m_pProxy1);
+			btSimpleBroadphaseProxy* proxy0 = getSimpleProxyFromProxy(pair.m_pProxy0);
+			btSimpleBroadphaseProxy* proxy1 = getSimpleProxyFromProxy(pair.m_pProxy1);
 			if ((proxy0==proxyOrg) || (proxy1==proxyOrg))
 			{
-				RemoveOverlappingPair(pair);
+				removeOverlappingPair(pair);
 			}
 		}
 		*/
@@ -167,9 +167,9 @@ void	btSimpleBroadphase::DestroyProxy(btBroadphaseProxy* proxyOrg)
 		
 }
 
-void	btSimpleBroadphase::SetAabb(btBroadphaseProxy* proxy,const btVector3& aabbMin,const btVector3& aabbMax)
+void	btSimpleBroadphase::setAabb(btBroadphaseProxy* proxy,const btVector3& aabbMin,const btVector3& aabbMax)
 {
-	btSimpleBroadphaseProxy* sbp = GetSimpleProxyFromProxy(proxy);
+	btSimpleBroadphaseProxy* sbp = getSimpleProxyFromProxy(proxy);
 	sbp->m_min = aabbMin;
 	sbp->m_max = aabbMax;
 }
@@ -182,7 +182,7 @@ void	btSimpleBroadphase::SetAabb(btBroadphaseProxy* proxy,const btVector3& aabbM
 
 
 
-bool	btSimpleBroadphase::AabbOverlap(btSimpleBroadphaseProxy* proxy0,btSimpleBroadphaseProxy* proxy1)
+bool	btSimpleBroadphase::aabbOverlap(btSimpleBroadphaseProxy* proxy0,btSimpleBroadphaseProxy* proxy1)
 {
 	return proxy0->m_min[0] <= proxy1->m_max[0] && proxy1->m_min[0] <= proxy0->m_max[0] && 
 		   proxy0->m_min[1] <= proxy1->m_max[1] && proxy1->m_min[1] <= proxy0->m_max[1] &&
@@ -196,13 +196,13 @@ bool	btSimpleBroadphase::AabbOverlap(btSimpleBroadphaseProxy* proxy0,btSimpleBro
 class CheckOverlapCallback : public btOverlapCallback
 {
 public:
-	virtual bool ProcessOverlap(btBroadphasePair& pair)
+	virtual bool processOverlap(btBroadphasePair& pair)
 	{
-		return (!btSimpleBroadphase::AabbOverlap(static_cast<btSimpleBroadphaseProxy*>(pair.m_pProxy0),static_cast<btSimpleBroadphaseProxy*>(pair.m_pProxy1)));
+		return (!btSimpleBroadphase::aabbOverlap(static_cast<btSimpleBroadphaseProxy*>(pair.m_pProxy0),static_cast<btSimpleBroadphaseProxy*>(pair.m_pProxy1)));
 	}
 };
 
-void	btSimpleBroadphase::RefreshOverlappingPairs()
+void	btSimpleBroadphase::refreshOverlappingPairs()
 {
 	//first check for new overlapping pairs
 	int i,j;
@@ -213,14 +213,14 @@ void	btSimpleBroadphase::RefreshOverlappingPairs()
 		for (j=i+1;j<m_numProxies;j++)
 		{
 			btBroadphaseProxy* proxy1 = m_pProxies[j];
-			btSimpleBroadphaseProxy* p0 = GetSimpleProxyFromProxy(proxy0);
-			btSimpleBroadphaseProxy* p1 = GetSimpleProxyFromProxy(proxy1);
+			btSimpleBroadphaseProxy* p0 = getSimpleProxyFromProxy(proxy0);
+			btSimpleBroadphaseProxy* p1 = getSimpleProxyFromProxy(proxy1);
 
-			if (AabbOverlap(p0,p1))
+			if (aabbOverlap(p0,p1))
 			{
-				if ( !FindPair(proxy0,proxy1))
+				if ( !findPair(proxy0,proxy1))
 				{
-					AddOverlappingPair(proxy0,proxy1);
+					addOverlappingPair(proxy0,proxy1);
 				}
 			}
 
@@ -230,7 +230,7 @@ void	btSimpleBroadphase::RefreshOverlappingPairs()
 
 	CheckOverlapCallback	checkOverlap;
 
-	ProcessAllOverlappingPairs(&checkOverlap);
+	processAllOverlappingPairs(&checkOverlap);
 
 
 }

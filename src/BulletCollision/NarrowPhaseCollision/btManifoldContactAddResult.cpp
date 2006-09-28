@@ -25,9 +25,9 @@ btManifoldContactAddResult::btManifoldContactAddResult(btTransform transA,btTran
 }
 
 
-void btManifoldContactAddResult::AddContactPoint(const btVector3& normalOnBInWorld,const btVector3& pointInWorld,float depth)
+void btManifoldContactAddResult::addContactPoint(const btVector3& normalOnBInWorld,const btVector3& pointInWorld,float depth)
 {
-	if (depth > m_manifoldPtr->GetContactBreakingTreshold())
+	if (depth > m_manifoldPtr->getContactBreakingTreshold())
 		return;
 
 
@@ -36,10 +36,10 @@ void btManifoldContactAddResult::AddContactPoint(const btVector3& normalOnBInWor
 	btVector3 localB = m_transBInv(pointInWorld);
 	btManifoldPoint newPt(localA,localB,normalOnBInWorld,depth);
 
-	int insertIndex = m_manifoldPtr->GetCacheEntry(newPt);
+	int insertIndex = m_manifoldPtr->getCacheEntry(newPt);
 	if (insertIndex >= 0)
 	{
-		m_manifoldPtr->ReplaceContactPoint(newPt,insertIndex);
+		m_manifoldPtr->replaceContactPoint(newPt,insertIndex);
 	} else
 	{
 		m_manifoldPtr->AddManifoldPoint(newPt);

@@ -60,7 +60,7 @@ void btRigidBody::setLinearVelocity(const btVector3& lin_vel)
 
 void btRigidBody::predictIntegratedTransform(btScalar timeStep,btTransform& predictedTransform) const
 {
-	btTransformUtil::IntegrateTransform(m_worldTransform,m_linearVelocity,m_angularVelocity,timeStep,predictedTransform);
+	btTransformUtil::integrateTransform(m_worldTransform,m_linearVelocity,m_angularVelocity,timeStep,predictedTransform);
 }
 
 void			btRigidBody::saveKinematicState(btScalar timeStep)
@@ -69,7 +69,7 @@ void			btRigidBody::saveKinematicState(btScalar timeStep)
 	if (m_kinematicTimeStep)
 	{
 		btVector3 linVel,angVel;
-		btTransformUtil::CalculateVelocity(m_interpolationWorldTransform,m_worldTransform,m_kinematicTimeStep,m_linearVelocity,m_angularVelocity);
+		btTransformUtil::calculateVelocity(m_interpolationWorldTransform,m_worldTransform,m_kinematicTimeStep,m_linearVelocity,m_angularVelocity);
 		//printf("angular = %f %f %f\n",m_angularVelocity.getX(),m_angularVelocity.getY(),m_angularVelocity.getZ());
 	}
 	
@@ -81,7 +81,7 @@ void			btRigidBody::saveKinematicState(btScalar timeStep)
 	
 void	btRigidBody::getAabb(btVector3& aabbMin,btVector3& aabbMax) const
 {
-	GetCollisionShape()->GetAabb(m_worldTransform,aabbMin,aabbMax);
+	getCollisionShape()->getAabb(m_worldTransform,aabbMin,aabbMax);
 }
 
 

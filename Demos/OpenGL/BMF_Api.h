@@ -98,7 +98,7 @@ void BMF_GetBoundingBox(BMF_Font* font, int *xmin_r, int *ymin_r, int *xmax_r, i
 /**
  * Convert the given @a font to a texture, and return the GL texture
  * ID of the texture. If the texture ID is bound, text can
- * be drawn using the texture by calling DrawStringTexture.
+ * be drawn using the texture by calling drawStringTexture.
  * 
  * @param font The font to create the texture from.
  * @return The GL texture ID of the new texture, or -1 if unable
@@ -109,7 +109,7 @@ int BMF_GetFontTexture(BMF_Font* font);
 /**
  * Draw the given @a str at the point @a x, @a y, @a z, using
  * texture coordinates. This assumes that an appropriate texture
- * has been bound, see BMF_BitmapFont::GetTexture(). The string
+ * has been bound, see BMF_BitmapFont::getTexture(). The string
  * is drawn along the positive X axis.
  * 
  * @param font The font to draw with.

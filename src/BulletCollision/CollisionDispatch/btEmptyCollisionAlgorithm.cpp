@@ -22,12 +22,12 @@ btEmptyAlgorithm::btEmptyAlgorithm(const btCollisionAlgorithmConstructionInfo& c
 {
 }
 
-void btEmptyAlgorithm::ProcessCollision (btBroadphaseProxy* proxy0,btBroadphaseProxy* proxy1,const btDispatcherInfo& dispatchInfo)
+void btEmptyAlgorithm::processCollision (btBroadphaseProxy* proxy0,btBroadphaseProxy* proxy1,const btDispatcherInfo& dispatchInfo)
 {
 
 }
 
-float btEmptyAlgorithm::CalculateTimeOfImpact(btBroadphaseProxy* proxy0,btBroadphaseProxy* proxy1,const btDispatcherInfo& dispatchInfo)
+float btEmptyAlgorithm::calculateTimeOfImpact(btBroadphaseProxy* proxy0,btBroadphaseProxy* proxy1,const btDispatcherInfo& dispatchInfo)
 {
 	return 1.f;
 }

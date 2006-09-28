@@ -49,11 +49,11 @@ bool	btContinuousConvexCollision::calcTimeOfImpact(
 
 	/// compute linear and angular velocity for this interval, to interpolate
 	btVector3 linVelA,angVelA,linVelB,angVelB;
-	btTransformUtil::CalculateVelocity(fromA,toA,1.f,linVelA,angVelA);
-	btTransformUtil::CalculateVelocity(fromB,toB,1.f,linVelB,angVelB);
+	btTransformUtil::calculateVelocity(fromA,toA,1.f,linVelA,angVelA);
+	btTransformUtil::calculateVelocity(fromB,toB,1.f,linVelB,angVelB);
 
-	btScalar boundingRadiusA = m_convexA->GetAngularMotionDisc();
-	btScalar boundingRadiusB = m_convexB->GetAngularMotionDisc();
+	btScalar boundingRadiusA = m_convexA->getAngularMotionDisc();
+	btScalar boundingRadiusB = m_convexB->getAngularMotionDisc();
 
 	btScalar maxAngularProjectedVelocity = angVelA.length() * boundingRadiusA + angVelB.length() * boundingRadiusB;
 
@@ -80,10 +80,10 @@ bool	btContinuousConvexCollision::calcTimeOfImpact(
 	identityTrans.setIdentity();
 
 	btSphereShape	raySphere(0.0f);
-	raySphere.SetMargin(0.f);
+	raySphere.setMargin(0.f);
 
 
-//	result.DrawCoordSystem(sphereTr);
+//	result.drawCoordSystem(sphereTr);
 
 	btPointCollector	pointCollector1;
 
@@ -93,11 +93,11 @@ bool	btContinuousConvexCollision::calcTimeOfImpact(
 		btGjkPairDetector::ClosestPointInput input;
 	
 		//we don't use margins during CCD
-		gjk.SetIgnoreMargin(true);
+		gjk.setIgnoreMargin(true);
 
 		input.m_transformA = fromA;
 		input.m_transformB = fromB;
-		gjk.GetClosestPoints(input,pointCollector1,0);
+		gjk.getClosestPoints(input,pointCollector1,0);
 
 		hasResult = pointCollector1.m_hasResult;
 		c = pointCollector1.m_pointInWorld;
@@ -145,8 +145,8 @@ bool	btContinuousConvexCollision::calcTimeOfImpact(
 			//interpolate to next lambda
 			btTransform interpolatedTransA,interpolatedTransB,relativeTrans;
 
-			btTransformUtil::IntegrateTransform(fromA,linVelA,angVelA,lambda,interpolatedTransA);
-			btTransformUtil::IntegrateTransform(fromB,linVelB,angVelB,lambda,interpolatedTransB);
+			btTransformUtil::integrateTransform(fromA,linVelA,angVelA,lambda,interpolatedTransA);
+			btTransformUtil::integrateTransform(fromB,linVelB,angVelB,lambda,interpolatedTransB);
 			relativeTrans = interpolatedTransB.inverseTimes(interpolatedTransA);
 
 			result.DebugDraw( lambda );
@@ -156,7 +156,7 @@ bool	btContinuousConvexCollision::calcTimeOfImpact(
 			btGjkPairDetector::ClosestPointInput input;
 			input.m_transformA = interpolatedTransA;
 			input.m_transformB = interpolatedTransB;
-			gjk.GetClosestPoints(input,pointCollector,0);
+			gjk.getClosestPoints(input,pointCollector,0);
 			if (pointCollector.m_hasResult)
 			{
 				if (pointCollector.m_distance < 0.f)

@@ -30,7 +30,7 @@ public:
 
 	btManifoldContactAddResult(btTransform transA,btTransform transB,btPersistentManifold* manifoldPtr);
 
-	virtual void AddContactPoint(const btVector3& normalOnBInWorld,const btVector3& pointInWorld,float depth);
+	virtual void addContactPoint(const btVector3& normalOnBInWorld,const btVector3& pointInWorld,float depth);
 
 };
 
