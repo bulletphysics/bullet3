@@ -19,42 +19,42 @@ subject to the following restrictions:
 #include "BulletCollision/BroadphaseCollision/btCollisionAlgorithm.h"
 #include "BulletCollision/BroadphaseCollision/btBroadphaseProxy.h"
 #include "BulletCollision/CollisionDispatch/btCollisionCreateFunc.h"
-class PersistentManifold;
-#include "LinearMath/SimdVector3.h"
+class btPersistentManifold;
+#include "LinearMath/btVector3.h"
 
-/// SphereBoxCollisionAlgorithm  provides sphere-box collision detection.
+/// btSphereBoxCollisionAlgorithm  provides sphere-box collision detection.
 /// Other features are frame-coherency (persistent data) and collision response.
-class SphereBoxCollisionAlgorithm : public CollisionAlgorithm
+class btSphereBoxCollisionAlgorithm : public btCollisionAlgorithm
 {
 	bool	m_ownManifold;
-	PersistentManifold*	m_manifoldPtr;
-	CollisionObject*	m_boxColObj;
-	CollisionObject*	m_sphereColObj;
+	btPersistentManifold*	m_manifoldPtr;
+	btCollisionObject*	m_boxColObj;
+	btCollisionObject*	m_sphereColObj;
 	
 public:
 
-	SphereBoxCollisionAlgorithm(PersistentManifold* mf,const CollisionAlgorithmConstructionInfo& ci,BroadphaseProxy* proxy0,BroadphaseProxy* proxy1);
+	btSphereBoxCollisionAlgorithm(btPersistentManifold* mf,const btCollisionAlgorithmConstructionInfo& ci,btBroadphaseProxy* proxy0,btBroadphaseProxy* proxy1);
 
-	virtual ~SphereBoxCollisionAlgorithm();
+	virtual ~btSphereBoxCollisionAlgorithm();
 
-	virtual void ProcessCollision (BroadphaseProxy* proxy0,BroadphaseProxy* proxy1,const DispatcherInfo& dispatchInfo);
+	virtual void processCollision (btBroadphaseProxy* proxy0,btBroadphaseProxy* proxy1,const struct btDispatcherInfo& dispatchInfo);
 
-	virtual float CalculateTimeOfImpact(BroadphaseProxy* proxy0,BroadphaseProxy* proxy1,const DispatcherInfo& dispatchInfo);
+	virtual float calculateTimeOfImpact(btBroadphaseProxy* proxy0,btBroadphaseProxy* proxy1,const struct btDispatcherInfo& dispatchInfo);
+
+	btScalar getSphereDistance( btVector3& v3PointOnBox, btVector3& v3PointOnSphere, const btVector3& v3SphereCenter, btScalar fRadius );
+
+	btScalar getSpherePenetration( btVector3& v3PointOnBox, btVector3& v3PointOnSphere, const btVector3& v3SphereCenter, btScalar fRadius, const btVector3& aabbMin, const btVector3& aabbMax);
 	
-	SimdScalar GetSphereDistance( SimdVector3& v3PointOnBox, SimdVector3& v3PointOnSphere, const SimdVector3& v3SphereCenter, SimdScalar fRadius );
-
-	SimdScalar GetSpherePenetration( SimdVector3& v3PointOnBox, SimdVector3& v3PointOnSphere, const SimdVector3& v3SphereCenter, SimdScalar fRadius, const SimdVector3& aabbMin, const SimdVector3& aabbMax);
-	
-	struct CreateFunc :public 	CollisionAlgorithmCreateFunc
+	struct CreateFunc :public 	btCollisionAlgorithmCreateFunc
 	{
-		virtual	CollisionAlgorithm* CreateCollisionAlgorithm(CollisionAlgorithmConstructionInfo& ci, BroadphaseProxy* proxy0,BroadphaseProxy* proxy1)
+		virtual	btCollisionAlgorithm* CreateCollisionAlgorithm(btCollisionAlgorithmConstructionInfo& ci, btBroadphaseProxy* proxy0,btBroadphaseProxy* proxy1)
 		{
 			if (!m_swapped)
 			{
-				return new SphereBoxCollisionAlgorithm(0,ci,proxy0,proxy1);
+				return new btSphereBoxCollisionAlgorithm(0,ci,proxy0,proxy1);
 			} else
 			{
-				return new SphereBoxCollisionAlgorithm(0,ci,proxy1,proxy0);
+				return new btSphereBoxCollisionAlgorithm(0,ci,proxy1,proxy0);
 			}
 		}
 	};
