@@ -4,6 +4,6 @@ ${BULLET_PHYSICS_SOURCE_DIR}/src }
 )
 
 ADD_LIBRARY(LibLinearMath
-GenQuickprof.cpp
+btQuickprof.cpp
 )
 

@@ -31,11 +31,11 @@ class BP_Proxy;
 ///todo: fill all the empty CcdPhysicsController methods, hook them up to the btRigidBody class
 
 //'temporarily' global variables
-float	gDeactivationTime = 2.f;
-bool	gDisableDeactivation = false;
+extern float	gDeactivationTime;
+extern bool	gDisableDeactivation;
 
-float gLinearSleepingTreshold = 0.8f;
-float gAngularSleepingTreshold = 1.0f;
+extern float gLinearSleepingTreshold;
+extern float gAngularSleepingTreshold;
 
 #include "BulletDynamics/Dynamics/btMassProps.h"
 

@@ -20,7 +20,12 @@ subject to the following restrictions:
 #include <LinearMath/btTransformUtil.h>
 
 float gLinearAirDamping = 1.f;
+//'temporarily' global variables
+float	gDeactivationTime = 2.f;
+bool	gDisableDeactivation = false;
 
+float gLinearSleepingTreshold = 0.8f;
+float gAngularSleepingTreshold = 1.0f;
 static int uniqueId = 0;
 
 btRigidBody::btRigidBody( const btMassProps& massProps,btScalar linearDamping,btScalar angularDamping,btScalar friction,btScalar restitution)
