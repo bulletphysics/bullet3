@@ -874,6 +874,80 @@ void DemoApplication::renderme()
 
 			GL_ShapeDrawer::drawOpenGL(m,colObj->m_collisionShape,wireColor,getDebugMode());
 		}
+
+
+			float xOffset = 10.f;
+			float yStart = 20.f;
+			float yIncr = -2.f;
+			char buf[124];
+
+			glColor3f(0, 0, 0);
+
+		
+			glRasterPos3f(xOffset,yStart,0);
+			sprintf(buf,"mouse to interact");
+			BMF_DrawString(BMF_GetFont(BMF_kHelvetica10),buf);
+			yStart += yIncr;
+
+		/*	glRasterPos3f(xOffset,yStart,0);
+			sprintf(buf,"space to reset");
+			BMF_DrawString(BMF_GetFont(BMF_kHelvetica10),buf);
+			yStart += yIncr;
+		*/
+			glRasterPos3f(xOffset,yStart,0);
+			sprintf(buf,"cursor keys and z,x to navigate");
+			BMF_DrawString(BMF_GetFont(BMF_kHelvetica10),buf);
+			yStart += yIncr;
+
+			glRasterPos3f(xOffset,yStart,0);
+			sprintf(buf,"i to toggle simulation, s single step");
+			BMF_DrawString(BMF_GetFont(BMF_kHelvetica10),buf);
+			yStart += yIncr;
+
+			glRasterPos3f(xOffset,yStart,0);
+			sprintf(buf,"q to quit");
+			BMF_DrawString(BMF_GetFont(BMF_kHelvetica10),buf);
+			yStart += yIncr;
+
+			glRasterPos3f(xOffset,yStart,0);
+			sprintf(buf,". to shoot box");
+			BMF_DrawString(BMF_GetFont(BMF_kHelvetica10),buf);
+			yStart += yIncr;
+
+			// not yet hooked up again after refactoring...
+
+/*			glRasterPos3f(xOffset,yStart,0);
+			sprintf(buf,"d to toggle deactivation");
+			BMF_DrawString(BMF_GetFont(BMF_kHelvetica10),buf);
+			yStart += yIncr;
+*/
+
+		/*	
+			glRasterPos3f(xOffset,yStart,0);
+			sprintf(buf,"a to draw temporal AABBs");
+			BMF_DrawString(BMF_GetFont(BMF_kHelvetica10),buf);
+			yStart += yIncr;
+		*/
+
+			glRasterPos3f(xOffset,yStart,0);
+			sprintf(buf,"h to toggle help text");
+			BMF_DrawString(BMF_GetFont(BMF_kHelvetica10),buf);
+			yStart += yIncr;
+
+			bool useBulletLCP = !(getDebugMode() & btIDebugDraw::DBG_DisableBulletLCP);
+
+			bool useCCD = (getDebugMode() & btIDebugDraw::DBG_EnableCCD);
+
+			glRasterPos3f(xOffset,yStart,0);
+			sprintf(buf,"1 CCD mode (adhoc) = %i",useCCD);
+			BMF_DrawString(BMF_GetFont(BMF_kHelvetica10),buf);
+			yStart += yIncr;
+
+			glRasterPos3f(xOffset,yStart,0);
+			sprintf(buf,"+- shooting speed = %10.2f",m_ShootBoxInitialSpeed);
+			BMF_DrawString(BMF_GetFont(BMF_kHelvetica10),buf);
+			yStart += yIncr;
+		
 	}
 
 	if (m_physicsEnvironmentPtr)
