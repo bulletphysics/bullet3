@@ -181,7 +181,7 @@ bool	SimulationIsland::Simulate(btIDebugDraw* debugDrawer,int numSolverIteration
 	}
 	*/
 
-	//OverlappingPairCache*	scene = getCollisionWorld()->getPairCache();
+	//btOverlappingPairCache*	scene = getCollisionWorld()->getPairCache();
 	
 	btContactSolverInfo	solverInfo;
 
@@ -449,10 +449,13 @@ void	SimulationIsland::UpdateAabbs(btIDebugDraw* debugDrawer,btBroadphaseInterfa
 						if (reportMe)
 						{
 							reportMe = false;
+							assert(0);
+							/*
 							printf("Overflow in AABB, object removed from simulation \n");
 							printf("If you can reproduce this, please email bugs@continuousphysics.com\n");
 							printf("Please include above information, your Platform, version of OS.\n");
 							printf("Thanks.\n");
+							*/
 						}
 						
 					}

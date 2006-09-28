@@ -22,21 +22,17 @@ subject to the following restrictions:
 #include "LinearMath/btPoint3.h"
 #include "LinearMath/btSimdMinMax.h"
 
-///BoxShape implements both a feature based (vertex/edge/plane) and implicit (getSupportingVertex) Box
+///btBoxShape implements both a feature based (vertex/edge/plane) and implicit (getSupportingVertex) Box
 class btBoxShape: public btPolyhedralConvexShape
 {
 
-	btVector3	m_boxHalfExtents1;
+	//btVector3	m_boxHalfExtents1; //use m_implicitShapeDimensions instead
 
 
 public:
 
 	btVector3 getHalfExtents() const;
-	//{ return m_boxHalfExtents1 * m_localScaling;}
- 	//const btVector3& getHalfExtents() const{ return m_boxHalfExtents1;}
-
-
-	
+		
 	virtual int	getShapeType() const { return BOX_SHAPE_PROXYTYPE;}
 
 	virtual btVector3	localGetSupportingVertex(const btVector3& vec) const
@@ -81,7 +77,10 @@ public:
 	}
 
 
-	btBoxShape( const btVector3& boxHalfExtents) :  m_boxHalfExtents1(boxHalfExtents){};
+	btBoxShape( const btVector3& boxHalfExtents)
+	{
+		m_implicitShapeDimensions = boxHalfExtents;
+	};
 	
 	virtual void getAabb(const btTransform& t,btVector3& aabbMin,btVector3& aabbMax) const;
 

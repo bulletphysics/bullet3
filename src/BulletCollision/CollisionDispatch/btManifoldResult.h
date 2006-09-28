@@ -27,7 +27,7 @@ extern ContactAddedCallback		gContactAddedCallback;
 
 
 
-///ManifoldResult is a helper class to manage  contact results.
+///btManifoldResult is a helper class to manage  contact results.
 class btManifoldResult : public btDiscreteCollisionDetectorInterface::Result
 {
 	btPersistentManifold* m_manifoldPtr;

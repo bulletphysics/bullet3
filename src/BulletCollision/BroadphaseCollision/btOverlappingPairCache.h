@@ -33,7 +33,7 @@ virtual ~btOverlapCallback()
 	virtual bool	processOverlap(btBroadphasePair& pair) = 0;
 };
 
-///OverlappingPairCache maintains the objects with overlapping AABB
+///btOverlappingPairCache maintains the objects with overlapping AABB
 ///Typically managed by the Broadphase, Axis3Sweep or btSimpleBroadphase
 class	btOverlappingPairCache : public btBroadphaseInterface
 {

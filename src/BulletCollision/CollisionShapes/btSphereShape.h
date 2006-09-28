@@ -19,11 +19,10 @@ subject to the following restrictions:
 #include "btConvexShape.h"
 #include "BulletCollision/BroadphaseCollision/btBroadphaseProxy.h" // for the types
 
-///SphereShape implements an implicit (getSupportingVertex) Sphere
+///btSphereShape implements an implicit (getSupportingVertex) Sphere
 class btSphereShape : public btConvexShape
 
 {
-	btScalar m_radius;
 	
 public:
 	btSphereShape (btScalar radius);
@@ -41,7 +40,7 @@ public:
 
 	virtual int	getShapeType() const { return SPHERE_SHAPE_PROXYTYPE; }
 
-	btScalar	getRadius() const { return m_radius;}
+	btScalar	getRadius() const { return m_implicitShapeDimensions.getX();}
 
 	//debugging
 	virtual char*	getName()const {return "SPHERE";}
@@ -54,7 +53,7 @@ public:
 	{
 		//to improve gjk behaviour, use radius+margin as the full margin, so never get into the penetration case
 		//this means, non-uniform scaling is not supported anymore
-		return m_localScaling[0] * m_radius + btConvexShape::getMargin();
+		return m_localScaling.getX() * getRadius() + btConvexShape::getMargin();
 	}
 
 

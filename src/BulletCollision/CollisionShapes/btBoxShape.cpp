@@ -17,7 +17,7 @@ subject to the following restrictions:
 
 btVector3 btBoxShape::getHalfExtents() const
 {
-	return m_boxHalfExtents1 * m_localScaling;
+	return m_implicitShapeDimensions * m_localScaling;
 }
 //{ 
 

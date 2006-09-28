@@ -55,7 +55,7 @@ CONCAVE_SHAPES_END_HERE,
 };
 
 
-///BroadphaseProxy
+///btBroadphaseProxy
 struct btBroadphaseProxy
 {
 	

@@ -33,7 +33,7 @@ class btOverlappingPairCache;
 
 
 
-///CollisionDispatcher supports algorithms that handle ConvexConvex and ConvexConcave collision pairs.
+///btCollisionDispatcher supports algorithms that handle ConvexConvex and ConvexConcave collision pairs.
 ///Time of Impact, Closest Points and Penetration Depth.
 class btCollisionDispatcher : public btDispatcher
 {

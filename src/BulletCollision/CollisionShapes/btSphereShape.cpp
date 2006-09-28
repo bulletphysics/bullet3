@@ -20,8 +20,8 @@ subject to the following restrictions:
 
 
 btSphereShape ::btSphereShape (btScalar radius)
-: m_radius(radius)
-{	
+{
+	m_implicitShapeDimensions.setX(radius);
 }
 
 btVector3	btSphereShape::localGetSupportingVertexWithoutMargin(const btVector3& vec)const

@@ -33,6 +33,16 @@ struct btConvexCastResult;
 /// used in combination with GJK or btConvexCast
 class btConvexShape : public btCollisionShape
 {
+	
+protected:
+
+	//local scaling. collisionMargin is not scaled !
+	btVector3	m_localScaling;
+
+	btVector3	m_implicitShapeDimensions;
+	
+	btScalar	m_collisionMargin;
+
 public:
 	btConvexShape();
 
@@ -42,7 +52,10 @@ public:
 	//notice that the vectors should be unit length
 	virtual void	batchedUnitVectorGetSupportingVertexWithoutMargin(const btVector3* vectors,btVector3* supportVerticesOut,int numVectors) const= 0;
 
-	// testing for hullnode code
+	const btVector3& getImplicitShapeDimensions() const
+	{
+		return m_implicitShapeDimensions;
+	}
 
 	///getAabb's default implementation is brute force, expected derived classes to implement a fast dedicated version
 	void getAabb(const btTransform& t,btVector3& aabbMin,btVector3& aabbMax) const
@@ -70,11 +83,7 @@ public:
 	{
 		return m_collisionMargin;
 	}
-private:
-	btScalar	m_collisionMargin;
-	//local scaling. collisionMargin is not scaled !
-protected:
-	btVector3	m_localScaling;
+
 
 };
 

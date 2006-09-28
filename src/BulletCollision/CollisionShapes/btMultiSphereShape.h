@@ -21,7 +21,7 @@ subject to the following restrictions:
 
 #define MAX_NUM_SPHERES 5
 
-///MultiSphereShape represents implicit convex hull of a collection of spheres (using getSupportingVertex)
+///btMultiSphereShape represents implicit convex hull of a collection of spheres (using getSupportingVertex)
 class btMultiSphereShape : public btConvexShape
 
 {
