@@ -21,12 +21,32 @@ subject to the following restrictions:
 #include "BulletCollision/CollisionShapes/btTriangleMeshShape.h" //for raycasting
 #include "BulletCollision/NarrowPhaseCollision/btRaycastCallback.h"
 #include "BulletCollision/CollisionShapes/btCompoundShape.h"
-
 #include "BulletCollision/NarrowPhaseCollision/btSubSimplexConvexCast.h"
 #include "BulletCollision/BroadphaseCollision/btBroadphaseInterface.h"
 #include "LinearMath/btAabbUtil2.h"
 
+//When the user doesn't provide dispatcher or broadphase, create basic versions (and delete them in destructor)
+#include "BulletCollision/CollisionDispatch/btCollisionDispatcher.h"
+#include "BulletCollision/BroadphaseCollision/btSimpleBroadphase.h"
+
 #include <algorithm>
+
+btCollisionWorld::btCollisionWorld(btDispatcher* dispatcher,btOverlappingPairCache* pairCache)
+:m_dispatcher1(dispatcher),
+m_broadphasePairCache(pairCache),
+m_ownsDispatcher(false),
+m_ownsBroadphasePairCache(false)
+{
+}
+
+btCollisionWorld::btCollisionWorld()
+: m_dispatcher1(new	btCollisionDispatcher()),
+m_broadphasePairCache(new btSimpleBroadphase()),
+m_ownsDispatcher(true),
+m_ownsBroadphasePairCache(true)
+{
+}
+
 
 btCollisionWorld::~btCollisionWorld()
 {
@@ -49,6 +69,11 @@ btCollisionWorld::~btCollisionWorld()
 			getBroadphase()->destroyProxy(bp);
 		}
 	}
+
+	if (m_ownsDispatcher)
+		delete m_dispatcher1;
+	if (m_ownsBroadphasePairCache)
+		delete m_broadphasePairCache;
 
 }
 
@@ -100,14 +125,14 @@ void	btCollisionWorld::performDiscreteCollisionDetection()
 	{
 		m_collisionObjects[i]->m_cachedInvertedWorldTransform = m_collisionObjects[i]->m_worldTransform.inverse();
 		m_collisionObjects[i]->m_collisionShape->getAabb(m_collisionObjects[i]->m_worldTransform,aabbMin,aabbMax);
-		m_pairCache->setAabb(m_collisionObjects[i]->m_broadphaseHandle,aabbMin,aabbMax);
+		m_broadphasePairCache->setAabb(m_collisionObjects[i]->m_broadphaseHandle,aabbMin,aabbMax);
 	}
 
-	m_pairCache->refreshOverlappingPairs();
+	m_broadphasePairCache->refreshOverlappingPairs();
 
 	btDispatcher* dispatcher = getDispatcher();
 	if (dispatcher)
-		dispatcher->dispatchAllCollisionPairs(m_pairCache,dispatchInfo);
+		dispatcher->dispatchAllCollisionPairs(m_broadphasePairCache,dispatchInfo);
 
 }
 

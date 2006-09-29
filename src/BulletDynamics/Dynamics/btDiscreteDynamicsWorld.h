@@ -40,6 +40,9 @@ protected:
 
 	std::vector<btTypedConstraint*> m_constraints;
 
+	bool	m_ownsIslandManager;
+	bool	m_ownsConstraintSolver;
+
 	std::vector<btRaycastVehicle*>	m_vehicles;
 
 	void	predictUnconstraintMotion(float timeStep);
@@ -61,8 +64,10 @@ protected:
 public:
 
 
+	///this btDiscreteDynamicsWorld constructor gets created objects from the user, and will not delete those
 	btDiscreteDynamicsWorld(btDispatcher* dispatcher,btOverlappingPairCache* pairCache,btConstraintSolver* constraintSolver);
 
+	///this btDiscreteDynamicsWorld will create and own dispatcher, pairCache and constraintSolver, and deletes it in the destructor.
 	btDiscreteDynamicsWorld();
 		
 	virtual ~btDiscreteDynamicsWorld();

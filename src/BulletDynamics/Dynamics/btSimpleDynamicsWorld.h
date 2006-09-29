@@ -33,6 +33,8 @@ protected:
 
 	btConstraintSolver*	m_constraintSolver;
 
+	bool	m_ownsConstraintSolver;
+
 	void	predictUnconstraintMotion(float timeStep);
 	
 	void	integrateTransforms(float timeStep);
@@ -42,9 +44,11 @@ protected:
 public:
 
 
-	btSimpleDynamicsWorld(btDispatcher* dispatcher,btOverlappingPairCache* pairCache,btConstraintSolver* constraintSolver);
-
+	///this btSimpleDynamicsWorld constructor creates and owns dispatcher, broadphase pairCache and constraintSolver
 	btSimpleDynamicsWorld();
+
+	///this btSimpleDynamicsWorld constructor creates dispatcher, broadphase pairCache and constraintSolver
+	btSimpleDynamicsWorld(btDispatcher* dispatcher,btOverlappingPairCache* pairCache,btConstraintSolver* constraintSolver);
 
 	virtual ~btSimpleDynamicsWorld();
 		

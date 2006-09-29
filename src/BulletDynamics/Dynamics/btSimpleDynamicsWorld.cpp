@@ -23,15 +23,15 @@ subject to the following restrictions:
 
 
 btSimpleDynamicsWorld::btSimpleDynamicsWorld()
-:btDynamicsWorld(new	btCollisionDispatcher(),new btSimpleBroadphase()),
-m_constraintSolver(new btSequentialImpulseConstraintSolver)
+:m_constraintSolver(new btSequentialImpulseConstraintSolver),
+m_ownsConstraintSolver(true)
 {
-
 }
 
 btSimpleDynamicsWorld::btSimpleDynamicsWorld(btDispatcher* dispatcher,btOverlappingPairCache* pairCache,btConstraintSolver* constraintSolver)
 :btDynamicsWorld(dispatcher,pairCache),
-m_constraintSolver(constraintSolver)
+m_constraintSolver(constraintSolver),
+m_ownsConstraintSolver(false)
 {
 
 }
@@ -39,13 +39,8 @@ m_constraintSolver(constraintSolver)
 
 btSimpleDynamicsWorld::~btSimpleDynamicsWorld()
 {
-	delete m_constraintSolver;
-
-	//delete the dispatcher and paircache
-	delete m_dispatcher1;
-	m_dispatcher1 = 0;
-	delete m_pairCache;
-	m_pairCache = 0;
+	if (m_ownsConstraintSolver)
+		delete m_constraintSolver;
 }
 
 void	btSimpleDynamicsWorld::stepSimulation(float timeStep)
@@ -86,7 +81,7 @@ void	btSimpleDynamicsWorld::updateAabbs()
 			{
 				btPoint3 minAabb,maxAabb;
 				colObj->m_collisionShape->getAabb(colObj->m_worldTransform, minAabb,maxAabb);
-				btSimpleBroadphase* bp = (btSimpleBroadphase*)m_pairCache;
+				btBroadphaseInterface* bp = getBroadphase();
 				bp->setAabb(body->m_broadphaseHandle,minAabb,maxAabb);
 			}
 		}

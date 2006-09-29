@@ -24,11 +24,15 @@ class btDynamicsWorld : public btCollisionWorld
 {
 	public:
 		
+		btDynamicsWorld()
+		{
+		}
+
 		btDynamicsWorld(btDispatcher* dispatcher,btOverlappingPairCache* pairCache)
 		:btCollisionWorld(dispatcher,pairCache)
 		{
-
 		}
+
 		virtual ~btDynamicsWorld()
 		{
 		}

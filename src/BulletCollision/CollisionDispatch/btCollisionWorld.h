@@ -88,28 +88,30 @@ protected:
 	
 	btDispatcher*	m_dispatcher1;
 
-	btOverlappingPairCache*	m_pairCache;
+	btOverlappingPairCache*	m_broadphasePairCache;
 	
+	bool	m_ownsDispatcher;
+	bool	m_ownsBroadphasePairCache;
 
 public:
 
-	btCollisionWorld(btDispatcher* dispatcher,btOverlappingPairCache* pairCache)
-		:m_dispatcher1(dispatcher),
-		m_pairCache(pairCache)
-	{
+	//this constructor will create and own a dispatcher and paircache and delete it at destruction
+	btCollisionWorld();
 
-	}
+	//this constructor doesn't own the dispatcher and paircache/broadphase
+	btCollisionWorld(btDispatcher* dispatcher,btOverlappingPairCache* pairCache);
+
 	virtual ~btCollisionWorld();
 
 
 	btBroadphaseInterface*	getBroadphase()
 	{
-		return m_pairCache;
+		return m_broadphasePairCache;
 	}
 
 	btOverlappingPairCache*	getPairCache()
 	{
-		return m_pairCache;
+		return m_broadphasePairCache;
 	}
 
 

@@ -36,10 +36,13 @@ subject to the following restrictions:
 #include <algorithm>
 
 btDiscreteDynamicsWorld::btDiscreteDynamicsWorld()
-:btDynamicsWorld(new	btCollisionDispatcher(),new btSimpleBroadphase()),
+:btDynamicsWorld(),
 m_constraintSolver(new btSequentialImpulseConstraintSolver)
 {
 	m_islandManager = new btSimulationIslandManager();
+	m_ownsIslandManager = true;
+	m_ownsConstraintSolver = true;
+
 }
 
 btDiscreteDynamicsWorld::btDiscreteDynamicsWorld(btDispatcher* dispatcher,btOverlappingPairCache* pairCache,btConstraintSolver* constraintSolver)
@@ -47,20 +50,18 @@ btDiscreteDynamicsWorld::btDiscreteDynamicsWorld(btDispatcher* dispatcher,btOver
 m_constraintSolver(constraintSolver)
 {
 	m_islandManager = new btSimulationIslandManager();
+	m_ownsIslandManager = true;
+	m_ownsConstraintSolver = false;
 }
 
 
 btDiscreteDynamicsWorld::~btDiscreteDynamicsWorld()
 {
-	delete m_islandManager ;
-
-	delete m_constraintSolver;
-
-	//delete the dispatcher and paircache
-	delete m_dispatcher1;
-	m_dispatcher1 = 0;
-	delete m_pairCache;
-	m_pairCache = 0;
+	//only delete it when we created it
+	if (m_ownsIslandManager)
+		delete m_islandManager;
+	if (m_ownsConstraintSolver)
+		 delete m_constraintSolver;
 }
 
 void	btDiscreteDynamicsWorld::stepSimulation(float timeStep)
@@ -291,7 +292,7 @@ void	btDiscreteDynamicsWorld::updateAabbs()
 			{
 				btPoint3 minAabb,maxAabb;
 				colObj->m_collisionShape->getAabb(colObj->m_worldTransform, minAabb,maxAabb);
-				btSimpleBroadphase* bp = (btSimpleBroadphase*)m_pairCache;
+				btSimpleBroadphase* bp = (btSimpleBroadphase*)m_broadphasePairCache;
 				bp->setAabb(body->m_broadphaseHandle,minAabb,maxAabb);
 			}
 		}
