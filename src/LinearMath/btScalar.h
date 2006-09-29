@@ -18,9 +18,6 @@ subject to the following restrictions:
 #define SIMD___SCALAR_H
 
 #include <math.h>
-#undef max
-
-
 
 #include <cstdlib>
 #include <cfloat>
