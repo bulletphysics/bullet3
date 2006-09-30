@@ -48,6 +48,9 @@ btRigidBody::btRigidBody( const btMassProps& massProps,btScalar linearDamping,bt
 
 	m_debugBodyId = uniqueId++;
 	
+	//m_internalOwner is to allow upcasting from collision object to rigid body
+	m_internalOwner = this;
+
 	setMassProps(massProps.m_mass, massProps.m_inertiaLocal);
     setDamping(linearDamping, angularDamping);
 	m_worldTransform.setIdentity();

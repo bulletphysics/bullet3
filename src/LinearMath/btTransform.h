@@ -41,37 +41,26 @@ public:
 	explicit SIMD_FORCE_INLINE btTransform(const btQuaternion& q, 
 		const btVector3& c = btVector3(btScalar(0), btScalar(0), btScalar(0))) 
 		: m_basis(q),
-		m_origin(c),
-		m_type(RIGID)
+		m_origin(c)
 	{}
 
 	explicit SIMD_FORCE_INLINE btTransform(const btMatrix3x3& b, 
 		const btVector3& c = btVector3(btScalar(0), btScalar(0), btScalar(0)), 
 		unsigned int type = AFFINE)
 		: m_basis(b),
-		m_origin(c),
-		m_type(type)
+		m_origin(c)
 	{}
 
 
 		SIMD_FORCE_INLINE void mult(const btTransform& t1, const btTransform& t2) {
 			m_basis = t1.m_basis * t2.m_basis;
 			m_origin = t1(t2.m_origin);
-			m_type = t1.m_type | t2.m_type;
 		}
 
 		void multInverseLeft(const btTransform& t1, const btTransform& t2) {
 			btVector3 v = t2.m_origin - t1.m_origin;
-			if (t1.m_type & SCALING) {
-				btMatrix3x3 inv = t1.m_basis.inverse();
-				m_basis = inv * t2.m_basis;
-				m_origin = inv * v;
-			}
-			else {
-				m_basis = btMultTransposeLeft(t1.m_basis, t2.m_basis);
-				m_origin = v * t1.m_basis;
-			}
-			m_type = t1.m_type | t2.m_type;
+			m_basis = btMultTransposeLeft(t1.m_basis, t2.m_basis);
+			m_origin = v * t1.m_basis;
 		}
 
 	SIMD_FORCE_INLINE btVector3 operator()(const btVector3& x) const
@@ -102,7 +91,6 @@ public:
 	{
 		m_basis.setValue(m);
 		m_origin.setValue(&m[12]);
-		m_type = AFFINE;
 	}
 
 	
@@ -126,7 +114,6 @@ public:
 	SIMD_FORCE_INLINE void setOrigin(const btVector3& origin) 
 	{ 
 		m_origin = origin;
-		m_type |= TRANSLATION;
 	}
 
 	SIMD_FORCE_INLINE btVector3 invXform(const btVector3& inVec) const;
@@ -136,50 +123,36 @@ public:
 	SIMD_FORCE_INLINE void setBasis(const btMatrix3x3& basis)
 	{ 
 		m_basis = basis;
-		m_type |= LINEAR;
 	}
 
 	SIMD_FORCE_INLINE void setRotation(const btQuaternion& q)
 	{
 		m_basis.setRotation(q);
-		m_type = (m_type & ~LINEAR) | ROTATION;
 	}
 
 	SIMD_FORCE_INLINE void scale(const btVector3& scaling)
 	{
 		m_basis = m_basis.scaled(scaling);
-		m_type |= SCALING;
 	}
 
 	void setIdentity()
 	{
 		m_basis.setIdentity();
 		m_origin.setValue(btScalar(0.0), btScalar(0.0), btScalar(0.0));
-		m_type = 0x0;
 	}
 
-	SIMD_FORCE_INLINE bool isIdentity() const { return m_type == 0x0; }
-
+	
 	btTransform& operator*=(const btTransform& t) 
 	{
 		m_origin += m_basis * t.m_origin;
 		m_basis *= t.m_basis;
-		m_type |= t.m_type; 
 		return *this;
 	}
 
 	btTransform inverse() const
 	{ 
-		if (m_type)
-		{
-			btMatrix3x3 inv = (m_type & SCALING) ? 
-				m_basis.inverse() : 
-			m_basis.transpose();
-
-			return btTransform(inv, inv * -m_origin, m_type);
-		}
-
-		return *this;
+		btMatrix3x3 inv = m_basis.transpose();
+		return btTransform(inv, inv * -m_origin);
 	}
 
 	btTransform inverseTimes(const btTransform& t) const;  
@@ -190,7 +163,6 @@ private:
 
 	btMatrix3x3 m_basis;
 	btVector3   m_origin;
-	unsigned int      m_type;
 };
 
 
@@ -205,25 +177,15 @@ SIMD_FORCE_INLINE btTransform
 btTransform::inverseTimes(const btTransform& t) const  
 {
 	btVector3 v = t.getOrigin() - m_origin;
-	if (m_type & SCALING) 
-	{
-		btMatrix3x3 inv = m_basis.inverse();
-		return btTransform(inv * t.getBasis(), inv * v, 
-			m_type | t.m_type);
-	}
-	else 
-	{
 		return btTransform(m_basis.transposeTimes(t.m_basis),
-			v * m_basis, m_type | t.m_type);
-	}
+			v * m_basis);
 }
 
 SIMD_FORCE_INLINE btTransform 
 btTransform::operator*(const btTransform& t) const
 {
 	return btTransform(m_basis * t.m_basis, 
-		(*this)(t.m_origin), 
-		m_type | t.m_type);
+		(*this)(t.m_origin));
 }	
 
 

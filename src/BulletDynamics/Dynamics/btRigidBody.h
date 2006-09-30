@@ -65,6 +65,16 @@ public:
 
 	void			proceedToTransform(const btTransform& newTrans); 
 	
+	///to keep collision detection and dynamics separate we don't store a rigidbody pointer
+	///but a rigidbody is derived from btCollisionObject, so we can safely perform an upcast
+	static const btRigidBody*	upcast(const btCollisionObject* colObj)
+	{
+		return (const btRigidBody*)colObj->m_internalOwner;
+	}
+	static btRigidBody*	upcast(btCollisionObject* colObj)
+	{
+		return (btRigidBody*)colObj->m_internalOwner;
+	}
 	
 	/// continuous collision detection needs prediction
 	void			predictIntegratedTransform(btScalar step, btTransform& predictedTransform) const;

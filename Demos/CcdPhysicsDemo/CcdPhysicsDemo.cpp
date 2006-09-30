@@ -21,10 +21,8 @@ subject to the following restrictions:
 
 #include "LinearMath/btQuickprof.h"
 #include "LinearMath/btIDebugDraw.h"
-
 #include "GLDebugDrawer.h"
 
-#include "PHY_Pro.h"
 #include "BMF_Api.h"
 #include <stdio.h> //printf debugging
 
@@ -154,16 +152,9 @@ void CcdPhysicsDemo::displayCallback(void) {
 
 	glClear(GL_COLOR_BUFFER_BIT | GL_DEPTH_BUFFER_BIT); 
 
-	/*
-	if (m_physicsEnvironmentPtr)
-	{
-		m_physicsEnvironmentPtr->UpdateAabbs(deltaTime);
-		//draw contactpoints
-		m_physicsEnvironmentPtr->CallbackTriggers();
-	}
-	*/
+	m_dynamicsWorld->updateAabbs();
 
-
+	
 	renderme();
 
 	glFlush();
@@ -253,6 +244,8 @@ void	CcdPhysicsDemo::initPhysics()
 
 		m_dynamicsWorld = new btDiscreteDynamicsWorld(dispatcher,broadphase,solver);
 
+		m_dynamicsWorld->setDebugDrawer(&debugDrawer);
+		
 
 #ifdef USER_DEFINED_FRICTION_MODEL
 	btSequentialImpulseConstraintSolver* solver = (btSequentialImpulseConstraintSolver*) m_physicsEnvironmentPtr->GetConstraintSolver();

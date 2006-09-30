@@ -57,8 +57,8 @@ void btManifoldResult::addContactPoint(const btVector3& normalOnBInWorld,const b
 		return;
 
 
-	btTransform transAInv = m_body0->m_cachedInvertedWorldTransform;
-	btTransform transBInv= m_body1->m_cachedInvertedWorldTransform;
+	btTransform transAInv = m_body0->m_worldTransform.inverse();
+	btTransform transBInv= m_body1->m_worldTransform.inverse();
 
 	//transAInv = m_body0->m_worldTransform.inverse();
 	//transBInv= m_body1->m_worldTransform.inverse();

@@ -24,14 +24,16 @@ subject to the following restrictions:
 
 btSimpleDynamicsWorld::btSimpleDynamicsWorld()
 :m_constraintSolver(new btSequentialImpulseConstraintSolver),
-m_ownsConstraintSolver(true)
+m_ownsConstraintSolver(true),
+m_debugDrawer(0)
 {
 }
 
 btSimpleDynamicsWorld::btSimpleDynamicsWorld(btDispatcher* dispatcher,btOverlappingPairCache* pairCache,btConstraintSolver* constraintSolver)
 :btDynamicsWorld(dispatcher,pairCache),
 m_constraintSolver(constraintSolver),
-m_ownsConstraintSolver(false)
+m_ownsConstraintSolver(false),
+m_debugDrawer(0)
 {
 
 }
@@ -56,8 +58,8 @@ void	btSimpleDynamicsWorld::stepSimulation(float timeStep)
 	int numManifolds = m_dispatcher1->getNumManifolds();
 	btContactSolverInfo infoGlobal;
 	infoGlobal.m_timeStep = timeStep;
-	btIDebugDraw* debugDrawer=0;
-	m_constraintSolver->solveGroup(manifoldPtr, numManifolds,infoGlobal,debugDrawer);
+	
+	m_constraintSolver->solveGroup(manifoldPtr, numManifolds,infoGlobal,m_debugDrawer);
 
 	///integrate transforms
 	integrateTransforms(timeStep);
@@ -74,9 +76,9 @@ void	btSimpleDynamicsWorld::updateAabbs()
 	for (int i=0;i<m_collisionObjects.size();i++)
 	{
 		btCollisionObject* colObj = m_collisionObjects[i];
-		if (colObj->m_internalOwner)
+		btRigidBody* body = btRigidBody::upcast(colObj);
+		if (body)
 		{
-			btRigidBody* body = (btRigidBody*)colObj->m_internalOwner;
 			if (body->IsActive() && (!body->IsStatic()))
 			{
 				btPoint3 minAabb,maxAabb;
@@ -94,9 +96,9 @@ void	btSimpleDynamicsWorld::integrateTransforms(float timeStep)
 	for (int i=0;i<m_collisionObjects.size();i++)
 	{
 		btCollisionObject* colObj = m_collisionObjects[i];
-		if (colObj->m_internalOwner)
+		btRigidBody* body = btRigidBody::upcast(colObj);
+		if (body)
 		{
-			btRigidBody* body = (btRigidBody*)colObj->m_internalOwner;
 			if (body->IsActive() && (!body->IsStatic()))
 			{
 				body->predictIntegratedTransform(timeStep, predictedTrans);
@@ -113,10 +115,9 @@ void	btSimpleDynamicsWorld::predictUnconstraintMotion(float timeStep)
 	for (int i=0;i<m_collisionObjects.size();i++)
 	{
 		btCollisionObject* colObj = m_collisionObjects[i];
-		if (colObj->m_internalOwner)
+		btRigidBody* body = btRigidBody::upcast(colObj);
+		if (body)
 		{
-			btRigidBody* body = (btRigidBody*)colObj->m_internalOwner;
-			body->m_cachedInvertedWorldTransform = body->m_worldTransform.inverse();
 			if (body->IsActive() && (!body->IsStatic()))
 			{
 				body->applyForces( timeStep);

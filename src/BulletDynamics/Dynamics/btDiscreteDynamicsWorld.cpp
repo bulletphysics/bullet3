@@ -16,6 +16,7 @@ subject to the following restrictions:
 
 #include "btDiscreteDynamicsWorld.h"
 
+
 //collision detection
 #include "BulletCollision/CollisionDispatch/btCollisionDispatcher.h"
 #include "BulletCollision/BroadphaseCollision/btSimpleBroadphase.h"
@@ -32,12 +33,14 @@ subject to the following restrictions:
 #include "BulletDynamics/Vehicle/btRaycastVehicle.h"
 #include "BulletDynamics/Vehicle/btVehicleRaycaster.h"
 #include "BulletDynamics/Vehicle/btWheelInfo.h"
+#include "LinearMath/btIDebugDraw.h"
 
 #include <algorithm>
 
 btDiscreteDynamicsWorld::btDiscreteDynamicsWorld()
 :btDynamicsWorld(),
-m_constraintSolver(new btSequentialImpulseConstraintSolver)
+m_constraintSolver(new btSequentialImpulseConstraintSolver),
+m_debugDrawer(0)
 {
 	m_islandManager = new btSimulationIslandManager();
 	m_ownsIslandManager = true;
@@ -47,11 +50,12 @@ m_constraintSolver(new btSequentialImpulseConstraintSolver)
 
 btDiscreteDynamicsWorld::btDiscreteDynamicsWorld(btDispatcher* dispatcher,btOverlappingPairCache* pairCache,btConstraintSolver* constraintSolver)
 :btDynamicsWorld(dispatcher,pairCache),
-m_constraintSolver(constraintSolver)
+m_constraintSolver(constraintSolver? constraintSolver: new btSequentialImpulseConstraintSolver),
+m_debugDrawer(0)
 {
 	m_islandManager = new btSimulationIslandManager();
 	m_ownsIslandManager = true;
-	m_ownsConstraintSolver = false;
+	m_ownsConstraintSolver = (constraintSolver==0);
 }
 
 
@@ -114,10 +118,9 @@ void	btDiscreteDynamicsWorld::updateActivationState(float timeStep)
 	for (int i=0;i<m_collisionObjects.size();i++)
 	{
 		btCollisionObject* colObj = m_collisionObjects[i];
-		if (colObj->m_internalOwner)
+		btRigidBody* body = btRigidBody::upcast(colObj);
+		if (body)
 		{
-			btRigidBody* body = (btRigidBody*)colObj->m_internalOwner;
-	
 			body->updateDeactivation(timeStep);
 
 			if (body->wantsSleeping())
@@ -190,8 +193,8 @@ void	btDiscreteDynamicsWorld::solveContactConstraints(btContactSolverInfo& solve
 
 	};
 
-	btIDebugDraw* debugDraw = 0;
-	InplaceSolverIslandCallback	solverCallback(	solverInfo,	m_constraintSolver,	debugDraw);
+	
+	InplaceSolverIslandCallback	solverCallback(	solverInfo,	m_constraintSolver,	m_debugDrawer);
 
 	
 	/// solve all the contact points and contact friction
@@ -279,21 +282,58 @@ void	btDiscreteDynamicsWorld::calculateSimulationIslands()
 
 }
 
+static void DrawAabb(btIDebugDraw* debugDrawer,const btVector3& from,const btVector3& to,const btVector3& color)
+{
+	btVector3 halfExtents = (to-from)* 0.5f;
+	btVector3 center = (to+from) *0.5f;
+	int i,j;
+
+	btVector3 edgecoord(1.f,1.f,1.f),pa,pb;
+	for (i=0;i<4;i++)
+	{
+		for (j=0;j<3;j++)
+		{
+			pa = btVector3(edgecoord[0]*halfExtents[0], edgecoord[1]*halfExtents[1],		
+				edgecoord[2]*halfExtents[2]);
+			pa+=center;
+
+			int othercoord = j%3;
+			edgecoord[othercoord]*=-1.f;
+			pb = btVector3(edgecoord[0]*halfExtents[0], edgecoord[1]*halfExtents[1],	
+				edgecoord[2]*halfExtents[2]);
+			pb+=center;
+
+			debugDrawer->drawLine(pa,pb,color);
+		}
+		edgecoord = btVector3(-1.f,-1.f,-1.f);
+		if (i<3)
+			edgecoord[i]*=-1.f;
+	}
+
+
+}
+
 void	btDiscreteDynamicsWorld::updateAabbs()
 {
+	btVector3 colorvec(1,0,0);
 	btTransform predictedTrans;
 	for (int i=0;i<m_collisionObjects.size();i++)
 	{
 		btCollisionObject* colObj = m_collisionObjects[i];
-		if (colObj->m_internalOwner)
+		
+		btRigidBody* body = btRigidBody::upcast(colObj);
+		if (body)
 		{
-			btRigidBody* body = (btRigidBody*)colObj->m_internalOwner;
-			if (body->IsActive() && (!body->IsStatic()))
+		//	if (body->IsActive() && (!body->IsStatic()))
 			{
 				btPoint3 minAabb,maxAabb;
 				colObj->m_collisionShape->getAabb(colObj->m_worldTransform, minAabb,maxAabb);
 				btSimpleBroadphase* bp = (btSimpleBroadphase*)m_broadphasePairCache;
 				bp->setAabb(body->m_broadphaseHandle,minAabb,maxAabb);
+				if (m_debugDrawer && (m_debugDrawer->getDebugMode() & btIDebugDraw::DBG_DrawAabb))
+				{
+					DrawAabb(m_debugDrawer,minAabb,maxAabb,colorvec);
+				}
 			}
 		}
 	}
@@ -305,9 +345,9 @@ void	btDiscreteDynamicsWorld::integrateTransforms(float timeStep)
 	for (int i=0;i<m_collisionObjects.size();i++)
 	{
 		btCollisionObject* colObj = m_collisionObjects[i];
-		if (colObj->m_internalOwner)
+		btRigidBody* body = btRigidBody::upcast(colObj);
+		if (body)
 		{
-			btRigidBody* body = (btRigidBody*)colObj->m_internalOwner;
 			if (body->IsActive() && (!body->IsStatic()))
 			{
 				body->predictIntegratedTransform(timeStep, predictedTrans);
@@ -324,10 +364,9 @@ void	btDiscreteDynamicsWorld::predictUnconstraintMotion(float timeStep)
 	for (int i=0;i<m_collisionObjects.size();i++)
 	{
 		btCollisionObject* colObj = m_collisionObjects[i];
-		if (colObj->m_internalOwner)
+		btRigidBody* body = btRigidBody::upcast(colObj);
+		if (body)
 		{
-			btRigidBody* body = (btRigidBody*)colObj->m_internalOwner;
-			body->m_cachedInvertedWorldTransform = body->m_worldTransform.inverse();
 			if (body->IsActive() && (!body->IsStatic()))
 			{
 				body->applyForces( timeStep);

@@ -13,6 +13,9 @@ subject to the following restrictions:
 3. This notice may not be removed or altered from any source distribution.
 */
 
+#ifndef BT_TRIANGLE_INDEX_VERTEX_ARRAY_H
+#define BT_TRIANGLE_INDEX_VERTEX_ARRAY_H
+
 #include "btStridingMeshInterface.h"
 #include <vector>
 
@@ -76,3 +79,4 @@ public:
 
 };
 
+#endif //BT_TRIANGLE_INDEX_VERTEX_ARRAY_H

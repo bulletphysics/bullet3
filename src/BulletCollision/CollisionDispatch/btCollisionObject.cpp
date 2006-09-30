@@ -25,8 +25,7 @@ btCollisionObject::btCollisionObject()
 		m_ccdSweptShereRadius(0.f),
 		m_ccdSquareMotionTreshold(0.f)
 {
-	m_cachedInvertedWorldTransform.setIdentity();
-
+	
 }
 
 

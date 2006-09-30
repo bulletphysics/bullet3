@@ -18,10 +18,7 @@ subject to the following restrictions:
 #include "LinearMath/btIDebugDraw.h"
 #include "BulletDynamics/Dynamics/btDynamicsWorld.h"
 
-#include "CcdPhysicsEnvironment.h"
-#include "CcdPhysicsController.h"
 #include "BulletDynamics/ConstraintSolver/btPoint2PointConstraint.h"//picking
-#include "PHY_Pro.h"
 #include "BulletCollision/CollisionShapes/btCollisionShape.h"
 #include "BulletCollision/CollisionShapes/btBoxShape.h"
 #include "GL_ShapeDrawer.h"
@@ -31,8 +28,6 @@ subject to the following restrictions:
 
 int numObjects = 0;
 const int maxNumObjects = 16384;
-DefaultMotionState ms[maxNumObjects];
-CcdPhysicsController* physObjects[maxNumObjects];
 btTransform startTransforms[maxNumObjects];
 btCollisionShape* gShapePtr[maxNumObjects];//1 rigidbody has 1 shape (no re-use of shapes)
 
@@ -40,9 +35,9 @@ btCollisionShape* gShapePtr[maxNumObjects];//1 rigidbody has 1 shape (no re-use 
 DemoApplication::DemoApplication()
 		//see btIDebugDraw.h for modes
 :
-m_physicsEnvironmentPtr(0),
 m_dynamicsWorld(0),
 m_pickConstraint(0),
+m_gravity(0,-10,0),
 	m_cameraDistance(15.0),
 	m_debugMode(0),
 	m_ele(0.f),
@@ -340,8 +335,7 @@ void DemoApplication::keyboardCallback(unsigned char key, int x, int y)
         break;
     }
 
-	if (m_physicsEnvironmentPtr)
-		m_physicsEnvironmentPtr->setDebugMode(m_debugMode);
+	getDynamicsWorld()->getDebugDrawer()->setDebugMode(m_debugMode);
 
 	glutPostRedisplay();
 
@@ -411,27 +405,6 @@ void	DemoApplication::shootBox(const btVector3& destination)
 		body->setAngularVelocity(btVector3(0,0,0));
 	}
 
-	if (m_physicsEnvironmentPtr)
-	{
-		bool isDynamic = true;
-		float mass = 1.f;
-		btTransform startTransform;
-		startTransform.setIdentity();
-		btVector3 camPos = getCameraPosition();
-		startTransform.setOrigin(camPos);
-		btCollisionShape* boxShape = new btBoxShape(btVector3(1.f,1.f,1.f));
-
-		CcdPhysicsController* newBox = localCreatePhysicsObject(isDynamic, mass, startTransform,boxShape);
-
-		btVector3 linVel(destination[0]-camPos[0],destination[1]-camPos[1],destination[2]-camPos[2]);
-		linVel.normalize();
-		linVel*=m_ShootBoxInitialSpeed;
-
-		newBox->setPosition(camPos[0],camPos[1],camPos[2]);
-		newBox->setOrientation(0,0,0,1);
-		newBox->SetLinearVelocity(linVel[0],linVel[1],linVel[2],false);
-		newBox->SetAngularVelocity(0,0,0,false);
-	}
 }
 
 
@@ -513,11 +486,9 @@ void DemoApplication::mouseFunc(int button, int state, int x, int y)
 					if (rayCallback.HasHit())
 					{
 						
-						if (rayCallback.m_collisionObject->m_internalOwner)
+						btRigidBody* body = btRigidBody::upcast(rayCallback.m_collisionObject);
+						if (body)
 						{
-							btRigidBody* body = (btRigidBody*)rayCallback.m_collisionObject->m_internalOwner;
-							if (body)
-							{
 								body->SetActivationState(ACTIVE_TAG);
 								btVector3 impulse = rayTo;
 								impulse.normalize();
@@ -526,39 +497,10 @@ void DemoApplication::mouseFunc(int button, int state, int x, int y)
 								btVector3 relPos = rayCallback.m_hitPointWorld - body->getCenterOfMassPosition();
 								body->applyImpulse(impulse,relPos);
 							}
-						}
-
 					}
 				}
 
-				//apply an impulse
-				if (m_physicsEnvironmentPtr)
-				{
-					float hit[3];
-					float normal[3];
-					PHY_IPhysicsController* hitObj = m_physicsEnvironmentPtr->rayTest(0,m_cameraPosition[0],m_cameraPosition[1],m_cameraPosition[2],rayTo.getX(),rayTo.getY(),rayTo.getZ(),hit[0],hit[1],hit[2],normal[0],normal[1],normal[2]);
-					if (hitObj)
-					{
-						CcdPhysicsController* physCtrl = static_cast<CcdPhysicsController*>(hitObj);
-						btRigidBody* body = physCtrl->getRigidBody();
-						if (body)
-						{
-							body->SetActivationState(ACTIVE_TAG);
-							btVector3 impulse = rayTo;
-							impulse.normalize();
-							float impulseStrength = 10.f;
-							impulse *= impulseStrength;
-							btVector3 relPos(
-								hit[0] - body->getCenterOfMassPosition().getX(),						
-								hit[1] - body->getCenterOfMassPosition().getY(),
-								hit[2] - body->getCenterOfMassPosition().getZ());
-
-							body->applyImpulse(impulse,relPos);
-						}
-
-					}
-
-				}
+				
 
 			} else
 			{
@@ -581,10 +523,11 @@ void DemoApplication::mouseFunc(int button, int state, int x, int y)
 					if (rayCallback.HasHit())
 					{
 						
-						if (rayCallback.m_collisionObject->m_internalOwner)
+						
+						btRigidBody* body = btRigidBody::upcast(rayCallback.m_collisionObject);
+						if (body)
 						{
-							btRigidBody* body = (btRigidBody*)rayCallback.m_collisionObject->m_internalOwner;
-							if (body && !body->IsStatic())
+							if (!body->IsStatic())
 							{
 								pickedBody = body;
 								pickedBody->SetActivationState(DISABLE_DEACTIVATION);
@@ -612,51 +555,6 @@ void DemoApplication::mouseFunc(int button, int state, int x, int y)
 					}
 				}
 
-				//add a point to point constraint for picking
-				if (m_physicsEnvironmentPtr)
-				{
-					float hit[3];
-					float normal[3];
-					PHY_IPhysicsController* hitObj = m_physicsEnvironmentPtr->rayTest(0,m_cameraPosition[0],m_cameraPosition[1],m_cameraPosition[2],rayTo.getX(),rayTo.getY(),rayTo.getZ(),hit[0],hit[1],hit[2],normal[0],normal[1],normal[2]);
-					if (hitObj)
-					{
-
-						CcdPhysicsController* physCtrl = static_cast<CcdPhysicsController*>(hitObj);
-						btRigidBody* body = physCtrl->getRigidBody();
-
-						if (body && !body->IsStatic())
-						{
-							pickedBody = body;
-							pickedBody->SetActivationState(DISABLE_DEACTIVATION);
-
-							btVector3 pickPos(hit[0],hit[1],hit[2]);
-
-							btVector3 localPivot = body->getCenterOfMassTransform().inverse() * pickPos;
-
-							gPickingConstraintId = m_physicsEnvironmentPtr->createConstraint(physCtrl,0,PHY_POINT2POINT_CONSTRAINT,
-								localPivot.getX(),
-								localPivot.getY(),
-								localPivot.getZ(),
-								0,0,0);
-							//printf("created constraint %i",gPickingConstraintId);
-
-							//save mouse position for dragging
-							gOldPickingPos = rayTo;
-
-
-							btVector3 eyePos(m_cameraPosition[0],m_cameraPosition[1],m_cameraPosition[2]);
-
-							gOldPickingDist  = (pickPos-eyePos).length();
-
-							btPoint2PointConstraint* p2p = static_cast<btPoint2PointConstraint*>(m_physicsEnvironmentPtr->getConstraintById(gPickingConstraintId));
-							if (p2p)
-							{
-								//very weak constraint for picking
-								p2p->m_setting.m_tau = 0.1f;
-							}
-						}
-					}
-				}
 			} else
 			{
 
@@ -671,17 +569,7 @@ void DemoApplication::mouseFunc(int button, int state, int x, int y)
 					pickedBody = 0;
 				}
 
-				if (gPickingConstraintId && m_physicsEnvironmentPtr)
-				{
-					m_physicsEnvironmentPtr->removeConstraint(gPickingConstraintId);
-					//printf("removed constraint %i",gPickingConstraintId);
-					gPickingConstraintId = 0;
-					pickedBody->ForceActivationState(ACTIVE_TAG);
-					pickedBody->m_deactivationTime = 0.f;
-					pickedBody = 0;
-
-
-				}
+				
 			}
 
 			break;
@@ -717,27 +605,7 @@ void	DemoApplication::mouseMotionFunc(int x,int y)
 
 	}
 
-	if (gPickingConstraintId && m_physicsEnvironmentPtr)
-	{
-
-		//move the constraint pivot
-
-		btPoint2PointConstraint* p2p = static_cast<btPoint2PointConstraint*>(m_physicsEnvironmentPtr->getConstraintById(gPickingConstraintId));
-		if (p2p)
-		{
-			//keep it at the same picking distance
-
-			btVector3 newRayTo = getRayTo(x,y);
-			btVector3 eyePos(m_cameraPosition[0],m_cameraPosition[1],m_cameraPosition[2]);
-			btVector3 dir = newRayTo-eyePos;
-			dir.normalize();
-			dir *= gOldPickingDist;
-
-			btVector3 newPos = eyePos + dir;
-			p2p->setPivotB(newPos);
-		}
-
-	}
+	
 }
 
 
@@ -753,82 +621,27 @@ btRigidBody*	DemoApplication::localCreateRigidBody(bool isDynamic, float mass, c
 	btRigidBody* body = new btRigidBody(massProps);
 	body->m_collisionShape = shape;
 	body->m_worldTransform = startTransform;
-	body->m_internalOwner = body;
-	body->setMassProps( mass, localInertia);
-	body->setGravity(btVector3(0,-9.8f,0));
+
 	if (!isDynamic)
 	{
 		body->m_collisionFlags = btCollisionObject::isStatic;//??
+//		body->getBroadphaseProxy()->m_collisionFilterGroup = 1;/btCcdConstructionInfo::StaticFilter;
+//		body->getBroadphaseProxy()->m_collisionFilterMask = btCcdConstructionInfo::AllFilter ^ btCcdConstructionInfo::StaticFilter;
+		body->setMassProps( 0.f, localInertia);
+	} else
+	{
+		body->setMassProps( mass, localInertia);
+		body->m_collisionFlags = 0;
 	}
+	
+	body->setGravity(m_gravity);
+
 	return body;
 }
 
 
 
-///Very basic import
-CcdPhysicsController*  DemoApplication::localCreatePhysicsObject(bool isDynamic, float mass, const btTransform& startTransform,btCollisionShape* shape)
-{
 
-	startTransforms[numObjects] = startTransform;
-
-	btCcdConstructionInfo ccdObjectCi;
-	ccdObjectCi.m_friction = 0.5f;
-	
-	btTransform tr;
-	tr.setIdentity();
-
-	int i = numObjects;
-	{
-		gShapePtr[i] = shape;
-		gShapePtr[i]->setMargin(0.05f);
-
-		btQuaternion orn = startTransform.getRotation();
-
-		ms[i].setWorldOrientation(orn[0],orn[1],orn[2],orn[3]);
-		ms[i].setWorldPosition(startTransform.getOrigin().getX(),startTransform.getOrigin().getY(),startTransform.getOrigin().getZ());
-
-		ccdObjectCi.m_MotionState = &ms[i];
-		ccdObjectCi.m_gravity = btVector3(0,-9.8,0);
-		ccdObjectCi.m_localInertiaTensor =btVector3(0,0,0);
-		if (!isDynamic)
-		{
-			ccdObjectCi.m_mass = 0.f;
-			ccdObjectCi.m_collisionFlags = btCollisionObject::isStatic;
-			ccdObjectCi.m_collisionFilterGroup = btCcdConstructionInfo::StaticFilter;
-			ccdObjectCi.m_collisionFilterMask = btCcdConstructionInfo::AllFilter ^ btCcdConstructionInfo::StaticFilter;
-		}
-		else
-		{
-			ccdObjectCi.m_mass = mass;
-			ccdObjectCi.m_collisionFlags = 0;
-		}
-
-		btVector3 localInertia(0.f,0.f,0.f);
-
-		if (isDynamic)
-		{
-			gShapePtr[i]->calculateLocalInertia(ccdObjectCi.m_mass,localInertia);
-		}
-
-		ccdObjectCi.m_localInertiaTensor = localInertia;
-		ccdObjectCi.m_collisionShape = gShapePtr[i];
-
-
-		physObjects[i]= new CcdPhysicsController( ccdObjectCi);
-
-		// Only do CCD if  motion in one timestep (1.f/60.f) exceeds CUBE_HALF_EXTENTS
-		physObjects[i]->getRigidBody()->m_ccdSquareMotionTreshold = 0.f; 
-
-		//Experimental: better estimation of CCD Time of Impact:
-		//physObjects[i]->getRigidBody()->m_ccdSweptShereRadius = 0.5*CUBE_HALF_EXTENTS;
-
-		m_physicsEnvironmentPtr->addCcdPhysicsController( physObjects[i]);
-
-	}
-
-	//return newly created PhysicsController
-	return physObjects[numObjects++];
-}
 
 void DemoApplication::renderme()
 {
@@ -948,194 +761,6 @@ void DemoApplication::renderme()
 			BMF_DrawString(BMF_GetFont(BMF_kHelvetica10),buf);
 			yStart += yIncr;
 		
-	}
-
-	if (m_physicsEnvironmentPtr)
-	{
-
-		if (getDebugMode() & btIDebugDraw::DBG_DisableBulletLCP)
-		{
-			//don't use Bullet, use quickstep
-			m_physicsEnvironmentPtr->setSolverType(0);
-		} else
-		{
-			//Bullet LCP solver
-			m_physicsEnvironmentPtr->setSolverType(1);
-		}
-
-		if (getDebugMode() & btIDebugDraw::DBG_EnableCCD)
-		{
-			m_physicsEnvironmentPtr->setCcdMode(3);
-		} else
-		{
-			m_physicsEnvironmentPtr->setCcdMode(0);
-		}
-
-
-		bool isSatEnabled = (getDebugMode() & btIDebugDraw::DBG_EnableSatComparison);
-		m_physicsEnvironmentPtr->EnableSatCollisionDetection(isSatEnabled);
-
-
-		int numPhysicsObjects = m_physicsEnvironmentPtr->GetNumControllers();
-		
-		int i;
-
-		for (i=0;i<numPhysicsObjects;i++)
-		{
-
-			CcdPhysicsController* ctrl = m_physicsEnvironmentPtr->GetPhysicsController(i);
-			btRigidBody* body = ctrl->getRigidBody();
-			
-			body->m_worldTransform.getOpenGLMatrix( m );
-
-			btVector3 wireColor(1.f,1.0f,0.5f); //wants deactivation
-			if (i & 1)
-			{
-				wireColor = btVector3(0.f,0.0f,1.f);
-			}
-			///color differently for active, sleeping, wantsdeactivation states
-			if (ctrl->getRigidBody()->GetActivationState() == 1) //active
-			{
-				if (i & 1)
-				{
-					wireColor += btVector3 (1.f,0.f,0.f);
-				} else
-				{			
-					wireColor += btVector3 (.5f,0.f,0.f);
-				}
-			}
-			if (ctrl->getRigidBody()->GetActivationState() == 2) //ISLAND_SLEEPING
-			{
-				if (i & 1)
-				{
-					wireColor += btVector3 (0.f,1.f, 0.f);
-				} else
-				{
-					wireColor += btVector3 (0.f,0.5f,0.f);
-				}
-			}
-
-			char	extraDebug[125];
-			sprintf(extraDebug,"Island:%i, Body:%i",ctrl->getRigidBody()->m_islandTag1,ctrl->getRigidBody()->m_debugBodyId);
-			ctrl->getRigidBody()->getCollisionShape()->setExtraDebugInfo(extraDebug);
-
-			float vec[16];
-			btTransform ident;
-			ident.setIdentity();
-			ident.getOpenGLMatrix(vec);
-			
-
-			GL_ShapeDrawer::drawOpenGL(m,ctrl->getRigidBody()->getCollisionShape(),wireColor,getDebugMode());
-
-			
-
-
-		}
-
-		if (!(getDebugMode() & btIDebugDraw::DBG_NoHelpText))
-		{
-
-			float xOffset = 10.f;
-			float yStart = 20.f;
-
-			float yIncr = -2.f;
-
-			char buf[124];
-
-			glColor3f(0, 0, 0);
-
-	#ifdef USE_QUICKPROF
-
-
-			if ( getDebugMode() & btIDebugDraw::DBG_ProfileTimings)
-			{
-				static int counter = 0;
-				counter++;
-				std::map<std::string, hidden::ProfileBlock*>::iterator iter;
-				for (iter = btProfiler::mProfileBlocks.begin(); iter != btProfiler::mProfileBlocks.end(); ++iter)
-				{
-					char blockTime[128];
-					sprintf(blockTime, "%s: %lf",&((*iter).first[0]),btProfiler::getBlockTime((*iter).first, btProfiler::BLOCK_CYCLE_SECONDS));//BLOCK_TOTAL_PERCENT));
-					glRasterPos3f(xOffset,yStart,0);
-					BMF_DrawString(BMF_GetFont(BMF_kHelvetica10),blockTime);
-					yStart += yIncr;
-
-				}
-			}
-	#endif //USE_QUICKPROF
-			//profiling << btProfiler::createStatsString(btProfiler::BLOCK_TOTAL_PERCENT); 
-			//<< std::endl;
-
-
-
-			glRasterPos3f(xOffset,yStart,0);
-			sprintf(buf,"mouse to interact");
-			BMF_DrawString(BMF_GetFont(BMF_kHelvetica10),buf);
-			yStart += yIncr;
-
-			glRasterPos3f(xOffset,yStart,0);
-			sprintf(buf,"space to reset");
-			BMF_DrawString(BMF_GetFont(BMF_kHelvetica10),buf);
-			yStart += yIncr;
-
-			glRasterPos3f(xOffset,yStart,0);
-			sprintf(buf,"cursor keys and z,x to navigate");
-			BMF_DrawString(BMF_GetFont(BMF_kHelvetica10),buf);
-			yStart += yIncr;
-
-			glRasterPos3f(xOffset,yStart,0);
-			sprintf(buf,"i to toggle simulation, s single step");
-			BMF_DrawString(BMF_GetFont(BMF_kHelvetica10),buf);
-			yStart += yIncr;
-
-			glRasterPos3f(xOffset,yStart,0);
-			sprintf(buf,"q to quit");
-			BMF_DrawString(BMF_GetFont(BMF_kHelvetica10),buf);
-			yStart += yIncr;
-
-			glRasterPos3f(xOffset,yStart,0);
-			sprintf(buf,"d to toggle deactivation");
-			BMF_DrawString(BMF_GetFont(BMF_kHelvetica10),buf);
-			yStart += yIncr;
-
-			glRasterPos3f(xOffset,yStart,0);
-			sprintf(buf,"a to draw temporal AABBs");
-			BMF_DrawString(BMF_GetFont(BMF_kHelvetica10),buf);
-			yStart += yIncr;
-
-
-			glRasterPos3f(xOffset,yStart,0);
-			sprintf(buf,"h to toggle help text");
-			BMF_DrawString(BMF_GetFont(BMF_kHelvetica10),buf);
-			yStart += yIncr;
-
-			bool useBulletLCP = !(getDebugMode() & btIDebugDraw::DBG_DisableBulletLCP);
-
-			bool useCCD = (getDebugMode() & btIDebugDraw::DBG_EnableCCD);
-
-			glRasterPos3f(xOffset,yStart,0);
-			sprintf(buf,"m Bullet GJK = %i",!isSatEnabled);
-			BMF_DrawString(BMF_GetFont(BMF_kHelvetica10),buf);
-			yStart += yIncr;
-
-			glRasterPos3f(xOffset,yStart,0);
-			sprintf(buf,"n Bullet LCP = %i",useBulletLCP);
-			BMF_DrawString(BMF_GetFont(BMF_kHelvetica10),buf);
-			yStart += yIncr;
-
-			glRasterPos3f(xOffset,yStart,0);
-			sprintf(buf,"1 CCD mode (adhoc) = %i",useCCD);
-			BMF_DrawString(BMF_GetFont(BMF_kHelvetica10),buf);
-			yStart += yIncr;
-
-			glRasterPos3f(xOffset,yStart,0);
-			sprintf(buf,"+- shooting speed = %10.2f",m_ShootBoxInitialSpeed);
-			BMF_DrawString(BMF_GetFont(BMF_kHelvetica10),buf);
-			yStart += yIncr;
-
-
-		}
-
 	}
 
 }

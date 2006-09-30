@@ -16,18 +16,12 @@ subject to the following restrictions:
 #include "cd_wavefront.h"
 #include "ConvexBuilder.h"
 
-
-#include "CcdPhysicsEnvironment.h"
-#include "CcdPhysicsController.h"
 #include "btBulletDynamicsCommon.h"
 
 #include "LinearMath/btQuickprof.h"
 #include "LinearMath/btIDebugDraw.h"
-
 #include "GLDebugDrawer.h"
 
-
-#include "PHY_Pro.h"
 #include "BMF_Api.h"
 #include <stdio.h> //printf debugging
 
@@ -90,16 +84,14 @@ void ConvexDecompositionDemo::initPhysics(const char* filename)
 	btOverlappingPairCache* broadphase = new btAxisSweep3(worldAabbMin,worldAabbMax);
 	//OverlappingPairCache* broadphase = new btSimpleBroadphase();
 
-	m_physicsEnvironmentPtr = new CcdPhysicsEnvironment(dispatcher,broadphase);
-	m_physicsEnvironmentPtr->setDeactivationTime(2.f);
-
-	m_physicsEnvironmentPtr->setGravity(0,-10,0);
+	btConstraintSolver* solver = new btSequentialImpulseConstraintSolver();
+	m_dynamicsWorld = new btDiscreteDynamicsWorld(dispatcher,broadphase,solver);
 
 	btTransform startTransform;
 	startTransform.setIdentity();
 	startTransform.setOrigin(btVector3(0,-4,0));
 
-	localCreatePhysicsObject(false,0,startTransform,new btBoxShape(btVector3(30,2,30)));
+	localCreateRigidBody(false,0,startTransform,new btBoxShape(btVector3(30,2,30)));
 
 	class MyConvexDecomposition : public ConvexDecomposition::ConvexDecompInterface
 	{
@@ -200,8 +192,8 @@ void ConvexDecompositionDemo::initPhysics(const char* filename)
 					btTransform trans;
 					trans.setIdentity();
 					trans.setOrigin(centroid);
-					m_convexDemo->localCreatePhysicsObject(isDynamic, mass, trans,convexShape);
-
+					btRigidBody* body = m_convexDemo->localCreateRigidBody(isDynamic, mass, trans,convexShape);
+					m_convexDemo->getDynamicsWorld()->addCollisionObject(body);
 					mBaseCount+=result.mHullVcount; // advance the 'base index' counter.
 
 
@@ -245,7 +237,7 @@ void ConvexDecompositionDemo::initPhysics(const char* filename)
 		startTransform.setIdentity();
 		startTransform.setOrigin(btVector3(20,2,0));
 
-		localCreatePhysicsObject(isDynamic, mass, startTransform,convexShape);
+		localCreateRigidBody(isDynamic, mass, startTransform,convexShape);
 
 	}
 			
@@ -296,7 +288,7 @@ void ConvexDecompositionDemo::initPhysics(const char* filename)
 	}
 
 
-	m_physicsEnvironmentPtr->setDebugDrawer(&debugDrawer);
+	m_dynamicsWorld->setDebugDrawer(&debugDrawer);
 
 }
 
@@ -305,8 +297,7 @@ void ConvexDecompositionDemo::clientMoveAndDisplay()
 	glClear(GL_COLOR_BUFFER_BIT | GL_DEPTH_BUFFER_BIT); 
 
 
-
-	m_physicsEnvironmentPtr->proceedDeltaTime(0.f,deltaTime);
+	m_dynamicsWorld->stepSimulation(deltaTime);
 
 	renderme();
 
@@ -322,7 +313,7 @@ void ConvexDecompositionDemo::displayCallback(void) {
 	glClear(GL_COLOR_BUFFER_BIT | GL_DEPTH_BUFFER_BIT); 
 
 
-	m_physicsEnvironmentPtr->UpdateAabbs(deltaTime);
+	m_dynamicsWorld->updateAabbs();
 
 	renderme();
 

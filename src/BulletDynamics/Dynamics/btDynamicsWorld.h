@@ -40,11 +40,16 @@ class btDynamicsWorld : public btCollisionWorld
 		///stepSimulation proceeds the simulation over timeStep units
 		virtual void	stepSimulation( float timeStep) = 0;
 				
+		virtual void	updateAabbs() = 0;
 				
 		virtual void	addConstraint(btTypedConstraint* constraint) {};
 
 		virtual void	removeConstraint(btTypedConstraint* constraint) {};
-					
+
+		virtual void	setDebugDrawer(btIDebugDraw*	debugDrawer) = 0;
+
+		virtual btIDebugDraw*	getDebugDrawer() = 0;
+
 };
 
 #endif //BT_DYNAMICS_WORLD_H

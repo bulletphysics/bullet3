@@ -13,9 +13,6 @@ subject to the following restrictions:
 3. This notice may not be removed or altered from any source distribution.
 */
 
-#include "CcdPhysicsEnvironment.h"
-#include "CcdPhysicsController.h"
-
 #include "btBulletDynamicsCommon.h"
 
 #include "LinearMath/btQuickprof.h"
@@ -31,7 +28,6 @@ subject to the following restrictions:
 #include "BspConverter.h"
 #endif //QUAKE_BSP_IMPORTING
 
-#include "PHY_Pro.h"
 #include "BMF_Api.h"
 #include <stdio.h> //printf debugging
 
@@ -76,7 +72,9 @@ public:
 				//this create an internal copy of the vertices
 				btCollisionShape* shape = new btConvexHullShape(&vertices[0],vertices.size());
 
-				m_demoApp->localCreatePhysicsObject(isDynamic, mass, startTransform,shape);
+				btRigidBody* body = m_demoApp->localCreateRigidBody(isDynamic, mass, startTransform,shape);
+				assert(body);
+				m_demoApp->getDynamicsWorld()->addCollisionObject( body );
 			}
 		}
 };
@@ -124,6 +122,11 @@ int main(int argc,char** argv)
 	return glutmain(argc, argv,640,480,"Bullet Quake BSP Physics Viewer http://bullet.sourceforge.net",bspDemo);
 }
 
+BspDemo::~BspDemo()
+{
+	delete m_dynamicsWorld;
+}
+
 void	BspDemo::initPhysics(char* bspfilename)
 {
 	
@@ -132,16 +135,7 @@ void	BspDemo::initPhysics(char* bspfilename)
 	m_forwardAxis = 1;
 
 	///Setup a Physics Simulation Environment
-	btCollisionDispatcher* dispatcher = new	btCollisionDispatcher();
-	btVector3 worldAabbMin(-10000,-10000,-10000);
-	btVector3 worldAabbMax(10000,10000,10000);
-	btOverlappingPairCache* broadphase = new btAxisSweep3(worldAabbMin,worldAabbMax);
-	//BroadphaseInterface* broadphase = new btSimpleBroadphase();
-	m_physicsEnvironmentPtr = new CcdPhysicsEnvironment(dispatcher,broadphase);
-	m_physicsEnvironmentPtr->setDeactivationTime(2.f);
-	m_physicsEnvironmentPtr->setGravity(0,0,-10);
-	m_physicsEnvironmentPtr->setDebugDrawer(&debugDrawer);
-
+	m_dynamicsWorld = new btDiscreteDynamicsWorld();
 
 
 #ifdef QUAKE_BSP_IMPORTING
@@ -192,7 +186,7 @@ void BspDemo::clientMoveAndDisplay()
 {
 	glClear(GL_COLOR_BUFFER_BIT | GL_DEPTH_BUFFER_BIT); 
 
-	m_physicsEnvironmentPtr->proceedDeltaTime(0.f,deltaTime);
+	m_dynamicsWorld->stepSimulation(deltaTime);
 
 	renderme();
 
@@ -208,7 +202,7 @@ void BspDemo::displayCallback(void) {
 	glClear(GL_COLOR_BUFFER_BIT | GL_DEPTH_BUFFER_BIT); 
 
 
-	m_physicsEnvironmentPtr->UpdateAabbs(deltaTime);
+	//m_dynamicsWorld->UpdateAabbs(deltaTime);
 
 	renderme();
 

@@ -25,6 +25,7 @@ class btSimulationIslandManager;
 class btTypedConstraint;
 struct btContactSolverInfo;
 class btRaycastVehicle;
+class btIDebugDraw;
 
 #include <vector>
 
@@ -40,6 +41,8 @@ protected:
 
 	std::vector<btTypedConstraint*> m_constraints;
 
+	btIDebugDraw*	m_debugDrawer;
+
 	bool	m_ownsIslandManager;
 	bool	m_ownsConstraintSolver;
 
@@ -49,8 +52,6 @@ protected:
 	
 	void	integrateTransforms(float timeStep);
 		
-	void	updateAabbs();
-
 	void	calculateSimulationIslands();
 
 	void	solveNoncontactConstraints(btContactSolverInfo& solverInfo);
@@ -65,7 +66,7 @@ public:
 
 
 	///this btDiscreteDynamicsWorld constructor gets created objects from the user, and will not delete those
-	btDiscreteDynamicsWorld(btDispatcher* dispatcher,btOverlappingPairCache* pairCache,btConstraintSolver* constraintSolver);
+	btDiscreteDynamicsWorld(btDispatcher* dispatcher,btOverlappingPairCache* pairCache,btConstraintSolver* constraintSolver=0);
 
 	///this btDiscreteDynamicsWorld will create and own dispatcher, pairCache and constraintSolver, and deletes it in the destructor.
 	btDiscreteDynamicsWorld();
@@ -73,6 +74,8 @@ public:
 	virtual ~btDiscreteDynamicsWorld();
 		
 	virtual void	stepSimulation( float timeStep);
+
+	virtual void	updateAabbs();
 
 	void	addConstraint(btTypedConstraint* constraint);
 
@@ -95,6 +98,16 @@ public:
 	btCollisionWorld*	getCollisionWorld()
 	{
 		return this;
+	}
+
+	virtual void	setDebugDrawer(btIDebugDraw*	debugDrawer)
+	{
+			m_debugDrawer = debugDrawer;
+	}
+
+	virtual btIDebugDraw*	getDebugDrawer()
+	{
+		return m_debugDrawer;
 	}
 
 };

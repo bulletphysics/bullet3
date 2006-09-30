@@ -14,7 +14,7 @@ subject to the following restrictions:
 */
 
 #include "ColladaConverter.h"
-
+#include "btBulletDynamicsCommon.h"
 #include "dae.h"
 #include "dom/domCOLLADA.h"
 
@@ -27,10 +27,9 @@ subject to the following restrictions:
 #include "BulletCollision/CollisionShapes/btTriangleMesh.h"
 #include "BulletCollision/CollisionShapes/btConvexTriangleMeshShape.h"
 #include "BulletCollision/CollisionShapes/btTriangleMeshShape.h"
-#include "BulletCollision/CollisionShapes/btTriangleIndexVertexArray.h"
+//#include "BulletCollision/CollisionShapes/btTriangleIndexVertexArray.h"
 #include "BulletCollision/CollisionShapes/btCompoundShape.h"
 
-#include "CcdPhysicsController.h"
 
 
 char* getLastFileName();
@@ -537,18 +536,18 @@ void	ColladaConverter::prepareConstraints(ConstraintInput& input)
 
 					daeString orgUri0 = attachRefBody->getRigid_body().getOriginalURI();
 					daeString orgUri1 = attachBody1->getRigid_body().getOriginalURI();
-					CcdPhysicsController* ctrl0=0,*ctrl1=0;
+					btRigidBody* body0=0,*body1=0;
 					
 					for (int i=0;i<m_numObjects;i++)
 					{
-						char* bodyName = (char*)m_physObjects[i]->getNewClientInfo();
+						char* bodyName = (char*)m_rigidBodies[i]->m_userObjectPointer;
 						if (!strcmp(bodyName,orgUri0))
 						{
-							ctrl0=m_physObjects[i];
+							body0=m_rigidBodies[i];
 						}
 						if (!strcmp(bodyName,orgUri1))
 						{
-							ctrl1=m_physObjects[i];
+							body1=m_rigidBodies[i];
 						}
 					}
 
@@ -572,8 +571,7 @@ void	ColladaConverter::prepareConstraints(ConstraintInput& input)
 					btVector3 angularMax(coneMaxLimit.get(0),coneMaxLimit.get(1),coneMaxLimit.get(2));
 
 					{
-						int constraintId;
-
+						
 						btTransform attachFrameRef0;
 						attachFrameRef0 = 
 							GetbtTransformFromCOLLADA_DOM
@@ -635,11 +633,11 @@ void	ColladaConverter::prepareConstraints(ConstraintInput& input)
 						}
 
 
-						if (ctrl0 && ctrl1)
+						if (body0&& body1)
 						{
-						constraintId = createUniversalD6Constraint(
-						ctrl0,
-						ctrl1,
+						createUniversalD6Constraint(
+						body0,
+						body1,
 						attachFrameRef0,
 						attachFrameOther,
 						linearLowerLimits,
@@ -699,12 +697,12 @@ void	ColladaConverter::PreparePhysicsObject(struct btRigidBodyInput& input, bool
 
 
 
-	CcdPhysicsController* ctrl = createPhysicsObject(isDynamics,mass,startTransform,colShape);
-	if (ctrl)
+	btRigidBody* body= createRigidBody(isDynamics,mass,startTransform,colShape);
+	if (body)
 	{
 		//for bodyName lookup in constraints
-		ctrl->setNewClientInfo((void*)input.m_bodyName);
-		m_physObjects[m_numObjects] = ctrl;
+		body->m_userObjectPointer = (void*)input.m_bodyName;
+		m_rigidBodies[m_numObjects] = body;
 		m_numObjects++;
 	}
 
@@ -733,12 +731,8 @@ bool ColladaConverter::saveAs(const char* filename)
 
 				{
 
-					float np[3];
+					btVector3 np = m_rigidBodies[i]->m_worldTransform.getOrigin();
 					domFloat3 newPos = m_colladadomNodes[i]->getTranslate_array().get(0)->getValue();
-					m_physObjects[i]->GetMotionState()->getWorldPosition(
-						np[0],
-						np[1],
-						np[2]);
 					newPos.set(0,np[0]);
 					newPos.set(1,np[1]);
 					newPos.set(2,np[2]);
@@ -764,7 +758,7 @@ bool ColladaConverter::saveAs(const char* filename)
 				}
 
 				{
-					btQuaternion quat = m_physObjects[i]->getRigidBody()->getCenterOfMassTransform().getRotation();
+					btQuaternion quat = m_rigidBodies[i]->getCenterOfMassTransform().getRotation();
 					btVector3 axis(quat.getX(),quat.getY(),quat.getZ());
 					axis[3] = 0.f;
 					//check for axis length
@@ -1059,7 +1053,11 @@ void	ColladaConverter::ConvertRigidBodyRef( btRigidBodyInput& rbInput,btRigidBod
 						} else
 						{
 							printf("static concave triangle <mesh> added\n");
-							rbOutput.m_colShape = new btTriangleMeshShape(trimesh);
+							//rbOutput.m_colShape = new btTriangleMeshShape(trimesh);//btBvhTriangleMeshShape(trimesh);
+							//rbOutput.m_colShape = new btBvhTriangleMeshShape(trimesh);
+							rbOutput.m_colShape = new btConvexTriangleMeshShape(trimesh);
+							
+							//btTriangleMeshShape
 						}
 
 					}

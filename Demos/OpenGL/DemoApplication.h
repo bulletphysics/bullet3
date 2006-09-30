@@ -39,8 +39,6 @@ subject to the following restrictions:
 #include "LinearMath/btMatrix3x3.h"
 #include "LinearMath/btTransform.h"
 
-class	CcdPhysicsEnvironment;
-class	CcdPhysicsController;
 class	btCollisionShape;
 class	btDynamicsWorld;
 class	btRigidBody;
@@ -53,11 +51,12 @@ class DemoApplication
 		
 
 	///this is the most important class
-	CcdPhysicsEnvironment* m_physicsEnvironmentPtr;
-	
 	btDynamicsWorld*		m_dynamicsWorld;
 
+	///constraint for mouse picking
 	btTypedConstraint*		m_pickConstraint;
+
+	btVector3	m_gravity;
 
 	float	m_cameraDistance;
 	int	m_debugMode;
@@ -82,12 +81,16 @@ class DemoApplication
 	bool m_idle;
 	int m_lastKey;
 	
-	public:
+public:
 		
 	DemoApplication();
 	
 	virtual ~DemoApplication();
 
+	btDynamicsWorld*		getDynamicsWorld()
+	{
+		return m_dynamicsWorld;
+	}
 	
 	int		getDebugMode()
 	{
@@ -99,10 +102,6 @@ class DemoApplication
 		m_debugMode = mode;
 	}
 
-	CcdPhysicsEnvironment*	getPhysicsEnvironment()
-	{
-		return m_physicsEnvironmentPtr;
-	}
 	
 	void	setCameraUp(const btVector3& camUp)
 	{
@@ -142,9 +141,11 @@ class DemoApplication
 	///Demo functions
 	void	shootBox(const btVector3& destination);
 
+	void	setGravity(const btVector3& grav)
+	{
+		m_gravity = grav;
+	}
 	btVector3	getRayTo(int x,int y);
-
-	CcdPhysicsController*  localCreatePhysicsObject(bool isDynamic, float mass, const btTransform& startTransform,btCollisionShape* shape);
 
 	btRigidBody*	localCreateRigidBody(bool isDynamic, float mass, const btTransform& startTransform,btCollisionShape* shape);
 

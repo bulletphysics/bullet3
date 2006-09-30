@@ -13,15 +13,12 @@ subject to the following restrictions:
 3. This notice may not be removed or altered from any source distribution.
 */
 
-#include "CcdPhysicsEnvironment.h"
-#include "CcdPhysicsController.h"
-#include "MyMotionState.h"
+
 #include "btBulletDynamicsCommon.h"
 #include "LinearMath/btIDebugDraw.h"
 
 #include "GLDebugDrawer.h"
 
-#include "PHY_Pro.h"
 #include "BMF_Api.h"
 #include <stdio.h> //printf debugging
 
@@ -61,10 +58,7 @@ void	ConstraintDemo::initPhysics()
 	btOverlappingPairCache* broadphase = new btSimpleBroadphase();
 
 
-	m_physicsEnvironmentPtr = new CcdPhysicsEnvironment(dispatcher,broadphase);
-	m_physicsEnvironmentPtr->setDeactivationTime(0.f);
-	m_physicsEnvironmentPtr->setGravity(0,-10,0);
-
+	m_dynamicsWorld = new btDiscreteDynamicsWorld();
 
 	btCollisionShape* shape = new btBoxShape(btVector3(CUBE_HALF_EXTENTS,CUBE_HALF_EXTENTS,CUBE_HALF_EXTENTS));
 	btTransform trans;
@@ -74,10 +68,12 @@ void	ConstraintDemo::initPhysics()
 	bool isDynamic = false;
 	float mass = 1.f;
 
-	CcdPhysicsController* ctrl0 = localCreatePhysicsObject( isDynamic,mass,trans,shape);
+	btRigidBody* body0 = localCreateRigidBody( isDynamic,mass,trans,shape);
+	getDynamicsWorld()->addCollisionObject(body0);
 	trans.setOrigin(btVector3(2*CUBE_HALF_EXTENTS,20,0));
 	isDynamic = true;
-	CcdPhysicsController* ctrl1 = localCreatePhysicsObject( isDynamic,mass,trans,shape);
+	btRigidBody* body1 = localCreateRigidBody( isDynamic,mass,trans,shape);
+	getDynamicsWorld()->addCollisionObject(body1);
 	
 	
 	clientResetScene();
@@ -85,21 +81,17 @@ void	ConstraintDemo::initPhysics()
 	{
 		int constraintId;
 
-			float pivotX=CUBE_HALF_EXTENTS,
-				pivotY=-CUBE_HALF_EXTENTS,
-				pivotZ=-CUBE_HALF_EXTENTS;
-			float axisX=0,axisY=0,axisZ=1;
+		btVector3 pivotInA(CUBE_HALF_EXTENTS,-CUBE_HALF_EXTENTS,-CUBE_HALF_EXTENTS);
+		btVector3 axisInA(0,0,1);
 
+		btVector3 pivotInB = body1 ? body1->getCenterOfMassTransform().inverse()(body0->getCenterOfMassTransform()(pivotInA)) : pivotInA;
+		btVector3 axisInB = body1? 
+			(body1->getCenterOfMassTransform().getBasis().inverse()*(body1->getCenterOfMassTransform().getBasis() * axisInA)) : 
+		body0->getCenterOfMassTransform().getBasis() * axisInA;
 
-		constraintId =m_physicsEnvironmentPtr->createConstraint(
-		ctrl0,
-		ctrl1,
-			PHY_POINT2POINT_CONSTRAINT,
-			//PHY_GENERIC_6DOF_CONSTRAINT,//can leave any of the 6 degree of freedom 'free' or 'locked'
-			//PHY_LINEHINGE_CONSTRAINT,
-			pivotX,pivotY,pivotZ,
-			axisX,axisY,axisZ
-			);
+		btTypedConstraint* p2p = new btPoint2PointConstraint(*body0,*body1,pivotInA,pivotInB);
+
+		m_dynamicsWorld->addConstraint(p2p);
 
 	}
 }
@@ -112,8 +104,7 @@ void ConstraintDemo::clientMoveAndDisplay()
 
 	float deltaTime = 1.f/60.f;
 
-	m_physicsEnvironmentPtr->proceedDeltaTime(0.f,deltaTime);
-	
+	m_dynamicsWorld->stepSimulation(deltaTime);
 	renderme();
 
     glFlush();

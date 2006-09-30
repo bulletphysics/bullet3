@@ -13,12 +13,9 @@ subject to the following restrictions:
 3. This notice may not be removed or altered from any source distribution.
 */
 
-#include "CcdPhysicsEnvironment.h"
-#include "CcdPhysicsController.h"
 #include "btBulletDynamicsCommon.h"
 #include "LinearMath/btIDebugDraw.h"
 #include "GLDebugDrawer.h"
-#include "PHY_Pro.h"
 #include "UserCollisionAlgorithm.h"
 #include "GL_ShapeDrawer.h"
 #include "GlutStuff.h"
@@ -129,7 +126,7 @@ void	UserCollisionAlgorithm::initPhysics()
 	dispatcher->registerCollisionCreateFunc(SPHERE_SHAPE_PROXYTYPE,SPHERE_SHAPE_PROXYTYPE,new btSphereSphereCollisionAlgorithm::CreateFunc);
 	
 
-	m_physicsEnvironmentPtr = new CcdPhysicsEnvironment(dispatcher,broadphase);
+	m_dynamicsWorld = new btDiscreteDynamicsWorld(dispatcher,broadphase);
 	
 		bool isDynamic = false;
 	float mass = 0.f;
@@ -137,21 +134,23 @@ void	UserCollisionAlgorithm::initPhysics()
 	startTransform.setIdentity();
 	startTransform.setOrigin(btVector3(0,-2,0));
 
-	CcdPhysicsController* staticTrimesh = localCreatePhysicsObject(isDynamic, mass, startTransform,trimeshShape);
+	btRigidBody* staticBody= localCreateRigidBody(isDynamic, mass, startTransform,trimeshShape);
+	getDynamicsWorld()->addCollisionObject(staticBody);
 	//enable custom material callback
-	staticTrimesh->getRigidBody()->m_collisionFlags |= btCollisionObject::customMaterialCallback;
+	staticBody->m_collisionFlags |= btCollisionObject::customMaterialCallback;
 
 	{
 		for (int i=0;i<10;i++)
 		{
 			btCollisionShape* sphereShape = new btSphereShape(1);
 			startTransform.setOrigin(btVector3(1,2*i,1));
-			localCreatePhysicsObject(true, 1, startTransform,sphereShape);
+			btRigidBody* body = localCreateRigidBody(true, 1, startTransform,sphereShape);
+			getDynamicsWorld()->addCollisionObject(body);
 		}
 	}
-	m_physicsEnvironmentPtr->setGravity(-1,-10,1);
 	
-	m_physicsEnvironmentPtr->setDebugDrawer(&debugDrawer);
+	
+	m_dynamicsWorld->setDebugDrawer(&debugDrawer);
 }
 
 void UserCollisionAlgorithm::clientMoveAndDisplay()
@@ -160,7 +159,7 @@ void UserCollisionAlgorithm::clientMoveAndDisplay()
 
 	float deltaTime = 1.f/60.f;
 
-	m_physicsEnvironmentPtr->proceedDeltaTime(0.f,deltaTime);
+	m_dynamicsWorld->stepSimulation(deltaTime);
 	
 	renderme();
 
@@ -171,6 +170,7 @@ void UserCollisionAlgorithm::clientMoveAndDisplay()
 
 void	UserCollisionAlgorithm::clientResetScene()
 {
+	/*
 	int numObj = m_physicsEnvironmentPtr->GetNumControllers();
 
 	//skip ground
@@ -182,6 +182,8 @@ void	UserCollisionAlgorithm::clientResetScene()
 		ctrl->SetLinearVelocity(0,0,0,0);
 		ctrl->SetAngularVelocity(0,0,0,0);
 	}
+	*/
+
 }
 
 

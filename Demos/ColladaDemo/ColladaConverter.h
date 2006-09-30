@@ -22,8 +22,9 @@ subject to the following restrictions:
 #include "LinearMath/btVector3.h"
 
 class btCollisionShape;
-class PHY_IPhysicsController;
-class CcdPhysicsController;
+class btRigidBody;
+class	btTypedConstraint;
+
 class ConstraintInput;
 
 //use some reasonable number here
@@ -42,7 +43,7 @@ protected:
 	const char* m_filename;
 	
 	int	m_numObjects;
-	CcdPhysicsController* m_physObjects[COLLADA_CONVERTER_MAX_NUM_OBJECTS];
+	btRigidBody* m_rigidBodies[COLLADA_CONVERTER_MAX_NUM_OBJECTS];
 	
 	void	PreparePhysicsObject(struct btRigidBodyInput& input, bool isDynamics, float mass,btCollisionShape* colShape);
 	
@@ -66,8 +67,8 @@ public:
 	bool convert();
 
 	///those 2 virtuals are called for each constraint/physics object
-	virtual int			createUniversalD6Constraint(
-		class PHY_IPhysicsController* ctrlRef,class PHY_IPhysicsController* ctrlOther,
+	virtual btTypedConstraint*			createUniversalD6Constraint(
+		class btRigidBody* body0,class btRigidBody* otherBody,
 			btTransform& localAttachmentFrameRef,
 			btTransform& localAttachmentOther,
 			const btVector3& linearMinLimits,
@@ -76,7 +77,7 @@ public:
 			const btVector3& angularMaxLimits
 			) = 0;
 
-	virtual CcdPhysicsController*  createPhysicsObject(bool isDynamic, 
+	virtual btRigidBody*  createRigidBody(bool isDynamic, 
 		float mass, 
 		const btTransform& startTransform,
 		btCollisionShape* shape) = 0;

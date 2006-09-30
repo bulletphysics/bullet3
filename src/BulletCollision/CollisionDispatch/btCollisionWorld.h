@@ -133,7 +133,7 @@ public:
 
 	struct	LocalRayResult
 	{
-		LocalRayResult(const btCollisionObject*	collisionObject, 
+		LocalRayResult(btCollisionObject*	collisionObject, 
 			LocalShapeInfo*	localShapeInfo,
 			const btVector3&		hitNormalLocal,
 			float hitFraction)
@@ -144,7 +144,7 @@ public:
 		{
 		}
 
-		const btCollisionObject*	m_collisionObject;
+		btCollisionObject*	m_collisionObject;
 		LocalShapeInfo*			m_localShapeInfo;
 		const btVector3&		m_hitNormalLocal;
 		float					m_hitFraction;
@@ -167,7 +167,7 @@ public:
 			:m_closestHitFraction(1.f)
 		{
 		}
-		virtual	float	AddSingleResult(const LocalRayResult& rayResult) = 0;
+		virtual	float	AddSingleResult(LocalRayResult& rayResult) = 0;
 	};
 
 	struct	ClosestRayResultCallback : public RayResultCallback
@@ -184,9 +184,9 @@ public:
 
 		btVector3	m_hitNormalWorld;
 		btVector3	m_hitPointWorld;
-		const btCollisionObject*	m_collisionObject;
+		btCollisionObject*	m_collisionObject;
 		
-		virtual	float	AddSingleResult(const LocalRayResult& rayResult)
+		virtual	float	AddSingleResult(LocalRayResult& rayResult)
 		{
 
 //caller already does the filter on the m_closestHitFraction

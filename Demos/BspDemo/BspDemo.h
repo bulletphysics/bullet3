@@ -22,6 +22,8 @@ class BspDemo : public DemoApplication
 {
 	public:
 
+	virtual ~BspDemo();
+
 	void	initPhysics(char* bspfilename);
 
 	virtual void clientMoveAndDisplay();

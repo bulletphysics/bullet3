@@ -123,7 +123,6 @@ void	btCollisionWorld::performDiscreteCollisionDetection()
 	btVector3 aabbMin,aabbMax;
 	for (size_t i=0;i<m_collisionObjects.size();i++)
 	{
-		m_collisionObjects[i]->m_cachedInvertedWorldTransform = m_collisionObjects[i]->m_worldTransform.inverse();
 		m_collisionObjects[i]->m_collisionShape->getAabb(m_collisionObjects[i]->m_worldTransform,aabbMin,aabbMax);
 		m_broadphasePairCache->setAabb(m_collisionObjects[i]->m_broadphaseHandle,aabbMin,aabbMax);
 	}

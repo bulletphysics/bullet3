@@ -217,8 +217,9 @@ float btConvexConcaveCollisionAlgorithm::calculateTimeOfImpact(btBroadphaseProxy
 	//btVector3 to = convexbody->m_interpolationWorldTransform.getOrigin();
 	//todo: only do if the motion exceeds the 'radius'
 
-	btTransform convexFromLocal = triBody->m_cachedInvertedWorldTransform * convexbody->m_worldTransform;
-	btTransform convexToLocal = triBody->m_cachedInvertedWorldTransform * convexbody->m_interpolationWorldTransform;
+	btTransform worldToLocalTrimesh = triBody->m_worldTransform.inverse();
+	btTransform convexFromLocal = worldToLocalTrimesh * convexbody->m_worldTransform;
+	btTransform convexToLocal = worldToLocalTrimesh * convexbody->m_interpolationWorldTransform;
 
 	struct LocalTriangleSphereCastCallback	: public btTriangleCallback
 	{

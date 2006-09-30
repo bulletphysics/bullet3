@@ -226,7 +226,7 @@ void GL_ShapeDrawer::drawOpenGL(float* m, const btCollisionShape* shape, const b
 					
 					gluCylinder(quadObj, radius, radius, 2.f*halfHeight, 15, 10);
 					glPopMatrix();
-					glEndList();
+					gluDeleteQuadric(quadObj);
 
 					break;
 				}

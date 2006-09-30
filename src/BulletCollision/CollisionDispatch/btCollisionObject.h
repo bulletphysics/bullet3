@@ -41,8 +41,6 @@ struct	btCollisionObject
 	//it can be either previous or future (predicted) transform
 	btTransform	m_interpolationWorldTransform;
 
-	btTransform	m_cachedInvertedWorldTransform;
-
 	enum CollisionFlags
 	{
 		isStatic = 1,

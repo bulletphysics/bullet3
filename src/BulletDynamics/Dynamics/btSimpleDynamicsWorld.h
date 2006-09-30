@@ -35,12 +35,13 @@ protected:
 
 	bool	m_ownsConstraintSolver;
 
+	btIDebugDraw*	m_debugDrawer;
+
 	void	predictUnconstraintMotion(float timeStep);
 	
 	void	integrateTransforms(float timeStep);
 		
-	void	updateAabbs();
-
+	
 public:
 
 
@@ -54,6 +55,17 @@ public:
 		
 	virtual void	stepSimulation( float timeStep);
 
+	virtual void	setDebugDrawer(btIDebugDraw*	debugDrawer) 
+	{
+		m_debugDrawer = debugDrawer;
+	};
+
+	virtual btIDebugDraw*	getDebugDrawer()
+	{
+		return m_debugDrawer;
+	}
+
+	virtual void	updateAabbs();
 };
 
 #endif //BT_SIMPLE_DYNAMICS_WORLD_H

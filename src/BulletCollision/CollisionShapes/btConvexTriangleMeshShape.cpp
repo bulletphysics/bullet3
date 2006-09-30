@@ -148,14 +148,12 @@ btVector3	btConvexTriangleMeshShape::localGetSupportingVertex(const btVector3& v
 int	btConvexTriangleMeshShape::getNumVertices() const
 {
 	//cache this?
-	assert(0);
 	return 0;
 	
 }
 
 int btConvexTriangleMeshShape::getNumEdges() const
 {
-	assert(0);	
 	return 0;
 }
 

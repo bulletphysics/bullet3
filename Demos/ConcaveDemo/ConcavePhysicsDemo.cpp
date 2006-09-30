@@ -13,13 +13,9 @@ subject to the following restrictions:
 3. This notice may not be removed or altered from any source distribution.
 */
 
-#include "CcdPhysicsEnvironment.h"
-#include "CcdPhysicsController.h"
-#include "MyMotionState.h"
 #include "btBulletDynamicsCommon.h"
 #include "LinearMath/btIDebugDraw.h"
 #include "GLDebugDrawer.h"
-#include "PHY_Pro.h"
 #include "ConcaveDemo.h"
 #include "GL_ShapeDrawer.h"
 #include "GlutStuff.h"
@@ -159,30 +155,31 @@ void	ConcaveDemo::initPhysics()
 		
 	btOverlappingPairCache* broadphase = new btSimpleBroadphase();
 
-
-	m_physicsEnvironmentPtr = new CcdPhysicsEnvironment(dispatcher,broadphase);
+	m_dynamicsWorld = new btDiscreteDynamicsWorld();
 	
-		bool isDynamic = false;
+	bool isDynamic = false;
 	float mass = 0.f;
 	btTransform	startTransform;
 	startTransform.setIdentity();
-	startTransform.setOrigin(btVector3(0,-2,0));
+	startTransform.setOrigin(btVector3(0,0,0));
 
-	CcdPhysicsController* staticTrimesh = localCreatePhysicsObject(isDynamic, mass, startTransform,trimeshShape);
+	btRigidBody* staticBody = localCreateRigidBody(isDynamic, mass, startTransform,trimeshShape);
+
+	staticBody->m_collisionFlags |=btCollisionObject::isStatic;
+
+	getDynamicsWorld()->addCollisionObject(staticBody);
 	//enable custom material callback
-	staticTrimesh->getRigidBody()->m_collisionFlags |= btCollisionObject::customMaterialCallback;
+	staticBody->m_collisionFlags |= btCollisionObject::customMaterialCallback;
 
 	{
 		for (int i=0;i<10;i++)
 		{
 			btCollisionShape* boxShape = new btBoxShape(btVector3(1,1,1));
 			startTransform.setOrigin(btVector3(2*i,1,1));
-			localCreatePhysicsObject(true, 1, startTransform,boxShape);
+			getDynamicsWorld()->addCollisionObject(localCreateRigidBody(true, 1, startTransform,boxShape));
 		}
 	}
-	m_physicsEnvironmentPtr->setGravity(-1,-10,1);
 	
-	m_physicsEnvironmentPtr->setDebugDrawer(&debugDrawer);
 }
 
 void ConcaveDemo::clientMoveAndDisplay()
@@ -191,7 +188,7 @@ void ConcaveDemo::clientMoveAndDisplay()
 
 	float deltaTime = 1.f/60.f;
 
-	m_physicsEnvironmentPtr->proceedDeltaTime(0.f,deltaTime);
+	m_dynamicsWorld->stepSimulation(deltaTime);
 	
 	renderme();
 
@@ -202,7 +199,7 @@ void ConcaveDemo::clientMoveAndDisplay()
 
 void	ConcaveDemo::clientResetScene()
 {
-	int numObj = m_physicsEnvironmentPtr->GetNumControllers();
+	/*int numObj = m_physicsEnvironmentPtr->GetNumControllers();
 
 	//skip ground
 	for (int i=1;i<numObj;i++)
@@ -213,6 +210,8 @@ void	ConcaveDemo::clientResetScene()
 		ctrl->SetLinearVelocity(0,0,0,0);
 		ctrl->SetAngularVelocity(0,0,0,0);
 	}
+	*/
+
 }
 
 
