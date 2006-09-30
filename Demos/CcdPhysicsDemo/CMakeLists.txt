@@ -57,6 +57,5 @@ LibOpenGLSupport  LibBulletDynamics  LibBulletCollision LibLinearMath    ${GLUT_
 
 ADD_EXECUTABLE(CcdPhysicsDemo
 	CcdPhysicsDemo.cpp
-	MyMotionState.cpp
 )
 
