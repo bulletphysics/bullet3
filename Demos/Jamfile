@@ -8,28 +8,23 @@ if $(GLUT.AVAILABLE) = "yes"
   rule BulletDemo
   {
     Application $(<) : $(>) : noinstall console nomanifest ;
-    LinkWith $(<) :  bulletcollision bulletopenglsupport bulletphysicsinterfacecommon bulletccdphysics bulletmath ;
+    LinkWith $(<) :  bulletdynamics bulletcollision bulletopenglsupport bulletmath ;
     CFlags $(<) : 
 	  [ FIncludes $(TOP)/Demos/OpenGL ] 
-	  [ FIncludes $(TOP)/Extras/PhysicsInterface/CcdPhysics ] 
-	  [ FIncludes $(TOP)/Extras/PhysicsInterface/Common ] 
     ;
     MsvcIncDirs $(<) : 
 	"../../Demos/OpenGL" 
-	"../../Extras/PhysicsInterface/CcdPhysics" 
-	"../../Extras/PhysicsInterface/Common" ;
+	"../../src" ;
   }
 
   #some demos need extra functionality, Collada / ConvexDecomposition etc.
   rule ExtraDemo
   {
     Application $(<) : $(>) : noinstall console nomanifest ;
-    LinkWith $(<) :   collada-dom libxml convexdecomposition bulletcollision bulletopenglsupport bulletphysicsinterfacecommon bulletccdphysics bulletmath ;
+    LinkWith $(<) :   collada-dom libxml convexdecomposition bulletdynamics bulletcollision  bulletopenglsupport  bulletmath ;
     CFlags $(<) :
           [ FIncludes $(TOP)/Demos/OpenGL ]
-          [ FIncludes $(TOP)/Extras/PhysicsInterface/CcdPhysics ]
-          [ FIncludes $(TOP)/Extras/PhysicsInterface/Common ]
-	  			[ FIncludes $(TOP)/Extras/ConvexDecomposition ]
+       	  			[ FIncludes $(TOP)/Extras/ConvexDecomposition ]
  	  			[ FIncludes $(TOP)/Extras/COLLADA_DOM/include ]
  	  			[ FIncludes $(TOP)/Extras/COLLADA_DOM/include/1.4 ]
 	  			[ FIncludes $(TOP)/Extras/LibXML ]
@@ -40,9 +35,7 @@ if $(GLUT.AVAILABLE) = "yes"
     ;
     MsvcIncDirs $(<) :
         "../../Demos/OpenGL"
-        "../../Extras/PhysicsInterface/CcdPhysics"
-        "../../Extras/PhysicsInterface/Common" 
-	"../../Extras/ConvexDecomposition" 
+      	"../../Extras/ConvexDecomposition" 
 	"../../Extras/COLLADA_DOM/include"
  	"../../Extras/COLLADA_DOM/include/1.4"
 	"../../Extras/LibXML"
@@ -62,24 +55,22 @@ else
  rule BulletBasicDemo
   {
     Application $(<) : $(>) : noinstall console nomanifest ;
-    LinkWith $(<) :  bulletcollision bulletphysicsinterfacecommon bulletccdphysics bulletmath ;
+    LinkWith $(<) :  bulletcollision  bulletmath ;
     CFlags $(<) :
-          [ FIncludes $(TOP)/Extras/PhysicsInterface/CcdPhysics ]
-          [ FIncludes $(TOP)/Extras/PhysicsInterface/Common ]
-    ;
+          [ FIncludes $(TOP)/src ]
+           ;
     MsvcIncDirs $(<) :
-        "../../Extras/PhysicsInterface/CcdPhysics"
-        "../../Extras/PhysicsInterface/Common" ;
+        "../../src" ;
   }
 
 SubInclude TOP Demos CcdPhysicsDemo ;
 SubInclude TOP Demos UserCollisionAlgorithm ;
-SubInclude TOP Demos ForkLiftDemo ;
+#SubInclude TOP Demos ForkLiftDemo ;
 SubInclude TOP Demos BspDemo ;
 SubInclude TOP Demos ConvexDecompositionDemo ;
 SubInclude TOP Demos ColladaDemo ;
 SubInclude TOP Demos BspDemo ;
-SubInclude TOP Demos VehicleDemo ;
+#SubInclude TOP Demos VehicleDemo ;
 SubInclude TOP Demos CollisionDemo ;
 SubInclude TOP Demos CollisionInterfaceDemo ;
 SubInclude TOP Demos ConcaveDemo ;

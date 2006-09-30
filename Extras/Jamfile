@@ -1,6 +1,5 @@
 SubDir TOP Extras ;
 
-SubInclude TOP Extras PhysicsInterface ;
 SubInclude TOP Extras ConvexDecomposition ;
 SubInclude TOP Extras COLLADA_DOM ;
 SubInclude TOP Extras LibXML ;
