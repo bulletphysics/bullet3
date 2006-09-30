@@ -27,13 +27,13 @@
 // Credits: The Clock class was inspired by the Timer classes in 
 // Ogre (www.ogre3d.org).
 
+#ifndef QUICK_PROF_H
+#define QUICK_PROF_H
 
 //#define USE_QUICKPROF 1
 
 #ifdef USE_QUICKPROF
 
-#ifndef QUICK_PROF_H
-#define QUICK_PROF_H
 
 #include <iostream>
 #include <fstream>
@@ -580,25 +580,25 @@ void btProfiler::endProfilingCycle()
 		{
 			// On the first iteration, print a header line that shows the 
 			// names of each profiling block.
-			mOutputFile << "#cycle; ";
+			mOutputFile << "#cycle, ";
 
 			for (iter = mProfileBlocks.begin(); iter != mProfileBlocks.end(); 
 				++iter)
 			{
-				mOutputFile << (*iter).first << "; ";
+				mOutputFile << (*iter).first << ", ";
 			}
 
 			mOutputFile << std::endl;
 			mFirstFileOutput = false;
 		}
 
-		mOutputFile << mCycleNumber << "; ";
+		mOutputFile << mCycleNumber << ", ";
 
 		for (iter = mProfileBlocks.begin(); iter != mProfileBlocks.end(); 
 			++iter)
 		{
 			mOutputFile << getBlockTime((*iter).first, mFileOutputMethod) 
-				<< "; ";
+				<< ", ";
 		}
 
 		mOutputFile << std::endl;
@@ -673,6 +673,14 @@ std::string btProfiler::createStatsString(BlockTimingMethod method)
 	return s;
 }
 
-#endif
+
+#define BEGIN_PROFILE(a) btProfiler::beginBlock(a)
+#define END_PROFILE(a) btProfiler::endBlock(a)
+
+#else //USE_QUICKPROF
+#define BEGIN_PROFILE(a)
+#define END_PROFILE(a)
 
 #endif //USE_QUICKPROF
+
+#endif //QUICK_PROF_H

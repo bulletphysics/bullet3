@@ -34,13 +34,17 @@ subject to the following restrictions:
 #include "BulletDynamics/Vehicle/btVehicleRaycaster.h"
 #include "BulletDynamics/Vehicle/btWheelInfo.h"
 #include "LinearMath/btIDebugDraw.h"
+#include "LinearMath/btQuickprof.h"
+
+
 
 #include <algorithm>
 
 btDiscreteDynamicsWorld::btDiscreteDynamicsWorld()
 :btDynamicsWorld(),
 m_constraintSolver(new btSequentialImpulseConstraintSolver),
-m_debugDrawer(0)
+m_debugDrawer(0),
+m_profileTimings(0)
 {
 	m_islandManager = new btSimulationIslandManager();
 	m_ownsIslandManager = true;
@@ -51,7 +55,8 @@ m_debugDrawer(0)
 btDiscreteDynamicsWorld::btDiscreteDynamicsWorld(btDispatcher* dispatcher,btOverlappingPairCache* pairCache,btConstraintSolver* constraintSolver)
 :btDynamicsWorld(dispatcher,pairCache),
 m_constraintSolver(constraintSolver? constraintSolver: new btSequentialImpulseConstraintSolver),
-m_debugDrawer(0)
+m_debugDrawer(0),
+m_profileTimings(0)
 {
 	m_islandManager = new btSimulationIslandManager();
 	m_ownsIslandManager = true;
@@ -70,6 +75,9 @@ btDiscreteDynamicsWorld::~btDiscreteDynamicsWorld()
 
 void	btDiscreteDynamicsWorld::stepSimulation(float timeStep)
 {
+	
+	startProfiling(timeStep);
+
 	///update aabbs information
 	updateAabbs();
 
@@ -106,15 +114,20 @@ void	btDiscreteDynamicsWorld::stepSimulation(float timeStep)
 
 void	btDiscreteDynamicsWorld::updateVehicles(float timeStep)
 {
+	BEGIN_PROFILE("updateVehicles");
+
 	for (int i=0;i<m_vehicles.size();i++)
 	{
 		btRaycastVehicle* vehicle = m_vehicles[i];
 		vehicle->updateVehicle( timeStep);
 	}
+	END_PROFILE("updateVehicles");
 }
 
 void	btDiscreteDynamicsWorld::updateActivationState(float timeStep)
 {
+	BEGIN_PROFILE("updateActivationState");
+
 	for (int i=0;i<m_collisionObjects.size();i++)
 	{
 		btCollisionObject* colObj = m_collisionObjects[i];
@@ -134,6 +147,7 @@ void	btDiscreteDynamicsWorld::updateActivationState(float timeStep)
 			}
 		}
 	}
+	END_PROFILE("updateActivationState");
 }
 
 void	btDiscreteDynamicsWorld::addConstraint(btTypedConstraint* constraint)
@@ -168,6 +182,8 @@ void	btDiscreteDynamicsWorld::removeVehicle(btRaycastVehicle* vehicle)
 void	btDiscreteDynamicsWorld::solveContactConstraints(btContactSolverInfo& solverInfo)
 {
 	
+	BEGIN_PROFILE("solveContactConstraints");
+
 	struct InplaceSolverIslandCallback : public btSimulationIslandManager::IslandCallback
 	{
 
@@ -200,17 +216,14 @@ void	btDiscreteDynamicsWorld::solveContactConstraints(btContactSolverInfo& solve
 	/// solve all the contact points and contact friction
 	m_islandManager->buildAndProcessIslands(getCollisionWorld()->getDispatcher(),getCollisionWorld()->getCollisionObjectArray(),&solverCallback);
 
+	END_PROFILE("solveContactConstraints");
 
 }
 
 
 void	btDiscreteDynamicsWorld::solveNoncontactConstraints(btContactSolverInfo& solverInfo)
 {
-	#ifdef USE_QUICKPROF
-	Profiler::beginBlock("solveConstraint");
-#endif //USE_QUICKPROF
-
-
+	BEGIN_PROFILE("solveNoncontactConstraints");
 
 	int i;
 	int numConstraints = m_constraints.size();
@@ -235,18 +248,13 @@ void	btDiscreteDynamicsWorld::solveNoncontactConstraints(btContactSolverInfo& so
 		}
 	}
 
-#ifdef USE_QUICKPROF
-	Profiler::endBlock("solveConstraint");
-#endif //USE_QUICKPROF
+	END_PROFILE("solveNoncontactConstraints");
 
 }
 
 void	btDiscreteDynamicsWorld::calculateSimulationIslands()
 {
-	
-#ifdef USE_QUICKPROF
-	Profiler::beginBlock("IslandUnionFind");
-#endif //USE_QUICKPROF
+	BEGIN_PROFILE("calculateSimulationIslands");
 
 	getSimulationIslandManager()->updateActivationState(getCollisionWorld(),getCollisionWorld()->getDispatcher());
 
@@ -276,14 +284,13 @@ void	btDiscreteDynamicsWorld::calculateSimulationIslands()
 	//Store the island id in each body
 	getSimulationIslandManager()->storeIslandActivationState(getCollisionWorld());
 
-#ifdef USE_QUICKPROF
-	Profiler::endBlock("IslandUnionFind");
-#endif //USE_QUICKPROF
+	END_PROFILE("calculateSimulationIslands");
 
 }
 
 static void DrawAabb(btIDebugDraw* debugDrawer,const btVector3& from,const btVector3& to,const btVector3& color)
 {
+
 	btVector3 halfExtents = (to-from)* 0.5f;
 	btVector3 center = (to+from) *0.5f;
 	int i,j;
@@ -315,6 +322,8 @@ static void DrawAabb(btIDebugDraw* debugDrawer,const btVector3& from,const btVec
 
 void	btDiscreteDynamicsWorld::updateAabbs()
 {
+	BEGIN_PROFILE("updateAabbs");
+	
 	btVector3 colorvec(1,0,0);
 	btTransform predictedTrans;
 	for (int i=0;i<m_collisionObjects.size();i++)
@@ -337,10 +346,13 @@ void	btDiscreteDynamicsWorld::updateAabbs()
 			}
 		}
 	}
+	
+	END_PROFILE("updateAabbs");
 }
 
 void	btDiscreteDynamicsWorld::integrateTransforms(float timeStep)
 {
+	BEGIN_PROFILE("integrateTransforms");
 	btTransform predictedTrans;
 	for (int i=0;i<m_collisionObjects.size();i++)
 	{
@@ -355,12 +367,14 @@ void	btDiscreteDynamicsWorld::integrateTransforms(float timeStep)
 			}
 		}
 	}
+	END_PROFILE("integrateTransforms");
 }
 
 
 
 void	btDiscreteDynamicsWorld::predictUnconstraintMotion(float timeStep)
 {
+	BEGIN_PROFILE("predictUnconstraintMotion");
 	for (int i=0;i<m_collisionObjects.size();i++)
 	{
 		btCollisionObject* colObj = m_collisionObjects[i];
@@ -376,4 +390,41 @@ void	btDiscreteDynamicsWorld::predictUnconstraintMotion(float timeStep)
 			}
 		}
 	}
+	END_PROFILE("predictUnconstraintMotion");
+}
+
+
+void	btDiscreteDynamicsWorld::startProfiling(float timeStep)
+{
+	#ifdef USE_QUICKPROF
+
+
+	//toggle btProfiler
+	if ( m_debugDrawer && m_debugDrawer->getDebugMode() & btIDebugDraw::DBG_ProfileTimings)
+	{
+		if (!m_profileTimings)
+		{
+			m_profileTimings = 1;
+			// To disable profiling, simply comment out the following line.
+			static int counter = 0;
+
+			char filename[128];
+			sprintf(filename,"quickprof_bullet_timings%i.csv",counter++);
+			btProfiler::init(filename, btProfiler::BLOCK_CYCLE_SECONDS);//BLOCK_TOTAL_MICROSECONDS
+		} else
+		{
+			btProfiler::endProfilingCycle();
+		}
+
+	} else
+	{
+		if (m_profileTimings)
+		{
+			btProfiler::endProfilingCycle();
+
+			m_profileTimings = 0;
+			btProfiler::destroy();
+		}
+	}
+#endif //USE_QUICKPROF
 }

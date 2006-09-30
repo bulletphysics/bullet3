@@ -696,6 +696,26 @@ void DemoApplication::renderme()
 
 			glColor3f(0, 0, 0);
 
+	#ifdef USE_QUICKPROF
+
+
+			if ( getDebugMode() & btIDebugDraw::DBG_ProfileTimings)
+			{
+				static int counter = 0;
+				counter++;
+				std::map<std::string, hidden::ProfileBlock*>::iterator iter;
+				for (iter = btProfiler::mProfileBlocks.begin(); iter != btProfiler::mProfileBlocks.end(); ++iter)
+				{
+					char blockTime[128];
+					sprintf(blockTime, "%s: %lf",&((*iter).first[0]),btProfiler::getBlockTime((*iter).first, btProfiler::BLOCK_CYCLE_SECONDS));//BLOCK_TOTAL_PERCENT));
+					glRasterPos3f(xOffset,yStart,0);
+					BMF_DrawString(BMF_GetFont(BMF_kHelvetica10),blockTime);
+					yStart += yIncr;
+
+				}
+			}
+	#endif //USE_QUICKPROF
+
 		
 			glRasterPos3f(xOffset,yStart,0);
 			sprintf(buf,"mouse to interact");

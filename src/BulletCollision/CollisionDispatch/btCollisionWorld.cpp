@@ -24,6 +24,7 @@ subject to the following restrictions:
 #include "BulletCollision/NarrowPhaseCollision/btSubSimplexConvexCast.h"
 #include "BulletCollision/BroadphaseCollision/btBroadphaseInterface.h"
 #include "LinearMath/btAabbUtil2.h"
+#include "LinearMath/btQuickprof.h"
 
 //When the user doesn't provide dispatcher or broadphase, create basic versions (and delete them in destructor)
 #include "BulletCollision/CollisionDispatch/btCollisionDispatcher.h"
@@ -114,6 +115,8 @@ void	btCollisionWorld::addCollisionObject(btCollisionObject* collisionObject,sho
 
 void	btCollisionWorld::performDiscreteCollisionDetection()
 {
+	BEGIN_PROFILE("performDiscreteCollisionDetection");
+
 	btDispatcherInfo	dispatchInfo;
 	dispatchInfo.m_timeStep = 0.f;
 	dispatchInfo.m_stepCount = 0;
@@ -132,6 +135,8 @@ void	btCollisionWorld::performDiscreteCollisionDetection()
 	btDispatcher* dispatcher = getDispatcher();
 	if (dispatcher)
 		dispatcher->dispatchAllCollisionPairs(m_broadphasePairCache,dispatchInfo);
+
+	END_PROFILE("performDiscreteCollisionDetection");
 
 }
 

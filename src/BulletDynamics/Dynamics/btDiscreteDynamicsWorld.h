@@ -48,6 +48,8 @@ protected:
 
 	std::vector<btRaycastVehicle*>	m_vehicles;
 
+	int	m_profileTimings;
+
 	void	predictUnconstraintMotion(float timeStep);
 	
 	void	integrateTransforms(float timeStep);
@@ -62,6 +64,7 @@ protected:
 
 	void	updateVehicles(float timeStep);
 
+	void	startProfiling(float timeStep);
 public:
 
 

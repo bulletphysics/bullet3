@@ -33,7 +33,7 @@ float deltaTime = 1.f/60.f;
 #include "ColladaDemo.h"
 #include "GL_ShapeDrawer.h"
 #include "GlutStuff.h"
-int maxObj = 1;
+
 
 ///custom version of the converter, that creates physics objects/constraints
 class MyColladaConverter : public ColladaConverter
@@ -80,16 +80,6 @@ class MyColladaConverter : public ColladaConverter
 		const btTransform& startTransform,
 		btCollisionShape* shape)
 	{
-		if (!isDynamic)
-		{
-			printf("nondyna\n");
-		} else
-		{
-			if (!maxObj)
-				return 0;
-			maxObj--;
-		}
-		
 
 		btRigidBody* body = m_demoApp->localCreateRigidBody(isDynamic, mass, startTransform,shape);
 		m_demoApp->getDynamicsWorld()->addCollisionObject(body);

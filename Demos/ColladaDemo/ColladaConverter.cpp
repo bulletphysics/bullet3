@@ -1053,9 +1053,9 @@ void	ColladaConverter::ConvertRigidBodyRef( btRigidBodyInput& rbInput,btRigidBod
 						} else
 						{
 							printf("static concave triangle <mesh> added\n");
-							//rbOutput.m_colShape = new btTriangleMeshShape(trimesh);//btBvhTriangleMeshShape(trimesh);
+							rbOutput.m_colShape = new btBvhTriangleMeshShape(trimesh);
 							//rbOutput.m_colShape = new btBvhTriangleMeshShape(trimesh);
-							rbOutput.m_colShape = new btConvexTriangleMeshShape(trimesh);
+							//rbOutput.m_colShape = new btConvexTriangleMeshShape(trimesh);
 							
 							//btTriangleMeshShape
 						}
