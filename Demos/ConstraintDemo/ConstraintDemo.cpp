@@ -73,6 +73,7 @@ void	ConstraintDemo::initPhysics()
 	trans.setOrigin(btVector3(2*CUBE_HALF_EXTENTS,20,0));
 	isDynamic = true;
 	btRigidBody* body1 = localCreateRigidBody( isDynamic,mass,trans,shape);
+	body1->setDamping(0.3,0.3);
 	getDynamicsWorld()->addCollisionObject(body1);
 	
 	

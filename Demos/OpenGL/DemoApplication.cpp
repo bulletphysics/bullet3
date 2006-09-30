@@ -335,7 +335,8 @@ void DemoApplication::keyboardCallback(unsigned char key, int x, int y)
         break;
     }
 
-	getDynamicsWorld()->getDebugDrawer()->setDebugMode(m_debugMode);
+	if (getDynamicsWorld()->getDebugDrawer())
+		getDynamicsWorld()->getDebugDrawer()->setDebugMode(m_debugMode);
 
 	glutPostRedisplay();
 
