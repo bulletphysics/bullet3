@@ -12,9 +12,6 @@ Package=<5>
 Package=<4>
 {{{
     Begin Project Dependency
-    Project_Dep_Name libbulletccdphysics
-    End Project Dependency
-    Begin Project Dependency
     Project_Dep_Name libbulletcollision
     End Project Dependency
     Begin Project Dependency
@@ -25,9 +22,6 @@ Package=<4>
     End Project Dependency
     Begin Project Dependency
     Project_Dep_Name libbulletopenglsupport
-    End Project Dependency
-    Begin Project Dependency
-    Project_Dep_Name libbulletphysicsinterfacecommon
     End Project Dependency
     Begin Project Dependency
     Project_Dep_Name libcollada-dom
@@ -51,9 +45,6 @@ Package=<5>
 Package=<4>
 {{{
     Begin Project Dependency
-    Project_Dep_Name libbulletccdphysics
-    End Project Dependency
-    Begin Project Dependency
     Project_Dep_Name libbulletcollision
     End Project Dependency
     Begin Project Dependency
@@ -64,9 +55,6 @@ Package=<4>
     End Project Dependency
     Begin Project Dependency
     Project_Dep_Name libbulletopenglsupport
-    End Project Dependency
-    Begin Project Dependency
-    Project_Dep_Name libbulletphysicsinterfacecommon
     End Project Dependency
 }}}
 
@@ -81,9 +69,6 @@ Package=<5>
 Package=<4>
 {{{
     Begin Project Dependency
-    Project_Dep_Name libbulletccdphysics
-    End Project Dependency
-    Begin Project Dependency
     Project_Dep_Name libbulletcollision
     End Project Dependency
     Begin Project Dependency
@@ -94,9 +79,6 @@ Package=<4>
     End Project Dependency
     Begin Project Dependency
     Project_Dep_Name libbulletopenglsupport
-    End Project Dependency
-    Begin Project Dependency
-    Project_Dep_Name libbulletphysicsinterfacecommon
     End Project Dependency
     Begin Project Dependency
     Project_Dep_Name libcollada-dom
@@ -120,9 +102,6 @@ Package=<5>
 Package=<4>
 {{{
     Begin Project Dependency
-    Project_Dep_Name libbulletccdphysics
-    End Project Dependency
-    Begin Project Dependency
     Project_Dep_Name libbulletcollision
     End Project Dependency
     Begin Project Dependency
@@ -133,9 +112,6 @@ Package=<4>
     End Project Dependency
     Begin Project Dependency
     Project_Dep_Name libbulletopenglsupport
-    End Project Dependency
-    Begin Project Dependency
-    Project_Dep_Name libbulletphysicsinterfacecommon
     End Project Dependency
 }}}
 
@@ -150,9 +126,6 @@ Package=<5>
 Package=<4>
 {{{
     Begin Project Dependency
-    Project_Dep_Name libbulletccdphysics
-    End Project Dependency
-    Begin Project Dependency
     Project_Dep_Name libbulletcollision
     End Project Dependency
     Begin Project Dependency
@@ -163,9 +136,6 @@ Package=<4>
     End Project Dependency
     Begin Project Dependency
     Project_Dep_Name libbulletopenglsupport
-    End Project Dependency
-    Begin Project Dependency
-    Project_Dep_Name libbulletphysicsinterfacecommon
     End Project Dependency
 }}}
 
@@ -180,9 +150,6 @@ Package=<5>
 Package=<4>
 {{{
     Begin Project Dependency
-    Project_Dep_Name libbulletccdphysics
-    End Project Dependency
-    Begin Project Dependency
     Project_Dep_Name libbulletcollision
     End Project Dependency
     Begin Project Dependency
@@ -193,9 +160,6 @@ Package=<4>
     End Project Dependency
     Begin Project Dependency
     Project_Dep_Name libbulletopenglsupport
-    End Project Dependency
-    Begin Project Dependency
-    Project_Dep_Name libbulletphysicsinterfacecommon
     End Project Dependency
 }}}
 
@@ -210,9 +174,6 @@ Package=<5>
 Package=<4>
 {{{
     Begin Project Dependency
-    Project_Dep_Name libbulletccdphysics
-    End Project Dependency
-    Begin Project Dependency
     Project_Dep_Name libbulletcollision
     End Project Dependency
     Begin Project Dependency
@@ -223,9 +184,6 @@ Package=<4>
     End Project Dependency
     Begin Project Dependency
     Project_Dep_Name libbulletopenglsupport
-    End Project Dependency
-    Begin Project Dependency
-    Project_Dep_Name libbulletphysicsinterfacecommon
     End Project Dependency
 }}}
 
@@ -240,9 +198,6 @@ Package=<5>
 Package=<4>
 {{{
     Begin Project Dependency
-    Project_Dep_Name libbulletccdphysics
-    End Project Dependency
-    Begin Project Dependency
     Project_Dep_Name libbulletcollision
     End Project Dependency
     Begin Project Dependency
@@ -253,9 +208,6 @@ Package=<4>
     End Project Dependency
     Begin Project Dependency
     Project_Dep_Name libbulletopenglsupport
-    End Project Dependency
-    Begin Project Dependency
-    Project_Dep_Name libbulletphysicsinterfacecommon
     End Project Dependency
 }}}
 
@@ -270,9 +222,6 @@ Package=<5>
 Package=<4>
 {{{
     Begin Project Dependency
-    Project_Dep_Name libbulletccdphysics
-    End Project Dependency
-    Begin Project Dependency
     Project_Dep_Name libbulletcollision
     End Project Dependency
     Begin Project Dependency
@@ -283,9 +232,6 @@ Package=<4>
     End Project Dependency
     Begin Project Dependency
     Project_Dep_Name libbulletopenglsupport
-    End Project Dependency
-    Begin Project Dependency
-    Project_Dep_Name libbulletphysicsinterfacecommon
     End Project Dependency
     Begin Project Dependency
     Project_Dep_Name libcollada-dom
@@ -300,36 +246,6 @@ Package=<4>
 
 ###############################################################################
 
-Project: "appForkLiftDemo"=.\appForkLiftDemo.dsp - Package Owner=<4>
-
-Package=<5>
-{{{
-}}}
-
-Package=<4>
-{{{
-    Begin Project Dependency
-    Project_Dep_Name libbulletccdphysics
-    End Project Dependency
-    Begin Project Dependency
-    Project_Dep_Name libbulletcollision
-    End Project Dependency
-    Begin Project Dependency
-    Project_Dep_Name libbulletdynamics
-    End Project Dependency
-    Begin Project Dependency
-    Project_Dep_Name libbulletmath
-    End Project Dependency
-    Begin Project Dependency
-    Project_Dep_Name libbulletopenglsupport
-    End Project Dependency
-    Begin Project Dependency
-    Project_Dep_Name libbulletphysicsinterfacecommon
-    End Project Dependency
-}}}
-
-###############################################################################
-
 Project: "appGjkConvexCastDemo"=.\appGjkConvexCastDemo.dsp - Package Owner=<4>
 
 Package=<5>
@@ -339,9 +255,6 @@ Package=<5>
 Package=<4>
 {{{
     Begin Project Dependency
-    Project_Dep_Name libbulletccdphysics
-    End Project Dependency
-    Begin Project Dependency
     Project_Dep_Name libbulletcollision
     End Project Dependency
     Begin Project Dependency
@@ -352,9 +265,6 @@ Package=<4>
     End Project Dependency
     Begin Project Dependency
     Project_Dep_Name libbulletopenglsupport
-    End Project Dependency
-    Begin Project Dependency
-    Project_Dep_Name libbulletphysicsinterfacecommon
     End Project Dependency
 }}}
 
@@ -381,9 +291,6 @@ Package=<5>
 Package=<4>
 {{{
     Begin Project Dependency
-    Project_Dep_Name libbulletccdphysics
-    End Project Dependency
-    Begin Project Dependency
     Project_Dep_Name libbulletcollision
     End Project Dependency
     Begin Project Dependency
@@ -394,9 +301,6 @@ Package=<4>
     End Project Dependency
     Begin Project Dependency
     Project_Dep_Name libbulletopenglsupport
-    End Project Dependency
-    Begin Project Dependency
-    Project_Dep_Name libbulletphysicsinterfacecommon
     End Project Dependency
 }}}
 
@@ -411,9 +315,6 @@ Package=<5>
 Package=<4>
 {{{
     Begin Project Dependency
-    Project_Dep_Name libbulletccdphysics
-    End Project Dependency
-    Begin Project Dependency
     Project_Dep_Name libbulletcollision
     End Project Dependency
     Begin Project Dependency
@@ -424,9 +325,6 @@ Package=<4>
     End Project Dependency
     Begin Project Dependency
     Project_Dep_Name libbulletopenglsupport
-    End Project Dependency
-    Begin Project Dependency
-    Project_Dep_Name libbulletphysicsinterfacecommon
     End Project Dependency
 }}}
 
@@ -441,9 +339,6 @@ Package=<5>
 Package=<4>
 {{{
     Begin Project Dependency
-    Project_Dep_Name libbulletccdphysics
-    End Project Dependency
-    Begin Project Dependency
     Project_Dep_Name libbulletcollision
     End Project Dependency
     Begin Project Dependency
@@ -454,39 +349,6 @@ Package=<4>
     End Project Dependency
     Begin Project Dependency
     Project_Dep_Name libbulletopenglsupport
-    End Project Dependency
-    Begin Project Dependency
-    Project_Dep_Name libbulletphysicsinterfacecommon
-    End Project Dependency
-}}}
-
-###############################################################################
-
-Project: "appVehicleDemo"=.\appVehicleDemo.dsp - Package Owner=<4>
-
-Package=<5>
-{{{
-}}}
-
-Package=<4>
-{{{
-    Begin Project Dependency
-    Project_Dep_Name libbulletccdphysics
-    End Project Dependency
-    Begin Project Dependency
-    Project_Dep_Name libbulletcollision
-    End Project Dependency
-    Begin Project Dependency
-    Project_Dep_Name libbulletdynamics
-    End Project Dependency
-    Begin Project Dependency
-    Project_Dep_Name libbulletmath
-    End Project Dependency
-    Begin Project Dependency
-    Project_Dep_Name libbulletopenglsupport
-    End Project Dependency
-    Begin Project Dependency
-    Project_Dep_Name libbulletphysicsinterfacecommon
     End Project Dependency
 }}}
 
@@ -528,9 +390,6 @@ Package=<4>
     Project_Dep_Name appConvexDecompositionDemo
     End Project Dependency
     Begin Project Dependency
-    Project_Dep_Name appForkLiftDemo
-    End Project Dependency
-    Begin Project Dependency
     Project_Dep_Name appGjkConvexCastDemo
     End Project Dependency
     Begin Project Dependency
@@ -546,12 +405,6 @@ Package=<4>
     Project_Dep_Name appUserCollisionAlgorithm
     End Project Dependency
     Begin Project Dependency
-    Project_Dep_Name appVehicleDemo
-    End Project Dependency
-    Begin Project Dependency
-    Project_Dep_Name libbulletccdphysics
-    End Project Dependency
-    Begin Project Dependency
     Project_Dep_Name libbulletcollision
     End Project Dependency
     Begin Project Dependency
@@ -562,9 +415,6 @@ Package=<4>
     End Project Dependency
     Begin Project Dependency
     Project_Dep_Name libbulletopenglsupport
-    End Project Dependency
-    Begin Project Dependency
-    Project_Dep_Name libbulletphysicsinterfacecommon
     End Project Dependency
     Begin Project Dependency
     Project_Dep_Name libcollada-dom
@@ -615,9 +465,6 @@ Package=<4>
     Project_Dep_Name appConvexDecompositionDemo
     End Project Dependency
     Begin Project Dependency
-    Project_Dep_Name appForkLiftDemo
-    End Project Dependency
-    Begin Project Dependency
     Project_Dep_Name appGjkConvexCastDemo
     End Project Dependency
     Begin Project Dependency
@@ -632,9 +479,6 @@ Package=<4>
     Begin Project Dependency
     Project_Dep_Name appUserCollisionAlgorithm
     End Project Dependency
-    Begin Project Dependency
-    Project_Dep_Name appVehicleDemo
-    End Project Dependency
 }}}
 
 ###############################################################################
@@ -648,9 +492,6 @@ Package=<5>
 Package=<4>
 {{{
     Begin Project Dependency
-    Project_Dep_Name libbulletccdphysics
-    End Project Dependency
-    Begin Project Dependency
     Project_Dep_Name libbulletcollision
     End Project Dependency
     Begin Project Dependency
@@ -663,9 +504,6 @@ Package=<4>
     Project_Dep_Name libbulletopenglsupport
     End Project Dependency
     Begin Project Dependency
-    Project_Dep_Name libbulletphysicsinterfacecommon
-    End Project Dependency
-    Begin Project Dependency
     Project_Dep_Name libcollada-dom
     End Project Dependency
     Begin Project Dependency
@@ -674,18 +512,6 @@ Package=<4>
     Begin Project Dependency
     Project_Dep_Name liblibxml
     End Project Dependency
-}}}
-
-###############################################################################
-
-Project: "libbulletccdphysics"=.\libbulletccdphysics.dsp - Package Owner=<4>
-
-Package=<5>
-{{{
-}}}
-
-Package=<4>
-{{{
 }}}
 
 ###############################################################################
@@ -727,18 +553,6 @@ Package=<4>
 ###############################################################################
 
 Project: "libbulletopenglsupport"=.\libbulletopenglsupport.dsp - Package Owner=<4>
-
-Package=<5>
-{{{
-}}}
-
-Package=<4>
-{{{
-}}}
-
-###############################################################################
-
-Project: "libbulletphysicsinterfacecommon"=.\libbulletphysicsinterfacecommon.dsp - Package Owner=<4>
 
 Package=<5>
 {{{
