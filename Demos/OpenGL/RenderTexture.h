@@ -51,3 +51,4 @@ public:
 };
 
 #endif //RENDER_TEXTURE_H
+

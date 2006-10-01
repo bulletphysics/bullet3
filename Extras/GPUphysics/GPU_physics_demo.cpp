@@ -395,8 +395,6 @@ void initCubeVBO ()
   for ( int i = 0 ; i < (noVertexTextureSupport ? 1 : TEX_SIZE) ; i++ )
     for ( int j = 0 ; j < (noVertexTextureSupport ? 1 : TEX_SIZE) ; j++ )
     {
-      int n = i * TEX_SIZE + j ;
-
       /*
         I use the colour data to set which cube is which in
         the physics textures.

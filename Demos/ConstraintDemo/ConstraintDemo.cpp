@@ -52,11 +52,8 @@ void	ConstraintDemo::initPhysics()
 {
 	//ConstraintSolver* solver = new btSequentialImpulseConstraintSolver;
 	//ConstraintSolver* solver = new OdeConstraintSolver;
-
-	btCollisionDispatcher* dispatcher = new	btCollisionDispatcher();
-		
-	btOverlappingPairCache* broadphase = new btSimpleBroadphase();
-
+	//btCollisionDispatcher* dispatcher = new btCollisionDispatcher();
+	//btOverlappingPairCache* broadphase = new btSimpleBroadphase();
 
 	m_dynamicsWorld = new btDiscreteDynamicsWorld();
 
@@ -80,8 +77,6 @@ void	ConstraintDemo::initPhysics()
 	clientResetScene();
 
 	{
-		int constraintId;
-
 		btVector3 pivotInA(CUBE_HALF_EXTENTS,-CUBE_HALF_EXTENTS,-CUBE_HALF_EXTENTS);
 		btVector3 axisInA(0,0,1);
 
@@ -110,7 +105,6 @@ void ConstraintDemo::clientMoveAndDisplay()
 
     glFlush();
     glutSwapBuffers();
-
 }
 
 

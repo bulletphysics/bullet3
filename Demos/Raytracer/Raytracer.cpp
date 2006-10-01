@@ -46,7 +46,7 @@ Very basic raytracer, rendering into a texture.
 
 
 
-#include "renderTexture.h"
+#include "RenderTexture.h"
 
 btVoronoiSimplexSolver	simplexSolver;
 

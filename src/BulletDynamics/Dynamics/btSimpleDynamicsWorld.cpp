@@ -73,7 +73,7 @@ void	btSimpleDynamicsWorld::stepSimulation(float timeStep)
 void	btSimpleDynamicsWorld::updateAabbs()
 {
 	btTransform predictedTrans;
-	for (int i=0;i<m_collisionObjects.size();i++)
+	for (unsigned int i=0;i<m_collisionObjects.size();i++)
 	{
 		btCollisionObject* colObj = m_collisionObjects[i];
 		btRigidBody* body = btRigidBody::upcast(colObj);
@@ -93,7 +93,7 @@ void	btSimpleDynamicsWorld::updateAabbs()
 void	btSimpleDynamicsWorld::integrateTransforms(float timeStep)
 {
 	btTransform predictedTrans;
-	for (int i=0;i<m_collisionObjects.size();i++)
+	for (unsigned int i=0;i<m_collisionObjects.size();i++)
 	{
 		btCollisionObject* colObj = m_collisionObjects[i];
 		btRigidBody* body = btRigidBody::upcast(colObj);
@@ -112,7 +112,7 @@ void	btSimpleDynamicsWorld::integrateTransforms(float timeStep)
 
 void	btSimpleDynamicsWorld::predictUnconstraintMotion(float timeStep)
 {
-	for (int i=0;i<m_collisionObjects.size();i++)
+	for (unsigned int i=0;i<m_collisionObjects.size();i++)
 	{
 		btCollisionObject* colObj = m_collisionObjects[i];
 		btRigidBody* body = btRigidBody::upcast(colObj);

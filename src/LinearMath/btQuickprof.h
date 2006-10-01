@@ -684,3 +684,4 @@ std::string btProfiler::createStatsString(BlockTimingMethod method)
 #endif //USE_QUICKPROF
 
 #endif //QUICK_PROF_H
+

@@ -13,7 +13,7 @@ subject to the following restrictions:
 3. This notice may not be removed or altered from any source distribution.
 */
 
-#include "renderTexture.h"
+#include "RenderTexture.h"
 #include <memory.h>
 #include "BMF_FontData.h"
 

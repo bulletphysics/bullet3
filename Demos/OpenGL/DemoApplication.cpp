@@ -479,9 +479,6 @@ void DemoApplication::mouseFunc(int button, int state, int x, int y)
 				//apply an impulse
 				if (m_dynamicsWorld)
 				{
-					float hit[3];
-					float normal[3];
-					
 					btCollisionWorld::ClosestRayResultCallback rayCallback(m_cameraPosition,rayTo);
 					m_dynamicsWorld->rayTest(m_cameraPosition,rayTo,rayCallback);
 					if (rayCallback.HasHit())
@@ -517,8 +514,6 @@ void DemoApplication::mouseFunc(int button, int state, int x, int y)
 				//add a point to point constraint for picking
 				if (m_dynamicsWorld)
 				{
-					float hit[3];
-					float normal[3];
 					btCollisionWorld::ClosestRayResultCallback rayCallback(m_cameraPosition,rayTo);
 					m_dynamicsWorld->rayTest(m_cameraPosition,rayTo,rayCallback);
 					if (rayCallback.HasHit())
@@ -768,7 +763,7 @@ void DemoApplication::renderme()
 			BMF_DrawString(BMF_GetFont(BMF_kHelvetica10),buf);
 			yStart += yIncr;
 
-			bool useBulletLCP = !(getDebugMode() & btIDebugDraw::DBG_DisableBulletLCP);
+			//bool useBulletLCP = !(getDebugMode() & btIDebugDraw::DBG_DisableBulletLCP);
 
 			bool useCCD = (getDebugMode() & btIDebugDraw::DBG_EnableCCD);
 

@@ -116,7 +116,7 @@ void	btDiscreteDynamicsWorld::updateVehicles(float timeStep)
 {
 	BEGIN_PROFILE("updateVehicles");
 
-	for (int i=0;i<m_vehicles.size();i++)
+	for (unsigned int i=0;i<m_vehicles.size();i++)
 	{
 		btRaycastVehicle* vehicle = m_vehicles[i];
 		vehicle->updateVehicle( timeStep);
@@ -128,7 +128,7 @@ void	btDiscreteDynamicsWorld::updateActivationState(float timeStep)
 {
 	BEGIN_PROFILE("updateActivationState");
 
-	for (int i=0;i<m_collisionObjects.size();i++)
+	for (unsigned int i=0;i<m_collisionObjects.size();i++)
 	{
 		btCollisionObject* colObj = m_collisionObjects[i];
 		btRigidBody* body = btRigidBody::upcast(colObj);
@@ -326,7 +326,7 @@ void	btDiscreteDynamicsWorld::updateAabbs()
 	
 	btVector3 colorvec(1,0,0);
 	btTransform predictedTrans;
-	for (int i=0;i<m_collisionObjects.size();i++)
+	for (unsigned int i=0;i<m_collisionObjects.size();i++)
 	{
 		btCollisionObject* colObj = m_collisionObjects[i];
 		
@@ -354,7 +354,7 @@ void	btDiscreteDynamicsWorld::integrateTransforms(float timeStep)
 {
 	BEGIN_PROFILE("integrateTransforms");
 	btTransform predictedTrans;
-	for (int i=0;i<m_collisionObjects.size();i++)
+	for (unsigned int i=0;i<m_collisionObjects.size();i++)
 	{
 		btCollisionObject* colObj = m_collisionObjects[i];
 		btRigidBody* body = btRigidBody::upcast(colObj);
@@ -375,7 +375,7 @@ void	btDiscreteDynamicsWorld::integrateTransforms(float timeStep)
 void	btDiscreteDynamicsWorld::predictUnconstraintMotion(float timeStep)
 {
 	BEGIN_PROFILE("predictUnconstraintMotion");
-	for (int i=0;i<m_collisionObjects.size();i++)
+	for (unsigned int i=0;i<m_collisionObjects.size();i++)
 	{
 		btCollisionObject* colObj = m_collisionObjects[i];
 		btRigidBody* body = btRigidBody::upcast(colObj);
@@ -428,3 +428,5 @@ void	btDiscreteDynamicsWorld::startProfiling(float timeStep)
 	}
 #endif //USE_QUICKPROF
 }
+
+

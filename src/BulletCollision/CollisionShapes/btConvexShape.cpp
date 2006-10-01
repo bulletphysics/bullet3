@@ -16,8 +16,8 @@ subject to the following restrictions:
 #include "btConvexShape.h"
 
 btConvexShape::btConvexShape()
-:m_collisionMargin(CONVEX_DISTANCE_MARGIN),
-m_localScaling(1.f,1.f,1.f)
+: m_localScaling(1.f,1.f,1.f),
+m_collisionMargin(CONVEX_DISTANCE_MARGIN)
 {
 }
 

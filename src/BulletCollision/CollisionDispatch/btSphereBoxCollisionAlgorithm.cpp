@@ -54,7 +54,6 @@ void btSphereBoxCollisionAlgorithm::processCollision (btBroadphaseProxy*,btBroad
 		return;
 
 	btSphereShape* sphere0 = (btSphereShape*)m_sphereColObj ->m_collisionShape;
-	btBoxShape* box = (btBoxShape*)m_boxColObj->m_collisionShape;
 
 	btVector3 normalOnSurfaceB;
 	btVector3 pOnBox,pOnSphere;

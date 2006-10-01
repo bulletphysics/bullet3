@@ -62,3 +62,4 @@ public:
 };
 
 #endif //SPHERE_BOX_COLLISION_ALGORITHM_H
+
