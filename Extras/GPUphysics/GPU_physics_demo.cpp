@@ -729,7 +729,7 @@ double tall=ck.getDeltaTime () ;
 
   if ( firsttime )
   {
-    glGenQueriesARB ( 1, & query ) ;
+    glGenQueriesARB ( 1, (GLuint*) & query ) ;
     firsttime = false ;
   }
 
