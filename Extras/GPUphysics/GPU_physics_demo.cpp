@@ -1,6 +1,7 @@
 #include "GPU_physics.h"
 #include "fboSupport.h"
 #include "shaderSupport.h"
+#include "clock.h"
 
 #define TIMESTEP 0.016f
 
@@ -94,8 +95,6 @@ static FrameBufferObject *collisions  ;
 #define VERTS_PER_STRIP  8
 #define NUM_VERTS        ( NUM_CUBES * STRIPS_PER_CUBE * VERTS_PER_STRIP )
 
-GLuint queries [ NUM_CUBES ] ;
-
 static GLuint vbo_vx = 0 ;
 static GLuint vbo_tx = 0 ;
 static GLuint vbo_co = 0 ;
@@ -104,6 +103,15 @@ static float  texcoords [ NUM_VERTS * 2 ] ;
 static float  colours   [ NUM_VERTS * 4 ] ;
 static int    starts    [ NUM_CUBES * STRIPS_PER_CUBE ] ;
 static int    lengths   [ NUM_CUBES * STRIPS_PER_CUBE ] ;
+
+static GLuint vbo_collvx = 0 ;
+static GLuint vbo_collt0 = 0 ;
+static GLuint vbo_collt1 = 0 ;
+static float  collvertices   [ NUM_CUBES * 4 * 3 ] ;
+static float  colltexcoords0 [ NUM_CUBES * 4 * 2 ] ;
+static float  colltexcoords1 [ NUM_CUBES * 4 * 2 ] ;
+static int    collstart  ;
+static int    colllength ;
 
 static int win_width  = 640 ;
 static int win_height = 480 ;
@@ -236,7 +244,7 @@ void initMotionTextures ()
       if ( debugOpt != DRAW_WITHOUT_PHYSICS )
       {
         /* Random (but predominantly upwards) velocities. */
-if(irand(8)==0)
+if(irand(2)==0)
 {
         velocityData    [ idToIndex(x,y) * 3 + 0 ] = frand ( 1.0f ) ;
         velocityData    [ idToIndex(x,y) * 3 + 1 ] = 0.0f ;
@@ -307,8 +315,6 @@ else
     massSizeX   -> fillTexture ( massSizeXData ) ;
     collisions  -> fillTexture ( collisionData ) ;
   }
-
-  glGenQueriesARB ( NUM_CUBES, queries ) ;
 }
 
 
@@ -402,6 +408,71 @@ void initPhysicsShaders ()
     "   gl_FragColor = vec4 ( vel, 1.0 ) ; }",
     "GroundCollisionGenerator Frag Shader" ) ;
   assert ( grndCollisionGenerator -> compiledOK () ) ;
+}
+
+
+void initCollideVBO ()
+{
+  float *p  = collvertices   ;
+  float *t0 = colltexcoords0 ;
+  float *t1 = colltexcoords1 ;
+
+  collstart  = 0 ;
+  colllength = NUM_CUBES * 4 ;
+
+  for ( int y = 0 ; y < TEX_SIZE ; y++ )
+    for ( int x = 0 ; x < TEX_SIZE ; x++ )
+    {
+      /* Texcoord 0 data sets which corner of the texture this is.  */
+
+      *t0++ = 0.5f /(float)TEX_SIZE ;
+      *t0++ = 0.5f /(float)TEX_SIZE ;
+
+      *t0++ = ((float)TEX_SIZE-0.5f)/(float)TEX_SIZE ;
+      *t0++ = 0.5f /(float)TEX_SIZE ;
+
+      *t0++ = ((float)TEX_SIZE-0.5f)/(float)TEX_SIZE ;
+      *t0++ = ((float)TEX_SIZE-0.5f)/(float)TEX_SIZE ;
+
+      *t0++ = 0.5f /(float)TEX_SIZE ;
+      *t0++ =((float)TEX_SIZE-0.5f)/(float)TEX_SIZE ;
+
+      /* Texcoord 1 sets which cube is which. */
+
+      *t1++ = ((float)x+0.5f)/(float)TEX_SIZE ;
+      *t1++ = ((float)y+0.5f)/(float)TEX_SIZE ;
+
+      *t1++ = ((float)x+0.5f)/(float)TEX_SIZE ;
+      *t1++ = ((float)y+0.5f)/(float)TEX_SIZE ;
+
+      *t1++ = ((float)x+0.5f)/(float)TEX_SIZE ;
+      *t1++ = ((float)y+0.5f)/(float)TEX_SIZE ;
+
+      *t1++ = ((float)x+0.5f)/(float)TEX_SIZE ;
+      *t1++ = ((float)y+0.5f)/(float)TEX_SIZE ;
+
+      *p++ = -1 ; *p++ = -1 ; *p++ = 0.0f ;
+      *p++ = +1 ; *p++ = -1 ; *p++ = 0.0f ;
+      *p++ = +1 ; *p++ = +1 ; *p++ = 0.0f ;
+      *p++ = -1 ; *p++ = +1 ; *p++ = 0.0f ;
+    }
+
+  glGenBuffersARB ( 1, & vbo_collvx ) ;
+  glBindBufferARB ( GL_ARRAY_BUFFER_ARB, vbo_collvx ) ;
+  glBufferDataARB ( GL_ARRAY_BUFFER_ARB, colllength * 3 * sizeof(float),
+                    collvertices, GL_STATIC_DRAW_ARB ) ;
+
+  glGenBuffersARB ( 1, & vbo_collt0 ) ;
+  glBindBufferARB ( GL_ARRAY_BUFFER_ARB, vbo_collt0 ) ;
+  glBufferDataARB ( GL_ARRAY_BUFFER_ARB, colllength * 2 * sizeof(float),
+                    colltexcoords0, GL_STATIC_DRAW_ARB ) ;
+
+  glGenBuffersARB ( 1, & vbo_collt1 ) ;
+  glBindBufferARB ( GL_ARRAY_BUFFER_ARB, vbo_collt1 ) ;
+  glBufferDataARB ( GL_ARRAY_BUFFER_ARB, colllength * 2 * sizeof(float),
+                    colltexcoords1, GL_STATIC_DRAW_ARB ) ;
+
+  glBindBufferARB ( GL_ARRAY_BUFFER_ARB, 0 ) ;
 }
 
 
@@ -528,19 +599,17 @@ void drawCubesTheHardWay ()
   float p1 = positionData [ 1 ] ;
   float p2 = positionData [ 2 ] ;
 
-glFlush();
-restoreFrameBuffer () ;
   position -> fetchTexture ( positionData ) ;
   rotation -> fetchTexture ( rotationData ) ;
 
-  if ( positionData [ 0 ] == p0 &&
-       positionData [ 1 ] == p1 &&
-       positionData [ 2 ] == p2 )
-  {
-    fprintf ( stderr, "WARNING: If nothing seems to be working, you may\n"
-                      "have an old version of the nVidia driver.\n"
-                      "Version 76.76 is known to be bad.\n" ) ;
-  }
+  //if ( positionData [ 0 ] == p0 &&
+  //     positionData [ 1 ] == p1 &&
+  //     positionData [ 2 ] == p2 )
+  //{
+  //  fprintf ( stderr, "WARNING: If nothing seems to be working, you may\n"
+  //                    "have an old version of the nVidia driver.\n"
+  //                    "Version 76.76 is known to be bad.\n" ) ;
+  //}
 
   cubeShader -> use () ;  /* Math = Cube shader */
 
@@ -626,7 +695,9 @@ void drawCubes ()
 
   glMatrixMode      ( GL_MODELVIEW ) ;
   glLoadIdentity    () ;
-  glTranslatef      ( 1.25f, -12.5f, -60.0f ) ; // 10.0, -100.0, -500.0 ) ;
+  glTranslatef      ( 10.0f * (float)TEX_SIZE/128.0f,
+                    -100.0f * (float)TEX_SIZE/128.0f,
+                    -500.0f * (float)TEX_SIZE/128.0f ) ;
   glRotatef         ( 20.0, 1.0, 0.0, 0.0 ) ;
 
   glEnable          ( GL_DEPTH_TEST ) ;
@@ -645,30 +716,22 @@ void drawCubes ()
 
 void runCollisionDetection ()
 {
+static Clock ck ;
+ck.update () ;
+double tall=ck.getDeltaTime () ;
+  static int firsttime = true ;
+  static unsigned int query = 0 ;
+
   FrameBufferObject *tmp ;
   FrameBufferObject *SCM = old ;
   FrameBufferObject *DCM = collisions ;
-
-  static unsigned int numHits [ NUM_CUBES ] ;
-  static float texCoordIdent  [ NUM_CUBES * 2 ] ;
-  static int firsttime = true ;
+  unsigned int numHits ;
 
   if ( firsttime )
   {
+    glGenQueriesARB ( 1, & query ) ;
     firsttime = false ;
-
-    for ( int y = 0 ; y < TEX_SIZE ; y++ )
-      for ( int x = 0 ; x < TEX_SIZE ; x++ )
-      {
-        texCoordIdent [ idToIndex ( x, y ) * 2 + 0 ] =
-                                    (((float) x) + 0.5 )/(float)TEX_SIZE ;
-        texCoordIdent [ idToIndex ( x, y ) * 2 + 1 ] =
-                                    (((float) y) + 0.5 )/(float)TEX_SIZE ;
-      }
   }
-
-  /* Mark all polygons 'needed' */
-  memset ( numHits, 0xFF, NUM_CUBES * sizeof(unsigned int) ) ;
 
   /* Fill SCM with big numbers */
 
@@ -678,7 +741,23 @@ void runCollisionDetection ()
   glClearColor ( 0.0f, 0.0f, 0.0f, 0.0f ) ;
   force -> prepare ( true ) ;  /* Zero out all of the forces. */
 
-  bool allDone ;
+  int numPasses = 0 ;
+
+  glPushClientAttrib   ( GL_CLIENT_VERTEX_ARRAY_BIT ) ;
+
+  glClientActiveTexture( GL_TEXTURE1 ) ;
+  glEnableClientState  ( GL_TEXTURE_COORD_ARRAY ) ;
+  glBindBufferARB      ( GL_ARRAY_BUFFER_ARB, vbo_collt1 ) ;
+  glTexCoordPointer    ( 2, GL_FLOAT, 0, vbo_collt1 ? NULL : colltexcoords1 ) ;
+
+  glClientActiveTexture( GL_TEXTURE0 ) ;
+  glEnableClientState  ( GL_TEXTURE_COORD_ARRAY ) ;
+  glBindBufferARB      ( GL_ARRAY_BUFFER_ARB, vbo_collt0 ) ;
+  glTexCoordPointer    ( 2, GL_FLOAT, 0, vbo_collt0 ? NULL : colltexcoords0 ) ;
+
+  glEnableClientState  ( GL_VERTEX_ARRAY ) ;
+  glBindBufferARB      ( GL_ARRAY_BUFFER_ARB, vbo_collvx ) ;
+  glVertexPointer      ( 3, GL_FLOAT, 0, vbo_collvx ? NULL : collvertices ) ;
 
   while ( true )
   {
@@ -689,48 +768,28 @@ void runCollisionDetection ()
     /* Fill DCM with zeroes */
     DCM -> prepare ( true ) ;
 
-    for ( int i = 0 ; i < NUM_CUBES ; i++ )
-    {
-      if ( numHits [ i ] != 0 )
-      {
-        glMultiTexCoord2fv ( GL_TEXTURE0 + 1, & ( texCoordIdent [ i * 2 ] )) ;
+    glBeginQueryARB ( GL_SAMPLES_PASSED_ARB, query ) ;
 
-        glBeginQueryARB ( GL_SAMPLES_PASSED_ARB, queries [ i ] ) ;
-        DCM -> fill ()  ;
-        glEndQueryARB   ( GL_SAMPLES_PASSED_ARB ) ;
-      }
-    }
+    glMultiDrawArraysEXT ( GL_QUADS, (GLint*)& collstart, (GLint*)& colllength,
+                           1 ) ;
+numPasses++ ;
 
-    allDone = true ;
-
-    int numCollisionPairs = 0 ;
-
-    for ( int i = 0 ; i < NUM_CUBES ; i++ )
-    {
-      if ( numHits [ i ] == 0 ) continue ;
-
-      GLuint sampleCount ;
-
-      glGetQueryObjectuivARB ( queries[i], GL_QUERY_RESULT_ARB,
-                               &sampleCount ) ;
-
-      numHits [ i ] = sampleCount ;
-      numCollisionPairs += sampleCount ;
-
-      if ( sampleCount != 0 )
-        allDone = false ;
-    }
-
-if (numCollisionPairs > 0 )
-fprintf ( stderr, "%d ", numCollisionPairs ) ;
-
-    if ( allDone )
-      break ;
+    glEndQueryARB   ( GL_SAMPLES_PASSED_ARB ) ;
 
     forceGenerator -> use () ;
     forceGenerator -> applyTexture ( "position"  , position , 0 ) ;
     forceGenerator -> applyTexture ( "force"     , force    , 1 ) ;
     forceGenerator -> applyTexture ( "collisions", DCM      , 2 ) ;
+
+    GLuint sampleCount ;
+
+    glGetQueryObjectuivARB ( query, GL_QUERY_RESULT_ARB, &sampleCount ) ;
+
+//fprintf ( stderr, "%d ", sampleCount ) ;
+
+    if ( sampleCount == 0 )
+      break ;
+
     new_force -> paint () ;
 
     tmp = new_force ;
@@ -741,6 +800,16 @@ fprintf ( stderr, "%d ", numCollisionPairs ) ;
     DCM = SCM ;
     SCM = tmp ;
   }
+
+  glBindBufferARB      ( GL_ARRAY_BUFFER_ARB, 0 ) ;
+  glPopClientAttrib () ;
+
+ck.update () ;
+double tdone=ck.getDeltaTime () ;
+static int ii = 0 ;
+ii++;
+if (ii%100==0)
+fprintf ( stderr, "Performance: %d passes %d cubes: other=%fms collisions=%fms\n", numPasses, NUM_CUBES, tall*1000.0, tdone*1000.0 ) ;
 }
 
 
@@ -865,7 +934,7 @@ int main ( int argc, char **argv )
   initMotionTextures () ;
   initPhysicsShaders () ;
   initCubeVBO        () ;
-
+  initCollideVBO     () ;
   glutMainLoop () ;
   return 0 ;
 }
