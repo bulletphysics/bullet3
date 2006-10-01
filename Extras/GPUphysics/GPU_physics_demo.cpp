@@ -11,15 +11,11 @@ enum DebugOptions
   DRAW_ALL
 } ;
 
-inline float idToFloat ( int i, int j )
-{
-  return float ( (i*2) & 255 ) + float ( (j*2) & 255 ) / 256.0f ;
-}
-
 
 static float *positionData  = NULL ;
 static float *rotationData  = NULL ;
-static bool         noVertexTextureSupport = false ;
+static float *collisionData = NULL ;
+static bool   noVertexTextureSupport = false ;
 static DebugOptions debugOpt = DRAW_ALL ;
 
 void checkVertexTextureSupport ( bool disableVertexTextureSupport )
@@ -62,6 +58,12 @@ void checkVertexTextureSupport ( bool disableVertexTextureSupport )
 }
 
 
+int irand ( int max )
+{
+  return rand() % max ;
+}
+
+
 float frand ( float max )
 {
   return (float)(rand() % 32767) * max / 32767.0f ;
@@ -71,7 +73,8 @@ float frand ( float max )
 static GLSL_ShaderPair *velocityGenerator      ;
 static GLSL_ShaderPair *positionGenerator      ;
 static GLSL_ShaderPair *grndCollisionGenerator ;
-static GLSL_ShaderPair *forceGenerator     ;
+static GLSL_ShaderPair *collisionGenerator     ;
+static GLSL_ShaderPair *forceGenerator         ;
 static GLSL_ShaderPair *cubeShader             ;
 
 static FrameBufferObject *position    ;
@@ -79,15 +82,19 @@ static FrameBufferObject *rotation    ;
 static FrameBufferObject *velocity    ;
 static FrameBufferObject *rotvelocity ;
 static FrameBufferObject *force       ;
+static FrameBufferObject *new_force   ;
 static FrameBufferObject *massSizeX   ;
 static FrameBufferObject *old         ;
 static FrameBufferObject *collisions  ;
 
-#define TEX_SIZE         128
+#define TEX_SIZE         16
+
 #define NUM_CUBES        ( TEX_SIZE * TEX_SIZE )
 #define STRIPS_PER_CUBE  2
 #define VERTS_PER_STRIP  8
 #define NUM_VERTS        ( NUM_CUBES * STRIPS_PER_CUBE * VERTS_PER_STRIP )
+
+GLuint queries [ NUM_CUBES ] ;
 
 static GLuint vbo_vx = 0 ;
 static GLuint vbo_tx = 0 ;
@@ -100,6 +107,28 @@ static int    lengths   [ NUM_CUBES * STRIPS_PER_CUBE ] ;
 
 static int win_width  = 640 ;
 static int win_height = 480 ;
+
+inline int idToIndex ( int x, int y )
+{
+  /*
+    Convert a coordinate pair within the texture to an integer
+    1D array index (eg to index into the data array for that texture)
+    by multiplying the Y coordinate by the width of the texture and
+    adding the X coordinate.
+  */
+  return y * TEX_SIZE + x ;
+}
+
+inline float idToFloat ( int x, int y )
+{
+  /*
+    Convert a coordinate pair within the texture to a float
+    by putting one coordinate into the integer part and the
+    other into the fraction so we can retrieve Y using floor()
+    and X using fract() to recover them later on inside the shader.
+  */
+  return ((float) idToIndex ( x, y )) / (float)TEX_SIZE ;
+}
 
 
 void keybd ( unsigned char, int, int )
@@ -122,7 +151,7 @@ void initGLcontext ( int argc, char **argv,
   glutInit            ( &argc, argv ) ;
   glutInitDisplayMode ( GLUT_RGB | GLUT_DEPTH | GLUT_DOUBLE ) ;
   glutInitWindowSize  ( win_width, win_height ) ;
-  glutCreateWindow    ( "Bullet GPU Physics Demo. http://bullet.sf.net" ) ;
+  glutCreateWindow    ( "Shader Math Demo" ) ;
   glutDisplayFunc     ( display  ) ;
   glutKeyboardFunc    ( keybd    ) ;
   glutReshapeFunc     ( reshape  ) ;
@@ -146,6 +175,7 @@ void initMotionTextures ()
     velocity    = NULL ;
     rotvelocity = NULL ;
     force       = NULL ;
+    new_force   = NULL ;
     massSizeX   = NULL ;
     collisions  = NULL ;
   }
@@ -154,8 +184,9 @@ void initMotionTextures ()
     velocity    = new FrameBufferObject ( TEX_SIZE, TEX_SIZE, 3, FBO_FLOAT ) ;
     rotvelocity = new FrameBufferObject ( TEX_SIZE, TEX_SIZE, 3, FBO_FLOAT ) ;
     force       = new FrameBufferObject ( TEX_SIZE, TEX_SIZE, 3, FBO_FLOAT ) ;
+    new_force   = new FrameBufferObject ( TEX_SIZE, TEX_SIZE, 3, FBO_FLOAT ) ;
     massSizeX   = new FrameBufferObject ( TEX_SIZE, TEX_SIZE, 3, FBO_FLOAT ) ;
-    collisions  = new FrameBufferObject ( TEX_SIZE, TEX_SIZE, 4, FBO_FLOAT ) ;
+    collisions  = new FrameBufferObject ( TEX_SIZE, TEX_SIZE, 3, FBO_FLOAT ) ;
   }
 
   positionData    = new float [ TEX_SIZE * TEX_SIZE * 3 ] ;
@@ -165,7 +196,6 @@ void initMotionTextures ()
   float *rotvelocityData ;
   float *forceData       ;
   float *massSizeXData   ;
-  float *collisionData   ;
 
   if ( debugOpt == DRAW_WITHOUT_PHYSICS )
   {
@@ -181,56 +211,63 @@ void initMotionTextures ()
     rotvelocityData = new float [ TEX_SIZE * TEX_SIZE * 3 ] ;
     forceData       = new float [ TEX_SIZE * TEX_SIZE * 3 ] ;
     massSizeXData   = new float [ TEX_SIZE * TEX_SIZE * 3 ] ;
-    collisionData   = new float [ TEX_SIZE * TEX_SIZE * 4 ] ;
+    collisionData   = new float [ TEX_SIZE * TEX_SIZE * 3 ] ;
   }
 
   /* Give the objects some initial position, rotation, mass, force, etc */
 
-  for ( int i = 0 ; i < TEX_SIZE ; i++ )
-    for ( int j = 0 ; j < TEX_SIZE ; j++ )
+  for ( int y = 0 ; y < TEX_SIZE ; y++ )
+    for ( int x = 0 ; x < TEX_SIZE ; x++ )
     {
       /*
         Start the cubes on a nice, regular 5m grid, 10m above the ground
         centered around the origin
       */
 
-      positionData    [ (i*TEX_SIZE + j) * 3 + 0 ] = 5.0f * (float) (TEX_SIZE/2 - i) ;
-      positionData    [ (i*TEX_SIZE + j) * 3 + 1 ] = 10.0f ;
-      positionData    [ (i*TEX_SIZE + j) * 3 + 2 ] = 5.0f * (float) (TEX_SIZE/2 - j) ;
+      positionData    [ idToIndex(x,y) * 3 + 0 ] = 5.0f * (float) (x - TEX_SIZE/2) ;
+      positionData    [ idToIndex(x,y) * 3 + 1 ] = 0.0f ; // 10.0f ;
+      positionData    [ idToIndex(x,y) * 3 + 2 ] = 5.0f * (float) (y - TEX_SIZE/2) ;
 
       /* Zero their rotations */
-      rotationData    [ (i*TEX_SIZE + j) * 3 + 0 ] = 0.0f ;
-      rotationData    [ (i*TEX_SIZE + j) * 3 + 1 ] = 0.0f ;
-      rotationData    [ (i*TEX_SIZE + j) * 3 + 2 ] = 0.0f ;
+      rotationData    [ idToIndex(x,y) * 3 + 0 ] = 0.0f ;
+      rotationData    [ idToIndex(x,y) * 3 + 1 ] = 0.0f ;
+      rotationData    [ idToIndex(x,y) * 3 + 2 ] = 0.0f ;
 
       if ( debugOpt != DRAW_WITHOUT_PHYSICS )
       {
         /* Random (but predominantly upwards) velocities. */
-        velocityData    [ (i*TEX_SIZE + j) * 3 + 0 ] = frand (  10.0f ) - 5.0f;
-        velocityData    [ (i*TEX_SIZE + j) * 3 + 1 ] = frand ( 100.0f ) ;
-        velocityData    [ (i*TEX_SIZE + j) * 3 + 2 ] = frand (  10.0f ) - 5.0f;
+if(irand(8)==0)
+{
+        velocityData    [ idToIndex(x,y) * 3 + 0 ] = frand ( 1.0f ) ;
+        velocityData    [ idToIndex(x,y) * 3 + 1 ] = 0.0f ;
+        velocityData    [ idToIndex(x,y) * 3 + 2 ] = frand ( 1.0f ) ;
+}
+else
+{
+        velocityData    [ idToIndex(x,y) * 3 + 0 ] = 0.0f ; //frand (  10.0f ) - 5.0f;
+        velocityData    [ idToIndex(x,y) * 3 + 1 ] = 0.0f ; //frand ( 100.0f ) ;
+        velocityData    [ idToIndex(x,y) * 3 + 2 ] = 0.0f ; //frand (  10.0f ) - 5.0f;
+}
 
         /* Random rotational velocities */
-        rotvelocityData [ (i*TEX_SIZE + j) * 3 + 0 ] = frand ( 3.0f ) ;
-        rotvelocityData [ (i*TEX_SIZE + j) * 3 + 1 ] = frand ( 3.0f ) ;
-        rotvelocityData [ (i*TEX_SIZE + j) * 3 + 2 ] = frand ( 3.0f ) ;
+        rotvelocityData [ idToIndex(x,y) * 3 + 0 ] = 0.0f ; //frand ( 3.0f ) ;
+        rotvelocityData [ idToIndex(x,y) * 3 + 1 ] = 0.0f ; //frand ( 3.0f ) ;
+        rotvelocityData [ idToIndex(x,y) * 3 + 2 ] = 0.0f ; //frand ( 3.0f ) ;
 
-        /* Zero forces (just gravity) */
-        forceData       [ (i*TEX_SIZE + j) * 3 + 0 ] = 0.0f ;
-        forceData       [ (i*TEX_SIZE + j) * 3 + 1 ] = 0.0f ;
-        forceData       [ (i*TEX_SIZE + j) * 3 + 2 ] = 0.0f ;
+        /* Zero forces */
+        forceData       [ idToIndex(x,y) * 3 + 0 ] = 0.0f ;
+        forceData       [ idToIndex(x,y) * 3 + 1 ] = 0.0f ;
+        forceData       [ idToIndex(x,y) * 3 + 2 ] = 0.0f ;
 
-        /* One kg in weight each */
-        massSizeXData   [ (i*TEX_SIZE + j) * 3 + 0 ] = 0.0005f ;  /* Mass */
-        massSizeXData   [ (i*TEX_SIZE + j) * 3 + 1 ] = 1.0f ;  /* Radius */
-        massSizeXData   [ (i*TEX_SIZE + j) * 3 + 2 ] = 0.0f ;  /* Unused */
+        /* One kg each */
+        massSizeXData   [ idToIndex(x,y) * 3 + 0 ] = 0.05f ; /* Mass */
+        massSizeXData   [ idToIndex(x,y) * 3 + 1 ] = 1.0f ;  /* Radius */
+        massSizeXData   [ idToIndex(x,y) * 3 + 2 ] = 0.0f ;  /* Unused */
 
-        /* Everyone collides with object 0, 1 and 2 */
-/*SJB*/
-        collisionData [ (i*TEX_SIZE + j) * 3 + 0 ] = idToFloat ( 20, 20 ) ;
-        collisionData [ (i*TEX_SIZE + j) * 3 + 1 ] = idToFloat ( 20, 100 ) ;
-        collisionData [ (i*TEX_SIZE + j) * 3 + 2 ] = idToFloat ( 100, 20 ) ;
-        collisionData [ (i*TEX_SIZE + j) * 3 + 3 ] = idToFloat ( 100, 100 ) ;
+        /* Zero out collision data */
+        collisionData [ idToIndex(x,y) * 3 + 0 ] = 0.0f ;
+        collisionData [ idToIndex(x,y) * 3 + 1 ] = 0.0f ;
+        collisionData [ idToIndex(x,y) * 3 + 2 ] = 0.0f ;
       }
     }
 
@@ -241,19 +278,18 @@ void initMotionTextures ()
       so put it far away and stop it from moving around.
     */
 
-    positionData  [ 0 ] = 10.0f ;
-    positionData  [ 1 ] = 10.0f ;
-    positionData  [ 2 ] = 10.0f ;
+    positionData  [ 0 ] = 1000000000.0f ;
+    positionData  [ 1 ] = 1000000000.0f ;
+    positionData  [ 2 ] = 1000000000.0f ;
     velocityData  [ 0 ] = 0.0f ;
     velocityData  [ 1 ] = 0.0f ;
     velocityData  [ 2 ] = 0.0f ;
-    massSizeXData [ 0 ] = 10000000.0f ; /* Mass */
+    massSizeXData [ 0 ] = 10000000.0f ;  /* Mass   */
     massSizeXData [ 1 ] = 0.00000001f ;  /* Radius */
-    massSizeXData [ 2 ] = 0.0f ;  /* Unused */
-    collisionData [ 0 ] = 128.5 ; /* Not collide with self! */
-    collisionData [ 1 ] = 128.5 ;
-    collisionData [ 2 ] = 128.5 ;
-    collisionData [ 3 ] = 128.5 ;
+    massSizeXData [ 2 ] = 0.0f ;         /* Unused */
+    collisionData [ 0 ] = 0.0f ;
+    collisionData [ 1 ] = 0.0f ;
+    collisionData [ 2 ] = 0.0f ;
   }
 
   /* Initialise the textures */
@@ -267,9 +303,12 @@ void initMotionTextures ()
     velocity    -> fillTexture ( velocityData ) ;
     rotvelocity -> fillTexture ( rotvelocityData ) ;
     force       -> fillTexture ( forceData ) ;
+    new_force   -> fillTexture ( forceData ) ;
     massSizeX   -> fillTexture ( massSizeXData ) ;
     collisions  -> fillTexture ( collisionData ) ;
   }
+
+  glGenQueriesARB ( NUM_CUBES, queries ) ;
 }
 
 
@@ -325,43 +364,31 @@ void initPhysicsShaders ()
     "PositionGenerator Frag Shader" ) ;
   assert ( positionGenerator  -> compiledOK () ) ;
 
+
+  collisionGenerator = new GLSL_ShaderPair (
+    "CollisionGenerator",
+     NULL,
+    "collisionShader.frag" ) ;
+  assert ( collisionGenerator -> compiledOK () ) ;
+
+
   forceGenerator = new GLSL_ShaderPair (
     "ForceGenerator",
     NULL, NULL,
+    "uniform sampler2D force      ;"
     "uniform sampler2D position   ;"
     "uniform sampler2D collisions ;"
     "void main() {"
-    "  vec3  pos  = texture2D ( position  , gl_TexCoord[0].st ).xyz  ;"
-    "  vec4 coll =  texture2D ( collisions, gl_TexCoord[0].st ).xyzw ;"
-    "  vec2  ctc  ;"
-    "  vec3  rel  ;"
-    "  float lrel ;"
-    "  vec3  force = vec3 ( 0.0, 0.0, 0.0 ) ;"
-    /* First 'collision' */
-    "  ctc = vec2 ( coll.x / 256.0, coll.x ) ;"
-    "  rel = pos - texture2D ( position, ctc ).xyz ;"
-    "  lrel = max ( length ( rel ), 0.001 ) ;"
-    "  force += (rel/lrel) * -1.0 / (lrel) ;"
-    /* Second 'collision' */
-    "  ctc = vec2 ( coll.y / 256.0, coll.y ) ;"
-    "  rel = pos - texture2D ( position, ctc ).xyz ;"
-    "  lrel = max ( length ( rel ), 0.001 ) ;"
-    "  force += (rel/lrel) * -1.0 / (lrel) ;"
-    /* Third 'collision' */
-    "  ctc = vec2 ( coll.z / 256.0, coll.z ) ;"
-    "  rel = pos - texture2D ( position, ctc ).xyz ;"
-    "  lrel = max ( length ( rel ), 0.001 ) ;"
-    "  force += (rel/lrel) * -1.0 / (lrel) ;"
-    /* Fourth 'collision' */
-    "  ctc = vec2 ( coll.w / 256.0, coll.w ) ;"
-    "  rel = pos - texture2D ( position, ctc ).xyz ;"
-    "  lrel = max ( length ( rel ), 0.001 ) ;"
-    "  force += (rel/lrel) * -1.0 / (lrel) ;"
-    /* Write out results */
-    "  gl_FragColor = vec4 ( force, 1.0 ) ;"
+    "  vec3 last_force = texture2D ( force     , gl_TexCoord[0].st ).xyz ;"
+    "  vec2         id = texture2D ( collisions, gl_TexCoord[0].st ).xy  ;"
+    "  vec3        pos = texture2D ( position  , gl_TexCoord[0].st ).xyz ;"
+    "  vec3        rel = pos - texture2D ( position, id ).xyz ;"
+    "  float      lrel = max ( length ( rel ), 0.001 ) ;"
+    "  gl_FragColor = vec4 ( last_force + (rel / lrel) / lrel, 1.0 ) ;"
     "}",
-    "ForceCollisionGenerator Frag Shader" ) ;
+    "ForceGenerator Frag Shader" ) ;
   assert ( forceGenerator -> compiledOK () ) ;
+
 
   grndCollisionGenerator = new GLSL_ShaderPair (
     "GroundCollisionGenerator",
@@ -371,7 +398,7 @@ void initPhysicsShaders ()
     "void main() {"
     "   vec3 pos = texture2D ( position    , gl_TexCoord[0].st ).xyz ;"
     "   vec3 vel = texture2D ( old_velocity, gl_TexCoord[0].st ).xyz ;"
-    "   if ( pos [ 1 ] < 0.0 ) vel *= vec3(0.90,-0.90,0.90) ;"
+    "   if ( pos [ 1 ] < 0.0 ) vel.y = abs(vel.y) ;"
     "   gl_FragColor = vec4 ( vel, 1.0 ) ; }",
     "GroundCollisionGenerator Frag Shader" ) ;
   assert ( grndCollisionGenerator -> compiledOK () ) ;
@@ -392,8 +419,8 @@ void initCubeVBO ()
     lengths [ k ] =     VERTS_PER_STRIP ;
   }
 
-  for ( int i = 0 ; i < (noVertexTextureSupport ? 1 : TEX_SIZE) ; i++ )
-    for ( int j = 0 ; j < (noVertexTextureSupport ? 1 : TEX_SIZE) ; j++ )
+  for ( int y = 0 ; y < (noVertexTextureSupport ? 1 : TEX_SIZE) ; y++ )
+    for ( int x = 0 ; x < (noVertexTextureSupport ? 1 : TEX_SIZE) ; x++ )
     {
       /*
         I use the colour data to set which cube is which in
@@ -402,10 +429,10 @@ void initCubeVBO ()
 
       for ( int k = 0 ; k < STRIPS_PER_CUBE * VERTS_PER_STRIP ; k++ )
       {
-        *t++ = ((float)i+0.5f)/(float)TEX_SIZE ;
-        *t++ = ((float)j+0.5f)/(float)TEX_SIZE ;
+        *t++ = ((float)x+0.5f)/(float)TEX_SIZE ;
+        *t++ = ((float)y+0.5f)/(float)TEX_SIZE ;
 
-        if ( (i==20||i==100) && (j==20||j==100) )
+        if ( (x==20||x==100) && (y==20||y==100) )
         {
           *c++ = 1.0f ;
           *c++ = 0.0f ;
@@ -425,9 +452,9 @@ void initCubeVBO ()
 
       if ( debugOpt == DRAW_WITHOUT_SHADERS )
       {
-        dx = 5.0f * (float) (TEX_SIZE/2 - i) ;
+        dx = 5.0f * (float) (TEX_SIZE/2 - x) ;
         dy = 10.0f ;
-        dz = 5.0f * (float) (TEX_SIZE/2 - j) ;
+        dz = 5.0f * (float) (TEX_SIZE/2 - y) ;
       }
       else
       {
@@ -478,9 +505,9 @@ void initCubeVBO ()
     cubeShader = NULL ;
   else
   {
-	//the filenames have additional path to make it easier for some platforms
     if ( noVertexTextureSupport )
-      cubeShader = new GLSL_ShaderPair ( "CubeShader", "cubeShaderNoTexture.vert",
+      cubeShader = new GLSL_ShaderPair ( "CubeShader",
+                                              "cubeShaderNoTexture.vert",
                                                        "cubeShader.frag" ) ;
     else
       cubeShader = new GLSL_ShaderPair ( "CubeShader", "cubeShader.vert",
@@ -501,6 +528,8 @@ void drawCubesTheHardWay ()
   float p1 = positionData [ 1 ] ;
   float p2 = positionData [ 2 ] ;
 
+glFlush();
+restoreFrameBuffer () ;
   position -> fetchTexture ( positionData ) ;
   rotation -> fetchTexture ( rotationData ) ;
 
@@ -527,19 +556,20 @@ void drawCubesTheHardWay ()
   glBindBufferARB      ( GL_ARRAY_BUFFER_ARB, vbo_vx ) ;
   glVertexPointer      ( 3, GL_FLOAT, 0, vbo_vx ? NULL : vertices ) ;
 
-  for ( int i = 0 ; i < TEX_SIZE ; i++ )
-    for ( int j = 0 ; j < TEX_SIZE ; j++ )
+  for ( int y = 0 ; y < TEX_SIZE ; y++ )
+    for ( int x = 0 ; x < TEX_SIZE ; x++ )
     {
-      float *pos = & positionData [ (i*TEX_SIZE + j) * 3 ] ;
-      float *rot = & rotationData [ (i*TEX_SIZE + j) * 3 ] ;
+      float *pos = & positionData [ idToIndex ( x, y ) * 3 ] ;
+      float *rot = & rotationData [ idToIndex ( x, y ) * 3 ] ;
 
       glPushMatrix () ;
       glTranslatef ( pos [ 0 ], pos [ 1 ], pos [ 2 ] ) ;
       glRotatef ( rot [ 0 ] * 180.0f / 3.14159f, 0, 1, 0 ) ;
       glRotatef ( rot [ 1 ] * 180.0f / 3.14159f, 1, 0, 0 ) ;
       glRotatef ( rot [ 2 ] * 180.0f / 3.14159f, 0, 0, 1 ) ;
-      glMultiDrawArraysEXT ( GL_TRIANGLE_STRIP, (GLint*)starts, (GLint*)lengths,
-                             STRIPS_PER_CUBE ) ;
+      glMultiDrawArraysEXT ( GL_TRIANGLE_STRIP, (GLint*)starts,
+                                                (GLint*)lengths,
+                                                STRIPS_PER_CUBE ) ;
       glPopMatrix () ;
     }
 
@@ -592,9 +622,11 @@ void drawCubes ()
                        1.0f / ((float)win_width/(float)win_height),
                        1.0f, 1000000.0f) ;
 
+  /* Set up camera position */
+
   glMatrixMode      ( GL_MODELVIEW ) ;
   glLoadIdentity    () ;
-  glTranslatef      ( 10.0, -100.0, -500.0 ) ;
+  glTranslatef      ( 1.25f, -12.5f, -60.0f ) ; // 10.0, -100.0, -500.0 ) ;
   glRotatef         ( 20.0, 1.0, 0.0, 0.0 ) ;
 
   glEnable          ( GL_DEPTH_TEST ) ;
@@ -611,68 +643,173 @@ void drawCubes ()
 }
 
 
-void display ( void )
+void runCollisionDetection ()
+{
+  FrameBufferObject *tmp ;
+  FrameBufferObject *SCM = old ;
+  FrameBufferObject *DCM = collisions ;
+
+  static unsigned int numHits [ NUM_CUBES ] ;
+  static float texCoordIdent  [ NUM_CUBES * 2 ] ;
+  static int firsttime = true ;
+
+  if ( firsttime )
+  {
+    firsttime = false ;
+
+    for ( int y = 0 ; y < TEX_SIZE ; y++ )
+      for ( int x = 0 ; x < TEX_SIZE ; x++ )
+      {
+        texCoordIdent [ idToIndex ( x, y ) * 2 + 0 ] =
+                                    (((float) x) + 0.5 )/(float)TEX_SIZE ;
+        texCoordIdent [ idToIndex ( x, y ) * 2 + 1 ] =
+                                    (((float) y) + 0.5 )/(float)TEX_SIZE ;
+      }
+  }
+
+  /* Mark all polygons 'needed' */
+  memset ( numHits, 0xFF, NUM_CUBES * sizeof(unsigned int) ) ;
+
+  /* Fill SCM with big numbers */
+
+  glClearColor ( 1.0f, 1.0f, 1.0f, 1.0f ) ;
+  SCM -> prepare ( true ) ;
+
+  glClearColor ( 0.0f, 0.0f, 0.0f, 0.0f ) ;
+  force -> prepare ( true ) ;  /* Zero out all of the forces. */
+
+  bool allDone ;
+
+  while ( true )
+  {
+    collisionGenerator -> use () ;
+    collisionGenerator -> applyTexture ( "position"  , position, 0 ) ;
+    collisionGenerator -> applyTexture ( "old_collisions", SCM , 1 ) ;
+
+    /* Fill DCM with zeroes */
+    DCM -> prepare ( true ) ;
+
+    for ( int i = 0 ; i < NUM_CUBES ; i++ )
+    {
+      if ( numHits [ i ] != 0 )
+      {
+        glMultiTexCoord2fv ( GL_TEXTURE0 + 1, & ( texCoordIdent [ i * 2 ] )) ;
+
+        glBeginQueryARB ( GL_SAMPLES_PASSED_ARB, queries [ i ] ) ;
+        DCM -> fill ()  ;
+        glEndQueryARB   ( GL_SAMPLES_PASSED_ARB ) ;
+      }
+    }
+
+    allDone = true ;
+
+    int numCollisionPairs = 0 ;
+
+    for ( int i = 0 ; i < NUM_CUBES ; i++ )
+    {
+      if ( numHits [ i ] == 0 ) continue ;
+
+      GLuint sampleCount ;
+
+      glGetQueryObjectuivARB ( queries[i], GL_QUERY_RESULT_ARB,
+                               &sampleCount ) ;
+
+      numHits [ i ] = sampleCount ;
+      numCollisionPairs += sampleCount ;
+
+      if ( sampleCount != 0 )
+        allDone = false ;
+    }
+
+if (numCollisionPairs > 0 )
+fprintf ( stderr, "%d ", numCollisionPairs ) ;
+
+    if ( allDone )
+      break ;
+
+    forceGenerator -> use () ;
+    forceGenerator -> applyTexture ( "position"  , position , 0 ) ;
+    forceGenerator -> applyTexture ( "force"     , force    , 1 ) ;
+    forceGenerator -> applyTexture ( "collisions", DCM      , 2 ) ;
+    new_force -> paint () ;
+
+    tmp = new_force ;
+    new_force = force ;
+    force = tmp ;
+
+    tmp = DCM ;
+    DCM = SCM ;
+    SCM = tmp ;
+  }
+}
+
+
+void runPhysics ()
 {
   FrameBufferObject *tmp ;
 
+  /* Do some simple physics calculations in four stages */
+
+  /* Copy old velocity into old. */
+  tmp = old ;
+  old = velocity ;
+  velocity = tmp ;
+
+  velocityGenerator -> use () ;
+  velocityGenerator -> applyTexture ( "old_velocity", old      , 0 ) ;
+  velocityGenerator -> applyTexture ( "force"       , force    , 1 ) ;
+  velocityGenerator -> applyTexture ( "massSizeX"   , massSizeX, 2 ) ;
+  velocityGenerator -> setUniform4f ( "g_dt", 0.0f, /*-9.8f */ 0.0f, 0.0f, TIMESTEP ) ;
+  velocity -> paint ()  ;
+
+  /* Copy old position into old. */
+  tmp = old ;
+  old = position ;
+  position = tmp ;
+
+  positionGenerator -> use () ;
+  positionGenerator -> applyTexture ( "old_position", old     , 0 ) ;
+  positionGenerator -> applyTexture ( "velocity"    , velocity, 1 ) ;
+  positionGenerator -> setUniform1f ( "delta_T", TIMESTEP ) ;
+  position -> paint ()  ;
+
+  /* Copy old velocity into old. */
+
+  tmp = old ;
+  old = velocity ;
+  velocity = tmp ;
+
+  grndCollisionGenerator -> use () ;
+  grndCollisionGenerator -> applyTexture ( "position"    , position, 0 ) ;
+  grndCollisionGenerator -> applyTexture ( "old_velocity", old     , 1 ) ;
+  velocity -> paint ()  ;
+
+  /* Copy old rotation into old. */
+  tmp = old ;
+  old = rotation ;
+  rotation = tmp ;
+
+  positionGenerator -> use () ;
+  positionGenerator -> applyTexture ( "old_position", old        , 0 ) ;
+  positionGenerator -> applyTexture ( "velocity"    , rotvelocity, 1 ) ;
+  positionGenerator -> setUniform1f ( "delta_T", TIMESTEP  ) ;
+  rotation -> paint ()  ;
+
+  restoreFrameBuffer () ;
+}
+
+
+
+void display ( void )
+{
   if ( debugOpt != DRAW_WITHOUT_SHADERS &&
        debugOpt != DRAW_WITHOUT_PHYSICS )
   {
-    /* Do some simple physics calculations in four stages */
-
-    forceGenerator -> use () ;
-    forceGenerator -> applyTexture ( "position"  , position  , 0 ) ;
-    forceGenerator -> applyTexture ( "collisions", collisions, 1 ) ;
-    force -> paint ()  ;
-
-    /* Copy old velocity into old. */
-    tmp = old ;
-    old = velocity ;
-    velocity = tmp ;
-
-    velocityGenerator -> use () ;
-    velocityGenerator -> applyTexture ( "old_velocity", old      , 0 ) ;
-    velocityGenerator -> applyTexture ( "force"       , force    , 1 ) ;
-    velocityGenerator -> applyTexture ( "massSizeX"   , massSizeX, 2 ) ;
-    velocityGenerator -> setUniform4f ( "g_dt", 0.0f, -9.8f, 0.0f, TIMESTEP ) ;
-    velocity -> paint ()  ;
-
-    /* Copy old position into old. */
-    tmp = old ;
-    old = position ;
-    position = tmp ;
-
-    positionGenerator -> use () ;
-    positionGenerator -> applyTexture ( "old_position", old     , 0 ) ;
-    positionGenerator -> applyTexture ( "velocity"    , velocity, 1 ) ;
-    positionGenerator -> setUniform1f ( "delta_T", TIMESTEP ) ;
-    position -> paint ()  ;
-
-    /* Copy old velocity into old. */
-    tmp = old ;
-    old = velocity ;
-    velocity = tmp ;
-
-    grndCollisionGenerator -> use () ;
-    grndCollisionGenerator -> applyTexture ( "position"    , position, 0 ) ;
-    grndCollisionGenerator -> applyTexture ( "old_velocity", old     , 1 ) ;
-    velocity -> paint ()  ;
-
-    /* Copy old rotation into old. */
-    tmp = old ;
-    old = rotation ;
-    rotation = tmp ;
-
-    positionGenerator -> use () ;
-    positionGenerator -> applyTexture ( "old_position", old        , 0 ) ;
-    positionGenerator -> applyTexture ( "velocity"    , rotvelocity, 1 ) ;
-    positionGenerator -> setUniform1f ( "delta_T", TIMESTEP  ) ;
-    rotation -> paint ()  ;
-
-    /* Now render the scene using the results */
-
-    restoreFrameBuffer () ;
+    runCollisionDetection () ;
+    runPhysics            () ;
   }
+
+  /* Now render the scene using the results */
 
   glViewport ( 0, 0, win_width, win_height ) ;
 
@@ -701,7 +838,7 @@ void help ()
 
 int main ( int argc, char **argv )
 {
-  bool disableVertexTextureSupport = true ;
+  bool disableVertexTextureSupport = false ;
   debugOpt = DRAW_ALL ;
 
   for ( int i = 1 ; i < argc ; i++ )

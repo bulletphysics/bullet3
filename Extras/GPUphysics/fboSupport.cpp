@@ -335,11 +335,13 @@ void FrameBufferObject::fillTexture ( float *data )
 }
 
 
-void FrameBufferObject::paint ()
+void FrameBufferObject::prepare ( bool clear )
 {
   makeDestination () ;
 
   glViewport        ( 0, 0, width, height ) ;
+
+  if ( clear ) glClear ( GL_COLOR_BUFFER_BIT ) ;
 
   glMatrixMode      ( GL_PROJECTION ) ;
   glLoadIdentity    () ;
@@ -351,8 +353,11 @@ void FrameBufferObject::paint ()
   glDisable         ( GL_DEPTH_TEST ) ;
   glDisable         ( GL_CULL_FACE  ) ;
   glDisable         ( GL_BLEND      ) ;
+}
 
 
+void FrameBufferObject::fill ()
+{
   float s_min = 0.5f / (float) width ;
   float s_max = (((float) width) - 0.5f) / (float) width ;
   float t_min = 0.5f / (float) height ;

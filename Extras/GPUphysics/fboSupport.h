@@ -73,7 +73,10 @@ public:
     glBindTexture ( GL_TEXTURE_2D, textureHandle ) ;
   }
 
-  void paint () ;
+  void prepare ( bool clear = false ) ;
+  void fill    () ;
+
+  void paint   ( bool clear = false ) { prepare ( clear ) ; fill () ; }
 
   void fillTexture ( float          *data ) ;
   void fillTexture ( unsigned short *data ) ;
