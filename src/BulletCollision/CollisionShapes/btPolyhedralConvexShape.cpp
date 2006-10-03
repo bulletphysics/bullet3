@@ -66,7 +66,7 @@ void	btPolyhedralConvexShape::batchedUnitVectorGetSupportingVertexWithoutMargin(
 	btVector3 vtx;
 	btScalar newDot;
 
-	for (int i=0;i<numVectors;i++)
+	for (i=0;i<numVectors;i++)
 	{
 		supportVerticesOut[i][3] = -1e30f;
 	}
