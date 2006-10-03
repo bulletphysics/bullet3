@@ -210,7 +210,7 @@ public:
 		}
 	}
 
-	
+	SIMD_FORCE_INLINE const btScalar& getW() const { return m_unusedW; }
 
 };
 
