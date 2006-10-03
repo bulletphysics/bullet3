@@ -173,6 +173,8 @@ bool	ColladaConverter::load(const char* orgfilename)
 bool ColladaConverter::convert()
 {
 
+	unsigned i;
+
 //succesfully loaded file, now convert data
 
 			if ( m_dom->getAsset()->getUp_axis() )
@@ -228,7 +230,7 @@ bool ColladaConverter::convert()
 
 
 			// Load all the geometry libraries
-			for ( unsigned int i = 0; i < m_dom->getLibrary_geometries_array().getCount(); i++)
+			for (  i = 0; i < m_dom->getLibrary_geometries_array().getCount(); i++)
 			{
 				domLibrary_geometriesRef libgeom = m_dom->getLibrary_geometries_array()[i];
 
@@ -279,7 +281,7 @@ bool ColladaConverter::convert()
 
 			//m_dom->getLibrary_physics_models_array()
 
-			for ( unsigned int i = 0; i < m_dom->getLibrary_physics_scenes_array().getCount(); i++)
+			for (  i = 0; i < m_dom->getLibrary_physics_scenes_array().getCount(); i++)
 			{
 				domLibrary_physics_scenesRef physicsScenesRef = m_dom->getLibrary_physics_scenes_array()[i];
 				for (unsigned int s=0;s<physicsScenesRef->getPhysics_scene_array().getCount();s++)
@@ -298,9 +300,9 @@ bool ColladaConverter::convert()
 
 					} 
 
-					for (unsigned int m=0;m<physicsSceneRef->getInstance_physics_model_array().getCount();m++)
+					for (unsigned int ps=0;ps<physicsSceneRef->getInstance_physics_model_array().getCount();ps++)
 					{
-						domInstance_physics_modelRef instance_physicsModelRef = physicsSceneRef->getInstance_physics_model_array()[m];
+						domInstance_physics_modelRef instance_physicsModelRef = physicsSceneRef->getInstance_physics_model_array()[ps];
 
 						daeElementRef ref = instance_physicsModelRef->getUrl().getElement();
 
@@ -468,9 +470,9 @@ bool ColladaConverter::convert()
 
 					
 					//handle constraints
-					for (unsigned int m=0;m<physicsSceneRef->getInstance_physics_model_array().getCount();m++)
+					for (unsigned int ma=0;ma<physicsSceneRef->getInstance_physics_model_array().getCount();ma++)
 					{
-						domInstance_physics_modelRef instance_physicsModelRef = physicsSceneRef->getInstance_physics_model_array()[m];
+						domInstance_physics_modelRef instance_physicsModelRef = physicsSceneRef->getInstance_physics_model_array()[ma];
 
 						daeElementRef ref = instance_physicsModelRef->getUrl().getElement();
 

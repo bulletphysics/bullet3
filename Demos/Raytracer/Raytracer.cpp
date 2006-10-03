@@ -229,9 +229,10 @@ void Raytracer::displayCallback()
 
 	btSphereShape pointShape(0.0f);
 
+	int x;
 
 	///clear texture
-	for (int x=0;x<screenWidth;x++)
+	for (x=0;x<screenWidth;x++)
 	{
 		for (int y=0;y<screenHeight;y++)
 		{
@@ -245,7 +246,7 @@ void Raytracer::displayCallback()
 	btTransform rayToTrans;
 	rayToTrans.setIdentity();
 	btVector3 rayTo;
-	for (int x=0;x<screenWidth;x++)
+	for (x=0;x<screenWidth;x++)
 	{
 		for (int y=0;y<screenHeight;y++)
 		{
