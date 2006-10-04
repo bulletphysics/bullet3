@@ -159,11 +159,10 @@ void	ConcaveDemo::initPhysics()
 	startTransform.setIdentity();
 	startTransform.setOrigin(btVector3(0,0,0));
 
-	btRigidBody* staticBody = localCreateRigidBody(isDynamic, mass, startTransform,trimeshShape);
+	btRigidBody* staticBody = localCreateRigidBody(mass, startTransform,trimeshShape);
 
 	staticBody->m_collisionFlags |=btCollisionObject::isStatic;
 
-	getDynamicsWorld()->addCollisionObject(staticBody);
 	//enable custom material callback
 	staticBody->m_collisionFlags |= btCollisionObject::customMaterialCallback;
 
@@ -172,7 +171,7 @@ void	ConcaveDemo::initPhysics()
 		{
 			btCollisionShape* boxShape = new btBoxShape(btVector3(1,1,1));
 			startTransform.setOrigin(btVector3(2*i,1,1));
-			getDynamicsWorld()->addCollisionObject(localCreateRigidBody(true, 1, startTransform,boxShape));
+			localCreateRigidBody(1, startTransform,boxShape);
 		}
 	}
 	

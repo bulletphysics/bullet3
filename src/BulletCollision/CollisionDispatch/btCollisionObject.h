@@ -48,6 +48,9 @@ struct	btCollisionObject
 		customMaterialCallback = 4,//this allows per-triangle material (friction/restitution)
 	};
 
+
+
+
 	int				m_collisionFlags;
 
 	int				m_islandTag1;

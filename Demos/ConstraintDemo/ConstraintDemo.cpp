@@ -62,17 +62,14 @@ void	ConstraintDemo::initPhysics()
 	trans.setIdentity();
 	trans.setOrigin(btVector3(0,20,0));
 
-	bool isDynamic = false;
-	float mass = 1.f;
-
-	btRigidBody* body0 = localCreateRigidBody( isDynamic,mass,trans,shape);
-	getDynamicsWorld()->addCollisionObject(body0);
+	float mass = 0.f;
+	btRigidBody* body0 = localCreateRigidBody( mass,trans,shape);
 	trans.setOrigin(btVector3(2*CUBE_HALF_EXTENTS,20,0));
-	isDynamic = true;
-	btRigidBody* body1 = localCreateRigidBody( isDynamic,mass,trans,shape);
+
+	mass = 1.f;
+	btRigidBody* body1 = localCreateRigidBody( mass,trans,shape);
 	body1->setDamping(0.3,0.3);
-	getDynamicsWorld()->addCollisionObject(body1);
-	
+
 	
 	clientResetScene();
 

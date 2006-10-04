@@ -335,7 +335,7 @@ void DemoApplication::keyboardCallback(unsigned char key, int x, int y)
         break;
     }
 
-	if (getDynamicsWorld()->getDebugDrawer())
+	if (getDynamicsWorld() && getDynamicsWorld()->getDebugDrawer())
 		getDynamicsWorld()->getDebugDrawer()->setDebugMode(m_debugMode);
 
 	glutPostRedisplay();
@@ -393,8 +393,7 @@ void	DemoApplication::shootBox(const btVector3& destination)
 		startTransform.setOrigin(camPos);
 		btCollisionShape* boxShape = new btBoxShape(btVector3(1.f,1.f,1.f));
 
-		btRigidBody* body = this->localCreateRigidBody(isDynamic, mass, startTransform,boxShape);
-		m_dynamicsWorld->addCollisionObject(body);
+		btRigidBody* body = this->localCreateRigidBody(mass, startTransform,boxShape);
 
 		btVector3 linVel(destination[0]-camPos[0],destination[1]-camPos[1],destination[2]-camPos[2]);
 		linVel.normalize();
@@ -606,30 +605,36 @@ void	DemoApplication::mouseMotionFunc(int x,int y)
 
 
 
-btRigidBody*	DemoApplication::localCreateRigidBody(bool isDynamic, float mass, const btTransform& startTransform,btCollisionShape* shape)
+btRigidBody*	DemoApplication::localCreateRigidBody(float mass, const btTransform& startTransform,btCollisionShape* shape)
 {
+	//rigidbody is dynamic if and only if mass is non zero, otherwise static
+	bool isDynamic = (mass != 0.f);
+
 	btVector3 localInertia(0,0,0);
 	if (isDynamic)
 		shape->calculateLocalInertia(mass,localInertia);
 
-	btMassProps massProps(0.f,localInertia);
-	
-	btRigidBody* body = new btRigidBody(massProps);
-	body->m_collisionShape = shape;
-	body->m_worldTransform = startTransform;
+	btRigidBody* body = new btRigidBody(mass,startTransform,shape,localInertia);
 
-	if (!isDynamic)
+	//filtering allows to excluded collision pairs, early in the collision pipeline (broadphase)
+	bool useFiltering = true;
+	if (useFiltering)
 	{
-		body->m_collisionFlags = btCollisionObject::isStatic;//??
-//		body->getBroadphaseProxy()->m_collisionFilterGroup = 1;/btCcdConstructionInfo::StaticFilter;
-//		body->getBroadphaseProxy()->m_collisionFilterMask = btCcdConstructionInfo::AllFilter ^ btCcdConstructionInfo::StaticFilter;
-		body->setMassProps( 0.f, localInertia);
+		short collisionFilterGroup = isDynamic? 
+			btBroadphaseProxy::DefaultFilter : 
+			btBroadphaseProxy::StaticFilter;
+		short collisionFilterMask = isDynamic? 
+			btBroadphaseProxy::AllFilter : 
+			btBroadphaseProxy::AllFilter ^ btBroadphaseProxy::StaticFilter;
+
+			m_dynamicsWorld->addCollisionObject(body,collisionFilterGroup,collisionFilterMask);
 	} else
 	{
-		body->setMassProps( mass, localInertia);
-		body->m_collisionFlags = 0;
+		//no collision filtering, so always create an overlapping pair, even between static-static etc.
+		m_dynamicsWorld->addCollisionObject(body);
 	}
-	
+
+	//Bullet uses per-object gravity
 	body->setGravity(m_gravity);
 
 	return body;

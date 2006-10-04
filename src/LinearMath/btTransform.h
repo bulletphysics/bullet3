@@ -159,6 +159,13 @@ public:
 
 	btTransform operator*(const btTransform& t) const;
 
+	static btTransform	getIdentity()
+	{
+		btTransform tr;
+		tr.setIdentity();
+		return tr;
+	}
+	
 private:
 
 	btMatrix3x3 m_basis;

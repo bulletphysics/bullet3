@@ -72,9 +72,7 @@ public:
 				//this create an internal copy of the vertices
 				btCollisionShape* shape = new btConvexHullShape(&vertices[0],vertices.size());
 
-				btRigidBody* body = m_demoApp->localCreateRigidBody(isDynamic, mass, startTransform,shape);
-				assert(body);
-				m_demoApp->getDynamicsWorld()->addCollisionObject( body );
+				btRigidBody* body = m_demoApp->localCreateRigidBody(mass, startTransform,shape);
 			}
 		}
 };

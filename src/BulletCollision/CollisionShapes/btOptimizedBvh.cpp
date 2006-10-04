@@ -88,7 +88,7 @@ void btOptimizedBvh::build(btStridingMeshInterface* triangles)
 btOptimizedBvh::~btOptimizedBvh()
 {
 	if (m_contiguousNodes)
-		delete m_contiguousNodes;
+		delete []m_contiguousNodes;
 }
 
 btOptimizedBvhNode*	btOptimizedBvh::buildTree	(NodeArray&	leafNodes,int startIndex,int endIndex)

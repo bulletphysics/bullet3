@@ -18,7 +18,7 @@ subject to the following restrictions:
 #include "BulletDynamics/Dynamics/btRigidBody.h"
 #include "BulletDynamics/Dynamics/btMassProps.h"
 
-static btRigidBody s_fixed(btMassProps(0,btVector3(0.f,0.f,0.f)),0.f,0.f,1.f,1.f);
+static btRigidBody s_fixed(0, btTransform::getIdentity(),0);
 
 btTypedConstraint::btTypedConstraint()
 : m_userConstraintType(-1),

@@ -81,8 +81,19 @@ class MyColladaConverter : public ColladaConverter
 		btCollisionShape* shape)
 	{
 
-		btRigidBody* body = m_demoApp->localCreateRigidBody(isDynamic, mass, startTransform,shape);
-		m_demoApp->getDynamicsWorld()->addCollisionObject(body);
+		if (!isDynamic && (mass != 0.f))
+		{
+			printf("Warning: non-dynamic objects needs to have zero mass!\n");
+			mass = 0.f;
+		}
+
+		if (isDynamic && (mass == 0.f))
+		{
+			printf("Warning: dynamic rigidbodies needs nonzero mass!\n");
+			mass = 1.f;
+		}
+
+		btRigidBody* body = m_demoApp->localCreateRigidBody(mass, startTransform,shape);
 		return body;
 	}
 

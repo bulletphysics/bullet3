@@ -59,6 +59,16 @@ CONCAVE_SHAPES_END_HERE,
 struct btBroadphaseProxy
 {
 	
+	///optional filtering to cull potential collisions
+	enum CollisionFilterGroups
+	{
+	        DefaultFilter = 1,
+	        StaticFilter = 2,
+	        KinematicFilter = 4,
+	        DebrisFilter = 8,
+	        AllFilter = DefaultFilter | StaticFilter | KinematicFilter | DebrisFilter,
+	};
+
 	//Usually the client btCollisionObject or Rigidbody class
 	void*	m_clientObject;
 	short int m_collisionFilterGroup;

@@ -134,8 +134,7 @@ void	UserCollisionAlgorithm::initPhysics()
 	startTransform.setIdentity();
 	startTransform.setOrigin(btVector3(0,-2,0));
 
-	btRigidBody* staticBody= localCreateRigidBody(isDynamic, mass, startTransform,trimeshShape);
-	getDynamicsWorld()->addCollisionObject(staticBody);
+	btRigidBody* staticBody= localCreateRigidBody(mass, startTransform,trimeshShape);
 	//enable custom material callback
 	staticBody->m_collisionFlags |= btCollisionObject::customMaterialCallback;
 
@@ -144,12 +143,12 @@ void	UserCollisionAlgorithm::initPhysics()
 		{
 			btCollisionShape* sphereShape = new btSphereShape(1);
 			startTransform.setOrigin(btVector3(1,2*i,1));
-			btRigidBody* body = localCreateRigidBody(true, 1, startTransform,sphereShape);
-			getDynamicsWorld()->addCollisionObject(body);
+			btRigidBody* body = localCreateRigidBody(1, startTransform,sphereShape);
 		}
 	}
 	
 	
+
 	m_dynamicsWorld->setDebugDrawer(&debugDrawer);
 }
 

@@ -147,7 +147,7 @@ public:
 	}
 	btVector3	getRayTo(int x,int y);
 
-	btRigidBody*	localCreateRigidBody(bool isDynamic, float mass, const btTransform& startTransform,btCollisionShape* shape);
+	btRigidBody*	localCreateRigidBody(float mass, const btTransform& startTransform,btCollisionShape* shape);
 
 	///callback methods by glut	
 

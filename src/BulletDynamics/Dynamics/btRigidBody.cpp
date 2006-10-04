@@ -28,7 +28,7 @@ float gLinearSleepingTreshold = 0.8f;
 float gAngularSleepingTreshold = 1.0f;
 static int uniqueId = 0;
 
-btRigidBody::btRigidBody( const btMassProps& massProps,btScalar linearDamping,btScalar angularDamping,btScalar friction,btScalar restitution)
+btRigidBody::btRigidBody( float mass,const btTransform& worldTransform,btCollisionShape* collisionShape,const btVector3& localInertia,btScalar linearDamping,btScalar angularDamping,btScalar friction,btScalar restitution)
 : 
 	m_gravity(0.0f, 0.0f, 0.0f),
 	m_totalForce(0.0f, 0.0f, 0.0f),
@@ -42,18 +42,23 @@ btRigidBody::btRigidBody( const btMassProps& massProps,btScalar linearDamping,bt
 	m_frictionSolverType(0)
 {
 
+	if (mass == 0.f)
+		m_collisionFlags = btCollisionObject::isStatic;
+
+	m_worldTransform = worldTransform;
+
 	//moved to btCollisionObject
 	m_friction = friction;
 	m_restitution = restitution;
 
+	m_collisionShape = collisionShape;
 	m_debugBodyId = uniqueId++;
 	
 	//m_internalOwner is to allow upcasting from collision object to rigid body
 	m_internalOwner = this;
 
-	setMassProps(massProps.m_mass, massProps.m_inertiaLocal);
+	setMassProps(mass, localInertia);
     setDamping(linearDamping, angularDamping);
-	m_worldTransform.setIdentity();
 	updateInertiaTensor();
 
 }
@@ -61,7 +66,7 @@ btRigidBody::btRigidBody( const btMassProps& massProps,btScalar linearDamping,bt
 
 void btRigidBody::setLinearVelocity(const btVector3& lin_vel)
 { 
-
+	assert (m_collisionFlags != btCollisionObject::isStatic);
 	m_linearVelocity = lin_vel; 
 }
 

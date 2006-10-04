@@ -89,6 +89,12 @@ btCollisionWorld::~btCollisionWorld()
 
 void	btCollisionWorld::addCollisionObject(btCollisionObject* collisionObject,short int collisionFilterGroup,short int collisionFilterMask)
 {
+
+	//check that the object isn't already added
+	std::vector<btCollisionObject*>::iterator i =	std::find(m_collisionObjects.begin(), m_collisionObjects.end(), collisionObject);
+	assert(i == m_collisionObjects.end());
+
+
 		m_collisionObjects.push_back(collisionObject);
 
 		//calculate new AABB

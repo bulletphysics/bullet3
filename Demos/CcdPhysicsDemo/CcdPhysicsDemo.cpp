@@ -243,6 +243,7 @@ void	CcdPhysicsDemo::initPhysics()
 		btSequentialImpulseConstraintSolver* solver = new btSequentialImpulseConstraintSolver;
 
 		m_dynamicsWorld = new btDiscreteDynamicsWorld(dispatcher,broadphase,solver);
+		//setGravity(btVector3(0,0,1));
 
 		m_dynamicsWorld->setDebugDrawer(&debugDrawer);
 		
@@ -326,9 +327,8 @@ void	CcdPhysicsDemo::initPhysics()
 		if (!isDyna)
 			mass = 0.f;
 	
-		btRigidBody* body = localCreateRigidBody(isDyna,mass,trans,shape);
+		btRigidBody* body = localCreateRigidBody(mass,trans,shape);
 		
-		m_dynamicsWorld->addCollisionObject(body);
 		
 		// Only do CCD if  motion in one timestep (1.f/60.f) exceeds CUBE_HALF_EXTENTS
 		body->m_ccdSquareMotionTreshold = CUBE_HALF_EXTENTS;

@@ -91,7 +91,7 @@ void ConvexDecompositionDemo::initPhysics(const char* filename)
 	startTransform.setIdentity();
 	startTransform.setOrigin(btVector3(0,-4,0));
 
-	localCreateRigidBody(false,0,startTransform,new btBoxShape(btVector3(30,2,30)));
+	localCreateRigidBody(0.f,startTransform,new btBoxShape(btVector3(30,2,30)));
 
 	class MyConvexDecomposition : public ConvexDecomposition::ConvexDecompInterface
 	{
@@ -192,8 +192,7 @@ void ConvexDecompositionDemo::initPhysics(const char* filename)
 					btTransform trans;
 					trans.setIdentity();
 					trans.setOrigin(centroid);
-					btRigidBody* body = m_convexDemo->localCreateRigidBody(isDynamic, mass, trans,convexShape);
-					m_convexDemo->getDynamicsWorld()->addCollisionObject(body);
+					btRigidBody* body = m_convexDemo->localCreateRigidBody( mass, trans,convexShape);
 					mBaseCount+=result.mHullVcount; // advance the 'base index' counter.
 
 
@@ -237,7 +236,7 @@ void ConvexDecompositionDemo::initPhysics(const char* filename)
 		startTransform.setIdentity();
 		startTransform.setOrigin(btVector3(20,2,0));
 
-		localCreateRigidBody(isDynamic, mass, startTransform,convexShape);
+		localCreateRigidBody(mass, startTransform,convexShape);
 
 	}
 			

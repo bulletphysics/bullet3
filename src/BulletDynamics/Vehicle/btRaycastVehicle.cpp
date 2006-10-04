@@ -23,7 +23,7 @@
 
 
 
-static btRigidBody s_fixedObject( btMassProps ( 0.0f, btVector3(0,0,0) ),0.f,0.f,0.f,0.f);
+static btRigidBody s_fixedObject( 0,btTransform(btQuaternion(0,0,0,1)),0);
 
 btRaycastVehicle::btRaycastVehicle(const btVehicleTuning& tuning,btRigidBody* chassis,	btVehicleRaycaster* raycaster )
 :m_vehicleRaycaster(raycaster),

@@ -57,11 +57,9 @@ class btRigidBody  : public btCollisionObject
 	
 	btScalar		m_kinematicTimeStep;
 
-	btBroadphaseProxy*	m_broadphaseProxy;
-
 public:
 
-	btRigidBody(const btMassProps& massProps,btScalar linearDamping=0.f,btScalar angularDamping=0.f,btScalar friction=0.5f,btScalar restitution=0.f);
+	btRigidBody(float mass, const btTransform& worldTransform, btCollisionShape* collisionShape, const btVector3& localInertia=btVector3(0,0,0),btScalar linearDamping=0.f,btScalar angularDamping=0.f,btScalar friction=0.5f,btScalar restitution=0.f);
 
 	void			proceedToTransform(const btTransform& newTrans); 
 	
@@ -266,15 +264,15 @@ public:
 	
 	const btBroadphaseProxy*	getBroadphaseProxy() const
 	{
-		return m_broadphaseProxy;
+		return m_broadphaseHandle;
 	}
 	btBroadphaseProxy*	getBroadphaseProxy() 
 	{
-		return m_broadphaseProxy;
+		return m_broadphaseHandle;
 	}
-	void	setBroadphaseProxy(btBroadphaseProxy* broadphaseProxy)
+	void	setNewBroadphaseProxy(btBroadphaseProxy* broadphaseProxy)
 	{
-		m_broadphaseProxy = broadphaseProxy;
+		m_broadphaseHandle = broadphaseProxy;
 	}
 	
 	//for experimental overriding of friction/contact solver func
