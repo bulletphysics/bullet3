@@ -59,8 +59,9 @@ LINK_LIBRARIES(
 )
 
 ADD_EXECUTABLE(GPUphysics
-	fboSupport.cxx
-	GPU_physics_demo.cxx
-	shaderSupport.cxx
+	clock.cpp
+	fboSupport.cpp
+	GPU_physics_demo.cpp
+	shaderSupport.cpp
 )
 
