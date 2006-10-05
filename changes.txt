@@ -1,6 +1,13 @@
 Bullet Continuous Collision Detection and Physics Library
 Erwin Coumans
 
+2006 Oct 4
+	Fixed minor leak in btOptimizeBVH
+	Cleanup of btRigidBody construction
+	added getW() in btQuaternion
+	assert when setLinearVelocity is called on btRigidBody
+	renamed projectfile library from collada-dom to colladadom (to make VC6 happy)
+	
 2006 Sept 27
 	Big Refactoring: renamed and moved files, create a replacement for CcdPhysicsEnvironment/CcdPhysicsController.
 	All Bullet classes in LinearMath, BulletCollision and BulletDynamics start with bt, and methods start with lowercase.
