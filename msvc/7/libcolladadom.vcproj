@@ -2,8 +2,8 @@
 <VisualStudioProject
 	ProjectType="Visual C++"
 	Version="7.00"
-	Name="libcollada-dom"
-	ProjectGUID="{5E57E40B-B2C3-7595-57AB-A3936FFBD7D4}"
+	Name="libcolladadom"
+	ProjectGUID="{6AB01C9C-9163-F400-B5C3-20D046631E17}"
 	SccProjectName=""
 	SccLocalPath="">
 	<Platforms>
@@ -13,8 +13,8 @@
 	<Configurations>
 		<Configuration
 			Name="Release|Win32"
-			OutputDirectory="..\..\out\release7\build\libcollada-dom\"
-			IntermediateDirectory="..\..\out\release7\build\libcollada-dom\"
+			OutputDirectory="..\..\out\release7\build\libcolladadom\"
+			IntermediateDirectory="..\..\out\release7\build\libcolladadom\"
 			ConfigurationType="4"
 			UseOfMFC="0"
 			ATLMinimizesCRunTimeLibraryUsage="FALSE">
@@ -31,10 +31,10 @@
 				ExceptionHandling="0"
 				AdditionalOptions=" "
 				AdditionalIncludeDirectories=".;..\..;..\..\src;..\..\Extras\ConvexDecomposition;..\..\Extras\COLLADA_DOM\include;..\..\Extras\COLLADA_DOM\include\1.4;..\..\Extras\LibXML\include"
-				PrecompiledHeaderFile="..\..\out\release7\build\libcollada-dom\libcollada-dom.pch"
-				AssemblerListingLocation="..\..\out\release7\build\libcollada-dom\"
-				ObjectFile="..\..\out\release7\build\libcollada-dom\"
-				ProgramDataBaseFileName="..\..\out\release7\build\libcollada-dom\collada-dom.pdb"
+				PrecompiledHeaderFile="..\..\out\release7\build\libcolladadom\libcolladadom.pch"
+				AssemblerListingLocation="..\..\out\release7\build\libcolladadom\"
+				ObjectFile="..\..\out\release7\build\libcolladadom\"
+				ProgramDataBaseFileName="..\..\out\release7\build\libcolladadom\colladadom.pdb"
 				WarningLevel="3"
 				SuppressStartupBanner="TRUE"
 				Detect64BitPortabilityProblems="TRUE"
@@ -55,11 +55,11 @@
 				SuppressStartupBanner="TRUE"
 				GenerateManifest="false"
 				AdditionalLibraryDirectories=""
-				ProgramDatabaseFile="..\..\out\release7\build\libcollada-dom\collada-dom.pdb"
+				ProgramDatabaseFile="..\..\out\release7\build\libcolladadom\colladadom.pdb"
 				TargetMachine="1"/>
 			<Tool
 				Name="VCLibrarianTool"
-				OutputFile="..\..\out\release7\libs\libcollada-dom.lib"
+				OutputFile="..\..\out\release7\libs\libcolladadom.lib"
 				SuppressStartupBanner="TRUE"/>
 			<Tool
 				Name="VCMIDLTool"
@@ -67,7 +67,7 @@
 				MkTypLibCompatible="TRUE"
 				SuppressStartupBanner="TRUE"
 				TargetEnvironment="1"
-				TypeLibraryName="..\..\out\release7\build\libcollada-dom\libcollada-dom.tlb"/>
+				TypeLibraryName="..\..\out\release7\build\libcolladadom\libcolladadom.tlb"/>
 			<Tool
 				Name="VCPostBuildEventTool"
 				/>
@@ -87,8 +87,8 @@
 		</Configuration>
 		<Configuration
 			Name="Debug|Win32"
-			OutputDirectory="..\..\out\debug7\build\libcollada-dom\"
-			IntermediateDirectory="..\..\out\debug7\build\libcollada-dom\"
+			OutputDirectory="..\..\out\debug7\build\libcolladadom\"
+			IntermediateDirectory="..\..\out\debug7\build\libcolladadom\"
 			ConfigurationType="4"
 			UseOfMFC="0"
 			ATLMinimizesCRunTimeLibraryUsage="FALSE">
@@ -104,10 +104,10 @@
 				ExceptionHandling="0"
 				AdditionalOptions=" "
 				AdditionalIncludeDirectories=".;..\..;..\..\src;..\..\Extras\ConvexDecomposition;..\..\Extras\COLLADA_DOM\include;..\..\Extras\COLLADA_DOM\include\1.4;..\..\Extras\LibXML\include"
-				PrecompiledHeaderFile="..\..\out\debug7\build\libcollada-dom\libcollada-dom.pch"
-				AssemblerListingLocation="..\..\out\debug7\build\libcollada-dom\"
-				ObjectFile="..\..\out\debug7\build\libcollada-dom\"
-				ProgramDataBaseFileName="..\..\out\debug7\build\libcollada-dom\collada-dom.pdb"
+				PrecompiledHeaderFile="..\..\out\debug7\build\libcolladadom\libcolladadom.pch"
+				AssemblerListingLocation="..\..\out\debug7\build\libcolladadom\"
+				ObjectFile="..\..\out\debug7\build\libcolladadom\"
+				ProgramDataBaseFileName="..\..\out\debug7\build\libcolladadom\colladadom.pdb"
 				WarningLevel="3"
 				SuppressStartupBanner="TRUE"
 				Detect64BitPortabilityProblems="TRUE"
@@ -126,11 +126,11 @@
 				SuppressStartupBanner="TRUE"
 				GenerateManifest="false"
 				AdditionalLibraryDirectories=""
-				ProgramDatabaseFile="..\..\out\debug7\build\libcollada-dom\collada-dom.pdb"
+				ProgramDatabaseFile="..\..\out\debug7\build\libcolladadom\colladadom.pdb"
 				TargetMachine="1"/>
 			<Tool
 				Name="VCLibrarianTool"
-				OutputFile="..\..\out\debug7\libs\libcollada-dom_d.lib"
+				OutputFile="..\..\out\debug7\libs\libcolladadom_d.lib"
 				SuppressStartupBanner="TRUE"/>
 			<Tool
 				Name="VCMIDLTool"
@@ -138,7 +138,7 @@
 				MkTypLibCompatible="TRUE"
 				SuppressStartupBanner="TRUE"
 				TargetEnvironment="1"
-				TypeLibraryName="..\..\out\debug7\build\libcollada-dom\libcollada-dom.tlb"/>
+				TypeLibraryName="..\..\out\debug7\build\libcolladadom\libcolladadom.tlb"/>
 			<Tool
 				Name="VCPostBuildEventTool"
 				/>

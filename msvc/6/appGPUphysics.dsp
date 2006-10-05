@@ -104,6 +104,10 @@ SOURCE="$(InputPath)"
 # PROP Default_Filter ""
 # Begin Source File
 
+SOURCE=..\..\Extras\GPUphysics\clock.cpp
+# End Source File
+# Begin Source File
+
 SOURCE=..\..\Extras\GPUphysics\fboSupport.cpp
 # End Source File
 # Begin Source File
@@ -118,6 +122,10 @@ SOURCE=..\..\Extras\GPUphysics\shaderSupport.cpp
 # Begin Group "Header Files"
 
 # PROP Default_Filter ""
+# Begin Source File
+
+SOURCE=..\..\Extras\GPUphysics\clock.h
+# End Source File
 # Begin Source File
 
 SOURCE=..\..\Extras\GPUphysics\fboSupport.h

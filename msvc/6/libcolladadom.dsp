@@ -1,24 +1,24 @@
-# Microsoft Developer Studio Project File - Name="libcollada-dom" - Package Owner=<4>
+# Microsoft Developer Studio Project File - Name="libcolladadom" - Package Owner=<4>
 # Microsoft Developer Studio Generated Build File, Format Version 6.00
 # ** DO NOT EDIT **
 
 # TARGTYPE "Win32 (x86) Static Library" 0x0104
 
-CFG=libcollada-dom - Win32 Release
+CFG=libcolladadom - Win32 Release
 !MESSAGE This is not a valid makefile. To build this project using NMAKE,
 !MESSAGE use the Export Makefile command and run
 !MESSAGE 
-!MESSAGE NMAKE /f "libcollada-dom.mak".
+!MESSAGE NMAKE /f "libcolladadom.mak".
 !MESSAGE 
 !MESSAGE You can specify a configuration when running NMAKE
 !MESSAGE by defining the macro CFG on the command line. For example:
 !MESSAGE 
-!MESSAGE NMAKE /f "libcollada-dom.mak" CFG="libcollada-dom - Win32 Release"
+!MESSAGE NMAKE /f "libcolladadom.mak" CFG="libcolladadom - Win32 Release"
 !MESSAGE 
 !MESSAGE Possible choices for configuration are:
 !MESSAGE 
-!MESSAGE "libcollada-dom - Win32 Debug" (based on "Win32 (x86) Static Library")
-!MESSAGE "libcollada-dom - Win32 Release" (based on "Win32 (x86) Static Library")
+!MESSAGE "libcolladadom - Win32 Debug" (based on "Win32 (x86) Static Library")
+!MESSAGE "libcolladadom - Win32 Release" (based on "Win32 (x86) Static Library")
 !MESSAGE 
 
 # Begin Project
@@ -29,7 +29,7 @@ CPP=cl.exe
 MTL=midl.exe
 RSC=rc.exe
 
-!IF  "$(CFG)" == "libcollada-dom - Win32 Release"
+!IF  "$(CFG)" == "libcolladadom - Win32 Release"
 
 # PROP BASE Use_MFC 0
 # PROP BASE Use_Debug_Libraries 0
@@ -38,8 +38,8 @@ RSC=rc.exe
 # PROP BASE Target_Dir ""
 # PROP Use_MFC 0
 # PROP Use_Debug_Libraries 0
-# PROP Output_Dir "..\..\out\release6\build\libcollada-dom\"
-# PROP Intermediate_Dir "..\..\out\release6\build\libcollada-dom\"
+# PROP Output_Dir "..\..\out\release6\build\libcolladadom\"
+# PROP Intermediate_Dir "..\..\out\release6\build\libcolladadom\"
 # PROP Ignore_Export_Lib 0
 # PROP Target_Dir ""
 # ADD BASE CPP /nologo /vmb /vms /W3 /Gm /G5 /D "WIN32" /FD /c
@@ -47,13 +47,13 @@ RSC=rc.exe
 # ADD BASE MTL /nologo /mktyplib203 /o "NUL" /win32
 # ADD MTL /nologo /mktyplib203 /o "NUL" /win32 /D "NDEBUG" /D "_LIB" /D "_WINDOWS"
 # ADD BASE RSC /l 0x409
-# ADD RSC /l 0x409 /fo".\..\..\out\release6\build\libcollada-dom\libcollada-dom.res" /i "." /i "..\.." /i "..\..\src" /i "..\..\Extras\ConvexDecomposition" /i "..\..\Extras\COLLADA_DOM\include" /i "..\..\Extras\COLLADA_DOM\include\1.4" /i "..\..\Extras\LibXML\include"
+# ADD RSC /l 0x409 /fo".\..\..\out\release6\build\libcolladadom\libcolladadom.res" /i "." /i "..\.." /i "..\..\src" /i "..\..\Extras\ConvexDecomposition" /i "..\..\Extras\COLLADA_DOM\include" /i "..\..\Extras\COLLADA_DOM\include\1.4" /i "..\..\Extras\LibXML\include"
 BSC32=bscmake.exe
 # ADD BASE BSC32 /nologo
 # ADD BSC32 /nologo
 LIB32=link.exe -lib
 # ADD BASE LIB32 /nologo
-# ADD LIB32 /nologo /out:"..\..\out\release6\libs\libcollada-dom.lib"
+# ADD LIB32 /nologo /out:"..\..\out\release6\libs\libcolladadom.lib"
 LINK32=link.exe
 # ADD BASE LINK32 user32.lib gdi32.lib advapi32.lib /nologo /machine:I386
 # ADD LINK32 shell32.lib user32.lib gdi32.lib advapi32.lib   /nologo /version:4.0 /machine:I386 /OPT:NOREF /subsystem:windows  
@@ -61,7 +61,7 @@ LINK32=link.exe
 SOURCE="$(InputPath)"
 # End Special Build Tool
 
-!ELSEIF  "$(CFG)" == "libcollada-dom - Win32 Debug"
+!ELSEIF  "$(CFG)" == "libcolladadom - Win32 Debug"
 
 # PROP BASE Use_MFC 0
 # PROP BASE Use_Debug_Libraries 1
@@ -70,8 +70,8 @@ SOURCE="$(InputPath)"
 # PROP BASE Target_Dir ""
 # PROP Use_MFC 0
 # PROP Use_Debug_Libraries 1
-# PROP Output_Dir "..\..\out\debug6\build\libcollada-dom\"
-# PROP Intermediate_Dir "..\..\out\debug6\build\libcollada-dom\"
+# PROP Output_Dir "..\..\out\debug6\build\libcolladadom\"
+# PROP Intermediate_Dir "..\..\out\debug6\build\libcolladadom\"
 # PROP Ignore_Export_Lib 0
 # PROP Target_Dir ""
 # ADD BASE CPP /nologo /vmb /vms /W3 /Gm /G5 /D "WIN32" /FD /c
@@ -79,13 +79,13 @@ SOURCE="$(InputPath)"
 # ADD BASE MTL /nologo /mktyplib203 /o "NUL" /win32
 # ADD MTL /nologo /mktyplib203 /o "NUL" /win32 /D "_DEBUG" /D "_LIB" /D "_WINDOWS"
 # ADD BASE RSC /l 0x409
-# ADD RSC /l 0x409 /fo".\..\..\out\debug6\build\libcollada-dom\libcollada-dom.res" /i "." /i "..\.." /i "..\..\src" /i "..\..\Extras\ConvexDecomposition" /i "..\..\Extras\COLLADA_DOM\include" /i "..\..\Extras\COLLADA_DOM\include\1.4" /i "..\..\Extras\LibXML\include"
+# ADD RSC /l 0x409 /fo".\..\..\out\debug6\build\libcolladadom\libcolladadom.res" /i "." /i "..\.." /i "..\..\src" /i "..\..\Extras\ConvexDecomposition" /i "..\..\Extras\COLLADA_DOM\include" /i "..\..\Extras\COLLADA_DOM\include\1.4" /i "..\..\Extras\LibXML\include"
 BSC32=bscmake.exe
 # ADD BASE BSC32 /nologo
 # ADD BSC32 /nologo
 LIB32=link.exe -lib
 # ADD BASE LIB32 /nologo
-# ADD LIB32 /nologo /out:"..\..\out\debug6\libs\libcollada-dom_d.lib"
+# ADD LIB32 /nologo /out:"..\..\out\debug6\libs\libcolladadom_d.lib"
 LINK32=link.exe
 # ADD BASE LINK32 user32.lib gdi32.lib advapi32.lib /nologo /machine:I386
 # ADD LINK32 shell32.lib user32.lib gdi32.lib advapi32.lib   /nologo /version:4.0 /machine:I386 /debug /pdbtype:sept /subsystem:windows  
@@ -97,8 +97,8 @@ SOURCE="$(InputPath)"
 
 # Begin Target
 
-# Name "libcollada-dom - Win32 Release"
-# Name "libcollada-dom - Win32 Debug"
+# Name "libcolladadom - Win32 Release"
+# Name "libcolladadom - Win32 Debug"
 # Begin Group "Source Files"
 
 # PROP Default_Filter ""

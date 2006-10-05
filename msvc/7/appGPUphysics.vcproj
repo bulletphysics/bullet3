@@ -167,6 +167,9 @@
 			Name="Source Files"
 			Filter="">
 			<File
+				RelativePath="..\..\Extras\GPUphysics\clock.cpp">
+			</File>
+			<File
 				RelativePath="..\..\Extras\GPUphysics\fboSupport.cpp">
 			</File>
 			<File
@@ -179,6 +182,9 @@
 		<Filter
 			Name="Header Files"
 			Filter="">
+			<File
+				RelativePath="..\..\Extras\GPUphysics\clock.h">
+			</File>
 			<File
 				RelativePath="..\..\Extras\GPUphysics\fboSupport.h">
 			</File>

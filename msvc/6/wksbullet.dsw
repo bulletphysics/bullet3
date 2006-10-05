@@ -24,7 +24,7 @@ Package=<4>
     Project_Dep_Name libbulletopenglsupport
     End Project Dependency
     Begin Project Dependency
-    Project_Dep_Name libcollada-dom
+    Project_Dep_Name libcolladadom
     End Project Dependency
     Begin Project Dependency
     Project_Dep_Name libconvexdecomposition
@@ -81,7 +81,7 @@ Package=<4>
     Project_Dep_Name libbulletopenglsupport
     End Project Dependency
     Begin Project Dependency
-    Project_Dep_Name libcollada-dom
+    Project_Dep_Name libcolladadom
     End Project Dependency
     Begin Project Dependency
     Project_Dep_Name libconvexdecomposition
@@ -234,7 +234,7 @@ Package=<4>
     Project_Dep_Name libbulletopenglsupport
     End Project Dependency
     Begin Project Dependency
-    Project_Dep_Name libcollada-dom
+    Project_Dep_Name libcolladadom
     End Project Dependency
     Begin Project Dependency
     Project_Dep_Name libconvexdecomposition
@@ -417,7 +417,7 @@ Package=<4>
     Project_Dep_Name libbulletopenglsupport
     End Project Dependency
     Begin Project Dependency
-    Project_Dep_Name libcollada-dom
+    Project_Dep_Name libcolladadom
     End Project Dependency
     Begin Project Dependency
     Project_Dep_Name libconvexdecomposition
@@ -504,7 +504,7 @@ Package=<4>
     Project_Dep_Name libbulletopenglsupport
     End Project Dependency
     Begin Project Dependency
-    Project_Dep_Name libcollada-dom
+    Project_Dep_Name libcolladadom
     End Project Dependency
     Begin Project Dependency
     Project_Dep_Name libconvexdecomposition
@@ -564,7 +564,7 @@ Package=<4>
 
 ###############################################################################
 
-Project: "libcollada-dom"=.\libcollada-dom.dsp - Package Owner=<4>
+Project: "libcolladadom"=.\libcolladadom.dsp - Package Owner=<4>
 
 Package=<5>
 {{{
