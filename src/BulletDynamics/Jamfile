@@ -6,4 +6,7 @@ Library bulletdynamics :
   [ Wildcard Dynamics : *.h *.cpp ] 
   [ Wildcard Vehicle : *.h *.cpp ] 
 ;
+
+LibDepends bulletdynamics : bulletcollision  ;
+
 Recurse InstallHeader : .h  ;

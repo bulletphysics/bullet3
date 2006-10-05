@@ -10,9 +10,13 @@ IncludeDir  Extras/PhysicsInterface/CcdPhysics ;
   Library bulletopenglsupport : 
   [ Wildcard *.h *.cpp ] : noinstall 
 ;
+
 CFlags bulletopenglsupport :
 [ FIncludes $(TOP)/Extras/PhysicsInterface/Common ]
 [ FIncludes $(TOP)/Extras/PhysicsInterface/CcdPhysics ]
 ;
+
+LibDepends bulletopenglsupport : bulletdynamics   ;
+
   ExternalLibs bulletopenglsupport : GLUT ;
 }

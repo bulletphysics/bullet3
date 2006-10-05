@@ -8,7 +8,7 @@ if $(GLUT.AVAILABLE) = "yes"
   rule BulletDemo
   {
     Application $(<) : $(>) : noinstall console nomanifest ;
-    LinkWith $(<) :  bulletdynamics bulletcollision bulletopenglsupport bulletmath ;
+    LinkWith $(<) :  bulletopenglsupport bulletdynamics bulletcollision bulletmath ;
     CFlags $(<) : 
 	  [ FIncludes $(TOP)/Demos/OpenGL ] 
     ;
@@ -21,7 +21,7 @@ if $(GLUT.AVAILABLE) = "yes"
   rule ExtraDemo
   {
     Application $(<) : $(>) : noinstall console nomanifest ;
-    LinkWith $(<) :   colladadom libxml convexdecomposition bulletdynamics bulletcollision  bulletopenglsupport  bulletmath ;
+    LinkWith $(<) :   colladadom libxml bulletopenglsupport convexdecomposition bulletdynamics bulletcollision  bulletmath ;
     CFlags $(<) :
           [ FIncludes $(TOP)/Demos/OpenGL ]
        	  			[ FIncludes $(TOP)/Extras/ConvexDecomposition ]

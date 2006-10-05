@@ -8,4 +8,6 @@ Library bulletcollision :
   [ Wildcard CollisionShapes : *.h *.cpp ] 
   [ Wildcard NarrowPhaseCollision : *.h *.cpp ] 
 ;
+LibDepends bulletcollision : bulletmath  ;
+
 Recurse InstallHeader : .h  ;
