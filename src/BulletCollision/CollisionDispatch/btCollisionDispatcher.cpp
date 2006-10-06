@@ -243,7 +243,8 @@ bool	btCollisionDispatcher::needsCollision(btCollisionObject* body0,btCollisionO
 
 
 
-
+///interface for iterating all overlapping collision pairs, no matter how those pairs are stored (array, set, map etc)
+///this is useful for the collision dispatcher.
 class btCollisionPairCallback : public btOverlapCallback
 {
 	btDispatcherInfo& m_dispatchInfo;
