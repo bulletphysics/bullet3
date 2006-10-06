@@ -267,7 +267,7 @@ WARN_LOGFILE           =
 # directories like "/usr/src/myproject". Separate the files or directories 
 # with spaces. 
 
-INPUT                  = src Demos
+INPUT                  = src
 
 
 # If the value of the INPUT tag contains directories, you can use the 
