@@ -24,7 +24,7 @@ struct btCollisionObject;
 
 struct btCollisionAlgorithmConstructionInfo;
 
-
+///Used by the btCollisionDispatcher to register and create instances for btCollisionAlgorithm
 struct btCollisionAlgorithmCreateFunc
 {
 	bool m_swapped;
