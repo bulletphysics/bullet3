@@ -49,7 +49,6 @@ ADD_LIBRARY(LibBulletCollision
 				NarrowPhaseCollision/btConvexCast.cpp
 				NarrowPhaseCollision/btGjkConvexCast.cpp
 				NarrowPhaseCollision/btGjkPairDetector.cpp
-				NarrowPhaseCollision/btManifoldContactAddResult.cpp
 				NarrowPhaseCollision/btMinkowskiPenetrationDepthSolver.cpp
 				NarrowPhaseCollision/btPersistentManifold.cpp
 				NarrowPhaseCollision/btRaycastCallback.cpp
