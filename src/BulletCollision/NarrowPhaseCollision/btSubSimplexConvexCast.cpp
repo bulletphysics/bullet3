@@ -26,8 +26,9 @@ m_convexA(convexA),m_convexB(convexB)
 {
 }
 
-
-#define MAX_ITERATIONS 1000
+///Typically the conservative advancement reaches solution in a few iterations, clip it to 32 for degenerate cases.
+///See discussion about this here http://continuousphysics.com/Bullet/phpBB2/viewtopic.php?t=565
+#define MAX_ITERATIONS 32
 
 bool	btSubsimplexConvexCast::calcTimeOfImpact(
 		const btTransform& fromA,
