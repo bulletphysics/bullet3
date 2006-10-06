@@ -19,7 +19,7 @@ subject to the following restrictions:
 class btRigidBody;
 #include "LinearMath/btScalar.h"
 
-//TypedConstraint is the baseclass for Bullet constraints and vehicles
+///TypedConstraint is the baseclass for Bullet constraints and vehicles
 class btTypedConstraint
 {
 	int	m_userConstraintType;
