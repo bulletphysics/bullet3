@@ -37,8 +37,8 @@ struct	btCollisionObject
 	btBroadphaseProxy*	m_broadphaseHandle;
 	btCollisionShape*		m_collisionShape;
 
-	//m_interpolationWorldTransform is used for CCD and interpolation
-	//it can be either previous or future (predicted) transform
+	///m_interpolationWorldTransform is used for CCD and interpolation
+	///it can be either previous or future (predicted) transform
 	btTransform	m_interpolationWorldTransform;
 
 	enum CollisionFlags
@@ -49,9 +49,6 @@ struct	btCollisionObject
 		CF_CUSTOM_MATERIAL_CALLBACK = 8,//this allows per-triangle material (friction/restitution)
 	};
 
-
-
-
 	int				m_collisionFlags;
 
 	int				m_islandTag1;
@@ -61,10 +58,10 @@ struct	btCollisionObject
 	btScalar		m_friction;
 	btScalar		m_restitution;
 
-	//users can point to their objects, m_userPointer is not used by Bullet
+	///users can point to their objects, m_userPointer is not used by Bullet
 	void*			m_userObjectPointer;
 
-	//m_internalOwner one is used by optional Bullet high level interface
+	///m_internalOwner is reserved to point to Bullet's btRigidBody. Don't use this, use m_userObjectPointer instead.
 	void*			m_internalOwner;
 
 	///time of impact calculation
@@ -78,7 +75,7 @@ struct	btCollisionObject
 
 	inline bool mergesSimulationIslands() const
 	{
-		//static objects, kinematic and object without contact response don't merge islands
+		///static objects, kinematic and object without contact response don't merge islands
 		return  !(m_collisionFlags & (CF_STATIC_OBJECT | CF_KINEMATIC_OJBECT | CF_NO_CONTACT_RESPONSE) );
 	}
 
