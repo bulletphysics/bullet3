@@ -14,10 +14,10 @@ subject to the following restrictions:
 */
 
 #include "btRigidBody.h"
-#include "btMassProps.h"
 #include "BulletCollision/CollisionShapes/btConvexShape.h"
 #include "LinearMath/btMinMax.h"
 #include <LinearMath/btTransformUtil.h>
+#include <LinearMath/btMotionState.h>
 
 float gLinearAirDamping = 1.f;
 //'temporarily' global variables
@@ -27,6 +27,44 @@ bool	gDisableDeactivation = false;
 float gLinearSleepingTreshold = 0.8f;
 float gAngularSleepingTreshold = 1.0f;
 static int uniqueId = 0;
+
+btRigidBody::btRigidBody(float mass, btMotionState* motionState, btCollisionShape* collisionShape, const btVector3& localInertia,btScalar linearDamping,btScalar angularDamping,btScalar friction,btScalar restitution)
+: 
+	m_gravity(0.0f, 0.0f, 0.0f),
+	m_totalForce(0.0f, 0.0f, 0.0f),
+	m_totalTorque(0.0f, 0.0f, 0.0f),
+	m_linearVelocity(0.0f, 0.0f, 0.0f),
+	m_angularVelocity(0.f,0.f,0.f),
+	m_linearDamping(0.f),
+	m_angularDamping(0.5f),
+	m_kinematicTimeStep(0.f),
+	m_optionalMotionState(motionState),
+	m_contactSolverType(0),
+	m_frictionSolverType(0)
+{
+
+	btQuaternion worldOrn;
+	btVector3	worldPos;
+	motionState->getWorldOrientation(worldOrn);
+	motionState->getWorldPosition(worldPos);
+	m_worldTransform = btTransform(worldOrn,worldPos);
+
+	//moved to btCollisionObject
+	m_friction = friction;
+	m_restitution = restitution;
+
+	m_collisionShape = collisionShape;
+	m_debugBodyId = uniqueId++;
+	
+	//m_internalOwner is to allow upcasting from collision object to rigid body
+	m_internalOwner = this;
+
+	setMassProps(mass, localInertia);
+    setDamping(linearDamping, angularDamping);
+	updateInertiaTensor();
+
+}
+
 
 btRigidBody::btRigidBody( float mass,const btTransform& worldTransform,btCollisionShape* collisionShape,const btVector3& localInertia,btScalar linearDamping,btScalar angularDamping,btScalar friction,btScalar restitution)
 : 
@@ -38,13 +76,11 @@ btRigidBody::btRigidBody( float mass,const btTransform& worldTransform,btCollisi
 	m_linearDamping(0.f),
 	m_angularDamping(0.5f),
 	m_kinematicTimeStep(0.f),
+	m_optionalMotionState(0),
 	m_contactSolverType(0),
 	m_frictionSolverType(0)
 {
-
-	if (mass == 0.f)
-		m_collisionFlags = btCollisionObject::isStatic;
-
+	
 	m_worldTransform = worldTransform;
 
 	//moved to btCollisionObject
@@ -64,11 +100,7 @@ btRigidBody::btRigidBody( float mass,const btTransform& worldTransform,btCollisi
 }
 
 
-void btRigidBody::setLinearVelocity(const btVector3& lin_vel)
-{ 
-	assert (m_collisionFlags != btCollisionObject::isStatic);
-	m_linearVelocity = lin_vel; 
-}
+
 
 
 void btRigidBody::predictIntegratedTransform(btScalar timeStep,btTransform& predictedTransform) const
@@ -126,9 +158,8 @@ void btRigidBody::setDamping(btScalar lin_damping, btScalar ang_damping)
 
 void btRigidBody::applyForces(btScalar step)
 {
-	if (IsStatic())
+	if (isStaticObject() || isKinematicObject())
 		return;
-
 	
 	applyCentralForce(m_gravity);	
 	
@@ -178,15 +209,14 @@ void btRigidBody::setMassProps(btScalar mass, const btVector3& inertia)
 {
 	if (mass == 0.f)
 	{
-		m_collisionFlags = btCollisionObject::isStatic;
+		m_collisionFlags |= btCollisionObject::CF_STATIC_OBJECT;
 		m_inverseMass = 0.f;
 	} else
 	{
-		m_collisionFlags = 0;
+		m_collisionFlags & (~btCollisionObject::CF_STATIC_OBJECT);
 		m_inverseMass = 1.0f / mass;
 	}
 	
-
 	m_invInertiaLocal.setValue(inertia[0] != 0.0f ? 1.0f / inertia[0]: 0.0f,
 						   inertia[1] != 0.0f ? 1.0f / inertia[1]: 0.0f,
 						   inertia[2] != 0.0f ? 1.0f / inertia[2]: 0.0f);
@@ -203,7 +233,7 @@ void btRigidBody::updateInertiaTensor()
 
 void btRigidBody::integrateVelocities(btScalar step) 
 {
-	if (IsStatic())
+	if (isStaticObject() || isKinematicObject())
 		return;
 
 	m_linearVelocity += m_totalForce * (m_inverseMass * step);

@@ -35,6 +35,7 @@ subject to the following restrictions:
 #include "BulletDynamics/Vehicle/btWheelInfo.h"
 #include "LinearMath/btIDebugDraw.h"
 #include "LinearMath/btQuickprof.h"
+#include "LinearMath/btMotionState.h"
 
 
 
@@ -44,6 +45,7 @@ btDiscreteDynamicsWorld::btDiscreteDynamicsWorld()
 :btDynamicsWorld(),
 m_constraintSolver(new btSequentialImpulseConstraintSolver),
 m_debugDrawer(0),
+m_gravity(0,-10,0),
 m_profileTimings(0)
 {
 	m_islandManager = new btSimulationIslandManager();
@@ -56,6 +58,7 @@ btDiscreteDynamicsWorld::btDiscreteDynamicsWorld(btDispatcher* dispatcher,btOver
 :btDynamicsWorld(dispatcher,pairCache),
 m_constraintSolver(constraintSolver? constraintSolver: new btSequentialImpulseConstraintSolver),
 m_debugDrawer(0),
+m_gravity(0,-10,0),
 m_profileTimings(0)
 {
 	m_islandManager = new btSimulationIslandManager();
@@ -73,7 +76,69 @@ btDiscreteDynamicsWorld::~btDiscreteDynamicsWorld()
 		 delete m_constraintSolver;
 }
 
-void	btDiscreteDynamicsWorld::stepSimulation(float timeStep)
+void	btDiscreteDynamicsWorld::saveKinematicState(float timeStep)
+{
+
+	for (unsigned int i=0;i<m_collisionObjects.size();i++)
+	{
+		btCollisionObject* colObj = m_collisionObjects[i];
+		btRigidBody* body = btRigidBody::upcast(colObj);
+		if (body)
+		{
+				btTransform predictedTrans;
+				if (body->GetActivationState() != ISLAND_SLEEPING)
+				{
+					if (body->isKinematicObject())
+					{
+						//to calculate velocities next frame
+						body->saveKinematicState(timeStep);
+					}
+				}
+		}
+	}
+}
+
+void	btDiscreteDynamicsWorld::synchronizeMotionStates()
+{
+	//todo: iterate over awake simulation islands!
+	for (unsigned int i=0;i<m_collisionObjects.size();i++)
+	{
+		btCollisionObject* colObj = m_collisionObjects[i];
+		btRigidBody* body = btRigidBody::upcast(colObj);
+		if (body && body->getMotionState())
+		{
+			if (body->GetActivationState() != ISLAND_SLEEPING)
+			{
+				body->getMotionState()->setWorldOrientation(body->getCenterOfMassTransform().getRotation());
+				body->getMotionState()->setWorldPosition(body->getCenterOfMassTransform().getOrigin());
+			}
+		}
+	}
+
+}
+
+
+void	btDiscreteDynamicsWorld::stepSimulation(float timeStep, int numSubsteps)
+{
+
+	if (!btFuzzyZero(timeStep) && numSubsteps)
+	{
+
+		saveKinematicState(timeStep);
+
+		int i;
+		float subTimeStep = timeStep / float(numSubsteps);
+
+		for (i=0;i<numSubsteps;i++)
+		{
+			internalSingleStepSimulation(subTimeStep);
+		}
+
+		synchronizeMotionStates();
+	} 
+}
+
+void	btDiscreteDynamicsWorld::internalSingleStepSimulation(float timeStep)
 {
 	
 	startProfiling(timeStep);
@@ -111,6 +176,35 @@ void	btDiscreteDynamicsWorld::stepSimulation(float timeStep)
 	
 
 }
+
+void	btDiscreteDynamicsWorld::setGravity(const btVector3& gravity)
+{
+	m_gravity = gravity;
+	for (unsigned int i=0;i<m_collisionObjects.size();i++)
+	{
+		btCollisionObject* colObj = m_collisionObjects[i];
+		btRigidBody* body = btRigidBody::upcast(colObj);
+		if (body)
+		{
+			body->setGravity(gravity);
+		}
+	}
+}
+
+void	btDiscreteDynamicsWorld::addRigidBody(btRigidBody* body)
+{
+	body->setGravity(m_gravity);
+	bool isDynamic = !(body->isStaticObject() || body->isKinematicObject());
+	short collisionFilterGroup = isDynamic? 
+	btBroadphaseProxy::DefaultFilter : 
+	btBroadphaseProxy::StaticFilter;
+	short collisionFilterMask = isDynamic? 
+	btBroadphaseProxy::AllFilter : 
+	btBroadphaseProxy::AllFilter ^ btBroadphaseProxy::StaticFilter;
+
+	addCollisionObject(body,collisionFilterGroup,collisionFilterMask);
+}
+
 
 void	btDiscreteDynamicsWorld::updateVehicles(float timeStep)
 {
@@ -360,7 +454,7 @@ void	btDiscreteDynamicsWorld::integrateTransforms(float timeStep)
 		btRigidBody* body = btRigidBody::upcast(colObj);
 		if (body)
 		{
-			if (body->IsActive() && (!body->IsStatic()))
+			if (body->IsActive() && (!body->isStaticObject()))
 			{
 				body->predictIntegratedTransform(timeStep, predictedTrans);
 				body->proceedToTransform( predictedTrans);
@@ -381,12 +475,14 @@ void	btDiscreteDynamicsWorld::predictUnconstraintMotion(float timeStep)
 		btRigidBody* body = btRigidBody::upcast(colObj);
 		if (body)
 		{
-			if (body->IsActive() && (!body->IsStatic()))
+			if (!body->isStaticObject())
 			{
-				body->applyForces( timeStep);
-				body->integrateVelocities( timeStep);
-				body->predictIntegratedTransform(timeStep,body->m_interpolationWorldTransform);
-
+				if (body->IsActive())
+				{
+					body->applyForces( timeStep);
+					body->integrateVelocities( timeStep);
+					body->predictIntegratedTransform(timeStep,body->m_interpolationWorldTransform);
+				}
 			}
 		}
 	}

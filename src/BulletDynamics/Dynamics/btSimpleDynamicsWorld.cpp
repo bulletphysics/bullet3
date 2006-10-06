@@ -25,7 +25,8 @@ subject to the following restrictions:
 btSimpleDynamicsWorld::btSimpleDynamicsWorld()
 :m_constraintSolver(new btSequentialImpulseConstraintSolver),
 m_ownsConstraintSolver(true),
-m_debugDrawer(0)
+m_debugDrawer(0),
+m_gravity(0,0,-10)
 {
 }
 
@@ -33,7 +34,8 @@ btSimpleDynamicsWorld::btSimpleDynamicsWorld(btDispatcher* dispatcher,btOverlapp
 :btDynamicsWorld(dispatcher,pairCache),
 m_constraintSolver(constraintSolver),
 m_ownsConstraintSolver(false),
-m_debugDrawer(0)
+m_debugDrawer(0),
+m_gravity(0,0,-10)
 {
 
 }
@@ -69,6 +71,26 @@ void	btSimpleDynamicsWorld::stepSimulation(float timeStep)
 }
 
 
+void	btSimpleDynamicsWorld::setGravity(const btVector3& gravity)
+{
+	m_gravity = gravity;
+	for (unsigned int i=0;i<m_collisionObjects.size();i++)
+	{
+		btCollisionObject* colObj = m_collisionObjects[i];
+		btRigidBody* body = btRigidBody::upcast(colObj);
+		if (body)
+		{
+			body->setGravity(gravity);
+		}
+	}
+}
+
+void	btSimpleDynamicsWorld::addRigidBody(btRigidBody* body)
+{
+	body->setGravity(m_gravity);
+
+	addCollisionObject(body);
+}
 
 void	btSimpleDynamicsWorld::updateAabbs()
 {
@@ -79,7 +101,7 @@ void	btSimpleDynamicsWorld::updateAabbs()
 		btRigidBody* body = btRigidBody::upcast(colObj);
 		if (body)
 		{
-			if (body->IsActive() && (!body->IsStatic()))
+			if (body->IsActive() && (!body->isStaticObject()))
 			{
 				btPoint3 minAabb,maxAabb;
 				colObj->m_collisionShape->getAabb(colObj->m_worldTransform, minAabb,maxAabb);
@@ -99,7 +121,7 @@ void	btSimpleDynamicsWorld::integrateTransforms(float timeStep)
 		btRigidBody* body = btRigidBody::upcast(colObj);
 		if (body)
 		{
-			if (body->IsActive() && (!body->IsStatic()))
+			if (body->IsActive() && (!body->isStaticObject()))
 			{
 				body->predictIntegratedTransform(timeStep, predictedTrans);
 				body->proceedToTransform( predictedTrans);
@@ -118,12 +140,14 @@ void	btSimpleDynamicsWorld::predictUnconstraintMotion(float timeStep)
 		btRigidBody* body = btRigidBody::upcast(colObj);
 		if (body)
 		{
-			if (body->IsActive() && (!body->IsStatic()))
+			if (!body->isStaticObject())
 			{
-				body->applyForces( timeStep);
-				body->integrateVelocities( timeStep);
-				body->predictIntegratedTransform(timeStep,body->m_interpolationWorldTransform);
-
+				if (body->IsActive())
+				{
+					body->applyForces( timeStep);
+					body->integrateVelocities( timeStep);
+					body->predictIntegratedTransform(timeStep,body->m_interpolationWorldTransform);
+				}
 			}
 		}
 	}

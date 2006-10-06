@@ -43,9 +43,10 @@ struct	btCollisionObject
 
 	enum CollisionFlags
 	{
-		isStatic = 1,
-		noContactResponse = 2,
-		customMaterialCallback = 4,//this allows per-triangle material (friction/restitution)
+		CF_STATIC_OBJECT= 1,
+		CF_KINEMATIC_OJBECT= 2,
+		CF_NO_CONTACT_RESPONSE = 4,
+		CF_CUSTOM_MATERIAL_CALLBACK = 8,//this allows per-triangle material (friction/restitution)
 	};
 
 
@@ -75,14 +76,24 @@ struct	btCollisionObject
 	/// Don't do continuous collision detection if square motion (in one step) is less then m_ccdSquareMotionTreshold
 	float			m_ccdSquareMotionTreshold;
 
-	bool			mergesSimulationIslands() const;
-
-	inline bool		IsStatic() const {
-		return m_collisionFlags & isStatic;
+	inline bool mergesSimulationIslands() const
+	{
+		//static objects, kinematic and object without contact response don't merge islands
+		return  !(m_collisionFlags & (CF_STATIC_OBJECT | CF_KINEMATIC_OJBECT | CF_NO_CONTACT_RESPONSE) );
 	}
 
-	inline bool		HasContactResponse() {
-		return !(m_collisionFlags & noContactResponse);
+
+	inline bool		isStaticObject() const {
+		return m_collisionFlags & CF_STATIC_OBJECT;
+	}
+
+	inline bool		isKinematicObject() const
+	{
+		return m_collisionFlags & CF_KINEMATIC_OJBECT;
+	}
+
+	inline bool		hasContactResponse() const {
+		return !(m_collisionFlags & CF_NO_CONTACT_RESPONSE);
 	}
 
 	

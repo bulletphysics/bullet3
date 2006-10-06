@@ -20,17 +20,16 @@ subject to the following restrictions:
 #include "BulletCollision/CollisionDispatch/btCollisionObject.h"
 //#include <stdio.h>
 
-btSphereBoxCollisionAlgorithm::btSphereBoxCollisionAlgorithm(btPersistentManifold* mf,const btCollisionAlgorithmConstructionInfo& ci,btBroadphaseProxy* proxy0,btBroadphaseProxy* proxy1)
+btSphereBoxCollisionAlgorithm::btSphereBoxCollisionAlgorithm(btPersistentManifold* mf,const btCollisionAlgorithmConstructionInfo& ci,btCollisionObject* col0,btCollisionObject* col1, bool isSwapped)
 : btCollisionAlgorithm(ci),
 m_ownManifold(false),
-m_manifoldPtr(mf)
+m_manifoldPtr(mf),
+m_isSwapped(isSwapped)
 {
-	m_sphereColObj = static_cast<btCollisionObject*>(proxy0->m_clientObject);
-	m_boxColObj    = static_cast<btCollisionObject*>(proxy1->m_clientObject);
-
-	if (!m_manifoldPtr && m_dispatcher->needsCollision(*proxy0,*proxy1))
+	
+	if (!m_manifoldPtr && m_dispatcher->needsCollision(col0,col1))
 	{
-		m_manifoldPtr = m_dispatcher->getNewManifold(proxy0->m_clientObject,proxy1->m_clientObject);
+		m_manifoldPtr = m_dispatcher->getNewManifold(col0,col1);
 		m_ownManifold = true;
 	}
 }
@@ -47,55 +46,59 @@ btSphereBoxCollisionAlgorithm::~btSphereBoxCollisionAlgorithm()
 
 
 
-void btSphereBoxCollisionAlgorithm::processCollision (btBroadphaseProxy*,btBroadphaseProxy*,const btDispatcherInfo& dispatchInfo)
+void btSphereBoxCollisionAlgorithm::processCollision (btCollisionObject* body0,btCollisionObject* body1,const btDispatcherInfo& dispatchInfo,btManifoldResult* resultOut)
 {
-	
 	if (!m_manifoldPtr)
 		return;
 
-	btSphereShape* sphere0 = (btSphereShape*)m_sphereColObj ->m_collisionShape;
+	btCollisionObject* sphereObj = m_isSwapped? body1 : body0;
+	btCollisionObject* boxObj = m_isSwapped? body0 : body1;
+
+
+	btSphereShape* sphere0 = (btSphereShape*)sphereObj ->m_collisionShape;
 
 	btVector3 normalOnSurfaceB;
 	btVector3 pOnBox,pOnSphere;
-	btVector3 sphereCenter = m_sphereColObj->m_worldTransform.getOrigin();
+	btVector3 sphereCenter = sphereObj->m_worldTransform.getOrigin();
 	btScalar radius = sphere0->getRadius();
 	
-	float dist = getSphereDistance(pOnBox,pOnSphere,sphereCenter,radius);
+	float dist = getSphereDistance(boxObj,pOnBox,pOnSphere,sphereCenter,radius);
 
 	if (dist < SIMD_EPSILON)
 	{
 		btVector3 normalOnSurfaceB = (pOnBox- pOnSphere).normalize();
 
 		/// report a contact. internally this will be kept persistent, and contact reduction is done
-		btManifoldResult* resultOut = m_dispatcher->getNewManifoldResult(m_sphereColObj,m_boxColObj,m_manifoldPtr);
+
+		resultOut->setPersistentManifold(m_manifoldPtr);
 		resultOut->addContactPoint(normalOnSurfaceB,pOnBox,dist);
-		m_dispatcher->releaseManifoldResult(resultOut);
+		
 	}
 
 	
 
 }
 
-float btSphereBoxCollisionAlgorithm::calculateTimeOfImpact(btBroadphaseProxy* proxy0,btBroadphaseProxy* proxy1,const btDispatcherInfo& dispatchInfo)
+float btSphereBoxCollisionAlgorithm::calculateTimeOfImpact(btCollisionObject* col0,btCollisionObject* col1,const btDispatcherInfo& dispatchInfo,btManifoldResult* resultOut)
 {
 	//not yet
 	return 1.f;
 }
 
 
-btScalar btSphereBoxCollisionAlgorithm::getSphereDistance( btVector3& pointOnBox, btVector3& v3PointOnSphere, const btVector3& sphereCenter, btScalar fRadius ) 
+btScalar btSphereBoxCollisionAlgorithm::getSphereDistance(btCollisionObject* boxObj, btVector3& pointOnBox, btVector3& v3PointOnSphere, const btVector3& sphereCenter, btScalar fRadius ) 
 {
 
 	btScalar margins;
 	btVector3 bounds[2];
-	btBoxShape* boxShape= (btBoxShape*)m_boxColObj->m_collisionShape;
+	btBoxShape* boxShape= (btBoxShape*)boxObj->m_collisionShape;
 	
 	bounds[0] = -boxShape->getHalfExtents();
 	bounds[1] = boxShape->getHalfExtents();
 
 	margins = boxShape->getMargin();//also add sphereShape margin?
 
-	const btTransform&	m44T = m_boxColObj->m_worldTransform;
+	const btTransform&	m44T = boxObj->m_worldTransform;
 
 	btVector3	boundsVec[2];
 	btScalar	fPenetration;
@@ -175,7 +178,7 @@ btScalar btSphereBoxCollisionAlgorithm::getSphereDistance( btVector3& pointOnBox
 	//////////////////////////////////////////////////
 	// Deep penetration case
 
-	fPenetration = getSpherePenetration( pointOnBox, v3PointOnSphere, sphereCenter, fRadius,bounds[0],bounds[1] );
+	fPenetration = getSpherePenetration( boxObj,pointOnBox, v3PointOnSphere, sphereCenter, fRadius,bounds[0],bounds[1] );
 
 	bounds[0] = boundsVec[0];
 	bounds[1] = boundsVec[1];
@@ -186,7 +189,7 @@ btScalar btSphereBoxCollisionAlgorithm::getSphereDistance( btVector3& pointOnBox
 		return 1.0f;
 }
 
-btScalar btSphereBoxCollisionAlgorithm::getSpherePenetration( btVector3& pointOnBox, btVector3& v3PointOnSphere, const btVector3& sphereCenter, btScalar fRadius, const btVector3& aabbMin, const btVector3& aabbMax) 
+btScalar btSphereBoxCollisionAlgorithm::getSpherePenetration( btCollisionObject* boxObj,btVector3& pointOnBox, btVector3& v3PointOnSphere, const btVector3& sphereCenter, btScalar fRadius, const btVector3& aabbMin, const btVector3& aabbMax) 
 {
 
 	btVector3 bounds[2];
@@ -204,7 +207,7 @@ btScalar btSphereBoxCollisionAlgorithm::getSpherePenetration( btVector3& pointOn
 	n[4].setValue(  0.0f,  1.0f,  0.0f );
 	n[5].setValue(  0.0f,  0.0f,  1.0f );
 
-	const btTransform&	m44T = m_boxColObj->m_worldTransform;
+	const btTransform&	m44T = boxObj->m_worldTransform;
 
 	// convert  point in local space
 	prel = m44T.invXform( sphereCenter);

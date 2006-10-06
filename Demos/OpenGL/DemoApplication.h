@@ -56,8 +56,6 @@ class DemoApplication
 	///constraint for mouse picking
 	btTypedConstraint*		m_pickConstraint;
 
-	btVector3	m_gravity;
-
 	float	m_cameraDistance;
 	int	m_debugMode;
 	
@@ -141,10 +139,7 @@ public:
 	///Demo functions
 	void	shootBox(const btVector3& destination);
 
-	void	setGravity(const btVector3& grav)
-	{
-		m_gravity = grav;
-	}
+
 	btVector3	getRayTo(int x,int y);
 
 	btRigidBody*	localCreateRigidBody(float mass, const btTransform& startTransform,btCollisionShape* shape);

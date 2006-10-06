@@ -18,6 +18,9 @@ subject to the following restrictions:
 
 struct btBroadphaseProxy;
 class btDispatcher;
+class btManifoldResult;
+struct btCollisionObject;
+struct btDispatcherInfo;
 
 struct btCollisionAlgorithmConstructionInfo
 {
@@ -57,9 +60,9 @@ public:
 
 	virtual ~btCollisionAlgorithm() {};
 
-	virtual void processCollision (btBroadphaseProxy* proxy0,btBroadphaseProxy* proxy1,const struct btDispatcherInfo& dispatchInfo) = 0;
+	virtual void processCollision (btCollisionObject* body0,btCollisionObject* body1,const btDispatcherInfo& dispatchInfo,btManifoldResult* resultOut) = 0;
 
-	virtual float calculateTimeOfImpact(btBroadphaseProxy* proxy0,btBroadphaseProxy* proxy1,const struct btDispatcherInfo& dispatchInfo) = 0;
+	virtual float calculateTimeOfImpact(btCollisionObject* body0,btCollisionObject* body1,const btDispatcherInfo& dispatchInfo,btManifoldResult* resultOut) = 0;
 
 };
 

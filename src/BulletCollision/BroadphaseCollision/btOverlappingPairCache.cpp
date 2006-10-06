@@ -75,7 +75,7 @@ void	btOverlappingPairCache::addOverlappingPair(btBroadphaseProxy* proxy0,btBroa
 	//don't add overlap with own
 	assert(proxy0 != proxy1);
 
-	if (!needsCollision(proxy0,proxy1))
+	if (!needsBroadphaseCollision(proxy0,proxy1))
 		return;
 
 
@@ -92,7 +92,7 @@ void	btOverlappingPairCache::addOverlappingPair(btBroadphaseProxy* proxy0,btBroa
 ///Also we can use a 2D bitmap, which can be useful for a future GPU implementation
  btBroadphasePair*	btOverlappingPairCache::findPair(btBroadphaseProxy* proxy0,btBroadphaseProxy* proxy1)
 {
-	if (!needsCollision(proxy0,proxy1))
+	if (!needsBroadphaseCollision(proxy0,proxy1))
 		return 0;
 
 	btBroadphasePair tmpPair(*proxy0,*proxy1);

@@ -38,7 +38,7 @@ class btDynamicsWorld : public btCollisionWorld
 		}
 		
 		///stepSimulation proceeds the simulation over timeStep units
-		virtual void	stepSimulation( float timeStep) = 0;
+		virtual void	stepSimulation( float timeStep,int numSubsteps=1) = 0;
 				
 		virtual void	updateAabbs() = 0;
 				
@@ -49,6 +49,12 @@ class btDynamicsWorld : public btCollisionWorld
 		virtual void	setDebugDrawer(btIDebugDraw*	debugDrawer) = 0;
 
 		virtual btIDebugDraw*	getDebugDrawer() = 0;
+
+		//once a rigidbody is added to the dynamics world, it will get this gravity assigned
+		//existing rigidbodies in the world get gravity assigned too, during this method
+		virtual void	setGravity(const btVector3& gravity) = 0;
+
+		virtual void	addRigidBody(btRigidBody* body) = 0;
 
 };
 

@@ -29,13 +29,13 @@ subject to the following restrictions:
 
 int gNumManifold = 0;
 
+#include <stdio.h>
 
 	
 
 	
 btCollisionDispatcher::btCollisionDispatcher (): 
 	m_useIslands(true),
-		m_defaultManifoldResult(0,0,0),
 		m_count(0)
 {
 	int i;
@@ -121,18 +121,17 @@ void btCollisionDispatcher::releaseManifold(btPersistentManifold* manifold)
 
 	
 
-btCollisionAlgorithm* btCollisionDispatcher::findAlgorithm(btBroadphaseProxy& proxy0,btBroadphaseProxy& proxy1)
+btCollisionAlgorithm* btCollisionDispatcher::findAlgorithm(btCollisionObject* body0,btCollisionObject* body1)
 {
 #define USE_DISPATCH_REGISTRY_ARRAY 1
 #ifdef USE_DISPATCH_REGISTRY_ARRAY
-	btCollisionObject* body0 = (btCollisionObject*)proxy0.m_clientObject;
-	btCollisionObject* body1 = (btCollisionObject*)proxy1.m_clientObject;
+	
 	btCollisionAlgorithmConstructionInfo ci;
 	ci.m_dispatcher = this;
 	btCollisionAlgorithm* algo = m_doubleDispatch[body0->m_collisionShape->getShapeType()][body1->m_collisionShape->getShapeType()]
-	->CreateCollisionAlgorithm(ci,&proxy0,&proxy1);
+	->CreateCollisionAlgorithm(ci,body0,body1);
 #else
-	btCollisionAlgorithm* algo = internalFindAlgorithm(proxy0,proxy1);
+	btCollisionAlgorithm* algo = internalFindAlgorithm(body0,body1);
 #endif //USE_DISPATCH_REGISTRY_ARRAY
 	return algo;
 }
@@ -173,38 +172,36 @@ btCollisionAlgorithmCreateFunc* btCollisionDispatcher::internalFindCreateFunc(in
 
 
 
-btCollisionAlgorithm* btCollisionDispatcher::internalFindAlgorithm(btBroadphaseProxy& proxy0,btBroadphaseProxy& proxy1)
+btCollisionAlgorithm* btCollisionDispatcher::internalFindAlgorithm(btCollisionObject* body0,btCollisionObject* body1)
 {
 	m_count++;
-	btCollisionObject* body0 = (btCollisionObject*)proxy0.m_clientObject;
-	btCollisionObject* body1 = (btCollisionObject*)proxy1.m_clientObject;
-
+	
 	btCollisionAlgorithmConstructionInfo ci;
 	ci.m_dispatcher = this;
 	
 	if (body0->m_collisionShape->isConvex() && body1->m_collisionShape->isConvex() )
 	{
-		return new btConvexConvexAlgorithm(0,ci,&proxy0,&proxy1);			
+		return new btConvexConvexAlgorithm(0,ci,body0,body1);
 	}
 
 	if (body0->m_collisionShape->isConvex() && body1->m_collisionShape->isConcave())
 	{
-		return new btConvexConcaveCollisionAlgorithm(ci,&proxy0,&proxy1);
+		return new btConvexConcaveCollisionAlgorithm(ci,body0,body1,false);
 	}
 
 	if (body1->m_collisionShape->isConvex() && body0->m_collisionShape->isConcave())
 	{
-		return new btConvexConcaveCollisionAlgorithm(ci,&proxy1,&proxy0);
+		return new btConvexConcaveCollisionAlgorithm(ci,body0,body1,true);
 	}
 
 	if (body0->m_collisionShape->isCompound())
 	{
-		return new btCompoundCollisionAlgorithm(ci,&proxy0,&proxy1);
+		return new btCompoundCollisionAlgorithm(ci,body0,body1,false);
 	} else
 	{
 		if (body1->m_collisionShape->isCompound())
 		{
-			return new btCompoundCollisionAlgorithm(ci,&proxy1,&proxy0);
+			return new btCompoundCollisionAlgorithm(ci,body0,body1,true);
 		}
 	}
 
@@ -213,33 +210,29 @@ btCollisionAlgorithm* btCollisionDispatcher::internalFindAlgorithm(btBroadphaseP
 	
 }
 
-bool	btCollisionDispatcher::needsResponse(const  btCollisionObject& colObj0,const btCollisionObject& colObj1)
+bool	btCollisionDispatcher::needsResponse(btCollisionObject* body0,btCollisionObject* body1)
 {
-
-	
 	//here you can do filtering
 	bool hasResponse = 
-		(!(colObj0.m_collisionFlags & btCollisionObject::noContactResponse)) &&
-		(!(colObj1.m_collisionFlags & btCollisionObject::noContactResponse));
+		(body0->hasContactResponse() && body1->hasContactResponse());
 	hasResponse = hasResponse &&
-		(colObj0.IsActive() || colObj1.IsActive());
+		(body0->IsActive() || body1->IsActive());
 	return hasResponse;
 }
 
-bool	btCollisionDispatcher::needsCollision(btBroadphaseProxy& proxy0,btBroadphaseProxy& proxy1)
+bool	btCollisionDispatcher::needsCollision(btCollisionObject* body0,btCollisionObject* body1)
 {
-
-	btCollisionObject* body0 = (btCollisionObject*)proxy0.m_clientObject;
-	btCollisionObject* body1 = (btCollisionObject*)proxy1.m_clientObject;
-
 	assert(body0);
 	assert(body1);
 
 	bool needsCollision = true;
 
-	if ((body0->m_collisionFlags & btCollisionObject::isStatic) && 
-		(body1->m_collisionFlags & btCollisionObject::isStatic))
-		needsCollision = false;
+	//broadphase filtering already deals with this
+	if ((body0->isStaticObject() || body0->isKinematicObject()) &&
+		(body1->isStaticObject() || body1->isKinematicObject()))
+	{
+		printf("warning btCollisionDispatcher::needsCollision: static-static collision!\n");
+	}
 		
 	if ((!body0->IsActive()) && (!body1->IsActive()))
 		needsCollision = false;
@@ -248,21 +241,7 @@ bool	btCollisionDispatcher::needsCollision(btBroadphaseProxy& proxy0,btBroadphas
 
 }
 
-///allows the user to get contact point callbacks 
-btManifoldResult*	btCollisionDispatcher::getNewManifoldResult(btCollisionObject* obj0,btCollisionObject* obj1,btPersistentManifold* manifold)
-{
 
-
-	//in-place, this prevents parallel dispatching, but just adding a list would fix that.
-	btManifoldResult* manifoldResult = new (&m_defaultManifoldResult)	btManifoldResult(obj0,obj1,manifold);
-	return manifoldResult;
-}
-	
-///allows the user to get contact point callbacks 
-void	btCollisionDispatcher::releaseManifoldResult(btManifoldResult*)
-{
-
-}
 
 
 class btCollisionPairCallback : public btOverlapCallback
@@ -281,48 +260,35 @@ public:
 
 	virtual bool	processOverlap(btBroadphasePair& pair)
 	{
-		if (m_dispatcherId>= 0)
+		btCollisionObject* body0 = (btCollisionObject*)pair.m_pProxy0->m_clientObject;
+		btCollisionObject* body1 = (btCollisionObject*)pair.m_pProxy1->m_clientObject;
+
+		if (!m_dispatcher->needsCollision(body0,body1))
+			return false;
+
+		//dispatcher will keep algorithms persistent in the collision pair
+		if (!pair.m_algorithms[m_dispatcherId])
 		{
-			//dispatcher will keep algorithms persistent in the collision pair
-			if (!pair.m_algorithms[m_dispatcherId])
-			{
-				pair.m_algorithms[m_dispatcherId] = m_dispatcher->findAlgorithm(
-					*pair.m_pProxy0,
-					*pair.m_pProxy1);
-			}
+			pair.m_algorithms[m_dispatcherId] = m_dispatcher->findAlgorithm(
+				body0,
+				body1);
+		}
 
-			if (pair.m_algorithms[m_dispatcherId])
-			{
-				if (m_dispatchInfo.m_dispatchFunc == 		btDispatcherInfo::DISPATCH_DISCRETE)
-				{
-					pair.m_algorithms[m_dispatcherId]->processCollision(pair.m_pProxy0,pair.m_pProxy1,m_dispatchInfo);
-				} else
-				{
-					float toi = pair.m_algorithms[m_dispatcherId]->calculateTimeOfImpact(pair.m_pProxy0,pair.m_pProxy1,m_dispatchInfo);
-					if (m_dispatchInfo.m_timeOfImpact > toi)
-						m_dispatchInfo.m_timeOfImpact = toi;
-
-				}
-			}
-		} else
+		if (pair.m_algorithms[m_dispatcherId])
 		{
-			//non-persistent algorithm dispatcher
-			btCollisionAlgorithm* algo = m_dispatcher->findAlgorithm(
-				*pair.m_pProxy0,
-				*pair.m_pProxy1);
-
-			if (algo)
+			btManifoldResult* resultOut = m_dispatcher->internalGetNewManifoldResult(body0,body1);
+			if (m_dispatchInfo.m_dispatchFunc == 		btDispatcherInfo::DISPATCH_DISCRETE)
 			{
-				if (m_dispatchInfo.m_dispatchFunc == 		btDispatcherInfo::DISPATCH_DISCRETE)
-				{
-					algo->processCollision(pair.m_pProxy0,pair.m_pProxy1,m_dispatchInfo);
-				} else
-				{
-					float toi = algo->calculateTimeOfImpact(pair.m_pProxy0,pair.m_pProxy1,m_dispatchInfo);
-					if (m_dispatchInfo.m_timeOfImpact > toi)
-						m_dispatchInfo.m_timeOfImpact = toi;
-				}
+				
+				pair.m_algorithms[m_dispatcherId]->processCollision(body0,body1,m_dispatchInfo,resultOut);
+			} else
+			{
+				float toi = pair.m_algorithms[m_dispatcherId]->calculateTimeOfImpact(body0,body1,m_dispatchInfo,resultOut);
+				if (m_dispatchInfo.m_timeOfImpact > toi)
+					m_dispatchInfo.m_timeOfImpact = toi;
+
 			}
+			m_dispatcher->internalReleaseManifoldResult(resultOut);
 		}
 		return false;
 

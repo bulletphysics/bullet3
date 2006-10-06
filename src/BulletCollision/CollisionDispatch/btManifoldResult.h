@@ -21,6 +21,7 @@ subject to the following restrictions:
 struct btCollisionObject;
 class btPersistentManifold;
 class btManifoldPoint;
+#include "LinearMath/btTransform.h"
 
 typedef bool (*ContactAddedCallback)(btManifoldPoint& cp,	const btCollisionObject* colObj0,int partId0,int index0,const btCollisionObject* colObj1,int partId1,int index1);
 extern ContactAddedCallback		gContactAddedCallback;
@@ -31,6 +32,11 @@ extern ContactAddedCallback		gContactAddedCallback;
 class btManifoldResult : public btDiscreteCollisionDetectorInterface::Result
 {
 	btPersistentManifold* m_manifoldPtr;
+
+	//we need this for compounds
+	btTransform	m_rootTransA;
+	btTransform	m_rootTransB;
+
 	btCollisionObject* m_body0;
 	btCollisionObject* m_body1;
 	int	m_partId0;
@@ -39,9 +45,18 @@ class btManifoldResult : public btDiscreteCollisionDetectorInterface::Result
 	int m_index1;
 public:
 
-	btManifoldResult(btCollisionObject* body0,btCollisionObject* body1,btPersistentManifold* manifoldPtr);
+	btManifoldResult()
+	{
+	}
+
+	btManifoldResult(btCollisionObject* body0,btCollisionObject* body1);
 
 	virtual ~btManifoldResult() {};
+
+	void	setPersistentManifold(btPersistentManifold* manifoldPtr)
+	{
+		m_manifoldPtr = manifoldPtr;
+	}
 
 	virtual void setShapeIdentifiers(int partId0,int index0,	int partId1,int index1)
 	{

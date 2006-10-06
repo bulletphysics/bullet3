@@ -30,7 +30,7 @@
 #ifndef QUICK_PROF_H
 #define QUICK_PROF_H
 
-//#define USE_QUICKPROF 1
+#define USE_QUICKPROF 1
 
 #ifdef USE_QUICKPROF
 

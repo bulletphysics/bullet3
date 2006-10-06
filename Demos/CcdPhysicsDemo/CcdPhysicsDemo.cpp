@@ -14,7 +14,8 @@ subject to the following restrictions:
 */
 
 //#define USER_DEFINED_FRICTION_MODEL 1
-//#define PRINT_CONTACT_STATISTICS 1
+#define PRINT_CONTACT_STATISTICS 1
+//#define USE_KINEMATIC_GROUND 1
 #define REGISTER_CUSTOM_COLLISION_ALGORITHM 1
 
 #include "btBulletDynamicsCommon.h"
@@ -120,6 +121,14 @@ extern int gTotalContactPoints;
 void CcdPhysicsDemo::clientMoveAndDisplay()
 {
 	glClear(GL_COLOR_BUFFER_BIT | GL_DEPTH_BUFFER_BIT); 
+
+	
+#ifdef USE_KINEMATIC_GROUND
+	//btQuaternion kinRotation(btVector3(0,0,1),0.);
+	btVector3 kinTranslation(0,0,0.01);
+	//kinematic object
+	m_dynamicsWorld->getCollisionObjectArray()[0]->m_worldTransform.getOrigin() += kinTranslation;
+#endif //USE_KINEMATIC_GROUND
 
 	if (m_dynamicsWorld)
 		m_dynamicsWorld->stepSimulation(deltaTime);
@@ -243,7 +252,7 @@ void	CcdPhysicsDemo::initPhysics()
 		btSequentialImpulseConstraintSolver* solver = new btSequentialImpulseConstraintSolver;
 
 		m_dynamicsWorld = new btDiscreteDynamicsWorld(dispatcher,broadphase,solver);
-		//setGravity(btVector3(0,0,1));
+		m_dynamicsWorld->setGravity(btVector3(0,-10,0));
 
 		m_dynamicsWorld->setDebugDrawer(&debugDrawer);
 		
@@ -328,6 +337,14 @@ void	CcdPhysicsDemo::initPhysics()
 			mass = 0.f;
 	
 		btRigidBody* body = localCreateRigidBody(mass,trans,shape);
+#ifdef USE_KINEMATIC_GROUND
+		if (mass == 0.f)
+		{
+			body->m_collisionFlags = btCollisionObject::CF_KINEMATIC_OJBECT;
+			body->SetActivationState(DISABLE_DEACTIVATION);
+			body->setLinearVelocity(btVector3(0,0,1));
+		}
+#endif //USE_KINEMATIC_GROUND
 		
 		
 		// Only do CCD if  motion in one timestep (1.f/60.f) exceeds CUBE_HALF_EXTENTS

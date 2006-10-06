@@ -24,8 +24,8 @@ subject to the following restrictions:
 #include "GL_ShapeDrawer.h"
 #include "LinearMath/btQuickprof.h"
 #include "BMF_Api.h"
-#include "BulletDynamics/Dynamics/btMassProps.h"
 
+extern bool gDisableDeactivation;
 int numObjects = 0;
 const int maxNumObjects = 16384;
 btTransform startTransforms[maxNumObjects];
@@ -37,7 +37,6 @@ DemoApplication::DemoApplication()
 :
 m_dynamicsWorld(0),
 m_pickConstraint(0),
-m_gravity(0,-10,0),
 	m_cameraDistance(15.0),
 	m_debugMode(0),
 	m_ele(0.f),
@@ -56,6 +55,7 @@ m_gravity(0,-10,0),
 	m_idle(false)
 {
 }
+
 
 
 DemoApplication::~DemoApplication()
@@ -290,7 +290,15 @@ void DemoApplication::keyboardCallback(unsigned char key, int x, int y)
 				m_debugMode = m_debugMode & (~btIDebugDraw::DBG_NoDeactivation);
 			else
 				m_debugMode |= btIDebugDraw::DBG_NoDeactivation;
+			if (m_debugMode | btIDebugDraw::DBG_NoDeactivation)
+			{
+				gDisableDeactivation = true;
+			} else
+			{
+				gDisableDeactivation = false;
+			}
 			break;
+			
 
 		
 
@@ -346,6 +354,29 @@ void DemoApplication::specialKeyboard(int key, int x, int y)
 {
     switch (key) 
     {
+	case GLUT_KEY_F1:
+		{
+
+			break;
+		}
+
+	case GLUT_KEY_F2:
+	{
+
+		break;
+	}
+
+
+	case GLUT_KEY_END:
+		{
+			int numObj = getDynamicsWorld()->getNumCollisionObjects();
+			if (numObj)
+			{
+				btCollisionObject* obj = getDynamicsWorld()->getCollisionObjectArray()[numObj-1];
+				getDynamicsWorld()->removeCollisionObject(obj);
+			}
+			break;
+		}
     case GLUT_KEY_LEFT : stepLeft(); break;
     case GLUT_KEY_RIGHT : stepRight(); break;
     case GLUT_KEY_UP : stepFront(); break;
@@ -522,7 +553,8 @@ void DemoApplication::mouseFunc(int button, int state, int x, int y)
 						btRigidBody* body = btRigidBody::upcast(rayCallback.m_collisionObject);
 						if (body)
 						{
-							if (!body->IsStatic())
+							//other exclusions?
+							if (!(body->isStaticObject() || body->isKinematicObject()))
 							{
 								pickedBody = body;
 								pickedBody->SetActivationState(DISABLE_DEACTIVATION);
@@ -616,27 +648,8 @@ btRigidBody*	DemoApplication::localCreateRigidBody(float mass, const btTransform
 
 	btRigidBody* body = new btRigidBody(mass,startTransform,shape,localInertia);
 
-	//filtering allows to excluded collision pairs, early in the collision pipeline (broadphase)
-	bool useFiltering = true;
-	if (useFiltering)
-	{
-		short collisionFilterGroup = isDynamic? 
-			btBroadphaseProxy::DefaultFilter : 
-			btBroadphaseProxy::StaticFilter;
-		short collisionFilterMask = isDynamic? 
-			btBroadphaseProxy::AllFilter : 
-			btBroadphaseProxy::AllFilter ^ btBroadphaseProxy::StaticFilter;
-
-			m_dynamicsWorld->addCollisionObject(body,collisionFilterGroup,collisionFilterMask);
-	} else
-	{
-		//no collision filtering, so always create an overlapping pair, even between static-static etc.
-		m_dynamicsWorld->addCollisionObject(body);
-	}
-
-	//Bullet uses per-object gravity
-	body->setGravity(m_gravity);
-
+	m_dynamicsWorld->addRigidBody(body);
+	
 	return body;
 }
 

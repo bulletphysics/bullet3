@@ -129,14 +129,14 @@ int	btConvexHullShape::getNumVertices() const
 
 int btConvexHullShape::getNumEdges() const
 {
-	return m_points.size()*m_points.size();
+	return m_points.size();
 }
 
 void btConvexHullShape::getEdge(int i,btPoint3& pa,btPoint3& pb) const
 {
 
 	int index0 = i%m_points.size();
-	int index1 = i/m_points.size();
+	int index1 = (i+1)%m_points.size();
 	pa = m_points[index0]*m_localScaling;
 	pb = m_points[index1]*m_localScaling;
 }

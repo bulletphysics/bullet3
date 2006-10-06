@@ -16,7 +16,6 @@ subject to the following restrictions:
 
 #include "btHingeConstraint.h"
 #include "BulletDynamics/Dynamics/btRigidBody.h"
-#include "BulletDynamics/Dynamics/btMassProps.h"
 #include "LinearMath/btTransformUtil.h"
 
 

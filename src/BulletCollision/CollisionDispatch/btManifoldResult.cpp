@@ -43,25 +43,29 @@ inline btScalar	calculateCombinedRestitution(const btCollisionObject* body0,cons
 
 
 
-btManifoldResult::btManifoldResult(btCollisionObject* body0,btCollisionObject* body1,btPersistentManifold* manifoldPtr)
-		:m_manifoldPtr(manifoldPtr),
+btManifoldResult::btManifoldResult(btCollisionObject* body0,btCollisionObject* body1)
+		:m_manifoldPtr(0),
 		m_body0(body0),
 		m_body1(body1)
-	{
-	}
+{
+	m_rootTransA = body0->m_worldTransform;
+	m_rootTransB = body1->m_worldTransform;
+}
 
 
 void btManifoldResult::addContactPoint(const btVector3& normalOnBInWorld,const btVector3& pointInWorld,float depth)
 {
+	assert(m_manifoldPtr);
+	//order in manifold needs to match
+	
 	if (depth > m_manifoldPtr->getContactBreakingTreshold())
 		return;
 
+	bool isSwapped = m_manifoldPtr->getBody0() != m_body0;
 
-	btTransform transAInv = m_body0->m_worldTransform.inverse();
-	btTransform transBInv= m_body1->m_worldTransform.inverse();
+	btTransform transAInv = isSwapped? m_rootTransB.inverse() : m_rootTransA.inverse();
+	btTransform transBInv = isSwapped? m_rootTransA.inverse() : m_rootTransB.inverse();
 
-	//transAInv = m_body0->m_worldTransform.inverse();
-	//transBInv= m_body1->m_worldTransform.inverse();
 	btVector3 pointA = pointInWorld + normalOnBInWorld * depth;
 	btVector3 localA = transAInv(pointA );
 	btVector3 localB = transBInv(pointInWorld);
@@ -88,8 +92,8 @@ void btManifoldResult::addContactPoint(const btVector3& normalOnBInWorld,const b
 		//User can override friction and/or restitution
 		if (gContactAddedCallback &&
 			//and if either of the two bodies requires custom material
-			 ((m_body0->m_collisionFlags & btCollisionObject::customMaterialCallback) ||
-			   (m_body1->m_collisionFlags & btCollisionObject::customMaterialCallback)))
+			 ((m_body0->m_collisionFlags & btCollisionObject::CF_CUSTOM_MATERIAL_CALLBACK) ||
+			   (m_body1->m_collisionFlags & btCollisionObject::CF_CUSTOM_MATERIAL_CALLBACK)))
 		{
 			//experimental feature info, for per-triangle material etc.
 			(*gContactAddedCallback)(newPt,m_body0,m_partId0,m_index0,m_body1,m_partId1,m_index1);

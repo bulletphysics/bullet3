@@ -134,25 +134,7 @@ void	btSimpleBroadphase::destroyProxy(btBroadphaseProxy* proxyOrg)
 		assert (index < m_maxProxies);
 		m_freeProxies[--m_firstFreeProxy] = index;
 
-		//removeOverlappingPairsContainingProxy(proxyOrg);
-
-		assert(0);
-		//then remove non-overlapping ones
-		/*for (i=0;i<GetNumOverlappingPairs();i++)
-		{
-			btBroadphasePair& pair = GetOverlappingPair(i);
-
-			btSimpleBroadphaseProxy* proxy0 = getSimpleProxyFromProxy(pair.m_pProxy0);
-			btSimpleBroadphaseProxy* proxy1 = getSimpleProxyFromProxy(pair.m_pProxy1);
-			if ((proxy0==proxyOrg) || (proxy1==proxyOrg))
-			{
-				removeOverlappingPair(pair);
-			}
-		}
-		*/
-
-
-
+		removeOverlappingPairsContainingProxy(proxyOrg);
 		
 		for (i=0;i<m_numProxies;i++)
 		{

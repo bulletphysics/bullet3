@@ -30,22 +30,23 @@ class btSphereSphereCollisionAlgorithm : public btCollisionAlgorithm
 	btPersistentManifold*	m_manifoldPtr;
 	
 public:
+	btSphereSphereCollisionAlgorithm(btPersistentManifold* mf,const btCollisionAlgorithmConstructionInfo& ci,btCollisionObject* body0,btCollisionObject* body1);
+
 	btSphereSphereCollisionAlgorithm(const btCollisionAlgorithmConstructionInfo& ci)
 		: btCollisionAlgorithm(ci) {}
 
-	virtual void processCollision (btBroadphaseProxy* proxy0,btBroadphaseProxy* proxy1,const btDispatcherInfo& dispatchInfo);
+	virtual void processCollision (btCollisionObject* body0,btCollisionObject* body1,const btDispatcherInfo& dispatchInfo,btManifoldResult* resultOut);
 
-	virtual float calculateTimeOfImpact(btBroadphaseProxy* proxy0,btBroadphaseProxy* proxy1,const btDispatcherInfo& dispatchInfo);
+	virtual float calculateTimeOfImpact(btCollisionObject* body0,btCollisionObject* body1,const btDispatcherInfo& dispatchInfo,btManifoldResult* resultOut);
 
-	btSphereSphereCollisionAlgorithm(btPersistentManifold* mf,const btCollisionAlgorithmConstructionInfo& ci,btBroadphaseProxy* proxy0,btBroadphaseProxy* proxy1);
-
+	
 	virtual ~btSphereSphereCollisionAlgorithm();
 
 	struct CreateFunc :public 	btCollisionAlgorithmCreateFunc
 	{
-		virtual	btCollisionAlgorithm* CreateCollisionAlgorithm(btCollisionAlgorithmConstructionInfo& ci, btBroadphaseProxy* proxy0,btBroadphaseProxy* proxy1)
+		virtual	btCollisionAlgorithm* CreateCollisionAlgorithm(btCollisionAlgorithmConstructionInfo& ci, btCollisionObject* body0,btCollisionObject* body1)
 		{
-			return new btSphereSphereCollisionAlgorithm(0,ci,proxy0,proxy1);
+			return new btSphereSphereCollisionAlgorithm(0,ci,body0,body1);
 		}
 	};
 

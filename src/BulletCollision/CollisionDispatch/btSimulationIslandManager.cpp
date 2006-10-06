@@ -238,7 +238,7 @@ void btSimulationIslandManager::buildAndProcessIslands(btDispatcher* dispatcher,
 			((colObj1) && colObj1->GetActivationState() != ISLAND_SLEEPING))
 		{
 			//filtering for response
-			if (dispatcher->needsResponse(*colObj0,*colObj1))
+			if (dispatcher->needsResponse(colObj0,colObj1))
 				islandmanifold.push_back(manifold);
 		}
 	}

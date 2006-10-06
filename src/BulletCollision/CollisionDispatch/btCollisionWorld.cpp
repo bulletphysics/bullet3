@@ -205,7 +205,6 @@ void	btCollisionWorld::rayTestSingle(const btTransform& rayFromTrans,const btTra
 						castResult.m_normal.normalize();
 						if (castResult.m_fraction < resultCallback.m_closestHitFraction)
 						{
-							
 
 							btCollisionWorld::LocalRayResult localRayResult
 								(

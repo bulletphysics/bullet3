@@ -100,7 +100,7 @@ class MyColladaConverter : public ColladaConverter
 
 	virtual	void	setGravity(const btVector3& grav)
 	{
-		m_demoApp->setGravity(grav);
+		m_demoApp->getDynamicsWorld()->setGravity(grav);
 	}
 	virtual void	setCameraInfo(const btVector3& camUp,int forwardAxis) 
 	{

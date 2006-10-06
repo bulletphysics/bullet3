@@ -14,7 +14,7 @@
 #include "BulletDynamics/Dynamics/btRigidBody.h"
 #include "BulletDynamics/ConstraintSolver/btTypedConstraint.h"
 
-struct btMassProps;
+
 #include "btWheelInfo.h"
 
 struct	btVehicleRaycaster;

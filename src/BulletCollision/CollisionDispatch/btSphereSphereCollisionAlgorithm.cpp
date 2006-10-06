@@ -18,14 +18,14 @@ subject to the following restrictions:
 #include "BulletCollision/CollisionShapes/btSphereShape.h"
 #include "BulletCollision/CollisionDispatch/btCollisionObject.h"
 
-btSphereSphereCollisionAlgorithm::btSphereSphereCollisionAlgorithm(btPersistentManifold* mf,const btCollisionAlgorithmConstructionInfo& ci,btBroadphaseProxy* proxy0,btBroadphaseProxy* proxy1)
+btSphereSphereCollisionAlgorithm::btSphereSphereCollisionAlgorithm(btPersistentManifold* mf,const btCollisionAlgorithmConstructionInfo& ci,btCollisionObject* col0,btCollisionObject* col1)
 : btCollisionAlgorithm(ci),
 m_ownManifold(false),
 m_manifoldPtr(mf)
 {
-	if (!m_manifoldPtr && m_dispatcher->needsCollision(*proxy0,*proxy1))
+	if (!m_manifoldPtr)
 	{
-		m_manifoldPtr = m_dispatcher->getNewManifold(proxy0->m_clientObject,proxy1->m_clientObject);
+		m_manifoldPtr = m_dispatcher->getNewManifold(col0,col1);
 		m_ownManifold = true;
 	}
 }
@@ -39,13 +39,11 @@ btSphereSphereCollisionAlgorithm::~btSphereSphereCollisionAlgorithm()
 	}
 }
 
-void btSphereSphereCollisionAlgorithm::processCollision (btBroadphaseProxy* proxy0,btBroadphaseProxy* proxy1,const btDispatcherInfo& dispatchInfo)
+void btSphereSphereCollisionAlgorithm::processCollision (btCollisionObject* col0,btCollisionObject* col1,const btDispatcherInfo& dispatchInfo,btManifoldResult* resultOut)
 {
 	if (!m_manifoldPtr)
 		return;
 
-	btCollisionObject*	col0 = static_cast<btCollisionObject*>(proxy0->m_clientObject);
-	btCollisionObject*	col1 = static_cast<btCollisionObject*>(proxy1->m_clientObject);
 	btSphereShape* sphere0 = (btSphereShape*)col0->m_collisionShape;
 	btSphereShape* sphere1 = (btSphereShape*)col1->m_collisionShape;
 
@@ -68,13 +66,12 @@ void btSphereSphereCollisionAlgorithm::processCollision (btBroadphaseProxy* prox
 	btVector3 pos1 = col1->m_worldTransform.getOrigin() + radius1* normalOnSurfaceB;
 
 	/// report a contact. internally this will be kept persistent, and contact reduction is done
-	btManifoldResult* resultOut = m_dispatcher->getNewManifoldResult(col0,col1,m_manifoldPtr);
+	resultOut->setPersistentManifold(m_manifoldPtr);
 	resultOut->addContactPoint(normalOnSurfaceB,pos1,dist);
-	m_dispatcher->releaseManifoldResult(resultOut);
 
 }
 
-float btSphereSphereCollisionAlgorithm::calculateTimeOfImpact(btBroadphaseProxy* proxy0,btBroadphaseProxy* proxy1,const btDispatcherInfo& dispatchInfo)
+float btSphereSphereCollisionAlgorithm::calculateTimeOfImpact(btCollisionObject* col0,btCollisionObject* col1,const btDispatcherInfo& dispatchInfo,btManifoldResult* resultOut)
 {
 	//not yet
 	return 1.f;

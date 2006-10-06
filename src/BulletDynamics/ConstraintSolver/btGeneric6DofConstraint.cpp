@@ -16,7 +16,6 @@ subject to the following restrictions:
 
 #include "btGeneric6DofConstraint.h"
 #include "BulletDynamics/Dynamics/btRigidBody.h"
-#include "BulletDynamics/Dynamics/btMassProps.h"
 #include "LinearMath/btTransformUtil.h"
 
 static const btScalar kSign[] = { 1.0f, -1.0f, 1.0f };

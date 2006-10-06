@@ -20,7 +20,6 @@ class btCollisionAlgorithm;
 struct btBroadphaseProxy;
 class btRigidBody;
 struct	btCollisionObject;
-class btManifoldResult;
 class btOverlappingPairCache;
 
 enum btCollisionDispatcherId
@@ -66,7 +65,7 @@ class btDispatcher
 public:
 	virtual ~btDispatcher() ;
 
-	virtual btCollisionAlgorithm* findAlgorithm(btBroadphaseProxy& proxy0,btBroadphaseProxy& proxy1) = 0;
+	virtual btCollisionAlgorithm* findAlgorithm(btCollisionObject* body0,btCollisionObject* body1) = 0;
 
 	//
 	// asume dispatchers to have unique id's in the range [0..max dispacher]
@@ -79,13 +78,9 @@ public:
 
 	virtual void clearManifold(btPersistentManifold* manifold)=0;
 
-	virtual bool	needsCollision(btBroadphaseProxy& proxy0,btBroadphaseProxy& proxy1) = 0;
+	virtual bool	needsCollision(btCollisionObject* body0,btCollisionObject* body1) = 0;
 
-	virtual bool	needsResponse(const btCollisionObject& colObj0,const btCollisionObject& colObj1)=0;
-
-	virtual	btManifoldResult* getNewManifoldResult(btCollisionObject* obj0,btCollisionObject* obj1,btPersistentManifold* manifold) =0;
-
-	virtual	void	releaseManifoldResult(btManifoldResult*)=0;
+	virtual bool	needsResponse(btCollisionObject* body0,btCollisionObject* body1)=0;
 
 	virtual void	dispatchAllCollisionPairs(btOverlappingPairCache* pairCache,btDispatcherInfo& dispatchInfo)=0;
 

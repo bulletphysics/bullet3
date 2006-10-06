@@ -33,8 +33,6 @@ class btConvexConvexAlgorithm : public btCollisionAlgorithm
 	btGjkPairDetector m_gjkPairDetector;
 	bool	m_useEpa;
 public:
-	btBroadphaseProxy	m_box0;
-	btBroadphaseProxy	m_box1;
 
 	bool	m_ownManifold;
 	btPersistentManifold*	m_manifoldPtr;
@@ -46,13 +44,13 @@ public:
 
 public:
 
-	btConvexConvexAlgorithm(btPersistentManifold* mf,const btCollisionAlgorithmConstructionInfo& ci,btBroadphaseProxy* proxy0,btBroadphaseProxy* proxy1);
+	btConvexConvexAlgorithm(btPersistentManifold* mf,const btCollisionAlgorithmConstructionInfo& ci,btCollisionObject* body0,btCollisionObject* body1);
 
 	virtual ~btConvexConvexAlgorithm();
 
-	virtual void processCollision (btBroadphaseProxy* proxy0,btBroadphaseProxy* proxy1,const btDispatcherInfo& dispatchInfo);
+	virtual void processCollision (btCollisionObject* body0,btCollisionObject* body1,const btDispatcherInfo& dispatchInfo,btManifoldResult* resultOut);
 
-	virtual float calculateTimeOfImpact(btBroadphaseProxy* proxy0,btBroadphaseProxy* proxy1,const btDispatcherInfo& dispatchInfo);
+	virtual float calculateTimeOfImpact(btCollisionObject* body0,btCollisionObject* body1,const btDispatcherInfo& dispatchInfo,btManifoldResult* resultOut);
 
 	void	setLowLevelOfDetail(bool useLowLevel);
 
@@ -71,9 +69,9 @@ public:
 
 	struct CreateFunc :public 	btCollisionAlgorithmCreateFunc
 	{
-		virtual	btCollisionAlgorithm* CreateCollisionAlgorithm(btCollisionAlgorithmConstructionInfo& ci, btBroadphaseProxy* proxy0,btBroadphaseProxy* proxy1)
+		virtual	btCollisionAlgorithm* CreateCollisionAlgorithm(btCollisionAlgorithmConstructionInfo& ci, btCollisionObject* body0,btCollisionObject* body1)
 		{
-			return new btConvexConvexAlgorithm(0,ci,proxy0,proxy1);
+			return new btConvexConvexAlgorithm(0,ci,body0,body1);
 		}
 	};
 

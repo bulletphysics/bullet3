@@ -20,7 +20,8 @@ subject to the following restrictions:
 
 typedef std::vector<struct btCollisionObject*> btCollisionObjectArray;
 class btCollisionAlgorithm;
-struct btBroadphaseProxy;
+struct btCollisionObject;
+
 struct btCollisionAlgorithmConstructionInfo;
 
 
@@ -34,7 +35,7 @@ struct btCollisionAlgorithmCreateFunc
 	}
 	virtual ~btCollisionAlgorithmCreateFunc(){};
 
-	virtual	btCollisionAlgorithm* CreateCollisionAlgorithm(btCollisionAlgorithmConstructionInfo& ci, btBroadphaseProxy* proxy0,btBroadphaseProxy* proxy1)
+	virtual	btCollisionAlgorithm* CreateCollisionAlgorithm(btCollisionAlgorithmConstructionInfo& ci, btCollisionObject* body0,btCollisionObject* body1)
 	{
 		return 0;
 	}

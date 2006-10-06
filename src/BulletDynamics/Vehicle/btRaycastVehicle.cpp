@@ -18,7 +18,6 @@
 #include "btWheelInfo.h"
 
 
-#include "BulletDynamics/Dynamics/btMassProps.h"
 #include "BulletDynamics/ConstraintSolver/btContactConstraint.h"
 
 

@@ -28,33 +28,32 @@ class btSphereBoxCollisionAlgorithm : public btCollisionAlgorithm
 {
 	bool	m_ownManifold;
 	btPersistentManifold*	m_manifoldPtr;
-	btCollisionObject*	m_boxColObj;
-	btCollisionObject*	m_sphereColObj;
+	bool	m_isSwapped;
 	
 public:
 
-	btSphereBoxCollisionAlgorithm(btPersistentManifold* mf,const btCollisionAlgorithmConstructionInfo& ci,btBroadphaseProxy* proxy0,btBroadphaseProxy* proxy1);
+	btSphereBoxCollisionAlgorithm(btPersistentManifold* mf,const btCollisionAlgorithmConstructionInfo& ci,btCollisionObject* col0,btCollisionObject* col1, bool isSwapped);
 
 	virtual ~btSphereBoxCollisionAlgorithm();
 
-	virtual void processCollision (btBroadphaseProxy* proxy0,btBroadphaseProxy* proxy1,const struct btDispatcherInfo& dispatchInfo);
+	virtual void processCollision (btCollisionObject* body0,btCollisionObject* body1,const btDispatcherInfo& dispatchInfo,btManifoldResult* resultOut);
 
-	virtual float calculateTimeOfImpact(btBroadphaseProxy* proxy0,btBroadphaseProxy* proxy1,const struct btDispatcherInfo& dispatchInfo);
+	virtual float calculateTimeOfImpact(btCollisionObject* body0,btCollisionObject* body1,const btDispatcherInfo& dispatchInfo,btManifoldResult* resultOut);
 
-	btScalar getSphereDistance( btVector3& v3PointOnBox, btVector3& v3PointOnSphere, const btVector3& v3SphereCenter, btScalar fRadius );
+	btScalar getSphereDistance( btCollisionObject* boxObj,btVector3& v3PointOnBox, btVector3& v3PointOnSphere, const btVector3& v3SphereCenter, btScalar fRadius );
 
-	btScalar getSpherePenetration( btVector3& v3PointOnBox, btVector3& v3PointOnSphere, const btVector3& v3SphereCenter, btScalar fRadius, const btVector3& aabbMin, const btVector3& aabbMax);
+	btScalar getSpherePenetration( btCollisionObject* boxObj, btVector3& v3PointOnBox, btVector3& v3PointOnSphere, const btVector3& v3SphereCenter, btScalar fRadius, const btVector3& aabbMin, const btVector3& aabbMax);
 	
 	struct CreateFunc :public 	btCollisionAlgorithmCreateFunc
 	{
-		virtual	btCollisionAlgorithm* CreateCollisionAlgorithm(btCollisionAlgorithmConstructionInfo& ci, btBroadphaseProxy* proxy0,btBroadphaseProxy* proxy1)
+		virtual	btCollisionAlgorithm* CreateCollisionAlgorithm(btCollisionAlgorithmConstructionInfo& ci, btCollisionObject* body0,btCollisionObject* body1)
 		{
 			if (!m_swapped)
 			{
-				return new btSphereBoxCollisionAlgorithm(0,ci,proxy0,proxy1);
+				return new btSphereBoxCollisionAlgorithm(0,ci,body0,body1,false);
 			} else
 			{
-				return new btSphereBoxCollisionAlgorithm(0,ci,proxy1,proxy0);
+				return new btSphereBoxCollisionAlgorithm(0,ci,body0,body1,true);
 			}
 		}
 	};

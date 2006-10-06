@@ -43,6 +43,8 @@ protected:
 
 	btIDebugDraw*	m_debugDrawer;
 
+	btVector3	m_gravity;
+
 	bool	m_ownsIslandManager;
 	bool	m_ownsConstraintSolver;
 
@@ -65,6 +67,13 @@ protected:
 	void	updateVehicles(float timeStep);
 
 	void	startProfiling(float timeStep);
+
+	virtual void	internalSingleStepSimulation( float timeStep);
+
+	void	synchronizeMotionStates();
+
+	void	saveKinematicState(float timeStep);
+
 public:
 
 
@@ -76,7 +85,7 @@ public:
 		
 	virtual ~btDiscreteDynamicsWorld();
 		
-	virtual void	stepSimulation( float timeStep);
+	virtual void	stepSimulation( float timeStep, int numSubsteps=1);
 
 	virtual void	updateAabbs();
 
@@ -112,6 +121,10 @@ public:
 	{
 		return m_debugDrawer;
 	}
+
+	virtual void	setGravity(const btVector3& gravity);
+
+	virtual void	addRigidBody(btRigidBody* body);
 
 };
 

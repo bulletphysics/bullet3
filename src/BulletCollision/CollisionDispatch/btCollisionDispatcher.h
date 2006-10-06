@@ -56,7 +56,23 @@ class btCollisionDispatcher : public btDispatcher
 	btCollisionAlgorithmCreateFunc*	m_swappedCompoundCreateFunc;
 	btCollisionAlgorithmCreateFunc*   m_emptyCreateFunc;
 
+	
+
+
 public:
+
+	///allows the user to get contact point callbacks 
+	inline btManifoldResult*	internalGetNewManifoldResult(btCollisionObject* obj0,btCollisionObject* obj1)
+	{
+		//in-place, this prevents parallel dispatching, but just adding a list would fix that.
+		btManifoldResult* manifoldResult = new (&m_defaultManifoldResult)	btManifoldResult(obj0,obj1);
+		return manifoldResult;
+	}
+		
+	///allows the user to get contact point callbacks 
+	inline void	internalReleaseManifoldResult(btManifoldResult*)
+	{
+	}
 
 	///registerCollisionCreateFunc allows registration of custom/alternative collision create functions
 	void	registerCollisionCreateFunc(int proxyType0,int proxyType1, btCollisionAlgorithmCreateFunc* createFunc);
@@ -90,23 +106,17 @@ public:
 	
 	virtual void releaseManifold(btPersistentManifold* manifold);
 
-	
-	///allows the user to get contact point callbacks 
-	virtual	btManifoldResult*	getNewManifoldResult(btCollisionObject* obj0,btCollisionObject* obj1,btPersistentManifold* manifold);
-
-	///allows the user to get contact point callbacks 
-	virtual	void	releaseManifoldResult(btManifoldResult*);
 
 	virtual void clearManifold(btPersistentManifold* manifold);
 
 			
-	btCollisionAlgorithm* findAlgorithm(btBroadphaseProxy& proxy0,btBroadphaseProxy& proxy1);
+	btCollisionAlgorithm* findAlgorithm(btCollisionObject* body0,btCollisionObject* body1);
 	
-	btCollisionAlgorithm* internalFindAlgorithm(btBroadphaseProxy& proxy0,btBroadphaseProxy& proxy1);
+	btCollisionAlgorithm* internalFindAlgorithm(btCollisionObject* body0,btCollisionObject* body1);
 	
-	virtual bool	needsCollision(btBroadphaseProxy& proxy0,btBroadphaseProxy& proxy1);
+	virtual bool	needsCollision(btCollisionObject* body0,btCollisionObject* body1);
 	
-	virtual bool	needsResponse(const btCollisionObject& colObj0,const btCollisionObject& colObj1);
+	virtual bool	needsResponse(btCollisionObject* body0,btCollisionObject* body1);
 
 	virtual int getUniqueId() { return RIGIDBODY_DISPATCHER;}
 	

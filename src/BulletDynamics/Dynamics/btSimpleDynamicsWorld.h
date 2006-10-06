@@ -41,6 +41,7 @@ protected:
 	
 	void	integrateTransforms(float timeStep);
 		
+	btVector3	m_gravity;
 	
 public:
 
@@ -64,6 +65,10 @@ public:
 	{
 		return m_debugDrawer;
 	}
+
+	virtual void	setGravity(const btVector3& gravity);
+
+	virtual void	addRigidBody(btRigidBody* body);
 
 	virtual void	updateAabbs();
 };

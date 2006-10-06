@@ -136,7 +136,7 @@ void	UserCollisionAlgorithm::initPhysics()
 
 	btRigidBody* staticBody= localCreateRigidBody(mass, startTransform,trimeshShape);
 	//enable custom material callback
-	staticBody->m_collisionFlags |= btCollisionObject::customMaterialCallback;
+	staticBody->m_collisionFlags |= btCollisionObject::CF_CUSTOM_MATERIAL_CALLBACK;
 
 	{
 		for (int i=0;i<10;i++)

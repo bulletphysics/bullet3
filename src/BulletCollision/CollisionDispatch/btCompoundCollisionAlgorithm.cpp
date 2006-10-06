@@ -18,31 +18,24 @@ subject to the following restrictions:
 #include "BulletCollision/CollisionShapes/btCompoundShape.h"
 
 
-btCompoundCollisionAlgorithm::btCompoundCollisionAlgorithm( const btCollisionAlgorithmConstructionInfo& ci,btBroadphaseProxy* proxy0,btBroadphaseProxy* proxy1)
-:m_dispatcher(ci.m_dispatcher),
-m_compoundProxy(*proxy0),
-m_otherProxy(*proxy1)
+btCompoundCollisionAlgorithm::btCompoundCollisionAlgorithm( const btCollisionAlgorithmConstructionInfo& ci,btCollisionObject* body0,btCollisionObject* body1,bool isSwapped)
+:m_isSwapped(isSwapped)
 {
-	btCollisionObject* colObj = static_cast<btCollisionObject*>(m_compoundProxy.m_clientObject);
+	btCollisionObject* colObj = m_isSwapped? body1 : body0;
+	btCollisionObject* otherObj = m_isSwapped? body0 : body1;
 	assert (colObj->m_collisionShape->isCompound());
 	
 	btCompoundShape* compoundShape = static_cast<btCompoundShape*>(colObj->m_collisionShape);
 	int numChildren = compoundShape->getNumChildShapes();
-	m_childProxies.resize( numChildren );
 	int i;
-	for (i=0;i<numChildren;i++)
-	{
-		m_childProxies[i] = btBroadphaseProxy(*proxy0);
-	}
-
+	
 	m_childCollisionAlgorithms.resize(numChildren);
 	for (i=0;i<numChildren;i++)
 	{
 		btCollisionShape* childShape = compoundShape->getChildShape(i);
-		btCollisionObject* colObj = static_cast<btCollisionObject*>(m_childProxies[i].m_clientObject);
 		btCollisionShape* orgShape = colObj->m_collisionShape;
 		colObj->m_collisionShape = childShape;
-		m_childCollisionAlgorithms[i] = m_dispatcher->findAlgorithm(m_childProxies[i],m_otherProxy);
+		m_childCollisionAlgorithms[i] = ci.m_dispatcher->findAlgorithm(colObj,otherObj);
 		colObj->m_collisionShape =orgShape;
 	}
 }
@@ -58,11 +51,12 @@ btCompoundCollisionAlgorithm::~btCompoundCollisionAlgorithm()
 	}
 }
 
-void btCompoundCollisionAlgorithm::processCollision (btBroadphaseProxy* ,btBroadphaseProxy* ,const btDispatcherInfo& dispatchInfo)
+void btCompoundCollisionAlgorithm::processCollision (btCollisionObject* body0,btCollisionObject* body1,const btDispatcherInfo& dispatchInfo,btManifoldResult* resultOut)
 {
-	btCollisionObject* colObj = static_cast<btCollisionObject*>(m_compoundProxy.m_clientObject);
+	btCollisionObject* colObj = m_isSwapped? body1 : body0;
+	btCollisionObject* otherObj = m_isSwapped? body0 : body1;
+
 	assert (colObj->m_collisionShape->isCompound());
-	
 	btCompoundShape* compoundShape = static_cast<btCompoundShape*>(colObj->m_collisionShape);
 
 	//We will use the OptimizedBVH, AABB tree to cull potential child-overlaps
@@ -72,14 +66,12 @@ void btCompoundCollisionAlgorithm::processCollision (btBroadphaseProxy* ,btBroad
 	//then use each overlapping node AABB against Tree0
 	//and vise versa.
 
-
 	int numChildren = m_childCollisionAlgorithms.size();
 	int i;
 	for (i=0;i<numChildren;i++)
 	{
 		//temporarily exchange parent btCollisionShape with childShape, and recurse
 		btCollisionShape* childShape = compoundShape->getChildShape(i);
-		btCollisionObject* colObj = static_cast<btCollisionObject*>(m_childProxies[i].m_clientObject);
 
 		//backup
 		btTransform	orgTrans = colObj->m_worldTransform;
@@ -88,18 +80,21 @@ void btCompoundCollisionAlgorithm::processCollision (btBroadphaseProxy* ,btBroad
 		btTransform childTrans = compoundShape->getChildTransform(i);
 		btTransform	newChildWorldTrans = orgTrans*childTrans ;
 		colObj->m_worldTransform = newChildWorldTrans;
-
+		//the contactpoint is still projected back using the original inverted worldtrans
 		colObj->m_collisionShape = childShape;
-		m_childCollisionAlgorithms[i]->processCollision(&m_childProxies[i],&m_otherProxy,dispatchInfo);
+		m_childCollisionAlgorithms[i]->processCollision(colObj,otherObj,dispatchInfo,resultOut);
 		//revert back
 		colObj->m_collisionShape =orgShape;
 		colObj->m_worldTransform = orgTrans;
 	}
 }
 
-float	btCompoundCollisionAlgorithm::calculateTimeOfImpact(btBroadphaseProxy* proxy0,btBroadphaseProxy* proxy1,const btDispatcherInfo& dispatchInfo)
+float	btCompoundCollisionAlgorithm::calculateTimeOfImpact(btCollisionObject* body0,btCollisionObject* body1,const btDispatcherInfo& dispatchInfo,btManifoldResult* resultOut)
 {
-	btCollisionObject* colObj = static_cast<btCollisionObject*>(m_compoundProxy.m_clientObject);
+
+	btCollisionObject* colObj = m_isSwapped? body1 : body0;
+	btCollisionObject* otherObj = m_isSwapped? body0 : body1;
+
 	assert (colObj->m_collisionShape->isCompound());
 	
 	btCompoundShape* compoundShape = static_cast<btCompoundShape*>(colObj->m_collisionShape);
@@ -119,7 +114,6 @@ float	btCompoundCollisionAlgorithm::calculateTimeOfImpact(btBroadphaseProxy* pro
 	{
 		//temporarily exchange parent btCollisionShape with childShape, and recurse
 		btCollisionShape* childShape = compoundShape->getChildShape(i);
-		btCollisionObject* colObj = static_cast<btCollisionObject*>(m_childProxies[i].m_clientObject);
 
 		//backup
 		btTransform	orgTrans = colObj->m_worldTransform;
@@ -130,7 +124,7 @@ float	btCompoundCollisionAlgorithm::calculateTimeOfImpact(btBroadphaseProxy* pro
 		colObj->m_worldTransform = newChildWorldTrans;
 
 		colObj->m_collisionShape = childShape;
-		float frac = m_childCollisionAlgorithms[i]->calculateTimeOfImpact(&m_childProxies[i],&m_otherProxy,dispatchInfo);
+		float frac = m_childCollisionAlgorithms[i]->calculateTimeOfImpact(colObj,otherObj,dispatchInfo,resultOut);
 		if (frac<hitFraction)
 		{
 			hitFraction = frac;

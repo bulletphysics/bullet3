@@ -30,40 +30,32 @@ class btDispatcher;
 /// Place holder, not fully implemented yet
 class btCompoundCollisionAlgorithm  : public btCollisionAlgorithm
 {
-	btDispatcher*	m_dispatcher;
-	btBroadphaseProxy	m_compoundProxy;
-	btBroadphaseProxy	m_otherProxy;
-	std::vector<btBroadphaseProxy> m_childProxies;
 	std::vector<btCollisionAlgorithm*> m_childCollisionAlgorithms;
-
-	btBroadphaseProxy m_compound;
-
-	btBroadphaseProxy m_other;
-
+	bool m_isSwapped;
 	
 public:
 
-	btCompoundCollisionAlgorithm( const btCollisionAlgorithmConstructionInfo& ci,btBroadphaseProxy* proxy0,btBroadphaseProxy* proxy1);
+	btCompoundCollisionAlgorithm( const btCollisionAlgorithmConstructionInfo& ci,btCollisionObject* body0,btCollisionObject* body1,bool isSwapped);
 
 	virtual ~btCompoundCollisionAlgorithm();
 
-	virtual void processCollision (btBroadphaseProxy* proxy0,btBroadphaseProxy* proxy1,const btDispatcherInfo& dispatchInfo);
+	virtual void processCollision (btCollisionObject* body0,btCollisionObject* body1,const btDispatcherInfo& dispatchInfo,btManifoldResult* resultOut);
 
-	float	calculateTimeOfImpact(btBroadphaseProxy* proxy0,btBroadphaseProxy* proxy1,const btDispatcherInfo& dispatchInfo);
+	float	calculateTimeOfImpact(btCollisionObject* body0,btCollisionObject* body1,const btDispatcherInfo& dispatchInfo,btManifoldResult* resultOut);
 
 	struct CreateFunc :public 	btCollisionAlgorithmCreateFunc
 	{
-		virtual	btCollisionAlgorithm* CreateCollisionAlgorithm(btCollisionAlgorithmConstructionInfo& ci, btBroadphaseProxy* proxy0,btBroadphaseProxy* proxy1)
+		virtual	btCollisionAlgorithm* CreateCollisionAlgorithm(btCollisionAlgorithmConstructionInfo& ci, btCollisionObject* body0,btCollisionObject* body1)
 		{
-			return new btCompoundCollisionAlgorithm(ci,proxy0,proxy1);
+			return new btCompoundCollisionAlgorithm(ci,body0,body1,false);
 		}
 	};
 
 	struct SwappedCreateFunc :public 	btCollisionAlgorithmCreateFunc
 	{
-		virtual	btCollisionAlgorithm* CreateCollisionAlgorithm(btCollisionAlgorithmConstructionInfo& ci, btBroadphaseProxy* proxy0,btBroadphaseProxy* proxy1)
+		virtual	btCollisionAlgorithm* CreateCollisionAlgorithm(btCollisionAlgorithmConstructionInfo& ci, btCollisionObject* body0,btCollisionObject* body1)
 		{
-			return new btCompoundCollisionAlgorithm(ci,proxy1,proxy0);
+			return new btCompoundCollisionAlgorithm(ci,body0,body1,true);
 		}
 	};
 

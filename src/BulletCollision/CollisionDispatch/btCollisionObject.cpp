@@ -42,15 +42,11 @@ void btCollisionObject::ForceActivationState(int newState)
 
 void btCollisionObject::activate()
 {
-	if (!(m_collisionFlags & isStatic))
+	if (!(m_collisionFlags & (CF_STATIC_OBJECT|CF_KINEMATIC_OJBECT)))
 	{
-		SetActivationState(1);
+		SetActivationState(ACTIVE_TAG);
 		m_deactivationTime = 0.f;
 	}
 }
 
-bool btCollisionObject::mergesSimulationIslands() const
-{
-	//static objects, and object without contact response don't merge islands
-	return ( !(m_collisionFlags & (isStatic | noContactResponse)));
-}
+

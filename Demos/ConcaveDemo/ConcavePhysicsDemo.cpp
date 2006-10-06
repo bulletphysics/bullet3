@@ -60,12 +60,12 @@ bool CustomMaterialCombinerCallback(btManifoldPoint& cp,	const btCollisionObject
 	float restitution0 = colObj0->getRestitution();
 	float restitution1 = colObj1->getRestitution();
 
-	if (colObj0->m_collisionFlags & btCollisionObject::customMaterialCallback)
+	if (colObj0->m_collisionFlags & btCollisionObject::CF_CUSTOM_MATERIAL_CALLBACK)
 	{
 		friction0 = 1.0;//partId0,index0
 		restitution0 = 0.f;
 	}
-	if (colObj1->m_collisionFlags & btCollisionObject::customMaterialCallback)
+	if (colObj1->m_collisionFlags & btCollisionObject::CF_CUSTOM_MATERIAL_CALLBACK)
 	{
 		if (index1&1)
 		{
@@ -161,10 +161,10 @@ void	ConcaveDemo::initPhysics()
 
 	btRigidBody* staticBody = localCreateRigidBody(mass, startTransform,trimeshShape);
 
-	staticBody->m_collisionFlags |=btCollisionObject::isStatic;
+	staticBody->m_collisionFlags |=btCollisionObject::CF_STATIC_OBJECT;
 
 	//enable custom material callback
-	staticBody->m_collisionFlags |= btCollisionObject::customMaterialCallback;
+	staticBody->m_collisionFlags |= btCollisionObject::CF_CUSTOM_MATERIAL_CALLBACK;
 
 	{
 		for (int i=0;i<10;i++)

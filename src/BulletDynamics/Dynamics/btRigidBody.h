@@ -25,7 +25,8 @@ subject to the following restrictions:
 #include "BulletCollision/CollisionDispatch/btCollisionObject.h"
 
 class btCollisionShape;
-struct btMassProps;
+class btMotionState;
+
 typedef btScalar dMatrix3[4*3];
 
 extern float gLinearAirDamping;
@@ -57,9 +58,13 @@ class btRigidBody  : public btCollisionObject
 	
 	btScalar		m_kinematicTimeStep;
 
+	//m_optionalMotionState allows to automatic synchronize the world transform for active objects
+	btMotionState*	m_optionalMotionState;
+
 public:
 
 	btRigidBody(float mass, const btTransform& worldTransform, btCollisionShape* collisionShape, const btVector3& localInertia=btVector3(0,0,0),btScalar linearDamping=0.f,btScalar angularDamping=0.f,btScalar friction=0.5f,btScalar restitution=0.f);
+	btRigidBody(float mass, btMotionState* motionState, btCollisionShape* collisionShape, const btVector3& localInertia=btVector3(0,0,0),btScalar linearDamping=0.f,btScalar angularDamping=0.f,btScalar friction=0.5f,btScalar restitution=0.f);
 
 	void			proceedToTransform(const btTransform& newTrans); 
 	
@@ -138,9 +143,8 @@ public:
 	
   	void applyTorqueImpulse(const btVector3& torque)
 	{
-		if (!IsStatic())
+		if (!isStaticObject()&& !isKinematicObject())
 			m_angularVelocity += m_invInertiaTensorWorld * torque;
-
 	}
 	
 	void applyImpulse(const btVector3& impulse, const btVector3& rel_pos) 
@@ -176,9 +180,14 @@ public:
 	}
 	
 
-	void setLinearVelocity(const btVector3& lin_vel);
-	void setAngularVelocity(const btVector3& ang_vel) { 
-		if (!IsStatic())
+	inline void setLinearVelocity(const btVector3& lin_vel)
+	{ 
+		assert (m_collisionFlags != btCollisionObject::CF_STATIC_OBJECT);
+		m_linearVelocity = lin_vel; 
+	}
+
+	inline void setAngularVelocity(const btVector3& ang_vel) { 
+		assert (m_collisionFlags != btCollisionObject::CF_STATIC_OBJECT);
 		{
 			m_angularVelocity = ang_vel; 
 		}
@@ -274,7 +283,21 @@ public:
 	{
 		m_broadphaseHandle = broadphaseProxy;
 	}
-	
+
+	//btMotionState allows to automatic synchronize the world transform for active objects
+	btMotionState*	getMotionState()
+	{
+		return m_optionalMotionState;
+	}
+	const btMotionState*	getMotionState() const
+	{
+		return m_optionalMotionState;
+	}
+	void	setMotionState(btMotionState* motionState)
+	{
+		m_optionalMotionState = motionState;
+	}
+
 	//for experimental overriding of friction/contact solver func
 	int	m_contactSolverType;
 	int	m_frictionSolverType;
