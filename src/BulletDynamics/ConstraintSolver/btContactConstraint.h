@@ -38,6 +38,7 @@ typedef float (*ContactSolverFunc)(btRigidBody& body1,
 									 class btManifoldPoint& contactPoint,
 									 const btContactSolverInfo& info);
 
+///stores some extra information to each contact point. It is not in the contact point, because that want to keep the collision detection independent from the constraint solver.
 struct btConstraintPersistentData
 {
 	inline btConstraintPersistentData()
