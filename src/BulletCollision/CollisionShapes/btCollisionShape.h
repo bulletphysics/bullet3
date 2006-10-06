@@ -22,7 +22,7 @@ subject to the following restrictions:
 #include "LinearMath/btPoint3.h"
 #include "BulletCollision/BroadphaseCollision/btBroadphaseProxy.h" //for the shape types
 
-///CollisionShape provides generic interface for collidable objects
+///btCollisionShape provides interface for collision shapes that can be shared among btCollisionObjects.
 class btCollisionShape
 {
 public:
@@ -34,10 +34,12 @@ public:
 	{
 	}
 
+	///getAabb returns the axis aligned bounding box in the coordinate frame of the given transform t.
 	virtual void getAabb(const btTransform& t,btVector3& aabbMin,btVector3& aabbMax) const =0;
 
 	virtual void	getBoundingSphere(btVector3& center,btScalar& radius) const;
 
+	///getAngularMotionDisc returns the maximus radius needed for Conservative Advancement to handle time-of-impact with rotations.
 	virtual float	getAngularMotionDisc() const;
 
 	virtual int		getShapeType() const=0;
