@@ -297,9 +297,6 @@
 				RelativePath="..\..\src\BulletCollision\NarrowPhaseCollision\btGjkPairDetector.cpp">
 			</File>
 			<File
-				RelativePath="..\..\src\BulletCollision\NarrowPhaseCollision\btManifoldContactAddResult.cpp">
-			</File>
-			<File
 				RelativePath="..\..\src\BulletCollision\NarrowPhaseCollision\btMinkowskiPenetrationDepthSolver.cpp">
 			</File>
 			<File
@@ -470,9 +467,6 @@
 			</File>
 			<File
 				RelativePath="..\..\src\BulletCollision\NarrowPhaseCollision\btGjkPairDetector.h">
-			</File>
-			<File
-				RelativePath="..\..\src\BulletCollision\NarrowPhaseCollision\btManifoldContactAddResult.h">
 			</File>
 			<File
 				RelativePath="..\..\src\BulletCollision\NarrowPhaseCollision\btManifoldPoint.h">

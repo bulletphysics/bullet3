@@ -238,9 +238,6 @@
 				RelativePath="..\..\src\BulletDynamics\Dynamics\btDynamicsWorld.h">
 			</File>
 			<File
-				RelativePath="..\..\src\BulletDynamics\Dynamics\btMassProps.h">
-			</File>
-			<File
 				RelativePath="..\..\src\BulletDynamics\Dynamics\btRigidBody.h">
 			</File>
 			<File

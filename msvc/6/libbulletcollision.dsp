@@ -284,10 +284,6 @@ SOURCE=..\..\src\BulletCollision\NarrowPhaseCollision\btGjkPairDetector.cpp
 # End Source File
 # Begin Source File
 
-SOURCE=..\..\src\BulletCollision\NarrowPhaseCollision\btManifoldContactAddResult.cpp
-# End Source File
-# Begin Source File
-
 SOURCE=..\..\src\BulletCollision\NarrowPhaseCollision\btMinkowskiPenetrationDepthSolver.cpp
 # End Source File
 # Begin Source File
@@ -513,10 +509,6 @@ SOURCE=..\..\src\BulletCollision\NarrowPhaseCollision\btGjkConvexCast.h
 # Begin Source File
 
 SOURCE=..\..\src\BulletCollision\NarrowPhaseCollision\btGjkPairDetector.h
-# End Source File
-# Begin Source File
-
-SOURCE=..\..\src\BulletCollision\NarrowPhaseCollision\btManifoldContactAddResult.h
 # End Source File
 # Begin Source File
 

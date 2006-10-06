@@ -204,10 +204,6 @@ SOURCE=..\..\src\BulletDynamics\Dynamics\btDynamicsWorld.h
 # End Source File
 # Begin Source File
 
-SOURCE=..\..\src\BulletDynamics\Dynamics\btMassProps.h
-# End Source File
-# Begin Source File
-
 SOURCE=..\..\src\BulletDynamics\Dynamics\btRigidBody.h
 # End Source File
 # Begin Source File
