@@ -26,8 +26,9 @@ static const btScalar rel_error = btScalar(1.0e-5);
 btScalar rel_error2 = rel_error * rel_error;
 float maxdist2 = 1.e30f;
 
-
-int gGjkMaxIter=1000;
+#ifdef __SPU__
+#include <spu_printf.h>
+#endif //__SPU__
 
 btGjkPairDetector::btGjkPairDetector(btConvexShape* objectA,btConvexShape* objectB,btSimplexSolverInterface* simplexSolver,btConvexPenetrationDepthSolver*	penetrationDepthSolver)
 :m_cachedSeparatingAxis(0.f,0.f,1.f),
@@ -77,22 +78,6 @@ int curIter = 0;
 		
 		while (true)
 		{
-			//degeneracy, this is typically due to invalid/uninitialized worldtransforms for a btCollisionObject
-			if (curIter++ > gGjkMaxIter)
-			{
-				#if defined(DEBUG) || defined (_DEBUG)
-					printf("btGjkPairDetector maxIter exceeded:%i\n",curIter);
-					printf("sepAxis=(%f,%f,%f), squaredDistance = %f, shapeTypeA=%i,shapeTypeB=%i\n",
-					m_cachedSeparatingAxis.getX(),
-					m_cachedSeparatingAxis.getY(),
-					m_cachedSeparatingAxis.getZ(),
-					squaredDistance,
-					m_minkowskiA->getShapeType(),
-					m_minkowskiB->getShapeType());
-				#endif
-				break;
-
-			}
 
 			btVector3 seperatingAxisInA = (-m_cachedSeparatingAxis)* input.m_transformA.getBasis();
 			btVector3 seperatingAxisInB = m_cachedSeparatingAxis* input.m_transformB.getBasis();
@@ -211,6 +196,10 @@ int curIter = 0;
 
 	if (isValid)
 	{
+#ifdef __SPU__
+		//spu_printf("distance\n");
+#endif //__CELLOS_LV2__
+
 		output.setShapeIdentifiers(m_partId0,m_index0,m_partId1,m_index1);
 
 		output.addContactPoint(
@@ -218,7 +207,7 @@ int curIter = 0;
 			pointOnB,
 			distance);
 		//printf("gjk add:%f",distance);
-	} 
+	}
 
 
 }

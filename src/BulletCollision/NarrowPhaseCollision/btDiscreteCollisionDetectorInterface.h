@@ -27,8 +27,7 @@ subject to the following restrictions:
 /// by taking closestPointInA = closestPointInB + m_distance * m_normalOnSurfaceB
 struct btDiscreteCollisionDetectorInterface
 {
-	void operator delete(void* ptr) {};
-
+	
 	struct Result
 	{
 		void operator delete(void* ptr) {};
@@ -60,7 +59,6 @@ struct btDiscreteCollisionDetectorInterface
 	//
 	virtual void	getClosestPoints(const ClosestPointInput& input,Result& output,class btIDebugDraw* debugDraw) = 0;
 
-	btScalar	getCollisionMargin() { return 0.2f;}
 };
 
 struct btStorageResult : public btDiscreteCollisionDetectorInterface::Result
