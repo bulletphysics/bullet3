@@ -63,10 +63,12 @@ else
         "../../src" ;
   }
 
+
 SubInclude TOP Demos CcdPhysicsDemo ;
 SubInclude TOP Demos UserCollisionAlgorithm ;
 #SubInclude TOP Demos ForkLiftDemo ;
 SubInclude TOP Demos BspDemo ;
+SubInclude TOP Demos BasicDemo ;
 SubInclude TOP Demos ConvexDecompositionDemo ;
 SubInclude TOP Demos ColladaDemo ;
 SubInclude TOP Demos BspDemo ;

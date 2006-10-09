@@ -26,10 +26,12 @@ m_ownManifold(false),
 m_manifoldPtr(mf),
 m_isSwapped(isSwapped)
 {
+	btCollisionObject* sphereObj = m_isSwapped? col1 : col0;
+	btCollisionObject* boxObj = m_isSwapped? col0 : col1;
 	
-	if (!m_manifoldPtr && m_dispatcher->needsCollision(col0,col1))
+	if (!m_manifoldPtr && m_dispatcher->needsCollision(sphereObj,boxObj))
 	{
-		m_manifoldPtr = m_dispatcher->getNewManifold(col0,col1);
+		m_manifoldPtr = m_dispatcher->getNewManifold(sphereObj,boxObj);
 		m_ownManifold = true;
 	}
 }

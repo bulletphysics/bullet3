@@ -54,7 +54,7 @@ public:
 
 	virtual ~btSimpleDynamicsWorld();
 		
-	virtual void	stepSimulation( float timeStep);
+	virtual void	stepSimulation( float timeStep,int numSubsteps=1);
 
 	virtual void	setDebugDrawer(btIDebugDraw*	debugDrawer) 
 	{

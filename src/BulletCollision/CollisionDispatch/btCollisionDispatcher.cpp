@@ -32,6 +32,27 @@ int gNumManifold = 0;
 #include <stdio.h>
 
 	
+btCollisionDispatcher::btCollisionDispatcher(bool noDefaultAlgorithms)
+:m_useIslands(true),
+m_count(0),
+m_convexConvexCreateFunc(0),
+m_convexConcaveCreateFunc(0),
+m_swappedConvexConcaveCreateFunc(0),
+m_compoundCreateFunc(0),
+m_swappedCompoundCreateFunc(0),
+m_emptyCreateFunc(0)
+{
+	int i;
+
+	m_emptyCreateFunc = new btEmptyAlgorithm::CreateFunc;
+	for (i=0;i<MAX_BROADPHASE_COLLISION_TYPES;i++)
+	{
+		for (int j=0;j<MAX_BROADPHASE_COLLISION_TYPES;j++)
+		{
+			m_doubleDispatch[i][j] = m_emptyCreateFunc;
+		}
+	}
+}
 
 	
 btCollisionDispatcher::btCollisionDispatcher (): 

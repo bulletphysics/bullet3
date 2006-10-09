@@ -56,8 +56,7 @@ class btCollisionDispatcher : public btDispatcher
 	btCollisionAlgorithmCreateFunc*	m_swappedCompoundCreateFunc;
 	btCollisionAlgorithmCreateFunc*   m_emptyCreateFunc;
 
-	
-
+	btCollisionAlgorithm* internalFindAlgorithm(btCollisionObject* body0,btCollisionObject* body1);
 
 public:
 
@@ -99,7 +98,12 @@ public:
 
 	int m_count;
 	
+	///the default constructor creates/register default collision algorithms, for convex, compound and concave shape support
 	btCollisionDispatcher ();
+
+	///a special constructor that doesn't create/register the default collision algorithms
+	btCollisionDispatcher(bool noDefaultAlgorithms);
+
 	virtual ~btCollisionDispatcher();
 
 	virtual btPersistentManifold*	getNewManifold(void* b0,void* b1);
@@ -111,9 +115,7 @@ public:
 
 			
 	btCollisionAlgorithm* findAlgorithm(btCollisionObject* body0,btCollisionObject* body1);
-	
-	btCollisionAlgorithm* internalFindAlgorithm(btCollisionObject* body0,btCollisionObject* body1);
-	
+		
 	virtual bool	needsCollision(btCollisionObject* body0,btCollisionObject* body1);
 	
 	virtual bool	needsResponse(btCollisionObject* body0,btCollisionObject* body1);

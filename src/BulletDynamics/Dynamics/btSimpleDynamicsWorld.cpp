@@ -47,7 +47,7 @@ btSimpleDynamicsWorld::~btSimpleDynamicsWorld()
 		delete m_constraintSolver;
 }
 
-void	btSimpleDynamicsWorld::stepSimulation(float timeStep)
+void	btSimpleDynamicsWorld::stepSimulation(float timeStep,int numSubsteps)
 {
 	///apply gravity, predict motion
 	predictUnconstraintMotion(timeStep);
@@ -56,12 +56,16 @@ void	btSimpleDynamicsWorld::stepSimulation(float timeStep)
 	performDiscreteCollisionDetection();
 
 	///solve contact constraints
-	btPersistentManifold** manifoldPtr = ((btCollisionDispatcher*)m_dispatcher1)->getInternalManifoldPointer();
 	int numManifolds = m_dispatcher1->getNumManifolds();
-	btContactSolverInfo infoGlobal;
-	infoGlobal.m_timeStep = timeStep;
-	
-	m_constraintSolver->solveGroup(manifoldPtr, numManifolds,infoGlobal,m_debugDrawer);
+	if (numManifolds)
+	{
+		btPersistentManifold** manifoldPtr = ((btCollisionDispatcher*)m_dispatcher1)->getInternalManifoldPointer();
+		
+		btContactSolverInfo infoGlobal;
+		infoGlobal.m_timeStep = timeStep;
+		
+		m_constraintSolver->solveGroup(manifoldPtr, numManifolds,infoGlobal,m_debugDrawer);
+	}
 
 	///integrate transforms
 	integrateTransforms(timeStep);
