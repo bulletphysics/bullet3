@@ -132,6 +132,10 @@ SOURCE=..\..\src\LinearMath\btMinMax.h
 # End Source File
 # Begin Source File
 
+SOURCE=..\..\src\LinearMath\btMotionState.h
+# End Source File
+# Begin Source File
+
 SOURCE=..\..\src\LinearMath\btPoint3.h
 # End Source File
 # Begin Source File

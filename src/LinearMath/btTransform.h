@@ -21,21 +21,13 @@ subject to the following restrictions:
 #include "LinearMath/btMatrix3x3.h"
 
 
-
+///btTransform supports rigid transforms (only translation and rotation, no scaling/shear)
 class btTransform {
 	
 
 public:
 	
-	enum { 
-		TRANSLATION = 0x01,
-		ROTATION    = 0x02,
-		RIGID       = TRANSLATION | ROTATION,  
-		SCALING     = 0x04,
-		LINEAR      = ROTATION | SCALING,
-		AFFINE      = TRANSLATION | LINEAR
-	};
-
+	
 	btTransform() {}
 
 	explicit SIMD_FORCE_INLINE btTransform(const btQuaternion& q, 
@@ -45,8 +37,7 @@ public:
 	{}
 
 	explicit SIMD_FORCE_INLINE btTransform(const btMatrix3x3& b, 
-		const btVector3& c = btVector3(btScalar(0), btScalar(0), btScalar(0)), 
-		unsigned int type = AFFINE)
+		const btVector3& c = btVector3(btScalar(0), btScalar(0), btScalar(0)))
 		: m_basis(b),
 		m_origin(c)
 	{}
@@ -130,10 +121,7 @@ public:
 		m_basis.setRotation(q);
 	}
 
-	SIMD_FORCE_INLINE void scale(const btVector3& scaling)
-	{
-		m_basis = m_basis.scaled(scaling);
-	}
+
 
 	void setIdentity()
 	{
