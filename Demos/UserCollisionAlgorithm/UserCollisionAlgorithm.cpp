@@ -30,7 +30,7 @@ static const int NUM_TRIANGLES=4;
 
 btVector3	gVertices[NUM_VERTICES];
 int	gIndices[NUM_TRIANGLES*3];
-const float TRIANGLE_SIZE=80.f;
+const float TRIANGLE_SIZE=20.f;
 
 
 ///User can override this material combiner by implementing gContactAddedCallback and setting body0->m_collisionFlags |= btCollisionObject::customMaterialCallback;
@@ -69,22 +69,17 @@ int main(int argc,char** argv)
 
 void	UserCollisionAlgorithm::initPhysics()
 {
-	#define TRISIZE 10.f
+	#define TRISIZE 5.f
 
-	int vertStride = sizeof(btVector3);
-	int indexStride = 3*sizeof(int);
 
 	const int NUM_VERTS_X = 50;
 	const int NUM_VERTS_Y = 50;
 	const int totalVerts = NUM_VERTS_X*NUM_VERTS_Y;
-	
 	const int totalTriangles = 2*(NUM_VERTS_X-1)*(NUM_VERTS_Y-1);
 
 	btVector3*	gVertices = new btVector3[totalVerts];
-	int*	gIndices = new int[totalTriangles*3];
-
+	
 	int i;
-
 	for ( i=0;i<NUM_VERTS_X;i++)
 	{
 		for (int j=0;j<NUM_VERTS_Y;j++)
@@ -93,30 +88,22 @@ void	UserCollisionAlgorithm::initPhysics()
 		}
 	}
 
+	btTriangleMesh* trimesh = new btTriangleMesh();
+
 	int index=0;
 	for ( i=0;i<NUM_VERTS_X-1;i++)
 	{
 		for (int j=0;j<NUM_VERTS_Y-1;j++)
 		{
-			gIndices[index++] = j*NUM_VERTS_X+i;
-			gIndices[index++] = j*NUM_VERTS_X+i+1;
-			gIndices[index++] = (j+1)*NUM_VERTS_X+i+1;
-
-			gIndices[index++] = j*NUM_VERTS_X+i;
-			gIndices[index++] = (j+1)*NUM_VERTS_X+i+1;
-			gIndices[index++] = (j+1)*NUM_VERTS_X+i;
+			trimesh->addTriangle(gVertices[j*NUM_VERTS_X+i],gVertices[j*NUM_VERTS_X+i+1],gVertices[(j+1)*NUM_VERTS_X+i+1]);
+			trimesh->addTriangle(gVertices[j*NUM_VERTS_X+i],gVertices[(j+1)*NUM_VERTS_X+i+1],gVertices[(j+1)*NUM_VERTS_X+i]);
 		}
 	}
 	
-	btTriangleIndexVertexArray* indexVertexArrays = new btTriangleIndexVertexArray(totalTriangles,
-		gIndices,
-		indexStride,
-		totalVerts,(float*) &gVertices[0].x(),vertStride);
+	delete[] gVertices;
 
-	btCollisionShape* trimeshShape  = new btBvhTriangleMeshShape(indexVertexArrays);
+	btCollisionShape* trimeshShape  = new btBvhTriangleMeshShape(trimesh);
 		
-
-	
 	//ConstraintSolver* solver = new btSequentialImpulseConstraintSolver;
 	
 	btCollisionDispatcher* dispatcher = new	btCollisionDispatcher();
