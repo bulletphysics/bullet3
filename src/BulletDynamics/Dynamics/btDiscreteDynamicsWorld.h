@@ -126,6 +126,8 @@ public:
 
 	virtual void	addRigidBody(btRigidBody* body);
 
+	virtual void	removeRigidBody(btRigidBody* body);
+
 };
 
 #endif //BT_DISCRETE_DYNAMICS_WORLD_H

@@ -114,7 +114,7 @@ void	Raytracer::initPhysics()
 	};
 
 	// btMultiSphereShape* multiSphereShape = new btMultiSphereShape(inertiaHalfExtents,positions,radi,NUM_SPHERES);
-	btConvexHullShape* convexHullShape = new btConvexHullShape(positions,3);
+	btConvexHullShape* convexHullShape = new btConvexHullShape(&positions[0].getX(),3);
 
 
 	//choose shape

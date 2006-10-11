@@ -88,7 +88,12 @@ public:
 	void			applyForces(btScalar step);
 	
 	void			setGravity(const btVector3& acceleration);  
-	
+
+	const btVector3&	getGravity() const
+	{
+		return m_gravity;
+	}
+
 	void			setDamping(btScalar lin_damping, btScalar ang_damping);
 	
 	inline const btCollisionShape*	getCollisionShape() const {

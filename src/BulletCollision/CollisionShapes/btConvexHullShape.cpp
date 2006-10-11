@@ -18,7 +18,8 @@ subject to the following restrictions:
 #include "LinearMath/btQuaternion.h"
 
 
-btConvexHullShape ::btConvexHullShape (btPoint3* points,int numPoints,int stride)
+
+btConvexHullShape ::btConvexHullShape (const float* points,int numPoints,int stride)
 {
 	m_points.resize(numPoints);
 	unsigned char* pointsBaseAddress = (unsigned char*)points;

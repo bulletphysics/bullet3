@@ -70,6 +70,8 @@ public:
 
 	virtual void	addRigidBody(btRigidBody* body);
 
+	virtual void	removeRigidBody(btRigidBody* body);
+	
 	virtual void	updateAabbs();
 };
 

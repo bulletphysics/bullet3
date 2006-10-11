@@ -191,6 +191,12 @@ void	btDiscreteDynamicsWorld::setGravity(const btVector3& gravity)
 	}
 }
 
+
+void	btDiscreteDynamicsWorld::removeRigidBody(btRigidBody* body)
+{
+	removeCollisionObject(body);
+}
+
 void	btDiscreteDynamicsWorld::addRigidBody(btRigidBody* body)
 {
 	body->setGravity(m_gravity);

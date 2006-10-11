@@ -70,7 +70,7 @@ public:
 				startTransform.setIdentity();
 				startTransform.setOrigin(btVector3(0,0,-10.f));
 				//this create an internal copy of the vertices
-				btCollisionShape* shape = new btConvexHullShape(&vertices[0],vertices.size());
+				btCollisionShape* shape = new btConvexHullShape(&(vertices[0].getX()),vertices.size());
 
 				btRigidBody* body = m_demoApp->localCreateRigidBody(mass, startTransform,shape);
 			}

@@ -56,6 +56,8 @@ class btDynamicsWorld : public btCollisionWorld
 
 		virtual void	addRigidBody(btRigidBody* body) = 0;
 
+		virtual void	removeRigidBody(btRigidBody* body) = 0;
+
 };
 
 #endif //BT_DYNAMICS_WORLD_H
