@@ -19,11 +19,12 @@ subject to the following restrictions:
 
 #include "BulletCollision/NarrowPhaseCollision/btPersistentManifold.h"
 #include "BulletDynamics/Dynamics/btRigidBody.h"
-#include "btContactConstraint.h"
-#include "btSolve2LinearConstraint.h"
-#include "btContactSolverInfo.h"
-#include "Dynamics/BU_Joint.h"
-#include "Dynamics/ContactJoint.h"
+#include "BulletDynamics/ConstraintSolver/btContactConstraint.h"
+#include "BulletDynamics/ConstraintSolver/btSolve2LinearConstraint.h"
+#include "BulletDynamics/ConstraintSolver/btContactSolverInfo.h"
+#include "OdeJoint.h"
+#include "OdeContactJoint.h"
+#include "OdeSolverBody.h"
 
 #include "LinearMath/btIDebugDraw.h"
 
@@ -74,13 +75,11 @@ float OdeConstraintSolver::solveGroup(btPersistentManifold** manifoldPtr, int nu
 	m_CurBody = 0;
 	m_CurJoint = 0;
 
-
-	btRigidBody* bodies [MAX_QUICKSTEP_RIGIDBODIES];
-
 	int numBodies = 0;
-	BU_Joint* joints [MAX_QUICKSTEP_RIGIDBODIES*4];
+	OdeSolverBody* odeBodies [MAX_QUICKSTEP_RIGIDBODIES];
 	int numJoints = 0;
-
+	BU_Joint* joints [MAX_QUICKSTEP_RIGIDBODIES*4];
+	
 	for (int j=0;j<numManifolds;j++)
 	{
 
@@ -89,14 +88,23 @@ float OdeConstraintSolver::solveGroup(btPersistentManifold** manifoldPtr, int nu
 		btPersistentManifold* manifold = manifoldPtr[j];
 		if (manifold->getNumContacts() > 0)
 		{
-			body0 = ConvertBody((btRigidBody*)manifold->getBody0(),bodies,numBodies);
-			body1 = ConvertBody((btRigidBody*)manifold->getBody1(),bodies,numBodies);
-			ConvertConstraint(manifold,joints,numJoints,bodies,body0,body1,debugDrawer);
+			body0 = ConvertBody((btRigidBody*)manifold->getBody0(),odeBodies,numBodies);
+			body1 = ConvertBody((btRigidBody*)manifold->getBody1(),odeBodies,numBodies);
+			ConvertConstraint(manifold,joints,numJoints,odeBodies,body0,body1,debugDrawer);
 		}
 	}
 
-	SolveInternal1(m_cfm,m_erp,bodies,numBodies,joints,numJoints,infoGlobal);
+	SolveInternal1(m_cfm,m_erp,odeBodies,numBodies,joints,numJoints,infoGlobal);
 
+	//write back resulting velocities
+	for (int i=0;i<numBodies;i++)
+	{
+		if (odeBodies[i]->m_invMass)
+		{
+			odeBodies[i]->m_originalBody->setLinearVelocity(odeBodies[i]->m_linearVelocity);
+			odeBodies[i]->m_originalBody->setAngularVelocity(odeBodies[i]->m_angularVelocity);
+		}
+	}
 	return 0.f;
 
 }
@@ -130,28 +138,39 @@ void dRfromQ1 (dMatrix3 R, const dQuaternion q)
 
 }
 
+#define ODE_MAX_SOLVER_BODIES 16384
+static OdeSolverBody	gSolverBodyArray[ODE_MAX_SOLVER_BODIES];
 
 
-int OdeConstraintSolver::ConvertBody(btRigidBody* body,btRigidBody** bodies,int& numBodies)
+int OdeConstraintSolver::ConvertBody(btRigidBody* orgBody,OdeSolverBody** bodies,int& numBodies)
 {
-	if (!body || (body->getInvMass() == 0.f) )
+	assert(orgBody);
+	if (!orgBody || (orgBody->getInvMass() == 0.f) )
 	{
 		return -1;
 	}
+
 	//first try to find
 	int i,j;
 	for (i=0;i<numBodies;i++)
 	{
-		if (bodies[i] == body)
+		if (bodies[i]->m_originalBody == orgBody)
 			return i;
 	}
 	//if not found, create a new body
-	bodies[numBodies++] = body;
-	//convert data
+	OdeSolverBody* body = bodies[numBodies] = &gSolverBodyArray[numBodies];
+	numBodies++;
 
+	body->m_originalBody = orgBody;
 
 	body->m_facc.setValue(0,0,0,0);
 	body->m_tacc.setValue(0,0,0,0);
+
+	body->m_linearVelocity = orgBody->getLinearVelocity();
+	body->m_angularVelocity = orgBody->getAngularVelocity();
+	body->m_invMass = orgBody->getInvMass();
+	body->m_centerOfMassPosition = orgBody->getCenterOfMassPosition();
+	body->m_friction = orgBody->getFriction();
 	
 	//are the indices the same ?
 	for (i=0;i<4;i++)
@@ -162,23 +181,23 @@ int OdeConstraintSolver::ConvertBody(btRigidBody* body,btRigidBody** bodies,int&
 			body->m_I[i+4*j] = 0.f;
 		}
 	}
-	body->m_invI[0+4*0] = 	body->getInvInertiaDiagLocal()[0];
-	body->m_invI[1+4*1] = 	body->getInvInertiaDiagLocal()[1];
-	body->m_invI[2+4*2] = 	body->getInvInertiaDiagLocal()[2];
+	body->m_invI[0+4*0] = 	orgBody->getInvInertiaDiagLocal()[0];
+	body->m_invI[1+4*1] = 	orgBody->getInvInertiaDiagLocal()[1];
+	body->m_invI[2+4*2] = 	orgBody->getInvInertiaDiagLocal()[2];
 
-	body->m_I[0+0*4] = 1.f/body->getInvInertiaDiagLocal()[0];
-	body->m_I[1+1*4] = 1.f/body->getInvInertiaDiagLocal()[1];
-	body->m_I[2+2*4] = 1.f/body->getInvInertiaDiagLocal()[2];
+	body->m_I[0+0*4] = 1.f/orgBody->getInvInertiaDiagLocal()[0];
+	body->m_I[1+1*4] = 1.f/orgBody->getInvInertiaDiagLocal()[1];
+	body->m_I[2+2*4] = 1.f/orgBody->getInvInertiaDiagLocal()[2];
 	
 
 	
 	
 	dQuaternion q;
 
-	q[1] = body->getOrientation()[0];
-	q[2] = body->getOrientation()[1];
-	q[3] = body->getOrientation()[2];
-	q[0] = body->getOrientation()[3];
+	q[1] = orgBody->getOrientation()[0];
+	q[2] = orgBody->getOrientation()[1];
+	q[3] = orgBody->getOrientation()[2];
+	q[0] = orgBody->getOrientation()[3];
 	
 	dRfromQ1(body->m_R,q);
 	
@@ -189,13 +208,12 @@ int OdeConstraintSolver::ConvertBody(btRigidBody* body,btRigidBody** bodies,int&
 
 
 	
-#define MAX_JOINTS_1 65535
-
-static ContactJoint gJointArray[MAX_JOINTS_1];
+#define ODE_MAX_SOLVER_JOINTS 65535
+static ContactJoint		gJointArray[ODE_MAX_SOLVER_JOINTS];
 
 
 void OdeConstraintSolver::ConvertConstraint(btPersistentManifold* manifold,BU_Joint** joints,int& numJoints,
-					   btRigidBody** bodies,int _bodyId0,int _bodyId1,btIDebugDraw* debugDrawer)
+					   OdeSolverBody** bodies,int _bodyId0,int _bodyId1,btIDebugDraw* debugDrawer)
 {
 
 
@@ -209,20 +227,20 @@ void OdeConstraintSolver::ConvertConstraint(btPersistentManifold* manifold,BU_Jo
 	bool swapBodies = (bodyId0 < 0);
 
 	
-	btRigidBody* body0,*body1;
+	OdeSolverBody* body0,*body1;
 
 	if (swapBodies)
 	{
 		bodyId0 = _bodyId1;
 		bodyId1 = _bodyId0;
 
-		body0 = (btRigidBody*)manifold->getBody1();
-		body1 = (btRigidBody*)manifold->getBody0();
+		body0 = bodyId0>=0 ? bodies[bodyId0] : 0;//(btRigidBody*)manifold->getBody1();
+		body1 = bodyId1>=0 ? bodies[bodyId1] : 0;//(btRigidBody*)manifold->getBody0();
 
 	} else
 	{
-		body0 = (btRigidBody*)manifold->getBody0();
-		body1 = (btRigidBody*)manifold->getBody1();
+		body0 = bodyId0>=0 ? bodies[bodyId0] : 0;//(btRigidBody*)manifold->getBody0();
+		body1 = bodyId1>=0 ? bodies[bodyId1] : 0;//(btRigidBody*)manifold->getBody1();
 	}
 
 	assert(bodyId0 >= 0);
@@ -243,7 +261,7 @@ void OdeConstraintSolver::ConvertConstraint(btPersistentManifold* manifold,BU_Jo
 				color);
 
 		}
-		assert (m_CurJoint < MAX_JOINTS_1);
+		assert (m_CurJoint < ODE_MAX_SOLVER_JOINTS);
 
 //		if (manifold->getContactPoint(i).getDistance() < 0.0f)
 		{

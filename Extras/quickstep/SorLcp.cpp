@@ -21,6 +21,7 @@
  *************************************************************************/
 
 #include "SorLcp.h"
+#include "OdeSolverBody.h"
 
 #ifdef USE_SOR_SOLVER
 
@@ -49,8 +50,8 @@
 #endif
 #endif
 
-#include "Dynamics/BU_Joint.h"
-#include "btContactSolverInfo.h"
+#include "OdeJoint.h"
+#include "BulletDynamics/ConstraintSolver/btContactSolverInfo.h"
 
 ////////////////////////////////////////////////////////////////////
 //math stuff
@@ -220,7 +221,7 @@ void dSetValue1 (btScalar *a, int n, btScalar value)
 // compute iMJ = inv(M)*J'
 
 static void compute_invM_JT (int m, dRealMutablePtr J, dRealMutablePtr iMJ, int *jb,
-	btRigidBody * const *body, dRealPtr invI)
+	OdeSolverBody* const *body, dRealPtr invI)
 {
 	int i,j;
 	dRealMutablePtr iMJ_ptr = iMJ;
@@ -228,11 +229,11 @@ static void compute_invM_JT (int m, dRealMutablePtr J, dRealMutablePtr iMJ, int 
 	for (i=0; i<m; i++) {
 		int b1 = jb[i*2];	
 		int b2 = jb[i*2+1];
-		btScalar k = body[b1]->getInvMass();
+		btScalar k = body[b1]->m_invMass;
 		for (j=0; j<3; j++) iMJ_ptr[j] = k*J_ptr[j];
 		dMULTIPLY0_331 (iMJ_ptr + 3, invI + 12*b1, J_ptr + 3);
 		if (b2 >= 0) {
-			k = body[b2]->getInvMass();
+			k = body[b2]->m_invMass;
 			for (j=0; j<3; j++) iMJ_ptr[j+6] = k*J_ptr[j+6];
 			dMULTIPLY0_331 (iMJ_ptr + 9, invI + 12*b2, J_ptr + 9);
 		}
@@ -378,7 +379,7 @@ int dRandInt2 (int n)
 }
 
 
-static void SOR_LCP (int m, int nb, dRealMutablePtr J, int *jb, btRigidBody * const *body,
+static void SOR_LCP (int m, int nb, dRealMutablePtr J, int *jb, OdeSolverBody * const *body,
 	dRealPtr invI, dRealMutablePtr lambda, dRealMutablePtr invMforce, dRealMutablePtr rhs,
 	dRealMutablePtr lo, dRealMutablePtr hi, dRealPtr cfm, int *findex,
 	int numiter,float overRelax)
@@ -597,7 +598,7 @@ static void SOR_LCP (int m, int nb, dRealMutablePtr J, int *jb, btRigidBody * co
 
 void SolveInternal1 (float global_cfm,
 					 float global_erp,
-					 btRigidBody * const *body, int nb,
+					 OdeSolverBody* const *body, int nb,
 					BU_Joint * const *_joint, 
 					int nj, 
 					const btContactSolverInfo& solverInfo)
@@ -647,8 +648,8 @@ void SolveInternal1 (float global_cfm,
 		dMULTIPLY2_333 (tmp,body[i]->m_invI,body[i]->m_R);
 		dMULTIPLY0_333 (invI+i*12,body[i]->m_R,tmp);
 		// compute rotational force
-		dMULTIPLY0_331 (tmp,I+i*12,body[i]->getAngularVelocity());
-		dCROSS (body[i]->m_tacc,-=,body[i]->getAngularVelocity(),tmp);
+		dMULTIPLY0_331 (tmp,I+i*12,body[i]->m_angularVelocity);
+		dCROSS (body[i]->m_tacc,-=,body[i]->m_angularVelocity,tmp);
 	}
 
 
@@ -755,12 +756,12 @@ void SolveInternal1 (float global_cfm,
 		dRealAllocaArray (tmp1,nb*6);
 		// put v/h + invM*fe into tmp1
 		for (i=0; i<nb; i++) {
-			btScalar body_invMass = body[i]->getInvMass();
+			btScalar body_invMass = body[i]->m_invMass;
 			for (j=0; j<3; j++) 
-				tmp1[i*6+j] = body[i]->m_facc[j] * body_invMass + body[i]->getLinearVelocity()[j] * stepsize1;
+				tmp1[i*6+j] = body[i]->m_facc[j] * body_invMass + body[i]->m_linearVelocity[j] * stepsize1;
 			dMULTIPLY0_331NEW (tmp1 + i*6 + 3,=,invI + i*12,body[i]->m_tacc);
 			for (j=0; j<3; j++) 
-				tmp1[i*6+3+j] += body[i]->getAngularVelocity()[j] * stepsize1;
+				tmp1[i*6+3+j] += body[i]->m_angularVelocity[j] * stepsize1;
 		}
 
 		// put J*tmp1 into rhs
@@ -803,19 +804,12 @@ void SolveInternal1 (float global_cfm,
 		
 		// add stepsize * cforce to the body velocity
 		for (i=0; i<nb; i++) {
-			btVector3 linvel = body[i]->getLinearVelocity();
-			btVector3 angvel = body[i]->getAngularVelocity();
+			for (j=0; j<3; j++) 
+				body[i]->m_linearVelocity[j] += solverInfo.m_timeStep* cforce[i*6+j];
+			for (j=0; j<3; j++) 
+				body[i]->m_angularVelocity[j] += solverInfo.m_timeStep* cforce[i*6+3+j];
 			
-			for (j=0; j<3; j++) 
-				linvel[j] += solverInfo.m_timeStep* cforce[i*6+j];
-			for (j=0; j<3; j++) 
-				angvel[j] += solverInfo.m_timeStep* cforce[i*6+3+j];
-		
-			body[i]->setLinearVelocity(linvel);
-			body[i]->setAngularVelocity(angvel);
-
 		}
-		
 	}
 
 
@@ -824,9 +818,9 @@ void SolveInternal1 (float global_cfm,
 	// add stepsize * invM * fe to the body velocity
 
 	for (i=0; i<nb; i++) {
-		btScalar body_invMass = body[i]->getInvMass();
-		btVector3 linvel = body[i]->getLinearVelocity();
-		btVector3 angvel = body[i]->getAngularVelocity();
+		btScalar body_invMass = body[i]->m_invMass;
+		btVector3 linvel = body[i]->m_linearVelocity;
+		btVector3 angvel = body[i]->m_angularVelocity;
 
 		for (j=0; j<3; j++) 
 		{
@@ -837,11 +831,8 @@ void SolveInternal1 (float global_cfm,
 			body[i]->m_tacc[j] *= solverInfo.m_timeStep;	
 		}
 		dMULTIPLY0_331NEW(angvel,+=,invI + i*12,body[i]->m_tacc);
-		body[i]->setAngularVelocity(angvel);
-
+		body[i]->m_angularVelocity = angvel;
 	}
-
-
 
 }
 

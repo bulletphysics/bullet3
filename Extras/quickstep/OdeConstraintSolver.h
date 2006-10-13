@@ -16,9 +16,10 @@ subject to the following restrictions:
 #ifndef ODE_CONSTRAINT_SOLVER_H
 #define ODE_CONSTRAINT_SOLVER_H
 
-#include "btConstraintSolver.h"
+#include "BulletDynamics/ConstraintSolver/btConstraintSolver.h"
 
 class btRigidBody;
+struct	OdeSolverBody;
 class BU_Joint;
 
 /// OdeConstraintSolver is one of the available solvers for Bullet dynamics framework
@@ -34,9 +35,9 @@ private:
 	float	m_erp;
 	
 
-	int ConvertBody(btRigidBody* body,btRigidBody** bodies,int& numBodies);
+	int ConvertBody(btRigidBody* body,OdeSolverBody** bodies,int& numBodies);
 	void ConvertConstraint(btPersistentManifold* manifold,BU_Joint** joints,int& numJoints,
-					   btRigidBody** bodies,int _bodyId0,int _bodyId1,btIDebugDraw* debugDrawer);
+					   OdeSolverBody** bodies,int _bodyId0,int _bodyId1,btIDebugDraw* debugDrawer);
 
 public:
 

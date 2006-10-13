@@ -25,7 +25,7 @@
 
 #ifndef SOR_LCP_H
 #define SOR_LCP_H
-class btRigidBody;
+struct	OdeSolverBody;
 class BU_Joint;
 #include "LinearMath/btScalar.h"
 
@@ -33,7 +33,7 @@ struct btContactSolverInfo;
 
 void SolveInternal1 (float global_cfm,
 					 float global_erp,
-					 btRigidBody * const *body, int nb,
+					 OdeSolverBody * const *body, int nb,
 		     BU_Joint * const *_joint, int nj, const btContactSolverInfo& info);
 
 int dRandInt2 (int n);
