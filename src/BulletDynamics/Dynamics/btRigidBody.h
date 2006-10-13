@@ -27,7 +27,7 @@ subject to the following restrictions:
 class btCollisionShape;
 class btMotionState;
 
-typedef btScalar dMatrix3[4*3];
+
 
 extern float gLinearAirDamping;
 extern bool gUseEpa;
