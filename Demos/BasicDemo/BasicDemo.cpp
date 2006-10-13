@@ -34,10 +34,14 @@ GLDebugDrawer debugDrawer;
 int main(int argc,char** argv)
 {
 
-	BasicDemo* ccdDemo = new BasicDemo();
-	ccdDemo->initPhysics();
-	ccdDemo->setCameraDistance(50.f);
-	return glutmain(argc, argv,640,480,"Bullet Physics Demo. http://bullet.sf.net",ccdDemo);
+	BasicDemo ccdDemo;
+	ccdDemo.initPhysics();
+	ccdDemo.setCameraDistance(50.f);
+	ccdDemo.exitPhysics();
+
+	//return glutmain(argc, argv,640,480,"Bullet Physics Demo. http://bullet.sf.net",&ccdDemo);
+	return 0;
+
 }
 
 
@@ -74,7 +78,8 @@ void BasicDemo::displayCallback(void) {
 
 	glClear(GL_COLOR_BUFFER_BIT | GL_DEPTH_BUFFER_BIT); 
 
-	m_dynamicsWorld->updateAabbs();
+	if (m_dynamicsWorld)
+		m_dynamicsWorld->updateAabbs();
 	
 	renderme();
 
@@ -95,27 +100,31 @@ void BasicDemo::clientResetScene()
 void	BasicDemo::initPhysics()
 {
 
-	btCollisionDispatcher* dispatcher = new	btCollisionDispatcher(true);
+
+	m_dispatcher = new	btCollisionDispatcher(true);
 	
 #ifdef USE_SWEEP_AND_PRUNE
 	btVector3 worldAabbMin(-10000,-10000,-10000);
 	btVector3 worldAabbMax(10000,10000,10000);
-	btOverlappingPairCache* broadphase = new btAxisSweep3(worldAabbMin,worldAabbMax,maxProxies);
+	m_overlappingPairCache = new btAxisSweep3(worldAabbMin,worldAabbMax,maxProxies);
 #else
-	btOverlappingPairCache* broadphase = new btSimpleBroadphase;
+	m_overlappingPairCache = new btSimpleBroadphase;
 #endif //USE_SWEEP_AND_PRUNE
-	
-	dispatcher->registerCollisionCreateFunc(SPHERE_SHAPE_PROXYTYPE,SPHERE_SHAPE_PROXYTYPE,new btSphereSphereCollisionAlgorithm::CreateFunc);
+
+	m_sphereSphereCF = new btSphereSphereCollisionAlgorithm::CreateFunc;
+	m_dispatcher->registerCollisionCreateFunc(SPHERE_SHAPE_PROXYTYPE,SPHERE_SHAPE_PROXYTYPE,m_sphereSphereCF);
+
 #ifdef USE_GROUND_BOX
-	dispatcher->registerCollisionCreateFunc(SPHERE_SHAPE_PROXYTYPE,BOX_SHAPE_PROXYTYPE,new btSphereBoxCollisionAlgorithm::CreateFunc);
-	btCollisionAlgorithmCreateFunc* swappedSphereBox = new btSphereBoxCollisionAlgorithm::CreateFunc;
-	swappedSphereBox->m_swapped = true;
-	dispatcher->registerCollisionCreateFunc(BOX_SHAPE_PROXYTYPE,SPHERE_SHAPE_PROXYTYPE,swappedSphereBox);
+	m_sphereBoxCF = new btSphereBoxCollisionAlgorithm::CreateFunc;
+	m_boxSphereCF = new btSphereBoxCollisionAlgorithm::CreateFunc;
+	m_boxSphereCF->m_swapped = true;
+	m_dispatcher->registerCollisionCreateFunc(SPHERE_SHAPE_PROXYTYPE,BOX_SHAPE_PROXYTYPE,m_sphereBoxCF);
+	m_dispatcher->registerCollisionCreateFunc(BOX_SHAPE_PROXYTYPE,SPHERE_SHAPE_PROXYTYPE,m_boxSphereCF);
 #endif //USE_GROUND_BOX
 
-	btSequentialImpulseConstraintSolver* solver = new btSequentialImpulseConstraintSolver;
+	m_solver = new btSequentialImpulseConstraintSolver;
 
-	m_dynamicsWorld = new btSimpleDynamicsWorld(dispatcher,broadphase,solver);
+	m_dynamicsWorld = new btSimpleDynamicsWorld(m_dispatcher,m_overlappingPairCache,m_solver);
 	m_dynamicsWorld->setGravity(btVector3(0,-10,0));
 
 	m_dynamicsWorld->setDebugDrawer(&debugDrawer);
@@ -130,6 +139,8 @@ void	BasicDemo::initPhysics()
 	btCollisionShape* groundShape = new btSphereShape(50.f);
 #endif//USE_GROUND_BOX
 
+	m_collisionShapes.push_back(groundShape);
+
 	btTransform groundTransform;
 	groundTransform.setIdentity();
 	groundTransform.setOrigin(btVector3(0,-50,0));
@@ -137,6 +148,8 @@ void	BasicDemo::initPhysics()
 
 	//create a few dynamic sphere rigidbodies (re-using the same sphere shape)
 	btCollisionShape* sphereShape = new btSphereShape(1.f);
+	m_collisionShapes.push_back(sphereShape);
+
 	int i;
 	for (i=0;i<gNumObjects;i++)
 	{
@@ -159,6 +172,51 @@ void	BasicDemo::initPhysics()
 	clientResetScene();
 }
 	
+
+void	BasicDemo::exitPhysics()
+{
+
+
+	//cleanup in the reverse order of creation/initialization
+
+	//remove the rigidbodies from the dynamics world and delete them
+	int i;
+	for (i=m_dynamicsWorld->getNumCollisionObjects()-1; i>=0 ;i--)
+	{
+		btCollisionObject* obj = m_dynamicsWorld->getCollisionObjectArray()[i];
+		m_dynamicsWorld->removeCollisionObject( obj );
+		delete obj;
+	}
+
+	//delete collision shapes
+	for (i=0;i<m_collisionShapes.size();i++)
+	{
+		btCollisionShape* shape = m_collisionShapes[i];
+		delete shape;
+	}
+
+	//delete dynamics world
+	delete m_dynamicsWorld;
+
+	//delete collision algorithms creation functions
+	delete m_sphereSphereCF;
+	
+#ifdef USE_GROUND_BOX
+	delete m_sphereBoxCF;
+	delete m_boxSphereCF;
+#endif// USE_GROUND_BOX
+	//delete solver
+	delete m_solver;
+
+	//delete broadphase
+	delete m_overlappingPairCache;
+
+	//delete dispatcher
+	delete m_dispatcher;
+
+	
+}
+
 
 
 

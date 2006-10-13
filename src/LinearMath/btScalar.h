@@ -30,6 +30,7 @@ subject to the following restrictions:
 		#else
 			#pragma warning(disable:4530)
 			#pragma warning(disable:4996)
+			#pragma warning(disable:4786)
 			#define SIMD_FORCE_INLINE __forceinline
 		#endif //__MINGW32__
 	

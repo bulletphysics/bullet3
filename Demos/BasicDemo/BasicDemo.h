@@ -17,12 +17,36 @@ subject to the following restrictions:
 
 #include "DemoApplication.h"
 
+#include <vector>
+
+class btCollisionShape;
+class btOverlappingPairCache;
+class btCollisionDispatcher;
+class btConstraintSolver;
+struct btCollisionAlgorithmCreateFunc;
+
 ///BasicDemo is good starting point for learning the code base and porting.
 class BasicDemo : public DemoApplication
 {
+
+	//keep the collision shapes, for deletion/cleanup
+	std::vector<btCollisionShape*>	m_collisionShapes;
+
+	btOverlappingPairCache*	m_overlappingPairCache;
+
+	btCollisionDispatcher*	m_dispatcher;
+
+	btConstraintSolver*	m_solver;
+
+	btCollisionAlgorithmCreateFunc*	m_sphereSphereCF;
+	btCollisionAlgorithmCreateFunc*	m_sphereBoxCF;
+	btCollisionAlgorithmCreateFunc*	m_boxSphereCF;
+
 	public:
 
 	void	initPhysics();
+
+	void	exitPhysics();
 
 	virtual void clientMoveAndDisplay();
 
