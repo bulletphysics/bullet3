@@ -25,10 +25,7 @@
 
 #ifdef USE_SOR_SOLVER
 
-// SOR LCP taken from ode quickstep, 
-// todo: write own successive overrelaxation gauss-seidel, or jacobi iterative solver
-
-
+// SOR LCP taken from ode quickstep, for comparisons to Bullet sequential impulse solver.
 #include "LinearMath/btScalar.h"
 
 #include "BulletDynamics/Dynamics/btRigidBody.h"
@@ -648,8 +645,8 @@ void SolveInternal1 (float global_cfm,
 		dMULTIPLY2_333 (tmp,body[i]->m_invI,body[i]->m_R);
 		dMULTIPLY0_333 (invI+i*12,body[i]->m_R,tmp);
 		// compute rotational force
-		dMULTIPLY0_331 (tmp,I+i*12,body[i]->m_angularVelocity);
-		dCROSS (body[i]->m_tacc,-=,body[i]->m_angularVelocity,tmp);
+//		dMULTIPLY0_331 (tmp,I+i*12,body[i]->m_angularVelocity);
+//		dCROSS (body[i]->m_tacc,-=,body[i]->m_angularVelocity,tmp);
 	}
 
 

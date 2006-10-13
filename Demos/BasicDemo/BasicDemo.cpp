@@ -13,14 +13,16 @@ subject to the following restrictions:
 3. This notice may not be removed or altered from any source distribution.
 */
 
+
 //#define USE_GROUND_BOX 1
 #define PRINT_CONTACT_STATISTICS 1
+//#define CHECK_MEMORY_LEAKS 1
+
 int gNumObjects = 120;
 #define HALF_EXTENTS 1.f
 #include "btBulletDynamicsCommon.h"
 #include "LinearMath/btIDebugDraw.h"
 #include "GLDebugDrawer.h"
-#include "BMF_Api.h"
 #include <stdio.h> //printf debugging
 float deltaTime = 1.f/60.f;
 float	gCollisionMargin = 0.05f;
@@ -37,11 +39,15 @@ int main(int argc,char** argv)
 	BasicDemo ccdDemo;
 	ccdDemo.initPhysics();
 	ccdDemo.setCameraDistance(50.f);
+
+#ifdef CHECK_MEMORY_LEAKS
 	ccdDemo.exitPhysics();
-
-	//return glutmain(argc, argv,640,480,"Bullet Physics Demo. http://bullet.sf.net",&ccdDemo);
+#else
+	return glutmain(argc, argv,640,480,"Bullet Physics Demo. http://bullet.sf.net",&ccdDemo);
+#endif
+	
+	//default glut doesn't return from mainloop
 	return 0;
-
 }
 
 

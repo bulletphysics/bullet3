@@ -54,18 +54,18 @@ class BU_Joint;
 
 //see below
 
-//to bridge with ODE quickstep, we make a temp copy of the rigidbodies in each simultion island, stored in an array of size MAX_RIGIDBODIES
-#define MAX_QUICKSTEP_RIGIDBODIES 8192
+//to bridge with ODE quickstep, we make a temp copy of the rigidbodies in each simultion island
+#define ODE_MAX_SOLVER_BODIES 16384
+#define ODE_MAX_SOLVER_JOINTS 65535
+static OdeSolverBody	gSolverBodyArray[ODE_MAX_SOLVER_BODIES];
+static ContactJoint		gJointArray[ODE_MAX_SOLVER_JOINTS];
+
 
 OdeConstraintSolver::OdeConstraintSolver():
 m_cfm(0.f),//1e-5f),
 m_erp(0.4f)
 {
 }
-
-
-
-
 
 
 
@@ -76,9 +76,9 @@ float OdeConstraintSolver::solveGroup(btPersistentManifold** manifoldPtr, int nu
 	m_CurJoint = 0;
 
 	int numBodies = 0;
-	OdeSolverBody* odeBodies [MAX_QUICKSTEP_RIGIDBODIES];
+	OdeSolverBody* odeBodies [ODE_MAX_SOLVER_BODIES];
 	int numJoints = 0;
-	BU_Joint* joints [MAX_QUICKSTEP_RIGIDBODIES*4];
+	BU_Joint* joints [ODE_MAX_SOLVER_JOINTS];
 	
 	for (int j=0;j<numManifolds;j++)
 	{
@@ -138,8 +138,6 @@ void dRfromQ1 (dMatrix3 R, const dQuaternion q)
 
 }
 
-#define ODE_MAX_SOLVER_BODIES 16384
-static OdeSolverBody	gSolverBodyArray[ODE_MAX_SOLVER_BODIES];
 
 
 int OdeConstraintSolver::ConvertBody(btRigidBody* orgBody,OdeSolverBody** bodies,int& numBodies)
@@ -208,8 +206,8 @@ int OdeConstraintSolver::ConvertBody(btRigidBody* orgBody,OdeSolverBody** bodies
 
 
 	
-#define ODE_MAX_SOLVER_JOINTS 65535
-static ContactJoint		gJointArray[ODE_MAX_SOLVER_JOINTS];
+
+
 
 
 void OdeConstraintSolver::ConvertConstraint(btPersistentManifold* manifold,BU_Joint** joints,int& numJoints,

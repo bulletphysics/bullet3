@@ -907,7 +907,12 @@ void help ()
 
 int main ( int argc, char **argv )
 {
+#ifdef WIN32
+	//until there is a first GPU that works under VertexTextureSupport under WIN32, disable it
+bool disableVertexTextureSupport = true;
+#else
   bool disableVertexTextureSupport = false ;
+#endif 
   debugOpt = DRAW_ALL ;
 
   for ( int i = 1 ; i < argc ; i++ )

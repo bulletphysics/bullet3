@@ -19,7 +19,7 @@ subject to the following restrictions:
 #define REGISTER_CUSTOM_COLLISION_ALGORITHM 1
 
 #include "btBulletDynamicsCommon.h"
-
+#include "../Extras/quickstep/OdeConstraintSolver.h"
 #include "LinearMath/btQuickprof.h"
 #include "LinearMath/btIDebugDraw.h"
 #include "GLDebugDrawer.h"
@@ -47,10 +47,11 @@ bool useCompound = false;//true;//false;
 
 
 #ifdef _DEBUG
-const int gNumObjects = 120;
+const int gNumObjects = 1024;
 #else
 const int gNumObjects = 120;//try this in release mode: 3000. never go above 16384, unless you increate maxNumObjects  value in DemoApplication.cp
 #endif
+
 
 const int maxNumObjects = 32760;
 
@@ -76,8 +77,8 @@ btCollisionShape* shapePtr[numShapes] =
 	new btBoxShape (btVector3(50,10,50)),
 #endif
 		
-		new btCylinderShape (btVector3(CUBE_HALF_EXTENTS-gCollisionMargin,CUBE_HALF_EXTENTS-gCollisionMargin,CUBE_HALF_EXTENTS-gCollisionMargin)),
-		//new btBoxShape (btVector3(CUBE_HALF_EXTENTS,CUBE_HALF_EXTENTS,CUBE_HALF_EXTENTS)),
+		//new btCylinderShape (btVector3(1-gCollisionMargin,CUBE_HALF_EXTENTS-gCollisionMargin,1-gCollisionMargin)),
+		new btBoxShape (btVector3(CUBE_HALF_EXTENTS,CUBE_HALF_EXTENTS,CUBE_HALF_EXTENTS)),
 		new btSphereShape (CUBE_HALF_EXTENTS- 0.05f),
 
 		//new btConeShape(CUBE_HALF_EXTENTS,2.f*CUBE_HALF_EXTENTS),
@@ -249,7 +250,8 @@ void	CcdPhysicsDemo::initPhysics()
 	dispatcher->registerCollisionCreateFunc(SPHERE_SHAPE_PROXYTYPE,SPHERE_SHAPE_PROXYTYPE,new btSphereSphereCollisionAlgorithm::CreateFunc);
 #endif //REGISTER_CUSTOM_COLLISION_ALGORITHM
 
-		btSequentialImpulseConstraintSolver* solver = new btSequentialImpulseConstraintSolver;
+		//btSequentialImpulseConstraintSolver* solver = new btSequentialImpulseConstraintSolver;
+		btConstraintSolver* solver = new OdeConstraintSolver();
 
 		m_dynamicsWorld = new btDiscreteDynamicsWorld(dispatcher,broadphase,solver);
 		m_dynamicsWorld->setGravity(btVector3(0,-10,0));
