@@ -213,13 +213,13 @@ void btRigidBody::setMassProps(btScalar mass, const btVector3& inertia)
 		m_inverseMass = 0.f;
 	} else
 	{
-		m_collisionFlags & (~btCollisionObject::CF_STATIC_OBJECT);
+		m_collisionFlags &= (~btCollisionObject::CF_STATIC_OBJECT);
 		m_inverseMass = 1.0f / mass;
 	}
 	
 	m_invInertiaLocal.setValue(inertia[0] != 0.0f ? 1.0f / inertia[0]: 0.0f,
-						   inertia[1] != 0.0f ? 1.0f / inertia[1]: 0.0f,
-						   inertia[2] != 0.0f ? 1.0f / inertia[2]: 0.0f);
+				   inertia[1] != 0.0f ? 1.0f / inertia[1]: 0.0f,
+				   inertia[2] != 0.0f ? 1.0f / inertia[2]: 0.0f);
 
 }
 
