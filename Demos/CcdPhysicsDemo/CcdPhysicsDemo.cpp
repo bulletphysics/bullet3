@@ -18,8 +18,16 @@ subject to the following restrictions:
 //#define USE_KINEMATIC_GROUND 1
 #define REGISTER_CUSTOM_COLLISION_ALGORITHM 1
 
+//following define allows to compare/replace Bullet's constraint solver with ODE quickstep
+//#define COMPARE_WITH_QUICKSTEP 1
+
+
 #include "btBulletDynamicsCommon.h"
+
+#ifdef COMPARE_WITH_QUICKSTEP 1
 #include "../Extras/quickstep/OdeConstraintSolver.h"
+#endif //COMPARE_WITH_QUICKSTEP
+
 #include "LinearMath/btQuickprof.h"
 #include "LinearMath/btIDebugDraw.h"
 #include "GLDebugDrawer.h"
@@ -250,8 +258,13 @@ void	CcdPhysicsDemo::initPhysics()
 	dispatcher->registerCollisionCreateFunc(SPHERE_SHAPE_PROXYTYPE,SPHERE_SHAPE_PROXYTYPE,new btSphereSphereCollisionAlgorithm::CreateFunc);
 #endif //REGISTER_CUSTOM_COLLISION_ALGORITHM
 
-		//btSequentialImpulseConstraintSolver* solver = new btSequentialImpulseConstraintSolver;
-		btConstraintSolver* solver = new OdeConstraintSolver();
+#ifdef COMPARE_WITH_QUICKSTEP
+	btConstraintSolver* solver = new OdeConstraintSolver();
+#else
+	//default constraint solver
+	btSequentialImpulseConstraintSolver* solver = new btSequentialImpulseConstraintSolver;
+#endif
+		
 
 		m_dynamicsWorld = new btDiscreteDynamicsWorld(dispatcher,broadphase,solver);
 		m_dynamicsWorld->setGravity(btVector3(0,-10,0));
