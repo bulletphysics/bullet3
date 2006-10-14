@@ -14,11 +14,12 @@ subject to the following restrictions:
 */
 
 //#define USER_DEFINED_FRICTION_MODEL 1
-#define PRINT_CONTACT_STATISTICS 1
+//#define PRINT_CONTACT_STATISTICS 1
 //#define USE_KINEMATIC_GROUND 1
-#define REGISTER_CUSTOM_COLLISION_ALGORITHM 1
+//#define REGISTER_CUSTOM_COLLISION_ALGORITHM 1
 
 //following define allows to compare/replace Bullet's constraint solver with ODE quickstep
+//this define requires to either add the libquickstep library (win32, see msvc/8/libquickstep.vcproj) or manually add the files in Extras/quickstep
 //#define COMPARE_WITH_QUICKSTEP 1
 
 
@@ -55,7 +56,7 @@ bool useCompound = false;//true;//false;
 
 
 #ifdef _DEBUG
-const int gNumObjects = 1024;
+const int gNumObjects = 120;
 #else
 const int gNumObjects = 120;//try this in release mode: 3000. never go above 16384, unless you increate maxNumObjects  value in DemoApplication.cp
 #endif
@@ -85,8 +86,9 @@ btCollisionShape* shapePtr[numShapes] =
 	new btBoxShape (btVector3(50,10,50)),
 #endif
 		
+		new btCylinderShape (btVector3(CUBE_HALF_EXTENTS-gCollisionMargin,CUBE_HALF_EXTENTS-gCollisionMargin,CUBE_HALF_EXTENTS-gCollisionMargin)),
 		//new btCylinderShape (btVector3(1-gCollisionMargin,CUBE_HALF_EXTENTS-gCollisionMargin,1-gCollisionMargin)),
-		new btBoxShape (btVector3(CUBE_HALF_EXTENTS,CUBE_HALF_EXTENTS,CUBE_HALF_EXTENTS)),
+		//new btBoxShape (btVector3(CUBE_HALF_EXTENTS,CUBE_HALF_EXTENTS,CUBE_HALF_EXTENTS)),
 		new btSphereShape (CUBE_HALF_EXTENTS- 0.05f),
 
 		//new btConeShape(CUBE_HALF_EXTENTS,2.f*CUBE_HALF_EXTENTS),
