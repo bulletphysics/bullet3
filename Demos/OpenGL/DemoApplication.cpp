@@ -174,11 +174,11 @@ void DemoApplication::stepRight()
 }
 void DemoApplication::stepFront() 
 { 
-	m_ele += STEPSIZE; if (m_azi >= 360) m_azi -= 360; updateCamera(); 
+	m_ele += STEPSIZE; if (m_ele >= 360) m_ele -= 360; updateCamera(); 
 }
 void DemoApplication::stepBack() 
 { 
-	m_ele -= STEPSIZE; if (m_azi < 0) m_azi += 360; updateCamera(); 
+	m_ele -= STEPSIZE; if (m_ele < 0) m_ele += 360; updateCamera(); 
 }
 void DemoApplication::zoomIn() 
 { 
