@@ -121,6 +121,11 @@ void	btDiscreteDynamicsWorld::synchronizeMotionStates()
 void	btDiscreteDynamicsWorld::stepSimulation(float timeStep, int numSubsteps)
 {
 
+	//process some debugging flags
+	if (getDebugDrawer())
+	{
+		gDisableDeactivation = (getDebugDrawer()->getDebugMode() & btIDebugDraw::DBG_NoDeactivation) != 0;
+	}
 	if (!btFuzzyZero(timeStep) && numSubsteps)
 	{
 
