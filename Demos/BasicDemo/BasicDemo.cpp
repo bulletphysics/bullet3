@@ -63,6 +63,10 @@ void BasicDemo::clientMoveAndDisplay()
 	//simple dynamics world doesn't handle fixed-time-stepping
 	float ms = m_clock.getTimeMilliseconds();
 	m_clock.reset();
+	float minFPS = 1000.f/60.f;
+	if (ms > minFPS)
+		ms = minFPS;
+
 	if (m_dynamicsWorld)
 		m_dynamicsWorld->stepSimulation(ms / 1000.f);
 		

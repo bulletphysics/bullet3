@@ -30,7 +30,7 @@ static const int NUM_TRIANGLES=4;
 
 btVector3	gVertices[NUM_VERTICES];
 int	gIndices[NUM_TRIANGLES*3];
-const float TRIANGLE_SIZE=20.f;
+const float TRIANGLE_SIZE=10.f;
 
 
 ///User can override this material combiner by implementing gContactAddedCallback and setting body0->m_collisionFlags |= btCollisionObject::customMaterialCallback;
@@ -143,9 +143,12 @@ void UserCollisionAlgorithm::clientMoveAndDisplay()
 {
 	 glClear(GL_COLOR_BUFFER_BIT | GL_DEPTH_BUFFER_BIT); 
 
-	float deltaTime = 1.f/60.f;
+	
+	float dt = m_clock.getTimeMilliseconds() * 0.001f;
+	m_clock.reset();
+	
 
-	m_dynamicsWorld->stepSimulation(deltaTime);
+	m_dynamicsWorld->stepSimulation(dt);
 	
 	renderme();
 

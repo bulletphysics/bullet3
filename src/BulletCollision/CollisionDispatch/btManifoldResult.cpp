@@ -96,7 +96,9 @@ void btManifoldResult::addContactPoint(const btVector3& normalOnBInWorld,const b
 			   (m_body1->m_collisionFlags & btCollisionObject::CF_CUSTOM_MATERIAL_CALLBACK)))
 		{
 			//experimental feature info, for per-triangle material etc.
-			(*gContactAddedCallback)(newPt,m_body0,m_partId0,m_index0,m_body1,m_partId1,m_index1);
+			btCollisionObject* obj0 = isSwapped? m_body1 : m_body0;
+			btCollisionObject* obj1 = isSwapped? m_body0 : m_body1;
+			(*gContactAddedCallback)(newPt,obj0,m_partId0,m_index0,obj1,m_partId1,m_index1);
 		}
 
 		m_manifoldPtr->AddManifoldPoint(newPt);

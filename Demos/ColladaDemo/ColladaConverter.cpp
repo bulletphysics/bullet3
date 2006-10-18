@@ -29,6 +29,7 @@ subject to the following restrictions:
 #include "BulletCollision/CollisionShapes/btTriangleMeshShape.h"
 //#include "BulletCollision/CollisionShapes/btTriangleIndexVertexArray.h"
 #include "BulletCollision/CollisionShapes/btCompoundShape.h"
+#include "LinearMath/btDefaultMotionState.h"
 
 
 
@@ -542,14 +543,18 @@ void	ColladaConverter::prepareConstraints(ConstraintInput& input)
 					
 					for (int i=0;i<m_numObjects;i++)
 					{
-						char* bodyName = (char*)m_rigidBodies[i]->m_userObjectPointer;
-						if (!strcmp(bodyName,orgUri0))
+						if (m_rigidBodies[i]->m_userObjectPointer)
 						{
-							body0=m_rigidBodies[i];
-						}
-						if (!strcmp(bodyName,orgUri1))
-						{
-							body1=m_rigidBodies[i];
+							btDefaultMotionState* ms = (btDefaultMotionState*)m_rigidBodies[i]->m_userObjectPointer;
+							char* bodyName = (char*)ms->m_userPointer;
+							if (!strcmp(bodyName,orgUri0))
+							{
+								body0=m_rigidBodies[i];
+							}
+							if (!strcmp(bodyName,orgUri1))
+							{
+								body1=m_rigidBodies[i];
+							}
 						}
 					}
 
@@ -700,10 +705,11 @@ void	ColladaConverter::PreparePhysicsObject(struct btRigidBodyInput& input, bool
 
 
 	btRigidBody* body= createRigidBody(isDynamics,mass,startTransform,colShape);
-	if (body)
+	if (body && body->m_userObjectPointer)
 	{
 		//for bodyName lookup in constraints
-		body->m_userObjectPointer = (void*)input.m_bodyName;
+		btDefaultMotionState* ms = (btDefaultMotionState*)body->m_userObjectPointer;
+		ms->m_userPointer = (void*)input.m_bodyName;
 		m_rigidBodies[m_numObjects] = body;
 		m_numObjects++;
 	}
