@@ -30,9 +30,7 @@ class BspDemo : public DemoApplication
 
 	virtual void displayCallback();
 	
-	virtual void	clientResetScene()
-	{
-	}
+	
 
 };
 

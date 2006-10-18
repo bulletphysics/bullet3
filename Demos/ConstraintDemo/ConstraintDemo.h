@@ -28,9 +28,7 @@ class ConstraintDemo : public DemoApplication
 
 	virtual void displayCallback();
 	
-	virtual void	clientResetScene()
-	{
-	}
+	
 };
 
 #endif //CONSTRAINT_DEMO_H

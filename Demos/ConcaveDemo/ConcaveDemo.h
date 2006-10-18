@@ -29,7 +29,6 @@ class ConcaveDemo : public DemoApplication
 
 	virtual void displayCallback();
 	
-	virtual void	clientResetScene();
 	
 };
 

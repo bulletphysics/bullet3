@@ -47,7 +47,7 @@ btSimpleDynamicsWorld::~btSimpleDynamicsWorld()
 		delete m_constraintSolver;
 }
 
-void	btSimpleDynamicsWorld::stepSimulation(float timeStep,int numSubsteps)
+int		btSimpleDynamicsWorld::stepSimulation( float timeStep,int maxSubSteps, float fixedTimeStep)
 {
 	///apply gravity, predict motion
 	predictUnconstraintMotion(timeStep);
@@ -71,6 +71,10 @@ void	btSimpleDynamicsWorld::stepSimulation(float timeStep,int numSubsteps)
 	integrateTransforms(timeStep);
 		
 	updateAabbs();
+
+	synchronizeMotionStates();
+
+	return 1;
 
 }
 
@@ -160,4 +164,23 @@ void	btSimpleDynamicsWorld::predictUnconstraintMotion(float timeStep)
 			}
 		}
 	}
+}
+
+
+void	btSimpleDynamicsWorld::synchronizeMotionStates()
+{
+	//todo: iterate over awake simulation islands!
+	for (unsigned int i=0;i<m_collisionObjects.size();i++)
+	{
+		btCollisionObject* colObj = m_collisionObjects[i];
+		btRigidBody* body = btRigidBody::upcast(colObj);
+		if (body && body->getMotionState())
+		{
+			if (body->GetActivationState() != ISLAND_SLEEPING)
+			{
+				body->getMotionState()->setWorldTransform(body->m_worldTransform);
+			}
+		}
+	}
+
 }

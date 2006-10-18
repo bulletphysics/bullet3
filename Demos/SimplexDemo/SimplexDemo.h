@@ -28,9 +28,7 @@ class SimplexDemo : public DemoApplication
 
 	virtual void displayCallback();
 	
-	virtual void	clientResetScene()
-	{
-	}
+	
 };
 
 #endif //SIMPLEX_DEMO_H

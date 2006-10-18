@@ -38,6 +38,7 @@ subject to the following restrictions:
 #include "LinearMath/btVector3.h"
 #include "LinearMath/btMatrix3x3.h"
 #include "LinearMath/btTransform.h"
+#include "LinearMath/btQuickProf.h"
 
 class	btCollisionShape;
 class	btDynamicsWorld;
@@ -49,6 +50,8 @@ class DemoApplication
 	
 	protected:
 		
+
+	hidden::Clock m_clock;
 
 	///this is the most important class
 	btDynamicsWorld*		m_dynamicsWorld;
@@ -134,7 +137,7 @@ public:
 
 	virtual void clientMoveAndDisplay() = 0;
 
-	virtual void	clientResetScene() =0 ;
+	virtual void	clientResetScene();
 
 	///Demo functions
 	void	shootBox(const btVector3& destination);

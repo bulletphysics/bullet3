@@ -28,9 +28,7 @@ class LinearConvexCastDemo : public DemoApplication
 
 	virtual void displayCallback();
 	
-	virtual void	clientResetScene()
-	{
-	}
+	
 };
 
 #endif //LINEAR_CONVEX_CAST_DEMO_H

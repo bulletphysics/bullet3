@@ -54,7 +54,8 @@ public:
 
 	virtual ~btSimpleDynamicsWorld();
 		
-	virtual void	stepSimulation( float timeStep,int numSubsteps=1);
+	///maxSubSteps/fixedTimeStep for interpolation is currently ignored for btSimpleDynamicsWorld, use btDiscreteDynamicsWorld instead
+	virtual int	stepSimulation( float timeStep,int maxSubSteps=1, float fixedTimeStep=1.f/60.f);
 
 	virtual void	setDebugDrawer(btIDebugDraw*	debugDrawer) 
 	{
@@ -73,6 +74,9 @@ public:
 	virtual void	removeRigidBody(btRigidBody* body);
 	
 	virtual void	updateAabbs();
+
+	void	synchronizeMotionStates();
+
 };
 
 #endif //BT_SIMPLE_DYNAMICS_WORLD_H

@@ -28,9 +28,7 @@ class Raytracer : public DemoApplication
 
 	virtual void displayCallback();
 	
-	virtual void	clientResetScene()
-	{
-	}
+	
 };
 
 #endif //RAYTRACER_H

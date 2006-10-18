@@ -28,10 +28,7 @@ class ConvexDecompositionDemo : public DemoApplication
 
 	virtual void displayCallback();
 	
-	virtual void	clientResetScene()
-	{
-		//not yet
-	}
+	
 	
 };
 

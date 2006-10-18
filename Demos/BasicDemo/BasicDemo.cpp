@@ -38,7 +38,7 @@ int main(int argc,char** argv)
 
 	BasicDemo ccdDemo;
 	ccdDemo.initPhysics();
-	ccdDemo.setCameraDistance(50.f);
+	ccdDemo.setCameraDistance(10.f);
 
 #ifdef CHECK_MEMORY_LEAKS
 	ccdDemo.exitPhysics();
@@ -60,8 +60,11 @@ void BasicDemo::clientMoveAndDisplay()
 {
 	glClear(GL_COLOR_BUFFER_BIT | GL_DEPTH_BUFFER_BIT); 
 
+	//simple dynamics world doesn't handle fixed-time-stepping
+	float ms = m_clock.getTimeMilliseconds();
+	m_clock.reset();
 	if (m_dynamicsWorld)
-		m_dynamicsWorld->stepSimulation(deltaTime);
+		m_dynamicsWorld->stepSimulation(ms / 1000.f);
 		
 	renderme(); 
 
@@ -94,13 +97,6 @@ void BasicDemo::displayCallback(void) {
 }
 
 
-
-///make this positive to show stack falling from a distance
-///this shows the penalty tresholds in action, springy/spungy look
-
-void BasicDemo::clientResetScene()
-{
-}
 
 
 void	BasicDemo::initPhysics()
@@ -164,7 +160,7 @@ void	BasicDemo::initPhysics()
 		btTransform trans;
 		trans.setIdentity();
 		//stack them
-		int colsize = 10;
+		int colsize = 2;
 		int row = (i*HALF_EXTENTS*2)/(colsize*2*HALF_EXTENTS);
 		int row2 = row;
 		int col = (i)%(colsize)-colsize/2;

@@ -214,7 +214,7 @@ float	btConvexConvexAlgorithm::calculateTimeOfImpact(btCollisionObject* col0,btC
 	{
 		btConvexShape* convex0 = static_cast<btConvexShape*>(col0->m_collisionShape);
 
-		btSphereShape	sphere1(col1->m_ccdSweptShereRadius); //todo: allow non-zero sphere sizes, for better approximation
+		btSphereShape	sphere1(col1->m_ccdSweptSphereRadius); //todo: allow non-zero sphere sizes, for better approximation
 		btConvexCast::CastResult result;
 		btVoronoiSimplexSolver voronoiSimplex;
 		//SubsimplexConvexCast ccd0(&sphere,min0,&voronoiSimplex);
@@ -247,7 +247,7 @@ float	btConvexConvexAlgorithm::calculateTimeOfImpact(btCollisionObject* col0,btC
 	{
 		btConvexShape* convex1 = static_cast<btConvexShape*>(col1->m_collisionShape);
 
-		btSphereShape	sphere0(col0->m_ccdSweptShereRadius); //todo: allow non-zero sphere sizes, for better approximation
+		btSphereShape	sphere0(col0->m_ccdSweptSphereRadius); //todo: allow non-zero sphere sizes, for better approximation
 		btConvexCast::CastResult result;
 		btVoronoiSimplexSolver voronoiSimplex;
 		//SubsimplexConvexCast ccd0(&sphere,min0,&voronoiSimplex);

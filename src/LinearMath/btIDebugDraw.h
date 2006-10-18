@@ -38,13 +38,13 @@ class	btIDebugDraw
 	enum	DebugDrawModes
 	{
 		DBG_NoDebug=0,
-		DBG_DrawAabb=1,
-		DBG_DrawText=2,
+		DBG_DrawWireframe = 1,
+		DBG_DrawAabb=2,
 		DBG_DrawFeaturesText=4,
 		DBG_DrawContactPoints=8,
 		DBG_NoDeactivation=16,
 		DBG_NoHelpText = 32,
-		DBG_DrawWireframe = 64,
+		DBG_DrawText=64,
 		DBG_ProfileTimings = 128,
 		DBG_EnableSatComparison = 256,
 		DBG_DisableBulletLCP = 512,

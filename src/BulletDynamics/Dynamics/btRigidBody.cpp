@@ -43,11 +43,9 @@ btRigidBody::btRigidBody(float mass, btMotionState* motionState, btCollisionShap
 	m_frictionSolverType(0)
 {
 
-	btQuaternion worldOrn;
-	btVector3	worldPos;
-	motionState->getWorldOrientation(worldOrn);
-	motionState->getWorldPosition(worldPos);
-	m_worldTransform = btTransform(worldOrn,worldPos);
+	motionState->getWorldTransform(m_worldTransform);
+
+	m_interpolationWorldTransform = m_worldTransform;
 
 	//moved to btCollisionObject
 	m_friction = friction;
@@ -82,6 +80,7 @@ btRigidBody::btRigidBody( float mass,const btTransform& worldTransform,btCollisi
 {
 	
 	m_worldTransform = worldTransform;
+	m_interpolationWorldTransform = m_worldTransform;
 
 	//moved to btCollisionObject
 	m_friction = friction;
@@ -117,9 +116,6 @@ void			btRigidBody::saveKinematicState(btScalar timeStep)
 		btTransformUtil::calculateVelocity(m_interpolationWorldTransform,m_worldTransform,m_kinematicTimeStep,m_linearVelocity,m_angularVelocity);
 		//printf("angular = %f %f %f\n",m_angularVelocity.getX(),m_angularVelocity.getY(),m_angularVelocity.getZ());
 	}
-	
-
-	m_interpolationWorldTransform = m_worldTransform;
 	
 	m_kinematicTimeStep = timeStep;
 }
@@ -260,6 +256,7 @@ btQuaternion btRigidBody::getOrientation() const
 	
 void btRigidBody::setCenterOfMassTransform(const btTransform& xform)
 {
+	m_interpolationWorldTransform = m_worldTransform;
 	m_worldTransform = xform;
 	updateInertiaTensor();
 }

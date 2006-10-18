@@ -22,12 +22,27 @@ subject to the following restrictions:
 #include "BulletCollision/BroadphaseCollision/btSimpleBroadphase.h"
 #include "BulletCollision/CollisionShapes/btCollisionShape.h"
 #include "BulletCollision/CollisionDispatch/btSimulationIslandManager.h"
+#include <LinearMath/btTransformUtil.h>
 
 //rigidbody & constraints
 #include "BulletDynamics/Dynamics/btRigidBody.h"
 #include "BulletDynamics/ConstraintSolver/btSequentialImpulseConstraintSolver.h"
 #include "BulletDynamics/ConstraintSolver/btContactSolverInfo.h"
 #include "BulletDynamics/ConstraintSolver/btTypedConstraint.h"
+
+//for debug rendering
+#include "BulletCollision/CollisionShapes/btCompoundShape.h"
+#include "BulletCollision/CollisionShapes/btSphereShape.h"
+#include "BulletCollision/CollisionShapes/btBoxShape.h"
+#include "BulletCollision/CollisionShapes/btCylinderShape.h"
+#include "BulletCollision/CollisionShapes/btConeShape.h"
+#include "BulletCollision/CollisionShapes/btTriangleMeshShape.h"
+#include "BulletCollision/CollisionShapes/btPolyhedralConvexShape.h"
+#include "BulletCollision/CollisionShapes/btConvexTriangleMeshShape.h"
+#include "BulletCollision/CollisionShapes/btTriangleCallback.h"
+#include "LinearMath/btIDebugDraw.h"
+
+
 
 //vehicle
 #include "BulletDynamics/Vehicle/btRaycastVehicle.h"
@@ -46,6 +61,7 @@ btDiscreteDynamicsWorld::btDiscreteDynamicsWorld()
 m_constraintSolver(new btSequentialImpulseConstraintSolver),
 m_debugDrawer(0),
 m_gravity(0,-10,0),
+m_localTime(1.f/60.f),
 m_profileTimings(0)
 {
 	m_islandManager = new btSimulationIslandManager();
@@ -59,6 +75,7 @@ btDiscreteDynamicsWorld::btDiscreteDynamicsWorld(btDispatcher* dispatcher,btOver
 m_constraintSolver(constraintSolver? constraintSolver: new btSequentialImpulseConstraintSolver),
 m_debugDrawer(0),
 m_gravity(0,-10,0),
+m_localTime(1.f/60.f),
 m_profileTimings(0)
 {
 	m_islandManager = new btSimulationIslandManager();
@@ -104,13 +121,37 @@ void	btDiscreteDynamicsWorld::synchronizeMotionStates()
 	for (unsigned int i=0;i<m_collisionObjects.size();i++)
 	{
 		btCollisionObject* colObj = m_collisionObjects[i];
+		if (getDebugDrawer() && getDebugDrawer()->getDebugMode() & btIDebugDraw::DBG_DrawWireframe)
+		{
+			btVector3 color(255.f,255.f,255.f);
+			switch(colObj->GetActivationState())
+			{
+			case  ACTIVE_TAG:
+				color = btVector3(255.f,255.f,255.f);
+			case ISLAND_SLEEPING:
+				color =  btVector3(0.f,255.f,0.f);
+			case WANTS_DEACTIVATION:
+				color = btVector3(0.f,255.f,255.f);
+			case DISABLE_DEACTIVATION:
+				color = btVector3(255.f,0.f,0.f);
+			case DISABLE_SIMULATION:
+				color = btVector3(255.f,255.f,0.f);
+			default:
+				{
+					color = btVector3(255.f,0.f,0.f);
+				}
+			};
+
+			debugDrawObject(colObj->m_worldTransform,colObj->m_collisionShape,color);
+		}
 		btRigidBody* body = btRigidBody::upcast(colObj);
 		if (body && body->getMotionState())
 		{
 			if (body->GetActivationState() != ISLAND_SLEEPING)
 			{
-				body->getMotionState()->setWorldOrientation(body->getCenterOfMassTransform().getRotation());
-				body->getMotionState()->setWorldPosition(body->getCenterOfMassTransform().getOrigin());
+				btTransform interpolatedTransform;
+				btTransformUtil::integrateTransform(body->m_interpolationWorldTransform,body->getLinearVelocity(),body->getAngularVelocity(),m_localTime,interpolatedTransform);
+				body->getMotionState()->setWorldTransform(interpolatedTransform);
 			}
 		}
 	}
@@ -118,29 +159,51 @@ void	btDiscreteDynamicsWorld::synchronizeMotionStates()
 }
 
 
-void	btDiscreteDynamicsWorld::stepSimulation(float timeStep, int numSubsteps)
+int	btDiscreteDynamicsWorld::stepSimulation( float timeStep,int maxSubSteps, float fixedTimeStep)
 {
+	int numSimulationSubSteps = 0;
+
+	if (maxSubSteps)
+	{
+		//fixed timestep with interpolation
+		m_localTime += timeStep;
+		if (m_localTime >= fixedTimeStep)
+		{
+			numSimulationSubSteps = int( m_localTime / fixedTimeStep);
+			m_localTime -= numSimulationSubSteps * fixedTimeStep;
+		}
+	} else
+	{
+		//variable timestep
+		fixedTimeStep = timeStep;
+		m_localTime = timeStep;
+		numSimulationSubSteps = 1;
+		maxSubSteps = 1;
+	}
 
 	//process some debugging flags
 	if (getDebugDrawer())
 	{
 		gDisableDeactivation = (getDebugDrawer()->getDebugMode() & btIDebugDraw::DBG_NoDeactivation) != 0;
 	}
-	if (!btFuzzyZero(timeStep) && numSubsteps)
+	if (!btFuzzyZero(timeStep) && numSimulationSubSteps)
 	{
 
-		saveKinematicState(timeStep);
+		saveKinematicState(fixedTimeStep);
 
-		int i;
-		float subTimeStep = timeStep / float(numSubsteps);
+		//clamp the number of substeps, to prevent simulation grinding spiralling down to a halt
+		int clampedSimulationSteps = (numSimulationSubSteps > maxSubSteps)? maxSubSteps : numSimulationSubSteps;
 
-		for (i=0;i<numSubsteps;i++)
+		for (int i=0;i<clampedSimulationSteps;i++)
 		{
-			internalSingleStepSimulation(subTimeStep);
+			internalSingleStepSimulation(fixedTimeStep);
 		}
 
-		synchronizeMotionStates();
 	} 
+
+	synchronizeMotionStates();
+
+	return numSimulationSubSteps;
 }
 
 void	btDiscreteDynamicsWorld::internalSingleStepSimulation(float timeStep)
@@ -206,12 +269,8 @@ void	btDiscreteDynamicsWorld::addRigidBody(btRigidBody* body)
 {
 	body->setGravity(m_gravity);
 	bool isDynamic = !(body->isStaticObject() || body->isKinematicObject());
-	short collisionFilterGroup = isDynamic? 
-	btBroadphaseProxy::DefaultFilter : 
-	btBroadphaseProxy::StaticFilter;
-	short collisionFilterMask = isDynamic? 
-	btBroadphaseProxy::AllFilter : 
-	btBroadphaseProxy::AllFilter ^ btBroadphaseProxy::StaticFilter;
+	short collisionFilterGroup = isDynamic? btBroadphaseProxy::DefaultFilter : btBroadphaseProxy::StaticFilter;
+	short collisionFilterMask = isDynamic? 	btBroadphaseProxy::AllFilter : 	btBroadphaseProxy::AllFilter ^ btBroadphaseProxy::StaticFilter;
 
 	addCollisionObject(body,collisionFilterGroup,collisionFilterMask);
 }
@@ -537,3 +596,151 @@ void	btDiscreteDynamicsWorld::startProfiling(float timeStep)
 }
 
 
+
+
+	
+
+class DebugDrawcallback : public btTriangleCallback, public btInternalTriangleIndexCallback
+{
+	btIDebugDraw*	m_debugDrawer;
+	btVector3	m_color;
+	btTransform	m_worldTrans;
+
+public:
+
+	DebugDrawcallback(btIDebugDraw*	debugDrawer,const btTransform& worldTrans,const btVector3& color)
+		: m_debugDrawer(debugDrawer),
+		m_worldTrans(worldTrans),
+		m_color(color)
+	{
+	}
+
+	virtual void internalProcessTriangleIndex(btVector3* triangle,int partId,int  triangleIndex)
+	{
+		processTriangle(triangle,partId,triangleIndex);
+	}
+
+	virtual void processTriangle(btVector3* triangle,int partId, int triangleIndex)
+	{
+		btVector3 wv0,wv1,wv2;
+		wv0 = m_worldTrans*triangle[0];
+		wv1 = m_worldTrans*triangle[1];
+		wv2 = m_worldTrans*triangle[2];
+		m_debugDrawer->drawLine(wv0,wv1,m_color);
+		m_debugDrawer->drawLine(wv1,wv2,m_color);
+		m_debugDrawer->drawLine(wv2,wv0,m_color);
+	}
+};
+
+
+
+void btDiscreteDynamicsWorld::debugDrawObject(const btTransform& worldTransform, const btCollisionShape* shape, const btVector3& color)
+{
+
+	if (shape->getShapeType() == COMPOUND_SHAPE_PROXYTYPE)
+	{
+		const btCompoundShape* compoundShape = static_cast<const btCompoundShape*>(shape);
+		for (int i=compoundShape->getNumChildShapes()-1;i>=0;i--)
+		{
+			btTransform childTrans = compoundShape->getChildTransform(i);
+			const btCollisionShape* colShape = compoundShape->getChildShape(i);
+			debugDrawObject(worldTransform*childTrans,colShape,color);
+		}
+
+	} else
+	{
+		switch (shape->getShapeType())
+		{
+
+		case SPHERE_SHAPE_PROXYTYPE:
+			{
+				const btSphereShape* sphereShape = static_cast<const btSphereShape*>(shape);
+				float radius = sphereShape->getMargin();//radius doesn't include the margin, so draw with margin
+				btVector3 start = worldTransform.getOrigin();
+				getDebugDrawer()->drawLine(start,start+worldTransform.getBasis() * btVector3(radius,0,0),color);
+				getDebugDrawer()->drawLine(start,start+worldTransform.getBasis() * btVector3(0,radius,0),color);
+				getDebugDrawer()->drawLine(start,start+worldTransform.getBasis() * btVector3(0,0,radius),color);
+				//drawSphere					
+				break;
+			}
+		case MULTI_SPHERE_SHAPE_PROXYTYPE:
+		case CONE_SHAPE_PROXYTYPE:
+			{
+				const btConeShape* coneShape = static_cast<const btConeShape*>(shape);
+				float radius = coneShape->getRadius();//+coneShape->getMargin();
+				float height = coneShape->getHeight();//+coneShape->getMargin();
+				btVector3 start = worldTransform.getOrigin();
+				getDebugDrawer()->drawLine(start+worldTransform.getBasis() * btVector3(0,0,0.5*height),start+worldTransform.getBasis() * btVector3(radius,0,-0.5*height),color);
+				getDebugDrawer()->drawLine(start+worldTransform.getBasis() * btVector3(0,0,0.5*height),start+worldTransform.getBasis() * btVector3(-radius,0,-0.5*height),color);
+				getDebugDrawer()->drawLine(start+worldTransform.getBasis() * btVector3(0,0,0.5*height),start+worldTransform.getBasis() * btVector3(0,radius,-0.5*height),color);
+				getDebugDrawer()->drawLine(start+worldTransform.getBasis() * btVector3(0,0,0.5*height),start+worldTransform.getBasis() * btVector3(0,-radius,-0.5*height),color);
+				break;
+
+			}
+		case CYLINDER_SHAPE_PROXYTYPE:
+			{
+				const btCylinderShape* cylinder = static_cast<const btCylinderShape*>(shape);
+				int upAxis = cylinder->getUpAxis();
+				float radius = cylinder->getRadius();
+				float halfHeight = cylinder->getHalfExtents()[upAxis];
+				btVector3 start = worldTransform.getOrigin();
+				btVector3	offsetHeight(0,0,0);
+				offsetHeight[upAxis] = halfHeight;
+				btVector3	offsetRadius(0,0,0);
+				offsetRadius[(upAxis+1)%3] = radius;
+				getDebugDrawer()->drawLine(start+worldTransform.getBasis() * (offsetHeight+offsetRadius),start+worldTransform.getBasis() * (-offsetHeight+offsetRadius),color);
+				getDebugDrawer()->drawLine(start+worldTransform.getBasis() * (offsetHeight-offsetRadius),start+worldTransform.getBasis() * (-offsetHeight-offsetRadius),color);
+				break;
+			}
+		default:
+			{
+
+				if (shape->getShapeType() == TRIANGLE_MESH_SHAPE_PROXYTYPE)
+				{
+					btTriangleMeshShape* concaveMesh = (btTriangleMeshShape*) shape;
+					//btVector3 aabbMax(1e30f,1e30f,1e30f);
+					//btVector3 aabbMax(100,100,100);//1e30f,1e30f,1e30f);
+
+					//todo pass camera, for some culling
+					btVector3 aabbMax(1e30f,1e30f,1e30f);
+					btVector3 aabbMin(-1e30f,-1e30f,-1e30f);
+
+					DebugDrawcallback drawCallback(getDebugDrawer(),worldTransform,color);
+					concaveMesh->processAllTriangles(&drawCallback,aabbMin,aabbMax);
+
+				}
+
+				if (shape->getShapeType() == CONVEX_TRIANGLEMESH_SHAPE_PROXYTYPE)
+				{
+					btConvexTriangleMeshShape* convexMesh = (btConvexTriangleMeshShape*) shape;
+					//todo: pass camera for some culling			
+					btVector3 aabbMax(1e30f,1e30f,1e30f);
+					btVector3 aabbMin(-1e30f,-1e30f,-1e30f);
+					//DebugDrawcallback drawCallback;
+					DebugDrawcallback drawCallback(getDebugDrawer(),worldTransform,color);
+					convexMesh->getStridingMesh()->InternalProcessAllTriangles(&drawCallback,aabbMin,aabbMax);
+				}
+
+
+				/// for polyhedral shapes
+				if (shape->isPolyhedral())
+				{
+					btPolyhedralConvexShape* polyshape = (btPolyhedralConvexShape*) shape;
+
+					int i;
+					for (i=0;i<polyshape->getNumEdges();i++)
+					{
+						btPoint3 a,b;
+						polyshape->getEdge(i,a,b);
+						btVector3 wa = worldTransform * a;
+						btVector3 wb = worldTransform * b;
+						getDebugDrawer()->drawLine(wa,wb,color);
+
+					}
+
+					
+				}
+			}
+		}
+	}
+}

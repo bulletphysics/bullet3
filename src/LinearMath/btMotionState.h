@@ -16,9 +16,7 @@ subject to the following restrictions:
 #ifndef BT_MOTIONSTATE_H
 #define BT_MOTIONSTATE_H
 
-#include "LinearMath/btVector3.h"
-#include "LinearMath/btQuaternion.h"
-
+#include "LinearMath/btTransform.h"
 
 ///btMotionState allows the dynamics world to synchronize the updated world transforms with graphics
 ///For optimizations, potentially only moving objects get synchronized (using setWorldPosition/setWorldOrientation)
@@ -31,14 +29,9 @@ class	btMotionState
 			
 		}
 		
-		virtual void	getWorldPosition(btVector3& worldPos )=0;
-		virtual void	getWorldScaling(btVector3& scaling)=0;
-		virtual void	getWorldOrientation(btQuaternion& orn)=0;
-		
-		virtual void	setWorldPosition(const btVector3& worldPos)=0;
-		virtual	void	setWorldOrientation(const btQuaternion& orn)=0;
+		virtual void	getWorldTransform(btTransform& worldTrans )=0;
 
-		virtual	void	calculateWorldTransformations()=0;
+		virtual void	setWorldTransform(const btTransform& worldTrans)=0;
 
 };
 

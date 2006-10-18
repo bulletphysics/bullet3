@@ -52,7 +52,6 @@ class BasicDemo : public DemoApplication
 
 	virtual void displayCallback();
 	
-	virtual void	clientResetScene();
 	
 };
 

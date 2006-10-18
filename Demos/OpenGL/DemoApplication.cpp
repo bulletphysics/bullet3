@@ -21,8 +21,12 @@ subject to the following restrictions:
 #include "BulletDynamics/ConstraintSolver/btPoint2PointConstraint.h"//picking
 #include "BulletCollision/CollisionShapes/btCollisionShape.h"
 #include "BulletCollision/CollisionShapes/btBoxShape.h"
+#include "BulletCollision/CollisionShapes/btCompoundShape.h"
+
 #include "GL_ShapeDrawer.h"
 #include "LinearMath/btQuickprof.h"
+#include "LinearMath/btDefaultMotionState.h"
+
 #include "BMF_Api.h"
 
 extern bool gDisableDeactivation;
@@ -646,13 +650,14 @@ btRigidBody*	DemoApplication::localCreateRigidBody(float mass, const btTransform
 	if (isDynamic)
 		shape->calculateLocalInertia(mass,localInertia);
 
-	btRigidBody* body = new btRigidBody(mass,startTransform,shape,localInertia);
+	btDefaultMotionState* myMotionState = new btDefaultMotionState(startTransform);
+	btRigidBody* body = new btRigidBody(mass,myMotionState,shape,localInertia);
+	body->m_userObjectPointer = myMotionState;
 
 	m_dynamicsWorld->addRigidBody(body);
 	
 	return body;
 }
-
 
 
 
@@ -670,7 +675,15 @@ void DemoApplication::renderme()
 		for (int i=0;i<numObjects;i++)
 		{
 			btCollisionObject* colObj = m_dynamicsWorld->getCollisionObjectArray()[i];
-			colObj->m_worldTransform.getOpenGLMatrix(m);
+			
+			if (colObj->m_userObjectPointer)
+			{
+				btDefaultMotionState* myMotionState = (btDefaultMotionState*)colObj->m_userObjectPointer;
+				myMotionState->m_graphicsWorldTrans.getOpenGLMatrix(m);
+			} else
+			{
+				colObj->m_worldTransform.getOpenGLMatrix(m);
+			}
 
 			btVector3 wireColor(1.f,1.0f,0.5f); //wants deactivation
 			if (i & 1)
@@ -797,4 +810,28 @@ void DemoApplication::renderme()
 		
 	}
 
+}
+
+void	DemoApplication::clientResetScene()
+{
+	int numObjects = m_dynamicsWorld->getNumCollisionObjects();
+	
+	for (int i=0;i<numObjects;i++)
+	{
+		btCollisionObject* colObj = m_dynamicsWorld->getCollisionObjectArray()[i];
+		
+		if (colObj->m_userObjectPointer)
+		{
+			btDefaultMotionState* myMotionState = (btDefaultMotionState*)colObj->m_userObjectPointer;
+			myMotionState->m_graphicsWorldTrans = myMotionState->m_startWorldTrans;
+			colObj->m_worldTransform = myMotionState->m_graphicsWorldTrans;
+			colObj->m_interpolationWorldTransform = myMotionState->m_startWorldTrans;
+			btRigidBody* body = btRigidBody::upcast(colObj);
+			if (body && !body->isStaticObject())
+			{
+				btRigidBody::upcast(colObj)->setLinearVelocity(btVector3(0,0,0));
+				btRigidBody::upcast(colObj)->setAngularVelocity(btVector3(0,0,0));
+			}
+		}
+	}
 }

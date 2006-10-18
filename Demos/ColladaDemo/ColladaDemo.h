@@ -29,9 +29,6 @@ class ColladaDemo : public DemoApplication
 
 	virtual void displayCallback();
 	
-	virtual void	clientResetScene()
-	{
-	}
 
 	virtual void keyboardCallback(unsigned char key, int x, int y);
 

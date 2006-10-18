@@ -27,6 +27,9 @@ subject to the following restrictions:
 
 struct	btBroadphaseProxy;
 class	btCollisionShape;
+#include "LinearMath/btMotionState.h"
+
+
 
 /// btCollisionObject can be used to manage collision detection objects. 
 /// btCollisionObject maintains all information that is needed for a collision detection: Shape, Transform and AABB proxy.
@@ -68,7 +71,7 @@ struct	btCollisionObject
 	float			m_hitFraction; 
 	
 	///Swept sphere radius (0.0 by default), see btConvexConvexAlgorithm::
-	float			m_ccdSweptShereRadius;
+	float			m_ccdSweptSphereRadius;
 
 	/// Don't do continuous collision detection if square motion (in one step) is less then m_ccdSquareMotionTreshold
 	float			m_ccdSquareMotionTreshold;

@@ -271,12 +271,12 @@ float btConvexConcaveCollisionAlgorithm::calculateTimeOfImpact(btCollisionObject
 		rayAabbMin.setMin(convexToLocal.getOrigin());
 		btVector3 rayAabbMax = convexFromLocal.getOrigin();
 		rayAabbMax.setMax(convexToLocal.getOrigin());
-		rayAabbMin -= btVector3(convexbody->m_ccdSweptShereRadius,convexbody->m_ccdSweptShereRadius,convexbody->m_ccdSweptShereRadius);
-		rayAabbMax += btVector3(convexbody->m_ccdSweptShereRadius,convexbody->m_ccdSweptShereRadius,convexbody->m_ccdSweptShereRadius);
+		rayAabbMin -= btVector3(convexbody->m_ccdSweptSphereRadius,convexbody->m_ccdSweptSphereRadius,convexbody->m_ccdSweptSphereRadius);
+		rayAabbMax += btVector3(convexbody->m_ccdSweptSphereRadius,convexbody->m_ccdSweptSphereRadius,convexbody->m_ccdSweptSphereRadius);
 
 		float curHitFraction = 1.f; //is this available?
 		LocalTriangleSphereCastCallback raycastCallback(convexFromLocal,convexToLocal,
-		convexbody->m_ccdSweptShereRadius,curHitFraction);
+		convexbody->m_ccdSweptSphereRadius,curHitFraction);
 
 		raycastCallback.m_hitFraction = convexbody->m_hitFraction;
 

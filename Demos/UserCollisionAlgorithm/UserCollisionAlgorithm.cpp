@@ -154,23 +154,7 @@ void UserCollisionAlgorithm::clientMoveAndDisplay()
 
 }
 
-void	UserCollisionAlgorithm::clientResetScene()
-{
-	/*
-	int numObj = m_physicsEnvironmentPtr->GetNumControllers();
 
-	//skip ground
-	for (int i=1;i<numObj;i++)
-	{
-		CcdPhysicsController* ctrl = m_physicsEnvironmentPtr->GetPhysicsController(i);
-		ctrl->setPosition(1,2*i,1);
-		ctrl->setOrientation(0,0,0,1);
-		ctrl->SetLinearVelocity(0,0,0,0);
-		ctrl->SetAngularVelocity(0,0,0,0);
-	}
-	*/
-
-}
 
 
 

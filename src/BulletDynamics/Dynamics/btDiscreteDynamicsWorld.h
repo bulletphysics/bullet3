@@ -45,6 +45,10 @@ protected:
 
 	btVector3	m_gravity;
 
+	//for variable timesteps
+	float	m_localTime;
+	//for variable timesteps
+
 	bool	m_ownsIslandManager;
 	bool	m_ownsConstraintSolver;
 
@@ -74,6 +78,7 @@ protected:
 
 	void	saveKinematicState(float timeStep);
 
+
 public:
 
 
@@ -84,8 +89,9 @@ public:
 	btDiscreteDynamicsWorld();
 		
 	virtual ~btDiscreteDynamicsWorld();
-		
-	virtual void	stepSimulation( float timeStep, int numSubsteps=1);
+
+	///if maxSubSteps > 0, it will interpolate motion between fixedTimeStep's
+	virtual int	stepSimulation( float timeStep,int maxSubSteps=1, float fixedTimeStep=1.f/60.f);
 
 	virtual void	updateAabbs();
 
@@ -127,6 +133,9 @@ public:
 	virtual void	addRigidBody(btRigidBody* body);
 
 	virtual void	removeRigidBody(btRigidBody* body);
+
+	void	debugDrawObject(const btTransform& worldTransform, const btCollisionShape* shape, const btVector3& color);
+
 
 };
 

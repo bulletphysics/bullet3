@@ -28,9 +28,6 @@ class CollisionDemo : public DemoApplication
 
 	virtual void displayCallback();
 	
-	virtual void	clientResetScene()
-	{
-	}
 };
 
 #endif //COLLISION_DEMO_H

@@ -28,9 +28,7 @@ class btContinuousConvexCollisionDemo : public DemoApplication
 
 	virtual void displayCallback();
 	
-	virtual void	clientResetScene()
-	{
-	}
+	
 };
 
 #endif //CONTINUOUS_CONVEX_COLLISION_DEMO_H

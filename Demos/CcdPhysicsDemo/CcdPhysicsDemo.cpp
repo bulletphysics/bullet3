@@ -25,7 +25,7 @@ subject to the following restrictions:
 
 #include "btBulletDynamicsCommon.h"
 
-#ifdef COMPARE_WITH_QUICKSTEP 1
+#ifdef COMPARE_WITH_QUICKSTEP
 #include "../Extras/quickstep/OdeConstraintSolver.h"
 #endif //COMPARE_WITH_QUICKSTEP
 
@@ -114,6 +114,7 @@ GLDebugDrawer debugDrawer;
 int main(int argc,char** argv)
 {
 
+
 	CcdPhysicsDemo* ccdDemo = new CcdPhysicsDemo();
 
 	ccdDemo->initPhysics();
@@ -141,8 +142,32 @@ void CcdPhysicsDemo::clientMoveAndDisplay()
 	m_dynamicsWorld->getCollisionObjectArray()[0]->m_worldTransform.getOrigin() += kinTranslation;
 #endif //USE_KINEMATIC_GROUND
 
+	float dt = m_clock.getTimeMilliseconds() * 0.001f;
+	m_clock.reset();
+	printf("dt = %f: ",dt);
+	
 	if (m_dynamicsWorld)
-		m_dynamicsWorld->stepSimulation(deltaTime);
+	{
+		//during idle mode, just run 1 simulation step maximum
+		int maxSimSubSteps = m_idle ? 1 : 1;
+		if (m_idle)
+			dt = 1.0/420.f;
+
+		int numSimSteps = m_dynamicsWorld->stepSimulation(dt,maxSimSubSteps);
+		if (!numSimSteps)
+			printf("Interpolated transforms\n");
+		else
+		{
+			if (numSimSteps > maxSimSubSteps)
+			{
+				//detect dropping frames
+				printf("Dropped (%i) simulation steps out of %i\n",numSimSteps - maxSimSubSteps,numSimSteps);
+			} else
+			{
+				printf("Simulated (%i) steps\n",numSimSteps);
+			}
+		}
+	}
 	
 #ifdef USE_QUICKPROF 
         btProfiler::beginBlock("render"); 
@@ -183,59 +208,6 @@ void CcdPhysicsDemo::displayCallback(void) {
 
 
 
-///make this positive to show stack falling from a distance
-///this shows the penalty tresholds in action, springy/spungy look
-
-void CcdPhysicsDemo::clientResetScene()
-{
-
-/*	
-	int i;
-	int numObjects = m_physicsEnvironmentPtr->GetNumControllers();
-
-	for (i=0;i<numObjects;i++)
-	{
-		//skip the first object (static ground)
-		if (i>0)
-		{
-			CcdPhysicsController* ctrl = m_physicsEnvironmentPtr->GetPhysicsController(i);
-
-			if ((getDebugMode() & btIDebugDraw::DBG_NoHelpText))
-			{
-				if (ctrl->getRigidBody()->getCollisionShape()->getShapeType() != SPHERE_SHAPE_PROXYTYPE)
-				{
-					ctrl->getRigidBody()->SetCollisionShape(shapePtr[2]);
-				} else
-				{
-					ctrl->getRigidBody()->SetCollisionShape(shapePtr[1]);
-				}
-
-				btBroadphaseProxy* bpproxy = ctrl->getRigidBody()->m_broadphaseHandle;
-				m_physicsEnvironmentPtr->getBroadphase()->cleanProxyFromPairs(bpproxy);
-			}
-
-			//stack them
-			int colsize = 10;
-			int row = (i*CUBE_HALF_EXTENTS*2)/(colsize*2*CUBE_HALF_EXTENTS);
-			int row2 = row;
-			int col = (i)%(colsize)-colsize/2;
-
-
-			if (col>3)
-			{
-				col=11;
-				row2 |=1;
-			}
-			ctrl->setPosition(col*2*CUBE_HALF_EXTENTS + (row2%2)*CUBE_HALF_EXTENTS,
-				row*2*CUBE_HALF_EXTENTS+CUBE_HALF_EXTENTS+EXTRA_HEIGHT,0);
-			ctrl->setOrientation(0,0,0,1);
-			ctrl->SetLinearVelocity(0,0,0,false);
-			ctrl->SetAngularVelocity(0,0,0,false);
-		} 
-	}
-	*/
-
-}
 
 
 ///User-defined friction model, the most simple friction model available: no friction
@@ -368,7 +340,7 @@ void	CcdPhysicsDemo::initPhysics()
 		body->m_ccdSquareMotionTreshold = CUBE_HALF_EXTENTS;
 		
 		//Experimental: better estimation of CCD Time of Impact:
-		body->m_ccdSweptShereRadius = 0.2*CUBE_HALF_EXTENTS;
+		body->m_ccdSweptSphereRadius = 0.2*CUBE_HALF_EXTENTS;
 
 #ifdef USER_DEFINED_FRICTION_MODEL	
 		///Advanced use: override the friction solver
