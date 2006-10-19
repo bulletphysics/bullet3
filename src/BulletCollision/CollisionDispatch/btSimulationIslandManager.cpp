@@ -237,6 +237,16 @@ void btSimulationIslandManager::buildAndProcessIslands(btDispatcher* dispatcher,
 		 if (((colObj0) && colObj0->GetActivationState() != ISLAND_SLEEPING) ||
 			((colObj1) && colObj1->GetActivationState() != ISLAND_SLEEPING))
 		{
+			//kinematic objects don't merge islands, but wake up all connected objects
+			if (colObj0->isKinematicObject() && colObj0->GetActivationState() != ISLAND_SLEEPING)
+			{
+				colObj1->SetActivationState(ACTIVE_TAG);
+			}
+			if (colObj1->isKinematicObject() && colObj1->GetActivationState() != ISLAND_SLEEPING)
+			{
+				colObj0->SetActivationState(ACTIVE_TAG);
+			}
+
 			//filtering for response
 			if (dispatcher->needsResponse(colObj0,colObj1))
 				islandmanifold.push_back(manifold);

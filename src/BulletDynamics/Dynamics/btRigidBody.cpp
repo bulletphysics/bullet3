@@ -37,7 +37,6 @@ btRigidBody::btRigidBody(float mass, btMotionState* motionState, btCollisionShap
 	m_angularVelocity(0.f,0.f,0.f),
 	m_linearDamping(0.f),
 	m_angularDamping(0.5f),
-	m_kinematicTimeStep(0.f),
 	m_optionalMotionState(motionState),
 	m_contactSolverType(0),
 	m_frictionSolverType(0)
@@ -73,7 +72,6 @@ btRigidBody::btRigidBody( float mass,const btTransform& worldTransform,btCollisi
 	m_angularVelocity(0.f,0.f,0.f),
 	m_linearDamping(0.f),
 	m_angularDamping(0.5f),
-	m_kinematicTimeStep(0.f),
 	m_optionalMotionState(0),
 	m_contactSolverType(0),
 	m_frictionSolverType(0)
@@ -109,15 +107,17 @@ void btRigidBody::predictIntegratedTransform(btScalar timeStep,btTransform& pred
 
 void			btRigidBody::saveKinematicState(btScalar timeStep)
 {
-	
-	if (m_kinematicTimeStep)
+	//todo: clamp to some (user definable) safe minimum timestep, to limit maximum angular/linear velocities
+	if (timeStep != 0.f)
 	{
+		//if we use motionstate to synchronize world transforms, get the new kinematic/animated world transform
+		if (getMotionState())
+			getMotionState()->getWorldTransform(m_worldTransform);
 		btVector3 linVel,angVel;
-		btTransformUtil::calculateVelocity(m_interpolationWorldTransform,m_worldTransform,m_kinematicTimeStep,m_linearVelocity,m_angularVelocity);
+		btTransformUtil::calculateVelocity(m_interpolationWorldTransform,m_worldTransform,timeStep,m_linearVelocity,m_angularVelocity);
+		m_interpolationWorldTransform = m_worldTransform;
 		//printf("angular = %f %f %f\n",m_angularVelocity.getX(),m_angularVelocity.getY(),m_angularVelocity.getZ());
 	}
-	
-	m_kinematicTimeStep = timeStep;
 }
 	
 void	btRigidBody::getAabb(btVector3& aabbMin,btVector3& aabbMax) const
@@ -154,7 +154,7 @@ void btRigidBody::setDamping(btScalar lin_damping, btScalar ang_damping)
 
 void btRigidBody::applyForces(btScalar step)
 {
-	if (isStaticObject() || isKinematicObject())
+	if (isStaticOrKinematicObject())
 		return;
 	
 	applyCentralForce(m_gravity);	
@@ -229,7 +229,7 @@ void btRigidBody::updateInertiaTensor()
 
 void btRigidBody::integrateVelocities(btScalar step) 
 {
-	if (isStaticObject() || isKinematicObject())
+	if (isStaticOrKinematicObject())
 		return;
 
 	m_linearVelocity += m_totalForce * (m_inverseMass * step);

@@ -145,7 +145,7 @@ void	btDiscreteDynamicsWorld::synchronizeMotionStates()
 			debugDrawObject(colObj->m_worldTransform,colObj->m_collisionShape,color);
 		}
 		btRigidBody* body = btRigidBody::upcast(colObj);
-		if (body && body->getMotionState())
+		if (body && body->getMotionState() && !body->isStaticOrKinematicObject())
 		{
 			if (body->GetActivationState() != ISLAND_SLEEPING)
 			{
@@ -524,7 +524,7 @@ void	btDiscreteDynamicsWorld::integrateTransforms(float timeStep)
 		btRigidBody* body = btRigidBody::upcast(colObj);
 		if (body)
 		{
-			if (body->IsActive() && (!body->isStaticObject()))
+			if (body->IsActive() && (!body->isStaticOrKinematicObject()))
 			{
 				body->predictIntegratedTransform(timeStep, predictedTrans);
 				body->proceedToTransform( predictedTrans);
@@ -545,7 +545,7 @@ void	btDiscreteDynamicsWorld::predictUnconstraintMotion(float timeStep)
 		btRigidBody* body = btRigidBody::upcast(colObj);
 		if (body)
 		{
-			if (!body->isStaticObject())
+			if (!body->isStaticOrKinematicObject())
 			{
 				if (body->IsActive())
 				{

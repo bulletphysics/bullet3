@@ -38,7 +38,7 @@ int main(int argc,char** argv)
 
 	BasicDemo ccdDemo;
 	ccdDemo.initPhysics();
-	ccdDemo.setCameraDistance(10.f);
+	ccdDemo.setCameraDistance(50.f);
 
 #ifdef CHECK_MEMORY_LEAKS
 	ccdDemo.exitPhysics();

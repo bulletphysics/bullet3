@@ -56,7 +56,6 @@ class btRigidBody  : public btCollisionObject
 	btScalar		m_linearDamping;
 	btScalar		m_angularDamping;
 	
-	btScalar		m_kinematicTimeStep;
 
 	//m_optionalMotionState allows to automatic synchronize the world transform for active objects
 	btMotionState*	m_optionalMotionState;
@@ -148,7 +147,6 @@ public:
 	
   	void applyTorqueImpulse(const btVector3& torque)
 	{
-		if (!isStaticObject()&& !isKinematicObject())
 			m_angularVelocity += m_invInertiaTensorWorld * torque;
 	}
 	

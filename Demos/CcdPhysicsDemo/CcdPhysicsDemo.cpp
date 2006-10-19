@@ -13,10 +13,10 @@ subject to the following restrictions:
 3. This notice may not be removed or altered from any source distribution.
 */
 
-//#define USER_DEFINED_FRICTION_MODEL 1
-//#define PRINT_CONTACT_STATISTICS 1
 //#define USE_KINEMATIC_GROUND 1
+//#define PRINT_CONTACT_STATISTICS 1
 //#define REGISTER_CUSTOM_COLLISION_ALGORITHM 1
+//#define USER_DEFINED_FRICTION_MODEL 1
 
 //following define allows to compare/replace Bullet's constraint solver with ODE quickstep
 //this define requires to either add the libquickstep library (win32, see msvc/8/libquickstep.vcproj) or manually add the files in Extras/quickstep
@@ -134,12 +134,24 @@ void CcdPhysicsDemo::clientMoveAndDisplay()
 {
 	glClear(GL_COLOR_BUFFER_BIT | GL_DEPTH_BUFFER_BIT); 
 
-	
+
 #ifdef USE_KINEMATIC_GROUND
 	//btQuaternion kinRotation(btVector3(0,0,1),0.);
-	btVector3 kinTranslation(0,0,0.01);
+	btVector3 kinTranslation(-0.01,0,0);
 	//kinematic object
-	m_dynamicsWorld->getCollisionObjectArray()[0]->m_worldTransform.getOrigin() += kinTranslation;
+	btCollisionObject* colObj = m_dynamicsWorld->getCollisionObjectArray()[0];
+	//is this a rigidbody with a motionstate? then use the motionstate to update positions!
+	if (btRigidBody::upcast(colObj) && btRigidBody::upcast(colObj)->getMotionState())
+	{
+		btTransform newTrans;
+		btRigidBody::upcast(colObj)->getMotionState()->getWorldTransform(newTrans);
+		newTrans.getOrigin()+=kinTranslation;
+		btRigidBody::upcast(colObj)->getMotionState()->setWorldTransform(newTrans);
+	} else
+	{
+		m_dynamicsWorld->getCollisionObjectArray()[0]->m_worldTransform.getOrigin() += kinTranslation;
+	}
+
 #endif //USE_KINEMATIC_GROUND
 
 	float dt = m_clock.getTimeMilliseconds() * 0.001f;
@@ -247,13 +259,15 @@ void	CcdPhysicsDemo::initPhysics()
 		
 
 #ifdef USER_DEFINED_FRICTION_MODEL
-	btSequentialImpulseConstraintSolver* solver = (btSequentialImpulseConstraintSolver*) m_physicsEnvironmentPtr->GetConstraintSolver();
-	//solver->setContactSolverFunc(ContactSolverFunc func,USER_CONTACT_SOLVER_TYPE1,DEFAULT_CONTACT_SOLVER_TYPE);
-	solver->SetFrictionSolverFunc(myFrictionModel,USER_CONTACT_SOLVER_TYPE1,DEFAULT_CONTACT_SOLVER_TYPE);
-	solver->SetFrictionSolverFunc(myFrictionModel,DEFAULT_CONTACT_SOLVER_TYPE,USER_CONTACT_SOLVER_TYPE1);
-	solver->SetFrictionSolverFunc(myFrictionModel,USER_CONTACT_SOLVER_TYPE1,USER_CONTACT_SOLVER_TYPE1);
-	//m_physicsEnvironmentPtr->setNumIterations(2);
+	{
+		//solver->setContactSolverFunc(ContactSolverFunc func,USER_CONTACT_SOLVER_TYPE1,DEFAULT_CONTACT_SOLVER_TYPE);
+		solver->SetFrictionSolverFunc(myFrictionModel,USER_CONTACT_SOLVER_TYPE1,DEFAULT_CONTACT_SOLVER_TYPE);
+		solver->SetFrictionSolverFunc(myFrictionModel,DEFAULT_CONTACT_SOLVER_TYPE,USER_CONTACT_SOLVER_TYPE1);
+		solver->SetFrictionSolverFunc(myFrictionModel,USER_CONTACT_SOLVER_TYPE1,USER_CONTACT_SOLVER_TYPE1);
+		//m_physicsEnvironmentPtr->setNumIterations(2);
+	}
 #endif //USER_DEFINED_FRICTION_MODEL
+
 
 
 	int i;
@@ -331,7 +345,6 @@ void	CcdPhysicsDemo::initPhysics()
 		{
 			body->m_collisionFlags = btCollisionObject::CF_KINEMATIC_OJBECT;
 			body->SetActivationState(DISABLE_DEACTIVATION);
-			body->setLinearVelocity(btVector3(0,0,1));
 		}
 #endif //USE_KINEMATIC_GROUND
 		
@@ -344,7 +357,7 @@ void	CcdPhysicsDemo::initPhysics()
 
 #ifdef USER_DEFINED_FRICTION_MODEL	
 		///Advanced use: override the friction solver
-		ctrl->getRigidBody()->m_frictionSolverType = USER_CONTACT_SOLVER_TYPE1;
+		body->m_frictionSolverType = USER_CONTACT_SOLVER_TYPE1;
 #endif //USER_DEFINED_FRICTION_MODEL
 
 	}

@@ -92,6 +92,11 @@ struct	btCollisionObject
 		return m_collisionFlags & CF_KINEMATIC_OJBECT;
 	}
 
+	inline bool		isStaticOrKinematicObject() const
+	{
+		return m_collisionFlags & (CF_KINEMATIC_OJBECT | CF_STATIC_OBJECT);
+	}
+
 	inline bool		hasContactResponse() const {
 		return !(m_collisionFlags & CF_NO_CONTACT_RESPONSE);
 	}

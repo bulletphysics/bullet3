@@ -650,10 +650,16 @@ btRigidBody*	DemoApplication::localCreateRigidBody(float mass, const btTransform
 	if (isDynamic)
 		shape->calculateLocalInertia(mass,localInertia);
 
+	//using motionstate is recommended, it provides interpolation capabilities, and only synchronizes 'active' objects
+
+#define USE_MOTIONSTATE 1
+#ifdef USE_MOTIONSTATE
 	btDefaultMotionState* myMotionState = new btDefaultMotionState(startTransform);
 	btRigidBody* body = new btRigidBody(mass,myMotionState,shape,localInertia);
-	body->m_userObjectPointer = myMotionState;
 
+#else
+	btRigidBody* body = new btRigidBody(mass,startTransform,shape,localInertia);	
+#endif//
 	m_dynamicsWorld->addRigidBody(body);
 	
 	return body;
@@ -675,10 +681,11 @@ void DemoApplication::renderme()
 		for (int i=0;i<numObjects;i++)
 		{
 			btCollisionObject* colObj = m_dynamicsWorld->getCollisionObjectArray()[i];
-			
-			if (colObj->m_userObjectPointer)
+			btRigidBody* body = btRigidBody::upcast(colObj);
+
+			if (body && body->getMotionState())
 			{
-				btDefaultMotionState* myMotionState = (btDefaultMotionState*)colObj->m_userObjectPointer;
+				btDefaultMotionState* myMotionState = (btDefaultMotionState*)body->getMotionState();
 				myMotionState->m_graphicsWorldTrans.getOpenGLMatrix(m);
 			} else
 			{
@@ -819,10 +826,10 @@ void	DemoApplication::clientResetScene()
 	for (int i=0;i<numObjects;i++)
 	{
 		btCollisionObject* colObj = m_dynamicsWorld->getCollisionObjectArray()[i];
-		
-		if (colObj->m_userObjectPointer)
+		btRigidBody* body = btRigidBody::upcast(colObj);
+		if (body && body->getMotionState())
 		{
-			btDefaultMotionState* myMotionState = (btDefaultMotionState*)colObj->m_userObjectPointer;
+			btDefaultMotionState* myMotionState = (btDefaultMotionState*)body->getMotionState();
 			myMotionState->m_graphicsWorldTrans = myMotionState->m_startWorldTrans;
 			colObj->m_worldTransform = myMotionState->m_graphicsWorldTrans;
 			colObj->m_interpolationWorldTransform = myMotionState->m_startWorldTrans;

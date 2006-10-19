@@ -545,8 +545,7 @@ void	ColladaConverter::prepareConstraints(ConstraintInput& input)
 					{
 						if (m_rigidBodies[i]->m_userObjectPointer)
 						{
-							btDefaultMotionState* ms = (btDefaultMotionState*)m_rigidBodies[i]->m_userObjectPointer;
-							char* bodyName = (char*)ms->m_userPointer;
+							char* bodyName = (char*)m_rigidBodies[i]->m_userObjectPointer;
 							if (!strcmp(bodyName,orgUri0))
 							{
 								body0=m_rigidBodies[i];
@@ -707,9 +706,8 @@ void	ColladaConverter::PreparePhysicsObject(struct btRigidBodyInput& input, bool
 	btRigidBody* body= createRigidBody(isDynamics,mass,startTransform,colShape);
 	if (body && body->m_userObjectPointer)
 	{
-		//for bodyName lookup in constraints
-		btDefaultMotionState* ms = (btDefaultMotionState*)body->m_userObjectPointer;
-		ms->m_userPointer = (void*)input.m_bodyName;
+		//bodyName is used as identifier for constraints
+		body->m_userObjectPointer = (void*)input.m_bodyName;
 		m_rigidBodies[m_numObjects] = body;
 		m_numObjects++;
 	}
