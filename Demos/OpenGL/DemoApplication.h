@@ -38,7 +38,7 @@ subject to the following restrictions:
 #include "LinearMath/btVector3.h"
 #include "LinearMath/btMatrix3x3.h"
 #include "LinearMath/btTransform.h"
-#include "LinearMath/btQuickProf.h"
+#include "LinearMath/btQuickprof.h"
 
 class	btCollisionShape;
 class	btDynamicsWorld;
