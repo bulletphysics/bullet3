@@ -236,8 +236,9 @@ bool	btCollisionDispatcher::needsResponse(btCollisionObject* body0,btCollisionOb
 	//here you can do filtering
 	bool hasResponse = 
 		(body0->hasContactResponse() && body1->hasContactResponse());
+	//no response between two static/kinematic bodies:
 	hasResponse = hasResponse &&
-		(body0->IsActive() || body1->IsActive());
+		((!body0->isStaticOrKinematicObject()) ||(! body1->isStaticOrKinematicObject()));
 	return hasResponse;
 }
 
