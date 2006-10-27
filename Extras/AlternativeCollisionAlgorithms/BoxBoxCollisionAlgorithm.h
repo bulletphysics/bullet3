@@ -13,42 +13,40 @@ subject to the following restrictions:
 3. This notice may not be removed or altered from any source distribution.
 */
 
-#ifndef SPHERE_SPHERE_COLLISION_ALGORITHM_H
-#define SPHERE_SPHERE_COLLISION_ALGORITHM_H
+#ifndef BOX_BOX__COLLISION_ALGORITHM_H
+#define BOX_BOX__COLLISION_ALGORITHM_H
 
 #include "BulletCollision/BroadphaseCollision/btCollisionAlgorithm.h"
 #include "BulletCollision/BroadphaseCollision/btBroadphaseProxy.h"
 #include "BulletCollision/CollisionDispatch/btCollisionCreateFunc.h"
 class btPersistentManifold;
 
-/// btSphereSphereCollisionAlgorithm  provides sphere-sphere collision detection.
-/// Other features are frame-coherency (persistent data) and collision response.
-/// Also provides the most basic sample for custom/user btCollisionAlgorithm
-class btSphereSphereCollisionAlgorithm : public btCollisionAlgorithm
+///box-box collision detection
+class BoxBoxCollisionAlgorithm : public btCollisionAlgorithm
 {
 	bool	m_ownManifold;
 	btPersistentManifold*	m_manifoldPtr;
 	
 public:
-	btSphereSphereCollisionAlgorithm(const btCollisionAlgorithmConstructionInfo& ci)
+	BoxBoxCollisionAlgorithm(const btCollisionAlgorithmConstructionInfo& ci)
 		: btCollisionAlgorithm(ci) {}
 
-	virtual void processCollision (btBroadphaseProxy* proxy0,btBroadphaseProxy* proxy1,const btDispatcherInfo& dispatchInfo);
+	virtual void processCollision (btCollisionObject* body0,btCollisionObject* body1,const btDispatcherInfo& dispatchInfo,btManifoldResult* resultOut);
 
-	virtual float calculateTimeOfImpact(btBroadphaseProxy* proxy0,btBroadphaseProxy* proxy1,const btDispatcherInfo& dispatchInfo);
+	virtual float calculateTimeOfImpact(btCollisionObject* body0,btCollisionObject* body1,const btDispatcherInfo& dispatchInfo,btManifoldResult* resultOut);
 
-	btSphereSphereCollisionAlgorithm(btPersistentManifold* mf,const btCollisionAlgorithmConstructionInfo& ci,btBroadphaseProxy* proxy0,btBroadphaseProxy* proxy1);
+	BoxBoxCollisionAlgorithm(btPersistentManifold* mf,const btCollisionAlgorithmConstructionInfo& ci,btCollisionObject* body0,btCollisionObject* body1);
 
-	virtual ~btSphereSphereCollisionAlgorithm();
+	virtual ~BoxBoxCollisionAlgorithm();
 
 	struct CreateFunc :public 	btCollisionAlgorithmCreateFunc
 	{
-		virtual	btCollisionAlgorithm* CreateCollisionAlgorithm(btCollisionAlgorithmConstructionInfo& ci, btBroadphaseProxy* proxy0,btBroadphaseProxy* proxy1)
+		virtual	btCollisionAlgorithm* CreateCollisionAlgorithm(btCollisionAlgorithmConstructionInfo& ci, btCollisionObject* body0,btCollisionObject* body1)
 		{
-			return new btSphereSphereCollisionAlgorithm(0,ci,proxy0,proxy1);
+			return new BoxBoxCollisionAlgorithm(0,ci,body0,body1);
 		}
 	};
 
 };
 
-#endif //SPHERE_SPHERE_COLLISION_ALGORITHM_H
+#endif //BOX_BOX__COLLISION_ALGORITHM_H
