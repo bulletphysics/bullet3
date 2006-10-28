@@ -25,7 +25,7 @@ subject to the following restrictions:
 
 #include "btBulletDynamicsCommon.h"
 #include "BulletCollision/CollisionDispatch/btSphereSphereCollisionAlgorithm.h"
-#include "BulletCollision/CollisionDispatch/BoxBoxCollisionAlgorithm.h"
+//#include "../Extras/AlternativeCollisionAlgorithms/BoxBoxCollisionAlgorithm.h"
 #include "BulletCollision/CollisionDispatch/btSphereTriangleCollisionAlgorithm.h"
 
 #ifdef COMPARE_WITH_QUICKSTEP
