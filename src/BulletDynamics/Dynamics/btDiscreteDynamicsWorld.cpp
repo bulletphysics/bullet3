@@ -502,7 +502,28 @@ void	btDiscreteDynamicsWorld::updateAabbs()
 				btPoint3 minAabb,maxAabb;
 				colObj->m_collisionShape->getAabb(colObj->m_worldTransform, minAabb,maxAabb);
 				btSimpleBroadphase* bp = (btSimpleBroadphase*)m_broadphasePairCache;
-				bp->setAabb(body->m_broadphaseHandle,minAabb,maxAabb);
+				if ( colObj->m_collisionShape->isInfinite() || ((maxAabb-minAabb).length2() < 1e12f))
+				{
+					bp->setAabb(body->m_broadphaseHandle,minAabb,maxAabb);
+				} else
+				{
+					//something went wrong, investigate
+					//this assert is unwanted in 3D modelers (danger of loosing work)
+					assert(0);
+					body->SetActivationState(DISABLE_SIMULATION);
+					
+					static bool reportMe = true;
+					if (reportMe)
+					{
+						reportMe = false;
+						printf("Overflow in AABB, object removed from simulation \n");
+						printf("If you can reproduce this, please email bugs@continuousphysics.com\n");
+						printf("Please include above information, your Platform, version of OS.\n");
+						printf("Thanks.\n");
+					}
+
+
+				}
 				if (m_debugDrawer && (m_debugDrawer->getDebugMode() & btIDebugDraw::DBG_DrawAabb))
 				{
 					DrawAabb(m_debugDrawer,minAabb,maxAabb,colorvec);

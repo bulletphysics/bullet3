@@ -172,7 +172,7 @@ void btConvexConvexAlgorithm ::processCollision (btCollisionObject* body0,btColl
 	
 	input.m_transformA = body0->m_worldTransform;
 	input.m_transformB = body1->m_worldTransform;
-    
+	
 	resultOut->setPersistentManifold(m_manifoldPtr);
 	m_gjkPairDetector.getClosestPoints(input,*resultOut,dispatchInfo.m_debugDraw);
 

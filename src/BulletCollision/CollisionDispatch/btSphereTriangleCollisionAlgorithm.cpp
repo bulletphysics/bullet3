@@ -13,25 +13,28 @@ subject to the following restrictions:
 3. This notice may not be removed or altered from any source distribution.
 */
 
-#include "BoxBoxCollisionAlgorithm.h"
-#include "BulletCollision/CollisionDispatch/btCollisionDispatcher.h"
-#include "BulletCollision/CollisionShapes/btBoxShape.h"
-#include "BulletCollision/CollisionDispatch/btCollisionObject.h"
-#include "BoxBoxDetector.h"
 
-BoxBoxCollisionAlgorithm::BoxBoxCollisionAlgorithm(btPersistentManifold* mf,const btCollisionAlgorithmConstructionInfo& ci,btCollisionObject* obj0,btCollisionObject* obj1)
+#include "btSphereTriangleCollisionAlgorithm.h"
+#include "BulletCollision/CollisionDispatch/btCollisionDispatcher.h"
+#include "BulletCollision/CollisionShapes/btSphereShape.h"
+#include "BulletCollision/CollisionDispatch/btCollisionObject.h"
+#include "SphereTriangleDetector.h"
+
+
+btSphereTriangleCollisionAlgorithm::btSphereTriangleCollisionAlgorithm(btPersistentManifold* mf,const btCollisionAlgorithmConstructionInfo& ci,btCollisionObject* col0,btCollisionObject* col1,bool swapped)
 : btCollisionAlgorithm(ci),
 m_ownManifold(false),
-m_manifoldPtr(mf)
+m_manifoldPtr(mf),
+m_swapped(swapped)
 {
-	if (!m_manifoldPtr && m_dispatcher->needsCollision(obj0,obj1))
+	if (!m_manifoldPtr)
 	{
-		m_manifoldPtr = m_dispatcher->getNewManifold(obj0,obj1);
+		m_manifoldPtr = m_dispatcher->getNewManifold(col0,col1);
 		m_ownManifold = true;
 	}
 }
 
-BoxBoxCollisionAlgorithm::~BoxBoxCollisionAlgorithm()
+btSphereTriangleCollisionAlgorithm::~btSphereTriangleCollisionAlgorithm()
 {
 	if (m_ownManifold)
 	{
@@ -40,32 +43,28 @@ BoxBoxCollisionAlgorithm::~BoxBoxCollisionAlgorithm()
 	}
 }
 
-void BoxBoxCollisionAlgorithm::processCollision (btCollisionObject* body0,btCollisionObject* body1,const btDispatcherInfo& dispatchInfo,btManifoldResult* resultOut)
+void btSphereTriangleCollisionAlgorithm::processCollision (btCollisionObject* col0,btCollisionObject* col1,const btDispatcherInfo& dispatchInfo,btManifoldResult* resultOut)
 {
 	if (!m_manifoldPtr)
 		return;
 
-	btCollisionObject*	col0 = body0;
-	btCollisionObject*	col1 = body1;
-	btBoxShape* box0 = (btBoxShape*)col0->m_collisionShape;
-	btBoxShape* box1 = (btBoxShape*)col1->m_collisionShape;
-
-
-
+	btSphereShape* sphere = (btSphereShape*)col0->m_collisionShape;
+	btTriangleShape* triangle = (btTriangleShape*)col1->m_collisionShape;
+	
 	/// report a contact. internally this will be kept persistent, and contact reduction is done
 	resultOut->setPersistentManifold(m_manifoldPtr);
+	SphereTriangleDetector detector(sphere,triangle);
 	
 	btDiscreteCollisionDetectorInterface::ClosestPointInput input;
-	input.m_maximumDistanceSquared = 1e30f;
-	input.m_transformA = body0->m_worldTransform;
-	input.m_transformB = body1->m_worldTransform;
+	input.m_maximumDistanceSquared = 1e30f;//todo: tighter bounds
+	input.m_transformA = col0->m_worldTransform;
+	input.m_transformB = col1->m_worldTransform;
 
-	BoxBoxDetector detector(box0,box1);
 	detector.getClosestPoints(input,*resultOut,dispatchInfo.m_debugDraw);
 
 }
 
-float BoxBoxCollisionAlgorithm::calculateTimeOfImpact(btCollisionObject* body0,btCollisionObject* body1,const btDispatcherInfo& dispatchInfo,btManifoldResult* resultOut)
+float btSphereTriangleCollisionAlgorithm::calculateTimeOfImpact(btCollisionObject* col0,btCollisionObject* col1,const btDispatcherInfo& dispatchInfo,btManifoldResult* resultOut)
 {
 	//not yet
 	return 1.f;

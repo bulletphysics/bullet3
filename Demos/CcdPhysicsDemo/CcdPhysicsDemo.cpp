@@ -19,11 +19,14 @@ subject to the following restrictions:
 //#define USER_DEFINED_FRICTION_MODEL 1
 
 //following define allows to compare/replace Bullet's constraint solver with ODE quickstep
-//this define requires to either add the libquickstep library (win32, see msvc/8/libquickstep.vcproj) or manually add the files in Extras/quickstep
+//this define requires to either add the libquickstep library (win32, see msvc/8/libquickstep.vcproj) or manually add the files from Extras/quickstep
 //#define COMPARE_WITH_QUICKSTEP 1
 
 
 #include "btBulletDynamicsCommon.h"
+#include "BulletCollision/CollisionDispatch/btSphereSphereCollisionAlgorithm.h"
+#include "BulletCollision/CollisionDispatch/BoxBoxCollisionAlgorithm.h"
+#include "BulletCollision/CollisionDispatch/btSphereTriangleCollisionAlgorithm.h"
 
 #ifdef COMPARE_WITH_QUICKSTEP
 #include "../Extras/quickstep/OdeConstraintSolver.h"
@@ -79,7 +82,7 @@ btCollisionShape* shapePtr[numShapes] =
 	///Please don't make the box sizes larger then 1000: the collision detection will be inaccurate.
 	///See http://www.continuousphysics.com/Bullet/phpBB2/viewtopic.php?t=346
 
-//#define USE_GROUND_PLANE 1
+#define USE_GROUND_PLANE 1
 #ifdef USE_GROUND_PLANE
 	new btStaticPlaneShape(btVector3(0,1,0),10),
 #else
@@ -89,9 +92,10 @@ btCollisionShape* shapePtr[numShapes] =
 		new btCylinderShape (btVector3(CUBE_HALF_EXTENTS-gCollisionMargin,CUBE_HALF_EXTENTS-gCollisionMargin,CUBE_HALF_EXTENTS-gCollisionMargin)),
 		//new btCylinderShape (btVector3(1-gCollisionMargin,CUBE_HALF_EXTENTS-gCollisionMargin,1-gCollisionMargin)),
 		//new btBoxShape (btVector3(CUBE_HALF_EXTENTS,CUBE_HALF_EXTENTS,CUBE_HALF_EXTENTS)),
-		new btSphereShape (CUBE_HALF_EXTENTS- 0.05f),
-
-		//new btConeShape(CUBE_HALF_EXTENTS,2.f*CUBE_HALF_EXTENTS),
+		//new btConeShape(CUBE_HALF_EXTENTS-gCollisionMargin,2.f*CUBE_HALF_EXTENTS-gCollisionMargin),
+		
+		new btSphereShape (CUBE_HALF_EXTENTS),
+		
 		//new btBU_Simplex1to4(btPoint3(-1,-1,-1),btPoint3(1,-1,-1),btPoint3(-1,1,-1),btPoint3(0,0,1)),
 
 		//new btEmptyShape(),
@@ -242,6 +246,8 @@ void	CcdPhysicsDemo::initPhysics()
 	
 #ifdef REGISTER_CUSTOM_COLLISION_ALGORITHM
 	dispatcher->registerCollisionCreateFunc(SPHERE_SHAPE_PROXYTYPE,SPHERE_SHAPE_PROXYTYPE,new btSphereSphereCollisionAlgorithm::CreateFunc);
+	dispatcher->registerCollisionCreateFunc(BOX_SHAPE_PROXYTYPE,BOX_SHAPE_PROXYTYPE,new BoxBoxCollisionAlgorithm::CreateFunc);
+	dispatcher->registerCollisionCreateFunc(SPHERE_SHAPE_PROXYTYPE,TRIANGLE_SHAPE_PROXYTYPE,new btSphereTriangleCollisionAlgorithm::CreateFunc);
 #endif //REGISTER_CUSTOM_COLLISION_ALGORITHM
 
 #ifdef COMPARE_WITH_QUICKSTEP

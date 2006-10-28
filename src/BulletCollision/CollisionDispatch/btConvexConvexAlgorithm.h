@@ -54,13 +54,6 @@ public:
 
 	void	setLowLevelOfDetail(bool useLowLevel);
 
-	virtual void setShapeIdentifiers(int partId0,int index0,	int partId1,int index1)
-	{
-			m_gjkPairDetector.m_partId0=partId0;
-			m_gjkPairDetector.m_partId1=partId1;
-			m_gjkPairDetector.m_index0=index0;
-			m_gjkPairDetector.m_index1=index1;		
-	}
 
 	const btPersistentManifold*	getManifold()
 	{
@@ -71,7 +64,7 @@ public:
 	{
 		virtual	btCollisionAlgorithm* CreateCollisionAlgorithm(btCollisionAlgorithmConstructionInfo& ci, btCollisionObject* body0,btCollisionObject* body1)
 		{
-			return new btConvexConvexAlgorithm(0,ci,body0,body1);
+			return new btConvexConvexAlgorithm(ci.m_manifold,ci,body0,body1);
 		}
 	};
 

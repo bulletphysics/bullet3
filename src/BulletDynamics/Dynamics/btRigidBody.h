@@ -158,6 +158,16 @@ public:
 			applyTorqueImpulse(rel_pos.cross(impulse));
 		}
 	}
+
+	//Optimization for the iterative solver: avoid calculating constant terms involving inertia, normal, relative position
+	inline void internalApplyImpulse(const btVector3& linearComponent, const btVector3& angularComponent,float impulseMagnitude)
+	{
+		if (m_inverseMass != 0.f)
+		{
+			m_linearVelocity += linearComponent*impulseMagnitude;
+			m_angularVelocity += angularComponent*impulseMagnitude;
+		}
+	}
 	
 	void clearForces() 
 	{

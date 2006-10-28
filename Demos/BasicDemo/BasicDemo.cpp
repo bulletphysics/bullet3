@@ -15,7 +15,7 @@ subject to the following restrictions:
 
 
 //#define USE_GROUND_BOX 1
-#define PRINT_CONTACT_STATISTICS 1
+//#define PRINT_CONTACT_STATISTICS 1
 //#define CHECK_MEMORY_LEAKS 1
 
 int gNumObjects = 120;
@@ -120,13 +120,12 @@ void	BasicDemo::initPhysics()
 	m_sphereSphereCF = new btSphereSphereCollisionAlgorithm::CreateFunc;
 	m_dispatcher->registerCollisionCreateFunc(SPHERE_SHAPE_PROXYTYPE,SPHERE_SHAPE_PROXYTYPE,m_sphereSphereCF);
 
-#ifdef USE_GROUND_BOX
+
 	m_sphereBoxCF = new btSphereBoxCollisionAlgorithm::CreateFunc;
 	m_boxSphereCF = new btSphereBoxCollisionAlgorithm::CreateFunc;
 	m_boxSphereCF->m_swapped = true;
 	m_dispatcher->registerCollisionCreateFunc(SPHERE_SHAPE_PROXYTYPE,BOX_SHAPE_PROXYTYPE,m_sphereBoxCF);
 	m_dispatcher->registerCollisionCreateFunc(BOX_SHAPE_PROXYTYPE,SPHERE_SHAPE_PROXYTYPE,m_boxSphereCF);
-#endif //USE_GROUND_BOX
 
 	m_solver = new btSequentialImpulseConstraintSolver;
 
@@ -207,10 +206,10 @@ void	BasicDemo::exitPhysics()
 	//delete collision algorithms creation functions
 	delete m_sphereSphereCF;
 	
-#ifdef USE_GROUND_BOX
+
 	delete m_sphereBoxCF;
 	delete m_boxSphereCF;
-#endif// USE_GROUND_BOX
+
 	//delete solver
 	delete m_solver;
 
