@@ -53,7 +53,7 @@
 #include <OpenGL/gl.h>
 #include <OpenGL/glu.h>
 #include <GLUT/glut.h>
-#define GLVOIDPTR GLvoid(*)(...)
+#define GLVOIDPTR GLvoid(*)()
 #else
 #include <GL/glut.h>
 #include <GL/glext.h>
