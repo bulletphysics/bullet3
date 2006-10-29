@@ -172,6 +172,9 @@
 				RelativePath="..\..\src\LinearMath\btAabbUtil2.h">
 			</File>
 			<File
+				RelativePath="..\..\src\LinearMath\btDefaultMotionState.h">
+			</File>
+			<File
 				RelativePath="..\..\src\LinearMath\btIDebugDraw.h">
 			</File>
 			<File

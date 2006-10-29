@@ -172,7 +172,15 @@ SOURCE=..\..\src\BulletCollision\CollisionDispatch\btSphereSphereCollisionAlgori
 # End Source File
 # Begin Source File
 
+SOURCE=..\..\src\BulletCollision\CollisionDispatch\btSphereTriangleCollisionAlgorithm.cpp
+# End Source File
+# Begin Source File
+
 SOURCE=..\..\src\BulletCollision\CollisionDispatch\btUnionFind.cpp
+# End Source File
+# Begin Source File
+
+SOURCE=..\..\src\BulletCollision\CollisionDispatch\SphereTriangleDetector.cpp
 # End Source File
 # Begin Source File
 
@@ -384,7 +392,15 @@ SOURCE=..\..\src\BulletCollision\CollisionDispatch\btSphereSphereCollisionAlgori
 # End Source File
 # Begin Source File
 
+SOURCE=..\..\src\BulletCollision\CollisionDispatch\btSphereTriangleCollisionAlgorithm.h
+# End Source File
+# Begin Source File
+
 SOURCE=..\..\src\BulletCollision\CollisionDispatch\btUnionFind.h
+# End Source File
+# Begin Source File
+
+SOURCE=..\..\src\BulletCollision\CollisionDispatch\SphereTriangleDetector.h
 # End Source File
 # Begin Source File
 

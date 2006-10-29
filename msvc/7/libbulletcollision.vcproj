@@ -213,7 +213,13 @@
 				RelativePath="..\..\src\BulletCollision\CollisionDispatch\btSphereSphereCollisionAlgorithm.cpp">
 			</File>
 			<File
+				RelativePath="..\..\src\BulletCollision\CollisionDispatch\btSphereTriangleCollisionAlgorithm.cpp">
+			</File>
+			<File
 				RelativePath="..\..\src\BulletCollision\CollisionDispatch\btUnionFind.cpp">
+			</File>
+			<File
+				RelativePath="..\..\src\BulletCollision\CollisionDispatch\SphereTriangleDetector.cpp">
 			</File>
 			<File
 				RelativePath="..\..\src\BulletCollision\CollisionShapes\btBoxShape.cpp">
@@ -373,7 +379,13 @@
 				RelativePath="..\..\src\BulletCollision\CollisionDispatch\btSphereSphereCollisionAlgorithm.h">
 			</File>
 			<File
+				RelativePath="..\..\src\BulletCollision\CollisionDispatch\btSphereTriangleCollisionAlgorithm.h">
+			</File>
+			<File
 				RelativePath="..\..\src\BulletCollision\CollisionDispatch\btUnionFind.h">
+			</File>
+			<File
+				RelativePath="..\..\src\BulletCollision\CollisionDispatch\SphereTriangleDetector.h">
 			</File>
 			<File
 				RelativePath="..\..\src\BulletCollision\CollisionShapes\btBoxShape.h">

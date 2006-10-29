@@ -116,6 +116,10 @@ SOURCE=..\..\src\LinearMath\btAabbUtil2.h
 # End Source File
 # Begin Source File
 
+SOURCE=..\..\src\LinearMath\btDefaultMotionState.h
+# End Source File
+# Begin Source File
+
 SOURCE=..\..\src\LinearMath\btIDebugDraw.h
 # End Source File
 # Begin Source File

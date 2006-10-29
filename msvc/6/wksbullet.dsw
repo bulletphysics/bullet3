@@ -60,6 +60,39 @@ Package=<4>
 
 ###############################################################################
 
+Project: "appBulletDino"=.\appBulletDino.dsp - Package Owner=<4>
+
+Package=<5>
+{{{
+}}}
+
+Package=<4>
+{{{
+    Begin Project Dependency
+    Project_Dep_Name libbulletcollision
+    End Project Dependency
+    Begin Project Dependency
+    Project_Dep_Name libbulletdynamics
+    End Project Dependency
+    Begin Project Dependency
+    Project_Dep_Name libbulletmath
+    End Project Dependency
+    Begin Project Dependency
+    Project_Dep_Name libbulletopenglsupport
+    End Project Dependency
+    Begin Project Dependency
+    Project_Dep_Name libcolladadom
+    End Project Dependency
+    Begin Project Dependency
+    Project_Dep_Name libconvexdecomposition
+    End Project Dependency
+    Begin Project Dependency
+    Project_Dep_Name liblibxml
+    End Project Dependency
+}}}
+
+###############################################################################
+
 Project: "appCcdPhysicsDemo"=.\appCcdPhysicsDemo.dsp - Package Owner=<4>
 
 Package=<5>
@@ -378,6 +411,30 @@ Package=<4>
 
 ###############################################################################
 
+Project: "appVehicleDemo"=.\appVehicleDemo.dsp - Package Owner=<4>
+
+Package=<5>
+{{{
+}}}
+
+Package=<4>
+{{{
+    Begin Project Dependency
+    Project_Dep_Name libbulletcollision
+    End Project Dependency
+    Begin Project Dependency
+    Project_Dep_Name libbulletdynamics
+    End Project Dependency
+    Begin Project Dependency
+    Project_Dep_Name libbulletmath
+    End Project Dependency
+    Begin Project Dependency
+    Project_Dep_Name libbulletopenglsupport
+    End Project Dependency
+}}}
+
+###############################################################################
+
 Project: "grpall_bullet"=.\grpall_bullet.dsp - Package Owner=<4>
 
 Package=<5>
@@ -391,6 +448,9 @@ Package=<4>
     End Project Dependency
     Begin Project Dependency
     Project_Dep_Name appBspDemo
+    End Project Dependency
+    Begin Project Dependency
+    Project_Dep_Name appBulletDino
     End Project Dependency
     Begin Project Dependency
     Project_Dep_Name appCcdPhysicsDemo
@@ -430,6 +490,9 @@ Package=<4>
     End Project Dependency
     Begin Project Dependency
     Project_Dep_Name appUserCollisionAlgorithm
+    End Project Dependency
+    Begin Project Dependency
+    Project_Dep_Name appVehicleDemo
     End Project Dependency
     Begin Project Dependency
     Project_Dep_Name libbulletcollision
@@ -471,6 +534,9 @@ Package=<4>
     Project_Dep_Name appBspDemo
     End Project Dependency
     Begin Project Dependency
+    Project_Dep_Name appBulletDino
+    End Project Dependency
+    Begin Project Dependency
     Project_Dep_Name appCcdPhysicsDemo
     End Project Dependency
     Begin Project Dependency
@@ -508,6 +574,9 @@ Package=<4>
     End Project Dependency
     Begin Project Dependency
     Project_Dep_Name appUserCollisionAlgorithm
+    End Project Dependency
+    Begin Project Dependency
+    Project_Dep_Name appVehicleDemo
     End Project Dependency
 }}}
 
