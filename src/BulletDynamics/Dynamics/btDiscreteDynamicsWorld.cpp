@@ -390,7 +390,7 @@ void	btDiscreteDynamicsWorld::solveNoncontactConstraints(btContactSolverInfo& so
 	BEGIN_PROFILE("solveNoncontactConstraints");
 
 	int i;
-	int numConstraints = m_constraints.size();
+	int numConstraints = int(m_constraints.size());
 
 	///constraint preparation: building jacobians
 	for (i=0;i< numConstraints ; i++ )
@@ -424,7 +424,7 @@ void	btDiscreteDynamicsWorld::calculateSimulationIslands()
 
 	{
 		int i;
-		int numConstraints = m_constraints.size();
+		int numConstraints = int(m_constraints.size());
 		for (i=0;i< numConstraints ; i++ )
 		{
 			btTypedConstraint* constraint = m_constraints[i];
@@ -691,10 +691,10 @@ void btDiscreteDynamicsWorld::debugDrawObject(const btTransform& worldTransform,
 				float radius = coneShape->getRadius();//+coneShape->getMargin();
 				float height = coneShape->getHeight();//+coneShape->getMargin();
 				btVector3 start = worldTransform.getOrigin();
-				getDebugDrawer()->drawLine(start+worldTransform.getBasis() * btVector3(0,0,0.5*height),start+worldTransform.getBasis() * btVector3(radius,0,-0.5*height),color);
-				getDebugDrawer()->drawLine(start+worldTransform.getBasis() * btVector3(0,0,0.5*height),start+worldTransform.getBasis() * btVector3(-radius,0,-0.5*height),color);
-				getDebugDrawer()->drawLine(start+worldTransform.getBasis() * btVector3(0,0,0.5*height),start+worldTransform.getBasis() * btVector3(0,radius,-0.5*height),color);
-				getDebugDrawer()->drawLine(start+worldTransform.getBasis() * btVector3(0,0,0.5*height),start+worldTransform.getBasis() * btVector3(0,-radius,-0.5*height),color);
+				getDebugDrawer()->drawLine(start+worldTransform.getBasis() * btVector3(0.f,0.f,0.5f*height),start+worldTransform.getBasis() * btVector3(radius,0.f,-0.5f*height),color);
+				getDebugDrawer()->drawLine(start+worldTransform.getBasis() * btVector3(0.f,0.f,0.5f*height),start+worldTransform.getBasis() * btVector3(-radius,0.f,-0.5f*height),color);
+				getDebugDrawer()->drawLine(start+worldTransform.getBasis() * btVector3(0.f,0.f,0.5f*height),start+worldTransform.getBasis() * btVector3(0.f,radius,-0.5f*height),color);
+				getDebugDrawer()->drawLine(start+worldTransform.getBasis() * btVector3(0.f,0.f,0.5f*height),start+worldTransform.getBasis() * btVector3(0.f,-radius,-0.5f*height),color);
 				break;
 
 			}

@@ -78,7 +78,7 @@ public:
 
 	int	getNumManifolds() const
 	{ 
-		return m_manifoldsPtr.size();
+		return int( m_manifoldsPtr.size());
 	}
 
 	btPersistentManifold**	getInternalManifoldPointer()

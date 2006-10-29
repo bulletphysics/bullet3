@@ -15,6 +15,10 @@ subject to the following restrictions:
 #ifndef VEHICLE_DEMO_H
 #define VEHICLE_DEMO_H
 
+class btVehicleTuning;
+struct btVehicleRaycaster;
+#include "BulletDynamics/Vehicle/btRaycastVehicle.h"
+
 #include "DemoApplication.h"
 
 ///VehicleDemo shows how to setup and use the built-in raycast vehicle
@@ -22,8 +26,12 @@ class VehicleDemo : public DemoApplication
 {
 	public:
 
-	CcdPhysicsController* m_carChassis;
+	btRigidBody* m_carChassis;
 	
+	btRaycastVehicle::btVehicleTuning	m_tuning;
+	btVehicleRaycaster*	m_vehicleRayCaster;
+	btRaycastVehicle*	m_vehicle;
+
 	float		m_cameraHeight;
 
 	float	m_minCameraDistance;

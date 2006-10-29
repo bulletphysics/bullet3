@@ -79,26 +79,26 @@ struct	btCollisionObject
 	inline bool mergesSimulationIslands() const
 	{
 		///static objects, kinematic and object without contact response don't merge islands
-		return  !(m_collisionFlags & (CF_STATIC_OBJECT | CF_KINEMATIC_OJBECT | CF_NO_CONTACT_RESPONSE) );
+		return  ((m_collisionFlags & (CF_STATIC_OBJECT | CF_KINEMATIC_OJBECT | CF_NO_CONTACT_RESPONSE) )==0);
 	}
 
 
 	inline bool		isStaticObject() const {
-		return m_collisionFlags & CF_STATIC_OBJECT;
+		return (m_collisionFlags & CF_STATIC_OBJECT) != 0;
 	}
 
 	inline bool		isKinematicObject() const
 	{
-		return m_collisionFlags & CF_KINEMATIC_OJBECT;
+		return (m_collisionFlags & CF_KINEMATIC_OJBECT) != 0;
 	}
 
 	inline bool		isStaticOrKinematicObject() const
 	{
-		return m_collisionFlags & (CF_KINEMATIC_OJBECT | CF_STATIC_OBJECT);
+		return (m_collisionFlags & (CF_KINEMATIC_OJBECT | CF_STATIC_OBJECT)) != 0 ;
 	}
 
 	inline bool		hasContactResponse() const {
-		return !(m_collisionFlags & CF_NO_CONTACT_RESPONSE);
+		return (m_collisionFlags & CF_NO_CONTACT_RESPONSE)==0;
 	}
 
 	
