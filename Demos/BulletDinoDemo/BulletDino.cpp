@@ -38,12 +38,8 @@
 #include <stdlib.h>
 #include <string.h>
 #include <math.h>       /* for cos(), sin(), and sqrt() */
-#include <GL/glut.h>    /* OpenGL Utility Toolkit header */
-#include <GL/glext.h>
-
-/* Some <math.h> files do not define M_PI... */
-#ifndef M_PI
-#define M_PI 3.14159265
+#ifdef WIN32//for glut.h
+#include <windows.h>
 #endif
 
 #ifndef WIN32
@@ -51,6 +47,24 @@
 #define CALLBACK
 #endif
 #endif
+
+//think different
+#if defined(__APPLE__) && !defined (VMDMESA)
+#include <OpenGL/gl.h>
+#include <OpenGL/glu.h>
+#include <GLUT/glut.h>
+#define GLVOIDPTR GLvoid(*)(...)
+#else
+#include <GL/glut.h>
+#include <GL/glext.h>
+#define GLVOIDPTR void(CALLBACK*)()
+#endif
+
+/* Some <math.h> files do not define M_PI... */
+#ifndef M_PI
+#define M_PI 3.14159265
+#endif
+
 
 /* Variable controlling various rendering modes. */
 static int stencilReflection = 1, stencilShadow = 1, offsetShadow = 1;
@@ -237,9 +251,9 @@ extrudeSolidFromPolygon(GLfloat data[][2], unsigned int dataSize,
   if (tobj == NULL) {
     tobj = gluNewTess();  /* create and initialize a GLU
                              polygon * * tesselation object */
-    gluTessCallback(tobj, (GLenum)GLU_BEGIN, (void(CALLBACK*)())glBegin);
-    gluTessCallback(tobj, (GLenum)GLU_VERTEX, (void(CALLBACK*)())glVertex2fv);  /* semi-tricky */
-    gluTessCallback(tobj, (GLenum)GLU_END, (void(CALLBACK*)())glEnd);
+    gluTessCallback(tobj, (GLenum)GLU_BEGIN, (GLVOIDPTR)glBegin);
+    gluTessCallback(tobj, (GLenum)GLU_VERTEX, (GLVOIDPTR)glVertex2fv);  /* semi-tricky */
+    gluTessCallback(tobj, (GLenum)GLU_END, (GLVOIDPTR)glEnd);
   }
   glNewList(side, GL_COMPILE);
   glShadeModel(GL_SMOOTH);  /* smooth minimizes seeing
@@ -781,6 +795,7 @@ main(int argc, char **argv)
 {
   int i;
 
+printf("BulletDino\n");
   glutInit(&argc, argv);
 
   for (i=1; i<argc; i++) {
