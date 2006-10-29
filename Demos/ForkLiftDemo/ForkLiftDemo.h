@@ -15,14 +15,18 @@ subject to the following restrictions:
 #ifndef FORKLIFT_DEMO_H
 #define FORKLIFT_DEMO_H
 
+class btVehicleTuning;
+struct btVehicleRaycaster;
+#include "BulletDynamics/Vehicle/btRaycastVehicle.h"
+
 #include "DemoApplication.h"
 
-///ForkLiftDemo shows how to use constraint for a  cylinder-wheels vehicle
+///ForkLiftDemo shows how to setup and use the built-in raycast vehicle
 class ForkLiftDemo : public DemoApplication
 {
 	public:
 
-	CcdPhysicsController* m_carChassis;
+	btRigidBody* m_carChassis;
 	
 	float		m_cameraHeight;
 
@@ -34,7 +38,6 @@ class ForkLiftDemo : public DemoApplication
 
 	virtual void clientMoveAndDisplay();
 
-	virtual void	clientResetScene();
 
 	virtual void displayCallback();
 	
@@ -49,4 +52,5 @@ class ForkLiftDemo : public DemoApplication
 };
 
 #endif //FORKLIFT_DEMO_H
+
 

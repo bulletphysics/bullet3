@@ -31,13 +31,9 @@ subject to the following restrictions:
 const int maxProxies = 32766;
 const int maxOverlap = 65535;
 
-
-btDefaultMotionState wheelMotionState[4];
-
-///PHY_IVehicle is the interface behind the constraint that implements the raycast vehicle (WrapperVehicle which holds a btRaycastVehicle)
+///btRaycastVehicle is the interface for the constraint that implements the raycast vehicle
 ///notice that for higher-quality slow-moving vehicles, another approach might be better
 ///implementing explicit hinged-wheel constraints with cylinder collision, rather then raycasts
-//PHY_IVehicle* gVehicleConstraint=0;
 float	gEngineForce = 0.f;
 float	maxEngineForce = 100.f;
 float	gVehicleSteering = 0.f;

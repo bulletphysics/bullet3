@@ -13,31 +13,15 @@ subject to the following restrictions:
 3. This notice may not be removed or altered from any source distribution.
 */
 
-//Ignore this USE_PARALLEL_DISPATCHER define, it is for future optimizations
-//#define USE_PARALLEL_DISPATCHER 1
 
 /// September 2006: ForkLiftDemo is work in progress, this file is mostly just a placeholder
 /// This ForkLiftDemo file is very early in development, please check it later
 
-#include "CcdPhysicsEnvironment.h"
-#include "ParallelPhysicsEnvironment.h"
-
-#include "CcdPhysicsController.h"
 #include "btBulletDynamicsCommon.h"
 
-#include "PHY_IVehicle.h"
-#include "ParallelIslandDispatcher.h"
-#include "LinearMath/btQuickprof.h"
-#include "LinearMath/btIDebugDraw.h"
 
 #include "GLDebugDrawer.h"
-
-#include "PHY_Pro.h"
-#include "BMF_Api.h"
 #include <stdio.h> //printf debugging
-
-float deltaTime = 1.f/60.f;
-
 
 #include "GL_ShapeDrawer.h"
 
@@ -48,14 +32,9 @@ const int maxProxies = 32766;
 const int maxOverlap = 65535;
 
 
-DefaultMotionState wheelMotionState[4];
 
-///PHY_IVehicle is the interface behind the constraint that implements the raycast vehicle (WrapperVehicle which holds a btRaycastVehicle)
-///notice that for higher-quality slow-moving vehicles, another approach might be better
-///implementing explicit hinged-wheel constraints with cylinder collision, rather then raycasts
-PHY_IVehicle* gVehicleConstraint=0;
 float	gEngineForce = 0.f;
-float	maxEngineForce = 1000.f;
+float	maxEngineForce = 100.f;
 float	gVehicleSteering = 0.f;
 float	steeringIncrement = 0.1f;
 float	steeringClamp = 0.3f;
@@ -103,32 +82,15 @@ m_maxCameraDistance(10.f)
 void ForkLiftDemo::setupPhysics()
 {
 
-	btCollisionDispatcher* dispatcher = new	btCollisionDispatcher();
-	//ParallelIslandDispatcher* dispatcher2 = new	ParallelIslandDispatcher();
-	
-	btVector3 worldAabbMin(-30000,-30000,-30000);
-	btVector3 worldAabbMax(30000,30000,30000);
 
-	btOverlappingPairCache* broadphase = new btAxisSweep3(worldAabbMin,worldAabbMax,maxProxies);
-	//OverlappingPairCache* broadphase = new btSimpleBroadphase(maxProxies,maxOverlap);
-
-#ifdef USE_PARALLEL_DISPATCHER
-	m_physicsEnvironmentPtr = new ParallelPhysicsEnvironment(dispatcher2,broadphase);
-#else
-	m_physicsEnvironmentPtr = new CcdPhysicsEnvironment(dispatcher,broadphase);
-#endif
-	m_physicsEnvironmentPtr->setDeactivationTime(2.f);
-
-	m_physicsEnvironmentPtr->setDebugDrawer(&debugDrawer);
-
-	m_physicsEnvironmentPtr->setGravity(0,-10,0);//0,0);//-10,0);
-	int i;
 
 	btCollisionShape* groundShape = new btBoxShape(btVector3(50,3,50));
+	m_dynamicsWorld = new btDiscreteDynamicsWorld();
+
 
 #define  USE_TRIMESH_GROUND 1
 #ifdef USE_TRIMESH_GROUND
-
+	int i;
 
 const float TRIANGLE_SIZE=20.f;
 
@@ -151,7 +113,7 @@ const float TRIANGLE_SIZE=20.f;
 	{
 		for (int j=0;j<NUM_VERTS_Y;j++)
 		{
-			gVertices[i+j*NUM_VERTS_X].setValue((i-NUM_VERTS_X*0.5f)*TRIANGLE_SIZE,2.f*sinf((float)i)*cosf((float)j)+10.f,(j-NUM_VERTS_Y*0.5f)*TRIANGLE_SIZE);
+			gVertices[i+j*NUM_VERTS_X].setValue((i-NUM_VERTS_X*0.5f)*TRIANGLE_SIZE,2.f*sinf((float)i)*cosf((float)j),(j-NUM_VERTS_Y*0.5f)*TRIANGLE_SIZE);
 		}
 	}
 
@@ -182,86 +144,32 @@ const float TRIANGLE_SIZE=20.f;
 	btTransform tr;
 	tr.setIdentity();
 
-	tr.setOrigin(btVector3(0,-20.f,0));
+	tr.setOrigin(btVector3(0,-4.5f,0));
 
 	//create ground object
-	localCreatePhysicsObject(false,0,tr,groundShape);
+	localCreateRigidBody(0,tr,groundShape);
 
 	btCollisionShape* chassisShape = new btBoxShape(btVector3(1.f,0.5f,2.f));
 	tr.setOrigin(btVector3(0,0.f,0));
 
-	m_carChassis = localCreatePhysicsObject(true,800,tr,chassisShape);
+	m_carChassis = localCreateRigidBody(800,tr,chassisShape);
 	
 	clientResetScene();
 
-	m_physicsEnvironmentPtr->SyncMotionStates(0.f);
-
 	/// create vehicle
 	{
-		int constraintId;
-
-		constraintId =m_physicsEnvironmentPtr->createConstraint(
-		m_carChassis,0,
-			PHY_VEHICLE_CONSTRAINT,
-			0,0,0,
-			0,0,0);
-
-		///never deactivate the vehicle
-		m_carChassis->getRigidBody()->SetActivationState(DISABLE_DEACTIVATION);
 		
-		gVehicleConstraint = m_physicsEnvironmentPtr->getVehicleConstraint(constraintId);
+		///never deactivate the vehicle
+		m_carChassis->SetActivationState(DISABLE_DEACTIVATION);
 
 		btVector3 connectionPointCS0(CUBE_HALF_EXTENTS-(0.3*wheelWidth),0,2*CUBE_HALF_EXTENTS-wheelRadius);
-		btRaycastVehicle::btVehicleTuning tuning;
-		bool isFrontWheel=true;
-		int rightIndex = 0;
-		int upIndex = 1;
-		int forwardIndex = 2;
-
-		gVehicleConstraint->setCoordinateSystem(rightIndex,upIndex,forwardIndex);
-
-		gVehicleConstraint->addWheel(&wheelMotionState[0],
-			(PHY__Vector3&)connectionPointCS0,
-			(PHY__Vector3&)wheelDirectionCS0,(PHY__Vector3&)wheelAxleCS,suspensionRestLength,wheelRadius,isFrontWheel);
-
+	//	m_vehicle->addWheel(connectionPointCS0,wheelDirectionCS0,wheelAxleCS,suspensionRestLength,wheelRadius,m_tuning,isFrontWheel);
 		connectionPointCS0 = btVector3(-CUBE_HALF_EXTENTS+(0.3*wheelWidth),0,2*CUBE_HALF_EXTENTS-wheelRadius);
-		gVehicleConstraint->addWheel(&wheelMotionState[1],
-			(PHY__Vector3&)connectionPointCS0,
-			(PHY__Vector3&)wheelDirectionCS0,(PHY__Vector3&)wheelAxleCS,suspensionRestLength,wheelRadius,isFrontWheel);
-
+	//	m_vehicle->addWheel(connectionPointCS0,wheelDirectionCS0,wheelAxleCS,suspensionRestLength,wheelRadius,m_tuning,isFrontWheel);
 		connectionPointCS0 = btVector3(-CUBE_HALF_EXTENTS+(0.3*wheelWidth),0,-2*CUBE_HALF_EXTENTS+wheelRadius);
-		isFrontWheel = false;
-		gVehicleConstraint->addWheel(&wheelMotionState[2],
-			(PHY__Vector3&)connectionPointCS0,
-			(PHY__Vector3&)wheelDirectionCS0,(PHY__Vector3&)wheelAxleCS,suspensionRestLength,wheelRadius,isFrontWheel);
-		
+	//	m_vehicle->addWheel(connectionPointCS0,wheelDirectionCS0,wheelAxleCS,suspensionRestLength,wheelRadius,m_tuning,isFrontWheel);
 		connectionPointCS0 = btVector3(CUBE_HALF_EXTENTS-(0.3*wheelWidth),0,-2*CUBE_HALF_EXTENTS+wheelRadius);
-		gVehicleConstraint->addWheel(&wheelMotionState[3],
-			(PHY__Vector3&)connectionPointCS0,
-			(PHY__Vector3&)wheelDirectionCS0,(PHY__Vector3&)wheelAxleCS,suspensionRestLength,wheelRadius,isFrontWheel);
-		
-	
-
-		gVehicleConstraint->SetSuspensionStiffness(suspensionStiffness,0);
-		gVehicleConstraint->SetSuspensionStiffness(suspensionStiffness,1);
-		gVehicleConstraint->SetSuspensionStiffness(suspensionStiffness,2);
-		gVehicleConstraint->SetSuspensionStiffness(suspensionStiffness,3);
-		
-		gVehicleConstraint->SetSuspensionDamping(suspensionDamping,0);
-		gVehicleConstraint->SetSuspensionDamping(suspensionDamping,1);
-		gVehicleConstraint->SetSuspensionDamping(suspensionDamping,2);
-		gVehicleConstraint->SetSuspensionDamping(suspensionDamping,3);
-		
-		gVehicleConstraint->SetSuspensionCompression(suspensionCompression,0);
-		gVehicleConstraint->SetSuspensionCompression(suspensionCompression,1);
-		gVehicleConstraint->SetSuspensionCompression(suspensionCompression,2);
-		gVehicleConstraint->SetSuspensionCompression(suspensionCompression,3);
-
-		gVehicleConstraint->SetWheelFriction(wheelFriction,0);
-		gVehicleConstraint->SetWheelFriction(wheelFriction,1);
-		gVehicleConstraint->SetWheelFriction(wheelFriction,2);
-		gVehicleConstraint->SetWheelFriction(wheelFriction,3);
-
+	//	m_vehicle->addWheel(connectionPointCS0,wheelDirectionCS0,wheelAxleCS,suspensionRestLength,wheelRadius,m_tuning,isFrontWheel);
 		
 	}
 
@@ -274,21 +182,12 @@ const float TRIANGLE_SIZE=20.f;
 //to be implemented by the demo
 void ForkLiftDemo::renderme()
 {
+	
 	updateCamera();
 
 	debugDrawer.setDebugMode(getDebugMode());
 	float m[16];
 	int i;
-
-	btCylinderShapeX wheelShape(btVector3(wheelWidth,wheelRadius,wheelRadius));
-	btVector3 wheelColor(1,0,0);
-
-	for (i=0;i<4;i++)
-	{
-		//draw wheels (cylinders)
-		wheelMotionState[i].m_worldTransform.getOpenGLMatrix(m);
-		GL_ShapeDrawer::drawOpenGL(m,&wheelShape,wheelColor,getDebugMode());
-	}
 
 	DemoApplication::renderme();
 
@@ -296,23 +195,35 @@ void ForkLiftDemo::renderme()
 
 void ForkLiftDemo::clientMoveAndDisplay()
 {
+
 	glClear(GL_COLOR_BUFFER_BIT | GL_DEPTH_BUFFER_BIT); 
 
+	float dt = m_clock.getTimeMilliseconds() * 0.001f;
+	m_clock.reset();
+		
+	if (m_dynamicsWorld)
+	{
+		//during idle mode, just run 1 simulation step maximum
+		int maxSimSubSteps = m_idle ? 1 : 1;
+		if (m_idle)
+			dt = 1.0/420.f;
 
-{			
-		int steerWheelIndex = 2;
-		gVehicleConstraint->applyEngineForce(gEngineForce,steerWheelIndex);
-		steerWheelIndex = 3;
-		gVehicleConstraint->applyEngineForce(gEngineForce,steerWheelIndex);
-
-		steerWheelIndex = 0;
-		gVehicleConstraint->setSteeringValue(gVehicleSteering,steerWheelIndex);
-		steerWheelIndex = 1;
-		gVehicleConstraint->setSteeringValue(gVehicleSteering,steerWheelIndex);
+		int numSimSteps = m_dynamicsWorld->stepSimulation(dt,maxSimSubSteps);
+		if (!numSimSteps)
+			printf("Interpolated transforms\n");
+		else
+		{
+			if (numSimSteps > maxSimSubSteps)
+			{
+				//detect dropping frames
+				printf("Dropped (%i) simulation steps out of %i\n",numSimSteps - maxSimSubSteps,numSimSteps);
+			} else
+			{
+				printf("Simulated (%i) steps\n",numSimSteps);
+			}
+		}
 
 	}
-
-	m_physicsEnvironmentPtr->proceedDeltaTime(0.f,deltaTime);
 
 	
 
@@ -327,6 +238,8 @@ void ForkLiftDemo::clientMoveAndDisplay()
 #ifdef USE_QUICKPROF 
         btProfiler::endBlock("render"); 
 #endif 
+	
+
 	glFlush();
 	glutSwapBuffers();
 
@@ -340,9 +253,10 @@ void ForkLiftDemo::displayCallback(void)
 	glClear(GL_COLOR_BUFFER_BIT | GL_DEPTH_BUFFER_BIT); 
 
 
-	m_physicsEnvironmentPtr->UpdateAabbs(deltaTime);
+	
+	m_dynamicsWorld->updateAabbs();
 	//draw contactpoints
-	m_physicsEnvironmentPtr->CallbackTriggers();
+	//m_physicsEnvironmentPtr->CallbackTriggers();
 
 
 	renderme();
@@ -354,18 +268,13 @@ void ForkLiftDemo::displayCallback(void)
 
 
 
-void ForkLiftDemo::clientResetScene()
-{
-	gEngineForce = 0.f;
-	gVehicleSteering = 0.f;
-	m_carChassis->setPosition(0,0,0);
-	m_carChassis->setOrientation(0,0,0,1);
-}
+
 
 
 
 void ForkLiftDemo::specialKeyboard(int key, int x, int y)
 {
+
 	printf("key = %i x=%i y=%i\n",key,x,y);
 
     switch (key) 
@@ -403,6 +312,7 @@ void ForkLiftDemo::specialKeyboard(int key, int x, int y)
 
 //	glutPostRedisplay();
 
+
 }
 
 
@@ -413,8 +323,11 @@ void	ForkLiftDemo::updateCamera()
 	glMatrixMode(GL_PROJECTION);
 	glLoadIdentity();
 
+	btTransform chassisWorldTrans;
+
 	//look at the vehicle
-	m_cameraTargetPosition = m_carChassis->getRigidBody()->m_worldTransform.getOrigin();
+	m_carChassis->getMotionState()->getWorldTransform(chassisWorldTrans);
+	m_cameraTargetPosition = chassisWorldTrans.getOrigin();
 
 	//interpolate the camera height
 	m_cameraPosition[1] = (15.0*m_cameraPosition[1] + m_cameraTargetPosition[1] + m_cameraHeight)/16.0;
@@ -441,6 +354,7 @@ void	ForkLiftDemo::updateCamera()
 		      m_cameraTargetPosition[0],m_cameraTargetPosition[1], m_cameraTargetPosition[2],
 			  m_cameraUp.getX(),m_cameraUp.getY(),m_cameraUp.getZ());
     glMatrixMode(GL_MODELVIEW);
+
 
 }
 
