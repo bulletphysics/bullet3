@@ -1,4 +1,6 @@
 
+/// this demo will be modified to use the upcoming Bullet C-API, stay tuned.
+
 /* Copyright (c) Mark J. Kilgard, 1994, 1997.  */
 
 /* This program is freely distributable without licensing fees 

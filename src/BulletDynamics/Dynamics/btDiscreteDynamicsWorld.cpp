@@ -127,15 +127,15 @@ void	btDiscreteDynamicsWorld::synchronizeMotionStates()
 			switch(colObj->GetActivationState())
 			{
 			case  ACTIVE_TAG:
-				color = btVector3(255.f,255.f,255.f);
+				color = btVector3(255.f,255.f,255.f); break;
 			case ISLAND_SLEEPING:
-				color =  btVector3(0.f,255.f,0.f);
+				color =  btVector3(0.f,255.f,0.f);break;
 			case WANTS_DEACTIVATION:
-				color = btVector3(0.f,255.f,255.f);
+				color = btVector3(0.f,255.f,255.f);break;
 			case DISABLE_DEACTIVATION:
-				color = btVector3(255.f,0.f,0.f);
+				color = btVector3(255.f,0.f,0.f);break;
 			case DISABLE_SIMULATION:
-				color = btVector3(255.f,255.f,0.f);
+				color = btVector3(255.f,255.f,0.f);break;
 			default:
 				{
 					color = btVector3(255.f,0.f,0.f);
