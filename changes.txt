@@ -1,6 +1,20 @@
 Bullet Continuous Collision Detection and Physics Library
 Erwin Coumans
 
+2006 Oct 30
+	Enable built-in realtime simulation with fixed timestep + interpolation based on btMotionState
+	Enabled raycast vehicle demo (still needs tuning)
+	Refresh contact points, even when they are already persistent.
+	Fixed debugDraw colors (thanks pc0de for reporting)
+	Use Dispatcher in ConcaveConvexCollisionAlgorithm (so it uses the registered collision algorithm, not hardcoded convexconcave)
+	Improved performance of constraint solver by precalculating the cross product/impulse arm
+	Added collision comparison code: ODE box-box, also sphere-triangle
+	Added safety check into GJK, and an assert for AABB's that are very large
+	Fixed kinematic support (deriving velocities for animated objects)
+	Updated comparison/optional quickstep solver in Extras
+	UserCollisionAlgorithm demonstrates btTriangleMesh usage (easier trimesh compared to index array version)
+	Removed scaling from btTransform (we only want to deal with rigid transforms)
+	
 2006 Oct 4
 	Fixed minor leak in btOptimizeBVH
 	Cleanup of btRigidBody construction
