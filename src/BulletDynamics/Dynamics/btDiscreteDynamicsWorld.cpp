@@ -150,7 +150,8 @@ void	btDiscreteDynamicsWorld::synchronizeMotionStates()
 			if (body->GetActivationState() != ISLAND_SLEEPING)
 			{
 				btTransform interpolatedTransform;
-				btTransformUtil::integrateTransform(body->m_interpolationWorldTransform,body->getLinearVelocity(),body->getAngularVelocity(),m_localTime,interpolatedTransform);
+				btTransformUtil::integrateTransform(body->m_interpolationWorldTransform,
+					body->m_interpolationLinearVelocity,body->m_interpolationAngularVelocity,m_localTime,interpolatedTransform);
 				body->getMotionState()->setWorldTransform(interpolatedTransform);
 			}
 		}

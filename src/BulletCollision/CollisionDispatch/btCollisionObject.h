@@ -43,6 +43,11 @@ struct	btCollisionObject
 	///m_interpolationWorldTransform is used for CCD and interpolation
 	///it can be either previous or future (predicted) transform
 	btTransform	m_interpolationWorldTransform;
+	//those two are experimental: just added for bullet time effect, so you can still apply impulses (directly modifying velocities) 
+	//without destroying the continuous interpolated motion (which uses this interpolation velocities)
+	btVector3	m_interpolationLinearVelocity;
+	btVector3	m_interpolationAngularVelocity;
+
 
 	enum CollisionFlags
 	{

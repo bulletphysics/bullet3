@@ -79,7 +79,7 @@ public:
 	}
 	
 	/// continuous collision detection needs prediction
-	void			predictIntegratedTransform(btScalar step, btTransform& predictedTransform) const;
+	void			predictIntegratedTransform(btScalar step, btTransform& predictedTransform) ;
 	
 	void			saveKinematicState(btScalar step);
 	
