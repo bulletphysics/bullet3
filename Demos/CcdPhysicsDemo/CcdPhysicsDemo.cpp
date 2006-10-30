@@ -356,7 +356,7 @@ void	CcdPhysicsDemo::initPhysics()
 		
 		
 		// Only do CCD if  motion in one timestep (1.f/60.f) exceeds CUBE_HALF_EXTENTS
-		body->m_ccdSquareMotionTreshold = CUBE_HALF_EXTENTS;
+		body->m_ccdSquareMotionThreshold = CUBE_HALF_EXTENTS;
 		
 		//Experimental: better estimation of CCD Time of Impact:
 		body->m_ccdSweptSphereRadius = 0.2*CUBE_HALF_EXTENTS;

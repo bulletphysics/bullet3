@@ -73,8 +73,8 @@ struct	btCollisionObject
 	///Swept sphere radius (0.0 by default), see btConvexConvexAlgorithm::
 	float			m_ccdSweptSphereRadius;
 
-	/// Don't do continuous collision detection if square motion (in one step) is less then m_ccdSquareMotionTreshold
-	float			m_ccdSquareMotionTreshold;
+	/// Don't do continuous collision detection if square motion (in one step) is less then m_ccdSquareMotionThreshold
+	float			m_ccdSquareMotionThreshold;
 
 	inline bool mergesSimulationIslands() const
 	{

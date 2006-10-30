@@ -24,8 +24,8 @@ float gLinearAirDamping = 1.f;
 float	gDeactivationTime = 2.f;
 bool	gDisableDeactivation = false;
 
-float gLinearSleepingTreshold = 0.8f;
-float gAngularSleepingTreshold = 1.0f;
+float gLinearSleepingThreshold = 0.8f;
+float gAngularSleepingThreshold = 1.0f;
 static int uniqueId = 0;
 
 btRigidBody::btRigidBody(float mass, btMotionState* motionState, btCollisionShape* collisionShape, const btVector3& localInertia,btScalar linearDamping,btScalar angularDamping,btScalar friction,btScalar restitution)

@@ -205,10 +205,10 @@ float btConvexConcaveCollisionAlgorithm::calculateTimeOfImpact(btCollisionObject
 
 	//quick approximation using raycast, todo: hook up to the continuous collision detection (one of the btConvexCast)
 
-	//only perform CCD above a certain treshold, this prevents blocking on the long run
+	//only perform CCD above a certain threshold, this prevents blocking on the long run
 	//because object in a blocked ccd state (hitfraction<1) get their linear velocity halved each frame...
 	float squareMot0 = (convexbody->m_interpolationWorldTransform.getOrigin() - convexbody->m_worldTransform.getOrigin()).length2();
-	if (squareMot0 < convexbody->m_ccdSquareMotionTreshold)
+	if (squareMot0 < convexbody->m_ccdSquareMotionThreshold)
 	{
 		return 1.f;
 	}

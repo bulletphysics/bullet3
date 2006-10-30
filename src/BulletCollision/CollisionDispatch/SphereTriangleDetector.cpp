@@ -102,10 +102,10 @@ bool SphereTriangleDetector::collide(const btVector3& sphereCenter,btVector3 &po
 		normal *= -1.f;
 	}
 
-	///todo: move this gContactBreakingTreshold into a proper structure
-	extern float gContactBreakingTreshold;
+	///todo: move this gContactBreakingThreshold into a proper structure
+	extern float gContactBreakingThreshold;
 
-	float contactMargin = gContactBreakingTreshold;
+	float contactMargin = gContactBreakingThreshold;
 	bool isInsideContactPlane = distanceFromPlane < r + contactMargin;
 	bool isInsideShellPlane = distanceFromPlane < r;
 	

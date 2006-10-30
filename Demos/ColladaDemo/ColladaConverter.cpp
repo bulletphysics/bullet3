@@ -602,8 +602,8 @@ void	ColladaConverter::prepareConstraints(ConstraintInput& input)
 						//see daeMetaAttribute.cpp
 						//INF -> 999999.9
 						//-INF -> -999999.9
-						float linearCheckTreshold = 999999.0;
-						float angularCheckTreshold = 180.0;//check this
+						float linearCheckThreshold = 999999.0;
+						float angularCheckThreshold = 180.0;//check this
 
 
 
@@ -620,16 +620,16 @@ void	ColladaConverter::prepareConstraints(ConstraintInput& input)
 						{
 							for (int i=0;i<3;i++)
 							{
-								if  ((linearLowerLimits[i] < -linearCheckTreshold) ||
-									(linearUpperLimits[i] > linearCheckTreshold))
+								if  ((linearLowerLimits[i] < -linearCheckThreshold) ||
+									(linearUpperLimits[i] > linearCheckThreshold))
 								{
 									//disable limits
 									linearLowerLimits[i] = 1;
 									linearUpperLimits[i] = 0;
 								}
 
-								if  ((angularLowerLimits[i] < -angularCheckTreshold) ||
-									(angularUpperLimits[i] > angularCheckTreshold))
+								if  ((angularLowerLimits[i] < -angularCheckThreshold) ||
+									(angularUpperLimits[i] > angularCheckThreshold))
 								{
 									//disable limits
 									angularLowerLimits[i] = 1;

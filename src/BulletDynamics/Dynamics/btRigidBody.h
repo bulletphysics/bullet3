@@ -34,8 +34,8 @@ extern bool gUseEpa;
 
 extern float gDeactivationTime;
 extern bool gDisableDeactivation;
-extern float gLinearSleepingTreshold;
-extern float gAngularSleepingTreshold;
+extern float gLinearSleepingThreshold;
+extern float gAngularSleepingThreshold;
 
 
 /// btRigidBody class for btRigidBody Dynamics
@@ -250,8 +250,8 @@ public:
 		if ( (GetActivationState() == ISLAND_SLEEPING) || (GetActivationState() == DISABLE_DEACTIVATION))
 			return;
 
-		if ((getLinearVelocity().length2() < gLinearSleepingTreshold*gLinearSleepingTreshold) &&
-			(getAngularVelocity().length2() < gAngularSleepingTreshold*gAngularSleepingTreshold))
+		if ((getLinearVelocity().length2() < gLinearSleepingThreshold*gLinearSleepingThreshold) &&
+			(getAngularVelocity().length2() < gAngularSleepingThreshold*gAngularSleepingThreshold))
 		{
 			m_deactivationTime += timeStep;
 		} else
