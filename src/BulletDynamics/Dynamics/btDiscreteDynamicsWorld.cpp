@@ -503,7 +503,9 @@ void	btDiscreteDynamicsWorld::updateAabbs()
 				btPoint3 minAabb,maxAabb;
 				colObj->m_collisionShape->getAabb(colObj->m_worldTransform, minAabb,maxAabb);
 				btSimpleBroadphase* bp = (btSimpleBroadphase*)m_broadphasePairCache;
-				if ( colObj->m_collisionShape->isInfinite() || ((maxAabb-minAabb).length2() < 1e12f))
+
+				//moving objects should be moderately sized, probably something wrong if not
+				if ( colObj->isStaticObject() || ((maxAabb-minAabb).length2() < 1e12f))
 				{
 					bp->setAabb(body->m_broadphaseHandle,minAabb,maxAabb);
 				} else

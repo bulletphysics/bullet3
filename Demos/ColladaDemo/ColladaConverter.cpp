@@ -704,7 +704,7 @@ void	ColladaConverter::PreparePhysicsObject(struct btRigidBodyInput& input, bool
 
 
 	btRigidBody* body= createRigidBody(isDynamics,mass,startTransform,colShape);
-	if (body && body->m_userObjectPointer)
+	if (body)
 	{
 		//bodyName is used as identifier for constraints
 		body->m_userObjectPointer = (void*)input.m_bodyName;
