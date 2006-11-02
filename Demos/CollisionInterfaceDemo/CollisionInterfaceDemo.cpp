@@ -65,8 +65,8 @@ void	CollisionInterfaceDemo::initPhysics()
 	btMatrix3x3 basisB;
 	basisB.setIdentity();
 
-	objects[0].m_worldTransform.setBasis(basisA);
-	objects[1].m_worldTransform.setBasis(basisB);
+	objects[0].getWorldTransform().setBasis(basisA);
+	objects[1].getWorldTransform().setBasis(basisB);
 
 	//btPoint3	points0[3]={btPoint3(1,0,0),btPoint3(0,1,0),btPoint3(0,0,1)};
 	//btPoint3	points1[5]={btPoint3(1,0,0),btPoint3(0,1,0),btPoint3(0,0,1),btPoint3(0,0,-1),btPoint3(-1,-1,0)};
@@ -78,8 +78,8 @@ void	CollisionInterfaceDemo::initPhysics()
 	//ConvexHullShape	hullB(points1,4);
 	//hullB.setLocalScaling(btVector3(4,4,4));
 
-	objects[0].m_collisionShape = boxA;//&hullA;
-	objects[1].m_collisionShape = boxB;//&hullB;
+	objects[0].setCollisionShape(boxA);//&hullA;
+	objects[1].setCollisionShape(boxB);//&hullB;
 
 	btCollisionDispatcher* dispatcher = new btCollisionDispatcher;
 	btVector3	worldAabbMin(-1000,-1000,-1000);
@@ -130,7 +130,7 @@ void CollisionInterfaceDemo::displayCallback(void) {
 		btPersistentManifold* contactManifold = collisionWorld->getDispatcher()->getManifoldByIndexInternal(i);
 		btCollisionObject* obA = static_cast<btCollisionObject*>(contactManifold->getBody0());
 		btCollisionObject* obB = static_cast<btCollisionObject*>(contactManifold->getBody1());
-		contactManifold->refreshContactPoints(obA->m_worldTransform,obB->m_worldTransform);
+		contactManifold->refreshContactPoints(obA->getWorldTransform(),obB->getWorldTransform());
 
 		int numContacts = contactManifold->getNumContacts();
 		for (int j=0;j<numContacts;j++)
@@ -161,17 +161,17 @@ void CollisionInterfaceDemo::displayCallback(void) {
 	for (i=0;i<numObjects;i++)
 	{
 		
-		objects[i].m_worldTransform.getOpenGLMatrix( m );
-		GL_ShapeDrawer::drawOpenGL(m,objects[i].m_collisionShape,btVector3(1,1,1),getDebugMode());
+		objects[i].getWorldTransform().getOpenGLMatrix( m );
+		GL_ShapeDrawer::drawOpenGL(m,objects[i].getCollisionShape(),btVector3(1,1,1),getDebugMode());
 
 	}
 
 
 	btQuaternion orn;
 	orn.setEuler(yaw,pitch,roll);
-	objects[1].m_worldTransform.setOrigin(objects[1].m_worldTransform.getOrigin()+btVector3(0,-0.01,0));
+	objects[1].getWorldTransform().setOrigin(objects[1].getWorldTransform().getOrigin()+btVector3(0,-0.01,0));
 
-	objects[0].m_worldTransform.setRotation(orn);
+	objects[0].getWorldTransform().setRotation(orn);
 
 	pitch += 0.005f;
 	yaw += 0.01f;
@@ -182,8 +182,8 @@ void CollisionInterfaceDemo::displayCallback(void) {
 
 void CollisionInterfaceDemo::clientResetScene()
 {
-	objects[0].m_worldTransform.setOrigin(btVector3(0.0f,3.f,0.f));
-	objects[1].m_worldTransform.setOrigin(btVector3(0.0f,9.f,0.f));
+	objects[0].getWorldTransform().setOrigin(btVector3(0.0f,3.f,0.f));
+	objects[1].getWorldTransform().setOrigin(btVector3(0.0f,9.f,0.f));
 }
 
 

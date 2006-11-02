@@ -18,9 +18,9 @@ subject to the following restrictions:
 
 #include <vector>
 
-typedef std::vector<struct btCollisionObject*> btCollisionObjectArray;
+typedef std::vector<class btCollisionObject*> btCollisionObjectArray;
 class btCollisionAlgorithm;
-struct btCollisionObject;
+class btCollisionObject;
 
 struct btCollisionAlgorithmConstructionInfo;
 

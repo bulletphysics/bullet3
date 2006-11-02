@@ -117,9 +117,9 @@ void	btSimpleDynamicsWorld::updateAabbs()
 			if (body->IsActive() && (!body->isStaticObject()))
 			{
 				btPoint3 minAabb,maxAabb;
-				colObj->m_collisionShape->getAabb(colObj->m_worldTransform, minAabb,maxAabb);
+				colObj->getCollisionShape()->getAabb(colObj->getWorldTransform(), minAabb,maxAabb);
 				btBroadphaseInterface* bp = getBroadphase();
-				bp->setAabb(body->m_broadphaseHandle,minAabb,maxAabb);
+				bp->setAabb(body->getBroadphaseHandle(),minAabb,maxAabb);
 			}
 		}
 	}
@@ -159,7 +159,7 @@ void	btSimpleDynamicsWorld::predictUnconstraintMotion(float timeStep)
 				{
 					body->applyForces( timeStep);
 					body->integrateVelocities( timeStep);
-					body->predictIntegratedTransform(timeStep,body->m_interpolationWorldTransform);
+					body->predictIntegratedTransform(timeStep,body->getInterpolationWorldTransform());
 				}
 			}
 		}
@@ -178,9 +178,20 @@ void	btSimpleDynamicsWorld::synchronizeMotionStates()
 		{
 			if (body->GetActivationState() != ISLAND_SLEEPING)
 			{
-				body->getMotionState()->setWorldTransform(body->m_worldTransform);
+				body->getMotionState()->setWorldTransform(body->getWorldTransform());
 			}
 		}
 	}
 
+}
+
+
+void	btSimpleDynamicsWorld::setConstraintSolver(btConstraintSolver* solver)
+{
+	if (m_ownsConstraintSolver)
+	{
+		delete m_constraintSolver;
+	}
+	m_ownsConstraintSolver = false;
+	m_constraintSolver = solver;
 }

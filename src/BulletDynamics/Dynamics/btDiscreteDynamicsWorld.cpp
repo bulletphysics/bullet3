@@ -56,9 +56,9 @@ subject to the following restrictions:
 
 #include <algorithm>
 
-btDiscreteDynamicsWorld::btDiscreteDynamicsWorld()
+btDiscreteDynamicsWorld::btDiscreteDynamicsWorld(btConstraintSolver* constraintSolver)
 :btDynamicsWorld(),
-m_constraintSolver(new btSequentialImpulseConstraintSolver),
+m_constraintSolver(constraintSolver? constraintSolver: new btSequentialImpulseConstraintSolver),
 m_debugDrawer(0),
 m_gravity(0,-10,0),
 m_localTime(1.f/60.f),
@@ -66,8 +66,7 @@ m_profileTimings(0)
 {
 	m_islandManager = new btSimulationIslandManager();
 	m_ownsIslandManager = true;
-	m_ownsConstraintSolver = true;
-
+	m_ownsConstraintSolver = (constraintSolver==0);
 }
 
 btDiscreteDynamicsWorld::btDiscreteDynamicsWorld(btDispatcher* dispatcher,btOverlappingPairCache* pairCache,btConstraintSolver* constraintSolver)
@@ -142,7 +141,7 @@ void	btDiscreteDynamicsWorld::synchronizeMotionStates()
 				}
 			};
 
-			debugDrawObject(colObj->m_worldTransform,colObj->m_collisionShape,color);
+			debugDrawObject(colObj->getWorldTransform(),colObj->getCollisionShape(),color);
 		}
 		btRigidBody* body = btRigidBody::upcast(colObj);
 		if (body && body->getMotionState() && !body->isStaticOrKinematicObject())
@@ -150,8 +149,8 @@ void	btDiscreteDynamicsWorld::synchronizeMotionStates()
 			if (body->GetActivationState() != ISLAND_SLEEPING)
 			{
 				btTransform interpolatedTransform;
-				btTransformUtil::integrateTransform(body->m_interpolationWorldTransform,
-					body->m_interpolationLinearVelocity,body->m_interpolationAngularVelocity,m_localTime,interpolatedTransform);
+				btTransformUtil::integrateTransform(body->getInterpolationWorldTransform(),
+					body->getInterpolationLinearVelocity(),body->getInterpolationAngularVelocity(),m_localTime,interpolatedTransform);
 				body->getMotionState()->setWorldTransform(interpolatedTransform);
 			}
 		}
@@ -439,8 +438,8 @@ void	btDiscreteDynamicsWorld::calculateSimulationIslands()
 				if (colObj0->IsActive() || colObj1->IsActive())
 				{
 
-					getSimulationIslandManager()->getUnionFind().unite((colObj0)->m_islandTag1,
-						(colObj1)->m_islandTag1);
+					getSimulationIslandManager()->getUnionFind().unite((colObj0)->getIslandTag(),
+						(colObj1)->getIslandTag());
 				}
 			}
 		}
@@ -501,13 +500,13 @@ void	btDiscreteDynamicsWorld::updateAabbs()
 		//	if (body->IsActive() && (!body->IsStatic()))
 			{
 				btPoint3 minAabb,maxAabb;
-				colObj->m_collisionShape->getAabb(colObj->m_worldTransform, minAabb,maxAabb);
+				colObj->getCollisionShape()->getAabb(colObj->getWorldTransform(), minAabb,maxAabb);
 				btSimpleBroadphase* bp = (btSimpleBroadphase*)m_broadphasePairCache;
 
 				//moving objects should be moderately sized, probably something wrong if not
 				if ( colObj->isStaticObject() || ((maxAabb-minAabb).length2() < 1e12f))
 				{
-					bp->setAabb(body->m_broadphaseHandle,minAabb,maxAabb);
+					bp->setAabb(body->getBroadphaseHandle(),minAabb,maxAabb);
 				} else
 				{
 					//something went wrong, investigate
@@ -575,7 +574,7 @@ void	btDiscreteDynamicsWorld::predictUnconstraintMotion(float timeStep)
 				{
 					body->applyForces( timeStep);
 					body->integrateVelocities( timeStep);
-					body->predictIntegratedTransform(timeStep,body->m_interpolationWorldTransform);
+					body->predictIntegratedTransform(timeStep,body->getInterpolationWorldTransform());
 				}
 			}
 		}
@@ -767,4 +766,14 @@ void btDiscreteDynamicsWorld::debugDrawObject(const btTransform& worldTransform,
 			}
 		}
 	}
+}
+
+void	btDiscreteDynamicsWorld::setConstraintSolver(btConstraintSolver* solver)
+{
+	if (m_ownsConstraintSolver)
+	{
+		delete m_constraintSolver;
+	}
+	m_ownsConstraintSolver = false;
+	m_constraintSolver = solver;
 }

@@ -12,7 +12,6 @@ subject to the following restrictions:
 2. Altered source versions must be plainly marked as such, and must not be misrepresented as being the original software.
 3. This notice may not be removed or altered from any source distribution.
 */
-
 //#define USE_KINEMATIC_GROUND 1
 //#define PRINT_CONTACT_STATISTICS 1
 //#define REGISTER_CUSTOM_COLLISION_ALGORITHM 1
@@ -82,7 +81,7 @@ btCollisionShape* shapePtr[numShapes] =
 	///Please don't make the box sizes larger then 1000: the collision detection will be inaccurate.
 	///See http://www.continuousphysics.com/Bullet/phpBB2/viewtopic.php?t=346
 
-#define USE_GROUND_PLANE 1
+//#define USE_GROUND_PLANE 1
 #ifdef USE_GROUND_PLANE
 	new btStaticPlaneShape(btVector3(0,1,0),10),
 #else
@@ -164,6 +163,19 @@ void CcdPhysicsDemo::clientMoveAndDisplay()
 	
 	if (m_dynamicsWorld)
 	{
+
+		//swap solver
+#ifdef COMPARE_WITH_QUICKSTEP
+	   if (m_debugMode & btIDebugDraw::DBG_DisableBulletLCP)
+	   {
+		   m_dynamicsWorld->setConstraintSolver( new OdeConstraintSolver());
+	   } else
+	   {
+		   m_dynamicsWorld->setConstraintSolver( new btSequentialImpulseConstraintSolver());
+	   }
+#endif //COMPARE_WITH_QUICKSTEP
+
+
 		//during idle mode, just run 1 simulation step maximum
 		int maxSimSubSteps = m_idle ? 1 : 1;
 		if (m_idle)
@@ -356,10 +368,10 @@ void	CcdPhysicsDemo::initPhysics()
 		
 		
 		// Only do CCD if  motion in one timestep (1.f/60.f) exceeds CUBE_HALF_EXTENTS
-		body->m_ccdSquareMotionThreshold = CUBE_HALF_EXTENTS;
+		body->setCcdSquareMotionThreshold( CUBE_HALF_EXTENTS );
 		
 		//Experimental: better estimation of CCD Time of Impact:
-		body->m_ccdSweptSphereRadius = 0.2*CUBE_HALF_EXTENTS;
+		body->setCcdSweptSphereRadius( 0.2*CUBE_HALF_EXTENTS );
 
 #ifdef USER_DEFINED_FRICTION_MODEL	
 		///Advanced use: override the friction solver

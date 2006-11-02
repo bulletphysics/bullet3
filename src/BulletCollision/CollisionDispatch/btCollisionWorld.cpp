@@ -60,7 +60,7 @@ btCollisionWorld::~btCollisionWorld()
 	{
 		btCollisionObject* collisionObject= (*i);
 		
-		btBroadphaseProxy* bp = collisionObject->m_broadphaseHandle;
+		btBroadphaseProxy* bp = collisionObject->getBroadphaseHandle();
 		if (bp)
 		{
 			//
@@ -98,21 +98,22 @@ void	btCollisionWorld::addCollisionObject(btCollisionObject* collisionObject,sho
 		m_collisionObjects.push_back(collisionObject);
 
 		//calculate new AABB
-		btTransform trans = collisionObject->m_worldTransform;
+		btTransform trans = collisionObject->getWorldTransform();
 
 		btVector3	minAabb;
 		btVector3	maxAabb;
-		collisionObject->m_collisionShape->getAabb(trans,minAabb,maxAabb);
+		collisionObject->getCollisionShape()->getAabb(trans,minAabb,maxAabb);
 
-		int type = collisionObject->m_collisionShape->getShapeType();
-		collisionObject->m_broadphaseHandle = getBroadphase()->createProxy(
+		int type = collisionObject->getCollisionShape()->getShapeType();
+		collisionObject->setBroadphaseHandle( getBroadphase()->createProxy(
 			minAabb,
 			maxAabb,
 			type,
 			collisionObject,
 			collisionFilterGroup,
 			collisionFilterMask
-			);
+			))	;
+
 		
 
 
@@ -132,8 +133,8 @@ void	btCollisionWorld::performDiscreteCollisionDetection()
 	btVector3 aabbMin,aabbMax;
 	for (size_t i=0;i<m_collisionObjects.size();i++)
 	{
-		m_collisionObjects[i]->m_collisionShape->getAabb(m_collisionObjects[i]->m_worldTransform,aabbMin,aabbMax);
-		m_broadphasePairCache->setAabb(m_collisionObjects[i]->m_broadphaseHandle,aabbMin,aabbMax);
+		m_collisionObjects[i]->getCollisionShape()->getAabb(m_collisionObjects[i]->getWorldTransform(),aabbMin,aabbMax);
+		m_broadphasePairCache->setAabb(m_collisionObjects[i]->getBroadphaseHandle(),aabbMin,aabbMax);
 	}
 
 	m_broadphasePairCache->refreshOverlappingPairs();
@@ -155,7 +156,7 @@ void	btCollisionWorld::removeCollisionObject(btCollisionObject* collisionObject)
 	
 	{
 		
-		btBroadphaseProxy* bp = collisionObject->m_broadphaseHandle;
+		btBroadphaseProxy* bp = collisionObject->getBroadphaseHandle();
 		if (bp)
 		{
 			//
@@ -163,7 +164,7 @@ void	btCollisionWorld::removeCollisionObject(btCollisionObject* collisionObject)
 			//
 			getBroadphase()->cleanProxyFromPairs(bp);
 			getBroadphase()->destroyProxy(bp);
-			collisionObject->m_broadphaseHandle = 0;
+			collisionObject->setBroadphaseHandle(0);
 		}
 	}
 
@@ -338,7 +339,7 @@ void	btCollisionWorld::rayTest(const btVector3& rayFromWorld, const btVector3& r
 
 		//RigidcollisionObject* collisionObject = ctrl->GetRigidcollisionObject();
 		btVector3 collisionObjectAabbMin,collisionObjectAabbMax;
-		collisionObject->m_collisionShape->getAabb(collisionObject->m_worldTransform,collisionObjectAabbMin,collisionObjectAabbMax);
+		collisionObject->getCollisionShape()->getAabb(collisionObject->getWorldTransform(),collisionObjectAabbMin,collisionObjectAabbMax);
 
 		//check aabb overlap
 
@@ -346,8 +347,8 @@ void	btCollisionWorld::rayTest(const btVector3& rayFromWorld, const btVector3& r
 		{
 			rayTestSingle(rayFromTrans,rayToTrans,
 				collisionObject,
-					 collisionObject->m_collisionShape,
-					  collisionObject->m_worldTransform,
+					 collisionObject->getCollisionShape(),
+					  collisionObject->getWorldTransform(),
 					  resultCallback);
 			
 		}

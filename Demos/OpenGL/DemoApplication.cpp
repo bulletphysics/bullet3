@@ -435,8 +435,8 @@ void	DemoApplication::shootBox(const btVector3& destination)
 		linVel.normalize();
 		linVel*=m_ShootBoxInitialSpeed;
 
-		body->m_worldTransform.setOrigin(camPos);
-		body->m_worldTransform.setRotation(btQuaternion(0,0,0,1));
+		body->getWorldTransform().setOrigin(camPos);
+		body->getWorldTransform().setRotation(btQuaternion(0,0,0,1));
 		body->setLinearVelocity(linVel);
 		body->setAngularVelocity(btVector3(0,0,0));
 	}
@@ -597,7 +597,7 @@ void DemoApplication::mouseFunc(int button, int state, int x, int y)
 					//printf("removed constraint %i",gPickingConstraintId);
 					m_pickConstraint = 0;
 					pickedBody->ForceActivationState(ACTIVE_TAG);
-					pickedBody->m_deactivationTime = 0.f;
+					pickedBody->setDeactivationTime( 0.f );
 					pickedBody = 0;
 				}
 
@@ -690,7 +690,7 @@ void DemoApplication::renderme()
 				myMotionState->m_graphicsWorldTrans.getOpenGLMatrix(m);
 			} else
 			{
-				colObj->m_worldTransform.getOpenGLMatrix(m);
+				colObj->getWorldTransform().getOpenGLMatrix(m);
 			}
 
 			btVector3 wireColor(1.f,1.0f,0.5f); //wants deactivation
@@ -720,7 +720,7 @@ void DemoApplication::renderme()
 				}
 			}
 
-			GL_ShapeDrawer::drawOpenGL(m,colObj->m_collisionShape,wireColor,getDebugMode());
+			GL_ShapeDrawer::drawOpenGL(m,colObj->getCollisionShape(),wireColor,getDebugMode());
 		}
 
 
@@ -832,8 +832,8 @@ void	DemoApplication::clientResetScene()
 		{
 			btDefaultMotionState* myMotionState = (btDefaultMotionState*)body->getMotionState();
 			myMotionState->m_graphicsWorldTrans = myMotionState->m_startWorldTrans;
-			colObj->m_worldTransform = myMotionState->m_graphicsWorldTrans;
-			colObj->m_interpolationWorldTransform = myMotionState->m_startWorldTrans;
+			colObj->setWorldTransform( myMotionState->m_graphicsWorldTrans );
+			colObj->setInterpolationWorldTransform( myMotionState->m_startWorldTrans );
 			btRigidBody* body = btRigidBody::upcast(colObj);
 			if (body && !body->isStaticObject())
 			{

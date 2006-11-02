@@ -32,6 +32,21 @@ int totalCpd = 0;
 
 int	gTotalContactPoints = 0;
 
+#define SEQUENTIAL_IMPULSE_MAX_SOLVER_BODIES 16384
+static int	gOrder[SEQUENTIAL_IMPULSE_MAX_SOLVER_BODIES];
+static unsigned long btSeed2 = 0;
+unsigned long btRand2()
+{
+  btSeed2 = (1664525L*btSeed2 + 1013904223L) & 0xffffffff;
+  return btSeed2;
+}
+
+int btRandInt2 (int n)
+{
+  float a = float(n) / 4294967296.0f;
+  return (int) (float(btRand2()) * a);
+}
+
 bool  MyContactDestroyedCallback(void* userPersistentData)
 {
 	assert (userPersistentData);
@@ -73,48 +88,40 @@ float btSequentialImpulseConstraintSolver::solveGroup(btPersistentManifold** man
 		int j;
 		for (j=0;j<numManifolds;j++)
 		{
-			int k=j;
-			prepareConstraints(manifoldPtr[k],info,debugDrawer);
-			solve(manifoldPtr[k],info,0,debugDrawer);
+			gOrder[j] = j;
+			prepareConstraints(manifoldPtr[j],info,debugDrawer);
 		}
 	}
 	
 	
 	//should traverse the contacts random order...
-	int i;
-	for ( i = 0;i<numiter-1;i++)
+	int iteration;
+	for ( iteration = 0;iteration<numiter-1;iteration++)
 	{
 		int j;
+		if ((iteration & 7) == 0) {
+			for (j=0; j<numManifolds; ++j) {
+				int tmp = gOrder[j];
+				int swapi = btRandInt2(j+1);
+				gOrder[j] = gOrder[swapi];
+				gOrder[swapi] = tmp;
+			}
+		}
+
 		for (j=0;j<numManifolds;j++)
 		{
-			int k=j;
-			if (i&1)
-				k=numManifolds-j-1;
-
-			solve(manifoldPtr[k],info,i,debugDrawer);
+			solve(manifoldPtr[gOrder[j]],info,iteration,debugDrawer);
 		}
-		
+
+	
+		for (j=0;j<numManifolds;j++)
+		{
+			solveFriction(manifoldPtr[gOrder[j]],info,iteration,debugDrawer);
+		}
 	}
+		
 #ifdef USE_PROFILE
 	btProfiler::endBlock("solve");
-
-	btProfiler::beginBlock("solveFriction");
-#endif //USE_PROFILE
-
-	//now solve the friction		
-	for (i = 0;i<numiter-1;i++)
-	{
-		int j;
-	for (j=0;j<numManifolds;j++)
-		{
-			int k = j;
-			if (i&1)
-				k=numManifolds-j-1;
-			solveFriction(manifoldPtr[k],info,i,debugDrawer);
-		}
-	}
-#ifdef USE_PROFILE
-	btProfiler::endBlock("solveFriction");
 #endif //USE_PROFILE
 
 	return 0.f;
@@ -225,7 +232,7 @@ void	btSequentialImpulseConstraintSolver::prepareConstraints(btPersistentManifol
 				
 				btScalar penVel = -cpd->m_penetration/info.m_timeStep;
 
-				if (cpd->m_restitution >= penVel)
+				if (cpd->m_restitution > penVel)
 				{
 					cpd->m_penetration = 0.f;
 				} 				
@@ -233,7 +240,7 @@ void	btSequentialImpulseConstraintSolver::prepareConstraints(btPersistentManifol
 				
 
 				float relaxation = info.m_damping;
-				cpd->m_appliedImpulse *= relaxation;
+				cpd->m_appliedImpulse =0.f;//*= relaxation;
 				//for friction
 				cpd->m_prevAppliedImpulse = cpd->m_appliedImpulse;
 				
@@ -260,8 +267,8 @@ void	btSequentialImpulseConstraintSolver::prepareConstraints(btPersistentManifol
 
 				btVector3 totalImpulse = 
 	#ifndef NO_FRICTION_WARMSTART
-					cp.m_frictionWorldTangential0*cp.m_accumulatedTangentImpulse0+
-					cp.m_frictionWorldTangential1*cp.m_accumulatedTangentImpulse1+
+					cpd->m_frictionWorldTangential0*cpd->m_accumulatedTangentImpulse0+
+					cpd->m_frictionWorldTangential1*cpd->m_accumulatedTangentImpulse1+
 	#endif //NO_FRICTION_WARMSTART
 					cp.m_normalWorldOnB*cpd->m_appliedImpulse;
 
@@ -320,11 +327,7 @@ float btSequentialImpulseConstraintSolver::solve(btPersistentManifold* manifoldP
 		{
 
 			int j=i;
-			if (iter % 2)
-				j = numpoints-1-i;
-			else
-				j=i;
-
+		
 			btManifoldPoint& cp = manifoldPtr->getContactPoint(j);
 				if (cp.getDistance() <= 0.f)
 			{
@@ -367,9 +370,7 @@ float btSequentialImpulseConstraintSolver::solveFriction(btPersistentManifold* m
 		{
 
 			int j=i;
-			//if (iter % 2)
-			//	j = numpoints-1-i;
-
+		
 			btManifoldPoint& cp = manifoldPtr->getContactPoint(j);
 			if (cp.getDistance() <= 0.f)
 			{

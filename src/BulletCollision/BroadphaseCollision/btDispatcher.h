@@ -19,7 +19,7 @@ subject to the following restrictions:
 class btCollisionAlgorithm;
 struct btBroadphaseProxy;
 class btRigidBody;
-struct	btCollisionObject;
+class	btCollisionObject;
 class btOverlappingPairCache;
 
 enum btCollisionDispatcherId

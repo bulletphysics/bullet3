@@ -62,7 +62,11 @@ class btRigidBody  : public btCollisionObject
 
 public:
 
+#ifdef OBSOLETE_MOTIONSTATE_LESS
+	//not supported, please use btMotionState
 	btRigidBody(float mass, const btTransform& worldTransform, btCollisionShape* collisionShape, const btVector3& localInertia=btVector3(0,0,0),btScalar linearDamping=0.f,btScalar angularDamping=0.f,btScalar friction=0.5f,btScalar restitution=0.f);
+#endif //OBSOLETE_MOTIONSTATE_LESS
+
 	btRigidBody(float mass, btMotionState* motionState, btCollisionShape* collisionShape, const btVector3& localInertia=btVector3(0,0,0),btScalar linearDamping=0.f,btScalar angularDamping=0.f,btScalar friction=0.5f,btScalar restitution=0.f);
 
 	void			proceedToTransform(const btTransform& newTrans); 
@@ -71,11 +75,11 @@ public:
 	///but a rigidbody is derived from btCollisionObject, so we can safely perform an upcast
 	static const btRigidBody*	upcast(const btCollisionObject* colObj)
 	{
-		return (const btRigidBody*)colObj->m_internalOwner;
+		return (const btRigidBody*)colObj->getInternalOwner();
 	}
 	static btRigidBody*	upcast(btCollisionObject* colObj)
 	{
-		return (btRigidBody*)colObj->m_internalOwner;
+		return (btRigidBody*)colObj->getInternalOwner();
 	}
 	
 	/// continuous collision detection needs prediction

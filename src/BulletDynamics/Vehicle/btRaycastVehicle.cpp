@@ -11,6 +11,7 @@
 
 #include "LinearMath/btVector3.h"
 #include "btRaycastVehicle.h"
+
 #include "BulletDynamics/ConstraintSolver/btSolve2LinearConstraint.h"
 #include "BulletDynamics/ConstraintSolver/btJacobianEntry.h"
 #include "LinearMath/btQuaternion.h"
@@ -23,7 +24,7 @@
 
 
 
-static btRigidBody s_fixedObject( 0,btTransform(btQuaternion(0,0,0,1)),0);
+static btRigidBody s_fixedObject( 0,0,0);
 
 btRaycastVehicle::btRaycastVehicle(const btVehicleTuning& tuning,btRigidBody* chassis,	btVehicleRaycaster* raycaster )
 :m_vehicleRaycaster(raycaster),

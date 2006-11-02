@@ -42,8 +42,8 @@ void btSimulationIslandManager::findUnions(btDispatcher* dispatcher)
 				((colObj1) && ((colObj1)->mergesSimulationIslands())))
 			{
 
-				m_unionFind.unite((colObj0)->m_islandTag1,
-					(colObj1)->m_islandTag1);
+				m_unionFind.unite((colObj0)->getIslandTag(),
+					(colObj1)->getIslandTag());
 			}
 		}
 	}
@@ -65,8 +65,8 @@ void	btSimulationIslandManager::updateActivationState(btCollisionWorld* colWorld
 		{
 			
 			btCollisionObject*	collisionObject= (*i);
-			collisionObject->m_islandTag1 = index;
-			collisionObject->m_hitFraction = 1.f;
+			collisionObject->setIslandTag(index);
+			collisionObject->setHitFraction(1.f);
 			index++;
 			
 		}
@@ -98,10 +98,10 @@ void	btSimulationIslandManager::storeIslandActivationState(btCollisionWorld* col
 			
 			if (collisionObject->mergesSimulationIslands())
 			{
-				collisionObject->m_islandTag1 = m_unionFind.find(index);
+				collisionObject->setIslandTag( m_unionFind.find(index) );
 			} else
 			{
-				collisionObject->m_islandTag1 = -1;
+				collisionObject->setIslandTag(-1);
 			}
 			index++;
 		}
@@ -113,7 +113,7 @@ inline	int	getIslandId(const btPersistentManifold* lhs)
 	int islandId;
 	const btCollisionObject* rcolObj0 = static_cast<const btCollisionObject*>(lhs->getBody0());
 	const btCollisionObject* rcolObj1 = static_cast<const btCollisionObject*>(lhs->getBody1());
-	islandId= rcolObj0->m_islandTag1>=0?rcolObj0->m_islandTag1:rcolObj1->m_islandTag1;
+	islandId= rcolObj0->getIslandTag()>=0?rcolObj0->getIslandTag():rcolObj1->getIslandTag();
 	return islandId;
 
 }
@@ -158,13 +158,13 @@ void btSimulationIslandManager::buildAndProcessIslands(btDispatcher* dispatcher,
 			int i = getUnionFind().getElement(idx).m_sz;
 
 			btCollisionObject* colObj0 = collisionObjects[i];
-			if ((colObj0->m_islandTag1 != islandId) && (colObj0->m_islandTag1 != -1))
+			if ((colObj0->getIslandTag() != islandId) && (colObj0->getIslandTag() != -1))
 			{
 				printf("error in island management\n");
 			}
 
-			assert((colObj0->m_islandTag1 == islandId) || (colObj0->m_islandTag1 == -1));
-			if (colObj0->m_islandTag1 == islandId)
+			assert((colObj0->getIslandTag() == islandId) || (colObj0->getIslandTag() == -1));
+			if (colObj0->getIslandTag() == islandId)
 			{
 				if (colObj0->GetActivationState()== ACTIVE_TAG)
 				{
@@ -184,14 +184,14 @@ void btSimulationIslandManager::buildAndProcessIslands(btDispatcher* dispatcher,
 			{
 				int i = getUnionFind().getElement(idx).m_sz;
 				btCollisionObject* colObj0 = collisionObjects[i];
-				if ((colObj0->m_islandTag1 != islandId) && (colObj0->m_islandTag1 != -1))
+				if ((colObj0->getIslandTag() != islandId) && (colObj0->getIslandTag() != -1))
 				{
 					printf("error in island management\n");
 				}
 
-				assert((colObj0->m_islandTag1 == islandId) || (colObj0->m_islandTag1 == -1));
+				assert((colObj0->getIslandTag() == islandId) || (colObj0->getIslandTag() == -1));
 
-				if (colObj0->m_islandTag1 == islandId)
+				if (colObj0->getIslandTag() == islandId)
 				{
 					colObj0->SetActivationState( ISLAND_SLEEPING );
 				}
@@ -205,14 +205,14 @@ void btSimulationIslandManager::buildAndProcessIslands(btDispatcher* dispatcher,
 				int i = getUnionFind().getElement(idx).m_sz;
 
 				btCollisionObject* colObj0 = collisionObjects[i];
-				if ((colObj0->m_islandTag1 != islandId) && (colObj0->m_islandTag1 != -1))
+				if ((colObj0->getIslandTag() != islandId) && (colObj0->getIslandTag() != -1))
 				{
 					printf("error in island management\n");
 				}
 
-				assert((colObj0->m_islandTag1 == islandId) || (colObj0->m_islandTag1 == -1));
+				assert((colObj0->getIslandTag() == islandId) || (colObj0->getIslandTag() == -1));
 
-				if (colObj0->m_islandTag1 == islandId)
+				if (colObj0->getIslandTag() == islandId)
 				{
 					if ( colObj0->GetActivationState() == ISLAND_SLEEPING)
 					{

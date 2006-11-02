@@ -543,9 +543,9 @@ void	ColladaConverter::prepareConstraints(ConstraintInput& input)
 					
 					for (int i=0;i<m_numObjects;i++)
 					{
-						if (m_rigidBodies[i]->m_userObjectPointer)
+						if (m_rigidBodies[i]->getUserPointer())
 						{
-							char* bodyName = (char*)m_rigidBodies[i]->m_userObjectPointer;
+							char* bodyName = (char*)m_rigidBodies[i]->getUserPointer();
 							if (!strcmp(bodyName,orgUri0))
 							{
 								body0=m_rigidBodies[i];
@@ -707,7 +707,7 @@ void	ColladaConverter::PreparePhysicsObject(struct btRigidBodyInput& input, bool
 	if (body)
 	{
 		//bodyName is used as identifier for constraints
-		body->m_userObjectPointer = (void*)input.m_bodyName;
+		body->setUserPointer((void*)input.m_bodyName);
 		m_rigidBodies[m_numObjects] = body;
 		m_numObjects++;
 	}
@@ -737,7 +737,7 @@ bool ColladaConverter::saveAs(const char* filename)
 
 				{
 
-					btVector3 np = m_rigidBodies[i]->m_worldTransform.getOrigin();
+					btVector3 np = m_rigidBodies[i]->getWorldTransform().getOrigin();
 					domFloat3 newPos = m_colladadomNodes[i]->getTranslate_array().get(0)->getValue();
 					newPos.set(0,np[0]);
 					newPos.set(1,np[1]);
