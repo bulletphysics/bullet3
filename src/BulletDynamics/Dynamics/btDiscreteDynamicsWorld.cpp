@@ -102,7 +102,7 @@ void	btDiscreteDynamicsWorld::saveKinematicState(float timeStep)
 		if (body)
 		{
 				btTransform predictedTrans;
-				if (body->GetActivationState() != ISLAND_SLEEPING)
+				if (body->getActivationState() != ISLAND_SLEEPING)
 				{
 					if (body->isKinematicObject())
 					{
@@ -123,7 +123,7 @@ void	btDiscreteDynamicsWorld::synchronizeMotionStates()
 		if (getDebugDrawer() && getDebugDrawer()->getDebugMode() & btIDebugDraw::DBG_DrawWireframe)
 		{
 			btVector3 color(255.f,255.f,255.f);
-			switch(colObj->GetActivationState())
+			switch(colObj->getActivationState())
 			{
 			case  ACTIVE_TAG:
 				color = btVector3(255.f,255.f,255.f); break;
@@ -146,7 +146,7 @@ void	btDiscreteDynamicsWorld::synchronizeMotionStates()
 		btRigidBody* body = btRigidBody::upcast(colObj);
 		if (body && body->getMotionState() && !body->isStaticOrKinematicObject())
 		{
-			if (body->GetActivationState() != ISLAND_SLEEPING)
+			if (body->getActivationState() != ISLAND_SLEEPING)
 			{
 				btTransform interpolatedTransform;
 				btTransformUtil::integrateTransform(body->getInterpolationWorldTransform(),
@@ -302,12 +302,12 @@ void	btDiscreteDynamicsWorld::updateActivationState(float timeStep)
 
 			if (body->wantsSleeping())
 			{
-				if (body->GetActivationState() == ACTIVE_TAG)
-					body->SetActivationState( WANTS_DEACTIVATION );
+				if (body->getActivationState() == ACTIVE_TAG)
+					body->setActivationState( WANTS_DEACTIVATION );
 			} else
 			{
-				if (body->GetActivationState() != DISABLE_DEACTIVATION)
-					body->SetActivationState( ACTIVE_TAG );
+				if (body->getActivationState() != DISABLE_DEACTIVATION)
+					body->setActivationState( ACTIVE_TAG );
 			}
 		}
 	}
@@ -435,7 +435,7 @@ void	btDiscreteDynamicsWorld::calculateSimulationIslands()
 			if (((colObj0) && ((colObj0)->mergesSimulationIslands())) &&
 				((colObj1) && ((colObj1)->mergesSimulationIslands())))
 			{
-				if (colObj0->IsActive() || colObj1->IsActive())
+				if (colObj0->isActive() || colObj1->isActive())
 				{
 
 					getSimulationIslandManager()->getUnionFind().unite((colObj0)->getIslandTag(),
@@ -512,7 +512,7 @@ void	btDiscreteDynamicsWorld::updateAabbs()
 					//something went wrong, investigate
 					//this assert is unwanted in 3D modelers (danger of loosing work)
 					assert(0);
-					body->SetActivationState(DISABLE_SIMULATION);
+					body->setActivationState(DISABLE_SIMULATION);
 					
 					static bool reportMe = true;
 					if (reportMe)
@@ -547,7 +547,7 @@ void	btDiscreteDynamicsWorld::integrateTransforms(float timeStep)
 		btRigidBody* body = btRigidBody::upcast(colObj);
 		if (body)
 		{
-			if (body->IsActive() && (!body->isStaticOrKinematicObject()))
+			if (body->isActive() && (!body->isStaticOrKinematicObject()))
 			{
 				body->predictIntegratedTransform(timeStep, predictedTrans);
 				body->proceedToTransform( predictedTrans);
@@ -570,7 +570,7 @@ void	btDiscreteDynamicsWorld::predictUnconstraintMotion(float timeStep)
 		{
 			if (!body->isStaticOrKinematicObject())
 			{
-				if (body->IsActive())
+				if (body->isActive())
 				{
 					body->applyForces( timeStep);
 					body->integrateVelocities( timeStep);

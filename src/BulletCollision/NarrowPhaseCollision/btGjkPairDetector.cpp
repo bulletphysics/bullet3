@@ -28,6 +28,7 @@ float maxdist2 = 1.e30f;
 
 #ifdef __SPU__
 #include <spu_printf.h>
+#define printf spu_printf
 #endif //__SPU__
 
 btGjkPairDetector::btGjkPairDetector(btConvexShape* objectA,btConvexShape* objectB,btSimplexSolverInterface* simplexSolver,btConvexPenetrationDepthSolver*	penetrationDepthSolver)
@@ -133,6 +134,7 @@ void btGjkPairDetector::getClosestPoints(const ClosestPointInput& input,Result& 
               if (curIter++ > gGjkMaxIter)   
               {   
                       #if defined(DEBUG) || defined (_DEBUG)   
+
                               printf("btGjkPairDetector maxIter exceeded:%i\n",curIter);   
                               printf("sepAxis=(%f,%f,%f), squaredDistance = %f, shapeTypeA=%i,shapeTypeB=%i\n",   
                               m_cachedSeparatingAxis.getX(),   
@@ -141,6 +143,7 @@ void btGjkPairDetector::getClosestPoints(const ClosestPointInput& input,Result& 
                               squaredDistance,   
                               m_minkowskiA->getShapeType(),   
                               m_minkowskiB->getShapeType());   
+
                       #endif   
                       break;   
 

@@ -326,7 +326,7 @@ float btSequentialImpulseConstraintSolver::solve(btPersistentManifold* manifoldP
 		for (int i=0;i<numpoints ;i++)
 		{
 
-			int j=i;
+			int j=i;//(i&1)? i : numpoints-1-i;
 		
 			btManifoldPoint& cp = manifoldPtr->getContactPoint(j);
 				if (cp.getDistance() <= 0.f)
@@ -368,9 +368,9 @@ float btSequentialImpulseConstraintSolver::solveFriction(btPersistentManifold* m
 		btVector3 color(0,1,0);
 		for (int i=0;i<numpoints ;i++)
 		{
+			
+			int j=i;//(i&1)? i : numpoints-1-i;
 
-			int j=i;
-		
 			btManifoldPoint& cp = manifoldPtr->getContactPoint(j);
 			if (cp.getDistance() <= 0.f)
 			{

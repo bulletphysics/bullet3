@@ -522,7 +522,7 @@ void DemoApplication::mouseFunc(int button, int state, int x, int y)
 						btRigidBody* body = btRigidBody::upcast(rayCallback.m_collisionObject);
 						if (body)
 						{
-								body->SetActivationState(ACTIVE_TAG);
+								body->setActivationState(ACTIVE_TAG);
 								btVector3 impulse = rayTo;
 								impulse.normalize();
 								float impulseStrength = 10.f;
@@ -562,7 +562,7 @@ void DemoApplication::mouseFunc(int button, int state, int x, int y)
 							if (!(body->isStaticObject() || body->isKinematicObject()))
 							{
 								pickedBody = body;
-								pickedBody->SetActivationState(DISABLE_DEACTIVATION);
+								pickedBody->setActivationState(DISABLE_DEACTIVATION);
 
 								
 								btVector3 pickPos = rayCallback.m_hitPointWorld;
@@ -596,7 +596,7 @@ void DemoApplication::mouseFunc(int button, int state, int x, int y)
 					delete m_pickConstraint;
 					//printf("removed constraint %i",gPickingConstraintId);
 					m_pickConstraint = 0;
-					pickedBody->ForceActivationState(ACTIVE_TAG);
+					pickedBody->forceActivationState(ACTIVE_TAG);
 					pickedBody->setDeactivationTime( 0.f );
 					pickedBody = 0;
 				}
@@ -699,7 +699,7 @@ void DemoApplication::renderme()
 				wireColor = btVector3(0.f,0.0f,1.f);
 			}
 			///color differently for active, sleeping, wantsdeactivation states
-			if (colObj->GetActivationState() == 1) //active
+			if (colObj->getActivationState() == 1) //active
 			{
 				if (i & 1)
 				{
@@ -709,7 +709,7 @@ void DemoApplication::renderme()
 					wireColor += btVector3 (.5f,0.f,0.f);
 				}
 			}
-			if (colObj->GetActivationState() == 2) //ISLAND_SLEEPING
+			if (colObj->getActivationState() == 2) //ISLAND_SLEEPING
 			{
 				if (i & 1)
 				{

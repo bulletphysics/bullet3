@@ -114,7 +114,7 @@ void	btSimpleDynamicsWorld::updateAabbs()
 		btRigidBody* body = btRigidBody::upcast(colObj);
 		if (body)
 		{
-			if (body->IsActive() && (!body->isStaticObject()))
+			if (body->isActive() && (!body->isStaticObject()))
 			{
 				btPoint3 minAabb,maxAabb;
 				colObj->getCollisionShape()->getAabb(colObj->getWorldTransform(), minAabb,maxAabb);
@@ -134,7 +134,7 @@ void	btSimpleDynamicsWorld::integrateTransforms(float timeStep)
 		btRigidBody* body = btRigidBody::upcast(colObj);
 		if (body)
 		{
-			if (body->IsActive() && (!body->isStaticObject()))
+			if (body->isActive() && (!body->isStaticObject()))
 			{
 				body->predictIntegratedTransform(timeStep, predictedTrans);
 				body->proceedToTransform( predictedTrans);
@@ -155,7 +155,7 @@ void	btSimpleDynamicsWorld::predictUnconstraintMotion(float timeStep)
 		{
 			if (!body->isStaticObject())
 			{
-				if (body->IsActive())
+				if (body->isActive())
 				{
 					body->applyForces( timeStep);
 					body->integrateVelocities( timeStep);
@@ -176,7 +176,7 @@ void	btSimpleDynamicsWorld::synchronizeMotionStates()
 		btRigidBody* body = btRigidBody::upcast(colObj);
 		if (body && body->getMotionState())
 		{
-			if (body->GetActivationState() != ISLAND_SLEEPING)
+			if (body->getActivationState() != ISLAND_SLEEPING)
 			{
 				body->getMotionState()->setWorldTransform(body->getWorldTransform());
 			}

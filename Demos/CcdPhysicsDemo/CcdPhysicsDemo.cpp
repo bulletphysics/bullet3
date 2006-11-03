@@ -152,7 +152,7 @@ void CcdPhysicsDemo::clientMoveAndDisplay()
 		btRigidBody::upcast(colObj)->getMotionState()->setWorldTransform(newTrans);
 	} else
 	{
-		m_dynamicsWorld->getCollisionObjectArray()[0]->m_worldTransform.getOrigin() += kinTranslation;
+		m_dynamicsWorld->getCollisionObjectArray()[0]->getWorldTransform().getOrigin() += kinTranslation;
 	}
 
 #endif //USE_KINEMATIC_GROUND
@@ -258,8 +258,12 @@ void	CcdPhysicsDemo::initPhysics()
 	
 #ifdef REGISTER_CUSTOM_COLLISION_ALGORITHM
 	dispatcher->registerCollisionCreateFunc(SPHERE_SHAPE_PROXYTYPE,SPHERE_SHAPE_PROXYTYPE,new btSphereSphereCollisionAlgorithm::CreateFunc);
-	dispatcher->registerCollisionCreateFunc(BOX_SHAPE_PROXYTYPE,BOX_SHAPE_PROXYTYPE,new BoxBoxCollisionAlgorithm::CreateFunc);
+	//box-box is in Extras/AlternativeCollisionAlgorithms:it requires inclusion of those files
+	//dispatcher->registerCollisionCreateFunc(BOX_SHAPE_PROXYTYPE,BOX_SHAPE_PROXYTYPE,new BoxBoxCollisionAlgorithm::CreateFunc);
 	dispatcher->registerCollisionCreateFunc(SPHERE_SHAPE_PROXYTYPE,TRIANGLE_SHAPE_PROXYTYPE,new btSphereTriangleCollisionAlgorithm::CreateFunc);
+	btSphereTriangleCollisionAlgorithm::CreateFunc* triangleSphereCF = new btSphereTriangleCollisionAlgorithm::CreateFunc;
+	triangleSphereCF->m_swapped = true;
+	dispatcher->registerCollisionCreateFunc(SPHERE_SHAPE_PROXYTYPE,TRIANGLE_SHAPE_PROXYTYPE,triangleSphereCF);
 #endif //REGISTER_CUSTOM_COLLISION_ALGORITHM
 
 #ifdef COMPARE_WITH_QUICKSTEP
@@ -361,8 +365,8 @@ void	CcdPhysicsDemo::initPhysics()
 #ifdef USE_KINEMATIC_GROUND
 		if (mass == 0.f)
 		{
-			body->m_collisionFlags = btCollisionObject::CF_KINEMATIC_OJBECT;
-			body->SetActivationState(DISABLE_DEACTIVATION);
+			body->setCollisionFlags( body->getCollisionFlags() | btCollisionObject::CF_KINEMATIC_OBJECT);
+			body->setActivationState(DISABLE_DEACTIVATION);
 		}
 #endif //USE_KINEMATIC_GROUND
 		

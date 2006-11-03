@@ -596,7 +596,7 @@ static void SOR_LCP (int m, int nb, dRealMutablePtr J, int *jb, OdeSolverBody * 
 void SolveInternal1 (float global_cfm,
 					 float global_erp,
 					 OdeSolverBody* const *body, int nb,
-					BU_Joint * const *_joint, 
+					BU_Joint **joint, 
 					int nj, 
 					const btContactSolverInfo& solverInfo)
 {
@@ -616,8 +616,8 @@ void SolveInternal1 (float global_cfm,
 	// (the "BU_Joint *const*" declaration says we're allowed to modify the joints
 	// but not the joint array, because the caller might need it unchanged).
 	//@@@ do we really need to do this? we'll be sorting constraint rows individually, not joints
-	BU_Joint **joint = (BU_Joint**) alloca (nj * sizeof(BU_Joint*));
-	memcpy (joint,_joint,nj * sizeof(BU_Joint*));
+	//BU_Joint **joint = (BU_Joint**) alloca (nj * sizeof(BU_Joint*));
+	//memcpy (joint,_joint,nj * sizeof(BU_Joint*));
 	
 	// for all bodies, compute the inertia tensor and its inverse in the global
 	// frame, and compute the rotational force and add it to the torque

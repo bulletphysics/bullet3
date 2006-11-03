@@ -166,11 +166,11 @@ void btSimulationIslandManager::buildAndProcessIslands(btDispatcher* dispatcher,
 			assert((colObj0->getIslandTag() == islandId) || (colObj0->getIslandTag() == -1));
 			if (colObj0->getIslandTag() == islandId)
 			{
-				if (colObj0->GetActivationState()== ACTIVE_TAG)
+				if (colObj0->getActivationState()== ACTIVE_TAG)
 				{
 					allSleeping = false;
 				}
-				if (colObj0->GetActivationState()== DISABLE_DEACTIVATION)
+				if (colObj0->getActivationState()== DISABLE_DEACTIVATION)
 				{
 					allSleeping = false;
 				}
@@ -193,7 +193,7 @@ void btSimulationIslandManager::buildAndProcessIslands(btDispatcher* dispatcher,
 
 				if (colObj0->getIslandTag() == islandId)
 				{
-					colObj0->SetActivationState( ISLAND_SLEEPING );
+					colObj0->setActivationState( ISLAND_SLEEPING );
 				}
 			}
 		} else
@@ -214,9 +214,9 @@ void btSimulationIslandManager::buildAndProcessIslands(btDispatcher* dispatcher,
 
 				if (colObj0->getIslandTag() == islandId)
 				{
-					if ( colObj0->GetActivationState() == ISLAND_SLEEPING)
+					if ( colObj0->getActivationState() == ISLAND_SLEEPING)
 					{
-						colObj0->SetActivationState( WANTS_DEACTIVATION);
+						colObj0->setActivationState( WANTS_DEACTIVATION);
 					}
 				}
 			}
@@ -236,17 +236,17 @@ void btSimulationIslandManager::buildAndProcessIslands(btDispatcher* dispatcher,
 		 btCollisionObject* colObj1 = static_cast<btCollisionObject*>(manifold->getBody1());
 		
 		 //todo: check sleeping conditions!
-		 if (((colObj0) && colObj0->GetActivationState() != ISLAND_SLEEPING) ||
-			((colObj1) && colObj1->GetActivationState() != ISLAND_SLEEPING))
+		 if (((colObj0) && colObj0->getActivationState() != ISLAND_SLEEPING) ||
+			((colObj1) && colObj1->getActivationState() != ISLAND_SLEEPING))
 		{
 			//kinematic objects don't merge islands, but wake up all connected objects
-			if (colObj0->isKinematicObject() && colObj0->GetActivationState() != ISLAND_SLEEPING)
+			if (colObj0->isKinematicObject() && colObj0->getActivationState() != ISLAND_SLEEPING)
 			{
-				colObj1->SetActivationState(ACTIVE_TAG);
+				colObj1->setActivationState(ACTIVE_TAG);
 			}
-			if (colObj1->isKinematicObject() && colObj1->GetActivationState() != ISLAND_SLEEPING)
+			if (colObj1->isKinematicObject() && colObj1->getActivationState() != ISLAND_SLEEPING)
 			{
-				colObj0->SetActivationState(ACTIVE_TAG);
+				colObj0->setActivationState(ACTIVE_TAG);
 			}
 
 			//filtering for response

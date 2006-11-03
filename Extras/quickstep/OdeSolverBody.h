@@ -21,7 +21,7 @@ class	btRigidBody;
 typedef btScalar dMatrix3[4*3];
 
 ///ODE's quickstep needs just a subset of the rigidbody data in its own layout, so make a temp copy
-struct	OdeSolverBody
+struct	OdeSolverBody 
 {
 	btRigidBody*	m_originalBody;
 

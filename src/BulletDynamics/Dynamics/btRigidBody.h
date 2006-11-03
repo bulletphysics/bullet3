@@ -251,7 +251,7 @@ public:
 
 	inline void	updateDeactivation(float timeStep)
 	{
-		if ( (GetActivationState() == ISLAND_SLEEPING) || (GetActivationState() == DISABLE_DEACTIVATION))
+		if ( (getActivationState() == ISLAND_SLEEPING) || (getActivationState() == DISABLE_DEACTIVATION))
 			return;
 
 		if ((getLinearVelocity().length2() < gLinearSleepingThreshold*gLinearSleepingThreshold) &&
@@ -261,7 +261,7 @@ public:
 		} else
 		{
 			m_deactivationTime=0.f;
-			SetActivationState(0);
+			setActivationState(0);
 		}
 
 	}
@@ -269,14 +269,14 @@ public:
 	inline bool	wantsSleeping()
 	{
 
-		if (GetActivationState() == DISABLE_DEACTIVATION)
+		if (getActivationState() == DISABLE_DEACTIVATION)
 			return false;
 
 		//disable deactivation
 		if (gDisableDeactivation || (gDeactivationTime == 0.f))
 			return false;
 
-		if ( (GetActivationState() == ISLAND_SLEEPING) || (GetActivationState() == WANTS_DEACTIVATION))
+		if ( (getActivationState() == ISLAND_SLEEPING) || (getActivationState() == WANTS_DEACTIVATION))
 			return true;
 
 		if (m_deactivationTime> gDeactivationTime)

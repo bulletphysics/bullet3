@@ -34,7 +34,7 @@ struct btContactSolverInfo;
 void SolveInternal1 (float global_cfm,
 					 float global_erp,
 					 OdeSolverBody * const *body, int nb,
-		     BU_Joint * const *_joint, int nj, const btContactSolverInfo& info);
+		     BU_Joint **_joint, int nj, const btContactSolverInfo& info);
 
 int dRandInt2 (int n);
 

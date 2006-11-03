@@ -257,7 +257,7 @@ bool	btCollisionDispatcher::needsCollision(btCollisionObject* body0,btCollisionO
 		printf("warning btCollisionDispatcher::needsCollision: static-static collision!\n");
 	}
 		
-	if ((!body0->IsActive()) && (!body1->IsActive()))
+	if ((!body0->isActive()) && (!body1->isActive()))
 		needsCollision = false;
 	
 	return needsCollision ;

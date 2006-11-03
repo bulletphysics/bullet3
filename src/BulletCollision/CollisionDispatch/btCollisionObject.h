@@ -80,7 +80,7 @@ public:
 	enum CollisionFlags
 	{
 		CF_STATIC_OBJECT= 1,
-		CF_KINEMATIC_OJBECT= 2,
+		CF_KINEMATIC_OBJECT= 2,
 		CF_NO_CONTACT_RESPONSE = 4,
 		CF_CUSTOM_MATERIAL_CALLBACK = 8,//this allows per-triangle material (friction/restitution)
 	};
@@ -89,7 +89,7 @@ public:
 	inline bool mergesSimulationIslands() const
 	{
 		///static objects, kinematic and object without contact response don't merge islands
-		return  ((m_collisionFlags & (CF_STATIC_OBJECT | CF_KINEMATIC_OJBECT | CF_NO_CONTACT_RESPONSE) )==0);
+		return  ((m_collisionFlags & (CF_STATIC_OBJECT | CF_KINEMATIC_OBJECT | CF_NO_CONTACT_RESPONSE) )==0);
 	}
 
 
@@ -99,12 +99,12 @@ public:
 
 	inline bool		isKinematicObject() const
 	{
-		return (m_collisionFlags & CF_KINEMATIC_OJBECT) != 0;
+		return (m_collisionFlags & CF_KINEMATIC_OBJECT) != 0;
 	}
 
 	inline bool		isStaticOrKinematicObject() const
 	{
-		return (m_collisionFlags & (CF_KINEMATIC_OJBECT | CF_STATIC_OBJECT)) != 0 ;
+		return (m_collisionFlags & (CF_KINEMATIC_OBJECT | CF_STATIC_OBJECT)) != 0 ;
 	}
 
 	inline bool		hasContactResponse() const {
@@ -133,9 +133,9 @@ public:
 	
 
 
-	int	GetActivationState() const { return m_activationState1;}
+	int	getActivationState() const { return m_activationState1;}
 	
-	void SetActivationState(int newState);
+	void setActivationState(int newState);
 
 	void	setDeactivationTime(float time)
 	{
@@ -146,13 +146,13 @@ public:
 		return m_deactivationTime;
 	}
 
-	void ForceActivationState(int newState);
+	void forceActivationState(int newState);
 
 	void	activate();
 
-	inline bool IsActive() const
+	inline bool isActive() const
 	{
-		return ((GetActivationState() != ISLAND_SLEEPING) && (GetActivationState() != DISABLE_SIMULATION));
+		return ((getActivationState() != ISLAND_SLEEPING) && (getActivationState() != DISABLE_SIMULATION));
 	}
 
 		void	setRestitution(float rest)
