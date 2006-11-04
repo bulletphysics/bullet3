@@ -153,7 +153,6 @@ void	ConcaveDemo::initPhysics()
 
 	m_dynamicsWorld = new btDiscreteDynamicsWorld();
 	
-	bool isDynamic = false;
 	float mass = 0.f;
 	btTransform	startTransform;
 	startTransform.setIdentity();

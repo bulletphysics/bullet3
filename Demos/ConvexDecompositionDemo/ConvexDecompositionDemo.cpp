@@ -186,13 +186,13 @@ void ConvexDecompositionDemo::initPhysics(const char* filename)
 						}
 					}
 
-					bool isDynamic = true;
 					float mass = 1.f;
 					btCollisionShape* convexShape = new btConvexTriangleMeshShape(trimesh);
 					btTransform trans;
 					trans.setIdentity();
 					trans.setOrigin(centroid);
-					btRigidBody* body = m_convexDemo->localCreateRigidBody( mass, trans,convexShape);
+					//btRigidBody* body = m_convexDemo->localCreateRigidBody( mass, trans,convexShape);
+					m_convexDemo->localCreateRigidBody( mass, trans,convexShape);
 					mBaseCount+=result.mHullVcount; // advance the 'base index' counter.
 
 
@@ -229,7 +229,6 @@ void ConvexDecompositionDemo::initPhysics(const char* filename)
 		}
 
 		btCollisionShape* convexShape = new btConvexTriangleMeshShape(trimesh);
-		bool isDynamic = true;
 		float mass = 1.f;
 		
 		btTransform startTransform;

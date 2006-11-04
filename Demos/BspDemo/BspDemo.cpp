@@ -63,7 +63,6 @@ public:
 			
 			if (vertices.size() > 0)
 			{
-				bool isDynamic = false;
 				float mass = 0.f;
 				btTransform startTransform;
 				//can use a shift
@@ -72,7 +71,8 @@ public:
 				//this create an internal copy of the vertices
 				btCollisionShape* shape = new btConvexHullShape(&(vertices[0].getX()),vertices.size());
 
-				btRigidBody* body = m_demoApp->localCreateRigidBody(mass, startTransform,shape);
+				//btRigidBody* body = m_demoApp->localCreateRigidBody(mass, startTransform,shape);
+				m_demoApp->localCreateRigidBody(mass, startTransform,shape);
 			}
 		}
 };

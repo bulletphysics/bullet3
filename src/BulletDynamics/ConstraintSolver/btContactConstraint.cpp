@@ -398,3 +398,4 @@ float resolveSingleFrictionEmpty(
 {
 	return 0.f;
 };
+

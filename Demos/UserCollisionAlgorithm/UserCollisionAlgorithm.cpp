@@ -75,7 +75,6 @@ void	UserCollisionAlgorithm::initPhysics()
 	const int NUM_VERTS_X = 50;
 	const int NUM_VERTS_Y = 50;
 	const int totalVerts = NUM_VERTS_X*NUM_VERTS_Y;
-	const int totalTriangles = 2*(NUM_VERTS_X-1)*(NUM_VERTS_Y-1);
 
 	btVector3*	gVertices = new btVector3[totalVerts];
 	
@@ -90,7 +89,6 @@ void	UserCollisionAlgorithm::initPhysics()
 
 	btTriangleMesh* trimesh = new btTriangleMesh();
 
-	int index=0;
 	for ( i=0;i<NUM_VERTS_X-1;i++)
 	{
 		for (int j=0;j<NUM_VERTS_Y-1;j++)
@@ -115,7 +113,6 @@ void	UserCollisionAlgorithm::initPhysics()
 
 	m_dynamicsWorld = new btDiscreteDynamicsWorld(dispatcher,broadphase);
 	
-		bool isDynamic = false;
 	float mass = 0.f;
 	btTransform	startTransform;
 	startTransform.setIdentity();
@@ -130,7 +127,8 @@ void	UserCollisionAlgorithm::initPhysics()
 		{
 			btCollisionShape* sphereShape = new btSphereShape(1);
 			startTransform.setOrigin(btVector3(1,2*i,1));
-			btRigidBody* body = localCreateRigidBody(1, startTransform,sphereShape);
+			//btRigidBody* body = localCreateRigidBody(1, startTransform,sphereShape);
+			localCreateRigidBody(1, startTransform,sphereShape);
 		}
 	}
 	

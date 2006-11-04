@@ -779,3 +779,4 @@ void	btDiscreteDynamicsWorld::setConstraintSolver(btConstraintSolver* solver)
 	m_ownsConstraintSolver = false;
 	m_constraintSolver = solver;
 }
+

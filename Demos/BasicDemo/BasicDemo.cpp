@@ -164,14 +164,15 @@ void	BasicDemo::initPhysics()
 		trans.setIdentity();
 		//stack them
 		int colsize = 2;
-		int row = (i*HALF_EXTENTS*2)/(colsize*2*HALF_EXTENTS);
+		int row = (int)((i*HALF_EXTENTS*2)/(colsize*2*HALF_EXTENTS));
 		int row2 = row;
 		int col = (i)%(colsize)-colsize/2;
 		btVector3 pos(col*2*HALF_EXTENTS + (row2%2)*HALF_EXTENTS,
 			row*2*HALF_EXTENTS+HALF_EXTENTS,0);
 
 		trans.setOrigin(pos);
-		btRigidBody* body = localCreateRigidBody(1.f,trans,sphereShape);
+		//btRigidBody* body = localCreateRigidBody(1.f,trans,sphereShape);
+		localCreateRigidBody(1.f,trans,sphereShape);
 	}
 
 	clientResetScene();
@@ -194,9 +195,9 @@ void	BasicDemo::exitPhysics()
 	}
 
 	//delete collision shapes
-	for (i=0;i<m_collisionShapes.size();i++)
+	for (unsigned int j=0;j<m_collisionShapes.size();j++)
 	{
-		btCollisionShape* shape = m_collisionShapes[i];
+		btCollisionShape* shape = m_collisionShapes[j];
 		delete shape;
 	}
 
