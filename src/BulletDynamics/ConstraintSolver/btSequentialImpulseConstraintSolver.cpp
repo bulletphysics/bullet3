@@ -32,8 +32,14 @@ int totalCpd = 0;
 
 int	gTotalContactPoints = 0;
 
-#define SEQUENTIAL_IMPULSE_MAX_SOLVER_BODIES 16384
-static int	gOrder[SEQUENTIAL_IMPULSE_MAX_SOLVER_BODIES];
+struct	btOrderIndex
+{
+	short int	m_manifoldIndex;
+	short int	m_pointIndex;
+};
+
+#define SEQUENTIAL_IMPULSE_MAX_SOLVER_POINTS 16384
+static btOrderIndex	gOrder[SEQUENTIAL_IMPULSE_MAX_SOLVER_POINTS];
 static unsigned long btSeed2 = 0;
 unsigned long btRand2()
 {
@@ -84,12 +90,26 @@ float btSequentialImpulseConstraintSolver::solveGroup(btPersistentManifold** man
 	btProfiler::beginBlock("solve");
 #endif //USE_PROFILE
 
+	int totalPoints = 0;
+
 	{
 		int j;
 		for (j=0;j<numManifolds;j++)
 		{
-			gOrder[j] = j;
 			prepareConstraints(manifoldPtr[j],info,debugDrawer);
+		}
+	}
+
+	{
+		int j;
+		for (j=0;j<numManifolds;j++)
+		{
+			for (int p=0;p<manifoldPtr[j]->getNumContacts();p++)
+			{
+				gOrder[totalPoints].m_manifoldIndex = j;
+				gOrder[totalPoints].m_pointIndex = p;
+				totalPoints++;
+			}
 		}
 	}
 	
@@ -100,23 +120,27 @@ float btSequentialImpulseConstraintSolver::solveGroup(btPersistentManifold** man
 	{
 		int j;
 		if ((iteration & 7) == 0) {
-			for (j=0; j<numManifolds; ++j) {
-				int tmp = gOrder[j];
+			for (j=0; j<totalPoints; ++j) {
+				btOrderIndex tmp = gOrder[j];
 				int swapi = btRandInt2(j+1);
 				gOrder[j] = gOrder[swapi];
 				gOrder[swapi] = tmp;
 			}
 		}
 
-		for (j=0;j<numManifolds;j++)
+		for (j=0;j<totalPoints;j++)
 		{
-			solve(manifoldPtr[gOrder[j]],info,iteration,debugDrawer);
+			btPersistentManifold* manifold = manifoldPtr[gOrder[j].m_manifoldIndex];
+			solve( (btRigidBody*)manifold->getBody0(),
+								(btRigidBody*)manifold->getBody1()
+			,manifold->getContactPoint(gOrder[j].m_pointIndex),info,iteration,debugDrawer);
 		}
-
 	
-		for (j=0;j<numManifolds;j++)
+		for (j=0;j<totalPoints;j++)
 		{
-			solveFriction(manifoldPtr[gOrder[j]],info,iteration,debugDrawer);
+			btPersistentManifold* manifold = manifoldPtr[gOrder[j].m_manifoldIndex];
+			solveFriction((btRigidBody*)manifold->getBody0(),
+				(btRigidBody*)manifold->getBody1(),manifold->getContactPoint(gOrder[j].m_pointIndex),info,iteration,debugDrawer);
 		}
 	}
 		
@@ -311,25 +335,16 @@ void	btSequentialImpulseConstraintSolver::prepareConstraints(btPersistentManifol
 	}
 }
 
-float btSequentialImpulseConstraintSolver::solve(btPersistentManifold* manifoldPtr, const btContactSolverInfo& info,int iter,btIDebugDraw* debugDrawer)
+float btSequentialImpulseConstraintSolver::solve(btRigidBody* body0,btRigidBody* body1, btManifoldPoint& cp, const btContactSolverInfo& info,int iter,btIDebugDraw* debugDrawer)
 {
-
-	btRigidBody* body0 = (btRigidBody*)manifoldPtr->getBody0();
-	btRigidBody* body1 = (btRigidBody*)manifoldPtr->getBody1();
 
 	float maxImpulse = 0.f;
 
 	{
-		const int numpoints = manifoldPtr->getNumContacts();
 
 		btVector3 color(0,1,0);
-		for (int i=0;i<numpoints ;i++)
 		{
-
-			int j=i;//(i&1)? i : numpoints-1-i;
-		
-			btManifoldPoint& cp = manifoldPtr->getContactPoint(j);
-				if (cp.getDistance() <= 0.f)
+			if (cp.getDistance() <= 0.f)
 			{
 
 				if (iter == 0)
@@ -356,22 +371,15 @@ float btSequentialImpulseConstraintSolver::solve(btPersistentManifold* manifoldP
 	return maxImpulse;
 }
 
-float btSequentialImpulseConstraintSolver::solveFriction(btPersistentManifold* manifoldPtr, const btContactSolverInfo& info,int iter,btIDebugDraw* debugDrawer)
+float btSequentialImpulseConstraintSolver::solveFriction(btRigidBody* body0,btRigidBody* body1, btManifoldPoint& cp, const btContactSolverInfo& info,int iter,btIDebugDraw* debugDrawer)
 {
-	btRigidBody* body0 = (btRigidBody*)manifoldPtr->getBody0();
-	btRigidBody* body1 = (btRigidBody*)manifoldPtr->getBody1();
 
 
 	{
-		const int numpoints = manifoldPtr->getNumContacts();
 
 		btVector3 color(0,1,0);
-		for (int i=0;i<numpoints ;i++)
 		{
 			
-			int j=i;//(i&1)? i : numpoints-1-i;
-
-			btManifoldPoint& cp = manifoldPtr->getContactPoint(j);
 			if (cp.getDistance() <= 0.f)
 			{
 

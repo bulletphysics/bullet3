@@ -56,6 +56,7 @@ subject to the following restrictions:
 
 #include <algorithm>
 
+
 btDiscreteDynamicsWorld::btDiscreteDynamicsWorld(btConstraintSolver* constraintSolver)
 :btDynamicsWorld(),
 m_constraintSolver(constraintSolver? constraintSolver: new btSequentialImpulseConstraintSolver),
@@ -68,6 +69,7 @@ m_profileTimings(0)
 	m_ownsIslandManager = true;
 	m_ownsConstraintSolver = (constraintSolver==0);
 }
+
 
 btDiscreteDynamicsWorld::btDiscreteDynamicsWorld(btDispatcher* dispatcher,btOverlappingPairCache* pairCache,btConstraintSolver* constraintSolver)
 :btDynamicsWorld(dispatcher,pairCache),

@@ -116,18 +116,18 @@ btRigidBody::btRigidBody( float mass,const btTransform& worldTransform,btCollisi
 //note there this influences deactivation thresholds!
 float gClippedAngvelThresholdSqr = 0.01f;
 float	gClippedLinearThresholdSqr = 0.01f;
-float	gJitterVelocityDampingFactor = 1.0f;
+float	gJitterVelocityDampingFactor = 1.f;
 #endif //EXPERIMENTAL_JITTER_REMOVAL
 
 void btRigidBody::predictIntegratedTransform(btScalar timeStep,btTransform& predictedTransform) 
 {
 
 #ifdef EXPERIMENTAL_JITTER_REMOVAL
-	if (wantsSleeping())
+	//if (wantsSleeping())
 	{
 		//clip to avoid jitter
-//		if ((m_angularVelocity.length2() < gClippedAngvelThresholdSqr) &&
-//			(m_linearVelocity.length2() < gClippedLinearThresholdSqr))
+		if ((m_angularVelocity.length2() < gClippedAngvelThresholdSqr) &&
+			(m_linearVelocity.length2() < gClippedLinearThresholdSqr))
 		{
 			m_angularVelocity *= gJitterVelocityDampingFactor;
 			m_linearVelocity *= gJitterVelocityDampingFactor;

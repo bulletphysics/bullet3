@@ -114,9 +114,12 @@ btCollisionShape* shapePtr[numShapes] =
 
 GLDebugDrawer debugDrawer;
 
+//experimental jitter damping (1 = no damping, 0 = total damping once motion below threshold)
+extern float gJitterVelocityDampingFactor;
+
 int main(int argc,char** argv)
 {
-
+	gJitterVelocityDampingFactor = 0.7;
 
 	CcdPhysicsDemo* ccdDemo = new CcdPhysicsDemo();
 

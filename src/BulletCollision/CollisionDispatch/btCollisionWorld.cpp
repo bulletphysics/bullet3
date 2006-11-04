@@ -40,6 +40,7 @@ m_ownsBroadphasePairCache(false)
 {
 }
 
+
 btCollisionWorld::btCollisionWorld()
 : m_dispatcher1(new	btCollisionDispatcher()),
 m_broadphasePairCache(new btSimpleBroadphase()),

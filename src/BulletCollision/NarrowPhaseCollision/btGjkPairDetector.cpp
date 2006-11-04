@@ -22,9 +22,9 @@ subject to the following restrictions:
 #include <stdio.h> //for debug printf
 #endif
 
-static const btScalar rel_error = btScalar(1.0e-5);
-btScalar rel_error2 = rel_error * rel_error;
-float maxdist2 = 1.e30f;
+
+#define REL_ERROR2 1.0e-10f
+
 
 #ifdef __SPU__
 #include <spu_printf.h>
@@ -102,7 +102,7 @@ void btGjkPairDetector::getClosestPoints(const ClosestPointInput& input,Result& 
 				break;
 			}
 			// are we getting any closer ?
-			if (squaredDistance - delta <= squaredDistance * rel_error2)
+			if (squaredDistance - delta <= squaredDistance * REL_ERROR2)
 			{
 				checkSimplex = true;
 				break;
@@ -172,6 +172,7 @@ void btGjkPairDetector::getClosestPoints(const ClosestPointInput& input,Result& 
 				float rlen = 1.f / btSqrt(lenSqr );
 				normalInB *= rlen; //normalize
 				btScalar s = btSqrt(squaredDistance);
+			
 				ASSERT(s > btScalar(0.0));
 				pointOnA -= m_cachedSeparatingAxis * (marginA / s);
 				pointOnB += m_cachedSeparatingAxis * (marginB / s);
