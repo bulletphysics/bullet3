@@ -121,7 +121,10 @@ void	ConcaveDemo::initPhysics()
 	{
 		for (int j=0;j<NUM_VERTS_Y;j++)
 		{
-			gVertices[i+j*NUM_VERTS_X].setValue((i-NUM_VERTS_X*0.5f)*TRIANGLE_SIZE,2.f*sinf((float)i)*cosf((float)j),(j-NUM_VERTS_Y*0.5f)*TRIANGLE_SIZE);
+			gVertices[i+j*NUM_VERTS_X].setValue((i-NUM_VERTS_X*0.5f)*TRIANGLE_SIZE,
+				//0.f,
+				2.f*sinf((float)i)*cosf((float)j),
+				(j-NUM_VERTS_Y*0.5f)*TRIANGLE_SIZE);
 		}
 	}
 
@@ -156,7 +159,7 @@ void	ConcaveDemo::initPhysics()
 	float mass = 0.f;
 	btTransform	startTransform;
 	startTransform.setIdentity();
-	startTransform.setOrigin(btVector3(0,0,0));
+	startTransform.setOrigin(btVector3(0,-2,0));
 
 	btRigidBody* staticBody = localCreateRigidBody(mass, startTransform,trimeshShape);
 

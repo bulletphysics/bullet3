@@ -45,7 +45,7 @@ struct MyResult : public btDiscreteCollisionDetectorInterface::Result
 };
 
 #define NUM_UNITSPHERE_POINTS 42
-static btVector3	sPenetrationDirections[NUM_UNITSPHERE_POINTS] = 
+static btVector3	sPenetrationDirections[NUM_UNITSPHERE_POINTS+MAX_PREFERRED_PENETRATION_DIRECTIONS*2] = 
 {
 btVector3(0.000000f , -0.000000f,-1.000000f),
 btVector3(0.723608f , -0.525725f,-0.447219f),
@@ -110,22 +110,62 @@ bool btMinkowskiPenetrationDepthSolver::calcPenDepth(btSimplexSolverInterface& s
 
 #define USE_BATCHED_SUPPORT 1
 #ifdef USE_BATCHED_SUPPORT
-	btVector3	supportVerticesABatch[NUM_UNITSPHERE_POINTS];
-	btVector3	supportVerticesBBatch[NUM_UNITSPHERE_POINTS];
-	btVector3	seperatingAxisInABatch[NUM_UNITSPHERE_POINTS];
-	btVector3	seperatingAxisInBBatch[NUM_UNITSPHERE_POINTS];
+
+	btVector3	supportVerticesABatch[NUM_UNITSPHERE_POINTS+MAX_PREFERRED_PENETRATION_DIRECTIONS*2];
+	btVector3	supportVerticesBBatch[NUM_UNITSPHERE_POINTS+MAX_PREFERRED_PENETRATION_DIRECTIONS*2];
+	btVector3	seperatingAxisInABatch[NUM_UNITSPHERE_POINTS+MAX_PREFERRED_PENETRATION_DIRECTIONS*2];
+	btVector3	seperatingAxisInBBatch[NUM_UNITSPHERE_POINTS+MAX_PREFERRED_PENETRATION_DIRECTIONS*2];
 	int i;
 
-	for (i=0;i<NUM_UNITSPHERE_POINTS;i++)
+	int numSampleDirections = NUM_UNITSPHERE_POINTS;
+
+	for (i=0;i<numSampleDirections;i++)
 	{
 		const btVector3& norm = sPenetrationDirections[i];
-		seperatingAxisInABatch[i] = (-norm)* transA.getBasis();
-		seperatingAxisInBBatch[i] = norm * transB.getBasis();
+		seperatingAxisInABatch[i] =  (-norm) * transA.getBasis() ;
+		seperatingAxisInBBatch[i] =  norm   * transB.getBasis() ;
 	}
 
-	convexA->batchedUnitVectorGetSupportingVertexWithoutMargin(seperatingAxisInABatch,supportVerticesABatch,NUM_UNITSPHERE_POINTS);
-	convexB->batchedUnitVectorGetSupportingVertexWithoutMargin(seperatingAxisInBBatch,supportVerticesBBatch,NUM_UNITSPHERE_POINTS);
-	for (i=0;i<NUM_UNITSPHERE_POINTS;i++)
+	{
+		int numPDA = convexA->getNumPreferredPenetrationDirections();
+		if (numPDA)
+		{
+			for (int i=0;i<numPDA;i++)
+			{
+				btVector3 norm;
+				convexA->getPreferredPenetrationDirection(i,norm);
+				norm  = transA.getBasis() * norm;
+				sPenetrationDirections[numSampleDirections] = norm;
+				seperatingAxisInABatch[numSampleDirections] = (-norm) * transA.getBasis();
+				seperatingAxisInBBatch[numSampleDirections] = norm * transB.getBasis();
+				numSampleDirections++;
+			}
+		}
+	}
+
+	{
+		int numPDB = convexB->getNumPreferredPenetrationDirections();
+		if (numPDB)
+		{
+			for (int i=0;i<numPDB;i++)
+			{
+				btVector3 norm;
+				convexB->getPreferredPenetrationDirection(i,norm);
+				norm  = transB.getBasis() * norm;
+				sPenetrationDirections[numSampleDirections] = norm;
+				seperatingAxisInABatch[numSampleDirections] = (-norm) * transA.getBasis();
+				seperatingAxisInBBatch[numSampleDirections] = norm * transB.getBasis();
+				numSampleDirections++;
+			}
+		}
+	}
+
+
+
+	convexA->batchedUnitVectorGetSupportingVertexWithoutMargin(seperatingAxisInABatch,supportVerticesABatch,numSampleDirections);
+	convexB->batchedUnitVectorGetSupportingVertexWithoutMargin(seperatingAxisInBBatch,supportVerticesBBatch,numSampleDirections);
+
+	for (i=0;i<numSampleDirections;i++)
 	{
 		const btVector3& norm = sPenetrationDirections[i];
 		seperatingAxisInA = seperatingAxisInABatch[i];
@@ -148,7 +188,40 @@ bool btMinkowskiPenetrationDepthSolver::calcPenDepth(btSimplexSolverInterface& s
 		}
 	}	
 #else
-	for (int i=0;i<NUM_UNITSPHERE_POINTS;i++)
+
+	int numSampleDirections = NUM_UNITSPHERE_POINTS;
+
+	{
+		int numPDA = convexA->getNumPreferredPenetrationDirections();
+		if (numPDA)
+		{
+			for (int i=0;i<numPDA;i++)
+			{
+				btVector3 norm;
+				convexA->getPreferredPenetrationDirection(i,norm);
+				norm  = transA.getBasis() * norm;
+				sPenetrationDirections[numSampleDirections] = norm;
+				numSampleDirections++;
+			}
+		}
+	}
+
+	{
+		int numPDB = convexB->getNumPreferredPenetrationDirections();
+		if (numPDB)
+		{
+			for (int i=0;i<numPDB;i++)
+			{
+				btVector3 norm;
+				convexB->getPreferredPenetrationDirection(i,norm);
+				norm  = transB.getBasis() * norm;
+				sPenetrationDirections[numSampleDirections] = norm;
+				numSampleDirections++;
+			}
+		}
+	}
+
+	for (int i=0;i<numSampleDirections;i++)
 	{
 		const btVector3& norm = sPenetrationDirections[i];
 		seperatingAxisInA = (-norm)* transA.getBasis();

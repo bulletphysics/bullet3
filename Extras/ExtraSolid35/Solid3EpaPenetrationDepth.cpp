@@ -318,9 +318,11 @@ inline bool originInTetrahedron(const btVector3& p1, const btVector3& p2,
 
 
 bool Solid3EpaPenetrationDepth::calcPenDepth( btSimplexSolverInterface& simplexSolver,
-			btConvexShape* convexA,btConvexShape* convexB,
-			const btTransform& transformA,const btTransform& transformB,
-			btVector3& v, btPoint3& pa, btPoint3& pb)
+		btConvexShape* convexA,btConvexShape* convexB,
+					const btTransform& transformA,const btTransform& transformB,
+				btVector3& v, btPoint3& pa, btPoint3& pb,
+				class btIDebugDraw* debugDraw
+				)
 {
 	
     int num_verts = simplexSolver.getSimplex(pBuf, qBuf, yBuf);

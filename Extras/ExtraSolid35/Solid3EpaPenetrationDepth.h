@@ -32,10 +32,12 @@ class Solid3EpaPenetrationDepth : public btConvexPenetrationDepthSolver
 {
 public:
 
-	virtual bool calcPenDepth(btSimplexSolverInterface& simplexSolver,
+		virtual bool calcPenDepth( btSimplexSolverInterface& simplexSolver,
 		btConvexShape* convexA,btConvexShape* convexB,
-		const btTransform& transformA,const btTransform& transformB,
-				btVector3& v, btPoint3& pa, btPoint3& pb);
+					const btTransform& transA,const btTransform& transB,
+				btVector3& v, btPoint3& pa, btPoint3& pb,
+				class btIDebugDraw* debugDraw
+				);
 
 };
 

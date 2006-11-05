@@ -65,22 +65,43 @@ void GL_ShapeDrawer::drawCoordSystem()  {
 
 class GlDrawcallback : public btTriangleCallback
 {
+
 public:
+
+	bool	m_wireframe;
+
+	GlDrawcallback()
+		:m_wireframe(false)
+	{
+	}
 
 	virtual void processTriangle(btVector3* triangle,int partId, int triangleIndex)
 	{
-		glBegin(GL_LINES);
-		glColor3f(1, 0, 0);
-		glVertex3d(triangle[0].getX(), triangle[0].getY(), triangle[0].getZ());
-		glVertex3d(triangle[1].getX(), triangle[1].getY(), triangle[1].getZ());
-		glColor3f(0, 1, 0);
-		glVertex3d(triangle[2].getX(), triangle[2].getY(), triangle[2].getZ());
-		glVertex3d(triangle[1].getX(), triangle[1].getY(), triangle[1].getZ());
-		glColor3f(0, 0, 1);
-		glVertex3d(triangle[2].getX(), triangle[2].getY(), triangle[2].getZ());
-		glVertex3d(triangle[0].getX(), triangle[0].getY(), triangle[0].getZ());
-		glEnd();
 
+		if (m_wireframe)
+		{
+			glBegin(GL_LINES);
+			glColor3f(1, 0, 0);
+			glVertex3d(triangle[0].getX(), triangle[0].getY(), triangle[0].getZ());
+			glVertex3d(triangle[1].getX(), triangle[1].getY(), triangle[1].getZ());
+			glColor3f(0, 1, 0);
+			glVertex3d(triangle[2].getX(), triangle[2].getY(), triangle[2].getZ());
+			glVertex3d(triangle[1].getX(), triangle[1].getY(), triangle[1].getZ());
+			glColor3f(0, 0, 1);
+			glVertex3d(triangle[2].getX(), triangle[2].getY(), triangle[2].getZ());
+			glVertex3d(triangle[0].getX(), triangle[0].getY(), triangle[0].getZ());
+			glEnd();
+		} else
+		{
+			glBegin(GL_TRIANGLES);
+			glColor3f(1, 0, 0);
+			glVertex3d(triangle[0].getX(), triangle[0].getY(), triangle[0].getZ());
+			glColor3f(0, 1, 0);
+			glVertex3d(triangle[1].getX(), triangle[1].getY(), triangle[1].getZ());
+			glColor3f(0, 0, 1);
+			glVertex3d(triangle[2].getX(), triangle[2].getY(), triangle[2].getZ());
+			glEnd();
+		}
 	}
 };
 
@@ -312,6 +333,7 @@ void GL_ShapeDrawer::drawOpenGL(float* m, const btCollisionShape* shape, const b
 			btVector3 aabbMin(-1e30f,-1e30f,-1e30f);
 
 			GlDrawcallback drawCallback;
+			drawCallback.m_wireframe = (debugMode & btIDebugDraw::DBG_DrawWireframe)!=0;
 
 			concaveMesh->processAllTriangles(&drawCallback,aabbMin,aabbMax);
 
