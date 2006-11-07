@@ -269,12 +269,19 @@ void	btDiscreteDynamicsWorld::removeRigidBody(btRigidBody* body)
 
 void	btDiscreteDynamicsWorld::addRigidBody(btRigidBody* body)
 {
-	body->setGravity(m_gravity);
-	bool isDynamic = !(body->isStaticObject() || body->isKinematicObject());
-	short collisionFilterGroup = isDynamic? btBroadphaseProxy::DefaultFilter : btBroadphaseProxy::StaticFilter;
-	short collisionFilterMask = isDynamic? 	btBroadphaseProxy::AllFilter : 	btBroadphaseProxy::AllFilter ^ btBroadphaseProxy::StaticFilter;
+	if (!body->isStaticOrKinematicObject())
+	{
+		body->setGravity(m_gravity);
+	}
 
-	addCollisionObject(body,collisionFilterGroup,collisionFilterMask);
+	if (body->getCollisionShape())
+	{
+		bool isDynamic = !(body->isStaticObject() || body->isKinematicObject());
+		short collisionFilterGroup = isDynamic? btBroadphaseProxy::DefaultFilter : btBroadphaseProxy::StaticFilter;
+		short collisionFilterMask = isDynamic? 	btBroadphaseProxy::AllFilter : 	btBroadphaseProxy::AllFilter ^ btBroadphaseProxy::StaticFilter;
+
+		addCollisionObject(body,collisionFilterGroup,collisionFilterMask);
+	}
 }
 
 

@@ -14,6 +14,7 @@ subject to the following restrictions:
 */
 
 
+
 #include "btBulletDynamicsCommon.h"
 #include "LinearMath/btIDebugDraw.h"
 
@@ -45,8 +46,21 @@ int main(int argc,char** argv)
 	return glutmain(argc, argv,640,480,"Constraint Demo. http://www.continuousphysics.com/Bullet/phpBB2/",constraintDemo);
 }
 
+btTransform sliderTransform;
+btVector3 lowerSliderLimit = btVector3(-20,0,0);
+btVector3 hiSliderLimit = btVector3(10,0,0);
 
-
+void	drawLimit()
+{
+		btVector3 from = sliderTransform*lowerSliderLimit;
+		btVector3 to = sliderTransform*hiSliderLimit;
+		btVector3 color(255,0,0);
+		glBegin(GL_LINES);
+		glColor3f(color.getX(), color.getY(), color.getZ());
+		glVertex3d(from.getX(), from.getY(), from.getZ());
+		glVertex3d(to.getX(), to.getY(), to.getZ());
+		glEnd();
+}
 
 void	ConstraintDemo::initPhysics()
 {
@@ -56,6 +70,7 @@ void	ConstraintDemo::initPhysics()
 	//btOverlappingPairCache* broadphase = new btSimpleBroadphase();
 
 	m_dynamicsWorld = new btDiscreteDynamicsWorld();
+	m_dynamicsWorld->setDebugDrawer(&debugDrawer);
 
 	btCollisionShape* shape = new btBoxShape(btVector3(CUBE_HALF_EXTENTS,CUBE_HALF_EXTENTS,CUBE_HALF_EXTENTS));
 	btTransform trans;
@@ -63,17 +78,16 @@ void	ConstraintDemo::initPhysics()
 	trans.setOrigin(btVector3(0,20,0));
 
 	float mass = 0.f;
-	btRigidBody* body0 = localCreateRigidBody( mass,trans,shape);
-	trans.setOrigin(btVector3(2*CUBE_HALF_EXTENTS,20,0));
-
-	mass = 1.f;
-	btRigidBody* body1 = localCreateRigidBody( mass,trans,shape);
-	body1->setDamping(0.3,0.3);
-
-	
-	clientResetScene();
-
+	//point to point constraint (ball socket)
 	{
+		btRigidBody* body0 = localCreateRigidBody( mass,trans,shape);
+		trans.setOrigin(btVector3(2*CUBE_HALF_EXTENTS,20,0));
+
+		mass = 1.f;
+		btRigidBody* body1 = localCreateRigidBody( mass,trans,shape);
+		body1->setActivationState(DISABLE_DEACTIVATION);
+		body1->setDamping(0.3,0.3);
+
 		btVector3 pivotInA(CUBE_HALF_EXTENTS,-CUBE_HALF_EXTENTS,-CUBE_HALF_EXTENTS);
 		btVector3 axisInA(0,0,1);
 
@@ -87,20 +101,79 @@ void	ConstraintDemo::initPhysics()
 		m_dynamicsWorld->addConstraint(p2p);
 
 	}
+
+	
+
+	//create a slider, using the generic D6 constraint
+	{
+		mass = 1.f;
+		btVector3 sliderWorldPos(0,10,0);
+		btVector3 sliderAxis(0,0,1);
+		btScalar angle=SIMD_RADS_PER_DEG * 10.f;
+		btMatrix3x3 sliderOrientation(btQuaternion(sliderAxis ,angle));
+		trans.setOrigin(sliderWorldPos);
+		trans.setBasis(sliderOrientation);
+		sliderTransform = trans;
+
+		btRigidBody* body0 = localCreateRigidBody( mass,trans,shape);
+		body0->setActivationState(DISABLE_DEACTIVATION);
+		btRigidBody* fixedBody1 = localCreateRigidBody(0,trans,0);
+
+		btTransform frameInA, frameInB;
+		frameInA = btTransform::getIdentity();
+		frameInB = btTransform::getIdentity();
+		
+		btGeneric6DofConstraint* slider = new btGeneric6DofConstraint(*body0,*fixedBody1,frameInA,frameInB);
+		slider->setLinearLowerLimit(lowerSliderLimit);
+		slider->setLinearUpperLimit(hiSliderLimit);
+		slider->setAngularLowerLimit(btVector3(1e30,0,0));
+		slider->setAngularUpperLimit(btVector3(-1e30,0,0));
+
+		m_dynamicsWorld->addConstraint(slider);
+
+	}
+
 }
 
 
 void ConstraintDemo::clientMoveAndDisplay()
 {
 	
-	 glClear(GL_COLOR_BUFFER_BIT | GL_DEPTH_BUFFER_BIT); 
+ glClear(GL_COLOR_BUFFER_BIT | GL_DEPTH_BUFFER_BIT); 
 
-	float dt = m_clock.getTimeMilliseconds() * 0.001f;
+ 	float dt = float(m_clock.getTimeMicroseconds()) * 0.000001f;
 	m_clock.reset();
 
+	//printf("dt = %f: ",dt);
+	
+ {
+	 	//during idle mode, just run 1 simulation step maximum
+		int maxSimSubSteps = m_idle ? 1 : 1;
+		if (m_idle)
+			dt = 1.0/420.f;
 
-	m_dynamicsWorld->stepSimulation(dt);
+		int numSimSteps = m_dynamicsWorld->stepSimulation(dt,maxSimSubSteps);
+		bool verbose = false;
+		if (verbose)
+		{
+			if (!numSimSteps)
+				printf("Interpolated transforms\n");
+			else
+			{
+				if (numSimSteps > maxSimSubSteps)
+				{
+					//detect dropping frames
+					printf("Dropped (%i) simulation steps out of %i\n",numSimSteps - maxSimSubSteps,numSimSteps);
+				} else
+				{
+					printf("Simulated (%i) steps\n",numSimSteps);
+				}
+			}
+		}
+ }
 	renderme();
+
+	drawLimit();
 
     glFlush();
     glutSwapBuffers();
@@ -112,6 +185,11 @@ void ConstraintDemo::clientMoveAndDisplay()
 void ConstraintDemo::displayCallback(void) {
 
     glClear(GL_COLOR_BUFFER_BIT | GL_DEPTH_BUFFER_BIT); 
+
+	
+	m_dynamicsWorld->updateAabbs();
+	
+	drawLimit();
 
 	renderme();
 

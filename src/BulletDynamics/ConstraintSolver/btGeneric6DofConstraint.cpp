@@ -21,6 +21,7 @@ subject to the following restrictions:
 static const btScalar kSign[] = { 1.0f, -1.0f, 1.0f };
 static const int kAxisA[] = { 1, 0, 0 };
 static const int kAxisB[] = { 2, 2, 1 };
+#define GENERIC_D6_DISABLE_WARMSTARTING 1
 
 btGeneric6DofConstraint::btGeneric6DofConstraint()
 {
@@ -47,7 +48,7 @@ btGeneric6DofConstraint::btGeneric6DofConstraint(btRigidBody& rbA, btRigidBody& 
 
 void btGeneric6DofConstraint::buildJacobian()
 {
-	btVector3	normal(0,0,0);
+	btVector3	localNormalInA(0,0,0);
 
 	const btVector3& pivotInA = m_frameInA.getOrigin();
 	const btVector3& pivotInB = m_frameInB.getOrigin();
@@ -64,7 +65,9 @@ void btGeneric6DofConstraint::buildJacobian()
 	{
 		if (isLimited(i))
 		{
-			normal[i] = 1;
+			localNormalInA[i] = 1;
+			btVector3 normalWorld = m_rbA.getCenterOfMassTransform().getBasis() * localNormalInA;
+
 			
 			// Create linear atom
 			new (&m_jacLinear[i]) btJacobianEntry(
@@ -72,19 +75,24 @@ void btGeneric6DofConstraint::buildJacobian()
 				m_rbB.getCenterOfMassTransform().getBasis().transpose(),
 				m_rbA.getCenterOfMassTransform()*pivotInA - m_rbA.getCenterOfMassPosition(),
 				m_rbB.getCenterOfMassTransform()*pivotInB - m_rbB.getCenterOfMassPosition(),
-				normal,
+				normalWorld,
 				m_rbA.getInvInertiaDiagLocal(),
 				m_rbA.getInvMass(),
 				m_rbB.getInvInertiaDiagLocal(),
 				m_rbB.getInvMass());
 
+			//optionally disable warmstarting
+#ifdef GENERIC_D6_DISABLE_WARMSTARTING
+			m_accumulatedImpulse[i] = 0.f;
+#endif //GENERIC_D6_DISABLE_WARMSTARTING
+
 			// Apply accumulated impulse
-			btVector3 impulse_vector = m_accumulatedImpulse[i] * normal;
+			btVector3 impulse_vector = m_accumulatedImpulse[i] * normalWorld;
 
 			m_rbA.applyImpulse( impulse_vector, rel_pos1);
 			m_rbB.applyImpulse(-impulse_vector, rel_pos2);
 
-			normal[i] = 0;
+			localNormalInA[i] = 0;
 		}
 	}
 
@@ -106,6 +114,10 @@ void btGeneric6DofConstraint::buildJacobian()
 				m_rbA.getInvInertiaDiagLocal(),
 				m_rbB.getInvInertiaDiagLocal());
 
+#ifdef GENERIC_D6_DISABLE_WARMSTARTING
+			m_accumulatedImpulse[i + 3] = 0.f;
+#endif //GENERIC_D6_DISABLE_WARMSTARTING
+
 			// Apply accumulated impulse
 			btVector3 impulse_vector = m_accumulatedImpulse[i + 3] * axis;
 
@@ -126,7 +138,7 @@ void	btGeneric6DofConstraint::solveConstraint(btScalar	timeStep)
 	btVector3 rel_pos1 = pivotAInW - m_rbA.getCenterOfMassPosition(); 
 	btVector3 rel_pos2 = pivotBInW - m_rbB.getCenterOfMassPosition();
 	
-	btVector3 normal(0,0,0);
+	btVector3 localNormalInA(0,0,0);
 	int i;
 
 	// linear
@@ -137,8 +149,10 @@ void	btGeneric6DofConstraint::solveConstraint(btScalar	timeStep)
 			btVector3 angvelA = m_rbA.getCenterOfMassTransform().getBasis().transpose() * m_rbA.getAngularVelocity();
 			btVector3 angvelB = m_rbB.getCenterOfMassTransform().getBasis().transpose() * m_rbB.getAngularVelocity();
 		
+			localNormalInA.setValue(0,0,0);
+			localNormalInA[i] = 1;
+			btVector3 normalWorld = m_rbA.getCenterOfMassTransform().getBasis() * localNormalInA;
 
-			normal[i] = 1;
 			btScalar jacDiagABInv = 1.f / m_jacLinear[i].getDiagonal();
 
 			//velocity error (first order error)
@@ -146,16 +160,37 @@ void	btGeneric6DofConstraint::solveConstraint(btScalar	timeStep)
 																	m_rbB.getLinearVelocity(),angvelB);
 		
 			//positional error (zeroth order error)
-			btScalar depth = -(pivotAInW - pivotBInW).dot(normal); 
+			btScalar depth = -(pivotAInW - pivotBInW).dot(normalWorld); 
+
+			//handle the limits
+			if (m_lowerLimit[i] < m_upperLimit[i])
+			{
+				{
+					if (depth > m_upperLimit[i])
+					{
+						depth -= m_upperLimit[i];
+					} else
+					{
+						if (depth < m_lowerLimit[i])
+						{
+							depth -= m_lowerLimit[i];
+						} else
+						{
+							continue;
+						}
+					}
+				}
+			}
 			
 			btScalar impulse = (tau*depth/timeStep - damping*rel_vel) * jacDiagABInv;
+			
 			m_accumulatedImpulse[i] += impulse;
 
-			btVector3 impulse_vector = normal * impulse;
+			btVector3 impulse_vector = normalWorld * impulse;
 			m_rbA.applyImpulse( impulse_vector, rel_pos1);
 			m_rbB.applyImpulse(-impulse_vector, rel_pos2);
 			
-			normal[i] = 0;
+			localNormalInA[i] = 0;
 		}
 	}
 

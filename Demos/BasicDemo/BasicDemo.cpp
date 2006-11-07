@@ -61,14 +61,14 @@ void BasicDemo::clientMoveAndDisplay()
 	glClear(GL_COLOR_BUFFER_BIT | GL_DEPTH_BUFFER_BIT); 
 
 	//simple dynamics world doesn't handle fixed-time-stepping
-	float ms = m_clock.getTimeMilliseconds();
+	float ms = m_clock.getTimeMicroseconds();
 	m_clock.reset();
-	float minFPS = 1000.f/60.f;
+	float minFPS = 1000000.f/60.f;
 	if (ms > minFPS)
 		ms = minFPS;
 
 	if (m_dynamicsWorld)
-		m_dynamicsWorld->stepSimulation(ms / 1000.f);
+		m_dynamicsWorld->stepSimulation(ms / 1000000.f);
 		
 	renderme(); 
 

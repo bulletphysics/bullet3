@@ -822,6 +822,10 @@ void DemoApplication::renderme()
 
 void	DemoApplication::clientResetScene()
 {
+	if (m_dynamicsWorld)
+	{
+		m_dynamicsWorld->stepSimulation(1.f/60.f,0);
+	}
 	int numObjects = m_dynamicsWorld->getNumCollisionObjects();
 	
 	for (int i=0;i<numObjects;i++)

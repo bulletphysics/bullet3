@@ -188,7 +188,7 @@ void ColladaDemo::clientMoveAndDisplay()
 {
 	glClear(GL_COLOR_BUFFER_BIT | GL_DEPTH_BUFFER_BIT); 
 
-	float dt = m_clock.getTimeMilliseconds() * 0.001f;
+	float dt = m_clock.getTimeMicroseconds() * 0.000001f;
 	m_clock.reset();
 
 	m_dynamicsWorld->stepSimulation(dt);
