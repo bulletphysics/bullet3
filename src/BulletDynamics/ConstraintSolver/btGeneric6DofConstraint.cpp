@@ -161,7 +161,9 @@ void	btGeneric6DofConstraint::solveConstraint(btScalar	timeStep)
 		
 			//positional error (zeroth order error)
 			btScalar depth = -(pivotAInW - pivotBInW).dot(normalWorld); 
-
+			btScalar	lo = -1e30f;
+			btScalar	hi = 1e30f;
+		
 			//handle the limits
 			if (m_lowerLimit[i] < m_upperLimit[i])
 			{
@@ -169,11 +171,14 @@ void	btGeneric6DofConstraint::solveConstraint(btScalar	timeStep)
 					if (depth > m_upperLimit[i])
 					{
 						depth -= m_upperLimit[i];
+						lo = 0.f;
+					
 					} else
 					{
 						if (depth < m_lowerLimit[i])
 						{
 							depth -= m_lowerLimit[i];
+							hi = 0.f;
 						} else
 						{
 							continue;
@@ -181,12 +186,14 @@ void	btGeneric6DofConstraint::solveConstraint(btScalar	timeStep)
 					}
 				}
 			}
-			
-			btScalar impulse = (tau*depth/timeStep - damping*rel_vel) * jacDiagABInv;
-			
-			m_accumulatedImpulse[i] += impulse;
 
-			btVector3 impulse_vector = normalWorld * impulse;
+			btScalar normalImpulse= (tau*depth/timeStep - damping*rel_vel) * jacDiagABInv;
+			float oldNormalImpulse = m_accumulatedImpulse[i];
+			float sum = oldNormalImpulse + normalImpulse;
+			m_accumulatedImpulse[i] = sum > hi ? 0.f : sum < lo ? 0.f : sum;
+			normalImpulse = m_accumulatedImpulse[i] - oldNormalImpulse;
+
+			btVector3 impulse_vector = normalWorld * normalImpulse;
 			m_rbA.applyImpulse( impulse_vector, rel_pos1);
 			m_rbB.applyImpulse(-impulse_vector, rel_pos2);
 			
