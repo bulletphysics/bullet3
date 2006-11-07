@@ -46,6 +46,11 @@ void btGjkPairDetector::getClosestPoints(const ClosestPointInput& input,Result& 
 	btScalar distance=0.f;
 	btVector3	normalInB(0.f,0.f,0.f);
 	btVector3 pointOnA,pointOnB;
+	btTransform	localTransA = input.m_transformA;
+	btTransform localTransB = input.m_transformB;
+	btVector3 positionOffset = (localTransA.getOrigin() + localTransB.getOrigin()) * 0.5f;
+	localTransA.getOrigin() -= positionOffset;
+	localTransB.getOrigin() -= positionOffset;
 
 	float marginA = m_minkowskiA->getMargin();
 	float marginB = m_minkowskiB->getMargin();
@@ -82,8 +87,8 @@ void btGjkPairDetector::getClosestPoints(const ClosestPointInput& input,Result& 
 
 			btVector3 pInA = m_minkowskiA->localGetSupportingVertexWithoutMargin(seperatingAxisInA);
 			btVector3 qInB = m_minkowskiB->localGetSupportingVertexWithoutMargin(seperatingAxisInB);
-			btPoint3  pWorld = input.m_transformA(pInA);	
-			btPoint3  qWorld = input.m_transformB(qInB);
+			btPoint3  pWorld = localTransA(pInA);	
+			btPoint3  qWorld = localTransB(qInB);
 			
 			btVector3 w	= pWorld - qWorld;
 			delta = m_cachedSeparatingAxis.dot(w);
@@ -192,7 +197,7 @@ void btGjkPairDetector::getClosestPoints(const ClosestPointInput& input,Result& 
 				isValid = m_penetrationDepthSolver->calcPenDepth( 
 					*m_simplexSolver, 
 					m_minkowskiA,m_minkowskiB,
-					input.m_transformA,input.m_transformB,
+					localTransA,localTransB,
 					m_cachedSeparatingAxis, pointOnA, pointOnB,
 					debugDraw
 					);
@@ -223,7 +228,7 @@ void btGjkPairDetector::getClosestPoints(const ClosestPointInput& input,Result& 
 
 		output.addContactPoint(
 			normalInB,
-			pointOnB,
+			pointOnB+positionOffset,
 			distance);
 		//printf("gjk add:%f",distance);
 	}
