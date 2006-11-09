@@ -73,8 +73,8 @@ renderTexture*	raytracePicture = 0;
 
 //this applies to the raytracer virtual screen/image buffer
 int screenWidth = 128;
-float aspectRatio = (3.f/4.f);
-int screenHeight = screenWidth * aspectRatio;
+//float aspectRatio = (3.f/4.f);
+int screenHeight = 128;//screenWidth * aspectRatio;
 GLuint glTextureId;
 
 btSphereShape	mySphere(1);
@@ -99,7 +99,7 @@ int main(int argc,char** argv)
 	
 	raytraceDemo->setCameraDistance(6.f);
 
-	return glutmain(argc, argv,640,480,"Bullet GJK Implicit Shape Raytracer Demo",raytraceDemo);
+	return glutmain(argc, argv,640,640,"Bullet GJK Implicit Shape Raytracer Demo",raytraceDemo);
 }
 
 void	Raytracer::initPhysics()

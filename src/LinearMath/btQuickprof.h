@@ -46,6 +46,10 @@
 typedef uint64_t __int64;
 #endif
 
+#if defined (SUNOS) || defined (__SUNOS__) 
+        #include <stdio.h> 
+#endif
+
 #if defined(WIN32) || defined(_WIN32)
 	#define USE_WINDOWS_TIMERS
 	#include <windows.h>
