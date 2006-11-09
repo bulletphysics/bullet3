@@ -43,6 +43,15 @@ public:
 		pixel[3] = (unsigned char)(255*rgba.getW());
 	}
 
+	inline btVector4 getPixel(int x,int y)
+	{
+		unsigned char* pixel = &m_buffer[ (x+y*m_width) * 4];
+		return btVector4(pixel[0]*1.f/255.f,
+			pixel[1]*1.f/255.f,
+			pixel[2]*1.f/255.f,
+			pixel[3]*1.f/255.f);
+	}
+
 	const unsigned char*	getBuffer() const { return m_buffer;}
 	int	getWidth() const { return m_width;}
 	int	getHeight() const { return m_height;}

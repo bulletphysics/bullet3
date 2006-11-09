@@ -114,8 +114,8 @@ SIMD_FORCE_INLINE btScalar btAtan(btScalar x) { return atanf(x); }
 SIMD_FORCE_INLINE btScalar btAtan2(btScalar x, btScalar y) { return atan2f(x, y); }
 */
 
-SIMD_FORCE_INLINE int       btSign(btScalar x) {
-    return x < 0.0f ? -1 : x > 0.0f ? 1 : 0;
+SIMD_FORCE_INLINE int       btIsNegative(btScalar x) {
+    return x < 0.0f ? 1 : 0;
 }
 
 SIMD_FORCE_INLINE btScalar btRadians(btScalar x) { return x * SIMD_RADS_PER_DEG; }

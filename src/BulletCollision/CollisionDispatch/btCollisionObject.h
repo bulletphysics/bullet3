@@ -297,7 +297,7 @@ public:
 	}
 
 	///users can point to their objects, userPointer is not used by Bullet
-	void*	getUserPointer()
+	void*	getUserPointer() const
 	{
 		return m_userObjectPointer;
 	}

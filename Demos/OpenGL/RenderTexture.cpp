@@ -53,7 +53,7 @@ void renderTexture::grapicalPrintf(char* str,	BMF_FontData* fontData, int startx
 				for (int x=0;x<cd.width;x++)
 				{
 					char packedColor = bitmap[y];
-					float colorf = packedColor & bit ? 1.f : 0.f;
+					float colorf = packedColor & bit ? 0.f : 1.f;
 					btVector4 rgba(colorf,colorf,colorf,1.f);
 					setPixel(rasterposx+x,rasterposy+8-y-1,rgba);
 					bit >>=1;

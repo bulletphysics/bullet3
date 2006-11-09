@@ -344,7 +344,9 @@ void	btCollisionWorld::rayTest(const btVector3& rayFromWorld, const btVector3& r
 
 		//check aabb overlap
 
-		if (TestAabbAgainstAabb2(rayAabbMin,rayAabbMax,collisionObjectAabbMin,collisionObjectAabbMax))
+		float hitLambda = 1.f;
+		btVector3 hitNormal;
+		if (btRayAabb(rayAabbMin,rayAabbMax,collisionObjectAabbMin,collisionObjectAabbMax,hitLambda,hitNormal))
 		{
 			rayTestSingle(rayFromTrans,rayToTrans,
 				collisionObject,

@@ -22,9 +22,11 @@ Very basic raytracer, rendering into a texture.
 #include "LinearMath/btQuaternion.h"
 #include "LinearMath/btTransform.h"
 #include "GL_ShapeDrawer.h"
+#include "GLDebugDrawer.h"
 
 #include "Raytracer.h"
 #include "GlutStuff.h"
+
 
 #include "BulletCollision/NarrowPhaseCollision/btVoronoiSimplexSolver.h"
 #include "BulletCollision/NarrowPhaseCollision/btSubSimplexConvexCast.h"
@@ -37,8 +39,13 @@ Very basic raytracer, rendering into a texture.
 
 #include "BulletCollision/CollisionShapes/btSphereShape.h"
 #include "BulletCollision/CollisionShapes/btMultiSphereShape.h"
+
 #include "BulletCollision/CollisionShapes/btConvexHullShape.h"
+#include "LinearMath/btAabbUtil2.h"
 #include "BulletCollision/CollisionShapes/btBoxShape.h"
+
+
+
 #include "BulletCollision/CollisionShapes/btTetrahedronShape.h"
 #include "BulletCollision/CollisionShapes/btConeShape.h"
 #include "BulletCollision/CollisionShapes/btCylinderShape.h"
@@ -48,11 +55,13 @@ Very basic raytracer, rendering into a texture.
 
 #include "RenderTexture.h"
 
+
+
 btVoronoiSimplexSolver	simplexSolver;
 
 float yaw=0.f,pitch=0.f,roll=0.f;
 const int maxNumObjects = 4;
-const int numObjects = 4;
+const int numObjects = 1;
 
 /// simplex contains the vertices, and some extra code to draw and debug
 GL_Simplex1to4	simplex;
@@ -62,8 +71,10 @@ btTransform transforms[maxNumObjects];
 
 renderTexture*	raytracePicture = 0;
 
+//this applies to the raytracer virtual screen/image buffer
 int screenWidth = 128;
-int screenHeight = 128;
+float aspectRatio = (3.f/4.f);
+int screenHeight = screenWidth * aspectRatio;
 GLuint glTextureId;
 
 btSphereShape	mySphere(1);
@@ -72,6 +83,9 @@ btCylinderShape myCylinder(btVector3(0.3f,0.3f,0.3f));
 btConeShape myCone(1,1);
 
 btMinkowskiSumShape myMink(&myCylinder,&myBox);
+GLDebugDrawer debugDrawer;
+
+
 
 
 ///
@@ -85,7 +99,7 @@ int main(int argc,char** argv)
 	
 	raytraceDemo->setCameraDistance(6.f);
 
-	return glutmain(argc, argv,screenWidth,screenHeight,"Minkowski-Sum Raytracer Demo",raytraceDemo);
+	return glutmain(argc, argv,640,480,"Bullet GJK Implicit Shape Raytracer Demo",raytraceDemo);
 }
 
 void	Raytracer::initPhysics()
@@ -113,12 +127,18 @@ void	Raytracer::initPhysics()
 		btVector3(0.f,	0.f,	0.f)
 	};
 
-	// btMultiSphereShape* multiSphereShape = new btMultiSphereShape(inertiaHalfExtents,positions,radi,NUM_SPHERES);
+	//btMultiSphereShape* multiSphereShape = new btMultiSphereShape(inertiaHalfExtents,positions,radi,NUM_SPHERES);
+	btVector3 sphereOffset(0,0,0);
+	btScalar sphereRadius = 2.f;
+	btVector3 nonUniformScaling(0.5,2,0.5);
+	btMultiSphereShape* nonuniformScaledSphere = new btMultiSphereShape(inertiaHalfExtents,&sphereOffset,&sphereRadius,1);
+	nonuniformScaledSphere->setLocalScaling(nonUniformScaling);
+	nonuniformScaledSphere->setMargin(0.04);
 	btConvexHullShape* convexHullShape = new btConvexHullShape(&positions[0].getX(),3);
 
 
 	//choose shape
-	shapePtr[0] = &myCone;
+	shapePtr[0] = &myCone;//&myBox;//nonuniformScaledSphere;//&myCone;
 	shapePtr[1] =&simplex;
 	shapePtr[2] =convexHullShape;
 	shapePtr[3] =&myMink;//myBox;//multiSphereShape
@@ -138,6 +158,10 @@ void Raytracer::clientMoveAndDisplay()
 int once = 1;
 
 
+
+
+
+
 void Raytracer::displayCallback() 
 {
 
@@ -146,7 +170,7 @@ void Raytracer::displayCallback()
 	for (int i=0;i<numObjects;i++)
 	{
 		transforms[i].setIdentity();
-		btVector3	pos(-3.5f+i*2.5f,0.f,0.f);
+		btVector3	pos(-(2.5* numObjects * 0.5)+i*2.5f,0.f,0.f);
 		transforms[i].setOrigin( pos );
 		btQuaternion orn;
 		if (i < 2)
@@ -256,46 +280,54 @@ void Raytracer::displayCallback()
 			rayToTrans.setOrigin(rayTo);
 			for (int s=0;s<numObjects;s++)
 			{
-			//	rayFromLocal = transforms[s].inverse()* rayFromTrans;
-			//	rayToLocal = transforms[s].inverse()* rayToTrans;
+				//do some culling, ray versus aabb
+				btVector3 aabbMin,aabbMax;
+				shapePtr[s]->getAabb(transforms[s],aabbMin,aabbMax);
+				btScalar hitLambda = 1.f;
+				btVector3 hitNormal;
 
-				//choose the continuous collision detection method
-				btSubsimplexConvexCast convexCaster(&pointShape,shapePtr[s],&simplexSolver);
-				//GjkConvexCast convexCaster(&pointShape,shapePtr[0],&simplexSolver);
-				//ContinuousConvexCollision convexCaster(&pointShape,shapePtr[0],&simplexSolver,0);
-				
-				//	btBU_Simplex1to4	ptShape(btVector3(0,0,0));//algebraic needs features, doesnt use 'supporting vertex'
-				//	BU_CollisionPair convexCaster(&ptShape,shapePtr[0]);
-
-
-				//reset previous result
-				rayResult.m_fraction = 1.f;
-
-
-				if (convexCaster.calcTimeOfImpact(rayFromTrans,rayToTrans,transforms[s],transforms[s],rayResult))
+				if (btRayAabb(rayFrom,rayTo,aabbMin,aabbMax,hitLambda,hitNormal))
 				{
-					//float fog = 1.f - 0.1f * rayResult.m_fraction;
-					rayResult.m_normal.normalize();
+				
+					//choose the continuous collision detection method
+					btSubsimplexConvexCast convexCaster(&pointShape,shapePtr[s],&simplexSolver);
+					//GjkConvexCast convexCaster(&pointShape,shapePtr[0],&simplexSolver);
+					//ContinuousConvexCollision convexCaster(&pointShape,shapePtr[0],&simplexSolver,0);
+					
+					//reset previous result
+					rayResult.m_fraction = 1.f;
+					if (convexCaster.calcTimeOfImpact(rayFromTrans,rayToTrans,transforms[s],transforms[s],rayResult))
+					{
+						//float fog = 1.f - 0.1f * rayResult.m_fraction;
+						rayResult.m_normal.normalize();
 
-					btVector3 worldNormal;
-					worldNormal = transforms[s].getBasis() *rayResult.m_normal;
+						btVector3 worldNormal;
+						worldNormal = transforms[s].getBasis() *rayResult.m_normal;
+						
 
-					float light = worldNormal.dot(btVector3(0.4f,-1.f,-0.4f));
-					if (light < 0.2f)
-						light = 0.2f;
-					if (light > 1.f)
-						light = 1.f;
+						float lightVec0 = worldNormal.dot(btVector3(0,-1,-1));//0.4f,-1.f,-0.4f));
+						float lightVec1= worldNormal.dot(btVector3(-1,0,-1));//-0.4f,-1.f,-0.4f));
 
-					rgba = btVector4(light,light,light,1.f);
-					raytracePicture->setPixel(x,y,rgba);
+
+						rgba = btVector4(lightVec0,lightVec1,0,1.f);
+						rgba.setMin(btVector3(1,1,1));
+						rgba.setMax(btVector3(0.2,0.2,0.2));
+						rgba[3] = 1.f;
+						raytracePicture->setPixel(x,y,rgba);
+					} else
+					{
+						//clear is already done
+						//rgba = btVector4(0.f,0.f,0.f,0.f);
+						//raytracePicture->setPixel(x,y,rgba);
+					}
 				} else
 				{
-					//clear is already done
-					//rgba = btVector4(0.f,0.f,0.f,0.f);
-					//raytracePicture->setPixel(x,y,rgba);
-
+					btVector4 rgba = raytracePicture->getPixel(x,y);
+					if (!rgba.length2())
+					{
+						raytracePicture->setPixel(x,y,btVector4(1,1,1,1));
+					}
 				}
-
 				
 			}
 		}
@@ -371,9 +403,20 @@ void Raytracer::displayCallback()
 
 	GL_ShapeDrawer::drawCoordSystem();
 
+	
+
+	{
+		for (int i=0;i<numObjects;i++)
+		{
+			btVector3 aabbMin,aabbMax;
+			shapePtr[i]->getAabb(transforms[i],aabbMin,aabbMax);
+			debugDrawer.setDebugMode(1);
+			debugDrawer.drawAabb(aabbMin,aabbMax,btVector3(255,0,0));
+		}
+	}
+
 	glPushMatrix();
-
-
+	
 
 	
 	/*
