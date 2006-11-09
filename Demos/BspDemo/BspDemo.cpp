@@ -134,7 +134,7 @@ void	BspDemo::initPhysics(char* bspfilename)
 
 	///Setup a Physics Simulation Environment
 	m_dynamicsWorld = new btDiscreteDynamicsWorld();
-	m_dynamicsWorld->setGravity(-m_cameraUp);
+	m_dynamicsWorld->setGravity(-m_cameraUp * 10);
 
 
 #ifdef QUAKE_BSP_IMPORTING

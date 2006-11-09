@@ -20,6 +20,25 @@ subject to the following restrictions:
 /// with gears etc.
 #include "btBulletDynamicsCommon.h"
 
+//
+// By default, Bullet Vehicle uses Y as up axis.
+// You can override the up axis, for example Z-axis up. Enable this define to see how to:
+//#define FORCE_ZAXIS_UP 1
+//
+
+#ifdef FORCE_ZAXIS_UP
+		int rightIndex = 0; 
+		int upIndex = 2; 
+		int forwardIndex = 1;
+		btVector3 wheelDirectionCS0(0,0,-1);
+		btVector3 wheelAxleCS(1,0,0);
+#else
+		int rightIndex = 0;
+		int upIndex = 1;
+		int forwardIndex = 2;
+		btVector3 wheelDirectionCS0(0,-1,0);
+		btVector3 wheelAxleCS(-1,0,0);
+#endif
 
 #include "GLDebugDrawer.h"
 #include <stdio.h> //printf debugging
@@ -47,8 +66,8 @@ float	suspensionStiffness = 20.f;
 float	suspensionDamping = 2.3f;
 float	suspensionCompression = 4.4f;
 float	rollInfluence = 0.1f;//1.0f;
-btVector3 wheelDirectionCS0(0,-1,0);
-btVector3 wheelAxleCS(1,0,0);
+
+
 btScalar suspensionRestLength(0.6);
 
 #define CUBE_HALF_EXTENTS 1
@@ -84,11 +103,16 @@ m_maxCameraDistance(10.f)
 
 void VehicleDemo::setupPhysics()
 {
-
-
+#ifdef FORCE_ZAXIS_UP
+	m_cameraUp = btVector3(0,0,1);
+	m_forwardAxis = 1;
+#endif
 
 	btCollisionShape* groundShape = new btBoxShape(btVector3(50,3,50));
 	m_dynamicsWorld = new btDiscreteDynamicsWorld();
+#ifdef FORCE_ZAXIS_UP
+	m_dynamicsWorld->setGravity(btVector3(0,0,-10));
+#endif 
 	m_dynamicsWorld->setDebugDrawer(&debugDrawer);
 
 
@@ -119,7 +143,20 @@ const float TRIANGLE_SIZE=20.f;
 		{
 			float wl = .2f;
 			float height = 20.f*sinf(float(i)*wl)*cosf(float(j)*wl);
-			gVertices[i+j*NUM_VERTS_X].setValue((i-NUM_VERTS_X*0.5f)*TRIANGLE_SIZE,height,(j-NUM_VERTS_Y*0.5f)*TRIANGLE_SIZE);
+#ifdef FORCE_ZAXIS_UP
+			gVertices[i+j*NUM_VERTS_X].setValue(
+				(i-NUM_VERTS_X*0.5f)*TRIANGLE_SIZE,
+				(j-NUM_VERTS_Y*0.5f)*TRIANGLE_SIZE,
+				height
+				);
+
+#else
+			gVertices[i+j*NUM_VERTS_X].setValue(
+				(i-NUM_VERTS_X*0.5f)*TRIANGLE_SIZE,
+				height,
+				(j-NUM_VERTS_Y*0.5f)*TRIANGLE_SIZE);
+#endif
+
 		}
 	}
 
@@ -155,12 +192,25 @@ const float TRIANGLE_SIZE=20.f;
 	//create ground object
 	localCreateRigidBody(0,tr,groundShape);
 
+#ifdef FORCE_ZAXIS_UP
+//   indexRightAxis = 0; 
+//   indexUpAxis = 2; 
+//   indexForwardAxis = 1; 
+	btCollisionShape* chassisShape = new btBoxShape(btVector3(1.f,2.f, 0.5f));
+	btCompoundShape* compound = new btCompoundShape();
+	btTransform localTrans;
+	localTrans.setIdentity();
+	//localTrans effectively shifts the center of mass with respect to the chassis
+	localTrans.setOrigin(btVector3(0,0,1));
+#else
 	btCollisionShape* chassisShape = new btBoxShape(btVector3(1.f,0.5f,2.f));
 	btCompoundShape* compound = new btCompoundShape();
 	btTransform localTrans;
 	localTrans.setIdentity();
 	//localTrans effectively shifts the center of mass with respect to the chassis
 	localTrans.setOrigin(btVector3(0,1,0));
+#endif
+
 	compound->addChildShape(localTrans,chassisShape);
 
 	tr.setOrigin(btVector3(0,0.f,0));
@@ -185,20 +235,37 @@ const float TRIANGLE_SIZE=20.f;
 		float connectionHeight = 1.2f;
 
 	
-		btVector3 connectionPointCS0(CUBE_HALF_EXTENTS-(0.3*wheelWidth),connectionHeight,2*CUBE_HALF_EXTENTS-wheelRadius);
 		bool isFrontWheel=true;
-		int rightIndex = 0;
-		int upIndex = 1;
-		int forwardIndex = 2;
 
+		//choose coordinate system
 		m_vehicle->setCoordinateSystem(rightIndex,upIndex,forwardIndex);
+
+#ifdef FORCE_ZAXIS_UP
+		btVector3 connectionPointCS0(CUBE_HALF_EXTENTS-(0.3*wheelWidth),2*CUBE_HALF_EXTENTS-wheelRadius, connectionHeight);
+#else
+		btVector3 connectionPointCS0(CUBE_HALF_EXTENTS-(0.3*wheelWidth),connectionHeight,2*CUBE_HALF_EXTENTS-wheelRadius);
+#endif
+
 		m_vehicle->addWheel(connectionPointCS0,wheelDirectionCS0,wheelAxleCS,suspensionRestLength,wheelRadius,m_tuning,isFrontWheel);
+#ifdef FORCE_ZAXIS_UP
+		connectionPointCS0 = btVector3(-CUBE_HALF_EXTENTS+(0.3*wheelWidth),2*CUBE_HALF_EXTENTS-wheelRadius, connectionHeight);
+#else
 		connectionPointCS0 = btVector3(-CUBE_HALF_EXTENTS+(0.3*wheelWidth),connectionHeight,2*CUBE_HALF_EXTENTS-wheelRadius);
+#endif
+
 		m_vehicle->addWheel(connectionPointCS0,wheelDirectionCS0,wheelAxleCS,suspensionRestLength,wheelRadius,m_tuning,isFrontWheel);
+#ifdef FORCE_ZAXIS_UP
+		connectionPointCS0 = btVector3(-CUBE_HALF_EXTENTS+(0.3*wheelWidth),-2*CUBE_HALF_EXTENTS+wheelRadius, connectionHeight);
+#else
 		connectionPointCS0 = btVector3(-CUBE_HALF_EXTENTS+(0.3*wheelWidth),connectionHeight,-2*CUBE_HALF_EXTENTS+wheelRadius);
+#endif //FORCE_ZAXIS_UP
 		isFrontWheel = false;
 		m_vehicle->addWheel(connectionPointCS0,wheelDirectionCS0,wheelAxleCS,suspensionRestLength,wheelRadius,m_tuning,isFrontWheel);
+#ifdef FORCE_ZAXIS_UP
+		connectionPointCS0 = btVector3(CUBE_HALF_EXTENTS-(0.3*wheelWidth),-2*CUBE_HALF_EXTENTS+wheelRadius, connectionHeight);
+#else
 		connectionPointCS0 = btVector3(CUBE_HALF_EXTENTS-(0.3*wheelWidth),connectionHeight,-2*CUBE_HALF_EXTENTS+wheelRadius);
+#endif
 		m_vehicle->addWheel(connectionPointCS0,wheelDirectionCS0,wheelAxleCS,suspensionRestLength,wheelRadius,m_tuning,isFrontWheel);
 		
 		for (int i=0;i<m_vehicle->getNumWheels();i++)
@@ -281,15 +348,14 @@ void VehicleDemo::clientMoveAndDisplay()
 	
 
 	{			
-		int steerWheelIndex = 2;
-		m_vehicle->applyEngineForce(gEngineForce,steerWheelIndex);
-		steerWheelIndex = 3;
-		m_vehicle->applyEngineForce(gEngineForce,steerWheelIndex);
-
-		steerWheelIndex = 0;
-		m_vehicle->setSteeringValue(gVehicleSteering,steerWheelIndex);
-		steerWheelIndex = 1;
-		m_vehicle->setSteeringValue(gVehicleSteering,steerWheelIndex);
+		int wheelIndex = 2;
+		m_vehicle->applyEngineForce(gEngineForce,wheelIndex);
+		wheelIndex = 3;
+		m_vehicle->applyEngineForce(gEngineForce,wheelIndex);
+		wheelIndex = 0;
+		m_vehicle->setSteeringValue(gVehicleSteering,wheelIndex);
+		wheelIndex = 1;
+		m_vehicle->setSteeringValue(gVehicleSteering,wheelIndex);
 
 	}
 
@@ -383,12 +449,12 @@ void VehicleDemo::specialKeyboard(int key, int x, int y)
 		}
     case GLUT_KEY_UP :
 		{
-			gEngineForce = -maxEngineForce;
+			gEngineForce = maxEngineForce;
 		break;
 		}
 	case GLUT_KEY_DOWN :
 		{			
-			gEngineForce = maxEngineForce;
+			gEngineForce = -maxEngineForce;
 		break;
 		}
 	default:
@@ -416,7 +482,11 @@ void	VehicleDemo::updateCamera()
 	m_cameraTargetPosition = chassisWorldTrans.getOrigin();
 
 	//interpolate the camera height
+#ifdef FORCE_ZAXIS_UP
+	m_cameraPosition[2] = (15.0*m_cameraPosition[2] + m_cameraTargetPosition[2] + m_cameraHeight)/16.0;
+#else
 	m_cameraPosition[1] = (15.0*m_cameraPosition[1] + m_cameraTargetPosition[1] + m_cameraHeight)/16.0;
+#endif 
 
 	btVector3 camToObject = m_cameraTargetPosition - m_cameraPosition;
 
