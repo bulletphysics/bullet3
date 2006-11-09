@@ -66,6 +66,7 @@ SIMD_FORCE_INLINE int	btOutcode(const btVector3& p,const btVector3& halfExtent)
 		   (p.getZ() >  halfExtent.getZ() ? 0x20 : 0x0);
 }
 
+
 SIMD_FORCE_INLINE bool btRayAabb(const btVector3& rayFrom, 
 								 const btVector3& rayTo, 
 								 const btVector3& aabbMin, 

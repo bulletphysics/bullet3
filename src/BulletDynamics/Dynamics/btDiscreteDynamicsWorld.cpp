@@ -118,45 +118,84 @@ void	btDiscreteDynamicsWorld::saveKinematicState(float timeStep)
 
 void	btDiscreteDynamicsWorld::synchronizeMotionStates()
 {
-	//todo: iterate over awake simulation islands!
-	for (unsigned int i=0;i<m_collisionObjects.size();i++)
+	//debug vehicle wheels
+	
+	if (getDebugDrawer() && getDebugDrawer()->getDebugMode() & btIDebugDraw::DBG_DrawWireframe)
 	{
-		btCollisionObject* colObj = m_collisionObjects[i];
-		if (getDebugDrawer() && getDebugDrawer()->getDebugMode() & btIDebugDraw::DBG_DrawWireframe)
+		for (unsigned int i=0;i<this->m_vehicles.size();i++)
 		{
-			btVector3 color(255.f,255.f,255.f);
-			switch(colObj->getActivationState())
+			for (int v=0;v<m_vehicles[i]->getNumWheels();v++)
 			{
-			case  ACTIVE_TAG:
-				color = btVector3(255.f,255.f,255.f); break;
-			case ISLAND_SLEEPING:
-				color =  btVector3(0.f,255.f,0.f);break;
-			case WANTS_DEACTIVATION:
-				color = btVector3(0.f,255.f,255.f);break;
-			case DISABLE_DEACTIVATION:
-				color = btVector3(255.f,0.f,0.f);break;
-			case DISABLE_SIMULATION:
-				color = btVector3(255.f,255.f,0.f);break;
-			default:
+				btVector3 wheelColor(0,255,255);
+				if (m_vehicles[i]->getWheelInfo(v).m_raycastInfo.m_isInContact)
 				{
-					color = btVector3(255.f,0.f,0.f);
+					wheelColor.setValue(0,0,255);
+				} else
+				{
+					wheelColor.setValue(255,0,255);
 				}
-			};
 
-			debugDrawObject(colObj->getWorldTransform(),colObj->getCollisionShape(),color);
-		}
-		btRigidBody* body = btRigidBody::upcast(colObj);
-		if (body && body->getMotionState() && !body->isStaticOrKinematicObject())
-		{
-			if (body->getActivationState() != ISLAND_SLEEPING)
-			{
-				btTransform interpolatedTransform;
-				btTransformUtil::integrateTransform(body->getInterpolationWorldTransform(),
-					body->getInterpolationLinearVelocity(),body->getInterpolationAngularVelocity(),m_localTime,interpolatedTransform);
-				body->getMotionState()->setWorldTransform(interpolatedTransform);
+				//synchronize the wheels with the (interpolated) chassis worldtransform
+				m_vehicles[i]->updateWheelTransform(v);
+					
+				btVector3 wheelPosWS = m_vehicles[i]->getWheelInfo(v).m_worldTransform.getOrigin();
+
+				btVector3 axle = btVector3(	
+					m_vehicles[i]->getWheelInfo(v).m_worldTransform.getBasis()[0][m_vehicles[i]->getRightAxis()],
+					m_vehicles[i]->getWheelInfo(v).m_worldTransform.getBasis()[1][m_vehicles[i]->getRightAxis()],
+					m_vehicles[i]->getWheelInfo(v).m_worldTransform.getBasis()[2][m_vehicles[i]->getRightAxis()]);
+
+
+				//m_vehicles[i]->getWheelInfo(v).m_raycastInfo.m_wheelAxleWS
+				//debug wheels (cylinders)
+				m_debugDrawer->drawLine(wheelPosWS,wheelPosWS+axle,wheelColor);
+				m_debugDrawer->drawLine(wheelPosWS,m_vehicles[i]->getWheelInfo(v).m_raycastInfo.m_contactPointWS,wheelColor);
+
 			}
 		}
 	}
+	{
+		//todo: iterate over awake simulation islands!
+		for (unsigned int i=0;i<m_collisionObjects.size();i++)
+		{
+			btCollisionObject* colObj = m_collisionObjects[i];
+			if (getDebugDrawer() && getDebugDrawer()->getDebugMode() & btIDebugDraw::DBG_DrawWireframe)
+			{
+				btVector3 color(255.f,255.f,255.f);
+				switch(colObj->getActivationState())
+				{
+				case  ACTIVE_TAG:
+					color = btVector3(255.f,255.f,255.f); break;
+				case ISLAND_SLEEPING:
+					color =  btVector3(0.f,255.f,0.f);break;
+				case WANTS_DEACTIVATION:
+					color = btVector3(0.f,255.f,255.f);break;
+				case DISABLE_DEACTIVATION:
+					color = btVector3(255.f,0.f,0.f);break;
+				case DISABLE_SIMULATION:
+					color = btVector3(255.f,255.f,0.f);break;
+				default:
+					{
+						color = btVector3(255.f,0.f,0.f);
+					}
+				};
+
+				debugDrawObject(colObj->getWorldTransform(),colObj->getCollisionShape(),color);
+			}
+			btRigidBody* body = btRigidBody::upcast(colObj);
+			if (body && body->getMotionState() && !body->isStaticOrKinematicObject())
+			{
+				if (body->getActivationState() != ISLAND_SLEEPING)
+				{
+					btTransform interpolatedTransform;
+					btTransformUtil::integrateTransform(body->getInterpolationWorldTransform(),
+						body->getInterpolationLinearVelocity(),body->getInterpolationAngularVelocity(),m_localTime,interpolatedTransform);
+					body->getMotionState()->setWorldTransform(interpolatedTransform);
+				}
+			}
+		}
+	}
+
 
 }
 

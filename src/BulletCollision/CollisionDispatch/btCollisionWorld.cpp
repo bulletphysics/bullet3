@@ -320,15 +320,7 @@ void	btCollisionWorld::rayTest(const btVector3& rayFromWorld, const btVector3& r
 	
 	rayToTrans.setOrigin(rayToWorld);
 
-	//do culling based on aabb (rayFrom/rayTo)
-	btVector3 rayAabbMin = rayFromWorld;
-	btVector3 rayAabbMax = rayFromWorld;
-	rayAabbMin.setMin(rayToWorld);
-	rayAabbMax.setMax(rayToWorld);
-
-
-	/// brute force go over all objects. Once there is a broadphase, use that, or
-	/// add a raycast against aabb first.
+	/// go over all objects, and if the ray intersects their aabb, do a ray-shape query using convexCaster (CCD)
 	
 	std::vector<btCollisionObject*>::iterator iter;
 	
@@ -342,11 +334,9 @@ void	btCollisionWorld::rayTest(const btVector3& rayFromWorld, const btVector3& r
 		btVector3 collisionObjectAabbMin,collisionObjectAabbMax;
 		collisionObject->getCollisionShape()->getAabb(collisionObject->getWorldTransform(),collisionObjectAabbMin,collisionObjectAabbMax);
 
-		//check aabb overlap
-
-		float hitLambda = 1.f;
+		float hitLambda = 1.f; //could use resultCallback.m_closestHitFraction, but needs testing
 		btVector3 hitNormal;
-		if (btRayAabb(rayAabbMin,rayAabbMax,collisionObjectAabbMin,collisionObjectAabbMax,hitLambda,hitNormal))
+		if (btRayAabb(rayFromWorld,rayToWorld,collisionObjectAabbMin,collisionObjectAabbMax,hitLambda,hitNormal))
 		{
 			rayTestSingle(rayFromTrans,rayToTrans,
 				collisionObject,
