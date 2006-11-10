@@ -309,12 +309,16 @@ void	btGeneric6DofConstraint::solveConstraint(btScalar	timeStep)
 			}
 		
 			//impulse
-			btScalar impulse = -(tau*rel_pos/timeStep + damping*rel_vel) * jacDiagABInv;
-			m_accumulatedImpulse[i + 3] += impulse;
+			
+			btScalar normalImpulse= -(tau*rel_pos/timeStep + damping*rel_vel) * jacDiagABInv;
+			float oldNormalImpulse = m_accumulatedImpulse[i+3];
+			float sum = oldNormalImpulse + normalImpulse;
+			m_accumulatedImpulse[i+3] = sum > hi ? 0.f : sum < lo ? 0.f : sum;
+			normalImpulse = m_accumulatedImpulse[i+3] - oldNormalImpulse;
 			
 			// Dirk: Not needed - we could actually project onto Jacobian entry here (same as above)
 			btVector3 axis = kSign[i] * axisA.cross(axisB);
-			btVector3 impulse_vector = axis * impulse;
+			btVector3 impulse_vector = axis * normalImpulse;
 
 			m_rbA.applyTorqueImpulse( impulse_vector);
 			m_rbB.applyTorqueImpulse(-impulse_vector);
