@@ -127,6 +127,52 @@ void btGeneric6DofConstraint::buildJacobian()
 	}
 }
 
+float getMatrixElem(const btMatrix3x3& mat,int index)
+{
+	int row = index%3;
+	int col = index / 3;
+	return mat[row][col];
+}
+
+///MatrixToEulerXYZ from http://www.geometrictools.com/LibFoundation/Mathematics/Wm4Matrix3.inl.html
+bool	MatrixToEulerXYZ(const btMatrix3x3& mat,btVector3& xyz)
+{
+    // rot =  cy*cz          -cy*sz           sy
+    //        cz*sx*sy+cx*sz  cx*cz-sx*sy*sz -cy*sx
+    //       -cx*cz*sy+sx*sz  cz*sx+cx*sy*sz  cx*cy
+
+///	0..8
+
+	 if (getMatrixElem(mat,2) < 1.0f)
+    {
+        if (getMatrixElem(mat,2) > -1.0f)
+        {
+            xyz[0] = btAtan2(-getMatrixElem(mat,5),getMatrixElem(mat,8));
+            xyz[1] = btAsin(getMatrixElem(mat,2));
+            xyz[2] = btAtan2(-getMatrixElem(mat,1),getMatrixElem(mat,0));
+            return true;
+        }
+        else
+        {
+            // WARNING.  Not unique.  XA - ZA = -atan2(r10,r11)
+            xyz[0] = -btAtan2(getMatrixElem(mat,3),getMatrixElem(mat,4));
+            xyz[1] = -SIMD_HALF_PI;
+            xyz[2] = 0.0f;
+            return false;
+        }
+    }
+    else
+    {
+        // WARNING.  Not unique.  XAngle + ZAngle = atan2(r10,r11)
+        xyz[0] = btAtan2(getMatrixElem(mat,3),getMatrixElem(mat,4));
+        xyz[1] = SIMD_HALF_PI;
+        xyz[2] = 0.0;
+        return false;
+    }
+	 return false;
+}
+
+
 void	btGeneric6DofConstraint::solveConstraint(btScalar	timeStep)
 {
 	btScalar tau = 0.1f;
@@ -201,6 +247,18 @@ void	btGeneric6DofConstraint::solveConstraint(btScalar	timeStep)
 		}
 	}
 
+	btVector3	axis;
+	btScalar	angle;
+	btTransform	frameAWorld = m_rbA.getCenterOfMassTransform() * m_frameInA;
+	btTransform	frameBWorld = m_rbB.getCenterOfMassTransform() * m_frameInB;
+
+	btTransformUtil::calculateDiffAxisAngle(frameAWorld,frameBWorld,axis,angle);
+	btQuaternion diff(axis,angle);
+	btMatrix3x3 diffMat (diff);
+	btVector3 xyz;
+	///this is not perfect, we can first check which axis are limited, and choose a more appropriate order
+	MatrixToEulerXYZ(diffMat,xyz);
+
 	// angular
 	for (i=0;i<3;i++)
 	{
@@ -221,6 +279,35 @@ void	btGeneric6DofConstraint::solveConstraint(btScalar	timeStep)
 
 			btScalar rel_pos = kSign[i] * axisA.dot(axisB);
 
+			btScalar	lo = -1e30f;
+			btScalar	hi = 1e30f;
+		
+			//handle the twist limit
+			if (m_lowerLimit[i+3] < m_upperLimit[i+3])
+			{
+				//clamp the values
+				btScalar loLimit =  m_upperLimit[i+3] > -3.1415 ? m_lowerLimit[i+3] : -1e30f;
+				btScalar hiLimit = m_upperLimit[i+3] < 3.1415 ? m_upperLimit[i+3] : 1e30f;
+
+				float projAngle  = -2.*xyz[i];
+				
+				if (projAngle < loLimit)
+				{
+					hi = 0.f;
+					rel_pos = (loLimit - projAngle);
+				} else
+				{
+					if (projAngle > hiLimit)
+					{
+						lo = 0.f;
+						rel_pos = (hiLimit - projAngle);
+					} else
+					{
+						continue;
+					}
+				}
+			}
+		
 			//impulse
 			btScalar impulse = -(tau*rel_pos/timeStep + damping*rel_vel) * jacDiagABInv;
 			m_accumulatedImpulse[i + 3] += impulse;

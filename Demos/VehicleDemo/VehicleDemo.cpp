@@ -301,7 +301,7 @@ void VehicleDemo::renderme()
 	for (i=0;i<m_vehicle->getNumWheels();i++)
 	{
 		//synchronize the wheels with the (interpolated) chassis worldtransform
-		m_vehicle->updateWheelTransform(i);
+		m_vehicle->updateWheelTransform(i,true);
 		//draw wheels (cylinders)
 		m_vehicle->getWheelInfo(i).m_worldTransform.getOpenGLMatrix(m);
 		GL_ShapeDrawer::drawOpenGL(m,&wheelShape,wheelColor,getDebugMode());
@@ -323,11 +323,14 @@ void VehicleDemo::clientMoveAndDisplay()
 	if (m_dynamicsWorld)
 	{
 		//during idle mode, just run 1 simulation step maximum
-		int maxSimSubSteps = m_idle ? 1 : 1;
+		int maxSimSubSteps = m_idle ? 1 : 2;
 		if (m_idle)
 			dt = 1.0/420.f;
 
 		int numSimSteps = m_dynamicsWorld->stepSimulation(dt,maxSimSubSteps);
+
+#define VERBOSE_FEEDBACK
+#ifdef VERBOSE_FEEDBACK
 		if (!numSimSteps)
 			printf("Interpolated transforms\n");
 		else
@@ -341,6 +344,7 @@ void VehicleDemo::clientMoveAndDisplay()
 				printf("Simulated (%i) steps\n",numSimSteps);
 			}
 		}
+#endif //VERBOSE_FEEDBACK
 
 	}
 
@@ -384,16 +388,20 @@ void VehicleDemo::clientMoveAndDisplay()
 void VehicleDemo::displayCallback(void) 
 {
 
+	clientMoveAndDisplay();
+	return;
+
 	glClear(GL_COLOR_BUFFER_BIT | GL_DEPTH_BUFFER_BIT); 
 
 
 	
-	m_dynamicsWorld->updateAabbs();
+	//m_dynamicsWorld->updateAabbs();
+	
 	//draw contactpoints
 	//m_physicsEnvironmentPtr->CallbackTriggers();
 
 
-	renderme();
+	//renderme();
 
 
 	glFlush();
@@ -416,7 +424,7 @@ void VehicleDemo::clientResetScene()
 		for (int i=0;i<m_vehicle->getNumWheels();i++)
 		{
 			//synchronize the wheels with the (interpolated) chassis worldtransform
-			m_vehicle->updateWheelTransform(i);
+			m_vehicle->updateWheelTransform(i,true);
 		}
 	}
 

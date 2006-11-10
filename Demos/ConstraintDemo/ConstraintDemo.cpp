@@ -47,8 +47,10 @@ int main(int argc,char** argv)
 }
 
 btTransform sliderTransform;
-btVector3 lowerSliderLimit = btVector3(-20,0,0);
-btVector3 hiSliderLimit = btVector3(10,0,0);
+btVector3 lowerSliderLimit = btVector3(0,0,0);
+btVector3 hiSliderLimit = btVector3(0,0,0);
+
+btRigidBody* d6body0 =0;
 
 void	drawLimit()
 {
@@ -59,8 +61,17 @@ void	drawLimit()
 		glColor3f(color.getX(), color.getY(), color.getZ());
 		glVertex3d(from.getX(), from.getY(), from.getZ());
 		glVertex3d(to.getX(), to.getY(), to.getZ());
+		if (d6body0)
+		{
+			from = d6body0->getWorldTransform().getOrigin();
+			to = from + d6body0->getWorldTransform().getBasis() * btVector3(0,0,10);
+			glVertex3d(from.getX(), from.getY(), from.getZ());
+			glVertex3d(to.getX(), to.getY(), to.getZ());
+		}
 		glEnd();
 }
+
+
 
 void	ConstraintDemo::initPhysics()
 {
@@ -108,26 +119,31 @@ void	ConstraintDemo::initPhysics()
 	{
 		mass = 1.f;
 		btVector3 sliderWorldPos(0,10,0);
-		btVector3 sliderAxis(0,0,1);
-		btScalar angle=SIMD_RADS_PER_DEG * 10.f;
+		btVector3 sliderAxis(1,0,0);
+		btScalar angle=0.f;//SIMD_RADS_PER_DEG * 10.f;
 		btMatrix3x3 sliderOrientation(btQuaternion(sliderAxis ,angle));
+		trans.setIdentity();
 		trans.setOrigin(sliderWorldPos);
-		trans.setBasis(sliderOrientation);
+		//trans.setBasis(sliderOrientation);
 		sliderTransform = trans;
 
-		btRigidBody* body0 = localCreateRigidBody( mass,trans,shape);
-		body0->setActivationState(DISABLE_DEACTIVATION);
+		d6body0 = localCreateRigidBody( mass,trans,shape);
+		d6body0->setActivationState(DISABLE_DEACTIVATION);
 		btRigidBody* fixedBody1 = localCreateRigidBody(0,trans,0);
 
 		btTransform frameInA, frameInB;
 		frameInA = btTransform::getIdentity();
 		frameInB = btTransform::getIdentity();
 		
-		btGeneric6DofConstraint* slider = new btGeneric6DofConstraint(*body0,*fixedBody1,frameInA,frameInB);
+		btGeneric6DofConstraint* slider = new btGeneric6DofConstraint(*d6body0,*fixedBody1,frameInA,frameInB);
 		slider->setLinearLowerLimit(lowerSliderLimit);
 		slider->setLinearUpperLimit(hiSliderLimit);
-		slider->setAngularLowerLimit(btVector3(1e30,0,0));
-		slider->setAngularUpperLimit(btVector3(-1e30,0,0));
+//		slider->setAngularLowerLimit(btVector3(-3.1415*0.5f,0,0));
+//		slider->setAngularUpperLimit(btVector3(3.1415*0.5f,0,0));
+
+		//range should be small, otherwise singularities will 'explode' the constraint
+		slider->setAngularLowerLimit(btVector3(0,-3.1415*0.25f,-3.1415*0.25f));
+		slider->setAngularUpperLimit(btVector3(0,3.1415*0.25f,3.1415*0.25f));
 
 		m_dynamicsWorld->addConstraint(slider);
 

@@ -120,40 +120,7 @@ void	btDiscreteDynamicsWorld::synchronizeMotionStates()
 {
 	//debug vehicle wheels
 	
-	if (getDebugDrawer() && getDebugDrawer()->getDebugMode() & btIDebugDraw::DBG_DrawWireframe)
-	{
-		for (unsigned int i=0;i<this->m_vehicles.size();i++)
-		{
-			for (int v=0;v<m_vehicles[i]->getNumWheels();v++)
-			{
-				btVector3 wheelColor(0,255,255);
-				if (m_vehicles[i]->getWheelInfo(v).m_raycastInfo.m_isInContact)
-				{
-					wheelColor.setValue(0,0,255);
-				} else
-				{
-					wheelColor.setValue(255,0,255);
-				}
-
-				//synchronize the wheels with the (interpolated) chassis worldtransform
-				m_vehicles[i]->updateWheelTransform(v);
-					
-				btVector3 wheelPosWS = m_vehicles[i]->getWheelInfo(v).m_worldTransform.getOrigin();
-
-				btVector3 axle = btVector3(	
-					m_vehicles[i]->getWheelInfo(v).m_worldTransform.getBasis()[0][m_vehicles[i]->getRightAxis()],
-					m_vehicles[i]->getWheelInfo(v).m_worldTransform.getBasis()[1][m_vehicles[i]->getRightAxis()],
-					m_vehicles[i]->getWheelInfo(v).m_worldTransform.getBasis()[2][m_vehicles[i]->getRightAxis()]);
-
-
-				//m_vehicles[i]->getWheelInfo(v).m_raycastInfo.m_wheelAxleWS
-				//debug wheels (cylinders)
-				m_debugDrawer->drawLine(wheelPosWS,wheelPosWS+axle,wheelColor);
-				m_debugDrawer->drawLine(wheelPosWS,m_vehicles[i]->getWheelInfo(v).m_raycastInfo.m_contactPointWS,wheelColor);
-
-			}
-		}
-	}
+	
 	{
 		//todo: iterate over awake simulation islands!
 		for (unsigned int i=0;i<m_collisionObjects.size();i++)
@@ -196,6 +163,40 @@ void	btDiscreteDynamicsWorld::synchronizeMotionStates()
 		}
 	}
 
+	if (getDebugDrawer() && getDebugDrawer()->getDebugMode() & btIDebugDraw::DBG_DrawWireframe)
+	{
+		for (unsigned int i=0;i<this->m_vehicles.size();i++)
+		{
+			for (int v=0;v<m_vehicles[i]->getNumWheels();v++)
+			{
+				btVector3 wheelColor(0,255,255);
+				if (m_vehicles[i]->getWheelInfo(v).m_raycastInfo.m_isInContact)
+				{
+					wheelColor.setValue(0,0,255);
+				} else
+				{
+					wheelColor.setValue(255,0,255);
+				}
+
+				//synchronize the wheels with the (interpolated) chassis worldtransform
+				m_vehicles[i]->updateWheelTransform(v,true);
+					
+				btVector3 wheelPosWS = m_vehicles[i]->getWheelInfo(v).m_worldTransform.getOrigin();
+
+				btVector3 axle = btVector3(	
+					m_vehicles[i]->getWheelInfo(v).m_worldTransform.getBasis()[0][m_vehicles[i]->getRightAxis()],
+					m_vehicles[i]->getWheelInfo(v).m_worldTransform.getBasis()[1][m_vehicles[i]->getRightAxis()],
+					m_vehicles[i]->getWheelInfo(v).m_worldTransform.getBasis()[2][m_vehicles[i]->getRightAxis()]);
+
+
+				//m_vehicles[i]->getWheelInfo(v).m_raycastInfo.m_wheelAxleWS
+				//debug wheels (cylinders)
+				m_debugDrawer->drawLine(wheelPosWS,wheelPosWS+axle,wheelColor);
+				m_debugDrawer->drawLine(wheelPosWS,m_vehicles[i]->getWheelInfo(v).m_raycastInfo.m_contactPointWS,wheelColor);
+
+			}
+		}
+	}
 
 }
 
@@ -218,8 +219,15 @@ int	btDiscreteDynamicsWorld::stepSimulation( float timeStep,int maxSubSteps, flo
 		//variable timestep
 		fixedTimeStep = timeStep;
 		m_localTime = timeStep;
-		numSimulationSubSteps = 1;
-		maxSubSteps = 1;
+		if (btFuzzyZero(timeStep))
+		{
+			numSimulationSubSteps = 0;
+			maxSubSteps = 0;
+		} else
+		{
+			numSimulationSubSteps = 1;
+			maxSubSteps = 1;
+		}
 	}
 
 	//process some debugging flags
@@ -227,7 +235,7 @@ int	btDiscreteDynamicsWorld::stepSimulation( float timeStep,int maxSubSteps, flo
 	{
 		gDisableDeactivation = (getDebugDrawer()->getDebugMode() & btIDebugDraw::DBG_NoDeactivation) != 0;
 	}
-	if (!btFuzzyZero(timeStep) && numSimulationSubSteps)
+	if (numSimulationSubSteps)
 	{
 
 		saveKinematicState(fixedTimeStep);
@@ -238,6 +246,7 @@ int	btDiscreteDynamicsWorld::stepSimulation( float timeStep,int maxSubSteps, flo
 		for (int i=0;i<clampedSimulationSteps;i++)
 		{
 			internalSingleStepSimulation(fixedTimeStep);
+			synchronizeMotionStates();
 		}
 
 	} 
@@ -266,20 +275,23 @@ void	btDiscreteDynamicsWorld::internalSingleStepSimulation(float timeStep)
 	btContactSolverInfo infoGlobal;
 	infoGlobal.m_timeStep = timeStep;
 	
+
+
 	///solve non-contact constraints
 	solveNoncontactConstraints(infoGlobal);
 	
 	///solve contact constraints
 	solveContactConstraints(infoGlobal);
 
-	///update vehicle simulation
-	updateVehicles(timeStep);
-	
 	///CallbackTriggers();
 
 	///integrate transforms
 	integrateTransforms(timeStep);
-		
+
+	///update vehicle simulation
+	updateVehicles(timeStep);
+
+
 	updateActivationState( timeStep );
 
 	
