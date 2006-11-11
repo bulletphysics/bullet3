@@ -129,7 +129,9 @@ void	BasicDemo::initPhysics()
 
 	m_solver = new btSequentialImpulseConstraintSolver;
 
-	m_dynamicsWorld = new btSimpleDynamicsWorld(m_dispatcher,m_overlappingPairCache,m_solver);
+	//m_dynamicsWorld = new btSimpleDynamicsWorld(m_dispatcher,m_overlappingPairCache,m_solver);
+	m_dynamicsWorld = new btDiscreteDynamicsWorld(m_dispatcher,m_overlappingPairCache,m_solver);
+
 	m_dynamicsWorld->setGravity(btVector3(0,-10,0));
 
 	m_dynamicsWorld->setDebugDrawer(&debugDrawer);

@@ -20,29 +20,7 @@ subject to the following restrictions:
 #include "BulletCollision/NarrowPhaseCollision/btGjkPairDetector.h"
 
 
-struct MyResult : public btDiscreteCollisionDetectorInterface::Result
-{
 
-	MyResult():m_hasResult(false)
-	{
-	}
-	
-	btVector3 m_normalOnBInWorld;
-	btVector3 m_pointInWorld;
-	float m_depth;
-	bool	m_hasResult;
-
-	virtual void setShapeIdentifiers(int partId0,int index0,	int partId1,int index1)
-	{
-	}
-	void addContactPoint(const btVector3& normalOnBInWorld,const btVector3& pointInWorld,float depth)
-	{
-		m_normalOnBInWorld = normalOnBInWorld;
-		m_pointInWorld = pointInWorld;
-		m_depth = depth;
-		m_hasResult = true;
-	}
-};
 
 #define NUM_UNITSPHERE_POINTS 42
 static btVector3	sPenetrationDirections[NUM_UNITSPHERE_POINTS+MAX_PREFERRED_PENETRATION_DIRECTIONS*2] = 
@@ -99,6 +77,31 @@ bool btMinkowskiPenetrationDepthSolver::calcPenDepth(btSimplexSolverInterface& s
 												   class btIDebugDraw* debugDraw
 												   )
 {
+
+
+	struct btIntermediateResult : public btDiscreteCollisionDetectorInterface::Result
+	{
+
+		btIntermediateResult():m_hasResult(false)
+		{
+		}
+		
+		btVector3 m_normalOnBInWorld;
+		btVector3 m_pointInWorld;
+		float m_depth;
+		bool	m_hasResult;
+
+		virtual void setShapeIdentifiers(int partId0,int index0,	int partId1,int index1)
+		{
+		}
+		void addContactPoint(const btVector3& normalOnBInWorld,const btVector3& pointInWorld,float depth)
+		{
+			m_normalOnBInWorld = normalOnBInWorld;
+			m_pointInWorld = pointInWorld;
+			m_depth = depth;
+			m_hasResult = true;
+		}
+	};
 
 	//just take fixed number of orientation, and sample the penetration depth in that direction
 	float minProj = 1e30f;
@@ -247,10 +250,15 @@ bool btMinkowskiPenetrationDepthSolver::calcPenDepth(btSimplexSolverInterface& s
 
 	minA += minNorm*convexA->getMargin();
 	minB -= minNorm*convexB->getMargin();
+	//no penetration
+	if (minProj < 0.f)
+		return false;
+
 	minProj += (convexA->getMargin() + convexB->getMargin());
 
 
-	
+
+
 
 //#define DEBUG_DRAW 1
 #ifdef DEBUG_DRAW
@@ -286,7 +294,7 @@ bool btMinkowskiPenetrationDepthSolver::calcPenDepth(btSimplexSolverInterface& s
 	input.m_transformB = transB;
 	input.m_maximumDistanceSquared = 1e30f;//minProj;
 	
-	MyResult res;
+	btIntermediateResult res;
 	gjkdet.getClosestPoints(input,res,debugDraw);
 
 	float correctedMinNorm = minProj - res.m_depth;

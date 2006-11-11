@@ -666,7 +666,33 @@ btRigidBody*	DemoApplication::localCreateRigidBody(float mass, const btTransform
 	return body;
 }
 
+//See http://www.lighthouse3d.com/opengl/glut/index.php?bmpfontortho
+void DemoApplication::setOrthographicProjection() 
+{
 
+	// switch to projection mode
+	glMatrixMode(GL_PROJECTION);
+	// save previous matrix which contains the 
+	//settings for the perspective projection
+	glPushMatrix();
+	// reset matrix
+	glLoadIdentity();
+	// set a 2D orthographic projection
+	gluOrtho2D(0, m_glutScreenWidth, 0, m_glutScreenHeight);
+	// invert the y axis, down is positive
+	glScalef(1, -1, 1);
+	// mover the origin from the bottom left corner
+	// to the upper left corner
+	glTranslatef(0, -m_glutScreenHeight, 0);
+	glMatrixMode(GL_MODELVIEW);
+}
+
+void DemoApplication::resetPerspectiveProjection() 
+{
+	glMatrixMode(GL_PROJECTION);
+	glPopMatrix();
+	glMatrixMode(GL_MODELVIEW);
+}
 
 
 void DemoApplication::renderme()
@@ -726,10 +752,14 @@ void DemoApplication::renderme()
 
 			float xOffset = 10.f;
 			float yStart = 20.f;
-			float yIncr = -2.f;
+			float yIncr = 20.f;
 			char buf[124];
 
 			glColor3f(0, 0, 0);
+
+			if ((m_debugMode & btIDebugDraw::DBG_NoHelpText)==0)
+				{
+				setOrthographicProjection();
 
 	#ifdef USE_QUICKPROF
 
@@ -751,70 +781,83 @@ void DemoApplication::renderme()
 			}
 	#endif //USE_QUICKPROF
 
-		
-			glRasterPos3f(xOffset,yStart,0);
-			sprintf(buf,"mouse to interact");
-			BMF_DrawString(BMF_GetFont(BMF_kHelvetica10),buf);
-			yStart += yIncr;
+			
+			
+				glRasterPos3f(xOffset,yStart,0);
+				sprintf(buf,"mouse to interact");
+				BMF_DrawString(BMF_GetFont(BMF_kHelvetica10),buf);
+				yStart += yIncr;
 
-		/*	glRasterPos3f(xOffset,yStart,0);
-			sprintf(buf,"space to reset");
-			BMF_DrawString(BMF_GetFont(BMF_kHelvetica10),buf);
-			yStart += yIncr;
-		*/
-			glRasterPos3f(xOffset,yStart,0);
-			sprintf(buf,"cursor keys and z,x to navigate");
-			BMF_DrawString(BMF_GetFont(BMF_kHelvetica10),buf);
-			yStart += yIncr;
+				glRasterPos3f(xOffset,yStart,0);
+				sprintf(buf,"space to reset");
+				BMF_DrawString(BMF_GetFont(BMF_kHelvetica10),buf);
+				yStart += yIncr;
+			
+				glRasterPos3f(xOffset,yStart,0);
+				sprintf(buf,"cursor keys and z,x to navigate");
+				BMF_DrawString(BMF_GetFont(BMF_kHelvetica10),buf);
+				yStart += yIncr;
 
-			glRasterPos3f(xOffset,yStart,0);
-			sprintf(buf,"i to toggle simulation, s single step");
-			BMF_DrawString(BMF_GetFont(BMF_kHelvetica10),buf);
-			yStart += yIncr;
+				glRasterPos3f(xOffset,yStart,0);
+				sprintf(buf,"i to toggle simulation, s single step");
+				BMF_DrawString(BMF_GetFont(BMF_kHelvetica10),buf);
+				yStart += yIncr;
 
-			glRasterPos3f(xOffset,yStart,0);
-			sprintf(buf,"q to quit");
-			BMF_DrawString(BMF_GetFont(BMF_kHelvetica10),buf);
-			yStart += yIncr;
+				glRasterPos3f(xOffset,yStart,0);
+				sprintf(buf,"q to quit");
+				BMF_DrawString(BMF_GetFont(BMF_kHelvetica10),buf);
+				yStart += yIncr;
 
-			glRasterPos3f(xOffset,yStart,0);
-			sprintf(buf,". to shoot box");
-			BMF_DrawString(BMF_GetFont(BMF_kHelvetica10),buf);
-			yStart += yIncr;
+				glRasterPos3f(xOffset,yStart,0);
+				sprintf(buf,". to shoot box");
+				BMF_DrawString(BMF_GetFont(BMF_kHelvetica10),buf);
+				yStart += yIncr;
 
-			// not yet hooked up again after refactoring...
+				// not yet hooked up again after refactoring...
 
-/*			glRasterPos3f(xOffset,yStart,0);
-			sprintf(buf,"d to toggle deactivation");
-			BMF_DrawString(BMF_GetFont(BMF_kHelvetica10),buf);
-			yStart += yIncr;
-*/
+				glRasterPos3f(xOffset,yStart,0);
+				sprintf(buf,"d to toggle deactivation");
+				BMF_DrawString(BMF_GetFont(BMF_kHelvetica10),buf);
+				yStart += yIncr;
 
-		/*	
-			glRasterPos3f(xOffset,yStart,0);
-			sprintf(buf,"a to draw temporal AABBs");
-			BMF_DrawString(BMF_GetFont(BMF_kHelvetica10),buf);
-			yStart += yIncr;
-		*/
 
-			glRasterPos3f(xOffset,yStart,0);
-			sprintf(buf,"h to toggle help text");
-			BMF_DrawString(BMF_GetFont(BMF_kHelvetica10),buf);
-			yStart += yIncr;
+			/*	
+				glRasterPos3f(xOffset,yStart,0);
+				sprintf(buf,"a to draw temporal AABBs");
+				BMF_DrawString(BMF_GetFont(BMF_kHelvetica10),buf);
+				yStart += yIncr;
+			*/
 
-			//bool useBulletLCP = !(getDebugMode() & btIDebugDraw::DBG_DisableBulletLCP);
+				glRasterPos3f(xOffset,yStart,0);
+				sprintf(buf,"h to toggle help text");
+				BMF_DrawString(BMF_GetFont(BMF_kHelvetica10),buf);
+				yStart += yIncr;
 
-			bool useCCD = (getDebugMode() & btIDebugDraw::DBG_EnableCCD);
+				
+				glRasterPos3f(xOffset,yStart,0);
+				sprintf(buf,"p to toggle profiling (+results to file)");
+				BMF_DrawString(BMF_GetFont(BMF_kHelvetica10),buf);
+				yStart += yIncr;
 
-			glRasterPos3f(xOffset,yStart,0);
-			sprintf(buf,"1 CCD mode (adhoc) = %i",useCCD);
-			BMF_DrawString(BMF_GetFont(BMF_kHelvetica10),buf);
-			yStart += yIncr;
 
-			glRasterPos3f(xOffset,yStart,0);
-			sprintf(buf,"+- shooting speed = %10.2f",m_ShootBoxInitialSpeed);
-			BMF_DrawString(BMF_GetFont(BMF_kHelvetica10),buf);
-			yStart += yIncr;
+				//bool useBulletLCP = !(getDebugMode() & btIDebugDraw::DBG_DisableBulletLCP);
+
+				bool useCCD = (getDebugMode() & btIDebugDraw::DBG_EnableCCD);
+
+/*				glRasterPos3f(xOffset,yStart,0);
+				sprintf(buf,"1 CCD mode (adhoc) = %i",useCCD);
+				BMF_DrawString(BMF_GetFont(BMF_kHelvetica10),buf);
+				yStart += yIncr;
+				*/
+
+
+				glRasterPos3f(xOffset,yStart,0);
+				sprintf(buf,"+- shooting speed = %10.2f",m_ShootBoxInitialSpeed);
+				BMF_DrawString(BMF_GetFont(BMF_kHelvetica10),buf);
+				yStart += yIncr;
+
+				resetPerspectiveProjection();
+			}
 		
 	}
 
@@ -838,6 +881,10 @@ void	DemoApplication::clientResetScene()
 			myMotionState->m_graphicsWorldTrans = myMotionState->m_startWorldTrans;
 			colObj->setWorldTransform( myMotionState->m_graphicsWorldTrans );
 			colObj->setInterpolationWorldTransform( myMotionState->m_startWorldTrans );
+			colObj->activate();
+			//removed cached contact points
+			m_dynamicsWorld->getBroadphase()->cleanProxyFromPairs(colObj->getBroadphaseHandle());
+
 			btRigidBody* body = btRigidBody::upcast(colObj);
 			if (body && !body->isStaticObject())
 			{

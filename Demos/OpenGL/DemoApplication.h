@@ -93,6 +93,9 @@ public:
 		return m_dynamicsWorld;
 	}
 	
+	void setOrthographicProjection();
+	void resetPerspectiveProjection();
+
 	int		getDebugMode()
 	{
 		return m_debugMode ;

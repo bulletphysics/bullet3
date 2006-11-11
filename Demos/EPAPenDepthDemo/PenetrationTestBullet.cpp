@@ -20,6 +20,10 @@
 #include <stdio.h>
 #include <math.h>
 
+#define VERBOSE_TEXT_ONSCREEN 1
+#ifdef VERBOSE_TEXT_ONSCREEN
+#include "BMF_Api.h"
+#endif
 
 #include "btBulletCollisionCommon.h"
 
@@ -35,6 +39,10 @@
 
 static bool gRefMode = false;
 static int gMethod = 0;
+static int gLastUsedMethod = -1;
+static int gNumGjkIterations = -1;
+static int gLastDegenerateSimplex = -1;
+
 static const float gDisp = 0.01f;
 static const float gCamSpeed = 0.1f;
 static btVector3 Eye(3.0616338f, 1.1985892f, 2.5769043f);
@@ -42,6 +50,8 @@ static btVector3 Dir(-0.66853905,-0.14004262,-0.73037237);
 static btVector3 N;
 static int mx = 0;
 static int my = 0;
+static int glutScreenHeight = 512;
+static int glutScreenWidth = 512;
 
 static void DrawLine(const btVector3& p0, const btVector3& p1, const btVector3& color, float line_width)
 {
@@ -144,6 +154,36 @@ bool MyConvex::LoadFromFile(const char* filename)
 	return true;
 }
 
+
+
+//See http://www.lighthouse3d.com/opengl/glut/index.php?bmpfontortho
+static void setOrthographicProjection() 
+{
+
+	// switch to projection mode
+	glMatrixMode(GL_PROJECTION);
+	// save previous matrix which contains the 
+	//settings for the perspective projection
+	glPushMatrix();
+	// reset matrix
+	glLoadIdentity();
+	// set a 2D orthographic projection
+	gluOrtho2D(0, glutScreenWidth, 0, glutScreenHeight);
+	// invert the y axis, down is positive
+	glScalef(1, -1, 1);
+	// mover the origin from the bottom left corner
+	// to the upper left corner
+	glTranslatef(0, -glutScreenHeight, 0);
+	glMatrixMode(GL_MODELVIEW);
+}
+
+static void resetPerspectiveProjection() 
+{
+	glMatrixMode(GL_PROJECTION);
+	glPopMatrix();
+	glMatrixMode(GL_MODELVIEW);
+}
+
 void MyConvex::Render(bool only_wireframe, const btVector3& wire_color) const
 {
 	const float Scale = 1.0f;
@@ -233,17 +273,19 @@ static float gDepth;
 
 static bool TestEPA(const MyConvex& hull0, const MyConvex& hull1)
 {
-	//static btSimplexSolverInterface simplexSolver;
-	static Solid3JohnsonSimplexSolver simplexSolver;
+	static btSimplexSolverInterface simplexSolver;
+	//static Solid3JohnsonSimplexSolver simplexSolver;
 
 	simplexSolver.reset();
 
 	btConvexHullShape convexA((float*)hull0.mVerts, hull0.mNbVerts, sizeof(btVector3));
 	btConvexHullShape convexB((float*)hull1.mVerts, hull1.mNbVerts, sizeof(btVector3));
 
-	static Solid3EpaPenetrationDepth Solver0;
-	static EpaPenetrationDepthSolver Solver1;
-	static btMinkowskiPenetrationDepthSolver Solver2;
+	static btMinkowskiPenetrationDepthSolver Solver0;
+	static Solid3EpaPenetrationDepth Solver1;
+	static EpaPenetrationDepthSolver Solver2;
+	
+	
 
 	btConvexPenetrationDepthSolver* Solver;
 			if(gMethod==0)	
@@ -254,7 +296,7 @@ static bool TestEPA(const MyConvex& hull0, const MyConvex& hull1)
 		Solver = &Solver2;
 
 	btGjkPairDetector GJK(&convexA, &convexB, &simplexSolver, Solver);
-	//GJK.setIgnoreMargin(true);
+	GJK.m_catchDegeneracies = 1;
 	convexA.setMargin(0.01f);
 	convexB.setMargin(0.01f);
 
@@ -264,6 +306,9 @@ static bool TestEPA(const MyConvex& hull0, const MyConvex& hull1)
 
 	MyResult output;
 	GJK.getClosestPoints(input, output, 0);
+	gLastUsedMethod = GJK.m_lastUsedMethod;
+	gNumGjkIterations = GJK.m_curIter;
+	gLastDegenerateSimplex= GJK.m_degenerateSimplex;
 	return true;
 }
 
@@ -539,6 +584,14 @@ static void RenderCallback()
 
 	glEnable(GL_LIGHTING);
 
+	//clear previous frames result
+	gNormal.setValue(10,0,0);
+	gPoint.setValue(0,0,0);
+	gDepth = 999.999;
+	gLastUsedMethod = -1;
+	gNumGjkIterations = -1;
+
+
 	TestEPA(gConvex0, gConvex1);
 	glMatrixMode(GL_MODELVIEW);
 	glLoadIdentity();
@@ -551,6 +604,71 @@ static void RenderCallback()
 
 //	DrawLine(gPoint, gPoint + gNormal*20.0f, btVector3(1,0,0), 2.0f);
 //	printf("%f:  %f  %f  %f\n", gDepth, gNormal.x(), gNormal.y(), gNormal.z());
+
+#ifdef VERBOSE_TEXT_ONSCREEN
+	glColor3f(255.f, 255.f, 255.f);
+
+	setOrthographicProjection();
+	float xOffset = 10.f;
+	float yStart = 20.f;
+	float yIncr = 20.f;
+	char buf[124];
+
+	glRasterPos3f(xOffset,yStart,0);
+	sprintf(buf,"gDepth=%f:  gNormal=(%f  %f  %f)\n", gDepth, gNormal.x(), gNormal.y(), gNormal.z());
+	BMF_DrawString(BMF_GetFont(BMF_kHelvetica10),buf);
+	yStart += yIncr;
+
+	glRasterPos3f(xOffset,yStart,0);
+	sprintf(buf,"num GJK iterations =%d\n", gNumGjkIterations);
+	BMF_DrawString(BMF_GetFont(BMF_kHelvetica10),buf);
+	yStart += yIncr;
+
+
+
+	
+
+	if (gLastUsedMethod >= 3)
+	{
+		switch (	gMethod)
+		{
+		case 0:
+			sprintf(buf,"Minkowski sampling Penetration depth solver\n" );
+			break;
+		case 1:
+			sprintf(buf,"Solid35 EPA Penetration depth solver\n" );
+			break;
+		case 2:
+			sprintf(buf,"EPA Penetration depth solver (WorkInProgress, zlib free\n" );
+			break;
+		default:
+				sprintf(buf,"Unknown Penetration Depth\n" );
+		}
+		glRasterPos3f(xOffset,yStart,0);
+		BMF_DrawString(BMF_GetFont(BMF_kHelvetica10),buf);
+		yStart += yIncr;
+
+	} else
+	{
+		glRasterPos3f(xOffset,yStart,0);
+		sprintf(buf,"Hybrid GJK method %d\n", gLastUsedMethod);
+		BMF_DrawString(BMF_GetFont(BMF_kHelvetica10),buf);
+		yStart += yIncr;
+	}
+
+	if (gLastDegenerateSimplex)
+	{
+		glRasterPos3f(xOffset,yStart,0);
+		sprintf(buf,"DegenerateSimplex %d\n", gLastDegenerateSimplex);
+		BMF_DrawString(BMF_GetFont(BMF_kHelvetica10),buf);
+		yStart += yIncr;
+	}
+
+	
+
+
+	resetPerspectiveProjection();
+#endif //VERBOSE_TEXT_ONSCREEN
 
 	btVector3 color(0,0,0);
 	gConvex0.Render(false, color);
@@ -593,7 +711,7 @@ int main(int argc, char** argv)
 {
 	// Initialize Glut
 	glutInit(&argc, argv);
-	glutInitWindowSize(512, 512);
+	glutInitWindowSize(glutScreenWidth, glutScreenHeight);
 	glutInitDisplayMode(GLUT_RGB | GLUT_DOUBLE | GLUT_DEPTH);
 	int mainHandle = glutCreateWindow("TestBullet");
 	glutSetWindow(mainHandle);

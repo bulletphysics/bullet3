@@ -37,7 +37,9 @@ m_penetrationDepthSolver(penetrationDepthSolver),
 m_simplexSolver(simplexSolver),
 m_minkowskiA(objectA),
 m_minkowskiB(objectB),
-m_ignoreMargin(false)
+m_ignoreMargin(false),
+m_lastUsedMethod(-1),
+m_catchDegeneracies(0)
 {
 }
 
@@ -62,12 +64,16 @@ void btGjkPairDetector::getClosestPoints(const ClosestPointInput& input,Result& 
 		marginB = 0.f;
 	}
 
-	int curIter = 0;
+	m_curIter = 0;
 	int gGjkMaxIter = 1000;//this is to catch invalid input, perhaps check for #NaN?
+	m_cachedSeparatingAxis.setValue(0,1,0);
 
 	bool isValid = false;
 	bool checkSimplex = false;
 	bool checkPenetration = true;
+	m_degenerateSimplex = false;
+
+	m_lastUsedMethod = -1;
 
 	{
 		btScalar squaredDistance = SIMD_INFINITY;
@@ -107,7 +113,16 @@ void btGjkPairDetector::getClosestPoints(const ClosestPointInput& input,Result& 
 				break;
 			}
 			// are we getting any closer ?
-			if (squaredDistance - delta <= squaredDistance * REL_ERROR2)
+			float f0 = squaredDistance - delta;
+			float f1 = squaredDistance * REL_ERROR2;
+
+			if (f0 <= 0.f)
+			{
+				m_degenerateSimplex = 2;
+			}
+
+			if (f0 >= 0.f && (f0 <= f1))
+			//if (f0 <= f1)
 			{
 				checkSimplex = true;
 				break;
@@ -118,6 +133,7 @@ void btGjkPairDetector::getClosestPoints(const ClosestPointInput& input,Result& 
 			//calculate the closest point to the origin (update vector v)
 			if (!m_simplexSolver->closest(m_cachedSeparatingAxis))
 			{
+				m_degenerateSimplex = 1;
 				checkSimplex = true;
 				break;
 			}
@@ -136,11 +152,11 @@ void btGjkPairDetector::getClosestPoints(const ClosestPointInput& input,Result& 
 			}
 
 			  //degeneracy, this is typically due to invalid/uninitialized worldtransforms for a btCollisionObject   
-              if (curIter++ > gGjkMaxIter)   
+              if (m_curIter++ > gGjkMaxIter)   
               {   
                       #if defined(DEBUG) || defined (_DEBUG)   
 
-                              printf("btGjkPairDetector maxIter exceeded:%i\n",curIter);   
+                              printf("btGjkPairDetector maxIter exceeded:%i\n",m_curIter);   
                               printf("sepAxis=(%f,%f,%f), squaredDistance = %f, shapeTypeA=%i,shapeTypeB=%i\n",   
                               m_cachedSeparatingAxis.getX(),   
                               m_cachedSeparatingAxis.getY(),   
@@ -172,7 +188,8 @@ void btGjkPairDetector::getClosestPoints(const ClosestPointInput& input,Result& 
 			normalInB = pointOnA-pointOnB;
 			float lenSqr = m_cachedSeparatingAxis.length2();
 			//valid normal
-			if (lenSqr > (SIMD_EPSILON*SIMD_EPSILON))
+			//if (lenSqr > (0.1f*margin)) //SIMD_EPSILON*SIMD_EPSILON))
+			if (lenSqr > SIMD_EPSILON*SIMD_EPSILON)
 			{
 				float rlen = 1.f / btSqrt(lenSqr );
 				normalInB *= rlen; //normalize
@@ -183,10 +200,15 @@ void btGjkPairDetector::getClosestPoints(const ClosestPointInput& input,Result& 
 				pointOnB += m_cachedSeparatingAxis * (marginB / s);
 				distance = ((1.f/rlen) - margin);
 				isValid = true;
+				m_lastUsedMethod = 1;
+			} else
+			{
+				m_lastUsedMethod = 2;
 			}
 		}
 
-		if (checkPenetration && !isValid)
+		//if (checkPenetration && !isValid)
+		if (checkPenetration && (!isValid || (m_catchDegeneracies && m_penetrationDepthSolver && m_degenerateSimplex) ))
 		{
 			//penetration case
 		
@@ -194,27 +216,46 @@ void btGjkPairDetector::getClosestPoints(const ClosestPointInput& input,Result& 
 			if (m_penetrationDepthSolver)
 			{
 				// Penetration depth case.
-				isValid = m_penetrationDepthSolver->calcPenDepth( 
+				btVector3 tmpPointOnA,tmpPointOnB;
+				bool isValid2 = m_penetrationDepthSolver->calcPenDepth( 
 					*m_simplexSolver, 
 					m_minkowskiA,m_minkowskiB,
 					localTransA,localTransB,
-					m_cachedSeparatingAxis, pointOnA, pointOnB,
+					m_cachedSeparatingAxis, tmpPointOnA, tmpPointOnB,
 					debugDraw
 					);
 
-				if (isValid)
+				if (isValid2)
 				{
-					normalInB = pointOnB-pointOnA;
-					float lenSqr = normalInB.length2();
+					btVector3 tmpNormalInB = tmpPointOnB-tmpPointOnA;
+					float lenSqr = tmpNormalInB.length2();
 					if (lenSqr > (SIMD_EPSILON*SIMD_EPSILON))
 					{
-						normalInB /= btSqrt(lenSqr);
-						distance = -(pointOnA-pointOnB).length();
+						tmpNormalInB /= btSqrt(lenSqr);
+						float distance2 = -(tmpPointOnA-tmpPointOnB).length();
+						//only replace valid penetrations when the result is deeper (check)
+						if (!isValid || (distance2 < distance))
+						{
+							distance = distance2;
+							pointOnA = tmpPointOnA;
+							pointOnB = tmpPointOnB;
+							normalInB = tmpNormalInB;
+							isValid = true;
+							m_lastUsedMethod = 3;
+						} else
+						{
+							
+						}
 					} else
 					{
-						isValid = false;
+						//isValid = false;
+						m_lastUsedMethod = 4;
 					}
+				} else
+				{
+					m_lastUsedMethod = 5;
 				}
+				
 			}
 		}
 	}

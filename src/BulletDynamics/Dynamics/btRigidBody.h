@@ -313,6 +313,8 @@ public:
 	void	setMotionState(btMotionState* motionState)
 	{
 		m_optionalMotionState = motionState;
+		if (m_optionalMotionState)
+			motionState->getWorldTransform(m_worldTransform);
 	}
 
 	//for experimental overriding of friction/contact solver func
