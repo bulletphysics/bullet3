@@ -104,6 +104,10 @@ SOURCE="$(InputPath)"
 # PROP Default_Filter ""
 # Begin Source File
 
+SOURCE=..\..\src\LinearMath\btGeometryUtil.cpp
+# End Source File
+# Begin Source File
+
 SOURCE=..\..\src\LinearMath\btQuickprof.cpp
 # End Source File
 # End Group
@@ -117,6 +121,10 @@ SOURCE=..\..\src\LinearMath\btAabbUtil2.h
 # Begin Source File
 
 SOURCE=..\..\src\LinearMath\btDefaultMotionState.h
+# End Source File
+# Begin Source File
+
+SOURCE=..\..\src\LinearMath\btGeometryUtil.h
 # End Source File
 # Begin Source File
 

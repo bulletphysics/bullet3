@@ -279,6 +279,9 @@
 				RelativePath="..\..\src\BulletCollision\CollisionShapes\btTetrahedronShape.cpp">
 			</File>
 			<File
+				RelativePath="..\..\src\BulletCollision\CollisionShapes\btTriangleBuffer.cpp">
+			</File>
+			<File
 				RelativePath="..\..\src\BulletCollision\CollisionShapes\btTriangleCallback.cpp">
 			</File>
 			<File
@@ -446,6 +449,9 @@
 			</File>
 			<File
 				RelativePath="..\..\src\BulletCollision\CollisionShapes\btTetrahedronShape.h">
+			</File>
+			<File
+				RelativePath="..\..\src\BulletCollision\CollisionShapes\btTriangleBuffer.h">
 			</File>
 			<File
 				RelativePath="..\..\src\BulletCollision\CollisionShapes\btTriangleCallback.h">

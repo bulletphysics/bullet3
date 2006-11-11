@@ -162,6 +162,9 @@
 			Name="Source Files"
 			Filter="">
 			<File
+				RelativePath="..\..\src\LinearMath\btGeometryUtil.cpp">
+			</File>
+			<File
 				RelativePath="..\..\src\LinearMath\btQuickprof.cpp">
 			</File>
 		</Filter>
@@ -173,6 +176,9 @@
 			</File>
 			<File
 				RelativePath="..\..\src\LinearMath\btDefaultMotionState.h">
+			</File>
+			<File
+				RelativePath="..\..\src\LinearMath\btGeometryUtil.h">
 			</File>
 			<File
 				RelativePath="..\..\src\LinearMath\btIDebugDraw.h">

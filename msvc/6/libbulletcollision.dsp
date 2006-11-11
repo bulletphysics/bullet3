@@ -260,6 +260,10 @@ SOURCE=..\..\src\BulletCollision\CollisionShapes\btTetrahedronShape.cpp
 # End Source File
 # Begin Source File
 
+SOURCE=..\..\src\BulletCollision\CollisionShapes\btTriangleBuffer.cpp
+# End Source File
+# Begin Source File
+
 SOURCE=..\..\src\BulletCollision\CollisionShapes\btTriangleCallback.cpp
 # End Source File
 # Begin Source File
@@ -481,6 +485,10 @@ SOURCE=..\..\src\BulletCollision\CollisionShapes\btStridingMeshInterface.h
 # Begin Source File
 
 SOURCE=..\..\src\BulletCollision\CollisionShapes\btTetrahedronShape.h
+# End Source File
+# Begin Source File
+
+SOURCE=..\..\src\BulletCollision\CollisionShapes\btTriangleBuffer.h
 # End Source File
 # Begin Source File
 
