@@ -29,13 +29,13 @@ subject to the following restrictions:
 
 #include "BulletCollision/NarrowPhaseCollision/btSimplexSolverInterface.h"
 
-#include "NarrowPhaseCollision/EpaCommon.h"
+#include "EpaCommon.h"
 
-#include "NarrowPhaseCollision/EpaVertex.h"
-#include "NarrowPhaseCollision/EpaHalfEdge.h"
-#include "NarrowPhaseCollision/EpaFace.h"
-#include "NarrowPhaseCollision/EpaPolyhedron.h"
-#include "NarrowPhaseCollision/Epa.h"
+#include "EpaVertex.h"
+#include "EpaHalfEdge.h"
+#include "EpaFace.h"
+#include "EpaPolyhedron.h"
+#include "Epa.h"
 
 const btScalar EPA_MAX_RELATIVE_ERROR = 1e-2f;
 const btScalar EPA_MAX_RELATIVE_ERROR_SQRD = EPA_MAX_RELATIVE_ERROR * EPA_MAX_RELATIVE_ERROR;

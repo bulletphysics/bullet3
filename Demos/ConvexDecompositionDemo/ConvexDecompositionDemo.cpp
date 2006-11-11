@@ -20,10 +20,13 @@ subject to the following restrictions:
 
 #include "LinearMath/btQuickprof.h"
 #include "LinearMath/btIDebugDraw.h"
+#include "LinearMath/btGeometryUtil.h"
+
 #include "GLDebugDrawer.h"
 
 #include "BMF_Api.h"
 #include <stdio.h> //printf debugging
+#include <vector>
 
 float deltaTime = 1.f/60.f;
 
@@ -89,7 +92,7 @@ void ConvexDecompositionDemo::initPhysics(const char* filename)
 
 	btTransform startTransform;
 	startTransform.setIdentity();
-	startTransform.setOrigin(btVector3(0,-4,0));
+	startTransform.setOrigin(btVector3(0,-4.5,0));
 
 	localCreateRigidBody(0.f,startTransform,new btBoxShape(btVector3(30,2,30)));
 
@@ -132,28 +135,34 @@ void ConvexDecompositionDemo::initPhysics(const char* filename)
 
 					//calc centroid, to shift vertices around center of mass
 					centroid.setValue(0,0,0);
+					std::vector<btVector3> vertices;
 					if ( 1 )
 					{
 						const unsigned int *src = result.mHullIndices;
-						for (unsigned int i=0; i<result.mHullTcount; i++)
+						for (unsigned int i=0; i<result.mHullVcount; i++)
 						{
-							unsigned int index0 = *src++;
-							unsigned int index1 = *src++;
-							unsigned int index2 = *src++;
-							btVector3 vertex0(result.mHullVertices[index0*3], result.mHullVertices[index0*3+1],result.mHullVertices[index0*3+2]);
-							btVector3 vertex1(result.mHullVertices[index1*3], result.mHullVertices[index1*3+1],result.mHullVertices[index1*3+2]);
-							btVector3 vertex2(result.mHullVertices[index2*3], result.mHullVertices[index2*3+1],result.mHullVertices[index2*3+2]);
-							vertex0 *= localScaling;
-							vertex1 *= localScaling;
-							vertex2 *= localScaling;
-							centroid += vertex0;
-							centroid += vertex1;
-							centroid += vertex2;
+							btVector3 vertex(result.mHullVertices[i*3],result.mHullVertices[i*3+1],result.mHullVertices[i*3+2]);
+							vertex *= localScaling;
+							centroid += vertex;
 							
 						}
 					}
 
-					centroid *= 1.f/(float(result.mHullTcount) * 3);
+					centroid *= 1.f/(float(result.mHullVcount) );
+
+					if ( 1 )
+					{
+						const unsigned int *src = result.mHullIndices;
+						for (unsigned int i=0; i<result.mHullVcount; i++)
+						{
+							btVector3 vertex(result.mHullVertices[i*3],result.mHullVertices[i*3+1],result.mHullVertices[i*3+2]);
+							vertex *= localScaling;
+							vertex -= centroid ;
+							vertices.push_back(vertex);
+						}
+					}
+					
+			
 
 					if ( 1 )
 					{
@@ -176,6 +185,7 @@ void ConvexDecompositionDemo::initPhysics(const char* filename)
 							vertex1 -= centroid;
 							vertex2 -= centroid;
 
+
 							trimesh->addTriangle(vertex0,vertex1,vertex2);
 
 							index0+=mBaseCount;
@@ -187,7 +197,38 @@ void ConvexDecompositionDemo::initPhysics(const char* filename)
 					}
 
 					float mass = 1.f;
+					float collisionMargin = 0.01f;
+
+//this is a tools issue: due to collision margin, convex objects overlap, compensate for it here:
+//#define SHRINK_OBJECT_INWARDS 1
+#ifdef SHRINK_OBJECT_INWARDS
+
+					
+					std::vector<btVector3> planeEquations;
+					btGeometryUtil::getPlaneEquationsFromVertices(vertices,planeEquations);
+
+					std::vector<btVector3> shiftedPlaneEquations;
+					for (int p=0;p<planeEquations.size();p++)
+					{
+						btVector3 plane = planeEquations[p];
+						plane[3] += 5*collisionMargin;
+						shiftedPlaneEquations.push_back(plane);
+					}
+					std::vector<btVector3> shiftedVertices;
+					btGeometryUtil::getVerticesFromPlaneEquations(shiftedPlaneEquations,shiftedVertices);
+
+					
+					btCollisionShape* convexShape = new btConvexHullShape(&(shiftedVertices[0].getX()),shiftedVertices.size());
+					
+#else //SHRINK_OBJECT_INWARDS
+					
+					//btCollisionShape* convexShape = new btConvexHullShape(&(vertices[0].getX()),vertices.size());
 					btCollisionShape* convexShape = new btConvexTriangleMeshShape(trimesh);
+#endif 
+
+					convexShape->setMargin(0.01);
+					
+
 					btTransform trans;
 					trans.setIdentity();
 					trans.setOrigin(centroid);
@@ -251,11 +292,11 @@ void ConvexDecompositionDemo::initPhysics(const char* filename)
 		strcat(outputFileName,"_convex.obj");
   		FILE* outputFile = fopen(outputFileName,"wb");
 				
-		unsigned int depth = 7;
+		unsigned int depth = 5;
 		float cpercent     = 5;
 		float ppercent     = 15;
 		unsigned int maxv  = 16;
-		float skinWidth    = 0.01;
+		float skinWidth    = 0.0;
 
 		printf("WavefrontObj num triangles read %i",tcount);
 		ConvexDecomposition::DecompDesc desc;

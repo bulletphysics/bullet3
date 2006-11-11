@@ -1,14 +1,37 @@
-#include <stdio.h>
-#include <GL/glut.h>
 
-#include "btDiscreteCollisionDetectorInterface.h"
-#include "btSimplexSolverInterface.h"
-#include "btConvexHullShape.h"
-#include "Solid3EpaPenetrationDepth.h"
-#include "Solid3JohnsonSimplexSolver.h"
-#include "btGjkPairDetector.h"
-#include "btMinkowskiPenetrationDepthSolver.h"
-#include "EpaPenetrationDepthSolver.h"
+///contribution by Pierre Terdiman to check penetration depth solvers
+///see http://www.continuousphysics.com/Bullet/phpBB2/viewtopic.php?t=638
+
+#ifdef WIN32//for glut.h
+#include <windows.h>
+#endif
+
+
+//think different
+#if defined(__APPLE__) && !defined (VMDMESA)
+#include <OpenGL/gl.h>
+#include <OpenGL/glu.h>
+#include <GLUT/glut.h>
+#else
+#include <GL/glut.h>
+#endif
+
+#include <stdlib.h>
+#include <stdio.h>
+#include <math.h>
+
+
+#include "btBulletCollisionCommon.h"
+
+#include "BulletCollision/NarrowPhaseCollision/btDiscreteCollisionDetectorInterface.h"
+#include "BulletCollision/NarrowPhaseCollision/btSimplexSolverInterface.h"
+#include "BulletCollision/NarrowPhaseCollision/btMinkowskiPenetrationDepthSolver.h"
+#include "BulletCollision/NarrowPhaseCollision/btGjkPairDetector.h"
+#include "../Extras/ExtraSolid35/Solid3EpaPenetrationDepth.h"
+#include "../Extras/ExtraSolid35/Solid3JohnsonSimplexSolver.h"
+#include "../Extras/EPA/EpaPenetrationDepthSolver.h"
+
+
 
 static bool gRefMode = false;
 static int gMethod = 0;
@@ -211,7 +234,8 @@ static float gDepth;
 static bool TestEPA(const MyConvex& hull0, const MyConvex& hull1)
 {
 	static btSimplexSolverInterface simplexSolver;
-//	static Solid3JohnsonSimplexSolver simplexSolver;
+	//static Solid3JohnsonSimplexSolver simplexSolver;
+
 	simplexSolver.reset();
 
 	btConvexHullShape convexA((float*)hull0.mVerts, hull0.mNbVerts, sizeof(btVector3));
@@ -222,14 +246,17 @@ static bool TestEPA(const MyConvex& hull0, const MyConvex& hull1)
 	static btMinkowskiPenetrationDepthSolver Solver2;
 
 	btConvexPenetrationDepthSolver* Solver;
-			if(gMethod==0)	Solver = &Solver0;
-	else	if(gMethod==1)	Solver = &Solver1;
-	else					Solver = &Solver2;
+			if(gMethod==0)	
+				Solver = &Solver0;
+	else	if(gMethod==1)	
+		Solver = &Solver1;
+	else					
+		Solver = &Solver2;
 
 	btGjkPairDetector GJK(&convexA, &convexB, &simplexSolver, Solver);
-	GJK.setIgnoreMargin(true);
-	convexA.setMargin(0.0f);
-	convexB.setMargin(0.0f);
+	//GJK.setIgnoreMargin(true);
+	convexA.setMargin(0.01f);
+	convexB.setMargin(0.01f);
 
 	btDiscreteCollisionDetectorInterface::ClosestPointInput input;
 	input.m_transformA = hull0.mTransform;
@@ -594,20 +621,20 @@ int main(int argc, char** argv)
 	glEnable(GL_LIGHT0);
 
 	//
-	bool Status = gConvex0.LoadFromFile("c:\\convex0.bin");
+	bool Status = gConvex0.LoadFromFile("convex0.bin");
 	if(!Status)
 	{
-		Status = gConvex0.LoadFromFile("convex0.bin");
+		Status = gConvex0.LoadFromFile("../../convex0.bin");
 		if(!Status)
 		{
 			printf("Failed to load object!\n");
 			exit(0);
 		}
 	}
-	Status = gConvex1.LoadFromFile("c:\\convex0.bin");
+	Status = gConvex1.LoadFromFile("convex0.bin");
 	if(!Status)
 	{
-		Status = gConvex1.LoadFromFile("convex0.bin");
+		Status = gConvex1.LoadFromFile("../../convex0.bin");
 		if(!Status)
 		{
 			printf("Failed to load object!\n");

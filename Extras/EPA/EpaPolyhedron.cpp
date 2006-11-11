@@ -17,7 +17,7 @@ subject to the following restrictions:
 #include "LinearMath/btScalar.h"
 #include "LinearMath/btVector3.h"
 #include "LinearMath/btPoint3.h"
-#include "Memory2.h"
+//#include "Memory2.h"
 
 #include <list>
 #ifdef _DEBUG
@@ -25,12 +25,12 @@ subject to the following restrictions:
 #endif
 
 
-#include "NarrowPhaseCollision/EpaCommon.h"
+#include "EpaCommon.h"
 
-#include "NarrowPhaseCollision/EpaVertex.h"
-#include "NarrowPhaseCollision/EpaHalfEdge.h"
-#include "NarrowPhaseCollision/EpaFace.h"
-#include "NarrowPhaseCollision/EpaPolyhedron.h"
+#include "EpaVertex.h"
+#include "EpaHalfEdge.h"
+#include "EpaFace.h"
+#include "EpaPolyhedron.h"
 
 
 EpaPolyhedron::EpaPolyhedron() : m_nbFaces( 0 )

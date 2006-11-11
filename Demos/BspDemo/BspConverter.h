@@ -29,10 +29,6 @@ class BspConverter
 		virtual ~BspConverter()
 		{
 		}
-		///Utility function to create vertices from a Quake Brush. Brute force but it works. 
-		///Bit overkill to use QHull package
-		void	getVerticesFromPlaneEquations(const std::vector<btVector3>& planeEquations , std::vector<btVector3>& verticesOut );
-		bool	isInside(const std::vector<btVector3>& planeEquations, const btVector3& point, float	margin);
 
 		///this callback is called for each brush that succesfully converted into vertices
 		virtual void	addConvexVerticesCollider(std::vector<btVector3>& vertices, bool isEntity, const btVector3& entityTargetLocation) = 0;

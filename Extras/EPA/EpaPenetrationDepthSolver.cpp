@@ -26,15 +26,15 @@ subject to the following restrictions:
 
 #include "BulletCollision/NarrowPhaseCollision/btSimplexSolverInterface.h"
 
-#include "NarrowPhaseCollision/EpaCommon.h"
+#include "EpaCommon.h"
 
-#include "NarrowPhaseCollision/EpaVertex.h"
-#include "NarrowPhaseCollision/EpaHalfEdge.h"
-#include "NarrowPhaseCollision/EpaFace.h"
-#include "NarrowPhaseCollision/EpaPolyhedron.h"
-#include "NarrowPhaseCollision/Epa.h"
+#include "EpaVertex.h"
+#include "EpaHalfEdge.h"
+#include "EpaFace.h"
+#include "EpaPolyhedron.h"
+#include "Epa.h"
 #include "BulletCollision/NarrowPhaseCollision/btConvexPenetrationDepthSolver.h"
-#include "NarrowPhaseCollision/EpaPenetrationDepthSolver.h"
+#include "EpaPenetrationDepthSolver.h"
 
 btScalar	g_GJKMaxRelError = 1e-3f;
 btScalar	g_GJKMaxRelErrorSqrd = g_GJKMaxRelError * g_GJKMaxRelError;

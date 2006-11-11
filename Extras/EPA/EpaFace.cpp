@@ -18,11 +18,11 @@ subject to the following restrictions:
 #include "LinearMath/btVector3.h"
 #include "LinearMath/btPoint3.h"
 
-#include "NarrowPhaseCollision/EpaCommon.h"
+#include "EpaCommon.h"
 
-#include "NarrowPhaseCollision/EpaVertex.h"
-#include "NarrowPhaseCollision/EpaHalfEdge.h"
-#include "NarrowPhaseCollision/EpaFace.h"
+#include "EpaVertex.h"
+#include "EpaHalfEdge.h"
+#include "EpaFace.h"
 
 #ifdef EPA_POLYHEDRON_USE_PLANES
 btScalar PLANE_THICKNESS = 1e-5f;
