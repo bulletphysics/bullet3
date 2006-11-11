@@ -1,0 +1,10 @@
+SubDir TOP Extras ExtraSolid35 ;
+
+IncludeDir Extras/ExtraSolid35 ;
+
+Library ExtraSolid35 : [ Wildcard *.h *.cpp ] ;
+CFlags ExtraSolid35 : [ FIncludes $(TOP)/Extras/ExtraSolid35 ] ;
+LibDepends ExtraSolid35 :  ;
+
+
+InstallHeader [ Wildcard *.h ] : ExtraSolid35 ;

@@ -233,8 +233,8 @@ static float gDepth;
 
 static bool TestEPA(const MyConvex& hull0, const MyConvex& hull1)
 {
-	static btSimplexSolverInterface simplexSolver;
-	//static Solid3JohnsonSimplexSolver simplexSolver;
+	//static btSimplexSolverInterface simplexSolver;
+	static Solid3JohnsonSimplexSolver simplexSolver;
 
 	simplexSolver.reset();
 

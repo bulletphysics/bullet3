@@ -1,0 +1,10 @@
+SubDir TOP Extras EPA ;
+
+IncludeDir Extras/EPA ;
+
+Library EPA : [ Wildcard *.h *.cpp ] ;
+CFlags EPA : [ FIncludes $(TOP)/Extras/EPA ] ;
+LibDepends EPA :  ;
+
+
+InstallHeader [ Wildcard *.h ] : EPA ;

@@ -1,0 +1,10 @@
+SubDir TOP Extras quickstep ;
+
+IncludeDir Extras/quickstep ;
+
+Library quickstep : [ Wildcard *.h *.cpp ] ;
+CFlags quickstep : [ FIncludes $(TOP)/Extras/quickstep ] ;
+LibDepends quickstep :  ;
+
+
+InstallHeader [ Wildcard *.h ] : quickstep ;
