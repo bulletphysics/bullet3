@@ -54,7 +54,16 @@ Package=<4>
     Project_Dep_Name libconvexdecomposition
     End Project Dependency
     Begin Project Dependency
+    Project_Dep_Name libEPA
+    End Project Dependency
+    Begin Project Dependency
+    Project_Dep_Name libExtraSolid35
+    End Project Dependency
+    Begin Project Dependency
     Project_Dep_Name liblibxml
+    End Project Dependency
+    Begin Project Dependency
+    Project_Dep_Name libquickstep
     End Project Dependency
 }}}
 
@@ -87,7 +96,16 @@ Package=<4>
     Project_Dep_Name libconvexdecomposition
     End Project Dependency
     Begin Project Dependency
+    Project_Dep_Name libEPA
+    End Project Dependency
+    Begin Project Dependency
+    Project_Dep_Name libExtraSolid35
+    End Project Dependency
+    Begin Project Dependency
     Project_Dep_Name liblibxml
+    End Project Dependency
+    Begin Project Dependency
+    Project_Dep_Name libquickstep
     End Project Dependency
 }}}
 
@@ -144,7 +162,16 @@ Package=<4>
     Project_Dep_Name libconvexdecomposition
     End Project Dependency
     Begin Project Dependency
+    Project_Dep_Name libEPA
+    End Project Dependency
+    Begin Project Dependency
+    Project_Dep_Name libExtraSolid35
+    End Project Dependency
+    Begin Project Dependency
     Project_Dep_Name liblibxml
+    End Project Dependency
+    Begin Project Dependency
+    Project_Dep_Name libquickstep
     End Project Dependency
 }}}
 
@@ -297,7 +324,58 @@ Package=<4>
     Project_Dep_Name libconvexdecomposition
     End Project Dependency
     Begin Project Dependency
+    Project_Dep_Name libEPA
+    End Project Dependency
+    Begin Project Dependency
+    Project_Dep_Name libExtraSolid35
+    End Project Dependency
+    Begin Project Dependency
     Project_Dep_Name liblibxml
+    End Project Dependency
+    Begin Project Dependency
+    Project_Dep_Name libquickstep
+    End Project Dependency
+}}}
+
+###############################################################################
+
+Project: "appEPAPenDepthDemo"=.\appEPAPenDepthDemo.dsp - Package Owner=<4>
+
+Package=<5>
+{{{
+}}}
+
+Package=<4>
+{{{
+    Begin Project Dependency
+    Project_Dep_Name libbulletcollision
+    End Project Dependency
+    Begin Project Dependency
+    Project_Dep_Name libbulletdynamics
+    End Project Dependency
+    Begin Project Dependency
+    Project_Dep_Name libbulletmath
+    End Project Dependency
+    Begin Project Dependency
+    Project_Dep_Name libbulletopenglsupport
+    End Project Dependency
+    Begin Project Dependency
+    Project_Dep_Name libcolladadom
+    End Project Dependency
+    Begin Project Dependency
+    Project_Dep_Name libconvexdecomposition
+    End Project Dependency
+    Begin Project Dependency
+    Project_Dep_Name libEPA
+    End Project Dependency
+    Begin Project Dependency
+    Project_Dep_Name libExtraSolid35
+    End Project Dependency
+    Begin Project Dependency
+    Project_Dep_Name liblibxml
+    End Project Dependency
+    Begin Project Dependency
+    Project_Dep_Name libquickstep
     End Project Dependency
 }}}
 
@@ -323,18 +401,6 @@ Package=<4>
     Begin Project Dependency
     Project_Dep_Name libbulletopenglsupport
     End Project Dependency
-}}}
-
-###############################################################################
-
-Project: "appGPUphysics"=.\appGPUphysics.dsp - Package Owner=<4>
-
-Package=<5>
-{{{
-}}}
-
-Package=<4>
-{{{
 }}}
 
 ###############################################################################
@@ -477,10 +543,10 @@ Package=<4>
     Project_Dep_Name appConvexDecompositionDemo
     End Project Dependency
     Begin Project Dependency
-    Project_Dep_Name appGjkConvexCastDemo
+    Project_Dep_Name appEPAPenDepthDemo
     End Project Dependency
     Begin Project Dependency
-    Project_Dep_Name appGPUphysics
+    Project_Dep_Name appGjkConvexCastDemo
     End Project Dependency
     Begin Project Dependency
     Project_Dep_Name appRaytracer
@@ -513,7 +579,16 @@ Package=<4>
     Project_Dep_Name libconvexdecomposition
     End Project Dependency
     Begin Project Dependency
+    Project_Dep_Name libEPA
+    End Project Dependency
+    Begin Project Dependency
+    Project_Dep_Name libExtraSolid35
+    End Project Dependency
+    Begin Project Dependency
     Project_Dep_Name liblibxml
+    End Project Dependency
+    Begin Project Dependency
+    Project_Dep_Name libquickstep
     End Project Dependency
 }}}
 
@@ -561,10 +636,10 @@ Package=<4>
     Project_Dep_Name appConvexDecompositionDemo
     End Project Dependency
     Begin Project Dependency
-    Project_Dep_Name appGjkConvexCastDemo
+    Project_Dep_Name appEPAPenDepthDemo
     End Project Dependency
     Begin Project Dependency
-    Project_Dep_Name appGPUphysics
+    Project_Dep_Name appGjkConvexCastDemo
     End Project Dependency
     Begin Project Dependency
     Project_Dep_Name appRaytracer
@@ -609,7 +684,16 @@ Package=<4>
     Project_Dep_Name libconvexdecomposition
     End Project Dependency
     Begin Project Dependency
+    Project_Dep_Name libEPA
+    End Project Dependency
+    Begin Project Dependency
+    Project_Dep_Name libExtraSolid35
+    End Project Dependency
+    Begin Project Dependency
     Project_Dep_Name liblibxml
+    End Project Dependency
+    Begin Project Dependency
+    Project_Dep_Name libquickstep
     End Project Dependency
 }}}
 
@@ -687,7 +771,43 @@ Package=<4>
 
 ###############################################################################
 
+Project: "libEPA"=.\libEPA.dsp - Package Owner=<4>
+
+Package=<5>
+{{{
+}}}
+
+Package=<4>
+{{{
+}}}
+
+###############################################################################
+
+Project: "libExtraSolid35"=.\libExtraSolid35.dsp - Package Owner=<4>
+
+Package=<5>
+{{{
+}}}
+
+Package=<4>
+{{{
+}}}
+
+###############################################################################
+
 Project: "liblibxml"=.\liblibxml.dsp - Package Owner=<4>
+
+Package=<5>
+{{{
+}}}
+
+Package=<4>
+{{{
+}}}
+
+###############################################################################
+
+Project: "libquickstep"=.\libquickstep.dsp - Package Owner=<4>
 
 Package=<5>
 {{{

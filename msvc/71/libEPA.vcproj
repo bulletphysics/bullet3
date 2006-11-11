@@ -1,9 +1,9 @@
 <?xml version="1.0" encoding = "Windows-1252"?>
 <VisualStudioProject
 	ProjectType="Visual C++"
-	Version="8.00"
-	Name="libquickstep"
-	ProjectGUID="{D7036964-B44D-8207-0ACC-D838D0BDA379}"
+	Version="7.10"
+	Name="libEPA"
+	ProjectGUID="{7CD96AD9-D3B2-F5CF-5788-4B29A44EC16B}"
 	SccProjectName=""
 	SccLocalPath="">
 	<Platforms>
@@ -13,8 +13,8 @@
 	<Configurations>
 		<Configuration
 			Name="Release|Win32"
-			OutputDirectory="..\..\out\release8\build\libquickstep\"
-			IntermediateDirectory="..\..\out\release8\build\libquickstep\"
+			OutputDirectory="..\..\out\release71\build\libEPA\"
+			IntermediateDirectory="..\..\out\release71\build\libEPA\"
 			ConfigurationType="4"
 			UseOfMFC="0"
 			ATLMinimizesCRunTimeLibraryUsage="FALSE">
@@ -30,11 +30,11 @@
 				OptimizeForProcessor="1"
 				ExceptionHandling="0"
 				AdditionalOptions=" "
-				AdditionalIncludeDirectories=".;..\..;..\..\src;..\..\Extras\ConvexDecomposition;..\..\Extras\COLLADA_DOM\include;..\..\Extras\COLLADA_DOM\include\1.4;..\..\Extras\LibXML\include;..\..\Extras\EPA;..\..\Extras\ExtraSolid35;..\..\Extras\quickstep"
-				PrecompiledHeaderFile="..\..\out\release8\build\libquickstep\libquickstep.pch"
-				AssemblerListingLocation="..\..\out\release8\build\libquickstep\"
-				ObjectFile="..\..\out\release8\build\libquickstep\"
-				ProgramDataBaseFileName="..\..\out\release8\build\libquickstep\quickstep.pdb"
+				AdditionalIncludeDirectories=".;..\..;..\..\src;..\..\Extras\ConvexDecomposition;..\..\Extras\COLLADA_DOM\include;..\..\Extras\COLLADA_DOM\include\1.4;..\..\Extras\LibXML\include;..\..\Extras\EPA"
+				PrecompiledHeaderFile="..\..\out\release71\build\libEPA\libEPA.pch"
+				AssemblerListingLocation="..\..\out\release71\build\libEPA\"
+				ObjectFile="..\..\out\release71\build\libEPA\"
+				ProgramDataBaseFileName="..\..\out\release71\build\libEPA\EPA.pdb"
 				WarningLevel="3"
 				SuppressStartupBanner="TRUE"
 				Detect64BitPortabilityProblems="TRUE"
@@ -55,11 +55,11 @@
 				SuppressStartupBanner="TRUE"
 				GenerateManifest="false"
 				AdditionalLibraryDirectories=""
-				ProgramDatabaseFile="..\..\out\release8\build\libquickstep\quickstep.pdb"
+				ProgramDatabaseFile="..\..\out\release71\build\libEPA\EPA.pdb"
 				TargetMachine="1"/>
 			<Tool
 				Name="VCLibrarianTool"
-				OutputFile="..\..\out\release8\libs\libquickstep.lib"
+				OutputFile="..\..\out\release71\libs\libEPA.lib"
 				SuppressStartupBanner="TRUE"/>
 			<Tool
 				Name="VCMIDLTool"
@@ -67,7 +67,7 @@
 				MkTypLibCompatible="TRUE"
 				SuppressStartupBanner="TRUE"
 				TargetEnvironment="1"
-				TypeLibraryName="..\..\out\release8\build\libquickstep\libquickstep.tlb"/>
+				TypeLibraryName="..\..\out\release71\build\libEPA\libEPA.tlb"/>
 			<Tool
 				Name="VCPostBuildEventTool"
 				/>
@@ -77,8 +77,8 @@
 				Name="VCPreLinkEventTool"/>
 			<Tool
 				Name="VCResourceCompilerTool"
-				PreprocessorDefinitions="NDEBUG;_LIB;_WINDOWS;PROJECTGEN_VERSION=8"
-				AdditionalIncludeDirectories=".;..\..;..\..\src;..\..\Extras\ConvexDecomposition;..\..\Extras\COLLADA_DOM\include;..\..\Extras\COLLADA_DOM\include\1.4;..\..\Extras\LibXML\include;..\..\Extras\EPA;..\..\Extras\ExtraSolid35;..\..\Extras\quickstep"
+				PreprocessorDefinitions="NDEBUG;_LIB;_WINDOWS;PROJECTGEN_VERSION=71"
+				AdditionalIncludeDirectories=".;..\..;..\..\src;..\..\Extras\ConvexDecomposition;..\..\Extras\COLLADA_DOM\include;..\..\Extras\COLLADA_DOM\include\1.4;..\..\Extras\LibXML\include;..\..\Extras\EPA"
 				Culture="1033"/>
 			<Tool
 				Name="VCWebServiceProxyGeneratorTool"/>
@@ -87,8 +87,8 @@
 		</Configuration>
 		<Configuration
 			Name="Debug|Win32"
-			OutputDirectory="..\..\out\debug8\build\libquickstep\"
-			IntermediateDirectory="..\..\out\debug8\build\libquickstep\"
+			OutputDirectory="..\..\out\debug71\build\libEPA\"
+			IntermediateDirectory="..\..\out\debug71\build\libEPA\"
 			ConfigurationType="4"
 			UseOfMFC="0"
 			ATLMinimizesCRunTimeLibraryUsage="FALSE">
@@ -103,11 +103,11 @@
 				OptimizeForProcessor="1"
 				ExceptionHandling="0"
 				AdditionalOptions=" "
-				AdditionalIncludeDirectories=".;..\..;..\..\src;..\..\Extras\ConvexDecomposition;..\..\Extras\COLLADA_DOM\include;..\..\Extras\COLLADA_DOM\include\1.4;..\..\Extras\LibXML\include;..\..\Extras\EPA;..\..\Extras\ExtraSolid35;..\..\Extras\quickstep"
-				PrecompiledHeaderFile="..\..\out\debug8\build\libquickstep\libquickstep.pch"
-				AssemblerListingLocation="..\..\out\debug8\build\libquickstep\"
-				ObjectFile="..\..\out\debug8\build\libquickstep\"
-				ProgramDataBaseFileName="..\..\out\debug8\build\libquickstep\quickstep.pdb"
+				AdditionalIncludeDirectories=".;..\..;..\..\src;..\..\Extras\ConvexDecomposition;..\..\Extras\COLLADA_DOM\include;..\..\Extras\COLLADA_DOM\include\1.4;..\..\Extras\LibXML\include;..\..\Extras\EPA"
+				PrecompiledHeaderFile="..\..\out\debug71\build\libEPA\libEPA.pch"
+				AssemblerListingLocation="..\..\out\debug71\build\libEPA\"
+				ObjectFile="..\..\out\debug71\build\libEPA\"
+				ProgramDataBaseFileName="..\..\out\debug71\build\libEPA\EPA.pdb"
 				WarningLevel="3"
 				SuppressStartupBanner="TRUE"
 				Detect64BitPortabilityProblems="TRUE"
@@ -126,11 +126,11 @@
 				SuppressStartupBanner="TRUE"
 				GenerateManifest="false"
 				AdditionalLibraryDirectories=""
-				ProgramDatabaseFile="..\..\out\debug8\build\libquickstep\quickstep.pdb"
+				ProgramDatabaseFile="..\..\out\debug71\build\libEPA\EPA.pdb"
 				TargetMachine="1"/>
 			<Tool
 				Name="VCLibrarianTool"
-				OutputFile="..\..\out\debug8\libs\libquickstep_d.lib"
+				OutputFile="..\..\out\debug71\libs\libEPA_d.lib"
 				SuppressStartupBanner="TRUE"/>
 			<Tool
 				Name="VCMIDLTool"
@@ -138,7 +138,7 @@
 				MkTypLibCompatible="TRUE"
 				SuppressStartupBanner="TRUE"
 				TargetEnvironment="1"
-				TypeLibraryName="..\..\out\debug8\build\libquickstep\libquickstep.tlb"/>
+				TypeLibraryName="..\..\out\debug71\build\libEPA\libEPA.tlb"/>
 			<Tool
 				Name="VCPostBuildEventTool"
 				/>
@@ -148,8 +148,8 @@
 				Name="VCPreLinkEventTool"/>
 			<Tool
 				Name="VCResourceCompilerTool"
-				PreprocessorDefinitions="_DEBUG;_LIB;_WINDOWS;PROJECTGEN_VERSION=8"
-				AdditionalIncludeDirectories=".;..\..;..\..\src;..\..\Extras\ConvexDecomposition;..\..\Extras\COLLADA_DOM\include;..\..\Extras\COLLADA_DOM\include\1.4;..\..\Extras\LibXML\include;..\..\Extras\EPA;..\..\Extras\ExtraSolid35;..\..\Extras\quickstep"
+				PreprocessorDefinitions="_DEBUG;_LIB;_WINDOWS;PROJECTGEN_VERSION=71"
+				AdditionalIncludeDirectories=".;..\..;..\..\src;..\..\Extras\ConvexDecomposition;..\..\Extras\COLLADA_DOM\include;..\..\Extras\COLLADA_DOM\include\1.4;..\..\Extras\LibXML\include;..\..\Extras\EPA"
 				Culture="1033"/>
 			<Tool
 				Name="VCWebServiceProxyGeneratorTool"/>
@@ -162,38 +162,41 @@
 			Name="Source Files"
 			Filter="">
 			<File
-				RelativePath="..\..\Extras\quickstep\OdeConstraintSolver.cpp">
+				RelativePath="..\..\Extras\EPA\Epa.cpp">
 			</File>
 			<File
-				RelativePath="..\..\Extras\quickstep\OdeContactJoint.cpp">
+				RelativePath="..\..\Extras\EPA\EpaFace.cpp">
 			</File>
 			<File
-				RelativePath="..\..\Extras\quickstep\OdeJoint.cpp">
+				RelativePath="..\..\Extras\EPA\EpaPenetrationDepthSolver.cpp">
 			</File>
 			<File
-				RelativePath="..\..\Extras\quickstep\OdeSolverBody.cpp">
-			</File>
-			<File
-				RelativePath="..\..\Extras\quickstep\SorLcp.cpp">
+				RelativePath="..\..\Extras\EPA\EpaPolyhedron.cpp">
 			</File>
 		</Filter>
 		<Filter
 			Name="Header Files"
 			Filter="">
 			<File
-				RelativePath="..\..\Extras\quickstep\OdeConstraintSolver.h">
+				RelativePath="..\..\Extras\EPA\Epa.h">
 			</File>
 			<File
-				RelativePath="..\..\Extras\quickstep\odecontactjoint.h">
+				RelativePath="..\..\Extras\EPA\EpaCommon.h">
 			</File>
 			<File
-				RelativePath="..\..\Extras\quickstep\OdeJoint.h">
+				RelativePath="..\..\Extras\EPA\EpaFace.h">
 			</File>
 			<File
-				RelativePath="..\..\Extras\quickstep\OdeSolverBody.h">
+				RelativePath="..\..\Extras\EPA\EpaHalfEdge.h">
 			</File>
 			<File
-				RelativePath="..\..\Extras\quickstep\SorLcp.h">
+				RelativePath="..\..\Extras\EPA\EpaPenetrationDepthSolver.h">
+			</File>
+			<File
+				RelativePath="..\..\Extras\EPA\EpaPolyhedron.h">
+			</File>
+			<File
+				RelativePath="..\..\Extras\EPA\EpaVertex.h">
 			</File>
 		</Filter>
 	</Files>

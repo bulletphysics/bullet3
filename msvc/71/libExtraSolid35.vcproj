@@ -1,9 +1,9 @@
 <?xml version="1.0" encoding = "Windows-1252"?>
 <VisualStudioProject
 	ProjectType="Visual C++"
-	Version="8.00"
-	Name="libquickstep"
-	ProjectGUID="{D7036964-B44D-8207-0ACC-D838D0BDA379}"
+	Version="7.10"
+	Name="libExtraSolid35"
+	ProjectGUID="{F05C5886-09E7-B96F-FBF3-5C8D6FA1B50D}"
 	SccProjectName=""
 	SccLocalPath="">
 	<Platforms>
@@ -13,8 +13,8 @@
 	<Configurations>
 		<Configuration
 			Name="Release|Win32"
-			OutputDirectory="..\..\out\release8\build\libquickstep\"
-			IntermediateDirectory="..\..\out\release8\build\libquickstep\"
+			OutputDirectory="..\..\out\release71\build\libExtraSolid35\"
+			IntermediateDirectory="..\..\out\release71\build\libExtraSolid35\"
 			ConfigurationType="4"
 			UseOfMFC="0"
 			ATLMinimizesCRunTimeLibraryUsage="FALSE">
@@ -30,11 +30,11 @@
 				OptimizeForProcessor="1"
 				ExceptionHandling="0"
 				AdditionalOptions=" "
-				AdditionalIncludeDirectories=".;..\..;..\..\src;..\..\Extras\ConvexDecomposition;..\..\Extras\COLLADA_DOM\include;..\..\Extras\COLLADA_DOM\include\1.4;..\..\Extras\LibXML\include;..\..\Extras\EPA;..\..\Extras\ExtraSolid35;..\..\Extras\quickstep"
-				PrecompiledHeaderFile="..\..\out\release8\build\libquickstep\libquickstep.pch"
-				AssemblerListingLocation="..\..\out\release8\build\libquickstep\"
-				ObjectFile="..\..\out\release8\build\libquickstep\"
-				ProgramDataBaseFileName="..\..\out\release8\build\libquickstep\quickstep.pdb"
+				AdditionalIncludeDirectories=".;..\..;..\..\src;..\..\Extras\ConvexDecomposition;..\..\Extras\COLLADA_DOM\include;..\..\Extras\COLLADA_DOM\include\1.4;..\..\Extras\LibXML\include;..\..\Extras\EPA;..\..\Extras\ExtraSolid35"
+				PrecompiledHeaderFile="..\..\out\release71\build\libExtraSolid35\libExtraSolid35.pch"
+				AssemblerListingLocation="..\..\out\release71\build\libExtraSolid35\"
+				ObjectFile="..\..\out\release71\build\libExtraSolid35\"
+				ProgramDataBaseFileName="..\..\out\release71\build\libExtraSolid35\ExtraSolid35.pdb"
 				WarningLevel="3"
 				SuppressStartupBanner="TRUE"
 				Detect64BitPortabilityProblems="TRUE"
@@ -55,11 +55,11 @@
 				SuppressStartupBanner="TRUE"
 				GenerateManifest="false"
 				AdditionalLibraryDirectories=""
-				ProgramDatabaseFile="..\..\out\release8\build\libquickstep\quickstep.pdb"
+				ProgramDatabaseFile="..\..\out\release71\build\libExtraSolid35\ExtraSolid35.pdb"
 				TargetMachine="1"/>
 			<Tool
 				Name="VCLibrarianTool"
-				OutputFile="..\..\out\release8\libs\libquickstep.lib"
+				OutputFile="..\..\out\release71\libs\libExtraSolid35.lib"
 				SuppressStartupBanner="TRUE"/>
 			<Tool
 				Name="VCMIDLTool"
@@ -67,7 +67,7 @@
 				MkTypLibCompatible="TRUE"
 				SuppressStartupBanner="TRUE"
 				TargetEnvironment="1"
-				TypeLibraryName="..\..\out\release8\build\libquickstep\libquickstep.tlb"/>
+				TypeLibraryName="..\..\out\release71\build\libExtraSolid35\libExtraSolid35.tlb"/>
 			<Tool
 				Name="VCPostBuildEventTool"
 				/>
@@ -77,8 +77,8 @@
 				Name="VCPreLinkEventTool"/>
 			<Tool
 				Name="VCResourceCompilerTool"
-				PreprocessorDefinitions="NDEBUG;_LIB;_WINDOWS;PROJECTGEN_VERSION=8"
-				AdditionalIncludeDirectories=".;..\..;..\..\src;..\..\Extras\ConvexDecomposition;..\..\Extras\COLLADA_DOM\include;..\..\Extras\COLLADA_DOM\include\1.4;..\..\Extras\LibXML\include;..\..\Extras\EPA;..\..\Extras\ExtraSolid35;..\..\Extras\quickstep"
+				PreprocessorDefinitions="NDEBUG;_LIB;_WINDOWS;PROJECTGEN_VERSION=71"
+				AdditionalIncludeDirectories=".;..\..;..\..\src;..\..\Extras\ConvexDecomposition;..\..\Extras\COLLADA_DOM\include;..\..\Extras\COLLADA_DOM\include\1.4;..\..\Extras\LibXML\include;..\..\Extras\EPA;..\..\Extras\ExtraSolid35"
 				Culture="1033"/>
 			<Tool
 				Name="VCWebServiceProxyGeneratorTool"/>
@@ -87,8 +87,8 @@
 		</Configuration>
 		<Configuration
 			Name="Debug|Win32"
-			OutputDirectory="..\..\out\debug8\build\libquickstep\"
-			IntermediateDirectory="..\..\out\debug8\build\libquickstep\"
+			OutputDirectory="..\..\out\debug71\build\libExtraSolid35\"
+			IntermediateDirectory="..\..\out\debug71\build\libExtraSolid35\"
 			ConfigurationType="4"
 			UseOfMFC="0"
 			ATLMinimizesCRunTimeLibraryUsage="FALSE">
@@ -103,11 +103,11 @@
 				OptimizeForProcessor="1"
 				ExceptionHandling="0"
 				AdditionalOptions=" "
-				AdditionalIncludeDirectories=".;..\..;..\..\src;..\..\Extras\ConvexDecomposition;..\..\Extras\COLLADA_DOM\include;..\..\Extras\COLLADA_DOM\include\1.4;..\..\Extras\LibXML\include;..\..\Extras\EPA;..\..\Extras\ExtraSolid35;..\..\Extras\quickstep"
-				PrecompiledHeaderFile="..\..\out\debug8\build\libquickstep\libquickstep.pch"
-				AssemblerListingLocation="..\..\out\debug8\build\libquickstep\"
-				ObjectFile="..\..\out\debug8\build\libquickstep\"
-				ProgramDataBaseFileName="..\..\out\debug8\build\libquickstep\quickstep.pdb"
+				AdditionalIncludeDirectories=".;..\..;..\..\src;..\..\Extras\ConvexDecomposition;..\..\Extras\COLLADA_DOM\include;..\..\Extras\COLLADA_DOM\include\1.4;..\..\Extras\LibXML\include;..\..\Extras\EPA;..\..\Extras\ExtraSolid35"
+				PrecompiledHeaderFile="..\..\out\debug71\build\libExtraSolid35\libExtraSolid35.pch"
+				AssemblerListingLocation="..\..\out\debug71\build\libExtraSolid35\"
+				ObjectFile="..\..\out\debug71\build\libExtraSolid35\"
+				ProgramDataBaseFileName="..\..\out\debug71\build\libExtraSolid35\ExtraSolid35.pdb"
 				WarningLevel="3"
 				SuppressStartupBanner="TRUE"
 				Detect64BitPortabilityProblems="TRUE"
@@ -126,11 +126,11 @@
 				SuppressStartupBanner="TRUE"
 				GenerateManifest="false"
 				AdditionalLibraryDirectories=""
-				ProgramDatabaseFile="..\..\out\debug8\build\libquickstep\quickstep.pdb"
+				ProgramDatabaseFile="..\..\out\debug71\build\libExtraSolid35\ExtraSolid35.pdb"
 				TargetMachine="1"/>
 			<Tool
 				Name="VCLibrarianTool"
-				OutputFile="..\..\out\debug8\libs\libquickstep_d.lib"
+				OutputFile="..\..\out\debug71\libs\libExtraSolid35_d.lib"
 				SuppressStartupBanner="TRUE"/>
 			<Tool
 				Name="VCMIDLTool"
@@ -138,7 +138,7 @@
 				MkTypLibCompatible="TRUE"
 				SuppressStartupBanner="TRUE"
 				TargetEnvironment="1"
-				TypeLibraryName="..\..\out\debug8\build\libquickstep\libquickstep.tlb"/>
+				TypeLibraryName="..\..\out\debug71\build\libExtraSolid35\libExtraSolid35.tlb"/>
 			<Tool
 				Name="VCPostBuildEventTool"
 				/>
@@ -148,8 +148,8 @@
 				Name="VCPreLinkEventTool"/>
 			<Tool
 				Name="VCResourceCompilerTool"
-				PreprocessorDefinitions="_DEBUG;_LIB;_WINDOWS;PROJECTGEN_VERSION=8"
-				AdditionalIncludeDirectories=".;..\..;..\..\src;..\..\Extras\ConvexDecomposition;..\..\Extras\COLLADA_DOM\include;..\..\Extras\COLLADA_DOM\include\1.4;..\..\Extras\LibXML\include;..\..\Extras\EPA;..\..\Extras\ExtraSolid35;..\..\Extras\quickstep"
+				PreprocessorDefinitions="_DEBUG;_LIB;_WINDOWS;PROJECTGEN_VERSION=71"
+				AdditionalIncludeDirectories=".;..\..;..\..\src;..\..\Extras\ConvexDecomposition;..\..\Extras\COLLADA_DOM\include;..\..\Extras\COLLADA_DOM\include\1.4;..\..\Extras\LibXML\include;..\..\Extras\EPA;..\..\Extras\ExtraSolid35"
 				Culture="1033"/>
 			<Tool
 				Name="VCWebServiceProxyGeneratorTool"/>
@@ -162,38 +162,26 @@
 			Name="Source Files"
 			Filter="">
 			<File
-				RelativePath="..\..\Extras\quickstep\OdeConstraintSolver.cpp">
+				RelativePath="..\..\Extras\ExtraSolid35\CombinedSimplexSolver.cpp">
 			</File>
 			<File
-				RelativePath="..\..\Extras\quickstep\OdeContactJoint.cpp">
+				RelativePath="..\..\Extras\ExtraSolid35\Solid3EpaPenetrationDepth.cpp">
 			</File>
 			<File
-				RelativePath="..\..\Extras\quickstep\OdeJoint.cpp">
-			</File>
-			<File
-				RelativePath="..\..\Extras\quickstep\OdeSolverBody.cpp">
-			</File>
-			<File
-				RelativePath="..\..\Extras\quickstep\SorLcp.cpp">
+				RelativePath="..\..\Extras\ExtraSolid35\Solid3JohnsonSimplexSolver.cpp">
 			</File>
 		</Filter>
 		<Filter
 			Name="Header Files"
 			Filter="">
 			<File
-				RelativePath="..\..\Extras\quickstep\OdeConstraintSolver.h">
+				RelativePath="..\..\Extras\ExtraSolid35\CombinedSimplexSolver.h">
 			</File>
 			<File
-				RelativePath="..\..\Extras\quickstep\odecontactjoint.h">
+				RelativePath="..\..\Extras\ExtraSolid35\Solid3EpaPenetrationDepth.h">
 			</File>
 			<File
-				RelativePath="..\..\Extras\quickstep\OdeJoint.h">
-			</File>
-			<File
-				RelativePath="..\..\Extras\quickstep\OdeSolverBody.h">
-			</File>
-			<File
-				RelativePath="..\..\Extras\quickstep\SorLcp.h">
+				RelativePath="..\..\Extras\ExtraSolid35\Solid3JohnsonSimplexSolver.h">
 			</File>
 		</Filter>
 	</Files>

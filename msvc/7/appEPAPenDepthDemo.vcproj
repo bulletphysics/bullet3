@@ -2,8 +2,8 @@
 <VisualStudioProject
 	ProjectType="Visual C++"
 	Version="7.00"
-	Name="appBasicDemo"
-	ProjectGUID="{3578834A-4B06-DE6F-78AC-FE11F7226D35}"
+	Name="appEPAPenDepthDemo"
+	ProjectGUID="{1125C7F3-9E0D-27B1-C97B-CDAB5CE161A3}"
 	SccProjectName=""
 	SccLocalPath="">
 	<Platforms>
@@ -13,8 +13,8 @@
 	<Configurations>
 		<Configuration
 			Name="Release|Win32"
-			OutputDirectory="..\..\out\release7\build\appBasicDemo\"
-			IntermediateDirectory="..\..\out\release7\build\appBasicDemo\"
+			OutputDirectory="..\..\out\release7\build\appEPAPenDepthDemo\"
+			IntermediateDirectory="..\..\out\release7\build\appEPAPenDepthDemo\"
 			ConfigurationType="1"
 			CharacterSet="2"
 			WholeProgramOptimization="1"
@@ -32,11 +32,11 @@
 				OptimizeForProcessor="1"
 				ExceptionHandling="0"
 				AdditionalOptions=" "
-				AdditionalIncludeDirectories=".;..\..;..\..\src;..\..\Extras\ConvexDecomposition;..\..\Extras\COLLADA_DOM\include;..\..\Extras\COLLADA_DOM\include\1.4;..\..\Extras\LibXML\include;..\..\Extras\EPA;..\..\Extras\ExtraSolid35;..\..\Extras\quickstep;..\..\Extras\PhysicsInterface\Common;..\..\Extras\PhysicsInterface\CcdPhysics;..\..\Glut;..\..\Demos\OpenGL"
-				PrecompiledHeaderFile="..\..\out\release7\build\appBasicDemo\appBasicDemo.pch"
-				AssemblerListingLocation="..\..\out\release7\build\appBasicDemo\"
-				ObjectFile="..\..\out\release7\build\appBasicDemo\"
-				ProgramDataBaseFileName="..\..\out\release7\build\appBasicDemo\BasicDemo.pdb"
+				AdditionalIncludeDirectories=".;..\..;..\..\src;..\..\Extras\ConvexDecomposition;..\..\Extras\COLLADA_DOM\include;..\..\Extras\COLLADA_DOM\include\1.4;..\..\Extras\LibXML\include;..\..\Extras\EPA;..\..\Extras\ExtraSolid35;..\..\Extras\quickstep;..\..\Extras\PhysicsInterface\Common;..\..\Extras\PhysicsInterface\CcdPhysics;..\..\Glut;..\..\Demos\OpenGL;..\..\Extras\LibXML"
+				PrecompiledHeaderFile="..\..\out\release7\build\appEPAPenDepthDemo\appEPAPenDepthDemo.pch"
+				AssemblerListingLocation="..\..\out\release7\build\appEPAPenDepthDemo\"
+				ObjectFile="..\..\out\release7\build\appEPAPenDepthDemo\"
+				ProgramDataBaseFileName="..\..\out\release7\build\appEPAPenDepthDemo\EPAPenDepthDemo.pdb"
 				WarningLevel="3"
 				SuppressStartupBanner="TRUE"
 				Detect64BitPortabilityProblems="TRUE"
@@ -51,7 +51,7 @@
 				EnableCOMDATFolding="2"
 				GenerateDebugInformation="TRUE"
 				IgnoreDefaultLibraryNames="LIBC,LIBCD"
-				OutputFile="..\..\BasicDemo.exe"
+				OutputFile="..\..\EPAPenDepthDemo.exe"
 				SubSystem="1"
 				AdditionalOptions=" "
 				AdditionalDependencies="glut32.lib"
@@ -59,7 +59,7 @@
 				SuppressStartupBanner="TRUE"
 				GenerateManifest="false"
 				AdditionalLibraryDirectories="..\..\Glut"
-				ProgramDatabaseFile="..\..\out\release7\build\appBasicDemo\BasicDemo.pdb"
+				ProgramDatabaseFile="..\..\out\release7\build\appEPAPenDepthDemo\EPAPenDepthDemo.pdb"
 				TargetMachine="1"/>
 			<Tool
 				Name="VCLibrarianTool"
@@ -70,7 +70,7 @@
 				MkTypLibCompatible="TRUE"
 				SuppressStartupBanner="TRUE"
 				TargetEnvironment="1"
-				TypeLibraryName="..\..\out\release7\build\appBasicDemo\appBasicDemo.tlb"/>
+				TypeLibraryName="..\..\out\release7\build\appEPAPenDepthDemo\appEPAPenDepthDemo.tlb"/>
 			<Tool
 				Name="VCPostBuildEventTool"
 				/>
@@ -81,7 +81,7 @@
 			<Tool
 				Name="VCResourceCompilerTool"
 				PreprocessorDefinitions="NDEBUG;_CONSOLE;PROJECTGEN_VERSION=7"
-				AdditionalIncludeDirectories=".;..\..;..\..\src;..\..\Extras\ConvexDecomposition;..\..\Extras\COLLADA_DOM\include;..\..\Extras\COLLADA_DOM\include\1.4;..\..\Extras\LibXML\include;..\..\Extras\EPA;..\..\Extras\ExtraSolid35;..\..\Extras\quickstep;..\..\Extras\PhysicsInterface\Common;..\..\Extras\PhysicsInterface\CcdPhysics;..\..\Glut;..\..\Demos\OpenGL"
+				AdditionalIncludeDirectories=".;..\..;..\..\src;..\..\Extras\ConvexDecomposition;..\..\Extras\COLLADA_DOM\include;..\..\Extras\COLLADA_DOM\include\1.4;..\..\Extras\LibXML\include;..\..\Extras\EPA;..\..\Extras\ExtraSolid35;..\..\Extras\quickstep;..\..\Extras\PhysicsInterface\Common;..\..\Extras\PhysicsInterface\CcdPhysics;..\..\Glut;..\..\Demos\OpenGL;..\..\Extras\LibXML"
 				Culture="1033"/>
 			<Tool
 				Name="VCWebServiceProxyGeneratorTool"/>
@@ -90,8 +90,8 @@
 		</Configuration>
 		<Configuration
 			Name="Debug|Win32"
-			OutputDirectory="..\..\out\debug7\build\appBasicDemo\"
-			IntermediateDirectory="..\..\out\debug7\build\appBasicDemo\"
+			OutputDirectory="..\..\out\debug7\build\appEPAPenDepthDemo\"
+			IntermediateDirectory="..\..\out\debug7\build\appEPAPenDepthDemo\"
 			ConfigurationType="1"
 			CharacterSet="2"
 			UseOfMFC="0"
@@ -107,11 +107,11 @@
 				OptimizeForProcessor="1"
 				ExceptionHandling="0"
 				AdditionalOptions=" "
-				AdditionalIncludeDirectories=".;..\..;..\..\src;..\..\Extras\ConvexDecomposition;..\..\Extras\COLLADA_DOM\include;..\..\Extras\COLLADA_DOM\include\1.4;..\..\Extras\LibXML\include;..\..\Extras\EPA;..\..\Extras\ExtraSolid35;..\..\Extras\quickstep;..\..\Extras\PhysicsInterface\Common;..\..\Extras\PhysicsInterface\CcdPhysics;..\..\Glut;..\..\Demos\OpenGL"
-				PrecompiledHeaderFile="..\..\out\debug7\build\appBasicDemo\appBasicDemo.pch"
-				AssemblerListingLocation="..\..\out\debug7\build\appBasicDemo\"
-				ObjectFile="..\..\out\debug7\build\appBasicDemo\"
-				ProgramDataBaseFileName="..\..\out\debug7\build\appBasicDemo\BasicDemo.pdb"
+				AdditionalIncludeDirectories=".;..\..;..\..\src;..\..\Extras\ConvexDecomposition;..\..\Extras\COLLADA_DOM\include;..\..\Extras\COLLADA_DOM\include\1.4;..\..\Extras\LibXML\include;..\..\Extras\EPA;..\..\Extras\ExtraSolid35;..\..\Extras\quickstep;..\..\Extras\PhysicsInterface\Common;..\..\Extras\PhysicsInterface\CcdPhysics;..\..\Glut;..\..\Demos\OpenGL;..\..\Extras\LibXML"
+				PrecompiledHeaderFile="..\..\out\debug7\build\appEPAPenDepthDemo\appEPAPenDepthDemo.pch"
+				AssemblerListingLocation="..\..\out\debug7\build\appEPAPenDepthDemo\"
+				ObjectFile="..\..\out\debug7\build\appEPAPenDepthDemo\"
+				ProgramDataBaseFileName="..\..\out\debug7\build\appEPAPenDepthDemo\EPAPenDepthDemo.pdb"
 				WarningLevel="3"
 				SuppressStartupBanner="TRUE"
 				Detect64BitPortabilityProblems="TRUE"
@@ -124,7 +124,7 @@
 				LinkIncremental="2"
 				GenerateDebugInformation="TRUE"
 				IgnoreDefaultLibraryNames="LIBC,LIBCD"
-				OutputFile="..\..\BasicDemo.exe"
+				OutputFile="..\..\EPAPenDepthDemo.exe"
 				SubSystem="1"
 				AdditionalOptions=" "
 				AdditionalDependencies="glut32.lib"
@@ -132,7 +132,7 @@
 				SuppressStartupBanner="TRUE"
 				GenerateManifest="false"
 				AdditionalLibraryDirectories="..\..\Glut"
-				ProgramDatabaseFile="..\..\out\debug7\build\appBasicDemo\BasicDemo.pdb"
+				ProgramDatabaseFile="..\..\out\debug7\build\appEPAPenDepthDemo\EPAPenDepthDemo.pdb"
 				TargetMachine="1"/>
 			<Tool
 				Name="VCLibrarianTool"
@@ -143,7 +143,7 @@
 				MkTypLibCompatible="TRUE"
 				SuppressStartupBanner="TRUE"
 				TargetEnvironment="1"
-				TypeLibraryName="..\..\out\debug7\build\appBasicDemo\appBasicDemo.tlb"/>
+				TypeLibraryName="..\..\out\debug7\build\appEPAPenDepthDemo\appEPAPenDepthDemo.tlb"/>
 			<Tool
 				Name="VCPostBuildEventTool"
 				/>
@@ -154,7 +154,7 @@
 			<Tool
 				Name="VCResourceCompilerTool"
 				PreprocessorDefinitions="_DEBUG;_CONSOLE;PROJECTGEN_VERSION=7"
-				AdditionalIncludeDirectories=".;..\..;..\..\src;..\..\Extras\ConvexDecomposition;..\..\Extras\COLLADA_DOM\include;..\..\Extras\COLLADA_DOM\include\1.4;..\..\Extras\LibXML\include;..\..\Extras\EPA;..\..\Extras\ExtraSolid35;..\..\Extras\quickstep;..\..\Extras\PhysicsInterface\Common;..\..\Extras\PhysicsInterface\CcdPhysics;..\..\Glut;..\..\Demos\OpenGL"
+				AdditionalIncludeDirectories=".;..\..;..\..\src;..\..\Extras\ConvexDecomposition;..\..\Extras\COLLADA_DOM\include;..\..\Extras\COLLADA_DOM\include\1.4;..\..\Extras\LibXML\include;..\..\Extras\EPA;..\..\Extras\ExtraSolid35;..\..\Extras\quickstep;..\..\Extras\PhysicsInterface\Common;..\..\Extras\PhysicsInterface\CcdPhysics;..\..\Glut;..\..\Demos\OpenGL;..\..\Extras\LibXML"
 				Culture="1033"/>
 			<Tool
 				Name="VCWebServiceProxyGeneratorTool"/>
@@ -167,21 +167,14 @@
 			Name="Source Files"
 			Filter="">
 			<File
-				RelativePath="..\..\Demos\BasicDemo\BasicDemo.cpp">
-			</File>
-		</Filter>
-		<Filter
-			Name="Header Files"
-			Filter="">
-			<File
-				RelativePath="..\..\Demos\BasicDemo\BasicDemo.h">
+				RelativePath="..\..\Demos\EPAPenDepthDemo\PenetrationTestBullet.cpp">
 			</File>
 		</Filter>
 		<Filter
 			Name="Resource Files"
 			Filter="">
 			<File
-				RelativePath="..\..\msvc\appBasicDemo.rc">
+				RelativePath="..\..\msvc\appEPAPenDepthDemo.rc">
 			</File>
 		</Filter>
 	</Files>
