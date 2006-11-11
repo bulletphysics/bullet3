@@ -22,8 +22,8 @@ subject to the following restrictions:
 #include <stdio.h> //for debug printf
 #endif
 
-
-#define REL_ERROR2 1.0e-10f
+//must be above the machine epsilon
+#define REL_ERROR2 1.0e-6f
 
 
 #ifdef __SPU__
