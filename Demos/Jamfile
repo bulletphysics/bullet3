@@ -21,7 +21,7 @@ if $(GLUT.AVAILABLE) = "yes"
   rule ExtraDemo
   {
     Application $(<) : $(>) : noinstall console nomanifest ;
-    LinkWith $(<) :   colladadom libxml bulletopenglsupport convexdecomposition bulletdynamics bulletcollision  bulletmath ;
+    LinkWith $(<) :   GIMPACTBullet GIMPACT  colladadom libxml bulletopenglsupport convexdecomposition bulletdynamics bulletcollision  bulletmath ;
     CFlags $(<) :
           [ FIncludes $(TOP)/Demos/OpenGL ]
        	  			[ FIncludes $(TOP)/Extras/ConvexDecomposition ]
@@ -77,7 +77,7 @@ SubInclude TOP Demos BspDemo ;
 SubInclude TOP Demos VehicleDemo ;
 SubInclude TOP Demos CollisionDemo ;
 SubInclude TOP Demos CollisionInterfaceDemo ;
-#SubInclude TOP Demos MovingConcaveDemo ;
+SubInclude TOP Demos MovingConcaveDemo ;
 SubInclude TOP Demos ConcaveDemo ;
 SubInclude TOP Demos ConstraintDemo ;
 SubInclude TOP Demos ContinuousConvexCollision ;

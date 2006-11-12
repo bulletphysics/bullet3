@@ -1478,7 +1478,6 @@ int main(int argc,char** argv)
 	concaveDemo->stepFront();
 	concaveDemo->stepFront();
 
-
 	return glutmain(argc, argv,640,480,"Moving Concave Mesh Demo",concaveDemo);
 }
 
