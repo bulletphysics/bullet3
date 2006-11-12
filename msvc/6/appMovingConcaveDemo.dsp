@@ -1,24 +1,24 @@
-# Microsoft Developer Studio Project File - Name="appBulletDino" - Package Owner=<4>
+# Microsoft Developer Studio Project File - Name="appMovingConcaveDemo" - Package Owner=<4>
 # Microsoft Developer Studio Generated Build File, Format Version 6.00
 # ** DO NOT EDIT **
 
 # TARGTYPE "Win32 (x86) Console Application" 0x0103
 
-CFG=appBulletDino - Win32 Release
+CFG=appMovingConcaveDemo - Win32 Release
 !MESSAGE This is not a valid makefile. To build this project using NMAKE,
 !MESSAGE use the Export Makefile command and run
 !MESSAGE 
-!MESSAGE NMAKE /f "appBulletDino.mak".
+!MESSAGE NMAKE /f "appMovingConcaveDemo.mak".
 !MESSAGE 
 !MESSAGE You can specify a configuration when running NMAKE
 !MESSAGE by defining the macro CFG on the command line. For example:
 !MESSAGE 
-!MESSAGE NMAKE /f "appBulletDino.mak" CFG="appBulletDino - Win32 Release"
+!MESSAGE NMAKE /f "appMovingConcaveDemo.mak" CFG="appMovingConcaveDemo - Win32 Release"
 !MESSAGE 
 !MESSAGE Possible choices for configuration are:
 !MESSAGE 
-!MESSAGE "appBulletDino - Win32 Debug" (based on "Win32 (x86) Console Application")
-!MESSAGE "appBulletDino - Win32 Release" (based on "Win32 (x86) Console Application")
+!MESSAGE "appMovingConcaveDemo - Win32 Debug" (based on "Win32 (x86) Console Application")
+!MESSAGE "appMovingConcaveDemo - Win32 Release" (based on "Win32 (x86) Console Application")
 !MESSAGE 
 
 # Begin Project
@@ -29,7 +29,7 @@ CPP=cl.exe
 MTL=midl.exe
 RSC=rc.exe
 
-!IF  "$(CFG)" == "appBulletDino - Win32 Release"
+!IF  "$(CFG)" == "appMovingConcaveDemo - Win32 Release"
 
 # PROP BASE Use_MFC 0
 # PROP BASE Use_Debug_Libraries 0
@@ -38,8 +38,8 @@ RSC=rc.exe
 # PROP BASE Target_Dir ""
 # PROP Use_MFC 0
 # PROP Use_Debug_Libraries 0
-# PROP Output_Dir "..\..\out\release6\build\appBulletDino\"
-# PROP Intermediate_Dir "..\..\out\release6\build\appBulletDino\"
+# PROP Output_Dir "..\..\out\release6\build\appMovingConcaveDemo\"
+# PROP Intermediate_Dir "..\..\out\release6\build\appMovingConcaveDemo\"
 # PROP Ignore_Export_Lib 0
 # PROP Target_Dir ""
 # ADD BASE CPP /nologo /vmb /vms /W3 /Gm /G5 /D "WIN32" /FD /c
@@ -47,7 +47,7 @@ RSC=rc.exe
 # ADD BASE MTL /nologo /mktyplib203 /o "NUL" /win32
 # ADD MTL /nologo /mktyplib203 /o "NUL" /win32 /D "NDEBUG" /D "_CONSOLE"
 # ADD BASE RSC /l 0x409
-# ADD RSC /l 0x409 /fo".\..\..\out\release6\build\appBulletDino\appBulletDino.res" /i "." /i "..\.." /i "..\..\src" /i "..\..\Extras\ConvexDecomposition" /i "..\..\Extras\COLLADA_DOM\include" /i "..\..\Extras\COLLADA_DOM\include\1.4" /i "..\..\Extras\LibXML\include" /i "..\..\Extras\GIMPACT\include" /i "..\..\Extras\GIMPACTBullet" /i "..\..\Extras\PhysicsInterface\Common" /i "..\..\Extras\PhysicsInterface\CcdPhysics" /i "..\..\Glut" /i "..\..\Demos\OpenGL" /i "..\..\Extras\LibXML"
+# ADD RSC /l 0x409 /fo".\..\..\out\release6\build\appMovingConcaveDemo\appMovingConcaveDemo.res" /i "." /i "..\.." /i "..\..\src" /i "..\..\Extras\ConvexDecomposition" /i "..\..\Extras\COLLADA_DOM\include" /i "..\..\Extras\COLLADA_DOM\include\1.4" /i "..\..\Extras\LibXML\include" /i "..\..\Extras\GIMPACT\include" /i "..\..\Extras\GIMPACTBullet" /i "..\..\Extras\PhysicsInterface\Common" /i "..\..\Extras\PhysicsInterface\CcdPhysics" /i "..\..\Glut" /i "..\..\Demos\OpenGL" /i "..\..\Extras\LibXML"
 BSC32=bscmake.exe
 # ADD BASE BSC32 /nologo
 # ADD BSC32 /nologo
@@ -56,12 +56,12 @@ LIB32=link.exe -lib
 # ADD LIB32 /nologo 
 LINK32=link.exe
 # ADD BASE LINK32 user32.lib gdi32.lib advapi32.lib /nologo /machine:I386
-# ADD LINK32 shell32.lib user32.lib gdi32.lib advapi32.lib glut32.lib  /nologo /version:4.0 /machine:I386 /OPT:NOREF /out:"..\..\BulletDino.exe" /subsystem:console /libpath:"..\..\Glut" 
+# ADD LINK32 shell32.lib user32.lib gdi32.lib advapi32.lib glut32.lib  /nologo /version:4.0 /machine:I386 /OPT:NOREF /out:"..\..\MovingConcaveDemo.exe" /subsystem:console /libpath:"..\..\Glut" 
 # Begin Special Build Tool
 SOURCE="$(InputPath)"
 # End Special Build Tool
 
-!ELSEIF  "$(CFG)" == "appBulletDino - Win32 Debug"
+!ELSEIF  "$(CFG)" == "appMovingConcaveDemo - Win32 Debug"
 
 # PROP BASE Use_MFC 0
 # PROP BASE Use_Debug_Libraries 1
@@ -70,8 +70,8 @@ SOURCE="$(InputPath)"
 # PROP BASE Target_Dir ""
 # PROP Use_MFC 0
 # PROP Use_Debug_Libraries 1
-# PROP Output_Dir "..\..\out\debug6\build\appBulletDino\"
-# PROP Intermediate_Dir "..\..\out\debug6\build\appBulletDino\"
+# PROP Output_Dir "..\..\out\debug6\build\appMovingConcaveDemo\"
+# PROP Intermediate_Dir "..\..\out\debug6\build\appMovingConcaveDemo\"
 # PROP Ignore_Export_Lib 1
 # PROP Target_Dir ""
 # ADD BASE CPP /nologo /vmb /vms /W3 /Gm /G5 /D "WIN32" /FD /c
@@ -79,7 +79,7 @@ SOURCE="$(InputPath)"
 # ADD BASE MTL /nologo /mktyplib203 /o "NUL" /win32
 # ADD MTL /nologo /mktyplib203 /o "NUL" /win32 /D "_DEBUG" /D "_CONSOLE"
 # ADD BASE RSC /l 0x409
-# ADD RSC /l 0x409 /fo".\..\..\out\debug6\build\appBulletDino\appBulletDino.res" /i "." /i "..\.." /i "..\..\src" /i "..\..\Extras\ConvexDecomposition" /i "..\..\Extras\COLLADA_DOM\include" /i "..\..\Extras\COLLADA_DOM\include\1.4" /i "..\..\Extras\LibXML\include" /i "..\..\Extras\GIMPACT\include" /i "..\..\Extras\GIMPACTBullet" /i "..\..\Extras\PhysicsInterface\Common" /i "..\..\Extras\PhysicsInterface\CcdPhysics" /i "..\..\Glut" /i "..\..\Demos\OpenGL" /i "..\..\Extras\LibXML"
+# ADD RSC /l 0x409 /fo".\..\..\out\debug6\build\appMovingConcaveDemo\appMovingConcaveDemo.res" /i "." /i "..\.." /i "..\..\src" /i "..\..\Extras\ConvexDecomposition" /i "..\..\Extras\COLLADA_DOM\include" /i "..\..\Extras\COLLADA_DOM\include\1.4" /i "..\..\Extras\LibXML\include" /i "..\..\Extras\GIMPACT\include" /i "..\..\Extras\GIMPACTBullet" /i "..\..\Extras\PhysicsInterface\Common" /i "..\..\Extras\PhysicsInterface\CcdPhysics" /i "..\..\Glut" /i "..\..\Demos\OpenGL" /i "..\..\Extras\LibXML"
 BSC32=bscmake.exe
 # ADD BASE BSC32 /nologo
 # ADD BSC32 /nologo
@@ -88,7 +88,7 @@ LIB32=link.exe -lib
 # ADD LIB32 /nologo 
 LINK32=link.exe
 # ADD BASE LINK32 user32.lib gdi32.lib advapi32.lib /nologo /machine:I386
-# ADD LINK32 shell32.lib user32.lib gdi32.lib advapi32.lib glut32.lib  /nologo /version:4.0 /machine:I386 /debug /pdbtype:sept /out:"..\..\BulletDino.exe" /subsystem:console /libpath:"..\..\Glut" 
+# ADD LINK32 shell32.lib user32.lib gdi32.lib advapi32.lib glut32.lib  /nologo /version:4.0 /machine:I386 /debug /pdbtype:sept /out:"..\..\MovingConcaveDemo.exe" /subsystem:console /libpath:"..\..\Glut" 
 # Begin Special Build Tool
 SOURCE="$(InputPath)"
 # End Special Build Tool
@@ -97,14 +97,22 @@ SOURCE="$(InputPath)"
 
 # Begin Target
 
-# Name "appBulletDino - Win32 Release"
-# Name "appBulletDino - Win32 Debug"
+# Name "appMovingConcaveDemo - Win32 Release"
+# Name "appMovingConcaveDemo - Win32 Debug"
 # Begin Group "Source Files"
 
 # PROP Default_Filter ""
 # Begin Source File
 
-SOURCE=..\..\Demos\BulletDinoDemo\BulletDino.c
+SOURCE=..\..\Demos\MovingConcaveDemo\ConcavePhysicsDemo.cpp
+# End Source File
+# End Group
+# Begin Group "Header Files"
+
+# PROP Default_Filter ""
+# Begin Source File
+
+SOURCE=..\..\Demos\MovingConcaveDemo\ConcaveDemo.h
 # End Source File
 # End Group
 # Begin Group "Resource Files"
@@ -112,7 +120,7 @@ SOURCE=..\..\Demos\BulletDinoDemo\BulletDino.c
 # PROP Default_Filter ""
 # Begin Source File
 
-SOURCE=..\..\msvc\appBulletDino.rc
+SOURCE=..\..\msvc\appMovingConcaveDemo.rc
 # End Source File
 # End Group
 # End Target

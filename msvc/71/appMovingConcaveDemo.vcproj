@@ -1,9 +1,9 @@
 <?xml version="1.0" encoding = "Windows-1252"?>
 <VisualStudioProject
 	ProjectType="Visual C++"
-	Version="8.00"
-	Name="appUserCollisionAlgorithm"
-	ProjectGUID="{330B5049-6935-5CE6-79B7-28F570962895}"
+	Version="7.10"
+	Name="appMovingConcaveDemo"
+	ProjectGUID="{2D714360-B8EC-F8E0-ED74-E95336301075}"
 	SccProjectName=""
 	SccLocalPath="">
 	<Platforms>
@@ -13,8 +13,8 @@
 	<Configurations>
 		<Configuration
 			Name="Release|Win32"
-			OutputDirectory="..\..\out\release8\build\appUserCollisionAlgorithm\"
-			IntermediateDirectory="..\..\out\release8\build\appUserCollisionAlgorithm\"
+			OutputDirectory="..\..\out\release71\build\appMovingConcaveDemo\"
+			IntermediateDirectory="..\..\out\release71\build\appMovingConcaveDemo\"
 			ConfigurationType="1"
 			CharacterSet="2"
 			WholeProgramOptimization="1"
@@ -32,11 +32,11 @@
 				OptimizeForProcessor="1"
 				ExceptionHandling="0"
 				AdditionalOptions=" "
-				AdditionalIncludeDirectories=".;..\..;..\..\src;..\..\Extras\ConvexDecomposition;..\..\Extras\COLLADA_DOM\include;..\..\Extras\COLLADA_DOM\include\1.4;..\..\Extras\LibXML\include;..\..\Extras\GIMPACT\include;..\..\Extras\GIMPACTBullet;..\..\Extras\PhysicsInterface\Common;..\..\Extras\PhysicsInterface\CcdPhysics;..\..\Glut;..\..\Demos\OpenGL"
-				PrecompiledHeaderFile="..\..\out\release8\build\appUserCollisionAlgorithm\appUserCollisionAlgorithm.pch"
-				AssemblerListingLocation="..\..\out\release8\build\appUserCollisionAlgorithm\"
-				ObjectFile="..\..\out\release8\build\appUserCollisionAlgorithm\"
-				ProgramDataBaseFileName="..\..\out\release8\build\appUserCollisionAlgorithm\UserCollisionAlgorithm.pdb"
+				AdditionalIncludeDirectories=".;..\..;..\..\src;..\..\Extras\ConvexDecomposition;..\..\Extras\COLLADA_DOM\include;..\..\Extras\COLLADA_DOM\include\1.4;..\..\Extras\LibXML\include;..\..\Extras\GIMPACT\include;..\..\Extras\GIMPACTBullet;..\..\Extras\PhysicsInterface\Common;..\..\Extras\PhysicsInterface\CcdPhysics;..\..\Glut;..\..\Demos\OpenGL;..\..\Extras\LibXML"
+				PrecompiledHeaderFile="..\..\out\release71\build\appMovingConcaveDemo\appMovingConcaveDemo.pch"
+				AssemblerListingLocation="..\..\out\release71\build\appMovingConcaveDemo\"
+				ObjectFile="..\..\out\release71\build\appMovingConcaveDemo\"
+				ProgramDataBaseFileName="..\..\out\release71\build\appMovingConcaveDemo\MovingConcaveDemo.pdb"
 				WarningLevel="3"
 				SuppressStartupBanner="TRUE"
 				Detect64BitPortabilityProblems="TRUE"
@@ -51,7 +51,7 @@
 				EnableCOMDATFolding="2"
 				GenerateDebugInformation="TRUE"
 				IgnoreDefaultLibraryNames="LIBC,LIBCD"
-				OutputFile="..\..\UserCollisionAlgorithm.exe"
+				OutputFile="..\..\MovingConcaveDemo.exe"
 				SubSystem="1"
 				AdditionalOptions=" "
 				AdditionalDependencies="glut32.lib"
@@ -59,7 +59,7 @@
 				SuppressStartupBanner="TRUE"
 				GenerateManifest="false"
 				AdditionalLibraryDirectories="..\..\Glut"
-				ProgramDatabaseFile="..\..\out\release8\build\appUserCollisionAlgorithm\UserCollisionAlgorithm.pdb"
+				ProgramDatabaseFile="..\..\out\release71\build\appMovingConcaveDemo\MovingConcaveDemo.pdb"
 				TargetMachine="1"/>
 			<Tool
 				Name="VCLibrarianTool"
@@ -70,7 +70,7 @@
 				MkTypLibCompatible="TRUE"
 				SuppressStartupBanner="TRUE"
 				TargetEnvironment="1"
-				TypeLibraryName="..\..\out\release8\build\appUserCollisionAlgorithm\appUserCollisionAlgorithm.tlb"/>
+				TypeLibraryName="..\..\out\release71\build\appMovingConcaveDemo\appMovingConcaveDemo.tlb"/>
 			<Tool
 				Name="VCPostBuildEventTool"
 				/>
@@ -80,8 +80,8 @@
 				Name="VCPreLinkEventTool"/>
 			<Tool
 				Name="VCResourceCompilerTool"
-				PreprocessorDefinitions="NDEBUG;_CONSOLE;PROJECTGEN_VERSION=8"
-				AdditionalIncludeDirectories=".;..\..;..\..\src;..\..\Extras\ConvexDecomposition;..\..\Extras\COLLADA_DOM\include;..\..\Extras\COLLADA_DOM\include\1.4;..\..\Extras\LibXML\include;..\..\Extras\GIMPACT\include;..\..\Extras\GIMPACTBullet;..\..\Extras\PhysicsInterface\Common;..\..\Extras\PhysicsInterface\CcdPhysics;..\..\Glut;..\..\Demos\OpenGL"
+				PreprocessorDefinitions="NDEBUG;_CONSOLE;PROJECTGEN_VERSION=71"
+				AdditionalIncludeDirectories=".;..\..;..\..\src;..\..\Extras\ConvexDecomposition;..\..\Extras\COLLADA_DOM\include;..\..\Extras\COLLADA_DOM\include\1.4;..\..\Extras\LibXML\include;..\..\Extras\GIMPACT\include;..\..\Extras\GIMPACTBullet;..\..\Extras\PhysicsInterface\Common;..\..\Extras\PhysicsInterface\CcdPhysics;..\..\Glut;..\..\Demos\OpenGL;..\..\Extras\LibXML"
 				Culture="1033"/>
 			<Tool
 				Name="VCWebServiceProxyGeneratorTool"/>
@@ -90,8 +90,8 @@
 		</Configuration>
 		<Configuration
 			Name="Debug|Win32"
-			OutputDirectory="..\..\out\debug8\build\appUserCollisionAlgorithm\"
-			IntermediateDirectory="..\..\out\debug8\build\appUserCollisionAlgorithm\"
+			OutputDirectory="..\..\out\debug71\build\appMovingConcaveDemo\"
+			IntermediateDirectory="..\..\out\debug71\build\appMovingConcaveDemo\"
 			ConfigurationType="1"
 			CharacterSet="2"
 			UseOfMFC="0"
@@ -107,11 +107,11 @@
 				OptimizeForProcessor="1"
 				ExceptionHandling="0"
 				AdditionalOptions=" "
-				AdditionalIncludeDirectories=".;..\..;..\..\src;..\..\Extras\ConvexDecomposition;..\..\Extras\COLLADA_DOM\include;..\..\Extras\COLLADA_DOM\include\1.4;..\..\Extras\LibXML\include;..\..\Extras\GIMPACT\include;..\..\Extras\GIMPACTBullet;..\..\Extras\PhysicsInterface\Common;..\..\Extras\PhysicsInterface\CcdPhysics;..\..\Glut;..\..\Demos\OpenGL"
-				PrecompiledHeaderFile="..\..\out\debug8\build\appUserCollisionAlgorithm\appUserCollisionAlgorithm.pch"
-				AssemblerListingLocation="..\..\out\debug8\build\appUserCollisionAlgorithm\"
-				ObjectFile="..\..\out\debug8\build\appUserCollisionAlgorithm\"
-				ProgramDataBaseFileName="..\..\out\debug8\build\appUserCollisionAlgorithm\UserCollisionAlgorithm.pdb"
+				AdditionalIncludeDirectories=".;..\..;..\..\src;..\..\Extras\ConvexDecomposition;..\..\Extras\COLLADA_DOM\include;..\..\Extras\COLLADA_DOM\include\1.4;..\..\Extras\LibXML\include;..\..\Extras\GIMPACT\include;..\..\Extras\GIMPACTBullet;..\..\Extras\PhysicsInterface\Common;..\..\Extras\PhysicsInterface\CcdPhysics;..\..\Glut;..\..\Demos\OpenGL;..\..\Extras\LibXML"
+				PrecompiledHeaderFile="..\..\out\debug71\build\appMovingConcaveDemo\appMovingConcaveDemo.pch"
+				AssemblerListingLocation="..\..\out\debug71\build\appMovingConcaveDemo\"
+				ObjectFile="..\..\out\debug71\build\appMovingConcaveDemo\"
+				ProgramDataBaseFileName="..\..\out\debug71\build\appMovingConcaveDemo\MovingConcaveDemo.pdb"
 				WarningLevel="3"
 				SuppressStartupBanner="TRUE"
 				Detect64BitPortabilityProblems="TRUE"
@@ -124,7 +124,7 @@
 				LinkIncremental="2"
 				GenerateDebugInformation="TRUE"
 				IgnoreDefaultLibraryNames="LIBC,LIBCD"
-				OutputFile="..\..\UserCollisionAlgorithm.exe"
+				OutputFile="..\..\MovingConcaveDemo.exe"
 				SubSystem="1"
 				AdditionalOptions=" "
 				AdditionalDependencies="glut32.lib"
@@ -132,7 +132,7 @@
 				SuppressStartupBanner="TRUE"
 				GenerateManifest="false"
 				AdditionalLibraryDirectories="..\..\Glut"
-				ProgramDatabaseFile="..\..\out\debug8\build\appUserCollisionAlgorithm\UserCollisionAlgorithm.pdb"
+				ProgramDatabaseFile="..\..\out\debug71\build\appMovingConcaveDemo\MovingConcaveDemo.pdb"
 				TargetMachine="1"/>
 			<Tool
 				Name="VCLibrarianTool"
@@ -143,7 +143,7 @@
 				MkTypLibCompatible="TRUE"
 				SuppressStartupBanner="TRUE"
 				TargetEnvironment="1"
-				TypeLibraryName="..\..\out\debug8\build\appUserCollisionAlgorithm\appUserCollisionAlgorithm.tlb"/>
+				TypeLibraryName="..\..\out\debug71\build\appMovingConcaveDemo\appMovingConcaveDemo.tlb"/>
 			<Tool
 				Name="VCPostBuildEventTool"
 				/>
@@ -153,8 +153,8 @@
 				Name="VCPreLinkEventTool"/>
 			<Tool
 				Name="VCResourceCompilerTool"
-				PreprocessorDefinitions="_DEBUG;_CONSOLE;PROJECTGEN_VERSION=8"
-				AdditionalIncludeDirectories=".;..\..;..\..\src;..\..\Extras\ConvexDecomposition;..\..\Extras\COLLADA_DOM\include;..\..\Extras\COLLADA_DOM\include\1.4;..\..\Extras\LibXML\include;..\..\Extras\GIMPACT\include;..\..\Extras\GIMPACTBullet;..\..\Extras\PhysicsInterface\Common;..\..\Extras\PhysicsInterface\CcdPhysics;..\..\Glut;..\..\Demos\OpenGL"
+				PreprocessorDefinitions="_DEBUG;_CONSOLE;PROJECTGEN_VERSION=71"
+				AdditionalIncludeDirectories=".;..\..;..\..\src;..\..\Extras\ConvexDecomposition;..\..\Extras\COLLADA_DOM\include;..\..\Extras\COLLADA_DOM\include\1.4;..\..\Extras\LibXML\include;..\..\Extras\GIMPACT\include;..\..\Extras\GIMPACTBullet;..\..\Extras\PhysicsInterface\Common;..\..\Extras\PhysicsInterface\CcdPhysics;..\..\Glut;..\..\Demos\OpenGL;..\..\Extras\LibXML"
 				Culture="1033"/>
 			<Tool
 				Name="VCWebServiceProxyGeneratorTool"/>
@@ -167,21 +167,21 @@
 			Name="Source Files"
 			Filter="">
 			<File
-				RelativePath="..\..\Demos\UserCollisionAlgorithm\UserCollisionAlgorithm.cpp">
+				RelativePath="..\..\Demos\MovingConcaveDemo\ConcavePhysicsDemo.cpp">
 			</File>
 		</Filter>
 		<Filter
 			Name="Header Files"
 			Filter="">
 			<File
-				RelativePath="..\..\Demos\UserCollisionAlgorithm\UserCollisionAlgorithm.h">
+				RelativePath="..\..\Demos\MovingConcaveDemo\ConcaveDemo.h">
 			</File>
 		</Filter>
 		<Filter
 			Name="Resource Files"
 			Filter="">
 			<File
-				RelativePath="..\..\msvc\appUserCollisionAlgorithm.rc">
+				RelativePath="..\..\msvc\appMovingConcaveDemo.rc">
 			</File>
 		</Filter>
 	</Files>
