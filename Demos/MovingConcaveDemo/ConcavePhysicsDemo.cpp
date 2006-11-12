@@ -1830,7 +1830,7 @@ btGIMPACTMeshShape * createMesh()
 {
 	btGIMPACTMeshShape * newtrimeshShape  = new btGIMPACTMeshShape(g_trimeshData );
 	newtrimeshShape->setLocalScaling(btVector3(4.f,4.f,4.f));
-	OGL_displaylist_register_shape(newtrimeshShape);
+//	OGL_displaylist_register_shape(newtrimeshShape);
 	return newtrimeshShape;
 }
 

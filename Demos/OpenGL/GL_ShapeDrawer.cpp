@@ -44,7 +44,7 @@ subject to the following restrictions:
 #include "BMF_Api.h"
 #include <stdio.h> //printf debugging
 
-#define USE_DISPLAY_LISTS 1
+//#define USE_DISPLAY_LISTS 1
 #ifdef USE_DISPLAY_LISTS
 
 #include <map>
