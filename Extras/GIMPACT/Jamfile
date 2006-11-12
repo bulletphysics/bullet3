@@ -1,0 +1,10 @@
+SubDir TOP Extras GIMPACT ;
+
+IncludeDir Extras/GIMPACT ;
+
+Library GIMPACT : [ Wildcard *.h *.cpp ] ;
+CFlags GIMPACT : [ FIncludes $(TOP)/Extras/GIMPACT/include ] ;
+LibDepends GIMPACT :  ;
+
+
+InstallHeader [ Wildcard *.h ] : GIMPACT ;
