@@ -44,6 +44,7 @@ subject to the following restrictions:
 #include "BMF_Api.h"
 #include <stdio.h> //printf debugging
 
+#define USE_DISPLAY_LISTS 1
 #ifdef USE_DISPLAY_LISTS
 
 #include <map>
@@ -62,6 +63,55 @@ typedef map<unsigned long,TRIMESH_KEY> TRIMESH_KEY_MAP;
 typedef pair<unsigned long,TRIMESH_KEY> TRIMESH_KEY_PAIR;
 
 TRIMESH_KEY_MAP g_display_lists;
+
+class GlDisplaylistDrawcallback : public btTriangleCallback
+{
+public:
+
+	virtual void processTriangle(btVector3* triangle,int partId, int triangleIndex)
+	{
+
+		btVector3 diff1 = triangle[1] - triangle[0];
+		btVector3 diff2 = triangle[2] - triangle[0];
+		btVector3 normal = diff1.cross(diff2);
+
+		normal.normalize();
+
+		glBegin(GL_TRIANGLES);
+		glColor3f(0, 1, 0);
+		glNormal3d(normal.getX(),normal.getY(),normal.getZ());
+		glVertex3d(triangle[0].getX(), triangle[0].getY(), triangle[0].getZ());
+
+		glColor3f(0, 1, 0);
+		glNormal3d(normal.getX(),normal.getY(),normal.getZ());
+		glVertex3d(triangle[1].getX(), triangle[1].getY(), triangle[1].getZ());
+
+		glColor3f(0, 1, 0);
+		glNormal3d(normal.getX(),normal.getY(),normal.getZ());
+		glVertex3d(triangle[2].getX(), triangle[2].getY(), triangle[2].getZ());
+		glEnd();
+
+		/*glBegin(GL_LINES);
+		glColor3f(1, 1, 0);
+		glNormal3d(normal.getX(),normal.getY(),normal.getZ());
+		glVertex3d(triangle[0].getX(), triangle[0].getY(), triangle[0].getZ());
+		glNormal3d(normal.getX(),normal.getY(),normal.getZ());
+		glVertex3d(triangle[1].getX(), triangle[1].getY(), triangle[1].getZ());
+		glColor3f(1, 1, 0);
+		glNormal3d(normal.getX(),normal.getY(),normal.getZ());
+		glVertex3d(triangle[2].getX(), triangle[2].getY(), triangle[2].getZ());
+		glNormal3d(normal.getX(),normal.getY(),normal.getZ());
+		glVertex3d(triangle[1].getX(), triangle[1].getY(), triangle[1].getZ());
+		glColor3f(1, 1, 0);
+		glNormal3d(normal.getX(),normal.getY(),normal.getZ());
+		glVertex3d(triangle[2].getX(), triangle[2].getY(), triangle[2].getZ());
+		glNormal3d(normal.getX(),normal.getY(),normal.getZ());
+		glVertex3d(triangle[0].getX(), triangle[0].getY(), triangle[0].getZ());
+		glEnd();*/
+
+		
+	}
+};
 
 GLuint  OGL_get_displaylist_for_shape(btCollisionShape * shape)
 {
@@ -97,7 +147,7 @@ void OGL_displaylist_register_shape(btCollisionShape * shape)
 {
 	btVector3 aabbMax(1e30f,1e30f,1e30f);
 	btVector3 aabbMin(-1e30f,-1e30f,-1e30f);
-	GlDrawcallback drawCallback;
+	GlDisplaylistDrawcallback drawCallback;
 	TRIMESH_KEY dlist;
 
 	dlist.m_dlist = glGenLists(1);
@@ -113,16 +163,11 @@ void OGL_displaylist_register_shape(btCollisionShape * shape)
 
 	glCullFace(GL_BACK);
 
-	if (shape->getShapeType() == TRIANGLE_MESH_SHAPE_PROXYTYPE)
+	if (shape->isConcave())
 	{
-		btTriangleMeshShape* concaveMesh = (btTriangleMeshShape*) shape;			
+		ConcaveShape* concaveMesh = (ConcaveShape*) shape;			
 		//todo pass camera, for some culling		
 		concaveMesh->processAllTriangles(&drawCallback,aabbMin,aabbMax);
-	}
-	else if (shape->getShapeType() == GIMPACT_SHAPE_PROXYTYPE)
-	{
-		btGIMPACTMeshShape* gimpactMesh = (btGIMPACTMeshShape*) shape;
-		gimpactMesh->processAllTriangles(&drawCallback,aabbMin,aabbMax);
 	}
 
 	glDisable(GL_CULL_FACE);	
@@ -415,8 +460,12 @@ void GL_ShapeDrawer::drawOpenGL(float* m, const btCollisionShape* shape, const b
 	if (shape->getShapeType() == TRIANGLE_MESH_SHAPE_PROXYTYPE||shape->getShapeType() == GIMPACT_SHAPE_PROXYTYPE)
 		{
 			GLuint dlist =   OGL_get_displaylist_for_shape((btCollisionShape * )shape);
-			glCallList(dlist);
-		}
+			if (dlist)
+			{
+				glCallList(dlist);
+			}
+			else
+			{
 #else		
 	if (shape->getShapeType() == TRIANGLE_MESH_SHAPE_PROXYTYPE||shape->getShapeType() == GIMPACT_SHAPE_PROXYTYPE)
 //		if (shape->getShapeType() == TRIANGLE_MESH_SHAPE_PROXYTYPE)
@@ -435,6 +484,11 @@ void GL_ShapeDrawer::drawOpenGL(float* m, const btCollisionShape* shape, const b
 			concaveMesh->processAllTriangles(&drawCallback,aabbMin,aabbMax);
 
 		}
+#endif
+
+#ifdef USE_DISPLAY_LISTS
+		}
+	}
 #endif
 
 		if (shape->getShapeType() == CONVEX_TRIANGLEMESH_SHAPE_PROXYTYPE)

@@ -1539,11 +1539,12 @@ void ConcaveDemo::renderme()
 
 			float xOffset = 10.f;
 			float yStart = 20.f;
-			float yIncr = -2.f;
+			float yIncr = 20.f;
 			char buf[124];
 
 			glColor3f(0, 0, 0);
 
+			setOrthographicProjection();
 
 			glRasterPos3f(xOffset,yStart,0);
 			sprintf(buf,"mouse to interact");
@@ -1608,6 +1609,9 @@ void ConcaveDemo::renderme()
 			sprintf(buf,"+- shooting speed = %10.2f",m_ShootBoxInitialSpeed);
 			BMF_DrawString(BMF_GetFont(BMF_kHelvetica10),buf);
 			yStart += yIncr;
+			
+			resetPerspectiveProjection();
+
 
 	}
 
@@ -1826,7 +1830,7 @@ btGIMPACTMeshShape * createMesh()
 {
 	btGIMPACTMeshShape * newtrimeshShape  = new btGIMPACTMeshShape(g_trimeshData );
 	newtrimeshShape->setLocalScaling(btVector3(4.f,4.f,4.f));
-	//OGL_displaylist_register_shape(newtrimeshShape);
+	OGL_displaylist_register_shape(newtrimeshShape);
 	return newtrimeshShape;
 }
 

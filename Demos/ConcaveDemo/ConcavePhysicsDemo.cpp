@@ -31,6 +31,7 @@ int	gIndices[NUM_TRIANGLES*3];
 const float TRIANGLE_SIZE=80.f;
 
 
+
 ///User can override this material combiner by implementing gContactAddedCallback and setting body0->m_collisionFlags |= btCollisionObject::customMaterialCallback;
 inline btScalar	calculateCombinedFriction(float friction0,float friction1)
 {
