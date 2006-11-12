@@ -1,0 +1,31 @@
+<?xml version="1.0" encoding="UTF-8" standalone="yes" ?>
+<CodeBlocks_layout_file>
+	<ActiveTarget name="Release" />
+	<File name="include\GIMPACT\gim_box_collision.h" open="1" top="0" tabpos="4">
+		<Cursor position="6591" topLine="178" />
+	</File>
+	<File name="include\GIMPACT\gim_boxpruning.h" open="1" top="0" tabpos="2">
+		<Cursor position="12980" topLine="339" />
+	</File>
+	<File name="include\GIMPACT\gim_geometry.h" open="1" top="1" tabpos="3">
+		<Cursor position="28755" topLine="1219" />
+	</File>
+	<File name="include\GIMPACT\gim_math.h" open="1" top="0" tabpos="1">
+		<Cursor position="3572" topLine="0" />
+	</File>
+	<File name="src\gim_boxpruning.cpp" open="1" top="0" tabpos="7">
+		<Cursor position="5952" topLine="184" />
+	</File>
+	<File name="src\gim_contact.cpp" open="1" top="0" tabpos="5">
+		<Cursor position="1555" topLine="34" />
+	</File>
+	<File name="src\gim_trimesh.cpp" open="1" top="0" tabpos="6">
+		<Cursor position="16351" topLine="525" />
+	</File>
+	<File name="src\gim_trimesh_capsule_collision.cpp" open="0" top="0" tabpos="0">
+		<Cursor position="5705" topLine="155" />
+	</File>
+	<File name="src\gim_trimesh_sphere_collision.cpp" open="0" top="0" tabpos="0">
+		<Cursor position="3677" topLine="91" />
+	</File>
+</CodeBlocks_layout_file>

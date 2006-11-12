@@ -1,0 +1,307 @@
+# depslib dependency file v1.0
+1159964131 source:c:\libreriaswx\oldgammaleon_reloaded\gammaleon\source\gimpact\src\gim_contact.cpp
+	"GIMPACT/gim_contact.h"
+	<sglib.h>
+
+1159989774 c:\libreriaswx\oldgammaleon_reloaded\gammaleon\source\gimpact\include\gimpact\gim_contact.h
+	"GIMPACT/gim_geometry.h"
+	"GIMPACT/gim_radixsort.h"
+
+1159995618 c:\libreriaswx\oldgammaleon_reloaded\gammaleon\source\gimpact\include\gimpact\gim_geometry.h
+	"GIMPACT/gim_math.h"
+	"GIMPACT/gim_tri_collision.h"
+
+1159971186 c:\libreriaswx\oldgammaleon_reloaded\gammaleon\source\gimpact\include\gimpact\gim_math.h
+	<math.h>
+	<float.h>
+
+1159989774 c:\libreriaswx\oldgammaleon_reloaded\gammaleon\source\gimpact\include\gimpact\gim_tri_collision.h
+
+1159989774 c:\libreriaswx\oldgammaleon_reloaded\gammaleon\source\gimpact\include\gimpact\gim_radixsort.h
+	"GIMPACT/gim_memory.h"
+
+1159989774 c:\libreriaswx\oldgammaleon_reloaded\gammaleon\source\gimpact\include\gimpact\gim_memory.h
+	"GIMPACT/gim_math.h"
+	<memory.h>
+	<xmmintrin.h>
+
+1159921899 source:c:\libreriaswx\oldgammaleon_reloaded\gammaleon\source\gimpact\src\gim_math.cpp
+	"GIMPACT/gim_math.h"
+	"stdlib.h"
+	"time.h"
+
+1159964559 source:c:\libreriaswx\oldgammaleon_reloaded\gammaleon\source\gimpact\src\gim_memory.cpp
+	"GIMPACT/gim_memory.h"
+	"stdlib.h"
+	"malloc.h"
+
+1159992522 source:c:\libreriaswx\oldgammaleon_reloaded\gammaleon\source\gimpact\src\gim_trimesh.cpp
+	"GIMPACT/gim_trimesh.h"
+
+1159994630 c:\libreriaswx\oldgammaleon_reloaded\gammaleon\source\gimpact\include\gimpact\gim_trimesh.h
+	"GIMPACT/gim_boxpruning.h"
+	"GIMPACT/gim_contact.h"
+
+1159989774 c:\libreriaswx\oldgammaleon_reloaded\gammaleon\source\gimpact\include\gimpact\gim_boxpruning.h
+	"GIMPACT/gim_radixsort.h"
+	"GIMPACT/gim_geometry.h"
+
+1159928249 source:c:\libreriaswx\oldgammaleon_reloaded\gammaleon\source\gimpact\src\gim_trimesh_trimesh_collision.cpp
+	"GIMPACT/gim_trimesh.h"
+
+1159992207 source:c:\libreriaswx\oldgammaleon_reloaded\gammaleon\source\gimpact\src\gim_boxpruning.cpp
+	"GIMPACT/gim_boxpruning.h"
+	"sglib.h"
+
+1160663612 source:c:\libreriaswx\physics\ode-0.7\gimpact\src\gim_trimesh_capsule_collision.cpp
+	"GIMPACT/gim_trimesh.h"
+
+1160668423 c:\libreriaswx\physics\ode-0.7\gimpact\include\gimpact\gim_trimesh.h
+	"GIMPACT/gim_boxpruning.h"
+	"GIMPACT/gim_contact.h"
+
+1160665573 c:\libreriaswx\physics\ode-0.7\gimpact\include\gimpact\gim_boxpruning.h
+	"GIMPACT/gim_radixsort.h"
+	"GIMPACT/gim_geometry.h"
+
+1159989774 c:\libreriaswx\physics\ode-0.7\gimpact\include\gimpact\gim_radixsort.h
+	"GIMPACT/gim_memory.h"
+
+1160666133 c:\libreriaswx\physics\ode-0.7\gimpact\include\gimpact\gim_memory.h
+	"GIMPACT/gim_math.h"
+	<memory.h>
+	<xmmintrin.h>
+
+1160664080 c:\libreriaswx\physics\ode-0.7\gimpact\include\gimpact\gim_math.h
+	<math.h>
+	<float.h>
+
+1160665531 c:\libreriaswx\physics\ode-0.7\gimpact\include\gimpact\gim_geometry.h
+	"GIMPACT/gim_math.h"
+	"GIMPACT/gim_tri_collision.h"
+	"GIMPACT/gim_tri_sphere_collision.h"
+	"GIMPACT/gim_tri_capsule_collision.h"
+
+1160666237 c:\libreriaswx\physics\ode-0.7\gimpact\include\gimpact\gim_tri_collision.h
+
+1160666277 c:\libreriaswx\physics\ode-0.7\gimpact\include\gimpact\gim_tri_sphere_collision.h
+
+1160663800 c:\libreriaswx\physics\ode-0.7\gimpact\include\gimpact\gim_tri_capsule_collision.h
+	"GIMPACT/gim_memory.h"
+
+1160663800 c:\libreriaswx\physics\ode-0.7\gimpact\include\gimpact\gim_contact.h
+	"GIMPACT/gim_geometry.h"
+	"GIMPACT/gim_radixsort.h"
+
+1160663612 source:c:\libreriaswx\physics\ode-0.7\gimpact\src\gim_contact.cpp
+	"GIMPACT/gim_contact.h"
+	<sglib.h>
+
+1136910978 c:\libreriaswx\physics\ode-0.7\gimpact\include\sglib.h
+	<assert.h>
+
+1160663502 source:c:\libreriaswx\physics\ode-0.7\gimpact\src\gim_math.cpp
+	"GIMPACT/gim_math.h"
+	"stdlib.h"
+	"time.h"
+
+1160663502 source:c:\libreriaswx\physics\ode-0.7\gimpact\src\gim_memory.cpp
+	"GIMPACT/gim_memory.h"
+	"stdlib.h"
+	"malloc.h"
+
+1160663502 source:c:\libreriaswx\physics\ode-0.7\gimpact\src\gim_trimesh.cpp
+	"GIMPACT/gim_trimesh.h"
+
+1160663502 source:c:\libreriaswx\physics\ode-0.7\gimpact\src\gim_boxpruning.cpp
+	"GIMPACT/gim_boxpruning.h"
+	"sglib.h"
+
+1160663502 source:c:\libreriaswx\physics\ode-0.7\gimpact\src\gim_trimesh_ray_collision.cpp
+	"GIMPACT/gim_trimesh.h"
+
+1160663612 source:c:\libreriaswx\physics\ode-0.7\gimpact\src\gim_trimesh_sphere_collision.cpp
+	"GIMPACT/gim_trimesh.h"
+
+1160663503 source:c:\libreriaswx\physics\ode-0.7\gimpact\src\gim_trimesh_trimesh_collision.cpp
+	"GIMPACT/gim_trimesh.h"
+
+1160663612 source:c:\libreriaswx\physics\ode-0.7\gimpact\src\gimpact.cpp
+	"GIMPACT/gimpact.h"
+
+1160663925 c:\libreriaswx\physics\ode-0.7\gimpact\include\gimpact\gimpact.h
+	"GIMPACT/gim_trimesh.h"
+
+1161470699 source:c:\desarrollo\gimpact\src\gim_boxpruning.cpp
+	"GIMPACT/gim_boxpruning.h"
+
+1161561167 c:\desarrollo\gimpact\include\gimpact\gim_boxpruning.h
+	"GIMPACT/gim_radixsort.h"
+	"GIMPACT/gim_geometry.h"
+
+1161493754 c:\desarrollo\gimpact\include\gimpact\gim_radixsort.h
+	"GIMPACT/gim_memory.h"
+
+1161546016 c:\desarrollo\gimpact\include\gimpact\gim_memory.h
+	"GIMPACT/gim_math.h"
+	<memory.h>
+	<xmmintrin.h>
+
+1161407413 c:\desarrollo\gimpact\include\gimpact\gim_math.h
+	<math.h>
+	<float.h>
+
+1161493719 c:\desarrollo\gimpact\include\gimpact\gim_geometry.h
+	"GIMPACT/gim_math.h"
+	"GIMPACT/gim_tri_collision.h"
+	"GIMPACT/gim_tri_sphere_collision.h"
+	"GIMPACT/gim_tri_capsule_collision.h"
+
+1161535917 c:\desarrollo\gimpact\include\gimpact\gim_tri_collision.h
+
+1161407944 c:\desarrollo\gimpact\include\gimpact\gim_tri_sphere_collision.h
+
+1161407945 c:\desarrollo\gimpact\include\gimpact\gim_tri_capsule_collision.h
+	"GIMPACT/gim_memory.h"
+
+1161470699 source:c:\desarrollo\gimpact\src\gim_contact.cpp
+	"GIMPACT/gim_contact.h"
+
+1161493737 c:\desarrollo\gimpact\include\gimpact\gim_contact.h
+	"GIMPACT/gim_geometry.h"
+	"GIMPACT/gim_radixsort.h"
+
+1160663502 source:c:\desarrollo\gimpact\src\gim_math.cpp
+	"GIMPACT/gim_math.h"
+	"stdlib.h"
+	"time.h"
+
+1160663502 source:c:\desarrollo\gimpact\src\gim_memory.cpp
+	"GIMPACT/gim_memory.h"
+	"stdlib.h"
+	"malloc.h"
+
+1161546129 source:c:\desarrollo\gimpact\src\gim_tri_tri_overlap.cpp
+	"GIMPACT/gim_trimesh.h"
+
+1161493760 c:\desarrollo\gimpact\include\gimpact\gim_trimesh.h
+	"GIMPACT/gim_boxpruning.h"
+	"GIMPACT/gim_contact.h"
+
+1161543680 source:c:\desarrollo\gimpact\src\gim_trimesh.cpp
+	"GIMPACT/gim_trimesh.h"
+
+1160663612 source:c:\desarrollo\gimpact\src\gim_trimesh_capsule_collision.cpp
+	"GIMPACT/gim_trimesh.h"
+
+1160663502 source:c:\desarrollo\gimpact\src\gim_trimesh_ray_collision.cpp
+	"GIMPACT/gim_trimesh.h"
+
+1160663612 source:c:\desarrollo\gimpact\src\gim_trimesh_sphere_collision.cpp
+	"GIMPACT/gim_trimesh.h"
+
+1161545852 source:c:\desarrollo\gimpact\src\gim_trimesh_trimesh_collision.cpp
+	"GIMPACT/gim_trimesh.h"
+
+1160663612 source:c:\desarrollo\gimpact\src\gimpact.cpp
+	"GIMPACT/gimpact.h"
+
+1161488518 c:\desarrollo\gimpact\include\gimpact\gimpact.h
+	"GIMPACT/gim_trimesh.h"
+
+1163169405 source:c:\libreriaswx\gammaleon_reloaded\gammaleon\source\gimpact\src\gim_trimesh_capsule_collision.cpp
+	"GIMPACT/gim_trimesh.h"
+
+1163156330 c:\libreriaswx\gammaleon_reloaded\gammaleon\source\gimpact\include\gimpact\gim_trimesh.h
+	"GIMPACT/gim_trimesh_data.h"
+	"GIMPACT/gim_vertex_buffer_util.h"
+	"GIMPACT/gim_contact.h"
+
+1163156330 c:\libreriaswx\gammaleon_reloaded\gammaleon\source\gimpact\include\gimpact\gim_trimesh_data.h
+	"GIMPACT/gim_boxpruning.h"
+
+1163169530 c:\libreriaswx\gammaleon_reloaded\gammaleon\source\gimpact\include\gimpact\gim_boxpruning.h
+	"GIMPACT/gim_radixsort.h"
+	"GIMPACT/gim_geometry.h"
+
+1163156180 c:\libreriaswx\gammaleon_reloaded\gammaleon\source\gimpact\include\gimpact\gim_radixsort.h
+	"GIMPACT/gim_memory.h"
+
+1163156168 c:\libreriaswx\gammaleon_reloaded\gammaleon\source\gimpact\include\gimpact\gim_memory.h
+	"GIMPACT/gim_math.h"
+	<memory.h>
+	<xmmintrin.h>
+
+1163169574 c:\libreriaswx\gammaleon_reloaded\gammaleon\source\gimpact\include\gimpact\gim_math.h
+	<math.h>
+	<float.h>
+
+1163169881 c:\libreriaswx\gammaleon_reloaded\gammaleon\source\gimpact\include\gimpact\gim_geometry.h
+	"GIMPACT/gim_math.h"
+	"GIMPACT/gim_box_collision.h"
+	"GIMPACT/gim_tri_collision.h"
+	"GIMPACT/gim_tri_sphere_collision.h"
+	"GIMPACT/gim_tri_capsule_collision.h"
+
+1163169574 c:\libreriaswx\gammaleon_reloaded\gammaleon\source\gimpact\include\gimpact\gim_box_collision.h
+
+1163156329 c:\libreriaswx\gammaleon_reloaded\gammaleon\source\gimpact\include\gimpact\gim_tri_collision.h
+
+1163156330 c:\libreriaswx\gammaleon_reloaded\gammaleon\source\gimpact\include\gimpact\gim_tri_sphere_collision.h
+
+1163156199 c:\libreriaswx\gammaleon_reloaded\gammaleon\source\gimpact\include\gimpact\gim_tri_capsule_collision.h
+	"GIMPACT/gim_memory.h"
+
+1163156330 c:\libreriaswx\gammaleon_reloaded\gammaleon\source\gimpact\include\gimpact\gim_vertex_buffer_util.h
+	"GIMPACT/gim_geometry.h"
+	"GIMPACT/gim_memory.h"
+
+1163168527 c:\libreriaswx\gammaleon_reloaded\gammaleon\source\gimpact\include\gimpact\gim_contact.h
+	"GIMPACT/gim_geometry.h"
+	"GIMPACT/gim_radixsort.h"
+
+1163156330 source:c:\libreriaswx\gammaleon_reloaded\gammaleon\source\gimpact\src\gim_math.cpp
+	"GIMPACT/gim_math.h"
+	"stdlib.h"
+	"time.h"
+
+1163156330 source:c:\libreriaswx\gammaleon_reloaded\gammaleon\source\gimpact\src\gim_memory.cpp
+	"GIMPACT/gim_memory.h"
+	"stdlib.h"
+	"malloc.h"
+
+1163156330 source:c:\libreriaswx\gammaleon_reloaded\gammaleon\source\gimpact\src\gim_tri_tri_overlap.cpp
+	"GIMPACT/gim_trimesh.h"
+
+1163169405 source:c:\libreriaswx\gammaleon_reloaded\gammaleon\source\gimpact\src\gim_trimesh.cpp
+	"GIMPACT/gim_trimesh.h"
+	"assert.h"
+
+1163156330 source:c:\libreriaswx\gammaleon_reloaded\gammaleon\source\gimpact\src\gim_trimesh_data.cpp
+	"GIMPACT/gim_trimesh_data.h"
+
+1163156330 source:c:\libreriaswx\gammaleon_reloaded\gammaleon\source\gimpact\src\gim_trimesh_ray_collision.cpp
+	"GIMPACT/gim_trimesh.h"
+
+1163169405 source:c:\libreriaswx\gammaleon_reloaded\gammaleon\source\gimpact\src\gim_trimesh_sphere_collision.cpp
+	"GIMPACT/gim_trimesh.h"
+
+1163156330 source:c:\libreriaswx\gammaleon_reloaded\gammaleon\source\gimpact\src\gim_trimesh_trimesh_collision.cpp
+	"GIMPACT/gim_trimesh.h"
+
+1163156330 source:c:\libreriaswx\gammaleon_reloaded\gammaleon\source\gimpact\src\gim_vertex_buffer_util.cpp
+	"GIMPACT/gim_vertex_buffer_util.h"
+
+1163156328 source:c:\libreriaswx\gammaleon_reloaded\gammaleon\source\gimpact\src\gimpact.cpp
+	"GIMPACT/gimpact.h"
+
+1163156330 c:\libreriaswx\gammaleon_reloaded\gammaleon\source\gimpact\include\gimpact\gimpact.h
+	"GIMPACT/gim_trimesh.h"
+
+1163169629 source:c:\libreriaswx\gammaleon_reloaded\gammaleon\source\gimpact\src\gim_contact.cpp
+	"GIMPACT/gim_contact.h"
+
+1163169723 source:c:\libreriaswx\gammaleon_reloaded\gammaleon\source\gimpact\src\gim_boxpruning.cpp
+	"GIMPACT/gim_boxpruning.h"
+	<assert.h>
+

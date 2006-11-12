@@ -44,6 +44,93 @@ subject to the following restrictions:
 #include "BMF_Api.h"
 #include <stdio.h> //printf debugging
 
+#ifdef USE_DISPLAY_LISTS
+
+#include <map>
+
+using namespace std;
+
+//Set for storing Display list per trimesh
+struct TRIMESH_KEY
+{
+	btCollisionShape* m_shape;
+	GLuint m_dlist;//OpenGL display list	
+};
+
+typedef map<unsigned long,TRIMESH_KEY> TRIMESH_KEY_MAP;
+
+typedef pair<unsigned long,TRIMESH_KEY> TRIMESH_KEY_PAIR;
+
+TRIMESH_KEY_MAP g_display_lists;
+
+GLuint  OGL_get_displaylist_for_shape(btCollisionShape * shape)
+{
+	TRIMESH_KEY_MAP::iterator map_iter;
+	
+	unsigned long key = (unsigned long)shape;
+	map_iter = g_display_lists.find(key);
+	if(map_iter!=g_display_lists.end())
+	{
+		return map_iter->second.m_dlist;
+	}
+
+	return 0;
+}
+
+void OGL_displaylist_clean()
+{
+	TRIMESH_KEY_MAP::iterator map_iter,map_itend;
+
+	map_iter = g_display_lists.begin();
+
+	while(map_iter!=map_itend)
+	{
+		glDeleteLists(map_iter->second.m_dlist,1);		
+		map_iter++;
+	}
+
+	g_display_lists.clear();
+}
+
+
+void OGL_displaylist_register_shape(btCollisionShape * shape)
+{
+	btVector3 aabbMax(1e30f,1e30f,1e30f);
+	btVector3 aabbMin(-1e30f,-1e30f,-1e30f);
+	GlDrawcallback drawCallback;
+	TRIMESH_KEY dlist;
+
+	dlist.m_dlist = glGenLists(1);
+	dlist.m_shape = shape;
+
+	unsigned long key = (unsigned long)shape;
+
+	g_display_lists.insert(TRIMESH_KEY_PAIR(key,dlist));
+	
+	glNewList(dlist.m_dlist,GL_COMPILE);
+
+	glEnable(GL_CULL_FACE);
+
+	glCullFace(GL_BACK);
+
+	if (shape->getShapeType() == TRIANGLE_MESH_SHAPE_PROXYTYPE)
+	{
+		btTriangleMeshShape* concaveMesh = (btTriangleMeshShape*) shape;			
+		//todo pass camera, for some culling		
+		concaveMesh->processAllTriangles(&drawCallback,aabbMin,aabbMax);
+	}
+	else if (shape->getShapeType() == GIMPACT_SHAPE_PROXYTYPE)
+	{
+		btGIMPACTMeshShape* gimpactMesh = (btGIMPACTMeshShape*) shape;
+		gimpactMesh->processAllTriangles(&drawCallback,aabbMin,aabbMax);
+	}
+
+	glDisable(GL_CULL_FACE);	
+
+	glEndList();
+}
+#endif //USE_DISPLAY_LISTS
+
 void GL_ShapeDrawer::drawCoordSystem()  {
     glBegin(GL_LINES);
     glColor3f(1, 0, 0);
@@ -322,9 +409,19 @@ void GL_ShapeDrawer::drawOpenGL(float* m, const btCollisionShape* shape, const b
 			}
 		}
 
-		if (shape->getShapeType() == TRIANGLE_MESH_SHAPE_PROXYTYPE)
+
+#ifdef USE_DISPLAY_LISTS
+
+	if (shape->getShapeType() == TRIANGLE_MESH_SHAPE_PROXYTYPE||shape->getShapeType() == GIMPACT_SHAPE_PROXYTYPE)
 		{
-			btTriangleMeshShape* concaveMesh = (btTriangleMeshShape*) shape;
+			GLuint dlist =   OGL_get_displaylist_for_shape((btCollisionShape * )shape);
+			glCallList(dlist);
+		}
+#else		
+	if (shape->getShapeType() == TRIANGLE_MESH_SHAPE_PROXYTYPE||shape->getShapeType() == GIMPACT_SHAPE_PROXYTYPE)
+//		if (shape->getShapeType() == TRIANGLE_MESH_SHAPE_PROXYTYPE)
+		{
+			ConcaveShape* concaveMesh = (btTriangleMeshShape*) shape;
 			//btVector3 aabbMax(1e30f,1e30f,1e30f);
 			//btVector3 aabbMax(100,100,100);//1e30f,1e30f,1e30f);
 
@@ -337,8 +434,8 @@ void GL_ShapeDrawer::drawOpenGL(float* m, const btCollisionShape* shape, const b
 
 			concaveMesh->processAllTriangles(&drawCallback,aabbMin,aabbMax);
 
-
 		}
+#endif
 
 		if (shape->getShapeType() == CONVEX_TRIANGLEMESH_SHAPE_PROXYTYPE)
 		{
