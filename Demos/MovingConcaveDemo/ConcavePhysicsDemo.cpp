@@ -1473,10 +1473,11 @@ int main(int argc,char** argv)
 	ConcaveDemo* concaveDemo = new ConcaveDemo();
 	concaveDemo->initPhysics();
 	concaveDemo->setCameraDistance(30.f);
-	concaveDemo->stepFront();
-	concaveDemo->stepFront();
-	concaveDemo->stepFront();
-	concaveDemo->stepFront();
+//cannot run stepFront yet, the OpenGL context is not opened (stepFront updates camera...)
+//	concaveDemo->stepFront();
+//	concaveDemo->stepFront();
+//	concaveDemo->stepFront();
+//	concaveDemo->stepFront();
 
 	return glutmain(argc, argv,640,480,"Moving Concave Mesh Demo",concaveDemo);
 }
