@@ -1,0 +1,8 @@
+INCLUDE_DIRECTORIES(
+${BULLET_PHYSICS_SOURCE_DIR}/src ${BULLET_PHYSICS_SOURCE_DIR}/Extras/GIMPACT/include ${BULLET_PHYSICS_SOURCE_DIR}/Extras/GIMPACTBullet
+)
+
+ADD_LIBRARY(LibGIMPACTBullet
+		btConcaveConcaveCollisionAlgorithm.cpp
+		btGIMPACTMeshShape.cpp
+)

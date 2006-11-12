@@ -31,7 +31,7 @@ email: projectileman@yahoo.com
 
 #include "GIMPACT/gim_memory.h"
 #include "stdlib.h"
-#include "malloc.h"
+//#include "malloc.h"
 //#include "mm_malloc.h"
 
 static gim_alloc_function *g_allocfn = 0;
