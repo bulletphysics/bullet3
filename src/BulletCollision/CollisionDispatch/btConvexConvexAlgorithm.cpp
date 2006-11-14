@@ -39,6 +39,10 @@ subject to the following restrictions:
 
 #include "BulletCollision/NarrowPhaseCollision/btMinkowskiPenetrationDepthSolver.h"
 
+#ifdef USE_BT_GJKEPA
+#include "BulletCollision/NarrowPhaseCollision/btGjkEpa.h"
+#endif //USE_BT_GJKEPA
+
 //#include "NarrowPhaseCollision/EpaPenetrationDepthSolver.h"
 
 #ifdef WIN32
@@ -155,6 +159,26 @@ void btConvexConvexAlgorithm ::processCollision (btCollisionObject* body0,btColl
 	}
 
 
+#ifdef USE_BT_GJKEPA
+	btVector3		witnesses[2];
+	btVector3		normal(0,0,0);
+	btScalar		depth(0);
+	btConvexShape*	shape0(static_cast<btConvexShape*>(body0->getCollisionShape()));
+	btConvexShape*	shape1(static_cast<btConvexShape*>(body1->getCollisionShape()));
+	const btScalar	margin(shape0->getMargin()+shape1->getMargin());
+	resultOut->setPersistentManifold(m_manifoldPtr);
+	if(btGjkEpaSolver::Collide(	shape0,body0->getWorldTransform(),
+								shape1,body1->getWorldTransform(),
+								shape0->getMargin(),shape1->getMargin(),
+								witnesses,normal,depth))
+	{
+			
+
+		//optional: draw the contact+normal
+		//dispatchInfo.m_debugDraw->drawLine(witnesses[1],witnesses[1]+normal,btVector3(255,0,0));
+		resultOut->addContactPoint(normal,witnesses[1],-depth);
+	}
+	#else
 	checkPenetrationDepthSolver();
 
 	btConvexShape* min0 = static_cast<btConvexShape*>(body0->getCollisionShape());
@@ -175,6 +199,7 @@ void btConvexConvexAlgorithm ::processCollision (btCollisionObject* body0,btColl
 	
 	resultOut->setPersistentManifold(m_manifoldPtr);
 	m_gjkPairDetector.getClosestPoints(input,*resultOut,dispatchInfo.m_debugDraw);
+	#endif
 
 }
 

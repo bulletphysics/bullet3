@@ -126,7 +126,9 @@ get current memory management functions.
 */
 //! @{
 gim_alloc_function *gim_get_alloc_handler (void);
+#ifdef ALLOCA_GIMPACT
 gim_alloca_function *gim_get_alloca_handler(void);
+#endif //
 gim_realloc_function *gim_get_realloc_handler (void);
 gim_free_function  *gim_get_free_handler (void);
 //! @}

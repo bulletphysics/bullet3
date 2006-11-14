@@ -892,5 +892,14 @@ void	DemoApplication::clientResetScene()
 				btRigidBody::upcast(colObj)->setAngularVelocity(btVector3(0,0,0));
 			}
 		}
+
+	/*
+	//quickly search some issue at a certain simulation frame, pressing space to reset
+		int fixed=18;
+		for (int i=0;i<fixed;i++)
+		{
+			getDynamicsWorld()->stepSimulation(1./60.f,1);
+		}
+	*/
 	}
 }

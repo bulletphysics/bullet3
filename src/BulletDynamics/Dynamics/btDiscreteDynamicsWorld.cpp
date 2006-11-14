@@ -267,8 +267,14 @@ void	btDiscreteDynamicsWorld::internalSingleStepSimulation(float timeStep)
 	///apply gravity, predict motion
 	predictUnconstraintMotion(timeStep);
 
+	btDispatcherInfo	dispatchInfo;
+	dispatchInfo.m_timeStep = timeStep;
+	dispatchInfo.m_stepCount = 0;
+	dispatchInfo.m_debugDraw = getDebugDrawer();
+
+
 	///perform collision detection
-	performDiscreteCollisionDetection();
+	performDiscreteCollisionDetection(dispatchInfo);
 
 	calculateSimulationIslands();
 

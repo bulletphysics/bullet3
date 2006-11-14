@@ -133,10 +133,13 @@ void * gim_alloc(size_t size)
   return ptr;
 }
 
+#ifdef ALLOCA_GIMPACT
 void * gim_alloca(size_t size)
 {
-  if (g_allocafn) return g_allocafn(size); else return alloca(size);
+  if (g_allocafn) return g_allocafn(size); else 
+	  return alloca(size);
 }
+#endif
 
 
 void * gim_realloc(void *ptr, size_t oldsize, size_t newsize)

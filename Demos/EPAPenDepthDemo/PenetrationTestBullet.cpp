@@ -35,7 +35,10 @@
 #include "../Extras/ExtraSolid35/Solid3JohnsonSimplexSolver.h"
 #include "../Extras/EPA/EpaPenetrationDepthSolver.h"
 
-
+#define USE_ORIGINAL 1
+#ifndef USE_ORIGINAL
+#include "BulletCollision/NarrowPhaseCollision/btGjkEpa.h"
+#endif //USE_ORIGINAL
 
 static bool gRefMode = false;
 static int gMethod = 0;
@@ -295,6 +298,9 @@ static bool TestEPA(const MyConvex& hull0, const MyConvex& hull1)
 	else					
 		Solver = &Solver2;
 
+
+#ifdef USE_ORIGINAL
+
 	btGjkPairDetector GJK(&convexA, &convexB, &simplexSolver, Solver);
 	GJK.m_catchDegeneracies = 1;
 	convexA.setMargin(0.01f);
@@ -309,6 +315,21 @@ static bool TestEPA(const MyConvex& hull0, const MyConvex& hull1)
 	gLastUsedMethod = GJK.m_lastUsedMethod;
 	gNumGjkIterations = GJK.m_curIter;
 	gLastDegenerateSimplex= GJK.m_degenerateSimplex;
+#else
+	MyResult output;
+	btVector3	witnesses[2];
+	btVector3	normal;
+	btScalar	depth;
+
+	btGjkEpaSolver::Collide(&convexA,hull0.mTransform,
+		&convexB,hull1.mTransform,
+		0.01,0.01,
+		witnesses,normal,depth);
+	if (depth>0)
+	{
+		output.addContactPoint(normal,witnesses[1],-depth);
+	}
+#endif
 	return true;
 }
 
