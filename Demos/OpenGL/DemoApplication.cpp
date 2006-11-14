@@ -35,6 +35,12 @@ int numObjects = 0;
 const int maxNumObjects = 16384;
 btTransform startTransforms[maxNumObjects];
 btCollisionShape* gShapePtr[maxNumObjects];//1 rigidbody has 1 shape (no re-use of shapes)
+#define SHOW_NUM_DEEP_PENETRATIONS 1
+
+#ifdef SHOW_NUM_DEEP_PENETRATIONS 
+extern int gNumDeepPenetrationChecks;
+extern int gNumGjkChecks;
+#endif //
 
 
 DemoApplication::DemoApplication()
@@ -778,10 +784,10 @@ void DemoApplication::renderme()
 					yStart += yIncr;
 
 				}
+
 			}
 	#endif //USE_QUICKPROF
 
-			
 			
 				glRasterPos3f(xOffset,yStart,0);
 				sprintf(buf,"mouse to interact");
@@ -856,6 +862,20 @@ void DemoApplication::renderme()
 				BMF_DrawString(BMF_GetFont(BMF_kHelvetica10),buf);
 				yStart += yIncr;
 
+#ifdef SHOW_NUM_DEEP_PENETRATIONS
+				
+				glRasterPos3f(xOffset,yStart,0);
+				sprintf(buf,"gNumDeepPenetrationChecks = %d",gNumDeepPenetrationChecks);
+				BMF_DrawString(BMF_GetFont(BMF_kHelvetica10),buf);
+				yStart += yIncr;
+
+				glRasterPos3f(xOffset,yStart,0);
+				sprintf(buf,"gNumGjkChecks= %d",gNumGjkChecks);
+				BMF_DrawString(BMF_GetFont(BMF_kHelvetica10),buf);
+				yStart += yIncr;
+
+#endif //SHOW_NUM_DEEP_PENETRATIONS
+
 				resetPerspectiveProjection();
 			}
 		
@@ -865,6 +885,11 @@ void DemoApplication::renderme()
 
 void	DemoApplication::clientResetScene()
 {
+#ifdef SHOW_NUM_DEEP_PENETRATIONS
+	gNumDeepPenetrationChecks = 0;
+	gNumGjkChecks = 0;
+#endif //SHOW_NUM_DEEP_PENETRATIONS
+
 	if (m_dynamicsWorld)
 	{
 		m_dynamicsWorld->stepSimulation(1.f/60.f,0);

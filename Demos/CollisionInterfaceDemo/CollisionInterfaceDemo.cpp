@@ -27,7 +27,7 @@ subject to the following restrictions:
 #include "GL_ShapeDrawer.h"
 #include "CollisionInterfaceDemo.h"
 #include "GlutStuff.h"
-
+#include "GLDebugDrawer.h"
 
 float yaw=0.f,pitch=0.f,roll=0.f;
 const int maxNumObjects = 4;
@@ -41,7 +41,7 @@ btCollisionWorld*	collisionWorld = 0;
 
 int screenWidth = 640;
 int screenHeight = 480;
-
+GLDebugDrawer debugDrawer;
 
 int main(int argc,char** argv)
 {
@@ -117,8 +117,12 @@ void CollisionInterfaceDemo::displayCallback(void) {
     glClear(GL_COLOR_BUFFER_BIT | GL_DEPTH_BUFFER_BIT); 
 	glDisable(GL_LIGHTING);
 
+	
+	btDispatcherInfo	dispatchInfo;
+	dispatchInfo.m_debugDraw = &debugDrawer;
+	
 	if (collisionWorld)
-		collisionWorld->performDiscreteCollisionDetection();
+		collisionWorld->performDiscreteCollisionDetection(dispatchInfo);
 	
 	int i;
 

@@ -17,10 +17,15 @@ subject to the following restrictions:
 
 #include "DemoApplication.h"
 
+class btCollisionAlgorithmCreateFunc;
+
 ///ConcaveDemo shows usage of static concave triangle meshes
 ///It also shows per-triangle material (friction/restitution) through CustomMaterialCombinerCallback
 class ConcaveDemo : public DemoApplication
 {
+
+	btCollisionAlgorithmCreateFunc* m_gimpactCollisionCreateFunc;
+
 	public:
 
 	void	initPhysics();

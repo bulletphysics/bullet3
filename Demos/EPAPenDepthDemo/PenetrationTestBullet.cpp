@@ -645,7 +645,12 @@ static void RenderCallback()
 	BMF_DrawString(BMF_GetFont(BMF_kHelvetica10),buf);
 	yStart += yIncr;
 
+	glRasterPos3f(xOffset,yStart,0);
+	sprintf(buf,"gLastUsedMethod=%d\n", gLastUsedMethod);
+	BMF_DrawString(BMF_GetFont(BMF_kHelvetica10),buf);
+	yStart += yIncr;
 
+	
 
 	
 

@@ -14,6 +14,7 @@ subject to the following restrictions:
 */
 
 #include "btBulletDynamicsCommon.h"
+#include "ConcaveDemo.h"
 
 #include "LinearMath/btDefaultMotionState.h"
 #include "LinearMath/btIDebugDraw.h"
@@ -27,7 +28,7 @@ subject to the following restrictions:
 #include "BMF_Api.h"
 
 #include "GLDebugDrawer.h"
-#include "ConcaveDemo.h"
+
 #include "GL_ShapeDrawer.h"
 #include "GlutStuff.h"
 
@@ -1634,11 +1635,13 @@ void	ConcaveDemo::initPhysics()
 	btOverlappingPairCache* broadphase = new btSimpleBroadphase();
 
 	m_dynamicsWorld = new btDiscreteDynamicsWorld(dispatcher,broadphase);
-	dispatcher->registerCollisionCreateFunc(GIMPACT_SHAPE_PROXYTYPE,GIMPACT_SHAPE_PROXYTYPE,new btConcaveConcaveCollisionAlgorithm::CreateFunc);
-	dispatcher->registerCollisionCreateFunc(TRIANGLE_MESH_SHAPE_PROXYTYPE,GIMPACT_SHAPE_PROXYTYPE,new btConcaveConcaveCollisionAlgorithm::CreateFunc);
-	dispatcher->registerCollisionCreateFunc(GIMPACT_SHAPE_PROXYTYPE,TRIANGLE_MESH_SHAPE_PROXYTYPE,new btConcaveConcaveCollisionAlgorithm::CreateFunc);
 
-
+	m_gimpactCollisionCreateFunc = new btConcaveConcaveCollisionAlgorithm::CreateFunc;
+	dispatcher->registerCollisionCreateFunc(GIMPACT_SHAPE_PROXYTYPE,GIMPACT_SHAPE_PROXYTYPE,m_gimpactCollisionCreateFunc);
+	dispatcher->registerCollisionCreateFunc(TRIANGLE_MESH_SHAPE_PROXYTYPE,GIMPACT_SHAPE_PROXYTYPE,m_gimpactCollisionCreateFunc);
+	dispatcher->registerCollisionCreateFunc(GIMPACT_SHAPE_PROXYTYPE,TRIANGLE_MESH_SHAPE_PROXYTYPE,m_gimpactCollisionCreateFunc);
+	dispatcher->registerCollisionCreateFunc(STATIC_PLANE_PROXYTYPE,GIMPACT_SHAPE_PROXYTYPE,m_gimpactCollisionCreateFunc);
+	dispatcher->registerCollisionCreateFunc(GIMPACT_SHAPE_PROXYTYPE,STATIC_PLANE_PROXYTYPE,m_gimpactCollisionCreateFunc);
 
 
 	bool isDynamic = false;
