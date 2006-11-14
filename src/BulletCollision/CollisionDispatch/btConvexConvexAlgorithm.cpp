@@ -39,6 +39,7 @@ subject to the following restrictions:
 
 #include "BulletCollision/NarrowPhaseCollision/btMinkowskiPenetrationDepthSolver.h"
 
+//#define USE_BT_GJKEPA 1
 #ifdef USE_BT_GJKEPA
 #include "BulletCollision/NarrowPhaseCollision/btGjkEpa.h"
 #endif //USE_BT_GJKEPA
@@ -175,7 +176,7 @@ void btConvexConvexAlgorithm ::processCollision (btCollisionObject* body0,btColl
 			
 
 		//optional: draw the contact+normal
-		//dispatchInfo.m_debugDraw->drawLine(witnesses[1],witnesses[1]+normal,btVector3(255,0,0));
+		dispatchInfo.m_debugDraw->drawLine(witnesses[1],witnesses[1]+normal,btVector3(255,0,0));
 		resultOut->addContactPoint(normal,witnesses[1],-depth);
 	}
 	#else
