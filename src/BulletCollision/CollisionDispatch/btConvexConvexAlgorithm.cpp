@@ -39,12 +39,9 @@ subject to the following restrictions:
 
 #include "BulletCollision/NarrowPhaseCollision/btMinkowskiPenetrationDepthSolver.h"
 
-//#define USE_BT_GJKEPA 1
-#ifdef USE_BT_GJKEPA
 #include "BulletCollision/NarrowPhaseCollision/btGjkEpa.h"
-#endif //USE_BT_GJKEPA
+#include "BulletCollision/NarrowPhaseCollision/btGjkEpaPenetrationDepthSolver.h"
 
-//#include "NarrowPhaseCollision/EpaPenetrationDepthSolver.h"
 
 #ifdef WIN32
 #if _MSC_VER >= 1310
@@ -64,7 +61,7 @@ subject to the following restrictions:
 
 #endif //USE_HULL
 
-bool gUseEpa = false;
+bool gUseEpa = true;
 
 
 #ifdef WIN32
@@ -118,13 +115,10 @@ void	btConvexConvexAlgorithm ::setLowLevelOfDetail(bool useLowLevel)
 
 
 
+static btGjkEpaPenetrationDepthSolver	gEpaPenetrationDepthSolver;
 static btMinkowskiPenetrationDepthSolver	gPenetrationDepthSolver;
 
-//static EpaPenetrationDepthSolver	gEpaPenetrationDepthSolver;
 
-#ifdef USE_EPA
-Solid3EpaPenetrationDepth	gSolidEpaPenetrationSolver;
-#endif //USE_EPA
 
 void	btConvexConvexAlgorithm::checkPenetrationDepthSolver()
 {
@@ -133,10 +127,7 @@ void	btConvexConvexAlgorithm::checkPenetrationDepthSolver()
 		m_useEpa  = gUseEpa;
 		if (m_useEpa)
 		{
-			
-		//	m_gjkPairDetector.setPenetrationDepthSolver(&gEpaPenetrationDepthSolver);
-						
-			
+			m_gjkPairDetector.setPenetrationDepthSolver(&gEpaPenetrationDepthSolver);
 		} else
 		{
 			m_gjkPairDetector.setPenetrationDepthSolver(&gPenetrationDepthSolver);
@@ -158,28 +149,21 @@ void btConvexConvexAlgorithm ::processCollision (btCollisionObject* body0,btColl
 		m_manifoldPtr = m_dispatcher->getNewManifold(body0,body1);
 		m_ownManifold = true;
 	}
-
+	resultOut->setPersistentManifold(m_manifoldPtr);
 
 #ifdef USE_BT_GJKEPA
-	btVector3		witnesses[2];
-	btVector3		normal(0,0,0);
-	btScalar		depth(0);
-	btConvexShape*	shape0(static_cast<btConvexShape*>(body0->getCollisionShape()));
-	btConvexShape*	shape1(static_cast<btConvexShape*>(body1->getCollisionShape()));
-	const btScalar	margin(shape0->getMargin()+shape1->getMargin());
-	resultOut->setPersistentManifold(m_manifoldPtr);
+	btConvexShape*				shape0(static_cast<btConvexShape*>(body0->getCollisionShape()));
+	btConvexShape*				shape1(static_cast<btConvexShape*>(body1->getCollisionShape()));
+	const btScalar				radialmargin(0/*shape0->getMargin()+shape1->getMargin()*/);
+	btGjkEpaSolver::sResults	results;
 	if(btGjkEpaSolver::Collide(	shape0,body0->getWorldTransform(),
 								shape1,body1->getWorldTransform(),
-								shape0->getMargin(),shape1->getMargin(),
-								witnesses,normal,depth))
-	{
-			
-
-		//optional: draw the contact+normal
-		dispatchInfo.m_debugDraw->drawLine(witnesses[1],witnesses[1]+normal,btVector3(255,0,0));
-		resultOut->addContactPoint(normal,witnesses[1],-depth);
-	}
-	#else
+								radialmargin,results))
+		{
+		dispatchInfo.m_debugDraw->drawLine(results.witnesses[1],results.witnesses[1]+results.normal,btVector3(255,0,0));
+		resultOut->addContactPoint(results.normal,results.witnesses[1],-results.depth);
+		}
+#else
 	checkPenetrationDepthSolver();
 
 	btConvexShape* min0 = static_cast<btConvexShape*>(body0->getCollisionShape());
@@ -198,9 +182,8 @@ void btConvexConvexAlgorithm ::processCollision (btCollisionObject* body0,btColl
 	input.m_transformA = body0->getWorldTransform();
 	input.m_transformB = body1->getWorldTransform();
 	
-	resultOut->setPersistentManifold(m_manifoldPtr);
 	m_gjkPairDetector.getClosestPoints(input,*resultOut,dispatchInfo.m_debugDraw);
-	#endif
+#endif
 
 }
 
