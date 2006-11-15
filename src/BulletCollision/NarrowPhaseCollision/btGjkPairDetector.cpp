@@ -192,7 +192,7 @@ void btGjkPairDetector::getClosestPoints(const ClosestPointInput& input,Result& 
 			normalInB = pointOnA-pointOnB;
 			float lenSqr = m_cachedSeparatingAxis.length2();
 			//valid normal
-			if (lenSqr < 0.00001)
+			if (lenSqr < 0.0001)
 			{
 				m_degenerateSimplex = 5;
 			} 

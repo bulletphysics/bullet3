@@ -477,6 +477,22 @@ static void KeyboardCallback(unsigned char key, int x, int y)
 	case '4':
 		gConvex0.mTransform.setOrigin(gConvex0.mTransform.getOrigin() + btVector3(-gDisp,0,0));
 		break;
+	case '7':
+		gConvex0.mTransform.setRotation(gConvex0.mTransform.getRotation()*btQuaternion(btVector3(1,0,0),0.01));
+		break;
+	case '9':
+		gConvex0.mTransform.setRotation(gConvex0.mTransform.getRotation()*btQuaternion(btVector3(1,0,0),-0.01));
+		break;
+	case '1':
+		gConvex0.mTransform.setRotation(gConvex0.mTransform.getRotation()*btQuaternion(btVector3(0,1,0),0.01));
+		break;
+	case '3':
+		gConvex0.mTransform.setRotation(gConvex0.mTransform.getRotation()*btQuaternion(btVector3(0,1,0),-0.01));
+		break;
+	case '5':
+		gConvex0.mTransform.setRotation(gConvex0.mTransform.getRotation()*btQuaternion(btVector3(0,0,1),0.01));
+		break;
+
 	case '6':
 		gConvex0.mTransform.setOrigin(gConvex0.mTransform.getOrigin() + btVector3(gDisp,0,0));
 		break;
