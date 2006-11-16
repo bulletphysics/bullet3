@@ -20,7 +20,7 @@ Nov.2006
 
 
 #include "btGjkEpa.h"
-
+#include <string.h> //for memset
 
 namespace gjkepa_impl
 {

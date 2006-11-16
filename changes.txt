@@ -1,6 +1,16 @@
 Bullet Continuous Collision Detection and Physics Library
 Erwin Coumans
 
+2006 Nov 15
+	Added EPA penetration depth algorithm, Expanding Polytope Algorithm
+	Added Pierre Terdiman penetration depth comparison/test DEMO
+	Fixed Bullet's Minkowski sampling penetration depth solver
+	Contributed by Nathanael Presson
+	
+2006 Nov 11
+	Added GIMPACT trimesh collision detection: concave versus concave,
+	Contributed by Francisco León Nájera
+
 2006 Nov 2
 	Minor refactoring: btCollisionObject changes from struct into class, added accessor methods
 	Force use of btMotionState to synchronize graphics transform, disabled old btRigidBody constructor that accepts btTransform

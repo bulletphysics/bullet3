@@ -31,9 +31,14 @@
 #include "BulletCollision/NarrowPhaseCollision/btSimplexSolverInterface.h"
 #include "BulletCollision/NarrowPhaseCollision/btMinkowskiPenetrationDepthSolver.h"
 #include "BulletCollision/NarrowPhaseCollision/btGjkPairDetector.h"
+#include "BulletCollision/NarrowPhaseCollision/btGjkEpaPenetrationDepthSolver.h"
+//We can use the Bullet EPA or sampling penetration depth solver, but comparison might be useful
+//#define COMPARE_WITH_SOLID35_AND_OTHER_EPA 1
+#ifdef COMPARE_WITH_SOLID35_AND_OTHER_EPA
 #include "../Extras/ExtraSolid35/Solid3EpaPenetrationDepth.h"
 #include "../Extras/ExtraSolid35/Solid3JohnsonSimplexSolver.h"
 #include "../Extras/EPA/EpaPenetrationDepthSolver.h"
+#endif //COMPARE_WITH_SOLID35_AND_OTHER_EPA
 
 #define USE_ORIGINAL 1
 #ifndef USE_ORIGINAL
@@ -277,26 +282,35 @@ static float gDepth;
 static bool TestEPA(const MyConvex& hull0, const MyConvex& hull1)
 {
 	static btSimplexSolverInterface simplexSolver;
-	//static Solid3JohnsonSimplexSolver simplexSolver;
+#ifdef COMPARE_WITH_SOLID35_AND_OTHER_EPA
+//	static Solid3JohnsonSimplexSolver simplexSolver2;
+#endif //COMPARE_WITH_SOLID35_AND_OTHER_EPA
 
 	simplexSolver.reset();
 
 	btConvexHullShape convexA((float*)hull0.mVerts, hull0.mNbVerts, sizeof(btVector3));
 	btConvexHullShape convexB((float*)hull1.mVerts, hull1.mNbVerts, sizeof(btVector3));
 
-	static btMinkowskiPenetrationDepthSolver Solver0;
-	static Solid3EpaPenetrationDepth Solver1;
-	static EpaPenetrationDepthSolver Solver2;
-	
+	static btGjkEpaPenetrationDepthSolver Solver0;
+	static btMinkowskiPenetrationDepthSolver Solver1;
+
+#ifdef COMPARE_WITH_SOLID35_AND_OTHER_EPA
+	static Solid3EpaPenetrationDepth Solver2;
+	static EpaPenetrationDepthSolver Solver3;
+#endif
 	
 
 	btConvexPenetrationDepthSolver* Solver;
 			if(gMethod==0)	
 				Solver = &Solver0;
 	else	if(gMethod==1)	
-		Solver = &Solver1;
+				Solver = &Solver1;
+#ifdef COMPARE_WITH_SOLID35_AND_OTHER_EPA
+	else	if(gMethod==2)	
+				Solver = &Solver2;
 	else					
-		Solver = &Solver2;
+				Solver = &Solver3;
+#endif //COMPARE_WITH_SOLID35_AND_OTHER_EPA
 
 
 #ifdef USE_ORIGINAL
@@ -321,13 +335,16 @@ static bool TestEPA(const MyConvex& hull0, const MyConvex& hull1)
 	btVector3	normal;
 	btScalar	depth;
 
+	btGjkEpaSolver::sResults results;
+	btScalar radialMargin = 0.01f;
+
 	btGjkEpaSolver::Collide(&convexA,hull0.mTransform,
 		&convexB,hull1.mTransform,
-		0.01,0.01,
-		witnesses,normal,depth);
-	if (depth>0)
+		radialMargin,
+		results);
+	if (results.depth>0)
 	{
-		output.addContactPoint(normal,witnesses[1],-depth);
+		output.addContactPoint(results.normal,results.witnesses[1],-results.depth);
 	}
 #endif
 	return true;
@@ -471,7 +488,11 @@ static void KeyboardCallback(unsigned char key, int x, int y)
 
 	case ' ':
 		gMethod++;
-		if(gMethod==3)	gMethod=0;
+#ifdef COMPARE_WITH_SOLID35_AND_OTHER_EPA
+		if(gMethod==4)	gMethod=0;
+#else
+		if(gMethod==2)	gMethod=0;
+#endif
 		break;
 
 	case '4':
@@ -675,13 +696,16 @@ static void RenderCallback()
 		switch (	gMethod)
 		{
 		case 0:
-			sprintf(buf,"Minkowski sampling Penetration depth solver\n" );
+			sprintf(buf,"Bullet GjkEpa Penetration depth solver (zlib free\n" );
 			break;
 		case 1:
-			sprintf(buf,"Solid35 EPA Penetration depth solver\n" );
+			sprintf(buf,"Bullet Minkowski sampling Penetration depth solver\n" );
 			break;
 		case 2:
-			sprintf(buf,"EPA Penetration depth solver (WorkInProgress, zlib free\n" );
+				sprintf(buf,"Solid35 EPA Penetration depth solver\n" );
+				break;
+		case 3:
+			sprintf(buf,"EPA Penetration depth solver (Experimental/WorkInProgress, zlib free\n" );
 			break;
 		default:
 				sprintf(buf,"Unknown Penetration Depth\n" );
