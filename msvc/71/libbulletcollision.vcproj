@@ -303,6 +303,12 @@
 				RelativePath="..\..\src\BulletCollision\NarrowPhaseCollision\btGjkConvexCast.cpp">
 			</File>
 			<File
+				RelativePath="..\..\src\BulletCollision\NarrowPhaseCollision\btGjkEpa.cpp">
+			</File>
+			<File
+				RelativePath="..\..\src\BulletCollision\NarrowPhaseCollision\btGjkEpaPenetrationDepthSolver.cpp">
+			</File>
+			<File
 				RelativePath="..\..\src\BulletCollision\NarrowPhaseCollision\btGjkPairDetector.cpp">
 			</File>
 			<File
@@ -482,6 +488,12 @@
 			</File>
 			<File
 				RelativePath="..\..\src\BulletCollision\NarrowPhaseCollision\btGjkConvexCast.h">
+			</File>
+			<File
+				RelativePath="..\..\src\BulletCollision\NarrowPhaseCollision\btGjkEpa.h">
+			</File>
+			<File
+				RelativePath="..\..\src\BulletCollision\NarrowPhaseCollision\btGjkEpaPenetrationDepthSolver.h">
 			</File>
 			<File
 				RelativePath="..\..\src\BulletCollision\NarrowPhaseCollision\btGjkPairDetector.h">
