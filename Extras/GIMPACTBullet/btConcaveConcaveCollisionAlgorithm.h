@@ -24,6 +24,8 @@ subject to the following restrictions:
 class btDispatcher;
 #include "BulletCollision/BroadphaseCollision/btBroadphaseProxy.h"
 #include "BulletCollision/CollisionDispatch/btCollisionCreateFunc.h"
+#include "BulletCollision/CollisionDispatch/btCollisionDispatcher.h"
+
 
 
 /// btConcaveConcaveCollisionAlgorithm  supports collision between btBvhTriangleMeshShape shapes
@@ -53,8 +55,11 @@ public:
 		}
 	};
 
+	//! Use this function for register the algorithm externally
+	static void registerAlgorithm(btCollisionDispatcher * dispatcher);
 
 
 };
+
 
 #endif //BVH_CONCAVE_COLLISION_ALGORITHM_H

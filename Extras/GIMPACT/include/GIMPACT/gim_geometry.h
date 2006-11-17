@@ -1042,6 +1042,16 @@ Last column is added as the position
    p[1] = m[1][0]*v[0] + m[1][1]*v[1] + m[1][2];		\
 }\
 
+//! Transform a plane
+#define MAT_TRANSFORM_PLANE_4X4(pout,m,plane)\
+{								\
+   pout[0] = m[0][0]*plane[0] + m[0][1]*plane[1]  + m[0][2]*plane[2];\
+   pout[1] = m[1][0]*plane[0] + m[1][1]*plane[1]  + m[1][2]*plane[2];\
+   pout[2] = m[2][0]*plane[0] + m[2][1]*plane[1]  + m[2][2]*plane[2];\
+   pout[3] = m[0][3]*pout[0] + m[1][3]*pout[1]  + m[2][3]*pout[2] + plane[3];\
+}\
+
+	
 
 /** inverse transpose of matrix times vector
  *
