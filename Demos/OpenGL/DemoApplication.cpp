@@ -193,11 +193,15 @@ void DemoApplication::stepBack()
 }
 void DemoApplication::zoomIn() 
 { 
-	m_cameraDistance -= 1; updateCamera(); 
+	m_cameraDistance -= 0.4; updateCamera(); 
+	if (m_cameraDistance < 0.1)
+		m_cameraDistance = 0.1;
+
 }
 void DemoApplication::zoomOut() 
 { 
-	m_cameraDistance += 1; updateCamera(); 
+	m_cameraDistance += 0.4; updateCamera(); 
+	
 }
 
 

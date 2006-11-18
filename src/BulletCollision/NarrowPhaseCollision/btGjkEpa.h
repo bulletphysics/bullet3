@@ -38,6 +38,8 @@ struct	sResults
 	btVector3	witnesses[2];
 	btVector3	normal;
 	btScalar	depth;
+	int	epa_iterations;
+	int	gjk_iterations;
 	};
 static bool	Collide(btConvexShape* shape0,const btTransform& wtrs0,
 					btConvexShape* shape1,const btTransform& wtrs1,

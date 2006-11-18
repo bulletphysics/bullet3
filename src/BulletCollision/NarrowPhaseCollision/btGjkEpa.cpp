@@ -3,13 +3,19 @@ Bullet Continuous Collision Detection and Physics Library
 Copyright (c) 2003-2006 Erwin Coumans  http://continuousphysics.com/Bullet/
 
 This software is provided 'as-is', without any express or implied warranty.
-In no event will the authors be held liable for any damages arising from the use of this software.
-Permission is granted to anyone to use this software for any purpose, 
-including commercial applications, and to alter it and redistribute it freely, 
+In no event will the authors be held liable for any damages arising from the 
+use of this software.
+Permission is granted to anyone to use this software for any purpose,
+including commercial applications, and to alter it and redistribute it 
+freely,
 subject to the following restrictions:
 
-1. The origin of this software must not be misrepresented; you must not claim that you wrote the original software. If you use this software in a product, an acknowledgment in the product documentation would be appreciated but is not required.
-2. Altered source versions must be plainly marked as such, and must not be misrepresented as being the original software.
+1. The origin of this software must not be misrepresented; you must not 
+claim that you wrote the original software. If you use this software in a 
+product, an acknowledgment in the product documentation would be appreciated 
+but is not required.
+2. Altered source versions must be plainly marked as such, and must not be 
+misrepresented as being the original software.
 3. This notice may not be removed or altered from any source distribution.
 */
 
@@ -57,20 +63,24 @@ static const U			chkPrecision		=1/U(sizeof(F)==4);
 
 static const F			cstInf				=F(1/sin(0.));
 static const F			cstPi				=F(acos(-1.));
+static const F			cst2Pi				=cstPi*2;
 
 static const U			GJK_maxiterations	=128;
 static const U			GJK_hashsize		=1<<6;
 static const U			GJK_hashmask		=GJK_hashsize-1;
 static const F			GJK_insimplex_eps	=F(0.0001);
+static const F			GJK_sqinsimplex_eps	=GJK_insimplex_eps*GJK_insimplex_eps;
 
 static const U			EPA_maxiterations	=256;
-static const F			EPA_accuracy		=F(1./1000./* of meters*/);
+static const F			EPA_inface_eps		=F(0.01);
+static const F			EPA_accuracy		=F(0.001);
 
 //
 // Utils
 //
 
 static inline F								Abs(F v)					{ return(v<0?-v:v); }
+static inline F								Sign(F v)					{ return(F(v<0?-1:1)); }
 template <typename T> static inline void	Swap(T& a,T& b)				{ T 
 t(a);a=b;b=t; }
 template <typename T> static inline T		Min(const T& a,const T& b)	{ 
@@ -85,6 +95,18 @@ throw(object); }
 #else
 template <typename T> static inline void	Raise(const T&)				{}
 #endif
+static inline F								Det(const Vector3& a,const Vector3& b,const Vector3& 
+c,const Vector3& d)
+		{
+		return(	-(a.z()*b.y()*c.x()) + a.y()*b.z()*c.x() + a.z()*b.x()*c.y() - 
+a.x()*b.z()*c.y() - a.y()*b.x()*c.z() + a.x()*b.y()*c.z() +
+				a.z()*b.y()*d.x() - a.y()*b.z()*d.x() - a.z()*c.y()*d.x() + 
+b.z()*c.y()*d.x() + a.y()*c.z()*d.x() - b.y()*c.z()*d.x() -
+				a.z()*b.x()*d.y() + a.x()*b.z()*d.y() + a.z()*c.x()*d.y() - 
+b.z()*c.x()*d.y() - a.x()*c.z()*d.y() + b.x()*c.z()*d.y() +
+				a.y()*b.x()*d.z() - a.x()*b.y()*d.z() - a.y()*c.x()*d.z() + 
+b.y()*c.x()*d.z() + a.x()*c.y()*d.z() - b.x()*c.y()*d.z());
+		}
 
 //
 // StackAlloc
@@ -151,9 +173,9 @@ struct StackAlloc
 		Raise(L"Not enough memory");
 		return(0);
 		}
-	template <typename T> T*	Allocate()				{ 
+	template <typename T> T*	Allocate()				{
 return((T*)Allocate((U)sizeof(T))); }
-	template <typename T> T*	AllocateArray(U count)	{ 
+	template <typename T> T*	AllocateArray(U count)	{
 return((T*)Allocate((U)sizeof(T)*count)); }
 	private:
 	void		ctor()
@@ -196,6 +218,7 @@ struct	GJK
 	Mkv						simplex[5];
 	Vector3					ray;
 	U						order;
+	U						iterations;
 	F						margin;
 	Z						failed;
 	//
@@ -251,7 +274,7 @@ struct	GJK
 		if(ab.dot(ao)>=0)
 			{
 			const Vector3	cabo(cross(ab,ao));
-			if(cabo.length2()>GJK_insimplex_eps)
+			if(cabo.length2()>GJK_sqinsimplex_eps)
 				{ ray=cross(cabo,ab); }
 				else
 				{ return(true); }
@@ -270,9 +293,9 @@ ac)
 	inline Z		SolveSimplex3a(const Vector3& ao,const Vector3& ab,const Vector3& 
 ac,const Vector3& cabc)
 		{
-				if((cross(cabc,ab)).dot(ao)<0)
+				if((cross(cabc,ab)).dot(ao)<-GJK_insimplex_eps)
 			{ order=1;SPX(0)=SPX(1);SPX(1)=SPX(2);return(SolveSimplex2(ao,ab));	}
-		else	if((cross(cabc,ac)).dot(ao)>0)
+		else	if((cross(cabc,ac)).dot(ao)>+GJK_insimplex_eps)
 			{ order=1;SPX(1)=SPX(2);return(SolveSimplex2(ao,ac)); }
 		else
 			{
@@ -307,13 +330,13 @@ order=2;SPX(1)=SPX(0);SPX(0)=SPX(2);SPX(2)=SPX(3);return(SolveSimplex3a(ao,ad,ab
 	//
 	inline Z		SearchOrigin(const Vector3& initray=Vector3(1,0,0))
 		{
-		static const U	maxiterations(128);
-		U				iterations(maxiterations);
+		iterations	=	0;
 		order		=	0;
 		failed		=	false;
 		Support(initray,simplex[0]);ray=-SPXW(0);
 		ClearMemory(table,sizeof(void*)*hashsize);
-		do	{
+		for(;iterations<GJK_maxiterations;++iterations)
+			{
 			const F		rl(ray.length());
 			ray/=rl>0?rl:1;
 			if(FetchSupport())
@@ -327,7 +350,7 @@ order=2;SPX(1)=SPX(0);SPX(0)=SPX(2);SPX(2)=SPX(3);return(SolveSimplex3a(ao,ad,ab
 					}
 				if(found) return(true);
 				} else return(false);
-			} while(--iterations);
+			}
 		failed=true;
 		return(false);
 		}
@@ -338,15 +361,31 @@ order=2;SPX(1)=SPX(0);SPX(0)=SPX(2);SPX(2)=SPX(3);return(SolveSimplex3a(ao,ad,ab
 			{
 			/* Point		*/
 			case	0:	break;
-			/* Line	TODO	*/
-			case	1:	break;
+			/* Line			*/
+			case	1:
+				{
+				const Vector3	ab(SPXW(1)-SPXW(0));
+				const Vector3	b[]={	cross(ab,Vector3(1,0,0)),
+										cross(ab,Vector3(0,1,0)),
+										cross(ab,Vector3(0,0,1))};
+				const F			m[]={b[0].length2(),b[1].length2(),b[2].length2()};
+				const Rotation	r(btQuaternion(ab.normalized(),cst2Pi/3));
+				Vector3			w(b[m[0]>m[1]?m[0]>m[2]?0:2:m[1]>m[2]?1:2]);
+				Support(w.normalized(),simplex[4]);w=r*w;
+				Support(w.normalized(),simplex[2]);w=r*w;
+				Support(w.normalized(),simplex[3]);w=r*w;
+				order=4;
+				return(true);
+				}
+			break;
 			/* Triangle		*/
 			case	2:
 				{
 				const 
 Vector3	n(cross((SPXW(1)-SPXW(0)),(SPXW(2)-SPXW(0))).normalized());
-				Support( n,simplex[++order]);
-				Support(-n,simplex[++order]);
+				Support( n,simplex[3]);
+				Support(-n,simplex[4]);
+				order=4;
 				return(true);
 				}
 			break;
@@ -379,6 +418,17 @@ struct	EPA
 		Face*			next;
 		Face()			{}
 		};
+	//
+	GJK*			gjk;
+	StackAlloc*		sa;
+	Face*			root;
+	U				nfaces;
+	U				iterations;
+	Vector3			features[2][3];
+	Vector3			nearest[2];
+	Vector3			normal;
+	F				depth;
+	Z				failed;
 	//
 					EPA(GJK* pgjk)
 		{
@@ -415,29 +465,20 @@ struct	EPA
 		}
 	//
 	inline Z		Set(Face* f,const GJK::Mkv* a,const GJK::Mkv* b,const GJK::Mkv* 
-c)
+c) const
 		{
 		const Vector3	nrm(cross(b->w-a->w,c->w-a->w));
 		const F			len(nrm.length());
+		const Z			valid(	(cross(a->w,b->w).dot(nrm)>=-EPA_inface_eps)&&
+								(cross(b->w,c->w).dot(nrm)>=-EPA_inface_eps)&&
+								(cross(c->w,a->w).dot(nrm)>=-EPA_inface_eps));
 		f->v[0]	=	a;
 		f->v[1]	=	b;
 		f->v[2]	=	c;
 		f->mark	=	0;
-		if(len>0)
-			{
-			f->n	=	nrm/len;
-			f->d	=	-f->n.dot(a->w);
-			return(	(cross(a->w,b->w).dot(nrm)>=0)&&
-					(cross(b->w,c->w).dot(nrm)>=0)&&
-					(cross(c->w,a->w).dot(nrm)>=0));
-			}
-			else
-			{
-			f->n	=	Vector3(1,0,0);
-			f->d	=	-cstInf;
-			invalid	=	true;
-			return(false);
-			}
+		f->n	=	nrm/(len>0?len:cstInf);
+		f->d	=	Max<F>(0,-f->n.dot(a->w));
+		return(valid);
 		}
 	//
 	inline Face*	NewFace(const GJK::Mkv* a,const GJK::Mkv* b,const GJK::Mkv* c)
@@ -476,10 +517,17 @@ c)
 			}
 		}
 	//
-	inline void		Link(Face* f0,U e0,Face* f1,U e1)
+	inline void		Link(Face* f0,U e0,Face* f1,U e1) const
 		{
 		f0->f[e0]=f1;f1->e[e1]=e0;
 		f1->f[e1]=f0;f0->e[e0]=e1;
+		}
+	//
+	GJK::Mkv*		Support(const Vector3& w) const
+		{
+		GJK::Mkv*		v(sa->Allocate<GJK::Mkv>());
+		gjk->Support(w,*v);
+		return(v);
 		}
 	//
 	U				BuildHorizon(U markid,const GJK::Mkv* w,Face& f,U e,Face*& cf,Face*& 
@@ -509,88 +557,76 @@ ff)
 		return(ne);
 		}
 	//
-	inline F		EvaluatePD(F accuracy=0.0001)
+	inline F		EvaluatePD(F accuracy=EPA_accuracy)
 		{
-		static const U		maxiterations(256);
 		StackAlloc::Block*	sablock(sa->BeginBlock());
-		U					iterations(0);
-		Face*				prevbestface(0);
 		Face*				bestface(0);
 		U					markid(1);
-		depth	=	-cstInf;
-		normal	=	Vector3(0,0,0);
-		root	=	0;
-		nfaces	=	0;
-		invalid	=	false;
+		depth		=	-cstInf;
+		normal		=	Vector3(0,0,0);
+		root		=	0;
+		nfaces		=	0;
+		iterations	=	0;
+		failed		=	false;
 		/* Prepare hull		*/
 		if(gjk->EncloseOrigin())
 			{
+			const U*		pfidx(0);
+			U				nfidx(0);
+			const U*		peidx(0);
+			U				neidx(0);
 			GJK::Mkv*		basemkv[5];
 			Face*			basefaces[6];
-			U				basecount(0);
 			switch(gjk->order)
 				{
-				case	3:
-					{
-					static const U	fidx[4][3]={{2,1,0},{3,0,1},{3,1,2},{3,2,0}};
-					static const 
+				/* Tetrahedron		*/
+				case	3:	{
+							static const U	fidx[4][3]={{2,1,0},{3,0,1},{3,1,2},{3,2,0}};
+							static const 
 U	eidx[6][4]={{0,0,2,1},{0,1,1,1},{0,2,3,1},{1,0,3,2},{2,0,1,2},{3,0,2,2}};
-					for(U i=0;i<4;++i)	{ 
-basemkv[i]=sa->Allocate<GJK::Mkv>();*basemkv[i]=gjk->simplex[i]; }
-					for(U i=0;i<4;++i)	{ 
-basefaces[i]=NewFace(basemkv[fidx[i][0]],basemkv[fidx[i][1]],basemkv[fidx[i][2]]); 
-}
-					for(U i=0;i<6;++i)	{ 
-Link(basefaces[eidx[i][0]],eidx[i][1],basefaces[eidx[i][2]],eidx[i][3]); }
-					basecount=4;
-					}
-				break;
-				case	4:
-					{
-					static const 
+							pfidx=(const U*)fidx;nfidx=4;peidx=(const U*)eidx;neidx=6;
+							}	break;
+				/* Hexahedron		*/
+				case	4:	{
+							static const 
 U	fidx[6][3]={{2,0,4},{4,1,2},{1,4,0},{0,3,1},{0,2,3},{1,3,2}};
-					static const 
+							static const 
 U	eidx[9][4]={{0,0,4,0},{0,1,2,1},{0,2,1,2},{1,1,5,2},{1,0,2,0},{2,2,3,2},{3,1,5,0},{3,0,4,2},{5,1,4,1}};
-					for(U i=0;i<5;++i)	{ 
-basemkv[i]=sa->Allocate<GJK::Mkv>();*basemkv[i]=gjk->simplex[i]; }
-					for(U i=0;i<6;++i)	{ 
-basefaces[i]=NewFace(basemkv[fidx[i][0]],basemkv[fidx[i][1]],basemkv[fidx[i][2]]); 
-}
-					for(U i=0;i<9;++i)	{ 
-Link(basefaces[eidx[i][0]],eidx[i][1],basefaces[eidx[i][2]],eidx[i][3]); }
-					basecount=6;
-					}
-				break;
+							pfidx=(const U*)fidx;nfidx=6;peidx=(const U*)eidx;neidx=9;
+							}	break;
 				}
-			for(U i=0;i<basecount;++i)	{ if(basefaces[i]->d<0) { invalid=true;break; 
-} }
+			for(U i=0;i<=gjk->order;++i)		{ 
+basemkv[i]=sa->Allocate<GJK::Mkv>();*basemkv[i]=gjk->simplex[i]; }
+			for(U i=0;i<nfidx;++i,pfidx+=3)		{ 
+basefaces[i]=NewFace(basemkv[pfidx[0]],basemkv[pfidx[1]],basemkv[pfidx[2]]); 
+}
+			for(U i=0;i<neidx;++i,peidx+=4)		{ 
+Link(basefaces[peidx[0]],peidx[1],basefaces[peidx[2]],peidx[3]); }
 			}
-		if(invalid||(0==nfaces))
+		if(0==nfaces)
 			{
 			sa->EndBlock(sablock);
 			return(depth);
 			}
 		/* Expand hull		*/
-		for(;iterations<maxiterations;++iterations)
+		for(;iterations<EPA_maxiterations;++iterations)
 			{
 			Face*		bf(FindBest());
 			if(bf)
 				{
-				GJK::Mkv*		w(sa->Allocate<GJK::Mkv>());
-				gjk->Support(-bf->n,*w);
-				prevbestface=bestface;
-				bestface	=bf;
-				if((bf->n.dot(w->w)+bf->d)<-accuracy)
+				GJK::Mkv*	w(Support(-bf->n));
+				const F		d(bf->n.dot(w->w)+bf->d);
+				bestface	=	bf;
+				if(d<-accuracy)
 					{
 					Face*	cf(0);
 					Face*	ff(0);
 					U		nf(0);
 					Detach(bf);
 					bf->mark=++markid;
-					for(U i=0;i<3;++i) { 
+					for(U i=0;i<3;++i)	{ 
 nf+=BuildHorizon(markid,w,*bf->f[i],bf->e[i],cf,ff); }
-					if(invalid)	{ bestface=0;break; }
-					if(nf<=2)	{ break; }
+					if(nf<=2)			{ break; }
 					Link(cf,1,ff,2);
 					} else break;
 				} else break;
@@ -615,19 +651,7 @@ nf+=BuildHorizon(markid,w,*bf->f[i],bf->e[i],cf,ff); }
 		sa->EndBlock(sablock);
 		return(depth);
 		}
-	//
-	GJK*			gjk;
-	StackAlloc*		sa;
-	Face*			root;
-	U				nfaces;
-	Vector3			features[2][3];
-	Vector3			nearest[2];
-	Vector3			normal;
-	F				depth;
-	Z				invalid;
-	Z				failed;
 	};
-
 }
 
 //
@@ -636,7 +660,7 @@ nf+=BuildHorizon(markid,w,*bf->f[i],bf->e[i],cf,ff); }
 
 using namespace	gjkepa_impl;
 
-/* Need some kind of stackalloc , create a static one till bullet provide 
+/* Need some kind of stackalloc , create a static one till bullet provide
 one.	*/
 static const U		g_sasize((1024<<10)*2);
 static StackAlloc	g_sa(g_sasize);
@@ -653,16 +677,21 @@ results.witnesses[1]	=
 results.normal			=	Vector3(0,0,0);
 results.depth			=	0;
 results.status			=	sResults::Separated;
+results.epa_iterations	=	0;
+results.gjk_iterations	=	0;
 /* Use GJK to locate origin		*/
 GJK			gjk(&g_sa,
 				wtrs0.getBasis(),wtrs0.getOrigin(),shape0,
 				wtrs1.getBasis(),wtrs1.getOrigin(),shape1,
-				radialmargin);
-if(gjk.SearchOrigin())
+				radialmargin+EPA_accuracy);
+const Z		collide(gjk.SearchOrigin());
+results.gjk_iterations	=	gjk.iterations+1;
+if(collide)
 	{
 	/* Then EPA for penetration depth	*/
 	EPA			epa(&gjk);
 	const F		pd(epa.EvaluatePD());
+	results.epa_iterations	=	epa.iterations+1;
 	if(pd>0)
 		{
 		results.status			=	sResults::Penetrating;
@@ -675,4 +704,6 @@ if(gjk.SearchOrigin())
 	} else { if(gjk.failed) results.status=sResults::GJK_Failed; }
 return(false);
 }
+
+
 
