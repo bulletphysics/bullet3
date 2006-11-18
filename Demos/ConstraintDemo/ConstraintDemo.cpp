@@ -47,8 +47,8 @@ int main(int argc,char** argv)
 }
 
 btTransform sliderTransform;
-btVector3 lowerSliderLimit = btVector3(0,0,0);
-btVector3 hiSliderLimit = btVector3(0,0,0);
+btVector3 lowerSliderLimit = btVector3(-10,0,0);
+btVector3 hiSliderLimit = btVector3(10,0,0);
 
 btRigidBody* d6body0 =0;
 
@@ -108,8 +108,9 @@ void	ConstraintDemo::initPhysics()
 		body0->getCenterOfMassTransform().getBasis() * axisInA;
 
 		btTypedConstraint* p2p = new btPoint2PointConstraint(*body0,*body1,pivotInA,pivotInB);
+		btTypedConstraint* hinge = new btHingeConstraint(*body0,*body1,pivotInA,pivotInB,axisInA,axisInB);
 
-		m_dynamicsWorld->addConstraint(p2p);
+		m_dynamicsWorld->addConstraint(hinge);//p2p);
 
 	}
 
@@ -138,12 +139,10 @@ void	ConstraintDemo::initPhysics()
 		btGeneric6DofConstraint* slider = new btGeneric6DofConstraint(*d6body0,*fixedBody1,frameInA,frameInB);
 		slider->setLinearLowerLimit(lowerSliderLimit);
 		slider->setLinearUpperLimit(hiSliderLimit);
-//		slider->setAngularLowerLimit(btVector3(-3.1415*0.5f,0,0));
-//		slider->setAngularUpperLimit(btVector3(3.1415*0.5f,0,0));
 
 		//range should be small, otherwise singularities will 'explode' the constraint
-		slider->setAngularLowerLimit(btVector3(0,-3.1415*0.25f,-3.1415*0.25f));
-		slider->setAngularUpperLimit(btVector3(0,3.1415*0.25f,3.1415*0.25f));
+		slider->setAngularLowerLimit(btVector3(10,0,0));
+		slider->setAngularUpperLimit(btVector3(0,0,0));
 
 		m_dynamicsWorld->addConstraint(slider);
 
