@@ -47,7 +47,7 @@ ADD_LIBRARY(LibBulletCollision
 				CollisionShapes/btTriangleMesh.cpp
 				CollisionShapes/btTriangleMeshShape.cpp
 				NarrowPhaseCollision/btContinuousConvexCollision.cpp
-				NarrowPhaseCollision/btGjpEpa.cpp
+				NarrowPhaseCollision/btGjkEpa.cpp
 				NarrowPhaseCollision/btGjkEpaPenetrationDepthSolver.cpp
 				NarrowPhaseCollision/btConvexCast.cpp
 				NarrowPhaseCollision/btGjkConvexCast.cpp
