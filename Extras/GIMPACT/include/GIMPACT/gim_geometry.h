@@ -1339,7 +1339,7 @@ Last column is added as the position
  */
 #define COFACTOR_4X4(a,m)					\
 {								\
-   int i,j;							\
+   unsigned int i,j;						\
 								\
    for (i=0; i<4; i++) {					\
       for (j=0; j<4; j++) {					\
@@ -1389,11 +1389,11 @@ Last column is added as the position
  */
 #define ADJOINT_4X4(a,m)					\
 {								\
-   int _i_,_j_;							\
+   unsigned int _i_,_j_;					\
 								\
    for (_i_=0; _i_<4; _i_++) {					\
-      for (_j_=0; _j_<4; _j_++) {					\
-         COFACTOR_4X4_IJ (a[_j_][_i_], m, _i_, _j_);			\
+      for (_j_=0; _j_<4; _j_++) {				\
+         COFACTOR_4X4_IJ (a[_j_][_i_], m, _i_, _j_);		\
       }								\
    }								\
 }\
@@ -1438,11 +1438,11 @@ Last column is added as the position
  */
 #define SCALE_ADJOINT_4X4(a,s,m)				\
 {								\
-   char _i_,_j_; \
+   unsigned int _i_,_j_; 					\
    for (_i_=0; _i_<4; _i_++) {					\
-      for (_j_=0; _j_<4; _j_++) {					\
-         COFACTOR_4X4_IJ (a[_j_][_i_], m, _i_, _j_);			\
-         a[_j_][_i_] *= s;						\
+      for (_j_=0; _j_<4; _j_++) {				\
+         COFACTOR_4X4_IJ (a[_j_][_i_], m, _i_, _j_);		\
+         a[_j_][_i_] *= s;					\
       }								\
    }								\
 }\

@@ -107,7 +107,7 @@ void	ConstraintDemo::initPhysics()
 			(body1->getCenterOfMassTransform().getBasis().inverse()*(body1->getCenterOfMassTransform().getBasis() * axisInA)) : 
 		body0->getCenterOfMassTransform().getBasis() * axisInA;
 
-		btTypedConstraint* p2p = new btPoint2PointConstraint(*body0,*body1,pivotInA,pivotInB);
+		//btTypedConstraint* p2p = new btPoint2PointConstraint(*body0,*body1,pivotInA,pivotInB);
 		btTypedConstraint* hinge = new btHingeConstraint(*body0,*body1,pivotInA,pivotInB,axisInA,axisInB);
 
 		m_dynamicsWorld->addConstraint(hinge);//p2p);

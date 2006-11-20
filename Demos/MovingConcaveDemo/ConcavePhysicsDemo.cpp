@@ -1643,8 +1643,6 @@ void	ConcaveDemo::initPhysics()
 	dispatcher->registerCollisionCreateFunc(STATIC_PLANE_PROXYTYPE,GIMPACT_SHAPE_PROXYTYPE,m_gimpactCollisionCreateFunc);
 	dispatcher->registerCollisionCreateFunc(GIMPACT_SHAPE_PROXYTYPE,STATIC_PLANE_PROXYTYPE,m_gimpactCollisionCreateFunc);
 
-
-	bool isDynamic = false;
 	float mass = 0.f;
 	btTransform	startTransform;
 	startTransform.setIdentity();
@@ -1842,7 +1840,6 @@ void ConcaveDemo::shootTrimesh(const btVector3& destination)
 	
 	if (m_dynamicsWorld)
 	{
-		bool isDynamic = true;
 		float mass = 4.f;
 		btTransform startTransform;
 		startTransform.setIdentity();
