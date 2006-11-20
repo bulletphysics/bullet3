@@ -574,7 +574,7 @@ class NxQuat
 	z = z * sin_theta_over_two;
 	}
 
-void NxQuat::multiply(const NxQuat& left, const btVector3& right)
+	void multiply(const NxQuat& left, const btVector3& right)
 	{
 	float a,b,c,d;
 
@@ -589,7 +589,7 @@ void NxQuat::multiply(const NxQuat& left, const btVector3& right)
 	z = d;
 	}
 
-void NxQuat::rotate(btVector3 & v) const
+	void rotate(btVector3 & v) const
 	{
 	NxQuat myInverse;
 	myInverse.x = -x;
@@ -606,7 +606,7 @@ void NxQuat::rotate(btVector3 & v) const
 	}
 
     float x,y,z,w;
-	};
+};
 
 
 static void MotionCallback(int x, int y)
