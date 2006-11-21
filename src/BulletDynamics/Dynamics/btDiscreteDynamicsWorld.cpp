@@ -844,3 +844,15 @@ void	btDiscreteDynamicsWorld::setConstraintSolver(btConstraintSolver* solver)
 	m_constraintSolver = solver;
 }
 
+int		btDiscreteDynamicsWorld::getNumConstraints() const
+{
+	return int(m_constraints.size());
+}
+btTypedConstraint* btDiscreteDynamicsWorld::getConstraint(int index)
+{
+	return m_constraints[index];
+}
+const btTypedConstraint* btDiscreteDynamicsWorld::getConstraint(int index) const
+{
+	return m_constraints[index];
+}
