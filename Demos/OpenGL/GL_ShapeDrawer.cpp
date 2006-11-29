@@ -165,7 +165,7 @@ void OGL_displaylist_register_shape(btCollisionShape * shape)
 
 	if (shape->isConcave())
 	{
-		ConcaveShape* concaveMesh = (ConcaveShape*) shape;			
+		btConcaveShape* concaveMesh = (btConcaveShape*) shape;			
 		//todo pass camera, for some culling		
 		concaveMesh->processAllTriangles(&drawCallback,aabbMin,aabbMax);
 	}
@@ -470,7 +470,7 @@ void GL_ShapeDrawer::drawOpenGL(float* m, const btCollisionShape* shape, const b
 	if (shape->getShapeType() == TRIANGLE_MESH_SHAPE_PROXYTYPE||shape->getShapeType() == GIMPACT_SHAPE_PROXYTYPE)
 //		if (shape->getShapeType() == TRIANGLE_MESH_SHAPE_PROXYTYPE)
 		{
-			ConcaveShape* concaveMesh = (btTriangleMeshShape*) shape;
+			btConcaveShape* concaveMesh = (btTriangleMeshShape*) shape;
 			//btVector3 aabbMax(1e30f,1e30f,1e30f);
 			//btVector3 aabbMax(100,100,100);//1e30f,1e30f,1e30f);
 

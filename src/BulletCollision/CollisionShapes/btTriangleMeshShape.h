@@ -21,7 +21,7 @@ subject to the following restrictions:
 
 
 ///Concave triangle mesh. Uses an interface to access the triangles to allow for sharing graphics/physics triangles.
-class btTriangleMeshShape : public ConcaveShape
+class btTriangleMeshShape : public btConcaveShape
 {
 protected:
 	btStridingMeshInterface* m_meshInterface;

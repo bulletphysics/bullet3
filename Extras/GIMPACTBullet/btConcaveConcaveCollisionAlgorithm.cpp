@@ -332,8 +332,8 @@ void bt_concave_concave_collision(btConcaveConcaveCollisionAlgorithm * algorithm
 					  btCollisionObject* tribody1,
 					  btManifoldResult* resultOut)
 {
-	ConcaveShape*	tri0b = static_cast<ConcaveShape*>( tribody0->getCollisionShape());
-	ConcaveShape*	tri1b = static_cast<ConcaveShape*>( tribody1->getCollisionShape());
+	btConcaveShape*	tri0b = static_cast<btConcaveShape*>( tribody0->getCollisionShape());
+	btConcaveShape*	tri1b = static_cast<btConcaveShape*>( tribody1->getCollisionShape());
 
 	//Get First AABB
 	btVector3 aabbMin0,aabbMax0;

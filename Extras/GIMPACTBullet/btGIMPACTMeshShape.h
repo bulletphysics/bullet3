@@ -65,7 +65,7 @@ public:
 
 ///
 ///Uses an interface to access the triangles to allow for sharing graphics/physics triangles.
-class btGIMPACTMeshShape : public ConcaveShape
+class btGIMPACTMeshShape : public btConcaveShape
 {
 protected:
 	btGIMPACTMeshData * m_meshdata;
