@@ -109,7 +109,12 @@ void VehicleDemo::setupPhysics()
 #endif
 
 	btCollisionShape* groundShape = new btBoxShape(btVector3(50,3,50));
-	m_dynamicsWorld = new btDiscreteDynamicsWorld();
+	btCollisionDispatcher* dispatcher = new btCollisionDispatcher();
+	btVector3 worldMin(-1000,-1000,-1000);
+	btVector3 worldMax(1000,1000,1000);
+	btOverlappingPairCache* pairCache = new btAxisSweep3(worldMin,worldMax);
+	btConstraintSolver* constraintSolver = new btSequentialImpulseConstraintSolver();
+	m_dynamicsWorld = new btDiscreteDynamicsWorld(dispatcher,pairCache,constraintSolver);
 #ifdef FORCE_ZAXIS_UP
 	m_dynamicsWorld->setGravity(btVector3(0,0,-10));
 #endif 

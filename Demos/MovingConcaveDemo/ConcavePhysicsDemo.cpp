@@ -1634,7 +1634,8 @@ void	ConcaveDemo::initPhysics()
 	//btOverlappingPairCache* broadphase = new btSimpleBroadphase();
 	btOverlappingPairCache* broadphase = new btSimpleBroadphase();
 
-	m_dynamicsWorld = new btDiscreteDynamicsWorld(dispatcher,broadphase);
+	btConstraintSolver* constraintSolver = new btSequentialImpulseConstraintSolver();
+	m_dynamicsWorld = new btDiscreteDynamicsWorld(dispatcher,broadphase,constraintSolver);
 
 	m_gimpactCollisionCreateFunc = new btConcaveConcaveCollisionAlgorithm::CreateFunc;
 	dispatcher->registerCollisionCreateFunc(GIMPACT_SHAPE_PROXYTYPE,GIMPACT_SHAPE_PROXYTYPE,m_gimpactCollisionCreateFunc);
@@ -1865,7 +1866,7 @@ void ConcaveDemo::clientMoveAndDisplay()
 {
 	 glClear(GL_COLOR_BUFFER_BIT | GL_DEPTH_BUFFER_BIT);
 
-	float dt = m_clock.getTimeMilliseconds() * 0.001f;
+ 	float dt = float(m_clock.getTimeMicroseconds()) * 0.000001f;
 	m_clock.reset();
 
 	m_dynamicsWorld->stepSimulation(dt);

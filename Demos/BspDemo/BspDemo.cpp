@@ -133,7 +133,17 @@ void	BspDemo::initPhysics(char* bspfilename)
 	m_forwardAxis = 1;
 
 	///Setup a Physics Simulation Environment
-	m_dynamicsWorld = new btDiscreteDynamicsWorld();
+
+	btCollisionShape* groundShape = new btBoxShape(btVector3(50,3,50));
+	btCollisionDispatcher* dispatcher = new btCollisionDispatcher();
+	btVector3 worldMin(-1000,-1000,-1000);
+	btVector3 worldMax(1000,1000,1000);
+	btOverlappingPairCache* pairCache = new btAxisSweep3(worldMin,worldMax);
+	//btOverlappingPairCache* broadphase = new btSimpleBroadphase();
+	btConstraintSolver* constraintSolver = new btSequentialImpulseConstraintSolver();
+	//ConstraintSolver* solver = new OdeConstraintSolver;
+	m_dynamicsWorld = new btDiscreteDynamicsWorld(dispatcher,pairCache,constraintSolver);
+
 	m_dynamicsWorld->setGravity(-m_cameraUp * 10);
 	m_dynamicsWorld->setDebugDrawer(&debugDrawer);
 

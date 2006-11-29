@@ -75,12 +75,16 @@ void	drawLimit()
 
 void	ConstraintDemo::initPhysics()
 {
-	//ConstraintSolver* solver = new btSequentialImpulseConstraintSolver;
-	//ConstraintSolver* solver = new OdeConstraintSolver;
-	//btCollisionDispatcher* dispatcher = new btCollisionDispatcher();
+	btCollisionShape* groundShape = new btBoxShape(btVector3(50,3,50));
+	btCollisionDispatcher* dispatcher = new btCollisionDispatcher();
+	btVector3 worldMin(-1000,-1000,-1000);
+	btVector3 worldMax(1000,1000,1000);
+	btOverlappingPairCache* pairCache = new btAxisSweep3(worldMin,worldMax);
 	//btOverlappingPairCache* broadphase = new btSimpleBroadphase();
-
-	m_dynamicsWorld = new btDiscreteDynamicsWorld();
+	btConstraintSolver* constraintSolver = new btSequentialImpulseConstraintSolver();
+	//ConstraintSolver* solver = new OdeConstraintSolver;
+	m_dynamicsWorld = new btDiscreteDynamicsWorld(dispatcher,pairCache,constraintSolver);
+	
 	m_dynamicsWorld->setDebugDrawer(&debugDrawer);
 
 	btCollisionShape* shape = new btBoxShape(btVector3(CUBE_HALF_EXTENTS,CUBE_HALF_EXTENTS,CUBE_HALF_EXTENTS));

@@ -720,7 +720,7 @@ bool ColladaConverter::saveAs(const char* filename)
 		{
 			for (int i=0;i<m_numObjects;i++)
 			{
-				assert(m_colladadomNodes[i]);
+				btAssert(m_colladadomNodes[i]);
 				if (!m_colladadomNodes[i]->getTranslate_array().getCount())
 				{
 					domTranslate* transl = (domTranslate*) m_colladadomNodes[i]->createAndPlace("translate");

@@ -151,7 +151,7 @@ void gim_closest_point_triangle_segment(GIM_TRIANGLE_DATA * triangle, vec3f s1,v
             VEC_COPY(closest_points[1],sdiff);//normal
         }
     }
-    if(out_edge>2) return ;// ???? ASSERT this please
+    if(out_edge>2) return ;// ???? btAssert this please
 
     if(GIM_IS_ZERO(dis))
     {

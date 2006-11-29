@@ -32,6 +32,8 @@
 #include "BulletCollision/NarrowPhaseCollision/btMinkowskiPenetrationDepthSolver.h"
 #include "BulletCollision/NarrowPhaseCollision/btGjkPairDetector.h"
 #include "BulletCollision/NarrowPhaseCollision/btGjkEpaPenetrationDepthSolver.h"
+#include "LinearMath/btStackAlloc.h"
+
 //We can use the Bullet EPA or sampling penetration depth solver, but comparison might be useful
 //#define COMPARE_WITH_SOLID35_AND_OTHER_EPA 1
 #ifdef COMPARE_WITH_SOLID35_AND_OTHER_EPA
@@ -279,6 +281,9 @@ static float gDepth;
 		}
 	};
 
+//2 Mb by default, could be made smaller
+btStackAlloc gStackAlloc(1024*1024*2);
+
 static bool TestEPA(const MyConvex& hull0, const MyConvex& hull1)
 {
 	static btSimplexSolverInterface simplexSolver;
@@ -323,6 +328,7 @@ static bool TestEPA(const MyConvex& hull0, const MyConvex& hull1)
 	btDiscreteCollisionDetectorInterface::ClosestPointInput input;
 	input.m_transformA = hull0.mTransform;
 	input.m_transformB = hull1.mTransform;
+	input.m_stackAlloc = &gStackAlloc;
 
 	MyResult output;
 	GJK.getClosestPoints(input, output, 0);
