@@ -1,6 +1,11 @@
 Bullet Continuous Collision Detection and Physics Library
 Erwin Coumans
 
+2006 Nov 28
+	Moved StackAlloc from EPA into LinearMath/btStackAlloc
+	renamed internal class ConcaveShape into btConcaveShape
+	added btHeightfieldTerrainShape (not completed yet)
+		
 2006 Nov 15
 	Added EPA penetration depth algorithm, Expanding Polytope Algorithm
 	Added Pierre Terdiman penetration depth comparison/test DEMO
