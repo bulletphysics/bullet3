@@ -16,6 +16,7 @@ subject to the following restrictions:
 //#define PRINT_CONTACT_STATISTICS 1
 //#define REGISTER_CUSTOM_COLLISION_ALGORITHM 1
 //#define USER_DEFINED_FRICTION_MODEL 1
+#define USE_CUSTOM_NEAR_CALLBACK 1
 
 //following define allows to compare/replace Bullet's constraint solver with ODE quickstep
 //this define requires to either add the libquickstep library (win32, see msvc/8/libquickstep.vcproj) or manually add the files from Extras/quickstep
@@ -108,6 +109,42 @@ btCollisionShape* shapePtr[numShapes] =
 
 ////////////////////////////////////
 
+
+
+//by default, Bullet will use its own nearcallback, but you can override it using dispatcher->setNearCallback()
+void customNearCallback(btBroadphasePair& collisionPair, btCollisionDispatcher& dispatcher, btDispatcherInfo& dispatchInfo)
+{
+		btCollisionObject* colObj0 = (btCollisionObject*)collisionPair.m_pProxy0->m_clientObject;
+		btCollisionObject* colObj1 = (btCollisionObject*)collisionPair.m_pProxy1->m_clientObject;
+
+		if (dispatcher.needsCollision(colObj0,colObj1))
+		{
+			//dispatcher will keep algorithms persistent in the collision pair
+			if (!collisionPair.m_algorithm)
+			{
+				collisionPair.m_algorithm = dispatcher.findAlgorithm(colObj0,colObj1);
+			}
+
+			if (collisionPair.m_algorithm)
+			{
+				btManifoldResult contactPointResult(colObj0,colObj1);
+				
+				if (dispatchInfo.m_dispatchFunc == 		btDispatcherInfo::DISPATCH_DISCRETE)
+				{
+					//discrete collision detection query
+					collisionPair.m_algorithm->processCollision(colObj0,colObj1,dispatchInfo,&contactPointResult);
+				} else
+				{
+					//continuous collision detection query, time of impact (toi)
+					float toi = collisionPair.m_algorithm->calculateTimeOfImpact(colObj0,colObj1,dispatchInfo,&contactPointResult);
+					if (dispatchInfo.m_timeOfImpact > toi)
+						dispatchInfo.m_timeOfImpact = toi;
+
+				}
+			}
+		}
+
+}
 
 
 
@@ -253,6 +290,11 @@ void	CcdPhysicsDemo::initPhysics()
 {
 
 	btCollisionDispatcher* dispatcher = new	btCollisionDispatcher();
+
+#ifdef USE_CUSTOM_NEAR_CALLBACK
+	//this is optional
+	dispatcher->setNearCallback(customNearCallback);
+#endif
 
 	btVector3 worldAabbMin(-10000,-10000,-10000);
 	btVector3 worldAabbMax(10000,10000,10000);
