@@ -1,18 +1,26 @@
 Bullet Continuous Collision Detection and Physics Library
 Erwin Coumans
 
+2006 Dec 04, Erwin Coumans
+	Added btNearCallback. This is similar to Open Dynamics Engine (ODE) dNearCallback, but important differences:
+	- contact points are persistent (lifetime more then one frame, for warmstarting/incremental contact point management)
+	- continuous collision detection, time of impact
+	Added btRigidBody::isInWorld(), returns true if btRigidBody is inside a btCollisionWorld/btDynamicsWorld derived class
+	Added angularFactor to btRigidbody, this helps some character control (no angular impulse applied)
+
+
 2006 Nov 28
 	Moved StackAlloc from EPA into LinearMath/btStackAlloc
 	renamed internal class ConcaveShape into btConcaveShape
 	added btHeightfieldTerrainShape (not completed yet)
 		
-2006 Nov 15
+2006 Nov 15 Nathanael Presson
 	Added EPA penetration depth algorithm, Expanding Polytope Algorithm
 	Added Pierre Terdiman penetration depth comparison/test DEMO
 	Fixed Bullet's Minkowski sampling penetration depth solver
 	Contributed by Nathanael Presson
 	
-2006 Nov 11
+2006 Nov 11 Francisco León Nájera
 	Added GIMPACT trimesh collision detection: concave versus concave,
 	Contributed by Francisco León Nájera
 
