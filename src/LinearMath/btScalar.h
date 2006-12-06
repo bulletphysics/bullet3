@@ -34,8 +34,8 @@ subject to the following restrictions:
 			#define SIMD_FORCE_INLINE __forceinline
 		#endif //__MINGW32__
 	
-		//#define ATTRIBUTE_ALIGNED16(a) __declspec(align(16)) a
-		#define ATTRIBUTE_ALIGNED16(a) a
+		#define ATTRIBUTE_ALIGNED16(a) __declspec(align(16)) a
+		//#define ATTRIBUTE_ALIGNED16(a) a
 		#include <assert.h>
 		#define btAssert assert
 #else

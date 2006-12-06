@@ -135,7 +135,7 @@ void ConvexDecompositionDemo::initPhysics(const char* filename)
 
 					//calc centroid, to shift vertices around center of mass
 					centroid.setValue(0,0,0);
-					std::vector<btVector3> vertices;
+					btAlignedObjectArray<btVector3> vertices;
 					if ( 1 )
 					{
 						//const unsigned int *src = result.mHullIndices;

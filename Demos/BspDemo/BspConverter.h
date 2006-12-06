@@ -19,6 +19,7 @@ subject to the following restrictions:
 class BspLoader;
 #include <vector>
 #include "LinearMath/btVector3.h"
+#include "LinearMath/btAlignedObjectArray.h"
 
 ///BspConverter turns a loaded bsp level into convex parts (vertices)
 class BspConverter
@@ -31,7 +32,7 @@ class BspConverter
 		}
 
 		///this callback is called for each brush that succesfully converted into vertices
-		virtual void	addConvexVerticesCollider(std::vector<btVector3>& vertices, bool isEntity, const btVector3& entityTargetLocation) = 0;
+		virtual void	addConvexVerticesCollider(btAlignedObjectArray<btVector3>& vertices, bool isEntity, const btVector3& entityTargetLocation) = 0;
 
 };
 

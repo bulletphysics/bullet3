@@ -19,7 +19,7 @@
 
 #include <assert.h>
 
-inline short Hull::GetNumVertices() const
+inline short Hull::getNumVertices() const
 {
 	return m_numVerts;
 }
@@ -29,12 +29,12 @@ inline short Hull::GetNumFaces() const
 	return m_numFaces;
 }
 
-inline short Hull::GetNumEdges() const
+inline short Hull::getNumEdges() const
 {
 	return m_numEdges;
 }
 
-inline const Point3& Hull::GetVertex(short index) const
+inline const Point3& Hull::getVertex(short index) const
 {
 	return m_pVerts[index];
 }

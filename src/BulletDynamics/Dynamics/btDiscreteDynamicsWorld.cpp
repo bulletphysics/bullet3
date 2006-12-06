@@ -261,7 +261,7 @@ void	btDiscreteDynamicsWorld::internalSingleStepSimulation(float timeStep)
 	dispatchInfo.m_debugDraw = getDebugDrawer();
 
 	///perform collision detection
-	performDiscreteCollisionDetection(dispatchInfo);
+	performDiscreteCollisionDetection();
 
 	calculateSimulationIslands();
 

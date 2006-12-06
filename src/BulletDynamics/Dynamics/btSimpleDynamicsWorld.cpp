@@ -46,13 +46,13 @@ int		btSimpleDynamicsWorld::stepSimulation( float timeStep,int maxSubSteps, floa
 	///apply gravity, predict motion
 	predictUnconstraintMotion(timeStep);
 
-	btDispatcherInfo	dispatchInfo;
+	btDispatcherInfo&	dispatchInfo = getDispatchInfo();
 	dispatchInfo.m_timeStep = timeStep;
 	dispatchInfo.m_stepCount = 0;
 	dispatchInfo.m_debugDraw = getDebugDrawer();
 
 	///perform collision detection
-	performDiscreteCollisionDetection(dispatchInfo );
+	performDiscreteCollisionDetection();
 
 	///solve contact constraints
 	int numManifolds = m_dispatcher1->getNumManifolds();

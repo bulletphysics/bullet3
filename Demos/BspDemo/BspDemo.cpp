@@ -56,7 +56,7 @@ public:
 	{
 	}
 
-		virtual void	addConvexVerticesCollider(std::vector<btVector3>& vertices, bool isEntity, const btVector3& entityTargetLocation)
+		virtual void	addConvexVerticesCollider(btAlignedObjectArray<btVector3>& vertices, bool isEntity, const btVector3& entityTargetLocation)
 		{
 			///perhaps we can do something special with entities (isEntity)
 			///like adding a collision Triggering (as example)

@@ -91,7 +91,7 @@ void	CollisionInterfaceDemo::initPhysics()
 	//SimpleBroadphase*	broadphase = new btSimpleBroadphase;
 
 	collisionWorld = new btCollisionWorld(dispatcher,broadphase);
-	
+		
 	collisionWorld->addCollisionObject(&objects[0]);
 	collisionWorld->addCollisionObject(&objects[1]);
 
@@ -117,12 +117,10 @@ void CollisionInterfaceDemo::displayCallback(void) {
     glClear(GL_COLOR_BUFFER_BIT | GL_DEPTH_BUFFER_BIT); 
 	glDisable(GL_LIGHTING);
 
-	
-	btDispatcherInfo	dispatchInfo;
-	dispatchInfo.m_debugDraw = &debugDrawer;
+	collisionWorld->getDispatchInfo().m_debugDraw = &debugDrawer;
 	
 	if (collisionWorld)
-		collisionWorld->performDiscreteCollisionDetection(dispatchInfo);
+		collisionWorld->performDiscreteCollisionDetection();
 	
 	int i;
 

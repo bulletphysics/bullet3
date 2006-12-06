@@ -199,7 +199,7 @@ inline const Vector3 Plane::GetNormal() const
 	return Vector3(base);
 }
 
-inline const Scalar Plane::GetDistance() const
+inline const Scalar Plane::getDistance() const
 {
 	return GetW();
 }

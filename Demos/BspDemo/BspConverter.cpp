@@ -53,7 +53,7 @@ void BspConverter::convertBsp(BspLoader& bspLoader,float scaling)
 	
 			for (int b=0;b<leaf.numLeafBrushes;b++)
 			{
-				std::vector<btVector3> planeEquations;
+				btAlignedObjectArray<btVector3> planeEquations;
 				
 				int brushid = bspLoader.m_dleafbrushes[leaf.firstLeafBrush+b];
 
@@ -83,7 +83,7 @@ void BspConverter::convertBsp(BspLoader& bspLoader,float scaling)
 						if (isValidBrush)
 						{
 
-							std::vector<btVector3>	vertices;
+							btAlignedObjectArray<btVector3>	vertices;
 							btGeometryUtil::getVerticesFromPlaneEquations(planeEquations,vertices);
 						
 							bool isEntity = false;
@@ -134,7 +134,7 @@ void BspConverter::convertBsp(BspLoader& bspLoader,float scaling)
 										const BSPModel& model = bspLoader.m_dmodels[modelnr];
 										for (int n=0;n<model.numBrushes;n++)
 										{
-											std::vector<btVector3> planeEquations;
+											btAlignedObjectArray<btVector3> planeEquations;
 											bool	isValidBrush = false;
 
 											//convert brush
@@ -158,7 +158,7 @@ void BspConverter::convertBsp(BspLoader& bspLoader,float scaling)
 												if (isValidBrush)
 												{
 													
-													std::vector<btVector3>	vertices;
+													btAlignedObjectArray<btVector3>	vertices;
 													btGeometryUtil::getVerticesFromPlaneEquations(planeEquations,vertices);
 
 													bool isEntity=true;
