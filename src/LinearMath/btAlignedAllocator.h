@@ -19,7 +19,13 @@ subject to the following restrictions:
 ///we probably replace this with our own aligned memory allocator
 ///so we replace _aligned_malloc and _aligned_free with our own
 ///that is better portable and more predictable
-#include <malloc.h>
+
+#include "btScalar.h"
+
+void*	btAlignedAlloc	(int size, int alignment);
+
+void	btAlignedFree	(void* ptr);
+
 
 typedef int	size_type;
 
@@ -47,11 +53,11 @@ public:
 	pointer       address   ( reference        ref ) const                           { return &ref; }
 	const_pointer address   ( const_reference  ref ) const                           { return &ref; }
 	pointer       allocate  ( size_type        n   , const_pointer *      hint = 0 ) {
-		return reinterpret_cast< pointer >(_aligned_malloc( sizeof(value_type) * n , Alignment ));
+		return reinterpret_cast< pointer >(btAlignedAlloc( sizeof(value_type) * n , Alignment ));
 	}
 	void          construct ( pointer          ptr , const value_type &   value    ) { new (ptr) value_type( value ); }
 	void          deallocate( pointer          ptr ) {
-		_aligned_free( reinterpret_cast< void * >( ptr ) );
+		btAlignedFree( reinterpret_cast< void * >( ptr ) );
 	}
 	void          destroy   ( pointer          ptr )                                 { ptr->~value_type(); }
 	

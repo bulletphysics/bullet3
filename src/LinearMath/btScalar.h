@@ -27,15 +27,15 @@ subject to the following restrictions:
 
 		#if defined(__MINGW32__) || defined(__CYGWIN__)
 			#define SIMD_FORCE_INLINE inline
+			#define ATTRIBUTE_ALIGNED16(a) a
 		#else
 			#pragma warning(disable:4530)
 			#pragma warning(disable:4996)
 			#pragma warning(disable:4786)
 			#define SIMD_FORCE_INLINE __forceinline
+			#define ATTRIBUTE_ALIGNED16(a) __declspec(align(16)) a
 		#endif //__MINGW32__
-	
-		#define ATTRIBUTE_ALIGNED16(a) __declspec(align(16)) a
-		//#define ATTRIBUTE_ALIGNED16(a) a
+
 		#include <assert.h>
 		#define btAssert assert
 #else
