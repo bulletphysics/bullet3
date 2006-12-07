@@ -29,10 +29,16 @@ Concave-Concave Collision
 
 
 
-//! Class for accessing the plane ecuation
+//! Class for accessing the plane equation
 class btPlaneShape : public btStaticPlaneShape
 {
 public:
+
+	btPlaneShape(const btVector3& v, float f)
+		:btStaticPlaneShape(v,f)
+	{ 
+	}
+
 	void get_plane_equation(float equation[4])
 	{
 		equation[0] = m_planeNormal[0];
