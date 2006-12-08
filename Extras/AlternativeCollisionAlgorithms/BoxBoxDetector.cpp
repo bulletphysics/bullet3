@@ -243,7 +243,7 @@ void cullPoints2 (int n, btScalar p[], int m, int i0, int iret[])
       }
     }
 #ifndef dNODEBUG
-    ASSERT (*iret != i0);	// ensure iret got set
+    btAssert (*iret != i0);	// ensure iret got set
 #endif
     avail[*iret] = 0;
     iret++;

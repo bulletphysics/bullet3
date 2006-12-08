@@ -47,8 +47,8 @@ void BoxBoxCollisionAlgorithm::processCollision (btCollisionObject* body0,btColl
 
 	btCollisionObject*	col0 = body0;
 	btCollisionObject*	col1 = body1;
-	btBoxShape* box0 = (btBoxShape*)col0->m_collisionShape;
-	btBoxShape* box1 = (btBoxShape*)col1->m_collisionShape;
+	btBoxShape* box0 = (btBoxShape*)col0->getCollisionShape();
+	btBoxShape* box1 = (btBoxShape*)col1->getCollisionShape();
 
 
 
@@ -57,8 +57,8 @@ void BoxBoxCollisionAlgorithm::processCollision (btCollisionObject* body0,btColl
 	
 	btDiscreteCollisionDetectorInterface::ClosestPointInput input;
 	input.m_maximumDistanceSquared = 1e30f;
-	input.m_transformA = body0->m_worldTransform;
-	input.m_transformB = body1->m_worldTransform;
+	input.m_transformA = body0->getWorldTransform();
+	input.m_transformB = body1->getWorldTransform();
 
 	BoxBoxDetector detector(box0,box1);
 	detector.getClosestPoints(input,*resultOut,dispatchInfo.m_debugDraw);

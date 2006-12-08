@@ -78,8 +78,8 @@ typedef btScalar dMatrix3[4*3];
   (A)[1] op dDOT1((B+4),(C)); \
   (A)[2] op dDOT1((B+8),(C));
 
-#define dAASSERT ASSERT
-#define dIASSERT ASSERT
+#define dAASSERT btAssert
+#define dIASSERT btAssert
 
 #define REAL float
 #define dDOTpq(a,b,p,q) ((a)[0]*(b)[0] + (a)[p]*(b)[q] + (a)[2*(p)]*(b)[2*(q)])
