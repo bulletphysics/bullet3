@@ -1,3 +1,20 @@
 SubDir TOP Demos ConvexDecompositionDemo ;
 
-ExtraDemo ConvexDecompositionDemo : [ Wildcard *.h *.cpp  ] ;
+#some demos need extra functionality, Collada / ConvexDecomposition etc.
+
+  rule ExtraDemo2
+
+  {
+    Application $(<) : $(>) : noinstall console nomanifest ;
+    LinkWith $(<) :    bulletopenglsupport convexdecomposition bulletdynamics bulletcollision  bulletmath ;
+    CFlags $(<) :
+          [ FIncludes $(TOP)/Demos/OpenGL ]
+                                [ FIncludes $(TOP)/Extras/ConvexDecomposition ]
+    ;
+
+    MsvcIncDirs $(<) :
+        "../../Demos/OpenGL"
+        "../../Extras/ConvexDecomposition" ;
+  }
+
+ExtraDemo2 ConvexDecompositionDemo : [ Wildcard *.h *.cpp  ] ;

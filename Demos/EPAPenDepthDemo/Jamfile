@@ -1,3 +1,23 @@
 SubDir TOP Demos EPAPenDepthDemo ;
 
-ExtraDemo EPAPenDepthDemo : [ Wildcard *.h *.cpp ../../Extras/ExtraSolid35/*.cpp ../../Extras/EPA/*.cpp  ] ;
+#some demos need extra functionality, Collada / ConvexDecomposition etc.
+
+  rule ExtraDemo4
+
+  {
+    Application $(<) : $(>) : noinstall console nomanifest ;
+    LinkWith $(<) :   GIMPACTBullet GIMPACT  bulletopenglsupport bulletdynamics bulletcollision  bulletmath ;
+    CFlags $(<) :
+          [ FIncludes $(TOP)/Demos/OpenGL ]
+          [ FIncludes $(TOP)/Extras/GIMPACT/include ]
+          [ FIncludes $(TOP)/Extras/GIMPACTBullet ]
+
+    ;
+
+    MsvcIncDirs $(<) :
+        "../../Demos/OpenGL"
+        "../../Extras/GIMPACT/include"
+        "../../Extras/GIMPACTBullet"   ;
+  }
+
+ExtraDemo4 EPAPenDepthDemo : [ Wildcard *.h *.cpp  ] ;

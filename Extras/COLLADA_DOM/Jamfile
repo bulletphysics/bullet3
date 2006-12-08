@@ -1,8 +1,9 @@
 SubDir TOP Extras COLLADA_DOM ;
 
-IncludeDir  Extras/COLLADA_DOM/include ;
-IncludeDir Extras/COLLADA_DOM/include/1.4 ;
-IncludeDir Extras/LibXML/include ; 
+
+#IncludeDir  Extras/COLLADA_DOM/include ;
+#IncludeDir Extras/COLLADA_DOM/include/1.4 ;
+#IncludeDir Extras/LibXML/include ; 
 
 Library colladadom : 
 	[ Wildcard src/dae : *.h *.cpp ]

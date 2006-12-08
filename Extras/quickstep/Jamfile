@@ -1,10 +1,20 @@
 SubDir TOP Extras quickstep ;
 
-IncludeDir Extras/quickstep ;
+#this is a bad global
+#IncludeDir Extras/quickstep ;
 
 Library quickstep : [ Wildcard *.h *.cpp ] ;
+#internal header path to compile quickstep
 CFlags quickstep : [ FIncludes $(TOP)/Extras/quickstep ] ;
-LibDepends quickstep :  ;
+
+#expose header include path for apps that depend on quickstep
+#QUICKSTEP.CFLAGS = [ FIncludes $(TOP)/Extras/quickstep ] ;
+
+#same for msvcgen
+MsvcGenConfig QUICKSTEP.INCDIRS : $(TOP)/Extras/quickstep ;
+
+#for the include paths
+LibDepends quickstep : BulletDynamics ;
 
 
 InstallHeader [ Wildcard *.h ] : quickstep ;

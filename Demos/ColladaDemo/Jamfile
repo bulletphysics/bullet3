@@ -1,4 +1,30 @@
 SubDir TOP Demos ColladaDemo ;
 
-ExtraDemo ColladaDemo : [ Wildcard *.h *.cpp  ] ;
+#some demos need extra functionality, Collada / ConvexDecomposition etc.
+
+  rule ExtraDemo3
+
+  {
+    Application $(<) : $(>) : noinstall console nomanifest ;
+    LinkWith $(<) :   colladadom libxml bulletopenglsupport bulletdynamics bulletcollision  bulletmath ;
+    CFlags $(<) :
+          [ FIncludes $(TOP)/Demos/OpenGL ]
+                                [ FIncludes $(TOP)/Extras/COLLADA_DOM/include ]
+                                [ FIncludes $(TOP)/Extras/COLLADA_DOM/include/1.4 ]
+                                [ FIncludes $(TOP)/Extras/LibXML ]
+
+          [ FIncludes $(TOP)/Extras/LibXML/include ]
+
+    ;
+
+    MsvcIncDirs $(<) :
+        "../../Demos/OpenGL"
+        "../../Extras/COLLADA_DOM/include"
+        "../../Extras/COLLADA_DOM/include/1.4"
+        "../../Extras/LibXML"
+        "../../Extras/LibXML/include"   ;
+  }
+
+ExtraDemo3 ColladaDemo : [ Wildcard *.h *.cpp  ] ;
+
 MsvcIncDirs ColladaDemo : "../../Extras/FCollada" ;

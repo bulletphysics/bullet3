@@ -6,18 +6,16 @@ if $(GLUT.AVAILABLE) = "yes"
   rule GPUDemo
   {
     Application $(<) : $(>) : noinstall console nomanifest ;
-    LinkWith $(<) :  GLUT ;
+ #   LinkWith $(<) :  GLUT ;
     CFlags $(<) : 
 	  [ FIncludes $(TOP)/Demos/OpenGL ] 
-	  [ FIncludes $(TOP)/Extras/PhysicsInterface/CcdPhysics ] 
-	  [ FIncludes $(TOP)/Extras/PhysicsInterface/Common ] 
     ;
     MsvcIncDirs $(<) : 
 	"../../Demos/OpenGL" 
 	"../../Extras/PhysicsInterface/CcdPhysics" 
 	"../../Extras/PhysicsInterface/Common" ;
-	ExternalLibs $(<) : GLUT GLEW ;
-
+    
+	ExternalLibs GPUphysics : GLUT ;
   }
 }
 

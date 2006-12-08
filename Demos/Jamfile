@@ -17,39 +17,10 @@ if $(GLUT.AVAILABLE) = "yes"
 	"../../src" ;
   }
 
-  #some demos need extra functionality, Collada / ConvexDecomposition etc.
-  rule ExtraDemo
-  {
-    Application $(<) : $(>) : noinstall console nomanifest ;
-    LinkWith $(<) :   GIMPACTBullet GIMPACT  colladadom libxml bulletopenglsupport convexdecomposition bulletdynamics bulletcollision  bulletmath ;
-    CFlags $(<) :
-          [ FIncludes $(TOP)/Demos/OpenGL ]
-       	  			[ FIncludes $(TOP)/Extras/ConvexDecomposition ]
- 	  			[ FIncludes $(TOP)/Extras/COLLADA_DOM/include ]
- 	  			[ FIncludes $(TOP)/Extras/COLLADA_DOM/include/1.4 ]
-	  			[ FIncludes $(TOP)/Extras/LibXML ]
-          [ FIncludes $(TOP)/Extras/LibXML/include ]
 
 
 
-    ;
-    MsvcIncDirs $(<) :
-        "../../Demos/OpenGL"
-      	"../../Extras/ConvexDecomposition" 
-	"../../Extras/COLLADA_DOM/include"
- 	"../../Extras/COLLADA_DOM/include/1.4"
-	"../../Extras/LibXML"
-        "../../Extras/LibXML/include"	;
-  }
 
-
-
-}
-else
-{
-  rule BulletDemo
-  {
-  }
 }
 
  rule BulletBasicDemo

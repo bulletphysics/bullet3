@@ -164,7 +164,10 @@ void initGLcontext ( int argc, char **argv,
   glutKeyboardFunc    ( keybd    ) ;
   glutReshapeFunc     ( reshape  ) ;
 
+#if defined(GPUP_MAC_OSX) && !defined (VMDMESA)
+#else
   glewInit () ;
+#endif
 
   checkVertexTextureSupport ( disableVertexTextureSupport ) ;
 }

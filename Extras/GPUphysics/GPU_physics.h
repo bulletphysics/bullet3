@@ -88,15 +88,16 @@
 #include <float.h>
 #include <errno.h>
 
-#include <GL/glew.h>
 
 #if defined(GPUP_MAC_OSX) && !defined (VMDMESA)
 #include <OpenGL/gl.h>
 #include <OpenGL/glu.h>
 #include <GLUT/glut.h>
+#include <OpenGL/glext.h>
 #else
 #include <GL/glut.h>
 #include <GL/gl.h>
+#include <GL/glew.h>
 #endif
 
 #ifdef DISABLE_GL_ERROR_CHECKS
