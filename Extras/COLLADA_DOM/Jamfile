@@ -14,11 +14,22 @@ Library colladadom :
 
 
  ;
+
 CFlags colladadom :
 [ FIncludes $(TOP)/Extras/COLLADA_DOM/include ]
 [ FIncludes $(TOP)/Extras/COLLADA_DOM/include/1.4 ]
 [ FIncludes $(TOP)/Extras/LibXML/include ]
 ;
+
+
+    MsvcIncDirs colladadom : "../../Extras/Demos/OpenGL"
+        "../../Extras/COLLADA_DOM/include"
+        "../../Extras/COLLADA_DOM/include/1.4"
+        "../../Extras/LibXML"
+        "../../Extras/LibXML/include"   ;
+
+MsvcGenConfig colladadom.INCDIRS : $(TOP)/Extras/COLLADA_DOM/include ;
+MsvcGenConfig colladadom.CFLAGS : $(TOP)/Extras/COLLADA_DOM/include ;
 
 LibDepends colladadom : libxml  ;
 
