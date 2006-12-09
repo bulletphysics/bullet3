@@ -104,6 +104,10 @@ SOURCE="$(InputPath)"
 # PROP Default_Filter ""
 # Begin Source File
 
+SOURCE=..\..\src\LinearMath\btAlignedAllocator.cpp
+# End Source File
+# Begin Source File
+
 SOURCE=..\..\src\LinearMath\btGeometryUtil.cpp
 # End Source File
 # Begin Source File
@@ -117,6 +121,14 @@ SOURCE=..\..\src\LinearMath\btQuickprof.cpp
 # Begin Source File
 
 SOURCE=..\..\src\LinearMath\btAabbUtil2.h
+# End Source File
+# Begin Source File
+
+SOURCE=..\..\src\LinearMath\btAlignedAllocator.h
+# End Source File
+# Begin Source File
+
+SOURCE=..\..\src\LinearMath\btAlignedObjectArray.h
 # End Source File
 # Begin Source File
 
@@ -173,6 +185,10 @@ SOURCE=..\..\src\LinearMath\btScalar.h
 # Begin Source File
 
 SOURCE=..\..\src\LinearMath\btSimdMinMax.h
+# End Source File
+# Begin Source File
+
+SOURCE=..\..\src\LinearMath\btStackAlloc.h
 # End Source File
 # Begin Source File
 

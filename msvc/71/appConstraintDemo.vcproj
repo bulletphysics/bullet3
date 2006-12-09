@@ -32,7 +32,7 @@
 				OptimizeForProcessor="1"
 				ExceptionHandling="0"
 				AdditionalOptions=" "
-				AdditionalIncludeDirectories=".;..\..;..\..\src;..\..\Extras\ConvexDecomposition;..\..\Extras\COLLADA_DOM\include;..\..\Extras\COLLADA_DOM\include\1.4;..\..\Extras\LibXML\include;..\..\Extras\GIMPACT\include;..\..\Extras\GIMPACTBullet;..\..\Extras\PhysicsInterface\Common;..\..\Extras\PhysicsInterface\CcdPhysics;..\..\Glut;..\..\Demos\OpenGL"
+				AdditionalIncludeDirectories=".;..\..;..\..\src;..\..\Glut;..\..\Demos\OpenGL"
 				PrecompiledHeaderFile="..\..\out\release71\build\appConstraintDemo\appConstraintDemo.pch"
 				AssemblerListingLocation="..\..\out\release71\build\appConstraintDemo\"
 				ObjectFile="..\..\out\release71\build\appConstraintDemo\"
@@ -81,7 +81,7 @@
 			<Tool
 				Name="VCResourceCompilerTool"
 				PreprocessorDefinitions="NDEBUG;_CONSOLE;PROJECTGEN_VERSION=71"
-				AdditionalIncludeDirectories=".;..\..;..\..\src;..\..\Extras\ConvexDecomposition;..\..\Extras\COLLADA_DOM\include;..\..\Extras\COLLADA_DOM\include\1.4;..\..\Extras\LibXML\include;..\..\Extras\GIMPACT\include;..\..\Extras\GIMPACTBullet;..\..\Extras\PhysicsInterface\Common;..\..\Extras\PhysicsInterface\CcdPhysics;..\..\Glut;..\..\Demos\OpenGL"
+				AdditionalIncludeDirectories=".;..\..;..\..\src;..\..\Glut;..\..\Demos\OpenGL"
 				Culture="1033"/>
 			<Tool
 				Name="VCWebServiceProxyGeneratorTool"/>
@@ -107,7 +107,7 @@
 				OptimizeForProcessor="1"
 				ExceptionHandling="0"
 				AdditionalOptions=" "
-				AdditionalIncludeDirectories=".;..\..;..\..\src;..\..\Extras\ConvexDecomposition;..\..\Extras\COLLADA_DOM\include;..\..\Extras\COLLADA_DOM\include\1.4;..\..\Extras\LibXML\include;..\..\Extras\GIMPACT\include;..\..\Extras\GIMPACTBullet;..\..\Extras\PhysicsInterface\Common;..\..\Extras\PhysicsInterface\CcdPhysics;..\..\Glut;..\..\Demos\OpenGL"
+				AdditionalIncludeDirectories=".;..\..;..\..\src;..\..\Glut;..\..\Demos\OpenGL"
 				PrecompiledHeaderFile="..\..\out\debug71\build\appConstraintDemo\appConstraintDemo.pch"
 				AssemblerListingLocation="..\..\out\debug71\build\appConstraintDemo\"
 				ObjectFile="..\..\out\debug71\build\appConstraintDemo\"
@@ -154,7 +154,7 @@
 			<Tool
 				Name="VCResourceCompilerTool"
 				PreprocessorDefinitions="_DEBUG;_CONSOLE;PROJECTGEN_VERSION=71"
-				AdditionalIncludeDirectories=".;..\..;..\..\src;..\..\Extras\ConvexDecomposition;..\..\Extras\COLLADA_DOM\include;..\..\Extras\COLLADA_DOM\include\1.4;..\..\Extras\LibXML\include;..\..\Extras\GIMPACT\include;..\..\Extras\GIMPACTBullet;..\..\Extras\PhysicsInterface\Common;..\..\Extras\PhysicsInterface\CcdPhysics;..\..\Glut;..\..\Demos\OpenGL"
+				AdditionalIncludeDirectories=".;..\..;..\..\src;..\..\Glut;..\..\Demos\OpenGL"
 				Culture="1033"/>
 			<Tool
 				Name="VCWebServiceProxyGeneratorTool"/>

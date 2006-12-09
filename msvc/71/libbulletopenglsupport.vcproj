@@ -30,7 +30,7 @@
 				OptimizeForProcessor="1"
 				ExceptionHandling="0"
 				AdditionalOptions=" "
-				AdditionalIncludeDirectories=".;..\..;..\..\src;..\..\Extras\ConvexDecomposition;..\..\Extras\COLLADA_DOM\include;..\..\Extras\COLLADA_DOM\include\1.4;..\..\Extras\LibXML\include;..\..\Extras\GIMPACT\include;..\..\Extras\GIMPACTBullet;..\..\Extras\PhysicsInterface\Common;..\..\Extras\PhysicsInterface\CcdPhysics;..\..\Glut"
+				AdditionalIncludeDirectories=".;..\..;..\..\src;..\..\Glut"
 				PrecompiledHeaderFile="..\..\out\release71\build\libbulletopenglsupport\libbulletopenglsupport.pch"
 				AssemblerListingLocation="..\..\out\release71\build\libbulletopenglsupport\"
 				ObjectFile="..\..\out\release71\build\libbulletopenglsupport\"
@@ -78,7 +78,7 @@
 			<Tool
 				Name="VCResourceCompilerTool"
 				PreprocessorDefinitions="NDEBUG;_LIB;_WINDOWS;PROJECTGEN_VERSION=71"
-				AdditionalIncludeDirectories=".;..\..;..\..\src;..\..\Extras\ConvexDecomposition;..\..\Extras\COLLADA_DOM\include;..\..\Extras\COLLADA_DOM\include\1.4;..\..\Extras\LibXML\include;..\..\Extras\GIMPACT\include;..\..\Extras\GIMPACTBullet;..\..\Extras\PhysicsInterface\Common;..\..\Extras\PhysicsInterface\CcdPhysics;..\..\Glut"
+				AdditionalIncludeDirectories=".;..\..;..\..\src;..\..\Glut"
 				Culture="1033"/>
 			<Tool
 				Name="VCWebServiceProxyGeneratorTool"/>
@@ -103,7 +103,7 @@
 				OptimizeForProcessor="1"
 				ExceptionHandling="0"
 				AdditionalOptions=" "
-				AdditionalIncludeDirectories=".;..\..;..\..\src;..\..\Extras\ConvexDecomposition;..\..\Extras\COLLADA_DOM\include;..\..\Extras\COLLADA_DOM\include\1.4;..\..\Extras\LibXML\include;..\..\Extras\GIMPACT\include;..\..\Extras\GIMPACTBullet;..\..\Extras\PhysicsInterface\Common;..\..\Extras\PhysicsInterface\CcdPhysics;..\..\Glut"
+				AdditionalIncludeDirectories=".;..\..;..\..\src;..\..\Glut"
 				PrecompiledHeaderFile="..\..\out\debug71\build\libbulletopenglsupport\libbulletopenglsupport.pch"
 				AssemblerListingLocation="..\..\out\debug71\build\libbulletopenglsupport\"
 				ObjectFile="..\..\out\debug71\build\libbulletopenglsupport\"
@@ -149,7 +149,7 @@
 			<Tool
 				Name="VCResourceCompilerTool"
 				PreprocessorDefinitions="_DEBUG;_LIB;_WINDOWS;PROJECTGEN_VERSION=71"
-				AdditionalIncludeDirectories=".;..\..;..\..\src;..\..\Extras\ConvexDecomposition;..\..\Extras\COLLADA_DOM\include;..\..\Extras\COLLADA_DOM\include\1.4;..\..\Extras\LibXML\include;..\..\Extras\GIMPACT\include;..\..\Extras\GIMPACTBullet;..\..\Extras\PhysicsInterface\Common;..\..\Extras\PhysicsInterface\CcdPhysics;..\..\Glut"
+				AdditionalIncludeDirectories=".;..\..;..\..\src;..\..\Glut"
 				Culture="1033"/>
 			<Tool
 				Name="VCWebServiceProxyGeneratorTool"/>

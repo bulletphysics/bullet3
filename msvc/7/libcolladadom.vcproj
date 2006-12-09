@@ -30,7 +30,7 @@
 				OptimizeForProcessor="1"
 				ExceptionHandling="0"
 				AdditionalOptions=" "
-				AdditionalIncludeDirectories=".;..\..;..\..\src;..\..\Extras\ConvexDecomposition;..\..\Extras\COLLADA_DOM\include;..\..\Extras\COLLADA_DOM\include\1.4;..\..\Extras\LibXML\include"
+				AdditionalIncludeDirectories=".;..\..;..\..\src;..\..\Extras\Demos\OpenGL;..\..\Extras\COLLADA_DOM\include;..\..\Extras\COLLADA_DOM\include\1.4;..\..\Extras\LibXML;..\..\Extras\LibXML\include"
 				PrecompiledHeaderFile="..\..\out\release7\build\libcolladadom\libcolladadom.pch"
 				AssemblerListingLocation="..\..\out\release7\build\libcolladadom\"
 				ObjectFile="..\..\out\release7\build\libcolladadom\"
@@ -78,7 +78,7 @@
 			<Tool
 				Name="VCResourceCompilerTool"
 				PreprocessorDefinitions="NDEBUG;_LIB;_WINDOWS;PROJECTGEN_VERSION=7"
-				AdditionalIncludeDirectories=".;..\..;..\..\src;..\..\Extras\ConvexDecomposition;..\..\Extras\COLLADA_DOM\include;..\..\Extras\COLLADA_DOM\include\1.4;..\..\Extras\LibXML\include"
+				AdditionalIncludeDirectories=".;..\..;..\..\src;..\..\Extras\Demos\OpenGL;..\..\Extras\COLLADA_DOM\include;..\..\Extras\COLLADA_DOM\include\1.4;..\..\Extras\LibXML;..\..\Extras\LibXML\include"
 				Culture="1033"/>
 			<Tool
 				Name="VCWebServiceProxyGeneratorTool"/>
@@ -103,7 +103,7 @@
 				OptimizeForProcessor="1"
 				ExceptionHandling="0"
 				AdditionalOptions=" "
-				AdditionalIncludeDirectories=".;..\..;..\..\src;..\..\Extras\ConvexDecomposition;..\..\Extras\COLLADA_DOM\include;..\..\Extras\COLLADA_DOM\include\1.4;..\..\Extras\LibXML\include"
+				AdditionalIncludeDirectories=".;..\..;..\..\src;..\..\Extras\Demos\OpenGL;..\..\Extras\COLLADA_DOM\include;..\..\Extras\COLLADA_DOM\include\1.4;..\..\Extras\LibXML;..\..\Extras\LibXML\include"
 				PrecompiledHeaderFile="..\..\out\debug7\build\libcolladadom\libcolladadom.pch"
 				AssemblerListingLocation="..\..\out\debug7\build\libcolladadom\"
 				ObjectFile="..\..\out\debug7\build\libcolladadom\"
@@ -149,7 +149,7 @@
 			<Tool
 				Name="VCResourceCompilerTool"
 				PreprocessorDefinitions="_DEBUG;_LIB;_WINDOWS;PROJECTGEN_VERSION=7"
-				AdditionalIncludeDirectories=".;..\..;..\..\src;..\..\Extras\ConvexDecomposition;..\..\Extras\COLLADA_DOM\include;..\..\Extras\COLLADA_DOM\include\1.4;..\..\Extras\LibXML\include"
+				AdditionalIncludeDirectories=".;..\..;..\..\src;..\..\Extras\Demos\OpenGL;..\..\Extras\COLLADA_DOM\include;..\..\Extras\COLLADA_DOM\include\1.4;..\..\Extras\LibXML;..\..\Extras\LibXML\include"
 				Culture="1033"/>
 			<Tool
 				Name="VCWebServiceProxyGeneratorTool"/>

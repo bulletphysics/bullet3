@@ -255,6 +255,9 @@
 				RelativePath="..\..\src\BulletCollision\CollisionShapes\btEmptyShape.cpp">
 			</File>
 			<File
+				RelativePath="..\..\src\BulletCollision\CollisionShapes\btHeightfieldTerrainShape.cpp">
+			</File>
+			<File
 				RelativePath="..\..\src\BulletCollision\CollisionShapes\btMinkowskiSumShape.cpp">
 			</File>
 			<File
@@ -431,6 +434,9 @@
 			</File>
 			<File
 				RelativePath="..\..\src\BulletCollision\CollisionShapes\btEmptyShape.h">
+			</File>
+			<File
+				RelativePath="..\..\src\BulletCollision\CollisionShapes\btHeightfieldTerrainShape.h">
 			</File>
 			<File
 				RelativePath="..\..\src\BulletCollision\CollisionShapes\btMinkowskiSumShape.h">

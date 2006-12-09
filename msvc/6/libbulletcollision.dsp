@@ -228,6 +228,10 @@ SOURCE=..\..\src\BulletCollision\CollisionShapes\btEmptyShape.cpp
 # End Source File
 # Begin Source File
 
+SOURCE=..\..\src\BulletCollision\CollisionShapes\btHeightfieldTerrainShape.cpp
+# End Source File
+# Begin Source File
+
 SOURCE=..\..\src\BulletCollision\CollisionShapes\btMinkowskiSumShape.cpp
 # End Source File
 # Begin Source File
@@ -461,6 +465,10 @@ SOURCE=..\..\src\BulletCollision\CollisionShapes\btCylinderShape.h
 # Begin Source File
 
 SOURCE=..\..\src\BulletCollision\CollisionShapes\btEmptyShape.h
+# End Source File
+# Begin Source File
+
+SOURCE=..\..\src\BulletCollision\CollisionShapes\btHeightfieldTerrainShape.h
 # End Source File
 # Begin Source File
 
