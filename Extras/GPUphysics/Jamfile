@@ -14,7 +14,7 @@ if $(GLUT.AVAILABLE) = "yes"
 	"../../Demos/OpenGL" 
 	;
     
-	ExternalLibs GPUphysics : GLUT ;
+	ExternalLibs GPUphysics : GLUT GLEW ;
   }
 }
 

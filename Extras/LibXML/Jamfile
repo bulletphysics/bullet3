@@ -8,7 +8,7 @@ CFlags libxml :
 [ FIncludes $(TOP)/Extras/LibXML/include ]
 ;
 
-   MsvcIncDirs LibXML : 
+   MsvcIncDirs libxml : 
 	"../../Extras/LibXML"
         "../../Extras/LibXML/include"   ;
 
