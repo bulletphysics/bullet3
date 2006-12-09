@@ -1,0 +1,17 @@
+SubDir TOP Extras AlternativeCollisionAlgorithms ;
+
+
+Library boxbox : [ Wildcard *.h *.cpp ] ;
+#internal header path to compile boxbox
+CFlags boxbox : [ FIncludes $(TOP)/Extras/AlternativeCollisionAlgorithms ] ;
+
+#expose header include path for apps that depend on AlternativeCollisionAlgorithms
+boxbox.CFLAGS = [ FIncludes $(TOP)/Extras/AlternativeCollisionAlgorithms ] ;
+#same for msvcgen
+MsvcGenConfig boxbox.INCDIRS : $(TOP)/Extras/AlternativeCollisionAlgorithms ;
+
+#for the include paths
+LibDepends boxbox : BulletCollision ;
+
+
+#InstallHeader [ Wildcard *.h ] : AlternativeCollisionAlgorithms ;
