@@ -95,9 +95,11 @@
 #include <GLUT/glut.h>
 #include <OpenGL/glext.h>
 #else
-#include <GL/glut.h>
-#include <GL/gl.h>
 #include <GL/glew.h>
+#include <GL/gl.h>
+#include <GL/glut.h>
+
+
 #endif
 
 #ifdef DISABLE_GL_ERROR_CHECKS

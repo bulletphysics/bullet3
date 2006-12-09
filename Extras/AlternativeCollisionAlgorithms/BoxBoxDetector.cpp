@@ -88,8 +88,8 @@ do { \
 
 typedef btScalar dMatrix3[4*3];
 
-void dLineClosestApproach (const btVector3 pa, const btVector3 ua,
-			   const btVector3 pb, const btVector3 ub,
+void dLineClosestApproach (const btVector3& pa, const btVector3& ua,
+			   const btVector3& pb, const btVector3& ub,
 			   btScalar *alpha, btScalar *beta)
 {
   btVector3 p;
@@ -253,9 +253,9 @@ void cullPoints2 (int n, btScalar p[], int m, int i0, int iret[])
 
 
 
-int dBoxBox2 (const btVector3 p1, const dMatrix3 R1,
-	     const btVector3 side1, const btVector3 p2,
-	     const dMatrix3 R2, const btVector3 side2,
+int dBoxBox2 (const btVector3& p1, const dMatrix3 R1,
+	     const btVector3& side1, const btVector3& p2,
+	     const dMatrix3 R2, const btVector3& side2,
 	     btVector3& normal, btScalar *depth, int *return_code,
 		 int maxc, dContactGeom *contact, int skip,btDiscreteCollisionDetectorInterface::Result& output)
 {

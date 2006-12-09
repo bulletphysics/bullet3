@@ -3,8 +3,6 @@ SubDir TOP Demos OpenGL ;
 if $(GLUT.AVAILABLE) = "yes"
 {
 
-IncludeDir  Extras/PhysicsInterface/Common ;
-IncludeDir  Extras/PhysicsInterface/CcdPhysics ;
 
   Description bulletopenglsupport : "Bullet OpenGL support" ;
   Library bulletopenglsupport : 
@@ -12,8 +10,6 @@ IncludeDir  Extras/PhysicsInterface/CcdPhysics ;
 ;
 
 CFlags bulletopenglsupport :
-[ FIncludes $(TOP)/Extras/PhysicsInterface/Common ]
-[ FIncludes $(TOP)/Extras/PhysicsInterface/CcdPhysics ]
 ;
 
 LibDepends bulletopenglsupport : bulletdynamics   ;

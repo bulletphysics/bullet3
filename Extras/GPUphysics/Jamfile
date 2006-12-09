@@ -12,8 +12,7 @@ if $(GLUT.AVAILABLE) = "yes"
     ;
     MsvcIncDirs $(<) : 
 	"../../Demos/OpenGL" 
-	"../../Extras/PhysicsInterface/CcdPhysics" 
-	"../../Extras/PhysicsInterface/Common" ;
+	;
     
 	ExternalLibs GPUphysics : GLUT ;
   }
