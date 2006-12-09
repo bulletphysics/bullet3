@@ -1,11 +1,13 @@
 SubDir TOP Extras GIMPACTBullet ;
 
-IncludeDir Extras/GIMPACTBullet ;
-IncludeDir Extras/GIMPACT/include ;
 
 Library GIMPACTBullet : [ Wildcard *.h *.cpp ] ;
 CFlags GIMPACTBullet : [ FIncludes $(TOP)/Extras/GIMPACTBullet $(TOP)/Extras/GIMPACT/include ] ;
 LibDepends GIMPACTBullet : GIMPACT  ;
+
+ MsvcIncDirs GIMPACTBullet : 
+	"../../Extras/GIMPACTBullet"
+	"../../Extras/GIMPACT/include"  ;
 
 
 InstallHeader [ Wildcard *.h ] : GIMPACTBullet ;
