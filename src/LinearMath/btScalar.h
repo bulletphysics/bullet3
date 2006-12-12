@@ -54,8 +54,10 @@ subject to the following restrictions:
 
 typedef float    btScalar;
 
-#if defined (__sun) || defined (__sun__) || defined (__sparc) || defined (__APPLE__)
-//use double float precision operation on those platforms for Blender
+///older compilers (gcc 3.x) and Sun needs double versions of srqt etc.
+///exclude Apple Intel (it's assumed to be a Macbook or newer Intel Dual Core processor)
+#if defined (__sun) || defined (__sun__) || defined (__sparc) || (defined (__APPLE__) && ! defined (__i386__))
+//use slow double float precision operation on those platforms
 		
 SIMD_FORCE_INLINE btScalar btSqrt(btScalar x) { return sqrt(x); }
 SIMD_FORCE_INLINE btScalar btFabs(btScalar x) { return fabs(x); }

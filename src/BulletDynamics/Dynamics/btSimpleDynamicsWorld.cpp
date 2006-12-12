@@ -63,7 +63,7 @@ int		btSimpleDynamicsWorld::stepSimulation( float timeStep,int maxSubSteps, floa
 		btContactSolverInfo infoGlobal;
 		infoGlobal.m_timeStep = timeStep;
 		
-		m_constraintSolver->solveGroup(manifoldPtr, numManifolds,infoGlobal,m_debugDrawer);
+		m_constraintSolver->solveGroup(manifoldPtr, numManifolds,0,0,infoGlobal,m_debugDrawer);
 	}
 
 	///integrate transforms
@@ -101,7 +101,10 @@ void	btSimpleDynamicsWorld::addRigidBody(btRigidBody* body)
 {
 	body->setGravity(m_gravity);
 
-	addCollisionObject(body);
+	if (body->getCollisionShape())
+	{
+		addCollisionObject(body);
+	}
 }
 
 void	btSimpleDynamicsWorld::updateAabbs()

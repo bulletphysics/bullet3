@@ -84,6 +84,8 @@ void	ConstraintDemo::initPhysics()
 	btConstraintSolver* constraintSolver = new btSequentialImpulseConstraintSolver();
 	//ConstraintSolver* solver = new OdeConstraintSolver;
 	m_dynamicsWorld = new btDiscreteDynamicsWorld(dispatcher,pairCache,constraintSolver);
+
+	//m_dynamicsWorld->setGravity(btVector3(0,0,0));
 	
 	m_dynamicsWorld->setDebugDrawer(&debugDrawer);
 
@@ -92,16 +94,16 @@ void	ConstraintDemo::initPhysics()
 	trans.setIdentity();
 	trans.setOrigin(btVector3(0,20,0));
 
-	float mass = 0.f;
+	float mass = 1.f;
 	//point to point constraint (ball socket)
 	{
 		btRigidBody* body0 = localCreateRigidBody( mass,trans,shape);
 		trans.setOrigin(btVector3(2*CUBE_HALF_EXTENTS,20,0));
 
 		mass = 1.f;
-		btRigidBody* body1 = localCreateRigidBody( mass,trans,shape);
-		body1->setActivationState(DISABLE_DEACTIVATION);
-		body1->setDamping(0.3,0.3);
+		btRigidBody* body1 = 0;//localCreateRigidBody( mass,trans,shape);
+		//body1->setActivationState(DISABLE_DEACTIVATION);
+		//body1->setDamping(0.3,0.3);
 
 		btVector3 pivotInA(CUBE_HALF_EXTENTS,-CUBE_HALF_EXTENTS,-CUBE_HALF_EXTENTS);
 		btVector3 axisInA(0,0,1);
@@ -112,7 +114,15 @@ void	ConstraintDemo::initPhysics()
 		body0->getCenterOfMassTransform().getBasis() * axisInA;
 
 		//btTypedConstraint* p2p = new btPoint2PointConstraint(*body0,*body1,pivotInA,pivotInB);
-		btTypedConstraint* hinge = new btHingeConstraint(*body0,*body1,pivotInA,pivotInB,axisInA,axisInB);
+		//btTypedConstraint* hinge = new btHingeConstraint(*body0,*body1,pivotInA,pivotInB,axisInA,axisInB);
+		btHingeConstraint* hinge = new btHingeConstraint(*body0,pivotInA,axisInA);
+		
+		//use zero targetVelocity and a small maxMotorImpulse to simulate joint friction
+		//float	targetVelocity = 0.f;
+		//float	maxMotorImpulse = 0.01;
+		float	targetVelocity = 1.f;
+		float	maxMotorImpulse = 1.0f;
+		hinge->enableAngularMotor(true,targetVelocity,maxMotorImpulse);
 
 		m_dynamicsWorld->addConstraint(hinge);//p2p);
 

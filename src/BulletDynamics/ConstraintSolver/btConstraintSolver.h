@@ -18,7 +18,7 @@ subject to the following restrictions:
 
 class btPersistentManifold;
 class btRigidBody;
-
+class btTypedConstraint;
 struct btContactSolverInfo;
 struct btBroadphaseProxy;
 class btIDebugDraw;
@@ -31,7 +31,7 @@ public:
 
 	virtual ~btConstraintSolver() {}
 	
-	virtual float solveGroup(btPersistentManifold** manifold,int numManifolds,const btContactSolverInfo& info,class btIDebugDraw* debugDrawer = 0) = 0;
+	virtual float solveGroup(btPersistentManifold** manifold,int numManifolds,btTypedConstraint** constraints,int numConstraints, const btContactSolverInfo& info,class btIDebugDraw* debugDrawer = 0) = 0;
 
 };
 
