@@ -43,23 +43,9 @@ subject to the following restrictions:
 #include "BulletCollision/NarrowPhaseCollision/btGjkEpaPenetrationDepthSolver.h"
 
 
-#ifdef WIN32
-#if _MSC_VER >= 1310
-//only use SIMD Hull code under Win32
-#ifdef TEST_HULL
-#define USE_HULL 1
-#endif //TEST_HULL
-#endif //_MSC_VER 
-#endif //WIN32
 
 
-#ifdef USE_HULL
 
-#include "NarrowPhaseCollision/Hull.h"
-#include "NarrowPhaseCollision/HullContactCollector.h"
-
-
-#endif //USE_HULL
 
 
 btConvexConvexAlgorithm::CreateFunc::CreateFunc()

@@ -56,7 +56,10 @@ m_emptyCreateFunc(0)
 		}
 	}
 }
-
+//if you want to not link with the default collision algorithms, you can
+//define BT_EXCLUDE_DEFAULT_COLLISIONALGORITHM_REGISTRATION 
+//in your Bullet library build system
+#ifndef BT_EXCLUDE_DEFAULT_COLLISIONALGORITHM_REGISTRATION
 
 btCollisionDispatcher::btCollisionDispatcher (): 
 	m_useIslands(true),
@@ -85,6 +88,9 @@ btCollisionDispatcher::btCollisionDispatcher ():
 	
 	
 };
+
+#endif //BT_EXCLUDE_DEFAULT_COLLISIONALGORITHM_REGISTRATION
+
 
 void btCollisionDispatcher::registerCollisionCreateFunc(int proxyType0, int proxyType1, btCollisionAlgorithmCreateFunc *createFunc)
 {
@@ -164,6 +170,8 @@ btCollisionAlgorithm* btCollisionDispatcher::findAlgorithm(btCollisionObject* bo
 }
 
 
+#ifndef BT_EXCLUDE_DEFAULT_COLLISIONALGORITHM_REGISTRATION
+
 btCollisionAlgorithmCreateFunc* btCollisionDispatcher::internalFindCreateFunc(int proxyType0,int proxyType1)
 {
 	
@@ -196,6 +204,8 @@ btCollisionAlgorithmCreateFunc* btCollisionDispatcher::internalFindCreateFunc(in
 	//failed to find an algorithm
 	return m_emptyCreateFunc;
 }
+
+#endif //BT_EXCLUDE_DEFAULT_COLLISIONALGORITHM_REGISTRATION
 
 
 #ifndef USE_DISPATCH_REGISTRY_ARRAY

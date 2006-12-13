@@ -63,7 +63,7 @@ class btManifoldPoint
 			float	m_combinedRestitution;
 
 				
-			void*	m_userPersistentData;
+			mutable void*	m_userPersistentData;
 
 			int		m_lifeTime;//lifetime of the contactpoint in frames
 			
