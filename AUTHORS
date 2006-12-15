@@ -1,0 +1,20 @@
+
+Bullet Physics Library is an open source project with help from the community at the Physics Forum
+See the forum at http://bulletphysics.com
+
+The project was started by Erwin Coumans
+
+Following people contributed to Bullet
+(random order, please let us know on the forum if your name should be in this list)
+
+Gino van den Bergen: LinearMath classes
+Christer Ericson: parts of the voronoi simplex solver
+Simon Hobbs: 3d axis sweep and prune, Extras/SATCollision, separating axis theorem + SIMD code
+Dirk Gregorius: generic D6 constraint
+Erin Catto: accumulated impulse in sequential impulse
+Nathanael Presson: EPA penetration depth calculation
+Francisco Leon: GIMPACT Concave Concave collision
+Joerg Henrichs: make buildsystem
+Eric Sunshine: jam + msvcgen buildsystem
+Erwin Coumans: most other source code
+

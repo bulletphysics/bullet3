@@ -1,18 +1,27 @@
 Bullet Collision Detection and Physics Library
 
-Compile
+Building: read the Bullet_User_Manual.pdf or:
 
 Under Windows, projectfiles for Visual Studio version 6,7,7.1 and 8 are available in msvc/<version>.
 For example, for Visual Studio 2005, open msvc/8/wksbullet.sln
 
 The ColladaDemo and ConvexDecomposition demo needs to be able to locate the data files (jenga.dae and file.obj) in the current directory. Make sure Visual Studio points to the right folder (..\..).
 
+Alternatively you can use Cmake for all platforms including Win32, Mac OS X (PPC/Intel), Linux, BSD etc. 
+Cmake allows to autogenerate MSVC, Xcode, Kdevelop, UNIX Makefiles etc:
+Download cmake from http://cmake.org
+./cmake . -G Xcode
+You can replace Xcode by other available build systems. Just run cmake to see which are available for your platform.
 
-For other systems, for example Linux or Mac OS-X:
+Two more options: make and jam.
+
+./autogen.sh
 
 ./configure
 
-jam
+jam 
+or 
+make
 
 If jam is not available for your system, you can compile it, jam sources are included with the Bullet sources in jam-2.5
 
@@ -24,9 +33,8 @@ make
 
 (as root)
 
-su
+sudo ./jam0 install
 
-make install
+For more help, visit http://www.bulletphysics.com/Bullet/phpBB2
 
-For more help, visit http://www.continuousphysics.com
 
