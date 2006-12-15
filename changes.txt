@@ -4,6 +4,7 @@ Erwin Coumans
 2006 Dec 14
 	- merged contact and non-contact constraint solving into one loop, will improve stability of jointed bodies during collisions
 	- added first draft for hingeConstraint motor
+	- trying out SVN::notify to mailinglist
 	
 2006 Dec 8, Erwin Coumans
 	- preparation for SIMD: added btAlignedAllocator and btAlignedObjectArray, to replace stl std::vector, same interface, but compatible with 16 byte alignment
