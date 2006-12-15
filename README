@@ -1,0 +1,7 @@
+
+Bullet is a 3D Collision Detection and Rigid Body Dynamics Library for games and animation.
+Free for commercial use, including Playstation 3, open source under the ZLib License.
+Discrete and continuous collision detection, integrated into Blender 3D, and COLLADA 1.4 Physics import. 
+
+See the Bullet_User_Manual.pdf for more info and visit the Bullet Physics Forum at
+http://bulletphysics.com
