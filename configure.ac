@@ -9,7 +9,7 @@ AC_PREREQ([2.54])
 #----------------------------------------------------------------------------
 AC_INIT(
     [bullet],
-    [2.32],
+    [2.40],
     [bullet@erwincoumans.com])
 CS_PACKAGEINFO(
     [Bullet Continuous Collision Detection and Physics Library],
@@ -18,6 +18,9 @@ CS_PACKAGEINFO(
 AC_CONFIG_SRCDIR([mk/jam/build.jam])
 AC_CONFIG_AUX_DIR([mk/autoconf])
 AC_CANONICAL_HOST
+AC_PROG_RANLIB
+AC_PROG_CXX
+AM_INIT_AUTOMAKE
 
 #----------------------------------------------------------------------------
 # Setup for the configuration header.
@@ -103,7 +106,7 @@ CS_EMIT_PACKAGEINFO
 # Emit generated files.
 #----------------------------------------------------------------------------
 CS_JAMCONFIG_OUTPUT([Jamconfig])
-AC_CONFIG_FILES([Jamfile bullet.pc])
+AC_CONFIG_FILES([Jamfile bullet.pc Makefile src/Makefile Demos/OpenGL/Makefile])
 AC_OUTPUT
 
 AC_MSG_NOTICE([
