@@ -1,6 +1,9 @@
 Bullet Continuous Collision Detection and Physics Library
 Erwin Coumans
 
+2006 Dec 15
+	- added contribution to allow double precision collision detection/dynamics. Define BT_USE_DOUBLE_PRECISION in your project and libraries that include Bullet
+
 2006 Dec 14
 	- merged contact and non-contact constraint solving into one loop, will improve stability of jointed bodies during collisions
 	- added first draft for hingeConstraint motor
