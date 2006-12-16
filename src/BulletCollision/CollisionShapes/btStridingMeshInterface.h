@@ -38,7 +38,7 @@ class  btStridingMeshInterface
 		btVector3 m_scaling;
 
 	public:
-		btStridingMeshInterface() :m_scaling(1.f,1.f,1.f)
+		btStridingMeshInterface() :m_scaling(btScalar(1.),btScalar(1.),btScalar(1.))
 		{
 
 		}

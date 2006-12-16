@@ -33,7 +33,7 @@ void	btStridingMeshInterface::InternalProcessAllTriangles(btInternalTriangleInde
 	int stride,numverts,numtriangles;
 	int gfxindex;
 	btVector3 triangle[3];
-	float* graphicsbase;
+	btScalar* graphicsbase;
 
 	btVector3 meshScaling = getScaling();
 
@@ -50,11 +50,11 @@ void	btStridingMeshInterface::InternalProcessAllTriangles(btInternalTriangleInde
 				for (gfxindex=0;gfxindex<numtriangles;gfxindex++)
 				{
 					int* tri_indices= (int*)(indexbase+gfxindex*indexstride);
-					graphicsbase = (float*)(vertexbase+tri_indices[0]*stride);
+					graphicsbase = (btScalar*)(vertexbase+tri_indices[0]*stride);
 					triangle[0].setValue(graphicsbase[0]*meshScaling.getX(),graphicsbase[1]*meshScaling.getY(),graphicsbase[2]*meshScaling.getZ());
-					graphicsbase = (float*)(vertexbase+tri_indices[1]*stride);
+					graphicsbase = (btScalar*)(vertexbase+tri_indices[1]*stride);
 					triangle[1].setValue(graphicsbase[0]*meshScaling.getX(),graphicsbase[1]*meshScaling.getY(),	graphicsbase[2]*meshScaling.getZ());
-					graphicsbase = (float*)(vertexbase+tri_indices[2]*stride);
+					graphicsbase = (btScalar*)(vertexbase+tri_indices[2]*stride);
 					triangle[2].setValue(graphicsbase[0]*meshScaling.getX(),graphicsbase[1]*meshScaling.getY(),	graphicsbase[2]*meshScaling.getZ());
 					callback->internalProcessTriangleIndex(triangle,part,gfxindex);
 				}
@@ -65,11 +65,11 @@ void	btStridingMeshInterface::InternalProcessAllTriangles(btInternalTriangleInde
 				for (gfxindex=0;gfxindex<numtriangles;gfxindex++)
 				{
 					short int* tri_indices= (short int*)(indexbase+gfxindex*indexstride);
-					graphicsbase = (float*)(vertexbase+tri_indices[0]*stride);
+					graphicsbase = (btScalar*)(vertexbase+tri_indices[0]*stride);
 					triangle[0].setValue(graphicsbase[0]*meshScaling.getX(),graphicsbase[1]*meshScaling.getY(),graphicsbase[2]*meshScaling.getZ());
-					graphicsbase = (float*)(vertexbase+tri_indices[1]*stride);
+					graphicsbase = (btScalar*)(vertexbase+tri_indices[1]*stride);
 					triangle[1].setValue(graphicsbase[0]*meshScaling.getX(),graphicsbase[1]*meshScaling.getY(),	graphicsbase[2]*meshScaling.getZ());
-					graphicsbase = (float*)(vertexbase+tri_indices[2]*stride);
+					graphicsbase = (btScalar*)(vertexbase+tri_indices[2]*stride);
 					triangle[2].setValue(graphicsbase[0]*meshScaling.getX(),graphicsbase[1]*meshScaling.getY(),	graphicsbase[2]*meshScaling.getZ());
 					callback->internalProcessTriangleIndex(triangle,part,gfxindex);
 				}

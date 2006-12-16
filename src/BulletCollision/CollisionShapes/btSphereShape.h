@@ -45,11 +45,11 @@ public:
 	//debugging
 	virtual char*	getName()const {return "SPHERE";}
 
-	virtual void	setMargin(float margin)
+	virtual void	setMargin(btScalar margin)
 	{
 		btConvexShape::setMargin(margin);
 	}
-	virtual float	getMargin() const
+	virtual btScalar	getMargin() const
 	{
 		//to improve gjk behaviour, use radius+margin as the full margin, so never get into the penetration case
 		//this means, non-uniform scaling is not supported anymore

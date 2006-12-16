@@ -40,11 +40,11 @@ ATTRIBUTE_ALIGNED16 (class	btQuadWord)
 
 		SIMD_FORCE_INLINE const btScalar& getZ() const { return m_z; }
 
-		SIMD_FORCE_INLINE void	setX(float x) { m_x = x;};
+		SIMD_FORCE_INLINE void	setX(btScalar x) { m_x = x;};
 
-		SIMD_FORCE_INLINE void	setY(float y) { m_y = y;};
+		SIMD_FORCE_INLINE void	setY(btScalar y) { m_y = y;};
 
-		SIMD_FORCE_INLINE void	setZ(float z) { m_z = z;};
+		SIMD_FORCE_INLINE void	setZ(btScalar z) { m_z = z;};
 
 		SIMD_FORCE_INLINE const btScalar& x() const { return m_x; }
 
@@ -79,14 +79,14 @@ ATTRIBUTE_ALIGNED16 (class	btQuadWord)
 		}
 
 		SIMD_FORCE_INLINE btQuadWord() :
-		m_x(0.f),m_y(0.f),m_z(0.f),m_unusedW(0.f)
+		m_x(btScalar(0.)),m_y(btScalar(0.)),m_z(btScalar(0.)),m_unusedW(btScalar(0.))
 		{
 		}
 
 		SIMD_FORCE_INLINE btQuadWord(const btScalar& x, const btScalar& y, const btScalar& z) 
 		:m_x(x),m_y(y),m_z(z)
 		//todo, remove this in release/simd ?
-		,m_unusedW(0.f)
+		,m_unusedW(btScalar(0.))
 		{
 		}
 

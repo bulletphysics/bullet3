@@ -37,7 +37,7 @@ GLDebugDrawer	debugDrawer;
 
 //***************************THE FAMOUS BUNNY TRIMESH********************************************//
 
-#define REAL float
+#define REAL btScalar
 const int NUM_TRIANGLES =902;
 const int NUM_VERTICES = 453;
 const int NUM_INDICES  = NUM_TRIANGLES * 3;
@@ -1487,7 +1487,7 @@ void ConcaveDemo::renderme()
 {
 	updateCamera();
 
-	float m[16];
+	btScalar m[16];
 
 	if (m_dynamicsWorld)
 	{

@@ -43,7 +43,7 @@ void	btMinkowskiSumShape::batchedUnitVectorGetSupportingVertexWithoutMargin(cons
 
 
 
-float	btMinkowskiSumShape::getMargin() const
+btScalar	btMinkowskiSumShape::getMargin() const
 {
 	return m_shapeA->getMargin() + m_shapeB->getMargin();
 }

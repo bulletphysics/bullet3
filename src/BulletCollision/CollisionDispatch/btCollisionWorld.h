@@ -137,7 +137,7 @@ public:
 		LocalRayResult(btCollisionObject*	collisionObject, 
 			LocalShapeInfo*	localShapeInfo,
 			const btVector3&		hitNormalLocal,
-			float hitFraction)
+			btScalar hitFraction)
 		:m_collisionObject(collisionObject),
 		m_localShapeInfo(m_localShapeInfo),
 		m_hitNormalLocal(hitNormalLocal),
@@ -148,7 +148,7 @@ public:
 		btCollisionObject*	m_collisionObject;
 		LocalShapeInfo*			m_localShapeInfo;
 		const btVector3&		m_hitNormalLocal;
-		float					m_hitFraction;
+		btScalar					m_hitFraction;
 
 	};
 
@@ -158,17 +158,17 @@ public:
 		virtual ~RayResultCallback()
 		{
 		}
-		float	m_closestHitFraction;
+		btScalar	m_closestHitFraction;
 		bool	HasHit()
 		{
-			return (m_closestHitFraction < 1.f);
+			return (m_closestHitFraction < btScalar(1.));
 		}
 
 		RayResultCallback()
-			:m_closestHitFraction(1.f)
+			:m_closestHitFraction(btScalar(1.))
 		{
 		}
-		virtual	float	AddSingleResult(LocalRayResult& rayResult) = 0;
+		virtual	btScalar	AddSingleResult(LocalRayResult& rayResult) = 0;
 	};
 
 	struct	ClosestRayResultCallback : public RayResultCallback
@@ -187,7 +187,7 @@ public:
 		btVector3	m_hitPointWorld;
 		btCollisionObject*	m_collisionObject;
 		
-		virtual	float	AddSingleResult(LocalRayResult& rayResult)
+		virtual	btScalar	AddSingleResult(LocalRayResult& rayResult)
 		{
 
 //caller already does the filter on the m_closestHitFraction

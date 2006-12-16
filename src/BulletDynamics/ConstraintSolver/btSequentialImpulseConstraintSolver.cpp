@@ -84,10 +84,10 @@ int btRandInt2 (int n)
 
 int btRandIntWrong (int n)
 {
-  float a = float(n) / 4294967296.0f;
+  btScalar a = btScalar(n) / btScalar(4294967296.0);
 //  printf("n = %d\n",n);
 //  printf("a = %f\n",a);
-  int res = (int) (float(btRand2()) * a);
+  int res = (int) (btScalar(btRand2()) * a);
 //	printf("res=%d\n",res);
   return res;
 }
@@ -125,7 +125,7 @@ btSequentialImpulseConstraintSolver::btSequentialImpulseConstraintSolver()
 }
 
 /// btSequentialImpulseConstraintSolver Sequentially applies impulses
-float btSequentialImpulseConstraintSolver3::solveGroup(btPersistentManifold** manifoldPtr, int numManifolds,btTypedConstraint** constraints,int numConstraints,const btContactSolverInfo& infoGlobal,btIDebugDraw* debugDrawer)
+btScalar btSequentialImpulseConstraintSolver3::solveGroup(btPersistentManifold** manifoldPtr, int numManifolds,btTypedConstraint** constraints,int numConstraints,const btContactSolverInfo& infoGlobal,btIDebugDraw* debugDrawer)
 {
 	
 	btContactSolverInfo info = infoGlobal;
@@ -209,12 +209,12 @@ float btSequentialImpulseConstraintSolver3::solveGroup(btPersistentManifold** ma
 	btProfiler::endBlock("solve");
 #endif //USE_PROFILE
 
-	return 0.f;
+	return btScalar(0.);
 }
 
 
 /// btSequentialImpulseConstraintSolver Sequentially applies impulses
-float btSequentialImpulseConstraintSolver::solveGroup(btPersistentManifold** manifoldPtr, int numManifolds,btTypedConstraint** constraints,int numConstraints,const btContactSolverInfo& infoGlobal,btIDebugDraw* debugDrawer)
+btScalar btSequentialImpulseConstraintSolver::solveGroup(btPersistentManifold** manifoldPtr, int numManifolds,btTypedConstraint** constraints,int numConstraints,const btContactSolverInfo& infoGlobal,btIDebugDraw* debugDrawer)
 {
 	
 	btContactSolverInfo info = infoGlobal;
@@ -293,11 +293,11 @@ float btSequentialImpulseConstraintSolver::solveGroup(btPersistentManifold** man
 	btProfiler::endBlock("solve");
 #endif //USE_PROFILE
 
-	return 0.f;
+	return btScalar(0.);
 }
 
 
-float penetrationResolveFactor = 0.9f;
+btScalar penetrationResolveFactor = btScalar(0.9);
 btScalar restitutionCurve(btScalar rel_vel, btScalar restitution)
 {
 	btScalar rest = restitution * -rel_vel;
@@ -324,7 +324,7 @@ void	btSequentialImpulseConstraintSolver::prepareConstraints(btPersistentManifol
 		for (int i=0;i<numpoints ;i++)
 		{
 			btManifoldPoint& cp = manifoldPtr->getContactPoint(i);
-			if (cp.getDistance() <= 0.f)
+			if (cp.getDistance() <= btScalar(0.))
 			{
 				const btVector3& pos1 = cp.getPositionWorldOnA();
 				const btVector3& pos2 = cp.getPositionWorldOnB();
@@ -373,7 +373,7 @@ void	btSequentialImpulseConstraintSolver::prepareConstraints(btPersistentManifol
 				}
 				assert(cpd);
 
-				cpd->m_jacDiagABInv = 1.f / jacDiagAB;
+				cpd->m_jacDiagABInv = btScalar(1.) / jacDiagAB;
 
 				//Dependent on Rigidbody A and B types, fetch the contact/friction response func
 				//perhaps do a similar thing for friction/restutution combiner funcs...
@@ -387,14 +387,14 @@ void	btSequentialImpulseConstraintSolver::prepareConstraints(btPersistentManifol
 				btScalar rel_vel;
 				rel_vel = cp.m_normalWorldOnB.dot(vel);
 				
-				float combinedRestitution = cp.m_combinedRestitution;
+				btScalar combinedRestitution = cp.m_combinedRestitution;
 				
 				cpd->m_penetration = cp.getDistance();
 				cpd->m_friction = cp.m_combinedFriction;
 				cpd->m_restitution = restitutionCurve(rel_vel, combinedRestitution);
-				if (cpd->m_restitution <= 0.) //0.f)
+				if (cpd->m_restitution <= 0.) //btScalar(0.))
 				{
-					cpd->m_restitution = 0.0f;
+					cpd->m_restitution = btScalar(0.0);
 
 				};
 				
@@ -405,18 +405,18 @@ void	btSequentialImpulseConstraintSolver::prepareConstraints(btPersistentManifol
 
 				if (cpd->m_restitution > penVel)
 				{
-					cpd->m_penetration = 0.f;
+					cpd->m_penetration = btScalar(0.);
 				} 				
 				
 				
 
-				float relaxation = info.m_damping;
+				btScalar relaxation = info.m_damping;
 				if (m_solverMode & SOLVER_USE_WARMSTARTING)
 				{
 					cpd->m_appliedImpulse *= relaxation;
 				} else
 				{
-					cpd->m_appliedImpulse =0.f;
+					cpd->m_appliedImpulse =btScalar(0.);
 				}
 	
 				//for friction
@@ -429,12 +429,12 @@ void	btSequentialImpulseConstraintSolver::prepareConstraints(btPersistentManifol
 #define NO_FRICTION_WARMSTART 1
 
 	#ifdef NO_FRICTION_WARMSTART
-				cpd->m_accumulatedTangentImpulse0 = 0.f;
-				cpd->m_accumulatedTangentImpulse1 = 0.f;
+				cpd->m_accumulatedTangentImpulse0 = btScalar(0.);
+				cpd->m_accumulatedTangentImpulse1 = btScalar(0.);
 	#endif //NO_FRICTION_WARMSTART
-				float denom0 = body0->computeImpulseDenominator(pos1,cpd->m_frictionWorldTangential0);
-				float denom1 = body1->computeImpulseDenominator(pos2,cpd->m_frictionWorldTangential0);
-				float denom = relaxation/(denom0+denom1);
+				btScalar denom0 = body0->computeImpulseDenominator(pos1,cpd->m_frictionWorldTangential0);
+				btScalar denom1 = body1->computeImpulseDenominator(pos2,cpd->m_frictionWorldTangential0);
+				btScalar denom = relaxation/(denom0+denom1);
 				cpd->m_jacDiagABInvTangent0 = denom;
 
 
@@ -489,16 +489,16 @@ void	btSequentialImpulseConstraintSolver::prepareConstraints(btPersistentManifol
 	}
 }
 
-float btSequentialImpulseConstraintSolver::solve(btRigidBody* body0,btRigidBody* body1, btManifoldPoint& cp, const btContactSolverInfo& info,int iter,btIDebugDraw* debugDrawer)
+btScalar btSequentialImpulseConstraintSolver::solve(btRigidBody* body0,btRigidBody* body1, btManifoldPoint& cp, const btContactSolverInfo& info,int iter,btIDebugDraw* debugDrawer)
 {
 
-	float maxImpulse = 0.f;
+	btScalar maxImpulse = btScalar(0.);
 
 	{
 
 		btVector3 color(0,1,0);
 		{
-			if (cp.getDistance() <= 0.f)
+			if (cp.getDistance() <= btScalar(0.))
 			{
 
 				if (iter == 0)
@@ -510,7 +510,7 @@ float btSequentialImpulseConstraintSolver::solve(btRigidBody* body0,btRigidBody*
 				{
 
 					btConstraintPersistentData* cpd = (btConstraintPersistentData*) cp.m_userPersistentData;
-					float impulse = cpd->m_contactSolverFunc(
+					btScalar impulse = cpd->m_contactSolverFunc(
 						*body0,*body1,
 						cp,
 						info);
@@ -525,7 +525,7 @@ float btSequentialImpulseConstraintSolver::solve(btRigidBody* body0,btRigidBody*
 	return maxImpulse;
 }
 
-float btSequentialImpulseConstraintSolver::solveFriction(btRigidBody* body0,btRigidBody* body1, btManifoldPoint& cp, const btContactSolverInfo& info,int iter,btIDebugDraw* debugDrawer)
+btScalar btSequentialImpulseConstraintSolver::solveFriction(btRigidBody* body0,btRigidBody* body1, btManifoldPoint& cp, const btContactSolverInfo& info,int iter,btIDebugDraw* debugDrawer)
 {
 
 
@@ -534,7 +534,7 @@ float btSequentialImpulseConstraintSolver::solveFriction(btRigidBody* body0,btRi
 		btVector3 color(0,1,0);
 		{
 			
-			if (cp.getDistance() <= 0.f)
+			if (cp.getDistance() <= btScalar(0.))
 			{
 
 				btConstraintPersistentData* cpd = (btConstraintPersistentData*) cp.m_userPersistentData;
@@ -549,5 +549,5 @@ float btSequentialImpulseConstraintSolver::solveFriction(btRigidBody* body0,btRi
 
 	
 	}
-	return 0.f;
+	return btScalar(0.);
 }

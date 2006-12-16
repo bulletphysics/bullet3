@@ -45,7 +45,7 @@ public:
 
 	virtual ~OdeConstraintSolver() {}
 	
-	virtual float solveGroup(btPersistentManifold** manifold,int numManifolds,btTypedConstraint** constraints,int numConstraints,const btContactSolverInfo& info,btIDebugDraw* debugDrawer = 0);
+	virtual btScalar solveGroup(btPersistentManifold** manifold,int numManifolds,btTypedConstraint** constraints,int numConstraints,const btContactSolverInfo& info,btIDebugDraw* debugDrawer = 0);
 
 	///setConstraintForceMixing, the cfm adds some positive value to the main diagonal
 	///This can improve convergence (make matrix positive semidefinite), but it can make the simulation look more 'springy'

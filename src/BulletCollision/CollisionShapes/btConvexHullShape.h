@@ -31,10 +31,10 @@ class btConvexHullShape : public btPolyhedralConvexShape
 	btAlignedObjectArray<btPoint3>	m_points;
 
 public:
-	///this constructor optionally takes in a pointer to points. Each point is assumed to be 3 consecutive float (x,y,z), the striding defines the number of bytes between each point, in memory.
+	///this constructor optionally takes in a pointer to points. Each point is assumed to be 3 consecutive btScalar (x,y,z), the striding defines the number of bytes between each point, in memory.
 	///It is easier to not pass any points in the constructor, and just add one point at a time, using addPoint.
 	///btConvexHullShape make an internal copy of the points.
-	btConvexHullShape(const float* points=0,int numPoints=0, int stride=sizeof(btPoint3));
+	btConvexHullShape(const btScalar* points=0,int numPoints=0, int stride=sizeof(btPoint3));
 
 	void addPoint(const btPoint3& point)
 	{

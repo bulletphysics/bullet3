@@ -19,7 +19,7 @@ subject to the following restrictions:
 
 
 
-btConvexHullShape ::btConvexHullShape (const float* points,int numPoints,int stride)
+btConvexHullShape ::btConvexHullShape (const btScalar* points,int numPoints,int stride)
 {
 	m_points.resize(numPoints);
 
@@ -34,17 +34,17 @@ btConvexHullShape ::btConvexHullShape (const float* points,int numPoints,int str
 
 btVector3	btConvexHullShape::localGetSupportingVertexWithoutMargin(const btVector3& vec0)const
 {
-	btVector3 supVec(0.f,0.f,0.f);
-	btScalar newDot,maxDot = -1e30f;
+	btVector3 supVec(btScalar(0.),btScalar(0.),btScalar(0.));
+	btScalar newDot,maxDot = btScalar(-1e30);
 
 	btVector3 vec = vec0;
 	btScalar lenSqr = vec.length2();
-	if (lenSqr < 0.0001f)
+	if (lenSqr < btScalar(0.0001))
 	{
 		vec.setValue(1,0,0);
 	} else
 	{
-		float rlen = 1.f / btSqrt(lenSqr );
+		btScalar rlen = btScalar(1.) / btSqrt(lenSqr );
 		vec *= rlen;
 	}
 
@@ -70,7 +70,7 @@ void	btConvexHullShape::batchedUnitVectorGetSupportingVertexWithoutMargin(const 
 	{
 		for (int i=0;i<numVectors;i++)
 		{
-			supportVerticesOut[i][3] = -1e30f;
+			supportVerticesOut[i][3] = btScalar(-1e30);
 		}
 	}
 	for (size_t i=0;i<m_points.size();i++)
@@ -101,12 +101,12 @@ btVector3	btConvexHullShape::localGetSupportingVertex(const btVector3& vec)const
 {
 	btVector3 supVertex = localGetSupportingVertexWithoutMargin(vec);
 
-	if ( getMargin()!=0.f )
+	if ( getMargin()!=btScalar(0.) )
 	{
 		btVector3 vecnorm = vec;
 		if (vecnorm .length2() < (SIMD_EPSILON*SIMD_EPSILON))
 		{
-			vecnorm.setValue(-1.f,-1.f,-1.f);
+			vecnorm.setValue(btScalar(-1.),btScalar(-1.),btScalar(-1.));
 		} 
 		vecnorm.normalize();
 		supVertex+= getMargin() * vecnorm;

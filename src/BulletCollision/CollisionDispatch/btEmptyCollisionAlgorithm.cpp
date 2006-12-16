@@ -27,9 +27,9 @@ void btEmptyAlgorithm::processCollision (btCollisionObject* body0,btCollisionObj
 
 }
 
-float btEmptyAlgorithm::calculateTimeOfImpact(btCollisionObject* body0,btCollisionObject* body1,const btDispatcherInfo& dispatchInfo,btManifoldResult* resultOut)
+btScalar btEmptyAlgorithm::calculateTimeOfImpact(btCollisionObject* body0,btCollisionObject* body1,const btDispatcherInfo& dispatchInfo,btManifoldResult* resultOut)
 {
-	return 1.f;
+	return btScalar(1.);
 }
 
 

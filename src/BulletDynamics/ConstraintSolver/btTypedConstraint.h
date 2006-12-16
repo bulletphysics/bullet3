@@ -29,7 +29,7 @@ class btTypedConstraint
 protected:
 	btRigidBody&	m_rbA;
 	btRigidBody&	m_rbB;
-	float	m_appliedImpulse;
+	btScalar	m_appliedImpulse;
 
 
 public:
@@ -81,7 +81,7 @@ public:
 	{
 		return m_userConstraintId;
 	}
-	float	getAppliedImpulse()
+	btScalar	getAppliedImpulse()
 	{
 		return m_appliedImpulse;
 	}

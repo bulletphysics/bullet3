@@ -31,7 +31,7 @@ public:
 	
 
 	SIMD_FORCE_INLINE btVector3(const btScalar& x, const btScalar& y, const btScalar& z) 
-		:btQuadWord(x,y,z,0.f)
+		:btQuadWord(x,y,z,btScalar(0.))
 	{
 	}
 
@@ -148,7 +148,7 @@ public:
 
 	SIMD_FORCE_INLINE void setInterpolate3(const btVector3& v0, const btVector3& v1, btScalar rt)
 	{
-		btScalar s = 1.0f - rt;
+		btScalar s = btScalar(1.0) - rt;
 		m_x = s * v0[0] + rt * v1.x();
 		m_y = s * v0[1] + rt * v1.y();
 		m_z = s * v0[2] + rt * v1.z();
@@ -327,13 +327,13 @@ public:
 
 
 
-	float	getW() const { return m_unusedW;}
+	btScalar	getW() const { return m_unusedW;}
 
 
 		SIMD_FORCE_INLINE int maxAxis4() const
 	{
 		int maxIndex = -1;
-		float maxVal = -1e30f;
+		btScalar maxVal = btScalar(-1e30);
 		if (m_x > maxVal)
 		{
 			maxIndex = 0;
@@ -366,7 +366,7 @@ public:
 	SIMD_FORCE_INLINE int minAxis4() const
 	{
 		int minIndex = -1;
-		float minVal = 1e30f;
+		btScalar minVal = btScalar(1e30);
 		if (m_x < minVal)
 		{
 			minIndex = 0;

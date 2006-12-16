@@ -26,6 +26,7 @@ subject to the following restrictions:
 #include <GL/glut.h>
 #endif
 
+#include "GlutStuff.h"
 #include "GL_ShapeDrawer.h"
 #include "BulletCollision/CollisionShapes/btPolyhedralConvexShape.h"
 #include "BulletCollision/CollisionShapes/btTriangleMeshShape.h"
@@ -145,8 +146,8 @@ void OGL_displaylist_clean()
 
 void OGL_displaylist_register_shape(btCollisionShape * shape)
 {
-	btVector3 aabbMax(1e30f,1e30f,1e30f);
-	btVector3 aabbMin(-1e30f,-1e30f,-1e30f);
+	btVector3 aabbMax(btScalar(1e30),btScalar(1e30),btScalar(1e30));
+	btVector3 aabbMin(-btScalar(1e30),-btScalar(1e30),-btScalar(1e30));
 	GlDisplaylistDrawcallback drawCallback;
 	TRIMESH_KEY dlist;
 
@@ -257,12 +258,12 @@ public:
 };
 
 
-void GL_ShapeDrawer::drawOpenGL(float* m, const btCollisionShape* shape, const btVector3& color,int	debugMode)
+void GL_ShapeDrawer::drawOpenGL(btScalar* m, const btCollisionShape* shape, const btVector3& color,int	debugMode)
 {
 
 	
 	glPushMatrix(); 
-    glMultMatrixf(m);
+  btglMultMatrix(m);
 
 	if (shape->getShapeType() == COMPOUND_SHAPE_PROXYTYPE)
 	{
@@ -271,7 +272,7 @@ void GL_ShapeDrawer::drawOpenGL(float* m, const btCollisionShape* shape, const b
 		{
 			btTransform childTrans = compoundShape->getChildTransform(i);
 			const btCollisionShape* colShape = compoundShape->getChildShape(i);
-			float childMat[16];
+			btScalar childMat[16];
 			childTrans.getOpenGLMatrix(childMat);
 			drawOpenGL(childMat,colShape,color,debugMode);
 		}
@@ -471,12 +472,12 @@ void GL_ShapeDrawer::drawOpenGL(float* m, const btCollisionShape* shape, const b
 //		if (shape->getShapeType() == TRIANGLE_MESH_SHAPE_PROXYTYPE)
 		{
 			btConcaveShape* concaveMesh = (btTriangleMeshShape*) shape;
-			//btVector3 aabbMax(1e30f,1e30f,1e30f);
-			//btVector3 aabbMax(100,100,100);//1e30f,1e30f,1e30f);
+			//btVector3 aabbMax(btScalar(1e30),btScalar(1e30),btScalar(1e30));
+			//btVector3 aabbMax(100,100,100);//btScalar(1e30),btScalar(1e30),btScalar(1e30));
 
 			//todo pass camera, for some culling
-			btVector3 aabbMax(1e30f,1e30f,1e30f);
-			btVector3 aabbMin(-1e30f,-1e30f,-1e30f);
+			btVector3 aabbMax(btScalar(1e30),btScalar(1e30),btScalar(1e30));
+			btVector3 aabbMin(-btScalar(1e30),-btScalar(1e30),-btScalar(1e30));
 
 			GlDrawcallback drawCallback;
 			drawCallback.m_wireframe = (debugMode & btIDebugDraw::DBG_DrawWireframe)!=0;
@@ -496,8 +497,8 @@ void GL_ShapeDrawer::drawOpenGL(float* m, const btCollisionShape* shape, const b
 			btConvexTriangleMeshShape* convexMesh = (btConvexTriangleMeshShape*) shape;
 			
 			//todo: pass camera for some culling			
-			btVector3 aabbMax(1e30f,1e30f,1e30f);
-			btVector3 aabbMin(-1e30f,-1e30f,-1e30f);
+			btVector3 aabbMax(btScalar(1e30),btScalar(1e30),btScalar(1e30));
+			btVector3 aabbMin(-btScalar(1e30),-btScalar(1e30),-btScalar(1e30));
 			TriangleGlDrawcallback drawCallback;
 			convexMesh->getStridingMesh()->InternalProcessAllTriangles(&drawCallback,aabbMin,aabbMax);
 

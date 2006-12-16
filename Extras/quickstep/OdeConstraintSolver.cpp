@@ -70,7 +70,7 @@ m_erp(0.4f)
 
 
 //iterative lcp and penalty method
-float OdeConstraintSolver::solveGroup(btPersistentManifold** manifoldPtr, int numManifolds,btTypedConstraint** constraints,int numConstraints,const btContactSolverInfo& infoGlobal,btIDebugDraw* debugDrawer)
+btScalar OdeConstraintSolver::solveGroup(btPersistentManifold** manifoldPtr, int numManifolds,btTypedConstraint** constraints,int numConstraints,const btContactSolverInfo& infoGlobal,btIDebugDraw* debugDrawer)
 {
 	m_CurBody = 0;
 	m_CurJoint = 0;

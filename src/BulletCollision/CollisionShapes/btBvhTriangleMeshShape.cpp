@@ -96,7 +96,7 @@ void	btBvhTriangleMeshShape::processAllTriangles(btTriangleCallback* callback,co
 #ifdef DEBUG_TRIANGLE_MESH
 				printf("%d ,",graphicsindex);
 #endif //DEBUG_TRIANGLE_MESH
-				float* graphicsbase = (float*)(vertexbase+graphicsindex*stride);
+				btScalar* graphicsbase = (btScalar*)(vertexbase+graphicsindex*stride);
 
 				m_triangle[j] = btVector3(
 					graphicsbase[0]*meshScaling.getX(),

@@ -55,7 +55,7 @@ protected:
 
 	int				m_islandTag1;
 	int				m_activationState1;
-	float			m_deactivationTime;
+	btScalar			m_deactivationTime;
 
 	btScalar		m_friction;
 	btScalar		m_restitution;
@@ -67,13 +67,13 @@ protected:
 	void*			m_internalOwner;
 
 	///time of impact calculation
-	float			m_hitFraction; 
+	btScalar			m_hitFraction; 
 	
 	///Swept sphere radius (0.0 by default), see btConvexConvexAlgorithm::
-	float			m_ccdSweptSphereRadius;
+	btScalar			m_ccdSweptSphereRadius;
 
 	/// Don't do continuous collision detection if square motion (in one step) is less then m_ccdSquareMotionThreshold
-	float			m_ccdSquareMotionThreshold;
+	btScalar			m_ccdSquareMotionThreshold;
 
 public:
 
@@ -137,11 +137,11 @@ public:
 	
 	void setActivationState(int newState);
 
-	void	setDeactivationTime(float time)
+	void	setDeactivationTime(btScalar time)
 	{
 		m_deactivationTime = time;
 	}
-	float	getDeactivationTime() const
+	btScalar	getDeactivationTime() const
 	{
 		return m_deactivationTime;
 	}
@@ -155,19 +155,19 @@ public:
 		return ((getActivationState() != ISLAND_SLEEPING) && (getActivationState() != DISABLE_SIMULATION));
 	}
 
-		void	setRestitution(float rest)
+		void	setRestitution(btScalar rest)
 	{
 		m_restitution = rest;
 	}
-	float	getRestitution() const
+	btScalar	getRestitution() const
 	{
 		return m_restitution;
 	}
-	void	setFriction(float frict)
+	void	setFriction(btScalar frict)
 	{
 		m_friction = frict;
 	}
-	float	getFriction() const
+	btScalar	getFriction() const
 	{
 		return m_friction;
 	}
@@ -251,12 +251,12 @@ public:
 		m_islandTag1 = tag;
 	}
 
-	const float			getHitFraction() const
+	const btScalar			getHitFraction() const
 	{
 		return m_hitFraction; 
 	}
 
-	void	setHitFraction(float hitFraction)
+	void	setHitFraction(btScalar hitFraction)
 	{
 		m_hitFraction = hitFraction;
 	}
@@ -273,25 +273,25 @@ public:
 	}
 	
 	///Swept sphere radius (0.0 by default), see btConvexConvexAlgorithm::
-	float			getCcdSweptSphereRadius() const
+	btScalar			getCcdSweptSphereRadius() const
 	{
 		return m_ccdSweptSphereRadius;
 	}
 
 	///Swept sphere radius (0.0 by default), see btConvexConvexAlgorithm::
-	void	setCcdSweptSphereRadius(float radius)
+	void	setCcdSweptSphereRadius(btScalar radius)
 	{
 		m_ccdSweptSphereRadius = radius;
 	}
 
-	float 	getCcdSquareMotionThreshold() const
+	btScalar 	getCcdSquareMotionThreshold() const
 	{
 		return m_ccdSquareMotionThreshold;
 	}
 
 
 	/// Don't do continuous collision detection if square motion (in one step) is less then m_ccdSquareMotionThreshold
-	void	setCcdSquareMotionThreshold(float ccdSquareMotionThreshold)
+	void	setCcdSquareMotionThreshold(btScalar ccdSquareMotionThreshold)
 	{
 		m_ccdSquareMotionThreshold = ccdSquareMotionThreshold;
 	}

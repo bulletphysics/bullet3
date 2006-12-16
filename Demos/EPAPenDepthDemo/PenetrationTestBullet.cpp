@@ -70,7 +70,11 @@ static void DrawLine(const btVector3& p0, const btVector3& p1, const btVector3& 
 	glColor4f(color.x(), color.y(), color.z(), 1.0f);
 	btVector3 tmp[] = {p0, p1};
 	glEnableClientState(GL_VERTEX_ARRAY);
+#ifndef BT_USE_DOUBLE_PRECISION
 	glVertexPointer(3, GL_FLOAT, sizeof(btVector3), &tmp[0].x());
+#else
+	glVertexPointer(3, GL_DOUBLE, sizeof(btVector3), &tmp[0].x());
+#endif
 	glDrawArrays(GL_LINES, 0, 2);
 	glDisableClientState(GL_VERTEX_ARRAY);
 	glColor4f(1.0f, 1.0f, 1.0f, 1.0f);
@@ -83,7 +87,11 @@ void DrawTriangle(const btVector3& p0, const btVector3& p1, const btVector3& p2,
 	glColor4f(color.x(), color.y(), color.z(), 1.0f);
 	btVector3 tmp[] = {p0, p1, p2};
 	glEnableClientState(GL_VERTEX_ARRAY);
+#ifndef BT_USE_DOUBLE_PRECISION
 	glVertexPointer(3, GL_FLOAT, sizeof(btVector3), &tmp[0].x());
+#else
+	glVertexPointer(3, GL_DOUBLE, sizeof(btVector3), &tmp[0].x());
+#endif
 	glDrawArrays(GL_TRIANGLES, 0, 3);
 	glDisableClientState(GL_VERTEX_ARRAY);
 //	glColor4f(1.0f, 1.0f, 1.0f, 1.0f);
@@ -199,10 +207,13 @@ void MyConvex::Render(bool only_wireframe, const btVector3& wire_color) const
 	const float Scale = 1.0f;
 	glPushMatrix();
 
-	float glmat[16];	//4x4 column major matrix for OpenGL.
+	btScalar glmat[16];	//4x4 column major matrix for OpenGL.
 	mTransform.getOpenGLMatrix(glmat);
+#ifndef BT_USE_DOUBLE_PRECISION
 	glMultMatrixf(&(glmat[0]));
-
+#else
+	glMultMatrixd(&(glmat[0]));
+#endif
 	if(!only_wireframe)
 	{
 		btVector3 color(0.0f, 0.5f, 1.0f);
@@ -273,7 +284,7 @@ static float gDepth;
 		{
 		}
 
-		virtual void addContactPoint(const btVector3& normalOnBInWorld, const btVector3& pointInWorld, float depth)
+		virtual void addContactPoint(const btVector3& normalOnBInWorld, const btVector3& pointInWorld, btScalar depth)
 		{
 			gNormal	= normalOnBInWorld;
 			gPoint	= pointInWorld;
@@ -293,8 +304,8 @@ static bool TestEPA(const MyConvex& hull0, const MyConvex& hull1)
 
 	simplexSolver.reset();
 
-	btConvexHullShape convexA((float*)hull0.mVerts, hull0.mNbVerts, sizeof(btVector3));
-	btConvexHullShape convexB((float*)hull1.mVerts, hull1.mNbVerts, sizeof(btVector3));
+	btConvexHullShape convexA((btScalar*)hull0.mVerts, hull0.mNbVerts, sizeof(btVector3));
+	btConvexHullShape convexB((btScalar*)hull1.mVerts, hull1.mNbVerts, sizeof(btVector3));
 
 	static btGjkEpaPenetrationDepthSolver Solver0;
 	static btMinkowskiPenetrationDepthSolver Solver1;

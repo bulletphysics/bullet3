@@ -17,19 +17,19 @@ subject to the following restrictions:
 #define SIMD_TRANSFORM_UTIL_H
 
 #include "LinearMath/btTransform.h"
-#define ANGULAR_MOTION_THRESHOLD 0.5f*SIMD_HALF_PI
+#define ANGULAR_MOTION_THRESHOLD btScalar(0.5)*SIMD_HALF_PI
 
 
 
 #define SIMDSQRT12 btScalar(0.7071067811865475244008443621048490)
 
-#define btRecipSqrt(x) ((float)(1.0f/btSqrt(float(x))))		/* reciprocal square root */
+#define btRecipSqrt(x) ((btScalar)(btScalar(1.0)/btSqrt(btScalar(x))))		/* reciprocal square root */
 
 inline btVector3 btAabbSupport(const btVector3& halfExtents,const btVector3& supportDir)
 {
-	return btVector3(supportDir.x() < btScalar(0.0f) ? -halfExtents.x() : halfExtents.x(),
-      supportDir.y() < btScalar(0.0f) ? -halfExtents.y() : halfExtents.y(),
-      supportDir.z() < btScalar(0.0f) ? -halfExtents.z() : halfExtents.z()); 
+	return btVector3(supportDir.x() < btScalar(0.0) ? -halfExtents.x() : halfExtents.x(),
+      supportDir.y() < btScalar(0.0) ? -halfExtents.y() : halfExtents.y(),
+      supportDir.z() < btScalar(0.0) ? -halfExtents.z() : halfExtents.z()); 
 }
 
 
@@ -75,7 +75,7 @@ public:
 //	#define QUATERNION_DERIVATIVE
 	#ifdef QUATERNION_DERIVATIVE
 		btQuaternion orn = curTrans.getRotation();
-		orn += (angvel * orn) * (timeStep * 0.5f);
+		orn += (angvel * orn) * (timeStep * btScalar(0.5));
 		orn.normalize();
 	#else
 		//exponential map
@@ -87,17 +87,17 @@ public:
 			fAngle = ANGULAR_MOTION_THRESHOLD / timeStep;
 		}
 
-		if ( fAngle < 0.001f )
+		if ( fAngle < btScalar(0.001) )
 		{
 			// use Taylor's expansions of sync function
-			axis   = angvel*( 0.5f*timeStep-(timeStep*timeStep*timeStep)*(0.020833333333f)*fAngle*fAngle );
+			axis   = angvel*( btScalar(0.5)*timeStep-(timeStep*timeStep*timeStep)*(btScalar(0.020833333333))*fAngle*fAngle );
 		}
 		else
 		{
 			// sync(fAngle) = sin(c*fAngle)/t
-			axis   = angvel*( btSin(0.5f*fAngle*timeStep)/fAngle );
+			axis   = angvel*( btSin(btScalar(0.5)*fAngle*timeStep)/fAngle );
 		}
-		btQuaternion dorn (axis.x(),axis.y(),axis.z(),btCos( fAngle*timeStep*0.5f ));
+		btQuaternion dorn (axis.x(),axis.y(),axis.z(),btCos( fAngle*timeStep*btScalar(0.5) ));
 		btQuaternion orn0 = curTrans.getRotation();
 
 		btQuaternion predictedOrn = dorn * orn0;
@@ -130,11 +130,11 @@ public:
 	
 		angle = dorn.getAngle();
 		axis = btVector3(dorn.x(),dorn.y(),dorn.z());
-		axis[3] = 0.f;
+		axis[3] = btScalar(0.);
 		//check for axis length
 		btScalar len = axis.length2();
 		if (len < SIMD_EPSILON*SIMD_EPSILON)
-			axis = btVector3(1.f,0.f,0.f);
+			axis = btVector3(btScalar(1.),btScalar(0.),btScalar(0.));
 		else
 			axis /= btSqrt(len);
 	}

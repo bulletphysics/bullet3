@@ -147,7 +147,7 @@ void	ConcaveDemo::initPhysics()
 	btTriangleIndexVertexArray* indexVertexArrays = new btTriangleIndexVertexArray(totalTriangles,
 		gIndices,
 		indexStride,
-		totalVerts,(float*) &gVertices[0].x(),vertStride);
+		totalVerts,(btScalar*) &gVertices[0].x(),vertStride);
 
 	btCollisionShape* trimeshShape  = new btBvhTriangleMeshShape(indexVertexArrays);
 

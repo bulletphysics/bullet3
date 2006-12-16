@@ -19,13 +19,13 @@ subject to the following restrictions:
 //#define CHECK_MEMORY_LEAKS 1
 
 int gNumObjects = 120;
-#define HALF_EXTENTS 1.f
+#define HALF_EXTENTS btScalar(1.)
 #include "btBulletDynamicsCommon.h"
 #include "LinearMath/btIDebugDraw.h"
 #include "GLDebugDrawer.h"
 #include <stdio.h> //printf debugging
-float deltaTime = 1.f/60.f;
-float	gCollisionMargin = 0.05f;
+btScalar deltaTime = btScalar(1./60.);
+btScalar gCollisionMargin = btScalar(0.05);
 #include "BasicDemo.h"
 #include "GL_ShapeDrawer.h"
 #include "GlutStuff.h"
@@ -58,7 +58,7 @@ int main(int argc,char** argv)
 
 	BasicDemo ccdDemo;
 	ccdDemo.initPhysics();
-	ccdDemo.setCameraDistance(50.f);
+	ccdDemo.setCameraDistance(btScalar(50.));
 
 #ifdef CHECK_MEMORY_LEAKS
 	ccdDemo.exitPhysics();
@@ -161,9 +161,9 @@ void	BasicDemo::initPhysics()
 
 	//static ground
 #ifdef USE_GROUND_BOX
-	btCollisionShape* groundShape = new btBoxShape(btVector3(50.f,50.f,50.f));
+	btCollisionShape* groundShape = new btBoxShape(btVector3(btScalar(50.),btScalar(50.),btScalar(50.)));
 #else
-	btCollisionShape* groundShape = new btSphereShape(50.f);
+	btCollisionShape* groundShape = new btSphereShape(btScalar(50.));
 #endif//USE_GROUND_BOX
 
 	m_collisionShapes.push_back(groundShape);
@@ -171,10 +171,10 @@ void	BasicDemo::initPhysics()
 	btTransform groundTransform;
 	groundTransform.setIdentity();
 	groundTransform.setOrigin(btVector3(0,-50,0));
-	localCreateRigidBody(0.f,groundTransform,groundShape);
+	localCreateRigidBody(btScalar(0.),groundTransform,groundShape);
 
 	//create a few dynamic sphere rigidbodies (re-using the same sphere shape)
-	btCollisionShape* sphereShape = new btSphereShape(1.f);
+	btCollisionShape* sphereShape = new btSphereShape(btScalar(1.));
 	m_collisionShapes.push_back(sphereShape);
 
 	int i;
@@ -193,8 +193,8 @@ void	BasicDemo::initPhysics()
 			row*2*HALF_EXTENTS+HALF_EXTENTS,0);
 
 		trans.setOrigin(pos);
-		//btRigidBody* body = localCreateRigidBody(1.f,trans,sphereShape);
-		localCreateRigidBody(1.f,trans,sphereShape);
+		//btRigidBody* body = localCreateRigidBody(btScalar(1.),trans,sphereShape);
+		localCreateRigidBody(btScalar(1.),trans,sphereShape);
 	}
 
 	clientResetScene();

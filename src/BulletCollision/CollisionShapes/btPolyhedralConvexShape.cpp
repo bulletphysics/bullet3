@@ -28,16 +28,16 @@ btVector3	btPolyhedralConvexShape::localGetSupportingVertexWithoutMargin(const b
 	int i;
 	btVector3 supVec(0,0,0);
 
-	btScalar maxDot(-1e30f);
+	btScalar maxDot(btScalar(-1e30));
 
 	btVector3 vec = vec0;
 	btScalar lenSqr = vec.length2();
-	if (lenSqr < 0.0001f)
+	if (lenSqr < btScalar(0.0001))
 	{
 		vec.setValue(1,0,0);
 	} else
 	{
-		float rlen = 1.f / btSqrt(lenSqr );
+		btScalar rlen = btScalar(1.) / btSqrt(lenSqr );
 		vec *= rlen;
 	}
 
@@ -68,7 +68,7 @@ void	btPolyhedralConvexShape::batchedUnitVectorGetSupportingVertexWithoutMargin(
 
 	for (i=0;i<numVectors;i++)
 	{
-		supportVerticesOut[i][3] = -1e30f;
+		supportVerticesOut[i][3] = btScalar(-1e30);
 	}
 
 	for (int j=0;j<numVectors;j++)
@@ -96,21 +96,21 @@ void	btPolyhedralConvexShape::calculateLocalInertia(btScalar mass,btVector3& ine
 {
 	//not yet, return box inertia
 
-	float margin = getMargin();
+	btScalar margin = getMargin();
 
 	btTransform ident;
 	ident.setIdentity();
 	btVector3 aabbMin,aabbMax;
 	getAabb(ident,aabbMin,aabbMax);
-	btVector3 halfExtents = (aabbMax-aabbMin)*0.5f;
+	btVector3 halfExtents = (aabbMax-aabbMin)*btScalar(0.5);
 
-	btScalar lx=2.f*(halfExtents.x()+margin);
-	btScalar ly=2.f*(halfExtents.y()+margin);
-	btScalar lz=2.f*(halfExtents.z()+margin);
+	btScalar lx=btScalar(2.)*(halfExtents.x()+margin);
+	btScalar ly=btScalar(2.)*(halfExtents.y()+margin);
+	btScalar lz=btScalar(2.)*(halfExtents.z()+margin);
 	const btScalar x2 = lx*lx;
 	const btScalar y2 = ly*ly;
 	const btScalar z2 = lz*lz;
-	const btScalar scaledmass = mass * 0.08333333f;
+	const btScalar scaledmass = mass * btScalar(0.08333333);
 
 	inertia = scaledmass * (btVector3(y2+z2,x2+z2,x2+y2));
 

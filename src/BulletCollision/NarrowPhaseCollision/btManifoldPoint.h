@@ -40,8 +40,8 @@ class btManifoldPoint
 					m_localPointB( pointB ), 
 					m_normalWorldOnB( normal ), 
 					m_distance1( distance ),
-					m_combinedFriction(0.f),
-					m_combinedRestitution(0.f),
+					m_combinedFriction(btScalar(0.)),
+					m_combinedRestitution(btScalar(0.)),
 					m_userPersistentData(0),					
 					m_lifeTime(0)
 			{
@@ -58,16 +58,16 @@ class btManifoldPoint
 			btVector3	m_positionWorldOnA;
 			btVector3 m_normalWorldOnB;
 		
-			float	m_distance1;
-			float	m_combinedFriction;
-			float	m_combinedRestitution;
+			btScalar	m_distance1;
+			btScalar	m_combinedFriction;
+			btScalar	m_combinedRestitution;
 
 				
 			mutable void*	m_userPersistentData;
 
 			int		m_lifeTime;//lifetime of the contactpoint in frames
 			
-			float getDistance() const
+			btScalar getDistance() const
 			{
 				return m_distance1;
 			}
@@ -86,7 +86,7 @@ class btManifoldPoint
 				return m_positionWorldOnB;
 			}
 
-			void	setDistance(float dist)
+			void	setDistance(btScalar dist)
 			{
 				m_distance1 = dist;
 			}

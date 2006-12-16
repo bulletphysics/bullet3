@@ -31,7 +31,7 @@ struct btPointCollector : public btDiscreteCollisionDetectorInterface::Result
 	bool	m_hasResult;
 
 	btPointCollector () 
-		: m_distance(1e30f),m_hasResult(false)
+		: m_distance(btScalar(1e30)),m_hasResult(false)
 	{
 	}
 
@@ -40,7 +40,7 @@ struct btPointCollector : public btDiscreteCollisionDetectorInterface::Result
 		//??
 	}
 
-	virtual void addContactPoint(const btVector3& normalOnBInWorld,const btVector3& pointInWorld,float depth)
+	virtual void addContactPoint(const btVector3& normalOnBInWorld,const btVector3& pointInWorld,btScalar depth)
 	{
 		if (depth< m_distance)
 		{

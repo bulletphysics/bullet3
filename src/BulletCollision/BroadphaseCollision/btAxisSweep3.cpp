@@ -61,7 +61,7 @@ btAxisSweep3::btAxisSweep3(const btPoint3& worldAabbMin,const btPoint3& worldAab
 
 	btVector3 aabbSize = m_worldAabbMax - m_worldAabbMin;
 
-	m_quantize = btVector3(65535.0f,65535.0f,65535.0f) / aabbSize;
+	m_quantize = btVector3(btScalar(65535.0),btScalar(65535.0),btScalar(65535.0)) / aabbSize;
 
 	// allocate handles buffer and put all handles on free list
 	m_pHandles = new Handle[maxHandles];

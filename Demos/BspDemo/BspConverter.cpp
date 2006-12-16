@@ -21,19 +21,23 @@ subject to the following restrictions:
 void BspConverter::convertBsp(BspLoader& bspLoader,float scaling)
 {
 	{
-		btVector3 playerStart (0.f, 0.f, 100.f);
+		
+		float	playstartf[3] = {0,0,100};
 
-		if (bspLoader.findVectorByName(&playerStart[0],"info_player_start"))
+		if (bspLoader.findVectorByName(&playstartf[0],"info_player_start"))
 		{
 			printf("found playerstart\n");
 		} 
 		else
 		{
-			if (bspLoader.findVectorByName(&playerStart[0],"info_player_deathmatch"))
+			if (bspLoader.findVectorByName(&playstartf[0],"info_player_deathmatch"))
 			{
 				printf("found deatchmatch start\n");
 			}
 		}
+
+		btVector3 playerStart (playstartf[0],playstartf[1],playstartf[2]);
+
 
 		playerStart[2] += 20.f; //start a bit higher
 
@@ -113,6 +117,7 @@ void BspConverter::convertBsp(BspLoader& bspLoader,float scaling)
 						if ( strcmp( cl, "" ) ) {
 							//its not empty so ...
 
+							/*
 							//lookup the target position for the jumppad:
 							const BSPEntity* targetentity = bspLoader.getEntityByValue( "targetname" , cl );
 							if (targetentity)
@@ -122,6 +127,8 @@ void BspConverter::convertBsp(BspLoader& bspLoader,float scaling)
 																	
 								}
 							}
+							*/
+
 
 							cl = bspLoader.getValueForKey(&entity,"model");
 							if ( strcmp( cl, "" ) ) {

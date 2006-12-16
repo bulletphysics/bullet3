@@ -40,7 +40,7 @@ public:
 	virtual void	getBoundingSphere(btVector3& center,btScalar& radius) const;
 
 	///getAngularMotionDisc returns the maximus radius needed for Conservative Advancement to handle time-of-impact with rotations.
-	virtual float	getAngularMotionDisc() const;
+	virtual btScalar	getAngularMotionDisc() const;
 
 	virtual int		getShapeType() const=0;
 
@@ -84,8 +84,8 @@ public:
 	const char * m_tempDebug;
 //endif debugging support
 
-	virtual void	setMargin(float margin) = 0;
-	virtual float	getMargin() const = 0;
+	virtual void	setMargin(btScalar margin) = 0;
+	virtual btScalar	getMargin() const = 0;
 
 };	
 

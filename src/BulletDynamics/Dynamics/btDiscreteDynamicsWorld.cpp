@@ -63,7 +63,7 @@ btDiscreteDynamicsWorld::btDiscreteDynamicsWorld(btDispatcher* dispatcher,btOver
 m_constraintSolver(constraintSolver? constraintSolver: new btSequentialImpulseConstraintSolver),
 m_debugDrawer(0),
 m_gravity(0,-10,0),
-m_localTime(1.f/60.f),
+m_localTime(btScalar(1.)/btScalar(60.)),
 m_profileTimings(0)
 {
 	m_islandManager = new btSimulationIslandManager();
@@ -81,7 +81,7 @@ btDiscreteDynamicsWorld::~btDiscreteDynamicsWorld()
 		 delete m_constraintSolver;
 }
 
-void	btDiscreteDynamicsWorld::saveKinematicState(float timeStep)
+void	btDiscreteDynamicsWorld::saveKinematicState(btScalar timeStep)
 {
 
 	for (unsigned int i=0;i<m_collisionObjects.size();i++)
@@ -115,22 +115,22 @@ void	btDiscreteDynamicsWorld::synchronizeMotionStates()
 			btCollisionObject* colObj = m_collisionObjects[i];
 			if (getDebugDrawer() && getDebugDrawer()->getDebugMode() & btIDebugDraw::DBG_DrawWireframe)
 			{
-				btVector3 color(255.f,255.f,255.f);
+				btVector3 color(btScalar(255.),btScalar(255.),btScalar(255.));
 				switch(colObj->getActivationState())
 				{
 				case  ACTIVE_TAG:
-					color = btVector3(255.f,255.f,255.f); break;
+					color = btVector3(btScalar(255.),btScalar(255.),btScalar(255.)); break;
 				case ISLAND_SLEEPING:
-					color =  btVector3(0.f,255.f,0.f);break;
+					color =  btVector3(btScalar(0.),btScalar(255.),btScalar(0.));break;
 				case WANTS_DEACTIVATION:
-					color = btVector3(0.f,255.f,255.f);break;
+					color = btVector3(btScalar(0.),btScalar(255.),btScalar(255.));break;
 				case DISABLE_DEACTIVATION:
-					color = btVector3(255.f,0.f,0.f);break;
+					color = btVector3(btScalar(255.),btScalar(0.),btScalar(0.));break;
 				case DISABLE_SIMULATION:
-					color = btVector3(255.f,255.f,0.f);break;
+					color = btVector3(btScalar(255.),btScalar(255.),btScalar(0.));break;
 				default:
 					{
-						color = btVector3(255.f,0.f,0.f);
+						color = btVector3(btScalar(255.),btScalar(0.),btScalar(0.));
 					}
 				};
 
@@ -188,7 +188,7 @@ void	btDiscreteDynamicsWorld::synchronizeMotionStates()
 }
 
 
-int	btDiscreteDynamicsWorld::stepSimulation( float timeStep,int maxSubSteps, float fixedTimeStep)
+int	btDiscreteDynamicsWorld::stepSimulation( btScalar timeStep,int maxSubSteps, btScalar fixedTimeStep)
 {
 	int numSimulationSubSteps = 0;
 
@@ -243,7 +243,7 @@ int	btDiscreteDynamicsWorld::stepSimulation( float timeStep,int maxSubSteps, flo
 	return numSimulationSubSteps;
 }
 
-void	btDiscreteDynamicsWorld::internalSingleStepSimulation(float timeStep)
+void	btDiscreteDynamicsWorld::internalSingleStepSimulation(btScalar timeStep)
 {
 	
 	startProfiling(timeStep);
@@ -326,7 +326,7 @@ void	btDiscreteDynamicsWorld::addRigidBody(btRigidBody* body)
 }
 
 
-void	btDiscreteDynamicsWorld::updateVehicles(float timeStep)
+void	btDiscreteDynamicsWorld::updateVehicles(btScalar timeStep)
 {
 	BEGIN_PROFILE("updateVehicles");
 
@@ -338,7 +338,7 @@ void	btDiscreteDynamicsWorld::updateVehicles(float timeStep)
 	END_PROFILE("updateVehicles");
 }
 
-void	btDiscreteDynamicsWorld::updateActivationState(float timeStep)
+void	btDiscreteDynamicsWorld::updateActivationState(btScalar timeStep)
 {
 	BEGIN_PROFILE("updateActivationState");
 
@@ -548,11 +548,11 @@ void	btDiscreteDynamicsWorld::calculateSimulationIslands()
 static void DrawAabb(btIDebugDraw* debugDrawer,const btVector3& from,const btVector3& to,const btVector3& color)
 {
 
-	btVector3 halfExtents = (to-from)* 0.5f;
-	btVector3 center = (to+from) *0.5f;
+	btVector3 halfExtents = (to-from)* btScalar(0.5);
+	btVector3 center = (to+from) *btScalar(0.5);
 	int i,j;
 
-	btVector3 edgecoord(1.f,1.f,1.f),pa,pb;
+	btVector3 edgecoord(btScalar(1.),btScalar(1.),btScalar(1.)),pa,pb;
 	for (i=0;i<4;i++)
 	{
 		for (j=0;j<3;j++)
@@ -562,16 +562,16 @@ static void DrawAabb(btIDebugDraw* debugDrawer,const btVector3& from,const btVec
 			pa+=center;
 
 			int othercoord = j%3;
-			edgecoord[othercoord]*=-1.f;
+			edgecoord[othercoord]*=btScalar(-1.);
 			pb = btVector3(edgecoord[0]*halfExtents[0], edgecoord[1]*halfExtents[1],	
 				edgecoord[2]*halfExtents[2]);
 			pb+=center;
 
 			debugDrawer->drawLine(pa,pb,color);
 		}
-		edgecoord = btVector3(-1.f,-1.f,-1.f);
+		edgecoord = btVector3(btScalar(-1.),btScalar(-1.),btScalar(-1.));
 		if (i<3)
-			edgecoord[i]*=-1.f;
+			edgecoord[i]*=btScalar(-1.);
 	}
 
 
@@ -597,7 +597,7 @@ void	btDiscreteDynamicsWorld::updateAabbs()
 				btSimpleBroadphase* bp = (btSimpleBroadphase*)m_broadphasePairCache;
 
 				//moving objects should be moderately sized, probably something wrong if not
-				if ( colObj->isStaticObject() || ((maxAabb-minAabb).length2() < 1e12f))
+				if ( colObj->isStaticObject() || ((maxAabb-minAabb).length2() < btScalar(1e12)))
 				{
 					bp->setAabb(body->getBroadphaseHandle(),minAabb,maxAabb);
 				} else
@@ -630,7 +630,7 @@ void	btDiscreteDynamicsWorld::updateAabbs()
 	END_PROFILE("updateAabbs");
 }
 
-void	btDiscreteDynamicsWorld::integrateTransforms(float timeStep)
+void	btDiscreteDynamicsWorld::integrateTransforms(btScalar timeStep)
 {
 	BEGIN_PROFILE("integrateTransforms");
 	btTransform predictedTrans;
@@ -652,7 +652,7 @@ void	btDiscreteDynamicsWorld::integrateTransforms(float timeStep)
 
 
 
-void	btDiscreteDynamicsWorld::predictUnconstraintMotion(float timeStep)
+void	btDiscreteDynamicsWorld::predictUnconstraintMotion(btScalar timeStep)
 {
 	BEGIN_PROFILE("predictUnconstraintMotion");
 	for (unsigned int i=0;i<m_collisionObjects.size();i++)
@@ -676,7 +676,7 @@ void	btDiscreteDynamicsWorld::predictUnconstraintMotion(float timeStep)
 }
 
 
-void	btDiscreteDynamicsWorld::startProfiling(float timeStep)
+void	btDiscreteDynamicsWorld::startProfiling(btScalar timeStep)
 {
 	#ifdef USE_QUICKPROF
 
@@ -771,7 +771,7 @@ void btDiscreteDynamicsWorld::debugDrawObject(const btTransform& worldTransform,
 		case SPHERE_SHAPE_PROXYTYPE:
 			{
 				const btSphereShape* sphereShape = static_cast<const btSphereShape*>(shape);
-				float radius = sphereShape->getMargin();//radius doesn't include the margin, so draw with margin
+				btScalar radius = sphereShape->getMargin();//radius doesn't include the margin, so draw with margin
 				btVector3 start = worldTransform.getOrigin();
 				getDebugDrawer()->drawLine(start,start+worldTransform.getBasis() * btVector3(radius,0,0),color);
 				getDebugDrawer()->drawLine(start,start+worldTransform.getBasis() * btVector3(0,radius,0),color);
@@ -783,13 +783,13 @@ void btDiscreteDynamicsWorld::debugDrawObject(const btTransform& worldTransform,
 		case CONE_SHAPE_PROXYTYPE:
 			{
 				const btConeShape* coneShape = static_cast<const btConeShape*>(shape);
-				float radius = coneShape->getRadius();//+coneShape->getMargin();
-				float height = coneShape->getHeight();//+coneShape->getMargin();
+				btScalar radius = coneShape->getRadius();//+coneShape->getMargin();
+				btScalar height = coneShape->getHeight();//+coneShape->getMargin();
 				btVector3 start = worldTransform.getOrigin();
-				getDebugDrawer()->drawLine(start+worldTransform.getBasis() * btVector3(0.f,0.f,0.5f*height),start+worldTransform.getBasis() * btVector3(radius,0.f,-0.5f*height),color);
-				getDebugDrawer()->drawLine(start+worldTransform.getBasis() * btVector3(0.f,0.f,0.5f*height),start+worldTransform.getBasis() * btVector3(-radius,0.f,-0.5f*height),color);
-				getDebugDrawer()->drawLine(start+worldTransform.getBasis() * btVector3(0.f,0.f,0.5f*height),start+worldTransform.getBasis() * btVector3(0.f,radius,-0.5f*height),color);
-				getDebugDrawer()->drawLine(start+worldTransform.getBasis() * btVector3(0.f,0.f,0.5f*height),start+worldTransform.getBasis() * btVector3(0.f,-radius,-0.5f*height),color);
+				getDebugDrawer()->drawLine(start+worldTransform.getBasis() * btVector3(btScalar(0.),btScalar(0.),btScalar(0.5)*height),start+worldTransform.getBasis() * btVector3(radius,btScalar(0.),btScalar(-0.5)*height),color);
+				getDebugDrawer()->drawLine(start+worldTransform.getBasis() * btVector3(btScalar(0.),btScalar(0.),btScalar(0.5)*height),start+worldTransform.getBasis() * btVector3(-radius,btScalar(0.),btScalar(-0.5)*height),color);
+				getDebugDrawer()->drawLine(start+worldTransform.getBasis() * btVector3(btScalar(0.),btScalar(0.),btScalar(0.5)*height),start+worldTransform.getBasis() * btVector3(btScalar(0.),radius,btScalar(-0.5)*height),color);
+				getDebugDrawer()->drawLine(start+worldTransform.getBasis() * btVector3(btScalar(0.),btScalar(0.),btScalar(0.5)*height),start+worldTransform.getBasis() * btVector3(btScalar(0.),-radius,btScalar(-0.5)*height),color);
 				break;
 
 			}
@@ -797,8 +797,8 @@ void btDiscreteDynamicsWorld::debugDrawObject(const btTransform& worldTransform,
 			{
 				const btCylinderShape* cylinder = static_cast<const btCylinderShape*>(shape);
 				int upAxis = cylinder->getUpAxis();
-				float radius = cylinder->getRadius();
-				float halfHeight = cylinder->getHalfExtents()[upAxis];
+				btScalar radius = cylinder->getRadius();
+				btScalar halfHeight = cylinder->getHalfExtents()[upAxis];
 				btVector3 start = worldTransform.getOrigin();
 				btVector3	offsetHeight(0,0,0);
 				offsetHeight[upAxis] = halfHeight;
@@ -814,12 +814,12 @@ void btDiscreteDynamicsWorld::debugDrawObject(const btTransform& worldTransform,
 				if (shape->getShapeType() == TRIANGLE_MESH_SHAPE_PROXYTYPE)
 				{
 					btTriangleMeshShape* concaveMesh = (btTriangleMeshShape*) shape;
-					//btVector3 aabbMax(1e30f,1e30f,1e30f);
-					//btVector3 aabbMax(100,100,100);//1e30f,1e30f,1e30f);
+					//btVector3 aabbMax(btScalar(1e30),btScalar(1e30),btScalar(1e30));
+					//btVector3 aabbMax(100,100,100);//btScalar(1e30),btScalar(1e30),btScalar(1e30));
 
 					//todo pass camera, for some culling
-					btVector3 aabbMax(1e30f,1e30f,1e30f);
-					btVector3 aabbMin(-1e30f,-1e30f,-1e30f);
+					btVector3 aabbMax(btScalar(1e30),btScalar(1e30),btScalar(1e30));
+					btVector3 aabbMin(btScalar(-1e30),btScalar(-1e30),btScalar(-1e30));
 
 					DebugDrawcallback drawCallback(getDebugDrawer(),worldTransform,color);
 					concaveMesh->processAllTriangles(&drawCallback,aabbMin,aabbMax);
@@ -830,8 +830,8 @@ void btDiscreteDynamicsWorld::debugDrawObject(const btTransform& worldTransform,
 				{
 					btConvexTriangleMeshShape* convexMesh = (btConvexTriangleMeshShape*) shape;
 					//todo: pass camera for some culling			
-					btVector3 aabbMax(1e30f,1e30f,1e30f);
-					btVector3 aabbMin(-1e30f,-1e30f,-1e30f);
+					btVector3 aabbMax(btScalar(1e30),btScalar(1e30),btScalar(1e30));
+					btVector3 aabbMin(btScalar(-1e30),btScalar(-1e30),btScalar(-1e30));
 					//DebugDrawcallback drawCallback;
 					DebugDrawcallback drawCallback(getDebugDrawer(),worldTransform,color);
 					convexMesh->getStridingMesh()->InternalProcessAllTriangles(&drawCallback,aabbMin,aabbMax);

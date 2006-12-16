@@ -183,7 +183,7 @@ const float TRIANGLE_SIZE=20.f;
 	btTriangleIndexVertexArray* indexVertexArrays = new btTriangleIndexVertexArray(totalTriangles,
 		gIndices,
 		indexStride,
-		totalVerts,(float*) &gVertices[0].x(),vertStride);
+		totalVerts,(btScalar*) &gVertices[0].x(),vertStride);
 
 	groundShape = new btBvhTriangleMeshShape(indexVertexArrays);
 	
@@ -297,7 +297,7 @@ void VehicleDemo::renderme()
 	updateCamera();
 
 	debugDrawer.setDebugMode(getDebugMode());
-	float m[16];
+	btScalar m[16];
 	int i;
 
 	btCylinderShapeX wheelShape(btVector3(wheelWidth,wheelRadius,wheelRadius));

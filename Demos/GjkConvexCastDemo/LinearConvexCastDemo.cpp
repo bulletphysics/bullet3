@@ -139,7 +139,7 @@ void LinearConvexCastDemo::displayCallback(void)
 
 	//GL_ShapeDrawer::drawCoordSystem();
 
-	float m[16];
+	btScalar m[16];
 	int i;
 
 	for (i=0;i<numObjects;i++)

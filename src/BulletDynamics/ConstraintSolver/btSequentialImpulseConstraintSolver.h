@@ -31,8 +31,8 @@ class btSequentialImpulseConstraintSolver : public btConstraintSolver
 {
 
 protected:
-	float solve(btRigidBody* body0,btRigidBody* body1, btManifoldPoint& cp, const btContactSolverInfo& info,int iter,btIDebugDraw* debugDrawer);
-	float solveFriction(btRigidBody* body0,btRigidBody* body1, btManifoldPoint& cp, const btContactSolverInfo& info,int iter,btIDebugDraw* debugDrawer);
+	btScalar solve(btRigidBody* body0,btRigidBody* body1, btManifoldPoint& cp, const btContactSolverInfo& info,int iter,btIDebugDraw* debugDrawer);
+	btScalar solveFriction(btRigidBody* body0,btRigidBody* body1, btManifoldPoint& cp, const btContactSolverInfo& info,int iter,btIDebugDraw* debugDrawer);
 	void  prepareConstraints(btPersistentManifold* manifoldPtr, const btContactSolverInfo& info,btIDebugDraw* debugDrawer);
 
 	ContactSolverFunc m_contactDispatch[MAX_CONTACT_SOLVER_TYPES][MAX_CONTACT_SOLVER_TYPES];
@@ -68,7 +68,7 @@ public:
 
 	virtual ~btSequentialImpulseConstraintSolver() {}
 	
-	virtual float solveGroup(btPersistentManifold** manifold,int numManifolds,btTypedConstraint** constraints,int numConstraints,const btContactSolverInfo& info, btIDebugDraw* debugDrawer=0);
+	virtual btScalar solveGroup(btPersistentManifold** manifold,int numManifolds,btTypedConstraint** constraints,int numConstraints,const btContactSolverInfo& info, btIDebugDraw* debugDrawer=0);
 
 	void	setSolverMode(int mode)
 	{
@@ -88,7 +88,7 @@ public:
 
 	btSequentialImpulseConstraintSolver3();
 
-	virtual float solveGroup(btPersistentManifold** manifold,int numManifolds,btTypedConstraint** constraints,int numConstraints,const btContactSolverInfo& info, btIDebugDraw* debugDrawer=0);
+	virtual btScalar solveGroup(btPersistentManifold** manifold,int numManifolds,btTypedConstraint** constraints,int numConstraints,const btContactSolverInfo& info, btIDebugDraw* debugDrawer=0);
 
 
 };

@@ -48,7 +48,7 @@ public:
 
 	virtual int	getShapeType() const { return MINKOWSKI_SUM_SHAPE_PROXYTYPE; }
 
-	virtual float	getMargin() const;
+	virtual btScalar	getMargin() const;
 
 	const btConvexShape*	getShapeA() const { return m_shapeA;}
 	const btConvexShape*	getShapeB() const { return m_shapeB;}

@@ -73,8 +73,8 @@ SIMD_FORCE_INLINE bool btRayAabb(const btVector3& rayFrom,
 								 const btVector3& aabbMax,
 					  btScalar& param, btVector3& normal) 
 {
-	btVector3 aabbHalfExtent = (aabbMax-aabbMin)* 0.5f;
-	btVector3 aabbCenter = (aabbMax+aabbMin)* 0.5f;
+	btVector3 aabbHalfExtent = (aabbMax-aabbMin)* btScalar(0.5);
+	btVector3 aabbCenter = (aabbMax+aabbMin)* btScalar(0.5);
 	btVector3	source = rayFrom - aabbCenter;
 	btVector3	target = rayTo - aabbCenter;
 	int	sourceOutcode = btOutcode(source,aabbHalfExtent);
@@ -110,7 +110,7 @@ SIMD_FORCE_INLINE bool btRayAabb(const btVector3& rayFrom,
 				}
 				bit<<=1;
 			}
-			normSign = -1.f;
+			normSign = btScalar(-1.);
 		}
 		if (lambda_enter <= lambda_exit)
 		{

@@ -26,6 +26,7 @@ subject to the following restrictions:
 #else
 #include <GL/gl.h>
 #endif
+#include "GlutStuff.h"
 #include "LinearMath/btTransform.h"
 
 GL_Simplex1to4::GL_Simplex1to4()
@@ -36,7 +37,7 @@ GL_Simplex1to4::GL_Simplex1to4()
 ///
 /// Debugging method calcClosest calculates the closest point to the origin, using m_simplexSolver
 ///
-void	GL_Simplex1to4::calcClosest(float* m)
+void	GL_Simplex1to4::calcClosest(btScalar* m)
 {
 	btTransform tr;
 	tr.setFromOpenGLMatrix(m);
@@ -62,9 +63,9 @@ void	GL_Simplex1to4::calcClosest(float* m)
 				//draw v?
 				glDisable(GL_LIGHTING);
 				glBegin(GL_LINES);
-				glColor3f(1.f, 0.f, 0.f);
-				glVertex3f(0.f, 0.f, 0.f);
-				glVertex3f(v.x(),v.y(),v.z());
+				btglColor3(1.f, 0.f, 0.f);
+				btglVertex3(0.f, 0.f, 0.f);
+				btglVertex3(v.x(),v.y(),v.z());
 				glEnd();
 				
 				glEnable(GL_LIGHTING);

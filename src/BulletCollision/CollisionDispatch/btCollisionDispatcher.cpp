@@ -347,7 +347,7 @@ void btCollisionDispatcher::defaultNearCallback(btBroadphasePair& collisionPair,
 				} else
 				{
 					//continuous collision detection query, time of impact (toi)
-					float toi = collisionPair.m_algorithm->calculateTimeOfImpact(colObj0,colObj1,dispatchInfo,&contactPointResult);
+					btScalar toi = collisionPair.m_algorithm->calculateTimeOfImpact(colObj0,colObj1,dispatchInfo,&contactPointResult);
 					if (dispatchInfo.m_timeOfImpact > toi)
 						dispatchInfo.m_timeOfImpact = toi;
 

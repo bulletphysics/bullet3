@@ -47,7 +47,7 @@ protected:
 	btVector3	m_gravity;
 
 	//for variable timesteps
-	float	m_localTime;
+	btScalar	m_localTime;
 	//for variable timesteps
 
 	bool	m_ownsIslandManager;
@@ -60,25 +60,25 @@ protected:
 
 	int	m_profileTimings;
 
-	void	predictUnconstraintMotion(float timeStep);
+	void	predictUnconstraintMotion(btScalar timeStep);
 	
-	void	integrateTransforms(float timeStep);
+	void	integrateTransforms(btScalar timeStep);
 		
 	void	calculateSimulationIslands();
 
 	void	solveConstraints(btContactSolverInfo& solverInfo);
 	
-	void	updateActivationState(float timeStep);
+	void	updateActivationState(btScalar timeStep);
 
-	void	updateVehicles(float timeStep);
+	void	updateVehicles(btScalar timeStep);
 
-	void	startProfiling(float timeStep);
+	void	startProfiling(btScalar timeStep);
 
-	virtual void	internalSingleStepSimulation( float timeStep);
+	virtual void	internalSingleStepSimulation( btScalar timeStep);
 
 	void	synchronizeMotionStates();
 
-	void	saveKinematicState(float timeStep);
+	void	saveKinematicState(btScalar timeStep);
 
 
 public:
@@ -90,7 +90,7 @@ public:
 	virtual ~btDiscreteDynamicsWorld();
 
 	///if maxSubSteps > 0, it will interpolate motion between fixedTimeStep's
-	virtual int	stepSimulation( float timeStep,int maxSubSteps=1, float fixedTimeStep=1.f/60.f);
+	virtual int	stepSimulation( btScalar timeStep,int maxSubSteps=1, btScalar fixedTimeStep=btScalar(1.)/btScalar(60.));
 
 	virtual void	updateAabbs();
 

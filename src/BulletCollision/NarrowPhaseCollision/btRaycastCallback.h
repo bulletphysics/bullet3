@@ -28,13 +28,13 @@ public:
 	btVector3 m_from;
 	btVector3 m_to;
 
-	float	m_hitFraction;
+	btScalar	m_hitFraction;
 
 	btTriangleRaycastCallback(const btVector3& from,const btVector3& to);
 	
 	virtual void processTriangle(btVector3* triangle, int partId, int triangleIndex);
 
-	virtual float reportHit(const btVector3& hitNormalLocal, float hitFraction, int partId, int triangleIndex ) = 0;
+	virtual btScalar reportHit(const btVector3& hitNormalLocal, btScalar hitFraction, int partId, int triangleIndex ) = 0;
 	
 };
 

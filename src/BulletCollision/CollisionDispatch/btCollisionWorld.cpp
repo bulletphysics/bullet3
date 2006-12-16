@@ -185,12 +185,12 @@ void	btCollisionWorld::rayTestSingle(const btTransform& rayFromTrans,const btTra
 					  RayResultCallback& resultCallback)
 {
 	
-	btSphereShape pointShape(0.0f);
+	btSphereShape pointShape(btScalar(0.0));
 
 	if (collisionShape->isConvex())
 			{
 				btConvexCast::CastResult castResult;
-				castResult.m_fraction = 1.f;//??
+				castResult.m_fraction = btScalar(1.);//??
 
 				btConvexShape* convexShape = (btConvexShape*) collisionShape;
 				btVoronoiSimplexSolver	simplexSolver;
@@ -201,7 +201,7 @@ void	btCollisionWorld::rayTestSingle(const btTransform& rayFromTrans,const btTra
 				if (convexCaster.calcTimeOfImpact(rayFromTrans,rayToTrans,colObjWorldTransform,colObjWorldTransform,castResult))
 				{
 					//add hit
-					if (castResult.m_normal.length2() > 0.0001f)
+					if (castResult.m_normal.length2() > btScalar(0.0001))
 					{
 						castResult.m_normal.normalize();
 						if (castResult.m_fraction < resultCallback.m_closestHitFraction)
@@ -252,7 +252,7 @@ void	btCollisionWorld::rayTestSingle(const btTransform& rayFromTrans,const btTra
 								}
 
 
-							virtual float reportHit(const btVector3& hitNormalLocal, float hitFraction, int partId, int triangleIndex )
+							virtual btScalar reportHit(const btVector3& hitNormalLocal, btScalar hitFraction, int partId, int triangleIndex )
 							{
 								btCollisionWorld::LocalShapeInfo	shapeInfo;
 								shapeInfo.m_shapePart = partId;
@@ -333,7 +333,7 @@ void	btCollisionWorld::rayTest(const btVector3& rayFromWorld, const btVector3& r
 		btVector3 collisionObjectAabbMin,collisionObjectAabbMax;
 		collisionObject->getCollisionShape()->getAabb(collisionObject->getWorldTransform(),collisionObjectAabbMin,collisionObjectAabbMax);
 
-		float hitLambda = 1.f; //could use resultCallback.m_closestHitFraction, but needs testing
+		btScalar hitLambda = btScalar(1.); //could use resultCallback.m_closestHitFraction, but needs testing
 		btVector3 hitNormal;
 		if (btRayAabb(rayFromWorld,rayToWorld,collisionObjectAabbMin,collisionObjectAabbMax,hitLambda,hitNormal))
 		{

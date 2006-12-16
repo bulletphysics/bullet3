@@ -217,7 +217,7 @@ void CollisionDemo::displayCallback(void) {
 
    //GL_ShapeDrawer::drawCoordSystem();
 
-	float m[16];
+	btScalar m[16];
 	int i;
 
 //	btGjkPairDetector	convexConvex(shapePtr[0],shapePtr[1],&sGjkSimplexSolver,0);

@@ -46,8 +46,8 @@ void btOptimizedBvh::build(btStridingMeshInterface* triangles)
 		{
 
 			btOptimizedBvhNode node;
-			node.m_aabbMin = btVector3(1e30f,1e30f,1e30f); 
-			node.m_aabbMax = btVector3(-1e30f,-1e30f,-1e30f); 
+			node.m_aabbMin = btVector3(btScalar(1e30),btScalar(1e30),btScalar(1e30)); 
+			node.m_aabbMax = btVector3(btScalar(-1e30),btScalar(-1e30),btScalar(-1e30)); 
 			node.m_aabbMin.setMin(triangle[0]);
 			node.m_aabbMax.setMax(triangle[0]);
 			node.m_aabbMin.setMin(triangle[1]);
@@ -73,8 +73,8 @@ void btOptimizedBvh::build(btStridingMeshInterface* triangles)
 
 	NodeTriangleCallback	callback(m_leafNodes);
 
-	btVector3 aabbMin(-1e30f,-1e30f,-1e30f);
-	btVector3 aabbMax(1e30f,1e30f,1e30f);
+	btVector3 aabbMin(btScalar(-1e30),btScalar(-1e30),btScalar(-1e30));
+	btVector3 aabbMax(btScalar(1e30),btScalar(1e30),btScalar(1e30));
 
 	triangles->InternalProcessAllTriangles(&callback,aabbMin,aabbMax);
 
@@ -118,8 +118,8 @@ btOptimizedBvhNode*	btOptimizedBvh::buildTree	(NodeArray&	leafNodes,int startInd
 
 	internalNode = &m_contiguousNodes[m_curNodeIndex++];
 	
-	internalNode->m_aabbMax.setValue(-1e30f,-1e30f,-1e30f);
-	internalNode->m_aabbMin.setValue(1e30f,1e30f,1e30f);
+	internalNode->m_aabbMax.setValue(btScalar(-1e30),btScalar(-1e30),btScalar(-1e30));
+	internalNode->m_aabbMin.setValue(btScalar(1e30),btScalar(1e30),btScalar(1e30));
 	
 	for (i=startIndex;i<endIndex;i++)
 	{
@@ -142,22 +142,22 @@ int	btOptimizedBvh::sortAndCalcSplittingIndex(NodeArray&	leafNodes,int startInde
 	int i;
 	int splitIndex =startIndex;
 	int numIndices = endIndex - startIndex;
-	float splitValue;
+	btScalar splitValue;
 
-	btVector3 means(0.f,0.f,0.f);
+	btVector3 means(btScalar(0.),btScalar(0.),btScalar(0.));
 	for (i=startIndex;i<endIndex;i++)
 	{
-		btVector3 center = 0.5f*(leafNodes[i].m_aabbMax+leafNodes[i].m_aabbMin);
+		btVector3 center = btScalar(0.5)*(leafNodes[i].m_aabbMax+leafNodes[i].m_aabbMin);
 		means+=center;
 	}
-	means *= (1.f/(float)numIndices);
+	means *= (btScalar(1.)/(btScalar)numIndices);
 	
 	splitValue = means[splitAxis];
 	
 	//sort leafNodes so all values larger then splitValue comes first, and smaller values start from 'splitIndex'.
 	for (i=startIndex;i<endIndex;i++)
 	{
-		btVector3 center = 0.5f*(leafNodes[i].m_aabbMax+leafNodes[i].m_aabbMin);
+		btVector3 center = btScalar(0.5)*(leafNodes[i].m_aabbMax+leafNodes[i].m_aabbMin);
 		if (center[splitAxis] > splitValue)
 		{
 			//swap
@@ -179,25 +179,25 @@ int	btOptimizedBvh::calcSplittingAxis(NodeArray&	leafNodes,int startIndex,int en
 {
 	int i;
 
-	btVector3 means(0.f,0.f,0.f);
-	btVector3 variance(0.f,0.f,0.f);
+	btVector3 means(btScalar(0.),btScalar(0.),btScalar(0.));
+	btVector3 variance(btScalar(0.),btScalar(0.),btScalar(0.));
 	int numIndices = endIndex-startIndex;
 
 	for (i=startIndex;i<endIndex;i++)
 	{
-		btVector3 center = 0.5f*(leafNodes[i].m_aabbMax+leafNodes[i].m_aabbMin);
+		btVector3 center = btScalar(0.5)*(leafNodes[i].m_aabbMax+leafNodes[i].m_aabbMin);
 		means+=center;
 	}
-	means *= (1.f/(float)numIndices);
+	means *= (btScalar(1.)/(btScalar)numIndices);
 		
 	for (i=startIndex;i<endIndex;i++)
 	{
-		btVector3 center = 0.5f*(leafNodes[i].m_aabbMax+leafNodes[i].m_aabbMin);
+		btVector3 center = btScalar(0.5)*(leafNodes[i].m_aabbMax+leafNodes[i].m_aabbMin);
 		btVector3 diff2 = center-means;
 		diff2 = diff2 * diff2;
 		variance += diff2;
 	}
-	variance *= (1.f/	((float)numIndices-1)	);
+	variance *= (btScalar(1.)/	((btScalar)numIndices-1)	);
 	
 	return variance.maxAxis();
 }

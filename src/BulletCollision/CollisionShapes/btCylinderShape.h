@@ -44,12 +44,12 @@ public:
 		btVector3 supVertex;
 		supVertex = localGetSupportingVertexWithoutMargin(vec);
 		
-		if ( getMargin()!=0.f )
+		if ( getMargin()!=btScalar(0.) )
 		{
 			btVector3 vecnorm = vec;
 			if (vecnorm .length2() < (SIMD_EPSILON*SIMD_EPSILON))
 			{
-				vecnorm.setValue(-1.f,-1.f,-1.f);
+				vecnorm.setValue(btScalar(-1.),btScalar(-1.),btScalar(-1.));
 			} 
 			vecnorm.normalize();
 			supVertex+= getMargin() * vecnorm;
@@ -71,7 +71,7 @@ public:
 		return 1;
 	}
 
-	virtual float getRadius() const
+	virtual btScalar getRadius() const
 	{
 		return getHalfExtents().getX();
 	}
@@ -103,7 +103,7 @@ public:
 		return "CylinderX";
 	}
 
-	virtual float getRadius() const
+	virtual btScalar getRadius() const
 	{
 		return getHalfExtents().getY();
 	}
@@ -128,7 +128,7 @@ public:
 		return "CylinderZ";
 	}
 
-	virtual float getRadius() const
+	virtual btScalar getRadius() const
 	{
 		return getHalfExtents().getX();
 	}

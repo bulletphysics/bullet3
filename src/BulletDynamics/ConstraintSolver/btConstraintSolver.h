@@ -16,6 +16,8 @@ subject to the following restrictions:
 #ifndef CONSTRAINT_SOLVER_H
 #define CONSTRAINT_SOLVER_H
 
+#include "LinearMath/btScalar.h"
+
 class btPersistentManifold;
 class btRigidBody;
 class btTypedConstraint;
@@ -31,7 +33,7 @@ public:
 
 	virtual ~btConstraintSolver() {}
 	
-	virtual float solveGroup(btPersistentManifold** manifold,int numManifolds,btTypedConstraint** constraints,int numConstraints, const btContactSolverInfo& info,class btIDebugDraw* debugDrawer = 0) = 0;
+	virtual btScalar solveGroup(btPersistentManifold** manifold,int numManifolds,btTypedConstraint** constraints,int numConstraints, const btContactSolverInfo& info,class btIDebugDraw* debugDrawer = 0) = 0;
 
 };
 

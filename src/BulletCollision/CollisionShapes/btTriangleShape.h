@@ -117,7 +117,7 @@ public:
 	virtual void	calculateLocalInertia(btScalar mass,btVector3& inertia)
 	{
 		btAssert(0);
-		inertia.setValue(0.f,0.f,0.f);
+		inertia.setValue(btScalar(0.),btScalar(0.),btScalar(0.));
 	}
 
 		virtual	bool isInside(const btPoint3& pt,btScalar tolerance) const
@@ -166,7 +166,7 @@ public:
 		{
 			calcNormal(penetrationVector);
 			if (index)
-				penetrationVector *= -1.f;
+				penetrationVector *= btScalar(-1.);
 		}
 
 

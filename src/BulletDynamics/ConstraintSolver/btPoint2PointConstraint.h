@@ -26,12 +26,12 @@ class btRigidBody;
 struct	btConstraintSetting
 {
 	btConstraintSetting()	:
-		m_tau(0.3f),
-		m_damping(1.f)
+		m_tau(btScalar(0.3)),
+		m_damping(btScalar(1.))
 	{
 	}
-	float		m_tau;
-	float		m_damping;
+	btScalar		m_tau;
+	btScalar		m_damping;
 };
 
 /// point to point constraint between two rigidbodies each with a pivotpoint that descibes the 'ballsocket' location in local space

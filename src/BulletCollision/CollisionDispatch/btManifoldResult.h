@@ -68,7 +68,7 @@ public:
 			m_index1=index1;		
 	}
 
-	virtual void addContactPoint(const btVector3& normalOnBInWorld,const btVector3& pointInWorld,float depth);
+	virtual void addContactPoint(const btVector3& normalOnBInWorld,const btVector3& pointInWorld,btScalar depth);
 
 
 

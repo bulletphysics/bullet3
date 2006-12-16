@@ -133,7 +133,7 @@ void btConvexConvexAlgorithm ::processCollision (btCollisionObject* body0,btColl
 	input.m_maximumDistanceSquared*= input.m_maximumDistanceSquared;
 	input.m_stackAlloc = dispatchInfo.m_stackAllocator;
 
-//	input.m_maximumDistanceSquared = 1e30f;
+//	input.m_maximumDistanceSquared = btScalar(1e30);
 	
 	input.m_transformA = body0->getWorldTransform();
 	input.m_transformB = body1->getWorldTransform();
@@ -146,24 +146,24 @@ void btConvexConvexAlgorithm ::processCollision (btCollisionObject* body0,btColl
 
 
 bool disableCcd = false;
-float	btConvexConvexAlgorithm::calculateTimeOfImpact(btCollisionObject* col0,btCollisionObject* col1,const btDispatcherInfo& dispatchInfo,btManifoldResult* resultOut)
+btScalar	btConvexConvexAlgorithm::calculateTimeOfImpact(btCollisionObject* col0,btCollisionObject* col1,const btDispatcherInfo& dispatchInfo,btManifoldResult* resultOut)
 {
 	///Rather then checking ALL pairs, only calculate TOI when motion exceeds threshold
     
 	///Linear motion for one of objects needs to exceed m_ccdSquareMotionThreshold
 	///col0->m_worldTransform,
-	float resultFraction = 1.f;
+	btScalar resultFraction = btScalar(1.);
 
 
-	float squareMot0 = (col0->getInterpolationWorldTransform().getOrigin() - col0->getWorldTransform().getOrigin()).length2();
-	float squareMot1 = (col1->getInterpolationWorldTransform().getOrigin() - col1->getWorldTransform().getOrigin()).length2();
+	btScalar squareMot0 = (col0->getInterpolationWorldTransform().getOrigin() - col0->getWorldTransform().getOrigin()).length2();
+	btScalar squareMot1 = (col1->getInterpolationWorldTransform().getOrigin() - col1->getWorldTransform().getOrigin()).length2();
     
 	if (squareMot0 < col0->getCcdSquareMotionThreshold() &&
 		squareMot1 < col1->getCcdSquareMotionThreshold())
 		return resultFraction;
 
 	if (disableCcd)
-		return 1.f;
+		return btScalar(1.);
 
 
 	//An adhoc way of testing the Continuous Collision Detection algorithms

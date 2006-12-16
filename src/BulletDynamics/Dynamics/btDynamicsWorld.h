@@ -39,7 +39,7 @@ class btDynamicsWorld : public btCollisionWorld
 		
 		///stepSimulation proceeds the simulation over timeStep units
 		///if maxSubSteps > 0, it will interpolate time steps
-		virtual int		stepSimulation( float timeStep,int maxSubSteps=1, float fixedTimeStep=1.f/60.f)=0;
+		virtual int		stepSimulation( btScalar timeStep,int maxSubSteps=1, btScalar fixedTimeStep=btScalar(1.)/btScalar(60.))=0;
 			
 		virtual void	updateAabbs() = 0;
 				

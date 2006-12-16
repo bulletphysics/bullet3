@@ -150,7 +150,7 @@ public:
 
 	btScalar getAngle() const 
 	{
-		btScalar s = 2.f * btAcos(m_unusedW);
+		btScalar s = btScalar(2.) * btAcos(m_unusedW);
 		return s;
 	}
 

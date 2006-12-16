@@ -75,11 +75,11 @@ public:
 	}
 
 
-	virtual void	setMargin(float margin)
+	virtual void	setMargin(btScalar margin)
 	{
 		m_collisionMargin = margin;
 	}
-	virtual float	getMargin() const
+	virtual btScalar	getMargin() const
 	{
 		return m_collisionMargin;
 	}

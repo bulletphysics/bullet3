@@ -471,7 +471,7 @@ void btConcaveConcaveCollisionAlgorithm::processCollision (btCollisionObject* bo
 }
 
 
-float btConcaveConcaveCollisionAlgorithm::calculateTimeOfImpact(btCollisionObject* body0,btCollisionObject* body1,const btDispatcherInfo& dispatchInfo,btManifoldResult* resultOut)
+btScalar btConcaveConcaveCollisionAlgorithm::calculateTimeOfImpact(btCollisionObject* body0,btCollisionObject* body1,const btDispatcherInfo& dispatchInfo,btManifoldResult* resultOut)
 {
 	return 1.f;
 

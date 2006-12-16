@@ -52,9 +52,9 @@ bool	btSubsimplexConvexCast::calcTimeOfImpact(
 
 	convex->setTransformB(btTransform(rayFromLocalA.getBasis()));
 
-	//float radius = 0.01f;
+	//btScalar radius = btScalar(0.01);
 
-	btScalar lambda = 0.f;
+	btScalar lambda = btScalar(0.);
 	//todo: need to verify this:
 	//because of minkowski difference, we need the inverse direction
 	
@@ -69,27 +69,27 @@ bool	btSubsimplexConvexCast::calcTimeOfImpact(
 	int maxIter = MAX_ITERATIONS;
 
 	btVector3 n;
-	n.setValue(0.f,0.f,0.f);
+	n.setValue(btScalar(0.),btScalar(0.),btScalar(0.));
 	bool hasResult = false;
 	btVector3 c;
 
-	float lastLambda = lambda;
+	btScalar lastLambda = lambda;
 
 
-	float dist2 = v.length2();
-	float epsilon = 0.0001f;
+	btScalar dist2 = v.length2();
+	btScalar epsilon = btScalar(0.0001);
 
 	btVector3	w,p;
-	float VdotR;
+	btScalar VdotR;
 	
 	while ( (dist2 > epsilon) && maxIter--)
 	{
 		p = convex->localGetSupportingVertex( v);
 		 w = x - p;
 
-		float VdotW = v.dot(w);
+		btScalar VdotW = v.dot(w);
 
-		if ( VdotW > 0.f)
+		if ( VdotW > btScalar(0.))
 		{
 			VdotR = v.dot(r);
 
@@ -117,7 +117,7 @@ bool	btSubsimplexConvexCast::calcTimeOfImpact(
 			//printf("numverts = %i\n",m_simplexSolver->numVertices());
 		} else
 		{
-			dist2 = 0.f;
+			dist2 = btScalar(0.);
 		} 
 	}
 

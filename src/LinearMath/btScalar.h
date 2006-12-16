@@ -50,14 +50,23 @@ subject to the following restrictions:
 		#define btAssert assert
 #endif
 
-
-
-typedef float    btScalar;
-
-///older compilers (gcc 3.x) and Sun needs double versions of srqt etc.
-///exclude Apple Intel (it's assumed to be a Macbook or newer Intel Dual Core processor)
+/// older compilers (gcc 3.x) and Sun needs double version of sqrt etc.
+/// exclude Apple Intel (i's assumed to be a Macbook or new Intel Dual Core Processor)
 #if defined (__sun) || defined (__sun__) || defined (__sparc) || (defined (__APPLE__) && ! defined (__i386__))
 //use slow double float precision operation on those platforms
+#ifndef BT_USE_DOUBLE_PRECISION
+#define BT_FORCE_DOUBLE_FUNCTIONS
+#endif
+#endif
+
+#if defined(BT_USE_DOUBLE_PRECISION)
+typedef double btScalar;
+#else
+typedef float btScalar;
+#endif
+
+
+#if defined(BT_USE_DOUBLE_PRECISION) || defined(BT_FORCE_DOUBLE_FUNCTIONS)
 		
 SIMD_FORCE_INLINE btScalar btSqrt(btScalar x) { return sqrt(x); }
 SIMD_FORCE_INLINE btScalar btFabs(btScalar x) { return fabs(x); }
@@ -90,11 +99,11 @@ SIMD_FORCE_INLINE btScalar btPow(btScalar x,btScalar y) { return powf(x,y); }
 #endif
 
 
-#define SIMD_2_PI         6.283185307179586232f
-#define SIMD_PI           (SIMD_2_PI * btScalar(0.5f))
-#define SIMD_HALF_PI      (SIMD_2_PI * btScalar(0.25f))
-#define SIMD_RADS_PER_DEG (SIMD_2_PI / btScalar(360.0f))
-#define SIMD_DEGS_PER_RAD  (btScalar(360.0f) / SIMD_2_PI)
+#define SIMD_2_PI         btScalar(6.283185307179586232)
+#define SIMD_PI           (SIMD_2_PI * btScalar(0.5))
+#define SIMD_HALF_PI      (SIMD_2_PI * btScalar(0.25))
+#define SIMD_RADS_PER_DEG (SIMD_2_PI / btScalar(360.0))
+#define SIMD_DEGS_PER_RAD  (btScalar(360.0) / SIMD_2_PI)
 #define SIMD_EPSILON      FLT_EPSILON
 #define SIMD_INFINITY     FLT_MAX
 
@@ -117,7 +126,7 @@ SIMD_FORCE_INLINE btScalar btAtan2(btScalar x, btScalar y) { return atan2f(x, y)
 */
 
 SIMD_FORCE_INLINE int       btIsNegative(btScalar x) {
-    return x < 0.0f ? 1 : 0;
+    return x < btScalar(0.0) ? 1 : 0;
 }
 
 SIMD_FORCE_INLINE btScalar btRadians(btScalar x) { return x * SIMD_RADS_PER_DEG; }

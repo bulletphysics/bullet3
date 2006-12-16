@@ -19,6 +19,7 @@ subject to the following restrictions:
 #include "BulletCollision/NarrowPhaseCollision/btConvexCast.h"
 #include "LinearMath/btTransform.h"
 #include "GL_ShapeDrawer.h"
+#include "GlutStuff.h"
 #ifdef WIN32
 #include <windows.h>
 #endif
@@ -48,20 +49,20 @@ struct btDebugCastResult : public btConvexCast::CastResult
 
 	virtual void drawCoordSystem(const btTransform& tr)  
 	{
-		float m[16];
+		btScalar m[16];
 		tr.getOpenGLMatrix(m);
 		glPushMatrix();
-		glLoadMatrixf(m);
+		btglLoadMatrix(m);
 		glBegin(GL_LINES);
-		glColor3f(1, 0, 0);
-		glVertex3d(0, 0, 0);
-		glVertex3d(1, 0, 0);
-		glColor3f(0, 1, 0);
-		glVertex3d(0, 0, 0);
-		glVertex3d(0, 1, 0);
-		glColor3f(0, 0, 1);
-		glVertex3d(0, 0, 0);
-		glVertex3d(0, 0, 1);
+		btglColor3(1, 0, 0);
+		btglVertex3(0, 0, 0);
+		btglVertex3(1, 0, 0);
+		btglColor3(0, 1, 0);
+		btglVertex3(0, 0, 0);
+		btglVertex3(0, 1, 0);
+		btglColor3(0, 0, 1);
+		btglVertex3(0, 0, 0);
+		btglVertex3(0, 0, 1);
 		glEnd();
 		glPopMatrix();
 	}
@@ -69,7 +70,7 @@ struct btDebugCastResult : public btConvexCast::CastResult
 	virtual void	DebugDraw(btScalar	fraction)
 	{
 	
-		float m[16];
+		btScalar m[16];
 		btTransform hitTrans;
 		btTransformUtil::integrateTransform(m_fromTrans,m_linVel,m_angVel,fraction,hitTrans);
 		hitTrans.getOpenGLMatrix(m);

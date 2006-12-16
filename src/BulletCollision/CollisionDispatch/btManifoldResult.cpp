@@ -27,7 +27,7 @@ inline btScalar	calculateCombinedFriction(const btCollisionObject* body0,const b
 {
 	btScalar friction = body0->getFriction() * body1->getFriction();
 
-	const btScalar MAX_FRICTION  = 10.f;
+	const btScalar MAX_FRICTION  = btScalar(10.);
 	if (friction < -MAX_FRICTION)
 		friction = -MAX_FRICTION;
 	if (friction > MAX_FRICTION)
@@ -53,7 +53,7 @@ btManifoldResult::btManifoldResult(btCollisionObject* body0,btCollisionObject* b
 }
 
 
-void btManifoldResult::addContactPoint(const btVector3& normalOnBInWorld,const btVector3& pointInWorld,float depth)
+void btManifoldResult::addContactPoint(const btVector3& normalOnBInWorld,const btVector3& pointInWorld,btScalar depth)
 {
 	assert(m_manifoldPtr);
 	//order in manifold needs to match

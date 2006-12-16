@@ -48,7 +48,7 @@ void btSphereSphereCollisionAlgorithm::processCollision (btCollisionObject* col0
 	btSphereShape* sphere1 = (btSphereShape*)col1->getCollisionShape();
 
 	btVector3 diff = col0->getWorldTransform().getOrigin()-  col1->getWorldTransform().getOrigin();
-	float len = diff.length();
+	btScalar len = diff.length();
 	btScalar radius0 = sphere0->getRadius();
 	btScalar radius1 = sphere1->getRadius();
 
@@ -71,8 +71,8 @@ void btSphereSphereCollisionAlgorithm::processCollision (btCollisionObject* col0
 
 }
 
-float btSphereSphereCollisionAlgorithm::calculateTimeOfImpact(btCollisionObject* col0,btCollisionObject* col1,const btDispatcherInfo& dispatchInfo,btManifoldResult* resultOut)
+btScalar btSphereSphereCollisionAlgorithm::calculateTimeOfImpact(btCollisionObject* col0,btCollisionObject* col1,const btDispatcherInfo& dispatchInfo,btManifoldResult* resultOut)
 {
 	//not yet
-	return 1.f;
+	return btScalar(1.);
 }

@@ -27,7 +27,7 @@ bool btGjkEpaPenetrationDepthSolver::calcPenDepth( btSimplexSolverInterface& sim
 {
 
 
-	const btScalar				radialmargin(0.f);
+	const btScalar				radialmargin(btScalar(0.));
 	
 	btGjkEpaSolver::sResults	results;
 	if(btGjkEpaSolver::Collide(	pConvexA,transformA,

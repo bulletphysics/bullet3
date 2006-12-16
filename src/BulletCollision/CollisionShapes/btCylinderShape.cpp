@@ -46,8 +46,8 @@ const int ZZ = 2;
 	// extents of the cylinder is: X,Y is for radius, and Z for height
 
 
-	float radius = halfExtents[XX];
-	float halfHeight = halfExtents[cylinderUpAxis];
+	btScalar radius = halfExtents[XX];
+	btScalar halfHeight = halfExtents[cylinderUpAxis];
 
 
     btVector3 tmp;
@@ -87,8 +87,8 @@ const int YY = 1;
 const int ZZ = 2;
 
 
-	float radius = halfExtents[XX];
-	float halfHeight = halfExtents[cylinderUpAxis];
+	btScalar radius = halfExtents[XX];
+	btScalar halfHeight = halfExtents[cylinderUpAxis];
 
 
     btVector3 tmp;
@@ -124,8 +124,8 @@ const int ZZ = 1;
 	// extents of the cylinder is: X,Y is for radius, and Z for height
 
 
-	float radius = halfExtents[XX];
-	float halfHeight = halfExtents[cylinderUpAxis];
+	btScalar radius = halfExtents[XX];
+	btScalar halfHeight = halfExtents[cylinderUpAxis];
 
 
     btVector3 tmp;

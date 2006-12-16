@@ -99,7 +99,7 @@ public:
 		m[12] = m_origin[0];
 		m[13] = m_origin[1];
 		m[14] = m_origin[2];
-		m[15] = btScalar(1.0f);
+		m[15] = btScalar(1.0);
 	}
 
 	SIMD_FORCE_INLINE void setOrigin(const btVector3& origin) 

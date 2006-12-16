@@ -41,7 +41,7 @@ btSimpleDynamicsWorld::~btSimpleDynamicsWorld()
 		delete m_constraintSolver;
 }
 
-int		btSimpleDynamicsWorld::stepSimulation( float timeStep,int maxSubSteps, float fixedTimeStep)
+int		btSimpleDynamicsWorld::stepSimulation( btScalar timeStep,int maxSubSteps, btScalar fixedTimeStep)
 {
 	///apply gravity, predict motion
 	predictUnconstraintMotion(timeStep);
@@ -127,7 +127,7 @@ void	btSimpleDynamicsWorld::updateAabbs()
 	}
 }
 
-void	btSimpleDynamicsWorld::integrateTransforms(float timeStep)
+void	btSimpleDynamicsWorld::integrateTransforms(btScalar timeStep)
 {
 	btTransform predictedTrans;
 	for (unsigned int i=0;i<m_collisionObjects.size();i++)
@@ -147,7 +147,7 @@ void	btSimpleDynamicsWorld::integrateTransforms(float timeStep)
 
 
 
-void	btSimpleDynamicsWorld::predictUnconstraintMotion(float timeStep)
+void	btSimpleDynamicsWorld::predictUnconstraintMotion(btScalar timeStep)
 {
 	for (unsigned int i=0;i<m_collisionObjects.size();i++)
 	{

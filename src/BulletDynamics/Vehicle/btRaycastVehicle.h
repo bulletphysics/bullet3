@@ -29,18 +29,18 @@ public:
 			public:
 
 			btVehicleTuning()
-				:m_suspensionStiffness(5.88f),
-				m_suspensionCompression(0.83f),
-				m_suspensionDamping(0.88f),
-				m_maxSuspensionTravelCm(500.f),
-				m_frictionSlip(10.5f)
+				:m_suspensionStiffness(btScalar(5.88)),
+				m_suspensionCompression(btScalar(0.83)),
+				m_suspensionDamping(btScalar(0.88)),
+				m_maxSuspensionTravelCm(btScalar(500.)),
+				m_frictionSlip(btScalar(10.5))
 			{
 			}
-			float	m_suspensionStiffness;
-			float	m_suspensionCompression;
-			float	m_suspensionDamping;
-			float	m_maxSuspensionTravelCm;
-			float	m_frictionSlip;
+			btScalar	m_suspensionStiffness;
+			btScalar	m_suspensionCompression;
+			btScalar	m_suspensionDamping;
+			btScalar	m_maxSuspensionTravelCm;
+			btScalar	m_frictionSlip;
 
 		};
 private:
@@ -48,9 +48,9 @@ private:
 	btScalar	m_tau;
 	btScalar	m_damping;
 	btVehicleRaycaster*	m_vehicleRaycaster;
-	float		m_pitchControl;
-	float	m_steeringValue; 
-	float m_currentVehicleSpeedKmHour;
+	btScalar		m_pitchControl;
+	btScalar	m_steeringValue; 
+	btScalar m_currentVehicleSpeedKmHour;
 
 	btRigidBody* m_chassisBody;
 
@@ -105,9 +105,9 @@ public:
 	void	updateWheelTransformsWS(btWheelInfo& wheel , bool interpolatedTransform = true);
 
 	
-	void setBrake(float brake,int wheelIndex);
+	void setBrake(btScalar brake,int wheelIndex);
 
-	void	setPitchControl(float pitch)
+	void	setPitchControl(btScalar pitch)
 	{
 		m_pitchControl = pitch;
 	}

@@ -323,8 +323,8 @@ class btMatrix3x3 {
 	{
 		btVector3 co(cofac(1, 1, 2, 2), cofac(1, 2, 2, 0), cofac(1, 0, 2, 1));
 		btScalar det = (*this)[0].dot(co);
-		assert(det != btScalar(0.0f));
-		btScalar s = btScalar(1.0f) / det;
+		assert(det != btScalar(0.0));
+		btScalar s = btScalar(1.0) / det;
 		return btMatrix3x3(co[0] * s, cofac(0, 2, 2, 1) * s, cofac(0, 1, 1, 2) * s,
 								 co[1] * s, cofac(0, 0, 2, 2) * s, cofac(0, 2, 1, 0) * s,
 								 co[2] * s, cofac(0, 1, 2, 0) * s, cofac(0, 0, 1, 1) * s);

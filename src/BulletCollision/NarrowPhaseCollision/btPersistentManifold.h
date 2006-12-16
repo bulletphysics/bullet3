@@ -24,7 +24,7 @@ subject to the following restrictions:
 struct btCollisionResult;
 
 ///contact breaking and merging threshold
-extern float gContactBreakingThreshold;
+extern btScalar gContactBreakingThreshold;
 
 typedef bool (*ContactDestroyedCallback)(void* userPersistentData);
 extern ContactDestroyedCallback	gContactDestroyedCallback;
@@ -97,7 +97,7 @@ public:
 	}
 
 	/// todo: get this margin from the current physics / collision environment
-	float	getContactBreakingThreshold() const;
+	btScalar	getContactBreakingThreshold() const;
 	
 	int getCacheEntry(const btManifoldPoint& newPoint) const;
 

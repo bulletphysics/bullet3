@@ -33,7 +33,7 @@ void btSimulationIslandManager::findUnions(btDispatcher* dispatcher)
 		for (int i=0;i<dispatcher->getNumManifolds();i++)
 		{
 			const btPersistentManifold* manifold = dispatcher->getManifoldByIndexInternal(i);
-			//static objects (invmass 0.f) don't merge !
+			//static objects (invmass btScalar(0.)) don't merge !
 
 			 const  btCollisionObject* colObj0 = static_cast<const btCollisionObject*>(manifold->getBody0());
 			 const  btCollisionObject* colObj1 = static_cast<const btCollisionObject*>(manifold->getBody1());
@@ -66,7 +66,7 @@ void	btSimulationIslandManager::updateActivationState(btCollisionWorld* colWorld
 			
 			btCollisionObject*	collisionObject= (*i);
 			collisionObject->setIslandTag(index);
-			collisionObject->setHitFraction(1.f);
+			collisionObject->setHitFraction(btScalar(1.));
 			index++;
 			
 		}
@@ -268,7 +268,7 @@ void btSimulationIslandManager::buildAndProcessIslands(btDispatcher* dispatcher,
 	int startManifoldIndex = 0;
 	int endManifoldIndex = 1;
 
-	int islandId;
+	//int islandId;
 
 
 		//update the sleeping state for bodies, if all are sleeping

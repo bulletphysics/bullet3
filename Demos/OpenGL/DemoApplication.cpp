@@ -708,7 +708,7 @@ void DemoApplication::renderme()
 {
 	updateCamera();
 
-	float m[16];
+	btScalar m[16];
 
 	if (m_dynamicsWorld)
 	{

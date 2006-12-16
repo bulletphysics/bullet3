@@ -28,7 +28,7 @@ struct	btIndexedMesh
 		int*		m_triangleIndexBase;
 		int			m_triangleIndexStride;
 		int			m_numVertices;
-		float*		m_vertexBase;
+		btScalar*		m_vertexBase;
 		int			m_vertexStride;
 	};
 
@@ -50,7 +50,7 @@ public:
 	}
 
 	//just to be backwards compatible
-	btTriangleIndexVertexArray(int numTriangleIndices,int* triangleIndexBase,int triangleIndexStride,int numVertices,float* vertexBase,int vertexStride);
+	btTriangleIndexVertexArray(int numTriangleIndices,int* triangleIndexBase,int triangleIndexStride,int numVertices,btScalar* vertexBase,int vertexStride);
 	
 	void	addIndexedMesh(const btIndexedMesh& mesh)
 	{
