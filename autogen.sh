@@ -1,5 +1,4 @@
 #! /bin/sh
-set -x
 
 if test ! -f configure.ac ; then
   echo "*** Please invoke this script from directory containing configure.ac."
