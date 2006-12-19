@@ -35,7 +35,7 @@ domLibrary_visual_scenes::registerElement()
     
     _Meta = new daeMetaElement;
     _Meta->setName( "library_visual_scenes" );
-	_Meta->registerConstructor(domLibrary_visual_scenes::create);
+	_Meta->registerClass(domLibrary_visual_scenes::create, &_Meta);
 
 	daeMetaCMPolicy *cm = NULL;
 	daeMetaElementAttribute *mea = NULL;

@@ -35,7 +35,7 @@ domP::registerElement()
     
     _Meta = new daeMetaElement;
     _Meta->setName( "p" );
-	_Meta->registerConstructor(domP::create);
+	_Meta->registerClass(domP::create, &_Meta);
 
 	//	Add attribute: _value
  	{

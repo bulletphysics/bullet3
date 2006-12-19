@@ -213,7 +213,7 @@ public:
 	 * @param e Element from which to apply this attributes offset.
 	 * @return Returns the storage associate with this attribute in <tt><i>e.</i></tt> 
 	 */
-	daeChar* getWritableMemory(daeElement* e) {
+	inline daeChar* getWritableMemory(daeElement* e) {
 		return (daeChar*)e+_offset; }
 };
 
@@ -262,6 +262,14 @@ public:
 	 * @return Returns true if this attribute is an array type.
 	 */
 	virtual daeBool isArrayAttribute()		{ return true; }
+
+	/**
+	 * Resolves a reference (if there is one) in the attribute type;
+	 * only useful for reference types.
+	 * @param elem Containing element on which this attribute
+	 * should be resolved.
+	 */
+	virtual void resolve(daeElementRef elem);
 };
 
 

@@ -35,7 +35,7 @@ domGlsl_newarray_type::registerElement()
     
     _Meta = new daeMetaElement;
     _Meta->setName( "glsl_newarray_type" );
-	_Meta->registerConstructor(domGlsl_newarray_type::create);
+	_Meta->registerClass(domGlsl_newarray_type::create, &_Meta);
 
 	daeMetaCMPolicy *cm = NULL;
 	daeMetaElementAttribute *mea = NULL;
@@ -53,7 +53,7 @@ domGlsl_newarray_type::registerElement()
 	mea->setElementType( domGlsl_newarray_type::registerElement() );
 	cm->appendChild( mea );
 	
-	cm->setMaxOrdinal( 0 );
+	cm->setMaxOrdinal( 3000 );
 	_Meta->setCMRoot( cm );	
 	// Ordered list of sub-elements
     _Meta->addContents(daeOffsetOf(domGlsl_newarray_type,_contents));

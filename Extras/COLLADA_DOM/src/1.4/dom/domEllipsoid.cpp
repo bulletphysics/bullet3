@@ -35,7 +35,7 @@ domEllipsoid::registerElement()
     
     _Meta = new daeMetaElement;
     _Meta->setName( "ellipsoid" );
-	_Meta->registerConstructor(domEllipsoid::create);
+	_Meta->registerClass(domEllipsoid::create, &_Meta);
 
 	daeMetaCMPolicy *cm = NULL;
 	daeMetaElementAttribute *mea = NULL;
@@ -72,7 +72,7 @@ domEllipsoid::domSize::registerElement()
     
     _Meta = new daeMetaElement;
     _Meta->setName( "size" );
-	_Meta->registerConstructor(domEllipsoid::domSize::create);
+	_Meta->registerClass(domEllipsoid::domSize::create, &_Meta);
 
 	_Meta->setIsInnerClass( true );
 	//	Add attribute: _value

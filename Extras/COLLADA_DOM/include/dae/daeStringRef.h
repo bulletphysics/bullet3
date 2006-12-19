@@ -29,7 +29,7 @@ public:
 	DAE_ALLOC;
 private:
 	daeString _string;
-	static daeStringTable _stringTable;
+	static daeStringTable &_stringTable();
 public:
 
 	/**
@@ -53,7 +53,7 @@ public:
 	 * Constructor that creates from a <tt>const char *.</tt>
 	 * @param string External string to create from.
 	 */
-	daeStringRef(daeString string);
+	DLLSPEC daeStringRef(daeString string);
 
 	/**
 	 * Assignment operator.
@@ -70,14 +70,14 @@ public:
 	 * @param string The daeString to copy.
 	 * @return A reference to this object.
 	 */
-	const daeStringRef& set(daeString string);
+	DLLSPEC const daeStringRef& set(daeString string);
 
 	/**
 	 * Assignment operator from an external <tt>const char *.</tt>
 	 * @param string The daeString to copy.
 	 * @return A reference to this object.
 	 */
-	const daeStringRef& operator= (daeString string);
+	DLLSPEC const daeStringRef& operator= (daeString string);
 
 	/**
 	 * Cast operator that returns a <tt>const char *.</tt>
@@ -93,6 +93,13 @@ public:
 	inline bool operator==(const daeStringRef& other) const{
 		//return (other._string == _string); }
 		return (!strcmp(other._string, _string)); }
+
+//Contributed by Nus - Wed, 08 Nov 2006
+	/**
+	 * Release string table...
+	 */
+	static void releaseStringTable(void);
+//--------------------
 };
 
 typedef daeTArray<daeStringRef> daeStringRefArray;

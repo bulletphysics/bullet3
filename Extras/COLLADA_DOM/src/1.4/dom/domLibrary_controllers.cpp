@@ -35,7 +35,7 @@ domLibrary_controllers::registerElement()
     
     _Meta = new daeMetaElement;
     _Meta->setName( "library_controllers" );
-	_Meta->registerConstructor(domLibrary_controllers::create);
+	_Meta->registerClass(domLibrary_controllers::create, &_Meta);
 
 	daeMetaCMPolicy *cm = NULL;
 	daeMetaElementAttribute *mea = NULL;

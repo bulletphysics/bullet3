@@ -35,7 +35,7 @@ domGl_samplerRECT::registerElement()
     
     _Meta = new daeMetaElement;
     _Meta->setName( "gl_samplerRECT" );
-	_Meta->registerConstructor(domGl_samplerRECT::create);
+	_Meta->registerClass(domGl_samplerRECT::create, &_Meta);
 
 	daeMetaCMPolicy *cm = NULL;
 	daeMetaElementAttribute *mea = NULL;

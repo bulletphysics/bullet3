@@ -35,7 +35,7 @@ domProfile_COMMON::registerElement()
     
     _Meta = new daeMetaElement;
     _Meta->setName( "profile_COMMON" );
-	_Meta->registerConstructor(domProfile_COMMON::create);
+	_Meta->registerClass(domProfile_COMMON::create, &_Meta);
 
 	daeMetaCMPolicy *cm = NULL;
 	daeMetaElementAttribute *mea = NULL;
@@ -118,7 +118,7 @@ domProfile_COMMON::domTechnique::registerElement()
     
     _Meta = new daeMetaElement;
     _Meta->setName( "technique" );
-	_Meta->registerConstructor(domProfile_COMMON::domTechnique::create);
+	_Meta->registerClass(domProfile_COMMON::domTechnique::create, &_Meta);
 
 	_Meta->setIsInnerClass( true );
 	daeMetaCMPolicy *cm = NULL;
@@ -237,7 +237,7 @@ domProfile_COMMON::domTechnique::domConstant::registerElement()
     
     _Meta = new daeMetaElement;
     _Meta->setName( "constant" );
-	_Meta->registerConstructor(domProfile_COMMON::domTechnique::domConstant::create);
+	_Meta->registerClass(domProfile_COMMON::domTechnique::domConstant::create, &_Meta);
 
 	_Meta->setIsInnerClass( true );
 	daeMetaCMPolicy *cm = NULL;
@@ -305,7 +305,7 @@ domProfile_COMMON::domTechnique::domLambert::registerElement()
     
     _Meta = new daeMetaElement;
     _Meta->setName( "lambert" );
-	_Meta->registerConstructor(domProfile_COMMON::domTechnique::domLambert::create);
+	_Meta->registerClass(domProfile_COMMON::domTechnique::domLambert::create, &_Meta);
 
 	_Meta->setIsInnerClass( true );
 	daeMetaCMPolicy *cm = NULL;
@@ -385,7 +385,7 @@ domProfile_COMMON::domTechnique::domPhong::registerElement()
     
     _Meta = new daeMetaElement;
     _Meta->setName( "phong" );
-	_Meta->registerConstructor(domProfile_COMMON::domTechnique::domPhong::create);
+	_Meta->registerClass(domProfile_COMMON::domTechnique::domPhong::create, &_Meta);
 
 	_Meta->setIsInnerClass( true );
 	daeMetaCMPolicy *cm = NULL;
@@ -477,7 +477,7 @@ domProfile_COMMON::domTechnique::domBlinn::registerElement()
     
     _Meta = new daeMetaElement;
     _Meta->setName( "blinn" );
-	_Meta->registerConstructor(domProfile_COMMON::domTechnique::domBlinn::create);
+	_Meta->registerClass(domProfile_COMMON::domTechnique::domBlinn::create, &_Meta);
 
 	_Meta->setIsInnerClass( true );
 	daeMetaCMPolicy *cm = NULL;
@@ -553,6 +553,7 @@ domProfile_COMMON::domTechnique::domBlinn::registerElement()
 
 	return _Meta;
 }
+
 
 daeMetaElement * domProfile_COMMON::_Meta = NULL;
 daeMetaElement * domProfile_COMMON::domTechnique::_Meta = NULL;

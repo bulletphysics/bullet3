@@ -35,97 +35,59 @@ public:
 	/**
 	  * Constructor
 	  */
-	daeSTLDatabase();
+	DLLSPEC daeSTLDatabase();
 	/**
 	  * Destructor
 	  */
-	virtual ~daeSTLDatabase();
+	virtual DLLSPEC ~daeSTLDatabase();
 
 public:
 	// Element Types of all Elements
-	virtual daeUInt			getTypeCount();
-	virtual daeString		getTypeName(daeUInt index);
-	virtual daeInt			setMeta(daeMetaElement *_topMeta);
+	virtual DLLSPEC daeUInt			getTypeCount();
+	virtual DLLSPEC daeString		getTypeName(daeUInt index);
+	virtual DLLSPEC daeInt			setMeta(daeMetaElement *_topMeta);
 
 	// Documents
-	virtual daeInt			insertDocument(const char *name, daeElement* dom, daeDocument** document = NULL);
-	virtual daeInt			insertDocument(daeString name, daeDocument** document = NULL);
-	virtual daeInt			createDocument(daeString name, daeElement* dom, daeDocument** document = NULL);
-	virtual daeInt			createDocument(daeString name, daeDocument** document = NULL);
-	virtual daeInt			insertDocument( daeDocument *c );
+	virtual DLLSPEC daeInt			insertDocument(const char *name, daeElement* dom, daeDocument** document = NULL);
+	virtual DLLSPEC daeInt			insertDocument(daeString name, daeDocument** document = NULL);
+	virtual DLLSPEC daeInt			createDocument(daeString name, daeElement* dom, daeDocument** document = NULL);
+	virtual DLLSPEC daeInt			createDocument(daeString name, daeDocument** document = NULL);
+	virtual DLLSPEC daeInt			insertDocument( daeDocument *c );
 
-	virtual daeInt			removeDocument(daeDocument* document);
-	virtual daeUInt			getDocumentCount();
-	virtual daeDocument*	getDocument(daeUInt index);
-	virtual daeDocument*	getDocument(daeString name);
-	virtual daeString		getDocumentName(daeUInt index);
-	virtual daeBool			isDocumentLoaded(daeString name);
+	virtual DLLSPEC daeInt			removeDocument(daeDocument* document);
+	virtual DLLSPEC daeUInt			getDocumentCount();
+	virtual DLLSPEC daeDocument*		getDocument(daeUInt index);
+	virtual DLLSPEC daeDocument*		getDocument(daeString name);
+	virtual DLLSPEC daeString		getDocumentName(daeUInt index);
+	virtual DLLSPEC daeBool			isDocumentLoaded(daeString name);
 
 	// Elements 
-	virtual daeInt			insertElement(daeDocument* document, daeElement* element);  
-	virtual daeInt			removeElement(daeDocument* document, daeElement* element); 
-	virtual daeInt			clear();
-	virtual void			validate();
-	virtual daeUInt getElementCount(daeString name = NULL,
-	                              daeString type = NULL,
-	                              daeString file = NULL);
-	virtual daeInt getElement(daeElement** pElement, 
-	                        daeInt index,
-	                        daeString name = NULL,
-	                        daeString type = NULL,
-	                        daeString file = NULL);
+	virtual DLLSPEC daeInt			insertElement(daeDocument* document, daeElement* element);
+	virtual DLLSPEC daeInt			removeElement(daeDocument* document, daeElement* element); 
+	virtual DLLSPEC daeInt			clear();
+	virtual DLLSPEC void				validate();
+	virtual DLLSPEC daeUInt			getElementCount(daeString name = NULL,
+														  daeString type = NULL,
+														  daeString file = NULL);
+	virtual DLLSPEC daeInt			getElement(daeElement** pElement, 
+														daeInt index,
+														daeString name = NULL,
+														daeString type = NULL,
+														daeString file = NULL); 
 
 	// Generic Query
-	virtual daeInt queryElement(daeElement** pElement, daeString genericQuery);
+	virtual DLLSPEC daeInt			queryElement(daeElement** pElement, daeString genericQuery);
 
 private:
 
-	/**
-	 * A struct to describe a cell in the STL run-time database.
-	 */
-	typedef struct
-	{
-		daeElement* element;
-		daeString name;
-		daeString type;
-		daeDocument *document;
-	} DAE_STL_DATABASE_CELL;
-	
-	/**
-	 * Sorting structure.
-	 */
-	struct daeSTLDatabaseLess: public std::binary_function<DAE_STL_DATABASE_CELL,DAE_STL_DATABASE_CELL,bool>
-	{
-		bool operator() (const DAE_STL_DATABASE_CELL& x, const DAE_STL_DATABASE_CELL& y) const
-		{
-			int res = strcmp(x.type,y.type);
-			if (res != 0)
-				return res<0;
-			else
-				return strcmp(x.name,y.name)<0;
-		}
-	};
-	
-	/**
-	 * Sorting structure.
-	 */
-	struct daeSTLDatabaseTypeLess: public std::binary_function<DAE_STL_DATABASE_CELL,DAE_STL_DATABASE_CELL,bool>
-	{
-		bool operator() (const DAE_STL_DATABASE_CELL& x, const DAE_STL_DATABASE_CELL& y) const
-		{
-			int res = strcmp(x.type,y.type);
-			return res<0;
-		}
-	};
+	std::map< std::string, std::vector< daeElement* > > elements; //map for all elements keyed on Type
+	std::multimap< std::string, daeElement* > elementsIDMap; //map for elements keyed on ID
 
-	std::vector<DAE_STL_DATABASE_CELL> elements;
-	std::multimap< std::string, DAE_STL_DATABASE_CELL> elementsIDMap; 
 	std::vector<daeDocument*> documents;
 	daeMetaElement* topMeta;
 
 	daeInt insertChildren( daeDocument *c, daeElement *element );
 	daeInt removeChildren( daeDocument *c, daeElement *element );
-
 };
 
 #endif // __DAE_STLDATABASE__

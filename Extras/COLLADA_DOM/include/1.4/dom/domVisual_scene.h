@@ -30,6 +30,8 @@
 class domVisual_scene : public daeElement
 {
 public:
+	COLLADA_TYPE::TypeEnum getElementType() const { return COLLADA_TYPE::VISUAL_SCENE; }
+public:
 	class domEvaluate_scene;
 
 	typedef daeSmartRef<domEvaluate_scene> domEvaluate_sceneRef;
@@ -43,6 +45,8 @@ public:
 	class domEvaluate_scene : public daeElement
 	{
 	public:
+		COLLADA_TYPE::TypeEnum getElementType() const { return COLLADA_TYPE::EVALUATE_SCENE; }
+	public:
 		class domRender;
 
 		typedef daeSmartRef<domRender> domRenderRef;
@@ -55,6 +59,8 @@ public:
 		class domRender : public daeElement
 		{
 		public:
+			COLLADA_TYPE::TypeEnum getElementType() const { return COLLADA_TYPE::RENDER; }
+		public:
 			class domLayer;
 
 			typedef daeSmartRef<domLayer> domLayerRef;
@@ -66,6 +72,8 @@ public:
  */
 			class domLayer : public daeElement
 			{
+			public:
+				COLLADA_TYPE::TypeEnum getElementType() const { return COLLADA_TYPE::LAYER; }
 
 			protected:  // Value
 				/**
@@ -109,19 +117,19 @@ public:
 				 * @param bytes The size allocated for this instance.
 				 * @return a daeElementRef referencing an instance of this object.
 				 */
-				static daeElementRef create(daeInt bytes);
+				static DLLSPEC daeElementRef create(daeInt bytes);
 				/**
 				 * Creates a daeMetaElement object that describes this element in the meta object reflection framework.
 				 * If a daeMetaElement already exists it will return that instead of creating a new one. 
 				 * @return A daeMetaElement describing this COLLADA element.
 				 */
-				static daeMetaElement* registerElement();
+				static DLLSPEC daeMetaElement* registerElement();
 
 			public: // STATIC MEMBERS
 				/**
 				 * The daeMetaElement that describes this element in the meta object reflection framework.
 				 */
-				static daeMetaElement* _Meta;
+				static DLLSPEC daeMetaElement* _Meta;
 			};
 
 
@@ -160,7 +168,7 @@ public:
 			 * Sets the camera_node attribute.
 			 * @param atCamera_node The new value for the camera_node attribute.
 			 */
-			void setCamera_node( const xsAnyURI &atCamera_node ) { attrCamera_node.setURI( atCamera_node.getURI() );		
+			void setCamera_node( const xsAnyURI &atCamera_node ) { attrCamera_node = atCamera_node;		
 	 _validAttributeArray[0] = true; }
 
 			/**
@@ -202,19 +210,19 @@ public:
 			 * @param bytes The size allocated for this instance.
 			 * @return a daeElementRef referencing an instance of this object.
 			 */
-			static daeElementRef create(daeInt bytes);
+			static DLLSPEC daeElementRef create(daeInt bytes);
 			/**
 			 * Creates a daeMetaElement object that describes this element in the meta object reflection framework.
 			 * If a daeMetaElement already exists it will return that instead of creating a new one. 
 			 * @return A daeMetaElement describing this COLLADA element.
 			 */
-			static daeMetaElement* registerElement();
+			static DLLSPEC daeMetaElement* registerElement();
 
 		public: // STATIC MEMBERS
 			/**
 			 * The daeMetaElement that describes this element in the meta object reflection framework.
 			 */
-			static daeMetaElement* _Meta;
+			static DLLSPEC daeMetaElement* _Meta;
 		};
 
 
@@ -278,19 +286,19 @@ public:
 		 * @param bytes The size allocated for this instance.
 		 * @return a daeElementRef referencing an instance of this object.
 		 */
-		static daeElementRef create(daeInt bytes);
+		static DLLSPEC daeElementRef create(daeInt bytes);
 		/**
 		 * Creates a daeMetaElement object that describes this element in the meta object reflection framework.
 		 * If a daeMetaElement already exists it will return that instead of creating a new one. 
 		 * @return A daeMetaElement describing this COLLADA element.
 		 */
-		static daeMetaElement* registerElement();
+		static DLLSPEC daeMetaElement* registerElement();
 
 	public: // STATIC MEMBERS
 		/**
 		 * The daeMetaElement that describes this element in the meta object reflection framework.
 		 */
-		static daeMetaElement* _Meta;
+		static DLLSPEC daeMetaElement* _Meta;
 	};
 
 
@@ -410,19 +418,19 @@ public: // STATIC METHODS
 	 * @param bytes The size allocated for this instance.
 	 * @return a daeElementRef referencing an instance of this object.
 	 */
-	static daeElementRef create(daeInt bytes);
+	static DLLSPEC daeElementRef create(daeInt bytes);
 	/**
 	 * Creates a daeMetaElement object that describes this element in the meta object reflection framework.
 	 * If a daeMetaElement already exists it will return that instead of creating a new one. 
 	 * @return A daeMetaElement describing this COLLADA element.
 	 */
-	static daeMetaElement* registerElement();
+	static DLLSPEC daeMetaElement* registerElement();
 
 public: // STATIC MEMBERS
 	/**
 	 * The daeMetaElement that describes this element in the meta object reflection framework.
 	 */
-	static daeMetaElement* _Meta;
+	static DLLSPEC daeMetaElement* _Meta;
 };
 
 

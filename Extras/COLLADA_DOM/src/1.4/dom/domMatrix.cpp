@@ -35,7 +35,7 @@ domMatrix::registerElement()
     
     _Meta = new daeMetaElement;
     _Meta->setName( "matrix" );
-	_Meta->registerConstructor(domMatrix::create);
+	_Meta->registerClass(domMatrix::create, &_Meta);
 
 	//	Add attribute: _value
  	{

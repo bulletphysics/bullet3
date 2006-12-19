@@ -35,7 +35,7 @@ domSampler::registerElement()
     
     _Meta = new daeMetaElement;
     _Meta->setName( "sampler" );
-	_Meta->registerConstructor(domSampler::create);
+	_Meta->registerClass(domSampler::create, &_Meta);
 
 	daeMetaCMPolicy *cm = NULL;
 	daeMetaElementAttribute *mea = NULL;

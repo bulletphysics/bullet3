@@ -35,7 +35,7 @@ domLibrary_effects::registerElement()
     
     _Meta = new daeMetaElement;
     _Meta->setName( "library_effects" );
-	_Meta->registerConstructor(domLibrary_effects::create);
+	_Meta->registerClass(domLibrary_effects::create, &_Meta);
 
 	daeMetaCMPolicy *cm = NULL;
 	daeMetaElementAttribute *mea = NULL;

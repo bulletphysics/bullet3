@@ -26,21 +26,59 @@ daeString safeCreate(daeString src);
 void safeDelete(daeString src);
 daeString findCharacterReverse(daeString string, daeChar stopChar);
 
-daeURIResolverPtrArray daeURIResolver::_KnownResolvers;
+//Contributed by Nus - Wed, 08 Nov 2006
+static daeURIResolverPtrArray *pKR = NULL;
+//---------------------------
 
-static daeURI ApplicationURI(1);
+daeURIResolverPtrArray &daeURIResolver::_KnownResolvers()
+{
+//Contributed by Nus - Wed, 08 Nov 2006
+  // static daeURIResolverPtrArray *kr = new daeURIResolverPtrArray();
+  // return *kr;
+  return *pKR;
+//--------------------------------
+}
+
+//Contributed by Nus - Wed, 08 Nov 2006
+static daeURI* pAppURI = NULL;
+// static daeURI ApplicationURI(1);
+
+extern "C" void initializeURI(void)
+{
+  if(!pAppURI) {
+    pAppURI = new daeURI(1);
+  }
+  if(!pKR) {
+    pKR = new daeURIResolverPtrArray();
+  }
+}
+
+extern "C" void terminateURI(void)
+{
+  delete pAppURI;
+  pAppURI = NULL;
+  delete pKR;
+  pKR = NULL;
+}
+//--------------------------------------
 
 void
 daeURI::setBaseURI(daeURI& uri)
 {
-	ApplicationURI.reset();
-	ApplicationURI.setURI(uri.getURI());
+//Contributed by Nus - Wed, 08 Nov 2006
+	// ApplicationURI.reset();
+	// ApplicationURI.setURI(uri.getURI());
+	pAppURI->reset();
+	pAppURI->setURI(uri.getURI());
+//------------------------
 }
 
 daeURI*
 daeURI::getBaseURI()
 {
-	return &ApplicationURI;
+//Contributed by Nus - Wed, 08 Nov 2006
+	return pAppURI;
+//--------------------------------------
 }
 
 void
@@ -252,6 +290,18 @@ void safeDelete(daeString src)
 void
 daeURI::setURI(daeString _URIString)
 {
+//Contributed by Nus - Wed, 08 Nov 2006
+  // Nus: Checking for existing string.
+  if(originalURIString && _URIString) {
+    if(strcmp(originalURIString, _URIString) == 0)
+      return;
+  }
+  // Nus: If the string exist, delete it first.
+  if(originalURIString) {
+    safeDelete(originalURIString);
+    originalURIString = NULL;
+  }
+//---------------------------
 	originalURIString = safeCreate(_URIString);
 	internalSetURI(_URIString);
 }
@@ -646,7 +696,7 @@ daeURI::validate(daeURI* baseURI)
 	uriString = newURI;
 	state = uri_pending;
 
-	if ( container != NULL ) {
+	if ( container != NULL && container->getDocumentURI() != NULL ) {
 	    daeString fp = container->getDocumentURI()->getFilepath();
 	    daeString f = container->getDocumentURI()->getFile();
 		if ( strcmp( fp, filepath ) != 0 || strcmp( f, file ) != 0 ) {
@@ -897,27 +947,27 @@ void
 daeURIResolver::attemptResolveElement(daeURI& uri, daeString typeNameHint)
 {
 	int i;
-	int cnt =(int) _KnownResolvers.getCount();
+	int cnt =(int) _KnownResolvers().getCount();
 
 	for(i=0;i<cnt;i++)
-		if ((_KnownResolvers[i]->isProtocolSupported(uri.getProtocol()))&&
+		if ((_KnownResolvers()[i]->isProtocolSupported(uri.getProtocol()))&&
 			((uri.getFile() == NULL) || 
 			 (uri.getFile()[0] == '\0') || 
-			 (_KnownResolvers[i]->isExtensionSupported(uri.getExtension()))) &&
-			(_KnownResolvers[i]->resolveElement(uri, typeNameHint)))
+			 (_KnownResolvers()[i]->isExtensionSupported(uri.getExtension()))) &&
+			(_KnownResolvers()[i]->resolveElement(uri, typeNameHint)))
 			return;
 }
 
 void
 daeURIResolver::attemptResolveURI(daeURI& uri)
 {
-	int i,cnt = (int)_KnownResolvers.getCount();
+	int i,cnt = (int)_KnownResolvers().getCount();
 
 	daeBool foundProtocol = false;
 	for(i=0;i<cnt;i++)
-		if (_KnownResolvers[i]->isProtocolSupported(uri.getProtocol())) {
+		if (_KnownResolvers()[i]->isProtocolSupported(uri.getProtocol())) {
 			foundProtocol = true;
-			if (_KnownResolvers[i]->resolveURI(uri))
+			if (_KnownResolvers()[i]->resolveURI(uri))
 				return;
 		}
 #if defined(_DEBUG) && defined(WIN32)
@@ -949,12 +999,12 @@ daeBool daeURIResolver::_loadExternalDocuments = true;
 
 daeURIResolver::daeURIResolver()
 {
-	_KnownResolvers.append((daeURIResolver*)this);
+	_KnownResolvers().append((daeURIResolver*)this);
 }
 
 daeURIResolver::~daeURIResolver()
 {
-	_KnownResolvers.remove((daeURIResolver*)this);
+	_KnownResolvers().remove((daeURIResolver*)this);
 }
 // This code is loosely based on the RFC 2396 normalization code from
 // libXML. Specifically it does the RFC steps 6.c->6.g from section 5.2
@@ -1218,5 +1268,15 @@ int daeURI::makeRelativeTo(daeURI* relativeToURI)
 	}
 	originalURIString = newRelativeURI;
 	return(DAE_OK);
+}
+
+void daeURIResolver::setAutoLoadExternalDocuments( daeBool load ) 
+{ 
+	_loadExternalDocuments = load; 
+}
+
+daeBool daeURIResolver::getAutoLoadExternalDocuments() 
+{ 
+	return _loadExternalDocuments; 
 }
 

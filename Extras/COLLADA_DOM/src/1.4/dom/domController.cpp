@@ -35,7 +35,7 @@ domController::registerElement()
     
     _Meta = new daeMetaElement;
     _Meta->setName( "controller" );
-	_Meta->registerConstructor(domController::create);
+	_Meta->registerClass(domController::create, &_Meta);
 
 	daeMetaCMPolicy *cm = NULL;
 	daeMetaElementAttribute *mea = NULL;

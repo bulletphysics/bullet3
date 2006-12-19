@@ -15,8 +15,6 @@
 #define __DAE_LIBXMLPLUGIN__
 
 #include <vector>
-#include <libxml/xmlreader.h>
-#include <libxml/xmlwriter.h>
 #include <dae/daeElement.h>
 #include <dae/daeMetaAttribute.h>
 #include <dae/daeIOPlugin.h>
@@ -25,6 +23,9 @@ class daeElement;
 class daeIntegrationObject;
 class daeMetaElement;
 class daeDocument;
+
+struct _xmlTextReader;
+struct _xmlTextWriter;
 
 /**
  * The @c daeLIBXMLPlugin class derives from @c daeIOPlugin and implements an XML
@@ -41,34 +42,33 @@ public:
 	/**
 	 * Constructor.
 	 */
-	daeLIBXMLPlugin();
+	DLLSPEC daeLIBXMLPlugin();
 	/**
 	 * Destructor.
 	 */
-	virtual ~daeLIBXMLPlugin();
-	virtual daeInt setMeta(daeMetaElement *topMeta);
+	virtual DLLSPEC ~daeLIBXMLPlugin();
+	virtual DLLSPEC daeInt setMeta(daeMetaElement *topMeta);
 
 	// Database setup	
-	virtual void setDatabase(daeDatabase* database);
+	virtual DLLSPEC void setDatabase(daeDatabase* database);
 
 	// Operations
-	virtual daeInt read(daeURI& uri, daeString docBuffer);
-	virtual daeInt write(daeURI *name, daeDocument *document, daeBool replace);
+	virtual DLLSPEC daeInt read(daeURI& uri, daeString docBuffer);
+	virtual DLLSPEC daeInt write(daeURI *name, daeDocument *document, daeBool replace);
 
-	// Parsing support
-
-	daeElementRef startParse(daeMetaElement* thisMetaElement, xmlTextReaderPtr reader);
-	daeElementRef nextElement(daeMetaElement* thisMetaElement, xmlTextReaderPtr reader);
+	// Parsing support 
+	DLLSPEC daeElementRef startParse(daeMetaElement* thisMetaElement, _xmlTextReader *reader);
+	DLLSPEC daeElementRef nextElement(daeMetaElement* thisMetaElement, _xmlTextReader *reader);
 
 	// Stats	
-	virtual void getProgress(daeInt* bytesParsed,
+	virtual DLLSPEC void getProgress(daeInt* bytesParsed,
 		daeInt* lineNumber,
 		daeInt* totalBytes,
 		daeBool reset = false );
 	
 private:
 //	xmlTextReaderPtr reader;
-	xmlTextWriterPtr writer;
+	_xmlTextWriter *writer;
 
 	typedef struct
 	{
@@ -85,8 +85,8 @@ private:
 	void writeElement( daeElement* element ); 
 	void writeAttribute( daeMetaAttribute* attr, daeElement* element, daeInt attrNum = -1 );
 
-	void readAttributes( daeElement *element, xmlTextReaderPtr reader );
-	void readValue( daeElement *element, xmlTextReaderPtr reader );
+	void readAttributes( daeElement *element, _xmlTextReader *reader );
+	void readValue( daeElement *element, _xmlTextReader *reader );
 };
 
 #endif //__DAE_XMLPLUGIN__

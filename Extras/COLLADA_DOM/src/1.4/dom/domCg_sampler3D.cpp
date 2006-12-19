@@ -35,7 +35,7 @@ domCg_sampler3D::registerElement()
     
     _Meta = new daeMetaElement;
     _Meta->setName( "cg_sampler3D" );
-	_Meta->registerConstructor(domCg_sampler3D::create);
+	_Meta->registerClass(domCg_sampler3D::create, &_Meta);
 
 	daeMetaCMPolicy *cm = NULL;
 	daeMetaElementAttribute *mea = NULL;

@@ -35,7 +35,7 @@ domFx_clearcolor_common::registerElement()
     
     _Meta = new daeMetaElement;
     _Meta->setName( "fx_clearcolor_common" );
-	_Meta->registerConstructor(domFx_clearcolor_common::create);
+	_Meta->registerClass(domFx_clearcolor_common::create, &_Meta);
 
 	//	Add attribute: _value
  	{

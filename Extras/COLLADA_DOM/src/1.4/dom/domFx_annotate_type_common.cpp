@@ -35,7 +35,7 @@ domFx_annotate_type_common::registerElement()
     
     _Meta = new daeMetaElement;
     _Meta->setName( "fx_annotate_type_common" );
-	_Meta->registerConstructor(domFx_annotate_type_common::create);
+	_Meta->registerClass(domFx_annotate_type_common::create, &_Meta);
 
 	_Meta->setIsTransparent( true );
 	daeMetaCMPolicy *cm = NULL;
@@ -167,7 +167,7 @@ domFx_annotate_type_common::domBool::registerElement()
     
     _Meta = new daeMetaElement;
     _Meta->setName( "bool" );
-	_Meta->registerConstructor(domFx_annotate_type_common::domBool::create);
+	_Meta->registerClass(domFx_annotate_type_common::domBool::create, &_Meta);
 
 	_Meta->setIsInnerClass( true );
 	//	Add attribute: _value
@@ -202,7 +202,7 @@ domFx_annotate_type_common::domBool2::registerElement()
     
     _Meta = new daeMetaElement;
     _Meta->setName( "bool2" );
-	_Meta->registerConstructor(domFx_annotate_type_common::domBool2::create);
+	_Meta->registerClass(domFx_annotate_type_common::domBool2::create, &_Meta);
 
 	_Meta->setIsInnerClass( true );
 	//	Add attribute: _value
@@ -237,7 +237,7 @@ domFx_annotate_type_common::domBool3::registerElement()
     
     _Meta = new daeMetaElement;
     _Meta->setName( "bool3" );
-	_Meta->registerConstructor(domFx_annotate_type_common::domBool3::create);
+	_Meta->registerClass(domFx_annotate_type_common::domBool3::create, &_Meta);
 
 	_Meta->setIsInnerClass( true );
 	//	Add attribute: _value
@@ -272,7 +272,7 @@ domFx_annotate_type_common::domBool4::registerElement()
     
     _Meta = new daeMetaElement;
     _Meta->setName( "bool4" );
-	_Meta->registerConstructor(domFx_annotate_type_common::domBool4::create);
+	_Meta->registerClass(domFx_annotate_type_common::domBool4::create, &_Meta);
 
 	_Meta->setIsInnerClass( true );
 	//	Add attribute: _value
@@ -307,7 +307,7 @@ domFx_annotate_type_common::domInt::registerElement()
     
     _Meta = new daeMetaElement;
     _Meta->setName( "int" );
-	_Meta->registerConstructor(domFx_annotate_type_common::domInt::create);
+	_Meta->registerClass(domFx_annotate_type_common::domInt::create, &_Meta);
 
 	_Meta->setIsInnerClass( true );
 	//	Add attribute: _value
@@ -342,7 +342,7 @@ domFx_annotate_type_common::domInt2::registerElement()
     
     _Meta = new daeMetaElement;
     _Meta->setName( "int2" );
-	_Meta->registerConstructor(domFx_annotate_type_common::domInt2::create);
+	_Meta->registerClass(domFx_annotate_type_common::domInt2::create, &_Meta);
 
 	_Meta->setIsInnerClass( true );
 	//	Add attribute: _value
@@ -377,7 +377,7 @@ domFx_annotate_type_common::domInt3::registerElement()
     
     _Meta = new daeMetaElement;
     _Meta->setName( "int3" );
-	_Meta->registerConstructor(domFx_annotate_type_common::domInt3::create);
+	_Meta->registerClass(domFx_annotate_type_common::domInt3::create, &_Meta);
 
 	_Meta->setIsInnerClass( true );
 	//	Add attribute: _value
@@ -412,7 +412,7 @@ domFx_annotate_type_common::domInt4::registerElement()
     
     _Meta = new daeMetaElement;
     _Meta->setName( "int4" );
-	_Meta->registerConstructor(domFx_annotate_type_common::domInt4::create);
+	_Meta->registerClass(domFx_annotate_type_common::domInt4::create, &_Meta);
 
 	_Meta->setIsInnerClass( true );
 	//	Add attribute: _value
@@ -447,7 +447,7 @@ domFx_annotate_type_common::domFloat::registerElement()
     
     _Meta = new daeMetaElement;
     _Meta->setName( "float" );
-	_Meta->registerConstructor(domFx_annotate_type_common::domFloat::create);
+	_Meta->registerClass(domFx_annotate_type_common::domFloat::create, &_Meta);
 
 	_Meta->setIsInnerClass( true );
 	//	Add attribute: _value
@@ -482,7 +482,7 @@ domFx_annotate_type_common::domFloat2::registerElement()
     
     _Meta = new daeMetaElement;
     _Meta->setName( "float2" );
-	_Meta->registerConstructor(domFx_annotate_type_common::domFloat2::create);
+	_Meta->registerClass(domFx_annotate_type_common::domFloat2::create, &_Meta);
 
 	_Meta->setIsInnerClass( true );
 	//	Add attribute: _value
@@ -517,7 +517,7 @@ domFx_annotate_type_common::domFloat3::registerElement()
     
     _Meta = new daeMetaElement;
     _Meta->setName( "float3" );
-	_Meta->registerConstructor(domFx_annotate_type_common::domFloat3::create);
+	_Meta->registerClass(domFx_annotate_type_common::domFloat3::create, &_Meta);
 
 	_Meta->setIsInnerClass( true );
 	//	Add attribute: _value
@@ -552,7 +552,7 @@ domFx_annotate_type_common::domFloat4::registerElement()
     
     _Meta = new daeMetaElement;
     _Meta->setName( "float4" );
-	_Meta->registerConstructor(domFx_annotate_type_common::domFloat4::create);
+	_Meta->registerClass(domFx_annotate_type_common::domFloat4::create, &_Meta);
 
 	_Meta->setIsInnerClass( true );
 	//	Add attribute: _value
@@ -587,7 +587,7 @@ domFx_annotate_type_common::domFloat2x2::registerElement()
     
     _Meta = new daeMetaElement;
     _Meta->setName( "float2x2" );
-	_Meta->registerConstructor(domFx_annotate_type_common::domFloat2x2::create);
+	_Meta->registerClass(domFx_annotate_type_common::domFloat2x2::create, &_Meta);
 
 	_Meta->setIsInnerClass( true );
 	//	Add attribute: _value
@@ -622,7 +622,7 @@ domFx_annotate_type_common::domFloat3x3::registerElement()
     
     _Meta = new daeMetaElement;
     _Meta->setName( "float3x3" );
-	_Meta->registerConstructor(domFx_annotate_type_common::domFloat3x3::create);
+	_Meta->registerClass(domFx_annotate_type_common::domFloat3x3::create, &_Meta);
 
 	_Meta->setIsInnerClass( true );
 	//	Add attribute: _value
@@ -657,7 +657,7 @@ domFx_annotate_type_common::domFloat4x4::registerElement()
     
     _Meta = new daeMetaElement;
     _Meta->setName( "float4x4" );
-	_Meta->registerConstructor(domFx_annotate_type_common::domFloat4x4::create);
+	_Meta->registerClass(domFx_annotate_type_common::domFloat4x4::create, &_Meta);
 
 	_Meta->setIsInnerClass( true );
 	//	Add attribute: _value
@@ -692,7 +692,7 @@ domFx_annotate_type_common::domString::registerElement()
     
     _Meta = new daeMetaElement;
     _Meta->setName( "string" );
-	_Meta->registerConstructor(domFx_annotate_type_common::domString::create);
+	_Meta->registerClass(domFx_annotate_type_common::domString::create, &_Meta);
 
 	_Meta->setIsInnerClass( true );
 	//	Add attribute: _value

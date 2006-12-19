@@ -36,7 +36,7 @@ domInputLocalOffset::registerElement()
     
     _Meta = new daeMetaElement;
     _Meta->setName( "InputLocalOffset" );
-	_Meta->registerConstructor(domInputLocalOffset::create);
+	_Meta->registerClass(domInputLocalOffset::create, &_Meta);
 
 
 	//	Add attribute: offset

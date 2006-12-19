@@ -35,7 +35,7 @@ domFx_surface_common::registerElement()
     
     _Meta = new daeMetaElement;
     _Meta->setName( "fx_surface_common" );
-	_Meta->registerConstructor(domFx_surface_common::create);
+	_Meta->registerClass(domFx_surface_common::create, &_Meta);
 
 	daeMetaCMPolicy *cm = NULL;
 	daeMetaElementAttribute *mea = NULL;
@@ -136,7 +136,7 @@ domFx_surface_common::domFormat::registerElement()
     
     _Meta = new daeMetaElement;
     _Meta->setName( "format" );
-	_Meta->registerConstructor(domFx_surface_common::domFormat::create);
+	_Meta->registerClass(domFx_surface_common::domFormat::create, &_Meta);
 
 	_Meta->setIsInnerClass( true );
 	//	Add attribute: _value
@@ -171,7 +171,7 @@ domFx_surface_common::domSize::registerElement()
     
     _Meta = new daeMetaElement;
     _Meta->setName( "size" );
-	_Meta->registerConstructor(domFx_surface_common::domSize::create);
+	_Meta->registerClass(domFx_surface_common::domSize::create, &_Meta);
 
 	_Meta->setIsInnerClass( true );
 	//	Add attribute: _value
@@ -206,7 +206,7 @@ domFx_surface_common::domViewport_ratio::registerElement()
     
     _Meta = new daeMetaElement;
     _Meta->setName( "viewport_ratio" );
-	_Meta->registerConstructor(domFx_surface_common::domViewport_ratio::create);
+	_Meta->registerClass(domFx_surface_common::domViewport_ratio::create, &_Meta);
 
 	_Meta->setIsInnerClass( true );
 	//	Add attribute: _value
@@ -241,7 +241,7 @@ domFx_surface_common::domMip_levels::registerElement()
     
     _Meta = new daeMetaElement;
     _Meta->setName( "mip_levels" );
-	_Meta->registerConstructor(domFx_surface_common::domMip_levels::create);
+	_Meta->registerClass(domFx_surface_common::domMip_levels::create, &_Meta);
 
 	_Meta->setIsInnerClass( true );
 	//	Add attribute: _value
@@ -276,7 +276,7 @@ domFx_surface_common::domMipmap_generate::registerElement()
     
     _Meta = new daeMetaElement;
     _Meta->setName( "mipmap_generate" );
-	_Meta->registerConstructor(domFx_surface_common::domMipmap_generate::create);
+	_Meta->registerClass(domFx_surface_common::domMipmap_generate::create, &_Meta);
 
 	_Meta->setIsInnerClass( true );
 	//	Add attribute: _value

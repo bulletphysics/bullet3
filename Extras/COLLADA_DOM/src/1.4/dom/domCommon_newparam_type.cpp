@@ -35,7 +35,7 @@ domCommon_newparam_type::registerElement()
     
     _Meta = new daeMetaElement;
     _Meta->setName( "common_newparam_type" );
-	_Meta->registerConstructor(domCommon_newparam_type::create);
+	_Meta->registerClass(domCommon_newparam_type::create, &_Meta);
 
 	daeMetaCMPolicy *cm = NULL;
 	daeMetaElementAttribute *mea = NULL;
@@ -130,7 +130,7 @@ domCommon_newparam_type::domSemantic::registerElement()
     
     _Meta = new daeMetaElement;
     _Meta->setName( "semantic" );
-	_Meta->registerConstructor(domCommon_newparam_type::domSemantic::create);
+	_Meta->registerClass(domCommon_newparam_type::domSemantic::create, &_Meta);
 
 	_Meta->setIsInnerClass( true );
 	//	Add attribute: _value
@@ -165,7 +165,7 @@ domCommon_newparam_type::domFloat::registerElement()
     
     _Meta = new daeMetaElement;
     _Meta->setName( "float" );
-	_Meta->registerConstructor(domCommon_newparam_type::domFloat::create);
+	_Meta->registerClass(domCommon_newparam_type::domFloat::create, &_Meta);
 
 	_Meta->setIsInnerClass( true );
 	//	Add attribute: _value
@@ -200,7 +200,7 @@ domCommon_newparam_type::domFloat2::registerElement()
     
     _Meta = new daeMetaElement;
     _Meta->setName( "float2" );
-	_Meta->registerConstructor(domCommon_newparam_type::domFloat2::create);
+	_Meta->registerClass(domCommon_newparam_type::domFloat2::create, &_Meta);
 
 	_Meta->setIsInnerClass( true );
 	//	Add attribute: _value
@@ -235,7 +235,7 @@ domCommon_newparam_type::domFloat3::registerElement()
     
     _Meta = new daeMetaElement;
     _Meta->setName( "float3" );
-	_Meta->registerConstructor(domCommon_newparam_type::domFloat3::create);
+	_Meta->registerClass(domCommon_newparam_type::domFloat3::create, &_Meta);
 
 	_Meta->setIsInnerClass( true );
 	//	Add attribute: _value
@@ -270,7 +270,7 @@ domCommon_newparam_type::domFloat4::registerElement()
     
     _Meta = new daeMetaElement;
     _Meta->setName( "float4" );
-	_Meta->registerConstructor(domCommon_newparam_type::domFloat4::create);
+	_Meta->registerClass(domCommon_newparam_type::domFloat4::create, &_Meta);
 
 	_Meta->setIsInnerClass( true );
 	//	Add attribute: _value

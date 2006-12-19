@@ -141,29 +141,24 @@ daeMetaElementArrayAttribute::placeElement(daeElement* parent, daeElement* child
 	if ( child->getMeta() != _elementType || ( child->getElementName() != NULL && strcmp( child->getElementName(), _name ) != 0 )  ) {
 		return NULL;
 	}
-	if (child->getParentElement() == parent) {
-		//I Don't know why this gets called when the child already has this as parent.
-		return child;
-	}
+	daeElement *p = child->getParentElement();
 	daeElementRefArray* era = (daeElementRefArray*)getWritableMemory(parent);
 	if ( _maxOccurs != -1 && (daeInt)era->getCount()-offset >= _maxOccurs ) {
 		return NULL;
 	}
-	removeElement( child->getParentElement(), child );
+	removeElement( p, child );
 	child->setParentElement( parent );
 
-	if ( before != NULL || after != NULL ) {
-		if ( before != NULL && before->getMeta() == _elementType ) {
-			size_t idx(0);
-			if ( era->find( before, idx ) == DAE_OK ) {
-				era->insertAt( idx, child );
-			}
+	if ( before != NULL && before->getMeta() == _elementType ) {
+		size_t idx(0);
+		if ( era->find( before, idx ) == DAE_OK ) {
+			era->insertAt( idx, child );
 		}
-		else if ( after != NULL && after->getMeta() == _elementType ) {
-			size_t idx(0);
-			if ( era->find( after, idx ) == DAE_OK ) {
-				era->insertAt( idx+1, child );
-			}
+	}
+	else if ( after != NULL && after->getMeta() == _elementType ) {
+		size_t idx(0);
+		if ( era->find( after, idx ) == DAE_OK ) {
+			era->insertAt( idx+1, child );
 		}
 	}
 	else {
@@ -225,7 +220,8 @@ void daeMetaElementAttribute::getChildren( daeElement *parent, daeElementRefArra
 
 void daeMetaElementArrayAttribute::getChildren( daeElement *parent, daeElementRefArray &array ) {
 	daeElementRefArray* era = (daeElementRefArray*)getWritableMemory(parent);
-	for ( size_t x = 0; x < era->getCount(); x++ ) {
+	size_t cnt = era->getCount();
+	for ( size_t x = 0; x < cnt; x++ ) {
 		array.append( era->get(x) );
 	}
 }

@@ -35,7 +35,7 @@ domBool_array::registerElement()
     
     _Meta = new daeMetaElement;
     _Meta->setName( "bool_array" );
-	_Meta->registerConstructor(domBool_array::create);
+	_Meta->registerClass(domBool_array::create, &_Meta);
 
 	//	Add attribute: _value
  	{

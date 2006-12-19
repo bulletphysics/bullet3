@@ -35,7 +35,7 @@ domScale::registerElement()
     
     _Meta = new daeMetaElement;
     _Meta->setName( "scale" );
-	_Meta->registerConstructor(domScale::create);
+	_Meta->registerClass(domScale::create, &_Meta);
 
 	//	Add attribute: _value
  	{

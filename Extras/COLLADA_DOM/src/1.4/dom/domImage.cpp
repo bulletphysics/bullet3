@@ -35,7 +35,7 @@ domImage::registerElement()
     
     _Meta = new daeMetaElement;
     _Meta->setName( "image" );
-	_Meta->registerConstructor(domImage::create);
+	_Meta->registerClass(domImage::create, &_Meta);
 
 	daeMetaCMPolicy *cm = NULL;
 	daeMetaElementAttribute *mea = NULL;
@@ -167,7 +167,7 @@ domImage::domData::registerElement()
     
     _Meta = new daeMetaElement;
     _Meta->setName( "data" );
-	_Meta->registerConstructor(domImage::domData::create);
+	_Meta->registerClass(domImage::domData::create, &_Meta);
 
 	_Meta->setIsInnerClass( true );
 	//	Add attribute: _value
@@ -203,7 +203,7 @@ domImage::domInit_from::registerElement()
     
     _Meta = new daeMetaElement;
     _Meta->setName( "init_from" );
-	_Meta->registerConstructor(domImage::domInit_from::create);
+	_Meta->registerClass(domImage::domInit_from::create, &_Meta);
 
 	_Meta->setIsInnerClass( true );
 	//	Add attribute: _value

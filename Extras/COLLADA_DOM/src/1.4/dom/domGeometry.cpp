@@ -35,7 +35,7 @@ domGeometry::registerElement()
     
     _Meta = new daeMetaElement;
     _Meta->setName( "geometry" );
-	_Meta->registerConstructor(domGeometry::create);
+	_Meta->registerClass(domGeometry::create, &_Meta);
 
 	daeMetaCMPolicy *cm = NULL;
 	daeMetaElementAttribute *mea = NULL;

@@ -44,7 +44,7 @@ daeMetaAttribute::set(daeElement* e, daeString s)
 
 void daeMetaAttribute::copy(daeElement* to, daeElement *from) {
 	daeChar str[4096];
-	_type->memoryToString( getWritableMemory(from), str, 2048 );
+	_type->memoryToString( getWritableMemory(from), str, 4096 );
 	_type->stringToMemory( str, getWritableMemory( to ) );
 	//memcpy( getWritableMemory( to ), getWritableMemory( from ), getSize() );
 }
@@ -110,7 +110,18 @@ void
 daeMetaAttribute::resolve(daeElementRef element)
 {
 	if (_type != NULL)
-		_type->resolve(element, this);
+		_type->resolve(element, getWritableMemory(element) );
+}
+
+void
+daeMetaArrayAttribute::resolve(daeElementRef element)
+{
+	daeArray* era = (daeArray*)getWritableMemory(element);
+	size_t cnt = era->getCount();
+	for ( size_t i = 0; i < cnt; i++ )
+	{
+		_type->resolve( element, era->getRawData()+(i*era->getElementSize()) );
+	}
 }
 
 daeInt

@@ -17,6 +17,18 @@
 #include <dae/daeTypes.h>
 #include <dae/daeElement.h>
 
+//Contributed by Nus - Wed, 08 Nov 2006
+/**
+ * Initializing URI.
+ */
+extern "C" void initializeURI(void);
+
+/**
+ * Terminating URI.
+ */
+extern "C" void terminateURI(void);
+//-------------------------
+
 /**
  * The @c daeURI is a simple class designed to aid in the parsing and resolution
  * of URI references inside COLLADA elements.
@@ -69,7 +81,7 @@ public:
 	/**
 	 * An enum describing the status of the URI resolution process.
 	 */
-	enum ResolveState{
+	DLLSPEC enum ResolveState{
 		/** No URI specified */
 		uri_empty,
 		/** URI specified but unresolved */
@@ -135,11 +147,11 @@ public:
 	/**
 	 * Constructs a daeURI object that contains no URI reference.
 	 */
-	daeURI();
+	DLLSPEC daeURI();
 	/**
 	 * Destructor
 	 */
-	~daeURI();
+	DLLSPEC ~daeURI();
 
 	/**
 	 * Constructs a daeURI object that points to the application's current working
@@ -149,14 +161,14 @@ public:
 	 * workaround to insure that the ApplicationURI is initialized only once and before the user can call
 	 * daeURI::setBaseURI() (so when we initialize ApplicationURI there is no chance of wiping out a user value).
 	 */
-	daeURI(int dummy);
+	DLLSPEC daeURI(int dummy);
 
 	/**
 	 * Constructs a daeURI object from a URI passed in as a string.
 	 * @param URIString Passed to setURI() automatically.
 	 * @param nofrag If true, the fragment part of the URI is stripped off before construction.
 	 */
-	daeURI(daeString URIString, daeBool nofrag = false);
+	DLLSPEC daeURI(daeString URIString, daeBool nofrag = false);
 	
 	/**
 	 * Constructs a daeURI object using a <tt><i>baseURI</i></tt> and a <tt><i>uriString.</i></tt> 
@@ -164,13 +176,13 @@ public:
 	 * @param baseURI Base URI to resolve against.
 	 * @param URIString String designating this URI.
 	 */
-	daeURI(daeURI& baseURI, daeString URIString);
+	DLLSPEC daeURI(daeURI& baseURI, daeString URIString);
 
 	/**
 	 * Constructs a daeURI object based on a simple copy from an existing @c daeURI. 
 	 * @param constructFromURI  URI to copy into this one.
 	 */
-	daeURI(daeURI& constructFromURI);
+	DLLSPEC daeURI(daeURI& constructFromURI);
 
 	/**
 	 * Gets the ID string parsed from the URI.
@@ -258,19 +270,19 @@ public:
 	 * After @c setURI(), the <tt><i>state</i></tt> is set to @c uri_loaded.
 	 * @param uri String to use to configure this URI.
 	 */
-	void setURI(daeString uri);
+	DLLSPEC void setURI(daeString uri);
 
 	/**
 	 * Gets the URI stored in the daeURI.
 	 * @return Returns the full URI String, from <tt><i>uriString.</i></tt> 
 	 */
-	daeString getURI() const;
+	DLLSPEC daeString getURI() const;
 
 	/**
 	 * Gets the original URI String as originally set, not flattened against the base URI.
 	 * @return Returns the original URI String as originally set, not flattened against the base URI.
 	 */
-	daeString getOriginalURI() const;
+	DLLSPEC daeString getOriginalURI() const;
 
 	/**
 	 * Gets if this URI resolves to an element that is not contained in the same document as the URI.
@@ -284,14 +296,14 @@ public:
 	 * This function can effectively force a load of a file, perform
 	 * a database query, and so on, based on the @c daeURIResolver plugins implemented.
 	 */
-	void resolveElement(daeString typeNameHint = NULL);
+	DLLSPEC void resolveElement(daeString typeNameHint = NULL);
 
 	/**
 	 * Configures the <tt><i>uriString</i></tt> for this @c daeURI based on the element set in <tt><i>element.</i></tt> 
 	 * Uses the element's base URI and ID information to configure
 	 * the URI string.
 	 */
-	void resolveURI();
+	DLLSPEC void resolveURI();
 
 	/**
 	 * Flattens this URI with base URI to obtain a useable
@@ -301,27 +313,27 @@ public:
 	 * @note After @c validate(), state is @c uri_pending as it is awaiting a call to
 	 * @c resolveElement().
 	 */
-	void validate(daeURI* baseURI = NULL);
+	DLLSPEC void validate(daeURI* baseURI = NULL);
 
 	/**
 	 * Copies the URI specified in <tt><i>from</i></tt> into @c this.
 	 * Performs a simple copy without validating the URI.
 	 * @param from URI to copy from.
 	 */
-	void copyFrom(daeURI& from);
+	DLLSPEC void copyFrom(daeURI& from);
 
 	/**
 	 * Outputs all components of this URI to stderr.
 	 * Useful for debugging URIs, this outputs each part of the URI separately.
 	 */
-	void print();
+	DLLSPEC void print();
 	
 	/**
 	 * Makes the "originalURI" in this URI relative to some other uri
 	 * @param uri the URI to make "this" relative to.
 	 * @note this is experimental and not fully tested, please don't use in critical code yet.
 	 */
-	int makeRelativeTo(daeURI* uri);
+	DLLSPEC int makeRelativeTo(daeURI* uri);
 
 	/**
 	 * Comparison operator.
@@ -329,6 +341,13 @@ public:
 	 */
 	inline bool operator==(const daeURI& other) const{
 		return (!strcmp(other.getURI(), getURI())); }
+
+	daeURI &operator=( const daeURI& other) {
+		setURI(other.getOriginalURI());
+		element = other.element;
+		state = other.state;
+		return *this;
+	}
 
 private:
 	/**
@@ -349,7 +368,7 @@ public:
 	* @param size The size of the buffer.
 	* @return Returns true for success, false if the path exceeded the size of the user provided buffer.
 	*/
-	daeBool getPath(daeChar *dest, daeInt size);
+	DLLSPEC daeBool getPath(daeChar *dest, daeInt size);
 
 public:
 	/**
@@ -357,19 +376,19 @@ public:
 	 * authority, and path in the case of top-level relative URIs.
 	 * @param uri Base URI to use as the default application URI.
 	 */
-	static void setBaseURI(daeURI& uri);
+	static DLLSPEC void setBaseURI(daeURI& uri);
 
 	/**
 	 * Gets the application's default base URI.
 	 * @return Returns the base URI used in the case of top-level relative URIs.
 	 */
-	static daeURI* getBaseURI();
+	static DLLSPEC daeURI* getBaseURI();
 
 	/**
 	 * Performs RFC2396 path normalization.
 	 * @param path Path to be normalized.
 	 */
-	static void normalizeURIPath(char *path); 
+	static DLLSPEC void normalizeURIPath(char *path); 
 
 };
 
@@ -393,15 +412,15 @@ public:
 	/**
 	 * This base constructor appends @c this to KnownResolvers list.
 	 */
-	daeURIResolver();
+	DLLSPEC daeURIResolver();
 
 	/**
 	 * Destructor
 	 */
-	virtual ~daeURIResolver();
+	virtual DLLSPEC ~daeURIResolver();
 	
 protected:
-	static daeURIResolverPtrArray _KnownResolvers;
+	static daeURIResolverPtrArray &_KnownResolvers();
 
 	static daeBool _loadExternalDocuments;
 	
@@ -412,7 +431,7 @@ public:
 	 * @c resolveElement().
 	 * @param uri @c daeURI to resolve.
 	 */
-	static void attemptResolveElement(daeURI &uri, daeString typeNameHint = NULL);
+	static DLLSPEC void attemptResolveElement(daeURI &uri, daeString typeNameHint = NULL);
 
 	/**
 	 * Iterates through known resolvers
@@ -420,7 +439,7 @@ public:
 	 * @c resolveURI().
 	 * @param uri @c daeURI to resolve.
 	 */
-	static void	attemptResolveURI(daeURI &uri);
+	static DLLSPEC void	attemptResolveURI(daeURI &uri);
 
 	/**
 	 * Sets a flag that tells the URI resolver whether or not to load a separate document if a URI
@@ -428,7 +447,7 @@ public:
 	 * @param load Set to true if you want the URI Resolver to automatically load other documents to
 	 * resolve URIs.
 	 */
-	static void setAutoLoadExternalDocuments( daeBool load ) { _loadExternalDocuments = load; }
+	static DLLSPEC void setAutoLoadExternalDocuments( daeBool load );
 
 	/**
 	 * Gets a flag that tells if the URI resolver is set to load an external document if a URI
@@ -436,7 +455,7 @@ public:
 	 * @return Returns true if the resolver will automatically load documents to resolve a URI. 
 	 * False otherwise.
 	 */
-	static daeBool getAutoLoadExternalDocuments() { return _loadExternalDocuments; }
+	static DLLSPEC daeBool getAutoLoadExternalDocuments();
 
 public: // Abstract Interface
 	/**
@@ -445,20 +464,20 @@ public: // Abstract Interface
 	 * @return Returns true if the @c daeURIResolver successfully resolved the URI,
 	 * returns false otherwise.
 	 */
-	virtual daeBool resolveElement(daeURI& uri, daeString typeNameHint = NULL) = 0;
+	virtual DLLSPEC daeBool resolveElement(daeURI& uri, daeString typeNameHint = NULL) = 0;
 	/**
 	 * Provides an abstract interface for converting a @c daeElement into a @c daeURI
 	 * @param uri @c daeURI to resolve.
 	 * @return Returns true if the @c daeURIResolver successfully resolved the element
 	 * into a URI, returns  false otherwise.
 	 */
-	virtual daeBool resolveURI(daeURI& uri) = 0;
+	virtual DLLSPEC daeBool resolveURI(daeURI& uri) = 0;
 
 	/**
 	 * Gets the name of this resolver.
 	 * @return Returns the resolver name as a string.
 	 */
-	virtual daeString getName() = 0;
+	virtual DLLSPEC daeString getName() = 0;
 
 	/**
 	 * Determines whether this resolver supports a particular protocol
@@ -467,7 +486,7 @@ public: // Abstract Interface
 	 * @return Returns true if this @c daeURIResolver understands how to resolve using this protocol, returns
 	 * false otherwise
 	 */
-	virtual daeBool isProtocolSupported(daeString protocol) = 0;
+	virtual DLLSPEC daeBool isProtocolSupported(daeString protocol) = 0;
 
 	/**
 	 * Determines whether this resolver supports the given extension. 
@@ -476,7 +495,7 @@ public: // Abstract Interface
 	 * @param extension Extension string found after the '.' in the file name.
 	 * @return Returns true if the given extension is supported, returns false otherwise.
 	 */
-	virtual daeBool isExtensionSupported(daeString extension) = 0;
+	virtual DLLSPEC daeBool isExtensionSupported(daeString extension) = 0;
 	
 };
 

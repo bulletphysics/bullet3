@@ -35,7 +35,7 @@ public:
 	/**
 	 * An enum describing the status of the ID resolution process.
 	 */
-	enum ResolveState{
+	DLLSPEC enum ResolveState{
 		/** No ID specified */
 		id_empty,
 		/** ID specified but not resolved */
@@ -116,36 +116,36 @@ public:
 	/**
 	 * Simple Constructor
 	 */
-	daeIDRef();
+	DLLSPEC daeIDRef();
 	/**
 	 * Destructor
 	 */
-	~daeIDRef();
+	DLLSPEC ~daeIDRef();
 
 	/**
 	 * Constructs an id reference via a string, using @c setID(); loads the status.
 	 * @param id ID to construct a reference for, passed to @c setID() automatically.
 	 */
-	daeIDRef(daeString id);
+	DLLSPEC daeIDRef(daeString id);
 	
 	/**
 	 * Constructs a new id reference by copying an existing one. 
 	 * @param constructFromIDRef @c daeIDRef to copy into this one.
 	 */
-	daeIDRef(daeIDRef& constructFromIDRef);
+	DLLSPEC daeIDRef(daeIDRef& constructFromIDRef);
 
 	/**
 	 * Copies <tt><i>ID</i></tt> into the  <tt><i>id	</i></tt> data member.
 	 * After the call to @c setID(), the <tt><i>state</i></tt> is set to @c id_loaded
 	 * @param ID String to use to configure this @c daeIDRef.
 	 */
-	void setID(daeString ID);
+	DLLSPEC void setID(daeString ID);
 
 	/**
 	 * Gets the ID string
 	 * @return Returns the full ID string from <tt><i>id.</i></tt> 
 	 */
-	daeString getID() const;
+	DLLSPEC daeString getID() const;
 
 	/**
 	 * Uses the @c daeIDRefResolver static API to try to resolve this ID
@@ -154,43 +154,57 @@ public:
 	 * a database query, et cetera based on the @c daeIDRefResolver plugins
 	 * implemented.
 	 */
-	void resolveElement( daeString typeNameHint = NULL );
+	DLLSPEC void resolveElement( daeString typeNameHint = NULL );
 
 	/**
 	 * Configures the <tt><i>id</i></tt> string of this @c daeIDRef based on the element set its <tt><i>element</i></tt> data member.
 	 * Uses  @c daeElement::getID() to get the element's ID information to configure
 	 * the <tt><i>id</i></tt> string.
 	 */
-	void resolveID();
+	DLLSPEC void resolveID();
 
 	/**
 	 * Sets the <tt><i>state</i></tt> of this @c daeIDRef to @c id_pending, as it is awaiting a call to
 	 * @c resolveElement().
 	 */
-	void validate();
+	DLLSPEC void validate();
 
 	/**
 	 * Copies <tt><i>from</i></tt> into <tt><i>this.</i></tt> 
 	 * The function does a simple copy, and not "base validation".
 	 * @param from  @c daeIDRef to copy from.
 	 */
-	void copyFrom(daeIDRef& from);
+	DLLSPEC void copyFrom(daeIDRef& from);
 
 	/**
 	 * Outputs all components of this @c daeIDRef to stderr.
 	 */
-	void print();
+	DLLSPEC void print();
 
 	/**
 	 * Resets this @c daeIDRef; frees all string references
 	 * and returns <tt><i>state</i></tt> to @c empty.
 	 */
-	void reset();
+	DLLSPEC void reset();
 
 	/**
 	 * Initializes the @c daeIDREf, setting <tt><i>id, element,</i></tt>  and <tt><i>container</i></tt> to NULL.
 	 */
-	void initialize();
+	DLLSPEC void initialize();
+
+	/**
+	 * Comparison operator.
+	 * @return Returns true if URI's are equal.
+	 */
+	inline bool operator==(const daeIDRef& other) const{
+		return (!strcmp(other.getID(), getID())); }
+
+	daeIDRef &operator=( const daeIDRef& other) {
+		setID(other.getID());
+		element = other.element;
+		state = other.state;
+		return *this;
+	}
 
 	//Backwards Compatibility
 	daeIDRef &get( daeUInt idx ) { (void)idx; return *this; }
@@ -216,15 +230,27 @@ public:
 	/**
 	 * Constructor; base constructor appends @c this to <tt><i>_KnownResolvers</i></tt> list.
 	 */
-	daeIDRefResolver();
+	DLLSPEC daeIDRefResolver();
 
 	/**
 	 * Destructor
 	 */
-	virtual ~daeIDRefResolver();
+	virtual DLLSPEC ~daeIDRefResolver();
 	
+//Contributed by Nus - Wed, 08 Nov 2006
+	/**
+	 * Initialize ID reference solver
+	 */
+	static void initializeIDRefSolver(void);
+
+	/**
+	 * Terminate ID reference solver
+	 */
+	static void terminateIDRefSolver(void);
+//-------------------------
+
 protected:
-	static daeIDRefResolverPtrArray _KnownResolvers;
+	static daeIDRefResolverPtrArray* _KnownResolvers;
 	
 public:
 	/**
@@ -232,14 +258,14 @@ public:
 	 * calling @c resolveElement().
 	 * @param id @c daeIDRef to resolve.
 	 */
-	static void attemptResolveElement(daeIDRef &id, daeString typeNameHint = NULL );
+	static DLLSPEC void attemptResolveElement(daeIDRef &id, daeString typeNameHint = NULL );
 
 	/**
 	 * attemptResolveID iterates through known resolvers
 	 * calling resolveID().
 	 * @param id @c daeIDRef to resolve.
 	 */
-	static void	attemptResolveID(daeIDRef &id);
+	static DLLSPEC void	attemptResolveID(daeIDRef &id);
 
 public: // Abstract Interface
 	/**
@@ -248,20 +274,20 @@ public: // Abstract Interface
 	 * @return Returns true if the @c daeIDRefResolver successfully resolved the IDRef,
 	 * returns false otherwise.
 	 */
-	virtual daeBool resolveElement(daeIDRef& IDRef, daeString typeNameHint = NULL ) = 0;
+	virtual DLLSPEC daeBool resolveElement(daeIDRef& IDRef, daeString typeNameHint = NULL ) = 0;
 	/**
 	 * Provides an abstract interface to convert a @c daeElement into a @c daeIDRef.
 	 * @param IDRef @c daeIDRef to resolve.
 	 * @return Returns true if the @c daeIDRefResolver successfully resolved the element
 	 * into a @c daeIDRef, returns false otherwise. 
 	 */
-	virtual daeBool resolveID(daeIDRef& IDRef) = 0;
+	virtual DLLSPEC daeBool resolveID(daeIDRef& IDRef) = 0;
 
 	/**
 	 * Gets the name of this resolver.
 	 * @return Returns the string name.
 	 */
-	virtual daeString getName() = 0;
+	virtual DLLSPEC daeString getName() = 0;
 
 };
 
@@ -278,12 +304,12 @@ public:
 	 * Constructor
 	 * @param database @c daeDatabase for this implementation.
 	 */
-	daeDefaultIDRefResolver(daeDatabase* database);
+	DLLSPEC daeDefaultIDRefResolver(daeDatabase* database);
 
 	/**
 	 * Destructor
 	 */
-	~daeDefaultIDRefResolver();
+	DLLSPEC ~daeDefaultIDRefResolver();
 
 protected:
 	daeDatabase* _database;
@@ -292,17 +318,17 @@ public: // Abstract Interface
 	/*
 	 * Implements base class abstract routine from @c daeIDRefResolver.
 	 */
-	virtual daeBool resolveElement(daeIDRef& id, daeString typeNameHint = NULL );
+	virtual DLLSPEC daeBool resolveElement(daeIDRef& id, daeString typeNameHint = NULL );
 	
 	/*
 	 * Implements base class abstract routine from @c daeIDRefResolver.
 	 */
-	virtual daeBool resolveID(daeIDRef& id);
+	virtual DLLSPEC daeBool resolveID(daeIDRef& id);
 	
 	/*
 	 * Implements base class abstract routine from @c daeIDRefResolver.
 	 */
-	virtual daeString getName();
+	virtual DLLSPEC daeString getName();
 };
 
 #endif //__DAE_IDREF_H__

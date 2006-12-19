@@ -35,7 +35,7 @@ domInstance_force_field::registerElement()
     
     _Meta = new daeMetaElement;
     _Meta->setName( "instance_force_field" );
-	_Meta->registerConstructor(domInstance_force_field::create);
+	_Meta->registerClass(domInstance_force_field::create, &_Meta);
 
 	daeMetaCMPolicy *cm = NULL;
 	daeMetaElementAttribute *mea = NULL;
@@ -47,6 +47,8 @@ domInstance_force_field::registerElement()
 	mea->setElementType( domExtra::registerElement() );
 	cm->appendChild( mea );
 	
+	cm->setMaxOrdinal( 0 );
+	_Meta->setCMRoot( cm );	
 
 	//	Add attribute: url
  	{

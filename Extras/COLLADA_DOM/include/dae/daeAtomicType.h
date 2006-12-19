@@ -83,10 +83,10 @@ public:
 	/**
 	 * Resolves a reference, if indeed this type is a reference type.
 	 * @param element The containing element.
-	 * @param ma  The @c deaMetaAttribute where the resolved reference
+	 * @param src Source of the raw data to resolve.
 	 * should be placed.
 	 */
-	virtual void resolve(daeElementRef element, daeMetaAttributeRef ma);
+	virtual void resolve(daeElementRef element, daeChar* src);
 
 	/**
 	 * Determines if this atomic type requires a special string-based
@@ -436,6 +436,14 @@ public:
 	 * false if the operation would cause the destination buffer to overflow.
 	 */
 	virtual daeBool memoryToString(daeChar* src, daeChar* dst, daeInt dstSize);
+	/**
+	 * Overrides the base class @c stringToMemoryFunction().
+	 * Reads an atomic typed item into the destination runtime memory.
+	 * @param src Source string.
+	 * @param dst Raw binary to store the resulting value.
+	 * @return Returns true if the operation was successful, false if not successful.
+	 */
+	virtual daeBool stringToMemory(daeChar* src, daeChar* dst);
 };
 
 /**
@@ -459,6 +467,14 @@ public:
 	 * false if the operation would cause the destination buffer to overflow.
 	 */
 	virtual daeBool memoryToString(daeChar* src, daeChar* dst, daeInt dstSize);
+	/**
+	 * Overrides the base class @c stringToMemoryFunction().
+	 * Reads an atomic typed item into the destination runtime memory.
+	 * @param src Source string.
+	 * @param dst Raw binary to store the resulting value.
+	 * @return Returns true if the operation was successful, false if not successful.
+	 */
+	virtual daeBool stringToMemory(daeChar* src, daeChar* dst);
 };
 
 /**
@@ -659,10 +675,10 @@ public:
 	 * Overrides the base class @c resolve() function
 	 * Resolves a reference, if indeed this type is a reference type
 	 * @param element The containing element.
-	 * @param ma  The @c deaMetaAttribute where the resolved reference
+	 * @param src Source of the raw data to resolve.
 	 * should be placed.
 	 */
-	virtual void resolve(daeElementRef element, daeMetaAttributeRef ma);
+	virtual void resolve(daeElementRef element, daeChar* src);
 	/**
 	 * Override base class function.
 	 * Determines if this atomic type requires a special string-based
@@ -706,10 +722,10 @@ public:
 	 * Overrides the base class @c resolve() function
 	 * Resolves a reference, if indeed this type is a reference type.
 	 * @param element The containing element.
-	 * @param ma  The @c deaMetaAttribute where the resolved reference
+	 * @param src Source of the raw data to resolve.
 	 * should be placed.
 	 */
-	virtual void resolve(daeElementRef element, daeMetaAttributeRef ma);
+	virtual void resolve(daeElementRef element, daeChar* src);
 };
 
 

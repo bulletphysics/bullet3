@@ -14,19 +14,31 @@
 #ifndef __DAE_WIN32_PLATFORM_H__
 #define __DAE_WIN32_PLATFORM_H__
 
-#define PLATFORM_INT8	char
-#define PLATFORM_INT16	short
-#define PLATFORM_INT32	int
-#define PLATFORM_INT64	long
-#define PLATFORM_UINT8	unsigned char
-#define PLATFORM_UINT16 unsigned short
-#define PLATFORM_UINT32 unsigned int
-#define PLATFORM_UINT64 unsigned long
+#define PLATFORM_INT8	__int8
+#define PLATFORM_INT16	__int16
+#define PLATFORM_INT32	__int32
+#define PLATFORM_INT64	__int64
+#define PLATFORM_UINT8	unsigned __int8
+#define PLATFORM_UINT16 unsigned __int16
+#define PLATFORM_UINT32 unsigned __int32
+#define PLATFORM_UINT64 unsigned __int64
 #define PLATFORM_FLOAT32 float
 #define PLATFORM_FLOAT64 double
 
 #if _MSC_VER <= 1200
 typedef int intptr_t;
+#endif
+
+#ifdef DOM_DYNAMIC
+
+#ifdef DOM_EXPORT
+#define DLLSPEC __declspec( dllexport )
+#else
+#define DLLSPEC __declspec( dllimport )
+#endif
+
+#else
+#define DLLSPEC
 #endif
 
 #endif

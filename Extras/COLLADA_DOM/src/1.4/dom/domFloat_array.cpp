@@ -35,7 +35,7 @@ domFloat_array::registerElement()
     
     _Meta = new daeMetaElement;
     _Meta->setName( "float_array" );
-	_Meta->registerConstructor(domFloat_array::create);
+	_Meta->registerClass(domFloat_array::create, &_Meta);
 
 	//	Add attribute: _value
  	{

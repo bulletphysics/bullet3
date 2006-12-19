@@ -35,7 +35,7 @@ domMesh::registerElement()
     
     _Meta = new daeMetaElement;
     _Meta->setName( "mesh" );
-	_Meta->registerConstructor(domMesh::create);
+	_Meta->registerClass(domMesh::create, &_Meta);
 
 	daeMetaCMPolicy *cm = NULL;
 	daeMetaElementAttribute *mea = NULL;

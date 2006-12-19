@@ -13,17 +13,41 @@
 
 #include <dae/daeStringRef.h>
 
-daeStringTable daeStringRef::_stringTable;
+//Contributed by Nus - Wed, 08 Nov 2006
+// Nus: Use global pointer instead of local static.
+static daeStringTable *pST = NULL;
+//---------------------------
+
+daeStringTable &daeStringRef::_stringTable()
+{
+//Contributed by Nus - Wed, 08 Nov 2006
+  // static daeStringTable *st = new daeStringTable();
+  // return *st;
+  if(!pST)
+    pST = new daeStringTable();
+  return *pST;
+}
+
+void daeStringRef::releaseStringTable(void)
+{
+  if(pST) {
+    delete pST;
+    pST = NULL;
+  }
+}
+//--------------------------------
 
 daeStringRef::daeStringRef(daeString string)
 {
-	_string = _stringTable.allocString(string);
+	daeStringTable &st = _stringTable();
+	_string = st.allocString(string);
 }
 
 const daeStringRef&
 daeStringRef::set(daeString string)
 {
-	_string = _stringTable.allocString(string);
+	daeStringTable &st = _stringTable();
+	_string = st.allocString(string);
 	return *this;
 }
 

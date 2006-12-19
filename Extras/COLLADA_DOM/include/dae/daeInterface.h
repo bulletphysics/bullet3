@@ -38,7 +38,7 @@ public:
 	/**
 	*  Destructor.
 	 */
-	virtual ~daeInterface() {}
+	virtual DLLSPEC ~daeInterface() {}
 	
 	/** @name Database setup 
 	 * management of the database that stores the COLLADA elements.
@@ -48,14 +48,14 @@ public:
 	* Gets the COLLADA runtime database currently being used.
 	* @return Returns the database currently being used.
 	*/
-	virtual daeDatabase* getDatabase() = 0;
+	virtual DLLSPEC daeDatabase* getDatabase() = 0;
 	/** 
 	* Sets the COLLADA runtime database to use.
 	* @param database Database that stores the COLLADA data,
 	* if set to NULL a default database is set.
 	* @return Returns @c DAE_OK if success, otherwise, returns a negative error value as defined in daeError.h.
 	*/
-	virtual daeInt setDatabase(daeDatabase* database) = 0;
+	virtual DLLSPEC daeInt setDatabase(daeDatabase* database) = 0;
 	//@}
 	
 	/** @name IOPlugin setup
@@ -67,7 +67,7 @@ public:
 	* Gets the @c daeIOPlugin currently set.
 	* @return Returns the @c daeIOPlugin currently set on the interface.
 	*/
-	virtual daeIOPlugin* getIOPlugin() = 0;
+	virtual DLLSPEC daeIOPlugin* getIOPlugin() = 0;
 	/** 
 	* Sets the plugin which will be the interface between the COLLADA runtime database
 	* and the rest of the system. 
@@ -76,7 +76,7 @@ public:
 	* @param plugin Plugin to use, if set to NULL a default plugin is set.
 	* @return Returns @c DAE_OK if success, otherwise, returns a negative error value as defined in daeError.h.
 	*/
-	virtual daeInt setIOPlugin(daeIOPlugin* plugin) = 0;
+	virtual DLLSPEC daeInt setIOPlugin(daeIOPlugin* plugin) = 0;
 	//@}
 
 	/** @name Integration Library Setup
@@ -91,13 +91,13 @@ public:
 	* Gets the integration library register function currently being used.
 	* @return Returns the integration library register function currently being used.
 	*/
-    virtual daeIntegrationLibraryFunc getIntegrationLibrary() = 0;
+    virtual DLLSPEC daeIntegrationLibraryFunc getIntegrationLibrary() = 0;
 	/**
 	* Sets the integration library register function.
 	* @param regFunc Integration library register function to use.
 	* @return Returns DAE_OK if success, a negative value defined in daeError.h otherwise.
 	*/
-	virtual daeInt setIntegrationLibrary(daeIntegrationLibraryFunc regFunc)=0;
+	virtual DLLSPEC daeInt setIntegrationLibrary(daeIntegrationLibraryFunc regFunc)=0;
 	//@}
 
 	/** @name Batch import/export operations
@@ -114,7 +114,7 @@ public:
 	* and should only be used if the document has already been loaded into memory.
 	* @return Returns DAE_OK if success, a negative value defined in daeError.h otherwise.
 	*/
-	virtual daeInt load(daeString name, daeString docBuffer = NULL) = 0;
+	virtual DLLSPEC daeInt load(daeString name, daeString docBuffer = NULL) = 0;
 	/**
 	* Saves a single document/document back to the location it was loaded from.
 	* @param documentName the name of the loaded document to be saved, in most cases this will be an rfc 2396 compliant
@@ -123,7 +123,7 @@ public:
 	* error.  
 	* @return Returns DAE_OK if success, a negative value defined in daeError.h otherwise.
 	*/
-	virtual daeInt save(daeString documentName, daeBool replace=true) = 0;
+	virtual DLLSPEC daeInt save(daeString documentName, daeBool replace=true) = 0;
 	/**
 	* Saves a single document/document back to the location it was loaded from.
 	* @param documentIndex the index of a loaded document to be saved.
@@ -131,7 +131,7 @@ public:
 	* error.  
 	* @return Returns DAE_OK if success, a negative value defined in daeError.h otherwise.
 	*/
-	virtual daeInt save(daeUInt documentIndex=0, daeBool replace=true) = 0;
+	virtual DLLSPEC daeInt save(daeUInt documentIndex=0, daeBool replace=true) = 0;
 	/**
 	* Saves a single document/document from the runtime database by name.
 	* @param name the name to save the document to.  The format for this is defined by the IO plugin
@@ -144,7 +144,7 @@ public:
 	* error.  
 	* @return Returns DAE_OK if success, a negative value defined in daeError.h otherwise.
     */
-	virtual daeInt saveAs(daeString name, daeString documentName, daeBool replace=true) = 0;
+	virtual DLLSPEC daeInt saveAs(daeString name, daeString documentName, daeBool replace=true) = 0;
 	/**
 	* Saves a single document/document from the runtime database by index.
 	* @param name the name to save the document to.  The format for this is defined by the IO plugin
@@ -157,21 +157,21 @@ public:
 	* error.  
 	* @return Returns DAE_OK if success, a negative value defined in daeError.h otherwise.
     */
-	virtual daeInt saveAs(daeString name, daeUInt documentIndex=0, daeBool replace=true) = 0;
+	virtual DLLSPEC daeInt saveAs(daeString name, daeUInt documentIndex=0, daeBool replace=true) = 0;
 	/**
 	* Unloads a specific document from the runtime database.
 	* @param name Name of the document to remove.
 	* @return Returns DAE_OK if unloaded successfully, otherwise returns a negative value as defined in daeError.h.
 	* @note This function is not currently implemented.
 	*/
-	virtual daeInt unload(daeString name) = 0;
+	virtual DLLSPEC daeInt unload(daeString name) = 0;
 	/**
 	* Unloads all the documents of the runtime database.
 	* This function frees all the @c dom* objects and integration objects created so far,
 	* except the object on which the user still has a smart pointer reference.
 	* @return Returns DAE_OK if all documents unloaded successfully, otherwise returns a negative value as defined in daeError.h.
 	*/
-	virtual daeInt clear() = 0;
+	virtual DLLSPEC daeInt clear() = 0;
 	//@}
 	
 	/** @name Import/export progress
@@ -193,7 +193,7 @@ public:
 	* the <tt><i> bytesParsed </i></tt> and <tt><i> lineNumber </i></tt> counters. The system resets the counter at the beginning of 
 	* each file.
 	*/
-	virtual void getProgress(daeInt* bytesParsed,
+	virtual DLLSPEC void getProgress(daeInt* bytesParsed,
 							 daeInt* lineNumber,
 							 daeInt* totalBytes,
 							 daeBool reset = false )=0;
@@ -207,12 +207,12 @@ public:
 	* @param name Document name, for the file @c daeIOPlugin, this will be the filename for a file.
 	* @return Returns the @c domCOLLADA root object of the document, or NULL if the document is not found.
 	*/
-	virtual domCOLLADA* getDom(daeString name) = 0;
+	virtual DLLSPEC domCOLLADA* getDom(daeString name) = 0;
 	/**
 	* Gets the COLLADA schema version that was used to build the DOM classes
 	* @return a text string with the version number in it (ie: 1.3.1)
 	*/
-	virtual daeString getDomVersion() = 0;
+	virtual DLLSPEC daeString getDomVersion() = 0;
 	/**
 	* Sets or inserts a COLLADA tree into the database.
 	* The system creates a default database if none is set and then creates a document
@@ -223,7 +223,7 @@ public:
 	* @param dom Root tree.
 	* @return Returns DAE_OK if success, otherwise returns a negative value as defined in daeError.h.
 	*/
-	virtual daeInt setDom(daeString name, domCOLLADA* dom) = 0;
+	virtual DLLSPEC daeInt setDom(daeString name, domCOLLADA* dom) = 0;
 	//@}
 };
 

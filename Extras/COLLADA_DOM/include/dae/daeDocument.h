@@ -25,6 +25,12 @@
 class daeDocument
 {
 public:
+    // sthomas
+    /**
+    * Destructor
+    */
+    DLLSPEC ~daeDocument();
+
 	/**
 	* Accessor to get the @c domCollada associated with this document.
 	* @return A @c daeElementRef for the @c domCollada that is the root of this document.
@@ -37,7 +43,7 @@ public:
 	* @param domRoot the domCollada that is the root of this document
 	* @remarks Should really require a domColladaRef but we're trying to avoid having dae classes depend on generated dom classes.
 	*/
-	void setDomRoot(daeElement* domRoot) {dom = domRoot;}
+	void setDomRoot(daeElement* domRoot) {dom = domRoot; domRoot->setDocument(this); }
 	/**
 	* Accessor to get the URI associated with the document in this document; 
 	* this is currently set to the URI from which the document was loaded, but
@@ -73,14 +79,14 @@ public:
 	 * @note This function is called internally and not meant to be called by the client application.
 	 * Calling this function from the client application may result in unexpected behavior.
 	 */
-	void insertElement( daeElementRef element );
+	DLLSPEC void insertElement( daeElementRef element );
 	/**
 	 * This function is used to track how a document gets modified. It gets called internally.
 	 * @param element The element that was removed from this document.
 	 * @note This function is called internally and not meant to be called by the client application.
 	 * Calling this function from the client application may result in unexpected behavior.
 	 */
-	void removeElement( daeElementRef element );
+	DLLSPEC void removeElement( daeElementRef element );
 
 	/**
 	 * This function is used to track how a document gets modified. It gets called internally.
@@ -98,14 +104,14 @@ public:
 	 * @note This function gets called internally from daeURI upon trying to resolve an element.
 	 * Calling this function in your client code my result in unexpected behavior.
 	 */
-	void addExternalReference( daeURI &uri );
+	DLLSPEC void addExternalReference( daeURI &uri );
 	/**
 	 * Removes a URI to the list of external references in this document.
 	 * @param uri The URI that was the external reference.
 	 * @note This function gets called internally from daeURI upon trying to resolve an element.
 	 * Calling this function in your client code my result in unexpected behavior.
 	 */
-	void removeExternalReference( daeURI &uri );
+	DLLSPEC void removeExternalReference( daeURI &uri );
 	/**
 	 * Gets a list of all the documents that are referenced from URI contained within this document.
 	 * @return Returns a list of URI strings, each being a URI which is referenced from within this document.
@@ -116,7 +122,9 @@ public:
 	 * @param docURI The URI string of the document that you want to resolve against.
 	 * @note This function is called internally whenever a new document is loaded.
 	 */
-	void resolveExternals( daeString docURI);
+	DLLSPEC void resolveExternals( daeString docURI);
+
+	DLLSPEC const daeTArray<daeURI*> *getExternalURIs(daeStringRef docURI) const;
 
 private:
 	/**

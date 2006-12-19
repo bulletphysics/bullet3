@@ -35,7 +35,7 @@ domCg_samplerRECT::registerElement()
     
     _Meta = new daeMetaElement;
     _Meta->setName( "cg_samplerRECT" );
-	_Meta->registerConstructor(domCg_samplerRECT::create);
+	_Meta->registerClass(domCg_samplerRECT::create, &_Meta);
 
 	daeMetaCMPolicy *cm = NULL;
 	daeMetaElementAttribute *mea = NULL;

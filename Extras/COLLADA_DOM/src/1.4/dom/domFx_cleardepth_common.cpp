@@ -35,7 +35,7 @@ domFx_cleardepth_common::registerElement()
     
     _Meta = new daeMetaElement;
     _Meta->setName( "fx_cleardepth_common" );
-	_Meta->registerConstructor(domFx_cleardepth_common::create);
+	_Meta->registerClass(domFx_cleardepth_common::create, &_Meta);
 
 	//	Add attribute: _value
  	{

@@ -35,7 +35,7 @@ domTranslate::registerElement()
     
     _Meta = new daeMetaElement;
     _Meta->setName( "translate" );
-	_Meta->registerConstructor(domTranslate::create);
+	_Meta->registerClass(domTranslate::create, &_Meta);
 
 	//	Add attribute: _value
  	{

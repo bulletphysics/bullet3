@@ -35,7 +35,7 @@ domAnimation::registerElement()
     
     _Meta = new daeMetaElement;
     _Meta->setName( "animation" );
-	_Meta->registerConstructor(domAnimation::create);
+	_Meta->registerClass(domAnimation::create, &_Meta);
 
 	daeMetaCMPolicy *cm = NULL;
 	daeMetaElementAttribute *mea = NULL;

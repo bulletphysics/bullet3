@@ -35,7 +35,7 @@ domFx_stenciltarget_common::registerElement()
     
     _Meta = new daeMetaElement;
     _Meta->setName( "fx_stenciltarget_common" );
-	_Meta->registerConstructor(domFx_stenciltarget_common::create);
+	_Meta->registerClass(domFx_stenciltarget_common::create, &_Meta);
 
 	//	Add attribute: _value
  	{

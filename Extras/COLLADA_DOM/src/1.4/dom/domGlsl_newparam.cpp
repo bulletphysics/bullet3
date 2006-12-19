@@ -35,7 +35,7 @@ domGlsl_newparam::registerElement()
     
     _Meta = new daeMetaElement;
     _Meta->setName( "glsl_newparam" );
-	_Meta->registerConstructor(domGlsl_newparam::create);
+	_Meta->registerClass(domGlsl_newparam::create, &_Meta);
 
 	daeMetaCMPolicy *cm = NULL;
 	daeMetaElementAttribute *mea = NULL;
@@ -118,7 +118,7 @@ domGlsl_newparam::domSemantic::registerElement()
     
     _Meta = new daeMetaElement;
     _Meta->setName( "semantic" );
-	_Meta->registerConstructor(domGlsl_newparam::domSemantic::create);
+	_Meta->registerClass(domGlsl_newparam::domSemantic::create, &_Meta);
 
 	_Meta->setIsInnerClass( true );
 	//	Add attribute: _value
@@ -153,7 +153,7 @@ domGlsl_newparam::domModifier::registerElement()
     
     _Meta = new daeMetaElement;
     _Meta->setName( "modifier" );
-	_Meta->registerConstructor(domGlsl_newparam::domModifier::create);
+	_Meta->registerClass(domGlsl_newparam::domModifier::create, &_Meta);
 
 	_Meta->setIsInnerClass( true );
 	//	Add attribute: _value

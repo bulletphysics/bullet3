@@ -35,7 +35,7 @@ domTapered_capsule::registerElement()
     
     _Meta = new daeMetaElement;
     _Meta->setName( "tapered_capsule" );
-	_Meta->registerConstructor(domTapered_capsule::create);
+	_Meta->registerClass(domTapered_capsule::create, &_Meta);
 
 	daeMetaCMPolicy *cm = NULL;
 	daeMetaElementAttribute *mea = NULL;
@@ -90,7 +90,7 @@ domTapered_capsule::domHeight::registerElement()
     
     _Meta = new daeMetaElement;
     _Meta->setName( "height" );
-	_Meta->registerConstructor(domTapered_capsule::domHeight::create);
+	_Meta->registerClass(domTapered_capsule::domHeight::create, &_Meta);
 
 	_Meta->setIsInnerClass( true );
 	//	Add attribute: _value
@@ -125,7 +125,7 @@ domTapered_capsule::domRadius1::registerElement()
     
     _Meta = new daeMetaElement;
     _Meta->setName( "radius1" );
-	_Meta->registerConstructor(domTapered_capsule::domRadius1::create);
+	_Meta->registerClass(domTapered_capsule::domRadius1::create, &_Meta);
 
 	_Meta->setIsInnerClass( true );
 	//	Add attribute: _value
@@ -160,7 +160,7 @@ domTapered_capsule::domRadius2::registerElement()
     
     _Meta = new daeMetaElement;
     _Meta->setName( "radius2" );
-	_Meta->registerConstructor(domTapered_capsule::domRadius2::create);
+	_Meta->registerClass(domTapered_capsule::domRadius2::create, &_Meta);
 
 	_Meta->setIsInnerClass( true );
 	//	Add attribute: _value

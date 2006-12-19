@@ -35,7 +35,7 @@ domRotate::registerElement()
     
     _Meta = new daeMetaElement;
     _Meta->setName( "rotate" );
-	_Meta->registerConstructor(domRotate::create);
+	_Meta->registerClass(domRotate::create, &_Meta);
 
 	//	Add attribute: _value
  	{

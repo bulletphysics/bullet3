@@ -36,7 +36,7 @@ domInstance_material::registerElement()
     
     _Meta = new daeMetaElement;
     _Meta->setName( "instance_material" );
-	_Meta->registerConstructor(domInstance_material::create);
+	_Meta->registerClass(domInstance_material::create, &_Meta);
 
 	daeMetaCMPolicy *cm = NULL;
 	daeMetaElementAttribute *mea = NULL;
@@ -131,7 +131,7 @@ domInstance_material::domBind::registerElement()
     
     _Meta = new daeMetaElement;
     _Meta->setName( "bind" );
-	_Meta->registerConstructor(domInstance_material::domBind::create);
+	_Meta->registerClass(domInstance_material::domBind::create, &_Meta);
 
 	_Meta->setIsInnerClass( true );
 
@@ -181,7 +181,7 @@ domInstance_material::domBind_vertex_input::registerElement()
     
     _Meta = new daeMetaElement;
     _Meta->setName( "bind_vertex_input" );
-	_Meta->registerConstructor(domInstance_material::domBind_vertex_input::create);
+	_Meta->registerClass(domInstance_material::domBind_vertex_input::create, &_Meta);
 
 	_Meta->setIsInnerClass( true );
 

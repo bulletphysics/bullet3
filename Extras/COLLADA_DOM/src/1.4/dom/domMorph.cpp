@@ -36,7 +36,7 @@ domMorph::registerElement()
     
     _Meta = new daeMetaElement;
     _Meta->setName( "morph" );
-	_Meta->registerConstructor(domMorph::create);
+	_Meta->registerClass(domMorph::create, &_Meta);
 
 	daeMetaCMPolicy *cm = NULL;
 	daeMetaElementAttribute *mea = NULL;
@@ -109,7 +109,7 @@ domMorph::domTargets::registerElement()
     
     _Meta = new daeMetaElement;
     _Meta->setName( "targets" );
-	_Meta->registerConstructor(domMorph::domTargets::create);
+	_Meta->registerClass(domMorph::domTargets::create, &_Meta);
 
 	_Meta->setIsInnerClass( true );
 	daeMetaCMPolicy *cm = NULL;

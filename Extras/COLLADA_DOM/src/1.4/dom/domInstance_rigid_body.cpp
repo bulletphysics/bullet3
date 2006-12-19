@@ -36,7 +36,7 @@ domInstance_rigid_body::registerElement()
     
     _Meta = new daeMetaElement;
     _Meta->setName( "instance_rigid_body" );
-	_Meta->registerConstructor(domInstance_rigid_body::create);
+	_Meta->registerClass(domInstance_rigid_body::create, &_Meta);
 
 	daeMetaCMPolicy *cm = NULL;
 	daeMetaElementAttribute *mea = NULL;
@@ -131,7 +131,7 @@ domInstance_rigid_body::domTechnique_common::registerElement()
     
     _Meta = new daeMetaElement;
     _Meta->setName( "technique_common" );
-	_Meta->registerConstructor(domInstance_rigid_body::domTechnique_common::create);
+	_Meta->registerClass(domInstance_rigid_body::domTechnique_common::create, &_Meta);
 
 	_Meta->setIsInnerClass( true );
 	daeMetaCMPolicy *cm = NULL;
@@ -227,7 +227,7 @@ domInstance_rigid_body::domTechnique_common::domAngular_velocity::registerElemen
     
     _Meta = new daeMetaElement;
     _Meta->setName( "angular_velocity" );
-	_Meta->registerConstructor(domInstance_rigid_body::domTechnique_common::domAngular_velocity::create);
+	_Meta->registerClass(domInstance_rigid_body::domTechnique_common::domAngular_velocity::create, &_Meta);
 
 	_Meta->setIsInnerClass( true );
 	//	Add attribute: _value
@@ -262,7 +262,7 @@ domInstance_rigid_body::domTechnique_common::domVelocity::registerElement()
     
     _Meta = new daeMetaElement;
     _Meta->setName( "velocity" );
-	_Meta->registerConstructor(domInstance_rigid_body::domTechnique_common::domVelocity::create);
+	_Meta->registerClass(domInstance_rigid_body::domTechnique_common::domVelocity::create, &_Meta);
 
 	_Meta->setIsInnerClass( true );
 	//	Add attribute: _value
@@ -297,7 +297,7 @@ domInstance_rigid_body::domTechnique_common::domDynamic::registerElement()
     
     _Meta = new daeMetaElement;
     _Meta->setName( "dynamic" );
-	_Meta->registerConstructor(domInstance_rigid_body::domTechnique_common::domDynamic::create);
+	_Meta->registerClass(domInstance_rigid_body::domTechnique_common::domDynamic::create, &_Meta);
 
 	_Meta->setIsInnerClass( true );
 	//	Add attribute: _value
@@ -343,7 +343,7 @@ domInstance_rigid_body::domTechnique_common::domMass_frame::registerElement()
     
     _Meta = new daeMetaElement;
     _Meta->setName( "mass_frame" );
-	_Meta->registerConstructor(domInstance_rigid_body::domTechnique_common::domMass_frame::create);
+	_Meta->registerClass(domInstance_rigid_body::domTechnique_common::domMass_frame::create, &_Meta);
 
 	_Meta->setIsInnerClass( true );
 	daeMetaCMPolicy *cm = NULL;
@@ -362,7 +362,7 @@ domInstance_rigid_body::domTechnique_common::domMass_frame::registerElement()
 	mea->setElementType( domRotate::registerElement() );
 	cm->appendChild( mea );
 	
-	cm->setMaxOrdinal( 0 );
+	cm->setMaxOrdinal( 3000 );
 	_Meta->setCMRoot( cm );	
 	// Ordered list of sub-elements
     _Meta->addContents(daeOffsetOf(domInstance_rigid_body::domTechnique_common::domMass_frame,_contents));
@@ -391,7 +391,7 @@ domInstance_rigid_body::domTechnique_common::domShape::registerElement()
     
     _Meta = new daeMetaElement;
     _Meta->setName( "shape" );
-	_Meta->registerConstructor(domInstance_rigid_body::domTechnique_common::domShape::create);
+	_Meta->registerClass(domInstance_rigid_body::domTechnique_common::domShape::create, &_Meta);
 
 	_Meta->setIsInnerClass( true );
 	daeMetaCMPolicy *cm = NULL;
@@ -541,7 +541,7 @@ domInstance_rigid_body::domTechnique_common::domShape::domHollow::registerElemen
     
     _Meta = new daeMetaElement;
     _Meta->setName( "hollow" );
-	_Meta->registerConstructor(domInstance_rigid_body::domTechnique_common::domShape::domHollow::create);
+	_Meta->registerClass(domInstance_rigid_body::domTechnique_common::domShape::domHollow::create, &_Meta);
 
 	_Meta->setIsInnerClass( true );
 	//	Add attribute: _value

@@ -34,8 +34,9 @@ daeElement *daeMetaSequence::placeElement( daeElement *parent, daeElement *child
 		}
 	}
 
+	size_t cnt = _children.getCount();
 	for ( daeInt i = 0; ( i < _maxOccurs || _maxOccurs == -1 ); i++ ) {
-		for ( size_t x = 0; x < _children.getCount(); x++ ) {
+		for ( size_t x = 0; x < cnt; x++ ) {
 			if ( _children[x]->placeElement( parent, child, ordinal, i, before, after ) != NULL ) {
 				ordinal = ordinal + (i * ( _maxOrdinal + 1 )) + _ordinalOffset;
 				return child;
@@ -46,7 +47,8 @@ daeElement *daeMetaSequence::placeElement( daeElement *parent, daeElement *child
 }
 
 daeBool daeMetaSequence::removeElement( daeElement *parent, daeElement *child ) {
-	for ( size_t x = 0; x < _children.getCount(); x++ ) {
+	size_t cnt = _children.getCount();
+	for ( size_t x = 0; x < cnt; x++ ) {
 		if ( _children[x]->removeElement( parent, child ) ) {
 			return true;
 		}
@@ -56,7 +58,8 @@ daeBool daeMetaSequence::removeElement( daeElement *parent, daeElement *child ) 
 
 daeMetaElement * daeMetaSequence::findChild( daeString elementName ) {
 	daeMetaElement *me = NULL;
-	for ( size_t x = 0; x < _children.getCount(); x++ ) {
+	size_t cnt = _children.getCount();
+	for ( size_t x = 0; x < cnt; x++ ) {
 		me = _children[x]->findChild( elementName );
 		if ( me != NULL ) {
 			return me;
@@ -66,7 +69,8 @@ daeMetaElement * daeMetaSequence::findChild( daeString elementName ) {
 }
 
 void daeMetaSequence::getChildren( daeElement *parent, daeElementRefArray &array ) {
-	for ( size_t x = 0; x < _children.getCount(); x++ ) {
+	size_t cnt = _children.getCount();
+	for ( size_t x = 0; x < cnt; x++ ) {
 		_children[x]->getChildren( parent, array );
 	}
 }

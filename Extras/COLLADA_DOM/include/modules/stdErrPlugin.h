@@ -20,7 +20,7 @@
  * The @c stdErrPlugin class is the default implementation of daeErrorHandler. It routes the Error
  * and Warning messaged to stdout.
  */
-class stdErrPlugin : public daeErrorHandler {
+class DLLSPEC stdErrPlugin : public daeErrorHandler {
 public:
 	stdErrPlugin();
 	virtual ~stdErrPlugin();

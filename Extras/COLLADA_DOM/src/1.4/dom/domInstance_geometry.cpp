@@ -36,7 +36,7 @@ domInstance_geometry::registerElement()
     
     _Meta = new daeMetaElement;
     _Meta->setName( "instance_geometry" );
-	_Meta->registerConstructor(domInstance_geometry::create);
+	_Meta->registerClass(domInstance_geometry::create, &_Meta);
 
 	daeMetaCMPolicy *cm = NULL;
 	daeMetaElementAttribute *mea = NULL;

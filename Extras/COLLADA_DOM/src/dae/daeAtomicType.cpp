@@ -17,6 +17,7 @@
 #include <dae/daeIDRef.h>
 #include <dae/daeMetaElement.h>
 #include <dae/daeDatabase.h>
+#include <dae/daeErrorHandler.h>
 
 daeAtomicTypeArray* daeAtomicType::_Types = NULL;
 daeBool daeAtomicType::_TypesInitialized = false;
@@ -33,14 +34,17 @@ daeAtomicType::initializeKnownTypes()
 void 
 daeAtomicType::uninitializeKnownTypes()
 {
-	_TypesInitialized = false;
-	unsigned int i;
-	for (i=0;i<_Types->getCount();i++)
-	{
-		daeAtomicType* type = _Types->get(i);
-		delete type;
+	if ( _TypesInitialized )
+		{
+		_TypesInitialized = false;
+		unsigned int i;
+		for (i=0;i<_Types->getCount();i++)
+		{
+			daeAtomicType* type = _Types->get(i);
+			delete type;
+		}
+		delete _Types;
 	}
-	delete _Types;
 }
 
 void
@@ -210,8 +214,8 @@ daeLongType::daeLongType()
 	_maxStringLength = 32;
 	_nameBindings.append("xsLong");
 	_nameBindings.append("xsLongArray");
-	_printFormat = "%ld";
-	_scanFormat = "%ld";
+	_printFormat = "%lld";
+	_scanFormat = "%lld";
 	_typeString = "long";
 }
 daeShortType::daeShortType()
@@ -249,8 +253,8 @@ daeULongType::daeULongType()
 	_maxStringLength = 32;
 	_nameBindings.append("ulong");
 	_nameBindings.append("xsUnsignedLong");
-	_printFormat = "%lu";
-	_scanFormat = "%lu";
+	_printFormat = "%llu";
+	_scanFormat = "%llu";
 	_typeString = "ulong";
 }
 daeFloatType::daeFloatType()
@@ -398,7 +402,44 @@ daeBool
 	daeFloatType::memoryToString(daeChar* src, daeChar* dst, daeInt dstSize) 
 { 
 	if (_maxStringLength > dstSize) return false;
-	sprintf(dst,_printFormat,*((daeFloat*)src));
+	if ( *(daeFloat*)src != *(daeFloat*)src ) //NAN
+	{
+		strcpy( dst, "NaN" );
+	}
+	else if ( *(daeInt*)src == 0x7f800000 ) //+INF
+	{
+		strcpy( dst, "INF" );
+	}
+	else if ( *(daeInt*)src == 0xff800000 ) //-INF
+	{
+		strcpy( dst, "-INF" );
+	}
+	else
+	{
+		sprintf(dst,_printFormat,*((daeFloat*)src));
+	}
+	return true;
+}
+
+daeBool
+daeFloatType::stringToMemory(daeChar *src, daeChar* dstMemory)
+{
+	if ( strcmp(src, "NaN") == 0 ) {
+		daeErrorHandler::get()->handleWarning("NaN encountered while setting an attribute or value\n");
+		*(daeInt*)(dstMemory) = 0x7f800002;
+	}
+	else if ( strcmp(src, "INF") == 0 ) {
+		daeErrorHandler::get()->handleWarning( "INF encountered while setting an attribute or value\n" );
+		*(daeInt*)(dstMemory) = 0x7f800000;
+	}
+	else if ( strcmp(src, "-INF") == 0 ) {
+		daeErrorHandler::get()->handleWarning( "-INF encountered while setting an attribute or value\n" );
+		*(daeInt*)(dstMemory) = 0xff800000;
+	}
+	else
+	{
+		sscanf(src, _scanFormat, dstMemory);
+	}
 	return true;
 }
 
@@ -406,9 +447,47 @@ daeBool
 	daeDoubleType::memoryToString(daeChar* src, daeChar* dst, daeInt dstSize) 
 { 
 	if (_maxStringLength > dstSize) return false;
-	sprintf(dst,_printFormat,*((daeDouble*)src));
+	if ( *(daeDouble*)src != *(daeDouble*)src ) //NAN
+	{
+		strcpy( dst, "NaN" );
+	}
+	else if ( *(daeLong*)src == 0x7ff0000000000000LL ) //+INF
+	{
+		strcpy( dst, "INF" );
+	}
+	else if ( *(daeLong*)src == 0xfff0000000000000LL ) //-INF
+	{
+		strcpy( dst, "-INF" );
+	}
+	else
+	{
+		sprintf(dst,_printFormat,*((daeDouble*)src));
+	}
 	return true;
 }
+
+daeBool
+daeDoubleType::stringToMemory(daeChar *src, daeChar* dstMemory)
+{
+	if ( strcmp(src, "NaN") == 0 ) {
+		daeErrorHandler::get()->handleWarning( "NaN encountered while setting an attribute or value\n" );
+		*(daeLong*)(dstMemory) = 0x7ff0000000000002LL;
+	}
+	else if ( strcmp(src, "INF") == 0 ) {
+		daeErrorHandler::get()->handleWarning( "INF encountered while setting an attribute or value\n" );
+		*(daeLong*)(dstMemory) = 0x7ff0000000000000LL;
+	}
+	else if ( strcmp(src, "-INF") == 0 ) {
+		daeErrorHandler::get()->handleWarning( "-INF encountered while setting an attribute or value\n" );
+		*(daeLong*)(dstMemory) = 0xfff0000000000000LL;
+	}
+	else
+	{
+		sscanf(src, _scanFormat, dstMemory);
+	}
+	return true;
+}
+
 daeBool 
 	daeRawRefType::memoryToString(daeChar* src, daeChar* dst, daeInt dstSize)
 {
@@ -468,7 +547,7 @@ daeResolverType::memoryToString(daeChar* src, daeChar* dst, daeInt dstSize)
 		// or some other document so we know what URI to write out.
 		// !!!GAC this approach should be safe, if the collection pointer of our document matches the collection pointer 
 		// !!!GAC of the element our URI is pointing at, we are pointing at our own doc.
-		if(thisURI->getElement()->getCollection() == thisURI->getContainer()->getDocument())
+		if(thisURI->getElement()->getDocument() == thisURI->getContainer()->getDocument())
 		{
 			// we will send back the original URI if we're pointing at ourselves
 			s = thisURI->getOriginalURI();
@@ -552,17 +631,17 @@ daeIDResolverType::memoryToString(daeChar* src, daeChar* dst, daeInt dstSize)
 }
 
 void
-daeAtomicType::resolve(daeElementRef element, daeMetaAttributeRef ma)
+daeAtomicType::resolve(daeElementRef element, daeChar* src)
 {
 	// just to remove the warnings 
 	(void)element;
-	(void)ma; 
+	(void)src; 
 }
 
 void
-daeResolverType::resolve(daeElementRef element, daeMetaAttributeRef ma)
+daeResolverType::resolve(daeElementRef element, daeChar* src)
 {
-	daeURI* resolver = (daeURI*)ma->getWritableMemory(element);
+	daeURI* resolver = (daeURI*)src;
 	resolver->setContainer(element);
 	resolver->resolveElement();
 }
@@ -570,13 +649,35 @@ daeResolverType::resolve(daeElementRef element, daeMetaAttributeRef ma)
 daeBool
 daeResolverType::stringToMemory(daeChar* src, daeChar* dstMemory)
 {
-	((daeURI*)dstMemory)->setURI(src);
+#define MAX_PATH 1024
+	daeChar tempstr[MAX_PATH];
+	memset(tempstr,0,MAX_PATH);
+	daeChar* s;
+	daeChar* t;
+	for(s=src, t=tempstr; *s!=0; s++,t++)
+	{
+		if (*s == '%') {
+			if ((*(s+1) == '2') && (*(s+2) == '0'))
+			{
+				(*t)=' ';
+				s+=2;
+				continue;
+			}
+		} else if (*s == ' ') {
+			char err[512];
+			memset( err, 0, 512 );
+			sprintf(err,"uri contains white space, dom will convert them to %20 in output files!\n  uri=%s", src);
+			daeErrorHandler::get()->handleWarning( err );
+		}
+		*t=*s;
+	}
+	((daeURI*)dstMemory)->setURI(tempstr);
 	return true;
 }
 void
-daeIDResolverType::resolve(daeElementRef element, daeMetaAttributeRef ma)
+daeIDResolverType::resolve(daeElementRef element, daeChar* src)
 {
-	daeIDRef* resolver = (daeIDRef*)ma->getWritableMemory(element);
+	daeIDRef* resolver = (daeIDRef*)src;
 	resolver->setContainer( element );
 	resolver->resolveElement();
 }

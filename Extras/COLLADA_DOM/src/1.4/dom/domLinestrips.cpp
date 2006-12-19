@@ -35,7 +35,7 @@ domLinestrips::registerElement()
     
     _Meta = new daeMetaElement;
     _Meta->setName( "linestrips" );
-	_Meta->registerConstructor(domLinestrips::create);
+	_Meta->registerClass(domLinestrips::create, &_Meta);
 
 	daeMetaCMPolicy *cm = NULL;
 	daeMetaElementAttribute *mea = NULL;

@@ -25,6 +25,8 @@
 class domInstance_material : public daeElement
 {
 public:
+	COLLADA_TYPE::TypeEnum getElementType() const { return COLLADA_TYPE::INSTANCE_MATERIAL; }
+public:
 	class domBind;
 
 	typedef daeSmartRef<domBind> domBindRef;
@@ -35,6 +37,8 @@ public:
  */
 	class domBind : public daeElement
 	{
+	public:
+		COLLADA_TYPE::TypeEnum getElementType() const { return COLLADA_TYPE::BIND; }
 	protected:  // Attributes
 /**
  *  The semantic attribute specifies which effect parameter to bind. 
@@ -97,19 +101,19 @@ public:
 		 * @param bytes The size allocated for this instance.
 		 * @return a daeElementRef referencing an instance of this object.
 		 */
-		static daeElementRef create(daeInt bytes);
+		static DLLSPEC daeElementRef create(daeInt bytes);
 		/**
 		 * Creates a daeMetaElement object that describes this element in the meta object reflection framework.
 		 * If a daeMetaElement already exists it will return that instead of creating a new one. 
 		 * @return A daeMetaElement describing this COLLADA element.
 		 */
-		static daeMetaElement* registerElement();
+		static DLLSPEC daeMetaElement* registerElement();
 
 	public: // STATIC MEMBERS
 		/**
 		 * The daeMetaElement that describes this element in the meta object reflection framework.
 		 */
-		static daeMetaElement* _Meta;
+		static DLLSPEC daeMetaElement* _Meta;
 	};
 
 	class domBind_vertex_input;
@@ -123,6 +127,8 @@ public:
  */
 	class domBind_vertex_input : public daeElement
 	{
+	public:
+		COLLADA_TYPE::TypeEnum getElementType() const { return COLLADA_TYPE::BIND_VERTEX_INPUT; }
 	protected:  // Attributes
 /**
  *  The semantic attribute specifies which effect parameter to bind. 
@@ -199,19 +205,19 @@ public:
 		 * @param bytes The size allocated for this instance.
 		 * @return a daeElementRef referencing an instance of this object.
 		 */
-		static daeElementRef create(daeInt bytes);
+		static DLLSPEC daeElementRef create(daeInt bytes);
 		/**
 		 * Creates a daeMetaElement object that describes this element in the meta object reflection framework.
 		 * If a daeMetaElement already exists it will return that instead of creating a new one. 
 		 * @return A daeMetaElement describing this COLLADA element.
 		 */
-		static daeMetaElement* registerElement();
+		static DLLSPEC daeMetaElement* registerElement();
 
 	public: // STATIC MEMBERS
 		/**
 		 * The daeMetaElement that describes this element in the meta object reflection framework.
 		 */
-		static daeMetaElement* _Meta;
+		static DLLSPEC daeMetaElement* _Meta;
 	};
 
 
@@ -280,7 +286,7 @@ public:	//Accessors and Mutators
 	 * Sets the target attribute.
 	 * @param atTarget The new value for the target attribute.
 	 */
-	void setTarget( const xsAnyURI &atTarget ) { attrTarget.setURI( atTarget.getURI() );
+	void setTarget( const xsAnyURI &atTarget ) { attrTarget = atTarget;
 	 _validAttributeArray[1] = true; }
 
 	/**
@@ -361,19 +367,19 @@ public: // STATIC METHODS
 	 * @param bytes The size allocated for this instance.
 	 * @return a daeElementRef referencing an instance of this object.
 	 */
-	static daeElementRef create(daeInt bytes);
+	static DLLSPEC daeElementRef create(daeInt bytes);
 	/**
 	 * Creates a daeMetaElement object that describes this element in the meta object reflection framework.
 	 * If a daeMetaElement already exists it will return that instead of creating a new one. 
 	 * @return A daeMetaElement describing this COLLADA element.
 	 */
-	static daeMetaElement* registerElement();
+	static DLLSPEC daeMetaElement* registerElement();
 
 public: // STATIC MEMBERS
 	/**
 	 * The daeMetaElement that describes this element in the meta object reflection framework.
 	 */
-	static daeMetaElement* _Meta;
+	static DLLSPEC daeMetaElement* _Meta;
 };
 
 

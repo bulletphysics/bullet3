@@ -35,7 +35,7 @@ domGl_hook_abstract::registerElement()
     
     _Meta = new daeMetaElement;
     _Meta->setName( "gl_hook_abstract" );
-	_Meta->registerConstructor(domGl_hook_abstract::create);
+	_Meta->registerClass(domGl_hook_abstract::create, &_Meta);
 
 	_Meta->setIsAbstract( true );
 	

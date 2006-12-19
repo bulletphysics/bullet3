@@ -35,7 +35,7 @@ domInt_array::registerElement()
     
     _Meta = new daeMetaElement;
     _Meta->setName( "int_array" );
-	_Meta->registerConstructor(domInt_array::create);
+	_Meta->registerClass(domInt_array::create, &_Meta);
 
 	//	Add attribute: _value
  	{

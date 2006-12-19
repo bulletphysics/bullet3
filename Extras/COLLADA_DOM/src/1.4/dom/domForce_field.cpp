@@ -35,7 +35,7 @@ domForce_field::registerElement()
     
     _Meta = new daeMetaElement;
     _Meta->setName( "force_field" );
-	_Meta->registerConstructor(domForce_field::create);
+	_Meta->registerClass(domForce_field::create, &_Meta);
 
 	daeMetaCMPolicy *cm = NULL;
 	daeMetaElementAttribute *mea = NULL;

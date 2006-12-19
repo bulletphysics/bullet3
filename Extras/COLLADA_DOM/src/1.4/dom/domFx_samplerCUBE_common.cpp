@@ -35,7 +35,7 @@ domFx_samplerCUBE_common::registerElement()
     
     _Meta = new daeMetaElement;
     _Meta->setName( "fx_samplerCUBE_common" );
-	_Meta->registerConstructor(domFx_samplerCUBE_common::create);
+	_Meta->registerClass(domFx_samplerCUBE_common::create, &_Meta);
 
 	daeMetaCMPolicy *cm = NULL;
 	daeMetaElementAttribute *mea = NULL;
@@ -132,7 +132,7 @@ domFx_samplerCUBE_common::domSource::registerElement()
     
     _Meta = new daeMetaElement;
     _Meta->setName( "source" );
-	_Meta->registerConstructor(domFx_samplerCUBE_common::domSource::create);
+	_Meta->registerClass(domFx_samplerCUBE_common::domSource::create, &_Meta);
 
 	_Meta->setIsInnerClass( true );
 	//	Add attribute: _value
@@ -167,7 +167,7 @@ domFx_samplerCUBE_common::domWrap_s::registerElement()
     
     _Meta = new daeMetaElement;
     _Meta->setName( "wrap_s" );
-	_Meta->registerConstructor(domFx_samplerCUBE_common::domWrap_s::create);
+	_Meta->registerClass(domFx_samplerCUBE_common::domWrap_s::create, &_Meta);
 
 	_Meta->setIsInnerClass( true );
 	//	Add attribute: _value
@@ -202,7 +202,7 @@ domFx_samplerCUBE_common::domWrap_t::registerElement()
     
     _Meta = new daeMetaElement;
     _Meta->setName( "wrap_t" );
-	_Meta->registerConstructor(domFx_samplerCUBE_common::domWrap_t::create);
+	_Meta->registerClass(domFx_samplerCUBE_common::domWrap_t::create, &_Meta);
 
 	_Meta->setIsInnerClass( true );
 	//	Add attribute: _value
@@ -237,7 +237,7 @@ domFx_samplerCUBE_common::domWrap_p::registerElement()
     
     _Meta = new daeMetaElement;
     _Meta->setName( "wrap_p" );
-	_Meta->registerConstructor(domFx_samplerCUBE_common::domWrap_p::create);
+	_Meta->registerClass(domFx_samplerCUBE_common::domWrap_p::create, &_Meta);
 
 	_Meta->setIsInnerClass( true );
 	//	Add attribute: _value
@@ -272,7 +272,7 @@ domFx_samplerCUBE_common::domMinfilter::registerElement()
     
     _Meta = new daeMetaElement;
     _Meta->setName( "minfilter" );
-	_Meta->registerConstructor(domFx_samplerCUBE_common::domMinfilter::create);
+	_Meta->registerClass(domFx_samplerCUBE_common::domMinfilter::create, &_Meta);
 
 	_Meta->setIsInnerClass( true );
 	//	Add attribute: _value
@@ -307,7 +307,7 @@ domFx_samplerCUBE_common::domMagfilter::registerElement()
     
     _Meta = new daeMetaElement;
     _Meta->setName( "magfilter" );
-	_Meta->registerConstructor(domFx_samplerCUBE_common::domMagfilter::create);
+	_Meta->registerClass(domFx_samplerCUBE_common::domMagfilter::create, &_Meta);
 
 	_Meta->setIsInnerClass( true );
 	//	Add attribute: _value
@@ -342,7 +342,7 @@ domFx_samplerCUBE_common::domMipfilter::registerElement()
     
     _Meta = new daeMetaElement;
     _Meta->setName( "mipfilter" );
-	_Meta->registerConstructor(domFx_samplerCUBE_common::domMipfilter::create);
+	_Meta->registerClass(domFx_samplerCUBE_common::domMipfilter::create, &_Meta);
 
 	_Meta->setIsInnerClass( true );
 	//	Add attribute: _value
@@ -377,7 +377,7 @@ domFx_samplerCUBE_common::domBorder_color::registerElement()
     
     _Meta = new daeMetaElement;
     _Meta->setName( "border_color" );
-	_Meta->registerConstructor(domFx_samplerCUBE_common::domBorder_color::create);
+	_Meta->registerClass(domFx_samplerCUBE_common::domBorder_color::create, &_Meta);
 
 	_Meta->setIsInnerClass( true );
 	//	Add attribute: _value
@@ -412,7 +412,7 @@ domFx_samplerCUBE_common::domMipmap_maxlevel::registerElement()
     
     _Meta = new daeMetaElement;
     _Meta->setName( "mipmap_maxlevel" );
-	_Meta->registerConstructor(domFx_samplerCUBE_common::domMipmap_maxlevel::create);
+	_Meta->registerClass(domFx_samplerCUBE_common::domMipmap_maxlevel::create, &_Meta);
 
 	_Meta->setIsInnerClass( true );
 	//	Add attribute: _value
@@ -447,7 +447,7 @@ domFx_samplerCUBE_common::domMipmap_bias::registerElement()
     
     _Meta = new daeMetaElement;
     _Meta->setName( "mipmap_bias" );
-	_Meta->registerConstructor(domFx_samplerCUBE_common::domMipmap_bias::create);
+	_Meta->registerClass(domFx_samplerCUBE_common::domMipmap_bias::create, &_Meta);
 
 	_Meta->setIsInnerClass( true );
 	//	Add attribute: _value

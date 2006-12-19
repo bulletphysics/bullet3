@@ -35,7 +35,7 @@ public:
 	/**
 	 * An enum describing the status of the SID resolution process.
 	 */
-	enum ResolveState{
+	DLLSPEC enum ResolveState{
 		/** No target specified */
 		target_empty,
 		/** target specified but not resolved */
@@ -56,12 +56,12 @@ public:
 	 * @param target The target string which needs to be resolved.
 	 * @param platform The platform name of the technique to use. A NULL value indicates the common platform.
 	 */
-	daeSIDResolver( daeElement *container, daeString target, daeString platform = NULL );
+	DLLSPEC daeSIDResolver( daeElement *container, daeString target, daeString platform = NULL );
 
 	/**
 	 * Destructor.
 	 */
-	~daeSIDResolver();
+	DLLSPEC ~daeSIDResolver();
 
 	/**
 	 * Gets the target string.
@@ -72,7 +72,7 @@ public:
 	 * Sets the target string.
 	 * @param t The new target string for this resolver.
 	 */
-	void setTarget( daeString t );
+	DLLSPEC void setTarget( daeString t );
 
 	/**
 	 * Gets the name of the profile to use when resolving.
@@ -83,7 +83,7 @@ public:
 	 * Sets the profile to use when resolving.
 	 * @param p The profile name of the technique to use. A NULL value indicates the common profile.
 	 */
-	void setProfile( daeString p );
+	DLLSPEC void setProfile( daeString p );
 
 	/**
 	 * Gets a pointer to the @c daeElement that contains the target to resolve.
@@ -94,7 +94,7 @@ public:
 	 * Sets the pointer to the @c daeElement that contains the target to resolve.
 	 * @param element Pointer to the containing @c daeElmement.
 	 */
-	void setContainer(daeElement* element);
+	DLLSPEC void setContainer(daeElement* element);
 
 	/**
 	 * Gets the resolution state.
@@ -106,14 +106,14 @@ public:
 	 * Gets the element that this SID resolves to.
 	 * @return Returns the element that the URI resolves to.
 	 */
-	daeElementRef getElement();
+	DLLSPEC daeElementRef getElement();
 
 	/**
 	 * Gets the value array of the element that the SID resolves to.
 	 * @return Returns a pointer to the value array that the SID resolves to
 	 * @note The daeSIDResolver can only resolve to this level for daeDoubleArray values.
 	 */
-	daeDoubleArray *getDoubleArray();
+	DLLSPEC daeDoubleArray *getDoubleArray();
 
 	/**
 	 * Gets a pointer to the particle this target resolved to.
@@ -122,7 +122,7 @@ public:
 	 * final symbolic name is from the COMMON profile or a cardinal value is specified.
 	 * @note The daeSIDResolver assumes the value is a 4x4 matrix if there are 2 cardinal values specified.
 	 */
-	daeDouble *getDouble();
+	DLLSPEC daeDouble *getDouble();
 
 private:
 	

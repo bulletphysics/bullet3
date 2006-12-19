@@ -36,7 +36,7 @@ domConvex_mesh::registerElement()
     
     _Meta = new daeMetaElement;
     _Meta->setName( "convex_mesh" );
-	_Meta->registerConstructor(domConvex_mesh::create);
+	_Meta->registerClass(domConvex_mesh::create, &_Meta);
 
 	daeMetaCMPolicy *cm = NULL;
 	daeMetaElementAttribute *mea = NULL;

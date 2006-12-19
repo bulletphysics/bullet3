@@ -43,7 +43,8 @@ daeBool daeMetaAny::removeElement( daeElement *parent, daeElement *child ) {
 daeMetaElement * daeMetaAny::findChild( daeString elementName ) {
 	if ( elementName != NULL ) {
 		const daeMetaElementRefArray &metas = daeMetaElement::getAllMetas();
-		for ( size_t x = 0; x < metas.getCount(); x++ ) {
+		size_t cnt = metas.getCount();
+		for ( size_t x = 0; x < cnt; x++ ) {
 			if ( !metas[x]->getIsInnerClass() && strcmp( elementName, metas[x]->getName() ) == 0 ) {
 				return metas[x];
 			}

@@ -35,7 +35,7 @@ domCommon_float_or_param_type::registerElement()
     
     _Meta = new daeMetaElement;
     _Meta->setName( "common_float_or_param_type" );
-	_Meta->registerConstructor(domCommon_float_or_param_type::create);
+	_Meta->registerClass(domCommon_float_or_param_type::create, &_Meta);
 
 	daeMetaCMPolicy *cm = NULL;
 	daeMetaElementAttribute *mea = NULL;
@@ -82,7 +82,7 @@ domCommon_float_or_param_type::domFloat::registerElement()
     
     _Meta = new daeMetaElement;
     _Meta->setName( "float" );
-	_Meta->registerConstructor(domCommon_float_or_param_type::domFloat::create);
+	_Meta->registerClass(domCommon_float_or_param_type::domFloat::create, &_Meta);
 
 	_Meta->setIsInnerClass( true );
 	//	Add attribute: _value
@@ -128,7 +128,7 @@ domCommon_float_or_param_type::domParam::registerElement()
     
     _Meta = new daeMetaElement;
     _Meta->setName( "param" );
-	_Meta->registerConstructor(domCommon_float_or_param_type::domParam::create);
+	_Meta->registerClass(domCommon_float_or_param_type::domParam::create, &_Meta);
 
 	_Meta->setIsInnerClass( true );
 

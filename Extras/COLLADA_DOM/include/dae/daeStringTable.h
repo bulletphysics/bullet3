@@ -31,7 +31,7 @@ public: // allocate/construct/destruct/deallocate
 	 * Constructor which specifies fixed buffer size.
 	 * @param stringBufferSize The size of the buffer to create for string allocation.
 	 */
-	daeStringTable(int stringBufferSize = 1024*1024);
+	DLLSPEC daeStringTable(int stringBufferSize = 1024*1024);
 
 	/**
 	 * Destructor.
@@ -44,12 +44,12 @@ public: // INTERFACE
 	 * @param string <tt> const char * </tt> to copy into the table.
 	 * @return Returns an allocated string.
 	 */
-	daeString allocString(daeString string);
+	DLLSPEC daeString allocString(daeString string);
 
 	/**
 	 * Clears the storage.
 	 */
-	void clear();
+	DLLSPEC void clear();
 
 private: // MEMBERS
 	size_t _stringBufferSize;

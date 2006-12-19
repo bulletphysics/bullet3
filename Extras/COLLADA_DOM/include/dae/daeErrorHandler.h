@@ -21,7 +21,7 @@
  * messages get handled in the client application. An example of this would be a class that reports
  * the message to a gui front end instead of just printing on stdout.
  */
-class daeErrorHandler {
+class DLLSPEC daeErrorHandler {
 public:
 	/**
 	 * Constructor.

@@ -35,7 +35,7 @@ domFx_clearstencil_common::registerElement()
     
     _Meta = new daeMetaElement;
     _Meta->setName( "fx_clearstencil_common" );
-	_Meta->registerConstructor(domFx_clearstencil_common::create);
+	_Meta->registerClass(domFx_clearstencil_common::create, &_Meta);
 
 	//	Add attribute: _value
  	{

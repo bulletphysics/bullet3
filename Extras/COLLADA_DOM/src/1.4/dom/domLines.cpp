@@ -35,7 +35,7 @@ domLines::registerElement()
     
     _Meta = new daeMetaElement;
     _Meta->setName( "lines" );
-	_Meta->registerConstructor(domLines::create);
+	_Meta->registerClass(domLines::create, &_Meta);
 
 	daeMetaCMPolicy *cm = NULL;
 	daeMetaElementAttribute *mea = NULL;

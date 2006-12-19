@@ -35,7 +35,7 @@ domTristrips::registerElement()
     
     _Meta = new daeMetaElement;
     _Meta->setName( "tristrips" );
-	_Meta->registerConstructor(domTristrips::create);
+	_Meta->registerClass(domTristrips::create, &_Meta);
 
 	daeMetaCMPolicy *cm = NULL;
 	daeMetaElementAttribute *mea = NULL;

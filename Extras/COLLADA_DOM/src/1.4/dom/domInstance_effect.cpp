@@ -36,7 +36,7 @@ domInstance_effect::registerElement()
     
     _Meta = new daeMetaElement;
     _Meta->setName( "instance_effect" );
-	_Meta->registerConstructor(domInstance_effect::create);
+	_Meta->registerClass(domInstance_effect::create, &_Meta);
 
 	daeMetaCMPolicy *cm = NULL;
 	daeMetaElementAttribute *mea = NULL;
@@ -119,7 +119,7 @@ domInstance_effect::domTechnique_hint::registerElement()
     
     _Meta = new daeMetaElement;
     _Meta->setName( "technique_hint" );
-	_Meta->registerConstructor(domInstance_effect::domTechnique_hint::create);
+	_Meta->registerClass(domInstance_effect::domTechnique_hint::create, &_Meta);
 
 	_Meta->setIsInnerClass( true );
 
@@ -181,7 +181,7 @@ domInstance_effect::domSetparam::registerElement()
     
     _Meta = new daeMetaElement;
     _Meta->setName( "setparam" );
-	_Meta->registerConstructor(domInstance_effect::domSetparam::create);
+	_Meta->registerClass(domInstance_effect::domSetparam::create, &_Meta);
 
 	_Meta->setIsInnerClass( true );
 	daeMetaCMPolicy *cm = NULL;

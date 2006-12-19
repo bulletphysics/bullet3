@@ -35,7 +35,7 @@ domPolylist::registerElement()
     
     _Meta = new daeMetaElement;
     _Meta->setName( "polylist" );
-	_Meta->registerConstructor(domPolylist::create);
+	_Meta->registerClass(domPolylist::create, &_Meta);
 
 	daeMetaCMPolicy *cm = NULL;
 	daeMetaElementAttribute *mea = NULL;
@@ -124,7 +124,7 @@ domPolylist::domVcount::registerElement()
     
     _Meta = new daeMetaElement;
     _Meta->setName( "vcount" );
-	_Meta->registerConstructor(domPolylist::domVcount::create);
+	_Meta->registerClass(domPolylist::domVcount::create, &_Meta);
 
 	_Meta->setIsInnerClass( true );
 	//	Add attribute: _value

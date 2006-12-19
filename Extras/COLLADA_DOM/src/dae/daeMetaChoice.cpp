@@ -34,8 +34,10 @@ daeElement *daeMetaChoice::placeElement( daeElement *parent, daeElement *child, 
 	}
 
 	daeElement *retVal = NULL;
+	size_t cnt = _children.getCount();
+
 	for ( daeInt i = 0; ( i < _maxOccurs || _maxOccurs == -1 ); i++ ) {
-		for ( size_t x = 0; x < _children.getCount(); x++ ) {
+		for ( size_t x = 0; x < cnt; x++ ) {
 			if ( _children[x]->placeElement( parent, child, ordinal, i, before, after ) != NULL ) {
 				retVal = child;
 				ordinal = ordinal  + _ordinalOffset;
@@ -68,7 +70,8 @@ daeElement *daeMetaChoice::placeElement( daeElement *parent, daeElement *child, 
 }
 
 daeBool daeMetaChoice::removeElement( daeElement *parent, daeElement *child ) {
-	for ( size_t x = 0; x < _children.getCount(); x++ ) {
+	size_t cnt = _children.getCount();
+	for ( size_t x = 0; x < cnt; x++ ) {
 		if ( _children[x]->removeElement( parent, child ) ) {
 			return true;
 		}
@@ -78,7 +81,8 @@ daeBool daeMetaChoice::removeElement( daeElement *parent, daeElement *child ) {
 
 daeMetaElement * daeMetaChoice::findChild( daeString elementName ) {
 	daeMetaElement *me = NULL;
-	for ( size_t x = 0; x < _children.getCount(); x++ ) {
+	size_t cnt = _children.getCount();
+	for ( size_t x = 0; x < cnt; x++ ) {
 		me = _children[x]->findChild( elementName );
 		if ( me != NULL ) {
 			return me;

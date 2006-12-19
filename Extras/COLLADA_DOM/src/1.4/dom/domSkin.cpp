@@ -36,7 +36,7 @@ domSkin::registerElement()
     
     _Meta = new daeMetaElement;
     _Meta->setName( "skin" );
-	_Meta->registerConstructor(domSkin::create);
+	_Meta->registerClass(domSkin::create, &_Meta);
 
 	daeMetaCMPolicy *cm = NULL;
 	daeMetaElementAttribute *mea = NULL;
@@ -109,7 +109,7 @@ domSkin::domBind_shape_matrix::registerElement()
     
     _Meta = new daeMetaElement;
     _Meta->setName( "bind_shape_matrix" );
-	_Meta->registerConstructor(domSkin::domBind_shape_matrix::create);
+	_Meta->registerClass(domSkin::domBind_shape_matrix::create, &_Meta);
 
 	_Meta->setIsInnerClass( true );
 	//	Add attribute: _value
@@ -144,7 +144,7 @@ domSkin::domJoints::registerElement()
     
     _Meta = new daeMetaElement;
     _Meta->setName( "joints" );
-	_Meta->registerConstructor(domSkin::domJoints::create);
+	_Meta->registerClass(domSkin::domJoints::create, &_Meta);
 
 	_Meta->setIsInnerClass( true );
 	daeMetaCMPolicy *cm = NULL;
@@ -188,7 +188,7 @@ domSkin::domVertex_weights::registerElement()
     
     _Meta = new daeMetaElement;
     _Meta->setName( "vertex_weights" );
-	_Meta->registerConstructor(domSkin::domVertex_weights::create);
+	_Meta->registerClass(domSkin::domVertex_weights::create, &_Meta);
 
 	_Meta->setIsInnerClass( true );
 	daeMetaCMPolicy *cm = NULL;
@@ -256,7 +256,7 @@ domSkin::domVertex_weights::domVcount::registerElement()
     
     _Meta = new daeMetaElement;
     _Meta->setName( "vcount" );
-	_Meta->registerConstructor(domSkin::domVertex_weights::domVcount::create);
+	_Meta->registerClass(domSkin::domVertex_weights::domVcount::create, &_Meta);
 
 	_Meta->setIsInnerClass( true );
 	//	Add attribute: _value
@@ -291,7 +291,7 @@ domSkin::domVertex_weights::domV::registerElement()
     
     _Meta = new daeMetaElement;
     _Meta->setName( "v" );
-	_Meta->registerConstructor(domSkin::domVertex_weights::domV::create);
+	_Meta->registerClass(domSkin::domVertex_weights::domV::create, &_Meta);
 
 	_Meta->setIsInnerClass( true );
 	//	Add attribute: _value

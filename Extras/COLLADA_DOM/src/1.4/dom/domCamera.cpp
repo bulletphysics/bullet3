@@ -35,7 +35,7 @@ domCamera::registerElement()
     
     _Meta = new daeMetaElement;
     _Meta->setName( "camera" );
-	_Meta->registerConstructor(domCamera::create);
+	_Meta->registerClass(domCamera::create, &_Meta);
 
 	daeMetaCMPolicy *cm = NULL;
 	daeMetaElementAttribute *mea = NULL;
@@ -112,7 +112,7 @@ domCamera::domOptics::registerElement()
     
     _Meta = new daeMetaElement;
     _Meta->setName( "optics" );
-	_Meta->registerConstructor(domCamera::domOptics::create);
+	_Meta->registerClass(domCamera::domOptics::create, &_Meta);
 
 	_Meta->setIsInnerClass( true );
 	daeMetaCMPolicy *cm = NULL;
@@ -162,7 +162,7 @@ domCamera::domOptics::domTechnique_common::registerElement()
     
     _Meta = new daeMetaElement;
     _Meta->setName( "technique_common" );
-	_Meta->registerConstructor(domCamera::domOptics::domTechnique_common::create);
+	_Meta->registerClass(domCamera::domOptics::domTechnique_common::create, &_Meta);
 
 	_Meta->setIsInnerClass( true );
 	daeMetaCMPolicy *cm = NULL;
@@ -210,7 +210,7 @@ domCamera::domOptics::domTechnique_common::domOrthographic::registerElement()
     
     _Meta = new daeMetaElement;
     _Meta->setName( "orthographic" );
-	_Meta->registerConstructor(domCamera::domOptics::domTechnique_common::domOrthographic::create);
+	_Meta->registerClass(domCamera::domOptics::domTechnique_common::domOrthographic::create, &_Meta);
 
 	_Meta->setIsInnerClass( true );
 	daeMetaCMPolicy *cm = NULL;
@@ -312,7 +312,7 @@ domCamera::domOptics::domTechnique_common::domPerspective::registerElement()
     
     _Meta = new daeMetaElement;
     _Meta->setName( "perspective" );
-	_Meta->registerConstructor(domCamera::domOptics::domTechnique_common::domPerspective::create);
+	_Meta->registerClass(domCamera::domOptics::domTechnique_common::domPerspective::create, &_Meta);
 
 	_Meta->setIsInnerClass( true );
 	daeMetaCMPolicy *cm = NULL;
@@ -414,7 +414,7 @@ domCamera::domImager::registerElement()
     
     _Meta = new daeMetaElement;
     _Meta->setName( "imager" );
-	_Meta->registerConstructor(domCamera::domImager::create);
+	_Meta->registerClass(domCamera::domImager::create, &_Meta);
 
 	_Meta->setIsInnerClass( true );
 	daeMetaCMPolicy *cm = NULL;

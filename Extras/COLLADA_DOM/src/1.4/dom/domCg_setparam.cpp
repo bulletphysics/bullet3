@@ -35,7 +35,7 @@ domCg_setparam::registerElement()
     
     _Meta = new daeMetaElement;
     _Meta->setName( "cg_setparam" );
-	_Meta->registerConstructor(domCg_setparam::create);
+	_Meta->registerClass(domCg_setparam::create, &_Meta);
 
 	daeMetaCMPolicy *cm = NULL;
 	daeMetaElementAttribute *mea = NULL;

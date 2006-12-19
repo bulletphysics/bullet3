@@ -36,7 +36,7 @@ domAccessor::registerElement()
     
     _Meta = new daeMetaElement;
     _Meta->setName( "accessor" );
-	_Meta->registerConstructor(domAccessor::create);
+	_Meta->registerClass(domAccessor::create, &_Meta);
 
 	daeMetaCMPolicy *cm = NULL;
 	daeMetaElementAttribute *mea = NULL;

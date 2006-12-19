@@ -16,6 +16,8 @@
 
 #ifdef WIN32
 #include <dae/daeWin32Platform.h>
+#elif defined( __GCC__ )
+#include <dae/daeGCCPlatform.h>
 #else
 #include <dae/daeGenericPlatform.h>
 #endif

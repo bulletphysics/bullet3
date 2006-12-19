@@ -36,7 +36,7 @@ domInputGlobal::registerElement()
     
     _Meta = new daeMetaElement;
     _Meta->setName( "InputGlobal" );
-	_Meta->registerConstructor(domInputGlobal::create);
+	_Meta->registerClass(domInputGlobal::create, &_Meta);
 
 
 	//	Add attribute: semantic

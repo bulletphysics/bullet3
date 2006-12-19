@@ -35,7 +35,7 @@ domLibrary_physics_models::registerElement()
     
     _Meta = new daeMetaElement;
     _Meta->setName( "library_physics_models" );
-	_Meta->registerConstructor(domLibrary_physics_models::create);
+	_Meta->registerClass(domLibrary_physics_models::create, &_Meta);
 
 	daeMetaCMPolicy *cm = NULL;
 	daeMetaElementAttribute *mea = NULL;

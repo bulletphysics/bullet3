@@ -36,7 +36,7 @@ domChannel::registerElement()
     
     _Meta = new daeMetaElement;
     _Meta->setName( "channel" );
-	_Meta->registerConstructor(domChannel::create);
+	_Meta->registerClass(domChannel::create, &_Meta);
 
 
 	//	Add attribute: source

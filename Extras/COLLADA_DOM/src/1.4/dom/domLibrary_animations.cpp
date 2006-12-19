@@ -35,7 +35,7 @@ domLibrary_animations::registerElement()
     
     _Meta = new daeMetaElement;
     _Meta->setName( "library_animations" );
-	_Meta->registerConstructor(domLibrary_animations::create);
+	_Meta->registerClass(domLibrary_animations::create, &_Meta);
 
 	daeMetaCMPolicy *cm = NULL;
 	daeMetaElementAttribute *mea = NULL;

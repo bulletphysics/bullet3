@@ -35,7 +35,7 @@ domGl_pipeline_settings::registerElement()
     
     _Meta = new daeMetaElement;
     _Meta->setName( "gl_pipeline_settings" );
-	_Meta->registerConstructor(domGl_pipeline_settings::create);
+	_Meta->registerClass(domGl_pipeline_settings::create, &_Meta);
 
 	_Meta->setIsTransparent( true );
 	daeMetaCMPolicy *cm = NULL;
@@ -725,7 +725,7 @@ domGl_pipeline_settings::domAlpha_func::registerElement()
     
     _Meta = new daeMetaElement;
     _Meta->setName( "alpha_func" );
-	_Meta->registerConstructor(domGl_pipeline_settings::domAlpha_func::create);
+	_Meta->registerClass(domGl_pipeline_settings::domAlpha_func::create, &_Meta);
 
 	_Meta->setIsInnerClass( true );
 	daeMetaCMPolicy *cm = NULL;
@@ -769,7 +769,7 @@ domGl_pipeline_settings::domAlpha_func::domFunc::registerElement()
     
     _Meta = new daeMetaElement;
     _Meta->setName( "func" );
-	_Meta->registerConstructor(domGl_pipeline_settings::domAlpha_func::domFunc::create);
+	_Meta->registerClass(domGl_pipeline_settings::domAlpha_func::domFunc::create, &_Meta);
 
 	_Meta->setIsInnerClass( true );
 
@@ -820,7 +820,7 @@ domGl_pipeline_settings::domAlpha_func::domValue::registerElement()
     
     _Meta = new daeMetaElement;
     _Meta->setName( "value" );
-	_Meta->registerConstructor(domGl_pipeline_settings::domAlpha_func::domValue::create);
+	_Meta->registerClass(domGl_pipeline_settings::domAlpha_func::domValue::create, &_Meta);
 
 	_Meta->setIsInnerClass( true );
 
@@ -871,7 +871,7 @@ domGl_pipeline_settings::domBlend_func::registerElement()
     
     _Meta = new daeMetaElement;
     _Meta->setName( "blend_func" );
-	_Meta->registerConstructor(domGl_pipeline_settings::domBlend_func::create);
+	_Meta->registerClass(domGl_pipeline_settings::domBlend_func::create, &_Meta);
 
 	_Meta->setIsInnerClass( true );
 	daeMetaCMPolicy *cm = NULL;
@@ -915,7 +915,7 @@ domGl_pipeline_settings::domBlend_func::domSrc::registerElement()
     
     _Meta = new daeMetaElement;
     _Meta->setName( "src" );
-	_Meta->registerConstructor(domGl_pipeline_settings::domBlend_func::domSrc::create);
+	_Meta->registerClass(domGl_pipeline_settings::domBlend_func::domSrc::create, &_Meta);
 
 	_Meta->setIsInnerClass( true );
 
@@ -966,7 +966,7 @@ domGl_pipeline_settings::domBlend_func::domDest::registerElement()
     
     _Meta = new daeMetaElement;
     _Meta->setName( "dest" );
-	_Meta->registerConstructor(domGl_pipeline_settings::domBlend_func::domDest::create);
+	_Meta->registerClass(domGl_pipeline_settings::domBlend_func::domDest::create, &_Meta);
 
 	_Meta->setIsInnerClass( true );
 
@@ -1017,7 +1017,7 @@ domGl_pipeline_settings::domBlend_func_separate::registerElement()
     
     _Meta = new daeMetaElement;
     _Meta->setName( "blend_func_separate" );
-	_Meta->registerConstructor(domGl_pipeline_settings::domBlend_func_separate::create);
+	_Meta->registerClass(domGl_pipeline_settings::domBlend_func_separate::create, &_Meta);
 
 	_Meta->setIsInnerClass( true );
 	daeMetaCMPolicy *cm = NULL;
@@ -1073,7 +1073,7 @@ domGl_pipeline_settings::domBlend_func_separate::domSrc_rgb::registerElement()
     
     _Meta = new daeMetaElement;
     _Meta->setName( "src_rgb" );
-	_Meta->registerConstructor(domGl_pipeline_settings::domBlend_func_separate::domSrc_rgb::create);
+	_Meta->registerClass(domGl_pipeline_settings::domBlend_func_separate::domSrc_rgb::create, &_Meta);
 
 	_Meta->setIsInnerClass( true );
 
@@ -1124,7 +1124,7 @@ domGl_pipeline_settings::domBlend_func_separate::domDest_rgb::registerElement()
     
     _Meta = new daeMetaElement;
     _Meta->setName( "dest_rgb" );
-	_Meta->registerConstructor(domGl_pipeline_settings::domBlend_func_separate::domDest_rgb::create);
+	_Meta->registerClass(domGl_pipeline_settings::domBlend_func_separate::domDest_rgb::create, &_Meta);
 
 	_Meta->setIsInnerClass( true );
 
@@ -1175,7 +1175,7 @@ domGl_pipeline_settings::domBlend_func_separate::domSrc_alpha::registerElement()
     
     _Meta = new daeMetaElement;
     _Meta->setName( "src_alpha" );
-	_Meta->registerConstructor(domGl_pipeline_settings::domBlend_func_separate::domSrc_alpha::create);
+	_Meta->registerClass(domGl_pipeline_settings::domBlend_func_separate::domSrc_alpha::create, &_Meta);
 
 	_Meta->setIsInnerClass( true );
 
@@ -1226,7 +1226,7 @@ domGl_pipeline_settings::domBlend_func_separate::domDest_alpha::registerElement(
     
     _Meta = new daeMetaElement;
     _Meta->setName( "dest_alpha" );
-	_Meta->registerConstructor(domGl_pipeline_settings::domBlend_func_separate::domDest_alpha::create);
+	_Meta->registerClass(domGl_pipeline_settings::domBlend_func_separate::domDest_alpha::create, &_Meta);
 
 	_Meta->setIsInnerClass( true );
 
@@ -1277,7 +1277,7 @@ domGl_pipeline_settings::domBlend_equation::registerElement()
     
     _Meta = new daeMetaElement;
     _Meta->setName( "blend_equation" );
-	_Meta->registerConstructor(domGl_pipeline_settings::domBlend_equation::create);
+	_Meta->registerClass(domGl_pipeline_settings::domBlend_equation::create, &_Meta);
 
 	_Meta->setIsInnerClass( true );
 
@@ -1328,7 +1328,7 @@ domGl_pipeline_settings::domBlend_equation_separate::registerElement()
     
     _Meta = new daeMetaElement;
     _Meta->setName( "blend_equation_separate" );
-	_Meta->registerConstructor(domGl_pipeline_settings::domBlend_equation_separate::create);
+	_Meta->registerClass(domGl_pipeline_settings::domBlend_equation_separate::create, &_Meta);
 
 	_Meta->setIsInnerClass( true );
 	daeMetaCMPolicy *cm = NULL;
@@ -1372,7 +1372,7 @@ domGl_pipeline_settings::domBlend_equation_separate::domRgb::registerElement()
     
     _Meta = new daeMetaElement;
     _Meta->setName( "rgb" );
-	_Meta->registerConstructor(domGl_pipeline_settings::domBlend_equation_separate::domRgb::create);
+	_Meta->registerClass(domGl_pipeline_settings::domBlend_equation_separate::domRgb::create, &_Meta);
 
 	_Meta->setIsInnerClass( true );
 
@@ -1423,7 +1423,7 @@ domGl_pipeline_settings::domBlend_equation_separate::domAlpha::registerElement()
     
     _Meta = new daeMetaElement;
     _Meta->setName( "alpha" );
-	_Meta->registerConstructor(domGl_pipeline_settings::domBlend_equation_separate::domAlpha::create);
+	_Meta->registerClass(domGl_pipeline_settings::domBlend_equation_separate::domAlpha::create, &_Meta);
 
 	_Meta->setIsInnerClass( true );
 
@@ -1474,7 +1474,7 @@ domGl_pipeline_settings::domColor_material::registerElement()
     
     _Meta = new daeMetaElement;
     _Meta->setName( "color_material" );
-	_Meta->registerConstructor(domGl_pipeline_settings::domColor_material::create);
+	_Meta->registerClass(domGl_pipeline_settings::domColor_material::create, &_Meta);
 
 	_Meta->setIsInnerClass( true );
 	daeMetaCMPolicy *cm = NULL;
@@ -1518,7 +1518,7 @@ domGl_pipeline_settings::domColor_material::domFace::registerElement()
     
     _Meta = new daeMetaElement;
     _Meta->setName( "face" );
-	_Meta->registerConstructor(domGl_pipeline_settings::domColor_material::domFace::create);
+	_Meta->registerClass(domGl_pipeline_settings::domColor_material::domFace::create, &_Meta);
 
 	_Meta->setIsInnerClass( true );
 
@@ -1569,7 +1569,7 @@ domGl_pipeline_settings::domColor_material::domMode::registerElement()
     
     _Meta = new daeMetaElement;
     _Meta->setName( "mode" );
-	_Meta->registerConstructor(domGl_pipeline_settings::domColor_material::domMode::create);
+	_Meta->registerClass(domGl_pipeline_settings::domColor_material::domMode::create, &_Meta);
 
 	_Meta->setIsInnerClass( true );
 
@@ -1620,7 +1620,7 @@ domGl_pipeline_settings::domCull_face::registerElement()
     
     _Meta = new daeMetaElement;
     _Meta->setName( "cull_face" );
-	_Meta->registerConstructor(domGl_pipeline_settings::domCull_face::create);
+	_Meta->registerClass(domGl_pipeline_settings::domCull_face::create, &_Meta);
 
 	_Meta->setIsInnerClass( true );
 
@@ -1671,7 +1671,7 @@ domGl_pipeline_settings::domDepth_func::registerElement()
     
     _Meta = new daeMetaElement;
     _Meta->setName( "depth_func" );
-	_Meta->registerConstructor(domGl_pipeline_settings::domDepth_func::create);
+	_Meta->registerClass(domGl_pipeline_settings::domDepth_func::create, &_Meta);
 
 	_Meta->setIsInnerClass( true );
 
@@ -1722,7 +1722,7 @@ domGl_pipeline_settings::domFog_mode::registerElement()
     
     _Meta = new daeMetaElement;
     _Meta->setName( "fog_mode" );
-	_Meta->registerConstructor(domGl_pipeline_settings::domFog_mode::create);
+	_Meta->registerClass(domGl_pipeline_settings::domFog_mode::create, &_Meta);
 
 	_Meta->setIsInnerClass( true );
 
@@ -1773,7 +1773,7 @@ domGl_pipeline_settings::domFog_coord_src::registerElement()
     
     _Meta = new daeMetaElement;
     _Meta->setName( "fog_coord_src" );
-	_Meta->registerConstructor(domGl_pipeline_settings::domFog_coord_src::create);
+	_Meta->registerClass(domGl_pipeline_settings::domFog_coord_src::create, &_Meta);
 
 	_Meta->setIsInnerClass( true );
 
@@ -1824,7 +1824,7 @@ domGl_pipeline_settings::domFront_face::registerElement()
     
     _Meta = new daeMetaElement;
     _Meta->setName( "front_face" );
-	_Meta->registerConstructor(domGl_pipeline_settings::domFront_face::create);
+	_Meta->registerClass(domGl_pipeline_settings::domFront_face::create, &_Meta);
 
 	_Meta->setIsInnerClass( true );
 
@@ -1875,7 +1875,7 @@ domGl_pipeline_settings::domLight_model_color_control::registerElement()
     
     _Meta = new daeMetaElement;
     _Meta->setName( "light_model_color_control" );
-	_Meta->registerConstructor(domGl_pipeline_settings::domLight_model_color_control::create);
+	_Meta->registerClass(domGl_pipeline_settings::domLight_model_color_control::create, &_Meta);
 
 	_Meta->setIsInnerClass( true );
 
@@ -1926,7 +1926,7 @@ domGl_pipeline_settings::domLogic_op::registerElement()
     
     _Meta = new daeMetaElement;
     _Meta->setName( "logic_op" );
-	_Meta->registerConstructor(domGl_pipeline_settings::domLogic_op::create);
+	_Meta->registerClass(domGl_pipeline_settings::domLogic_op::create, &_Meta);
 
 	_Meta->setIsInnerClass( true );
 
@@ -1977,7 +1977,7 @@ domGl_pipeline_settings::domPolygon_mode::registerElement()
     
     _Meta = new daeMetaElement;
     _Meta->setName( "polygon_mode" );
-	_Meta->registerConstructor(domGl_pipeline_settings::domPolygon_mode::create);
+	_Meta->registerClass(domGl_pipeline_settings::domPolygon_mode::create, &_Meta);
 
 	_Meta->setIsInnerClass( true );
 	daeMetaCMPolicy *cm = NULL;
@@ -2021,7 +2021,7 @@ domGl_pipeline_settings::domPolygon_mode::domFace::registerElement()
     
     _Meta = new daeMetaElement;
     _Meta->setName( "face" );
-	_Meta->registerConstructor(domGl_pipeline_settings::domPolygon_mode::domFace::create);
+	_Meta->registerClass(domGl_pipeline_settings::domPolygon_mode::domFace::create, &_Meta);
 
 	_Meta->setIsInnerClass( true );
 
@@ -2072,7 +2072,7 @@ domGl_pipeline_settings::domPolygon_mode::domMode::registerElement()
     
     _Meta = new daeMetaElement;
     _Meta->setName( "mode" );
-	_Meta->registerConstructor(domGl_pipeline_settings::domPolygon_mode::domMode::create);
+	_Meta->registerClass(domGl_pipeline_settings::domPolygon_mode::domMode::create, &_Meta);
 
 	_Meta->setIsInnerClass( true );
 
@@ -2123,7 +2123,7 @@ domGl_pipeline_settings::domShade_model::registerElement()
     
     _Meta = new daeMetaElement;
     _Meta->setName( "shade_model" );
-	_Meta->registerConstructor(domGl_pipeline_settings::domShade_model::create);
+	_Meta->registerClass(domGl_pipeline_settings::domShade_model::create, &_Meta);
 
 	_Meta->setIsInnerClass( true );
 
@@ -2174,7 +2174,7 @@ domGl_pipeline_settings::domStencil_func::registerElement()
     
     _Meta = new daeMetaElement;
     _Meta->setName( "stencil_func" );
-	_Meta->registerConstructor(domGl_pipeline_settings::domStencil_func::create);
+	_Meta->registerClass(domGl_pipeline_settings::domStencil_func::create, &_Meta);
 
 	_Meta->setIsInnerClass( true );
 	daeMetaCMPolicy *cm = NULL;
@@ -2224,7 +2224,7 @@ domGl_pipeline_settings::domStencil_func::domFunc::registerElement()
     
     _Meta = new daeMetaElement;
     _Meta->setName( "func" );
-	_Meta->registerConstructor(domGl_pipeline_settings::domStencil_func::domFunc::create);
+	_Meta->registerClass(domGl_pipeline_settings::domStencil_func::domFunc::create, &_Meta);
 
 	_Meta->setIsInnerClass( true );
 
@@ -2275,7 +2275,7 @@ domGl_pipeline_settings::domStencil_func::domRef::registerElement()
     
     _Meta = new daeMetaElement;
     _Meta->setName( "ref" );
-	_Meta->registerConstructor(domGl_pipeline_settings::domStencil_func::domRef::create);
+	_Meta->registerClass(domGl_pipeline_settings::domStencil_func::domRef::create, &_Meta);
 
 	_Meta->setIsInnerClass( true );
 
@@ -2326,7 +2326,7 @@ domGl_pipeline_settings::domStencil_func::domMask::registerElement()
     
     _Meta = new daeMetaElement;
     _Meta->setName( "mask" );
-	_Meta->registerConstructor(domGl_pipeline_settings::domStencil_func::domMask::create);
+	_Meta->registerClass(domGl_pipeline_settings::domStencil_func::domMask::create, &_Meta);
 
 	_Meta->setIsInnerClass( true );
 
@@ -2377,7 +2377,7 @@ domGl_pipeline_settings::domStencil_op::registerElement()
     
     _Meta = new daeMetaElement;
     _Meta->setName( "stencil_op" );
-	_Meta->registerConstructor(domGl_pipeline_settings::domStencil_op::create);
+	_Meta->registerClass(domGl_pipeline_settings::domStencil_op::create, &_Meta);
 
 	_Meta->setIsInnerClass( true );
 	daeMetaCMPolicy *cm = NULL;
@@ -2427,7 +2427,7 @@ domGl_pipeline_settings::domStencil_op::domFail::registerElement()
     
     _Meta = new daeMetaElement;
     _Meta->setName( "fail" );
-	_Meta->registerConstructor(domGl_pipeline_settings::domStencil_op::domFail::create);
+	_Meta->registerClass(domGl_pipeline_settings::domStencil_op::domFail::create, &_Meta);
 
 	_Meta->setIsInnerClass( true );
 
@@ -2478,7 +2478,7 @@ domGl_pipeline_settings::domStencil_op::domZfail::registerElement()
     
     _Meta = new daeMetaElement;
     _Meta->setName( "zfail" );
-	_Meta->registerConstructor(domGl_pipeline_settings::domStencil_op::domZfail::create);
+	_Meta->registerClass(domGl_pipeline_settings::domStencil_op::domZfail::create, &_Meta);
 
 	_Meta->setIsInnerClass( true );
 
@@ -2529,7 +2529,7 @@ domGl_pipeline_settings::domStencil_op::domZpass::registerElement()
     
     _Meta = new daeMetaElement;
     _Meta->setName( "zpass" );
-	_Meta->registerConstructor(domGl_pipeline_settings::domStencil_op::domZpass::create);
+	_Meta->registerClass(domGl_pipeline_settings::domStencil_op::domZpass::create, &_Meta);
 
 	_Meta->setIsInnerClass( true );
 
@@ -2580,7 +2580,7 @@ domGl_pipeline_settings::domStencil_func_separate::registerElement()
     
     _Meta = new daeMetaElement;
     _Meta->setName( "stencil_func_separate" );
-	_Meta->registerConstructor(domGl_pipeline_settings::domStencil_func_separate::create);
+	_Meta->registerClass(domGl_pipeline_settings::domStencil_func_separate::create, &_Meta);
 
 	_Meta->setIsInnerClass( true );
 	daeMetaCMPolicy *cm = NULL;
@@ -2636,7 +2636,7 @@ domGl_pipeline_settings::domStencil_func_separate::domFront::registerElement()
     
     _Meta = new daeMetaElement;
     _Meta->setName( "front" );
-	_Meta->registerConstructor(domGl_pipeline_settings::domStencil_func_separate::domFront::create);
+	_Meta->registerClass(domGl_pipeline_settings::domStencil_func_separate::domFront::create, &_Meta);
 
 	_Meta->setIsInnerClass( true );
 
@@ -2687,7 +2687,7 @@ domGl_pipeline_settings::domStencil_func_separate::domBack::registerElement()
     
     _Meta = new daeMetaElement;
     _Meta->setName( "back" );
-	_Meta->registerConstructor(domGl_pipeline_settings::domStencil_func_separate::domBack::create);
+	_Meta->registerClass(domGl_pipeline_settings::domStencil_func_separate::domBack::create, &_Meta);
 
 	_Meta->setIsInnerClass( true );
 
@@ -2738,7 +2738,7 @@ domGl_pipeline_settings::domStencil_func_separate::domRef::registerElement()
     
     _Meta = new daeMetaElement;
     _Meta->setName( "ref" );
-	_Meta->registerConstructor(domGl_pipeline_settings::domStencil_func_separate::domRef::create);
+	_Meta->registerClass(domGl_pipeline_settings::domStencil_func_separate::domRef::create, &_Meta);
 
 	_Meta->setIsInnerClass( true );
 
@@ -2789,7 +2789,7 @@ domGl_pipeline_settings::domStencil_func_separate::domMask::registerElement()
     
     _Meta = new daeMetaElement;
     _Meta->setName( "mask" );
-	_Meta->registerConstructor(domGl_pipeline_settings::domStencil_func_separate::domMask::create);
+	_Meta->registerClass(domGl_pipeline_settings::domStencil_func_separate::domMask::create, &_Meta);
 
 	_Meta->setIsInnerClass( true );
 
@@ -2840,7 +2840,7 @@ domGl_pipeline_settings::domStencil_op_separate::registerElement()
     
     _Meta = new daeMetaElement;
     _Meta->setName( "stencil_op_separate" );
-	_Meta->registerConstructor(domGl_pipeline_settings::domStencil_op_separate::create);
+	_Meta->registerClass(domGl_pipeline_settings::domStencil_op_separate::create, &_Meta);
 
 	_Meta->setIsInnerClass( true );
 	daeMetaCMPolicy *cm = NULL;
@@ -2896,7 +2896,7 @@ domGl_pipeline_settings::domStencil_op_separate::domFace::registerElement()
     
     _Meta = new daeMetaElement;
     _Meta->setName( "face" );
-	_Meta->registerConstructor(domGl_pipeline_settings::domStencil_op_separate::domFace::create);
+	_Meta->registerClass(domGl_pipeline_settings::domStencil_op_separate::domFace::create, &_Meta);
 
 	_Meta->setIsInnerClass( true );
 
@@ -2947,7 +2947,7 @@ domGl_pipeline_settings::domStencil_op_separate::domFail::registerElement()
     
     _Meta = new daeMetaElement;
     _Meta->setName( "fail" );
-	_Meta->registerConstructor(domGl_pipeline_settings::domStencil_op_separate::domFail::create);
+	_Meta->registerClass(domGl_pipeline_settings::domStencil_op_separate::domFail::create, &_Meta);
 
 	_Meta->setIsInnerClass( true );
 
@@ -2998,7 +2998,7 @@ domGl_pipeline_settings::domStencil_op_separate::domZfail::registerElement()
     
     _Meta = new daeMetaElement;
     _Meta->setName( "zfail" );
-	_Meta->registerConstructor(domGl_pipeline_settings::domStencil_op_separate::domZfail::create);
+	_Meta->registerClass(domGl_pipeline_settings::domStencil_op_separate::domZfail::create, &_Meta);
 
 	_Meta->setIsInnerClass( true );
 
@@ -3049,7 +3049,7 @@ domGl_pipeline_settings::domStencil_op_separate::domZpass::registerElement()
     
     _Meta = new daeMetaElement;
     _Meta->setName( "zpass" );
-	_Meta->registerConstructor(domGl_pipeline_settings::domStencil_op_separate::domZpass::create);
+	_Meta->registerClass(domGl_pipeline_settings::domStencil_op_separate::domZpass::create, &_Meta);
 
 	_Meta->setIsInnerClass( true );
 
@@ -3100,7 +3100,7 @@ domGl_pipeline_settings::domStencil_mask_separate::registerElement()
     
     _Meta = new daeMetaElement;
     _Meta->setName( "stencil_mask_separate" );
-	_Meta->registerConstructor(domGl_pipeline_settings::domStencil_mask_separate::create);
+	_Meta->registerClass(domGl_pipeline_settings::domStencil_mask_separate::create, &_Meta);
 
 	_Meta->setIsInnerClass( true );
 	daeMetaCMPolicy *cm = NULL;
@@ -3144,7 +3144,7 @@ domGl_pipeline_settings::domStencil_mask_separate::domFace::registerElement()
     
     _Meta = new daeMetaElement;
     _Meta->setName( "face" );
-	_Meta->registerConstructor(domGl_pipeline_settings::domStencil_mask_separate::domFace::create);
+	_Meta->registerClass(domGl_pipeline_settings::domStencil_mask_separate::domFace::create, &_Meta);
 
 	_Meta->setIsInnerClass( true );
 
@@ -3195,7 +3195,7 @@ domGl_pipeline_settings::domStencil_mask_separate::domMask::registerElement()
     
     _Meta = new daeMetaElement;
     _Meta->setName( "mask" );
-	_Meta->registerConstructor(domGl_pipeline_settings::domStencil_mask_separate::domMask::create);
+	_Meta->registerClass(domGl_pipeline_settings::domStencil_mask_separate::domMask::create, &_Meta);
 
 	_Meta->setIsInnerClass( true );
 
@@ -3246,7 +3246,7 @@ domGl_pipeline_settings::domLight_enable::registerElement()
     
     _Meta = new daeMetaElement;
     _Meta->setName( "light_enable" );
-	_Meta->registerConstructor(domGl_pipeline_settings::domLight_enable::create);
+	_Meta->registerClass(domGl_pipeline_settings::domLight_enable::create, &_Meta);
 
 	_Meta->setIsInnerClass( true );
 
@@ -3309,7 +3309,7 @@ domGl_pipeline_settings::domLight_ambient::registerElement()
     
     _Meta = new daeMetaElement;
     _Meta->setName( "light_ambient" );
-	_Meta->registerConstructor(domGl_pipeline_settings::domLight_ambient::create);
+	_Meta->registerClass(domGl_pipeline_settings::domLight_ambient::create, &_Meta);
 
 	_Meta->setIsInnerClass( true );
 
@@ -3372,7 +3372,7 @@ domGl_pipeline_settings::domLight_diffuse::registerElement()
     
     _Meta = new daeMetaElement;
     _Meta->setName( "light_diffuse" );
-	_Meta->registerConstructor(domGl_pipeline_settings::domLight_diffuse::create);
+	_Meta->registerClass(domGl_pipeline_settings::domLight_diffuse::create, &_Meta);
 
 	_Meta->setIsInnerClass( true );
 
@@ -3435,7 +3435,7 @@ domGl_pipeline_settings::domLight_specular::registerElement()
     
     _Meta = new daeMetaElement;
     _Meta->setName( "light_specular" );
-	_Meta->registerConstructor(domGl_pipeline_settings::domLight_specular::create);
+	_Meta->registerClass(domGl_pipeline_settings::domLight_specular::create, &_Meta);
 
 	_Meta->setIsInnerClass( true );
 
@@ -3498,7 +3498,7 @@ domGl_pipeline_settings::domLight_position::registerElement()
     
     _Meta = new daeMetaElement;
     _Meta->setName( "light_position" );
-	_Meta->registerConstructor(domGl_pipeline_settings::domLight_position::create);
+	_Meta->registerClass(domGl_pipeline_settings::domLight_position::create, &_Meta);
 
 	_Meta->setIsInnerClass( true );
 
@@ -3561,7 +3561,7 @@ domGl_pipeline_settings::domLight_constant_attenuation::registerElement()
     
     _Meta = new daeMetaElement;
     _Meta->setName( "light_constant_attenuation" );
-	_Meta->registerConstructor(domGl_pipeline_settings::domLight_constant_attenuation::create);
+	_Meta->registerClass(domGl_pipeline_settings::domLight_constant_attenuation::create, &_Meta);
 
 	_Meta->setIsInnerClass( true );
 
@@ -3624,7 +3624,7 @@ domGl_pipeline_settings::domLight_linear_attenuation::registerElement()
     
     _Meta = new daeMetaElement;
     _Meta->setName( "light_linear_attenuation" );
-	_Meta->registerConstructor(domGl_pipeline_settings::domLight_linear_attenuation::create);
+	_Meta->registerClass(domGl_pipeline_settings::domLight_linear_attenuation::create, &_Meta);
 
 	_Meta->setIsInnerClass( true );
 
@@ -3687,7 +3687,7 @@ domGl_pipeline_settings::domLight_quadratic_attenuation::registerElement()
     
     _Meta = new daeMetaElement;
     _Meta->setName( "light_quadratic_attenuation" );
-	_Meta->registerConstructor(domGl_pipeline_settings::domLight_quadratic_attenuation::create);
+	_Meta->registerClass(domGl_pipeline_settings::domLight_quadratic_attenuation::create, &_Meta);
 
 	_Meta->setIsInnerClass( true );
 
@@ -3750,7 +3750,7 @@ domGl_pipeline_settings::domLight_spot_cutoff::registerElement()
     
     _Meta = new daeMetaElement;
     _Meta->setName( "light_spot_cutoff" );
-	_Meta->registerConstructor(domGl_pipeline_settings::domLight_spot_cutoff::create);
+	_Meta->registerClass(domGl_pipeline_settings::domLight_spot_cutoff::create, &_Meta);
 
 	_Meta->setIsInnerClass( true );
 
@@ -3813,7 +3813,7 @@ domGl_pipeline_settings::domLight_spot_direction::registerElement()
     
     _Meta = new daeMetaElement;
     _Meta->setName( "light_spot_direction" );
-	_Meta->registerConstructor(domGl_pipeline_settings::domLight_spot_direction::create);
+	_Meta->registerClass(domGl_pipeline_settings::domLight_spot_direction::create, &_Meta);
 
 	_Meta->setIsInnerClass( true );
 
@@ -3876,7 +3876,7 @@ domGl_pipeline_settings::domLight_spot_exponent::registerElement()
     
     _Meta = new daeMetaElement;
     _Meta->setName( "light_spot_exponent" );
-	_Meta->registerConstructor(domGl_pipeline_settings::domLight_spot_exponent::create);
+	_Meta->registerClass(domGl_pipeline_settings::domLight_spot_exponent::create, &_Meta);
 
 	_Meta->setIsInnerClass( true );
 
@@ -3939,7 +3939,7 @@ domGl_pipeline_settings::domTexture1D::registerElement()
     
     _Meta = new daeMetaElement;
     _Meta->setName( "texture1D" );
-	_Meta->registerConstructor(domGl_pipeline_settings::domTexture1D::create);
+	_Meta->registerClass(domGl_pipeline_settings::domTexture1D::create, &_Meta);
 
 	_Meta->setIsInnerClass( true );
 	daeMetaCMPolicy *cm = NULL;
@@ -3999,7 +3999,7 @@ domGl_pipeline_settings::domTexture1D::domParam::registerElement()
     
     _Meta = new daeMetaElement;
     _Meta->setName( "param" );
-	_Meta->registerConstructor(domGl_pipeline_settings::domTexture1D::domParam::create);
+	_Meta->registerClass(domGl_pipeline_settings::domTexture1D::domParam::create, &_Meta);
 
 	_Meta->setIsInnerClass( true );
 	//	Add attribute: _value
@@ -4034,7 +4034,7 @@ domGl_pipeline_settings::domTexture2D::registerElement()
     
     _Meta = new daeMetaElement;
     _Meta->setName( "texture2D" );
-	_Meta->registerConstructor(domGl_pipeline_settings::domTexture2D::create);
+	_Meta->registerClass(domGl_pipeline_settings::domTexture2D::create, &_Meta);
 
 	_Meta->setIsInnerClass( true );
 	daeMetaCMPolicy *cm = NULL;
@@ -4094,7 +4094,7 @@ domGl_pipeline_settings::domTexture2D::domParam::registerElement()
     
     _Meta = new daeMetaElement;
     _Meta->setName( "param" );
-	_Meta->registerConstructor(domGl_pipeline_settings::domTexture2D::domParam::create);
+	_Meta->registerClass(domGl_pipeline_settings::domTexture2D::domParam::create, &_Meta);
 
 	_Meta->setIsInnerClass( true );
 	//	Add attribute: _value
@@ -4129,7 +4129,7 @@ domGl_pipeline_settings::domTexture3D::registerElement()
     
     _Meta = new daeMetaElement;
     _Meta->setName( "texture3D" );
-	_Meta->registerConstructor(domGl_pipeline_settings::domTexture3D::create);
+	_Meta->registerClass(domGl_pipeline_settings::domTexture3D::create, &_Meta);
 
 	_Meta->setIsInnerClass( true );
 	daeMetaCMPolicy *cm = NULL;
@@ -4189,7 +4189,7 @@ domGl_pipeline_settings::domTexture3D::domParam::registerElement()
     
     _Meta = new daeMetaElement;
     _Meta->setName( "param" );
-	_Meta->registerConstructor(domGl_pipeline_settings::domTexture3D::domParam::create);
+	_Meta->registerClass(domGl_pipeline_settings::domTexture3D::domParam::create, &_Meta);
 
 	_Meta->setIsInnerClass( true );
 	//	Add attribute: _value
@@ -4224,7 +4224,7 @@ domGl_pipeline_settings::domTextureCUBE::registerElement()
     
     _Meta = new daeMetaElement;
     _Meta->setName( "textureCUBE" );
-	_Meta->registerConstructor(domGl_pipeline_settings::domTextureCUBE::create);
+	_Meta->registerClass(domGl_pipeline_settings::domTextureCUBE::create, &_Meta);
 
 	_Meta->setIsInnerClass( true );
 	daeMetaCMPolicy *cm = NULL;
@@ -4284,7 +4284,7 @@ domGl_pipeline_settings::domTextureCUBE::domParam::registerElement()
     
     _Meta = new daeMetaElement;
     _Meta->setName( "param" );
-	_Meta->registerConstructor(domGl_pipeline_settings::domTextureCUBE::domParam::create);
+	_Meta->registerClass(domGl_pipeline_settings::domTextureCUBE::domParam::create, &_Meta);
 
 	_Meta->setIsInnerClass( true );
 	//	Add attribute: _value
@@ -4319,7 +4319,7 @@ domGl_pipeline_settings::domTextureRECT::registerElement()
     
     _Meta = new daeMetaElement;
     _Meta->setName( "textureRECT" );
-	_Meta->registerConstructor(domGl_pipeline_settings::domTextureRECT::create);
+	_Meta->registerClass(domGl_pipeline_settings::domTextureRECT::create, &_Meta);
 
 	_Meta->setIsInnerClass( true );
 	daeMetaCMPolicy *cm = NULL;
@@ -4379,7 +4379,7 @@ domGl_pipeline_settings::domTextureRECT::domParam::registerElement()
     
     _Meta = new daeMetaElement;
     _Meta->setName( "param" );
-	_Meta->registerConstructor(domGl_pipeline_settings::domTextureRECT::domParam::create);
+	_Meta->registerClass(domGl_pipeline_settings::domTextureRECT::domParam::create, &_Meta);
 
 	_Meta->setIsInnerClass( true );
 	//	Add attribute: _value
@@ -4414,7 +4414,7 @@ domGl_pipeline_settings::domTextureDEPTH::registerElement()
     
     _Meta = new daeMetaElement;
     _Meta->setName( "textureDEPTH" );
-	_Meta->registerConstructor(domGl_pipeline_settings::domTextureDEPTH::create);
+	_Meta->registerClass(domGl_pipeline_settings::domTextureDEPTH::create, &_Meta);
 
 	_Meta->setIsInnerClass( true );
 	daeMetaCMPolicy *cm = NULL;
@@ -4474,7 +4474,7 @@ domGl_pipeline_settings::domTextureDEPTH::domParam::registerElement()
     
     _Meta = new daeMetaElement;
     _Meta->setName( "param" );
-	_Meta->registerConstructor(domGl_pipeline_settings::domTextureDEPTH::domParam::create);
+	_Meta->registerClass(domGl_pipeline_settings::domTextureDEPTH::domParam::create, &_Meta);
 
 	_Meta->setIsInnerClass( true );
 	//	Add attribute: _value
@@ -4509,7 +4509,7 @@ domGl_pipeline_settings::domTexture1D_enable::registerElement()
     
     _Meta = new daeMetaElement;
     _Meta->setName( "texture1D_enable" );
-	_Meta->registerConstructor(domGl_pipeline_settings::domTexture1D_enable::create);
+	_Meta->registerClass(domGl_pipeline_settings::domTexture1D_enable::create, &_Meta);
 
 	_Meta->setIsInnerClass( true );
 
@@ -4571,7 +4571,7 @@ domGl_pipeline_settings::domTexture2D_enable::registerElement()
     
     _Meta = new daeMetaElement;
     _Meta->setName( "texture2D_enable" );
-	_Meta->registerConstructor(domGl_pipeline_settings::domTexture2D_enable::create);
+	_Meta->registerClass(domGl_pipeline_settings::domTexture2D_enable::create, &_Meta);
 
 	_Meta->setIsInnerClass( true );
 
@@ -4633,7 +4633,7 @@ domGl_pipeline_settings::domTexture3D_enable::registerElement()
     
     _Meta = new daeMetaElement;
     _Meta->setName( "texture3D_enable" );
-	_Meta->registerConstructor(domGl_pipeline_settings::domTexture3D_enable::create);
+	_Meta->registerClass(domGl_pipeline_settings::domTexture3D_enable::create, &_Meta);
 
 	_Meta->setIsInnerClass( true );
 
@@ -4695,7 +4695,7 @@ domGl_pipeline_settings::domTextureCUBE_enable::registerElement()
     
     _Meta = new daeMetaElement;
     _Meta->setName( "textureCUBE_enable" );
-	_Meta->registerConstructor(domGl_pipeline_settings::domTextureCUBE_enable::create);
+	_Meta->registerClass(domGl_pipeline_settings::domTextureCUBE_enable::create, &_Meta);
 
 	_Meta->setIsInnerClass( true );
 
@@ -4757,7 +4757,7 @@ domGl_pipeline_settings::domTextureRECT_enable::registerElement()
     
     _Meta = new daeMetaElement;
     _Meta->setName( "textureRECT_enable" );
-	_Meta->registerConstructor(domGl_pipeline_settings::domTextureRECT_enable::create);
+	_Meta->registerClass(domGl_pipeline_settings::domTextureRECT_enable::create, &_Meta);
 
 	_Meta->setIsInnerClass( true );
 
@@ -4819,7 +4819,7 @@ domGl_pipeline_settings::domTextureDEPTH_enable::registerElement()
     
     _Meta = new daeMetaElement;
     _Meta->setName( "textureDEPTH_enable" );
-	_Meta->registerConstructor(domGl_pipeline_settings::domTextureDEPTH_enable::create);
+	_Meta->registerClass(domGl_pipeline_settings::domTextureDEPTH_enable::create, &_Meta);
 
 	_Meta->setIsInnerClass( true );
 
@@ -4881,7 +4881,7 @@ domGl_pipeline_settings::domTexture_env_color::registerElement()
     
     _Meta = new daeMetaElement;
     _Meta->setName( "texture_env_color" );
-	_Meta->registerConstructor(domGl_pipeline_settings::domTexture_env_color::create);
+	_Meta->registerClass(domGl_pipeline_settings::domTexture_env_color::create, &_Meta);
 
 	_Meta->setIsInnerClass( true );
 
@@ -4942,7 +4942,7 @@ domGl_pipeline_settings::domTexture_env_mode::registerElement()
     
     _Meta = new daeMetaElement;
     _Meta->setName( "texture_env_mode" );
-	_Meta->registerConstructor(domGl_pipeline_settings::domTexture_env_mode::create);
+	_Meta->registerClass(domGl_pipeline_settings::domTexture_env_mode::create, &_Meta);
 
 	_Meta->setIsInnerClass( true );
 
@@ -5003,7 +5003,7 @@ domGl_pipeline_settings::domClip_plane::registerElement()
     
     _Meta = new daeMetaElement;
     _Meta->setName( "clip_plane" );
-	_Meta->registerConstructor(domGl_pipeline_settings::domClip_plane::create);
+	_Meta->registerClass(domGl_pipeline_settings::domClip_plane::create, &_Meta);
 
 	_Meta->setIsInnerClass( true );
 
@@ -5065,7 +5065,7 @@ domGl_pipeline_settings::domClip_plane_enable::registerElement()
     
     _Meta = new daeMetaElement;
     _Meta->setName( "clip_plane_enable" );
-	_Meta->registerConstructor(domGl_pipeline_settings::domClip_plane_enable::create);
+	_Meta->registerClass(domGl_pipeline_settings::domClip_plane_enable::create, &_Meta);
 
 	_Meta->setIsInnerClass( true );
 
@@ -5127,7 +5127,7 @@ domGl_pipeline_settings::domBlend_color::registerElement()
     
     _Meta = new daeMetaElement;
     _Meta->setName( "blend_color" );
-	_Meta->registerConstructor(domGl_pipeline_settings::domBlend_color::create);
+	_Meta->registerClass(domGl_pipeline_settings::domBlend_color::create, &_Meta);
 
 	_Meta->setIsInnerClass( true );
 
@@ -5178,7 +5178,7 @@ domGl_pipeline_settings::domClear_color::registerElement()
     
     _Meta = new daeMetaElement;
     _Meta->setName( "clear_color" );
-	_Meta->registerConstructor(domGl_pipeline_settings::domClear_color::create);
+	_Meta->registerClass(domGl_pipeline_settings::domClear_color::create, &_Meta);
 
 	_Meta->setIsInnerClass( true );
 
@@ -5229,7 +5229,7 @@ domGl_pipeline_settings::domClear_stencil::registerElement()
     
     _Meta = new daeMetaElement;
     _Meta->setName( "clear_stencil" );
-	_Meta->registerConstructor(domGl_pipeline_settings::domClear_stencil::create);
+	_Meta->registerClass(domGl_pipeline_settings::domClear_stencil::create, &_Meta);
 
 	_Meta->setIsInnerClass( true );
 
@@ -5280,7 +5280,7 @@ domGl_pipeline_settings::domClear_depth::registerElement()
     
     _Meta = new daeMetaElement;
     _Meta->setName( "clear_depth" );
-	_Meta->registerConstructor(domGl_pipeline_settings::domClear_depth::create);
+	_Meta->registerClass(domGl_pipeline_settings::domClear_depth::create, &_Meta);
 
 	_Meta->setIsInnerClass( true );
 
@@ -5331,7 +5331,7 @@ domGl_pipeline_settings::domColor_mask::registerElement()
     
     _Meta = new daeMetaElement;
     _Meta->setName( "color_mask" );
-	_Meta->registerConstructor(domGl_pipeline_settings::domColor_mask::create);
+	_Meta->registerClass(domGl_pipeline_settings::domColor_mask::create, &_Meta);
 
 	_Meta->setIsInnerClass( true );
 
@@ -5382,7 +5382,7 @@ domGl_pipeline_settings::domDepth_bounds::registerElement()
     
     _Meta = new daeMetaElement;
     _Meta->setName( "depth_bounds" );
-	_Meta->registerConstructor(domGl_pipeline_settings::domDepth_bounds::create);
+	_Meta->registerClass(domGl_pipeline_settings::domDepth_bounds::create, &_Meta);
 
 	_Meta->setIsInnerClass( true );
 
@@ -5432,7 +5432,7 @@ domGl_pipeline_settings::domDepth_mask::registerElement()
     
     _Meta = new daeMetaElement;
     _Meta->setName( "depth_mask" );
-	_Meta->registerConstructor(domGl_pipeline_settings::domDepth_mask::create);
+	_Meta->registerClass(domGl_pipeline_settings::domDepth_mask::create, &_Meta);
 
 	_Meta->setIsInnerClass( true );
 
@@ -5483,7 +5483,7 @@ domGl_pipeline_settings::domDepth_range::registerElement()
     
     _Meta = new daeMetaElement;
     _Meta->setName( "depth_range" );
-	_Meta->registerConstructor(domGl_pipeline_settings::domDepth_range::create);
+	_Meta->registerClass(domGl_pipeline_settings::domDepth_range::create, &_Meta);
 
 	_Meta->setIsInnerClass( true );
 
@@ -5534,7 +5534,7 @@ domGl_pipeline_settings::domFog_density::registerElement()
     
     _Meta = new daeMetaElement;
     _Meta->setName( "fog_density" );
-	_Meta->registerConstructor(domGl_pipeline_settings::domFog_density::create);
+	_Meta->registerClass(domGl_pipeline_settings::domFog_density::create, &_Meta);
 
 	_Meta->setIsInnerClass( true );
 
@@ -5585,7 +5585,7 @@ domGl_pipeline_settings::domFog_start::registerElement()
     
     _Meta = new daeMetaElement;
     _Meta->setName( "fog_start" );
-	_Meta->registerConstructor(domGl_pipeline_settings::domFog_start::create);
+	_Meta->registerClass(domGl_pipeline_settings::domFog_start::create, &_Meta);
 
 	_Meta->setIsInnerClass( true );
 
@@ -5636,7 +5636,7 @@ domGl_pipeline_settings::domFog_end::registerElement()
     
     _Meta = new daeMetaElement;
     _Meta->setName( "fog_end" );
-	_Meta->registerConstructor(domGl_pipeline_settings::domFog_end::create);
+	_Meta->registerClass(domGl_pipeline_settings::domFog_end::create, &_Meta);
 
 	_Meta->setIsInnerClass( true );
 
@@ -5687,7 +5687,7 @@ domGl_pipeline_settings::domFog_color::registerElement()
     
     _Meta = new daeMetaElement;
     _Meta->setName( "fog_color" );
-	_Meta->registerConstructor(domGl_pipeline_settings::domFog_color::create);
+	_Meta->registerClass(domGl_pipeline_settings::domFog_color::create, &_Meta);
 
 	_Meta->setIsInnerClass( true );
 
@@ -5738,7 +5738,7 @@ domGl_pipeline_settings::domLight_model_ambient::registerElement()
     
     _Meta = new daeMetaElement;
     _Meta->setName( "light_model_ambient" );
-	_Meta->registerConstructor(domGl_pipeline_settings::domLight_model_ambient::create);
+	_Meta->registerClass(domGl_pipeline_settings::domLight_model_ambient::create, &_Meta);
 
 	_Meta->setIsInnerClass( true );
 
@@ -5789,7 +5789,7 @@ domGl_pipeline_settings::domLighting_enable::registerElement()
     
     _Meta = new daeMetaElement;
     _Meta->setName( "lighting_enable" );
-	_Meta->registerConstructor(domGl_pipeline_settings::domLighting_enable::create);
+	_Meta->registerClass(domGl_pipeline_settings::domLighting_enable::create, &_Meta);
 
 	_Meta->setIsInnerClass( true );
 
@@ -5840,7 +5840,7 @@ domGl_pipeline_settings::domLine_stipple::registerElement()
     
     _Meta = new daeMetaElement;
     _Meta->setName( "line_stipple" );
-	_Meta->registerConstructor(domGl_pipeline_settings::domLine_stipple::create);
+	_Meta->registerClass(domGl_pipeline_settings::domLine_stipple::create, &_Meta);
 
 	_Meta->setIsInnerClass( true );
 
@@ -5891,7 +5891,7 @@ domGl_pipeline_settings::domLine_width::registerElement()
     
     _Meta = new daeMetaElement;
     _Meta->setName( "line_width" );
-	_Meta->registerConstructor(domGl_pipeline_settings::domLine_width::create);
+	_Meta->registerClass(domGl_pipeline_settings::domLine_width::create, &_Meta);
 
 	_Meta->setIsInnerClass( true );
 
@@ -5942,7 +5942,7 @@ domGl_pipeline_settings::domMaterial_ambient::registerElement()
     
     _Meta = new daeMetaElement;
     _Meta->setName( "material_ambient" );
-	_Meta->registerConstructor(domGl_pipeline_settings::domMaterial_ambient::create);
+	_Meta->registerClass(domGl_pipeline_settings::domMaterial_ambient::create, &_Meta);
 
 	_Meta->setIsInnerClass( true );
 
@@ -5993,7 +5993,7 @@ domGl_pipeline_settings::domMaterial_diffuse::registerElement()
     
     _Meta = new daeMetaElement;
     _Meta->setName( "material_diffuse" );
-	_Meta->registerConstructor(domGl_pipeline_settings::domMaterial_diffuse::create);
+	_Meta->registerClass(domGl_pipeline_settings::domMaterial_diffuse::create, &_Meta);
 
 	_Meta->setIsInnerClass( true );
 
@@ -6044,7 +6044,7 @@ domGl_pipeline_settings::domMaterial_emission::registerElement()
     
     _Meta = new daeMetaElement;
     _Meta->setName( "material_emission" );
-	_Meta->registerConstructor(domGl_pipeline_settings::domMaterial_emission::create);
+	_Meta->registerClass(domGl_pipeline_settings::domMaterial_emission::create, &_Meta);
 
 	_Meta->setIsInnerClass( true );
 
@@ -6095,7 +6095,7 @@ domGl_pipeline_settings::domMaterial_shininess::registerElement()
     
     _Meta = new daeMetaElement;
     _Meta->setName( "material_shininess" );
-	_Meta->registerConstructor(domGl_pipeline_settings::domMaterial_shininess::create);
+	_Meta->registerClass(domGl_pipeline_settings::domMaterial_shininess::create, &_Meta);
 
 	_Meta->setIsInnerClass( true );
 
@@ -6146,7 +6146,7 @@ domGl_pipeline_settings::domMaterial_specular::registerElement()
     
     _Meta = new daeMetaElement;
     _Meta->setName( "material_specular" );
-	_Meta->registerConstructor(domGl_pipeline_settings::domMaterial_specular::create);
+	_Meta->registerClass(domGl_pipeline_settings::domMaterial_specular::create, &_Meta);
 
 	_Meta->setIsInnerClass( true );
 
@@ -6197,7 +6197,7 @@ domGl_pipeline_settings::domModel_view_matrix::registerElement()
     
     _Meta = new daeMetaElement;
     _Meta->setName( "model_view_matrix" );
-	_Meta->registerConstructor(domGl_pipeline_settings::domModel_view_matrix::create);
+	_Meta->registerClass(domGl_pipeline_settings::domModel_view_matrix::create, &_Meta);
 
 	_Meta->setIsInnerClass( true );
 
@@ -6248,7 +6248,7 @@ domGl_pipeline_settings::domPoint_distance_attenuation::registerElement()
     
     _Meta = new daeMetaElement;
     _Meta->setName( "point_distance_attenuation" );
-	_Meta->registerConstructor(domGl_pipeline_settings::domPoint_distance_attenuation::create);
+	_Meta->registerClass(domGl_pipeline_settings::domPoint_distance_attenuation::create, &_Meta);
 
 	_Meta->setIsInnerClass( true );
 
@@ -6299,7 +6299,7 @@ domGl_pipeline_settings::domPoint_fade_threshold_size::registerElement()
     
     _Meta = new daeMetaElement;
     _Meta->setName( "point_fade_threshold_size" );
-	_Meta->registerConstructor(domGl_pipeline_settings::domPoint_fade_threshold_size::create);
+	_Meta->registerClass(domGl_pipeline_settings::domPoint_fade_threshold_size::create, &_Meta);
 
 	_Meta->setIsInnerClass( true );
 
@@ -6350,7 +6350,7 @@ domGl_pipeline_settings::domPoint_size::registerElement()
     
     _Meta = new daeMetaElement;
     _Meta->setName( "point_size" );
-	_Meta->registerConstructor(domGl_pipeline_settings::domPoint_size::create);
+	_Meta->registerClass(domGl_pipeline_settings::domPoint_size::create, &_Meta);
 
 	_Meta->setIsInnerClass( true );
 
@@ -6401,7 +6401,7 @@ domGl_pipeline_settings::domPoint_size_min::registerElement()
     
     _Meta = new daeMetaElement;
     _Meta->setName( "point_size_min" );
-	_Meta->registerConstructor(domGl_pipeline_settings::domPoint_size_min::create);
+	_Meta->registerClass(domGl_pipeline_settings::domPoint_size_min::create, &_Meta);
 
 	_Meta->setIsInnerClass( true );
 
@@ -6452,7 +6452,7 @@ domGl_pipeline_settings::domPoint_size_max::registerElement()
     
     _Meta = new daeMetaElement;
     _Meta->setName( "point_size_max" );
-	_Meta->registerConstructor(domGl_pipeline_settings::domPoint_size_max::create);
+	_Meta->registerClass(domGl_pipeline_settings::domPoint_size_max::create, &_Meta);
 
 	_Meta->setIsInnerClass( true );
 
@@ -6503,7 +6503,7 @@ domGl_pipeline_settings::domPolygon_offset::registerElement()
     
     _Meta = new daeMetaElement;
     _Meta->setName( "polygon_offset" );
-	_Meta->registerConstructor(domGl_pipeline_settings::domPolygon_offset::create);
+	_Meta->registerClass(domGl_pipeline_settings::domPolygon_offset::create, &_Meta);
 
 	_Meta->setIsInnerClass( true );
 
@@ -6554,7 +6554,7 @@ domGl_pipeline_settings::domProjection_matrix::registerElement()
     
     _Meta = new daeMetaElement;
     _Meta->setName( "projection_matrix" );
-	_Meta->registerConstructor(domGl_pipeline_settings::domProjection_matrix::create);
+	_Meta->registerClass(domGl_pipeline_settings::domProjection_matrix::create, &_Meta);
 
 	_Meta->setIsInnerClass( true );
 
@@ -6605,7 +6605,7 @@ domGl_pipeline_settings::domScissor::registerElement()
     
     _Meta = new daeMetaElement;
     _Meta->setName( "scissor" );
-	_Meta->registerConstructor(domGl_pipeline_settings::domScissor::create);
+	_Meta->registerClass(domGl_pipeline_settings::domScissor::create, &_Meta);
 
 	_Meta->setIsInnerClass( true );
 
@@ -6655,7 +6655,7 @@ domGl_pipeline_settings::domStencil_mask::registerElement()
     
     _Meta = new daeMetaElement;
     _Meta->setName( "stencil_mask" );
-	_Meta->registerConstructor(domGl_pipeline_settings::domStencil_mask::create);
+	_Meta->registerClass(domGl_pipeline_settings::domStencil_mask::create, &_Meta);
 
 	_Meta->setIsInnerClass( true );
 
@@ -6706,7 +6706,7 @@ domGl_pipeline_settings::domAlpha_test_enable::registerElement()
     
     _Meta = new daeMetaElement;
     _Meta->setName( "alpha_test_enable" );
-	_Meta->registerConstructor(domGl_pipeline_settings::domAlpha_test_enable::create);
+	_Meta->registerClass(domGl_pipeline_settings::domAlpha_test_enable::create, &_Meta);
 
 	_Meta->setIsInnerClass( true );
 
@@ -6757,7 +6757,7 @@ domGl_pipeline_settings::domAuto_normal_enable::registerElement()
     
     _Meta = new daeMetaElement;
     _Meta->setName( "auto_normal_enable" );
-	_Meta->registerConstructor(domGl_pipeline_settings::domAuto_normal_enable::create);
+	_Meta->registerClass(domGl_pipeline_settings::domAuto_normal_enable::create, &_Meta);
 
 	_Meta->setIsInnerClass( true );
 
@@ -6808,7 +6808,7 @@ domGl_pipeline_settings::domBlend_enable::registerElement()
     
     _Meta = new daeMetaElement;
     _Meta->setName( "blend_enable" );
-	_Meta->registerConstructor(domGl_pipeline_settings::domBlend_enable::create);
+	_Meta->registerClass(domGl_pipeline_settings::domBlend_enable::create, &_Meta);
 
 	_Meta->setIsInnerClass( true );
 
@@ -6859,7 +6859,7 @@ domGl_pipeline_settings::domColor_logic_op_enable::registerElement()
     
     _Meta = new daeMetaElement;
     _Meta->setName( "color_logic_op_enable" );
-	_Meta->registerConstructor(domGl_pipeline_settings::domColor_logic_op_enable::create);
+	_Meta->registerClass(domGl_pipeline_settings::domColor_logic_op_enable::create, &_Meta);
 
 	_Meta->setIsInnerClass( true );
 
@@ -6910,7 +6910,7 @@ domGl_pipeline_settings::domColor_material_enable::registerElement()
     
     _Meta = new daeMetaElement;
     _Meta->setName( "color_material_enable" );
-	_Meta->registerConstructor(domGl_pipeline_settings::domColor_material_enable::create);
+	_Meta->registerClass(domGl_pipeline_settings::domColor_material_enable::create, &_Meta);
 
 	_Meta->setIsInnerClass( true );
 
@@ -6961,7 +6961,7 @@ domGl_pipeline_settings::domCull_face_enable::registerElement()
     
     _Meta = new daeMetaElement;
     _Meta->setName( "cull_face_enable" );
-	_Meta->registerConstructor(domGl_pipeline_settings::domCull_face_enable::create);
+	_Meta->registerClass(domGl_pipeline_settings::domCull_face_enable::create, &_Meta);
 
 	_Meta->setIsInnerClass( true );
 
@@ -7012,7 +7012,7 @@ domGl_pipeline_settings::domDepth_bounds_enable::registerElement()
     
     _Meta = new daeMetaElement;
     _Meta->setName( "depth_bounds_enable" );
-	_Meta->registerConstructor(domGl_pipeline_settings::domDepth_bounds_enable::create);
+	_Meta->registerClass(domGl_pipeline_settings::domDepth_bounds_enable::create, &_Meta);
 
 	_Meta->setIsInnerClass( true );
 
@@ -7063,7 +7063,7 @@ domGl_pipeline_settings::domDepth_clamp_enable::registerElement()
     
     _Meta = new daeMetaElement;
     _Meta->setName( "depth_clamp_enable" );
-	_Meta->registerConstructor(domGl_pipeline_settings::domDepth_clamp_enable::create);
+	_Meta->registerClass(domGl_pipeline_settings::domDepth_clamp_enable::create, &_Meta);
 
 	_Meta->setIsInnerClass( true );
 
@@ -7114,7 +7114,7 @@ domGl_pipeline_settings::domDepth_test_enable::registerElement()
     
     _Meta = new daeMetaElement;
     _Meta->setName( "depth_test_enable" );
-	_Meta->registerConstructor(domGl_pipeline_settings::domDepth_test_enable::create);
+	_Meta->registerClass(domGl_pipeline_settings::domDepth_test_enable::create, &_Meta);
 
 	_Meta->setIsInnerClass( true );
 
@@ -7165,7 +7165,7 @@ domGl_pipeline_settings::domDither_enable::registerElement()
     
     _Meta = new daeMetaElement;
     _Meta->setName( "dither_enable" );
-	_Meta->registerConstructor(domGl_pipeline_settings::domDither_enable::create);
+	_Meta->registerClass(domGl_pipeline_settings::domDither_enable::create, &_Meta);
 
 	_Meta->setIsInnerClass( true );
 
@@ -7216,7 +7216,7 @@ domGl_pipeline_settings::domFog_enable::registerElement()
     
     _Meta = new daeMetaElement;
     _Meta->setName( "fog_enable" );
-	_Meta->registerConstructor(domGl_pipeline_settings::domFog_enable::create);
+	_Meta->registerClass(domGl_pipeline_settings::domFog_enable::create, &_Meta);
 
 	_Meta->setIsInnerClass( true );
 
@@ -7267,7 +7267,7 @@ domGl_pipeline_settings::domLight_model_local_viewer_enable::registerElement()
     
     _Meta = new daeMetaElement;
     _Meta->setName( "light_model_local_viewer_enable" );
-	_Meta->registerConstructor(domGl_pipeline_settings::domLight_model_local_viewer_enable::create);
+	_Meta->registerClass(domGl_pipeline_settings::domLight_model_local_viewer_enable::create, &_Meta);
 
 	_Meta->setIsInnerClass( true );
 
@@ -7318,7 +7318,7 @@ domGl_pipeline_settings::domLight_model_two_side_enable::registerElement()
     
     _Meta = new daeMetaElement;
     _Meta->setName( "light_model_two_side_enable" );
-	_Meta->registerConstructor(domGl_pipeline_settings::domLight_model_two_side_enable::create);
+	_Meta->registerClass(domGl_pipeline_settings::domLight_model_two_side_enable::create, &_Meta);
 
 	_Meta->setIsInnerClass( true );
 
@@ -7369,7 +7369,7 @@ domGl_pipeline_settings::domLine_smooth_enable::registerElement()
     
     _Meta = new daeMetaElement;
     _Meta->setName( "line_smooth_enable" );
-	_Meta->registerConstructor(domGl_pipeline_settings::domLine_smooth_enable::create);
+	_Meta->registerClass(domGl_pipeline_settings::domLine_smooth_enable::create, &_Meta);
 
 	_Meta->setIsInnerClass( true );
 
@@ -7420,7 +7420,7 @@ domGl_pipeline_settings::domLine_stipple_enable::registerElement()
     
     _Meta = new daeMetaElement;
     _Meta->setName( "line_stipple_enable" );
-	_Meta->registerConstructor(domGl_pipeline_settings::domLine_stipple_enable::create);
+	_Meta->registerClass(domGl_pipeline_settings::domLine_stipple_enable::create, &_Meta);
 
 	_Meta->setIsInnerClass( true );
 
@@ -7471,7 +7471,7 @@ domGl_pipeline_settings::domLogic_op_enable::registerElement()
     
     _Meta = new daeMetaElement;
     _Meta->setName( "logic_op_enable" );
-	_Meta->registerConstructor(domGl_pipeline_settings::domLogic_op_enable::create);
+	_Meta->registerClass(domGl_pipeline_settings::domLogic_op_enable::create, &_Meta);
 
 	_Meta->setIsInnerClass( true );
 
@@ -7522,7 +7522,7 @@ domGl_pipeline_settings::domMultisample_enable::registerElement()
     
     _Meta = new daeMetaElement;
     _Meta->setName( "multisample_enable" );
-	_Meta->registerConstructor(domGl_pipeline_settings::domMultisample_enable::create);
+	_Meta->registerClass(domGl_pipeline_settings::domMultisample_enable::create, &_Meta);
 
 	_Meta->setIsInnerClass( true );
 
@@ -7573,7 +7573,7 @@ domGl_pipeline_settings::domNormalize_enable::registerElement()
     
     _Meta = new daeMetaElement;
     _Meta->setName( "normalize_enable" );
-	_Meta->registerConstructor(domGl_pipeline_settings::domNormalize_enable::create);
+	_Meta->registerClass(domGl_pipeline_settings::domNormalize_enable::create, &_Meta);
 
 	_Meta->setIsInnerClass( true );
 
@@ -7624,7 +7624,7 @@ domGl_pipeline_settings::domPoint_smooth_enable::registerElement()
     
     _Meta = new daeMetaElement;
     _Meta->setName( "point_smooth_enable" );
-	_Meta->registerConstructor(domGl_pipeline_settings::domPoint_smooth_enable::create);
+	_Meta->registerClass(domGl_pipeline_settings::domPoint_smooth_enable::create, &_Meta);
 
 	_Meta->setIsInnerClass( true );
 
@@ -7675,7 +7675,7 @@ domGl_pipeline_settings::domPolygon_offset_fill_enable::registerElement()
     
     _Meta = new daeMetaElement;
     _Meta->setName( "polygon_offset_fill_enable" );
-	_Meta->registerConstructor(domGl_pipeline_settings::domPolygon_offset_fill_enable::create);
+	_Meta->registerClass(domGl_pipeline_settings::domPolygon_offset_fill_enable::create, &_Meta);
 
 	_Meta->setIsInnerClass( true );
 
@@ -7726,7 +7726,7 @@ domGl_pipeline_settings::domPolygon_offset_line_enable::registerElement()
     
     _Meta = new daeMetaElement;
     _Meta->setName( "polygon_offset_line_enable" );
-	_Meta->registerConstructor(domGl_pipeline_settings::domPolygon_offset_line_enable::create);
+	_Meta->registerClass(domGl_pipeline_settings::domPolygon_offset_line_enable::create, &_Meta);
 
 	_Meta->setIsInnerClass( true );
 
@@ -7777,7 +7777,7 @@ domGl_pipeline_settings::domPolygon_offset_point_enable::registerElement()
     
     _Meta = new daeMetaElement;
     _Meta->setName( "polygon_offset_point_enable" );
-	_Meta->registerConstructor(domGl_pipeline_settings::domPolygon_offset_point_enable::create);
+	_Meta->registerClass(domGl_pipeline_settings::domPolygon_offset_point_enable::create, &_Meta);
 
 	_Meta->setIsInnerClass( true );
 
@@ -7828,7 +7828,7 @@ domGl_pipeline_settings::domPolygon_smooth_enable::registerElement()
     
     _Meta = new daeMetaElement;
     _Meta->setName( "polygon_smooth_enable" );
-	_Meta->registerConstructor(domGl_pipeline_settings::domPolygon_smooth_enable::create);
+	_Meta->registerClass(domGl_pipeline_settings::domPolygon_smooth_enable::create, &_Meta);
 
 	_Meta->setIsInnerClass( true );
 
@@ -7879,7 +7879,7 @@ domGl_pipeline_settings::domPolygon_stipple_enable::registerElement()
     
     _Meta = new daeMetaElement;
     _Meta->setName( "polygon_stipple_enable" );
-	_Meta->registerConstructor(domGl_pipeline_settings::domPolygon_stipple_enable::create);
+	_Meta->registerClass(domGl_pipeline_settings::domPolygon_stipple_enable::create, &_Meta);
 
 	_Meta->setIsInnerClass( true );
 
@@ -7930,7 +7930,7 @@ domGl_pipeline_settings::domRescale_normal_enable::registerElement()
     
     _Meta = new daeMetaElement;
     _Meta->setName( "rescale_normal_enable" );
-	_Meta->registerConstructor(domGl_pipeline_settings::domRescale_normal_enable::create);
+	_Meta->registerClass(domGl_pipeline_settings::domRescale_normal_enable::create, &_Meta);
 
 	_Meta->setIsInnerClass( true );
 
@@ -7981,7 +7981,7 @@ domGl_pipeline_settings::domSample_alpha_to_coverage_enable::registerElement()
     
     _Meta = new daeMetaElement;
     _Meta->setName( "sample_alpha_to_coverage_enable" );
-	_Meta->registerConstructor(domGl_pipeline_settings::domSample_alpha_to_coverage_enable::create);
+	_Meta->registerClass(domGl_pipeline_settings::domSample_alpha_to_coverage_enable::create, &_Meta);
 
 	_Meta->setIsInnerClass( true );
 
@@ -8032,7 +8032,7 @@ domGl_pipeline_settings::domSample_alpha_to_one_enable::registerElement()
     
     _Meta = new daeMetaElement;
     _Meta->setName( "sample_alpha_to_one_enable" );
-	_Meta->registerConstructor(domGl_pipeline_settings::domSample_alpha_to_one_enable::create);
+	_Meta->registerClass(domGl_pipeline_settings::domSample_alpha_to_one_enable::create, &_Meta);
 
 	_Meta->setIsInnerClass( true );
 
@@ -8083,7 +8083,7 @@ domGl_pipeline_settings::domSample_coverage_enable::registerElement()
     
     _Meta = new daeMetaElement;
     _Meta->setName( "sample_coverage_enable" );
-	_Meta->registerConstructor(domGl_pipeline_settings::domSample_coverage_enable::create);
+	_Meta->registerClass(domGl_pipeline_settings::domSample_coverage_enable::create, &_Meta);
 
 	_Meta->setIsInnerClass( true );
 
@@ -8134,7 +8134,7 @@ domGl_pipeline_settings::domScissor_test_enable::registerElement()
     
     _Meta = new daeMetaElement;
     _Meta->setName( "scissor_test_enable" );
-	_Meta->registerConstructor(domGl_pipeline_settings::domScissor_test_enable::create);
+	_Meta->registerClass(domGl_pipeline_settings::domScissor_test_enable::create, &_Meta);
 
 	_Meta->setIsInnerClass( true );
 
@@ -8185,7 +8185,7 @@ domGl_pipeline_settings::domStencil_test_enable::registerElement()
     
     _Meta = new daeMetaElement;
     _Meta->setName( "stencil_test_enable" );
-	_Meta->registerConstructor(domGl_pipeline_settings::domStencil_test_enable::create);
+	_Meta->registerClass(domGl_pipeline_settings::domStencil_test_enable::create, &_Meta);
 
 	_Meta->setIsInnerClass( true );
 

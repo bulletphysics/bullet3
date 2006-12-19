@@ -70,8 +70,8 @@ daeArray::grow(size_t sz)
 	
 	if (_data != NULL)
 		memcpy(newData,_data,_capacity*_elementSize);
-	else
-		memset(newData,0,_capacity*_elementSize);
+	//else
+	//	memset(newData,0,_capacity*_elementSize);
 	
 	memset(newData+_capacity*_elementSize,0,
 		   (newCapacity-_capacity)*_elementSize);
@@ -82,3 +82,4 @@ daeArray::grow(size_t sz)
 	_data = newData;
 	_capacity = newCapacity;
 }
+

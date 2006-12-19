@@ -21,6 +21,7 @@
 #include <dom.h>
 #include <dae/daeMetaElement.h>
 #include <libxml/xmlreader.h>
+#include <libxml/xmlwriter.h>
 #include <libxml/xmlmemory.h>
 #include <dae/daeErrorHandler.h>
 #include <dae/daeMetaElementAttribute.h>
@@ -84,6 +85,12 @@ daeInt daeLIBXMLPlugin::read(daeURI& uri, daeString docBuffer)
 	// Generate a version of the URI with the fragment removed
 
 	daeURI fileURI(uri.getURI(),true);
+
+	//check if document already exists
+	if ( database->isDocumentLoaded( fileURI.getURI() ) )
+	{
+		return DAE_ERR_COLLECTION_ALREADY_EXISTS;
+	}
 
 	// Create the right type of xmlTextReader on the stack so this function can be re-entrant
 
@@ -682,9 +689,9 @@ void daeLIBXMLPlugin::writeElement( daeElement* element )
 	}
 }
 
-#define TYPE_BUFFER_SIZE 4096
+#define TYPE_BUFFER_SIZE 1024*1024
 
-void daeLIBXMLPlugin::writeAttribute( daeMetaAttribute* attr, daeElement* element, daeInt attrNum )
+/*void daeLIBXMLPlugin::writeAttribute( daeMetaAttribute* attr, daeElement* element, daeInt attrNum )
 {
 	static daeChar atomicTypeBuf[TYPE_BUFFER_SIZE];
 	
@@ -811,4 +818,100 @@ void daeLIBXMLPlugin::writeAttribute( daeMetaAttribute* attr, daeElement* elemen
 			xmlTextWriterEndAttribute( writer );
 		}
 	}
+}*/
+
+void daeLIBXMLPlugin::writeAttribute( daeMetaAttribute* attr, daeElement* element, daeInt attrNum )
+{
+	static daeChar atomicTypeBuf[TYPE_BUFFER_SIZE+1];
+	daeChar *buf = atomicTypeBuf;
+	daeUInt bufSz = TYPE_BUFFER_SIZE;
+
+	size_t valCount = attr->getCount(element);
+	//default values will not check correctly if they are arrays. Luckily there is only one array attribute in COLLADA.
+	//don't write if !required and is set && is default
+
+	int typeSize = attr->getType()->getSize();
+	if ( typeSize >= TYPE_BUFFER_SIZE )
+	{
+		char msg[512];
+		sprintf(msg,
+			"daeMetaAttribute::print() - buffer too small for %s in %s\n",
+			(daeString)attr->getName(),(daeString)attr->getContainer()->getName());
+		daeErrorHandler::get()->handleError( msg );
+		return;
+	}
+
+	if ( !attr->isArrayAttribute() && ( attr->getType()->getTypeEnum() == daeAtomicType::StringRefType || 
+		 attr->getType()->getTypeEnum() == daeAtomicType::TokenType ) &&
+		 *(char**)attr->getWritableMemory( element ) != NULL )
+	{
+		daeUInt sz = (daeUInt)strlen( *(char**)attr->getWritableMemory( element ) ) +1;
+		if ( bufSz > TYPE_BUFFER_SIZE ) {
+			buf = new char[ bufSz ];
+			bufSz = sz;
+		}
+	}
+
+	//always print value
+	if ( attrNum != -1 )
+	{
+		//not value attribute
+		if ( !attr->getIsRequired() )
+		{
+			//not required
+			if ( !element->isAttributeSet( attr->getName() ) )
+			{
+				//early out if !value && !required && !set
+				return;
+			}
+			
+			//is set
+			//check for default suppression
+			if ( attr->getDefault() != NULL )
+			{
+				//has a default value
+				attr->getType()->stringToMemory( (daeChar*)attr->getDefault(), buf );
+				char* elemMem = attr->get( element, 0 );
+				if( memcmp( buf, elemMem, typeSize ) == 0 )
+				{
+					//is the default value so exit early
+					return;
+				}
+			}
+
+			//not default so print
+			xmlTextWriterStartAttribute( writer, (xmlChar*)(daeString)attr->getName() );
+		}
+		else {
+			//print it because its required
+			xmlTextWriterStartAttribute( writer, (xmlChar*)(daeString)attr->getName() );
+		}
+	}
+	if (valCount>0) 
+	{
+		//do val 0 first then space and the rest of the vals.
+		char* elemMem = attr->get( element, 0 );
+		attr->getType()->memoryToString( elemMem, buf, bufSz );
+		if ( buf[0] != 0 ) //null string check
+		{
+			xmlTextWriterWriteString( writer, (xmlChar*)buf );
+		}
+
+		*buf = ' ';
+		for( size_t i = 1; i < valCount; i++ ) 
+		{
+			elemMem = attr->get( element, (int)i );
+			attr->getType()->memoryToString( elemMem, buf+1, bufSz );
+			xmlTextWriterWriteString( writer, (xmlChar*)buf );
+		}
+	}
+	if ( attrNum != -1 )
+	{
+		xmlTextWriterEndAttribute( writer );
+	}
+	if ( buf != atomicTypeBuf )
+	{
+		delete[] buf;
+	}
 }
+

@@ -35,7 +35,7 @@ domGles_texcombiner_commandAlpha_type::registerElement()
     
     _Meta = new daeMetaElement;
     _Meta->setName( "gles_texcombiner_commandAlpha_type" );
-	_Meta->registerConstructor(domGles_texcombiner_commandAlpha_type::create);
+	_Meta->registerClass(domGles_texcombiner_commandAlpha_type::create, &_Meta);
 
 	daeMetaCMPolicy *cm = NULL;
 	daeMetaElementAttribute *mea = NULL;

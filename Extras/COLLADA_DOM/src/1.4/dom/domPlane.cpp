@@ -35,7 +35,7 @@ domPlane::registerElement()
     
     _Meta = new daeMetaElement;
     _Meta->setName( "plane" );
-	_Meta->registerConstructor(domPlane::create);
+	_Meta->registerClass(domPlane::create, &_Meta);
 
 	daeMetaCMPolicy *cm = NULL;
 	daeMetaElementAttribute *mea = NULL;
@@ -78,7 +78,7 @@ domPlane::domEquation::registerElement()
     
     _Meta = new daeMetaElement;
     _Meta->setName( "equation" );
-	_Meta->registerConstructor(domPlane::domEquation::create);
+	_Meta->registerClass(domPlane::domEquation::create, &_Meta);
 
 	_Meta->setIsInnerClass( true );
 	//	Add attribute: _value

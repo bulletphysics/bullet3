@@ -35,7 +35,7 @@ domSkew::registerElement()
     
     _Meta = new daeMetaElement;
     _Meta->setName( "skew" );
-	_Meta->registerConstructor(domSkew::create);
+	_Meta->registerClass(domSkew::create, &_Meta);
 
 	//	Add attribute: _value
  	{

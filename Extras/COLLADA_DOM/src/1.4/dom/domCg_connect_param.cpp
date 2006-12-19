@@ -35,7 +35,7 @@ domCg_connect_param::registerElement()
     
     _Meta = new daeMetaElement;
     _Meta->setName( "cg_connect_param" );
-	_Meta->registerConstructor(domCg_connect_param::create);
+	_Meta->registerClass(domCg_connect_param::create, &_Meta);
 
 
 	//	Add attribute: ref

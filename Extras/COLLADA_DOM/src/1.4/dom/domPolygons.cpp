@@ -35,7 +35,7 @@ domPolygons::registerElement()
     
     _Meta = new daeMetaElement;
     _Meta->setName( "polygons" );
-	_Meta->registerConstructor(domPolygons::create);
+	_Meta->registerClass(domPolygons::create, &_Meta);
 
 	daeMetaCMPolicy *cm = NULL;
 	daeMetaElementAttribute *mea = NULL;
@@ -134,7 +134,7 @@ domPolygons::domPh::registerElement()
     
     _Meta = new daeMetaElement;
     _Meta->setName( "ph" );
-	_Meta->registerConstructor(domPolygons::domPh::create);
+	_Meta->registerClass(domPolygons::domPh::create, &_Meta);
 
 	_Meta->setIsInnerClass( true );
 	daeMetaCMPolicy *cm = NULL;
@@ -178,7 +178,7 @@ domPolygons::domPh::domH::registerElement()
     
     _Meta = new daeMetaElement;
     _Meta->setName( "h" );
-	_Meta->registerConstructor(domPolygons::domPh::domH::create);
+	_Meta->registerClass(domPolygons::domPh::domH::create, &_Meta);
 
 	_Meta->setIsInnerClass( true );
 	//	Add attribute: _value

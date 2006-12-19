@@ -15,7 +15,9 @@
 #include <dae/daeDatabase.h>
 #include <dae/daeErrorHandler.h>
 
-daeIDRefResolverPtrArray daeIDRefResolver::_KnownResolvers;
+//Contributed by Nus - Wed, 08 Nov 2006
+daeIDRefResolverPtrArray* daeIDRefResolver::_KnownResolvers = NULL;
+//----------------------------------
 
 void
 daeIDRef::initialize()
@@ -49,6 +51,7 @@ daeIDRef::daeIDRef(daeIDRef& copyFrom)
 	element = copyFrom.element;
 	setID(copyFrom.getID());
 	state = copyFrom.state;
+	container = copyFrom.container;
 }
 
 void
@@ -57,6 +60,7 @@ daeIDRef::copyFrom(daeIDRef& copyFrom)
 	element = copyFrom.element;
 	setID(copyFrom.getID());
 	state = copyFrom.state;
+	container = copyFrom.container;
 }
 
 daeString emptyID = "";
@@ -134,25 +138,54 @@ daeIDRef::resolveID()
 	}
 }
 
+//Contributed by Nus - Wed, 08 Nov 2006
+void daeIDRefResolver::initializeIDRefSolver(void)
+{
+  if(!_KnownResolvers) {
+    _KnownResolvers = new daeIDRefResolverPtrArray();
+  }
+}
+
+void daeIDRefResolver::terminateIDRefSolver(void)
+{
+  if(_KnownResolvers) {
+    delete _KnownResolvers;
+    _KnownResolvers = NULL;
+  }
+}
+//-------------------------------------
+
 void
 daeIDRefResolver::attemptResolveElement(daeIDRef& id, daeString typeNameHint)
 {
 	int i;
-	int cnt = (int)_KnownResolvers.getCount();
+//Contributed by Nus - Wed, 08 Nov 2006
+	// int cnt = (int)_KnownResolvers.getCount();
+	int cnt = (int)_KnownResolvers->getCount();
+//-------------------------------
 
 	for(i=0;i<cnt;i++)
-		if (_KnownResolvers[i]->resolveElement(id, typeNameHint))
+//Contributed by Nus - Wed, 08 Nov 2006
+		// if (_KnownResolvers[i]->resolveElement(id, typeNameHint))
+		if ((*_KnownResolvers)[i]->resolveElement(id, typeNameHint))
+//-------------------------
 			return;
 }
 
 void
 daeIDRefResolver::attemptResolveID(daeIDRef& id)
 {
-	int i,cnt = (int)_KnownResolvers.getCount();
+//Contributed by Nus - Wed, 08 Nov 2006
+	// int i,cnt = (int)_KnownResolvers.getCount();
+	int i,cnt = (int)_KnownResolvers->getCount();
+//-------------------------------
 
 //	daeBool foundProtocol = false;
 	for(i=0;i<cnt;i++)
-		if (_KnownResolvers[i]->resolveID(id))
+//Contributed by Nus - Wed, 08 Nov 2006
+		// if (_KnownResolvers[i]->resolveID(id))
+		if ((*_KnownResolvers)[i]->resolveID(id))
+//-----------------------------
 			return;
 
 #if defined(_DEBUG) && defined(WIN32)
@@ -165,12 +198,18 @@ daeIDRefResolver::attemptResolveID(daeIDRef& id)
 
 daeIDRefResolver::daeIDRefResolver()
 {
-	_KnownResolvers.append((daeIDRefResolver*)this);
+//Contributed by Nus - Wed, 08 Nov 2006
+	// _KnownResolvers.append((daeIDRefResolver*)this);
+	_KnownResolvers->append((daeIDRefResolver*)this);
+//------------------------------
 }
 
 daeIDRefResolver::~daeIDRefResolver()
 {
-	_KnownResolvers.remove((daeIDRefResolver*)this);
+//Contributed by Nus - Wed, 08 Nov 2006
+	// _KnownResolvers.remove((daeIDRefResolver*)this);
+	_KnownResolvers->remove((daeIDRefResolver*)this);
+//-----------------------------------------
 }
 
 
@@ -208,7 +247,15 @@ daeDefaultIDRefResolver::resolveElement(daeIDRef& idref, daeString typeNameHint)
 
 	daeString id = idref.getID();
 
-	status = _database->getElement(&resolved,0,id,typeNameHint,NULL);
+	if ( idref.getContainer() == NULL ) 
+	{
+		char msg[128];
+		sprintf(msg,"daeDefaultIDRefResolver::resolveElement() - failed to resolve %s\n",idref.getID(), ". IDRef needs a container element!" );
+		daeErrorHandler::get()->handleWarning( msg );
+		return false;
+	}
+
+	status = _database->getElement( &resolved, 0, id, typeNameHint, idref.getContainer()->getDocumentURI()->getURI() );
 
 	idref.setElement( resolved );
 

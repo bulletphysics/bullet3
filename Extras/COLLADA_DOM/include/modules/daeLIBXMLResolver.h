@@ -30,22 +30,22 @@ public:
 	 * @param database The @c daeDatabase used.
 	 * @param plugin The @c daeIOPlugin used.
 	 */
-	daeLIBXMLResolver(daeDatabase* database, daeIOPlugin* plugin);
+	DLLSPEC daeLIBXMLResolver(daeDatabase* database, daeIOPlugin* plugin);
 	/**
 	 * Destructor.
 	 */
-	~daeLIBXMLResolver();
+	DLLSPEC ~daeLIBXMLResolver();
 
 protected:
 	daeDatabase* _database;
 	daeIOPlugin* _plugin;
-public:
+
 public: // Abstract Interface
-	virtual daeBool resolveElement(daeURI& uri, daeString typeNameHint = NULL);
-	virtual daeBool resolveURI(daeURI& uri);
-	virtual daeString getName();
-	virtual daeBool isProtocolSupported(daeString protocol);
-	virtual daeBool isExtensionSupported(daeString extension);
+	virtual DLLSPEC daeBool resolveElement(daeURI& uri, daeString typeNameHint = NULL);
+	virtual DLLSPEC daeBool resolveURI(daeURI& uri);
+	virtual DLLSPEC daeString getName();
+	virtual DLLSPEC daeBool isProtocolSupported(daeString protocol);
+	virtual DLLSPEC daeBool isExtensionSupported(daeString extension);
 };
 
 #endif //__DAE_XMLRESOLVER__

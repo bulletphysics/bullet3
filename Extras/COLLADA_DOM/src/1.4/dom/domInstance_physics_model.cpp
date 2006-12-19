@@ -37,7 +37,7 @@ domInstance_physics_model::registerElement()
     
     _Meta = new daeMetaElement;
     _Meta->setName( "instance_physics_model" );
-	_Meta->registerConstructor(domInstance_physics_model::create);
+	_Meta->registerClass(domInstance_physics_model::create, &_Meta);
 
 	daeMetaCMPolicy *cm = NULL;
 	daeMetaElementAttribute *mea = NULL;

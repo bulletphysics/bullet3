@@ -35,7 +35,7 @@ domPhysics_material::registerElement()
     
     _Meta = new daeMetaElement;
     _Meta->setName( "physics_material" );
-	_Meta->registerConstructor(domPhysics_material::create);
+	_Meta->registerClass(domPhysics_material::create, &_Meta);
 
 	daeMetaCMPolicy *cm = NULL;
 	daeMetaElementAttribute *mea = NULL;
@@ -112,7 +112,7 @@ domPhysics_material::domTechnique_common::registerElement()
     
     _Meta = new daeMetaElement;
     _Meta->setName( "technique_common" );
-	_Meta->registerConstructor(domPhysics_material::domTechnique_common::create);
+	_Meta->registerClass(domPhysics_material::domTechnique_common::create, &_Meta);
 
 	_Meta->setIsInnerClass( true );
 	daeMetaCMPolicy *cm = NULL;

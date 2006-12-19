@@ -35,7 +35,7 @@ domCommon_transparent_type::registerElement()
     
     _Meta = new daeMetaElement;
     _Meta->setName( "common_transparent_type" );
-	_Meta->registerConstructor(domCommon_transparent_type::create);
+	_Meta->registerClass(domCommon_transparent_type::create, &_Meta);
 
 	daeMetaCMPolicy *cm = NULL;
 	daeMetaElementAttribute *mea = NULL;

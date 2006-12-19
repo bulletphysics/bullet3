@@ -13,6 +13,14 @@
 
 #include <dae/daeDocument.h>
 
+// sthomas
+daeDocument::~daeDocument()
+{
+    for( unsigned int i = 0; i < externalURIs.getCount(); i++ ) {
+        delete externalURIs[i];
+    }
+}
+
 void daeDocument::insertElement( daeElementRef element ) {
 	daeElement *parent = element->getParentElement();
 	size_t idx;
@@ -83,4 +91,14 @@ void daeDocument::resolveExternals( daeString docURI ) {
 		}
 		return;
 	}
+}
+
+const daeTArray<daeURI*> *daeDocument::getExternalURIs(daeStringRef docURI) const
+{
+	size_t idx;
+
+	if (referencedDocuments.find(docURI, idx) != DAE_OK)
+		return NULL;
+
+	return externalURIs[idx];
 }

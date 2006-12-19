@@ -28,6 +28,8 @@
  */
 class domTechnique : public daeElement
 {
+public:
+	COLLADA_TYPE::TypeEnum getElementType() const { return COLLADA_TYPE::TECHNIQUE; }
 protected:  // Attribute
 	/**
 	 * This element may specify its own xmlns.
@@ -66,7 +68,7 @@ public:	//Accessors and Mutators
 	 * Sets the xmlns attribute.
 	 * @param xmlns The new value for the xmlns attribute.
 	 */
-	void setXmlns( const xsAnyURI &xmlns ) { attrXmlns.setURI( xmlns.getURI() );
+	void setXmlns( const xsAnyURI &xmlns ) { attrXmlns = xmlns;
 	 _validAttributeArray[0] = true; }
 
 	/**
@@ -116,19 +118,19 @@ public: // STATIC METHODS
 	 * @param bytes The size allocated for this instance.
 	 * @return a daeElementRef referencing an instance of this object.
 	 */
-	static daeElementRef create(daeInt bytes);
+	static DLLSPEC daeElementRef create(daeInt bytes);
 	/**
 	 * Creates a daeMetaElement object that describes this element in the meta object reflection framework.
 	 * If a daeMetaElement already exists it will return that instead of creating a new one. 
 	 * @return A daeMetaElement describing this COLLADA element.
 	 */
-	static daeMetaElement* registerElement();
+	static DLLSPEC daeMetaElement* registerElement();
 
 public: // STATIC MEMBERS
 	/**
 	 * The daeMetaElement that describes this element in the meta object reflection framework.
 	 */
-	static daeMetaElement* _Meta;
+	static DLLSPEC daeMetaElement* _Meta;
 };
 
 

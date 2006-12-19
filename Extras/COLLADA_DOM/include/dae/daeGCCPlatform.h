@@ -11,10 +11,8 @@
  * License. 
  */
 
-#ifndef __DAE_GENERIC_PLATFORM_H__
-#define __DAE_GENERIC_PLATFORM_H__
-
-#include <limits.h>
+#ifndef __DAE_GCC_PLATFORM_H__
+#define __DAE_GCC_PLATFORM_H__
 
 #define PLATFORM_INT8	char
 #define PLATFORM_INT16	short

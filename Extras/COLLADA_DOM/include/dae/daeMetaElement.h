@@ -69,7 +69,8 @@ protected:
 	daeBool								_allowsAny;
 	daeBool								_innerClass;
 	
-	static daeTArray<daeSmartRef<daeMetaElement> >		_metas;
+	static daeTArray<daeSmartRef<daeMetaElement> >		&_metas();
+	static daeTArray< daeMetaElement** >				&_classMetaPointers();
 
     daeMetaCMPolicy *					_contentModel;	
 
@@ -77,12 +78,12 @@ public:
 	/**
 	 * Constructor
 	 */
-	daeMetaElement();
+	DLLSPEC daeMetaElement();
 
 	/**
 	 * Destructor
 	 */
-	~daeMetaElement();
+	DLLSPEC ~daeMetaElement();
 
 public: // public accessors
 	
@@ -220,7 +221,7 @@ public: // public accessors
 	 * @param s String containing the  desired attribute's name.
 	 * @return Returns the corresponding @c daeMetaAttribute, or NULL if none found.
 	 */
-	daeMetaAttribute* getMetaAttribute(daeString s);
+	DLLSPEC daeMetaAttribute* getMetaAttribute(daeString s);
 
 	/**
 	 * Sets the size in bytes of each instance of this element type.
@@ -243,14 +244,14 @@ public:
 	 * should only be called by the system as it sets up the Reflective Object System.
 	 * @param offset Byte offset for the contents field in the C++ element class.
 	 */
-	void addContents(daeInt offset);
+	DLLSPEC void addContents(daeInt offset);
 	/**
 	 * Registers with the reflective object system the array that stores the _contents ordering. This method is @em 
 	 * only for @c daeMetaElement contstuction, and should only be called by the system as it sets up the Reflective 
 	 * Object System.
 	 * @param offset Byte offset for the contents order array in the C++ element class.
 	 */
-	void addContentsOrder( daeInt offset );
+	DLLSPEC void addContentsOrder( daeInt offset );
 
 	/**
 	 * Gets the attribute associated with the contents meta information.
@@ -265,17 +266,18 @@ public:
 	 * @param attr Attribute to append to this element types list
 	 * of potential attributes.
 	 */
-	void appendAttribute(daeMetaAttribute* attr);
+	DLLSPEC void appendAttribute(daeMetaAttribute* attr);
 
 	/**
-	 * Registers the function that can construct a C++ instance
-	 * of this class.  Necessary for the factory system such that C++
+	 * Registers the function that can construct a C++ instance of this class and the 
+	 * pointer to the classes static meta.  Necessary for the factory system such that C++
 	 * can still call @c new and the @c vptr will still be initialized even when
 	 * constructed via the factory system.
 	 * @param func Pointer to a function that does object construction.
+	 * @param metaPtr Pointer to the class static meta pointer.
 	 */
-	void registerConstructor(daeElementConstructFunctionPtr func) {
-		_createFunc = func; }
+	void registerClass(daeElementConstructFunctionPtr func, daeMetaElement** metaPtr = NULL ) {
+		_createFunc = func; if ( metaPtr != NULL ) _classMetaPointers().append( metaPtr );	}
 
 	/**
 	 * Determines if this element contains attributes
@@ -289,7 +291,7 @@ public:
 	 * Validates this class to be used by the runtime c++ object model
 	 * including factory creation.
 	 */
-	void validate();
+	DLLSPEC void validate();
 	
 	/**
 	 * Places a child element into the <tt><i>parent</i></tt> element where the
@@ -298,7 +300,7 @@ public:
 	 * @param child Child element to place in the parent.
 	 * @return Returns true if the operation was successful, false otherwise.
 	 */
-	daeBool place(daeElement *parent, daeElement *child, daeUInt *ordinal = NULL);
+	DLLSPEC daeBool place(daeElement *parent, daeElement *child, daeUInt *ordinal = NULL);
 	/**
 	 * Places a child element into the <tt><i>parent</i></tt> element at a specific location
 	 * where the calling object is the @c daeMetaElement for the parent element.
@@ -309,7 +311,7 @@ public:
 	 * @note This should only be called on elements that have a _contents array. Elements without
 	 * a _contents array will be placed normally.
 	 */
-	daeBool placeAt( daeInt index, daeElement *parent, daeElement *child );
+	DLLSPEC daeBool placeAt( daeInt index, daeElement *parent, daeElement *child );
 	/**
 	 * Places a child element into the <tt><i>parent</i></tt> element at a specific location which is right
 	 * before the marker element.
@@ -318,7 +320,7 @@ public:
 	 * @param child Child element to place in the parent.
 	 * @return Returns true if the operation was successful, false otherwise.
 	 */
-	daeBool placeBefore( daeElement* marker, daeElement *parent, daeElement *child, daeUInt *ordinal = NULL );
+	DLLSPEC daeBool placeBefore( daeElement* marker, daeElement *parent, daeElement *child, daeUInt *ordinal = NULL );
 	/**
 	 * Places a child element into the <tt><i>parent</i></tt> element at a specific location which is right
 	 * after the marker element.
@@ -327,7 +329,7 @@ public:
 	 * @param child Child element to place in the parent.
 	 * @return Returns true if the operation was successful, false otherwise.
 	 */
-	daeBool placeAfter( daeElement* marker, daeElement *parent, daeElement *child, daeUInt *ordinal = NULL );
+	DLLSPEC daeBool placeAfter( daeElement* marker, daeElement *parent, daeElement *child, daeUInt *ordinal = NULL );
 
 	/**
 	 * Removes a child element from its parent element.
@@ -335,13 +337,13 @@ public:
 	 * @param child Child element to remove.
 	 * @return Returns true if the operation was successful, false otherwise.
 	 */
-	daeBool remove( daeElement *parent, daeElement *child );
+	DLLSPEC daeBool remove( daeElement *parent, daeElement *child );
 	/**
 	 * Gets all of the children from an element of this type.
 	 * @param parent The element that you want to get the children from.
 	 * @param array The return value.  An elementref array to append this element's children to.
 	 */
-	void getChildren( daeElement* parent, daeElementRefArray &array );
+	DLLSPEC void getChildren( daeElement* parent, daeElementRefArray &array );
 
 	/**
 	 * Invokes the factory element creation routine set by @c registerConstructor() 
@@ -349,7 +351,7 @@ public:
 	 * @return Returns a created @c daeElement of appropriate type via the
 	 * object creation function and the <tt> daeElement::setup() </tt> function.
 	 */
-	daeElementRef create();
+	DLLSPEC daeElementRef create();
 
 	/**
 	 * Looks through the list of potential child elements
@@ -359,7 +361,7 @@ public:
 	 * @param childElementTypeName Type name to create.
 	 * @return Returns the created element if the type was found as a potential child element.
 	 */
-	daeElementRef create(daeString childElementTypeName);
+	DLLSPEC daeElementRef create(daeString childElementTypeName);
 
 	/**
 	 * Gets the root of the content model policy tree.
@@ -370,16 +372,16 @@ public:
 	 * Sets the root of the content model policy tree.
 	 * @param cm The root element of the tree of content model policy elements.
 	 */
-	void setCMRoot( daeMetaCMPolicy *cm ) { _contentModel = cm; }
+	DLLSPEC void setCMRoot( daeMetaCMPolicy *cm );
 
 public:
 	
 	/**
 	 * Releases all of the meta information contained in @c daeMetaElements.
 	 */
-	static void releaseMetas();
+	static DLLSPEC void releaseMetas();
 
-	static const daeTArray<daeSmartRef<daeMetaElement> > &getAllMetas() { return _metas; }
+	static const daeTArray<daeSmartRef<daeMetaElement> > &getAllMetas() { return _metas(); }
 };
 
 typedef daeSmartRef<daeMetaElement> daeMetaElementRef;

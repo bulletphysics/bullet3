@@ -35,7 +35,7 @@ domNode::registerElement()
     
     _Meta = new daeMetaElement;
     _Meta->setName( "node" );
-	_Meta->registerConstructor(domNode::create);
+	_Meta->registerClass(domNode::create, &_Meta);
 
 	daeMetaCMPolicy *cm = NULL;
 	daeMetaElementAttribute *mea = NULL;

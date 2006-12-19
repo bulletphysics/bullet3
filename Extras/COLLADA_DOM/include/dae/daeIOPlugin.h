@@ -41,7 +41,7 @@ public:
 	* @param topMeta Top meta object to use to create objects to fill the database.
 	* @return Returns DAE_OK if successful, otherwise returns a negative value defined in daeError.h.
 	*/
-	virtual daeInt setMeta(daeMetaElement *topMeta) = 0;
+	virtual DLLSPEC daeInt setMeta(daeMetaElement *topMeta) = 0;
 
 	/** @name Database setup	 */
 	//@{
@@ -52,7 +52,7 @@ public:
 	* for storage and queries.
 	* @param database Database to set.
 	*/
-	virtual void setDatabase(daeDatabase* database) = 0;
+	virtual DLLSPEC void setDatabase(daeDatabase* database) = 0;
 	//@}
 
 
@@ -68,7 +68,7 @@ public:
 	* @return Returns DAE_OK if successfully loaded, otherwise returns a negative value defined in daeError.h.
 	* @see @c daeInterface::load().
 	*/
-	virtual daeInt read(daeURI& uri, daeString docBuffer) = 0;
+	virtual DLLSPEC daeInt read(daeURI& uri, daeString docBuffer) = 0;
 
 	/** @name Operations	 */
 	//@{
@@ -81,7 +81,7 @@ public:
 	* @return Returns DAE_OK if success, a negative value defined in daeError.h otherwise.
 	* @see @c daeInterface::saveAS()
 	*/
-	virtual daeInt write(daeURI *name, daeDocument *document, daeBool replace) = 0;
+	virtual DLLSPEC daeInt write(daeURI *name, daeDocument *document, daeBool replace) = 0;
 	//@}
 	
 	/** @name Load/Save Progress */
@@ -102,7 +102,7 @@ public:
 	* the <tt><i> bytesParsed </i></tt> and <tt><i> lineNumber </i></tt> counters. The system resets the counter at the beginning of 
 	* each file.
 	*/
-	virtual void getProgress(daeInt* bytesParsed,
+	virtual DLLSPEC void getProgress(daeInt* bytesParsed,
 							 daeInt* lineNumber,
 							 daeInt* totalBytes,
 							 daeBool reset = false ) = 0;

@@ -35,7 +35,7 @@ domFx_annotate_common::registerElement()
     
     _Meta = new daeMetaElement;
     _Meta->setName( "fx_annotate_common" );
-	_Meta->registerConstructor(domFx_annotate_common::create);
+	_Meta->registerClass(domFx_annotate_common::create, &_Meta);
 
 	daeMetaCMPolicy *cm = NULL;
 	daeMetaElementAttribute *mea = NULL;

@@ -20,6 +20,10 @@
 
 daeSIDResolver::daeSIDResolver( daeElement *container, daeString target, daeString profile )
 {
+	element = NULL;
+	doubleArray = NULL;
+	doublePtr = NULL;
+
 	this->container = container;
 	if ( target != NULL ) {
 		this->target = new char[ strlen( target ) +1 ];
@@ -161,6 +165,7 @@ void daeSIDResolver::resolve()
 		if ( idref.getState() != daeIDRef::id_success ) {
 			state = sid_failed_not_found;
 			delete[] id;
+			element = NULL;
 			return;
 		}
 		element = idref.getElement();

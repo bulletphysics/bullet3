@@ -36,7 +36,7 @@ domInstance_controller::registerElement()
     
     _Meta = new daeMetaElement;
     _Meta->setName( "instance_controller" );
-	_Meta->registerConstructor(domInstance_controller::create);
+	_Meta->registerClass(domInstance_controller::create, &_Meta);
 
 	daeMetaCMPolicy *cm = NULL;
 	daeMetaElementAttribute *mea = NULL;
@@ -120,7 +120,7 @@ domInstance_controller::domSkeleton::registerElement()
     
     _Meta = new daeMetaElement;
     _Meta->setName( "skeleton" );
-	_Meta->registerConstructor(domInstance_controller::domSkeleton::create);
+	_Meta->registerClass(domInstance_controller::domSkeleton::create, &_Meta);
 
 	_Meta->setIsInnerClass( true );
 	//	Add attribute: _value

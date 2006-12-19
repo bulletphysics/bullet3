@@ -35,7 +35,7 @@ domCg_surface_type::registerElement()
     
     _Meta = new daeMetaElement;
     _Meta->setName( "cg_surface_type" );
-	_Meta->registerConstructor(domCg_surface_type::create);
+	_Meta->registerClass(domCg_surface_type::create, &_Meta);
 
 	daeMetaCMPolicy *cm = NULL;
 	daeMetaElementAttribute *mea = NULL;
@@ -154,7 +154,7 @@ domCg_surface_type::domGenerator::registerElement()
     
     _Meta = new daeMetaElement;
     _Meta->setName( "generator" );
-	_Meta->registerConstructor(domCg_surface_type::domGenerator::create);
+	_Meta->registerClass(domCg_surface_type::domGenerator::create, &_Meta);
 
 	_Meta->setIsInnerClass( true );
 	daeMetaCMPolicy *cm = NULL;
@@ -226,7 +226,7 @@ domCg_surface_type::domGenerator::domName::registerElement()
     
     _Meta = new daeMetaElement;
     _Meta->setName( "name" );
-	_Meta->registerConstructor(domCg_surface_type::domGenerator::domName::create);
+	_Meta->registerClass(domCg_surface_type::domGenerator::domName::create, &_Meta);
 
 	_Meta->setIsInnerClass( true );
 	//	Add attribute: _value

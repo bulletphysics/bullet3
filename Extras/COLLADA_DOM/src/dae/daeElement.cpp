@@ -33,8 +33,33 @@ daeElementRef DAECreateElement(int nbytes)
 	return new(nbytes) daeElement;
 }
 
-static daeElementRefArray resolveArray;
+//Contributed by Nus - Wed, 08 Nov 2006
+// static daeElementRefArray resolveArray;
+static daeElementRefArray* pResolveArray = NULL;
 //static char StaticIndentBuf[] = "";
+
+extern "C" void initializeResolveArray(void)
+{
+  if(!pResolveArray) {
+    pResolveArray = new daeElementRefArray;
+  }
+}
+
+extern "C" void terminateResolveArray(void)
+{
+  if(pResolveArray) {
+    delete pResolveArray;
+    pResolveArray = NULL;
+  }
+}
+//----------------------------------
+
+// sthomas (see https://collada.org/public_forum/viewtopic.php?t=325&)
+void daeElement::releaseElements()
+{
+    // resolveArray.clear();
+    pResolveArray->clear();
+}
 
 daeIntegrationObject*
 daeElement::getIntObject( IntegrationState from_state, IntegrationState to_state )
@@ -211,7 +236,15 @@ void daeElement::setDocument( daeDocument *c ) {
 	if( _document == c ) {
 		return;
 	}
+	if (_document != NULL )
+	{
+		_document->removeElement(this);
+	}
 	_document = c;
+	if ( _document != NULL )
+	{
+		_document->insertElement(this);
+	}
 
 	daeElementRefArray ea;
 	getChildren( ea );
@@ -243,7 +276,7 @@ daeElement::setAttribute(daeString attrName, daeString attrValue)
 			if (metaAttrs[i]->getType() != NULL)
 			{
 				metaAttrs[i]->set(this,attrValue);
-				_validAttributeArray[i] = true;
+				_validAttributeArray.set(i, true);
 			}
 			return true;
 		}
@@ -302,19 +335,46 @@ daeMemoryRef daeElement::getAttributeValue( daeString attrName ) {
 	return NULL;
 }
 
+daeBool daeElement::hasValue() {
+	if (_meta == NULL)
+		return false;
+	
+	return (_meta->getValueAttribute() != NULL );
+}
+
+daeMemoryRef daeElement::getValuePointer() {
+	if (_meta == NULL)
+		return false;
+	
+	if ( _meta->getValueAttribute() != NULL )
+	{
+		return _meta->getValueAttribute()->getWritableMemory(this);
+	}
+	return NULL;	
+}
+
 void
 daeElement::appendResolveElement(daeElement* elem)
 {
-	resolveArray.append(elem);
+//Contributed by Nus - Wed, 08 Nov 2006
+	// resolveArray.append(elem);
+	pResolveArray->append(elem);
+//----------------------
 }
 void
 daeElement::resolveAll()
 {
 	int cnt;
-	while(resolveArray.getCount()) {
-		cnt = (int)resolveArray.getCount();
-		daeElementRef elem = resolveArray[cnt-1];
-		resolveArray.removeIndex(cnt-1);
+//Contributed by Nus - Wed, 08 Nov 2006
+	// while(resolveArray.getCount()) {
+	while(pResolveArray->getCount()) {
+		// cnt = (int)resolveArray.getCount();
+		cnt = (int)pResolveArray->getCount();
+		// daeElementRef elem = resolveArray[cnt-1];
+		daeElementRef elem = (*pResolveArray)[cnt-1];
+		// resolveArray.removeIndex(cnt-1);
+		pResolveArray->removeIndex(cnt-1);
+//--------------------------
 		elem->resolve();
 	}
 	/*size_t cnt = resolveArray.getCount();
@@ -325,12 +385,21 @@ daeElement::resolveAll()
 }
 
 void
+daeElement::clearResolveArray()
+{
+//Contributed by Nus - Wed, 08 Nov 2006
+	// resolveArray.clear();
+	pResolveArray->clear();
+//------------------------
+}
+
+void
 daeElement::resolve()
 {
 	if (_meta == NULL)
 		return;
 	
-	daeMetaAttributeRefArray& maa = _meta->getMetaAttributes();
+	daeMetaAttributePtrArray& maa = _meta->getMetaResolvers();
 	int n = (int)maa.getCount();
 	int i;
 	for(i=0;i<n;i++)
@@ -363,9 +432,9 @@ daeElement::setup(daeMetaElement* meta)
 			attrs[i]->set(this, attrs[i]->getDefault());
 			_validAttributeArray[i] = true;
 		}
-		else {
-			_validAttributeArray[i] = false;
-		}
+//		else {
+//			_validAttributeArray[i] = false;
+//		}
 	}
 
 #if 0	
@@ -438,6 +507,7 @@ daeSmartRef<daeElement> daeElement::clone(daeString idSuffix, daeString nameSuff
 	for ( unsigned int i = 0; i < attrs.getCount(); i++ ) {
 		//memcpy( attrs[i]->getWritableMemory( ret ), attrs[i]->getWritableMemory( this ), attrs[i]->getSize() );
 		attrs[i]->copy( ret, this );
+		ret->_validAttributeArray[i] = _validAttributeArray[i];
 	}
 	if ( _meta->getValueAttribute() != NULL ) {
 		daeMetaAttribute *val = _meta->getValueAttribute();
@@ -458,7 +528,8 @@ daeSmartRef<daeElement> daeElement::clone(daeString idSuffix, daeString nameSuff
 		if ( strcmp( str, "" ) ) {
 			strcat( str, idSuffix );
 		}
-		id->getType()->stringToMemory( str, id->getWritableMemory( ret ) );
+		//id->getType()->stringToMemory( str, id->getWritableMemory( ret ) );
+		id->set( ret, str );
 	}
 	//mangle the name
 	daeMetaAttribute *nm = _meta->getMetaAttribute("name");
@@ -468,7 +539,8 @@ daeSmartRef<daeElement> daeElement::clone(daeString idSuffix, daeString nameSuff
 		if ( strcmp( str, "" ) ) {
 			strcat( str, nameSuffix );
 		}
-		nm->getType()->stringToMemory( str, nm->getWritableMemory( ret ) );
+		//nm->getType()->stringToMemory( str, nm->getWritableMemory( ret ) );
+		nm->set( ret, str );
 	}
 	//ret->_intObject = _intObject;
 	return ret;

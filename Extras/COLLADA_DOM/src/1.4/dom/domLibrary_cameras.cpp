@@ -35,7 +35,7 @@ domLibrary_cameras::registerElement()
     
     _Meta = new daeMetaElement;
     _Meta->setName( "library_cameras" );
-	_Meta->registerConstructor(domLibrary_cameras::create);
+	_Meta->registerClass(domLibrary_cameras::create, &_Meta);
 
 	daeMetaCMPolicy *cm = NULL;
 	daeMetaElementAttribute *mea = NULL;

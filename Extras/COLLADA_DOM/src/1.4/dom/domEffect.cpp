@@ -39,7 +39,7 @@ domEffect::registerElement()
     
     _Meta = new daeMetaElement;
     _Meta->setName( "effect" );
-	_Meta->registerConstructor(domEffect::create);
+	_Meta->registerClass(domEffect::create, &_Meta);
 
 	daeMetaCMPolicy *cm = NULL;
 	daeMetaElementAttribute *mea = NULL;

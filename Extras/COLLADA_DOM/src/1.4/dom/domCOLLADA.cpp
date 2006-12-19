@@ -30,7 +30,6 @@ domCOLLADA::create(daeInt bytes)
 	ref->attrXmlns.setContainer( (domCOLLADA*)ref );
 	ref->attrXml_base.setContainer( (domCOLLADA*)ref );
 	ref->_meta = _Meta;
-	ref->_validAttributeArray.setCount( ref->_meta->getMetaAttributes().getCount() );
 	ref->setAttribute("version", COLLADA_VERSION );
 	ref->setAttribute("xmlns", COLLADA_NAMESPACE );
 	ref->_meta = NULL;
@@ -45,7 +44,7 @@ domCOLLADA::registerElement()
     
     _Meta = new daeMetaElement;
     _Meta->setName( "COLLADA" );
-	_Meta->registerConstructor(domCOLLADA::create);
+	_Meta->registerClass(domCOLLADA::create, &_Meta);
 
 	daeMetaCMPolicy *cm = NULL;
 	daeMetaElementAttribute *mea = NULL;
@@ -227,7 +226,7 @@ domCOLLADA::domScene::registerElement()
     
     _Meta = new daeMetaElement;
     _Meta->setName( "scene" );
-	_Meta->registerConstructor(domCOLLADA::domScene::create);
+	_Meta->registerClass(domCOLLADA::domScene::create, &_Meta);
 
 	_Meta->setIsInnerClass( true );
 	daeMetaCMPolicy *cm = NULL;

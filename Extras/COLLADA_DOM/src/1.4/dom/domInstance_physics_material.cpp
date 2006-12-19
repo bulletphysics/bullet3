@@ -35,7 +35,7 @@ domInstance_physics_material::registerElement()
     
     _Meta = new daeMetaElement;
     _Meta->setName( "instance_physics_material" );
-	_Meta->registerConstructor(domInstance_physics_material::create);
+	_Meta->registerClass(domInstance_physics_material::create, &_Meta);
 
 	daeMetaCMPolicy *cm = NULL;
 	daeMetaElementAttribute *mea = NULL;
@@ -47,6 +47,8 @@ domInstance_physics_material::registerElement()
 	mea->setElementType( domExtra::registerElement() );
 	cm->appendChild( mea );
 	
+	cm->setMaxOrdinal( 0 );
+	_Meta->setCMRoot( cm );	
 
 	//	Add attribute: url
  	{

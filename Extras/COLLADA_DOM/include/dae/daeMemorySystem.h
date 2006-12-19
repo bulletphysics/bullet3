@@ -31,14 +31,14 @@ public:
 	 * @param n Number of bytes to allocate.
 	 * @return Returns the memory allocated if successful, or NULL if not.
 	 */
-	static daeRawRef malloc(daeString pool, size_t n);
+	static DLLSPEC daeRawRef malloc(daeString pool, size_t n);
 
 	/**
 	 * Provides a wrapper free with pool argument.
 	 * @param pool Pool the memory should be freed from.
 	 * @param mem Memory to be freed.
 	 */
-	static void free(daeString pool, daeRawRef mem);
+	static DLLSPEC void free(daeString pool, daeRawRef mem);
 };
 
 // Shorthand for defining new and delete overrides for classes, bad use of macros!

@@ -35,7 +35,7 @@ domProfile_GLSL::registerElement()
     
     _Meta = new daeMetaElement;
     _Meta->setName( "profile_GLSL" );
-	_Meta->registerConstructor(domProfile_GLSL::create);
+	_Meta->registerClass(domProfile_GLSL::create, &_Meta);
 
 	daeMetaCMPolicy *cm = NULL;
 	daeMetaElementAttribute *mea = NULL;
@@ -136,7 +136,7 @@ domProfile_GLSL::domTechnique::registerElement()
     
     _Meta = new daeMetaElement;
     _Meta->setName( "technique" );
-	_Meta->registerConstructor(domProfile_GLSL::domTechnique::create);
+	_Meta->registerClass(domProfile_GLSL::domTechnique::create, &_Meta);
 
 	_Meta->setIsInnerClass( true );
 	daeMetaCMPolicy *cm = NULL;
@@ -255,7 +255,7 @@ domProfile_GLSL::domTechnique::domPass::registerElement()
     
     _Meta = new daeMetaElement;
     _Meta->setName( "pass" );
-	_Meta->registerConstructor(domProfile_GLSL::domTechnique::domPass::create);
+	_Meta->registerClass(domProfile_GLSL::domTechnique::domPass::create, &_Meta);
 
 	_Meta->setIsInnerClass( true );
 	daeMetaCMPolicy *cm = NULL;
@@ -375,7 +375,7 @@ domProfile_GLSL::domTechnique::domPass::domDraw::registerElement()
     
     _Meta = new daeMetaElement;
     _Meta->setName( "draw" );
-	_Meta->registerConstructor(domProfile_GLSL::domTechnique::domPass::domDraw::create);
+	_Meta->registerClass(domProfile_GLSL::domTechnique::domPass::domDraw::create, &_Meta);
 
 	_Meta->setIsInnerClass( true );
 	//	Add attribute: _value
@@ -410,7 +410,7 @@ domProfile_GLSL::domTechnique::domPass::domShader::registerElement()
     
     _Meta = new daeMetaElement;
     _Meta->setName( "shader" );
-	_Meta->registerConstructor(domProfile_GLSL::domTechnique::domPass::domShader::create);
+	_Meta->registerClass(domProfile_GLSL::domTechnique::domPass::domShader::create, &_Meta);
 
 	_Meta->setIsInnerClass( true );
 	daeMetaCMPolicy *cm = NULL;
@@ -489,7 +489,7 @@ domProfile_GLSL::domTechnique::domPass::domShader::domCompiler_target::registerE
     
     _Meta = new daeMetaElement;
     _Meta->setName( "compiler_target" );
-	_Meta->registerConstructor(domProfile_GLSL::domTechnique::domPass::domShader::domCompiler_target::create);
+	_Meta->registerClass(domProfile_GLSL::domTechnique::domPass::domShader::domCompiler_target::create, &_Meta);
 
 	_Meta->setIsInnerClass( true );
 	//	Add attribute: _value
@@ -524,7 +524,7 @@ domProfile_GLSL::domTechnique::domPass::domShader::domCompiler_options::register
     
     _Meta = new daeMetaElement;
     _Meta->setName( "compiler_options" );
-	_Meta->registerConstructor(domProfile_GLSL::domTechnique::domPass::domShader::domCompiler_options::create);
+	_Meta->registerClass(domProfile_GLSL::domTechnique::domPass::domShader::domCompiler_options::create, &_Meta);
 
 	_Meta->setIsInnerClass( true );
 	//	Add attribute: _value
@@ -559,7 +559,7 @@ domProfile_GLSL::domTechnique::domPass::domShader::domName::registerElement()
     
     _Meta = new daeMetaElement;
     _Meta->setName( "name" );
-	_Meta->registerConstructor(domProfile_GLSL::domTechnique::domPass::domShader::domName::create);
+	_Meta->registerClass(domProfile_GLSL::domTechnique::domPass::domShader::domName::create, &_Meta);
 
 	_Meta->setIsInnerClass( true );
 	//	Add attribute: _value
@@ -606,7 +606,7 @@ domProfile_GLSL::domTechnique::domPass::domShader::domBind::registerElement()
     
     _Meta = new daeMetaElement;
     _Meta->setName( "bind" );
-	_Meta->registerConstructor(domProfile_GLSL::domTechnique::domPass::domShader::domBind::create);
+	_Meta->registerClass(domProfile_GLSL::domTechnique::domPass::domShader::domBind::create, &_Meta);
 
 	_Meta->setIsInnerClass( true );
 	daeMetaCMPolicy *cm = NULL;
@@ -666,7 +666,7 @@ domProfile_GLSL::domTechnique::domPass::domShader::domBind::domParam::registerEl
     
     _Meta = new daeMetaElement;
     _Meta->setName( "param" );
-	_Meta->registerConstructor(domProfile_GLSL::domTechnique::domPass::domShader::domBind::domParam::create);
+	_Meta->registerClass(domProfile_GLSL::domTechnique::domPass::domShader::domBind::domParam::create, &_Meta);
 
 	_Meta->setIsInnerClass( true );
 

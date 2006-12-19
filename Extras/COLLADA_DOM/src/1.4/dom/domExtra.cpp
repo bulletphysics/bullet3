@@ -35,7 +35,7 @@ domExtra::registerElement()
     
     _Meta = new daeMetaElement;
     _Meta->setName( "extra" );
-	_Meta->registerConstructor(domExtra::create);
+	_Meta->registerClass(domExtra::create, &_Meta);
 
 	daeMetaCMPolicy *cm = NULL;
 	daeMetaElementAttribute *mea = NULL;

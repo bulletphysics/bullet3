@@ -35,7 +35,7 @@ domTapered_cylinder::registerElement()
     
     _Meta = new daeMetaElement;
     _Meta->setName( "tapered_cylinder" );
-	_Meta->registerConstructor(domTapered_cylinder::create);
+	_Meta->registerClass(domTapered_cylinder::create, &_Meta);
 
 	daeMetaCMPolicy *cm = NULL;
 	daeMetaElementAttribute *mea = NULL;
@@ -90,7 +90,7 @@ domTapered_cylinder::domHeight::registerElement()
     
     _Meta = new daeMetaElement;
     _Meta->setName( "height" );
-	_Meta->registerConstructor(domTapered_cylinder::domHeight::create);
+	_Meta->registerClass(domTapered_cylinder::domHeight::create, &_Meta);
 
 	_Meta->setIsInnerClass( true );
 	//	Add attribute: _value
@@ -125,7 +125,7 @@ domTapered_cylinder::domRadius1::registerElement()
     
     _Meta = new daeMetaElement;
     _Meta->setName( "radius1" );
-	_Meta->registerConstructor(domTapered_cylinder::domRadius1::create);
+	_Meta->registerClass(domTapered_cylinder::domRadius1::create, &_Meta);
 
 	_Meta->setIsInnerClass( true );
 	//	Add attribute: _value
@@ -160,7 +160,7 @@ domTapered_cylinder::domRadius2::registerElement()
     
     _Meta = new daeMetaElement;
     _Meta->setName( "radius2" );
-	_Meta->registerConstructor(domTapered_cylinder::domRadius2::create);
+	_Meta->registerClass(domTapered_cylinder::domRadius2::create, &_Meta);
 
 	_Meta->setIsInnerClass( true );
 	//	Add attribute: _value

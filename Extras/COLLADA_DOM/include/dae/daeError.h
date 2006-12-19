@@ -41,6 +41,10 @@
 * @param errorCode Error code returned by a function of the API.
 * @return Returns an English string describing the error.
 */
+#ifdef WIN32
+__declspec( dllexport ) const char *daeErrorString(int errorCode);
+#else
 const char *daeErrorString(int errorCode);
+#endif
 
 #endif //__DAE__ERROR__

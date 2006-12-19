@@ -35,7 +35,7 @@ domCg_newarray_type::registerElement()
     
     _Meta = new daeMetaElement;
     _Meta->setName( "cg_newarray_type" );
-	_Meta->registerConstructor(domCg_newarray_type::create);
+	_Meta->registerClass(domCg_newarray_type::create, &_Meta);
 
 	daeMetaCMPolicy *cm = NULL;
 	daeMetaElementAttribute *mea = NULL;
@@ -65,7 +65,7 @@ domCg_newarray_type::registerElement()
 	mea->setElementType( domCg_connect_param::registerElement() );
 	cm->appendChild( mea );
 	
-	cm->setMaxOrdinal( 0 );
+	cm->setMaxOrdinal( 3000 );
 	_Meta->setCMRoot( cm );	
 	// Ordered list of sub-elements
     _Meta->addContents(daeOffsetOf(domCg_newarray_type,_contents));

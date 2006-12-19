@@ -35,7 +35,7 @@ domGles_basic_type_common::registerElement()
     
     _Meta = new daeMetaElement;
     _Meta->setName( "gles_basic_type_common" );
-	_Meta->registerConstructor(domGles_basic_type_common::create);
+	_Meta->registerClass(domGles_basic_type_common::create, &_Meta);
 
 	_Meta->setIsTransparent( true );
 	daeMetaCMPolicy *cm = NULL;
@@ -269,7 +269,7 @@ domGles_basic_type_common::domBool::registerElement()
     
     _Meta = new daeMetaElement;
     _Meta->setName( "bool" );
-	_Meta->registerConstructor(domGles_basic_type_common::domBool::create);
+	_Meta->registerClass(domGles_basic_type_common::domBool::create, &_Meta);
 
 	_Meta->setIsInnerClass( true );
 	//	Add attribute: _value
@@ -304,7 +304,7 @@ domGles_basic_type_common::domBool2::registerElement()
     
     _Meta = new daeMetaElement;
     _Meta->setName( "bool2" );
-	_Meta->registerConstructor(domGles_basic_type_common::domBool2::create);
+	_Meta->registerClass(domGles_basic_type_common::domBool2::create, &_Meta);
 
 	_Meta->setIsInnerClass( true );
 	//	Add attribute: _value
@@ -339,7 +339,7 @@ domGles_basic_type_common::domBool3::registerElement()
     
     _Meta = new daeMetaElement;
     _Meta->setName( "bool3" );
-	_Meta->registerConstructor(domGles_basic_type_common::domBool3::create);
+	_Meta->registerClass(domGles_basic_type_common::domBool3::create, &_Meta);
 
 	_Meta->setIsInnerClass( true );
 	//	Add attribute: _value
@@ -374,7 +374,7 @@ domGles_basic_type_common::domBool4::registerElement()
     
     _Meta = new daeMetaElement;
     _Meta->setName( "bool4" );
-	_Meta->registerConstructor(domGles_basic_type_common::domBool4::create);
+	_Meta->registerClass(domGles_basic_type_common::domBool4::create, &_Meta);
 
 	_Meta->setIsInnerClass( true );
 	//	Add attribute: _value
@@ -409,7 +409,7 @@ domGles_basic_type_common::domInt::registerElement()
     
     _Meta = new daeMetaElement;
     _Meta->setName( "int" );
-	_Meta->registerConstructor(domGles_basic_type_common::domInt::create);
+	_Meta->registerClass(domGles_basic_type_common::domInt::create, &_Meta);
 
 	_Meta->setIsInnerClass( true );
 	//	Add attribute: _value
@@ -444,7 +444,7 @@ domGles_basic_type_common::domInt2::registerElement()
     
     _Meta = new daeMetaElement;
     _Meta->setName( "int2" );
-	_Meta->registerConstructor(domGles_basic_type_common::domInt2::create);
+	_Meta->registerClass(domGles_basic_type_common::domInt2::create, &_Meta);
 
 	_Meta->setIsInnerClass( true );
 	//	Add attribute: _value
@@ -479,7 +479,7 @@ domGles_basic_type_common::domInt3::registerElement()
     
     _Meta = new daeMetaElement;
     _Meta->setName( "int3" );
-	_Meta->registerConstructor(domGles_basic_type_common::domInt3::create);
+	_Meta->registerClass(domGles_basic_type_common::domInt3::create, &_Meta);
 
 	_Meta->setIsInnerClass( true );
 	//	Add attribute: _value
@@ -514,7 +514,7 @@ domGles_basic_type_common::domInt4::registerElement()
     
     _Meta = new daeMetaElement;
     _Meta->setName( "int4" );
-	_Meta->registerConstructor(domGles_basic_type_common::domInt4::create);
+	_Meta->registerClass(domGles_basic_type_common::domInt4::create, &_Meta);
 
 	_Meta->setIsInnerClass( true );
 	//	Add attribute: _value
@@ -549,7 +549,7 @@ domGles_basic_type_common::domFloat::registerElement()
     
     _Meta = new daeMetaElement;
     _Meta->setName( "float" );
-	_Meta->registerConstructor(domGles_basic_type_common::domFloat::create);
+	_Meta->registerClass(domGles_basic_type_common::domFloat::create, &_Meta);
 
 	_Meta->setIsInnerClass( true );
 	//	Add attribute: _value
@@ -584,7 +584,7 @@ domGles_basic_type_common::domFloat2::registerElement()
     
     _Meta = new daeMetaElement;
     _Meta->setName( "float2" );
-	_Meta->registerConstructor(domGles_basic_type_common::domFloat2::create);
+	_Meta->registerClass(domGles_basic_type_common::domFloat2::create, &_Meta);
 
 	_Meta->setIsInnerClass( true );
 	//	Add attribute: _value
@@ -619,7 +619,7 @@ domGles_basic_type_common::domFloat3::registerElement()
     
     _Meta = new daeMetaElement;
     _Meta->setName( "float3" );
-	_Meta->registerConstructor(domGles_basic_type_common::domFloat3::create);
+	_Meta->registerClass(domGles_basic_type_common::domFloat3::create, &_Meta);
 
 	_Meta->setIsInnerClass( true );
 	//	Add attribute: _value
@@ -654,7 +654,7 @@ domGles_basic_type_common::domFloat4::registerElement()
     
     _Meta = new daeMetaElement;
     _Meta->setName( "float4" );
-	_Meta->registerConstructor(domGles_basic_type_common::domFloat4::create);
+	_Meta->registerClass(domGles_basic_type_common::domFloat4::create, &_Meta);
 
 	_Meta->setIsInnerClass( true );
 	//	Add attribute: _value
@@ -689,7 +689,7 @@ domGles_basic_type_common::domFloat1x1::registerElement()
     
     _Meta = new daeMetaElement;
     _Meta->setName( "float1x1" );
-	_Meta->registerConstructor(domGles_basic_type_common::domFloat1x1::create);
+	_Meta->registerClass(domGles_basic_type_common::domFloat1x1::create, &_Meta);
 
 	_Meta->setIsInnerClass( true );
 	//	Add attribute: _value
@@ -724,7 +724,7 @@ domGles_basic_type_common::domFloat1x2::registerElement()
     
     _Meta = new daeMetaElement;
     _Meta->setName( "float1x2" );
-	_Meta->registerConstructor(domGles_basic_type_common::domFloat1x2::create);
+	_Meta->registerClass(domGles_basic_type_common::domFloat1x2::create, &_Meta);
 
 	_Meta->setIsInnerClass( true );
 	//	Add attribute: _value
@@ -759,7 +759,7 @@ domGles_basic_type_common::domFloat1x3::registerElement()
     
     _Meta = new daeMetaElement;
     _Meta->setName( "float1x3" );
-	_Meta->registerConstructor(domGles_basic_type_common::domFloat1x3::create);
+	_Meta->registerClass(domGles_basic_type_common::domFloat1x3::create, &_Meta);
 
 	_Meta->setIsInnerClass( true );
 	//	Add attribute: _value
@@ -794,7 +794,7 @@ domGles_basic_type_common::domFloat1x4::registerElement()
     
     _Meta = new daeMetaElement;
     _Meta->setName( "float1x4" );
-	_Meta->registerConstructor(domGles_basic_type_common::domFloat1x4::create);
+	_Meta->registerClass(domGles_basic_type_common::domFloat1x4::create, &_Meta);
 
 	_Meta->setIsInnerClass( true );
 	//	Add attribute: _value
@@ -829,7 +829,7 @@ domGles_basic_type_common::domFloat2x1::registerElement()
     
     _Meta = new daeMetaElement;
     _Meta->setName( "float2x1" );
-	_Meta->registerConstructor(domGles_basic_type_common::domFloat2x1::create);
+	_Meta->registerClass(domGles_basic_type_common::domFloat2x1::create, &_Meta);
 
 	_Meta->setIsInnerClass( true );
 	//	Add attribute: _value
@@ -864,7 +864,7 @@ domGles_basic_type_common::domFloat2x2::registerElement()
     
     _Meta = new daeMetaElement;
     _Meta->setName( "float2x2" );
-	_Meta->registerConstructor(domGles_basic_type_common::domFloat2x2::create);
+	_Meta->registerClass(domGles_basic_type_common::domFloat2x2::create, &_Meta);
 
 	_Meta->setIsInnerClass( true );
 	//	Add attribute: _value
@@ -899,7 +899,7 @@ domGles_basic_type_common::domFloat2x3::registerElement()
     
     _Meta = new daeMetaElement;
     _Meta->setName( "float2x3" );
-	_Meta->registerConstructor(domGles_basic_type_common::domFloat2x3::create);
+	_Meta->registerClass(domGles_basic_type_common::domFloat2x3::create, &_Meta);
 
 	_Meta->setIsInnerClass( true );
 	//	Add attribute: _value
@@ -934,7 +934,7 @@ domGles_basic_type_common::domFloat2x4::registerElement()
     
     _Meta = new daeMetaElement;
     _Meta->setName( "float2x4" );
-	_Meta->registerConstructor(domGles_basic_type_common::domFloat2x4::create);
+	_Meta->registerClass(domGles_basic_type_common::domFloat2x4::create, &_Meta);
 
 	_Meta->setIsInnerClass( true );
 	//	Add attribute: _value
@@ -969,7 +969,7 @@ domGles_basic_type_common::domFloat3x1::registerElement()
     
     _Meta = new daeMetaElement;
     _Meta->setName( "float3x1" );
-	_Meta->registerConstructor(domGles_basic_type_common::domFloat3x1::create);
+	_Meta->registerClass(domGles_basic_type_common::domFloat3x1::create, &_Meta);
 
 	_Meta->setIsInnerClass( true );
 	//	Add attribute: _value
@@ -1004,7 +1004,7 @@ domGles_basic_type_common::domFloat3x2::registerElement()
     
     _Meta = new daeMetaElement;
     _Meta->setName( "float3x2" );
-	_Meta->registerConstructor(domGles_basic_type_common::domFloat3x2::create);
+	_Meta->registerClass(domGles_basic_type_common::domFloat3x2::create, &_Meta);
 
 	_Meta->setIsInnerClass( true );
 	//	Add attribute: _value
@@ -1039,7 +1039,7 @@ domGles_basic_type_common::domFloat3x3::registerElement()
     
     _Meta = new daeMetaElement;
     _Meta->setName( "float3x3" );
-	_Meta->registerConstructor(domGles_basic_type_common::domFloat3x3::create);
+	_Meta->registerClass(domGles_basic_type_common::domFloat3x3::create, &_Meta);
 
 	_Meta->setIsInnerClass( true );
 	//	Add attribute: _value
@@ -1074,7 +1074,7 @@ domGles_basic_type_common::domFloat3x4::registerElement()
     
     _Meta = new daeMetaElement;
     _Meta->setName( "float3x4" );
-	_Meta->registerConstructor(domGles_basic_type_common::domFloat3x4::create);
+	_Meta->registerClass(domGles_basic_type_common::domFloat3x4::create, &_Meta);
 
 	_Meta->setIsInnerClass( true );
 	//	Add attribute: _value
@@ -1109,7 +1109,7 @@ domGles_basic_type_common::domFloat4x1::registerElement()
     
     _Meta = new daeMetaElement;
     _Meta->setName( "float4x1" );
-	_Meta->registerConstructor(domGles_basic_type_common::domFloat4x1::create);
+	_Meta->registerClass(domGles_basic_type_common::domFloat4x1::create, &_Meta);
 
 	_Meta->setIsInnerClass( true );
 	//	Add attribute: _value
@@ -1144,7 +1144,7 @@ domGles_basic_type_common::domFloat4x2::registerElement()
     
     _Meta = new daeMetaElement;
     _Meta->setName( "float4x2" );
-	_Meta->registerConstructor(domGles_basic_type_common::domFloat4x2::create);
+	_Meta->registerClass(domGles_basic_type_common::domFloat4x2::create, &_Meta);
 
 	_Meta->setIsInnerClass( true );
 	//	Add attribute: _value
@@ -1179,7 +1179,7 @@ domGles_basic_type_common::domFloat4x3::registerElement()
     
     _Meta = new daeMetaElement;
     _Meta->setName( "float4x3" );
-	_Meta->registerConstructor(domGles_basic_type_common::domFloat4x3::create);
+	_Meta->registerClass(domGles_basic_type_common::domFloat4x3::create, &_Meta);
 
 	_Meta->setIsInnerClass( true );
 	//	Add attribute: _value
@@ -1214,7 +1214,7 @@ domGles_basic_type_common::domFloat4x4::registerElement()
     
     _Meta = new daeMetaElement;
     _Meta->setName( "float4x4" );
-	_Meta->registerConstructor(domGles_basic_type_common::domFloat4x4::create);
+	_Meta->registerClass(domGles_basic_type_common::domFloat4x4::create, &_Meta);
 
 	_Meta->setIsInnerClass( true );
 	//	Add attribute: _value
@@ -1249,7 +1249,7 @@ domGles_basic_type_common::domEnum::registerElement()
     
     _Meta = new daeMetaElement;
     _Meta->setName( "enum" );
-	_Meta->registerConstructor(domGles_basic_type_common::domEnum::create);
+	_Meta->registerClass(domGles_basic_type_common::domEnum::create, &_Meta);
 
 	_Meta->setIsInnerClass( true );
 	//	Add attribute: _value

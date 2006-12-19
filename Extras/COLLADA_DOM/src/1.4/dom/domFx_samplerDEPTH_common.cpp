@@ -35,7 +35,7 @@ domFx_samplerDEPTH_common::registerElement()
     
     _Meta = new daeMetaElement;
     _Meta->setName( "fx_samplerDEPTH_common" );
-	_Meta->registerConstructor(domFx_samplerDEPTH_common::create);
+	_Meta->registerClass(domFx_samplerDEPTH_common::create, &_Meta);
 
 	daeMetaCMPolicy *cm = NULL;
 	daeMetaElementAttribute *mea = NULL;
@@ -102,7 +102,7 @@ domFx_samplerDEPTH_common::domSource::registerElement()
     
     _Meta = new daeMetaElement;
     _Meta->setName( "source" );
-	_Meta->registerConstructor(domFx_samplerDEPTH_common::domSource::create);
+	_Meta->registerClass(domFx_samplerDEPTH_common::domSource::create, &_Meta);
 
 	_Meta->setIsInnerClass( true );
 	//	Add attribute: _value
@@ -137,7 +137,7 @@ domFx_samplerDEPTH_common::domWrap_s::registerElement()
     
     _Meta = new daeMetaElement;
     _Meta->setName( "wrap_s" );
-	_Meta->registerConstructor(domFx_samplerDEPTH_common::domWrap_s::create);
+	_Meta->registerClass(domFx_samplerDEPTH_common::domWrap_s::create, &_Meta);
 
 	_Meta->setIsInnerClass( true );
 	//	Add attribute: _value
@@ -172,7 +172,7 @@ domFx_samplerDEPTH_common::domWrap_t::registerElement()
     
     _Meta = new daeMetaElement;
     _Meta->setName( "wrap_t" );
-	_Meta->registerConstructor(domFx_samplerDEPTH_common::domWrap_t::create);
+	_Meta->registerClass(domFx_samplerDEPTH_common::domWrap_t::create, &_Meta);
 
 	_Meta->setIsInnerClass( true );
 	//	Add attribute: _value
@@ -207,7 +207,7 @@ domFx_samplerDEPTH_common::domMinfilter::registerElement()
     
     _Meta = new daeMetaElement;
     _Meta->setName( "minfilter" );
-	_Meta->registerConstructor(domFx_samplerDEPTH_common::domMinfilter::create);
+	_Meta->registerClass(domFx_samplerDEPTH_common::domMinfilter::create, &_Meta);
 
 	_Meta->setIsInnerClass( true );
 	//	Add attribute: _value
@@ -242,7 +242,7 @@ domFx_samplerDEPTH_common::domMagfilter::registerElement()
     
     _Meta = new daeMetaElement;
     _Meta->setName( "magfilter" );
-	_Meta->registerConstructor(domFx_samplerDEPTH_common::domMagfilter::create);
+	_Meta->registerClass(domFx_samplerDEPTH_common::domMagfilter::create, &_Meta);
 
 	_Meta->setIsInnerClass( true );
 	//	Add attribute: _value

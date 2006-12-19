@@ -35,7 +35,7 @@ domVertices::registerElement()
     
     _Meta = new daeMetaElement;
     _Meta->setName( "vertices" );
-	_Meta->registerConstructor(domVertices::create);
+	_Meta->registerClass(domVertices::create, &_Meta);
 
 	daeMetaCMPolicy *cm = NULL;
 	daeMetaElementAttribute *mea = NULL;

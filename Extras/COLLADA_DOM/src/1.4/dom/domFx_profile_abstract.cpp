@@ -35,7 +35,7 @@ domFx_profile_abstract::registerElement()
     
     _Meta = new daeMetaElement;
     _Meta->setName( "fx_profile_abstract" );
-	_Meta->registerConstructor(domFx_profile_abstract::create);
+	_Meta->registerClass(domFx_profile_abstract::create, &_Meta);
 
 	_Meta->setIsAbstract( true );
 	

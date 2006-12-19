@@ -35,7 +35,7 @@ domParam::registerElement()
     
     _Meta = new daeMetaElement;
     _Meta->setName( "param" );
-	_Meta->registerConstructor(domParam::create);
+	_Meta->registerClass(domParam::create, &_Meta);
 
 	//	Add attribute: _value
  	{

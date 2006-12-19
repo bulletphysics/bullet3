@@ -35,7 +35,7 @@ domProfile_GLES::registerElement()
     
     _Meta = new daeMetaElement;
     _Meta->setName( "profile_GLES" );
-	_Meta->registerConstructor(domProfile_GLES::create);
+	_Meta->registerClass(domProfile_GLES::create, &_Meta);
 
 	daeMetaCMPolicy *cm = NULL;
 	daeMetaElementAttribute *mea = NULL;
@@ -131,7 +131,7 @@ domProfile_GLES::domTechnique::registerElement()
     
     _Meta = new daeMetaElement;
     _Meta->setName( "technique" );
-	_Meta->registerConstructor(domProfile_GLES::domTechnique::create);
+	_Meta->registerClass(domProfile_GLES::domTechnique::create, &_Meta);
 
 	_Meta->setIsInnerClass( true );
 	daeMetaCMPolicy *cm = NULL;
@@ -238,7 +238,7 @@ domProfile_GLES::domTechnique::domSetparam::registerElement()
     
     _Meta = new daeMetaElement;
     _Meta->setName( "setparam" );
-	_Meta->registerConstructor(domProfile_GLES::domTechnique::domSetparam::create);
+	_Meta->registerClass(domProfile_GLES::domTechnique::domSetparam::create, &_Meta);
 
 	_Meta->setIsInnerClass( true );
 	daeMetaCMPolicy *cm = NULL;
@@ -294,7 +294,7 @@ domProfile_GLES::domTechnique::domPass::registerElement()
     
     _Meta = new daeMetaElement;
     _Meta->setName( "pass" );
-	_Meta->registerConstructor(domProfile_GLES::domTechnique::domPass::create);
+	_Meta->registerClass(domProfile_GLES::domTechnique::domPass::create, &_Meta);
 
 	_Meta->setIsInnerClass( true );
 	daeMetaCMPolicy *cm = NULL;
@@ -408,7 +408,7 @@ domProfile_GLES::domTechnique::domPass::domColor_target::registerElement()
     
     _Meta = new daeMetaElement;
     _Meta->setName( "color_target" );
-	_Meta->registerConstructor(domProfile_GLES::domTechnique::domPass::domColor_target::create);
+	_Meta->registerClass(domProfile_GLES::domTechnique::domPass::domColor_target::create, &_Meta);
 
 	_Meta->setIsInnerClass( true );
 	//	Add attribute: _value
@@ -443,7 +443,7 @@ domProfile_GLES::domTechnique::domPass::domDepth_target::registerElement()
     
     _Meta = new daeMetaElement;
     _Meta->setName( "depth_target" );
-	_Meta->registerConstructor(domProfile_GLES::domTechnique::domPass::domDepth_target::create);
+	_Meta->registerClass(domProfile_GLES::domTechnique::domPass::domDepth_target::create, &_Meta);
 
 	_Meta->setIsInnerClass( true );
 	//	Add attribute: _value
@@ -478,7 +478,7 @@ domProfile_GLES::domTechnique::domPass::domStencil_target::registerElement()
     
     _Meta = new daeMetaElement;
     _Meta->setName( "stencil_target" );
-	_Meta->registerConstructor(domProfile_GLES::domTechnique::domPass::domStencil_target::create);
+	_Meta->registerClass(domProfile_GLES::domTechnique::domPass::domStencil_target::create, &_Meta);
 
 	_Meta->setIsInnerClass( true );
 	//	Add attribute: _value
@@ -513,7 +513,7 @@ domProfile_GLES::domTechnique::domPass::domColor_clear::registerElement()
     
     _Meta = new daeMetaElement;
     _Meta->setName( "color_clear" );
-	_Meta->registerConstructor(domProfile_GLES::domTechnique::domPass::domColor_clear::create);
+	_Meta->registerClass(domProfile_GLES::domTechnique::domPass::domColor_clear::create, &_Meta);
 
 	_Meta->setIsInnerClass( true );
 	//	Add attribute: _value
@@ -548,7 +548,7 @@ domProfile_GLES::domTechnique::domPass::domDepth_clear::registerElement()
     
     _Meta = new daeMetaElement;
     _Meta->setName( "depth_clear" );
-	_Meta->registerConstructor(domProfile_GLES::domTechnique::domPass::domDepth_clear::create);
+	_Meta->registerClass(domProfile_GLES::domTechnique::domPass::domDepth_clear::create, &_Meta);
 
 	_Meta->setIsInnerClass( true );
 	//	Add attribute: _value
@@ -583,7 +583,7 @@ domProfile_GLES::domTechnique::domPass::domStencil_clear::registerElement()
     
     _Meta = new daeMetaElement;
     _Meta->setName( "stencil_clear" );
-	_Meta->registerConstructor(domProfile_GLES::domTechnique::domPass::domStencil_clear::create);
+	_Meta->registerClass(domProfile_GLES::domTechnique::domPass::domStencil_clear::create, &_Meta);
 
 	_Meta->setIsInnerClass( true );
 	//	Add attribute: _value
@@ -618,7 +618,7 @@ domProfile_GLES::domTechnique::domPass::domDraw::registerElement()
     
     _Meta = new daeMetaElement;
     _Meta->setName( "draw" );
-	_Meta->registerConstructor(domProfile_GLES::domTechnique::domPass::domDraw::create);
+	_Meta->registerClass(domProfile_GLES::domTechnique::domPass::domDraw::create, &_Meta);
 
 	_Meta->setIsInnerClass( true );
 	//	Add attribute: _value

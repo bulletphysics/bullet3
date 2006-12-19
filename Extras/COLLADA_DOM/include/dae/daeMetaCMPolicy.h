@@ -98,7 +98,9 @@ protected:
 	/**
 	 * Destructor.
 	 */
+public: // sthomas
 	virtual ~daeMetaCMPolicy();
+protected: // sthomas
 
 	daeMetaElement * _container;
 	daeMetaCMPolicy * _parent;

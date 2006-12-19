@@ -37,13 +37,21 @@
 extern daeString COLLADA_VERSION;		 
 
 daeInt DAEInstanceCount = 0;
+daeMetaElement *DAE::topMeta = NULL;
 
 void
 DAE::cleanup()
 {
-	if (DAEInstanceCount == 0) {
+	if (topMeta != NULL) {
 		daeMetaElement::releaseMetas();
 		daeAtomicType::uninitializeKnownTypes();
+		topMeta = NULL;
+//Contributed by Nus - Wed, 08 Nov 2006
+		terminateURI();
+		terminateResolveArray();
+		daeStringRef::releaseStringTable();
+		daeIDRefResolver::terminateIDRefSolver();
+//----------------------
 	}
 }
 	
@@ -56,7 +64,14 @@ DAE::DAE() : database(NULL),
 	     defaultPlugin(false),
 	     registerFunc(NULL)
 {
-	topMeta = initializeDomMeta();
+//Contributed by Nus - Wed, 08 Nov 2006
+	initializeURI();
+	initializeResolveArray();
+	daeIDRefResolver::initializeIDRefSolver();
+//------------------------
+	if ( DAEInstanceCount == 0 ) {
+		topMeta = initializeDomMeta();
+	}
 	DAEInstanceCount++;
 }
 
@@ -69,8 +84,12 @@ DAE::~DAE()
 		delete resolver;
 		delete idResolver;
 	}
-	topMeta = NULL;
+	daeElement::clearResolveArray();
 	--DAEInstanceCount;
+	if ( DAEInstanceCount <= 0 )
+	{
+		cleanup();
+	}
 }
 
 // Database setup	
@@ -259,7 +278,7 @@ daeInt DAE::saveAs(daeString name, daeString documentName, daeBool replace)
 
 	// Make a URI from "name" and save to that
 
-	daeURI tempURI(name);
+	daeURI tempURI(name, true);
 	return plugin->write(&tempURI, document, replace);
 	
 }
@@ -297,6 +316,7 @@ daeInt DAE::unload(daeString name)
 
 daeInt DAE::clear()
 {
+	daeElement::clearResolveArray();
 	if (database)
 		database->clear();
 	return DAE_OK;

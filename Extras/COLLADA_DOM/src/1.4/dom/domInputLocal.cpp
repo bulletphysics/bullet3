@@ -36,7 +36,7 @@ domInputLocal::registerElement()
     
     _Meta = new daeMetaElement;
     _Meta->setName( "InputLocal" );
-	_Meta->registerConstructor(domInputLocal::create);
+	_Meta->registerClass(domInputLocal::create, &_Meta);
 
 
 	//	Add attribute: semantic

@@ -35,7 +35,7 @@ domGles_texcombiner_commandRGB_type::registerElement()
     
     _Meta = new daeMetaElement;
     _Meta->setName( "gles_texcombiner_commandRGB_type" );
-	_Meta->registerConstructor(domGles_texcombiner_commandRGB_type::create);
+	_Meta->registerClass(domGles_texcombiner_commandRGB_type::create, &_Meta);
 
 	daeMetaCMPolicy *cm = NULL;
 	daeMetaElementAttribute *mea = NULL;

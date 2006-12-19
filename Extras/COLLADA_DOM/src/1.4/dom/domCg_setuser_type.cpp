@@ -35,7 +35,7 @@ domCg_setuser_type::registerElement()
     
     _Meta = new daeMetaElement;
     _Meta->setName( "cg_setuser_type" );
-	_Meta->registerConstructor(domCg_setuser_type::create);
+	_Meta->registerClass(domCg_setuser_type::create, &_Meta);
 
 	daeMetaCMPolicy *cm = NULL;
 	daeMetaElementAttribute *mea = NULL;
@@ -77,7 +77,7 @@ domCg_setuser_type::registerElement()
 	mea->setElementType( domCg_setparam::registerElement() );
 	cm->appendChild( mea );
 	
-	cm->setMaxOrdinal( 3000 );
+	cm->setMaxOrdinal( 0 );
 	_Meta->setCMRoot( cm );	
 	// Ordered list of sub-elements
     _Meta->addContents(daeOffsetOf(domCg_setuser_type,_contents));

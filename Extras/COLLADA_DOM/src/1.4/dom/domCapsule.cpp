@@ -35,7 +35,7 @@ domCapsule::registerElement()
     
     _Meta = new daeMetaElement;
     _Meta->setName( "capsule" );
-	_Meta->registerConstructor(domCapsule::create);
+	_Meta->registerClass(domCapsule::create, &_Meta);
 
 	daeMetaCMPolicy *cm = NULL;
 	daeMetaElementAttribute *mea = NULL;
@@ -84,7 +84,7 @@ domCapsule::domHeight::registerElement()
     
     _Meta = new daeMetaElement;
     _Meta->setName( "height" );
-	_Meta->registerConstructor(domCapsule::domHeight::create);
+	_Meta->registerClass(domCapsule::domHeight::create, &_Meta);
 
 	_Meta->setIsInnerClass( true );
 	//	Add attribute: _value
@@ -119,7 +119,7 @@ domCapsule::domRadius::registerElement()
     
     _Meta = new daeMetaElement;
     _Meta->setName( "radius" );
-	_Meta->registerConstructor(domCapsule::domRadius::create);
+	_Meta->registerClass(domCapsule::domRadius::create, &_Meta);
 
 	_Meta->setIsInnerClass( true );
 	//	Add attribute: _value

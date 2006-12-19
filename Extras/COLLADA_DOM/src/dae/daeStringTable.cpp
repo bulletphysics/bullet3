@@ -15,8 +15,9 @@
 
 daeStringTable::daeStringTable(int stringBufferSize):_stringBufferSize(stringBufferSize), _empty( "" )
 {
+	_stringBufferIndex = _stringBufferSize;
 	//allocate initial buffer
-	allocateBuffer();
+	//allocateBuffer();
 }
 
 daeString daeStringTable::allocateBuffer()

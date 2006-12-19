@@ -35,7 +35,7 @@ domFx_surface_init_cube_common::registerElement()
     
     _Meta = new daeMetaElement;
     _Meta->setName( "fx_surface_init_cube_common" );
-	_Meta->registerConstructor(domFx_surface_init_cube_common::create);
+	_Meta->registerClass(domFx_surface_init_cube_common::create, &_Meta);
 
 	daeMetaCMPolicy *cm = NULL;
 	daeMetaElementAttribute *mea = NULL;
@@ -88,7 +88,7 @@ domFx_surface_init_cube_common::domAll::registerElement()
     
     _Meta = new daeMetaElement;
     _Meta->setName( "all" );
-	_Meta->registerConstructor(domFx_surface_init_cube_common::domAll::create);
+	_Meta->registerClass(domFx_surface_init_cube_common::domAll::create, &_Meta);
 
 	_Meta->setIsInnerClass( true );
 
@@ -126,7 +126,7 @@ domFx_surface_init_cube_common::domPrimary::registerElement()
     
     _Meta = new daeMetaElement;
     _Meta->setName( "primary" );
-	_Meta->registerConstructor(domFx_surface_init_cube_common::domPrimary::create);
+	_Meta->registerClass(domFx_surface_init_cube_common::domPrimary::create, &_Meta);
 
 	_Meta->setIsInnerClass( true );
 	daeMetaCMPolicy *cm = NULL;
@@ -176,7 +176,7 @@ domFx_surface_init_cube_common::domPrimary::domOrder::registerElement()
     
     _Meta = new daeMetaElement;
     _Meta->setName( "order" );
-	_Meta->registerConstructor(domFx_surface_init_cube_common::domPrimary::domOrder::create);
+	_Meta->registerClass(domFx_surface_init_cube_common::domPrimary::domOrder::create, &_Meta);
 
 	_Meta->setIsInnerClass( true );
 	//	Add attribute: _value
@@ -211,7 +211,7 @@ domFx_surface_init_cube_common::domFace::registerElement()
     
     _Meta = new daeMetaElement;
     _Meta->setName( "face" );
-	_Meta->registerConstructor(domFx_surface_init_cube_common::domFace::create);
+	_Meta->registerClass(domFx_surface_init_cube_common::domFace::create, &_Meta);
 
 	_Meta->setIsInnerClass( true );
 

@@ -18,7 +18,8 @@
 #include <dae/daeMetaCMPolicy.h>
 #include <dae/daeMetaElementAttribute.h>
 
-daeMetaElementRefArray daeMetaElement::_metas;
+static daeMetaElementRefArray *mera = NULL;
+static daeTArray< daeMetaElement** > *mes = NULL;
 
 daeElementRef
 daeMetaElement::create() 
@@ -101,6 +102,7 @@ daeMetaElement::daeMetaElement()
 	_elementSize = sizeof(daeElement);
 	_metaValue = NULL;
 	_metaContents = NULL;
+    _metaContentsOrder = NULL; // sthomas
 	_metaIntegration = NULL;
 	_metaID = NULL;
 	_isTrackableForQueries = true;
@@ -109,7 +111,7 @@ daeMetaElement::daeMetaElement()
 	_isAbstract = false;
 	_allowsAny = false;
 	_innerClass = false;
-	_metas.append(this);
+	_metas().append(this);
 
 	_contentModel = NULL;
 }
@@ -118,6 +120,17 @@ daeMetaElement::~daeMetaElement()
 {
 	if (_metaContents)
 		delete _metaContents;
+    if (_contentModel) // sthomas
+        delete _contentModel;
+    if (_metaContentsOrder) // sthomas
+        delete _metaContentsOrder;
+}
+
+void daeMetaElement::setCMRoot( daeMetaCMPolicy *cm )
+{
+    if (_contentModel) 
+        delete _contentModel;
+    _contentModel = cm;
 }
 
 void
@@ -139,6 +152,10 @@ daeMetaElement::addContentsOrder(daeInt offset)
 	meaa->setName("contentsOrder");
 	meaa->setOffset(offset);
 	meaa->setContainer( this);
+
+    if (_metaContentsOrder)
+        delete _metaContentsOrder;
+
 	_metaContentsOrder = meaa;
 }
 
@@ -237,7 +254,23 @@ daeMetaElement::getMetaAttribute(daeString s)
 
 void daeMetaElement::releaseMetas()
 {
-	_metas.clear();
+	_metas().clear();
+	size_t count = _classMetaPointers().getCount();
+	for ( size_t i = 0; i < count; i++ )
+	{
+		*(_classMetaPointers()[i]) = NULL;
+	}
+	_classMetaPointers().clear();
+	if (mera)
+	{
+		delete mera;
+		mera = NULL;
+	}
+	if (mes)
+	{
+		delete mes;
+		mes = NULL;
+	}
 }
 
 daeBool daeMetaElement::place(daeElement *parent, daeElement *child, daeUInt *ordinal )
@@ -261,7 +294,8 @@ daeBool daeMetaElement::place(daeElement *parent, daeElement *child, daeUInt *or
 			daeUIntArray* contentsOrder =
 				(daeUIntArray*)_metaContentsOrder->getWritableMemory(parent);
 			daeBool needsAppend = true;
-			for ( size_t x = 0; x < contentsOrder->getCount(); x++ ) {
+			size_t cnt = contentsOrder->getCount();
+			for ( size_t x = 0; x < cnt; x++ ) {
 				if ( contentsOrder->get(x) > ord ) {
 					contents->insertAt( x, retVal );
 					contentsOrder->insertAt( x, ord );
@@ -300,7 +334,12 @@ daeBool daeMetaElement::placeAt( daeInt index, daeElement *parent, daeElement *c
 				validLoc = contentsOrder->get(index) >= ord && contentsOrder->get(index) <= ord;
 			}
 			else {
-				validLoc = contentsOrder->get(index) >= ord;
+				if ( contentsOrder->getCount() == 0 ) {
+					validLoc = true;
+				}
+				else {
+					validLoc = contentsOrder->get(index) >= ord;
+				}
 			}
 			if ( validLoc ) {
 				contents->insertAt( index, retVal );
@@ -462,3 +501,22 @@ void daeMetaElement::getChildren( daeElement* parent, daeElementRefArray &array 
 		_contentModel->getChildren( parent, array );
 	}
 }
+
+daeMetaElementRefArray &daeMetaElement::_metas()
+{
+	if (!mera)
+	{
+		mera = new daeMetaElementRefArray();
+	}
+	return *mera;
+}
+
+daeTArray< daeMetaElement** > &daeMetaElement::_classMetaPointers()
+{
+	if (!mes)
+	{
+		mes = new daeTArray< daeMetaElement** >();
+	}
+	return *mes;
+}
+

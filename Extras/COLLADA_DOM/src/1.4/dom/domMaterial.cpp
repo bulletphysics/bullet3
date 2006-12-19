@@ -35,7 +35,7 @@ domMaterial::registerElement()
     
     _Meta = new daeMetaElement;
     _Meta->setName( "material" );
-	_Meta->registerConstructor(domMaterial::create);
+	_Meta->registerClass(domMaterial::create, &_Meta);
 
 	daeMetaCMPolicy *cm = NULL;
 	daeMetaElementAttribute *mea = NULL;
