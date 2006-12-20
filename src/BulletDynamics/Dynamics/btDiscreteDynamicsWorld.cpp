@@ -604,7 +604,6 @@ void	btDiscreteDynamicsWorld::updateAabbs()
 				{
 					//something went wrong, investigate
 					//this assert is unwanted in 3D modelers (danger of loosing work)
-					assert(0);
 					body->setActivationState(DISABLE_SIMULATION);
 					
 					static bool reportMe = true;
