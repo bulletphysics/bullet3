@@ -178,7 +178,7 @@ bool ColladaConverter::convert()
 
 //succesfully loaded file, now convert data
 
-			if ( m_dom->getAsset()->getUp_axis() )
+			if ( m_dom->getAsset() && m_dom->getAsset()->getUp_axis() )
 			{
 				domAsset::domUp_axis * up = m_dom->getAsset()->getUp_axis();
 				switch( up->getValue() )
