@@ -406,11 +406,11 @@ daeBool
 	{
 		strcpy( dst, "NaN" );
 	}
-	else if ( *(daeInt*)src == 0x7f800000 ) //+INF
+	else if ( *(daeUInt*)src == 0x7f800000 ) //+INF
 	{
 		strcpy( dst, "INF" );
 	}
-	else if ( *(daeInt*)src == 0xff800000 ) //-INF
+	else if ( *(daeUInt*)src == 0xff800000 ) //-INF
 	{
 		strcpy( dst, "-INF" );
 	}
@@ -451,11 +451,11 @@ daeBool
 	{
 		strcpy( dst, "NaN" );
 	}
-	else if ( *(daeLong*)src == 0x7ff0000000000000LL ) //+INF
+	else if ( *(daeULong*)src == 0x7ff0000000000000LL ) //+INF
 	{
 		strcpy( dst, "INF" );
 	}
-	else if ( *(daeLong*)src == 0xfff0000000000000LL ) //-INF
+	else if ( *(daeULong*)src == 0xfff0000000000000LL ) //-INF
 	{
 		strcpy( dst, "-INF" );
 	}
@@ -666,7 +666,7 @@ daeResolverType::stringToMemory(daeChar* src, daeChar* dstMemory)
 		} else if (*s == ' ') {
 			char err[512];
 			memset( err, 0, 512 );
-			sprintf(err,"uri contains white space, dom will convert them to %20 in output files!\n  uri=%s", src);
+			sprintf(err,"uri contains white space, dom will convert them to %%20 in output files!\n  uri=%s", src);
 			daeErrorHandler::get()->handleWarning( err );
 		}
 		*t=*s;

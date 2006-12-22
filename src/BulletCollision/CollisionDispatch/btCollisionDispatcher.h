@@ -41,6 +41,7 @@ typedef void (*btNearCallback)(btBroadphasePair& collisionPair, btCollisionDispa
 ///Time of Impact, Closest Points and Penetration Depth.
 class btCollisionDispatcher : public btDispatcher
 {
+	int m_count;
 	
 	std::vector<btPersistentManifold*>	m_manifoldsPtr;
 
@@ -68,7 +69,6 @@ class btCollisionDispatcher : public btDispatcher
 
 public:
 
-	
 	///registerCollisionCreateFunc allows registration of custom/alternative collision create functions
 	void	registerCollisionCreateFunc(int proxyType0,int proxyType1, btCollisionAlgorithmCreateFunc* createFunc);
 
@@ -92,8 +92,6 @@ public:
 		return m_manifoldsPtr[index];
 	}
 
-	int m_count;
-	
 	///the default constructor creates/register default collision algorithms, for convex, compound and concave shape support
 	btCollisionDispatcher ();
 

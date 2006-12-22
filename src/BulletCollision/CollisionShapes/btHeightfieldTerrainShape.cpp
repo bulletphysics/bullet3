@@ -44,7 +44,6 @@ void	btHeightfieldTerrainShape::processAllTriangles(btTriangleCallback* callback
 {
 
 	btVector3 halfExtents = (aabbMax - aabbMin) * btScalar(0.5);
-	btScalar radius = halfExtents.length();
 	btVector3 center = (aabbMax + aabbMin) * btScalar(0.5);
 	
 	//TODO
@@ -60,6 +59,7 @@ void	btHeightfieldTerrainShape::processAllTriangles(btTriangleCallback* callback
 	btVector3 projectedCenter = center - (m_planeNormal.dot(center) - m_planeConstant)*m_planeNormal;
 	
 	btVector3 triangle[3];
+	btScalar radius = halfExtents.length();
 	triangle[0] = projectedCenter + tangentDir0*radius + tangentDir1*radius;
 	triangle[1] = projectedCenter + tangentDir0*radius - tangentDir1*radius;
 	triangle[2] = projectedCenter - tangentDir0*radius - tangentDir1*radius;

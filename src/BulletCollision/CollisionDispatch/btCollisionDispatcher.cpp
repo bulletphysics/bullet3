@@ -33,10 +33,10 @@ int gNumManifold = 0;
 #include <stdio.h>
 
 	
-btCollisionDispatcher::btCollisionDispatcher(bool noDefaultAlgorithms)
-:m_useIslands(true),
-m_convexConvexCreateFunc(0),
+btCollisionDispatcher::btCollisionDispatcher(bool noDefaultAlgorithms):
 m_count(0),
+m_useIslands(true),
+m_convexConvexCreateFunc(0),
 m_convexConcaveCreateFunc(0),
 m_swappedConvexConcaveCreateFunc(0),
 m_compoundCreateFunc(0),
@@ -62,8 +62,8 @@ m_emptyCreateFunc(0)
 #ifndef BT_EXCLUDE_DEFAULT_COLLISIONALGORITHM_REGISTRATION
 
 btCollisionDispatcher::btCollisionDispatcher (): 
-	m_useIslands(true),
-		m_count(0)
+	m_count(0),
+	m_useIslands(true)
 {
 	int i;
 

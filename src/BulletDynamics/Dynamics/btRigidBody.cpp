@@ -30,12 +30,12 @@ static int uniqueId = 0;
 
 btRigidBody::btRigidBody(btScalar mass, btMotionState* motionState, btCollisionShape* collisionShape, const btVector3& localInertia,btScalar linearDamping,btScalar angularDamping,btScalar friction,btScalar restitution)
 : 
-	m_gravity(btScalar(0.0), btScalar(0.0), btScalar(0.0)),
-	m_totalForce(btScalar(0.0), btScalar(0.0), btScalar(0.0)),
-	m_totalTorque(btScalar(0.0), btScalar(0.0), btScalar(0.0)),
 	m_linearVelocity(btScalar(0.0), btScalar(0.0), btScalar(0.0)),
 	m_angularVelocity(btScalar(0.),btScalar(0.),btScalar(0.)),
 	m_angularFactor(btScalar(1.)),
+	m_gravity(btScalar(0.0), btScalar(0.0), btScalar(0.0)),
+	m_totalForce(btScalar(0.0), btScalar(0.0), btScalar(0.0)),
+	m_totalTorque(btScalar(0.0), btScalar(0.0), btScalar(0.0)),
 	m_linearDamping(btScalar(0.)),
 	m_angularDamping(btScalar(0.5)),
 	m_optionalMotionState(motionState),

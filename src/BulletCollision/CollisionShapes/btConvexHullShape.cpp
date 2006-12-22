@@ -49,7 +49,7 @@ btVector3	btConvexHullShape::localGetSupportingVertexWithoutMargin(const btVecto
 	}
 
 
-	for (size_t i=0;i<m_points.size();i++)
+	for (int i=0;i<m_points.size();i++)
 	{
 		btPoint3 vtx = m_points[i] * m_localScaling;
 
@@ -73,7 +73,7 @@ void	btConvexHullShape::batchedUnitVectorGetSupportingVertexWithoutMargin(const 
 			supportVerticesOut[i][3] = btScalar(-1e30);
 		}
 	}
-	for (size_t i=0;i<m_points.size();i++)
+	for (int i=0;i<m_points.size();i++)
 	{
 		btPoint3 vtx = m_points[i] * m_localScaling;
 

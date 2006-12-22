@@ -11,4 +11,4 @@ SubInclude TOP Extras GIMPACT ;
 SubInclude TOP Extras GIMPACTBullet ;
 
 #GPUphysics needs 'make', not jam compatible build yet:
-SubInclude TOP Extras GPUphysics ;
+#SubInclude TOP Extras GPUphysics ;

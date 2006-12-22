@@ -113,8 +113,10 @@ void CollisionDemo::initPhysics()
 	btVector3 boxHalfExtentsA(1.0000004768371582f,1.0000004768371582f,1.0000001192092896f);
 	btVector3 boxHalfExtentsB(3.2836332321166992f,3.2836332321166992f,3.2836320400238037f);
 
-	btBoxShape*	boxA = new btBoxShape(boxHalfExtentsA);
-	btBoxShape*	boxB = new btBoxShape(boxHalfExtentsB);
+#ifndef CHECK_GENSHER_TRIANGLE_CASE
+  	btBoxShape*	boxA = new btBoxShape(boxHalfExtentsA);
+  	btBoxShape*	boxB = new btBoxShape(boxHalfExtentsB);
+#endif
 
 	float p1[3], p2[3], p3[3], q1[3],q2[3], q3[3]; 
 
@@ -155,8 +157,8 @@ void CollisionDemo::initPhysics()
 
 
 #ifdef CHECK_GENSHER_TRIANGLE_CASE
-	shapePtr[0] = trishapeA;//boxA;
-	shapePtr[1] = trishapeB;//boxB;
+	shapePtr[0] = trishapeA;
+	shapePtr[1] = trishapeB;
 #else
 	shapePtr[0] = boxA;
 	shapePtr[1] = boxB;

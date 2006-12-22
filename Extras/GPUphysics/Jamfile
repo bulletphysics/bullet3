@@ -20,3 +20,4 @@ if $(GLUT.AVAILABLE) = "yes"
 
 
 GPUDemo GPUphysics : [ Wildcard *.h *.cpp  ] ;
+

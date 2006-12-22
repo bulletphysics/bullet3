@@ -723,10 +723,10 @@ class DebugDrawcallback : public btTriangleCallback, public btInternalTriangleIn
 
 public:
 
-	DebugDrawcallback(btIDebugDraw*	debugDrawer,const btTransform& worldTrans,const btVector3& color)
-		: m_debugDrawer(debugDrawer),
-		m_worldTrans(worldTrans),
-		m_color(color)
+	DebugDrawcallback(btIDebugDraw*	debugDrawer,const btTransform& worldTrans,const btVector3& color) :
+                m_debugDrawer(debugDrawer),
+		m_color(color),
+		m_worldTrans(worldTrans)
 	{
 	}
 

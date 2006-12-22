@@ -50,3 +50,4 @@ public:
 };
 
 #endif //BOX_BOX__COLLISION_ALGORITHM_H
+

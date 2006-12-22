@@ -41,7 +41,9 @@ void*	btAlignedAlloc	(int size, int alignment)
 
 void	btAlignedFree	(void* ptr)
 {
-	delete ptr;
+	delete [] (char*) ptr;
 }
 
 #endif
+
+
