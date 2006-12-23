@@ -99,18 +99,20 @@
 				OutputFile="[% path([my.doc.buildroot.0, my.doc.target.0]) %]"
 [% END %]
 
-[% MACRO linker_app(subsys,prefix) BLOCK -%]
+[% MACRO linker_app_release(subsys) BLOCK -%]
+				OutputFile="[% path([my.doc.buildroot.0, glue(['Release',my.doc.target.0])]) %]"
+				SubSystem="[% subsys %]"
 [% END %]
-[% MACRO linker_appcon GET linker_app(1) %]
-[% MACRO linker_appgui_release BLOCK -%]
-		OutputFile="[% path([my.doc.buildroot.0, glue([ 'Release_',my.doc.target.0])]) %]"
-		SubSystem="1"
+[% MACRO linker_app_debug(subsys) BLOCK -%]
+				OutputFile="[% path([my.doc.buildroot.0, glue(['Debug',my.doc.target.0])]) %]"
+				SubSystem="[% subsys %]"
 [% END %]
 
-[% MACRO linker_appgui_debug BLOCK -%]
-				OutputFile="[% path([my.doc.buildroot.0, glue([ 'Debug_',my.doc.target.0])]) %]"
-				SubSystem="2"
-[% END %]
+[% MACRO linker_appcon_release GET linker_app_release(2) %]
+[% MACRO linker_appcon_debug GET linker_app_debug(1) %]
+
+[% MACRO linker_appgui_release GET linker_app_debug(2) %]
+[% MACRO linker_appgui_debug GET linker_app_debug(1) %]
 
 [% MACRO linker_plugin BLOCK -%]
 [% linker_common -%]
