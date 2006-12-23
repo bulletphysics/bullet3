@@ -26,7 +26,7 @@ subject to the following restrictions:
 #include "LinearMath/btIDebugDraw.h"
 #include "BMF_Api.h"
 #include "GL_ShapeDrawer.h"
-#include "doublePrecisionDemo.h"
+#include "DoublePrecisionDemo.h"
 #include "GlutStuff.h"
 #include "GLDebugDrawer.h"
 

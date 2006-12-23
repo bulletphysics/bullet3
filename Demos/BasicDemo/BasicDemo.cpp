@@ -45,17 +45,6 @@ class myTest
 
 int main(int argc,char** argv)
 {
-
-	{
-		///btAlignedObjectArray works the same as std::vector but
-		///allows 16-byte aligned objects like SIMD vectors etc.
-		btAlignedObjectArray<btVector3>	m_points;
-		m_points.push_back(btVector3(1,2,3));
-		const btVector3& ref = m_points[0];
-		m_points[0] = btVector3(2,3,4);
-		m_points.pop_back();
-	}
-
 	BasicDemo ccdDemo;
 	ccdDemo.initPhysics();
 	ccdDemo.setCameraDistance(btScalar(50.));
