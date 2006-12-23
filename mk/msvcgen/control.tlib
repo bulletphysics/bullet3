@@ -121,6 +121,20 @@ builds = [
     libdirskey => 'libdir',
     priority => 100
   },
+{
+    tag => 'release_dbl',
+    name => 'ReleaseDoublePrecision',
+    defines => ['NDEBUG','BT_USE_DOUBLE_PRECISION'],
+    snpreprocessor => 'SN_TARGET_PS3;NDEBUG;__GCC__',
+    snadditional => '-O2 -Wall -fno-exceptions',
+    defineskey => 'define',
+    cflagskey => 'cflags',
+    incdirskey => 'include',
+    lflagskey => 'lflags',
+    libskey => 'library',
+    libdirskey => 'libdir',
+    priority => 100
+  },
   {
     tag => 'debug',
     name => 'Debug',
@@ -134,7 +148,23 @@ builds = [
     libskey => 'librarydebug',
     libdirskey => 'libdirdebug',
     priority => 200
-  }
+  },
+{
+    tag => 'debug_dbl',
+    name => 'DebugDoublePrecision',
+    defines => ['_DEBUG','BT_USE_DOUBLE_PRECISION'],
+    snpreprocessor => 'SN_TARGET_PS3;_DEBUG;__GCC__',
+    snadditional => '-g -O0 -Wall -fno-exceptions',
+    defineskey => 'definedebug',
+    cflagskey => 'cflagsdebug',
+    incdirskey => 'includedebug',
+    lflagskey => 'lflagsdebug',
+    libskey => 'librarydebug',
+    libdirskey => 'libdirdebug',
+    priority => 200
+  },
+
+
 ];
 
 #------------------------------------------------------------------------------
