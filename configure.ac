@@ -81,6 +81,8 @@ AS_IF([test $cs_host_family = windows],
     CS_EMIT_BUILD_PROPERTY([COMPILER.LFLAGS], [$glut_lflags], [+])
     ])
 
+CS_CHECK_GLUT
+
 #----------------------------------------------------------------------------
 # check for OpenGL related libraries
 #----------------------------------------------------------------------------
