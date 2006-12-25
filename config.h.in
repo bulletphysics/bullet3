@@ -48,12 +48,6 @@
 /* Define to 1 if you have the <windows.h> header file. */
 #undef HAVE_WINDOWS_H
 
-/* Define for Win32 platforms */
-#undef NOMINMAX
-
-/* Name of package */
-#undef PACKAGE
-
 /* Define to the address where bug reports for this package should be sent. */
 #undef PACKAGE_BUGREPORT
 
@@ -71,12 +65,6 @@
 
 /* Define to 1 if you have the ANSI C header files. */
 #undef STDC_HEADERS
-
-/* Version number of package */
-#undef VERSION
-
-/* Define for Win32 platforms */
-#undef WIN32
 
 /* Define to 1 if the X Window System is missing or not being used. */
 #undef X_DISPLAY_MISSING

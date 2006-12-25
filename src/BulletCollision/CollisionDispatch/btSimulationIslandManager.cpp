@@ -271,14 +271,22 @@ void btSimulationIslandManager::buildAndProcessIslands(btDispatcher* dispatcher,
 	//int islandId;
 
 
-		//update the sleeping state for bodies, if all are sleeping
+	//traverse the simulation islands, and call the solver, unless all objects are sleeping/deactivated
 	for (int startIslandIndex=0;startIslandIndex<numElem;startIslandIndex = endIslandIndex)
 	{
 		int islandId = getUnionFind().getElement(startIslandIndex).m_id;
 
-		for (endIslandIndex = startIslandIndex+1;(endIslandIndex<numElem) && (getUnionFind().getElement(endIslandIndex).m_id == islandId);endIslandIndex++)
-		{
-		}
+
+	       bool islandSleeping = false;
+                
+                for (endIslandIndex = startIslandIndex;(endIslandIndex<numElem) && (getUnionFind().getElement(endIslandIndex).m_id == islandId);endIslandIndex++)
+                {
+                        int i = getUnionFind().getElement(endIslandIndex).m_sz;
+                        btCollisionObject* colObj0 = collisionObjects[i];
+                        if (!colObj0->isActive())
+                                islandSleeping = true;
+                }
+                
 
 		//find the accompanying contact manifold for this islandId
 		int numIslandManifolds = 0;
@@ -301,8 +309,11 @@ void btSimulationIslandManager::buildAndProcessIslands(btDispatcher* dispatcher,
 
 		}
 
-		callback->ProcessIsland(startManifold,numIslandManifolds, islandId);
-
+		if (!islandSleeping)
+		{
+			callback->ProcessIsland(startManifold,numIslandManifolds, islandId);
+		}
+		
 		if (numIslandManifolds)
 		{
 			startManifoldIndex = endManifoldIndex;

@@ -9,7 +9,7 @@ AC_PREREQ([2.54])
 #----------------------------------------------------------------------------
 AC_INIT(
     [bullet],
-    [2.40],
+    [2.41],
     [bullet@erwincoumans.com])
 CS_PACKAGEINFO(
     [Bullet Continuous Collision Detection and Physics Library],
@@ -18,9 +18,6 @@ CS_PACKAGEINFO(
 AC_CONFIG_SRCDIR([mk/jam/build.jam])
 AC_CONFIG_AUX_DIR([mk/autoconf])
 AC_CANONICAL_HOST
-AC_PROG_RANLIB
-AC_PROG_CXX
-AM_INIT_AUTOMAKE
 
 #----------------------------------------------------------------------------
 # Setup for the configuration header.
@@ -80,44 +77,7 @@ AS_IF([test $cs_host_family = windows],
     CS_EMIT_BUILD_PROPERTY([COMPILER.CFLAGS], [$glut_cflags], [+])
     CS_EMIT_BUILD_PROPERTY([COMPILER.LFLAGS], [$glut_lflags], [+])
     ])
-
 CS_CHECK_GLUT
-
-#----------------------------------------------------------------------------
-# check for OpenGL related libraries
-#----------------------------------------------------------------------------
-
-case "${host}" in
-*darwin*|*macosx*)
-    opengl_LIBS="$LIBS -framework Carbon -framework OpenGL -framework IOKit -framework AGL"
-    ;;
-
-*-*-cygwin* | *-*-mingw32*)
-    dnl CygWin under Windoze.
-
-    echo Win32 specific hacks...
-    AC_DEFINE([WIN32], 1, [Define for Win32 platforms])
-    AC_DEFINE([NOMINMAX], 1, [Define for Win32 platforms])
-
-    opengl_LIBS="-lglut32 -lglu32 -lopengl32 -luser32 -lgdi32 -lm -lwinmm"
-    joystick_LIBS="$joystick_LIBS -lwinmm"
-
-    echo "Will link apps with $LIBS"
-    ;;
-*)
-   dnl X-Windows based machines
-
-   save_LIBS=$LIBS
-   AC_SEARCH_LIBS(glNewList, [ GL GLcore MesaGL ])
-   AC_SEARCH_LIBS(glutInit, [ glut ])
-   opengl_LIBS="$LIBS"
-   LIBS=$save_LIBS
-   if test "x$ac_cv_search_glNewList" = "x-lGLcore"; then
-       dnl if GLcore found, then also check for GL
-       AC_SEARCH_LIBS(glXCreateContext, GL)
-   fi
-   AC_SUBST(opengl_LIBS,[$opengl_LIBS])
-esac
 
 #----------------------------------------------------------------------------
 # Package configuration switches.
@@ -143,8 +103,7 @@ CS_EMIT_PACKAGEINFO
 # Emit generated files.
 #----------------------------------------------------------------------------
 CS_JAMCONFIG_OUTPUT([Jamconfig])
-AC_CONFIG_FILES([Jamfile bullet.pc Makefile src/Makefile Demos/OpenGL/Makefile Demos/BasicDemo/Makefile Demos/VehicleDemo/Makefile Demos/CcdPhysicsDemo/Makefile])
-
+AC_CONFIG_FILES([Jamfile bullet.pc])
 AC_OUTPUT
 
 AC_MSG_NOTICE([
