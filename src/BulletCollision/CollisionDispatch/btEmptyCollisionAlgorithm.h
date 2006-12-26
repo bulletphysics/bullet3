@@ -15,7 +15,7 @@ subject to the following restrictions:
 
 #ifndef EMPTY_ALGORITH
 #define EMPTY_ALGORITH
-#include "BulletCollision/BroadphaseCollision/btCollisionAlgorithm.h"
+#include "../BroadphaseCollision/btCollisionAlgorithm.h"
 #include "btCollisionCreateFunc.h"
 
 #define ATTRIBUTE_ALIGNED(a)

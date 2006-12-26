@@ -28,7 +28,7 @@ DEALINGS IN THE SOFTWARE.
 #ifndef IDEBUG_DRAW__H
 #define IDEBUG_DRAW__H
 
-#include "LinearMath/btVector3.h"
+#include "btVector3.h"
 
 
 class	btIDebugDraw

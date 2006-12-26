@@ -17,8 +17,8 @@ subject to the following restrictions:
 #define CYLINDER_MINKOWSKI_H
 
 #include "btBoxShape.h"
-#include "BulletCollision/BroadphaseCollision/btBroadphaseProxy.h" // for the types
-#include "LinearMath/btVector3.h"
+#include "../BroadphaseCollision/btBroadphaseProxy.h" // for the types
+#include "../../LinearMath/btVector3.h"
 
 /// implements cylinder shape interface
 class btCylinderShape : public btBoxShape

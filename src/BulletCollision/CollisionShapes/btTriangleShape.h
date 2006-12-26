@@ -17,7 +17,7 @@ subject to the following restrictions:
 #define OBB_TRIANGLE_MINKOWSKI_H
 
 #include "btConvexShape.h"
-#include "BulletCollision/CollisionShapes/btBoxShape.h"
+#include "btBoxShape.h"
 
 class btTriangleShape : public btPolyhedralConvexShape
 {

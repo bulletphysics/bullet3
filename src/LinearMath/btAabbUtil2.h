@@ -17,8 +17,8 @@ subject to the following restrictions:
 #ifndef AABB_UTIL2
 #define AABB_UTIL2
 
-#include "LinearMath/btVector3.h"
-#include "LinearMath/btSimdMinMax.h"
+#include "btVector3.h"
+#include "btSimdMinMax.h"
 
 
 #define btMin(a,b) ((a < b ? a : b))

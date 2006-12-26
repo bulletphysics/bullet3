@@ -16,7 +16,7 @@ subject to the following restrictions:
 #ifndef BT_MOTIONSTATE_H
 #define BT_MOTIONSTATE_H
 
-#include "LinearMath/btTransform.h"
+#include "btTransform.h"
 
 ///btMotionState allows the dynamics world to synchronize the updated world transforms with graphics
 ///For optimizations, potentially only moving objects get synchronized (using setWorldPosition/setWorldOrientation)

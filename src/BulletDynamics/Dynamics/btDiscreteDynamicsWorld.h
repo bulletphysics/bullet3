@@ -23,7 +23,7 @@ class btOverlappingPairCache;
 class btConstraintSolver;
 class btSimulationIslandManager;
 class btTypedConstraint;
-#include "BulletDynamics/ConstraintSolver/btContactSolverInfo.h"
+#include "../ConstraintSolver/btContactSolverInfo.h"
 
 class btRaycastVehicle;
 class btIDebugDraw;

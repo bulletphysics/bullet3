@@ -17,8 +17,8 @@ subject to the following restrictions:
 #define PERSISTENT_MANIFOLD_H
 
 
-#include "LinearMath/btVector3.h"
-#include "LinearMath/btTransform.h"
+#include "../../LinearMath/btVector3.h"
+#include "../../LinearMath/btTransform.h"
 #include "btManifoldPoint.h"
 
 struct btCollisionResult;

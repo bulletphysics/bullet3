@@ -17,12 +17,10 @@ subject to the following restrictions:
 #define RIGIDBODY_H
 
 #include <vector>
-#include <LinearMath/btPoint3.h>
-#include <LinearMath/btTransform.h>
-#include "BulletCollision/BroadphaseCollision/btBroadphaseProxy.h"
-
-
-#include "BulletCollision/CollisionDispatch/btCollisionObject.h"
+#include "../../LinearMath/btPoint3.h"
+#include "../../LinearMath/btTransform.h"
+#include "../../BulletCollision/BroadphaseCollision/btBroadphaseProxy.h"
+#include "../../BulletCollision/CollisionDispatch/btCollisionObject.h"
 
 class btCollisionShape;
 class btMotionState;

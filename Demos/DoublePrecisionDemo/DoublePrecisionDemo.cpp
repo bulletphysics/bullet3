@@ -174,7 +174,6 @@ void DoublePrecisionDemo::displayCallback(void)
   objects[1].getWorldTransform().setOrigin(objects[1].getWorldTransform().getOrigin()+btVector3(-VERY_SMALL_INCREMENT,-VERY_SMALL_INCREMENT,0));
   objects[0].getWorldTransform().setOrigin(objects[0].getWorldTransform().getOrigin()+btVector3(VERY_SMALL_INCREMENT,VERY_SMALL_INCREMENT,0));
   
-  float xOffset = 10.f;
   float yStart = 20.f;
   float yIncr = 20.f;
   char buf[124];

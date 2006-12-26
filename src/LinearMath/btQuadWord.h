@@ -16,7 +16,7 @@ subject to the following restrictions:
 #ifndef SIMD_QUADWORD_H
 #define SIMD_QUADWORD_H
 
-#include "LinearMath/btScalar.h"
+#include "btScalar.h"
 
 
 

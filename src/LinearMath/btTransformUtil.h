@@ -16,7 +16,7 @@ subject to the following restrictions:
 #ifndef SIMD_TRANSFORM_UTIL_H
 #define SIMD_TRANSFORM_UTIL_H
 
-#include "LinearMath/btTransform.h"
+#include "btTransform.h"
 #define ANGULAR_MOTION_THRESHOLD btScalar(0.5)*SIMD_HALF_PI
 
 

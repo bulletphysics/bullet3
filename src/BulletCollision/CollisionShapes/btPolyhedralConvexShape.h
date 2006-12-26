@@ -16,9 +16,9 @@ subject to the following restrictions:
 #ifndef BU_SHAPE
 #define BU_SHAPE
 
-#include <LinearMath/btPoint3.h>
-#include <LinearMath/btMatrix3x3.h>
-#include <BulletCollision/CollisionShapes/btConvexShape.h>
+#include "../../LinearMath/btPoint3.h"
+#include "../../LinearMath/btMatrix3x3.h"
+#include "btConvexShape.h"
 
 
 ///PolyhedralConvexShape is an interface class for feature based (vertex/edge/face) convex shapes.

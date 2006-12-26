@@ -19,8 +19,8 @@
 #ifndef AXIS_SWEEP_3_H
 #define AXIS_SWEEP_3_H
 
-#include "LinearMath/btPoint3.h"
-#include "LinearMath/btVector3.h"
+#include "../../LinearMath/btPoint3.h"
+#include "../../LinearMath/btVector3.h"
 #include "btOverlappingPairCache.h"
 #include "btBroadphaseProxy.h"
 

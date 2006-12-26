@@ -17,9 +17,9 @@ subject to the following restrictions:
 #ifndef TRIANGLE_MESH_H
 #define TRIANGLE_MESH_H
 
-#include "BulletCollision/CollisionShapes/btStridingMeshInterface.h"
-#include <LinearMath/btVector3.h>
-#include "LinearMath/btAlignedObjectArray.h"
+#include "btStridingMeshInterface.h"
+#include "../../LinearMath/btVector3.h"
+#include "../../LinearMath/btAlignedObjectArray.h"
 struct btMyTriangle
 {
 	btVector3	m_vert0;

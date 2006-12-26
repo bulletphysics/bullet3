@@ -3,7 +3,7 @@
 
 
 #include "btPolyhedralConvexShape.h"
-#include "BulletCollision/BroadphaseCollision/btBroadphaseProxy.h" // for the types
+#include "../BroadphaseCollision/btBroadphaseProxy.h" // for the types
 
 #include <vector>
 

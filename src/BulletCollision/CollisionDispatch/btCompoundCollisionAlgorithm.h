@@ -16,13 +16,13 @@ subject to the following restrictions:
 #ifndef COMPOUND_COLLISION_ALGORITHM_H
 #define COMPOUND_COLLISION_ALGORITHM_H
 
-#include "BulletCollision/BroadphaseCollision/btCollisionAlgorithm.h"
-#include "BulletCollision/BroadphaseCollision/btDispatcher.h"
-#include "BulletCollision/BroadphaseCollision/btBroadphaseInterface.h"
+#include "../BroadphaseCollision/btCollisionAlgorithm.h"
+#include "../BroadphaseCollision/btDispatcher.h"
+#include "../BroadphaseCollision/btBroadphaseInterface.h"
 
-#include "BulletCollision/NarrowPhaseCollision/btPersistentManifold.h"
+#include "../NarrowPhaseCollision/btPersistentManifold.h"
 class btDispatcher;
-#include "BulletCollision/BroadphaseCollision/btBroadphaseProxy.h"
+#include "../BroadphaseCollision/btBroadphaseProxy.h"
 #include <vector>
 #include "btCollisionCreateFunc.h"
 

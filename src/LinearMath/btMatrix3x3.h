@@ -16,10 +16,10 @@ subject to the following restrictions:
 #ifndef btMatrix3x3_H
 #define btMatrix3x3_H
 
-#include "LinearMath/btScalar.h"
+#include "btScalar.h"
 
-#include "LinearMath/btVector3.h"
-#include "LinearMath/btQuaternion.h"
+#include "btVector3.h"
+#include "btQuaternion.h"
 
 
 class btMatrix3x3 {

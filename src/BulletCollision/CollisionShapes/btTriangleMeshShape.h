@@ -16,8 +16,8 @@ subject to the following restrictions:
 #ifndef TRIANGLE_MESH_SHAPE_H
 #define TRIANGLE_MESH_SHAPE_H
 
-#include "BulletCollision/CollisionShapes/btConcaveShape.h"
-#include "BulletCollision/CollisionShapes/btStridingMeshInterface.h"
+#include "btConcaveShape.h"
+#include "btStridingMeshInterface.h"
 
 
 ///Concave triangle mesh. Uses an interface to access the triangles to allow for sharing graphics/physics triangles.

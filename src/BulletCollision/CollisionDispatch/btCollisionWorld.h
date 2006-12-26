@@ -67,11 +67,11 @@ subject to the following restrictions:
 class btStackAlloc;
 class btCollisionShape;
 class btBroadphaseInterface;
-#include "LinearMath/btVector3.h"
-#include "LinearMath/btTransform.h"
+#include "../../LinearMath/btVector3.h"
+#include "../../LinearMath/btTransform.h"
 #include "btCollisionObject.h"
 #include "btCollisionDispatcher.h" //for definition of btCollisionObjectArray
-#include "BulletCollision/BroadphaseCollision/btOverlappingPairCache.h"
+#include "../BroadphaseCollision/btOverlappingPairCache.h"
 
 #include <vector>
 

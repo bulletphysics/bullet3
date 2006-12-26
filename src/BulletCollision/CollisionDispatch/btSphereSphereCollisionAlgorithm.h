@@ -16,9 +16,9 @@ subject to the following restrictions:
 #ifndef SPHERE_SPHERE_COLLISION_ALGORITHM_H
 #define SPHERE_SPHERE_COLLISION_ALGORITHM_H
 
-#include "BulletCollision/BroadphaseCollision/btCollisionAlgorithm.h"
-#include "BulletCollision/BroadphaseCollision/btBroadphaseProxy.h"
-#include "BulletCollision/CollisionDispatch/btCollisionCreateFunc.h"
+#include "../BroadphaseCollision/btCollisionAlgorithm.h"
+#include "../BroadphaseCollision/btBroadphaseProxy.h"
+#include "../CollisionDispatch/btCollisionCreateFunc.h"
 class btPersistentManifold;
 
 /// btSphereSphereCollisionAlgorithm  provides sphere-sphere collision detection.

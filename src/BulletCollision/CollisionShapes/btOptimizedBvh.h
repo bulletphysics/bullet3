@@ -17,7 +17,7 @@ subject to the following restrictions:
 #define OPTIMIZED_BVH_H
 
 
-#include "LinearMath/btVector3.h"
+#include "../../LinearMath/btVector3.h"
 
 
 //http://msdn.microsoft.com/library/default.asp?url=/library/en-us/vclang/html/vclrf__m128.asp
@@ -60,8 +60,8 @@ public:
 	virtual void processNode(const btOptimizedBvhNode* node) = 0;
 };
 
-#include "LinearMath/btAlignedAllocator.h"
-#include "LinearMath/btAlignedObjectArray.h"
+#include "../../LinearMath/btAlignedAllocator.h"
+#include "../../LinearMath/btAlignedObjectArray.h"
 
 //typedef std::vector< unsigned , allocator_type >     container_type;
 const unsigned size = (1 << 20);

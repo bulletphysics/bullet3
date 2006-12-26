@@ -17,10 +17,10 @@ subject to the following restrictions:
 #define OBB_BOX_MINKOWSKI_H
 
 #include "btPolyhedralConvexShape.h"
-#include "BulletCollision/CollisionShapes/btCollisionMargin.h"
-#include "BulletCollision/BroadphaseCollision/btBroadphaseProxy.h"
-#include "LinearMath/btPoint3.h"
-#include "LinearMath/btSimdMinMax.h"
+#include "btCollisionMargin.h"
+#include "../BroadphaseCollision/btBroadphaseProxy.h"
+#include "../../LinearMath/btPoint3.h"
+#include "../../LinearMath/btSimdMinMax.h"
 
 ///btBoxShape implements both a feature based (vertex/edge/plane) and implicit (getSupportingVertex) Box
 class btBoxShape: public btPolyhedralConvexShape

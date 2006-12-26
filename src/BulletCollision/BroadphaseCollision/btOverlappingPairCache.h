@@ -20,7 +20,7 @@ subject to the following restrictions:
 
 #include "btBroadphaseInterface.h"
 #include "btBroadphaseProxy.h"
-#include "LinearMath/btPoint3.h"
+#include "../../LinearMath/btPoint3.h"
 #include <set>
 
 

@@ -18,7 +18,6 @@ subject to the following restrictions:
 
 #include "btConstraintSolver.h"
 class btIDebugDraw;
-
 #include "btContactConstraint.h"
 	
 

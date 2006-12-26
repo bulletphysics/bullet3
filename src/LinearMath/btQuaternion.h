@@ -17,7 +17,7 @@ subject to the following restrictions:
 #ifndef SIMD__QUATERNION_H_
 #define SIMD__QUATERNION_H_
 
-#include "LinearMath/btVector3.h"
+#include "btVector3.h"
 
 class btQuaternion : public btQuadWord {
 public:

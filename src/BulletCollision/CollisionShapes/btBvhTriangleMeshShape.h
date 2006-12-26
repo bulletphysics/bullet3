@@ -16,8 +16,8 @@ subject to the following restrictions:
 #ifndef BVH_TRIANGLE_MESH_SHAPE_H
 #define BVH_TRIANGLE_MESH_SHAPE_H
 
-#include "BulletCollision/CollisionShapes/btTriangleMeshShape.h"
-#include "BulletCollision/CollisionShapes/btOptimizedBvh.h"
+#include "btTriangleMeshShape.h"
+#include "btOptimizedBvh.h"
 
 ///Bvh Concave triangle mesh is a static-triangle mesh shape with Bounding Volume Hierarchy optimization.
 ///Uses an interface to access the triangles to allow for sharing graphics/physics triangles.

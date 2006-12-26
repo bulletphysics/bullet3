@@ -17,8 +17,8 @@ subject to the following restrictions:
 #ifndef btTransform_H
 #define btTransform_H
 
-#include "LinearMath/btVector3.h"
-#include "LinearMath/btMatrix3x3.h"
+#include "btVector3.h"
+#include "btMatrix3x3.h"
 
 
 ///btTransform supports rigid transforms (only translation and rotation, no scaling/shear)
