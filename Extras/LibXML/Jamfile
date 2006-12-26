@@ -14,5 +14,5 @@ CFlags libxml :
 
 LibDepends libxml :  ;
 
-InstallHeader [ Wildcard *.h ] : LibXML ;
+#InstallHeader [ Wildcard *.h ] : LibXML ;
 

@@ -9,4 +9,3 @@ Library bulletdynamics :
 
 LibDepends bulletdynamics : bulletcollision  ;
 
-Recurse InstallHeader : .h  ;

@@ -4,3 +4,4 @@ SubInclude TOP src BulletCollision ;
 SubInclude TOP src BulletDynamics ;
 SubInclude TOP src LinearMath ;
 
+Recurse InstallHeader : .h  ;

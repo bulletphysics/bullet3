@@ -17,4 +17,4 @@ MsvcGenConfig QUICKSTEP.INCDIRS : $(TOP)/Extras/quickstep ;
 LibDepends quickstep : BulletDynamics ;
 
 
-InstallHeader [ Wildcard *.h ] : quickstep ;
+#InstallHeader [ Wildcard *.h ] : quickstep ;

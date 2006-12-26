@@ -10,4 +10,3 @@ Library bulletcollision :
 ;
 LibDepends bulletcollision : bulletmath  ;
 
-Recurse InstallHeader : .h  ;

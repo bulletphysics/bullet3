@@ -10,4 +10,4 @@ LibDepends convexdecomposition :  ;
 MsvcGenConfig ConvexDecomposition.INCDIRS : $(TOP)/Extras/ConvexDecomposition ;
 
 
-InstallHeader [ Wildcard *.h ] : ConvexDecomposition ;
+#InstallHeader [ Wildcard *.h ] : ConvexDecomposition ;

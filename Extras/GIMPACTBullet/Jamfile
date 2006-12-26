@@ -10,4 +10,4 @@ LibDepends GIMPACTBullet : GIMPACT  ;
 	"../../Extras/GIMPACT/include"  ;
 
 
-InstallHeader [ Wildcard *.h ] : GIMPACTBullet ;
+#InstallHeader [ Wildcard *.h ] : GIMPACTBullet ;

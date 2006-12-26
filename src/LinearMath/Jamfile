@@ -6,4 +6,4 @@ Library bulletmath :
 [ Wildcard *.h *.cpp ]
 	;
 
-InstallHeader [ Wildcard *.h ] ;
+#InstallHeader [ Wildcard *.h ] ;
