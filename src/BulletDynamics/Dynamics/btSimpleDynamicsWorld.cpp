@@ -22,6 +22,14 @@ subject to the following restrictions:
 #include "BulletDynamics/ConstraintSolver/btContactSolverInfo.h"
 
 
+/*
+  Make sure this dummy function never changes so that it
+  can be used by probes that are checking whether the
+  library is actually installed.
+*/
+extern "C" void btBulletDynamicsProbe () {}
+
+
 
 
 btSimpleDynamicsWorld::btSimpleDynamicsWorld(btDispatcher* dispatcher,btOverlappingPairCache* pairCache,btConstraintSolver* constraintSolver)

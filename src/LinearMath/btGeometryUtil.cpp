@@ -16,6 +16,15 @@ subject to the following restrictions:
 
 #include "btGeometryUtil.h"
 
+
+/*
+  Make sure this dummy function never changes so that it
+  can be used by probes that are checking whether the
+  library is actually installed.
+*/
+extern "C" void btBulletMathProbe () {}
+
+
 bool	btGeometryUtil::isPointInsidePlanes(const btAlignedObjectArray<btVector3>& planeEquations, const btVector3& point, btScalar	margin)
 {
 	int numbrushes = planeEquations.size();

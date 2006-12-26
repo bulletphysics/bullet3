@@ -15,6 +15,16 @@ subject to the following restrictions:
 
 #include "BulletCollision/CollisionShapes/btCollisionShape.h"
 
+
+/*
+  Make sure this dummy function never changes so that it
+  can be used by probes that are checking whether the
+  library is actually installed.
+*/
+extern "C" void btBulletCollisionProbe () {}
+
+
+
 void	btCollisionShape::getBoundingSphere(btVector3& center,btScalar& radius) const
 {
 	btTransform tr;
