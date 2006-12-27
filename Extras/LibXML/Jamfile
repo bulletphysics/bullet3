@@ -1,7 +1,7 @@
 SubDir TOP Extras LibXML ;
 
 
-Library libxml : [ Wildcard *.h *.c ] ;
+Library libxml : [ Wildcard *.h *.c ] : noinstall ;
 
 CFlags libxml : 
 [ FIncludes $(TOP)/Extras/LibXML ]

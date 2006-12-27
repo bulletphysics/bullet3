@@ -3,7 +3,7 @@ SubDir TOP Extras quickstep ;
 #this is a bad global
 #IncludeDir Extras/quickstep ;
 
-Library quickstep : [ Wildcard *.h *.cpp ] ;
+Library quickstep : [ Wildcard *.h *.cpp ] : noinstall ;
 #internal header path to compile quickstep
 CFlags quickstep : [ FIncludes $(TOP)/Extras/quickstep ] ;
 

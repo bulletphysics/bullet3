@@ -2,7 +2,7 @@ SubDir TOP Extras GIMPACT ;
 
 #IncludeDir Extras/GIMPACT/include ;
 
-Library GIMPACT : [ Wildcard src : */.h *.cpp ] ;
+Library GIMPACT : [ Wildcard src : */.h *.cpp ] : noinstall ;
 CFlags GIMPACT : [ FIncludes $(TOP)/Extras/GIMPACT/include ] ;
 LibDepends GIMPACT :  ;
 

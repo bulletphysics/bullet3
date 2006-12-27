@@ -11,7 +11,7 @@ Library colladadom :
 	[ Wildcard src/modules/LIBXMLPlugin : *.h *.cpp ]
 	[ Wildcard src/modules/stdErrPlugin : *.h *.cpp ]
 	[ Wildcard src/modules/STLDatabase : *.h *.cpp ]
-
+: noinstall
 
  ;
 

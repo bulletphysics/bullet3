@@ -1,7 +1,7 @@
 SubDir TOP Extras AlternativeCollisionAlgorithms ;
 
 
-Library boxbox : [ Wildcard *.h *.cpp ] ;
+Library boxbox : [ Wildcard *.h *.cpp ] : noinstall ;
 #internal header path to compile boxbox
 CFlags boxbox : [ FIncludes $(TOP)/Extras/AlternativeCollisionAlgorithms ] ;
 

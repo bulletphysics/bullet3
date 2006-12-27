@@ -1,7 +1,6 @@
 SubDir TOP Extras ConvexDecomposition ;
 
-
-Library convexdecomposition : [ Wildcard *.h *.cpp ] ;
+Library convexdecomposition : [ Wildcard *.h *.cpp ] : noinstall  ;
 
 CFlags convexdecomposition : [ FIncludes $(TOP)/Extras/Decomposition ] ;
 

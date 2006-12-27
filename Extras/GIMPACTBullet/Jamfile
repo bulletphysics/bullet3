@@ -1,7 +1,7 @@
 SubDir TOP Extras GIMPACTBullet ;
 
 
-Library GIMPACTBullet : [ Wildcard *.h *.cpp ] ;
+Library GIMPACTBullet : [ Wildcard *.h *.cpp ] : noinstall  ;
 CFlags GIMPACTBullet : [ FIncludes $(TOP)/Extras/GIMPACTBullet $(TOP)/Extras/GIMPACT/include ] ;
 LibDepends GIMPACTBullet : GIMPACT  ;
 
