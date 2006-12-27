@@ -108,6 +108,17 @@
 				SubSystem="[% subsys %]"
 [% END %]
 
+[% MACRO linker_app_release_dbl(subsys) BLOCK -%]
+                                OutputFile="[% path([my.doc.buildroot.0, glue(['ReleaseDbl',my.doc.target.0])]) %]"
+                                SubSystem="[% subsys %]"
+[% END %]
+[% MACRO linker_app_debug_dbl(subsys) BLOCK -%]
+                                OutputFile="[% path([my.doc.buildroot.0, glue(['DebugDbl',my.doc.target.0])]) %]"
+                                SubSystem="[% subsys %]"
+[% END %]
+[% MACRO linker_appcon_release_dbl GET linker_app_release_dbl(2) %]
+[% MACRO linker_appcon_debug_dbl GET linker_app_debug_dbl(1) %]
+
 [% MACRO linker_appcon_release GET linker_app_release(2) %]
 [% MACRO linker_appcon_debug GET linker_app_debug(1) %]
 
