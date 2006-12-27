@@ -86,6 +86,74 @@
 				Name="VCWebDeploymentTool"/>
 		</Configuration>
 		<Configuration
+			Name="ReleaseDoublePrecision|Win32"
+			OutputDirectory="..\..\out\release_dbl8\build\liblibxml\"
+			IntermediateDirectory="..\..\out\release_dbl8\build\liblibxml\"
+			ConfigurationType="4"
+			UseOfMFC="0"
+			ATLMinimizesCRunTimeLibraryUsage="FALSE">
+			<Tool
+				Name="VCCLCompilerTool"
+                                Optimization="2"
+                                StringPooling="TRUE"
+                                EnableFunctionLevelLinking="TRUE"
+                                RuntimeLibrary="0"
+                                DebugInformationFormat="3"
+                                BufferSecurityCheck="FALSE"
+				PreprocessorDefinitions="NDEBUG;BT_USE_DOUBLE_PRECISION;_LIB;_WINDOWS;WIN32"
+				OptimizeForProcessor="1"
+				ExceptionHandling="0"
+				AdditionalOptions=" "
+				AdditionalIncludeDirectories=".;..\..;..\..\src;..\..\Extras\LibXML;..\..\Extras\LibXML\include"
+				PrecompiledHeaderFile="..\..\out\release_dbl8\build\liblibxml\liblibxml.pch"
+				AssemblerListingLocation="..\..\out\release_dbl8\build\liblibxml\"
+				ObjectFile="..\..\out\release_dbl8\build\liblibxml\"
+				ProgramDataBaseFileName="..\..\out\release_dbl8\build\liblibxml\libxml.pdb"
+				WarningLevel="3"
+				SuppressStartupBanner="TRUE"
+				Detect64BitPortabilityProblems="TRUE"
+				TreatWChar_tAsBuiltInType="false"
+				CompileAs="0"/>
+			<Tool
+				Name="VCCustomBuildTool"/>
+			<Tool
+				Name="VCLinkerTool"
+				AdditionalOptions=" "
+				AdditionalDependencies=""
+				IgnoreImportLibrary="TRUE"
+				SuppressStartupBanner="TRUE"
+				GenerateManifest="false"
+				AdditionalLibraryDirectories=""
+				ProgramDatabaseFile="..\..\out\release_dbl8\build\liblibxml\libxml.pdb"
+				TargetMachine="1"/>
+			<Tool
+				Name="VCLibrarianTool"
+				SuppressStartupBanner="TRUE"/>
+			<Tool
+				Name="VCMIDLTool"
+				PreprocessorDefinitions="NDEBUG;BT_USE_DOUBLE_PRECISION;_LIB;_WINDOWS"
+				MkTypLibCompatible="TRUE"
+				SuppressStartupBanner="TRUE"
+				TargetEnvironment="1"
+				TypeLibraryName="..\..\out\release_dbl8\build\liblibxml\liblibxml.tlb"/>
+			<Tool
+				Name="VCPostBuildEventTool"
+				/>
+			<Tool
+				Name="VCPreBuildEventTool"/>
+			<Tool
+				Name="VCPreLinkEventTool"/>
+			<Tool
+				Name="VCResourceCompilerTool"
+				PreprocessorDefinitions="NDEBUG;BT_USE_DOUBLE_PRECISION;_LIB;_WINDOWS;PROJECTGEN_VERSION=8"
+				AdditionalIncludeDirectories=".;..\..;..\..\src;..\..\Extras\LibXML;..\..\Extras\LibXML\include"
+				Culture="1033"/>
+			<Tool
+				Name="VCWebServiceProxyGeneratorTool"/>
+			<Tool
+				Name="VCWebDeploymentTool"/>
+		</Configuration>
+		<Configuration
 			Name="Debug|Win32"
 			OutputDirectory="..\..\out\debug8\build\liblibxml\"
 			IntermediateDirectory="..\..\out\debug8\build\liblibxml\"
@@ -149,6 +217,73 @@
 			<Tool
 				Name="VCResourceCompilerTool"
 				PreprocessorDefinitions="_DEBUG;_LIB;_WINDOWS;PROJECTGEN_VERSION=8"
+				AdditionalIncludeDirectories=".;..\..;..\..\src;..\..\Extras\LibXML;..\..\Extras\LibXML\include"
+				Culture="1033"/>
+			<Tool
+				Name="VCWebServiceProxyGeneratorTool"/>
+			<Tool
+				Name="VCWebDeploymentTool"/>
+		</Configuration>
+		<Configuration
+			Name="DebugDoublePrecision|Win32"
+			OutputDirectory="..\..\out\debug_dbl8\build\liblibxml\"
+			IntermediateDirectory="..\..\out\debug_dbl8\build\liblibxml\"
+			ConfigurationType="4"
+			UseOfMFC="0"
+			ATLMinimizesCRunTimeLibraryUsage="FALSE">
+			<Tool
+				Name="VCCLCompilerTool"
+                                Optimization="0"
+                                MinimalRebuild="TRUE"
+                                DebugInformationFormat="4"
+                                RuntimeTypeInfo="FALSE" 
+                                RuntimeLibrary="1"
+				PreprocessorDefinitions="_DEBUG;BT_USE_DOUBLE_PRECISION;_LIB;_WINDOWS;WIN32"
+				OptimizeForProcessor="1"
+				ExceptionHandling="0"
+				AdditionalOptions=" "
+				AdditionalIncludeDirectories=".;..\..;..\..\src;..\..\Extras\LibXML;..\..\Extras\LibXML\include"
+				PrecompiledHeaderFile="..\..\out\debug_dbl8\build\liblibxml\liblibxml.pch"
+				AssemblerListingLocation="..\..\out\debug_dbl8\build\liblibxml\"
+				ObjectFile="..\..\out\debug_dbl8\build\liblibxml\"
+				ProgramDataBaseFileName="..\..\out\debug_dbl8\build\liblibxml\libxml.pdb"
+				WarningLevel="3"
+				SuppressStartupBanner="TRUE"
+				Detect64BitPortabilityProblems="TRUE"
+				TreatWChar_tAsBuiltInType="false"
+				CompileAs="0"/>
+			<Tool
+				Name="VCCustomBuildTool"/>
+			<Tool
+				Name="VCLinkerTool"
+				AdditionalOptions=" "
+				AdditionalDependencies=""
+				IgnoreImportLibrary="TRUE"
+				SuppressStartupBanner="TRUE"
+				GenerateManifest="false"
+				AdditionalLibraryDirectories=""
+				ProgramDatabaseFile="..\..\out\debug_dbl8\build\liblibxml\libxml.pdb"
+				TargetMachine="1"/>
+			<Tool
+				Name="VCLibrarianTool"
+				SuppressStartupBanner="TRUE"/>
+			<Tool
+				Name="VCMIDLTool"
+				PreprocessorDefinitions="_DEBUG;BT_USE_DOUBLE_PRECISION;_LIB;_WINDOWS"
+				MkTypLibCompatible="TRUE"
+				SuppressStartupBanner="TRUE"
+				TargetEnvironment="1"
+				TypeLibraryName="..\..\out\debug_dbl8\build\liblibxml\liblibxml.tlb"/>
+			<Tool
+				Name="VCPostBuildEventTool"
+				/>
+			<Tool
+				Name="VCPreBuildEventTool"/>
+			<Tool
+				Name="VCPreLinkEventTool"/>
+			<Tool
+				Name="VCResourceCompilerTool"
+				PreprocessorDefinitions="_DEBUG;BT_USE_DOUBLE_PRECISION;_LIB;_WINDOWS;PROJECTGEN_VERSION=8"
 				AdditionalIncludeDirectories=".;..\..;..\..\src;..\..\Extras\LibXML;..\..\Extras\LibXML\include"
 				Culture="1033"/>
 			<Tool

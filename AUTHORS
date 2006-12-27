@@ -14,7 +14,8 @@ Dirk Gregorius: generic D6 constraint
 Erin Catto: accumulated impulse in sequential impulse
 Nathanael Presson: EPA penetration depth calculation
 Francisco Leon: GIMPACT Concave Concave collision
-Joerg Henrichs: make buildsystem
+Joerg Henrichs: make buildsystem (work in progress)
 Eric Sunshine: jam + msvcgen buildsystem
+Steve Baker: GPU physics and general implementation improvements
+Jay Lee: Double precision support
 Erwin Coumans: most other source code
-

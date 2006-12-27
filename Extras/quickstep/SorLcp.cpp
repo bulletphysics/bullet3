@@ -65,7 +65,7 @@ typedef btScalar dMatrix3[4*3];
 
 #define dMULTIPLY0_331NEW(A,op,B,C) \
 {\
-	float tmp[3];\
+	btScalar tmp[3];\
 	tmp[0] = C.getX();\
 	tmp[1] = C.getY();\
 	tmp[2] = C.getZ();\

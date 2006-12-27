@@ -276,6 +276,30 @@ Package=<4>
 
 ###############################################################################
 
+Project: "appDoublePrecisionDemo"=.\appDoublePrecisionDemo.dsp - Package Owner=<4>
+
+Package=<5>
+{{{
+}}}
+
+Package=<4>
+{{{
+    Begin Project Dependency
+    Project_Dep_Name libbulletcollision
+    End Project Dependency
+    Begin Project Dependency
+    Project_Dep_Name libbulletdynamics
+    End Project Dependency
+    Begin Project Dependency
+    Project_Dep_Name libbulletmath
+    End Project Dependency
+    Begin Project Dependency
+    Project_Dep_Name libbulletopenglsupport
+    End Project Dependency
+}}}
+
+###############################################################################
+
 Project: "appEPAPenDepthDemo"=.\appEPAPenDepthDemo.dsp - Package Owner=<4>
 
 Package=<5>
@@ -326,18 +350,6 @@ Package=<4>
     Begin Project Dependency
     Project_Dep_Name libbulletopenglsupport
     End Project Dependency
-}}}
-
-###############################################################################
-
-Project: "appGPUphysics"=.\appGPUphysics.dsp - Package Owner=<4>
-
-Package=<5>
-{{{
-}}}
-
-Package=<4>
-{{{
 }}}
 
 ###############################################################################
@@ -510,13 +522,13 @@ Package=<4>
     Project_Dep_Name appConvexDecompositionDemo
     End Project Dependency
     Begin Project Dependency
+    Project_Dep_Name appDoublePrecisionDemo
+    End Project Dependency
+    Begin Project Dependency
     Project_Dep_Name appEPAPenDepthDemo
     End Project Dependency
     Begin Project Dependency
     Project_Dep_Name appGjkConvexCastDemo
-    End Project Dependency
-    Begin Project Dependency
-    Project_Dep_Name appGPUphysics
     End Project Dependency
     Begin Project Dependency
     Project_Dep_Name appMovingConcaveDemo
@@ -612,13 +624,13 @@ Package=<4>
     Project_Dep_Name appConvexDecompositionDemo
     End Project Dependency
     Begin Project Dependency
+    Project_Dep_Name appDoublePrecisionDemo
+    End Project Dependency
+    Begin Project Dependency
     Project_Dep_Name appEPAPenDepthDemo
     End Project Dependency
     Begin Project Dependency
     Project_Dep_Name appGjkConvexCastDemo
-    End Project Dependency
-    Begin Project Dependency
-    Project_Dep_Name appGPUphysics
     End Project Dependency
     Begin Project Dependency
     Project_Dep_Name appMovingConcaveDemo

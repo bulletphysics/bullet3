@@ -86,6 +86,74 @@
 				Name="VCWebDeploymentTool"/>
 		</Configuration>
 		<Configuration
+			Name="ReleaseDoublePrecision|Win32"
+			OutputDirectory="..\..\out\release_dbl7\build\libbulletopenglsupport\"
+			IntermediateDirectory="..\..\out\release_dbl7\build\libbulletopenglsupport\"
+			ConfigurationType="4"
+			UseOfMFC="0"
+			ATLMinimizesCRunTimeLibraryUsage="FALSE">
+			<Tool
+				Name="VCCLCompilerTool"
+                                Optimization="2"
+                                StringPooling="TRUE"
+                                EnableFunctionLevelLinking="TRUE"
+                                RuntimeLibrary="0"
+                                DebugInformationFormat="3"
+                                BufferSecurityCheck="FALSE"
+				PreprocessorDefinitions="NDEBUG;BT_USE_DOUBLE_PRECISION;_LIB;_WINDOWS;WIN32"
+				OptimizeForProcessor="1"
+				ExceptionHandling="0"
+				AdditionalOptions=" "
+				AdditionalIncludeDirectories=".;..\..;..\..\src;..\..\Glut"
+				PrecompiledHeaderFile="..\..\out\release_dbl7\build\libbulletopenglsupport\libbulletopenglsupport.pch"
+				AssemblerListingLocation="..\..\out\release_dbl7\build\libbulletopenglsupport\"
+				ObjectFile="..\..\out\release_dbl7\build\libbulletopenglsupport\"
+				ProgramDataBaseFileName="..\..\out\release_dbl7\build\libbulletopenglsupport\bulletopenglsupport.pdb"
+				WarningLevel="3"
+				SuppressStartupBanner="TRUE"
+				Detect64BitPortabilityProblems="TRUE"
+				TreatWChar_tAsBuiltInType="false"
+				CompileAs="0"/>
+			<Tool
+				Name="VCCustomBuildTool"/>
+			<Tool
+				Name="VCLinkerTool"
+				AdditionalOptions=" "
+				AdditionalDependencies="glut32.lib"
+				IgnoreImportLibrary="TRUE"
+				SuppressStartupBanner="TRUE"
+				GenerateManifest="false"
+				AdditionalLibraryDirectories="..\..\Glut"
+				ProgramDatabaseFile="..\..\out\release_dbl7\build\libbulletopenglsupport\bulletopenglsupport.pdb"
+				TargetMachine="1"/>
+			<Tool
+				Name="VCLibrarianTool"
+				SuppressStartupBanner="TRUE"/>
+			<Tool
+				Name="VCMIDLTool"
+				PreprocessorDefinitions="NDEBUG;BT_USE_DOUBLE_PRECISION;_LIB;_WINDOWS"
+				MkTypLibCompatible="TRUE"
+				SuppressStartupBanner="TRUE"
+				TargetEnvironment="1"
+				TypeLibraryName="..\..\out\release_dbl7\build\libbulletopenglsupport\libbulletopenglsupport.tlb"/>
+			<Tool
+				Name="VCPostBuildEventTool"
+				/>
+			<Tool
+				Name="VCPreBuildEventTool"/>
+			<Tool
+				Name="VCPreLinkEventTool"/>
+			<Tool
+				Name="VCResourceCompilerTool"
+				PreprocessorDefinitions="NDEBUG;BT_USE_DOUBLE_PRECISION;_LIB;_WINDOWS;PROJECTGEN_VERSION=7"
+				AdditionalIncludeDirectories=".;..\..;..\..\src;..\..\Glut"
+				Culture="1033"/>
+			<Tool
+				Name="VCWebServiceProxyGeneratorTool"/>
+			<Tool
+				Name="VCWebDeploymentTool"/>
+		</Configuration>
+		<Configuration
 			Name="Debug|Win32"
 			OutputDirectory="..\..\out\debug7\build\libbulletopenglsupport\"
 			IntermediateDirectory="..\..\out\debug7\build\libbulletopenglsupport\"
@@ -149,6 +217,73 @@
 			<Tool
 				Name="VCResourceCompilerTool"
 				PreprocessorDefinitions="_DEBUG;_LIB;_WINDOWS;PROJECTGEN_VERSION=7"
+				AdditionalIncludeDirectories=".;..\..;..\..\src;..\..\Glut"
+				Culture="1033"/>
+			<Tool
+				Name="VCWebServiceProxyGeneratorTool"/>
+			<Tool
+				Name="VCWebDeploymentTool"/>
+		</Configuration>
+		<Configuration
+			Name="DebugDoublePrecision|Win32"
+			OutputDirectory="..\..\out\debug_dbl7\build\libbulletopenglsupport\"
+			IntermediateDirectory="..\..\out\debug_dbl7\build\libbulletopenglsupport\"
+			ConfigurationType="4"
+			UseOfMFC="0"
+			ATLMinimizesCRunTimeLibraryUsage="FALSE">
+			<Tool
+				Name="VCCLCompilerTool"
+                                Optimization="0"
+                                MinimalRebuild="TRUE"
+                                DebugInformationFormat="4"
+                                RuntimeTypeInfo="FALSE" 
+                                RuntimeLibrary="1"
+				PreprocessorDefinitions="_DEBUG;BT_USE_DOUBLE_PRECISION;_LIB;_WINDOWS;WIN32"
+				OptimizeForProcessor="1"
+				ExceptionHandling="0"
+				AdditionalOptions=" "
+				AdditionalIncludeDirectories=".;..\..;..\..\src;..\..\Glut"
+				PrecompiledHeaderFile="..\..\out\debug_dbl7\build\libbulletopenglsupport\libbulletopenglsupport.pch"
+				AssemblerListingLocation="..\..\out\debug_dbl7\build\libbulletopenglsupport\"
+				ObjectFile="..\..\out\debug_dbl7\build\libbulletopenglsupport\"
+				ProgramDataBaseFileName="..\..\out\debug_dbl7\build\libbulletopenglsupport\bulletopenglsupport.pdb"
+				WarningLevel="3"
+				SuppressStartupBanner="TRUE"
+				Detect64BitPortabilityProblems="TRUE"
+				TreatWChar_tAsBuiltInType="false"
+				CompileAs="0"/>
+			<Tool
+				Name="VCCustomBuildTool"/>
+			<Tool
+				Name="VCLinkerTool"
+				AdditionalOptions=" "
+				AdditionalDependencies="glut32.lib"
+				IgnoreImportLibrary="TRUE"
+				SuppressStartupBanner="TRUE"
+				GenerateManifest="false"
+				AdditionalLibraryDirectories="..\..\Glut"
+				ProgramDatabaseFile="..\..\out\debug_dbl7\build\libbulletopenglsupport\bulletopenglsupport.pdb"
+				TargetMachine="1"/>
+			<Tool
+				Name="VCLibrarianTool"
+				SuppressStartupBanner="TRUE"/>
+			<Tool
+				Name="VCMIDLTool"
+				PreprocessorDefinitions="_DEBUG;BT_USE_DOUBLE_PRECISION;_LIB;_WINDOWS"
+				MkTypLibCompatible="TRUE"
+				SuppressStartupBanner="TRUE"
+				TargetEnvironment="1"
+				TypeLibraryName="..\..\out\debug_dbl7\build\libbulletopenglsupport\libbulletopenglsupport.tlb"/>
+			<Tool
+				Name="VCPostBuildEventTool"
+				/>
+			<Tool
+				Name="VCPreBuildEventTool"/>
+			<Tool
+				Name="VCPreLinkEventTool"/>
+			<Tool
+				Name="VCResourceCompilerTool"
+				PreprocessorDefinitions="_DEBUG;BT_USE_DOUBLE_PRECISION;_LIB;_WINDOWS;PROJECTGEN_VERSION=7"
 				AdditionalIncludeDirectories=".;..\..;..\..\src;..\..\Glut"
 				Culture="1033"/>
 			<Tool

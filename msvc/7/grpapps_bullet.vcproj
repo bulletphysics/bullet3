@@ -86,6 +86,75 @@
 				Name="VCWebDeploymentTool"/>
 		</Configuration>
 		<Configuration
+			Name="ReleaseDoublePrecision|Win32"
+			OutputDirectory="..\..\out\release_dbl7\build\grpapps_bullet\"
+			IntermediateDirectory="..\..\out\release_dbl7\build\grpapps_bullet\"
+			ConfigurationType="4"
+			UseOfMFC="0"
+			ATLMinimizesCRunTimeLibraryUsage="FALSE">
+			<Tool
+				Name="VCCLCompilerTool"
+                                Optimization="2"
+                                StringPooling="TRUE"
+                                EnableFunctionLevelLinking="TRUE"
+                                RuntimeLibrary="0"
+                                DebugInformationFormat="3"
+                                BufferSecurityCheck="FALSE"
+				PreprocessorDefinitions="NDEBUG;BT_USE_DOUBLE_PRECISION;WIN32"
+				OptimizeForProcessor="1"
+				ExceptionHandling="0"
+				AdditionalOptions=" "
+				AdditionalIncludeDirectories=".;..\..;..\..\src"
+				PrecompiledHeaderFile="..\..\out\release_dbl7\build\grpapps_bullet\grpapps_bullet.pch"
+				AssemblerListingLocation="..\..\out\release_dbl7\build\grpapps_bullet\"
+				ObjectFile="..\..\out\release_dbl7\build\grpapps_bullet\"
+				ProgramDataBaseFileName="..\..\out\release_dbl7\build\grpapps_bullet\apps_bullet.pdb"
+				WarningLevel="3"
+				SuppressStartupBanner="TRUE"
+				Detect64BitPortabilityProblems="TRUE"
+				TreatWChar_tAsBuiltInType="false"
+				CompileAs="0"/>
+			<Tool
+				Name="VCCustomBuildTool"/>
+			<Tool
+				Name="VCLinkerTool"
+				AdditionalOptions=" "
+				AdditionalDependencies=""
+				IgnoreImportLibrary="TRUE"
+				SuppressStartupBanner="TRUE"
+				GenerateManifest="false"
+				AdditionalLibraryDirectories=""
+				ProgramDatabaseFile="..\..\out\release_dbl7\build\grpapps_bullet\apps_bullet.pdb"
+				TargetMachine="1"/>
+			<Tool
+				Name="VCLibrarianTool"
+				OutputFile="..\..\out\release_dbl7\libs\grpapps_bullet.lib"
+				SuppressStartupBanner="TRUE"/>
+			<Tool
+				Name="VCMIDLTool"
+				PreprocessorDefinitions="NDEBUG;BT_USE_DOUBLE_PRECISION"
+				MkTypLibCompatible="TRUE"
+				SuppressStartupBanner="TRUE"
+				TargetEnvironment="1"
+				TypeLibraryName="..\..\out\release_dbl7\build\grpapps_bullet\grpapps_bullet.tlb"/>
+			<Tool
+				Name="VCPostBuildEventTool"
+				/>
+			<Tool
+				Name="VCPreBuildEventTool"/>
+			<Tool
+				Name="VCPreLinkEventTool"/>
+			<Tool
+				Name="VCResourceCompilerTool"
+				PreprocessorDefinitions="NDEBUG;BT_USE_DOUBLE_PRECISION;PROJECTGEN_VERSION=7"
+				AdditionalIncludeDirectories=".;..\..;..\..\src"
+				Culture="1033"/>
+			<Tool
+				Name="VCWebServiceProxyGeneratorTool"/>
+			<Tool
+				Name="VCWebDeploymentTool"/>
+		</Configuration>
+		<Configuration
 			Name="Debug|Win32"
 			OutputDirectory="..\..\out\debug7\build\grpapps_bullet\"
 			IntermediateDirectory="..\..\out\debug7\build\grpapps_bullet\"
@@ -149,6 +218,74 @@
 			<Tool
 				Name="VCResourceCompilerTool"
 				PreprocessorDefinitions="_DEBUG;PROJECTGEN_VERSION=7"
+				AdditionalIncludeDirectories=".;..\..;..\..\src"
+				Culture="1033"/>
+			<Tool
+				Name="VCWebServiceProxyGeneratorTool"/>
+			<Tool
+				Name="VCWebDeploymentTool"/>
+		</Configuration>
+		<Configuration
+			Name="DebugDoublePrecision|Win32"
+			OutputDirectory="..\..\out\debug_dbl7\build\grpapps_bullet\"
+			IntermediateDirectory="..\..\out\debug_dbl7\build\grpapps_bullet\"
+			ConfigurationType="4"
+			UseOfMFC="0"
+			ATLMinimizesCRunTimeLibraryUsage="FALSE">
+			<Tool
+				Name="VCCLCompilerTool"
+                                Optimization="0"
+                                MinimalRebuild="TRUE"
+                                DebugInformationFormat="4"
+                                RuntimeTypeInfo="FALSE" 
+                                RuntimeLibrary="1"
+				PreprocessorDefinitions="_DEBUG;BT_USE_DOUBLE_PRECISION;WIN32"
+				OptimizeForProcessor="1"
+				ExceptionHandling="0"
+				AdditionalOptions=" "
+				AdditionalIncludeDirectories=".;..\..;..\..\src"
+				PrecompiledHeaderFile="..\..\out\debug_dbl7\build\grpapps_bullet\grpapps_bullet.pch"
+				AssemblerListingLocation="..\..\out\debug_dbl7\build\grpapps_bullet\"
+				ObjectFile="..\..\out\debug_dbl7\build\grpapps_bullet\"
+				ProgramDataBaseFileName="..\..\out\debug_dbl7\build\grpapps_bullet\apps_bullet.pdb"
+				WarningLevel="3"
+				SuppressStartupBanner="TRUE"
+				Detect64BitPortabilityProblems="TRUE"
+				TreatWChar_tAsBuiltInType="false"
+				CompileAs="0"/>
+			<Tool
+				Name="VCCustomBuildTool"/>
+			<Tool
+				Name="VCLinkerTool"
+				AdditionalOptions=" "
+				AdditionalDependencies=""
+				IgnoreImportLibrary="TRUE"
+				SuppressStartupBanner="TRUE"
+				GenerateManifest="false"
+				AdditionalLibraryDirectories=""
+				ProgramDatabaseFile="..\..\out\debug_dbl7\build\grpapps_bullet\apps_bullet.pdb"
+				TargetMachine="1"/>
+			<Tool
+				Name="VCLibrarianTool"
+				OutputFile="..\..\out\debug_dbl7\libs\grpapps_bullet.lib"
+				SuppressStartupBanner="TRUE"/>
+			<Tool
+				Name="VCMIDLTool"
+				PreprocessorDefinitions="_DEBUG;BT_USE_DOUBLE_PRECISION"
+				MkTypLibCompatible="TRUE"
+				SuppressStartupBanner="TRUE"
+				TargetEnvironment="1"
+				TypeLibraryName="..\..\out\debug_dbl7\build\grpapps_bullet\grpapps_bullet.tlb"/>
+			<Tool
+				Name="VCPostBuildEventTool"
+				/>
+			<Tool
+				Name="VCPreBuildEventTool"/>
+			<Tool
+				Name="VCPreLinkEventTool"/>
+			<Tool
+				Name="VCResourceCompilerTool"
+				PreprocessorDefinitions="_DEBUG;BT_USE_DOUBLE_PRECISION;PROJECTGEN_VERSION=7"
 				AdditionalIncludeDirectories=".;..\..;..\..\src"
 				Culture="1033"/>
 			<Tool

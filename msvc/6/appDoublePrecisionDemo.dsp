@@ -1,26 +1,26 @@
-# Microsoft Developer Studio Project File - Name="appBulletDino" - Package Owner=<4>
+# Microsoft Developer Studio Project File - Name="appDoublePrecisionDemo" - Package Owner=<4>
 # Microsoft Developer Studio Generated Build File, Format Version 6.00
 # ** DO NOT EDIT **
 
 # TARGTYPE "Win32 (x86) Console Application" 0x0103
 
-CFG=appBulletDino - Win32 Release
+CFG=appDoublePrecisionDemo - Win32 Release
 !MESSAGE This is not a valid makefile. To build this project using NMAKE,
 !MESSAGE use the Export Makefile command and run
 !MESSAGE 
-!MESSAGE NMAKE /f "appBulletDino.mak".
+!MESSAGE NMAKE /f "appDoublePrecisionDemo.mak".
 !MESSAGE 
 !MESSAGE You can specify a configuration when running NMAKE
 !MESSAGE by defining the macro CFG on the command line. For example:
 !MESSAGE 
-!MESSAGE NMAKE /f "appBulletDino.mak" CFG="appBulletDino - Win32 Release"
+!MESSAGE NMAKE /f "appDoublePrecisionDemo.mak" CFG="appDoublePrecisionDemo - Win32 Release"
 !MESSAGE 
 !MESSAGE Possible choices for configuration are:
 !MESSAGE 
-!MESSAGE "appBulletDino - Win32 DebugDoublePrecision" (based on "Win32 (x86) Console Application")
-!MESSAGE "appBulletDino - Win32 Debug" (based on "Win32 (x86) Console Application")
-!MESSAGE "appBulletDino - Win32 ReleaseDoublePrecision" (based on "Win32 (x86) Console Application")
-!MESSAGE "appBulletDino - Win32 Release" (based on "Win32 (x86) Console Application")
+!MESSAGE "appDoublePrecisionDemo - Win32 DebugDoublePrecision" (based on "Win32 (x86) Console Application")
+!MESSAGE "appDoublePrecisionDemo - Win32 Debug" (based on "Win32 (x86) Console Application")
+!MESSAGE "appDoublePrecisionDemo - Win32 ReleaseDoublePrecision" (based on "Win32 (x86) Console Application")
+!MESSAGE "appDoublePrecisionDemo - Win32 Release" (based on "Win32 (x86) Console Application")
 !MESSAGE 
 
 # Begin Project
@@ -31,7 +31,7 @@ CPP=cl.exe
 MTL=midl.exe
 RSC=rc.exe
 
-!IF  "$(CFG)" == "appBulletDino - Win32 Release"
+!IF  "$(CFG)" == "appDoublePrecisionDemo - Win32 Release"
 
 # PROP BASE Use_MFC 0
 # PROP BASE Use_Debug_Libraries 0
@@ -40,8 +40,8 @@ RSC=rc.exe
 # PROP BASE Target_Dir ""
 # PROP Use_MFC 0
 # PROP Use_Debug_Libraries 0
-# PROP Output_Dir "..\..\out\release6\build\appBulletDino\"
-# PROP Intermediate_Dir "..\..\out\release6\build\appBulletDino\"
+# PROP Output_Dir "..\..\out\release6\build\appDoublePrecisionDemo\"
+# PROP Intermediate_Dir "..\..\out\release6\build\appDoublePrecisionDemo\"
 # PROP Ignore_Export_Lib 0
 # PROP Target_Dir ""
 # ADD BASE CPP /nologo /vmb /vms /W3 /Gm /G5 /D "WIN32" /FD /c
@@ -49,7 +49,7 @@ RSC=rc.exe
 # ADD BASE MTL /nologo /mktyplib203 /o "NUL" /win32
 # ADD MTL /nologo /mktyplib203 /o "NUL" /win32 /D "NDEBUG" /D "_CONSOLE"
 # ADD BASE RSC /l 0x409
-# ADD RSC /l 0x409 /fo".\..\..\out\release6\build\appBulletDino\appBulletDino.res" /i "." /i "..\.." /i "..\..\src" /i "..\..\Glut" /i "..\..\Demos\OpenGL"
+# ADD RSC /l 0x409 /fo".\..\..\out\release6\build\appDoublePrecisionDemo\appDoublePrecisionDemo.res" /i "." /i "..\.." /i "..\..\src" /i "..\..\Glut" /i "..\..\Demos\OpenGL"
 BSC32=bscmake.exe
 # ADD BASE BSC32 /nologo
 # ADD BSC32 /nologo
@@ -58,12 +58,12 @@ LIB32=link.exe -lib
 # ADD LIB32 /nologo 
 LINK32=link.exe
 # ADD BASE LINK32 user32.lib gdi32.lib advapi32.lib /nologo /machine:I386
-# ADD LINK32 shell32.lib user32.lib gdi32.lib advapi32.lib glut32.lib  /nologo /version:4.0 /machine:I386 /OPT:NOREF /out:"..\..\BulletDino.exe" /subsystem:console /libpath:"..\..\Glut" 
+# ADD LINK32 shell32.lib user32.lib gdi32.lib advapi32.lib glut32.lib  /nologo /version:4.0 /machine:I386 /OPT:NOREF /out:"..\..\DoublePrecisionDemo.exe" /subsystem:console /libpath:"..\..\Glut" 
 # Begin Special Build Tool
 SOURCE="$(InputPath)"
 # End Special Build Tool
 
-!ELSEIF  "$(CFG)" == "appBulletDino - Win32 ReleaseDoublePrecision"
+!ELSEIF  "$(CFG)" == "appDoublePrecisionDemo - Win32 ReleaseDoublePrecision"
 
 # PROP BASE Use_MFC 0
 # PROP BASE Use_Debug_Libraries 
@@ -72,15 +72,15 @@ SOURCE="$(InputPath)"
 # PROP BASE Target_Dir ""
 # PROP Use_MFC 0
 # PROP Use_Debug_Libraries 
-# PROP Output_Dir "..\..\out\release_dbl6\build\appBulletDino\"
-# PROP Intermediate_Dir "..\..\out\release_dbl6\build\appBulletDino\"
+# PROP Output_Dir "..\..\out\release_dbl6\build\appDoublePrecisionDemo\"
+# PROP Intermediate_Dir "..\..\out\release_dbl6\build\appDoublePrecisionDemo\"
 # PROP Target_Dir ""
 # ADD BASE CPP /nologo /vmb /vms /W3 /Gm /G5 /D "WIN32" /FD /c
 # ADD CPP /nologo /vmb /vms /W3 /Gm /G5 /FD /c  /D "_MT" /D "_MBCS" /D "NDEBUG" /D "BT_USE_DOUBLE_PRECISION" /D "_CONSOLE" /D "WIN32"  /I "." /I "..\.." /I "..\..\src" /I "..\..\Glut" /I "..\..\Demos\OpenGL"
 # ADD BASE MTL /nologo /mktyplib203 /o "NUL" /win32
 # ADD MTL /nologo /mktyplib203 /o "NUL" /win32 /D "NDEBUG" /D "BT_USE_DOUBLE_PRECISION" /D "_CONSOLE"
 # ADD BASE RSC /l 0x409
-# ADD RSC /l 0x409 /fo".\..\..\out\release_dbl6\build\appBulletDino\appBulletDino.res" /i "." /i "..\.." /i "..\..\src" /i "..\..\Glut" /i "..\..\Demos\OpenGL"
+# ADD RSC /l 0x409 /fo".\..\..\out\release_dbl6\build\appDoublePrecisionDemo\appDoublePrecisionDemo.res" /i "." /i "..\.." /i "..\..\src" /i "..\..\Glut" /i "..\..\Demos\OpenGL"
 BSC32=bscmake.exe
 # ADD BASE BSC32 /nologo
 # ADD BSC32 /nologo
@@ -89,12 +89,12 @@ LIB32=link.exe -lib
 # ADD LIB32 /nologo 
 LINK32=link.exe
 # ADD BASE LINK32 user32.lib gdi32.lib advapi32.lib /nologo /machine:I386
-# ADD LINK32 shell32.lib user32.lib gdi32.lib advapi32.lib glut32.lib  /nologo /version:4.0 /machine:I386  /out:"..\..\BulletDino.exe" /subsystem:console /libpath:"..\..\Glut" 
+# ADD LINK32 shell32.lib user32.lib gdi32.lib advapi32.lib glut32.lib  /nologo /version:4.0 /machine:I386  /out:"..\..\DoublePrecisionDemo.exe" /subsystem:console /libpath:"..\..\Glut" 
 # Begin Special Build Tool
 SOURCE="$(InputPath)"
 # End Special Build Tool
 
-!ELSEIF  "$(CFG)" == "appBulletDino - Win32 Debug"
+!ELSEIF  "$(CFG)" == "appDoublePrecisionDemo - Win32 Debug"
 
 # PROP BASE Use_MFC 0
 # PROP BASE Use_Debug_Libraries 1
@@ -103,8 +103,8 @@ SOURCE="$(InputPath)"
 # PROP BASE Target_Dir ""
 # PROP Use_MFC 0
 # PROP Use_Debug_Libraries 1
-# PROP Output_Dir "..\..\out\debug6\build\appBulletDino\"
-# PROP Intermediate_Dir "..\..\out\debug6\build\appBulletDino\"
+# PROP Output_Dir "..\..\out\debug6\build\appDoublePrecisionDemo\"
+# PROP Intermediate_Dir "..\..\out\debug6\build\appDoublePrecisionDemo\"
 # PROP Ignore_Export_Lib 1
 # PROP Target_Dir ""
 # ADD BASE CPP /nologo /vmb /vms /W3 /Gm /G5 /D "WIN32" /FD /c
@@ -112,7 +112,7 @@ SOURCE="$(InputPath)"
 # ADD BASE MTL /nologo /mktyplib203 /o "NUL" /win32
 # ADD MTL /nologo /mktyplib203 /o "NUL" /win32 /D "_DEBUG" /D "_CONSOLE"
 # ADD BASE RSC /l 0x409
-# ADD RSC /l 0x409 /fo".\..\..\out\debug6\build\appBulletDino\appBulletDino.res" /i "." /i "..\.." /i "..\..\src" /i "..\..\Glut" /i "..\..\Demos\OpenGL"
+# ADD RSC /l 0x409 /fo".\..\..\out\debug6\build\appDoublePrecisionDemo\appDoublePrecisionDemo.res" /i "." /i "..\.." /i "..\..\src" /i "..\..\Glut" /i "..\..\Demos\OpenGL"
 BSC32=bscmake.exe
 # ADD BASE BSC32 /nologo
 # ADD BSC32 /nologo
@@ -121,12 +121,12 @@ LIB32=link.exe -lib
 # ADD LIB32 /nologo 
 LINK32=link.exe
 # ADD BASE LINK32 user32.lib gdi32.lib advapi32.lib /nologo /machine:I386
-# ADD LINK32 shell32.lib user32.lib gdi32.lib advapi32.lib glut32.lib  /nologo /version:4.0 /machine:I386 /debug /pdbtype:sept /out:"..\..\BulletDino.exe" /subsystem:console /libpath:"..\..\Glut" 
+# ADD LINK32 shell32.lib user32.lib gdi32.lib advapi32.lib glut32.lib  /nologo /version:4.0 /machine:I386 /debug /pdbtype:sept /out:"..\..\DoublePrecisionDemo.exe" /subsystem:console /libpath:"..\..\Glut" 
 # Begin Special Build Tool
 SOURCE="$(InputPath)"
 # End Special Build Tool
 
-!ELSEIF  "$(CFG)" == "appBulletDino - Win32 DebugDoublePrecision"
+!ELSEIF  "$(CFG)" == "appDoublePrecisionDemo - Win32 DebugDoublePrecision"
 
 # PROP BASE Use_MFC 0
 # PROP BASE Use_Debug_Libraries 
@@ -135,15 +135,15 @@ SOURCE="$(InputPath)"
 # PROP BASE Target_Dir ""
 # PROP Use_MFC 0
 # PROP Use_Debug_Libraries 
-# PROP Output_Dir "..\..\out\debug_dbl6\build\appBulletDino\"
-# PROP Intermediate_Dir "..\..\out\debug_dbl6\build\appBulletDino\"
+# PROP Output_Dir "..\..\out\debug_dbl6\build\appDoublePrecisionDemo\"
+# PROP Intermediate_Dir "..\..\out\debug_dbl6\build\appDoublePrecisionDemo\"
 # PROP Target_Dir ""
 # ADD BASE CPP /nologo /vmb /vms /W3 /Gm /G5 /D "WIN32" /FD /c
 # ADD CPP /nologo /vmb /vms /W3 /Gm /G5 /FD /c  /D "_MT" /D "_MBCS" /D "_DEBUG" /D "BT_USE_DOUBLE_PRECISION" /D "_CONSOLE" /D "WIN32"  /I "." /I "..\.." /I "..\..\src" /I "..\..\Glut" /I "..\..\Demos\OpenGL"
 # ADD BASE MTL /nologo /mktyplib203 /o "NUL" /win32
 # ADD MTL /nologo /mktyplib203 /o "NUL" /win32 /D "_DEBUG" /D "BT_USE_DOUBLE_PRECISION" /D "_CONSOLE"
 # ADD BASE RSC /l 0x409
-# ADD RSC /l 0x409 /fo".\..\..\out\debug_dbl6\build\appBulletDino\appBulletDino.res" /i "." /i "..\.." /i "..\..\src" /i "..\..\Glut" /i "..\..\Demos\OpenGL"
+# ADD RSC /l 0x409 /fo".\..\..\out\debug_dbl6\build\appDoublePrecisionDemo\appDoublePrecisionDemo.res" /i "." /i "..\.." /i "..\..\src" /i "..\..\Glut" /i "..\..\Demos\OpenGL"
 BSC32=bscmake.exe
 # ADD BASE BSC32 /nologo
 # ADD BSC32 /nologo
@@ -152,7 +152,7 @@ LIB32=link.exe -lib
 # ADD LIB32 /nologo 
 LINK32=link.exe
 # ADD BASE LINK32 user32.lib gdi32.lib advapi32.lib /nologo /machine:I386
-# ADD LINK32 shell32.lib user32.lib gdi32.lib advapi32.lib glut32.lib  /nologo /version:4.0 /machine:I386  /out:"..\..\BulletDino.exe" /subsystem:console /libpath:"..\..\Glut" 
+# ADD LINK32 shell32.lib user32.lib gdi32.lib advapi32.lib glut32.lib  /nologo /version:4.0 /machine:I386  /out:"..\..\DoublePrecisionDemo.exe" /subsystem:console /libpath:"..\..\Glut" 
 # Begin Special Build Tool
 SOURCE="$(InputPath)"
 # End Special Build Tool
@@ -161,16 +161,24 @@ SOURCE="$(InputPath)"
 
 # Begin Target
 
-# Name "appBulletDino - Win32 Release"
-# Name "appBulletDino - Win32 ReleaseDoublePrecision"
-# Name "appBulletDino - Win32 Debug"
-# Name "appBulletDino - Win32 DebugDoublePrecision"
+# Name "appDoublePrecisionDemo - Win32 Release"
+# Name "appDoublePrecisionDemo - Win32 ReleaseDoublePrecision"
+# Name "appDoublePrecisionDemo - Win32 Debug"
+# Name "appDoublePrecisionDemo - Win32 DebugDoublePrecision"
 # Begin Group "Source Files"
 
 # PROP Default_Filter ""
 # Begin Source File
 
-SOURCE=..\..\Demos\BulletDinoDemo\BulletDino.c
+SOURCE=..\..\Demos\DoublePrecisionDemo\DoublePrecisionDemo.cpp
+# End Source File
+# End Group
+# Begin Group "Header Files"
+
+# PROP Default_Filter ""
+# Begin Source File
+
+SOURCE=..\..\Demos\DoublePrecisionDemo\DoublePrecisionDemo.h
 # End Source File
 # End Group
 # Begin Group "Resource Files"
@@ -178,7 +186,7 @@ SOURCE=..\..\Demos\BulletDinoDemo\BulletDino.c
 # PROP Default_Filter ""
 # Begin Source File
 
-SOURCE=..\..\msvc\appBulletDino.rc
+SOURCE=..\..\msvc\appDoublePrecisionDemo.rc
 # End Source File
 # End Group
 # End Target

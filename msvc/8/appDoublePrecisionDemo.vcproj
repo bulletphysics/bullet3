@@ -1,9 +1,9 @@
 <?xml version="1.0" encoding = "Windows-1252"?>
 <VisualStudioProject
 	ProjectType="Visual C++"
-	Version="7.10"
-	Name="appVehicleDemo"
-	ProjectGUID="{07E712DB-DAF8-887E-F099-CE43D4E8B1F9}"
+	Version="8.00"
+	Name="appDoublePrecisionDemo"
+	ProjectGUID="{E2707D44-8B82-55F1-6C5A-D03B19159248}"
 	SccProjectName=""
 	SccLocalPath="">
 	<Platforms>
@@ -13,8 +13,8 @@
 	<Configurations>
 		<Configuration
 			Name="Release|Win32"
-			OutputDirectory="..\..\out\release71\build\appVehicleDemo\"
-			IntermediateDirectory="..\..\out\release71\build\appVehicleDemo\"
+			OutputDirectory="..\..\out\release8\build\appDoublePrecisionDemo\"
+			IntermediateDirectory="..\..\out\release8\build\appDoublePrecisionDemo\"
 			ConfigurationType="1"
 			CharacterSet="2"
 			WholeProgramOptimization="1"
@@ -33,10 +33,10 @@
 				ExceptionHandling="0"
 				AdditionalOptions=" "
 				AdditionalIncludeDirectories=".;..\..;..\..\src;..\..\Glut;..\..\Demos\OpenGL"
-				PrecompiledHeaderFile="..\..\out\release71\build\appVehicleDemo\appVehicleDemo.pch"
-				AssemblerListingLocation="..\..\out\release71\build\appVehicleDemo\"
-				ObjectFile="..\..\out\release71\build\appVehicleDemo\"
-				ProgramDataBaseFileName="..\..\out\release71\build\appVehicleDemo\VehicleDemo.pdb"
+				PrecompiledHeaderFile="..\..\out\release8\build\appDoublePrecisionDemo\appDoublePrecisionDemo.pch"
+				AssemblerListingLocation="..\..\out\release8\build\appDoublePrecisionDemo\"
+				ObjectFile="..\..\out\release8\build\appDoublePrecisionDemo\"
+				ProgramDataBaseFileName="..\..\out\release8\build\appDoublePrecisionDemo\DoublePrecisionDemo.pdb"
 				WarningLevel="3"
 				SuppressStartupBanner="TRUE"
 				Detect64BitPortabilityProblems="TRUE"
@@ -51,7 +51,7 @@
 				EnableCOMDATFolding="2"
 				GenerateDebugInformation="TRUE"
 				IgnoreDefaultLibraryNames="LIBC,LIBCD"
-				OutputFile="..\..\ReleaseVehicleDemo.exe"
+				OutputFile="..\..\ReleaseDoublePrecisionDemo.exe"
 				SubSystem="1"
 				AdditionalOptions=" "
 				AdditionalDependencies="glut32.lib"
@@ -59,7 +59,7 @@
 				SuppressStartupBanner="TRUE"
 				GenerateManifest="false"
 				AdditionalLibraryDirectories="..\..\Glut"
-				ProgramDatabaseFile="..\..\out\release71\build\appVehicleDemo\VehicleDemo.pdb"
+				ProgramDatabaseFile="..\..\out\release8\build\appDoublePrecisionDemo\DoublePrecisionDemo.pdb"
 				TargetMachine="1"/>
 			<Tool
 				Name="VCLibrarianTool"
@@ -70,7 +70,7 @@
 				MkTypLibCompatible="TRUE"
 				SuppressStartupBanner="TRUE"
 				TargetEnvironment="1"
-				TypeLibraryName="..\..\out\release71\build\appVehicleDemo\appVehicleDemo.tlb"/>
+				TypeLibraryName="..\..\out\release8\build\appDoublePrecisionDemo\appDoublePrecisionDemo.tlb"/>
 			<Tool
 				Name="VCPostBuildEventTool"
 				/>
@@ -80,7 +80,7 @@
 				Name="VCPreLinkEventTool"/>
 			<Tool
 				Name="VCResourceCompilerTool"
-				PreprocessorDefinitions="NDEBUG;_CONSOLE;PROJECTGEN_VERSION=71"
+				PreprocessorDefinitions="NDEBUG;_CONSOLE;PROJECTGEN_VERSION=8"
 				AdditionalIncludeDirectories=".;..\..;..\..\src;..\..\Glut;..\..\Demos\OpenGL"
 				Culture="1033"/>
 			<Tool
@@ -90,8 +90,8 @@
 		</Configuration>
 		<Configuration
 			Name="ReleaseDoublePrecision|Win32"
-			OutputDirectory="..\..\out\release_dbl71\build\appVehicleDemo\"
-			IntermediateDirectory="..\..\out\release_dbl71\build\appVehicleDemo\"
+			OutputDirectory="..\..\out\release_dbl8\build\appDoublePrecisionDemo\"
+			IntermediateDirectory="..\..\out\release_dbl8\build\appDoublePrecisionDemo\"
 			ConfigurationType="1"
 			CharacterSet="2"
 			UseOfMFC="0"
@@ -109,10 +109,10 @@
 				ExceptionHandling="0"
 				AdditionalOptions=" "
 				AdditionalIncludeDirectories=".;..\..;..\..\src;..\..\Glut;..\..\Demos\OpenGL"
-				PrecompiledHeaderFile="..\..\out\release_dbl71\build\appVehicleDemo\appVehicleDemo.pch"
-				AssemblerListingLocation="..\..\out\release_dbl71\build\appVehicleDemo\"
-				ObjectFile="..\..\out\release_dbl71\build\appVehicleDemo\"
-				ProgramDataBaseFileName="..\..\out\release_dbl71\build\appVehicleDemo\VehicleDemo.pdb"
+				PrecompiledHeaderFile="..\..\out\release_dbl8\build\appDoublePrecisionDemo\appDoublePrecisionDemo.pch"
+				AssemblerListingLocation="..\..\out\release_dbl8\build\appDoublePrecisionDemo\"
+				ObjectFile="..\..\out\release_dbl8\build\appDoublePrecisionDemo\"
+				ProgramDataBaseFileName="..\..\out\release_dbl8\build\appDoublePrecisionDemo\DoublePrecisionDemo.pdb"
 				WarningLevel="3"
 				SuppressStartupBanner="TRUE"
 				Detect64BitPortabilityProblems="TRUE"
@@ -122,7 +122,7 @@
 				Name="VCCustomBuildTool"/>
 			<Tool
 				Name="VCLinkerTool"
-                                OutputFile="..\..\ReleaseDblVehicleDemo.exe"
+                                OutputFile="..\..\ReleaseDblDoublePrecisionDemo.exe"
                                 SubSystem="1"
 				AdditionalOptions=" "
 				AdditionalDependencies="glut32.lib"
@@ -130,7 +130,7 @@
 				SuppressStartupBanner="TRUE"
 				GenerateManifest="false"
 				AdditionalLibraryDirectories="..\..\Glut"
-				ProgramDatabaseFile="..\..\out\release_dbl71\build\appVehicleDemo\VehicleDemo.pdb"
+				ProgramDatabaseFile="..\..\out\release_dbl8\build\appDoublePrecisionDemo\DoublePrecisionDemo.pdb"
 				TargetMachine="1"/>
 			<Tool
 				Name="VCLibrarianTool"
@@ -141,7 +141,7 @@
 				MkTypLibCompatible="TRUE"
 				SuppressStartupBanner="TRUE"
 				TargetEnvironment="1"
-				TypeLibraryName="..\..\out\release_dbl71\build\appVehicleDemo\appVehicleDemo.tlb"/>
+				TypeLibraryName="..\..\out\release_dbl8\build\appDoublePrecisionDemo\appDoublePrecisionDemo.tlb"/>
 			<Tool
 				Name="VCPostBuildEventTool"
 				/>
@@ -151,7 +151,7 @@
 				Name="VCPreLinkEventTool"/>
 			<Tool
 				Name="VCResourceCompilerTool"
-				PreprocessorDefinitions="NDEBUG;BT_USE_DOUBLE_PRECISION;_CONSOLE;PROJECTGEN_VERSION=71"
+				PreprocessorDefinitions="NDEBUG;BT_USE_DOUBLE_PRECISION;_CONSOLE;PROJECTGEN_VERSION=8"
 				AdditionalIncludeDirectories=".;..\..;..\..\src;..\..\Glut;..\..\Demos\OpenGL"
 				Culture="1033"/>
 			<Tool
@@ -161,8 +161,8 @@
 		</Configuration>
 		<Configuration
 			Name="Debug|Win32"
-			OutputDirectory="..\..\out\debug71\build\appVehicleDemo\"
-			IntermediateDirectory="..\..\out\debug71\build\appVehicleDemo\"
+			OutputDirectory="..\..\out\debug8\build\appDoublePrecisionDemo\"
+			IntermediateDirectory="..\..\out\debug8\build\appDoublePrecisionDemo\"
 			ConfigurationType="1"
 			CharacterSet="2"
 			UseOfMFC="0"
@@ -179,10 +179,10 @@
 				ExceptionHandling="0"
 				AdditionalOptions=" "
 				AdditionalIncludeDirectories=".;..\..;..\..\src;..\..\Glut;..\..\Demos\OpenGL"
-				PrecompiledHeaderFile="..\..\out\debug71\build\appVehicleDemo\appVehicleDemo.pch"
-				AssemblerListingLocation="..\..\out\debug71\build\appVehicleDemo\"
-				ObjectFile="..\..\out\debug71\build\appVehicleDemo\"
-				ProgramDataBaseFileName="..\..\out\debug71\build\appVehicleDemo\VehicleDemo.pdb"
+				PrecompiledHeaderFile="..\..\out\debug8\build\appDoublePrecisionDemo\appDoublePrecisionDemo.pch"
+				AssemblerListingLocation="..\..\out\debug8\build\appDoublePrecisionDemo\"
+				ObjectFile="..\..\out\debug8\build\appDoublePrecisionDemo\"
+				ProgramDataBaseFileName="..\..\out\debug8\build\appDoublePrecisionDemo\DoublePrecisionDemo.pdb"
 				WarningLevel="3"
 				SuppressStartupBanner="TRUE"
 				Detect64BitPortabilityProblems="TRUE"
@@ -195,7 +195,7 @@
 				LinkIncremental="2"
 				GenerateDebugInformation="TRUE"
 				IgnoreDefaultLibraryNames="LIBC,LIBCD"
-				OutputFile="..\..\DebugVehicleDemo.exe"
+				OutputFile="..\..\DebugDoublePrecisionDemo.exe"
 				SubSystem="1"
 				AdditionalOptions=" "
 				AdditionalDependencies="glut32.lib"
@@ -203,7 +203,7 @@
 				SuppressStartupBanner="TRUE"
 				GenerateManifest="false"
 				AdditionalLibraryDirectories="..\..\Glut"
-				ProgramDatabaseFile="..\..\out\debug71\build\appVehicleDemo\VehicleDemo.pdb"
+				ProgramDatabaseFile="..\..\out\debug8\build\appDoublePrecisionDemo\DoublePrecisionDemo.pdb"
 				TargetMachine="1"/>
 			<Tool
 				Name="VCLibrarianTool"
@@ -214,7 +214,7 @@
 				MkTypLibCompatible="TRUE"
 				SuppressStartupBanner="TRUE"
 				TargetEnvironment="1"
-				TypeLibraryName="..\..\out\debug71\build\appVehicleDemo\appVehicleDemo.tlb"/>
+				TypeLibraryName="..\..\out\debug8\build\appDoublePrecisionDemo\appDoublePrecisionDemo.tlb"/>
 			<Tool
 				Name="VCPostBuildEventTool"
 				/>
@@ -224,7 +224,7 @@
 				Name="VCPreLinkEventTool"/>
 			<Tool
 				Name="VCResourceCompilerTool"
-				PreprocessorDefinitions="_DEBUG;_CONSOLE;PROJECTGEN_VERSION=71"
+				PreprocessorDefinitions="_DEBUG;_CONSOLE;PROJECTGEN_VERSION=8"
 				AdditionalIncludeDirectories=".;..\..;..\..\src;..\..\Glut;..\..\Demos\OpenGL"
 				Culture="1033"/>
 			<Tool
@@ -234,8 +234,8 @@
 		</Configuration>
 		<Configuration
 			Name="DebugDoublePrecision|Win32"
-			OutputDirectory="..\..\out\debug_dbl71\build\appVehicleDemo\"
-			IntermediateDirectory="..\..\out\debug_dbl71\build\appVehicleDemo\"
+			OutputDirectory="..\..\out\debug_dbl8\build\appDoublePrecisionDemo\"
+			IntermediateDirectory="..\..\out\debug_dbl8\build\appDoublePrecisionDemo\"
 			ConfigurationType="1"
 			CharacterSet="2"
 			UseOfMFC="0"
@@ -252,10 +252,10 @@
 				ExceptionHandling="0"
 				AdditionalOptions=" "
 				AdditionalIncludeDirectories=".;..\..;..\..\src;..\..\Glut;..\..\Demos\OpenGL"
-				PrecompiledHeaderFile="..\..\out\debug_dbl71\build\appVehicleDemo\appVehicleDemo.pch"
-				AssemblerListingLocation="..\..\out\debug_dbl71\build\appVehicleDemo\"
-				ObjectFile="..\..\out\debug_dbl71\build\appVehicleDemo\"
-				ProgramDataBaseFileName="..\..\out\debug_dbl71\build\appVehicleDemo\VehicleDemo.pdb"
+				PrecompiledHeaderFile="..\..\out\debug_dbl8\build\appDoublePrecisionDemo\appDoublePrecisionDemo.pch"
+				AssemblerListingLocation="..\..\out\debug_dbl8\build\appDoublePrecisionDemo\"
+				ObjectFile="..\..\out\debug_dbl8\build\appDoublePrecisionDemo\"
+				ProgramDataBaseFileName="..\..\out\debug_dbl8\build\appDoublePrecisionDemo\DoublePrecisionDemo.pdb"
 				WarningLevel="3"
 				SuppressStartupBanner="TRUE"
 				Detect64BitPortabilityProblems="TRUE"
@@ -265,7 +265,7 @@
 				Name="VCCustomBuildTool"/>
 			<Tool
 				Name="VCLinkerTool"
-                                OutputFile="..\..\DebugDblVehicleDemo.exe"
+                                OutputFile="..\..\DebugDblDoublePrecisionDemo.exe"
                                 SubSystem="1"
 				AdditionalOptions=" "
 				AdditionalDependencies="glut32.lib"
@@ -273,7 +273,7 @@
 				SuppressStartupBanner="TRUE"
 				GenerateManifest="false"
 				AdditionalLibraryDirectories="..\..\Glut"
-				ProgramDatabaseFile="..\..\out\debug_dbl71\build\appVehicleDemo\VehicleDemo.pdb"
+				ProgramDatabaseFile="..\..\out\debug_dbl8\build\appDoublePrecisionDemo\DoublePrecisionDemo.pdb"
 				TargetMachine="1"/>
 			<Tool
 				Name="VCLibrarianTool"
@@ -284,7 +284,7 @@
 				MkTypLibCompatible="TRUE"
 				SuppressStartupBanner="TRUE"
 				TargetEnvironment="1"
-				TypeLibraryName="..\..\out\debug_dbl71\build\appVehicleDemo\appVehicleDemo.tlb"/>
+				TypeLibraryName="..\..\out\debug_dbl8\build\appDoublePrecisionDemo\appDoublePrecisionDemo.tlb"/>
 			<Tool
 				Name="VCPostBuildEventTool"
 				/>
@@ -294,7 +294,7 @@
 				Name="VCPreLinkEventTool"/>
 			<Tool
 				Name="VCResourceCompilerTool"
-				PreprocessorDefinitions="_DEBUG;BT_USE_DOUBLE_PRECISION;_CONSOLE;PROJECTGEN_VERSION=71"
+				PreprocessorDefinitions="_DEBUG;BT_USE_DOUBLE_PRECISION;_CONSOLE;PROJECTGEN_VERSION=8"
 				AdditionalIncludeDirectories=".;..\..;..\..\src;..\..\Glut;..\..\Demos\OpenGL"
 				Culture="1033"/>
 			<Tool
@@ -308,21 +308,21 @@
 			Name="Source Files"
 			Filter="">
 			<File
-				RelativePath="..\..\Demos\VehicleDemo\VehicleDemo.cpp">
+				RelativePath="..\..\Demos\DoublePrecisionDemo\DoublePrecisionDemo.cpp">
 			</File>
 		</Filter>
 		<Filter
 			Name="Header Files"
 			Filter="">
 			<File
-				RelativePath="..\..\Demos\VehicleDemo\VehicleDemo.h">
+				RelativePath="..\..\Demos\DoublePrecisionDemo\DoublePrecisionDemo.h">
 			</File>
 		</Filter>
 		<Filter
 			Name="Resource Files"
 			Filter="">
 			<File
-				RelativePath="..\..\msvc\appVehicleDemo.rc">
+				RelativePath="..\..\msvc\appDoublePrecisionDemo.rc">
 			</File>
 		</Filter>
 	</Files>

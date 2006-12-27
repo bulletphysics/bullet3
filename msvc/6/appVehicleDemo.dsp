@@ -17,7 +17,9 @@ CFG=appVehicleDemo - Win32 Release
 !MESSAGE 
 !MESSAGE Possible choices for configuration are:
 !MESSAGE 
+!MESSAGE "appVehicleDemo - Win32 DebugDoublePrecision" (based on "Win32 (x86) Console Application")
 !MESSAGE "appVehicleDemo - Win32 Debug" (based on "Win32 (x86) Console Application")
+!MESSAGE "appVehicleDemo - Win32 ReleaseDoublePrecision" (based on "Win32 (x86) Console Application")
 !MESSAGE "appVehicleDemo - Win32 Release" (based on "Win32 (x86) Console Application")
 !MESSAGE 
 
@@ -61,6 +63,37 @@ LINK32=link.exe
 SOURCE="$(InputPath)"
 # End Special Build Tool
 
+!ELSEIF  "$(CFG)" == "appVehicleDemo - Win32 ReleaseDoublePrecision"
+
+# PROP BASE Use_MFC 0
+# PROP BASE Use_Debug_Libraries 
+# PROP BASE Output_Dir "release_dbl"
+# PROP BASE Intermediate_Dir "release_dbl"
+# PROP BASE Target_Dir ""
+# PROP Use_MFC 0
+# PROP Use_Debug_Libraries 
+# PROP Output_Dir "..\..\out\release_dbl6\build\appVehicleDemo\"
+# PROP Intermediate_Dir "..\..\out\release_dbl6\build\appVehicleDemo\"
+# PROP Target_Dir ""
+# ADD BASE CPP /nologo /vmb /vms /W3 /Gm /G5 /D "WIN32" /FD /c
+# ADD CPP /nologo /vmb /vms /W3 /Gm /G5 /FD /c  /D "_MT" /D "_MBCS" /D "NDEBUG" /D "BT_USE_DOUBLE_PRECISION" /D "_CONSOLE" /D "WIN32"  /I "." /I "..\.." /I "..\..\src" /I "..\..\Glut" /I "..\..\Demos\OpenGL"
+# ADD BASE MTL /nologo /mktyplib203 /o "NUL" /win32
+# ADD MTL /nologo /mktyplib203 /o "NUL" /win32 /D "NDEBUG" /D "BT_USE_DOUBLE_PRECISION" /D "_CONSOLE"
+# ADD BASE RSC /l 0x409
+# ADD RSC /l 0x409 /fo".\..\..\out\release_dbl6\build\appVehicleDemo\appVehicleDemo.res" /i "." /i "..\.." /i "..\..\src" /i "..\..\Glut" /i "..\..\Demos\OpenGL"
+BSC32=bscmake.exe
+# ADD BASE BSC32 /nologo
+# ADD BSC32 /nologo
+LIB32=link.exe -lib
+# ADD BASE LIB32 /nologo
+# ADD LIB32 /nologo 
+LINK32=link.exe
+# ADD BASE LINK32 user32.lib gdi32.lib advapi32.lib /nologo /machine:I386
+# ADD LINK32 shell32.lib user32.lib gdi32.lib advapi32.lib glut32.lib  /nologo /version:4.0 /machine:I386  /out:"..\..\VehicleDemo.exe" /subsystem:console /libpath:"..\..\Glut" 
+# Begin Special Build Tool
+SOURCE="$(InputPath)"
+# End Special Build Tool
+
 !ELSEIF  "$(CFG)" == "appVehicleDemo - Win32 Debug"
 
 # PROP BASE Use_MFC 0
@@ -93,12 +126,45 @@ LINK32=link.exe
 SOURCE="$(InputPath)"
 # End Special Build Tool
 
+!ELSEIF  "$(CFG)" == "appVehicleDemo - Win32 DebugDoublePrecision"
+
+# PROP BASE Use_MFC 0
+# PROP BASE Use_Debug_Libraries 
+# PROP BASE Output_Dir "debug_dbl"
+# PROP BASE Intermediate_Dir "debug_dbl"
+# PROP BASE Target_Dir ""
+# PROP Use_MFC 0
+# PROP Use_Debug_Libraries 
+# PROP Output_Dir "..\..\out\debug_dbl6\build\appVehicleDemo\"
+# PROP Intermediate_Dir "..\..\out\debug_dbl6\build\appVehicleDemo\"
+# PROP Target_Dir ""
+# ADD BASE CPP /nologo /vmb /vms /W3 /Gm /G5 /D "WIN32" /FD /c
+# ADD CPP /nologo /vmb /vms /W3 /Gm /G5 /FD /c  /D "_MT" /D "_MBCS" /D "_DEBUG" /D "BT_USE_DOUBLE_PRECISION" /D "_CONSOLE" /D "WIN32"  /I "." /I "..\.." /I "..\..\src" /I "..\..\Glut" /I "..\..\Demos\OpenGL"
+# ADD BASE MTL /nologo /mktyplib203 /o "NUL" /win32
+# ADD MTL /nologo /mktyplib203 /o "NUL" /win32 /D "_DEBUG" /D "BT_USE_DOUBLE_PRECISION" /D "_CONSOLE"
+# ADD BASE RSC /l 0x409
+# ADD RSC /l 0x409 /fo".\..\..\out\debug_dbl6\build\appVehicleDemo\appVehicleDemo.res" /i "." /i "..\.." /i "..\..\src" /i "..\..\Glut" /i "..\..\Demos\OpenGL"
+BSC32=bscmake.exe
+# ADD BASE BSC32 /nologo
+# ADD BSC32 /nologo
+LIB32=link.exe -lib
+# ADD BASE LIB32 /nologo
+# ADD LIB32 /nologo 
+LINK32=link.exe
+# ADD BASE LINK32 user32.lib gdi32.lib advapi32.lib /nologo /machine:I386
+# ADD LINK32 shell32.lib user32.lib gdi32.lib advapi32.lib glut32.lib  /nologo /version:4.0 /machine:I386  /out:"..\..\VehicleDemo.exe" /subsystem:console /libpath:"..\..\Glut" 
+# Begin Special Build Tool
+SOURCE="$(InputPath)"
+# End Special Build Tool
+
 !ENDIF 
 
 # Begin Target
 
 # Name "appVehicleDemo - Win32 Release"
+# Name "appVehicleDemo - Win32 ReleaseDoublePrecision"
 # Name "appVehicleDemo - Win32 Debug"
+# Name "appVehicleDemo - Win32 DebugDoublePrecision"
 # Begin Group "Source Files"
 
 # PROP Default_Filter ""
