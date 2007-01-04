@@ -1,6 +1,9 @@
 Bullet Continuous Collision Detection and Physics Library
 Erwin Coumans
 
+2007 Jan 04
+	- fixed optimized AABB tree building: in some cases the tree building fails due to unbalanced trees, which generated stack overflow
+	
 2006 Dec 15
 	- added contribution to allow double precision collision detection/dynamics. Define BT_USE_DOUBLE_PRECISION in your project and libraries that include Bullet
 
