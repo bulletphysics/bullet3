@@ -96,8 +96,19 @@ btOptimizedBvh::~btOptimizedBvh()
 		delete []m_contiguousNodes;
 }
 
+#ifdef DEBUG_TREE_BUILDING
+int gStackDepth = 0;
+int gMaxStackDepth = 0;
+#endif //DEBUG_TREE_BUILDING
+
 btOptimizedBvhNode*	btOptimizedBvh::buildTree	(NodeArray&	leafNodes,int startIndex,int endIndex)
 {
+#ifdef DEBUG_TREE_BUILDING
+	gStackDepth++;
+	if (gStackDepth > gMaxStackDepth)
+		gMaxStackDepth = gStackDepth;
+#endif //DEBUG_TREE_BUILDING
+
 	btOptimizedBvhNode* internalNode;
 
 	int splitAxis, splitIndex, i;
@@ -108,6 +119,9 @@ btOptimizedBvhNode*	btOptimizedBvh::buildTree	(NodeArray&	leafNodes,int startInd
 
 	if (numIndices==1)
 	{
+#ifdef DEBUG_TREE_BUILDING
+		gStackDepth--;
+#endif //DEBUG_TREE_BUILDING
 		return new (&m_contiguousNodes[m_curNodeIndex++]) btOptimizedBvhNode(leafNodes[startIndex]);
 	}
 	//calculate Best Splitting Axis and where to split it. Sort the incoming 'leafNodes' array within range 'startIndex/endIndex'.
@@ -132,7 +146,9 @@ btOptimizedBvhNode*	btOptimizedBvh::buildTree	(NodeArray&	leafNodes,int startInd
 	//internalNode->m_escapeIndex;
 	internalNode->m_leftChild = buildTree(leafNodes,startIndex,splitIndex);
 	internalNode->m_rightChild = buildTree(leafNodes,splitIndex,endIndex);
-
+#ifdef DEBUG_TREE_BUILDING
+	gStackDepth--;
+#endif //DEBUG_TREE_BUILDING
 	internalNode->m_escapeIndex  = m_curNodeIndex - curIndex;
 	return internalNode;
 }
@@ -167,10 +183,27 @@ int	btOptimizedBvh::sortAndCalcSplittingIndex(NodeArray&	leafNodes,int startInde
 			splitIndex++;
 		}
 	}
-	if ((splitIndex==startIndex) || (splitIndex == (endIndex-1)))
+
+	//if the splitIndex causes unbalanced trees, fix this by using the center in between startIndex and endIndex
+	//otherwise the tree-building might fail due to stack-overflows in certain cases.
+	//unbalanced1 is unsafe: it can cause stack overflows
+	//bool unbalanced1 = ((splitIndex==startIndex) || (splitIndex == (endIndex-1)));
+
+	//unbalanced2 should work too: always use center (perfect balanced trees)	
+	//bool unbalanced2 = true;
+
+	//this should be safe too:
+	int rangeBalancedIndices = numIndices/3;
+	bool unbalanced = ((splitIndex<=(startIndex+rangeBalancedIndices)) || (splitIndex >=(endIndex-1-rangeBalancedIndices)));
+	
+	if (unbalanced)
 	{
 		splitIndex = startIndex+ (numIndices>>1);
 	}
+
+	bool unbal = (splitIndex==startIndex) || (splitIndex == (endIndex));
+	btAssert(!unbal);
+
 	return splitIndex;
 }
 
@@ -185,7 +218,8 @@ int	btOptimizedBvh::calcSplittingAxis(NodeArray&	leafNodes,int startIndex,int en
 
 	for (i=startIndex;i<endIndex;i++)
 	{
-		btVector3 center = btScalar(0.5)*(leafNodes[i].m_aabbMax+leafNodes[i].m_aabbMin);
+		btOptimizedBvhNode& node = leafNodes[i];
+		btVector3 center = btScalar(0.5)*(node.m_aabbMax+node.m_aabbMin);
 		means+=center;
 	}
 	means *= (btScalar(1.)/(btScalar)numIndices);
