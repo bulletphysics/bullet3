@@ -110,7 +110,7 @@ void	btRaycastVehicle::updateWheelTransform( int wheelIndex , bool interpolatedT
 	btQuaternion steeringOrn(up,steering);//wheel.m_steering);
 	btMatrix3x3 steeringMat(steeringOrn);
 
-	btQuaternion rotatingOrn(right,wheel.m_rotation);
+	btQuaternion rotatingOrn(right,-wheel.m_rotation);
 	btMatrix3x3 rotatingMat(rotatingOrn);
 
 	btMatrix3x3 basis2(
