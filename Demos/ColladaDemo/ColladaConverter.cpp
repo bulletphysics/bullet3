@@ -537,8 +537,8 @@ void	ColladaConverter::prepareConstraints(ConstraintInput& input)
 					const domRigid_constraint::domRef_attachmentRef attachRefBody = rigidConstraintRef->getRef_attachment();
 					const domRigid_constraint::domAttachmentRef attachBody1 = rigidConstraintRef->getAttachment();
 
-					daeString orgUri0 = attachRefBody->getRigid_body().getOriginalURI();
-					daeString orgUri1 = attachBody1->getRigid_body().getOriginalURI();
+					daeString orgUri0 = attachRefBody ? attachRefBody->getRigid_body().getOriginalURI() : "";
+					daeString orgUri1 = attachBody1 ? attachBody1->getRigid_body().getOriginalURI() : "";
 					btRigidBody* body0=0,*body1=0;
 					
 					for (int i=0;i<m_numObjects;i++)
@@ -579,21 +579,30 @@ void	ColladaConverter::prepareConstraints(ConstraintInput& input)
 					{
 						
 						btTransform attachFrameRef0;
-						attachFrameRef0 = 
-							GetbtTransformFromCOLLADA_DOM
-							(
-							emptyMatrixArray,
-							attachRefBody->getRotate_array(),
-							attachRefBody->getTranslate_array());
+						attachFrameRef0.setIdentity();
+
+						if (attachRefBody)
+						{
+							attachFrameRef0 = 
+								GetbtTransformFromCOLLADA_DOM
+								(
+								emptyMatrixArray,
+								attachRefBody->getRotate_array(),
+								attachRefBody->getTranslate_array());
+						}
 
 						btTransform attachFrameOther;
-						attachFrameOther =
-							GetbtTransformFromCOLLADA_DOM
-							(
-							emptyMatrixArray,
-							attachBody1->getRotate_array(),
-							attachBody1->getTranslate_array()
-							);
+						attachFrameOther.setIdentity();
+						if (attachBody1)
+						{
+							attachFrameOther =
+								GetbtTransformFromCOLLADA_DOM
+								(
+								emptyMatrixArray,
+								attachBody1->getRotate_array(),
+								attachBody1->getTranslate_array()
+								);
+						}
 
 
 						//convert INF / -INF into lower > upper
@@ -639,18 +648,34 @@ void	ColladaConverter::prepareConstraints(ConstraintInput& input)
 						}
 
 
-						if (body0&& body1)
+						if (body0 || body1)
 						{
-						createUniversalD6Constraint(
-						body0,
-						body1,
-						attachFrameRef0,
-						attachFrameOther,
-						linearLowerLimits,
-						linearUpperLimits,
-						angularLowerLimits,
-						angularUpperLimits
-							);
+							//swap so that first body is non-zero
+							if (!body0)
+							{
+								createUniversalD6Constraint(
+								body1,
+								body0,
+								attachFrameOther,
+								attachFrameRef0,
+								linearLowerLimits,
+								linearUpperLimits,
+								angularLowerLimits,
+								angularUpperLimits
+									);
+							} else
+							{
+								createUniversalD6Constraint(
+								body0,
+								body1,
+								attachFrameRef0,
+								attachFrameOther,
+								linearLowerLimits,
+								linearUpperLimits,
+								angularLowerLimits,
+								angularUpperLimits
+									);
+							}
 						} else
 						{
 							printf("Error: Cannot find Rigidbodies(%s,%s) for constraint %s\n",orgUri0,orgUri1,constraintName);

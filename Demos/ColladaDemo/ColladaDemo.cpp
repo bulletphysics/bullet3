@@ -57,8 +57,17 @@ class MyColladaConverter : public ColladaConverter
 			const btVector3& angularMaxLimits
 			)
 		{
-			if (bodyRef && bodyOther)
+			if (bodyRef)
 			{
+				if (!bodyOther)
+				{
+					 bodyOther = new btRigidBody(0,0,0);
+
+					 bodyOther->setWorldTransform(bodyRef->getWorldTransform());
+					 localAttachmentOther = localAttachmentFrameRef;
+
+				}
+
 				btGeneric6DofConstraint* genericConstraint = new btGeneric6DofConstraint(
 							*bodyRef,*bodyOther,
 							localAttachmentFrameRef,localAttachmentOther);
