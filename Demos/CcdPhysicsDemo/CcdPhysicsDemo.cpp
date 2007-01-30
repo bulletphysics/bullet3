@@ -91,6 +91,7 @@ btCollisionShape* shapePtr[numShapes] =
 #endif
 		
 		new btCylinderShape (btVector3(CUBE_HALF_EXTENTS-gCollisionMargin,CUBE_HALF_EXTENTS-gCollisionMargin,CUBE_HALF_EXTENTS-gCollisionMargin)),
+		//new btCapsuleShape(0.5*CUBE_HALF_EXTENTS-gCollisionMargin,CUBE_HALF_EXTENTS-gCollisionMargin),
 		//new btCylinderShape (btVector3(1-gCollisionMargin,CUBE_HALF_EXTENTS-gCollisionMargin,1-gCollisionMargin)),
 		//new btBoxShape (btVector3(CUBE_HALF_EXTENTS,CUBE_HALF_EXTENTS,CUBE_HALF_EXTENTS)),
 		//new btConeShape(CUBE_HALF_EXTENTS-gCollisionMargin,2.f*CUBE_HALF_EXTENTS-gCollisionMargin),

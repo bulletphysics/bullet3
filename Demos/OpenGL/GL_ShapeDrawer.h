@@ -25,7 +25,7 @@ class GL_ShapeDrawer
 
 		static 	void	drawOpenGL(btScalar* m, const btCollisionShape* shape, const btVector3& color,int	debugMode);
 		static void		drawCoordSystem();
-		
+		static void		drawCylinder(float radius,float halfHeight, int upAxis);
 };
 
 void OGL_displaylist_register_shape(btCollisionShape * shape);

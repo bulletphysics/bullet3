@@ -36,7 +36,7 @@ subject to the following restrictions:
 #include "BulletCollision/CollisionShapes/btCylinderShape.h"
 #include "BulletCollision/CollisionShapes/btTetrahedronShape.h"
 #include "BulletCollision/CollisionShapes/btCompoundShape.h"
-
+#include "BulletCollision/CollisionShapes/btCapsuleShape.h"
 #include "BulletCollision/CollisionShapes/btConvexTriangleMeshShape.h"
 
 
@@ -257,6 +257,46 @@ public:
 	}
 };
 
+void GL_ShapeDrawer::drawCylinder(float radius,float halfHeight, int upAxis)
+{
+	
+
+	glPushMatrix();
+	switch (upAxis)
+	{
+	case 0:
+		glRotatef(-90.0, 0.0, 1.0, 0.0);
+		glTranslatef(0.0, 0.0, -halfHeight);
+		break;
+	case 1:
+		glRotatef(-90.0, 1.0, 0.0, 0.0);
+		glTranslatef(0.0, 0.0, -halfHeight);
+		break;
+	case 2:
+		
+		glTranslatef(0.0, 0.0, -halfHeight);
+		break;
+	default:
+		{
+			assert(0);
+		}
+
+	}
+	
+	GLUquadricObj *quadObj = gluNewQuadric();
+
+	//The gluCylinder subroutine draws a cylinder that is oriented along the z axis. 
+	//The base of the cylinder is placed at z = 0; the top of the cylinder is placed at z=height. 
+	//Like a sphere, the cylinder is subdivided around the z axis into slices and along the z axis into stacks.
+	
+	gluQuadricDrawStyle(quadObj, (GLenum)GLU_FILL);
+	gluQuadricNormals(quadObj, (GLenum)GLU_SMOOTH);
+	
+	
+	gluCylinder(quadObj, radius, radius, 2.f*halfHeight, 15, 10);
+	glPopMatrix();
+	gluDeleteQuadric(quadObj);
+}
 
 void GL_ShapeDrawer::drawOpenGL(btScalar* m, const btCollisionShape* shape, const btVector3& color,int	debugMode)
 {
@@ -319,7 +359,29 @@ void GL_ShapeDrawer::drawOpenGL(btScalar* m, const btCollisionShape* shape, cons
 					useWireframeFallback = false;
 					break;
 				}
+			case CAPSULE_SHAPE_PROXYTYPE:
+			{
+				const btCapsuleShape* capsuleShape = static_cast<const btCapsuleShape*>(shape);
+				float radius = capsuleShape->getRadius();
+				float halfHeight = capsuleShape->getHalfHeight();
+				int upAxis = 1;
+
+				drawCylinder(radius,halfHeight,upAxis);
+
+				
+				glPushMatrix();
+				glTranslatef(0.0, -halfHeight,0.0);
+				glutSolidSphere(radius,10,10);
+				glTranslatef(0.0, 2*halfHeight,0.0);
+				glutSolidSphere(radius,10,10);
+				glPopMatrix();
+				useWireframeFallback = false;
+				break;
+			}
 			case MULTI_SPHERE_SHAPE_PROXYTYPE:
+				{
+					break;
+				}
 			case CONE_SHAPE_PROXYTYPE:
 				{
 					const btConeShape* coneShape = static_cast<const btConeShape*>(shape);
@@ -344,43 +406,11 @@ void GL_ShapeDrawer::drawOpenGL(btScalar* m, const btCollisionShape* shape, cons
 					const btCylinderShape* cylinder = static_cast<const btCylinderShape*>(shape);
 					int upAxis = cylinder->getUpAxis();
 					
-					GLUquadricObj *quadObj = gluNewQuadric();
+					
 					float radius = cylinder->getRadius();
 					float halfHeight = cylinder->getHalfExtents()[upAxis];
 
-					glPushMatrix();
-					switch (upAxis)
-					{
-					case 0:
-						glRotatef(-90.0, 0.0, 1.0, 0.0);
-						glTranslatef(0.0, 0.0, -halfHeight);
-						break;
-					case 1:
-						glRotatef(-90.0, 1.0, 0.0, 0.0);
-						glTranslatef(0.0, 0.0, -halfHeight);
-						break;
-					case 2:
-						
-						glTranslatef(0.0, 0.0, -halfHeight);
-						break;
-					default:
-						{
-							assert(0);
-						}
-
-					}
-					
-					//The gluCylinder subroutine draws a cylinder that is oriented along the z axis. 
-					//The base of the cylinder is placed at z = 0; the top of the cylinder is placed at z=height. 
-					//Like a sphere, the cylinder is subdivided around the z axis into slices and along the z axis into stacks.
-					
-					gluQuadricDrawStyle(quadObj, (GLenum)GLU_FILL);
-					gluQuadricNormals(quadObj, (GLenum)GLU_SMOOTH);
-					
-					
-					gluCylinder(quadObj, radius, radius, 2.f*halfHeight, 15, 10);
-					glPopMatrix();
-					gluDeleteQuadric(quadObj);
+					drawCylinder(radius,halfHeight,upAxis);
 
 					break;
 				}
