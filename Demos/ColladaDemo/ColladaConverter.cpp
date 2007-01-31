@@ -17,6 +17,7 @@ subject to the following restrictions:
 #include "btBulletDynamicsCommon.h"
 #include "dae.h"
 #include "dom/domCOLLADA.h"
+#include "dae/domAny.h"
 
 #include "BulletCollision/CollisionShapes/btBoxShape.h"
 #include "BulletCollision/CollisionShapes/btSphereShape.h"
@@ -926,9 +927,58 @@ void	ColladaConverter::ConvertRigidBodyRef( btRigidBodyInput& rbInput,btRigidBod
 		{
 			rbOutput.m_isDynamics = techniqueRef->getDynamic()->getValue();
 		}
+		//a hack to interpret <extra> PhysX profile:
+		//when <kinematic> is true, make <dynamic> false...
+		//using the DOM is a pain...
+		const domExtra_Array& extraArray = rbInput.m_rigidBodyRef2->getExtra_array();
+		unsigned int s=0;
+
+		for (s = 0;s< extraArray.getCount();s++)
+		{
+			const domExtraRef extraRef = extraArray[s];
+			const domTechnique_Array techniqueArray = extraRef->getTechnique_array();
+			unsigned int t=0;
+			for (t=0;t<techniqueArray.getCount();t++)
+			{
+				const domTechniqueRef techRef = techniqueArray[t];
+				const daeElementRefArray elemRefArray = techRef->getContents();
+				unsigned int u = 0;
+				for (u=0;u<elemRefArray.getCount();u++)
+				{
+					daeElementRef elemRef = elemRefArray[u];
+					daeString elemName = elemRef->getElementName();
+					if (!strcmp(elemName,"kinematic"))
+					{
+						daeMemoryRef memRef = elemRef->getValuePointer();
+						
+						daeBool hasVal = elemRef->hasValue();
+
+						COLLADA_TYPE::TypeEnum mytype = elemRef->getElementType();
+						//how can I make this cast safe?
+						const domAny* myAny = (const domAny*)elemRef.cast();
+						daeString myVal = myAny->getValue();
+						if (myVal)
+						{
+							if (!strcmp(myVal,"true"))
+							{
+								printf("revert bug in PhysX .dae export -> <kinematic>true</kinematic> means <dynamic>false</dynamic>\n");
+								rbOutput.m_isDynamics = false;
+							}
+						}
+					}
+				}
+			}
+		}
+
+//			<extra>
+//				<technique profile="PhysX">
+//						<wakeUpCounter>0.399999976</wakeUpCounter>
+//							<kinematic>false</kinematic>
+
+
 
 		//shapes
-		for (unsigned int s=0;s<techniqueRef->getShape_array().getCount();s++)
+		for (s=0;s<techniqueRef->getShape_array().getCount();s++)
 		{
 			domRigid_body::domTechnique_common::domShapeRef shapeRef = techniqueRef->getShape_array()[s];
 
