@@ -167,6 +167,7 @@ int main(int argc,char** argv)
 void	ColladaDemo::initPhysics(const char* filename)
 {
 	m_cameraUp = btVector3(0,0,1);
+	m_ele = 60;
 	m_forwardAxis = 1;
 
 	btCollisionDispatcher* dispatcher = new btCollisionDispatcher();

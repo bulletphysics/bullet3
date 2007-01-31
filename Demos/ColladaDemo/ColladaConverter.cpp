@@ -947,7 +947,7 @@ void	ColladaConverter::ConvertRigidBodyRef( btRigidBodyInput& rbInput,btRigidBod
 				{
 					daeElementRef elemRef = elemRefArray[u];
 					daeString elemName = elemRef->getElementName();
-					if (!strcmp(elemName,"kinematic"))
+					if (elemName && !strcmp(elemName,"kinematic"))
 					{
 						daeMemoryRef memRef = elemRef->getValuePointer();
 						
