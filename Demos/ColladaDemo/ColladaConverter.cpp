@@ -361,6 +361,8 @@ bool ColladaConverter::convert()
 											btRigidBodyOutput output;
 											output.m_colShape = colShape;
 											output.m_compoundShape = compoundShape;
+											output.m_mass = 1.f;
+											output.m_isDynamics = true;
 
 											btRigidBodyInput rbInput;
 											rbInput.m_rigidBodyRef2 = rigidBodyRef;
@@ -436,6 +438,8 @@ bool ColladaConverter::convert()
 										btRigidBodyOutput output;
 										output.m_colShape = colShape;
 										output.m_compoundShape = compoundShape;
+										output.m_mass = 1.f;
+										output.m_isDynamics = true;
 
 										btRigidBodyInput rbInput;
 										rbInput.m_rigidBodyRef2 = rigidBodyRef;
@@ -1035,113 +1039,165 @@ void	ColladaConverter::ConvertRigidBodyRef( btRigidBodyInput& rbInput,btRigidBod
 				{
 					const domMeshRef meshRef = geom->getMesh();
 
-					btTriangleMesh* trimesh = new btTriangleMesh();
+					//it can be either triangle mesh, or we just pick the vertices/positions
 
-					
-					for (unsigned int tg = 0;tg<meshRef->getTriangles_array().getCount();tg++)
+					if (meshRef->getTriangles_array().getCount())
 					{
 
-
-						domTrianglesRef triRef = meshRef->getTriangles_array()[tg];
-						const domPRef pRef = triRef->getP();
-						btIndexedMesh meshPart;
-						meshPart.m_triangleIndexStride=0;
-
-
+						btTriangleMesh* trimesh = new btTriangleMesh();
 						
-						int vertexoffset = -1;
-						domInputLocalOffsetRef indexOffsetRef;
-						
-
-						for (unsigned int w=0;w<triRef->getInput_array().getCount();w++)
+						for (unsigned int tg = 0;tg<meshRef->getTriangles_array().getCount();tg++)
 						{
-							int offset = triRef->getInput_array()[w]->getOffset();
-							daeString str = triRef->getInput_array()[w]->getSemantic();
-							if (!strcmp(str,"VERTEX"))
+
+
+							domTrianglesRef triRef = meshRef->getTriangles_array()[tg];
+							const domPRef pRef = triRef->getP();
+							btIndexedMesh meshPart;
+							meshPart.m_triangleIndexStride=0;
+
+
+							
+							int vertexoffset = -1;
+							domInputLocalOffsetRef indexOffsetRef;
+							
+
+							for (unsigned int w=0;w<triRef->getInput_array().getCount();w++)
 							{
-								indexOffsetRef = triRef->getInput_array()[w];
-								vertexoffset = offset;
-							}
-							if (offset > meshPart.m_triangleIndexStride)
-							{
-								meshPart.m_triangleIndexStride = offset;
-							}
-						}
-						meshPart.m_triangleIndexStride++;
-						domListOfUInts indexArray =triRef->getP()->getValue(); 
-
-						//int*		m_triangleIndexBase;
-
-
-
-						meshPart.m_numTriangles = triRef->getCount();
-
-						const domVerticesRef vertsRef = meshRef->getVertices();
-						int numInputs = vertsRef->getInput_array().getCount();
-						for (int i=0;i<numInputs;i++)
-						{
-							domInputLocalRef localRef = vertsRef->getInput_array()[i];
-							daeString str = localRef->getSemantic();
-							if ( !strcmp(str,"POSITION"))
-							{
-								const domURIFragmentType& frag = localRef->getSource();
-
-								daeElementConstRef constElem = frag.getElement();
-
-								const domSourceRef node = *(const domSourceRef*)&constElem;
-								const domFloat_arrayRef flArray = node->getFloat_array();
-								if (flArray)
+								int offset = triRef->getInput_array()[w]->getOffset();
+								daeString str = triRef->getInput_array()[w]->getSemantic();
+								if (!strcmp(str,"VERTEX"))
 								{
-									const domListOfFloats& listFloats = flArray->getValue();
+									indexOffsetRef = triRef->getInput_array()[w];
+									vertexoffset = offset;
+								}
+								if (offset > meshPart.m_triangleIndexStride)
+								{
+									meshPart.m_triangleIndexStride = offset;
+								}
+							}
+							meshPart.m_triangleIndexStride++;
+							domListOfUInts indexArray =triRef->getP()->getValue(); 
 
-									int k=vertexoffset;
-									int t=0;
-									int vertexStride = 3;//instead of hardcoded stride, should use the 'accessor'
-									for (;t<meshPart.m_numTriangles;t++)
+							//int*		m_triangleIndexBase;
+
+
+
+							meshPart.m_numTriangles = triRef->getCount();
+
+							const domVerticesRef vertsRef = meshRef->getVertices();
+							int numInputs = vertsRef->getInput_array().getCount();
+							for (int i=0;i<numInputs;i++)
+							{
+								domInputLocalRef localRef = vertsRef->getInput_array()[i];
+								daeString str = localRef->getSemantic();
+								if ( !strcmp(str,"POSITION"))
+								{
+									const domURIFragmentType& frag = localRef->getSource();
+
+									daeElementConstRef constElem = frag.getElement();
+
+									const domSourceRef node = *(const domSourceRef*)&constElem;
+									const domFloat_arrayRef flArray = node->getFloat_array();
+									if (flArray)
 									{
-										btVector3 verts[3];
-										int index0;
-										for (int i=0;i<3;i++)
+										const domListOfFloats& listFloats = flArray->getValue();
+
+										int k=vertexoffset;
+										int t=0;
+										int vertexStride = 3;//instead of hardcoded stride, should use the 'accessor'
+										for (;t<meshPart.m_numTriangles;t++)
 										{
-											index0 = indexArray.get(k)*vertexStride;
-											domFloat fl0 = listFloats.get(index0);
-											domFloat fl1 = listFloats.get(index0+1);
-											domFloat fl2 = listFloats.get(index0+2);
-											k+=meshPart.m_triangleIndexStride;
-											verts[i].setValue(fl0,fl1,fl2);
+											btVector3 verts[3];
+											int index0;
+											for (int i=0;i<3;i++)
+											{
+												index0 = indexArray.get(k)*vertexStride;
+												domFloat fl0 = listFloats.get(index0);
+												domFloat fl1 = listFloats.get(index0+1);
+												domFloat fl2 = listFloats.get(index0+2);
+												k+=meshPart.m_triangleIndexStride;
+												verts[i].setValue(fl0,fl1,fl2);
+											}
+											trimesh->addTriangle(verts[0],verts[1],verts[2]);
 										}
-										trimesh->addTriangle(verts[0],verts[1],verts[2]);
 									}
 								}
 							}
-						}
 
 
 
 
 
-							//int			m_triangleIndexStride;//calculate max offset
-							//int			m_numVertices;
-							//float*		m_vertexBase;//getRawData on floatArray
-							//int			m_vertexStride;//use the accessor for this
+								//int			m_triangleIndexStride;//calculate max offset
+								//int			m_numVertices;
+								//float*		m_vertexBase;//getRawData on floatArray
+								//int			m_vertexStride;//use the accessor for this
 
-						//};
-						//tindexArray->addIndexedMesh(meshPart);
-						if (rbOutput.m_isDynamics)
+							//};
+							//tindexArray->addIndexedMesh(meshPart);
+							if (rbOutput.m_isDynamics)
+							{
+								printf("moving concave <mesh> not supported, transformed into convex\n");
+								rbOutput.m_colShape = new btConvexTriangleMeshShape(trimesh);
+							} else
+							{
+								printf("static concave triangle <mesh> added\n");
+								rbOutput.m_colShape = new btBvhTriangleMeshShape(trimesh);
+								//rbOutput.m_colShape = new btBvhTriangleMeshShape(trimesh);
+								//rbOutput.m_colShape = new btConvexTriangleMeshShape(trimesh);
+								
+								//btTriangleMeshShape
+							}
+
+						} 
+					} else
 						{
-							printf("moving concave <mesh> not supported, transformed into convex\n");
-							rbOutput.m_colShape = new btConvexTriangleMeshShape(trimesh);
-						} else
-						{
-							printf("static concave triangle <mesh> added\n");
-							rbOutput.m_colShape = new btBvhTriangleMeshShape(trimesh);
-							//rbOutput.m_colShape = new btBvhTriangleMeshShape(trimesh);
-							//rbOutput.m_colShape = new btConvexTriangleMeshShape(trimesh);
-							
-							//btTriangleMeshShape
-						}
+
+							btConvexHullShape* convexHull = new btConvexHullShape();
+							int numAddedVerts = 0;
+
+							const domVerticesRef vertsRef = meshRef->getVertices();
+							int numInputs = vertsRef->getInput_array().getCount();
+							for (int i=0;i<numInputs;i++)
+							{
+								domInputLocalRef localRef = vertsRef->getInput_array()[i];
+								daeString str = localRef->getSemantic();
+								if ( !strcmp(str,"POSITION"))
+								{
+									const domURIFragmentType& frag = localRef->getSource();
+
+									daeElementConstRef constElem = frag.getElement();
+
+									const domSourceRef node = *(const domSourceRef*)&constElem;
+									const domFloat_arrayRef flArray = node->getFloat_array();
+									if (flArray)
+									{
+										const domListOfFloats& listFloats = flArray->getValue();
+										int vertexStride = 3;//instead of hardcoded stride, should use the 'accessor'
+										int vertIndex = 0;
+										for (vertIndex = 0;vertIndex < listFloats.getCount();vertIndex+=vertexStride)
+										{
+											btVector3 verts[3];
+											domFloat fl0 = listFloats.get(vertIndex);
+											domFloat fl1 = listFloats.get(vertIndex+1);
+											domFloat fl2 = listFloats.get(vertIndex+2);
+											convexHull->addPoint(btPoint3(fl0,fl1,fl2));
+										}
+									}
+								}
+							}
+							//convexHull->addPoint();
+							if (numAddedVerts > 0)
+							{
+								rbOutput.m_colShape = convexHull;
+							} else
+							{
+								delete convexHull;
+								printf("no vertices found for convex hull\n");
+							}
 
 					}
+						
 
 				}
 
@@ -1191,7 +1247,7 @@ void	ColladaConverter::ConvertRigidBodyRef( btRigidBodyInput& rbInput,btRigidBod
 							{
 								//ReadGeometry(  ); 
 								domGeometryRef lib = libgeom->getGeometry_array()[i];
-								if (!strcmp(lib->getName(),urlref2))
+								if (!strcmp(lib->getId(),urlref2))
 								{
 									//found convex_hull geometry
 									domMesh			*meshElement		= lib->getMesh();//linkedGeom->getMesh();
