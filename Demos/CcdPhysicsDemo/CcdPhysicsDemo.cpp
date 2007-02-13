@@ -318,6 +318,9 @@ void	CcdPhysicsDemo::initPhysics()
 #else
 	//default constraint solver
 	btSequentialImpulseConstraintSolver* solver = new btSequentialImpulseConstraintSolver;
+	//default solverMode is SOLVER_RANDMIZE_ORDER. Warmstarting seems not to improve convergence, see 
+	//solver->setSolverMode(btSequentialImpulseConstraintSolver::SOLVER_USE_WARMSTARTING | btSequentialImpulseConstraintSolver::SOLVER_RANDMIZE_ORDER);
+	
 #endif
 		
 
