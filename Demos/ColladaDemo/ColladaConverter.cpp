@@ -912,6 +912,7 @@ char* fixFileName(const char* lpCmdLine)
 		out++;
 	}
 	
+	cleaned_filename[i] = '\0'; 
 	return cleaned_filename;
 }
 
