@@ -102,14 +102,10 @@ bool  MyContactDestroyedCallback(void* userPersistentData)
 	return true;
 }
 
-btSequentialImpulseConstraintSolver3::btSequentialImpulseConstraintSolver3()
-{
-	setSolverMode(SOLVER_RANDMIZE_ORDER);
-}
 
 
 btSequentialImpulseConstraintSolver::btSequentialImpulseConstraintSolver()
-:m_solverMode(SOLVER_USE_WARMSTARTING)
+:m_solverMode(SOLVER_RANDMIZE_ORDER) //not using SOLVER_USE_WARMSTARTING
 {
 	gContactDestroyedCallback = &MyContactDestroyedCallback;
 
@@ -125,7 +121,7 @@ btSequentialImpulseConstraintSolver::btSequentialImpulseConstraintSolver()
 }
 
 /// btSequentialImpulseConstraintSolver Sequentially applies impulses
-btScalar btSequentialImpulseConstraintSolver3::solveGroup(btPersistentManifold** manifoldPtr, int numManifolds,btTypedConstraint** constraints,int numConstraints,const btContactSolverInfo& infoGlobal,btIDebugDraw* debugDrawer)
+btScalar btSequentialImpulseConstraintSolver::solveGroup(btPersistentManifold** manifoldPtr, int numManifolds,btTypedConstraint** constraints,int numConstraints,const btContactSolverInfo& infoGlobal,btIDebugDraw* debugDrawer)
 {
 	
 	btContactSolverInfo info = infoGlobal;
@@ -213,88 +209,6 @@ btScalar btSequentialImpulseConstraintSolver3::solveGroup(btPersistentManifold**
 }
 
 
-/// btSequentialImpulseConstraintSolver Sequentially applies impulses
-btScalar btSequentialImpulseConstraintSolver::solveGroup(btPersistentManifold** manifoldPtr, int numManifolds,btTypedConstraint** constraints,int numConstraints,const btContactSolverInfo& infoGlobal,btIDebugDraw* debugDrawer)
-{
-	
-	btContactSolverInfo info = infoGlobal;
-
-	int numiter = infoGlobal.m_numIterations;
-#ifdef USE_PROFILE
-	btProfiler::beginBlock("solve");
-#endif //USE_PROFILE
-
-	{
-		int j;
-		for (j=0;j<numManifolds;j++)
-		{
-			btPersistentManifold* manifold = manifoldPtr[j];
-			prepareConstraints(manifold,info,debugDrawer);
-			for (int p=0;p<manifoldPtr[j]->getNumContacts();p++)
-			{
-				//interleaving here gives better results
-				solve( (btRigidBody*)manifold->getBody0(),
-									(btRigidBody*)manifold->getBody1()
-				,manifoldPtr[j]->getContactPoint(p),info,0,debugDrawer);
-			}
-		}
-	}
-	{
-		int j;
-		for (j=0;j<numConstraints;j++)
-		{
-			btTypedConstraint* constraint = constraints[j];
-			constraint->buildJacobian();
-		}
-	}
-	
-	//should traverse the contacts random order...
-	int iteration;
-
-	for ( iteration = 0;iteration<numiter-1;iteration++)
-	{
-		int j;
-
-		for (j=0;j<numConstraints;j++)
-		{
-			btTypedConstraint* constraint = constraints[j];
-			constraint->solveConstraint(info.m_timeStep);
-		}
-
-		for (j=0;j<numManifolds;j++)
-		{
-			btPersistentManifold* manifold = manifoldPtr[j];
-			for (int p=0;p<manifold->getNumContacts();p++)
-			{
-				solve( (btRigidBody*)manifold->getBody0(),
-									(btRigidBody*)manifold->getBody1()
-				,manifold->getContactPoint(p),info,iteration,debugDrawer);
-			}
-		}
-	
-	}
-
-	for ( iteration = 0;iteration<numiter-1;iteration++)
-	{
-		int j;
-		for (j=0;j<numManifolds;j++)
-		{
-			btPersistentManifold* manifold = manifoldPtr[j];
-			for (int p=0;p<manifold->getNumContacts();p++)
-			{
-				solveFriction((btRigidBody*)manifold->getBody0(),
-					(btRigidBody*)manifold->getBody1(),manifold->getContactPoint(p),info,iteration,debugDrawer);
-			}
-		}
-	}
-
-		
-#ifdef USE_PROFILE
-	btProfiler::endBlock("solve");
-#endif //USE_PROFILE
-
-	return btScalar(0.);
-}
 
 
 btScalar penetrationResolveFactor = btScalar(0.9);

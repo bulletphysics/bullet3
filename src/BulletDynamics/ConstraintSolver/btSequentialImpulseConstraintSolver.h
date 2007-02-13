@@ -80,17 +80,7 @@ public:
 	}
 };
 
-/// Small variation on btSequentialImpulseConstraintSolver: warmstarting, separate friction, non-randomized ordering
-class btSequentialImpulseConstraintSolver3 : public btSequentialImpulseConstraintSolver
-{
-public:
 
-	btSequentialImpulseConstraintSolver3();
-
-	virtual btScalar solveGroup(btPersistentManifold** manifold,int numManifolds,btTypedConstraint** constraints,int numConstraints,const btContactSolverInfo& info, btIDebugDraw* debugDrawer=0);
-
-
-};
 
 
 #endif //SEQUENTIAL_IMPULSE_CONSTRAINT_SOLVER_H
