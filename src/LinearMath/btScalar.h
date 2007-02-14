@@ -104,8 +104,14 @@ SIMD_FORCE_INLINE btScalar btPow(btScalar x,btScalar y) { return powf(x,y); }
 #define SIMD_HALF_PI      (SIMD_2_PI * btScalar(0.25))
 #define SIMD_RADS_PER_DEG (SIMD_2_PI / btScalar(360.0))
 #define SIMD_DEGS_PER_RAD  (btScalar(360.0) / SIMD_2_PI)
+
+#ifdef BT_USE_DOUBLE_PRECISION
+#define SIMD_EPSILON      DBL_EPSILON
+#define SIMD_INFINITY     DBL_MAX
+#else
 #define SIMD_EPSILON      FLT_EPSILON
 #define SIMD_INFINITY     FLT_MAX
+#endif
 
 SIMD_FORCE_INLINE bool      btFuzzyZero(btScalar x) { return btFabs(x) < SIMD_EPSILON; }
 
