@@ -216,7 +216,7 @@ public:
 	/// rayTestSingle performs a raycast call and calls the resultCallback. It is used internally by rayTest.
 	/// In a future implementation, we consider moving the ray test as a virtual method in btCollisionShape.
 	/// This allows more customization.
-	void	rayTestSingle(const btTransform& rayFromTrans,const btTransform& rayToTrans,
+	static void	rayTestSingle(const btTransform& rayFromTrans,const btTransform& rayToTrans,
 					  btCollisionObject* collisionObject,
 					  const btCollisionShape* collisionShape,
 					  const btTransform& colObjWorldTransform,

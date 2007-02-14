@@ -178,6 +178,8 @@ void	btCollisionWorld::removeCollisionObject(btCollisionObject* collisionObject)
 		}
 }
 
+
+
 void	btCollisionWorld::rayTestSingle(const btTransform& rayFromTrans,const btTransform& rayToTrans,
 					  btCollisionObject* collisionObject,
 					  const btCollisionShape* collisionShape,
@@ -186,6 +188,7 @@ void	btCollisionWorld::rayTestSingle(const btTransform& rayFromTrans,const btTra
 {
 	
 	btSphereShape pointShape(btScalar(0.0));
+	pointShape.setMargin(0.f);
 
 	if (collisionShape->isConvex())
 			{
