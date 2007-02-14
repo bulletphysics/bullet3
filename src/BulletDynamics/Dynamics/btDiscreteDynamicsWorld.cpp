@@ -139,7 +139,10 @@ void	btDiscreteDynamicsWorld::synchronizeMotionStates()
 			btRigidBody* body = btRigidBody::upcast(colObj);
 			if (body && body->getMotionState() && !body->isStaticOrKinematicObject())
 			{
-				if (body->getActivationState() != ISLAND_SLEEPING)
+				//we need to call the update at least once, even for sleeping objects
+				//otherwise the 'graphics' transform never updates properly
+				//so todo: add 'dirty' flag
+				//if (body->getActivationState() != ISLAND_SLEEPING)
 				{
 					btTransform interpolatedTransform;
 					btTransformUtil::integrateTransform(body->getInterpolationWorldTransform(),
