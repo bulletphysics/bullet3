@@ -435,11 +435,19 @@ int btVoronoiSimplexSolver::pointOutsideOfPlane(const btPoint3& p, const btPoint
     btScalar signd = (d - a).dot( normal); // [AD AB AC]
 
 #ifdef CATCH_DEGENERATE_TETRAHEDRON
+#ifdef BT_USE_DOUBLE_PRECISION
+if (signd * signd < (btScalar(1e-8) * btScalar(1e-8)))
+	{
+		return -1;
+	}
+#else
 	if (signd * signd < (btScalar(1e-4) * btScalar(1e-4)))
 	{
 //		printf("affine dependent/degenerate\n");//
 		return -1;
 	}
+#endif
+
 #endif
 	// Points on opposite sides if expression signs are opposite
     return signp * signd < btScalar(0.);

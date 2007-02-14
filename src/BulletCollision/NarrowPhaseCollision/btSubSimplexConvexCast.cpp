@@ -28,8 +28,11 @@ m_convexA(convexA),m_convexB(convexB)
 
 ///Typically the conservative advancement reaches solution in a few iterations, clip it to 32 for degenerate cases.
 ///See discussion about this here http://continuousphysics.com/Bullet/phpBB2/viewtopic.php?t=565
+#ifdef BT_USE_DOUBLE_PRECISION
+#define MAX_ITERATIONS 64
+#else
 #define MAX_ITERATIONS 32
-
+#endif
 bool	btSubsimplexConvexCast::calcTimeOfImpact(
 		const btTransform& fromA,
 		const btTransform& toA,
@@ -77,8 +80,11 @@ bool	btSubsimplexConvexCast::calcTimeOfImpact(
 
 
 	btScalar dist2 = v.length2();
+#ifdef BT_USE_DOUBLE_PRECISION
 	btScalar epsilon = btScalar(0.0001);
-
+#else
+	btScalar epsilon = btScalar(0.0001);
+#endif //BT_USE_DOUBLE_PRECISION
 	btVector3	w,p;
 	btScalar VdotR;
 	
