@@ -1,6 +1,11 @@
 Bullet Continuous Collision Detection and Physics Library
 Erwin Coumans
 
+2007 Feb 21
+	- Build system: updated bullet.pc.in library names
+	- Updated EPA comparison integration (missing parameter)
+	- 
+	
 2007 Jan 04
 	- fixed optimized AABB tree building: in some cases the tree building fails due to unbalanced trees, which generated stack overflow
 	
