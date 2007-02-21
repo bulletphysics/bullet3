@@ -34,7 +34,7 @@ class EpaPenetrationDepthSolver : public btConvexPenetrationDepthSolver
 									  btConvexShape* pConvexA, btConvexShape* pConvexB,
 									  const btTransform& transformA, const btTransform& transformB,
 									  btVector3& v, btPoint3& wWitnessOnA, btPoint3& wWitnessOnB,
-									  class btIDebugDraw* debugDraw );
+									  class btIDebugDraw* debugDraw,btStackAlloc* stackAlloc );
 
 	private :
 

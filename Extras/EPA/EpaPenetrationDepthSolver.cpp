@@ -43,7 +43,7 @@ bool EpaPenetrationDepthSolver::calcPenDepth( btSimplexSolverInterface& simplexS
 											  btConvexShape* pConvexA, btConvexShape* pConvexB,
 											  const btTransform& transformA, const btTransform& transformB,
 											  btVector3& v, btPoint3& wWitnessOnA, btPoint3& wWitnessOnB,
-											  class btIDebugDraw* debugDraw )
+											  class btIDebugDraw* debugDraw,btStackAlloc* stackAlloc )
 {
 	EPA_DEBUG_ASSERT( pConvexA ,"Convex shape A is invalid!" );
 	EPA_DEBUG_ASSERT( pConvexB ,"Convex shape B is invalid!" );

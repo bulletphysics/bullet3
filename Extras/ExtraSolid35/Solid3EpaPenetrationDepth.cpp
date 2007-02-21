@@ -321,7 +321,7 @@ bool Solid3EpaPenetrationDepth::calcPenDepth( btSimplexSolverInterface& simplexS
 		btConvexShape* convexA,btConvexShape* convexB,
 					const btTransform& transformA,const btTransform& transformB,
 				btVector3& v, btPoint3& pa, btPoint3& pb,
-				class btIDebugDraw* debugDraw
+				class btIDebugDraw* debugDraw,btStackAlloc* stackAlloc
 				)
 {
 	
