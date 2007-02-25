@@ -25,10 +25,10 @@ class btBvhTriangleMeshShape : public btTriangleMeshShape
 {
 
 	btOptimizedBvh*	m_bvh;
-	
-	
+	bool m_useQuantizedAabbCompression;
+
 public:
-	btBvhTriangleMeshShape(btStridingMeshInterface* meshInterface);
+	btBvhTriangleMeshShape(btStridingMeshInterface* meshInterface, bool useQuantizedAabbCompression);
 
 	virtual ~btBvhTriangleMeshShape();
 

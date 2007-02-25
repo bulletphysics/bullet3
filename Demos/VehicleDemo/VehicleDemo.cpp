@@ -185,7 +185,8 @@ const float TRIANGLE_SIZE=20.f;
 		indexStride,
 		totalVerts,(btScalar*) &gVertices[0].x(),vertStride);
 
-	groundShape = new btBvhTriangleMeshShape(indexVertexArrays);
+	bool useQuantizedAabbCompression = true;
+	groundShape = new btBvhTriangleMeshShape(indexVertexArrays,useQuantizedAabbCompression);
 	
 #endif //
 

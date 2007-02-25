@@ -17,6 +17,7 @@ subject to the following restrictions:
 //#define REGISTER_CUSTOM_COLLISION_ALGORITHM 1
 //#define USER_DEFINED_FRICTION_MODEL 1
 #define USE_CUSTOM_NEAR_CALLBACK 1
+//#define CENTER_OF_MASS_SHIFT 1
 
 //following define allows to compare/replace Bullet's constraint solver with ODE quickstep
 //this define requires to either add the libquickstep library (win32, see msvc/8/libquickstep.vcproj) or manually add the files from Extras/quickstep
@@ -46,6 +47,8 @@ float	gCollisionMargin = 0.05f;
 
 #include "GlutStuff.h"
 
+btTransform comOffset;
+btVector3 comOffsetVec(0,2,0);
 
 extern float eye[3];
 extern int glutScreenWidth;
@@ -55,7 +58,7 @@ const int maxProxies = 32766;
 const int maxOverlap = 65535;
 
 bool createConstraint = true;//false;
-bool useCompound = false;//true;//false;
+bool useCompound = false;
 
 
 
@@ -91,6 +94,7 @@ btCollisionShape* shapePtr[numShapes] =
 #endif
 		
 		new btCylinderShape (btVector3(CUBE_HALF_EXTENTS-gCollisionMargin,CUBE_HALF_EXTENTS-gCollisionMargin,CUBE_HALF_EXTENTS-gCollisionMargin)),
+		//new btSphereShape (CUBE_HALF_EXTENTS),
 		//new btCapsuleShape(0.5*CUBE_HALF_EXTENTS-gCollisionMargin,CUBE_HALF_EXTENTS-gCollisionMargin),
 		//new btCylinderShape (btVector3(1-gCollisionMargin,CUBE_HALF_EXTENTS-gCollisionMargin,1-gCollisionMargin)),
 		//new btBoxShape (btVector3(CUBE_HALF_EXTENTS,CUBE_HALF_EXTENTS,CUBE_HALF_EXTENTS)),
@@ -245,6 +249,48 @@ void CcdPhysicsDemo::clientMoveAndDisplay()
 	
 	renderme(); 
 
+
+	//render the graphics objects, with center of mass shift
+
+		updateCamera();
+
+
+#ifdef CENTER_OF_MASS_SHIFT
+	btScalar m[16];
+
+	if (m_dynamicsWorld)
+	{
+		int numObjects = m_dynamicsWorld->getNumCollisionObjects();
+		btVector3 wireColor(1,0,0);
+		for (int i=0;i<numObjects;i++)
+		{
+			btCollisionObject* colObj = m_dynamicsWorld->getCollisionObjectArray()[i];
+			btRigidBody* body = btRigidBody::upcast(colObj);
+
+			if (body && body->getMotionState())
+			{
+				btDefaultMotionState* myMotionState = (btDefaultMotionState*)body->getMotionState();
+				btTransform offsetTrans = myMotionState->m_graphicsWorldTrans;
+
+
+				btVector3 worldShift =  offsetTrans.getBasis() * comOffsetVec;
+				offsetTrans.setOrigin(offsetTrans.getOrigin() + worldShift);
+
+
+				offsetTrans.getOpenGLMatrix(m);
+
+				btVector3 wireColor(1.f,1.0f,1.f); //wants deactivation
+
+				btSphereShape sphereTmp(CUBE_HALF_EXTENTS);
+
+				GL_ShapeDrawer::drawOpenGL(m,&sphereTmp,wireColor,0);
+			}			
+		}
+
+	}
+#endif //CENTER_OF_MASS_SHIFT
+
+
 #ifdef USE_QUICKPROF 
         btProfiler::endBlock("render"); 
 #endif 
@@ -363,13 +409,19 @@ void	CcdPhysicsDemo::initPhysics()
 		btCompoundShape* compoundShape = new btCompoundShape();
 		btCollisionShape* oldShape = shapePtr[1];
 		shapePtr[1] = compoundShape;
+		btVector3 sphereOffset(0,0,2);
 
-		btTransform ident;
-		ident.setIdentity();
-		ident.setOrigin(btVector3(0,0,0));	
-		compoundShape->addChildShape(ident,oldShape);//
-		ident.setOrigin(btVector3(0,0,2));	
-		compoundShape->addChildShape(ident,new btSphereShape(0.9));//
+		comOffset.setIdentity();
+
+#ifdef CENTER_OF_MASS_SHIFT
+		comOffset.setOrigin(comOffsetVec);
+		compoundShape->addChildShape(comOffset,oldShape);
+
+#else
+		compoundShape->addChildShape(tr,oldShape);
+		tr.setOrigin(sphereOffset);
+		compoundShape->addChildShape(tr,new btSphereShape(0.9));
+#endif
 	}
 
 	for (i=0;i<gNumObjects;i++)

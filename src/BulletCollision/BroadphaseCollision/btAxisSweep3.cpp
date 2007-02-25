@@ -110,14 +110,7 @@ btAxisSweep3::~btAxisSweep3()
 void btAxisSweep3::quantize(unsigned short* out, const btPoint3& point, int isMax) const
 {
 	btPoint3 clampedPoint(point);
-	/*
-	if (isMax)
-		clampedPoint += btVector3(10,10,10);
-	else
-	{
-		clampedPoint -= btVector3(10,10,10);
-	}
-	*/
+	
 
 
 	clampedPoint.setMax(m_worldAabbMin);

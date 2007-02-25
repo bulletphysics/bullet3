@@ -41,6 +41,7 @@ protected:
 	class DAE* m_collada;
 	class domCOLLADA* m_dom;
 	const char* m_filename;
+	float	m_unitMeterScaling;
 	
 	int	m_numObjects;
 	btRigidBody* m_rigidBodies[COLLADA_CONVERTER_MAX_NUM_OBJECTS];

@@ -67,9 +67,11 @@ domMatrix_Array emptyMatrixArray;
 domNodeRef	m_colladadomNodes[COLLADA_CONVERTER_MAX_NUM_OBJECTS];
 
 
+///This code is actually wrong: the order of transformations is lost, so we need to rewrite this!
 btTransform	GetbtTransformFromCOLLADA_DOM(domMatrix_Array& matrixArray,
 														domRotate_Array& rotateArray,
-														domTranslate_Array& translateArray
+														domTranslate_Array& translateArray,
+														float meterScaling
 														)
 
 {
@@ -83,7 +85,7 @@ btTransform	GetbtTransformFromCOLLADA_DOM(domMatrix_Array& matrixArray,
 		domMatrixRef matrixRef = matrixArray[i];
 		domFloat4x4 fl16 = matrixRef->getValue();
 		btVector3 origin(fl16.get(3),fl16.get(7),fl16.get(11));
-		startTransform.setOrigin(origin);
+		startTransform.setOrigin(origin*meterScaling);
 		btMatrix3x3 basis(fl16.get(0),fl16.get(1),fl16.get(2),
 							fl16.get(4),fl16.get(5),fl16.get(6),
 							fl16.get(8),fl16.get(9),fl16.get(10));
@@ -103,7 +105,8 @@ btTransform	GetbtTransformFromCOLLADA_DOM(domMatrix_Array& matrixArray,
 	{
 		domTranslateRef translateRef = translateArray[i];
 		domFloat3 fl3 = translateRef->getValue();
-		startTransform.getOrigin() += btVector3(fl3.get(0),fl3.get(1),fl3.get(2));
+		btVector3 orgTrans(fl3.get(0),fl3.get(1),fl3.get(2));
+		startTransform.getOrigin() += orgTrans*meterScaling;
 	}
 	return startTransform;
 }
@@ -116,7 +119,8 @@ ColladaConverter::ColladaConverter()
 :m_collada(0),
 m_dom(0),
 m_filename(0),
-m_numObjects(0)
+m_numObjects(0),
+m_unitMeterScaling(1.f)
 {
 	//Collada-m_dom
 	m_collada = new DAE;
@@ -179,6 +183,15 @@ bool ColladaConverter::convert()
 
 //succesfully loaded file, now convert data
 
+			if (m_dom->getAsset() && m_dom->getAsset()->getUnit())
+			{
+				domAsset::domUnitRef unit = m_dom->getAsset()->getUnit();
+				domFloat meter = unit->getMeter();
+				printf("asset unit meter=%f\n",meter);
+				m_unitMeterScaling = meter;
+		
+
+			}
 			if ( m_dom->getAsset() && m_dom->getAsset()->getUp_axis() )
 			{
 				domAsset::domUp_axis * up = m_dom->getAsset()->getUp_axis();
@@ -593,7 +606,8 @@ void	ColladaConverter::prepareConstraints(ConstraintInput& input)
 								(
 								emptyMatrixArray,
 								attachRefBody->getRotate_array(),
-								attachRefBody->getTranslate_array());
+								attachRefBody->getTranslate_array(),
+								m_unitMeterScaling);
 						}
 
 						btTransform attachFrameOther;
@@ -605,7 +619,8 @@ void	ColladaConverter::prepareConstraints(ConstraintInput& input)
 								(
 								emptyMatrixArray,
 								attachBody1->getRotate_array(),
-								attachBody1->getTranslate_array()
+								attachBody1->getTranslate_array(),
+								m_unitMeterScaling
 								);
 						}
 
@@ -718,7 +733,8 @@ void	ColladaConverter::PreparePhysicsObject(struct btRigidBodyInput& input, bool
 		startTransform = GetbtTransformFromCOLLADA_DOM(
 							node->getMatrix_array(),
 							node->getRotate_array(),
-							node->getTranslate_array()
+							node->getTranslate_array(),
+							m_unitMeterScaling
 							);
 
 		unsigned int i;
@@ -994,7 +1010,7 @@ void	ColladaConverter::ConvertRigidBodyRef( btRigidBodyInput& rbInput,btRigidBod
 				{
 					const domFloat4 planeEq = planeRef->getEquation()->getValue();
 					btVector3 planeNormal(planeEq.get(0),planeEq.get(1),planeEq.get(2));
-					btScalar planeConstant = planeEq.get(3);
+					btScalar planeConstant = planeEq.get(3)*m_unitMeterScaling;
 					rbOutput.m_colShape = new btStaticPlaneShape(planeNormal,planeConstant);
 				}
 
@@ -1005,25 +1021,25 @@ void	ColladaConverter::ConvertRigidBodyRef( btRigidBodyInput& rbInput,btRigidBod
 				domBoxRef boxRef = shapeRef->getBox();
 				domBox::domHalf_extentsRef	domHalfExtentsRef = boxRef->getHalf_extents();
 				domFloat3& halfExtents = domHalfExtentsRef->getValue();
-				float x = halfExtents.get(0);
-				float y = halfExtents.get(1);
-				float z = halfExtents.get(2);
+				float x = halfExtents.get(0)*m_unitMeterScaling;
+				float y = halfExtents.get(1)*m_unitMeterScaling;
+				float z = halfExtents.get(2)*m_unitMeterScaling;
 				rbOutput.m_colShape = new btBoxShape(btVector3(x,y,z));
 			}
 			if (shapeRef->getSphere())
 			{
 				domSphereRef sphereRef = shapeRef->getSphere();
 				domSphere::domRadiusRef radiusRef = sphereRef->getRadius();
-				domFloat radius = radiusRef->getValue();
+				domFloat radius = radiusRef->getValue()*m_unitMeterScaling;
 				rbOutput.m_colShape = new btSphereShape(radius);
 			}
 
 			if (shapeRef->getCylinder())
 			{
 				domCylinderRef cylinderRef = shapeRef->getCylinder();
-				domFloat height = cylinderRef->getHeight()->getValue();
+				domFloat height = cylinderRef->getHeight()->getValue()*m_unitMeterScaling;
 				domFloat2 radius2 = cylinderRef->getRadius()->getValue();
-				domFloat radius0 = radius2.get(0);
+				domFloat radius0 = radius2.get(0)*m_unitMeterScaling;
 
 				//Cylinder around the local Y axis
 				rbOutput.m_colShape = new btCylinderShape(btVector3(radius0,height,radius0));
@@ -1117,7 +1133,7 @@ void	ColladaConverter::ConvertRigidBodyRef( btRigidBodyInput& rbInput,btRigidBod
 												domFloat fl1 = listFloats.get(index0+1);
 												domFloat fl2 = listFloats.get(index0+2);
 												k+=meshPart.m_triangleIndexStride;
-												verts[i].setValue(fl0,fl1,fl2);
+												verts[i].setValue(fl0*m_unitMeterScaling,fl1*m_unitMeterScaling,fl2*m_unitMeterScaling);
 											}
 											trimesh->addTriangle(verts[0],verts[1],verts[2]);
 										}
@@ -1143,7 +1159,8 @@ void	ColladaConverter::ConvertRigidBodyRef( btRigidBodyInput& rbInput,btRigidBod
 							} else
 							{
 								printf("static concave triangle <mesh> added\n");
-								rbOutput.m_colShape = new btBvhTriangleMeshShape(trimesh);
+								bool useQuantizedAabbCompression = false;
+								rbOutput.m_colShape = new btBvhTriangleMeshShape(trimesh,useQuantizedAabbCompression);
 								//rbOutput.m_colShape = new btBvhTriangleMeshShape(trimesh);
 								//rbOutput.m_colShape = new btConvexTriangleMeshShape(trimesh);
 								
@@ -1182,7 +1199,7 @@ void	ColladaConverter::ConvertRigidBodyRef( btRigidBodyInput& rbInput,btRigidBod
 											domFloat fl0 = listFloats.get(vertIndex);
 											domFloat fl1 = listFloats.get(vertIndex+1);
 											domFloat fl2 = listFloats.get(vertIndex+2);
-											convexHull->addPoint(btPoint3(fl0,fl1,fl2));
+											convexHull->addPoint(btPoint3(fl0,fl1,fl2) * m_unitMeterScaling);
 										}
 									}
 								}
@@ -1280,7 +1297,7 @@ void	ColladaConverter::ConvertRigidBodyRef( btRigidBodyInput& rbInput,btRigidBod
 														domFloat fl2 = listFloats.get(k+2);
 														//printf("float %f %f %f\n",fl0,fl1,fl2);
 
-														convexHullShape->addPoint(btPoint3(fl0,fl1,fl2));
+														convexHullShape->addPoint(btPoint3(fl0,fl1,fl2) * m_unitMeterScaling);
 													}
 
 												}
@@ -1328,7 +1345,7 @@ void	ColladaConverter::ConvertRigidBodyRef( btRigidBodyInput& rbInput,btRigidBod
 										domFloat fl2 = listFloats.get(k+2);
 										//printf("float %f %f %f\n",fl0,fl1,fl2);
 
-										convexHullShape->addPoint(btPoint3(fl0,fl1,fl2));
+										convexHullShape->addPoint(btPoint3(fl0,fl1,fl2)*m_unitMeterScaling);
 									}
 
 								}
@@ -1383,7 +1400,8 @@ void	ColladaConverter::ConvertRigidBodyRef( btRigidBodyInput& rbInput,btRigidBod
 					localTransform = GetbtTransformFromCOLLADA_DOM(
 						emptyMatrixArray,
 						shapeRef->getRotate_array(),
-						shapeRef->getTranslate_array()
+						shapeRef->getTranslate_array(),
+						m_unitMeterScaling
 						);
 					}
 

@@ -149,7 +149,8 @@ void	ConcaveDemo::initPhysics()
 		indexStride,
 		totalVerts,(btScalar*) &gVertices[0].x(),vertStride);
 
-	btCollisionShape* trimeshShape  = new btBvhTriangleMeshShape(indexVertexArrays);
+	bool useQuantizedAabbCompression = true;
+	btCollisionShape* trimeshShape  = new btBvhTriangleMeshShape(indexVertexArrays,useQuantizedAabbCompression);
 
 
 //	btCollisionShape* groundShape = new btBoxShape(btVector3(50,3,50));
@@ -159,6 +160,7 @@ void	ConcaveDemo::initPhysics()
 	btOverlappingPairCache* pairCache = new btAxisSweep3(worldMin,worldMax);
 	btConstraintSolver* constraintSolver = new btSequentialImpulseConstraintSolver();
 	m_dynamicsWorld = new btDiscreteDynamicsWorld(dispatcher,pairCache,constraintSolver);
+	m_dynamicsWorld->setDebugDrawer(&debugDrawer);
 	
 	float mass = 0.f;
 	btTransform	startTransform;
