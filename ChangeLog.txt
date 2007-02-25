@@ -1,10 +1,15 @@
 Bullet Continuous Collision Detection and Physics Library
 Erwin Coumans
 
+2007 Feb 24
+	- Added compressed/quantized AABB tree, 16 bytes per node, while supporting 32-bit (triangle) indices. 
+	  Should be faster and smaller then original version (quantized aabb check is done in integer space)
+		Original aabb tree nodes are still supported. They are 44 bytes, with full floating point precision and additional subPart index.
+	- added meter-unit scaling support in ColladaConverter.cpp
+
 2007 Feb 21
 	- Build system: updated bullet.pc.in library names
 	- Updated EPA comparison integration (missing parameter)
-	- 
 	
 2007 Jan 04
 	- fixed optimized AABB tree building: in some cases the tree building fails due to unbalanced trees, which generated stack overflow
