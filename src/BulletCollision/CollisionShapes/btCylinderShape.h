@@ -29,10 +29,7 @@ public:
 	btCylinderShape (const btVector3& halfExtents);
 	
 	///getAabb's default implementation is brute force, expected derived classes to implement a fast dedicated version
-	void getAabb(const btTransform& t,btVector3& aabbMin,btVector3& aabbMax) const
-	{
-		getAabbSlow(t,aabbMin,aabbMax);
-	}
+	void getAabb(const btTransform& t,btVector3& aabbMin,btVector3& aabbMax) const;
 
 	virtual btVector3	localGetSupportingVertexWithoutMargin(const btVector3& vec)const;
 

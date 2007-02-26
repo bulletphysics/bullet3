@@ -30,6 +30,8 @@ btConvexHullShape ::btConvexHullShape (const btScalar* points,int numPoints,int 
 		btPoint3* point = (btPoint3*)(pointsBaseAddress + i*stride);
 		m_points[i] = point[0];
 	}
+
+	recalcLocalAabb();
 }
 
 btVector3	btConvexHullShape::localGetSupportingVertexWithoutMargin(const btVector3& vec0)const

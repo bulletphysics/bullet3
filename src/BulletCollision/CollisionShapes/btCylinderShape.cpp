@@ -18,21 +18,28 @@ subject to the following restrictions:
 btCylinderShape::btCylinderShape (const btVector3& halfExtents)
 :btBoxShape(halfExtents)
 {
-
+	recalcLocalAabb();
 }
 
 
 btCylinderShapeX::btCylinderShapeX (const btVector3& halfExtents)
 :btCylinderShape(halfExtents)
 {
+	recalcLocalAabb();
 }
 
 
 btCylinderShapeZ::btCylinderShapeZ (const btVector3& halfExtents)
 :btCylinderShape(halfExtents)
 {
+	recalcLocalAabb();
 }
 
+void btCylinderShape::getAabb(const btTransform& t,btVector3& aabbMin,btVector3& aabbMax) const
+{
+	//skip the box 'getAabb'
+	btPolyhedralConvexShape::getAabb(t,aabbMin,aabbMax);
+}
 
 
 inline btVector3 CylinderLocalSupportX(const btVector3& halfExtents,const btVector3& v) 

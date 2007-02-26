@@ -43,6 +43,7 @@ protected:
 	
 	btScalar	m_collisionMargin;
 
+
 public:
 	btConvexShape();
 

@@ -25,6 +25,10 @@ subject to the following restrictions:
 class btPolyhedralConvexShape : public btConvexShape
 {
 
+	btVector3	m_localAabbMin;
+	btVector3	m_localAabbMax;
+	bool		m_isLocalAabbValid;
+
 public:
 
 	btPolyhedralConvexShape();
@@ -36,6 +40,8 @@ public:
 	virtual void	calculateLocalInertia(btScalar mass,btVector3& inertia);
 
 
+	virtual void getAabb(const btTransform& t,btVector3& aabbMin,btVector3& aabbMax) const;
+	void	recalcLocalAabb();
 
 	virtual int	getNumVertices() const = 0 ;
 	virtual int getNumEdges() const = 0;

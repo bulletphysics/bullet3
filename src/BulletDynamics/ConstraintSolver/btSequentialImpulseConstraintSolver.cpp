@@ -123,7 +123,8 @@ btSequentialImpulseConstraintSolver::btSequentialImpulseConstraintSolver()
 /// btSequentialImpulseConstraintSolver Sequentially applies impulses
 btScalar btSequentialImpulseConstraintSolver::solveGroup(btPersistentManifold** manifoldPtr, int numManifolds,btTypedConstraint** constraints,int numConstraints,const btContactSolverInfo& infoGlobal,btIDebugDraw* debugDrawer)
 {
-	
+
+
 	btContactSolverInfo info = infoGlobal;
 
 	int numiter = infoGlobal.m_numIterations;

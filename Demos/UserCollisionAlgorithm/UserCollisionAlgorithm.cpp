@@ -100,7 +100,9 @@ void	UserCollisionAlgorithm::initPhysics()
 	
 	delete[] gVertices;
 
-	btCollisionShape* trimeshShape  = new btBvhTriangleMeshShape(trimesh);
+	bool useQuantizedBvhTree = false;
+//	btTriangleMesh uses a subpart for each triangle, this is not compatible with compressed quantized bvh node
+	btCollisionShape* trimeshShape  = new btBvhTriangleMeshShape(trimesh,useQuantizedBvhTree);
 		
 	//ConstraintSolver* solver = new btSequentialImpulseConstraintSolver;
 	

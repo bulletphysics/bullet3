@@ -37,6 +37,7 @@ public:
 	void addPoint(const btPoint3& point)
 	{
 		m_points.push_back(point);
+		recalcLocalAabb();
 	}
 	virtual btVector3	localGetSupportingVertex(const btVector3& vec)const;
 	virtual btVector3	localGetSupportingVertexWithoutMargin(const btVector3& vec)const;

@@ -1,6 +1,10 @@
 Bullet Continuous Collision Detection and Physics Library
 Erwin Coumans
 
+
+2007 Feb 25
+	- Improved performance of convex collision shapes, cache local AABB instead of recomputation. This fixes issue with very slow performance in larger .bsp levels
+	
 2007 Feb 24
 	- Added compressed/quantized AABB tree, 16 bytes per node, while supporting 32-bit (triangle) indices. 
 	  Should be faster and smaller then original version (quantized aabb check is done in integer space)

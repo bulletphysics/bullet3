@@ -64,7 +64,7 @@ public:
 
 	SIMD_FORCE_INLINE btVector3& operator/=(const btScalar& s) 
 	{
-		assert(s != btScalar(0.0));
+		btFullAssert(s != btScalar(0.0));
 		return *this *= btScalar(1.0) / s;
 	}
 
@@ -99,7 +99,7 @@ public:
 	SIMD_FORCE_INLINE btScalar angle(const btVector3& v) const 
 	{
 		btScalar s = btSqrt(length2() * v.length2());
-		assert(s != btScalar(0.0));
+		btFullAssert(s != btScalar(0.0));
 		return btAcos(dot(v) / s);
 	}
 
@@ -213,7 +213,7 @@ operator*(const btScalar& s, const btVector3& v)
 SIMD_FORCE_INLINE btVector3
 operator/(const btVector3& v, const btScalar& s)
 {
-	assert(s != btScalar(0.0));
+	btFullAssert(s != btScalar(0.0));
 	return v * (btScalar(1.0) / s);
 }
 

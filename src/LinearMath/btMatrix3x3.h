@@ -45,12 +45,12 @@ class btMatrix3x3 {
 					 zx, zy, zz);
 		}
 		
-		btVector3 getColumn(int i) const
+		SIMD_FORCE_INLINE btVector3 getColumn(int i) const
 		{
 			return btVector3(m_el[0][i],m_el[1][i],m_el[2][i]);
 		}
 
-		const btVector3& getRow(int i) const
+		SIMD_FORCE_INLINE const btVector3& getRow(int i) const
 		{
 			return m_el[i];
 		}
@@ -58,13 +58,13 @@ class btMatrix3x3 {
 
 		SIMD_FORCE_INLINE btVector3&  operator[](int i)
 		{ 
-			assert(0 <= i && i < 3);
+			btFullAssert(0 <= i && i < 3);
 			return m_el[i]; 
 		}
 		
-		const btVector3& operator[](int i) const
+		SIMD_FORCE_INLINE const btVector3& operator[](int i) const
 		{
-			assert(0 <= i && i < 3);
+			btFullAssert(0 <= i && i < 3);
 			return m_el[i]; 
 		}
 		
@@ -102,7 +102,7 @@ class btMatrix3x3 {
 		void setRotation(const btQuaternion& q) 
 		{
 			btScalar d = q.length2();
-			assert(d != btScalar(0.0));
+			btFullAssert(d != btScalar(0.0));
 			btScalar s = btScalar(2.0) / d;
 			btScalar xs = q[0] * s,   ys = q[1] * s,   zs = q[2] * s;
 			btScalar wx = q[3] * xs,  wy = q[3] * ys,  wz = q[3] * zs;
@@ -323,7 +323,7 @@ class btMatrix3x3 {
 	{
 		btVector3 co(cofac(1, 1, 2, 2), cofac(1, 2, 2, 0), cofac(1, 0, 2, 1));
 		btScalar det = (*this)[0].dot(co);
-		assert(det != btScalar(0.0));
+		btFullAssert(det != btScalar(0.0));
 		btScalar s = btScalar(1.0) / det;
 		return btMatrix3x3(co[0] * s, cofac(0, 2, 2, 1) * s, cofac(0, 1, 1, 2) * s,
 								 co[1] * s, cofac(0, 0, 2, 2) * s, cofac(0, 2, 1, 0) * s,

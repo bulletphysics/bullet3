@@ -16,7 +16,10 @@ subject to the following restrictions:
 #include <BulletCollision/CollisionShapes/btPolyhedralConvexShape.h>
 
 btPolyhedralConvexShape::btPolyhedralConvexShape()
-:m_optionalHull(0)
+:m_optionalHull(0),
+m_localAabbMin(1,1,1),
+m_localAabbMax(-1,-1,-1),
+m_isLocalAabbValid(false)
 {
 
 }
@@ -116,3 +119,48 @@ void	btPolyhedralConvexShape::calculateLocalInertia(btScalar mass,btVector3& ine
 
 }
 
+void btPolyhedralConvexShape::getAabb(const btTransform& trans,btVector3& aabbMin,btVector3& aabbMax) const
+{
+
+	//lazy evaluation of local aabb
+	btAssert(m_isLocalAabbValid);
+
+	btAssert(m_localAabbMin.getX() <= m_localAabbMax.getX());
+	btAssert(m_localAabbMin.getY() <= m_localAabbMax.getY());
+	btAssert(m_localAabbMin.getZ() <= m_localAabbMax.getZ());
+
+
+	btVector3 localHalfExtents = btScalar(0.5)*(m_localAabbMax-m_localAabbMin);
+	btVector3 localCenter = btScalar(0.5)*(m_localAabbMax+m_localAabbMin);
+	
+	btMatrix3x3 abs_b = trans.getBasis().absolute();  
+
+	btPoint3 center = trans(localCenter);
+
+	btVector3 extent = btVector3(abs_b[0].dot(localHalfExtents),
+		   abs_b[1].dot(localHalfExtents),
+		  abs_b[2].dot(localHalfExtents));
+	extent += btVector3(getMargin(),getMargin(),getMargin());
+
+	aabbMin = center - extent;
+	aabbMax = center + extent;
+
+	
+}
+
+void	btPolyhedralConvexShape::recalcLocalAabb()
+{
+	m_isLocalAabbValid = true;
+
+	for (int i=0;i<3;i++)
+	{
+		btVector3 vec(btScalar(0.),btScalar(0.),btScalar(0.));
+		vec[i] = btScalar(1.);
+		btVector3 tmp = localGetSupportingVertex(vec);
+		m_localAabbMax[i] = tmp[i]+m_collisionMargin;
+		vec[i] = btScalar(-1.);
+		tmp = localGetSupportingVertex(vec);
+		m_localAabbMin[i] = tmp[i]-m_collisionMargin;
+	}
+}
+	

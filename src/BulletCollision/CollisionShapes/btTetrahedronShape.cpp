@@ -58,6 +58,8 @@ btBU_Simplex1to4::btBU_Simplex1to4(const btPoint3& pt0,const btPoint3& pt1,const
 void btBU_Simplex1to4::addVertex(const btPoint3& pt)
 {
 	m_vertices[m_numVertices++] = pt;
+
+	recalcLocalAabb();
 }
 
 

@@ -74,9 +74,9 @@ public:
 		predictedTransform.setOrigin(curTrans.getOrigin() + linvel * timeStep);
 //	#define QUATERNION_DERIVATIVE
 	#ifdef QUATERNION_DERIVATIVE
-		btQuaternion orn = curTrans.getRotation();
-		orn += (angvel * orn) * (timeStep * btScalar(0.5));
-		orn.normalize();
+		btQuaternion predictedOrn = curTrans.getRotation();
+		predictedOrn += (angvel * predictedOrn) * (timeStep * btScalar(0.5));
+		predictedOrn.normalize();
 	#else
 		//exponential map
 		btVector3 axis;
@@ -101,6 +101,7 @@ public:
 		btQuaternion orn0 = curTrans.getRotation();
 
 		btQuaternion predictedOrn = dorn * orn0;
+		predictedOrn.normalize();
 	#endif
 		predictedTransform.setRotation(predictedOrn);
 	}

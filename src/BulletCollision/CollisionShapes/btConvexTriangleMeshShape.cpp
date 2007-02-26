@@ -22,6 +22,7 @@ subject to the following restrictions:
 btConvexTriangleMeshShape ::btConvexTriangleMeshShape (btStridingMeshInterface* meshInterface)
 :m_stridingMesh(meshInterface)
 {
+	recalcLocalAabb();
 }
 
 
@@ -189,5 +190,7 @@ bool btConvexTriangleMeshShape::isInside(const btPoint3& pt,btScalar tolerance) 
 void	btConvexTriangleMeshShape::setLocalScaling(const btVector3& scaling)
 {
 	m_stridingMesh->setScaling(scaling);
+	
+	recalcLocalAabb();
 }
 

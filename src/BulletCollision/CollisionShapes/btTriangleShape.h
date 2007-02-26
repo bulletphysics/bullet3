@@ -57,6 +57,7 @@ public:
 		getVertex((i+1)%3,pb);
 	}
 
+
 	virtual void getAabb(const btTransform& t,btVector3& aabbMin,btVector3& aabbMax)const 
 	{
 //		btAssert(0);

@@ -153,6 +153,7 @@ void	ConcaveDemo::initPhysics()
 	btCollisionShape* trimeshShape  = new btBvhTriangleMeshShape(indexVertexArrays,useQuantizedAabbCompression);
 
 
+
 //	btCollisionShape* groundShape = new btBoxShape(btVector3(50,3,50));
 	btCollisionDispatcher* dispatcher = new btCollisionDispatcher();
 	btVector3 worldMin(-1000,-1000,-1000);
