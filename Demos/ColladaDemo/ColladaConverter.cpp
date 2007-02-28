@@ -188,7 +188,7 @@ bool ColladaConverter::convert()
 				domAsset::domUnitRef unit = m_dom->getAsset()->getUnit();
 				domFloat meter = unit->getMeter();
 				printf("asset unit meter=%f\n",meter);
-				m_unitMeterScaling = meter;
+				//m_unitMeterScaling = meter;
 		
 
 			}
