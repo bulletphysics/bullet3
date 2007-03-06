@@ -1,6 +1,11 @@
 Bullet Continuous Collision Detection and Physics Library
 Erwin Coumans
 
+2007 March 6
+	- removed STL from the Bullet library: replace std::vector by btAlignedObjectArray. Also removed the std::set for overlapping pair set, and turned it into an overlapping pair array. The SAP only adds objects, never removed. Removal is postponed for during traversal of overlapping pairs (duplicates and non-overlapping pairs are removed during that traversal).
+	- added heap sort and binary search/linear search to btAlignedObjectArray
+	- fixed wrong cast, thanks Hamstray, http://www.continuousphysics.com/Bullet/phpBB2/viewtopic.php?t=1015
+
 
 2007 Feb 25
 	- Improved performance of convex collision shapes, cache local AABB instead of recomputation. This fixes issue with very slow performance in larger .bsp levels
