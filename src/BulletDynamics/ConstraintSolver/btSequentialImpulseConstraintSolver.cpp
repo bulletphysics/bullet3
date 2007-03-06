@@ -24,7 +24,7 @@ subject to the following restrictions:
 #include "btJacobianEntry.h"
 #include "LinearMath/btMinMax.h"
 #include "BulletDynamics/ConstraintSolver/btTypedConstraint.h"
-#include "new.h"
+#include <new>
 
 #ifdef USE_PROFILE
 #include "LinearMath/btQuickprof.h"
