@@ -39,7 +39,7 @@ subject to the following restrictions:
 		#include <assert.h>
 		#define btAssert assert
 		//btFullAssert is optional, slows down a lot
-		#define btFullAssert
+		#define btFullAssert(x)
 #else
 	
 	//non-windows systems
@@ -51,7 +51,7 @@ subject to the following restrictions:
 		#endif
 		#define btAssert assert
 		//btFullAssert is optional, slows down a lot
-		#define btFullAssert
+		#define btFullAssert(x)
 #endif
 
 /// older compilers (gcc 3.x) and Sun needs double version of sqrt etc.
