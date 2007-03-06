@@ -1868,7 +1868,6 @@ void ConcaveDemo::clientMoveAndDisplay()
 
  	float dt = float(m_clock.getTimeMicroseconds()) * 0.000001f;
 	m_clock.reset();
-
 	m_dynamicsWorld->stepSimulation(dt);
 
 	renderme();

@@ -72,6 +72,7 @@ private:
 
 	Edge* m_pEdges[3];						// edge arrays for the 3 axes (each array has m_maxHandles * 2 + 2 sentinel entries)
 
+	int m_invalidPair;
 
 	// allocation/deallocation
 	unsigned short allocHandle();
@@ -79,6 +80,7 @@ private:
 	
 
 	bool testOverlap(int ignoreAxis,const Handle* pHandleA, const Handle* pHandleB);
+
 
 	//Overlap* AddOverlap(unsigned short handleA, unsigned short handleB);
 	//void RemoveOverlap(unsigned short handleA, unsigned short handleB);
@@ -96,7 +98,7 @@ public:
 
 	virtual void	refreshOverlappingPairs()
 	{
-		//this is replace by sweep and prune
+		//this is performed incrementally by sweep and prune (add pair), and during pair traversal (remove pair)
 	}
 	
 	unsigned short addHandle(const btPoint3& aabbMin,const btPoint3& aabbMax, void* pOwner,short int collisionFilterGroup,short int collisionFilterMask);
@@ -104,11 +106,13 @@ public:
 	void updateHandle(unsigned short handle, const btPoint3& aabbMin,const btPoint3& aabbMax);
 	inline Handle* getHandle(unsigned short index) const {return m_pHandles + index;}
 
+	void	processAllOverlappingPairs(btOverlapCallback* callback);
 
 	//Broadphase Interface
 	virtual btBroadphaseProxy*	createProxy(  const btVector3& min,  const btVector3& max,int shapeType,void* userPtr ,short int collisionFilterGroup,short int collisionFilterMask);
 	virtual void	destroyProxy(btBroadphaseProxy* proxy);
 	virtual void	setAabb(btBroadphaseProxy* proxy,const btVector3& aabbMin,const btVector3& aabbMax);
+	bool testOverlap(btBroadphaseProxy* proxy0,btBroadphaseProxy* proxy1);
 
 };
 

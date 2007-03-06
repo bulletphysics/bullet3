@@ -296,7 +296,7 @@ class btConcaveTriangleCallback : public btTriangleCallback
 public:
 	btCollisionObject* m_body;
 	mat4f m_transform;
-	std::vector<CONCAVE_TRIANGLE_TOKEN> m_triangles;
+	btAlignedObjectArray<CONCAVE_TRIANGLE_TOKEN> m_triangles;
 
 	btConcaveTriangleCallback(btCollisionObject* body)
 	{

@@ -18,7 +18,8 @@ subject to the following restrictions:
 
 #include "BulletCollision/CollisionShapes/btConcaveShape.h"
 #include "BulletCollision/CollisionShapes/btStridingMeshInterface.h"
-#include <vector>
+#include "LinearMath/btAlignedObjectArray.h"
+
 
 //#define GIMPACT_SHAPE_PROXYTYPE (MAX_BROADPHASE_COLLISION_TYPES + 1)
 
@@ -29,7 +30,7 @@ Each mesh part must have a GIMPACT trimesh data (GIM_TRIMESH_DATA).
 typedef unsigned long BT_GIMPACT_TRIMESH_DATA_HANDLE;
 
 
-class BT_GIMPACT_TRIMESH_DATA_HANDLE_ARRAY: public std::vector<BT_GIMPACT_TRIMESH_DATA_HANDLE>
+class BT_GIMPACT_TRIMESH_DATA_HANDLE_ARRAY: public btAlignedObjectArray<BT_GIMPACT_TRIMESH_DATA_HANDLE>
 {
 public:
    
@@ -57,7 +58,7 @@ Each mesh part must have a GIMPACT trimesh (GIM_TRIMESH).
 typedef void * BT_GIMPACT_TRIMESH_HANDLE;
 
 
-class BT_GIMPACT_TRIMESH_HANDLE_ARRAY: public std::vector<BT_GIMPACT_TRIMESH_HANDLE>
+class BT_GIMPACT_TRIMESH_HANDLE_ARRAY: public btAlignedObjectArray<BT_GIMPACT_TRIMESH_HANDLE>
 {
 public:
    

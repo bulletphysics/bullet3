@@ -22,6 +22,8 @@ Foundation, Inc., 51 Franklin St, Fifth Floor, Boston, MA  02110-1301  USA
 
 
 #include "BspLoader.h"
+#include <stdio.h>
+#include <string.h>
 
 typedef struct
 {
@@ -44,6 +46,20 @@ bool tokenready;                     // only true if UnGetToken was just called
 //
 
 int extrasize = 100;
+
+BspLoader::BspLoader()
+	:m_num_entities(0)
+{
+	m_Endianness = getMachineEndianness();
+	if (m_Endianness == BSP_BIG_ENDIAN)
+	{
+		printf("Machine is BIG_ENDIAN\n");
+	} else
+	{
+		printf("Machine is Little Endian\n");
+	}
+}
+
 
 bool	BspLoader::loadBSPFile( void* memoryBuffer) {
 	

@@ -17,7 +17,7 @@ subject to the following restrictions:
 #include "btHingeConstraint.h"
 #include "BulletDynamics/Dynamics/btRigidBody.h"
 #include "LinearMath/btTransformUtil.h"
-
+#include "new.h"
 
 btHingeConstraint::btHingeConstraint():
 m_enableAngularMotor(false)

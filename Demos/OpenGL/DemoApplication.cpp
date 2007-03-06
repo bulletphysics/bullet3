@@ -900,13 +900,16 @@ void	DemoApplication::clientResetScene()
 	{
 		btCollisionObject* colObj = m_dynamicsWorld->getCollisionObjectArray()[i];
 		btRigidBody* body = btRigidBody::upcast(colObj);
-		if (body && body->getMotionState())
+		if (body)
 		{
-			btDefaultMotionState* myMotionState = (btDefaultMotionState*)body->getMotionState();
-			myMotionState->m_graphicsWorldTrans = myMotionState->m_startWorldTrans;
-			colObj->setWorldTransform( myMotionState->m_graphicsWorldTrans );
-			colObj->setInterpolationWorldTransform( myMotionState->m_startWorldTrans );
-			colObj->activate();
+			if (body->getMotionState())
+			{
+				btDefaultMotionState* myMotionState = (btDefaultMotionState*)body->getMotionState();
+				myMotionState->m_graphicsWorldTrans = myMotionState->m_startWorldTrans;
+				colObj->setWorldTransform( myMotionState->m_graphicsWorldTrans );
+				colObj->setInterpolationWorldTransform( myMotionState->m_startWorldTrans );
+				colObj->activate();
+			}
 			//removed cached contact points
 			m_dynamicsWorld->getBroadphase()->cleanProxyFromPairs(colObj->getBroadphaseHandle());
 

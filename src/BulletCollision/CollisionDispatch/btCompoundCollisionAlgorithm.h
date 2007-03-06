@@ -23,14 +23,14 @@ subject to the following restrictions:
 #include "../NarrowPhaseCollision/btPersistentManifold.h"
 class btDispatcher;
 #include "../BroadphaseCollision/btBroadphaseProxy.h"
-#include <vector>
 #include "btCollisionCreateFunc.h"
+#include "../../LinearMath/btAlignedObjectArray.h"
 
 /// btCompoundCollisionAlgorithm  supports collision between CompoundCollisionShapes and other collision shapes
 /// Place holder, not fully implemented yet
 class btCompoundCollisionAlgorithm  : public btCollisionAlgorithm
 {
-	std::vector<btCollisionAlgorithm*> m_childCollisionAlgorithms;
+	btAlignedObjectArray<btCollisionAlgorithm*> m_childCollisionAlgorithms;
 	bool m_isSwapped;
 	
 public:

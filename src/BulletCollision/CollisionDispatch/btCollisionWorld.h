@@ -72,10 +72,7 @@ class btBroadphaseInterface;
 #include "btCollisionObject.h"
 #include "btCollisionDispatcher.h" //for definition of btCollisionObjectArray
 #include "../BroadphaseCollision/btOverlappingPairCache.h"
-
-#include <vector>
-
-
+#include "../../LinearMath/btAlignedObjectArray.h"
 
 ///CollisionWorld is interface and container for the collision detection
 class btCollisionWorld
@@ -84,7 +81,7 @@ class btCollisionWorld
 	
 protected:
 
-	std::vector<btCollisionObject*>	m_collisionObjects;
+	btAlignedObjectArray<btCollisionObject*>	m_collisionObjects;
 	
 	btDispatcher*	m_dispatcher1;
 

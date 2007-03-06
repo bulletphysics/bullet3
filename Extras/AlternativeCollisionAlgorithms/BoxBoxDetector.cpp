@@ -25,6 +25,7 @@
 #include "BulletCollision/CollisionShapes/btBoxShape.h"
 
 #include <float.h>
+#include <string.h>
 
 BoxBoxDetector::BoxBoxDetector(btBoxShape* box1,btBoxShape* box2)
 : m_box1(box1),

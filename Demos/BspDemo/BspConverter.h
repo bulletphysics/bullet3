@@ -17,7 +17,6 @@ subject to the following restrictions:
 #define BSP_CONVERTER_H
 
 class BspLoader;
-#include <vector>
 #include "LinearMath/btVector3.h"
 #include "LinearMath/btAlignedObjectArray.h"
 

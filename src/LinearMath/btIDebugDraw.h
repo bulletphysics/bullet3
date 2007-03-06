@@ -58,9 +58,12 @@ class	btIDebugDraw
 
 	virtual void	drawContactPoint(const btVector3& PointOnB,const btVector3& normalOnB,btScalar distance,int lifeTime,const btVector3& color)=0;
 
+	virtual void	reportErrorWarning(const char* warningString) = 0;
+
 	virtual void	setDebugMode(int debugMode) =0;
 	
 	virtual int		getDebugMode() const = 0;
+
 
 
 };

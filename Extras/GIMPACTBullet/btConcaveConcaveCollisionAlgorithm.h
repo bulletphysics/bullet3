@@ -26,13 +26,13 @@ class btDispatcher;
 #include "BulletCollision/CollisionDispatch/btCollisionCreateFunc.h"
 #include "BulletCollision/CollisionDispatch/btCollisionDispatcher.h"
 
-
+#include "LinearMath/btAlignedObjectArray.h"
 
 /// btConcaveConcaveCollisionAlgorithm  supports collision between btBvhTriangleMeshShape shapes
 class btConcaveConcaveCollisionAlgorithm : public btCollisionAlgorithm
 {
 protected:
-    std::vector<btPersistentManifold*>	m_mainfoldsPtr;
+    btAlignedObjectArray<btPersistentManifold*>	m_mainfoldsPtr;
 public:
 
 	btConcaveConcaveCollisionAlgorithm( const btCollisionAlgorithmConstructionInfo& ci,btCollisionObject* body0,btCollisionObject* body1);

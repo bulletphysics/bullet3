@@ -50,6 +50,7 @@ void	btAxisSweep3::setAabb(btBroadphaseProxy* proxy,const btVector3& aabbMin,con
 btAxisSweep3::btAxisSweep3(const btPoint3& worldAabbMin,const btPoint3& worldAabbMax, int maxHandles)
 :btOverlappingPairCache()
 {
+	m_invalidPair = 0;
 	//assert(bounds.HasVolume());
 
 	// 1 handle is reserved as sentinel
@@ -249,6 +250,97 @@ void btAxisSweep3::removeHandle(unsigned short handle)
 	
 }
 
+extern int gOverlappingPairs;
+
+void	btAxisSweep3::processAllOverlappingPairs(btOverlapCallback* callback)
+{
+
+	//perform a sort, to find duplicates and to sort 'invalid' pairs to the end
+	m_overlappingPairArray.heapSort(btBroadphasePairSortPredicate());
+
+	//remove the 'invalid' ones
+#ifdef USE_POPBACK_REMOVAL
+	while (m_invalidPair>0)
+	{
+		m_invalidPair--;
+		m_overlappingPairArray.pop_back();
+	}
+#else	
+	m_overlappingPairArray.resize(m_overlappingPairArray.size() - m_invalidPair);
+	m_invalidPair = 0;
+#endif
+	int i;
+
+	btBroadphasePair previousPair;
+	previousPair.m_pProxy0 = 0;
+	previousPair.m_pProxy1 = 0;
+	previousPair.m_algorithm = 0;
+	
+	
+	for (i=0;i<m_overlappingPairArray.size();i++)
+	{
+	
+		btBroadphasePair& pair = m_overlappingPairArray[i];
+
+		bool isDuplicate = (pair == previousPair);
+
+		previousPair = pair;
+
+		bool needsRemoval = false;
+
+		if (!isDuplicate)
+		{
+			bool hasOverlap = testOverlap(pair.m_pProxy0,pair.m_pProxy1);
+
+			if (hasOverlap)
+			{
+				needsRemoval = callback->processOverlap(pair);
+			} else
+			{
+				needsRemoval = true;
+			}
+		} else
+		{
+			//remove duplicate
+			needsRemoval = true;
+			//should have no algorithm
+			btAssert(!pair.m_algorithm);
+		}
+		
+		if (needsRemoval)
+		{
+			cleanOverlappingPair(pair);
+
+	//		m_overlappingPairArray.swap(i,m_overlappingPairArray.size()-1);
+	//		m_overlappingPairArray.pop_back();
+			pair.m_pProxy0 = 0;
+			pair.m_pProxy1 = 0;
+			m_invalidPair++;
+			gOverlappingPairs--;
+		} 
+		
+	}
+}
+
+
+bool btAxisSweep3::testOverlap(btBroadphaseProxy* proxy0,btBroadphaseProxy* proxy1)
+{
+	const Handle* pHandleA = static_cast<Handle*>(proxy0);
+	const Handle* pHandleB = static_cast<Handle*>(proxy1);
+	
+	//optimization 1: check the array index (memory address), instead of the m_pos
+
+	for (int axis = 0; axis < 3; axis++)
+	{ 
+		if (pHandleA->m_maxEdges[axis] < pHandleB->m_minEdges[axis] || 
+			pHandleB->m_maxEdges[axis] < pHandleA->m_minEdges[axis]) 
+		{ 
+			return false; 
+		} 
+	} 
+	return true;
+}
+
 bool btAxisSweep3::testOverlap(int ignoreAxis,const Handle* pHandleA, const Handle* pHandleB)
 {
 	//optimization 1: check the array index (memory address), instead of the m_pos
@@ -379,10 +471,12 @@ void btAxisSweep3::sortMinUp(int axis, unsigned short edge, bool updateOverlaps)
 			// if next edge is maximum remove any overlap between the two handles
 			if (updateOverlaps)
 			{
+				/*
 				Handle* handle0 = getHandle(pEdge->m_handle);
 				Handle* handle1 = getHandle(pNext->m_handle);
 				btBroadphasePair tmpPair(*handle0,*handle1);
 				removeOverlappingPair(tmpPair);
+				*/
 
 			}
 
@@ -421,6 +515,8 @@ void btAxisSweep3::sortMaxDown(int axis, unsigned short edge, bool updateOverlap
 			// if previous edge was a minimum remove any overlap between the two handles
 			if (updateOverlaps)
 			{
+				//this is done during the overlappingpairarray iteration/narrowphase collision
+				/*
 				Handle* handle0 = getHandle(pEdge->m_handle);
 				Handle* handle1 = getHandle(pPrev->m_handle);
 				btBroadphasePair* pair = findPair(handle0,handle1);
@@ -430,6 +526,8 @@ void btAxisSweep3::sortMaxDown(int axis, unsigned short edge, bool updateOverlap
 				{
 					removeOverlappingPair(*pair);
 				}
+				*/
+
 			}
 
 			// update edge reference in other handle

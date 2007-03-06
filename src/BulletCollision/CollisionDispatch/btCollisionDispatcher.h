@@ -22,7 +22,7 @@ subject to the following restrictions:
 #include "../CollisionDispatch/btManifoldResult.h"
 
 #include "../BroadphaseCollision/btBroadphaseProxy.h"
-
+#include "../../LinearMath/btAlignedObjectArray.h"
 
 class btIDebugDraw;
 class btOverlappingPairCache;
@@ -43,7 +43,7 @@ class btCollisionDispatcher : public btDispatcher
 {
 	int m_count;
 	
-	std::vector<btPersistentManifold*>	m_manifoldsPtr;
+	btAlignedObjectArray<btPersistentManifold*>	m_manifoldsPtr;
 
 	bool m_useIslands;
 	

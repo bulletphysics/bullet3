@@ -40,6 +40,11 @@ void	GLDebugDrawer::setDebugMode(int debugMode)
 
 }
 
+void	GLDebugDrawer::reportErrorWarning(const char* warningString)
+{
+	printf(warningString);
+}
+
 void	GLDebugDrawer::drawContactPoint(const btVector3& pointOnB,const btVector3& normalOnB,btScalar distance,int lifeTime,const btVector3& color)
 {
 	if (m_debugMode & btIDebugDraw::DBG_DrawContactPoints)

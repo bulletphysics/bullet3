@@ -74,6 +74,8 @@ class btAlignedObjectArray
 			}
 		}
 
+	
+
 
 	public:
 		
@@ -171,6 +173,127 @@ class btAlignedObjectArray
 				}
 			}
 		}
+
+
+		class less
+		{
+			public:
+
+				bool operator() ( const T& a, const T& b )
+				{
+					return ( a < b );
+				}
+		};
+	
+
+		///heap sort from http://www.csse.monash.edu.au/~lloyd/tildeAlgDS/Sort/Heap/
+		template <typename L>
+		void downHeap(T *pArr, int k, int n,L CompareFunc)
+		{
+			/*  PRE: a[k+1..N] is a heap */
+			/* POST:  a[k..N]  is a heap */
+			
+			T temp = pArr[k - 1];
+			/* k has child(s) */
+			while (k <= n/2) 
+			{
+				int child = 2*k;
+				
+				if ((child < n) && CompareFunc(pArr[child - 1] , pArr[child]))
+				{
+					child++;
+				}
+				/* pick larger child */
+				if (CompareFunc(temp , pArr[child - 1]))
+				{
+					/* move child up */
+					pArr[k - 1] = pArr[child - 1];
+					k = child;
+				}
+				else
+				{
+					break;
+				}
+			}
+			pArr[k - 1] = temp;
+		} /*downHeap*/
+
+		void	swap(int index0,int index1)
+		{
+			T temp = m_data[index0];
+			m_data[index0] = m_data[index1];
+			m_data[index1] = temp;
+		}
+
+	template <typename L>
+	void heapSort(L CompareFunc)
+	{
+		/* sort a[0..N-1],  N.B. 0 to N-1 */
+		int k;
+		int n = m_size;
+		for (k = n/2; k > 0; k--) 
+		{
+			downHeap(m_data, k, n, CompareFunc);
+		}
+
+		/* a[1..N] is now a heap */
+		while ( n>=1 ) 
+		{
+			swap(0,n-1); /* largest of a[0..n-1] */
+
+
+			n = n - 1;
+			/* restore a[1..i-1] heap */
+			downHeap(m_data, 1, n, CompareFunc);
+		} 
+	}
+
+	///non-recursive binary search, assumes sorted array
+	int	findBinarySearch(const T& key) const
+	{
+		int first = 0;
+		int last = size();
+
+		//assume sorted array
+		while (first <= last) {
+			int mid = (first + last) / 2;  // compute mid point.
+			if (key > m_data[mid]) 
+				first = mid + 1;  // repeat search in top half.
+			else if (key < m_data[mid]) 
+				last = mid - 1; // repeat search in bottom half.
+			else
+				return mid;     // found it. return position /////
+		}
+		return size();    // failed to find key
+	}
+
+
+	int	findLinearSearch(const T& key) const
+	{
+		int index=size();
+		int i;
+
+		for (i=0;i<size();i++)
+		{
+			if (m_data[i] == key)
+			{
+				index = i;
+				break;
+			}
+		}
+		return index;
+	}
+
+	void	remove(const T& key)
+	{
+
+		int findIndex = findLinearSearch(key);
+		if (findIndex<size())
+		{
+			swap( findIndex,size()-1);
+			pop_back();
+		}
+	}
 
 };
 

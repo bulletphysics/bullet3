@@ -17,7 +17,6 @@ subject to the following restrictions:
 
 #include "DemoApplication.h"
 
-#include <vector>
 
 class btCollisionShape;
 class btOverlappingPairCache;
@@ -30,7 +29,7 @@ class BasicDemo : public DemoApplication
 {
 
 	//keep the collision shapes, for deletion/cleanup
-	std::vector<btCollisionShape*>	m_collisionShapes;
+	btAlignedObjectArray<btCollisionShape*>	m_collisionShapes;
 
 	btOverlappingPairCache*	m_overlappingPairCache;
 

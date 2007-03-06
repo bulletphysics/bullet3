@@ -16,7 +16,6 @@ subject to the following restrictions:
 #ifndef RIGIDBODY_H
 #define RIGIDBODY_H
 
-#include <vector>
 #include "../../LinearMath/btPoint3.h"
 #include "../../LinearMath/btTransform.h"
 #include "../../BulletCollision/BroadphaseCollision/btBroadphaseProxy.h"
@@ -28,7 +27,6 @@ class btMotionState;
 
 
 extern btScalar gLinearAirDamping;
-extern bool gUseEpa;
 
 extern btScalar gDeactivationTime;
 extern bool gDisableDeactivation;

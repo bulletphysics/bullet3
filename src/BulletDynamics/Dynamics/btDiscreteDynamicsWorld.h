@@ -27,8 +27,8 @@ class btTypedConstraint;
 
 class btRaycastVehicle;
 class btIDebugDraw;
+#include "../../LinearMath/btAlignedObjectArray.h"
 
-#include <vector>
 
 ///btDiscreteDynamicsWorld provides discrete rigid body simulation
 ///those classes replace the obsolete CcdPhysicsEnvironment/CcdPhysicsController
@@ -40,7 +40,7 @@ protected:
 
 	btSimulationIslandManager*	m_islandManager;
 
-	std::vector<btTypedConstraint*> m_constraints;
+	btAlignedObjectArray<btTypedConstraint*> m_constraints;
 
 	btIDebugDraw*	m_debugDrawer;
 
@@ -56,7 +56,7 @@ protected:
 	btContactSolverInfo	m_solverInfo;
 
 
-	std::vector<btRaycastVehicle*>	m_vehicles;
+	btAlignedObjectArray<btRaycastVehicle*>	m_vehicles;
 
 	int	m_profileTimings;
 

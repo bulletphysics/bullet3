@@ -25,6 +25,8 @@ Foundation, Inc., 51 Franklin St, Fifth Floor, Boston, MA  02110-1301  USA
 #ifndef BSP_LOADER_H
 #define BSP_LOADER_H
 
+#include "LinearMath/btAlignedObjectArray.h"
+
 #define	BSPMAXTOKEN	1024
 #define	BSPMAX_KEY				32
 #define	BSPMAX_VALUE			1024
@@ -49,7 +51,6 @@ Foundation, Inc., 51 Franklin St, Fifth Floor, Boston, MA  02110-1301  USA
 #define	HEADER_LUMPS		17
 #define	MAX_QPATH		64
 
-#include <vector>
 
 
 typedef struct {
@@ -172,18 +173,8 @@ class BspLoader
 
 	public:
 
-		BspLoader()
-			:m_num_entities(0)
-		{
-			m_Endianness = getMachineEndianness();
-			if (m_Endianness == BSP_BIG_ENDIAN)
-			{
-				printf("Machine is BIG_ENDIAN\n");
-			} else
-			{
-				printf("Machine is Little Endian\n");
-			}
-		}
+		BspLoader();
+
 		bool	loadBSPFile( void* memoryBuffer);
 
 		const char* getValueForKey( const BSPEntity *ent, const char *key ) const;
@@ -236,53 +227,53 @@ class BspLoader
 	
 	public: //easier for conversion
 		int			m_num_entities;
-		std::vector<BSPEntity>	m_entities;
+		btAlignedObjectArray<BSPEntity>	m_entities;
 		
 		int			m_nummodels;
-		std::vector<BSPModel>	m_dmodels;
+		btAlignedObjectArray<BSPModel>	m_dmodels;
 
 		int			m_numShaders;
-		std::vector<BSPShader>	m_dshaders;
+		btAlignedObjectArray<BSPShader>	m_dshaders;
 
 		int			m_entdatasize;
-		std::vector<char>		m_dentdata;
+		btAlignedObjectArray<char>		m_dentdata;
 
 		int			m_numleafs;
-		std::vector<BSPLeaf>		m_dleafs;
+		btAlignedObjectArray<BSPLeaf>		m_dleafs;
 
 		int			m_numplanes;
-		std::vector<BSPPlane>	m_dplanes;
+		btAlignedObjectArray<BSPPlane>	m_dplanes;
 
 		int			m_numnodes;
-		std::vector<BSPNode>		m_dnodes;
+		btAlignedObjectArray<BSPNode>		m_dnodes;
 
 		int			m_numleafsurfaces;
-		std::vector<int>			m_dleafsurfaces;
+		btAlignedObjectArray<int>			m_dleafsurfaces;
 
 		int			m_numleafbrushes;
-		std::vector<int>			m_dleafbrushes;
+		btAlignedObjectArray<int>			m_dleafbrushes;
 
 		int			m_numbrushes;
-		std::vector<BSPBrush>	m_dbrushes;
+		btAlignedObjectArray<BSPBrush>	m_dbrushes;
 
 		int			m_numbrushsides;
-		std::vector<BSPBrushSide>	m_dbrushsides;
+		btAlignedObjectArray<BSPBrushSide>	m_dbrushsides;
 
 		int			m_numLightBytes;
-		std::vector<unsigned char>		m_lightBytes;
+		btAlignedObjectArray<unsigned char>		m_lightBytes;
 
 		int			m_numGridPoints;
-		std::vector<unsigned char>		m_gridData;
+		btAlignedObjectArray<unsigned char>		m_gridData;
 
 		int			m_numVisBytes;
-		std::vector<unsigned char>		m_visBytes;
+		btAlignedObjectArray<unsigned char>		m_visBytes;
 
 		
 		int			m_numDrawIndexes;
-		std::vector<int>			m_drawIndexes;
+		btAlignedObjectArray<int>			m_drawIndexes;
 
 		int			m_numDrawSurfaces;
-		std::vector<BSPSurface>	m_drawSurfaces;
+		btAlignedObjectArray<BSPSurface>	m_drawSurfaces;
 
 		enum
 		{

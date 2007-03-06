@@ -49,9 +49,8 @@ class DemoApplication
 {
 	
 	protected:
-		
 
-	hidden::Clock m_clock;
+	btClock m_clock;
 
 	///this is the most important class
 	btDynamicsWorld*		m_dynamicsWorld;

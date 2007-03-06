@@ -203,6 +203,7 @@ void CcdPhysicsDemo::clientMoveAndDisplay()
 
 #endif //USE_KINEMATIC_GROUND
 
+
 	float dt = m_clock.getTimeMicroseconds() * 0.000001f;
 	m_clock.reset();
 	printf("dt = %f: ",dt);

@@ -17,7 +17,7 @@ subject to the following restrictions:
 
 #include "DemoApplication.h"
 
-class btCollisionAlgorithmCreateFunc;
+struct btCollisionAlgorithmCreateFunc;
 
 ///ConcaveDemo shows usage of static concave triangle meshes
 ///It also shows per-triangle material (friction/restitution) through CustomMaterialCombinerCallback

@@ -16,7 +16,8 @@ subject to the following restrictions:
 #ifndef UNION_FIND_H
 #define UNION_FIND_H
 
-#include <vector>
+#include "../../LinearMath/btAlignedObjectArray.h"
+
 struct	btElement
 {
 	int	m_id;
@@ -29,7 +30,7 @@ struct	btElement
 class btUnionFind
   {
     private:
-		std::vector<btElement>	m_elements;
+		btAlignedObjectArray<btElement>	m_elements;
 
     public:
 	  

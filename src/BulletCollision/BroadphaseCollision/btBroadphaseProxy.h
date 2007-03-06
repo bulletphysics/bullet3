@@ -16,6 +16,7 @@ subject to the following restrictions:
 #ifndef BROADPHASE_PROXY_H
 #define BROADPHASE_PROXY_H
 
+#include "../../LinearMath/btScalar.h" //for SIMD_FORCE_INLINE
 
 
 /// btDispatcher uses these types
@@ -164,12 +165,32 @@ struct btBroadphasePair
 	mutable btCollisionAlgorithm* m_algorithm;
 };
 
-
+/*
 //comparison for set operation, see Solid DT_Encounter
-inline bool operator<(const btBroadphasePair& a, const btBroadphasePair& b) 
+SIMD_FORCE_INLINE bool operator<(const btBroadphasePair& a, const btBroadphasePair& b) 
 { 
     return a.m_pProxy0 < b.m_pProxy0 || 
         (a.m_pProxy0 == b.m_pProxy0 && a.m_pProxy1 < b.m_pProxy1); 
+}
+*/
+
+
+class btBroadphasePairSortPredicate
+{
+	public:
+
+		bool operator() ( const btBroadphasePair& a, const btBroadphasePair& b )
+		{
+			 return a.m_pProxy0 > b.m_pProxy0 || 
+				(a.m_pProxy0 == b.m_pProxy0 && a.m_pProxy1 > b.m_pProxy1) ||
+				(a.m_pProxy0 == b.m_pProxy0 && a.m_pProxy1 == b.m_pProxy1 && a.m_algorithm > b.m_algorithm); 
+		}
+};
+
+
+SIMD_FORCE_INLINE bool operator==(const btBroadphasePair& a, const btBroadphasePair& b) 
+{
+	 return (a.m_pProxy0 == b.m_pProxy0) && (a.m_pProxy1 == b.m_pProxy1);
 }
 
 

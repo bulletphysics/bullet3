@@ -16,7 +16,6 @@ subject to the following restrictions:
 
 #include "btDiscreteDynamicsWorld.h"
 
-
 //collision detection
 #include "BulletCollision/CollisionDispatch/btCollisionDispatcher.h"
 #include "BulletCollision/BroadphaseCollision/btSimpleBroadphase.h"
@@ -54,8 +53,6 @@ subject to the following restrictions:
 
 
 
-#include <algorithm>
-
 
 
 btDiscreteDynamicsWorld::btDiscreteDynamicsWorld(btDispatcher* dispatcher,btOverlappingPairCache* pairCache,btConstraintSolver* constraintSolver)
@@ -84,7 +81,7 @@ btDiscreteDynamicsWorld::~btDiscreteDynamicsWorld()
 void	btDiscreteDynamicsWorld::saveKinematicState(btScalar timeStep)
 {
 
-	for (unsigned int i=0;i<m_collisionObjects.size();i++)
+	for (int i=0;i<m_collisionObjects.size();i++)
 	{
 		btCollisionObject* colObj = m_collisionObjects[i];
 		btRigidBody* body = btRigidBody::upcast(colObj);
@@ -110,7 +107,7 @@ void	btDiscreteDynamicsWorld::synchronizeMotionStates()
 	
 	{
 		//todo: iterate over awake simulation islands!
-		for (unsigned int i=0;i<m_collisionObjects.size();i++)
+		for ( int i=0;i<m_collisionObjects.size();i++)
 		{
 			btCollisionObject* colObj = m_collisionObjects[i];
 			if (getDebugDrawer() && getDebugDrawer()->getDebugMode() & btIDebugDraw::DBG_DrawWireframe)
@@ -155,7 +152,7 @@ void	btDiscreteDynamicsWorld::synchronizeMotionStates()
 
 	if (getDebugDrawer() && getDebugDrawer()->getDebugMode() & btIDebugDraw::DBG_DrawWireframe)
 	{
-		for (unsigned int i=0;i<this->m_vehicles.size();i++)
+		for ( int i=0;i<this->m_vehicles.size();i++)
 		{
 			for (int v=0;v<m_vehicles[i]->getNumWheels();v++)
 			{
@@ -294,7 +291,7 @@ void	btDiscreteDynamicsWorld::internalSingleStepSimulation(btScalar timeStep)
 void	btDiscreteDynamicsWorld::setGravity(const btVector3& gravity)
 {
 	m_gravity = gravity;
-	for (unsigned int i=0;i<m_collisionObjects.size();i++)
+	for ( int i=0;i<m_collisionObjects.size();i++)
 	{
 		btCollisionObject* colObj = m_collisionObjects[i];
 		btRigidBody* body = btRigidBody::upcast(colObj);
@@ -333,7 +330,7 @@ void	btDiscreteDynamicsWorld::updateVehicles(btScalar timeStep)
 {
 	BEGIN_PROFILE("updateVehicles");
 
-	for (unsigned int i=0;i<m_vehicles.size();i++)
+	for ( int i=0;i<m_vehicles.size();i++)
 	{
 		btRaycastVehicle* vehicle = m_vehicles[i];
 		vehicle->updateVehicle( timeStep);
@@ -345,7 +342,7 @@ void	btDiscreteDynamicsWorld::updateActivationState(btScalar timeStep)
 {
 	BEGIN_PROFILE("updateActivationState");
 
-	for (unsigned int i=0;i<m_collisionObjects.size();i++)
+	for ( int i=0;i<m_collisionObjects.size();i++)
 	{
 		btCollisionObject* colObj = m_collisionObjects[i];
 		btRigidBody* body = btRigidBody::upcast(colObj);
@@ -380,11 +377,7 @@ void	btDiscreteDynamicsWorld::addConstraint(btTypedConstraint* constraint)
 
 void	btDiscreteDynamicsWorld::removeConstraint(btTypedConstraint* constraint)
 {
-	std::vector<btTypedConstraint*>::iterator cit = std::find(m_constraints.begin(),m_constraints.end(),constraint);
-	if (!(cit==m_constraints.end()))
-	{
-		m_constraints.erase(cit);
-	}
+	m_constraints.remove(constraint);
 }
 
 void	btDiscreteDynamicsWorld::addVehicle(btRaycastVehicle* vehicle)
@@ -394,11 +387,7 @@ void	btDiscreteDynamicsWorld::addVehicle(btRaycastVehicle* vehicle)
 
 void	btDiscreteDynamicsWorld::removeVehicle(btRaycastVehicle* vehicle)
 {
-	std::vector<btRaycastVehicle*>::iterator vit = std::find(m_vehicles.begin(),m_vehicles.end(),vehicle);
-	if (!(vit==m_vehicles.end()))
-	{
-		m_vehicles.erase(vit);
-	}
+	m_vehicles.remove(vehicle);
 }
 
 inline	int	btGetConstraintIslandId(const btTypedConstraint* lhs)
@@ -419,6 +408,7 @@ static bool btSortConstraintOnIslandPredicate(const btTypedConstraint* lhs, cons
 	lIslandId0 = btGetConstraintIslandId(lhs);
 	return lIslandId0 < rIslandId0;
 }
+
 
 void	btDiscreteDynamicsWorld::solveConstraints(btContactSolverInfo& solverInfo)
 {
@@ -481,20 +471,23 @@ void	btDiscreteDynamicsWorld::solveConstraints(btContactSolverInfo& solverInfo)
 
 	};
 
-	
-
-	
 
 	//sorted version of all btTypedConstraint, based on islandId
-	std::vector<btTypedConstraint*>	sortedConstraints;
+	btAlignedObjectArray<btTypedConstraint*>	sortedConstraints;
 	sortedConstraints.resize( m_constraints.size());
 	int i; 
 	for (i=0;i<getNumConstraints();i++)
 	{
 		sortedConstraints[i] = m_constraints[i];
 	}
+
+//	assert(0);
+		
 	
-	std::sort(sortedConstraints.begin(),sortedConstraints.end(),btSortConstraintOnIslandPredicate);
+
+	sortedConstraints.heapSort(btAlignedObjectArray<btTypedConstraint*>::less());
+	//std::sort(sortedConstraints.begin(),sortedConstraints.end(),btSortConstraintOnIslandPredicate);
+
 	
 	btTypedConstraint** constraintsPtr = getNumConstraints() ? &sortedConstraints[0] : 0;
 	
@@ -586,7 +579,7 @@ void	btDiscreteDynamicsWorld::updateAabbs()
 	
 	btVector3 colorvec(1,0,0);
 	btTransform predictedTrans;
-	for (unsigned int i=0;i<m_collisionObjects.size();i++)
+	for ( int i=0;i<m_collisionObjects.size();i++)
 	{
 		btCollisionObject* colObj = m_collisionObjects[i];
 		
@@ -597,7 +590,7 @@ void	btDiscreteDynamicsWorld::updateAabbs()
 			{
 				btPoint3 minAabb,maxAabb;
 				colObj->getCollisionShape()->getAabb(colObj->getWorldTransform(), minAabb,maxAabb);
-				btSimpleBroadphase* bp = (btSimpleBroadphase*)m_broadphasePairCache;
+				btBroadphaseInterface* bp = (btBroadphaseInterface*)m_broadphasePairCache;
 
 				//moving objects should be moderately sized, probably something wrong if not
 				if ( colObj->isStaticObject() || ((maxAabb-minAabb).length2() < btScalar(1e12)))
@@ -610,13 +603,13 @@ void	btDiscreteDynamicsWorld::updateAabbs()
 					body->setActivationState(DISABLE_SIMULATION);
 					
 					static bool reportMe = true;
-					if (reportMe)
+					if (reportMe && m_debugDrawer)
 					{
 						reportMe = false;
-						printf("Overflow in AABB, object removed from simulation \n");
-						printf("If you can reproduce this, please email bugs@continuousphysics.com\n");
-						printf("Please include above information, your Platform, version of OS.\n");
-						printf("Thanks.\n");
+						m_debugDrawer->reportErrorWarning("Overflow in AABB, object removed from simulation");
+						m_debugDrawer->reportErrorWarning("If you can reproduce this, please email bugs@continuousphysics.com\n");
+						m_debugDrawer->reportErrorWarning("Please include above information, your Platform, version of OS.\n");
+						m_debugDrawer->reportErrorWarning("Thanks.\n");
 					}
 
 
@@ -636,7 +629,7 @@ void	btDiscreteDynamicsWorld::integrateTransforms(btScalar timeStep)
 {
 	BEGIN_PROFILE("integrateTransforms");
 	btTransform predictedTrans;
-	for (unsigned int i=0;i<m_collisionObjects.size();i++)
+	for ( int i=0;i<m_collisionObjects.size();i++)
 	{
 		btCollisionObject* colObj = m_collisionObjects[i];
 		btRigidBody* body = btRigidBody::upcast(colObj);
@@ -657,7 +650,7 @@ void	btDiscreteDynamicsWorld::integrateTransforms(btScalar timeStep)
 void	btDiscreteDynamicsWorld::predictUnconstraintMotion(btScalar timeStep)
 {
 	BEGIN_PROFILE("predictUnconstraintMotion");
-	for (unsigned int i=0;i<m_collisionObjects.size();i++)
+	for ( int i=0;i<m_collisionObjects.size();i++)
 	{
 		btCollisionObject* colObj = m_collisionObjects[i];
 		btRigidBody* body = btRigidBody::upcast(colObj);

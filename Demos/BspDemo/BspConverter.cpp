@@ -17,6 +17,9 @@ subject to the following restrictions:
 #include "BspLoader.h"
 #include "LinearMath/btVector3.h"
 #include "LinearMath/btGeometryUtil.h"
+#include <stdio.h>
+#include <string.h>
+
 
 void BspConverter::convertBsp(BspLoader& bspLoader,float scaling)
 {

@@ -16,9 +16,8 @@ subject to the following restrictions:
 #ifndef COLLISION_CREATE_FUNC
 #define COLLISION_CREATE_FUNC
 
-#include <vector>
-
-typedef std::vector<class btCollisionObject*> btCollisionObjectArray;
+#include "../../LinearMath/btAlignedObjectArray.h"
+typedef btAlignedObjectArray<class btCollisionObject*> btCollisionObjectArray;
 class btCollisionAlgorithm;
 class btCollisionObject;
 

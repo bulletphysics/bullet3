@@ -22,15 +22,6 @@ subject to the following restrictions:
 #ifndef QUICK_PROF_H
 #define QUICK_PROF_H
 
-#define USE_QUICKPROF 1
-
-#ifdef USE_QUICKPROF
-
-
-#include <iostream>
-#include <fstream>
-#include <string>
-#include <map>
 
 #ifdef __PPU__
 #include <sys/sys_time.h>
@@ -51,39 +42,12 @@ typedef uint64_t __int64;
 #endif
 
 #define mymin(a,b) (a > b ? a : b)
-namespace hidden
-{
-	/// A simple data structure representing a single timed block 
-	/// of code.
-	struct ProfileBlock
-	{
-		ProfileBlock()
-		{
-			currentBlockStartMicroseconds = 0;
-			currentCycleTotalMicroseconds = 0;
-			lastCycleTotalMicroseconds = 0;
-			totalMicroseconds = 0;
-		}
 
-		/// The starting time (in us) of the current block update.
-		unsigned long int currentBlockStartMicroseconds;
-
-		/// The accumulated time (in us) spent in this block during the 
-		/// current profiling cycle.
-		unsigned long int currentCycleTotalMicroseconds;
-
-		/// The accumulated time (in us) spent in this block during the 
-		/// past profiling cycle.
-		unsigned long int lastCycleTotalMicroseconds;
-
-		/// The total accumulated time (in us) spent in this block.
-		unsigned long int totalMicroseconds;
-	};
-
-	class Clock
+/// basic clock
+class btClock
 	{
 	public:
-		Clock()
+		btClock()
 		{
 #ifdef USE_WINDOWS_TIMERS
 			QueryPerformanceFrequency(&mClockFrequency);
@@ -91,7 +55,7 @@ namespace hidden
 			reset();
 		}
 
-		~Clock()
+		~btClock()
 		{
 		}
 
@@ -118,7 +82,7 @@ namespace hidden
 		}
 
 		/// Returns the time in ms since the last call to reset or since 
-		/// the Clock was created.
+		/// the btClock was created.
 		unsigned long int getTimeMilliseconds()
 		{
 #ifdef USE_WINDOWS_TIMERS
@@ -248,6 +212,51 @@ namespace hidden
 #endif //__PPU__
 
 	};
+
+
+//#define USE_QUICKPROF 1
+//Don't use quickprof for now, because it contains STL. TODO: replace STL by Bullet container classes.
+
+#ifdef USE_QUICKPROF
+
+
+//#include <iostream>
+#include <fstream>
+#include <string>
+#include <map>
+
+
+
+
+namespace hidden
+{
+	/// A simple data structure representing a single timed block 
+	/// of code.
+	struct ProfileBlock
+	{
+		ProfileBlock()
+		{
+			currentBlockStartMicroseconds = 0;
+			currentCycleTotalMicroseconds = 0;
+			lastCycleTotalMicroseconds = 0;
+			totalMicroseconds = 0;
+		}
+
+		/// The starting time (in us) of the current block update.
+		unsigned long int currentBlockStartMicroseconds;
+
+		/// The accumulated time (in us) spent in this block during the 
+		/// current profiling cycle.
+		unsigned long int currentCycleTotalMicroseconds;
+
+		/// The accumulated time (in us) spent in this block during the 
+		/// past profiling cycle.
+		unsigned long int lastCycleTotalMicroseconds;
+
+		/// The total accumulated time (in us) spent in this block.
+		unsigned long int totalMicroseconds;
+	};
+
 };
 
 /// A static class that manages timing for a set of profiling blocks.
@@ -343,7 +352,7 @@ public:
 	static bool mEnabled;
 
 	/// The clock used to time profile blocks.
-	static hidden::Clock mClock;
+	static btClock mClock;
 
 	/// The starting time (in us) of the current profiling cycle.
 	static unsigned long int mCurrentCycleStartMicroseconds;

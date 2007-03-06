@@ -5,7 +5,6 @@
 #include "btPolyhedralConvexShape.h"
 #include "../BroadphaseCollision/btBroadphaseProxy.h" // for the types
 
-#include <vector>
 
 /// btConvexTriangleMeshShape is a convex hull of a triangle mesh. If you just have a point cloud, you can use btConvexHullShape instead.
 /// It uses the btStridingMeshInterface instead of a point cloud. This can avoid the duplication of the triangle mesh data.

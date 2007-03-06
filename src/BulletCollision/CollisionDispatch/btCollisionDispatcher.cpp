@@ -25,7 +25,6 @@ subject to the following restrictions:
 #include "BulletCollision/CollisionDispatch/btCompoundCollisionAlgorithm.h"
 #include "BulletCollision/CollisionShapes/btCollisionShape.h"
 #include "BulletCollision/CollisionDispatch/btCollisionObject.h"
-#include <algorithm>
 #include "BulletCollision/BroadphaseCollision/btOverlappingPairCache.h"
 
 int gNumManifold = 0;
@@ -135,19 +134,16 @@ void btCollisionDispatcher::releaseManifold(btPersistentManifold* manifold)
 	gNumManifold--;
 
 	//printf("releaseManifold: gNumManifold %d\n",gNumManifold);
-
 	clearManifold(manifold);
 
-	std::vector<btPersistentManifold*>::iterator i =
-		std::find(m_manifoldsPtr.begin(), m_manifoldsPtr.end(), manifold);
-	if (!(i == m_manifoldsPtr.end()))
+	///todo: this can be improved a lot, linear search might be slow part!
+	int findIndex = m_manifoldsPtr.findLinearSearch(manifold);
+	if (findIndex < m_manifoldsPtr.size())
 	{
-		std::swap(*i, m_manifoldsPtr.back());
+		m_manifoldsPtr.swap(findIndex,m_manifoldsPtr.size()-1);
 		m_manifoldsPtr.pop_back();
 		delete manifold;
-
 	}
-	
 	
 }
 

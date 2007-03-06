@@ -8,7 +8,6 @@
 #include "BulletCollision/CollisionDispatch/btCollisionWorld.h"
 
 #include <stdio.h>
-#include <algorithm>
 
 
 btSimulationIslandManager::btSimulationIslandManager()
@@ -57,14 +56,12 @@ void	btSimulationIslandManager::updateActivationState(btCollisionWorld* colWorld
 	
 	// put the index into m_controllers into m_tag	
 	{
-		std::vector<btCollisionObject*>::iterator i;
 		
 		int index = 0;
-		for (i=colWorld->getCollisionObjectArray().begin();
-		!(i==colWorld->getCollisionObjectArray().end()); i++)
+		int i;
+		for (i=0;i<colWorld->getCollisionObjectArray().size(); i++)
 		{
-			
-			btCollisionObject*	collisionObject= (*i);
+			btCollisionObject*	collisionObject= colWorld->getCollisionObjectArray()[i];
 			collisionObject->setIslandTag(index);
 			collisionObject->setHitFraction(btScalar(1.));
 			index++;
@@ -88,14 +85,11 @@ void	btSimulationIslandManager::storeIslandActivationState(btCollisionWorld* col
 	{
 		
 		
-		std::vector<btCollisionObject*>::iterator i;
-		
 		int index = 0;
-		for (i=colWorld->getCollisionObjectArray().begin();
-		!(i==colWorld->getCollisionObjectArray().end()); i++)
+		int i;
+		for (i=0;i<colWorld->getCollisionObjectArray().size();i++)
 		{
-			btCollisionObject* collisionObject= (*i);
-			
+			btCollisionObject* collisionObject= colWorld->getCollisionObjectArray()[i];
 			if (collisionObject->mergesSimulationIslands())
 			{
 				collisionObject->setIslandTag( m_unionFind.find(index) );
@@ -125,6 +119,24 @@ bool btPersistentManifoldSortPredicate(const btPersistentManifold* lhs, const bt
 	lIslandId0 = getIslandId(lhs);
 	return lIslandId0 < rIslandId0;
 }
+
+
+/// function object that routes calls to operator<
+class btPersistentManifoldSortPredicate
+{
+	public:
+
+		bool operator() ( const btPersistentManifold* lhs, const btPersistentManifold* rhs )
+		{
+			int rIslandId0,lIslandId0;
+			rIslandId0 = getIslandId(rhs);
+			lIslandId0 = getIslandId(lhs);
+			return lIslandId0 < rIslandId0;
+		}
+};
+
+
+
 
 
 //
@@ -224,7 +236,7 @@ void btSimulationIslandManager::buildAndProcessIslands(btDispatcher* dispatcher,
 		}
 	}
 
-	std::vector<btPersistentManifold*>  islandmanifold;
+	btAlignedObjectArray<btPersistentManifold*>  islandmanifold;
 	int i;
 	int maxNumManifolds = dispatcher->getNumManifolds();
 	islandmanifold.reserve(maxNumManifolds);
@@ -261,7 +273,10 @@ void btSimulationIslandManager::buildAndProcessIslands(btDispatcher* dispatcher,
 
 	// Sort manifolds, based on islands
 	// Sort the vector using predicate and std::sort
-	std::sort(islandmanifold.begin(), islandmanifold.end(), btPersistentManifoldSortPredicate);
+	//std::sort(islandmanifold.begin(), islandmanifold.end(), btPersistentManifoldSortPredicate);
+
+	//we should do radix sort, it it much faster (O(n) instead of O (n log2(n))
+	islandmanifold.heapSort(btPersistentManifoldSortPredicate);
 
 	//now process all active islands (sets of manifolds for now)
 

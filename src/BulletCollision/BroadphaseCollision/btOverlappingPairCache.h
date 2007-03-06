@@ -21,7 +21,7 @@ subject to the following restrictions:
 #include "btBroadphaseInterface.h"
 #include "btBroadphaseProxy.h"
 #include "../../LinearMath/btPoint3.h"
-#include <set>
+#include "../../LinearMath/btAlignedObjectArray.h"
 
 
 struct	btOverlapCallback
@@ -37,8 +37,9 @@ virtual ~btOverlapCallback()
 ///Typically managed by the Broadphase, Axis3Sweep or btSimpleBroadphase
 class	btOverlappingPairCache : public btBroadphaseInterface
 {
+protected:
 	//avoid brute-force finding all the time
-	std::set<btBroadphasePair>	m_overlappingPairSet;
+	btAlignedObjectArray<btBroadphasePair>	m_overlappingPairArray;
 	
 	//during the dispatch, check that user doesn't destroy/create proxy
 	bool		m_blockedForChanges;
@@ -48,7 +49,7 @@ class	btOverlappingPairCache : public btBroadphaseInterface
 	btOverlappingPairCache();	
 	virtual ~btOverlappingPairCache();
 
-	void	processAllOverlappingPairs(btOverlapCallback*);
+	virtual void	processAllOverlappingPairs(btOverlapCallback*);
 
 	void	removeOverlappingPair(btBroadphasePair& pair);
 

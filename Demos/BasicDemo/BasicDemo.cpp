@@ -117,8 +117,9 @@ void	BasicDemo::initPhysics()
 
 
 	m_dispatcher = new	btCollisionDispatcher(true);
-	
+//#define USE_SWEEP_AND_PRUNE 1
 #ifdef USE_SWEEP_AND_PRUNE
+#define maxProxies 8192
 	btVector3 worldAabbMin(-10000,-10000,-10000);
 	btVector3 worldAabbMax(10000,10000,10000);
 	m_overlappingPairCache = new btAxisSweep3(worldAabbMin,worldAabbMax,maxProxies);

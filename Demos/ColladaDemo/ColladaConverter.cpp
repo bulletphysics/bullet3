@@ -747,7 +747,10 @@ void	ColladaConverter::PreparePhysicsObject(struct btRigidBodyInput& input, bool
 
 	}
 
+	if (startScale.length() < 0.001)
+		printf("invalid scale\n");
 
+	colShape->setLocalScaling(startScale);
 
 	btRigidBody* body= createRigidBody(isDynamics,mass,startTransform,colShape);
 	if (body)
@@ -881,7 +884,7 @@ bool ColladaConverter::saveAs(const char* filename)
 }
 
 //some code that de-mangles the windows filename passed in as argument
-char cleaned_filename[512];
+char cleaned_filename[513];
 char* getLastFileName()
 {
 	return cleaned_filename;
@@ -928,7 +931,7 @@ char* fixFileName(const char* lpCmdLine)
 		out++;
 	}
 	
-	cleaned_filename[i] = '\0'; 
+	cleaned_filename[i+1] = '\0'; 
 	return cleaned_filename;
 }
 

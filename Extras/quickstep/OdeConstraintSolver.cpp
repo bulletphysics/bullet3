@@ -25,6 +25,7 @@ subject to the following restrictions:
 #include "OdeJoint.h"
 #include "OdeContactJoint.h"
 #include "OdeSolverBody.h"
+#include <new.h>
 
 #include "LinearMath/btIDebugDraw.h"
 
