@@ -9,11 +9,11 @@ AC_PREREQ([2.54])
 #----------------------------------------------------------------------------
 AC_INIT(
     [bullet],
-    [2.41],
+    [2.44],
     [bullet@erwincoumans.com])
 CS_PACKAGEINFO(
     [Bullet Continuous Collision Detection and Physics Library],
-    [Copyright (c) 2005-2006 Erwin Coumans],
+    [Copyright (c) 2005-2007  Erwin Coumans],
     [http://www.continuousphysics.com/Bullet/])
 AC_CONFIG_SRCDIR([mk/jam/build.jam])
 AC_CONFIG_AUX_DIR([mk/autoconf])
