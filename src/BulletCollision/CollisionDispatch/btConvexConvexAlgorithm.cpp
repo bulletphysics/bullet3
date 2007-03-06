@@ -62,6 +62,14 @@ btConvexConvexAlgorithm::CreateFunc::CreateFunc(btSimplexSolverInterface*			simp
 	m_pdSolver = pdSolver;
 }
 
+btConvexConvexAlgorithm::CreateFunc::~CreateFunc() 
+{ 
+   if (m_ownsSolvers){ 
+      delete m_simplexSolver; 
+      delete m_pdSolver; 
+   } 
+}
+
 btConvexConvexAlgorithm::btConvexConvexAlgorithm(btPersistentManifold* mf,const btCollisionAlgorithmConstructionInfo& ci,btCollisionObject* body0,btCollisionObject* body1,btSimplexSolverInterface* simplexSolver, btConvexPenetrationDepthSolver* pdSolver)
 : btCollisionAlgorithm(ci),
 m_gjkPairDetector(0,0,simplexSolver,pdSolver),
