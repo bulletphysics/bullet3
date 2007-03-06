@@ -75,7 +75,7 @@ class btClock
 	__asm __volatile__( "mftb %0" : "=r" (newTime) : : "memory");
 	mStartTime = newTime;
 #else
-			gettimeofday(&mStartTime, NULL);
+			gettimeofday(&mStartTime, 0);
 #endif
 
 #endif
@@ -132,7 +132,7 @@ class btClock
 #else
 
 			struct timeval currentTime;
-			gettimeofday(&currentTime, NULL);
+			gettimeofday(&currentTime, 0);
 			return (currentTime.tv_sec - mStartTime.tv_sec) * 1000 + 
 				(currentTime.tv_usec - mStartTime.tv_usec) / 1000;
 #endif //__PPU__
@@ -190,7 +190,7 @@ class btClock
 #else
 
 			struct timeval currentTime;
-			gettimeofday(&currentTime, NULL);
+			gettimeofday(&currentTime, 0);
 			return (currentTime.tv_sec - mStartTime.tv_sec) * 1000000 + 
 				(currentTime.tv_usec - mStartTime.tv_usec);
 #endif//__PPU__
