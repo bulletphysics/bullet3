@@ -145,8 +145,6 @@ void	btOverlappingPairCache::cleanProxyFromPairs(btBroadphaseProxy* proxy)
 void	btOverlappingPairCache::removeOverlappingPairsContainingProxy(btBroadphaseProxy* proxy)
 {
 
-	assert(0);
-	//todo, implement more efficient
 	class	RemovePairCallback : public btOverlapCallback
 	{
 		btBroadphaseProxy* m_obsoleteProxy;
