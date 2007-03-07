@@ -22,7 +22,10 @@ subject to the following restrictions:
 #ifndef QUICK_PROF_H
 #define QUICK_PROF_H
 
+//if you don't need btClock, you can comment next line
+#define USE_BT_CLOCK 1
 
+#ifdef USE_BT_CLOCK
 #ifdef __PPU__
 #include <sys/sys_time.h>
 #include <stdio.h>
@@ -34,7 +37,12 @@ typedef uint64_t __int64;
 #endif
 
 #if defined(WIN32) || defined(_WIN32)
-	#define USE_WINDOWS_TIMERS
+
+ #define USE_WINDOWS_TIMERS 
+   #define WIN32_LEAN_AND_MEAN 
+   #define NOWINRES 
+   #define NOMCX 
+   #define NOIME 
 	#include <windows.h>
 	#include <time.h>
 #else
@@ -212,6 +220,8 @@ class btClock
 #endif //__PPU__
 
 	};
+
+#endif //USE_BT_CLOCK
 
 
 //#define USE_QUICKPROF 1
