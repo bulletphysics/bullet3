@@ -401,13 +401,21 @@ inline	int	btGetConstraintIslandId(const btTypedConstraint* lhs)
 
 }
 
-static bool btSortConstraintOnIslandPredicate(const btTypedConstraint* lhs, const btTypedConstraint* rhs)
+
+class btSortConstraintOnIslandPredicate
 {
-	int rIslandId0,lIslandId0;
-	rIslandId0 = btGetConstraintIslandId(rhs);
-	lIslandId0 = btGetConstraintIslandId(lhs);
-	return lIslandId0 < rIslandId0;
-}
+	public:
+
+		bool operator() ( const btTypedConstraint* lhs, const btTypedConstraint* rhs )
+		{
+			int rIslandId0,lIslandId0;
+			rIslandId0 = btGetConstraintIslandId(rhs);
+			lIslandId0 = btGetConstraintIslandId(lhs);
+			return lIslandId0 < rIslandId0;
+		}
+};
+
+
 
 
 void	btDiscreteDynamicsWorld::solveConstraints(btContactSolverInfo& solverInfo)
@@ -485,9 +493,7 @@ void	btDiscreteDynamicsWorld::solveConstraints(btContactSolverInfo& solverInfo)
 		
 	
 
-	sortedConstraints.heapSort(btAlignedObjectArray<btTypedConstraint*>::less());
-	//std::sort(sortedConstraints.begin(),sortedConstraints.end(),btSortConstraintOnIslandPredicate);
-
+	sortedConstraints.heapSort(btSortConstraintOnIslandPredicate());
 	
 	btTypedConstraint** constraintsPtr = getNumConstraints() ? &sortedConstraints[0] : 0;
 	
