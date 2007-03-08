@@ -1,6 +1,10 @@
 Bullet Continuous Collision Detection and Physics Library
 Erwin Coumans
 
+2007 March 8
+	- Fixed bug in constraint/island sorting (caused by replacing STL by dedicated btAlignedObjectArray with heapSort)
+		Thanks Clemens Unterkofler for pointing this out!
+
 2007 March 6
 	- removed STL from the Bullet library: replace std::vector by btAlignedObjectArray. Also removed the std::set for overlapping pair set, and turned it into an overlapping pair array. The SAP only adds objects, never removed. Removal is postponed for during traversal of overlapping pairs (duplicates and non-overlapping pairs are removed during that traversal).
 	- added heap sort and binary search/linear search to btAlignedObjectArray
