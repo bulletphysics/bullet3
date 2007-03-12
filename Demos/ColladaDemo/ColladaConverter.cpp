@@ -1162,7 +1162,7 @@ void	ColladaConverter::ConvertRigidBodyRef( btRigidBodyInput& rbInput,btRigidBod
 							} else
 							{
 								printf("static concave triangle <mesh> added\n");
-								bool useQuantizedAabbCompression = false;
+								bool useQuantizedAabbCompression = true;
 								rbOutput.m_colShape = new btBvhTriangleMeshShape(trimesh,useQuantizedAabbCompression);
 								//rbOutput.m_colShape = new btBvhTriangleMeshShape(trimesh);
 								//rbOutput.m_colShape = new btConvexTriangleMeshShape(trimesh);
