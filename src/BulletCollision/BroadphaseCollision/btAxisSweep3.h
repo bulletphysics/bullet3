@@ -24,6 +24,22 @@
 #include "btOverlappingPairCache.h"
 #include "btBroadphaseProxy.h"
 
+//Enable BP_USE_FIXEDPOINT_INT_32 if you need more then 32767 objects
+//#define BP_USE_FIXEDPOINT_INT_32 1
+
+#ifdef BP_USE_FIXEDPOINT_INT_32
+	#define BP_FP_INT_TYPE unsigned int
+	#define BP_MAX_HANDLES 1500000 //arbitrary maximum number of handles
+	#define BP_HANDLE_SENTINEL 0xffffffff
+	#define BP_HANDLE_MASK	0xfffffffc
+#else	BP_USE_FIXEDPOINT_INT_32
+	#define BP_FP_INT_TYPE unsigned short int
+	#define BP_MAX_HANDLES 32767
+	#define BP_HANDLE_SENTINEL 0xffff
+	#define BP_HANDLE_MASK	0xfffe
+#endif //BP_USE_FIXEDPOINT_INT_32
+
+
 /// btAxisSweep3 is an efficient implementation of the 3d axis sweep and prune broadphase.
 /// It uses arrays rather then lists for storage of the 3 axis. Also it operates using integer coordinates instead of floats.
 /// The testOverlap check is optimized to check the array index, rather then the actual AABB coordinates/pos
@@ -36,10 +52,10 @@ public:
 	class Edge
 	{
 	public:
-		unsigned short m_pos;			// low bit is min/max
-		unsigned short m_handle;
+		BP_FP_INT_TYPE m_pos;			// low bit is min/max
+		BP_FP_INT_TYPE m_handle;
 
-		unsigned short IsMax() const {return m_pos & 1;}
+		BP_FP_INT_TYPE IsMax() const {return m_pos & 1;}
 	};
 
 public:
@@ -48,14 +64,14 @@ public:
 	public:
 		
 		// indexes into the edge arrays
-		unsigned short m_minEdges[3], m_maxEdges[3];		// 6 * 2 = 12
-		unsigned short m_handleId;
-		unsigned short m_pad;
+		BP_FP_INT_TYPE m_minEdges[3], m_maxEdges[3];		// 6 * 2 = 12
+		BP_FP_INT_TYPE m_handleId;
+		BP_FP_INT_TYPE m_pad;
 		
 		//void* m_pOwner; this is now in btBroadphaseProxy.m_clientObject
 	
-		inline void SetNextFree(unsigned short next) {m_minEdges[0] = next;}
-		inline unsigned short GetNextFree() const {return m_minEdges[0];}
+		inline void SetNextFree(BP_FP_INT_TYPE next) {m_minEdges[0] = next;}
+		inline BP_FP_INT_TYPE GetNextFree() const {return m_minEdges[0];}
 	};		// 24 bytes + 24 for Edge structures = 44 bytes total per entry
 
 	
@@ -68,29 +84,29 @@ private:
 	int m_numHandles;						// number of active handles
 	int m_maxHandles;						// max number of handles
 	Handle* m_pHandles;						// handles pool
-	unsigned short m_firstFreeHandle;		// free handles list
+	BP_FP_INT_TYPE m_firstFreeHandle;		// free handles list
 
 	Edge* m_pEdges[3];						// edge arrays for the 3 axes (each array has m_maxHandles * 2 + 2 sentinel entries)
 
 	int m_invalidPair;
 
 	// allocation/deallocation
-	unsigned short allocHandle();
-	void freeHandle(unsigned short handle);
+	BP_FP_INT_TYPE allocHandle();
+	void freeHandle(BP_FP_INT_TYPE handle);
 	
 
 	bool testOverlap(int ignoreAxis,const Handle* pHandleA, const Handle* pHandleB);
 
 
-	//Overlap* AddOverlap(unsigned short handleA, unsigned short handleB);
-	//void RemoveOverlap(unsigned short handleA, unsigned short handleB);
+	//Overlap* AddOverlap(BP_FP_INT_TYPE handleA, BP_FP_INT_TYPE handleB);
+	//void RemoveOverlap(BP_FP_INT_TYPE handleA, BP_FP_INT_TYPE handleB);
 
-	void quantize(unsigned short* out, const btPoint3& point, int isMax) const;
+	void quantize(BP_FP_INT_TYPE* out, const btPoint3& point, int isMax) const;
 
-	void sortMinDown(int axis, unsigned short edge, bool updateOverlaps = true);
-	void sortMinUp(int axis, unsigned short edge, bool updateOverlaps = true);
-	void sortMaxDown(int axis, unsigned short edge, bool updateOverlaps = true);
-	void sortMaxUp(int axis, unsigned short edge, bool updateOverlaps = true);
+	void sortMinDown(int axis, BP_FP_INT_TYPE edge, bool updateOverlaps = true);
+	void sortMinUp(int axis, BP_FP_INT_TYPE edge, bool updateOverlaps = true);
+	void sortMaxDown(int axis, BP_FP_INT_TYPE edge, bool updateOverlaps = true);
+	void sortMaxUp(int axis, BP_FP_INT_TYPE edge, bool updateOverlaps = true);
 
 public:
 	btAxisSweep3(const btPoint3& worldAabbMin,const btPoint3& worldAabbMax, int maxHandles = 16384);
@@ -101,10 +117,10 @@ public:
 		//this is performed incrementally by sweep and prune (add pair), and during pair traversal (remove pair)
 	}
 	
-	unsigned short addHandle(const btPoint3& aabbMin,const btPoint3& aabbMax, void* pOwner,short int collisionFilterGroup,short int collisionFilterMask);
-	void removeHandle(unsigned short handle);
-	void updateHandle(unsigned short handle, const btPoint3& aabbMin,const btPoint3& aabbMax);
-	inline Handle* getHandle(unsigned short index) const {return m_pHandles + index;}
+	BP_FP_INT_TYPE addHandle(const btPoint3& aabbMin,const btPoint3& aabbMax, void* pOwner,short int collisionFilterGroup,short int collisionFilterMask);
+	void removeHandle(BP_FP_INT_TYPE handle);
+	void updateHandle(BP_FP_INT_TYPE handle, const btPoint3& aabbMin,const btPoint3& aabbMax);
+	inline Handle* getHandle(BP_FP_INT_TYPE index) const {return m_pHandles + index;}
 
 	void	processAllOverlappingPairs(btOverlapCallback* callback);
 
