@@ -20,39 +20,34 @@ subject to the following restrictions:
 #include "btStridingMeshInterface.h"
 #include "../../LinearMath/btVector3.h"
 #include "../../LinearMath/btAlignedObjectArray.h"
-struct btMyTriangle
-{
-	btVector3	m_vert0;
-	btVector3	m_vert1;
-	btVector3	m_vert2;
-};
 
 ///TriangleMesh provides storage for a concave triangle mesh. It can be used as data for the btTriangleMeshShape.
 class btTriangleMesh : public btStridingMeshInterface
 {
-	btAlignedObjectArray<btMyTriangle>	m_triangles;
+	btAlignedObjectArray<btVector3>	m_vertices;
+	btAlignedObjectArray<int>		m_indices;
 
 	public:
 		btTriangleMesh ();
 
 		void	addTriangle(const btVector3& vertex0,const btVector3& vertex1,const btVector3& vertex2)
 		{
-			btMyTriangle tri;
-			tri.m_vert0 = vertex0;
-			tri.m_vert1 = vertex1;
-			tri.m_vert2 = vertex2;
-			m_triangles.push_back(tri);
+			int curIndex = m_indices.size();
+			m_vertices.push_back(vertex0);
+			m_vertices.push_back(vertex1);
+			m_vertices.push_back(vertex2);
+
+			m_indices.push_back(curIndex++);
+			m_indices.push_back(curIndex++);
+			m_indices.push_back(curIndex++);
 		}
 
 		int getNumTriangles() const
 		{
-			return m_triangles.size();
+			return m_indices.size() / 3;
 		}
 
-		const btMyTriangle&	getTriangle(int index) const
-		{
-			return m_triangles[index];
-		}
+		
 
 //StridingMeshInterface interface implementation
 
