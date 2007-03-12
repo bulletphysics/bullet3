@@ -1,6 +1,11 @@
 Bullet Continuous Collision Detection and Physics Library
 Erwin Coumans
 
+2007 March 12
+	- Added compile-time toggle between on 16-bit and 32-bit fixed-point SAP broadphase. 
+		This allows the number of bodies to exceed 32767
+	- Enable useQuantizedAabbCompression on btTriangleMesh, see ColladaDemo
+	
 2007 March 8
 	- Fixed bug in constraint/island sorting (caused by replacing STL by dedicated btAlignedObjectArray with heapSort)
 		Thanks Clemens Unterkofler for pointing this out!
