@@ -112,13 +112,6 @@ inline	int	getIslandId(const btPersistentManifold* lhs)
 
 }
 
-bool btPersistentManifoldSortPredicate(const btPersistentManifold* lhs, const btPersistentManifold* rhs)
-{
-	int rIslandId0,lIslandId0;
-	rIslandId0 = getIslandId(rhs);
-	lIslandId0 = getIslandId(lhs);
-	return lIslandId0 < rIslandId0;
-}
 
 
 /// function object that routes calls to operator<
@@ -276,7 +269,7 @@ void btSimulationIslandManager::buildAndProcessIslands(btDispatcher* dispatcher,
 	//std::sort(islandmanifold.begin(), islandmanifold.end(), btPersistentManifoldSortPredicate);
 
 	//we should do radix sort, it it much faster (O(n) instead of O (n log2(n))
-	islandmanifold.heapSort(btPersistentManifoldSortPredicate);
+	islandmanifold.heapSort(btPersistentManifoldSortPredicate());
 
 	//now process all active islands (sets of manifolds for now)
 
