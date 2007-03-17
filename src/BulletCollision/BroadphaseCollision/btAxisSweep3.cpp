@@ -252,6 +252,11 @@ void btAxisSweep3::removeHandle(BP_FP_INT_TYPE handle)
 
 extern int gOverlappingPairs;
 
+
+void	btAxisSweep3::refreshOverlappingPairs()
+{
+
+}
 void	btAxisSweep3::processAllOverlappingPairs(btOverlapCallback* callback)
 {
 
@@ -269,6 +274,8 @@ void	btAxisSweep3::processAllOverlappingPairs(btOverlapCallback* callback)
 	m_overlappingPairArray.resize(m_overlappingPairArray.size() - m_invalidPair);
 	m_invalidPair = 0;
 #endif
+
+	
 	int i;
 
 	btBroadphasePair previousPair;

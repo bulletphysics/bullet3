@@ -1,6 +1,12 @@
 Bullet Continuous Collision Detection and Physics Library
 Erwin Coumans
 
+2007 March 17
+	- Added constraint solver optimizations, avoiding cross products during iterations, and gather rigidbody/constraint info in contiguous memory (btSolverBody/btSolverConstraint)
+	- These optimizations don't give large benefit yet, but it has good potential. Turned on by default. Can be switched off using solver->setSolverMode(SOLVER_RANDMIZE_ORDER).
+	- Enabled anti-jitter for rigid bodies. This is experimental, and can be switched off by setting a global (it is experimental so no proper interface) gJitterVelocityDampingFactor = 1.0;
+	- Fixed bug in islandmanifold.heapSort(btPersistentManifoldSortPredicate()); , thanks Noehrgel for reporting this (affected Sun Solaris)
+	
 2007 March 12
 	- Added compile-time toggle between on 16-bit and 32-bit fixed-point SAP broadphase. 
 		This allows the number of bodies to exceed 32767

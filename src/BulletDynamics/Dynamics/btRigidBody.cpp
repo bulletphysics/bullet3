@@ -112,7 +112,7 @@ btRigidBody::btRigidBody( btScalar mass,const btTransform& worldTransform,btColl
 
 
 
-//#define EXPERIMENTAL_JITTER_REMOVAL 1
+#define EXPERIMENTAL_JITTER_REMOVAL 1
 #ifdef EXPERIMENTAL_JITTER_REMOVAL
 //Bullet 2.20b has experimental damping code to reduce jitter just before objects fall asleep/deactivate
 //doesn't work very well yet (value 0 disabled this damping)
@@ -121,7 +121,7 @@ btScalar gClippedAngvelThresholdSqr = btScalar(0.01);
 btScalar	gClippedLinearThresholdSqr = btScalar(0.01);
 #endif //EXPERIMENTAL_JITTER_REMOVAL
 
-btScalar	gJitterVelocityDampingFactor = btScalar(0.9);
+btScalar	gJitterVelocityDampingFactor = btScalar(0.7);
 
 void btRigidBody::predictIntegratedTransform(btScalar timeStep,btTransform& predictedTransform) 
 {

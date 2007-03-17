@@ -119,7 +119,7 @@ void	btCollisionWorld::performDiscreteCollisionDetection()
 {
 	btDispatcherInfo& dispatchInfo = getDispatchInfo();
 
-	BEGIN_PROFILE("performDiscreteCollisionDetection");
+	BEGIN_PROFILE("perform Broadphase Collision Detection");
 
 
 	//update aabb (of all moved objects)
@@ -132,6 +132,11 @@ void	btCollisionWorld::performDiscreteCollisionDetection()
 	}
 
 	m_broadphasePairCache->refreshOverlappingPairs();
+
+	
+	END_PROFILE("perform Broadphase Collision Detection");
+
+	BEGIN_PROFILE("performDiscreteCollisionDetection");
 
 	btDispatcher* dispatcher = getDispatcher();
 	if (dispatcher)

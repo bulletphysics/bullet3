@@ -112,10 +112,7 @@ public:
 	btAxisSweep3(const btPoint3& worldAabbMin,const btPoint3& worldAabbMax, int maxHandles = 16384);
 	virtual	~btAxisSweep3();
 
-	virtual void	refreshOverlappingPairs()
-	{
-		//this is performed incrementally by sweep and prune (add pair), and during pair traversal (remove pair)
-	}
+	virtual void	refreshOverlappingPairs();
 	
 	BP_FP_INT_TYPE addHandle(const btPoint3& aabbMin,const btPoint3& aabbMax, void* pOwner,short int collisionFilterGroup,short int collisionFilterMask);
 	void removeHandle(BP_FP_INT_TYPE handle);

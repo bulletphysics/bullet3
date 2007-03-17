@@ -25,7 +25,6 @@ class	btRigidBody;
 
 ATTRIBUTE_ALIGNED16 (struct	btSolverBody)
 {
-	btMatrix3x3		m_invInertiaWorld;
 	btVector3		m_centerOfMassPosition;
 	btVector3		m_linearVelocity;
 	btVector3		m_angularVelocity;
@@ -33,7 +32,6 @@ ATTRIBUTE_ALIGNED16 (struct	btSolverBody)
 	float			m_invMass;
 	float			m_friction;
 	float			m_unused;
-	btVector3		m_unused2;
 
 	inline void	getVelocityInLocalPoint(const btVector3& rel_pos, btVector3& velocity ) const
 	{
@@ -56,13 +54,24 @@ ATTRIBUTE_ALIGNED16 (struct	btSolverBody)
 		}
 	}
 
+	void	readVelocity()
+	{
+		if (m_invMass)
+		{
+			m_linearVelocity = m_originalBody->getLinearVelocity();
+			m_angularVelocity = m_originalBody->getAngularVelocity();
+		}
+	}
+
+	
+
 	inline void	applyImpulse(const btVector3& impulse,const btVector3& rel_pos)
 	{
 		if (m_invMass)
 		{
 			m_linearVelocity += impulse * m_invMass;
 			btVector3 torqueImpulse = rel_pos.cross(impulse);
-			m_angularVelocity += m_invInertiaWorld * torqueImpulse;
+//			m_angularVelocity += m_invInertiaWorld * torqueImpulse;
 		}
 	}
 
