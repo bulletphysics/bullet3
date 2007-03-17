@@ -54,6 +54,8 @@ protected:
 	int				m_collisionFlags;
 
 	int				m_islandTag1;
+	int				m_companionId;
+
 	int				m_activationState1;
 	btScalar			m_deactivationTime;
 
@@ -249,6 +251,16 @@ public:
 	void	setIslandTag(int tag)
 	{
 		m_islandTag1 = tag;
+	}
+
+	const int getCompanionId() const
+	{
+		return	m_companionId;
+	}
+
+	void	setCompanionId(int id)
+	{
+		m_companionId = id;
 	}
 
 	const btScalar			getHitFraction() const

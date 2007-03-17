@@ -8,7 +8,7 @@
 #include "BulletCollision/CollisionDispatch/btCollisionWorld.h"
 
 #include <stdio.h>
-
+#include "LinearMath/btQuickprof.h"
 
 btSimulationIslandManager::btSimulationIslandManager()
 {
@@ -63,6 +63,7 @@ void	btSimulationIslandManager::updateActivationState(btCollisionWorld* colWorld
 		{
 			btCollisionObject*	collisionObject= colWorld->getCollisionObjectArray()[i];
 			collisionObject->setIslandTag(index);
+			collisionObject->setCompanionId(-1);
 			collisionObject->setHitFraction(btScalar(1.));
 			index++;
 			
@@ -93,9 +94,11 @@ void	btSimulationIslandManager::storeIslandActivationState(btCollisionWorld* col
 			if (collisionObject->mergesSimulationIslands())
 			{
 				collisionObject->setIslandTag( m_unionFind.find(index) );
+				collisionObject->setCompanionId(-1);
 			} else
 			{
 				collisionObject->setIslandTag(-1);
+				collisionObject->setCompanionId(-2);
 			}
 			index++;
 		}
@@ -137,6 +140,11 @@ class btPersistentManifoldSortPredicate
 //
 void btSimulationIslandManager::buildAndProcessIslands(btDispatcher* dispatcher,btCollisionObjectArray& collisionObjects, IslandCallback* callback)
 {
+
+	
+	BEGIN_PROFILE("islandUnionFindAndHeapSort");
+
+	
 	//we are going to sort the unionfind array, and store the element id in the size
 	//afterwards, we clean unionfind, to make sure no-one uses it anymore
 	
@@ -278,6 +286,10 @@ void btSimulationIslandManager::buildAndProcessIslands(btDispatcher* dispatcher,
 
 	//int islandId;
 
+	END_PROFILE("islandUnionFindAndHeapSort");
+
+	btAlignedObjectArray<btCollisionObject*>	islandBodies;
+
 
 	//traverse the simulation islands, and call the solver, unless all objects are sleeping/deactivated
 	for (int startIslandIndex=0;startIslandIndex<numElem;startIslandIndex = endIslandIndex)
@@ -291,6 +303,7 @@ void btSimulationIslandManager::buildAndProcessIslands(btDispatcher* dispatcher,
                 {
                         int i = getUnionFind().getElement(endIslandIndex).m_sz;
                         btCollisionObject* colObj0 = collisionObjects[i];
+						islandBodies.push_back(colObj0);
                         if (!colObj0->isActive())
                                 islandSleeping = true;
                 }
@@ -319,12 +332,16 @@ void btSimulationIslandManager::buildAndProcessIslands(btDispatcher* dispatcher,
 
 		if (!islandSleeping)
 		{
-			callback->ProcessIsland(startManifold,numIslandManifolds, islandId);
+			callback->ProcessIsland(&islandBodies[0],islandBodies.size(),startManifold,numIslandManifolds, islandId);
 		}
 		
 		if (numIslandManifolds)
 		{
 			startManifoldIndex = endManifoldIndex;
 		}
+
+		islandBodies.resize(0);
 	}
+
+	
 }

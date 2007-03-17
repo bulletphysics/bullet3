@@ -29,7 +29,8 @@ class btManifoldPoint
 	{
 		public:
 			btManifoldPoint()
-				:m_userPersistentData(0)
+				:m_userPersistentData(0),
+				m_lifeTime(0)
 			{
 			}
 
@@ -76,12 +77,12 @@ class btManifoldPoint
 				return m_lifeTime;
 			}
 
-			btVector3 getPositionWorldOnA() {
+			const btVector3& getPositionWorldOnA() const {
 				return m_positionWorldOnA;
 //				return m_positionWorldOnB + m_normalWorldOnB * m_distance1;
 			}
 
-			const btVector3& getPositionWorldOnB()
+			const btVector3& getPositionWorldOnB() const
 			{
 				return m_positionWorldOnB;
 			}

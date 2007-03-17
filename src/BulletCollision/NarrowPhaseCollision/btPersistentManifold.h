@@ -115,11 +115,23 @@ public:
 	}
 	void replaceContactPoint(const btManifoldPoint& newPoint,int insertIndex)
 	{
-		assert(validContactDistance(newPoint));
+		btAssert(validContactDistance(newPoint));
 
-		clearUserCache(m_pointCache[insertIndex]);
+#define MAINTAIN_PERSISTENCY 1
+#ifdef MAINTAIN_PERSISTENCY
+		int	lifeTime = m_pointCache[insertIndex].getLifeTime();
+		btAssert(lifeTime>=0);
+		void* cache = m_pointCache[insertIndex].m_userPersistentData;
 		
 		m_pointCache[insertIndex] = newPoint;
+
+		m_pointCache[insertIndex].m_userPersistentData = cache;
+		m_pointCache[insertIndex].m_lifeTime = lifeTime;
+#else
+		clearUserCache(m_pointCache[insertIndex]);
+		m_pointCache[insertIndex] = newPoint;
+	
+#endif
 	}
 
 	bool validContactDistance(const btManifoldPoint& pt) const

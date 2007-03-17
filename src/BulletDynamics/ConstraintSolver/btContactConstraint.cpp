@@ -89,12 +89,13 @@ btScalar resolveSingleCollision(
 	const btContactSolverInfo& solverInfo)
 {
 
-	const btVector3& pos1 = contactPoint.getPositionWorldOnA();
-	const btVector3& pos2 = contactPoint.getPositionWorldOnB();
+	const btVector3& pos1_ = contactPoint.getPositionWorldOnA();
+	const btVector3& pos2_ = contactPoint.getPositionWorldOnB();
    	const btVector3& normal = contactPoint.m_normalWorldOnB;
 
-	btVector3 rel_pos1 = pos1 - body1.getCenterOfMassPosition(); 
-	btVector3 rel_pos2 = pos2 - body2.getCenterOfMassPosition();
+	//constant over all iterations
+	btVector3 rel_pos1 = pos1_ - body1.getCenterOfMassPosition(); 
+	btVector3 rel_pos2 = pos2_ - body2.getCenterOfMassPosition();
 	
 	btVector3 vel1 = body1.getVelocityInLocalPoint(rel_pos1);
 	btVector3 vel2 = body2.getVelocityInLocalPoint(rel_pos2);

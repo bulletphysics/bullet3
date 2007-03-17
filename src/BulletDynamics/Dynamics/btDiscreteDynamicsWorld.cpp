@@ -421,8 +421,6 @@ class btSortConstraintOnIslandPredicate
 void	btDiscreteDynamicsWorld::solveConstraints(btContactSolverInfo& solverInfo)
 {
 	
-	BEGIN_PROFILE("solveConstraints");
-
 	struct InplaceSolverIslandCallback : public btSimulationIslandManager::IslandCallback
 	{
 
@@ -431,7 +429,7 @@ void	btDiscreteDynamicsWorld::solveConstraints(btContactSolverInfo& solverInfo)
 		btTypedConstraint**		m_sortedConstraints;
 		int						m_numConstraints;
 		btIDebugDraw*			m_debugDrawer;
-
+		btStackAlloc*			m_stackAlloc;
 
 
 		InplaceSolverIslandCallback(
@@ -439,17 +437,19 @@ void	btDiscreteDynamicsWorld::solveConstraints(btContactSolverInfo& solverInfo)
 			btConstraintSolver*	solver,
 			btTypedConstraint** sortedConstraints,
 			int	numConstraints,
-			btIDebugDraw*	debugDrawer)
+			btIDebugDraw*	debugDrawer,
+			btStackAlloc*			stackAlloc)
 			:m_solverInfo(solverInfo),
 			m_solver(solver),
 			m_sortedConstraints(sortedConstraints),
 			m_numConstraints(numConstraints),
-			m_debugDrawer(debugDrawer)
+			m_debugDrawer(debugDrawer),
+			m_stackAlloc(stackAlloc)
 		{
 
 		}
 
-		virtual	void	ProcessIsland(btPersistentManifold**	manifolds,int numManifolds, int islandId)
+		virtual	void	ProcessIsland(btCollisionObject** bodies,int numBodies,btPersistentManifold**	manifolds,int numManifolds, int islandId)
 		{
 			//also add all non-contact constraints/joints for this island
 			btTypedConstraint** startConstraint = 0;
@@ -474,11 +474,10 @@ void	btDiscreteDynamicsWorld::solveConstraints(btContactSolverInfo& solverInfo)
 				}
 			}
 
-			m_solver->solveGroup( manifolds, numManifolds,startConstraint,numCurConstraints,m_solverInfo,m_debugDrawer);
+			m_solver->solveGroup( bodies,numBodies,manifolds, numManifolds,startConstraint,numCurConstraints,m_solverInfo,m_debugDrawer,m_stackAlloc);
 		}
 
 	};
-
 
 	//sorted version of all btTypedConstraint, based on islandId
 	btAlignedObjectArray<btTypedConstraint*>	sortedConstraints;
@@ -497,14 +496,13 @@ void	btDiscreteDynamicsWorld::solveConstraints(btContactSolverInfo& solverInfo)
 	
 	btTypedConstraint** constraintsPtr = getNumConstraints() ? &sortedConstraints[0] : 0;
 	
-	InplaceSolverIslandCallback	solverCallback(	solverInfo,	m_constraintSolver, constraintsPtr,sortedConstraints.size(),	m_debugDrawer);
+	InplaceSolverIslandCallback	solverCallback(	solverInfo,	m_constraintSolver, constraintsPtr,sortedConstraints.size(),	m_debugDrawer,m_stackAlloc);
 
 	
 	
 	/// solve all the constraints for this island
 	m_islandManager->buildAndProcessIslands(getCollisionWorld()->getDispatcher(),getCollisionWorld()->getCollisionObjectArray(),&solverCallback);
 
-	END_PROFILE("solveConstraints");
 
 }
 

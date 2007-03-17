@@ -26,6 +26,7 @@ subject to the following restrictions:
 #include "OdeContactJoint.h"
 #include "OdeSolverBody.h"
 #include <new.h>
+#include "LinearMath/btQuickprof.h"
 
 #include "LinearMath/btIDebugDraw.h"
 
@@ -71,8 +72,10 @@ m_erp(0.4f)
 
 
 //iterative lcp and penalty method
-btScalar OdeConstraintSolver::solveGroup(btPersistentManifold** manifoldPtr, int numManifolds,btTypedConstraint** constraints,int numConstraints,const btContactSolverInfo& infoGlobal,btIDebugDraw* debugDrawer)
+btScalar OdeConstraintSolver::solveGroup(btCollisionObject** bodies,int numBulletBodies,btPersistentManifold** manifoldPtr, int numManifolds,btTypedConstraint** constraints,int numConstraints,const btContactSolverInfo& infoGlobal,btIDebugDraw* debugDrawer,btStackAlloc* stackAlloc)
 {
+	BEGIN_PROFILE("prepareConstraints");
+
 	m_CurBody = 0;
 	m_CurJoint = 0;
 
@@ -95,6 +98,8 @@ btScalar OdeConstraintSolver::solveGroup(btPersistentManifold** manifoldPtr, int
 		}
 	}
 
+	END_PROFILE("prepareConstraints");
+	BEGIN_PROFILE("solveConstraints");
 	SolveInternal1(m_cfm,m_erp,odeBodies,numBodies,joints,numJoints,infoGlobal);
 
 	//write back resulting velocities
@@ -106,6 +111,7 @@ btScalar OdeConstraintSolver::solveGroup(btPersistentManifold** manifoldPtr, int
 			odeBodies[i]->m_originalBody->setAngularVelocity(odeBodies[i]->m_angularVelocity);
 		}
 	}
+	END_PROFILE("solveConstraints");
 	return 0.f;
 
 }

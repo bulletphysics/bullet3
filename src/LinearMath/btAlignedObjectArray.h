@@ -136,6 +136,17 @@ class btAlignedObjectArray
 		}
 	
 
+		SIMD_FORCE_INLINE	T&  expand()
+		{	
+			int sz = size();
+			if( sz == capacity() )
+			{
+				reserve( allocSize(size()) );
+			}
+			m_size++;
+
+			return m_data[sz];		
+		}
 
 		SIMD_FORCE_INLINE	void push_back(const T& _Val)
 		{	

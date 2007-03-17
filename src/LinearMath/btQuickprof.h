@@ -22,6 +22,12 @@ subject to the following restrictions:
 #ifndef QUICK_PROF_H
 #define QUICK_PROF_H
 
+#include "btScalar.h"
+
+//#define USE_QUICKPROF 1
+//Don't use quickprof for now, because it contains STL. TODO: replace STL by Bullet container classes.
+
+
 //if you don't need btClock, you can comment next line
 #define USE_BT_CLOCK 1
 
@@ -224,13 +230,10 @@ class btClock
 #endif //USE_BT_CLOCK
 
 
-//#define USE_QUICKPROF 1
-//Don't use quickprof for now, because it contains STL. TODO: replace STL by Bullet container classes.
-
 #ifdef USE_QUICKPROF
 
 
-//#include <iostream>
+#include <iostream>
 #include <fstream>
 #include <string>
 #include <map>
@@ -355,6 +358,7 @@ public:
 	/// Prints an error message to standard output.
 	inline static void printError(const std::string& msg)
 	{
+		//btAssert(0);
 		std::cout << "[QuickProf error] " << msg << std::endl;
 	}
 

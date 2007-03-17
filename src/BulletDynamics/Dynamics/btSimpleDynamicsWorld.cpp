@@ -71,7 +71,7 @@ int		btSimpleDynamicsWorld::stepSimulation( btScalar timeStep,int maxSubSteps, b
 		btContactSolverInfo infoGlobal;
 		infoGlobal.m_timeStep = timeStep;
 		
-		m_constraintSolver->solveGroup(manifoldPtr, numManifolds,0,0,infoGlobal,m_debugDrawer);
+		m_constraintSolver->solveGroup(0,0,manifoldPtr, numManifolds,0,0,infoGlobal,m_debugDrawer, m_stackAlloc);
 	}
 
 	///integrate transforms
@@ -89,7 +89,7 @@ int		btSimpleDynamicsWorld::stepSimulation( btScalar timeStep,int maxSubSteps, b
 void	btSimpleDynamicsWorld::setGravity(const btVector3& gravity)
 {
 	m_gravity = gravity;
-	for (unsigned int i=0;i<m_collisionObjects.size();i++)
+	for ( int i=0;i<m_collisionObjects.size();i++)
 	{
 		btCollisionObject* colObj = m_collisionObjects[i];
 		btRigidBody* body = btRigidBody::upcast(colObj);
@@ -118,7 +118,7 @@ void	btSimpleDynamicsWorld::addRigidBody(btRigidBody* body)
 void	btSimpleDynamicsWorld::updateAabbs()
 {
 	btTransform predictedTrans;
-	for (unsigned int i=0;i<m_collisionObjects.size();i++)
+	for ( int i=0;i<m_collisionObjects.size();i++)
 	{
 		btCollisionObject* colObj = m_collisionObjects[i];
 		btRigidBody* body = btRigidBody::upcast(colObj);
@@ -138,7 +138,7 @@ void	btSimpleDynamicsWorld::updateAabbs()
 void	btSimpleDynamicsWorld::integrateTransforms(btScalar timeStep)
 {
 	btTransform predictedTrans;
-	for (unsigned int i=0;i<m_collisionObjects.size();i++)
+	for ( int i=0;i<m_collisionObjects.size();i++)
 	{
 		btCollisionObject* colObj = m_collisionObjects[i];
 		btRigidBody* body = btRigidBody::upcast(colObj);
@@ -157,7 +157,7 @@ void	btSimpleDynamicsWorld::integrateTransforms(btScalar timeStep)
 
 void	btSimpleDynamicsWorld::predictUnconstraintMotion(btScalar timeStep)
 {
-	for (unsigned int i=0;i<m_collisionObjects.size();i++)
+	for ( int i=0;i<m_collisionObjects.size();i++)
 	{
 		btCollisionObject* colObj = m_collisionObjects[i];
 		btRigidBody* body = btRigidBody::upcast(colObj);
@@ -180,7 +180,7 @@ void	btSimpleDynamicsWorld::predictUnconstraintMotion(btScalar timeStep)
 void	btSimpleDynamicsWorld::synchronizeMotionStates()
 {
 	//todo: iterate over awake simulation islands!
-	for (unsigned int i=0;i<m_collisionObjects.size();i++)
+	for ( int i=0;i<m_collisionObjects.size();i++)
 	{
 		btCollisionObject* colObj = m_collisionObjects[i];
 		btRigidBody* body = btRigidBody::upcast(colObj);

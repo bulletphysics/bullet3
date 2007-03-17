@@ -20,10 +20,12 @@ subject to the following restrictions:
 
 class btPersistentManifold;
 class btRigidBody;
+class btCollisionObject;
 class btTypedConstraint;
 struct btContactSolverInfo;
 struct btBroadphaseProxy;
 class btIDebugDraw;
+class btStackAlloc;
 
 /// btConstraintSolver provides solver interface
 class btConstraintSolver
@@ -33,7 +35,7 @@ public:
 
 	virtual ~btConstraintSolver() {}
 	
-	virtual btScalar solveGroup(btPersistentManifold** manifold,int numManifolds,btTypedConstraint** constraints,int numConstraints, const btContactSolverInfo& info,class btIDebugDraw* debugDrawer = 0) = 0;
+	virtual btScalar solveGroup(btCollisionObject** bodies,int numBodies,btPersistentManifold** manifold,int numManifolds,btTypedConstraint** constraints,int numConstraints, const btContactSolverInfo& info,class btIDebugDraw* debugDrawer, btStackAlloc* stackAlloc) = 0;
 
 };
 

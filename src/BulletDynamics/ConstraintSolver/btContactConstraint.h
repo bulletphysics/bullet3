@@ -110,4 +110,13 @@ btScalar resolveSingleFriction(
 	const btContactSolverInfo& solverInfo
 		);
 
+
+
+btScalar resolveSingleCollisionCombined(
+	btRigidBody& body1,
+	btRigidBody& body2,
+	btManifoldPoint& contactPoint,
+	const btContactSolverInfo& solverInfo
+		);
+
 #endif //CONTACT_CONSTRAINT_H
