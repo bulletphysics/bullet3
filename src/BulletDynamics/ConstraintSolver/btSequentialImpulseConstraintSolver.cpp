@@ -373,7 +373,7 @@ btScalar btSequentialImpulseConstraintSolver::solveGroupCacheFriendly(btCollisio
 	int sizeofSC = sizeof(btSolverConstraint);
 
 
-	if (numManifolds)
+	if (1)
 	{
 		//if m_stackAlloc, try to pack bodies/constraints to speed up solving
 //		btBlock*					sablock;
@@ -674,22 +674,22 @@ btScalar btSequentialImpulseConstraintSolver::solveGroupCacheFriendly(btCollisio
 				btTypedConstraint* constraint = constraints[j];
 				///todo: use solver bodies, so we don't need to copy from/to btRigidBody
 
-				if (constraint->getRigidBodyA().getIslandTag() >= 0)
+				if ((constraint->getRigidBodyA().getIslandTag() >= 0) && (constraint->getRigidBodyA().getCompanionId() >= 0))
 				{
 					tmpSolverBodyPool[constraint->getRigidBodyA().getCompanionId()].writebackVelocity();
 				}
-				if (constraint->getRigidBodyB().getIslandTag() >= 0)
+				if ((constraint->getRigidBodyB().getIslandTag() >= 0) && (constraint->getRigidBodyB().getCompanionId() >= 0))
 				{
 					tmpSolverBodyPool[constraint->getRigidBodyB().getCompanionId()].writebackVelocity();
 				}
 
 				constraint->solveConstraint(info.m_timeStep);
 
-				if (constraint->getRigidBodyA().getIslandTag() >= 0)
+				if ((constraint->getRigidBodyA().getIslandTag() >= 0) && (constraint->getRigidBodyA().getCompanionId() >= 0))
 				{
 					tmpSolverBodyPool[constraint->getRigidBodyA().getCompanionId()].readVelocity();
 				}
-				if (constraint->getRigidBodyB().getIslandTag() >= 0)
+				if ((constraint->getRigidBodyB().getIslandTag() >= 0) && (constraint->getRigidBodyB().getCompanionId() >= 0))
 				{
 					tmpSolverBodyPool[constraint->getRigidBodyB().getCompanionId()].readVelocity();
 				}
