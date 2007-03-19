@@ -299,7 +299,8 @@ void	btGIMPACTMeshShape::processAllTriangles(btTriangleCallback* callback,const 
 	GDYNAMIC_ARRAY collision_result;
 
 	GIM_TRIMESH * ptrimesh;
-	int i,j;
+	int i;
+        unsigned int j;
 	vec3f trivec[3];
 	btVector3 btrivec[3];
 	GUINT * boxesresult;

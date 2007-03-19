@@ -207,7 +207,7 @@ void	BasicDemo::exitPhysics()
 	}
 
 	//delete collision shapes
-	for (unsigned int j=0;j<m_collisionShapes.size();j++)
+	for (int j=0;j<m_collisionShapes.size();j++)
 	{
 		btCollisionShape* shape = m_collisionShapes[j];
 		delete shape;
