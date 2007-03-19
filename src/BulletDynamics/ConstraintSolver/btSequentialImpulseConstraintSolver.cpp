@@ -369,8 +369,8 @@ btScalar btSequentialImpulseConstraintSolver::solveGroupCacheFriendly(btCollisio
 
 	BEGIN_PROFILE("gatherSolverData");
 
-	int sizeofSB = sizeof(btSolverBody);
-	int sizeofSC = sizeof(btSolverConstraint);
+	//int sizeofSB = sizeof(btSolverBody);
+	//int sizeofSC = sizeof(btSolverConstraint);
 
 
 	if (1)
@@ -1069,7 +1069,7 @@ btScalar btSequentialImpulseConstraintSolver::solveCombinedContactFriction(btRig
 
 				{
 
-					btConstraintPersistentData* cpd = (btConstraintPersistentData*) cp.m_userPersistentData;
+					//btConstraintPersistentData* cpd = (btConstraintPersistentData*) cp.m_userPersistentData;
 					btScalar impulse = resolveSingleCollisionCombined(
 						*body0,*body1,
 						cp,

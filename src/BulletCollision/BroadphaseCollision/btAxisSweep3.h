@@ -32,12 +32,12 @@
 	#define BP_MAX_HANDLES 1500000 //arbitrary maximum number of handles
 	#define BP_HANDLE_SENTINEL 0xffffffff
 	#define BP_HANDLE_MASK	0xfffffffc
-#else	BP_USE_FIXEDPOINT_INT_32
+#else
 	#define BP_FP_INT_TYPE unsigned short int
 	#define BP_MAX_HANDLES 32767
 	#define BP_HANDLE_SENTINEL 0xffff
 	#define BP_HANDLE_MASK	0xfffe
-#endif //BP_USE_FIXEDPOINT_INT_32
+#endif
 
 
 /// btAxisSweep3 is an efficient implementation of the 3d axis sweep and prune broadphase.
@@ -129,4 +129,5 @@ public:
 
 };
 
-#endif //AXIS_SWEEP_3_H
+#endif
+

@@ -16,10 +16,10 @@ subject to the following restrictions:
 #include <BulletCollision/CollisionShapes/btPolyhedralConvexShape.h>
 
 btPolyhedralConvexShape::btPolyhedralConvexShape()
-:m_optionalHull(0),
-m_localAabbMin(1,1,1),
+:m_localAabbMin(1,1,1),
 m_localAabbMax(-1,-1,-1),
-m_isLocalAabbValid(false)
+m_isLocalAabbValid(false),
+m_optionalHull(0)
 {
 
 }
@@ -163,4 +163,5 @@ void	btPolyhedralConvexShape::recalcLocalAabb()
 		m_localAabbMin[i] = tmp[i]-m_collisionMargin;
 	}
 }
-	
+
+

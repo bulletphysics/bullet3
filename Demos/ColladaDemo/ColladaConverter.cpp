@@ -119,8 +119,8 @@ ColladaConverter::ColladaConverter()
 :m_collada(0),
 m_dom(0),
 m_filename(0),
-m_numObjects(0),
-m_unitMeterScaling(1.f)
+m_unitMeterScaling(1.f),
+m_numObjects(0)
 {
 	//Collada-m_dom
 	m_collada = new DAE;
@@ -973,11 +973,11 @@ void	ColladaConverter::ConvertRigidBodyRef( btRigidBodyInput& rbInput,btRigidBod
 					daeString elemName = elemRef->getElementName();
 					if (elemName && !strcmp(elemName,"kinematic"))
 					{
-						daeMemoryRef memRef = elemRef->getValuePointer();
+						//daeMemoryRef memRef = elemRef->getValuePointer();
 						
-						daeBool hasVal = elemRef->hasValue();
+						//daeBool hasVal = elemRef->hasValue();
 
-						COLLADA_TYPE::TypeEnum mytype = elemRef->getElementType();
+						//COLLADA_TYPE::TypeEnum mytype = elemRef->getElementType();
 						//how can I make this cast safe?
 						const domAny* myAny = (const domAny*)elemRef.cast();
 						daeString myVal = myAny->getValue();
@@ -1195,10 +1195,10 @@ void	ColladaConverter::ConvertRigidBodyRef( btRigidBodyInput& rbInput,btRigidBod
 									{
 										const domListOfFloats& listFloats = flArray->getValue();
 										int vertexStride = 3;//instead of hardcoded stride, should use the 'accessor'
-										int vertIndex = 0;
+										unsigned int vertIndex = 0;
 										for (vertIndex = 0;vertIndex < listFloats.getCount();vertIndex+=vertexStride)
 										{
-											btVector3 verts[3];
+											//btVector3 verts[3];
 											domFloat fl0 = listFloats.get(vertIndex);
 											domFloat fl1 = listFloats.get(vertIndex+1);
 											domFloat fl2 = listFloats.get(vertIndex+2);

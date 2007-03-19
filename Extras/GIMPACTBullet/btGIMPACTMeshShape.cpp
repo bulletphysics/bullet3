@@ -43,7 +43,7 @@ void decrease_gimpact_reference()
 
 void btGIMPACTMeshData::clearMeshParts()
 {
-	for(size_t i = 0;i<m_meshes.size();i++)
+	for(int i = 0;i<m_meshes.size();i++)
 	{
 		gim_trimesh_data_dec_ref(m_meshes[i]);
 	}
@@ -161,7 +161,7 @@ btGIMPACTMeshData::~btGIMPACTMeshData()
 void btGIMPACTMeshShape::clearMeshParts()
 {
 	GIM_TRIMESH * ptrimesh;
-	for(size_t i = 0;i<m_gim_trimesh_parts.size();i++)
+	for(int i = 0;i<m_gim_trimesh_parts.size();i++)
 	{
 		ptrimesh = (GIM_TRIMESH * )m_gim_trimesh_parts[i];
 		gim_trimesh_destroy(ptrimesh);
@@ -179,7 +179,7 @@ void btGIMPACTMeshShape::processMeshParts(btGIMPACTMeshData * meshdata)
 	BT_GIMPACT_TRIMESH_HANDLE gimhandle;
 	GIM_TRIMESH * ptrimesh;
 
-	for(size_t i = 0;i<m_meshdata->m_meshes.size();i++)
+	for(int i = 0;i<m_meshdata->m_meshes.size();i++)
 	{
 		ptrimesh = (GIM_TRIMESH *)gim_alloc(sizeof(GIM_TRIMESH));
 		gim_trimesh_create(ptrimesh,m_meshdata->m_meshes[i],1,0);
@@ -213,7 +213,7 @@ void btGIMPACTMeshShape::prepareMeshes(const btTransform & trans) const
 
 	GIM_TRIMESH * ptrimesh;
 
-	for(size_t i = 0;i<m_gim_trimesh_parts.size();i++)
+	for(int i = 0;i<m_gim_trimesh_parts.size();i++)
 	{
 		ptrimesh = (GIM_TRIMESH * )m_gim_trimesh_parts[i];
 		gim_trimesh_set_tranform(ptrimesh, gim_trans);
@@ -233,7 +233,7 @@ void btGIMPACTMeshShape::getAabb(const btTransform& t,btVector3& aabbMin,btVecto
 
 	GIM_TRIMESH * ptrimesh;
 
-	for(size_t i = 0;i<m_gim_trimesh_parts.size();i++)
+	for(int i = 0;i<m_gim_trimesh_parts.size();i++)
 	{
 		ptrimesh = (GIM_TRIMESH * )m_gim_trimesh_parts[i];
 		gim_trimesh_get_aabb(ptrimesh,&meshbox);
@@ -299,7 +299,7 @@ void	btGIMPACTMeshShape::processAllTriangles(btTriangleCallback* callback,const 
 	GDYNAMIC_ARRAY collision_result;
 
 	GIM_TRIMESH * ptrimesh;
-	size_t i,j;
+	int i,j;
 	vec3f trivec[3];
 	btVector3 btrivec[3];
 	GUINT * boxesresult;
