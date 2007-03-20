@@ -723,7 +723,7 @@ btScalar btSequentialImpulseConstraintSolver::solveGroupCacheFriendly(btCollisio
 		}
 	}
 		
-	for (int i=0;i<tmpSolverBodyPool.size();i++)
+	for ( i=0;i<tmpSolverBodyPool.size();i++)
 	{
 		tmpSolverBodyPool[i].writebackVelocity();
 	}

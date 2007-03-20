@@ -16,7 +16,7 @@ subject to the following restrictions:
 #include "btAlignedAllocator.h"
 
 
-#if defined (WIN32) && !defined(__MINGW32__) && !defined(__CYGWIN__)
+#if defined (BT_HAS_ALIGNED_ALOCATOR)
 
 #include <malloc.h>
 void*	btAlignedAlloc	(int size, int alignment)

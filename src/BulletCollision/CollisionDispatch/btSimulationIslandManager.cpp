@@ -292,7 +292,7 @@ void btSimulationIslandManager::buildAndProcessIslands(btDispatcher* dispatcher,
 
 
 	//traverse the simulation islands, and call the solver, unless all objects are sleeping/deactivated
-	for (int startIslandIndex=0;startIslandIndex<numElem;startIslandIndex = endIslandIndex)
+	for ( startIslandIndex=0;startIslandIndex<numElem;startIslandIndex = endIslandIndex)
 	{
 		int islandId = getUnionFind().getElement(startIslandIndex).m_id;
 

@@ -36,11 +36,13 @@ class btAlignedAllocator {
 	typedef btAlignedAllocator< T , Alignment > self_type;
 	
 public:
+
 	//just going down a list:
 	btAlignedAllocator() {}
-	
+	/*
 	btAlignedAllocator( const self_type & ) {}
-	
+	*/
+
 	template < typename Other >
 	btAlignedAllocator( const btAlignedAllocator< Other , Alignment > & ) {}
 

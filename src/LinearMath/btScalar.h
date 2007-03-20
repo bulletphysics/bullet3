@@ -25,10 +25,11 @@ subject to the following restrictions:
 
 #ifdef WIN32
 
-		#if defined(__MINGW32__) || defined(__CYGWIN__)
+		#if defined(__MINGW32__) || defined(__CYGWIN__) || (defined (_MSC_VER) && _MSC_VER < 1300)
 			#define SIMD_FORCE_INLINE inline
 			#define ATTRIBUTE_ALIGNED16(a) a
 		#else
+			#define BT_HAS_ALIGNED_ALOCATOR
 			#pragma warning(disable:4530)
 			#pragma warning(disable:4996)
 			#pragma warning(disable:4786)
