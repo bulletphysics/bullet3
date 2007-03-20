@@ -96,9 +96,9 @@ void ContactJoint::GetInfo2(Info2 *info)
 	
 	btManifoldPoint& point = m_manifold->getContactPoint(m_index);
 	
-	normal[0] = swapFactor*point.m_normalWorldOnB[0];
-	normal[1] = swapFactor*point.m_normalWorldOnB[1];
-	normal[2] = swapFactor*point.m_normalWorldOnB[2];
+	normal[0] = swapFactor*point.m_normalWorldOnB.x();
+	normal[1] = swapFactor*point.m_normalWorldOnB.y();
+	normal[2] = swapFactor*point.m_normalWorldOnB.z();
 	normal[3] = 0;	// @@@ hmmm
 	
 	assert(m_body0);
@@ -107,9 +107,9 @@ void ContactJoint::GetInfo2(Info2 *info)
 	{
 		relativePositionA = point.getPositionWorldOnA() - m_body0->m_centerOfMassPosition;
 		dVector3 c1;
-		c1[0] = relativePositionA[0];
-		c1[1] = relativePositionA[1];
-		c1[2] = relativePositionA[2];
+		c1[0] = relativePositionA.x();
+		c1[1] = relativePositionA.y();
+		c1[2] = relativePositionA.z();
 		
 		// set jacobian for normal
 		info->J1l[0] = normal[0];
@@ -131,9 +131,9 @@ void ContactJoint::GetInfo2(Info2 *info)
 			
 			//			for (i=0; i<3; i++) c2[i] = j->contact.geom.pos[i] -
 			//					  j->node[1].body->pos[i];
-			c2[0] = relativePositionB[0];
-			c2[1] = relativePositionB[1];
-			c2[2] = relativePositionB[2];
+			c2[0] = relativePositionB.x();
+			c2[1] = relativePositionB.y();
+			c2[2] = relativePositionB.z();
 			
 			info->J2l[0] = -normal[0];
 			info->J2l[1] = -normal[1];
@@ -176,14 +176,14 @@ void ContactJoint::GetInfo2(Info2 *info)
 	dVector3 t1,t2;	// two vectors tangential to normal
 	
 	dVector3 c1;
-	c1[0] = relativePositionA[0];
-	c1[1] = relativePositionA[1];
-	c1[2] = relativePositionA[2];
+	c1[0] = relativePositionA.x();
+	c1[1] = relativePositionA.y();
+	c1[2] = relativePositionA.z();
 	
 	dVector3 c2;
-	c2[0] = relativePositionB[0];
-	c2[1] = relativePositionB[1];
-	c2[2] = relativePositionB[2];
+	c2[0] = relativePositionB.x();
+	c2[1] = relativePositionB.y();
+	c2[2] = relativePositionB.z();
 	
 	//combined friction is available in the contact point
 	float friction = 0.25;//FRICTION_CONSTANT ;//* m_body0->m_friction * m_body1->m_friction;

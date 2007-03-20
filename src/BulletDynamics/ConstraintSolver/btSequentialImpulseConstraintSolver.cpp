@@ -52,18 +52,16 @@ struct	btOrderIndex
 static btOrderIndex	gOrder[SEQUENTIAL_IMPULSE_MAX_SOLVER_POINTS];
 
 
-static unsigned long btSeed2 = 0;
-unsigned long btRand2()
+unsigned long btSequentialImpulseConstraintSolver::btRand2()
 {
-  btSeed2 = (1664525L*btSeed2 + 1013904223L) & 0xffffffff;
-  return btSeed2;
+  m_btSeed2 = (1664525L*m_btSeed2 + 1013904223L) & 0xffffffff;
+  return m_btSeed2;
 }
 
 
 
-
 //See ODE: adam's all-int straightforward(?) dRandInt (0..n-1)
-int btRandInt2 (int n)
+int btSequentialImpulseConstraintSolver::btRandInt2 (int n)
 {
   // seems good; xor-fold and modulus
   const unsigned long un = n;
@@ -92,15 +90,7 @@ int btRandInt2 (int n)
 
 
 
-int btRandIntWrong (int n)
-{
-  btScalar a = btScalar(n) / btScalar(4294967296.0);
-//  printf("n = %d\n",n);
-//  printf("a = %f\n",a);
-  int res = (int) (btScalar(btRand2()) * a);
-//	printf("res=%d\n",res);
-  return res;
-}
+
 
 bool  MyContactDestroyedCallback(void* userPersistentData)
 {
@@ -115,7 +105,8 @@ bool  MyContactDestroyedCallback(void* userPersistentData)
 
 
 btSequentialImpulseConstraintSolver::btSequentialImpulseConstraintSolver()
-:m_solverMode(SOLVER_RANDMIZE_ORDER | SOLVER_CACHE_FRIENDLY) //not using SOLVER_USE_WARMSTARTING
+:m_solverMode(SOLVER_RANDMIZE_ORDER | SOLVER_CACHE_FRIENDLY), //not using SOLVER_USE_WARMSTARTING,
+m_btSeed2(0)
 {
 	gContactDestroyedCallback = &MyContactDestroyedCallback;
 
@@ -236,9 +227,9 @@ SIMD_FORCE_INLINE btScalar resolveSingleFrictionCacheFriendly(
 {
 
 	
-	btScalar combinedFriction = contactConstraint.m_friction;
+	const btScalar combinedFriction = contactConstraint.m_friction;
 	
-	btScalar limit = appliedNormalImpulse * combinedFriction;
+	const btScalar limit = appliedNormalImpulse * combinedFriction;
 	
 	if (appliedNormalImpulse>btScalar(0.))
 	//friction
@@ -248,9 +239,9 @@ SIMD_FORCE_INLINE btScalar resolveSingleFrictionCacheFriendly(
 		{
 
 			btScalar rel_vel;
-			btScalar vel1Dotn = contactConstraint.m_contactNormal.dot(body1.m_linearVelocity) 
+			const btScalar vel1Dotn = contactConstraint.m_contactNormal.dot(body1.m_linearVelocity) 
 						+ contactConstraint.m_relpos1CrossNormal.dot(body1.m_angularVelocity);
-			btScalar vel2Dotn = contactConstraint.m_contactNormal.dot(body2.m_linearVelocity) 
+			const btScalar vel2Dotn = contactConstraint.m_contactNormal.dot(body2.m_linearVelocity) 
 				+ contactConstraint.m_relpos2CrossNormal.dot(body2.m_angularVelocity);
 			rel_vel = vel1Dotn-vel2Dotn;
 

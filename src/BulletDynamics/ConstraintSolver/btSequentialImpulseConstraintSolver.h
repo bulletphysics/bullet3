@@ -39,6 +39,8 @@ protected:
 
 	//choose between several modes, different friction model etc.
 	int	m_solverMode;
+	///m_btSeed2 is used for re-arranging the constraint rows. improves convergence/quality of friction
+	unsigned long	m_btSeed2;
 
 public:
 
@@ -84,6 +86,20 @@ public:
 	{
 		return m_solverMode;
 	}
+
+	unsigned long btRand2();
+
+	int btRandInt2 (int n);
+
+	void	setRandSeed(unsigned long seed)
+	{
+		m_btSeed2 = seed;
+	}
+	unsigned long	getRandSeed() const
+	{
+		return m_btSeed2;
+	}
+
 };
 
 

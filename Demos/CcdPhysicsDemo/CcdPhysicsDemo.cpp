@@ -12,11 +12,18 @@ subject to the following restrictions:
 2. Altered source versions must be plainly marked as such, and must not be misrepresented as being the original software.
 3. This notice may not be removed or altered from any source distribution.
 */
+
+//enable just one, DO_BENCHMARK_PYRAMIDS or DO_WALL
+//#define DO_BENCHMARK_PYRAMIDS 1
+#define DO_WALL 1
+
+//Note: some of those settings need 'DO_WALL' demo
 //#define USE_KINEMATIC_GROUND 1
 //#define PRINT_CONTACT_STATISTICS 1
 //#define REGISTER_CUSTOM_COLLISION_ALGORITHM 1
+//#define REGISTER_BOX_BOX 1 //needs to be used in combination with REGISTER_CUSTOM_COLLISION_ALGORITHM
 //#define USER_DEFINED_FRICTION_MODEL 1
-#define USE_CUSTOM_NEAR_CALLBACK 1
+//#define USE_CUSTOM_NEAR_CALLBACK 1
 //#define CENTER_OF_MASS_SHIFT 1
 
 //following define allows to compare/replace Bullet's constraint solver with ODE quickstep
@@ -26,7 +33,9 @@ subject to the following restrictions:
 
 #include "btBulletDynamicsCommon.h"
 #include "BulletCollision/CollisionDispatch/btSphereSphereCollisionAlgorithm.h"
-//#include "../Extras/AlternativeCollisionAlgorithms/BoxBoxCollisionAlgorithm.h"
+#ifdef REGISTER_BOX_BOX
+#include "../Extras/AlternativeCollisionAlgorithms/BoxBoxCollisionAlgorithm.h"
+#endif //REGISTER_BOX_BOX
 #include "BulletCollision/CollisionDispatch/btSphereTriangleCollisionAlgorithm.h"
 
 #ifdef COMPARE_WITH_QUICKSTEP
@@ -58,7 +67,11 @@ const int maxProxies = 32766;
 const int maxOverlap = 65535;
 
 bool createConstraint = true;//false;
+#ifdef CENTER_OF_MASS_SHIFT
+bool useCompound = true;
+#else
 bool useCompound = false;
+#endif
 
 
 
@@ -74,9 +87,9 @@ const int maxNumObjects = 32760;
 int	shapeIndex[maxNumObjects];
 
 
-#define CUBE_HALF_EXTENTS 1
+#define CUBE_HALF_EXTENTS 0.5
 
-#define EXTRA_HEIGHT -20.f
+#define EXTRA_HEIGHT -10.f
 //GL_LineSegmentShape shapeE(btPoint3(-50,0,0),
 //						   btPoint3(50,0,0));
 static const int numShapes = 4;
@@ -90,14 +103,18 @@ btCollisionShape* shapePtr[numShapes] =
 #ifdef USE_GROUND_PLANE
 	new btStaticPlaneShape(btVector3(0,1,0),10),
 #else
-	new btBoxShape (btVector3(50,10,50)),
+	new btBoxShape (btVector3(200,CUBE_HALF_EXTENTS,200)),
 #endif
 		
+#ifdef DO_BENCHMARK_PYRAMIDS
+		new btBoxShape (btVector3(CUBE_HALF_EXTENTS,CUBE_HALF_EXTENTS,CUBE_HALF_EXTENTS)),
+#else
 		new btCylinderShape (btVector3(CUBE_HALF_EXTENTS-gCollisionMargin,CUBE_HALF_EXTENTS-gCollisionMargin,CUBE_HALF_EXTENTS-gCollisionMargin)),
+#endif
+
 		//new btSphereShape (CUBE_HALF_EXTENTS),
 		//new btCapsuleShape(0.5*CUBE_HALF_EXTENTS-gCollisionMargin,CUBE_HALF_EXTENTS-gCollisionMargin),
 		//new btCylinderShape (btVector3(1-gCollisionMargin,CUBE_HALF_EXTENTS-gCollisionMargin,1-gCollisionMargin)),
-		//new btBoxShape (btVector3(CUBE_HALF_EXTENTS,CUBE_HALF_EXTENTS,CUBE_HALF_EXTENTS)),
 		//new btConeShape(CUBE_HALF_EXTENTS-gCollisionMargin,2.f*CUBE_HALF_EXTENTS-gCollisionMargin),
 		
 		new btSphereShape (CUBE_HALF_EXTENTS),
@@ -110,6 +127,31 @@ btCollisionShape* shapePtr[numShapes] =
 
 };
 
+
+void CcdPhysicsDemo::createStack( btCollisionShape* boxShape, float halfCubeSize, int size, float zPos )
+{
+	btTransform trans;
+	trans.setIdentity();
+
+	for(int i=0; i<size; i++)
+	{
+		// This constructs a row, from left to right
+		int rowSize = size - i;
+		for(int j=0; j< rowSize; j++)
+		{
+			btVector4 pos;
+			pos.setValue(
+				-rowSize * halfCubeSize + halfCubeSize + j * 2.0f * halfCubeSize,
+				halfCubeSize + i * halfCubeSize * 2.0f,
+				zPos);
+			
+			trans.setOrigin(pos);
+			btScalar mass = 1.f;
+
+			btRigidBody* body = localCreateRigidBody(mass,trans,boxShape);
+		}
+	}
+}
 
 
 ////////////////////////////////////
@@ -168,7 +210,9 @@ int main(int argc,char** argv)
 
 	ccdDemo->initPhysics();
 
+#ifdef DO_BENCHMARK_PYRAMIDS
 	ccdDemo->setCameraDistance(26.f);
+#endif
 
 	return glutmain(argc, argv,640,480,"Bullet Physics Demo. http://bullet.sf.net",ccdDemo);
 }
@@ -206,29 +250,28 @@ void CcdPhysicsDemo::clientMoveAndDisplay()
 
 	float dt = m_clock.getTimeMicroseconds() * 0.000001f;
 	m_clock.reset();
-	printf("dt = %f: ",dt);
+//	printf("dt = %f: ",dt);
 	
 	if (m_dynamicsWorld)
 	{
 
 		//swap solver
 #ifdef COMPARE_WITH_QUICKSTEP
-	   if (m_debugMode & btIDebugDraw::DBG_DisableBulletLCP)
-	   {
-		   m_dynamicsWorld->setConstraintSolver( new OdeConstraintSolver());
-	   } else
-	   {
-		   m_dynamicsWorld->setConstraintSolver( new btSequentialImpulseConstraintSolver());
-	   }
+	  m_dynamicsWorld->setConstraintSolver( new OdeConstraintSolver());
 #endif //COMPARE_WITH_QUICKSTEP
 
-
+#define FIXED_STEP 1
+#ifdef FIXED_STEP
+  		m_dynamicsWorld->stepSimulation(1.0f/60.f,0);
+	
+#else
 		//during idle mode, just run 1 simulation step maximum
 		int maxSimSubSteps = m_idle ? 1 : 1;
 		if (m_idle)
 			dt = 1.0/420.f;
 
 		int numSimSteps = m_dynamicsWorld->stepSimulation(dt,maxSimSubSteps);
+		/*
 		if (!numSimSteps)
 			printf("Interpolated transforms\n");
 		else
@@ -242,6 +285,9 @@ void CcdPhysicsDemo::clientMoveAndDisplay()
 				printf("Simulated (%i) steps\n",numSimSteps);
 			}
 		}
+		*/
+
+#endif
 	}
 	
 #ifdef USE_QUICKPROF 
@@ -336,6 +382,9 @@ float myFrictionModel(	btRigidBody& body1,	btRigidBody& body2,	btManifoldPoint& 
 
 void	CcdPhysicsDemo::initPhysics()
 {
+#ifdef DO_BENCHMARK_PYRAMIDS
+	m_azi = 90.f;
+#endif //DO_BENCHMARK_PYRAMIDS
 
 	btCollisionDispatcher* dispatcher = new	btCollisionDispatcher();
 
@@ -344,8 +393,8 @@ void	CcdPhysicsDemo::initPhysics()
 	dispatcher->setNearCallback(customNearCallback);
 #endif
 
-	btVector3 worldAabbMin(-10000,-10000,-10000);
-	btVector3 worldAabbMax(10000,10000,10000);
+	btVector3 worldAabbMin(-1000,-1000,-1000);
+	btVector3 worldAabbMax(1000,1000,1000);
 
 	btOverlappingPairCache* broadphase = new btAxisSweep3(worldAabbMin,worldAabbMax,maxProxies);
 //	btOverlappingPairCache* broadphase = new btSimpleBroadphase;
@@ -353,7 +402,9 @@ void	CcdPhysicsDemo::initPhysics()
 #ifdef REGISTER_CUSTOM_COLLISION_ALGORITHM
 	dispatcher->registerCollisionCreateFunc(SPHERE_SHAPE_PROXYTYPE,SPHERE_SHAPE_PROXYTYPE,new btSphereSphereCollisionAlgorithm::CreateFunc);
 	//box-box is in Extras/AlternativeCollisionAlgorithms:it requires inclusion of those files
-	//dispatcher->registerCollisionCreateFunc(BOX_SHAPE_PROXYTYPE,BOX_SHAPE_PROXYTYPE,new BoxBoxCollisionAlgorithm::CreateFunc);
+#ifdef REGISTER_BOX_BOX
+	dispatcher->registerCollisionCreateFunc(BOX_SHAPE_PROXYTYPE,BOX_SHAPE_PROXYTYPE,new BoxBoxCollisionAlgorithm::CreateFunc);
+#endif //REGISTER_BOX_BOX
 	dispatcher->registerCollisionCreateFunc(SPHERE_SHAPE_PROXYTYPE,TRIANGLE_SHAPE_PROXYTYPE,new btSphereTriangleCollisionAlgorithm::CreateFunc);
 	btSphereTriangleCollisionAlgorithm::CreateFunc* triangleSphereCF = new btSphereTriangleCollisionAlgorithm::CreateFunc;
 	triangleSphereCF->m_swapped = true;
@@ -370,6 +421,10 @@ void	CcdPhysicsDemo::initPhysics()
 	
 #endif
 		
+#ifdef	USER_DEFINED_FRICTION_MODEL
+	//user defined friction model is not supported in 'cache friendly' solver yet, so switch to old solver
+	solver->setSolverMode(btSequentialImpulseConstraintSolver::SOLVER_RANDMIZE_ORDER);
+#endif //USER_DEFINED_FRICTION_MODEL
 
 		m_dynamicsWorld = new btDiscreteDynamicsWorld(dispatcher,broadphase,solver);
 		m_dynamicsWorld->setGravity(btVector3(0,-10,0));
@@ -425,6 +480,8 @@ void	CcdPhysicsDemo::initPhysics()
 #endif
 	}
 
+#ifdef DO_WALL
+
 	for (i=0;i<gNumObjects;i++)
 	{
 		btCollisionShape* shape = shapePtr[shapeIndex[i]];
@@ -456,7 +513,7 @@ void	CcdPhysicsDemo::initPhysics()
 			trans.setOrigin(pos);
 		} else
 		{
-			trans.setOrigin(btVector3(0,-30,0));
+			trans.setOrigin(btVector3(0,EXTRA_HEIGHT-CUBE_HALF_EXTENTS,0));
 		}
 
 		float mass = 1.f;
@@ -486,9 +543,45 @@ void	CcdPhysicsDemo::initPhysics()
 #endif //USER_DEFINED_FRICTION_MODEL
 
 	}
+#endif
 
 
-	clientResetScene();
+#ifdef DO_BENCHMARK_PYRAMIDS
+	btTransform trans;
+	trans.setIdentity();
+	
+	btScalar halfExtents = CUBE_HALF_EXTENTS;
+
+	trans.setOrigin(btVector3(0,-halfExtents,0));
+
+
+
+	localCreateRigidBody(0.f,trans,shapePtr[shapeIndex[0]]);
+
+	int numWalls = 10;
+	int wallHeight = 10;
+	float wallDistance = 3;
+
+
+	for (int i=0;i<numWalls;i++)
+	{
+		float zPos = (i-numWalls/2) * wallDistance;
+		createStack(shapePtr[shapeIndex[1]],halfExtents,wallHeight,zPos);
+	}
+//	createStack(shapePtr[shapeIndex[1]],halfExtends,20,10);
+
+//	createStack(shapePtr[shapeIndex[1]],halfExtends,20,20);
+#define DESTROYER_BALL 1
+#ifdef DESTROYER_BALL
+	btTransform sphereTrans;
+	sphereTrans.setIdentity();
+	sphereTrans.setOrigin(btVector3(0,2,40));
+	btSphereShape* ball = new btSphereShape(2.f);
+	btRigidBody* ballBody = localCreateRigidBody(10000.f,sphereTrans,ball);
+	ballBody->setLinearVelocity(btVector3(0,0,-10));
+#endif 
+#endif //DO_BENCHMARK_PYRAMIDS
+//	clientResetScene();
 
 
 }

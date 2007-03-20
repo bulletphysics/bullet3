@@ -254,9 +254,9 @@ void btRigidBody::setMassProps(btScalar mass, const btVector3& inertia)
 		m_inverseMass = btScalar(1.0) / mass;
 	}
 	
-	m_invInertiaLocal.setValue(inertia[0] != btScalar(0.0) ? btScalar(1.0) / inertia[0]: btScalar(0.0),
-				   inertia[1] != btScalar(0.0) ? btScalar(1.0) / inertia[1]: btScalar(0.0),
-				   inertia[2] != btScalar(0.0) ? btScalar(1.0) / inertia[2]: btScalar(0.0));
+	m_invInertiaLocal.setValue(inertia.x() != btScalar(0.0) ? btScalar(1.0) / inertia.x(): btScalar(0.0),
+				   inertia.y() != btScalar(0.0) ? btScalar(1.0) / inertia.y(): btScalar(0.0),
+				   inertia.z() != btScalar(0.0) ? btScalar(1.0) / inertia.z(): btScalar(0.0));
 
 }
 

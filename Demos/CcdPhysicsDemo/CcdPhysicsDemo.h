@@ -28,6 +28,7 @@ class CcdPhysicsDemo : public DemoApplication
 
 	virtual void displayCallback();
 	
+	void createStack( btCollisionShape* boxShape, float halfCubeSize, int size, float zPos );
 	
 };
 

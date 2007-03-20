@@ -268,9 +268,7 @@ int dBoxBox2 (const btVector3& p1, const dMatrix3 R1,
   int i,j,invert_normal,code;
 
   // get vector from centers of box 1 to box 2, relative to box 1
-  p[0] = p2[0] - p1[0];
-  p[1] = p2[1] - p1[1];
-  p[2] = p2[2] - p1[2];
+  p = p2 - p1;
   dMULTIPLY1_331 (pp,R1,p);		// get pp = p relative to body 1
 
   // get side lengths / 2
@@ -646,20 +644,26 @@ void	BoxBoxDetector::getClosestPoints(const ClosestPointInput& input,Result& out
 	dMatrix3 R1;
 	dMatrix3 R2;
 
-	for (int i=0;i<3;i++)
+	for (int j=0;j<3;j++)
 	{
-		for (int j=0;j<3;j++)
-		{
-			R1[i+4*j] = transformA.getBasis()[j][i];
-			R2[i+4*j] = transformB.getBasis()[j][i];
-		}
+		R1[0+4*j] = transformA.getBasis()[j].x();
+		R2[0+4*j] = transformB.getBasis()[j].x();
+
+		R1[1+4*j] = transformA.getBasis()[j].y();
+		R2[1+4*j] = transformB.getBasis()[j].y();
+
+
+		R1[2+4*j] = transformA.getBasis()[j].z();
+		R2[2+4*j] = transformB.getBasis()[j].z();
+
 	}
+
 	
 
 	btVector3 normal;
 	btScalar depth;
 	int return_code;
-	int maxc = 10;
+	int maxc = 4;
 
 
 	dBoxBox2 (transformA.getOrigin(), 

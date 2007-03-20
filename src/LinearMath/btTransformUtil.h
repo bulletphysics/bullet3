@@ -35,29 +35,21 @@ inline btVector3 btAabbSupport(const btVector3& halfExtents,const btVector3& sup
 
 inline void btPlaneSpace1 (const btVector3& n, btVector3& p, btVector3& q)
 {
-  if (btFabs(n[2]) > SIMDSQRT12) {
+  if (btFabs(n.z()) > SIMDSQRT12) {
     // choose p in y-z plane
     btScalar a = n[1]*n[1] + n[2]*n[2];
     btScalar k = btRecipSqrt (a);
-    p[0] = 0;
-    p[1] = -n[2]*k;
-    p[2] = n[1]*k;
+    p.setValue(0,-n[2]*k,n[1]*k);
     // set q = n x p
-    q[0] = a*k;
-    q[1] = -n[0]*p[2];
-    q[2] = n[0]*p[1];
+    q.setValue(a*k,-n[0]*p[2],n[0]*p[1]);
   }
   else {
     // choose p in x-y plane
-    btScalar a = n[0]*n[0] + n[1]*n[1];
+    btScalar a = n.x()*n.x() + n.y()*n.y();
     btScalar k = btRecipSqrt (a);
-    p[0] = -n[1]*k;
-    p[1] = n[0]*k;
-    p[2] = 0;
+    p.setValue(-n.y()*k,n.x()*k,0);
     // set q = n x p
-    q[0] = -n[2]*p[1];
-    q[1] = n[2]*p[0];
-    q[2] = a*k;
+    q.setValue(-n.z()*p.y(),n.z()*p.x(),a*k);
   }
 }
 

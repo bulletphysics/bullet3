@@ -155,15 +155,17 @@ int OdeConstraintSolver::ConvertBody(btRigidBody* orgBody,OdeSolverBody** bodies
 		return -1;
 	}
 
+	if (orgBody->getCompanionId()>=0)
+	{
+		return orgBody->getCompanionId();
+	}
 	//first try to find
 	int i,j;
-	for (i=0;i<numBodies;i++)
-	{
-		if (bodies[i]->m_originalBody == orgBody)
-			return i;
-	}
+	
 	//if not found, create a new body
 	OdeSolverBody* body = bodies[numBodies] = &gSolverBodyArray[numBodies];
+	orgBody->setCompanionId(numBodies);
+
 	numBodies++;
 
 	body->m_originalBody = orgBody;
@@ -186,23 +188,23 @@ int OdeConstraintSolver::ConvertBody(btRigidBody* orgBody,OdeSolverBody** bodies
 			body->m_I[i+4*j] = 0.f;
 		}
 	}
-	body->m_invI[0+4*0] = 	orgBody->getInvInertiaDiagLocal()[0];
-	body->m_invI[1+4*1] = 	orgBody->getInvInertiaDiagLocal()[1];
-	body->m_invI[2+4*2] = 	orgBody->getInvInertiaDiagLocal()[2];
+	body->m_invI[0+4*0] = 	orgBody->getInvInertiaDiagLocal().x();
+	body->m_invI[1+4*1] = 	orgBody->getInvInertiaDiagLocal().y();
+	body->m_invI[2+4*2] = 	orgBody->getInvInertiaDiagLocal().z();
 
-	body->m_I[0+0*4] = 1.f/orgBody->getInvInertiaDiagLocal()[0];
-	body->m_I[1+1*4] = 1.f/orgBody->getInvInertiaDiagLocal()[1];
-	body->m_I[2+2*4] = 1.f/orgBody->getInvInertiaDiagLocal()[2];
+	body->m_I[0+0*4] = 1.f/orgBody->getInvInertiaDiagLocal().x();
+	body->m_I[1+1*4] = 1.f/orgBody->getInvInertiaDiagLocal().y();
+	body->m_I[2+2*4] = 1.f/orgBody->getInvInertiaDiagLocal().z();
 	
 
 	
 	
 	dQuaternion q;
 
-	q[1] = orgBody->getOrientation()[0];
-	q[2] = orgBody->getOrientation()[1];
-	q[3] = orgBody->getOrientation()[2];
-	q[0] = orgBody->getOrientation()[3];
+	q[1] = orgBody->getOrientation().x();
+	q[2] = orgBody->getOrientation().y();
+	q[3] = orgBody->getOrientation().z();
+	q[0] = orgBody->getOrientation().w();
 	
 	dRfromQ1(body->m_R,q);
 	

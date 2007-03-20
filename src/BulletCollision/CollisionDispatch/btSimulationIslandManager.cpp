@@ -122,12 +122,9 @@ class btPersistentManifoldSortPredicate
 {
 	public:
 
-		bool operator() ( const btPersistentManifold* lhs, const btPersistentManifold* rhs )
+		SIMD_FORCE_INLINE bool operator() ( const btPersistentManifold* lhs, const btPersistentManifold* rhs )
 		{
-			int rIslandId0,lIslandId0;
-			rIslandId0 = getIslandId(rhs);
-			lIslandId0 = getIslandId(lhs);
-			return lIslandId0 < rIslandId0;
+			return getIslandId(lhs) < getIslandId(rhs);
 		}
 };
 
@@ -142,8 +139,17 @@ void btSimulationIslandManager::buildAndProcessIslands(btDispatcher* dispatcher,
 {
 
 	
-	BEGIN_PROFILE("islandUnionFindAndHeapSort");
+	
+	if (0)
+	{
+		int maxNumManifolds = dispatcher->getNumManifolds();
+		btCollisionDispatcher* colDis = (btCollisionDispatcher*)dispatcher;
+		btPersistentManifold** manifold = colDis->getInternalManifoldPointer();
+		callback->ProcessIsland(&collisionObjects[0],collisionObjects.size(),manifold,maxNumManifolds, 0);
+		return;
+	}
 
+	BEGIN_PROFILE("islandUnionFindAndHeapSort");
 	
 	//we are going to sort the unionfind array, and store the element id in the size
 	//afterwards, we clean unionfind, to make sure no-one uses it anymore
@@ -152,9 +158,11 @@ void btSimulationIslandManager::buildAndProcessIslands(btDispatcher* dispatcher,
 	int numElem = getUnionFind().getNumElements();
 
 	int endIslandIndex=1;
+	int startIslandIndex;
+
 
 	//update the sleeping state for bodies, if all are sleeping
-	for (int startIslandIndex=0;startIslandIndex<numElem;startIslandIndex = endIslandIndex)
+	for ( startIslandIndex=0;startIslandIndex<numElem;startIslandIndex = endIslandIndex)
 	{
 		int islandId = getUnionFind().getElement(startIslandIndex).m_id;
 		for (endIslandIndex = startIslandIndex+1;(endIslandIndex<numElem) && (getUnionFind().getElement(endIslandIndex).m_id == islandId);endIslandIndex++)

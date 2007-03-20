@@ -48,17 +48,19 @@ public:
 			m_origin = t1(t2.m_origin);
 		}
 
-		void multInverseLeft(const btTransform& t1, const btTransform& t2) {
+/*		void multInverseLeft(const btTransform& t1, const btTransform& t2) {
 			btVector3 v = t2.m_origin - t1.m_origin;
 			m_basis = btMultTransposeLeft(t1.m_basis, t2.m_basis);
 			m_origin = v * t1.m_basis;
 		}
+		*/
+
 
 	SIMD_FORCE_INLINE btVector3 operator()(const btVector3& x) const
 	{
-		return btVector3(m_basis[0].dot(x) + m_origin[0], 
-			m_basis[1].dot(x) + m_origin[1], 
-			m_basis[2].dot(x) + m_origin[2]);
+		return btVector3(m_basis[0].dot(x) + m_origin.x(), 
+			m_basis[1].dot(x) + m_origin.y(), 
+			m_basis[2].dot(x) + m_origin.z());
 	}
 
 	SIMD_FORCE_INLINE btVector3 operator*(const btVector3& x) const
@@ -88,17 +90,15 @@ public:
 	void setFromOpenGLMatrix(const btScalar *m)
 	{
 		m_basis.setFromOpenGLSubMatrix(m);
-		m_origin[0] = m[12];
-		m_origin[1] = m[13];
-		m_origin[2] = m[14];
+		m_origin.setValue(m[12],m[13],m[14]);
 	}
 
 	void getOpenGLMatrix(btScalar *m) const 
 	{
 		m_basis.getOpenGLSubMatrix(m);
-		m[12] = m_origin[0];
-		m[13] = m_origin[1];
-		m[14] = m_origin[2];
+		m[12] = m_origin.x();
+		m[13] = m_origin.y();
+		m[14] = m_origin.z();
 		m[15] = btScalar(1.0);
 	}
 

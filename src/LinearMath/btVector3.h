@@ -149,9 +149,9 @@ public:
 	SIMD_FORCE_INLINE void setInterpolate3(const btVector3& v0, const btVector3& v1, btScalar rt)
 	{
 		btScalar s = btScalar(1.0) - rt;
-		m_x = s * v0[0] + rt * v1.x();
-		m_y = s * v0[1] + rt * v1.y();
-		m_z = s * v0[2] + rt * v1.z();
+		m_x = s * v0.x() + rt * v1.x();
+		m_y = s * v0.y() + rt * v1.y();
+		m_z = s * v0.z() + rt * v1.z();
 		//don't do the unused w component
 		//		m_co[3] = s * v0[3] + rt * v1[3];
 	}
@@ -271,7 +271,7 @@ lerp(const btVector3& v1, const btVector3& v2, const btScalar& t)
 
 SIMD_FORCE_INLINE bool operator==(const btVector3& p1, const btVector3& p2) 
 {
-	return p1[0] == p2[0] && p1[1] == p2[1] && p1[2] == p2[2];
+	return p1.x() == p2.x() && p1.y() == p2.y() && p1.z() == p2.z();
 }
 
 SIMD_FORCE_INLINE btScalar btVector3::distance2(const btVector3& v) const

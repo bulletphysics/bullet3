@@ -31,8 +31,8 @@ ATTRIBUTE_ALIGNED16 (class	btQuadWord)
 
 	public:
 	
-		SIMD_FORCE_INLINE btScalar&       operator[](int i)       { return (&m_x)[i];	}      
-		SIMD_FORCE_INLINE const btScalar& operator[](int i) const { return (&m_x)[i]; }
+//		SIMD_FORCE_INLINE btScalar&       operator[](int i)       { return (&m_x)[i];	}      
+//		SIMD_FORCE_INLINE const btScalar& operator[](int i) const { return (&m_x)[i]; }
 
 		SIMD_FORCE_INLINE const btScalar& getX() const { return m_x; }
 
@@ -46,15 +46,19 @@ ATTRIBUTE_ALIGNED16 (class	btQuadWord)
 
 		SIMD_FORCE_INLINE void	setZ(btScalar z) { m_z = z;};
 
+		SIMD_FORCE_INLINE void	setW(btScalar w) { m_unusedW = w;};
+
 		SIMD_FORCE_INLINE const btScalar& x() const { return m_x; }
 
 		SIMD_FORCE_INLINE const btScalar& y() const { return m_y; }
 
 		SIMD_FORCE_INLINE const btScalar& z() const { return m_z; }
 
+		SIMD_FORCE_INLINE const btScalar& w() const { return m_unusedW; }
 
-		operator       btScalar *()       { return &m_x; }
-		operator const btScalar *() const { return &m_x; }
+
+		SIMD_FORCE_INLINE	operator       btScalar *()       { return &m_x; }
+		SIMD_FORCE_INLINE	operator const btScalar *() const { return &m_x; }
 
 		SIMD_FORCE_INLINE void 	setValue(const btScalar& x, const btScalar& y, const btScalar& z)
 		{
@@ -78,8 +82,8 @@ ATTRIBUTE_ALIGNED16 (class	btQuadWord)
 			m_unusedW=w;
 		}
 
-		SIMD_FORCE_INLINE btQuadWord() :
-		m_x(btScalar(0.)),m_y(btScalar(0.)),m_z(btScalar(0.)),m_unusedW(btScalar(0.))
+		SIMD_FORCE_INLINE btQuadWord()
+		//	:m_x(btScalar(0.)),m_y(btScalar(0.)),m_z(btScalar(0.)),m_unusedW(btScalar(0.))
 		{
 		}
 

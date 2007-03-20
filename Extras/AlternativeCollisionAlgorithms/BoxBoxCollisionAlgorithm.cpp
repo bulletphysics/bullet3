@@ -55,6 +55,8 @@ void BoxBoxCollisionAlgorithm::processCollision (btCollisionObject* body0,btColl
 	/// report a contact. internally this will be kept persistent, and contact reduction is done
 	resultOut->setPersistentManifold(m_manifoldPtr);
 	
+	m_manifoldPtr->clearManifold();
+
 	btDiscreteCollisionDetectorInterface::ClosestPointInput input;
 	input.m_maximumDistanceSquared = 1e30f;
 	input.m_transformA = body0->getWorldTransform();

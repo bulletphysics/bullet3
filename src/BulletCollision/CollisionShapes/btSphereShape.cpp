@@ -68,7 +68,7 @@ void btSphereShape::getAabb(const btTransform& t,btVector3& aabbMin,btVector3& a
 void	btSphereShape::calculateLocalInertia(btScalar mass,btVector3& inertia)
 {
 	btScalar elem = btScalar(0.4) * mass * getMargin()*getMargin();
-	inertia[0] = inertia[1] = inertia[2] = elem;
+	inertia.setValue(elem,elem,elem);
 
 }
 
