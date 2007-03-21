@@ -84,7 +84,7 @@ public:
 		CF_STATIC_OBJECT= 1,
 		CF_KINEMATIC_OBJECT= 2,
 		CF_NO_CONTACT_RESPONSE = 4,
-		CF_CUSTOM_MATERIAL_CALLBACK = 8,//this allows per-triangle material (friction/restitution)
+		CF_CUSTOM_MATERIAL_CALLBACK = 8//this allows per-triangle material (friction/restitution)
 	};
 
 

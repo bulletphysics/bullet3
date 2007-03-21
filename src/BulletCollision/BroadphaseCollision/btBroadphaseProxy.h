@@ -73,7 +73,7 @@ struct btBroadphaseProxy
 	        KinematicFilter = 4,
 	        DebrisFilter = 8,
 			SensorTrigger = 16,
-	        AllFilter = DefaultFilter | StaticFilter | KinematicFilter | DebrisFilter | SensorTrigger,
+	        AllFilter = DefaultFilter | StaticFilter | KinematicFilter | DebrisFilter | SensorTrigger
 	};
 
 	//Usually the client btCollisionObject or Rigidbody class
