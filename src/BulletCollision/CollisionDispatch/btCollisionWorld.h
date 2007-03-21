@@ -136,7 +136,7 @@ public:
 			const btVector3&		hitNormalLocal,
 			btScalar hitFraction)
 		:m_collisionObject(collisionObject),
-		m_localShapeInfo(m_localShapeInfo),
+		m_localShapeInfo(localShapeInfo),
 		m_hitNormalLocal(hitNormalLocal),
 		m_hitFraction(hitFraction)
 		{
