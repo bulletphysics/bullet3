@@ -260,7 +260,7 @@ void CcdPhysicsDemo::clientMoveAndDisplay()
 	  m_dynamicsWorld->setConstraintSolver( new OdeConstraintSolver());
 #endif //COMPARE_WITH_QUICKSTEP
 
-#define FIXED_STEP 1
+//#define FIXED_STEP 1
 #ifdef FIXED_STEP
   		m_dynamicsWorld->stepSimulation(1.0f/60.f,0);
 	
