@@ -33,6 +33,13 @@ btBvhTriangleMeshShape::btBvhTriangleMeshShape(btStridingMeshInterface* meshInte
 
 }
 
+void	btBvhTriangleMeshShape::refitTree()
+{
+	m_bvh->refit( m_meshInterface );
+	
+	recalcLocalAabb();
+}
+
 btBvhTriangleMeshShape::~btBvhTriangleMeshShape()
 {
 	delete m_bvh;

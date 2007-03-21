@@ -29,6 +29,8 @@ class ConcaveDemo : public DemoApplication
 
 	virtual void displayCallback();
 	
+	//to show refit works
+	void	setVertexPositions(float waveheight, float offset);
 	
 };
 

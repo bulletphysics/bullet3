@@ -23,12 +23,14 @@ subject to the following restrictions:
 
 GLDebugDrawer	debugDrawer;
 
-static const int NUM_VERTICES = 5;
-static const int NUM_TRIANGLES=4;
 
-btVector3	gVertices[NUM_VERTICES];
-int	gIndices[NUM_TRIANGLES*3];
-const float TRIANGLE_SIZE=80.f;
+btVector3*	gVertices=0;
+int*	gIndices=0;
+btBvhTriangleMeshShape* trimeshShape =0;
+btRigidBody* staticBody = 0;
+static float waveheight = 5.f;
+
+const float TRIANGLE_SIZE=8.f;
 
 
 
@@ -100,6 +102,27 @@ int main(int argc,char** argv)
 	return glutmain(argc, argv,640,480,"Static Concave Mesh Demo",concaveDemo);
 }
 
+
+	const int NUM_VERTS_X = 50;
+	const int NUM_VERTS_Y = 50;
+	const int totalVerts = NUM_VERTS_X*NUM_VERTS_Y;
+
+void	ConcaveDemo::setVertexPositions(float waveheight, float offset)
+{
+	int i;
+	int j;
+
+	for ( i=0;i<NUM_VERTS_X;i++)
+	{
+		for (j=0;j<NUM_VERTS_Y;j++)
+		{
+			gVertices[i+j*NUM_VERTS_X].setValue((i-NUM_VERTS_X*0.5f)*TRIANGLE_SIZE,
+				//0.f,
+				waveheight*sinf((float)i+offset)*cosf((float)j+offset),
+				(j-NUM_VERTS_Y*0.5f)*TRIANGLE_SIZE);
+		}
+	}
+}
 void	ConcaveDemo::initPhysics()
 {
 	#define TRISIZE 10.f
@@ -107,27 +130,16 @@ void	ConcaveDemo::initPhysics()
 	int vertStride = sizeof(btVector3);
 	int indexStride = 3*sizeof(int);
 
-	const int NUM_VERTS_X = 50;
-	const int NUM_VERTS_Y = 50;
-	const int totalVerts = NUM_VERTS_X*NUM_VERTS_Y;
 	
 	const int totalTriangles = 2*(NUM_VERTS_X-1)*(NUM_VERTS_Y-1);
 
-	btVector3*	gVertices = new btVector3[totalVerts];
-	int*	gIndices = new int[totalTriangles*3];
+	gVertices = new btVector3[totalVerts];
+	gIndices = new int[totalTriangles*3];
 
 	int i;
 
-	for ( i=0;i<NUM_VERTS_X;i++)
-	{
-		for (int j=0;j<NUM_VERTS_Y;j++)
-		{
-			gVertices[i+j*NUM_VERTS_X].setValue((i-NUM_VERTS_X*0.5f)*TRIANGLE_SIZE,
-				//0.f,
-				2.f*sinf((float)i)*cosf((float)j),
-				(j-NUM_VERTS_Y*0.5f)*TRIANGLE_SIZE);
-		}
-	}
+
+	setVertexPositions(waveheight,0.f);
 
 	int index=0;
 	for ( i=0;i<NUM_VERTS_X-1;i++)
@@ -150,8 +162,7 @@ void	ConcaveDemo::initPhysics()
 		totalVerts,(btScalar*) &gVertices[0].x(),vertStride);
 
 	bool useQuantizedAabbCompression = true;
-	btCollisionShape* trimeshShape  = new btBvhTriangleMeshShape(indexVertexArrays,useQuantizedAabbCompression);
-
+	trimeshShape  = new btBvhTriangleMeshShape(indexVertexArrays,useQuantizedAabbCompression);
 
 
 //	btCollisionShape* groundShape = new btBoxShape(btVector3(50,3,50));
@@ -168,7 +179,7 @@ void	ConcaveDemo::initPhysics()
 	startTransform.setIdentity();
 	startTransform.setOrigin(btVector3(0,-2,0));
 
-	btRigidBody* staticBody = localCreateRigidBody(mass, startTransform,trimeshShape);
+	staticBody = localCreateRigidBody(mass, startTransform,trimeshShape);
 
 	staticBody->setCollisionFlags(staticBody->getCollisionFlags() | btCollisionObject::CF_STATIC_OBJECT);
 
@@ -179,7 +190,7 @@ void	ConcaveDemo::initPhysics()
 		for (int i=0;i<10;i++)
 		{
 			btCollisionShape* boxShape = new btBoxShape(btVector3(1,1,1));
-			startTransform.setOrigin(btVector3(2*i,1,1));
+			startTransform.setOrigin(btVector3(2*i,10,1));
 			localCreateRigidBody(1, startTransform,boxShape);
 		}
 	}
@@ -192,6 +203,20 @@ void ConcaveDemo::clientMoveAndDisplay()
 
 	float dt = m_clock.getTimeMicroseconds() * 0.000001f;
 	m_clock.reset();
+
+	
+	
+
+	static float offset=0.f;
+	offset+=0.01f;
+
+	setVertexPositions(waveheight,offset);
+
+	trimeshShape->refitTree();
+
+	//clear all contact points involving mesh proxy. Note: this is a slow/unoptimized operation.
+	m_dynamicsWorld->getBroadphase()->cleanProxyFromPairs(staticBody->getBroadphaseHandle());
+
 	m_dynamicsWorld->stepSimulation(dt);
 	
 	renderme();

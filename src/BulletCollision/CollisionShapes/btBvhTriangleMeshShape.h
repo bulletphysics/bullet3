@@ -44,6 +44,7 @@ public:
 
 	virtual void	processAllTriangles(btTriangleCallback* callback,const btVector3& aabbMin,const btVector3& aabbMax) const;
 
+	void	refitTree();
 
 	//debugging
 	virtual char*	getName()const {return "BVHTRIANGLEMESH";}

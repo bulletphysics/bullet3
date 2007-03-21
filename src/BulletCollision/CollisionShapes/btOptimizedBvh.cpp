@@ -18,7 +18,7 @@ subject to the following restrictions:
 #include "LinearMath/btAabbUtil2.h"
 
 
-btOptimizedBvh::btOptimizedBvh() : m_contiguousNodes(0), m_quantizedContiguousNodes(0), m_useQuantization(false)
+btOptimizedBvh::btOptimizedBvh() : m_contiguousNodes(0), m_useQuantization(false)
 { 
 
 }
@@ -100,27 +100,7 @@ void btOptimizedBvh::build(btStridingMeshInterface* triangles, bool useQuantized
 			m_triangleNodes.push_back(node);
 		}
 	};
-	struct	AabbCalculationCallback : public btInternalTriangleIndexCallback
-	{
-		btVector3	m_aabbMin;
-		btVector3	m_aabbMax;
-
-		AabbCalculationCallback()
-		{
-			m_aabbMin.setValue(1e30,1e30,1e30);
-			m_aabbMax.setValue(-1e30,-1e30,-1e30);
-		}
-
-		virtual void internalProcessTriangleIndex(btVector3* triangle,int partId,int  triangleIndex)
-		{
-			m_aabbMin.setMin(triangle[0]);
-			m_aabbMax.setMax(triangle[0]);
-			m_aabbMin.setMin(triangle[1]);
-			m_aabbMax.setMax(triangle[1]);
-			m_aabbMin.setMin(triangle[2]);
-			m_aabbMax.setMax(triangle[2]);
-		}
-	};
+	
 
 
 	int numLeafNodes = 0;
@@ -128,28 +108,19 @@ void btOptimizedBvh::build(btStridingMeshInterface* triangles, bool useQuantized
 	
 	if (m_useQuantization)
 	{
-		//first calculate the total aabb for all triangles
-		AabbCalculationCallback	aabbCallback;
-		btVector3 aabbMin(btScalar(-1e30),btScalar(-1e30),btScalar(-1e30));
-		btVector3 aabbMax(btScalar(1e30),btScalar(1e30),btScalar(1e30));
-		triangles->InternalProcessAllTriangles(&aabbCallback,aabbMin,aabbMax);
 
-		//initialize quantization values
-		m_bvhAabbMin = aabbCallback.m_aabbMin;
-		m_bvhAabbMax = aabbCallback.m_aabbMax;
-		btVector3 aabbSize = m_bvhAabbMax - m_bvhAabbMin;
-		m_bvhQuantization = btVector3(btScalar(65535.0),btScalar(65535.0),btScalar(65535.0)) / aabbSize;
+		initQuantizationValues(triangles);
 
 		QuantizedNodeTriangleCallback	callback(m_quantizedLeafNodes,this);
 
 	
-		triangles->InternalProcessAllTriangles(&callback,aabbMin,aabbMax);
+		triangles->InternalProcessAllTriangles(&callback,m_bvhAabbMin,m_bvhAabbMax);
 
 		//now we have an array of leafnodes in m_leafNodes
 		numLeafNodes = m_quantizedLeafNodes.size();
 
 
-		m_quantizedContiguousNodes = new btQuantizedBvhNode[2*numLeafNodes];
+		m_quantizedContiguousNodes.resize(2*numLeafNodes);
 
 
 	} else
@@ -173,13 +144,151 @@ void btOptimizedBvh::build(btStridingMeshInterface* triangles, bool useQuantized
 
 }
 
+
+void	btOptimizedBvh::refit(btStridingMeshInterface* meshInterface)
+{
+	if (m_useQuantization)
+	{
+		int nodeSubPart=0;
+
+		initQuantizationValues(meshInterface);
+
+		//get access info to trianglemesh data
+		const unsigned char *vertexbase;
+		int numverts;
+		PHY_ScalarType type;
+		int stride;
+		const unsigned char *indexbase;
+		int indexstride;
+		int numfaces;
+		PHY_ScalarType indicestype;
+		meshInterface->getLockedReadOnlyVertexIndexBase(&vertexbase,numverts,	type,stride,&indexbase,indexstride,numfaces,indicestype,nodeSubPart);
+
+
+		int numNodes = m_curNodeIndex;
+		int i;
+		for (i=numNodes-1;i>=0;i--)
+		{
+			btVector3	triangleVerts[3];
+
+			btQuantizedBvhNode& curNode = m_quantizedContiguousNodes[i];
+			if (curNode.isLeafNode())
+			{
+				//recalc aabb from triangle data
+				int nodeTriangleIndex = curNode.getTriangleIndex();
+				//triangles->getLockedReadOnlyVertexIndexBase(vertexBase,numVerts,
+
+				int* gfxbase = (int*)(indexbase+nodeTriangleIndex*indexstride);
+				
+				const btVector3& meshScaling = meshInterface->getScaling();
+				for (int j=2;j>=0;j--)
+				{
+					
+					int graphicsindex = gfxbase[j];
+					btScalar* graphicsbase = (btScalar*)(vertexbase+graphicsindex*stride);
+
+					triangleVerts[j] = btVector3(
+						graphicsbase[0]*meshScaling.getX(),
+						graphicsbase[1]*meshScaling.getY(),
+						graphicsbase[2]*meshScaling.getZ());
+				}
+
+
+				btVector3	aabbMin,aabbMax;
+				aabbMin.setValue(btScalar(1e30),btScalar(1e30),btScalar(1e30));
+				aabbMax.setValue(btScalar(-1e30),btScalar(-1e30),btScalar(-1e30)); 
+				aabbMin.setMin(triangleVerts[0]);
+				aabbMax.setMax(triangleVerts[0]);
+				aabbMin.setMin(triangleVerts[1]);
+				aabbMax.setMax(triangleVerts[1]);
+				aabbMin.setMin(triangleVerts[2]);
+				aabbMax.setMax(triangleVerts[2]);
+
+				quantizeWithClamp(&curNode.m_quantizedAabbMin[0],aabbMin);
+				quantizeWithClamp(&curNode.m_quantizedAabbMax[0],aabbMax);
+				int k;
+				k=0;
+
+			} else
+			{
+				//combine aabb from both children
+
+				btQuantizedBvhNode* leftChildNode = &m_quantizedContiguousNodes[i+1];
+				
+				btQuantizedBvhNode* rightChildNode = leftChildNode->isLeafNode() ? &m_quantizedContiguousNodes[i+2] :
+					&m_quantizedContiguousNodes[i+1+leftChildNode->getEscapeIndex()];
+				int k;
+				k=0;
+
+				{
+					for (int i=0;i<3;i++)
+					{
+						curNode.m_quantizedAabbMin[i] = leftChildNode->m_quantizedAabbMin[i];
+						if (curNode.m_quantizedAabbMin[i]>rightChildNode->m_quantizedAabbMin[i])
+							curNode.m_quantizedAabbMin[i]=rightChildNode->m_quantizedAabbMin[i];
+
+						curNode.m_quantizedAabbMax[i] = leftChildNode->m_quantizedAabbMax[i];
+						if (curNode.m_quantizedAabbMax[i] < rightChildNode->m_quantizedAabbMax[i])
+							curNode.m_quantizedAabbMax[i] = rightChildNode->m_quantizedAabbMax[i];
+					}
+				}
+			}
+
+		}
+
+		meshInterface->unLockReadOnlyVertexBase(nodeSubPart);
+
+	} else
+	{
+
+	}
+
+}
+
+
+void	btOptimizedBvh::initQuantizationValues(btStridingMeshInterface* triangles)
+{
+
+	struct	AabbCalculationCallback : public btInternalTriangleIndexCallback
+	{
+		btVector3	m_aabbMin;
+		btVector3	m_aabbMax;
+
+		AabbCalculationCallback()
+		{
+			m_aabbMin.setValue(1e30,1e30,1e30);
+			m_aabbMax.setValue(-1e30,-1e30,-1e30);
+		}
+
+		virtual void internalProcessTriangleIndex(btVector3* triangle,int partId,int  triangleIndex)
+		{
+			m_aabbMin.setMin(triangle[0]);
+			m_aabbMax.setMax(triangle[0]);
+			m_aabbMin.setMin(triangle[1]);
+			m_aabbMax.setMax(triangle[1]);
+			m_aabbMin.setMin(triangle[2]);
+			m_aabbMax.setMax(triangle[2]);
+		}
+	};
+
+		//first calculate the total aabb for all triangles
+	AabbCalculationCallback	aabbCallback;
+	btVector3 aabbMin(btScalar(-1e30),btScalar(-1e30),btScalar(-1e30));
+	btVector3 aabbMax(btScalar(1e30),btScalar(1e30),btScalar(1e30));
+	triangles->InternalProcessAllTriangles(&aabbCallback,aabbMin,aabbMax);
+
+	//initialize quantization values
+	m_bvhAabbMin = aabbCallback.m_aabbMin;
+	m_bvhAabbMax = aabbCallback.m_aabbMax;
+	btVector3 aabbSize = m_bvhAabbMax - m_bvhAabbMin;
+	m_bvhQuantization = btVector3(btScalar(65535.0),btScalar(65535.0),btScalar(65535.0)) / aabbSize;
+
+
+}
 btOptimizedBvh::~btOptimizedBvh()
 {
 	if (m_contiguousNodes)
 		delete []m_contiguousNodes;
-
-	if (m_quantizedContiguousNodes)
-		delete []m_quantizedContiguousNodes;
 }
 
 #ifdef DEBUG_TREE_BUILDING
@@ -395,7 +504,7 @@ void	btOptimizedBvh::walkStacklessQuantizedTree(btNodeOverlapCallback* nodeCallb
 	quantizeWithClamp(quantizedQueryAabbMin,aabbMin);
 	quantizeWithClamp(quantizedQueryAabbMax,aabbMax);
 	
-	btQuantizedBvhNode* rootNode = &m_quantizedContiguousNodes[0];
+	const btQuantizedBvhNode* rootNode = &m_quantizedContiguousNodes[0];
 	int escapeIndex, curIndex = 0;
 	int walkIterations = 0;
 	bool aabbOverlap, isLeafNode;

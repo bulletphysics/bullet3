@@ -97,8 +97,9 @@ class btOptimizedBvh
 	btOptimizedBvhNode*	m_contiguousNodes;
 
 	QuantizedNodeArray	m_quantizedLeafNodes;
-	btQuantizedBvhNode*	m_quantizedContiguousNodes;
-
+	
+	QuantizedNodeArray	m_quantizedContiguousNodes;
+	
 	int					m_curNodeIndex;
 
 
@@ -151,6 +152,10 @@ class btOptimizedBvh
 		return m_leafNodes[nodeIndex].m_aabbMaxOrg;
 		
 	}
+
+	void	initQuantizationValues(btStridingMeshInterface* triangles);
+
+	
 	
 	void	setInternalNodeEscapeIndex(int nodeIndex, int escapeIndex)
 	{
@@ -208,7 +213,7 @@ protected:
 
 	void	walkStacklessQuantizedTree(btNodeOverlapCallback* nodeCallback,const btVector3& aabbMin,const btVector3& aabbMax) const;
 
-	inline bool testQuantizedAabbAgainstQuantizedAabb(unsigned short int* aabbMin1,unsigned short int* aabbMax1,unsigned short int* aabbMin2,unsigned short int* aabbMax2) const
+	inline bool testQuantizedAabbAgainstQuantizedAabb(unsigned short int* aabbMin1,unsigned short int* aabbMax1,const unsigned short int* aabbMin2,const unsigned short int* aabbMax2) const
 	{
 		bool overlap = true;
 		overlap = (aabbMin1[0] > aabbMax2[0] || aabbMax1[0] < aabbMin2[0]) ? false : overlap;
@@ -233,6 +238,7 @@ public:
 	
 	btVector3	unQuantize(const unsigned short* vecIn) const;
 
+	void	refit(btStridingMeshInterface* triangles);
 };
 
 
