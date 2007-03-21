@@ -1,6 +1,10 @@
 Bullet Continuous Collision Detection and Physics Library
 Erwin Coumans
 
+2007 March 21
+	- Fixed issues: comma at end of enum causes errors for some compilers
+	- Fixed initialization bug in LocalRayResult (	m_localShapeInfo(localShapeInfo) )
+	
 2007 March 20
 	- Added refit tree to quantized stackless tree, and updated ConcaveDemo as example.
 	
