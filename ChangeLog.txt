@@ -1,6 +1,9 @@
 Bullet Continuous Collision Detection and Physics Library
 Erwin Coumans
 
+2007 March 20
+	- Added refit tree to quantized stackless tree, and updated ConcaveDemo as example.
+	
 2007 March 17
 	- Added constraint solver optimizations, avoiding cross products during iterations, and gather rigidbody/constraint info in contiguous memory (btSolverBody/btSolverConstraint)
 	- These optimizations don't give large benefit yet, but it has good potential. Turned on by default. Can be switched off using solver->setSolverMode(SOLVER_RANDMIZE_ORDER).
