@@ -446,7 +446,23 @@ void	btOptimizedBvh::reportAabbOverlappingNodex(btNodeOverlapCallback* nodeCallb
 
 	if (m_useQuantization)
 	{
-		walkStacklessQuantizedTree(nodeCallback,aabbMin,aabbMax);
+//USE_RECURSION shows you can still do a recursive traversal on the stackless 'skip index' tree data without the explicit left/right child pointer
+//#define USE_RECURSION 1
+#ifdef USE_RECURSION
+		bool useRecursion = true;
+		if (useRecursion)
+		{
+			unsigned short int quantizedQueryAabbMin[3];
+			unsigned short int quantizedQueryAabbMax[3];
+			quantizeWithClamp(quantizedQueryAabbMin,aabbMin);
+			quantizeWithClamp(quantizedQueryAabbMax,aabbMax);
+			const btQuantizedBvhNode* rootNode = &m_quantizedContiguousNodes[0];
+			walkRecursiveQuantizedTreeAgainstQueryAabb(rootNode,nodeCallback,quantizedQueryAabbMin,quantizedQueryAabbMax);
+		} else
+#endif //USE_RECURSION
+		{
+			walkStacklessQuantizedTree(nodeCallback,aabbMin,aabbMax);
+		}
 	} else
 	{
 		walkStacklessTree(nodeCallback,aabbMin,aabbMax);
@@ -494,6 +510,38 @@ void	btOptimizedBvh::walkStacklessTree(btNodeOverlapCallback* nodeCallback,const
 		maxIterations = walkIterations;
 
 }
+
+
+
+void btOptimizedBvh::walkRecursiveQuantizedTreeAgainstQueryAabb(const btQuantizedBvhNode* currentNode,btNodeOverlapCallback* nodeCallback,unsigned short int* quantizedQueryAabbMin,unsigned short int* quantizedQueryAabbMax) const
+{
+	btAssert(m_useQuantization);
+	
+	int escapeIndex;
+	bool aabbOverlap, isLeafNode;
+
+	aabbOverlap = testQuantizedAabbAgainstQuantizedAabb(quantizedQueryAabbMin,quantizedQueryAabbMax,currentNode->m_quantizedAabbMin,currentNode->m_quantizedAabbMax);
+	isLeafNode = currentNode->isLeafNode();
+		
+	if (aabbOverlap)
+	{
+		if (isLeafNode)
+		{
+			nodeCallback->processNode(0,currentNode->getTriangleIndex());
+		} else
+		{
+			//process left and right children
+			const btQuantizedBvhNode* leftChildNode = currentNode+1;
+			walkRecursiveQuantizedTreeAgainstQueryAabb(leftChildNode,nodeCallback,quantizedQueryAabbMin,quantizedQueryAabbMax);
+
+			const btQuantizedBvhNode* rightChildNode = leftChildNode->isLeafNode() ? 
+								leftChildNode+1:
+								leftChildNode+leftChildNode->getEscapeIndex();
+			walkRecursiveQuantizedTreeAgainstQueryAabb(rightChildNode,nodeCallback,quantizedQueryAabbMin,quantizedQueryAabbMax);
+		}
+	}		
+}
+
 
 void	btOptimizedBvh::walkStacklessQuantizedTree(btNodeOverlapCallback* nodeCallback,const btVector3& aabbMin,const btVector3& aabbMax) const
 {
