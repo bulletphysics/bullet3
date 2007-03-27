@@ -509,6 +509,7 @@ void DemoApplication::mouseFunc(int button, int state, int x, int y)
 		{
 			if (state==0)
 			{
+
 				shootBox(rayTo);
 			}
 			break;
@@ -519,6 +520,7 @@ void DemoApplication::mouseFunc(int button, int state, int x, int y)
 
 			if (state==0)
 			{
+				
 
 				//apply an impulse
 				if (m_dynamicsWorld)
@@ -554,6 +556,7 @@ void DemoApplication::mouseFunc(int button, int state, int x, int y)
 		{
 			if (state==0)
 			{
+		
 
 				//add a point to point constraint for picking
 				if (m_dynamicsWorld)
@@ -829,13 +832,12 @@ void DemoApplication::renderme()
 				BMF_DrawString(BMF_GetFont(BMF_kHelvetica10),buf);
 				yStart += yIncr;
 
-
-			/*	
+				
 				glRasterPos3f(xOffset,yStart,0);
-				sprintf(buf,"a to draw temporal AABBs");
+				sprintf(buf,"g to toggle mesh animation (ConcaveDemo)");
 				BMF_DrawString(BMF_GetFont(BMF_kHelvetica10),buf);
 				yStart += yIncr;
-			*/
+			
 
 				glRasterPos3f(xOffset,yStart,0);
 				sprintf(buf,"h to toggle help text");

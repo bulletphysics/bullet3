@@ -21,8 +21,15 @@ subject to the following restrictions:
 ///It also shows per-triangle material (friction/restitution) through CustomMaterialCombinerCallback
 class ConcaveDemo : public DemoApplication
 {
+
+	bool	m_animatedMesh;
+
 	public:
 
+	ConcaveDemo() : m_animatedMesh(false)
+	{
+
+	}
 	void	initPhysics();
 
 	virtual void clientMoveAndDisplay();
@@ -32,6 +39,7 @@ class ConcaveDemo : public DemoApplication
 	//to show refit works
 	void	setVertexPositions(float waveheight, float offset);
 	
+	virtual void keyboardCallback(unsigned char key, int x, int y);
 };
 
 #endif //CONCAVE_DEMO_H

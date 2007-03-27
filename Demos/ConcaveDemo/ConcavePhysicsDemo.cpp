@@ -22,7 +22,7 @@ subject to the following restrictions:
 
 
 GLDebugDrawer	debugDrawer;
-
+class btIDebugDraw* debugDrawerPtr=0;
 
 btVector3*	gVertices=0;
 int*	gIndices=0;
@@ -123,6 +123,27 @@ void	ConcaveDemo::setVertexPositions(float waveheight, float offset)
 		}
 	}
 }
+
+void ConcaveDemo::keyboardCallback(unsigned char key, int x, int y)
+{
+	if (key == 'g')
+	{
+		m_animatedMesh = !m_animatedMesh;
+		if (m_animatedMesh)
+		{
+			staticBody->setCollisionFlags( staticBody->getCollisionFlags() | btCollisionObject::CF_KINEMATIC_OBJECT);
+			staticBody->setActivationState(DISABLE_DEACTIVATION);
+		} else
+		{
+			staticBody->setCollisionFlags( staticBody->getCollisionFlags() & ~btCollisionObject::CF_KINEMATIC_OBJECT);
+			staticBody->forceActivationState(ACTIVE_TAG);
+		}
+	}
+
+	DemoApplication::keyboardCallback(key,x,y);
+
+}
+
 void	ConcaveDemo::initPhysics()
 {
 	#define TRISIZE 10.f
@@ -173,6 +194,7 @@ void	ConcaveDemo::initPhysics()
 	btConstraintSolver* constraintSolver = new btSequentialImpulseConstraintSolver();
 	m_dynamicsWorld = new btDiscreteDynamicsWorld(dispatcher,pairCache,constraintSolver);
 	m_dynamicsWorld->setDebugDrawer(&debugDrawer);
+	debugDrawerPtr = &debugDrawer;
 	
 	float mass = 0.f;
 	btTransform	startTransform;
@@ -204,18 +226,18 @@ void ConcaveDemo::clientMoveAndDisplay()
 	float dt = m_clock.getTimeMicroseconds() * 0.000001f;
 	m_clock.reset();
 
-	
-	
+	if (m_animatedMesh)
+	{
+		static float offset=0.f;
+		offset+=0.01f;
 
-	static float offset=0.f;
-	offset+=0.01f;
+		setVertexPositions(waveheight,offset);
 
-	setVertexPositions(waveheight,offset);
+		trimeshShape->refitTree();
 
-	trimeshShape->refitTree();
-
-	//clear all contact points involving mesh proxy. Note: this is a slow/unoptimized operation.
-	m_dynamicsWorld->getBroadphase()->cleanProxyFromPairs(staticBody->getBroadphaseHandle());
+		//clear all contact points involving mesh proxy. Note: this is a slow/unoptimized operation.
+		m_dynamicsWorld->getBroadphase()->cleanProxyFromPairs(staticBody->getBroadphaseHandle());
+	}
 
 	m_dynamicsWorld->stepSimulation(dt);
 	

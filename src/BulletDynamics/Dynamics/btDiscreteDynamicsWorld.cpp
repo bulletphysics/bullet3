@@ -545,37 +545,6 @@ void	btDiscreteDynamicsWorld::calculateSimulationIslands()
 
 }
 
-static void DrawAabb(btIDebugDraw* debugDrawer,const btVector3& from,const btVector3& to,const btVector3& color)
-{
-
-	btVector3 halfExtents = (to-from)* btScalar(0.5);
-	btVector3 center = (to+from) *btScalar(0.5);
-	int i,j;
-
-	btVector3 edgecoord(btScalar(1.),btScalar(1.),btScalar(1.)),pa,pb;
-	for (i=0;i<4;i++)
-	{
-		for (j=0;j<3;j++)
-		{
-			pa = btVector3(edgecoord[0]*halfExtents[0], edgecoord[1]*halfExtents[1],		
-				edgecoord[2]*halfExtents[2]);
-			pa+=center;
-
-			int othercoord = j%3;
-			edgecoord[othercoord]*=btScalar(-1.);
-			pb = btVector3(edgecoord[0]*halfExtents[0], edgecoord[1]*halfExtents[1],	
-				edgecoord[2]*halfExtents[2]);
-			pb+=center;
-
-			debugDrawer->drawLine(pa,pb,color);
-		}
-		edgecoord = btVector3(btScalar(-1.),btScalar(-1.),btScalar(-1.));
-		if (i<3)
-			edgecoord[i]*=btScalar(-1.);
-	}
-
-
-}
 
 void	btDiscreteDynamicsWorld::updateAabbs()
 {
@@ -620,7 +589,7 @@ void	btDiscreteDynamicsWorld::updateAabbs()
 				}
 				if (m_debugDrawer && (m_debugDrawer->getDebugMode() & btIDebugDraw::DBG_DrawAabb))
 				{
-					DrawAabb(m_debugDrawer,minAabb,maxAabb,colorvec);
+					m_debugDrawer->drawAabb(minAabb,maxAabb,colorvec);
 				}
 			}
 		}
