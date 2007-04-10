@@ -22,28 +22,30 @@ subject to the following restrictions:
 ///IndexedMesh indexes into existing vertex and index arrays, in a similar way OpenGL glDrawElements
 ///instead of the number of indices, we pass the number of triangles
 ///todo: explain with pictures
-struct	btIndexedMesh
-	{
-		int			m_numTriangles;
-		int*		m_triangleIndexBase;
-		int			m_triangleIndexStride;
-		int			m_numVertices;
-		btScalar*		m_vertexBase;
-		int			m_vertexStride;
-	};
+ATTRIBUTE_ALIGNED16( struct)	btIndexedMesh
+{
+	int			m_numTriangles;
+	const unsigned char *		m_triangleIndexBase;
+	int			m_triangleIndexStride;
+	int			m_numVertices;
+	const unsigned char *		m_vertexBase;
+	int			m_vertexStride;
+}
+;
+
+
+typedef btAlignedObjectArray<btIndexedMesh>	IndexedMeshArray;
 
 ///TriangleIndexVertexArray allows to use multiple meshes, by indexing into existing triangle/index arrays.
 ///Additional meshes can be added using addIndexedMesh
 ///No duplcate is made of the vertex/index data, it only indexes into external vertex/index arrays.
 ///So keep those arrays around during the lifetime of this btTriangleIndexVertexArray.
-class btTriangleIndexVertexArray : public btStridingMeshInterface
+ATTRIBUTE_ALIGNED16( class) btTriangleIndexVertexArray : public btStridingMeshInterface
 {
-	btAlignedObjectArray<btIndexedMesh>	m_indexedMeshes;
+	IndexedMeshArray	m_indexedMeshes;
 
 		
 public:
-
-	
 
 	btTriangleIndexVertexArray()
 	{
@@ -73,10 +75,21 @@ public:
 	virtual int		getNumSubParts() const { 
 		return (int)m_indexedMeshes.size();
 	}
-	
+
+	IndexedMeshArray&	getIndexedMeshArray()
+	{
+		return m_indexedMeshes;
+	}
+
+	const IndexedMeshArray&	getIndexedMeshArray() const
+	{
+		return m_indexedMeshes;
+	}
+
 	virtual void	preallocateVertices(int numverts){}
 	virtual void	preallocateIndices(int numindices){}
 
-};
+}
+;
 
 #endif //BT_TRIANGLE_INDEX_VERTEX_ARRAY_H

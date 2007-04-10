@@ -18,6 +18,7 @@ subject to the following restrictions:
 #include "BulletCollision/CollisionShapes/btBvhTriangleMeshShape.h"
 #include "BulletCollision/CollisionShapes/btOptimizedBvh.h"
 
+
 ///Bvh Concave triangle mesh is a static-triangle mesh shape with Bounding Volume Hierarchy optimization.
 ///Uses an interface to access the triangles to allow for sharing graphics/physics triangles.
 btBvhTriangleMeshShape::btBvhTriangleMeshShape(btStridingMeshInterface* meshInterface, bool useQuantizedAabbCompression)
@@ -94,12 +95,14 @@ void	btBvhTriangleMeshShape::processAllTriangles(btTriangleCallback* callback,co
 				nodeSubPart);
 
 			int* gfxbase = (int*)(indexbase+nodeTriangleIndex*indexstride);
-			
+	
 			const btVector3& meshScaling = m_meshInterface->getScaling();
 			for (int j=2;j>=0;j--)
 			{
 				
 				int graphicsindex = gfxbase[j];
+
+
 #ifdef DEBUG_TRIANGLE_MESH
 				printf("%d ,",graphicsindex);
 #endif //DEBUG_TRIANGLE_MESH

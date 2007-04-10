@@ -25,6 +25,10 @@ class btCylinderShape : public btBoxShape
 
 {
 
+protected:
+
+	int	m_upAxis;
+
 public:
 	btCylinderShape (const btVector3& halfExtents);
 	
@@ -63,9 +67,9 @@ public:
 		return CYLINDER_SHAPE_PROXYTYPE;
 	}
 	
-	virtual int	getUpAxis() const
+	int	getUpAxis() const
 	{
-		return 1;
+		return m_upAxis;
 	}
 
 	virtual btScalar getRadius() const
@@ -90,10 +94,7 @@ public:
 
 	virtual btVector3	localGetSupportingVertexWithoutMargin(const btVector3& vec)const;
 	virtual void	batchedUnitVectorGetSupportingVertexWithoutMargin(const btVector3* vectors,btVector3* supportVerticesOut,int numVectors) const;
-	virtual int	getUpAxis() const
-	{
-		return 0;
-	}
+	
 		//debugging
 	virtual char*	getName()const
 	{

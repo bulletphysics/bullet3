@@ -18,8 +18,7 @@ subject to the following restrictions:
 #include "LinearMath/btAabbUtil2.h"
 #include "LinearMath/btIDebugDraw.h"
 
-//Note: currently we have 16 bytes per quantized node
-static const int MAX_SUBTREE_SIZE_IN_BYTES = 16384;
+
 
 btOptimizedBvh::btOptimizedBvh() : m_useQuantization(false), 
 					m_traversalMode(TRAVERSAL_STACKLESS_CACHE_FRIENDLY)
@@ -178,12 +177,14 @@ void	btOptimizedBvh::refit(btStridingMeshInterface* meshInterface)
 		PHY_ScalarType indicestype;
 		meshInterface->getLockedReadOnlyVertexIndexBase(&vertexbase,numverts,	type,stride,&indexbase,indexstride,numfaces,indicestype,nodeSubPart);
 
-
+		btVector3	triangleVerts[3];
+		btVector3	aabbMin,aabbMax;
+		const btVector3& meshScaling = meshInterface->getScaling();
 		int numNodes = m_curNodeIndex;
 		int i;
 		for (i=numNodes-1;i>=0;i--)
 		{
-			btVector3	triangleVerts[3];
+
 
 			btQuantizedBvhNode& curNode = m_quantizedContiguousNodes[i];
 			if (curNode.isLeafNode())
@@ -194,7 +195,7 @@ void	btOptimizedBvh::refit(btStridingMeshInterface* meshInterface)
 
 				int* gfxbase = (int*)(indexbase+nodeTriangleIndex*indexstride);
 				
-				const btVector3& meshScaling = meshInterface->getScaling();
+				
 				for (int j=2;j>=0;j--)
 				{
 					
@@ -208,7 +209,7 @@ void	btOptimizedBvh::refit(btStridingMeshInterface* meshInterface)
 				}
 
 
-				btVector3	aabbMin,aabbMax;
+				
 				aabbMin.setValue(btScalar(1e30),btScalar(1e30),btScalar(1e30));
 				aabbMax.setValue(btScalar(-1e30),btScalar(-1e30),btScalar(-1e30)); 
 				aabbMin.setMin(triangleVerts[0]);
@@ -220,9 +221,7 @@ void	btOptimizedBvh::refit(btStridingMeshInterface* meshInterface)
 
 				quantizeWithClamp(&curNode.m_quantizedAabbMin[0],aabbMin);
 				quantizeWithClamp(&curNode.m_quantizedAabbMax[0],aabbMax);
-				int k;
-				k=0;
-
+				
 			} else
 			{
 				//combine aabb from both children
@@ -231,8 +230,7 @@ void	btOptimizedBvh::refit(btStridingMeshInterface* meshInterface)
 				
 				btQuantizedBvhNode* rightChildNode = leftChildNode->isLeafNode() ? &m_quantizedContiguousNodes[i+2] :
 					&m_quantizedContiguousNodes[i+1+leftChildNode->getEscapeIndex()];
-				int k;
-				k=0;
+				
 
 				{
 					for (int i=0;i<3;i++)

@@ -20,10 +20,10 @@ btTriangleIndexVertexArray::btTriangleIndexVertexArray(int numTriangles,int* tri
 	btIndexedMesh mesh;
 	
 	mesh.m_numTriangles = numTriangles;
-	mesh.m_triangleIndexBase = triangleIndexBase;
+	mesh.m_triangleIndexBase = (const unsigned char *)triangleIndexBase;
 	mesh.m_triangleIndexStride = triangleIndexStride;
 	mesh.m_numVertices = numVertices;
-	mesh.m_vertexBase = vertexBase;
+	mesh.m_vertexBase = (const unsigned char *)vertexBase;
 	mesh.m_vertexStride = vertexStride;
 	
 	addIndexedMesh(mesh);

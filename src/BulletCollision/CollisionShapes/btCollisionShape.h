@@ -42,11 +42,12 @@ public:
 	///getAngularMotionDisc returns the maximus radius needed for Conservative Advancement to handle time-of-impact with rotations.
 	virtual btScalar	getAngularMotionDisc() const;
 
-	virtual int		getShapeType() const=0;
 
 	///calculateTemporalAabb calculates the enclosing aabb for the moving object over interval [0..timeStep)
 	///result is conservative
 	void calculateTemporalAabb(const btTransform& curTrans,const btVector3& linvel,const btVector3& angvel,btScalar timeStep, btVector3& temporalAabbMin,btVector3& temporalAabbMax);
+
+#ifndef __SPU__
 
 	inline bool	isPolyhedral() const
 	{
@@ -72,13 +73,16 @@ public:
 		return btBroadphaseProxy::isInfinite(getShapeType());
 	}
 
+	virtual int		getShapeType() const=0;
 	virtual void	setLocalScaling(const btVector3& scaling) =0;
 	virtual const btVector3& getLocalScaling() const =0;
-
 	virtual void	calculateLocalInertia(btScalar mass,btVector3& inertia) = 0;
+
 
 //debugging support
 	virtual char*	getName()const =0 ;
+#endif //__SPU__
+
 	const char* getExtraDebugInfo() const { return m_tempDebug;}
 	void  setExtraDebugInfo(const char* extraDebugInfo) { m_tempDebug = extraDebugInfo;}
 	const char * m_tempDebug;

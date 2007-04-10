@@ -30,9 +30,9 @@ struct btConvexCastResult;
 /// btConvexShape is an abstract shape interface.
 /// The explicit part provides plane-equations, the implicit part provides GetClosestPoint interface.
 /// used in combination with GJK or btConvexCast
-class btConvexShape : public btCollisionShape
+ATTRIBUTE_ALIGNED16(class) btConvexShape : public btCollisionShape
 {
-	
+
 protected:
 
 	//local scaling. collisionMargin is not scaled !
@@ -46,11 +46,19 @@ protected:
 public:
 	btConvexShape();
 
+	virtual ~btConvexShape()
+	{
+
+	}
+
+
 	virtual btVector3	localGetSupportingVertex(const btVector3& vec)const;
+#ifndef __SPU__
 	virtual btVector3	localGetSupportingVertexWithoutMargin(const btVector3& vec) const= 0;
 	
 	//notice that the vectors should be unit length
 	virtual void	batchedUnitVectorGetSupportingVertexWithoutMargin(const btVector3* vectors,btVector3* supportVerticesOut,int numVectors) const= 0;
+#endif //#ifndef __SPU__
 
 	const btVector3& getImplicitShapeDimensions() const
 	{
@@ -74,12 +82,21 @@ public:
 		return m_localScaling;
 	}
 
+	const btVector3& getLocalScalingNV() const 
+	{
+		return m_localScaling;
+	}
 
 	virtual void	setMargin(btScalar margin)
 	{
 		m_collisionMargin = margin;
 	}
 	virtual btScalar	getMargin() const
+	{
+		return m_collisionMargin;
+	}
+
+	btScalar	getMarginNV() const
 	{
 		return m_collisionMargin;
 	}
@@ -96,7 +113,8 @@ public:
 
 
 
-};
+}
+;
 
 
 

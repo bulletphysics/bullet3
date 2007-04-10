@@ -40,7 +40,7 @@ class btAlignedObjectArray
 		SIMD_FORCE_INLINE	void	copy(int start,int end, T* dest)
 		{
 			int i;
-			for (i=0;i<m_size;++i)
+			for (i=start;i<end;++i)
 				dest[i] = m_data[i];
 		}
 
@@ -53,7 +53,7 @@ class btAlignedObjectArray
 		SIMD_FORCE_INLINE	void	destroy(int first,int last)
 		{
 			int i;
-			for (i=0; i<m_size;i++)
+			for (i=first; i<last;i++)
 			{
 				m_data[i].~T();
 			}

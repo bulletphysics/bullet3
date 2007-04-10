@@ -34,7 +34,7 @@ class	btCollisionShape;
 /// btCollisionObject can be used to manage collision detection objects. 
 /// btCollisionObject maintains all information that is needed for a collision detection: Shape, Transform and AABB proxy.
 /// They can be added to the btCollisionWorld.
-class	btCollisionObject
+ATTRIBUTE_ALIGNED16(class)	btCollisionObject
 {
 
 protected:
@@ -320,6 +320,7 @@ public:
 		m_userObjectPointer = userPointer;
 	}
 
-};
+}
+;
 
 #endif //COLLISION_OBJECT_H

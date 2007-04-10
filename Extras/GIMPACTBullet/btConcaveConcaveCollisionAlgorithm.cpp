@@ -81,7 +81,7 @@ btConcaveConcaveCollisionAlgorithm::~btConcaveConcaveCollisionAlgorithm()
 void btConcaveConcaveCollisionAlgorithm::clearCache()
 {
     btPersistentManifold* mainfold;
-    for (size_t i=0;i<this->m_mainfoldsPtr.size() ; i++)
+    for (int i=0;i<this->m_mainfoldsPtr.size() ; i++)
     {
     	mainfold = m_mainfoldsPtr[i];
     	m_dispatcher->releaseManifold(mainfold);

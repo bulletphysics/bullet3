@@ -36,7 +36,7 @@ extern ContactDestroyedCallback	gContactDestroyedCallback;
 
 ///btPersistentManifold maintains contact points, and reduces them to 4.
 ///It does contact filtering/contact reduction.
-class btPersistentManifold 
+ATTRIBUTE_ALIGNED16( class) btPersistentManifold 
 {
 
 	btManifoldPoint m_pointCache[MANIFOLD_CACHE_SIZE];
@@ -145,7 +145,8 @@ public:
 
 
 
-};
+}
+;
 
 
 

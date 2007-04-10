@@ -43,6 +43,17 @@ subject to the following restrictions:
 		#define btFullAssert(x)
 #else
 	
+#if defined	(__CELLOS_LV2__)
+		#define SIMD_FORCE_INLINE inline
+		#define ATTRIBUTE_ALIGNED16(a) a __attribute__ ((aligned (16)))
+		#ifndef assert
+		#include <assert.h>
+		#endif
+		#define btAssert assert
+		//btFullAssert is optional, slows down a lot
+		#define btFullAssert(x)
+#else
+
 	//non-windows systems
 
 		#define SIMD_FORCE_INLINE inline
@@ -53,6 +64,7 @@ subject to the following restrictions:
 		#define btAssert assert
 		//btFullAssert is optional, slows down a lot
 		#define btFullAssert(x)
+#endif	//__CELLOS_LV2__
 #endif
 
 /// older compilers (gcc 3.x) and Sun needs double version of sqrt etc.

@@ -16,7 +16,8 @@ subject to the following restrictions:
 #include "LinearMath/btPoint3.h"
 
 btCylinderShape::btCylinderShape (const btVector3& halfExtents)
-:btBoxShape(halfExtents)
+:btBoxShape(halfExtents),
+m_upAxis(1)
 {
 	recalcLocalAabb();
 }
@@ -25,6 +26,7 @@ btCylinderShape::btCylinderShape (const btVector3& halfExtents)
 btCylinderShapeX::btCylinderShapeX (const btVector3& halfExtents)
 :btCylinderShape(halfExtents)
 {
+	m_upAxis = 0;
 	recalcLocalAabb();
 }
 
@@ -32,6 +34,7 @@ btCylinderShapeX::btCylinderShapeX (const btVector3& halfExtents)
 btCylinderShapeZ::btCylinderShapeZ (const btVector3& halfExtents)
 :btCylinderShape(halfExtents)
 {
+	m_upAxis = 2;
 	recalcLocalAabb();
 }
 

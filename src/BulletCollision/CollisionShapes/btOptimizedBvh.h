@@ -26,10 +26,13 @@ subject to the following restrictions:
 
 class btStridingMeshInterface;
 
+//Note: currently we have 16 bytes per quantized node
+#define MAX_SUBTREE_SIZE_IN_BYTES  2048
+
 
 ///btQuantizedBvhNode is a compressed aabb node, 16 bytes.
 ///Node can be used for leafnode or internal node. Leafnodes can point to 32-bit triangle index (non-negative range).
-ATTRIBUTE_ALIGNED16	(struct btQuantizedBvhNode)
+ATTRIBUTE_ALIGNED16	(struct) btQuantizedBvhNode
 {
 	
 	//12 bytes
@@ -53,11 +56,12 @@ ATTRIBUTE_ALIGNED16	(struct btQuantizedBvhNode)
 		btAssert(isLeafNode());
 		return m_escapeIndexOrTriangleIndex;
 	}
-};
+}
+;
 
 /// btOptimizedBvhNode contains both internal and leaf node information.
 /// Total node size is 44 bytes / node. You can use the compressed version of 16 bytes.
-ATTRIBUTE_ALIGNED16 (struct btOptimizedBvhNode)
+ATTRIBUTE_ALIGNED16 (struct) btOptimizedBvhNode
 {
 	//32 bytes
 	btVector3	m_aabbMinOrg;
@@ -74,6 +78,30 @@ ATTRIBUTE_ALIGNED16 (struct btOptimizedBvhNode)
 };
 
 
+///btBvhSubtreeInfo provides info to gather a subtree of limited size
+ATTRIBUTE_ALIGNED16(class) btBvhSubtreeInfo
+{
+public:
+	//12 bytes
+	unsigned short int	m_quantizedAabbMin[3];
+	unsigned short int	m_quantizedAabbMax[3];
+	//4 bytes, points to the root of the subtree
+	int			m_rootNodeIndex;
+	//4 bytes
+	int			m_subtreeSize;
+
+	void	setAabbFromQuantizeNode(const btQuantizedBvhNode& quantizedNode)
+	{
+		m_quantizedAabbMin[0] = quantizedNode.m_quantizedAabbMin[0];
+		m_quantizedAabbMin[1] = quantizedNode.m_quantizedAabbMin[1];
+		m_quantizedAabbMin[2] = quantizedNode.m_quantizedAabbMin[2];
+		m_quantizedAabbMax[0] = quantizedNode.m_quantizedAabbMax[0];
+		m_quantizedAabbMax[1] = quantizedNode.m_quantizedAabbMax[1];
+		m_quantizedAabbMax[2] = quantizedNode.m_quantizedAabbMax[2];
+	}
+}
+;
+
 
 class btNodeOverlapCallback
 {
@@ -88,13 +116,14 @@ public:
 
 
 
-
+///for code readability:
 typedef btAlignedObjectArray<btOptimizedBvhNode>	NodeArray;
-
 typedef btAlignedObjectArray<btQuantizedBvhNode>	QuantizedNodeArray;
+typedef btAlignedObjectArray<btBvhSubtreeInfo>		BvhSubtreeInfoArray;
+
 
 ///OptimizedBvh store an AABB tree that can be quickly traversed on CPU (and SPU,GPU in future)
-ATTRIBUTE_ALIGNED16(class btOptimizedBvh)
+ATTRIBUTE_ALIGNED16(class) btOptimizedBvh
 {
 	NodeArray			m_leafNodes;
 	NodeArray			m_contiguousNodes;
@@ -121,30 +150,10 @@ ATTRIBUTE_ALIGNED16(class btOptimizedBvh)
 
 	btTraversalMode	m_traversalMode;
 
-	///btBvhSubtreeInfo provides info to gather a subtree of limited size
-	class btBvhSubtreeInfo
-	{
-	public:
-		//12 bytes
-		unsigned short int	m_quantizedAabbMin[3];
-		unsigned short int	m_quantizedAabbMax[3];
-		//4 bytes, points to the root of the subtree
-		int			m_rootNodeIndex;
-		//4 bytes
-		int			m_subtreeSize;
+	
 
-		void	setAabbFromQuantizeNode(const btQuantizedBvhNode& quantizedNode)
-		{
-			m_quantizedAabbMin[0] = quantizedNode.m_quantizedAabbMin[0];
-			m_quantizedAabbMin[1] = quantizedNode.m_quantizedAabbMin[1];
-			m_quantizedAabbMin[2] = quantizedNode.m_quantizedAabbMin[2];
-			m_quantizedAabbMax[0] = quantizedNode.m_quantizedAabbMax[0];
-			m_quantizedAabbMax[1] = quantizedNode.m_quantizedAabbMax[1];
-			m_quantizedAabbMax[2] = quantizedNode.m_quantizedAabbMax[2];
-		}
-	};
 
-	btAlignedObjectArray<btBvhSubtreeInfo>	m_SubtreeHeaders;
+	BvhSubtreeInfoArray		m_SubtreeHeaders;
 
 
 	///two versions, one for quantized and normal nodes. This allows code-reuse while maintaining readability (no template/macro!)
@@ -295,7 +304,19 @@ public:
 	}
 
 	void	refit(btStridingMeshInterface* triangles);
-};
+
+	QuantizedNodeArray&	getQuantizedNodeArray()
+	{	
+		return	m_quantizedContiguousNodes;
+	}
+
+	BvhSubtreeInfoArray&	getSubtreeInfoArray()
+	{
+		return m_SubtreeHeaders;
+	}
+
+}
+;
 
 
 #endif //OPTIMIZED_BVH_H

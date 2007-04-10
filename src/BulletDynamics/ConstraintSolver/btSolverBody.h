@@ -23,7 +23,7 @@ class	btRigidBody;
 
 
 
-ATTRIBUTE_ALIGNED16 (struct	btSolverBody)
+ATTRIBUTE_ALIGNED16 (struct)	btSolverBody
 {
 	btVector3		m_centerOfMassPosition;
 	btVector3		m_linearVelocity;

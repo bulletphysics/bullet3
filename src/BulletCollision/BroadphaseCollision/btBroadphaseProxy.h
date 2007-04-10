@@ -62,7 +62,7 @@ CONCAVE_SHAPES_END_HERE,
 
 
 ///btBroadphaseProxy
-struct btBroadphaseProxy
+ATTRIBUTE_ALIGNED16(struct) btBroadphaseProxy
 {
 	
 	///optional filtering to cull potential collisions
@@ -115,7 +115,8 @@ struct btBroadphaseProxy
 		return (proxyType == STATIC_PLANE_PROXYTYPE);
 	}
 	
-};
+}
+;
 
 class btCollisionAlgorithm;
 
@@ -130,14 +131,16 @@ struct btBroadphasePair
 		:
 	m_pProxy0(0),
 		m_pProxy1(0),
-		m_algorithm(0)
+		m_algorithm(0),
+		m_userInfo(0)
 	{
 	}
 
 	btBroadphasePair(const btBroadphasePair& other)
 		:		m_pProxy0(other.m_pProxy0),
 				m_pProxy1(other.m_pProxy1),
-				m_algorithm(other.m_algorithm)
+				m_algorithm(other.m_algorithm),
+				m_userInfo(other.m_userInfo)
 	{
 	}
 	btBroadphasePair(btBroadphaseProxy& proxy0,btBroadphaseProxy& proxy1)
@@ -156,6 +159,7 @@ struct btBroadphasePair
         }
 
 		m_algorithm = 0;
+		m_userInfo = 0;
 
 	}
 	
@@ -163,6 +167,8 @@ struct btBroadphasePair
 	btBroadphaseProxy* m_pProxy1;
 	
 	mutable btCollisionAlgorithm* m_algorithm;
+	mutable void* m_userInfo;
+
 };
 
 /*

@@ -19,11 +19,10 @@ subject to the following restrictions:
 
 #include "btQuadWord.h"
 
-
-///btVector3 is 16byte aligned, and has an extra unused component m_w
-///this extra component can be used by derived classes (Quaternion?) or by user
-class btVector3 : public btQuadWord {
-
+///btVector3 can be used to represent 3D points and vectors.
+///It has an un-used w component to suit 16-byte alignment when btVector3 is stored in containers. This extra component can be used by derived classes (Quaternion?) or by user
+///Ideally, this class should be replaced by a platform optimized SIMD version that keeps the data in registers
+class	btVector3 : public btQuadWord {
 
 public:
 	SIMD_FORCE_INLINE btVector3() {}

@@ -21,7 +21,8 @@ subject to the following restrictions:
 
 
 
-ATTRIBUTE_ALIGNED16 (class	btQuadWord)
+///btQuadWord is base-class for vectors, points
+class	btQuadWord
 {
 	protected:
 		btScalar	m_x;

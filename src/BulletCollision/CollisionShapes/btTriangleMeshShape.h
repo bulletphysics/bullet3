@@ -58,6 +58,16 @@ public:
 	virtual void	setLocalScaling(const btVector3& scaling);
 	virtual const btVector3& getLocalScaling() const;
 	
+	btStridingMeshInterface* getMeshInterface()
+	{
+		return m_meshInterface;
+	}
+
+	const btStridingMeshInterface* getMeshInterface() const
+	{
+		return m_meshInterface;
+	}
+
 
 	//debugging
 	virtual char*	getName()const {return "TRIANGLEMESH";}

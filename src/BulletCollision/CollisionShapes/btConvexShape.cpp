@@ -15,6 +15,7 @@ subject to the following restrictions:
 
 #include "btConvexShape.h"
 
+
 btConvexShape::btConvexShape()
 : m_localScaling(btScalar(1.),btScalar(1.),btScalar(1.)),
 m_collisionMargin(CONVEX_DISTANCE_MARGIN)
@@ -48,8 +49,11 @@ void	btConvexShape::getAabbSlow(const btTransform& trans,btVector3&minAabb,btVec
 	}
 };
 
+
 btVector3	btConvexShape::localGetSupportingVertex(const btVector3& vec)const
- {
+{
+#ifndef __SPU__
+
 	 btVector3	supVertex = localGetSupportingVertexWithoutMargin(vec);
 
 	if ( getMargin()!=btScalar(0.) )
@@ -63,6 +67,10 @@ btVector3	btConvexShape::localGetSupportingVertex(const btVector3& vec)const
 		supVertex+= getMargin() * vecnorm;
 	}
 	return supVertex;
+
+#else
+	return btVector3(0,0,0);
+#endif //__SPU__
 
  }
 

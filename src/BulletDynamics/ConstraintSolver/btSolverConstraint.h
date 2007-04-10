@@ -25,7 +25,7 @@ class	btRigidBody;
 //#define NO_FRICTION_TANGENTIALS 1
 
 ///1D constraint along a normal axis between bodyA and bodyB. It can be combined to solve contact and friction constraints.
-ATTRIBUTE_ALIGNED16 (struct	btSolverConstraint)
+ATTRIBUTE_ALIGNED16 (struct)	btSolverConstraint
 {
 	btVector3	m_relpos1CrossNormal;
 	btVector3	m_relpos2CrossNormal;
