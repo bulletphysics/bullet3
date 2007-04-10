@@ -32,6 +32,9 @@ public:
 	btBvhTriangleMeshShape() :btTriangleMeshShape(0) {};
 	btBvhTriangleMeshShape(btStridingMeshInterface* meshInterface, bool useQuantizedAabbCompression);
 
+	///optionally pass in a larger bvh aabb, used for quantization. This allows for deformations within this aabb
+	btBvhTriangleMeshShape(btStridingMeshInterface* meshInterface, bool useQuantizedAabbCompression,const btVector3& bvhAabbMin,const btVector3& bvhAabbMax);
+	
 	virtual ~btBvhTriangleMeshShape();
 
 	
@@ -47,6 +50,9 @@ public:
 	virtual void	processAllTriangles(btTriangleCallback* callback,const btVector3& aabbMin,const btVector3& aabbMax) const;
 
 	void	refitTree();
+
+	///for a fast incremental refit of parts of the tree. Note: the entire AABB of the tree will become more conservative, it never shrinks
+	void	partialRefitTree(const btVector3& aabbMin,const btVector3& aabbMax);
 
 	//debugging
 	virtual char*	getName()const {return "BVHTRIANGLEMESH";}

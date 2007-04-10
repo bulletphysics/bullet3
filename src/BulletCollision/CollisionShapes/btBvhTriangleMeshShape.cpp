@@ -28,11 +28,35 @@ btBvhTriangleMeshShape::btBvhTriangleMeshShape(btStridingMeshInterface* meshInte
 #ifndef DISABLE_BVH
 
 	m_bvh = new btOptimizedBvh();
-	m_bvh->build(meshInterface,m_useQuantizedAabbCompression);
+	btVector3 bvhAabbMin,bvhAabbMax;
+	meshInterface->calculateAabbBruteForce(bvhAabbMin,bvhAabbMax);
+	m_bvh->build(meshInterface,m_useQuantizedAabbCompression,bvhAabbMin,bvhAabbMax);
 
 #endif //DISABLE_BVH
 
 }
+
+btBvhTriangleMeshShape::btBvhTriangleMeshShape(btStridingMeshInterface* meshInterface, bool useQuantizedAabbCompression,const btVector3& bvhAabbMin,const btVector3& bvhAabbMax)
+:btTriangleMeshShape(meshInterface),m_useQuantizedAabbCompression(useQuantizedAabbCompression)
+{
+	//construct bvh from meshInterface
+#ifndef DISABLE_BVH
+
+	m_bvh = new btOptimizedBvh();
+	m_bvh->build(meshInterface,m_useQuantizedAabbCompression,bvhAabbMin,bvhAabbMax);
+
+#endif //DISABLE_BVH
+
+}
+
+void	btBvhTriangleMeshShape::partialRefitTree(const btVector3& aabbMin,const btVector3& aabbMax)
+{
+	m_bvh->refitPartial( m_meshInterface,aabbMin,aabbMax );
+	
+	m_localAabbMin.setMin(aabbMin);
+	m_localAabbMax.setMax(aabbMax);
+}
+
 
 void	btBvhTriangleMeshShape::refitTree()
 {
@@ -140,8 +164,12 @@ void	btBvhTriangleMeshShape::setLocalScaling(const btVector3& scaling)
 	{
 		btTriangleMeshShape::setLocalScaling(scaling);
 		delete m_bvh;
+		///rescale aabb, instead of calculating?
+		m_localAabbMin*=scaling;
+		m_localAabbMax*=scaling;
 		m_bvh = new btOptimizedBvh();
-		m_bvh->build(m_meshInterface,m_useQuantizedAabbCompression);
 		//rebuild the bvh...
+		m_bvh->build(m_meshInterface,m_useQuantizedAabbCompression,m_localAabbMin,m_localAabbMax);
+
 	}
 }

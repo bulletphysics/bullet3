@@ -201,9 +201,7 @@ ATTRIBUTE_ALIGNED16(class) btOptimizedBvh
 		
 	}
 
-	void	initQuantizationValues(btStridingMeshInterface* triangles);
-
-	
+	void	setQuantizationValues(const btVector3& bvhAabbMin,const btVector3& bvhAabbMax);
 	
 	void	setInternalNodeEscapeIndex(int nodeIndex, int escapeIndex)
 	{
@@ -287,7 +285,7 @@ public:
 
 	virtual ~btOptimizedBvh();
 
-	void	build(btStridingMeshInterface* triangles,bool useQuantizedAabbCompression);
+	void	build(btStridingMeshInterface* triangles,bool useQuantizedAabbCompression, const btVector3& bvhAabbMin, const btVector3& bvhAabbMax);
 
 	void	reportAabbOverlappingNodex(btNodeOverlapCallback* nodeCallback,const btVector3& aabbMin,const btVector3& aabbMax) const;
 
@@ -304,6 +302,11 @@ public:
 	}
 
 	void	refit(btStridingMeshInterface* triangles);
+
+	void	refitPartial(btStridingMeshInterface* triangles,const btVector3& aabbMin, const btVector3& aabbMax);
+
+	void	updateBvhNodes(btStridingMeshInterface* meshInterface,int firstNode,int endNode);
+
 
 	QuantizedNodeArray&	getQuantizedNodeArray()
 	{	

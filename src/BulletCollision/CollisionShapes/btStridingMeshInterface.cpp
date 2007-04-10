@@ -83,3 +83,37 @@ void	btStridingMeshInterface::InternalProcessAllTriangles(btInternalTriangleInde
 	}
 }
 
+void	btStridingMeshInterface::calculateAabbBruteForce(btVector3& aabbMin,btVector3& aabbMax)
+{
+
+	struct	AabbCalculationCallback : public btInternalTriangleIndexCallback
+	{
+		btVector3	m_aabbMin;
+		btVector3	m_aabbMax;
+
+		AabbCalculationCallback()
+		{
+			m_aabbMin.setValue(btScalar(1e30),btScalar(1e30),btScalar(1e30));
+			m_aabbMax.setValue(btScalar(-1e30),btScalar(-1e30),btScalar(-1e30));
+		}
+
+		virtual void internalProcessTriangleIndex(btVector3* triangle,int partId,int  triangleIndex)
+		{
+			m_aabbMin.setMin(triangle[0]);
+			m_aabbMax.setMax(triangle[0]);
+			m_aabbMin.setMin(triangle[1]);
+			m_aabbMax.setMax(triangle[1]);
+			m_aabbMin.setMin(triangle[2]);
+			m_aabbMax.setMax(triangle[2]);
+		}
+	};
+
+		//first calculate the total aabb for all triangles
+	AabbCalculationCallback	aabbCallback;
+	aabbMin.setValue(btScalar(-1e30),btScalar(-1e30),btScalar(-1e30));
+	aabbMax.setValue(btScalar(1e30),btScalar(1e30),btScalar(1e30));
+	InternalProcessAllTriangles(&aabbCallback,aabbMin,aabbMax);
+
+	aabbMin = aabbCallback.m_aabbMin;
+	aabbMax = aabbCallback.m_aabbMax;
+}

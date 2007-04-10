@@ -29,7 +29,7 @@ btOptimizedBvh::btOptimizedBvh() : m_useQuantization(false),
 }
 
 
-void btOptimizedBvh::build(btStridingMeshInterface* triangles, bool useQuantizedAabbCompression)
+void btOptimizedBvh::build(btStridingMeshInterface* triangles, bool useQuantizedAabbCompression, const btVector3& bvhAabbMin, const btVector3& bvhAabbMax)
 {
 	m_useQuantization = useQuantizedAabbCompression;
 
@@ -114,7 +114,8 @@ void btOptimizedBvh::build(btStridingMeshInterface* triangles, bool useQuantized
 	if (m_useQuantization)
 	{
 
-		initQuantizationValues(triangles);
+		//initialize quantization values
+		setQuantizationValues(bvhAabbMin,bvhAabbMax);
 
 		QuantizedNodeTriangleCallback	callback(m_quantizedLeafNodes,this);
 
@@ -158,15 +159,53 @@ void btOptimizedBvh::build(btStridingMeshInterface* triangles, bool useQuantized
 }
 
 
-void	btOptimizedBvh::refit(btStridingMeshInterface* meshInterface)
+
+void	btOptimizedBvh::refitPartial(btStridingMeshInterface* meshInterface,const btVector3& aabbMin,const btVector3& aabbMax)
 {
-	if (m_useQuantization)
+	//incrementally initialize quantization values
+	btAssert(m_useQuantization);
+
+	btAssert(aabbMin.getX() > m_bvhAabbMin.getX());
+	btAssert(aabbMin.getY() > m_bvhAabbMin.getY());
+	btAssert(aabbMin.getZ() > m_bvhAabbMin.getZ());
+
+	btAssert(aabbMax.getX() < m_bvhAabbMax.getX());
+	btAssert(aabbMax.getY() < m_bvhAabbMax.getY());
+	btAssert(aabbMax.getZ() < m_bvhAabbMax.getZ());
+
+	///we should update all quantization values, using updateBvhNodes(meshInterface);
+	///but we only update chunks that overlap the given aabb
+	
+	unsigned short	quantizedQueryAabbMin[3];
+	unsigned short	quantizedQueryAabbMax[3];
+
+	quantizeWithClamp(&quantizedQueryAabbMin[0],aabbMin);
+	quantizeWithClamp(&quantizedQueryAabbMax[0],aabbMax);
+
+	int i;
+	for (i=0;i<this->m_SubtreeHeaders.size();i++)
 	{
-		int nodeSubPart=0;
+		btBvhSubtreeInfo& subtree = m_SubtreeHeaders[i];
 
-		initQuantizationValues(meshInterface);
+		bool overlap = testQuantizedAabbAgainstQuantizedAabb(quantizedQueryAabbMin,quantizedQueryAabbMax,subtree.m_quantizedAabbMin,subtree.m_quantizedAabbMax);
+		if (overlap)
+		{
+			updateBvhNodes(meshInterface,subtree.m_rootNodeIndex,subtree.m_rootNodeIndex+subtree.m_subtreeSize);
 
-		//get access info to trianglemesh data
+			subtree.setAabbFromQuantizeNode(m_quantizedContiguousNodes[subtree.m_rootNodeIndex]);
+		}
+	}
+	
+}
+
+
+void	btOptimizedBvh::updateBvhNodes(btStridingMeshInterface* meshInterface,int firstNode,int endNode)
+{
+	btAssert(m_useQuantization);
+
+	int nodeSubPart=0;
+
+	//get access info to trianglemesh data
 		const unsigned char *vertexbase;
 		int numverts;
 		PHY_ScalarType type;
@@ -180,9 +219,9 @@ void	btOptimizedBvh::refit(btStridingMeshInterface* meshInterface)
 		btVector3	triangleVerts[3];
 		btVector3	aabbMin,aabbMax;
 		const btVector3& meshScaling = meshInterface->getScaling();
-		int numNodes = m_curNodeIndex;
+		
 		int i;
-		for (i=numNodes-1;i>=0;i--)
+		for (i=endNode-1;i>=firstNode;i--)
 		{
 
 
@@ -250,61 +289,47 @@ void	btOptimizedBvh::refit(btStridingMeshInterface* meshInterface)
 
 		meshInterface->unLockReadOnlyVertexBase(nodeSubPart);
 
+		
+}
+
+void	btOptimizedBvh::setQuantizationValues(const btVector3& bvhAabbMin,const btVector3& bvhAabbMax)
+{
+	m_bvhAabbMin = bvhAabbMin;
+	m_bvhAabbMax = bvhAabbMax;
+	btVector3 aabbSize = m_bvhAabbMax - m_bvhAabbMin;
+	m_bvhQuantization = btVector3(btScalar(65535.0),btScalar(65535.0),btScalar(65535.0)) / aabbSize;
+}
+
+
+void	btOptimizedBvh::refit(btStridingMeshInterface* meshInterface)
+{
+	if (m_useQuantization)
+	{
+		//calculate new aabb
+		btVector3 aabbMin,aabbMax;
+		meshInterface->calculateAabbBruteForce(aabbMin,aabbMax);
+
+		setQuantizationValues(aabbMin,aabbMax);
+
+		updateBvhNodes(meshInterface,0,m_curNodeIndex);
+
 		///now update all subtree headers
 
-
+		int i;
 		for (i=0;i<m_SubtreeHeaders.size();i++)
 		{
 			btBvhSubtreeInfo& subtree = m_SubtreeHeaders[i];
 			subtree.setAabbFromQuantizeNode(m_quantizedContiguousNodes[subtree.m_rootNodeIndex]);
 		}
+
 	} else
 	{
 
 	}
-
 }
 
 
-void	btOptimizedBvh::initQuantizationValues(btStridingMeshInterface* triangles)
-{
 
-	struct	AabbCalculationCallback : public btInternalTriangleIndexCallback
-	{
-		btVector3	m_aabbMin;
-		btVector3	m_aabbMax;
-
-		AabbCalculationCallback()
-		{
-			m_aabbMin.setValue(btScalar(1e30),btScalar(1e30),btScalar(1e30));
-			m_aabbMax.setValue(btScalar(-1e30),btScalar(-1e30),btScalar(-1e30));
-		}
-
-		virtual void internalProcessTriangleIndex(btVector3* triangle,int partId,int  triangleIndex)
-		{
-			m_aabbMin.setMin(triangle[0]);
-			m_aabbMax.setMax(triangle[0]);
-			m_aabbMin.setMin(triangle[1]);
-			m_aabbMax.setMax(triangle[1]);
-			m_aabbMin.setMin(triangle[2]);
-			m_aabbMax.setMax(triangle[2]);
-		}
-	};
-
-		//first calculate the total aabb for all triangles
-	AabbCalculationCallback	aabbCallback;
-	btVector3 aabbMin(btScalar(-1e30),btScalar(-1e30),btScalar(-1e30));
-	btVector3 aabbMax(btScalar(1e30),btScalar(1e30),btScalar(1e30));
-	triangles->InternalProcessAllTriangles(&aabbCallback,aabbMin,aabbMax);
-
-	//initialize quantization values
-	m_bvhAabbMin = aabbCallback.m_aabbMin;
-	m_bvhAabbMax = aabbCallback.m_aabbMax;
-	btVector3 aabbSize = m_bvhAabbMax - m_bvhAabbMin;
-	m_bvhQuantization = btVector3(btScalar(65535.0),btScalar(65535.0),btScalar(65535.0)) / aabbSize;
-
-
-}
 btOptimizedBvh::~btOptimizedBvh()
 {
 }
