@@ -43,13 +43,13 @@ class btDynamicsWorld : public btCollisionWorld
 			
 		virtual void	updateAabbs() = 0;
 				
-		virtual void	addConstraint(btTypedConstraint* constraint) {};
+		virtual void	addConstraint(btTypedConstraint* constraint) { (void)constraint;};
 
-		virtual void	removeConstraint(btTypedConstraint* constraint) {};
+		virtual void	removeConstraint(btTypedConstraint* constraint) {(void)constraint;};
 
-		virtual void	addVehicle(btRaycastVehicle* vehicle) {};
+		virtual void	addVehicle(btRaycastVehicle* vehicle) {(void)vehicle;};
 
-		virtual void	removeVehicle(btRaycastVehicle* vehicle) {};
+		virtual void	removeVehicle(btRaycastVehicle* vehicle) {(void)vehicle;};
 
 
 		virtual void	setDebugDrawer(btIDebugDraw*	debugDrawer) = 0;
@@ -68,9 +68,9 @@ class btDynamicsWorld : public btCollisionWorld
 		
 		virtual	int		getNumConstraints() const {	return 0;		}
 		
-		virtual btTypedConstraint* getConstraint(int index)		{			return 0;		}
+		virtual btTypedConstraint* getConstraint(int index)		{	(void)index;		return 0;		}
 		
-		virtual const btTypedConstraint* getConstraint(int index) const	{		return 0;	}
+		virtual const btTypedConstraint* getConstraint(int index) const	{	(void)index;	return 0;	}
 
 };
 

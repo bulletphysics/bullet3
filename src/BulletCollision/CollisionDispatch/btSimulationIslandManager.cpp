@@ -140,7 +140,7 @@ void btSimulationIslandManager::buildAndProcessIslands(btDispatcher* dispatcher,
 
 	
 	
-	if (0)
+	/*if (0)
 	{
 		int maxNumManifolds = dispatcher->getNumManifolds();
 		btCollisionDispatcher* colDis = (btCollisionDispatcher*)dispatcher;
@@ -148,6 +148,8 @@ void btSimulationIslandManager::buildAndProcessIslands(btDispatcher* dispatcher,
 		callback->ProcessIsland(&collisionObjects[0],collisionObjects.size(),manifold,maxNumManifolds, 0);
 		return;
 	}
+	*/
+
 
 	BEGIN_PROFILE("islandUnionFindAndHeapSort");
 	

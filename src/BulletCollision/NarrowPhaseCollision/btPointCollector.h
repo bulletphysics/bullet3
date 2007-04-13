@@ -37,6 +37,10 @@ struct btPointCollector : public btDiscreteCollisionDetectorInterface::Result
 
 	virtual void setShapeIdentifiers(int partId0,int index0,	int partId1,int index1)
 	{
+		(void)partId0;
+		(void)index0;
+		(void)partId1;
+		(void)index1;
 		//??
 	}
 

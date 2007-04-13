@@ -32,6 +32,10 @@ void resolveSingleBilateral(btRigidBody& body1, const btVector3& pos1,
                       btRigidBody& body2, const btVector3& pos2,
                       btScalar distance, const btVector3& normal,btScalar& impulse ,btScalar timeStep)
 {
+	(void)timeStep;
+	(void)distance;
+
+
 	btScalar normalLenSqr = normal.length2();
 	ASSERT2(btFabs(normalLenSqr) < btScalar(1.1));
 	if (normalLenSqr > btScalar(1.1))
@@ -153,6 +157,8 @@ btScalar resolveSingleFriction(
 	const btContactSolverInfo& solverInfo)
 {
 
+	(void)solverInfo;
+
 	const btVector3& pos1 = contactPoint.getPositionWorldOnA();
 	const btVector3& pos2 = contactPoint.getPositionWorldOnB();
 
@@ -233,6 +239,8 @@ btScalar resolveSingleFrictionOriginal(
 	btManifoldPoint& contactPoint,
 	const btContactSolverInfo& solverInfo)
 {
+
+	(void)solverInfo;
 
 	const btVector3& pos1 = contactPoint.getPositionWorldOnA();
 	const btVector3& pos2 = contactPoint.getPositionWorldOnB();
@@ -391,12 +399,19 @@ btScalar resolveSingleCollisionCombined(
 
 	return normalImpulse;
 }
+
 btScalar resolveSingleFrictionEmpty(
 	btRigidBody& body1,
 	btRigidBody& body2,
 	btManifoldPoint& contactPoint,
 	const btContactSolverInfo& solverInfo)
 {
+	(void)contactPoint;
+	(void)body1;
+	(void)body2;
+	(void)solverInfo;
+
+
 	return btScalar(0.);
 };
 

@@ -168,9 +168,10 @@ bool	MatrixToEulerXYZ(const btMatrix3x3& mat,btVector3& xyz)
         xyz[0] = btAtan2(getMatrixElem(mat,3),getMatrixElem(mat,4));
         xyz[1] = SIMD_HALF_PI;
         xyz[2] = 0.0;
-        return false;
+     
     }
-	 return false;
+	 
+	return false;
 }
 
 
@@ -329,12 +330,13 @@ void	btGeneric6DofConstraint::solveConstraint(btScalar	timeStep)
 
 void	btGeneric6DofConstraint::updateRHS(btScalar	timeStep)
 {
+	(void)timeStep;
 
 }
 
 btScalar btGeneric6DofConstraint::computeAngle(int axis) const
 	{
-	btScalar angle;
+	btScalar angle = btScalar(0.f);
 
 	switch (axis)
 		{
@@ -376,9 +378,12 @@ btScalar btGeneric6DofConstraint::computeAngle(int axis) const
 			angle = btAtan2( s, c );
 			}
 			break;
-                  default: assert ( 0 ) ; break ;
+                  default: 
+					  btAssert ( 0 ) ; 
+					  
+					  break ;
 		}
 
-	return angle;
+		return angle;
 	}
 

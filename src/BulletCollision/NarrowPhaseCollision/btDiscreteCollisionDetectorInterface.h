@@ -30,7 +30,6 @@ struct btDiscreteCollisionDetectorInterface
 	
 	struct Result
 	{
-		void operator delete(void* ptr) {};
 	
 		virtual ~Result(){}	
 

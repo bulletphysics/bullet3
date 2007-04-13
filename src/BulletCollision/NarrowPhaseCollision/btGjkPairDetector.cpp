@@ -91,7 +91,8 @@ void btGjkPairDetector::getClosestPoints(const ClosestPointInput& input,Result& 
 
 		m_simplexSolver->reset();
 		
-		while (true)
+		for ( ; ; )
+		//while (true)
 		{
 
 			btVector3 seperatingAxisInA = (-m_cachedSeparatingAxis)* input.m_transformA.getBasis();

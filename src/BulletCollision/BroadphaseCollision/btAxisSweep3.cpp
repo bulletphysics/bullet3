@@ -23,6 +23,7 @@
 
 btBroadphaseProxy*	btAxisSweep3::createProxy(  const btVector3& min,  const btVector3& max,int shapeType,void* userPtr,short int collisionFilterGroup,short int collisionFilterMask)
 {
+		(void)shapeType;
 		BP_FP_INT_TYPE handleId = addHandle(min,max, userPtr,collisionFilterGroup,collisionFilterMask);
 		
 		Handle* handle = getHandle(handleId);
@@ -72,7 +73,7 @@ btAxisSweep3::btAxisSweep3(const btPoint3& worldAabbMin,const btPoint3& worldAab
 	// handle 0 is reserved as the null index, and is also used as the sentinel
 	m_firstFreeHandle = 1;
 	{
-		for (int i = m_firstFreeHandle; i < maxHandles; i++)
+		for (BP_FP_INT_TYPE i = m_firstFreeHandle; i < maxHandles; i++)
 			m_pHandles[i].SetNextFree(i + 1);
 		m_pHandles[maxHandles - 1].SetNextFree(0);
 	}
@@ -169,10 +170,10 @@ BP_FP_INT_TYPE btAxisSweep3::addHandle(const btPoint3& aabbMin,const btPoint3& a
 	pHandle->m_collisionFilterMask = collisionFilterMask;
 
 	// compute current limit of edge arrays
-	int limit = m_numHandles * 2;
+	BP_FP_INT_TYPE limit = m_numHandles * 2;
 
 	// insert new edges just inside the max boundary edge
-	for (int axis = 0; axis < 3; axis++)
+	for (BP_FP_INT_TYPE axis = 0; axis < 3; axis++)
 	{
 		m_pHandles[0].m_maxEdges[axis] += 2;
 
@@ -229,12 +230,12 @@ void btAxisSweep3::removeHandle(BP_FP_INT_TYPE handle)
 	for ( axis = 0; axis < 3; axis++)
 	{
 		Edge* pEdges = m_pEdges[axis];
-		int max = pHandle->m_maxEdges[axis];
+		BP_FP_INT_TYPE max = pHandle->m_maxEdges[axis];
 		pEdges[max].m_pos = BP_HANDLE_SENTINEL;
 
 		sortMaxUp(axis,max,false);
 		
-		int i = pHandle->m_minEdges[axis];
+		BP_FP_INT_TYPE i = pHandle->m_minEdges[axis];
 		pEdges[i].m_pos = BP_HANDLE_SENTINEL;
 
 		sortMinUp(axis,i,false);

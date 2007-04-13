@@ -37,8 +37,8 @@ class btHingeConstraint : public btTypedConstraint
 
 	bool		m_angularOnly;
 
-	float		m_motorTargetVelocity;
-	float		m_maxMotorImpulse;
+	btScalar		m_motorTargetVelocity;
+	btScalar		m_maxMotorImpulse;
 	bool		m_enableAngularMotor;
 	
 public:
@@ -69,7 +69,7 @@ public:
 		m_angularOnly = angularOnly;
 	}
 
-	void	enableAngularMotor(bool enableMotor,float targetVelocity,float maxMotorImpulse)
+	void	enableAngularMotor(bool enableMotor,btScalar targetVelocity,btScalar maxMotorImpulse)
 	{
 		m_enableAngularMotor  = enableMotor;
 		m_motorTargetVelocity = targetVelocity;

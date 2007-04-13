@@ -26,11 +26,14 @@ btSphereShape ::btSphereShape (btScalar radius)
 
 btVector3	btSphereShape::localGetSupportingVertexWithoutMargin(const btVector3& vec)const
 {
+	(void)vec;
 	return btVector3(btScalar(0.),btScalar(0.),btScalar(0.));
 }
 
 void	btSphereShape::batchedUnitVectorGetSupportingVertexWithoutMargin(const btVector3* vectors,btVector3* supportVerticesOut,int numVectors) const
 {
+	(void)vectors;
+
 	for (int i=0;i<numVectors;i++)
 	{
 		supportVerticesOut[i].setValue(btScalar(0.),btScalar(0.),btScalar(0.));

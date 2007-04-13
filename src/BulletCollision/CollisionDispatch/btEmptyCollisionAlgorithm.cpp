@@ -22,12 +22,11 @@ btEmptyAlgorithm::btEmptyAlgorithm(const btCollisionAlgorithmConstructionInfo& c
 {
 }
 
-void btEmptyAlgorithm::processCollision (btCollisionObject* body0,btCollisionObject* body1,const btDispatcherInfo& dispatchInfo,btManifoldResult* resultOut)
+void btEmptyAlgorithm::processCollision (btCollisionObject* ,btCollisionObject* ,const btDispatcherInfo& ,btManifoldResult* )
 {
-
 }
 
-btScalar btEmptyAlgorithm::calculateTimeOfImpact(btCollisionObject* body0,btCollisionObject* body1,const btDispatcherInfo& dispatchInfo,btManifoldResult* resultOut)
+btScalar btEmptyAlgorithm::calculateTimeOfImpact(btCollisionObject* ,btCollisionObject* ,const btDispatcherInfo& ,btManifoldResult* )
 {
 	return btScalar(1.);
 }

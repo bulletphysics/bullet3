@@ -30,11 +30,10 @@ btHeightfieldTerrainShape::~btHeightfieldTerrainShape()
 
 
 
-void btHeightfieldTerrainShape::getAabb(const btTransform& t,btVector3& aabbMin,btVector3& aabbMax) const
+void btHeightfieldTerrainShape::getAabb(const btTransform& ,btVector3& aabbMin,btVector3& aabbMax) const
 {
 	aabbMin.setValue(btScalar(-1e30),btScalar(-1e30),btScalar(-1e30));
 	aabbMax.setValue(btScalar(1e30),btScalar(1e30),btScalar(1e30));
-
 }
 
 
@@ -42,13 +41,17 @@ void btHeightfieldTerrainShape::getAabb(const btTransform& t,btVector3& aabbMin,
 
 void	btHeightfieldTerrainShape::processAllTriangles(btTriangleCallback* callback,const btVector3& aabbMin,const btVector3& aabbMax) const
 {
+	(void)callback;
+	(void)aabbMax;
+	(void)aabbMin;
 
+	/*
 	btVector3 halfExtents = (aabbMax - aabbMin) * btScalar(0.5);
 	btVector3 center = (aabbMax + aabbMin) * btScalar(0.5);
 	
 	//TODO
 	//this is where the triangles are generated, given AABB and plane equation (normal/constant)
-/*
+
 	btVector3 tangentDir0,tangentDir1;
 
 	//tangentDir0/tangentDir1 can be precalculated
@@ -75,7 +78,7 @@ void	btHeightfieldTerrainShape::processAllTriangles(btTriangleCallback* callback
 
 }
 
-void	btHeightfieldTerrainShape::calculateLocalInertia(btScalar mass,btVector3& inertia)
+void	btHeightfieldTerrainShape::calculateLocalInertia(btScalar ,btVector3& inertia)
 {
 	//moving concave objects not supported
 	

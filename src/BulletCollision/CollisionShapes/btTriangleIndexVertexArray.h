@@ -30,6 +30,7 @@ ATTRIBUTE_ALIGNED16( struct)	btIndexedMesh
 	int			m_numVertices;
 	const unsigned char *		m_vertexBase;
 	int			m_vertexStride;
+	int			pad[2];
 }
 ;
 
@@ -43,6 +44,7 @@ typedef btAlignedObjectArray<btIndexedMesh>	IndexedMeshArray;
 ATTRIBUTE_ALIGNED16( class) btTriangleIndexVertexArray : public btStridingMeshInterface
 {
 	IndexedMeshArray	m_indexedMeshes;
+	int m_pad[3];
 
 		
 public:
@@ -66,9 +68,9 @@ public:
 
 	/// unLockVertexBase finishes the access to a subpart of the triangle mesh
 	/// make a call to unLockVertexBase when the read and write access (using getLockedVertexIndexBase) is finished
-	virtual void	unLockVertexBase(int subpart) {}
+	virtual void	unLockVertexBase(int subpart) {(void)subpart;}
 
-	virtual void	unLockReadOnlyVertexBase(int subpart) const {}
+	virtual void	unLockReadOnlyVertexBase(int subpart) const {(void)subpart;}
 
 	/// getNumSubParts returns the number of seperate subparts
 	/// each subpart has a continuous array of vertices and indices
@@ -86,8 +88,8 @@ public:
 		return m_indexedMeshes;
 	}
 
-	virtual void	preallocateVertices(int numverts){}
-	virtual void	preallocateIndices(int numindices){}
+	virtual void	preallocateVertices(int numverts){(void) numverts;}
+	virtual void	preallocateIndices(int numindices){(void) numindices;}
 
 }
 ;

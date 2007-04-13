@@ -51,6 +51,10 @@ btSimpleDynamicsWorld::~btSimpleDynamicsWorld()
 
 int		btSimpleDynamicsWorld::stepSimulation( btScalar timeStep,int maxSubSteps, btScalar fixedTimeStep)
 {
+	(void)fixedTimeStep;
+	(void)maxSubSteps;
+
+
 	///apply gravity, predict motion
 	predictUnconstraintMotion(timeStep);
 

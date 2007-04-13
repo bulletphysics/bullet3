@@ -36,6 +36,7 @@ struct btCollisionAlgorithmConstructionInfo
 	btCollisionAlgorithmConstructionInfo(btDispatcher* dispatcher,int temp)
 		:m_dispatcher(dispatcher)
 	{
+		(void)temp;
 	}
 
 	btDispatcher*	m_dispatcher;

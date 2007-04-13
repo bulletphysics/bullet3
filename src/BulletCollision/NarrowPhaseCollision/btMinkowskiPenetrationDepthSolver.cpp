@@ -78,6 +78,9 @@ bool btMinkowskiPenetrationDepthSolver::calcPenDepth(btSimplexSolverInterface& s
 												   )
 {
 
+	(void)stackAlloc;
+	(void)v;
+	
 
 	struct btIntermediateResult : public btDiscreteCollisionDetectorInterface::Result
 	{
@@ -93,6 +96,10 @@ bool btMinkowskiPenetrationDepthSolver::calcPenDepth(btSimplexSolverInterface& s
 
 		virtual void setShapeIdentifiers(int partId0,int index0,	int partId1,int index1)
 		{
+			(void)partId0;
+			(void)index0;
+			(void)partId1;
+			(void)index1;
 		}
 		void addContactPoint(const btVector3& normalOnBInWorld,const btVector3& pointInWorld,btScalar depth)
 		{

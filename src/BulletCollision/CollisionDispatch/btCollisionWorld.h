@@ -142,10 +142,10 @@ public:
 		{
 		}
 
-		btCollisionObject*	m_collisionObject;
+		btCollisionObject*		m_collisionObject;
 		LocalShapeInfo*			m_localShapeInfo;
-		const btVector3&		m_hitNormalLocal;
-		btScalar					m_hitFraction;
+		btVector3				m_hitNormalLocal;
+		btScalar				m_hitFraction;
 
 	};
 

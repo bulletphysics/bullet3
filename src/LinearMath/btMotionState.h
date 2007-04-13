@@ -34,10 +34,7 @@ class	btMotionState
 		//Bullet only calls the update of worldtransform for active objects
 		virtual void	setWorldTransform(const btTransform& worldTrans)=0;
 		
-		//future: when Bullet makes attempt to deactivate object, you can intercept this callback (return false to disable deactivation for this object this frame)
-		virtual bool deactivationCallback(void*	userPointer) {
-			return true;
-		}
+	
 };
 
 #endif //BT_MOTIONSTATE_H

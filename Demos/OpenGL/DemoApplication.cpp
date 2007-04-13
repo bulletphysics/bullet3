@@ -227,6 +227,9 @@ void DemoApplication::reshape(int w, int h)
 
 void DemoApplication::keyboardCallback(unsigned char key, int x, int y)
 {
+	(void)x;
+	(void)y;
+
 		m_lastKey = 0;
 
     switch (key) 
@@ -367,6 +370,9 @@ void DemoApplication::keyboardCallback(unsigned char key, int x, int y)
 	
 void DemoApplication::specialKeyboard(int key, int x, int y)	
 {
+	(void)x;
+	(void)y;
+
     switch (key) 
     {
 	case GLUT_KEY_F1:

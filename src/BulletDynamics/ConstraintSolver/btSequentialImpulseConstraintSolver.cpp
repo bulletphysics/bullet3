@@ -42,8 +42,8 @@ int	gTotalContactPoints = 0;
 
 struct	btOrderIndex
 {
-	short int	m_manifoldIndex;
-	short int	m_pointIndex;
+	int	m_manifoldIndex;
+	int	m_pointIndex;
 };
 
 
@@ -124,11 +124,12 @@ m_btSeed2(0)
 
 void	initSolverBody(btSolverBody* solverBody, btRigidBody* rigidbody)
 {
-	int size = sizeof(btSolverBody);
+/*	int size = sizeof(btSolverBody);
 	int sizeofrb = sizeof(btRigidBody);
 	int sizemanifold = sizeof(btPersistentManifold);
 	int sizeofmp = sizeof(btManifoldPoint);
 	int sizeofPersistData = sizeof (btConstraintPersistentData);
+*/
 
 	solverBody->m_angularVelocity = rigidbody->getAngularVelocity();
 	solverBody->m_centerOfMassPosition = rigidbody->getCenterOfMassPosition();
@@ -159,6 +160,8 @@ SIMD_FORCE_INLINE btScalar resolveSingleCollisionCombinedCacheFriendly(
 	btSolverConstraint& contactConstraint,
 	const btContactSolverInfo& solverInfo)
 {
+	(void)solverInfo;
+
 	btScalar normalImpulse(0.f);
 	{
 		if (contactConstraint.m_penetration < 0.f)
@@ -225,6 +228,7 @@ SIMD_FORCE_INLINE btScalar resolveSingleFrictionCacheFriendly(
 	const btContactSolverInfo& solverInfo,
 	btScalar appliedNormalImpulse)
 {
+	(void)solverInfo;
 
 	
 	const btScalar combinedFriction = contactConstraint.m_friction;
@@ -335,6 +339,8 @@ btAlignedObjectArray<btSolverConstraint>	tmpSolverFrictionConstraintPool;
 
 btScalar btSequentialImpulseConstraintSolver::solveGroupCacheFriendly(btCollisionObject** bodies,int numBodies,btPersistentManifold** manifoldPtr, int numManifolds,btTypedConstraint** constraints,int numConstraints,const btContactSolverInfo& infoGlobal,btIDebugDraw* debugDrawer,btStackAlloc* stackAlloc)
 {
+	(void)stackAlloc;
+	(void)debugDrawer;
 
 	if (!(numConstraints + numManifolds))
 	{
@@ -364,7 +370,7 @@ btScalar btSequentialImpulseConstraintSolver::solveGroupCacheFriendly(btCollisio
 	//int sizeofSC = sizeof(btSolverConstraint);
 
 
-	if (1)
+	//if (1)
 	{
 		//if m_stackAlloc, try to pack bodies/constraints to speed up solving
 //		btBlock*					sablock;
@@ -407,8 +413,8 @@ btScalar btSequentialImpulseConstraintSolver::solveGroupCacheFriendly(btCollisio
 				btRigidBody* rb1 = (btRigidBody*)manifold->getBody1();
 
 			
-				int solverBodyIdA;
-				int solverBodyIdB;
+				int solverBodyIdA=-1;
+				int solverBodyIdB=-1;
 
 				if (manifold->getNumContacts())
 				{
@@ -766,13 +772,13 @@ btScalar btSequentialImpulseConstraintSolver::solveGroup(btCollisionObject** bod
 
 
 	{
-		int j;
+		short j;
 		for (j=0;j<numManifolds;j++)
 		{
 			btPersistentManifold* manifold = manifoldPtr[j];
 			prepareConstraints(manifold,info,debugDrawer);
 
-			for (int p=0;p<manifoldPtr[j]->getNumContacts();p++)
+			for (short p=0;p<manifoldPtr[j]->getNumContacts();p++)
 			{
 				gOrder[totalPoints].m_manifoldIndex = j;
 				gOrder[totalPoints].m_pointIndex = p;
@@ -858,6 +864,8 @@ btScalar btSequentialImpulseConstraintSolver::solveGroup(btCollisionObject** bod
 
 void	btSequentialImpulseConstraintSolver::prepareConstraints(btPersistentManifold* manifoldPtr, const btContactSolverInfo& info,btIDebugDraw* debugDrawer)
 {
+
+	(void)debugDrawer;
 
 	btRigidBody* body0 = (btRigidBody*)manifoldPtr->getBody0();
 	btRigidBody* body1 = (btRigidBody*)manifoldPtr->getBody1();
@@ -1116,6 +1124,9 @@ btScalar btSequentialImpulseConstraintSolver::solve(btRigidBody* body0,btRigidBo
 
 btScalar btSequentialImpulseConstraintSolver::solveFriction(btRigidBody* body0,btRigidBody* body1, btManifoldPoint& cp, const btContactSolverInfo& info,int iter,btIDebugDraw* debugDrawer)
 {
+
+	(void)debugDrawer;
+	(void)iter;
 
 
 	{

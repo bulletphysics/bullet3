@@ -37,6 +37,8 @@ public:
 	{
 		virtual	btCollisionAlgorithm* CreateCollisionAlgorithm(btCollisionAlgorithmConstructionInfo& ci, btCollisionObject* body0,btCollisionObject* body1)
 		{
+			(void)body0;
+			(void)body1;
 			return new btEmptyAlgorithm(ci);
 		}
 	};

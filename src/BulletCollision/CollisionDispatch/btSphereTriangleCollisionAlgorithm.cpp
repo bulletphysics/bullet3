@@ -66,6 +66,11 @@ void btSphereTriangleCollisionAlgorithm::processCollision (btCollisionObject* co
 
 btScalar btSphereTriangleCollisionAlgorithm::calculateTimeOfImpact(btCollisionObject* col0,btCollisionObject* col1,const btDispatcherInfo& dispatchInfo,btManifoldResult* resultOut)
 {
+	(void)resultOut;
+	(void)dispatchInfo;
+	(void)col0;
+	(void)col1;
+
 	//not yet
 	return btScalar(1.);
 }

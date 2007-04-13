@@ -93,6 +93,8 @@ public:
 
 	virtual void processTriangle( btVector3* triangle,int partId, int triangleIndex)
 	{
+		(void)partId;
+		(void)triangleIndex;
 		for (int i=0;i<3;i++)
 		{
 			btScalar dot = m_supportVecLocal.dot(triangle[i]);
@@ -176,8 +178,9 @@ void	btTriangleMeshShape::processAllTriangles(btTriangleCallback* callback,const
 
 void	btTriangleMeshShape::calculateLocalInertia(btScalar mass,btVector3& inertia)
 {
+	(void)mass;
 	//moving concave objects not supported
-	assert(0);
+	btAssert(0);
 	inertia.setValue(btScalar(0.),btScalar(0.),btScalar(0.));
 }
 

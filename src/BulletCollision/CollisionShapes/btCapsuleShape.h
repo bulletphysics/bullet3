@@ -26,7 +26,7 @@ class btCapsuleShape : public btConvexShape
 {
 
 public:
-	btCapsuleShape(float radius,float height);
+	btCapsuleShape(btScalar radius,btScalar height);
 
 	///CollisionShape Interface
 	virtual void	calculateLocalInertia(btScalar mass,btVector3& inertia);
@@ -43,12 +43,12 @@ public:
 		return "CapsuleShape";
 	}
 
-	float	getRadius() const
+	btScalar	getRadius() const
 	{
 		return m_implicitShapeDimensions.getX();
 	}
 
-	float	getHalfHeight() const
+	btScalar	getHalfHeight() const
 	{
 		return m_implicitShapeDimensions.getY();
 	}

@@ -24,6 +24,7 @@ btTriangleMesh::btTriangleMesh ()
 
 void	btTriangleMesh::getLockedVertexIndexBase(unsigned char **vertexbase, int& numverts,PHY_ScalarType& type, int& stride,unsigned char **indexbase,int & indexstride,int& numfaces,PHY_ScalarType& indicestype,int subpart)
 {
+	(void)subpart;
 	numverts = m_vertices.size();
 	*vertexbase = (unsigned char*)&m_vertices[0];
 	type = PHY_FLOAT;
@@ -38,6 +39,7 @@ void	btTriangleMesh::getLockedVertexIndexBase(unsigned char **vertexbase, int& n
 
 void	btTriangleMesh::getLockedReadOnlyVertexIndexBase(const unsigned char **vertexbase, int& numverts,PHY_ScalarType& type, int& stride,const unsigned char **indexbase,int & indexstride,int& numfaces,PHY_ScalarType& indicestype,int subpart) const
 {
+	(void)subpart;
 	numverts = m_vertices.size();
 	*vertexbase = (unsigned char*)&m_vertices[0];
 	type = PHY_FLOAT;

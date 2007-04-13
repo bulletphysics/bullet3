@@ -156,6 +156,7 @@ public:
 
 	virtual	void	solveConstraint(btScalar	timeStep)
 	{
+		(void)timeStep;
 		//not yet
 	}
 

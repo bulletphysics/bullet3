@@ -40,6 +40,7 @@ m_pitchControl(btScalar(0.))
 
 void btRaycastVehicle::defaultInit(const btVehicleTuning& tuning)
 {
+	(void)tuning;
 	m_currentVehicleSpeedKmHour = btScalar(0.);
 	m_steeringValue = btScalar(0.);
 	
@@ -397,12 +398,13 @@ btWheelInfo&	btRaycastVehicle::getWheelInfo(int index)
 void btRaycastVehicle::setBrake(btScalar brake,int wheelIndex)
 {
 	btAssert((wheelIndex >= 0) && (wheelIndex < 	getNumWheels()));
-	getWheelInfo(wheelIndex).m_brake;
+	getWheelInfo(wheelIndex).m_brake = brake;
 }
 
 
 void	btRaycastVehicle::updateSuspension(btScalar deltaTime)
 {
+	(void)deltaTime;
 
 	btScalar chassisMass = btScalar(1.) / m_chassisBody->getInvMass();
 	

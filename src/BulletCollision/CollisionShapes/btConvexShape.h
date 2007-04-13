@@ -42,6 +42,10 @@ protected:
 	
 	btScalar	m_collisionMargin;
 
+	btScalar	m_padding[2];
+
+
+
 
 public:
 	btConvexShape();
@@ -108,7 +112,9 @@ public:
 	
 	virtual void	getPreferredPenetrationDirection(int index, btVector3& penetrationVector) const
 	{
-		assert(0);
+		(void)penetrationVector;
+		(void)index;
+		btAssert(0);
 	}
 
 

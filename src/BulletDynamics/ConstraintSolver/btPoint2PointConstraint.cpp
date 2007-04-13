@@ -110,6 +110,7 @@ void	btPoint2PointConstraint::solveConstraint(btScalar	timeStep)
 
 void	btPoint2PointConstraint::updateRHS(btScalar	timeStep)
 {
+	(void)timeStep;
 
 }
 

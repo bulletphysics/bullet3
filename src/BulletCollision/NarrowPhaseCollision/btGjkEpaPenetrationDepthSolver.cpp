@@ -26,6 +26,9 @@ bool btGjkEpaPenetrationDepthSolver::calcPenDepth( btSimplexSolverInterface& sim
 											  class btIDebugDraw* debugDraw, btStackAlloc* stackAlloc )
 {
 
+	(void)debugDraw;
+	(void)v;
+	(void)simplexSolver;
 
 	const btScalar				radialmargin(btScalar(0.));
 	

@@ -62,7 +62,7 @@ CONCAVE_SHAPES_END_HERE,
 
 
 ///btBroadphaseProxy
-ATTRIBUTE_ALIGNED16(struct) btBroadphaseProxy
+struct btBroadphaseProxy
 {
 	
 	///optional filtering to cull potential collisions

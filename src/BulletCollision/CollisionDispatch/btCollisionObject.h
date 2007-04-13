@@ -40,8 +40,6 @@ ATTRIBUTE_ALIGNED16(class)	btCollisionObject
 protected:
 
 	btTransform	m_worldTransform;
-	btBroadphaseProxy*	m_broadphaseHandle;
-	btCollisionShape*		m_collisionShape;
 
 	///m_interpolationWorldTransform is used for CCD and interpolation
 	///it can be either previous or future (predicted) transform
@@ -50,6 +48,8 @@ protected:
 	//without destroying the continuous interpolated motion (which uses this interpolation velocities)
 	btVector3	m_interpolationLinearVelocity;
 	btVector3	m_interpolationAngularVelocity;
+	btBroadphaseProxy*		m_broadphaseHandle;
+	btCollisionShape*		m_collisionShape;
 
 	int				m_collisionFlags;
 
@@ -76,6 +76,8 @@ protected:
 
 	/// Don't do continuous collision detection if square motion (in one step) is less then m_ccdSquareMotionThreshold
 	btScalar			m_ccdSquareMotionThreshold;
+	
+	char	m_pad[8];
 
 public:
 

@@ -48,6 +48,9 @@ public:
 
 	virtual void internalProcessTriangleIndex(btVector3* triangle,int partId,int  triangleIndex)
 	{
+		(void)triangleIndex;
+		(void)partId;
+
 		for (int i=0;i<3;i++)
 		{
 			btScalar dot = m_supportVecLocal.dot(triangle[i]);
@@ -158,14 +161,14 @@ int btConvexTriangleMeshShape::getNumEdges() const
 	return 0;
 }
 
-void btConvexTriangleMeshShape::getEdge(int i,btPoint3& pa,btPoint3& pb) const
+void btConvexTriangleMeshShape::getEdge(int ,btPoint3& ,btPoint3& ) const
 {
-	assert(0);	
+	btAssert(0);	
 }
 
-void btConvexTriangleMeshShape::getVertex(int i,btPoint3& vtx) const
+void btConvexTriangleMeshShape::getVertex(int ,btPoint3& ) const
 {
-	assert(0);
+	btAssert(0);
 }
 
 int	btConvexTriangleMeshShape::getNumPlanes() const
@@ -173,15 +176,15 @@ int	btConvexTriangleMeshShape::getNumPlanes() const
 	return 0;
 }
 
-void btConvexTriangleMeshShape::getPlane(btVector3& planeNormal,btPoint3& planeSupport,int i ) const
+void btConvexTriangleMeshShape::getPlane(btVector3& ,btPoint3& ,int  ) const
 {
-	assert(0);
+	btAssert(0);
 }
 
 //not yet
-bool btConvexTriangleMeshShape::isInside(const btPoint3& pt,btScalar tolerance) const
+bool btConvexTriangleMeshShape::isInside(const btPoint3& ,btScalar ) const
 {
-	assert(0);
+	btAssert(0);
 	return false;
 }
 

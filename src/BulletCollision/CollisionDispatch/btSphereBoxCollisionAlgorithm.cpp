@@ -50,6 +50,8 @@ btSphereBoxCollisionAlgorithm::~btSphereBoxCollisionAlgorithm()
 
 void btSphereBoxCollisionAlgorithm::processCollision (btCollisionObject* body0,btCollisionObject* body1,const btDispatcherInfo& dispatchInfo,btManifoldResult* resultOut)
 {
+	(void)dispatchInfo;
+	(void)resultOut;
 	if (!m_manifoldPtr)
 		return;
 
@@ -83,6 +85,11 @@ void btSphereBoxCollisionAlgorithm::processCollision (btCollisionObject* body0,b
 
 btScalar btSphereBoxCollisionAlgorithm::calculateTimeOfImpact(btCollisionObject* col0,btCollisionObject* col1,const btDispatcherInfo& dispatchInfo,btManifoldResult* resultOut)
 {
+	(void)resultOut;
+	(void)dispatchInfo;
+	(void)col0;
+	(void)col1;
+
 	//not yet
 	return btScalar(1.);
 }

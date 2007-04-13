@@ -318,8 +318,8 @@ void	btDiscreteDynamicsWorld::addRigidBody(btRigidBody* body)
 	if (body->getCollisionShape())
 	{
 		bool isDynamic = !(body->isStaticObject() || body->isKinematicObject());
-		short collisionFilterGroup = isDynamic? btBroadphaseProxy::DefaultFilter : btBroadphaseProxy::StaticFilter;
-		short collisionFilterMask = isDynamic? 	btBroadphaseProxy::AllFilter : 	btBroadphaseProxy::AllFilter ^ btBroadphaseProxy::StaticFilter;
+		short collisionFilterGroup = isDynamic? short(btBroadphaseProxy::DefaultFilter) : short(btBroadphaseProxy::StaticFilter);
+		short collisionFilterMask = isDynamic? 	short(btBroadphaseProxy::AllFilter) : 	short(btBroadphaseProxy::AllFilter ^ btBroadphaseProxy::StaticFilter);
 
 		addCollisionObject(body,collisionFilterGroup,collisionFilterMask);
 	}
@@ -449,6 +449,12 @@ void	btDiscreteDynamicsWorld::solveConstraints(btContactSolverInfo& solverInfo)
 
 		}
 
+		InplaceSolverIslandCallback& operator=(InplaceSolverIslandCallback& other)
+		{
+			btAssert(0);
+			(void)other;
+			return *this;
+		}
 		virtual	void	ProcessIsland(btCollisionObject** bodies,int numBodies,btPersistentManifold**	manifolds,int numManifolds, int islandId)
 		{
 			//also add all non-contact constraints/joints for this island
@@ -646,6 +652,7 @@ void	btDiscreteDynamicsWorld::predictUnconstraintMotion(btScalar timeStep)
 
 void	btDiscreteDynamicsWorld::startProfiling(btScalar timeStep)
 {
+	(void)timeStep;
 	#ifdef USE_QUICKPROF
 
 
@@ -706,6 +713,9 @@ public:
 
 	virtual void processTriangle(btVector3* triangle,int partId, int triangleIndex)
 	{
+		(void)partId;
+		(void)triangleIndex;
+
 		btVector3 wv0,wv1,wv2;
 		wv0 = m_worldTrans*triangle[0];
 		wv1 = m_worldTrans*triangle[1];

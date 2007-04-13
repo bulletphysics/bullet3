@@ -74,6 +74,8 @@ ATTRIBUTE_ALIGNED16 (struct) btOptimizedBvhNode
 	//for child nodes
 	int	m_subPart;
 	int	m_triangleIndex;
+	int	m_padding[5];//bad, due to alignment
+
 
 };
 
@@ -89,6 +91,8 @@ public:
 	int			m_rootNodeIndex;
 	//4 bytes
 	int			m_subtreeSize;
+	int			m_padding[3];
+
 
 	void	setAabbFromQuantizeNode(const btQuantizedBvhNode& quantizedNode)
 	{
@@ -305,7 +309,7 @@ public:
 
 	void	refitPartial(btStridingMeshInterface* triangles,const btVector3& aabbMin, const btVector3& aabbMax);
 
-	void	updateBvhNodes(btStridingMeshInterface* meshInterface,int firstNode,int endNode);
+	void	updateBvhNodes(btStridingMeshInterface* meshInterface,int firstNode,int endNode,int index);
 
 
 	QuantizedNodeArray&	getQuantizedNodeArray()

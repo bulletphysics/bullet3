@@ -155,13 +155,14 @@ int	btConvexHullShape::getNumPlanes() const
 	return 0;
 }
 
-void btConvexHullShape::getPlane(btVector3& planeNormal,btPoint3& planeSupport,int i ) const
+void btConvexHullShape::getPlane(btVector3& ,btPoint3& ,int ) const
 {
-	assert(0);
+
+	btAssert(0);
 }
 
 //not yet
-bool btConvexHullShape::isInside(const btPoint3& pt,btScalar tolerance) const
+bool btConvexHullShape::isInside(const btPoint3& ,btScalar ) const
 {
 	assert(0);
 	return false;

@@ -51,6 +51,7 @@ btScalar	btMinkowskiSumShape::getMargin() const
 
 void	btMinkowskiSumShape::calculateLocalInertia(btScalar mass,btVector3& inertia)
 {
-	assert(0);
+	(void)mass;
+	btAssert(0);
 	inertia.setValue(0,0,0);
 }

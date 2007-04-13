@@ -24,9 +24,9 @@ subject to the following restrictions:
 class btTriangleMeshShape : public btConcaveShape
 {
 protected:
-	btStridingMeshInterface* m_meshInterface;
 	btVector3	m_localAabbMin;
 	btVector3	m_localAabbMax;
+	btStridingMeshInterface* m_meshInterface;
 	
 
 public:

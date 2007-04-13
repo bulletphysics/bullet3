@@ -57,16 +57,16 @@ class btTriangleMesh : public btStridingMeshInterface
 
 		/// unLockVertexBase finishes the access to a subpart of the triangle mesh
 		/// make a call to unLockVertexBase when the read and write access (using getLockedVertexIndexBase) is finished
-		virtual void	unLockVertexBase(int subpart) {}
+		virtual void	unLockVertexBase(int subpart) {(void) subpart;}
 
-		virtual void	unLockReadOnlyVertexBase(int subpart) const {}
+		virtual void	unLockReadOnlyVertexBase(int subpart) const { (void) subpart;}
 
 		/// getNumSubParts returns the number of seperate subparts
 		/// each subpart has a continuous array of vertices and indices
 		virtual int		getNumSubParts() const;
 		
-		virtual void	preallocateVertices(int numverts){}
-		virtual void	preallocateIndices(int numindices){}
+		virtual void	preallocateVertices(int numverts){(void) numverts;}
+		virtual void	preallocateIndices(int numindices){(void) numindices;}
 
 		
 };

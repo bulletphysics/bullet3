@@ -77,6 +77,9 @@ m_ownManifold (false),
 m_manifoldPtr(mf),
 m_lowLevelOfDetail(false)
 {
+	(void)body0;
+	(void)body1;
+
 
 }
 
@@ -156,6 +159,8 @@ void btConvexConvexAlgorithm ::processCollision (btCollisionObject* body0,btColl
 bool disableCcd = false;
 btScalar	btConvexConvexAlgorithm::calculateTimeOfImpact(btCollisionObject* col0,btCollisionObject* col1,const btDispatcherInfo& dispatchInfo,btManifoldResult* resultOut)
 {
+	(void)resultOut;
+	(void)dispatchInfo;
 	///Rather then checking ALL pairs, only calculate TOI when motion exceeds threshold
     
 	///Linear motion for one of objects needs to exceed m_ccdSquareMotionThreshold

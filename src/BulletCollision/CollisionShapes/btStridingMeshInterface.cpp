@@ -23,6 +23,8 @@ btStridingMeshInterface::~btStridingMeshInterface()
 
 void	btStridingMeshInterface::InternalProcessAllTriangles(btInternalTriangleIndexCallback* callback,const btVector3& aabbMin,const btVector3& aabbMax) const
 {
+	(void)aabbMin;
+	(void)aabbMax;
 	int numtotalphysicsverts = 0;
 	int part,graphicssubparts = getNumSubParts();
 	const unsigned char * vertexbase;
@@ -99,6 +101,9 @@ void	btStridingMeshInterface::calculateAabbBruteForce(btVector3& aabbMin,btVecto
 
 		virtual void internalProcessTriangleIndex(btVector3* triangle,int partId,int  triangleIndex)
 		{
+			(void)partId;
+			(void)triangleIndex;
+
 			m_aabbMin.setMin(triangle[0]);
 			m_aabbMax.setMax(triangle[0]);
 			m_aabbMin.setMin(triangle[1]);

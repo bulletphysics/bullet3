@@ -24,7 +24,13 @@ class btTypedConstraint
 {
 	int	m_userConstraintType;
 	int	m_userConstraintId;
-	
+
+	btTypedConstraint&	operator=(btTypedConstraint&	other)
+	{
+		btAssert(0);
+		(void) other;
+		return *this;
+	}
 
 protected:
 	btRigidBody&	m_rbA;

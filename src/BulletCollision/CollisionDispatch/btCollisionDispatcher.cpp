@@ -42,6 +42,7 @@ m_compoundCreateFunc(0),
 m_swappedCompoundCreateFunc(0),
 m_emptyCreateFunc(0)
 {
+	(void)noDefaultAlgorithms;
 	int i;
 
 	setNearCallback(defaultNearCallback);
@@ -293,6 +294,16 @@ public:
 	m_dispatcher(dispatcher)
 	{
 	}
+
+	btCollisionPairCallback& operator=(btCollisionPairCallback& other)
+	{
+		m_dispatchInfo = other.m_dispatchInfo;
+		m_dispatcher = other.m_dispatcher;
+		return *this;
+	}
+
+	virtual ~btCollisionPairCallback() {}
+
 
 	virtual bool	processOverlap(btBroadphasePair& pair)
 	{

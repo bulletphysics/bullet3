@@ -211,6 +211,10 @@ public:
 	virtual void processTriangle(btVector3* triangle,int partId, int triangleIndex)
 	{
 
+		(void)triangleIndex;
+		(void)partId;
+
+
 		if (m_wireframe)
 		{
 			glBegin(GL_LINES);
@@ -243,6 +247,10 @@ class TriangleGlDrawcallback : public btInternalTriangleIndexCallback
 public:
 	virtual void internalProcessTriangleIndex(btVector3* triangle,int partId,int  triangleIndex)
 	{
+		(void)triangleIndex;
+		(void)partId;
+
+
 		glBegin(GL_TRIANGLES);//LINES);
 		glColor3f(1, 0, 0);
 		glVertex3d(triangle[0].getX(), triangle[0].getY(), triangle[0].getZ());
@@ -453,7 +461,7 @@ void GL_ShapeDrawer::drawOpenGL(btScalar* m, const btCollisionShape* shape, cons
 				if (debugMode==btIDebugDraw::DBG_DrawFeaturesText)
 				{
 					glRasterPos3f(0.0,  0.0,  0.0);
-					BMF_DrawString(BMF_GetFont(BMF_kHelvetica10),polyshape->getExtraDebugInfo());
+					//BMF_DrawString(BMF_GetFont(BMF_kHelvetica10),polyshape->getExtraDebugInfo());
 
 					glColor3f(1.f, 1.f, 1.f);
 					for (i=0;i<polyshape->getNumVertices();i++)
@@ -544,7 +552,7 @@ void GL_ShapeDrawer::drawOpenGL(btScalar* m, const btCollisionShape* shape, cons
 
 		if (debugMode& btIDebugDraw::DBG_DrawFeaturesText)
 		{
-			BMF_DrawString(BMF_GetFont(BMF_kHelvetica10),shape->getExtraDebugInfo());
+			//BMF_DrawString(BMF_GetFont(BMF_kHelvetica10),shape->getExtraDebugInfo());
 		}
 		glEnable(GL_DEPTH_BUFFER_BIT);
 

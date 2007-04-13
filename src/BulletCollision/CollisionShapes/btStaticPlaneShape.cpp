@@ -34,6 +34,8 @@ btStaticPlaneShape::~btStaticPlaneShape()
 
 void btStaticPlaneShape::getAabb(const btTransform& t,btVector3& aabbMin,btVector3& aabbMax) const
 {
+	(void)t;
+	/*
 	btVector3 infvec (btScalar(1e30),btScalar(1e30),btScalar(1e30));
 
 	btVector3 center = m_planeNormal*m_planeConstant;
@@ -41,6 +43,7 @@ void btStaticPlaneShape::getAabb(const btTransform& t,btVector3& aabbMin,btVecto
 	aabbMax = aabbMin;
 	aabbMin.setMin(center - infvec*m_planeNormal);
 	aabbMax.setMax(center - infvec*m_planeNormal); 
+	*/
 
 	aabbMin.setValue(btScalar(-1e30),btScalar(-1e30),btScalar(-1e30));
 	aabbMax.setValue(btScalar(1e30),btScalar(1e30),btScalar(1e30));
@@ -85,6 +88,8 @@ void	btStaticPlaneShape::processAllTriangles(btTriangleCallback* callback,const 
 
 void	btStaticPlaneShape::calculateLocalInertia(btScalar mass,btVector3& inertia)
 {
+	(void)mass;
+
 	//moving concave objects not supported
 	
 	inertia.setValue(btScalar(0.),btScalar(0.),btScalar(0.));

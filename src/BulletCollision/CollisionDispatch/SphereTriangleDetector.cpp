@@ -29,6 +29,7 @@ m_triangle(triangle)
 void	SphereTriangleDetector::getClosestPoints(const ClosestPointInput& input,Result& output,class btIDebugDraw* debugDraw)
 {
 
+	(void)debugDraw;
 	const btTransform& transformA = input.m_transformA;
 	const btTransform& transformB = input.m_transformB;
 
@@ -149,11 +150,8 @@ bool SphereTriangleDetector::collide(const btVector3& sphereCenter,btVector3 &po
 		btScalar distanceSqr = contactToCentre.length2();
 		if (distanceSqr < (r - MAX_OVERLAP)*(r - MAX_OVERLAP)) {
 			btScalar distance = btSqrt(distanceSqr);
-			if (1)
-			{
-				resultNormal = contactToCentre;
-				resultNormal.normalize();
-			}
+			resultNormal = contactToCentre;
+			resultNormal.normalize();
 			point = contactPoint;
 			depth = -(r-distance);
 			return true;

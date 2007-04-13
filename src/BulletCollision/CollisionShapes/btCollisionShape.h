@@ -27,7 +27,7 @@ class btCollisionShape
 {
 public:
 
-	btCollisionShape() :m_tempDebug(0)
+	btCollisionShape() 
 	{
 	}
 	virtual ~btCollisionShape()
@@ -83,10 +83,7 @@ public:
 	virtual char*	getName()const =0 ;
 #endif //__SPU__
 
-	const char* getExtraDebugInfo() const { return m_tempDebug;}
-	void  setExtraDebugInfo(const char* extraDebugInfo) { m_tempDebug = extraDebugInfo;}
-	const char * m_tempDebug;
-//endif debugging support
+	
 
 	virtual void	setMargin(btScalar margin) = 0;
 	virtual btScalar	getMargin() const = 0;

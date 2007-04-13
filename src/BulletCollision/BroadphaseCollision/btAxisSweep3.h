@@ -81,7 +81,7 @@ private:
 
 	btVector3 m_quantize;						// scaling factor for quantization
 
-	int m_numHandles;						// number of active handles
+	BP_FP_INT_TYPE m_numHandles;						// number of active handles
 	int m_maxHandles;						// max number of handles
 	Handle* m_pHandles;						// handles pool
 	BP_FP_INT_TYPE m_firstFreeHandle;		// free handles list

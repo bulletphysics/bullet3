@@ -38,8 +38,15 @@ void btOptimizedBvh::build(btStridingMeshInterface* triangles, bool useQuantized
 
 	struct	NodeTriangleCallback : public btInternalTriangleIndexCallback
 	{
+
 		NodeArray&	m_triangleNodes;
 
+		NodeTriangleCallback& operator=(NodeTriangleCallback& other)
+		{
+			m_triangleNodes = other.m_triangleNodes;
+			return *this;
+		}
+		
 		NodeTriangleCallback(NodeArray&	triangleNodes)
 			:m_triangleNodes(triangleNodes)
 		{
@@ -74,6 +81,13 @@ void btOptimizedBvh::build(btStridingMeshInterface* triangles, bool useQuantized
 	{
 		QuantizedNodeArray&	m_triangleNodes;
 		const btOptimizedBvh* m_optimizedTree; // for quantization
+
+		QuantizedNodeTriangleCallback& operator=(QuantizedNodeTriangleCallback& other)
+		{
+			m_triangleNodes = other.m_triangleNodes;
+			m_optimizedTree = other.m_optimizedTree;
+			return *this;
+		}
 
 		QuantizedNodeTriangleCallback(QuantizedNodeArray&	triangleNodes,const btOptimizedBvh* tree)
 			:m_triangleNodes(triangleNodes),m_optimizedTree(tree)
@@ -190,7 +204,7 @@ void	btOptimizedBvh::refitPartial(btStridingMeshInterface* meshInterface,const b
 		bool overlap = testQuantizedAabbAgainstQuantizedAabb(quantizedQueryAabbMin,quantizedQueryAabbMax,subtree.m_quantizedAabbMin,subtree.m_quantizedAabbMax);
 		if (overlap)
 		{
-			updateBvhNodes(meshInterface,subtree.m_rootNodeIndex,subtree.m_rootNodeIndex+subtree.m_subtreeSize);
+			updateBvhNodes(meshInterface,subtree.m_rootNodeIndex,subtree.m_rootNodeIndex+subtree.m_subtreeSize,i);
 
 			subtree.setAabbFromQuantizeNode(m_quantizedContiguousNodes[subtree.m_rootNodeIndex]);
 		}
@@ -198,9 +212,22 @@ void	btOptimizedBvh::refitPartial(btStridingMeshInterface* meshInterface,const b
 	
 }
 
-
-void	btOptimizedBvh::updateBvhNodes(btStridingMeshInterface* meshInterface,int firstNode,int endNode)
+///just for debugging, to visualize the individual patches/subtrees
+#ifdef DEBUG_PATCH_COLORS
+btVector3 color[4]=
 {
+	btVector3(255,0,0),
+	btVector3(0,255,0),
+	btVector3(0,0,255),
+	btVector3(0,255,255)
+};
+#endif //DEBUG_PATCH_COLORS
+
+
+void	btOptimizedBvh::updateBvhNodes(btStridingMeshInterface* meshInterface,int firstNode,int endNode,int index)
+{
+	(void)index;
+
 	btAssert(m_useQuantization);
 
 	int nodeSubPart=0;
@@ -240,6 +267,13 @@ void	btOptimizedBvh::updateBvhNodes(btStridingMeshInterface* meshInterface,int f
 					
 					int graphicsindex = gfxbase[j];
 					btScalar* graphicsbase = (btScalar*)(vertexbase+graphicsindex*stride);
+#ifdef DEBUG_PATCH_COLORS
+					btVector3 mycolor = color[index&3];
+					graphicsbase[8] = mycolor.getX();
+					graphicsbase[9] = mycolor.getY();
+					graphicsbase[10] = mycolor.getZ();
+#endif //DEBUG_PATCH_COLORS
+
 
 					triangleVerts[j] = btVector3(
 						graphicsbase[0]*meshScaling.getX(),
@@ -311,7 +345,7 @@ void	btOptimizedBvh::refit(btStridingMeshInterface* meshInterface)
 
 		setQuantizationValues(aabbMin,aabbMax);
 
-		updateBvhNodes(meshInterface,0,m_curNodeIndex);
+		updateBvhNodes(meshInterface,0,m_curNodeIndex,0);
 
 		///now update all subtree headers
 
@@ -747,6 +781,9 @@ void	btOptimizedBvh::walkStacklessQuantizedTreeCacheFriendly(btNodeOverlapCallba
 
 void	btOptimizedBvh::reportSphereOverlappingNodex(btNodeOverlapCallback* nodeCallback,const btVector3& aabbMin,const btVector3& aabbMax) const
 {
+	(void)nodeCallback;
+	(void)aabbMin;
+	(void)aabbMax;
 	//not yet, please use aabb
 	btAssert(0);
 }

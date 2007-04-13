@@ -198,7 +198,8 @@ void btConvexConcaveCollisionAlgorithm::processCollision (btCollisionObject* bod
 
 btScalar btConvexConcaveCollisionAlgorithm::calculateTimeOfImpact(btCollisionObject* body0,btCollisionObject* body1,const btDispatcherInfo& dispatchInfo,btManifoldResult* resultOut)
 {
-
+	(void)resultOut;
+	(void)dispatchInfo;
 	btCollisionObject* convexbody = m_isSwapped ? body1 : body0;
 	btCollisionObject* triBody = m_isSwapped ? body0 : body1;
 
@@ -242,6 +243,8 @@ btScalar btConvexConcaveCollisionAlgorithm::calculateTimeOfImpact(btCollisionObj
 		
 		virtual void processTriangle(btVector3* triangle, int partId, int triangleIndex)
 		{
+			(void)partId;
+			(void)triangleIndex;
 			//do a swept sphere for now
 			btTransform ident;
 			ident.setIdentity();

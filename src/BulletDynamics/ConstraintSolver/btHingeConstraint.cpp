@@ -223,6 +223,7 @@ void	btHingeConstraint::solveConstraint(btScalar	timeStep)
 
 void	btHingeConstraint::updateRHS(btScalar	timeStep)
 {
+	(void)timeStep;
 
 }
 

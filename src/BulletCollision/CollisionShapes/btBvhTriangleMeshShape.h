@@ -26,6 +26,7 @@ ATTRIBUTE_ALIGNED16(class) btBvhTriangleMeshShape : public btTriangleMeshShape
 
 	btOptimizedBvh*	m_bvh;
 	bool m_useQuantizedAabbCompression;
+	bool m_pad[12];////need padding due to alignment
 
 public:
 

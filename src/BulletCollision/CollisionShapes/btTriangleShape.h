@@ -111,12 +111,14 @@ public:
 
 	virtual void getPlaneEquation(int i, btVector3& planeNormal,btPoint3& planeSupport) const
 	{
+		(void)i;
 		calcNormal(planeNormal);
 		planeSupport = m_vertices1[0];
 	}
 
 	virtual void	calculateLocalInertia(btScalar mass,btVector3& inertia)
 	{
+		(void)mass;
 		btAssert(0);
 		inertia.setValue(btScalar(0.),btScalar(0.),btScalar(0.));
 	}

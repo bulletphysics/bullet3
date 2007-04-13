@@ -43,6 +43,12 @@ void btSolve2LinearConstraint::resolveUnilateralPairConstraint(
 					  btScalar depthB, const btVector3& normalB, 
 					  btScalar& imp0,btScalar& imp1)
 {
+	(void)linvelA;
+	(void)linvelB;
+	(void)angvelB;
+	(void)angvelA;
+
+
 
 	imp0 = btScalar(0.);
 	imp1 = btScalar(0.);
@@ -125,6 +131,13 @@ void btSolve2LinearConstraint::resolveBilateralPairConstraint(
 					  btScalar depthB, const btVector3& normalB, 
 					  btScalar& imp0,btScalar& imp1)
 {
+
+	(void)linvelA;
+	(void)linvelB;
+	(void)angvelA;
+	(void)angvelB;
+
+
 
 	imp0 = btScalar(0.);
 	imp1 = btScalar(0.);
@@ -221,7 +234,7 @@ void btSolve2LinearConstraint::resolveBilateralPairConstraint(
 }
 
 
-
+/*
 void btSolve2LinearConstraint::resolveAngularConstraint(	const btMatrix3x3& invInertiaAWS,
 											const btScalar invMassA,
 											const btVector3& linvelA,const btVector3& angvelA,
@@ -238,4 +251,5 @@ void btSolve2LinearConstraint::resolveAngularConstraint(	const btMatrix3x3& invI
 {
 
 }
+*/
 

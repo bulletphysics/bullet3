@@ -21,6 +21,7 @@ btScalar btWheelInfo::getSuspensionRestLength() const
 
 void	btWheelInfo::updateWheel(const btRigidBody& chassis,RaycastInfo& raycastInfo)
 {
+	(void)raycastInfo;
 
 	
 	if (m_raycastInfo.m_isInContact)

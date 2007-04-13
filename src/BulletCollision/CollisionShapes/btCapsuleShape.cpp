@@ -19,7 +19,7 @@ subject to the following restrictions:
 #include "BulletCollision/CollisionShapes/btCollisionMargin.h"
 #include "LinearMath/btQuaternion.h"
 
-btCapsuleShape::btCapsuleShape(float radius, float height)
+btCapsuleShape::btCapsuleShape(btScalar radius, btScalar height)
 {
 	m_implicitShapeDimensions.setValue(radius,0.5f*height,radius);
 }
@@ -46,7 +46,7 @@ btCapsuleShape::btCapsuleShape(float radius, float height)
 	btVector3 vtx;
 	btScalar newDot;
 	
-	float radius = getRadius();
+	btScalar radius = getRadius();
 
 
 	{
@@ -78,7 +78,7 @@ btCapsuleShape::btCapsuleShape(float radius, float height)
 {
 
 	
-	float radius = getRadius();
+	btScalar radius = getRadius();
 
 	for (int j=0;j<numVectors;j++)
 	{
@@ -120,7 +120,7 @@ void	btCapsuleShape::calculateLocalInertia(btScalar mass,btVector3& inertia)
 	ident.setIdentity();
 
 	
-	float radius = getRadius();
+	btScalar radius = getRadius();
 
 	btVector3 halfExtents(radius,radius+getHalfHeight(),radius);
 

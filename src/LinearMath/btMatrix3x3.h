@@ -176,7 +176,7 @@ class btMatrix3x3 {
 		void getRotation(btQuaternion& q) const
 		{
 			btScalar trace = m_el[0].x() + m_el[1].y() + m_el[2].z();
-			float temp[4];
+			btScalar temp[4];
 			
 			if (trace > btScalar(0.0)) 
 			{
