@@ -32,6 +32,12 @@ static void glutSpecialKeyboardCallback(int key, int x, int y)
 	gDemoApplication->specialKeyboard(key,x,y);
 }
 
+static void glutSpecialKeyboardUpCallback(int key, int x, int y)
+{
+	gDemoApplication->specialKeyboardUp(key,x,y);
+}
+
+
 static void glutReshapeCallback(int w, int h)
 {
 	gDemoApplication->reshape(w,h);
@@ -75,6 +81,8 @@ int glutmain(int argc, char **argv,int width,int height,const char* title,DemoAp
 
 	glutKeyboardFunc(glutKeyboardCallback);
 	glutSpecialFunc(glutSpecialKeyboardCallback);
+	glutSpecialUpFunc(glutSpecialKeyboardUpCallback);
+
 	glutReshapeFunc(glutReshapeCallback);
     //createMenu();
 	glutIdleFunc(glutMoveAndDisplayCallback);

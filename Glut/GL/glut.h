@@ -91,7 +91,8 @@ extern "C" {
  glutJoystickFunc, glutForceJoystickFunc (NOT FINALIZED!).
 **/
 #ifndef GLUT_API_VERSION  /* allow this to be overriden */
-#define GLUT_API_VERSION		3
+//#define GLUT_API_VERSION		3
+#define GLUT_API_VERSION		4
 #endif
 
 /**

@@ -55,13 +55,17 @@ const int maxOverlap = 65535;
 ///notice that for higher-quality slow-moving vehicles, another approach might be better
 ///implementing explicit hinged-wheel constraints with cylinder collision, rather then raycasts
 float	gEngineForce = 0.f;
-float	maxEngineForce = 3000.f;
+float	gBreakingForce = 0.f;
+
+float	maxEngineForce = 1000.f;//this should be engine/velocity dependent
+float	maxBreakingForce = 100.f;
+
 float	gVehicleSteering = 0.f;
 float	steeringIncrement = 0.04f;
 float	steeringClamp = 0.3f;
 float	wheelRadius = 0.5f;
 float	wheelWidth = 0.4f;
-float	wheelFriction = 1e30f;//1000;//1e30f;
+float	wheelFriction = 1000;//1e30f;
 float	suspensionStiffness = 20.f;
 float	suspensionDamping = 2.3f;
 float	suspensionCompression = 4.4f;
@@ -103,6 +107,10 @@ m_maxCameraDistance(10.f)
 
 void VehicleDemo::setupPhysics()
 {
+
+	extern btScalar	gJitterVelocityDampingFactor;
+	gJitterVelocityDampingFactor = 1.f;
+	
 #ifdef FORCE_ZAXIS_UP
 	m_cameraUp = btVector3(0,0,1);
 	m_forwardAxis = 1;
@@ -147,7 +155,8 @@ const float TRIANGLE_SIZE=20.f;
 		for (int j=0;j<NUM_VERTS_Y;j++)
 		{
 			float wl = .2f;
-			float height = 20.f*sinf(float(i)*wl)*cosf(float(j)*wl);
+			//height set to zero, but can also use curved landscape, just uncomment out the code
+			float height = 0.f;//20.f*sinf(float(i)*wl)*cosf(float(j)*wl);
 #ifdef FORCE_ZAXIS_UP
 			gVertices[i+j*NUM_VERTS_X].setValue(
 				(i-NUM_VERTS_X*0.5f)*TRIANGLE_SIZE,
@@ -222,7 +231,7 @@ const float TRIANGLE_SIZE=20.f;
 	tr.setOrigin(btVector3(0,0.f,0));
 
 	m_carChassis = localCreateRigidBody(800,tr,compound);//chassisShape);
-	m_carChassis->setDamping(0.2,0.2);
+	//m_carChassis->setDamping(0.2,0.2);
 	
 	
 	clientResetScene();
@@ -323,6 +332,24 @@ void VehicleDemo::clientMoveAndDisplay()
 
 	glClear(GL_COLOR_BUFFER_BIT | GL_DEPTH_BUFFER_BIT); 
 
+	
+	{			
+		int wheelIndex = 2;
+		m_vehicle->applyEngineForce(gEngineForce,wheelIndex);
+		m_vehicle->setBrake(gBreakingForce,wheelIndex);
+		wheelIndex = 3;
+		m_vehicle->applyEngineForce(gEngineForce,wheelIndex);
+		m_vehicle->setBrake(gBreakingForce,wheelIndex);
+
+
+		wheelIndex = 0;
+		m_vehicle->setSteeringValue(gVehicleSteering,wheelIndex);
+		wheelIndex = 1;
+		m_vehicle->setSteeringValue(gVehicleSteering,wheelIndex);
+
+	}
+
+
 	float dt = m_clock.getTimeMicroseconds() * 0.000001f;
 	m_clock.reset();
 	if (m_dynamicsWorld)
@@ -334,7 +361,7 @@ void VehicleDemo::clientMoveAndDisplay()
 
 		int numSimSteps = m_dynamicsWorld->stepSimulation(dt,maxSimSubSteps);
 
-#define VERBOSE_FEEDBACK
+//#define VERBOSE_FEEDBACK
 #ifdef VERBOSE_FEEDBACK
 		if (!numSimSteps)
 			printf("Interpolated transforms\n");
@@ -355,18 +382,6 @@ void VehicleDemo::clientMoveAndDisplay()
 
 	
 	
-
-	{			
-		int wheelIndex = 2;
-		m_vehicle->applyEngineForce(gEngineForce,wheelIndex);
-		wheelIndex = 3;
-		m_vehicle->applyEngineForce(gEngineForce,wheelIndex);
-		wheelIndex = 0;
-		m_vehicle->setSteeringValue(gVehicleSteering,wheelIndex);
-		wheelIndex = 1;
-		m_vehicle->setSteeringValue(gVehicleSteering,wheelIndex);
-
-	}
 
 
 
@@ -417,7 +432,6 @@ void VehicleDemo::displayCallback(void)
 
 void VehicleDemo::clientResetScene()
 {
-	gEngineForce = 0.f;
 	gVehicleSteering = 0.f;
 	m_carChassis->setCenterOfMassTransform(btTransform::getIdentity());
 	m_carChassis->setLinearVelocity(btVector3(0,0,0));
@@ -437,10 +451,32 @@ void VehicleDemo::clientResetScene()
 
 
 
+void VehicleDemo::specialKeyboardUp(int key, int x, int y)
+{
+   switch (key) 
+    {
+    case GLUT_KEY_UP :
+		{
+			gEngineForce = 0.f;
+		break;
+		}
+	case GLUT_KEY_DOWN :
+		{			
+			gBreakingForce = 0.f; 
+		break;
+		}
+	default:
+		DemoApplication::specialKeyboardUp(key,x,y);
+        break;
+    }
+
+}
+
+
 void VehicleDemo::specialKeyboard(int key, int x, int y)
 {
 
-	printf("key = %i x=%i y=%i\n",key,x,y);
+//	printf("key = %i x=%i y=%i\n",key,x,y);
 
     switch (key) 
     {
@@ -467,7 +503,7 @@ void VehicleDemo::specialKeyboard(int key, int x, int y)
 		}
 	case GLUT_KEY_DOWN :
 		{			
-			gEngineForce = -maxEngineForce;
+			gBreakingForce = maxBreakingForce; 
 		break;
 		}
 	default:

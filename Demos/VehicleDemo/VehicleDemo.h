@@ -51,6 +51,8 @@ class VehicleDemo : public DemoApplication
 
 	virtual void specialKeyboard(int key, int x, int y);
 
+	virtual void specialKeyboardUp(int key, int x, int y);
+
 	void renderme();
 
 	void setupPhysics();

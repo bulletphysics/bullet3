@@ -368,6 +368,13 @@ void DemoApplication::keyboardCallback(unsigned char key, int x, int y)
 
 }
 	
+void DemoApplication::specialKeyboardUp(int key, int x, int y)
+{
+
+		glutPostRedisplay();
+
+}
+
 void DemoApplication::specialKeyboard(int key, int x, int y)	
 {
 	(void)x;
