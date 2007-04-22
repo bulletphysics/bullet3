@@ -1,6 +1,10 @@
 Bullet Continuous Collision Detection and Physics Library
 Erwin Coumans
 
+2007 April 22
+	- Added braking functionality to btRaycastVehicle
+	- Removed tons of warnings, under MSVC 2005 compilation in -W4
+	
 2007 March 21
 	- Fixed issues: comma at end of enum causes errors for some compilers
 	- Fixed initialization bug in LocalRayResult (	m_localShapeInfo(localShapeInfo) )
