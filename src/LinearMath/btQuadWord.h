@@ -66,6 +66,7 @@ class	btQuadWord
 			m_x=x;
 			m_y=y;
 			m_z=z;
+			m_unusedW = 0.f;
 		}
 
 /*		void getValue(btScalar *m) const 

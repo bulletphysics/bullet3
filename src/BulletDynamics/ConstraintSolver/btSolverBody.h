@@ -31,7 +31,7 @@ ATTRIBUTE_ALIGNED16 (struct)	btSolverBody
 	btRigidBody*	m_originalBody;
 	float			m_invMass;
 	float			m_friction;
-	float			m_unused;
+	float			m_angularFactor;
 
 	inline void	getVelocityInLocalPoint(const btVector3& rel_pos, btVector3& velocity ) const
 	{
@@ -40,9 +40,9 @@ ATTRIBUTE_ALIGNED16 (struct)	btSolverBody
 
 	//Optimization for the iterative solver: avoid calculating constant terms involving inertia, normal, relative position
 	inline void internalApplyImpulse(const btVector3& linearComponent, const btVector3& angularComponent,btScalar impulseMagnitude)
-	{	
+	{
 		m_linearVelocity += linearComponent*impulseMagnitude;
-		m_angularVelocity += angularComponent*impulseMagnitude;
+		m_angularVelocity += angularComponent*impulseMagnitude*m_angularFactor;
 	}
 
 	void	writebackVelocity()
@@ -65,15 +65,6 @@ ATTRIBUTE_ALIGNED16 (struct)	btSolverBody
 
 	
 
-	inline void	applyImpulse(const btVector3& impulse,const btVector3& rel_pos)
-	{
-		if (m_invMass)
-		{
-			m_linearVelocity += impulse * m_invMass;
-			btVector3 torqueImpulse = rel_pos.cross(impulse);
-//			m_angularVelocity += m_invInertiaWorld * torqueImpulse;
-		}
-	}
 
 };
 

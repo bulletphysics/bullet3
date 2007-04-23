@@ -138,6 +138,7 @@ void	initSolverBody(btSolverBody* solverBody, btRigidBody* rigidbody)
 	solverBody->m_invMass = rigidbody->getInvMass();
 	solverBody->m_linearVelocity = rigidbody->getLinearVelocity();
 	solverBody->m_originalBody = rigidbody;
+	solverBody->m_angularFactor = rigidbody->getAngularFactor();
 }
 
 btScalar penetrationResolveFactor = btScalar(0.9);
