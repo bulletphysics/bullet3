@@ -52,7 +52,7 @@ ${BULLET_PHYSICS_SOURCE_DIR}/Extras/LibXML ${BULLET_PHYSICS_SOURCE_DIR}/Extras/L
 )
 
 LINK_LIBRARIES(
-LibColladaDom LibXML LibOpenGLSupport LibBulletDynamics LibBulletCollision LibLinearMath    ${GLUT_glut_LIBRARY} ${OPENGL_gl_LIBRARY} ${OPENGL_glU_LIBRARY}
+LibColladaDom LibXML LibOpenGLSupport LibBulletDynamics LibBulletCollision LibLinearMath    ${GLUT_glut_LIBRARY} ${OPENGL_gl_LIBRARY} ${OPENGL_glu_LIBRARY}
 )
 
 ADD_EXECUTABLE(ColladaDemo
