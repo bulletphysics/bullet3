@@ -21,7 +21,7 @@ class btCollisionObject;
 class btPersistentManifold;
 class btManifoldPoint;
 
-#include "../NarrowPhaseCollision/btDiscreteCollisionDetectorInterface.h"
+#include "BulletCollision/NarrowPhaseCollision/btDiscreteCollisionDetectorInterface.h"
 
 #include "../../LinearMath/btTransform.h"
 
