@@ -195,5 +195,11 @@ void	btConvexTriangleMeshShape::setLocalScaling(const btVector3& scaling)
 	m_stridingMesh->setScaling(scaling);
 	
 	recalcLocalAabb();
+	
 }
 
+
+const btVector3& btConvexTriangleMeshShape::getLocalScaling() const
+{
+	return m_stridingMesh->getScaling();
+}

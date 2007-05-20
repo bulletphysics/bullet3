@@ -31,14 +31,15 @@
 	#define BP_FP_INT_TYPE unsigned int
 	#define BP_MAX_HANDLES 1500000 //arbitrary maximum number of handles
 	#define BP_HANDLE_SENTINEL 0xffffffff
-	#define BP_HANDLE_MASK	0xfffffffc
+	#define BP_HANDLE_MASK	0xfffffffe
 #else
 	#define BP_FP_INT_TYPE unsigned short int
 	#define BP_MAX_HANDLES 32767
 	#define BP_HANDLE_SENTINEL 0xffff
 	#define BP_HANDLE_MASK	0xfffe
-#endif
+#endif //BP_USE_FIXEDPOINT_INT_32
 
+//#define DEBUG_BROADPHASE 1
 
 /// btAxisSweep3 is an efficient implementation of the 3d axis sweep and prune broadphase.
 /// It uses arrays rather then lists for storage of the 3 axis. Also it operates using integer coordinates instead of floats.
@@ -97,6 +98,9 @@ private:
 
 	bool testOverlap(int ignoreAxis,const Handle* pHandleA, const Handle* pHandleB);
 
+#ifdef DEBUG_BROADPHASE
+	void debugPrintAxis(int axis,bool checkCardinality=true);
+#endif //DEBUG_BROADPHASE
 
 	//Overlap* AddOverlap(BP_FP_INT_TYPE handleA, BP_FP_INT_TYPE handleB);
 	//void RemoveOverlap(BP_FP_INT_TYPE handleA, BP_FP_INT_TYPE handleB);

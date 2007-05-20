@@ -164,9 +164,7 @@ void	btBvhTriangleMeshShape::setLocalScaling(const btVector3& scaling)
 	{
 		btTriangleMeshShape::setLocalScaling(scaling);
 		delete m_bvh;
-		///rescale aabb, instead of calculating?
-		m_localAabbMin*=scaling;
-		m_localAabbMax*=scaling;
+		///m_localAabbMin/m_localAabbMax is already re-calculated in btTriangleMeshShape. We could just scale aabb, but this needs some more work
 		m_bvh = new btOptimizedBvh();
 		//rebuild the bvh...
 		m_bvh->build(m_meshInterface,m_useQuantizedAabbCompression,m_localAabbMin,m_localAabbMax);

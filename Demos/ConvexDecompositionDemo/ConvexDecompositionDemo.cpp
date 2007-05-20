@@ -78,6 +78,11 @@ void ConvexDecompositionDemo::initPhysics(const char* filename)
 
 	tcount = wo.loadObj(filename);
 
+	if (!tcount)
+	{
+		//when running this app from visual studio, the default starting folder is different, so make a second attempt...
+		tcount = wo.loadObj("../../file.obj");
+	}
 	btCollisionDispatcher* dispatcher = new	btCollisionDispatcher();
 
 

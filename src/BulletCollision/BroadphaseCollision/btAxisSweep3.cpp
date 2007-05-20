@@ -21,6 +21,30 @@
 
 #include <assert.h>
 
+#ifdef DEBUG_BROADPHASE
+#include <stdio.h>
+void btAxisSweep3::debugPrintAxis(int axis, bool checkCardinality)
+{
+	int numEdges = m_pHandles[0].m_maxEdges[axis];
+	printf("SAP Axis %d, numEdges=%d\n",axis,numEdges);
+
+	int i;
+	for (i=0;i<numEdges+1;i++)
+	{
+		Edge* pEdge = m_pEdges[axis] + i;
+		Handle* pHandlePrev = getHandle(pEdge->m_handle);
+		int handleIndex = pEdge->IsMax()? pHandlePrev->m_maxEdges[axis] : pHandlePrev->m_minEdges[axis];
+		char beginOrEnd;
+		beginOrEnd=pEdge->IsMax()?'E':'B';
+		printf("	[%c,h=%d,p=%x,i=%d]\n",beginOrEnd,pEdge->m_handle,pEdge->m_pos,handleIndex);
+	}
+
+	if (checkCardinality)
+		assert(numEdges == m_numHandles*2+1);
+}
+#endif //DEBUG_BROADPHASE
+
+
 btBroadphaseProxy*	btAxisSweep3::createProxy(  const btVector3& min,  const btVector3& max,int shapeType,void* userPtr,short int collisionFilterGroup,short int collisionFilterMask)
 {
 		(void)shapeType;
@@ -41,6 +65,7 @@ void	btAxisSweep3::setAabb(btBroadphaseProxy* proxy,const btVector3& aabbMin,con
 {
 	Handle* handle = static_cast<Handle*>(proxy);
 	updateHandle(handle->m_handleId,aabbMin,aabbMax);
+
 }
 
 
@@ -55,7 +80,7 @@ btAxisSweep3::btAxisSweep3(const btPoint3& worldAabbMin,const btPoint3& worldAab
 	//assert(bounds.HasVolume());
 
 	// 1 handle is reserved as sentinel
-	assert(maxHandles > 1 && maxHandles < BP_MAX_HANDLES);
+	btAssert(maxHandles > 1 && maxHandles < BP_MAX_HANDLES);
 
 	// init bounds
 	m_worldAabbMin = worldAabbMin;
@@ -63,7 +88,9 @@ btAxisSweep3::btAxisSweep3(const btPoint3& worldAabbMin,const btPoint3& worldAab
 
 	btVector3 aabbSize = m_worldAabbMax - m_worldAabbMin;
 
-	m_quantize = btVector3(btScalar(65535.0),btScalar(65535.0),btScalar(65535.0)) / aabbSize;
+	BP_FP_INT_TYPE	maxInt = BP_HANDLE_SENTINEL;
+
+	m_quantize = btVector3(btScalar(maxInt),btScalar(maxInt),btScalar(maxInt)) / aabbSize;
 
 	// allocate handles buffer and put all handles on free list
 	m_pHandles = new Handle[maxHandles];
@@ -98,7 +125,12 @@ btAxisSweep3::btAxisSweep3(const btPoint3& worldAabbMin,const btPoint3& worldAab
 		m_pEdges[axis][0].m_handle = 0;
 		m_pEdges[axis][1].m_pos = BP_HANDLE_SENTINEL;
 		m_pEdges[axis][1].m_handle = 0;
+#ifdef DEBUG_BROADPHASE
+		debugPrintAxis(axis);
+#endif //DEBUG_BROADPHASE
+
 	}
+
 }
 
 btAxisSweep3::~btAxisSweep3()
@@ -172,9 +204,11 @@ BP_FP_INT_TYPE btAxisSweep3::addHandle(const btPoint3& aabbMin,const btPoint3& a
 	// compute current limit of edge arrays
 	BP_FP_INT_TYPE limit = m_numHandles * 2;
 
+	
 	// insert new edges just inside the max boundary edge
 	for (BP_FP_INT_TYPE axis = 0; axis < 3; axis++)
 	{
+
 		m_pHandles[0].m_maxEdges[axis] += 2;
 
 		m_pEdges[axis][limit + 1] = m_pEdges[axis][limit - 1];
@@ -197,7 +231,6 @@ BP_FP_INT_TYPE btAxisSweep3::addHandle(const btPoint3& aabbMin,const btPoint3& a
 	sortMinDown(2, pHandle->m_minEdges[2], true);
 	sortMaxDown(2, pHandle->m_maxEdges[2], true);
 
-	//PrintAxis(1);
 
 	return handle;
 }
@@ -205,6 +238,7 @@ BP_FP_INT_TYPE btAxisSweep3::addHandle(const btPoint3& aabbMin,const btPoint3& a
 
 void btAxisSweep3::removeHandle(BP_FP_INT_TYPE handle)
 {
+	
 	Handle* pHandle = getHandle(handle);
 
 	//explicitly remove the pairs containing the proxy
@@ -215,15 +249,19 @@ void btAxisSweep3::removeHandle(BP_FP_INT_TYPE handle)
 
 	// compute current limit of edge arrays
 	int limit = m_numHandles * 2;
+	
 	int axis;
 
 	for (axis = 0;axis<3;axis++)
 	{
 		Edge* pEdges = m_pEdges[axis];
+		m_pHandles[0].m_maxEdges[axis] -= 2;
 		int maxEdge= pHandle->m_maxEdges[axis];
-		pEdges[maxEdge].m_pos = BP_HANDLE_SENTINEL;
+		//pEdges[maxEdge].m_pos = BP_HANDLE_SENTINEL;
+		//pEdges[maxEdge].m_handle = 0;
 		int minEdge = pHandle->m_minEdges[axis];
-		pEdges[minEdge].m_pos = BP_HANDLE_SENTINEL;
+		//pEdges[minEdge].m_pos = BP_HANDLE_SENTINEL;
+		//pEdges[minEdge].m_handle = 0;
 	}
 
 	// remove the edges by sorting them up to the end of the list
@@ -234,16 +272,24 @@ void btAxisSweep3::removeHandle(BP_FP_INT_TYPE handle)
 		pEdges[max].m_pos = BP_HANDLE_SENTINEL;
 
 		sortMaxUp(axis,max,false);
-		
+
+
 		BP_FP_INT_TYPE i = pHandle->m_minEdges[axis];
 		pEdges[i].m_pos = BP_HANDLE_SENTINEL;
+
 
 		sortMinUp(axis,i,false);
 
 		pEdges[limit-1].m_handle = 0;
 		pEdges[limit-1].m_pos = BP_HANDLE_SENTINEL;
+		
+#ifdef DEBUG_BROADPHASE
+			debugPrintAxis(axis,false);
+#endif //DEBUG_BROADPHASE
+
 
 	}
+
 
 	// free the handle
 	freeHandle(handle);
@@ -365,7 +411,7 @@ bool btAxisSweep3::testOverlap(int ignoreAxis,const Handle* pHandleA, const Hand
 		}
 	} 
 
-	//optimization 2: only 2 axis need to be tested
+	//optimization 2: only 2 axis need to be tested (conflicts with 'delayed removal' optimization)
 
 	/*for (int axis = 0; axis < 3; axis++)
 	{
@@ -417,14 +463,22 @@ void btAxisSweep3::updateHandle(BP_FP_INT_TYPE handle, const btPoint3& aabbMin,c
 
 		if (dmax < 0)
 			sortMaxDown(axis, emax);
+
+#ifdef DEBUG_BROADPHASE
+	debugPrintAxis(axis);
+#endif //DEBUG_BROADPHASE
 	}
 
-	//PrintAxis(1);
+	
 }
+
+
+
 
 // sorting a min edge downwards can only ever *add* overlaps
 void btAxisSweep3::sortMinDown(int axis, BP_FP_INT_TYPE edge, bool updateOverlaps)
 {
+
 	Edge* pEdge = m_pEdges[axis] + edge;
 	Edge* pPrev = pEdge - 1;
 	Handle* pHandleEdge = getHandle(pEdge->m_handle);
@@ -461,6 +515,11 @@ void btAxisSweep3::sortMinDown(int axis, BP_FP_INT_TYPE edge, bool updateOverlap
 		pEdge--;
 		pPrev--;
 	}
+
+#ifdef DEBUG_BROADPHASE
+	debugPrintAxis(axis);
+#endif //DEBUG_BROADPHASE
+
 }
 
 // sorting a min edge upwards can only ever *remove* overlaps
@@ -470,7 +529,7 @@ void btAxisSweep3::sortMinUp(int axis, BP_FP_INT_TYPE edge, bool updateOverlaps)
 	Edge* pNext = pEdge + 1;
 	Handle* pHandleEdge = getHandle(pEdge->m_handle);
 
-	while (pEdge->m_pos > pNext->m_pos)
+	while (pNext->m_handle && (pEdge->m_pos >= pNext->m_pos))
 	{
 		Handle* pHandleNext = getHandle(pNext->m_handle);
 
@@ -505,11 +564,14 @@ void btAxisSweep3::sortMinUp(int axis, BP_FP_INT_TYPE edge, bool updateOverlaps)
 		pEdge++;
 		pNext++;
 	}
+
+
 }
 
 // sorting a max edge downwards can only ever *remove* overlaps
 void btAxisSweep3::sortMaxDown(int axis, BP_FP_INT_TYPE edge, bool updateOverlaps)
 {
+
 	Edge* pEdge = m_pEdges[axis] + edge;
 	Edge* pPrev = pEdge - 1;
 	Handle* pHandleEdge = getHandle(pEdge->m_handle);
@@ -555,6 +617,12 @@ void btAxisSweep3::sortMaxDown(int axis, BP_FP_INT_TYPE edge, bool updateOverlap
 		pEdge--;
 		pPrev--;
 	}
+
+	
+#ifdef DEBUG_BROADPHASE
+	debugPrintAxis(axis);
+#endif //DEBUG_BROADPHASE
+
 }
 
 // sorting a max edge upwards can only ever *add* overlaps
@@ -564,7 +632,7 @@ void btAxisSweep3::sortMaxUp(int axis, BP_FP_INT_TYPE edge, bool updateOverlaps)
 	Edge* pNext = pEdge + 1;
 	Handle* pHandleEdge = getHandle(pEdge->m_handle);
 
-	while (pEdge->m_pos > pNext->m_pos)
+	while (pNext->m_handle && (pEdge->m_pos >= pNext->m_pos))
 	{
 		Handle* pHandleNext = getHandle(pNext->m_handle);
 
@@ -595,4 +663,5 @@ void btAxisSweep3::sortMaxUp(int axis, BP_FP_INT_TYPE edge, bool updateOverlaps)
 		pEdge++;
 		pNext++;
 	}
+	
 }

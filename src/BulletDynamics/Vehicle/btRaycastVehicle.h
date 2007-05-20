@@ -142,6 +142,26 @@ public:
 		return m_indexForwardAxis;
 	}
 
+	
+	///Worldspace forward vector
+	btVector3 getForwardVector() const
+	{
+		const btTransform& chassisTrans = getChassisWorldTransform(); 
+
+		btVector3 forwardW ( 
+			  chassisTrans.getBasis()[0][m_indexForwardAxis], 
+			  chassisTrans.getBasis()[1][m_indexForwardAxis], 
+			  chassisTrans.getBasis()[2][m_indexForwardAxis]); 
+
+		return forwardW;
+	}
+
+	///Velocity of vehicle (positive if velocity vector has same direction as foward vector)
+	btScalar	getCurrentSpeedKmHour() const
+	{
+		return m_currentVehicleSpeedKmHour;
+	}
+
 	virtual void	setCoordinateSystem(int rightIndex,int upIndex,int forwardIndex)
 	{
 		m_indexRightAxis = rightIndex;

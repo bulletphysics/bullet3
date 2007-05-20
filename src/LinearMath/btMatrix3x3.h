@@ -232,13 +232,7 @@ class btMatrix3x3 {
 			}
 		}
 
-		btVector3 getScaling() const
-		{
-			return btVector3(m_el[0][0] * m_el[0].x() + m_el[1].x() * m_el[1].x() + m_el[2].x() * m_el[2].x(),
-								   m_el[0].y() * m_el[0].y() + m_el[1].y() * m_el[1].y() + m_el[2].y() * m_el[2].y(),
-								   m_el[0].z() * m_el[0].z() + m_el[1].z() * m_el[1].z() + m_el[2].z() * m_el[2].z());
-		}
-		
+	
 		
 		btMatrix3x3 scaled(const btVector3& s) const
 		{

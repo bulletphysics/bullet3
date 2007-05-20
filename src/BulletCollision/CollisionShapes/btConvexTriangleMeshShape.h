@@ -39,7 +39,8 @@ public:
 	virtual	bool isInside(const btPoint3& pt,btScalar tolerance) const;
 
 	
-	void	setLocalScaling(const btVector3& scaling);
+	virtual void	setLocalScaling(const btVector3& scaling);
+	virtual const btVector3& getLocalScaling() const;
 
 };
 

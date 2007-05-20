@@ -1,6 +1,15 @@
 Bullet Continuous Collision Detection and Physics Library
 Erwin Coumans
 
+2007 May 20
+	- btAxisSweep3: Fixed a bug in btAxisSweep3 (sweep and prune) related to object removal. Only showed up when at least one btStaticPlaneShape was inserted.
+		Thanks tbp for more details on reproducing case.
+	- btAxisSweep3: Fixed issue with full 32bit precision btAxisSweep3 (define BP_USE_FIXEDPOINT_INT_32), it used only 0xffff/65536 for quantization instead of full integer space (0xffffffff)
+	- btRaycastVehicle: Added 'getForwardVector' and getCurrentSpeedKmHour utility functions
+	- Fixed local scaling issues (btConvexTriangleMeshShape, btBvhTriangleMeshShape, removed scaling from btMatrix3x3). 
+		Thanks Volker for reporting!
+	- Added second filename search, so that starting BspDemo and ConvexDecompositionDemo from within Visual Studio (without setting the starting path) still works
+
 2007 April 22
 	- Added braking functionality to btRaycastVehicle
 	- Removed tons of warnings, under MSVC 2005 compilation in -W4
