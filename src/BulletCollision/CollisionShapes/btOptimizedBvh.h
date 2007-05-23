@@ -205,7 +205,7 @@ ATTRIBUTE_ALIGNED16(class) btOptimizedBvh
 		
 	}
 
-	void	setQuantizationValues(const btVector3& bvhAabbMin,const btVector3& bvhAabbMax);
+	void	setQuantizationValues(const btVector3& bvhAabbMin,const btVector3& bvhAabbMax,btScalar quantizationMargin=btScalar(1.0));
 	
 	void	setInternalNodeEscapeIndex(int nodeIndex, int escapeIndex)
 	{

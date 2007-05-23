@@ -326,10 +326,12 @@ void	btOptimizedBvh::updateBvhNodes(btStridingMeshInterface* meshInterface,int f
 		
 }
 
-void	btOptimizedBvh::setQuantizationValues(const btVector3& bvhAabbMin,const btVector3& bvhAabbMax)
+void	btOptimizedBvh::setQuantizationValues(const btVector3& bvhAabbMin,const btVector3& bvhAabbMax,btScalar quantizationMargin)
 {
-	m_bvhAabbMin = bvhAabbMin;
-	m_bvhAabbMax = bvhAabbMax;
+	//enlarge the AABB to avoid division by zero when initializing the quantization values
+	btVector3 clampValue(quantizationMargin,quantizationMargin,quantizationMargin);
+	m_bvhAabbMin = bvhAabbMin - clampValue;
+	m_bvhAabbMax = bvhAabbMax + clampValue;
 	btVector3 aabbSize = m_bvhAabbMax - m_bvhAabbMin;
 	m_bvhQuantization = btVector3(btScalar(65535.0),btScalar(65535.0),btScalar(65535.0)) / aabbSize;
 }
