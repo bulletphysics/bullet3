@@ -1,6 +1,10 @@
 Bullet Continuous Collision Detection and Physics Library
 Erwin Coumans
 
+2007 May 23
+	- Fixed quantization problem for planar triangle meshes in btOptimizedBvh
+		Thanks Phil Knight for reporting and helping to fix this bug.
+		
 2007 May 20
 	- btAxisSweep3: Fixed a bug in btAxisSweep3 (sweep and prune) related to object removal. Only showed up when at least one btStaticPlaneShape was inserted.
 		Thanks tbp for more details on reproducing case.
