@@ -207,30 +207,32 @@ class btMatrix3x3 {
 			q.setValue(temp[0],temp[1],temp[2],temp[3]);
 		}
 	
-
-		
 		void getEuler(btScalar& yaw, btScalar& pitch, btScalar& roll) const
 		{
-			pitch = btScalar(btAsin(-m_el[2].x()));
-			if (pitch < SIMD_2_PI)
+			
+			if (btScalar(m_el[1].z()) < btScalar(1))
 			{
-				if (pitch > SIMD_2_PI)
+				if (btScalar(m_el[1].z()) > -btScalar(1))
 				{
 					yaw = btScalar(btAtan2(m_el[1].x(), m_el[0].x()));
+					pitch = btScalar(btAsin(-m_el[1].y()));
 					roll = btScalar(btAtan2(m_el[2].y(), m_el[2].z()));
 				}
 				else 
 				{
 					yaw = btScalar(-btAtan2(-m_el[0].y(), m_el[0].z()));
+					pitch = SIMD_HALF_PI;
 					roll = btScalar(0.0);
 				}
 			}
 			else
 			{
 				yaw = btScalar(btAtan2(-m_el[0].y(), m_el[0].z()));
+				pitch = -SIMD_HALF_PI;
 				roll = btScalar(0.0);
 			}
 		}
+		
 
 	
 		
