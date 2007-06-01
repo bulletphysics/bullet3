@@ -24,13 +24,14 @@
 #include "btOverlappingPairCache.h"
 #include "btBroadphaseProxy.h"
 
+
 //Enable BP_USE_FIXEDPOINT_INT_32 if you need more then 32767 objects
 //#define BP_USE_FIXEDPOINT_INT_32 1
 
 #ifdef BP_USE_FIXEDPOINT_INT_32
 	#define BP_FP_INT_TYPE unsigned int
 	#define BP_MAX_HANDLES 1500000 //arbitrary maximum number of handles
-	#define BP_HANDLE_SENTINEL 0xffffffff
+	#define BP_HANDLE_SENTINEL 0x7fffffff
 	#define BP_HANDLE_MASK	0xfffffffe
 #else
 	#define BP_FP_INT_TYPE unsigned short int

@@ -151,9 +151,9 @@ void btAxisSweep3::quantize(BP_FP_INT_TYPE* out, const btPoint3& point, int isMa
 	clampedPoint.setMin(m_worldAabbMax);
 
 	btVector3 v = (clampedPoint - m_worldAabbMin) * m_quantize;
-	out[0] = (BP_FP_INT_TYPE)(((int)v.getX() & BP_HANDLE_MASK) | isMax);
-	out[1] = (BP_FP_INT_TYPE)(((int)v.getY() & BP_HANDLE_MASK) | isMax);
-	out[2] = (BP_FP_INT_TYPE)(((int)v.getZ() & BP_HANDLE_MASK) | isMax);
+	out[0] = (BP_FP_INT_TYPE)(((BP_FP_INT_TYPE)v.getX() & BP_HANDLE_MASK) | isMax);
+	out[1] = (BP_FP_INT_TYPE)(((BP_FP_INT_TYPE)v.getY() & BP_HANDLE_MASK) | isMax);
+	out[2] = (BP_FP_INT_TYPE)(((BP_FP_INT_TYPE)v.getZ() & BP_HANDLE_MASK) | isMax);
 	
 }
 
