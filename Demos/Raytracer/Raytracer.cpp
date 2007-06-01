@@ -114,9 +114,9 @@ btTransform transforms[maxNumObjects];
 renderTexture*	raytracePicture = 0;
 
 //this applies to the raytracer virtual screen/image buffer
-int screenWidth = 256;
+int screenWidth = 128;
 //float aspectRatio = (3.f/4.f);
-int screenHeight = 256;//screenWidth * aspectRatio;
+int screenHeight = 128;//screenWidth * aspectRatio;
 GLuint glTextureId;
 
 btSphereShape	mySphere(1);
@@ -447,7 +447,7 @@ void Raytracer::displayCallback()
 	glMatrixMode(GL_MODELVIEW);
 	glPushMatrix();
 	glLoadIdentity();									// reset The Modelview Matrix
-	glTranslatef(0.0f,0.0f,-3.0f);						// Move Into The Screen 5 Units
+	glTranslatef(0.0f,0.0f,-3.1f);						// Move Into The Screen 5 Units
 
 
 
