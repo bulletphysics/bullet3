@@ -1,6 +1,10 @@
 Bullet Continuous Collision Detection and Physics Library
 Erwin Coumans
 
+2007 May 31
+	- sign-bit went wrong in case of 32-bit broadphase, causing quantization problems. 
+		Thanks DevO for reporting.
+
 2007 May 23
 	- Fixed quantization problem for planar triangle meshes in btOptimizedBvh
 		Thanks Phil Knight for reporting and helping to fix this bug.
