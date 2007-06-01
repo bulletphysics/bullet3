@@ -101,7 +101,7 @@ btCollisionShape* shapePtr[numShapes] =
 
 //#define USE_GROUND_PLANE 1
 #ifdef USE_GROUND_PLANE
-	new btStaticPlaneShape(btVector3(0,1,0),10),
+	new btStaticPlaneShape(btVector3(0,1,0),0.5),
 #else
 	new btBoxShape (btVector3(200,CUBE_HALF_EXTENTS,200)),
 #endif
