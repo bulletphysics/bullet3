@@ -53,6 +53,8 @@ public:
 
 	virtual void	processAllTriangles(btTriangleCallback* callback,const btVector3& aabbMin,const btVector3& aabbMax) const;
 
+	virtual void	processAllTrianglesBruteForce(btTriangleCallback* callback,const btVector3& aabbMin,const btVector3& aabbMax) const;
+
 	virtual void	calculateLocalInertia(btScalar mass,btVector3& inertia);
 
 	virtual void	setLocalScaling(const btVector3& scaling);

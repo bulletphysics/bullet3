@@ -23,6 +23,11 @@ subject to the following restrictions:
 #include "../Extras/GIMPACTBullet/btGIMPACTMeshShape.h"
 #include "../Extras/GIMPACTBullet/btConcaveConcaveCollisionAlgorithm.h"
 
+//#define USE_PARALLEL_DISPATCHER 1
+#ifdef USE_PARALLEL_DISPATCHER
+#include "../../Extras/BulletMultiThreaded/SpuGatheringCollisionDispatcher.h"
+#endif//USE_PARALLEL_DISPATCHER
+
 
 
 #include "BMF_Api.h"
@@ -1630,12 +1635,21 @@ void	ConcaveDemo::initPhysics()
 	g_trimeshData = new btGIMPACTMeshData(indexVertexArrays);	
 
 	//btConstraintSolver* solver = new btSequentialImpulseConstraintSolver;
-	btCollisionDispatcher* dispatcher = new btCollisionDispatcher();
+	
+#ifdef USE_PARALLEL_DISPATCHER
+	btCollisionDispatcher* dispatcher = new	SpuGatheringCollisionDispatcher();
+#else
+		btCollisionDispatcher* dispatcher = new	btCollisionDispatcher();
+#endif//USE_PARALLEL_DISPATCHER
+
+
+
 	//btOverlappingPairCache* broadphase = new btSimpleBroadphase();
 	btOverlappingPairCache* broadphase = new btSimpleBroadphase();
 
 	btConstraintSolver* constraintSolver = new btSequentialImpulseConstraintSolver();
 	m_dynamicsWorld = new btDiscreteDynamicsWorld(dispatcher,broadphase,constraintSolver);
+
 
 	m_gimpactCollisionCreateFunc = new btConcaveConcaveCollisionAlgorithm::CreateFunc;
 	dispatcher->registerCollisionCreateFunc(GIMPACT_SHAPE_PROXYTYPE,GIMPACT_SHAPE_PROXYTYPE,m_gimpactCollisionCreateFunc);

@@ -20,6 +20,12 @@ subject to the following restrictions:
 #include "GL_ShapeDrawer.h"
 #include "GlutStuff.h"
 
+//#define USE_PARALLEL_DISPATCHER 1
+#ifdef USE_PARALLEL_DISPATCHER
+#include "../../Extras/BulletMultiThreaded/SpuGatheringCollisionDispatcher.h"
+#endif//USE_PARALLEL_DISPATCHER
+
+
 
 GLDebugDrawer	debugDrawer;
 class btIDebugDraw* debugDrawerPtr=0;
@@ -187,12 +193,22 @@ void	ConcaveDemo::initPhysics()
 
 
 //	btCollisionShape* groundShape = new btBoxShape(btVector3(50,3,50));
-	btCollisionDispatcher* dispatcher = new btCollisionDispatcher();
+	
+#ifdef USE_PARALLEL_DISPATCHER
+	btCollisionDispatcher* dispatcher = new	SpuGatheringCollisionDispatcher();
+#else
+		btCollisionDispatcher* dispatcher = new	btCollisionDispatcher();
+#endif//USE_PARALLEL_DISPATCHER
+
+
 	btVector3 worldMin(-1000,-1000,-1000);
 	btVector3 worldMax(1000,1000,1000);
 	btOverlappingPairCache* pairCache = new btAxisSweep3(worldMin,worldMax);
 	btConstraintSolver* constraintSolver = new btSequentialImpulseConstraintSolver();
 	m_dynamicsWorld = new btDiscreteDynamicsWorld(dispatcher,pairCache,constraintSolver);
+#ifdef USE_PARALLEL_DISPATCHER
+	m_dynamicsWorld->getDispatchInfo().m_enableSPU=true;
+#endif //USE_PARALLEL_DISPATCHER
 	m_dynamicsWorld->setDebugDrawer(&debugDrawer);
 	debugDrawerPtr = &debugDrawer;
 	
@@ -201,6 +217,17 @@ void	ConcaveDemo::initPhysics()
 	startTransform.setIdentity();
 	startTransform.setOrigin(btVector3(0,-2,0));
 
+	{
+		for (int i=0;i<10;i++)
+		{
+			//btCollisionShape* boxShape = new btBoxShape(btVector3(1,1,1));
+			btCollisionShape* boxShape = new btSphereShape(1.f);
+			startTransform.setOrigin(btVector3(2*i,10,1));
+			localCreateRigidBody(1, startTransform,boxShape);
+		}
+	}
+
+	startTransform.setIdentity();
 	staticBody = localCreateRigidBody(mass, startTransform,trimeshShape);
 
 	staticBody->setCollisionFlags(staticBody->getCollisionFlags() | btCollisionObject::CF_STATIC_OBJECT);
@@ -208,14 +235,7 @@ void	ConcaveDemo::initPhysics()
 	//enable custom material callback
 	staticBody->setCollisionFlags(staticBody->getCollisionFlags()  | btCollisionObject::CF_CUSTOM_MATERIAL_CALLBACK);
 
-	{
-		for (int i=0;i<10;i++)
-		{
-			btCollisionShape* boxShape = new btBoxShape(btVector3(1,1,1));
-			startTransform.setOrigin(btVector3(2*i,10,1));
-			localCreateRigidBody(1, startTransform,boxShape);
-		}
-	}
+	
 	
 }
 

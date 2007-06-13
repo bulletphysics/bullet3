@@ -22,6 +22,12 @@ subject to the following restrictions:
 #include "LinearMath/btIDebugDraw.h"
 #include "LinearMath/btGeometryUtil.h"
 
+//#define USE_PARALLEL_DISPATCHER 1
+#ifdef USE_PARALLEL_DISPATCHER
+#include "../../Extras/BulletMultiThreaded/SpuGatheringCollisionDispatcher.h"
+#endif//USE_PARALLEL_DISPATCHER
+
+
 #include "GLDebugDrawer.h"
 
 #include "BMF_Api.h"
@@ -83,7 +89,13 @@ void ConvexDecompositionDemo::initPhysics(const char* filename)
 		//when running this app from visual studio, the default starting folder is different, so make a second attempt...
 		tcount = wo.loadObj("../../file.obj");
 	}
-	btCollisionDispatcher* dispatcher = new	btCollisionDispatcher();
+
+#ifdef USE_PARALLEL_DISPATCHER
+	btCollisionDispatcher* dispatcher = new	SpuGatheringCollisionDispatcher();
+#else
+		btCollisionDispatcher* dispatcher = new	btCollisionDispatcher();
+#endif//USE_PARALLEL_DISPATCHER
+
 
 
 	btVector3 worldAabbMin(-10000,-10000,-10000);
@@ -94,6 +106,10 @@ void ConvexDecompositionDemo::initPhysics(const char* filename)
 
 	btConstraintSolver* solver = new btSequentialImpulseConstraintSolver();
 	m_dynamicsWorld = new btDiscreteDynamicsWorld(dispatcher,broadphase,solver);
+
+#ifdef USE_PARALLEL_DISPATCHER
+	m_dynamicsWorld->getDispatchInfo().m_enableSPU = true;
+#endif //USE_PARALLEL_DISPATCHER
 
 	btTransform startTransform;
 	startTransform.setIdentity();
@@ -227,8 +243,13 @@ void ConvexDecompositionDemo::initPhysics(const char* filename)
 					
 #else //SHRINK_OBJECT_INWARDS
 					
-					//btCollisionShape* convexShape = new btConvexHullShape(&(vertices[0].getX()),vertices.size());
+#ifdef USE_PARALLEL_DISPATCHER
+					//SPU/multi threaded version only supports convex hull with contiguous vertices at the moment
+					btCollisionShape* convexShape = new btConvexHullShape(&(vertices[0].getX()),vertices.size());
+#else
 					btCollisionShape* convexShape = new btConvexTriangleMeshShape(trimesh);
+#endif //USE_PARALLEL_DISPATCHER
+
 #endif 
 
 					convexShape->setMargin(0.01);

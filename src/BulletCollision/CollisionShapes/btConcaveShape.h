@@ -34,6 +34,9 @@ public:
 	virtual ~btConcaveShape();
 
 	virtual void	processAllTriangles(btTriangleCallback* callback,const btVector3& aabbMin,const btVector3& aabbMax) const = 0;
+	virtual void	processAllTrianglesBruteForce(btTriangleCallback* callback,const btVector3& aabbMin,const btVector3& aabbMax) const = 0;
+
+	
 
 	virtual btScalar getMargin() const {
 		return m_collisionMargin;
