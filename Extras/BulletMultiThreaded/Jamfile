@@ -2,11 +2,11 @@ SubDir TOP Extras BulletMultiThreaded ;
 
 #IncludeDir Extras/BulletMultiThreaded ;
 
-Library BulletMultiThreaded : [ Wildcard . : */.h *.cpp ] [ Wildcard SpuNarrowPhaseCollisionTask : *.h *.cpp  ] : noinstall ;
-CFlags BulletMultiThreaded : [ FIncludes $(TOP)/Extras/BulletMultiThreaded ] ;
-LibDepends BulletMultiThreaded :  ;
+Library bulletmultithreaded : [ Wildcard . : */.h *.cpp ] [ Wildcard SpuNarrowPhaseCollisionTask : *.h *.cpp  ] : noinstall ;
+CFlags bulletmultithreaded : [ FIncludes $(TOP)/Extras/BulletMultiThreaded ] ;
+LibDepends bulletmultithreaded :  ;
 
-   MsvcIncDirs BulletMultiThreaded : 
+   MsvcIncDirs bulletmultithreaded : 
 	"../../Extras/BulletMultiThreaded"  ;
 
-InstallHeader [ Wildcard *.h ] : BulletMultiThreaded ;
+InstallHeader [ Wildcard *.h ] : bulletmultithreaded ;

@@ -1,6 +1,14 @@
 Bullet Continuous Collision Detection and Physics Library
 Erwin Coumans
 
+2007 June 11
+	- Added multi-threading. Originally for Playstation 3 Cell SPU, but the same code can run using Win32 Threads using fake DMA transfers (memcpy)
+		Libspe2 support for Cell Blade / PS3 Linux is upcoming
+		See Extras/BulletMultiThreaded. Usage: replace btCollisionDispatcher by btSpuGatheringCollisionDispatcher
+
+	- Added managed Bullet library, entirely rewritten in C# for Windows and XBox 360 XNA
+		See Extras/BulletX
+
 2007 May 31
 	- sign-bit went wrong in case of 32-bit broadphase, causing quantization problems. 
 		Thanks DevO for reporting.
