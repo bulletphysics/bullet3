@@ -20,6 +20,7 @@ subject to the following restrictions:
 #include "BulletCollision/CollisionShapes/btConvexShape.h"
 #include "BulletCollision/CollisionShapes/btCylinderShape.h"
 
+#define MAX_NUM_SPU_CONVEX_POINTS 128
 
 struct	SpuConvexPolyhedronVertexData
 {
@@ -29,6 +30,9 @@ struct	SpuConvexPolyhedronVertexData
 	btPoint3* gConvexPoints1;
 	int gNumConvexPoints0;
 	int gNumConvexPoints1;
+	ATTRIBUTE_ALIGNED16(btPoint3	g_convexPointBuffer0[MAX_NUM_SPU_CONVEX_POINTS]);
+	ATTRIBUTE_ALIGNED16(btPoint3	g_convexPointBuffer1[MAX_NUM_SPU_CONVEX_POINTS]);
+
 };
 
 

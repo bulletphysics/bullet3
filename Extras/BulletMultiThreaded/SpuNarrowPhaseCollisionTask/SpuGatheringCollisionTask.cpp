@@ -14,6 +14,8 @@
 #include "BulletCollision/CollisionShapes/btTriangleIndexVertexArray.h"
 #include "BulletCollision/CollisionShapes/btConvexShape.h"
 #include "BulletCollision/CollisionShapes/btBvhTriangleMeshShape.h"
+#include "BulletCollision/CollisionShapes/btConvexHullShape.h"
+
 #include "SpuMinkowskiPenetrationDepthSolver.h"
 #include "SpuGjkPairDetector.h"
 #include "SpuVoronoiSimplexSolver.h"
@@ -25,6 +27,7 @@
 #define spu_printf printf
 #include <stdio.h>
 #endif
+
 
 
 //int gNumConvexPoints0=0;
@@ -66,7 +69,7 @@ struct	CollisionTask_LocalStoreMemory
 	ATTRIBUTE_ALIGNED16(btBvhSubtreeInfo	gSubtreeHeaders[MAX_SPU_SUBTREE_HEADERS]);
 	ATTRIBUTE_ALIGNED16(btQuantizedBvhNode	gSubtreeNodes[MAX_SUBTREE_SIZE_IN_BYTES/sizeof(btQuantizedBvhNode)]);
 
-	SpuConvexPolyhedronVertexData* convexVertexData;
+	SpuConvexPolyhedronVertexData convexVertexData;
 
 
 };
@@ -105,6 +108,80 @@ void	ProcessSpuConvexConvexCollision(SpuCollisionPairInput* wuInput, CollisionTa
 		SpuVoronoiSimplexSolver vsSolver;
 		SpuMinkowskiPenetrationDepthSolver	penetrationSolver;
 
+
+
+		///DMA in the vertices for convex shapes
+
+		if (wuInput->m_shapeType0== CONVEX_HULL_SHAPE_PROXYTYPE)
+		{
+			//	spu_printf("SPU: DMA btConvexHullShape\n");
+			ATTRIBUTE_ALIGNED16(char convexHullShape0[sizeof(btConvexHullShape)]);
+			{
+				int dmaSize = sizeof(btConvexHullShape);
+				uint64_t	dmaPpuAddress2 = wuInput->m_collisionShapes[0];
+				cellDmaGet(&convexHullShape0, dmaPpuAddress2  , dmaSize, DMA_TAG(1), 0, 0);
+				cellDmaWaitTagStatusAll(DMA_MASK(1));
+			}
+			btConvexHullShape* localPtr = (btConvexHullShape*)&convexHullShape0;
+			
+			lsMemPtr->convexVertexData.gNumConvexPoints0 = localPtr->getNumPoints();
+			if (lsMemPtr->convexVertexData.gNumConvexPoints0>MAX_NUM_SPU_CONVEX_POINTS)
+			{
+				btAssert(0);
+				spu_printf("SPU: Error: MAX_NUM_SPU_CONVEX_POINTS(%d) exceeded: %d\n",MAX_NUM_SPU_CONVEX_POINTS,lsMemPtr->convexVertexData.gNumConvexPoints0);
+				return;
+			}
+
+			{
+				int dmaSize = lsMemPtr->convexVertexData.gNumConvexPoints0*sizeof(btPoint3);
+				uint64_t	dmaPpuAddress2 = (uint64_t) localPtr->getPoints();
+				cellDmaGet(&lsMemPtr->convexVertexData.g_convexPointBuffer0, dmaPpuAddress2  , dmaSize, DMA_TAG(1), 0, 0);
+
+				lsMemPtr->convexVertexData.gSpuConvexShapePtr0 = wuInput->m_spuCollisionShapes[0];
+				lsMemPtr->convexVertexData.gConvexPoints0 = &lsMemPtr->convexVertexData.g_convexPointBuffer0[0];
+				cellDmaWaitTagStatusAll(DMA_MASK(1));
+			}
+
+		}
+
+		if (wuInput->m_shapeType1 == CONVEX_HULL_SHAPE_PROXYTYPE)
+		{
+
+			ATTRIBUTE_ALIGNED16(char convexHullShape1[sizeof(btConvexHullShape)]);
+
+		//	spu_printf("SPU: DMA btConvexHullShape\n");
+			{
+				int dmaSize = sizeof(btConvexHullShape);
+				uint64_t	dmaPpuAddress2 = wuInput->m_collisionShapes[1];
+				cellDmaGet(&convexHullShape1, dmaPpuAddress2  , dmaSize, DMA_TAG(1), 0, 0);
+				cellDmaWaitTagStatusAll(DMA_MASK(1));
+			}
+			btConvexHullShape* localPtr = (btConvexHullShape*)&convexHullShape1;
+			
+			lsMemPtr->convexVertexData.gNumConvexPoints1 = localPtr->getNumPoints();
+			if (lsMemPtr->convexVertexData.gNumConvexPoints1>MAX_NUM_SPU_CONVEX_POINTS)
+			{
+				btAssert(0);
+				spu_printf("SPU: Error: MAX_NUM_SPU_CONVEX_POINTS(%d) exceeded: %d\n",MAX_NUM_SPU_CONVEX_POINTS,lsMemPtr->convexVertexData.gNumConvexPoints1);
+				return;
+			}
+
+			{
+				int dmaSize = lsMemPtr->convexVertexData.gNumConvexPoints1*sizeof(btPoint3);
+				uint64_t	dmaPpuAddress2 = (uint64_t) localPtr->getPoints();
+				cellDmaGet(&lsMemPtr->convexVertexData.g_convexPointBuffer1, dmaPpuAddress2  , dmaSize, DMA_TAG(1), 0, 0);
+				cellDmaWaitTagStatusAll(DMA_MASK(1));
+				lsMemPtr->convexVertexData.gSpuConvexShapePtr1 = wuInput->m_spuCollisionShapes[1];
+				lsMemPtr->convexVertexData.gConvexPoints1 = &lsMemPtr->convexVertexData.g_convexPointBuffer1[0];
+			}
+
+		}
+
+
+
+
+
+
 		void* shape0Ptr = wuInput->m_spuCollisionShapes[0];
 		void* shape1Ptr = wuInput->m_spuCollisionShapes[1];
 		int shapeType0 = wuInput->m_shapeType0;
@@ -113,7 +190,7 @@ void	ProcessSpuConvexConvexCollision(SpuCollisionPairInput* wuInput, CollisionTa
 		float marginB = wuInput->m_collisionMargin1;
 		
 		SpuClosestPointInput	cpInput;
-		cpInput.m_convexVertexData = lsMemPtr->convexVertexData;
+		cpInput.m_convexVertexData = &lsMemPtr->convexVertexData;
 		cpInput.m_transformA = wuInput->m_worldTransform0;
 		cpInput.m_transformB = wuInput->m_worldTransform1;
 		float sumMargin = (marginA+marginB);

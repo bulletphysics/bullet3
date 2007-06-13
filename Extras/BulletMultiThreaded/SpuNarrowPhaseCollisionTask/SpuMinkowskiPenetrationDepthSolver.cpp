@@ -296,7 +296,7 @@ bool SpuMinkowskiPenetrationDepthSolver::calcPenDepth( SpuVoronoiSimplexSolver& 
 	
 
 	SpuClosestPointInput input;
-
+	input.m_convexVertexData = convexVertexData;
 	btVector3 newOrg = transA.getOrigin() + offset;
 
 	btTransform displacedTrans = transA;
