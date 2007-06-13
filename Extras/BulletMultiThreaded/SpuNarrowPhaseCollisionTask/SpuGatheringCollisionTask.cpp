@@ -12,6 +12,10 @@
 #include "SpuContactResult.h"
 #include "BulletCollision/CollisionShapes/btOptimizedBvh.h"
 #include "BulletCollision/CollisionShapes/btTriangleIndexVertexArray.h"
+#include "BulletCollision/CollisionShapes/btSphereShape.h"
+
+
+
 #include "BulletCollision/CollisionShapes/btConvexShape.h"
 #include "BulletCollision/CollisionShapes/btBvhTriangleMeshShape.h"
 #include "BulletCollision/CollisionShapes/btConvexHullShape.h"
@@ -83,8 +87,390 @@ void* createCollisionLocalStoreMemory()
 };
 
 
+void	ProcessSpuConvexConvexCollision(SpuCollisionPairInput* wuInput, CollisionTask_LocalStoreMemory* lsMemPtr, SpuContactResult& spuContacts);
 
 
+inline bool spuTestQuantizedAabbAgainstQuantizedAabb(const unsigned short int* aabbMin1,const unsigned short int* aabbMax1,const unsigned short int* aabbMin2,const unsigned short int*  aabbMax2)
+{
+	bool overlap = true;
+	overlap = (aabbMin1[0] > aabbMax2[0] || aabbMax1[0] < aabbMin2[0]) ? false : overlap;
+	overlap = (aabbMin1[2] > aabbMax2[2] || aabbMax1[2] < aabbMin2[2]) ? false : overlap;
+	overlap = (aabbMin1[1] > aabbMax2[1] || aabbMax1[1] < aabbMin2[1]) ? false : overlap;
+	return overlap;
+}
+
+
+void	spuWalkStacklessQuantizedTree(btNodeOverlapCallback* nodeCallback,unsigned short int* quantizedQueryAabbMin,unsigned short int* quantizedQueryAabbMax,const btQuantizedBvhNode* rootNode,int startNodeIndex,int endNodeIndex)
+{
+	
+	int curIndex = startNodeIndex;
+	int walkIterations = 0;
+	int subTreeSize = endNodeIndex - startNodeIndex;
+
+	int escapeIndex;
+	
+	bool aabbOverlap, isLeafNode;
+
+	while (curIndex < endNodeIndex)
+	{
+		//catch bugs in tree data
+		assert (walkIterations < subTreeSize);
+
+		walkIterations++;
+		aabbOverlap = spuTestQuantizedAabbAgainstQuantizedAabb(quantizedQueryAabbMin,quantizedQueryAabbMax,rootNode->m_quantizedAabbMin,rootNode->m_quantizedAabbMax);
+		isLeafNode = rootNode->isLeafNode();
+		
+		if (isLeafNode && aabbOverlap)
+		{
+			nodeCallback->processNode(0,rootNode->getTriangleIndex());
+//			spu_printf("SPU: overlap detected with triangleIndex:%d\n",rootNode->getTriangleIndex());
+		} 
+		
+		if (aabbOverlap || isLeafNode)
+		{
+			rootNode++;
+			curIndex++;
+		} else
+		{
+			escapeIndex = rootNode->getEscapeIndex();
+			rootNode += escapeIndex;
+			curIndex += escapeIndex;
+		}
+	}
+	
+}
+
+
+void small_cache_read(void* buffer, uint64_t ea, size_t size)
+{
+#if USE_SOFTWARE_CACHE
+    // Check for alignment requirements. We need to make sure the entire request fits within one cache line,
+    // so the first and last bytes should fall on the same cache line
+    btAssert((ea & ~SPE_CACHELINE_MASK) == ((ea + size - 1) & ~SPE_CACHELINE_MASK));
+
+    void* ls = spe_cache_read(ea);
+    memcpy(buffer, ls, size);
+#else
+    cellDmaLargeGet(buffer, ea, size, DMA_TAG(16), 0, 0);
+    cellDmaWaitTagStatusAll(DMA_MASK(16));
+#endif
+}
+
+
+
+class spuNodeCallback : public btNodeOverlapCallback
+{
+	SpuCollisionPairInput* m_wuInput;
+	SpuContactResult&		m_spuContacts;
+	CollisionTask_LocalStoreMemory*	m_lsMemPtr;
+
+	ATTRIBUTE_ALIGNED16(btVector3	spuTriangleVertices[3]);
+	ATTRIBUTE_ALIGNED16(btScalar	spuUnscaledVertex[4]);
+	ATTRIBUTE_ALIGNED16(int	spuIndices[16]);
+
+
+public:
+	spuNodeCallback(SpuCollisionPairInput* wuInput, CollisionTask_LocalStoreMemory*	lsMemPtr,SpuContactResult& spuContacts)
+		:	m_wuInput(wuInput),
+		m_lsMemPtr(lsMemPtr),
+			m_spuContacts(spuContacts)
+	{
+	}
+
+	virtual void processNode(int subPart, int triangleIndex)
+	{
+		///Create a triangle on the stack, call process collision, with GJK
+		///DMA the vertices, can benefit from software caching
+
+//		spu_printf("processNode with triangleIndex %d\n",triangleIndex);
+		
+		
+
+		int* indexBasePtr = (int*)(m_lsMemPtr->gIndexMesh.m_triangleIndexBase+triangleIndex*m_lsMemPtr->gIndexMesh.m_triangleIndexStride);
+
+		///DMA the indices
+		small_cache_read(&m_lsMemPtr->spuIndices[0],(uint64_t)&indexBasePtr[0],sizeof(int));
+		small_cache_read(&m_lsMemPtr->spuIndices[1],(uint64_t)&indexBasePtr[1],sizeof(int));
+		small_cache_read(&m_lsMemPtr->spuIndices[2],(uint64_t)&indexBasePtr[2],sizeof(int));
+
+//		spu_printf("SPU index0=%d ,",spuIndices[0]);
+//		spu_printf("SPU index1=%d ,",spuIndices[1]);
+//		spu_printf("SPU index2=%d ,",spuIndices[2]);
+//		spu_printf("SPU: indexBasePtr=%llx\n",indexBasePtr);
+
+		const btVector3& meshScaling = m_lsMemPtr->gTriangleMeshInterface.getScaling();
+		for (int j=2;j>=0;j--)
+		{
+			int graphicsindex = m_lsMemPtr->spuIndices[j];
+
+//			spu_printf("SPU index=%d ,",graphicsindex);
+			btScalar* graphicsbasePtr = (btScalar*)(m_lsMemPtr->gIndexMesh.m_vertexBase+graphicsindex*m_lsMemPtr->gIndexMesh.m_vertexStride);
+//			spu_printf("SPU graphicsbasePtr=%llx\n",graphicsbasePtr);
+			
+
+			///handle un-aligned vertices...
+		
+			//another DMA for each vertex
+			small_cache_read(&m_lsMemPtr->spuUnscaledVertex[0],(uint64_t)&graphicsbasePtr[0],sizeof(btScalar));
+			small_cache_read(&m_lsMemPtr->spuUnscaledVertex[1],(uint64_t)&graphicsbasePtr[1],sizeof(btScalar));
+			small_cache_read(&m_lsMemPtr->spuUnscaledVertex[2],(uint64_t)&graphicsbasePtr[2],sizeof(btScalar));
+	
+				spuTriangleVertices[j] = btVector3(
+				spuUnscaledVertex[0]*meshScaling.getX(),
+				spuUnscaledVertex[1]*meshScaling.getY(),
+				spuUnscaledVertex[2]*meshScaling.getZ());
+
+//			spu_printf("SPU:triangle vertices:%f,%f,%f\n",spuTriangleVertices[j].x(),spuTriangleVertices[j].y(),spuTriangleVertices[j].z());
+		}
+	
+
+
+		//btTriangleShape	tmpTriangleShape(spuTriangleVertices[0],spuTriangleVertices[1],spuTriangleVertices[2]);
+
+				
+		SpuCollisionPairInput triangleConcaveInput(*m_wuInput);
+		triangleConcaveInput.m_spuCollisionShapes[1] = &spuTriangleVertices[0];
+		triangleConcaveInput.m_shapeType1 = TRIANGLE_SHAPE_PROXYTYPE;
+
+		m_spuContacts.setShapeIdentifiers(-1,-1,subPart,triangleIndex);
+
+//		m_spuContacts.flush();
+
+		ProcessSpuConvexConvexCollision(&triangleConcaveInput, m_lsMemPtr,m_spuContacts);
+		///this flush should be automatic
+	//	m_spuContacts.flush();
+	}
+
+};
+
+
+
+
+////////////////////////
+/// Convex versus Concave triangle mesh collision detection (handles concave triangle mesh versus sphere, box, cylinder, triangle, cone, convex polyhedron etc)
+///////////////////
+void	ProcessConvexConcaveSpuCollision(SpuCollisionPairInput* wuInput, CollisionTask_LocalStoreMemory* lsMemPtr, SpuContactResult& spuContacts)
+{
+	//order: first collision shape is convex, second concave. m_isSwapped is true, if the original order was opposite
+
+
+
+	btBvhTriangleMeshShape*	trimeshShape = (btBvhTriangleMeshShape*)wuInput->m_spuCollisionShapes[1];
+	//need the mesh interface, for access to triangle vertices
+	{
+			int dmaSize = sizeof(btTriangleIndexVertexArray);
+			uint64_t	dmaPpuAddress2 = reinterpret_cast<uint64_t>(trimeshShape->getMeshInterface());
+		//	spu_printf("trimeshShape->getMeshInterface() == %llx\n",dmaPpuAddress2);
+			cellDmaGet(&lsMemPtr->gTriangleMeshInterface, dmaPpuAddress2  , dmaSize, DMA_TAG(1), 0, 0);
+			cellDmaWaitTagStatusAll(DMA_MASK(1));
+	}
+
+	///now DMA over the BVH
+	{
+		int dmaSize = sizeof(btOptimizedBvh);
+		uint64_t	dmaPpuAddress2 = reinterpret_cast<uint64_t>(trimeshShape->getOptimizedBvh());
+		//spu_printf("trimeshShape->getOptimizedBvh() == %llx\n",dmaPpuAddress2);
+		cellDmaGet(&lsMemPtr->gOptimizedBvh, dmaPpuAddress2  , dmaSize, DMA_TAG(1), 0, 0);
+		cellDmaWaitTagStatusAll(DMA_MASK(1));
+	}
+	
+	btVector3 aabbMin(-1,-400,-1);
+	btVector3 aabbMax(1,400,1);
+
+
+	//recalc aabbs
+	btTransform convexInTriangleSpace;
+	convexInTriangleSpace = wuInput->m_worldTransform1.inverse() * wuInput->m_worldTransform0;
+	btConvexShape* convexShape = (btConvexShape*)wuInput->m_spuCollisionShapes[0];
+	//calculate the aabb, given the types...
+	switch (wuInput->m_shapeType0)
+	{
+	case CYLINDER_SHAPE_PROXYTYPE:
+	
+	case BOX_SHAPE_PROXYTYPE:
+		{
+			float margin=convexShape->getMarginNV();
+			btVector3 halfExtents = convexShape->getImplicitShapeDimensions();
+			btTransform& t = wuInput->m_worldTransform0;
+			btMatrix3x3 abs_b = t.getBasis().absolute();  
+			btPoint3 center = t.getOrigin();
+			btVector3 extent = btVector3(abs_b[0].dot(halfExtents),
+				   abs_b[1].dot(halfExtents),
+				  abs_b[2].dot(halfExtents));
+			extent += btVector3(margin,margin,margin);
+			aabbMin = center - extent;
+			aabbMax = center + extent;
+			break;
+		}
+
+	case CAPSULE_SHAPE_PROXYTYPE:
+		{
+		float margin=convexShape->getMarginNV();
+			btVector3 halfExtents = convexShape->getImplicitShapeDimensions();
+			//add the radius to y-axis to get full height
+			btScalar radius = halfExtents[0];
+			halfExtents[1] += radius;
+			btTransform& t = wuInput->m_worldTransform0;
+			btMatrix3x3 abs_b = t.getBasis().absolute();  
+			btPoint3 center = t.getOrigin();
+			btVector3 extent = btVector3(abs_b[0].dot(halfExtents),
+				   abs_b[1].dot(halfExtents),
+				  abs_b[2].dot(halfExtents));
+			extent += btVector3(margin,margin,margin);
+			aabbMin = center - extent;
+			aabbMax = center + extent;
+			break;
+		}
+
+
+	case SPHERE_SHAPE_PROXYTYPE:
+		{
+			float radius = convexShape->getImplicitShapeDimensions().getX();// * convexShape->getLocalScaling().getX();
+			float margin = radius + convexShape->getMarginNV();
+			btTransform& t = wuInput->m_worldTransform0;
+			const btVector3& center = t.getOrigin();
+			btVector3 extent(margin,margin,margin);
+			aabbMin = center - extent;
+			aabbMax = center + extent;
+			break;
+		}
+	case CONVEX_HULL_SHAPE_PROXYTYPE:
+		{
+			int dmaSize = sizeof(btConvexHullShape);
+			uint64_t	dmaPpuAddress2 = wuInput->m_collisionShapes[0];
+
+			ATTRIBUTE_ALIGNED16(char convexHullShape0[sizeof(btConvexHullShape)]);
+
+			cellDmaGet(&convexHullShape0, dmaPpuAddress2  , dmaSize, DMA_TAG(1), 0, 0);
+			cellDmaWaitTagStatusAll(DMA_MASK(1));
+			btConvexHullShape* localPtr = (btConvexHullShape*)&convexHullShape0;
+			btTransform& t = wuInput->m_worldTransform0;
+			
+			btScalar margin = convexShape->getMarginNV();
+
+			localPtr->getNonvirtualAabb(t,aabbMin,aabbMax,margin);
+
+			//spu_printf("SPU convex aabbMin=%f,%f,%f=\n",aabbMin.getX(),aabbMin.getY(),aabbMin.getZ());
+			//spu_printf("SPU convex aabbMax=%f,%f,%f=\n",aabbMax.getX(),aabbMax.getY(),aabbMax.getZ());
+			
+			break;
+		}
+
+	default:
+		spu_printf("SPU: unsupported shapetype %d in AABB calculation\n");
+	};
+
+	//CollisionShape* triangleShape = static_cast<btCollisionShape*>(triBody->m_collisionShape);
+	//convexShape->getAabb(convexInTriangleSpace,m_aabbMin,m_aabbMax);
+
+//	btScalar extraMargin = collisionMarginTriangle;
+//	btVector3 extra(extraMargin,extraMargin,extraMargin);
+//	aabbMax += extra;
+//	aabbMin -= extra;
+	
+
+
+	///quantize query AABB
+	unsigned short int quantizedQueryAabbMin[3];
+	unsigned short int quantizedQueryAabbMax[3];
+	lsMemPtr->gOptimizedBvh.quantizeWithClamp(quantizedQueryAabbMin,aabbMin);
+	lsMemPtr->gOptimizedBvh.quantizeWithClamp(quantizedQueryAabbMax,aabbMax);
+
+	QuantizedNodeArray&	nodeArray = lsMemPtr->gOptimizedBvh.getQuantizedNodeArray();
+	//spu_printf("SPU: numNodes = %d\n",nodeArray.size());
+
+	BvhSubtreeInfoArray& subTrees = lsMemPtr->gOptimizedBvh.getSubtreeInfoArray();
+
+	spuNodeCallback	nodeCallback(wuInput,lsMemPtr,spuContacts);
+	IndexedMeshArray&	indexArray = lsMemPtr->gTriangleMeshInterface.getIndexedMeshArray();
+	//spu_printf("SPU:indexArray.size() = %d\n",indexArray.size());
+
+
+//	spu_printf("SPU: numSubTrees = %d\n",subTrees.size());
+	//not likely to happen
+	if (subTrees.size() && indexArray.size() == 1)
+	{
+		///DMA in the index info
+		{
+			int dmaSize = sizeof(btIndexedMesh);
+			uint64_t	dmaPpuAddress2 = reinterpret_cast<uint64_t>(&indexArray[0]);
+			cellDmaGet(&lsMemPtr->gIndexMesh, dmaPpuAddress2  , dmaSize, DMA_TAG(1), 0, 0);
+			cellDmaWaitTagStatusAll(DMA_MASK(1));
+		}
+
+		//spu_printf("SPU gIndexMesh dma finished\n");
+
+		//display the headers
+		int numBatch = subTrees.size();
+		for (int i=0;i<numBatch;)
+		{
+
+			int remaining = subTrees.size() - i;
+			int nextBatch = remaining < MAX_SPU_SUBTREE_HEADERS ? remaining : MAX_SPU_SUBTREE_HEADERS;
+			{
+				int dmaSize = nextBatch* sizeof(btBvhSubtreeInfo);
+				uint64_t	dmaPpuAddress2 = reinterpret_cast<uint64_t>(&subTrees[i]);
+//				spu_printf("&subtree[i]=%llx, dmaSize = %d\n",dmaPpuAddress2,dmaSize);
+				cellDmaGet(&lsMemPtr->gSubtreeHeaders[0], dmaPpuAddress2  , dmaSize, DMA_TAG(1), 0, 0);
+				cellDmaWaitTagStatusAll(DMA_MASK(1));
+			}
+
+//			spu_printf("nextBatch = %d\n",nextBatch);
+
+			for (int j=0;j<nextBatch;j++)
+			{
+				const btBvhSubtreeInfo& subtree = lsMemPtr->gSubtreeHeaders[j];
+
+				bool overlap = spuTestQuantizedAabbAgainstQuantizedAabb(quantizedQueryAabbMin,quantizedQueryAabbMax,subtree.m_quantizedAabbMin,subtree.m_quantizedAabbMax);
+				if (overlap)
+				{
+					btAssert(subtree.m_subtreeSize);
+
+					//dma the actual nodes of this subtree
+					{
+						int dmaSize = subtree.m_subtreeSize* sizeof(btQuantizedBvhNode);
+						uint64_t	dmaPpuAddress2 = reinterpret_cast<uint64_t>(&nodeArray[subtree.m_rootNodeIndex]);
+						cellDmaGet(&lsMemPtr->gSubtreeNodes[0], dmaPpuAddress2  , dmaSize, DMA_TAG(1), 0, 0);
+						cellDmaWaitTagStatusAll(DMA_MASK(1));
+					}
+
+					
+
+					spuWalkStacklessQuantizedTree(&nodeCallback,quantizedQueryAabbMin,quantizedQueryAabbMax,
+						&lsMemPtr->gSubtreeNodes[0],
+						0,
+						subtree.m_subtreeSize);
+
+				}
+
+
+//				spu_printf("subtreeSize = %d\n",gSubtreeHeaders[j].m_subtreeSize);
+			}
+
+				//	unsigned short int	m_quantizedAabbMin[3];
+				//	unsigned short int	m_quantizedAabbMax[3];
+				//	int			m_rootNodeIndex;
+				//	int			m_subtreeSize;
+			i+=nextBatch;
+		}
+
+		//pre-fetch first tree, then loop and double buffer
+
+	
+
+	}
+		
+}
+
+
+
+
+
+
+
+////////////////////////
+/// Convex versus Convex collision detection (handles collision between sphere, box, cylinder, triangle, cone, convex polyhedron etc)
+///////////////////
 void	ProcessSpuConvexConvexCollision(SpuCollisionPairInput* wuInput, CollisionTask_LocalStoreMemory* lsMemPtr, SpuContactResult& spuContacts)
 {
 
@@ -374,13 +760,13 @@ void	processCollisionTask(void* userPtr, void* lsMemPtr)
 							{
 
 								{
-									int dmaSize = lsMem.maxShapeSize;
+									int dmaSize = sizeof(btSphereShape);//lsMem.maxShapeSize;
 									uint64_t	dmaPpuAddress2 = (uint64_t)lsMem.gColObj0.getCollisionShape();
 									cellDmaGet(lsMem.gCollisionShape0, dmaPpuAddress2  , dmaSize, DMA_TAG(1), 0, 0);
 									cellDmaWaitTagStatusAll(DMA_MASK(1));
 								}
 								{
-									int dmaSize = lsMem.maxShapeSize;
+									int dmaSize = sizeof(btSphereShape);//lsMem.maxShapeSize;
 									uint64_t	dmaPpuAddress2 = (uint64_t)lsMem.gColObj1.getCollisionShape();
 									cellDmaGet(lsMem.gCollisionShape1, dmaPpuAddress2  , dmaSize, DMA_TAG(2), 0, 0);
 									cellDmaWaitTagStatusAll(DMA_MASK(2));
@@ -429,14 +815,14 @@ void	processCollisionTask(void* userPtr, void* lsMemPtr)
 
 									///dma and initialize the convex object
 									{
-										int dmaSize = lsMem.maxShapeSize;
+										int dmaSize = sizeof(btSphereShape);//lsMem.maxShapeSize;
 										uint64_t	dmaPpuAddress2 = (uint64_t)lsMem.gColObj0.getCollisionShape();
 										cellDmaGet(lsMem.gCollisionShape0, dmaPpuAddress2  , dmaSize, DMA_TAG(1), 0, 0);
 										cellDmaWaitTagStatusAll(DMA_MASK(1));
 									}
-									///dma and initialize the convex object
+									///dma and initialize the concave object
 									{
-										int dmaSize = lsMem.maxShapeSize;
+										int dmaSize = sizeof(btBvhTriangleMeshShape);//lsMem.maxShapeSize;
 										uint64_t	dmaPpuAddress2 = (uint64_t)lsMem.gColObj1.getCollisionShape();
 			//							spu_printf("SPU: trimesh = %llx\n",dmaPpuAddress2);
 										cellDmaGet(lsMem.gCollisionShape1, dmaPpuAddress2  , dmaSize, DMA_TAG(2), 0, 0);
@@ -452,8 +838,7 @@ void	processCollisionTask(void* userPtr, void* lsMemPtr)
 									collisionPairInput.m_spuCollisionShapes[0] = spuConvexShape0;
 									collisionPairInput.m_spuCollisionShapes[1] = trimeshShape;
 								
-									btAssert(0);
-									//ProcessConvexConcaveSpuCollision(&collisionPairInput,spuContacts);
+									ProcessConvexConcaveSpuCollision(&collisionPairInput,&lsMem,spuContacts);
 								}
 
 							}
