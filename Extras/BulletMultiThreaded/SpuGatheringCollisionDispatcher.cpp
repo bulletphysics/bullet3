@@ -140,7 +140,6 @@ public:
 
 void	SpuGatheringCollisionDispatcher::dispatchAllCollisionPairs(btOverlappingPairCache* pairCache,btDispatcherInfo& dispatchInfo)
 {
-	//cellPerfInsertCBEpmBookmark(1);
 
 	if (dispatchInfo.m_enableSPU)
 	{
