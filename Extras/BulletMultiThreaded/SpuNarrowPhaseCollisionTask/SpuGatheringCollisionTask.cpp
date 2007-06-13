@@ -657,7 +657,7 @@ void	processCollisionTask(void* userPtr, void* lsMemPtr)
 			{
 			
 				{
-					int dmaSize = numPairs*sizeof(SpuGatherAndProcessPairsTaskDesc);
+					int dmaSize = numPairs*sizeof(btBroadphasePair);
 					uint64_t	dmaPpuAddress = wuInputs[j].m_pairArrayPtr+wuInputs[j].m_startIndex * sizeof(btBroadphasePair);
 					cellDmaGet(&lsMem.gBroadphasePairs, dmaPpuAddress  , dmaSize, DMA_TAG(1), 0, 0);
 					cellDmaWaitTagStatusAll(DMA_MASK(1));
