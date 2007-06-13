@@ -17,6 +17,8 @@ subject to the following restrictions:
 //#define USE_GROUND_BOX 1
 //#define PRINT_CONTACT_STATISTICS 1
 //#define CHECK_MEMORY_LEAKS 1
+//#define USE_PARALLEL_DISPATCHER 1
+
 
 int gNumObjects = 120;
 #define HALF_EXTENTS btScalar(1.)
@@ -29,6 +31,11 @@ btScalar gCollisionMargin = btScalar(0.05);
 #include "BasicDemo.h"
 #include "GL_ShapeDrawer.h"
 #include "GlutStuff.h"
+
+#ifdef USE_PARALLEL_DISPATCHER
+#include "SpuGatheringCollisionDispatcher.h"
+#endif//USE_PARALLEL_DISPATCHER
+
 
 #include <LinearMath/btAlignedObjectArray.h>
 
@@ -115,8 +122,12 @@ void BasicDemo::displayCallback(void) {
 void	BasicDemo::initPhysics()
 {
 
-
+#ifdef USE_PARALLEL_DISPATCHER
+	m_dispatcher = new	SpuGatheringCollisionDispatcher();
+#else
 	m_dispatcher = new	btCollisionDispatcher(true);
+#endif //USE_PARALLEL_DISPATCHER
+
 //#define USE_SWEEP_AND_PRUNE 1
 #ifdef USE_SWEEP_AND_PRUNE
 #define maxProxies 8192
@@ -127,6 +138,7 @@ void	BasicDemo::initPhysics()
 	m_overlappingPairCache = new btSimpleBroadphase;
 #endif //USE_SWEEP_AND_PRUNE
 
+#ifndef USE_PARALLEL_DISPATCHER
 	m_sphereSphereCF = new btSphereSphereCollisionAlgorithm::CreateFunc;
 	m_dispatcher->registerCollisionCreateFunc(SPHERE_SHAPE_PROXYTYPE,SPHERE_SHAPE_PROXYTYPE,m_sphereSphereCF);
 
@@ -136,11 +148,14 @@ void	BasicDemo::initPhysics()
 	m_boxSphereCF->m_swapped = true;
 	m_dispatcher->registerCollisionCreateFunc(SPHERE_SHAPE_PROXYTYPE,BOX_SHAPE_PROXYTYPE,m_sphereBoxCF);
 	m_dispatcher->registerCollisionCreateFunc(BOX_SHAPE_PROXYTYPE,SPHERE_SHAPE_PROXYTYPE,m_boxSphereCF);
+#endif //USE_PARALLEL_DISPATCHER
 
 	m_solver = new btSequentialImpulseConstraintSolver;
 
 	//m_dynamicsWorld = new btSimpleDynamicsWorld(m_dispatcher,m_overlappingPairCache,m_solver);
 	m_dynamicsWorld = new btDiscreteDynamicsWorld(m_dispatcher,m_overlappingPairCache,m_solver);
+
+	m_dynamicsWorld->getDispatchInfo().m_enableSPU = true;
 
 	m_dynamicsWorld->setGravity(btVector3(0,-10,0));
 
@@ -164,6 +179,7 @@ void	BasicDemo::initPhysics()
 	localCreateRigidBody(btScalar(0.),groundTransform,groundShape);
 
 	//create a few dynamic sphere rigidbodies (re-using the same sphere shape)
+	//btCollisionShape* sphereShape = new btBoxShape(btVector3(1,1,1));
 	btCollisionShape* sphereShape = new btSphereShape(btScalar(1.));
 	m_collisionShapes.push_back(sphereShape);
 
