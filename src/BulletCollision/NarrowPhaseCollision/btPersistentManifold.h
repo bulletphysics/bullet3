@@ -108,9 +108,15 @@ public:
 		clearUserCache(m_pointCache[index]);
 
 		int lastUsedIndex = getNumContacts() - 1;
-		m_pointCache[index] = m_pointCache[lastUsedIndex];
-		//get rid of duplicated userPersistentData pointer
-		m_pointCache[lastUsedIndex].m_userPersistentData = 0;
+//		m_pointCache[index] = m_pointCache[lastUsedIndex];
+		if(index != lastUsedIndex) 
+		{
+			m_pointCache[index] = m_pointCache[lastUsedIndex]; 
+			//get rid of duplicated userPersistentData pointer
+			m_pointCache[lastUsedIndex].m_userPersistentData = 0;
+		}
+
+		btAssert(m_pointCache[lastUsedIndex].m_userPersistentData==0);
 		m_cachedPoints--;
 	}
 	void replaceContactPoint(const btManifoldPoint& newPoint,int insertIndex)
