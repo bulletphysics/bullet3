@@ -57,8 +57,8 @@ struct	CollisionTask_LocalStoreMemory
 
 	static const int maxShapeSize = MAX_SHAPE_SIZE;//todo: make some compile-time assert that this is value is larger then sizeof(btCollisionShape)
 
-	ATTRIBUTE_ALIGNED16(char	gCollisionShape0[maxShapeSize]);
-	ATTRIBUTE_ALIGNED16(char	gCollisionShape1[maxShapeSize]);
+	ATTRIBUTE_ALIGNED16(char	gCollisionShape0[MAX_SHAPE_SIZE+1]);//todo: check out why leaving out '+1' causes troubles
+	ATTRIBUTE_ALIGNED16(char	gCollisionShape1[MAX_SHAPE_SIZE+1]);
 
 	ATTRIBUTE_ALIGNED16(int	spuIndices[16]);
 

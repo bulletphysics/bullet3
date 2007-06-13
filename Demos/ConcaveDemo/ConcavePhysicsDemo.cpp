@@ -220,8 +220,8 @@ void	ConcaveDemo::initPhysics()
 	{
 		for (int i=0;i<10;i++)
 		{
-			//btCollisionShape* boxShape = new btBoxShape(btVector3(1,1,1));
-			btCollisionShape* boxShape = new btSphereShape(1.f);
+			btCollisionShape* boxShape = new btBoxShape(btVector3(1,1,1));
+			//btCollisionShape* boxShape = new btSphereShape(1.f);
 			startTransform.setOrigin(btVector3(2*i,10,1));
 			localCreateRigidBody(1, startTransform,boxShape);
 		}
