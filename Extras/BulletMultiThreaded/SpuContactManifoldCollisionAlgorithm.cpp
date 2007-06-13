@@ -31,7 +31,7 @@ void SpuContactManifoldCollisionAlgorithm::processCollision (btCollisionObject* 
 	btAssert(0);
 }
 
-float SpuContactManifoldCollisionAlgorithm::calculateTimeOfImpact(btCollisionObject* body0,btCollisionObject* body1,const btDispatcherInfo& dispatchInfo,btManifoldResult* resultOut)
+btScalar SpuContactManifoldCollisionAlgorithm::calculateTimeOfImpact(btCollisionObject* body0,btCollisionObject* body1,const btDispatcherInfo& dispatchInfo,btManifoldResult* resultOut)
 {
 	btAssert(0);
 	return 1.f;

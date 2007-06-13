@@ -128,7 +128,7 @@ public:
 
 	bool closest(btVector3& v);
 
-	float maxVertex();
+	btScalar maxVertex();
 
 	bool fullSimplex() const
 	{

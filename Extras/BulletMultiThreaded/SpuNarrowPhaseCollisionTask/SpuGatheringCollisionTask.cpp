@@ -32,7 +32,7 @@
 #include <stdio.h>
 #endif
 
-
+#define MAX_SHAPE_SIZE 256
 
 //int gNumConvexPoints0=0;
 
@@ -55,12 +55,11 @@ struct	CollisionTask_LocalStoreMemory
 	btCollisionObject	gColObj0;
 	btCollisionObject	gColObj1;
 
-	static const int maxShapeSize = 256;//todo: make some compile-time assert that this is value is larger then sizeof(btCollisionShape)
+	static const int maxShapeSize = MAX_SHAPE_SIZE;//todo: make some compile-time assert that this is value is larger then sizeof(btCollisionShape)
 
 	ATTRIBUTE_ALIGNED16(char	gCollisionShape0[maxShapeSize]);
 	ATTRIBUTE_ALIGNED16(char	gCollisionShape1[maxShapeSize]);
 
-	ATTRIBUTE_ALIGNED16(btScalar	spuUnscaledVertex[4]);
 	ATTRIBUTE_ALIGNED16(int	spuIndices[16]);
 
 	ATTRIBUTE_ALIGNED16(btOptimizedBvh	gOptimizedBvh);
@@ -122,6 +121,7 @@ void	spuWalkStacklessQuantizedTree(btNodeOverlapCallback* nodeCallback,unsigned 
 		
 		if (isLeafNode && aabbOverlap)
 		{
+			//printf("overlap with node %d\n",rootNode->getTriangleIndex());
 			nodeCallback->processNode(0,rootNode->getTriangleIndex());
 //			spu_printf("SPU: overlap detected with triangleIndex:%d\n",rootNode->getTriangleIndex());
 		} 
@@ -211,9 +211,9 @@ public:
 			///handle un-aligned vertices...
 		
 			//another DMA for each vertex
-			small_cache_read(&m_lsMemPtr->spuUnscaledVertex[0],(uint64_t)&graphicsbasePtr[0],sizeof(btScalar));
-			small_cache_read(&m_lsMemPtr->spuUnscaledVertex[1],(uint64_t)&graphicsbasePtr[1],sizeof(btScalar));
-			small_cache_read(&m_lsMemPtr->spuUnscaledVertex[2],(uint64_t)&graphicsbasePtr[2],sizeof(btScalar));
+			small_cache_read(&spuUnscaledVertex[0],(uint64_t)&graphicsbasePtr[0],sizeof(btScalar));
+			small_cache_read(&spuUnscaledVertex[1],(uint64_t)&graphicsbasePtr[1],sizeof(btScalar));
+			small_cache_read(&spuUnscaledVertex[2],(uint64_t)&graphicsbasePtr[2],sizeof(btScalar));
 	
 				spuTriangleVertices[j] = btVector3(
 				spuUnscaledVertex[0]*meshScaling.getX(),
@@ -252,6 +252,11 @@ public:
 void	ProcessConvexConcaveSpuCollision(SpuCollisionPairInput* wuInput, CollisionTask_LocalStoreMemory* lsMemPtr, SpuContactResult& spuContacts)
 {
 	//order: first collision shape is convex, second concave. m_isSwapped is true, if the original order was opposite
+
+
+	int sb = sizeof(btBvhTriangleMeshShape);
+
+	btAssert(sizeof(btBvhTriangleMeshShape) < MAX_SHAPE_SIZE);
 
 
 
@@ -760,13 +765,13 @@ void	processCollisionTask(void* userPtr, void* lsMemPtr)
 							{
 
 								{
-									int dmaSize = sizeof(btSphereShape);//lsMem.maxShapeSize;
+									int dmaSize = lsMem.maxShapeSize;
 									uint64_t	dmaPpuAddress2 = (uint64_t)lsMem.gColObj0.getCollisionShape();
 									cellDmaGet(lsMem.gCollisionShape0, dmaPpuAddress2  , dmaSize, DMA_TAG(1), 0, 0);
 									cellDmaWaitTagStatusAll(DMA_MASK(1));
 								}
 								{
-									int dmaSize = sizeof(btSphereShape);//lsMem.maxShapeSize;
+									int dmaSize = lsMem.maxShapeSize;
 									uint64_t	dmaPpuAddress2 = (uint64_t)lsMem.gColObj1.getCollisionShape();
 									cellDmaGet(lsMem.gCollisionShape1, dmaPpuAddress2  , dmaSize, DMA_TAG(2), 0, 0);
 									cellDmaWaitTagStatusAll(DMA_MASK(2));
@@ -815,14 +820,14 @@ void	processCollisionTask(void* userPtr, void* lsMemPtr)
 
 									///dma and initialize the convex object
 									{
-										int dmaSize = sizeof(btSphereShape);//lsMem.maxShapeSize;
+										int dmaSize = lsMem.maxShapeSize;
 										uint64_t	dmaPpuAddress2 = (uint64_t)lsMem.gColObj0.getCollisionShape();
 										cellDmaGet(lsMem.gCollisionShape0, dmaPpuAddress2  , dmaSize, DMA_TAG(1), 0, 0);
 										cellDmaWaitTagStatusAll(DMA_MASK(1));
 									}
 									///dma and initialize the concave object
 									{
-										int dmaSize = sizeof(btBvhTriangleMeshShape);//lsMem.maxShapeSize;
+										int dmaSize = lsMem.maxShapeSize;//sizeof(btBvhTriangleMeshShape);//lsMem.maxShapeSize;
 										uint64_t	dmaPpuAddress2 = (uint64_t)lsMem.gColObj1.getCollisionShape();
 			//							spu_printf("SPU: trimesh = %llx\n",dmaPpuAddress2);
 										cellDmaGet(lsMem.gCollisionShape1, dmaPpuAddress2  , dmaSize, DMA_TAG(2), 0, 0);
