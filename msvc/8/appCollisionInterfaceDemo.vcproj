@@ -52,7 +52,7 @@
 				GenerateDebugInformation="TRUE"
 				IgnoreDefaultLibraryNames="LIBC,LIBCD"
 				OutputFile="..\..\ReleaseCollisionInterfaceDemo.exe"
-				SubSystem="1"
+				SubSystem="2"
 				AdditionalOptions=" "
 				AdditionalDependencies="glut32.lib"
 				IgnoreImportLibrary="TRUE"
@@ -98,12 +98,6 @@
 			ATLMinimizesCRunTimeLibraryUsage="FALSE">
 			<Tool
 				Name="VCCLCompilerTool"
-                                Optimization="2"
-                                StringPooling="TRUE"
-                                EnableFunctionLevelLinking="TRUE"
-                                RuntimeLibrary="0"
-                                DebugInformationFormat="3"
-                                BufferSecurityCheck="FALSE"
 				PreprocessorDefinitions="NDEBUG;BT_USE_DOUBLE_PRECISION;_CONSOLE;WIN32"
 				OptimizeForProcessor="1"
 				ExceptionHandling="0"
@@ -123,7 +117,7 @@
 			<Tool
 				Name="VCLinkerTool"
                                 OutputFile="..\..\ReleaseDblCollisionInterfaceDemo.exe"
-                                SubSystem="1"
+                                SubSystem="2"
 				AdditionalOptions=" "
 				AdditionalDependencies="glut32.lib"
 				IgnoreImportLibrary="TRUE"
@@ -242,11 +236,6 @@
 			ATLMinimizesCRunTimeLibraryUsage="FALSE">
 			<Tool
 				Name="VCCLCompilerTool"
-                                Optimization="0"
-                                MinimalRebuild="TRUE"
-                                DebugInformationFormat="4"
-                                RuntimeTypeInfo="FALSE" 
-                                RuntimeLibrary="1"
 				PreprocessorDefinitions="_DEBUG;BT_USE_DOUBLE_PRECISION;_CONSOLE;WIN32"
 				OptimizeForProcessor="1"
 				ExceptionHandling="0"

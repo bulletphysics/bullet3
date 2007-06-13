@@ -1,0 +1,534 @@
+﻿<Project DefaultTargets="Build" xmlns="http://schemas.microsoft.com/developer/msbuild/2003">
+  <PropertyGroup>
+    <ProjectGuid>{5BEE189F-47A1-42A8-A297-1960221BE20D}</ProjectGuid>
+    <ProjectTypeGuids>{9F340DF3-2AED-4330-AC16-78AC2D9B4738};{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}</ProjectTypeGuids>
+    <Configuration Condition=" '$(Configuration)' == '' ">Debug</Configuration>
+    <Platform Condition=" '$(Platform)' == '' ">x86</Platform>
+    <OutputType>Library</OutputType>
+    <AppDesignerFolder>Properties</AppDesignerFolder>
+    <RootNamespace>XnaDevRu.BulletX</RootNamespace>
+    <AssemblyName>XnaDevRu.BulletX</AssemblyName>
+    <XnaFrameworkVersion>v1.0</XnaFrameworkVersion>
+    <XnaPlatform>Windows</XnaPlatform>
+    <XNAGlobalContentPipelineAssemblies>Microsoft.Xna.Framework.Content.Pipeline.EffectImporter.dll;Microsoft.Xna.Framework.Content.Pipeline.FBXImporter.dll;Microsoft.Xna.Framework.Content.Pipeline.TextureImporter.dll;Microsoft.Xna.Framework.Content.Pipeline.XImporter.dll</XNAGlobalContentPipelineAssemblies>
+    <XNAProjectContentPipelineAssemblies>
+    </XNAProjectContentPipelineAssemblies>
+    <SignAssembly>false</SignAssembly>
+    <AssemblyOriginatorKeyFile>BulletX.snk</AssemblyOriginatorKeyFile>
+    <DelaySign>true</DelaySign>
+  </PropertyGroup>
+  <PropertyGroup Condition=" '$(Configuration)|$(Platform)' == 'Debug|x86' ">
+    <DebugSymbols>true</DebugSymbols>
+    <DebugType>full</DebugType>
+    <Optimize>false</Optimize>
+    <OutputPath>..\..\..\..\Build\x86\Debug\</OutputPath>
+    <DefineConstants>DEBUG;TRACE</DefineConstants>
+    <ErrorReport>prompt</ErrorReport>
+    <WarningLevel>4</WarningLevel>
+    <NoStdLib>true</NoStdLib>
+    <UseVSHostingProcess>false</UseVSHostingProcess>
+    <PlatformTarget>x86</PlatformTarget>
+  </PropertyGroup>
+  <PropertyGroup Condition=" '$(Configuration)|$(Platform)' == 'Release|x86' ">
+    <DebugType>pdbonly</DebugType>
+    <Optimize>true</Optimize>
+    <OutputPath>..\..\..\..\Build\x86\Release\</OutputPath>
+    <DefineConstants>TRACE</DefineConstants>
+    <ErrorReport>prompt</ErrorReport>
+    <WarningLevel>4</WarningLevel>
+    <NoStdLib>true</NoStdLib>
+    <UseVSHostingProcess>false</UseVSHostingProcess>
+    <PlatformTarget>x86</PlatformTarget>
+  </PropertyGroup>
+  <ItemGroup>
+    <Reference Include="Microsoft.Xna.Framework">
+      <Private>False</Private>
+    </Reference>
+    <Reference Include="Microsoft.Xna.Framework.Game">
+      <Private>False</Private>
+    </Reference>
+    <Reference Include="mscorlib">
+      <Private>False</Private>
+    </Reference>
+    <Reference Include="System">
+      <Private>False</Private>
+    </Reference>
+  </ItemGroup>
+  <ItemGroup>
+    <Compile Include="BulletDebug.cs">
+      <XNAUseContentPipeline>false</XNAUseContentPipeline>
+      <Name>BulletDebug</Name>
+    </Compile>
+    <Compile Include="Collision\BroadphaseCollision\AxisSweep3.cs">
+      <XNAUseContentPipeline>false</XNAUseContentPipeline>
+      <Name>AxisSweep3</Name>
+    </Compile>
+    <Compile Include="Collision\BroadphaseCollision\BroadphaseNativeTypes.cs">
+      <XNAUseContentPipeline>false</XNAUseContentPipeline>
+      <Name>BroadphaseNativeTypes</Name>
+    </Compile>
+    <Compile Include="Collision\BroadphaseCollision\BroadphasePair.cs">
+      <XNAUseContentPipeline>false</XNAUseContentPipeline>
+      <Name>BroadphasePair</Name>
+    </Compile>
+    <Compile Include="Collision\BroadphaseCollision\BroadphaseProxy.cs">
+      <XNAUseContentPipeline>false</XNAUseContentPipeline>
+      <Name>BroadphaseProxy</Name>
+    </Compile>
+    <Compile Include="Collision\BroadphaseCollision\CollisionAlgorithm.cs">
+      <XNAUseContentPipeline>false</XNAUseContentPipeline>
+      <Name>CollisionAlgorithm</Name>
+    </Compile>
+    <Compile Include="Collision\BroadphaseCollision\CollisionAlgorithmConstructionInfo.cs">
+      <XNAUseContentPipeline>false</XNAUseContentPipeline>
+      <Name>CollisionAlgorithmConstructionInfo</Name>
+    </Compile>
+    <Compile Include="Collision\BroadphaseCollision\DispatcherInfo.cs">
+      <XNAUseContentPipeline>false</XNAUseContentPipeline>
+      <Name>DispatcherInfo</Name>
+    </Compile>
+    <Compile Include="Collision\BroadphaseCollision\IBroadphase.cs">
+      <XNAUseContentPipeline>false</XNAUseContentPipeline>
+      <Name>IBroadphase</Name>
+    </Compile>
+    <Compile Include="Collision\BroadphaseCollision\IDispatcher.cs">
+      <XNAUseContentPipeline>false</XNAUseContentPipeline>
+      <Name>IDispatcher</Name>
+    </Compile>
+    <Compile Include="Collision\BroadphaseCollision\IOverlapCallback.cs">
+      <XNAUseContentPipeline>false</XNAUseContentPipeline>
+      <Name>IOverlapCallback</Name>
+    </Compile>
+    <Compile Include="Collision\BroadphaseCollision\OverlappingPairCache.cs">
+      <XNAUseContentPipeline>false</XNAUseContentPipeline>
+      <Name>OverlappingPairCache</Name>
+    </Compile>
+    <Compile Include="Collision\BroadphaseCollision\SimpleBroadphase.cs">
+      <XNAUseContentPipeline>false</XNAUseContentPipeline>
+      <Name>SimpleBroadphase</Name>
+    </Compile>
+    <Compile Include="Collision\BroadphaseCollision\SimpleBroadphaseProxy.cs">
+      <XNAUseContentPipeline>false</XNAUseContentPipeline>
+      <Name>SimpleBroadphaseProxy</Name>
+    </Compile>
+    <Compile Include="Collision\CollisionDispatch\BridgeTriangleRaycastCallback.cs">
+      <XNAUseContentPipeline>false</XNAUseContentPipeline>
+      <Name>BridgeTriangleRaycastCallback</Name>
+    </Compile>
+    <Compile Include="Collision\CollisionDispatch\CollisionAlgorithmCreateFunc.cs">
+      <XNAUseContentPipeline>false</XNAUseContentPipeline>
+      <Name>CollisionAlgorithmCreateFunc</Name>
+    </Compile>
+    <Compile Include="Collision\CollisionDispatch\CollisionDispatcher.cs">
+      <XNAUseContentPipeline>false</XNAUseContentPipeline>
+      <Name>CollisionDispatcher</Name>
+    </Compile>
+    <Compile Include="Collision\CollisionDispatch\CollisionObject.cs">
+      <XNAUseContentPipeline>false</XNAUseContentPipeline>
+      <Name>CollisionObject</Name>
+    </Compile>
+    <Compile Include="Collision\CollisionDispatch\CollisionPairCallback.cs">
+      <XNAUseContentPipeline>false</XNAUseContentPipeline>
+      <Name>CollisionPairCallback</Name>
+    </Compile>
+    <Compile Include="Collision\CollisionDispatch\CollisionWorld.cs">
+      <XNAUseContentPipeline>false</XNAUseContentPipeline>
+      <Name>CollisionWorld</Name>
+    </Compile>
+    <Compile Include="Collision\CollisionDispatch\CompoundCollisionAlgorithm.cs">
+      <XNAUseContentPipeline>false</XNAUseContentPipeline>
+      <Name>CompoundCollisionAlgorithm</Name>
+    </Compile>
+    <Compile Include="Collision\CollisionDispatch\ConvexConcaveCollisionAlgorithm.cs">
+      <XNAUseContentPipeline>false</XNAUseContentPipeline>
+      <Name>ConvexConcaveCollisionAlgorithm</Name>
+    </Compile>
+    <Compile Include="Collision\CollisionDispatch\ConvexConvexCollisionAlgorithm.cs">
+      <XNAUseContentPipeline>false</XNAUseContentPipeline>
+      <Name>ConvexConvexCollisionAlgorithm</Name>
+    </Compile>
+    <Compile Include="Collision\CollisionDispatch\ConvexTriangleCallback.cs">
+      <XNAUseContentPipeline>false</XNAUseContentPipeline>
+      <Name>ConvexTriangleCallback</Name>
+    </Compile>
+    <Compile Include="Collision\CollisionDispatch\EmptyAlgorithm.cs">
+      <XNAUseContentPipeline>false</XNAUseContentPipeline>
+      <Name>EmptyAlgorithm</Name>
+    </Compile>
+    <Compile Include="Collision\CollisionDispatch\ManifoldResult.cs">
+      <XNAUseContentPipeline>false</XNAUseContentPipeline>
+      <Name>ManifoldResult</Name>
+    </Compile>
+    <Compile Include="Collision\CollisionDispatch\SimulationIslandManager.cs">
+      <XNAUseContentPipeline>false</XNAUseContentPipeline>
+      <Name>SimulationIslandManager</Name>
+    </Compile>
+    <Compile Include="Collision\CollisionDispatch\SphereBoxCollisionAlgorithm.cs">
+      <XNAUseContentPipeline>false</XNAUseContentPipeline>
+      <Name>SphereBoxCollisionAlgorithm</Name>
+    </Compile>
+    <Compile Include="Collision\CollisionDispatch\SphereSphereCollisionAlgorithm.cs">
+      <XNAUseContentPipeline>false</XNAUseContentPipeline>
+      <Name>SphereSphereCollisionAlgorithm</Name>
+    </Compile>
+    <Compile Include="Collision\CollisionDispatch\SphereTriangleCollisionAlgorithm.cs">
+      <XNAUseContentPipeline>false</XNAUseContentPipeline>
+      <Name>SphereTriangleCollisionAlgorithm</Name>
+    </Compile>
+    <Compile Include="Collision\CollisionDispatch\SphereTriangleDetector.cs">
+      <XNAUseContentPipeline>false</XNAUseContentPipeline>
+      <Name>SphereTriangleDetector</Name>
+    </Compile>
+    <Compile Include="Collision\CollisionDispatch\UnionFind.cs">
+      <XNAUseContentPipeline>false</XNAUseContentPipeline>
+      <Name>UnionFind</Name>
+    </Compile>
+    <Compile Include="Collision\CollisionShapes\BoxShape.cs">
+      <XNAUseContentPipeline>false</XNAUseContentPipeline>
+      <Name>BoxShape</Name>
+    </Compile>
+    <Compile Include="Collision\CollisionShapes\BUSimplex1to4.cs">
+      <XNAUseContentPipeline>false</XNAUseContentPipeline>
+      <Name>BUSimplex1to4</Name>
+    </Compile>
+    <Compile Include="Collision\CollisionShapes\BvhTriangleMeshShape.cs">
+      <XNAUseContentPipeline>false</XNAUseContentPipeline>
+      <Name>BvhTriangleMeshShape</Name>
+    </Compile>
+    <Compile Include="Collision\CollisionShapes\CollisionShape.cs">
+      <XNAUseContentPipeline>false</XNAUseContentPipeline>
+      <Name>CollisionShape</Name>
+    </Compile>
+    <Compile Include="Collision\CollisionShapes\CompoundShape.cs">
+      <XNAUseContentPipeline>false</XNAUseContentPipeline>
+      <Name>CompoundShape</Name>
+    </Compile>
+    <Compile Include="Collision\CollisionShapes\ConcaveShape.cs">
+      <XNAUseContentPipeline>false</XNAUseContentPipeline>
+      <Name>ConcaveShape</Name>
+    </Compile>
+    <Compile Include="Collision\CollisionShapes\ConeShape.cs">
+      <XNAUseContentPipeline>false</XNAUseContentPipeline>
+      <Name>ConeShape</Name>
+    </Compile>
+    <Compile Include="Collision\CollisionShapes\ConvexHullShape.cs">
+      <XNAUseContentPipeline>false</XNAUseContentPipeline>
+      <Name>ConvexHullShape</Name>
+    </Compile>
+    <Compile Include="Collision\CollisionShapes\ConvexShape.cs">
+      <XNAUseContentPipeline>false</XNAUseContentPipeline>
+      <Name>ConvexShape</Name>
+    </Compile>
+    <Compile Include="Collision\CollisionShapes\ConvexTriangleMeshShape.cs">
+      <XNAUseContentPipeline>false</XNAUseContentPipeline>
+      <Name>ConvexTriangleMeshShape</Name>
+    </Compile>
+    <Compile Include="Collision\CollisionShapes\CylinderShape.cs">
+      <XNAUseContentPipeline>false</XNAUseContentPipeline>
+      <Name>CylinderShape</Name>
+    </Compile>
+    <Compile Include="Collision\CollisionShapes\CylinderShapeX.cs">
+      <XNAUseContentPipeline>false</XNAUseContentPipeline>
+      <Name>CylinderShapeX</Name>
+    </Compile>
+    <Compile Include="Collision\CollisionShapes\CylinderShapeZ.cs">
+      <XNAUseContentPipeline>false</XNAUseContentPipeline>
+      <Name>CylinderShapeZ</Name>
+    </Compile>
+    <Compile Include="Collision\CollisionShapes\EmptyShape.cs">
+      <XNAUseContentPipeline>false</XNAUseContentPipeline>
+      <Name>EmptyShape</Name>
+    </Compile>
+    <Compile Include="Collision\CollisionShapes\FilteredCallback.cs">
+      <XNAUseContentPipeline>false</XNAUseContentPipeline>
+      <Name>FilteredCallback</Name>
+    </Compile>
+    <Compile Include="Collision\CollisionShapes\InternalTriangleIndexCallback.cs">
+      <XNAUseContentPipeline>false</XNAUseContentPipeline>
+      <Name>InternalTriangleIndexCallback</Name>
+    </Compile>
+    <Compile Include="Collision\CollisionShapes\LocalSupportVertexCallback.cs">
+      <XNAUseContentPipeline>false</XNAUseContentPipeline>
+      <Name>LocalSupportVertexCallback</Name>
+    </Compile>
+    <Compile Include="Collision\CollisionShapes\MinkowskiSumShape.cs">
+      <XNAUseContentPipeline>false</XNAUseContentPipeline>
+      <Name>MinkowskiSumShape</Name>
+    </Compile>
+    <Compile Include="Collision\CollisionShapes\MultiSphereShape.cs">
+      <XNAUseContentPipeline>false</XNAUseContentPipeline>
+      <Name>MultiSphereShape</Name>
+    </Compile>
+    <Compile Include="Collision\CollisionShapes\NodeOverlapCallback.cs">
+      <XNAUseContentPipeline>false</XNAUseContentPipeline>
+      <Name>NodeOverlapCallback</Name>
+    </Compile>
+    <Compile Include="Collision\CollisionShapes\OptimizedBvh.cs">
+      <XNAUseContentPipeline>false</XNAUseContentPipeline>
+      <Name>OptimizedBvh</Name>
+    </Compile>
+    <Compile Include="Collision\CollisionShapes\OptimizedBvhNode.cs">
+      <XNAUseContentPipeline>false</XNAUseContentPipeline>
+      <Name>OptimizedBvhNode</Name>
+    </Compile>
+    <Compile Include="Collision\CollisionShapes\PolyhedralConvexShape.cs">
+      <XNAUseContentPipeline>false</XNAUseContentPipeline>
+      <Name>PolyhedralConvexShape</Name>
+    </Compile>
+    <Compile Include="Collision\CollisionShapes\SphereShape.cs">
+      <XNAUseContentPipeline>false</XNAUseContentPipeline>
+      <Name>SphereShape</Name>
+    </Compile>
+    <Compile Include="Collision\CollisionShapes\StaticPlaneShape.cs">
+      <XNAUseContentPipeline>false</XNAUseContentPipeline>
+      <Name>StaticPlaneShape</Name>
+    </Compile>
+    <Compile Include="Collision\CollisionShapes\StridingMeshInterface.cs">
+      <XNAUseContentPipeline>false</XNAUseContentPipeline>
+      <Name>StridingMeshInterface</Name>
+    </Compile>
+    <Compile Include="Collision\CollisionShapes\SupportVertexCallback.cs">
+      <XNAUseContentPipeline>false</XNAUseContentPipeline>
+      <Name>SupportVertexCallback</Name>
+    </Compile>
+    <Compile Include="Collision\CollisionShapes\TriangleBuffer.cs">
+      <XNAUseContentPipeline>false</XNAUseContentPipeline>
+      <Name>TriangleBuffer</Name>
+    </Compile>
+    <Compile Include="Collision\CollisionShapes\TriangleCallback.cs">
+      <XNAUseContentPipeline>false</XNAUseContentPipeline>
+      <Name>TriangleCallback</Name>
+    </Compile>
+    <Compile Include="Collision\CollisionShapes\TriangleIndexVertexArray.cs">
+      <XNAUseContentPipeline>false</XNAUseContentPipeline>
+      <Name>TriangleIndexVertexArray</Name>
+    </Compile>
+    <Compile Include="Collision\CollisionShapes\TriangleMesh.cs">
+      <XNAUseContentPipeline>false</XNAUseContentPipeline>
+      <Name>TriangleMesh</Name>
+    </Compile>
+    <Compile Include="Collision\CollisionShapes\TriangleMeshShape.cs">
+      <XNAUseContentPipeline>false</XNAUseContentPipeline>
+      <Name>TriangleMeshShape</Name>
+    </Compile>
+    <Compile Include="Collision\CollisionShapes\TriangleShape.cs">
+      <XNAUseContentPipeline>false</XNAUseContentPipeline>
+      <Name>TriangleShape</Name>
+    </Compile>
+    <Compile Include="Dynamics\ConstraintSolver\SolverBody.cs">
+      <XNAUseContentPipeline>false</XNAUseContentPipeline>
+      <Name>SolverBody</Name>
+    </Compile>
+    <Compile Include="Dynamics\ConstraintSolver\SolverConstraint.cs">
+      <XNAUseContentPipeline>false</XNAUseContentPipeline>
+      <Name>SolverConstraint</Name>
+    </Compile>
+    <Compile Include="Exceptions\BulletException.cs">
+      <XNAUseContentPipeline>false</XNAUseContentPipeline>
+      <Name>BulletException</Name>
+    </Compile>
+    <Compile Include="LinearMath\DefaultMotionState.cs">
+      <XNAUseContentPipeline>false</XNAUseContentPipeline>
+      <Name>DefaultMotionState</Name>
+    </Compile>
+    <Compile Include="LinearMath\MathHelper.cs">
+      <XNAUseContentPipeline>false</XNAUseContentPipeline>
+      <Name>MathHelper</Name>
+    </Compile>
+    <Compile Include="LinearMath\MatrixOperations.cs">
+      <XNAUseContentPipeline>false</XNAUseContentPipeline>
+      <Name>MatrixOperations</Name>
+    </Compile>
+    <Compile Include="LinearMath\MotionState.cs">
+      <XNAUseContentPipeline>false</XNAUseContentPipeline>
+      <Name>MotionState</Name>
+    </Compile>
+    <Compile Include="LinearMath\QuadWord.cs">
+      <XNAUseContentPipeline>false</XNAUseContentPipeline>
+      <Name>QuadWord</Name>
+    </Compile>
+    <Compile Include="LinearMath\Quaternion.cs">
+      <XNAUseContentPipeline>false</XNAUseContentPipeline>
+      <Name>Quaternion</Name>
+    </Compile>
+    <Compile Include="LinearMath\TransformUtil.cs">
+      <XNAUseContentPipeline>false</XNAUseContentPipeline>
+      <Name>TransformUtil</Name>
+    </Compile>
+    <Compile Include="LinearMath\Vector3.cs">
+      <XNAUseContentPipeline>false</XNAUseContentPipeline>
+      <Name>Vector3</Name>
+    </Compile>
+    <Compile Include="LinearMath\Vector4.cs">
+      <XNAUseContentPipeline>false</XNAUseContentPipeline>
+      <Name>Vector4</Name>
+    </Compile>
+    <Compile Include="Collision\NarrowPhaseCollision\ContinuousConvexCollision.cs">
+      <XNAUseContentPipeline>false</XNAUseContentPipeline>
+      <Name>ContinuousConvexCollision</Name>
+    </Compile>
+    <Compile Include="Collision\NarrowPhaseCollision\ConvexCast.cs">
+      <XNAUseContentPipeline>false</XNAUseContentPipeline>
+      <Name>ConvexCast</Name>
+    </Compile>
+    <Compile Include="Collision\NarrowPhaseCollision\DiscreteCollisionDetectorInterface.cs">
+      <XNAUseContentPipeline>false</XNAUseContentPipeline>
+      <Name>DiscreteCollisionDetectorInterface</Name>
+    </Compile>
+    <Compile Include="Collision\NarrowPhaseCollision\GjkConvexCast.cs">
+      <XNAUseContentPipeline>false</XNAUseContentPipeline>
+      <Name>GjkConvexCast</Name>
+    </Compile>
+    <Compile Include="Collision\NarrowPhaseCollision\GjkEpa.cs">
+      <XNAUseContentPipeline>false</XNAUseContentPipeline>
+      <Name>GjkEpa</Name>
+    </Compile>
+    <Compile Include="Collision\NarrowPhaseCollision\GjkEpaPenetrationDepthSolver.cs">
+      <XNAUseContentPipeline>false</XNAUseContentPipeline>
+      <Name>GjkEpaPenetrationDepthSolver</Name>
+    </Compile>
+    <Compile Include="Collision\NarrowPhaseCollision\GjkEpaSolver.cs">
+      <XNAUseContentPipeline>false</XNAUseContentPipeline>
+      <Name>GjkEpaSolver</Name>
+    </Compile>
+    <Compile Include="Collision\NarrowPhaseCollision\GjkPairDetector.cs">
+      <XNAUseContentPipeline>false</XNAUseContentPipeline>
+      <Name>GjkPairDetector</Name>
+    </Compile>
+    <Compile Include="Collision\NarrowPhaseCollision\IConvexPenetrationDepthSolver.cs">
+      <XNAUseContentPipeline>false</XNAUseContentPipeline>
+      <Name>IConvexPenetrationDepthSolver</Name>
+    </Compile>
+    <Compile Include="Collision\NarrowPhaseCollision\ISimplexSolver.cs">
+      <XNAUseContentPipeline>false</XNAUseContentPipeline>
+      <Name>ISimplexSolver</Name>
+    </Compile>
+    <Compile Include="Collision\NarrowPhaseCollision\ManifoldPoint.cs">
+      <XNAUseContentPipeline>false</XNAUseContentPipeline>
+      <Name>ManifoldPoint</Name>
+    </Compile>
+    <Compile Include="Collision\NarrowPhaseCollision\MinkowskiPenetrationDepthSolver.cs">
+      <XNAUseContentPipeline>false</XNAUseContentPipeline>
+      <Name>MinkowskiPenetrationDepthSolver</Name>
+    </Compile>
+    <Compile Include="Collision\NarrowPhaseCollision\PersistentManifold.cs">
+      <XNAUseContentPipeline>false</XNAUseContentPipeline>
+      <Name>PersistentManifold</Name>
+    </Compile>
+    <Compile Include="Collision\NarrowPhaseCollision\PointCollector.cs">
+      <XNAUseContentPipeline>false</XNAUseContentPipeline>
+      <Name>PointCollector</Name>
+    </Compile>
+    <Compile Include="Collision\NarrowPhaseCollision\SubsimplexConvexCast.cs">
+      <XNAUseContentPipeline>false</XNAUseContentPipeline>
+      <Name>SubsimplexConvexCast</Name>
+    </Compile>
+    <Compile Include="Collision\NarrowPhaseCollision\TriangleRaycastCallback.cs">
+      <XNAUseContentPipeline>false</XNAUseContentPipeline>
+      <Name>TriangleRaycastCallback</Name>
+    </Compile>
+    <Compile Include="Collision\NarrowPhaseCollision\VoronoiSimplexSolver.cs">
+      <XNAUseContentPipeline>false</XNAUseContentPipeline>
+      <Name>VoronoiSimplexSolver</Name>
+    </Compile>
+    <Compile Include="IDebugDraw.cs">
+      <XNAUseContentPipeline>false</XNAUseContentPipeline>
+      <Name>IDebugDraw</Name>
+    </Compile>
+    <Compile Include="Dynamics\ConstraintSolver\ContactConstraint.cs">
+      <XNAUseContentPipeline>false</XNAUseContentPipeline>
+      <Name>ContactConstraint</Name>
+    </Compile>
+    <Compile Include="Dynamics\ConstraintSolver\ContactSolverInfo.cs">
+      <XNAUseContentPipeline>false</XNAUseContentPipeline>
+      <Name>ContactSolverInfo</Name>
+    </Compile>
+    <Compile Include="Dynamics\ConstraintSolver\Generic6DofConstraint.cs">
+      <XNAUseContentPipeline>false</XNAUseContentPipeline>
+      <Name>Generic6DofConstraint</Name>
+    </Compile>
+    <Compile Include="Dynamics\ConstraintSolver\HingeConstraint.cs">
+      <XNAUseContentPipeline>false</XNAUseContentPipeline>
+      <Name>HingeConstraint</Name>
+    </Compile>
+    <Compile Include="Dynamics\ConstraintSolver\IConstraintSolver.cs">
+      <XNAUseContentPipeline>false</XNAUseContentPipeline>
+      <Name>IConstraintSolver</Name>
+    </Compile>
+    <Compile Include="Dynamics\ConstraintSolver\JacobianEntry.cs">
+      <XNAUseContentPipeline>false</XNAUseContentPipeline>
+      <Name>JacobianEntry</Name>
+    </Compile>
+    <Compile Include="Dynamics\ConstraintSolver\Point2PointConstraint.cs">
+      <XNAUseContentPipeline>false</XNAUseContentPipeline>
+      <Name>Point2PointConstraint</Name>
+    </Compile>
+    <Compile Include="Dynamics\ConstraintSolver\SequentialImpulseConstraintSolver.cs">
+      <XNAUseContentPipeline>false</XNAUseContentPipeline>
+      <Name>SequentialImpulseConstraintSolver</Name>
+    </Compile>
+    <Compile Include="Dynamics\ConstraintSolver\Solve2LinearConstraint.cs">
+      <XNAUseContentPipeline>false</XNAUseContentPipeline>
+      <Name>Solve2LinearConstraint</Name>
+    </Compile>
+    <Compile Include="Dynamics\ConstraintSolver\TypedConstraint.cs">
+      <XNAUseContentPipeline>false</XNAUseContentPipeline>
+      <Name>TypedConstraint</Name>
+    </Compile>
+    <Compile Include="Dynamics\DiscreteDynamicsWorld.cs">
+      <XNAUseContentPipeline>false</XNAUseContentPipeline>
+      <Name>DiscreteDynamicsWorld</Name>
+    </Compile>
+    <Compile Include="Dynamics\DynamicsWorld.cs">
+      <XNAUseContentPipeline>false</XNAUseContentPipeline>
+      <Name>DynamicsWorld</Name>
+    </Compile>
+    <Compile Include="Dynamics\RigidBody.cs">
+      <XNAUseContentPipeline>false</XNAUseContentPipeline>
+      <Name>RigidBody</Name>
+    </Compile>
+    <Compile Include="Dynamics\SimpleDynamicsWorld.cs">
+      <XNAUseContentPipeline>false</XNAUseContentPipeline>
+      <Name>SimpleDynamicsWorld</Name>
+    </Compile>
+    <Compile Include="Dynamics\Vehicle\RaycastVehicle.cs">
+      <XNAUseContentPipeline>false</XNAUseContentPipeline>
+      <Name>RaycastVehicle</Name>
+    </Compile>
+    <Compile Include="Dynamics\Vehicle\VehicleRaycaster.cs">
+      <XNAUseContentPipeline>false</XNAUseContentPipeline>
+      <Name>VehicleRaycaster</Name>
+    </Compile>
+    <Compile Include="Dynamics\Vehicle\WheelInfo.cs">
+      <XNAUseContentPipeline>false</XNAUseContentPipeline>
+      <Name>WheelInfo</Name>
+    </Compile>
+    <Compile Include="Properties\AssemblyInfo.cs">
+      <XNAUseContentPipeline>false</XNAUseContentPipeline>
+      <Name>AssemblyInfo</Name>
+    </Compile>
+    <Compile Include="XnaDebugDrawer.cs">
+      <XNAUseContentPipeline>false</XNAUseContentPipeline>
+      <Name>XnaDebugDrawer</Name>
+    </Compile>
+  </ItemGroup>
+  <ItemGroup>
+    <None Include="BulletX.snk">
+      <XNAUseContentPipeline>false</XNAUseContentPipeline>
+      <Name>BulletX</Name>
+    </None>
+  </ItemGroup>
+  <ItemGroup>
+    <Folder Include="Content\" />
+  </ItemGroup>
+  <Import Project="$(MSBuildBinPath)\Microsoft.CSharp.targets" />
+  <Import Project="$(MSBuildExtensionsPath)\Microsoft\XNA\Game Studio Express\v1.0\Microsoft.Xna.ContentPipeline.targets" />
+  <Import Project="$(MSBuildExtensionsPath)\Microsoft\XNA\Game Studio Express\v1.0\Microsoft.Xna.Common.targets" />
+  <!-- To modify your build process, add your task inside one of the targets below and uncomment it. 
+       Other similar extension points exist, see Microsoft.Common.targets.
+  <Target Name="BeforeBuild">
+  </Target>
+  <Target Name="AfterBuild">
+  </Target>
+  -->
+</Project>

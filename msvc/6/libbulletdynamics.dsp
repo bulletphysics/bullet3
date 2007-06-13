@@ -260,6 +260,14 @@ SOURCE=..\..\src\BulletDynamics\ConstraintSolver\btSolve2LinearConstraint.h
 # End Source File
 # Begin Source File
 
+SOURCE=..\..\src\BulletDynamics\ConstraintSolver\btSolverBody.h
+# End Source File
+# Begin Source File
+
+SOURCE=..\..\src\BulletDynamics\ConstraintSolver\btSolverConstraint.h
+# End Source File
+# Begin Source File
+
 SOURCE=..\..\src\BulletDynamics\ConstraintSolver\btTypedConstraint.h
 # End Source File
 # Begin Source File

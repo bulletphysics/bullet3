@@ -8,6 +8,7 @@ Erwin Coumans
 
 	- Added managed Bullet library, entirely rewritten in C# for Windows and XBox 360 XNA
 		See Extras/BulletX
+		Thanks to KleMiX, aka Vsevolod Klementjev
 
 2007 May 31
 	- sign-bit went wrong in case of 32-bit broadphase, causing quantization problems. 

@@ -94,12 +94,6 @@
 			ATLMinimizesCRunTimeLibraryUsage="FALSE">
 			<Tool
 				Name="VCCLCompilerTool"
-                                Optimization="2"
-                                StringPooling="TRUE"
-                                EnableFunctionLevelLinking="TRUE"
-                                RuntimeLibrary="0"
-                                DebugInformationFormat="3"
-                                BufferSecurityCheck="FALSE"
 				PreprocessorDefinitions="NDEBUG;BT_USE_DOUBLE_PRECISION;_LIB;_WINDOWS;WIN32"
 				OptimizeForProcessor="1"
 				ExceptionHandling="0"
@@ -233,11 +227,6 @@
 			ATLMinimizesCRunTimeLibraryUsage="FALSE">
 			<Tool
 				Name="VCCLCompilerTool"
-                                Optimization="0"
-                                MinimalRebuild="TRUE"
-                                DebugInformationFormat="4"
-                                RuntimeTypeInfo="FALSE" 
-                                RuntimeLibrary="1"
 				PreprocessorDefinitions="_DEBUG;BT_USE_DOUBLE_PRECISION;_LIB;_WINDOWS;WIN32"
 				OptimizeForProcessor="1"
 				ExceptionHandling="0"

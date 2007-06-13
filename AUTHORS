@@ -18,4 +18,5 @@ Joerg Henrichs: make buildsystem (work in progress)
 Eric Sunshine: jam + msvcgen buildsystem
 Steve Baker: GPU physics and general implementation improvements
 Jay Lee: Double precision support
+KleMiX, aka Vsevolod Klementjev, managed version, rewritten in C# for XNA
 Erwin Coumans: most other source code
