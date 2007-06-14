@@ -14,7 +14,7 @@
 #include "BulletCollision/CollisionShapes/btTriangleIndexVertexArray.h"
 #include "BulletCollision/CollisionShapes/btSphereShape.h"
 
-
+#include "BulletCollision/CollisionShapes/btCapsuleShape.h"
 
 #include "BulletCollision/CollisionShapes/btConvexShape.h"
 #include "BulletCollision/CollisionShapes/btBvhTriangleMeshShape.h"
@@ -55,10 +55,9 @@ struct	CollisionTask_LocalStoreMemory
 	btCollisionObject	gColObj0;
 	btCollisionObject	gColObj1;
 
-	static const int maxShapeSize = MAX_SHAPE_SIZE;//todo: make some compile-time assert that this is value is larger then sizeof(btCollisionShape)
 
-	ATTRIBUTE_ALIGNED16(char	gCollisionShape0[MAX_SHAPE_SIZE+1]);//todo: check out why leaving out '+1' causes troubles
-	ATTRIBUTE_ALIGNED16(char	gCollisionShape1[MAX_SHAPE_SIZE+1]);
+	ATTRIBUTE_ALIGNED16(char	gCollisionShape0[MAX_SHAPE_SIZE]);
+	ATTRIBUTE_ALIGNED16(char	gCollisionShape1[MAX_SHAPE_SIZE]);
 
 	ATTRIBUTE_ALIGNED16(int	spuIndices[16]);
 
@@ -254,9 +253,6 @@ void	ProcessConvexConcaveSpuCollision(SpuCollisionPairInput* wuInput, CollisionT
 	//order: first collision shape is convex, second concave. m_isSwapped is true, if the original order was opposite
 
 
-	int sb = sizeof(btBvhTriangleMeshShape);
-
-	btAssert(sizeof(btBvhTriangleMeshShape) < MAX_SHAPE_SIZE);
 
 
 
@@ -467,8 +463,57 @@ void	ProcessConvexConcaveSpuCollision(SpuCollisionPairInput* wuInput, CollisionT
 		
 }
 
+///getShapeTypeSize could easily be optimized, but it is not likely a bottleneck
+int		getShapeTypeSize(int shapeType)
+{
+	
 
+	switch (shapeType)
+	{
+	case CYLINDER_SHAPE_PROXYTYPE:
+		{
+			int shapeSize = sizeof(btCylinderShape);
+			btAssert(shapeSize < MAX_SHAPE_SIZE);
+			return shapeSize;
+		}
+	case BOX_SHAPE_PROXYTYPE:
+		{
+			int shapeSize = sizeof(btBoxShape);
+			btAssert(shapeSize < MAX_SHAPE_SIZE);
+			return shapeSize;
+		}
+	case SPHERE_SHAPE_PROXYTYPE:
+		{
+				int shapeSize = sizeof(btSphereShape);
+				btAssert(shapeSize < MAX_SHAPE_SIZE);
+				return shapeSize;
+		}
+	case TRIANGLE_MESH_SHAPE_PROXYTYPE:
+		{
+				int shapeSize = sizeof(btBvhTriangleMeshShape);
+				btAssert(shapeSize < MAX_SHAPE_SIZE);
+				return shapeSize;
+		}
+	case CAPSULE_SHAPE_PROXYTYPE:
+			{
+				int shapeSize = sizeof(btCapsuleShape);
+				btAssert(shapeSize < MAX_SHAPE_SIZE);
+				return shapeSize;
+			}
 
+	case CONVEX_HULL_SHAPE_PROXYTYPE:
+			{
+				int shapeSize = sizeof(btConvexHullShape);
+				btAssert(shapeSize < MAX_SHAPE_SIZE);
+				return shapeSize;
+			}
+			
+	default:
+		btAssert(0);
+		//unsupported shapetype, please add here
+		break;
+	}
+}
 
 
 
@@ -765,13 +810,13 @@ void	processCollisionTask(void* userPtr, void* lsMemPtr)
 							{
 
 								{
-									int dmaSize = lsMem.maxShapeSize;
+									int dmaSize = getShapeTypeSize(	collisionPairInput.m_shapeType0);
 									uint64_t	dmaPpuAddress2 = (uint64_t)lsMem.gColObj0.getCollisionShape();
 									cellDmaGet(lsMem.gCollisionShape0, dmaPpuAddress2  , dmaSize, DMA_TAG(1), 0, 0);
 									cellDmaWaitTagStatusAll(DMA_MASK(1));
 								}
 								{
-									int dmaSize = lsMem.maxShapeSize;
+									int dmaSize = getShapeTypeSize(	collisionPairInput.m_shapeType1);
 									uint64_t	dmaPpuAddress2 = (uint64_t)lsMem.gColObj1.getCollisionShape();
 									cellDmaGet(lsMem.gCollisionShape1, dmaPpuAddress2  , dmaSize, DMA_TAG(2), 0, 0);
 									cellDmaWaitTagStatusAll(DMA_MASK(2));
@@ -820,14 +865,14 @@ void	processCollisionTask(void* userPtr, void* lsMemPtr)
 
 									///dma and initialize the convex object
 									{
-										int dmaSize = lsMem.maxShapeSize;
+										int dmaSize = getShapeTypeSize(	collisionPairInput.m_shapeType0);
 										uint64_t	dmaPpuAddress2 = (uint64_t)lsMem.gColObj0.getCollisionShape();
 										cellDmaGet(lsMem.gCollisionShape0, dmaPpuAddress2  , dmaSize, DMA_TAG(1), 0, 0);
 										cellDmaWaitTagStatusAll(DMA_MASK(1));
 									}
 									///dma and initialize the concave object
 									{
-										int dmaSize = lsMem.maxShapeSize;//sizeof(btBvhTriangleMeshShape);//lsMem.maxShapeSize;
+										int dmaSize = getShapeTypeSize(	collisionPairInput.m_shapeType1);
 										uint64_t	dmaPpuAddress2 = (uint64_t)lsMem.gColObj1.getCollisionShape();
 			//							spu_printf("SPU: trimesh = %llx\n",dmaPpuAddress2);
 										cellDmaGet(lsMem.gCollisionShape1, dmaPpuAddress2  , dmaSize, DMA_TAG(2), 0, 0);
