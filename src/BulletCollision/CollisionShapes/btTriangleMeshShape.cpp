@@ -138,7 +138,7 @@ const btVector3& btTriangleMeshShape::getLocalScaling() const
 //#define DEBUG_TRIANGLE_MESH
 
 
-void	btTriangleMeshShape::processAllTrianglesBruteForce(btTriangleCallback* callback,const btVector3& aabbMin,const btVector3& aabbMax) const
+void	btTriangleMeshShape::processAllTriangles(btTriangleCallback* callback,const btVector3& aabbMin,const btVector3& aabbMax) const
 {
 		struct FilteredCallback : public btInternalTriangleIndexCallback
 	{
@@ -170,11 +170,6 @@ void	btTriangleMeshShape::processAllTrianglesBruteForce(btTriangleCallback* call
 	m_meshInterface->InternalProcessAllTriangles(&filterCallback,aabbMin,aabbMax);
 }
 
-
-void	btTriangleMeshShape::processAllTriangles(btTriangleCallback* callback,const btVector3& aabbMin,const btVector3& aabbMax) const
-{
-	processAllTrianglesBruteForce(callback,aabbMin,aabbMax);
-}
 
 
 

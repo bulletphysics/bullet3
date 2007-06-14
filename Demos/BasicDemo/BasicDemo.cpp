@@ -33,7 +33,7 @@ btScalar gCollisionMargin = btScalar(0.05);
 #include "GlutStuff.h"
 
 #ifdef USE_PARALLEL_DISPATCHER
-#include "SpuGatheringCollisionDispatcher.h"
+#include "../../Extras/BulletMultiThreaded/SpuGatheringCollisionDispatcher.h"
 #endif//USE_PARALLEL_DISPATCHER
 
 

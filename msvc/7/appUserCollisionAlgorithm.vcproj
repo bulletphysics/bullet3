@@ -190,7 +190,7 @@
 				GenerateDebugInformation="TRUE"
 				IgnoreDefaultLibraryNames="LIBC,LIBCD"
 				OutputFile="..\..\DebugUserCollisionAlgorithm.exe"
-				SubSystem="1"
+				SubSystem="2"
 				AdditionalOptions=" "
 				AdditionalDependencies="glut32.lib"
 				IgnoreImportLibrary="TRUE"
@@ -236,6 +236,11 @@
 			ATLMinimizesCRunTimeLibraryUsage="FALSE">
 			<Tool
 				Name="VCCLCompilerTool"
+                                Optimization="0"
+                                MinimalRebuild="TRUE"
+                                DebugInformationFormat="4"
+                                RuntimeTypeInfo="FALSE"
+                                RuntimeLibrary="1"
 				PreprocessorDefinitions="_DEBUG;BT_USE_DOUBLE_PRECISION;_CONSOLE;WIN32"
 				OptimizeForProcessor="1"
 				ExceptionHandling="0"
@@ -255,7 +260,7 @@
 			<Tool
 				Name="VCLinkerTool"
                                 OutputFile="..\..\DebugDblUserCollisionAlgorithm.exe"
-                                SubSystem="1"
+                                SubSystem="2"
 				AdditionalOptions=" "
 				AdditionalDependencies="glut32.lib"
 				IgnoreImportLibrary="TRUE"

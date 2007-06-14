@@ -228,6 +228,11 @@
 			ATLMinimizesCRunTimeLibraryUsage="FALSE">
 			<Tool
 				Name="VCCLCompilerTool"
+                                Optimization="0"
+                                MinimalRebuild="TRUE"
+                                DebugInformationFormat="4"
+                                RuntimeTypeInfo="FALSE"
+                                RuntimeLibrary="1"
 				PreprocessorDefinitions="_DEBUG;BT_USE_DOUBLE_PRECISION;WIN32"
 				OptimizeForProcessor="1"
 				ExceptionHandling="0"

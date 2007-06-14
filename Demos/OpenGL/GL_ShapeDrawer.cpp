@@ -520,7 +520,7 @@ void GL_ShapeDrawer::drawOpenGL(btScalar* m, const btCollisionShape* shape, cons
 			GlDrawcallback drawCallback;
 			drawCallback.m_wireframe = (debugMode & btIDebugDraw::DBG_DrawWireframe)!=0;
 
-			concaveMesh->processAllTrianglesBruteForce(&drawCallback,aabbMin,aabbMax);
+			concaveMesh->processAllTriangles(&drawCallback,aabbMin,aabbMax);
 
 		}
 #endif
