@@ -81,7 +81,13 @@
 				RuntimeTypeInfo="FALSE"
 				RuntimeLibrary="1"
 [% END %]
-
+[% MACRO compiler_debug_dbl BLOCK -%]
+                                Optimization="0"
+                                MinimalRebuild="TRUE"
+                                DebugInformationFormat="4"
+                                RuntimeTypeInfo="FALSE"
+                                RuntimeLibrary="1"
+[% END %]
 [% MACRO linker_release BLOCK -%]
 				LinkIncremental="1"
 				OptimizeReferences="2"
@@ -116,10 +122,10 @@
                                 OutputFile="[% path([my.doc.buildroot.0, glue(['DebugDbl',my.doc.target.0])]) %]"
                                 SubSystem="[% subsys %]"
 [% END %]
-[% MACRO linker_appcon_release_dbl GET linker_app_release_dbl(2) %]
+[% MACRO linker_appcon_release_dbl GET linker_app_release_dbl(1) %]
 [% MACRO linker_appcon_debug_dbl GET linker_app_debug_dbl(1) %]
 
-[% MACRO linker_appcon_release GET linker_app_release(2) %]
+[% MACRO linker_appcon_release GET linker_app_release(1) %]
 [% MACRO linker_appcon_debug GET linker_app_debug(1) %]
 
 [% MACRO linker_appgui_release GET linker_app_debug(2) %]
