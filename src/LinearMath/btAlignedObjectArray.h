@@ -20,6 +20,16 @@ subject to the following restrictions:
 #include "btScalar.h" // has definitions like SIMD_FORCE_INLINE
 #include "btAlignedAllocator.h"
 
+///If the platform doesn't support inplace new/memcpy, you can disable USE_NEW_INPLACE_NEW
+///then the btAlignedObjectArray doesn't support objects with virtual methods, and non-trivial constructors/destructors
+///see discussion here: http://continuousphysics.com/Bullet/phpBB2/viewtopic.php?t=1231
+#define USE_NEW_INPLACE_NEW 1
+#ifdef USE_NEW_INPLACE_NEW
+#include <new.h> //in-place new
+#include <string.h> //memcpy
+#endif //USE_NEW_INPLACE_NEW
+
+
 ///btAlignedObjectArray uses a subset of the stl::vector interface for its methods
 ///It is developed to replace stl::vector to avoid STL alignment issues to add SIMD/SSE data
 template <typename T> 
@@ -41,7 +51,11 @@ class btAlignedObjectArray
 		{
 			int i;
 			for (i=start;i<end;++i)
+#ifdef USE_NEW_INPLACE_NEW
+				new (&dest[i]) T(m_data[i]);
+#else
 				dest[i] = m_data[i];
+#endif //USE_NEW_INPLACE_NEW
 		}
 
 		SIMD_FORCE_INLINE	void	init()
@@ -125,18 +139,36 @@ class btAlignedObjectArray
 			m_data[m_size].~T();
 		}
 
-		SIMD_FORCE_INLINE	void	resize(int newsize)
+		SIMD_FORCE_INLINE	void	resize(int newsize, const T& fillData=T())
 		{
-			if (newsize > size())
+			int curSize = size();
+
+			if (newsize < size())
 			{
-				reserve(newsize);
+				for(int i = curSize; i < newsize; i++)
+				{
+					m_data[i].~T();
+				}
+			} else
+			{
+				if (newsize > size())
+				{
+					reserve(newsize);
+				}
+#ifdef USE_NEW_INPLACE_NEW
+				for (int i=curSize;i<newsize;i++)
+				{
+					new ( &m_data[i]) T(fillData);
+				}
+#endif //USE_NEW_INPLACE_NEW
+
 			}
 
 			m_size = newsize;
 		}
 	
 
-		SIMD_FORCE_INLINE	T&  expand()
+		SIMD_FORCE_INLINE	T&  expand( T& fillValue=T())
 		{	
 			int sz = size();
 			if( sz == capacity() )
@@ -144,9 +176,13 @@ class btAlignedObjectArray
 				reserve( allocSize(size()) );
 			}
 			m_size++;
+#ifdef USE_NEW_INPLACE_NEW
+			new (&m_data[sz]) T(fillValue); //use the in-place new (not really allocating heap memory)
+#endif
 
 			return m_data[sz];		
 		}
+
 
 		SIMD_FORCE_INLINE	void push_back(const T& _Val)
 		{	
@@ -156,8 +192,12 @@ class btAlignedObjectArray
 				reserve( allocSize(size()) );
 			}
 			
-			m_data[size()] = _Val;
-			//::new ( m_data[m_size] ) T(_Val);
+#ifdef USE_NEW_INPLACE_NEW
+			new ( &m_data[m_size] ) T(_Val);
+#else
+			m_data[size()] = _Val;			
+#endif //USE_NEW_INPLACE_NEW
+
 			m_size++;
 		}
 
@@ -231,9 +271,17 @@ class btAlignedObjectArray
 
 		void	swap(int index0,int index1)
 		{
+#ifdef USE_NEW_INPLACE_NEW
+			char	temp[sizeof(T)];
+			memcpy(temp,&m_data[index0],sizeof(T));
+			memcpy(&m_data[index0],&m_data[index1],sizeof(T));
+			memcpy(&m_data[index1],temp,sizeof(T));
+#else
 			T temp = m_data[index0];
 			m_data[index0] = m_data[index1];
 			m_data[index1] = temp;
+#endif //USE_NEW_INPLACE_NEW
+
 		}
 
 	template <typename L>
