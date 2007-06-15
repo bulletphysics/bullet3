@@ -50,7 +50,7 @@ struct SpuGatherAndProcessPairsTaskDesc
 	uint16_t numPages;
 	uint16_t taskId;
 
-	struct	CollisionTask_LocalStoreMemory*	m_lsMemory;
+//	struct	CollisionTask_LocalStoreMemory*	m_lsMemory;
 }
 #ifdef __CELLOS_LV2__
 __attribute__ ((aligned (16)))

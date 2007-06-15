@@ -65,7 +65,7 @@ class SpuSampleTaskProcess
 	
 
 public:
-	SpuSampleTaskProcess(Win32ThreadSupport::Win32ThreadConstructionInfo& ci);
+	SpuSampleTaskProcess();
 	
 	~SpuSampleTaskProcess();
 	

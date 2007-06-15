@@ -104,10 +104,10 @@ public:
 	void waitForResponse(unsigned int *puiArgument0, unsigned int *puiArgument1);
 
 ///start the spus (can be called at the beginning of each frame, to make sure that the right SPU program is loaded)
-	void startSPUs(Win32ThreadConstructionInfo& threadConstructionInfo);
+	void startSPU(Win32ThreadConstructionInfo& threadConstructionInfo);
 
 ///tell the task scheduler we are done with the SPU tasks
-	void stopSPUs();
+	void stopSPU();
 
 };
 

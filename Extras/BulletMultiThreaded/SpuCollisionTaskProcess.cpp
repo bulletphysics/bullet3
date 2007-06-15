@@ -36,7 +36,6 @@ subject to the following restrictions:
 #include <stdio.h>
 
 
-//#ifdef __CELLOS_LV2__???
 #ifdef USE_WIN32_THREADING
 Win32ThreadSupport gMidphaseSPU(Win32ThreadSupport::Win32ThreadConstructionInfo("collision",
 								processCollisionTask,
@@ -44,12 +43,9 @@ Win32ThreadSupport gMidphaseSPU(Win32ThreadSupport::Win32ThreadConstructionInfo(
 								MIDPHASE_NUM_WORKUNIT_TASKS));
 #elif defined(USE_LIBSPE2)
 SpuLibspe2Support gMidphaseSPU(SPU_ELF_COLLISION_DETECTION,MIDPHASE_NUM_WORKUNIT_TASKS);
-#endif
-
-#ifdef __CELLOS_LV2__
-
-
-
+#elif defined (__CELLOS_LV2__)
+#include "CellSPURSSupport.ppu.h"
+CellSPURSSupport gMidphaseSPU(SPU_ELF_MID_PHASE);
 #endif
 
 

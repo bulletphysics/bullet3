@@ -18,6 +18,7 @@ subject to the following restrictions:
 #include "SpuLocalSupport.h"
 
 
+
 #if defined(DEBUG) || defined (_DEBUG)
 #include <stdio.h> //for debug printf
 #ifdef __SPU__

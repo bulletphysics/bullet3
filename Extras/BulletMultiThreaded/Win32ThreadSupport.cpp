@@ -26,13 +26,13 @@ subject to the following restrictions:
 ///Setup and initialize SPU/CELL/Libspe2
 Win32ThreadSupport::Win32ThreadSupport(Win32ThreadConstructionInfo& threadConstructionInfo)
 {
-	startSPUs(threadConstructionInfo);
+	startSPU(threadConstructionInfo);
 }
 
 ///cleanup/shutdown Libspe2
 Win32ThreadSupport::~Win32ThreadSupport()
 {
-	stopSPUs();
+	stopSPU();
 }
 
 
@@ -171,7 +171,7 @@ void Win32ThreadSupport::waitForResponse(unsigned int *puiArgument0, unsigned in
 
 
 ///start the spus group (can be called at the beginning of each frame, to make sure that the right SPU program is loaded)
-void Win32ThreadSupport::startSPUs(Win32ThreadConstructionInfo& threadConstructionInfo)
+void Win32ThreadSupport::startSPU(Win32ThreadConstructionInfo& threadConstructionInfo)
 {
 
 	m_activeSpuStatus.resize(threadConstructionInfo.m_numThreads);
@@ -215,7 +215,7 @@ void Win32ThreadSupport::startSPUs(Win32ThreadConstructionInfo& threadConstructi
 }
 
 ///tell the task scheduler we are done with the SPU tasks
-void Win32ThreadSupport::stopSPUs()
+void Win32ThreadSupport::stopSPU()
 {
 //	m_activeSpuStatus.pop_back();
 //	WaitForSingleObject(spuStatus.bla, INFINITE);

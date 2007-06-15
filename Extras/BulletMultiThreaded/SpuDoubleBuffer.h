@@ -1,14 +1,7 @@
 #ifndef DOUBLE_BUFFER_H
 #define DOUBLE_BUFFER_H
 
-#ifdef __CELLOS_LV2__
-
-#include <cell/dma.h>
-#include <stdint.h>
-
-#else
 #include "SpuFakeDma.h"
-#endif //
 
 
 ///DoubleBuffer

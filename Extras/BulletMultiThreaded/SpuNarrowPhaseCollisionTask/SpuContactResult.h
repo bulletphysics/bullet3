@@ -23,13 +23,7 @@ subject to the following restrictions:
 
 
 
-#ifdef WIN32
-#include "SpuDoubleBuffer.h"
-#else
-#include "SPU_Common/SpuDefines.h"
-#include "SPU_Common/SpuDoubleBuffer.h"
-#include <spu_printf.h>
-#endif //WIN32
+#include "../SpuDoubleBuffer.h"
 
 
 #include "LinearMath/btTransform.h"

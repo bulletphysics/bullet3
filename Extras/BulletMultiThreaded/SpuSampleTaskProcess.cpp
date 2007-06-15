@@ -42,13 +42,19 @@ void*	SamplelsMemoryFunc()
 	return 0;
 }
 
-
+#ifdef USE_IBM_CELL_SDK
 //SpuLibspe2Support gSampleSPU(SPU_ELF_SAMPLE,SAMPLE_NUM_WORKUNIT_TASKS);
+#elif defined(WIN32)
 Win32ThreadSupport gSampleSPU(Win32ThreadSupport::Win32ThreadConstructionInfo("sample",
 							  		SampleThreadFunc,
 									SamplelsMemoryFunc,
 									SAMPLE_NUM_WORKUNIT_TASKS));
+#elif defined(__CELLOS_LV2__)
 
+#include "CellSPURSSupport.ppu.h"
+CellSPURSSupport gSampleSPU(SPU_ELF_SAMPLE);
+
+#endif
 
 extern "C" {
 	extern char SPU_SAMPLE_ELF_SYMBOL[];
@@ -62,10 +68,10 @@ SpuSampleTaskDesc g_spuSampleTaskDesc[SAMPLE_NUM_WORKUNIT_TASKS];
 
 
 
-SpuSampleTaskProcess::SpuSampleTaskProcess(Win32ThreadSupport::Win32ThreadConstructionInfo& threadConstructionInfo)
+SpuSampleTaskProcess::SpuSampleTaskProcess()
 {
 
-	for (int i = 0; i < threadConstructionInfo.m_numThreads; i++)
+	for (int i = 0; i < SAMPLE_NUM_WORKUNIT_TASKS; i++)
 	{
 		m_taskBusy[i] = false;
 	}
@@ -74,14 +80,20 @@ SpuSampleTaskProcess::SpuSampleTaskProcess(Win32ThreadSupport::Win32ThreadConstr
 
 	m_initialized = false;
 
-	gSampleSPU.startSPUs(threadConstructionInfo);
+#ifdef WIN32
+	Win32ThreadSupport::Win32ThreadConstructionInfo threadConstructionInfo(
+	"sample",SampleThreadFunc,SamplelsMemoryFunc);
+
+	gSampleSPU.startSPU(threadConstructionInfo);
+#else
+	gSampleSPU.startSPU();
+#endif
 
 }
 
 SpuSampleTaskProcess::~SpuSampleTaskProcess()
 {
-	
-	gSampleSPU.stopSPUs();
+	gSampleSPU.stopSPU();
 	
 }
 

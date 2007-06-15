@@ -25,16 +25,19 @@
 #else
 #if defined	(__CELLOS_LV2__)
 				///Playstation 3 Cell SDK
+	#include <spu_printf.h>
 #else
 	//non-windows systems
 
 	#define USE_PTHREADS 1
 
+	
 #endif	//__CELLOS_LV2__
 
 	#include <stdint.h>
 	#include <stdlib.h>
-
+	#include <string.h> //for memcpy
+	
 #endif
 
 

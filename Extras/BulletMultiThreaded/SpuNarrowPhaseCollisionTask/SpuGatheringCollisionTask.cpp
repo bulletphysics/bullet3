@@ -1,13 +1,13 @@
 
 #include "SpuGatheringCollisionTask.h"
 
-#include "SpuDoubleBuffer.h"
+#include "../SpuDoubleBuffer.h"
 
 #include "../SpuCollisionTaskProcess.h"
 #include "../SpuGatheringCollisionDispatcher.h" //for SPU_BATCHSIZE_BROADPHASE_PAIRS
 
 #include "BulletCollision/BroadphaseCollision/btBroadphaseProxy.h"
-#include "SpuContactManifoldCollisionAlgorithm.h"
+#include "../SpuContactManifoldCollisionAlgorithm.h"
 #include "BulletCollision/CollisionDispatch/btCollisionObject.h"
 #include "SpuContactResult.h"
 #include "BulletCollision/CollisionShapes/btOptimizedBvh.h"
@@ -78,11 +78,21 @@ struct	CollisionTask_LocalStoreMemory
 
 
 
-
+#ifdef WIN32
 void* createCollisionLocalStoreMemory()
 {
 	return new CollisionTask_LocalStoreMemory;
 };
+
+
+#elif defined(__CELLOS_LV2__)
+
+CollisionTask_LocalStoreMemory	gLocalStoreMemory;
+void* createCollisionLocalStoreMemory()
+{
+	return &gLocalStoreMemory;
+}
+#endif
 
 
 void	ProcessSpuConvexConvexCollision(SpuCollisionPairInput* wuInput, CollisionTask_LocalStoreMemory* lsMemPtr, SpuContactResult& spuContacts);
@@ -654,6 +664,8 @@ void	processCollisionTask(void* userPtr, void* lsMemPtr)
 	CollisionTask_LocalStoreMemory*	colMemPtr = (CollisionTask_LocalStoreMemory*)lsMemPtr;
 	CollisionTask_LocalStoreMemory& lsMem = *(colMemPtr);
 	
+	spu_printf("taskDescPtr=%llx\n",taskDescPtr);
+	
 	SpuContactResult spuContacts;
 
 	uint64_t dmaInPtr = taskDesc.inPtr;
@@ -667,6 +679,7 @@ void	processCollisionTask(void* userPtr, void* lsMemPtr)
 
 	for (unsigned int i = 0; i < numPages; i++)
 	{
+
 		// wait for back buffer dma and swap buffers
 		unsigned char *inputPtr = lsMem.g_workUnitTaskBuffers.swapBuffers();
 
@@ -688,6 +701,8 @@ void	processCollisionTask(void* userPtr, void* lsMemPtr)
 
 		for (j = 0; j < numOnPage; j++)
 		{
+			spu_printf("numOnPage=%d\n",numOnPage);
+
 #ifdef DEBUG_SPU_COLLISION_DETECTION
 			printMidphaseInput(&wuInputs[j]);
 #endif //DEBUG_SPU_COLLISION_DETECTION
