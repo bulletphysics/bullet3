@@ -24,10 +24,16 @@ subject to the following restrictions:
 ///then the btAlignedObjectArray doesn't support objects with virtual methods, and non-trivial constructors/destructors
 ///see discussion here: http://continuousphysics.com/Bullet/phpBB2/viewtopic.php?t=1231
 #define USE_NEW_INPLACE_NEW 1
+
 #ifdef USE_NEW_INPLACE_NEW
-#include <new.h> //in-place new
-#include <string.h> //memcpy
+#include <memory> //for replacement new
+
+#ifndef WIN32
+#include <string.h>//for memcpy
+#endif
+
 #endif //USE_NEW_INPLACE_NEW
+
 
 
 ///btAlignedObjectArray uses a subset of the stl::vector interface for its methods
@@ -168,7 +174,7 @@ class btAlignedObjectArray
 		}
 	
 
-		SIMD_FORCE_INLINE	T&  expand( T& fillValue=T())
+		SIMD_FORCE_INLINE	T&  expand( const T& fillValue=T())
 		{	
 			int sz = size();
 			if( sz == capacity() )
