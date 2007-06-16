@@ -31,5 +31,7 @@ int cellDmaLargePut(const void *ls, uint64_t ea, uint32_t size, uint32_t tag, ui
 void	cellDmaWaitTagStatusAll(int ignore);
 #endif //WIN32
 
+///stallingUnalignedDmaSmallGet internally uses DMA_TAG(1)
+int	stallingUnalignedDmaSmallGet(void *ls, uint64_t ea, uint32_t size);
 
 #endif //FAKE_DMA_H

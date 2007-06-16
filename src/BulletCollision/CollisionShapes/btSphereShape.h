@@ -20,7 +20,7 @@ subject to the following restrictions:
 #include "../BroadphaseCollision/btBroadphaseProxy.h" // for the types
 
 ///btSphereShape implements an implicit (getSupportingVertex) Sphere
-class btSphereShape : public btConvexShape
+ATTRIBUTE_ALIGNED16(class) btSphereShape : public btConvexShape
 
 {
 	

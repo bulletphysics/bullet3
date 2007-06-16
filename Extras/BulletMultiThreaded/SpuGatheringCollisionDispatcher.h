@@ -21,8 +21,8 @@ subject to the following restrictions:
 ///Tuning value to optimized SPU utilization 
 ///Too small value means Task overhead is large compared to computation (too fine granularity)
 ///Too big value might render some SPUs are idle, while a few other SPUs are doing all work.
-//#define SPU_BATCHSIZE_BROADPHASE_PAIRS 16
-#define SPU_BATCHSIZE_BROADPHASE_PAIRS 256
+#define SPU_BATCHSIZE_BROADPHASE_PAIRS 16
+//#define SPU_BATCHSIZE_BROADPHASE_PAIRS 256
 
 
 class SpuCollisionTaskProcess;
