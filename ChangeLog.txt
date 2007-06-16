@@ -1,6 +1,9 @@
 Bullet Continuous Collision Detection and Physics Library
 Erwin Coumans
 
+2007 June 15
+	- Changed btAlignedObjectArray to call copy constructor/replacement new for duplication, rather then assignment operator (operator=).
+
 2007 June 11
 	- Added multi-threading. Originally for Playstation 3 Cell SPU, but the same code can run using Win32 Threads using fake DMA transfers (memcpy)
 		Libspe2 support for Cell Blade / PS3 Linux is upcoming
