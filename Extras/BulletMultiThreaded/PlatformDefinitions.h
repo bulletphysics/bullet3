@@ -1,7 +1,7 @@
 #ifndef TYPE_DEFINITIONS_H
 #define TYPE_DEFINITIONS_H
 
-#include <LinearMath/btScalar.h>
+
 
 ///This file provides some platform/compiler checks for common definitions
 

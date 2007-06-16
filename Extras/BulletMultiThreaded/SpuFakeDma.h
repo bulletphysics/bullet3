@@ -6,7 +6,6 @@
 #include "PlatformDefinitions.h"
 
 
-#include <LinearMath/btScalar.h> //for definition of uint64_t,uint32_t
 
 #ifdef __CELLOS_LV2__
 

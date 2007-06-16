@@ -18,7 +18,6 @@ subject to the following restrictions:
 
 #include <assert.h>
 
-#include <LinearMath/btScalar.h>
 
 #include "PlatformDefinitions.h"
 
