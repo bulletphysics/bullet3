@@ -254,14 +254,7 @@ void btAxisSweep3::removeHandle(BP_FP_INT_TYPE handle)
 
 	for (axis = 0;axis<3;axis++)
 	{
-		Edge* pEdges = m_pEdges[axis];
 		m_pHandles[0].m_maxEdges[axis] -= 2;
-		int maxEdge= pHandle->m_maxEdges[axis];
-		//pEdges[maxEdge].m_pos = BP_HANDLE_SENTINEL;
-		//pEdges[maxEdge].m_handle = 0;
-		int minEdge = pHandle->m_minEdges[axis];
-		//pEdges[minEdge].m_pos = BP_HANDLE_SENTINEL;
-		//pEdges[minEdge].m_handle = 0;
 	}
 
 	// remove the edges by sorting them up to the end of the list
