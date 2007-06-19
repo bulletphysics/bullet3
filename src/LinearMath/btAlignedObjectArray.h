@@ -216,21 +216,18 @@ class btAlignedObjectArray
 		{	// determine new minimum length of allocated storage
 			if (capacity() < _Count)
 			{	// not enough room, reallocate
-				if (capacity() < _Count)
-				{
-					T*	s = (T*)allocate(_Count);
+				T*	s = (T*)allocate(_Count);
 
-					copy(0, size(), s);
+				copy(0, size(), s);
 
-					destroy(0,size());
+				destroy(0,size());
 
-					deallocate();
+				deallocate();
 
-					m_data = s;
-					
-					m_capacity = _Count;
+				m_data = s;
+				
+				m_capacity = _Count;
 
-				}
 			}
 		}
 
