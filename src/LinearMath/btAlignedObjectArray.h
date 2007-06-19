@@ -20,20 +20,23 @@ subject to the following restrictions:
 #include "btScalar.h" // has definitions like SIMD_FORCE_INLINE
 #include "btAlignedAllocator.h"
 
-///If the platform doesn't support inplace new/memcpy, you can disable USE_NEW_INPLACE_NEW
+///If the platform doesn't support placement new, you can disable BT_USE_PLACEMENT_NEW
 ///then the btAlignedObjectArray doesn't support objects with virtual methods, and non-trivial constructors/destructors
-///see discussion here: http://continuousphysics.com/Bullet/phpBB2/viewtopic.php?t=1231
-#define USE_NEW_INPLACE_NEW 1
+///You can enable BT_USE_MEMCPY, then swapping elements in the array will use memcpy instead of operator=
+///see discussion here: http://continuousphysics.com/Bullet/phpBB2/viewtopic.php?t=1231 and
+///http://www.continuousphysics.com/Bullet/phpBB2/viewtopic.php?t=1240
 
-#ifdef USE_NEW_INPLACE_NEW
-#include <memory> //for replacement new
+#define BT_USE_PLACEMENT_NEW 1
+//#define BT_USE_MEMCPY 1 //disable, because it is cumbersome to find out for each platform where memcpy is defined. It can be in <memory.h> or <string.h> or otherwise...
 
-#ifndef WIN32
-#include <string.h>//for memcpy
-#endif
+#ifdef BT_USE_MEMCPY
+#include <memory.h>
+#include <string.h>
+#endif //BT_USE_MEMCPY
 
-#endif //USE_NEW_INPLACE_NEW
-
+#ifdef BT_USE_PLACEMENT_NEW
+#include <new> //for placement new
+#endif //BT_USE_PLACEMENT_NEW
 
 
 ///btAlignedObjectArray uses a subset of the stl::vector interface for its methods
@@ -57,11 +60,11 @@ class btAlignedObjectArray
 		{
 			int i;
 			for (i=start;i<end;++i)
-#ifdef USE_NEW_INPLACE_NEW
+#ifdef BT_USE_PLACEMENT_NEW
 				new (&dest[i]) T(m_data[i]);
 #else
 				dest[i] = m_data[i];
-#endif //USE_NEW_INPLACE_NEW
+#endif //BT_USE_PLACEMENT_NEW
 		}
 
 		SIMD_FORCE_INLINE	void	init()
@@ -161,12 +164,12 @@ class btAlignedObjectArray
 				{
 					reserve(newsize);
 				}
-#ifdef USE_NEW_INPLACE_NEW
+#ifdef BT_USE_PLACEMENT_NEW
 				for (int i=curSize;i<newsize;i++)
 				{
 					new ( &m_data[i]) T(fillData);
 				}
-#endif //USE_NEW_INPLACE_NEW
+#endif //BT_USE_PLACEMENT_NEW
 
 			}
 
@@ -182,7 +185,7 @@ class btAlignedObjectArray
 				reserve( allocSize(size()) );
 			}
 			m_size++;
-#ifdef USE_NEW_INPLACE_NEW
+#ifdef BT_USE_PLACEMENT_NEW
 			new (&m_data[sz]) T(fillValue); //use the in-place new (not really allocating heap memory)
 #endif
 
@@ -198,11 +201,11 @@ class btAlignedObjectArray
 				reserve( allocSize(size()) );
 			}
 			
-#ifdef USE_NEW_INPLACE_NEW
+#ifdef BT_USE_PLACEMENT_NEW
 			new ( &m_data[m_size] ) T(_Val);
 #else
 			m_data[size()] = _Val;			
-#endif //USE_NEW_INPLACE_NEW
+#endif //BT_USE_PLACEMENT_NEW
 
 			m_size++;
 		}
@@ -277,7 +280,7 @@ class btAlignedObjectArray
 
 		void	swap(int index0,int index1)
 		{
-#ifdef USE_NEW_INPLACE_NEW
+#ifdef BT_USE_MEMCPY
 			char	temp[sizeof(T)];
 			memcpy(temp,&m_data[index0],sizeof(T));
 			memcpy(&m_data[index0],&m_data[index1],sizeof(T));
@@ -286,7 +289,7 @@ class btAlignedObjectArray
 			T temp = m_data[index0];
 			m_data[index0] = m_data[index1];
 			m_data[index1] = temp;
-#endif //USE_NEW_INPLACE_NEW
+#endif //BT_USE_PLACEMENT_NEW
 
 		}
 
