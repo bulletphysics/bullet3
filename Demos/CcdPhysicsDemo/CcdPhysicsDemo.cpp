@@ -408,7 +408,7 @@ void	CcdPhysicsDemo::initPhysics()
 	dispatcher->registerCollisionCreateFunc(SPHERE_SHAPE_PROXYTYPE,TRIANGLE_SHAPE_PROXYTYPE,new btSphereTriangleCollisionAlgorithm::CreateFunc);
 	btSphereTriangleCollisionAlgorithm::CreateFunc* triangleSphereCF = new btSphereTriangleCollisionAlgorithm::CreateFunc;
 	triangleSphereCF->m_swapped = true;
-	dispatcher->registerCollisionCreateFunc(SPHERE_SHAPE_PROXYTYPE,TRIANGLE_SHAPE_PROXYTYPE,triangleSphereCF);
+	dispatcher->registerCollisionCreateFunc(TRIANGLE_SHAPE_PROXYTYPE,SPHERE_SHAPE_PROXYTYPE,triangleSphereCF);
 #endif //REGISTER_CUSTOM_COLLISION_ALGORITHM
 
 #ifdef COMPARE_WITH_QUICKSTEP
