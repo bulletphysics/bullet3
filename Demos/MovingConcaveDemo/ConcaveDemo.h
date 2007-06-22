@@ -24,10 +24,11 @@ struct btCollisionAlgorithmCreateFunc;
 class ConcaveDemo : public DemoApplication
 {
 
-	btCollisionAlgorithmCreateFunc* m_gimpactCollisionCreateFunc;
+	btCollisionShape * m_trimeshShape;
 
 	public:
 
+	void	initGImpactCollision();
 	void	initPhysics();
 
 	virtual void clientMoveAndDisplay();

@@ -20,13 +20,8 @@ subject to the following restrictions:
 #include "LinearMath/btIDebugDraw.h"
 #include "LinearMath/btQuickprof.h"
 #include "LinearMath/btDefaultMotionState.h"
-#include "../Extras/GIMPACTBullet/btGIMPACTMeshShape.h"
-#include "../Extras/GIMPACTBullet/btConcaveConcaveCollisionAlgorithm.h"
-
-//#define USE_PARALLEL_DISPATCHER 1
-#ifdef USE_PARALLEL_DISPATCHER
-#include "../../Extras/BulletMultiThreaded/SpuGatheringCollisionDispatcher.h"
-#endif//USE_PARALLEL_DISPATCHER
+#include "GIMPACT/Bullet/btGImpactShape.h"
+#include "GIMPACT/Bullet/btGImpactCollisionAlgorithm.h"
 
 
 
@@ -1409,11 +1404,12 @@ int gIndices[NUM_TRIANGLES][3] = {
 	{452,450,449}
 };
 
-//TRIMESH GLOBAL
-btGIMPACTMeshData * g_trimeshData;
 
 //***************************THE END OF FAMOUS BUNNY TRIMESH********************************************//
 
+//****GLOBALS
+
+//****GLOBALS
 
 ///User can override this material combiner by implementing gContactAddedCallback and setting body0->m_collisionFlags |= btCollisionObject::customMaterialCallback;
 inline btScalar	calculateCombinedFriction(float friction0,float friction1)
@@ -1615,7 +1611,7 @@ void ConcaveDemo::renderme()
 			sprintf(buf,"+- shooting speed = %10.2f",m_ShootBoxInitialSpeed);
 			BMF_DrawString(BMF_GetFont(BMF_kHelvetica10),buf);
 			yStart += yIncr;
-			
+
 			resetPerspectiveProjection();
 
 
@@ -1624,26 +1620,33 @@ void ConcaveDemo::renderme()
 }
 
 
-void	ConcaveDemo::initPhysics()
-{
 
+void	ConcaveDemo::initGImpactCollision()
+{
+	// create trimesh
 	btTriangleIndexVertexArray* indexVertexArrays = new btTriangleIndexVertexArray(NUM_TRIANGLES,
 		&gIndices[0][0],
 		3*sizeof(int),
-		NUM_VERTICES,(REAL*) &gVertices[0],sizeof(REAL)*3);    
+		NUM_VERTICES,(REAL*) &gVertices[0],sizeof(REAL)*3);
 
-	g_trimeshData = new btGIMPACTMeshData(indexVertexArrays);	
+	btGImpactMeshShape * trimesh = new btGImpactMeshShape(indexVertexArrays);
+	trimesh->setLocalScaling(btVector3(4.f,4.f,4.f));
+	trimesh->updateBound();
+	m_trimeshShape = trimesh;
+
+	//register algorithm
+
+	btCollisionDispatcher * dispatcher = static_cast<btCollisionDispatcher *>(m_dynamicsWorld ->getDispatcher());
+	btGImpactCollisionAlgorithm::registerAlgorithm(dispatcher);
+
+}
+
+void	ConcaveDemo::initPhysics()
+{
+
 
 	//btConstraintSolver* solver = new btSequentialImpulseConstraintSolver;
-	
-#ifdef USE_PARALLEL_DISPATCHER
-	btCollisionDispatcher* dispatcher = new	SpuGatheringCollisionDispatcher();
-#else
-		btCollisionDispatcher* dispatcher = new	btCollisionDispatcher();
-#endif//USE_PARALLEL_DISPATCHER
-
-
-
+	btCollisionDispatcher* dispatcher = new btCollisionDispatcher();
 	//btOverlappingPairCache* broadphase = new btSimpleBroadphase();
 	btOverlappingPairCache* broadphase = new btSimpleBroadphase();
 
@@ -1651,12 +1654,10 @@ void	ConcaveDemo::initPhysics()
 	m_dynamicsWorld = new btDiscreteDynamicsWorld(dispatcher,broadphase,constraintSolver);
 
 
-	m_gimpactCollisionCreateFunc = new btConcaveConcaveCollisionAlgorithm::CreateFunc;
-	dispatcher->registerCollisionCreateFunc(GIMPACT_SHAPE_PROXYTYPE,GIMPACT_SHAPE_PROXYTYPE,m_gimpactCollisionCreateFunc);
-	dispatcher->registerCollisionCreateFunc(TRIANGLE_MESH_SHAPE_PROXYTYPE,GIMPACT_SHAPE_PROXYTYPE,m_gimpactCollisionCreateFunc);
-	dispatcher->registerCollisionCreateFunc(GIMPACT_SHAPE_PROXYTYPE,TRIANGLE_MESH_SHAPE_PROXYTYPE,m_gimpactCollisionCreateFunc);
-	dispatcher->registerCollisionCreateFunc(STATIC_PLANE_PROXYTYPE,GIMPACT_SHAPE_PROXYTYPE,m_gimpactCollisionCreateFunc);
-	dispatcher->registerCollisionCreateFunc(GIMPACT_SHAPE_PROXYTYPE,STATIC_PLANE_PROXYTYPE,m_gimpactCollisionCreateFunc);
+	//create trimesh model and shape
+	initGImpactCollision();
+
+
 
 	float mass = 0.f;
 	btTransform	startTransform;
@@ -1685,19 +1686,33 @@ void	ConcaveDemo::initPhysics()
 
 	btRigidBody* staticBody = localCreateRigidBody(mass, startTransform,staticScenario);
 
+	staticBody->setCollisionFlags(staticBody->getCollisionFlags()|btCollisionObject::CF_STATIC_OBJECT);
+
 	//enable custom material callback
-	staticBody->setCollisionFlags(staticBody->getCollisionFlags() | btCollisionObject::CF_STATIC_OBJECT | btCollisionObject::CF_CUSTOM_MATERIAL_CALLBACK);
+	staticBody->setCollisionFlags(staticBody->getCollisionFlags()|btCollisionObject::CF_CUSTOM_MATERIAL_CALLBACK);
+
+
+	//static plane
+	btVector3 normal(0.4,1.5,-0.4);
+	normal.normalize();
+	btCollisionShape* staticplaneShape6 = new btStaticPlaneShape(normal,0.0);// A plane
+
+	startTransform.setOrigin(btVector3(0,0,0));
+
+	btRigidBody* staticBody2 = localCreateRigidBody(mass, startTransform,staticplaneShape6 );
+
+	staticBody2->setCollisionFlags(staticBody2->getCollisionFlags()|btCollisionObject::CF_STATIC_OBJECT);
 
 	{
-		for (int i=0;i<10;i++)
+		for (int i=0;i<9;i++)
 		{
 			btCollisionShape* boxShape = new btBoxShape(btVector3(1,1,1));
-			startTransform.setOrigin(btVector3(2*i,2,1));
+			startTransform.setOrigin(btVector3(2*i-5,2,-3));
 			localCreateRigidBody(1, startTransform,boxShape);
 		}
 	}
 
-	m_debugMode |= btIDebugDraw::DBG_DrawWireframe;
+	//m_debugMode |= btIDebugDraw::DBG_DrawWireframe;
 
 }
 
@@ -1842,17 +1857,9 @@ void ConcaveDemo::keyboardCallback(unsigned char key, int x, int y)
 }
 
 
-btGIMPACTMeshShape * createMesh()
-{
-	btGIMPACTMeshShape * newtrimeshShape  = new btGIMPACTMeshShape(g_trimeshData );
-	newtrimeshShape->setLocalScaling(btVector3(4.f,4.f,4.f));
-//	OGL_displaylist_register_shape(newtrimeshShape);
-	return newtrimeshShape;
-}
-
 void ConcaveDemo::shootTrimesh(const btVector3& destination)
 {
-	
+
 	if (m_dynamicsWorld)
 	{
 		float mass = 4.f;
@@ -1861,9 +1868,7 @@ void ConcaveDemo::shootTrimesh(const btVector3& destination)
 		btVector3 camPos = getCameraPosition();
 		startTransform.setOrigin(camPos);
 
-		btGIMPACTMeshShape * newtrimeshShape  = createMesh();
-
-		btRigidBody* body = this->localCreateRigidBody(mass, startTransform,newtrimeshShape);
+		btRigidBody* body = this->localCreateRigidBody(mass, startTransform,m_trimeshShape);
 
 		btVector3 linVel(destination[0]-camPos[0],destination[1]-camPos[1],destination[2]-camPos[2]);
 		linVel.normalize();

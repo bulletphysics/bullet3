@@ -9,7 +9,6 @@ SubInclude TOP Extras LibXML ;
 SubInclude TOP Extras quickstep ;
 SubInclude TOP Extras AlternativeCollisionAlgorithms ;
 SubInclude TOP Extras GIMPACT ;
-SubInclude TOP Extras GIMPACTBullet ;
 
 #GPUphysics needs 'make', not jam compatible build yet:
 #SubInclude TOP Extras GPUphysics ;
