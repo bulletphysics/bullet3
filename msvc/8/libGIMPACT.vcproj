@@ -291,43 +291,22 @@
 			Name="Source Files"
 			Filter="">
 			<File
-				RelativePath="..\..\Extras\GIMPACT\src\gim_boxpruning.cpp">
+				RelativePath="..\..\Extras\GIMPACT\src\Bullet\btGImpactCollisionAlgorithm.cpp">
 			</File>
 			<File
-				RelativePath="..\..\Extras\GIMPACT\src\gim_contact.cpp">
+				RelativePath="..\..\Extras\GIMPACT\src\Bullet\btGImpactShape.cpp">
 			</File>
 			<File
-				RelativePath="..\..\Extras\GIMPACT\src\gim_math.cpp">
+				RelativePath="..\..\Extras\GIMPACT\src\core\gim_box_set.cpp">
 			</File>
 			<File
-				RelativePath="..\..\Extras\GIMPACT\src\gim_memory.cpp">
+				RelativePath="..\..\Extras\GIMPACT\src\core\gim_contact.cpp">
 			</File>
 			<File
-				RelativePath="..\..\Extras\GIMPACT\src\gim_tri_tri_overlap.cpp">
+				RelativePath="..\..\Extras\GIMPACT\src\core\gim_memory.cpp">
 			</File>
 			<File
-				RelativePath="..\..\Extras\GIMPACT\src\gim_trimesh.cpp">
-			</File>
-			<File
-				RelativePath="..\..\Extras\GIMPACT\src\gim_trimesh_capsule_collision.cpp">
-			</File>
-			<File
-				RelativePath="..\..\Extras\GIMPACT\src\gim_trimesh_data.cpp">
-			</File>
-			<File
-				RelativePath="..\..\Extras\GIMPACT\src\gim_trimesh_ray_collision.cpp">
-			</File>
-			<File
-				RelativePath="..\..\Extras\GIMPACT\src\gim_trimesh_sphere_collision.cpp">
-			</File>
-			<File
-				RelativePath="..\..\Extras\GIMPACT\src\gim_trimesh_trimesh_collision.cpp">
-			</File>
-			<File
-				RelativePath="..\..\Extras\GIMPACT\src\gim_vertex_buffer_util.cpp">
-			</File>
-			<File
-				RelativePath="..\..\Extras\GIMPACT\src\gimpact.cpp">
+				RelativePath="..\..\Extras\GIMPACT\src\core\gim_tri_collision.cpp">
 			</File>
 		</Filter>
 	</Files>

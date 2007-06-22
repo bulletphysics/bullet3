@@ -32,7 +32,7 @@
 				OptimizeForProcessor="1"
 				ExceptionHandling="0"
 				AdditionalOptions=" "
-				AdditionalIncludeDirectories=".;..\..;..\..\src;..\..\Glut;..\..\Demos\OpenGL;..\..\Extras\GIMPACT\include;..\..\Extras\GIMPACTBullet"
+				AdditionalIncludeDirectories=".;..\..;..\..\src;..\..\Glut;..\..\Demos\OpenGL;..\..\Extras\GIMPACT\include"
 				PrecompiledHeaderFile="..\..\out\release8\build\appMovingConcaveDemo\appMovingConcaveDemo.pch"
 				AssemblerListingLocation="..\..\out\release8\build\appMovingConcaveDemo\"
 				ObjectFile="..\..\out\release8\build\appMovingConcaveDemo\"
@@ -81,7 +81,7 @@
 			<Tool
 				Name="VCResourceCompilerTool"
 				PreprocessorDefinitions="NDEBUG;_CONSOLE;PROJECTGEN_VERSION=8"
-				AdditionalIncludeDirectories=".;..\..;..\..\src;..\..\Glut;..\..\Demos\OpenGL;..\..\Extras\GIMPACT\include;..\..\Extras\GIMPACTBullet"
+				AdditionalIncludeDirectories=".;..\..;..\..\src;..\..\Glut;..\..\Demos\OpenGL;..\..\Extras\GIMPACT\include"
 				Culture="1033"/>
 			<Tool
 				Name="VCWebServiceProxyGeneratorTool"/>
@@ -102,7 +102,7 @@
 				OptimizeForProcessor="1"
 				ExceptionHandling="0"
 				AdditionalOptions=" "
-				AdditionalIncludeDirectories=".;..\..;..\..\src;..\..\Glut;..\..\Demos\OpenGL;..\..\Extras\GIMPACT\include;..\..\Extras\GIMPACTBullet"
+				AdditionalIncludeDirectories=".;..\..;..\..\src;..\..\Glut;..\..\Demos\OpenGL;..\..\Extras\GIMPACT\include"
 				PrecompiledHeaderFile="..\..\out\release_dbl8\build\appMovingConcaveDemo\appMovingConcaveDemo.pch"
 				AssemblerListingLocation="..\..\out\release_dbl8\build\appMovingConcaveDemo\"
 				ObjectFile="..\..\out\release_dbl8\build\appMovingConcaveDemo\"
@@ -146,7 +146,7 @@
 			<Tool
 				Name="VCResourceCompilerTool"
 				PreprocessorDefinitions="NDEBUG;BT_USE_DOUBLE_PRECISION;_CONSOLE;PROJECTGEN_VERSION=8"
-				AdditionalIncludeDirectories=".;..\..;..\..\src;..\..\Glut;..\..\Demos\OpenGL;..\..\Extras\GIMPACT\include;..\..\Extras\GIMPACTBullet"
+				AdditionalIncludeDirectories=".;..\..;..\..\src;..\..\Glut;..\..\Demos\OpenGL;..\..\Extras\GIMPACT\include"
 				Culture="1033"/>
 			<Tool
 				Name="VCWebServiceProxyGeneratorTool"/>
@@ -172,7 +172,7 @@
 				OptimizeForProcessor="1"
 				ExceptionHandling="0"
 				AdditionalOptions=" "
-				AdditionalIncludeDirectories=".;..\..;..\..\src;..\..\Glut;..\..\Demos\OpenGL;..\..\Extras\GIMPACT\include;..\..\Extras\GIMPACTBullet"
+				AdditionalIncludeDirectories=".;..\..;..\..\src;..\..\Glut;..\..\Demos\OpenGL;..\..\Extras\GIMPACT\include"
 				PrecompiledHeaderFile="..\..\out\debug8\build\appMovingConcaveDemo\appMovingConcaveDemo.pch"
 				AssemblerListingLocation="..\..\out\debug8\build\appMovingConcaveDemo\"
 				ObjectFile="..\..\out\debug8\build\appMovingConcaveDemo\"
@@ -219,7 +219,7 @@
 			<Tool
 				Name="VCResourceCompilerTool"
 				PreprocessorDefinitions="_DEBUG;_CONSOLE;PROJECTGEN_VERSION=8"
-				AdditionalIncludeDirectories=".;..\..;..\..\src;..\..\Glut;..\..\Demos\OpenGL;..\..\Extras\GIMPACT\include;..\..\Extras\GIMPACTBullet"
+				AdditionalIncludeDirectories=".;..\..;..\..\src;..\..\Glut;..\..\Demos\OpenGL;..\..\Extras\GIMPACT\include"
 				Culture="1033"/>
 			<Tool
 				Name="VCWebServiceProxyGeneratorTool"/>
@@ -245,7 +245,7 @@
 				OptimizeForProcessor="1"
 				ExceptionHandling="0"
 				AdditionalOptions=" "
-				AdditionalIncludeDirectories=".;..\..;..\..\src;..\..\Glut;..\..\Demos\OpenGL;..\..\Extras\GIMPACT\include;..\..\Extras\GIMPACTBullet"
+				AdditionalIncludeDirectories=".;..\..;..\..\src;..\..\Glut;..\..\Demos\OpenGL;..\..\Extras\GIMPACT\include"
 				PrecompiledHeaderFile="..\..\out\debug_dbl8\build\appMovingConcaveDemo\appMovingConcaveDemo.pch"
 				AssemblerListingLocation="..\..\out\debug_dbl8\build\appMovingConcaveDemo\"
 				ObjectFile="..\..\out\debug_dbl8\build\appMovingConcaveDemo\"
@@ -289,7 +289,7 @@
 			<Tool
 				Name="VCResourceCompilerTool"
 				PreprocessorDefinitions="_DEBUG;BT_USE_DOUBLE_PRECISION;_CONSOLE;PROJECTGEN_VERSION=8"
-				AdditionalIncludeDirectories=".;..\..;..\..\src;..\..\Glut;..\..\Demos\OpenGL;..\..\Extras\GIMPACT\include;..\..\Extras\GIMPACTBullet"
+				AdditionalIncludeDirectories=".;..\..;..\..\src;..\..\Glut;..\..\Demos\OpenGL;..\..\Extras\GIMPACT\include"
 				Culture="1033"/>
 			<Tool
 				Name="VCWebServiceProxyGeneratorTool"/>

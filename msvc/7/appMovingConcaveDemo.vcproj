@@ -32,7 +32,7 @@
 				OptimizeForProcessor="1"
 				ExceptionHandling="0"
 				AdditionalOptions=" "
-				AdditionalIncludeDirectories=".;..\..;..\..\src;..\..\Glut;..\..\Demos\OpenGL;..\..\Extras\GIMPACT\include;..\..\Extras\GIMPACTBullet"
+				AdditionalIncludeDirectories=".;..\..;..\..\src;..\..\Glut;..\..\Demos\OpenGL;..\..\Extras\GIMPACT\include"
 				PrecompiledHeaderFile="..\..\out\release7\build\appMovingConcaveDemo\appMovingConcaveDemo.pch"
 				AssemblerListingLocation="..\..\out\release7\build\appMovingConcaveDemo\"
 				ObjectFile="..\..\out\release7\build\appMovingConcaveDemo\"
@@ -52,7 +52,7 @@
 				GenerateDebugInformation="TRUE"
 				IgnoreDefaultLibraryNames="LIBC,LIBCD"
 				OutputFile="..\..\ReleaseMovingConcaveDemo.exe"
-				SubSystem="2"
+				SubSystem="1"
 				AdditionalOptions=" "
 				AdditionalDependencies="glut32.lib"
 				IgnoreImportLibrary="TRUE"
@@ -81,7 +81,7 @@
 			<Tool
 				Name="VCResourceCompilerTool"
 				PreprocessorDefinitions="NDEBUG;_CONSOLE;PROJECTGEN_VERSION=7"
-				AdditionalIncludeDirectories=".;..\..;..\..\src;..\..\Glut;..\..\Demos\OpenGL;..\..\Extras\GIMPACT\include;..\..\Extras\GIMPACTBullet"
+				AdditionalIncludeDirectories=".;..\..;..\..\src;..\..\Glut;..\..\Demos\OpenGL;..\..\Extras\GIMPACT\include"
 				Culture="1033"/>
 			<Tool
 				Name="VCWebServiceProxyGeneratorTool"/>
@@ -102,7 +102,7 @@
 				OptimizeForProcessor="1"
 				ExceptionHandling="0"
 				AdditionalOptions=" "
-				AdditionalIncludeDirectories=".;..\..;..\..\src;..\..\Glut;..\..\Demos\OpenGL;..\..\Extras\GIMPACT\include;..\..\Extras\GIMPACTBullet"
+				AdditionalIncludeDirectories=".;..\..;..\..\src;..\..\Glut;..\..\Demos\OpenGL;..\..\Extras\GIMPACT\include"
 				PrecompiledHeaderFile="..\..\out\release_dbl7\build\appMovingConcaveDemo\appMovingConcaveDemo.pch"
 				AssemblerListingLocation="..\..\out\release_dbl7\build\appMovingConcaveDemo\"
 				ObjectFile="..\..\out\release_dbl7\build\appMovingConcaveDemo\"
@@ -117,7 +117,7 @@
 			<Tool
 				Name="VCLinkerTool"
                                 OutputFile="..\..\ReleaseDblMovingConcaveDemo.exe"
-                                SubSystem="2"
+                                SubSystem="1"
 				AdditionalOptions=" "
 				AdditionalDependencies="glut32.lib"
 				IgnoreImportLibrary="TRUE"
@@ -146,7 +146,7 @@
 			<Tool
 				Name="VCResourceCompilerTool"
 				PreprocessorDefinitions="NDEBUG;BT_USE_DOUBLE_PRECISION;_CONSOLE;PROJECTGEN_VERSION=7"
-				AdditionalIncludeDirectories=".;..\..;..\..\src;..\..\Glut;..\..\Demos\OpenGL;..\..\Extras\GIMPACT\include;..\..\Extras\GIMPACTBullet"
+				AdditionalIncludeDirectories=".;..\..;..\..\src;..\..\Glut;..\..\Demos\OpenGL;..\..\Extras\GIMPACT\include"
 				Culture="1033"/>
 			<Tool
 				Name="VCWebServiceProxyGeneratorTool"/>
@@ -172,7 +172,7 @@
 				OptimizeForProcessor="1"
 				ExceptionHandling="0"
 				AdditionalOptions=" "
-				AdditionalIncludeDirectories=".;..\..;..\..\src;..\..\Glut;..\..\Demos\OpenGL;..\..\Extras\GIMPACT\include;..\..\Extras\GIMPACTBullet"
+				AdditionalIncludeDirectories=".;..\..;..\..\src;..\..\Glut;..\..\Demos\OpenGL;..\..\Extras\GIMPACT\include"
 				PrecompiledHeaderFile="..\..\out\debug7\build\appMovingConcaveDemo\appMovingConcaveDemo.pch"
 				AssemblerListingLocation="..\..\out\debug7\build\appMovingConcaveDemo\"
 				ObjectFile="..\..\out\debug7\build\appMovingConcaveDemo\"
@@ -190,7 +190,7 @@
 				GenerateDebugInformation="TRUE"
 				IgnoreDefaultLibraryNames="LIBC,LIBCD"
 				OutputFile="..\..\DebugMovingConcaveDemo.exe"
-				SubSystem="2"
+				SubSystem="1"
 				AdditionalOptions=" "
 				AdditionalDependencies="glut32.lib"
 				IgnoreImportLibrary="TRUE"
@@ -219,7 +219,7 @@
 			<Tool
 				Name="VCResourceCompilerTool"
 				PreprocessorDefinitions="_DEBUG;_CONSOLE;PROJECTGEN_VERSION=7"
-				AdditionalIncludeDirectories=".;..\..;..\..\src;..\..\Glut;..\..\Demos\OpenGL;..\..\Extras\GIMPACT\include;..\..\Extras\GIMPACTBullet"
+				AdditionalIncludeDirectories=".;..\..;..\..\src;..\..\Glut;..\..\Demos\OpenGL;..\..\Extras\GIMPACT\include"
 				Culture="1033"/>
 			<Tool
 				Name="VCWebServiceProxyGeneratorTool"/>
@@ -245,7 +245,7 @@
 				OptimizeForProcessor="1"
 				ExceptionHandling="0"
 				AdditionalOptions=" "
-				AdditionalIncludeDirectories=".;..\..;..\..\src;..\..\Glut;..\..\Demos\OpenGL;..\..\Extras\GIMPACT\include;..\..\Extras\GIMPACTBullet"
+				AdditionalIncludeDirectories=".;..\..;..\..\src;..\..\Glut;..\..\Demos\OpenGL;..\..\Extras\GIMPACT\include"
 				PrecompiledHeaderFile="..\..\out\debug_dbl7\build\appMovingConcaveDemo\appMovingConcaveDemo.pch"
 				AssemblerListingLocation="..\..\out\debug_dbl7\build\appMovingConcaveDemo\"
 				ObjectFile="..\..\out\debug_dbl7\build\appMovingConcaveDemo\"
@@ -260,7 +260,7 @@
 			<Tool
 				Name="VCLinkerTool"
                                 OutputFile="..\..\DebugDblMovingConcaveDemo.exe"
-                                SubSystem="2"
+                                SubSystem="1"
 				AdditionalOptions=" "
 				AdditionalDependencies="glut32.lib"
 				IgnoreImportLibrary="TRUE"
@@ -289,7 +289,7 @@
 			<Tool
 				Name="VCResourceCompilerTool"
 				PreprocessorDefinitions="_DEBUG;BT_USE_DOUBLE_PRECISION;_CONSOLE;PROJECTGEN_VERSION=7"
-				AdditionalIncludeDirectories=".;..\..;..\..\src;..\..\Glut;..\..\Demos\OpenGL;..\..\Extras\GIMPACT\include;..\..\Extras\GIMPACTBullet"
+				AdditionalIncludeDirectories=".;..\..;..\..\src;..\..\Glut;..\..\Demos\OpenGL;..\..\Extras\GIMPACT\include"
 				Culture="1033"/>
 			<Tool
 				Name="VCWebServiceProxyGeneratorTool"/>

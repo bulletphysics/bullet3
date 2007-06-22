@@ -172,55 +172,27 @@ SOURCE="$(InputPath)"
 # PROP Default_Filter ""
 # Begin Source File
 
-SOURCE=..\..\Extras\GIMPACT\src\gim_boxpruning.cpp
+SOURCE=..\..\Extras\GIMPACT\src\Bullet\btGImpactCollisionAlgorithm.cpp
 # End Source File
 # Begin Source File
 
-SOURCE=..\..\Extras\GIMPACT\src\gim_contact.cpp
+SOURCE=..\..\Extras\GIMPACT\src\Bullet\btGImpactShape.cpp
 # End Source File
 # Begin Source File
 
-SOURCE=..\..\Extras\GIMPACT\src\gim_math.cpp
+SOURCE=..\..\Extras\GIMPACT\src\core\gim_box_set.cpp
 # End Source File
 # Begin Source File
 
-SOURCE=..\..\Extras\GIMPACT\src\gim_memory.cpp
+SOURCE=..\..\Extras\GIMPACT\src\core\gim_contact.cpp
 # End Source File
 # Begin Source File
 
-SOURCE=..\..\Extras\GIMPACT\src\gim_tri_tri_overlap.cpp
+SOURCE=..\..\Extras\GIMPACT\src\core\gim_memory.cpp
 # End Source File
 # Begin Source File
 
-SOURCE=..\..\Extras\GIMPACT\src\gim_trimesh.cpp
-# End Source File
-# Begin Source File
-
-SOURCE=..\..\Extras\GIMPACT\src\gim_trimesh_capsule_collision.cpp
-# End Source File
-# Begin Source File
-
-SOURCE=..\..\Extras\GIMPACT\src\gim_trimesh_data.cpp
-# End Source File
-# Begin Source File
-
-SOURCE=..\..\Extras\GIMPACT\src\gim_trimesh_ray_collision.cpp
-# End Source File
-# Begin Source File
-
-SOURCE=..\..\Extras\GIMPACT\src\gim_trimesh_sphere_collision.cpp
-# End Source File
-# Begin Source File
-
-SOURCE=..\..\Extras\GIMPACT\src\gim_trimesh_trimesh_collision.cpp
-# End Source File
-# Begin Source File
-
-SOURCE=..\..\Extras\GIMPACT\src\gim_vertex_buffer_util.cpp
-# End Source File
-# Begin Source File
-
-SOURCE=..\..\Extras\GIMPACT\src\gimpact.cpp
+SOURCE=..\..\Extras\GIMPACT\src\core\gim_tri_collision.cpp
 # End Source File
 # End Group
 # End Target

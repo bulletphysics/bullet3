@@ -323,9 +323,6 @@ Package=<4>
     Begin Project Dependency
     Project_Dep_Name libGIMPACT
     End Project Dependency
-    Begin Project Dependency
-    Project_Dep_Name libGIMPACTBullet
-    End Project Dependency
 }}}
 
 ###############################################################################
@@ -376,9 +373,6 @@ Package=<4>
     End Project Dependency
     Begin Project Dependency
     Project_Dep_Name libGIMPACT
-    End Project Dependency
-    Begin Project Dependency
-    Project_Dep_Name libGIMPACTBullet
     End Project Dependency
 }}}
 
@@ -573,9 +567,6 @@ Package=<4>
     Project_Dep_Name libGIMPACT
     End Project Dependency
     Begin Project Dependency
-    Project_Dep_Name libGIMPACTBullet
-    End Project Dependency
-    Begin Project Dependency
     Project_Dep_Name liblibxml
     End Project Dependency
     Begin Project Dependency
@@ -690,9 +681,6 @@ Package=<4>
     Project_Dep_Name libGIMPACT
     End Project Dependency
     Begin Project Dependency
-    Project_Dep_Name libGIMPACTBullet
-    End Project Dependency
-    Begin Project Dependency
     Project_Dep_Name liblibxml
     End Project Dependency
     Begin Project Dependency
@@ -799,18 +787,6 @@ Package=<4>
 ###############################################################################
 
 Project: "libGIMPACT"=.\libGIMPACT.dsp - Package Owner=<4>
-
-Package=<5>
-{{{
-}}}
-
-Package=<4>
-{{{
-}}}
-
-###############################################################################
-
-Project: "libGIMPACTBullet"=.\libGIMPACTBullet.dsp - Package Owner=<4>
 
 Package=<5>
 {{{
