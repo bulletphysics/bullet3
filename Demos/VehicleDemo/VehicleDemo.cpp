@@ -130,7 +130,10 @@ void VehicleDemo::setupPhysics()
 	m_dynamicsWorld->setDebugDrawer(&debugDrawer);
 
 	//m_dynamicsWorld->setGravity(btVector3(0,0,0));
+btTransform tr;
+tr.setIdentity();
 
+//either use heightfield or triangle mesh
 //#define  USE_TRIMESH_GROUND 1
 #ifdef USE_TRIMESH_GROUND
 	int i;
@@ -199,28 +202,53 @@ const float TRIANGLE_SIZE=20.f;
 	bool useQuantizedAabbCompression = true;
 	groundShape = new btBvhTriangleMeshShape(indexVertexArrays,useQuantizedAabbCompression);
 	
+	tr.setOrigin(btVector3(0,-4.5f,0));
+
 #else
 	//testing btHeightfieldTerrainShape
 	int width=128;
 	int length=128;
 	unsigned char* heightfieldData = new unsigned char[width*length];
+	{
+		for (int i=0;i<width*length;i++)
+		{
+			heightfieldData[i]=0;
+		}
+	}
 
-//	mRawData = new unsigned char [mSize*mSize];	//allocate memory for data
-//	loadFile(filename,mSize*mSize,mRawData);
+	char*	filename="heightfield128x128.raw";
+	FILE* heightfieldFile = fopen(filename,"r");
+	if (!heightfieldFile)
+	{
+		filename="../../heightfield128x128.raw";
+		heightfieldFile = fopen(filename,"r");
+	}
+	if (heightfieldFile)
+	{
+		int numBytes =fread(heightfieldData,1,width*length,heightfieldFile);
+		//btAssert(numBytes);
+		if (!numBytes)
+		{
+			printf("couldn't read heightfield at %s\n",filename);
+		}
+		fclose (heightfieldFile);
+	}
+	
 
-	btScalar maxHeight = 1.f;
+	btScalar maxHeight = 20000.f;
 	
 	groundShape = new btHeightfieldTerrainShape(width,length,heightfieldData,maxHeight,upIndex);
-	btVector3 localScaling(10,10,10);
+	btVector3 localScaling(20,20,20);
 	localScaling[upIndex]=1.f;
 	groundShape->setLocalScaling(localScaling);
 
+	tr.setOrigin(btVector3(0,-64.5f,0));
+
 #endif //
 
-	btTransform tr;
-	tr.setIdentity();
 
-	tr.setOrigin(btVector3(0,-4.5f,0));
+
+	
 
 
 
