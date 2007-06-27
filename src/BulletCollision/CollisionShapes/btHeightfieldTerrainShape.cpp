@@ -18,9 +18,65 @@ subject to the following restrictions:
 #include "LinearMath/btTransformUtil.h"
 
 
-btHeightfieldTerrainShape::btHeightfieldTerrainShape()
-:m_localScaling(btScalar(0.),btScalar(0.),btScalar(0.))
+btHeightfieldTerrainShape::btHeightfieldTerrainShape(int width,int length,unsigned char* heightfieldData,btScalar maxHeight,int upAxis)
+:m_localScaling(btScalar(1.),btScalar(1.),btScalar(1.)),
+m_width(width),
+m_length(length),
+m_heightfieldData(heightfieldData),
+m_maxHeight(maxHeight),
+m_upAxis(upAxis)
 {
+
+
+	btScalar	quantizationMargin = 1.f;
+
+	//enlarge the AABB to avoid division by zero when initializing the quantization values
+	btVector3 clampValue(quantizationMargin,quantizationMargin,quantizationMargin);
+
+	btVector3	halfExtents(0,0,0);
+
+	switch (m_upAxis)
+	{
+	case 0:
+		{
+			halfExtents.setValue(
+				m_maxHeight,
+				m_width,
+				m_length);
+			break;
+		}
+	case 1:
+		{
+			halfExtents.setValue(
+				m_width,
+				m_maxHeight,
+				m_length);
+			break;
+		};
+	case 2:
+		{
+			halfExtents.setValue(
+				m_width,
+				m_length,
+				m_maxHeight
+			);
+			break;
+		}
+	default:
+		{
+			//need to get valid m_upAxis
+			btAssert(0);
+		}
+	}
+
+	halfExtents*= btScalar(0.5);
+	
+	m_localAabbMin = -halfExtents - clampValue;
+	m_localAabbMax = halfExtents + clampValue;
+	btVector3 aabbSize = m_localAabbMax - m_localAabbMin;
+
+	m_quantization = btVector3(btScalar(65535.0),btScalar(65535.0),btScalar(65535.0)) / aabbSize;
+
 }
 
 
@@ -30,13 +86,98 @@ btHeightfieldTerrainShape::~btHeightfieldTerrainShape()
 
 
 
-void btHeightfieldTerrainShape::getAabb(const btTransform& ,btVector3& aabbMin,btVector3& aabbMax) const
+void btHeightfieldTerrainShape::getAabb(const btTransform& t,btVector3& aabbMin,btVector3& aabbMax) const
 {
-	aabbMin.setValue(btScalar(-1e30),btScalar(-1e30),btScalar(-1e30));
-	aabbMax.setValue(btScalar(1e30),btScalar(1e30),btScalar(1e30));
+/*
+	aabbMin.setValue(-1e30f,-1e30f,-1e30f);
+	aabbMax.setValue(1e30f,1e30f,1e30f);
+*/
+
+	btVector3 halfExtents = (m_localAabbMax-m_localAabbMin)* m_localScaling * btScalar(0.5);
+
+	btMatrix3x3 abs_b = t.getBasis().absolute();  
+	btPoint3 center = t.getOrigin();
+	btVector3 extent = btVector3(abs_b[0].dot(halfExtents),
+		   abs_b[1].dot(halfExtents),
+		  abs_b[2].dot(halfExtents));
+	extent += btVector3(getMargin(),getMargin(),getMargin());
+
+	aabbMin = center - extent;
+	aabbMax = center + extent;
+
+
 }
 
 
+
+
+void	btHeightfieldTerrainShape::getVertex(int x,int y,btVector3& vertex) const
+{
+
+	btAssert(x>=0);
+	btAssert(y>=0);
+	btAssert(x<m_width);
+	btAssert(y<m_length);
+
+	unsigned char heightFieldValue = m_heightfieldData[(y*m_width)+x];
+
+	switch (m_upAxis)
+	{
+	case 0:
+		{
+		vertex.setValue(
+			heightFieldValue* (m_maxHeight/btScalar(65535)),
+			(-m_width/2 ) + x,
+			(-m_length/2 ) + y
+			);
+			break;
+		}
+	case 1:
+		{
+			vertex.setValue(
+			(-m_width/2 ) + x,
+			heightFieldValue* (m_maxHeight/btScalar(65535)),
+			(-m_length/2 ) + y
+			);
+			break;
+		};
+	case 2:
+		{
+			vertex.setValue(
+			(-m_width/2 ) + x,
+			(-m_length/2 ) + y,
+			heightFieldValue* (m_maxHeight/btScalar(65535))
+			);
+			break;
+		}
+	default:
+		{
+			//need to get valid m_upAxis
+			btAssert(0);
+		}
+	}
+
+	vertex*=m_localScaling;
+	
+}
+
+
+void btHeightfieldTerrainShape::quantizeWithClamp(short* out, const btVector3& point) const
+{
+	
+
+	btVector3 clampedPoint(point);
+	clampedPoint.setMax(m_localAabbMin);
+	clampedPoint.setMin(m_localAabbMax);
+
+	btVector3 v = (clampedPoint );// * m_quantization;
+
+	out[0] = (short)(v.getX());
+	out[1] = (short)(v.getY());
+	out[2] = (short)(v.getZ());
+	//correct for
+
+}
 
 
 void	btHeightfieldTerrainShape::processAllTriangles(btTriangleCallback* callback,const btVector3& aabbMin,const btVector3& aabbMax) const
@@ -45,36 +186,106 @@ void	btHeightfieldTerrainShape::processAllTriangles(btTriangleCallback* callback
 	(void)aabbMax;
 	(void)aabbMin;
 
-	/*
-	btVector3 halfExtents = (aabbMax - aabbMin) * btScalar(0.5);
-	btVector3 center = (aabbMax + aabbMin) * btScalar(0.5);
+	//quantize the aabbMin and aabbMax, and adjust the start/end ranges
+
+	short	quantizedAabbMin[3];
+	short	quantizedAabbMax[3];
+
+	btVector3	localAabbMin = aabbMin*btVector3(1.f/m_localScaling[0],1.f/m_localScaling[1],1.f/m_localScaling[2]);
+	btVector3	localAabbMax = aabbMax*btVector3(1.f/m_localScaling[0],1.f/m_localScaling[1],1.f/m_localScaling[2]);
 	
-	//TODO
-	//this is where the triangles are generated, given AABB and plane equation (normal/constant)
-
-	btVector3 tangentDir0,tangentDir1;
-
-	//tangentDir0/tangentDir1 can be precalculated
-	btPlaneSpace1(m_planeNormal,tangentDir0,tangentDir1);
-
-	btVector3 supVertex0,supVertex1;
-
-	btVector3 projectedCenter = center - (m_planeNormal.dot(center) - m_planeConstant)*m_planeNormal;
+	quantizeWithClamp(quantizedAabbMin, localAabbMin);
+	quantizeWithClamp(quantizedAabbMax, localAabbMax);
 	
-	btVector3 triangle[3];
-	btScalar radius = halfExtents.length();
-	triangle[0] = projectedCenter + tangentDir0*radius + tangentDir1*radius;
-	triangle[1] = projectedCenter + tangentDir0*radius - tangentDir1*radius;
-	triangle[2] = projectedCenter - tangentDir0*radius - tangentDir1*radius;
+	
 
-	callback->processTriangle(triangle,0,0);
+	int startX=0;
+	int endX=m_width-1;
+	int startJ=0;
+	int endJ=m_length-1;
 
-	triangle[0] = projectedCenter - tangentDir0*radius - tangentDir1*radius;
-	triangle[1] = projectedCenter - tangentDir0*radius + tangentDir1*radius;
-	triangle[2] = projectedCenter + tangentDir0*radius + tangentDir1*radius;
+	switch (m_upAxis)
+	{
+	case 0:
+		{
+			quantizedAabbMin[1]+=m_width/2-1;
+			quantizedAabbMax[1]+=m_width/2+1;
+			quantizedAabbMin[2]+=m_length/2-1;
+			quantizedAabbMax[2]+=m_length/2+1;
 
-	callback->processTriangle(triangle,0,1);
-*/
+			if (quantizedAabbMin[1]>startX)
+				startX = quantizedAabbMin[1];
+			if (quantizedAabbMax[1]<endX)
+				endX = quantizedAabbMax[1];
+			if (quantizedAabbMin[2]>startJ)
+				startJ = quantizedAabbMin[2];
+			if (quantizedAabbMax[2]<endJ)
+				endJ = quantizedAabbMax[2];
+			break;
+		}
+	case 1:
+		{
+			quantizedAabbMin[0]+=m_width/2-1;
+			quantizedAabbMax[0]+=m_width/2+1;
+			quantizedAabbMin[2]+=m_length/2-1;
+			quantizedAabbMax[2]+=m_length/2+1;
+
+			if (quantizedAabbMin[0]>startX)
+				startX = quantizedAabbMin[0];
+			if (quantizedAabbMax[0]<endX)
+				endX = quantizedAabbMax[0];
+			if (quantizedAabbMin[2]>startJ)
+				startJ = quantizedAabbMin[2];
+			if (quantizedAabbMax[2]<endJ)
+				endJ = quantizedAabbMax[2];
+			break;
+		};
+	case 2:
+		{
+			quantizedAabbMin[0]+=m_width/2-1;
+			quantizedAabbMax[0]+=m_width/2+1;
+			quantizedAabbMin[1]+=m_length/2-1;
+			quantizedAabbMax[1]+=m_length/2+1;
+
+			if (quantizedAabbMin[0]>startX)
+				startX = quantizedAabbMin[0];
+			if (quantizedAabbMax[0]<endX)
+				endX = quantizedAabbMax[0];
+			if (quantizedAabbMin[1]>startJ)
+				startJ = quantizedAabbMin[1];
+			if (quantizedAabbMax[1]<endJ)
+				endJ = quantizedAabbMax[1];
+			break;
+		}
+	default:
+		{
+			//need to get valid m_upAxis
+			btAssert(0);
+		}
+	}
+
+	
+
+
+	for(int j=startJ; j<endJ; j++)
+	{
+		for(int x=startX; x<endX; x++)
+		{
+			btVector3 vertices[3];
+			//first triangle
+			getVertex(x,j,vertices[0]);
+			getVertex(x,j+1,vertices[1]);
+			getVertex(x+1,j,vertices[2]);
+			callback->processTriangle(vertices,x,j);
+			//second triangle
+			getVertex(x+1,j,vertices[0]);
+			getVertex(x,j+1,vertices[1]);
+			getVertex(x+1,j+1,vertices[2]);
+			callback->processTriangle(vertices,x,j);
+		}
+	}
+
+	
 
 }
 

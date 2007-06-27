@@ -25,12 +25,31 @@ protected:
 	btVector3	m_localAabbMin;
 	btVector3	m_localAabbMax;
 	
-	//todo: terrain data
+	///terrain data
+	int	m_width;
+	int m_length;
+	btScalar	m_maxHeight;
+	unsigned char* m_heightfieldData;
+	int	m_upAxis;
+	
+	btVector3	m_quantization;
 
 	btVector3	m_localScaling;
 
+	void	quantizeWithClamp(short* out, const btVector3& point) const;
+	void	getVertex(int x,int y,btVector3& vertex) const;
+
+	inline bool testQuantizedAabbAgainstQuantizedAabb(short int* aabbMin1,short int* aabbMax1,const short int* aabbMin2,const short int* aabbMax2) const
+	{
+		bool overlap = true;
+		overlap = (aabbMin1[0] > aabbMax2[0] || aabbMax1[0] < aabbMin2[0]) ? false : overlap;
+		overlap = (aabbMin1[2] > aabbMax2[2] || aabbMax1[2] < aabbMin2[2]) ? false : overlap;
+		overlap = (aabbMin1[1] > aabbMax2[1] || aabbMax1[1] < aabbMin2[1]) ? false : overlap;
+		return overlap;
+	}
+
 public:
-	btHeightfieldTerrainShape();
+	btHeightfieldTerrainShape(int width,int height,unsigned char* heightfieldData, btScalar maxHeight,int upAxis);
 
 	virtual ~btHeightfieldTerrainShape();
 
