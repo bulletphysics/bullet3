@@ -29,15 +29,25 @@ protected:
 	int	m_width;
 	int m_length;
 	btScalar	m_maxHeight;
-	unsigned char* m_heightfieldData;
+	union
+	{
+		unsigned char*	m_heightfieldDataUnsignedChar;
+		float*			m_heightfieldDataFloat;
+		void*			m_heightfieldDataUnknown;
+	};
+	
+	bool	m_useFloatData;
+	bool	m_flipQuadEdges;
+
 	int	m_upAxis;
 	
 	btVector3	m_quantization;
 
 	btVector3	m_localScaling;
 
-	void	quantizeWithClamp(short* out, const btVector3& point) const;
-	void	getVertex(int x,int y,btVector3& vertex) const;
+	btScalar	getHeightFieldValue(int x,int y) const;
+	void		quantizeWithClamp(short* out, const btVector3& point) const;
+	void		getVertex(int x,int y,btVector3& vertex) const;
 
 	inline bool testQuantizedAabbAgainstQuantizedAabb(short int* aabbMin1,short int* aabbMax1,const short int* aabbMin2,const short int* aabbMax2) const
 	{
@@ -49,7 +59,7 @@ protected:
 	}
 
 public:
-	btHeightfieldTerrainShape(int width,int height,unsigned char* heightfieldData, btScalar maxHeight,int upAxis);
+	btHeightfieldTerrainShape(int width,int height,void* heightfieldData, btScalar maxHeight,int upAxis,bool useFloatData,bool flipQuadEdges);
 
 	virtual ~btHeightfieldTerrainShape();
 

@@ -18,13 +18,15 @@ subject to the following restrictions:
 #include "LinearMath/btTransformUtil.h"
 
 
-btHeightfieldTerrainShape::btHeightfieldTerrainShape(int width,int length,unsigned char* heightfieldData,btScalar maxHeight,int upAxis)
+btHeightfieldTerrainShape::btHeightfieldTerrainShape(int width,int length,void* heightfieldData,btScalar maxHeight,int upAxis,bool useFloatData,bool flipQuadEdges)
 :m_localScaling(btScalar(1.),btScalar(1.),btScalar(1.)),
 m_width(width),
 m_length(length),
-m_heightfieldData(heightfieldData),
+m_heightfieldDataUnknown(heightfieldData),
 m_maxHeight(maxHeight),
-m_upAxis(upAxis)
+m_upAxis(upAxis),
+m_useFloatData(useFloatData),
+m_flipQuadEdges(flipQuadEdges)
 {
 
 
@@ -108,6 +110,21 @@ void btHeightfieldTerrainShape::getAabb(const btTransform& t,btVector3& aabbMin,
 
 }
 
+btScalar	btHeightfieldTerrainShape::getHeightFieldValue(int x,int y) const
+{
+	btScalar val = 0.f;
+	if (m_useFloatData)
+	{
+		btScalar val = m_heightfieldDataFloat[(y*m_width)+x];
+	} else
+	{
+		unsigned char heightFieldValue = m_heightfieldDataUnsignedChar[(y*m_width)+x];
+		btScalar val = heightFieldValue* (m_maxHeight/btScalar(65535));
+	}
+	return val;
+}
+
+
 
 
 
@@ -119,14 +136,15 @@ void	btHeightfieldTerrainShape::getVertex(int x,int y,btVector3& vertex) const
 	btAssert(x<m_width);
 	btAssert(y<m_length);
 
-	unsigned char heightFieldValue = m_heightfieldData[(y*m_width)+x];
+
+	btScalar	height = getHeightFieldValue(x,y);
 
 	switch (m_upAxis)
 	{
 	case 0:
 		{
 		vertex.setValue(
-			heightFieldValue* (m_maxHeight/btScalar(65535)),
+			height,
 			(-m_width/2 ) + x,
 			(-m_length/2 ) + y
 			);
@@ -136,7 +154,7 @@ void	btHeightfieldTerrainShape::getVertex(int x,int y,btVector3& vertex) const
 		{
 			vertex.setValue(
 			(-m_width/2 ) + x,
-			heightFieldValue* (m_maxHeight/btScalar(65535)),
+			height,
 			(-m_length/2 ) + y
 			);
 			break;
@@ -146,7 +164,7 @@ void	btHeightfieldTerrainShape::getVertex(int x,int y,btVector3& vertex) const
 			vertex.setValue(
 			(-m_width/2 ) + x,
 			(-m_length/2 ) + y,
-			heightFieldValue* (m_maxHeight/btScalar(65535))
+			height
 			);
 			break;
 		}
