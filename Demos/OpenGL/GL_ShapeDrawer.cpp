@@ -506,10 +506,10 @@ void GL_ShapeDrawer::drawOpenGL(btScalar* m, const btCollisionShape* shape, cons
 			else
 			{
 #else		
-	if (shape->getShapeType() == TRIANGLE_MESH_SHAPE_PROXYTYPE||shape->getShapeType() == GIMPACT_SHAPE_PROXYTYPE)
+	if (shape->isConcave())//>getShapeType() == TRIANGLE_MESH_SHAPE_PROXYTYPE||shape->getShapeType() == GIMPACT_SHAPE_PROXYTYPE)
 //		if (shape->getShapeType() == TRIANGLE_MESH_SHAPE_PROXYTYPE)
 		{
-			btConcaveShape* concaveMesh = (btTriangleMeshShape*) shape;
+			btConcaveShape* concaveMesh = (btConcaveShape*) shape;
 			//btVector3 aabbMax(btScalar(1e30),btScalar(1e30),btScalar(1e30));
 			//btVector3 aabbMax(100,100,100);//btScalar(1e30),btScalar(1e30),btScalar(1e30));
 
