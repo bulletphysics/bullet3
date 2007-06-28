@@ -115,11 +115,11 @@ btScalar	btHeightfieldTerrainShape::getHeightFieldValue(int x,int y) const
 	btScalar val = 0.f;
 	if (m_useFloatData)
 	{
-		btScalar val = m_heightfieldDataFloat[(y*m_width)+x];
+		val = m_heightfieldDataFloat[(y*m_width)+x];
 	} else
 	{
 		unsigned char heightFieldValue = m_heightfieldDataUnsignedChar[(y*m_width)+x];
-		btScalar val = heightFieldValue* (m_maxHeight/btScalar(65535));
+		val = heightFieldValue* (m_maxHeight/btScalar(65535));
 	}
 	return val;
 }
