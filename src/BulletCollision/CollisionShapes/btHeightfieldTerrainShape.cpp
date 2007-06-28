@@ -77,8 +77,6 @@ m_flipQuadEdges(flipQuadEdges)
 	m_localAabbMax = halfExtents + clampValue;
 	btVector3 aabbSize = m_localAabbMax - m_localAabbMin;
 
-	m_quantization = btVector3(btScalar(65535.0),btScalar(65535.0),btScalar(65535.0)) / aabbSize;
-
 }
 
 
@@ -118,6 +116,7 @@ btScalar	btHeightfieldTerrainShape::getHeightFieldValue(int x,int y) const
 		val = m_heightfieldDataFloat[(y*m_width)+x];
 	} else
 	{
+		//assume unsigned short int
 		unsigned char heightFieldValue = m_heightfieldDataUnsignedChar[(y*m_width)+x];
 		val = heightFieldValue* (m_maxHeight/btScalar(65535));
 	}
@@ -180,7 +179,7 @@ void	btHeightfieldTerrainShape::getVertex(int x,int y,btVector3& vertex) const
 }
 
 
-void btHeightfieldTerrainShape::quantizeWithClamp(short* out, const btVector3& point) const
+void btHeightfieldTerrainShape::quantizeWithClamp(int* out, const btVector3& point) const
 {
 	
 
@@ -190,9 +189,9 @@ void btHeightfieldTerrainShape::quantizeWithClamp(short* out, const btVector3& p
 
 	btVector3 v = (clampedPoint );// * m_quantization;
 
-	out[0] = (short)(v.getX());
-	out[1] = (short)(v.getY());
-	out[2] = (short)(v.getZ());
+	out[0] = (int)(v.getX());
+	out[1] = (int)(v.getY());
+	out[2] = (int)(v.getZ());
 	//correct for
 
 }
@@ -206,8 +205,8 @@ void	btHeightfieldTerrainShape::processAllTriangles(btTriangleCallback* callback
 
 	//quantize the aabbMin and aabbMax, and adjust the start/end ranges
 
-	short	quantizedAabbMin[3];
-	short	quantizedAabbMax[3];
+	int	quantizedAabbMin[3];
+	int	quantizedAabbMax[3];
 
 	btVector3	localAabbMin = aabbMin*btVector3(1.f/m_localScaling[0],1.f/m_localScaling[1],1.f/m_localScaling[2]);
 	btVector3	localAabbMax = aabbMax*btVector3(1.f/m_localScaling[0],1.f/m_localScaling[1],1.f/m_localScaling[2]);

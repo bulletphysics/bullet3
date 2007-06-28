@@ -32,7 +32,7 @@ protected:
 	union
 	{
 		unsigned char*	m_heightfieldDataUnsignedChar;
-		float*			m_heightfieldDataFloat;
+		btScalar*			m_heightfieldDataFloat;
 		void*			m_heightfieldDataUnknown;
 	};
 	
@@ -41,15 +41,13 @@ protected:
 
 	int	m_upAxis;
 	
-	btVector3	m_quantization;
-
 	btVector3	m_localScaling;
 
-	btScalar	getHeightFieldValue(int x,int y) const;
-	void		quantizeWithClamp(short* out, const btVector3& point) const;
+	virtual btScalar	getHeightFieldValue(int x,int y) const;
+	void		quantizeWithClamp(int* out, const btVector3& point) const;
 	void		getVertex(int x,int y,btVector3& vertex) const;
 
-	inline bool testQuantizedAabbAgainstQuantizedAabb(short int* aabbMin1,short int* aabbMax1,const short int* aabbMin2,const short int* aabbMax2) const
+	inline bool testQuantizedAabbAgainstQuantizedAabb(int* aabbMin1, int* aabbMax1,const  int* aabbMin2,const  int* aabbMax2) const
 	{
 		bool overlap = true;
 		overlap = (aabbMin1[0] > aabbMax2[0] || aabbMax1[0] < aabbMin2[0]) ? false : overlap;
