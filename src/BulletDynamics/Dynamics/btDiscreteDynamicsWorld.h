@@ -80,6 +80,7 @@ protected:
 
 	void	saveKinematicState(btScalar timeStep);
 
+	void	debugDrawSphere(btScalar radius, const btTransform& transform, const btVector3& color);
 
 public:
 
@@ -94,7 +95,7 @@ public:
 
 	virtual void	updateAabbs();
 
-	void	addConstraint(btTypedConstraint* constraint);
+	void	addConstraint(btTypedConstraint* constraint, bool disableCollisionsBetweenLinkedBodies=false);
 
 	void	removeConstraint(btTypedConstraint* constraint);
 

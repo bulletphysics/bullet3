@@ -290,16 +290,32 @@ void	btHeightfieldTerrainShape::processAllTriangles(btTriangleCallback* callback
 		for(int x=startX; x<endX; x++)
 		{
 			btVector3 vertices[3];
-			//first triangle
-			getVertex(x,j,vertices[0]);
-			getVertex(x,j+1,vertices[1]);
-			getVertex(x+1,j,vertices[2]);
-			callback->processTriangle(vertices,x,j);
-			//second triangle
-			getVertex(x+1,j,vertices[0]);
-			getVertex(x,j+1,vertices[1]);
-			getVertex(x+1,j+1,vertices[2]);
-			callback->processTriangle(vertices,x,j);
+			if (!m_flipQuadEdges)
+			{
+				//first triangle
+				getVertex(x,j,vertices[0]);
+				getVertex(x,j+1,vertices[1]);
+				getVertex(x+1,j,vertices[2]);
+				callback->processTriangle(vertices,x,j);
+				//second triangle
+				getVertex(x+1,j,vertices[0]);
+				getVertex(x,j+1,vertices[1]);
+				getVertex(x+1,j+1,vertices[2]);
+				callback->processTriangle(vertices,x,j);
+			} else
+			{
+				//first triangle
+				getVertex(x,j,vertices[0]);
+				getVertex(x+1,j,vertices[1]);
+				getVertex(x+1,j+1,vertices[2]);
+				callback->processTriangle(vertices,x,j);
+				//second triangle
+				getVertex(x,j,vertices[0]);
+				getVertex(x+1,j+1,vertices[1]);
+				getVertex(x,j+1,vertices[2]);
+				callback->processTriangle(vertices,x,j);
+				
+			}
 		}
 	}
 

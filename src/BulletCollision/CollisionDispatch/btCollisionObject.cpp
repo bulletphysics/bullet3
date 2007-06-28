@@ -24,7 +24,8 @@ btCollisionObject::btCollisionObject()
 		m_userObjectPointer(0),
 		m_hitFraction(btScalar(1.)),
 		m_ccdSweptSphereRadius(btScalar(0.)),
-		m_ccdSquareMotionThreshold(btScalar(0.))
+		m_ccdSquareMotionThreshold(btScalar(0.)),
+		m_checkCollideWith(false)
 {
 	
 }
