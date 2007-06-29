@@ -26,7 +26,8 @@ m_heightfieldDataUnknown(heightfieldData),
 m_maxHeight(maxHeight),
 m_upAxis(upAxis),
 m_useFloatData(useFloatData),
-m_flipQuadEdges(flipQuadEdges)
+m_flipQuadEdges(flipQuadEdges),
+m_useDiamondSubdivision(false)
 {
 
 
@@ -282,38 +283,37 @@ void	btHeightfieldTerrainShape::processAllTriangles(btTriangleCallback* callback
 	}
 
 	
-
+  
 
 	for(int j=startJ; j<endJ; j++)
 	{
 		for(int x=startX; x<endX; x++)
 		{
 			btVector3 vertices[3];
-			if (!m_flipQuadEdges)
+			if (m_flipQuadEdges || (m_useDiamondSubdivision && ((j+x) & 1)))
 			{
-				//first triangle
-				getVertex(x,j,vertices[0]);
-				getVertex(x,j+1,vertices[1]);
-				getVertex(x+1,j,vertices[2]);
-				callback->processTriangle(vertices,x,j);
-				//second triangle
-				getVertex(x+1,j,vertices[0]);
-				getVertex(x,j+1,vertices[1]);
-				getVertex(x+1,j+1,vertices[2]);
-				callback->processTriangle(vertices,x,j);
+        //first triangle
+        getVertex(x,j,vertices[0]);
+        getVertex(x+1,j,vertices[1]);
+        getVertex(x+1,j+1,vertices[2]);
+        callback->processTriangle(vertices,x,j);
+        //second triangle
+        getVertex(x,j,vertices[0]);
+        getVertex(x+1,j+1,vertices[1]);
+        getVertex(x,j+1,vertices[2]);
+        callback->processTriangle(vertices,x,j);				
 			} else
 			{
-				//first triangle
-				getVertex(x,j,vertices[0]);
-				getVertex(x+1,j,vertices[1]);
-				getVertex(x+1,j+1,vertices[2]);
-				callback->processTriangle(vertices,x,j);
-				//second triangle
-				getVertex(x,j,vertices[0]);
-				getVertex(x+1,j+1,vertices[1]);
-				getVertex(x,j+1,vertices[2]);
-				callback->processTriangle(vertices,x,j);
-				
+        //first triangle
+        getVertex(x,j,vertices[0]);
+        getVertex(x,j+1,vertices[1]);
+        getVertex(x+1,j,vertices[2]);
+        callback->processTriangle(vertices,x,j);
+        //second triangle
+        getVertex(x+1,j,vertices[0]);
+        getVertex(x,j+1,vertices[1]);
+        getVertex(x+1,j+1,vertices[2]);
+        callback->processTriangle(vertices,x,j);
 			}
 		}
 	}

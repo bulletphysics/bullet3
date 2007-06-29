@@ -19,6 +19,7 @@ subject to the following restrictions:
 //#define CHECK_MEMORY_LEAKS 1
 //#define USE_PARALLEL_DISPATCHER 1
 
+//#define USE_SIMPLE_DYNAMICS_WORLD 1
 
 int gNumObjects = 120;
 #define HALF_EXTENTS btScalar(1.)
@@ -150,11 +151,17 @@ void	BasicDemo::initPhysics()
 	m_dispatcher->registerCollisionCreateFunc(BOX_SHAPE_PROXYTYPE,SPHERE_SHAPE_PROXYTYPE,m_boxSphereCF);
 #endif //USE_PARALLEL_DISPATCHER
 
-	m_solver = new btSequentialImpulseConstraintSolver;
+	btSequentialImpulseConstraintSolver* sol = new btSequentialImpulseConstraintSolver;
+	m_solver = sol;
+	
 
-	//m_dynamicsWorld = new btSimpleDynamicsWorld(m_dispatcher,m_overlappingPairCache,m_solver);
+#ifdef USE_SIMPLE_DYNAMICS_WORLD
+	//btSimpleDynamicsWorld doesn't support 'cache friendly' optimization, so disable this
+	sol->setSolverMode(btSequentialImpulseConstraintSolver::SOLVER_RANDMIZE_ORDER);
+	m_dynamicsWorld = new btSimpleDynamicsWorld(m_dispatcher,m_overlappingPairCache,m_solver);
+#else
 	m_dynamicsWorld = new btDiscreteDynamicsWorld(m_dispatcher,m_overlappingPairCache,m_solver);
-
+#endif //USE_SIMPLE_DYNAMICS_WORLD
 	m_dynamicsWorld->getDispatchInfo().m_enableSPU = true;
 
 	m_dynamicsWorld->setGravity(btVector3(0,-10,0));

@@ -240,7 +240,10 @@ const float TRIANGLE_SIZE=20.f;
 	bool useFloatDatam=false;
 	bool flipQuadEdges=false;
 
-	groundShape = new btHeightfieldTerrainShape(width,length,heightfieldData,maxHeight,upIndex,useFloatDatam,flipQuadEdges);
+	btHeightfieldTerrainShape* heightFieldShape = new btHeightfieldTerrainShape(width,length,heightfieldData,maxHeight,upIndex,useFloatDatam,flipQuadEdges);;
+	groundShape = heightFieldShape;
+	heightFieldShape->setUseDiamondSubdivision(true);
+
 	btVector3 localScaling(20,20,20);
 	localScaling[upIndex]=1.f;
 	groundShape->setLocalScaling(localScaling);

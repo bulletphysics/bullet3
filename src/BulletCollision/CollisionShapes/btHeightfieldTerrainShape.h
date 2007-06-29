@@ -38,6 +38,7 @@ protected:
 	
 	bool	m_useFloatData;
 	bool	m_flipQuadEdges;
+  bool  m_useDiamondSubdivision;
 
 	int	m_upAxis;
 	
@@ -61,6 +62,8 @@ public:
 
 	virtual ~btHeightfieldTerrainShape();
 
+
+	void setUseDiamondSubdivision(bool useDiamondSubdivision=true) { m_useDiamondSubdivision = useDiamondSubdivision;}
 
 	virtual int	getShapeType() const
 	{
