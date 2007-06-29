@@ -49,8 +49,13 @@ typedef uint64_t __int64;
    #define NOWINRES 
    #define NOMCX 
    #define NOIME 
+#ifdef _XBOX
+	#include <Xtl.h>
+#else
 	#include <windows.h>
+#endif
 	#include <time.h>
+
 #else
 	#include <sys/time.h>
 #endif
@@ -703,4 +708,5 @@ std::string btProfiler::createStatsString(BlockTimingMethod method)
 #endif //USE_QUICKPROF
 
 #endif //QUICK_PROF_H
+
 

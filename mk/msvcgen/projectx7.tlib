@@ -102,7 +102,7 @@
 [% END %]
 
 [% MACRO linker_common BLOCK -%]
-				OutputFile="[% path([my.doc.buildroot.0, my.doc.target.0]) %]"
+				OutputFile="[% path([my.doc.buildroot.0, glue([my.doc.target.0, my.doc.platformsuffix.0])]) %]"
 [% END %]
 
 [% MACRO linker_app_release(subsys) BLOCK -%]
@@ -138,8 +138,11 @@
 [% END %]
 
 [% MACRO library_outfile(suffix) BLOCK -%]
-				OutputFile="[% worklibout %]\[% my.doc.project.0 %][% suffix %].lib"
+				OutputFile="[% worklibout %]\[% my.doc.project.0 %][% my.doc.platformsuffix.0 %][% suffix %].lib"
 [% END %]
 [% MACRO librarian_library_release GET library_outfile('') %]
 [% MACRO librarian_library_debug   GET library_outfile('_d') %]
 [% MACRO librarian_group	   GET library_outfile('') %]
+[% MACRO postbuild_library BLOCK -%]
+		CommandLine="xcopy /r /y $(TARGETPATH) $(PROJECTDIR)..\..\lib\"
+[% END %]

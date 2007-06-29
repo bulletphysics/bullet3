@@ -41,7 +41,7 @@
 #
 #==============================================================================
 
-MSVCGEN_SUPPORTED_VERSIONS = 6 7 71 8 sn71 ;
+MSVCGEN_SUPPORTED_VERSIONS = 6 7 71 8 sn71 xenon8 ;
 MSVCGEN_BUILD_ROOT ?= [ ConcatDirs $(BUILDTOP) out ] ;
 MSVCGEN_BUILD_TEMP ?= [ ConcatDirs $(MSVCGEN_BUILD_ROOT) msvcgen ] ;
 
@@ -435,6 +435,7 @@ MSVCGEN_STRIP_ROOT = $(MSVCGEN_BUILD_ROOT)/ $(TOP)/ ;
 # of protecting only "." since it arises frequently.)
 MSVCGEN_SED_PROTECT = "$(SED) 's:\\.:\\\\\\.:g'" ;
 
+MSVC_PLATFORM_SUFFIX = ;
 MSVC_VERSION ?= 7 ;
 if $(MSVC_VERSION) = 6
 {
@@ -445,13 +446,14 @@ if $(MSVC_VERSION) = 6
   MSVC_FORCE_CRLF = yes ;
   MSVC_TEMPLATE_SUFFIX = 6 ;
 }
-else if $(MSVC_VERSION) = 7 || $(MSVC_VERSION) = 71 || $(MSVC_VERSION) = 8 || $(MSVC_VERSION) = sn71
+else if $(MSVC_VERSION) = 7 || $(MSVC_VERSION) = 71 || $(MSVC_VERSION) = 8 || $(MSVC_VERSION) = sn71 || $(MSVC_VERSION) = xenon8
 {
   SUFPRJ = vcproj ;
   SUFWSP = sln ;
   MSVC_SUFLIB = liiixxiib ;
   MSVC_SUFEXE = exe ;
-
+  
+ 
   MSVC_FORCE_CRLF = no ;
   MSVC_TEMPLATE_SUFFIX = 7 ;
   if $(MSVC_VERSION) = 7
@@ -476,6 +478,13 @@ else if $(MSVC_VERSION) = 7 || $(MSVC_VERSION) = 71 || $(MSVC_VERSION) = 8 || $(
     MSVC_TEMPLATE_SUFFIX = sn71 ;
     MSVC_SUFLIB = a ;
     MSVC_SUFEXE = elf ;
+  }
+  else if $(MSVC_VERSION) = xenon8
+  {
+	MSVC_FORMATVERSION_PRJ = 8.00 ;
+    MSVC_FORMATVERSION_WSP = 9.00 ;
+    MSVC_TEMPLATE_SUFFIX = xenon8 ;
+    MSVC_PLATFORM_SUFFIX = _xenon_ ;
   }
 }
 else
@@ -732,6 +741,7 @@ rule MsvcProject
     "librarydelay|$(MSVC.LIBRARY_DELAY.$(type))"
     "msvcversion|$(MSVC_VERSION)"
     "static|$($(rawname)_STATIC)"
+    "platformsuffix|$(MSVC_PLATFORM_SUFFIX)"
     $(MSVCGEN_VARIABLES)
     : notfile : $(respdir) ;
   MsvcRmTemps msvcgen : $(respfile) ;

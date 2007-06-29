@@ -35,6 +35,11 @@ subject to the following restrictions:
 			#pragma warning(disable:4786)
 			#define SIMD_FORCE_INLINE __forceinline
 			#define ATTRIBUTE_ALIGNED16(a) __declspec(align(16)) a
+		#ifdef _XBOX
+			#define BT_USE_VMX128
+		#else
+			#define BT_USE_SSE
+		#endif
 		#endif //__MINGW32__
 
 		#include <assert.h>

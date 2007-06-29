@@ -1,0 +1,147 @@
+[% FILTER null;
+#==============================================================================
+# TemplateToolkit2 template for MSVC7 project (vcproj) file.
+# Copyright (C) 2004 by Eric Sunshine <sunshine@sunshineco.com>
+#
+#    This library is free software; you can redistribute it and/or modify it
+#    under the terms of the GNU Library General Public License as published by
+#    the Free Software Foundation; either version 2 of the License, or (at your
+#    option) any later version.
+#
+#    This library is distributed in the hope that it will be useful, but
+#    WITHOUT ANY WARRANTY; without even the implied warranty of MERCHANTABILITY
+#    or FITNESS FOR A PARTICULAR PURPOSE.  See the GNU Library General Public
+#    License for more details.
+#
+#    You should have received a copy of the GNU Library General Public License
+#    along with this library; if not, write to the Free Software Foundation,
+#    Inc., 675 Mass Ave, Cambridge, MA 02139, USA.
+#
+#==============================================================================
+  PROCESS macros.tlib;
+  PROCESS control.tlib;
+  PROCESS projectx7.tlib;
+
+  MACRO composedefs(defs) GET compose('defines', defs, ';');
+  MACRO composedirs(tag, seed) GET composepaths(${"build.${tag}key"},seed,';');
+
+  my = {};
+  load(respfile, 'doc');
+  FOREACH f IN my.doc.customize; PROCESS $f | null; END;
+
+  files = striproots(filter(my.doc.file).split('\|')).split('\|').sort;
+END -%]
+<?xml version="1.0" encoding = "Windows-1252"?>
+<VisualStudioProject
+	ProjectType="Visual C++"
+	Version="[% my.doc.formatversion.0 %]"
+	Name="[% my.doc.project.0 %]"
+	ProjectGUID="{[% guid(my.doc.project.0) %]}"
+	SccProjectName=""
+	SccLocalPath="">
+	<Platforms>
+		<Platform
+			Name="Xbox 360"/>
+	</Platforms>
+	<Configurations>
+[% FOREACH build IN builds -%]
+		<Configuration
+			Name="[% build.name %]|Xbox 360"
+			OutputDirectory="[% workbuild([]) %]"
+			IntermediateDirectory="[% workbuild([]) %]"
+[% interpolate('global') -%]
+			UseOfMFC="0"
+			ATLMinimizesCRunTimeLibraryUsage="FALSE">
+			<Tool
+				Name="VCCLCompilerTool"
+[% interpolate('compiler') -%]
+				PreprocessorDefinitions="
+[%- composedefs(['WIN32','_XBOX']) %]"
+				OptimizeForProcessor="1"
+				ExceptionHandling="0"
+				AdditionalOptions="[% flags(compose('cflags', [], ' ')) | html %] [% flags(compose('cflags7', [], ' ')) | html %]"
+				AdditionalIncludeDirectories="[% composedirs('incdirs', ['.']) %]"
+				PrecompiledHeaderFile="[% workbuild([my.doc.project.0,'.pch']) %]"
+				AssemblerListingLocation="[% workbuild([]) %]"
+				ObjectFile="[% workbuild([]) %]"
+				ProgramDataBaseFileName="[% workbuild([my.doc.rawtarget.0,'.pdb']) %]"
+				WarningLevel="3"
+				SuppressStartupBanner="TRUE"
+				Detect64BitPortabilityProblems="TRUE"
+				TreatWChar_tAsBuiltInType="false"
+				CompileAs="0"/>
+			<Tool
+				Name="VCCustomBuildTool"/>
+			<Tool
+				Name="VCLinkerTool"
+[% interpolate('linker') -%]
+				AdditionalOptions="[% flags(compose('lflags', [], ' ')) | html %] [% flags(compose('lflags7', [], ' ')) | html %]"
+				AdditionalDependencies="[% compose('libs', [], ' ') %]"
+				IgnoreImportLibrary="TRUE"
+				SuppressStartupBanner="TRUE"
+				GenerateManifest="false"
+				AdditionalLibraryDirectories="[% composedirs('libdirs', []) %]"
+				ProgramDatabaseFile="[% workbuild([my.doc.rawtarget.0,'.pdb']) %]"
+				TargetMachine="1"/>
+			<Tool
+				Name="VCLibrarianTool"
+[% interpolate('librarian') -%]
+				SuppressStartupBanner="TRUE"/>
+			<Tool
+				Name="VCMIDLTool"
+				PreprocessorDefinitions="[% composedefs([]) %]"
+				MkTypLibCompatible="TRUE"
+				SuppressStartupBanner="TRUE"
+				TargetEnvironment="1"
+				TypeLibraryName="[% workbuild([my.doc.project.0,'.tlb']) %]"/>
+			<Tool
+				Name="VCPostBuildEventTool"
+[% interpolate('postbuild') -%]
+				/>
+			<Tool
+				Name="VCPreBuildEventTool"/>
+			<Tool
+				Name="VCPreLinkEventTool"/>
+			<Tool
+				Name="VCResourceCompilerTool"
+				PreprocessorDefinitions="[% composedefs([glue (['PROJECTGEN_VERSION', my.doc.msvcversion.0], '=')]) %]"
+				AdditionalIncludeDirectories="[% composedirs('incdirs', ['.']) %]"
+				Culture="1033"/>
+			<Tool
+				Name="VCWebServiceProxyGeneratorTool"/>
+			<Tool
+				Name="VCWebDeploymentTool"/>
+		</Configuration>
+[% END -%]
+	</Configurations>
+	<Files>
+		[%- FOREACH group IN groups %]
+		[%- items = files.grep(group.types) %]
+		[%- IF items.size > 0 %]
+		<Filter
+			Name="[% group.name %]"
+			Filter="">
+			[%- FOREACH file IN items %]
+			<File
+				RelativePath="[% path([my.doc.sourceroot.0, file]) %]">
+				[%- IF my.doc.static %]
+				[%- UNLESS file.match('\\.(h|hpp|rc)$') %]
+				[%- FOREACH build IN builds %]
+				<FileConfiguration
+					Name="[% build.name %]|Win32">
+					<Tool
+						Name="VCCLCompilerTool"
+						ObjectFile="[% workbuild([file.replace('/', '_'), '.obj']) %]"/>
+				</FileConfiguration>
+				[%- END %]
+				[%- END %]
+				[%- END %]
+			</File>
+			[%- END %]
+		</Filter>
+		[%- END %]
+		[%- END %]
+	</Files>
+	<Globals>
+	</Globals>
+</VisualStudioProject>
