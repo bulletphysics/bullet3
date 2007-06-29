@@ -1,6 +1,15 @@
 Bullet Continuous Collision Detection and Physics Library
 Erwin Coumans
 
+2007 June 29
+	- btHeightfieldTerrainShape: Added heightfield support, with customizations
+	- Upgraded to GIMPACT 0.2, see Extras/GIMPACT and MovingConcaveDemo
+	- Several patches from Marten Svanfeldt, Starbreeze
+		Improved collision filtering (in broadphase and rigidbody)
+		Improved debug rendering
+		Allow to set collision filter group/mask in addRigidBody
+		
+		
 2007 June 15
 	- Changed btAlignedObjectArray to call copy constructor/replacement new for duplication, rather then assignment operator (operator=).
 
