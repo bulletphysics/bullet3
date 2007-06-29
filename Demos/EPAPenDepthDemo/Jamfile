@@ -6,18 +6,16 @@ SubDir TOP Demos EPAPenDepthDemo ;
 
   {
     Application $(<) : $(>) : noinstall console nomanifest ;
-    LinkWith $(<) :   GIMPACTBullet GIMPACT  bulletopenglsupport bulletdynamics bulletcollision  bulletmath ;
+    LinkWith $(<) :    GIMPACT  bulletopenglsupport bulletdynamics bulletcollision  bulletmath ;
     CFlags $(<) :
           [ FIncludes $(TOP)/Demos/OpenGL ]
           [ FIncludes $(TOP)/Extras/GIMPACT/include ]
-          [ FIncludes $(TOP)/Extras/GIMPACTBullet ]
 
     ;
 
     MsvcIncDirs $(<) :
         "../../Demos/OpenGL"
-        "../../Extras/GIMPACT/include"
-        "../../Extras/GIMPACTBullet"   ;
+        "../../Extras/GIMPACT/include" ;
   }
 
 ExtraDemo4 EPAPenDepthDemo : [ Wildcard *.h *.cpp  ] ;

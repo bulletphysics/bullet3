@@ -327,6 +327,19 @@ void	btDiscreteDynamicsWorld::addRigidBody(btRigidBody* body)
 	}
 }
 
+void	btDiscreteDynamicsWorld::addRigidBody(btRigidBody* body, short group, short mask)
+{
+	if (!body->isStaticOrKinematicObject())
+	{
+		body->setGravity(m_gravity);
+	}
+
+	if (body->getCollisionShape())
+	{
+		addCollisionObject(body,group,mask);
+	}
+}
+
 
 void	btDiscreteDynamicsWorld::updateVehicles(btScalar timeStep)
 {

@@ -126,6 +126,7 @@ public:
 	
 	btCollisionObject();
 
+	virtual ~btCollisionObject();
 
 	void	setCollisionShape(btCollisionShape* collisionShape)
 	{

@@ -132,6 +132,8 @@ public:
 
 	virtual void	addRigidBody(btRigidBody* body);
 
+	virtual void	addRigidBody(btRigidBody* body, short group, short mask);
+
 	virtual void	removeRigidBody(btRigidBody* body);
 
 	void	debugDrawObject(const btTransform& worldTransform, const btCollisionShape* shape, const btVector3& color);

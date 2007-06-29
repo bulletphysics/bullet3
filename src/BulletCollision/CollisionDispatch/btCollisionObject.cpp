@@ -30,6 +30,9 @@ btCollisionObject::btCollisionObject()
 	
 }
 
+btCollisionObject::~btCollisionObject()
+{
+}
 
 void btCollisionObject::setActivationState(int newState) 
 { 
