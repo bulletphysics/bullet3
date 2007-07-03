@@ -1,9 +1,9 @@
 <?xml version="1.0" encoding = "Windows-1252"?>
 <VisualStudioProject
 	ProjectType="Visual C++"
-	Version="8.00"
-	Name="libquickstep"
-	ProjectGUID="{D7036964-B44D-8207-0ACC-D838D0BDA379}"
+	Version="7.10"
+	Name="grpall_bullet_corelib"
+	ProjectGUID="{D1962FA1-D387-959D-B63D-F26D94FF0B63}"
 	SccProjectName=""
 	SccLocalPath="">
 	<Platforms>
@@ -13,8 +13,8 @@
 	<Configurations>
 		<Configuration
 			Name="Release|Win32"
-			OutputDirectory="..\..\out\release8\build\libquickstep\"
-			IntermediateDirectory="..\..\out\release8\build\libquickstep\"
+			OutputDirectory="..\..\out\release71\build\grpall_bullet_corelib\"
+			IntermediateDirectory="..\..\out\release71\build\grpall_bullet_corelib\"
 			ConfigurationType="4"
 			UseOfMFC="0"
 			ATLMinimizesCRunTimeLibraryUsage="FALSE">
@@ -26,15 +26,15 @@
 				RuntimeLibrary="0"
 				DebugInformationFormat="3"
 				BufferSecurityCheck="FALSE"
-				PreprocessorDefinitions="NDEBUG;_LIB;_WINDOWS;WIN32"
+				PreprocessorDefinitions="NDEBUG;WIN32"
 				OptimizeForProcessor="1"
 				ExceptionHandling="0"
 				AdditionalOptions=" "
 				AdditionalIncludeDirectories=".;..\..;..\..\src"
-				PrecompiledHeaderFile="..\..\out\release8\build\libquickstep\libquickstep.pch"
-				AssemblerListingLocation="..\..\out\release8\build\libquickstep\"
-				ObjectFile="..\..\out\release8\build\libquickstep\"
-				ProgramDataBaseFileName="..\..\out\release8\build\libquickstep\quickstep.pdb"
+				PrecompiledHeaderFile="..\..\out\release71\build\grpall_bullet_corelib\grpall_bullet_corelib.pch"
+				AssemblerListingLocation="..\..\out\release71\build\grpall_bullet_corelib\"
+				ObjectFile="..\..\out\release71\build\grpall_bullet_corelib\"
+				ProgramDataBaseFileName="..\..\out\release71\build\grpall_bullet_corelib\all_bullet_corelib.pdb"
 				WarningLevel="3"
 				SuppressStartupBanner="TRUE"
 				Detect64BitPortabilityProblems="TRUE"
@@ -55,22 +55,21 @@
 				SuppressStartupBanner="TRUE"
 				GenerateManifest="false"
 				AdditionalLibraryDirectories=""
-				ProgramDatabaseFile="..\..\out\release8\build\libquickstep\quickstep.pdb"
+				ProgramDatabaseFile="..\..\out\release71\build\grpall_bullet_corelib\all_bullet_corelib.pdb"
 				TargetMachine="1"/>
 			<Tool
 				Name="VCLibrarianTool"
-				OutputFile="..\..\out\release8\libs\libquickstep.lib"
+				OutputFile="..\..\out\release71\libs\grpall_bullet_corelib.lib"
 				SuppressStartupBanner="TRUE"/>
 			<Tool
 				Name="VCMIDLTool"
-				PreprocessorDefinitions="NDEBUG;_LIB;_WINDOWS"
+				PreprocessorDefinitions="NDEBUG"
 				MkTypLibCompatible="TRUE"
 				SuppressStartupBanner="TRUE"
 				TargetEnvironment="1"
-				TypeLibraryName="..\..\out\release8\build\libquickstep\libquickstep.tlb"/>
+				TypeLibraryName="..\..\out\release71\build\grpall_bullet_corelib\grpall_bullet_corelib.tlb"/>
 			<Tool
 				Name="VCPostBuildEventTool"
-		CommandLine="xcopy /r /y $(TARGETPATH) $(PROJECTDIR)..\..\lib\"
 				/>
 			<Tool
 				Name="VCPreBuildEventTool"/>
@@ -78,7 +77,7 @@
 				Name="VCPreLinkEventTool"/>
 			<Tool
 				Name="VCResourceCompilerTool"
-				PreprocessorDefinitions="NDEBUG;_LIB;_WINDOWS;PROJECTGEN_VERSION=8"
+				PreprocessorDefinitions="NDEBUG;PROJECTGEN_VERSION=71"
 				AdditionalIncludeDirectories=".;..\..;..\..\src"
 				Culture="1033"/>
 			<Tool
@@ -88,22 +87,22 @@
 		</Configuration>
 		<Configuration
 			Name="ReleaseDoublePrecision|Win32"
-			OutputDirectory="..\..\out\release_dbl8\build\libquickstep\"
-			IntermediateDirectory="..\..\out\release_dbl8\build\libquickstep\"
+			OutputDirectory="..\..\out\release_dbl71\build\grpall_bullet_corelib\"
+			IntermediateDirectory="..\..\out\release_dbl71\build\grpall_bullet_corelib\"
 			ConfigurationType="4"
 			UseOfMFC="0"
 			ATLMinimizesCRunTimeLibraryUsage="FALSE">
 			<Tool
 				Name="VCCLCompilerTool"
-				PreprocessorDefinitions="NDEBUG;BT_USE_DOUBLE_PRECISION;_LIB;_WINDOWS;WIN32"
+				PreprocessorDefinitions="NDEBUG;BT_USE_DOUBLE_PRECISION;WIN32"
 				OptimizeForProcessor="1"
 				ExceptionHandling="0"
 				AdditionalOptions=" "
 				AdditionalIncludeDirectories=".;..\..;..\..\src"
-				PrecompiledHeaderFile="..\..\out\release_dbl8\build\libquickstep\libquickstep.pch"
-				AssemblerListingLocation="..\..\out\release_dbl8\build\libquickstep\"
-				ObjectFile="..\..\out\release_dbl8\build\libquickstep\"
-				ProgramDataBaseFileName="..\..\out\release_dbl8\build\libquickstep\quickstep.pdb"
+				PrecompiledHeaderFile="..\..\out\release_dbl71\build\grpall_bullet_corelib\grpall_bullet_corelib.pch"
+				AssemblerListingLocation="..\..\out\release_dbl71\build\grpall_bullet_corelib\"
+				ObjectFile="..\..\out\release_dbl71\build\grpall_bullet_corelib\"
+				ProgramDataBaseFileName="..\..\out\release_dbl71\build\grpall_bullet_corelib\all_bullet_corelib.pdb"
 				WarningLevel="3"
 				SuppressStartupBanner="TRUE"
 				Detect64BitPortabilityProblems="TRUE"
@@ -119,21 +118,21 @@
 				SuppressStartupBanner="TRUE"
 				GenerateManifest="false"
 				AdditionalLibraryDirectories=""
-				ProgramDatabaseFile="..\..\out\release_dbl8\build\libquickstep\quickstep.pdb"
+				ProgramDatabaseFile="..\..\out\release_dbl71\build\grpall_bullet_corelib\all_bullet_corelib.pdb"
 				TargetMachine="1"/>
 			<Tool
 				Name="VCLibrarianTool"
+				OutputFile="..\..\out\release_dbl71\libs\grpall_bullet_corelib.lib"
 				SuppressStartupBanner="TRUE"/>
 			<Tool
 				Name="VCMIDLTool"
-				PreprocessorDefinitions="NDEBUG;BT_USE_DOUBLE_PRECISION;_LIB;_WINDOWS"
+				PreprocessorDefinitions="NDEBUG;BT_USE_DOUBLE_PRECISION"
 				MkTypLibCompatible="TRUE"
 				SuppressStartupBanner="TRUE"
 				TargetEnvironment="1"
-				TypeLibraryName="..\..\out\release_dbl8\build\libquickstep\libquickstep.tlb"/>
+				TypeLibraryName="..\..\out\release_dbl71\build\grpall_bullet_corelib\grpall_bullet_corelib.tlb"/>
 			<Tool
 				Name="VCPostBuildEventTool"
-		CommandLine="xcopy /r /y $(TARGETPATH) $(PROJECTDIR)..\..\lib\"
 				/>
 			<Tool
 				Name="VCPreBuildEventTool"/>
@@ -141,7 +140,7 @@
 				Name="VCPreLinkEventTool"/>
 			<Tool
 				Name="VCResourceCompilerTool"
-				PreprocessorDefinitions="NDEBUG;BT_USE_DOUBLE_PRECISION;_LIB;_WINDOWS;PROJECTGEN_VERSION=8"
+				PreprocessorDefinitions="NDEBUG;BT_USE_DOUBLE_PRECISION;PROJECTGEN_VERSION=71"
 				AdditionalIncludeDirectories=".;..\..;..\..\src"
 				Culture="1033"/>
 			<Tool
@@ -151,8 +150,8 @@
 		</Configuration>
 		<Configuration
 			Name="Debug|Win32"
-			OutputDirectory="..\..\out\debug8\build\libquickstep\"
-			IntermediateDirectory="..\..\out\debug8\build\libquickstep\"
+			OutputDirectory="..\..\out\debug71\build\grpall_bullet_corelib\"
+			IntermediateDirectory="..\..\out\debug71\build\grpall_bullet_corelib\"
 			ConfigurationType="4"
 			UseOfMFC="0"
 			ATLMinimizesCRunTimeLibraryUsage="FALSE">
@@ -163,15 +162,15 @@
 				DebugInformationFormat="4"
 				RuntimeTypeInfo="FALSE"
 				RuntimeLibrary="1"
-				PreprocessorDefinitions="_DEBUG;_LIB;_WINDOWS;WIN32"
+				PreprocessorDefinitions="_DEBUG;WIN32"
 				OptimizeForProcessor="1"
 				ExceptionHandling="0"
 				AdditionalOptions=" "
 				AdditionalIncludeDirectories=".;..\..;..\..\src"
-				PrecompiledHeaderFile="..\..\out\debug8\build\libquickstep\libquickstep.pch"
-				AssemblerListingLocation="..\..\out\debug8\build\libquickstep\"
-				ObjectFile="..\..\out\debug8\build\libquickstep\"
-				ProgramDataBaseFileName="..\..\out\debug8\build\libquickstep\quickstep.pdb"
+				PrecompiledHeaderFile="..\..\out\debug71\build\grpall_bullet_corelib\grpall_bullet_corelib.pch"
+				AssemblerListingLocation="..\..\out\debug71\build\grpall_bullet_corelib\"
+				ObjectFile="..\..\out\debug71\build\grpall_bullet_corelib\"
+				ProgramDataBaseFileName="..\..\out\debug71\build\grpall_bullet_corelib\all_bullet_corelib.pdb"
 				WarningLevel="3"
 				SuppressStartupBanner="TRUE"
 				Detect64BitPortabilityProblems="TRUE"
@@ -190,22 +189,21 @@
 				SuppressStartupBanner="TRUE"
 				GenerateManifest="false"
 				AdditionalLibraryDirectories=""
-				ProgramDatabaseFile="..\..\out\debug8\build\libquickstep\quickstep.pdb"
+				ProgramDatabaseFile="..\..\out\debug71\build\grpall_bullet_corelib\all_bullet_corelib.pdb"
 				TargetMachine="1"/>
 			<Tool
 				Name="VCLibrarianTool"
-				OutputFile="..\..\out\debug8\libs\libquickstep_d.lib"
+				OutputFile="..\..\out\debug71\libs\grpall_bullet_corelib.lib"
 				SuppressStartupBanner="TRUE"/>
 			<Tool
 				Name="VCMIDLTool"
-				PreprocessorDefinitions="_DEBUG;_LIB;_WINDOWS"
+				PreprocessorDefinitions="_DEBUG"
 				MkTypLibCompatible="TRUE"
 				SuppressStartupBanner="TRUE"
 				TargetEnvironment="1"
-				TypeLibraryName="..\..\out\debug8\build\libquickstep\libquickstep.tlb"/>
+				TypeLibraryName="..\..\out\debug71\build\grpall_bullet_corelib\grpall_bullet_corelib.tlb"/>
 			<Tool
 				Name="VCPostBuildEventTool"
-		CommandLine="xcopy /r /y $(TARGETPATH) $(PROJECTDIR)..\..\lib\"
 				/>
 			<Tool
 				Name="VCPreBuildEventTool"/>
@@ -213,7 +211,7 @@
 				Name="VCPreLinkEventTool"/>
 			<Tool
 				Name="VCResourceCompilerTool"
-				PreprocessorDefinitions="_DEBUG;_LIB;_WINDOWS;PROJECTGEN_VERSION=8"
+				PreprocessorDefinitions="_DEBUG;PROJECTGEN_VERSION=71"
 				AdditionalIncludeDirectories=".;..\..;..\..\src"
 				Culture="1033"/>
 			<Tool
@@ -223,8 +221,8 @@
 		</Configuration>
 		<Configuration
 			Name="DebugDoublePrecision|Win32"
-			OutputDirectory="..\..\out\debug_dbl8\build\libquickstep\"
-			IntermediateDirectory="..\..\out\debug_dbl8\build\libquickstep\"
+			OutputDirectory="..\..\out\debug_dbl71\build\grpall_bullet_corelib\"
+			IntermediateDirectory="..\..\out\debug_dbl71\build\grpall_bullet_corelib\"
 			ConfigurationType="4"
 			UseOfMFC="0"
 			ATLMinimizesCRunTimeLibraryUsage="FALSE">
@@ -235,15 +233,15 @@
                                 DebugInformationFormat="4"
                                 RuntimeTypeInfo="FALSE"
                                 RuntimeLibrary="1"
-				PreprocessorDefinitions="_DEBUG;BT_USE_DOUBLE_PRECISION;_LIB;_WINDOWS;WIN32"
+				PreprocessorDefinitions="_DEBUG;BT_USE_DOUBLE_PRECISION;WIN32"
 				OptimizeForProcessor="1"
 				ExceptionHandling="0"
 				AdditionalOptions=" "
 				AdditionalIncludeDirectories=".;..\..;..\..\src"
-				PrecompiledHeaderFile="..\..\out\debug_dbl8\build\libquickstep\libquickstep.pch"
-				AssemblerListingLocation="..\..\out\debug_dbl8\build\libquickstep\"
-				ObjectFile="..\..\out\debug_dbl8\build\libquickstep\"
-				ProgramDataBaseFileName="..\..\out\debug_dbl8\build\libquickstep\quickstep.pdb"
+				PrecompiledHeaderFile="..\..\out\debug_dbl71\build\grpall_bullet_corelib\grpall_bullet_corelib.pch"
+				AssemblerListingLocation="..\..\out\debug_dbl71\build\grpall_bullet_corelib\"
+				ObjectFile="..\..\out\debug_dbl71\build\grpall_bullet_corelib\"
+				ProgramDataBaseFileName="..\..\out\debug_dbl71\build\grpall_bullet_corelib\all_bullet_corelib.pdb"
 				WarningLevel="3"
 				SuppressStartupBanner="TRUE"
 				Detect64BitPortabilityProblems="TRUE"
@@ -259,21 +257,21 @@
 				SuppressStartupBanner="TRUE"
 				GenerateManifest="false"
 				AdditionalLibraryDirectories=""
-				ProgramDatabaseFile="..\..\out\debug_dbl8\build\libquickstep\quickstep.pdb"
+				ProgramDatabaseFile="..\..\out\debug_dbl71\build\grpall_bullet_corelib\all_bullet_corelib.pdb"
 				TargetMachine="1"/>
 			<Tool
 				Name="VCLibrarianTool"
+				OutputFile="..\..\out\debug_dbl71\libs\grpall_bullet_corelib.lib"
 				SuppressStartupBanner="TRUE"/>
 			<Tool
 				Name="VCMIDLTool"
-				PreprocessorDefinitions="_DEBUG;BT_USE_DOUBLE_PRECISION;_LIB;_WINDOWS"
+				PreprocessorDefinitions="_DEBUG;BT_USE_DOUBLE_PRECISION"
 				MkTypLibCompatible="TRUE"
 				SuppressStartupBanner="TRUE"
 				TargetEnvironment="1"
-				TypeLibraryName="..\..\out\debug_dbl8\build\libquickstep\libquickstep.tlb"/>
+				TypeLibraryName="..\..\out\debug_dbl71\build\grpall_bullet_corelib\grpall_bullet_corelib.tlb"/>
 			<Tool
 				Name="VCPostBuildEventTool"
-		CommandLine="xcopy /r /y $(TARGETPATH) $(PROJECTDIR)..\..\lib\"
 				/>
 			<Tool
 				Name="VCPreBuildEventTool"/>
@@ -281,7 +279,7 @@
 				Name="VCPreLinkEventTool"/>
 			<Tool
 				Name="VCResourceCompilerTool"
-				PreprocessorDefinitions="_DEBUG;BT_USE_DOUBLE_PRECISION;_LIB;_WINDOWS;PROJECTGEN_VERSION=8"
+				PreprocessorDefinitions="_DEBUG;BT_USE_DOUBLE_PRECISION;PROJECTGEN_VERSION=71"
 				AdditionalIncludeDirectories=".;..\..;..\..\src"
 				Culture="1033"/>
 			<Tool
@@ -291,44 +289,6 @@
 		</Configuration>
 	</Configurations>
 	<Files>
-		<Filter
-			Name="Source Files"
-			Filter="">
-			<File
-				RelativePath="..\..\Extras\quickstep\OdeConstraintSolver.cpp">
-			</File>
-			<File
-				RelativePath="..\..\Extras\quickstep\OdeContactJoint.cpp">
-			</File>
-			<File
-				RelativePath="..\..\Extras\quickstep\OdeJoint.cpp">
-			</File>
-			<File
-				RelativePath="..\..\Extras\quickstep\OdeSolverBody.cpp">
-			</File>
-			<File
-				RelativePath="..\..\Extras\quickstep\SorLcp.cpp">
-			</File>
-		</Filter>
-		<Filter
-			Name="Header Files"
-			Filter="">
-			<File
-				RelativePath="..\..\Extras\quickstep\OdeConstraintSolver.h">
-			</File>
-			<File
-				RelativePath="..\..\Extras\quickstep\OdeContactJoint.h">
-			</File>
-			<File
-				RelativePath="..\..\Extras\quickstep\OdeJoint.h">
-			</File>
-			<File
-				RelativePath="..\..\Extras\quickstep\OdeSolverBody.h">
-			</File>
-			<File
-				RelativePath="..\..\Extras\quickstep\SorLcp.h">
-			</File>
-		</Filter>
 	</Files>
 	<Globals>
 	</Globals>

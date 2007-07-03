@@ -1,0 +1,48 @@
+Microsoft Visual Studio Solution File, Format Version 7.00
+# Visual C++ Express 2005
+Project("{8BC9CEB8-8B4A-11D0-8D11-00A0C91BC942}") = "libbulletcollision", "libbulletcollision.vcproj", "{6ADA430D-009C-2ED4-A787-2AC2D6FEB8CE}"
+EndProject
+Project("{8BC9CEB8-8B4A-11D0-8D11-00A0C91BC942}") = "libbulletdynamics", "libbulletdynamics.vcproj", "{61BD1097-CF2E-B296-DAA9-73A6FE135319}"
+EndProject
+Project("{8BC9CEB8-8B4A-11D0-8D11-00A0C91BC942}") = "libbulletmath", "libbulletmath.vcproj", "{7D6E339F-9C2C-31DA-FDB0-5EE50973CF2A}"
+EndProject
+Global
+	GlobalSection(SolutionConfiguration) = preSolution
+		ConfigName.0 = Release
+		ConfigName.1 = ReleaseDoublePrecision
+		ConfigName.2 = Debug
+		ConfigName.3 = DebugDoublePrecision
+	EndGlobalSection
+	GlobalSection(ProjectDependencies) = postSolution
+	EndGlobalSection
+	GlobalSection(ProjectConfiguration) = postSolution
+		{6ADA430D-009C-2ED4-A787-2AC2D6FEB8CE}.Release.ActiveCfg = Release|Win32
+		{6ADA430D-009C-2ED4-A787-2AC2D6FEB8CE}.Release.Build.0 = Release|Win32
+		{6ADA430D-009C-2ED4-A787-2AC2D6FEB8CE}.ReleaseDoublePrecision.ActiveCfg = ReleaseDoublePrecision|Win32
+		{6ADA430D-009C-2ED4-A787-2AC2D6FEB8CE}.ReleaseDoublePrecision.Build.0 = ReleaseDoublePrecision|Win32
+		{6ADA430D-009C-2ED4-A787-2AC2D6FEB8CE}.Debug.ActiveCfg = Debug|Win32
+		{6ADA430D-009C-2ED4-A787-2AC2D6FEB8CE}.Debug.Build.0 = Debug|Win32
+		{6ADA430D-009C-2ED4-A787-2AC2D6FEB8CE}.DebugDoublePrecision.ActiveCfg = DebugDoublePrecision|Win32
+		{6ADA430D-009C-2ED4-A787-2AC2D6FEB8CE}.DebugDoublePrecision.Build.0 = DebugDoublePrecision|Win32
+		{61BD1097-CF2E-B296-DAA9-73A6FE135319}.Release.ActiveCfg = Release|Win32
+		{61BD1097-CF2E-B296-DAA9-73A6FE135319}.Release.Build.0 = Release|Win32
+		{61BD1097-CF2E-B296-DAA9-73A6FE135319}.ReleaseDoublePrecision.ActiveCfg = ReleaseDoublePrecision|Win32
+		{61BD1097-CF2E-B296-DAA9-73A6FE135319}.ReleaseDoublePrecision.Build.0 = ReleaseDoublePrecision|Win32
+		{61BD1097-CF2E-B296-DAA9-73A6FE135319}.Debug.ActiveCfg = Debug|Win32
+		{61BD1097-CF2E-B296-DAA9-73A6FE135319}.Debug.Build.0 = Debug|Win32
+		{61BD1097-CF2E-B296-DAA9-73A6FE135319}.DebugDoublePrecision.ActiveCfg = DebugDoublePrecision|Win32
+		{61BD1097-CF2E-B296-DAA9-73A6FE135319}.DebugDoublePrecision.Build.0 = DebugDoublePrecision|Win32
+		{7D6E339F-9C2C-31DA-FDB0-5EE50973CF2A}.Release.ActiveCfg = Release|Win32
+		{7D6E339F-9C2C-31DA-FDB0-5EE50973CF2A}.Release.Build.0 = Release|Win32
+		{7D6E339F-9C2C-31DA-FDB0-5EE50973CF2A}.ReleaseDoublePrecision.ActiveCfg = ReleaseDoublePrecision|Win32
+		{7D6E339F-9C2C-31DA-FDB0-5EE50973CF2A}.ReleaseDoublePrecision.Build.0 = ReleaseDoublePrecision|Win32
+		{7D6E339F-9C2C-31DA-FDB0-5EE50973CF2A}.Debug.ActiveCfg = Debug|Win32
+		{7D6E339F-9C2C-31DA-FDB0-5EE50973CF2A}.Debug.Build.0 = Debug|Win32
+		{7D6E339F-9C2C-31DA-FDB0-5EE50973CF2A}.DebugDoublePrecision.ActiveCfg = DebugDoublePrecision|Win32
+		{7D6E339F-9C2C-31DA-FDB0-5EE50973CF2A}.DebugDoublePrecision.Build.0 = DebugDoublePrecision|Win32
+	EndGlobalSection
+	GlobalSection(ExtensibilityGlobals) = postSolution
+	EndGlobalSection
+	GlobalSection(ExtensibilityAddIns) = postSolution
+	EndGlobalSection
+EndGlobal

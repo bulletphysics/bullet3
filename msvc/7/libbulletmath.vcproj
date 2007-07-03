@@ -70,6 +70,7 @@
 				TypeLibraryName="..\..\out\release7\build\libbulletmath\libbulletmath.tlb"/>
 			<Tool
 				Name="VCPostBuildEventTool"
+		CommandLine="xcopy /r /y $(TARGETPATH) $(PROJECTDIR)..\..\lib\"
 				/>
 			<Tool
 				Name="VCPreBuildEventTool"/>
@@ -132,6 +133,7 @@
 				TypeLibraryName="..\..\out\release_dbl7\build\libbulletmath\libbulletmath.tlb"/>
 			<Tool
 				Name="VCPostBuildEventTool"
+		CommandLine="xcopy /r /y $(TARGETPATH) $(PROJECTDIR)..\..\lib\"
 				/>
 			<Tool
 				Name="VCPreBuildEventTool"/>
@@ -203,6 +205,7 @@
 				TypeLibraryName="..\..\out\debug7\build\libbulletmath\libbulletmath.tlb"/>
 			<Tool
 				Name="VCPostBuildEventTool"
+		CommandLine="xcopy /r /y $(TARGETPATH) $(PROJECTDIR)..\..\lib\"
 				/>
 			<Tool
 				Name="VCPreBuildEventTool"/>
@@ -270,6 +273,7 @@
 				TypeLibraryName="..\..\out\debug_dbl7\build\libbulletmath\libbulletmath.tlb"/>
 			<Tool
 				Name="VCPostBuildEventTool"
+		CommandLine="xcopy /r /y $(TARGETPATH) $(PROJECTDIR)..\..\lib\"
 				/>
 			<Tool
 				Name="VCPreBuildEventTool"/>

@@ -2,8 +2,8 @@
 <VisualStudioProject
 	ProjectType="Visual C++"
 	Version="7.00"
-	Name="appEPAPenDepthDemo"
-	ProjectGUID="{1125C7F3-9E0D-27B1-C97B-CDAB5CE161A3}"
+	Name="grpapps_bullet_corelib"
+	ProjectGUID="{9B2CB3A0-910E-31AC-35AE-CB5F57DE473E}"
 	SccProjectName=""
 	SccLocalPath="">
 	<Platforms>
@@ -13,11 +13,9 @@
 	<Configurations>
 		<Configuration
 			Name="Release|Win32"
-			OutputDirectory="..\..\out\release7\build\appEPAPenDepthDemo\"
-			IntermediateDirectory="..\..\out\release7\build\appEPAPenDepthDemo\"
-			ConfigurationType="1"
-			CharacterSet="2"
-			WholeProgramOptimization="1"
+			OutputDirectory="..\..\out\release7\build\grpapps_bullet_corelib\"
+			IntermediateDirectory="..\..\out\release7\build\grpapps_bullet_corelib\"
+			ConfigurationType="4"
 			UseOfMFC="0"
 			ATLMinimizesCRunTimeLibraryUsage="FALSE">
 			<Tool
@@ -28,15 +26,15 @@
 				RuntimeLibrary="0"
 				DebugInformationFormat="3"
 				BufferSecurityCheck="FALSE"
-				PreprocessorDefinitions="NDEBUG;_CONSOLE;WIN32"
+				PreprocessorDefinitions="NDEBUG;WIN32"
 				OptimizeForProcessor="1"
 				ExceptionHandling="0"
 				AdditionalOptions=" "
-				AdditionalIncludeDirectories=".;..\..;..\..\src;..\..\Glut;..\..\Demos\OpenGL;..\..\Extras\GIMPACT\include"
-				PrecompiledHeaderFile="..\..\out\release7\build\appEPAPenDepthDemo\appEPAPenDepthDemo.pch"
-				AssemblerListingLocation="..\..\out\release7\build\appEPAPenDepthDemo\"
-				ObjectFile="..\..\out\release7\build\appEPAPenDepthDemo\"
-				ProgramDataBaseFileName="..\..\out\release7\build\appEPAPenDepthDemo\EPAPenDepthDemo.pdb"
+				AdditionalIncludeDirectories=".;..\..;..\..\src"
+				PrecompiledHeaderFile="..\..\out\release7\build\grpapps_bullet_corelib\grpapps_bullet_corelib.pch"
+				AssemblerListingLocation="..\..\out\release7\build\grpapps_bullet_corelib\"
+				ObjectFile="..\..\out\release7\build\grpapps_bullet_corelib\"
+				ProgramDataBaseFileName="..\..\out\release7\build\grpapps_bullet_corelib\apps_bullet_corelib.pdb"
 				WarningLevel="3"
 				SuppressStartupBanner="TRUE"
 				Detect64BitPortabilityProblems="TRUE"
@@ -51,26 +49,25 @@
 				EnableCOMDATFolding="2"
 				GenerateDebugInformation="TRUE"
 				IgnoreDefaultLibraryNames="LIBC,LIBCD"
-				OutputFile="..\..\ReleaseEPAPenDepthDemo.exe"
-				SubSystem="1"
 				AdditionalOptions=" "
-				AdditionalDependencies="glut32.lib"
+				AdditionalDependencies=""
 				IgnoreImportLibrary="TRUE"
 				SuppressStartupBanner="TRUE"
 				GenerateManifest="false"
-				AdditionalLibraryDirectories="..\..\Glut"
-				ProgramDatabaseFile="..\..\out\release7\build\appEPAPenDepthDemo\EPAPenDepthDemo.pdb"
+				AdditionalLibraryDirectories=""
+				ProgramDatabaseFile="..\..\out\release7\build\grpapps_bullet_corelib\apps_bullet_corelib.pdb"
 				TargetMachine="1"/>
 			<Tool
 				Name="VCLibrarianTool"
+				OutputFile="..\..\out\release7\libs\grpapps_bullet_corelib.lib"
 				SuppressStartupBanner="TRUE"/>
 			<Tool
 				Name="VCMIDLTool"
-				PreprocessorDefinitions="NDEBUG;_CONSOLE"
+				PreprocessorDefinitions="NDEBUG"
 				MkTypLibCompatible="TRUE"
 				SuppressStartupBanner="TRUE"
 				TargetEnvironment="1"
-				TypeLibraryName="..\..\out\release7\build\appEPAPenDepthDemo\appEPAPenDepthDemo.tlb"/>
+				TypeLibraryName="..\..\out\release7\build\grpapps_bullet_corelib\grpapps_bullet_corelib.tlb"/>
 			<Tool
 				Name="VCPostBuildEventTool"
 				/>
@@ -80,8 +77,8 @@
 				Name="VCPreLinkEventTool"/>
 			<Tool
 				Name="VCResourceCompilerTool"
-				PreprocessorDefinitions="NDEBUG;_CONSOLE;PROJECTGEN_VERSION=7"
-				AdditionalIncludeDirectories=".;..\..;..\..\src;..\..\Glut;..\..\Demos\OpenGL;..\..\Extras\GIMPACT\include"
+				PreprocessorDefinitions="NDEBUG;PROJECTGEN_VERSION=7"
+				AdditionalIncludeDirectories=".;..\..;..\..\src"
 				Culture="1033"/>
 			<Tool
 				Name="VCWebServiceProxyGeneratorTool"/>
@@ -90,23 +87,22 @@
 		</Configuration>
 		<Configuration
 			Name="ReleaseDoublePrecision|Win32"
-			OutputDirectory="..\..\out\release_dbl7\build\appEPAPenDepthDemo\"
-			IntermediateDirectory="..\..\out\release_dbl7\build\appEPAPenDepthDemo\"
-			ConfigurationType="1"
-			CharacterSet="2"
+			OutputDirectory="..\..\out\release_dbl7\build\grpapps_bullet_corelib\"
+			IntermediateDirectory="..\..\out\release_dbl7\build\grpapps_bullet_corelib\"
+			ConfigurationType="4"
 			UseOfMFC="0"
 			ATLMinimizesCRunTimeLibraryUsage="FALSE">
 			<Tool
 				Name="VCCLCompilerTool"
-				PreprocessorDefinitions="NDEBUG;BT_USE_DOUBLE_PRECISION;_CONSOLE;WIN32"
+				PreprocessorDefinitions="NDEBUG;BT_USE_DOUBLE_PRECISION;WIN32"
 				OptimizeForProcessor="1"
 				ExceptionHandling="0"
 				AdditionalOptions=" "
-				AdditionalIncludeDirectories=".;..\..;..\..\src;..\..\Glut;..\..\Demos\OpenGL;..\..\Extras\GIMPACT\include"
-				PrecompiledHeaderFile="..\..\out\release_dbl7\build\appEPAPenDepthDemo\appEPAPenDepthDemo.pch"
-				AssemblerListingLocation="..\..\out\release_dbl7\build\appEPAPenDepthDemo\"
-				ObjectFile="..\..\out\release_dbl7\build\appEPAPenDepthDemo\"
-				ProgramDataBaseFileName="..\..\out\release_dbl7\build\appEPAPenDepthDemo\EPAPenDepthDemo.pdb"
+				AdditionalIncludeDirectories=".;..\..;..\..\src"
+				PrecompiledHeaderFile="..\..\out\release_dbl7\build\grpapps_bullet_corelib\grpapps_bullet_corelib.pch"
+				AssemblerListingLocation="..\..\out\release_dbl7\build\grpapps_bullet_corelib\"
+				ObjectFile="..\..\out\release_dbl7\build\grpapps_bullet_corelib\"
+				ProgramDataBaseFileName="..\..\out\release_dbl7\build\grpapps_bullet_corelib\apps_bullet_corelib.pdb"
 				WarningLevel="3"
 				SuppressStartupBanner="TRUE"
 				Detect64BitPortabilityProblems="TRUE"
@@ -116,26 +112,25 @@
 				Name="VCCustomBuildTool"/>
 			<Tool
 				Name="VCLinkerTool"
-                                OutputFile="..\..\ReleaseDblEPAPenDepthDemo.exe"
-                                SubSystem="1"
 				AdditionalOptions=" "
-				AdditionalDependencies="glut32.lib"
+				AdditionalDependencies=""
 				IgnoreImportLibrary="TRUE"
 				SuppressStartupBanner="TRUE"
 				GenerateManifest="false"
-				AdditionalLibraryDirectories="..\..\Glut"
-				ProgramDatabaseFile="..\..\out\release_dbl7\build\appEPAPenDepthDemo\EPAPenDepthDemo.pdb"
+				AdditionalLibraryDirectories=""
+				ProgramDatabaseFile="..\..\out\release_dbl7\build\grpapps_bullet_corelib\apps_bullet_corelib.pdb"
 				TargetMachine="1"/>
 			<Tool
 				Name="VCLibrarianTool"
+				OutputFile="..\..\out\release_dbl7\libs\grpapps_bullet_corelib.lib"
 				SuppressStartupBanner="TRUE"/>
 			<Tool
 				Name="VCMIDLTool"
-				PreprocessorDefinitions="NDEBUG;BT_USE_DOUBLE_PRECISION;_CONSOLE"
+				PreprocessorDefinitions="NDEBUG;BT_USE_DOUBLE_PRECISION"
 				MkTypLibCompatible="TRUE"
 				SuppressStartupBanner="TRUE"
 				TargetEnvironment="1"
-				TypeLibraryName="..\..\out\release_dbl7\build\appEPAPenDepthDemo\appEPAPenDepthDemo.tlb"/>
+				TypeLibraryName="..\..\out\release_dbl7\build\grpapps_bullet_corelib\grpapps_bullet_corelib.tlb"/>
 			<Tool
 				Name="VCPostBuildEventTool"
 				/>
@@ -145,8 +140,8 @@
 				Name="VCPreLinkEventTool"/>
 			<Tool
 				Name="VCResourceCompilerTool"
-				PreprocessorDefinitions="NDEBUG;BT_USE_DOUBLE_PRECISION;_CONSOLE;PROJECTGEN_VERSION=7"
-				AdditionalIncludeDirectories=".;..\..;..\..\src;..\..\Glut;..\..\Demos\OpenGL;..\..\Extras\GIMPACT\include"
+				PreprocessorDefinitions="NDEBUG;BT_USE_DOUBLE_PRECISION;PROJECTGEN_VERSION=7"
+				AdditionalIncludeDirectories=".;..\..;..\..\src"
 				Culture="1033"/>
 			<Tool
 				Name="VCWebServiceProxyGeneratorTool"/>
@@ -155,10 +150,9 @@
 		</Configuration>
 		<Configuration
 			Name="Debug|Win32"
-			OutputDirectory="..\..\out\debug7\build\appEPAPenDepthDemo\"
-			IntermediateDirectory="..\..\out\debug7\build\appEPAPenDepthDemo\"
-			ConfigurationType="1"
-			CharacterSet="2"
+			OutputDirectory="..\..\out\debug7\build\grpapps_bullet_corelib\"
+			IntermediateDirectory="..\..\out\debug7\build\grpapps_bullet_corelib\"
+			ConfigurationType="4"
 			UseOfMFC="0"
 			ATLMinimizesCRunTimeLibraryUsage="FALSE">
 			<Tool
@@ -168,15 +162,15 @@
 				DebugInformationFormat="4"
 				RuntimeTypeInfo="FALSE"
 				RuntimeLibrary="1"
-				PreprocessorDefinitions="_DEBUG;_CONSOLE;WIN32"
+				PreprocessorDefinitions="_DEBUG;WIN32"
 				OptimizeForProcessor="1"
 				ExceptionHandling="0"
 				AdditionalOptions=" "
-				AdditionalIncludeDirectories=".;..\..;..\..\src;..\..\Glut;..\..\Demos\OpenGL;..\..\Extras\GIMPACT\include"
-				PrecompiledHeaderFile="..\..\out\debug7\build\appEPAPenDepthDemo\appEPAPenDepthDemo.pch"
-				AssemblerListingLocation="..\..\out\debug7\build\appEPAPenDepthDemo\"
-				ObjectFile="..\..\out\debug7\build\appEPAPenDepthDemo\"
-				ProgramDataBaseFileName="..\..\out\debug7\build\appEPAPenDepthDemo\EPAPenDepthDemo.pdb"
+				AdditionalIncludeDirectories=".;..\..;..\..\src"
+				PrecompiledHeaderFile="..\..\out\debug7\build\grpapps_bullet_corelib\grpapps_bullet_corelib.pch"
+				AssemblerListingLocation="..\..\out\debug7\build\grpapps_bullet_corelib\"
+				ObjectFile="..\..\out\debug7\build\grpapps_bullet_corelib\"
+				ProgramDataBaseFileName="..\..\out\debug7\build\grpapps_bullet_corelib\apps_bullet_corelib.pdb"
 				WarningLevel="3"
 				SuppressStartupBanner="TRUE"
 				Detect64BitPortabilityProblems="TRUE"
@@ -189,26 +183,25 @@
 				LinkIncremental="2"
 				GenerateDebugInformation="TRUE"
 				IgnoreDefaultLibraryNames="LIBC,LIBCD"
-				OutputFile="..\..\DebugEPAPenDepthDemo.exe"
-				SubSystem="1"
 				AdditionalOptions=" "
-				AdditionalDependencies="glut32.lib"
+				AdditionalDependencies=""
 				IgnoreImportLibrary="TRUE"
 				SuppressStartupBanner="TRUE"
 				GenerateManifest="false"
-				AdditionalLibraryDirectories="..\..\Glut"
-				ProgramDatabaseFile="..\..\out\debug7\build\appEPAPenDepthDemo\EPAPenDepthDemo.pdb"
+				AdditionalLibraryDirectories=""
+				ProgramDatabaseFile="..\..\out\debug7\build\grpapps_bullet_corelib\apps_bullet_corelib.pdb"
 				TargetMachine="1"/>
 			<Tool
 				Name="VCLibrarianTool"
+				OutputFile="..\..\out\debug7\libs\grpapps_bullet_corelib.lib"
 				SuppressStartupBanner="TRUE"/>
 			<Tool
 				Name="VCMIDLTool"
-				PreprocessorDefinitions="_DEBUG;_CONSOLE"
+				PreprocessorDefinitions="_DEBUG"
 				MkTypLibCompatible="TRUE"
 				SuppressStartupBanner="TRUE"
 				TargetEnvironment="1"
-				TypeLibraryName="..\..\out\debug7\build\appEPAPenDepthDemo\appEPAPenDepthDemo.tlb"/>
+				TypeLibraryName="..\..\out\debug7\build\grpapps_bullet_corelib\grpapps_bullet_corelib.tlb"/>
 			<Tool
 				Name="VCPostBuildEventTool"
 				/>
@@ -218,8 +211,8 @@
 				Name="VCPreLinkEventTool"/>
 			<Tool
 				Name="VCResourceCompilerTool"
-				PreprocessorDefinitions="_DEBUG;_CONSOLE;PROJECTGEN_VERSION=7"
-				AdditionalIncludeDirectories=".;..\..;..\..\src;..\..\Glut;..\..\Demos\OpenGL;..\..\Extras\GIMPACT\include"
+				PreprocessorDefinitions="_DEBUG;PROJECTGEN_VERSION=7"
+				AdditionalIncludeDirectories=".;..\..;..\..\src"
 				Culture="1033"/>
 			<Tool
 				Name="VCWebServiceProxyGeneratorTool"/>
@@ -228,10 +221,9 @@
 		</Configuration>
 		<Configuration
 			Name="DebugDoublePrecision|Win32"
-			OutputDirectory="..\..\out\debug_dbl7\build\appEPAPenDepthDemo\"
-			IntermediateDirectory="..\..\out\debug_dbl7\build\appEPAPenDepthDemo\"
-			ConfigurationType="1"
-			CharacterSet="2"
+			OutputDirectory="..\..\out\debug_dbl7\build\grpapps_bullet_corelib\"
+			IntermediateDirectory="..\..\out\debug_dbl7\build\grpapps_bullet_corelib\"
+			ConfigurationType="4"
 			UseOfMFC="0"
 			ATLMinimizesCRunTimeLibraryUsage="FALSE">
 			<Tool
@@ -241,15 +233,15 @@
                                 DebugInformationFormat="4"
                                 RuntimeTypeInfo="FALSE"
                                 RuntimeLibrary="1"
-				PreprocessorDefinitions="_DEBUG;BT_USE_DOUBLE_PRECISION;_CONSOLE;WIN32"
+				PreprocessorDefinitions="_DEBUG;BT_USE_DOUBLE_PRECISION;WIN32"
 				OptimizeForProcessor="1"
 				ExceptionHandling="0"
 				AdditionalOptions=" "
-				AdditionalIncludeDirectories=".;..\..;..\..\src;..\..\Glut;..\..\Demos\OpenGL;..\..\Extras\GIMPACT\include"
-				PrecompiledHeaderFile="..\..\out\debug_dbl7\build\appEPAPenDepthDemo\appEPAPenDepthDemo.pch"
-				AssemblerListingLocation="..\..\out\debug_dbl7\build\appEPAPenDepthDemo\"
-				ObjectFile="..\..\out\debug_dbl7\build\appEPAPenDepthDemo\"
-				ProgramDataBaseFileName="..\..\out\debug_dbl7\build\appEPAPenDepthDemo\EPAPenDepthDemo.pdb"
+				AdditionalIncludeDirectories=".;..\..;..\..\src"
+				PrecompiledHeaderFile="..\..\out\debug_dbl7\build\grpapps_bullet_corelib\grpapps_bullet_corelib.pch"
+				AssemblerListingLocation="..\..\out\debug_dbl7\build\grpapps_bullet_corelib\"
+				ObjectFile="..\..\out\debug_dbl7\build\grpapps_bullet_corelib\"
+				ProgramDataBaseFileName="..\..\out\debug_dbl7\build\grpapps_bullet_corelib\apps_bullet_corelib.pdb"
 				WarningLevel="3"
 				SuppressStartupBanner="TRUE"
 				Detect64BitPortabilityProblems="TRUE"
@@ -259,26 +251,25 @@
 				Name="VCCustomBuildTool"/>
 			<Tool
 				Name="VCLinkerTool"
-                                OutputFile="..\..\DebugDblEPAPenDepthDemo.exe"
-                                SubSystem="1"
 				AdditionalOptions=" "
-				AdditionalDependencies="glut32.lib"
+				AdditionalDependencies=""
 				IgnoreImportLibrary="TRUE"
 				SuppressStartupBanner="TRUE"
 				GenerateManifest="false"
-				AdditionalLibraryDirectories="..\..\Glut"
-				ProgramDatabaseFile="..\..\out\debug_dbl7\build\appEPAPenDepthDemo\EPAPenDepthDemo.pdb"
+				AdditionalLibraryDirectories=""
+				ProgramDatabaseFile="..\..\out\debug_dbl7\build\grpapps_bullet_corelib\apps_bullet_corelib.pdb"
 				TargetMachine="1"/>
 			<Tool
 				Name="VCLibrarianTool"
+				OutputFile="..\..\out\debug_dbl7\libs\grpapps_bullet_corelib.lib"
 				SuppressStartupBanner="TRUE"/>
 			<Tool
 				Name="VCMIDLTool"
-				PreprocessorDefinitions="_DEBUG;BT_USE_DOUBLE_PRECISION;_CONSOLE"
+				PreprocessorDefinitions="_DEBUG;BT_USE_DOUBLE_PRECISION"
 				MkTypLibCompatible="TRUE"
 				SuppressStartupBanner="TRUE"
 				TargetEnvironment="1"
-				TypeLibraryName="..\..\out\debug_dbl7\build\appEPAPenDepthDemo\appEPAPenDepthDemo.tlb"/>
+				TypeLibraryName="..\..\out\debug_dbl7\build\grpapps_bullet_corelib\grpapps_bullet_corelib.tlb"/>
 			<Tool
 				Name="VCPostBuildEventTool"
 				/>
@@ -288,8 +279,8 @@
 				Name="VCPreLinkEventTool"/>
 			<Tool
 				Name="VCResourceCompilerTool"
-				PreprocessorDefinitions="_DEBUG;BT_USE_DOUBLE_PRECISION;_CONSOLE;PROJECTGEN_VERSION=7"
-				AdditionalIncludeDirectories=".;..\..;..\..\src;..\..\Glut;..\..\Demos\OpenGL;..\..\Extras\GIMPACT\include"
+				PreprocessorDefinitions="_DEBUG;BT_USE_DOUBLE_PRECISION;PROJECTGEN_VERSION=7"
+				AdditionalIncludeDirectories=".;..\..;..\..\src"
 				Culture="1033"/>
 			<Tool
 				Name="VCWebServiceProxyGeneratorTool"/>
@@ -298,20 +289,6 @@
 		</Configuration>
 	</Configurations>
 	<Files>
-		<Filter
-			Name="Source Files"
-			Filter="">
-			<File
-				RelativePath="..\..\Demos\EPAPenDepthDemo\PenetrationTestBullet.cpp">
-			</File>
-		</Filter>
-		<Filter
-			Name="Resource Files"
-			Filter="">
-			<File
-				RelativePath="..\..\msvc\appEPAPenDepthDemo.rc">
-			</File>
-		</Filter>
 	</Files>
 	<Globals>
 	</Globals>
