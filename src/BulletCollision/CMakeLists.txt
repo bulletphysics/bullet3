@@ -33,6 +33,7 @@ ADD_LIBRARY(LibBulletCollision
 				CollisionShapes/btConvexTriangleMeshShape.cpp
 				CollisionShapes/btCylinderShape.cpp
 				CollisionShapes/btEmptyShape.cpp
+				CollisionShapes/btHeightfieldTerrainShape.cpp
 				CollisionShapes/btMinkowskiSumShape.cpp
 				CollisionShapes/btMultiSphereShape.cpp
 				CollisionShapes/btOptimizedBvh.cpp
