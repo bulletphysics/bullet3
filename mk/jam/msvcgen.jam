@@ -484,7 +484,7 @@ else if $(MSVC_VERSION) = 7 || $(MSVC_VERSION) = 71 || $(MSVC_VERSION) = 8 || $(
 	MSVC_FORMATVERSION_PRJ = 8.00 ;
     MSVC_FORMATVERSION_WSP = 9.00 ;
     MSVC_TEMPLATE_SUFFIX = xenon8 ;
-    MSVC_PLATFORM_SUFFIX = _xenon_ ;
+    MSVC_PLATFORM_SUFFIX = _xenon ;
   }
 }
 else
