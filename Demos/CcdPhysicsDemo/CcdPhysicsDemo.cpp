@@ -302,41 +302,6 @@ void CcdPhysicsDemo::clientMoveAndDisplay()
 		updateCamera();
 
 
-#ifdef CENTER_OF_MASS_SHIFT
-	btScalar m[16];
-
-	if (m_dynamicsWorld)
-	{
-		int numObjects = m_dynamicsWorld->getNumCollisionObjects();
-		btVector3 wireColor(1,0,0);
-		for (int i=0;i<numObjects;i++)
-		{
-			btCollisionObject* colObj = m_dynamicsWorld->getCollisionObjectArray()[i];
-			btRigidBody* body = btRigidBody::upcast(colObj);
-
-			if (body && body->getMotionState())
-			{
-				btDefaultMotionState* myMotionState = (btDefaultMotionState*)body->getMotionState();
-				btTransform offsetTrans = myMotionState->m_graphicsWorldTrans;
-
-
-				btVector3 worldShift =  offsetTrans.getBasis() * comOffsetVec;
-				offsetTrans.setOrigin(offsetTrans.getOrigin() + worldShift);
-
-
-				offsetTrans.getOpenGLMatrix(m);
-
-				btVector3 wireColor(1.f,1.0f,1.f); //wants deactivation
-
-				btSphereShape sphereTmp(CUBE_HALF_EXTENTS);
-
-				GL_ShapeDrawer::drawOpenGL(m,&sphereTmp,wireColor,0);
-			}			
-		}
-
-	}
-#endif //CENTER_OF_MASS_SHIFT
-
 
 #ifdef USE_QUICKPROF 
         btProfiler::endBlock("render"); 
