@@ -14,6 +14,7 @@ subject to the following restrictions:
 */
 
 //#define __CELLOS_LV2__ 1
+#ifdef USE_SAMPLE_PROCESS
 
 
 
@@ -56,6 +57,8 @@ CellSPURSSupport gSampleSPU(SPU_ELF_SAMPLE);
 
 #endif
 
+
+
 extern "C" {
 	extern char SPU_SAMPLE_ELF_SYMBOL[];
 };
@@ -64,7 +67,7 @@ extern "C" {
 
 
 
-SpuSampleTaskDesc g_spuSampleTaskDesc[SAMPLE_NUM_WORKUNIT_TASKS];
+//SpuSampleTaskDesc g_spuSampleTaskDesc[SAMPLE_NUM_WORKUNIT_TASKS];
 
 
 
@@ -79,6 +82,8 @@ SpuSampleTaskProcess::SpuSampleTaskProcess()
 	m_currentTask = 0;
 
 	m_initialized = false;
+
+	m_threadInterface->startSPU();
 
 #ifdef WIN32
 	Win32ThreadSupport::Win32ThreadConstructionInfo threadConstructionInfo(
@@ -209,3 +214,4 @@ void SpuSampleTaskProcess::flush()
 
 
 }
+#endif //USE_SAMPLE_PROCESS

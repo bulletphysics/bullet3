@@ -34,6 +34,12 @@ class SpuGatheringCollisionDispatcher : public btCollisionDispatcher
 	
 	SpuCollisionTaskProcess*	m_spuCollisionTaskProcess;
 	
+protected:
+
+	class	btThreadSupportInterface*	m_threadInterface;
+
+	unsigned int	m_maxNumOutstandingTasks;
+	
 
 public:
 
@@ -43,8 +49,8 @@ public:
 			return m_spuCollisionTaskProcess;
 	}
 	
-	SpuGatheringCollisionDispatcher ();
-
+	SpuGatheringCollisionDispatcher (class	btThreadSupportInterface*	threadInterface, unsigned int	maxNumOutstandingTasks);
+	
 	virtual ~SpuGatheringCollisionDispatcher();
 
 	bool	supportsDispatchPairOnSpu(int proxyType0,int proxyType1);

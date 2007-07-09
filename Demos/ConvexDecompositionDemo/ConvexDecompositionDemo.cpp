@@ -22,10 +22,15 @@ subject to the following restrictions:
 #include "LinearMath/btIDebugDraw.h"
 #include "LinearMath/btGeometryUtil.h"
 
+
 //#define USE_PARALLEL_DISPATCHER 1
 #ifdef USE_PARALLEL_DISPATCHER
 #include "../../Extras/BulletMultiThreaded/SpuGatheringCollisionDispatcher.h"
+#include "../../Extras/BulletMultiThreaded/Win32ThreadSupport.h"
+#include "../../Extras/BulletMultiThreaded/SpuNarrowPhaseCollisionTask/SpuGatheringCollisionTask.h"
 #endif//USE_PARALLEL_DISPATCHER
+
+
 
 
 #include "GLDebugDrawer.h"
@@ -91,7 +96,23 @@ void ConvexDecompositionDemo::initPhysics(const char* filename)
 	}
 
 #ifdef USE_PARALLEL_DISPATCHER
-	btCollisionDispatcher* dispatcher = new	SpuGatheringCollisionDispatcher();
+#ifdef USE_WIN32_THREADING
+
+	int maxNumOutstandingTasks = 4;//number of maximum outstanding tasks
+	Win32ThreadSupport* threadSupport = new Win32ThreadSupport(Win32ThreadSupport::Win32ThreadConstructionInfo(
+								"collision",
+								processCollisionTask,
+								createCollisionLocalStoreMemory,
+								maxNumOutstandingTasks));
+#else
+///todo other platform threading
+///Playstation 3 SPU (SPURS)  version is available through PS3 Devnet
+///Libspe2 SPU support will be available soon
+///pthreads version
+///you can hook it up to your custom task scheduler by deriving from btThreadSupportInterface
+#endif
+
+	btCollisionDispatcher* dispatcher = new	SpuGatheringCollisionDispatcher(threadSupport,maxNumOutstandingTasks);
 #else
 		btCollisionDispatcher* dispatcher = new	btCollisionDispatcher();
 #endif//USE_PARALLEL_DISPATCHER

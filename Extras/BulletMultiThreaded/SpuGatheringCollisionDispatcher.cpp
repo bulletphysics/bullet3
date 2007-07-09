@@ -26,8 +26,10 @@ subject to the following restrictions:
 
 
 
-SpuGatheringCollisionDispatcher::SpuGatheringCollisionDispatcher()
-:m_spuCollisionTaskProcess(0)
+SpuGatheringCollisionDispatcher::SpuGatheringCollisionDispatcher(class	btThreadSupportInterface*	threadInterface, unsigned int	maxNumOutstandingTasks)
+:m_spuCollisionTaskProcess(0),
+m_threadInterface(threadInterface),
+m_maxNumOutstandingTasks(maxNumOutstandingTasks)
 {
 	
 }
@@ -144,7 +146,7 @@ void	SpuGatheringCollisionDispatcher::dispatchAllCollisionPairs(btOverlappingPai
 	if (dispatchInfo.m_enableSPU)
 	{
 		if (!m_spuCollisionTaskProcess)
-			m_spuCollisionTaskProcess = new SpuCollisionTaskProcess();
+			m_spuCollisionTaskProcess = new SpuCollisionTaskProcess(m_threadInterface,m_maxNumOutstandingTasks);
 	
 		m_spuCollisionTaskProcess->initialize2();
 	

@@ -21,13 +21,10 @@ subject to the following restrictions:
 #include <LinearMath/btScalar.h>
 
 #include "PlatformDefinitions.h"
-
+#include "LinearMath/btAlignedObjectArray.h"
 
 #define DEBUG_SpuCollisionTaskProcess 1
 
-//#define MIDPHASE_NUM_WORKUNIT_TASKS 4 //attempt for multi-core
-#define MIDPHASE_NUM_WORKUNIT_TASKS 12 //attempt for multi-core
-//#define MIDPHASE_NUM_WORKUNIT_TASKS 6 //for SPUs
 
 #define CMD_GATHER_AND_PROCESS_PAIRLIST	1
 
@@ -82,7 +79,13 @@ class SpuCollisionTaskProcess
 
 
 	// track task buffers that are being used, and total busy tasks
-	bool           m_taskBusy[MIDPHASE_NUM_WORKUNIT_TASKS];
+	btAlignedObjectArray<bool>	m_taskBusy;
+	btAlignedObjectArray<SpuGatherAndProcessPairsTaskDesc>	m_spuGatherTaskDesc;
+
+	class	btThreadSupportInterface*	m_threadInterface;
+
+	unsigned int	m_maxNumOutstandingTasks;
+
 	unsigned int   m_numBusyTasks;
 
 	// the current task and the current entry to insert a new work unit
@@ -97,7 +100,7 @@ class SpuCollisionTaskProcess
 	//void postProcess(unsigned int taskId, int outputSize);
 
 public:
-	SpuCollisionTaskProcess();
+	SpuCollisionTaskProcess(btThreadSupportInterface*	threadInterface, unsigned int maxNumOutstandingTasks);
 	
 	~SpuCollisionTaskProcess();
 	

@@ -23,10 +23,7 @@ subject to the following restrictions:
 
 #include "LinearMath/btAlignedObjectArray.h"
 
-
-
-
-#include <LinearMath/btScalar.h> //for uint32_t etc.
+#include "btThreadSupportInterface.h"
 
 
 typedef void (*Win32ThreadFunc)(void* userPtr,void* lsMemory);
@@ -58,10 +55,12 @@ struct	btSpuStatus
 
 
 ///Win32ThreadSupport helps to initialize/shutdown libspe2, start/stop SPU tasks and communication
-class Win32ThreadSupport {
+class Win32ThreadSupport : public btThreadSupportInterface 
+{
 
 	btAlignedObjectArray<btSpuStatus>	m_activeSpuStatus;
 
+	
 public:
 	///Setup and initialize SPU/CELL/Libspe2
 
@@ -95,19 +94,22 @@ public:
 	Win32ThreadSupport(Win32ThreadConstructionInfo& threadConstructionInfo);
 
 ///cleanup/shutdown Libspe2
-	~Win32ThreadSupport();
+	virtual	~Win32ThreadSupport();
+
+	void	startThreads(Win32ThreadConstructionInfo&	threadInfo);
+
 
 ///send messages to SPUs
-	void sendRequest(uint32_t uiCommand, uint32_t uiArgument0, uint32_t uiArgument1);
+	virtual	void sendRequest(uint32_t uiCommand, uint32_t uiArgument0, uint32_t uiArgument1);
 
 ///check for messages from SPUs
-	void waitForResponse(unsigned int *puiArgument0, unsigned int *puiArgument1);
+	virtual	void waitForResponse(unsigned int *puiArgument0, unsigned int *puiArgument1);
 
 ///start the spus (can be called at the beginning of each frame, to make sure that the right SPU program is loaded)
-	void startSPU(Win32ThreadConstructionInfo& threadConstructionInfo);
+	virtual	void startSPU();
 
 ///tell the task scheduler we are done with the SPU tasks
-	void stopSPU();
+	virtual	void stopSPU();
 
 };
 

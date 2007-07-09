@@ -19,6 +19,7 @@ subject to the following restrictions:
 //#define CHECK_MEMORY_LEAKS 1
 //#define USE_PARALLEL_DISPATCHER 1
 
+
 //#define USE_SIMPLE_DYNAMICS_WORLD 1
 
 int gNumObjects = 120;
@@ -35,6 +36,8 @@ btScalar gCollisionMargin = btScalar(0.05);
 
 #ifdef USE_PARALLEL_DISPATCHER
 #include "../../Extras/BulletMultiThreaded/SpuGatheringCollisionDispatcher.h"
+#include "../../Extras/BulletMultiThreaded/Win32ThreadSupport.h"
+#include "../../Extras/BulletMultiThreaded/SpuNarrowPhaseCollisionTask/SpuGatheringCollisionTask.h"
 #endif//USE_PARALLEL_DISPATCHER
 
 
@@ -120,11 +123,31 @@ void BasicDemo::displayCallback(void) {
 
 
 
+
 void	BasicDemo::initPhysics()
 {
 
+
 #ifdef USE_PARALLEL_DISPATCHER
-	m_dispatcher = new	SpuGatheringCollisionDispatcher();
+
+#ifdef USE_WIN32_THREADING
+
+	int maxNumOutstandingTasks = 4;//number of maximum outstanding tasks
+	Win32ThreadSupport* threadSupport = new Win32ThreadSupport(Win32ThreadSupport::Win32ThreadConstructionInfo(
+								"collision",
+								processCollisionTask,
+								createCollisionLocalStoreMemory,
+								maxNumOutstandingTasks));
+#else
+///todo other platform threading
+///Playstation 3 SPU (SPURS)  version is available through PS3 Devnet
+///Libspe2 SPU support will be available soon
+///pthreads version
+///you can hook it up to your custom task scheduler by deriving from btThreadSupportInterface
+#endif
+
+
+	m_dispatcher = new	SpuGatheringCollisionDispatcher(threadSupport,maxNumOutstandingTasks);
 #else
 	m_dispatcher = new	btCollisionDispatcher(true);
 #endif //USE_PARALLEL_DISPATCHER

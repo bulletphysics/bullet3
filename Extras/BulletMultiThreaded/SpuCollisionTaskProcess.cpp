@@ -13,12 +13,10 @@ subject to the following restrictions:
 3. This notice may not be removed or altered from any source distribution.
 */
 
-//#define __CELLOS_LV2__ 1
 
 //#define DEBUG_SPU_TASK_SCHEDULING 1
 
-#include "SpuLibspe2Support.h"
-#include "Win32ThreadSupport.h"
+#include "btThreadSupportInterface.h"
 
 //#include "SPUAssert.h"
 #include <string.h>
@@ -36,30 +34,21 @@ subject to the following restrictions:
 #include <stdio.h>
 
 
-#ifdef USE_WIN32_THREADING
-Win32ThreadSupport gMidphaseSPU(Win32ThreadSupport::Win32ThreadConstructionInfo("collision",
-								processCollisionTask,
-								createCollisionLocalStoreMemory,
-								MIDPHASE_NUM_WORKUNIT_TASKS));
-#elif defined(USE_LIBSPE2)
-SpuLibspe2Support gMidphaseSPU(SPU_ELF_COLLISION_DETECTION,MIDPHASE_NUM_WORKUNIT_TASKS);
-#elif defined (__CELLOS_LV2__)
-#include "CellSPURSSupport.ppu.h"
-CellSPURSSupport gMidphaseSPU(SPU_ELF_MID_PHASE);
-#endif
-
-
-SpuGatherAndProcessPairsTaskDesc g_spuGatherTaskDesc[MIDPHASE_NUM_WORKUNIT_TASKS];
 
 
 
 
-SpuCollisionTaskProcess::SpuCollisionTaskProcess()
+
+SpuCollisionTaskProcess::SpuCollisionTaskProcess(class	btThreadSupportInterface*	threadInterface, unsigned int	maxNumOutstandingTasks)
+:m_threadInterface(threadInterface),
+m_maxNumOutstandingTasks(maxNumOutstandingTasks)
 {
 	m_workUnitTaskBuffers = (unsigned char *)0;
 
+	m_taskBusy.resize(m_maxNumOutstandingTasks);
+	m_spuGatherTaskDesc.resize(m_maxNumOutstandingTasks);
 
-	for (int i = 0; i < MIDPHASE_NUM_WORKUNIT_TASKS; i++)
+	for (int i = 0; i < m_maxNumOutstandingTasks; i++)
 	{
 		m_taskBusy[i] = false;
 	}
@@ -72,11 +61,7 @@ SpuCollisionTaskProcess::SpuCollisionTaskProcess()
 	m_initialized = false;
 #endif
 
-#ifdef __CELLOS_LV2__
-// adding SPURS support.
-	gMidphaseSPU.startSPU();
-	
-#endif
+	m_threadInterface->startSPU();
 
 	//printf("sizeof vec_float4: %d\n", sizeof(vec_float4));
 	printf("sizeof SpuGatherAndProcessWorkUnitInput: %d\n", sizeof(SpuGatherAndProcessWorkUnitInput));
@@ -91,12 +76,10 @@ SpuCollisionTaskProcess::~SpuCollisionTaskProcess()
 		m_workUnitTaskBuffers = 0;
 	}
 	
-#ifdef __CELLOS_LV2__
 
-// Consolidating SPU code
-	gMidphaseSPU.stopSPU();
+
+	m_threadInterface->stopSPU();
 	
-#endif
 }
 
 
@@ -109,10 +92,10 @@ SpuCollisionTaskProcess::initialize2()
 #endif //DEBUG_SPU_TASK_SCHEDULING
 	if (!m_workUnitTaskBuffers)
 	{
-		m_workUnitTaskBuffers = (unsigned char *)memalign(128, MIDPHASE_WORKUNIT_TASK_SIZE*MIDPHASE_NUM_WORKUNIT_TASKS);
+		m_workUnitTaskBuffers = (unsigned char *)memalign(128, MIDPHASE_WORKUNIT_TASK_SIZE*m_maxNumOutstandingTasks);
 	}
 
-	for (int i = 0; i < MIDPHASE_NUM_WORKUNIT_TASKS; i++)
+	for (int i = 0; i < m_maxNumOutstandingTasks; i++)
 	{
 		m_taskBusy[i] = false;
 	}
@@ -141,7 +124,7 @@ void SpuCollisionTaskProcess::issueTask2()
 	m_numBusyTasks++;
 
 
-	SpuGatherAndProcessPairsTaskDesc& taskDesc = g_spuGatherTaskDesc[m_currentTask];
+	SpuGatherAndProcessPairsTaskDesc& taskDesc = m_spuGatherTaskDesc[m_currentTask];
 	{
 		// send task description in event message
 		// no error checking here...
@@ -156,17 +139,17 @@ void SpuCollisionTaskProcess::issueTask2()
 
 
 
-	gMidphaseSPU.sendRequest(CMD_GATHER_AND_PROCESS_PAIRLIST, (uint32_t) &taskDesc,m_currentTask);
+	m_threadInterface->sendRequest(CMD_GATHER_AND_PROCESS_PAIRLIST, (uint32_t) &taskDesc,m_currentTask);
 
 	// if all tasks busy, wait for spu event to clear the task.
 	
 
-	if (m_numBusyTasks >= MIDPHASE_NUM_WORKUNIT_TASKS)
+	if (m_numBusyTasks >= m_maxNumOutstandingTasks)
 	{
 		unsigned int taskId;
 		unsigned int outputSize;
 
-		gMidphaseSPU.waitForResponse(&taskId, &outputSize);
+		m_threadInterface->waitForResponse(&taskId, &outputSize);
 
 		//printf("PPU: after issue, received event: %u %d\n", taskId, outputSize);
 
@@ -204,7 +187,7 @@ void SpuCollisionTaskProcess::addWorkToTask(void* pairArrayPtr,int startIndex,in
 				issueTask2();
 
 				// find new task buffer
-				for (unsigned int i = 0; i < MIDPHASE_NUM_WORKUNIT_TASKS; i++)
+				for (unsigned int i = 0; i < m_maxNumOutstandingTasks; i++)
 				{
 					if (!m_taskBusy[i])
 					{
@@ -247,7 +230,7 @@ void SpuCollisionTaskProcess::addWorkToTask(void* pairArrayPtr,int startIndex,in
 			issueTask2();
 
 			// find new task buffer
-			for (unsigned int i = 0; i < MIDPHASE_NUM_WORKUNIT_TASKS; i++)
+			for (unsigned int i = 0; i < m_maxNumOutstandingTasks; i++)
 			{
 				if (!m_taskBusy[i])
 				{
@@ -289,7 +272,7 @@ SpuCollisionTaskProcess::flush2()
 	  {
 			
 		// SPURS support.
-		  gMidphaseSPU.waitForResponse(&taskId, &outputSize);
+		  m_threadInterface->waitForResponse(&taskId, &outputSize);
 	  }
 
 		//printf("PPU: flushing, received event: %u %d\n", taskId, outputSize);
