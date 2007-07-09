@@ -23,9 +23,7 @@ subject to the following restrictions:
 
 #include <stdlib.h>
 
-///maximum outstanding tasks
-#define SAMPLE_NUM_WORKUNIT_TASKS 4
-
+#include "LinearMath/btAlignedObjectArray.h"
 
 
 ///SpuSampleTaskDesc
@@ -52,7 +50,9 @@ __attribute__ ((aligned (16)))
 class SpuSampleTaskProcess
 {
 	// track task buffers that are being used, and total busy tasks
-	bool           m_taskBusy[SAMPLE_NUM_WORKUNIT_TASKS];
+	btAlignedObjectArray<bool>	m_taskBusy;
+	btAlignedObjectArray<SpuSampleTaskDesc>m_spuSampleTaskDesc;
+	
 	unsigned int   m_numBusyTasks;
 
 	// the current task and the current entry to insert a new work unit
@@ -62,9 +62,14 @@ class SpuSampleTaskProcess
 
 	void postProcess(int taskId, int outputSize);
 	
+	class	btThreadSupportInterface*	m_threadInterface;
+
+	unsigned int	m_maxNumOutstandingTasks;
+
+
 
 public:
-	SpuSampleTaskProcess();
+	SpuSampleTaskProcess(btThreadSupportInterface*	threadInterface, unsigned int maxNumOutstandingTasks);
 	
 	~SpuSampleTaskProcess();
 	

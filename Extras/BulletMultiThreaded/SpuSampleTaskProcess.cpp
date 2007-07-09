@@ -14,12 +14,12 @@ subject to the following restrictions:
 */
 
 //#define __CELLOS_LV2__ 1
+
+#define USE_SAMPLE_PROCESS 1
 #ifdef USE_SAMPLE_PROCESS
 
 
-
-#include "SpuLibspe2Support.h"
-#include "Win32ThreadSupport.h"
+#include "btThreadSupportInterface.h"
 
 //#include "SPUAssert.h"
 #include <string.h>
@@ -43,20 +43,6 @@ void*	SamplelsMemoryFunc()
 	return 0;
 }
 
-#ifdef USE_IBM_CELL_SDK
-//SpuLibspe2Support gSampleSPU(SPU_ELF_SAMPLE,SAMPLE_NUM_WORKUNIT_TASKS);
-#elif defined(WIN32)
-Win32ThreadSupport gSampleSPU(Win32ThreadSupport::Win32ThreadConstructionInfo("sample",
-							  		SampleThreadFunc,
-									SamplelsMemoryFunc,
-									SAMPLE_NUM_WORKUNIT_TASKS));
-#elif defined(__CELLOS_LV2__)
-
-#include "CellSPURSSupport.ppu.h"
-CellSPURSSupport gSampleSPU(SPU_ELF_SAMPLE);
-
-#endif
-
 
 
 extern "C" {
@@ -67,14 +53,15 @@ extern "C" {
 
 
 
-//SpuSampleTaskDesc g_spuSampleTaskDesc[SAMPLE_NUM_WORKUNIT_TASKS];
-
-
-
-SpuSampleTaskProcess::SpuSampleTaskProcess()
+SpuSampleTaskProcess::SpuSampleTaskProcess(btThreadSupportInterface*	threadInterface, unsigned int maxNumOutstandingTasks)
+:m_threadInterface(threadInterface),
+m_maxNumOutstandingTasks(maxNumOutstandingTasks)
 {
 
-	for (int i = 0; i < SAMPLE_NUM_WORKUNIT_TASKS; i++)
+	m_taskBusy.resize(m_maxNumOutstandingTasks);
+	m_spuSampleTaskDesc.resize(m_maxNumOutstandingTasks);
+
+	for (int i = 0; i < m_maxNumOutstandingTasks; i++)
 	{
 		m_taskBusy[i] = false;
 	}
@@ -85,20 +72,12 @@ SpuSampleTaskProcess::SpuSampleTaskProcess()
 
 	m_threadInterface->startSPU();
 
-#ifdef WIN32
-	Win32ThreadSupport::Win32ThreadConstructionInfo threadConstructionInfo(
-	"sample",SampleThreadFunc,SamplelsMemoryFunc);
-
-	gSampleSPU.startSPU(threadConstructionInfo);
-#else
-	gSampleSPU.startSPU();
-#endif
 
 }
 
 SpuSampleTaskProcess::~SpuSampleTaskProcess()
 {
-	gSampleSPU.stopSPU();
+	m_threadInterface->stopSPU();
 	
 }
 
@@ -110,7 +89,7 @@ void	SpuSampleTaskProcess::initialize()
 	printf("SpuSampleTaskProcess::initialize()\n");
 #endif //DEBUG_SPU_TASK_SCHEDULING
 	
-	for (int i = 0; i < SAMPLE_NUM_WORKUNIT_TASKS; i++)
+	for (int i = 0; i < m_maxNumOutstandingTasks; i++)
 	{
 		m_taskBusy[i] = false;
 	}
@@ -131,7 +110,7 @@ void SpuSampleTaskProcess::issueTask(void* sampleMainMemPtr,int sampleValue)
 	m_taskBusy[m_currentTask] = true;
 	m_numBusyTasks++;
 
-	SpuSampleTaskDesc& taskDesc = g_spuSampleTaskDesc[m_currentTask];
+	SpuSampleTaskDesc& taskDesc = m_spuSampleTaskDesc[m_currentTask];
 	{
 		// send task description in event message
 		// no error checking here...
@@ -145,16 +124,16 @@ void SpuSampleTaskProcess::issueTask(void* sampleMainMemPtr,int sampleValue)
 	}
 
 
-	gSampleSPU.sendRequest(CMD_SAMPLE_TASK_COMMAND, (uint32_t) &taskDesc, m_currentTask);
+	m_threadInterface->sendRequest(CMD_SAMPLE_TASK_COMMAND, (uint32_t) &taskDesc, m_currentTask);
 
 	// if all tasks busy, wait for spu event to clear the task.
 	
-	if (m_numBusyTasks >= SAMPLE_NUM_WORKUNIT_TASKS)
+	if (m_numBusyTasks >= m_maxNumOutstandingTasks)
 	{
 		unsigned int taskId;
 		unsigned int outputSize;
 
-		gSampleSPU.waitForResponse(&taskId, &outputSize);
+		m_threadInterface->waitForResponse(&taskId, &outputSize);
 
 		//printf("PPU: after issue, received event: %u %d\n", taskId, outputSize);
 
@@ -166,7 +145,7 @@ void SpuSampleTaskProcess::issueTask(void* sampleMainMemPtr,int sampleValue)
 	}
 
 	// find new task buffer
-	for (unsigned int i = 0; i < SAMPLE_NUM_WORKUNIT_TASKS; i++)
+	for (unsigned int i = 0; i < m_maxNumOutstandingTasks; i++)
 	{
 		if (!m_taskBusy[i])
 		{
@@ -200,7 +179,7 @@ void SpuSampleTaskProcess::flush()
 	  
 	  {
 			
-		  gSampleSPU.waitForResponse(&taskId, &outputSize);
+		  m_threadInterface->waitForResponse(&taskId, &outputSize);
 	  }
 
 		//printf("PPU: flushing, received event: %u %d\n", taskId, outputSize);
