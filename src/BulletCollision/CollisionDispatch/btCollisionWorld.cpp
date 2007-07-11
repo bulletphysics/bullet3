@@ -24,6 +24,9 @@ subject to the following restrictions:
 #include "BulletCollision/NarrowPhaseCollision/btRaycastCallback.h"
 #include "BulletCollision/CollisionShapes/btCompoundShape.h"
 #include "BulletCollision/NarrowPhaseCollision/btSubSimplexConvexCast.h"
+#include "BulletCollision/NarrowPhaseCollision/btGjkConvexCast.h"
+#include "BulletCollision/NarrowPhaseCollision/btContinuousConvexCollision.h"
+
 #include "BulletCollision/BroadphaseCollision/btBroadphaseInterface.h"
 #include "LinearMath/btAabbUtil2.h"
 #include "LinearMath/btQuickprof.h"
@@ -210,8 +213,8 @@ void	btCollisionWorld::objectQuerySingle(const btConvexShape* castShape,const bt
 				btConvexShape* convexShape = (btConvexShape*) collisionShape;
 				btVoronoiSimplexSolver	simplexSolver;
 				btSubsimplexConvexCast convexCaster(castShape,convexShape,&simplexSolver);
-				//GjkConvexCast	convexCaster(castShape,convexShape,&simplexSolver);
-				//ContinuousConvexCollision convexCaster(castShape,convexShape,&simplexSolver,0);
+				//btGjkConvexCast	convexCaster(castShape,convexShape,&simplexSolver);
+				//btContinuousConvexCollision convexCaster(castShape,convexShape,&simplexSolver,0);
 				
 				if (convexCaster.calcTimeOfImpact(rayFromTrans,rayToTrans,colObjWorldTransform,colObjWorldTransform,castResult))
 				{

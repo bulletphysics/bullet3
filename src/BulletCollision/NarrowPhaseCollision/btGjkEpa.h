@@ -43,8 +43,8 @@ struct	sResults
 	int	epa_iterations;
 	int	gjk_iterations;
 	};
-static bool	Collide(btConvexShape* shape0,const btTransform& wtrs0,
-					btConvexShape* shape1,const btTransform& wtrs1,
+static bool	Collide(const btConvexShape* shape0,const btTransform& wtrs0,
+					const btConvexShape* shape1,const btTransform& wtrs1,
 					btScalar	radialmargin,
 					btStackAlloc* stackAlloc,
 					sResults&	results);
