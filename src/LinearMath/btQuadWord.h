@@ -17,8 +17,7 @@ subject to the following restrictions:
 #define SIMD_QUADWORD_H
 
 #include "btScalar.h"
-
-
+#include "btSimdMinMax.h"
 
 
 ///btQuadWord is base-class for vectors, points
@@ -104,32 +103,18 @@ class	btQuadWord
 
 		SIMD_FORCE_INLINE void	setMax(const btQuadWord& other)
 		{
-			if (other.m_x > m_x)
-				m_x = other.m_x;
-
-			if (other.m_y > m_y)
-				m_y = other.m_y;
-
-			if (other.m_z > m_z)
-				m_z = other.m_z;
-
-			if (other.m_unusedW > m_unusedW)
-				m_unusedW = other.m_unusedW;
+			btSetMax(m_x, other.m_x);
+			btSetMax(m_y, other.m_y);
+			btSetMax(m_z, other.m_z);
+			btSetMax(m_unusedW, other.m_unusedW);
 		}
 
 		SIMD_FORCE_INLINE void	setMin(const btQuadWord& other)
 		{
-			if (other.m_x < m_x)
-				m_x = other.m_x;
-
-			if (other.m_y < m_y)
-				m_y = other.m_y;
-
-			if (other.m_z < m_z)
-				m_z = other.m_z;
-
-			if (other.m_unusedW < m_unusedW)
-				m_unusedW = other.m_unusedW;
+			btSetMin(m_x, other.m_x);
+			btSetMin(m_y, other.m_y);
+			btSetMin(m_z, other.m_z);
+			btSetMin(m_unusedW, other.m_unusedW);
 		}
 
 

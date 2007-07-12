@@ -37,6 +37,10 @@ subject to the following restrictions:
 			#define ATTRIBUTE_ALIGNED16(a) __declspec(align(16)) a
 		#ifdef _XBOX
 			#define BT_USE_VMX128
+
+			#include <ppcintrinsics.h>
+ 			#define BT_HAVE_NATIVE_FSEL
+ 			#define btFsel(a,b,c) __fsel((a),(b),(c))
 		#else
 			#define BT_USE_SSE
 		#endif
@@ -177,5 +181,12 @@ SIMD_FORCE_INLINE btScalar btDegrees(btScalar x) { return x * SIMD_DEGS_PER_RAD;
 
 #define BT_DECLARE_HANDLE(name) typedef struct name##__ { int unused; } *name
 
+#ifndef btFsel
+SIMD_FORCE_INLINE btScalar btFsel(btScalar a, btScalar b, btScalar c)
+{
+	return a >= 0 ? b : c;
+}
+#endif
+#define btFsels(a,b,c) (btScalar)btFsel(a,b,c)
 
 #endif //SIMD___SCALAR_H

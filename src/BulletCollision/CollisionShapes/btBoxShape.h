@@ -37,15 +37,11 @@ public:
 
 	virtual btVector3	localGetSupportingVertex(const btVector3& vec) const
 	{
-		
 		btVector3 halfExtents = getHalfExtents();
 		
-		btVector3 supVertex;
-		supVertex = btPoint3(vec.x() < btScalar(0.0) ? -halfExtents.x() : halfExtents.x(),
-                     vec.y() < btScalar(0.0) ? -halfExtents.y() : halfExtents.y(),
-                     vec.z() < btScalar(0.0) ? -halfExtents.z() : halfExtents.z()); 
-  
-		return supVertex;
+		return btVector3(btFsels(vec.x(), halfExtents.x(), -halfExtents.x()),
+			btFsels(vec.y(), halfExtents.y(), -halfExtents.y()),
+			btFsels(vec.z(), halfExtents.z(), -halfExtents.z()));
 	}
 
 	virtual inline btVector3	localGetSupportingVertexWithoutMargin(const btVector3& vec)const
@@ -54,9 +50,9 @@ public:
 		btVector3 margin(getMargin(),getMargin(),getMargin());
 		halfExtents -= margin;
 
-		return btVector3(vec.x() < btScalar(0.0) ? -halfExtents.x() : halfExtents.x(),
-                    vec.y() < btScalar(0.0) ? -halfExtents.y() : halfExtents.y(),
-                    vec.z() < btScalar(0.0) ? -halfExtents.z() : halfExtents.z()); 
+		return btVector3(btFsels(vec.x(), halfExtents.x(), -halfExtents.x()),
+			btFsels(vec.y(), halfExtents.y(), -halfExtents.y()),
+			btFsels(vec.z(), halfExtents.z(), -halfExtents.z()));
 	}
 
 	virtual void	batchedUnitVectorGetSupportingVertexWithoutMargin(const btVector3* vectors,btVector3* supportVerticesOut,int numVectors) const
@@ -69,9 +65,9 @@ public:
 		for (int i=0;i<numVectors;i++)
 		{
 			const btVector3& vec = vectors[i];
-			supportVerticesOut[i].setValue(vec.x() < btScalar(0.0) ? -halfExtents.x() : halfExtents.x(),
-                    vec.y() < btScalar(0.0) ? -halfExtents.y() : halfExtents.y(),
-                    vec.z() < btScalar(0.0) ? -halfExtents.z() : halfExtents.z()); 
+			supportVerticesOut[i].setValue(btFsels(vec.x(), halfExtents.x(), -halfExtents.x()),
+				btFsels(vec.y(), halfExtents.y(), -halfExtents.y()),
+				btFsels(vec.z(), halfExtents.z(), -halfExtents.z())); 
 		}
 
 	}
@@ -290,4 +286,5 @@ public:
 };
 
 #endif //OBB_BOX_MINKOWSKI_H
+
 

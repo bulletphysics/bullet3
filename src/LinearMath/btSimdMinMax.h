@@ -38,4 +38,39 @@ SIMD_FORCE_INLINE void btSetMax(T& a, const T& b) {
     if (a < b) a = b;
 }
 
+// Specialize on float/double for platforms that have btFsel natively
+#ifdef BT_HAVE_NATIVE_FSEL
+SIMD_FORCE_INLINE  float btMin( float a,  float b) {
+	return (float)btFsel((a-b), b, a);
+}
+
+SIMD_FORCE_INLINE  float btMax( float a,  float b) {
+	return (float)btFsel((a-b), a, b);
+}
+
+SIMD_FORCE_INLINE void btSetMin(float& a,  float b) {
+	a = (float)btFsel((a-b), b, a);
+}
+
+SIMD_FORCE_INLINE void btSetMax(float& a,  float b) {
+	a = (float)btFsel((a-b), a, b);
+}
+
+SIMD_FORCE_INLINE  double btMin( double a,  double b) {
+	return btFsel((a-b), b, a);
+}
+
+SIMD_FORCE_INLINE  double btMax( double a,  double b) {
+	return btFsel((a-b), a, b);
+}
+
+SIMD_FORCE_INLINE void btSetMin(double& a, double b) {
+	a = btFsel((a-b), b, a);
+}
+
+SIMD_FORCE_INLINE void btSetMax(double& a,  double b) {
+	a = btFsel((a-b), a, b);
+}
+#endif
+
 #endif
