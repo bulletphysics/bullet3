@@ -17,7 +17,7 @@ subject to the following restrictions:
 #define BT_TRIANGLE_INDEX_VERTEX_ARRAY_H
 
 #include "btStridingMeshInterface.h"
-#include "../../LinearMath/btAlignedObjectArray.h"
+#include "LinearMath/btAlignedObjectArray.h"
 
 ///IndexedMesh indexes into existing vertex and index arrays, in a similar way OpenGL glDrawElements
 ///instead of the number of indices, we pass the number of triangles

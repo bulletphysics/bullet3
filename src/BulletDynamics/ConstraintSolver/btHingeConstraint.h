@@ -18,7 +18,7 @@ subject to the following restrictions:
 #ifndef HINGECONSTRAINT_H
 #define HINGECONSTRAINT_H
 
-#include "../../LinearMath/btVector3.h"
+#include "LinearMath/btVector3.h"
 #include "btJacobianEntry.h"
 #include "btTypedConstraint.h"
 

@@ -3,7 +3,7 @@
 
 
 #include "btPolyhedralConvexShape.h"
-#include "../BroadphaseCollision/btBroadphaseProxy.h" // for the types
+#include "BulletCollision/BroadphaseCollision/btBroadphaseProxy.h" // for the types
 
 
 /// btConvexTriangleMeshShape is a convex hull of a triangle mesh. If you just have a point cloud, you can use btConvexHullShape instead.

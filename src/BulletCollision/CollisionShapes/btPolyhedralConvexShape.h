@@ -16,8 +16,8 @@ subject to the following restrictions:
 #ifndef BU_SHAPE
 #define BU_SHAPE
 
-#include "../../LinearMath/btPoint3.h"
-#include "../../LinearMath/btMatrix3x3.h"
+#include "LinearMath/btPoint3.h"
+#include "LinearMath/btMatrix3x3.h"
 #include "btConvexShape.h"
 
 

@@ -16,11 +16,11 @@ subject to the following restrictions:
 #ifndef RIGIDBODY_H
 #define RIGIDBODY_H
 
-#include "../../LinearMath/btAlignedObjectArray.h"
-#include "../../LinearMath/btPoint3.h"
-#include "../../LinearMath/btTransform.h"
-#include "../../BulletCollision/BroadphaseCollision/btBroadphaseProxy.h"
-#include "../../BulletCollision/CollisionDispatch/btCollisionObject.h"
+#include "LinearMath/btAlignedObjectArray.h"
+#include "LinearMath/btPoint3.h"
+#include "LinearMath/btTransform.h"
+#include "BulletCollision/BroadphaseCollision/btBroadphaseProxy.h"
+#include "BulletCollision/CollisionDispatch/btCollisionObject.h"
 
 class btCollisionShape;
 class btMotionState;

@@ -16,7 +16,7 @@ subject to the following restrictions:
 #ifndef BROADPHASE_PROXY_H
 #define BROADPHASE_PROXY_H
 
-#include "../../LinearMath/btScalar.h" //for SIMD_FORCE_INLINE
+#include "LinearMath/btScalar.h" //for SIMD_FORCE_INLINE
 
 
 /// btDispatcher uses these types

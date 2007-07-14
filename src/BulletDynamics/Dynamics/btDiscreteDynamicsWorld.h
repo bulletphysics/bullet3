@@ -23,11 +23,11 @@ class btOverlappingPairCache;
 class btConstraintSolver;
 class btSimulationIslandManager;
 class btTypedConstraint;
-#include "../ConstraintSolver/btContactSolverInfo.h"
+#include "BulletDynamics/ConstraintSolver/btContactSolverInfo.h"
 
 class btRaycastVehicle;
 class btIDebugDraw;
-#include "../../LinearMath/btAlignedObjectArray.h"
+#include "LinearMath/btAlignedObjectArray.h"
 
 
 ///btDiscreteDynamicsWorld provides discrete rigid body simulation

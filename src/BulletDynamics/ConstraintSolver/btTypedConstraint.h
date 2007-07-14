@@ -17,7 +17,7 @@ subject to the following restrictions:
 #define TYPED_CONSTRAINT_H
 
 class btRigidBody;
-#include "../../LinearMath/btScalar.h"
+#include "LinearMath/btScalar.h"
 
 ///TypedConstraint is the baseclass for Bullet constraints and vehicles
 class btTypedConstraint

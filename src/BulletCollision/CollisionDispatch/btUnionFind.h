@@ -16,7 +16,7 @@ subject to the following restrictions:
 #ifndef UNION_FIND_H
 #define UNION_FIND_H
 
-#include "../../LinearMath/btAlignedObjectArray.h"
+#include "LinearMath/btAlignedObjectArray.h"
 
 	#define USE_PATH_COMPRESSION 1
 

@@ -17,8 +17,8 @@ subject to the following restrictions:
 #define CONVEX_HULL_SHAPE_H
 
 #include "btPolyhedralConvexShape.h"
-#include "../BroadphaseCollision/btBroadphaseProxy.h" // for the types
-#include "../../LinearMath/btAlignedObjectArray.h"
+#include "BulletCollision/BroadphaseCollision/btBroadphaseProxy.h" // for the types
+#include "LinearMath/btAlignedObjectArray.h"
 
 ///ConvexHullShape implements an implicit (getSupportingVertex) Convex Hull of a Point Cloud (vertices)
 ///No connectivity is needed. localGetSupportingVertex iterates linearly though all vertices.
