@@ -1,0 +1,251 @@
+/* Test scalbllnd2 for SPU
+   Copyright (C) 2006, 2007 Sony Computer Entertainment Inc.
+   All rights reserved.
+
+   Redistribution and use in source and binary forms,
+   with or without modification, are permitted provided that the
+   following conditions are met:
+    * Redistributions of source code must retain the above copyright
+      notice, this list of conditions and the following disclaimer.
+    * Redistributions in binary form must reproduce the above copyright
+      notice, this list of conditions and the following disclaimer in the
+      documentation and/or other materials provided with the distribution.
+    * Neither the name of the Sony Computer Entertainment Inc nor the names
+      of its contributors may be used to endorse or promote products derived
+      from this software without specific prior written permission.
+
+   THIS SOFTWARE IS PROVIDED BY THE COPYRIGHT HOLDERS AND CONTRIBUTORS "AS IS"
+   AND ANY EXPRESS OR IMPLIED WARRANTIES, INCLUDING, BUT NOT LIMITED TO, THE
+   IMPLIED WARRANTIES OF MERCHANTABILITY AND FITNESS FOR A PARTICULAR PURPOSE
+   ARE DISCLAIMED. IN NO EVENT SHALL THE COPYRIGHT OWNER OR CONTRIBUTORS BE
+   LIABLE FOR ANY DIRECT, INDIRECT, INCIDENTAL, SPECIAL, EXEMPLARY, OR
+   CONSEQUENTIAL DAMAGES (INCLUDING, BUT NOT LIMITED TO, PROCUREMENT OF
+   SUBSTITUTE GOODS OR SERVICES; LOSS OF USE, DATA, OR PROFITS; OR BUSINESS
+   INTERRUPTION) HOWEVER CAUSED AND ON ANY THEORY OF LIABILITY, WHETHER IN
+   CONTRACT, STRICT LIABILITY, OR TORT (INCLUDING NEGLIGENCE OR OTHERWISE)
+   ARISING IN ANY WAY OUT OF THE USE OF THIS SOFTWARE, EVEN IF ADVISED OF THE
+   POSSIBILITY OF SUCH DAMAGE.
+ */
+/**
+ *
+ *@@ scalbllnd2 - Multiply Double by 2 Raised to its Power
+ *    For large elements of ex (overflow), returns HUGE_VALF
+ *    For small elements of ex (underflow), returns 0.
+ *
+ *@brief
+ * boundary test for scalbllnd2. 
+ * 
+ *
+ *@pre
+ *
+ *@criteria
+ * Run this program and check no error will be occurred.
+ *
+ *@note
+ * add Denormalized handling
+ * Round mode was passed because of spec. (underflow returns 0)
+ * 
+ *
+ **/
+
+#include <stdio.h>
+#include <stdlib.h>
+#include <math.h>
+//#include <fenv.h>
+#include <float.h>
+
+#include "simdmath.h"
+#include "common-test.h"
+#include "testutils.h"
+
+#undef SCALBLLND2_ROUND
+
+
+typedef struct {
+	unsigned long long int  xxx[2];
+	unsigned long long int  exp[2];
+	unsigned long long int  ans0[2];
+	unsigned long long int  ans1[2];
+	unsigned long long int  ans2[2];
+	unsigned long long int  ans3[2];
+} TestVec64_Ldexp;
+
+int main()
+{
+	TestVec64_Ldexp test_a[] = {
+		{
+			// zero
+			{0x0000000000000000ULL,0x8000000000000000ULL},
+			{0x0000000000000400ULL,0xFFFFFFFFFFFFFC00ULL},
+			{0x0000000000000000ULL,0x8000000000000000ULL},
+			{0x0000000000000000ULL,0x8000000000000000ULL},
+			{0x0000000000000000ULL,0x8000000000000000ULL},
+			{0x0000000000000000ULL,0x8000000000000000ULL}
+		},{
+			// MIN , MAX
+			{0xFFEFFFFFFFFFFFFFULL,0x7FEFFFFFFFFFFFFFULL},
+			{0x0000000000000001ULL,0x0000000000000001ULL},
+			{0xFFEFFFFFFFFFFFFFULL,0x7FEFFFFFFFFFFFFFULL},
+			{0xFFEFFFFFFFFFFFFFULL,0x7FEFFFFFFFFFFFFFULL},
+			{0xFFEFFFFFFFFFFFFFULL,0x7FEFFFFFFFFFFFFFULL},
+			{0xFFEFFFFFFFFFFFFFULL,0x7FEFFFFFFFFFFFFFULL}
+		},{
+			// Inf , -Inf
+			{0x7FF0000000000000ULL,0xFFF0000000000000ULL},
+			{0x0000000000000001ULL,0x0000000000000001ULL},
+			{0x7FF0000000000000ULL,0xFFF0000000000000ULL},
+			{0x7FF0000000000000ULL,0xFFF0000000000000ULL},
+			{0x7FF0000000000000ULL,0xFFF0000000000000ULL},
+			{0x7FF0000000000000ULL,0xFFF0000000000000ULL}
+		},{
+#ifdef SCALBLLND2_ROUND
+			// denotmalized 
+			{0x8000000000000003ULL,0x0000000000000003ULL},
+			{0xFFFFFFFFFFFFFFFFULL,0xFFFFFFFFFFFFFFFFULL},
+			{0x8000000000000002ULL,0x0000000000000001ULL},
+			{0x8000000000000001ULL,0x0000000000000002ULL},
+			{0x8000000000000001ULL,0x0000000000000001ULL},
+			{0x8000000000000002ULL,0x0000000000000002ULL}
+		},{
+			// denotmalized -54
+			{0x0010000000000001ULL,0x8010000000000001ULL},
+			{0xFFFFFFFFFFFFFFCAULL,0xFFFFFFFFFFFFFFCAULL},
+			{0x0000000000000000ULL,0x8000000000000000ULL},
+			{0x0000000000000000ULL,0x8000000000000000ULL},
+			{0x0000000000000001ULL,0x8000000000000001ULL},
+			{0x0000000000000000ULL,0x8000000000000000ULL}
+		},{
+			// max -> !
+			{0x7FEFFFFFFFFFFFFFULL,0xFFEFFFFFFFFFFFFFULL},
+			{0xFFFFFFFFFFFFF7CEULL,0xFFFFFFFFFFFFF7CEULL},
+			{0x0000000000000001ULL,0x8000000000000000ULL},
+			{0x0000000000000000ULL,0x8000000000000000ULL},
+			{0x0000000000000001ULL,0x8000000000000001ULL},
+			{0x0000000000000000ULL,0x8000000000000001ULL}
+		},{
+			// max -> !
+			{0x7FEFFFFFFFFFFFFFULL,0xFFEFFFFFFFFFFFFFULL},
+			{0xFFFFFFFFFFFFF7CDULL,0xFFFFFFFFFFFFF7CDULL},
+			{0x0000000000000000ULL,0x8000000000000000ULL},
+			{0x0000000000000000ULL,0x8000000000000000ULL},
+			{0x0000000000000001ULL,0x8000000000000001ULL},
+			{0x0000000000000000ULL,0x8000000000000000ULL}
+		},{
+#else  // SCALBLLND2_ROUND
+			// denotmalized 
+			{0x8000000000000003ULL,0x0000000000000003ULL},
+			{0xFFFFFFFFFFFFFFFFULL,0xFFFFFFFFFFFFFFFFULL},
+			{0x8000000000000001ULL,0x0000000000000001ULL},
+			{0x8000000000000001ULL,0x0000000000000001ULL},
+			{0x8000000000000001ULL,0x0000000000000001ULL},
+			{0x8000000000000001ULL,0x0000000000000001ULL}
+		},{
+
+#endif  // SCALBLLND2_ROUND
+			// denotmalized 
+			{0x0010000000000000ULL,0x8010000000000000ULL},
+			{0xFFFFFFFFFFFFFFFFULL,0xFFFFFFFFFFFFFFFFULL},
+			{0x0008000000000000ULL,0x8008000000000000ULL},
+			{0x0008000000000000ULL,0x8008000000000000ULL},
+			{0x0008000000000000ULL,0x8008000000000000ULL},
+			{0x0008000000000000ULL,0x8008000000000000ULL}
+		},{
+			// denotmalized 
+			{0x0008000000000000ULL,0x8008000000000000ULL},
+			{0x0000000000000001ULL,0x0000000000000001ULL},
+			{0x0010000000000000ULL,0x8010000000000000ULL},
+			{0x0010000000000000ULL,0x8010000000000000ULL},
+			{0x0010000000000000ULL,0x8010000000000000ULL},
+			{0x0010000000000000ULL,0x8010000000000000ULL}
+		},{
+			// 1.0 
+			{0x3ff0000000000000ULL,0xbff0000000000000ULL},
+			{0x00000000000003ffULL,0x00000000000003ffULL},
+			{0x7FE0000000000000ULL,0xFFE0000000000000ULL},
+			{0x7FE0000000000000ULL,0xFFE0000000000000ULL},
+			{0x7FE0000000000000ULL,0xFFE0000000000000ULL},
+			{0x7FE0000000000000ULL,0xFFE0000000000000ULL}
+		},{
+			// 1.0 -> max
+			{0x3ff0000000000000ULL,0xbff0000000000000ULL},
+			{0x0000000000000400ULL,0x0000000000000400ULL},
+			{0x7FEFFFFFFFFFFFFFULL,0xFFEFFFFFFFFFFFFFULL},
+			{0x7FEFFFFFFFFFFFFFULL,0xFFEFFFFFFFFFFFFFULL},
+			{0x7FEFFFFFFFFFFFFFULL,0xFFEFFFFFFFFFFFFFULL},
+			{0x7FEFFFFFFFFFFFFFULL,0xFFEFFFFFFFFFFFFFULL}
+		},{
+			// max -> !
+			{0x7FEFFFFFFFFFFFFFULL,0xFFEFFFFFFFFFFFFFULL},
+			{0xFFFFFFFF00000000ULL,0xFFFFFFFF00000000ULL},
+			{0x0000000000000000ULL,0x8000000000000000ULL},
+			{0x0000000000000000ULL,0x8000000000000000ULL},
+			{0x0000000000000000ULL,0x8000000000000000ULL},
+			{0x0000000000000000ULL,0x8000000000000000ULL}
+		},{
+			// min-> 
+			{0x0000000000000001ULL,0x8000000000000001ULL},
+			{0x0FFFFFFFFFFFFFFFULL,0x0FFFFFFFFFFFFFFFULL},
+			{0x7FEFFFFFFFFFFFFFULL,0xFFEFFFFFFFFFFFFFULL},
+			{0x7FEFFFFFFFFFFFFFULL,0xFFEFFFFFFFFFFFFFULL},
+			{0x7FEFFFFFFFFFFFFFULL,0xFFEFFFFFFFFFFFFFULL},
+			{0x7FEFFFFFFFFFFFFFULL,0xFFEFFFFFFFFFFFFFULL}
+		},{
+			// NaN , -NaN
+			{0x7FFFFFFFFFFFFFFFULL,0xFFFFFFFFFFFFFFFFULL},
+			{0x0000000000000001ULL,0x0000000000000001ULL},
+			{0x7FFFFFFFFFFFFFFFULL,0xFFFFFFFFFFFFFFFFULL},
+			{0x7FFFFFFFFFFFFFFFULL,0xFFFFFFFFFFFFFFFFULL},
+			{0x7FFFFFFFFFFFFFFFULL,0xFFFFFFFFFFFFFFFFULL},
+			{0x7FFFFFFFFFFFFFFFULL,0xFFFFFFFFFFFFFFFFULL}
+		},{
+			{0ULL,0ULL},
+			{0ULL,0ULL},
+			{0ULL,0ULL},
+			{0ULL,0ULL},
+			{0ULL,0ULL},
+			{0ULL,0ULL}
+		}
+	};
+	int ii, test_ctr = 1;
+	char msg[80];
+	vec_double2 res_v;
+
+	TEST_SET_START("20060907180000NM","NM", "scalbllnd2");
+
+   TEST_START("scalbllnd2");
+
+	for (ii=0; ; ii++) {
+		if ( (test_a[ii].xxx[0] == 0) && (test_a[ii].xxx[1] == 0) ) break;
+
+		// set Floating point round mode
+		spu_mtfpscr(((vec_uint4){0x0100,0,0,0}));
+		res_v = scalbllnd2 (*((vec_double2 *)&test_a[ii].xxx[0]), *((vec_llong2 *)&test_a[ii].exp[0]));
+		sprintf(msg,"2006090718%04dNM", test_ctr++);
+		TEST_CHECK(msg, allequal_llong2( (vec_llong2)res_v, *((vec_llong2 *)&test_a[ii].ans0[0])), 0);
+
+#ifdef SCALBLLND2_ROUND
+
+		spu_mtfpscr(((vec_uint4){0x0600,0,0,0}));
+		res_v = scalbllnd2 (*((vec_double2 *)&test_a[ii].xxx[0]), *((vec_llong2 *)&test_a[ii].exp[0]));
+		sprintf(msg,"2006090718%04dNM", test_ctr++);
+		TEST_CHECK(msg, allequal_llong2( (vec_llong2)res_v, *((vec_llong2 *)&test_a[ii].ans1[0])), 0);
+
+		spu_mtfpscr(((vec_uint4){0x0b00,0,0,0}));
+		res_v = scalbllnd2 (*((vec_double2 *)&test_a[ii].xxx[0]), *((vec_llong2 *)&test_a[ii].exp[0]));
+		sprintf(msg,"2006090718%04dNM", test_ctr++);
+		TEST_CHECK(msg, allequal_llong2( (vec_llong2)res_v, *((vec_llong2 *)&test_a[ii].ans2[0])), 0);
+
+		spu_mtfpscr(((vec_uint4){0x0c00,0,0,0}));
+		res_v = scalbllnd2 (*((vec_double2 *)&test_a[ii].xxx[0]), *((vec_llong2 *)&test_a[ii].exp[0]));
+		sprintf(msg,"2006090718%04dNM", test_ctr++);
+		TEST_CHECK(msg, allequal_llong2( (vec_llong2)res_v, *((vec_llong2 *)&test_a[ii].ans3[0])), 0);
+#endif  // SCALBLLND2_ROUND
+
+	}
+
+
+   TEST_SET_DONE();
+
+   TEST_EXIT();
+
+}
