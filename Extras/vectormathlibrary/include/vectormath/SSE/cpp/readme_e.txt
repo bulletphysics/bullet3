@@ -1,0 +1,1 @@
+This folder contains an SSE implementation of the c++ aos component of the vectormath library as used by PSSG.
