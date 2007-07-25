@@ -30,6 +30,7 @@
 #ifndef _VECTORMATH_VECIDX_AOS_H
 #define _VECTORMATH_VECIDX_AOS_H
 
+
 #include "floatInVec.h"
 
 namespace Vectormath {
@@ -41,11 +42,11 @@ namespace Aos {
 // subscripting operator.
 //
 
-class VecIdx
+__declspec(align(16)) class VecIdx
 {
 private:
-    __m128 &ref __attribute__ ((aligned(16)));
-    int i __attribute__ ((aligned(16)));
+   __m128 &ref;
+   int i;
 public:
     inline VecIdx( __m128& vec, int idx ): ref(vec) { i = idx; }
 
