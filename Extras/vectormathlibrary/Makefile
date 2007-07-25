@@ -45,7 +45,7 @@ ARCH_CFLAGS_PPU = -m$(ARCH_PPU) -maltivec -mabi=altivec
 CFLAGS_PPU = $(INCLUDES_PPU) -O2 -W -Wall $(ARCH_CFLAGS_PPU)
 STATIC_LDFLAGS_PPU = -static
 SHARED_LDFLAGS_PPU = -Wl,-rpath=..
-LDFLAGS_PPU = $(ARCH_CFLAGS_PPU) -L../simdmathlibrary/ppu -l$(LIB_BASE) -lm
+LDFLAGS_PPU = $(ARCH_CFLAGS_PPU) -L../simdmathlibrary/ppu -l$(LIB_BASE) -lm -lstdc++
 
 MAKE_DEFS = \
 	LIB_BASE='$(LIB_BASE)' \
