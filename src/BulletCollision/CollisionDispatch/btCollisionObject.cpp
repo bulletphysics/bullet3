@@ -22,6 +22,7 @@ btCollisionObject::btCollisionObject()
 		m_activationState1(1),
 		m_deactivationTime(btScalar(0.)),
 		m_userObjectPointer(0),
+		m_internalOwner(0),
 		m_hitFraction(btScalar(1.)),
 		m_ccdSweptSphereRadius(btScalar(0.)),
 		m_ccdSquareMotionThreshold(btScalar(0.)),
