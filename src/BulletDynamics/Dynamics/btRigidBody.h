@@ -275,7 +275,6 @@ public:
 
 	inline void	updateDeactivation(btScalar timeStep)
 	{
-return;
 		if ( (getActivationState() == ISLAND_SLEEPING) || (getActivationState() == DISABLE_DEACTIVATION))
 			return;
 
