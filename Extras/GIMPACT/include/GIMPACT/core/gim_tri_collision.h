@@ -327,7 +327,7 @@ if 0.0<= u+v <=1.0 then they are inside of triangle
     		faceplane[3] = m_vertices[0].dot(faceplane);
 		}
 
-		GUINT res = LINE_PLANE_COLLISION(faceplane,vDir,vPoint,pout,tparam,0.0f, tmax);
+		GUINT res = LINE_PLANE_COLLISION(faceplane,vDir,vPoint,pout,tparam, btScalar(0), tmax);
 		if(res == 0) return false;
 		if(! is_point_inside(pout,faceplane)) return false;
 
@@ -360,7 +360,7 @@ if 0.0<= u+v <=1.0 then they are inside of triangle
     		faceplane[3] = m_vertices[0].dot(faceplane);
 		}
 
-		GUINT res = LINE_PLANE_COLLISION(faceplane,vDir,vPoint,pout,tparam,0.0f, tmax);
+		GUINT res = LINE_PLANE_COLLISION(faceplane,vDir,vPoint,pout,tparam, btScalar(0), tmax);
 		if(res != 1) return false;
 
 		if(!is_point_inside(pout,faceplane)) return false;

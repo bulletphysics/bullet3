@@ -473,7 +473,7 @@ SIMD_FORCE_INLINE void SEGMENT_COLLISION(
     VEC_CROSS(_M,_N,_BD);
     _M[3] = VEC_DOT(_M,vB1);
 
-    LINE_PLANE_COLLISION(_M,_AD,vA1,vPointA,_tp,0.0f, 1.0f);
+    LINE_PLANE_COLLISION(_M,_AD,vA1,vPointA,_tp,btScalar(0), btScalar(1));
     /*Closest point on segment*/
     VEC_DIFF(vPointB,vPointA,vB1);
 	_tp = VEC_DOT(vPointB, _BD);

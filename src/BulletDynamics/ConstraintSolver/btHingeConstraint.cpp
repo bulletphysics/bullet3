@@ -345,7 +345,7 @@ void	btHingeConstraint::solveConstraint(btScalar	timeStep)
 
 				// Clamp the accumulated impulse
 				btScalar temp = m_accLimitImpulse;
-				m_accLimitImpulse = btMax(m_accLimitImpulse + impulseMag, 0.0f );
+				m_accLimitImpulse = btMax(m_accLimitImpulse + impulseMag, btScalar(0) );
 				impulseMag = m_accLimitImpulse - temp;
 
 
