@@ -118,8 +118,8 @@ m_angularOnly(false),
 m_enableAngularMotor(false)
 {
 	// flip axis
-	m_rbBFrame.getBasis()[2][0] *= btScalar(-1.);
-	m_rbBFrame.getBasis()[2][1] *= btScalar(-1.);
+	m_rbBFrame.getBasis()[0][2] *= btScalar(-1.);
+	m_rbBFrame.getBasis()[1][2] *= btScalar(-1.);
 	m_rbBFrame.getBasis()[2][2] *= btScalar(-1.);
 
 	//start with free
@@ -139,8 +139,8 @@ m_angularOnly(false),
 m_enableAngularMotor(false)
 {
 	// flip axis
-	m_rbBFrame.getBasis()[2][0] *= btScalar(-1.);
-	m_rbBFrame.getBasis()[2][1] *= btScalar(-1.);
+	m_rbBFrame.getBasis()[0][2] *= btScalar(-1.);
+	m_rbBFrame.getBasis()[1][2] *= btScalar(-1.);
 	m_rbBFrame.getBasis()[2][2] *= btScalar(-1.);
 
 
