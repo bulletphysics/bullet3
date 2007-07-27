@@ -1,10 +1,37 @@
 Bullet Continuous Collision Detection and Physics Library
-Erwin Coumans
+Primary author and maintainer: Erwin Coumans
+
+2007 August July 27
+	- added Ragdoll Demo
+		Thanks to Marten Svanfeld (Starbreeze Studios)
+
+	- added Vector Math library for SIMD 3D graphics linear algebra (vector, matrix, quaternion)
+		See Bullet/Extras/vectormathlibrary
+		Supports SIMD SSE, PowerPC PPU and Cell SPU, as well as generic portable scalar version
+		Open Sourced by Sony Computer Entertainment Inc. under the new BSD license
+	- added SIMD math library
+		See Bullet/Extras/simdmathlibrary
+		Open sourced by Sony Computer Entertainment Inc. under the new BSD license
+
+2007 July 25
+	- added several patches: per-rigidbody sleeping threshold. added Assert to prevent deletion of rigidbody while constraints are still pointing at it
+		Thanks to Marten Svanfeldt (Starbreeze Studios)
+	
+2007 July 13
+	- fixed relative #include paths again. We can't use "../" relative paths: some compilers choke on it (it causes extreme long paths)
+		Within the libraries, we always need to start with "BulletCollision/" or "BulletDynamics/ or "LinearMath/"
+
+2007 July 10
+	- Updated Bullet User Manual
+
+2007 July 5
+	- added btConeTwistConstraint, especially useful for ragdolls. See Demos/RagdollDemo
+		Thanks to Marten Svanfeldt (Starbreeze Studios)
 
 2007 June 29
 	- btHeightfieldTerrainShape: Added heightfield support, with customizations
 	- Upgraded to GIMPACT 0.2, see Extras/GIMPACT and MovingConcaveDemo
-	- Several patches from Marten Svanfeldt, Starbreeze
+	- Several patches from Marten Svanfeldt (Starbreeze Studios)
 		Improved collision filtering (in broadphase and rigidbody)
 		Improved debug rendering
 		Allow to set collision filter group/mask in addRigidBody
