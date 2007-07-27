@@ -7,12 +7,16 @@ Primary author and maintainer: Erwin Coumans
 
 	- added Vector Math library for SIMD 3D graphics linear algebra (vector, matrix, quaternion)
 		See Bullet/Extras/vectormathlibrary
-		Supports SIMD SSE, PowerPC PPU and Cell SPU, as well as generic portable scalar version
+		Supports SIMD SSE, PowerPC PPU and Cell SPU (including PS3 Linux and CellBlade), as well as generic portable scalar version
+		Will be used to improve BulletMultiThreaded performance
 		Open Sourced by Sony Computer Entertainment Inc. under the new BSD license
 	- added SIMD math library
+		4-way SIMD for common math functions like atan2f4, cosf4, floorf4, fabsf4, rsqrtf4 etc. Used by Vector Math library under PPU and SPU.
+		Supports PowerPC (PPU) and Cell SPU, including PS3 Linux and CellBlade.
 		See Bullet/Extras/simdmathlibrary
 		Open sourced by Sony Computer Entertainment Inc. under the new BSD license
 
+	
 2007 July 25
 	- added several patches: per-rigidbody sleeping threshold. added Assert to prevent deletion of rigidbody while constraints are still pointing at it
 		Thanks to Marten Svanfeldt (Starbreeze Studios)
