@@ -172,6 +172,10 @@ SOURCE="$(InputPath)"
 # PROP Default_Filter ""
 # Begin Source File
 
+SOURCE=..\..\src\BulletDynamics\ConstraintSolver\btConeTwistConstraint.cpp
+# End Source File
+# Begin Source File
+
 SOURCE=..\..\src\BulletDynamics\ConstraintSolver\btContactConstraint.cpp
 # End Source File
 # Begin Source File
@@ -222,6 +226,10 @@ SOURCE=..\..\src\BulletDynamics\Vehicle\btWheelInfo.cpp
 # Begin Group "Header Files"
 
 # PROP Default_Filter ""
+# Begin Source File
+
+SOURCE=..\..\src\BulletDynamics\ConstraintSolver\btConeTwistConstraint.h
+# End Source File
 # Begin Source File
 
 SOURCE=..\..\src\BulletDynamics\ConstraintSolver\btConstraintSolver.h

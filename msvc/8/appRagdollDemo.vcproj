@@ -1,9 +1,9 @@
 <?xml version="1.0" encoding = "Windows-1252"?>
 <VisualStudioProject
 	ProjectType="Visual C++"
-	Version="7.10"
-	Name="appGPUphysics"
-	ProjectGUID="{385D5AB2-3904-6848-ACA6-9DFFF2F5A23F}"
+	Version="8.00"
+	Name="appRagdollDemo"
+	ProjectGUID="{EFEF2072-51F9-DAE8-AC38-3E653C680F74}"
 	SccProjectName=""
 	SccLocalPath="">
 	<Platforms>
@@ -13,8 +13,8 @@
 	<Configurations>
 		<Configuration
 			Name="Release|Win32"
-			OutputDirectory="..\..\out\release71\build\appGPUphysics\"
-			IntermediateDirectory="..\..\out\release71\build\appGPUphysics\"
+			OutputDirectory="..\..\out\release8\build\appRagdollDemo\"
+			IntermediateDirectory="..\..\out\release8\build\appRagdollDemo\"
 			ConfigurationType="1"
 			CharacterSet="2"
 			WholeProgramOptimization="1"
@@ -32,11 +32,11 @@
 				OptimizeForProcessor="1"
 				ExceptionHandling="0"
 				AdditionalOptions=" "
-				AdditionalIncludeDirectories=".;..\..;..\..\src;..\..\Demos\OpenGL;..\..\Glut"
-				PrecompiledHeaderFile="..\..\out\release71\build\appGPUphysics\appGPUphysics.pch"
-				AssemblerListingLocation="..\..\out\release71\build\appGPUphysics\"
-				ObjectFile="..\..\out\release71\build\appGPUphysics\"
-				ProgramDataBaseFileName="..\..\out\release71\build\appGPUphysics\GPUphysics.pdb"
+				AdditionalIncludeDirectories=".;..\..;..\..\src;..\..\Glut;..\..\Demos\OpenGL"
+				PrecompiledHeaderFile="..\..\out\release8\build\appRagdollDemo\appRagdollDemo.pch"
+				AssemblerListingLocation="..\..\out\release8\build\appRagdollDemo\"
+				ObjectFile="..\..\out\release8\build\appRagdollDemo\"
+				ProgramDataBaseFileName="..\..\out\release8\build\appRagdollDemo\RagdollDemo.pdb"
 				WarningLevel="3"
 				SuppressStartupBanner="TRUE"
 				Detect64BitPortabilityProblems="TRUE"
@@ -51,15 +51,15 @@
 				EnableCOMDATFolding="2"
 				GenerateDebugInformation="TRUE"
 				IgnoreDefaultLibraryNames="LIBC,LIBCD"
-				OutputFile="..\..\ReleaseGPUphysics.exe"
+				OutputFile="..\..\ReleaseRagdollDemo.exe"
 				SubSystem="1"
 				AdditionalOptions=" "
-				AdditionalDependencies="glut32.lib glew32.lib"
+				AdditionalDependencies="glut32.lib"
 				IgnoreImportLibrary="TRUE"
 				SuppressStartupBanner="TRUE"
 				GenerateManifest="false"
 				AdditionalLibraryDirectories="..\..\Glut"
-				ProgramDatabaseFile="..\..\out\release71\build\appGPUphysics\GPUphysics.pdb"
+				ProgramDatabaseFile="..\..\out\release8\build\appRagdollDemo\RagdollDemo.pdb"
 				TargetMachine="1"/>
 			<Tool
 				Name="VCLibrarianTool"
@@ -70,7 +70,7 @@
 				MkTypLibCompatible="TRUE"
 				SuppressStartupBanner="TRUE"
 				TargetEnvironment="1"
-				TypeLibraryName="..\..\out\release71\build\appGPUphysics\appGPUphysics.tlb"/>
+				TypeLibraryName="..\..\out\release8\build\appRagdollDemo\appRagdollDemo.tlb"/>
 			<Tool
 				Name="VCPostBuildEventTool"
 				/>
@@ -80,8 +80,8 @@
 				Name="VCPreLinkEventTool"/>
 			<Tool
 				Name="VCResourceCompilerTool"
-				PreprocessorDefinitions="NDEBUG;_CONSOLE;PROJECTGEN_VERSION=71"
-				AdditionalIncludeDirectories=".;..\..;..\..\src;..\..\Demos\OpenGL;..\..\Glut"
+				PreprocessorDefinitions="NDEBUG;_CONSOLE;PROJECTGEN_VERSION=8"
+				AdditionalIncludeDirectories=".;..\..;..\..\src;..\..\Glut;..\..\Demos\OpenGL"
 				Culture="1033"/>
 			<Tool
 				Name="VCWebServiceProxyGeneratorTool"/>
@@ -90,8 +90,8 @@
 		</Configuration>
 		<Configuration
 			Name="ReleaseDoublePrecision|Win32"
-			OutputDirectory="..\..\out\release_dbl71\build\appGPUphysics\"
-			IntermediateDirectory="..\..\out\release_dbl71\build\appGPUphysics\"
+			OutputDirectory="..\..\out\release_dbl8\build\appRagdollDemo\"
+			IntermediateDirectory="..\..\out\release_dbl8\build\appRagdollDemo\"
 			ConfigurationType="1"
 			CharacterSet="2"
 			UseOfMFC="0"
@@ -102,11 +102,11 @@
 				OptimizeForProcessor="1"
 				ExceptionHandling="0"
 				AdditionalOptions=" "
-				AdditionalIncludeDirectories=".;..\..;..\..\src;..\..\Demos\OpenGL;..\..\Glut"
-				PrecompiledHeaderFile="..\..\out\release_dbl71\build\appGPUphysics\appGPUphysics.pch"
-				AssemblerListingLocation="..\..\out\release_dbl71\build\appGPUphysics\"
-				ObjectFile="..\..\out\release_dbl71\build\appGPUphysics\"
-				ProgramDataBaseFileName="..\..\out\release_dbl71\build\appGPUphysics\GPUphysics.pdb"
+				AdditionalIncludeDirectories=".;..\..;..\..\src;..\..\Glut;..\..\Demos\OpenGL"
+				PrecompiledHeaderFile="..\..\out\release_dbl8\build\appRagdollDemo\appRagdollDemo.pch"
+				AssemblerListingLocation="..\..\out\release_dbl8\build\appRagdollDemo\"
+				ObjectFile="..\..\out\release_dbl8\build\appRagdollDemo\"
+				ProgramDataBaseFileName="..\..\out\release_dbl8\build\appRagdollDemo\RagdollDemo.pdb"
 				WarningLevel="3"
 				SuppressStartupBanner="TRUE"
 				Detect64BitPortabilityProblems="TRUE"
@@ -116,15 +116,15 @@
 				Name="VCCustomBuildTool"/>
 			<Tool
 				Name="VCLinkerTool"
-                                OutputFile="..\..\ReleaseDblGPUphysics.exe"
+                                OutputFile="..\..\ReleaseDblRagdollDemo.exe"
                                 SubSystem="1"
 				AdditionalOptions=" "
-				AdditionalDependencies="glut32.lib glew32.lib"
+				AdditionalDependencies="glut32.lib"
 				IgnoreImportLibrary="TRUE"
 				SuppressStartupBanner="TRUE"
 				GenerateManifest="false"
 				AdditionalLibraryDirectories="..\..\Glut"
-				ProgramDatabaseFile="..\..\out\release_dbl71\build\appGPUphysics\GPUphysics.pdb"
+				ProgramDatabaseFile="..\..\out\release_dbl8\build\appRagdollDemo\RagdollDemo.pdb"
 				TargetMachine="1"/>
 			<Tool
 				Name="VCLibrarianTool"
@@ -135,7 +135,7 @@
 				MkTypLibCompatible="TRUE"
 				SuppressStartupBanner="TRUE"
 				TargetEnvironment="1"
-				TypeLibraryName="..\..\out\release_dbl71\build\appGPUphysics\appGPUphysics.tlb"/>
+				TypeLibraryName="..\..\out\release_dbl8\build\appRagdollDemo\appRagdollDemo.tlb"/>
 			<Tool
 				Name="VCPostBuildEventTool"
 				/>
@@ -145,8 +145,8 @@
 				Name="VCPreLinkEventTool"/>
 			<Tool
 				Name="VCResourceCompilerTool"
-				PreprocessorDefinitions="NDEBUG;BT_USE_DOUBLE_PRECISION;_CONSOLE;PROJECTGEN_VERSION=71"
-				AdditionalIncludeDirectories=".;..\..;..\..\src;..\..\Demos\OpenGL;..\..\Glut"
+				PreprocessorDefinitions="NDEBUG;BT_USE_DOUBLE_PRECISION;_CONSOLE;PROJECTGEN_VERSION=8"
+				AdditionalIncludeDirectories=".;..\..;..\..\src;..\..\Glut;..\..\Demos\OpenGL"
 				Culture="1033"/>
 			<Tool
 				Name="VCWebServiceProxyGeneratorTool"/>
@@ -155,8 +155,8 @@
 		</Configuration>
 		<Configuration
 			Name="Debug|Win32"
-			OutputDirectory="..\..\out\debug71\build\appGPUphysics\"
-			IntermediateDirectory="..\..\out\debug71\build\appGPUphysics\"
+			OutputDirectory="..\..\out\debug8\build\appRagdollDemo\"
+			IntermediateDirectory="..\..\out\debug8\build\appRagdollDemo\"
 			ConfigurationType="1"
 			CharacterSet="2"
 			UseOfMFC="0"
@@ -172,11 +172,11 @@
 				OptimizeForProcessor="1"
 				ExceptionHandling="0"
 				AdditionalOptions=" "
-				AdditionalIncludeDirectories=".;..\..;..\..\src;..\..\Demos\OpenGL;..\..\Glut"
-				PrecompiledHeaderFile="..\..\out\debug71\build\appGPUphysics\appGPUphysics.pch"
-				AssemblerListingLocation="..\..\out\debug71\build\appGPUphysics\"
-				ObjectFile="..\..\out\debug71\build\appGPUphysics\"
-				ProgramDataBaseFileName="..\..\out\debug71\build\appGPUphysics\GPUphysics.pdb"
+				AdditionalIncludeDirectories=".;..\..;..\..\src;..\..\Glut;..\..\Demos\OpenGL"
+				PrecompiledHeaderFile="..\..\out\debug8\build\appRagdollDemo\appRagdollDemo.pch"
+				AssemblerListingLocation="..\..\out\debug8\build\appRagdollDemo\"
+				ObjectFile="..\..\out\debug8\build\appRagdollDemo\"
+				ProgramDataBaseFileName="..\..\out\debug8\build\appRagdollDemo\RagdollDemo.pdb"
 				WarningLevel="3"
 				SuppressStartupBanner="TRUE"
 				Detect64BitPortabilityProblems="TRUE"
@@ -189,15 +189,15 @@
 				LinkIncremental="2"
 				GenerateDebugInformation="TRUE"
 				IgnoreDefaultLibraryNames="LIBC,LIBCD"
-				OutputFile="..\..\DebugGPUphysics.exe"
+				OutputFile="..\..\DebugRagdollDemo.exe"
 				SubSystem="1"
 				AdditionalOptions=" "
-				AdditionalDependencies="glut32.lib glew32.lib"
+				AdditionalDependencies="glut32.lib"
 				IgnoreImportLibrary="TRUE"
 				SuppressStartupBanner="TRUE"
 				GenerateManifest="false"
 				AdditionalLibraryDirectories="..\..\Glut"
-				ProgramDatabaseFile="..\..\out\debug71\build\appGPUphysics\GPUphysics.pdb"
+				ProgramDatabaseFile="..\..\out\debug8\build\appRagdollDemo\RagdollDemo.pdb"
 				TargetMachine="1"/>
 			<Tool
 				Name="VCLibrarianTool"
@@ -208,7 +208,7 @@
 				MkTypLibCompatible="TRUE"
 				SuppressStartupBanner="TRUE"
 				TargetEnvironment="1"
-				TypeLibraryName="..\..\out\debug71\build\appGPUphysics\appGPUphysics.tlb"/>
+				TypeLibraryName="..\..\out\debug8\build\appRagdollDemo\appRagdollDemo.tlb"/>
 			<Tool
 				Name="VCPostBuildEventTool"
 				/>
@@ -218,8 +218,8 @@
 				Name="VCPreLinkEventTool"/>
 			<Tool
 				Name="VCResourceCompilerTool"
-				PreprocessorDefinitions="_DEBUG;_CONSOLE;PROJECTGEN_VERSION=71"
-				AdditionalIncludeDirectories=".;..\..;..\..\src;..\..\Demos\OpenGL;..\..\Glut"
+				PreprocessorDefinitions="_DEBUG;_CONSOLE;PROJECTGEN_VERSION=8"
+				AdditionalIncludeDirectories=".;..\..;..\..\src;..\..\Glut;..\..\Demos\OpenGL"
 				Culture="1033"/>
 			<Tool
 				Name="VCWebServiceProxyGeneratorTool"/>
@@ -228,8 +228,8 @@
 		</Configuration>
 		<Configuration
 			Name="DebugDoublePrecision|Win32"
-			OutputDirectory="..\..\out\debug_dbl71\build\appGPUphysics\"
-			IntermediateDirectory="..\..\out\debug_dbl71\build\appGPUphysics\"
+			OutputDirectory="..\..\out\debug_dbl8\build\appRagdollDemo\"
+			IntermediateDirectory="..\..\out\debug_dbl8\build\appRagdollDemo\"
 			ConfigurationType="1"
 			CharacterSet="2"
 			UseOfMFC="0"
@@ -245,11 +245,11 @@
 				OptimizeForProcessor="1"
 				ExceptionHandling="0"
 				AdditionalOptions=" "
-				AdditionalIncludeDirectories=".;..\..;..\..\src;..\..\Demos\OpenGL;..\..\Glut"
-				PrecompiledHeaderFile="..\..\out\debug_dbl71\build\appGPUphysics\appGPUphysics.pch"
-				AssemblerListingLocation="..\..\out\debug_dbl71\build\appGPUphysics\"
-				ObjectFile="..\..\out\debug_dbl71\build\appGPUphysics\"
-				ProgramDataBaseFileName="..\..\out\debug_dbl71\build\appGPUphysics\GPUphysics.pdb"
+				AdditionalIncludeDirectories=".;..\..;..\..\src;..\..\Glut;..\..\Demos\OpenGL"
+				PrecompiledHeaderFile="..\..\out\debug_dbl8\build\appRagdollDemo\appRagdollDemo.pch"
+				AssemblerListingLocation="..\..\out\debug_dbl8\build\appRagdollDemo\"
+				ObjectFile="..\..\out\debug_dbl8\build\appRagdollDemo\"
+				ProgramDataBaseFileName="..\..\out\debug_dbl8\build\appRagdollDemo\RagdollDemo.pdb"
 				WarningLevel="3"
 				SuppressStartupBanner="TRUE"
 				Detect64BitPortabilityProblems="TRUE"
@@ -259,15 +259,15 @@
 				Name="VCCustomBuildTool"/>
 			<Tool
 				Name="VCLinkerTool"
-                                OutputFile="..\..\DebugDblGPUphysics.exe"
+                                OutputFile="..\..\DebugDblRagdollDemo.exe"
                                 SubSystem="1"
 				AdditionalOptions=" "
-				AdditionalDependencies="glut32.lib glew32.lib"
+				AdditionalDependencies="glut32.lib"
 				IgnoreImportLibrary="TRUE"
 				SuppressStartupBanner="TRUE"
 				GenerateManifest="false"
 				AdditionalLibraryDirectories="..\..\Glut"
-				ProgramDatabaseFile="..\..\out\debug_dbl71\build\appGPUphysics\GPUphysics.pdb"
+				ProgramDatabaseFile="..\..\out\debug_dbl8\build\appRagdollDemo\RagdollDemo.pdb"
 				TargetMachine="1"/>
 			<Tool
 				Name="VCLibrarianTool"
@@ -278,7 +278,7 @@
 				MkTypLibCompatible="TRUE"
 				SuppressStartupBanner="TRUE"
 				TargetEnvironment="1"
-				TypeLibraryName="..\..\out\debug_dbl71\build\appGPUphysics\appGPUphysics.tlb"/>
+				TypeLibraryName="..\..\out\debug_dbl8\build\appRagdollDemo\appRagdollDemo.tlb"/>
 			<Tool
 				Name="VCPostBuildEventTool"
 				/>
@@ -288,8 +288,8 @@
 				Name="VCPreLinkEventTool"/>
 			<Tool
 				Name="VCResourceCompilerTool"
-				PreprocessorDefinitions="_DEBUG;BT_USE_DOUBLE_PRECISION;_CONSOLE;PROJECTGEN_VERSION=71"
-				AdditionalIncludeDirectories=".;..\..;..\..\src;..\..\Demos\OpenGL;..\..\Glut"
+				PreprocessorDefinitions="_DEBUG;BT_USE_DOUBLE_PRECISION;_CONSOLE;PROJECTGEN_VERSION=8"
+				AdditionalIncludeDirectories=".;..\..;..\..\src;..\..\Glut;..\..\Demos\OpenGL"
 				Culture="1033"/>
 			<Tool
 				Name="VCWebServiceProxyGeneratorTool"/>
@@ -302,39 +302,21 @@
 			Name="Source Files"
 			Filter="">
 			<File
-				RelativePath="..\..\Extras\GPUphysics\clock.cpp">
-			</File>
-			<File
-				RelativePath="..\..\Extras\GPUphysics\fboSupport.cpp">
-			</File>
-			<File
-				RelativePath="..\..\Extras\GPUphysics\GPU_physics_demo.cpp">
-			</File>
-			<File
-				RelativePath="..\..\Extras\GPUphysics\shaderSupport.cpp">
+				RelativePath="..\..\Demos\RagdollDemo\RagdollDemo.cpp">
 			</File>
 		</Filter>
 		<Filter
 			Name="Header Files"
 			Filter="">
 			<File
-				RelativePath="..\..\Extras\GPUphysics\clock.h">
-			</File>
-			<File
-				RelativePath="..\..\Extras\GPUphysics\fboSupport.h">
-			</File>
-			<File
-				RelativePath="..\..\Extras\GPUphysics\GPU_physics.h">
-			</File>
-			<File
-				RelativePath="..\..\Extras\GPUphysics\shaderSupport.h">
+				RelativePath="..\..\Demos\RagdollDemo\RagdollDemo.h">
 			</File>
 		</Filter>
 		<Filter
 			Name="Resource Files"
 			Filter="">
 			<File
-				RelativePath="..\..\msvc\appGPUphysics.rc">
+				RelativePath="..\..\msvc\appRagdollDemo.rc">
 			</File>
 		</Filter>
 	</Files>

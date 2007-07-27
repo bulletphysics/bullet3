@@ -295,6 +295,9 @@
 			Name="Source Files"
 			Filter="">
 			<File
+				RelativePath="..\..\src\BulletDynamics\ConstraintSolver\btConeTwistConstraint.cpp">
+			</File>
+			<File
 				RelativePath="..\..\src\BulletDynamics\ConstraintSolver\btContactConstraint.cpp">
 			</File>
 			<File
@@ -334,6 +337,9 @@
 		<Filter
 			Name="Header Files"
 			Filter="">
+			<File
+				RelativePath="..\..\src\BulletDynamics\ConstraintSolver\btConeTwistConstraint.h">
+			</File>
 			<File
 				RelativePath="..\..\src\BulletDynamics\ConstraintSolver\btConstraintSolver.h">
 			</File>
