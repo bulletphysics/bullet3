@@ -74,6 +74,9 @@ public:
 
 	virtual btScalar solveGroupCacheFriendly(btCollisionObject** bodies,int numBodies,btPersistentManifold** manifoldPtr, int numManifolds,btTypedConstraint** constraints,int numConstraints,const btContactSolverInfo& infoGlobal,btIDebugDraw* debugDrawer,btStackAlloc* stackAlloc);
 
+	///clear internal cached data and reset random seed
+	virtual	void	reset();
+
 	btScalar solveCombinedContactFriction(btRigidBody* body0,btRigidBody* body1, btManifoldPoint& cp, const btContactSolverInfo& info,int iter,btIDebugDraw* debugDrawer);
 
 

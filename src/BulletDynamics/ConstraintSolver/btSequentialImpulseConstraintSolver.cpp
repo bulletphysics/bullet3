@@ -1156,3 +1156,10 @@ btScalar btSequentialImpulseConstraintSolver::solveFriction(btRigidBody* body0,b
 	}
 	return btScalar(0.);
 }
+
+
+void	btSequentialImpulseConstraintSolver::reset()
+{
+	m_btSeed2 = 0;
+}
+

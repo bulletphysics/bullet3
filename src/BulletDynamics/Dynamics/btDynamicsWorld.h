@@ -65,6 +65,8 @@ class btDynamicsWorld : public btCollisionWorld
 		virtual void	removeRigidBody(btRigidBody* body) = 0;
 
 		virtual void	setConstraintSolver(btConstraintSolver* solver) = 0;
+
+		virtual btConstraintSolver* getConstraintSolver() = 0;
 		
 		virtual	int		getNumConstraints() const {	return 0;		}
 		

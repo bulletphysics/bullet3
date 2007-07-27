@@ -77,6 +77,8 @@ public:
 
 	virtual void	setConstraintSolver(btConstraintSolver* solver);
 
+	virtual btConstraintSolver* getConstraintSolver();
+
 };
 
 #endif //BT_SIMPLE_DYNAMICS_WORLD_H

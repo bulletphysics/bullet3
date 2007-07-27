@@ -209,3 +209,8 @@ void	btSimpleDynamicsWorld::setConstraintSolver(btConstraintSolver* solver)
 	m_ownsConstraintSolver = false;
 	m_constraintSolver = solver;
 }
+
+btConstraintSolver* btSimpleDynamicsWorld::getConstraintSolver()
+{
+	return m_constraintSolver;
+}

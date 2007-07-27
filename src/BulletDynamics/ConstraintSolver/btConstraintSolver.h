@@ -35,7 +35,11 @@ public:
 
 	virtual ~btConstraintSolver() {}
 	
+	///solve a group of constraints
 	virtual btScalar solveGroup(btCollisionObject** bodies,int numBodies,btPersistentManifold** manifold,int numManifolds,btTypedConstraint** constraints,int numConstraints, const btContactSolverInfo& info,class btIDebugDraw* debugDrawer, btStackAlloc* stackAlloc) = 0;
+
+	///clear internal cached data and reset random seed
+	virtual	void	reset() = 0;
 
 };
 
