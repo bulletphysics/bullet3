@@ -32,9 +32,9 @@ STATIC_TESTS = $(TESTS)
 SHARED_TESTS = $(TESTS:=.shared)
 ALL_TESTS = $(STATIC_TESTS) $(SHARED_TESTS)
 
-INCLUDES_PPU = -I../simdmathlibrary -Iother/rs6000
-
-ARCH_PPU = 64
+INCLUDES_PPU = -I../simdmathlibrary/common -Iother/rs6000
+#ARCH_PPU can also be 64
+ARCH_PPU = 32 
 CROSS_PPU = ppu-
 AR_PPU = $(CROSS_PPU)ar
 CC_PPU = $(CROSS_PPU)gcc
