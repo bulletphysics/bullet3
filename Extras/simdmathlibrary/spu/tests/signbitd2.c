@@ -45,7 +45,7 @@ int main()
    unsigned long long r0 = 0xffffffffffffffffull;
 
    //-Inf
-   double x1 = hide_double(-1.0/0.0);
+   double x1 = hide_double(-HUGE_VAL);
    unsigned long long r1 = 0xffffffffffffffffull;
 
    //-Smax
@@ -97,7 +97,7 @@ int main()
    unsigned long long r13 = 0x0000000000000000ull;
 
    //+Inf
-   double x14 = hide_double( 1.0/0.0);
+   double x14 = hide_double(HUGE_VAL);
    unsigned long long r14 = 0x0000000000000000ull;
    
    //+NaN

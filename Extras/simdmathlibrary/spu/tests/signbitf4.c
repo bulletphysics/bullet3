@@ -41,11 +41,11 @@ int main()
    TEST_SET_START("20060829000000AAN","AAN", "signbitf4");
    
    //-Nan
-   float x0 = hide_float(-nan(""));
+   float x0 = hide_float(-NANF);
    unsigned int r0 = 0xffffffff;
 
    //-Inf
-   float x1 = hide_float(-1.0/0.0);
+   float x1 = hide_float(-HUGE_VAL);
    unsigned int r1 = 0xffffffff;
 
    //-Smax
@@ -97,11 +97,11 @@ int main()
    unsigned int r13 = 0x00000000;
 
    //+Inf
-   float x14 = hide_float( 1.0/0.0);
+   float x14 = hide_float(HUGE_VAL);
    unsigned int r14 = 0x00000000;
    
    //+NaN
-   float x15 = hide_float( nan(""));
+   float x15 = hide_float(NANF);
    unsigned int r15 = 0x00000000;
 
    vec_float4 x0_v = spu_splats(x0);

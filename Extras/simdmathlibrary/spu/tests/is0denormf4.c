@@ -40,11 +40,11 @@ int main()
    TEST_SET_START("20060830000000AAN","AAN", "is0denormf4");
 
    // -Nan
-   float x0 = hide_float(-nan(""));
+   float x0 = hide_float(-NANF);
    unsigned int r0 = 0x00000000;
    
    // -Inf
-   float x1 = hide_float(-1.0/0.0);
+   float x1 = hide_float(-HUGE_VALF);
    unsigned int r1 = 0x00000000;
    
    // -Smax
@@ -96,11 +96,11 @@ int main()
    unsigned int r13 = 0x00000000;
    
    // +Inf
-   float x14 = hide_float( 1.0/0.0);
+   float x14 = hide_float( HUGE_VALF);
    unsigned int r14 = 0x00000000;
    
    //+Nan
-   float x15 = hide_float( nan(""));
+   float x15 = hide_float(NANF);
    unsigned int r15 = 0x00000000;
    
    // Compound

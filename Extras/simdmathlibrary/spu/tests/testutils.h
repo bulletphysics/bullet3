@@ -32,7 +32,9 @@
 
 #ifndef _TESTUTILS_H_
 
-#include "floatingpoint_tests.h"
+#include <spu_intrinsics.h>
+
+#define NANF __builtin_nanf("")
 
 extern unsigned int hide_uint( unsigned int x );
 extern int hide_int( int x );

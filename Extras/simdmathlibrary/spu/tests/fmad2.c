@@ -76,7 +76,7 @@ int main()
    double z2 = hide_double(-0.0);
 
    double x3 = hide_double(1.0);
-   double y3 = hide_double(1.0/0.0);
+   double y3 = hide_double(HUGE_VAL);
    double z3 = hide_double(-1.0);
 
    double x4 = norm_max;

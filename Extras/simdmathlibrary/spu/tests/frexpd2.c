@@ -36,14 +36,6 @@
 #include "common-test.h"
 #include "testutils.h"
 
-#ifndef DBL_INF
-#define DBL_INF ((long long)0x7FF0000000000000ull)
-#endif
-
-#ifndef DBL_NAN
-#define DBL_NAN ((long long)0x7FF8000000000000ull)
-#endif
-
 int main()
 {
    TEST_SET_START("20060907000000AAN","AAN", "frexpd2");
@@ -57,7 +49,7 @@ int main()
    //long long e0 = 0;
    
    // -Inf
-   double x1 = hide_double(-1.0/0.0);
+   double x1 = hide_double(-HUGE_VAL);
    double r1 = x1;
    //long long e1 = 0;
    
@@ -172,7 +164,7 @@ int main()
    long long e23 = 1024;
    
    // +Inf
-   double x24 = hide_double( 1.0/0.0 );
+   double x24 = hide_double(HUGE_VAL);
    double r24 = x24;
    //long long e24 = 0;
    
@@ -199,14 +191,14 @@ int main()
 
    // Compound
    vec_llong2 keep29_v = exp_v;
-   vec_double2 x29_v = (vec_double2) { 1.0/0.0, -nan("") };
-   vec_double2 r29_v = (vec_double2) { 1.0/0.0, nan("") };
+   vec_double2 x29_v = (vec_double2) { HUGE_VAL, -nan("") };
+   vec_double2 r29_v = (vec_double2) { HUGE_VAL, nan("") };
    vec_llong2  e29_v = (vec_llong2)  { spu_extract(exp_v, 0), spu_extract(exp_v, 1) };
 
    // Compound
    vec_llong2 keep30_v = exp_v;
-   vec_double2 x30_v = (vec_double2) { -1.2e-99, -1.0/0.0 } ;
-   vec_double2 r30_v = (vec_double2) { hide_double(make_double(0xBFE4FF632B6A83E4ull)), -1.0/0.0 };
+   vec_double2 x30_v = (vec_double2) { -1.2e-99, -HUGE_VAL } ;
+   vec_double2 r30_v = (vec_double2) { hide_double(make_double(0xBFE4FF632B6A83E4ull)), -HUGE_VAL };
    vec_llong2  e30_v = (vec_llong2)  { -328, spu_extract(exp_v, 1) };
 
    vec_llong2 keep0_v = exp_v;

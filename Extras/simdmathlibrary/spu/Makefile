@@ -30,11 +30,12 @@
 # All that you do to add a file is edit OBJS, the rest will just work
 
 prefix = /usr
+prefix_spu = $(prefix)/spu
 DESTDIR =
 
 OBJS = fabsd2.o fabsf4.o truncf4.o divf4.o tanf4.o isnanf4.o isnand2.o isinff4.o isinfd2.o \
 	is0denormf4.o is0denormd2.o recipd2.o divd2.o tand2.o sqrtf4.o absi4.o sqrtd2.o \
-	sinf4.o isgreaterd2.o sind2.o sincosf4.o rsqrtf4.o signbitf4.o signbitd2.o \
+	sinf4.o isgreaterd2.o sind2.o sincosd2.o sincosf4.o rsqrtf4.o signbitf4.o signbitd2.o \
 	rsqrtd2.o copysignf4.o remainderf4.o recipf4.o copysignd2.o log2f4.o \
 	negatef4.o negated2.o modff4.o asinf4.o frexpf4.o frexpd2.o ldexpf4.o cbrtf4.o \
 	cosd2.o cosf4.o hypotf4.o hypotd2.o ceilf4.o fmaf4.o fmaxf4.o fminf4.o floorf4.o \
@@ -51,7 +52,7 @@ OBJS = fabsd2.o fabsf4.o truncf4.o divf4.o tanf4.o isnanf4.o isnand2.o isinff4.o
 	fmodd2.o remainderd2.o
 
 
-INCLUDES_SPU = -I../
+INCLUDES_SPU = -I. -I../common
 
 CROSS_SPU = spu-
 AR_SPU = $(CROSS_SPU)ar
@@ -66,6 +67,7 @@ INSTALL = install
 
 MAKE_DEFS = \
 	prefix='$(prefix)' \
+	prefix_spu='$(prefix_spu)' \
 	DESTDIR='$(DESTDIR)' \
 	LIB_BASE='$(LIB_BASE)' \
 	LIB_NAME='$(LIB_NAME)' \
@@ -89,43 +91,28 @@ $(STATIC_LIB): $(OBJS)
 	$(RANLIB_SPU) $@
 
 install: $(STATIC_LIB)
-	$(INSTALL) -m 755 -d $(DESTDIR)$(prefix)/spu/include
-	$(INSTALL) -m 644 ../simdmath.h $(DESTDIR)$(prefix)/spu/include/
-	$(INSTALL) -m 755 -d $(DESTDIR)$(prefix)/spu/lib
-	$(INSTALL) $(STATIC_LIB) $(DESTDIR)$(prefix)/spu/lib/$(STATIC_LIB)
+	$(INSTALL) -m 755 -d $(DESTDIR)$(prefix_spu)/include
+	$(INSTALL) -m 755 -d $(DESTDIR)$(prefix_spu)/include/simdmath
+	$(INSTALL) -m 644 simdmath/*.h $(DESTDIR)$(prefix_spu)/include/simdmath/
+	$(INSTALL) -m 755 -d $(DESTDIR)$(prefix_spu)/lib
+	$(INSTALL) $(STATIC_LIB) $(DESTDIR)$(prefix_spu)/lib/$(STATIC_LIB)
 
 clean:
 	cd tests; $(MAKE) $(MAKE_DEFS) clean
 	rm -f $(OBJS)
 	rm -f $(STATIC_LIB)
 
-$(OBJS): ../simdmath.h
+$(OBJS): ../common/simdmath.h
 
 check: $(STATIC_LIB)
 	cd tests; $(MAKE) $(MAKE_DEFS); $(MAKE) $(MAKE_DEFS) check
 
 
 # Some Objects have special header files.
-sinf4.o sind2.o sincosf4.o cosd2.o: sincos_c.h
-lldivu2.o lldivi2.o : lldiv.h
+sinf4.o sind2.o sincosf4.o cosd2.o: ../common/simdmath/_sincos.h
+lldivu2.o lldivi2.o : simdmath/_lldiv.h
 
 
 
-%.o: %.c
+%.o: ../common/%.c simdmath/%.h
 	$(CC_SPU) $(CFLAGS_SPU) -c $<
-
-#----------
-#   C++
-#----------
-%.o: %.C
-	$(CXX_SPU) $(CFLAGS_SPU) -c $<
-
-%.o: %.cpp
-	$(CXX_SPU) $(CFLAGS_SPU) -c $<
-
-%.o: %.cc
-	$(CXX_SPU) $(CFLAGS_SPU) -c $<
-
-%.o: %.cxx
-	$(CXX_SPU) $(CFLAGS_SPU) -c $<
-

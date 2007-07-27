@@ -31,6 +31,7 @@
 #include <stdio.h>
 #include <stdlib.h>
 #include <math.h>
+#include <float.h>
 #include "simdmath.h"
 #include "common-test.h"
 #include "testutils.h"
@@ -43,8 +44,8 @@ int main()
    float y0 = hide_float( 0.0f);
    unsigned int r0 = 0xffffffff;
 
-   float x1 = hide_float( 1.0/0.0);  //+Smax
-   float y1 = hide_float(-1.0/0.0);  //-Smax
+   float x1 = hide_float(FLT_MAX);  //+Smax
+   float y1 = hide_float(-FLT_MAX);  //-Smax
    unsigned int r1 = 0xffffffff;
 
    float x2 = hide_float(-0.0000000013152f);
@@ -56,14 +57,14 @@ int main()
    unsigned int r3 = 0xffffffff;
 
    float x4 = hide_float(-83532.96153153f);
-   float y4 = hide_float(-1e-999);  //-Smin
+   float y4 = hide_float(-FLT_MIN);  //-Smin
    unsigned int r4 = 0x00000000;
 
    float x5 = hide_float(-321.01234567f);
    float y5 = hide_float(876543.12345f);
    unsigned int r5 = 0x00000000;
 
-   float x6 = hide_float( 1e-999);  // Smin
+   float x6 = hide_float(FLT_MIN);  // Smin
    float y6 = hide_float(0.0031529324f);
    unsigned int r6 = 0x00000000;
 
@@ -75,7 +76,7 @@ int main()
    float y8 = hide_float(2353705.31415f);
    unsigned int r8 = 0x00000000;
 
-   float x9 = hide_float( 1.0/0.0);  // Smax
+   float x9 = hide_float(FLT_MAX);  // Smax
    float y9 = hide_float(9.43574552184f);
    unsigned int r9 = 0xffffffff;
 

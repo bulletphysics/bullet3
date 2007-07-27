@@ -59,13 +59,13 @@ int main()
    unsigned long long i8d = 0x61f25e39867b0a9eull;
    unsigned long long i8r = 0x1403088aa08482f2ull;
 
-   double x0n = hide_double(-1.0/0.0);          // -Inf/ Inf == NaN
-   double x0d = hide_double(1.0/0.0);           
+   double x0n = hide_double(-HUGE_VAL);          // -Inf/ Inf == NaN
+   double x0d = hide_double(HUGE_VAL);           
 
    double x1n = hide_double(0.0);               // 0 / 0 == NaN
    double x1d = hide_double(-0.0);              
 
-   double x2n = hide_double(0.0/0.0);           // NaN / 2 == NaN
+   double x2n = hide_double(nan(""));           // NaN / 2 == NaN
    double x2d = hide_double(2.0);               
 
    double x3n = hide_double(make_double(i3n));

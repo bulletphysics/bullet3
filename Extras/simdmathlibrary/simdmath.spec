@@ -1,9 +1,8 @@
-%define major_version 1
-%define minor_version 0
+%define lib_version 1.0.1
 
 Summary: SIMD math library.
 Name: simdmath
-Version: %{major_version}.%{minor_version}
+Version: %{lib_version}
 Release: 1
 License: BSD
 Group: System Environment/Libraries
@@ -32,7 +31,7 @@ Summary: SIMD math library.
 Group: Development/Libraries
 Requires: %{name} = %{version}
 
-%package -n %{name}-spe-devel
+%package -n spu-%{name}-devel
 Summary: SIMD math library.
 Group: Development/Libraries
 
@@ -42,7 +41,7 @@ SIMD math library.
 %description -n %{name}-devel
 SIMD math library.
 
-%description -n %{name}-spe-devel
+%description -n spu-%{name}-devel
 SIMD math library.
 
 %prep
@@ -74,7 +73,7 @@ rm -rf %{buildroot}
 %{_libdir}/*.a
 %{_libdir}/*.so
 
-%files -n %{name}-spe-devel
+%files -n spu-%{name}-devel
 %defattr(-,root,root,-)
 %{_spe_includedir}/*
 %{_spe_libdir}/*

@@ -45,7 +45,7 @@ int main()
    unsigned long long r0 = 0x0000000000000000ull;
    
    // -Inf
-   double x1 = hide_double(-1.0/0.0);
+   double x1 = hide_double(-HUGE_VAL);
    unsigned long long r1 = 0xffffffffffffffffull;
    
    // -Dmax
@@ -97,7 +97,7 @@ int main()
    unsigned long long r13 = 0x0000000000000000ull;
    
    // +Inf
-   double x14 = hide_double( 1.0/0.0);
+   double x14 = hide_double(HUGE_VAL);
    unsigned long long r14 = 0xffffffffffffffffull;
    
    //+Nan
@@ -117,11 +117,11 @@ int main()
    vec_ullong2 r18_v = (vec_ullong2) {0x0000000000000000ull, 0xffffffffffffffffull};
 
    // Compound
-   vec_double2 x19_v = (vec_double2) { 1.0/0.0, -nan("") };
+   vec_double2 x19_v = (vec_double2) { HUGE_VAL, -nan("") };
    vec_ullong2 r19_v = (vec_ullong2) {0xffffffffffffffffull, 0x0000000000000000ull};
 
    // Compound
-   vec_double2 x20_v = (vec_double2) { -1.0e999, -1.0/0.0} ;
+   vec_double2 x20_v = (vec_double2) { -1.0e999, -HUGE_VAL} ;
    vec_ullong2 r20_v = (vec_ullong2) {0xffffffffffffffffull, 0xffffffffffffffffull};
 
    vec_double2 x0_v = spu_splats(x0);

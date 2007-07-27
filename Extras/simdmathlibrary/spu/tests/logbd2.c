@@ -35,18 +35,6 @@
 #include "common-test.h"
 #include "testutils.h"
 
-#ifndef HUGE_VALL
-#define HUGE_VALL __builtin_huge_vall ()
-#endif
-
-#ifndef DBL_INF
-#define DBL_INF ((long long)0x7FF0000000000000ull)
-#endif
-
-#ifndef DBL_NAN
-#define DBL_NAN ((long long)0x7FF8000000000000ull)
-#endif
-
 int main()
 {
    TEST_SET_START("20060905000000AAN","AAN", "logbd2");
@@ -56,8 +44,8 @@ int main()
    double r0 = hide_double( nan(""));
    
    // -Inf
-   double x1 = hide_double(-1.0/0.0);
-   double r1 = hide_double(make_double(DBL_INF));
+   double x1 = hide_double(-HUGE_VAL);
+   double r1 = hide_double(HUGE_VAL);
    
    // -Dmax
    double x2 = hide_double(-DBL_MAX);
@@ -77,19 +65,19 @@ int main()
    
    // -Unf
    double x6 = hide_double(-1.0e-999);
-   double r6 = make_double(-((unsigned long long)HUGE_VALL));
+   double r6 = hide_double(-HUGE_VAL);
    
    // -0
    double x7 = hide_double(-0.0);
-   double r7 = make_double(-((unsigned long long)HUGE_VALL));
+   double r7 = hide_double(-HUGE_VAL);
 
    // 0
    double x8 = hide_double( 0.0);
-   double r8 = make_double(-((unsigned long long)HUGE_VALL));
+   double r8 = hide_double(-HUGE_VAL);
    
    // +Unf
    double x9 = hide_double( 1.0e-999);
-   double r9 = make_double(-((unsigned long long)HUGE_VALL));
+   double r9 = hide_double(-HUGE_VAL);
 
    // +Denorm
    double x10 = hide_double( 2.40e-310);
@@ -148,8 +136,8 @@ int main()
    double r23 = 1023.0;
    
    // +Inf
-   double x24 = hide_double( 1.0/0.0);
-   double r24 = hide_double(make_double(DBL_INF));
+   double x24 = hide_double(HUGE_VAL);
+   double r24 = hide_double(HUGE_VAL);
    
    //+Nan
    double x25 = hide_double( nan(""));
@@ -157,7 +145,7 @@ int main()
 
    // Compound
    vec_double2 x26_v = (vec_double2) { -2.561286432e-317, -1.0e-999 };
-   vec_double2 r26_v = (vec_double2) { -1052.0, make_double(-((unsigned long long)HUGE_VALL)) };
+   vec_double2 r26_v = (vec_double2) { -1052.0, hide_double(-HUGE_VAL) };
 
    // Compound
    vec_double2 x27_v = (vec_double2) { 345.27533, -8.673e-310 };
@@ -168,12 +156,12 @@ int main()
    vec_double2 r28_v = (vec_double2) { nan(""), 21.0 };
 
    // Compound
-   vec_double2 x29_v = (vec_double2) { 1.0/0.0, -nan("") };
-   vec_double2 r29_v = (vec_double2) { make_double(DBL_INF), nan("") };
+   vec_double2 x29_v = (vec_double2) { HUGE_VAL, -nan("") };
+   vec_double2 r29_v = (vec_double2) { HUGE_VAL, nan("") };
 
    // Compound
-   vec_double2 x30_v = (vec_double2) { -1.2e-99, -1.0/0.0 } ;
-   vec_double2 r30_v = (vec_double2) { -329.0, make_double(DBL_INF) };
+   vec_double2 x30_v = (vec_double2) { -1.2e-99, -HUGE_VAL } ;
+   vec_double2 r30_v = (vec_double2) { -329.0, HUGE_VAL };
 
    vec_double2 x0_v = spu_splats(x0);
    vec_double2 r0_v = spu_splats(r0);

@@ -32,7 +32,17 @@
 
 #ifndef _TESTUTILS_H_
 
-#include "floatingpoint_tests.h"
+#include <altivec.h>
+#define vec_uchar16             vector unsigned char
+#define vec_char16              vector   signed char
+#define vec_ushort8             vector unsigned short
+#define vec_short8              vector   signed short
+#define vec_uint4               vector unsigned int
+#define vec_int4                vector   signed int
+#define vec_ullong2             vector unsigned long long
+#define vec_llong2              vector   signed long long
+#define vec_float4              vector          float
+#define vec_double2             vector          double
 
 extern unsigned int hide_uint( unsigned int x );
 extern int hide_int( int x );

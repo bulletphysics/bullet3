@@ -81,13 +81,13 @@ int main()
    double x5max = hide_double(1.0e-323);
 
    double x6min = norm_max;
-   double x6max = hide_double(1.0/0.0);
+   double x6max = hide_double(HUGE_VAL);
 
-   double x7min = hide_double(-1.0/0.0);
+   double x7min = hide_double(-HUGE_VAL);
    double x7max = hide_double(19355.03);
 
-   double x8min = hide_double(-1.0/0.0);
-   double x8max = hide_double(1.0/0.0);
+   double x8min = hide_double(-HUGE_VAL);
+   double x8max = hide_double(HUGE_VAL);
 
    double x9min = denorm_max;
    double x9max = norm_min;

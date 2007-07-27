@@ -54,7 +54,7 @@ int main()
    double r1 = hide_double( nan(""));
 
    //-Inf, -QNaN
-   double x2 = hide_double(-1.0/0.0);
+   double x2 = hide_double(-HUGE_VAL);
    double y2 = hide_double(make_double(0xFFFFFFFFFFFFFFFFull));
    double r2 = hide_double( nan(""));
 
@@ -70,13 +70,13 @@ int main()
 
    //-Norm, -Inf
    double x5 = hide_double(-168.97345223013);
-   double y5 = hide_double(-1.0/0.0);
-   double r5 = hide_double( 1.0/0.0);
+   double y5 = hide_double(-HUGE_VAL);
+   double r5 = hide_double(HUGE_VAL);
 
    //+Inf, -Inf
-   double x6 = hide_double( 1.0/0.0);
-   double y6 = hide_double(-1.0/0.0);
-   double r6 = hide_double( 1.0/0.0);
+   double x6 = hide_double(HUGE_VAL);
+   double y6 = hide_double(-HUGE_VAL);
+   double r6 = hide_double(HUGE_VAL);
 
    //-Norm, -0
    double x7 = hide_double(-168.97345223013);
@@ -159,9 +159,9 @@ int main()
    double r22 = hide_double(468729.8610289);
 
    //+Inf, +Ovf
-   double x23 = hide_double( 1.0/0.0);
-   double y23 = hide_double( 1.0e999);
-   double r23 = hide_double( 1.0/0.0);
+   double x23 = hide_double(HUGE_VAL);
+   double y23 = hide_double(1.0e999);
+   double r23 = hide_double(HUGE_VAL);
 
    //+Norm, +QNaN
    double x24 = hide_double(264.345643345);
@@ -169,7 +169,7 @@ int main()
    double r24 = hide_double( nan(""));
 
    //+Inf, +QNaN
-   double x25 = hide_double( 1.0/0.0);
+   double x25 = hide_double(HUGE_VAL);
    double y25 = hide_double(nan(""));
    double r25 = hide_double(nan(""));
 

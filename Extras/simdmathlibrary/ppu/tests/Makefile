@@ -35,10 +35,10 @@ STATIC_TESTS = $(TESTS)
 SHARED_TESTS = $(TESTS:=.shared)
 ALL_TESTS = $(STATIC_TESTS) $(SHARED_TESTS)
 
-INCLUDES_PPU = -I../../
+INCLUDES_PPU = -I../../common
 
-ARCH_PPU = 64
-CROSS_PPU = ppu-
+ARCH_PPU = 32
+CROSS_PPU =
 AR_PPU = $(CROSS_PPU)ar
 CC_PPU = $(CROSS_PPU)gcc
 CXX_PPU = $(CROSS_PPU)g++
@@ -111,21 +111,8 @@ shared_check:
 ../$(SHARED_LIB):
 	cd ../;$(MAKE) $(MAKE_DEFS) $(SHARED_LIB)
 
-%.o: %.c  common-test.h testutils.h
+%.o: %.c  ../../common/common-test.h testutils.h
 	$(CC_PPU) $(CFLAGS_PPU) -c $<
-
-#----------
-#   C++
-#----------
-%.o: %.C
-	$(CXX_PPU) $(CFLAGS_PPU) -c $<
-
-%.o: %.cpp
-	$(CXX_PPU) $(CFLAGS_PPU) -c $<
 
 %.o: %.cc
 	$(CXX_PPU) $(CFLAGS_PPU) -c $<
-
-%.o: %.cxx
-	$(CXX_PPU) $(CFLAGS_PPU) -c $<
-

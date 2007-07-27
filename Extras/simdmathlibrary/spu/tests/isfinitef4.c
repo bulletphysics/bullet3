@@ -31,6 +31,7 @@
 #include <stdio.h>
 #include <stdlib.h>
 #include <math.h>
+#include <float.h>
 #include "simdmath.h"
 #include "common-test.h"
 #include "testutils.h"
@@ -42,7 +43,7 @@ int main()
    float x0 = hide_float(-0.0f);
    unsigned int r0 = 0xffffffff;
 
-   float x1 = hide_float(-1.0/0.0);  //-Smax
+   float x1 = hide_float(-FLT_MAX);  //-Smax
    unsigned int r1 = 0xffffffff;
 
    float x2 = hide_float(-0.0000000013152f);
@@ -66,7 +67,7 @@ int main()
    float x8 = hide_float(2353705.31415f);
    unsigned int r8 = 0xffffffff;
 
-   float x9 = hide_float( 1.0/0.0);  // Smax
+   float x9 = hide_float(FLT_MAX);  // Smax
    unsigned int r9 = 0xffffffff;
    
    vec_float4 x0_v = spu_splats(x0);

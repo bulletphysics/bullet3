@@ -46,18 +46,18 @@ int main()
    unsigned long long r0 = 0x0000000000000000ull;
 
    //+Inf > -Inf
-   double x1 = hide_double( 1.0/0.0);
-   double y1 = hide_double(-1.0/0.0);
+   double x1 = hide_double( HUGE_VAL);
+   double y1 = hide_double(-HUGE_VAL);
    unsigned long long r1 = 0xffffffffffffffffull;
 
    //-Inf < -Dmax
-   double x2 = hide_double(-1.0/0.0);
+   double x2 = hide_double(-HUGE_VAL);
    double y2 = hide_double(-DBL_MAX);
    unsigned long long r2 = 0xffffffffffffffffull;
 
    //-Norm > -Inf
    double x3 = hide_double(-67418234.34256245);
-   double y3 = hide_double(-1.0/0.0);
+   double y3 = hide_double(-HUGE_VAL);
    unsigned long long r3 = 0xffffffffffffffffull;
 
    //-Norm < -Denorm
@@ -131,7 +131,7 @@ int main()
    unsigned long long r17 = 0xffffffffffffffffull;
    
    //+Inf > +Dmax
-   double x18 = hide_double( 1.0/0.0);
+   double x18 = hide_double(HUGE_VAL);
    double y18 = hide_double(DBL_MAX);
    unsigned long long r18 = 0xffffffffffffffffull;
 

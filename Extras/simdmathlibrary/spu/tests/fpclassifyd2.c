@@ -45,7 +45,7 @@ int main()
    long long r0 = FP_NAN;
    
    // -Inf
-   double x1 = hide_double(-1.0/0.0);
+   double x1 = hide_double(-HUGE_VAL);
    long long r1 = FP_INFINITE;
    
    // -Dmax
@@ -97,7 +97,7 @@ int main()
    long long r13 = FP_NORMAL;
    
    // +Inf
-   double x14 = hide_double( 1.0/0.0);
+   double x14 = hide_double(HUGE_VAL);
    long long r14 = FP_INFINITE;
    
    //+Nan
@@ -117,11 +117,11 @@ int main()
    vec_llong2 r18_v = (vec_llong2) {FP_NAN, FP_NORMAL};
 
    // Compound
-   vec_double2 x19_v = (vec_double2) { 1.0/0.0, -nan("") };
+   vec_double2 x19_v = (vec_double2) {HUGE_VAL, -nan("") };
    vec_llong2 r19_v = (vec_llong2) {FP_INFINITE, FP_NAN};
 
    // Compound
-   vec_double2 x20_v = (vec_double2) { -1.0e-999, -1.0/0.0} ;
+   vec_double2 x20_v = (vec_double2) { -1.0e-999, -HUGE_VAL} ;
    vec_llong2 r20_v = (vec_llong2) {FP_ZERO, FP_INFINITE};
 
    vec_double2 x0_v = spu_splats(x0);

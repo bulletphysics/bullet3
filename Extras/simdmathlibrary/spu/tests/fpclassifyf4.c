@@ -40,11 +40,11 @@ int main()
    TEST_SET_START("20060828000000AAN","AAN", "fpclassifyf4");
 
    // -Nan
-   float x0 = hide_float(-nan(""));
+   float x0 = hide_float(-NANF);
    int r0 = FP_NORMAL;
    
    // -Inf
-   float x1 = hide_float(-1.0/0.0);
+   float x1 = hide_float(-HUGE_VALF);
    int r1 = FP_NORMAL;
    
    // -Smax
@@ -96,11 +96,11 @@ int main()
    int r13 = FP_NORMAL;
    
    // +Inf
-   float x14 = hide_float( 1.0/0.0);
+   float x14 = hide_float(HUGE_VALF);
    int r14 = FP_NORMAL;
    
    //+Nan
-   float x15 = hide_float( nan(""));
+   float x15 = hide_float(NANF);
    int r15 = FP_NORMAL;
    
    // Compound

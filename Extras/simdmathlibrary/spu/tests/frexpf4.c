@@ -47,7 +47,7 @@ int main()
    int e0 = 129;
    
    // -Norm (IEEE-754: -Inf)
-   float x1 = hide_float(-1.0/0.0);
+   float x1 = hide_float(-HUGE_VALF);
    float r1 = hide_float(make_float(0xBF7FFFFF));
    int e1 = 129;
    
@@ -162,7 +162,7 @@ int main()
    int e23 = 129;
    
    //+Norm (IEEE-754: +Inf)
-   float x24 = hide_float( 1.0/0.0);
+   float x24 = hide_float(HUGE_VALF);
    float r24 = hide_float(make_float(0x3F7FFFFF));
    int e24 = 129;
    
@@ -187,12 +187,12 @@ int main()
    vec_int4 e28_v = (vec_int4) { 129, 20, 0, 22 };
 
    // Compound
-   vec_float4 x29_v = (vec_float4) { 1.0/0.0, 1.0e-99, -5.53856231e-27, make_float(0xFFC00000) };
+   vec_float4 x29_v = (vec_float4) { HUGE_VALF, 1.0e-99, -5.53856231e-27, make_float(0xFFC00000) };
    vec_float4 r29_v = (vec_float4) { make_float(0x3F7FFFFF), 0.0, make_float(0xBF5B67B2), make_float(0xBF400000) };
    vec_int4 e29_v = (vec_int4) { 129, 0, -87, 129 };
 
    // Compound
-   vec_float4 x30_v = (vec_float4) { 1.2e-57, -1.2e-19, 3.045784e-18, -1.0/0.0 } ;
+   vec_float4 x30_v = (vec_float4) { 1.2e-57, -1.2e-19, 3.045784e-18, -HUGE_VALF } ;
    vec_float4 r30_v = (vec_float4) { 0.0, make_float(0xBF0DABC6 ), make_float(0x3F60BD3C), make_float(0xBF7FFFFF) };
    vec_int4 e30_v = (vec_int4) { 0, -62, -58, 129 };
 

@@ -105,7 +105,7 @@ vec_uint4 bitDiff_f4(vec_float4 ref, vec_float4 vals) {
   vec_int4 diff  = spu_sub(refi, valsi);
   vec_int4 negdiff = spu_sub(spu_splats((int)0), diff);
 
-  return spu_sub((vec_uint4)spu_splats(32), spu_cntlz(spu_sel(negdiff, diff, (vec_uchar16)spu_cmpgt(diff, 0))));
+  return spu_sub((vec_uint4)spu_splats(32), spu_cntlz(spu_sel(negdiff, diff, spu_cmpgt(diff, 0))));
 }
 
 unsigned int bitDiff_f(float ref, float val) {
@@ -156,7 +156,7 @@ vec_uint4 ulpDiff_f4(vec_float4 ref, vec_float4 vals) {
   vec_int4 diff  = spu_sub(refi, valsi);
   vec_int4 negdiff = spu_sub(spu_splats((int)0), diff);
 
-  return (vec_uint4)(spu_sel(negdiff, diff, (vec_uchar16)spu_cmpgt(diff, 0)));
+  return (vec_uint4)(spu_sel(negdiff, diff, spu_cmpgt(diff, 0)));
 }
 
 unsigned int ulpDiff_f(float ref, float val) {

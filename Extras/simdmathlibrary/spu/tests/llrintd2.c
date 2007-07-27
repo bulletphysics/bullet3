@@ -66,11 +66,11 @@ int main()
 //   unsigned long long i11 = 0x7FFFFFFFFFFFFDFFull; //limit
 //   unsigned long long i12 = 0xFFFFFFFFFFFFFDFFull; //limit
 
-//   double x0  = hide_double(-1.0/0.0);           // -Inf
-//   double x1  = hide_double(1.0/0.0);            // Inf
+//   double x0  = hide_double(-HUGE_VAL);           // -Inf
+//   double x1  = hide_double(HUGE_VAL);            // Inf
    double x2  = hide_double(0.0);                  // +0
    double x3  = hide_double(-0.0);                 // -0
-//   double x4  = hide_double(0.0/0.0);            // NaN -> NaN
+//   double x4  = hide_double(nan(""));            // NaN -> NaN
    double x5  = hide_double( 0.5);
    double x6  = hide_double(-0.5);
    double x7  = hide_double( 0.4999999999999999);  // 0

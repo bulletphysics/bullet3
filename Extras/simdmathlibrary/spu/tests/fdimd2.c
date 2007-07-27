@@ -76,16 +76,16 @@ int main()
 
    double x5min = hide_double(5.0e-324);
    double x5max = hide_double(1.0e-323);
-   double x5dim = hide_double(1.0e-323 - 5.0e-324);
+   double x5dim = hide_double(1.0e-323) - hide_double(5.0e-324);
 
    double x6min = hide_double(DBL_MAX);
-   double x6max = hide_double(1.0/0.0);
+   double x6max = hide_double(HUGE_VAL);
 
-   double x7min = hide_double(-1.0/0.0);
+   double x7min = hide_double(-HUGE_VAL);
    double x7max = hide_double(19355.03);
 
-   double x8min = hide_double(-1.0/0.0);
-   double x8max = hide_double(1.0/0.0);
+   double x8min = hide_double(-HUGE_VAL);
+   double x8max = hide_double(HUGE_VAL);
 
    vec_double2 x0min_v = spu_splats(x0min);
    vec_double2 x0max_v = spu_splats(x0max);

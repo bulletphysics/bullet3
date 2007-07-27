@@ -44,7 +44,7 @@ TESTS = fabsd2 fabsf4 truncf4 divf4 recipd2 divd2 sqrtf4 \
 
 ALL_TESTS = $(TESTS)
 
-INCLUDES_SPU = -I../../
+INCLUDES_SPU = -I../../common
 
 CROSS_SPU = spu-
 AR_SPU = $(CROSS_SPU)ar
@@ -52,7 +52,7 @@ CC_SPU = $(CROSS_SPU)gcc
 CXX_SPU = $(CROSS_SPU)g++
 TEST_CMD_SPU =
 
-CFLAGS_SPU=$(INCLUDES_SPU) -O2 -W -Wall 
+CFLAGS_SPU=$(INCLUDES_SPU) -O2 -W -Wall
 LDFLAGS_SPU=-L../ -l$(LIB_BASE) -lm
 
 MAKE_DEFS = \
@@ -99,21 +99,8 @@ check: $(ALL_TESTS)
 ../$(STATIC_LIB):
 	cd ../;$(MAKE) $(MAKE_DEFS) $(STATIC_LIB)
 
-%.o: %.c 
+%.o: %.c ../../common/common-test.h testutils.h
 	$(CC_SPU) $(CFLAGS_SPU) -c $<
-
-#----------
-#   C++
-#----------
-%.o: %.C
-	$(CXX_SPU) $(CFLAGS_SPU) -c $<
-
-%.o: %.cpp
-	$(CXX_SPU) $(CFLAGS_SPU) -c $<
 
 %.o: %.cc
 	$(CXX_SPU) $(CFLAGS_SPU) -c $<
-
-%.o: %.cxx
-	$(CXX_SPU) $(CFLAGS_SPU) -c $<
-

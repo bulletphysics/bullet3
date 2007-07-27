@@ -31,15 +31,12 @@
 
 #include <stdio.h>
 #include <stdlib.h>
+#include <limits.h>
 #include <math.h>
 #include <float.h>
 #include "simdmath.h"
 #include "common-test.h"
 #include "testutils.h"
-
-#ifndef FP_ILOGB0
-#define FP_ILOGB0 ((int)0x80000001)
-#endif
 
 int main()
 {
@@ -50,7 +47,7 @@ int main()
    int r0 = 128;
    
    // -Norm (IEEE-754: -Inf)
-   float x1 = hide_float(-1.0/0.0);
+   float x1 = hide_float(-HUGE_VALF);
    int r1 = 128;
    
    // -Smax
@@ -142,7 +139,7 @@ int main()
    int r23 = 128;
    
    //+Norm (IEEE-754: +Inf)
-   float x24 = hide_float( 1.0/0.0);
+   float x24 = hide_float( HUGE_VALF);
    int r24 = 128;
    
    //+Norm (IEEE-754: +Nan)
@@ -162,11 +159,11 @@ int main()
    vec_int4 r28_v = (vec_int4) { 128, 19, FP_ILOGB0, 21 };
 
    // Compound
-   vec_float4 x29_v = (vec_float4) { 1.0/0.0, 1.0e-99, -5.53856231e-27, make_float(0xFFC00000) };
+   vec_float4 x29_v = (vec_float4) { HUGE_VALF, 1.0e-99, -5.53856231e-27, make_float(0xFFC00000) };
    vec_int4 r29_v = (vec_int4) { 128, FP_ILOGB0, -88, 128 };
 
    // Compound
-   vec_float4 x30_v = (vec_float4) { 1.2e-57, -1.2e-19, 3.045784e-18, -1.0/0.0 } ;
+   vec_float4 x30_v = (vec_float4) { 1.2e-57, -1.2e-19, 3.045784e-18, -HUGE_VALF } ;
    vec_int4 r30_v = (vec_int4) { FP_ILOGB0, -63, -59, 128 };
 
    vec_float4 x0_v = spu_splats(x0);

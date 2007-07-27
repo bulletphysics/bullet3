@@ -46,8 +46,8 @@ int main()
    double x1p = hide_double(83532.96153153);
    double x2n = hide_double(-0.0000000013152);
    double x2p = hide_double(0.0000000013152);
-   double x3n = hide_double(-1.0/0.0);
-   double x3p = hide_double(1.0/0.0);
+   double x3n = hide_double(-HUGE_VAL);
+   double x3p = hide_double(HUGE_VAL);
    
    vec_double2 x0n_v = spu_splats(x0n);
    vec_double2 x0p_v = spu_splats(x0p);

@@ -116,8 +116,6 @@ int main()
    vec_float4 x5d_v = spu_splats(x5d);
    vec_float4 x5r_v = spu_splats(x5r);
    
-   float res;
-   int quo;
    vec_float4 res_v;
    vec_int4 quo_v;
 
@@ -140,26 +138,6 @@ int main()
    res_v = remquof4(x5n_v, x5d_v, &quo_v);
    TEST_CHECK("20060912170038NM", allequal_ulps_float4( res_v, x5r_v, 1 ), 0);
    TEST_CHECK("20060912170138NM", allequal_int4( quo_v, spu_splats((int)i5q) ), 0);
-   
-   TEST_START("remquof");
-   res = remquof(x0n, x0d, &quo);
-   TEST_CHECK("20060912170041NM", ulpDiff_f( res, x0r ) <= 1, 0);
-   TEST_CHECK("20060912170141NM", (quo == (int)i0q), 0);
-   res = remquof(x1n, x1d, &quo);
-   TEST_CHECK("20060912170042NM", ulpDiff_f( res, x1r ) <= 1, 0);
-   TEST_CHECK("20060912170142NM", (quo == (int)i1q), 0);
-   res = remquof(x2n, x2d, &quo);
-   TEST_CHECK("20060912170043NM", ulpDiff_f( res, x2r ) <= 1, 0);
-   TEST_CHECK("20060912170143NM", (quo == (int)i2q), 0);
-   res = remquof(x3n, x3d, &quo);               
-   TEST_CHECK("20060912170048NM", ulpDiff_f( res, x3r ) <= 1, 0);
-   TEST_CHECK("20060912170144NM", (quo == (int)i3q), 0);
-   res = remquof(x4n, x4d, &quo);
-   TEST_CHECK("20060912170049NM", ulpDiff_f( res, x4r ) <= 1, 0);
-   TEST_CHECK("20060912170149NM", (quo == (int)i4q), 0);
-   res = remquof(x5n, x5d, &quo);
-   TEST_CHECK("20060912170050NM", ulpDiff_f( res, x5r ) <= 1, 0);
-   TEST_CHECK("20060912170150NM", (quo == (int)i5q), 0);
 
    TEST_SET_DONE();
    

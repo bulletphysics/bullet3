@@ -37,10 +37,6 @@
 #include "common-test.h"
 #include "testutils.h"
 
-#ifndef HUGE_VALF
-#define HUGE_VALF __builtin_huge_valf ()
-#endif
-
 int main()
 {
    TEST_SET_START("20060905000000AAN","AAN", "logbf4");
@@ -50,7 +46,7 @@ int main()
    float r0 = 128.0f;
    
    // -Norm (IEEE-754: -Inf)
-   float x1 = hide_float(-1.0/0.0);
+   float x1 = hide_float(-HUGE_VALF);
    float r1 = 128.0f;
    
    // -Smax
@@ -67,27 +63,27 @@ int main()
    
    // -Denorm
    float x5 = hide_float(make_float(0x807AAAAA));
-   float r5 = (float)-HUGE_VALF;
+   float r5 = -HUGE_VALF;
    
    // -Unf
    float x6 = hide_float(-1.0e-999);
-   float r6 = (float)-HUGE_VALF;
+   float r6 = -HUGE_VALF;
    
    // -0
    float x7 = hide_float(-0.0);
-   float r7 = (float)-HUGE_VALF;
+   float r7 = -HUGE_VALF;
 
    // 0
    float x8 = hide_float( 0.0);
-   float r8 = (float)-HUGE_VALF;
+   float r8 = -HUGE_VALF;
    
    // +Unf
    float x9 = hide_float( 1.0e-999);
-   float r9 = (float)-HUGE_VALF;
+   float r9 = -HUGE_VALF;
 
    // +Denorm
    float x10 = hide_float(make_float(0x007AAAAA));
-   float r10 = (float)-HUGE_VALF;
+   float r10 = -HUGE_VALF;
    
    // +Smin
    float x11 = hide_float(make_float(0x00800000));
@@ -142,7 +138,7 @@ int main()
    float r23 = 128.0f;
    
    //+Norm (IEEE-754: +Inf)
-   float x24 = hide_float( 1.0/0.0);
+   float x24 = hide_float(HUGE_VALF);
    float r24 = 128.0f;
    
    //+Norm (IEEE-754: +Nan)
@@ -162,11 +158,11 @@ int main()
    vec_float4 r28_v = (vec_float4) { 128.0f, 19.0f, -HUGE_VALF, 21.0f };
 
    // Compound
-   vec_float4 x29_v = (vec_float4) { 1.0/0.0, 1.0e-99, -5.53856231e-27, make_float(0xFFC00000) };
+   vec_float4 x29_v = (vec_float4) { HUGE_VALF, 1.0e-99, -5.53856231e-27, make_float(0xFFC00000) };
    vec_float4 r29_v = (vec_float4) { 128.0f, -HUGE_VALF, -88.0f, 128.0f };
 
    // Compound
-   vec_float4 x30_v = (vec_float4) { 1.2e-57, -1.2e-19, 3.045784e-18, -1.0/0.0 } ;
+   vec_float4 x30_v = (vec_float4) { 1.2e-57, -1.2e-19, 3.045784e-18, -HUGE_VALF } ;
    vec_float4 r30_v = (vec_float4) { -HUGE_VALF, -63.0f, -59.0f, 128.0f };
 
    vec_float4 x0_v = spu_splats(x0);

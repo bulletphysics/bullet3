@@ -49,7 +49,6 @@
 #include <stdio.h>
 #include <stdlib.h>
 #include <math.h>
-//#include <fenv.h>
 #include <float.h>
 #include "simdmath.h"
 #include "common-test.h"
@@ -73,11 +72,11 @@ int main()
 //   unsigned long i11 = 0x49fffffful; //2097151.875000
 //   unsigned long i12 = 0x4a7ffffful; //4194303.750000
 
-//   float x0  = hide_float(-1.0/0.0);           // -Inf
-//   float x1  = hide_float(1.0/0.0);            // Inf
+//   float x0  = hide_float(-FLT_MAX);           // -Inf
+//   float x1  = hide_float(FLT_MAX);            // Inf
    float x2  = hide_float(0.0);                  // +0
    float x3  = hide_float(-0.0);                 // -0
-//   float x4  = hide_float(0.0/0.0);            // NaN -> NaN
+//   float x4  = hide_float(NANF);            // NaN -> NaN
    float x5  = hide_float( 0.5);
    float x6  = hide_float(-0.5);
    float x7  = hide_float(-0.499999);

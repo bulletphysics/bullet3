@@ -30,18 +30,12 @@
 
 #include <stdio.h>
 #include <stdlib.h>
+#include <limits.h>
 #include <math.h>
 #include <float.h>
 #include "simdmath.h"
 #include "common-test.h"
 #include "testutils.h"
-
-#ifndef FP_ILOGB0
-#define FP_ILOGB0 ((int)0x80000001)
-#endif
-#ifndef FP_ILOGBNAN
-#define FP_ILOGBNAN ((int)0x7FFFFFFF)
-#endif
 
 int main()
 {
@@ -52,7 +46,7 @@ int main()
    long long r0 = (long long)FP_ILOGBNAN;
    
    // -Inf
-   double x1 = hide_double(-1.0/0.0);
+   double x1 = hide_double(-HUGE_VAL);
    long long r1 = (long long)FP_ILOGB0;
    
    // -Dmax
@@ -144,7 +138,7 @@ int main()
    long long r23 = 1023ll;
    
    // +Inf
-   double x24 = hide_double( 1.0/0.0);
+   double x24 = hide_double(HUGE_VAL);
    long long r24 = (long long)FP_ILOGB0;
    
    //+Nan
@@ -164,11 +158,11 @@ int main()
    vec_llong2 r28_v = (vec_llong2) { FP_ILOGBNAN, 21ll };
 
    // Compound
-   vec_double2 x29_v = (vec_double2) { 1.0/0.0, -nan("") };
+   vec_double2 x29_v = (vec_double2) { HUGE_VAL, -nan("") };
    vec_llong2 r29_v = (vec_llong2) { FP_ILOGB0, FP_ILOGBNAN };
 
    // Compound
-   vec_double2 x30_v = (vec_double2) { -1.2e-99, -1.0/0.0 } ;
+   vec_double2 x30_v = (vec_double2) { -1.2e-99, -HUGE_VAL } ;
    vec_llong2 r30_v = (vec_llong2) { -329ll, FP_ILOGB0 };
 
    vec_double2 x0_v = spu_splats(x0);

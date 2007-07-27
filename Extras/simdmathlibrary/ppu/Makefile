@@ -31,6 +31,7 @@
 # All that you do to add a file is edit OBJS, the rest will just work
 
 prefix = /usr
+prefix_ppu = $(prefix)
 DESTDIR =
 
 OBJS = fabsf4.o absi4.o truncf4.o sqrtf4.o tanf4.o \
@@ -43,10 +44,10 @@ OBJS = fabsf4.o absi4.o truncf4.o sqrtf4.o tanf4.o \
 	fmodf4.o negatei4.o exp2f4.o powf4.o atanf4.o \
 	atan2f4.o acosf4.o
 
-INCLUDES_PPU = -I../
+INCLUDES_PPU = -I. -I../common
 
-ARCH_PPU = 64
-CROSS_PPU = ppu-
+ARCH_PPU = 32
+CROSS_PPU =
 AR_PPU = $(CROSS_PPU)ar
 CC_PPU = $(CROSS_PPU)gcc
 CXX_PPU = $(CROSS_PPU)g++
@@ -61,6 +62,7 @@ INSTALL = install
 
 MAKE_DEFS = \
 	prefix='$(prefix)' \
+	prefix_ppu='$(prefix_ppu)' \
 	DESTDIR='$(DESTDIR)' \
 	LIB_BASE='$(LIB_BASE)' \
 	LIB_NAME='$(LIB_NAME)' \
@@ -78,13 +80,15 @@ MAKE_DEFS = \
 
 LIB_MAJOR_VERSION = 1
 LIB_MINOR_VERSION = 0
+LIB_RELEASE = 1
+LIB_FULL_VERSION = $(LIB_MAJOR_VERSION).$(LIB_MINOR_VERSION).$(LIB_RELEASE)
 
 LIB_BASE = simdmath
 LIB_NAME = lib$(LIB_BASE)
 STATIC_LIB = $(LIB_NAME).a
 SHARED_LIB = $(LIB_NAME).so
 SHARED_LIB_SONAME = $(SHARED_LIB).$(LIB_MAJOR_VERSION)
-SHARED_LIB_FULL = $(SHARED_LIB).$(LIB_MAJOR_VERSION).$(LIB_MINOR_VERSION)
+SHARED_LIB_FULL = $(SHARED_LIB).$(LIB_FULL_VERSION)
 
 ALL_LIBS = $(STATIC_LIB) $(SHARED_LIB) $(SHARED_LIB_FULL) $(SHARED_LIB_SONAME)
 
@@ -98,50 +102,36 @@ $(STATIC_LIB): $(OBJS)
 	$(AR_PPU) cr $@ $(OBJS)
 	$(RANLIB_PPU) $@
 
-$(SHARED_LIB): $(OBJS)
+$(SHARED_LIB_FULL): $(OBJS)
 	$(CC_PPU) -shared $(OBJS) -o $@ $(LDFLAGS_PPU) -Wl,-h,$(SHARED_LIB_SONAME)
 
-$(SHARED_LIB_SONAME) $(SHARED_LIB_FULL): $(SHARED_LIB)
-	ln -fs $(SHARED_LIB) $@
+$(SHARED_LIB) $(SHARED_LIB_SONAME): $(SHARED_LIB_FULL)
+	ln -fs $(SHARED_LIB_FULL) $@
 
 install: $(ALL_LIBS)
-	$(INSTALL) -m 755 -d $(DESTDIR)$(prefix)/include
-	$(INSTALL) -m 644 ../simdmath.h $(DESTDIR)$(prefix)/include/
-	$(INSTALL) -m 755 -d $(DESTDIR)$(prefix)/lib
-	$(INSTALL) -m 644 $(STATIC_LIB) $(DESTDIR)$(prefix)/lib/$(STATIC_LIB)
-	$(INSTALL) -m 755 $(SHARED_LIB) $(DESTDIR)$(prefix)/lib/$(SHARED_LIB_FULL)
-	ln -fs $(SHARED_LIB_FULL) $(DESTDIR)$(prefix)/lib/$(SHARED_LIB_SONAME)
-	ln -fs $(SHARED_LIB_SONAME) $(DESTDIR)$(prefix)/lib/$(SHARED_LIB)
+	$(INSTALL) -m 755 -d $(DESTDIR)$(prefix_ppu)/include
+	$(INSTALL) -m 755 -d $(DESTDIR)$(prefix_ppu)/include/simdmath
+	$(INSTALL) -m 644 simdmath/*.h $(DESTDIR)$(prefix_ppu)/include/simdmath/
+	$(INSTALL) -m 755 -d $(DESTDIR)$(prefix_ppu)/lib
+	$(INSTALL) -m 644 $(STATIC_LIB) $(DESTDIR)$(prefix_ppu)/lib/$(STATIC_LIB)
+	$(INSTALL) -m 755 $(SHARED_LIB_FULL) $(DESTDIR)$(prefix_ppu)/lib/$(SHARED_LIB_FULL)
+	ln -fs $(SHARED_LIB_FULL) $(DESTDIR)$(prefix_ppu)/lib/$(SHARED_LIB_SONAME)
+	ln -fs $(SHARED_LIB_SONAME) $(DESTDIR)$(prefix_ppu)/lib/$(SHARED_LIB)
 
 clean:
 	cd tests; $(MAKE) $(MAKE_DEFS) clean
 	rm -f $(OBJS)
 	rm -f $(STATIC_LIB) $(SHARED_LIB) $(SHARED_LIB_SONAME) $(SHARED_LIB_FULL)
 
-$(OBJS): ../simdmath.h common-types.h
+$(OBJS): ../common/simdmath.h simdmath/_vec_utils.h
 
 check: $(ALL_LIBS)
 	cd tests; $(MAKE) $(MAKE_DEFS) all; $(MAKE) $(MAKE_DEFS) check
 
 
 # Some Objects have special header files.
-sinf4.o cosf4.o sincosf4.o tanf4.o: sincos_c.h
+sinf4.o cosf4.o sincosf4.o tanf4.o: ../common/simdmath/_sincos.h
 
 
-%.o: %.c
+%.o: ../common/%.c simdmath/%.h
 	$(CC_PPU) $(CFLAGS_PPU) -c $<
-
-#----------
-#   C++
-#----------
-%.o: %.C
-	$(CXX_PPU) $(CFLAGS_PPU) -c $<
-
-%.o: %.cpp
-	$(CXX_PPU) $(CFLAGS_PPU) -c $<
-
-%.o: %.cc
-	$(CXX_PPU) $(CFLAGS_PPU) -c $<
-
-%.o: %.cxx
-	$(CXX_PPU) $(CFLAGS_PPU) -c $<
