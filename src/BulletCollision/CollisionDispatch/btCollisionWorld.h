@@ -166,7 +166,7 @@ public:
 			:m_closestHitFraction(btScalar(1.))
 		{
 		}
-		virtual	btScalar	AddSingleResult(LocalRayResult& rayResult) = 0;
+		virtual	btScalar	AddSingleResult(LocalRayResult& rayResult,bool normalInWorldSpace) = 0;
 	};
 
 	struct	ClosestRayResultCallback : public RayResultCallback
@@ -185,7 +185,7 @@ public:
 		btVector3	m_hitPointWorld;
 		btCollisionObject*	m_collisionObject;
 		
-		virtual	btScalar	AddSingleResult(LocalRayResult& rayResult)
+		virtual	btScalar	AddSingleResult(LocalRayResult& rayResult,bool normalInWorldSpace)
 		{
 
 //caller already does the filter on the m_closestHitFraction
@@ -193,7 +193,14 @@ public:
 			
 			m_closestHitFraction = rayResult.m_hitFraction;
 			m_collisionObject = rayResult.m_collisionObject;
-			m_hitNormalWorld = m_collisionObject->getWorldTransform().getBasis()*rayResult.m_hitNormalLocal;
+			if (normalInWorldSpace)
+			{
+				m_hitNormalWorld = rayResult.m_hitNormalLocal;
+			} else
+			{
+				///need to transform normal into worldspace
+				m_hitNormalWorld = m_collisionObject->getWorldTransform().getBasis()*rayResult.m_hitNormalLocal;
+			}
 			m_hitPointWorld.setInterpolate3(m_rayFromWorld,m_rayToWorld,rayResult.m_hitFraction);
 			return rayResult.m_hitFraction;
 		}

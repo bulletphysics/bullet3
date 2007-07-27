@@ -233,7 +233,8 @@ void	btCollisionWorld::objectQuerySingle(const btConvexShape* castShape,const bt
 									castResult.m_fraction
 								);
 
-							resultCallback.AddSingleResult(localRayResult);
+							bool normalInWorldSpace = true;
+							resultCallback.AddSingleResult(localRayResult, normalInWorldSpace);
 
 						}
 					}
@@ -282,7 +283,8 @@ void	btCollisionWorld::objectQuerySingle(const btConvexShape* castShape,const bt
 									hitNormalLocal,
 									hitFraction);
 								
-								return m_resultCallback->AddSingleResult(rayResult);
+								bool	normalInWorldSpace = false;
+								return m_resultCallback->AddSingleResult(rayResult,normalInWorldSpace);
 								
 								
 							}
