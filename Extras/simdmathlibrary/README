@@ -1,0 +1,10 @@
+SIMD math library functions for both the PowerPC (PPU) and the SPU.
+Copyright (C) 2006, 2007 Sony Computer Entertainment Inc.
+Open Source under the new BSD license, see LICENSE
+
+Module maintainer: Erwin Coumans
+Feedback and patches:
+http://www.bulletphysics.com/Bullet/phpBB2/viewforum.php?f=18
+Main repository URL:
+http://bullet.svn.sourceforge.net/viewvc/bullet/trunk/Extras/simdmathlibrary
+
