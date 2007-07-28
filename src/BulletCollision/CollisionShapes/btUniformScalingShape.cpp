@@ -43,6 +43,15 @@ void	btUniformScalingShape::batchedUnitVectorGetSupportingVertexWithoutMargin(co
 	}
 }
 
+
+btVector3	btUniformScalingShape::localGetSupportingVertex(const btVector3& vec)const
+{
+	btVector3 tmpVertex;
+	tmpVertex = m_childConvexShape->localGetSupportingVertex(vec);
+	return tmpVertex*m_uniformScalingFactor;
+}
+
+
 void	btUniformScalingShape::calculateLocalInertia(btScalar mass,btVector3& inertia)
 {
 
@@ -50,4 +59,56 @@ void	btUniformScalingShape::calculateLocalInertia(btScalar mass,btVector3& inert
 	btVector3 tmpInertia;
 	m_childConvexShape->calculateLocalInertia(mass,tmpInertia);
 	inertia = tmpInertia * m_uniformScalingFactor;
+}
+
+
+	///getAabb's default implementation is brute force, expected derived classes to implement a fast dedicated version
+void btUniformScalingShape::getAabb(const btTransform& t,btVector3& aabbMin,btVector3& aabbMax) const
+{
+	m_childConvexShape->getAabb(t,aabbMin,aabbMax);
+	btVector3 aabbCenter = (aabbMax+aabbMin)*btScalar(0.5);
+	btVector3 scaledAabbHalfExtends = (aabbMax-aabbMin)*btScalar(0.5)*m_uniformScalingFactor;
+
+	aabbMin = aabbCenter - scaledAabbHalfExtends;
+	aabbMax = aabbCenter + scaledAabbHalfExtends;
+
+}
+
+void btUniformScalingShape::getAabbSlow(const btTransform& t,btVector3& aabbMin,btVector3& aabbMax) const
+{
+	m_childConvexShape->getAabbSlow(t,aabbMin,aabbMax);
+	btVector3 aabbCenter = (aabbMax+aabbMin)*btScalar(0.5);
+	btVector3 scaledAabbHalfExtends = (aabbMax-aabbMin)*btScalar(0.5)*m_uniformScalingFactor;
+
+	aabbMin = aabbCenter - scaledAabbHalfExtends;
+	aabbMax = aabbCenter + scaledAabbHalfExtends;
+}
+
+void	btUniformScalingShape::setLocalScaling(const btVector3& scaling) 
+{
+	m_childConvexShape->setLocalScaling(scaling);
+}
+
+const btVector3& btUniformScalingShape::getLocalScaling() const
+{
+	return m_childConvexShape->getLocalScaling();
+}
+
+void	btUniformScalingShape::setMargin(btScalar margin)
+{
+	m_childConvexShape->setMargin(margin);
+}
+btScalar	btUniformScalingShape::getMargin() const
+{
+	return m_childConvexShape->getMargin() * m_uniformScalingFactor;
+}
+
+int		btUniformScalingShape::getNumPreferredPenetrationDirections() const
+{
+	return m_childConvexShape->getNumPreferredPenetrationDirections();
+}
+	
+void	btUniformScalingShape::getPreferredPenetrationDirection(int index, btVector3& penetrationVector) const
+{
+	return m_childConvexShape->getPreferredPenetrationDirection(index,penetrationVector);
 }

@@ -16,13 +16,13 @@ subject to the following restrictions:
 #ifndef BT_CAPSULE_SHAPE_H
 #define BT_CAPSULE_SHAPE_H
 
-#include "btConvexShape.h"
+#include "btConvexInternalShape.h"
 #include "BulletCollision/BroadphaseCollision/btBroadphaseProxy.h" // for the types
 
 
 ///btCapsuleShape represents a capsule around the Y axis
 ///A more general solution that can represent capsules is the btMultiSphereShape
-class btCapsuleShape : public btConvexShape
+class btCapsuleShape : public btConvexInternalShape
 {
 
 public:

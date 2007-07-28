@@ -16,13 +16,13 @@ subject to the following restrictions:
 #ifndef MULTI_SPHERE_MINKOWSKI_H
 #define MULTI_SPHERE_MINKOWSKI_H
 
-#include "btConvexShape.h"
+#include "btConvexInternalShape.h"
 #include "BulletCollision/BroadphaseCollision/btBroadphaseProxy.h" // for the types
 
 #define MAX_NUM_SPHERES 5
 
 ///btMultiSphereShape represents implicit convex hull of a collection of spheres (using getSupportingVertex)
-class btMultiSphereShape : public btConvexShape
+class btMultiSphereShape : public btConvexInternalShape
 
 {
 	

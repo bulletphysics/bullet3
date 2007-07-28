@@ -306,7 +306,7 @@ void	ProcessConvexConcaveSpuCollision(SpuCollisionPairInput* wuInput, CollisionT
 	//recalc aabbs
 	btTransform convexInTriangleSpace;
 	convexInTriangleSpace = wuInput->m_worldTransform1.inverse() * wuInput->m_worldTransform0;
-	btConvexShape* convexShape = (btConvexShape*)wuInput->m_spuCollisionShapes[0];
+	btConvexInternalShape* convexShape = (btConvexInternalShape*)wuInput->m_spuCollisionShapes[0];
 	//calculate the aabb, given the types...
 	switch (wuInput->m_shapeType0)
 	{
@@ -878,8 +878,8 @@ void	processCollisionTask(void* userPtr, void* lsMemPtr)
 										cellDmaWaitTagStatusAll(DMA_MASK(2));
 									}
 
-									btConvexShape* spuConvexShape0 = (btConvexShape*)lsMem.gCollisionShape0;
-									btConvexShape* spuConvexShape1 = (btConvexShape*)lsMem.gCollisionShape1;
+									btConvexInternalShape* spuConvexShape0 = (btConvexInternalShape*)lsMem.gCollisionShape0;
+									btConvexInternalShape* spuConvexShape1 = (btConvexInternalShape*)lsMem.gCollisionShape1;
 
 									btVector3 dim0 = spuConvexShape0->getImplicitShapeDimensions();
 									btVector3 dim1 = spuConvexShape1->getImplicitShapeDimensions();
@@ -943,7 +943,7 @@ void	processCollisionTask(void* userPtr, void* lsMemPtr)
 											cellDmaGet(lsMem.gCollisionShape1, dmaPpuAddress2  , dmaSize, DMA_TAG(2), 0, 0);
 											cellDmaWaitTagStatusAll(DMA_MASK(2));
 										}
-										btConvexShape* spuConvexShape0 = (btConvexShape*)lsMem.gCollisionShape0;
+										btConvexInternalShape* spuConvexShape0 = (btConvexInternalShape*)lsMem.gCollisionShape0;
 										btBvhTriangleMeshShape* trimeshShape = (btBvhTriangleMeshShape*)lsMem.gCollisionShape1;
 
 										btVector3 dim0 = spuConvexShape0->getImplicitShapeDimensions();

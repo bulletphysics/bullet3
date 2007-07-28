@@ -17,7 +17,7 @@ subject to the following restrictions:
 
 
 #include "BulletCollision/BroadphaseCollision/btBroadphaseProxy.h"
-#include "BulletCollision/CollisionShapes/btConvexShape.h"
+#include "BulletCollision/CollisionShapes/btConvexInternalShape.h"
 #include "BulletCollision/CollisionShapes/btCylinderShape.h"
 
 #define MAX_NUM_SPU_CONVEX_POINTS 128
@@ -47,7 +47,7 @@ inline btPoint3 localGetSupportingVertexWithoutMargin(int shapeType, void* shape
 	case BOX_SHAPE_PROXYTYPE:
 		{
 //			spu_printf("SPU: getSupport BOX_SHAPE_PROXYTYPE\n");
-			btConvexShape* convexShape = (btConvexShape*)shape;
+			btConvexInternalShape* convexShape = (btConvexInternalShape*)shape;
 			btVector3 halfExtents = convexShape->getImplicitShapeDimensions();
 			float margin = convexShape->getMarginNV();
 			halfExtents -= btVector3(margin,margin,margin);
@@ -137,7 +137,7 @@ inline btPoint3 localGetSupportingVertexWithoutMargin(int shapeType, void* shape
 		//spu_printf("SPU: todo: getSupport CAPSULE_SHAPE_PROXYTYPE\n");
 		btVector3 vec0(localDir.getX(),localDir.getY(),localDir.getZ());
 
-		btConvexShape* cnvxShape = (btConvexShape*)shape;
+		btConvexInternalShape* cnvxShape = (btConvexInternalShape*)shape;
 		btVector3 halfExtents = cnvxShape->getImplicitShapeDimensions();
 		btScalar halfHeight = halfExtents.getY();
 		btScalar radius = halfExtents.getX();
