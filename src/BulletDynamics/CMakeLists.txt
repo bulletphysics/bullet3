@@ -5,6 +5,7 @@ ${BULLET_PHYSICS_SOURCE_DIR}/src }
 ADD_LIBRARY(LibBulletDynamics
 
 	ConstraintSolver/btContactConstraint.cpp
+	ConstraintSolver/btConeTwistConstraint.cpp
 	ConstraintSolver/btGeneric6DofConstraint.cpp
 	ConstraintSolver/btHingeConstraint.cpp
 	ConstraintSolver/btPoint2PointConstraint.cpp

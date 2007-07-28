@@ -24,6 +24,7 @@ ADD_LIBRARY(LibBulletCollision
 				CollisionDispatch/btUnionFind.cpp
 				CollisionShapes/btBoxShape.cpp
 				CollisionShapes/btBvhTriangleMeshShape.cpp
+				CollisionShapes/btCapsuleShape.cpp
 				CollisionShapes/btCollisionShape.cpp
 				CollisionShapes/btCompoundShape.cpp
 				CollisionShapes/btConcaveShape.cpp
