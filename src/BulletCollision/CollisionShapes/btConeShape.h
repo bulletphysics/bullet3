@@ -16,11 +16,11 @@ subject to the following restrictions:
 #ifndef CONE_MINKOWSKI_H
 #define CONE_MINKOWSKI_H
 
-#include "btConvexShape.h"
+#include "btConvexInternalShape.h"
 #include "BulletCollision/BroadphaseCollision/btBroadphaseProxy.h" // for the types
 
 ///btConeShape implements a Cone shape, around the Y axis
-class btConeShape : public btConvexShape
+class btConeShape : public btConvexInternalShape
 
 {
 

@@ -1,4 +1,4 @@
-# Install script for directory: /Users/erwincoumans/develop/sf/bullet-2.54/Extras/GIMPACT
+# Install script for directory: /Users/erwincoumans/develop/sf/bullet-2.55/Extras/GIMPACT
 
 # Set the install prefix
 IF(NOT DEFINED CMAKE_INSTALL_PREFIX)

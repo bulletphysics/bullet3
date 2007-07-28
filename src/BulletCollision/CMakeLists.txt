@@ -30,6 +30,7 @@ ADD_LIBRARY(LibBulletCollision
 				CollisionShapes/btConeShape.cpp
 				CollisionShapes/btConvexHullShape.cpp
 				CollisionShapes/btConvexShape.cpp
+				CollisionShapes/btConvexInternalShape.cpp
 				CollisionShapes/btConvexTriangleMeshShape.cpp
 				CollisionShapes/btCylinderShape.cpp
 				CollisionShapes/btEmptyShape.cpp
@@ -47,6 +48,7 @@ ADD_LIBRARY(LibBulletCollision
 				CollisionShapes/btTriangleIndexVertexArray.cpp
 				CollisionShapes/btTriangleMesh.cpp
 				CollisionShapes/btTriangleMeshShape.cpp
+				CollisionShapes/btUniformScalingShape.cpp
 				NarrowPhaseCollision/btContinuousConvexCollision.cpp
 				NarrowPhaseCollision/btGjkEpa.cpp
 				NarrowPhaseCollision/btGjkEpaPenetrationDepthSolver.cpp

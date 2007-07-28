@@ -450,7 +450,7 @@ void	DemoApplication::shootBox(const btVector3& destination)
 		startTransform.setIdentity();
 		btVector3 camPos = getCameraPosition();
 		startTransform.setOrigin(camPos);
-//#define TEST_UNIFORM_SCALING_SHAPE 1
+#define TEST_UNIFORM_SCALING_SHAPE 1
 #ifdef TEST_UNIFORM_SCALING_SHAPE
 		btConvexShape* childShape = new btBoxShape(btVector3(1.f,1.f,1.f));
 		btUniformScalingShape* boxShape = new btUniformScalingShape(childShape,0.5f);
