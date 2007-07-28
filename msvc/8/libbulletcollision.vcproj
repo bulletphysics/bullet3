@@ -379,6 +379,9 @@
 				RelativePath="..\..\src\BulletCollision\CollisionShapes\btConvexHullShape.cpp">
 			</File>
 			<File
+				RelativePath="..\..\src\BulletCollision\CollisionShapes\btConvexInternalShape.cpp">
+			</File>
+			<File
 				RelativePath="..\..\src\BulletCollision\CollisionShapes\btConvexShape.cpp">
 			</File>
 			<File
@@ -431,6 +434,9 @@
 			</File>
 			<File
 				RelativePath="..\..\src\BulletCollision\CollisionShapes\btTriangleMeshShape.cpp">
+			</File>
+			<File
+				RelativePath="..\..\src\BulletCollision\CollisionShapes\btUniformScalingShape.cpp">
 			</File>
 			<File
 				RelativePath="..\..\src\BulletCollision\NarrowPhaseCollision\btContinuousConvexCollision.cpp">
@@ -563,6 +569,9 @@
 				RelativePath="..\..\src\BulletCollision\CollisionShapes\btConvexHullShape.h">
 			</File>
 			<File
+				RelativePath="..\..\src\BulletCollision\CollisionShapes\btConvexInternalShape.h">
+			</File>
+			<File
 				RelativePath="..\..\src\BulletCollision\CollisionShapes\btConvexShape.h">
 			</File>
 			<File
@@ -618,6 +627,9 @@
 			</File>
 			<File
 				RelativePath="..\..\src\BulletCollision\CollisionShapes\btTriangleShape.h">
+			</File>
+			<File
+				RelativePath="..\..\src\BulletCollision\CollisionShapes\btUniformScalingShape.h">
 			</File>
 			<File
 				RelativePath="..\..\src\BulletCollision\NarrowPhaseCollision\btContinuousConvexCollision.h">

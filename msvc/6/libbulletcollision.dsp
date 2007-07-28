@@ -284,6 +284,10 @@ SOURCE=..\..\src\BulletCollision\CollisionShapes\btConvexHullShape.cpp
 # End Source File
 # Begin Source File
 
+SOURCE=..\..\src\BulletCollision\CollisionShapes\btConvexInternalShape.cpp
+# End Source File
+# Begin Source File
+
 SOURCE=..\..\src\BulletCollision\CollisionShapes\btConvexShape.cpp
 # End Source File
 # Begin Source File
@@ -353,6 +357,10 @@ SOURCE=..\..\src\BulletCollision\CollisionShapes\btTriangleMesh.cpp
 # Begin Source File
 
 SOURCE=..\..\src\BulletCollision\CollisionShapes\btTriangleMeshShape.cpp
+# End Source File
+# Begin Source File
+
+SOURCE=..\..\src\BulletCollision\CollisionShapes\btUniformScalingShape.cpp
 # End Source File
 # Begin Source File
 
@@ -528,6 +536,10 @@ SOURCE=..\..\src\BulletCollision\CollisionShapes\btConvexHullShape.h
 # End Source File
 # Begin Source File
 
+SOURCE=..\..\src\BulletCollision\CollisionShapes\btConvexInternalShape.h
+# End Source File
+# Begin Source File
+
 SOURCE=..\..\src\BulletCollision\CollisionShapes\btConvexShape.h
 # End Source File
 # Begin Source File
@@ -601,6 +613,10 @@ SOURCE=..\..\src\BulletCollision\CollisionShapes\btTriangleMeshShape.h
 # Begin Source File
 
 SOURCE=..\..\src\BulletCollision\CollisionShapes\btTriangleShape.h
+# End Source File
+# Begin Source File
+
+SOURCE=..\..\src\BulletCollision\CollisionShapes\btUniformScalingShape.h
 # End Source File
 # Begin Source File
 
