@@ -21,7 +21,13 @@ Written by: Marten Svanfeldt
 #include "GlutStuff.h"
 #include "GL_ShapeDrawer.h"
 
+#include "LinearMath/btIDebugDraw.h"
+
+#include "GLDebugDrawer.h"
 #include "RagdollDemo.h"
+
+GLDebugDrawer debugDrawer;
+
 #define M_PI       3.14159265358979323846
 #define M_PI_2     1.57079632679489661923
 #define M_PI_4     0.785398163397448309616
@@ -310,6 +316,8 @@ void RagdollDemo::initPhysics()
 	btConstraintSolver* solver = new btSequentialImpulseConstraintSolver;
 
 	m_dynamicsWorld = new btDiscreteDynamicsWorld(dispatcher,overlappingPairCache,solver);
+
+	m_dynamicsWorld->setDebugDrawer(&debugDrawer);
 
 	// Setup a big ground box
 	{

@@ -38,6 +38,8 @@ subject to the following restrictions:
 #include "BulletCollision/CollisionShapes/btCompoundShape.h"
 #include "BulletCollision/CollisionShapes/btCapsuleShape.h"
 #include "BulletCollision/CollisionShapes/btConvexTriangleMeshShape.h"
+#include "BulletCollision/CollisionShapes/btUniformScalingShape.h"
+
 
 
 #include "LinearMath/btIDebugDraw.h"
@@ -312,6 +314,23 @@ void GL_ShapeDrawer::drawOpenGL(btScalar* m, const btCollisionShape* shape, cons
 	
 	glPushMatrix(); 
   btglMultMatrix(m);
+
+	if (shape->getShapeType() == UNIFORM_SCALING_SHAPE_PROXYTYPE)
+	{
+		const btUniformScalingShape* scalingShape = static_cast<const btUniformScalingShape*>(shape);
+		const btConvexShape* convexShape = scalingShape->getChildShape();
+		float	scalingFactor = (float)scalingShape->getUniformScalingFactor();
+		{
+			btScalar tmpScaling[4][4]={scalingFactor,0,0,0,
+				0,scalingFactor,0,0,
+				0,0,scalingFactor,0,
+				0,0,0,1};
+			
+			drawOpenGL( (btScalar*)tmpScaling,convexShape,color,debugMode);
+		}
+		glPopMatrix();
+		return;
+	}
 
 	if (shape->getShapeType() == COMPOUND_SHAPE_PROXYTYPE)
 	{

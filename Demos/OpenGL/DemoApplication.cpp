@@ -23,6 +23,7 @@ subject to the following restrictions:
 #include "BulletCollision/CollisionShapes/btBoxShape.h"
 #include "BulletCollision/CollisionShapes/btSphereShape.h"
 #include "BulletCollision/CollisionShapes/btCompoundShape.h"
+#include "BulletCollision/CollisionShapes/btUniformScalingShape.h"
 
 #include "GL_ShapeDrawer.h"
 #include "LinearMath/btQuickprof.h"
@@ -449,8 +450,13 @@ void	DemoApplication::shootBox(const btVector3& destination)
 		startTransform.setIdentity();
 		btVector3 camPos = getCameraPosition();
 		startTransform.setOrigin(camPos);
-		//btCollisionShape* boxShape = new btSphereShape(1);
-		btCollisionShape* boxShape = new btBoxShape(btVector3(1.f,1.f,1.f));
+//#define TEST_UNIFORM_SCALING_SHAPE 1
+#ifdef TEST_UNIFORM_SCALING_SHAPE
+		btConvexShape* childShape = new btBoxShape(btVector3(1.f,1.f,1.f));
+		btUniformScalingShape* boxShape = new btUniformScalingShape(childShape,0.5f);
+#else
+		btCollisionShape* boxShape = new btSphereShape(1);
+#endif//
 		btRigidBody* body = this->localCreateRigidBody(mass, startTransform,boxShape);
 
 		btVector3 linVel(destination[0]-camPos[0],destination[1]-camPos[1],destination[2]-camPos[2]);
