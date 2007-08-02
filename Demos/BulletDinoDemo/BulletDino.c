@@ -1,5 +1,8 @@
 
-/// this demo will be modified to use the upcoming Bullet C-API, stay tuned.
+/* This demo has been modified to use the Bullet C-API.
+ The C-API is minimal, and will develop based on developer feedback.
+ The C++ API is recommended, and compatible with the C-API.
+*/
 
 /* Copyright (c) Mark J. Kilgard, 1994, 1997.  */
 
@@ -67,6 +70,16 @@
 #define M_PI 3.14159265
 #endif
 
+
+//#include "../../include/Bullet-C-Api.h"
+#include "../include/Bullet-C-Api.h"
+
+
+
+plPhysicsSdkHandle	physicsSdk=0;
+plDynamicsWorldHandle	dynamicsWorld=0;
+plRigidBodyHandle floorRigidBody;
+plRigidBodyHandle dinoRigidBody;
 
 /* Variable controlling various rendering modes. */
 static int stencilReflection = 1, stencilShadow = 1, offsetShadow = 1;
@@ -136,6 +149,7 @@ makeFloorTexture(void)
   GLubyte floorTexture[16][16][3];
   GLubyte *loc;
   int s, t;
+  loc=0;
 
   /* Setup RGB image for the texture. */
   loc = (GLubyte*) floorTexture;
@@ -325,10 +339,22 @@ static void
 drawDinosaur(void)
 
 {
-  glPushMatrix();
+	plReal matrix[16];
+	plVector3 dinoWorldPos;
+
+	glPushMatrix();
   /* Translate the dinosaur to be at (0,8,0). */
-  glTranslatef(-8, 0, -bodyWidth / 2);
-  glTranslatef(0.0, jump, 0.0);
+
+	plGetOpenGLMatrix(dinoRigidBody,matrix);
+//	plGetPosition(dinoRigidBody,dinoWorldPos);
+ // glTranslatef(-8, 0, -bodyWidth / 2);
+  //glTranslatef(0.0, jump, 0.0);
+//	glTranslatef(dinoWorldPos[0],dinoWorldPos[1],dinoWorldPos[2]);
+
+	glMultMatrixf(matrix);
+//	glutSolidCube(15);
+	glTranslatef(-8.5, -8.5, 0);
+
   glMaterialfv(GL_FRONT, GL_DIFFUSE, skinColor);
   glCallList(BODY_WHOLE);
   glTranslatef(0.0, 0.0, bodyWidth);
@@ -341,6 +367,8 @@ drawDinosaur(void)
   glTranslatef(0.0, 0.0, bodyWidth / 2 - 0.1);
   glMaterialfv(GL_FRONT, GL_DIFFUSE, eyeColor);
   glCallList(EYE_WHOLE);
+  
+	
   glPopMatrix();
 }
 
@@ -660,7 +688,7 @@ motion(int x, int y)
     starty = y;
     glutPostRedisplay();
   }
-  if (lightMoving) {
+  if (0){//lightMoving) {
     lightAngle += (x - lightStartX)/40.0;
     lightHeight += (lightStartY - y)/20.0;
     lightStartX = x;
@@ -674,13 +702,21 @@ static void
 idle(void)
 {
   static float time = 0.0;
+  static float prevtime = 0.0;
+  float dtime;
+  prevtime = time;
 
   time = glutGet(GLUT_ELAPSED_TIME) / 500.0;
+  dtime = time - prevtime;
 
   jump = 4.0 * fabs(sin(time)*0.5);
   if (!lightMoving) {
-    lightAngle += 0.03;
+    lightAngle = time;
   }
+
+  if (dynamicsWorld)
+		plStepSimulation(dynamicsWorld,dtime);
+  
   glutPostRedisplay();
 }
 
@@ -792,12 +828,65 @@ supportsOneDotOne(void)
   return 0;            /* OpenGL version string malformed! */
 }
 
+
 int
 main(int argc, char **argv)
 {
   int i;
+	plCollisionShapeHandle floorShape;
+	plCollisionShapeHandle dinoShape,dinoChildShape;
+	plVector3 floorPos,childPos;
+	plVector3 dinoPos;
+	plQuaternion childOrn,dinoOrient;
+	
+	void* user_data;
+	
+	physicsSdk = plNewBulletSdk();
+	dynamicsWorld = plCreateDynamicsWorld(physicsSdk);
 
-printf("BulletDino\n");
+	//create ground plane
+
+	floorShape = plNewConvexHullShape();
+	
+	for (i=0;i<4;i++)
+	{
+//		floorVertices
+		plAddVertex(floorShape,floorVertices[i][0],floorVertices[i][1],floorVertices[i][2]);
+	}
+	
+
+	floorShape = plNewBoxShape(120,0,120);
+
+	floorRigidBody = plCreateRigidBody(user_data,0.f,floorShape);
+	floorPos[0] = 0;
+	floorPos[1] = 0;
+	floorPos[2] = 0;
+
+	plSetPosition(floorRigidBody,floorPos);
+	plAddRigidBody(dynamicsWorld,floorRigidBody);
+
+	//create dino rigidbody
+	dinoChildShape = plNewBoxShape(8.5,8.5,8.5);
+	dinoShape = plNewCompoundShape();
+	childPos[0] = 0;
+	childPos[1] = 0;
+	childPos[2] = 0;
+	childOrn[0] = 0;
+	childOrn[1] = 0;
+	childOrn[2] = 0;
+	childOrn[3] = 1;
+
+	plAddChildShape(dinoShape,dinoChildShape,childPos,childOrn);
+
+	dinoPos[0] = -10; dinoPos[1] = 28; dinoPos[2] = 0;
+	dinoRigidBody = plCreateRigidBody(0,1.0,dinoShape);
+	plSetPosition(dinoRigidBody,dinoPos);
+	plSetEuler(0,0,3.15*0.20,dinoOrient);
+	plSetOrientation(dinoRigidBody,dinoOrient);
+
+	plAddRigidBody(dynamicsWorld,dinoRigidBody);
+	
+	  printf("BulletDino\n");
   glutInit(&argc, argv);
 
   for (i=1; i<argc; i++) {
@@ -895,5 +984,10 @@ printf("BulletDino\n");
   findPlane(floorPlane, floorVertices[1], floorVertices[2], floorVertices[3]);
 
   glutMainLoop();
+
+  plDeleteDynamicsWorld(dynamicsWorld);
+  plDeletePhysicsSdk(physicsSdk);
+
+
   return 0;             /* ANSI C requires main to return int. */
 }

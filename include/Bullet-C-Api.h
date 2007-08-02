@@ -43,7 +43,8 @@ extern "C" {
 	PL_DECLARE_HANDLE(plCollisionShapeHandle);
 /* Constraint for Rigid Bodies */
 	PL_DECLARE_HANDLE(plConstraintHandle);
-
+/* Triangle Mesh interface */
+	PL_DECLARE_HANDLE(plMeshInterfaceHandle);
 
 /*
 	Create and Delete a Physics SDK	
@@ -79,7 +80,18 @@ extern "C" {
 	extern  plCollisionShapeHandle plNewCapsuleShape(plReal radius, plReal height);	
 	extern  plCollisionShapeHandle plNewConeShape(plReal radius, plReal height);
 	extern  plCollisionShapeHandle plNewCylinderShape(plReal radius, plReal height);
+	extern	plCollisionShapeHandle plNewCompoundShape();
+	extern	void	plAddChildShape(plCollisionShapeHandle compoundShape,plCollisionShapeHandle childShape, plVector3 childPos,plQuaternion childOrn);
+
 	extern  void plDeleteShape(plCollisionShapeHandle shape);
+
+	/* Convex Meshes */
+	extern  plCollisionShapeHandle plNewConvexHullShape();
+	extern  void		plAddVertex(plCollisionShapeHandle convexHull, plReal x,plReal y,plReal z);
+/* Concave static triangle meshes */
+	extern  plMeshInterfaceHandle		   plNewMeshInterface();
+	extern  void		plAddTriangle(plMeshInterfaceHandle meshHandle, plVector3 v0,plVector3 v1,plVector3 v2);
+	extern  plCollisionShapeHandle plNewStaticTriangleMeshShape(plMeshInterfaceHandle);
 
 	extern  void plSetScaling(plCollisionShapeHandle shape, plVector3 scaling);
 
@@ -87,13 +99,18 @@ extern "C" {
 /* PhysX has Triggers, User Callbacks and filtering */
 /* ODE has the typedef void dNearCallback (void *data, dGeomID o1, dGeomID o2); */
 
-	
+/*	typedef void plUpdatedPositionCallback(void* userData, plRigidBodyHandle	rbHandle, plVector3 pos); */
+/*	typedef void plUpdatedOrientationCallback(void* userData, plRigidBodyHandle	rbHandle, plQuaternion orientation); */
 
-	typedef void plUpdatedPositionCallback(void* userData, plRigidBodyHandle	rbHandle, plVector3 pos);
-	typedef void plUpdatedOrientationCallback(void* userData, plRigidBodyHandle	rbHandle, plQuaternion orientation);
+	/* get world transform */
+	extern void	plGetOpenGLMatrix(plRigidBodyHandle object, plReal* matrix);
+	extern void	plGetPosition(plRigidBodyHandle object,plVector3 position);
+	extern void plGetOrientation(plRigidBodyHandle object,plQuaternion orientation);
 
+	/* set world transform (position/orientation) */
 	extern  void plSetPosition(plRigidBodyHandle object, const plVector3 position);
 	extern  void plSetOrientation(plRigidBodyHandle object, const plQuaternion orientation);
+	extern	void plSetEuler(plReal yaw,plReal pitch,plReal roll, plQuaternion orient);
 
 	typedef struct plRayCastResult {
 		plRigidBodyHandle		m_body;  
