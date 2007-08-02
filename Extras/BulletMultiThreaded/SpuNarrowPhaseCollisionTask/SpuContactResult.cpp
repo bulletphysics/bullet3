@@ -34,13 +34,14 @@ SpuContactResult::SpuContactResult()
 	g_manifoldDmaExport.swapBuffers();
 }
 
- void	SpuContactResult::setContactInfo(btPersistentManifold* spuManifold, uint64_t	manifoldAddress,const btTransform& worldTrans0,const btTransform& worldTrans1)
+ void	SpuContactResult::setContactInfo(btPersistentManifold* spuManifold, uint64_t	manifoldAddress,const btTransform& worldTrans0,const btTransform& worldTrans1, bool isSwapped)
  {
-//	spu_printf("SpuContactResult::setContactInfo\n");
+	//spu_printf("SpuContactResult::setContactInfo ManifoldAddress: %lu\n", manifoldAddress);
 	m_rootWorldTransform0 = worldTrans0;
 	m_rootWorldTransform1 = worldTrans1;
-	m_manifoldAddress = manifoldAddress;
-    m_spuManifold = spuManifold;
+	m_manifoldAddress = manifoldAddress;    
+	m_spuManifold = spuManifold;
+	m_isSwapped = isSwapped;
  }
 
  void SpuContactResult::setShapeIdentifiers(int partId0,int index0,	int partId1,int index1)
@@ -56,8 +57,8 @@ bool ManifoldResultAddContactPoint(const btVector3& normalOnBInWorld,
 								   float depth,
 								   btPersistentManifold* manifoldPtr,
 								   btTransform& transA,
-								   btTransform& transB
-								   )
+								   btTransform& transB,
+								   bool isSwapped)
 {
 	
 	float contactTreshold = manifoldPtr->getContactBreakingThreshold();
@@ -74,10 +75,29 @@ bool ManifoldResultAddContactPoint(const btVector3& normalOnBInWorld,
 	btTransform transAInv = transA.inverse();//m_body0->m_cachedInvertedWorldTransform;
 	btTransform transBInv= transB.inverse();//m_body1->m_cachedInvertedWorldTransform;
 
-	btVector3 pointA = pointInWorld + normalOnBInWorld * depth;
-	btVector3 localA = transAInv(pointA );
-	btVector3 localB = transBInv(pointInWorld);
-	btManifoldPoint newPt(localA,localB,normalOnBInWorld,depth);
+	btVector3 pointA;
+	btVector3 localA;
+	btVector3 localB;
+	btVector3 normal;
+
+	if (isSwapped)
+	{
+		normal = normalOnBInWorld * -1;
+		pointA = pointInWorld + normal * depth;
+		localA = transAInv(pointA );
+		localB = transBInv(pointInWorld);
+		/*localA = transBInv(pointA );
+		localB = transAInv(pointInWorld);*/
+	}
+	else
+	{
+		normal = normalOnBInWorld;
+		pointA = pointInWorld + normal * depth;
+		localA = transAInv(pointA );
+		localB = transBInv(pointInWorld);
+	}
+
+	btManifoldPoint newPt(localA,localB,normal,depth);
 
 	int insertIndex = manifoldPtr->getCacheEntry(newPt);
 	if (insertIndex >= 0)
@@ -128,7 +148,7 @@ void SpuContactResult::writeDoubleBufferedManifold(btPersistentManifold* lsManif
 
 void SpuContactResult::addContactPoint(const btVector3& normalOnBInWorld,const btPoint3& pointInWorld,float depth)
 {
-//	spu_printf("*** SpuContactResult::addContactPoint: depth = %f\n",depth);
+	//spu_printf("*** SpuContactResult::addContactPoint: depth = %f\n",depth);
 
 #ifdef DEBUG_SPU_COLLISION_DETECTION
  //   int sman = sizeof(rage::phManifold);
@@ -146,8 +166,8 @@ void SpuContactResult::addContactPoint(const btVector3& normalOnBInWorld,const b
 		depth,
 		localManifold,
 		m_rootWorldTransform0,
-		m_rootWorldTransform1
-		);
+		m_rootWorldTransform1,
+		m_isSwapped);
 	m_RequiresWriteBack = m_RequiresWriteBack || retVal;
 }
 
@@ -156,7 +176,9 @@ void SpuContactResult::flush()
 	if (m_RequiresWriteBack)
 	{
 #ifdef DEBUG_SPU_COLLISION_DETECTION
-		spu_printf("SPU: Start rage::phManifold Write (Put) DMA\n");
+		spu_printf("SPU: Start SpuContactResult::flush (Put) DMA\n");
+		spu_printf("Num contacts:%d\n", m_spuManifold->getNumContacts());
+		spu_printf("Manifold address: %llu\n", m_manifoldAddress);
 #endif //DEBUG_SPU_COLLISION_DETECTION
 	//	spu_printf("writeDoubleBufferedManifold\n");
 		writeDoubleBufferedManifold(m_spuManifold, (btPersistentManifold*)m_manifoldAddress);

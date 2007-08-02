@@ -81,6 +81,7 @@ class SpuContactResult
 
     btPersistentManifold* m_spuManifold;
 	bool m_RequiresWriteBack;
+	bool m_isSwapped;
 
 	DoubleBuffer<btPersistentManifold, 1> g_manifoldDmaExport;
 
@@ -95,7 +96,7 @@ class SpuContactResult
 
 		virtual void setShapeIdentifiers(int partId0,int index0,	int partId1,int index1);
 
-        void	setContactInfo(btPersistentManifold* spuManifold, uint64_t	manifoldAddress,const btTransform& worldTrans0,const btTransform& worldTrans1);
+        void	setContactInfo(btPersistentManifold* spuManifold, uint64_t	manifoldAddress,const btTransform& worldTrans0,const btTransform& worldTrans1, bool isSwapped = false);
 
         void writeDoubleBufferedManifold(btPersistentManifold* lsManifold, btPersistentManifold* mmManifold);
 

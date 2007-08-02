@@ -26,12 +26,21 @@ subject to the following restrictions:
 
 class btOptimizedBvh;
 
+ATTRIBUTE_ALIGNED16(struct) btCompoundShapeChild
+{
+	btTransform			m_transform;
+	btCollisionShape*	m_childShape;
+	int					m_childShapeType;
+	btScalar			m_childMargin;
+};
+	
 /// btCompoundShape allows to store multiple other btCollisionShapes
 /// This allows for concave collision objects. This is more general then the Static Concave btTriangleMeshShape.
-class btCompoundShape	: public btCollisionShape
+ATTRIBUTE_ALIGNED16(class) btCompoundShape	: public btCollisionShape
 {
-	btAlignedObjectArray<btTransform>		m_childTransforms;
-	btAlignedObjectArray<btCollisionShape*>	m_childShapes;
+	//btAlignedObjectArray<btTransform>		m_childTransforms;
+	//btAlignedObjectArray<btCollisionShape*>	m_childShapes;
+	btAlignedObjectArray<btCompoundShapeChild> m_children;
 	btVector3						m_localAabbMin;
 	btVector3						m_localAabbMax;
 
@@ -46,25 +55,31 @@ public:
 
 	int		getNumChildShapes() const
 	{
-		return int (m_childShapes.size());
+		return int (m_children.size());
 	}
 
 	btCollisionShape* getChildShape(int index)
 	{
-		return m_childShapes[index];
+		return m_children[index].m_childShape;
 	}
 	const btCollisionShape* getChildShape(int index) const
 	{
-		return m_childShapes[index];
+		return m_children[index].m_childShape;
 	}
 
-	btTransform&	getChildTransform(int index)
+	btTransform	getChildTransform(int index)
 	{
-		return m_childTransforms[index];
+		return m_children[index].m_transform;
 	}
-	const btTransform&	getChildTransform(int index) const
+	const btTransform	getChildTransform(int index) const
 	{
-		return m_childTransforms[index];
+		return m_children[index].m_transform;
+	}
+
+
+	btCompoundShapeChild* getChildList()
+	{
+		return &m_children[0];
 	}
 
 	///getAabb's default implementation is brute force, expected derived classes to implement a fast dedicated version
