@@ -72,7 +72,7 @@
 
 
 //#include "../../include/Bullet-C-Api.h"
-#include "../include/Bullet-C-Api.h"
+#include "Bullet-C-Api.h"
 
 
 
