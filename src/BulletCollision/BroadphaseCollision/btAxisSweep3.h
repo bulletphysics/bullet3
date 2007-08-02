@@ -22,6 +22,7 @@
 #include "LinearMath/btPoint3.h"
 #include "LinearMath/btVector3.h"
 #include "btOverlappingPairCache.h"
+#include "btBroadphaseInterface.h"
 #include "btBroadphaseProxy.h"
 
 
@@ -45,7 +46,7 @@
 /// btAxisSweep3 is an efficient implementation of the 3d axis sweep and prune broadphase.
 /// It uses arrays rather then lists for storage of the 3 axis. Also it operates using integer coordinates instead of floats.
 /// The testOverlap check is optimized to check the array index, rather then the actual AABB coordinates/pos
-class btAxisSweep3 : public btOverlappingPairCache
+class btAxisSweep3 : public btBroadphaseInterface
 {
 
 public:
@@ -77,7 +78,7 @@ public:
 	};		// 24 bytes + 24 for Edge structures = 44 bytes total per entry
 
 	
-private:
+protected:
 	btPoint3 m_worldAabbMin;						// overall system bounds
 	btPoint3 m_worldAabbMax;						// overall system bounds
 
@@ -90,7 +91,9 @@ private:
 
 	Edge* m_pEdges[3];						// edge arrays for the 3 axes (each array has m_maxHandles * 2 + 2 sentinel entries)
 
-	int m_invalidPair;
+	btOverlappingPairCache* m_pairCache;
+
+	int	m_invalidPair;
 
 	// allocation/deallocation
 	BP_FP_INT_TYPE allocHandle();
@@ -117,7 +120,7 @@ public:
 	btAxisSweep3(const btPoint3& worldAabbMin,const btPoint3& worldAabbMax, int maxHandles = 16384);
 	virtual	~btAxisSweep3();
 
-	virtual void	refreshOverlappingPairs();
+	virtual void	calculateOverlappingPairs();
 	
 	BP_FP_INT_TYPE addHandle(const btPoint3& aabbMin,const btPoint3& aabbMax, void* pOwner,short int collisionFilterGroup,short int collisionFilterMask);
 	void removeHandle(BP_FP_INT_TYPE handle);
@@ -130,7 +133,18 @@ public:
 	virtual btBroadphaseProxy*	createProxy(  const btVector3& min,  const btVector3& max,int shapeType,void* userPtr ,short int collisionFilterGroup,short int collisionFilterMask);
 	virtual void	destroyProxy(btBroadphaseProxy* proxy);
 	virtual void	setAabb(btBroadphaseProxy* proxy,const btVector3& aabbMin,const btVector3& aabbMax);
-	bool testOverlap(btBroadphaseProxy* proxy0,btBroadphaseProxy* proxy1);
+	
+	bool	testAabbOverlap(btBroadphaseProxy* proxy0,btBroadphaseProxy* proxy1);
+
+	btOverlappingPairCache*	getOverlappingPairCache()
+	{
+		return m_pairCache;
+	}
+	const btOverlappingPairCache*	getOverlappingPairCache() const
+	{
+		return m_pairCache;
+	}
+
 
 };
 

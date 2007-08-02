@@ -28,8 +28,8 @@ class btDynamicsWorld : public btCollisionWorld
 	public:
 		
 
-		btDynamicsWorld(btDispatcher* dispatcher,btOverlappingPairCache* pairCache)
-		:btCollisionWorld(dispatcher,pairCache)
+		btDynamicsWorld(btDispatcher* dispatcher,btBroadphaseInterface* broadphase)
+		:btCollisionWorld(dispatcher,broadphase)
 		{
 		}
 

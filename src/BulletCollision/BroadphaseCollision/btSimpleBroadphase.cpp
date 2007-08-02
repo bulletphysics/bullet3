@@ -22,6 +22,7 @@ subject to the following restrictions:
 #include "LinearMath/btMatrix3x3.h"
 #include <new>
 
+extern int gOverlappingPairs;
 
 void	btSimpleBroadphase::validate()
 {
@@ -36,11 +37,14 @@ void	btSimpleBroadphase::validate()
 }
 
 btSimpleBroadphase::btSimpleBroadphase(int maxProxies)
-	:btOverlappingPairCache(),
+	:
 	m_firstFreeProxy(0),
 	m_numProxies(0),
-	m_maxProxies(maxProxies)
+	m_maxProxies(maxProxies),
+	m_invalidPair(0)
 {
+	
+	m_pairCache = new btOverlappingPairCache();
 
 	m_proxies = new btSimpleBroadphaseProxy[maxProxies];
 	m_freeProxies = new int[maxProxies];
@@ -136,7 +140,7 @@ void	btSimpleBroadphase::destroyProxy(btBroadphaseProxy* proxyOrg)
 		btAssert (index < m_maxProxies);
 		m_freeProxies[--m_firstFreeProxy] = index;
 
-		removeOverlappingPairsContainingProxy(proxyOrg);
+		m_pairCache->removeOverlappingPairsContainingProxy(proxyOrg);
 		
 		for (i=0;i<m_numProxies;i++)
 		{
@@ -186,7 +190,7 @@ public:
 	}
 };
 
-void	btSimpleBroadphase::refreshOverlappingPairs()
+void	btSimpleBroadphase::calculateOverlappingPairs()
 {
 	//first check for new overlapping pairs
 	int i,j;
@@ -202,21 +206,95 @@ void	btSimpleBroadphase::refreshOverlappingPairs()
 
 			if (aabbOverlap(p0,p1))
 			{
-				if ( !findPair(proxy0,proxy1))
+				if ( !m_pairCache->findPair(proxy0,proxy1))
 				{
-					addOverlappingPair(proxy0,proxy1);
+					m_pairCache->addOverlappingPair(proxy0,proxy1);
 				}
 			}
 
 		}
 	}
 
+	
+	btBroadphasePairArray&	overlappingPairArray = m_pairCache->getOverlappingPairArray();
 
-	CheckOverlapCallback	checkOverlap;
+	//perform a sort, to find duplicates and to sort 'invalid' pairs to the end
+	overlappingPairArray.heapSort(btBroadphasePairSortPredicate());
 
-	processAllOverlappingPairs(&checkOverlap);
+	overlappingPairArray.resize(overlappingPairArray.size() - m_invalidPair);
+	m_invalidPair = 0;
 
 
+	btBroadphasePair previousPair;
+	previousPair.m_pProxy0 = 0;
+	previousPair.m_pProxy1 = 0;
+	previousPair.m_algorithm = 0;
+	
+	
+	for (i=0;i<overlappingPairArray.size();i++)
+	{
+	
+		btBroadphasePair& pair = overlappingPairArray[i];
+
+		bool isDuplicate = (pair == previousPair);
+
+		previousPair = pair;
+
+		bool needsRemoval = false;
+
+		if (!isDuplicate)
+		{
+			bool hasOverlap = testAabbOverlap(pair.m_pProxy0,pair.m_pProxy1);
+
+			if (hasOverlap)
+			{
+				needsRemoval = false;//callback->processOverlap(pair);
+			} else
+			{
+				needsRemoval = true;
+			}
+		} else
+		{
+			//remove duplicate
+			needsRemoval = true;
+			//should have no algorithm
+			btAssert(!pair.m_algorithm);
+		}
+		
+		if (needsRemoval)
+		{
+			m_pairCache->cleanOverlappingPair(pair);
+
+	//		m_overlappingPairArray.swap(i,m_overlappingPairArray.size()-1);
+	//		m_overlappingPairArray.pop_back();
+			pair.m_pProxy0 = 0;
+			pair.m_pProxy1 = 0;
+			m_invalidPair++;
+			gOverlappingPairs--;
+		} 
+		
+	}
+
+///if you don't like to skip the invalid pairs in the array, execute following code:
+#define CLEAN_INVALID_PAIRS 1
+#ifdef CLEAN_INVALID_PAIRS
+
+	//perform a sort, to sort 'invalid' pairs to the end
+	overlappingPairArray.heapSort(btBroadphasePairSortPredicate());
+
+	overlappingPairArray.resize(overlappingPairArray.size() - m_invalidPair);
+	m_invalidPair = 0;
+#endif//CLEAN_INVALID_PAIRS
+	
 }
+
+
+bool btSimpleBroadphase::testAabbOverlap(btBroadphaseProxy* proxy0,btBroadphaseProxy* proxy1)
+{
+	btSimpleBroadphaseProxy* p0 = getSimpleProxyFromProxy(proxy0);
+	btSimpleBroadphaseProxy* p1 = getSimpleProxyFromProxy(proxy1);
+	return aabbOverlap(p0,p1);
+}
+
 
 

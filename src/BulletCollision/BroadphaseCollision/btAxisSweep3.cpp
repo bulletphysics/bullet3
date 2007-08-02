@@ -74,9 +74,10 @@ void	btAxisSweep3::setAabb(btBroadphaseProxy* proxy,const btVector3& aabbMin,con
 
 
 btAxisSweep3::btAxisSweep3(const btPoint3& worldAabbMin,const btPoint3& worldAabbMax, int maxHandles)
-:btOverlappingPairCache()
+:m_invalidPair(0)
 {
-	m_invalidPair = 0;
+	m_pairCache = new btOverlappingPairCache();
+
 	//assert(bounds.HasVolume());
 
 	// 1 handle is reserved as sentinel
@@ -244,7 +245,7 @@ void btAxisSweep3::removeHandle(BP_FP_INT_TYPE handle)
 	//explicitly remove the pairs containing the proxy
 	//we could do it also in the sortMinUp (passing true)
 	//todo: compare performance
-	removeOverlappingPairsContainingProxy(pHandle);
+	m_pairCache->removeOverlappingPairsContainingProxy(pHandle);
 
 
 	// compute current limit of edge arrays
@@ -293,27 +294,16 @@ void btAxisSweep3::removeHandle(BP_FP_INT_TYPE handle)
 extern int gOverlappingPairs;
 
 
-void	btAxisSweep3::refreshOverlappingPairs()
+void	btAxisSweep3::calculateOverlappingPairs()
 {
-
-}
-void	btAxisSweep3::processAllOverlappingPairs(btOverlapCallback* callback)
-{
+	
+	btBroadphasePairArray&	overlappingPairArray = m_pairCache->getOverlappingPairArray();
 
 	//perform a sort, to find duplicates and to sort 'invalid' pairs to the end
-	m_overlappingPairArray.heapSort(btBroadphasePairSortPredicate());
+	overlappingPairArray.heapSort(btBroadphasePairSortPredicate());
 
-	//remove the 'invalid' ones
-#ifdef USE_POPBACK_REMOVAL
-	while (m_invalidPair>0)
-	{
-		m_invalidPair--;
-		m_overlappingPairArray.pop_back();
-	}
-#else	
-	m_overlappingPairArray.resize(m_overlappingPairArray.size() - m_invalidPair);
+	overlappingPairArray.resize(overlappingPairArray.size() - m_invalidPair);
 	m_invalidPair = 0;
-#endif
 
 	
 	int i;
@@ -324,10 +314,10 @@ void	btAxisSweep3::processAllOverlappingPairs(btOverlapCallback* callback)
 	previousPair.m_algorithm = 0;
 	
 	
-	for (i=0;i<m_overlappingPairArray.size();i++)
+	for (i=0;i<overlappingPairArray.size();i++)
 	{
 	
-		btBroadphasePair& pair = m_overlappingPairArray[i];
+		btBroadphasePair& pair = overlappingPairArray[i];
 
 		bool isDuplicate = (pair == previousPair);
 
@@ -337,11 +327,11 @@ void	btAxisSweep3::processAllOverlappingPairs(btOverlapCallback* callback)
 
 		if (!isDuplicate)
 		{
-			bool hasOverlap = testOverlap(pair.m_pProxy0,pair.m_pProxy1);
+			bool hasOverlap = testAabbOverlap(pair.m_pProxy0,pair.m_pProxy1);
 
 			if (hasOverlap)
 			{
-				needsRemoval = callback->processOverlap(pair);
+				needsRemoval = false;//callback->processOverlap(pair);
 			} else
 			{
 				needsRemoval = true;
@@ -356,7 +346,7 @@ void	btAxisSweep3::processAllOverlappingPairs(btOverlapCallback* callback)
 		
 		if (needsRemoval)
 		{
-			cleanOverlappingPair(pair);
+			m_pairCache->cleanOverlappingPair(pair);
 
 	//		m_overlappingPairArray.swap(i,m_overlappingPairArray.size()-1);
 	//		m_overlappingPairArray.pop_back();
@@ -367,10 +357,24 @@ void	btAxisSweep3::processAllOverlappingPairs(btOverlapCallback* callback)
 		} 
 		
 	}
+
+///if you don't like to skip the invalid pairs in the array, execute following code:
+#define CLEAN_INVALID_PAIRS 1
+#ifdef CLEAN_INVALID_PAIRS
+
+	//perform a sort, to sort 'invalid' pairs to the end
+	overlappingPairArray.heapSort(btBroadphasePairSortPredicate());
+
+	overlappingPairArray.resize(overlappingPairArray.size() - m_invalidPair);
+	m_invalidPair = 0;
+#endif//CLEAN_INVALID_PAIRS
+	
+
 }
 
 
-bool btAxisSweep3::testOverlap(btBroadphaseProxy* proxy0,btBroadphaseProxy* proxy1)
+
+bool btAxisSweep3::testAabbOverlap(btBroadphaseProxy* proxy0,btBroadphaseProxy* proxy1)
 {
 	const Handle* pHandleA = static_cast<Handle*>(proxy0);
 	const Handle* pHandleB = static_cast<Handle*>(proxy1);
@@ -485,7 +489,7 @@ void btAxisSweep3::sortMinDown(int axis, BP_FP_INT_TYPE edge, bool updateOverlap
 			// if previous edge is a maximum check the bounds and add an overlap if necessary
 			if (updateOverlaps && testOverlap(axis,pHandleEdge, pHandlePrev))
 			{
-				addOverlappingPair(pHandleEdge,pHandlePrev);
+				m_pairCache->addOverlappingPair(pHandleEdge,pHandlePrev);
 
 				//AddOverlap(pEdge->m_handle, pPrev->m_handle);
 
@@ -636,7 +640,7 @@ void btAxisSweep3::sortMaxUp(int axis, BP_FP_INT_TYPE edge, bool updateOverlaps)
 			{
 				Handle* handle0 = getHandle(pEdge->m_handle);
 				Handle* handle1 = getHandle(pNext->m_handle);
-				addOverlappingPair(handle0,handle1);
+				m_pairCache->addOverlappingPair(handle0,handle1);
 			}
 
 			// update edge reference in other handle
@@ -658,3 +662,5 @@ void btAxisSweep3::sortMaxUp(int axis, BP_FP_INT_TYPE edge, bool updateOverlaps)
 	}
 	
 }
+
+

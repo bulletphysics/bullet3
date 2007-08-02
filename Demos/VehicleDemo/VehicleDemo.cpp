@@ -121,7 +121,7 @@ void VehicleDemo::setupPhysics()
 	btCollisionDispatcher* dispatcher = new btCollisionDispatcher();
 	btVector3 worldMin(-1000,-1000,-1000);
 	btVector3 worldMax(1000,1000,1000);
-	btOverlappingPairCache* pairCache = new btAxisSweep3(worldMin,worldMax);
+	btBroadphaseInterface* pairCache = new btAxisSweep3(worldMin,worldMax);
 	btConstraintSolver* constraintSolver = new btSequentialImpulseConstraintSolver();
 	m_dynamicsWorld = new btDiscreteDynamicsWorld(dispatcher,pairCache,constraintSolver);
 #ifdef FORCE_ZAXIS_UP
@@ -490,7 +490,7 @@ void VehicleDemo::clientResetScene()
 	m_carChassis->setCenterOfMassTransform(btTransform::getIdentity());
 	m_carChassis->setLinearVelocity(btVector3(0,0,0));
 	m_carChassis->setAngularVelocity(btVector3(0,0,0));
-	m_dynamicsWorld->getBroadphase()->cleanProxyFromPairs(m_carChassis->getBroadphaseHandle());
+	m_dynamicsWorld->getBroadphase()->getOverlappingPairCache()->cleanProxyFromPairs(m_carChassis->getBroadphaseHandle());
 	if (m_vehicle)
 	{
 		m_vehicle->resetSuspension();

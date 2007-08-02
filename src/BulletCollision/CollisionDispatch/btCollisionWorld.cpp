@@ -37,7 +37,8 @@ subject to the following restrictions:
 #include "BulletCollision/BroadphaseCollision/btSimpleBroadphase.h"
 
 
-btCollisionWorld::btCollisionWorld(btDispatcher* dispatcher,btOverlappingPairCache* pairCache, int stackSize)
+
+btCollisionWorld::btCollisionWorld(btDispatcher* dispatcher,btBroadphaseInterface* pairCache, int stackSize)
 :m_dispatcher1(dispatcher),
 m_broadphasePairCache(pairCache),
 m_ownsDispatcher(false),
@@ -65,7 +66,7 @@ btCollisionWorld::~btCollisionWorld()
 			//
 			// only clear the cached algorithms
 			//
-			getBroadphase()->cleanProxyFromPairs(bp);
+			getBroadphase()->getOverlappingPairCache()->cleanProxyFromPairs(bp);
 			getBroadphase()->destroyProxy(bp);
 		}
 	}
@@ -136,8 +137,7 @@ void	btCollisionWorld::performDiscreteCollisionDetection()
 		m_broadphasePairCache->setAabb(m_collisionObjects[i]->getBroadphaseHandle(),aabbMin,aabbMax);
 	}
 
-	m_broadphasePairCache->refreshOverlappingPairs();
-
+	m_broadphasePairCache->calculateOverlappingPairs();
 	
 	END_PROFILE("perform Broadphase Collision Detection");
 
@@ -145,7 +145,7 @@ void	btCollisionWorld::performDiscreteCollisionDetection()
 
 	btDispatcher* dispatcher = getDispatcher();
 	if (dispatcher)
-		dispatcher->dispatchAllCollisionPairs(m_broadphasePairCache,dispatchInfo);
+		dispatcher->dispatchAllCollisionPairs(m_broadphasePairCache->getOverlappingPairCache(),dispatchInfo);
 
 	END_PROFILE("performDiscreteCollisionDetection");
 
@@ -166,7 +166,7 @@ void	btCollisionWorld::removeCollisionObject(btCollisionObject* collisionObject)
 			//
 			// only clear the cached algorithms
 			//
-			getBroadphase()->cleanProxyFromPairs(bp);
+			getBroadphase()->getOverlappingPairCache()->cleanProxyFromPairs(bp);
 			getBroadphase()->destroyProxy(bp);
 			collisionObject->setBroadphaseHandle(0);
 		}

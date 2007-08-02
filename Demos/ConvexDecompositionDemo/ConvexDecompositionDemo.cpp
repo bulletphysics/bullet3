@@ -122,8 +122,8 @@ void ConvexDecompositionDemo::initPhysics(const char* filename)
 	btVector3 worldAabbMin(-10000,-10000,-10000);
 	btVector3 worldAabbMax(10000,10000,10000);
 
-	btOverlappingPairCache* broadphase = new btAxisSweep3(worldAabbMin,worldAabbMax);
-	//OverlappingPairCache* broadphase = new btSimpleBroadphase();
+	btBroadphaseInterface* broadphase = new btAxisSweep3(worldAabbMin,worldAabbMax);
+	//btBroadphaseInterface* broadphase = new btSimpleBroadphase();
 
 	btConstraintSolver* solver = new btSequentialImpulseConstraintSolver();
 	m_dynamicsWorld = new btDiscreteDynamicsWorld(dispatcher,broadphase,solver);

@@ -1648,7 +1648,7 @@ void	ConcaveDemo::initPhysics()
 	//btConstraintSolver* solver = new btSequentialImpulseConstraintSolver;
 	btCollisionDispatcher* dispatcher = new btCollisionDispatcher();
 	//btOverlappingPairCache* broadphase = new btSimpleBroadphase();
-	btOverlappingPairCache* broadphase = new btSimpleBroadphase();
+	btBroadphaseInterface* broadphase = new btSimpleBroadphase();
 
 	btConstraintSolver* constraintSolver = new btSequentialImpulseConstraintSolver();
 	m_dynamicsWorld = new btDiscreteDynamicsWorld(dispatcher,broadphase,constraintSolver);

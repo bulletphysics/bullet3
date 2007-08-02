@@ -57,7 +57,7 @@ subject to the following restrictions:
 
 
 
-btDiscreteDynamicsWorld::btDiscreteDynamicsWorld(btDispatcher* dispatcher,btOverlappingPairCache* pairCache,btConstraintSolver* constraintSolver)
+btDiscreteDynamicsWorld::btDiscreteDynamicsWorld(btDispatcher* dispatcher,btBroadphaseInterface* pairCache,btConstraintSolver* constraintSolver)
 :btDynamicsWorld(dispatcher,pairCache),
 m_constraintSolver(constraintSolver? constraintSolver: new btSequentialImpulseConstraintSolver),
 m_debugDrawer(0),

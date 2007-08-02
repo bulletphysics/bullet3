@@ -361,7 +361,7 @@ void	CcdPhysicsDemo::initPhysics()
 	btVector3 worldAabbMin(-1000,-1000,-1000);
 	btVector3 worldAabbMax(1000,1000,1000);
 
-	btOverlappingPairCache* broadphase = new btAxisSweep3(worldAabbMin,worldAabbMax,maxProxies);
+	btBroadphaseInterface* broadphase = new btAxisSweep3(worldAabbMin,worldAabbMax,maxProxies);
 //	btOverlappingPairCache* broadphase = new btSimpleBroadphase;
 	
 #ifdef REGISTER_CUSTOM_COLLISION_ALGORITHM

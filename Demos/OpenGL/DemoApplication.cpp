@@ -450,12 +450,12 @@ void	DemoApplication::shootBox(const btVector3& destination)
 		startTransform.setIdentity();
 		btVector3 camPos = getCameraPosition();
 		startTransform.setOrigin(camPos);
-#define TEST_UNIFORM_SCALING_SHAPE 1
+//#define TEST_UNIFORM_SCALING_SHAPE 1
 #ifdef TEST_UNIFORM_SCALING_SHAPE
 		btConvexShape* childShape = new btBoxShape(btVector3(1.f,1.f,1.f));
 		btUniformScalingShape* boxShape = new btUniformScalingShape(childShape,0.5f);
 #else
-		btCollisionShape* boxShape = new btSphereShape(1);
+		btCollisionShape* boxShape = new btBoxShape(btVector3(0.5f,0.5f,0.5f));
 #endif//
 		btRigidBody* body = this->localCreateRigidBody(mass, startTransform,boxShape);
 
@@ -932,7 +932,7 @@ void	DemoApplication::clientResetScene()
 				colObj->activate();
 			}
 			//removed cached contact points
-			m_dynamicsWorld->getBroadphase()->cleanProxyFromPairs(colObj->getBroadphaseHandle());
+			m_dynamicsWorld->getBroadphase()->getOverlappingPairCache()->cleanProxyFromPairs(colObj->getBroadphaseHandle());
 
 			btRigidBody* body = btRigidBody::upcast(colObj);
 			if (body && !body->isStaticObject())

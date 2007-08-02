@@ -152,7 +152,7 @@ void	BasicDemo::initPhysics()
 	m_dispatcher = new	btCollisionDispatcher(true);
 #endif //USE_PARALLEL_DISPATCHER
 
-//#define USE_SWEEP_AND_PRUNE 1
+#define USE_SWEEP_AND_PRUNE 1
 #ifdef USE_SWEEP_AND_PRUNE
 #define maxProxies 8192
 	btVector3 worldAabbMin(-10000,-10000,-10000);

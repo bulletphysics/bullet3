@@ -20,7 +20,9 @@ subject to the following restrictions:
 
 struct btDispatcherInfo;
 class btDispatcher;
-struct btBroadphaseProxy;
+#include "btBroadphaseProxy.h"
+class btOverlappingPairCache;
+
 #include "LinearMath/btVector3.h"
 
 ///BroadphaseInterface for aabb-overlapping object pairs
@@ -32,8 +34,12 @@ public:
 	virtual btBroadphaseProxy*	createProxy(  const btVector3& min,  const btVector3& max,int shapeType,void* userPtr, short int collisionFilterGroup,short int collisionFilterMask) =0;
 	virtual void	destroyProxy(btBroadphaseProxy* proxy)=0;
 	virtual void	setAabb(btBroadphaseProxy* proxy,const btVector3& aabbMin,const btVector3& aabbMax)=0;
-	virtual void	cleanProxyFromPairs(btBroadphaseProxy* proxy)=0;
 	
+	///calculateOverlappingPairs is optional: incremental algorithms (sweep and prune) might do it during the set aabb
+	virtual void	calculateOverlappingPairs()=0;
+
+	virtual	btOverlappingPairCache*	getOverlappingPairCache()=0;
+	virtual	const btOverlappingPairCache*	getOverlappingPairCache() const =0;
 
 };
 

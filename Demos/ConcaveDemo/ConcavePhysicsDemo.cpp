@@ -223,7 +223,7 @@ void	ConcaveDemo::initPhysics()
 
 	btVector3 worldMin(-1000,-1000,-1000);
 	btVector3 worldMax(1000,1000,1000);
-	btOverlappingPairCache* pairCache = new btAxisSweep3(worldMin,worldMax);
+	btBroadphaseInterface* pairCache = new btAxisSweep3(worldMin,worldMax);
 	btConstraintSolver* constraintSolver = new btSequentialImpulseConstraintSolver();
 	m_dynamicsWorld = new btDiscreteDynamicsWorld(dispatcher,pairCache,constraintSolver);
 #ifdef USE_PARALLEL_DISPATCHER
@@ -276,7 +276,7 @@ void ConcaveDemo::clientMoveAndDisplay()
 		trimeshShape->refitTree();
 
 		//clear all contact points involving mesh proxy. Note: this is a slow/unoptimized operation.
-		m_dynamicsWorld->getBroadphase()->cleanProxyFromPairs(staticBody->getBroadphaseHandle());
+		m_dynamicsWorld->getBroadphase()->getOverlappingPairCache()->cleanProxyFromPairs(staticBody->getBroadphaseHandle());
 	}
 
 	m_dynamicsWorld->stepSimulation(dt);

@@ -38,7 +38,7 @@ struct btSimpleBroadphaseProxy : public btBroadphaseProxy
 };
 
 ///SimpleBroadphase is a brute force aabb culling broadphase based on O(n^2) aabb checks
-class btSimpleBroadphase : public btOverlappingPairCache
+class btSimpleBroadphase : public btBroadphaseInterface
 {
 
 protected:
@@ -50,7 +50,9 @@ protected:
 	btSimpleBroadphaseProxy** m_pProxies;
 	int				m_numProxies;
 
+	btOverlappingPairCache*	m_pairCache;
 	
+	int	m_invalidPair;
 
 	int m_maxProxies;
 	
@@ -67,7 +69,8 @@ protected:
 protected:
 
 
-	virtual void	refreshOverlappingPairs();
+	virtual void	calculateOverlappingPairs();
+
 public:
 	btSimpleBroadphase(int maxProxies=16384);
 	virtual ~btSimpleBroadphase();
@@ -82,9 +85,16 @@ public:
 	virtual void	destroyProxy(btBroadphaseProxy* proxy);
 	virtual void	setAabb(btBroadphaseProxy* proxy,const btVector3& aabbMin,const btVector3& aabbMax);
 		
-	
-	
+	btOverlappingPairCache*	getOverlappingPairCache()
+	{
+		return m_pairCache;
+	}
+	const btOverlappingPairCache*	getOverlappingPairCache() const
+	{
+		return m_pairCache;
+	}
 
+	bool	testAabbOverlap(btBroadphaseProxy* proxy0,btBroadphaseProxy* proxy1);
 
 
 };

@@ -40,19 +40,22 @@ struct btOverlapFilterCallback
 	virtual bool	needBroadphaseCollision(btBroadphaseProxy* proxy0,btBroadphaseProxy* proxy1) const = 0;
 };
 
+typedef btAlignedObjectArray<btBroadphasePair>	btBroadphasePairArray;
+
 ///btOverlappingPairCache maintains the objects with overlapping AABB
 ///Typically managed by the Broadphase, Axis3Sweep or btSimpleBroadphase
-class	btOverlappingPairCache : public btBroadphaseInterface
+class	btOverlappingPairCache
 {
 	protected:
 		//avoid brute-force finding all the time
-		btAlignedObjectArray<btBroadphasePair>	m_overlappingPairArray;
+		btBroadphasePairArray	m_overlappingPairArray;
 		
 		//during the dispatch, check that user doesn't destroy/create proxy
 		bool		m_blockedForChanges;
 		
 		//if set, use the callback instead of the built in filter in needBroadphaseCollision
 		btOverlapFilterCallback* m_overlapFilterCallback;
+
 	public:
 			
 		btOverlappingPairCache();	
@@ -84,10 +87,16 @@ class	btOverlappingPairCache : public btBroadphaseInterface
 			
 			return collides;
 		}
-			
 		
+		btBroadphasePairArray&	getOverlappingPairArray()
+		{
+			return m_overlappingPairArray;
+		}
 
-		virtual void	refreshOverlappingPairs() =0;
+		const btBroadphasePairArray&	getOverlappingPairArray() const
+		{
+			return m_overlappingPairArray;
+		}
 
 		btBroadphasePair*	getOverlappingPairArrayPtr()
 		{

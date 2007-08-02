@@ -31,7 +31,7 @@ class BasicDemo : public DemoApplication
 	//keep the collision shapes, for deletion/cleanup
 	btAlignedObjectArray<btCollisionShape*>	m_collisionShapes;
 
-	btOverlappingPairCache*	m_overlappingPairCache;
+	btBroadphaseInterface*	m_overlappingPairCache;
 
 	btCollisionDispatcher*	m_dispatcher;
 

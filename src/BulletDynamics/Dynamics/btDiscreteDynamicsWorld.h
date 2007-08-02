@@ -86,7 +86,7 @@ public:
 
 
 	///this btDiscreteDynamicsWorld constructor gets created objects from the user, and will not delete those
-	btDiscreteDynamicsWorld(btDispatcher* dispatcher,btOverlappingPairCache* pairCache,btConstraintSolver* constraintSolver);
+	btDiscreteDynamicsWorld(btDispatcher* dispatcher,btBroadphaseInterface* pairCache,btConstraintSolver* constraintSolver);
 
 	virtual ~btDiscreteDynamicsWorld();
 

@@ -79,8 +79,8 @@ void	ConstraintDemo::initPhysics()
 	btCollisionDispatcher* dispatcher = new btCollisionDispatcher();
 	btVector3 worldMin(-1000,-1000,-1000);
 	btVector3 worldMax(1000,1000,1000);
-	btOverlappingPairCache* pairCache = new btAxisSweep3(worldMin,worldMax);
-	//btOverlappingPairCache* broadphase = new btSimpleBroadphase();
+	btBroadphaseInterface* pairCache = new btAxisSweep3(worldMin,worldMax);
+	//btBroadphaseInterface* broadphase = new btSimpleBroadphase();
 	btConstraintSolver* constraintSolver = new btSequentialImpulseConstraintSolver();
 	//ConstraintSolver* solver = new OdeConstraintSolver;
 	m_dynamicsWorld = new btDiscreteDynamicsWorld(dispatcher,pairCache,constraintSolver);

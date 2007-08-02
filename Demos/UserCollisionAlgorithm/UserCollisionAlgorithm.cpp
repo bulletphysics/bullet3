@@ -109,7 +109,7 @@ void	UserCollisionAlgorithm::initPhysics()
 	btCollisionDispatcher* dispatcher = new	btCollisionDispatcher();
 		
 	btVector3 maxAabb(10000,10000,10000);
-	btOverlappingPairCache* broadphase = new btAxisSweep3(-maxAabb,maxAabb);//SimpleBroadphase();
+	btBroadphaseInterface* broadphase = new btAxisSweep3(-maxAabb,maxAabb);//SimpleBroadphase();
 	dispatcher->registerCollisionCreateFunc(GIMPACT_SHAPE_PROXYTYPE,GIMPACT_SHAPE_PROXYTYPE,new btSphereSphereCollisionAlgorithm::CreateFunc);
 	
 	btConstraintSolver* constraintSolver = new btSequentialImpulseConstraintSolver();

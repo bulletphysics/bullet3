@@ -48,7 +48,7 @@ public:
 
 
 	///this btSimpleDynamicsWorld constructor creates dispatcher, broadphase pairCache and constraintSolver
-	btSimpleDynamicsWorld(btDispatcher* dispatcher,btOverlappingPairCache* pairCache,btConstraintSolver* constraintSolver);
+	btSimpleDynamicsWorld(btDispatcher* dispatcher,btBroadphaseInterface* pairCache,btConstraintSolver* constraintSolver);
 
 	virtual ~btSimpleDynamicsWorld();
 		

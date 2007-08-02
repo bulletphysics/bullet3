@@ -182,6 +182,7 @@ SIMD_FORCE_INLINE bool operator<(const btBroadphasePair& a, const btBroadphasePa
 */
 
 
+
 class btBroadphasePairSortPredicate
 {
 	public:

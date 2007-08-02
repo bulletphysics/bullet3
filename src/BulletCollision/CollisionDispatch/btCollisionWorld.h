@@ -90,7 +90,7 @@ protected:
 
 	btStackAlloc*	m_stackAlloc;
 
-	btOverlappingPairCache*	m_broadphasePairCache;
+	btBroadphaseInterface*	m_broadphasePairCache;
 	
 	bool	m_ownsDispatcher;
 	bool	m_ownsBroadphasePairCache;
@@ -98,7 +98,7 @@ protected:
 public:
 
 	//this constructor doesn't own the dispatcher and paircache/broadphase
-	btCollisionWorld(btDispatcher* dispatcher,btOverlappingPairCache* pairCache, int stackSize = 2*1024*1024);
+	btCollisionWorld(btDispatcher* dispatcher,btBroadphaseInterface* broadphasePairCache, int stackSize = 2*1024*1024);
 
 	virtual ~btCollisionWorld();
 
@@ -110,7 +110,7 @@ public:
 
 	btOverlappingPairCache*	getPairCache()
 	{
-		return m_broadphasePairCache;
+		return m_broadphasePairCache->getOverlappingPairCache();
 	}
 
 

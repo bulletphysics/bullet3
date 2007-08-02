@@ -311,7 +311,7 @@ void RagdollDemo::initPhysics()
 
 	btPoint3 worldAabbMin(-10000,-10000,-10000);
 	btPoint3 worldAabbMax(10000,10000,10000);
-	btOverlappingPairCache* overlappingPairCache = new btAxisSweep3 (worldAabbMin, worldAabbMax);
+	btBroadphaseInterface* overlappingPairCache = new btAxisSweep3 (worldAabbMin, worldAabbMax);
 
 	btConstraintSolver* solver = new btSequentialImpulseConstraintSolver;
 
