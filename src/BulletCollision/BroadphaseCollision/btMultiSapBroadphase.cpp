@@ -16,6 +16,7 @@ subject to the following restrictions:
 #include "btMultiSapBroadphase.h"
 
 #include "btSimpleBroadphase.h"
+#include "LinearMath/btAabbUtil2.h"
 
 ///	btSapBroadphaseArray	m_sapBroadphases;
 
@@ -84,6 +85,9 @@ void	btMultiSapBroadphase::destroyProxy(btBroadphaseProxy* proxy)
 void	btMultiSapBroadphase::setAabb(btBroadphaseProxy* proxy,const btVector3& aabbMin,const btVector3& aabbMax)
 {
 	btMultiSapProxy* multiProxy = static_cast<btMultiSapProxy*>(proxy);
+	multiProxy->m_aabbMin = aabbMin;
+	multiProxy->m_aabbMax = aabbMax;
+
 	for (int i=0;i<multiProxy->m_childProxies.size();i++)
 	{
 		btChildProxy* childProxyRef = multiProxy->m_childProxies[i];
@@ -126,7 +130,7 @@ void	btMultiSapBroadphase::calculateOverlappingPairs()
 
 		if (!isDuplicate)
 		{
-			bool hasOverlap = true;//testAabbOverlap(pair.m_pProxy0,pair.m_pProxy1);
+			bool hasOverlap = testAabbOverlap(pair.m_pProxy0,pair.m_pProxy1);
 
 			if (hasOverlap)
 			{
@@ -170,3 +174,13 @@ void	btMultiSapBroadphase::calculateOverlappingPairs()
 
 }
 
+
+bool	btMultiSapBroadphase::testAabbOverlap(btBroadphaseProxy* childProxy0,btBroadphaseProxy* childProxy1)
+{
+		btMultiSapProxy* multiSapProxy0 = (btMultiSapProxy*)childProxy0->m_multiSapParentProxy;
+		btMultiSapProxy* multiSapProxy1 = (btMultiSapProxy*)childProxy1->m_multiSapParentProxy;
+
+		return	TestAabbAgainstAabb2(multiSapProxy0->m_aabbMin,multiSapProxy0->m_aabbMax,
+			multiSapProxy1->m_aabbMin,multiSapProxy1->m_aabbMax);
+		
+}

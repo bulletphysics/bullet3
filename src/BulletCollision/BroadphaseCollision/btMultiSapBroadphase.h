@@ -98,6 +98,8 @@ public:
 	///calculateOverlappingPairs is optional: incremental algorithms (sweep and prune) might do it during the set aabb
 	virtual void	calculateOverlappingPairs();
 
+	bool	testAabbOverlap(btBroadphaseProxy* proxy0,btBroadphaseProxy* proxy1);
+
 	virtual	btOverlappingPairCache*	getOverlappingPairCache()
 	{
 		return m_overlappingPairs;
