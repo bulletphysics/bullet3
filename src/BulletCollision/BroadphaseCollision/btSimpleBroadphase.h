@@ -51,7 +51,8 @@ protected:
 	int				m_numProxies;
 
 	btOverlappingPairCache*	m_pairCache;
-	
+	bool	m_ownsPairCache;
+
 	int	m_invalidPair;
 
 	int m_maxProxies;
@@ -69,18 +70,19 @@ protected:
 protected:
 
 
-	virtual void	calculateOverlappingPairs();
+	
 
 public:
-	btSimpleBroadphase(int maxProxies=16384);
+	btSimpleBroadphase(int maxProxies=16384,btOverlappingPairCache* overlappingPairCache=0);
 	virtual ~btSimpleBroadphase();
 
 
 		static bool	aabbOverlap(btSimpleBroadphaseProxy* proxy0,btSimpleBroadphaseProxy* proxy1);
 
 
-	virtual btBroadphaseProxy*	createProxy(  const btVector3& min,  const btVector3& max,int shapeType,void* userPtr ,short int collisionFilterGroup,short int collisionFilterMask);
+	virtual btBroadphaseProxy*	createProxy(  const btVector3& aabbMin,  const btVector3& aabbMax,int shapeType,void* userPtr ,short int collisionFilterGroup,short int collisionFilterMask);
 
+	virtual void	calculateOverlappingPairs();
 
 	virtual void	destroyProxy(btBroadphaseProxy* proxy);
 	virtual void	setAabb(btBroadphaseProxy* proxy,const btVector3& aabbMin,const btVector3& aabbMax);

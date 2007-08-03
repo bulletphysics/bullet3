@@ -79,8 +79,19 @@ struct btBroadphaseProxy
 
 	//Usually the client btCollisionObject or Rigidbody class
 	void*	m_clientObject;
-	short int m_collisionFilterGroup;
-	short int m_collisionFilterMask;
+
+	///in the case of btMultiSapBroadphase, we store the collifionFilterGroup/Mask in the m_multiSapParentProxy
+	union
+	{
+		struct
+		{
+			short int m_collisionFilterGroup;
+			short int m_collisionFilterMask;
+		};
+
+		void*	m_multiSapParentProxy;
+
+	};
 
 	//used for memory pools
 	btBroadphaseProxy() :m_clientObject(0){}

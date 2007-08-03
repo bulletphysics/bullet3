@@ -92,6 +92,7 @@ protected:
 	Edge* m_pEdges[3];						// edge arrays for the 3 axes (each array has m_maxHandles * 2 + 2 sentinel entries)
 
 	btOverlappingPairCache* m_pairCache;
+	bool	m_ownsPairCache;
 
 	int	m_invalidPair;
 
@@ -117,7 +118,7 @@ protected:
 	void sortMaxUp(int axis, BP_FP_INT_TYPE edge, bool updateOverlaps = true);
 
 public:
-	btAxisSweep3(const btPoint3& worldAabbMin,const btPoint3& worldAabbMax, int maxHandles = 16384);
+	btAxisSweep3(const btPoint3& worldAabbMin,const btPoint3& worldAabbMax, int maxHandles = 16384, btOverlappingPairCache* pairCache=0);
 	virtual	~btAxisSweep3();
 
 	virtual void	calculateOverlappingPairs();
@@ -130,7 +131,7 @@ public:
 	void	processAllOverlappingPairs(btOverlapCallback* callback);
 
 	//Broadphase Interface
-	virtual btBroadphaseProxy*	createProxy(  const btVector3& min,  const btVector3& max,int shapeType,void* userPtr ,short int collisionFilterGroup,short int collisionFilterMask);
+	virtual btBroadphaseProxy*	createProxy(  const btVector3& aabbMin,  const btVector3& aabbMax,int shapeType,void* userPtr ,short int collisionFilterGroup,short int collisionFilterMask);
 	virtual void	destroyProxy(btBroadphaseProxy* proxy);
 	virtual void	setAabb(btBroadphaseProxy* proxy,const btVector3& aabbMin,const btVector3& aabbMax);
 	

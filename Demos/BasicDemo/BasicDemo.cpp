@@ -25,6 +25,7 @@ subject to the following restrictions:
 int gNumObjects = 120;
 #define HALF_EXTENTS btScalar(1.)
 #include "btBulletDynamicsCommon.h"
+#include "BulletCollision/BroadphaseCollision/btMultiSapBroadphase.h"
 #include "LinearMath/btIDebugDraw.h"
 #include "GLDebugDrawer.h"
 #include <stdio.h> //printf debugging
@@ -56,6 +57,7 @@ class myTest
 
 int main(int argc,char** argv)
 {
+
 	BasicDemo ccdDemo;
 	ccdDemo.initPhysics();
 	ccdDemo.setCameraDistance(btScalar(50.));
@@ -157,7 +159,10 @@ void	BasicDemo::initPhysics()
 #define maxProxies 8192
 	btVector3 worldAabbMin(-10000,-10000,-10000);
 	btVector3 worldAabbMax(10000,10000,10000);
-	m_overlappingPairCache = new btAxisSweep3(worldAabbMin,worldAabbMax,maxProxies);
+	//m_overlappingPairCache = new btAxisSweep3(worldAabbMin,worldAabbMax,maxProxies);
+	m_overlappingPairCache = new btMultiSapBroadphase();
+
+
 #else
 	m_overlappingPairCache = new btSimpleBroadphase;
 #endif //USE_SWEEP_AND_PRUNE

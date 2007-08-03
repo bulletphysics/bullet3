@@ -36,15 +36,21 @@ void	btSimpleBroadphase::validate()
 	
 }
 
-btSimpleBroadphase::btSimpleBroadphase(int maxProxies)
+btSimpleBroadphase::btSimpleBroadphase(int maxProxies, btOverlappingPairCache* overlappingPairCache)
 	:
 	m_firstFreeProxy(0),
 	m_numProxies(0),
 	m_maxProxies(maxProxies),
-	m_invalidPair(0)
+	m_invalidPair(0),
+	m_pairCache(overlappingPairCache),
+	m_ownsPairCache(false)
 {
-	
-	m_pairCache = new btOverlappingPairCache();
+
+	if (!overlappingPairCache)
+	{
+		m_pairCache = new btOverlappingPairCache();
+		m_ownsPairCache = true;
+	}
 
 	m_proxies = new btSimpleBroadphaseProxy[maxProxies];
 	m_freeProxies = new int[maxProxies];
@@ -71,20 +77,25 @@ btSimpleBroadphase::~btSimpleBroadphase()
 		destroyProxy(proxy);
 	}
 	*/
+
+	if (m_ownsPairCache)
+	{
+		delete m_pairCache;
+	}
 }
 
 
-btBroadphaseProxy*	btSimpleBroadphase::createProxy(  const btVector3& min,  const btVector3& max,int shapeType,void* userPtr ,short int collisionFilterGroup,short int collisionFilterMask)
+btBroadphaseProxy*	btSimpleBroadphase::createProxy(  const btVector3& aabbMin,  const btVector3& aabbMax,int shapeType,void* userPtr ,short int collisionFilterGroup,short int collisionFilterMask)
 {
 	if (m_numProxies >= m_maxProxies)
 	{
 		assert(0);
 		return 0; //should never happen, but don't let the game crash ;-)
 	}
-	assert(min[0]<= max[0] && min[1]<= max[1] && min[2]<= max[2]);
+	assert(aabbMin[0]<= aabbMax[0] && aabbMin[1]<= aabbMax[1] && aabbMin[2]<= aabbMax[2]);
 
 	int freeIndex= m_freeProxies[m_firstFreeProxy];
-	btSimpleBroadphaseProxy* proxy = new (&m_proxies[freeIndex])btSimpleBroadphaseProxy(min,max,shapeType,userPtr,collisionFilterGroup,collisionFilterMask);
+	btSimpleBroadphaseProxy* proxy = new (&m_proxies[freeIndex])btSimpleBroadphaseProxy(aabbMin,aabbMax,shapeType,userPtr,collisionFilterGroup,collisionFilterMask);
 	m_firstFreeProxy++;
 
 	btSimpleBroadphaseProxy* proxy1 = &m_proxies[0];
@@ -215,77 +226,80 @@ void	btSimpleBroadphase::calculateOverlappingPairs()
 		}
 	}
 
-	
-	btBroadphasePairArray&	overlappingPairArray = m_pairCache->getOverlappingPairArray();
-
-	//perform a sort, to find duplicates and to sort 'invalid' pairs to the end
-	overlappingPairArray.heapSort(btBroadphasePairSortPredicate());
-
-	overlappingPairArray.resize(overlappingPairArray.size() - m_invalidPair);
-	m_invalidPair = 0;
-
-
-	btBroadphasePair previousPair;
-	previousPair.m_pProxy0 = 0;
-	previousPair.m_pProxy1 = 0;
-	previousPair.m_algorithm = 0;
-	
-	
-	for (i=0;i<overlappingPairArray.size();i++)
+	if (m_ownsPairCache)
 	{
-	
-		btBroadphasePair& pair = overlappingPairArray[i];
+		
+		btBroadphasePairArray&	overlappingPairArray = m_pairCache->getOverlappingPairArray();
 
-		bool isDuplicate = (pair == previousPair);
+		//perform a sort, to find duplicates and to sort 'invalid' pairs to the end
+		overlappingPairArray.heapSort(btBroadphasePairSortPredicate());
 
-		previousPair = pair;
+		overlappingPairArray.resize(overlappingPairArray.size() - m_invalidPair);
+		m_invalidPair = 0;
 
-		bool needsRemoval = false;
 
-		if (!isDuplicate)
+		btBroadphasePair previousPair;
+		previousPair.m_pProxy0 = 0;
+		previousPair.m_pProxy1 = 0;
+		previousPair.m_algorithm = 0;
+		
+		
+		for (i=0;i<overlappingPairArray.size();i++)
 		{
-			bool hasOverlap = testAabbOverlap(pair.m_pProxy0,pair.m_pProxy1);
+		
+			btBroadphasePair& pair = overlappingPairArray[i];
 
-			if (hasOverlap)
+			bool isDuplicate = (pair == previousPair);
+
+			previousPair = pair;
+
+			bool needsRemoval = false;
+
+			if (!isDuplicate)
 			{
-				needsRemoval = false;//callback->processOverlap(pair);
+				bool hasOverlap = testAabbOverlap(pair.m_pProxy0,pair.m_pProxy1);
+
+				if (hasOverlap)
+				{
+					needsRemoval = false;//callback->processOverlap(pair);
+				} else
+				{
+					needsRemoval = true;
+				}
 			} else
 			{
+				//remove duplicate
 				needsRemoval = true;
+				//should have no algorithm
+				btAssert(!pair.m_algorithm);
 			}
-		} else
-		{
-			//remove duplicate
-			needsRemoval = true;
-			//should have no algorithm
-			btAssert(!pair.m_algorithm);
+			
+			if (needsRemoval)
+			{
+				m_pairCache->cleanOverlappingPair(pair);
+
+		//		m_overlappingPairArray.swap(i,m_overlappingPairArray.size()-1);
+		//		m_overlappingPairArray.pop_back();
+				pair.m_pProxy0 = 0;
+				pair.m_pProxy1 = 0;
+				m_invalidPair++;
+				gOverlappingPairs--;
+			} 
+			
 		}
-		
-		if (needsRemoval)
-		{
-			m_pairCache->cleanOverlappingPair(pair);
 
-	//		m_overlappingPairArray.swap(i,m_overlappingPairArray.size()-1);
-	//		m_overlappingPairArray.pop_back();
-			pair.m_pProxy0 = 0;
-			pair.m_pProxy1 = 0;
-			m_invalidPair++;
-			gOverlappingPairs--;
-		} 
-		
-	}
+	///if you don't like to skip the invalid pairs in the array, execute following code:
+	#define CLEAN_INVALID_PAIRS 1
+	#ifdef CLEAN_INVALID_PAIRS
 
-///if you don't like to skip the invalid pairs in the array, execute following code:
-#define CLEAN_INVALID_PAIRS 1
-#ifdef CLEAN_INVALID_PAIRS
+		//perform a sort, to sort 'invalid' pairs to the end
+		overlappingPairArray.heapSort(btBroadphasePairSortPredicate());
 
-	//perform a sort, to sort 'invalid' pairs to the end
-	overlappingPairArray.heapSort(btBroadphasePairSortPredicate());
-
-	overlappingPairArray.resize(overlappingPairArray.size() - m_invalidPair);
-	m_invalidPair = 0;
-#endif//CLEAN_INVALID_PAIRS
+		overlappingPairArray.resize(overlappingPairArray.size() - m_invalidPair);
+		m_invalidPair = 0;
+	#endif//CLEAN_INVALID_PAIRS
 	
+	}
 }
 
 

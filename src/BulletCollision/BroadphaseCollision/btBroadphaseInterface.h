@@ -31,7 +31,7 @@ class btBroadphaseInterface
 public:
 	virtual ~btBroadphaseInterface() {}
 
-	virtual btBroadphaseProxy*	createProxy(  const btVector3& min,  const btVector3& max,int shapeType,void* userPtr, short int collisionFilterGroup,short int collisionFilterMask) =0;
+	virtual btBroadphaseProxy*	createProxy(  const btVector3& aabbMin,  const btVector3& aabbMax,int shapeType,void* userPtr, short int collisionFilterGroup,short int collisionFilterMask) =0;
 	virtual void	destroyProxy(btBroadphaseProxy* proxy)=0;
 	virtual void	setAabb(btBroadphaseProxy* proxy,const btVector3& aabbMin,const btVector3& aabbMax)=0;
 	
