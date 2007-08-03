@@ -8,6 +8,7 @@ ADD_LIBRARY(LibBulletCollision
 				BroadphaseCollision/btBroadphaseProxy.cpp
 				BroadphaseCollision/btCollisionAlgorithm.cpp
 				BroadphaseCollision/btDispatcher.cpp
+				BroadphaseCollision/btMultiSapBroadphase.cpp
 				BroadphaseCollision/btOverlappingPairCache.cpp
 				BroadphaseCollision/btSimpleBroadphase.cpp
 				CollisionDispatch/btCollisionDispatcher.cpp

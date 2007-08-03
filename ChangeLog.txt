@@ -1,7 +1,13 @@
 Bullet Continuous Collision Detection and Physics Library
 Primary author and maintainer: Erwin Coumans
 
-2007 August July 27
+2007 Aug 2
+	- added compound and concave-convex (swapped) case for BulletMultiThreaded collision detection, thanks to Marten Svanfeldt
+	- refactored broadphase and overlapping pair cache. This allows performance improvement by combining multiple broadphases. This helps add/remove of large batches of objects and large worlds. See also Pierre Terdiman forum topic:
+	http://www.continuousphysics.com/Bullet/phpBB2/viewtopic.php?t=1329
+
+
+2007 July 27
 	- added Ragdoll Demo
 		Thanks to Marten Svanfeld (Starbreeze Studios)
 

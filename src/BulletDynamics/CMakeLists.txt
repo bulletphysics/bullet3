@@ -12,6 +12,7 @@ ADD_LIBRARY(LibBulletDynamics
 	ConstraintSolver/btSequentialImpulseConstraintSolver.cpp
 	ConstraintSolver/btSolve2LinearConstraint.cpp
 	ConstraintSolver/btTypedConstraint.cpp
+	Dynamics/Bullet-C-API.cpp
 	Dynamics/btDiscreteDynamicsWorld.cpp
 	Dynamics/btSimpleDynamicsWorld.cpp
 	Dynamics/btRigidBody.cpp
