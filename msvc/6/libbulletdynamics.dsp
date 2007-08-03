@@ -216,6 +216,10 @@ SOURCE=..\..\src\BulletDynamics\Dynamics\btSimpleDynamicsWorld.cpp
 # End Source File
 # Begin Source File
 
+SOURCE=..\..\src\BulletDynamics\Dynamics\Bullet-C-API.cpp
+# End Source File
+# Begin Source File
+
 SOURCE=..\..\src\BulletDynamics\Vehicle\btRaycastVehicle.cpp
 # End Source File
 # Begin Source File

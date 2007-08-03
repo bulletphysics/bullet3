@@ -307,6 +307,9 @@
 				RelativePath="..\..\src\BulletCollision\BroadphaseCollision\btDispatcher.cpp">
 			</File>
 			<File
+				RelativePath="..\..\src\BulletCollision\BroadphaseCollision\btMultiSapBroadphase.cpp">
+			</File>
+			<File
 				RelativePath="..\..\src\BulletCollision\BroadphaseCollision\btOverlappingPairCache.cpp">
 			</File>
 			<File
@@ -489,6 +492,9 @@
 			</File>
 			<File
 				RelativePath="..\..\src\BulletCollision\BroadphaseCollision\btDispatcher.h">
+			</File>
+			<File
+				RelativePath="..\..\src\BulletCollision\BroadphaseCollision\btMultiSapBroadphase.h">
 			</File>
 			<File
 				RelativePath="..\..\src\BulletCollision\BroadphaseCollision\btOverlappingPairCache.h">

@@ -188,6 +188,10 @@ SOURCE=..\..\src\BulletCollision\BroadphaseCollision\btDispatcher.cpp
 # End Source File
 # Begin Source File
 
+SOURCE=..\..\src\BulletCollision\BroadphaseCollision\btMultiSapBroadphase.cpp
+# End Source File
+# Begin Source File
+
 SOURCE=..\..\src\BulletCollision\BroadphaseCollision\btOverlappingPairCache.cpp
 # End Source File
 # Begin Source File
@@ -429,6 +433,10 @@ SOURCE=..\..\src\BulletCollision\BroadphaseCollision\btCollisionAlgorithm.h
 # Begin Source File
 
 SOURCE=..\..\src\BulletCollision\BroadphaseCollision\btDispatcher.h
+# End Source File
+# Begin Source File
+
+SOURCE=..\..\src\BulletCollision\BroadphaseCollision\btMultiSapBroadphase.h
 # End Source File
 # Begin Source File
 

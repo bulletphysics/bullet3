@@ -328,6 +328,9 @@
 				RelativePath="..\..\src\BulletDynamics\Dynamics\btSimpleDynamicsWorld.cpp">
 			</File>
 			<File
+				RelativePath="..\..\src\BulletDynamics\Dynamics\Bullet-C-API.cpp">
+			</File>
+			<File
 				RelativePath="..\..\src\BulletDynamics\Vehicle\btRaycastVehicle.cpp">
 			</File>
 			<File
