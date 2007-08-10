@@ -1,10 +1,128 @@
-SIMD math library functions for both the PowerPC (PPU) and the SPU.
-Copyright (C) 2006, 2007 Sony Computer Entertainment Inc.
-Open Source under the new BSD license, see LICENSE
+			  SIMD math library
 
-Module maintainer: Erwin Coumans
-Feedback and patches:
-http://www.bulletphysics.com/Bullet/phpBB2/viewforum.php?f=18
-Main repository URL:
-http://bullet.svn.sourceforge.net/viewvc/bullet/trunk/Extras/simdmathlibrary
 
+* Overview
+
+  The SIMD math library (SIMD math lib) is a SIMDized version of the
+  C99 standard math library (libm).
+
+
+* License
+
+  This library is licensed under the terms in the file 'LICENSE' in
+  this directory.
+
+
+* Installing
+
+  To install this library, run following commands:
+
+  - 32 bit mode PowerPC with VMX
+
+    $ make ARCH=ppu
+    $ make ARCH=ppu install
+
+  - 64 bit mode PowerPC with VMX
+
+    $ make ARCH=ppu64
+    $ make ARCH=ppu64 install
+
+  - SPU (Cell Broadband Engine Synergistic Processor Unit)
+
+    $ make ARCH=spu
+    $ make ARCH=spu install
+
+  The same library is created and installed for SPU regardless of
+  PPU's mode.
+
+
+  By default, files in the library will be placed as below:
+
+  - libraries (except SPU library)
+
+    /usr/lib/libsimdmath.a             (static library)
+    /usr/lib/libsimdmath.so            (shared library)
+
+  - headers (except SPU headers)
+
+    /usr/lib/simdmath.h                 (main header)
+    /usr/lib/simdmath/<FUNCTION>.h      (header of inline version)
+
+  - SPU library
+
+    /usr/spu/lib/libsimdmath.a (static library)
+    (no shared library for SPU)
+
+  - SPU headers
+
+    /usr/spu/lib/simdmath.h             (main header)
+    /usr/spu/lib/simdmath/<FUNCTION>.h  (header of inline version)
+
+
+* Packaging
+
+  By running following command in this directory, a source tarball
+  'simdmath-<VERSION>.tar.gz' can be created:
+
+    $ make dist
+  
+  You can also create RPM packages by executing the command below with
+  the tarball:
+
+    $ rpmbuild -tb simdmath-1.0.1.tar.gz --target=ppc
+
+  Three packages, simdmath, simdmath-devel and spu-simdmath-devel,
+  will be created.
+
+
+* Quick start
+
+  - Including headers
+
+    You must include the header simdmat.h in your source code, as
+    following:
+
+    e.g.)
+
+      #include <simdmath.h>
+
+    If you want to use inlined version of the functions, you need to
+    include simdmath/<FUNCTION>.h instead of simdmath.h:
+
+    e.g.)
+
+      #include <simdmath/sinf4.h>
+
+  - Linking with library
+
+    If you use non-inlined version of the library, you need to link
+    the library libsimdmath.a or libsimdmath.so:
+
+    e.g.)
+
+      $ gcc -o foo foo.o -lsimdmath
+      $ spu-gcc -o bar bar.o -lsimdmath
+
+  - Function reference
+
+    To obtain details about each function in this library, the
+    specification document "SIMD Math Library Specification for Cell
+    Broadband Engine Architecture" is avaiable at
+    "http://cell.scei.co.jp/".
+
+    Note that the name of each inlined version of function is prefixed
+    by a character '_' against the corresponding non-inlined one.
+
+
+* Contacting the project
+
+  Module maintainer: Erwin Coumans
+
+  Feedback and patches:
+    http://www.bulletphysics.com/Bullet/phpBB2/viewforum.php?f=18
+
+  Main repository URL:
+    http://bullet.svn.sourceforge.net/viewvc/bullet/trunk/Extras/simdmathlibrary
+
+---
+EOF
