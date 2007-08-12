@@ -23,13 +23,14 @@ Written by: Marcus Hennix
 #include <new>
 
 btConeTwistConstraint::btConeTwistConstraint()
+:btTypedConstraint(CONETWIST_CONSTRAINT_TYPE)
 {
 }
 
 
 btConeTwistConstraint::btConeTwistConstraint(btRigidBody& rbA,btRigidBody& rbB, 
 											 const btTransform& rbAFrame,const btTransform& rbBFrame)
-											 :btTypedConstraint(rbA,rbB),m_rbAFrame(rbAFrame),m_rbBFrame(rbBFrame),
+											 :btTypedConstraint(CONETWIST_CONSTRAINT_TYPE, rbA,rbB),m_rbAFrame(rbAFrame),m_rbBFrame(rbBFrame),
 											 m_angularOnly(false)
 {
 	// flip axis for correct angles
@@ -49,7 +50,7 @@ btConeTwistConstraint::btConeTwistConstraint(btRigidBody& rbA,btRigidBody& rbB,
 }
 
 btConeTwistConstraint::btConeTwistConstraint(btRigidBody& rbA,const btTransform& rbAFrame)
-											:btTypedConstraint(rbA),m_rbAFrame(rbAFrame),
+											:btTypedConstraint(CONETWIST_CONSTRAINT_TYPE,rbA),m_rbAFrame(rbAFrame),
 											 m_angularOnly(false)
 {
 	m_rbBFrame = m_rbAFrame;

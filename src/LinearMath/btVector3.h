@@ -27,6 +27,10 @@ class	btVector3 : public btQuadWord {
 public:
 	SIMD_FORCE_INLINE btVector3() {}
 
+	SIMD_FORCE_INLINE btVector3(const btQuadWordStorage& q) 
+		: btQuadWord(q)
+	{
+	}
 	
 
 	SIMD_FORCE_INLINE btVector3(const btScalar& x, const btScalar& y, const btScalar& z) 

@@ -28,7 +28,8 @@
 static btRigidBody s_fixedObject( 0,0,0);
 
 btRaycastVehicle::btRaycastVehicle(const btVehicleTuning& tuning,btRigidBody* chassis,	btVehicleRaycaster* raycaster )
-:m_vehicleRaycaster(raycaster),
+: btTypedConstraint(VEHICLE_CONSTRAINT_TYPE),
+m_vehicleRaycaster(raycaster),
 m_pitchControl(btScalar(0.))
 {
 	m_chassisBody = chassis;

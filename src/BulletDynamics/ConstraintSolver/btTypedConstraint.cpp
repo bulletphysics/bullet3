@@ -19,8 +19,9 @@ subject to the following restrictions:
 
 static btRigidBody s_fixed(0, 0,0);
 
-btTypedConstraint::btTypedConstraint()
-: m_userConstraintType(-1),
+btTypedConstraint::btTypedConstraint(btTypedConstraintType type)
+: m_constraintType (type),
+m_userConstraintType(-1),
 m_userConstraintId(-1),
 m_rbA(s_fixed),
 m_rbB(s_fixed),
@@ -28,8 +29,9 @@ m_appliedImpulse(btScalar(0.))
 {
 	s_fixed.setMassProps(btScalar(0.),btVector3(btScalar(0.),btScalar(0.),btScalar(0.)));
 }
-btTypedConstraint::btTypedConstraint(btRigidBody& rbA)
-: m_userConstraintType(-1),
+btTypedConstraint::btTypedConstraint(btTypedConstraintType type, btRigidBody& rbA)
+: m_constraintType (type),
+m_userConstraintType(-1),
 m_userConstraintId(-1),
 m_rbA(rbA),
 m_rbB(s_fixed),
@@ -40,8 +42,9 @@ m_appliedImpulse(btScalar(0.))
 }
 
 
-btTypedConstraint::btTypedConstraint(btRigidBody& rbA,btRigidBody& rbB)
-: m_userConstraintType(-1),
+btTypedConstraint::btTypedConstraint(btTypedConstraintType type, btRigidBody& rbA,btRigidBody& rbB)
+: m_constraintType (type),
+m_userConstraintType(-1),
 m_userConstraintId(-1),
 m_rbA(rbA),
 m_rbB(rbB),

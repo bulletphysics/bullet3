@@ -28,6 +28,9 @@ class btRigidBody;
 /// axis defines the orientation of the hinge axis
 class btHingeConstraint : public btTypedConstraint
 {
+#ifdef IN_PARALLELL_SOLVER
+public:
+#endif
 	btJacobianEntry	m_jac[3]; //3 orthogonal linear constraints
 	btJacobianEntry	m_jacAng[3]; //2 orthogonal angular constraints+ 1 for limit/motor
 

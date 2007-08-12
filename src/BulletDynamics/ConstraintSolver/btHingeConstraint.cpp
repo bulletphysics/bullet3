@@ -21,14 +21,15 @@ subject to the following restrictions:
 #include <new>
 
 
-btHingeConstraint::btHingeConstraint():
+btHingeConstraint::btHingeConstraint()
+: btTypedConstraint (HINGE_CONSTRAINT_TYPE),
 m_enableAngularMotor(false)
 {
 }
 
 btHingeConstraint::btHingeConstraint(btRigidBody& rbA,btRigidBody& rbB, const btVector3& pivotInA,const btVector3& pivotInB,
 									 btVector3& axisInA,btVector3& axisInB)
-									 :btTypedConstraint(rbA,rbB),
+									 :btTypedConstraint(HINGE_CONSTRAINT_TYPE, rbA,rbB),
 									 m_angularOnly(false),
 									 m_enableAngularMotor(false)
 {
@@ -70,7 +71,7 @@ btHingeConstraint::btHingeConstraint(btRigidBody& rbA,btRigidBody& rbB, const bt
 
 
 btHingeConstraint::btHingeConstraint(btRigidBody& rbA,const btVector3& pivotInA,btVector3& axisInA)
-:btTypedConstraint(rbA), m_angularOnly(false), m_enableAngularMotor(false)
+:btTypedConstraint(HINGE_CONSTRAINT_TYPE, rbA), m_angularOnly(false), m_enableAngularMotor(false)
 {
 
 	// since no frame is given, assume this to be zero angle and just pick rb transform axis
@@ -113,7 +114,7 @@ btHingeConstraint::btHingeConstraint(btRigidBody& rbA,const btVector3& pivotInA,
 
 btHingeConstraint::btHingeConstraint(btRigidBody& rbA,btRigidBody& rbB, 
 								     const btTransform& rbAFrame, const btTransform& rbBFrame)
-:btTypedConstraint(rbA,rbB),m_rbAFrame(rbAFrame),m_rbBFrame(rbBFrame),
+:btTypedConstraint(HINGE_CONSTRAINT_TYPE, rbA,rbB),m_rbAFrame(rbAFrame),m_rbBFrame(rbBFrame),
 m_angularOnly(false),
 m_enableAngularMotor(false)
 {
@@ -134,7 +135,7 @@ m_enableAngularMotor(false)
 
 
 btHingeConstraint::btHingeConstraint(btRigidBody& rbA, const btTransform& rbAFrame)
-:btTypedConstraint(rbA),m_rbAFrame(rbAFrame),m_rbBFrame(rbAFrame),
+:btTypedConstraint(HINGE_CONSTRAINT_TYPE, rbA),m_rbAFrame(rbAFrame),m_rbBFrame(rbAFrame),
 m_angularOnly(false),
 m_enableAngularMotor(false)
 {

@@ -26,6 +26,9 @@ subject to the following restrictions:
 //#define USE_CUSTOM_NEAR_CALLBACK 1
 //#define CENTER_OF_MASS_SHIFT 1
 
+//#define USE_PARALLEL_SOLVER 1 //experimental parallel solver
+//#define USE_PARALLEL_DISPATCHER 1
+
 //following define allows to compare/replace Bullet's constraint solver with ODE quickstep
 //this define requires to either add the libquickstep library (win32, see msvc/8/libquickstep.vcproj) or manually add the files from Extras/quickstep
 //#define COMPARE_WITH_QUICKSTEP 1
@@ -37,6 +40,15 @@ subject to the following restrictions:
 #include "../Extras/AlternativeCollisionAlgorithms/BoxBoxCollisionAlgorithm.h"
 #endif //REGISTER_BOX_BOX
 #include "BulletCollision/CollisionDispatch/btSphereTriangleCollisionAlgorithm.h"
+
+#ifdef USE_PARALLEL_DISPATCHER
+#include "../../Extras/BulletMultiThreaded/SpuGatheringCollisionDispatcher.h"
+#include "../../Extras/BulletMultiThreaded/Win32ThreadSupport.h"
+#include "../../Extras/BulletMultiThreaded/SpuNarrowPhaseCollisionTask/SpuGatheringCollisionTask.h"
+#include "../../Extras/BulletMultiThreaded/SpuParallelSolver.h"
+#include "../../Extras/BulletMultiThreaded/SpuSolverTask/SpuParallellSolverTask.h"
+#endif//USE_PARALLEL_DISPATCHER
+
 
 #ifdef COMPARE_WITH_QUICKSTEP
 #include "../Extras/quickstep/OdeConstraintSolver.h"
@@ -351,7 +363,33 @@ void	CcdPhysicsDemo::initPhysics()
 	m_azi = 90.f;
 #endif //DO_BENCHMARK_PYRAMIDS
 
-	btCollisionDispatcher* dispatcher = new	btCollisionDispatcher();
+	btCollisionDispatcher* dispatcher=0;
+	
+	
+#ifdef USE_PARALLEL_DISPATCHER
+
+#ifdef USE_WIN32_THREADING
+
+int maxNumOutstandingTasks = 4;//number of maximum outstanding tasks
+	Win32ThreadSupport* threadSupportCollision = new Win32ThreadSupport(Win32ThreadSupport::Win32ThreadConstructionInfo(
+								"collision",
+								processCollisionTask,
+								createCollisionLocalStoreMemory,
+								maxNumOutstandingTasks));
+#else
+///todo other platform threading
+///Playstation 3 SPU (SPURS)  version is available through PS3 Devnet
+///Libspe2 SPU support will be available soon
+///pthreads version
+///you can hook it up to your custom task scheduler by deriving from btThreadSupportInterface
+#endif
+
+
+	dispatcher = new	SpuGatheringCollisionDispatcher(threadSupportCollision,maxNumOutstandingTasks);
+//	dispatcher = new	btCollisionDispatcher();
+#else
+	dispatcher = new	btCollisionDispatcher();
+#endif //USE_PARALLEL_DISPATCHER
 
 #ifdef USE_CUSTOM_NEAR_CALLBACK
 	//this is optional
@@ -379,11 +417,24 @@ void	CcdPhysicsDemo::initPhysics()
 #ifdef COMPARE_WITH_QUICKSTEP
 	btConstraintSolver* solver = new OdeConstraintSolver();
 #else
-	//default constraint solver
+
+	
+#ifdef USE_PARALLEL_SOLVER
+
+	Win32ThreadSupport* threadSupportSolver = new Win32ThreadSupport(Win32ThreadSupport::Win32ThreadConstructionInfo(
+								"solver",
+								processSolverTask,
+								createSolverLocalStoreMemory,
+								maxNumOutstandingTasks));
+
+	btConstraintSolver* solver = new btParallelSequentialImpulseSolver(threadSupportSolver,maxNumOutstandingTasks);
+#else
 	btSequentialImpulseConstraintSolver* solver = new btSequentialImpulseConstraintSolver;
 	//default solverMode is SOLVER_RANDMIZE_ORDER. Warmstarting seems not to improve convergence, see 
 	//solver->setSolverMode(btSequentialImpulseConstraintSolver::SOLVER_USE_WARMSTARTING | btSequentialImpulseConstraintSolver::SOLVER_RANDMIZE_ORDER);
 	
+#endif //USE_PARALLEL_SOLVER
+
 #endif
 		
 #ifdef	USER_DEFINED_FRICTION_MODEL
@@ -392,6 +443,7 @@ void	CcdPhysicsDemo::initPhysics()
 #endif //USER_DEFINED_FRICTION_MODEL
 
 		m_dynamicsWorld = new btDiscreteDynamicsWorld(dispatcher,broadphase,solver);
+		m_dynamicsWorld->getDispatchInfo().m_enableSPU = true;
 		m_dynamicsWorld->setGravity(btVector3(0,-10,0));
 
 		m_dynamicsWorld->setDebugDrawer(&debugDrawer);

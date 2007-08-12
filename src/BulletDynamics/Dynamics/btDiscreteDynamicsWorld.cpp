@@ -525,13 +525,13 @@ void	btDiscreteDynamicsWorld::solveConstraints(btContactSolverInfo& solverInfo)
 	btTypedConstraint** constraintsPtr = getNumConstraints() ? &sortedConstraints[0] : 0;
 	
 	InplaceSolverIslandCallback	solverCallback(	solverInfo,	m_constraintSolver, constraintsPtr,sortedConstraints.size(),	m_debugDrawer,m_stackAlloc);
-
 	
+	m_constraintSolver->prepareSolve(getCollisionWorld()->getNumCollisionObjects(), getCollisionWorld()->getDispatcher()->getNumManifolds());
 	
 	/// solve all the constraints for this island
 	m_islandManager->buildAndProcessIslands(getCollisionWorld()->getDispatcher(),getCollisionWorld()->getCollisionObjectArray(),&solverCallback);
 
-
+	m_constraintSolver->allSolved(solverInfo, m_debugDrawer, m_stackAlloc);
 }
 
 

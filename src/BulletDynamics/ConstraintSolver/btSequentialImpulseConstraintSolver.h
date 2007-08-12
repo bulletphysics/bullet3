@@ -105,7 +105,9 @@ public:
 
 };
 
-
+#ifndef BT_PREFER_SIMD
+typedef btSequentialImpulseConstraintSolver btSequentialImpulseConstraintSolverPrefered;
+#endif
 
 
 #endif //SEQUENTIAL_IMPULSE_CONSTRAINT_SOLVER_H

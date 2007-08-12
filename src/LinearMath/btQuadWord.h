@@ -19,16 +19,19 @@ subject to the following restrictions:
 #include "btScalar.h"
 #include "btSimdMinMax.h"
 
+class btQuadWordStorage
+{
+protected:
+	btScalar	m_x;
+	btScalar	m_y;
+	btScalar	m_z;
+	btScalar	m_unusedW;
+};
+
 
 ///btQuadWord is base-class for vectors, points
-class	btQuadWord
+class	btQuadWord : public btQuadWordStorage
 {
-	protected:
-		btScalar	m_x;
-		btScalar	m_y;
-		btScalar	m_z;
-		btScalar	m_unusedW;
-
 	public:
 	
 //		SIMD_FORCE_INLINE btScalar&       operator[](int i)       { return (&m_x)[i];	}      
@@ -88,16 +91,19 @@ class	btQuadWord
 		{
 		}
 
-		SIMD_FORCE_INLINE btQuadWord(const btScalar& x, const btScalar& y, const btScalar& z) 
-		:m_x(x),m_y(y),m_z(z)
-		//todo, remove this in release/simd ?
-		,m_unusedW(btScalar(0.))
+		SIMD_FORCE_INLINE btQuadWord(const btQuadWordStorage& q)
 		{
+			*((btQuadWordStorage*)this) = q;
+		}
+
+		SIMD_FORCE_INLINE btQuadWord(const btScalar& x, const btScalar& y, const btScalar& z)		
+		{
+			m_x = x, m_y = y, m_z = z, m_unusedW = 0.0f;
 		}
 
 		SIMD_FORCE_INLINE btQuadWord(const btScalar& x, const btScalar& y, const btScalar& z,const btScalar& w) 
-			:m_x(x),m_y(y),m_z(z),m_unusedW(w)
 		{
+			m_x = x, m_y = y, m_z = z, m_unusedW = w;
 		}
 
 

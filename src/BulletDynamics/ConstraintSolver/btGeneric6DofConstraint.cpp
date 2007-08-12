@@ -25,11 +25,12 @@ static const int kAxisB[] = { 2, 2, 1 };
 #define GENERIC_D6_DISABLE_WARMSTARTING 1
 
 btGeneric6DofConstraint::btGeneric6DofConstraint()
+:btTypedConstraint(D6_CONSTRAINT_TYPE)
 {
 }
 
 btGeneric6DofConstraint::btGeneric6DofConstraint(btRigidBody& rbA, btRigidBody& rbB, const btTransform& frameInA, const btTransform& frameInB)
-: btTypedConstraint(rbA, rbB)
+: btTypedConstraint(D6_CONSTRAINT_TYPE, rbA, rbB)
 , m_frameInA(frameInA)
 , m_frameInB(frameInB)
 {
