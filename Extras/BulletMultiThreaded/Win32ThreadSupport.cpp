@@ -56,6 +56,7 @@ DWORD WINAPI Thread_no_1( LPVOID lpParam )
 		if (userPtr)
 		{
 			status->m_userThreadFunc(userPtr,status->m_lsMemory);
+			status->m_status = 2;
 			SetEvent(status->m_eventCompletetHandle);
 		} else
 		{
@@ -134,24 +135,17 @@ void Win32ThreadSupport::waitForResponse(unsigned int *puiArgument0, unsigned in
 	btAssert(m_activeSpuStatus.size());
 
 	int last = -1;
-	
-	//find an active spu/thread
-	for (int i=0;i<m_activeSpuStatus.size();i++)
-	{
-		if (m_activeSpuStatus[i].m_status)
-		{
-			last = i;
-			break;
-		}
-	}
-
-
 #ifndef SINGLE_THREADED
+	DWORD res = WaitForMultipleObjects(m_completeHandles.size(), &m_completeHandles[0], FALSE, INFINITE);
+	btAssert(res != WAIT_FAILED);
+	last = res - WAIT_OBJECT_0;
+
 	btSpuStatus& spuStatus = m_activeSpuStatus[last];
 	btAssert(spuStatus.m_threadHandle);
 	btAssert(spuStatus.m_eventCompletetHandle);
 
-	WaitForSingleObject(spuStatus.m_eventCompletetHandle, INFINITE);
+	//WaitForSingleObject(spuStatus.m_eventCompletetHandle, INFINITE);
+	btAssert(spuStatus.m_status > 1);
 	spuStatus.m_status = 0;
 
 	///need to find an active spu
@@ -176,6 +170,7 @@ void Win32ThreadSupport::startThreads(Win32ThreadConstructionInfo& threadConstru
 {
 
 	m_activeSpuStatus.resize(threadConstructionInfo.m_numThreads);
+	m_completeHandles.resize(threadConstructionInfo.m_numThreads);
 
 	for (int i=0;i<threadConstructionInfo.m_numThreads;i++)
 	{
@@ -198,9 +193,13 @@ void Win32ThreadSupport::startThreads(Win32ThreadConstructionInfo& threadConstru
 		sprintf(spuStatus.m_eventCompletetHandleName,"eventComplete%s%d",threadConstructionInfo.m_uniqueName,i);
 		spuStatus.m_eventCompletetHandle = CreateEvent(0,false,false,spuStatus.m_eventCompletetHandleName);
 
+		m_completeHandles[i] = spuStatus.m_eventCompletetHandle;
 
 		HANDLE handle = CreateThread(lpThreadAttributes,dwStackSize,lpStartAddress,lpParameter,	dwCreationFlags,lpThreadId);
-		SetThreadPriority(handle,THREAD_PRIORITY_TIME_CRITICAL);
+		SetThreadPriority(handle,THREAD_PRIORITY_HIGHEST);
+		//SetThreadPriority(handle,THREAD_PRIORITY_TIME_CRITICAL);
+
+		//SetThreadAffinityMask(handle, 1<<i);
 
 		spuStatus.m_taskId = i;
 		spuStatus.m_commandId = 0;

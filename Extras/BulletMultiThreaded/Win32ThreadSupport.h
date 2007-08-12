@@ -59,7 +59,7 @@ class Win32ThreadSupport : public btThreadSupportInterface
 {
 
 	btAlignedObjectArray<btSpuStatus>	m_activeSpuStatus;
-
+	btAlignedObjectArray<void*>			m_completeHandles;
 	
 public:
 	///Setup and initialize SPU/CELL/Libspe2
