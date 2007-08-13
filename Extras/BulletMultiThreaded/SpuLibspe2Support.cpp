@@ -23,9 +23,11 @@ subject to the following restrictions:
 
 ///SpuLibspe2Support helps to initialize/shutdown libspe2, start/stop SPU tasks and communication
 ///Setup and initialize SPU/CELL/Libspe2
-SpuLibspe2Support::SpuLibspe2Support(SpuLibspe2ElfId_t elfId,int numThreads)
+SpuLibspe2Support::SpuLibspe2Support(spe_program_handle_t *speprog,int numThreads)
 {
+	program = speprog
 	startSPUs(numThreads);
+	N = numThreads;
 }
 
 ///cleanup/shutdown Libspe2
@@ -38,6 +40,7 @@ SpuLibspe2Support::~SpuLibspe2Support()
 
 #include <stdio.h>
 
+#ifdef WIN32
 DWORD WINAPI Thread_no_1( LPVOID lpParam ) 
 {
 
@@ -66,7 +69,7 @@ DWORD WINAPI Thread_no_1( LPVOID lpParam )
 	return 0;
 
 }
-
+#endif
 ///send messages to SPUs
 void SpuLibspe2Support::sendRequest(uint32_t uiCommand, uint32_t uiArgument0, uint32_t uiArgument1)
 {
@@ -168,43 +171,24 @@ void SpuLibspe2Support::waitForResponse(unsigned int *puiArgument0, unsigned int
 }
 
 
-///start the spus group (can be called at the beginning of each frame, to make sure that the right SPU program is loaded)
+///start the spus (can be called at the beginning of each frame, to make sure that the right SPU program is loaded)
 void SpuLibspe2Support::startSPUs(int numThreads)
 {
-
+#ifdef WIN32
 	m_activeSpuStatus.resize(numThreads);
+#endif
 
 	for (int i=0;i<numThreads;i++)
 	{
 		printf("starting thread %d\n",i);
 
-		btSpuStatus&	spuStatus = m_activeSpuStatus[i];
-
-		LPSECURITY_ATTRIBUTES lpThreadAttributes=NULL;
-		SIZE_T dwStackSize=65535;
-		LPTHREAD_START_ROUTINE lpStartAddress=&Thread_no_1;
-		LPVOID lpParameter=&spuStatus;
-		DWORD dwCreationFlags=0;
-		LPDWORD lpThreadId=0;
-
-		spuStatus.m_taskDesc = 0;
-
-		sprintf(spuStatus.m_eventStartHandleName,"eventStart%d",i);
-		spuStatus.m_eventStartHandle = CreateEvent(0,false,false,spuStatus.m_eventStartHandleName);
-
-		sprintf(spuStatus.m_eventCompletetHandleName,"eventComplete%d",i);
-		spuStatus.m_eventCompletetHandle = CreateEvent(0,false,false,spuStatus.m_eventCompletetHandleName);
-
-
-		HANDLE handle = CreateThread(lpThreadAttributes,dwStackSize,lpStartAddress,lpParameter,	dwCreationFlags,lpThreadId);
-		SetThreadPriority(handle,THREAD_PRIORITY_TIME_CRITICAL);
-
-		spuStatus.m_taskId = i;
-		spuStatus.m_commandId = 0;
-		spuStatus.m_status = 0;
-		spuStatus.m_threadHandle = handle;
-		spuStatus.m_lsMemory = createLocalStoreMemory();
-
+		data[i].context = spe_context_create(0, NULL);
+		spe_program_load(data[i].context, program);
+		data[i].entry = SPE_DEFAULT_ENTRY;
+		data[i].flags = 0;
+		data[i].argp = NULL;
+		data[i].envp = NULL;
+		pthread_create(&data[i].pthread, NULL, &ppu_pthread_function, &data[i]);
 		printf("started thread %d with threadHandle %d\n",i,handle);
 		
 	}
@@ -214,9 +198,17 @@ void SpuLibspe2Support::startSPUs(int numThreads)
 ///tell the task scheduler we are done with the SPU tasks
 void SpuLibspe2Support::stopSPUs()
 {
-//	m_activeSpuStatus.pop_back();
-//	WaitForSingleObject(spuStatus.bla, INFINITE);
-//	CloseHandle(spuStatus.m_threadHandle);
+	// wait for all threads to finish 
+	for ( i=0; i<N; i++ ) { 
+		pthread_join (data[i].pthread, NULL); 
+	} 
+	// close SPE program 
+	spe_image_close(program); 
+	// destroy SPE contexts 
+	for ( i=0; i<N; i++ ) { 
+	 spe_context_destroy (data[i].context); 
+	} 
+
 	
 }
 

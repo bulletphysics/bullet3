@@ -21,6 +21,8 @@ subject to the following restrictions:
 #define SPU_LIBSPE2_SUPPORT_H
 
 #include "LinearMath/btAlignedObjectArray.h"
+#include <libspe2.h>
+#include <pthread.h>
 
 
 /**
@@ -31,6 +33,7 @@ subject to the following restrictions:
  * Mixing up these values will cause the wrong code to execute, for instance, the
  * solver may be asked to do a collision detection job.
  */
+#ifdef WIN32 // original enum, but for libspe2 will pass the SPE program handle ptr directly
 typedef enum {
 	SPU_ELF_COLLISION_DETECTION=0,
 	SPU_ELF_SAMPLE,
@@ -38,13 +41,34 @@ typedef enum {
 //SPU_ELF_SOLVER,
 	SPU_ELF_LAST,
 } SpuLibspe2ElfId_t;
-
+#endif
 #ifdef WIN32
 #include <malloc.h>
 #define memalign(alignment, size) malloc(size);
 #else
 #include <stdlib.h>
 #endif // WIN32
+
+#define MAXSPUS 16
+typedef struct ppu_pthread_data {
+spe_context_ptr_t context;
+pthread_t pthread;
+unsigned int entry;
+unsigned int flags;
+void *argp;
+void *envp;
+spe_stop_info_t stopinfo;
+} ppu_pthread_data_t;
+
+void *ppu_pthread_function(void *arg)
+{
+    ppu_pthread_data_t datap = *(ppu_pthread_data_t *)arg;
+    int rc;
+    do {
+        rc = spe_context_run(datap->context, &datap->entry, datap->flags, datap->argp, datap->envp, &datap->stopinfo);
+    } while (rc > 0); // loop until exit or error, and while any stop & signal
+    pthread_exit(NULL);
+}
 
 
 
@@ -78,21 +102,26 @@ class SpuLibspe2Support {
 
 public:
 	///Setup and initialize SPU/CELL/Libspe2
-	SpuLibspe2Support(SpuLibspe2ElfId_t elfId,int numThreads);
-
-///cleanup/shutdown Libspe2
+	SpuLibspe2Support(spe_program_handle_t *speprog,int numThreads);
+	// SPE program handle ptr.
+	spe_program_handle_t *program;
+	// SPE program data
+	ppu_pthread_data_t data[MAX_SPUS];
+	// num SPE Threads
+	unsigned int N;
+	///cleanup/shutdown Libspe2
 	~SpuLibspe2Support();
 
-///send messages to SPUs
+	///send messages to SPUs
 	void sendRequest(uint32_t uiCommand, uint32_t uiArgument0, uint32_t uiArgument1=0);
 
-///check for messages from SPUs
+	///check for messages from SPUs
 	void waitForResponse(unsigned int *puiArgument0, unsigned int *puiArgument1);
 
-///start the spus (can be called at the beginning of each frame, to make sure that the right SPU program is loaded)
+	///start the spus (can be called at the beginning of each frame, to make sure that the right SPU program is loaded)
 	void startSPUs(int numThreads);
 
-///tell the task scheduler we are done with the SPU tasks
+	///tell the task scheduler we are done with the SPU tasks
 	void stopSPUs();
 
 };
