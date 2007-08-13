@@ -26,7 +26,9 @@ btCollisionObject::btCollisionObject()
 		m_hitFraction(btScalar(1.)),
 		m_ccdSweptSphereRadius(btScalar(0.)),
 		m_ccdSquareMotionThreshold(btScalar(0.)),
-		m_checkCollideWith(false)
+		m_checkCollideWith(false),
+		m_islandTag1(-1),
+		m_companionId(-1)
 {
 	
 }
@@ -54,5 +56,6 @@ void btCollisionObject::activate(bool forceActivation)
 		m_deactivationTime = btScalar(0.);
 	}
 }
+
 
 
