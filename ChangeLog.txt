@@ -1,6 +1,13 @@
 Bullet Continuous Collision Detection and Physics Library
 Primary author and maintainer: Erwin Coumans
 
+2007 Aug 14
+	- added parallel constraint solver. Works on Playstation 3 Cell SPU and multi core (Win Threads on PC and XBox 360).
+	  See Extras/BulletMultiThreaded for SpuSolverTask subfolder and SpuParallelSolver.cpp
+	  Thanks Marten SvanFeldt (Starbreeze Studios)	
+	- fixed some bugs related to parallel collision detection (Extras/BulletMultiThreaded)
+	  Thanks Marten SvanFeldt (Starbreeze Studios)	
+	
 2007 Aug 2
 	- added compound and concave-convex (swapped) case for BulletMultiThreaded collision detection, thanks to Marten Svanfeldt
 	- refactored broadphase and overlapping pair cache. This allows performance improvement by combining multiple broadphases. This helps add/remove of large batches of objects and large worlds. See also Pierre Terdiman forum topic:
@@ -9,7 +16,7 @@ Primary author and maintainer: Erwin Coumans
 
 2007 July 27
 	- added Ragdoll Demo
-		Thanks to Marten Svanfeld (Starbreeze Studios)
+		Thanks to Marten Svanfeldt (Starbreeze Studios)
 
 	- added Vector Math library for SIMD 3D graphics linear algebra (vector, matrix, quaternion)
 		See Bullet/Extras/vectormathlibrary
