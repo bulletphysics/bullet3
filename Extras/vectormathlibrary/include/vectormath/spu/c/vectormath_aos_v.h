@@ -27,8 +27,8 @@
    POSSIBILITY OF SUCH DAMAGE.
 */
 
-#ifndef _VECTORMATH_AOS_C_V_H
-#define _VECTORMATH_AOS_C_V_H
+#ifndef _VECTORMATH_AOS_C_V_SPU_H
+#define _VECTORMATH_AOS_C_V_SPU_H
 
 #include <math.h>
 #include <spu_intrinsics.h>

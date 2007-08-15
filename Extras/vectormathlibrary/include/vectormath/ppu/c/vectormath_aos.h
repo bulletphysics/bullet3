@@ -27,13 +27,13 @@
    POSSIBILITY OF SUCH DAMAGE.
 */
 
-#ifndef _VECTORMATH_AOS_C_H
-#define _VECTORMATH_AOS_C_H
+#ifndef _VECTORMATH_AOS_C_PPU_H
+#define _VECTORMATH_AOS_C_PPU_H
 
 #include <math.h>
 #include <altivec.h>
-#include <vec_types.h>
 #include <simdmath.h>
+#include "vec_types.h"
 
 #ifdef _VECTORMATH_DEBUG
 #include <stdio.h>

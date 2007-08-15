@@ -27,8 +27,8 @@
    POSSIBILITY OF SUCH DAMAGE.
 */
 
-#ifndef _VECTORMATH_AOS_CPP_H
-#define _VECTORMATH_AOS_CPP_H
+#ifndef _VECTORMATH_AOS_CPP_PPU_H
+#define _VECTORMATH_AOS_CPP_PPU_H
 
 #include <math.h>
 #include <altivec.h>

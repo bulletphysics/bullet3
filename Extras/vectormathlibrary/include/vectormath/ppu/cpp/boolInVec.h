@@ -32,7 +32,7 @@
 
 #include <math.h>
 #include <altivec.h>
-#include "vec_types.h"
+#include "../c/vec_types.h"
 #undef bool
 
 namespace Vectormath {

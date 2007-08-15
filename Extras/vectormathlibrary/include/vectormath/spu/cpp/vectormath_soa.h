@@ -27,15 +27,15 @@
    POSSIBILITY OF SUCH DAMAGE.
 */
 
-#ifndef _VECTORMATH_SOA_CPP_H
-#define _VECTORMATH_SOA_CPP_H
+#ifndef _VECTORMATH_SOA_CPP_SPU_H
+#define _VECTORMATH_SOA_CPP_SPU_H
 
 #include <math.h>
 #include <spu_intrinsics.h>
 #include "floatInVec.h"
 #include "boolInVec.h"
-#include "stdio.h"
 #include "vectormath_aos.h"
+#include <stdio.h>
 
 #ifdef _VECTORMATH_DEBUG
 #endif

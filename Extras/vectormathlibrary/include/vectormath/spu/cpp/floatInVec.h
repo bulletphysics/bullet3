@@ -32,8 +32,7 @@
 
 #include <math.h>
 #include <spu_intrinsics.h>
-#include "spu2vmx.h"
-#include "simdmath.h"
+#include <simdmath.h>
 #undef bool
 
 namespace Vectormath {

@@ -1,0 +1,680 @@
+set Vector3 with floats: ( 0.465039 -0.479556 -0.211412 )
+set Vector3 with floats: ( 0.553580 0.690070 0.151576 )
+set Vector3 elements to zero: ( 0.000000 0.000000 0.000000 )
+set Vector3 elements to zero: ( 0.000000 0.000000 0.000000 )
+set Vector3 elements to zero: ( 0.000000 0.000000 0.000000 )
+set Vector4 with floats: ( 0.431077 -0.833992 -0.088350 -0.780106 )
+set Vector4 with floats: ( 0.090456 -0.218627 0.137171 0.918133 )
+set Vector4 elements to zero: ( 0.000000 0.000000 0.000000 0.000000 )
+set Vector4 elements to zero: ( 0.000000 0.000000 0.000000 0.000000 )
+set Vector4 elements to zero: ( 0.000000 0.000000 0.000000 0.000000 )
+set Point3 with floats: ( 0.735438 -0.673621 -0.448982 )
+set Point3 with floats: ( -0.479278 0.848189 -0.128155 )
+set Point3 elements to zero: ( 0.000000 0.000000 0.000000 )
+set Point3 elements to zero: ( 0.000000 0.000000 0.000000 )
+set Point3 elements to zero: ( 0.000000 0.000000 0.000000 )
+set Quat with floats: ( 0.578922 -0.744766 -0.835589 0.881284 )
+set Quat with floats: ( -0.948850 -0.691578 -0.235635 -0.690527 )
+set Quat elements to zero: ( 0.000000 0.000000 0.000000 0.000000 )
+set Quat elements to zero: ( 0.000000 0.000000 0.000000 0.000000 )
+set Quat elements to zero: ( 0.000000 0.000000 0.000000 0.000000 )
+construct Vector3 with Point3: ( 0.735438 -0.673621 -0.448982 )
+set Vector3 with float: ( 0.058667 0.058667 0.058667 )
+set Vector3 with float: ( 0.753697 0.753697 0.753697 )
+aos type 0: ( 9.000000 10.000000 11.000000 )
+aos type 1: ( 6.000000 7.000000 8.000000 )
+aos type 2: ( 3.000000 4.000000 5.000000 )
+aos type 3: ( 0.000000 1.000000 2.000000 )
+select 0: ( 0.753697 0.753697 0.753697 )
+select 1: ( 0.553580 0.690070 0.151576 )
+select 2: ( 0.753697 0.753697 0.753697 )
+select 3: ( 0.553580 0.690070 0.151576 )
+load XYZ array: ( -0.658344 0.499804 -0.807257 )
+xyzx: ( 0.658344 -0.499804 0.807257 -0.740930 )
+yzxy: ( -0.154607 -0.571599 -0.384388 0.262467 )
+zxyz: ( -0.747808 -0.490190 0.107908 0.292544 )
+xyzx: ( 0.658344 -0.499804 0.807257 -0.740930 )
+yzxy: ( -0.154607 -0.571599 -0.384388 0.262467 )
+zxyz: ( -0.747808 -0.490190 0.107908 0.292544 )
+storeXYZ:-1.0 -2.0 -3.0 0.4
+assign to Vector3 from Vector3: ( 0.553580 0.690070 0.151576 )
+set Vector3 elements to zero: ( 0.000000 0.000000 0.000000 )
+set to x axis: ( 1.000000 0.000000 0.000000 )
+set to y axis: ( 0.000000 1.000000 0.000000 )
+set to z axis: ( 0.000000 0.000000 1.000000 )
+Vector3::set( 0, float ): ( -0.138777 0.000000 1.000000 )
+Vector3::operator [](0): ( -1.001420 0.000000 1.000000 )
+Vector3::setX(): ( 0.410391 0.000000 1.000000 )
+Vector3::set( 1, float ): ( 0.410391 -0.562721 1.000000 )
+Vector3::operator [](1): ( 0.410391 0.544473 1.000000 )
+Vector3::setY(): ( 0.410391 0.374881 1.000000 )
+Vector3::set( 2, float ): ( 0.410391 0.374881 -0.127818 )
+Vector3::operator [](2): ( 0.410391 0.374881 -0.212598 )
+Vector3::setZ(): ( 0.410391 0.374881 -0.723410 )
+Vector3::get( 0 ): 0.410391
+Vector3::operator []( 0 ): 0.410391
+Vector3::getX(): 0.410391
+Vector3::get( 1 ): 0.374881
+Vector3::operator []( 1 ): 0.374881
+Vector3::getY(): 0.374881
+Vector3::get( 2 ): -0.723410
+Vector3::operator []( 2 ): -0.723410
+Vector3::getZ(): -0.723410
+Vector3 + Vector3: ( 0.963971 1.064952 -0.571834 )
+Vector3 - Vector3: ( -0.143189 -0.315189 -0.874987 )
+Vector3 + Point3: ( -0.068887 1.223071 -0.851565 )
+Vector3 * float: ( 0.378185 0.345462 -0.666639 )
+Vector3 / float: ( -0.577000 -0.527074 1.017097 )
+float * Vector3: ( -0.043762 -0.039975 0.077140 )
+Vector3 negate: ( -0.410391 -0.374881 0.723410 )
+mulPerElem( Vector3, Vector3 ): ( 0.227184 0.258694 -0.109652 )
+divPerElem( Vector3, Vector3 ): ( 0.741340 0.543251 -4.772578 )
+Vector3 recip: ( 2.436700 2.667511 -1.382342 )
+Vector3 sqrt: ( 0.640618 0.612276 0.850535 )
+Vector3 rsqrt: ( 1.560993 1.633252 1.175730 )
+Vector3 abs: ( 0.410391 0.374881 0.723410 )
+Vector3 copySign: ( 0.410391 0.374881 0.723410 )
+Vector3 maximum Vector3: ( 0.553580 0.690070 0.151576 )
+Vector3 minimum Vector3: ( 0.410391 0.374881 -0.723410 )
+Vector3 maximum of elements: 0.410391
+Vector3 minimum of elements: -0.723410
+Vector3 sum of elements: 0.061862
+Vector3 dot Vector3: 0.376227
+Vector3 lengthSqr: 0.832279
+Vector3 length: 0.912293
+Vector3 normalized: ( 0.449846 0.410922 -0.792958 )
+Vector3 lerp: ( -0.504755 2.242539 -1.172064 )
+Vector3 slerp: ( -0.308956 -0.503372 0.806947 )
+set Vector3 with floats: ( 0.932526 0.571087 0.610330 )
+set Vector3 with floats: ( 0.142507 -0.434829 0.925102 )
+set Vector3 elements to zero: ( 0.000000 0.000000 0.000000 )
+set Vector3 elements to zero: ( 0.000000 0.000000 0.000000 )
+set Vector3 elements to zero: ( 0.000000 0.000000 0.000000 )
+set Vector4 with floats: ( 0.158954 -0.126283 -0.249128 0.846815 )
+set Vector4 with floats: ( -0.942601 0.537720 0.446214 0.181939 )
+set Vector4 elements to zero: ( 0.000000 0.000000 0.000000 0.000000 )
+set Vector4 elements to zero: ( 0.000000 0.000000 0.000000 0.000000 )
+set Vector4 elements to zero: ( 0.000000 0.000000 0.000000 0.000000 )
+set Point3 with floats: ( -0.148223 0.284286 0.493525 )
+set Point3 with floats: ( -0.861963 -0.893410 0.548627 )
+set Point3 elements to zero: ( 0.000000 0.000000 0.000000 )
+set Point3 elements to zero: ( 0.000000 0.000000 0.000000 )
+set Point3 elements to zero: ( 0.000000 0.000000 0.000000 )
+set Quat with floats: ( 0.407007 -0.757467 -0.393126 -0.850984 )
+set Quat with floats: ( 0.375720 -0.270088 0.458888 -0.610828 )
+set Quat elements to zero: ( 0.000000 0.000000 0.000000 0.000000 )
+set Quat elements to zero: ( 0.000000 0.000000 0.000000 0.000000 )
+set Quat elements to zero: ( 0.000000 0.000000 0.000000 0.000000 )
+set Vector4 with Vector3, float: ( 0.932526 0.571087 0.610330 -0.690816 )
+set Vector4 with Vector3: ( 0.932526 0.571087 0.610330 0.000000 )
+set Vector4 with Point3: ( -0.148223 0.284286 0.493525 1.000000 )
+construct Vector4 with Quat: ( 0.407007 -0.757467 -0.393126 -0.850984 )
+set Vector4 with float: ( -0.676415 -0.676415 -0.676415 -0.676415 )
+set Vector4 with float: ( 0.664466 0.664466 0.664466 0.664466 )
+aos type 0: ( 12.000000 13.000000 14.000000 15.000000 )
+aos type 1: ( 8.000000 9.000000 10.000000 11.000000 )
+aos type 2: ( 4.000000 5.000000 6.000000 7.000000 )
+aos type 3: ( 0.000000 1.000000 2.000000 3.000000 )
+select 0: ( 0.664466 0.664466 0.664466 0.664466 )
+select 1: ( -0.942601 0.537720 0.446214 0.181939 )
+select 2: ( 0.664466 0.664466 0.664466 0.664466 )
+select 3: ( -0.942601 0.537720 0.446214 0.181939 )
+assign to Vector4 from Vector4: ( -0.942601 0.537720 0.446214 0.181939 )
+set Vector4 xyz: ( 0.932526 0.571087 0.610330 0.181939 )
+get Vector4 xyz: ( 0.932526 0.571087 0.610330 )
+set Vector4 elements to zero: ( 0.000000 0.000000 0.000000 0.000000 )
+set to x axis: ( 1.000000 0.000000 0.000000 0.000000 )
+set to y axis: ( 0.000000 1.000000 0.000000 0.000000 )
+set to z axis: ( 0.000000 0.000000 1.000000 0.000000 )
+set to w axis: ( 0.000000 0.000000 0.000000 1.000000 )
+Vector4::set( 0, float ): ( 0.101874 0.000000 0.000000 1.000000 )
+Vector4::operator [](0): ( -0.879952 0.000000 0.000000 1.000000 )
+Vector4::setX(): ( -0.997261 0.000000 0.000000 1.000000 )
+Vector4::set( 1, float ): ( -0.997261 0.172409 0.000000 1.000000 )
+Vector4::operator [](1): ( -0.997261 0.150201 0.000000 1.000000 )
+Vector4::setY(): ( -0.997261 -0.000013 0.000000 1.000000 )
+Vector4::set( 2, float ): ( -0.997261 -0.000013 0.689543 1.000000 )
+Vector4::operator [](2): ( -0.997261 -0.000013 -0.384253 1.000000 )
+Vector4::setZ(): ( -0.997261 -0.000013 -0.801022 1.000000 )
+Vector4::set( 3, float ): ( -0.997261 -0.000013 -0.801022 0.656335 )
+Vector4::operator [](3): ( -0.997261 -0.000013 -0.801022 16.472569 )
+Vector4::setW(): ( -0.997261 -0.000013 -0.801022 0.133022 )
+Vector4::get( 0 ): -0.997261
+Vector4::operator []( 0 ): -0.997261
+Vector4::getX(): -0.997261
+Vector4::get( 1 ): -0.000013
+Vector4::operator []( 1 ): -0.000013
+Vector4::getY(): -0.000013
+Vector4::get( 2 ): -0.801022
+Vector4::operator []( 2 ): -0.801022
+Vector4::getZ(): -0.801022
+Vector4::get( 3 ): 0.133022
+Vector4::operator []( 3 ): 0.133022
+Vector4::getW(): 0.133022
+Vector4 + Vector4: ( -1.939863 0.537707 -0.354808 0.314960 )
+Vector4 - Vector4: ( -0.054660 -0.537733 -1.247235 -0.048917 )
+Vector4 * float: ( 0.052076 0.000001 0.041829 -0.006946 )
+Vector4 / float: ( 6.048177 0.000081 4.858026 -0.806748 )
+float * Vector4: ( -0.299867 -0.000004 -0.240859 0.039998 )
+Vector4 negate: ( 0.997261 0.000013 0.801022 -0.133022 )
+mulPerElem( Vector4, Vector4 ): ( 0.940020 -0.000007 -0.357427 0.024202 )
+divPerElem( Vector4, Vector4 ): ( 1.057989 -0.000025 -1.795154 0.731134 )
+Vector4 recip: ( -1.002746 -75309.887339 -1.248405 7.517576 )
+Vector4 sqrt: ( 0.998630 0.003644 0.894998 0.364721 )
+Vector4 rsqrt: ( 1.001372 274.426483 1.117321 2.741820 )
+Vector4 abs: ( 0.997261 0.000013 0.801022 0.133022 )
+Vector4 copySign: ( -0.997261 0.000013 0.801022 0.133022 )
+Vector4 maximum Vector4: ( -0.942601 0.537720 0.446214 0.181939 )
+Vector4 minimum Vector4: ( -0.997261 -0.000013 -0.801022 0.133022 )
+Vector4 maximum of elements: 0.133022
+Vector4 minimum of elements: -0.997261
+Vector4 sum of elements: -1.665275
+Vector4 dot Vector4: 0.606788
+Vector4 lengthSqr: 1.653861
+Vector4 length: 1.286025
+Vector4 normalized: ( -0.775460 -0.000010 -0.622866 0.103436 )
+Vector4 lerp: ( -0.226675 0.250339 0.113208 0.735255 )
+Vector4 slerp: ( 0.351058 0.199306 -0.276993 0.871958 )
+set Vector3 with floats: ( 0.137637 -0.111879 -0.929543 )
+set Vector3 with floats: ( -0.336303 -0.146740 0.165140 )
+set Vector3 elements to zero: ( 0.000000 0.000000 0.000000 )
+set Vector3 elements to zero: ( 0.000000 0.000000 0.000000 )
+set Vector3 elements to zero: ( 0.000000 0.000000 0.000000 )
+set Vector4 with floats: ( -0.823874 0.349776 0.174872 -0.528584 )
+set Vector4 with floats: ( 0.489292 0.916708 0.728511 -0.851140 )
+set Vector4 elements to zero: ( 0.000000 0.000000 0.000000 0.000000 )
+set Vector4 elements to zero: ( 0.000000 0.000000 0.000000 0.000000 )
+set Vector4 elements to zero: ( 0.000000 0.000000 0.000000 0.000000 )
+set Point3 with floats: ( 0.079620 -0.234370 -0.996308 )
+set Point3 with floats: ( 0.433229 -0.892684 -0.957911 )
+set Point3 elements to zero: ( 0.000000 0.000000 0.000000 )
+set Point3 elements to zero: ( 0.000000 0.000000 0.000000 )
+set Point3 elements to zero: ( 0.000000 0.000000 0.000000 )
+set Quat with floats: ( 0.517122 0.257921 0.862028 0.095881 )
+set Quat with floats: ( -0.171933 -0.214078 -0.604841 -0.383831 )
+set Quat elements to zero: ( 0.000000 0.000000 0.000000 0.000000 )
+set Quat elements to zero: ( 0.000000 0.000000 0.000000 0.000000 )
+set Quat elements to zero: ( 0.000000 0.000000 0.000000 0.000000 )
+construct Point3 with Vector3: ( 0.137637 -0.111879 -0.929543 )
+set Point3 with float: ( -0.581500 -0.581500 -0.581500 )
+set Point3 with float: ( 0.222183 0.222183 0.222183 )
+aos type 0: ( 9.000000 10.000000 11.000000 )
+aos type 1: ( 6.000000 7.000000 8.000000 )
+aos type 2: ( 3.000000 4.000000 5.000000 )
+aos type 3: ( 0.000000 1.000000 2.000000 )
+select 0: ( 0.222183 0.222183 0.222183 )
+select 1: ( 0.433229 -0.892684 -0.957911 )
+select 2: ( 0.222183 0.222183 0.222183 )
+select 3: ( 0.433229 -0.892684 -0.957911 )
+load XYZ array: ( -0.160082 0.962714 0.737794 )
+xyzx: ( 0.160082 -0.962714 -0.737794 0.071926 )
+yzxy: ( 0.506313 -0.689277 -0.686485 -0.473013 )
+zxyz: ( 0.735610 0.046390 -0.568674 0.004815 )
+xyzx: ( 0.160082 -0.962714 -0.737794 0.071926 )
+yzxy: ( 0.506313 -0.689277 -0.686485 -0.473013 )
+zxyz: ( 0.735610 0.046390 -0.568674 0.004815 )
+storeXYZ:-1.0 -2.0 -3.0 0.4
+assign to Point3 from Point3: ( 0.433229 -0.892684 -0.957911 )
+set Point3 elements to zero: ( 0.000000 0.000000 0.000000 )
+Point3::set( 0, float ): ( -0.256120 0.000000 0.000000 )
+Point3::operator [](0): ( -0.979920 0.000000 0.000000 )
+Point3::setX(): ( -0.046627 0.000000 0.000000 )
+Point3::set( 1, float ): ( -0.046627 -0.716491 0.000000 )
+Point3::operator [](1): ( -0.046627 1.719236 0.000000 )
+Point3::setY(): ( -0.046627 0.508814 0.000000 )
+Point3::set( 2, float ): ( -0.046627 0.508814 -0.238839 )
+Point3::operator [](2): ( -0.046627 0.508814 0.061402 )
+Point3::setZ(): ( -0.046627 0.508814 -0.157280 )
+Point3::get( 0 ): -0.046627
+Point3::operator []( 0 ): -0.046627
+Point3::getX(): -0.046627
+Point3::get( 1 ): 0.508814
+Point3::operator []( 1 ): 0.508814
+Point3::getY(): 0.508814
+Point3::get( 2 ): -0.157280
+Point3::operator []( 2 ): -0.157280
+Point3::getZ(): -0.157280
+Point3 - Point3: ( -0.479856 1.401498 0.800631 )
+Point3 + Vector3: ( -0.382931 0.362074 0.007860 )
+Point3 - Vector3: ( 0.289676 0.655554 -0.322420 )
+mulPerElem( Point3, Point3 ): ( -0.020200 -0.454210 0.150660 )
+divPerElem( Point3, Point3 ): ( -0.107627 -0.569982 0.164191 )
+Point3 recip: ( -21.446777 1.965355 -6.358085 )
+Point3 sqrt: ( 0.215933 0.713312 0.396586 )
+Point3 rsqrt: ( 4.631066 1.401911 2.521524 )
+Point3 abs: ( 0.046627 0.508814 0.157280 )
+Point3 copySign: ( 0.046627 -0.508814 -0.157280 )
+Point3 maximum Point3: ( 0.433229 0.508814 -0.157280 )
+Point3 minimum Point3: ( -0.046627 -0.892684 -0.957911 )
+Point3 maximum of elements: 0.508814
+Point3 minimum of elements: -0.157280
+Point3 sum of elements: 0.304907
+Point projection: -0.084956
+Point distSqrFromOrigin: 0.285803
+Point distFromOrigin: 0.534605
+Point distSqr: 2.835468
+Point dist: 1.683885
+Point3 lerp: ( 0.508235 -0.017312 0.360111 )
+set Vector3 with floats: ( 0.219317 -0.118359 0.413442 )
+set Vector3 with floats: ( -0.567698 0.531358 -0.387226 )
+set Vector3 elements to zero: ( 0.000000 0.000000 0.000000 )
+set Vector3 elements to zero: ( 0.000000 0.000000 0.000000 )
+set Vector3 elements to zero: ( 0.000000 0.000000 0.000000 )
+set Vector4 with floats: ( 0.572490 -0.820417 0.797191 0.867178 )
+set Vector4 with floats: ( 0.934764 0.237092 -0.866162 -0.773939 )
+set Vector4 elements to zero: ( 0.000000 0.000000 0.000000 0.000000 )
+set Vector4 elements to zero: ( 0.000000 0.000000 0.000000 0.000000 )
+set Vector4 elements to zero: ( 0.000000 0.000000 0.000000 0.000000 )
+set Point3 with floats: ( 0.261311 -0.851570 0.114814 )
+set Point3 with floats: ( -0.531592 0.223925 0.869105 )
+set Point3 elements to zero: ( 0.000000 0.000000 0.000000 )
+set Point3 elements to zero: ( 0.000000 0.000000 0.000000 )
+set Point3 elements to zero: ( 0.000000 0.000000 0.000000 )
+set Quat with floats: ( 0.143405 0.148518 -0.071136 -0.758292 )
+set Quat with floats: ( -0.527633 0.997215 0.114440 0.727558 )
+set Quat elements to zero: ( 0.000000 0.000000 0.000000 0.000000 )
+set Quat elements to zero: ( 0.000000 0.000000 0.000000 0.000000 )
+set Quat elements to zero: ( 0.000000 0.000000 0.000000 0.000000 )
+set Quat with Vector3, float: ( 0.219317 -0.118359 0.413442 -0.425760 )
+construct Quat with Vector4: ( 0.572490 -0.820417 0.797191 0.867178 )
+set Quat with float: ( 0.459888 0.459888 0.459888 0.459888 )
+set Quat with float: ( 0.642516 0.642516 0.642516 0.642516 )
+aos type 0: ( 12.000000 13.000000 14.000000 15.000000 )
+aos type 1: ( 8.000000 9.000000 10.000000 11.000000 )
+aos type 2: ( 4.000000 5.000000 6.000000 7.000000 )
+aos type 3: ( 0.000000 1.000000 2.000000 3.000000 )
+select 0: ( 0.642516 0.642516 0.642516 0.642516 )
+select 1: ( -0.527633 0.997215 0.114440 0.727558 )
+select 2: ( 0.642516 0.642516 0.642516 0.642516 )
+select 3: ( -0.527633 0.997215 0.114440 0.727558 )
+assign to Quat from Quat: ( -0.527633 0.997215 0.114440 0.727558 )
+set Quat xyz: ( 0.219317 -0.118359 0.413442 0.727558 )
+get Quat xyz: ( 0.219317 -0.118359 0.413442 )
+set Quat elements to zero: ( 0.000000 0.000000 0.000000 0.000000 )
+Quat::set( 0, float ): ( -0.022534 0.000000 0.000000 0.000000 )
+Quat::operator [](0): ( 0.419714 0.000000 0.000000 0.000000 )
+Quat::setX(): ( 0.765986 0.000000 0.000000 0.000000 )
+Quat::set( 1, float ): ( 0.765986 -0.137795 0.000000 0.000000 )
+Quat::operator [](1): ( 0.765986 0.890273 0.000000 0.000000 )
+Quat::setY(): ( 0.765986 -0.553800 0.000000 0.000000 )
+Quat::set( 2, float ): ( 0.765986 -0.553800 -0.014688 0.000000 )
+Quat::operator [](2): ( 0.765986 -0.553800 -0.802660 0.000000 )
+Quat::setZ(): ( 0.765986 -0.553800 0.499529 0.000000 )
+Quat::set( 3, float ): ( 0.765986 -0.553800 0.499529 0.385180 )
+Quat::operator [](3): ( 0.765986 -0.553800 0.499529 -0.150467 )
+Quat::setW(): ( 0.765986 -0.553800 0.499529 0.067637 )
+Quat::get( 0 ): 0.765986
+Quat::operator []( 0 ): 0.765986
+Quat::getX(): 0.765986
+Quat::get( 1 ): -0.553800
+Quat::operator []( 1 ): -0.553800
+Quat::getY(): -0.553800
+Quat::get( 2 ): 0.499529
+Quat::operator []( 2 ): 0.499529
+Quat::getZ(): 0.499529
+Quat::get( 3 ): 0.067637
+Quat::operator []( 3 ): 0.067637
+Quat::getW(): 0.067637
+Quat + Quat: ( 0.238353 0.443416 0.613969 0.795196 )
+Quat - Quat: ( 1.293620 -1.551015 0.385089 -0.659921 )
+Quat * Quat: ( -0.039902 -0.686700 0.842827 0.948461 )
+Quat * float: ( 0.611545 -0.442140 0.398812 0.054000 )
+Quat / float: ( 2.464705 -1.781954 1.607327 0.217635 )
+float * Quat: ( 0.659770 -0.477006 0.430261 0.058258 )
+Quat negate: ( -0.765986 0.553800 -0.499529 -0.067637 )
+Quat dot Quat: -0.850041
+Quat lengthSqr: 1.147533
+Quat length: 1.071229
+Quat normalized: ( 0.715053 -0.516976 0.466313 0.063140 )
+set to identity: ( 0.000000 0.000000 0.000000 1.000000 )
+Quat rotation between vectors: ( -0.152187 -0.131117 0.043194 0.571186 )
+Quat rotation axis angle: ( -0.103250 0.055721 -0.194639 0.882252 )
+Quat rotationX: ( -0.321727 0.000000 0.000000 0.946833 )
+Quat rotationY: ( 0.000000 0.142892 0.000000 0.989738 )
+Quat rotationZ: ( 0.000000 0.000000 0.262912 0.964820 )
+Quat rotate Vector3: ( 0.249044 0.009268 0.413442 )
+Quat conj: ( -0.000000 -0.000000 -0.262912 0.964820 )
+Quat lerp: ( -0.053419 0.446373 0.392075 0.581368 )
+Quat slerp: ( -0.630711 0.472429 0.365730 0.495233 )
+Quat squad: ( 0.119307 -0.523957 -0.534187 -0.652594 )
+set Vector3 with floats: ( 0.531906 0.271995 -0.862601 )
+set Vector3 with floats: ( -0.738694 0.514248 -0.039363 )
+set Vector3 elements to zero: ( 0.000000 0.000000 0.000000 )
+set Vector3 elements to zero: ( 0.000000 0.000000 0.000000 )
+set Vector3 elements to zero: ( 0.000000 0.000000 0.000000 )
+set Vector4 with floats: ( 0.429390 -0.769469 0.281336 -0.203301 )
+set Vector4 with floats: ( 0.412586 0.567926 0.410131 -0.462918 )
+set Vector4 elements to zero: ( 0.000000 0.000000 0.000000 0.000000 )
+set Vector4 elements to zero: ( 0.000000 0.000000 0.000000 0.000000 )
+set Vector4 elements to zero: ( 0.000000 0.000000 0.000000 0.000000 )
+set Point3 with floats: ( 0.560953 -0.731715 -0.446158 )
+set Point3 with floats: ( -0.837491 -0.573480 -0.607820 )
+set Point3 elements to zero: ( 0.000000 0.000000 0.000000 )
+set Point3 elements to zero: ( 0.000000 0.000000 0.000000 )
+set Point3 elements to zero: ( 0.000000 0.000000 0.000000 )
+set Quat with floats: ( 0.238415 0.213445 0.098612 0.135072 )
+set Quat with floats: ( -0.749274 -0.855977 0.765675 -0.693447 )
+set Quat elements to zero: ( 0.000000 0.000000 0.000000 0.000000 )
+set Quat elements to zero: ( 0.000000 0.000000 0.000000 0.000000 )
+set Quat elements to zero: ( 0.000000 0.000000 0.000000 0.000000 )
+construct Vector3 with Point3: ( 0.560953 -0.731715 -0.446158 )
+set Vector3 with float: ( 0.131554 0.131554 0.131554 )
+set Vector3 with float: ( -0.366757 -0.366757 -0.366757 )
+aos type 0: ( 9.000000 10.000000 11.000000 )
+aos type 1: ( 6.000000 7.000000 8.000000 )
+aos type 2: ( 3.000000 4.000000 5.000000 )
+aos type 3: ( 0.000000 1.000000 2.000000 )
+select 0: ( -0.366757 -0.366757 -0.366757 )
+select 1: ( -0.738694 0.514248 -0.039363 )
+select 2: ( -0.366757 -0.366757 -0.366757 )
+select 3: ( -0.738694 0.514248 -0.039363 )
+load XYZ array: ( -0.913636 0.675222 0.144053 )
+xyzx: ( 0.913636 -0.675222 -0.144053 0.632329 )
+yzxy: ( 0.947120 0.049367 -0.126333 0.664206 )
+zxyz: ( -0.220879 -0.284219 0.387216 -0.913568 )
+xyzx: ( 0.913636 -0.675222 -0.144053 0.632329 )
+yzxy: ( 0.947120 0.049367 -0.126333 0.664206 )
+zxyz: ( -0.220879 -0.284219 0.387216 -0.913568 )
+storeXYZ:-1.0 -2.0 -3.0 0.4
+assign to Vector3 from Vector3: ( -0.738694 0.514248 -0.039363 )
+set Vector3 elements to zero: ( 0.000000 0.000000 0.000000 )
+set to x axis: ( 1.000000 0.000000 0.000000 )
+set to y axis: ( 0.000000 1.000000 0.000000 )
+set to z axis: ( 0.000000 0.000000 1.000000 )
+Vector3::set( 0, float ): ( -0.330409 0.000000 1.000000 )
+Vector3::operator [](0): ( -1.321680 0.000000 1.000000 )
+Vector3::setX(): ( -0.870739 0.000000 1.000000 )
+Vector3::set( 1, float ): ( -0.870739 0.415605 1.000000 )
+Vector3::operator [](1): ( -0.870739 -0.855146 1.000000 )
+Vector3::setY(): ( -0.870739 0.876855 1.000000 )
+Vector3::set( 2, float ): ( -0.870739 0.876855 0.982846 )
+Vector3::operator [](2): ( -0.870739 0.876855 -0.725814 )
+Vector3::setZ(): ( -0.870739 0.876855 -0.123567 )
+Vector3::get( 0 ): -0.870739
+Vector3::operator []( 0 ): -0.870739
+Vector3::getX(): -0.870739
+Vector3::get( 1 ): 0.876855
+Vector3::operator []( 1 ): 0.876855
+Vector3::getY(): 0.876855
+Vector3::get( 2 ): -0.123567
+Vector3::operator []( 2 ): -0.123567
+Vector3::getZ(): -0.123567
+Vector3 + Vector3: ( -1.609433 1.391104 -0.162930 )
+Vector3 - Vector3: ( -0.132046 0.362607 -0.084203 )
+Vector3 + Point3: ( -1.708231 0.303375 -0.731387 )
+Vector3 * float: ( -0.354427 0.356917 -0.050297 )
+Vector3 / float: ( -6.166518 6.209829 -0.875092 )
+float * Vector3: ( 0.690557 -0.695407 0.097997 )
+Vector3 negate: ( 0.870739 -0.876855 0.123567 )
+mulPerElem( Vector3, Vector3 ): ( 0.643210 0.450921 0.004864 )
+divPerElem( Vector3, Vector3 ): ( 1.178756 1.705119 3.139138 )
+Vector3 recip: ( -1.148449 1.140439 -8.092791 )
+Vector3 sqrt: ( 0.933134 0.936405 0.351521 )
+Vector3 rsqrt: ( 1.071657 1.067914 2.844783 )
+Vector3 abs: ( 0.870739 0.876855 0.123567 )
+Vector3 copySign: ( -0.870739 0.876855 -0.123567 )
+Vector3 maximum Vector3: ( -0.738694 0.876855 -0.039363 )
+Vector3 minimum Vector3: ( -0.870739 0.514248 -0.123567 )
+Vector3 maximum of elements: 0.876855
+Vector3 minimum of elements: -0.870739
+Vector3 sum of elements: -0.117451
+Vector3 dot Vector3: 1.098995
+Vector3 lengthSqr: 1.542330
+Vector3 length: 1.241906
+Vector3 normalized: ( -0.701131 0.706056 -0.099498 )
+Vector3 lerp: ( -0.118997 -0.338092 0.499550 )
+Vector3 slerp: ( -0.899759 -0.236062 -0.367027 )
+set Vector3 with floats: ( 0.060414 -0.867395 -0.702364 )
+set Vector3 with floats: ( -0.182602 -0.832807 0.278191 )
+set Vector3 elements to zero: ( 0.000000 0.000000 0.000000 )
+set Vector3 elements to zero: ( 0.000000 0.000000 0.000000 )
+set Vector3 elements to zero: ( 0.000000 0.000000 0.000000 )
+set Vector4 with floats: ( -0.967562 -0.520296 0.160191 -0.677990 )
+set Vector4 with floats: ( -0.470750 -0.846580 -0.705751 -0.825368 )
+set Vector4 elements to zero: ( 0.000000 0.000000 0.000000 0.000000 )
+set Vector4 elements to zero: ( 0.000000 0.000000 0.000000 0.000000 )
+set Vector4 elements to zero: ( 0.000000 0.000000 0.000000 0.000000 )
+set Point3 with floats: ( -0.712890 -0.064487 0.444065 )
+set Point3 with floats: ( -0.045226 0.116544 -0.007285 )
+set Point3 elements to zero: ( 0.000000 0.000000 0.000000 )
+set Point3 elements to zero: ( 0.000000 0.000000 0.000000 )
+set Point3 elements to zero: ( 0.000000 0.000000 0.000000 )
+set Quat with floats: ( -0.838230 -0.410767 -0.409299 -0.336683 )
+set Quat with floats: ( -0.830700 -0.801729 -0.595153 -0.784672 )
+set Quat elements to zero: ( 0.000000 0.000000 0.000000 0.000000 )
+set Quat elements to zero: ( 0.000000 0.000000 0.000000 0.000000 )
+set Quat elements to zero: ( 0.000000 0.000000 0.000000 0.000000 )
+set Vector4 with Vector3, float: ( 0.060414 -0.867395 -0.702364 -0.653655 )
+set Vector4 with Vector3: ( 0.060414 -0.867395 -0.702364 0.000000 )
+set Vector4 with Point3: ( -0.712890 -0.064487 0.444065 1.000000 )
+construct Vector4 with Quat: ( -0.838230 -0.410767 -0.409299 -0.336683 )
+set Vector4 with float: ( 0.670791 0.670791 0.670791 0.670791 )
+set Vector4 with float: ( 0.653571 0.653571 0.653571 0.653571 )
+aos type 0: ( 12.000000 13.000000 14.000000 15.000000 )
+aos type 1: ( 8.000000 9.000000 10.000000 11.000000 )
+aos type 2: ( 4.000000 5.000000 6.000000 7.000000 )
+aos type 3: ( 0.000000 1.000000 2.000000 3.000000 )
+select 0: ( 0.653571 0.653571 0.653571 0.653571 )
+select 1: ( -0.470750 -0.846580 -0.705751 -0.825368 )
+select 2: ( 0.653571 0.653571 0.653571 0.653571 )
+select 3: ( -0.470750 -0.846580 -0.705751 -0.825368 )
+assign to Vector4 from Vector4: ( -0.470750 -0.846580 -0.705751 -0.825368 )
+set Vector4 xyz: ( 0.060414 -0.867395 -0.702364 -0.825368 )
+get Vector4 xyz: ( 0.060414 -0.867395 -0.702364 )
+set Vector4 elements to zero: ( 0.000000 0.000000 0.000000 0.000000 )
+set to x axis: ( 1.000000 0.000000 0.000000 0.000000 )
+set to y axis: ( 0.000000 1.000000 0.000000 0.000000 )
+set to z axis: ( 0.000000 0.000000 1.000000 0.000000 )
+set to w axis: ( 0.000000 0.000000 0.000000 1.000000 )
+Vector4::set( 0, float ): ( 0.850716 0.000000 0.000000 1.000000 )
+Vector4::operator [](0): ( -0.528836 0.000000 0.000000 1.000000 )
+Vector4::setX(): ( 0.965901 0.000000 0.000000 1.000000 )
+Vector4::set( 1, float ): ( 0.965901 -0.072675 0.000000 1.000000 )
+Vector4::operator [](1): ( 0.965901 0.450700 0.000000 1.000000 )
+Vector4::setY(): ( 0.965901 -0.825793 0.000000 1.000000 )
+Vector4::set( 2, float ): ( 0.965901 -0.825793 0.597719 1.000000 )
+Vector4::operator [](2): ( 0.965901 -0.825793 0.279622 1.000000 )
+Vector4::setZ(): ( 0.965901 -0.825793 -0.884427 1.000000 )
+Vector4::set( 3, float ): ( 0.965901 -0.825793 -0.884427 -0.756791 )
+Vector4::operator [](3): ( 0.965901 -0.825793 -0.884427 -0.685697 )
+Vector4::setW(): ( 0.965901 -0.825793 -0.884427 -0.684626 )
+Vector4::get( 0 ): 0.965901
+Vector4::operator []( 0 ): 0.965901
+Vector4::getX(): 0.965901
+Vector4::get( 1 ): -0.825793
+Vector4::operator []( 1 ): -0.825793
+Vector4::getY(): -0.825793
+Vector4::get( 2 ): -0.884427
+Vector4::operator []( 2 ): -0.884427
+Vector4::getZ(): -0.884427
+Vector4::get( 3 ): -0.684626
+Vector4::operator []( 3 ): -0.684626
+Vector4::getW(): -0.684626
+Vector4 + Vector4: ( 0.495151 -1.672373 -1.590178 -1.509993 )
+Vector4 - Vector4: ( 1.436652 0.020787 -0.178676 0.140742 )
+Vector4 * float: ( -0.960151 0.820877 0.879161 0.680550 )
+Vector4 / float: ( 1.206825 -1.031770 -1.105029 -0.855391 )
+float * Vector4: ( -0.546353 0.467102 0.500267 0.387252 )
+Vector4 negate: ( -0.965901 0.825793 0.884427 0.684626 )
+mulPerElem( Vector4, Vector4 ): ( -0.454698 0.699100 0.624185 0.565068 )
+divPerElem( Vector4, Vector4 ): ( -2.051834 0.975446 1.253172 0.829480 )
+Vector4 recip: ( 1.035302 -1.210957 -1.130676 -1.460652 )
+Vector4 sqrt: ( 0.982803 0.908731 0.940440 0.827421 )
+Vector4 rsqrt: ( 1.017498 1.100435 1.063332 1.208575 )
+Vector4 abs: ( 0.965901 0.825793 0.884427 0.684626 )
+Vector4 copySign: ( -0.965901 -0.825793 -0.884427 -0.684626 )
+Vector4 maximum Vector4: ( 0.965901 -0.825793 -0.705751 -0.684626 )
+Vector4 minimum Vector4: ( -0.470750 -0.846580 -0.884427 -0.825368 )
+Vector4 maximum of elements: 0.965901
+Vector4 minimum of elements: -0.884427
+Vector4 sum of elements: -1.428944
+Vector4 dot Vector4: 1.433654
+Vector4 lengthSqr: 2.865822
+Vector4 length: 1.692874
+Vector4 normalized: ( 0.570569 -0.487805 -0.522441 -0.404416 )
+Vector4 lerp: ( -0.436271 0.676982 0.475175 0.275280 )
+Vector4 slerp: ( -0.493672 0.661673 0.416222 0.381100 )
+set Vector3 with floats: ( -0.287826 0.942655 -0.634432 )
+set Vector3 with floats: ( -0.140438 0.570869 -0.764965 )
+set Vector3 elements to zero: ( 0.000000 0.000000 0.000000 )
+set Vector3 elements to zero: ( 0.000000 0.000000 0.000000 )
+set Vector3 elements to zero: ( 0.000000 0.000000 0.000000 )
+set Vector4 with floats: ( 0.067523 -0.514589 0.233091 0.554488 )
+set Vector4 with floats: ( -0.633529 -0.019374 0.869259 -0.369818 )
+set Vector4 elements to zero: ( 0.000000 0.000000 0.000000 0.000000 )
+set Vector4 elements to zero: ( 0.000000 0.000000 0.000000 0.000000 )
+set Vector4 elements to zero: ( 0.000000 0.000000 0.000000 0.000000 )
+set Point3 with floats: ( -0.280690 -0.797209 -0.255233 )
+set Point3 with floats: ( 0.780605 0.789803 0.974262 )
+set Point3 elements to zero: ( 0.000000 0.000000 0.000000 )
+set Point3 elements to zero: ( 0.000000 0.000000 0.000000 )
+set Point3 elements to zero: ( 0.000000 0.000000 0.000000 )
+set Quat with floats: ( -0.785980 -0.701386 0.871088 0.566743 )
+set Quat with floats: ( 0.752273 -0.476301 -0.747342 0.077386 )
+set Quat elements to zero: ( 0.000000 0.000000 0.000000 0.000000 )
+set Quat elements to zero: ( 0.000000 0.000000 0.000000 0.000000 )
+set Quat elements to zero: ( 0.000000 0.000000 0.000000 0.000000 )
+construct Point3 with Vector3: ( -0.287826 0.942655 -0.634432 )
+set Point3 with float: ( -0.305600 -0.305600 -0.305600 )
+set Point3 with float: ( -0.229194 -0.229194 -0.229194 )
+aos type 0: ( 9.000000 10.000000 11.000000 )
+aos type 1: ( 6.000000 7.000000 8.000000 )
+aos type 2: ( 3.000000 4.000000 5.000000 )
+aos type 3: ( 0.000000 1.000000 2.000000 )
+select 0: ( -0.229194 -0.229194 -0.229194 )
+select 1: ( 0.780605 0.789803 0.974262 )
+select 2: ( -0.229194 -0.229194 -0.229194 )
+select 3: ( 0.780605 0.789803 0.974262 )
+load XYZ array: ( 0.376026 -0.935045 -0.189804 )
+xyzx: ( -0.376026 0.935045 0.189804 -0.007649 )
+yzxy: ( 0.440298 -0.994796 0.271484 0.259070 )
+zxyz: ( -0.902149 0.836501 -0.229093 -0.586393 )
+xyzx: ( -0.376026 0.935045 0.189804 -0.007649 )
+yzxy: ( 0.440298 -0.994796 0.271484 0.259070 )
+zxyz: ( -0.902149 0.836501 -0.229093 -0.586393 )
+storeXYZ:-1.0 -2.0 -3.0 0.4
+assign to Point3 from Point3: ( 0.780605 0.789803 0.974262 )
+set Point3 elements to zero: ( 0.000000 0.000000 0.000000 )
+Point3::set( 0, float ): ( -0.260009 0.000000 0.000000 )
+Point3::operator [](0): ( 0.017680 0.000000 0.000000 )
+Point3::setX(): ( 0.912886 0.000000 0.000000 )
+Point3::set( 1, float ): ( 0.912886 -0.402380 0.000000 )
+Point3::operator [](1): ( 0.912886 1.043836 0.000000 )
+Point3::setY(): ( 0.912886 0.321576 0.000000 )
+Point3::set( 2, float ): ( 0.912886 0.321576 0.724026 )
+Point3::operator [](2): ( 0.912886 0.321576 -0.074816 )
+Point3::setZ(): ( 0.912886 0.321576 0.137730 )
+Point3::get( 0 ): 0.912886
+Point3::operator []( 0 ): 0.912886
+Point3::getX(): 0.912886
+Point3::get( 1 ): 0.321576
+Point3::operator []( 1 ): 0.321576
+Point3::getY(): 0.321576
+Point3::get( 2 ): 0.137730
+Point3::operator []( 2 ): 0.137730
+Point3::getZ(): 0.137730
+Point3 - Point3: ( 0.132280 -0.468228 -0.836532 )
+Point3 + Vector3: ( 0.772448 0.892445 -0.627235 )
+Point3 - Vector3: ( 1.053323 -0.249293 0.902695 )
+mulPerElem( Point3, Point3 ): ( 0.712603 0.253982 0.134185 )
+divPerElem( Point3, Point3 ): ( 1.169459 0.407159 0.141368 )
+Point3 recip: ( 1.095427 3.109689 7.260596 )
+Point3 sqrt: ( 0.955451 0.567076 0.371120 )
+Point3 rsqrt: ( 1.046627 1.763431 2.694549 )
+Point3 abs: ( 0.912886 0.321576 0.137730 )
+Point3 copySign: ( 0.912886 0.321576 0.137730 )
+Point3 maximum Point3: ( 0.912886 0.789803 0.974262 )
+Point3 minimum Point3: ( 0.780605 0.321576 0.137730 )
+Point3 maximum of elements: 0.912886
+Point3 minimum of elements: 0.137730
+Point3 sum of elements: 1.372191
+Point projection: -0.049984
+Point distSqrFromOrigin: 0.955741
+Point distFromOrigin: 0.977620
+Point distSqr: 0.936521
+Point dist: 0.967740
+Point3 lerp: ( -0.148533 -0.240318 0.263234 )
+set Vector3 with floats: ( -0.950919 -0.196258 -0.599808 )
+set Vector3 with floats: ( -0.794413 -0.927636 -0.187478 )
+set Vector3 elements to zero: ( 0.000000 0.000000 0.000000 )
+set Vector3 elements to zero: ( 0.000000 0.000000 0.000000 )
+set Vector3 elements to zero: ( 0.000000 0.000000 0.000000 )
+set Vector4 with floats: ( -0.113038 0.366120 -0.483786 0.622670 )
+set Vector4 with floats: ( -0.801806 0.295383 0.022005 -0.000678 )
+set Vector4 elements to zero: ( 0.000000 0.000000 0.000000 0.000000 )
+set Vector4 elements to zero: ( 0.000000 0.000000 0.000000 0.000000 )
+set Vector4 elements to zero: ( 0.000000 0.000000 0.000000 0.000000 )
+set Point3 with floats: ( -0.689334 0.266538 -0.785099 )
+set Point3 with floats: ( -0.572665 0.772760 0.971896 )
+set Point3 elements to zero: ( 0.000000 0.000000 0.000000 )
+set Point3 elements to zero: ( 0.000000 0.000000 0.000000 )
+set Point3 elements to zero: ( 0.000000 0.000000 0.000000 )
+set Quat with floats: ( -0.961363 0.723449 -0.758442 -0.733158 )
+set Quat with floats: ( 0.139667 -0.738147 0.727224 0.089921 )
+set Quat elements to zero: ( 0.000000 0.000000 0.000000 0.000000 )
+set Quat elements to zero: ( 0.000000 0.000000 0.000000 0.000000 )
+set Quat elements to zero: ( 0.000000 0.000000 0.000000 0.000000 )
+set Quat with Vector3, float: ( -0.950919 -0.196258 -0.599808 -0.113118 )
+construct Quat with Vector4: ( -0.113038 0.366120 -0.483786 0.622670 )
+set Quat with float: ( -0.364554 -0.364554 -0.364554 -0.364554 )
+set Quat with float: ( -0.137645 -0.137645 -0.137645 -0.137645 )
+aos type 0: ( 12.000000 13.000000 14.000000 15.000000 )
+aos type 1: ( 8.000000 9.000000 10.000000 11.000000 )
+aos type 2: ( 4.000000 5.000000 6.000000 7.000000 )
+aos type 3: ( 0.000000 1.000000 2.000000 3.000000 )
+select 0: ( -0.137645 -0.137645 -0.137645 -0.137645 )
+select 1: ( 0.139667 -0.738147 0.727224 0.089921 )
+select 2: ( -0.137645 -0.137645 -0.137645 -0.137645 )
+select 3: ( 0.139667 -0.738147 0.727224 0.089921 )
+assign to Quat from Quat: ( 0.139667 -0.738147 0.727224 0.089921 )
+set Quat xyz: ( -0.950919 -0.196258 -0.599808 0.089921 )
+get Quat xyz: ( -0.950919 -0.196258 -0.599808 )
+set Quat elements to zero: ( 0.000000 0.000000 0.000000 0.000000 )
+Quat::set( 0, float ): ( 0.933847 0.000000 0.000000 0.000000 )
+Quat::operator [](0): ( 2.026584 0.000000 0.000000 0.000000 )
+Quat::setX(): ( -0.069558 0.000000 0.000000 0.000000 )
+Quat::set( 1, float ): ( -0.069558 -0.216369 0.000000 0.000000 )
+Quat::operator [](1): ( -0.069558 -0.152646 0.000000 0.000000 )
+Quat::setY(): ( -0.069558 -0.022250 0.000000 0.000000 )
+Quat::set( 2, float ): ( -0.069558 -0.022250 0.035410 0.000000 )
+Quat::operator [](2): ( -0.069558 -0.022250 1.428823 0.000000 )
+Quat::setZ(): ( -0.069558 -0.022250 0.804061 0.000000 )
+Quat::set( 3, float ): ( -0.069558 -0.022250 0.804061 0.161693 )
+Quat::operator [](3): ( -0.069558 -0.022250 0.804061 -0.332169 )
+Quat::setW(): ( -0.069558 -0.022250 0.804061 -0.586017 )
+Quat::get( 0 ): -0.069558
+Quat::operator []( 0 ): -0.069558
+Quat::getX(): -0.069558
+Quat::get( 1 ): -0.022250
+Quat::operator []( 1 ): -0.022250
+Quat::getY(): -0.022250
+Quat::get( 2 ): 0.804061
+Quat::operator []( 2 ): 0.804061
+Quat::getZ(): 0.804061
+Quat::get( 3 ): -0.586017
+Quat::operator []( 3 ): -0.586017
+Quat::getW(): -0.586017
+Quat + Quat: ( 0.070108 -0.760397 1.531285 -0.496095 )
+Quat - Quat: ( -0.209225 0.715896 0.076837 -0.675938 )
+Quat * Quat: ( 0.489232 0.593451 -0.299411 -0.644137 )
+Quat * float: ( -0.031036 -0.009928 0.358759 -0.261471 )
+Quat / float: ( -0.103711 -0.033175 1.198842 -0.873742 )
+float * Quat: ( 0.021745 0.006956 -0.251360 0.183196 )
+Quat negate: ( 0.069558 0.022250 -0.804061 0.586017 )
+Quat dot Quat: 0.538746
+Quat lengthSqr: 0.995263
+Quat length: 0.997629
+Quat normalized: ( -0.069724 -0.022303 0.805972 -0.587410 )
+set to identity: ( 0.000000 0.000000 0.000000 1.000000 )
+Quat rotation between vectors: ( -0.256621 0.147283 0.358649 1.012405 )
+Quat rotation axis angle: ( 0.163854 0.033817 0.103354 0.985043 )
+Quat rotationX: ( -0.160489 0.000000 0.000000 0.987038 )
+Quat rotationY: ( 0.000000 0.030795 0.000000 0.999526 )
+Quat rotationZ: ( 0.000000 0.000000 0.054406 0.998519 )
+Quat rotate Vector3: ( -0.923966 -0.298415 -0.599808 )
+Quat conj: ( -0.000000 -0.000000 -0.054406 0.998519 )
+Quat lerp: ( -0.860671 -0.101017 0.008389 -0.459099 )
+Quat slerp: ( -0.935192 0.097684 -0.079386 -0.331015 )
+Quat squad: ( -0.208138 -0.281808 0.458751 -0.816585 )
+
+ __end__ 

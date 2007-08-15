@@ -30,8 +30,9 @@
 #ifndef _VECTORMATH_VEC_AOS_C_H
 #define _VECTORMATH_VEC_AOS_C_H
 #include <altivec.h>
-#include <vec_types.h>
 #include <simdmath.h>
+#include <stddef.h>
+#include "vec_types.h"
 #ifdef __cplusplus
 extern "C" {
 #endif /* __cplusplus */

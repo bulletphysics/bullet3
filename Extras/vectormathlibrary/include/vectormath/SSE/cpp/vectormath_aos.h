@@ -27,8 +27,8 @@
    POSSIBILITY OF SUCH DAMAGE.
 */
 
-#ifndef _VECTORMATH_AOS_CPP_H
-#define _VECTORMATH_AOS_CPP_H
+#ifndef _VECTORMATH_AOS_CPP_SSE_H
+#define _VECTORMATH_AOS_CPP_SSE_H
 
 #include <math.h>
 #include <xmmintrin.h>
@@ -113,8 +113,8 @@ static inline __m128 vec_ctf(__m128 x, int a)
 	SSE64 sse64;
 	sse64.m128 = x;
 	__m128 result =_mm_movelh_ps(
-		_mm_cvt_pi2ps(_mm_setzero_ps(), sse64.m64.m01), 
-		_mm_cvt_pi2ps(_mm_setzero_ps(), sse64.m64.m23)); 
+		_mm_cvt_pi2ps(_mm_setzero_ps(), sse64.m64.m01),
+		_mm_cvt_pi2ps(_mm_setzero_ps(), sse64.m64.m23));
 	_mm_empty();
 	return result;
 }

@@ -27,8 +27,8 @@
    POSSIBILITY OF SUCH DAMAGE.
 */
 
-#ifndef _VECTORMATH_SOA_C_H
-#define _VECTORMATH_SOA_C_H
+#ifndef _VECTORMATH_SOA_C_PPU_H
+#define _VECTORMATH_SOA_C_PPU_H
 
 #include <math.h>
 #include <altivec.h>

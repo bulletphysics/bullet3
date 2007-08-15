@@ -27,13 +27,12 @@
    POSSIBILITY OF SUCH DAMAGE.
 */
 
-#ifndef _VECTORMATH_AOS_C_H
-#define _VECTORMATH_AOS_C_H
+#ifndef _VECTORMATH_AOS_C_SPU_H
+#define _VECTORMATH_AOS_C_SPU_H
 
 #include <math.h>
-#include "spu2vmx.h"
-#include "simdmath.h"
-#include "stdio.h"
+#include <simdmath.h>
+#include <stdio.h>
 
 #ifdef _VECTORMATH_DEBUG
 #endif
