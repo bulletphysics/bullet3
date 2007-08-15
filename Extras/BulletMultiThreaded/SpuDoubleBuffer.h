@@ -25,6 +25,8 @@ public:
 	bool	isPending() const { return m_dmaPending;}
 	DoubleBuffer();
 
+	void init ();
+
 	// dma get and put commands
 	void backBufferDmaGet(uint64_t ea, unsigned int numBytes, unsigned int tag);
 	void backBufferDmaPut(uint64_t ea, unsigned int numBytes, unsigned int tag);
@@ -41,9 +43,15 @@ public:
 template<class T, int size>
 DoubleBuffer<T,size>::DoubleBuffer()
 {
-	m_dmaPending = false;
-	m_frontBuffer = &m_buffer0[0];
-	m_backBuffer = &m_buffer1[0];
+	init ();
+}
+
+template<class T, int size>
+void DoubleBuffer<T,size>::init()
+{
+	this->m_dmaPending = false;
+	this->m_frontBuffer = &this->m_buffer0[0];
+	this->m_backBuffer = &this->m_buffer1[0];
 }
 
 template<class T, int size>

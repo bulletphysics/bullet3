@@ -324,7 +324,7 @@ void	ProcessConvexConcaveSpuCollision(SpuCollisionPairInput* wuInput, CollisionT
 		{
 			float margin=convexShape->getMarginNV();
 			btVector3 halfExtents = convexShape->getImplicitShapeDimensions();
-			btTransform& t = wuInput->m_worldTransform0;
+			btTransform& t = convexInTriangleSpace;
 			btMatrix3x3 abs_b = t.getBasis().absolute();  
 			btPoint3 center = t.getOrigin();
 			btVector3 extent = btVector3(abs_b[0].dot(halfExtents),
@@ -343,7 +343,7 @@ void	ProcessConvexConcaveSpuCollision(SpuCollisionPairInput* wuInput, CollisionT
 			//add the radius to y-axis to get full height
 			btScalar radius = halfExtents[0];
 			halfExtents[1] += radius;
-			btTransform& t = wuInput->m_worldTransform0;
+			btTransform& t = convexInTriangleSpace;
 			btMatrix3x3 abs_b = t.getBasis().absolute();  
 			btPoint3 center = t.getOrigin();
 			btVector3 extent = btVector3(abs_b[0].dot(halfExtents),
@@ -360,7 +360,7 @@ void	ProcessConvexConcaveSpuCollision(SpuCollisionPairInput* wuInput, CollisionT
 		{
 			float radius = convexShape->getImplicitShapeDimensions().getX();// * convexShape->getLocalScaling().getX();
 			float margin = radius + convexShape->getMarginNV();
-			btTransform& t = wuInput->m_worldTransform0;
+			btTransform& t = convexInTriangleSpace;
 			const btVector3& center = t.getOrigin();
 			btVector3 extent(margin,margin,margin);
 			aabbMin = center - extent;
@@ -377,7 +377,7 @@ void	ProcessConvexConcaveSpuCollision(SpuCollisionPairInput* wuInput, CollisionT
 			cellDmaGet(&convexHullShape0, dmaPpuAddress2  , dmaSize, DMA_TAG(1), 0, 0);
 			cellDmaWaitTagStatusAll(DMA_MASK(1));
 			btConvexHullShape* localPtr = (btConvexHullShape*)&convexHullShape0;
-			btTransform& t = wuInput->m_worldTransform0;
+			btTransform& t = convexInTriangleSpace;
 
 			btScalar margin = convexShape->getMarginNV();
 
@@ -1042,6 +1042,8 @@ void	processCollisionTask(void* userPtr, void* lsMemPtr)
 	unsigned int numOnLastPage = taskDesc.numOnLastPage;
 
 	// prefetch first set of inputs and wait
+	lsMem.g_workUnitTaskBuffers.init();
+
 	unsigned int nextNumOnPage = (numPages > 1)? MIDPHASE_NUM_WORKUNITS_PER_PAGE : numOnLastPage;
 	lsMem.g_workUnitTaskBuffers.backBufferDmaGet(dmaInPtr, nextNumOnPage*sizeof(SpuGatherAndProcessWorkUnitInput), DMA_TAG(3));
 	dmaInPtr += MIDPHASE_WORKUNIT_PAGE_SIZE;
