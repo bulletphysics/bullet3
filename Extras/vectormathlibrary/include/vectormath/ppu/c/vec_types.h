@@ -1,55 +1,59 @@
-/* (C) Copyright
-   Sony Computer Entertainment, Inc.,
-   2001,2002,2003,2004,2005,2006,2007.
+/*
+   Copyright (C) 2006, 2007 Sony Computer Entertainment Inc.
+   All rights reserved.
 
-   This file is free software; you can redistribute it and/or modify it under
-   the terms of the GNU General Public License as published by the Free
-   Software Foundation; either version 2 of the License, or (at your option) 
-   any later version.
+   Redistribution and use in source and binary forms,
+   with or without modification, are permitted provided that the
+   following conditions are met:
+    * Redistributions of source code must retain the above copyright
+      notice, this list of conditions and the following disclaimer.
+    * Redistributions in binary form must reproduce the above copyright
+      notice, this list of conditions and the following disclaimer in the
+      documentation and/or other materials provided with the distribution.
+    * Neither the name of the Sony Computer Entertainment Inc nor the names
+      of its contributors may be used to endorse or promote products derived
+      from this software without specific prior written permission.
 
-   This file is distributed in the hope that it will be useful, but WITHOUT
-   ANY WARRANTY; without even the implied warranty of MERCHANTABILITY or
-   FITNESS FOR A PARTICULAR PURPOSE.  See the GNU General Public License
-   for more details.
-
-   You should have received a copy of the GNU General Public License
-   along with this file; see the file COPYING.  If not, write to the Free
-   Software Foundation, 51 Franklin Street, Fifth Floor, Boston, MA
-   02110-1301, USA.  */
-
-/* As a special exception, if you include this header file into source files 
-   compiled by GCC, this header file does not by itself cause  the resulting 
-   executable to be covered by the GNU General Public License.  This exception 
-   does not however invalidate any other reasons why the executable file might be 
-   covered by the GNU General Public License.  */ 
+   THIS SOFTWARE IS PROVIDED BY THE COPYRIGHT HOLDERS AND CONTRIBUTORS "AS IS"
+   AND ANY EXPRESS OR IMPLIED WARRANTIES, INCLUDING, BUT NOT LIMITED TO, THE
+   IMPLIED WARRANTIES OF MERCHANTABILITY AND FITNESS FOR A PARTICULAR PURPOSE
+   ARE DISCLAIMED. IN NO EVENT SHALL THE COPYRIGHT OWNER OR CONTRIBUTORS BE
+   LIABLE FOR ANY DIRECT, INDIRECT, INCIDENTAL, SPECIAL, EXEMPLARY, OR
+   CONSEQUENTIAL DAMAGES (INCLUDING, BUT NOT LIMITED TO, PROCUREMENT OF
+   SUBSTITUTE GOODS OR SERVICES; LOSS OF USE, DATA, OR PROFITS; OR BUSINESS
+   INTERRUPTION) HOWEVER CAUSED AND ON ANY THEORY OF LIABILITY, WHETHER IN
+   CONTRACT, STRICT LIABILITY, OR TORT (INCLUDING NEGLIGENCE OR OTHERWISE)
+   ARISING IN ANY WAY OUT OF THE USE OF THIS SOFTWARE, EVEN IF ADVISED OF THE
+   POSSIBILITY OF SUCH DAMAGE.
+*/
 
 /* Single token vector data types for the PowerPC SIMD/Vector Multi-media 
    eXtension */
 
-#ifndef _VECTORMATH_VEC_TYPES_H_
-#define _VECTORMATH_VEC_TYPES_H_	1
+#ifndef _VEC_TYPES_H_
+#define _VEC_TYPES_H_	1
 
-#define qword		__vector unsigned char
+#define qword		vector unsigned char
 
-#define vec_uchar16	__vector unsigned char
-#define vec_char16	__vector signed char
-#define vec_bchar16	__vector bool char
+#define vec_uchar16	vector unsigned char
+#define vec_char16	vector signed char
+#define vec_bchar16	vector bool char
 
-#define vec_ushort8	__vector unsigned short
-#define vec_short8	__vector signed short
-#define vec_bshort8	__vector bool short
+#define vec_ushort8	vector unsigned short
+#define vec_short8	vector signed short
+#define vec_bshort8	vector bool short
 
-#define vec_pixel8	__vector pixel
+#define vec_pixel8	vector pixel
 
-#define vec_uint4	__vector unsigned int
-#define vec_int4	__vector signed int
-#define vec_bint4	__vector bool int
+#define vec_uint4	vector unsigned int
+#define vec_int4	vector signed int
+#define vec_bint4	vector bool int
 
-#define vec_float4	__vector float
+#define vec_float4	vector float
 
-#define vec_ullong2	__vector bool char
-#define vec_llong2	__vector bool short
+#define vec_ullong2	vector bool char
+#define vec_llong2	vector bool short
 
-#define vec_double2	__vector bool int
+#define vec_double2	vector bool int
 
-#endif /* _VECTORMATH_VEC_TYPES_H_ */
+#endif /* _VEC_TYPES_H_ */
