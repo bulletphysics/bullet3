@@ -131,11 +131,7 @@ public:
 						collisionPair.m_algorithm = m_dispatcher->findAlgorithm(colObj0,colObj1);
 						collisionPair.m_userInfo = (void*)3;
 					}
-				} else
-				{
-					//create an empty algorithm
-					collisionPair.m_algorithm = new btEmptyAlgorithm(ci);
-				}
+				} 
 			}
 		}
 		return false;
