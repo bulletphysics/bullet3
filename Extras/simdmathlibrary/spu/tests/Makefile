@@ -26,6 +26,11 @@
 #   ARISING IN ANY WAY OUT OF THE USE OF THIS SOFTWARE, EVEN IF ADVISED OF THE
 #   POSSIBILITY OF SUCH DAMAGE.
 
+topdir = ../..
+ARCH = spu
+
+include $(topdir)/Make.defs
+
 TESTS = fabsd2 fabsf4 truncf4 divf4 recipd2 divd2 sqrtf4 \
 	absi4 sqrtd2 rsqrtf4 rsqrtd2 copysignf4 remainderf4 \
 	recipf4 copysignd2 negatef4 negated2 modff4 ceilf4 \
@@ -41,66 +46,6 @@ TESTS = fabsd2 fabsf4 truncf4 divf4 recipd2 divd2 sqrtf4 \
     lldivu2 ceild2 floord2 ldexpd2 ilogbd2 ilogbf4 logbf4 logbd2 scalbnf4 \
     scalbllnd2 lldivi2 frexpf4 frexpd2 remquof4 remquod2 fmodd2 remainderd2
 
+OBJS = testutils.o
 
-ALL_TESTS = $(TESTS)
-
-INCLUDES_SPU = -I../../common
-
-CROSS_SPU = spu-
-AR_SPU = $(CROSS_SPU)ar
-CC_SPU = $(CROSS_SPU)gcc
-CXX_SPU = $(CROSS_SPU)g++
-TEST_CMD_SPU =
-
-CFLAGS_SPU=$(INCLUDES_SPU) -O2 -W -Wall
-LDFLAGS_SPU=-L../ -l$(LIB_BASE) -lm
-
-MAKE_DEFS = \
-	LIB_BASE='$(LIB_BASE)' \
-	LIB_NAME='$(LIB_NAME)' \
-	STATIC_LIB='$(STATIC_LIB)' \
-	CROSS_SPU='$(CROSS_SPU)' \
-	AR_SPU='$(AR_SPU)' \
-	CC_SPU='$(CC_SPU)' \
-	CXX_SPU='$(CXX_SPU)' \
-	TEST_CMD_SPU='$(TEST_CMD_SPU)'
-
-LIB_BASE = simdmath
-LIB_NAME = lib$(LIB_BASE)
-STATIC_LIB = $(LIB_NAME).a
-
-TEST_CMD = $(TEST_CMD_SPU)
-
-COMMON_OBJS = testutils.o
-
-all: $(ALL_TESTS)
-
-
-$(TESTS): %: %.o ../$(STATIC_LIB) $(COMMON_OBJS)
-	$(CC_SPU) $@.o $(COMMON_OBJS) $(LDFLAGS_SPU) -o $@
-
-clean:
-	rm -f *.o
-	rm -f $(TESTS)
-	rm -f core*
-
-check: $(ALL_TESTS)
-	for test in $(ALL_TESTS); do	\
-		echo "TEST $${test}";		\
-		if $(TEST_CMD) ./$${test}; then \
-			pass="$$pass $$test"; \
-		else \
-			fail="$$fail $$test"; \
-		fi \
-	done; \
-	echo; echo "PASS:$$pass"; echo "FAIL:$$fail"; \
-	test -z "$$fail"
-
-../$(STATIC_LIB):
-	cd ../;$(MAKE) $(MAKE_DEFS) $(STATIC_LIB)
-
-%.o: %.c ../../common/common-test.h testutils.h
-	$(CC_SPU) $(CFLAGS_SPU) -c $<
-
-%.o: %.cc
-	$(CXX_SPU) $(CFLAGS_SPU) -c $<
+include $(topdir)/Make.test

@@ -26,125 +26,28 @@
 #   ARISING IN ANY WAY OUT OF THE USE OF THIS SOFTWARE, EVEN IF ADVISED OF THE
 #   POSSIBILITY OF SUCH DAMAGE.
 
-# How to build:
-#
-#   To build 32 bit libraries:
-#
-#       make ARCH_PPU=32
-#
-#   To build 64 bit libraries:
-#
-#       make ARCH_PPU=64
-#
-#   To use "ppu-gcc" instead of "gcc".
-#
-#       make CROSS_PPU=ppu-
+topdir = .
+ARCH = unknown
 
-prefix = /usr
-prefix_ppu = $(prefix)
-prefix_spu = $(prefix)/spu
-DESTDIR =
+include $(topdir)/Make.defs
 
-ARCH_PPU = 32
-CROSS_PPU =
-AR_PPU = $(CROSS_PPU)ar
-CC_PPU = $(CROSS_PPU)gcc
-CXX_PPU = $(CROSS_PPU)g++
-RANLIB_PPU = $(CROSS_PPU)ranlib
-TEST_CMD_PPU =
+SUBDIRS = common $(ARCH_DIR)
 
-ARCH_CFLAGS_PPU = -m$(ARCH_PPU) -maltivec -mabi=altivec
-
-CROSS_SPU = spu-
-AR_SPU = $(CROSS_SPU)ar
-CC_SPU = $(CROSS_SPU)gcc
-CXX_SPU = $(CROSS_SPU)g++
-RANLIB_SPU = $(CROSS_SPU)ranlib
-TEST_CMD_SPU =
-
-INSTALL = install
-
-MAKE_DEFS = \
-	prefix='$(prefix)' \
-	prefix_ppu='$(prefix_ppu)' \
-	prefix_spu='$(prefix_spu)' \
-	DESTDIR='$(DESTDIR)' \
-	LIB_MAJOR_VERSION='$(LIB_MAJOR_VERSION)' \
-	LIB_MINOR_VERSION='$(LIB_MINOR_VERSION)' \
-	LIB_RELEASE='$(LIB_RELEASE)' \
-	LIB_BASE='$(LIB_BASE)' \
-	LIB_NAME='$(LIB_NAME)' \
-	STATIC_LIB='$(STATIC_LIB)' \
-	SHARED_LIB='$(SHARED_LIB)' \
-	ARCH_PPU='$(ARCH_PPU)' \
-	ARCH_CFLAGS_PPU='$(ARCH_CFLAGS_PPU)' \
-	CROSS_PPU='$(CROSS_PPU)' \
-	AR_PPU='$(AR_PPU)' \
-	CC_PPU='$(CC_PPU)' \
-	CXX_PPU='$(CXX_PPU)' \
-	RANLIB_PPU='$(RANLIB_PPU)' \
-	TEST_CMD_PPU='$(TEST_CMD_PPU)' \
-	CROSS_SPU='$(CROSS_SPU)' \
-	AR_SPU='$(AR_SPU)' \
-	CC_SPU='$(CC_SPU)' \
-	CXX_SPU='$(CXX_SPU)' \
-	RANLIB_SPU='$(RANLIB_SPU)' \
-	TEST_CMD_SPU='$(TEST_CMD_SPU)' \
-	INSTALL='$(INSTALL)'
-
-LIB_MAJOR_VERSION = 1
-LIB_MINOR_VERSION = 0
-LIB_RELEASE = 1
-LIB_FULL_VERSION = $(LIB_MAJOR_VERSION).$(LIB_MINOR_VERSION).$(LIB_RELEASE)
-
-LIB_BASE = simdmath
-LIB_NAME = lib$(LIB_BASE)
-STATIC_LIB = $(LIB_NAME).a
-SHARED_LIB = $(LIB_NAME).so
-
-TAR_NAME = $(LIB_BASE)-$(LIB_FULL_VERSION)
-TAR_BALL = $(TAR_NAME).tar.gz
-
-all: spu_library ppu_library
-
-spu_library:
-	cd spu; $(MAKE) $(MAKE_DEFS)
-
-ppu_library:
-	cd ppu; $(MAKE) $(MAKE_DEFS)
-
-install: common_install spu_install ppu_install
-
-common_install:
-	cd common; $(MAKE) $(MAKE_DEFS) install
-
-spu_install:
-	cd spu; $(MAKE) $(MAKE_DEFS) install
-
-ppu_install:
-	cd ppu; $(MAKE) $(MAKE_DEFS) install
+all install check:
+	@for _d in $(SUBDIRS); do $(MAKE) -C $$_d $@ || exit 1; done
 
 clean:
-	cd common; $(MAKE) $(MAKE_DEFS) clean
-	cd spu; $(MAKE) $(MAKE_DEFS) clean
-	cd ppu; $(MAKE) $(MAKE_DEFS) clean
+	-@for _d in $(SUBDIRS); do $(MAKE) -C $$_d $@; done
 	-rm -rf $(TAR_BALL) .dist
-
-check: check_ppu check_spu
-
-check_ppu:
-	cd ppu; $(MAKE) $(MAKE_DEFS) check
-
-check_spu:
-	cd spu; $(MAKE) $(MAKE_DEFS) check
 
 dist:
 	-rm -rf .dist
 	mkdir -p .dist/$(TAR_NAME)
-	find . -name .dist -prune -o \
+	find . -name .dist -prune -o -name '*~' -prune -o \
 		-name .CVS -prune -o -name .svn -prune -o \
 		-name .pc -prune  -o -name patches -prune -o \
-		'(' -name Makefile -o -name '*.[ch]' -o -name '*.spec' ')' \
+		'(' -name README -o -name LICENSE -o \
+			-name 'Make*' -o -name '*.[ch]' -o -name '*.spec' ')' \
 		-print | tar -T - -cf - | tar xf - -C .dist/$(TAR_NAME)
 	tar zcf $(TAR_BALL) -C .dist $(TAR_NAME)
 	-rm -rf .dist

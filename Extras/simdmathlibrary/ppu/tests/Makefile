@@ -26,93 +26,16 @@
 #   ARISING IN ANY WAY OUT OF THE USE OF THIS SOFTWARE, EVEN IF ADVISED OF THE
 #   POSSIBILITY OF SUCH DAMAGE.
 
+topdir = ../..
+ARCH = ppu
+
+include $(topdir)/Make.defs
+
 TESTS = fabsf4 absi4 truncf4 sqrtf4 negatef4 \
 	copysignf4 modff4 fminf4_fmaxf4 \
 	floorf4 recipf4 ceilf4 divf4 divi4 \
 	rsqrtf4 fmodf4 negatei4
 
-STATIC_TESTS = $(TESTS)
-SHARED_TESTS = $(TESTS:=.shared)
-ALL_TESTS = $(STATIC_TESTS) $(SHARED_TESTS)
+OBJS = testutils.o
 
-INCLUDES_PPU = -I../../common
-
-ARCH_PPU = 32
-CROSS_PPU =
-AR_PPU = $(CROSS_PPU)ar
-CC_PPU = $(CROSS_PPU)gcc
-CXX_PPU = $(CROSS_PPU)g++
-TEST_CMD_PPU =
-
-ARCH_CFLAGS_PPU = -m$(ARCH_PPU) -maltivec -mabi=altivec
-CFLAGS_PPU = $(INCLUDES_PPU) -O2 -W -Wall $(ARCH_CFLAGS_PPU)
-STATIC_LDFLAGS_PPU = -static
-SHARED_LDFLAGS_PPU = -Wl,-rpath=..
-LDFLAGS_PPU = $(ARCH_CFLAGS_PPU) -L../ -l$(LIB_BASE) -lm
-
-MAKE_DEFS = \
-	LIB_BASE='$(LIB_BASE)' \
-	LIB_NAME='$(LIB_NAME)' \
-	STATIC_LIB='$(STATIC_LIB)' \
-	SHARED_LIB='$(SHARED_LIB)' \
-	ARCH_PPU='$(ARCH_PPU)' \
-	ARCH_CFLAGS_PPU='$(ARCH_CFLAGS_PPU)' \
-	CROSS_PPU='$(CROSS_PPU)' \
-	AR_PPU='$(AR_PPU)' \
-	CC_PPU='$(CC_PPU)' \
-	CXX_PPU='$(CXX_PPU)' \
-	TEST_CMD_PPU='$(TEST_CMD_PPU)'
-
-LIB_BASE = simdmath
-LIB_NAME = lib$(LIB_BASE)
-STATIC_LIB = $(LIB_NAME).a
-SHARED_LIB = $(LIB_NAME).so
-
-TEST_CMD = $(TEST_CMD_PPU)
-
-COMMON_OBJS = testutils.o
-
-
-all: $(ALL_TESTS)
-
-
-$(STATIC_TESTS): %: %.o ../$(STATIC_LIB) $(COMMON_OBJS)
-	$(CC_PPU) $*.o $(COMMON_OBJS) $(LDFLAGS_PPU) $(STATIC_LDFLAGS_PPU) -o $@
-
-$(SHARED_TESTS): %.shared: %.o ../$(SHARED_LIB) $(COMMON_OBJS)
-	$(CC_PPU) $*.o $(COMMON_OBJS) $(LDFLAGS_PPU) $(SHARED_LDFLAGS_PPU) -o $@
-
-clean:
-	rm -f *.o
-	rm -f $(STATIC_TESTS) $(SHARED_TESTS)
-	rm -f core*
-
-check: $(ALL_TESTS)
-	for test in $(ALL_TESTS); do	\
-		echo "TEST $${test}";		\
-		if $(TEST_CMD) ./$${test}; then \
-			pass="$$pass $$test"; \
-		else \
-			fail="$$fail $$test"; \
-		fi \
-	done; \
-	echo; echo "PASS:$$pass"; echo "FAIL:$$fail"; \
-	test -z "$$fail"
-
-static_check:
-	$(MAKE) $(MAKE_DEFS) ALL_TESTS="$(STATIC_TESTS)" check
-
-shared_check:
-	$(MAKE) $(MAKE_DEFS) ALL_TESTS="$(SHARED_TESTS)" check
-
-../$(STATIC_LIB):
-	cd ../;$(MAKE) $(MAKE_DEFS) $(STATIC_LIB)
-
-../$(SHARED_LIB):
-	cd ../;$(MAKE) $(MAKE_DEFS) $(SHARED_LIB)
-
-%.o: %.c  ../../common/common-test.h testutils.h
-	$(CC_PPU) $(CFLAGS_PPU) -c $<
-
-%.o: %.cc
-	$(CXX_PPU) $(CFLAGS_PPU) -c $<
+include $(topdir)/Make.test

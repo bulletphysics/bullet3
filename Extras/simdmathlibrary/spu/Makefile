@@ -26,12 +26,12 @@
 #   ARISING IN ANY WAY OUT OF THE USE OF THIS SOFTWARE, EVEN IF ADVISED OF THE
 #   POSSIBILITY OF SUCH DAMAGE.
 
+topdir = ..
+ARCH = spu
+
+include $(topdir)/Make.defs
 
 # All that you do to add a file is edit OBJS, the rest will just work
-
-prefix = /usr
-prefix_spu = $(prefix)/spu
-DESTDIR =
 
 OBJS = fabsd2.o fabsf4.o truncf4.o divf4.o tanf4.o isnanf4.o isnand2.o isinff4.o isinfd2.o \
 	is0denormf4.o is0denormd2.o recipd2.o divd2.o tand2.o sqrtf4.o absi4.o sqrtd2.o \
@@ -51,68 +51,10 @@ OBJS = fabsd2.o fabsf4.o truncf4.o divf4.o tanf4.o isnanf4.o isnand2.o isinff4.o
 	ceild2.o floord2.o ldexpd2.o scalbnf4.o scalbllnd2.o lldivi2.o remquof4.o remquod2.o\
 	fmodd2.o remainderd2.o
 
-
-INCLUDES_SPU = -I. -I../common
-
-CROSS_SPU = spu-
-AR_SPU = $(CROSS_SPU)ar
-CC_SPU = $(CROSS_SPU)gcc
-CXX_SPU = $(CROSS_SPU)g++
-RANLIB_SPU = $(CROSS_SPU)ranlib
-TEST_CMD_SPU =
-
-CFLAGS_SPU=$(INCLUDES_SPU)  -O2  -W -Wall
-
-INSTALL = install
-
-MAKE_DEFS = \
-	prefix='$(prefix)' \
-	prefix_spu='$(prefix_spu)' \
-	DESTDIR='$(DESTDIR)' \
-	LIB_BASE='$(LIB_BASE)' \
-	LIB_NAME='$(LIB_NAME)' \
-	STATIC_LIB='$(STATIC_LIB)' \
-	CROSS_SPU='$(CROSS_SPU)' \
-	AR_SPU='$(AR_SPU)' \
-	CC_SPU='$(CC_SPU)' \
-	CXX_SPU='$(CXX_SPU)' \
-	RANLIB_SPU='$(RANLIB_SPU)' \
-	TEST_CMD_SPU='$(TEST_CMD_SPU)' \
-	INSTALL='$(INSTALL)'
-
-LIB_BASE = simdmath
-LIB_NAME = lib$(LIB_BASE)
-STATIC_LIB = $(LIB_NAME).a
-
-all: $(STATIC_LIB)
-
-$(STATIC_LIB): $(OBJS)
-	$(AR_SPU) cr $@ $(OBJS)
-	$(RANLIB_SPU) $@
-
-install: $(STATIC_LIB)
-	$(INSTALL) -m 755 -d $(DESTDIR)$(prefix_spu)/include
-	$(INSTALL) -m 755 -d $(DESTDIR)$(prefix_spu)/include/simdmath
-	$(INSTALL) -m 644 simdmath/*.h $(DESTDIR)$(prefix_spu)/include/simdmath/
-	$(INSTALL) -m 755 -d $(DESTDIR)$(prefix_spu)/lib
-	$(INSTALL) $(STATIC_LIB) $(DESTDIR)$(prefix_spu)/lib/$(STATIC_LIB)
-
-clean:
-	cd tests; $(MAKE) $(MAKE_DEFS) clean
-	rm -f $(OBJS)
-	rm -f $(STATIC_LIB)
+include $(topdir)/Make.rules
 
 $(OBJS): ../common/simdmath.h
-
-check: $(STATIC_LIB)
-	cd tests; $(MAKE) $(MAKE_DEFS); $(MAKE) $(MAKE_DEFS) check
-
 
 # Some Objects have special header files.
 sinf4.o sind2.o sincosf4.o cosd2.o: ../common/simdmath/_sincos.h
 lldivu2.o lldivi2.o : simdmath/_lldiv.h
-
-
-
-%.o: ../common/%.c simdmath/%.h
-	$(CC_SPU) $(CFLAGS_SPU) -c $<

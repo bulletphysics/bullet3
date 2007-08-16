@@ -26,34 +26,22 @@
 #   ARISING IN ANY WAY OUT OF THE USE OF THIS SOFTWARE, EVEN IF ADVISED OF THE
 #   POSSIBILITY OF SUCH DAMAGE.
 
-prefix = /usr
-prefix_ppu = $(prefix)
-prefix_spu = $(prefix)/spu
-DESTDIR =
+topdir = ..
+ARCH = unknown
 
-INSTALL = install
-
-MAKE_DEFS = \
-	prefix='$(prefix)' \
-	prefix_ppu='$(prefix_ppu)' \
-	prefix_spu='$(prefix_spu)' \
-	DESTDIR='$(DESTDIR)' \
-	INSTALL='$(INSTALL)'
-
-TARGET_PREFIX = $(prefix)
+include $(topdir)/Make.defs
 
 all:
 	@true
 
 install:
-	$(MAKE) $(MAKE_DEFS) TARGET_PREFIX=$(prefix_ppu) do_install
-	$(MAKE) $(MAKE_DEFS) TARGET_PREFIX=$(prefix_spu) do_install
+	$(INSTALL) -m 755 -d $(DESTDIR)$(prefix)/include
+	$(INSTALL) -m 755 -d $(DESTDIR)$(prefix)/include/simdmath
+	$(INSTALL) -m 644 simdmath.h $(DESTDIR)$(prefix)/include/
+	$(INSTALL) -m 644 simdmath/*.h $(DESTDIR)$(prefix)/include/simdmath/
 
-do_install:
-	$(INSTALL) -m 755 -d $(DESTDIR)$(TARGET_PREFIX)/include
-	$(INSTALL) -m 755 -d $(DESTDIR)$(TARGET_PREFIX)/include/simdmath
-	$(INSTALL) -m 644 simdmath.h $(DESTDIR)$(TARGET_PREFIX)/include/
-	$(INSTALL) -m 644 simdmath/*.h $(DESTDIR)$(TARGET_PREFIX)/include/simdmath/
+check:
+	@true
 
 clean:
 	@true
