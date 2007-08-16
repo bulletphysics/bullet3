@@ -53,6 +53,7 @@ TESTS_ppu = $(TESTS_all)
 ARCH_CFLAGS_ppu = -maltivec -mabi=altivec -I$(SIMDMATH_DIR)/common
 ARCH_LDFLAGS_ppu = -L$(SIMDMATH_DIR)/ppu -lsimdmath -static
 
+CROSS_spu = spu-
 TESTS_spu = $(TESTS_all)
 ARCH_CFLAGS_spu = -I$(SIMDMATH_DIR)/common
 ARCH_LDFLAGS_spu = -L$(SIMDMATH_DIR)/spu -lsimdmath
@@ -83,7 +84,7 @@ SIMDMATH_DIR = $(topdir)/../simdmathlibrary
 RESULTS = $(TESTS:.elf=.$(ARCH).out)
 DIFFS = $(RESULTS:.out=.cmp)
 
-CROSS =
+CROSS = $(CROSS_$(ARCH))
 CC = $(CROSS)gcc
 CXX = $(CROSS)g++
 LD = $(CC)
@@ -94,6 +95,8 @@ LDFLAGS = -lm $(ARCH_LDFLAGS)
 
 C_INCLUDES = -I$(topdir)/include/vectormath/c
 CXX_INCLUDES = -I$(topdir)/include/vectormath/cpp
+
+PERL = perl
 
 all: $(TESTS)
 
@@ -115,21 +118,21 @@ distclean: clean
 	./$< > $@
 
 test1_%.cmp: test1_%.out
-	./clean.pl < $< > $<.tmp
-	./compare.pl $<.tmp test1_reference.txt | tee $@
+	$(PERL) ./clean.pl < $< > $<.tmp
+	$(PERL) ./compare.pl $<.tmp test1_reference.txt | tee $@
 	rm $<.tmp
 
 test2_%.cmp: test2_%.out
-	./clean.pl < $< > $<.tmp
-	./compare.pl $<.tmp test2_reference.txt | tee $@
+	$(PERL) ./clean.pl < $< > $<.tmp
+	$(PERL) ./compare.pl $<.tmp test2_reference.txt | tee $@
 	rm $<.tmp
 
 test3_%.cmp: test3_%.out
-	./clean.pl < $< > $<.tmp
-	./compare.pl $<.tmp test3_reference.txt | tee $@
+	$(PERL) ./clean.pl < $< > $<.tmp
+	$(PERL) ./compare.pl $<.tmp test3_reference.txt | tee $@
 	rm $<.tmp
 
 test4_%.cmp: test4_%.out
-	./clean.pl < $< > $<.tmp
-	./compare.pl $<.tmp test4_reference.txt | tee $@
+	$(PERL) ./clean.pl < $< > $<.tmp
+	$(PERL) ./compare.pl $<.tmp test4_reference.txt | tee $@
 	rm $<.tmp
