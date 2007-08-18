@@ -14,6 +14,6 @@ subject to the following restrictions:
 */
 
 All files in the Bullet/src folder are under this Zlib license.
-Optional Extras/GIMPACT and Extras/GIMPACTBullet is also under ZLib license. Other optional files in  Extras/Demos have own license,see respective files.
+Optional Extras/GIMPACT and Extras/GIMPACTBullet is also under ZLib license. Other optional external libraries in  Extras/Demos have own license,see respective files.
 
 This means Bullet can freely be used in any software, including commercial and console software. A Playstation 3 optimized version is available through Sony.
