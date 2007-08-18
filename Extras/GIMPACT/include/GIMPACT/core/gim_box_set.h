@@ -603,7 +603,7 @@ protected:
 				{
 					if(node1_is_leaf)
 					{
-						m_collision_pairs->push_pair(m_boxset1->getNodeData(node0),m_boxset1->getNodeData(node1));
+						m_collision_pairs->push_pair(m_boxset0->getNodeData(node0),m_boxset1->getNodeData(node1));
 					}
 					else
 					{
