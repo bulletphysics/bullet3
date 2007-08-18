@@ -1,5 +1,5 @@
 #### Visit Bullet library ibmsdk dirs and build  code
-CELL_TOP ?= ../..
+CELL_TOP ?= /opt/ibm/cell-sdk/prototype
 
 DIRS :=					\
 ../BulletCollision/ibmsdk		\

@@ -32,5 +32,5 @@ RenderTexture.o
 #### Install directories
 INSTALL_DIR	= $(ROOT)/lib/ibmsdk/
 INSTALL_FILES	= $(LIBRARY)
-CELL_TOP ?= $(ROOT)
+CELL_TOP ?= /opt/ibm/cell-sdk/prototype
 include $(CELL_TOP)/make.footer

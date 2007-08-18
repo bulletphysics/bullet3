@@ -50,11 +50,9 @@ INSTALL_FILES   = $(PROGRAM_ppu)
 #                       make.footer
 ########################################################################
 
-ifdef CELL_TOP
-	include $(CELL_TOP)/make.footer
-else
-	include ../../../make.footer
-endif
+CELL_TOP ?= /opt/ibm/cell-sdk/prototype
+
+include $(CELL_TOP)/make.footer
 
 $(PPMS): 
 	cp textures/$@ .
