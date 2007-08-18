@@ -2,7 +2,7 @@ Bullet Continuous Collision Detection and Physics Library
 Primary author and maintainer: Erwin Coumans
 
 2007 Aug 15
-	- fixed bug in Extras/GIMPACT 0.2
+	- fixed bug in Extras/GIMPACT 0.2 related to moving triangle meshes
 	Thanks Thomas, http://www.continuousphysics.com/Bullet/phpBB2/viewtopic.php?t=1368
 
 2007 Aug 14
