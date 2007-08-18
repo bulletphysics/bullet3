@@ -25,5 +25,5 @@ btQuickprof.o
 #### Install directories
 INSTALL_DIR	=  $(ROOT)/lib/ibmsdk
 INSTALL_FILES	= $(LIBRARY_ppu)
-
-include $(TOP)/make.footer
+CELL_TOP ?= $(ROOT)
+include $(CELL_TOP)/make.footer
