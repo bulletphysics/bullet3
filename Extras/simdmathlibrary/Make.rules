@@ -1,0 +1,82 @@
+# -*- Makefile -*-
+# Common make rules for all make files in the libsimdmath library.
+#   Copyright (C) 2006, 2007 Sony Computer Entertainment Inc.
+#   All rights reserved.
+#
+#   Redistribution and use in source and binary forms,
+#   with or without modification, are permitted provided that the
+#   following conditions are met:
+#    * Redistributions of source code must retain the above copyright
+#      notice, this list of conditions and the following disclaimer.
+#    * Redistributions in binary form must reproduce the above copyright
+#      notice, this list of conditions and the following disclaimer in the
+#      documentation and/or other materials provided with the distribution.
+#    * Neither the name of the Sony Computer Entertainment Inc nor the names
+#      of its contributors may be used to endorse or promote products derived
+#      from this software without specific prior written permission.
+#
+#   THIS SOFTWARE IS PROVIDED BY THE COPYRIGHT HOLDERS AND CONTRIBUTORS "AS IS"
+#   AND ANY EXPRESS OR IMPLIED WARRANTIES, INCLUDING, BUT NOT LIMITED TO, THE
+#   IMPLIED WARRANTIES OF MERCHANTABILITY AND FITNESS FOR A PARTICULAR PURPOSE
+#   ARE DISCLAIMED. IN NO EVENT SHALL THE COPYRIGHT OWNER OR CONTRIBUTORS BE
+#   LIABLE FOR ANY DIRECT, INDIRECT, INCIDENTAL, SPECIAL, EXEMPLARY, OR
+#   CONSEQUENTIAL DAMAGES (INCLUDING, BUT NOT LIMITED TO, PROCUREMENT OF
+#   SUBSTITUTE GOODS OR SERVICES; LOSS OF USE, DATA, OR PROFITS; OR BUSINESS
+#   INTERRUPTION) HOWEVER CAUSED AND ON ANY THEORY OF LIABILITY, WHETHER IN
+#   CONTRACT, STRICT LIABILITY, OR TORT (INCLUDING NEGLIGENCE OR OTHERWISE)
+#   ARISING IN ANY WAY OUT OF THE USE OF THIS SOFTWARE, EVEN IF ADVISED OF THE
+#   POSSIBILITY OF SUCH DAMAGE.
+
+ifeq ($(ENABLE_STATIC),1)
+	ALL_LIBS += $(ALL_STATIC_LIB)
+	INSTALL_LIBS += install-static
+endif
+
+ifeq ($(ENABLE_SHARED),1)
+	ALL_LIBS += $(ALL_SHARED_LIBS)
+	INSTALL_LIBS += install-shared
+endif
+
+all: $(ALL_LIBS)
+
+static: $(STATIC_LIB)
+
+shared: $(SHARED_LIB)
+
+$(STATIC_LIB): $(OBJS)
+	$(AR) cr $@ $(OBJS)
+	$(RANLIB) $@
+
+$(SHARED_LIB_FULL): $(OBJS)
+	$(CC) -shared $(OBJS) -o $@ $(LDFLAGS) -Wl,-h,$(SHARED_LIB_SONAME)
+
+$(SHARED_LIB) $(SHARED_LIB_SONAME): $(SHARED_LIB_FULL)
+	ln -fs $(SHARED_LIB_FULL) $@
+
+install: install-headers $(INSTALL_LIBS)
+
+install-headers:
+	$(INSTALL) -m 755 -d $(DESTDIR)$(prefix)/include
+	$(INSTALL) -m 755 -d $(DESTDIR)$(prefix)/include/simdmath
+	$(INSTALL) -m 644 simdmath/*.h $(DESTDIR)$(prefix)/include/simdmath/
+
+install-static: $(ALL_STATIC_LIBS)
+	$(INSTALL) -m 755 -d $(DESTDIR)$(prefix)/lib
+	$(INSTALL) -m 644 $(STATIC_LIB) $(DESTDIR)$(prefix)/lib/$(STATIC_LIB)
+
+install-shared: $(ALL_SHARED_LIBS)
+	$(INSTALL) -m 755 $(SHARED_LIB_FULL) $(DESTDIR)$(prefix)/lib/$(SHARED_LIB_FULL)
+	ln -fs $(SHARED_LIB_FULL) $(DESTDIR)$(prefix)/lib/$(SHARED_LIB_SONAME)
+	ln -fs $(SHARED_LIB_SONAME) $(DESTDIR)$(prefix)/lib/$(SHARED_LIB)
+
+clean:
+	$(MAKE) -C tests clean
+	-rm -f $(OBJS)
+	-rm -f $(STATIC_LIB) $(SHARED_LIB) $(SHARED_LIB_SONAME) $(SHARED_LIB_FULL)
+
+check: $(ALL_LIBS)
+	$(MAKE) -C tests all
+	$(MAKE) -C tests check
+
+%.o: ../common/%.c simdmath/%.h
+	$(CC) $(CFLAGS) -c -o $@ $<

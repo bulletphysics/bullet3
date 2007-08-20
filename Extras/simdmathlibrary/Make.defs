@@ -1,0 +1,92 @@
+# -*- Makefile -*-
+# Common definition for all make files in the libsimdmath library.
+#   Copyright (C) 2006, 2007 Sony Computer Entertainment Inc.
+#   All rights reserved.
+#
+#   Redistribution and use in source and binary forms,
+#   with or without modification, are permitted provided that the
+#   following conditions are met:
+#    * Redistributions of source code must retain the above copyright
+#      notice, this list of conditions and the following disclaimer.
+#    * Redistributions in binary form must reproduce the above copyright
+#      notice, this list of conditions and the following disclaimer in the
+#      documentation and/or other materials provided with the distribution.
+#    * Neither the name of the Sony Computer Entertainment Inc nor the names
+#      of its contributors may be used to endorse or promote products derived
+#      from this software without specific prior written permission.
+#
+#   THIS SOFTWARE IS PROVIDED BY THE COPYRIGHT HOLDERS AND CONTRIBUTORS "AS IS"
+#   AND ANY EXPRESS OR IMPLIED WARRANTIES, INCLUDING, BUT NOT LIMITED TO, THE
+#   IMPLIED WARRANTIES OF MERCHANTABILITY AND FITNESS FOR A PARTICULAR PURPOSE
+#   ARE DISCLAIMED. IN NO EVENT SHALL THE COPYRIGHT OWNER OR CONTRIBUTORS BE
+#   LIABLE FOR ANY DIRECT, INDIRECT, INCIDENTAL, SPECIAL, EXEMPLARY, OR
+#   CONSEQUENTIAL DAMAGES (INCLUDING, BUT NOT LIMITED TO, PROCUREMENT OF
+#   SUBSTITUTE GOODS OR SERVICES; LOSS OF USE, DATA, OR PROFITS; OR BUSINESS
+#   INTERRUPTION) HOWEVER CAUSED AND ON ANY THEORY OF LIABILITY, WHETHER IN
+#   CONTRACT, STRICT LIABILITY, OR TORT (INCLUDING NEGLIGENCE OR OTHERWISE)
+#   ARISING IN ANY WAY OUT OF THE USE OF THIS SOFTWARE, EVEN IF ADVISED OF THE
+#   POSSIBILITY OF SUCH DAMAGE.
+
+# PowerPC (32 bit)
+ARCH_CFLAGS_ppu = -m32 -maltivec -mabi=altivec -fPIC
+ARCH_LDFLAGS_ppu = -m32
+ENABLE_STATIC_ppu = 1
+ENABLE_SHARED_ppu = 1
+
+# PowerPC (64 bit)
+ARCH_DIR_ppu64 = ppu
+ARCH_CFLAGS_ppu64 = -m64 -maltivec -mabi=altivec -fPIC
+ARCH_LDFLAGS_ppu64 = -m64
+ENABLE_STATIC_ppu64 = 1
+ENABLE_SHARED_ppu64 = 1
+
+# SPU
+prefix_spu = /usr/spu
+CROSS_spu = spu-
+ENABLE_STATIC_spu = 1
+ENABLE_SHARED_spu = 0
+
+# Common
+prefix = $(if $(prefix_$(ARCH)),$(prefix_$(ARCH)),/usr)
+DESTDIR =
+
+ARCH_DIR = $(if $(ARCH_DIR_$(ARCH)),$(ARCH_DIR_$(ARCH)),$(ARCH))
+
+CROSS = $(CROSS_$(ARCH))
+
+AR = $(CROSS)ar
+CC= $(CROSS)gcc
+CXX = $(CROSS)g++
+RANLIB = $(CROSS)ranlib
+
+ARCH_CFLAGS = $(ARCH_CFLAGS_$(ARCH))
+ARCH_LDFLAGS = $(ARCH_LDFLAGS_$(ARCH))
+
+CFLAGS = -O2 -W -Wall -std=gnu99 -I. -I$(topdir)/common $(ARCH_CFLAGS)
+LDFLAGS = $(ARCH_LDFLAGS)
+
+ENABLE_STATIC = $(ENABLE_STATIC_$(ARCH))
+ENABLE_SHARED = $(ENABLE_SHARED_$(ARCH))
+
+INSTALL = install
+
+TEST_CMD =
+
+LIB_MAJOR_VERSION = 1
+LIB_MINOR_VERSION = 0
+LIB_RELEASE = 2
+LIB_FULL_VERSION = $(LIB_MAJOR_VERSION).$(LIB_MINOR_VERSION).$(LIB_RELEASE)
+
+LIB_BASE = simdmath
+LIB_NAME = lib$(LIB_BASE)
+
+STATIC_LIB = $(LIB_NAME).a
+ALL_STATIC_LIBS = $(STATIC_LIB)
+
+SHARED_LIB = $(LIB_NAME).so
+SHARED_LIB_SONAME = $(SHARED_LIB).$(LIB_MAJOR_VERSION)
+SHARED_LIB_FULL = $(SHARED_LIB).$(LIB_FULL_VERSION)
+ALL_SHARED_LIBS = $(SHARED_LIB) $(SHARED_LIB_FULL) $(SHARED_LIB_SONAME)
+
+TAR_NAME = $(LIB_BASE)-$(LIB_FULL_VERSION)
+TAR_BALL = $(TAR_NAME).tar.gz
