@@ -28,7 +28,7 @@
 #   POSSIBILITY OF SUCH DAMAGE.
 
 ifeq ($(ENABLE_STATIC),1)
-	ALL_LIBS += $(ALL_STATIC_LIB)
+	ALL_LIBS += $(ALL_STATIC_LIBS)
 	INSTALL_LIBS += install-static
 endif
 
