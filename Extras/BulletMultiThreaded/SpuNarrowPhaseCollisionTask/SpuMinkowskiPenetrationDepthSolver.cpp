@@ -17,6 +17,7 @@ subject to the following restrictions:
 #include "SpuVoronoiSimplexSolver.h"
 #include "SpuGjkPairDetector.h"
 #include "SpuContactResult.h"
+#include "SpuPreferredPenetrationDirections.h"
 
 
 #include "SpuLocalSupport.h"
@@ -200,15 +201,17 @@ bool SpuMinkowskiPenetrationDepthSolver::calcPenDepth( SpuVoronoiSimplexSolver& 
 
 	int numSampleDirections = NUM_UNITSPHERE_POINTS;
 
+///this is necessary, otherwise the normal is not correct, and sphere will rotate forever on a sloped triangle mesh
+#define DO_PREFERRED_DIRECTIONS 1
 #ifdef DO_PREFERRED_DIRECTIONS
 	{
-		int numPDA = convexA->getNumPreferredPenetrationDirections();
+		int numPDA = spuGetNumPreferredPenetrationDirections(shapeTypeA,convexA);
 		if (numPDA)
 		{
 			for (int i=0;i<numPDA;i++)
 			{
 				btVector3 norm;
-				convexA->getPreferredPenetrationDirection(i,norm);
+				spuGetPreferredPenetrationDirection(shapeTypeA,convexA,i,norm);
 				norm  = transA.getBasis() * norm;
 				sPenetrationDirections[numSampleDirections] = norm;
 				numSampleDirections++;
@@ -217,13 +220,13 @@ bool SpuMinkowskiPenetrationDepthSolver::calcPenDepth( SpuVoronoiSimplexSolver& 
 	}
 
 	{
-		int numPDB = convexB->getNumPreferredPenetrationDirections();
+		int numPDB = spuGetNumPreferredPenetrationDirections(shapeTypeB,convexB);
 		if (numPDB)
 		{
 			for (int i=0;i<numPDB;i++)
 			{
 				btVector3 norm;
-				convexB->getPreferredPenetrationDirection(i,norm);
+				spuGetPreferredPenetrationDirection(shapeTypeB,convexB,i,norm);
 				norm  = transB.getBasis() * norm;
 				sPenetrationDirections[numSampleDirections] = norm;
 				numSampleDirections++;
