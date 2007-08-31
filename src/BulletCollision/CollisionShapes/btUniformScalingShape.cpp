@@ -110,5 +110,5 @@ int		btUniformScalingShape::getNumPreferredPenetrationDirections() const
 	
 void	btUniformScalingShape::getPreferredPenetrationDirection(int index, btVector3& penetrationVector) const
 {
-	return m_childConvexShape->getPreferredPenetrationDirection(index,penetrationVector);
+	m_childConvexShape->getPreferredPenetrationDirection(index,penetrationVector);
 }

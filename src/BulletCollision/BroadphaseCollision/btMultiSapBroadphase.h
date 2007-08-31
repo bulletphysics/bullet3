@@ -46,6 +46,8 @@ class btMultiSapBroadphase :public btBroadphaseInterface
 		btBroadphaseInterface*	m_childBroadphase;
 	};
 
+public:
+
 	struct	btMultiSapProxy	: public btBroadphaseProxy
 	{
 
@@ -72,6 +74,8 @@ class btMultiSapBroadphase :public btBroadphaseInterface
 
 		
 	};
+
+protected:
 
 	btAlignedObjectArray<btMultiSapProxy*> m_multiSapProxies;
 

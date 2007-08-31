@@ -25,7 +25,12 @@ subject to the following restrictions:
 
 #define PL_DECLARE_HANDLE(name) typedef struct name##__ { int unused; } *name
 
+#ifdef BT_USE_DOUBLE_PRECISION
+typedef double	plReal;
+#else
 typedef float	plReal;
+#endif
+
 typedef plReal	plVector3[3];
 typedef plReal	plQuaternion[4];
 

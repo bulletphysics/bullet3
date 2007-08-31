@@ -248,7 +248,7 @@ void	btConeTwistConstraint::solveConstraint(btScalar	timeStep)
 
 			// Clamp the accumulated impulse
 			btScalar temp = m_accSwingLimitImpulse;
-			m_accSwingLimitImpulse = btMax(m_accSwingLimitImpulse + impulseMag, 0.0f );
+			m_accSwingLimitImpulse = btMax(m_accSwingLimitImpulse + impulseMag, btScalar(0.0) );
 			impulseMag = m_accSwingLimitImpulse - temp;
 
 			btVector3 impulse = m_swingAxis * impulseMag;
@@ -266,7 +266,7 @@ void	btConeTwistConstraint::solveConstraint(btScalar	timeStep)
 
 			// Clamp the accumulated impulse
 			btScalar temp = m_accTwistLimitImpulse;
-			m_accTwistLimitImpulse = btMax(m_accTwistLimitImpulse + impulseMag, 0.0f );
+			m_accTwistLimitImpulse = btMax(m_accTwistLimitImpulse + impulseMag, btScalar(0.0) );
 			impulseMag = m_accTwistLimitImpulse - temp;
 
 			btVector3 impulse = m_twistAxis * impulseMag;

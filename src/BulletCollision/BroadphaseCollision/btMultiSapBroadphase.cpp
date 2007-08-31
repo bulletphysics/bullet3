@@ -35,8 +35,8 @@ btMultiSapBroadphase::btMultiSapBroadphase(int maxProxies)
 		// return true when pairs need collision
 		virtual bool	needBroadphaseCollision(btBroadphaseProxy* childProxy0,btBroadphaseProxy* childProxy1) const
 		{
-			btMultiSapProxy* multiSapProxy0 = (btMultiSapProxy*)childProxy0->m_multiSapParentProxy;
-			btMultiSapProxy* multiSapProxy1 = (btMultiSapProxy*)childProxy1->m_multiSapParentProxy;
+			btMultiSapBroadphase::btMultiSapProxy* multiSapProxy0 = (btMultiSapBroadphase::btMultiSapProxy*)childProxy0->m_multiSapParentProxy;
+			btMultiSapBroadphase::btMultiSapProxy* multiSapProxy1 = (btMultiSapBroadphase::btMultiSapProxy*)childProxy1->m_multiSapParentProxy;
 			
 			bool collides = (multiSapProxy0->m_collisionFilterGroup & multiSapProxy1->m_collisionFilterMask) != 0;
 			collides = collides && (multiSapProxy1->m_collisionFilterGroup & multiSapProxy0->m_collisionFilterMask);

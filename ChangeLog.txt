@@ -1,6 +1,16 @@
 Bullet Continuous Collision Detection and Physics Library
 Primary author and maintainer: Erwin Coumans
 
+2007 Aug 31
+	- fixed MSVC 6 build
+	Thanks Proctoid, http://www.continuousphysics.com/Bullet/phpBB2/viewtopic.php?t=1375
+	- fixed double precision build issues
+	Thanks Alex Silverman, http://www.continuousphysics.com/Bullet/phpBB2/viewtopic.php?t=1434
+
+2007 Aug 24
+	- fixed bug in btMatrix3x3::transposeTimes(const btMatrix3x3& m) const. Luckily it wasn't used in core parts of the library (yet).
+	Thanks to Jay Lee
+	
 2007 Aug 15
 	- fixed bug in Extras/GIMPACT 0.2 related to moving triangle meshes
 	Thanks Thomas, http://www.continuousphysics.com/Bullet/phpBB2/viewtopic.php?t=1368
