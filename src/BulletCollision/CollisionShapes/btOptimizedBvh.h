@@ -145,12 +145,14 @@ ATTRIBUTE_ALIGNED16(class) btOptimizedBvh
 	btVector3			m_bvhAabbMax;
 	btVector3			m_bvhQuantization;
 
+public:
 	enum btTraversalMode
 	{
 		TRAVERSAL_STACKLESS = 0,
 		TRAVERSAL_STACKLESS_CACHE_FRIENDLY,
 		TRAVERSAL_RECURSIVE
 	};
+protected:
 
 	btTraversalMode	m_traversalMode;
 
