@@ -104,8 +104,8 @@ void	UserCollisionAlgorithm::initPhysics()
 	btCollisionShape* trimeshShape  = new btBvhTriangleMeshShape(trimesh,useQuantizedBvhTree);
 		
 	//ConstraintSolver* solver = new btSequentialImpulseConstraintSolver;
-	
-	btCollisionDispatcher* dispatcher = new	btCollisionDispatcher();
+	btDefaultCollisionConfiguration* collisionConfiguration = new btDefaultCollisionConfiguration();
+	btCollisionDispatcher* dispatcher = new	btCollisionDispatcher(collisionConfiguration);
 		
 	btVector3 maxAabb(10000,10000,10000);
 	btBroadphaseInterface* broadphase = new btAxisSweep3(-maxAabb,maxAabb);//SimpleBroadphase();

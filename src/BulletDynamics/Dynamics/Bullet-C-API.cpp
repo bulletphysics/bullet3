@@ -65,7 +65,8 @@ void		plDeletePhysicsSdk(plPhysicsSdkHandle	physicsSdk)
 plDynamicsWorldHandle plCreateDynamicsWorld(plPhysicsSdkHandle physicsSdkHandle)
 {
 	btPhysicsSdk* physicsSdk = reinterpret_cast<btPhysicsSdk*>(physicsSdkHandle);
-	btDispatcher*				dispatcher = new btCollisionDispatcher();
+	btDefaultCollisionConfiguration* collisionConfiguration = new btDefaultCollisionConfiguration();
+	btDispatcher*				dispatcher = new btCollisionDispatcher(collisionConfiguration);
 	btBroadphaseInterface*		pairCache = new btAxisSweep3(physicsSdk->m_worldAabbMin,physicsSdk->m_worldAabbMax);
 	btConstraintSolver*			constraintSolver = new btSequentialImpulseConstraintSolver();
 

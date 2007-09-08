@@ -84,7 +84,8 @@ protected:
 	{
 		if(m_convex_algorithm)
 		{
-			delete m_convex_algorithm;
+			m_convex_algorithm->~btCollisionAlgorithm();
+			m_dispatcher->freeCollisionAlgorithm( m_convex_algorithm);
 			m_convex_algorithm = NULL;
 		}
 	}
@@ -188,7 +189,8 @@ public:
 	{
 		virtual	btCollisionAlgorithm* CreateCollisionAlgorithm(btCollisionAlgorithmConstructionInfo& ci, btCollisionObject* body0,btCollisionObject* body1)
 		{
-			return new btGImpactCollisionAlgorithm(ci,body0,body1);
+			void* mem = ci.m_dispatcher1->allocateCollisionAlgorithm(sizeof(btGImpactCollisionAlgorithm));
+			return new(mem) btGImpactCollisionAlgorithm(ci,body0,body1);
 		}
 	};
 

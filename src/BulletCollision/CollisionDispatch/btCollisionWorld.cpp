@@ -66,8 +66,8 @@ btCollisionWorld::~btCollisionWorld()
 			//
 			// only clear the cached algorithms
 			//
-			getBroadphase()->getOverlappingPairCache()->cleanProxyFromPairs(bp);
-			getBroadphase()->destroyProxy(bp);
+			getBroadphase()->getOverlappingPairCache()->cleanProxyFromPairs(bp,m_dispatcher1);
+			getBroadphase()->destroyProxy(bp,m_dispatcher1);
 		}
 	}
 
@@ -137,7 +137,7 @@ void	btCollisionWorld::performDiscreteCollisionDetection()
 		m_broadphasePairCache->setAabb(m_collisionObjects[i]->getBroadphaseHandle(),aabbMin,aabbMax);
 	}
 
-	m_broadphasePairCache->calculateOverlappingPairs();
+	m_broadphasePairCache->calculateOverlappingPairs(m_dispatcher1);
 	
 	END_PROFILE("perform Broadphase Collision Detection");
 
@@ -145,7 +145,7 @@ void	btCollisionWorld::performDiscreteCollisionDetection()
 
 	btDispatcher* dispatcher = getDispatcher();
 	if (dispatcher)
-		dispatcher->dispatchAllCollisionPairs(m_broadphasePairCache->getOverlappingPairCache(),dispatchInfo);
+		dispatcher->dispatchAllCollisionPairs(m_broadphasePairCache->getOverlappingPairCache(),dispatchInfo,m_dispatcher1);
 
 	END_PROFILE("performDiscreteCollisionDetection");
 
@@ -166,8 +166,8 @@ void	btCollisionWorld::removeCollisionObject(btCollisionObject* collisionObject)
 			//
 			// only clear the cached algorithms
 			//
-			getBroadphase()->getOverlappingPairCache()->cleanProxyFromPairs(bp);
-			getBroadphase()->destroyProxy(bp);
+			getBroadphase()->getOverlappingPairCache()->cleanProxyFromPairs(bp,m_dispatcher1);
+			getBroadphase()->destroyProxy(bp,m_dispatcher1);
 			collisionObject->setBroadphaseHandle(0);
 		}
 	}
@@ -212,19 +212,28 @@ void	btCollisionWorld::objectQuerySingle(const btConvexShape* castShape,const bt
 
 				btConvexShape* convexShape = (btConvexShape*) collisionShape;
 				btVoronoiSimplexSolver	simplexSolver;
+#define  USE_SUBSIMPLEX_CONVEX_CAST 1
+#ifdef USE_SUBSIMPLEX_CONVEX_CAST
 				btSubsimplexConvexCast convexCaster(castShape,convexShape,&simplexSolver);
+#else
 				//btGjkConvexCast	convexCaster(castShape,convexShape,&simplexSolver);
 				//btContinuousConvexCollision convexCaster(castShape,convexShape,&simplexSolver,0);
-				
+#endif //#USE_SUBSIMPLEX_CONVEX_CAST
+			
 				if (convexCaster.calcTimeOfImpact(rayFromTrans,rayToTrans,colObjWorldTransform,colObjWorldTransform,castResult))
 				{
 					//add hit
 					if (castResult.m_normal.length2() > btScalar(0.0001))
 					{
-						castResult.m_normal.normalize();
+						
 						if (castResult.m_fraction < resultCallback.m_closestHitFraction)
 						{
+#ifdef USE_SUBSIMPLEX_CONVEX_CAST
+							//rotate normal into worldspace
+							castResult.m_normal = rayFromTrans.getBasis() * castResult.m_normal;
+#endif //USE_SUBSIMPLEX_CONVEX_CAST
 
+							castResult.m_normal.normalize();
 							btCollisionWorld::LocalRayResult localRayResult
 								(
 									collisionObject, 

@@ -105,7 +105,7 @@ void btParallelSequentialImpulseSolver::prepareSolve(int numBodies, int numManif
 	m_allObjects.reserve(numBodies);
 }
 
-btScalar btParallelSequentialImpulseSolver::solveGroup(btCollisionObject** bodies,int numBodies,btPersistentManifold** manifold,int numManifolds,btTypedConstraint** constraints,int numConstraints, const btContactSolverInfo& info,class btIDebugDraw* debugDrawer, btStackAlloc* stackAlloc)
+btScalar btParallelSequentialImpulseSolver::solveGroup(btCollisionObject** bodies,int numBodies,btPersistentManifold** manifold,int numManifolds,btTypedConstraint** constraints,int numConstraints, const btContactSolverInfo& info,class btIDebugDraw* debugDrawer, btStackAlloc* stackAlloc,btDispatcher* dispatcher)
 {
 	if (!numManifolds && !numConstraints)
 		return 0;

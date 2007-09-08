@@ -82,9 +82,9 @@ public:
 
 	virtual btBroadphaseProxy*	createProxy(  const btVector3& aabbMin,  const btVector3& aabbMax,int shapeType,void* userPtr ,short int collisionFilterGroup,short int collisionFilterMask);
 
-	virtual void	calculateOverlappingPairs();
+	virtual void	calculateOverlappingPairs(btDispatcher* dispatcher);
 
-	virtual void	destroyProxy(btBroadphaseProxy* proxy);
+	virtual void	destroyProxy(btBroadphaseProxy* proxy,btDispatcher* dispatcher);
 	virtual void	setAabb(btBroadphaseProxy* proxy,const btVector3& aabbMin,const btVector3& aabbMax);
 		
 	btOverlappingPairCache*	getOverlappingPairCache()

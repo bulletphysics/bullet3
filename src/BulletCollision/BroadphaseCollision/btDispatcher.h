@@ -81,11 +81,17 @@ public:
 
 	virtual bool	needsResponse(btCollisionObject* body0,btCollisionObject* body1)=0;
 
-	virtual void	dispatchAllCollisionPairs(btOverlappingPairCache* pairCache,btDispatcherInfo& dispatchInfo)=0;
+	virtual void	dispatchAllCollisionPairs(btOverlappingPairCache* pairCache,btDispatcherInfo& dispatchInfo,btDispatcher* dispatcher)=0;
 
 	virtual int getNumManifolds() const = 0;
 
 	virtual btPersistentManifold* getManifoldByIndexInternal(int index) = 0;
+
+	virtual	btPersistentManifold**	getInternalManifoldPointer() = 0;
+
+	virtual	void* allocateCollisionAlgorithm(int size) = 0;
+
+	virtual	void freeCollisionAlgorithm(void* ptr) = 0;
 
 };
 

@@ -85,6 +85,17 @@ void btManifoldResult::addContactPoint(const btVector3& normalOnBInWorld,const b
 	newPt.m_combinedFriction = calculateCombinedFriction(m_body0,m_body1);
 	newPt.m_combinedRestitution = calculateCombinedRestitution(m_body0,m_body1);
 
+	
+	///todo, check this for any side effects
+	if (insertIndex >= 0)
+	{
+		//const btManifoldPoint& oldPoint = m_manifoldPtr->getContactPoint(insertIndex);
+		m_manifoldPtr->replaceContactPoint(newPt,insertIndex);
+	} else
+	{
+		m_manifoldPtr->AddManifoldPoint(newPt);
+	}
+
 	//User can override friction and/or restitution
 	if (gContactAddedCallback &&
 		//and if either of the two bodies requires custom material
@@ -97,13 +108,5 @@ void btManifoldResult::addContactPoint(const btVector3& normalOnBInWorld,const b
 		(*gContactAddedCallback)(newPt,obj0,m_partId0,m_index0,obj1,m_partId1,m_index1);
 	}
 
-	if (insertIndex >= 0)
-	{
-		//const btManifoldPoint& oldPoint = m_manifoldPtr->getContactPoint(insertIndex);
-		m_manifoldPtr->replaceContactPoint(newPt,insertIndex);
-	} else
-	{
-		m_manifoldPtr->AddManifoldPoint(newPt);
-	}
 }
 

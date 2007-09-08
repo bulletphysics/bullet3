@@ -94,7 +94,8 @@ public:
 	{
 		virtual	btCollisionAlgorithm* CreateCollisionAlgorithm(btCollisionAlgorithmConstructionInfo& ci, btCollisionObject* body0,btCollisionObject* body1)
 		{
-			return new btConvexConcaveCollisionAlgorithm(ci,body0,body1,false);
+			void* mem = ci.m_dispatcher1->allocateCollisionAlgorithm(sizeof(btConvexConcaveCollisionAlgorithm));
+			return new(mem) btConvexConcaveCollisionAlgorithm(ci,body0,body1,false);
 		}
 	};
 
@@ -102,7 +103,8 @@ public:
 	{
 		virtual	btCollisionAlgorithm* CreateCollisionAlgorithm(btCollisionAlgorithmConstructionInfo& ci, btCollisionObject* body0,btCollisionObject* body1)
 		{
-			return new btConvexConcaveCollisionAlgorithm(ci,body0,body1,true);
+			void* mem = ci.m_dispatcher1->allocateCollisionAlgorithm(sizeof(btConvexConcaveCollisionAlgorithm));
+			return new(mem) btConvexConcaveCollisionAlgorithm(ci,body0,body1,true);
 		}
 	};
 

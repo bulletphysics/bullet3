@@ -55,10 +55,10 @@ btBroadphaseProxy*	btAxisSweep3::createProxy(  const btVector3& aabbMin,  const 
 		return handle;
 }
 
-void	btAxisSweep3::destroyProxy(btBroadphaseProxy* proxy)
+void	btAxisSweep3::destroyProxy(btBroadphaseProxy* proxy,btDispatcher* dispatcher)
 {
 	Handle* handle = static_cast<Handle*>(proxy);
-	removeHandle(handle->m_handleId);
+	removeHandle(handle->m_handleId,dispatcher);
 }
 
 void	btAxisSweep3::setAabb(btBroadphaseProxy* proxy,const btVector3& aabbMin,const btVector3& aabbMax)
@@ -248,15 +248,15 @@ BP_FP_INT_TYPE btAxisSweep3::addHandle(const btPoint3& aabbMin,const btPoint3& a
 }
 
 
-void btAxisSweep3::removeHandle(BP_FP_INT_TYPE handle)
+void btAxisSweep3::removeHandle(BP_FP_INT_TYPE handle,btDispatcher* dispatcher)
 {
-	
+
 	Handle* pHandle = getHandle(handle);
 
 	//explicitly remove the pairs containing the proxy
 	//we could do it also in the sortMinUp (passing true)
 	//todo: compare performance
-	m_pairCache->removeOverlappingPairsContainingProxy(pHandle);
+	m_pairCache->removeOverlappingPairsContainingProxy(pHandle,dispatcher);
 
 
 	// compute current limit of edge arrays
@@ -305,7 +305,7 @@ void btAxisSweep3::removeHandle(BP_FP_INT_TYPE handle)
 extern int gOverlappingPairs;
 
 
-void	btAxisSweep3::calculateOverlappingPairs()
+void	btAxisSweep3::calculateOverlappingPairs(btDispatcher* dispatcher)
 {
 	
 	if (m_ownsPairCache)
@@ -359,7 +359,7 @@ void	btAxisSweep3::calculateOverlappingPairs()
 			
 			if (needsRemoval)
 			{
-				m_pairCache->cleanOverlappingPair(pair);
+				m_pairCache->cleanOverlappingPair(pair,dispatcher);
 
 		//		m_overlappingPairArray.swap(i,m_overlappingPairArray.size()-1);
 		//		m_overlappingPairArray.pop_back();

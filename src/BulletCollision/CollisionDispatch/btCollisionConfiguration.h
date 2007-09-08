@@ -15,6 +15,8 @@ subject to the following restrictions:
 
 #ifndef BT_COLLISION_CONFIGURATION
 #define BT_COLLISION_CONFIGURATION
+struct btCollisionAlgorithmCreateFunc;
+
 ///btCollisionConfiguration allows to configure Bullet collision detection
 ///stack allocator size, default collision algorithms and persistent manifold pool size
 ///todo: describe the meaning
@@ -28,7 +30,7 @@ public:
 	}
 
 	///pool size for the persistent contact manifold
-	virtual int	getMaxPersistentManifoldPoolSize() = 0;
+	virtual int	getPersistentManifoldPoolSize() = 0;
 
 	virtual int	getStackAllocatorSize() = 0;
 
@@ -36,17 +38,7 @@ public:
 
 	virtual int	getCollisionAlgorithmMaxElementSize() = 0;
 
-	virtual btCollisionAlgorithmCreateFunc* getConvexConvexCollisionCreateFunc() = 0;
-
-	virtual btCollisionAlgorithmCreateFunc* getConvexConcaveCollisionCreateFunc() = 0;
-
-	virtual btCollisionAlgorithmCreateFunc* getSwappedConvexConcaveCollisionCreateFunc() = 0;
-
-	virtual btCollisionAlgorithmCreateFunc* getCompoundCollisionCreateFunc() = 0;
-
-	virtual btCollisionAlgorithmCreateFunc* getSwappedCompoundCollisionCreateFunc() = 0;
-
-	virtual btCollisionAlgorithmCreateFunc* getEmptyCollisionCreateFunc() = 0;
+	virtual btCollisionAlgorithmCreateFunc* getCollisionAlgorithmCreateFunc(int proxyType0,int proxyType1) =0;
 
 };
 

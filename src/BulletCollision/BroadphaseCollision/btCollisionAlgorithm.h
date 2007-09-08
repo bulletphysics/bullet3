@@ -29,17 +29,17 @@ class	btPersistentManifold;
 struct btCollisionAlgorithmConstructionInfo
 {
 	btCollisionAlgorithmConstructionInfo()
-		:m_dispatcher(0),
+		:m_dispatcher1(0),
 		m_manifold(0)
 	{
 	}
 	btCollisionAlgorithmConstructionInfo(btDispatcher* dispatcher,int temp)
-		:m_dispatcher(dispatcher)
+		:m_dispatcher1(dispatcher)
 	{
 		(void)temp;
 	}
 
-	btDispatcher*	m_dispatcher;
+	btDispatcher*	m_dispatcher1;
 	btPersistentManifold*	m_manifold;
 
 	int	getDispatcherId();

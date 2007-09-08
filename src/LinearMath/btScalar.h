@@ -23,6 +23,51 @@ subject to the following restrictions:
 #include <cfloat>
 #include <float.h>
 
+
+#ifdef WIN32
+
+//added __cdecl, thanks Jack
+
+// default new and delete overrides that guarantee 16 byte alignment and zero allocated memory
+void* __cdecl operator new(size_t sz) throw();
+void* __cdecl operator new[](size_t sz) throw();
+void __cdecl operator delete(void* m) throw();
+void __cdecl operator delete[](void* m) throw();
+
+#include <malloc.h>
+#include <stdio.h>
+#define BULLET_ALIGNED_NEW_AND_DELETE \
+\
+inline void* operator new(size_t sz) throw()	\
+{												\
+	printf("new %d\n",sz);						\
+	void* mem = _aligned_malloc(sz + 64, 16);	\
+	return mem;									\
+}												\
+												\
+inline void* operator new[](size_t sz) throw()	\
+{												\
+	printf("new[] %d\n",sz);					\
+	void* mem = _aligned_malloc(sz + 64, 16);	\
+	return mem;									\
+}												\
+												\
+inline void operator delete(void* m) throw()	\
+{					\
+printf("delete %x\n",m);						\
+	if (m == 0)									\
+		return;									\
+	_aligned_free(m);							\
+}												\
+												\
+inline void operator delete[](void* m) throw()	\
+{												\
+	printf("delete[] %x\n",m); \
+_aligned_free(m);							\
+}												\
+
+#endif
+
 #ifdef WIN32
 
 		#if defined(__MINGW32__) || defined(__CYGWIN__) || (defined (_MSC_VER) && _MSC_VER < 1300)
@@ -163,14 +208,6 @@ SIMD_FORCE_INLINE bool	btGreaterEqual (btScalar a, btScalar eps) {
 	return (!((a) <= eps));
 }
 
-/*SIMD_FORCE_INLINE btScalar btCos(btScalar x) { return cosf(x); }
-SIMD_FORCE_INLINE btScalar btSin(btScalar x) { return sinf(x); }
-SIMD_FORCE_INLINE btScalar btTan(btScalar x) { return tanf(x); }
-SIMD_FORCE_INLINE btScalar btAcos(btScalar x) { return acosf(x); }
-SIMD_FORCE_INLINE btScalar btAsin(btScalar x) { return asinf(x); }
-SIMD_FORCE_INLINE btScalar btAtan(btScalar x) { return atanf(x); }
-SIMD_FORCE_INLINE btScalar btAtan2(btScalar x, btScalar y) { return atan2f(x, y); }
-*/
 
 SIMD_FORCE_INLINE int       btIsNegative(btScalar x) {
     return x < btScalar(0.0) ? 1 : 0;
@@ -188,5 +225,34 @@ SIMD_FORCE_INLINE btScalar btFsel(btScalar a, btScalar b, btScalar c)
 }
 #endif
 #define btFsels(a,b,c) (btScalar)btFsel(a,b,c)
+
+
+///btSelect avoids branches, which makes performance much better for consoles like Playstation 3 and XBox 360
+///Thanks Phil Knight. See also http://www.cellperformance.com/articles/2006/04/more_techniques_for_eliminatin_1.html
+SIMD_FORCE_INLINE unsigned btSelect(unsigned condition, unsigned valueIfConditionNonZero, unsigned valueIfConditionZero) 
+{
+    // Set testNz to 0xFFFFFFFF if condition is nonzero, 0x00000000 if condition is zero
+    // Rely on positive value or'ed with its negative having sign bit on
+    // and zero value or'ed with its negative (which is still zero) having sign bit off 
+    // Use arithmetic shift right, shifting the sign bit through all 32 bits
+    unsigned testNz = (unsigned)(((int)condition | -(int)condition) >> 31);
+    unsigned testEqz = ~testNz;
+    return ((valueIfConditionNonZero & testNz) | (valueIfConditionZero & testEqz)); 
+}
+SIMD_FORCE_INLINE int btSelect(unsigned condition, int valueIfConditionNonZero, int valueIfConditionZero)
+{
+    unsigned testNz = (unsigned)(((int)condition | -(int)condition) >> 31);
+    unsigned testEqz = ~testNz; 
+    return ((valueIfConditionNonZero & testNz) | (valueIfConditionZero & testEqz));
+}
+SIMD_FORCE_INLINE float btSelect(unsigned condition, float valueIfConditionNonZero, float valueIfConditionZero)
+{
+#ifdef BT_HAVE_NATIVE_FSEL
+    return (float)btFsel((btScalar)condition - btScalar(1.0f), valueIfConditionNonZero, valueIfConditionZero);
+#else
+    return (condition != 0) ? valueIfConditionNonZero : valueIfConditionZero; 
+#endif
+}
+
 
 #endif //SIMD___SCALAR_H

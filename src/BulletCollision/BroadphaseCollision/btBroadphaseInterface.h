@@ -32,11 +32,11 @@ public:
 	virtual ~btBroadphaseInterface() {}
 
 	virtual btBroadphaseProxy*	createProxy(  const btVector3& aabbMin,  const btVector3& aabbMax,int shapeType,void* userPtr, short int collisionFilterGroup,short int collisionFilterMask) =0;
-	virtual void	destroyProxy(btBroadphaseProxy* proxy)=0;
+	virtual void	destroyProxy(btBroadphaseProxy* proxy,btDispatcher* dispatcher)=0;
 	virtual void	setAabb(btBroadphaseProxy* proxy,const btVector3& aabbMin,const btVector3& aabbMax)=0;
 	
 	///calculateOverlappingPairs is optional: incremental algorithms (sweep and prune) might do it during the set aabb
-	virtual void	calculateOverlappingPairs()=0;
+	virtual void	calculateOverlappingPairs(btDispatcher* dispatcher)=0;
 
 	virtual	btOverlappingPairCache*	getOverlappingPairCache()=0;
 	virtual	const btOverlappingPairCache*	getOverlappingPairCache() const =0;

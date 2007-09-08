@@ -139,7 +139,7 @@ protected:
 	};
 };
 
-void	btSimpleBroadphase::destroyProxy(btBroadphaseProxy* proxyOrg)
+void	btSimpleBroadphase::destroyProxy(btBroadphaseProxy* proxyOrg,btDispatcher* dispatcher)
 {
 		
 		int i;
@@ -151,7 +151,7 @@ void	btSimpleBroadphase::destroyProxy(btBroadphaseProxy* proxyOrg)
 		btAssert (index < m_maxProxies);
 		m_freeProxies[--m_firstFreeProxy] = index;
 
-		m_pairCache->removeOverlappingPairsContainingProxy(proxyOrg);
+		m_pairCache->removeOverlappingPairsContainingProxy(proxyOrg,dispatcher);
 		
 		for (i=0;i<m_numProxies;i++)
 		{
@@ -201,7 +201,7 @@ public:
 	}
 };
 
-void	btSimpleBroadphase::calculateOverlappingPairs()
+void	btSimpleBroadphase::calculateOverlappingPairs(btDispatcher* dispatcher)
 {
 	//first check for new overlapping pairs
 	int i,j;
@@ -276,7 +276,7 @@ void	btSimpleBroadphase::calculateOverlappingPairs()
 			
 			if (needsRemoval)
 			{
-				m_pairCache->cleanOverlappingPair(pair);
+				m_pairCache->cleanOverlappingPair(pair,dispatcher);
 
 		//		m_overlappingPairArray.swap(i,m_overlappingPairArray.size()-1);
 		//		m_overlappingPairArray.pop_back();

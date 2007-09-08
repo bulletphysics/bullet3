@@ -26,8 +26,9 @@ subject to the following restrictions:
 
 
 
-SpuGatheringCollisionDispatcher::SpuGatheringCollisionDispatcher(class	btThreadSupportInterface*	threadInterface, unsigned int	maxNumOutstandingTasks)
-:m_spuCollisionTaskProcess(0),
+SpuGatheringCollisionDispatcher::SpuGatheringCollisionDispatcher(class	btThreadSupportInterface*	threadInterface, unsigned int	maxNumOutstandingTasks,btCollisionConfiguration* collisionConfiguration)
+:btCollisionDispatcher(collisionConfiguration),
+m_spuCollisionTaskProcess(0),
 m_threadInterface(threadInterface),
 m_maxNumOutstandingTasks(maxNumOutstandingTasks)
 {
@@ -115,7 +116,7 @@ public:
 				btCollisionObject* colObj1 = (btCollisionObject*)collisionPair.m_pProxy1->m_clientObject;
 
 				btCollisionAlgorithmConstructionInfo ci;
-				ci.m_dispatcher = m_dispatcher;
+				ci.m_dispatcher1 = m_dispatcher;
 				ci.m_manifold = 0;
 
 				if (m_dispatcher->needsCollision(colObj0,colObj1))
@@ -124,7 +125,9 @@ public:
 					int	proxyType1 = colObj1->getCollisionShape()->getShapeType();
 					if (m_dispatcher->supportsDispatchPairOnSpu(proxyType0,proxyType1))
 					{
-						collisionPair.m_algorithm = new SpuContactManifoldCollisionAlgorithm(ci,colObj0,colObj1);
+						int so = sizeof(SpuContactManifoldCollisionAlgorithm);
+						void* mem = m_dispatcher->allocateCollisionAlgorithm(so);
+						collisionPair.m_algorithm = new(mem) SpuContactManifoldCollisionAlgorithm(ci,colObj0,colObj1);
 						collisionPair.m_userInfo = (void*) 2;
 					} else
 					{
@@ -138,7 +141,7 @@ public:
 	}
 };
 
-void	SpuGatheringCollisionDispatcher::dispatchAllCollisionPairs(btOverlappingPairCache* pairCache,btDispatcherInfo& dispatchInfo)
+void	SpuGatheringCollisionDispatcher::dispatchAllCollisionPairs(btOverlappingPairCache* pairCache,btDispatcherInfo& dispatchInfo,btDispatcher* dispatcher)
 {
 
 	if (dispatchInfo.m_enableSPU)
@@ -152,7 +155,7 @@ void	SpuGatheringCollisionDispatcher::dispatchAllCollisionPairs(btOverlappingPai
 		{
 			btSpuCollisionPairCallback	collisionCallback(dispatchInfo,this);
 
-			pairCache->processAllOverlappingPairs(&collisionCallback);
+			pairCache->processAllOverlappingPairs(&collisionCallback,dispatcher);
 		}
 
 		//send one big batch
@@ -203,7 +206,7 @@ void	SpuGatheringCollisionDispatcher::dispatchAllCollisionPairs(btOverlappingPai
 	{
 		///PPU fallback
 		///!Need to make sure to clear all 'algorithms' when switching between SPU and PPU
-		btCollisionDispatcher::dispatchAllCollisionPairs(pairCache,dispatchInfo);
+		btCollisionDispatcher::dispatchAllCollisionPairs(pairCache,dispatchInfo,dispatcher);
 	}
 }
 

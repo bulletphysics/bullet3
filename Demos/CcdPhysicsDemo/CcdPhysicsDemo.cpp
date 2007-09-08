@@ -388,7 +388,8 @@ int maxNumOutstandingTasks = 4;//number of maximum outstanding tasks
 	dispatcher = new	SpuGatheringCollisionDispatcher(threadSupportCollision,maxNumOutstandingTasks);
 //	dispatcher = new	btCollisionDispatcher();
 #else
-	dispatcher = new	btCollisionDispatcher();
+	btDefaultCollisionConfiguration* collisionConfiguration = new btDefaultCollisionConfiguration();
+	dispatcher = new	btCollisionDispatcher(collisionConfiguration);
 #endif //USE_PARALLEL_DISPATCHER
 
 #ifdef USE_CUSTOM_NEAR_CALLBACK

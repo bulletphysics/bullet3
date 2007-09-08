@@ -129,6 +129,7 @@ void BasicDemo::displayCallback(void) {
 void	BasicDemo::initPhysics()
 {
 
+	btDefaultCollisionConfiguration* collisionConfiguration = new btDefaultCollisionConfiguration();
 
 #ifdef USE_PARALLEL_DISPATCHER
 
@@ -149,9 +150,9 @@ void	BasicDemo::initPhysics()
 #endif
 
 
-	m_dispatcher = new	SpuGatheringCollisionDispatcher(threadSupport,maxNumOutstandingTasks);
+	m_dispatcher = new	SpuGatheringCollisionDispatcher(threadSupport,maxNumOutstandingTasks,collisionConfiguration);
 #else
-	m_dispatcher = new	btCollisionDispatcher(true);
+	m_dispatcher = new	btCollisionDispatcher(collisionConfiguration);
 #endif //USE_PARALLEL_DISPATCHER
 
 #define USE_SWEEP_AND_PRUNE 1
@@ -167,17 +168,7 @@ void	BasicDemo::initPhysics()
 	m_overlappingPairCache = new btSimpleBroadphase;
 #endif //USE_SWEEP_AND_PRUNE
 
-#ifndef USE_PARALLEL_DISPATCHER
-	m_sphereSphereCF = new btSphereSphereCollisionAlgorithm::CreateFunc;
-	m_dispatcher->registerCollisionCreateFunc(SPHERE_SHAPE_PROXYTYPE,SPHERE_SHAPE_PROXYTYPE,m_sphereSphereCF);
 
-
-	m_sphereBoxCF = new btSphereBoxCollisionAlgorithm::CreateFunc;
-	m_boxSphereCF = new btSphereBoxCollisionAlgorithm::CreateFunc;
-	m_boxSphereCF->m_swapped = true;
-	m_dispatcher->registerCollisionCreateFunc(SPHERE_SHAPE_PROXYTYPE,BOX_SHAPE_PROXYTYPE,m_sphereBoxCF);
-	m_dispatcher->registerCollisionCreateFunc(BOX_SHAPE_PROXYTYPE,SPHERE_SHAPE_PROXYTYPE,m_boxSphereCF);
-#endif //USE_PARALLEL_DISPATCHER
 
 	btSequentialImpulseConstraintSolver* sol = new btSequentialImpulseConstraintSolver;
 	m_solver = sol;
@@ -266,13 +257,6 @@ void	BasicDemo::exitPhysics()
 
 	//delete dynamics world
 	delete m_dynamicsWorld;
-
-	//delete collision algorithms creation functions
-	delete m_sphereSphereCF;
-	
-
-	delete m_sphereBoxCF;
-	delete m_boxSphereCF;
 
 	//delete solver
 	delete m_solver;

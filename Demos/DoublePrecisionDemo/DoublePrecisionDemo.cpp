@@ -82,7 +82,8 @@ void	DoublePrecisionDemo::initPhysics()
 	objects[0].setCollisionShape(boxA);//&hullA;
 	objects[1].setCollisionShape(boxB);//&hullB;
 
-	btCollisionDispatcher* dispatcher = new btCollisionDispatcher;
+	btDefaultCollisionConfiguration* collisionConfiguration = new btDefaultCollisionConfiguration();
+	btCollisionDispatcher* dispatcher = new btCollisionDispatcher(collisionConfiguration);
 	btVector3	worldAabbMin(80000,80000,80000);
 	btVector3	worldAabbMax(120000,120000,120000);
 

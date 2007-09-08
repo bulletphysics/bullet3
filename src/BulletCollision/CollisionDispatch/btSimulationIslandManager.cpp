@@ -138,19 +138,6 @@ class btPersistentManifoldSortPredicate
 void btSimulationIslandManager::buildAndProcessIslands(btDispatcher* dispatcher,btCollisionObjectArray& collisionObjects, IslandCallback* callback)
 {
 
-	
-	
-	/*if (0)
-	{
-		int maxNumManifolds = dispatcher->getNumManifolds();
-		btCollisionDispatcher* colDis = (btCollisionDispatcher*)dispatcher;
-		btPersistentManifold** manifold = colDis->getInternalManifoldPointer();
-		callback->ProcessIsland(&collisionObjects[0],collisionObjects.size(),manifold,maxNumManifolds, 0);
-		return;
-	}
-	*/
-
-
 	BEGIN_PROFILE("islandUnionFindAndHeapSort");
 	
 	//we are going to sort the unionfind array, and store the element id in the size
@@ -247,11 +234,18 @@ void btSimulationIslandManager::buildAndProcessIslands(btDispatcher* dispatcher,
 		}
 	}
 
-	btAlignedObjectArray<btPersistentManifold*>  islandmanifold;
+	
 	int i;
 	int maxNumManifolds = dispatcher->getNumManifolds();
-	islandmanifold.reserve(maxNumManifolds);
 
+#define SPLIT_ISLANDS 1
+#ifdef SPLIT_ISLANDS
+
+	btAlignedObjectArray<btPersistentManifold*>  islandmanifold;
+	islandmanifold.reserve(maxNumManifolds);
+#endif //SPLIT_ISLANDS
+
+	
 	for (i=0;i<maxNumManifolds ;i++)
 	{
 		 btPersistentManifold* manifold = dispatcher->getManifoldByIndexInternal(i);
@@ -273,18 +267,24 @@ void btSimulationIslandManager::buildAndProcessIslands(btDispatcher* dispatcher,
 			{
 				colObj0->activate();
 			}
-
-			//filtering for response
+#ifdef SPLIT_ISLANDS
+	//		//filtering for response
 			if (dispatcher->needsResponse(colObj0,colObj1))
 				islandmanifold.push_back(manifold);
+#endif //SPLIT_ISLANDS
 		}
 	}
 
-	int numManifolds = int (islandmanifold.size());
-
+#ifndef SPLIT_ISLANDS
+	btPersistentManifold** manifold = dispatcher->getInternalManifoldPointer();
+	
+	callback->ProcessIsland(&collisionObjects[0],collisionObjects.size(),manifold,maxNumManifolds, -1);
+#else
 	// Sort manifolds, based on islands
 	// Sort the vector using predicate and std::sort
 	//std::sort(islandmanifold.begin(), islandmanifold.end(), btPersistentManifoldSortPredicate);
+
+	int numManifolds = int (islandmanifold.size());
 
 	//we should do radix sort, it it much faster (O(n) instead of O (n log2(n))
 	islandmanifold.heapSort(btPersistentManifoldSortPredicate());
@@ -352,6 +352,6 @@ void btSimulationIslandManager::buildAndProcessIslands(btDispatcher* dispatcher,
 
 		islandBodies.resize(0);
 	}
-
+#endif //SPLIT_ISLANDS
 	
 }

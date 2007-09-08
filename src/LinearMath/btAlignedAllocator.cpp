@@ -21,11 +21,14 @@ subject to the following restrictions:
 #include <malloc.h>
 void*	btAlignedAlloc	(int size, int alignment)
 {
-	return _aligned_malloc(size,alignment);
+	void* ptr = _aligned_malloc(size,alignment);
+//	printf("btAlignedAlloc %d, %x\n",size,ptr);
+	return ptr;
 }
 
 void	btAlignedFree	(void* ptr)
 {
+//	printf("btAlignedFree %x\n",ptr);
 	_aligned_free(ptr);
 }
 

@@ -217,7 +217,8 @@ void	ConcaveDemo::initPhysics()
 
 	btCollisionDispatcher* dispatcher = new	SpuGatheringCollisionDispatcher(threadSupport,maxNumOutstandingTasks);
 #else
-		btCollisionDispatcher* dispatcher = new	btCollisionDispatcher();
+		btDefaultCollisionConfiguration* collisionConfiguration = new btDefaultCollisionConfiguration();
+		btCollisionDispatcher* dispatcher = new	btCollisionDispatcher(collisionConfiguration);
 #endif//USE_PARALLEL_DISPATCHER
 
 
@@ -276,7 +277,7 @@ void ConcaveDemo::clientMoveAndDisplay()
 		trimeshShape->refitTree();
 
 		//clear all contact points involving mesh proxy. Note: this is a slow/unoptimized operation.
-		m_dynamicsWorld->getBroadphase()->getOverlappingPairCache()->cleanProxyFromPairs(staticBody->getBroadphaseHandle());
+		m_dynamicsWorld->getBroadphase()->getOverlappingPairCache()->cleanProxyFromPairs(staticBody->getBroadphaseHandle(),getDynamicsWorld()->getDispatcher());
 	}
 
 	m_dynamicsWorld->stepSimulation(dt);

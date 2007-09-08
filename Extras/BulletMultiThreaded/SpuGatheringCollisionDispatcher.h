@@ -49,13 +49,13 @@ public:
 			return m_spuCollisionTaskProcess;
 	}
 	
-	SpuGatheringCollisionDispatcher (class	btThreadSupportInterface*	threadInterface, unsigned int	maxNumOutstandingTasks);
+	SpuGatheringCollisionDispatcher (class	btThreadSupportInterface*	threadInterface, unsigned int	maxNumOutstandingTasks,btCollisionConfiguration* collisionConfiguration);
 	
 	virtual ~SpuGatheringCollisionDispatcher();
 
 	bool	supportsDispatchPairOnSpu(int proxyType0,int proxyType1);
 
-	virtual void	dispatchAllCollisionPairs(btOverlappingPairCache* pairCache,btDispatcherInfo& dispatchInfo);
+	virtual void	dispatchAllCollisionPairs(btOverlappingPairCache* pairCache,btDispatcherInfo& dispatchInfo,btDispatcher* dispatcher);
 
 };
 

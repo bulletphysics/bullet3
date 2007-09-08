@@ -20,6 +20,8 @@ subject to the following restrictions:
 #include "BulletCollision/BroadphaseCollision/btBroadphaseProxy.h"
 #include "BulletCollision/CollisionDispatch/btCollisionCreateFunc.h"
 class btPersistentManifold;
+#include "btCollisionDispatcher.h"
+
 #include "LinearMath/btVector3.h"
 
 /// btSphereBoxCollisionAlgorithm  provides sphere-box collision detection.
@@ -48,12 +50,13 @@ public:
 	{
 		virtual	btCollisionAlgorithm* CreateCollisionAlgorithm(btCollisionAlgorithmConstructionInfo& ci, btCollisionObject* body0,btCollisionObject* body1)
 		{
+			void* mem = ci.m_dispatcher1->allocateCollisionAlgorithm(sizeof(btSphereBoxCollisionAlgorithm));
 			if (!m_swapped)
 			{
-				return new btSphereBoxCollisionAlgorithm(0,ci,body0,body1,false);
+				return new(mem) btSphereBoxCollisionAlgorithm(0,ci,body0,body1,false);
 			} else
 			{
-				return new btSphereBoxCollisionAlgorithm(0,ci,body0,body1,true);
+				return new(mem) btSphereBoxCollisionAlgorithm(0,ci,body0,body1,true);
 			}
 		}
 	};

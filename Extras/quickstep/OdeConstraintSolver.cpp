@@ -72,7 +72,7 @@ m_erp(0.4f)
 
 
 //iterative lcp and penalty method
-btScalar OdeConstraintSolver::solveGroup(btCollisionObject** bodies,int numBulletBodies,btPersistentManifold** manifoldPtr, int numManifolds,btTypedConstraint** constraints,int numConstraints,const btContactSolverInfo& infoGlobal,btIDebugDraw* debugDrawer,btStackAlloc* stackAlloc)
+btScalar OdeConstraintSolver::solveGroup(btCollisionObject** bodies,int numBulletBodies,btPersistentManifold** manifoldPtr, int numManifolds,btTypedConstraint** constraints,int numConstraints,const btContactSolverInfo& infoGlobal,btIDebugDraw* debugDrawer,btStackAlloc* stackAlloc,btDispatcher* dispatcher)
 {
 	BEGIN_PROFILE("prepareConstraints");
 
@@ -291,3 +291,7 @@ void OdeConstraintSolver::ConvertConstraint(btPersistentManifold* manifold,BU_Jo
 	//create a new contact constraint
 };
 
+
+void	OdeConstraintSolver::reset()
+{
+}

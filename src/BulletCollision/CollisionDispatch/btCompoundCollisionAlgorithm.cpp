@@ -35,7 +35,7 @@ btCompoundCollisionAlgorithm::btCompoundCollisionAlgorithm( const btCollisionAlg
 		btCollisionShape* childShape = compoundShape->getChildShape(i);
 		btCollisionShape* orgShape = colObj->getCollisionShape();
 		colObj->setCollisionShape( childShape );
-		m_childCollisionAlgorithms[i] = ci.m_dispatcher->findAlgorithm(colObj,otherObj);
+		m_childCollisionAlgorithms[i] = ci.m_dispatcher1->findAlgorithm(colObj,otherObj);
 		colObj->setCollisionShape( orgShape );
 	}
 }
@@ -47,7 +47,8 @@ btCompoundCollisionAlgorithm::~btCompoundCollisionAlgorithm()
 	int i;
 	for (i=0;i<numChildren;i++)
 	{
-		delete m_childCollisionAlgorithms[i];
+		m_childCollisionAlgorithms[i]->~btCollisionAlgorithm();
+		m_dispatcher->freeCollisionAlgorithm(m_childCollisionAlgorithms[i]);
 	}
 }
 

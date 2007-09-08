@@ -452,7 +452,7 @@ void	btDiscreteDynamicsWorld::solveConstraints(btContactSolverInfo& solverInfo)
 		int						m_numConstraints;
 		btIDebugDraw*			m_debugDrawer;
 		btStackAlloc*			m_stackAlloc;
-
+		btDispatcher*			m_dispatcher;
 
 		InplaceSolverIslandCallback(
 			btContactSolverInfo& solverInfo,
@@ -460,13 +460,15 @@ void	btDiscreteDynamicsWorld::solveConstraints(btContactSolverInfo& solverInfo)
 			btTypedConstraint** sortedConstraints,
 			int	numConstraints,
 			btIDebugDraw*	debugDrawer,
-			btStackAlloc*			stackAlloc)
+			btStackAlloc*			stackAlloc,
+			btDispatcher* dispatcher)
 			:m_solverInfo(solverInfo),
 			m_solver(solver),
 			m_sortedConstraints(sortedConstraints),
 			m_numConstraints(numConstraints),
 			m_debugDrawer(debugDrawer),
-			m_stackAlloc(stackAlloc)
+			m_stackAlloc(stackAlloc),
+			m_dispatcher(dispatcher)
 		{
 
 		}
@@ -479,30 +481,38 @@ void	btDiscreteDynamicsWorld::solveConstraints(btContactSolverInfo& solverInfo)
 		}
 		virtual	void	ProcessIsland(btCollisionObject** bodies,int numBodies,btPersistentManifold**	manifolds,int numManifolds, int islandId)
 		{
-			//also add all non-contact constraints/joints for this island
-			btTypedConstraint** startConstraint = 0;
-			int numCurConstraints = 0;
-			int i;
-			
-			//find the first constraint for this island
-			for (i=0;i<m_numConstraints;i++)
+			if (islandId<0)
 			{
-				if (btGetConstraintIslandId(m_sortedConstraints[i]) == islandId)
-				{
-					startConstraint = &m_sortedConstraints[i];
-					break;
-				}
-			}
-			//count the number of constraints in this island
-			for (;i<m_numConstraints;i++)
+				///we don't split islands, so all constraints/contact manifolds/bodies are passed into the solver regardless the island id
+				m_solver->solveGroup( bodies,numBodies,manifolds, numManifolds,&m_sortedConstraints[0],m_numConstraints,m_solverInfo,m_debugDrawer,m_stackAlloc,m_dispatcher);
+			} else
 			{
-				if (btGetConstraintIslandId(m_sortedConstraints[i]) == islandId)
+					//also add all non-contact constraints/joints for this island
+				btTypedConstraint** startConstraint = 0;
+				int numCurConstraints = 0;
+				int i;
+				
+				//find the first constraint for this island
+				for (i=0;i<m_numConstraints;i++)
 				{
-					numCurConstraints++;
+					if (btGetConstraintIslandId(m_sortedConstraints[i]) == islandId)
+					{
+						startConstraint = &m_sortedConstraints[i];
+						break;
+					}
 				}
-			}
+				//count the number of constraints in this island
+				for (;i<m_numConstraints;i++)
+				{
+					if (btGetConstraintIslandId(m_sortedConstraints[i]) == islandId)
+					{
+						numCurConstraints++;
+					}
+				}
 
-			m_solver->solveGroup( bodies,numBodies,manifolds, numManifolds,startConstraint,numCurConstraints,m_solverInfo,m_debugDrawer,m_stackAlloc);
+				m_solver->solveGroup( bodies,numBodies,manifolds, numManifolds,startConstraint,numCurConstraints,m_solverInfo,m_debugDrawer,m_stackAlloc,m_dispatcher);
+		
+			}
 		}
 
 	};
@@ -524,7 +534,7 @@ void	btDiscreteDynamicsWorld::solveConstraints(btContactSolverInfo& solverInfo)
 	
 	btTypedConstraint** constraintsPtr = getNumConstraints() ? &sortedConstraints[0] : 0;
 	
-	InplaceSolverIslandCallback	solverCallback(	solverInfo,	m_constraintSolver, constraintsPtr,sortedConstraints.size(),	m_debugDrawer,m_stackAlloc);
+	InplaceSolverIslandCallback	solverCallback(	solverInfo,	m_constraintSolver, constraintsPtr,sortedConstraints.size(),	m_debugDrawer,m_stackAlloc,m_dispatcher1);
 	
 	m_constraintSolver->prepareSolve(getCollisionWorld()->getNumCollisionObjects(), getCollisionWorld()->getDispatcher()->getNumManifolds());
 	

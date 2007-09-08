@@ -170,7 +170,8 @@ void	ColladaDemo::initPhysics(const char* filename)
 	m_ele = 60;
 	m_forwardAxis = 1;
 
-	btCollisionDispatcher* dispatcher = new btCollisionDispatcher();
+	btDefaultCollisionConfiguration* collisionConfiguration = new btDefaultCollisionConfiguration();
+	btCollisionDispatcher* dispatcher = new btCollisionDispatcher(collisionConfiguration);
 	btVector3 worldMin(-1000,-1000,-1000);
 	btVector3 worldMax(1000,1000,1000);
 	btBroadphaseInterface* pairCache = new btAxisSweep3(worldMin,worldMax);

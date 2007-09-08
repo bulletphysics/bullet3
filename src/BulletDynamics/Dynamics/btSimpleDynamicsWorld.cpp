@@ -75,7 +75,7 @@ int		btSimpleDynamicsWorld::stepSimulation( btScalar timeStep,int maxSubSteps, b
 		btContactSolverInfo infoGlobal;
 		infoGlobal.m_timeStep = timeStep;
 		m_constraintSolver->prepareSolve(0,numManifolds);
-		m_constraintSolver->solveGroup(0,0,manifoldPtr, numManifolds,0,0,infoGlobal,m_debugDrawer, m_stackAlloc);
+		m_constraintSolver->solveGroup(0,0,manifoldPtr, numManifolds,0,0,infoGlobal,m_debugDrawer, m_stackAlloc,m_dispatcher1);
 		m_constraintSolver->allSolved(infoGlobal,m_debugDrawer, m_stackAlloc);
 	}
 

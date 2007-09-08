@@ -37,7 +37,7 @@ btOverlappingPairCache::~btOverlappingPairCache()
 }
 
 
-void	btOverlappingPairCache::removeOverlappingPair(btBroadphasePair& findPair)
+void	btOverlappingPairCache::removeOverlappingPair(btBroadphasePair& findPair, btDispatcher* dispatcher )
 {
 	
 	int findIndex = m_overlappingPairArray.findLinearSearch(findPair);
@@ -45,7 +45,7 @@ void	btOverlappingPairCache::removeOverlappingPair(btBroadphasePair& findPair)
 	{
 		gOverlappingPairs--;
 		btBroadphasePair& pair = m_overlappingPairArray[findIndex];
-		cleanOverlappingPair(pair);
+		cleanOverlappingPair(pair,dispatcher);
 		
 		m_overlappingPairArray.swap(findIndex,m_overlappingPairArray.size()-1);
 		m_overlappingPairArray.pop_back();
@@ -53,12 +53,13 @@ void	btOverlappingPairCache::removeOverlappingPair(btBroadphasePair& findPair)
 }
 
 
-void	btOverlappingPairCache::cleanOverlappingPair(btBroadphasePair& pair)
+void	btOverlappingPairCache::cleanOverlappingPair(btBroadphasePair& pair,btDispatcher* dispatcher)
 {
 	if (pair.m_algorithm)
 	{
 		{
-			delete pair.m_algorithm;;
+			pair.m_algorithm->~btCollisionAlgorithm();
+			dispatcher->freeCollisionAlgorithm(pair.m_algorithm);
 			pair.m_algorithm=0;
 		}
 	}
@@ -109,18 +110,20 @@ void	btOverlappingPairCache::addOverlappingPair(btBroadphaseProxy* proxy0,btBroa
 
 
 
-void	btOverlappingPairCache::cleanProxyFromPairs(btBroadphaseProxy* proxy)
+void	btOverlappingPairCache::cleanProxyFromPairs(btBroadphaseProxy* proxy,btDispatcher* dispatcher)
 {
 
 	class	CleanPairCallback : public btOverlapCallback
 	{
 		btBroadphaseProxy* m_cleanProxy;
 		btOverlappingPairCache*	m_pairCache;
+		btDispatcher* m_dispatcher;
 
 	public:
-		CleanPairCallback(btBroadphaseProxy* cleanProxy,btOverlappingPairCache* pairCache)
+		CleanPairCallback(btBroadphaseProxy* cleanProxy,btOverlappingPairCache* pairCache,btDispatcher* dispatcher)
 			:m_cleanProxy(cleanProxy),
-			m_pairCache(pairCache)
+			m_pairCache(pairCache),
+			m_dispatcher(dispatcher)
 		{
 		}
 		virtual	bool	processOverlap(btBroadphasePair& pair)
@@ -128,22 +131,22 @@ void	btOverlappingPairCache::cleanProxyFromPairs(btBroadphaseProxy* proxy)
 			if ((pair.m_pProxy0 == m_cleanProxy) ||
 				(pair.m_pProxy1 == m_cleanProxy))
 			{
-				m_pairCache->cleanOverlappingPair(pair);
+				m_pairCache->cleanOverlappingPair(pair,m_dispatcher);
 			}
 			return false;
 		}
 		
 	};
 
-	CleanPairCallback cleanPairs(proxy,this);
+	CleanPairCallback cleanPairs(proxy,this,dispatcher);
 
-	processAllOverlappingPairs(&cleanPairs);
+	processAllOverlappingPairs(&cleanPairs,dispatcher);
 
 }
 
 
 
-void	btOverlappingPairCache::removeOverlappingPairsContainingProxy(btBroadphaseProxy* proxy)
+void	btOverlappingPairCache::removeOverlappingPairsContainingProxy(btBroadphaseProxy* proxy,btDispatcher* dispatcher)
 {
 
 	class	RemovePairCallback : public btOverlapCallback
@@ -166,12 +169,12 @@ void	btOverlappingPairCache::removeOverlappingPairsContainingProxy(btBroadphaseP
 
 	RemovePairCallback removeCallback(proxy);
 
-	processAllOverlappingPairs(&removeCallback);
+	processAllOverlappingPairs(&removeCallback,dispatcher);
 }
 
 
 
-void	btOverlappingPairCache::processAllOverlappingPairs(btOverlapCallback* callback)
+void	btOverlappingPairCache::processAllOverlappingPairs(btOverlapCallback* callback,btDispatcher* dispatcher)
 {
 
 	int i;
@@ -182,7 +185,7 @@ void	btOverlappingPairCache::processAllOverlappingPairs(btOverlapCallback* callb
 		btBroadphasePair* pair = &m_overlappingPairArray[i];
 		if (callback->processOverlap(*pair))
 		{
-			cleanOverlappingPair(*pair);
+			cleanOverlappingPair(*pair,dispatcher);
 
 			m_overlappingPairArray.swap(i,m_overlappingPairArray.size()-1);
 			m_overlappingPairArray.pop_back();

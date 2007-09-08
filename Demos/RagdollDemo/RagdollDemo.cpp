@@ -307,7 +307,9 @@ void RagdollDemo::initPhysics()
 {
 	// Setup the basic world
 
-	btCollisionDispatcher* dispatcher = new btCollisionDispatcher;
+	btDefaultCollisionConfiguration* collisionConfiguration = new btDefaultCollisionConfiguration();
+
+	btCollisionDispatcher* dispatcher = new btCollisionDispatcher(collisionConfiguration);
 
 	btPoint3 worldAabbMin(-10000,-10000,-10000);
 	btPoint3 worldAabbMax(10000,10000,10000);

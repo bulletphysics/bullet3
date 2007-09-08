@@ -19,77 +19,46 @@ subject to the following restrictions:
 
 
 #include "BulletCollision/BroadphaseCollision/btCollisionAlgorithm.h"
-#include "BulletCollision/CollisionDispatch/btConvexConvexAlgorithm.h"
-#include "BulletCollision/CollisionDispatch/btEmptyCollisionAlgorithm.h"
-#include "BulletCollision/CollisionDispatch/btConvexConcaveCollisionAlgorithm.h"
-#include "BulletCollision/CollisionDispatch/btCompoundCollisionAlgorithm.h"
+
 #include "BulletCollision/CollisionShapes/btCollisionShape.h"
 #include "BulletCollision/CollisionDispatch/btCollisionObject.h"
 #include "BulletCollision/BroadphaseCollision/btOverlappingPairCache.h"
+#include "LinearMath/btPoolAllocator.h"
+#include "BulletCollision/CollisionDispatch/btCollisionConfiguration.h"
 
 int gNumManifold = 0;
 
 #include <stdio.h>
 
-	
-btCollisionDispatcher::btCollisionDispatcher(bool noDefaultAlgorithms):
-m_count(0),
-m_useIslands(true),
-m_convexConvexCreateFunc(0),
-m_convexConcaveCreateFunc(0),
-m_swappedConvexConcaveCreateFunc(0),
-m_compoundCreateFunc(0),
-m_swappedCompoundCreateFunc(0),
-m_emptyCreateFunc(0)
-{
-	(void)noDefaultAlgorithms;
-	int i;
 
-	setNearCallback(defaultNearCallback);
 
-	m_emptyCreateFunc = new btEmptyAlgorithm::CreateFunc;
-	for (i=0;i<MAX_BROADPHASE_COLLISION_TYPES;i++)
-	{
-		for (int j=0;j<MAX_BROADPHASE_COLLISION_TYPES;j++)
-		{
-			m_doubleDispatch[i][j] = m_emptyCreateFunc;
-		}
-	}
-}
-//if you want to not link with the default collision algorithms, you can
-//define BT_EXCLUDE_DEFAULT_COLLISIONALGORITHM_REGISTRATION 
-//in your Bullet library build system
-#ifndef BT_EXCLUDE_DEFAULT_COLLISIONALGORITHM_REGISTRATION
-
-btCollisionDispatcher::btCollisionDispatcher (): 
+btCollisionDispatcher::btCollisionDispatcher (btCollisionConfiguration* collisionConfiguration): 
 	m_count(0),
-	m_useIslands(true)
+	m_useIslands(true),
+	m_collisionConfiguration(collisionConfiguration)
 {
 	int i;
 
 	setNearCallback(defaultNearCallback);
 	
-	//default CreationFunctions, filling the m_doubleDispatch table
-	m_convexConvexCreateFunc = new btConvexConvexAlgorithm::CreateFunc;
-	m_convexConcaveCreateFunc = new btConvexConcaveCollisionAlgorithm::CreateFunc;
-	m_swappedConvexConcaveCreateFunc = new btConvexConcaveCollisionAlgorithm::SwappedCreateFunc;
-	m_compoundCreateFunc = new btCompoundCollisionAlgorithm::CreateFunc;
-	m_swappedCompoundCreateFunc = new btCompoundCollisionAlgorithm::SwappedCreateFunc;
-	m_emptyCreateFunc = new btEmptyAlgorithm::CreateFunc;
+	
+
+	int maxElements = 16384;
+	m_collisionAlgorithmPoolAllocator = new btPoolAllocator(m_collisionConfiguration->getCollisionAlgorithmMaxElementSize(),m_collisionConfiguration->getCollisionAlgorithmPoolSize());
+
+	m_persistentManifoldPoolAllocator = new btPoolAllocator(sizeof(btPersistentManifold),m_collisionConfiguration->getPersistentManifoldPoolSize());
 
 	for (i=0;i<MAX_BROADPHASE_COLLISION_TYPES;i++)
 	{
 		for (int j=0;j<MAX_BROADPHASE_COLLISION_TYPES;j++)
 		{
-			m_doubleDispatch[i][j] = internalFindCreateFunc(i,j);
+			m_doubleDispatch[i][j] = m_collisionConfiguration->getCollisionAlgorithmCreateFunc(i,j);
 			assert(m_doubleDispatch[i][j]);
 		}
 	}
 	
 	
 };
-
-#endif //BT_EXCLUDE_DEFAULT_COLLISIONALGORITHM_REGISTRATION
 
 
 void btCollisionDispatcher::registerCollisionCreateFunc(int proxyType0, int proxyType1, btCollisionAlgorithmCreateFunc *createFunc)
@@ -99,12 +68,7 @@ void btCollisionDispatcher::registerCollisionCreateFunc(int proxyType0, int prox
 
 btCollisionDispatcher::~btCollisionDispatcher()
 {
-	delete m_convexConvexCreateFunc;
-	delete m_convexConcaveCreateFunc;
-	delete m_swappedConvexConcaveCreateFunc;
-	delete m_compoundCreateFunc;
-	delete m_swappedCompoundCreateFunc;
-	delete m_emptyCreateFunc;
+	
 }
 
 btPersistentManifold*	btCollisionDispatcher::getNewManifold(void* b0,void* b1) 
@@ -117,7 +81,8 @@ btPersistentManifold*	btCollisionDispatcher::getNewManifold(void* b0,void* b1)
 	btCollisionObject* body0 = (btCollisionObject*)b0;
 	btCollisionObject* body1 = (btCollisionObject*)b1;
 	
-	btPersistentManifold* manifold = new btPersistentManifold (body0,body1);
+	void* mem = m_persistentManifoldPoolAllocator->allocate(sizeof(btPersistentManifold));
+	btPersistentManifold* manifold = new(mem) btPersistentManifold (body0,body1,0);
 	m_manifoldsPtr.push_back(manifold);
 
 	return manifold;
@@ -143,7 +108,9 @@ void btCollisionDispatcher::releaseManifold(btPersistentManifold* manifold)
 	{
 		m_manifoldsPtr.swap(findIndex,m_manifoldsPtr.size()-1);
 		m_manifoldsPtr.pop_back();
-		delete manifold;
+
+		manifold->~btPersistentManifold();
+		m_persistentManifoldPoolAllocator->free(manifold);
 	}
 	
 }
@@ -156,7 +123,8 @@ btCollisionAlgorithm* btCollisionDispatcher::findAlgorithm(btCollisionObject* bo
 #ifdef USE_DISPATCH_REGISTRY_ARRAY
 	
 	btCollisionAlgorithmConstructionInfo ci;
-	ci.m_dispatcher = this;
+
+	ci.m_dispatcher1 = this;
 	ci.m_manifold = sharedManifold;
 	btCollisionAlgorithm* algo = m_doubleDispatch[body0->getCollisionShape()->getShapeType()][body1->getCollisionShape()->getShapeType()]
 	->CreateCollisionAlgorithm(ci,body0,body1);
@@ -167,42 +135,6 @@ btCollisionAlgorithm* btCollisionDispatcher::findAlgorithm(btCollisionObject* bo
 }
 
 
-#ifndef BT_EXCLUDE_DEFAULT_COLLISIONALGORITHM_REGISTRATION
-
-btCollisionAlgorithmCreateFunc* btCollisionDispatcher::internalFindCreateFunc(int proxyType0,int proxyType1)
-{
-	
-	if (btBroadphaseProxy::isConvex(proxyType0) && btBroadphaseProxy::isConvex(proxyType1))
-	{
-		return m_convexConvexCreateFunc;
-	}
-
-	if (btBroadphaseProxy::isConvex(proxyType0) && btBroadphaseProxy::isConcave(proxyType1))
-	{
-		return m_convexConcaveCreateFunc;
-	}
-
-	if (btBroadphaseProxy::isConvex(proxyType1) && btBroadphaseProxy::isConcave(proxyType0))
-	{
-		return m_swappedConvexConcaveCreateFunc;
-	}
-
-	if (btBroadphaseProxy::isCompound(proxyType0))
-	{
-		return m_compoundCreateFunc;
-	} else
-	{
-		if (btBroadphaseProxy::isCompound(proxyType1))
-		{
-			return m_swappedCompoundCreateFunc;
-		}
-	}
-
-	//failed to find an algorithm
-	return m_emptyCreateFunc;
-}
-
-#endif //BT_EXCLUDE_DEFAULT_COLLISIONALGORITHM_REGISTRATION
 
 
 #ifndef USE_DISPATCH_REGISTRY_ARRAY
@@ -316,13 +248,13 @@ public:
 };
 
 
-void	btCollisionDispatcher::dispatchAllCollisionPairs(btOverlappingPairCache* pairCache,btDispatcherInfo& dispatchInfo)
+void	btCollisionDispatcher::dispatchAllCollisionPairs(btOverlappingPairCache* pairCache,btDispatcherInfo& dispatchInfo,btDispatcher* dispatcher)
 {
 	//m_blockedForChanges = true;
 
 	btCollisionPairCallback	collisionCallback(dispatchInfo,this);
 
-	pairCache->processAllOverlappingPairs(&collisionCallback);
+	pairCache->processAllOverlappingPairs(&collisionCallback,dispatcher);
 
 	//m_blockedForChanges = false;
 
@@ -364,4 +296,15 @@ void btCollisionDispatcher::defaultNearCallback(btBroadphasePair& collisionPair,
 			}
 		}
 
+}
+
+
+void* btCollisionDispatcher::allocateCollisionAlgorithm(int size)
+{
+	return m_collisionAlgorithmPoolAllocator->allocate(size);
+}
+
+void btCollisionDispatcher::freeCollisionAlgorithm(void* ptr)
+{
+	m_collisionAlgorithmPoolAllocator->free(ptr);
 }

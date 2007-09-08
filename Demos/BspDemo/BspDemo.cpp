@@ -134,8 +134,9 @@ void	BspDemo::initPhysics(char* bspfilename)
 
 	///Setup a Physics Simulation Environment
 
+	btDefaultCollisionConfiguration* collisionConfiguration = new btDefaultCollisionConfiguration();
 //	btCollisionShape* groundShape = new btBoxShape(btVector3(50,3,50));
-	btCollisionDispatcher* dispatcher = new btCollisionDispatcher();
+	btCollisionDispatcher* dispatcher = new btCollisionDispatcher(collisionConfiguration);
 	btVector3 worldMin(-1000,-1000,-1000);
 	btVector3 worldMax(1000,1000,1000);
 	btBroadphaseInterface* pairCache = new btAxisSweep3(worldMin,worldMax);

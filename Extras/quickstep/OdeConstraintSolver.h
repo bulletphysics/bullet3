@@ -20,6 +20,7 @@ subject to the following restrictions:
 
 class btRigidBody;
 struct	OdeSolverBody;
+class btDispatcher;
 class BU_Joint;
 
 /// OdeConstraintSolver is one of the available solvers for Bullet dynamics framework
@@ -45,7 +46,7 @@ public:
 
 	virtual ~OdeConstraintSolver() {}
 	
-	virtual btScalar solveGroup(btCollisionObject** bodies,int numBodies,btPersistentManifold** manifold,int numManifolds,btTypedConstraint** constraints,int numConstraints,const btContactSolverInfo& info,btIDebugDraw* debugDrawer,btStackAlloc* stackAlloc);
+	virtual btScalar solveGroup(btCollisionObject** bodies,int numBodies,btPersistentManifold** manifold,int numManifolds,btTypedConstraint** constraints,int numConstraints,const btContactSolverInfo& info,btIDebugDraw* debugDrawer,btStackAlloc* stackAlloc,btDispatcher* dispatcher);
 
 	///setConstraintForceMixing, the cfm adds some positive value to the main diagonal
 	///This can improve convergence (make matrix positive semidefinite), but it can make the simulation look more 'springy'
@@ -59,6 +60,8 @@ public:
 	{
 		m_erp = erp;
 	}
+
+	virtual	void	reset();
 };
 
 

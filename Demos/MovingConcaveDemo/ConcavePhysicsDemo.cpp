@@ -1644,9 +1644,10 @@ void	ConcaveDemo::initGImpactCollision()
 void	ConcaveDemo::initPhysics()
 {
 
+	btDefaultCollisionConfiguration* collisionConfiguration = new btDefaultCollisionConfiguration();
 
 	//btConstraintSolver* solver = new btSequentialImpulseConstraintSolver;
-	btCollisionDispatcher* dispatcher = new btCollisionDispatcher();
+	btCollisionDispatcher* dispatcher = new btCollisionDispatcher(collisionConfiguration);
 	//btOverlappingPairCache* broadphase = new btSimpleBroadphase();
 	btBroadphaseInterface* broadphase = new btSimpleBroadphase();
 

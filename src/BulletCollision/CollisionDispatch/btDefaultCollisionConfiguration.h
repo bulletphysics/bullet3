@@ -21,16 +21,16 @@ subject to the following restrictions:
 ///btCollisionConfiguration allows to configure Bullet collision detection
 ///stack allocator size, default collision algorithms and persistent manifold pool size
 ///todo: describe the meaning
-class	btDefaultCollisionConfiguration
+class	btDefaultCollisionConfiguration : public btCollisionConfiguration
 {
 
 	int	m_persistentManifoldPoolSize;
 	
 	int	m_stackAllocatorSize;
 
-	int collisionAlgorithmPoolSize;
+	int m_collisionAlgorithmPoolSize;
 
-	int collisionAlgorithmMaxElementSize;
+	int m_collisionAlgorithmMaxElementSize;
 
 	//default CreationFunctions, filling the m_doubleDispatch table
 	btCollisionAlgorithmCreateFunc*	m_convexConvexCreateFunc;
@@ -38,7 +38,10 @@ class	btDefaultCollisionConfiguration
 	btCollisionAlgorithmCreateFunc*	m_swappedConvexConcaveCreateFunc;
 	btCollisionAlgorithmCreateFunc*	m_compoundCreateFunc;
 	btCollisionAlgorithmCreateFunc*	m_swappedCompoundCreateFunc;
-	btCollisionAlgorithmCreateFunc*   m_emptyCreateFunc;
+	btCollisionAlgorithmCreateFunc* m_emptyCreateFunc;
+	btCollisionAlgorithmCreateFunc* m_sphereSphereCF;
+	btCollisionAlgorithmCreateFunc* m_sphereBoxCF;
+	btCollisionAlgorithmCreateFunc* m_boxSphereCF;
 
 public:
 
@@ -55,18 +58,22 @@ public:
 
 	virtual int	getCollisionAlgorithmMaxElementSize();
 
-	virtual btCollisionAlgorithmCreateFunc* getConvexConvexCollisionCreateFunc();
+	btCollisionAlgorithmCreateFunc* getCollisionAlgorithmCreateFunc(int proxyType0,int proxyType1);
 
-	virtual btCollisionAlgorithmCreateFunc* getConvexConcaveCollisionCreateFunc();
+	void	setStackAllocatorSize(int size)
+	{
+		m_stackAllocatorSize = size;
+	}
 
-	virtual btCollisionAlgorithmCreateFunc* getSwappedConvexConcaveCollisionCreateFunc();
+	void	setPersistentManifoldPoolSize(int size)
+	{
+		m_persistentManifoldPoolSize = size;
+	}
 
-	virtual btCollisionAlgorithmCreateFunc* getCompoundCollisionCreateFunc();
-
-	virtual btCollisionAlgorithmCreateFunc* getSwappedCompoundCollisionCreateFunc();
-
-	virtual btCollisionAlgorithmCreateFunc* getEmptyCollisionCreateFunc();
-
+	void	setCollisionAlgorithmPoolSize(int size)
+	{
+		m_collisionAlgorithmPoolSize = size;
+	}
 };
 
 #endif //BT_DEFAULT_COLLISION_CONFIGURATION

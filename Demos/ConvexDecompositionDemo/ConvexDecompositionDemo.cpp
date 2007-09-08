@@ -95,6 +95,8 @@ void ConvexDecompositionDemo::initPhysics(const char* filename)
 		tcount = wo.loadObj("../../file.obj");
 	}
 
+	btDefaultCollisionConfiguration* collisionConfiguration = new btDefaultCollisionConfiguration();
+
 #ifdef USE_PARALLEL_DISPATCHER
 #ifdef USE_WIN32_THREADING
 
@@ -112,9 +114,9 @@ void ConvexDecompositionDemo::initPhysics(const char* filename)
 ///you can hook it up to your custom task scheduler by deriving from btThreadSupportInterface
 #endif
 
-	btCollisionDispatcher* dispatcher = new	SpuGatheringCollisionDispatcher(threadSupport,maxNumOutstandingTasks);
+	btCollisionDispatcher* dispatcher = new	SpuGatheringCollisionDispatcher(threadSupport,maxNumOutstandingTasks,collisionConfiguration);
 #else
-		btCollisionDispatcher* dispatcher = new	btCollisionDispatcher();
+		btCollisionDispatcher* dispatcher = new	btCollisionDispatcher(collisionConfiguration);
 #endif//USE_PARALLEL_DISPATCHER
 
 

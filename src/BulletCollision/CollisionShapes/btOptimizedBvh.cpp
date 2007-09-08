@@ -19,10 +19,31 @@ subject to the following restrictions:
 #include "LinearMath/btIDebugDraw.h"
 
 
+inline bool testQuantizedAabbAgainstQuantizedAabb2(unsigned short int* aabbMin1,unsigned short int* aabbMax1,const unsigned short int* aabbMin2,const unsigned short int* aabbMax2) 
+{
+	bool overlap = true;
+	overlap = (aabbMin1[0] > aabbMax2[0] || aabbMax1[0] < aabbMin2[0]) ? false : overlap;
+	overlap = (aabbMin1[2] > aabbMax2[2] || aabbMax1[2] < aabbMin2[2]) ? false : overlap;
+	overlap = (aabbMin1[1] > aabbMax2[1] || aabbMax1[1] < aabbMin2[1]) ? false : overlap;
+	return overlap;
+}
+
+
+
+///Branch-free version of quantized aabb versus quantized aabb
+inline unsigned testQuantizedAabbAgainstQuantizedAabb(unsigned short int* aabbMin1,unsigned short int* aabbMax1,const unsigned short int* aabbMin2,const unsigned short int* aabbMax2)
+{		
+	return btSelect((unsigned)((aabbMin1[0] <= aabbMax2[0]) & (aabbMax1[0] >= aabbMin2[0])
+		& (aabbMin1[2] <= aabbMax2[2]) & (aabbMax1[2] >= aabbMin2[2])
+		& (aabbMin1[1] <= aabbMax2[1]) & (aabbMax1[1] >= aabbMin2[1])),
+		1, 0);
+}
+
+
 
 btOptimizedBvh::btOptimizedBvh() : m_useQuantization(false), 
 					m_traversalMode(TRAVERSAL_STACKLESS_CACHE_FRIENDLY)
-					//m_traversalMode(TRAVERSAL_STACKLESS)
+//					m_traversalMode(TRAVERSAL_STACKLESS)
 					//m_traversalMode(TRAVERSAL_RECURSIVE)
 { 
 
@@ -170,6 +191,9 @@ void btOptimizedBvh::build(btStridingMeshInterface* triangles, bool useQuantized
 		subtree.m_rootNodeIndex = 0;
 		subtree.m_subtreeSize = m_quantizedContiguousNodes[0].isLeafNode() ? 1 : m_quantizedContiguousNodes[0].getEscapeIndex();
 	}
+
+	m_leafNodes.clear();
+	m_quantizedLeafNodes.clear();
 }
 
 
@@ -201,7 +225,7 @@ void	btOptimizedBvh::refitPartial(btStridingMeshInterface* meshInterface,const b
 	{
 		btBvhSubtreeInfo& subtree = m_SubtreeHeaders[i];
 
-		bool overlap = testQuantizedAabbAgainstQuantizedAabb(quantizedQueryAabbMin,quantizedQueryAabbMax,subtree.m_quantizedAabbMin,subtree.m_quantizedAabbMax);
+		unsigned int overlap = testQuantizedAabbAgainstQuantizedAabb(quantizedQueryAabbMin,quantizedQueryAabbMax,subtree.m_quantizedAabbMin,subtree.m_quantizedAabbMax);
 		if (overlap)
 		{
 			updateBvhNodes(meshInterface,subtree.m_rootNodeIndex,subtree.m_rootNodeIndex+subtree.m_subtreeSize,i);
@@ -668,7 +692,7 @@ void btOptimizedBvh::walkRecursiveQuantizedTreeAgainstQueryAabb(const btQuantize
 {
 	btAssert(m_useQuantization);
 	
-	bool aabbOverlap, isLeafNode;
+	unsigned int aabbOverlap, isLeafNode;
 
 	aabbOverlap = testQuantizedAabbAgainstQuantizedAabb(quantizedQueryAabbMin,quantizedQueryAabbMax,currentNode->m_quantizedAabbMin,currentNode->m_quantizedAabbMax);
 	isLeafNode = currentNode->isLeafNode();
@@ -707,7 +731,7 @@ void	btOptimizedBvh::walkStacklessQuantizedTree(btNodeOverlapCallback* nodeCallb
 	const btQuantizedBvhNode* rootNode = &m_quantizedContiguousNodes[startNodeIndex];
 	int escapeIndex;
 	
-	bool aabbOverlap, isLeafNode;
+	unsigned int aabbOverlap, isLeafNode;
 
 	while (curIndex < endNodeIndex)
 	{
@@ -768,7 +792,7 @@ void	btOptimizedBvh::walkStacklessQuantizedTreeCacheFriendly(btNodeOverlapCallba
 	{
 		const btBvhSubtreeInfo& subtree = m_SubtreeHeaders[i];
 
-		bool overlap = testQuantizedAabbAgainstQuantizedAabb(quantizedQueryAabbMin,quantizedQueryAabbMax,subtree.m_quantizedAabbMin,subtree.m_quantizedAabbMax);
+		unsigned int overlap = testQuantizedAabbAgainstQuantizedAabb(quantizedQueryAabbMin,quantizedQueryAabbMax,subtree.m_quantizedAabbMin,subtree.m_quantizedAabbMax);
 		if (overlap)
 		{
 			walkStacklessQuantizedTree(nodeCallback,quantizedQueryAabbMin,quantizedQueryAabbMax,

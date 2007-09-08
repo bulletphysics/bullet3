@@ -22,7 +22,7 @@ subject to the following restrictions:
 #include "btBroadphaseProxy.h"
 #include "LinearMath/btPoint3.h"
 #include "LinearMath/btAlignedObjectArray.h"
-
+class btDispatcher;
 
 struct	btOverlapCallback
 {
@@ -61,20 +61,20 @@ class	btOverlappingPairCache
 		btOverlappingPairCache();	
 		virtual ~btOverlappingPairCache();
 
-		virtual void	processAllOverlappingPairs(btOverlapCallback*);
+		virtual void	processAllOverlappingPairs(btOverlapCallback*,btDispatcher* dispatcher);
 
-		void	removeOverlappingPair(btBroadphasePair& pair);
+		void	removeOverlappingPair(btBroadphasePair& pair,btDispatcher* dispatcher);
 
-		void	cleanOverlappingPair(btBroadphasePair& pair);
+		void	cleanOverlappingPair(btBroadphasePair& pair,btDispatcher* dispatcher);
 		
 		void	addOverlappingPair(btBroadphaseProxy* proxy0,btBroadphaseProxy* proxy1);
 
 		btBroadphasePair*	findPair(btBroadphaseProxy* proxy0,btBroadphaseProxy* proxy1);
 			
 		
-		void	cleanProxyFromPairs(btBroadphaseProxy* proxy);
+		void	cleanProxyFromPairs(btBroadphaseProxy* proxy,btDispatcher* dispatcher);
 
-		void	removeOverlappingPairsContainingProxy(btBroadphaseProxy* proxy);
+		void	removeOverlappingPairsContainingProxy(btBroadphaseProxy* proxy,btDispatcher* dispatcher);
 
 
 		inline bool needsBroadphaseCollision(btBroadphaseProxy* proxy0,btBroadphaseProxy* proxy1) const

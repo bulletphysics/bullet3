@@ -26,7 +26,7 @@ struct btContactSolverInfo;
 struct btBroadphaseProxy;
 class btIDebugDraw;
 class btStackAlloc;
-
+class	btDispatcher;
 /// btConstraintSolver provides solver interface
 class btConstraintSolver
 {
@@ -38,7 +38,7 @@ public:
 	virtual void prepareSolve (int numBodies, int numManifolds) {;}
 
 	///solve a group of constraints
-	virtual btScalar solveGroup(btCollisionObject** bodies,int numBodies,btPersistentManifold** manifold,int numManifolds,btTypedConstraint** constraints,int numConstraints, const btContactSolverInfo& info,class btIDebugDraw* debugDrawer, btStackAlloc* stackAlloc) = 0;
+	virtual btScalar solveGroup(btCollisionObject** bodies,int numBodies,btPersistentManifold** manifold,int numManifolds,btTypedConstraint** constraints,int numConstraints, const btContactSolverInfo& info,class btIDebugDraw* debugDrawer, btStackAlloc* stackAlloc,btDispatcher* dispatcher) = 0;
 
 	virtual void allSolved (const btContactSolverInfo& info,class btIDebugDraw* debugDrawer, btStackAlloc* stackAlloc) {;}
 

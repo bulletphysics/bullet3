@@ -19,6 +19,8 @@ subject to the following restrictions:
 #include "BulletCollision/BroadphaseCollision/btCollisionAlgorithm.h"
 #include "BulletCollision/BroadphaseCollision/btBroadphaseProxy.h"
 #include "BulletCollision/CollisionDispatch/btCollisionCreateFunc.h"
+#include "BulletCollision/BroadphaseCollision/btDispatcher.h"
+
 class btPersistentManifold;
 
 /// SpuContactManifoldCollisionAlgorithm  provides contact manifold and should be processed on SPU.
@@ -71,7 +73,8 @@ public:
 	{
 		virtual	btCollisionAlgorithm* CreateCollisionAlgorithm(btCollisionAlgorithmConstructionInfo& ci, btCollisionObject* body0,btCollisionObject* body1)
 		{
-			return new SpuContactManifoldCollisionAlgorithm(ci,body0,body1);
+			void* mem = ci.m_dispatcher1->allocateCollisionAlgorithm(sizeof(SpuContactManifoldCollisionAlgorithm));
+			return new(mem) SpuContactManifoldCollisionAlgorithm(ci,body0,body1);
 		}
 	};
 

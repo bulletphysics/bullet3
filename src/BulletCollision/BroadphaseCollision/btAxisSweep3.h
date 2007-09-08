@@ -121,10 +121,10 @@ public:
 	btAxisSweep3(const btPoint3& worldAabbMin,const btPoint3& worldAabbMax, int maxHandles = 16384, btOverlappingPairCache* pairCache=0);
 	virtual	~btAxisSweep3();
 
-	virtual void	calculateOverlappingPairs();
+	virtual void	calculateOverlappingPairs(btDispatcher* dispatcher);
 	
 	BP_FP_INT_TYPE addHandle(const btPoint3& aabbMin,const btPoint3& aabbMax, void* pOwner,short int collisionFilterGroup,short int collisionFilterMask);
-	void removeHandle(BP_FP_INT_TYPE handle);
+	void removeHandle(BP_FP_INT_TYPE handle,btDispatcher* dispatcher);
 	void updateHandle(BP_FP_INT_TYPE handle, const btPoint3& aabbMin,const btPoint3& aabbMax);
 	inline Handle* getHandle(BP_FP_INT_TYPE index) const {return m_pHandles + index;}
 
@@ -132,7 +132,7 @@ public:
 
 	//Broadphase Interface
 	virtual btBroadphaseProxy*	createProxy(  const btVector3& aabbMin,  const btVector3& aabbMax,int shapeType,void* userPtr ,short int collisionFilterGroup,short int collisionFilterMask);
-	virtual void	destroyProxy(btBroadphaseProxy* proxy);
+	virtual void	destroyProxy(btBroadphaseProxy* proxy,btDispatcher* dispatcher);
 	virtual void	setAabb(btBroadphaseProxy* proxy,const btVector3& aabbMin,const btVector3& aabbMax);
 	
 	bool	testAabbOverlap(btBroadphaseProxy* proxy0,btBroadphaseProxy* proxy1);

@@ -20,6 +20,8 @@ subject to the following restrictions:
 #include "BulletCollision/CollisionDispatch/btEmptyCollisionAlgorithm.h"
 #include "BulletCollision/CollisionDispatch/btConvexConcaveCollisionAlgorithm.h"
 #include "BulletCollision/CollisionDispatch/btCompoundCollisionAlgorithm.h"
+#include "BulletCollision/CollisionDispatch/btSphereSphereCollisionAlgorithm.h"
+#include "BulletCollision/CollisionDispatch/btSphereBoxCollisionAlgorithm.h"
 
 btDefaultCollisionConfiguration::btDefaultCollisionConfiguration()
 :m_persistentManifoldPoolSize(16384),
@@ -35,6 +37,11 @@ m_collisionAlgorithmMaxElementSize(0)
 	m_compoundCreateFunc = new btCompoundCollisionAlgorithm::CreateFunc;
 	m_swappedCompoundCreateFunc = new btCompoundCollisionAlgorithm::SwappedCreateFunc;
 	m_emptyCreateFunc = new btEmptyAlgorithm::CreateFunc;
+	m_sphereSphereCF = new btSphereSphereCollisionAlgorithm::CreateFunc;
+	m_sphereBoxCF = new btSphereBoxCollisionAlgorithm::CreateFunc;
+	m_boxSphereCF = new btSphereBoxCollisionAlgorithm::CreateFunc;
+	m_boxSphereCF->m_swapped = true;
+	
 
 	///calculate maximum element size, big enough to fit any collision algorithm in the memory pool
 	int maxSize = sizeof(btConvexConvexAlgorithm);
@@ -43,8 +50,8 @@ m_collisionAlgorithmMaxElementSize(0)
 	int maxSize4 = sizeof(btEmptyAlgorithm);
 	
 	m_collisionAlgorithmMaxElementSize = btMax(maxSize,maxSize2);
-	m_collisionAlgorithmMaxElementSize = btMax(elemSize,maxSize3);
-	m_collisionAlgorithmMaxElementSize = btMax(elemSize,maxSize4);
+	m_collisionAlgorithmMaxElementSize = btMax(m_collisionAlgorithmMaxElementSize,maxSize3);
+	m_collisionAlgorithmMaxElementSize = btMax(m_collisionAlgorithmMaxElementSize,maxSize4);
 
 }
 
@@ -56,6 +63,9 @@ btDefaultCollisionConfiguration::~btDefaultCollisionConfiguration()
 	delete m_compoundCreateFunc;
 	delete m_swappedCompoundCreateFunc;
 	delete m_emptyCreateFunc;
+	delete m_sphereSphereCF;
+	delete m_sphereBoxCF;
+	delete m_boxSphereCF;
 
 }
 
@@ -81,32 +91,52 @@ int	btDefaultCollisionConfiguration::getCollisionAlgorithmMaxElementSize()
 
 }
 
-btCollisionAlgorithmCreateFunc* btDefaultCollisionConfiguration::getConvexConvexCollisionCreateFunc()
-{
-	return m_convexConvexCreateFunc;
-}
 
-btCollisionAlgorithmCreateFunc* btDefaultCollisionConfiguration::getConvexConcaveCollisionCreateFunc()
+btCollisionAlgorithmCreateFunc* btDefaultCollisionConfiguration::getCollisionAlgorithmCreateFunc(int proxyType0,int proxyType1)
 {
-	return m_convexConcaveCreateFunc;
-}
+	
 
-btCollisionAlgorithmCreateFunc* btDefaultCollisionConfiguration::getSwappedConvexConcaveCollisionCreateFunc()
-{
-	return m_swappedConvexConcaveCreateFunc;
-}
+	if ((proxyType0 == SPHERE_SHAPE_PROXYTYPE) && (proxyType1==SPHERE_SHAPE_PROXYTYPE))
+	{
+		return	m_sphereSphereCF;
+	}
 
-btCollisionAlgorithmCreateFunc* btDefaultCollisionConfiguration::getCompoundCollisionCreateFunc()
-{
-	return m_compoundCreateFunc;
-}
+	if ((proxyType0 == SPHERE_SHAPE_PROXYTYPE) && (proxyType1==BOX_SHAPE_PROXYTYPE))
+	{
+		return	m_sphereBoxCF;
+	}
 
-btCollisionAlgorithmCreateFunc* btDefaultCollisionConfiguration::getSwappedCompoundCollisionCreateFunc()
-{
-	return m_swappedCompoundCreateFunc;
-}
+	if ((proxyType0 == BOX_SHAPE_PROXYTYPE ) && (proxyType1==SPHERE_SHAPE_PROXYTYPE))
+	{
+		return	m_boxSphereCF;
+	}
 
-btCollisionAlgorithmCreateFunc* btDefaultCollisionConfiguration::getEmptyCollisionCreateFunc()
-{
+	if (btBroadphaseProxy::isConvex(proxyType0) && btBroadphaseProxy::isConvex(proxyType1))
+	{
+		return m_convexConvexCreateFunc;
+	}
+
+	if (btBroadphaseProxy::isConvex(proxyType0) && btBroadphaseProxy::isConcave(proxyType1))
+	{
+		return m_convexConcaveCreateFunc;
+	}
+
+	if (btBroadphaseProxy::isConvex(proxyType1) && btBroadphaseProxy::isConcave(proxyType0))
+	{
+		return m_swappedConvexConcaveCreateFunc;
+	}
+
+	if (btBroadphaseProxy::isCompound(proxyType0))
+	{
+		return m_compoundCreateFunc;
+	} else
+	{
+		if (btBroadphaseProxy::isCompound(proxyType1))
+		{
+			return m_swappedCompoundCreateFunc;
+		}
+	}
+
+	//failed to find an algorithm
 	return m_emptyCreateFunc;
 }

@@ -76,7 +76,7 @@ btBroadphaseProxy*	btMultiSapBroadphase::createProxy(  const btVector3& aabbMin,
 	return proxy;
 }
 
-void	btMultiSapBroadphase::destroyProxy(btBroadphaseProxy* proxy)
+void	btMultiSapBroadphase::destroyProxy(btBroadphaseProxy* proxy,btDispatcher* dispatcher)
 {
 	///not yet
 	btAssert(0);
@@ -97,9 +97,9 @@ void	btMultiSapBroadphase::setAabb(btBroadphaseProxy* proxy,const btVector3& aab
 }
 	
 	///calculateOverlappingPairs is optional: incremental algorithms (sweep and prune) might do it during the set aabb
-void	btMultiSapBroadphase::calculateOverlappingPairs()
+void	btMultiSapBroadphase::calculateOverlappingPairs(btDispatcher* dispatcher)
 {
-	m_simpleBroadphase->calculateOverlappingPairs();
+	m_simpleBroadphase->calculateOverlappingPairs(dispatcher);
 
 	btBroadphasePairArray&	overlappingPairArray = m_overlappingPairs->getOverlappingPairArray();
 
@@ -149,7 +149,7 @@ void	btMultiSapBroadphase::calculateOverlappingPairs()
 		
 		if (needsRemoval)
 		{
-			m_overlappingPairs->cleanOverlappingPair(pair);
+			m_overlappingPairs->cleanOverlappingPair(pair,dispatcher);
 
 	//		m_overlappingPairArray.swap(i,m_overlappingPairArray.size()-1);
 	//		m_overlappingPairArray.pop_back();
