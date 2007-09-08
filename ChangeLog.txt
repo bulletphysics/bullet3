@@ -7,7 +7,8 @@ Primary author and maintainer: Erwin Coumans
 	Thanks to Phil Knight. Also see www.cellperformance.com for related articles
 	- Collision algorithms and settings for the memory/stack allocator can be done using btDefaultCollisionConfiguration
 	This is an API change. See demos how to modify existing implementations with a one-liner.
-
+	- Register several collision algorithms by default (sphere-sphere, sphere-box, sphere-triangle)
+	- Use other traveral method for BVH by default, this improves triangle mesh collision performance.
 	
 2007 Aug 31
 	- fixed MSVC 6 build
