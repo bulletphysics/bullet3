@@ -22,6 +22,7 @@ subject to the following restrictions:
 #include "BulletCollision/CollisionDispatch/btCompoundCollisionAlgorithm.h"
 #include "BulletCollision/CollisionDispatch/btSphereSphereCollisionAlgorithm.h"
 #include "BulletCollision/CollisionDispatch/btSphereBoxCollisionAlgorithm.h"
+#include "BulletCollision/CollisionDispatch/btSphereTriangleCollisionAlgorithm.h"
 
 btDefaultCollisionConfiguration::btDefaultCollisionConfiguration()
 :m_persistentManifoldPoolSize(16384),
@@ -42,6 +43,10 @@ m_collisionAlgorithmMaxElementSize(0)
 	m_boxSphereCF = new btSphereBoxCollisionAlgorithm::CreateFunc;
 	m_boxSphereCF->m_swapped = true;
 	
+	m_sphereTriangleCF = new btSphereTriangleCollisionAlgorithm::CreateFunc;
+	m_triangleSphereCF = new btSphereTriangleCollisionAlgorithm::CreateFunc;
+	m_triangleSphereCF->m_swapped = true;
+
 
 	///calculate maximum element size, big enough to fit any collision algorithm in the memory pool
 	int maxSize = sizeof(btConvexConvexAlgorithm);
@@ -66,6 +71,9 @@ btDefaultCollisionConfiguration::~btDefaultCollisionConfiguration()
 	delete m_sphereSphereCF;
 	delete m_sphereBoxCF;
 	delete m_boxSphereCF;
+	delete m_sphereTriangleCF;
+	delete m_triangleSphereCF;
+
 
 }
 
@@ -110,6 +118,17 @@ btCollisionAlgorithmCreateFunc* btDefaultCollisionConfiguration::getCollisionAlg
 	{
 		return	m_boxSphereCF;
 	}
+
+	if ((proxyType0 == SPHERE_SHAPE_PROXYTYPE ) && (proxyType1==TRIANGLE_SHAPE_PROXYTYPE))
+	{
+		return	m_sphereTriangleCF;
+	}
+
+	if ((proxyType0 == TRIANGLE_SHAPE_PROXYTYPE  ) && (proxyType1==SPHERE_SHAPE_PROXYTYPE))
+	{
+		return	m_triangleSphereCF;
+	}
+	
 
 	if (btBroadphaseProxy::isConvex(proxyType0) && btBroadphaseProxy::isConvex(proxyType1))
 	{

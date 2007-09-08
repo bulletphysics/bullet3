@@ -334,6 +334,9 @@
 				RelativePath="..\..\src\BulletCollision\CollisionDispatch\btConvexConvexAlgorithm.cpp">
 			</File>
 			<File
+				RelativePath="..\..\src\BulletCollision\CollisionDispatch\btDefaultCollisionConfiguration.cpp">
+			</File>
+			<File
 				RelativePath="..\..\src\BulletCollision\CollisionDispatch\btEmptyCollisionAlgorithm.cpp">
 			</File>
 			<File
@@ -503,6 +506,9 @@
 				RelativePath="..\..\src\BulletCollision\BroadphaseCollision\btSimpleBroadphase.h">
 			</File>
 			<File
+				RelativePath="..\..\src\BulletCollision\CollisionDispatch\btCollisionConfiguration.h">
+			</File>
+			<File
 				RelativePath="..\..\src\BulletCollision\CollisionDispatch\btCollisionCreateFunc.h">
 			</File>
 			<File
@@ -522,6 +528,9 @@
 			</File>
 			<File
 				RelativePath="..\..\src\BulletCollision\CollisionDispatch\btConvexConvexAlgorithm.h">
+			</File>
+			<File
+				RelativePath="..\..\src\BulletCollision\CollisionDispatch\btDefaultCollisionConfiguration.h">
 			</File>
 			<File
 				RelativePath="..\..\src\BulletCollision\CollisionDispatch\btEmptyCollisionAlgorithm.h">

@@ -1,6 +1,14 @@
 Bullet Continuous Collision Detection and Physics Library
 Primary author and maintainer: Erwin Coumans
 
+2007 Sept 7
+	- Replaced several dynamic memory allocations by stack allocation and pool allocations
+	- Added branch-free quantized aabb bounding box overlap check, works better on Playstation 3 and XBox 360
+	Thanks to Phil Knight. Also see www.cellperformance.com for related articles
+	- Collision algorithms and settings for the memory/stack allocator can be done using btDefaultCollisionConfiguration
+	This is an API change. See demos how to modify existing implementations with a one-liner.
+
+	
 2007 Aug 31
 	- fixed MSVC 6 build
 	Thanks Proctoid, http://www.continuousphysics.com/Bullet/phpBB2/viewtopic.php?t=1375

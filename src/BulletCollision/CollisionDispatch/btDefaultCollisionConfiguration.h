@@ -42,6 +42,8 @@ class	btDefaultCollisionConfiguration : public btCollisionConfiguration
 	btCollisionAlgorithmCreateFunc* m_sphereSphereCF;
 	btCollisionAlgorithmCreateFunc* m_sphereBoxCF;
 	btCollisionAlgorithmCreateFunc* m_boxSphereCF;
+	btCollisionAlgorithmCreateFunc*	m_sphereTriangleCF;
+	btCollisionAlgorithmCreateFunc*	m_triangleSphereCF;
 
 public:
 
