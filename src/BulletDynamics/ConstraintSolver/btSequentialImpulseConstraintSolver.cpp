@@ -350,8 +350,8 @@ btScalar btSequentialImpulseConstraintSolver::solveGroupCacheFriendly(btCollisio
 	BEGIN_PROFILE("refreshManifolds");
 
 	int numActiveBodies = 0;
-
-	for (int i=0;i<numBodies;i++)
+	int i;
+	for (i=0;i<numBodies;i++)
 	{
 		btRigidBody* rb = btRigidBody::upcast(bodies[i]);
 		if (rb && 	(rb->getIslandTag() >= 0))
@@ -363,7 +363,6 @@ btScalar btSequentialImpulseConstraintSolver::solveGroupCacheFriendly(btCollisio
 	int numActiveManifolds = 0;
 	int totalContacts = 0;
 
-	int i;
 	for (i=0;i<numManifolds;i++)
 	{
 		btPersistentManifold* manifold = manifoldPtr[i];

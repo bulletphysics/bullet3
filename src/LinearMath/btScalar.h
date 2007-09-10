@@ -281,10 +281,8 @@ SIMD_FORCE_INLINE float btUnswapEndianFloat(unsigned int a)
 
 
 // swap using char pointers
-SIMD_FORCE_INLINE unsigned long long  btSwapEndianDouble(double d)
+SIMD_FORCE_INLINE void  btSwapEndianDouble(double d, unsigned char* dst)
 {
-    unsigned long long a;
-    unsigned char *dst = (unsigned char *)&a;
     unsigned char *src = (unsigned char *)&d;
 
     dst[0] = src[7];
@@ -296,14 +294,12 @@ SIMD_FORCE_INLINE unsigned long long  btSwapEndianDouble(double d)
     dst[6] = src[1];
     dst[7] = src[0];
 
-    return a;
 }
 
 // unswap using char pointers
-SIMD_FORCE_INLINE double btUnswapEndianDouble(unsigned long long a) 
+SIMD_FORCE_INLINE double btUnswapEndianDouble(const unsigned char *src) 
 {
     double d;
-    unsigned char *src = (unsigned char *)&a;
     unsigned char *dst = (unsigned char *)&d;
 
     dst[0] = src[7];
@@ -315,7 +311,7 @@ SIMD_FORCE_INLINE double btUnswapEndianDouble(unsigned long long a)
     dst[6] = src[1];
     dst[7] = src[0];
 
-    return d;
+	return d;
 }
 
 

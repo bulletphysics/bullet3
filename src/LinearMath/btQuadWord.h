@@ -23,10 +23,10 @@ class btQuadWordStorage
 {
 protected:
 #ifdef BT_USE_DOUBLE_PRECISION
-	union { btScalar	m_x; unsigned long long int m_intx; unsigned char m_charx[8] ;};
-	union { btScalar	m_y; unsigned long long int m_inty; unsigned char m_chary[8] ; };
-	union { btScalar	m_z; unsigned long long int m_intz; unsigned char m_charz[8] ; };
-	union { btScalar	m_unusedW; unsigned long long int m_intw; unsigned char m_charw[8] ; };
+	union { btScalar	m_x;  unsigned char m_charx[8] ;};
+	union { btScalar	m_y;  unsigned char m_chary[8] ; };
+	union { btScalar	m_z;  unsigned char m_charz[8] ; };
+	union { btScalar	m_unusedW;  unsigned char m_charw[8] ; };
 #else
 	union { btScalar	m_x; unsigned int m_intx; unsigned char m_charx[4] ;};
 	union { btScalar	m_y; unsigned int m_inty; unsigned char m_chary[4] ; };
@@ -71,39 +71,47 @@ class	btQuadWord : public btQuadWordStorage
 		SIMD_FORCE_INLINE	operator const btScalar *() const { return &m_x; }
 
 #ifdef BT_USE_DOUBLE_PRECISION
-		SIMD_FORCE_INLINE unsigned long long int getLongIntXValue() const
+		SIMD_FORCE_INLINE const unsigned char* getLongIntXValue() const
 		{
-			return m_intx;
+			return &m_charx[0];
 		}
-		SIMD_FORCE_INLINE unsigned long long int getLongIntYValue() const
+		SIMD_FORCE_INLINE const unsigned char* getLongIntYValue() const
 		{
-			return m_inty;
+			return &m_chary[0];;
 		}
-		SIMD_FORCE_INLINE unsigned long long int getLongIntZValue() const
+		SIMD_FORCE_INLINE const unsigned char* getLongIntZValue() const
 		{
-			return m_intz;
+			return &m_charz[0];;
 		}
-		SIMD_FORCE_INLINE unsigned long long int getLongIntWValue() const
+		SIMD_FORCE_INLINE const unsigned char* getLongIntWValue() const
 		{
-			return m_intw;
+			return &m_charw[0];;
 		}
-		SIMD_FORCE_INLINE void 	setXValueByLongInt(unsigned long long int intval)
+		SIMD_FORCE_INLINE void 	setXValueByLongInt(unsigned char* intval)
 		{
-			m_intx = intval;
-		}
-
-		SIMD_FORCE_INLINE void 	setYValueByLongInt(unsigned long long int intval)
-		{
-			m_inty = intval;
+			int i;
+			for (i=0;i<8;i++)
+				m_charx[i] = intval[i];
 		}
 
-		SIMD_FORCE_INLINE void 	setZValueByLongInt(unsigned long long int intval)
+		SIMD_FORCE_INLINE void 	setYValueByLongInt(unsigned char* intval)
 		{
-			m_intz = intval;
+			int i;
+			for (i=0;i<8;i++)
+				m_chary[i] = intval[i];
 		}
-		SIMD_FORCE_INLINE void 	setWValueByLongInt(unsigned long long int intval)
+
+		SIMD_FORCE_INLINE void 	setZValueByLongInt(unsigned char* intval)
 		{
-			m_intz = intval;
+			int i;
+			for (i=0;i<8;i++)
+				m_charz[i] = intval[i];
+		}
+		SIMD_FORCE_INLINE void 	setWValueByLongInt(unsigned char* intval)
+		{
+			int i;
+			for (i=0;i<8;i++)
+				m_charw[i] = intval[i];
 		}
 #else
 		SIMD_FORCE_INLINE unsigned int getIntXValue() const

@@ -408,14 +408,14 @@ public:
 SIMD_FORCE_INLINE void	btSwapVector3Endian(const btVector3& source, btVector3& dest)
 {
 #ifdef BT_USE_DOUBLE_PRECISION
-	unsigned long long int tmp;
-	tmp = btSwapDouble(source.getX());
+	unsigned char tmp[8];
+	btSwapEndianDouble(source.getX(),tmp);
 	dest.setXValueByLongInt(tmp);
-	tmp = btSwapDouble(source.getY());
+	btSwapEndianDouble(source.getY(),tmp);
 	dest.setYValueByLongInt(tmp);
-	tmp = btSwapDouble(source.getZ());
+	btSwapEndianDouble(source.getZ(),tmp);
 	dest.setZValueByLongInt(tmp);
-	tmp = btSwapDouble(source[3]);
+	btSwapEndianDouble(source[3],tmp);
 	dest.setWValueByLongInt(tmp);
 #else
 	unsigned int tmp;
@@ -433,15 +433,15 @@ SIMD_FORCE_INLINE void	btSwapVector3Endian(const btVector3& source, btVector3& d
 SIMD_FORCE_INLINE void	btUnSwapVector3Endian(btVector3& vector)
 {
 #ifdef BT_USE_DOUBLE_PRECISION
-	unsigned long long int tmp;
+	const unsigned char* tmp;
 	tmp = vector.getLongIntXValue();
-	vector.setX( btUnswapDouble(tmp));
+	vector.setX( btUnswapEndianDouble(tmp));
 	tmp = vector.getLongIntYValue();
-	vector.setY( btUnswapDouble(tmp));
+	vector.setY( btUnswapEndianDouble(tmp));
 	tmp = vector.getLongIntZValue();
-	vector.setZ( btUnswapDouble(tmp));
+	vector.setZ( btUnswapEndianDouble(tmp));
 	tmp = vector.getLongIntWValue();
-	vector[3] = btUnswapDouble(tmp);
+	vector[3] = btUnswapEndianDouble(tmp);
 #else
 	unsigned int tmp;
 	tmp = vector.getIntXValue();
