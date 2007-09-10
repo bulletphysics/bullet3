@@ -22,7 +22,7 @@
 #include <assert.h>
 
 btAxisSweep3::btAxisSweep3(const btPoint3& worldAabbMin,const btPoint3& worldAabbMax, unsigned short int maxHandles, btOverlappingPairCache* pairCache)
-:btAxisSweep3Internal(worldAabbMin,worldAabbMax,0xfffe,0xffff,maxHandles,pairCache)
+:btAxisSweep3Internal<unsigned short int>(worldAabbMin,worldAabbMax,0xfffe,0xffff,maxHandles,pairCache)
 {
 	// 1 handle is reserved as sentinel
 	btAssert(maxHandles > 1 && maxHandles < 32767);
@@ -31,7 +31,7 @@ btAxisSweep3::btAxisSweep3(const btPoint3& worldAabbMin,const btPoint3& worldAab
 
 
 bt32BitAxisSweep3::bt32BitAxisSweep3(const btPoint3& worldAabbMin,const btPoint3& worldAabbMax, unsigned int maxHandles , btOverlappingPairCache* pairCache )
-:btAxisSweep3Internal(worldAabbMin,worldAabbMax,0xfffffffe,0x7fffffff,maxHandles,pairCache)
+:btAxisSweep3Internal<unsigned int>(worldAabbMin,worldAabbMax,0xfffffffe,0x7fffffff,maxHandles,pairCache)
 {
 	// 1 handle is reserved as sentinel
 	btAssert(maxHandles > 1 && maxHandles < 2147483647);

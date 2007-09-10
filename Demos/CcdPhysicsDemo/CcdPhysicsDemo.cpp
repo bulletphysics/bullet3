@@ -14,8 +14,8 @@ subject to the following restrictions:
 */
 
 //enable just one, DO_BENCHMARK_PYRAMIDS or DO_WALL
-#define DO_BENCHMARK_PYRAMIDS 1
-//#define DO_WALL 1
+//#define DO_BENCHMARK_PYRAMIDS 1
+#define DO_WALL 1
 
 //Note: some of those settings need 'DO_WALL' demo
 //#define USE_KINEMATIC_GROUND 1
