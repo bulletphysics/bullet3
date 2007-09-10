@@ -232,6 +232,10 @@ SOURCE=..\..\src\LinearMath\btPoint3.h
 # End Source File
 # Begin Source File
 
+SOURCE=..\..\src\LinearMath\btPoolAllocator.h
+# End Source File
+# Begin Source File
+
 SOURCE=..\..\src\LinearMath\btQuadWord.h
 # End Source File
 # Begin Source File
