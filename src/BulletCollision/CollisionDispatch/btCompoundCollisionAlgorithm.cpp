@@ -19,7 +19,8 @@ subject to the following restrictions:
 
 
 btCompoundCollisionAlgorithm::btCompoundCollisionAlgorithm( const btCollisionAlgorithmConstructionInfo& ci,btCollisionObject* body0,btCollisionObject* body1,bool isSwapped)
-:m_isSwapped(isSwapped)
+:btCollisionAlgorithm(ci),
+m_isSwapped(isSwapped)
 {
 	btCollisionObject* colObj = m_isSwapped? body1 : body0;
 	btCollisionObject* otherObj = m_isSwapped? body0 : body1;

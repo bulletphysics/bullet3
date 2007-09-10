@@ -111,8 +111,8 @@ int main(int argc,char** argv)
 }
 
 
-	const int NUM_VERTS_X = 50;
-	const int NUM_VERTS_Y = 50;
+	const int NUM_VERTS_X = 30;
+	const int NUM_VERTS_Y = 30;
 	const int totalVerts = NUM_VERTS_X*NUM_VERTS_Y;
 
 void	ConcaveDemo::setVertexPositions(float waveheight, float offset)
@@ -191,8 +191,50 @@ void	ConcaveDemo::initPhysics()
 		totalVerts,(btScalar*) &gVertices[0].x(),vertStride);
 
 	bool useQuantizedAabbCompression = true;
-	trimeshShape  = new btBvhTriangleMeshShape(indexVertexArrays,useQuantizedAabbCompression);
 
+#define SERIALIZE_TO_DISK 1
+#ifdef SERIALIZE_TO_DISK
+	trimeshShape  = new btBvhTriangleMeshShape(indexVertexArrays,useQuantizedAabbCompression);
+	
+	///we can serialize the BVH data 
+	void* buffer = 0;
+	int numBytes = trimeshShape->getOptimizedBvh()->calculateSerializeBufferSize();
+	buffer = btAlignedAlloc(numBytes,16);
+	bool swapEndian = true;
+	trimeshShape->getOptimizedBvh()->serialize(buffer,numBytes,swapEndian);
+	FILE* file = fopen("bvh.bin","wb");
+	fwrite(buffer,1,numBytes,file);
+	fclose(file);
+
+#else
+
+	trimeshShape  = new btBvhTriangleMeshShape(indexVertexArrays,useQuantizedAabbCompression,false);
+
+	char* fileName = "bvh.bin";
+
+	FILE* file = fopen(fileName,"rb");
+	int size=0;
+	btOptimizedBvh* bvh = 0;
+
+	if (fseek(file, 0, SEEK_END) || (size = ftell(file)) == EOF || fseek(file, 0, SEEK_SET)) {        /* File operations denied? ok, just close and return failure */
+		printf("Error: cannot get filesize from %s\n", fileName);
+		exit(0);
+	} else
+	{
+
+		fseek(file, 0, SEEK_SET);
+
+		void* buffer = btAlignedAlloc(size,16);
+		memset(buffer,0xcc,size);
+		int read = fread(buffer,1,size,file);
+		fclose(file);
+		bool swapEndian = true;
+		bvh = btOptimizedBvh::deSerializeInPlace(buffer,size,swapEndian);
+	}
+
+	trimeshShape->setOptimizedBvh(bvh);
+
+#endif
 
 //	btCollisionShape* groundShape = new btBoxShape(btVector3(50,3,50));
 

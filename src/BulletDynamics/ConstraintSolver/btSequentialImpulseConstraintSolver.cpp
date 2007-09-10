@@ -27,8 +27,7 @@ subject to the following restrictions:
 #include <new>
 #include "LinearMath/btStackAlloc.h"
 #include "LinearMath/btQuickprof.h"
-#include "btSolverBody.h"
-#include "btSolverConstraint.h"
+
 #include "BulletCollision/BroadphaseCollision/btDispatcher.h"
 #include "LinearMath/btAlignedObjectArray.h"
 
@@ -392,19 +391,41 @@ btScalar btSequentialImpulseConstraintSolver::solveGroupCacheFriendly(btCollisio
 
 
 	int tmpSolverBodyPoolSize = 0;
-	int mem1 = sizeof(btSolverBody) * numActiveBodies;
-	btSolverBody* tmpSolverBodyPool = (btSolverBody*) stackAlloc->allocate(sizeof(btSolverBody) * numActiveBodies*2);
+	int memNeeded = sizeof(btSolverBody) * numActiveBodies*2;
+	btSolverBody* tmpSolverBodyPool = 0;		
+	if (memNeeded < stackAlloc->getAvailableMemory())
+	{
+		tmpSolverBodyPool = (btSolverBody*) stackAlloc->allocate(memNeeded);
+	} else
+	{
+		m_solverBodyPool.resize(numActiveBodies*2);
+		tmpSolverBodyPool = &m_solverBodyPool[0];
+	}
 	int tmpSolverConstraintPoolSize = 0;
-	int mem2 = sizeof(btSolverConstraint)*numActiveManifolds;
+	int mem2Needed = sizeof(btSolverConstraint)*totalContacts;
 
-	btSolverConstraint* tmpSolverConstraintPool = (btSolverConstraint*) stackAlloc->allocate(sizeof(btSolverConstraint)*totalContacts);
+	btSolverConstraint* tmpSolverConstraintPool = 0;
+	if (mem2Needed < stackAlloc->getAvailableMemory())
+	{
+		tmpSolverConstraintPool = (btSolverConstraint*) stackAlloc->allocate(sizeof(btSolverConstraint)*totalContacts);
+	} else
+	{
+		m_solverConstraintPool.resize(totalContacts);
+		tmpSolverConstraintPool = &m_solverConstraintPool[0];
+	}
 
 	int tmpSolverFrictionConstraintPoolSize = 0;
-	btSolverConstraint*	tmpSolverFrictionConstraintPool = (btSolverConstraint*) stackAlloc->allocate(sizeof(btSolverConstraint)*totalContacts*2);
+	int mem3Needed = sizeof(btSolverConstraint)*totalContacts*2;
+	btSolverConstraint*	tmpSolverFrictionConstraintPool = 0;
 
-	//int sizeofSB = sizeof(btSolverBody);
-	//int sizeofSC = sizeof(btSolverConstraint);
-
+	if (mem3Needed < stackAlloc->getAvailableMemory())
+	{
+		tmpSolverFrictionConstraintPool	= (btSolverConstraint*) stackAlloc->allocate(mem3Needed);
+	} else
+	{
+		m_solverFrictionConstraintPool.resize(totalContacts*2);
+		tmpSolverFrictionConstraintPool = &m_solverFrictionConstraintPool[0];
+	}
 
 	//if (1)
 	{
@@ -654,9 +675,33 @@ btScalar btSequentialImpulseConstraintSolver::solveGroupCacheFriendly(btCollisio
 	///use the stack allocator for temporarily memory
 	
 	int gOrderTmpConstraintPoolSize = numConstraintPool;
-	int*	gOrderTmpConstraintPool = (int*) stackAlloc->allocate(sizeof(int)*numConstraintPool);
+
+	int mem4Needed = sizeof(int)*numConstraintPool;
+
+	int*	gOrderTmpConstraintPool = 0;
+	if (mem4Needed < stackAlloc->getAvailableMemory())
+	{
+		gOrderTmpConstraintPool = (int*) stackAlloc->allocate(mem4Needed);
+	} else
+	{
+		m_constraintOrder.resize(numConstraintPool);
+		gOrderTmpConstraintPool =	&m_constraintOrder[0];
+	}
+
 	int gOrderFrictionConstraintPoolSize = numFrictionPool;
-	int*	gOrderFrictionConstraintPool = (int*) stackAlloc->allocate(sizeof(int)*numFrictionPool);
+	int mem5Needed = sizeof(int)*numFrictionPool;
+
+		int*	gOrderFrictionConstraintPool =0;
+
+	if (mem5Needed < stackAlloc->getAvailableMemory())
+	{
+		gOrderFrictionConstraintPool = (int*) stackAlloc->allocate(mem5Needed);
+	}
+	else
+	{
+		m_frictionConstraintOrder.resize(numFrictionPool);
+		gOrderFrictionConstraintPool = &m_frictionConstraintOrder[0];
+	}
 
 	{
 		int i;

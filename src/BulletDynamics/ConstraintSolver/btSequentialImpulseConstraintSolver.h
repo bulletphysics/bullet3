@@ -19,7 +19,9 @@ subject to the following restrictions:
 #include "btConstraintSolver.h"
 class btIDebugDraw;
 #include "btContactConstraint.h"
-	
+
+#include "btSolverBody.h"
+#include "btSolverConstraint.h"
 
 
 /// btSequentialImpulseConstraintSolver uses a Propagation Method and Sequentially applies impulses
@@ -28,6 +30,14 @@ class btIDebugDraw;
 /// Applies impulses for combined restitution and penetration recovery and to simulate friction
 class btSequentialImpulseConstraintSolver : public btConstraintSolver
 {
+
+	btAlignedObjectArray<btSolverBody> m_solverBodyPool;
+	btAlignedObjectArray<btSolverConstraint> m_solverConstraintPool;
+	btAlignedObjectArray<btSolverConstraint> m_solverFrictionConstraintPool;
+
+	btAlignedObjectArray<int>	m_constraintOrder;
+	btAlignedObjectArray<int>	m_frictionConstraintOrder;
+
 
 protected:
 	btScalar solve(btRigidBody* body0,btRigidBody* body1, btManifoldPoint& cp, const btContactSolverInfo& info,int iter,btIDebugDraw* debugDrawer);

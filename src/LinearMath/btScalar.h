@@ -24,49 +24,6 @@ subject to the following restrictions:
 #include <float.h>
 
 
-#ifdef WIN32
-
-//added __cdecl, thanks Jack
-
-// default new and delete overrides that guarantee 16 byte alignment and zero allocated memory
-void* __cdecl operator new(size_t sz) throw();
-void* __cdecl operator new[](size_t sz) throw();
-void __cdecl operator delete(void* m) throw();
-void __cdecl operator delete[](void* m) throw();
-
-#include <malloc.h>
-#include <stdio.h>
-#define BULLET_ALIGNED_NEW_AND_DELETE \
-\
-inline void* operator new(size_t sz) throw()	\
-{												\
-	printf("new %d\n",sz);						\
-	void* mem = _aligned_malloc(sz + 64, 16);	\
-	return mem;									\
-}												\
-												\
-inline void* operator new[](size_t sz) throw()	\
-{												\
-	printf("new[] %d\n",sz);					\
-	void* mem = _aligned_malloc(sz + 64, 16);	\
-	return mem;									\
-}												\
-												\
-inline void operator delete(void* m) throw()	\
-{					\
-printf("delete %x\n",m);						\
-	if (m == 0)									\
-		return;									\
-	_aligned_free(m);							\
-}												\
-												\
-inline void operator delete[](void* m) throw()	\
-{												\
-	printf("delete[] %x\n",m); \
-_aligned_free(m);							\
-}												\
-
-#endif
 
 #ifdef WIN32
 
@@ -227,6 +184,18 @@ SIMD_FORCE_INLINE btScalar btFsel(btScalar a, btScalar b, btScalar c)
 #define btFsels(a,b,c) (btScalar)btFsel(a,b,c)
 
 
+SIMD_FORCE_INLINE bool btMachineIsLittleEndian()
+{
+   long int i = 1;
+   const char *p = (const char *) &i;
+   if (p[0] == 1)  // Lowest address contains the least significant byte
+	   return true;
+   else
+	   return false;
+}
+
+
+
 ///btSelect avoids branches, which makes performance much better for consoles like Playstation 3 and XBox 360
 ///Thanks Phil Knight. See also http://www.cellperformance.com/articles/2006/04/more_techniques_for_eliminatin_1.html
 SIMD_FORCE_INLINE unsigned btSelect(unsigned condition, unsigned valueIfConditionNonZero, unsigned valueIfConditionZero) 
@@ -252,6 +221,101 @@ SIMD_FORCE_INLINE float btSelect(unsigned condition, float valueIfConditionNonZe
 #else
     return (condition != 0) ? valueIfConditionNonZero : valueIfConditionZero; 
 #endif
+}
+
+
+//PCK: endian swapping functions
+SIMD_FORCE_INLINE unsigned btSwapEndian(unsigned val)
+{
+	return (((val & 0xff000000) >> 24) | ((val & 0x00ff0000) >> 8) | ((val & 0x0000ff00) << 8)  | ((val & 0x000000ff) << 24));
+}
+
+SIMD_FORCE_INLINE unsigned short btSwapEndian(unsigned short val)
+{
+	return (((val & 0xff00) >> 8) | ((val & 0x00ff) << 8));
+}
+
+SIMD_FORCE_INLINE unsigned btSwapEndian(int val)
+{
+	return btSwapEndian((unsigned)val);
+}
+
+SIMD_FORCE_INLINE unsigned short btSwapEndian(short val)
+{
+	return btSwapEndian((unsigned short) val);
+}
+
+///btSwapFloat uses using char pointers to swap the endianness
+////btSwapFloat/btSwapDouble will NOT return a float, because the machine might 'correct' invalid floating point values
+///Not all values of sign/exponent/mantissa are valid floating point numbers according to IEEE 754. 
+///When a floating point unit is faced with an invalid value, it may actually change the value, or worse, throw an exception. 
+///In most systems, running user mode code, you wouldn't get an exception, but instead the hardware/os/runtime will 'fix' the number for you. 
+///so instead of returning a float/double, we return integer/long long integer
+SIMD_FORCE_INLINE unsigned int  btSwapEndianFloat(float d)
+{
+    unsigned int a;
+    unsigned char *dst = (unsigned char *)&a;
+    unsigned char *src = (unsigned char *)&d;
+
+    dst[0] = src[3];
+    dst[1] = src[2];
+    dst[2] = src[1];
+    dst[3] = src[0];
+    return a;
+}
+
+// unswap using char pointers
+SIMD_FORCE_INLINE float btUnswapEndianFloat(unsigned int a) 
+{
+    float d;
+    unsigned char *src = (unsigned char *)&a;
+    unsigned char *dst = (unsigned char *)&d;
+
+    dst[0] = src[3];
+    dst[1] = src[2];
+    dst[2] = src[1];
+    dst[3] = src[0];
+
+    return d;
+}
+
+
+// swap using char pointers
+SIMD_FORCE_INLINE unsigned long long  btSwapEndianDouble(double d)
+{
+    unsigned long long a;
+    unsigned char *dst = (unsigned char *)&a;
+    unsigned char *src = (unsigned char *)&d;
+
+    dst[0] = src[7];
+    dst[1] = src[6];
+    dst[2] = src[5];
+    dst[3] = src[4];
+    dst[4] = src[3];
+    dst[5] = src[2];
+    dst[6] = src[1];
+    dst[7] = src[0];
+
+    return a;
+}
+
+// unswap using char pointers
+SIMD_FORCE_INLINE double btUnswapEndianDouble(unsigned long long a) 
+{
+    double d;
+    unsigned char *src = (unsigned char *)&a;
+    unsigned char *dst = (unsigned char *)&d;
+
+    dst[0] = src[7];
+    dst[1] = src[6];
+    dst[2] = src[5];
+    dst[3] = src[4];
+    dst[4] = src[3];
+    dst[5] = src[2];
+    dst[6] = src[1];
+    dst[7] = src[0];
+
+    return d;
 }
 
 

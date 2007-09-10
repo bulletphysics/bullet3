@@ -108,7 +108,7 @@ ATTRIBUTE_ALIGNED16(struct) SpuSolverBody
 
 	btMatrix3x3			m_worldInvInertiaTensor;
 
-	float				m_invertedMass;
+	btScalar				m_invertedMass;
 };
 
 ATTRIBUTE_ALIGNED16(struct) SpuSolverInternalConstraint
@@ -116,13 +116,13 @@ ATTRIBUTE_ALIGNED16(struct) SpuSolverInternalConstraint
 	uint32_t			m_localOffsetBodyA;
 	uint32_t			m_localOffsetBodyB;
 
-	float				m_appliedImpulse;
-	float				m_appliedVelocityImpulse;
+	btScalar				m_appliedImpulse;
+	btScalar				m_appliedVelocityImpulse;
 
-	float				m_friction;
-	float				m_restitution;
-	float				m_jacDiagABInv;
-	float				m_penetration;
+	btScalar				m_friction;
+	btScalar				m_restitution;
+	btScalar				m_jacDiagABInv;
+	btScalar				m_penetration;
 
 	btVector3			m_normal;
 

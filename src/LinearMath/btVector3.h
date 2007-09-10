@@ -403,4 +403,58 @@ public:
 
 };
 
+
+///btSwapVector3Endian swaps vector endianness, useful for network and cross-platform serialization
+SIMD_FORCE_INLINE void	btSwapVector3Endian(const btVector3& source, btVector3& dest)
+{
+#ifdef BT_USE_DOUBLE_PRECISION
+	unsigned long long int tmp;
+	tmp = btSwapDouble(source.getX());
+	dest.setXValueByLongInt(tmp);
+	tmp = btSwapDouble(source.getY());
+	dest.setYValueByLongInt(tmp);
+	tmp = btSwapDouble(source.getZ());
+	dest.setZValueByLongInt(tmp);
+	tmp = btSwapDouble(source[3]);
+	dest.setWValueByLongInt(tmp);
+#else
+	unsigned int tmp;
+	tmp = btSwapEndianFloat(source.getX());
+	dest.setXValueByInt(tmp);
+	tmp = btSwapEndianFloat(source.getY());
+	dest.setYValueByInt(tmp);
+	tmp = btSwapEndianFloat(source.getZ());
+	dest.setZValueByInt(tmp);
+	tmp = btSwapEndianFloat(source[3]);
+	dest.setWValueByInt(tmp);
+#endif //BT_USE_DOUBLE_PRECISION
+}
+///btUnSwapVector3Endian swaps vector endianness, useful for network and cross-platform serialization
+SIMD_FORCE_INLINE void	btUnSwapVector3Endian(btVector3& vector)
+{
+#ifdef BT_USE_DOUBLE_PRECISION
+	unsigned long long int tmp;
+	tmp = vector.getLongIntXValue();
+	vector.setX( btUnswapDouble(tmp));
+	tmp = vector.getLongIntYValue();
+	vector.setY( btUnswapDouble(tmp));
+	tmp = vector.getLongIntZValue();
+	vector.setZ( btUnswapDouble(tmp));
+	tmp = vector.getLongIntWValue();
+	vector[3] = btUnswapDouble(tmp);
+#else
+	unsigned int tmp;
+	tmp = vector.getIntXValue();
+	vector.setX( btUnswapEndianFloat(tmp));
+	tmp = vector.getIntYValue();
+	vector.setY( btUnswapEndianFloat(tmp));
+	tmp = vector.getIntZValue();
+	vector.setZ( btUnswapEndianFloat(tmp));
+	tmp = vector.getIntWValue();
+	vector[3] = btUnswapEndianFloat(tmp);
+
+#endif //BT_USE_DOUBLE_PRECISION
+
+}
+
 #endif //SIMD__VECTOR3_H

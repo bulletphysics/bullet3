@@ -55,6 +55,12 @@ public:
 		}
 		
 	}
+
+	int	getAvailableMemory() const
+	{
+		return totalsize - usedsize;
+	}
+
 	unsigned char*			allocate(unsigned int size)
 	{
 		const unsigned int	nus(usedsize+size);

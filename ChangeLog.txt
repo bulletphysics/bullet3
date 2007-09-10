@@ -1,6 +1,15 @@
 Bullet Continuous Collision Detection and Physics Library
 Primary author and maintainer: Erwin Coumans
 
+2007 Sept 9
+	- Added serialization for BVH/btBvhTriangleMeshShape, including endian swapping. See ConcaveDemo for an example.
+	Thanks to Phil Knight for the contribution.
+	- Fixed issues related to stack allocator/compound collision algorithm
+	Thanks Proctoid, http://www.bulletphysics.com/Bullet/phpBB3/viewtopic.php?f=18&t=1460
+	- Increase some default memory pool settings, and added a fallback for the constraints solver to use heap memory
+	- Removed accidential testing code in btScalar.h related to operator new.	
+	- Enable btAxis3Sweep and bt32BitAxis3Sweep to be linked in at the same time, using template
+	
 2007 Sept 7
 	- Replaced several dynamic memory allocations by stack allocation and pool allocations
 	- Added branch-free quantized aabb bounding box overlap check, works better on Playstation 3 and XBox 360

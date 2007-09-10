@@ -24,10 +24,14 @@ subject to the following restrictions:
 #include "BulletCollision/CollisionDispatch/btSphereBoxCollisionAlgorithm.h"
 #include "BulletCollision/CollisionDispatch/btSphereTriangleCollisionAlgorithm.h"
 
+#define DEFAULT_MAX_OVERLAPPING_PAIRS 65535
+#define DEFAULT_STACK_ALLOCATOR_SIZE	(5*1024*1024)
+
+
 btDefaultCollisionConfiguration::btDefaultCollisionConfiguration()
-:m_persistentManifoldPoolSize(16384),
-m_stackAllocatorSize(2*1024*1024),
-m_collisionAlgorithmPoolSize(16384),
+:m_persistentManifoldPoolSize(DEFAULT_MAX_OVERLAPPING_PAIRS),
+m_stackAllocatorSize(DEFAULT_STACK_ALLOCATOR_SIZE),
+m_collisionAlgorithmPoolSize(DEFAULT_MAX_OVERLAPPING_PAIRS),
 m_collisionAlgorithmMaxElementSize(0)
 {
 

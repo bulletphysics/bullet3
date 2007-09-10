@@ -14,8 +14,8 @@ subject to the following restrictions:
 */
 
 //enable just one, DO_BENCHMARK_PYRAMIDS or DO_WALL
-//#define DO_BENCHMARK_PYRAMIDS 1
-#define DO_WALL 1
+#define DO_BENCHMARK_PYRAMIDS 1
+//#define DO_WALL 1
 
 //Note: some of those settings need 'DO_WALL' demo
 //#define USE_KINEMATIC_GROUND 1
@@ -401,7 +401,10 @@ int maxNumOutstandingTasks = 4;//number of maximum outstanding tasks
 	btVector3 worldAabbMax(1000,1000,1000);
 
 	btBroadphaseInterface* broadphase = new btAxisSweep3(worldAabbMin,worldAabbMax,maxProxies);
-//	btOverlappingPairCache* broadphase = new btSimpleBroadphase;
+/// For large worlds or over 16384 objects, use the bt32BitAxisSweep3 broadphase
+//	btBroadphaseInterface* broadphase = new bt32BitAxisSweep3(worldAabbMin,worldAabbMax,maxProxies);
+/// When trying to debug broadphase issues, try to use the btSimpleBroadphase
+//	btBroadphaseInterface* broadphase = new btSimpleBroadphase;
 	
 #ifdef REGISTER_CUSTOM_COLLISION_ALGORITHM
 	dispatcher->registerCollisionCreateFunc(SPHERE_SHAPE_PROXYTYPE,SPHERE_SHAPE_PROXYTYPE,new btSphereSphereCollisionAlgorithm::CreateFunc);
@@ -576,8 +579,8 @@ int maxNumOutstandingTasks = 4;//number of maximum outstanding tasks
 
 	localCreateRigidBody(0.f,trans,shapePtr[shapeIndex[0]]);
 
-	int numWalls = 10;
-	int wallHeight = 10;
+	int numWalls = 15;
+	int wallHeight = 15;
 	float wallDistance = 3;
 
 

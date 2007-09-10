@@ -19,10 +19,11 @@ subject to the following restrictions:
 class	btRigidBody;
 #include "LinearMath/btVector3.h"
 #include "LinearMath/btMatrix3x3.h"
+#include "BulletDynamics/Dynamics/btRigidBody.h"
 
 
 
-
+///btSolverBody is an internal datastructure for the constraint solver. Only necessary data is packed to increase cache coherence/performance.
 ATTRIBUTE_ALIGNED16 (struct)	btSolverBody
 {
 	btVector3		m_centerOfMassPosition;
