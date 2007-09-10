@@ -19,9 +19,7 @@ subject to the following restrictions:
 #include "btConstraintSolver.h"
 class btIDebugDraw;
 #include "btContactConstraint.h"
-
-#include "btSolverBody.h"
-#include "btSolverConstraint.h"
+	
 
 
 /// btSequentialImpulseConstraintSolver uses a Propagation Method and Sequentially applies impulses
@@ -30,14 +28,6 @@ class btIDebugDraw;
 /// Applies impulses for combined restitution and penetration recovery and to simulate friction
 class btSequentialImpulseConstraintSolver : public btConstraintSolver
 {
-
-	btAlignedObjectArray<btSolverBody> m_solverBodyPool;
-	btAlignedObjectArray<btSolverConstraint> m_solverConstraintPool;
-	btAlignedObjectArray<btSolverConstraint> m_solverFrictionConstraintPool;
-
-	btAlignedObjectArray<int>	m_constraintOrder;
-	btAlignedObjectArray<int>	m_frictionConstraintOrder;
-
 
 protected:
 	btScalar solve(btRigidBody* body0,btRigidBody* body1, btManifoldPoint& cp, const btContactSolverInfo& info,int iter,btIDebugDraw* debugDrawer);
@@ -82,7 +72,7 @@ public:
 	
 	virtual btScalar solveGroup(btCollisionObject** bodies,int numBodies,btPersistentManifold** manifold,int numManifolds,btTypedConstraint** constraints,int numConstraints,const btContactSolverInfo& info, btIDebugDraw* debugDrawer, btStackAlloc* stackAlloc,btDispatcher* dispatcher);
 
-	virtual btScalar solveGroupCacheFriendly(btCollisionObject** bodies,int numBodies,btPersistentManifold** manifoldPtr, int numManifolds,btTypedConstraint** constraints,int numConstraints,const btContactSolverInfo& infoGlobal,btIDebugDraw* debugDrawer,btStackAlloc* stackAlloc,btDispatcher* dispatcher);
+	virtual btScalar solveGroupCacheFriendly(btCollisionObject** bodies,int numBodies,btPersistentManifold** manifoldPtr, int numManifolds,btTypedConstraint** constraints,int numConstraints,const btContactSolverInfo& infoGlobal,btIDebugDraw* debugDrawer,btStackAlloc* stackAlloc);
 
 	///clear internal cached data and reset random seed
 	virtual	void	reset();
