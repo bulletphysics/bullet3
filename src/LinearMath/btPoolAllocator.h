@@ -45,6 +45,11 @@ public:
         *(void**)p = 0;
     }
 
+	~btPoolAllocator()
+	{
+		delete m_pool;
+	}
+
 	void*	allocate(int size)
 	{
 		btAssert(!size || size<=m_elemSize);

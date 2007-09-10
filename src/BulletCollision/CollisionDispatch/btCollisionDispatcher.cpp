@@ -41,9 +41,6 @@ btCollisionDispatcher::btCollisionDispatcher (btCollisionConfiguration* collisio
 
 	setNearCallback(defaultNearCallback);
 	
-	
-
-	int maxElements = 16384;
 	m_collisionAlgorithmPoolAllocator = new btPoolAllocator(m_collisionConfiguration->getCollisionAlgorithmMaxElementSize(),m_collisionConfiguration->getCollisionAlgorithmPoolSize());
 
 	m_persistentManifoldPoolAllocator = new btPoolAllocator(sizeof(btPersistentManifold),m_collisionConfiguration->getPersistentManifoldPoolSize());
@@ -68,7 +65,8 @@ void btCollisionDispatcher::registerCollisionCreateFunc(int proxyType0, int prox
 
 btCollisionDispatcher::~btCollisionDispatcher()
 {
-	
+	delete m_collisionAlgorithmPoolAllocator;
+	delete m_persistentManifoldPoolAllocator;
 }
 
 btPersistentManifold*	btCollisionDispatcher::getNewManifold(void* b0,void* b1) 
