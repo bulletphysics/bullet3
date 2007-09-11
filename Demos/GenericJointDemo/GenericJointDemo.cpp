@@ -41,7 +41,7 @@ GLDebugDrawer debugDrawer;
 int main(int argc,char* argv[])
 {
 	GenericJointDemo demoApp;
-	demoApp.configDebugDrawer(&debugDrawer);
+//	demoApp.configDebugDrawer(&debugDrawer);
 
 	demoApp.initPhysics();
 	demoApp.setCameraDistance(btScalar(10.));

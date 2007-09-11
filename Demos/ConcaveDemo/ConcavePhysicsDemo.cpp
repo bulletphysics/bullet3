@@ -192,6 +192,7 @@ void	ConcaveDemo::initPhysics()
 
 	bool useQuantizedAabbCompression = true;
 
+//comment out the next line to read the BVH from disk (first run the demo once to create the BVH)
 #define SERIALIZE_TO_DISK 1
 #ifdef SERIALIZE_TO_DISK
 	trimeshShape  = new btBvhTriangleMeshShape(indexVertexArrays,useQuantizedAabbCompression);
@@ -225,7 +226,7 @@ void	ConcaveDemo::initPhysics()
 		fseek(file, 0, SEEK_SET);
 
 		void* buffer = btAlignedAlloc(size,16);
-		memset(buffer,0xcc,size);
+		//memset(buffer,0xcc,size);
 		int read = fread(buffer,1,size,file);
 		fclose(file);
 		bool swapEndian = true;
