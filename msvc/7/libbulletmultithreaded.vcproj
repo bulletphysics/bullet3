@@ -328,7 +328,13 @@
 				RelativePath="..\..\Extras\BulletMultiThreaded\SpuNarrowPhaseCollisionTask\SpuVoronoiSimplexSolver.cpp">
 			</File>
 			<File
+				RelativePath="..\..\Extras\BulletMultiThreaded\SpuParallelSolver.cpp">
+			</File>
+			<File
 				RelativePath="..\..\Extras\BulletMultiThreaded\SpuSampleTaskProcess.cpp">
+			</File>
+			<File
+				RelativePath="..\..\Extras\BulletMultiThreaded\SpuSolverTask\SpuParallellSolverTask.cpp">
 			</File>
 			<File
 				RelativePath="..\..\Extras\BulletMultiThreaded\Win32ThreadSupport.cpp">
@@ -356,7 +362,13 @@
 				RelativePath="..\..\Extras\BulletMultiThreaded\SpuNarrowPhaseCollisionTask\SpuMinkowskiPenetrationDepthSolver.h">
 			</File>
 			<File
+				RelativePath="..\..\Extras\BulletMultiThreaded\SpuNarrowPhaseCollisionTask\SpuPreferredPenetrationDirections.h">
+			</File>
+			<File
 				RelativePath="..\..\Extras\BulletMultiThreaded\SpuNarrowPhaseCollisionTask\SpuVoronoiSimplexSolver.h">
+			</File>
+			<File
+				RelativePath="..\..\Extras\BulletMultiThreaded\SpuSolverTask\SpuParallellSolverTask.h">
 			</File>
 		</Filter>
 	</Files>

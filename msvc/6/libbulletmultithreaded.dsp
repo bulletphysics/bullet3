@@ -216,7 +216,15 @@ SOURCE=..\..\Extras\BulletMultiThreaded\SpuNarrowPhaseCollisionTask\SpuVoronoiSi
 # End Source File
 # Begin Source File
 
+SOURCE=..\..\Extras\BulletMultiThreaded\SpuParallelSolver.cpp
+# End Source File
+# Begin Source File
+
 SOURCE=..\..\Extras\BulletMultiThreaded\SpuSampleTaskProcess.cpp
+# End Source File
+# Begin Source File
+
+SOURCE=..\..\Extras\BulletMultiThreaded\SpuSolverTask\SpuParallellSolverTask.cpp
 # End Source File
 # Begin Source File
 
@@ -252,7 +260,15 @@ SOURCE=..\..\Extras\BulletMultiThreaded\SpuNarrowPhaseCollisionTask\SpuMinkowski
 # End Source File
 # Begin Source File
 
+SOURCE=..\..\Extras\BulletMultiThreaded\SpuNarrowPhaseCollisionTask\SpuPreferredPenetrationDirections.h
+# End Source File
+# Begin Source File
+
 SOURCE=..\..\Extras\BulletMultiThreaded\SpuNarrowPhaseCollisionTask\SpuVoronoiSimplexSolver.h
+# End Source File
+# Begin Source File
+
+SOURCE=..\..\Extras\BulletMultiThreaded\SpuSolverTask\SpuParallellSolverTask.h
 # End Source File
 # End Group
 # End Target
