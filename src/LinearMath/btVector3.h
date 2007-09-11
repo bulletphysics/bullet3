@@ -405,56 +405,59 @@ public:
 
 
 ///btSwapVector3Endian swaps vector endianness, useful for network and cross-platform serialization
-SIMD_FORCE_INLINE void	btSwapVector3Endian(const btVector3& source, btVector3& dest)
+SIMD_FORCE_INLINE void	btSwapVector3Endian(const btVector3& sourceVec, btVector3& destVec)
 {
 #ifdef BT_USE_DOUBLE_PRECISION
-	unsigned char tmp[8];
-	btSwapEndianDouble(source.getX(),tmp);
-	dest.setXValueByLongInt(tmp);
-	btSwapEndianDouble(source.getY(),tmp);
-	dest.setYValueByLongInt(tmp);
-	btSwapEndianDouble(source.getZ(),tmp);
-	dest.setZValueByLongInt(tmp);
-	btSwapEndianDouble(source[3],tmp);
-	dest.setWValueByLongInt(tmp);
+	unsigned char* dest = (unsigned char*) &destVec;
+	unsigned char* src  = (unsigned char*) &sourceVec;
+	dest[0] = src[7];
+    dest[1] = src[6];
+    dest[2] = src[5];
+    dest[3] = src[4];
+    dest[4] = src[3];
+    dest[5] = src[2];
+    dest[6] = src[1];
+    dest[7] = src[0];
 #else
-	unsigned int tmp;
-	tmp = btSwapEndianFloat(source.getX());
-	dest.setXValueByInt(tmp);
-	tmp = btSwapEndianFloat(source.getY());
-	dest.setYValueByInt(tmp);
-	tmp = btSwapEndianFloat(source.getZ());
-	dest.setZValueByInt(tmp);
-	tmp = btSwapEndianFloat(source[3]);
-	dest.setWValueByInt(tmp);
+	unsigned char* dest = (unsigned char*) &destVec;
+	unsigned char* src  = (unsigned char*) &sourceVec;
+	dest[0] = src[3];
+    dest[1] = src[2];
+    dest[2] = src[1];
+    dest[3] = src[0];
 #endif //BT_USE_DOUBLE_PRECISION
 }
 ///btUnSwapVector3Endian swaps vector endianness, useful for network and cross-platform serialization
 SIMD_FORCE_INLINE void	btUnSwapVector3Endian(btVector3& vector)
 {
+
 #ifdef BT_USE_DOUBLE_PRECISION
-	const unsigned char* tmp;
-	tmp = vector.getLongIntXValue();
-	vector.setX( btUnswapEndianDouble(tmp));
-	tmp = vector.getLongIntYValue();
-	vector.setY( btUnswapEndianDouble(tmp));
-	tmp = vector.getLongIntZValue();
-	vector.setZ( btUnswapEndianDouble(tmp));
-	tmp = vector.getLongIntWValue();
-	vector[3] = btUnswapEndianDouble(tmp);
+	btVector3	swappedVec;
+	unsigned char* dest = (unsigned char*) &swappedVec;
+	unsigned char* src  = (unsigned char*) &vector;
+
+	dest[0] = src[7];
+    dest[1] = src[6];
+    dest[2] = src[5];
+    dest[3] = src[4];
+    dest[4] = src[3];
+    dest[5] = src[2];
+    dest[6] = src[1];
+    dest[7] = src[0];
+
+	vector = swappedVec;
 #else
-	unsigned int tmp;
-	tmp = vector.getIntXValue();
-	vector.setX( btUnswapEndianFloat(tmp));
-	tmp = vector.getIntYValue();
-	vector.setY( btUnswapEndianFloat(tmp));
-	tmp = vector.getIntZValue();
-	vector.setZ( btUnswapEndianFloat(tmp));
-	tmp = vector.getIntWValue();
-	vector[3] = btUnswapEndianFloat(tmp);
+	btVector3	swappedVec;
+	unsigned char* dest = (unsigned char*) &swappedVec;
+	unsigned char* src  = (unsigned char*) &vector;
 
+	dest[0] = src[3];
+    dest[1] = src[2];
+    dest[2] = src[1];
+    dest[3] = src[0];
+
+	vector = swappedVec;
 #endif //BT_USE_DOUBLE_PRECISION
-
 }
 
 #endif //SIMD__VECTOR3_H

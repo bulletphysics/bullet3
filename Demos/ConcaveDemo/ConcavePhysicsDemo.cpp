@@ -239,6 +239,7 @@ void	ConcaveDemo::initPhysics()
 
 //	btCollisionShape* groundShape = new btBoxShape(btVector3(50,3,50));
 
+btDefaultCollisionConfiguration* collisionConfiguration = new btDefaultCollisionConfiguration();
 
 #ifdef USE_PARALLEL_DISPATCHER
 
@@ -258,9 +259,8 @@ void	ConcaveDemo::initPhysics()
 ///you can hook it up to your custom task scheduler by deriving from btThreadSupportInterface
 #endif
 
-	btCollisionDispatcher* dispatcher = new	SpuGatheringCollisionDispatcher(threadSupport,maxNumOutstandingTasks);
+	btCollisionDispatcher* dispatcher = new	SpuGatheringCollisionDispatcher(threadSupport,maxNumOutstandingTasks,collisionConfiguration);
 #else
-		btDefaultCollisionConfiguration* collisionConfiguration = new btDefaultCollisionConfiguration();
 		btCollisionDispatcher* dispatcher = new	btCollisionDispatcher(collisionConfiguration);
 #endif//USE_PARALLEL_DISPATCHER
 
@@ -284,10 +284,10 @@ void	ConcaveDemo::initPhysics()
 	{
 		for (int i=0;i<10;i++)
 		{
-			btCollisionShape* boxShape = new btBoxShape(btVector3(1,1,1));
-			//btCollisionShape* boxShape = new btSphereShape(1.f);
+			//btCollisionShape* colShape = new btBoxShape(btVector3(1,1,1));
+			btCollisionShape* colShape = new btCapsuleShape(0.5,2.0);//boxShape = new btSphereShape(1.f);
 			startTransform.setOrigin(btVector3(2*i,10,1));
-			localCreateRigidBody(1, startTransform,boxShape);
+			localCreateRigidBody(1, startTransform,colShape);
 		}
 	}
 
