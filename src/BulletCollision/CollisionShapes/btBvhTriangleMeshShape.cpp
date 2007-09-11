@@ -177,7 +177,8 @@ void	btBvhTriangleMeshShape::setLocalScaling(const btVector3& scaling)
 	if ((getLocalScaling() -scaling).length2() > SIMD_EPSILON)
 	{
 		btTriangleMeshShape::setLocalScaling(scaling);
-		delete m_bvh;
+		if (m_ownsBvh)
+			delete m_bvh;
 		///m_localAabbMin/m_localAabbMax is already re-calculated in btTriangleMeshShape. We could just scale aabb, but this needs some more work
 		m_bvh = new btOptimizedBvh();
 		//rebuild the bvh...
