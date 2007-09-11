@@ -1,6 +1,12 @@
 Bullet Continuous Collision Detection and Physics Library
 Primary author and maintainer: Erwin Coumans
 
+2007 Sept 10
+	- Reverted constraint solver, due to some issues. Need to review the recent memory allocation changes.
+	- Fixed issue with kinematic objects rotating at low speed: quaternion was de-normalized, passing value > 1 into acosf returns #IND00 invalid values
+	- 16 byte memory alignment for BVH serialization
+	- memory cleanup for btPoolAllocator
+
 2007 Sept 9
 	- Added serialization for BVH/btBvhTriangleMeshShape, including endian swapping. See ConcaveDemo for an example.
 	Thanks to Phil Knight for the contribution.
