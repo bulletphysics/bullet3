@@ -1,0 +1,153 @@
+/*
+Bullet Continuous Collision Detection and Physics Library
+Ragdoll Demo
+Copyright (c) 2007 Starbreeze Studios
+
+This software is provided 'as-is', without any express or implied warranty.
+In no event will the authors be held liable for any damages arising from the use of this software.
+Permission is granted to anyone to use this software for any purpose,
+including commercial applications, and to alter it and redistribute it freely,
+subject to the following restrictions:
+
+1. The origin of this software must not be misrepresented; you must not claim that you wrote the original software. If you use this software in a product, an acknowledgment in the product documentation would be appreciated but is not required.
+2. Altered source versions must be plainly marked as such, and must not be misrepresented as being the original software.
+3. This notice may not be removed or altered from any source distribution.
+
+Originally Written by: Marten Svanfeldt
+ReWritten by: Francisco León
+*/
+
+//#define USE_ODE_QUICKSTEP 1
+
+
+#include "btBulletDynamicsCommon.h"
+#include "GlutStuff.h"
+#include "GL_ShapeDrawer.h"
+
+#include "LinearMath/btIDebugDraw.h"
+
+#include "GLDebugDrawer.h"
+#include "GenericJointDemo.h"
+
+#ifdef USE_ODE_QUICKSTEP
+	#include "OdeConstraintSolver.h"
+#endif
+
+
+GLDebugDrawer debugDrawer;
+
+
+
+int main(int argc,char* argv[])
+{
+	GenericJointDemo demoApp;
+	demoApp.configDebugDrawer(&debugDrawer);
+
+	demoApp.initPhysics();
+	demoApp.setCameraDistance(btScalar(10.));
+
+#ifdef USE_ODE_QUICKSTEP
+	return glutmain(argc, argv,640,480,"Joint 6DOF - ODE QuickStep Solver",&demoApp);
+#else
+	return glutmain(argc, argv,640,480,"Joint 6DOF - Sequencial Impulse Solver",&demoApp);
+#endif
+
+
+}
+
+
+
+void GenericJointDemo::initPhysics()
+{
+	// Setup the basic world
+
+	btDefaultCollisionConfiguration * collision_config = new btDefaultCollisionConfiguration();
+
+	btCollisionDispatcher* dispatcher = new btCollisionDispatcher(collision_config);
+
+	btPoint3 worldAabbMin(-10000,-10000,-10000);
+	btPoint3 worldAabbMax(10000,10000,10000);
+	btBroadphaseInterface* overlappingPairCache = new btAxisSweep3 (worldAabbMin, worldAabbMax);
+
+#ifdef USE_ODE_QUICKSTEP
+	btConstraintSolver* constraintSolver = new OdeConstraintSolver();
+#else
+	btConstraintSolver* constraintSolver = new btSequentialImpulseConstraintSolver;
+#endif
+
+
+
+	m_dynamicsWorld = new btDiscreteDynamicsWorld(dispatcher,overlappingPairCache,constraintSolver);
+
+	m_dynamicsWorld->setGravity(btVector3(0,-30,0));
+
+	m_dynamicsWorld->setDebugDrawer(&debugDrawer);
+
+	// Setup a big ground box
+	{
+		btCollisionShape* groundShape = new btBoxShape(btVector3(btScalar(200.),btScalar(10.),btScalar(200.)));
+		btTransform groundTransform;
+		groundTransform.setIdentity();
+		groundTransform.setOrigin(btVector3(0,-15,0));
+		localCreateRigidBody(btScalar(0.),groundTransform,groundShape);
+	}
+
+	// Spawn one ragdoll
+	spawnRagdoll();
+
+	clientResetScene();
+}
+
+void GenericJointDemo::spawnRagdoll(bool random)
+{
+	RagDoll* ragDoll = new RagDoll (m_dynamicsWorld, btVector3 (0,0,10),5.f);
+	m_ragdolls.push_back(ragDoll);
+}
+
+void GenericJointDemo::clientMoveAndDisplay()
+{
+	glClear(GL_COLOR_BUFFER_BIT | GL_DEPTH_BUFFER_BIT);
+
+	//simple dynamics world doesn't handle fixed-time-stepping
+	float ms = m_clock.getTimeMicroseconds();
+	m_clock.reset();
+	float minFPS = 1000000.f/60.f;
+	if (ms > minFPS)
+		ms = minFPS;
+
+	if (m_dynamicsWorld)
+		m_dynamicsWorld->stepSimulation(ms / 1000000.f);
+
+	renderme();
+
+	glFlush();
+
+	glutSwapBuffers();
+}
+
+void GenericJointDemo::displayCallback()
+{
+	glClear(GL_COLOR_BUFFER_BIT | GL_DEPTH_BUFFER_BIT);
+
+	if (m_dynamicsWorld)
+		m_dynamicsWorld->updateAabbs();
+
+	renderme();
+
+	glFlush();
+	glutSwapBuffers();
+}
+
+void GenericJointDemo::keyboardCallback(unsigned char key, int x, int y)
+{
+	switch (key)
+	{
+	case 'e':
+		spawnRagdoll(true);
+		break;
+	default:
+		DemoApplication::keyboardCallback(key, x, y);
+	}
+
+
+}
