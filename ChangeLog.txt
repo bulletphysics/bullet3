@@ -2,6 +2,9 @@ Bullet Continuous Collision Detection and Physics Library
 Primary author and maintainer: Erwin Coumans
 
 2007 Sept 10
+	- removed union from btQuadWordStorage, it caused issues under certain version of gcc/Linux
+
+2007 Sept 10
 	- Reverted constraint solver, due to some issues. Need to review the recent memory allocation changes.
 	- Fixed issue with kinematic objects rotating at low speed: quaternion was de-normalized, passing value > 1 into acosf returns #IND00 invalid values
 	- 16 byte memory alignment for BVH serialization
