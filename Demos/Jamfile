@@ -47,7 +47,7 @@ SubInclude TOP Demos MovingConcaveDemo ;
 SubInclude TOP Demos ConcaveDemo ;
 SubInclude TOP Demos ConstraintDemo ;
 SubInclude TOP Demos RagdollDemo ;
-#SubInclude TOP Demos GenericJointDemo ;
+SubInclude TOP Demos GenericJointDemo ;
 SubInclude TOP Demos ContinuousConvexCollision ;
 SubInclude TOP Demos GjkConvexCastDemo ;
 SubInclude TOP Demos Raytracer ;
