@@ -53,145 +53,7 @@
 ////////////////////////////////////////////////////////////////////
 //math stuff
 
-typedef btScalar dVector4[4];
-typedef btScalar dMatrix3[4*3];
-#define dInfinity FLT_MAX
-
-
-
-#define dRecip(x) ((float)(1.0f/(x)))				/* reciprocal */
-
-
-
-#define dMULTIPLY0_331NEW(A,op,B,C) \
-{\
-	btScalar tmp[3];\
-	tmp[0] = C.getX();\
-	tmp[1] = C.getY();\
-	tmp[2] = C.getZ();\
-	dMULTIPLYOP0_331(A,op,B,tmp);\
-}
-
-#define dMULTIPLY0_331(A,B,C) dMULTIPLYOP0_331(A,=,B,C)
-#define dMULTIPLYOP0_331(A,op,B,C) \
-  (A)[0] op dDOT1((B),(C)); \
-  (A)[1] op dDOT1((B+4),(C)); \
-  (A)[2] op dDOT1((B+8),(C));
-
-#define dAASSERT btAssert
-#define dIASSERT btAssert
-
-#define REAL float
-#define dDOTpq(a,b,p,q) ((a)[0]*(b)[0] + (a)[p]*(b)[q] + (a)[2*(p)]*(b)[2*(q)])
-btScalar dDOT1  (const btScalar *a, const btScalar *b) { return dDOTpq(a,b,1,1); }
-#define dDOT14(a,b) dDOTpq(a,b,1,4)
-
-#define dCROSS(a,op,b,c) \
-  (a)[0] op ((b)[1]*(c)[2] - (b)[2]*(c)[1]); \
-  (a)[1] op ((b)[2]*(c)[0] - (b)[0]*(c)[2]); \
-  (a)[2] op ((b)[0]*(c)[1] - (b)[1]*(c)[0]);
-
-
-#define dMULTIPLYOP2_333(A,op,B,C) \
-  (A)[0] op dDOT1((B),(C)); \
-  (A)[1] op dDOT1((B),(C+4)); \
-  (A)[2] op dDOT1((B),(C+8)); \
-  (A)[4] op dDOT1((B+4),(C)); \
-  (A)[5] op dDOT1((B+4),(C+4)); \
-  (A)[6] op dDOT1((B+4),(C+8)); \
-  (A)[8] op dDOT1((B+8),(C)); \
-  (A)[9] op dDOT1((B+8),(C+4)); \
-  (A)[10] op dDOT1((B+8),(C+8));
-#define dMULTIPLYOP0_333(A,op,B,C) \
-  (A)[0] op dDOT14((B),(C)); \
-  (A)[1] op dDOT14((B),(C+1)); \
-  (A)[2] op dDOT14((B),(C+2)); \
-  (A)[4] op dDOT14((B+4),(C)); \
-  (A)[5] op dDOT14((B+4),(C+1)); \
-  (A)[6] op dDOT14((B+4),(C+2)); \
-  (A)[8] op dDOT14((B+8),(C)); \
-  (A)[9] op dDOT14((B+8),(C+1)); \
-  (A)[10] op dDOT14((B+8),(C+2));
-
-#define dMULTIPLY2_333(A,B,C) dMULTIPLYOP2_333(A,=,B,C)
-#define dMULTIPLY0_333(A,B,C) dMULTIPLYOP0_333(A,=,B,C)
-#define dMULTIPLYADD0_331(A,B,C) dMULTIPLYOP0_331(A,+=,B,C)
-
-
-////////////////////////////////////////////////////////////////////
-#define EFFICIENT_ALIGNMENT 16
-#define dEFFICIENT_SIZE(x) ((((x)-1)|(EFFICIENT_ALIGNMENT-1))+1)
-/* alloca aligned to the EFFICIENT_ALIGNMENT. note that this can waste
- * up to 15 bytes per allocation, depending on what alloca() returns.
- */
-
-#define dALLOCA16(n) \
-  ((char*)dEFFICIENT_SIZE(((size_t)(alloca((n)+(EFFICIENT_ALIGNMENT-1))))))
-
-
-
-/////////////////////////////////////////////////////////////////////
-/////////////////////////////////////////////////////////////////////
-
-#ifdef DEBUG
-#define ANSI_FTOL 1
-
-extern "C" { 
-    __declspec(naked) void _ftol2() {
-        __asm    {
-#if ANSI_FTOL
-            fnstcw   WORD PTR [esp-2]
-            mov      ax, WORD PTR [esp-2]
-			
-            OR AX,	 0C00h
-			
-            mov      WORD PTR [esp-4], ax
-            fldcw    WORD PTR [esp-4]
-            fistp    QWORD PTR [esp-12]
-            fldcw    WORD PTR [esp-2]
-            mov      eax, DWORD PTR [esp-12]
-            mov      edx, DWORD PTR [esp-8]
-#else
-            fistp    DWORD PTR [esp-12]
-            mov		 eax, DWORD PTR [esp-12]
-            mov		 ecx, DWORD PTR [esp-8]
-#endif
-            ret
-        }
-    }
-}
-#endif //DEBUG
-
-
-
-  
-
-
-#define ALLOCA dALLOCA16
-
-typedef const btScalar *dRealPtr;
-typedef btScalar *dRealMutablePtr;
-#define dRealArray(name,n) btScalar name[n];
-#define dRealAllocaArray(name,n) btScalar *name = (btScalar*) ALLOCA ((n)*sizeof(btScalar));
-
-void dSetZero1 (btScalar *a, int n)
-{
-  dAASSERT (a && n >= 0);
-  while (n > 0) {
-    *(a++) = 0;
-    n--;
-  }
-}
-
-void dSetValue1 (btScalar *a, int n, btScalar value)
-{
-  dAASSERT (a && n >= 0);
-  while (n > 0) {
-    *(a++) = value;
-    n--;
-  }
-}
-
+#include "OdeMacros.h"
 
 //***************************************************************************
 // configuration
@@ -224,7 +86,7 @@ static void compute_invM_JT (int m, dRealMutablePtr J, dRealMutablePtr iMJ, int 
 	dRealMutablePtr iMJ_ptr = iMJ;
 	dRealMutablePtr J_ptr = J;
 	for (i=0; i<m; i++) {
-		int b1 = jb[i*2];	
+		int b1 = jb[i*2];
 		int b2 = jb[i*2+1];
 		btScalar k = body[b1]->m_invMass;
 		for (j=0; j<3; j++) iMJ_ptr[j] = k*J_ptr[j];
@@ -245,48 +107,48 @@ static void multiply_invM_JTSpecial (int m, int nb, dRealMutablePtr iMJ, int *jb
 {
 	int i,j;
 
-		
+
 
 	dRealMutablePtr out_ptr1 = out + onlyBody1*6;
-	
-	for (j=0; j<6; j++) 
+
+	for (j=0; j<6; j++)
 		out_ptr1[j] = 0;
 
 	if (onlyBody2 >= 0)
 	{
 		out_ptr1 = out + onlyBody2*6;
 
-		for (j=0; j<6; j++) 
+		for (j=0; j<6; j++)
 			out_ptr1[j] = 0;
 	}
 
 	dRealPtr iMJ_ptr = iMJ;
 	for (i=0; i<m; i++) {
 
-		int b1 = jb[i*2];	
+		int b1 = jb[i*2];
 
 		dRealMutablePtr out_ptr = out + b1*6;
 		if ((b1 == onlyBody1) || (b1 == onlyBody2))
 		{
-			for (j=0; j<6; j++) 
+			for (j=0; j<6; j++)
 				out_ptr[j] += iMJ_ptr[j] * in[i] ;
 		}
-			
+
 		iMJ_ptr += 6;
 
 		int b2 = jb[i*2+1];
 		if ((b2 == onlyBody1) || (b2 == onlyBody2))
 		{
-			if (b2 >= 0) 
+			if (b2 >= 0)
 			{
 					out_ptr = out + b2*6;
-					for (j=0; j<6; j++) 
+					for (j=0; j<6; j++)
 						out_ptr[j] += iMJ_ptr[j] * in[i];
 			}
 		}
-		
+
 		iMJ_ptr += 6;
-		
+
 	}
 }
 #endif
@@ -302,10 +164,10 @@ static void multiply_invM_JT (int m, int nb, dRealMutablePtr iMJ, int *jb,
 	dSetZero1 (out,6*nb);
 	dRealPtr iMJ_ptr = iMJ;
 	for (i=0; i<m; i++) {
-		int b1 = jb[i*2];	
+		int b1 = jb[i*2];
 		int b2 = jb[i*2+1];
 		dRealMutablePtr out_ptr = out + b1*6;
-		for (j=0; j<6; j++) 
+		for (j=0; j<6; j++)
 			out_ptr[j] += iMJ_ptr[j] * in[i];
 		iMJ_ptr += 6;
 		if (b2 >= 0) {
@@ -326,15 +188,15 @@ static void multiply_J (int m, dRealMutablePtr J, int *jb,
 	int i,j;
 	dRealPtr J_ptr = J;
 	for (i=0; i<m; i++) {
-		int b1 = jb[i*2];	
+		int b1 = jb[i*2];
 		int b2 = jb[i*2+1];
 		btScalar sum = 0;
 		dRealMutablePtr in_ptr = in + b1*6;
-		for (j=0; j<6; j++) sum += J_ptr[j] * in_ptr[j];				
+		for (j=0; j<6; j++) sum += J_ptr[j] * in_ptr[j];
 		J_ptr += 6;
 		if (b2 >= 0) {
 			in_ptr = in + b2*6;
-			for (j=0; j<6; j++) sum += J_ptr[j] * in_ptr[j];				
+			for (j=0; j<6; j++) sum += J_ptr[j] * in_ptr[j];
 		}
 		J_ptr += 6;
 		out[i] = sum;
@@ -440,7 +302,7 @@ static void SOR_LCP (int m, int nb, dRealMutablePtr J, int *jb, OdeSolverBody * 
 	}
 
 	// scale Ad by CFM
-	for (i=0; i<m; i++) 
+	for (i=0; i<m; i++)
 		Ad[i] *= cfm[i];
 
 	// order to solve constraint rows in
@@ -449,11 +311,11 @@ static void SOR_LCP (int m, int nb, dRealMutablePtr J, int *jb, OdeSolverBody * 
 #ifndef REORDER_CONSTRAINTS
 	// make sure constraints with findex < 0 come first.
 	j=0;
-	for (i=0; i<m; i++) 
-		if (findex[i] < 0) 
+	for (i=0; i<m; i++)
+		if (findex[i] < 0)
 			order[j++].index = i;
-	for (i=0; i<m; i++) 
-		if (findex[i] >= 0) 
+	for (i=0; i<m; i++)
+		if (findex[i] >= 0)
 			order[j++].index = i;
 	dIASSERT (j==m);
 #endif
@@ -512,11 +374,11 @@ static void SOR_LCP (int m, int nb, dRealMutablePtr J, int *jb, OdeSolverBody * 
 			//     linearizing access to those arrays. hmmm, this does not seem
 			//     like a win, but we should think carefully about our memory
 			//     access pattern.
-		
+
 			int index = order[i].index;
 			J_ptr = J + index*12;
 			iMJ_ptr = iMJ + index*12;
-		
+
 			// set the limits for this constraint. note that 'hicopy' is used.
 			// this is the place where the QuickStep method differs from the
 			// direct LCP solving method, since that method only performs this
@@ -533,7 +395,7 @@ static void SOR_LCP (int m, int nb, dRealMutablePtr J, int *jb, OdeSolverBody * 
 			int b2 = jb[index*2+1];
 			float delta = rhs[index] - lambda[index]*Ad[index];
 			dRealMutablePtr fc_ptr = invMforce + 6*b1;
-			
+
 			// @@@ potential optimization: SIMD-ize this and the b2 >= 0 case
 			delta -=fc_ptr[0] * J_ptr[0] + fc_ptr[1] * J_ptr[1] +
 				fc_ptr[2] * J_ptr[2] + fc_ptr[3] * J_ptr[3] +
@@ -566,7 +428,7 @@ static void SOR_LCP (int m, int nb, dRealMutablePtr J, int *jb, OdeSolverBody * 
 			//@@@ a trick that may or may not help
 			//float ramp = (1-((float)(iteration+1)/(float)num_iterations));
 			//delta *= ramp;
-		
+
 			// update invMforce.
 			// @@@ potential optimization: SIMD for this and the b2 >= 0 case
 			fc_ptr = invMforce + 6*b1;
@@ -596,8 +458,8 @@ static void SOR_LCP (int m, int nb, dRealMutablePtr J, int *jb, OdeSolverBody * 
 void SolveInternal1 (float global_cfm,
 					 float global_erp,
 					 OdeSolverBody* const *body, int nb,
-					BU_Joint **joint, 
-					int nj, 
+					BU_Joint **joint,
+					int nj,
 					const btContactSolverInfo& solverInfo)
 {
 
@@ -605,20 +467,20 @@ void SolveInternal1 (float global_cfm,
 	float sOr = solverInfo.m_sor;
 
 	int i,j;
-	
+
 	btScalar stepsize1 = dRecip(solverInfo.m_timeStep);
 
 	// number all bodies in the body list - set their tag values
-	for (i=0; i<nb; i++) 
+	for (i=0; i<nb; i++)
 		body[i]->m_odeTag = i;
-	
+
 	// make a local copy of the joint array, because we might want to modify it.
 	// (the "BU_Joint *const*" declaration says we're allowed to modify the joints
 	// but not the joint array, because the caller might need it unchanged).
 	//@@@ do we really need to do this? we'll be sorting constraint rows individually, not joints
 	//BU_Joint **joint = (BU_Joint**) alloca (nj * sizeof(BU_Joint*));
 	//memcpy (joint,_joint,nj * sizeof(BU_Joint*));
-	
+
 	// for all bodies, compute the inertia tensor and its inverse in the global
 	// frame, and compute the rotational force and add it to the torque
 	// accumulator. I and invI are a vertical stack of 3x4 matrices, one per body.
@@ -692,7 +554,7 @@ void SolveInternal1 (float global_cfm,
 		dSetValue1 (lo,m,-dInfinity);
 		dSetValue1 (hi,m, dInfinity);
 		for (i=0; i<m; i++) findex[i] = -1;
-		
+
 		// get jacobian data from constraints. an m*12 matrix will be created
 		// to store the two jacobian blocks from each constraint. it has this
 		// format:
@@ -731,7 +593,7 @@ void SolveInternal1 (float global_cfm,
 
 			// adjust returned findex values for global index numbering
 			for (j=0; j<info[i].m; j++) {
-				if (findex[ofs[i] + j] >= 0) 
+				if (findex[ofs[i] + j] >= 0)
 					findex[ofs[i] + j] += ofs[i];
 			}
 		}
@@ -754,10 +616,10 @@ void SolveInternal1 (float global_cfm,
 		// put v/h + invM*fe into tmp1
 		for (i=0; i<nb; i++) {
 			btScalar body_invMass = body[i]->m_invMass;
-			for (j=0; j<3; j++) 
+			for (j=0; j<3; j++)
 				tmp1[i*6+j] = body[i]->m_facc[j] * body_invMass + body[i]->m_linearVelocity[j] * stepsize1;
 			dMULTIPLY0_331NEW (tmp1 + i*6 + 3,=,invI + i*12,body[i]->m_tacc);
-			for (j=0; j<3; j++) 
+			for (j=0; j<3; j++)
 				tmp1[i*6+3+j] += body[i]->m_angularVelocity[j] * stepsize1;
 		}
 
@@ -769,7 +631,7 @@ void SolveInternal1 (float global_cfm,
 		for (i=0; i<m; i++) rhs[i] = c[i]*stepsize1 - rhs[i];
 
 		// scale CFM
-		for (i=0; i<m; i++) 
+		for (i=0; i<m; i++)
 			cfm[i] *= stepsize1;
 
 		// load lambda from the value saved on the previous iteration
@@ -795,17 +657,17 @@ void SolveInternal1 (float global_cfm,
 		}
 #endif
 
-	
+
 		// note that the SOR method overwrites rhs and J at this point, so
 		// they should not be used again.
-		
+
 		// add stepsize * cforce to the body velocity
 		for (i=0; i<nb; i++) {
-			for (j=0; j<3; j++) 
+			for (j=0; j<3; j++)
 				body[i]->m_linearVelocity[j] += solverInfo.m_timeStep* cforce[i*6+j];
-			for (j=0; j<3; j++) 
+			for (j=0; j<3; j++)
 				body[i]->m_angularVelocity[j] += solverInfo.m_timeStep* cforce[i*6+3+j];
-			
+
 		}
 	}
 
@@ -819,13 +681,13 @@ void SolveInternal1 (float global_cfm,
 		btVector3 linvel = body[i]->m_linearVelocity;
 		btVector3 angvel = body[i]->m_angularVelocity;
 
-		for (j=0; j<3; j++) 
+		for (j=0; j<3; j++)
 		{
 			linvel[j] += solverInfo.m_timeStep * body_invMass * body[i]->m_facc[j];
 		}
-		for (j=0; j<3; j++) 
+		for (j=0; j<3; j++)
 		{
-			body[i]->m_tacc[j] *= solverInfo.m_timeStep;	
+			body[i]->m_tacc[j] *= solverInfo.m_timeStep;
 		}
 		dMULTIPLY0_331NEW(angvel,+=,invI + i*12,body[i]->m_tacc);
 		body[i]->m_angularVelocity = angvel;

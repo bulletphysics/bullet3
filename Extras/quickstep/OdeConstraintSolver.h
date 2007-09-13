@@ -4,8 +4,8 @@ Copyright (c) 2003-2006 Erwin Coumans  http://continuousphysics.com/Bullet/
 
 This software is provided 'as-is', without any express or implied warranty.
 In no event will the authors be held liable for any damages arising from the use of this software.
-Permission is granted to anyone to use this software for any purpose, 
-including commercial applications, and to alter it and redistribute it freely, 
+Permission is granted to anyone to use this software for any purpose,
+including commercial applications, and to alter it and redistribute it freely,
 subject to the following restrictions:
 
 1. The origin of this software must not be misrepresented; you must not claim that you wrote the original software. If you use this software in a product, an acknowledgment in the product documentation would be appreciated but is not required.
@@ -20,7 +20,6 @@ subject to the following restrictions:
 
 class btRigidBody;
 struct	OdeSolverBody;
-class btDispatcher;
 class BU_Joint;
 
 /// OdeConstraintSolver is one of the available solvers for Bullet dynamics framework
@@ -31,26 +30,33 @@ private:
 
 	int m_CurBody;
 	int m_CurJoint;
+	int m_CurTypedJoint;
 
 	float	m_cfm;
 	float	m_erp;
-	
+
 
 	int ConvertBody(btRigidBody* body,OdeSolverBody** bodies,int& numBodies);
 	void ConvertConstraint(btPersistentManifold* manifold,BU_Joint** joints,int& numJoints,
 					   OdeSolverBody** bodies,int _bodyId0,int _bodyId1,btIDebugDraw* debugDrawer);
+
+
+	void ConvertTypedConstraint(
+		btTypedConstraint * constraint,BU_Joint** joints,int& numJoints,
+		OdeSolverBody** bodies,int _bodyId0,int _bodyId1,btIDebugDraw* debugDrawer);
+
 
 public:
 
 	OdeConstraintSolver();
 
 	virtual ~OdeConstraintSolver() {}
-	
+
 	virtual btScalar solveGroup(btCollisionObject** bodies,int numBodies,btPersistentManifold** manifold,int numManifolds,btTypedConstraint** constraints,int numConstraints,const btContactSolverInfo& info,btIDebugDraw* debugDrawer,btStackAlloc* stackAlloc,btDispatcher* dispatcher);
 
 	///setConstraintForceMixing, the cfm adds some positive value to the main diagonal
 	///This can improve convergence (make matrix positive semidefinite), but it can make the simulation look more 'springy'
-	void	setConstraintForceMixing(float cfm) { 
+	void	setConstraintForceMixing(float cfm) {
 		m_cfm  = cfm;
 	}
 
@@ -61,7 +67,9 @@ public:
 		m_erp = erp;
 	}
 
-	virtual	void	reset();
+	void reset()
+	{
+	}
 };
 
 
