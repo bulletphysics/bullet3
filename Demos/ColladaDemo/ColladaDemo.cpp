@@ -68,9 +68,10 @@ class MyColladaConverter : public ColladaConverter
 
 				}
 
+				bool useReferenceFrameA = true;
 				btGeneric6DofConstraint* genericConstraint = new btGeneric6DofConstraint(
 							*bodyRef,*bodyOther,
-							localAttachmentFrameRef,localAttachmentOther);
+							localAttachmentFrameRef,localAttachmentOther,useReferenceFrameA);
 
 				genericConstraint->setLinearLowerLimit(linearMinLimits);
 				genericConstraint->setLinearUpperLimit(linearMaxLimits);
