@@ -73,6 +73,15 @@ public:
 		m_pivotInB = pivotB;
 	}
 
+	const btVector3& getPivotInA() const
+	{
+		return m_pivotInA;
+	}
+
+	const btVector3& getPivotInB() const
+	{
+		return m_pivotInB;
+	}
 
 
 };
