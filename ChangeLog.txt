@@ -1,6 +1,11 @@
 Bullet Continuous Collision Detection and Physics Library
 Primary author and maintainer: Erwin Coumans
 
+2007 Sept 13
+	- Improved btGenericD6Constraint. It can be used to create ragdolls (similar to the new btConeTwistConstraint). See GenericJointDemo
+	- Added support for Bullet constraints in the optional Extras/quickstep ODE solver. See CcdPhysicsDemo, enable #COMPARE_WITH_QUICKSTEP and add libquickstep to the dependencies.
+	For both patches/improvements thanks Francisco Leon/projectileman
+		
 2007 Sept 10
 	- removed union from btQuadWordStorage, it caused issues under certain version of gcc/Linux
 
