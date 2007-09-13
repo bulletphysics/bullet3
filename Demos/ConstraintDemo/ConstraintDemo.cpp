@@ -15,6 +15,7 @@ subject to the following restrictions:
 
 
 
+
 #include "btBulletDynamicsCommon.h"
 #include "LinearMath/btIDebugDraw.h"
 
@@ -25,7 +26,6 @@ subject to the following restrictions:
 
 #include "ConstraintDemo.h"
 #include "GL_ShapeDrawer.h"
-
 #include "GlutStuff.h"
 
 const int numObjects = 3;
@@ -150,8 +150,9 @@ void	ConstraintDemo::initPhysics()
 		btTransform frameInA, frameInB;
 		frameInA = btTransform::getIdentity();
 		frameInB = btTransform::getIdentity();
-		
-		btGeneric6DofConstraint* slider = new btGeneric6DofConstraint(*d6body0,*fixedBody1,frameInA,frameInB);
+
+		bool useLinearReferenceFrameA = false;//use fixed frame B for linear limits
+		btGeneric6DofConstraint* slider = new btGeneric6DofConstraint(*d6body0,*fixedBody1,frameInA,frameInB,useLinearReferenceFrameA);
 		slider->setLinearLowerLimit(lowerSliderLimit);
 		slider->setLinearUpperLimit(hiSliderLimit);
 
