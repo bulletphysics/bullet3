@@ -2,8 +2,8 @@
 <VisualStudioProject
 	ProjectType="Visual C++"
 	Version="7.10"
-	Name="libquickstep"
-	ProjectGUID="{D7036964-B44D-8207-0ACC-D838D0BDA379}"
+	Name="appGenericJointDemo"
+	ProjectGUID="{33C16464-831E-103A-5F37-65CCD4F9191F}"
 	SccProjectName=""
 	SccLocalPath="">
 	<Platforms>
@@ -13,9 +13,11 @@
 	<Configurations>
 		<Configuration
 			Name="Release|Win32"
-			OutputDirectory="..\..\out\release71\build\libquickstep\"
-			IntermediateDirectory="..\..\out\release71\build\libquickstep\"
-			ConfigurationType="4"
+			OutputDirectory="..\..\out\release71\build\appGenericJointDemo\"
+			IntermediateDirectory="..\..\out\release71\build\appGenericJointDemo\"
+			ConfigurationType="1"
+			CharacterSet="2"
+			WholeProgramOptimization="1"
 			UseOfMFC="0"
 			ATLMinimizesCRunTimeLibraryUsage="FALSE">
 			<Tool
@@ -26,15 +28,15 @@
 				RuntimeLibrary="0"
 				DebugInformationFormat="3"
 				BufferSecurityCheck="FALSE"
-				PreprocessorDefinitions="NDEBUG;_LIB;_WINDOWS;WIN32"
+				PreprocessorDefinitions="NDEBUG;_CONSOLE;WIN32"
 				OptimizeForProcessor="1"
 				ExceptionHandling="0"
 				AdditionalOptions=" "
-				AdditionalIncludeDirectories=".;..\..;..\..\src"
-				PrecompiledHeaderFile="..\..\out\release71\build\libquickstep\libquickstep.pch"
-				AssemblerListingLocation="..\..\out\release71\build\libquickstep\"
-				ObjectFile="..\..\out\release71\build\libquickstep\"
-				ProgramDataBaseFileName="..\..\out\release71\build\libquickstep\quickstep.pdb"
+				AdditionalIncludeDirectories=".;..\..;..\..\src;..\..\Glut;..\..\Demos\OpenGL"
+				PrecompiledHeaderFile="..\..\out\release71\build\appGenericJointDemo\appGenericJointDemo.pch"
+				AssemblerListingLocation="..\..\out\release71\build\appGenericJointDemo\"
+				ObjectFile="..\..\out\release71\build\appGenericJointDemo\"
+				ProgramDataBaseFileName="..\..\out\release71\build\appGenericJointDemo\GenericJointDemo.pdb"
 				WarningLevel="3"
 				SuppressStartupBanner="TRUE"
 				Detect64BitPortabilityProblems="TRUE"
@@ -49,28 +51,28 @@
 				EnableCOMDATFolding="2"
 				GenerateDebugInformation="TRUE"
 				IgnoreDefaultLibraryNames="LIBC,LIBCD"
+				OutputFile="..\..\ReleaseGenericJointDemo.exe"
+				SubSystem="1"
 				AdditionalOptions=" "
-				AdditionalDependencies=""
+				AdditionalDependencies="glut32.lib"
 				IgnoreImportLibrary="TRUE"
 				SuppressStartupBanner="TRUE"
 				GenerateManifest="false"
-				AdditionalLibraryDirectories=""
-				ProgramDatabaseFile="..\..\out\release71\build\libquickstep\quickstep.pdb"
+				AdditionalLibraryDirectories="..\..\Glut"
+				ProgramDatabaseFile="..\..\out\release71\build\appGenericJointDemo\GenericJointDemo.pdb"
 				TargetMachine="1"/>
 			<Tool
 				Name="VCLibrarianTool"
-				OutputFile="..\..\out\release71\libs\libquickstep.lib"
 				SuppressStartupBanner="TRUE"/>
 			<Tool
 				Name="VCMIDLTool"
-				PreprocessorDefinitions="NDEBUG;_LIB;_WINDOWS"
+				PreprocessorDefinitions="NDEBUG;_CONSOLE"
 				MkTypLibCompatible="TRUE"
 				SuppressStartupBanner="TRUE"
 				TargetEnvironment="1"
-				TypeLibraryName="..\..\out\release71\build\libquickstep\libquickstep.tlb"/>
+				TypeLibraryName="..\..\out\release71\build\appGenericJointDemo\appGenericJointDemo.tlb"/>
 			<Tool
 				Name="VCPostBuildEventTool"
-		CommandLine="xcopy /r /y $(TARGETPATH) $(PROJECTDIR)..\..\lib\"
 				/>
 			<Tool
 				Name="VCPreBuildEventTool"/>
@@ -78,8 +80,8 @@
 				Name="VCPreLinkEventTool"/>
 			<Tool
 				Name="VCResourceCompilerTool"
-				PreprocessorDefinitions="NDEBUG;_LIB;_WINDOWS;PROJECTGEN_VERSION=71"
-				AdditionalIncludeDirectories=".;..\..;..\..\src"
+				PreprocessorDefinitions="NDEBUG;_CONSOLE;PROJECTGEN_VERSION=71"
+				AdditionalIncludeDirectories=".;..\..;..\..\src;..\..\Glut;..\..\Demos\OpenGL"
 				Culture="1033"/>
 			<Tool
 				Name="VCWebServiceProxyGeneratorTool"/>
@@ -88,22 +90,23 @@
 		</Configuration>
 		<Configuration
 			Name="ReleaseDoublePrecision|Win32"
-			OutputDirectory="..\..\out\release_dbl71\build\libquickstep\"
-			IntermediateDirectory="..\..\out\release_dbl71\build\libquickstep\"
-			ConfigurationType="4"
+			OutputDirectory="..\..\out\release_dbl71\build\appGenericJointDemo\"
+			IntermediateDirectory="..\..\out\release_dbl71\build\appGenericJointDemo\"
+			ConfigurationType="1"
+			CharacterSet="2"
 			UseOfMFC="0"
 			ATLMinimizesCRunTimeLibraryUsage="FALSE">
 			<Tool
 				Name="VCCLCompilerTool"
-				PreprocessorDefinitions="NDEBUG;BT_USE_DOUBLE_PRECISION;_LIB;_WINDOWS;WIN32"
+				PreprocessorDefinitions="NDEBUG;BT_USE_DOUBLE_PRECISION;_CONSOLE;WIN32"
 				OptimizeForProcessor="1"
 				ExceptionHandling="0"
 				AdditionalOptions=" "
-				AdditionalIncludeDirectories=".;..\..;..\..\src"
-				PrecompiledHeaderFile="..\..\out\release_dbl71\build\libquickstep\libquickstep.pch"
-				AssemblerListingLocation="..\..\out\release_dbl71\build\libquickstep\"
-				ObjectFile="..\..\out\release_dbl71\build\libquickstep\"
-				ProgramDataBaseFileName="..\..\out\release_dbl71\build\libquickstep\quickstep.pdb"
+				AdditionalIncludeDirectories=".;..\..;..\..\src;..\..\Glut;..\..\Demos\OpenGL"
+				PrecompiledHeaderFile="..\..\out\release_dbl71\build\appGenericJointDemo\appGenericJointDemo.pch"
+				AssemblerListingLocation="..\..\out\release_dbl71\build\appGenericJointDemo\"
+				ObjectFile="..\..\out\release_dbl71\build\appGenericJointDemo\"
+				ProgramDataBaseFileName="..\..\out\release_dbl71\build\appGenericJointDemo\GenericJointDemo.pdb"
 				WarningLevel="3"
 				SuppressStartupBanner="TRUE"
 				Detect64BitPortabilityProblems="TRUE"
@@ -113,27 +116,28 @@
 				Name="VCCustomBuildTool"/>
 			<Tool
 				Name="VCLinkerTool"
+                                OutputFile="..\..\ReleaseDblGenericJointDemo.exe"
+                                SubSystem="1"
 				AdditionalOptions=" "
-				AdditionalDependencies=""
+				AdditionalDependencies="glut32.lib"
 				IgnoreImportLibrary="TRUE"
 				SuppressStartupBanner="TRUE"
 				GenerateManifest="false"
-				AdditionalLibraryDirectories=""
-				ProgramDatabaseFile="..\..\out\release_dbl71\build\libquickstep\quickstep.pdb"
+				AdditionalLibraryDirectories="..\..\Glut"
+				ProgramDatabaseFile="..\..\out\release_dbl71\build\appGenericJointDemo\GenericJointDemo.pdb"
 				TargetMachine="1"/>
 			<Tool
 				Name="VCLibrarianTool"
 				SuppressStartupBanner="TRUE"/>
 			<Tool
 				Name="VCMIDLTool"
-				PreprocessorDefinitions="NDEBUG;BT_USE_DOUBLE_PRECISION;_LIB;_WINDOWS"
+				PreprocessorDefinitions="NDEBUG;BT_USE_DOUBLE_PRECISION;_CONSOLE"
 				MkTypLibCompatible="TRUE"
 				SuppressStartupBanner="TRUE"
 				TargetEnvironment="1"
-				TypeLibraryName="..\..\out\release_dbl71\build\libquickstep\libquickstep.tlb"/>
+				TypeLibraryName="..\..\out\release_dbl71\build\appGenericJointDemo\appGenericJointDemo.tlb"/>
 			<Tool
 				Name="VCPostBuildEventTool"
-		CommandLine="xcopy /r /y $(TARGETPATH) $(PROJECTDIR)..\..\lib\"
 				/>
 			<Tool
 				Name="VCPreBuildEventTool"/>
@@ -141,8 +145,8 @@
 				Name="VCPreLinkEventTool"/>
 			<Tool
 				Name="VCResourceCompilerTool"
-				PreprocessorDefinitions="NDEBUG;BT_USE_DOUBLE_PRECISION;_LIB;_WINDOWS;PROJECTGEN_VERSION=71"
-				AdditionalIncludeDirectories=".;..\..;..\..\src"
+				PreprocessorDefinitions="NDEBUG;BT_USE_DOUBLE_PRECISION;_CONSOLE;PROJECTGEN_VERSION=71"
+				AdditionalIncludeDirectories=".;..\..;..\..\src;..\..\Glut;..\..\Demos\OpenGL"
 				Culture="1033"/>
 			<Tool
 				Name="VCWebServiceProxyGeneratorTool"/>
@@ -151,9 +155,10 @@
 		</Configuration>
 		<Configuration
 			Name="Debug|Win32"
-			OutputDirectory="..\..\out\debug71\build\libquickstep\"
-			IntermediateDirectory="..\..\out\debug71\build\libquickstep\"
-			ConfigurationType="4"
+			OutputDirectory="..\..\out\debug71\build\appGenericJointDemo\"
+			IntermediateDirectory="..\..\out\debug71\build\appGenericJointDemo\"
+			ConfigurationType="1"
+			CharacterSet="2"
 			UseOfMFC="0"
 			ATLMinimizesCRunTimeLibraryUsage="FALSE">
 			<Tool
@@ -163,15 +168,15 @@
 				DebugInformationFormat="4"
 				RuntimeTypeInfo="FALSE"
 				RuntimeLibrary="1"
-				PreprocessorDefinitions="_DEBUG;_LIB;_WINDOWS;WIN32"
+				PreprocessorDefinitions="_DEBUG;_CONSOLE;WIN32"
 				OptimizeForProcessor="1"
 				ExceptionHandling="0"
 				AdditionalOptions=" "
-				AdditionalIncludeDirectories=".;..\..;..\..\src"
-				PrecompiledHeaderFile="..\..\out\debug71\build\libquickstep\libquickstep.pch"
-				AssemblerListingLocation="..\..\out\debug71\build\libquickstep\"
-				ObjectFile="..\..\out\debug71\build\libquickstep\"
-				ProgramDataBaseFileName="..\..\out\debug71\build\libquickstep\quickstep.pdb"
+				AdditionalIncludeDirectories=".;..\..;..\..\src;..\..\Glut;..\..\Demos\OpenGL"
+				PrecompiledHeaderFile="..\..\out\debug71\build\appGenericJointDemo\appGenericJointDemo.pch"
+				AssemblerListingLocation="..\..\out\debug71\build\appGenericJointDemo\"
+				ObjectFile="..\..\out\debug71\build\appGenericJointDemo\"
+				ProgramDataBaseFileName="..\..\out\debug71\build\appGenericJointDemo\GenericJointDemo.pdb"
 				WarningLevel="3"
 				SuppressStartupBanner="TRUE"
 				Detect64BitPortabilityProblems="TRUE"
@@ -184,28 +189,28 @@
 				LinkIncremental="2"
 				GenerateDebugInformation="TRUE"
 				IgnoreDefaultLibraryNames="LIBC,LIBCD"
+				OutputFile="..\..\DebugGenericJointDemo.exe"
+				SubSystem="1"
 				AdditionalOptions=" "
-				AdditionalDependencies=""
+				AdditionalDependencies="glut32.lib"
 				IgnoreImportLibrary="TRUE"
 				SuppressStartupBanner="TRUE"
 				GenerateManifest="false"
-				AdditionalLibraryDirectories=""
-				ProgramDatabaseFile="..\..\out\debug71\build\libquickstep\quickstep.pdb"
+				AdditionalLibraryDirectories="..\..\Glut"
+				ProgramDatabaseFile="..\..\out\debug71\build\appGenericJointDemo\GenericJointDemo.pdb"
 				TargetMachine="1"/>
 			<Tool
 				Name="VCLibrarianTool"
-				OutputFile="..\..\out\debug71\libs\libquickstep_d.lib"
 				SuppressStartupBanner="TRUE"/>
 			<Tool
 				Name="VCMIDLTool"
-				PreprocessorDefinitions="_DEBUG;_LIB;_WINDOWS"
+				PreprocessorDefinitions="_DEBUG;_CONSOLE"
 				MkTypLibCompatible="TRUE"
 				SuppressStartupBanner="TRUE"
 				TargetEnvironment="1"
-				TypeLibraryName="..\..\out\debug71\build\libquickstep\libquickstep.tlb"/>
+				TypeLibraryName="..\..\out\debug71\build\appGenericJointDemo\appGenericJointDemo.tlb"/>
 			<Tool
 				Name="VCPostBuildEventTool"
-		CommandLine="xcopy /r /y $(TARGETPATH) $(PROJECTDIR)..\..\lib\"
 				/>
 			<Tool
 				Name="VCPreBuildEventTool"/>
@@ -213,8 +218,8 @@
 				Name="VCPreLinkEventTool"/>
 			<Tool
 				Name="VCResourceCompilerTool"
-				PreprocessorDefinitions="_DEBUG;_LIB;_WINDOWS;PROJECTGEN_VERSION=71"
-				AdditionalIncludeDirectories=".;..\..;..\..\src"
+				PreprocessorDefinitions="_DEBUG;_CONSOLE;PROJECTGEN_VERSION=71"
+				AdditionalIncludeDirectories=".;..\..;..\..\src;..\..\Glut;..\..\Demos\OpenGL"
 				Culture="1033"/>
 			<Tool
 				Name="VCWebServiceProxyGeneratorTool"/>
@@ -223,9 +228,10 @@
 		</Configuration>
 		<Configuration
 			Name="DebugDoublePrecision|Win32"
-			OutputDirectory="..\..\out\debug_dbl71\build\libquickstep\"
-			IntermediateDirectory="..\..\out\debug_dbl71\build\libquickstep\"
-			ConfigurationType="4"
+			OutputDirectory="..\..\out\debug_dbl71\build\appGenericJointDemo\"
+			IntermediateDirectory="..\..\out\debug_dbl71\build\appGenericJointDemo\"
+			ConfigurationType="1"
+			CharacterSet="2"
 			UseOfMFC="0"
 			ATLMinimizesCRunTimeLibraryUsage="FALSE">
 			<Tool
@@ -235,15 +241,15 @@
                                 DebugInformationFormat="4"
                                 RuntimeTypeInfo="FALSE"
                                 RuntimeLibrary="1"
-				PreprocessorDefinitions="_DEBUG;BT_USE_DOUBLE_PRECISION;_LIB;_WINDOWS;WIN32"
+				PreprocessorDefinitions="_DEBUG;BT_USE_DOUBLE_PRECISION;_CONSOLE;WIN32"
 				OptimizeForProcessor="1"
 				ExceptionHandling="0"
 				AdditionalOptions=" "
-				AdditionalIncludeDirectories=".;..\..;..\..\src"
-				PrecompiledHeaderFile="..\..\out\debug_dbl71\build\libquickstep\libquickstep.pch"
-				AssemblerListingLocation="..\..\out\debug_dbl71\build\libquickstep\"
-				ObjectFile="..\..\out\debug_dbl71\build\libquickstep\"
-				ProgramDataBaseFileName="..\..\out\debug_dbl71\build\libquickstep\quickstep.pdb"
+				AdditionalIncludeDirectories=".;..\..;..\..\src;..\..\Glut;..\..\Demos\OpenGL"
+				PrecompiledHeaderFile="..\..\out\debug_dbl71\build\appGenericJointDemo\appGenericJointDemo.pch"
+				AssemblerListingLocation="..\..\out\debug_dbl71\build\appGenericJointDemo\"
+				ObjectFile="..\..\out\debug_dbl71\build\appGenericJointDemo\"
+				ProgramDataBaseFileName="..\..\out\debug_dbl71\build\appGenericJointDemo\GenericJointDemo.pdb"
 				WarningLevel="3"
 				SuppressStartupBanner="TRUE"
 				Detect64BitPortabilityProblems="TRUE"
@@ -253,27 +259,28 @@
 				Name="VCCustomBuildTool"/>
 			<Tool
 				Name="VCLinkerTool"
+                                OutputFile="..\..\DebugDblGenericJointDemo.exe"
+                                SubSystem="1"
 				AdditionalOptions=" "
-				AdditionalDependencies=""
+				AdditionalDependencies="glut32.lib"
 				IgnoreImportLibrary="TRUE"
 				SuppressStartupBanner="TRUE"
 				GenerateManifest="false"
-				AdditionalLibraryDirectories=""
-				ProgramDatabaseFile="..\..\out\debug_dbl71\build\libquickstep\quickstep.pdb"
+				AdditionalLibraryDirectories="..\..\Glut"
+				ProgramDatabaseFile="..\..\out\debug_dbl71\build\appGenericJointDemo\GenericJointDemo.pdb"
 				TargetMachine="1"/>
 			<Tool
 				Name="VCLibrarianTool"
 				SuppressStartupBanner="TRUE"/>
 			<Tool
 				Name="VCMIDLTool"
-				PreprocessorDefinitions="_DEBUG;BT_USE_DOUBLE_PRECISION;_LIB;_WINDOWS"
+				PreprocessorDefinitions="_DEBUG;BT_USE_DOUBLE_PRECISION;_CONSOLE"
 				MkTypLibCompatible="TRUE"
 				SuppressStartupBanner="TRUE"
 				TargetEnvironment="1"
-				TypeLibraryName="..\..\out\debug_dbl71\build\libquickstep\libquickstep.tlb"/>
+				TypeLibraryName="..\..\out\debug_dbl71\build\appGenericJointDemo\appGenericJointDemo.tlb"/>
 			<Tool
 				Name="VCPostBuildEventTool"
-		CommandLine="xcopy /r /y $(TARGETPATH) $(PROJECTDIR)..\..\lib\"
 				/>
 			<Tool
 				Name="VCPreBuildEventTool"/>
@@ -281,8 +288,8 @@
 				Name="VCPreLinkEventTool"/>
 			<Tool
 				Name="VCResourceCompilerTool"
-				PreprocessorDefinitions="_DEBUG;BT_USE_DOUBLE_PRECISION;_LIB;_WINDOWS;PROJECTGEN_VERSION=71"
-				AdditionalIncludeDirectories=".;..\..;..\..\src"
+				PreprocessorDefinitions="_DEBUG;BT_USE_DOUBLE_PRECISION;_CONSOLE;PROJECTGEN_VERSION=71"
+				AdditionalIncludeDirectories=".;..\..;..\..\src;..\..\Glut;..\..\Demos\OpenGL"
 				Culture="1033"/>
 			<Tool
 				Name="VCWebServiceProxyGeneratorTool"/>
@@ -295,47 +302,27 @@
 			Name="Source Files"
 			Filter="">
 			<File
-				RelativePath="..\..\Extras\quickstep\OdeConstraintSolver.cpp">
+				RelativePath="..\..\Demos\GenericJointDemo\GenericJointDemo.cpp">
 			</File>
 			<File
-				RelativePath="..\..\Extras\quickstep\OdeContactJoint.cpp">
-			</File>
-			<File
-				RelativePath="..\..\Extras\quickstep\OdeJoint.cpp">
-			</File>
-			<File
-				RelativePath="..\..\Extras\quickstep\OdeSolverBody.cpp">
-			</File>
-			<File
-				RelativePath="..\..\Extras\quickstep\OdeTypedJoint.cpp">
-			</File>
-			<File
-				RelativePath="..\..\Extras\quickstep\SorLcp.cpp">
+				RelativePath="..\..\Demos\GenericJointDemo\Ragdoll.cpp">
 			</File>
 		</Filter>
 		<Filter
 			Name="Header Files"
 			Filter="">
 			<File
-				RelativePath="..\..\Extras\quickstep\OdeConstraintSolver.h">
+				RelativePath="..\..\Demos\GenericJointDemo\GenericJointDemo.h">
 			</File>
 			<File
-				RelativePath="..\..\Extras\quickstep\OdeContactJoint.h">
+				RelativePath="..\..\Demos\GenericJointDemo\Ragdoll.h">
 			</File>
+		</Filter>
+		<Filter
+			Name="Resource Files"
+			Filter="">
 			<File
-				RelativePath="..\..\Extras\quickstep\OdeJoint.h">
-			</File>
-			<File
-				RelativePath="..\..\Extras\quickstep\OdeMacros.h">
-			</File>
-			<File
-				RelativePath="..\..\Extras\quickstep\OdeSolverBody.h">
-			</File>
-			<File
-				RelativePath="..\..\Extras\quickstep\OdeTypedJoint.h">
-			</File>
-			<File
-				RelativePath="..\..\Extras\quickstep\SorLcp.h">
+				RelativePath="..\..\msvc\appGenericJointDemo.rc">
 			</File>
 		</Filter>
 	</Files>

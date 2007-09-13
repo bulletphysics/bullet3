@@ -307,6 +307,9 @@
 				RelativePath="..\..\Extras\quickstep\OdeSolverBody.cpp">
 			</File>
 			<File
+				RelativePath="..\..\Extras\quickstep\OdeTypedJoint.cpp">
+			</File>
+			<File
 				RelativePath="..\..\Extras\quickstep\SorLcp.cpp">
 			</File>
 		</Filter>
@@ -323,7 +326,13 @@
 				RelativePath="..\..\Extras\quickstep\OdeJoint.h">
 			</File>
 			<File
+				RelativePath="..\..\Extras\quickstep\OdeMacros.h">
+			</File>
+			<File
 				RelativePath="..\..\Extras\quickstep\OdeSolverBody.h">
+			</File>
+			<File
+				RelativePath="..\..\Extras\quickstep\OdeTypedJoint.h">
 			</File>
 			<File
 				RelativePath="..\..\Extras\quickstep\SorLcp.h">

@@ -188,6 +188,10 @@ SOURCE=..\..\Extras\quickstep\OdeSolverBody.cpp
 # End Source File
 # Begin Source File
 
+SOURCE=..\..\Extras\quickstep\OdeTypedJoint.cpp
+# End Source File
+# Begin Source File
+
 SOURCE=..\..\Extras\quickstep\SorLcp.cpp
 # End Source File
 # End Group
@@ -208,7 +212,15 @@ SOURCE=..\..\Extras\quickstep\OdeJoint.h
 # End Source File
 # Begin Source File
 
+SOURCE=..\..\Extras\quickstep\OdeMacros.h
+# End Source File
+# Begin Source File
+
 SOURCE=..\..\Extras\quickstep\OdeSolverBody.h
+# End Source File
+# Begin Source File
+
+SOURCE=..\..\Extras\quickstep\OdeTypedJoint.h
 # End Source File
 # Begin Source File
 

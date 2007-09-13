@@ -6,8 +6,6 @@ Project("{8BC9CEB8-8B4A-11D0-8D11-00A0C91BC942}") = "libbulletdynamics", "libbul
 EndProject
 Project("{8BC9CEB8-8B4A-11D0-8D11-00A0C91BC942}") = "libbulletmath", "libbulletmath.vcproj", "{7D6E339F-9C2C-31DA-FDB0-5EE50973CF2A}"
 EndProject
-Project("{8BC9CEB8-8B4A-11D0-8D11-00A0C91BC942}") = "libbulletmultithreaded", "libbulletmultithreaded.vcproj", "{A24D77FD-D69A-75A0-A7DC-730894C9D0F7}"
-EndProject
 Global
 	GlobalSection(SolutionConfiguration) = preSolution
 		ConfigName.0 = Release
@@ -42,14 +40,6 @@ Global
 		{7D6E339F-9C2C-31DA-FDB0-5EE50973CF2A}.Debug.Build.0 = Debug|Win32
 		{7D6E339F-9C2C-31DA-FDB0-5EE50973CF2A}.DebugDoublePrecision.ActiveCfg = DebugDoublePrecision|Win32
 		{7D6E339F-9C2C-31DA-FDB0-5EE50973CF2A}.DebugDoublePrecision.Build.0 = DebugDoublePrecision|Win32
-		{A24D77FD-D69A-75A0-A7DC-730894C9D0F7}.Release.ActiveCfg = Release|Win32
-		{A24D77FD-D69A-75A0-A7DC-730894C9D0F7}.Release.Build.0 = Release|Win32
-		{A24D77FD-D69A-75A0-A7DC-730894C9D0F7}.ReleaseDoublePrecision.ActiveCfg = ReleaseDoublePrecision|Win32
-		{A24D77FD-D69A-75A0-A7DC-730894C9D0F7}.ReleaseDoublePrecision.Build.0 = ReleaseDoublePrecision|Win32
-		{A24D77FD-D69A-75A0-A7DC-730894C9D0F7}.Debug.ActiveCfg = Debug|Win32
-		{A24D77FD-D69A-75A0-A7DC-730894C9D0F7}.Debug.Build.0 = Debug|Win32
-		{A24D77FD-D69A-75A0-A7DC-730894C9D0F7}.DebugDoublePrecision.ActiveCfg = DebugDoublePrecision|Win32
-		{A24D77FD-D69A-75A0-A7DC-730894C9D0F7}.DebugDoublePrecision.Build.0 = DebugDoublePrecision|Win32
 	EndGlobalSection
 	GlobalSection(ExtensibilityGlobals) = postSolution
 	EndGlobalSection
