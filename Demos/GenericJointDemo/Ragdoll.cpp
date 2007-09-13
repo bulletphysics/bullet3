@@ -76,22 +76,22 @@ btScalar(0.)));
 
 	transform.setIdentity();
 	transform.setOrigin(btVector3(btScalar(-0.35*scale_ragdoll), btScalar(1.45*scale_ragdoll), btScalar(0.)));
-	transform.getBasis().setEulerZYX(0,0,M_PI_2);
+	transform.getBasis().setEulerZYX(0,0,SIMD_HALF_PI);
 	m_bodies[BODYPART_LEFT_UPPER_ARM] = localCreateRigidBody(btScalar(1.), offset*transform, m_shapes[BODYPART_LEFT_UPPER_ARM]);
 
 	transform.setIdentity();
 	transform.setOrigin(btVector3(btScalar(-0.7*scale_ragdoll), btScalar(1.45*scale_ragdoll), btScalar(0.)));
-	transform.getBasis().setEulerZYX(0,0,M_PI_2);
+	transform.getBasis().setEulerZYX(0,0,SIMD_HALF_PI);
 	m_bodies[BODYPART_LEFT_LOWER_ARM] = localCreateRigidBody(btScalar(1.), offset*transform, m_shapes[BODYPART_LEFT_LOWER_ARM]);
 
 	transform.setIdentity();
 	transform.setOrigin(btVector3(btScalar(0.35*scale_ragdoll), btScalar(1.45*scale_ragdoll), btScalar(0.)));
-	transform.getBasis().setEulerZYX(0,0,-M_PI_2);
+	transform.getBasis().setEulerZYX(0,0,-SIMD_HALF_PI);
 	m_bodies[BODYPART_RIGHT_UPPER_ARM] = localCreateRigidBody(btScalar(1.), offset*transform, m_shapes[BODYPART_RIGHT_UPPER_ARM]);
 
 	transform.setIdentity();
 	transform.setOrigin(btVector3(btScalar(0.7*scale_ragdoll), btScalar(1.45*scale_ragdoll), btScalar(0.)));
-	transform.getBasis().setEulerZYX(0,0,-M_PI_2);
+	transform.getBasis().setEulerZYX(0,0,-SIMD_HALF_PI);
 	m_bodies[BODYPART_RIGHT_LOWER_ARM] = localCreateRigidBody(btScalar(1.), offset*transform, m_shapes[BODYPART_RIGHT_LOWER_ARM]);
 
 	// Setup some damping on the m_bodies
@@ -224,9 +224,9 @@ btScalar(0.)));
 	{
 		localA.setIdentity(); localB.setIdentity();
 
-		localA.getBasis().setEulerZYX(0,M_PI_2,0);
+		localA.getBasis().setEulerZYX(0,SIMD_HALF_PI,0);
 		localA.setOrigin(btVector3(btScalar(0.), btScalar(0.15*scale_ragdoll), btScalar(0.)));
-		localB.getBasis().setEulerZYX(0,M_PI_2,0);
+		localB.getBasis().setEulerZYX(0,SIMD_HALF_PI,0);
 		localB.setOrigin(btVector3(btScalar(0.), btScalar(-0.15*scale_ragdoll), btScalar(0.)));
 		joint6DOF =  new btGeneric6DofConstraint (*m_bodies[BODYPART_PELVIS], *m_bodies[BODYPART_SPINE], localA, localB,useLinearReferenceFrameA);
 
@@ -332,15 +332,17 @@ btScalar(0.)));
 
 RagDoll::~RagDoll()
 {
+	int i;
+
 	// Remove all constraints
-	for (int i = 0; i < JOINT_COUNT; ++i)
+	for (i = 0; i < JOINT_COUNT; ++i)
 	{
 		m_ownerWorld->removeConstraint(m_joints[i]);
 		delete m_joints[i]; m_joints[i] = 0;
 	}
 
 	// Remove all bodies and shapes
-	for (int i = 0; i < BODYPART_COUNT; ++i)
+	for (i = 0; i < BODYPART_COUNT; ++i)
 	{
 		m_ownerWorld->removeRigidBody(m_bodies[i]);
 
