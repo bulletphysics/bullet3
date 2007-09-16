@@ -915,8 +915,7 @@ bool btOptimizedBvh::serialize(void *o_alignedDataBuffer, unsigned i_dataBufferS
 	assert(m_subtreeHeaderCount == m_SubtreeHeaders.size());
 	m_subtreeHeaderCount = m_SubtreeHeaders.size();
 
-
-	if (i_dataBufferSize < calculateSerializeBufferSize() || o_alignedDataBuffer == NULL || (unsigned)o_alignedDataBuffer & BVH_ALIGNMENT_MASK != 0)
+	if (i_dataBufferSize < calculateSerializeBufferSize() || o_alignedDataBuffer == NULL || (((unsigned)o_alignedDataBuffer & BVH_ALIGNMENT_MASK) != 0))
 	{
 		///check alignedment for buffer?
 		btAssert(0);
@@ -1077,7 +1076,8 @@ bool btOptimizedBvh::serialize(void *o_alignedDataBuffer, unsigned i_dataBufferS
 
 btOptimizedBvh *btOptimizedBvh::deSerializeInPlace(void *i_alignedDataBuffer, unsigned i_dataBufferSize, bool i_swapEndian)
 {
-	if (i_alignedDataBuffer == NULL || (unsigned)i_alignedDataBuffer & BVH_ALIGNMENT_MASK != 0)
+
+	if (i_alignedDataBuffer == NULL || (((unsigned)i_alignedDataBuffer & BVH_ALIGNMENT_MASK) != 0))
 	{
 		return NULL;
 	}
