@@ -75,7 +75,8 @@ public:
 			const btVector3& linearMinLimits,
 			const btVector3& linearMaxLimits,
 			const btVector3& angularMinLimits,
-			const btVector3& angularMaxLimits
+			const btVector3& angularMaxLimits,
+			bool disableCollisionsBetweenLinkedBodies
 			) = 0;
 
 	virtual btRigidBody*  createRigidBody(bool isDynamic, 

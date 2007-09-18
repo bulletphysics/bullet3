@@ -624,7 +624,8 @@ void	ColladaConverter::prepareConstraints(ConstraintInput& input)
 								);
 						}
 
-
+						domBool interpenetrate = commonRef->getInterpenetrate()->getValue();
+						bool disableCollisionsBetweenLinkedBodies = interpenetrate;
 						//convert INF / -INF into lower > upper
 
 						//currently there is a hack in the DOM to detect INF / -INF
@@ -681,7 +682,8 @@ void	ColladaConverter::prepareConstraints(ConstraintInput& input)
 								linearLowerLimits,
 								linearUpperLimits,
 								angularLowerLimits,
-								angularUpperLimits
+								angularUpperLimits,
+								disableCollisionsBetweenLinkedBodies
 									);
 							} else
 							{
@@ -693,7 +695,8 @@ void	ColladaConverter::prepareConstraints(ConstraintInput& input)
 								linearLowerLimits,
 								linearUpperLimits,
 								angularLowerLimits,
-								angularUpperLimits
+								angularUpperLimits,
+								disableCollisionsBetweenLinkedBodies
 									);
 							}
 						} else

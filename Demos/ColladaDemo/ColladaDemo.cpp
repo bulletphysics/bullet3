@@ -54,7 +54,8 @@ class MyColladaConverter : public ColladaConverter
 			const btVector3& linearMinLimits,
 			const btVector3& linearMaxLimits,
 			const btVector3& angularMinLimits,
-			const btVector3& angularMaxLimits
+			const btVector3& angularMaxLimits,
+			bool disableCollisionsBetweenLinkedBodies
 			)
 		{
 			if (bodyRef)
@@ -78,7 +79,7 @@ class MyColladaConverter : public ColladaConverter
 				genericConstraint->setAngularLowerLimit(angularMinLimits);
 				genericConstraint->setAngularUpperLimit(angularMaxLimits);
 
-				m_demoApp->getDynamicsWorld()->addConstraint( genericConstraint );
+				m_demoApp->getDynamicsWorld()->addConstraint( genericConstraint,disableCollisionsBetweenLinkedBodies );
 				
 				return genericConstraint;
 			} 
