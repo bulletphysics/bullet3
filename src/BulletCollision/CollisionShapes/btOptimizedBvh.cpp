@@ -1106,7 +1106,7 @@ btOptimizedBvh *btOptimizedBvh::deSerializeInPlace(void *i_alignedDataBuffer, un
 	unsigned char *nodeData = (unsigned char *)bvh;
 	nodeData += sizeof(btOptimizedBvh);
 	
-	unsigned sizeToAdd = BVH_ALIGNMENT-((unsigned)nodeData & BVH_ALIGNMENT_MASK);
+	unsigned sizeToAdd = (BVH_ALIGNMENT-((unsigned)nodeData & BVH_ALIGNMENT_MASK))&BVH_ALIGNMENT_MASK;
 	nodeData += sizeToAdd;
 	
 	int nodeCount = bvh->m_curNodeIndex;
@@ -1155,7 +1155,7 @@ btOptimizedBvh *btOptimizedBvh::deSerializeInPlace(void *i_alignedDataBuffer, un
 		nodeData += sizeof(btOptimizedBvhNode) * nodeCount;
 	}
 
-	sizeToAdd = BVH_ALIGNMENT-((unsigned)nodeData & BVH_ALIGNMENT_MASK);
+	sizeToAdd = (BVH_ALIGNMENT-((unsigned)nodeData & BVH_ALIGNMENT_MASK))&BVH_ALIGNMENT_MASK;
 	nodeData += sizeToAdd;
 
 	// Now serialize the subtree headers
