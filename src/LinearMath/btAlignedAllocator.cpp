@@ -54,17 +54,33 @@ void	btAlignedFree	(void* ptr)
 }
 
 #else
-///todo
-///will add some multi-platform version that works without _aligned_malloc/_aligned_free
 
 void*	btAlignedAlloc	(int size, int alignment)
 {
-	return new char[size];
+ void *ret;
+  char *real;
+  unsigned long offset;
+  
+  real = (char *)malloc(size + sizeof(void *) + (alignment-1));
+  if (real) {
+    offset = (alignment - (unsigned long)(real + sizeof(void *))) & (alignment-1);
+    ret = (void *)((real + sizeof(void *)) + offset);
+    *((void **)(ret)-1) = (void *)(real);
+  } else {
+    ret = (void *)(real);
+  }
+  return (ret);
 }
 
 void	btAlignedFree	(void* ptr)
 {
-	delete [] (char*) ptr;
+
+ void* real;
+
+  if (ptr) {
+    real = *((void **)(ptr)-1);
+    free(real);
+  }
 }
 #endif //
 

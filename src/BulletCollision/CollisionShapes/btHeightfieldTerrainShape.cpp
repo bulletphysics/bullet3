@@ -145,25 +145,25 @@ void	btHeightfieldTerrainShape::getVertex(int x,int y,btVector3& vertex) const
 		{
 		vertex.setValue(
 			height,
-			(-m_width/2 ) + x,
-			(-m_length/2 ) + y
+			(-m_width/btScalar(2.0)) + x,
+			(-m_length/btScalar(2.0) ) + y
 			);
 			break;
 		}
 	case 1:
 		{
 			vertex.setValue(
-			(-m_width/2 ) + x,
+			(-m_width/btScalar(2.0)) + x,
 			height,
-			(-m_length/2 ) + y
+			(-m_length/btScalar(2.0)) + y
 			);
 			break;
 		};
 	case 2:
 		{
 			vertex.setValue(
-			(-m_width/2 ) + x,
-			(-m_length/2 ) + y,
+			(-m_width/btScalar(2.0)) + x,
+			(-m_length/btScalar(2.0)) + y,
 			height
 			);
 			break;
