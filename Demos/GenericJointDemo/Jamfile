@@ -1,0 +1,3 @@
+SubDir TOP Demos GenericJointDemo ;
+
+BulletDemo GenericJointDemo : [ Wildcard *.h *.cpp  ] ;
