@@ -898,10 +898,14 @@ static const unsigned BVH_ALIGNMENT_BLOCKS = 2;
 
 
 
+unsigned int btOptimizedBvh::getAlignmentSerializationPadding()
+{
+	return BVH_ALIGNMENT_BLOCKS * BVH_ALIGNMENT;
+}
 
 unsigned btOptimizedBvh::calculateSerializeBufferSize()
 {
-	unsigned baseSize = sizeof(btOptimizedBvh) + BVH_ALIGNMENT_BLOCKS * BVH_ALIGNMENT;
+	unsigned baseSize = sizeof(btOptimizedBvh) + getAlignmentSerializationPadding();
 	baseSize += sizeof(btBvhSubtreeInfo) * m_subtreeHeaderCount;
 	if (m_useQuantization)
 	{

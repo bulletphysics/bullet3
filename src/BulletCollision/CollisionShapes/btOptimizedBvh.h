@@ -344,6 +344,8 @@ public:
 	///deSerializeInPlace loads and initializes a BVH from a buffer in memory 'in place'
 	static btOptimizedBvh *deSerializeInPlace(void *i_alignedDataBuffer, unsigned i_dataBufferSize, bool i_swapEndian);
 
+	static unsigned int getAlignmentSerializationPadding();
+
 	inline bool isQuantized()
 	{
 		return m_useQuantization;

@@ -201,7 +201,7 @@ void	ConcaveDemo::initPhysics()
 	void* buffer = 0;
 	int numBytes = trimeshShape->getOptimizedBvh()->calculateSerializeBufferSize();
 	buffer = btAlignedAlloc(numBytes,16);
-	bool swapEndian = true;
+	bool swapEndian = false;
 	trimeshShape->getOptimizedBvh()->serialize(buffer,numBytes,swapEndian);
 	FILE* file = fopen("bvh.bin","wb");
 	fwrite(buffer,1,numBytes,file);
@@ -225,12 +225,14 @@ void	ConcaveDemo::initPhysics()
 
 		fseek(file, 0, SEEK_SET);
 
-		void* buffer = btAlignedAlloc(size,16);
+		int buffersize = size+btOptimizedBvh::getAlignmentSerializationPadding();
+
+		void* buffer = btAlignedAlloc(buffersize,16);
 		//memset(buffer,0xcc,size);
 		int read = fread(buffer,1,size,file);
 		fclose(file);
-		bool swapEndian = true;
-		bvh = btOptimizedBvh::deSerializeInPlace(buffer,size,swapEndian);
+		bool swapEndian = false;
+		bvh = btOptimizedBvh::deSerializeInPlace(buffer,buffersize,swapEndian);
 	}
 
 	trimeshShape->setOptimizedBvh(bvh);
