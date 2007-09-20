@@ -270,15 +270,17 @@ public:
 
 	~RagDoll ()
 	{
+		int i;
+
 		// Remove all constraints
-		for (int i = 0; i < JOINT_COUNT; ++i)
+		for ( i = 0; i < JOINT_COUNT; ++i)
 		{
 			m_ownerWorld->removeConstraint(m_joints[i]);
 			delete m_joints[i]; m_joints[i] = 0;
 		}
 
 		// Remove all bodies and shapes
-		for (int i = 0; i < BODYPART_COUNT; ++i)
+		for ( i = 0; i < BODYPART_COUNT; ++i)
 		{
 			m_ownerWorld->removeRigidBody(m_bodies[i]);
 			
