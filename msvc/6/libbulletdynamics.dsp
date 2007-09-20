@@ -204,6 +204,10 @@ SOURCE=..\..\src\BulletDynamics\ConstraintSolver\btTypedConstraint.cpp
 # End Source File
 # Begin Source File
 
+SOURCE=..\..\src\BulletDynamics\Dynamics\btContinuousDynamicsWorld.cpp
+# End Source File
+# Begin Source File
+
 SOURCE=..\..\src\BulletDynamics\Dynamics\btDiscreteDynamicsWorld.cpp
 # End Source File
 # Begin Source File
@@ -281,6 +285,10 @@ SOURCE=..\..\src\BulletDynamics\ConstraintSolver\btSolverConstraint.h
 # Begin Source File
 
 SOURCE=..\..\src\BulletDynamics\ConstraintSolver\btTypedConstraint.h
+# End Source File
+# Begin Source File
+
+SOURCE=..\..\src\BulletDynamics\Dynamics\btContinuousDynamicsWorld.h
 # End Source File
 # Begin Source File
 

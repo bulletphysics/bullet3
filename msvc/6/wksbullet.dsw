@@ -351,6 +351,33 @@ Package=<4>
 
 ###############################################################################
 
+Project: "appGimpactTestDemo"=.\appGimpactTestDemo.dsp - Package Owner=<4>
+
+Package=<5>
+{{{
+}}}
+
+Package=<4>
+{{{
+    Begin Project Dependency
+    Project_Dep_Name libbulletcollision
+    End Project Dependency
+    Begin Project Dependency
+    Project_Dep_Name libbulletdynamics
+    End Project Dependency
+    Begin Project Dependency
+    Project_Dep_Name libbulletmath
+    End Project Dependency
+    Begin Project Dependency
+    Project_Dep_Name libbulletopenglsupport
+    End Project Dependency
+    Begin Project Dependency
+    Project_Dep_Name libGIMPACT
+    End Project Dependency
+}}}
+
+###############################################################################
+
 Project: "appGjkConvexCastDemo"=.\appGjkConvexCastDemo.dsp - Package Owner=<4>
 
 Package=<5>
@@ -573,6 +600,9 @@ Package=<4>
     Project_Dep_Name appGenericJointDemo
     End Project Dependency
     Begin Project Dependency
+    Project_Dep_Name appGimpactTestDemo
+    End Project Dependency
+    Begin Project Dependency
     Project_Dep_Name appGjkConvexCastDemo
     End Project Dependency
     Begin Project Dependency
@@ -604,6 +634,9 @@ Package=<4>
     End Project Dependency
     Begin Project Dependency
     Project_Dep_Name libbulletmath
+    End Project Dependency
+    Begin Project Dependency
+    Project_Dep_Name libbulletmultithreaded
     End Project Dependency
     Begin Project Dependency
     Project_Dep_Name libbulletopenglsupport
@@ -678,6 +711,9 @@ Package=<4>
     Project_Dep_Name appGenericJointDemo
     End Project Dependency
     Begin Project Dependency
+    Project_Dep_Name appGimpactTestDemo
+    End Project Dependency
+    Begin Project Dependency
     Project_Dep_Name appGjkConvexCastDemo
     End Project Dependency
     Begin Project Dependency
@@ -721,6 +757,9 @@ Package=<4>
     End Project Dependency
     Begin Project Dependency
     Project_Dep_Name libbulletmath
+    End Project Dependency
+    Begin Project Dependency
+    Project_Dep_Name libbulletmultithreaded
     End Project Dependency
     Begin Project Dependency
     Project_Dep_Name libbulletopenglsupport
@@ -781,6 +820,18 @@ Package=<4>
 ###############################################################################
 
 Project: "libbulletmath"=.\libbulletmath.dsp - Package Owner=<4>
+
+Package=<5>
+{{{
+}}}
+
+Package=<4>
+{{{
+}}}
+
+###############################################################################
+
+Project: "libbulletmultithreaded"=.\libbulletmultithreaded.dsp - Package Owner=<4>
 
 Package=<5>
 {{{

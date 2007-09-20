@@ -17,7 +17,7 @@ FILEFLAGS 0x0
       VALUE "ProductVersion", "2.62"
       VALUE "FileVersion", "2.62"
       VALUE "LegalCopyright", "Copyright (c) 2005-2007  Erwin Coumans"
-      VALUE "FileDescription", "VehicleDemo"
+      VALUE "FileDescription", "GimpactTestDemo"
 #ifdef CS_DEBUG
       VALUE "Comments", "Debug build"
 #else
