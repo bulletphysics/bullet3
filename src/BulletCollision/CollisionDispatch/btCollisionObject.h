@@ -133,12 +133,12 @@ public:
 		m_collisionShape = collisionShape;
 	}
 
-	const btCollisionShape*	getCollisionShape() const
+	inline const btCollisionShape*	getCollisionShape() const
 	{
 		return m_collisionShape;
 	}
 
-	btCollisionShape*	getCollisionShape()
+	inline btCollisionShape*	getCollisionShape()
 	{
 		return m_collisionShape;
 	}

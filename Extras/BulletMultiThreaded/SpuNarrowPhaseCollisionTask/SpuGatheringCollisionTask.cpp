@@ -27,6 +27,59 @@
 
 #include "SpuLocalSupport.h" //definition of SpuConvexPolyhedronVertexData
 
+#ifdef __CELLOS_LV2__
+///Software caching from the IBM Cell SDK, it reduces 25% SPU time for our test cases
+#define USE_SOFTWARE_CACHE 1
+#endif //__CELLOS_LV2__
+
+////////////////////////////////////////////////
+/// software caching
+#if USE_SOFTWARE_CACHE
+#include <spu_intrinsics.h>
+#include <sys/spu_thread.h>
+#include <sys/spu_event.h>
+#include <stdint.h>
+#define SPE_CACHE_NWAY   		4
+//#define SPE_CACHE_NSETS 		32, 16
+#define SPE_CACHE_NSETS 		8
+//#define SPE_CACHELINE_SIZE 		512
+#define SPE_CACHELINE_SIZE 		128
+#define SPE_CACHE_SET_TAGID(set) 	15
+///make sure that spe_cache.h is below those defines!
+#include "spe_cache.h"
+
+
+int g_CacheMisses=0;
+int g_CacheHits=0;
+
+#if 0 // Added to allow cache misses and hits to be tracked, change this to 1 to restore unmodified version
+#define spe_cache_read(ea)		_spe_cache_lookup_xfer_wait_(ea, 0, 1)
+#else
+#define spe_cache_read(ea)		\
+({								\
+    int set, idx, line, byte;					\
+    _spe_cache_nway_lookup_(ea, set, idx);			\
+								\
+    if (unlikely(idx < 0)) {					\
+        ++g_CacheMisses;                        \
+	    idx = _spe_cache_miss_(ea, set, -1);			\
+        spu_writech(22, SPE_CACHE_SET_TAGMASK(set));		\
+        spu_mfcstat(MFC_TAG_UPDATE_ALL);			\
+    } 								\
+    else                            \
+    {                               \
+        ++g_CacheHits;              \
+    }                               \
+    line = _spe_cacheline_num_(set, idx);			\
+    byte = _spe_cacheline_byte_offset_(ea);			\
+    (void *) &spe_cache_mem[line + byte];			\
+})
+
+#endif
+
+#endif // USE_SOFTWARE_CACHE
+
+
 #ifdef USE_SN_TUNER
 #include <LibSN_SPU.h>
 #endif //USE_SN_TUNER
@@ -55,8 +108,19 @@ struct	CollisionTask_LocalStoreMemory
 	ATTRIBUTE_ALIGNED16(btBroadphaseProxy*	gProxyPtr0);
 	ATTRIBUTE_ALIGNED16(btBroadphaseProxy*	gProxyPtr1);
 
-	ATTRIBUTE_ALIGNED16(btCollisionObject	gColObj0);
-	ATTRIBUTE_ALIGNED16(btCollisionObject	gColObj1);
+	//ATTRIBUTE_ALIGNED16(btCollisionObject	gColObj0);
+	//ATTRIBUTE_ALIGNED16(btCollisionObject	gColObj1);
+	ATTRIBUTE_ALIGNED16(char gColObj0 [sizeof(btCollisionObject)+16]);
+	ATTRIBUTE_ALIGNED16(char gColObj1 [sizeof(btCollisionObject)+16]);
+	
+	btCollisionObject* getColObj0()
+	{
+		return (btCollisionObject*) gColObj0;
+	}
+	btCollisionObject* getColObj1()
+	{
+		return (btCollisionObject*) gColObj1;
+	}
 
 	DoubleBuffer<unsigned char, MIDPHASE_WORKUNIT_PAGE_SIZE> g_workUnitTaskBuffers;
 	ATTRIBUTE_ALIGNED16(btBroadphasePair	gBroadphasePairs[SPU_BATCHSIZE_BROADPHASE_PAIRS]);
@@ -79,7 +143,13 @@ struct	CollisionTask_LocalStoreMemory
 
 	ATTRIBUTE_ALIGNED16(int	spuIndices[16]);
 
-	ATTRIBUTE_ALIGNED16(btOptimizedBvh	gOptimizedBvh);
+	//ATTRIBUTE_ALIGNED16(btOptimizedBvh	gOptimizedBvh);
+	ATTRIBUTE_ALIGNED16(char gOptimizedBvh[sizeof(btOptimizedBvh)+16]);
+	btOptimizedBvh*	getOptimizedBvh()
+	{
+		return (btOptimizedBvh*) gOptimizedBvh;
+	}
+
 	ATTRIBUTE_ALIGNED16(btTriangleIndexVertexArray	gTriangleMeshInterface);
 	///only a single mesh part for now, we can add support for multiple parts, but quantized trees don't support this at the moment 
 	ATTRIBUTE_ALIGNED16(btIndexedMesh	gIndexMesh);
@@ -120,15 +190,26 @@ void* createCollisionLocalStoreMemory()
 
 void	ProcessSpuConvexConvexCollision(SpuCollisionPairInput* wuInput, CollisionTask_LocalStoreMemory* lsMemPtr, SpuContactResult& spuContacts);
 
-
-inline bool spuTestQuantizedAabbAgainstQuantizedAabb(const unsigned short int* aabbMin1,const unsigned short int* aabbMax1,const unsigned short int* aabbMin2,const unsigned short int*  aabbMax2)
+#define USE_BRANCHFREE_TEST 1
+#ifdef USE_BRANCHFREE_TEST
+unsigned int spuTestQuantizedAabbAgainstQuantizedAabb(unsigned short int* aabbMin1,unsigned short int* aabbMax1,const unsigned short int* aabbMin2,const unsigned short int* aabbMax2)
+{		
+	return btSelect((unsigned)((aabbMin1[0] <= aabbMax2[0]) & (aabbMax1[0] >= aabbMin2[0])
+		& (aabbMin1[2] <= aabbMax2[2]) & (aabbMax1[2] >= aabbMin2[2])
+		& (aabbMin1[1] <= aabbMax2[1]) & (aabbMax1[1] >= aabbMin2[1])),
+		1, 0);
+}
+#else
+unsigned int spuTestQuantizedAabbAgainstQuantizedAabb(const unsigned short int* aabbMin1,const unsigned short int* aabbMax1,const unsigned short int* aabbMin2,const unsigned short int*  aabbMax2)
 {
-	bool overlap = true;
-	overlap = (aabbMin1[0] > aabbMax2[0] || aabbMax1[0] < aabbMin2[0]) ? false : overlap;
-	overlap = (aabbMin1[2] > aabbMax2[2] || aabbMax1[2] < aabbMin2[2]) ? false : overlap;
-	overlap = (aabbMin1[1] > aabbMax2[1] || aabbMax1[1] < aabbMin2[1]) ? false : overlap;
+	unsigned int overlap = 1;
+	overlap = (aabbMin1[0] > aabbMax2[0] || aabbMax1[0] < aabbMin2[0]) ? 0 : overlap;
+	overlap = (aabbMin1[2] > aabbMax2[2] || aabbMax1[2] < aabbMin2[2]) ? 0 : overlap;
+	overlap = (aabbMin1[1] > aabbMax2[1] || aabbMax1[1] < aabbMin2[1]) ? 0 : overlap;
 	return overlap;
 }
+#endif
+
 
 
 void	spuWalkStacklessQuantizedTree(btNodeOverlapCallback* nodeCallback,unsigned short int* quantizedQueryAabbMin,unsigned short int* quantizedQueryAabbMax,const btQuantizedBvhNode* rootNode,int startNodeIndex,int endNodeIndex)
@@ -140,7 +221,7 @@ void	spuWalkStacklessQuantizedTree(btNodeOverlapCallback* nodeCallback,unsigned 
 
 	int escapeIndex;
 
-	bool aabbOverlap, isLeafNode;
+	unsigned int aabbOverlap, isLeafNode;
 
 	while (curIndex < endNodeIndex)
 	{
@@ -406,13 +487,13 @@ void	ProcessConvexConcaveSpuCollision(SpuCollisionPairInput* wuInput, CollisionT
 	///quantize query AABB
 	unsigned short int quantizedQueryAabbMin[3];
 	unsigned short int quantizedQueryAabbMax[3];
-	lsMemPtr->gOptimizedBvh.quantizeWithClamp(quantizedQueryAabbMin,aabbMin);
-	lsMemPtr->gOptimizedBvh.quantizeWithClamp(quantizedQueryAabbMax,aabbMax);
+	lsMemPtr->getOptimizedBvh()->quantizeWithClamp(quantizedQueryAabbMin,aabbMin);
+	lsMemPtr->getOptimizedBvh()->quantizeWithClamp(quantizedQueryAabbMax,aabbMax);
 
-	QuantizedNodeArray&	nodeArray = lsMemPtr->gOptimizedBvh.getQuantizedNodeArray();
+	QuantizedNodeArray&	nodeArray = lsMemPtr->getOptimizedBvh()->getQuantizedNodeArray();
 	//spu_printf("SPU: numNodes = %d\n",nodeArray.size());
 
-	BvhSubtreeInfoArray& subTrees = lsMemPtr->gOptimizedBvh.getSubtreeInfoArray();
+	BvhSubtreeInfoArray& subTrees = lsMemPtr->getOptimizedBvh()->getSubtreeInfoArray();
 
 	spuNodeCallback	nodeCallback(wuInput,lsMemPtr,spuContacts);
 	IndexedMeshArray&	indexArray = lsMemPtr->gTriangleMeshInterface.getIndexedMeshArray();
@@ -454,7 +535,7 @@ void	ProcessConvexConcaveSpuCollision(SpuCollisionPairInput* wuInput, CollisionT
 			{
 				const btBvhSubtreeInfo& subtree = lsMemPtr->gSubtreeHeaders[j];
 
-				bool overlap = spuTestQuantizedAabbAgainstQuantizedAabb(quantizedQueryAabbMin,quantizedQueryAabbMax,subtree.m_quantizedAabbMin,subtree.m_quantizedAabbMax);
+				unsigned int overlap = spuTestQuantizedAabbAgainstQuantizedAabb(quantizedQueryAabbMin,quantizedQueryAabbMax,subtree.m_quantizedAabbMin,subtree.m_quantizedAabbMax);
 				if (overlap)
 				{
 					btAssert(subtree.m_subtreeSize);
@@ -674,7 +755,7 @@ void	ProcessSpuConvexConvexCollision(SpuCollisionPairInput* wuInput, CollisionTa
 		uint64_t manifoldAddress = (uint64_t)manifold;
 		btPersistentManifold* spuManifold=&lsMemPtr->gPersistentManifold;
 		//spuContacts.setContactInfo(spuManifold,manifoldAddress,wuInput->m_worldTransform0,wuInput->m_worldTransform1,wuInput->m_isSwapped);
-		spuContacts.setContactInfo(spuManifold,manifoldAddress,lsMemPtr->gColObj0.getWorldTransform(),lsMemPtr->gColObj1.getWorldTransform(),wuInput->m_isSwapped);
+		spuContacts.setContactInfo(spuManifold,manifoldAddress,lsMemPtr->getColObj0()->getWorldTransform(),lsMemPtr->getColObj1()->getWorldTransform(),wuInput->m_isSwapped);
 
 		SpuGjkPairDetector gjk(shape0Ptr,shape1Ptr,shapeType0,shapeType1,marginA,marginB,&vsSolver,&penetrationSolver);
 		gjk.getClosestPoints(cpInput,spuContacts);//,debugDraw);
@@ -707,8 +788,8 @@ void	dmaAndSetupCollisionObjects(SpuCollisionPairInput& collisionPairInput, Coll
 
 	cellDmaWaitTagStatusAll(DMA_MASK(1) | DMA_MASK(2));
 
-	collisionPairInput.m_worldTransform0 = lsMem.gColObj0.getWorldTransform();
-	collisionPairInput.m_worldTransform1 = lsMem.gColObj1.getWorldTransform();
+	collisionPairInput.m_worldTransform0 = lsMem.getColObj0()->getWorldTransform();
+	collisionPairInput.m_worldTransform1 = lsMem.getColObj1()->getWorldTransform();
 
 
 
@@ -1174,8 +1255,8 @@ void	processCollisionTask(void* userPtr, void* lsMemPtr)
 								dmaAndSetupCollisionObjects(collisionPairInput, lsMem);
 
 								handleCollisionPair(collisionPairInput, lsMem, spuContacts, 
-									(uint64_t)lsMem.gColObj0.getCollisionShape(), lsMem.gCollisionShape0,
-									(uint64_t)lsMem.gColObj1.getCollisionShape(), lsMem.gCollisionShape1);
+									(uint64_t)lsMem.getColObj0()->getCollisionShape(), lsMem.gCollisionShape0,
+									(uint64_t)lsMem.getColObj1()->getCollisionShape(), lsMem.gCollisionShape1);
 							}		
 						}
 

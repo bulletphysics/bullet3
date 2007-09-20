@@ -834,20 +834,7 @@ void	btOptimizedBvh::reportSphereOverlappingNodex(btNodeOverlapCallback* nodeCal
 }
 
 
-void btOptimizedBvh::quantizeWithClamp(unsigned short* out, const btVector3& point) const
-{
 
-	btAssert(m_useQuantization);
-
-	btVector3 clampedPoint(point);
-	clampedPoint.setMax(m_bvhAabbMin);
-	clampedPoint.setMin(m_bvhAabbMax);
-
-	btVector3 v = (clampedPoint - m_bvhAabbMin) * m_bvhQuantization;
-	out[0] = (unsigned short)(v.getX()+0.5f);
-	out[1] = (unsigned short)(v.getY()+0.5f);
-	out[2] = (unsigned short)(v.getZ()+0.5f);		
-}
 
 btVector3	btOptimizedBvh::unQuantize(const unsigned short* vecIn) const
 {
