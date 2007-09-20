@@ -43,6 +43,7 @@ SubInclude TOP Demos BspDemo ;
 SubInclude TOP Demos VehicleDemo ;
 SubInclude TOP Demos CollisionDemo ;
 SubInclude TOP Demos CollisionInterfaceDemo ;
+SubInclude TOP Demos GimpactTestDemo ;
 SubInclude TOP Demos MovingConcaveDemo ;
 SubInclude TOP Demos ConcaveDemo ;
 SubInclude TOP Demos ConstraintDemo ;
