@@ -911,11 +911,12 @@ void	DemoApplication::clientResetScene()
 	gNumGjkChecks = 0;
 #endif //SHOW_NUM_DEEP_PENETRATIONS
 
+	int numObjects = 0;
 	if (m_dynamicsWorld)
 	{
 		m_dynamicsWorld->stepSimulation(1.f/60.f,0);
+		numObjects = m_dynamicsWorld->getNumCollisionObjects();
 	}
-	int numObjects = m_dynamicsWorld->getNumCollisionObjects();
 	
 	for (int i=0;i<numObjects;i++)
 	{

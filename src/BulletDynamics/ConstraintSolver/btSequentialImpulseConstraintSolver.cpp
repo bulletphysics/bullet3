@@ -496,20 +496,21 @@ btScalar btSequentialImpulseConstraintSolver::solveGroupCacheFriendly(btCollisio
 
 							solverConstraint.m_penetration = cp.getDistance();///btScalar(infoGlobal.m_numIterations);
 							solverConstraint.m_friction = cp.m_combinedFriction;
-							btScalar rest =  restitutionCurve(rel_vel, cp.m_combinedRestitution);
-							if (rest <= btScalar(0.))
+							solverConstraint.m_restitution =  restitutionCurve(rel_vel, cp.m_combinedRestitution);
+							if (solverConstraint.m_restitution <= btScalar(0.))
 							{
-								rest = 0.f;
+								solverConstraint.m_restitution = 0.f;
 							};
 							
 							btScalar penVel = -solverConstraint.m_penetration/infoGlobal.m_timeStep;
-							if (rest > penVel)
-							{
-								rest = btScalar(0.);
-							}
-							solverConstraint.m_restitution = rest;
-
 							solverConstraint.m_penetration *= -(infoGlobal.m_erp/infoGlobal.m_timeStep);
+
+							if (solverConstraint.m_restitution > penVel)
+							{
+								solverConstraint.m_penetration = btScalar(0.);
+							}
+							
+							
 
 							solverConstraint.m_appliedImpulse = 0.f;
 							solverConstraint.m_appliedVelocityImpulse = 0.f;
