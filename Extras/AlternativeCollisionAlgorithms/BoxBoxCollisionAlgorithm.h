@@ -18,7 +18,9 @@ subject to the following restrictions:
 
 #include "BulletCollision/BroadphaseCollision/btCollisionAlgorithm.h"
 #include "BulletCollision/BroadphaseCollision/btBroadphaseProxy.h"
+#include "BulletCollision/BroadphaseCollision/btDispatcher.h"
 #include "BulletCollision/CollisionDispatch/btCollisionCreateFunc.h"
+
 class btPersistentManifold;
 
 ///box-box collision detection
@@ -43,7 +45,9 @@ public:
 	{
 		virtual	btCollisionAlgorithm* CreateCollisionAlgorithm(btCollisionAlgorithmConstructionInfo& ci, btCollisionObject* body0,btCollisionObject* body1)
 		{
-			return new BoxBoxCollisionAlgorithm(0,ci,body0,body1);
+			int bbsize = sizeof(BoxBoxCollisionAlgorithm);
+			void* ptr = ci.m_dispatcher1->allocateCollisionAlgorithm(bbsize);
+			return new(ptr) BoxBoxCollisionAlgorithm(0,ci,body0,body1);
 		}
 	};
 
