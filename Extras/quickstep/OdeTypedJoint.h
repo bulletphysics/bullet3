@@ -105,7 +105,7 @@ public:
 int bt_get_limit_motor_info2(
 	btRotationalLimitMotor * limot,
 	btRigidBody * body0, btRigidBody * body1,
-	BU_Joint::Info2 *info, int row, btVector3 ax1, int rotational);
+	BU_Joint::Info2 *info, int row, btVector3& ax1, int rotational);
 
 #endif //CONTACT_JOINT_H
 

@@ -23,7 +23,6 @@ class	btRigidBody;
 #include "LinearMath/btAlignedAllocator.h"
 
 
-
 ///btSolverBody is an internal datastructure for the constraint solver. Only necessary data is packed to increase cache coherence/performance.
 ATTRIBUTE_ALIGNED16 (struct)	btSolverBody
 {
@@ -46,7 +45,7 @@ ATTRIBUTE_ALIGNED16 (struct)	btSolverBody
 	inline void internalApplyImpulse(const btVector3& linearComponent, const btVector3& angularComponent,btScalar impulseMagnitude)
 	{
 		m_linearVelocity += linearComponent*impulseMagnitude;
-		m_angularVelocity += angularComponent*impulseMagnitude*m_angularFactor;
+		m_angularVelocity += angularComponent*(impulseMagnitude*m_angularFactor);
 	}
 
 	void	writebackVelocity()

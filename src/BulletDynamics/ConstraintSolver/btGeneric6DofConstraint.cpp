@@ -112,7 +112,7 @@ int btRotationalLimitMotor::testLimitValue(btScalar test_value)
 
 
 btScalar btRotationalLimitMotor::solveAngularLimits(
-		btScalar timeStep,btVector3 axis,btScalar jacDiagABInv,
+		btScalar timeStep,btVector3& axis,btScalar jacDiagABInv,
 	 	btRigidBody * body0, btRigidBody * body1)
 {
     if (needApplyTorques()==false) return 0.0f;

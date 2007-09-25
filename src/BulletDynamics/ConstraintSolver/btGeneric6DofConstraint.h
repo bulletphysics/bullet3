@@ -110,7 +110,7 @@ public:
 	int testLimitValue(btScalar test_value);
 
 	//! apply the correction impulses for two bodies
-    btScalar solveAngularLimits(btScalar timeStep,btVector3 axis, btScalar jacDiagABInv,btRigidBody * body0, btRigidBody * body1);
+    btScalar solveAngularLimits(btScalar timeStep,btVector3& axis, btScalar jacDiagABInv,btRigidBody * body0, btRigidBody * body1);
 
 
 };

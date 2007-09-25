@@ -40,7 +40,7 @@ struct btContactSolverInfo : public btContactSolverInfoData
 		m_friction = btScalar(0.3);
 		m_restitution = btScalar(0.);
 		m_maxErrorReduction = btScalar(20.);
-		m_numIterations = 10;
+		m_numIterations = 4;
 		m_erp = btScalar(0.4);
 		m_sor = btScalar(1.3);
 	}

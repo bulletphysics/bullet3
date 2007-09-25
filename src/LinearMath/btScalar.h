@@ -154,7 +154,26 @@ SIMD_FORCE_INLINE btScalar btPow(btScalar x,btScalar y) { return pow(x,y); }
 
 #else
 		
-SIMD_FORCE_INLINE btScalar btSqrt(btScalar x) { return sqrtf(x); }
+SIMD_FORCE_INLINE btScalar btSqrt(btScalar y) 
+{ 
+#ifdef USE_APPROXIMATION
+    double x, z, tempf;
+    unsigned long *tfptr = ((unsigned long *)&tempf) + 1;
+
+	tempf = y;
+	*tfptr = (0xbfcdd90a - *tfptr)>>1; /* estimate of 1/sqrt(y) */
+	x =  tempf;
+	z =  y*btScalar(0.5);                        /* hoist out the “/2”    */
+	x = (btScalar(1.5)*x)-(x*x)*(x*z);         /* iteration formula     */
+	x = (btScalar(1.5)*x)-(x*x)*(x*z);
+	x = (btScalar(1.5)*x)-(x*x)*(x*z);
+	x = (btScalar(1.5)*x)-(x*x)*(x*z);
+	x = (btScalar(1.5)*x)-(x*x)*(x*z);
+	return x*y;
+#else
+	return sqrtf(y); 
+#endif
+}
 SIMD_FORCE_INLINE btScalar btFabs(btScalar x) { return fabsf(x); }
 SIMD_FORCE_INLINE btScalar btCos(btScalar x) { return cosf(x); }
 SIMD_FORCE_INLINE btScalar btSin(btScalar x) { return sinf(x); }

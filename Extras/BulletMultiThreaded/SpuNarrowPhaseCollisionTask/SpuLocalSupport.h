@@ -36,7 +36,7 @@ struct	SpuConvexPolyhedronVertexData
 };
 
 
-inline btPoint3 localGetSupportingVertexWithoutMargin(int shapeType, void* shape, btVector3 localDir,struct	SpuConvexPolyhedronVertexData* convexVertexData)//, int *featureIndex)
+inline btPoint3 localGetSupportingVertexWithoutMargin(int shapeType, void* shape, btVector3& localDir,struct	SpuConvexPolyhedronVertexData* convexVertexData)//, int *featureIndex)
 {
     switch (shapeType)
     {

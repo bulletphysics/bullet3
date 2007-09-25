@@ -308,7 +308,7 @@ shortestArcQuat(const btVector3& v0, const btVector3& v1) // Game Programming Ge
 }
 
 SIMD_FORCE_INLINE btQuaternion 
-shortestArcQuatNormalize(btVector3 v0,btVector3 v1)
+shortestArcQuatNormalize2(btVector3& v0,btVector3& v1)
 {
 	v0.normalize();
 	v1.normalize();

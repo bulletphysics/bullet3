@@ -23,7 +23,7 @@ subject to the following restrictions:
 #include "PlatformDefinitions.h"
 #include "LinearMath/btAlignedObjectArray.h"
 
-#define DEBUG_SpuCollisionTaskProcess 1
+//#define DEBUG_SpuCollisionTaskProcess 1
 
 
 #define CMD_GATHER_AND_PROCESS_PAIRLIST	1

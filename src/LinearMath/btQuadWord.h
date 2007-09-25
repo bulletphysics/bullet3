@@ -19,7 +19,7 @@ subject to the following restrictions:
 #include "btScalar.h"
 #include "btSimdMinMax.h"
 
-class btQuadWordStorage
+ATTRIBUTE_ALIGNED16(class) btQuadWordStorage
 {
 protected:
 	btScalar	m_x;
