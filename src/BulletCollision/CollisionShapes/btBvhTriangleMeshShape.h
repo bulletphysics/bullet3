@@ -18,6 +18,7 @@ subject to the following restrictions:
 
 #include "btTriangleMeshShape.h"
 #include "btOptimizedBvh.h"
+#include "LinearMath/btAlignedAllocator.h"
 
 ///Bvh Concave triangle mesh is a static-triangle mesh shape with Bounding Volume Hierarchy optimization.
 ///Uses an interface to access the triangles to allow for sharing graphics/physics triangles.
@@ -30,6 +31,8 @@ ATTRIBUTE_ALIGNED16(class) btBvhTriangleMeshShape : public btTriangleMeshShape
 	bool m_pad[11];////need padding due to alignment
 
 public:
+
+	BT_DECLARE_ALIGNED_ALLOCATOR();
 
 	btBvhTriangleMeshShape() :btTriangleMeshShape(0),m_bvh(0),m_ownsBvh(false) {};
 	btBvhTriangleMeshShape(btStridingMeshInterface* meshInterface, bool useQuantizedAabbCompression, bool buildBvh = true);

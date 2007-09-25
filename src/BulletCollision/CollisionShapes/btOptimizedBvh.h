@@ -18,6 +18,7 @@ subject to the following restrictions:
 
 
 #include "LinearMath/btVector3.h"
+#include "LinearMath/btAlignedAllocator.h"
 
 
 //http://msdn.microsoft.com/library/default.asp?url=/library/en-us/vclang/html/vclrf__m128.asp
@@ -34,7 +35,8 @@ class btStridingMeshInterface;
 ///Node can be used for leafnode or internal node. Leafnodes can point to 32-bit triangle index (non-negative range).
 ATTRIBUTE_ALIGNED16	(struct) btQuantizedBvhNode
 {
-	
+	BT_DECLARE_ALIGNED_ALLOCATOR();
+
 	//12 bytes
 	unsigned short int	m_quantizedAabbMin[3];
 	unsigned short int	m_quantizedAabbMax[3];
@@ -63,6 +65,8 @@ ATTRIBUTE_ALIGNED16	(struct) btQuantizedBvhNode
 /// Total node size is 44 bytes / node. You can use the compressed version of 16 bytes.
 ATTRIBUTE_ALIGNED16 (struct) btOptimizedBvhNode
 {
+	BT_DECLARE_ALIGNED_ALLOCATOR();
+
 	//32 bytes
 	btVector3	m_aabbMinOrg;
 	btVector3	m_aabbMaxOrg;
@@ -84,6 +88,8 @@ ATTRIBUTE_ALIGNED16 (struct) btOptimizedBvhNode
 ATTRIBUTE_ALIGNED16(class) btBvhSubtreeInfo
 {
 public:
+	BT_DECLARE_ALIGNED_ALLOCATOR();
+
 	//12 bytes
 	unsigned short int	m_quantizedAabbMin[3];
 	unsigned short int	m_quantizedAabbMax[3];
@@ -145,6 +151,8 @@ ATTRIBUTE_ALIGNED16(class) btOptimizedBvh
 	btVector3			m_bvhAabbMax;
 	btVector3			m_bvhQuantization;
 public:
+	BT_DECLARE_ALIGNED_ALLOCATOR();
+
 	enum btTraversalMode
 	{
 		TRAVERSAL_STACKLESS = 0,

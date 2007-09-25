@@ -28,6 +28,7 @@ subject to the following restrictions:
 struct	btBroadphaseProxy;
 class	btCollisionShape;
 #include "LinearMath/btMotionState.h"
+#include "LinearMath/btAlignedAllocator.h"
 
 
 
@@ -88,6 +89,8 @@ protected:
 	}
 
 public:
+
+	BT_DECLARE_ALIGNED_ALLOCATOR();
 
 	enum CollisionFlags
 	{

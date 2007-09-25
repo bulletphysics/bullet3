@@ -20,6 +20,7 @@ subject to the following restrictions:
 #include "LinearMath/btVector3.h"
 #include "LinearMath/btTransform.h"
 #include "btManifoldPoint.h"
+#include "LinearMath/btAlignedAllocator.h"
 
 struct btCollisionResult;
 
@@ -54,6 +55,8 @@ ATTRIBUTE_ALIGNED16( class) btPersistentManifold
 	int		findContactPoint(const btManifoldPoint* unUsed, int numUnused,const btManifoldPoint& pt);
 
 public:
+
+	BT_DECLARE_ALIGNED_ALLOCATOR();
 
 	int m_index1;
 

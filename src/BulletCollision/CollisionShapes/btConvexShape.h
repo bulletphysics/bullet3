@@ -22,6 +22,7 @@ subject to the following restrictions:
 #include "LinearMath/btTransform.h"
 #include "LinearMath/btMatrix3x3.h"
 #include "btCollisionMargin.h"
+#include "LinearMath/btAlignedAllocator.h"
 
 //todo: get rid of this btConvexCastResult thing!
 struct btConvexCastResult;
@@ -35,6 +36,8 @@ ATTRIBUTE_ALIGNED16(class) btConvexShape : public btCollisionShape
 
 
 public:
+
+	BT_DECLARE_ALIGNED_ALLOCATOR();
 
 	virtual ~btConvexShape()
 	{

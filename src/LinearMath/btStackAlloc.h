@@ -21,6 +21,7 @@ Nov.2006
 #define BT_STACK_ALLOC
 
 #include "btScalar.h" //for btAssert
+#include "btAlignedAllocator.h"
 
 struct btBlock
 {
@@ -39,7 +40,7 @@ public:
 	inline void		create(unsigned int size)
 	{
 		destroy();
-		data		=	new unsigned char[size];
+		data		=  (unsigned char*) btAlignedAlloc(size,16);
 		totalsize	=	size;
 	}
 	inline void		destroy()
@@ -49,7 +50,9 @@ public:
 
 		if(usedsize==0)
 		{
-			if(!ischild)		delete[] data;
+			if(!ischild)		
+				btAlignedFree(data);
+
 			data				=	0;
 			usedsize			=	0;
 		}

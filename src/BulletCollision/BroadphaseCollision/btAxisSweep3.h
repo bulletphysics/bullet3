@@ -213,7 +213,8 @@ m_handleSentinel(handleSentinel)
 {
 	if (!m_pairCache)
 	{
-		m_pairCache = new btOverlappingPairCache();
+		void* ptr = btAlignedAlloc(sizeof(btOverlappingPairCache),16);
+		m_pairCache = new(ptr) btOverlappingPairCache();
 		m_ownsPairCache = true;
 	}
 
@@ -230,7 +231,8 @@ m_handleSentinel(handleSentinel)
 	m_quantize = btVector3(btScalar(maxInt),btScalar(maxInt),btScalar(maxInt)) / aabbSize;
 
 	// allocate handles buffer and put all handles on free list
-	m_pHandles = new Handle[maxHandles];
+	void* ptr = btAlignedAlloc(sizeof(Handle)*maxHandles,16);
+	m_pHandles = new(ptr) Handle[maxHandles];
 	m_maxHandles = maxHandles;
 	m_numHandles = 0;
 
@@ -243,9 +245,12 @@ m_handleSentinel(handleSentinel)
 	}
 
 	{
-	// allocate edge buffers
-	for (int i = 0; i < 3; i++)
-		m_pEdges[i] = new Edge[maxHandles * 2];
+		// allocate edge buffers
+		for (int i = 0; i < 3; i++)
+		{
+			void* ptr = btAlignedAlloc(sizeof(Edge)*maxHandles*2,16);
+			m_pEdges[i] = new(ptr) Edge[maxHandles * 2];
+		}
 	}
 	//removed overlap management
 
@@ -275,12 +280,14 @@ btAxisSweep3Internal<BP_FP_INT_TYPE>::~btAxisSweep3Internal()
 {
 	
 	for (int i = 2; i >= 0; i--)
-		delete[] m_pEdges[i];
-	delete[] m_pHandles;
+	{
+		btAlignedFree(m_pEdges[i]);
+	}
+	btAlignedFree(m_pHandles);
 
 	if (m_ownsPairCache)
 	{
-		delete m_pairCache;
+		btAlignedFree(m_pairCache);
 	}
 }
 

@@ -25,11 +25,13 @@ subject to the following restrictions:
 
 
 
+
 #ifdef WIN32
 
 		#if defined(__MINGW32__) || defined(__CYGWIN__) || (defined (_MSC_VER) && _MSC_VER < 1300)
 			#define SIMD_FORCE_INLINE inline
 			#define ATTRIBUTE_ALIGNED16(a) a
+			#define ATTRIBUTE_ALIGNED128(a) a
 		#else
 			#define BT_HAS_ALIGNED_ALOCATOR
 			#pragma warning(disable:4530)
@@ -37,6 +39,7 @@ subject to the following restrictions:
 			#pragma warning(disable:4786)
 			#define SIMD_FORCE_INLINE __forceinline
 			#define ATTRIBUTE_ALIGNED16(a) __declspec(align(16)) a
+			#define ATTRIBUTE_ALIGNED128(a) __declspec (align(128)) a
 		#ifdef _XBOX
 			#define BT_USE_VMX128
 
@@ -52,29 +55,61 @@ subject to the following restrictions:
 		#define btAssert assert
 		//btFullAssert is optional, slows down a lot
 		#define btFullAssert(x)
+
+		#define btLikely(_c)  _c
+		#define btUnlikely(_c) _c
+
 #else
 	
 #if defined	(__CELLOS_LV2__)
 		#define SIMD_FORCE_INLINE inline
 		#define ATTRIBUTE_ALIGNED16(a) a __attribute__ ((aligned (16)))
+		#define ATTRIBUTE_ALIGNED128(a) a __attribute__ ((aligned (128)))
 		#ifndef assert
 		#include <assert.h>
 		#endif
 		#define btAssert assert
 		//btFullAssert is optional, slows down a lot
 		#define btFullAssert(x)
+
+		#define btLikely(_c)  _c
+		#define btUnlikely(_c) _c
+
 #else
 
+#ifdef USE_LIBSPE2
+
+		#define SIMD_FORCE_INLINE __inline
+		#define ATTRIBUTE_ALIGNED16(a) a __attribute__ ((aligned (16)))
+		#define ATTRIBUTE_ALIGNED128(a) a __attribute__ ((aligned (128)))
+		#ifndef assert
+		#include <assert.h>
+		#endif
+		#define btAssert assert
+		//btFullAssert is optional, slows down a lot
+		#define btFullAssert(x)
+
+
+		#define btLikely(_c)   __builtin_expect((_c), 1)
+		#define btUnlikely(_c) __builtin_expect((_c), 0)
+		
+
+#else
 	//non-windows systems
 
 		#define SIMD_FORCE_INLINE inline
 		#define ATTRIBUTE_ALIGNED16(a) a
+		#define ATTRIBUTE_ALIGNED128(a) a
 		#ifndef assert
 		#include <assert.h>
 		#endif
 		#define btAssert assert
 		//btFullAssert is optional, slows down a lot
 		#define btFullAssert(x)
+
+
+#endif // LIBSPE2
+
 #endif	//__CELLOS_LV2__
 #endif
 
@@ -92,6 +127,14 @@ typedef double btScalar;
 #else
 typedef float btScalar;
 #endif
+
+
+#define BT_DECLARE_ALIGNED_ALLOCATOR() \
+	SIMD_FORCE_INLINE void* operator new(size_t sizeInBytes)	{ return btAlignedAlloc(sizeInBytes,16); }	\
+	SIMD_FORCE_INLINE void  operator delete(void* ptr)			{ btAlignedFree(ptr); }	\
+	SIMD_FORCE_INLINE void* operator new(size_t, void* ptr)	{ return ptr; }	\
+	SIMD_FORCE_INLINE void  operator delete(void*, void*)		{ }	\
+
 
 
 #if defined(BT_USE_DOUBLE_PRECISION) || defined(BT_FORCE_DOUBLE_FUNCTIONS)

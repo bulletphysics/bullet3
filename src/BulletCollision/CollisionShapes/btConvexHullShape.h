@@ -29,6 +29,7 @@ ATTRIBUTE_ALIGNED16(class) btConvexHullShape : public btPolyhedralConvexShape
 	btAlignedObjectArray<btPoint3>	m_points;
 
 public:
+	BT_DECLARE_ALIGNED_ALLOCATOR();
 
 	
 	///this constructor optionally takes in a pointer to points. Each point is assumed to be 3 consecutive btScalar (x,y,z), the striding defines the number of bytes between each point, in memory.

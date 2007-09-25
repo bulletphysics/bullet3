@@ -17,6 +17,7 @@ subject to the following restrictions:
 #define _BT_POOL_ALLOCATOR_H
 
 #include "btScalar.h"
+#include "btAlignedAllocator.h"
 
 class btPoolAllocator
 {
@@ -32,7 +33,7 @@ public:
 		:m_elemSize(elemSize),
 		m_maxElements(maxElements)
 	{
-		m_pool = new unsigned char[m_elemSize*m_maxElements];
+		m_pool = (unsigned char*) btAlignedAlloc(m_elemSize*m_maxElements,16);
 
 		unsigned char* p = m_pool;
         m_firstFree = p;
@@ -47,7 +48,7 @@ public:
 
 	~btPoolAllocator()
 	{
-		delete m_pool;
+		btAlignedFree( m_pool);
 	}
 
 	void*	allocate(int size)

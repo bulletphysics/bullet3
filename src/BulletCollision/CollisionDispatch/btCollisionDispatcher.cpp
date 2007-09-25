@@ -117,64 +117,19 @@ void btCollisionDispatcher::releaseManifold(btPersistentManifold* manifold)
 
 btCollisionAlgorithm* btCollisionDispatcher::findAlgorithm(btCollisionObject* body0,btCollisionObject* body1,btPersistentManifold* sharedManifold)
 {
-
-#ifdef USE_DISPATCH_REGISTRY_ARRAY
 	
 	btCollisionAlgorithmConstructionInfo ci;
 
 	ci.m_dispatcher1 = this;
 	ci.m_manifold = sharedManifold;
-	btCollisionAlgorithm* algo = m_doubleDispatch[body0->getCollisionShape()->getShapeType()][body1->getCollisionShape()->getShapeType()]
-	->CreateCollisionAlgorithm(ci,body0,body1);
-#else
-	btCollisionAlgorithm* algo = internalFindAlgorithm(body0,body1);
-#endif //USE_DISPATCH_REGISTRY_ARRAY
+	btCollisionAlgorithm* algo = m_doubleDispatch[body0->getCollisionShape()->getShapeType()][body1->getCollisionShape()->getShapeType()]->CreateCollisionAlgorithm(ci,body0,body1);
+
 	return algo;
 }
 
 
 
 
-#ifndef USE_DISPATCH_REGISTRY_ARRAY
-
-btCollisionAlgorithm* btCollisionDispatcher::internalFindAlgorithm(btCollisionObject* body0,btCollisionObject* body1,btPersistentManifold* sharedManifold)
-{
-	m_count++;
-	
-	btCollisionAlgorithmConstructionInfo ci;
-	ci.m_dispatcher = this;
-	
-	if (body0->getCollisionShape()->isConvex() && body1->getCollisionShape()->isConvex() )
-	{
-		return new btConvexConvexAlgorithm(sharedManifold,ci,body0,body1);
-	}
-
-	if (body0->getCollisionShape()->isConvex() && body1->getCollisionShape()->isConcave())
-	{
-		return new btConvexConcaveCollisionAlgorithm(ci,body0,body1,false);
-	}
-
-	if (body1->getCollisionShape()->isConvex() && body0->getCollisionShape()->isConcave())
-	{
-		return new btConvexConcaveCollisionAlgorithm(ci,body0,body1,true);
-	}
-
-	if (body0->getCollisionShape()->isCompound())
-	{
-		return new btCompoundCollisionAlgorithm(ci,body0,body1,false);
-	} else
-	{
-		if (body1->getCollisionShape()->isCompound())
-		{
-			return new btCompoundCollisionAlgorithm(ci,body0,body1,true);
-		}
-	}
-
-	//failed to find an algorithm
-	return new btEmptyAlgorithm(ci);
-	
-}
-#endif //USE_DISPATCH_REGISTRY_ARRAY
 
 bool	btCollisionDispatcher::needsResponse(btCollisionObject* body0,btCollisionObject* body1)
 {

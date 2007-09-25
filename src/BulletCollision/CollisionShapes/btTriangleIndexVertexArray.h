@@ -24,6 +24,8 @@ subject to the following restrictions:
 ///todo: explain with pictures
 ATTRIBUTE_ALIGNED16( struct)	btIndexedMesh
 {
+	BT_DECLARE_ALIGNED_ALLOCATOR();
+
 	int			m_numTriangles;
 	const unsigned char *		m_triangleIndexBase;
 	int			m_triangleIndexStride;
@@ -48,6 +50,8 @@ ATTRIBUTE_ALIGNED16( class) btTriangleIndexVertexArray : public btStridingMeshIn
 
 		
 public:
+
+	BT_DECLARE_ALIGNED_ALLOCATOR();
 
 	btTriangleIndexVertexArray()
 	{

@@ -20,12 +20,15 @@ class	btRigidBody;
 #include "LinearMath/btVector3.h"
 #include "LinearMath/btMatrix3x3.h"
 #include "BulletDynamics/Dynamics/btRigidBody.h"
+#include "LinearMath/btAlignedAllocator.h"
 
 
 
 ///btSolverBody is an internal datastructure for the constraint solver. Only necessary data is packed to increase cache coherence/performance.
 ATTRIBUTE_ALIGNED16 (struct)	btSolverBody
 {
+	BT_DECLARE_ALIGNED_ALLOCATOR();
+
 	btVector3		m_centerOfMassPosition;
 	btVector3		m_linearVelocity;
 	btVector3		m_angularVelocity;

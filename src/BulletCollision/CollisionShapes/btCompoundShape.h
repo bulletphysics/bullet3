@@ -28,6 +28,8 @@ class btOptimizedBvh;
 
 ATTRIBUTE_ALIGNED16(struct) btCompoundShapeChild
 {
+	BT_DECLARE_ALIGNED_ALLOCATOR();
+
 	btTransform			m_transform;
 	btCollisionShape*	m_childShape;
 	int					m_childShapeType;
@@ -47,6 +49,8 @@ ATTRIBUTE_ALIGNED16(class) btCompoundShape	: public btCollisionShape
 	btOptimizedBvh*					m_aabbTree;
 
 public:
+	BT_DECLARE_ALIGNED_ALLOCATOR();
+
 	btCompoundShape();
 
 	virtual ~btCompoundShape();
