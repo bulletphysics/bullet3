@@ -16,23 +16,10 @@ subject to the following restrictions:
 
 //#define DEBUG_SPU_TASK_SCHEDULING 1
 
-#include "btThreadSupportInterface.h"
-
-//#include "SPUAssert.h"
-#include <string.h>
 
 //class OptimizedBvhNode;
 
 #include "SpuCollisionTaskProcess.h"
-#include "BulletCollision/CollisionDispatch/btCollisionObject.h"
-#include "BulletCollision/CollisionShapes/btCollisionShape.h"
-#include "BulletCollision/CollisionShapes/btConvexShape.h"
-#include "SpuLibspe2Support.h"
-#include "SpuNarrowPhaseCollisionTask/SpuGatheringCollisionTask.h" // for definitions processCollisionTask and createCollisionLocalStoreMemory
-
-
-#include <stdio.h>
-
 
 
 
@@ -44,7 +31,6 @@ SpuCollisionTaskProcess::SpuCollisionTaskProcess(class	btThreadSupportInterface*
 m_maxNumOutstandingTasks(maxNumOutstandingTasks)
 {
 	m_workUnitTaskBuffers = (unsigned char *)0;
-
 	m_taskBusy.resize(m_maxNumOutstandingTasks);
 	m_spuGatherTaskDesc.resize(m_maxNumOutstandingTasks);
 
@@ -70,9 +56,10 @@ m_maxNumOutstandingTasks(maxNumOutstandingTasks)
 
 SpuCollisionTaskProcess::~SpuCollisionTaskProcess()
 {
+	
 	if (m_workUnitTaskBuffers != 0)
 	{
-		free(m_workUnitTaskBuffers);
+		btAlignedFree(m_workUnitTaskBuffers);
 		m_workUnitTaskBuffers = 0;
 	}
 	
@@ -84,15 +71,15 @@ SpuCollisionTaskProcess::~SpuCollisionTaskProcess()
 
 
 
-void
-SpuCollisionTaskProcess::initialize2()
+void SpuCollisionTaskProcess::initialize2()
 {
+
 #ifdef DEBUG_SPU_TASK_SCHEDULING
 	printf("SpuCollisionTaskProcess::initialize()\n");
 #endif //DEBUG_SPU_TASK_SCHEDULING
 	if (!m_workUnitTaskBuffers)
 	{
-		m_workUnitTaskBuffers = (unsigned char *)memalign(128, MIDPHASE_WORKUNIT_TASK_SIZE*m_maxNumOutstandingTasks);
+		m_workUnitTaskBuffers = (unsigned char *)btAlignedAlloc(MIDPHASE_WORKUNIT_TASK_SIZE*m_maxNumOutstandingTasks, 128);
 	}
 
 	for (int i = 0; i < m_maxNumOutstandingTasks; i++)
@@ -114,10 +101,8 @@ SpuCollisionTaskProcess::initialize2()
 void SpuCollisionTaskProcess::issueTask2()
 {
 
-
-
 #ifdef DEBUG_SPU_TASK_SCHEDULING
-	printf("SpuCollisionTaskProcess::issueTask (m_currentTask= %d\)n", m_currentTask);
+	printf("SpuCollisionTaskProcess::issueTask (m_currentTask= %d\n)", m_currentTask);
 #endif //DEBUG_SPU_TASK_SCHEDULING
 
 	m_taskBusy[m_currentTask] = true;
@@ -265,7 +250,7 @@ SpuCollisionTaskProcess::flush2()
 	// all tasks are issued, wait for all tasks to be complete
 	while(m_numBusyTasks > 0)
 	{
-// Consolidating SPU code
+	  // Consolidating SPU code
 	  unsigned int taskId;
 	  unsigned int outputSize;
 	  

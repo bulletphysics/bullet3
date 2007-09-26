@@ -22,8 +22,25 @@ subject to the following restrictions:
 
 #include "PlatformDefinitions.h"
 #include "LinearMath/btAlignedObjectArray.h"
+#include "SpuNarrowPhaseCollisionTask/SpuGatheringCollisionTask.h" // for definitions processCollisionTask and createCollisionLocalStoreMemory
 
-//#define DEBUG_SpuCollisionTaskProcess 1
+#include "btThreadSupportInterface.h"
+
+
+//#include "SPUAssert.h"
+#include <string.h>
+
+
+#include "BulletCollision/CollisionDispatch/btCollisionObject.h"
+#include "BulletCollision/CollisionShapes/btCollisionShape.h"
+#include "BulletCollision/CollisionShapes/btConvexShape.h"
+
+#include <LinearMath/btAlignedAllocator.h>
+
+#include <stdio.h>
+
+
+#define DEBUG_SpuCollisionTaskProcess 1
 
 
 #define CMD_GATHER_AND_PROCESS_PAIRLIST	1
@@ -33,26 +50,27 @@ class btPersistentManifold;
 class btDispatcher;
 
 
-///Task Description for SPU collision detection
-struct SpuGatherAndProcessPairsTaskDesc
-{
-	uint64_t	inPtr;//m_pairArrayPtr;
-	//mutex variable
-	uint32_t	m_someMutexVariableInMainMemory;
-
-	uint64_t	m_dispatcher;
-
-	uint32_t	numOnLastPage;
-
-	uint16_t numPages;
-	uint16_t taskId;
-
-//	struct	CollisionTask_LocalStoreMemory*	m_lsMemory;
-}
-#ifdef __CELLOS_LV2__
-__attribute__ ((aligned (16)))
-#endif
-;
+/////Task Description for SPU collision detection
+//struct SpuGatherAndProcessPairsTaskDesc
+//{
+//	uint64_t	inPtr;//m_pairArrayPtr;
+//	//mutex variable
+//	uint32_t	m_someMutexVariableInMainMemory;
+//
+//	uint64_t	m_dispatcher;
+//
+//	uint32_t	numOnLastPage;
+//
+//	uint16_t numPages;
+//	uint16_t taskId;
+//
+//	struct	CollisionTask_LocalStoreMemory*	m_lsMemory; 
+//}
+//
+//#if  defined(__CELLOS_LV2__) || defined(USE_LIBSPE2)
+//__attribute__ ((aligned (16)))
+//#endif
+//;
 
 
 ///MidphaseWorkUnitInput stores individual primitive versus mesh collision detection input, to be processed by the SPU.
