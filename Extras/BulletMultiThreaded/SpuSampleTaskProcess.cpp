@@ -19,16 +19,11 @@ subject to the following restrictions:
 #ifdef USE_SAMPLE_PROCESS
 
 
-#include "btThreadSupportInterface.h"
-
-//#include "SPUAssert.h"
-#include <string.h>
-
-
 #include "SpuSampleTaskProcess.h"
-
-
 #include <stdio.h>
+
+#ifdef __SPU__
+
 
 
 void	SampleThreadFunc(void* userPtr,void* lsMemory)
@@ -37,11 +32,21 @@ void	SampleThreadFunc(void* userPtr,void* lsMemory)
 	printf("hello world\n");
 }
 
+
 void*	SamplelsMemoryFunc()
 {
 	//don't create local store memory, just return 0
 	return 0;
 }
+
+
+#else
+
+
+#include "btThreadSupportInterface.h"
+
+//#	include "SPUAssert.h"
+#include <string.h>
 
 
 
@@ -193,4 +198,8 @@ void SpuSampleTaskProcess::flush()
 
 
 }
+
+#endif
+
+
 #endif //USE_SAMPLE_PROCESS

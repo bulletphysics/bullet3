@@ -16,10 +16,113 @@ subject to the following restrictions:
 #ifndef SPU_GATHERING_COLLISION_TASK_H
 #define SPU_GATHERING_COLLISION_TASK_H
 
-struct SpuGatherAndProcessPairsTaskDesc;
+#include "../PlatformDefinitions.h"
+//#define DEBUG_SPU_COLLISION_DETECTION 1
+
+
+///Task Description for SPU collision detection
+struct SpuGatherAndProcessPairsTaskDesc 
+{
+	uint64_t	inPtr;//m_pairArrayPtr;
+	//mutex variable
+	uint32_t	m_someMutexVariableInMainMemory;
+
+	uint64_t	m_dispatcher;
+
+	uint32_t	numOnLastPage;
+
+	uint16_t numPages;
+	uint16_t taskId;
+
+	struct	CollisionTask_LocalStoreMemory*	m_lsMemory; 
+}
+
+#if  defined(__CELLOS_LV2__) || defined(USE_LIBSPE2)
+__attribute__ ((aligned (128)))
+#endif
+;
+
 
 void	processCollisionTask(void* userPtr, void* lsMemory);
 
 void*	createCollisionLocalStoreMemory();
 
+
+#if defined(USE_LIBSPE2) && defined(__SPU__)
+#include "../SpuLibspe2Support.h"
+#include <spu_intrinsics.h>
+#include <spu_mfcio.h>
+#include <SpuFakeDma.h>
+
+
+
+int main(unsigned long long speid, addr64 argp, addr64 envp)
+{
+	printf("SPU: hello \n");
+	
+	ATTRIBUTE_ALIGNED128(btSpuStatus status);
+	ATTRIBUTE_ALIGNED16( SpuGatherAndProcessPairsTaskDesc taskDesc ) ;
+	unsigned int received_message = Spu_Mailbox_Event_Nothing;
+    bool shutdown = false;
+
+	cellDmaGet(&status, argp.ull, sizeof(btSpuStatus), DMA_TAG(3), 0, 0);
+	cellDmaWaitTagStatusAll(DMA_MASK(3));
+
+	status.m_status = Spu_Status_Free;
+	status.m_lsMemory.p = createCollisionLocalStoreMemory();
+
+	cellDmaLargePut(&status, argp.ull, sizeof(btSpuStatus), DMA_TAG(3), 0, 0);
+	cellDmaWaitTagStatusAll(DMA_MASK(3));
+	
+	
+	while ( btLikely( !shutdown ) )
+	{
+		
+		received_message = spu_read_in_mbox();
+		
+		if( btLikely( received_message == Spu_Mailbox_Event_Task ))
+		{
+			printf("SPU: received Spu_Mailbox_Event_Task\n");
+		
+			// refresh the status
+			cellDmaGet(&status, argp.ull, sizeof(btSpuStatus), DMA_TAG(3), 0, 0);
+			cellDmaWaitTagStatusAll(DMA_MASK(3));
+		
+			btAssert(status.m_status==Spu_Status_Occupied);
+			
+			cellDmaGet(&taskDesc, status.m_taskDesc.p, sizeof(SpuGatherAndProcessPairsTaskDesc), DMA_TAG(3), 0, 0);
+			cellDmaWaitTagStatusAll(DMA_MASK(3));
+		
+			printf("SPU:processCollisionTask\n");	
+			processCollisionTask((void*)&taskDesc, taskDesc.m_lsMemory);
+			printf("SPU:finished processCollisionTask\n");
+		}
+		else
+		{
+			printf("SPU: received ShutDown\n");
+			if( btLikely( received_message == Spu_Mailbox_Event_Shutdown ) )
+			{
+				shutdown = true;
+			}
+			else
+			{
+				//printf("SPU - Sth. recieved\n");
+			}
+		}
+
+		// set to status free and wait for next task
+		status.m_status = Spu_Status_Free;
+		cellDmaLargePut(&status, argp.ull, sizeof(btSpuStatus), DMA_TAG(3), 0, 0);
+		cellDmaWaitTagStatusAll(DMA_MASK(3));		
+				
+		
+  	}
+	printf("SPU: shutdown\n");
+  	return 0;
+}
+#endif // USE_LIBSPE2
+
+
 #endif //SPU_GATHERING_COLLISION_TASK_H
+
+

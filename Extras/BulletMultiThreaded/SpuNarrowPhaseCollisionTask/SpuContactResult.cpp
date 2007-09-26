@@ -19,9 +19,6 @@ subject to the following restrictions:
 //#define DEBUG_SPU_COLLISION_DETECTION 1
 
 
-#include "SpuContactResult.h"
-
-
 SpuContactResult::SpuContactResult()
 {
 	m_manifoldAddress = 0;

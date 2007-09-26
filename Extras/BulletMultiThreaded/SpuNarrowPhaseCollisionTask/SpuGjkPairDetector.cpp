@@ -292,7 +292,7 @@ void SpuGjkPairDetector::getClosestPoints(const SpuClosestPointInput& input,SpuC
 	{
 #ifdef __SPU__
 		//spu_printf("distance\n");
-#endif //__CELLOS_LV2__
+#endif //__SPU__
 
 
 		output.addContactPoint(

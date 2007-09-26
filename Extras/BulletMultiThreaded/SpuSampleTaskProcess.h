@@ -34,7 +34,7 @@ struct SpuSampleTaskDesc
 	
 	uint16_t 	m_taskId;
 }
-#ifdef __CELLOS_LV2__
+#if defined(__CELLOS_LV2__) || defined(USE_LIBSPE2)
 __attribute__ ((aligned (16)))
 #endif
 ;
@@ -81,6 +81,78 @@ public:
 	///call flush to submit potential outstanding work to SPUs and wait for all involved SPUs to be finished
 	void flush();
 };
+
+
+#if defined(USE_LIBSPE2) && defined(__SPU__)
+////////////////////MAIN/////////////////////////////
+#include "../SpuLibspe2Support.h"
+#include <spu_intrinsics.h>
+#include <spu_mfcio.h>
+#include <SpuFakeDma.h>
+
+void * SamplelsMemoryFunc();
+void SampleThreadFunc(void* userPtr,void* lsMemory);
+
+int main(unsigned long long speid, addr64 argp, addr64 envp)
+{
+	printf("SPU is up \n");
+	
+	ATTRIBUTE_ALIGNED128(btSpuStatus status);
+	ATTRIBUTE_ALIGNED16( SpuSampleTaskDesc taskDesc ) ;
+	unsigned int received_message = Spu_Mailbox_Event_Nothing;
+        bool shutdown = false;
+
+	cellDmaGet(&status, argp.ull, sizeof(btSpuStatus), DMA_TAG(3), 0, 0);
+	cellDmaWaitTagStatusAll(DMA_MASK(3));
+
+	status.m_status = Spu_Status_Free;
+	status.m_lsMemory.p = SamplelsMemoryFunc();
+
+	cellDmaLargePut(&status, argp.ull, sizeof(btSpuStatus), DMA_TAG(3), 0, 0);
+	cellDmaWaitTagStatusAll(DMA_MASK(3));
+	
+	
+	while (!shutdown)
+	{
+		received_message = spu_read_in_mbox();
+		
+
+		
+		switch(received_message)
+		{
+		case Spu_Mailbox_Event_Shutdown:
+			shutdown = true;
+			break; 
+		case Spu_Mailbox_Event_Task:
+			// refresh the status
+			printf("SPU recieved Task \n");
+			cellDmaGet(&status, argp.ull, sizeof(btSpuStatus), DMA_TAG(3), 0, 0);
+			cellDmaWaitTagStatusAll(DMA_MASK(3));
+		
+			btAssert(status.m_status==Spu_Status_Occupied);
+			
+			cellDmaGet(&taskDesc, status.m_taskDesc.p, sizeof(SpuSampleTaskDesc), DMA_TAG(3), 0, 0);
+			cellDmaWaitTagStatusAll(DMA_MASK(3));
+			
+			SampleThreadFunc((void*)&taskDesc, reinterpret_cast<void*> (taskDesc.m_mainMemoryPtr) );
+			break;
+		case Spu_Mailbox_Event_Nothing:
+		default:
+			break;
+		}
+
+		// set to status free and wait for next task
+		status.m_status = Spu_Status_Free;
+		cellDmaLargePut(&status, argp.ull, sizeof(btSpuStatus), DMA_TAG(3), 0, 0);
+		cellDmaWaitTagStatusAll(DMA_MASK(3));		
+				
+		
+  	}
+  	return 0;
+}
+//////////////////////////////////////////////////////
+#endif
+
 
 
 #endif // SPU_SAMPLE_TASK_PROCESS_H

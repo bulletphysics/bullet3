@@ -25,16 +25,21 @@ Written by: Marten Svanfeldt
 #include "BulletDynamics/ConstraintSolver/btContactSolverInfo.h"
 #include "../SpuSync.h"
 #include "BulletDynamics/ConstraintSolver/btTypedConstraint.h"
+#include "LinearMath/btAlignedAllocator.h"
 
 
 ATTRIBUTE_ALIGNED16(struct) ManifoldCellHolder
 {
+	BT_DECLARE_ALIGNED_ALLOCATOR();
+
 	uint32_t					m_hashCellIndex;		
 	class btPersistentManifold*	m_manifold;
 };
 
 ATTRIBUTE_ALIGNED16(struct) ConstraintCellHolder
 {
+	BT_DECLARE_ALIGNED_ALLOCATOR();
+
 	uint32_t					m_hashCellIndex;		
 	uint32_t					m_constraintType;
 	class btTypedConstraint*	m_constraint;
@@ -103,6 +108,8 @@ inline unsigned int spuGetHashCellIndex(int x, int y, int z)
 
 ATTRIBUTE_ALIGNED16(struct) SpuSolverBody
 {
+	BT_DECLARE_ALIGNED_ALLOCATOR();
+
 	btVector3			m_linearVelocity;
 	btVector3			m_angularVelocity;
 
@@ -113,6 +120,8 @@ ATTRIBUTE_ALIGNED16(struct) SpuSolverBody
 
 ATTRIBUTE_ALIGNED16(struct) SpuSolverInternalConstraint
 {
+	BT_DECLARE_ALIGNED_ALLOCATOR();
+
 	uint32_t			m_localOffsetBodyA;
 	uint32_t			m_localOffsetBodyB;
 
@@ -135,6 +144,8 @@ ATTRIBUTE_ALIGNED16(struct) SpuSolverInternalConstraint
 
 ATTRIBUTE_ALIGNED16(struct) SpuSolverConstraint
 {
+	BT_DECLARE_ALIGNED_ALLOCATOR();
+
 	uint16_t			m_localOffsetBodyA;
 	uint16_t			m_localOffsetBodyB;
 
@@ -204,6 +215,8 @@ ATTRIBUTE_ALIGNED16(struct) SpuSolverConstraint
 
 ATTRIBUTE_ALIGNED16(struct) SpuSolverDataDesc
 {
+	BT_DECLARE_ALIGNED_ALLOCATOR();
+
 	SpuSolverHash*					m_solverHash;
 	SpuSolverBody*					m_solverBodyList;
 	SpuSolverInternalConstraint*	m_solverInternalConstraintList;
@@ -214,6 +227,8 @@ ATTRIBUTE_ALIGNED16(struct) SpuSolverDataDesc
 
 ATTRIBUTE_ALIGNED16(struct) SpuSolverTaskDesc
 {
+	BT_DECLARE_ALIGNED_ALLOCATOR();
+
 	uint32_t						m_solverCommand;
 	uint32_t						m_taskId;
 	SpuSolverDataDesc				m_solverData;
