@@ -75,7 +75,7 @@ public:
 	btSpinlock (SpinVariable* var)
 		: spinVariable (var)
 	{}
-#ifndef SPU
+#ifndef __SPU__
 	void Init ()
 	{
 		//*spinVariable = 1;
@@ -83,7 +83,7 @@ public:
 	}
 #endif
 
-#ifdef SPU
+#ifdef __SPU__
 	void Lock ()
 	{
 		// lock semaphore
@@ -103,7 +103,7 @@ public:
 
 private:
 	SpinVariable*	spinVariable;
-	uint32_t		atomic_buf[32] __attribute__((aligned(128)));
+	ATTRIBUTE_ALIGNED128(uint32_t		atomic_buf[32]);
 };
 
 #endif
