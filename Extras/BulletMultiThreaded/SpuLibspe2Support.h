@@ -13,119 +13,161 @@ subject to the following restrictions:
 3. This notice may not be removed or altered from any source distribution.
 */
 
-///USE_LIBSPE2: this define should be in the build system, or in <LinearMath/btScalar.h>
-//#define USE_LIBSPE2 1
-#ifdef USE_LIBSPE2
 
 #ifndef SPU_LIBSPE2_SUPPORT_H
 #define SPU_LIBSPE2_SUPPORT_H
 
+#include <LinearMath/btScalar.h> //for uint32_t etc.
+
+#ifdef USE_LIBSPE2
+
+#include <stdlib.h>
+#include <stdio.h>
+//#include "SpuNarrowPhaseCollisionTask/SpuGatheringCollisionTask.h"
+#include "PlatformDefinitions.h"
+
+
+//extern struct SpuGatherAndProcessPairsTaskDesc;
+
+enum
+{
+	Spu_Mailbox_Event_Nothing = 0,
+	Spu_Mailbox_Event_Task = 1,
+	Spu_Mailbox_Event_Shutdown = 2,
+	
+	Spu_Mailbox_Event_ForceDword = 0xFFFFFFFF
+	
+};
+
+enum
+{
+	Spu_Status_Free = 0,
+	Spu_Status_Occupied = 1,
+	Spu_Status_Startup = 2,
+	
+	Spu_Status_ForceDword = 0xFFFFFFFF
+	
+};
+
+
+struct btSpuStatus
+{
+	uint32_t	m_taskId;
+	uint32_t	m_commandId;
+	uint32_t	m_status;
+
+	addr64 m_taskDesc;
+	addr64 m_lsMemory;
+	
+}
+__attribute__ ((aligned (128)))
+;
+
+
+
+#ifndef __SPU__
+
 #include "LinearMath/btAlignedObjectArray.h"
+#include "SpuCollisionTaskProcess.h"
+#include "SpuSampleTaskProcess.h"
+#include "btThreadSupportInterface.h"
 #include <libspe2.h>
 #include <pthread.h>
+#include <sched.h>
 
+#define MAX_SPUS 4 
 
-/**
- * Note:
- * The order of elements in this enum are important, that's why each one is explicitly
- * given a value.  They will correspond to the .elf names/addresses that will be
- * loaded into Libspe2.
- * Mixing up these values will cause the wrong code to execute, for instance, the
- * solver may be asked to do a collision detection job.
- */
-#ifdef WIN32 // original enum, but for libspe2 will pass the SPE program handle ptr directly
-typedef enum {
-	SPU_ELF_COLLISION_DETECTION=0,
-	SPU_ELF_SAMPLE,
-//SPU_ELF_INTEGRATION,
-//SPU_ELF_SOLVER,
-	SPU_ELF_LAST,
-} SpuLibspe2ElfId_t;
-#endif
-#ifdef WIN32
-#include <malloc.h>
-#define memalign(alignment, size) malloc(size);
-#else
-#include <stdlib.h>
-#endif // WIN32
-
-#define MAXSPUS 16
-typedef struct ppu_pthread_data {
-spe_context_ptr_t context;
-pthread_t pthread;
-unsigned int entry;
-unsigned int flags;
-void *argp;
-void *envp;
-spe_stop_info_t stopinfo;
+typedef struct ppu_pthread_data 
+{
+	spe_context_ptr_t context;
+	pthread_t pthread;
+	unsigned int entry;
+	unsigned int flags;
+	addr64 argp;
+	addr64 envp;
+	spe_stop_info_t stopinfo;
 } ppu_pthread_data_t;
 
-void *ppu_pthread_function(void *arg)
+
+static void *ppu_pthread_function(void *arg)
 {
-    ppu_pthread_data_t datap = *(ppu_pthread_data_t *)arg;
+    ppu_pthread_data_t * datap = (ppu_pthread_data_t *)arg;
+    /*
     int rc;
-    do {
-        rc = spe_context_run(datap->context, &datap->entry, datap->flags, datap->argp, datap->envp, &datap->stopinfo);
-    } while (rc > 0); // loop until exit or error, and while any stop & signal
+    do 
+    {*/
+        spe_context_run(datap->context, &datap->entry, datap->flags, datap->argp.p, datap->envp.p, &datap->stopinfo);
+        if (datap->stopinfo.stop_reason == SPE_EXIT) 
+        {
+           if (datap->stopinfo.result.spe_exit_code != 0) 
+           {
+             perror("FAILED: SPE returned a non-zero exit status: \n");
+             exit(1);
+           }
+         } 
+        else 
+         {
+           perror("FAILED: SPE abnormally terminated\n");
+           exit(1);
+         }
+        
+        
+    //} while (rc > 0); // loop until exit or error, and while any stop & signal
     pthread_exit(NULL);
 }
 
 
 
-#include <LinearMath/btScalar.h> //for uint32_t etc.
 
-///placeholder, until libspe2 support is there
-struct	btSpuStatus
-{
-	uint32_t m_taskId;
-	uint32_t	m_commandId;
-	uint32_t m_status;
 
-	struct SpuGatherAndProcessPairsTaskDesc* m_taskDesc;
-
-	void*	m_threadHandle;
-	void*	m_lsMemory;
-
-	void*	m_eventStartHandle;
-	char	m_eventStartHandleName[32];
-
-	void*	m_eventCompletetHandle;
-	char	m_eventCompletetHandleName[32];
-	
-
-};
 
 ///SpuLibspe2Support helps to initialize/shutdown libspe2, start/stop SPU tasks and communication
-class SpuLibspe2Support {
+class SpuLibspe2Support : public btThreadSupportInterface
+{
 
 	btAlignedObjectArray<btSpuStatus>	m_activeSpuStatus;
-
+	
 public:
-	///Setup and initialize SPU/CELL/Libspe2
+	//Setup and initialize SPU/CELL/Libspe2
 	SpuLibspe2Support(spe_program_handle_t *speprog,int numThreads);
+	
 	// SPE program handle ptr.
 	spe_program_handle_t *program;
+	
 	// SPE program data
 	ppu_pthread_data_t data[MAX_SPUS];
-	// num SPE Threads
-	unsigned int N;
-	///cleanup/shutdown Libspe2
+	
+	//cleanup/shutdown Libspe2
 	~SpuLibspe2Support();
 
 	///send messages to SPUs
 	void sendRequest(uint32_t uiCommand, uint32_t uiArgument0, uint32_t uiArgument1=0);
 
-	///check for messages from SPUs
+	//check for messages from SPUs
 	void waitForResponse(unsigned int *puiArgument0, unsigned int *puiArgument1);
 
-	///start the spus (can be called at the beginning of each frame, to make sure that the right SPU program is loaded)
-	void startSPUs(int numThreads);
+	//start the spus (can be called at the beginning of each frame, to make sure that the right SPU program is loaded)
+	virtual void startSPU();
 
-	///tell the task scheduler we are done with the SPU tasks
-	void stopSPUs();
+	//tell the task scheduler we are done with the SPU tasks
+	virtual void stopSPU();
+
+private:
+	
+	///start the spus (can be called at the beginning of each frame, to make sure that the right SPU program is loaded)
+	void internal_startSPU();
+	
+	
+	int numThreads;
 
 };
 
-#endif //SPU_LIBSPE2_SUPPORT_H
+#endif // NOT __SPU__
 
 #endif //USE_LIBSPE2
+
+#endif //SPU_LIBSPE2_SUPPORT_H
+
+
+
+
