@@ -7,7 +7,7 @@
 
 
 ///this unalignedDma should not be frequently used, only for small data. It handles alignment and performs check on size (<16 bytes)
-int	stallingUnalignedDmaSmallGet(void *ls, uint64_t ea, uint32_t size)
+int stallingUnalignedDmaSmallGet(void *ls, uint64_t ea, uint32_t size)
 {
 	btAssert(size<16);
 	ATTRIBUTE_ALIGNED16(char	tmpBuffer[32]);
@@ -23,22 +23,22 @@ int	stallingUnalignedDmaSmallGet(void *ls, uint64_t ea, uint32_t size)
 #ifdef WIN32
 
 #ifdef USE_MEMCPY
-	memcpy(tmpTarget,mainMem,size);
+		memcpy(tmpTarget,mainMem,size);
 #else
-	for ( i=0;i<size;i++)
-	{
-		tmpTarget[i] = mainMem[i];
-	}
-#endif
+		for ( i=0;i<size;i++)
+		{
+			tmpTarget[i] = mainMem[i];
+		}
+#endif //USE_MEMCPY
 #else
 	cellDmaSmallGet(tmpTarget,ea,size,DMA_TAG(1),0,0);
 	//copy into final destination
-#endif
+#endif //WIN32
 
 	cellDmaWaitTagStatusAll(DMA_MASK(1));
 
 	//this is slowish, perhaps memcpy on SPU is smarter?
-	for (i=0;i<size;i++)
+	for (i=0; btLikely( i<size );i++)
 	{
 		localStore[i] = tmpTarget[i];
 	}

@@ -2,15 +2,16 @@
 #define DOUBLE_BUFFER_H
 
 #include "SpuFakeDma.h"
+#include <LinearMath/btScalar.h>
 
 
 ///DoubleBuffer
 template<class T, int size>
 class DoubleBuffer
 {
-#ifdef __CELLOS_LV2__
-	T m_buffer0[size] __attribute__ ((aligned (128)));
-	T m_buffer1[size] __attribute__ ((aligned (128)));
+#if defined(__CELLOS_LV2__) || defined(USE_LIBSPE2)
+	ATTRIBUTE_ALIGNED128( T m_buffer0[size] ) ;
+	ATTRIBUTE_ALIGNED128( T m_buffer1[size] ) ;
 #else
 	T m_buffer0[size];
 	T m_buffer1[size];
