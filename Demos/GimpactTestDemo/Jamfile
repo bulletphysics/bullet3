@@ -15,7 +15,9 @@ SubDir TOP Demos GimpactTestDemo ;
 
     MsvcIncDirs $(<) :
         "../../Demos/OpenGL"
-      	"../../Extras/GIMPACT/include" 	;
+      	"../../Extras/GIMPACT/include"
+	"../../Extras/GIMPACTUtils"	
+ 	;
   }
 
 ExtraDemo1 GimpactTestDemo : [ Wildcard *.h *.cpp  ] ;

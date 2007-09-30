@@ -8,6 +8,6 @@ LibDepends GIMPACTUtils : GIMPACT ;
 LibDepends GIMPACTUtils : convexdecomposition ;
 
    MsvcIncDirs GIMPACTUtils : 
-	"../../Extras/GIMPACT/include" "../../Extras/GIMPACTUtils" ;
+	"../../Extras/GIMPACT/include" "../../Extras/GIMPACTUtils" "../../Extras/ConvexDecomposition" ;
 
 InstallHeader [ Wildcard *.h ] : GIMPACTUtils ;
