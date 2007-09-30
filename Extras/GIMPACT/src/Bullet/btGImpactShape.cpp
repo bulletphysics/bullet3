@@ -1,30 +1,21 @@
 /*
------------------------------------------------------------------------------
 This source file is part of GIMPACT Library.
 
 For the latest info, see http://gimpact.sourceforge.net/
 
-Copyright (c) 2006 Francisco Leon Najera. C.C. 80087371.
+Copyright (c) 2007 Francisco Leon Najera. C.C. 80087371.
 email: projectileman@yahoo.com
 
- This library is free software; you can redistribute it and/or
- modify it under the terms of EITHER:
-   (1) The GNU Lesser General Public License as published by the Free
-       Software Foundation; either version 2.1 of the License, or (at
-       your option) any later version. The text of the GNU Lesser
-       General Public License is included with this library in the
-       file GIMPACT-LICENSE-LGPL.TXT.
-   (2) The BSD-style license that is included with this library in
-       the file GIMPACT-LICENSE-BSD.TXT.
-   (3) The zlib/libpng license that is included with this library in
-       the file GIMPACT-LICENSE-ZLIB.TXT.
 
- This library is distributed in the hope that it will be useful,
- but WITHOUT ANY WARRANTY; without even the implied warranty of
- MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE. See the files
- GIMPACT-LICENSE-LGPL.TXT, GIMPACT-LICENSE-ZLIB.TXT and GIMPACT-LICENSE-BSD.TXT for more details.
+This software is provided 'as-is', without any express or implied warranty.
+In no event will the authors be held liable for any damages arising from the use of this software.
+Permission is granted to anyone to use this software for any purpose,
+including commercial applications, and to alter it and redistribute it freely,
+subject to the following restrictions:
 
------------------------------------------------------------------------------
+1. The origin of this software must not be misrepresented; you must not claim that you wrote the original software. If you use this software in a product, an acknowledgment in the product documentation would be appreciated but is not required.
+2. Altered source versions must be plainly marked as such, and must not be misrepresented as being the original software.
+3. This notice may not be removed or altered from any source distribution.
 */
 
 
@@ -36,18 +27,26 @@ email: projectileman@yahoo.com
 
 void btGImpactCompoundShape::calculateLocalInertia(btScalar mass,btVector3& inertia)
 {
-
+	lockChildShapes();
 #ifdef CALC_EXACT_INERTIA
 	inertia.setValue(0.f,0.f,0.f);
 
-	GUINT i = this->getNumChildShapes();
-	GREAL shapemass = mass/btScalar(i);
+	int i = this->getNumChildShapes();
+	btScalar shapemass = mass/btScalar(i);
 
 	while(i--)
 	{
 		btVector3 temp_inertia;
 		m_childShapes[i]->calculateLocalInertia(shapemass,temp_inertia);
-		inertia = gim_inertia_add_transformed( inertia,temp_inertia,m_childTransforms[i]);
+		if(childrenHasTransform())
+		{
+			inertia = gim_inertia_add_transformed( inertia,temp_inertia,m_childTransforms[i]);
+		}
+		else
+		{
+			inertia = gim_inertia_add_transformed( inertia,temp_inertia,btTransform::getIdentity());
+		}
+
 	}
 
 #else
@@ -65,20 +64,21 @@ void btGImpactCompoundShape::calculateLocalInertia(btScalar mass,btVector3& iner
 	inertia = scaledmass * (btVector3(y2+z2,x2+z2,x2+y2));
 
 #endif
+	unlockChildShapes();
 }
 
 
 
 void btGImpactMeshShapePart::calculateLocalInertia(btScalar mass,btVector3& inertia)
 {
-	lock();
+	lockChildShapes();
 
 
 #ifdef CALC_EXACT_INERTIA
 	inertia.setValue(0.f,0.f,0.f);
 
-	GUINT i = this->getVertexCount();
-	GREAL pointmass = mass/btScalar(i);
+	int i = this->getVertexCount();
+	btScalar pointmass = mass/btScalar(i);
 
 	while(i--)
 	{
@@ -104,7 +104,7 @@ void btGImpactMeshShapePart::calculateLocalInertia(btScalar mass,btVector3& iner
 
 #endif
 
-	unlock();
+	unlockChildShapes();
 }
 
 void btGImpactMeshShape::calculateLocalInertia(btScalar mass,btVector3& inertia)
@@ -113,8 +113,8 @@ void btGImpactMeshShape::calculateLocalInertia(btScalar mass,btVector3& inertia)
 #ifdef CALC_EXACT_INERTIA
 	inertia.setValue(0.f,0.f,0.f);
 
-	GUINT i = this->getMeshPartCount();
-	GREAL partmass = mass/btScalar(i);
+	int i = this->getMeshPartCount();
+	btScalar partmass = mass/btScalar(i);
 
 	while(i--)
 	{
@@ -140,53 +140,42 @@ void btGImpactMeshShape::calculateLocalInertia(btScalar mass,btVector3& inertia)
 #endif
 }
 
-
-
-void btGImpactCompoundShape::rayTest(const btVector3& rayFrom, const btVector3& rayTo, btCollisionWorld::RayResultCallback& resultCallback) const
-{
-
-}
-
 void btGImpactMeshShape::rayTest(const btVector3& rayFrom, const btVector3& rayTo, btCollisionWorld::RayResultCallback& resultCallback) const
-{
-}
-
-void btGImpactMeshShapePart::rayTest(const btVector3& rayFrom, const btVector3& rayTo, btCollisionWorld::RayResultCallback& resultCallback) const
 {
 }
 
 
 void btGImpactMeshShapePart::processAllTriangles(btTriangleCallback* callback,const btVector3& aabbMin,const btVector3& aabbMax) const
 {
-	lock();
-	GIM_AABB box;
+	lockChildShapes();
+	btAABB box;
 	box.m_min = aabbMin;
 	box.m_max = aabbMax;
 
-	gim_array<GUINT> collided;	
+	btAlignedObjectArray<int> collided;
 	m_box_set.boxQuery(box,collided);
 
 	if(collided.size()==0)
 	{
-		unlock();
+		unlockChildShapes();
 		return;
 	}
 
 	int part = (int)getPart();
-	GIM_TRIANGLE triangle;
-	GUINT i = collided.size();	
+	btPrimitiveTriangle triangle;
+	int i = collided.size();
 	while(i--)
 	{
-		this->getTriangle(collided[i],triangle);
+		this->getPrimitiveTriangle(collided[i],triangle);
 		callback->processTriangle(triangle.m_vertices,part,collided[i]);
 	}
-	unlock();
+	unlockChildShapes();
 
 }
 
 void btGImpactMeshShape::processAllTriangles(btTriangleCallback* callback,const btVector3& aabbMin,const btVector3& aabbMax) const
 {
-	GUINT i = m_mesh_parts.size();
+	int i = m_mesh_parts.size();
 	while(i--)
 	{
 		m_mesh_parts[i]->processAllTriangles(callback,aabbMin,aabbMax);

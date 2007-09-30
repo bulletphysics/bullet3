@@ -1,6 +1,11 @@
 /*
-Bullet Continuous Collision Detection and Physics Library
-Copyright (c) 2003-2006 Erwin Coumans  http://continuousphysics.com/Bullet/
+This source file is part of GIMPACT Library.
+
+For the latest info, see http://gimpact.sourceforge.net/
+
+Copyright (c) 2007 Francisco Leon Najera. C.C. 80087371.
+email: projectileman@yahoo.com
+
 
 This software is provided 'as-is', without any express or implied warranty.
 In no event will the authors be held liable for any damages arising from the use of this software.
@@ -12,7 +17,6 @@ subject to the following restrictions:
 2. Altered source versions must be plainly marked as such, and must not be misrepresented as being the original software.
 3. This notice may not be removed or altered from any source distribution.
 */
-
 /*
 Author: Francisco León Nájera
 Concave-Concave Collision
@@ -22,13 +26,10 @@ Concave-Concave Collision
 #include "BulletCollision/CollisionDispatch/btManifoldResult.h"
 #include "LinearMath/btIDebugDraw.h"
 #include "BulletCollision/CollisionDispatch/btCollisionObject.h"
-#include "GIMPACT/Bullet/btGImpactCollisionAlgorithm.h"
-#include "GIMPACT/core/gim_contact.h"
 #include "BulletCollision/CollisionShapes/btBoxShape.h"
-
-#define BULLET_TRIANGLE_COLLISION 1
-#define TREE_PRIMITIVE_VS_BOX true
-#define GIMPACT_VS_PLANE_COLLISION 1
+#include "GIMPACT/Bullet/btGImpactCollisionAlgorithm.h"
+#include "GIMPACT/Bullet/btContactProcessing.h"
+#include "LinearMath/btQuickprof.h"
 
 
 //! Class for accessing the plane equation
@@ -59,6 +60,134 @@ public:
 	}
 };
 
+
+
+//////////////////////////////////////////////////////////////////////////////////////////////
+
+btClock g_triangle_clock;
+
+float g_accum_triangle_collision_time = 0;
+int g_count_triangle_collision = 0;
+
+void bt_begin_gim02_tri_time()
+{
+	g_triangle_clock.reset();
+}
+
+void bt_end_gim02_tri_time()
+{
+	g_accum_triangle_collision_time += g_triangle_clock.getTimeMicroseconds();
+	g_count_triangle_collision++;
+}
+
+//! Retrieving shapes shapes
+/*!
+Declared here due of insuficent space on Pool allocators
+*/
+//!@{
+class GIM_ShapeRetriever
+{
+public:
+	btGImpactShapeInterface * m_gim_shape;
+	btTriangleShapeEx m_trishape;
+	btTetrahedronShapeEx m_tetrashape;
+
+public:
+	class ChildShapeRetriever
+	{
+	public:
+		GIM_ShapeRetriever * m_parent;
+		virtual btCollisionShape * getChildShape(int index)
+		{
+			return m_parent->m_gim_shape->getChildShape(index);
+		}
+	};
+
+	class TriangleShapeRetriever:public ChildShapeRetriever
+	{
+	public:
+
+		virtual btCollisionShape * getChildShape(int index)
+		{
+			m_parent->m_gim_shape->getBulletTriangle(index,m_parent->m_trishape);
+			return &m_parent->m_trishape;
+		}
+	};
+
+	class TetraShapeRetriever:public ChildShapeRetriever
+	{
+	public:
+
+		virtual btCollisionShape * getChildShape(int index)
+		{
+			m_parent->m_gim_shape->getBulletTetrahedron(index,m_parent->m_tetrashape);
+			return &m_parent->m_tetrashape;
+		}
+	};
+public:
+	ChildShapeRetriever m_child_retriever;
+	TriangleShapeRetriever m_tri_retriever;
+	TetraShapeRetriever  m_tetra_retriever;
+	ChildShapeRetriever * m_current_retriever;
+
+	GIM_ShapeRetriever(btGImpactShapeInterface * gim_shape)
+	{
+		m_gim_shape = gim_shape;
+		//select retriever
+		if(m_gim_shape->needsRetrieveTriangles())
+		{
+			m_current_retriever = &m_tri_retriever;
+		}
+		else if(m_gim_shape->needsRetrieveTetrahedrons())
+		{
+			m_current_retriever = &m_tetra_retriever;
+		}
+		else
+		{
+			m_current_retriever = &m_child_retriever;
+		}
+
+		m_current_retriever->m_parent = this;
+	}
+
+	btCollisionShape * getChildShape(int index)
+	{
+		return m_current_retriever->getChildShape(index);
+	}
+
+
+};
+
+
+
+//!@}
+
+
+
+//! Gets the average time in miliseconds of tree collisions
+float btGImpactCollisionAlgorithm::getAverageTreeCollisionTime()
+{
+	return btGImpactBoxSet::getAverageTreeCollisionTime();
+
+}
+
+//! Gets the average time in miliseconds of triangle collisions
+float btGImpactCollisionAlgorithm::getAverageTriangleCollisionTime()
+{
+	if(g_count_triangle_collision == 0) return 0;
+
+	float avgtime = g_accum_triangle_collision_time;
+	avgtime /= (float)g_count_triangle_collision;
+
+	g_accum_triangle_collision_time = 0;
+	g_count_triangle_collision = 0;
+
+	return avgtime;
+}
+
+
+
+
 btGImpactCollisionAlgorithm::btGImpactCollisionAlgorithm( const btCollisionAlgorithmConstructionInfo& ci, btCollisionObject* body0,btCollisionObject* body1)
 : btCollisionAlgorithm(ci)
 {
@@ -73,50 +202,25 @@ btGImpactCollisionAlgorithm::~btGImpactCollisionAlgorithm()
 
 
 
-//////////////////////////////////////////////////////////////////////////////////////////////
 
 
-void btGImpactCollisionAlgorithm::gimpactcompound_vs_gimpactcompound_find_pairs(
-					  const btTransform & trans0,
-					  const btTransform & trans1,
-					  btGImpactCompoundShape * shape0,
-					  btGImpactCompoundShape * shape1,gim_pair_set & pairset) const
+void btGImpactCollisionAlgorithm::addContactPoint(btCollisionObject * body0,
+				btCollisionObject * body1,
+				const btVector3 & point,
+				const btVector3 & normal,
+				btScalar distance)
 {
-	GIM_TREE_TREE_COLLIDER<btGImpactCompoundShape::BoxSetClass,btGImpactCompoundShape::BoxSetClass> collider;
-	collider.find_collision(shape0->getBoxSet(),trans0,shape1->getBoxSet(),trans1,pairset,TREE_PRIMITIVE_VS_BOX);
-
+	m_resultOut->setShapeIdentifiers(m_part0,m_triface0,m_part1,m_triface1);
+	checkManifold(body0,body1);
+	m_resultOut->addContactPoint(normal,point,distance);
 }
-
-void btGImpactCollisionAlgorithm::gimpacttrimeshpart_vs_gimpacttrimeshpart_find_pairs(
-					  const btTransform & trans0,
-					  const btTransform & trans1,
-					  btGImpactMeshShapePart * shape0,
-					  btGImpactMeshShapePart * shape1,gim_pair_set & pairset) const
-{
-	GIM_TREE_TREE_COLLIDER<btGImpactMeshShapePart::BoxSetClass,btGImpactMeshShapePart::BoxSetClass> collider;
-
-	collider.find_collision(shape0->getBoxSet(),trans0,shape1->getBoxSet(),trans1,pairset,TREE_PRIMITIVE_VS_BOX);
-
-}
-
-void btGImpactCollisionAlgorithm::gimpactcompound_vs_gimpacttrimeshpart_find_pairs(
-					  const btTransform & trans0,
-					  const btTransform & trans1,
-					  btGImpactCompoundShape * shape0,
-					  btGImpactMeshShapePart * shape1,gim_pair_set & pairset) const
-{
-	GIM_TREE_TREE_COLLIDER<btGImpactCompoundShape::BoxSetClass,btGImpactMeshShapePart::BoxSetClass> collider;
-	collider.find_collision(shape0->getBoxSet(),trans0,shape1->getBoxSet(),trans1,pairset,TREE_PRIMITIVE_VS_BOX);
-}
-
-
 
 
 void btGImpactCollisionAlgorithm::shape_vs_shape_collision(
 					  btCollisionObject * body0,
 					  btCollisionObject * body1,
 					  btCollisionShape * shape0,
-					  btCollisionShape * shape1,bool swapped)
+					  btCollisionShape * shape1)
 {
 
 	btCollisionShape * orgshape0 = body0->getCollisionShape();
@@ -125,28 +229,16 @@ void btGImpactCollisionAlgorithm::shape_vs_shape_collision(
 	body0->setCollisionShape(shape0);
 	body1->setCollisionShape(shape1);
 
-
-	if(swapped)
-	{
-		btCollisionAlgorithm* algorswapped = newAlgorithm(body1,body0);
-
-		m_resultOut->setPersistentManifold(m_manifoldPtr);
-		m_resultOut->setShapeIdentifiers(m_part1,m_triface1,m_part0,m_triface0);
-
-		algorswapped->processCollision(body1,body0,*m_dispatchInfo,m_resultOut);
-
-		delete algorswapped;
-	}
-	else
 	{
 		btCollisionAlgorithm* algor = newAlgorithm(body0,body1);
+		// post :	checkManifold is called
 
-		m_resultOut->setPersistentManifold(m_manifoldPtr);
 		m_resultOut->setShapeIdentifiers(m_part0,m_triface0,m_part1,m_triface1);
 
 		algor->processCollision(body0,body1,*m_dispatchInfo,m_resultOut);
 
-		delete algor;
+		algor->~btCollisionAlgorithm();
+		m_dispatcher->freeCollisionAlgorithm(algor);
 	}
 
 	body0->setCollisionShape(orgshape0);
@@ -159,8 +251,6 @@ void btGImpactCollisionAlgorithm::convex_vs_convex_collision(
 					  btCollisionShape * shape0,
 					  btCollisionShape * shape1)
 {
-	//shape_vs_shape_collision(body0,body1,shape0,shape1,false);
-	//return;
 
 	btCollisionShape * orgshape0 = body0->getCollisionShape();
 	btCollisionShape * orgshape1 = body1->getCollisionShape();
@@ -181,543 +271,418 @@ void btGImpactCollisionAlgorithm::convex_vs_convex_collision(
 
 
 
-void btGImpactCollisionAlgorithm::gimpacttrimesh_vs_shape_collision(
-					  btCollisionObject * body0,
-					  btCollisionObject * body1,
-					  btGImpactMeshShape * shape0,
-					  btCollisionShape * shape1,bool swapped)
+
+void btGImpactCollisionAlgorithm::gimpact_vs_gimpact_find_pairs(
+					  const btTransform & trans0,
+					  const btTransform & trans1,
+					  btGImpactShapeInterface * shape0,
+					  btGImpactShapeInterface * shape1,btPairSet & pairset)
 {
-	GUINT i = shape0->getMeshPartCount();
-	while(i--)
+	if(shape0->hasBoxSet() && shape1->hasBoxSet())
 	{
-		btGImpactMeshShapePart * part = shape0->getMeshPart(i);
-		gimpacttrimeshpart_vs_shape_collision(body0,body1,part,shape1,swapped);
+		btGImpactBoxSet::find_collision(shape0->getBoxSet(),trans0,shape1->getBoxSet(),trans1,pairset);
 	}
-}
-
-void btGImpactCollisionAlgorithm::gimpacttrimesh_vs_gimpacttrimesh(
-					  btCollisionObject * body0,
-					  btCollisionObject * body1,
-					  btGImpactMeshShape * shape0,
-					  btGImpactMeshShape  * shape1)
-{
-	GUINT i = shape0->getMeshPartCount();
-	while(i--)
+	else
 	{
-		btGImpactMeshShapePart * part0 = shape0->getMeshPart(i);
+		btAABB boxshape0;
+		btAABB boxshape1;
+		int i = shape0->getNumChildShapes();
 
-		GUINT j = shape1->getMeshPartCount();
-		while(j--)
+		while(i--)
 		{
-			btGImpactMeshShapePart * part1 = shape1->getMeshPart(j);
-			gimpacttrimeshpart_vs_gimpacttrimeshpart_collision(body0,body1,part0,part1,false);
+			shape0->getChildAabb(i,trans0,boxshape0.m_min,boxshape0.m_max);
+
+			int j = shape1->getNumChildShapes();
+			while(j--)
+			{
+				shape1->getChildAabb(i,trans1,boxshape1.m_min,boxshape1.m_max);
+
+				if(boxshape1.has_collision(boxshape0))
+				{
+					pairset.push_pair(i,j);
+				}
+			}
 		}
 	}
+
+
 }
 
-void btGImpactCollisionAlgorithm::gimpacttrimesh_vs_gimpactcompound(
-					  btCollisionObject * body0,
-					  btCollisionObject * body1,
-					  btGImpactMeshShape * shape0,
-					  btGImpactCompoundShape * shape1,bool swapped)
+
+void btGImpactCollisionAlgorithm::gimpact_vs_shape_find_pairs(
+					  const btTransform & trans0,
+					  const btTransform & trans1,
+					  btGImpactShapeInterface * shape0,
+					  btCollisionShape * shape1,
+					  btAlignedObjectArray<int> & collided_primitives)
 {
-	GUINT i = shape0->getMeshPartCount();
-	while(i--)
+
+	btAABB boxshape;
+
+
+	if(shape0->hasBoxSet())
 	{
-		btGImpactMeshShapePart * part = shape0->getMeshPart(i);
-		gimpactcompound_vs_gimpacttrimeshpart_collision(body1,body0,shape1,part,!swapped);
+		btTransform trans1to0 = trans0.inverse();
+		trans1to0 *= trans1;
+
+		shape1->getAabb(trans1to0,boxshape.m_min,boxshape.m_max);
+
+		shape0->getBoxSet()->boxQuery(boxshape, collided_primitives);
 	}
+	else
+	{
+		shape1->getAabb(trans1,boxshape.m_min,boxshape.m_max);
+
+		btAABB boxshape0;
+		int i = shape0->getNumChildShapes();
+
+		while(i--)
+		{
+			shape0->getChildAabb(i,trans0,boxshape0.m_min,boxshape0.m_max);
+
+			if(boxshape.has_collision(boxshape0))
+			{
+				collided_primitives.push_back(i);
+			}
+		}
+
+	}
+
 }
 
 
-
-void btGImpactCollisionAlgorithm::gimpacttrimesh_vs_trimeshpart(
-					  btCollisionObject * body0,
-					  btCollisionObject * body1,
-					  btGImpactMeshShape * shape0,
-					  btGImpactMeshShapePart * shape1,bool swapped)
+void btGImpactCollisionAlgorithm::collide_gjk_triangles(btCollisionObject * body0,
+				  btCollisionObject * body1,
+				  btGImpactMeshShapePart * shape0,
+				  btGImpactMeshShapePart * shape1,
+				  const int * pairs, int pair_count)
 {
-	GUINT i = shape0->getMeshPartCount();
-	while(i--)
+	btTriangleShapeEx tri0;
+	btTriangleShapeEx tri1;
+
+	shape0->lockChildShapes();
+	shape1->lockChildShapes();
+
+	const int * pair_pointer = pairs;
+
+	while(pair_count--)
 	{
-		btGImpactMeshShapePart * part = shape0->getMeshPart(i);
-		gimpacttrimeshpart_vs_gimpacttrimeshpart_collision(body0,body1,part,shape1,swapped);
+
+		m_triface0 = *(pair_pointer);
+		m_triface1 = *(pair_pointer+1);
+		pair_pointer+=2;
+
+
+
+		shape0->getBulletTriangle(m_triface0,tri0);
+		shape1->getBulletTriangle(m_triface1,tri1);
+
+
+		//collide two convex shapes
+		if(tri0.overlap_test_conservative(tri1))
+		{
+			convex_vs_convex_collision(body0,body1,&tri0,&tri1);
+		}
+
 	}
+
+	shape0->unlockChildShapes();
+	shape1->unlockChildShapes();
 }
 
-
-void btGImpactCollisionAlgorithm::gimpactcompound_vs_gimpactcompound_collision(
-					  btCollisionObject * body0,
+void btGImpactCollisionAlgorithm::collide_sat_triangles(btCollisionObject * body0,
 					  btCollisionObject * body1,
-					  btGImpactCompoundShape * shape0,
-					  btGImpactCompoundShape * shape1)
+					  btGImpactMeshShapePart * shape0,
+					  btGImpactMeshShapePart * shape1,
+					  const int * pairs, int pair_count)
 {
 	btTransform orgtrans0 = body0->getWorldTransform();
 	btTransform orgtrans1 = body1->getWorldTransform();
 
-	gim_pair_set pairset;
+	btPrimitiveTriangle ptri0;
+	btPrimitiveTriangle ptri1;
+	BT_TRIANGLE_CONTACT contact_data;
 
-	gimpactcompound_vs_gimpactcompound_find_pairs(orgtrans0,orgtrans1,shape0,shape1,pairset);	
+	shape0->lockChildShapes();
+	shape1->lockChildShapes();
 
-	if(pairset.size()== 0) return;
+	const int * pair_pointer = pairs;
 
-//	btCollisionShape * orgshape0 = body0->getCollisionShape();
-//	btCollisionShape * orgshape1 = body1->getCollisionShape();
-
-	GUINT i = pairset.size();
-	while(i--)
+	while(pair_count--)
 	{
-		const GIM_PAIR & pair = pairset[i];
-		btCollisionShape * colshape0 = shape0->getChildShape(pair.m_index1);
-		btCollisionShape * colshape1 = shape1->getChildShape(pair.m_index2);
 
-		btTransform childtrans0 = orgtrans0*shape0->getChildTransform(pair.m_index1);
-		btTransform childtrans1 = orgtrans1*shape1->getChildTransform(pair.m_index2);
-
-		body0->setWorldTransform(childtrans0);
-		body1->setWorldTransform(childtrans1);
+		m_triface0 = *(pair_pointer);
+		m_triface1 = *(pair_pointer+1);
+		pair_pointer+=2;
 
 
-		//collide two shapes
-		shape_vs_shape_collision(body0,body1,colshape0,colshape1,false);
+		shape0->getPrimitiveTriangle(m_triface0,ptri0);
+		shape1->getPrimitiveTriangle(m_triface1,ptri1);
 
-		//restore transforms
-//		body0->setCollisionShape(orgshape0);
-//		body1->setCollisionShape(orgshape1);
+		#ifdef TRI_COLLISION_PROFILING
+		bt_begin_gim02_tri_time();
+		#endif
 
-		body0->setWorldTransform(orgtrans0);
-		body1->setWorldTransform(orgtrans1);
+		ptri0.applyTransform(orgtrans0);
+		ptri1.applyTransform(orgtrans1);
+
+
+		//build planes
+		ptri0.buildTriPlane();
+		ptri1.buildTriPlane();
+		// test conservative
+
+
+
+		if(ptri0.overlap_test_conservative(ptri1))
+		{
+			if(ptri0.find_triangle_collision_clip_method(ptri1,contact_data))
+			{
+
+				int j = contact_data.m_point_count;
+				while(j--)
+				{
+
+					addContactPoint(body0, body1,
+								contact_data.m_points[j],
+								contact_data.m_separating_normal,
+								-contact_data.m_penetration_depth);
+				}
+			}
+		}
+
+		#ifdef TRI_COLLISION_PROFILING
+		bt_end_gim02_tri_time();
+		#endif
+
 	}
+
+	shape0->unlockChildShapes();
+	shape1->unlockChildShapes();
+
 }
 
 
-void btGImpactCollisionAlgorithm::gimpactcompound_vs_gimpacttrimeshpart_collision(
-					  btCollisionObject * body0,
-					  btCollisionObject * body1,
-					  btGImpactCompoundShape * shape0,
-					  btGImpactMeshShapePart * shape1,bool swapped)
+void btGImpactCollisionAlgorithm::gimpact_vs_gimpact(
+						btCollisionObject * body0,
+					   	btCollisionObject * body1,
+					  	btGImpactShapeInterface * shape0,
+					  	btGImpactShapeInterface * shape1)
 {
-	//lock trimesh
-	shape1->lock();
 
-	btTransform orgtrans0 = body0->getWorldTransform();
-	btTransform orgtrans1 = body1->getWorldTransform();
-
-	gim_pair_set pairset;
-
-	gimpactcompound_vs_gimpacttrimeshpart_find_pairs(orgtrans0,orgtrans1,shape0,shape1,pairset);	
-
-	if(pairset.size()== 0)
+	if(shape0->getGImpactShapeType()==CONST_GIMPACT_TRIMESH_SHAPE)
 	{
-		//unlock trimesh
-		shape1->unlock();
+		btGImpactMeshShape * meshshape0 = static_cast<btGImpactMeshShape *>(shape0);
+		m_part0 = meshshape0->getMeshPartCount();
+
+		while(m_part0--)
+		{
+			gimpact_vs_gimpact(body0,body1,meshshape0->getMeshPart(m_part0),shape1);
+		}
+
 		return;
 	}
 
-//	btCollisionShape * orgshape0 = body0->getCollisionShape();
-//	btCollisionShape * orgshape1 = body1->getCollisionShape();
-
-
-	m_part1 = shape1->getPart();
-	m_part0 = -1;
-	m_triface0 = -1;
-
-	btTriangleShapeEx bullet_triangle(btVector3(0.f,0.f,0.f),btVector3(0.f,0.f,0.f),btVector3(0.f,0.f,0.f));
-
-
-	GUINT i = pairset.size();
-
-	while(i--)
+	if(shape1->getGImpactShapeType()==CONST_GIMPACT_TRIMESH_SHAPE)
 	{
-		const GIM_PAIR & pair = pairset[i];
-		btCollisionShape * colshape0 = shape0->getChildShape(pair.m_index1);
-		btTransform childtrans0 = orgtrans0*shape0->getChildTransform(pair.m_index1);
-		body0->setWorldTransform(childtrans0);
+		btGImpactMeshShape * meshshape1 = static_cast<btGImpactMeshShape *>(shape1);
+		m_part1 = meshshape1->getMeshPartCount();
 
-		shape1->getBulletTriangle(pair.m_index2,bullet_triangle);
-		m_triface1 = pair.m_index2;
+		while(m_part1--)
+		{
 
-		//collide two shapes
-		shape_vs_shape_collision(body0,body1,colshape0,&bullet_triangle,swapped);
+			gimpact_vs_gimpact(body0,body1,shape0,meshshape1->getMeshPart(m_part1));
 
-		//restore transforms
-//		body0->setCollisionShape(orgshape0);
-//		body1->setCollisionShape(orgshape1);
-		body1->setWorldTransform(orgtrans1);
+		}
+
+		return;
 	}
 
-	//unlock trimesh
-	shape1->unlock();
+
+	btTransform orgtrans0 = body0->getWorldTransform();
+	btTransform orgtrans1 = body1->getWorldTransform();
+
+	btPairSet pairset;
+
+	gimpact_vs_gimpact_find_pairs(orgtrans0,orgtrans1,shape0,shape1,pairset);
+
+	if(pairset.size()== 0) return;
+
+	if(shape0->getGImpactShapeType() == CONST_GIMPACT_TRIMESH_SHAPE_PART &&
+		shape1->getGImpactShapeType() == CONST_GIMPACT_TRIMESH_SHAPE_PART)
+	{
+		btGImpactMeshShapePart * shapepart0 = static_cast<btGImpactMeshShapePart * >(shape0);
+		btGImpactMeshShapePart * shapepart1 = static_cast<btGImpactMeshShapePart * >(shape1);
+		//specialized function
+		#ifdef BULLET_TRIANGLE_COLLISION
+		collide_gjk_triangles(body0,body1,shapepart0,shapepart1,&pairset[0].m_index1,pairset.size());
+		#else
+		collide_sat_triangles(body0,body1,shapepart0,shapepart1,&pairset[0].m_index1,pairset.size());
+		#endif
+
+		return;
+	}
+
+	//general function
+
+	shape0->lockChildShapes();
+	shape1->lockChildShapes();
+
+	GIM_ShapeRetriever retriever0(shape0);
+	GIM_ShapeRetriever retriever1(shape1);
+
+	bool child_has_transform0 = shape0->childrenHasTransform();
+	bool child_has_transform1 = shape1->childrenHasTransform();
+
+	int i = pairset.size();
+	while(i--)
+	{
+		BT_PAIR * pair = &pairset[i];
+		m_triface0 = pair->m_index1;
+		m_triface1 = pair->m_index2;
+		btCollisionShape * colshape0 = retriever0.getChildShape(m_triface0);
+		btCollisionShape * colshape1 = retriever1.getChildShape(m_triface1);
+
+		if(child_has_transform0)
+		{
+			body0->setWorldTransform(orgtrans0*shape0->getChildTransform(m_triface0));
+		}
+
+		if(child_has_transform1)
+		{
+			body1->setWorldTransform(orgtrans1*shape1->getChildTransform(m_triface1));
+		}
+
+		//collide two convex shapes
+		convex_vs_convex_collision(body0,body1,colshape0,colshape1);
+
+
+		if(child_has_transform0)
+		{
+			body0->setWorldTransform(orgtrans0);
+		}
+
+		if(child_has_transform1)
+		{
+			body1->setWorldTransform(orgtrans1);
+		}
+
+	}
+
+	shape0->unlockChildShapes();
+	shape1->unlockChildShapes();
 }
 
-
-
-void btGImpactCollisionAlgorithm::gimpactcompound_vs_shape_collision(
-					  btCollisionObject * body0,
-					  btCollisionObject * body1,
-					  btGImpactCompoundShape * shape0,
-					  btCollisionShape * shape1,bool swapped)
+void btGImpactCollisionAlgorithm::gimpact_vs_shape(btCollisionObject * body0,
+				  btCollisionObject * body1,
+				  btGImpactShapeInterface * shape0,
+				  btCollisionShape * shape1,bool swapped)
 {
+	if(shape0->getGImpactShapeType()==CONST_GIMPACT_TRIMESH_SHAPE)
+	{
+		btGImpactMeshShape * meshshape0 = static_cast<btGImpactMeshShape *>(shape0);
+		m_part0 = meshshape0->getMeshPartCount();
+
+		while(m_part0--)
+		{
+
+			gimpact_vs_shape(body0,
+				  body1,
+				  meshshape0->getMeshPart(m_part0),
+				  shape1,swapped);
+
+		}
+
+		return;
+	}
+
+	#ifdef GIMPACT_VS_PLANE_COLLISION
+	if(shape0->getGImpactShapeType() == CONST_GIMPACT_TRIMESH_SHAPE_PART &&
+		shape1->getShapeType() == STATIC_PLANE_PROXYTYPE)
+	{
+		btGImpactMeshShapePart * shapepart = static_cast<btGImpactMeshShapePart *>(shape0);
+		btStaticPlaneShape * planeshape = static_cast<btStaticPlaneShape * >(shape1);
+		gimpacttrimeshpart_vs_plane_collision(body0,body1,shapepart,planeshape,swapped);
+		return;
+	}
+
+	#endif
+
+
+
+	if(shape1->isCompound())
+	{
+		btCompoundShape * compoundshape = static_cast<btCompoundShape *>(shape1);
+		gimpact_vs_compoundshape(body0,body1,shape0,compoundshape,swapped);
+		return;
+	}
+	else if(shape1->isConcave())
+	{
+		btConcaveShape * concaveshape = static_cast<btConcaveShape *>(shape1);
+		gimpact_vs_concave(body0,body1,shape0,concaveshape,swapped);
+		return;
+	}
+
+
 	btTransform orgtrans0 = body0->getWorldTransform();
 
-	btTransform trans1to0 = orgtrans0.inverse();
-	trans1to0 *= body1->getWorldTransform();
+	btTransform orgtrans1 = body1->getWorldTransform();
 
-	GIM_AABB boxshape;
-	shape1->getAabb(trans1to0,boxshape.m_min,boxshape.m_max);
-	gim_array<GUINT> collided_results;
-	shape0->getBoxSet()->boxQuery(boxshape, collided_results);
+	btAlignedObjectArray<int> collided_results;
+
+	gimpact_vs_shape_find_pairs(orgtrans0,orgtrans1,shape0,shape1,collided_results);
 
 	if(collided_results.size() == 0) return;
 
 
+	shape0->lockChildShapes();
 
-	GUINT i = collided_results.size();
+	GIM_ShapeRetriever retriever0(shape0);
+
+
+	bool child_has_transform0 = shape0->childrenHasTransform();
+
+
+	int i = collided_results.size();
 
 	while(i--)
 	{
-		btCollisionShape * colshape0 = shape0->getChildShape(collided_results[i]);
-		btTransform childtrans0 = orgtrans0*shape0->getChildTransform(collided_results[i]);
+		int child_index = collided_results[i];
+		m_triface0 = child_index;
 
-		body0->setWorldTransform(childtrans0);
+		btCollisionShape * colshape0 = retriever0.getChildShape(child_index);
+
+		if(child_has_transform0)
+		{
+			body0->setWorldTransform(orgtrans0*shape0->getChildTransform(child_index));
+		}
 
 		//collide two shapes
-		shape_vs_shape_collision(body0,body1,colshape0,shape1,swapped);
-
-		//restore transforms
-//		body0->setCollisionShape(orgshape0);
-		body0->setWorldTransform(orgtrans0);
-	}
-
-}
-
-
-
-
-void btGImpactCollisionAlgorithm::gimpacttrimeshpart_vs_gimpacttrimeshpart_collision(
-					  btCollisionObject * body0,
-					  btCollisionObject * body1,
-					  btGImpactMeshShapePart * shape0,
-					  btGImpactMeshShapePart * shape1,bool swapped)
-{
-	shape0->lock();
-	shape1->lock();
-
-	btGImpactMeshShapePart * trishape0;
-	btGImpactMeshShapePart * trishape1;
-	btCollisionObject * tribody0;
-	btCollisionObject * tribody1;
-
-	if(swapped)
-	{
-		trishape0 = shape1;
-		trishape1 = shape0;
-		tribody0 = body1;
-		tribody1 = body0;
-	}
-	else
-	{
-		trishape0 = shape0;
-		trishape1 = shape1;
-		tribody0 = body0;
-		tribody1 = body1;
-	}
-
-	btTransform orgtrans0 = tribody0->getWorldTransform();
-	btTransform orgtrans1 = tribody1->getWorldTransform();
-
-	gim_pair_set pairset;
-
-	gimpacttrimeshpart_vs_gimpacttrimeshpart_find_pairs(orgtrans0,orgtrans1,trishape0,trishape1,pairset);
-
-	if(pairset.size()== 0)
-	{
-		shape0->unlock();
-		shape1->unlock();
-		return;
-	}
-
-	m_part0 = trishape0->getPart();
-	m_part1 = trishape1->getPart();
-
-#ifdef BULLET_TRIANGLE_COLLISION
-
-	btTriangleShapeEx tri0(btVector3(0.f,0.f,0.f),btVector3(0.f,0.f,0.f),btVector3(0.f,0.f,0.f));
-	btTriangleShapeEx tri1(btVector3(0.f,0.f,0.f),btVector3(0.f,0.f,0.f),btVector3(0.f,0.f,0.f));
-	GUINT i = pairset.size();
-	while(i--)
-	{
-		const GIM_PAIR & pair = pairset[i];
-		m_triface0 = pair.m_index1;
-		m_triface1 = pair.m_index2;
-
-		trishape0->getBulletTriangle(pair.m_index1,tri0);
-		trishape1->getBulletTriangle(pair.m_index2,tri1);
-
-
-		convex_vs_convex_collision(
-					  tribody0,
-					  tribody1,
-					  &tri0,
-					  &tri1);
-
-	}
-	//unlock
-	shape0->unlock();
-	shape1->unlock();
-
-#else
-	gim_contact_array tempcontacts;
-	GIM_TRIANGLE tri0;
-	GIM_TRIANGLE tri1;
-	GIM_TRIANGLE_CONTACT_DATA contact_data;
-	GUINT i = pairset.size();
-	while(i--)
-	{
-		const GIM_PAIR & pair = pairset[i];		
-
-		trishape0->getTriangle(pair.m_index1,tri0);
-		trishape1->getTriangle(pair.m_index2,tri1);
-
-		tri0.apply_transform(orgtrans0);
-		tri1.apply_transform(orgtrans1);
-
-		if(tri0.collide_triangle(tri1,contact_data))
-		{
-			tempcontacts.push_triangle_contacts(contact_data,pair.m_index1,pair.m_index2);
-		}
-	}
-	//unlock
-	shape0->unlock();
-	shape1->unlock();
-
-	if(tempcontacts.size()==0) return;
-
-	//sort contacts
-	gim_contact_array contacts;
-	contacts.merge_contacts(tempcontacts,true);
-	// put contacts
-	m_part0 = trishape0->getPart();
-	m_part1 = trishape1->getPart();
-	i = contacts.size();
-	while(i--)
-	{
-		GIM_CONTACT  * pcontact = &contacts[i];
-
-		m_triface0 = pcontact->m_feature1;
-		m_triface1 = pcontact->m_feature2;
-
-		addContactPoint(tribody0, tribody1,
-					pcontact->m_point,
-					pcontact->m_normal,
-					-pcontact->m_depth);
-	}
-#endif
-}
-
-void btGImpactCollisionAlgorithm::gimpacttrimeshpart_vs_plane_collision(
-					  btCollisionObject * body0,
-					  btCollisionObject * body1,
-					  btGImpactMeshShapePart * shape0,
-					  btStaticPlaneShape * shape1,bool swapped)
-{
-
-
-	btTransform orgtrans0 = body0->getWorldTransform();
-	btTransform orgtrans1 = body1->getWorldTransform();
-
-	btPlaneShape * planeshape = static_cast<btPlaneShape *>(shape1);
-	btVector4 plane;
-	planeshape->get_plane_equation_transformed(orgtrans1,plane);
-
-	//test box against plane
-
-	GIM_AABB tribox;
-	shape0->getAabb(orgtrans0,tribox.m_min,tribox.m_max);
-	tribox.increment_margin(planeshape->getMargin());
-
-	if( tribox.plane_classify(plane)!= G_COLLIDE_PLANE) return;
-
-	shape0->lock();
-
-	GREAL margin = shape0->getMargin() + planeshape->getMargin();
-
-	btVector3 vertex;
-	GUINT vi = shape0->getVertexCount();
-	while(vi--)
-	{
-		shape0->getVertex(vi,vertex);
-		vertex = orgtrans0(vertex);
-
-		GREAL distance = vertex.dot(plane) - plane[3] - margin;
-
-		if(distance<0.0)//add contact
-		{
-			if(swapped)
-			{
-				addContactPoint(body1, body0,
-					vertex,
-					-plane,
-					distance);
-			}
-			else
-			{
-				addContactPoint(body0, body1,
-					vertex,
-					plane,
-					distance);
-			}
-		}
-	}
-
-	shape0->unlock();
-}
-
-
-class btGImpactTriangleCallback: public btTriangleCallback
-{
-public:
-	btGImpactCollisionAlgorithm * algorithm;
-	btCollisionObject * body0;
-	btCollisionObject * body1;
-	btGImpactMeshShapePart * gimpactshape0;
-	bool swapped;
-	btScalar margin;
-
-
-	virtual void processTriangle(btVector3* triangle, int partId, int triangleIndex)
-	{
-		btTriangleShapeEx tri1(triangle[0],triangle[1],triangle[2]);
-		tri1.setMargin(margin);
-		algorithm->gimpacttrimeshpart_vs_shape_collision(
-							body0,body1,gimpactshape0,&tri1,swapped);
-	}
-};
-
-
-
-void btGImpactCollisionAlgorithm::gimpacttrimeshpart_vs_concave_collision(
-					  btCollisionObject * body0,
-					  btCollisionObject * body1,
-					  btGImpactMeshShapePart * shape0,
-					  btConcaveShape * shape1,bool swapped)
-{
-
-	//create the callback
-	btGImpactTriangleCallback tricallback;
-	tricallback.algorithm = this;
-	tricallback.body0 = body0;
-	tricallback.body1 = body1;
-	tricallback.gimpactshape0 = shape0;
-	tricallback.swapped = swapped;
-	tricallback.margin = shape1->getMargin();
-
-
-
-	//getting the trimesh AABB
-	btTransform gimpactInConcaveSpace;
-	gimpactInConcaveSpace = body1->getWorldTransform().inverse() * body0->getWorldTransform();
-	btVector3 minAABB,maxAABB;
-	shape0->getAabb(gimpactInConcaveSpace,minAABB,maxAABB);
-
-	shape1->processAllTriangles(&tricallback,minAABB,maxAABB);
-
-
-
-}
-
-
-void btGImpactCollisionAlgorithm::gimpacttrimeshpart_vs_shape_collision(
-					  btCollisionObject * body0,
-					  btCollisionObject * body1,
-					  btGImpactMeshShapePart * shape0,
-					  btCollisionShape * shape1,bool swapped)
-{
-#ifdef GIMPACT_VS_PLANE_COLLISION
-	if(shape1->getShapeType() == STATIC_PLANE_PROXYTYPE)
-	{
-		btStaticPlaneShape *  plane1 = static_cast<btStaticPlaneShape * >(shape1);
-		gimpacttrimeshpart_vs_plane_collision(body0,body1,shape0,plane1,swapped);
-		return;
-	}
-#endif
-	if(shape1->isConcave())
-	{
-		btConcaveShape *  concave1 = static_cast<btConcaveShape * >(shape1);
-		gimpacttrimeshpart_vs_concave_collision(body0,body1,shape0,concave1,swapped);
-		return;
-	}
-
-	btTransform trans1to0 = body0->getWorldTransform().inverse();
-	trans1to0 *= body1->getWorldTransform();
-
-	//lock
-	shape0->lock();
-
-	GIM_AABB boxshape;
-	shape1->getAabb(trans1to0,boxshape.m_min,boxshape.m_max);
-	gim_array<GUINT> collided_results(32);
-	shape0->getBoxSet()->boxQuery(boxshape, collided_results);
-
-	if(collided_results.size() == 0)
-	{
-		shape0->unlock();
-		return;
-	}
-
-	btTriangleShapeEx bullet_triangle(btVector3(0.f,0.f,0.f),btVector3(0.f,0.f,0.f),btVector3(0.f,0.f,0.f));
-
-
-	m_part0 = shape0->getPart();
-	m_part1 = -1;
-	m_triface1 = -1;
-
-	GUINT i = collided_results.size();
-
-	if(shape1->isConvex())
-	{
 		if(swapped)
 		{
-			while(i--)
-			{
-				m_triface0 = collided_results[i];
-				shape0->getBulletTriangle(collided_results[i],bullet_triangle);
-				//collide two shapes
-				convex_vs_convex_collision(body1,body0,shape1,&bullet_triangle);
-			}
+			shape_vs_shape_collision(body1,body0,shape1,colshape0);
 		}
 		else
 		{
-			while(i--)
-			{
-				m_triface0 = collided_results[i];
-				shape0->getBulletTriangle(collided_results[i],bullet_triangle);
-				//collide two shapes
-				convex_vs_convex_collision(body0,body1,&bullet_triangle,shape1);
-			}
+			shape_vs_shape_collision(body0,body1,colshape0,shape1);
 		}
-	}
-	else
-	{
-		while(i--)
+
+		//restore transforms
+		if(child_has_transform0)
 		{
-			m_triface0 = collided_results[i];
-			shape0->getBulletTriangle(collided_results[i],bullet_triangle);
-			//collide two shapes
-			shape_vs_shape_collision(body0,body1,&bullet_triangle,shape1,swapped);
+			body0->setWorldTransform(orgtrans0);
 		}
+
 	}
 
+	shape0->unlockChildShapes();
 
-
-	shape0->unlock();
 }
 
-
 void btGImpactCollisionAlgorithm::gimpact_vs_compoundshape(btCollisionObject * body0,
-					  btCollisionObject * body1,
-					  btGImpactShapeInterface * shape0,
-					  btCompoundShape * shape1,bool swapped)
+				  btCollisionObject * body1,
+				  btGImpactShapeInterface * shape0,
+				  btCompoundShape * shape1,bool swapped)
 {
 	btTransform orgtrans1 = body1->getWorldTransform();
 
@@ -740,125 +705,117 @@ void btGImpactCollisionAlgorithm::gimpact_vs_compoundshape(btCollisionObject * b
 	}
 }
 
-
-void btGImpactCollisionAlgorithm::gimpact_vs_shape(btCollisionObject * body0,
+void btGImpactCollisionAlgorithm::gimpacttrimeshpart_vs_plane_collision(
+					  btCollisionObject * body0,
 					  btCollisionObject * body1,
-					  btGImpactShapeInterface * shape0,
-					  btCollisionShape * shape1,bool swapped)
-{
-	if(shape1->getShapeType() == COMPOUND_SHAPE_PROXYTYPE)
-	{
-		btCompoundShape * compoundshape = static_cast<btCompoundShape *>(shape1);
-		gimpact_vs_compoundshape(body0,body1,shape0,compoundshape,swapped);
-		return;
-	}
-
-	eGIMPACT_SHAPE_TYPE shapetype0 = shape0->getGImpactShapeType();
-	if(shapetype0 == CONST_GIMPACT_TRIMESH_SHAPE)
-	{
-		btGImpactMeshShape * trimesh0 = static_cast<btGImpactMeshShape *>(shape0);
-		gimpacttrimesh_vs_shape_collision(body0,body1,trimesh0,shape1,swapped);
-	}
-	else if(shapetype0 == CONST_GIMPACT_TRIMESH_SHAPE_PART)
-	{
-		btGImpactMeshShapePart * trimeshpart0 = static_cast<btGImpactMeshShapePart *>(shape0);
-		gimpacttrimeshpart_vs_shape_collision(body0,body1,trimeshpart0,shape1,swapped);
-	}
-	else// compound
-	{
-		btGImpactCompoundShape * compound0 = static_cast<btGImpactCompoundShape*>(shape0);
-		gimpactcompound_vs_shape_collision(body0,body1,compound0,shape1,swapped);
-	}
-}
-
-void btGImpactCollisionAlgorithm::gimpact_vs_gimpact(btCollisionObject * body0,
-					  btCollisionObject * body1,
-					  btGImpactShapeInterface * shape0,
-					  btGImpactShapeInterface * shape1)
+					  btGImpactMeshShapePart * shape0,
+					  btStaticPlaneShape * shape1,bool swapped)
 {
 
-	eGIMPACT_SHAPE_TYPE shapetype0 = shape0->getGImpactShapeType();
-	eGIMPACT_SHAPE_TYPE shapetype1 = shape1->getGImpactShapeType();
 
-	btGImpactMeshShape * trimesh0;
-	btGImpactMeshShape * trimesh1;
-	btGImpactMeshShapePart * trimeshpart0;
-	btGImpactMeshShapePart * trimeshpart1;
-	btGImpactCompoundShape * compound0;
-	btGImpactCompoundShape * compound1;
+	btTransform orgtrans0 = body0->getWorldTransform();
+	btTransform orgtrans1 = body1->getWorldTransform();
 
+	btPlaneShape * planeshape = static_cast<btPlaneShape *>(shape1);
+	btVector4 plane;
+	planeshape->get_plane_equation_transformed(orgtrans1,plane);
 
-	if(shapetype0 == CONST_GIMPACT_TRIMESH_SHAPE)
+	//test box against plane
+
+	btAABB tribox;
+	shape0->getAabb(orgtrans0,tribox.m_min,tribox.m_max);
+	tribox.increment_margin(planeshape->getMargin());
+
+	if( tribox.plane_classify(plane)!= BT_CONST_COLLIDE_PLANE) return;
+
+	shape0->lockChildShapes();
+
+	btScalar margin = shape0->getMargin() + planeshape->getMargin();
+
+	btVector3 vertex;
+	int vi = shape0->getVertexCount();
+	while(vi--)
 	{
-		if(shapetype1 == CONST_GIMPACT_TRIMESH_SHAPE) // trimesh vs trimesh
+		shape0->getVertex(vi,vertex);
+		vertex = orgtrans0(vertex);
+
+		btScalar distance = vertex.dot(plane) - plane[3] - margin;
+
+		if(distance<0.0)//add contact
 		{
-			trimesh0 = static_cast<btGImpactMeshShape *>(shape0);
-			trimesh1 = static_cast<btGImpactMeshShape *>(shape1);
-			gimpacttrimesh_vs_gimpacttrimesh(body0,body1,trimesh0,trimesh1);
-		}
-		else
-		{
-			if(shapetype1 == CONST_GIMPACT_COMPOUND_SHAPE) // trimesh vs compound
+			if(swapped)
 			{
-				trimesh0 = static_cast<btGImpactMeshShape *>(shape0);
-				compound1 = static_cast<btGImpactCompoundShape *>(shape1);
-				gimpacttrimesh_vs_gimpactcompound(body0,body1,trimesh0,compound1,false);
+				addContactPoint(body1, body0,
+					vertex,
+					-plane,
+					distance);
 			}
-			else // trimesh vs trimesh part
+			else
 			{
-				trimesh0 = static_cast<btGImpactMeshShape *>(shape0);
-				trimeshpart1 = static_cast<btGImpactMeshShapePart *>(shape1);
-				gimpacttrimesh_vs_trimeshpart(body0,body1,trimesh0,trimeshpart1,false);
+				addContactPoint(body0, body1,
+					vertex,
+					plane,
+					distance);
 			}
 		}
 	}
-	else if(shapetype1 == CONST_GIMPACT_TRIMESH_SHAPE)
-	{
-		if(shapetype0 == CONST_GIMPACT_COMPOUND_SHAPE) // compound vs trimesh
-		{
-			compound0 = static_cast<btGImpactCompoundShape *>(shape0);
-			trimesh1 = static_cast<btGImpactMeshShape *>(shape1);
-			gimpacttrimesh_vs_gimpactcompound(body1,body0,trimesh1,compound0,true);
-		}
-		else // trimesh part vs trimesh
-		{
-			trimeshpart0 = static_cast<btGImpactMeshShapePart *>(shape0);
-			trimesh1 = static_cast<btGImpactMeshShape *>(shape1);
-			gimpacttrimesh_vs_trimeshpart(body1,body0,trimesh1,trimeshpart0,true);
-		}
-	}
-	else
-	{
-		if(shapetype0  == CONST_GIMPACT_COMPOUND_SHAPE)
-		{
-			if(shapetype1 == CONST_GIMPACT_COMPOUND_SHAPE) // compound vs compound
-			{
-				compound0 = static_cast<btGImpactCompoundShape *>(shape0);
-				compound1 = static_cast<btGImpactCompoundShape *>(shape1);
-				gimpactcompound_vs_gimpactcompound_collision(body0,body1,compound0,compound1);
-			}
-			else // compound vs trimesh part
-			{
-				compound0 = static_cast<btGImpactCompoundShape *>(shape0);
-				trimeshpart1 = static_cast<btGImpactMeshShapePart *>(shape1);
-				gimpactcompound_vs_gimpacttrimeshpart_collision(body0,body1,compound0,trimeshpart1,false);
-			}
-		}
-		else if(shapetype1 == CONST_GIMPACT_COMPOUND_SHAPE) // trimesh part vs compound
-		{
-			compound1 = static_cast<btGImpactCompoundShape *>(shape1);
-			trimeshpart0 = static_cast<btGImpactMeshShapePart *>(shape0);
-			gimpactcompound_vs_gimpacttrimeshpart_collision(body1,body0,compound1,trimeshpart0,true);
-		}
-		else // trimesh part vs trimesh part
-		{
-			trimeshpart0 = static_cast<btGImpactMeshShapePart *>(shape0);
-			trimeshpart1 = static_cast<btGImpactMeshShapePart *>(shape1);
 
-			gimpacttrimeshpart_vs_gimpacttrimeshpart_collision(body0,body1,trimeshpart0,trimeshpart1,false);
-		}
-	}
+	shape0->unlockChildShapes();
 }
+
+
+
+
+class btGImpactTriangleCallback: public btTriangleCallback
+{
+public:
+	btGImpactCollisionAlgorithm * algorithm;
+	btCollisionObject * body0;
+	btCollisionObject * body1;
+	btGImpactShapeInterface * gimpactshape0;
+	bool swapped;
+	btScalar margin;
+
+	virtual void processTriangle(btVector3* triangle, int partId, int triangleIndex)
+	{
+		btTriangleShapeEx tri1(triangle[0],triangle[1],triangle[2]);
+		tri1.setMargin(margin);
+		algorithm->gimpact_vs_shape(
+							body0,body1,gimpactshape0,&tri1,swapped);
+	}
+};
+
+
+
+
+void btGImpactCollisionAlgorithm::gimpact_vs_concave(
+				  btCollisionObject * body0,
+				  btCollisionObject * body1,
+				  btGImpactShapeInterface * shape0,
+				  btConcaveShape * shape1,bool swapped)
+{
+	//create the callback
+	btGImpactTriangleCallback tricallback;
+	tricallback.algorithm = this;
+	tricallback.body0 = body0;
+	tricallback.body1 = body1;
+	tricallback.gimpactshape0 = shape0;
+	tricallback.swapped = swapped;
+	tricallback.margin = shape1->getMargin();
+
+	//getting the trimesh AABB
+	btTransform gimpactInConcaveSpace;
+
+	gimpactInConcaveSpace = body1->getWorldTransform().inverse() * body0->getWorldTransform();
+
+	btVector3 minAABB,maxAABB;
+	shape0->getAabb(gimpactInConcaveSpace,minAABB,maxAABB);
+
+	shape1->processAllTriangles(&tricallback,minAABB,maxAABB);
+
+}
+
+
 
 void btGImpactCollisionAlgorithm::processCollision (btCollisionObject* body0,btCollisionObject* body1,const btDispatcherInfo& dispatchInfo,btManifoldResult* resultOut)
 {
@@ -866,27 +823,29 @@ void btGImpactCollisionAlgorithm::processCollision (btCollisionObject* body0,btC
 
     m_resultOut = resultOut;
 	m_dispatchInfo = &dispatchInfo;
-
-
     btGImpactShapeInterface * gimpactshape0;
     btGImpactShapeInterface * gimpactshape1;
+
 	if (body0->getCollisionShape()->getShapeType()==GIMPACT_SHAPE_PROXYTYPE)
 	{
+		gimpactshape0 = static_cast<btGImpactShapeInterface *>(body0->getCollisionShape());
+
 		if( body1->getCollisionShape()->getShapeType()==GIMPACT_SHAPE_PROXYTYPE )
 		{
-			gimpactshape0 = static_cast<btGImpactShapeInterface *>(body0->getCollisionShape());
 			gimpactshape1 = static_cast<btGImpactShapeInterface *>(body1->getCollisionShape());
+
 			gimpact_vs_gimpact(body0,body1,gimpactshape0,gimpactshape1);
 		}
 		else
 		{
-			gimpactshape0 = static_cast<btGImpactShapeInterface *>(body0->getCollisionShape());
 			gimpact_vs_shape(body0,body1,gimpactshape0,body1->getCollisionShape(),false);
 		}
+
 	}
 	else if (body1->getCollisionShape()->getShapeType()==GIMPACT_SHAPE_PROXYTYPE )
 	{
 		gimpactshape1 = static_cast<btGImpactShapeInterface *>(body1->getCollisionShape());
+
 		gimpact_vs_shape(body1,body0,gimpactshape1,body0->getCollisionShape(),true);
 	}
 }
@@ -900,25 +859,20 @@ btScalar btGImpactCollisionAlgorithm::calculateTimeOfImpact(btCollisionObject* b
 
 ///////////////////////////////////// REGISTERING ALGORITHM //////////////////////////////////////////////
 
+btGImpactCollisionAlgorithm::CreateFunc g_gimpact_cf;
 
 //! Use this function for register the algorithm externally
 void btGImpactCollisionAlgorithm::registerAlgorithm(btCollisionDispatcher * dispatcher)
 {
 
-	for (GUINT i = 0;i < MAX_BROADPHASE_COLLISION_TYPES ;i++ )
+	for (int i = 0;i < MAX_BROADPHASE_COLLISION_TYPES ;i++ )
 	{
-		dispatcher->registerCollisionCreateFunc(GIMPACT_SHAPE_PROXYTYPE,i ,new btGImpactCollisionAlgorithm::CreateFunc);
+		dispatcher->registerCollisionCreateFunc(GIMPACT_SHAPE_PROXYTYPE,i ,&g_gimpact_cf);
 	}
 
-	for (GUINT i = 0;i < MAX_BROADPHASE_COLLISION_TYPES ;i++ )
+	for (int i = 0;i < MAX_BROADPHASE_COLLISION_TYPES ;i++ )
 	{
-		dispatcher->registerCollisionCreateFunc(i,GIMPACT_SHAPE_PROXYTYPE ,new btGImpactCollisionAlgorithm::CreateFunc);
+		dispatcher->registerCollisionCreateFunc(i,GIMPACT_SHAPE_PROXYTYPE ,&g_gimpact_cf);
 	}
-
-	/*
-	dispatcher->registerCollisionCreateFunc(GIMPACT_SHAPE_PROXYTYPE,GIMPACT_SHAPE_PROXYTYPE,new btGImpactCollisionAlgorithm::CreateFunc);
-	dispatcher->registerCollisionCreateFunc(STATIC_PLANE_PROXYTYPE ,GIMPACT_SHAPE_PROXYTYPE,new btGImpactCollisionAlgorithm::CreateFunc);
-	dispatcher->registerCollisionCreateFunc(GIMPACT_SHAPE_PROXYTYPE,STATIC_PLANE_PROXYTYPE ,new btGImpactCollisionAlgorithm::CreateFunc);*/
-
 
 }

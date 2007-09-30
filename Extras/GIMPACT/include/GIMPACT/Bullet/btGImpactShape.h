@@ -2,32 +2,23 @@
 \author Francisco León Nájera
 */
 /*
------------------------------------------------------------------------------
 This source file is part of GIMPACT Library.
 
 For the latest info, see http://gimpact.sourceforge.net/
 
-Copyright (c) 2006 Francisco Leon Najera. C.C. 80087371.
+Copyright (c) 2007 Francisco Leon Najera. C.C. 80087371.
 email: projectileman@yahoo.com
 
- This library is free software; you can redistribute it and/or
- modify it under the terms of EITHER:
-   (1) The GNU Lesser General Public License as published by the Free
-       Software Foundation; either version 2.1 of the License, or (at
-       your option) any later version. The text of the GNU Lesser
-       General Public License is included with this library in the
-       file GIMPACT-LICENSE-LGPL.TXT.
-   (2) The BSD-style license that is included with this library in
-       the file GIMPACT-LICENSE-BSD.TXT.
-   (3) The zlib/libpng license that is included with this library in
-       the file GIMPACT-LICENSE-ZLIB.TXT.
 
- This library is distributed in the hope that it will be useful,
- but WITHOUT ANY WARRANTY; without even the implied warranty of
- MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE. See the files
- GIMPACT-LICENSE-LGPL.TXT, GIMPACT-LICENSE-ZLIB.TXT and GIMPACT-LICENSE-BSD.TXT for more details.
+This software is provided 'as-is', without any express or implied warranty.
+In no event will the authors be held liable for any damages arising from the use of this software.
+Permission is granted to anyone to use this software for any purpose,
+including commercial applications, and to alter it and redistribute it freely,
+subject to the following restrictions:
 
------------------------------------------------------------------------------
+1. The origin of this software must not be misrepresented; you must not claim that you wrote the original software. If you use this software in a product, an acknowledgment in the product documentation would be appreciated but is not required.
+2. Altered source versions must be plainly marked as such, and must not be misrepresented as being the original software.
+3. This notice may not be removed or altered from any source distribution.
 */
 
 
@@ -40,13 +31,17 @@ email: projectileman@yahoo.com
 #include "BulletCollision/CollisionShapes/btCollisionMargin.h"
 #include "BulletCollision/CollisionDispatch/btCollisionWorld.h"
 #include "BulletCollision/CollisionShapes/btConcaveShape.h"
+#include "BulletCollision/CollisionShapes/btTetrahedronShape.h"
 #include "LinearMath/btVector3.h"
 #include "LinearMath/btTransform.h"
 #include "LinearMath/btMatrix3x3.h"
 #include "LinearMath/btAlignedObjectArray.h"
 
-#include "GIMPACT/core/gim_box_set.h"
+#include "GIMPACT/Bullet/btGImpactQuantizedBvh.h" // box tree class
 
+
+//! declare Quantized trees, (you can change to float based trees)
+typedef btGImpactQuantizedBvh btGImpactBoxSet;
 
 enum eGIMPACT_SHAPE_TYPE
 {
@@ -55,16 +50,56 @@ enum eGIMPACT_SHAPE_TYPE
 	CONST_GIMPACT_TRIMESH_SHAPE
 };
 
+
+//! Helper class for tetrahedrons
+class btTetrahedronShapeEx:public btBU_Simplex1to4
+{
+public:
+	btTetrahedronShapeEx()
+	{
+		m_numVertices = 4;
+	}
+
+
+	SIMD_FORCE_INLINE void setVertices(
+		const btVector3 & v0,const btVector3 & v1,
+		const btVector3 & v2,const btVector3 & v3)
+	{
+		m_vertices[0] = v0;
+		m_vertices[1] = v1;
+		m_vertices[2] = v2;
+		m_vertices[3] = v3;
+		recalcLocalAabb();
+	}
+};
+
+
 //! Base class for gimpact shapes
 class btGImpactShapeInterface : public btConcaveShape
 {
 protected:
-    GIM_AABB m_localAABB;
+    btAABB m_localAABB;
     bool m_needs_update;
     btVector3  localScaling;
+    btGImpactBoxSet m_box_set;// optionally boxset
 
 	//! use this function for perfofm refit in bounding boxes
-    virtual void calcLocalAABB() = 0;
+    //! use this function for perfofm refit in bounding boxes
+    virtual void calcLocalAABB()
+    {
+		lockChildShapes();
+    	if(m_box_set.getNodeCount() == 0)
+    	{
+    		m_box_set.buildSet();
+    	}
+    	else
+    	{
+    		m_box_set.update();
+    	}
+    	unlockChildShapes();
+
+    	m_localAABB = m_box_set.getGlobalBox();
+    }
 
 
 public:
@@ -96,7 +131,7 @@ public:
     */
     void getAabb(const btTransform& t,btVector3& aabbMin,btVector3& aabbMax) const
     {
-        GIM_AABB transformedbox = m_localAABB;
+        btAABB transformedbox = m_localAABB;
         transformedbox.appy_transform(t);
         aabbMin = transformedbox.m_min;
         aabbMax = transformedbox.m_max;
@@ -109,7 +144,7 @@ public:
     }
 
 	//! Obtains the local box, which is the global calculated box of the total of subshapes
-	const GIM_AABB & getLocalBox()
+	SIMD_FORCE_INLINE const btAABB & getLocalBox()
 	{
 		return m_localAABB;
 	}
@@ -120,13 +155,7 @@ public:
         return GIMPACT_SHAPE_PROXYTYPE;
     }
 
-	//! Base method for determinig which kind of GIMPACT shape we get
-	virtual eGIMPACT_SHAPE_TYPE getGImpactShapeType() = 0;
-
-	//! Determines if this class has a hierarchy structure for sorting its primitives
-	virtual bool hasBoxSet()  const = 0;
-
-	/*!
+    /*!
 	\post You must call updateBound() for update the box set.
 	*/
 	virtual void	setLocalScaling(const btVector3& scaling)
@@ -134,10 +163,113 @@ public:
 		localScaling = scaling;
 		postUpdate();
 	}
+
 	virtual const btVector3& getLocalScaling() const
 	{
 		return localScaling;
 	}
+
+
+	virtual void setMargin(btScalar margin)
+    {
+    	m_collisionMargin = margin;
+    	int i = getNumChildShapes();
+    	while(i--)
+    	{
+			btCollisionShape* child = getChildShape(i);
+			child->setMargin(margin);
+    	}
+
+		m_needs_update = true;
+    }
+
+
+	//! Subshape member functions
+	//!@{
+
+	//! Base method for determinig which kind of GIMPACT shape we get
+	virtual eGIMPACT_SHAPE_TYPE getGImpactShapeType() = 0;
+
+	//! gets boxset
+	SIMD_FORCE_INLINE btGImpactBoxSet * getBoxSet()
+	{
+		return &m_box_set;
+	}
+
+	//! Determines if this class has a hierarchy structure for sorting its primitives
+	SIMD_FORCE_INLINE bool hasBoxSet()  const
+	{
+		if(m_box_set.getNodeCount() == 0) return false;
+		return true;
+	}
+
+	//! Obtains the primitive manager
+	virtual const btPrimitiveManagerBase * getPrimitiveManager()  const = 0;
+
+
+	//! Gets the number of children
+	virtual int	getNumChildShapes() const  = 0;
+
+	//! if true, then its children must get transforms.
+	virtual bool childrenHasTransform() const = 0;
+
+	//! Determines if this shape has triangles
+	virtual bool needsRetrieveTriangles() const = 0;
+
+	//! Determines if this shape has tetrahedrons
+	virtual bool needsRetrieveTetrahedrons() const = 0;
+
+	virtual void getBulletTriangle(int prim_index,btTriangleShapeEx & triangle) const = 0;
+
+	virtual void getBulletTetrahedron(int prim_index,btTetrahedronShapeEx & tetrahedron) const = 0;
+
+
+
+	//! call when reading child shapes
+	virtual void lockChildShapes() const
+	{
+	}
+
+	virtual void unlockChildShapes() const
+	{
+	}
+
+	//! if this trimesh
+	SIMD_FORCE_INLINE void getPrimitiveTriangle(int index,btPrimitiveTriangle & triangle) const
+	{
+		getPrimitiveManager()->get_primitive_triangle(index,triangle);
+	}
+
+
+	//! Retrieves the bound from a child
+    /*!
+    */
+    virtual void getChildAabb(int child_index,const btTransform& t,btVector3& aabbMin,btVector3& aabbMax) const
+    {
+        btAABB child_aabb;
+        getPrimitiveManager()->get_primitive_box(child_index,child_aabb);
+        child_aabb.appy_transform(t);
+        aabbMin = child_aabb.m_min;
+        aabbMax = child_aabb.m_max;
+    }
+
+	//! Gets the children
+	virtual btCollisionShape* getChildShape(int index) = 0;
+
+
+	//! Gets the child
+	virtual const btCollisionShape* getChildShape(int index) const = 0;
+
+	//! Gets the children transform
+	virtual btTransform	getChildTransform(int index) const = 0;
+
+	//! Sets the children transform
+	/*!
+	\post You must call updateBound() for update the box set.
+	*/
+	virtual void setChildTransform(int index, const btTransform & transform) = 0;
+
+	//!@}
 
 
 	//! virtual method for ray collision
@@ -155,22 +287,22 @@ public:
 
 	//!@}
 
-
 };
 
 
-//! btGIMPACTCompoundShape allows to handle multiple btCollisionShape objects at once
+//! btGImpactCompoundShape allows to handle multiple btCollisionShape objects at once
 /*!
-This allows for concave collision objects. This is more general then the Static Concave btTriangleMeshShape.
+This class only can manage Convex subshapes
 */
 class btGImpactCompoundShape	: public btGImpactShapeInterface
 {
 public:
 	//! compound primitive manager
-	class CompoundPrimitiveManager
+	class CompoundPrimitiveManager:public btPrimitiveManagerBase
 	{
 	public:
 		btGImpactCompoundShape * m_compoundShape;
+
 
 		CompoundPrimitiveManager(const CompoundPrimitiveManager& compound)
 		{
@@ -187,123 +319,174 @@ public:
 			m_compoundShape = NULL;
 		}
 
-		SIMD_FORCE_INLINE bool is_trimesh() const
+		virtual bool is_trimesh() const
 		{
 			return false;
 		}
 
-		SIMD_FORCE_INLINE GUINT get_primitive_count() const
+		virtual int get_primitive_count() const
 		{
-			return (GUINT )m_compoundShape->getNumChildShapes();
+			return (int )m_compoundShape->getNumChildShapes();
 		}
 
-		SIMD_FORCE_INLINE void get_primitive_box(GUINT prim_index ,GIM_AABB & primbox) const
+		virtual void get_primitive_box(int prim_index ,btAABB & primbox) const
 		{
-			btTransform prim_trans = m_compoundShape->getChildTransform(prim_index);
+			btTransform prim_trans;
+			if(m_compoundShape->childrenHasTransform())
+			{
+				prim_trans = m_compoundShape->getChildTransform(prim_index);
+			}
+			else
+			{
+				prim_trans.setIdentity();
+			}
 			const btCollisionShape* shape = m_compoundShape->getChildShape(prim_index);
 			shape->getAabb(prim_trans,primbox.m_min,primbox.m_max);
 		}
 
-		SIMD_FORCE_INLINE void get_primitive_triangle(GUINT prim_index,GIM_TRIANGLE & triangle) const
+		virtual void get_primitive_triangle(int prim_index,btPrimitiveTriangle & triangle) const
 		{
 			btAssert(0);
 		}
 
 	};
 
-	class BoxSetClass: public GIM_BOX_TREE_SET<CompoundPrimitiveManager>
-	{
-	public:
-	};
 
 
 protected:
-
-	BoxSetClass m_box_set;
+	CompoundPrimitiveManager m_primitive_manager;
 	btAlignedObjectArray<btTransform>		m_childTransforms;
 	btAlignedObjectArray<btCollisionShape*>	m_childShapes;
 
 
-	//! use this function for perfofm refit in bounding boxes
-    virtual void calcLocalAABB()
-    {
-    	if(m_box_set.getNodeCount() == 0)
-    	{
-    		m_box_set.buildSet();
-    	}
-    	else
-    	{
-    		m_box_set.update();
-    	}
-
-    	m_localAABB = m_box_set.getGlobalBox();
-    }
 public:
 
-	btGImpactCompoundShape()
+	btGImpactCompoundShape(bool children_has_transform = true)
 	{
-		m_box_set.setPrimitiveManager(CompoundPrimitiveManager(this));
+		m_primitive_manager.m_compoundShape = this;
+		m_box_set.setPrimitiveManager(&m_primitive_manager);
 	}
 
 	virtual ~btGImpactCompoundShape()
 	{
 	}
-	
-	//! Obtains the primitive manager
-	SIMD_FORCE_INLINE const CompoundPrimitiveManager & getPrimitiveManager()  const
+
+
+	//! if true, then its children must get transforms.
+	virtual bool childrenHasTransform() const
 	{
-		return m_box_set.getPrimitiveManager();
+		if(m_childTransforms.size()==0) return false;
+		return true;
 	}
 
-	//! Use this method for adding children
+
+	//! Obtains the primitive manager
+	virtual const btPrimitiveManagerBase * getPrimitiveManager()  const
+	{
+		return &m_primitive_manager;
+	}
+
+	//! Obtains the compopund primitive manager
+	SIMD_FORCE_INLINE CompoundPrimitiveManager * getCompoundPrimitiveManager()
+	{
+		return &m_primitive_manager;
+	}
+
+	//! Gets the number of children
+	virtual int	getNumChildShapes() const
+	{
+		return m_childShapes.size();
+	}
+
+
+	//! Use this method for adding children. Only Convex shapes are allowed.
 	void addChildShape(const btTransform& localTransform,btCollisionShape* shape)
 	{
+		btAssert(shape->isConvex());
 		m_childTransforms.push_back(localTransform);
 		m_childShapes.push_back(shape);
 	}
-	
-	//! Gets the number of children
-	int	getNumChildShapes() const
+
+	//! Use this method for adding children. Only Convex shapes are allowed.
+	void addChildShape(btCollisionShape* shape)
 	{
-		return int (m_childShapes.size());
+		btAssert(shape->isConvex());
+		m_childShapes.push_back(shape);
 	}
 
 	//! Gets the children
-	btCollisionShape* getChildShape(int index)
+	virtual btCollisionShape* getChildShape(int index)
 	{
 		return m_childShapes[index];
 	}
 
 	//! Gets the children
-	const btCollisionShape* getChildShape(int index) const
+	virtual const btCollisionShape* getChildShape(int index) const
 	{
 		return m_childShapes[index];
 	}
+
+	//! Retrieves the bound from a child
+    /*!
+    */
+    virtual void getChildAabb(int child_index,const btTransform& t,btVector3& aabbMin,btVector3& aabbMax) const
+    {
+
+    	if(childrenHasTransform())
+    	{
+    		m_childShapes[child_index]->getAabb(t*m_childTransforms[child_index],aabbMin,aabbMax);
+    	}
+    	else
+    	{
+    		m_childShapes[child_index]->getAabb(t,aabbMin,aabbMax);
+    	}
+    }
+
 
 	//! Gets the children transform
-	btTransform	getChildTransform(int index) const
+	virtual btTransform	getChildTransform(int index) const
 	{
+		btAssert(m_childTransforms.size() == m_childShapes.size());
 		return m_childTransforms[index];
 	}
 
 	//! Sets the children transform
-	/*!	
-	\post You must call updateBound() for update the box set.	
+	/*!
+	\post You must call updateBound() for update the box set.
 	*/
-	void setChildTransform(int index, const btTransform & transform)
+	virtual void setChildTransform(int index, const btTransform & transform)
 	{
+		btAssert(m_childTransforms.size() == m_childShapes.size());
 		m_childTransforms[index] = transform;
 		postUpdate();
 	}
 
+	//! Determines if this shape has triangles
+	virtual bool needsRetrieveTriangles() const
+	{
+		return false;
+	}
+
+	//! Determines if this shape has tetrahedrons
+	virtual bool needsRetrieveTetrahedrons() const
+	{
+		return false;
+	}
+
+
+	virtual void getBulletTriangle(int prim_index,btTriangleShapeEx & triangle) const
+	{
+		btAssert(0);
+	}
+
+	virtual void getBulletTetrahedron(int prim_index,btTetrahedronShapeEx & tetrahedron) const
+	{
+		btAssert(0);
+	}
+
+
 	//! Calculates the exact inertia tensor for this shape
 	virtual void	calculateLocalInertia(btScalar mass,btVector3& inertia);
-
-
-	BoxSetClass * getBoxSet()
-	{
-		return &m_box_set;
-	}
 
 	virtual char*	getName()const
 	{
@@ -315,41 +498,8 @@ public:
 		return CONST_GIMPACT_COMPOUND_SHAPE;
 	}
 
-	virtual bool hasBoxSet()  const
-	{
-		if(m_box_set.getNodeCount() == 0) return false;
-		return true;
-	}
-
-	virtual void rayTest(const btVector3& rayFrom, const btVector3& rayTo, btCollisionWorld::RayResultCallback& resultCallback)  const;
-
-
 };
 
-//! Helper class for colliding Bullet Triangle Shapes
-/*!
-This class implements a better getAabb method than the previous btTriangleShape class
-*/
-class btTriangleShapeEx: public btTriangleShape
-{
-public:
-	btTriangleShapeEx(const btVector3& p0,const btVector3& p1,const btVector3& p2):	btTriangleShape(p0,p1,p2)
-	{
-	}
-
-	virtual void getAabb(const btTransform& t,btVector3& aabbMin,btVector3& aabbMax)const
-	{
-		btVector3 tv0 = t(m_vertices1[0]);
-		btVector3 tv1 = t(m_vertices1[1]);
-		btVector3 tv2 = t(m_vertices1[2]);
-
-		GIM_AABB trianglebox(tv0,tv1,tv2,m_collisionMargin);
-		aabbMin = trianglebox.m_min;
-		aabbMax = trianglebox.m_max;
-	}
-
-
-};
 
 
 //! This class manages a sub part of a mesh supplied by the btStridingMeshInterface interface.
@@ -366,14 +516,14 @@ public:
 	/*!
 	Manages the info from btStridingMeshInterface object and controls the Lock/Unlock mechanism
 	*/
-	class TrimeshPrimitiveManager
+	class TrimeshPrimitiveManager:public btPrimitiveManagerBase
 	{
 	public:
 		btScalar m_margin;
 		btStridingMeshInterface * m_meshInterface;
 		btVector3 m_scale;
 		int m_part;
-		GUINT m_lock_count;
+		int m_lock_count;
 		const unsigned char *vertexbase;
 		int numverts;
 		PHY_ScalarType type;
@@ -387,7 +537,7 @@ public:
 		{
 			m_meshInterface = NULL;
 			m_part = 0;
-			m_margin = 0.1f;
+			m_margin = 0.01f;
 			m_scale = btVector3(1.f,1.f,1.f);
 			m_lock_count = 0;
 			vertexbase = 0;
@@ -403,7 +553,7 @@ public:
 			m_meshInterface = manager.m_meshInterface;
 			m_part = manager.m_part;
 			m_margin = manager.m_margin;
-			m_scale = manager.m_meshInterface->getScaling();
+			m_scale = manager.m_scale;
 			m_lock_count = 0;
 			vertexbase = 0;
 			numverts = 0;
@@ -459,42 +609,42 @@ public:
 			m_lock_count = 0;
 		}
 
-		SIMD_FORCE_INLINE bool is_trimesh() const
+		virtual bool is_trimesh() const
 		{
 			return true;
 		}
 
-		SIMD_FORCE_INLINE GUINT get_primitive_count() const
+		virtual int get_primitive_count() const
 		{
-			return (GUINT )numfaces;
+			return (int )numfaces;
 		}
 
-		SIMD_FORCE_INLINE GUINT get_vertex_count() const
+		SIMD_FORCE_INLINE int get_vertex_count() const
 		{
-			return (GUINT )numverts;
+			return (int )numverts;
 		}
 
-		SIMD_FORCE_INLINE void get_indices(GUINT face_index,GUINT &i0,GUINT &i1,GUINT &i2) const
+		SIMD_FORCE_INLINE void get_indices(int face_index,int &i0,int &i1,int &i2) const
 		{
 			if(indicestype == PHY_SHORT)
 			{
-				GUSHORT * s_indices = (GUSHORT *)(indexbase + face_index*indexstride);
+				short * s_indices = (short *)(indexbase + face_index*indexstride);
 				i0 = s_indices[0];
 				i1 = s_indices[1];
 				i2 = s_indices[2];
 			}
 			else
 			{
-				GUINT * i_indices = (GUINT *)(indexbase + face_index*indexstride);
+				int * i_indices = (int *)(indexbase + face_index*indexstride);
 				i0 = i_indices[0];
 				i1 = i_indices[1];
 				i2 = i_indices[2];
 			}
 		}
 
-		SIMD_FORCE_INLINE void get_vertex(GUINT vertex_index, btVector3 & vertex) const
+		SIMD_FORCE_INLINE void get_vertex(int vertex_index, btVector3 & vertex) const
 		{
-			if(indicestype == PHY_DOUBLE)
+			if(type == PHY_DOUBLE)
 			{
 				double * dvertices = (double *)(vertexbase + vertex_index*stride);
 				vertex[0] = btScalar(dvertices[0]*m_scale[0]);
@@ -510,16 +660,18 @@ public:
 			}
 		}
 
-		SIMD_FORCE_INLINE void get_primitive_box(GUINT prim_index ,GIM_AABB & primbox) const
+		virtual void get_primitive_box(int prim_index ,btAABB & primbox) const
 		{
-			GIM_TRIANGLE  triangle;
+			btPrimitiveTriangle  triangle;
 			get_primitive_triangle(prim_index,triangle);
-			primbox = triangle.get_box();
+			primbox.calc_from_triangle_margin(
+				triangle.m_vertices[0],
+				triangle.m_vertices[1],triangle.m_vertices[2],triangle.m_margin);
 		}
 
-		SIMD_FORCE_INLINE void get_primitive_triangle(GUINT prim_index,GIM_TRIANGLE & triangle) const
+		virtual void get_primitive_triangle(int prim_index,btPrimitiveTriangle & triangle) const
 		{
-			GUINT indices[3];
+			int indices[3];
 			get_indices(prim_index,indices[0],indices[1],indices[2]);
 			get_vertex(indices[0],triangle.m_vertices[0]);
 			get_vertex(indices[1],triangle.m_vertices[1]);
@@ -527,9 +679,9 @@ public:
 			triangle.m_margin = m_margin;
 		}
 
-		SIMD_FORCE_INLINE void get_bullet_triangle(GUINT prim_index,btTriangleShapeEx & triangle) const
+		SIMD_FORCE_INLINE void get_bullet_triangle(int prim_index,btTriangleShapeEx & triangle) const
 		{
-			GUINT indices[3];
+			int indices[3];
 			get_indices(prim_index,indices[0],indices[1],indices[2]);
 			get_vertex(indices[0],triangle.m_vertices1[0]);
 			get_vertex(indices[1],triangle.m_vertices1[1]);
@@ -539,77 +691,109 @@ public:
 
 	};
 
-	class BoxSetClass: public GIM_BOX_TREE_SET<TrimeshPrimitiveManager>
-	{
-	public:
-	};
-
 
 protected:
-	BoxSetClass m_box_set;
-
-	//! use this function for perfofm refit in bounding boxes
-    virtual void calcLocalAABB()
-    {
-		lock();
-    	if(m_box_set.getNodeCount() == 0)
-    	{
-    		m_box_set.buildSet();
-    	}
-    	else
-    	{
-    		m_box_set.update();
-    	}
-		unlock();
-
-    	m_localAABB = m_box_set.getGlobalBox();
-    }
+	TrimeshPrimitiveManager m_primitive_manager;
 public:
 
 	btGImpactMeshShapePart()
 	{
-	}
-
-	btGImpactMeshShapePart(const btGImpactMeshShapePart & meshpart)
-	{
-		m_box_set.setPrimitiveManager(meshpart.getPrimitiveManager());
+		m_box_set.setPrimitiveManager(&m_primitive_manager);
 	}
 
 
 	btGImpactMeshShapePart(btStridingMeshInterface * meshInterface,	int part)
 	{
-		m_box_set.setPrimitiveManager(TrimeshPrimitiveManager(meshInterface,part));
+		m_primitive_manager.m_meshInterface = meshInterface;
+		m_primitive_manager.m_part = part;
+		m_box_set.setPrimitiveManager(&m_primitive_manager);
 	}
 
 	virtual ~btGImpactMeshShapePart()
 	{
 	}
 
-	SIMD_FORCE_INLINE const TrimeshPrimitiveManager & getPrimitiveManager() const
+	//! if true, then its children must get transforms.
+	virtual bool childrenHasTransform() const
 	{
-		return m_box_set.getPrimitiveManager();
+		return false;
 	}
 
-	SIMD_FORCE_INLINE void lock() const
+
+	//! call when reading child shapes
+	virtual void lockChildShapes() const
 	{
-		void * dummy = (void*)(& m_box_set.getPrimitiveManager());
+		void * dummy = (void*)(m_box_set.getPrimitiveManager());
 		TrimeshPrimitiveManager * dummymanager = static_cast<TrimeshPrimitiveManager *>(dummy);
 		dummymanager->lock();
 	}
 
-	SIMD_FORCE_INLINE void unlock() const
+	virtual void unlockChildShapes()  const
 	{
-		void * dummy = (void*)(&m_box_set.getPrimitiveManager());
+		void * dummy = (void*)(m_box_set.getPrimitiveManager());
 		TrimeshPrimitiveManager * dummymanager = static_cast<TrimeshPrimitiveManager *>(dummy);
 		dummymanager->unlock();
 	}
 
+	//! Gets the number of children
+	virtual int	getNumChildShapes() const
+	{
+		return m_primitive_manager.get_primitive_count();
+	}
+
+
+	//! Gets the children
+	virtual btCollisionShape* getChildShape(int index)
+	{
+		btAssert(0);
+		return NULL;
+	}
+
+
+
+	//! Gets the child
+	virtual const btCollisionShape* getChildShape(int index) const
+	{
+		btAssert(0);
+		return NULL;
+	}
+
+	//! Gets the children transform
+	virtual btTransform	getChildTransform(int index) const
+	{
+		btAssert(0);
+		return btTransform();
+	}
+
+	//! Sets the children transform
+	/*!
+	\post You must call updateBound() for update the box set.
+	*/
+	virtual void setChildTransform(int index, const btTransform & transform)
+	{
+		btAssert(0);
+	}
+
+
+	//! Obtains the primitive manager
+	virtual const btPrimitiveManagerBase * getPrimitiveManager()  const
+	{
+		return &m_primitive_manager;
+	}
+
+	SIMD_FORCE_INLINE TrimeshPrimitiveManager * getTrimeshPrimitiveManager()
+	{
+		return &m_primitive_manager;
+	}
+
+
+
+
+
 	virtual void	calculateLocalInertia(btScalar mass,btVector3& inertia);
 
-	SIMD_FORCE_INLINE BoxSetClass * getBoxSet()
-	{
-		return &m_box_set;
-	}
+
+
 
 	virtual char*	getName()const
 	{
@@ -621,65 +805,66 @@ public:
 		return CONST_GIMPACT_TRIMESH_SHAPE_PART;
 	}
 
-	virtual bool hasBoxSet() const
+	//! Determines if this shape has triangles
+	virtual bool needsRetrieveTriangles() const
 	{
-		if(m_box_set.getNodeCount() == 0) return false;
 		return true;
 	}
 
-	SIMD_FORCE_INLINE GUINT getTriangleCount() const
+	//! Determines if this shape has tetrahedrons
+	virtual bool needsRetrieveTetrahedrons() const
 	{
-		return m_box_set.getPrimitiveManager().get_primitive_count();
+		return false;
 	}
 
-	SIMD_FORCE_INLINE void getTriangle(GUINT triangle_index, GIM_TRIANGLE & triangle) const
+	virtual void getBulletTriangle(int prim_index,btTriangleShapeEx & triangle) const
 	{
-		m_box_set.getPrimitiveManager().get_primitive_triangle(triangle_index,triangle);
+		m_primitive_manager.get_bullet_triangle(prim_index,triangle);
 	}
 
-	SIMD_FORCE_INLINE void getBulletTriangle(GUINT prim_index,btTriangleShapeEx & triangle) const
+	virtual void getBulletTetrahedron(int prim_index,btTetrahedronShapeEx & tetrahedron) const
 	{
-		m_box_set.getPrimitiveManager().get_bullet_triangle(prim_index,triangle);
+		btAssert(0);
 	}
 
-	SIMD_FORCE_INLINE GUINT getVertexCount() const
+
+
+	SIMD_FORCE_INLINE int getVertexCount() const
 	{
-		return m_box_set.getPrimitiveManager().get_vertex_count();
+		return m_primitive_manager.get_vertex_count();
 	}
 
-	SIMD_FORCE_INLINE void getVertex(GUINT vertex_index, btVector3 & vertex) const
+	SIMD_FORCE_INLINE void getVertex(int vertex_index, btVector3 & vertex) const
 	{
-		m_box_set.getPrimitiveManager().get_vertex(vertex_index,vertex);
+		m_primitive_manager.get_vertex(vertex_index,vertex);
 	}
 
 	SIMD_FORCE_INLINE void setMargin(btScalar margin)
     {
-    	m_box_set.getPrimitiveManager().m_margin = margin;
+    	m_primitive_manager.m_margin = margin;
     	postUpdate();
     }
 
     SIMD_FORCE_INLINE btScalar getMargin() const
     {
-    	return m_box_set.getPrimitiveManager().m_margin;
+    	return m_primitive_manager.m_margin;
     }
 
     virtual void	setLocalScaling(const btVector3& scaling)
     {
-    	m_box_set.getPrimitiveManager().m_scale = scaling;
+    	m_primitive_manager.m_scale = scaling;
     	postUpdate();
     }
 
     virtual const btVector3& getLocalScaling() const
     {
-    	return m_box_set.getPrimitiveManager().m_scale;
+    	return m_primitive_manager.m_scale;
     }
 
-    SIMD_FORCE_INLINE GUINT getPart() const
+    SIMD_FORCE_INLINE int getPart() const
     {
-    	return (GUINT)m_box_set.getPrimitiveManager().m_part;
+    	return (int)m_primitive_manager.m_part;
     }
-
-    virtual void rayTest(const btVector3& rayFrom, const btVector3& rayTo, btCollisionWorld::RayResultCallback& resultCallback)  const;
 
 	virtual void	processAllTriangles(btTriangleCallback* callback,const btVector3& aabbMin,const btVector3& aabbMax) const;
 };
@@ -687,13 +872,12 @@ public:
 
 //! This class manages a mesh supplied by the btStridingMeshInterface interface.
 /*!
-Set of btGImpactMeshShapePart parts 
+Set of btGImpactMeshShapePart parts
 - Simply create this shape by passing the btStridingMeshInterface to the constructor btGImpactMeshShape, then you must call updateBound() after creating the mesh
 
 - You can handle deformable meshes with this shape, by calling postUpdate() every time when changing the mesh vertices.
 
 */
-
 class btGImpactMeshShape : public btGImpactShapeInterface
 {
 protected:
@@ -736,6 +920,8 @@ public:
 		m_mesh_parts.clear();
 	}
 
+
+
 	int getMeshPartCount()
 	{
 		return m_mesh_parts.size();
@@ -753,7 +939,7 @@ public:
 		return m_mesh_parts[index];
 	}
 
-	
+
 	virtual void	setLocalScaling(const btVector3& scaling)
 	{
 		localScaling = scaling;
@@ -768,6 +954,20 @@ public:
 		m_needs_update = true;
 	}
 
+	virtual void setMargin(btScalar margin)
+    {
+    	m_collisionMargin = margin;
+
+		int i = m_mesh_parts.size();
+    	while(i--)
+    	{
+			btGImpactMeshShapePart * part = m_mesh_parts[i];
+			part->setMargin(margin);
+    	}
+
+		m_needs_update = true;
+    }
+
 	//! Tells to this object that is needed to refit all the meshes
     virtual void postUpdate()
     {
@@ -781,17 +981,115 @@ public:
     	m_needs_update = true;
     }
 
-
 	virtual void	calculateLocalInertia(btScalar mass,btVector3& inertia);
+
+
+	//! Obtains the primitive manager
+	virtual const btPrimitiveManagerBase * getPrimitiveManager()  const
+	{
+		btAssert(0);
+		return NULL;
+	}
+
+
+	//! Gets the number of children
+	virtual int	getNumChildShapes() const
+	{
+		btAssert(0);
+		return 0;
+	}
+
+
+	//! if true, then its children must get transforms.
+	virtual bool childrenHasTransform() const
+	{
+		btAssert(0);
+		return false;
+	}
+
+	//! Determines if this shape has triangles
+	virtual bool needsRetrieveTriangles() const
+	{
+		btAssert(0);
+		return false;
+	}
+
+	//! Determines if this shape has tetrahedrons
+	virtual bool needsRetrieveTetrahedrons() const
+	{
+		btAssert(0);
+		return false;
+	}
+
+	virtual void getBulletTriangle(int prim_index,btTriangleShapeEx & triangle) const
+	{
+		btAssert(0);
+	}
+
+	virtual void getBulletTetrahedron(int prim_index,btTetrahedronShapeEx & tetrahedron) const
+	{
+		btAssert(0);
+	}
+
+	//! call when reading child shapes
+	virtual void lockChildShapes()
+	{
+		btAssert(0);
+	}
+
+	virtual void unlockChildShapes()
+	{
+		btAssert(0);
+	}
+
+
+
+
+	//! Retrieves the bound from a child
+    /*!
+    */
+    virtual void getChildAabb(int child_index,const btTransform& t,btVector3& aabbMin,btVector3& aabbMax) const
+    {
+        btAssert(0);
+    }
+
+	//! Gets the children
+	virtual btCollisionShape* getChildShape(int index)
+	{
+		btAssert(0);
+		return NULL;
+	}
+
+
+	//! Gets the child
+	virtual const btCollisionShape* getChildShape(int index) const
+	{
+		btAssert(0);
+		return NULL;
+	}
+
+	//! Gets the children transform
+	virtual btTransform	getChildTransform(int index) const
+	{
+		btAssert(0);
+		return btTransform();
+	}
+
+	//! Sets the children transform
+	/*!
+	\post You must call updateBound() for update the box set.
+	*/
+	virtual void setChildTransform(int index, const btTransform & transform)
+	{
+		btAssert(0);
+	}
+
+
 	virtual eGIMPACT_SHAPE_TYPE getGImpactShapeType()
 	{
 		return CONST_GIMPACT_TRIMESH_SHAPE;
 	}
 
-	virtual bool hasBoxSet()  const
-	{
-		return false;
-	}
 
 	virtual char*	getName()const
 	{

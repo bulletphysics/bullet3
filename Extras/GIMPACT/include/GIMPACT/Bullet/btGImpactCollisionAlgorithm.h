@@ -2,32 +2,23 @@
 \author Francisco León Nájera
 */
 /*
------------------------------------------------------------------------------
 This source file is part of GIMPACT Library.
 
 For the latest info, see http://gimpact.sourceforge.net/
 
-Copyright (c) 2006 Francisco Leon Najera. C.C. 80087371.
+Copyright (c) 2007 Francisco Leon Najera. C.C. 80087371.
 email: projectileman@yahoo.com
 
- This library is free software; you can redistribute it and/or
- modify it under the terms of EITHER:
-   (1) The GNU Lesser General Public License as published by the Free
-       Software Foundation; either version 2.1 of the License, or (at
-       your option) any later version. The text of the GNU Lesser
-       General Public License is included with this library in the
-       file GIMPACT-LICENSE-LGPL.TXT.
-   (2) The BSD-style license that is included with this library in
-       the file GIMPACT-LICENSE-BSD.TXT.
-   (3) The zlib/libpng license that is included with this library in
-       the file GIMPACT-LICENSE-ZLIB.TXT.
 
- This library is distributed in the hope that it will be useful,
- but WITHOUT ANY WARRANTY; without even the implied warranty of
- MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE. See the files
- GIMPACT-LICENSE-LGPL.TXT, GIMPACT-LICENSE-ZLIB.TXT and GIMPACT-LICENSE-BSD.TXT for more details.
+This software is provided 'as-is', without any express or implied warranty.
+In no event will the authors be held liable for any damages arising from the use of this software.
+Permission is granted to anyone to use this software for any purpose,
+including commercial applications, and to alter it and redistribute it freely,
+subject to the following restrictions:
 
------------------------------------------------------------------------------
+1. The origin of this software must not be misrepresented; you must not claim that you wrote the original software. If you use this software in a product, an acknowledgment in the product documentation would be appreciated but is not required.
+2. Altered source versions must be plainly marked as such, and must not be misrepresented as being the original software.
+3. This notice may not be removed or altered from any source distribution.
 */
 
 #ifndef BVH_CONCAVE_COLLISION_ALGORITHM_H
@@ -47,9 +38,8 @@ class btDispatcher;
 #include "GIMPACT/Bullet/btGImpactShape.h"
 #include "BulletCollision/CollisionShapes/btStaticPlaneShape.h"
 #include "BulletCollision/CollisionShapes/btCompoundShape.h"
-#include "BulletCollision/CollisionShapes/btCompoundShape.h"
 #include "BulletCollision/CollisionDispatch/btConvexConvexAlgorithm.h"
-
+#include "LinearMath/btIDebugDraw.h"
 
 
 
@@ -65,7 +55,7 @@ class btGImpactCollisionAlgorithm : public btCollisionAlgorithm
 {
 protected:
 	btCollisionAlgorithm * m_convex_algorithm;
-    btPersistentManifold* m_manifoldPtr;
+    btPersistentManifold * m_manifoldPtr;
 	btManifoldResult* m_resultOut;
 	const btDispatcherInfo * m_dispatchInfo;
 	int m_triface0;
@@ -73,10 +63,11 @@ protected:
 	int m_triface1;
 	int m_part1;
 
+
+	//! Creates a new contact point
 	SIMD_FORCE_INLINE btPersistentManifold* newContactManifold(btCollisionObject* body0,btCollisionObject* body1)
 	{
-		clearCache();
-		m_manifoldPtr = m_dispatcher->getNewManifold(body0,body1);
+		m_manifoldPtr = m_dispatcher->getNewManifold(body0,body1);		
 		return m_manifoldPtr;
 	}
 
@@ -90,14 +81,16 @@ protected:
 		}
 	}
 
+	SIMD_FORCE_INLINE void destroyContactManifolds()
+	{
+		if(m_manifoldPtr == NULL) return;
+		m_dispatcher->releaseManifold(m_manifoldPtr);
+		m_manifoldPtr = NULL;
+	}
+
 	SIMD_FORCE_INLINE void clearCache()
 	{
-		if(m_manifoldPtr)
-		{
-			//m_manifoldPtr->clearManifold();
-			m_dispatcher->releaseManifold(m_manifoldPtr);
-			m_manifoldPtr = NULL;
-		}
+		destroyContactManifolds();
 		destroyConvexAlgorithm();
 
 		m_triface0 = -1;
@@ -106,31 +99,30 @@ protected:
 		m_part1 = -1;
 	}
 
+	SIMD_FORCE_INLINE btPersistentManifold* getLastManifold()
+	{
+		return m_manifoldPtr;
+	}
+
 
 	// Call before process collision
 	SIMD_FORCE_INLINE void checkManifold(btCollisionObject* body0,btCollisionObject* body1)
 	{
-		if(m_manifoldPtr == NULL)
+		if(getLastManifold() == 0)
 		{
 			newContactManifold(body0,body1);
 		}
-		/*else if(m_manifoldPtr->getBody0()!=body0)
-		{
-			clearCache();
-			newContactManifold(body0,body1);
-		}*/
-		m_resultOut->setPersistentManifold(m_manifoldPtr);
+
+		m_resultOut->setPersistentManifold(getLastManifold());
 	}
 
 	// Call before process collision
 	SIMD_FORCE_INLINE btCollisionAlgorithm * newAlgorithm(btCollisionObject* body0,btCollisionObject* body1)
 	{
 		checkManifold(body0,body1);
-		/*btConvexConvexAlgorithm::CreateFunc convexcreatefunc;
-		btCollisionAlgorithmConstructionInfo cinfo;
-		cinfo.m_dispatcher = m_dispatcher;
-		cinfo.m_manifold = m_manifoldPtr;*/
-		btCollisionAlgorithm * convex_algorithm = m_dispatcher->findAlgorithm(body0,body1,m_manifoldPtr);
+
+		btCollisionAlgorithm * convex_algorithm = m_dispatcher->findAlgorithm(
+				body0,body1,getLastManifold());
 		return convex_algorithm ;
 	}
 
@@ -144,33 +136,63 @@ protected:
 
 
 
-	SIMD_FORCE_INLINE void addContactPoint(btCollisionObject * body0,
+	void addContactPoint(btCollisionObject * body0,
 					btCollisionObject * body1,
 					const btVector3 & point,
 					const btVector3 & normal,
-					btScalar distance)
-	{
-		checkManifold(body0,body1);
-		m_resultOut->addContactPoint(normal,point,distance);
-	}
+					btScalar distance);
 
-	void gimpactcompound_vs_gimpactcompound_find_pairs(
-					  const btTransform & trans0,
-					  const btTransform & trans1,
-					  btGImpactCompoundShape * shape0,
-					  btGImpactCompoundShape * shape1,gim_pair_set & pairset) const;
+//! Collision routines
+//!@{
 
-	void gimpacttrimeshpart_vs_gimpacttrimeshpart_find_pairs(
-					  const btTransform & trans0,
-					  const btTransform & trans1,
+	void collide_gjk_triangles(btCollisionObject * body0,
+				  btCollisionObject * body1,
+				  btGImpactMeshShapePart * shape0,
+				  btGImpactMeshShapePart * shape1,
+				  const int * pairs, int pair_count);
+
+	void collide_sat_triangles(btCollisionObject * body0,
+					  btCollisionObject * body1,
 					  btGImpactMeshShapePart * shape0,
-					  btGImpactMeshShapePart * shape1,gim_pair_set & pairset) const;
+					  btGImpactMeshShapePart * shape1,
+					  const int * pairs, int pair_count);
 
-	void gimpactcompound_vs_gimpacttrimeshpart_find_pairs(
+
+
+
+	void shape_vs_shape_collision(
+					  btCollisionObject * body0,
+					  btCollisionObject * body1,
+					  btCollisionShape * shape0,
+					  btCollisionShape * shape1);
+
+	void convex_vs_convex_collision(btCollisionObject * body0,
+					  btCollisionObject * body1,
+					  btCollisionShape * shape0,
+					  btCollisionShape * shape1);
+
+
+
+	void gimpact_vs_gimpact_find_pairs(
 					  const btTransform & trans0,
 					  const btTransform & trans1,
-					  btGImpactCompoundShape * shape0,
-					  btGImpactMeshShapePart * shape1,gim_pair_set & pairset) const;
+					  btGImpactShapeInterface * shape0,
+					  btGImpactShapeInterface * shape1,btPairSet & pairset);
+
+	void gimpact_vs_shape_find_pairs(
+					  const btTransform & trans0,
+					  const btTransform & trans1,
+					  btGImpactShapeInterface * shape0,
+					  btCollisionShape * shape1,
+					  btAlignedObjectArray<int> & collided_primitives);
+
+
+	void gimpacttrimeshpart_vs_plane_collision(
+					  btCollisionObject * body0,
+					  btCollisionObject * body1,
+					  btGImpactMeshShapePart * shape0,
+					  btStaticPlaneShape * shape1,bool swapped);
+
 
 public:
 
@@ -197,92 +219,27 @@ public:
 	//! Use this function for register the algorithm externally
 	static void registerAlgorithm(btCollisionDispatcher * dispatcher);
 
-	//! Collision algorithms
-	//!@{
+	//! Gets the average time in miliseconds of tree collisions
+	static float getAverageTreeCollisionTime();
+
+	//! Gets the average time in miliseconds of triangle collisions
+	static float getAverageTriangleCollisionTime();
 
 
+	//! Collides two gimpact shapes
+	/*!
+	\pre shape0 and shape1 couldn't be btGImpactMeshShape objects
+	*/
 
 
-
-	void shape_vs_shape_collision(
-					  btCollisionObject * body0,
+	void gimpact_vs_gimpact(btCollisionObject * body0,
 					  btCollisionObject * body1,
-					  btCollisionShape * shape0,
-					  btCollisionShape * shape1,bool swapped);
+					  btGImpactShapeInterface * shape0,
+					  btGImpactShapeInterface * shape1);
 
-	void convex_vs_convex_collision(btCollisionObject * body0,
+	void gimpact_vs_shape(btCollisionObject * body0,
 					  btCollisionObject * body1,
-					  btCollisionShape * shape0,
-					  btCollisionShape * shape1);
-
-	void gimpacttrimesh_vs_shape_collision(
-					  btCollisionObject * body0,
-					  btCollisionObject * body1,
-					  btGImpactMeshShape * shape0,
-					  btCollisionShape * shape1,bool swapped);
-
-	void gimpacttrimesh_vs_gimpacttrimesh(
-					  btCollisionObject * body0,
-					  btCollisionObject * body1,
-					  btGImpactMeshShape * shape0,
-					  btGImpactMeshShape * shape1);
-
-	void gimpacttrimesh_vs_gimpactcompound(
-					  btCollisionObject * body0,
-					  btCollisionObject * body1,
-					  btGImpactMeshShape * shape0,
-					  btGImpactCompoundShape * shape1,bool swapped);
-
-	void gimpacttrimesh_vs_trimeshpart(
-					  btCollisionObject * body0,
-					  btCollisionObject * body1,
-					  btGImpactMeshShape * shape0,
-					  btGImpactMeshShapePart * shape1,bool swapped);
-
-
-	void gimpactcompound_vs_gimpactcompound_collision(
-					  btCollisionObject * body0,
-					  btCollisionObject * body1,
-					  btGImpactCompoundShape * shape0,
-					  btGImpactCompoundShape * shape1);
-
-
-	void gimpactcompound_vs_gimpacttrimeshpart_collision(
-					  btCollisionObject * body0,
-					  btCollisionObject * body1,
-					  btGImpactCompoundShape * shape0,
-					  btGImpactMeshShapePart * shape1,bool swapped);
-
-
-	void gimpactcompound_vs_shape_collision(
-					  btCollisionObject * body0,
-					  btCollisionObject * body1,
-					  btGImpactCompoundShape * shape0,
-					  btCollisionShape * shape1,bool swapped);
-
-	void gimpacttrimeshpart_vs_gimpacttrimeshpart_collision(
-					  btCollisionObject * body0,
-					  btCollisionObject * body1,
-					  btGImpactMeshShapePart * shape0,
-					  btGImpactMeshShapePart * shape1,bool swapped);
-
-	void gimpacttrimeshpart_vs_plane_collision(
-					  btCollisionObject * body0,
-					  btCollisionObject * body1,
-					  btGImpactMeshShapePart * shape0,
-					  btStaticPlaneShape * shape1,bool swapped);
-
-
-	void gimpacttrimeshpart_vs_concave_collision(
-					  btCollisionObject * body0,
-					  btCollisionObject * body1,
-					  btGImpactMeshShapePart * shape0,
-					  btConcaveShape * shape1,bool swapped);
-
-	void gimpacttrimeshpart_vs_shape_collision(
-					  btCollisionObject * body0,
-					  btCollisionObject * body1,
-					  btGImpactMeshShapePart * shape0,
+					  btGImpactShapeInterface * shape0,
 					  btCollisionShape * shape1,bool swapped);
 
 	void gimpact_vs_compoundshape(btCollisionObject * body0,
@@ -290,20 +247,25 @@ public:
 					  btGImpactShapeInterface * shape0,
 					  btCompoundShape * shape1,bool swapped);
 
-
-	void gimpact_vs_shape(btCollisionObject * body0,
+	void gimpact_vs_concave(
+					  btCollisionObject * body0,
 					  btCollisionObject * body1,
 					  btGImpactShapeInterface * shape0,
-					  btCollisionShape * shape1,bool swapped);
+					  btConcaveShape * shape1,bool swapped);
 
-	void gimpact_vs_gimpact(btCollisionObject * body0,
-					  btCollisionObject * body1,
-					  btGImpactShapeInterface * shape0,
-					  btGImpactShapeInterface * shape1);
 
-	//!@}
+
+
+//!@}
+
+
 
 };
+
+
+//algorithm details
+//#define BULLET_TRIANGLE_COLLISION 1
+#define GIMPACT_VS_PLANE_COLLISION 1
 
 
 
