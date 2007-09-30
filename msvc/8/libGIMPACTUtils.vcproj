@@ -2,8 +2,8 @@
 <VisualStudioProject
 	ProjectType="Visual C++"
 	Version="8.00"
-	Name="libGIMPACT"
-	ProjectGUID="{F8318FC6-B9C4-D5A1-DCC0-C9CE42ADAE22}"
+	Name="libGIMPACTUtils"
+	ProjectGUID="{B1B5F775-54A9-2437-E4AC-7E817E492142}"
 	SccProjectName=""
 	SccLocalPath="">
 	<Platforms>
@@ -13,8 +13,8 @@
 	<Configurations>
 		<Configuration
 			Name="Release|Win32"
-			OutputDirectory="..\..\out\release8\build\libGIMPACT\"
-			IntermediateDirectory="..\..\out\release8\build\libGIMPACT\"
+			OutputDirectory="..\..\out\release8\build\libGIMPACTUtils\"
+			IntermediateDirectory="..\..\out\release8\build\libGIMPACTUtils\"
 			ConfigurationType="4"
 			UseOfMFC="0"
 			ATLMinimizesCRunTimeLibraryUsage="FALSE">
@@ -30,11 +30,11 @@
 				OptimizeForProcessor="1"
 				ExceptionHandling="0"
 				AdditionalOptions=" "
-				AdditionalIncludeDirectories=".;..\..;..\..\src;..\..\Extras\GIMPACT\include"
-				PrecompiledHeaderFile="..\..\out\release8\build\libGIMPACT\libGIMPACT.pch"
-				AssemblerListingLocation="..\..\out\release8\build\libGIMPACT\"
-				ObjectFile="..\..\out\release8\build\libGIMPACT\"
-				ProgramDataBaseFileName="..\..\out\release8\build\libGIMPACT\GIMPACT.pdb"
+				AdditionalIncludeDirectories=".;..\..;..\..\src;..\..\Extras\GIMPACT\include;..\..\Extras\GIMPACTUtils"
+				PrecompiledHeaderFile="..\..\out\release8\build\libGIMPACTUtils\libGIMPACTUtils.pch"
+				AssemblerListingLocation="..\..\out\release8\build\libGIMPACTUtils\"
+				ObjectFile="..\..\out\release8\build\libGIMPACTUtils\"
+				ProgramDataBaseFileName="..\..\out\release8\build\libGIMPACTUtils\GIMPACTUtils.pdb"
 				WarningLevel="3"
 				SuppressStartupBanner="TRUE"
 				Detect64BitPortabilityProblems="TRUE"
@@ -55,11 +55,11 @@
 				SuppressStartupBanner="TRUE"
 				GenerateManifest="false"
 				AdditionalLibraryDirectories=""
-				ProgramDatabaseFile="..\..\out\release8\build\libGIMPACT\GIMPACT.pdb"
+				ProgramDatabaseFile="..\..\out\release8\build\libGIMPACTUtils\GIMPACTUtils.pdb"
 				TargetMachine="1"/>
 			<Tool
 				Name="VCLibrarianTool"
-				OutputFile="..\..\out\release8\libs\libGIMPACT.lib"
+				OutputFile="..\..\out\release8\libs\libGIMPACTUtils.lib"
 				SuppressStartupBanner="TRUE"/>
 			<Tool
 				Name="VCMIDLTool"
@@ -67,7 +67,7 @@
 				MkTypLibCompatible="TRUE"
 				SuppressStartupBanner="TRUE"
 				TargetEnvironment="1"
-				TypeLibraryName="..\..\out\release8\build\libGIMPACT\libGIMPACT.tlb"/>
+				TypeLibraryName="..\..\out\release8\build\libGIMPACTUtils\libGIMPACTUtils.tlb"/>
 			<Tool
 				Name="VCPostBuildEventTool"
 		CommandLine="xcopy /r /y $(TARGETPATH) $(PROJECTDIR)..\..\lib\"
@@ -79,7 +79,7 @@
 			<Tool
 				Name="VCResourceCompilerTool"
 				PreprocessorDefinitions="NDEBUG;_LIB;_WINDOWS;PROJECTGEN_VERSION=8"
-				AdditionalIncludeDirectories=".;..\..;..\..\src;..\..\Extras\GIMPACT\include"
+				AdditionalIncludeDirectories=".;..\..;..\..\src;..\..\Extras\GIMPACT\include;..\..\Extras\GIMPACTUtils"
 				Culture="1033"/>
 			<Tool
 				Name="VCWebServiceProxyGeneratorTool"/>
@@ -88,8 +88,8 @@
 		</Configuration>
 		<Configuration
 			Name="ReleaseDoublePrecision|Win32"
-			OutputDirectory="..\..\out\release_dbl8\build\libGIMPACT\"
-			IntermediateDirectory="..\..\out\release_dbl8\build\libGIMPACT\"
+			OutputDirectory="..\..\out\release_dbl8\build\libGIMPACTUtils\"
+			IntermediateDirectory="..\..\out\release_dbl8\build\libGIMPACTUtils\"
 			ConfigurationType="4"
 			UseOfMFC="0"
 			ATLMinimizesCRunTimeLibraryUsage="FALSE">
@@ -99,11 +99,11 @@
 				OptimizeForProcessor="1"
 				ExceptionHandling="0"
 				AdditionalOptions=" "
-				AdditionalIncludeDirectories=".;..\..;..\..\src;..\..\Extras\GIMPACT\include"
-				PrecompiledHeaderFile="..\..\out\release_dbl8\build\libGIMPACT\libGIMPACT.pch"
-				AssemblerListingLocation="..\..\out\release_dbl8\build\libGIMPACT\"
-				ObjectFile="..\..\out\release_dbl8\build\libGIMPACT\"
-				ProgramDataBaseFileName="..\..\out\release_dbl8\build\libGIMPACT\GIMPACT.pdb"
+				AdditionalIncludeDirectories=".;..\..;..\..\src;..\..\Extras\GIMPACT\include;..\..\Extras\GIMPACTUtils"
+				PrecompiledHeaderFile="..\..\out\release_dbl8\build\libGIMPACTUtils\libGIMPACTUtils.pch"
+				AssemblerListingLocation="..\..\out\release_dbl8\build\libGIMPACTUtils\"
+				ObjectFile="..\..\out\release_dbl8\build\libGIMPACTUtils\"
+				ProgramDataBaseFileName="..\..\out\release_dbl8\build\libGIMPACTUtils\GIMPACTUtils.pdb"
 				WarningLevel="3"
 				SuppressStartupBanner="TRUE"
 				Detect64BitPortabilityProblems="TRUE"
@@ -119,7 +119,7 @@
 				SuppressStartupBanner="TRUE"
 				GenerateManifest="false"
 				AdditionalLibraryDirectories=""
-				ProgramDatabaseFile="..\..\out\release_dbl8\build\libGIMPACT\GIMPACT.pdb"
+				ProgramDatabaseFile="..\..\out\release_dbl8\build\libGIMPACTUtils\GIMPACTUtils.pdb"
 				TargetMachine="1"/>
 			<Tool
 				Name="VCLibrarianTool"
@@ -130,7 +130,7 @@
 				MkTypLibCompatible="TRUE"
 				SuppressStartupBanner="TRUE"
 				TargetEnvironment="1"
-				TypeLibraryName="..\..\out\release_dbl8\build\libGIMPACT\libGIMPACT.tlb"/>
+				TypeLibraryName="..\..\out\release_dbl8\build\libGIMPACTUtils\libGIMPACTUtils.tlb"/>
 			<Tool
 				Name="VCPostBuildEventTool"
 		CommandLine="xcopy /r /y $(TARGETPATH) $(PROJECTDIR)..\..\lib\"
@@ -142,7 +142,7 @@
 			<Tool
 				Name="VCResourceCompilerTool"
 				PreprocessorDefinitions="NDEBUG;BT_USE_DOUBLE_PRECISION;_LIB;_WINDOWS;PROJECTGEN_VERSION=8"
-				AdditionalIncludeDirectories=".;..\..;..\..\src;..\..\Extras\GIMPACT\include"
+				AdditionalIncludeDirectories=".;..\..;..\..\src;..\..\Extras\GIMPACT\include;..\..\Extras\GIMPACTUtils"
 				Culture="1033"/>
 			<Tool
 				Name="VCWebServiceProxyGeneratorTool"/>
@@ -151,8 +151,8 @@
 		</Configuration>
 		<Configuration
 			Name="Debug|Win32"
-			OutputDirectory="..\..\out\debug8\build\libGIMPACT\"
-			IntermediateDirectory="..\..\out\debug8\build\libGIMPACT\"
+			OutputDirectory="..\..\out\debug8\build\libGIMPACTUtils\"
+			IntermediateDirectory="..\..\out\debug8\build\libGIMPACTUtils\"
 			ConfigurationType="4"
 			UseOfMFC="0"
 			ATLMinimizesCRunTimeLibraryUsage="FALSE">
@@ -167,11 +167,11 @@
 				OptimizeForProcessor="1"
 				ExceptionHandling="0"
 				AdditionalOptions=" "
-				AdditionalIncludeDirectories=".;..\..;..\..\src;..\..\Extras\GIMPACT\include"
-				PrecompiledHeaderFile="..\..\out\debug8\build\libGIMPACT\libGIMPACT.pch"
-				AssemblerListingLocation="..\..\out\debug8\build\libGIMPACT\"
-				ObjectFile="..\..\out\debug8\build\libGIMPACT\"
-				ProgramDataBaseFileName="..\..\out\debug8\build\libGIMPACT\GIMPACT.pdb"
+				AdditionalIncludeDirectories=".;..\..;..\..\src;..\..\Extras\GIMPACT\include;..\..\Extras\GIMPACTUtils"
+				PrecompiledHeaderFile="..\..\out\debug8\build\libGIMPACTUtils\libGIMPACTUtils.pch"
+				AssemblerListingLocation="..\..\out\debug8\build\libGIMPACTUtils\"
+				ObjectFile="..\..\out\debug8\build\libGIMPACTUtils\"
+				ProgramDataBaseFileName="..\..\out\debug8\build\libGIMPACTUtils\GIMPACTUtils.pdb"
 				WarningLevel="3"
 				SuppressStartupBanner="TRUE"
 				Detect64BitPortabilityProblems="TRUE"
@@ -190,11 +190,11 @@
 				SuppressStartupBanner="TRUE"
 				GenerateManifest="false"
 				AdditionalLibraryDirectories=""
-				ProgramDatabaseFile="..\..\out\debug8\build\libGIMPACT\GIMPACT.pdb"
+				ProgramDatabaseFile="..\..\out\debug8\build\libGIMPACTUtils\GIMPACTUtils.pdb"
 				TargetMachine="1"/>
 			<Tool
 				Name="VCLibrarianTool"
-				OutputFile="..\..\out\debug8\libs\libGIMPACT_d.lib"
+				OutputFile="..\..\out\debug8\libs\libGIMPACTUtils_d.lib"
 				SuppressStartupBanner="TRUE"/>
 			<Tool
 				Name="VCMIDLTool"
@@ -202,7 +202,7 @@
 				MkTypLibCompatible="TRUE"
 				SuppressStartupBanner="TRUE"
 				TargetEnvironment="1"
-				TypeLibraryName="..\..\out\debug8\build\libGIMPACT\libGIMPACT.tlb"/>
+				TypeLibraryName="..\..\out\debug8\build\libGIMPACTUtils\libGIMPACTUtils.tlb"/>
 			<Tool
 				Name="VCPostBuildEventTool"
 		CommandLine="xcopy /r /y $(TARGETPATH) $(PROJECTDIR)..\..\lib\"
@@ -214,7 +214,7 @@
 			<Tool
 				Name="VCResourceCompilerTool"
 				PreprocessorDefinitions="_DEBUG;_LIB;_WINDOWS;PROJECTGEN_VERSION=8"
-				AdditionalIncludeDirectories=".;..\..;..\..\src;..\..\Extras\GIMPACT\include"
+				AdditionalIncludeDirectories=".;..\..;..\..\src;..\..\Extras\GIMPACT\include;..\..\Extras\GIMPACTUtils"
 				Culture="1033"/>
 			<Tool
 				Name="VCWebServiceProxyGeneratorTool"/>
@@ -223,8 +223,8 @@
 		</Configuration>
 		<Configuration
 			Name="DebugDoublePrecision|Win32"
-			OutputDirectory="..\..\out\debug_dbl8\build\libGIMPACT\"
-			IntermediateDirectory="..\..\out\debug_dbl8\build\libGIMPACT\"
+			OutputDirectory="..\..\out\debug_dbl8\build\libGIMPACTUtils\"
+			IntermediateDirectory="..\..\out\debug_dbl8\build\libGIMPACTUtils\"
 			ConfigurationType="4"
 			UseOfMFC="0"
 			ATLMinimizesCRunTimeLibraryUsage="FALSE">
@@ -239,11 +239,11 @@
 				OptimizeForProcessor="1"
 				ExceptionHandling="0"
 				AdditionalOptions=" "
-				AdditionalIncludeDirectories=".;..\..;..\..\src;..\..\Extras\GIMPACT\include"
-				PrecompiledHeaderFile="..\..\out\debug_dbl8\build\libGIMPACT\libGIMPACT.pch"
-				AssemblerListingLocation="..\..\out\debug_dbl8\build\libGIMPACT\"
-				ObjectFile="..\..\out\debug_dbl8\build\libGIMPACT\"
-				ProgramDataBaseFileName="..\..\out\debug_dbl8\build\libGIMPACT\GIMPACT.pdb"
+				AdditionalIncludeDirectories=".;..\..;..\..\src;..\..\Extras\GIMPACT\include;..\..\Extras\GIMPACTUtils"
+				PrecompiledHeaderFile="..\..\out\debug_dbl8\build\libGIMPACTUtils\libGIMPACTUtils.pch"
+				AssemblerListingLocation="..\..\out\debug_dbl8\build\libGIMPACTUtils\"
+				ObjectFile="..\..\out\debug_dbl8\build\libGIMPACTUtils\"
+				ProgramDataBaseFileName="..\..\out\debug_dbl8\build\libGIMPACTUtils\GIMPACTUtils.pdb"
 				WarningLevel="3"
 				SuppressStartupBanner="TRUE"
 				Detect64BitPortabilityProblems="TRUE"
@@ -259,7 +259,7 @@
 				SuppressStartupBanner="TRUE"
 				GenerateManifest="false"
 				AdditionalLibraryDirectories=""
-				ProgramDatabaseFile="..\..\out\debug_dbl8\build\libGIMPACT\GIMPACT.pdb"
+				ProgramDatabaseFile="..\..\out\debug_dbl8\build\libGIMPACTUtils\GIMPACTUtils.pdb"
 				TargetMachine="1"/>
 			<Tool
 				Name="VCLibrarianTool"
@@ -270,7 +270,7 @@
 				MkTypLibCompatible="TRUE"
 				SuppressStartupBanner="TRUE"
 				TargetEnvironment="1"
-				TypeLibraryName="..\..\out\debug_dbl8\build\libGIMPACT\libGIMPACT.tlb"/>
+				TypeLibraryName="..\..\out\debug_dbl8\build\libGIMPACTUtils\libGIMPACTUtils.tlb"/>
 			<Tool
 				Name="VCPostBuildEventTool"
 		CommandLine="xcopy /r /y $(TARGETPATH) $(PROJECTDIR)..\..\lib\"
@@ -282,7 +282,7 @@
 			<Tool
 				Name="VCResourceCompilerTool"
 				PreprocessorDefinitions="_DEBUG;BT_USE_DOUBLE_PRECISION;_LIB;_WINDOWS;PROJECTGEN_VERSION=8"
-				AdditionalIncludeDirectories=".;..\..;..\..\src;..\..\Extras\GIMPACT\include"
+				AdditionalIncludeDirectories=".;..\..;..\..\src;..\..\Extras\GIMPACT\include;..\..\Extras\GIMPACTUtils"
 				Culture="1033"/>
 			<Tool
 				Name="VCWebServiceProxyGeneratorTool"/>
@@ -295,34 +295,7 @@
 			Name="Source Files"
 			Filter="">
 			<File
-				RelativePath="..\..\Extras\GIMPACT\src\Bullet\btContactProcessing.cpp">
-			</File>
-			<File
-				RelativePath="..\..\Extras\GIMPACT\src\Bullet\btGImpactBvh.cpp">
-			</File>
-			<File
-				RelativePath="..\..\Extras\GIMPACT\src\Bullet\btGImpactCollisionAlgorithm.cpp">
-			</File>
-			<File
-				RelativePath="..\..\Extras\GIMPACT\src\Bullet\btGImpactQuantizedBvh.cpp">
-			</File>
-			<File
-				RelativePath="..\..\Extras\GIMPACT\src\Bullet\btGImpactShape.cpp">
-			</File>
-			<File
-				RelativePath="..\..\Extras\GIMPACT\src\Bullet\btTriangleShapeEx.cpp">
-			</File>
-			<File
-				RelativePath="..\..\Extras\GIMPACT\src\core\gim_box_set.cpp">
-			</File>
-			<File
-				RelativePath="..\..\Extras\GIMPACT\src\core\gim_contact.cpp">
-			</File>
-			<File
-				RelativePath="..\..\Extras\GIMPACT\src\core\gim_memory.cpp">
-			</File>
-			<File
-				RelativePath="..\..\Extras\GIMPACT\src\core\gim_tri_collision.cpp">
+				RelativePath="..\..\Extras\GIMPACTUtils\btGImpactConvexDecompositionShape.cpp">
 			</File>
 		</Filter>
 	</Files>

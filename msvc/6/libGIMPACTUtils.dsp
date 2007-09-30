@@ -1,26 +1,26 @@
-# Microsoft Developer Studio Project File - Name="libGIMPACT" - Package Owner=<4>
+# Microsoft Developer Studio Project File - Name="libGIMPACTUtils" - Package Owner=<4>
 # Microsoft Developer Studio Generated Build File, Format Version 6.00
 # ** DO NOT EDIT **
 
 # TARGTYPE "Win32 (x86) Static Library" 0x0104
 
-CFG=libGIMPACT - Win32 Release
+CFG=libGIMPACTUtils - Win32 Release
 !MESSAGE This is not a valid makefile. To build this project using NMAKE,
 !MESSAGE use the Export Makefile command and run
 !MESSAGE 
-!MESSAGE NMAKE /f "libGIMPACT.mak".
+!MESSAGE NMAKE /f "libGIMPACTUtils.mak".
 !MESSAGE 
 !MESSAGE You can specify a configuration when running NMAKE
 !MESSAGE by defining the macro CFG on the command line. For example:
 !MESSAGE 
-!MESSAGE NMAKE /f "libGIMPACT.mak" CFG="libGIMPACT - Win32 Release"
+!MESSAGE NMAKE /f "libGIMPACTUtils.mak" CFG="libGIMPACTUtils - Win32 Release"
 !MESSAGE 
 !MESSAGE Possible choices for configuration are:
 !MESSAGE 
-!MESSAGE "libGIMPACT - Win32 DebugDoublePrecision" (based on "Win32 (x86) Static Library")
-!MESSAGE "libGIMPACT - Win32 Debug" (based on "Win32 (x86) Static Library")
-!MESSAGE "libGIMPACT - Win32 ReleaseDoublePrecision" (based on "Win32 (x86) Static Library")
-!MESSAGE "libGIMPACT - Win32 Release" (based on "Win32 (x86) Static Library")
+!MESSAGE "libGIMPACTUtils - Win32 DebugDoublePrecision" (based on "Win32 (x86) Static Library")
+!MESSAGE "libGIMPACTUtils - Win32 Debug" (based on "Win32 (x86) Static Library")
+!MESSAGE "libGIMPACTUtils - Win32 ReleaseDoublePrecision" (based on "Win32 (x86) Static Library")
+!MESSAGE "libGIMPACTUtils - Win32 Release" (based on "Win32 (x86) Static Library")
 !MESSAGE 
 
 # Begin Project
@@ -31,7 +31,7 @@ CPP=cl.exe
 MTL=midl.exe
 RSC=rc.exe
 
-!IF  "$(CFG)" == "libGIMPACT - Win32 Release"
+!IF  "$(CFG)" == "libGIMPACTUtils - Win32 Release"
 
 # PROP BASE Use_MFC 0
 # PROP BASE Use_Debug_Libraries 0
@@ -40,22 +40,22 @@ RSC=rc.exe
 # PROP BASE Target_Dir ""
 # PROP Use_MFC 0
 # PROP Use_Debug_Libraries 0
-# PROP Output_Dir "..\..\out\release6\build\libGIMPACT\"
-# PROP Intermediate_Dir "..\..\out\release6\build\libGIMPACT\"
+# PROP Output_Dir "..\..\out\release6\build\libGIMPACTUtils\"
+# PROP Intermediate_Dir "..\..\out\release6\build\libGIMPACTUtils\"
 # PROP Ignore_Export_Lib 0
 # PROP Target_Dir ""
 # ADD BASE CPP /nologo /vmb /vms /W3 /Gm /G5 /D "WIN32" /FD /c
-# ADD CPP /nologo /vmb /vms /W3 /Gm /G5 /FD /c /Gy /GF /MD /Ob2 /Og /Oi /Ot /Oy /D "_LIB" /D "_MT" /D "_MBCS" /D "NDEBUG" /D "_LIB" /D "_WINDOWS" /D "WIN32"  /I "." /I "..\.." /I "..\..\src" /I "..\..\Extras\GIMPACT\include"
+# ADD CPP /nologo /vmb /vms /W3 /Gm /G5 /FD /c /Gy /GF /MD /Ob2 /Og /Oi /Ot /Oy /D "_LIB" /D "_MT" /D "_MBCS" /D "NDEBUG" /D "_LIB" /D "_WINDOWS" /D "WIN32"  /I "." /I "..\.." /I "..\..\src" /I "..\..\Extras\GIMPACT\include" /I "..\..\Extras\GIMPACTUtils"
 # ADD BASE MTL /nologo /mktyplib203 /o "NUL" /win32
 # ADD MTL /nologo /mktyplib203 /o "NUL" /win32 /D "NDEBUG" /D "_LIB" /D "_WINDOWS"
 # ADD BASE RSC /l 0x409
-# ADD RSC /l 0x409 /fo".\..\..\out\release6\build\libGIMPACT\libGIMPACT.res" /i "." /i "..\.." /i "..\..\src" /i "..\..\Extras\GIMPACT\include"
+# ADD RSC /l 0x409 /fo".\..\..\out\release6\build\libGIMPACTUtils\libGIMPACTUtils.res" /i "." /i "..\.." /i "..\..\src" /i "..\..\Extras\GIMPACT\include" /i "..\..\Extras\GIMPACTUtils"
 BSC32=bscmake.exe
 # ADD BASE BSC32 /nologo
 # ADD BSC32 /nologo
 LIB32=link.exe -lib
 # ADD BASE LIB32 /nologo
-# ADD LIB32 /nologo /out:"..\..\out\release6\libs\libGIMPACT.lib"
+# ADD LIB32 /nologo /out:"..\..\out\release6\libs\libGIMPACTUtils.lib"
 LINK32=link.exe
 # ADD BASE LINK32 user32.lib gdi32.lib advapi32.lib /nologo /machine:I386
 # ADD LINK32 shell32.lib user32.lib gdi32.lib advapi32.lib   /nologo /version:4.0 /machine:I386 /OPT:NOREF /subsystem:windows  
@@ -63,7 +63,7 @@ LINK32=link.exe
 SOURCE="$(InputPath)"
 # End Special Build Tool
 
-!ELSEIF  "$(CFG)" == "libGIMPACT - Win32 ReleaseDoublePrecision"
+!ELSEIF  "$(CFG)" == "libGIMPACTUtils - Win32 ReleaseDoublePrecision"
 
 # PROP BASE Use_MFC 0
 # PROP BASE Use_Debug_Libraries 
@@ -72,16 +72,16 @@ SOURCE="$(InputPath)"
 # PROP BASE Target_Dir ""
 # PROP Use_MFC 0
 # PROP Use_Debug_Libraries 
-# PROP Output_Dir "..\..\out\release_dbl6\build\libGIMPACT\"
-# PROP Intermediate_Dir "..\..\out\release_dbl6\build\libGIMPACT\"
+# PROP Output_Dir "..\..\out\release_dbl6\build\libGIMPACTUtils\"
+# PROP Intermediate_Dir "..\..\out\release_dbl6\build\libGIMPACTUtils\"
 # PROP Ignore_Export_Lib 0
 # PROP Target_Dir ""
 # ADD BASE CPP /nologo /vmb /vms /W3 /Gm /G5 /D "WIN32" /FD /c
-# ADD CPP /nologo /vmb /vms /W3 /Gm /G5 /FD /c /D "_LIB" /D "_MT" /D "_MBCS" /D "NDEBUG" /D "BT_USE_DOUBLE_PRECISION" /D "_LIB" /D "_WINDOWS" /D "WIN32"  /I "." /I "..\.." /I "..\..\src" /I "..\..\Extras\GIMPACT\include"
+# ADD CPP /nologo /vmb /vms /W3 /Gm /G5 /FD /c /D "_LIB" /D "_MT" /D "_MBCS" /D "NDEBUG" /D "BT_USE_DOUBLE_PRECISION" /D "_LIB" /D "_WINDOWS" /D "WIN32"  /I "." /I "..\.." /I "..\..\src" /I "..\..\Extras\GIMPACT\include" /I "..\..\Extras\GIMPACTUtils"
 # ADD BASE MTL /nologo /mktyplib203 /o "NUL" /win32
 # ADD MTL /nologo /mktyplib203 /o "NUL" /win32 /D "NDEBUG" /D "BT_USE_DOUBLE_PRECISION" /D "_LIB" /D "_WINDOWS"
 # ADD BASE RSC /l 0x409
-# ADD RSC /l 0x409 /fo".\..\..\out\release_dbl6\build\libGIMPACT\libGIMPACT.res" /i "." /i "..\.." /i "..\..\src" /i "..\..\Extras\GIMPACT\include"
+# ADD RSC /l 0x409 /fo".\..\..\out\release_dbl6\build\libGIMPACTUtils\libGIMPACTUtils.res" /i "." /i "..\.." /i "..\..\src" /i "..\..\Extras\GIMPACT\include" /i "..\..\Extras\GIMPACTUtils"
 BSC32=bscmake.exe
 # ADD BASE BSC32 /nologo
 # ADD BSC32 /nologo
@@ -95,7 +95,7 @@ LINK32=link.exe
 SOURCE="$(InputPath)"
 # End Special Build Tool
 
-!ELSEIF  "$(CFG)" == "libGIMPACT - Win32 Debug"
+!ELSEIF  "$(CFG)" == "libGIMPACTUtils - Win32 Debug"
 
 # PROP BASE Use_MFC 0
 # PROP BASE Use_Debug_Libraries 1
@@ -104,22 +104,22 @@ SOURCE="$(InputPath)"
 # PROP BASE Target_Dir ""
 # PROP Use_MFC 0
 # PROP Use_Debug_Libraries 1
-# PROP Output_Dir "..\..\out\debug6\build\libGIMPACT\"
-# PROP Intermediate_Dir "..\..\out\debug6\build\libGIMPACT\"
+# PROP Output_Dir "..\..\out\debug6\build\libGIMPACTUtils\"
+# PROP Intermediate_Dir "..\..\out\debug6\build\libGIMPACTUtils\"
 # PROP Ignore_Export_Lib 0
 # PROP Target_Dir ""
 # ADD BASE CPP /nologo /vmb /vms /W3 /Gm /G5 /D "WIN32" /FD /c
-# ADD CPP /nologo /vmb /vms /W3 /Gm /G5 /FD /c /GR /MDd /ZI /Od /D "_LIB" /D "_MT" /D "_MBCS" /D "_DEBUG" /D "_LIB" /D "_WINDOWS" /D "WIN32"  /I "." /I "..\.." /I "..\..\src" /I "..\..\Extras\GIMPACT\include"
+# ADD CPP /nologo /vmb /vms /W3 /Gm /G5 /FD /c /GR /MDd /ZI /Od /D "_LIB" /D "_MT" /D "_MBCS" /D "_DEBUG" /D "_LIB" /D "_WINDOWS" /D "WIN32"  /I "." /I "..\.." /I "..\..\src" /I "..\..\Extras\GIMPACT\include" /I "..\..\Extras\GIMPACTUtils"
 # ADD BASE MTL /nologo /mktyplib203 /o "NUL" /win32
 # ADD MTL /nologo /mktyplib203 /o "NUL" /win32 /D "_DEBUG" /D "_LIB" /D "_WINDOWS"
 # ADD BASE RSC /l 0x409
-# ADD RSC /l 0x409 /fo".\..\..\out\debug6\build\libGIMPACT\libGIMPACT.res" /i "." /i "..\.." /i "..\..\src" /i "..\..\Extras\GIMPACT\include"
+# ADD RSC /l 0x409 /fo".\..\..\out\debug6\build\libGIMPACTUtils\libGIMPACTUtils.res" /i "." /i "..\.." /i "..\..\src" /i "..\..\Extras\GIMPACT\include" /i "..\..\Extras\GIMPACTUtils"
 BSC32=bscmake.exe
 # ADD BASE BSC32 /nologo
 # ADD BSC32 /nologo
 LIB32=link.exe -lib
 # ADD BASE LIB32 /nologo
-# ADD LIB32 /nologo /out:"..\..\out\debug6\libs\libGIMPACT_d.lib"
+# ADD LIB32 /nologo /out:"..\..\out\debug6\libs\libGIMPACTUtils_d.lib"
 LINK32=link.exe
 # ADD BASE LINK32 user32.lib gdi32.lib advapi32.lib /nologo /machine:I386
 # ADD LINK32 shell32.lib user32.lib gdi32.lib advapi32.lib   /nologo /version:4.0 /machine:I386 /debug /pdbtype:sept /subsystem:windows  
@@ -127,7 +127,7 @@ LINK32=link.exe
 SOURCE="$(InputPath)"
 # End Special Build Tool
 
-!ELSEIF  "$(CFG)" == "libGIMPACT - Win32 DebugDoublePrecision"
+!ELSEIF  "$(CFG)" == "libGIMPACTUtils - Win32 DebugDoublePrecision"
 
 # PROP BASE Use_MFC 0
 # PROP BASE Use_Debug_Libraries 
@@ -136,16 +136,16 @@ SOURCE="$(InputPath)"
 # PROP BASE Target_Dir ""
 # PROP Use_MFC 0
 # PROP Use_Debug_Libraries 
-# PROP Output_Dir "..\..\out\debug_dbl6\build\libGIMPACT\"
-# PROP Intermediate_Dir "..\..\out\debug_dbl6\build\libGIMPACT\"
+# PROP Output_Dir "..\..\out\debug_dbl6\build\libGIMPACTUtils\"
+# PROP Intermediate_Dir "..\..\out\debug_dbl6\build\libGIMPACTUtils\"
 # PROP Ignore_Export_Lib 0
 # PROP Target_Dir ""
 # ADD BASE CPP /nologo /vmb /vms /W3 /Gm /G5 /D "WIN32" /FD /c
-# ADD CPP /nologo /vmb /vms /W3 /Gm /G5 /FD /c /D "_LIB" /D "_MT" /D "_MBCS" /D "_DEBUG" /D "BT_USE_DOUBLE_PRECISION" /D "_LIB" /D "_WINDOWS" /D "WIN32"  /I "." /I "..\.." /I "..\..\src" /I "..\..\Extras\GIMPACT\include"
+# ADD CPP /nologo /vmb /vms /W3 /Gm /G5 /FD /c /D "_LIB" /D "_MT" /D "_MBCS" /D "_DEBUG" /D "BT_USE_DOUBLE_PRECISION" /D "_LIB" /D "_WINDOWS" /D "WIN32"  /I "." /I "..\.." /I "..\..\src" /I "..\..\Extras\GIMPACT\include" /I "..\..\Extras\GIMPACTUtils"
 # ADD BASE MTL /nologo /mktyplib203 /o "NUL" /win32
 # ADD MTL /nologo /mktyplib203 /o "NUL" /win32 /D "_DEBUG" /D "BT_USE_DOUBLE_PRECISION" /D "_LIB" /D "_WINDOWS"
 # ADD BASE RSC /l 0x409
-# ADD RSC /l 0x409 /fo".\..\..\out\debug_dbl6\build\libGIMPACT\libGIMPACT.res" /i "." /i "..\.." /i "..\..\src" /i "..\..\Extras\GIMPACT\include"
+# ADD RSC /l 0x409 /fo".\..\..\out\debug_dbl6\build\libGIMPACTUtils\libGIMPACTUtils.res" /i "." /i "..\.." /i "..\..\src" /i "..\..\Extras\GIMPACT\include" /i "..\..\Extras\GIMPACTUtils"
 BSC32=bscmake.exe
 # ADD BASE BSC32 /nologo
 # ADD BSC32 /nologo
@@ -163,52 +163,16 @@ SOURCE="$(InputPath)"
 
 # Begin Target
 
-# Name "libGIMPACT - Win32 Release"
-# Name "libGIMPACT - Win32 ReleaseDoublePrecision"
-# Name "libGIMPACT - Win32 Debug"
-# Name "libGIMPACT - Win32 DebugDoublePrecision"
+# Name "libGIMPACTUtils - Win32 Release"
+# Name "libGIMPACTUtils - Win32 ReleaseDoublePrecision"
+# Name "libGIMPACTUtils - Win32 Debug"
+# Name "libGIMPACTUtils - Win32 DebugDoublePrecision"
 # Begin Group "Source Files"
 
 # PROP Default_Filter ""
 # Begin Source File
 
-SOURCE=..\..\Extras\GIMPACT\src\Bullet\btContactProcessing.cpp
-# End Source File
-# Begin Source File
-
-SOURCE=..\..\Extras\GIMPACT\src\Bullet\btGImpactBvh.cpp
-# End Source File
-# Begin Source File
-
-SOURCE=..\..\Extras\GIMPACT\src\Bullet\btGImpactCollisionAlgorithm.cpp
-# End Source File
-# Begin Source File
-
-SOURCE=..\..\Extras\GIMPACT\src\Bullet\btGImpactQuantizedBvh.cpp
-# End Source File
-# Begin Source File
-
-SOURCE=..\..\Extras\GIMPACT\src\Bullet\btGImpactShape.cpp
-# End Source File
-# Begin Source File
-
-SOURCE=..\..\Extras\GIMPACT\src\Bullet\btTriangleShapeEx.cpp
-# End Source File
-# Begin Source File
-
-SOURCE=..\..\Extras\GIMPACT\src\core\gim_box_set.cpp
-# End Source File
-# Begin Source File
-
-SOURCE=..\..\Extras\GIMPACT\src\core\gim_contact.cpp
-# End Source File
-# Begin Source File
-
-SOURCE=..\..\Extras\GIMPACT\src\core\gim_memory.cpp
-# End Source File
-# Begin Source File
-
-SOURCE=..\..\Extras\GIMPACT\src\core\gim_tri_collision.cpp
+SOURCE=..\..\Extras\GIMPACTUtils\btGImpactConvexDecompositionShape.cpp
 # End Source File
 # End Group
 # End Target
