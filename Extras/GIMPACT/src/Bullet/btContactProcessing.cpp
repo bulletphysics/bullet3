@@ -70,6 +70,7 @@ void btContactArray::merge_contacts(
 {
 	clear();
 
+	int i;
 	if(contacts.size()==0) return;
 
 
@@ -85,7 +86,7 @@ void btContactArray::merge_contacts(
 
 	//fill key contacts
 
-	for (int i = 0;i<contacts.size() ;i++ )
+	for ( i = 0;i<contacts.size() ;i++ )
 	{
 		keycontacts.push_back(CONTACT_KEY_TOKEN(contacts[i].calc_key_contact(),i));
 	}
@@ -104,7 +105,7 @@ void btContactArray::merge_contacts(
 
 	BT_CONTACT * pcontact = &(*this)[0];
 
-	for(int i=1;i<keycontacts.size();i++)
+	for( i=1;i<keycontacts.size();i++)
 	{
 	    key = keycontacts[i].m_key;
 		const BT_CONTACT * scontact = &contacts[keycontacts[i].m_value];

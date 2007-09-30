@@ -48,7 +48,9 @@ void gim_contact_array::merge_contacts(
 
 	//fill key contacts
 
-	for (GUINT i = 0;i<contacts.size() ;i++ )
+	GUINT i;
+
+	for (i = 0;i<contacts.size() ;i++ )
 	{
 		keycontacts[i].m_key = contacts[i].calc_key_contact();
 		keycontacts[i].m_value = i;
@@ -68,7 +70,9 @@ void gim_contact_array::merge_contacts(
 	push_back(contacts[keycontacts[0].m_value]);
 	GIM_CONTACT * pcontact = &back();
 
-	for(GUINT i=1;i<keycontacts.size();i++)
+
+
+	for( i=1;i<keycontacts.size();i++)
 	{
 	    key = keycontacts[i].m_key;
 		const GIM_CONTACT * scontact = &contacts[keycontacts[i].m_value];

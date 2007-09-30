@@ -86,7 +86,9 @@ struct GIM_TRIANGLE_CONTACT_DATA
 
 		GUINT point_indices[MAX_TRI_CLIPPING];
 
-		for(GUINT _k=0;_k<point_count;_k++)
+		GUINT _k;
+
+		for(_k=0;_k<point_count;_k++)
 		{
 			GREAL _dist = -distance_func(plane,points[_k]) + margin;
 
@@ -106,7 +108,7 @@ struct GIM_TRIANGLE_CONTACT_DATA
 			}
 		}
 
-		for(GUINT _k=0;_k<m_point_count;_k++)
+		for( _k=0;_k<m_point_count;_k++)
 		{
 			m_points[_k] = points[point_indices[_k]];
 		}

@@ -151,6 +151,8 @@ void gim_free(void *ptr);
 inline void gim_simd_memcpy(void * dst, const void * src, size_t copysize)
 {
 #ifdef GIM_SIMD_MEMORY
+/*
+//'long long int' is incompatible with visual studio 6...
     //copy words
     SIMD_T * ui_src_ptr = (SIMD_T *)src;
     SIMD_T * ui_dst_ptr = (SIMD_T *)dst;
@@ -160,9 +162,10 @@ inline void gim_simd_memcpy(void * dst, const void * src, size_t copysize)
         copysize-=SIMD_T_SIZE;
     }
     if(copysize==0) return;
+*/
 
-    char * c_src_ptr = (char *)ui_src_ptr;
-    char * c_dst_ptr = (char *)ui_dst_ptr;
+    char * c_src_ptr = (char *)src;
+    char * c_dst_ptr = (char *)dst;
     while(copysize>0)
     {
         *(c_dst_ptr++) = *(c_src_ptr++);

@@ -33,7 +33,9 @@ void BT_TRIANGLE_CONTACT::merge_points(const btVector4 & plane,
 
     int point_indices[MAX_TRI_CLIPPING];
 
-    for (int _k=0;_k<point_count;_k++)
+	int _k;
+
+    for ( _k=0;_k<point_count;_k++)
     {
         btScalar _dist = - bt_distance_point_plane(plane,points[_k]) + margin;
 
@@ -53,7 +55,7 @@ void BT_TRIANGLE_CONTACT::merge_points(const btVector4 & plane,
         }
     }
 
-    for (int _k=0;_k<m_point_count;_k++)
+    for ( _k=0;_k<m_point_count;_k++)
     {
         m_points[_k] = points[point_indices[_k]];
     }

@@ -865,12 +865,14 @@ btGImpactCollisionAlgorithm::CreateFunc g_gimpact_cf;
 void btGImpactCollisionAlgorithm::registerAlgorithm(btCollisionDispatcher * dispatcher)
 {
 
-	for (int i = 0;i < MAX_BROADPHASE_COLLISION_TYPES ;i++ )
+	int i;
+
+	for ( i = 0;i < MAX_BROADPHASE_COLLISION_TYPES ;i++ )
 	{
 		dispatcher->registerCollisionCreateFunc(GIMPACT_SHAPE_PROXYTYPE,i ,&g_gimpact_cf);
 	}
 
-	for (int i = 0;i < MAX_BROADPHASE_COLLISION_TYPES ;i++ )
+	for ( i = 0;i < MAX_BROADPHASE_COLLISION_TYPES ;i++ )
 	{
 		dispatcher->registerCollisionCreateFunc(i,GIMPACT_SHAPE_PROXYTYPE ,&g_gimpact_cf);
 	}
