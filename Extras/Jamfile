@@ -3,12 +3,12 @@ SubDir TOP Extras ;
 SubInclude TOP Extras ConvexDecomposition ;
 SubInclude TOP Extras COLLADA_DOM ;
 SubInclude TOP Extras LibXML ;
-#SubInclude TOP Extras BulletMultiThreaded ;
+SubInclude TOP Extras BulletMultiThreaded ;
 #SubInclude TOP Extras EPA ;
 #SubInclude TOP Extras ExtraSolid35 ;
 SubInclude TOP Extras quickstep ;
 SubInclude TOP Extras AlternativeCollisionAlgorithms ;
 SubInclude TOP Extras GIMPACT ;
-
+SubInclude TOP Extras GIMPACTUtils ;
 #GPUphysics needs 'make', not jam compatible build yet:
-#SubInclude TOP Extras GPUphysics ;
+SubInclude TOP Extras GPUphysics ;
