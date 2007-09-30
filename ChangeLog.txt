@@ -1,5 +1,12 @@
 Bullet Continuous Collision Detection and Physics Library
 Primary author and maintainer: Erwin Coumans
+2007 Sept 28
+	- upgraded GIMPACT to version 0.3
+	Thanks to Francisco Leon
+
+2007 Sept 27
+	- added contribution from IBM Extreme Blue project for Libspe2 support. This allow to execute BulletMultiThreaded on Cell SPU under PS3 Linux and Cell Blade. See http://www-913.ibm.com/employment/us/extremeblue
+	Thanks to Minh Cuong Tran, Frederick Roth, Martina Heullmann and Benjamin Hoeferlin.
 
 2007 Sept 13
 	- Improved btGenericD6Constraint. It can be used to create ragdolls (similar to the new btConeTwistConstraint). See GenericJointDemo
