@@ -176,10 +176,6 @@ SOURCE=..\..\src\LinearMath\btAlignedAllocator.cpp
 # End Source File
 # Begin Source File
 
-SOURCE=..\..\src\LinearMath\btGenericPoolAllocator.cpp
-# End Source File
-# Begin Source File
-
 SOURCE=..\..\src\LinearMath\btGeometryUtil.cpp
 # End Source File
 # Begin Source File
@@ -205,10 +201,6 @@ SOURCE=..\..\src\LinearMath\btAlignedObjectArray.h
 # Begin Source File
 
 SOURCE=..\..\src\LinearMath\btDefaultMotionState.h
-# End Source File
-# Begin Source File
-
-SOURCE=..\..\src\LinearMath\btGenericPoolAllocator.h
 # End Source File
 # Begin Source File
 

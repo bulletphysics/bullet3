@@ -298,9 +298,6 @@
 				RelativePath="..\..\src\LinearMath\btAlignedAllocator.cpp">
 			</File>
 			<File
-				RelativePath="..\..\src\LinearMath\btGenericPoolAllocator.cpp">
-			</File>
-			<File
 				RelativePath="..\..\src\LinearMath\btGeometryUtil.cpp">
 			</File>
 			<File
@@ -321,9 +318,6 @@
 			</File>
 			<File
 				RelativePath="..\..\src\LinearMath\btDefaultMotionState.h">
-			</File>
-			<File
-				RelativePath="..\..\src\LinearMath\btGenericPoolAllocator.h">
 			</File>
 			<File
 				RelativePath="..\..\src\LinearMath\btGeometryUtil.h">

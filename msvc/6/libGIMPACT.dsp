@@ -176,6 +176,10 @@ SOURCE=..\..\Extras\GIMPACT\src\Bullet\btContactProcessing.cpp
 # End Source File
 # Begin Source File
 
+SOURCE=..\..\Extras\GIMPACT\src\Bullet\btGenericPoolAllocator.cpp
+# End Source File
+# Begin Source File
+
 SOURCE=..\..\Extras\GIMPACT\src\Bullet\btGImpactBvh.cpp
 # End Source File
 # Begin Source File

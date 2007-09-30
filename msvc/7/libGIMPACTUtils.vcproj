@@ -30,7 +30,7 @@
 				OptimizeForProcessor="1"
 				ExceptionHandling="0"
 				AdditionalOptions=" "
-				AdditionalIncludeDirectories=".;..\..;..\..\src;..\..\Extras\GIMPACT\include;..\..\Extras\GIMPACTUtils"
+				AdditionalIncludeDirectories=".;..\..;..\..\src;..\..\Extras\GIMPACT\include;..\..\Extras\GIMPACTUtils;..\..\Extras\ConvexDecomposition"
 				PrecompiledHeaderFile="..\..\out\release7\build\libGIMPACTUtils\libGIMPACTUtils.pch"
 				AssemblerListingLocation="..\..\out\release7\build\libGIMPACTUtils\"
 				ObjectFile="..\..\out\release7\build\libGIMPACTUtils\"
@@ -79,7 +79,7 @@
 			<Tool
 				Name="VCResourceCompilerTool"
 				PreprocessorDefinitions="NDEBUG;_LIB;_WINDOWS;PROJECTGEN_VERSION=7"
-				AdditionalIncludeDirectories=".;..\..;..\..\src;..\..\Extras\GIMPACT\include;..\..\Extras\GIMPACTUtils"
+				AdditionalIncludeDirectories=".;..\..;..\..\src;..\..\Extras\GIMPACT\include;..\..\Extras\GIMPACTUtils;..\..\Extras\ConvexDecomposition"
 				Culture="1033"/>
 			<Tool
 				Name="VCWebServiceProxyGeneratorTool"/>
@@ -99,7 +99,7 @@
 				OptimizeForProcessor="1"
 				ExceptionHandling="0"
 				AdditionalOptions=" "
-				AdditionalIncludeDirectories=".;..\..;..\..\src;..\..\Extras\GIMPACT\include;..\..\Extras\GIMPACTUtils"
+				AdditionalIncludeDirectories=".;..\..;..\..\src;..\..\Extras\GIMPACT\include;..\..\Extras\GIMPACTUtils;..\..\Extras\ConvexDecomposition"
 				PrecompiledHeaderFile="..\..\out\release_dbl7\build\libGIMPACTUtils\libGIMPACTUtils.pch"
 				AssemblerListingLocation="..\..\out\release_dbl7\build\libGIMPACTUtils\"
 				ObjectFile="..\..\out\release_dbl7\build\libGIMPACTUtils\"
@@ -142,7 +142,7 @@
 			<Tool
 				Name="VCResourceCompilerTool"
 				PreprocessorDefinitions="NDEBUG;BT_USE_DOUBLE_PRECISION;_LIB;_WINDOWS;PROJECTGEN_VERSION=7"
-				AdditionalIncludeDirectories=".;..\..;..\..\src;..\..\Extras\GIMPACT\include;..\..\Extras\GIMPACTUtils"
+				AdditionalIncludeDirectories=".;..\..;..\..\src;..\..\Extras\GIMPACT\include;..\..\Extras\GIMPACTUtils;..\..\Extras\ConvexDecomposition"
 				Culture="1033"/>
 			<Tool
 				Name="VCWebServiceProxyGeneratorTool"/>
@@ -167,7 +167,7 @@
 				OptimizeForProcessor="1"
 				ExceptionHandling="0"
 				AdditionalOptions=" "
-				AdditionalIncludeDirectories=".;..\..;..\..\src;..\..\Extras\GIMPACT\include;..\..\Extras\GIMPACTUtils"
+				AdditionalIncludeDirectories=".;..\..;..\..\src;..\..\Extras\GIMPACT\include;..\..\Extras\GIMPACTUtils;..\..\Extras\ConvexDecomposition"
 				PrecompiledHeaderFile="..\..\out\debug7\build\libGIMPACTUtils\libGIMPACTUtils.pch"
 				AssemblerListingLocation="..\..\out\debug7\build\libGIMPACTUtils\"
 				ObjectFile="..\..\out\debug7\build\libGIMPACTUtils\"
@@ -214,7 +214,7 @@
 			<Tool
 				Name="VCResourceCompilerTool"
 				PreprocessorDefinitions="_DEBUG;_LIB;_WINDOWS;PROJECTGEN_VERSION=7"
-				AdditionalIncludeDirectories=".;..\..;..\..\src;..\..\Extras\GIMPACT\include;..\..\Extras\GIMPACTUtils"
+				AdditionalIncludeDirectories=".;..\..;..\..\src;..\..\Extras\GIMPACT\include;..\..\Extras\GIMPACTUtils;..\..\Extras\ConvexDecomposition"
 				Culture="1033"/>
 			<Tool
 				Name="VCWebServiceProxyGeneratorTool"/>
@@ -239,7 +239,7 @@
 				OptimizeForProcessor="1"
 				ExceptionHandling="0"
 				AdditionalOptions=" "
-				AdditionalIncludeDirectories=".;..\..;..\..\src;..\..\Extras\GIMPACT\include;..\..\Extras\GIMPACTUtils"
+				AdditionalIncludeDirectories=".;..\..;..\..\src;..\..\Extras\GIMPACT\include;..\..\Extras\GIMPACTUtils;..\..\Extras\ConvexDecomposition"
 				PrecompiledHeaderFile="..\..\out\debug_dbl7\build\libGIMPACTUtils\libGIMPACTUtils.pch"
 				AssemblerListingLocation="..\..\out\debug_dbl7\build\libGIMPACTUtils\"
 				ObjectFile="..\..\out\debug_dbl7\build\libGIMPACTUtils\"
@@ -282,7 +282,7 @@
 			<Tool
 				Name="VCResourceCompilerTool"
 				PreprocessorDefinitions="_DEBUG;BT_USE_DOUBLE_PRECISION;_LIB;_WINDOWS;PROJECTGEN_VERSION=7"
-				AdditionalIncludeDirectories=".;..\..;..\..\src;..\..\Extras\GIMPACT\include;..\..\Extras\GIMPACTUtils"
+				AdditionalIncludeDirectories=".;..\..;..\..\src;..\..\Extras\GIMPACT\include;..\..\Extras\GIMPACTUtils;..\..\Extras\ConvexDecomposition"
 				Culture="1033"/>
 			<Tool
 				Name="VCWebServiceProxyGeneratorTool"/>

@@ -298,6 +298,9 @@
 				RelativePath="..\..\Extras\GIMPACT\src\Bullet\btContactProcessing.cpp">
 			</File>
 			<File
+				RelativePath="..\..\Extras\GIMPACT\src\Bullet\btGenericPoolAllocator.cpp">
+			</File>
+			<File
 				RelativePath="..\..\Extras\GIMPACT\src\Bullet\btGImpactBvh.cpp">
 			</File>
 			<File
