@@ -6,11 +6,11 @@ SubDir TOP Demos GimpactTestDemo ;
 
   {
     Application $(<) : $(>) : noinstall console nomanifest ;
-    LinkWith $(<) :   GIMPACT  bulletopenglsupport bulletdynamics bulletcollision  bulletmath ;
+    LinkWith $(<) :   GIMPACTUtils GIMPACT  bulletopenglsupport bulletdynamics bulletcollision  bulletmath ;
     CFlags $(<) :
           [ FIncludes $(TOP)/Demos/OpenGL ]
        	  [ FIncludes $(TOP)/Extras/GIMPACT/include ]
- 	  		
+ 	  [ FIncludes $(TOP)/Extras/GIMPACTUtils ]
     ;
 
     MsvcIncDirs $(<) :

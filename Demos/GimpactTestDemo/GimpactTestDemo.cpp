@@ -408,7 +408,7 @@ void	GimpactConcaveDemo::initPhysics()
 	//btOverlappingPairCache* broadphase = new btSimpleBroadphase();
 	//m_broadphase = new btSimpleBroadphase();
 
-	LONG maxProxies = 1024;
+	int  maxProxies = 1024;
 	btVector3 worldAabbMin(-10000,-10000,-10000);
 	btVector3 worldAabbMax( 10000, 10000, 10000);
 	m_broadphase = new bt32BitAxisSweep3(worldAabbMin,worldAabbMax,maxProxies);
@@ -645,7 +645,7 @@ void GimpactConcaveDemo::clientMoveAndDisplay()
 //#endif
 
 	//float dt = float(m_clock.getTimeMicroseconds()) * dts; //0.000001f;
-	float dt = float(m_clock.getTimeMicroseconds()) * 0.000001f;
+	float dt = btScalar(1./60.);
 
 
 
