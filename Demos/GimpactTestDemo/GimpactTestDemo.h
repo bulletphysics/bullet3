@@ -17,6 +17,30 @@ subject to the following restrictions:
 
 #include "DemoApplication.h"
 
+//#define BULLET_TRIANGLE_COLLISION 1
+#define BULLET_GIMPACT 1
+#define BULLET_GIMPACT_CONVEX_DECOMPOSITION 1
+
+#define TEST_GIMPACT_TORUS
+
+#ifdef BULLET_GIMPACT
+
+#include "GIMPACT/Bullet/btGImpactCollisionAlgorithm.h"
+	#ifdef BULLET_GIMPACT_CONVEX_DECOMPOSITION
+	#include "btGImpactConvexDecompositionShape.h"
+	#endif
+
+
+#else
+
+#include "btConcaveConcaveCollisionAlgorithm.h"
+#include "btGIMPACTMeshShape.h"
+
+#endif
+
+
+
+
 struct btCollisionAlgorithmCreateFunc;
 
 ///GimpactConcaveDemo shows usage of static concave triangle meshes
@@ -25,18 +49,18 @@ class GimpactConcaveDemo : public DemoApplication
 {
 
 public:
-	GimpactConcaveDemo() 
-		: m_trimeshShape(NULL), 
-		  m_trimeshShape2(NULL), 
+	GimpactConcaveDemo()
+		: m_trimeshShape(NULL),
+		  m_trimeshShape2(NULL),
 		  m_indexVertexArrays(NULL),
 		  m_indexVertexArrays2(NULL),
-		  m_collisionConfiguration(NULL), 
-		  m_dispatcher(NULL), 
-		  m_broadphase(NULL), 
+		  m_collisionConfiguration(NULL),
+		  m_dispatcher(NULL),
+		  m_broadphase(NULL),
 		  m_constraintSolver(NULL),
 		  m_gimpactCollisionCreateFunc(NULL),
 		  m_steps_done(0)
-	{  
+	{
 	}
 
 	virtual ~GimpactConcaveDemo()
@@ -51,7 +75,7 @@ public:
 
 		delete m_collisionConfiguration;
 		delete m_dispatcher;
-		delete m_broadphase; 
+		delete m_broadphase;
 		delete m_constraintSolver;
 
 		delete m_dynamicsWorld;
@@ -75,9 +99,18 @@ public:
 public: ///data
 	unsigned int			m_steps_done;
 
+#ifdef BULLET_GIMPACT
 	btCollisionShape			*m_trimeshShape;
 	btCollisionShape			*m_trimeshShape2;
+#else
 
+	btGIMPACTMeshData * m_trimeshShape;
+	btGIMPACTMeshData * m_trimeshShape2;
+
+	btCollisionShape * createTorusShape();
+	btCollisionShape * createBunnyShape();
+
+#endif
 
 	btTriangleIndexVertexArray  *m_indexVertexArrays;
 	btTriangleIndexVertexArray  *m_indexVertexArrays2;
