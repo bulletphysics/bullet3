@@ -11,6 +11,7 @@ LIBRARY_ppu = bulletdynamics.a
 
 #### Compiler flags
 CPPFLAGS        = 		\
+-DUSE_LIBSPE2			\
 -I../ConstraintSolver		\
 -I../Dynamics			\
 -I../Vehicle			\

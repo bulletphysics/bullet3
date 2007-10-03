@@ -8,6 +8,7 @@ LIBRARY_ppu = bulletmath.a
 
 #### Compiler flags
 CPPFLAGS        = 		\
+-DUSE_LIBSPE2			\
 -I$(ROOT)/src			\
 -I$(SDKINC)
 

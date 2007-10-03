@@ -12,6 +12,7 @@ LIBRARY_ppu = bulletcollision.a
 
 #### Compiler flags
 CPPFLAGS        = 		\
+-DUSE_LIBSPE2	\
 -I../BroadphaseCollision		\
 -I../CollisionDispath		\
 -I../NarrowPhaseCollision		\
@@ -38,6 +39,7 @@ btGjkConvexCast.o				\
 btGjkEpa.o					\
 btGjkEpaPenetrationDepthSolver.o		\
 btGjkPairDetector.o				\
+btDefaultCollisionConfiguration.o		\
 btMinkowskiPenetrationDepthSolver.o		\
 btPersistentManifold.o				\
 btRaycastCallback.o				\
