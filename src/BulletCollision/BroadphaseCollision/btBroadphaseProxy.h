@@ -17,6 +17,7 @@ subject to the following restrictions:
 #define BROADPHASE_PROXY_H
 
 #include "LinearMath/btScalar.h" //for SIMD_FORCE_INLINE
+#include "LinearMath/btAlignedAllocator.h"
 
 
 /// btDispatcher uses these types
@@ -63,8 +64,10 @@ CONCAVE_SHAPES_END_HERE,
 
 
 ///btBroadphaseProxy
-struct btBroadphaseProxy
+ATTRIBUTE_ALIGNED16(struct) btBroadphaseProxy
 {
+
+BT_DECLARE_ALIGNED_ALLOCATOR();
 	
 	///optional filtering to cull potential collisions
 	enum CollisionFilterGroups
@@ -137,7 +140,7 @@ struct btBroadphaseProxy;
 
 
 /// contains a pair of aabb-overlapping objects
-struct btBroadphasePair
+ATTRIBUTE_ALIGNED16(struct) btBroadphasePair
 {
 	btBroadphasePair ()
 		:
@@ -147,6 +150,8 @@ struct btBroadphasePair
 		m_userInfo(0)
 	{
 	}
+
+BT_DECLARE_ALIGNED_ALLOCATOR();
 
 	btBroadphasePair(const btBroadphasePair& other)
 		:		m_pProxy0(other.m_pProxy0),

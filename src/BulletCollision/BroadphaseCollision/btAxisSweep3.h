@@ -51,10 +51,11 @@ public:
 	};
 
 public:
-	class Handle : public btBroadphaseProxy
+	ATTRIBUTE_ALIGNED16(class) Handle : public btBroadphaseProxy
 	{
 	public:
-		
+	BT_DECLARE_ALIGNED_ALLOCATOR();
+	
 		// indexes into the edge arrays
 		BP_FP_INT_TYPE m_minEdges[3], m_maxEdges[3];		// 6 * 2 = 12
 		BP_FP_INT_TYPE m_handleId;
