@@ -7,7 +7,7 @@ SPU_TASKFILE=$(NARROWPHASEDIR)/SpuGatheringCollisionTask
 RM=rm -f 
 OUTDIR=./out
 DEBUGFLAG=-DNDEBUG
-LIBOUTDIR=../../out/linuxppc/optimize/libs
+LIBOUTDIR=../../lib/ibmsdk
 COLLISIONDIR=../../src/BulletCollision
 MATHDIR=../../src/LinearMath
 CELLSDKDIR=/opt/ibm/cell-sdk
@@ -39,7 +39,7 @@ endif
 PPU_CFLAGS= $(ARCHITECTUREFLAG) $(DEBUGFLAG) -W -Wall -Winline -O3 -c -mabi=altivec -maltivec -include altivec.h -include stdbool.h
 PPU_INCLUDEDIR= -I. -I$(CELLSDKDIR)/prototype/sysroot/usr/include -I../../src -I$(NARROWPHASEDIR)
 PPU_LFLAGS= $(ARCHITECTUREFLAG) -Wl,-m,elf$(__ARCH_BITS__)ppc
-PPU_LIBRARIES= -lstdc++ -lsupc++ -lgcc -lgcov -lspe2 -lpthread -L../../out/linuxppc/optimize/libs -lbulletcollision -lbulletdynamics -lbulletmath -L$(CELLSDKDIR)/prototype/sysroot/usr/lib$(__ARCH_BITS__) -R$(CELLSDKDIR)/prototype/sysroot/usr/lib
+PPU_LIBRARIES= -lstdc++ -lsupc++ -lgcc -lgcov -lspe2 -lpthread -L../../lib/ibmsdk -lbulletcollision -lbulletdynamics -lbulletmath -L$(CELLSDKDIR)/prototype/sysroot/usr/lib$(__ARCH_BITS__) -R$(CELLSDKDIR)/prototype/sysroot/usr/lib
 PPU_AR=/usr/bin/ar
 
 MakeOut :
@@ -121,7 +121,7 @@ spu : SpuFakeDma SpuContactManifoldCollisionAlgorithm_spu SpuContactResult SpuTa
       SpuGjkPairDetector SpuMinkowskiPenetrationDepthSolver SpuVoronoiSimplexSolver \
       btPersistentManifold btOptimizedBvh btCollisionObject btTriangleCallback btTriangleIndexVertexArray \
       btStridingMeshInterface btAlignedAllocator
-	$(SPU_GCC) -o $(OUTDIR)/$@ \
+	$(SPU_GCC) -o $(OUTDIR)/spuCollision.elf \
                             $(OUTDIR)/SpuTaskFile.o \
                             $(OUTDIR)/SpuFakeDma.o \
                             $(OUTDIR)/SpuContactManifoldCollisionAlgorithm_spu.o \
@@ -139,14 +139,14 @@ spu : SpuFakeDma SpuContactManifoldCollisionAlgorithm_spu SpuContactResult SpuTa
                             $(SPU_LFLAGS) $(SPU_LIBRARIES)
 
 spu-embed : spu                            
-	$(SPU_EMBED) $(ARCHITECTUREFLAG) $(SYMBOLNAME) $(OUTDIR)/spu $(OUTDIR)/$@.o
+	$(SPU_EMBED) $(ARCHITECTUREFLAG) $(SYMBOLNAME) $(OUTDIR)/spuCollision.elf $(OUTDIR)/$@.o
 	$(SPU_AR) -qcs $(LIBOUTDIR)/libspu.a $(OUTDIR)/$@.o
 
 
 
 ppu : SpuGatheringCollisionDispatcher SpuCollisionTaskProcess btThreadSupportInterface \
       SpuLibspe2Support SpuContactManifoldCollisionAlgorithm SpuSampleTaskProcess
-	$(PPU_AR) -qcs $(LIBOUTDIR)/libbulletmultithreaded.a \
+	$(PPU_AR) -qcs $(LIBOUTDIR)/bulletmultithreaded.a \
                                                           $(OUTDIR)/SpuCollisionTaskProcess.o \
                                                           $(OUTDIR)/SpuSampleTaskProcess.o \
                                                           $(OUTDIR)/SpuGatheringCollisionDispatcher.o \
@@ -161,7 +161,7 @@ all-embed : spu-embed ppu
 
 
 clean :
-	$(RM) $(OUTDIR)/* ; $(RM) $(LIBOUTDIR)/libspu.a ; $(RM) $(LIBOUTDIR)/libbulletmultithreaded.a
+	$(RM) $(OUTDIR)/* ; $(RM) $(LIBOUTDIR)/libspu.a ; $(RM) $(LIBOUTDIR)/bulletmultithreaded.a
 
 
 
