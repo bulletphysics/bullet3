@@ -8,7 +8,7 @@ HOST = /usr/include
 LIBRARY_ppu = bulletopenglsupport.a
 
 #### Compiler flags
-CPPFLAGS        = 		\
+CPPFLAGS        = -DUSE_LIBSPE2		\
 -I$(ROOT)/src/			\
 -I$(SDKINC)			\
 -I$(HOST)
