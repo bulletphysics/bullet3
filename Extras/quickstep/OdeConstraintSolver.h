@@ -18,6 +18,11 @@ subject to the following restrictions:
 
 #include "BulletDynamics/ConstraintSolver/btConstraintSolver.h"
 
+#include "LinearMath/btAlignedObjectArray.h"
+#include "OdeContactJoint.h"
+#include "OdeTypedJoint.h"
+#include "OdeSolverBody.h"
+
 class btRigidBody;
 struct	OdeSolverBody;
 class BU_Joint;
@@ -27,23 +32,31 @@ class BU_Joint;
 class OdeConstraintSolver : public btConstraintSolver
 {
 private:
-
-	int m_CurBody;
-	int m_CurJoint;
-	int m_CurTypedJoint;
+	int		m_CurBody;
+	int		m_CurJoint;
+	int		m_CurTypedJoint;
 
 	float	m_cfm;
 	float	m_erp;
 
+	btAlignedObjectArray<OdeSolverBody*> m_odeBodies;
+	btAlignedObjectArray<BU_Joint*>		 m_joints;
 
-	int ConvertBody(btRigidBody* body,OdeSolverBody** bodies,int& numBodies);
-	void ConvertConstraint(btPersistentManifold* manifold,BU_Joint** joints,int& numJoints,
-					   OdeSolverBody** bodies,int _bodyId0,int _bodyId1,btIDebugDraw* debugDrawer);
+	btAlignedObjectArray<OdeSolverBody>  m_SolverBodyArray;
+	btAlignedObjectArray<ContactJoint>   m_JointArray;
+	btAlignedObjectArray<OdeTypedJoint>  m_TypedJointArray;
 
+
+	int  ConvertBody(btRigidBody* body,btAlignedObjectArray< OdeSolverBody*> &bodies,int& numBodies);
+	void ConvertConstraint(btPersistentManifold* manifold,
+							btAlignedObjectArray<BU_Joint*> &joints,int& numJoints,
+							const btAlignedObjectArray< OdeSolverBody*> &bodies,
+							int _bodyId0,int _bodyId1,btIDebugDraw* debugDrawer);
 
 	void ConvertTypedConstraint(
-		btTypedConstraint * constraint,BU_Joint** joints,int& numJoints,
-		OdeSolverBody** bodies,int _bodyId0,int _bodyId1,btIDebugDraw* debugDrawer);
+							btTypedConstraint * constraint,
+							btAlignedObjectArray<BU_Joint*> &joints,int& numJoints,
+							const btAlignedObjectArray< OdeSolverBody*> &bodies,int _bodyId0,int _bodyId1,btIDebugDraw* debugDrawer);
 
 
 public:

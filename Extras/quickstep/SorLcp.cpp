@@ -80,7 +80,9 @@
 // compute iMJ = inv(M)*J'
 
 static void compute_invM_JT (int m, dRealMutablePtr J, dRealMutablePtr iMJ, int *jb,
-	OdeSolverBody* const *body, dRealPtr invI)
+	//OdeSolverBody* const *body,
+	 const btAlignedObjectArray<OdeSolverBody*> &body,
+	dRealPtr invI)
 {
 	int i,j;
 	dRealMutablePtr iMJ_ptr = iMJ;
@@ -238,7 +240,9 @@ int dRandInt2 (int n)
 }
 
 
-static void SOR_LCP (int m, int nb, dRealMutablePtr J, int *jb, OdeSolverBody * const *body,
+static void SOR_LCP (int m, int nb, dRealMutablePtr J, int *jb, 
+	//OdeSolverBody * const *body,
+	const btAlignedObjectArray<OdeSolverBody*> &body,
 	dRealPtr invI, dRealMutablePtr lambda, dRealMutablePtr invMforce, dRealMutablePtr rhs,
 	dRealMutablePtr lo, dRealMutablePtr hi, dRealPtr cfm, int *findex,
 	int numiter,float overRelax)
@@ -454,13 +458,20 @@ static void SOR_LCP (int m, int nb, dRealMutablePtr J, int *jb, OdeSolverBody * 
 }
 
 
-
+/*
 void SolveInternal1 (float global_cfm,
 					 float global_erp,
 					 OdeSolverBody* const *body, int nb,
 					BU_Joint **joint,
 					int nj,
 					const btContactSolverInfo& solverInfo)
+*/
+void SolveInternal1 (
+			float global_cfm,
+			float global_erp,
+			const btAlignedObjectArray<OdeSolverBody*> &body, int nb,
+			btAlignedObjectArray<BU_Joint*> &joint, 
+			int nj, const btContactSolverInfo& solverInfo)
 {
 
 	int numIter = solverInfo.m_numIterations;

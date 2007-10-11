@@ -28,13 +28,22 @@
 struct	OdeSolverBody;
 class BU_Joint;
 #include "LinearMath/btScalar.h"
+#include "LinearMath/btAlignedObjectArray.h"
 
 struct btContactSolverInfo;
 
+/*
 void SolveInternal1 (float global_cfm,
 					 float global_erp,
 					 OdeSolverBody * const *body, int nb,
-		     BU_Joint **_joint, int nj, const btContactSolverInfo& info);
+					BU_Joint **_joint, int nj, const btContactSolverInfo& info);
+*/
+ 
+void SolveInternal1 (float global_cfm,
+					 float global_erp,
+					 const btAlignedObjectArray<OdeSolverBody*> &body, int nb,
+					 btAlignedObjectArray<BU_Joint*> &joint, 
+					 int nj, const btContactSolverInfo& solverInfo);
 
 int dRandInt2 (int n);
 
