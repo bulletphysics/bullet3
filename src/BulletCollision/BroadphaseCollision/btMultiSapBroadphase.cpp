@@ -103,6 +103,8 @@ void	btMultiSapBroadphase::calculateOverlappingPairs(btDispatcher* dispatcher)
 
 	btBroadphasePairArray&	overlappingPairArray = m_overlappingPairs->getOverlappingPairArray();
 
+#ifndef USE_HASH_PAIRCACHE
+
 	//perform a sort, to find duplicates and to sort 'invalid' pairs to the end
 	overlappingPairArray.heapSort(btBroadphasePairSortPredicate());
 
@@ -171,6 +173,8 @@ void	btMultiSapBroadphase::calculateOverlappingPairs(btDispatcher* dispatcher)
 	overlappingPairArray.resize(overlappingPairArray.size() - m_invalidPair);
 	m_invalidPair = 0;
 #endif//CLEAN_INVALID_PAIRS
+
+#endif //USE_HASH_PAIRCACHE
 
 }
 

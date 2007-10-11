@@ -14,7 +14,7 @@ subject to the following restrictions:
 */
 
 
-//#define USE_GROUND_BOX 1
+#define USE_GROUND_BOX 1
 //#define PRINT_CONTACT_STATISTICS 1
 //#define CHECK_MEMORY_LEAKS 1
 //#define USE_PARALLEL_DISPATCHER 1
@@ -160,8 +160,8 @@ void	BasicDemo::initPhysics()
 #define maxProxies 8192
 	btVector3 worldAabbMin(-10000,-10000,-10000);
 	btVector3 worldAabbMax(10000,10000,10000);
-	//m_overlappingPairCache = new btAxisSweep3(worldAabbMin,worldAabbMax,maxProxies);
-	m_overlappingPairCache = new btMultiSapBroadphase();
+	m_overlappingPairCache = new btAxisSweep3(worldAabbMin,worldAabbMax,maxProxies);
+
 
 
 #else
