@@ -179,7 +179,7 @@ void	btContinuousDynamicsWorld::updateTemporalAabbs(btScalar timeStep)
 			temporalAabbMin -= angularMotion3d;
 			temporalAabbMax += angularMotion3d;
 
-			m_broadphasePairCache->setAabb(body->getBroadphaseHandle(),temporalAabbMin,temporalAabbMax);
+			m_broadphasePairCache->setAabb(body->getBroadphaseHandle(),temporalAabbMin,temporalAabbMax,m_dispatcher1);
 		}
 	}
 

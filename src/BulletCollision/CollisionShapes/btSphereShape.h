@@ -42,7 +42,7 @@ public:
 
 	virtual int	getShapeType() const { return SPHERE_SHAPE_PROXYTYPE; }
 
-	btScalar	getRadius() const { return m_implicitShapeDimensions.getX();}
+	btScalar	getRadius() const { return m_implicitShapeDimensions.getX() * m_localScaling.getX();}
 
 	//debugging
 	virtual char*	getName()const {return "SPHERE";}
@@ -55,7 +55,7 @@ public:
 	{
 		//to improve gjk behaviour, use radius+margin as the full margin, so never get into the penetration case
 		//this means, non-uniform scaling is not supported anymore
-		return m_localScaling.getX() * getRadius() + btConvexInternalShape::getMargin();
+		return getRadius();
 	}
 
 

@@ -58,7 +58,7 @@ public:
 	
 		// indexes into the edge arrays
 		BP_FP_INT_TYPE m_minEdges[3], m_maxEdges[3];		// 6 * 2 = 12
-		BP_FP_INT_TYPE m_handleId;
+//		BP_FP_INT_TYPE m_uniqueId;
 		BP_FP_INT_TYPE m_pad;
 		
 		//void* m_pOwner; this is now in btBroadphaseProxy.m_clientObject
@@ -102,10 +102,10 @@ protected:
 
 	void quantize(BP_FP_INT_TYPE* out, const btPoint3& point, int isMax) const;
 
-	void sortMinDown(int axis, BP_FP_INT_TYPE edge, bool updateOverlaps = true);
-	void sortMinUp(int axis, BP_FP_INT_TYPE edge, bool updateOverlaps = true);
-	void sortMaxDown(int axis, BP_FP_INT_TYPE edge, bool updateOverlaps = true);
-	void sortMaxUp(int axis, BP_FP_INT_TYPE edge, bool updateOverlaps = true);
+	void sortMinDown(int axis, BP_FP_INT_TYPE edge, btDispatcher* dispatcher, bool updateOverlaps );
+	void sortMinUp(int axis, BP_FP_INT_TYPE edge, btDispatcher* dispatcher, bool updateOverlaps );
+	void sortMaxDown(int axis, BP_FP_INT_TYPE edge, btDispatcher* dispatcher, bool updateOverlaps );
+	void sortMaxUp(int axis, BP_FP_INT_TYPE edge, btDispatcher* dispatcher, bool updateOverlaps );
 
 public:
 
@@ -116,17 +116,17 @@ public:
 
 	virtual void	calculateOverlappingPairs(btDispatcher* dispatcher);
 	
-	BP_FP_INT_TYPE addHandle(const btPoint3& aabbMin,const btPoint3& aabbMax, void* pOwner,short int collisionFilterGroup,short int collisionFilterMask);
+	BP_FP_INT_TYPE addHandle(const btPoint3& aabbMin,const btPoint3& aabbMax, void* pOwner,short int collisionFilterGroup,short int collisionFilterMask,btDispatcher* dispatcher);
 	void removeHandle(BP_FP_INT_TYPE handle,btDispatcher* dispatcher);
-	void updateHandle(BP_FP_INT_TYPE handle, const btPoint3& aabbMin,const btPoint3& aabbMax);
+	void updateHandle(BP_FP_INT_TYPE handle, const btPoint3& aabbMin,const btPoint3& aabbMax,btDispatcher* dispatcher);
 	inline Handle* getHandle(BP_FP_INT_TYPE index) const {return m_pHandles + index;}
 
 	void	processAllOverlappingPairs(btOverlapCallback* callback);
 
 	//Broadphase Interface
-	virtual btBroadphaseProxy*	createProxy(  const btVector3& aabbMin,  const btVector3& aabbMax,int shapeType,void* userPtr ,short int collisionFilterGroup,short int collisionFilterMask);
+	virtual btBroadphaseProxy*	createProxy(  const btVector3& aabbMin,  const btVector3& aabbMax,int shapeType,void* userPtr ,short int collisionFilterGroup,short int collisionFilterMask,btDispatcher* dispatcher);
 	virtual void	destroyProxy(btBroadphaseProxy* proxy,btDispatcher* dispatcher);
-	virtual void	setAabb(btBroadphaseProxy* proxy,const btVector3& aabbMin,const btVector3& aabbMax);
+	virtual void	setAabb(btBroadphaseProxy* proxy,const btVector3& aabbMin,const btVector3& aabbMax,btDispatcher* dispatcher);
 	
 	bool	testAabbOverlap(btBroadphaseProxy* proxy0,btBroadphaseProxy* proxy1);
 
@@ -173,10 +173,10 @@ void btAxisSweep3<BP_FP_INT_TYPE>::debugPrintAxis(int axis, bool checkCardinalit
 #endif //DEBUG_BROADPHASE
 
 template <typename BP_FP_INT_TYPE>
-btBroadphaseProxy*	btAxisSweep3Internal<BP_FP_INT_TYPE>::createProxy(  const btVector3& aabbMin,  const btVector3& aabbMax,int shapeType,void* userPtr,short int collisionFilterGroup,short int collisionFilterMask)
+btBroadphaseProxy*	btAxisSweep3Internal<BP_FP_INT_TYPE>::createProxy(  const btVector3& aabbMin,  const btVector3& aabbMax,int shapeType,void* userPtr,short int collisionFilterGroup,short int collisionFilterMask,btDispatcher* dispatcher)
 {
 		(void)shapeType;
-		BP_FP_INT_TYPE handleId = addHandle(aabbMin,aabbMax, userPtr,collisionFilterGroup,collisionFilterMask);
+		BP_FP_INT_TYPE handleId = addHandle(aabbMin,aabbMax, userPtr,collisionFilterGroup,collisionFilterMask,dispatcher);
 		
 		Handle* handle = getHandle(handleId);
 				
@@ -189,14 +189,14 @@ template <typename BP_FP_INT_TYPE>
 void	btAxisSweep3Internal<BP_FP_INT_TYPE>::destroyProxy(btBroadphaseProxy* proxy,btDispatcher* dispatcher)
 {
 	Handle* handle = static_cast<Handle*>(proxy);
-	removeHandle(handle->m_handleId,dispatcher);
+	removeHandle(handle->m_uniqueId,dispatcher);
 }
 
 template <typename BP_FP_INT_TYPE>
-void	btAxisSweep3Internal<BP_FP_INT_TYPE>::setAabb(btBroadphaseProxy* proxy,const btVector3& aabbMin,const btVector3& aabbMax)
+void	btAxisSweep3Internal<BP_FP_INT_TYPE>::setAabb(btBroadphaseProxy* proxy,const btVector3& aabbMin,const btVector3& aabbMax,btDispatcher* dispatcher)
 {
 	Handle* handle = static_cast<Handle*>(proxy);
-	updateHandle(handle->m_handleId,aabbMin,aabbMax);
+	updateHandle(handle->m_uniqueId,aabbMin,aabbMax,dispatcher);
 
 }
 
@@ -335,7 +335,7 @@ void btAxisSweep3Internal<BP_FP_INT_TYPE>::freeHandle(BP_FP_INT_TYPE handle)
 
 
 template <typename BP_FP_INT_TYPE>
-BP_FP_INT_TYPE btAxisSweep3Internal<BP_FP_INT_TYPE>::addHandle(const btPoint3& aabbMin,const btPoint3& aabbMax, void* pOwner,short int collisionFilterGroup,short int collisionFilterMask)
+BP_FP_INT_TYPE btAxisSweep3Internal<BP_FP_INT_TYPE>::addHandle(const btPoint3& aabbMin,const btPoint3& aabbMax, void* pOwner,short int collisionFilterGroup,short int collisionFilterMask,btDispatcher* dispatcher)
 {
 	// quantize the bounds
 	BP_FP_INT_TYPE min[3], max[3];
@@ -348,7 +348,7 @@ BP_FP_INT_TYPE btAxisSweep3Internal<BP_FP_INT_TYPE>::addHandle(const btPoint3& a
 
 	Handle* pHandle = getHandle(handle);
 	
-	pHandle->m_handleId = handle;
+	pHandle->m_uniqueId = handle;
 	//pHandle->m_pOverlaps = 0;
 	pHandle->m_clientObject = pOwner;
 	pHandle->m_collisionFilterGroup = collisionFilterGroup;
@@ -377,12 +377,12 @@ BP_FP_INT_TYPE btAxisSweep3Internal<BP_FP_INT_TYPE>::addHandle(const btPoint3& a
 	}
 
 	// now sort the new edges to their correct position
-	sortMinDown(0, pHandle->m_minEdges[0], false);
-	sortMaxDown(0, pHandle->m_maxEdges[0], false);
-	sortMinDown(1, pHandle->m_minEdges[1], false);
-	sortMaxDown(1, pHandle->m_maxEdges[1], false);
-	sortMinDown(2, pHandle->m_minEdges[2], true);
-	sortMaxDown(2, pHandle->m_maxEdges[2], true);
+	sortMinDown(0, pHandle->m_minEdges[0], dispatcher,false);
+	sortMaxDown(0, pHandle->m_maxEdges[0], dispatcher,false);
+	sortMinDown(1, pHandle->m_minEdges[1], dispatcher,false);
+	sortMaxDown(1, pHandle->m_maxEdges[1], dispatcher,false);
+	sortMinDown(2, pHandle->m_minEdges[2], dispatcher,true);
+	sortMaxDown(2, pHandle->m_maxEdges[2], dispatcher,true);
 
 
 	return handle;
@@ -418,14 +418,14 @@ void btAxisSweep3Internal<BP_FP_INT_TYPE>::removeHandle(BP_FP_INT_TYPE handle,bt
 		BP_FP_INT_TYPE max = pHandle->m_maxEdges[axis];
 		pEdges[max].m_pos = m_handleSentinel;
 
-		sortMaxUp(axis,max,false);
+		sortMaxUp(axis,max,dispatcher,false);
 
 
 		BP_FP_INT_TYPE i = pHandle->m_minEdges[axis];
 		pEdges[i].m_pos = m_handleSentinel;
 
 
-		sortMinUp(axis,i,false);
+		sortMinUp(axis,i,dispatcher,false);
 
 		pEdges[limit-1].m_handle = 0;
 		pEdges[limit-1].m_pos = m_handleSentinel;
@@ -445,13 +445,16 @@ void btAxisSweep3Internal<BP_FP_INT_TYPE>::removeHandle(BP_FP_INT_TYPE handle,bt
 }
 
 extern int gOverlappingPairs;
+#include <stdio.h>
 
 template <typename BP_FP_INT_TYPE>
 void	btAxisSweep3Internal<BP_FP_INT_TYPE>::calculateOverlappingPairs(btDispatcher* dispatcher)
 {
-	
+#ifdef USE_LAZY_REMOVAL
+
 	if (m_ownsPairCache)
 	{
+	
 		btBroadphasePairArray&	overlappingPairArray = m_pairCache->getOverlappingPairArray();
 
 		//perform a sort, to find duplicates and to sort 'invalid' pairs to the end
@@ -524,7 +527,12 @@ void	btAxisSweep3Internal<BP_FP_INT_TYPE>::calculateOverlappingPairs(btDispatche
 		m_invalidPair = 0;
 	#endif//CLEAN_INVALID_PAIRS
 		
+		//printf("overlappingPairArray.size()=%d\n",overlappingPairArray.size());
 	}
+#endif //USE_LAZY_REMOVAL
+
+
+	
 
 }
 
@@ -581,7 +589,7 @@ bool btAxisSweep3Internal<BP_FP_INT_TYPE>::testOverlap(int ignoreAxis,const Hand
 }
 
 template <typename BP_FP_INT_TYPE>
-void btAxisSweep3Internal<BP_FP_INT_TYPE>::updateHandle(BP_FP_INT_TYPE handle, const btPoint3& aabbMin,const btPoint3& aabbMax)
+void btAxisSweep3Internal<BP_FP_INT_TYPE>::updateHandle(BP_FP_INT_TYPE handle, const btPoint3& aabbMin,const btPoint3& aabbMax,btDispatcher* dispatcher)
 {
 //	assert(bounds.IsFinite());
 	//assert(bounds.HasVolume());
@@ -607,17 +615,17 @@ void btAxisSweep3Internal<BP_FP_INT_TYPE>::updateHandle(BP_FP_INT_TYPE handle, c
 
 		// expand (only adds overlaps)
 		if (dmin < 0)
-			sortMinDown(axis, emin);
+			sortMinDown(axis, emin,dispatcher,true);
 
 		if (dmax > 0)
-			sortMaxUp(axis, emax);
+			sortMaxUp(axis, emax,dispatcher,true);
 
 		// shrink (only removes overlaps)
 		if (dmin > 0)
-			sortMinUp(axis, emin);
+			sortMinUp(axis, emin,dispatcher,true);
 
 		if (dmax < 0)
-			sortMaxDown(axis, emax);
+			sortMaxDown(axis, emax,dispatcher,true);
 
 #ifdef DEBUG_BROADPHASE
 	debugPrintAxis(axis);
@@ -632,7 +640,7 @@ void btAxisSweep3Internal<BP_FP_INT_TYPE>::updateHandle(BP_FP_INT_TYPE handle, c
 
 // sorting a min edge downwards can only ever *add* overlaps
 template <typename BP_FP_INT_TYPE>
-void btAxisSweep3Internal<BP_FP_INT_TYPE>::sortMinDown(int axis, BP_FP_INT_TYPE edge, bool updateOverlaps)
+void btAxisSweep3Internal<BP_FP_INT_TYPE>::sortMinDown(int axis, BP_FP_INT_TYPE edge, btDispatcher* dispatcher, bool updateOverlaps)
 {
 
 	Edge* pEdge = m_pEdges[axis] + edge;
@@ -680,7 +688,7 @@ void btAxisSweep3Internal<BP_FP_INT_TYPE>::sortMinDown(int axis, BP_FP_INT_TYPE 
 
 // sorting a min edge upwards can only ever *remove* overlaps
 template <typename BP_FP_INT_TYPE>
-void btAxisSweep3Internal<BP_FP_INT_TYPE>::sortMinUp(int axis, BP_FP_INT_TYPE edge, bool updateOverlaps)
+void btAxisSweep3Internal<BP_FP_INT_TYPE>::sortMinUp(int axis, BP_FP_INT_TYPE edge, btDispatcher* dispatcher, bool updateOverlaps)
 {
 	Edge* pEdge = m_pEdges[axis] + edge;
 	Edge* pNext = pEdge + 1;
@@ -692,17 +700,16 @@ void btAxisSweep3Internal<BP_FP_INT_TYPE>::sortMinUp(int axis, BP_FP_INT_TYPE ed
 
 		if (pNext->IsMax())
 		{
+#ifndef USE_LAZY_REMOVAL
 			// if next edge is maximum remove any overlap between the two handles
 			if (updateOverlaps)
 			{
-				/*
 				Handle* handle0 = getHandle(pEdge->m_handle);
 				Handle* handle1 = getHandle(pNext->m_handle);
-				btBroadphasePair tmpPair(*handle0,*handle1);
-				removeOverlappingPair(tmpPair);
-				*/
 
+				m_pairCache->removeOverlappingPair(handle0,handle1,dispatcher);	
 			}
+#endif //USE_LAZY_REMOVAL
 
 			// update edge reference in other handle
 			pHandleNext->m_maxEdges[axis]--;
@@ -727,7 +734,7 @@ void btAxisSweep3Internal<BP_FP_INT_TYPE>::sortMinUp(int axis, BP_FP_INT_TYPE ed
 
 // sorting a max edge downwards can only ever *remove* overlaps
 template <typename BP_FP_INT_TYPE>
-void btAxisSweep3Internal<BP_FP_INT_TYPE>::sortMaxDown(int axis, BP_FP_INT_TYPE edge, bool updateOverlaps)
+void btAxisSweep3Internal<BP_FP_INT_TYPE>::sortMaxDown(int axis, BP_FP_INT_TYPE edge, btDispatcher* dispatcher, bool updateOverlaps)
 {
 
 	Edge* pEdge = m_pEdges[axis] + edge;
@@ -744,17 +751,12 @@ void btAxisSweep3Internal<BP_FP_INT_TYPE>::sortMaxDown(int axis, BP_FP_INT_TYPE 
 			if (updateOverlaps)
 			{
 				//this is done during the overlappingpairarray iteration/narrowphase collision
-				/*
+#ifndef USE_LAZY_REMOVAL
 				Handle* handle0 = getHandle(pEdge->m_handle);
 				Handle* handle1 = getHandle(pPrev->m_handle);
-				btBroadphasePair* pair = findPair(handle0,handle1);
-				//assert(pair);
-
-				if (pair)
-				{
-					removeOverlappingPair(*pair);
-				}
-				*/
+				m_pairCache->removeOverlappingPair(handle0,handle1,dispatcher);
+			
+#endif //USE_LAZY_REMOVAL		
 
 			}
 
@@ -785,7 +787,7 @@ void btAxisSweep3Internal<BP_FP_INT_TYPE>::sortMaxDown(int axis, BP_FP_INT_TYPE 
 
 // sorting a max edge upwards can only ever *add* overlaps
 template <typename BP_FP_INT_TYPE>
-void btAxisSweep3Internal<BP_FP_INT_TYPE>::sortMaxUp(int axis, BP_FP_INT_TYPE edge, bool updateOverlaps)
+void btAxisSweep3Internal<BP_FP_INT_TYPE>::sortMaxUp(int axis, BP_FP_INT_TYPE edge, btDispatcher* dispatcher, bool updateOverlaps)
 {
 	Edge* pEdge = m_pEdges[axis] + edge;
 	Edge* pNext = pEdge + 1;

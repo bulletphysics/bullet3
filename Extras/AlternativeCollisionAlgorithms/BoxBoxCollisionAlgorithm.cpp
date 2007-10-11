@@ -19,6 +19,8 @@ subject to the following restrictions:
 #include "BulletCollision/CollisionDispatch/btCollisionObject.h"
 #include "BoxBoxDetector.h"
 
+#define USE_PERSISTENT_CONTACTS 1
+
 BoxBoxCollisionAlgorithm::BoxBoxCollisionAlgorithm(btPersistentManifold* mf,const btCollisionAlgorithmConstructionInfo& ci,btCollisionObject* obj0,btCollisionObject* obj1)
 : btCollisionAlgorithm(ci),
 m_ownManifold(false),
@@ -54,8 +56,9 @@ void BoxBoxCollisionAlgorithm::processCollision (btCollisionObject* body0,btColl
 
 	/// report a contact. internally this will be kept persistent, and contact reduction is done
 	resultOut->setPersistentManifold(m_manifoldPtr);
-	
+#ifndef USE_PERSISTENT_CONTACTS	
 	m_manifoldPtr->clearManifold();
+#endif //USE_PERSISTENT_CONTACTS
 
 	btDiscreteCollisionDetectorInterface::ClosestPointInput input;
 	input.m_maximumDistanceSquared = 1e30f;
@@ -64,6 +67,14 @@ void BoxBoxCollisionAlgorithm::processCollision (btCollisionObject* body0,btColl
 
 	BoxBoxDetector detector(box0,box1);
 	detector.getClosestPoints(input,*resultOut,dispatchInfo.m_debugDraw);
+
+#ifdef USE_PERSISTENT_CONTACTS
+	//  refreshContactPoints is only necessary when using persistent contact points. otherwise all points are newly added
+	if (m_ownManifold)
+	{
+		resultOut->refreshContactPoints();
+	}
+#endif //USE_PERSISTENT_CONTACTS
 
 }
 

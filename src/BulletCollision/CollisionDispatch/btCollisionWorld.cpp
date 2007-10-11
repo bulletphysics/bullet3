@@ -109,7 +109,8 @@ void	btCollisionWorld::addCollisionObject(btCollisionObject* collisionObject,sho
 			type,
 			collisionObject,
 			collisionFilterGroup,
-			collisionFilterMask
+			collisionFilterMask,
+			m_dispatcher1
 			))	;
 
 		
@@ -134,7 +135,7 @@ void	btCollisionWorld::performDiscreteCollisionDetection()
 	for (int i=0;i<m_collisionObjects.size();i++)
 	{
 		m_collisionObjects[i]->getCollisionShape()->getAabb(m_collisionObjects[i]->getWorldTransform(),aabbMin,aabbMax);
-		m_broadphasePairCache->setAabb(m_collisionObjects[i]->getBroadphaseHandle(),aabbMin,aabbMax);
+		m_broadphasePairCache->setAabb(m_collisionObjects[i]->getBroadphaseHandle(),aabbMin,aabbMax,m_dispatcher1);
 	}
 
 	m_broadphasePairCache->calculateOverlappingPairs(m_dispatcher1);

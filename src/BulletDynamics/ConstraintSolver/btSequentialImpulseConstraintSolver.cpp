@@ -14,6 +14,8 @@ subject to the following restrictions:
 */
 
 //#define COMPUTE_IMPULSE_DENOM 1
+//It is not necessary (redundant) to refresh contact manifolds, this refresh has been moved to the collision algorithms.
+//#define FORCE_REFESH_CONTACT_MANIFOLDS 1
 
 #include "btSequentialImpulseConstraintSolver.h"
 #include "BulletCollision/NarrowPhaseCollision/btPersistentManifold.h"
@@ -397,21 +399,30 @@ btScalar btSequentialImpulseConstraintSolver::solveGroupCacheFriendlySetup(btCol
 //		printf("empty\n");
 		return 0.f;
 	}
+	btPersistentManifold* manifold = 0;
+	btRigidBody* rb0=0,*rb1=0;
+
+#ifdef FORCE_REFESH_CONTACT_MANIFOLDS
 
 	BEGIN_PROFILE("refreshManifolds");
 
 	int i;
+	
+	
+
 	for (i=0;i<numManifolds;i++)
 	{
-		btPersistentManifold* manifold = manifoldPtr[i];
-		btRigidBody* rb0 = (btRigidBody*)manifold->getBody0();
-		btRigidBody* rb1 = (btRigidBody*)manifold->getBody1();
-
+		manifold = manifoldPtr[i];
+		rb1 = (btRigidBody*)manifold->getBody1();
+		rb0 = (btRigidBody*)manifold->getBody0();
+		
 		manifold->refreshContactPoints(rb0->getCenterOfMassTransform(),rb1->getCenterOfMassTransform());
 
 	}
-	
+
 	END_PROFILE("refreshManifolds");
+#endif //FORCE_REFESH_CONTACT_MANIFOLDS
+
 
 
 	BEGIN_PROFILE("gatherSolverData");
@@ -458,10 +469,11 @@ btScalar btSequentialImpulseConstraintSolver::solveGroupCacheFriendlySetup(btCol
 
 			for (i=0;i<numManifolds;i++)
 			{
-				btPersistentManifold* manifold = manifoldPtr[i];
-				btRigidBody* rb0 = (btRigidBody*)manifold->getBody0();
-				btRigidBody* rb1 = (btRigidBody*)manifold->getBody1();
+				manifold = manifoldPtr[i];
+				rb1 = (btRigidBody*)manifold->getBody1();
 
+				rb0 = (btRigidBody*)manifold->getBody0();
+				
 			
 				int solverBodyIdA=-1;
 				int solverBodyIdB=-1;
@@ -503,8 +515,7 @@ btScalar btSequentialImpulseConstraintSolver::solveGroupCacheFriendlySetup(btCol
 					
 					btManifoldPoint& cp = manifold->getContactPoint(j);
 
-					int frictionIndex = tmpSolverConstraintPool.size();
-
+					
 					if (cp.getDistance() <= btScalar(0.))
 					{
 						
@@ -518,6 +529,8 @@ btScalar btSequentialImpulseConstraintSolver::solveGroupCacheFriendlySetup(btCol
 						relaxation = 1.f;
 						btScalar rel_vel;
 						btVector3 vel;
+
+						int frictionIndex = tmpSolverConstraintPool.size();
 
 						{
 							btSolverConstraint& solverConstraint = tmpSolverConstraintPool.expand();
@@ -586,18 +599,22 @@ btScalar btSequentialImpulseConstraintSolver::solveGroupCacheFriendlySetup(btCol
 
 						
 						{
-							btVector3 lat_vel = vel - cp.m_normalWorldOnB * rel_vel;
-							btScalar lat_rel_vel = lat_vel.length2();
+							btVector3 frictionDir1 = vel - cp.m_normalWorldOnB * rel_vel;
+							btScalar lat_rel_vel = frictionDir1.length2();
 							if (lat_rel_vel > SIMD_EPSILON)//0.0f)
 							{
-								lat_vel /= btSqrt(lat_rel_vel);
-
-								addFrictionConstraint(lat_vel,solverBodyIdA,solverBodyIdB,frictionIndex,cp,rel_pos1,rel_pos2,rb0,rb1, relaxation);
-								btVector3 frictionDir2 = lat_vel.cross(cp.m_normalWorldOnB);
+								frictionDir1 /= btSqrt(lat_rel_vel);
+								addFrictionConstraint(frictionDir1,solverBodyIdA,solverBodyIdB,frictionIndex,cp,rel_pos1,rel_pos2,rb0,rb1, relaxation);
+								btVector3 frictionDir2 = frictionDir1.cross(cp.m_normalWorldOnB);
 								frictionDir2.normalize();//??
 								addFrictionConstraint(frictionDir2,solverBodyIdA,solverBodyIdB,frictionIndex,cp,rel_pos1,rel_pos2,rb0,rb1, relaxation);
-
-
+							} else
+							{
+								//re-calculate friction direction every frame, todo: check if this is really needed
+								btVector3	frictionDir1,frictionDir2;
+								btPlaneSpace1(cp.m_normalWorldOnB,frictionDir1,frictionDir2);
+								addFrictionConstraint(frictionDir1,solverBodyIdA,solverBodyIdB,frictionIndex,cp,rel_pos1,rel_pos2,rb0,rb1, relaxation);
+								addFrictionConstraint(frictionDir2,solverBodyIdA,solverBodyIdB,frictionIndex,cp,rel_pos1,rel_pos2,rb0,rb1, relaxation);
 							}
 
 						}
@@ -907,8 +924,9 @@ void	btSequentialImpulseConstraintSolver::prepareConstraints(btPersistentManifol
 
 	//only necessary to refresh the manifold once (first iteration). The integration is done outside the loop
 	{
+#ifdef FORCE_REFESH_CONTACT_MANIFOLDS
 		manifoldPtr->refreshContactPoints(body0->getCenterOfMassTransform(),body1->getCenterOfMassTransform());
-		
+#endif //FORCE_REFESH_CONTACT_MANIFOLDS		
 		int numpoints = manifoldPtr->getNumContacts();
 
 		gTotalContactPoints += numpoints;

@@ -79,7 +79,9 @@ void btManifoldResult::addContactPoint(const btVector3& normalOnBInWorld,const b
 	}
 
 	btManifoldPoint newPt(localA,localB,normalOnBInWorld,depth);
-
+	newPt.m_positionWorldOnA = pointA;
+	newPt.m_positionWorldOnB = pointInWorld;
+	
 	int insertIndex = m_manifoldPtr->getCacheEntry(newPt);
 
 	newPt.m_combinedFriction = calculateCombinedFriction(m_body0,m_body1);

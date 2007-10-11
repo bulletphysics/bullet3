@@ -24,6 +24,10 @@ struct btSimpleBroadphaseProxy : public btBroadphaseProxy
 {
 	btVector3	m_min;
 	btVector3	m_max;
+	int			m_nextFree;
+	int			m_nextAllocated;
+//	int			m_handleId;
+
 	
 	btSimpleBroadphaseProxy() {};
 
@@ -34,6 +38,13 @@ struct btSimpleBroadphaseProxy : public btBroadphaseProxy
 		(void)shapeType;
 	}
 	
+	
+	inline void SetNextFree(int next) {m_nextFree = next;}
+	inline int GetNextFree() const {return m_nextFree;}
+
+	inline void SetNextAllocated(int next) {m_nextAllocated = next;}
+	inline int GetNextAllocated() const {return m_nextAllocated;}
+
 
 };
 
@@ -43,19 +54,46 @@ class btSimpleBroadphase : public btBroadphaseInterface
 
 protected:
 
-	btSimpleBroadphaseProxy*	m_proxies;
-	int*				m_freeProxies;
-	int				m_firstFreeProxy;
+	int		m_numHandles;						// number of active handles
+	int		m_maxHandles;						// max number of handles
+	btSimpleBroadphaseProxy* m_pHandles;						// handles pool
+	int		m_firstFreeHandle;		// free handles list
+	int		m_firstAllocatedHandle;
 
-	btSimpleBroadphaseProxy** m_pProxies;
-	int				m_numProxies;
+	int allocHandle()
+	{
+
+		int freeHandle = m_firstFreeHandle;
+		m_firstFreeHandle = m_pHandles[freeHandle].GetNextFree();
+		
+		m_pHandles[freeHandle].SetNextAllocated(m_firstAllocatedHandle);
+		m_firstAllocatedHandle = freeHandle;
+		
+		m_numHandles++;
+
+		return freeHandle;
+	}
+
+	void freeHandle(btSimpleBroadphaseProxy* proxy)
+	{
+		int handle = int(proxy-m_pHandles);
+		btAssert(handle > 0 && handle < m_maxHandles);
+
+		proxy->SetNextFree(m_firstFreeHandle);
+		m_firstFreeHandle = handle;
+
+		m_firstAllocatedHandle = proxy->GetNextAllocated();
+		proxy->SetNextAllocated(-1);
+
+		m_numHandles--;
+	}
+
 
 	btOverlappingPairCache*	m_pairCache;
 	bool	m_ownsPairCache;
 
 	int	m_invalidPair;
 
-	int m_maxProxies;
 	
 	
 	inline btSimpleBroadphaseProxy*	getSimpleProxyFromProxy(btBroadphaseProxy* proxy)
@@ -80,12 +118,12 @@ public:
 		static bool	aabbOverlap(btSimpleBroadphaseProxy* proxy0,btSimpleBroadphaseProxy* proxy1);
 
 
-	virtual btBroadphaseProxy*	createProxy(  const btVector3& aabbMin,  const btVector3& aabbMax,int shapeType,void* userPtr ,short int collisionFilterGroup,short int collisionFilterMask);
+	virtual btBroadphaseProxy*	createProxy(  const btVector3& aabbMin,  const btVector3& aabbMax,int shapeType,void* userPtr ,short int collisionFilterGroup,short int collisionFilterMask, btDispatcher* dispatcher);
 
 	virtual void	calculateOverlappingPairs(btDispatcher* dispatcher);
 
 	virtual void	destroyProxy(btBroadphaseProxy* proxy,btDispatcher* dispatcher);
-	virtual void	setAabb(btBroadphaseProxy* proxy,const btVector3& aabbMin,const btVector3& aabbMax);
+	virtual void	setAabb(btBroadphaseProxy* proxy,const btVector3& aabbMin,const btVector3& aabbMax, btDispatcher* dispatcher);
 		
 	btOverlappingPairCache*	getOverlappingPairCache()
 	{

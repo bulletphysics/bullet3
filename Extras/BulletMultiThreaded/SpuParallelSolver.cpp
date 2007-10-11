@@ -109,7 +109,8 @@ btScalar btParallelSequentialImpulseSolver::solveGroup(btCollisionObject** bodie
 {
 	if (!numManifolds && !numConstraints)
 		return 0;
-
+///refresh contact points is not needed anymore, it has been moved into the processCollision detection part.
+#ifdef FORCE_REFESH_CONTACT_MANIFOLDS
 	for (int i = 0; i < numManifolds; ++i)
 	{
 		btPersistentManifold* currManifold = manifold[i];
@@ -118,6 +119,7 @@ btScalar btParallelSequentialImpulseSolver::solveGroup(btCollisionObject** bodie
 
 		currManifold->refreshContactPoints(rb0->getCenterOfMassTransform(),rb1->getCenterOfMassTransform());
 	}
+#endif //FORCE_REFESH_CONTACT_MANIFOLDS
 
 	// Record and mark the manifolds to the cells
 	for (int i = 0; i < numManifolds; ++i)

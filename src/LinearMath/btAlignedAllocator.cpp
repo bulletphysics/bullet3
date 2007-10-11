@@ -19,7 +19,7 @@ subject to the following restrictions:
 #if defined (BT_HAS_ALIGNED_ALOCATOR)
 
 #include <malloc.h>
-void*	btAlignedAlloc	(int size, int alignment)
+void*	btAlignedAlloc	(size_t size, int alignment)
 {
 	void* ptr = _aligned_malloc(size,alignment);
 //	printf("btAlignedAlloc %d, %x\n",size,ptr);
@@ -41,7 +41,7 @@ void	btAlignedFree	(void* ptr)
 int numAllocs = 0;
 int numFree = 0;
 
-void*	btAlignedAlloc	(int size, int alignment)
+void*	btAlignedAlloc	(size_t size, int alignment)
 {
 	numAllocs++;
 	return memalign(alignment, size);
@@ -55,7 +55,7 @@ void	btAlignedFree	(void* ptr)
 
 #else
 
-void*	btAlignedAlloc	(int size, int alignment)
+void*	btAlignedAlloc	(size_t size, int alignment)
 {
  void *ret;
   char *real;

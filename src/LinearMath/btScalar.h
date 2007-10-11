@@ -288,6 +288,13 @@ SIMD_FORCE_INLINE float btSelect(unsigned condition, float valueIfConditionNonZe
 #endif
 }
 
+template<typename T> inline void btSwap(T& a, T& b)
+{
+	T tmp = a;
+	a = b;
+	b = tmp;
+}
+
 
 //PCK: endian swapping functions
 SIMD_FORCE_INLINE unsigned btSwapEndian(unsigned val)

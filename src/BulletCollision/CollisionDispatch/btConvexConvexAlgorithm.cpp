@@ -152,6 +152,11 @@ void btConvexConvexAlgorithm ::processCollision (btCollisionObject* body0,btColl
 	m_gjkPairDetector.getClosestPoints(input,*resultOut,dispatchInfo.m_debugDraw);
 #endif
 
+	if (m_ownManifold)
+	{
+		resultOut->refreshContactPoints();
+	}
+
 }
 
 

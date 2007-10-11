@@ -56,14 +56,14 @@ btMultiSapBroadphase::~btMultiSapBroadphase()
 {
 }
 
-btBroadphaseProxy*	btMultiSapBroadphase::createProxy(  const btVector3& aabbMin,  const btVector3& aabbMax,int shapeType,void* userPtr, short int collisionFilterGroup,short int collisionFilterMask)
+btBroadphaseProxy*	btMultiSapBroadphase::createProxy(  const btVector3& aabbMin,  const btVector3& aabbMax,int shapeType,void* userPtr, short int collisionFilterGroup,short int collisionFilterMask, btDispatcher* dispatcher)
 {
 	btMultiSapProxy* proxy = new btMultiSapProxy(aabbMin,  aabbMax,shapeType,userPtr, collisionFilterGroup,collisionFilterMask);
 	m_multiSapProxies.push_back(proxy);
 
 	///we don't pass the userPtr but our multisap proxy. We need to patch this, before processing an actual collision
 	///this is needed to be able to calculate the aabb overlap
-	btBroadphaseProxy* simpleProxy = m_simpleBroadphase->createProxy(aabbMin,aabbMax,shapeType,userPtr,collisionFilterGroup,collisionFilterMask);
+	btBroadphaseProxy* simpleProxy = m_simpleBroadphase->createProxy(aabbMin,aabbMax,shapeType,userPtr,collisionFilterGroup,collisionFilterMask, dispatcher);
 	simpleProxy->m_multiSapParentProxy = proxy;
 
 	btChildProxy* childProxyRef = new btChildProxy();
@@ -72,7 +72,7 @@ btBroadphaseProxy*	btMultiSapBroadphase::createProxy(  const btVector3& aabbMin,
 	proxy->m_childProxies.push_back(childProxyRef);
 
 	///this should deal with inserting/removal into child broadphases
-	setAabb(proxy,aabbMin,aabbMax);
+	setAabb(proxy,aabbMin,aabbMax,dispatcher);
 	return proxy;
 }
 
@@ -82,7 +82,7 @@ void	btMultiSapBroadphase::destroyProxy(btBroadphaseProxy* proxy,btDispatcher* d
 	btAssert(0);
 
 }
-void	btMultiSapBroadphase::setAabb(btBroadphaseProxy* proxy,const btVector3& aabbMin,const btVector3& aabbMax)
+void	btMultiSapBroadphase::setAabb(btBroadphaseProxy* proxy,const btVector3& aabbMin,const btVector3& aabbMax, btDispatcher* dispatcher)
 {
 	btMultiSapProxy* multiProxy = static_cast<btMultiSapProxy*>(proxy);
 	multiProxy->m_aabbMin = aabbMin;
@@ -91,7 +91,7 @@ void	btMultiSapBroadphase::setAabb(btBroadphaseProxy* proxy,const btVector3& aab
 	for (int i=0;i<multiProxy->m_childProxies.size();i++)
 	{
 		btChildProxy* childProxyRef = multiProxy->m_childProxies[i];
-		childProxyRef->m_childBroadphase->setAabb(childProxyRef->m_proxy,aabbMin,aabbMax);
+		childProxyRef->m_childBroadphase->setAabb(childProxyRef->m_proxy,aabbMin,aabbMax,dispatcher);
 	}
 
 }

@@ -61,6 +61,17 @@ public:
         return result;
 	}
 
+	bool validPtr(void* ptr)
+	{
+		if (ptr) {
+			if (((unsigned char*)ptr >= m_pool && (unsigned char*)ptr < m_pool + m_maxElements * m_elemSize))
+			{
+				return true;
+			}
+		}
+		return false;
+	}
+
 	void	free(void* ptr)
 	{
 		 if (ptr) {

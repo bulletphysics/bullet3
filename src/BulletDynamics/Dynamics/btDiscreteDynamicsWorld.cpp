@@ -606,7 +606,7 @@ void	btDiscreteDynamicsWorld::updateAabbs()
 				//moving objects should be moderately sized, probably something wrong if not
 				if ( colObj->isStaticObject() || ((maxAabb-minAabb).length2() < btScalar(1e12)))
 				{
-					bp->setAabb(body->getBroadphaseHandle(),minAabb,maxAabb);
+					bp->setAabb(body->getBroadphaseHandle(),minAabb,maxAabb, m_dispatcher1);
 				} else
 				{
 					//something went wrong, investigate

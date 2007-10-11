@@ -65,6 +65,7 @@ CONCAVE_SHAPES_END_HERE,
 
 ///btBroadphaseProxy
 ATTRIBUTE_ALIGNED16(struct) btBroadphaseProxy
+//struct btBroadphaseProxy
 {
 
 BT_DECLARE_ALIGNED_ALLOCATOR();
@@ -96,6 +97,12 @@ BT_DECLARE_ALIGNED_ALLOCATOR();
 
 	};
 
+	int			m_uniqueId;//m_uniqueId is introduced for paircache. could get rid of this, by calculating the address offset etc.
+	inline int getUid()
+	{
+		return m_uniqueId;//(int)this;
+	}
+
 	//used for memory pools
 	btBroadphaseProxy() :m_clientObject(0){}
 
@@ -105,6 +112,8 @@ BT_DECLARE_ALIGNED_ALLOCATOR();
 		m_collisionFilterMask(collisionFilterMask)
 	{
 	}
+
+	
 
 	static inline bool isPolyhedral(int proxyType)
 	{

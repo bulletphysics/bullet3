@@ -22,7 +22,7 @@ subject to the following restrictions:
 
 #include "btScalar.h"
 
-void*	btAlignedAlloc	(int size, int alignment);
+void*	btAlignedAlloc	(size_t size, int alignment);
 
 void	btAlignedFree	(void* ptr);
 

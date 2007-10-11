@@ -189,9 +189,10 @@ void btConvexConcaveCollisionAlgorithm::processCollision (btCollisionObject* bod
 
 			concaveShape->processAllTriangles( &m_btConvexTriangleCallback,m_btConvexTriangleCallback.getAabbMin(),m_btConvexTriangleCallback.getAabbMax());
 			
+			resultOut->refreshContactPoints();
 	
 		}
-
+	
 	}
 
 }

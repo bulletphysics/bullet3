@@ -58,7 +58,7 @@ public:
 
 	BT_DECLARE_ALIGNED_ALLOCATOR();
 
-	int m_index1;
+	int m_index1a;
 
 	btPersistentManifold();
 
@@ -67,11 +67,11 @@ public:
 	{
 	}
 
-	inline void* getBody0() { return m_body0;}
-	inline void* getBody1() { return m_body1;}
+	SIMD_FORCE_INLINE void* getBody0() { return m_body0;}
+	SIMD_FORCE_INLINE void* getBody1() { return m_body1;}
 
-	inline const void* getBody0() const { return m_body0;}
-	inline const void* getBody1() const { return m_body1;}
+	SIMD_FORCE_INLINE const void* getBody0() const { return m_body0;}
+	SIMD_FORCE_INLINE const void* getBody1() const { return m_body1;}
 
 	void	setBodies(void* body0,void* body1)
 	{
@@ -85,22 +85,22 @@ public:
 	void	DebugPersistency();
 #endif //
 	
-	inline int	getNumContacts() const { return m_cachedPoints;}
+	SIMD_FORCE_INLINE int	getNumContacts() const { return m_cachedPoints;}
 
-	inline const btManifoldPoint& getContactPoint(int index) const
+	SIMD_FORCE_INLINE const btManifoldPoint& getContactPoint(int index) const
 	{
 		btAssert(index < m_cachedPoints);
 		return m_pointCache[index];
 	}
 
-	inline btManifoldPoint& getContactPoint(int index)
+	SIMD_FORCE_INLINE btManifoldPoint& getContactPoint(int index)
 	{
 		btAssert(index < m_cachedPoints);
 		return m_pointCache[index];
 	}
 
 	/// todo: get this margin from the current physics / collision environment
-	btScalar	getContactBreakingThreshold() const;
+	SIMD_FORCE_INLINE	btScalar	getContactBreakingThreshold() const;
 	
 	int getCacheEntry(const btManifoldPoint& newPoint) const;
 
@@ -150,7 +150,16 @@ public:
 	/// calculated new worldspace coordinates and depth, and reject points that exceed the collision margin
 	void	refreshContactPoints(  const btTransform& trA,const btTransform& trB);
 
-	void	clearManifold();
+	
+	SIMD_FORCE_INLINE	void	clearManifold()
+	{
+		int i;
+		for (i=0;i<m_cachedPoints;i++)
+		{
+			clearUserCache(m_pointCache[i]);
+		}
+		m_cachedPoints = 0;
+	}
 
 
 

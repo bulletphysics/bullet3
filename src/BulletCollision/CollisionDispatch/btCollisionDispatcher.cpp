@@ -81,6 +81,7 @@ btPersistentManifold*	btCollisionDispatcher::getNewManifold(void* b0,void* b1)
 	
 	void* mem = m_persistentManifoldPoolAllocator->allocate(sizeof(btPersistentManifold));
 	btPersistentManifold* manifold = new(mem) btPersistentManifold (body0,body1,0);
+	manifold->m_index1a = m_manifoldsPtr.size();
 	m_manifoldsPtr.push_back(manifold);
 
 	return manifold;
@@ -100,16 +101,14 @@ void btCollisionDispatcher::releaseManifold(btPersistentManifold* manifold)
 	//printf("releaseManifold: gNumManifold %d\n",gNumManifold);
 	clearManifold(manifold);
 
-	///todo: this can be improved a lot, linear search might be slow part!
-	int findIndex = m_manifoldsPtr.findLinearSearch(manifold);
-	if (findIndex < m_manifoldsPtr.size())
-	{
-		m_manifoldsPtr.swap(findIndex,m_manifoldsPtr.size()-1);
-		m_manifoldsPtr.pop_back();
+	int findIndex = manifold->m_index1a;
+	btAssert(findIndex < m_manifoldsPtr.size());
+	m_manifoldsPtr.swap(findIndex,m_manifoldsPtr.size()-1);
+	m_manifoldsPtr[findIndex]->m_index1a = findIndex;
+	m_manifoldsPtr.pop_back();
 
-		manifold->~btPersistentManifold();
-		m_persistentManifoldPoolAllocator->free(manifold);
-	}
+	manifold->~btPersistentManifold();
+	m_persistentManifoldPoolAllocator->free(manifold);
 	
 }
 

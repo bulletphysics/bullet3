@@ -68,18 +68,25 @@ void btSphereBoxCollisionAlgorithm::processCollision (btCollisionObject* body0,b
 	
 	btScalar dist = getSphereDistance(boxObj,pOnBox,pOnSphere,sphereCenter,radius);
 
+	resultOut->setPersistentManifold(m_manifoldPtr);
+
 	if (dist < SIMD_EPSILON)
 	{
 		btVector3 normalOnSurfaceB = (pOnBox- pOnSphere).normalize();
 
 		/// report a contact. internally this will be kept persistent, and contact reduction is done
 
-		resultOut->setPersistentManifold(m_manifoldPtr);
 		resultOut->addContactPoint(normalOnSurfaceB,pOnBox,dist);
 		
 	}
 
-	
+	if (m_ownManifold)
+	{
+		if (m_manifoldPtr->getNumContacts())
+		{
+			resultOut->refreshContactPoints();
+		}
+	}
 
 }
 

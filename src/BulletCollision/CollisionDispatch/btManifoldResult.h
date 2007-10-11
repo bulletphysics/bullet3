@@ -18,7 +18,7 @@ subject to the following restrictions:
 #define MANIFOLD_RESULT_H
 
 class btCollisionObject;
-class btPersistentManifold;
+#include "BulletCollision/NarrowPhaseCollision/btPersistentManifold.h"
 class btManifoldPoint;
 
 #include "BulletCollision/NarrowPhaseCollision/btDiscreteCollisionDetectorInterface.h"
@@ -70,6 +70,22 @@ public:
 
 	virtual void addContactPoint(const btVector3& normalOnBInWorld,const btVector3& pointInWorld,btScalar depth);
 
+	SIMD_FORCE_INLINE	void refreshContactPoints()
+	{
+		btAssert(m_manifoldPtr);
+		if (!m_manifoldPtr->getNumContacts())
+			return;
+
+		bool isSwapped = m_manifoldPtr->getBody0() != m_body0;
+
+		if (isSwapped)
+		{
+			m_manifoldPtr->refreshContactPoints(m_rootTransB,m_rootTransA);
+		} else
+		{
+			m_manifoldPtr->refreshContactPoints(m_rootTransA,m_rootTransB);
+		}
+	}
 
 
 };
