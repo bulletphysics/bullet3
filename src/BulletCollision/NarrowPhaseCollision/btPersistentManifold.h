@@ -100,7 +100,7 @@ public:
 	}
 
 	/// todo: get this margin from the current physics / collision environment
-	SIMD_FORCE_INLINE	btScalar	getContactBreakingThreshold() const;
+	btScalar	getContactBreakingThreshold() const;
 	
 	int getCacheEntry(const btManifoldPoint& newPoint) const;
 
