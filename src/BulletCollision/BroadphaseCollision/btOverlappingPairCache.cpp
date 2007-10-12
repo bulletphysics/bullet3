@@ -169,16 +169,19 @@ void	btOverlappingPairCache::growTables()
 		m_hashTable.resize(newCapacity);
 		m_next.resize(newCapacity);
 
-		for (int i= 0; i < newCapacity; ++i)
+
+		int i;
+
+		for (i= 0; i < newCapacity; ++i)
 		{
 			m_hashTable[i] = BT_NULL_PAIR;
 		}
-		for (int i = 0; i < newCapacity; ++i)
+		for (i = 0; i < newCapacity; ++i)
 		{
 			m_next[i] = BT_NULL_PAIR;
 		}
 
-		for(int	i=0;i<curHashtableSize;i++)
+		for(i=0;i<curHashtableSize;i++)
 		{
 	
 			const btBroadphasePair& pair = m_overlappingPairArray[i];
