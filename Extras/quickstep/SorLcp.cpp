@@ -19,7 +19,6 @@
  * LICENSE.TXT and LICENSE-BSD.TXT for more details.                     *
  *                                                                       *
  *************************************************************************/
-
 #include "SorLcp.h"
 #include "OdeSolverBody.h"
 
@@ -49,10 +48,8 @@
 
 #include "OdeJoint.h"
 #include "BulletDynamics/ConstraintSolver/btContactSolverInfo.h"
-
 ////////////////////////////////////////////////////////////////////
 //math stuff
-
 #include "OdeMacros.h"
 
 //***************************************************************************
@@ -72,14 +69,10 @@
 
 #define RANDOMLY_REORDER_CONSTRAINTS 1
 
-
-
 //***************************************************************************
 // various common computations involving the matrix J
-
 // compute iMJ = inv(M)*J'
-
-static void compute_invM_JT (int m, dRealMutablePtr J, dRealMutablePtr iMJ, int *jb,
+inline void compute_invM_JT (int m, dRealMutablePtr J, dRealMutablePtr iMJ, int *jb,
 	//OdeSolverBody* const *body,
 	 const btAlignedObjectArray<OdeSolverBody*> &body,
 	dRealPtr invI)
@@ -183,8 +176,7 @@ static void multiply_invM_JT (int m, int nb, dRealMutablePtr iMJ, int *jb,
 
 
 // compute out = J*in.
-
-static void multiply_J (int m, dRealMutablePtr J, int *jb,
+inline void multiply_J (int m, dRealMutablePtr J, int *jb,
 	dRealMutablePtr in, dRealMutablePtr out)
 {
 	int i,j;
@@ -218,35 +210,25 @@ static void multiply_J (int m, dRealMutablePtr J, int *jb,
 //
 // b, lo and hi are modified on exit
 
-
-struct IndexError {
+//------------------------------------------------------------------------------
+ATTRIBUTE_ALIGNED16(struct) IndexError {
 	btScalar error;		// error to sort on
 	int findex;
 	int index;		// row index
 };
 
-static unsigned long seed2 = 0;
-
-unsigned long dRand2()
-{
-  seed2 = (1664525L*seed2 + 1013904223L) & 0xffffffff;
-  return seed2;
-}
-
-int dRandInt2 (int n)
-{
-  float a = float(n) / 4294967296.0f;
-  return (int) (float(dRand2()) * a);
-}
-
-
-static void SOR_LCP (int m, int nb, dRealMutablePtr J, int *jb, 
-	//OdeSolverBody * const *body,
+//------------------------------------------------------------------------------
+void SorLcpSolver::SOR_LCP(int m, int nb, dRealMutablePtr J, int *jb, 
 	const btAlignedObjectArray<OdeSolverBody*> &body,
 	dRealPtr invI, dRealMutablePtr lambda, dRealMutablePtr invMforce, dRealMutablePtr rhs,
 	dRealMutablePtr lo, dRealMutablePtr hi, dRealPtr cfm, int *findex,
-	int numiter,float overRelax)
+	int numiter,float overRelax,
+	btStackAlloc* stackAlloc
+	)
 {
+	//btBlock* saBlock = stackAlloc->beginBlock();//Remo: 10.10.2007
+	AutoBlockSa asaBlock(stackAlloc);
+
 	const int num_iterations = numiter;
 	const float sor_w = overRelax;		// SOR over-relaxation parameter
 
@@ -310,7 +292,9 @@ static void SOR_LCP (int m, int nb, dRealMutablePtr J, int *jb,
 		Ad[i] *= cfm[i];
 
 	// order to solve constraint rows in
-	IndexError *order = (IndexError*) alloca (m*sizeof(IndexError));
+	//IndexError *order = (IndexError*) alloca (m*sizeof(IndexError));
+	IndexError *order = (IndexError*) ALLOCA (m*sizeof(IndexError));
+	
 
 #ifndef REORDER_CONSTRAINTS
 	// make sure constraints with findex < 0 come first.
@@ -455,24 +439,20 @@ static void SOR_LCP (int m, int nb, dRealMutablePtr J, int *jb,
 			}
 		}
 	}
+	//stackAlloc->endBlock(saBlock);//Remo: 10.10.2007
 }
 
-
-/*
-void SolveInternal1 (float global_cfm,
-					 float global_erp,
-					 OdeSolverBody* const *body, int nb,
-					BU_Joint **joint,
-					int nj,
-					const btContactSolverInfo& solverInfo)
-*/
-void SolveInternal1 (
+//------------------------------------------------------------------------------
+void SorLcpSolver::SolveInternal1 (
 			float global_cfm,
 			float global_erp,
 			const btAlignedObjectArray<OdeSolverBody*> &body, int nb,
 			btAlignedObjectArray<BU_Joint*> &joint, 
-			int nj, const btContactSolverInfo& solverInfo)
+			int nj, const btContactSolverInfo& solverInfo,
+			btStackAlloc* stackAlloc)
 {
+	//btBlock* saBlock = stackAlloc->beginBlock();//Remo: 10.10.2007
+	AutoBlockSa asaBlock(stackAlloc);
 
 	int numIter = solverInfo.m_numIterations;
 	float sOr = solverInfo.m_sor;
@@ -529,7 +509,8 @@ void SolveInternal1 (
 	// joints with m=0 are inactive and are removed from the joints array
 	// entirely, so that the code that follows does not consider them.
 	//@@@ do we really need to save all the info1's
-	BU_Joint::Info1 *info = (BU_Joint::Info1*) alloca (nj*sizeof(BU_Joint::Info1));
+	BU_Joint::Info1 *info = (BU_Joint::Info1*) ALLOCA (nj*sizeof(BU_Joint::Info1));
+	
 	for (i=0, j=0; j<nj; j++) {	// i=dest, j=src
 		joint[j]->GetInfo1 (info+i);
 		dIASSERT (info[i].m >= 0 && info[i].m <= 6 && info[i].nub >= 0 && info[i].nub <= info[i].m);
@@ -542,7 +523,7 @@ void SolveInternal1 (
 
 	// create the row offset array
 	int m = 0;
-	int *ofs = (int*) alloca (nj*sizeof(int));
+	int *ofs = (int*) ALLOCA (nj*sizeof(int));
 	for (i=0; i<nj; i++) {
 		ofs[i] = m;
 		m += info[i].m;
@@ -550,7 +531,7 @@ void SolveInternal1 (
 
 	// if there are constraints, compute the constraint force
 	dRealAllocaArray (J,m*12);
-	int *jb = (int*) alloca (m*2*sizeof(int));
+	int *jb = (int*) ALLOCA (m*2*sizeof(int));
 	if (m > 0) {
 		// create a constraint equation right hand side vector `c', a constraint
 		// force mixing vector `cfm', and LCP low and high bound vectors, and an
@@ -559,7 +540,9 @@ void SolveInternal1 (
 		dRealAllocaArray (cfm,m);
 		dRealAllocaArray (lo,m);
 		dRealAllocaArray (hi,m);
-		int *findex = (int*) alloca (m*sizeof(int));
+
+		int *findex = (int*) ALLOCA (m*sizeof(int));
+
 		dSetZero1 (c,m);
 		dSetValue1 (cfm,m,global_cfm);
 		dSetValue1 (lo,m,-dInfinity);
@@ -598,9 +581,6 @@ void SolveInternal1 (
 
 			if (Jinfo.c[0] > solverInfo.m_maxErrorReduction)
 				Jinfo.c[0] = solverInfo.m_maxErrorReduction;
-
-
-
 
 			// adjust returned findex values for global index numbering
 			for (j=0; j<info[i].m; j++) {
@@ -657,7 +637,8 @@ void SolveInternal1 (
 		// solve the LCP problem and get lambda and invM*constraint_force
 		dRealAllocaArray (cforce,nb*6);
 
-		SOR_LCP (m,nb,J,jb,body,invI,lambda,cforce,rhs,lo,hi,cfm,findex,numIter,sOr);
+		/// SOR_LCP
+		SOR_LCP (m,nb,J,jb,body,invI,lambda,cforce,rhs,lo,hi,cfm,findex,numIter,sOr,stackAlloc);
 
 #ifdef WARM_STARTING
 		// save lambda for the next iteration
@@ -668,10 +649,8 @@ void SolveInternal1 (
 		}
 #endif
 
-
 		// note that the SOR method overwrites rhs and J at this point, so
 		// they should not be used again.
-
 		// add stepsize * cforce to the body velocity
 		for (i=0; i<nb; i++) {
 			for (j=0; j<3; j++)
@@ -682,11 +661,8 @@ void SolveInternal1 (
 		}
 	}
 
-
-
 	// compute the velocity update:
 	// add stepsize * invM * fe to the body velocity
-
 	for (i=0; i<nb; i++) {
 		btScalar body_invMass = body[i]->m_invMass;
 		btVector3 linvel = body[i]->m_linearVelocity;
@@ -703,7 +679,7 @@ void SolveInternal1 (
 		dMULTIPLY0_331NEW(angvel,+=,invI + i*12,body[i]->m_tacc);
 		body[i]->m_angularVelocity = angvel;
 	}
-
+	//stackAlloc->endBlock(saBlock);//Remo: 10.10.2007
 }
 
 

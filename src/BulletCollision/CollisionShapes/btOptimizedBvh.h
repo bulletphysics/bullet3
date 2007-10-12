@@ -285,7 +285,7 @@ protected:
 #define USE_BANCHLESS 1
 #ifdef USE_BANCHLESS
 	//This block replaces the block below and uses no branches, and replaces the 8 bit return with a 32 bit return for improved performance (~3x on XBox 360)
-	inline unsigned testQuantizedAabbAgainstQuantizedAabb(unsigned short int* aabbMin1,unsigned short int* aabbMax1,const unsigned short int* aabbMin2,const unsigned short int* aabbMax2) const
+	SIMD_FORCE_INLINE unsigned testQuantizedAabbAgainstQuantizedAabb(unsigned short int* aabbMin1,unsigned short int* aabbMax1,const unsigned short int* aabbMin2,const unsigned short int* aabbMax2) const
 	{		
 		return btSelect((unsigned)((aabbMin1[0] <= aabbMax2[0]) & (aabbMax1[0] >= aabbMin2[0])
 			& (aabbMin1[2] <= aabbMax2[2]) & (aabbMax1[2] >= aabbMin2[2])
@@ -293,7 +293,7 @@ protected:
 			1, 0);
 	}
 #else
-	inline bool testQuantizedAabbAgainstQuantizedAabb(unsigned short int* aabbMin1,unsigned short int* aabbMax1,const unsigned short int* aabbMin2,const unsigned short int* aabbMax2) const
+	SIMD_FORCE_INLINE bool testQuantizedAabbAgainstQuantizedAabb(unsigned short int* aabbMin1,unsigned short int* aabbMax1,const unsigned short int* aabbMin2,const unsigned short int* aabbMax2) const
 	{
 		bool overlap = true;
 		overlap = (aabbMin1[0] > aabbMax2[0] || aabbMax1[0] < aabbMin2[0]) ? false : overlap;
@@ -316,7 +316,7 @@ public:
 
 	void	reportSphereOverlappingNodex(btNodeOverlapCallback* nodeCallback,const btVector3& aabbMin,const btVector3& aabbMax) const;
 	
-	inline void quantizeWithClamp(unsigned short* out, const btVector3& point) const
+	SIMD_FORCE_INLINE void quantizeWithClamp(unsigned short* out, const btVector3& point) const
 	{
 
 		btAssert(m_useQuantization);
@@ -347,12 +347,12 @@ public:
 	void	updateBvhNodes(btStridingMeshInterface* meshInterface,int firstNode,int endNode,int index);
 
 
-	inline QuantizedNodeArray&	getQuantizedNodeArray()
+	SIMD_FORCE_INLINE QuantizedNodeArray&	getQuantizedNodeArray()
 	{	
 		return	m_quantizedContiguousNodes;
 	}
 
-	inline BvhSubtreeInfoArray&	getSubtreeInfoArray()
+	SIMD_FORCE_INLINE BvhSubtreeInfoArray&	getSubtreeInfoArray()
 	{
 		return m_SubtreeHeaders;
 	}
@@ -368,7 +368,7 @@ public:
 
 	static unsigned int getAlignmentSerializationPadding();
 
-	inline bool isQuantized()
+	SIMD_FORCE_INLINE bool isQuantized()
 	{
 		return m_useQuantization;
 	}

@@ -25,7 +25,7 @@ subject to the following restrictions:
 
 #define btRecipSqrt(x) ((btScalar)(btScalar(1.0)/btSqrt(btScalar(x))))		/* reciprocal square root */
 
-inline btVector3 btAabbSupport(const btVector3& halfExtents,const btVector3& supportDir)
+SIMD_FORCE_INLINE btVector3 btAabbSupport(const btVector3& halfExtents,const btVector3& supportDir)
 {
 	return btVector3(supportDir.x() < btScalar(0.0) ? -halfExtents.x() : halfExtents.x(),
       supportDir.y() < btScalar(0.0) ? -halfExtents.y() : halfExtents.y(),
@@ -33,7 +33,7 @@ inline btVector3 btAabbSupport(const btVector3& halfExtents,const btVector3& sup
 }
 
 
-inline void btPlaneSpace1 (const btVector3& n, btVector3& p, btVector3& q)
+SIMD_FORCE_INLINE void btPlaneSpace1 (const btVector3& n, btVector3& p, btVector3& q)
 {
   if (btFabs(n.z()) > SIMDSQRT12) {
     // choose p in y-z plane

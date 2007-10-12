@@ -93,6 +93,7 @@ do { \
   (A)[8] op dDOT1((B+8),(C)); \
   (A)[9] op dDOT1((B+8),(C+4)); \
   (A)[10] op dDOT1((B+8),(C+8));
+
 #define dMULTIPLYOP0_333(A,op,B,C) \
   (A)[0] op dDOT14((B),(C)); \
   (A)[1] op dDOT14((B),(C+1)); \
@@ -119,52 +120,30 @@ do { \
 #define dALLOCA16(n) \
   ((char*)dEFFICIENT_SIZE(((size_t)(alloca((n)+(EFFICIENT_ALIGNMENT-1))))))
 
-
-
-/////////////////////////////////////////////////////////////////////
-/////////////////////////////////////////////////////////////////////
-
-#ifdef DEBUG
-#define ANSI_FTOL 1
-
-extern "C" {
-    __declspec(naked) void _ftol2() {
-        __asm    {
-#if ANSI_FTOL
-            fnstcw   WORD PTR [esp-2]
-            mov      ax, WORD PTR [esp-2]
-
-            OR AX,	 0C00h
-
-            mov      WORD PTR [esp-4], ax
-            fldcw    WORD PTR [esp-4]
-            fistp    QWORD PTR [esp-12]
-            fldcw    WORD PTR [esp-2]
-            mov      eax, DWORD PTR [esp-12]
-            mov      edx, DWORD PTR [esp-8]
-#else
-            fistp    DWORD PTR [esp-12]
-            mov		 eax, DWORD PTR [esp-12]
-            mov		 ecx, DWORD PTR [esp-8]
-#endif
-            ret
-        }
-    }
-}
-#endif //DEBUG
-
-
-
-
-
-
-#define ALLOCA dALLOCA16
+//#define ALLOCA dALLOCA16
 
 typedef const btScalar *dRealPtr;
 typedef btScalar *dRealMutablePtr;
-#define dRealArray(name,n) btScalar name[n];
-#define dRealAllocaArray(name,n) btScalar *name = (btScalar*) ALLOCA ((n)*sizeof(btScalar));
+//#define dRealArray(name,n) btScalar name[n];
+//#define dRealAllocaArray(name,n) btScalar *name = (btScalar*) ALLOCA ((n)*sizeof(btScalar));
 
+///////////////////////////////////////////////////////////////////////////////
+
+ //Remotion: 10.10.2007
+#define ALLOCA(size) stackAlloc->allocate( dEFFICIENT_SIZE(size) );
+
+//#define dRealAllocaArray(name,size) btScalar *name = (btScalar*) stackAlloc->allocate(dEFFICIENT_SIZE(size)*sizeof(btScalar));
+#define dRealAllocaArray(name,size) btScalar *name = NULL; \
+	int memNeeded_##name = dEFFICIENT_SIZE(size)*sizeof(btScalar); \
+	if (memNeeded_##name < stackAlloc->getAvailableMemory()) name = (btScalar*) stackAlloc->allocate(memNeeded_##name); \
+	else{ btAssert(memNeeded_##name < stackAlloc->getAvailableMemory()); name = (btScalar*) alloca(memNeeded_##name); } 
+
+
+
+
+
+///////////////////////////////////////////////////////////////////////////////
+#if 0
 inline void dSetZero1 (btScalar *a, int n)
 {
   dAASSERT (a && n >= 0);
@@ -182,6 +161,76 @@ inline void dSetValue1 (btScalar *a, int n, btScalar value)
     n--;
   }
 }
+#else
+
+/// This macros are for MSVC and XCode compilers. Remotion.
+
+#if  _MSC_VER   //Visual Studio Win32, Win64
+	#include <xmmintrin.h> // SSE
+	#include <emmintrin.h> // SSE2	
+	#include <intrin.h>	   // SSE3
+	
+	#define __USE_SSE__
+
+/*
+	#ifdef _WIN64
+		typedef unsigned __int64 size_t;
+	#else
+		typedef unsigned int size_t;
+	#endif
+*/
+#elif  __GNUC__  // XCode GCC
+	#if defined(__ppc__) || defined(__ppc64__) // Mac PPC
+		///PPC or PPC64 Mac no SSE support
+	#elif defined(__i386__)	// Intel Mac with SSE support 
+		#include <xmmintrin.h> // SSE
+		#include <emmintrin.h> // SSE2	
+		#include <pmmintrin.h> // SSE3
+		#define __USE_SSE__
+	#endif
+	#include <string.h>
+#endif
+
+
+//Remotion: 10.10.2007
+//------------------------------------------------------------------------------
+#define IS_ALIGNED_16(x)	((size_t(x)&15)==0)
+//------------------------------------------------------------------------------
+inline void dSetZero1 (btScalar *dest, int size)
+{
+	dAASSERT (dest && size >= 0);
+	memset(dest, 0, size * sizeof(btScalar));
+}
+//------------------------------------------------------------------------------
+inline void dSetValue1 (btScalar *dest, int size, btScalar val)
+{
+	dAASSERT (dest && size >= 0);
+	int n_mod4 = size & 3;		
+	int n4 = size - n_mod4;
+#ifdef __USE_SSE__
+	if(IS_ALIGNED_16(dest)){
+		__m128 xmm0 = _mm_set_ps1(val);
+		for (int i=0; i<n4; i+=4)
+		{
+			_mm_store_ps(&dest[i],xmm0);
+		}
+	}else
+#endif
+	{
+		for (int i=0; i<n4; i+=4) // Unrolled Loop
+		{
+			dest[i  ] = val;
+			dest[i+1] = val;
+			dest[i+2] = val;
+			dest[i+3] = val;
+		}
+	}
+	for (int  i=n4; i<size; i++){
+		dest[i] = val;
+	}
+}
+#endif
+/////////////////////////////////////////////////////////////////////
 
 
 #endif //USE_SOR_SOLVER

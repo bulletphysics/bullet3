@@ -412,10 +412,13 @@ int dBoxBox2 (const btVector3& p1, const dMatrix3 R1,
 		//contact[0].depth = *depth;
 		btVector3 pointInWorld;
 
+#ifdef USE_CENTER_POINT
 	    for (i=0; i<3; i++) 
 			pointInWorld[i] = (pa[i]+pb[i])*btScalar(0.5);
 		output.addContactPoint(-normal,pointInWorld,-*depth);
-
+#else
+		output.addContactPoint(-normal,pb,-*depth);
+#endif //
 		*return_code = code;
 	}
     return 1;
@@ -668,10 +671,10 @@ void	BoxBoxDetector::getClosestPoints(const ClosestPointInput& input,Result& out
 
 	dBoxBox2 (transformA.getOrigin(), 
 	R1,
-	2.f*m_box1->getHalfExtents(),
+	2.f*m_box1->getHalfExtentsWithMargin(),
 	transformB.getOrigin(),
 	R2, 
-	2.f*m_box2->getHalfExtents(),
+	2.f*m_box2->getHalfExtentsWithMargin(),
 	normal, &depth, &return_code,
 	maxc, contact, skip,
 	output

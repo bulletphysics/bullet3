@@ -412,7 +412,7 @@ void	btDiscreteDynamicsWorld::removeVehicle(btRaycastVehicle* vehicle)
 	m_vehicles.remove(vehicle);
 }
 
-inline	int	btGetConstraintIslandId(const btTypedConstraint* lhs)
+SIMD_FORCE_INLINE	int	btGetConstraintIslandId(const btTypedConstraint* lhs)
 {
 	int islandId;
 	
@@ -866,10 +866,24 @@ void btDiscreteDynamicsWorld::debugDrawObject(const btTransform& worldTransform,
 				btScalar radius = coneShape->getRadius();//+coneShape->getMargin();
 				btScalar height = coneShape->getHeight();//+coneShape->getMargin();
 				btVector3 start = worldTransform.getOrigin();
-				getDebugDrawer()->drawLine(start+worldTransform.getBasis() * btVector3(btScalar(0.),btScalar(0.),btScalar(0.5)*height),start+worldTransform.getBasis() * btVector3(radius,btScalar(0.),btScalar(-0.5)*height),color);
-				getDebugDrawer()->drawLine(start+worldTransform.getBasis() * btVector3(btScalar(0.),btScalar(0.),btScalar(0.5)*height),start+worldTransform.getBasis() * btVector3(-radius,btScalar(0.),btScalar(-0.5)*height),color);
-				getDebugDrawer()->drawLine(start+worldTransform.getBasis() * btVector3(btScalar(0.),btScalar(0.),btScalar(0.5)*height),start+worldTransform.getBasis() * btVector3(btScalar(0.),radius,btScalar(-0.5)*height),color);
-				getDebugDrawer()->drawLine(start+worldTransform.getBasis() * btVector3(btScalar(0.),btScalar(0.),btScalar(0.5)*height),start+worldTransform.getBasis() * btVector3(btScalar(0.),-radius,btScalar(-0.5)*height),color);
+
+				int upAxis= coneShape->getConeUpIndex();
+				
+
+				btVector3	offsetHeight(0,0,0);
+				offsetHeight[upAxis] = height * btScalar(0.5);
+				btVector3	offsetRadius(0,0,0);
+				offsetRadius[(upAxis+1)%3] = radius;
+				btVector3	offset2Radius(0,0,0);
+				offset2Radius[(upAxis+2)%3] = radius;
+
+				getDebugDrawer()->drawLine(start+worldTransform.getBasis() * (offsetHeight),start+worldTransform.getBasis() * (-offsetHeight+offsetRadius),color);
+				getDebugDrawer()->drawLine(start+worldTransform.getBasis() * (offsetHeight),start+worldTransform.getBasis() * (-offsetHeight-offsetRadius),color);
+				getDebugDrawer()->drawLine(start+worldTransform.getBasis() * (offsetHeight),start+worldTransform.getBasis() * (-offsetHeight+offset2Radius),color);
+				getDebugDrawer()->drawLine(start+worldTransform.getBasis() * (offsetHeight),start+worldTransform.getBasis() * (-offsetHeight-offset2Radius),color);
+
+
+
 				break;
 
 			}
@@ -878,7 +892,7 @@ void btDiscreteDynamicsWorld::debugDrawObject(const btTransform& worldTransform,
 				const btCylinderShape* cylinder = static_cast<const btCylinderShape*>(shape);
 				int upAxis = cylinder->getUpAxis();
 				btScalar radius = cylinder->getRadius();
-				btScalar halfHeight = cylinder->getHalfExtents()[upAxis];
+				btScalar halfHeight = cylinder->getHalfExtentsWithMargin()[upAxis];
 				btVector3 start = worldTransform.getOrigin();
 				btVector3	offsetHeight(0,0,0);
 				offsetHeight[upAxis] = halfHeight;

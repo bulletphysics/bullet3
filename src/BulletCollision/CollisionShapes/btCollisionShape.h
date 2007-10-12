@@ -49,26 +49,26 @@ public:
 
 #ifndef __SPU__
 
-	inline bool	isPolyhedral() const
+	SIMD_FORCE_INLINE bool	isPolyhedral() const
 	{
 		return btBroadphaseProxy::isPolyhedral(getShapeType());
 	}
 
-	inline bool	isConvex() const
+	SIMD_FORCE_INLINE bool	isConvex() const
 	{
 		return btBroadphaseProxy::isConvex(getShapeType());
 	}
-	inline bool	isConcave() const
+	SIMD_FORCE_INLINE bool	isConcave() const
 	{
 		return btBroadphaseProxy::isConcave(getShapeType());
 	}
-	inline bool	isCompound() const
+	SIMD_FORCE_INLINE bool	isCompound() const
 	{
 		return btBroadphaseProxy::isCompound(getShapeType());
 	}
 
 	///isInfinite is used to catch simulation error (aabb check)
-	inline bool isInfinite() const
+	SIMD_FORCE_INLINE bool isInfinite() const
 	{
 		return btBroadphaseProxy::isInfinite(getShapeType());
 	}

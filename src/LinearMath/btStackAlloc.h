@@ -77,7 +77,7 @@ public:
 		
 		return(0);
 	}
-	inline btBlock*		beginBlock()
+	SIMD_FORCE_INLINE btBlock*		beginBlock()
 	{
 		btBlock*	pb = (btBlock*)allocate(sizeof(btBlock));
 		pb->previous	=	current;
@@ -85,7 +85,7 @@ public:
 		current			=	pb;
 		return(pb);
 	}
-	inline void		endBlock(btBlock* block)
+	SIMD_FORCE_INLINE void		endBlock(btBlock* block)
 	{
 		btAssert(block==current);
 		//Raise(L"Unmatched blocks");

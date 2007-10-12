@@ -39,11 +39,11 @@ struct btSimpleBroadphaseProxy : public btBroadphaseProxy
 	}
 	
 	
-	inline void SetNextFree(int next) {m_nextFree = next;}
-	inline int GetNextFree() const {return m_nextFree;}
+	SIMD_FORCE_INLINE void SetNextFree(int next) {m_nextFree = next;}
+	SIMD_FORCE_INLINE int GetNextFree() const {return m_nextFree;}
 
-	inline void SetNextAllocated(int next) {m_nextAllocated = next;}
-	inline int GetNextAllocated() const {return m_nextAllocated;}
+	SIMD_FORCE_INLINE void SetNextAllocated(int next) {m_nextAllocated = next;}
+	SIMD_FORCE_INLINE int GetNextAllocated() const {return m_nextAllocated;}
 
 
 };

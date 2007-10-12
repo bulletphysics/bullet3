@@ -22,6 +22,7 @@ subject to the following restrictions:
 #include "OdeContactJoint.h"
 #include "OdeTypedJoint.h"
 #include "OdeSolverBody.h"
+#include "SorLcp.h"
 
 class btRigidBody;
 struct	OdeSolverBody;
@@ -39,6 +40,8 @@ private:
 	float	m_cfm;
 	float	m_erp;
 
+	SorLcpSolver	m_SorLcpSolver;
+
 	btAlignedObjectArray<OdeSolverBody*> m_odeBodies;
 	btAlignedObjectArray<BU_Joint*>		 m_joints;
 
@@ -47,6 +50,7 @@ private:
 	btAlignedObjectArray<OdeTypedJoint>  m_TypedJointArray;
 
 
+private:
 	int  ConvertBody(btRigidBody* body,btAlignedObjectArray< OdeSolverBody*> &bodies,int& numBodies);
 	void ConvertConstraint(btPersistentManifold* manifold,
 							btAlignedObjectArray<BU_Joint*> &joints,int& numJoints,
@@ -80,8 +84,19 @@ public:
 		m_erp = erp;
 	}
 
+	///clear internal cached data and reset random seed
 	void reset()
 	{
+		m_SorLcpSolver.dRand2_seed = 0;
+	}
+
+	void	setRandSeed(unsigned long seed)
+	{
+		m_SorLcpSolver.dRand2_seed = seed;
+	}
+	unsigned long	getRandSeed() const
+	{
+		return m_SorLcpSolver.dRand2_seed;
 	}
 };
 

@@ -74,7 +74,7 @@ public:
 
 	virtual btScalar getRadius() const
 	{
-		return getHalfExtents().getX();
+		return getHalfExtentsWithMargin().getX();
 	}
 
 	//debugging
@@ -103,7 +103,7 @@ public:
 
 	virtual btScalar getRadius() const
 	{
-		return getHalfExtents().getY();
+		return getHalfExtentsWithMargin().getY();
 	}
 
 };
@@ -128,7 +128,7 @@ public:
 
 	virtual btScalar getRadius() const
 	{
-		return getHalfExtents().getX();
+		return getHalfExtentsWithMargin().getX();
 	}
 
 };

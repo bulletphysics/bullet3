@@ -63,8 +63,8 @@ public:
 		
 		//void* m_pOwner; this is now in btBroadphaseProxy.m_clientObject
 	
-		inline void SetNextFree(BP_FP_INT_TYPE next) {m_minEdges[0] = next;}
-		inline BP_FP_INT_TYPE GetNextFree() const {return m_minEdges[0];}
+		SIMD_FORCE_INLINE void SetNextFree(BP_FP_INT_TYPE next) {m_minEdges[0] = next;}
+		SIMD_FORCE_INLINE BP_FP_INT_TYPE GetNextFree() const {return m_minEdges[0];}
 	};		// 24 bytes + 24 for Edge structures = 44 bytes total per entry
 
 	
@@ -119,7 +119,7 @@ public:
 	BP_FP_INT_TYPE addHandle(const btPoint3& aabbMin,const btPoint3& aabbMax, void* pOwner,short int collisionFilterGroup,short int collisionFilterMask,btDispatcher* dispatcher);
 	void removeHandle(BP_FP_INT_TYPE handle,btDispatcher* dispatcher);
 	void updateHandle(BP_FP_INT_TYPE handle, const btPoint3& aabbMin,const btPoint3& aabbMax,btDispatcher* dispatcher);
-	inline Handle* getHandle(BP_FP_INT_TYPE index) const {return m_pHandles + index;}
+	SIMD_FORCE_INLINE Handle* getHandle(BP_FP_INT_TYPE index) const {return m_pHandles + index;}
 
 	void	processAllOverlappingPairs(btOverlapCallback* callback);
 
@@ -344,7 +344,7 @@ BP_FP_INT_TYPE btAxisSweep3Internal<BP_FP_INT_TYPE>::addHandle(const btPoint3& a
 
 	// allocate a handle
 	BP_FP_INT_TYPE handle = allocHandle();
-	assert(handle!= 0xcdcd);
+	
 
 	Handle* pHandle = getHandle(handle);
 	

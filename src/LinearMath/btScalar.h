@@ -33,7 +33,7 @@ subject to the following restrictions:
 			#define ATTRIBUTE_ALIGNED16(a) a
 			#define ATTRIBUTE_ALIGNED128(a) a
 		#else
-			#define BT_HAS_ALIGNED_ALOCATOR
+			#define BT_HAS_ALIGNED_ALLOCATOR
 			#pragma warning(disable:4530)
 			#pragma warning(disable:4996)
 			#pragma warning(disable:4786)
@@ -288,7 +288,7 @@ SIMD_FORCE_INLINE float btSelect(unsigned condition, float valueIfConditionNonZe
 #endif
 }
 
-template<typename T> inline void btSwap(T& a, T& b)
+template<typename T> SIMD_FORCE_INLINE void btSwap(T& a, T& b)
 {
 	T tmp = a;
 	a = b;

@@ -29,23 +29,85 @@ struct	OdeSolverBody;
 class BU_Joint;
 #include "LinearMath/btScalar.h"
 #include "LinearMath/btAlignedObjectArray.h"
+#include "LinearMath/btStackAlloc.h"
 
 struct btContactSolverInfo;
 
-/*
-void SolveInternal1 (float global_cfm,
-					 float global_erp,
-					 OdeSolverBody * const *body, int nb,
-					BU_Joint **_joint, int nj, const btContactSolverInfo& info);
-*/
- 
-void SolveInternal1 (float global_cfm,
-					 float global_erp,
-					 const btAlignedObjectArray<OdeSolverBody*> &body, int nb,
-					 btAlignedObjectArray<BU_Joint*> &joint, 
-					 int nj, const btContactSolverInfo& solverInfo);
 
-int dRandInt2 (int n);
+//=============================================================================
+class SorLcpSolver //Remotion: 11.10.2007
+{
+public:
+	SorLcpSolver()
+	{
+		dRand2_seed = 0;
+	}
+
+	void SolveInternal1 (float global_cfm,
+		float global_erp,
+		const btAlignedObjectArray<OdeSolverBody*> &body, int nb,
+		btAlignedObjectArray<BU_Joint*> &joint, 
+		int nj, const btContactSolverInfo& solverInfo,
+		btStackAlloc* stackAlloc
+		);
+
+public: //data
+	unsigned long dRand2_seed;
+
+protected: //typedef
+	typedef const btScalar *dRealPtr;
+	typedef btScalar *dRealMutablePtr;
+
+protected: //members
+	//------------------------------------------------------------------------------
+	SIMD_FORCE_INLINE unsigned long dRand2()
+	{
+		dRand2_seed = (1664525L*dRand2_seed + 1013904223L) & 0xffffffff;
+		return dRand2_seed;
+	}
+	//------------------------------------------------------------------------------
+	SIMD_FORCE_INLINE int dRandInt2 (int n)
+	{
+		float a = float(n) / 4294967296.0f;
+		return (int) (float(dRand2()) * a);
+	}
+	//------------------------------------------------------------------------------
+	void SOR_LCP(int m, int nb, dRealMutablePtr J, int *jb, 
+		const btAlignedObjectArray<OdeSolverBody*> &body,
+		dRealPtr invI, dRealMutablePtr lambda, dRealMutablePtr invMforce, dRealMutablePtr rhs,
+		dRealMutablePtr lo, dRealMutablePtr hi, dRealPtr cfm, int *findex,
+		int numiter,float overRelax,
+		btStackAlloc* stackAlloc
+		);
+};
+
+
+//=============================================================================
+class AutoBlockSa //Remotion: 10.10.2007
+{
+	btStackAlloc* stackAlloc;
+	btBlock*	  saBlock;
+public:
+	AutoBlockSa(btStackAlloc* stackAlloc_)
+	{
+		stackAlloc = stackAlloc_;
+		saBlock = stackAlloc->beginBlock();
+	}
+	~AutoBlockSa()
+	{
+		stackAlloc->endBlock(saBlock);
+	}
+	//operator btBlock* () { return saBlock; }
+};
+// //Usage
+//void function(btStackAlloc* stackAlloc)
+//{
+//	AutoBlockSa(stackAlloc);
+//   ...
+//	if(...) return;
+//	return;
+//}
+//------------------------------------------------------------------------------
 
 
 #endif //SOR_LCP_H

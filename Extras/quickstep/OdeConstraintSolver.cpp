@@ -58,15 +58,6 @@ class BU_Joint;
 //see below
 //to bridge with ODE quickstep, we make a temp copy of the rigidbodies in each simultion island
 
-// Remotion 10.10.07: we do not need thi any more!
-//#define ODE_MAX_SOLVER_BODIES 16384
-//#define ODE_MAX_SOLVER_JOINTS 65535
-//static OdeSolverBody	gSolverBodyArray[ODE_MAX_SOLVER_BODIES];
-//static ContactJoint		gJointArray[ODE_MAX_SOLVER_JOINTS];
-//static OdeTypedJoint    gTypedJointArray[ODE_MAX_SOLVER_JOINTS];
-
-
-
 
 OdeConstraintSolver::OdeConstraintSolver():
         m_cfm(0.f),//1e-5f),
@@ -84,7 +75,6 @@ btScalar OdeConstraintSolver::solveGroup(btCollisionObject** bodies,int numBulle
     m_CurJoint = 0;
     m_CurTypedJoint = 0;
 
-	// Remotion 10.10.07: to be sure just find max_contacts 
 	int max_contacts = 0; /// should be 4 //Remotion
 	for (int j=0;j<numManifolds;j++){
 		btPersistentManifold* manifold = manifoldPtr[j];
@@ -138,7 +128,7 @@ btScalar OdeConstraintSolver::solveGroup(btCollisionObject** bodies,int numBulle
 
     END_PROFILE("prepareConstraints");
     BEGIN_PROFILE("solveConstraints");
-    SolveInternal1(m_cfm,m_erp,m_odeBodies,numBodies,m_joints,numJoints,infoGlobal);
+    m_SorLcpSolver.SolveInternal1(m_cfm,m_erp,m_odeBodies,numBodies,m_joints,numJoints,infoGlobal,stackAlloc); ///do
 
     //write back resulting velocities
     for (int i=0;i<numBodies;i++)
@@ -278,11 +268,8 @@ void OdeConstraintSolver::ConvertConstraint(btPersistentManifold* manifold,
 {
 
 
-///refresh contact points is not needed anymore, it has been moved into the processCollision detection part.
-#ifdef	FORCE_REFESH_CONTACT_MANIFOLDS
     manifold->refreshContactPoints(((btRigidBody*)manifold->getBody0())->getCenterOfMassTransform(),
                                    ((btRigidBody*)manifold->getBody1())->getCenterOfMassTransform());
-#endif //FORCE_REFESH_CONTACT_MANIFOLDS
 
     int bodyId0 = _bodyId0,bodyId1 = _bodyId1;
 

@@ -16,7 +16,7 @@ subject to the following restrictions:
 #include "btAlignedAllocator.h"
 
 
-#if defined (BT_HAS_ALIGNED_ALOCATOR)
+#if defined (BT_HAS_ALIGNED_ALLOCATOR)
 
 #include <malloc.h>
 void*	btAlignedAlloc	(size_t size, int alignment)

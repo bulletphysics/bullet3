@@ -111,11 +111,11 @@ public:
 
 	void			setDamping(btScalar lin_damping, btScalar ang_damping);
 	
-	inline const btCollisionShape*	getCollisionShape() const {
+	SIMD_FORCE_INLINE const btCollisionShape*	getCollisionShape() const {
 		return m_collisionShape;
 	}
 
-	inline btCollisionShape*	getCollisionShape() {
+	SIMD_FORCE_INLINE btCollisionShape*	getCollisionShape() {
 			return m_collisionShape;
 	}
 	
@@ -185,7 +185,7 @@ public:
 	}
 
 	//Optimization for the iterative solver: avoid calculating constant terms involving inertia, normal, relative position
-	inline void internalApplyImpulse(const btVector3& linearComponent, const btVector3& angularComponent,btScalar impulseMagnitude)
+	SIMD_FORCE_INLINE void internalApplyImpulse(const btVector3& linearComponent, const btVector3& angularComponent,btScalar impulseMagnitude)
 	{
 		if (m_inverseMass != btScalar(0.))
 		{
@@ -255,7 +255,7 @@ public:
 
 
 	
-	inline btScalar computeImpulseDenominator(const btPoint3& pos, const btVector3& normal) const
+	SIMD_FORCE_INLINE btScalar computeImpulseDenominator(const btPoint3& pos, const btVector3& normal) const
 	{
 		btVector3 r0 = pos - getCenterOfMassPosition();
 
@@ -267,13 +267,13 @@ public:
 
 	}
 
-	inline btScalar computeAngularImpulseDenominator(const btVector3& axis) const
+	SIMD_FORCE_INLINE btScalar computeAngularImpulseDenominator(const btVector3& axis) const
 	{
 		btVector3 vec = axis * getInvInertiaTensorWorld();
 		return axis.dot(vec);
 	}
 
-	inline void	updateDeactivation(btScalar timeStep)
+	SIMD_FORCE_INLINE void	updateDeactivation(btScalar timeStep)
 	{
 		if ( (getActivationState() == ISLAND_SLEEPING) || (getActivationState() == DISABLE_DEACTIVATION))
 			return;
@@ -290,7 +290,7 @@ public:
 
 	}
 
-	inline bool	wantsSleeping()
+	SIMD_FORCE_INLINE bool	wantsSleeping()
 	{
 
 		if (getActivationState() == DISABLE_DEACTIVATION)

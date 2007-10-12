@@ -109,8 +109,8 @@ btScalar btSphereBoxCollisionAlgorithm::getSphereDistance(btCollisionObject* box
 	btVector3 bounds[2];
 	btBoxShape* boxShape= (btBoxShape*)boxObj->getCollisionShape();
 	
-	bounds[0] = -boxShape->getHalfExtents();
-	bounds[1] = boxShape->getHalfExtents();
+	bounds[0] = -boxShape->getHalfExtentsWithoutMargin();
+	bounds[1] = boxShape->getHalfExtentsWithoutMargin();
 
 	margins = boxShape->getMargin();//also add sphereShape margin?
 

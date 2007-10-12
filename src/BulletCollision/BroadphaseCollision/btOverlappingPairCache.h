@@ -24,6 +24,7 @@ subject to the following restrictions:
 #include "LinearMath/btAlignedObjectArray.h"
 class btDispatcher;
 
+///disable the USE_HASH_PAIRCACHE define to use a pair manager that sorts the pairs to find duplicates/non-overlap
 #define USE_HASH_PAIRCACHE 1
 
 
@@ -48,24 +49,21 @@ typedef btAlignedObjectArray<btBroadphasePair>	btBroadphasePairArray;
 #ifdef USE_HASH_PAIRCACHE
 
 
-
-const int b2_maxPairs = 65536;//32768;
-typedef unsigned short int uint16;
-typedef int int32;
-typedef unsigned int uint32;
-
 /// Hash-space based Pair Cache, thanks to Erin Catto, Box2D, http://www.box2d.org, and Pierre Terdiman, Codercorner, http://codercorner.com
-const uint16 b2_nullPair = 0xffff;
-const uint16 b2_nullProxy = 0xffff;
-const int32 b2_tableCapacity = b2_maxPairs;	// must be a power of two
-const int32 b2_tableMask = b2_tableCapacity - 1;
 
+extern int gRemovePairs;
+extern int gAddedPairs;
+extern int gFindPairs;
+
+#define BT_NULL_PAIR 0xffffffff
 
 class btOverlappingPairCache
 {
 	btBroadphasePairArray	m_overlappingPairArray;
 	btOverlapFilterCallback* m_overlapFilterCallback;
 	bool		m_blockedForChanges;
+
+	
 
 public:
 	btOverlappingPairCache();
@@ -74,12 +72,9 @@ public:
 	
 	void	removeOverlappingPairsContainingProxy(btBroadphaseProxy* proxy,btDispatcher* dispatcher);
 
-	void	removeOverlappingPair(btBroadphaseProxy* proxy0,btBroadphaseProxy* proxy1,btDispatcher* dispatcher)
-	{
-		Remove(proxy0,proxy1,dispatcher);
-	}
-
-	inline bool needsBroadphaseCollision(btBroadphaseProxy* proxy0,btBroadphaseProxy* proxy1) const
+	void*	removeOverlappingPair(btBroadphaseProxy* proxy0,btBroadphaseProxy* proxy1,btDispatcher* dispatcher);
+	
+	SIMD_FORCE_INLINE bool needsBroadphaseCollision(btBroadphaseProxy* proxy0,btBroadphaseProxy* proxy1) const
 	{
 		if (m_overlapFilterCallback)
 			return m_overlapFilterCallback->needBroadphaseCollision(proxy0,proxy1);
@@ -90,18 +85,19 @@ public:
 		return collides;
 	}
 
-	void	addOverlappingPair(btBroadphaseProxy* proxy0,btBroadphaseProxy* proxy1)
+	// Add a pair and return the new pair. If the pair already exists,
+	// no new pair is created and the old one is returned.
+	SIMD_FORCE_INLINE	btBroadphasePair* 	addOverlappingPair(btBroadphaseProxy* proxy0,btBroadphaseProxy* proxy1)
 	{
+		gAddedPairs++;
+
 		if (!needsBroadphaseCollision(proxy0,proxy1))
-			return;
+			return 0;
 
-		Add(proxy0,proxy1);
+		return internalAddPair(proxy0,proxy1);
 	}
 
-	btBroadphasePair*	findPair(btBroadphaseProxy* proxy0,btBroadphaseProxy* proxy1)
-	{
-		return Find(proxy0,proxy1);
-	}
+	
 
 	void	cleanProxyFromPairs(btBroadphaseProxy* proxy,btDispatcher* dispatcher);
 
@@ -130,16 +126,11 @@ public:
 
 	void	cleanOverlappingPair(btBroadphasePair& pair,btDispatcher* dispatcher);
 
-	// Add a pair and return the new pair. If the pair already exists,
-	// no new pair is created and the old one is returned.
-	btBroadphasePair* Add(btBroadphaseProxy* proxy0, btBroadphaseProxy* proxy1);
 
-	// Remove a pair, return the pair's userData.
-	void* Remove(btBroadphaseProxy* proxy0, btBroadphaseProxy* proxy1,btDispatcher* dispatcher);
 
-	btBroadphasePair* Find(btBroadphaseProxy* proxy0, btBroadphaseProxy* proxy1);
+	btBroadphasePair* findPair(btBroadphaseProxy* proxy0, btBroadphaseProxy* proxy1);
 
-	int32 GetCount() const { return m_overlappingPairArray.size(); }
+	int GetCount() const { return m_overlappingPairArray.size(); }
 //	btBroadphasePair* GetPairs() { return m_pairs; }
 
 	btOverlapFilterCallback* getOverlapFilterCallback()
@@ -157,12 +148,82 @@ public:
 		return m_overlappingPairArray.size();
 	}
 private:
-	btBroadphasePair* Find(btBroadphaseProxy* proxy0, btBroadphaseProxy* proxy1, uint32 hashValue);
+	
+	btBroadphasePair* 	internalAddPair(btBroadphaseProxy* proxy0,btBroadphaseProxy* proxy1);
+
+	void	growTables();
+
+	SIMD_FORCE_INLINE bool equalsPair(const btBroadphasePair& pair, int proxyId1, int proxyId2)
+	{	
+		return pair.m_pProxy0->getUid() == proxyId1 && pair.m_pProxy1->getUid() == proxyId2;
+	}
+
+	/*
+	// Thomas Wang's hash, see: http://www.concentric.net/~Ttwang/tech/inthash.htm
+	// This assumes proxyId1 and proxyId2 are 16-bit.
+	SIMD_FORCE_INLINE int getHash(int proxyId1, int proxyId2)
+	{
+		int key = (proxyId2 << 16) | proxyId1;
+		key = ~key + (key << 15);
+		key = key ^ (key >> 12);
+		key = key + (key << 2);
+		key = key ^ (key >> 4);
+		key = key * 2057;
+		key = key ^ (key >> 16);
+		return key;
+	}
+	*/
+
+
+	
+	SIMD_FORCE_INLINE	unsigned int getHash(unsigned int proxyId1, unsigned int proxyId2)
+	{
+		int key = ((unsigned int)proxyId1) | (((unsigned int)proxyId1) <<16);
+		// Thomas Wang's hash
+
+		key += ~(key << 15);
+		key ^=  (key >> 10);
+		key +=  (key << 3);
+		key ^=  (key >> 6);
+		key += ~(key << 11);
+		key ^=  (key >> 16);
+		return key;
+	}
+	
+
+
+
+
+	SIMD_FORCE_INLINE btBroadphasePair* internalFindPair(btBroadphaseProxy* proxy0, btBroadphaseProxy* proxy1, int hash)
+	{
+		int proxyId1 = proxy0->getUid();
+		int proxyId2 = proxy1->getUid();
+		if (proxyId1 > proxyId2) 
+			btSwap(proxyId1, proxyId2);
+
+		int index = m_hashTable[hash];
+		
+		while( index != BT_NULL_PAIR && equalsPair(m_overlappingPairArray[index], proxyId1, proxyId2) == false)
+		{
+			index = m_next[index];
+		}
+
+		if ( index == BT_NULL_PAIR )
+		{
+			return NULL;
+		}
+
+		btAssert(index < m_overlappingPairArray.size());
+
+		return &m_overlappingPairArray[index];
+	}
+
 
 public:
 	
-	uint16 m_hashTable[b2_tableCapacity];
-	uint16 m_next[b2_maxPairs];
+	btAlignedObjectArray<int>	m_hashTable;
+	btAlignedObjectArray<int>	m_next;
+	
 };
 
 
@@ -192,11 +253,11 @@ class	btOverlappingPairCache
 
 		virtual void	processAllOverlappingPairs(btOverlapCallback*,btDispatcher* dispatcher);
 
-		void	removeOverlappingPair(btBroadphaseProxy* proxy0,btBroadphaseProxy* proxy1,btDispatcher* dispatcher);
+		void*	removeOverlappingPair(btBroadphaseProxy* proxy0,btBroadphaseProxy* proxy1,btDispatcher* dispatcher);
 
 		void	cleanOverlappingPair(btBroadphasePair& pair,btDispatcher* dispatcher);
 		
-		void	addOverlappingPair(btBroadphaseProxy* proxy0,btBroadphaseProxy* proxy1);
+		btBroadphasePair*	addOverlappingPair(btBroadphaseProxy* proxy0,btBroadphaseProxy* proxy1);
 
 		btBroadphasePair*	findPair(btBroadphaseProxy* proxy0,btBroadphaseProxy* proxy1);
 			

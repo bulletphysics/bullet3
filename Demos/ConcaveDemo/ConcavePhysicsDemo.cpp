@@ -286,8 +286,8 @@ btDefaultCollisionConfiguration* collisionConfiguration = new btDefaultCollision
 	{
 		for (int i=0;i<10;i++)
 		{
-			//btCollisionShape* colShape = new btBoxShape(btVector3(1,1,1));
-			btCollisionShape* colShape = new btCapsuleShape(0.5,2.0);//boxShape = new btSphereShape(1.f);
+			btCollisionShape* colShape = new btBoxShape(btVector3(1,1,1));
+			//btCollisionShape* colShape = new btCapsuleShape(0.5,2.0);//boxShape = new btSphereShape(1.f);
 			startTransform.setOrigin(btVector3(2*i,10,1));
 			localCreateRigidBody(1, startTransform,colShape);
 		}

@@ -23,10 +23,17 @@ subject to the following restrictions:
 ///	btOverlappingPairCache*	m_overlappingPairs;
 extern int gOverlappingPairs;
 
-btMultiSapBroadphase::btMultiSapBroadphase(int maxProxies)
-:m_invalidPair(0)
+btMultiSapBroadphase::btMultiSapBroadphase(int maxProxies,btOverlappingPairCache* pairCache)
+:m_invalidPair(0),
+m_ownsPairCache(false),
+m_overlappingPairs(pairCache)
 {
-	m_overlappingPairs = new btOverlappingPairCache();
+	if (!m_overlappingPairs)
+	{
+		m_ownsPairCache = true;
+		void* mem = btAlignedAlloc(sizeof(btOverlappingPairCache),16);
+		m_overlappingPairs = new (mem)btOverlappingPairCache();
+	}
 
 	struct btMultiSapOverlapFilterCallback : public btOverlapFilterCallback
 	{
@@ -54,6 +61,10 @@ btMultiSapBroadphase::btMultiSapBroadphase(int maxProxies)
 
 btMultiSapBroadphase::~btMultiSapBroadphase()
 {
+	if (m_ownsPairCache)
+	{
+		btAlignedFree(m_overlappingPairs);
+	}
 }
 
 btBroadphaseProxy*	btMultiSapBroadphase::createProxy(  const btVector3& aabbMin,  const btVector3& aabbMax,int shapeType,void* userPtr, short int collisionFilterGroup,short int collisionFilterMask, btDispatcher* dispatcher)

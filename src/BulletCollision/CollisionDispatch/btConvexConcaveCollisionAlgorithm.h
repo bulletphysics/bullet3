@@ -55,11 +55,11 @@ int	m_triangleCount;
 	
 	void clearCache();
 
-	inline const btVector3& getAabbMin() const
+	SIMD_FORCE_INLINE const btVector3& getAabbMin() const
 	{
 		return m_aabbMin;
 	}
-	inline const btVector3& getAabbMax() const
+	SIMD_FORCE_INLINE const btVector3& getAabbMax() const
 	{
 		return m_aabbMax;
 	}

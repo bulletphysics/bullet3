@@ -363,7 +363,7 @@ void GL_ShapeDrawer::drawOpenGL(btScalar* m, const btCollisionShape* shape, cons
 			case BOX_SHAPE_PROXYTYPE:
 				{
 					const btBoxShape* boxShape = static_cast<const btBoxShape*>(shape);
-					btVector3 halfExtent = boxShape->getHalfExtents();
+					btVector3 halfExtent = boxShape->getHalfExtentsWithMargin();
 					glScaled(2*halfExtent[0], 2*halfExtent[1], 2*halfExtent[2]);
 					glutSolidCube(1.0);
 					useWireframeFallback = false;
@@ -412,9 +412,24 @@ void GL_ShapeDrawer::drawOpenGL(btScalar* m, const btCollisionShape* shape, cons
 			case CONE_SHAPE_PROXYTYPE:
 				{
 					const btConeShape* coneShape = static_cast<const btConeShape*>(shape);
+					int upIndex = coneShape->getConeUpIndex();
 					float radius = coneShape->getRadius();//+coneShape->getMargin();
 					float height = coneShape->getHeight();//+coneShape->getMargin();
-					//glRotatef(-90.0, 1.0, 0.0, 0.0);
+					switch (upIndex)
+					{
+					case 0:
+						glRotatef(90.0, 0.0, 1.0, 0.0);
+						break;
+					case 1:
+						glRotatef(-90.0, 1.0, 0.0, 0.0);
+						break;
+					case 2:
+						break;
+					default:
+						{
+						}
+					};
+					
 					glTranslatef(0.0, 0.0, -0.5*height);
 					glutSolidCone(radius,height,10,10);
 					useWireframeFallback = false;
@@ -435,7 +450,7 @@ void GL_ShapeDrawer::drawOpenGL(btScalar* m, const btCollisionShape* shape, cons
 					
 					
 					float radius = cylinder->getRadius();
-					float halfHeight = cylinder->getHalfExtents()[upAxis];
+					float halfHeight = cylinder->getHalfExtentsWithMargin()[upAxis];
 
 					drawCylinder(radius,halfHeight,upAxis);
 

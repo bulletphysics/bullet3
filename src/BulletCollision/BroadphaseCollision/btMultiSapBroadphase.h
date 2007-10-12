@@ -35,6 +35,8 @@ class btMultiSapBroadphase :public btBroadphaseInterface
 	btSimpleBroadphase*		m_simpleBroadphase;
 
 	btOverlappingPairCache*	m_overlappingPairs;
+
+	bool					m_ownsPairCache;
 	
 	btOverlapFilterCallback*	m_filterCallback;
 
@@ -81,7 +83,7 @@ protected:
 
 public:
 
-	btMultiSapBroadphase(int maxProxies = 16384);
+	btMultiSapBroadphase(int maxProxies = 16384,btOverlappingPairCache* pairCache=0);
 
 	btSapBroadphaseArray	getBroadphaseArray()
 	{

@@ -98,7 +98,7 @@ BT_DECLARE_ALIGNED_ALLOCATOR();
 	};
 
 	int			m_uniqueId;//m_uniqueId is introduced for paircache. could get rid of this, by calculating the address offset etc.
-	inline int getUid()
+	SIMD_FORCE_INLINE int getUid()
 	{
 		return m_uniqueId;//(int)this;
 	}
@@ -115,26 +115,26 @@ BT_DECLARE_ALIGNED_ALLOCATOR();
 
 	
 
-	static inline bool isPolyhedral(int proxyType)
+	static SIMD_FORCE_INLINE bool isPolyhedral(int proxyType)
 	{
 		return (proxyType  < IMPLICIT_CONVEX_SHAPES_START_HERE);
 	}
 
-	static inline bool	isConvex(int proxyType)
+	static SIMD_FORCE_INLINE bool	isConvex(int proxyType)
 	{
 		return (proxyType < CONCAVE_SHAPES_START_HERE);
 	}
 
-	static inline bool	isConcave(int proxyType)
+	static SIMD_FORCE_INLINE bool	isConcave(int proxyType)
 	{
 		return ((proxyType > CONCAVE_SHAPES_START_HERE) &&
 			(proxyType < CONCAVE_SHAPES_END_HERE));
 	}
-	static inline bool	isCompound(int proxyType)
+	static SIMD_FORCE_INLINE bool	isCompound(int proxyType)
 	{
 		return (proxyType == COMPOUND_SHAPE_PROXYTYPE);
 	}
-	static inline bool isInfinite(int proxyType)
+	static SIMD_FORCE_INLINE bool isInfinite(int proxyType)
 	{
 		return (proxyType == STATIC_PLANE_PROXYTYPE);
 	}
