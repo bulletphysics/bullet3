@@ -1,17 +1,15 @@
-<?xml version="1.0" encoding="Windows-1252"?>
+<?xml version="1.0" encoding = "Windows-1252"?>
 <VisualStudioProject
 	ProjectType="Visual C++"
 	Version="8.00"
 	Name="libbulletopenglsupport"
 	ProjectGUID="{7C428E76-9271-6284-20F0-9B38ED6931E3}"
-	>
+	SccProjectName=""
+	SccLocalPath="">
 	<Platforms>
 		<Platform
-			Name="Win32"
-		/>
+			Name="Win32"/>
 	</Platforms>
-	<ToolFiles>
-	</ToolFiles>
 	<Configurations>
 		<Configuration
 			Name="Release|Win32"
@@ -19,83 +17,74 @@
 			IntermediateDirectory="..\..\out\release8\build\libbulletopenglsupport\"
 			ConfigurationType="4"
 			UseOfMFC="0"
-			ATLMinimizesCRunTimeLibraryUsage="false"
-			>
-			<Tool
-				Name="VCPreBuildEventTool"
-			/>
-			<Tool
-				Name="VCCustomBuildTool"
-			/>
-			<Tool
-				Name="VCXMLDataGeneratorTool"
-			/>
-			<Tool
-				Name="VCWebServiceProxyGeneratorTool"
-			/>
-			<Tool
-				Name="VCMIDLTool"
-				PreprocessorDefinitions="NDEBUG;_LIB;_WINDOWS"
-				MkTypLibCompatible="true"
-				SuppressStartupBanner="true"
-				TargetEnvironment="1"
-				TypeLibraryName="..\..\out\release8\build\libbulletopenglsupport\libbulletopenglsupport.tlb"
-			/>
+			ATLMinimizesCRunTimeLibraryUsage="FALSE">
 			<Tool
 				Name="VCCLCompilerTool"
-				AdditionalOptions=" "
 				Optimization="2"
-				AdditionalIncludeDirectories=".;..\..;..\..\src;..\..\Glut"
-				PreprocessorDefinitions="NDEBUG;_LIB;_WINDOWS;WIN32"
-				StringPooling="true"
-				ExceptionHandling="0"
+				StringPooling="TRUE"
+				EnableFunctionLevelLinking="TRUE"
 				RuntimeLibrary="0"
-				BufferSecurityCheck="false"
-				EnableFunctionLevelLinking="true"
-				TreatWChar_tAsBuiltInType="false"
+				DebugInformationFormat="3"
+				BufferSecurityCheck="FALSE"
+				PreprocessorDefinitions="NDEBUG;_LIB;_WINDOWS;WIN32"
+				OptimizeForProcessor="1"
+				ExceptionHandling="0"
+				AdditionalOptions=" "
+				AdditionalIncludeDirectories=".;..\..;..\..\src;..\..\Glut"
 				PrecompiledHeaderFile="..\..\out\release8\build\libbulletopenglsupport\libbulletopenglsupport.pch"
 				AssemblerListingLocation="..\..\out\release8\build\libbulletopenglsupport\"
 				ObjectFile="..\..\out\release8\build\libbulletopenglsupport\"
 				ProgramDataBaseFileName="..\..\out\release8\build\libbulletopenglsupport\bulletopenglsupport.pdb"
 				WarningLevel="3"
-				SuppressStartupBanner="true"
-				Detect64BitPortabilityProblems="true"
-				DebugInformationFormat="3"
-				CompileAs="0"
-			/>
+				SuppressStartupBanner="TRUE"
+				Detect64BitPortabilityProblems="TRUE"
+				TreatWChar_tAsBuiltInType="false"
+				CompileAs="0"/>
 			<Tool
-				Name="VCManagedResourceCompilerTool"
-			/>
+				Name="VCCustomBuildTool"/>
 			<Tool
-				Name="VCResourceCompilerTool"
-				PreprocessorDefinitions="NDEBUG;_LIB;_WINDOWS;PROJECTGEN_VERSION=8"
-				Culture="1033"
-				AdditionalIncludeDirectories=".;..\..;..\..\src;..\..\Glut"
-			/>
-			<Tool
-				Name="VCPreLinkEventTool"
-			/>
+				Name="VCLinkerTool"
+				LinkIncremental="1"
+				OptimizeReferences="2"
+				EnableCOMDATFolding="2"
+				GenerateDebugInformation="TRUE"
+				IgnoreDefaultLibraryNames="LIBC,LIBCD"
+				AdditionalOptions=" "
+				AdditionalDependencies="glut32.lib"
+				IgnoreImportLibrary="TRUE"
+				SuppressStartupBanner="TRUE"
+				GenerateManifest="false"
+				AdditionalLibraryDirectories="..\..\Glut"
+				ProgramDatabaseFile="..\..\out\release8\build\libbulletopenglsupport\bulletopenglsupport.pdb"
+				TargetMachine="1"/>
 			<Tool
 				Name="VCLibrarianTool"
 				OutputFile="..\..\out\release8\libs\libbulletopenglsupport.lib"
-				SuppressStartupBanner="true"
-			/>
+				SuppressStartupBanner="TRUE"/>
 			<Tool
-				Name="VCALinkTool"
-			/>
-			<Tool
-				Name="VCXDCMakeTool"
-			/>
-			<Tool
-				Name="VCBscMakeTool"
-			/>
-			<Tool
-				Name="VCFxCopTool"
-			/>
+				Name="VCMIDLTool"
+				PreprocessorDefinitions="NDEBUG;_LIB;_WINDOWS"
+				MkTypLibCompatible="TRUE"
+				SuppressStartupBanner="TRUE"
+				TargetEnvironment="1"
+				TypeLibraryName="..\..\out\release8\build\libbulletopenglsupport\libbulletopenglsupport.tlb"/>
 			<Tool
 				Name="VCPostBuildEventTool"
-				CommandLine="xcopy /r /y $(TARGETPATH) $(PROJECTDIR)..\..\lib\"
-			/>
+		CommandLine="xcopy /r /y $(TARGETPATH) $(PROJECTDIR)..\..\lib\"
+				/>
+			<Tool
+				Name="VCPreBuildEventTool"/>
+			<Tool
+				Name="VCPreLinkEventTool"/>
+			<Tool
+				Name="VCResourceCompilerTool"
+				PreprocessorDefinitions="NDEBUG;_LIB;_WINDOWS;PROJECTGEN_VERSION=8"
+				AdditionalIncludeDirectories=".;..\..;..\..\src;..\..\Glut"
+				Culture="1033"/>
+			<Tool
+				Name="VCWebServiceProxyGeneratorTool"/>
+			<Tool
+				Name="VCWebDeploymentTool"/>
 		</Configuration>
 		<Configuration
 			Name="ReleaseDoublePrecision|Win32"
@@ -103,76 +92,62 @@
 			IntermediateDirectory="..\..\out\release_dbl8\build\libbulletopenglsupport\"
 			ConfigurationType="4"
 			UseOfMFC="0"
-			ATLMinimizesCRunTimeLibraryUsage="false"
-			>
-			<Tool
-				Name="VCPreBuildEventTool"
-			/>
-			<Tool
-				Name="VCCustomBuildTool"
-			/>
-			<Tool
-				Name="VCXMLDataGeneratorTool"
-			/>
-			<Tool
-				Name="VCWebServiceProxyGeneratorTool"
-			/>
-			<Tool
-				Name="VCMIDLTool"
-				PreprocessorDefinitions="NDEBUG;BT_USE_DOUBLE_PRECISION;_LIB;_WINDOWS"
-				MkTypLibCompatible="true"
-				SuppressStartupBanner="true"
-				TargetEnvironment="1"
-				TypeLibraryName="..\..\out\release_dbl8\build\libbulletopenglsupport\libbulletopenglsupport.tlb"
-			/>
+			ATLMinimizesCRunTimeLibraryUsage="FALSE">
 			<Tool
 				Name="VCCLCompilerTool"
+				PreprocessorDefinitions="NDEBUG;BT_USE_DOUBLE_PRECISION;_LIB;_WINDOWS;WIN32"
+				OptimizeForProcessor="1"
+				ExceptionHandling="0"
 				AdditionalOptions=" "
 				AdditionalIncludeDirectories=".;..\..;..\..\src;..\..\Glut"
-				PreprocessorDefinitions="NDEBUG;BT_USE_DOUBLE_PRECISION;_LIB;_WINDOWS;WIN32"
-				ExceptionHandling="0"
-				TreatWChar_tAsBuiltInType="false"
 				PrecompiledHeaderFile="..\..\out\release_dbl8\build\libbulletopenglsupport\libbulletopenglsupport.pch"
 				AssemblerListingLocation="..\..\out\release_dbl8\build\libbulletopenglsupport\"
 				ObjectFile="..\..\out\release_dbl8\build\libbulletopenglsupport\"
 				ProgramDataBaseFileName="..\..\out\release_dbl8\build\libbulletopenglsupport\bulletopenglsupport.pdb"
 				WarningLevel="3"
-				SuppressStartupBanner="true"
-				Detect64BitPortabilityProblems="true"
-				CompileAs="0"
-			/>
+				SuppressStartupBanner="TRUE"
+				Detect64BitPortabilityProblems="TRUE"
+				TreatWChar_tAsBuiltInType="false"
+				CompileAs="0"/>
 			<Tool
-				Name="VCManagedResourceCompilerTool"
-			/>
+				Name="VCCustomBuildTool"/>
+			<Tool
+				Name="VCLinkerTool"
+				AdditionalOptions=" "
+				AdditionalDependencies="glut32.lib"
+				IgnoreImportLibrary="TRUE"
+				SuppressStartupBanner="TRUE"
+				GenerateManifest="false"
+				AdditionalLibraryDirectories="..\..\Glut"
+				ProgramDatabaseFile="..\..\out\release_dbl8\build\libbulletopenglsupport\bulletopenglsupport.pdb"
+				TargetMachine="1"/>
+			<Tool
+				Name="VCLibrarianTool"
+				SuppressStartupBanner="TRUE"/>
+			<Tool
+				Name="VCMIDLTool"
+				PreprocessorDefinitions="NDEBUG;BT_USE_DOUBLE_PRECISION;_LIB;_WINDOWS"
+				MkTypLibCompatible="TRUE"
+				SuppressStartupBanner="TRUE"
+				TargetEnvironment="1"
+				TypeLibraryName="..\..\out\release_dbl8\build\libbulletopenglsupport\libbulletopenglsupport.tlb"/>
+			<Tool
+				Name="VCPostBuildEventTool"
+		CommandLine="xcopy /r /y $(TARGETPATH) $(PROJECTDIR)..\..\lib\"
+				/>
+			<Tool
+				Name="VCPreBuildEventTool"/>
+			<Tool
+				Name="VCPreLinkEventTool"/>
 			<Tool
 				Name="VCResourceCompilerTool"
 				PreprocessorDefinitions="NDEBUG;BT_USE_DOUBLE_PRECISION;_LIB;_WINDOWS;PROJECTGEN_VERSION=8"
-				Culture="1033"
 				AdditionalIncludeDirectories=".;..\..;..\..\src;..\..\Glut"
-			/>
+				Culture="1033"/>
 			<Tool
-				Name="VCPreLinkEventTool"
-			/>
+				Name="VCWebServiceProxyGeneratorTool"/>
 			<Tool
-				Name="VCLibrarianTool"
-				SuppressStartupBanner="true"
-			/>
-			<Tool
-				Name="VCALinkTool"
-			/>
-			<Tool
-				Name="VCXDCMakeTool"
-			/>
-			<Tool
-				Name="VCBscMakeTool"
-			/>
-			<Tool
-				Name="VCFxCopTool"
-			/>
-			<Tool
-				Name="VCPostBuildEventTool"
-				CommandLine="xcopy /r /y $(TARGETPATH) $(PROJECTDIR)..\..\lib\"
-			/>
+				Name="VCWebDeploymentTool"/>
 		</Configuration>
 		<Configuration
 			Name="Debug|Win32"
@@ -180,82 +155,71 @@
 			IntermediateDirectory="..\..\out\debug8\build\libbulletopenglsupport\"
 			ConfigurationType="4"
 			UseOfMFC="0"
-			ATLMinimizesCRunTimeLibraryUsage="false"
-			>
-			<Tool
-				Name="VCPreBuildEventTool"
-			/>
-			<Tool
-				Name="VCCustomBuildTool"
-			/>
-			<Tool
-				Name="VCXMLDataGeneratorTool"
-			/>
-			<Tool
-				Name="VCWebServiceProxyGeneratorTool"
-			/>
-			<Tool
-				Name="VCMIDLTool"
-				PreprocessorDefinitions="_DEBUG;_LIB;_WINDOWS"
-				MkTypLibCompatible="true"
-				SuppressStartupBanner="true"
-				TargetEnvironment="1"
-				TypeLibraryName="..\..\out\debug8\build\libbulletopenglsupport\libbulletopenglsupport.tlb"
-			/>
+			ATLMinimizesCRunTimeLibraryUsage="FALSE">
 			<Tool
 				Name="VCCLCompilerTool"
-				AdditionalOptions=" "
 				Optimization="0"
-				AdditionalIncludeDirectories=".;..\..;..\..\src;..\..\Glut"
-				PreprocessorDefinitions="_DEBUG;_LIB;_WINDOWS;WIN32"
-				MinimalRebuild="true"
-				ExceptionHandling="0"
+				MinimalRebuild="TRUE"
+				DebugInformationFormat="4"
+				RuntimeTypeInfo="FALSE"
 				RuntimeLibrary="1"
-				TreatWChar_tAsBuiltInType="false"
-				RuntimeTypeInfo="false"
+				PreprocessorDefinitions="_DEBUG;_LIB;_WINDOWS;WIN32"
+				OptimizeForProcessor="1"
+				ExceptionHandling="0"
+				AdditionalOptions=" "
+				AdditionalIncludeDirectories=".;..\..;..\..\src;..\..\Glut"
 				PrecompiledHeaderFile="..\..\out\debug8\build\libbulletopenglsupport\libbulletopenglsupport.pch"
 				AssemblerListingLocation="..\..\out\debug8\build\libbulletopenglsupport\"
 				ObjectFile="..\..\out\debug8\build\libbulletopenglsupport\"
 				ProgramDataBaseFileName="..\..\out\debug8\build\libbulletopenglsupport\bulletopenglsupport.pdb"
 				WarningLevel="3"
-				SuppressStartupBanner="true"
-				Detect64BitPortabilityProblems="true"
-				DebugInformationFormat="4"
-				CompileAs="0"
-			/>
+				SuppressStartupBanner="TRUE"
+				Detect64BitPortabilityProblems="TRUE"
+				TreatWChar_tAsBuiltInType="false"
+				CompileAs="0"/>
 			<Tool
-				Name="VCManagedResourceCompilerTool"
-			/>
+				Name="VCCustomBuildTool"/>
 			<Tool
-				Name="VCResourceCompilerTool"
-				PreprocessorDefinitions="_DEBUG;_LIB;_WINDOWS;PROJECTGEN_VERSION=8"
-				Culture="1033"
-				AdditionalIncludeDirectories=".;..\..;..\..\src;..\..\Glut"
-			/>
-			<Tool
-				Name="VCPreLinkEventTool"
-			/>
+				Name="VCLinkerTool"
+				LinkIncremental="2"
+				GenerateDebugInformation="TRUE"
+				IgnoreDefaultLibraryNames="LIBC,LIBCD"
+				AdditionalOptions=" "
+				AdditionalDependencies="glut32.lib"
+				IgnoreImportLibrary="TRUE"
+				SuppressStartupBanner="TRUE"
+				GenerateManifest="false"
+				AdditionalLibraryDirectories="..\..\Glut"
+				ProgramDatabaseFile="..\..\out\debug8\build\libbulletopenglsupport\bulletopenglsupport.pdb"
+				TargetMachine="1"/>
 			<Tool
 				Name="VCLibrarianTool"
 				OutputFile="..\..\out\debug8\libs\libbulletopenglsupport_d.lib"
-				SuppressStartupBanner="true"
-			/>
+				SuppressStartupBanner="TRUE"/>
 			<Tool
-				Name="VCALinkTool"
-			/>
-			<Tool
-				Name="VCXDCMakeTool"
-			/>
-			<Tool
-				Name="VCBscMakeTool"
-			/>
-			<Tool
-				Name="VCFxCopTool"
-			/>
+				Name="VCMIDLTool"
+				PreprocessorDefinitions="_DEBUG;_LIB;_WINDOWS"
+				MkTypLibCompatible="TRUE"
+				SuppressStartupBanner="TRUE"
+				TargetEnvironment="1"
+				TypeLibraryName="..\..\out\debug8\build\libbulletopenglsupport\libbulletopenglsupport.tlb"/>
 			<Tool
 				Name="VCPostBuildEventTool"
-				CommandLine="xcopy /r /y $(TARGETPATH) $(PROJECTDIR)..\..\lib\"
-			/>
+		CommandLine="xcopy /r /y $(TARGETPATH) $(PROJECTDIR)..\..\lib\"
+				/>
+			<Tool
+				Name="VCPreBuildEventTool"/>
+			<Tool
+				Name="VCPreLinkEventTool"/>
+			<Tool
+				Name="VCResourceCompilerTool"
+				PreprocessorDefinitions="_DEBUG;_LIB;_WINDOWS;PROJECTGEN_VERSION=8"
+				AdditionalIncludeDirectories=".;..\..;..\..\src;..\..\Glut"
+				Culture="1033"/>
+			<Tool
+				Name="VCWebServiceProxyGeneratorTool"/>
+			<Tool
+				Name="VCWebDeploymentTool"/>
 		</Configuration>
 		<Configuration
 			Name="DebugDoublePrecision|Win32"
@@ -263,176 +227,139 @@
 			IntermediateDirectory="..\..\out\debug_dbl8\build\libbulletopenglsupport\"
 			ConfigurationType="4"
 			UseOfMFC="0"
-			ATLMinimizesCRunTimeLibraryUsage="false"
-			>
-			<Tool
-				Name="VCPreBuildEventTool"
-			/>
-			<Tool
-				Name="VCCustomBuildTool"
-			/>
-			<Tool
-				Name="VCXMLDataGeneratorTool"
-			/>
-			<Tool
-				Name="VCWebServiceProxyGeneratorTool"
-			/>
-			<Tool
-				Name="VCMIDLTool"
-				PreprocessorDefinitions="_DEBUG;BT_USE_DOUBLE_PRECISION;_LIB;_WINDOWS"
-				MkTypLibCompatible="true"
-				SuppressStartupBanner="true"
-				TargetEnvironment="1"
-				TypeLibraryName="..\..\out\debug_dbl8\build\libbulletopenglsupport\libbulletopenglsupport.tlb"
-			/>
+			ATLMinimizesCRunTimeLibraryUsage="FALSE">
 			<Tool
 				Name="VCCLCompilerTool"
-				AdditionalOptions=" "
-				Optimization="0"
-				AdditionalIncludeDirectories=".;..\..;..\..\src;..\..\Glut"
+                                Optimization="0"
+                                MinimalRebuild="TRUE"
+                                DebugInformationFormat="4"
+                                RuntimeTypeInfo="FALSE"
+                                RuntimeLibrary="1"
 				PreprocessorDefinitions="_DEBUG;BT_USE_DOUBLE_PRECISION;_LIB;_WINDOWS;WIN32"
-				MinimalRebuild="true"
+				OptimizeForProcessor="1"
 				ExceptionHandling="0"
-				RuntimeLibrary="1"
-				TreatWChar_tAsBuiltInType="false"
-				RuntimeTypeInfo="false"
+				AdditionalOptions=" "
+				AdditionalIncludeDirectories=".;..\..;..\..\src;..\..\Glut"
 				PrecompiledHeaderFile="..\..\out\debug_dbl8\build\libbulletopenglsupport\libbulletopenglsupport.pch"
 				AssemblerListingLocation="..\..\out\debug_dbl8\build\libbulletopenglsupport\"
 				ObjectFile="..\..\out\debug_dbl8\build\libbulletopenglsupport\"
 				ProgramDataBaseFileName="..\..\out\debug_dbl8\build\libbulletopenglsupport\bulletopenglsupport.pdb"
 				WarningLevel="3"
-				SuppressStartupBanner="true"
-				Detect64BitPortabilityProblems="true"
-				DebugInformationFormat="4"
-				CompileAs="0"
-			/>
+				SuppressStartupBanner="TRUE"
+				Detect64BitPortabilityProblems="TRUE"
+				TreatWChar_tAsBuiltInType="false"
+				CompileAs="0"/>
 			<Tool
-				Name="VCManagedResourceCompilerTool"
-			/>
+				Name="VCCustomBuildTool"/>
+			<Tool
+				Name="VCLinkerTool"
+				AdditionalOptions=" "
+				AdditionalDependencies="glut32.lib"
+				IgnoreImportLibrary="TRUE"
+				SuppressStartupBanner="TRUE"
+				GenerateManifest="false"
+				AdditionalLibraryDirectories="..\..\Glut"
+				ProgramDatabaseFile="..\..\out\debug_dbl8\build\libbulletopenglsupport\bulletopenglsupport.pdb"
+				TargetMachine="1"/>
+			<Tool
+				Name="VCLibrarianTool"
+				SuppressStartupBanner="TRUE"/>
+			<Tool
+				Name="VCMIDLTool"
+				PreprocessorDefinitions="_DEBUG;BT_USE_DOUBLE_PRECISION;_LIB;_WINDOWS"
+				MkTypLibCompatible="TRUE"
+				SuppressStartupBanner="TRUE"
+				TargetEnvironment="1"
+				TypeLibraryName="..\..\out\debug_dbl8\build\libbulletopenglsupport\libbulletopenglsupport.tlb"/>
+			<Tool
+				Name="VCPostBuildEventTool"
+		CommandLine="xcopy /r /y $(TARGETPATH) $(PROJECTDIR)..\..\lib\"
+				/>
+			<Tool
+				Name="VCPreBuildEventTool"/>
+			<Tool
+				Name="VCPreLinkEventTool"/>
 			<Tool
 				Name="VCResourceCompilerTool"
 				PreprocessorDefinitions="_DEBUG;BT_USE_DOUBLE_PRECISION;_LIB;_WINDOWS;PROJECTGEN_VERSION=8"
-				Culture="1033"
 				AdditionalIncludeDirectories=".;..\..;..\..\src;..\..\Glut"
-			/>
+				Culture="1033"/>
 			<Tool
-				Name="VCPreLinkEventTool"
-			/>
+				Name="VCWebServiceProxyGeneratorTool"/>
 			<Tool
-				Name="VCLibrarianTool"
-				SuppressStartupBanner="true"
-			/>
-			<Tool
-				Name="VCALinkTool"
-			/>
-			<Tool
-				Name="VCXDCMakeTool"
-			/>
-			<Tool
-				Name="VCBscMakeTool"
-			/>
-			<Tool
-				Name="VCFxCopTool"
-			/>
-			<Tool
-				Name="VCPostBuildEventTool"
-				CommandLine="xcopy /r /y $(TARGETPATH) $(PROJECTDIR)..\..\lib\"
-			/>
+				Name="VCWebDeploymentTool"/>
 		</Configuration>
 	</Configurations>
-	<References>
-	</References>
 	<Files>
 		<Filter
 			Name="Source Files"
-			>
+			Filter="">
 			<File
-				RelativePath="..\..\Demos\OpenGL\BMF_Api.cpp"
-				>
+				RelativePath="..\..\Demos\OpenGL\BMF_Api.cpp">
 			</File>
 			<File
-				RelativePath="..\..\Demos\OpenGL\BMF_BitmapFont.cpp"
-				>
+				RelativePath="..\..\Demos\OpenGL\BMF_BitmapFont.cpp">
 			</File>
 			<File
-				RelativePath="..\..\Demos\OpenGL\BMF_font_helv10.cpp"
-				>
+				RelativePath="..\..\Demos\OpenGL\BMF_font_helv10.cpp">
 			</File>
 			<File
-				RelativePath="..\..\Demos\OpenGL\DemoApplication.cpp"
-				>
+				RelativePath="..\..\Demos\OpenGL\DemoApplication.cpp">
 			</File>
 			<File
-				RelativePath="..\..\Demos\OpenGL\GL_ShapeDrawer.cpp"
-				>
+				RelativePath="..\..\Demos\OpenGL\GL_ShapeDrawer.cpp">
 			</File>
 			<File
-				RelativePath="..\..\Demos\OpenGL\GL_Simplex1to4.cpp"
-				>
+				RelativePath="..\..\Demos\OpenGL\GL_Simplex1to4.cpp">
 			</File>
 			<File
-				RelativePath="..\..\Demos\OpenGL\GLDebugDrawer.cpp"
-				>
+				RelativePath="..\..\Demos\OpenGL\GLDebugDrawer.cpp">
 			</File>
 			<File
-				RelativePath="..\..\Demos\OpenGL\GlutStuff.cpp"
-				>
+				RelativePath="..\..\Demos\OpenGL\GlutStuff.cpp">
 			</File>
 			<File
-				RelativePath="..\..\Demos\OpenGL\RenderTexture.cpp"
-				>
+				RelativePath="..\..\Demos\OpenGL\RenderTexture.cpp">
 			</File>
 		</Filter>
 		<Filter
 			Name="Header Files"
-			>
+			Filter="">
 			<File
-				RelativePath="..\..\Demos\OpenGL\BMF_Api.h"
-				>
+				RelativePath="..\..\Demos\OpenGL\BMF_Api.h">
 			</File>
 			<File
-				RelativePath="..\..\Demos\OpenGL\BMF_BitmapFont.h"
-				>
+				RelativePath="..\..\Demos\OpenGL\BMF_BitmapFont.h">
 			</File>
 			<File
-				RelativePath="..\..\Demos\OpenGL\BMF_FontData.h"
-				>
+				RelativePath="..\..\Demos\OpenGL\BMF_FontData.h">
 			</File>
 			<File
-				RelativePath="..\..\Demos\OpenGL\BMF_Fonts.h"
-				>
+				RelativePath="..\..\Demos\OpenGL\BMF_Fonts.h">
 			</File>
 			<File
-				RelativePath="..\..\Demos\OpenGL\BMF_Settings.h"
-				>
+				RelativePath="..\..\Demos\OpenGL\BMF_Settings.h">
 			</File>
 			<File
-				RelativePath="..\..\Demos\OpenGL\DebugCastResult.h"
-				>
+				RelativePath="..\..\Demos\OpenGL\DebugCastResult.h">
 			</File>
 			<File
-				RelativePath="..\..\Demos\OpenGL\DemoApplication.h"
-				>
+				RelativePath="..\..\Demos\OpenGL\DemoApplication.h">
 			</File>
 			<File
-				RelativePath="..\..\Demos\OpenGL\GL_ShapeDrawer.h"
-				>
+				RelativePath="..\..\Demos\OpenGL\GL_ShapeDrawer.h">
 			</File>
 			<File
-				RelativePath="..\..\Demos\OpenGL\GL_Simplex1to4.h"
-				>
+				RelativePath="..\..\Demos\OpenGL\GL_Simplex1to4.h">
 			</File>
 			<File
-				RelativePath="..\..\Demos\OpenGL\GLDebugDrawer.h"
-				>
+				RelativePath="..\..\Demos\OpenGL\GLDebugDrawer.h">
 			</File>
 			<File
-				RelativePath="..\..\Demos\OpenGL\GlutStuff.h"
-				>
+				RelativePath="..\..\Demos\OpenGL\GlutStuff.h">
 			</File>
 			<File
-				RelativePath="..\..\Demos\OpenGL\RenderTexture.h"
-				>
+				RelativePath="..\..\Demos\OpenGL\RenderTexture.h">
 			</File>
 		</Filter>
 	</Files>

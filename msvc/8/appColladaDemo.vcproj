@@ -32,7 +32,7 @@
 				OptimizeForProcessor="1"
 				ExceptionHandling="0"
 				AdditionalOptions=" "
-				AdditionalIncludeDirectories=".;..\..;..\..\src;..\..\Glut;..\..\Demos\OpenGL;..\..\Extras\COLLADA_DOM\include;..\..\Extras\COLLADA_DOM\include\1.4;..\..\Extras\LibXML;..\..\Extras\LibXML\include;..\..\Extras\FCollada"
+				AdditionalIncludeDirectories=".;..\..;..\..\src;..\..\Glut;..\..\Demos\OpenGL;..\..\Extras\BulletColladaConverter;..\..\Extras\COLLADA_DOM\include;..\..\Extras\COLLADA_DOM\include\1.4;..\..\Extras\LibXML;..\..\Extras\LibXML\include;..\..\Extras\FCollada"
 				PrecompiledHeaderFile="..\..\out\release8\build\appColladaDemo\appColladaDemo.pch"
 				AssemblerListingLocation="..\..\out\release8\build\appColladaDemo\"
 				ObjectFile="..\..\out\release8\build\appColladaDemo\"
@@ -81,7 +81,7 @@
 			<Tool
 				Name="VCResourceCompilerTool"
 				PreprocessorDefinitions="NDEBUG;_CONSOLE;PROJECTGEN_VERSION=8"
-				AdditionalIncludeDirectories=".;..\..;..\..\src;..\..\Glut;..\..\Demos\OpenGL;..\..\Extras\COLLADA_DOM\include;..\..\Extras\COLLADA_DOM\include\1.4;..\..\Extras\LibXML;..\..\Extras\LibXML\include;..\..\Extras\FCollada"
+				AdditionalIncludeDirectories=".;..\..;..\..\src;..\..\Glut;..\..\Demos\OpenGL;..\..\Extras\BulletColladaConverter;..\..\Extras\COLLADA_DOM\include;..\..\Extras\COLLADA_DOM\include\1.4;..\..\Extras\LibXML;..\..\Extras\LibXML\include;..\..\Extras\FCollada"
 				Culture="1033"/>
 			<Tool
 				Name="VCWebServiceProxyGeneratorTool"/>
@@ -102,7 +102,7 @@
 				OptimizeForProcessor="1"
 				ExceptionHandling="0"
 				AdditionalOptions=" "
-				AdditionalIncludeDirectories=".;..\..;..\..\src;..\..\Glut;..\..\Demos\OpenGL;..\..\Extras\COLLADA_DOM\include;..\..\Extras\COLLADA_DOM\include\1.4;..\..\Extras\LibXML;..\..\Extras\LibXML\include;..\..\Extras\FCollada"
+				AdditionalIncludeDirectories=".;..\..;..\..\src;..\..\Glut;..\..\Demos\OpenGL;..\..\Extras\BulletColladaConverter;..\..\Extras\COLLADA_DOM\include;..\..\Extras\COLLADA_DOM\include\1.4;..\..\Extras\LibXML;..\..\Extras\LibXML\include;..\..\Extras\FCollada"
 				PrecompiledHeaderFile="..\..\out\release_dbl8\build\appColladaDemo\appColladaDemo.pch"
 				AssemblerListingLocation="..\..\out\release_dbl8\build\appColladaDemo\"
 				ObjectFile="..\..\out\release_dbl8\build\appColladaDemo\"
@@ -146,7 +146,7 @@
 			<Tool
 				Name="VCResourceCompilerTool"
 				PreprocessorDefinitions="NDEBUG;BT_USE_DOUBLE_PRECISION;_CONSOLE;PROJECTGEN_VERSION=8"
-				AdditionalIncludeDirectories=".;..\..;..\..\src;..\..\Glut;..\..\Demos\OpenGL;..\..\Extras\COLLADA_DOM\include;..\..\Extras\COLLADA_DOM\include\1.4;..\..\Extras\LibXML;..\..\Extras\LibXML\include;..\..\Extras\FCollada"
+				AdditionalIncludeDirectories=".;..\..;..\..\src;..\..\Glut;..\..\Demos\OpenGL;..\..\Extras\BulletColladaConverter;..\..\Extras\COLLADA_DOM\include;..\..\Extras\COLLADA_DOM\include\1.4;..\..\Extras\LibXML;..\..\Extras\LibXML\include;..\..\Extras\FCollada"
 				Culture="1033"/>
 			<Tool
 				Name="VCWebServiceProxyGeneratorTool"/>
@@ -172,7 +172,7 @@
 				OptimizeForProcessor="1"
 				ExceptionHandling="0"
 				AdditionalOptions=" "
-				AdditionalIncludeDirectories=".;..\..;..\..\src;..\..\Glut;..\..\Demos\OpenGL;..\..\Extras\COLLADA_DOM\include;..\..\Extras\COLLADA_DOM\include\1.4;..\..\Extras\LibXML;..\..\Extras\LibXML\include;..\..\Extras\FCollada"
+				AdditionalIncludeDirectories=".;..\..;..\..\src;..\..\Glut;..\..\Demos\OpenGL;..\..\Extras\BulletColladaConverter;..\..\Extras\COLLADA_DOM\include;..\..\Extras\COLLADA_DOM\include\1.4;..\..\Extras\LibXML;..\..\Extras\LibXML\include;..\..\Extras\FCollada"
 				PrecompiledHeaderFile="..\..\out\debug8\build\appColladaDemo\appColladaDemo.pch"
 				AssemblerListingLocation="..\..\out\debug8\build\appColladaDemo\"
 				ObjectFile="..\..\out\debug8\build\appColladaDemo\"
@@ -219,7 +219,7 @@
 			<Tool
 				Name="VCResourceCompilerTool"
 				PreprocessorDefinitions="_DEBUG;_CONSOLE;PROJECTGEN_VERSION=8"
-				AdditionalIncludeDirectories=".;..\..;..\..\src;..\..\Glut;..\..\Demos\OpenGL;..\..\Extras\COLLADA_DOM\include;..\..\Extras\COLLADA_DOM\include\1.4;..\..\Extras\LibXML;..\..\Extras\LibXML\include;..\..\Extras\FCollada"
+				AdditionalIncludeDirectories=".;..\..;..\..\src;..\..\Glut;..\..\Demos\OpenGL;..\..\Extras\BulletColladaConverter;..\..\Extras\COLLADA_DOM\include;..\..\Extras\COLLADA_DOM\include\1.4;..\..\Extras\LibXML;..\..\Extras\LibXML\include;..\..\Extras\FCollada"
 				Culture="1033"/>
 			<Tool
 				Name="VCWebServiceProxyGeneratorTool"/>
@@ -245,7 +245,7 @@
 				OptimizeForProcessor="1"
 				ExceptionHandling="0"
 				AdditionalOptions=" "
-				AdditionalIncludeDirectories=".;..\..;..\..\src;..\..\Glut;..\..\Demos\OpenGL;..\..\Extras\COLLADA_DOM\include;..\..\Extras\COLLADA_DOM\include\1.4;..\..\Extras\LibXML;..\..\Extras\LibXML\include;..\..\Extras\FCollada"
+				AdditionalIncludeDirectories=".;..\..;..\..\src;..\..\Glut;..\..\Demos\OpenGL;..\..\Extras\BulletColladaConverter;..\..\Extras\COLLADA_DOM\include;..\..\Extras\COLLADA_DOM\include\1.4;..\..\Extras\LibXML;..\..\Extras\LibXML\include;..\..\Extras\FCollada"
 				PrecompiledHeaderFile="..\..\out\debug_dbl8\build\appColladaDemo\appColladaDemo.pch"
 				AssemblerListingLocation="..\..\out\debug_dbl8\build\appColladaDemo\"
 				ObjectFile="..\..\out\debug_dbl8\build\appColladaDemo\"
@@ -289,7 +289,7 @@
 			<Tool
 				Name="VCResourceCompilerTool"
 				PreprocessorDefinitions="_DEBUG;BT_USE_DOUBLE_PRECISION;_CONSOLE;PROJECTGEN_VERSION=8"
-				AdditionalIncludeDirectories=".;..\..;..\..\src;..\..\Glut;..\..\Demos\OpenGL;..\..\Extras\COLLADA_DOM\include;..\..\Extras\COLLADA_DOM\include\1.4;..\..\Extras\LibXML;..\..\Extras\LibXML\include;..\..\Extras\FCollada"
+				AdditionalIncludeDirectories=".;..\..;..\..\src;..\..\Glut;..\..\Demos\OpenGL;..\..\Extras\BulletColladaConverter;..\..\Extras\COLLADA_DOM\include;..\..\Extras\COLLADA_DOM\include\1.4;..\..\Extras\LibXML;..\..\Extras\LibXML\include;..\..\Extras\FCollada"
 				Culture="1033"/>
 			<Tool
 				Name="VCWebServiceProxyGeneratorTool"/>
@@ -302,18 +302,12 @@
 			Name="Source Files"
 			Filter="">
 			<File
-				RelativePath="..\..\Demos\ColladaDemo\ColladaConverter.cpp">
-			</File>
-			<File
 				RelativePath="..\..\Demos\ColladaDemo\ColladaDemo.cpp">
 			</File>
 		</Filter>
 		<Filter
 			Name="Header Files"
 			Filter="">
-			<File
-				RelativePath="..\..\Demos\ColladaDemo\ColladaConverter.h">
-			</File>
 			<File
 				RelativePath="..\..\Demos\ColladaDemo\ColladaDemo.h">
 			</File>
