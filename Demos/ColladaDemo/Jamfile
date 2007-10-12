@@ -6,9 +6,10 @@ SubDir TOP Demos ColladaDemo ;
 
   {
     Application $(<) : $(>) : noinstall console nomanifest ;
-    LinkWith $(<) :   colladadom libxml bulletopenglsupport bulletdynamics bulletcollision  bulletmath ;
+    LinkWith $(<) :   BulletColladaConverter colladadom libxml bulletopenglsupport bulletdynamics bulletcollision  bulletmath ;
     CFlags $(<) :
           [ FIncludes $(TOP)/Demos/OpenGL ]
+				[ FIncludes $(TOP)/Extras/BulletColladaConverter ]
                                 [ FIncludes $(TOP)/Extras/COLLADA_DOM/include ]
                                 [ FIncludes $(TOP)/Extras/COLLADA_DOM/include/1.4 ]
                                 [ FIncludes $(TOP)/Extras/LibXML ]
@@ -19,6 +20,7 @@ SubDir TOP Demos ColladaDemo ;
 
     MsvcIncDirs $(<) :
         "../../Demos/OpenGL"
+	"../../Extras/BulletColladaConverter"
         "../../Extras/COLLADA_DOM/include"
         "../../Extras/COLLADA_DOM/include/1.4"
         "../../Extras/LibXML"

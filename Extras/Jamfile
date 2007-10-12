@@ -3,6 +3,7 @@ SubDir TOP Extras ;
 SubInclude TOP Extras ConvexDecomposition ;
 SubInclude TOP Extras COLLADA_DOM ;
 SubInclude TOP Extras LibXML ;
+SubInclude TOP Extras BulletColladaConverter ;
 SubInclude TOP Extras BulletMultiThreaded ;
 #SubInclude TOP Extras EPA ;
 #SubInclude TOP Extras ExtraSolid35 ;
