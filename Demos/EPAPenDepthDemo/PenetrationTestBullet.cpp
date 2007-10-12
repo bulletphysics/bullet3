@@ -148,8 +148,10 @@ bool MyConvex::LoadFromFile(const char* filename)
 
 	fread(&mNbVerts, sizeof(int), 1, fp);
 
+	int i;
+
 	mVerts = new btVector3[mNbVerts];
-	for(int i=0;i<mNbVerts;i++)
+	for( i=0;i<mNbVerts;i++)
 	{
 		float vals[3];
 		fread(vals, sizeof(float)*3, 1, fp);
@@ -161,7 +163,7 @@ bool MyConvex::LoadFromFile(const char* filename)
 	fread(&mNbPolys, sizeof(int), 1, fp);
 	mPolys = new MyPoly[mNbPolys];
 
-	for(int i=0;i<mNbPolys;i++)
+	for(i=0;i<mNbPolys;i++)
 	{
 		fread(&mPolys[i].mNbVerts, sizeof(short), 1, fp);
 		mPolys[i].mIndices = new char[mPolys[i].mNbVerts];
@@ -395,8 +397,10 @@ static bool ReferenceCode(const MyConvex& hull0, const MyConvex& hull1, float& d
 {
 	dmin = FLT_MAX;
 
+	int i;
+
 	// Test normals from hull0
-	for(int i=0;i<hull0.mNbPolys;i++)
+	for( i=0;i<hull0.mNbPolys;i++)
 	{
 		btVector3 Normal(hull0.mPolys[i].mPlane[0], hull0.mPolys[i].mPlane[1], hull0.mPolys[i].mPlane[2]);
 
@@ -415,7 +419,7 @@ static bool ReferenceCode(const MyConvex& hull0, const MyConvex& hull1, float& d
 	}
 
 	// Test normals from hull1
-	for(int i=0;i<hull1.mNbPolys;i++)
+	for( i=0;i<hull1.mNbPolys;i++)
 	{
 		btVector3 Normal(hull1.mPolys[i].mPlane[0], hull1.mPolys[i].mPlane[1], hull1.mPolys[i].mPlane[2]);
 
