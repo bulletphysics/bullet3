@@ -20,8 +20,8 @@ subject to the following restrictions:
 //Note: some of those settings need 'DO_WALL' demo
 //#define USE_KINEMATIC_GROUND 1
 //#define PRINT_CONTACT_STATISTICS 1
-#define REGISTER_CUSTOM_COLLISION_ALGORITHM 1
-#define REGISTER_BOX_BOX 1 //needs to be used in combination with REGISTER_CUSTOM_COLLISION_ALGORITHM
+//#define REGISTER_CUSTOM_COLLISION_ALGORITHM 1
+//#define REGISTER_BOX_BOX 1 //needs to be used in combination with REGISTER_CUSTOM_COLLISION_ALGORITHM
 //#define USER_DEFINED_FRICTION_MODEL 1
 //#define USE_CUSTOM_NEAR_CALLBACK 1
 //#define CENTER_OF_MASS_SHIFT 1
@@ -121,13 +121,13 @@ btCollisionShape* shapePtr[numShapes] =
 #ifdef DO_BENCHMARK_PYRAMIDS
 		new btBoxShape (btVector3(CUBE_HALF_EXTENTS,CUBE_HALF_EXTENTS,CUBE_HALF_EXTENTS)),
 #else
-		//new btCylinderShape (btVector3(CUBE_HALF_EXTENTS,CUBE_HALF_EXTENTS,CUBE_HALF_EXTENTS)),
+		new btCylinderShape (btVector3(CUBE_HALF_EXTENTS,CUBE_HALF_EXTENTS,CUBE_HALF_EXTENTS)),
 #endif
 
 		//new btSphereShape (CUBE_HALF_EXTENTS),
 		//new btCapsuleShape(0.5*CUBE_HALF_EXTENTS,CUBE_HALF_EXTENTS),
 		//new btCylinderShape (btVector3(1-gCollisionMargin,CUBE_HALF_EXTENTS-gCollisionMargin,1-gCollisionMargin)),
-		new btConeShapeX(CUBE_HALF_EXTENTS,2.f*CUBE_HALF_EXTENTS),
+		//new btConeShapeX(CUBE_HALF_EXTENTS,2.f*CUBE_HALF_EXTENTS),
 		
 		new btSphereShape (CUBE_HALF_EXTENTS),
 		
