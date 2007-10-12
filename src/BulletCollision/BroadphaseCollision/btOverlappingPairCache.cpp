@@ -31,7 +31,7 @@ btOverlappingPairCache::btOverlappingPairCache():
 	m_blockedForChanges(false),
 	m_overlapFilterCallback(0)
 {
-	int initialAllocatedSize= 65536*256;//2;//this needs to be a power of 2!
+	int initialAllocatedSize= 2;
 	m_overlappingPairArray.reserve(initialAllocatedSize);
 
 	growTables();
@@ -157,7 +157,6 @@ btBroadphasePair* btOverlappingPairCache::findPair(btBroadphaseProxy* proxy0, bt
 
 void	btOverlappingPairCache::growTables()
 {
-	//or put an assert here instead?
 
 	int newCapacity = m_overlappingPairArray.capacity();
 
@@ -170,21 +169,18 @@ void	btOverlappingPairCache::growTables()
 		m_hashTable.resize(newCapacity);
 		m_next.resize(newCapacity);
 
-		for (int i= curHashtableSize; i < newCapacity; ++i)
+		for (int i= 0; i < newCapacity; ++i)
 		{
 			m_hashTable[i] = BT_NULL_PAIR;
 		}
-		for (int i = curNextTableSize; i < newCapacity; ++i)
+		for (int i = 0; i < newCapacity; ++i)
 		{
 			m_next[i] = BT_NULL_PAIR;
 		}
 
 		for(int	i=0;i<curHashtableSize;i++)
 		{
-			btAssert(0);
-			//this is not working yet, work in progress... please allocate enough room up front to avoid growing for now.
 	
-
 			const btBroadphasePair& pair = m_overlappingPairArray[i];
 			int proxyId1 = pair.m_pProxy0->getUid();
 			int proxyId2 = pair.m_pProxy1->getUid();
@@ -348,7 +344,7 @@ void	btOverlappingPairCache::processAllOverlappingPairs(btOverlapCallback* callb
 
 	int i;
 
-	//printf("m_overlappingPairArray.size()=%d\n",m_overlappingPairArray.size());
+//	printf("m_overlappingPairArray.size()=%d\n",m_overlappingPairArray.size());
 	for (i=0;i<m_overlappingPairArray.size();)
 	{
 	
