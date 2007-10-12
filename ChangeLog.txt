@@ -1,5 +1,13 @@
 Bullet Continuous Collision Detection and Physics Library
 Primary author and maintainer: Erwin Coumans
+
+2007 Oct 11
+	- added Hashed Overlapping Pair Cache, recommended by Pierre Terdiman. It works like a charm, thanks Pierre and Erin Catto (code from Box2D)
+	- modified some margins inside btBoxShape, btCylinderShape and btSphereShape
+	- added cone debug rendering (for cones with x, y and z up-axis)
+	- added improvements for optional Extra/quickstep, thanks to Remotion
+	- some performance improvements for Bullet constraint solver
+
 2007 Sept 28
 	- upgraded GIMPACT to version 0.3
 	Thanks to Francisco Leon
