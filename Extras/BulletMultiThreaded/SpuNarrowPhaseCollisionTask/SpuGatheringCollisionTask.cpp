@@ -1117,8 +1117,10 @@ void	handleCollisionPair(SpuCollisionPairInput& collisionPairInput, CollisionTas
 			cellDmaWaitTagStatusAll(DMA_MASK(1) | DMA_MASK(2));
 		
 
+			int i;
+
 		// DMA all the subshapes 
-		for (int i = 0; i < childShapeCount0; ++i)
+		for ( i = 0; i < childShapeCount0; ++i)
 		{
 			btCompoundShapeChild& childShape = lsMem.gSubshapes[i];
 
@@ -1133,7 +1135,7 @@ void	handleCollisionPair(SpuCollisionPairInput& collisionPairInput, CollisionTas
 		}
 		cellDmaWaitTagStatusAll(DMA_MASK(1));
 
-		for (int i = 0; i < childShapeCount1; ++i)
+		for ( i = 0; i < childShapeCount1; ++i)
 		{
 			btCompoundShapeChild& childShape = lsMem.gSubshapes[MAX_SPU_COMPOUND_SUBSHAPES+i];
 
@@ -1149,7 +1151,7 @@ void	handleCollisionPair(SpuCollisionPairInput& collisionPairInput, CollisionTas
 		cellDmaWaitTagStatusAll(DMA_MASK(1));
 
 		// Start the N^2
-		for (int i = 0; i < childShapeCount0; ++i)
+		for ( i = 0; i < childShapeCount0; ++i)
 		{
 			btCompoundShapeChild& childShape0 = lsMem.gSubshapes[i];
 

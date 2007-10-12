@@ -509,8 +509,8 @@ static void solveConstraint (SpuSolverConstraint& constraint, SpuSolverBody& bod
 		{
 			btVector3 normal (0,0,0);
 
-			const btVector3& bias (constraint.m_linearBias);
-			const btVector3& jacInv (constraint.m_jacdiagABInv);
+			const btVector3& bias =constraint.m_linearBias;
+			const btVector3& jacInv =constraint.m_jacdiagABInv;
 
 			for (int i = 0; i < 3; ++i)
 			{
@@ -557,12 +557,12 @@ static void solveConstraint (SpuSolverConstraint& constraint, SpuSolverBody& bod
 	case HINGE_CONSTRAINT_TYPE:
 		{
 			// Angular solving for the two first axes
-			const btVector3& bias (constraint.hinge.m_angularBias);
-			const btVector3& jacInv (constraint.hinge.m_angJacdiagABInv);
+			const btVector3& bias =constraint.hinge.m_angularBias;
+			const btVector3& jacInv =constraint.hinge.m_angJacdiagABInv;
 
 			for (int i = 0; i < 2; ++i)
 			{
-				const btVector3& axis (constraint.hinge.m_frameAinW[i]);
+				const btVector3& axis =constraint.hinge.m_frameAinW[i];
 				
 				// Compute relative velocity
 				btVector3 relVel = bodyA.m_angularVelocity - bodyB.m_angularVelocity;
@@ -587,7 +587,7 @@ static void solveConstraint (SpuSolverConstraint& constraint, SpuSolverBody& bod
 			// Limit
 			if (constraint.m_flags.m_limit1)
 			{
-				const btVector3& axis (constraint.hinge.m_frameAinW[2]);
+				const btVector3& axis =constraint.hinge.m_frameAinW[2];
 
 				// Compute relative velocity
 				btVector3 relVel = bodyA.m_angularVelocity - bodyB.m_angularVelocity;
@@ -617,7 +617,7 @@ static void solveConstraint (SpuSolverConstraint& constraint, SpuSolverBody& bod
 			// Motor
 			if (constraint.m_flags.m_motor1)
 			{
-				const btVector3& axis (constraint.hinge.m_frameAinW[2]);
+				const btVector3& axis =constraint.hinge.m_frameAinW[2];
 
 				// Compute relative velocity
 				btVector3 relVel = bodyA.m_angularVelocity - bodyB.m_angularVelocity;
@@ -650,7 +650,7 @@ static void solveConstraint (SpuSolverConstraint& constraint, SpuSolverBody& bod
 			// Swing
 			if (constraint.m_flags.m_limit1)
 			{
-				const btVector3& axis (constraint.conetwist.m_swingAxis);
+				const btVector3& axis =constraint.conetwist.m_swingAxis;
 
 				// Compute relative velocity
 				btVector3 relVel = bodyA.m_angularVelocity - bodyB.m_angularVelocity;
@@ -680,7 +680,7 @@ static void solveConstraint (SpuSolverConstraint& constraint, SpuSolverBody& bod
 			// Twist
 			if (constraint.m_flags.m_limit2)
 			{
-				const btVector3& axis (constraint.conetwist.m_twistAxis);
+				const btVector3& axis =constraint.conetwist.m_twistAxis;
 
 				// Compute relative velocity
 				btVector3 relVel = bodyA.m_angularVelocity - bodyB.m_angularVelocity;
@@ -845,8 +845,9 @@ void processSolverTask(void* userPtr, void* lsMemory)
 					cellDmaWaitTagStatusAll(DMA_MASK(1));
 				}
 
+				int b;
 				// DMA the rigid bodies
-				for (int b = 0; b < packageSize; ++b)
+				for ( b = 0; b < packageSize; ++b)
 				{
 					btRigidBody* body = bodyPtrList[b];
 					int dmaSize = sizeof(btRigidBody);
@@ -855,7 +856,7 @@ void processSolverTask(void* userPtr, void* lsMemory)
 				}
 				cellDmaWaitTagStatusAll(DMA_MASK(1));
 
-				for (int b = 0; b < packageSize; ++b)
+				for ( b = 0; b < packageSize; ++b)
 				{					
 					btRigidBody* localBody = bodyList+b;
 					SpuSolverBody* spuBody = spuBodyList + b;
@@ -867,7 +868,7 @@ void processSolverTask(void* userPtr, void* lsMemory)
 				}
 
 				// DMA the rigid bodies back
-				for (int b = 0; b < packageSize; ++b)
+				for ( b = 0; b < packageSize; ++b)
 				{
 					btRigidBody* body = bodyPtrList[b];
 					int dmaSize = sizeof(btRigidBody);
@@ -936,8 +937,9 @@ void processSolverTask(void* userPtr, void* lsMemory)
 							cellDmaWaitTagStatusAll(DMA_MASK(1));
 						}
 
+						int m;
 						// DMA the manifold list
-						for (int m = 0; m < packageSize; ++m)
+						for ( m = 0; m < packageSize; ++m)
 						{
 							int dmaSize = sizeof(btPersistentManifold);
 							uint64_t dmaPpuAddress2 = reinterpret_cast<uint64_t> (manifoldHolderList[m].m_manifold);
@@ -945,7 +947,7 @@ void processSolverTask(void* userPtr, void* lsMemory)
 						}
 						cellDmaWaitTagStatusAll(DMA_MASK(1));
 
-						for (int m = 0; m < packageSize; ++m)
+						for ( m = 0; m < packageSize; ++m)
 						{
 							btPersistentManifold* currManifold = manifoldList + m;
 
@@ -1182,8 +1184,9 @@ void processSolverTask(void* userPtr, void* lsMemory)
 							cellDmaWaitTagStatusAll(DMA_MASK(1));
 						}
 
+						int c;
 						// DMA the constraint list
-						for (int c = 0; c < packageSize; ++c)
+						for ( c = 0; c < packageSize; ++c)
 						{
 							//int dmaSize = CONSTRAINT_MAX_SIZE;
 							int dmaSize = getConstraintSize((btTypedConstraintType)constraintHolderList[c].m_constraintType);
@@ -1192,7 +1195,7 @@ void processSolverTask(void* userPtr, void* lsMemory)
 						}
 						cellDmaWaitTagStatusAll(DMA_MASK(1));
 
-						for (int c = 0; c < packageSize; ++c)
+						for ( c = 0; c < packageSize; ++c)
 						{
 							btTypedConstraint* currConstraint = (btTypedConstraint*)(constraintList + CONSTRAINT_MAX_SIZE*c);
 							btTypedConstraintType type = currConstraint->getConstraintType();
@@ -1563,7 +1566,7 @@ void processSolverTask(void* userPtr, void* lsMemory)
 				// Get the body list
 				uint32_t* indexList = (uint32_t*)allocTemporaryStorage(localMemory, sizeof(uint32_t)*hashCell.m_numLocalBodies);
 				SpuSolverBody* bodyList = allocBodyStorage(localMemory, hashCell.m_numLocalBodies);
-				
+				int b;
 				{
 					int dmaSize = sizeof(uint32_t)*hashCell.m_numLocalBodies;
 					uint64_t dmaPpuAddress2 = reinterpret_cast<uint64_t> (taskDesc.m_solverData.m_solverBodyOffsetList + hashCell.m_solverBodyOffsetListOffset);
@@ -1572,7 +1575,7 @@ void processSolverTask(void* userPtr, void* lsMemory)
 				}
 
 				// DMA the bodies
-				for (int b = 0; b < hashCell.m_numLocalBodies; ++b)
+				for ( b = 0; b < hashCell.m_numLocalBodies; ++b)
 				{
 					int dmaSize = sizeof(SpuSolverBody);
 					uint64_t dmaPpuAddress2 = reinterpret_cast<uint64_t> (taskDesc.m_solverData.m_solverBodyList + indexList[b]);
@@ -1649,8 +1652,9 @@ void processSolverTask(void* userPtr, void* lsMemory)
 						cellDmaWaitTagStatusAll(DMA_MASK(1));
 
 
+						int j;
 						// Solve
-						for (int j = 0; j < packetSize*3; j += 3)
+						for ( j = 0; j < packetSize*3; j += 3)
 						{
 							SpuSolverInternalConstraint& contact = internalConstraints[j];
 							SpuSolverBody& bodyA = bodyList[contact.m_localOffsetBodyA];
@@ -1659,7 +1663,7 @@ void processSolverTask(void* userPtr, void* lsMemory)
 							solveContact(contact, bodyA, bodyB);
 						}
 
-						for (int j = 0; j < packetSize*3; j += 3)
+						for ( j = 0; j < packetSize*3; j += 3)
 						{
 							SpuSolverInternalConstraint& contact = internalConstraints[j];
 							SpuSolverBody& bodyA = bodyList[contact.m_localOffsetBodyA];
@@ -1690,7 +1694,7 @@ void processSolverTask(void* userPtr, void* lsMemory)
 
 								
 				// DMA the bodies back to main memory
-				for (int b = 0; b < hashCell.m_numLocalBodies; ++b)
+				for ( b = 0; b < hashCell.m_numLocalBodies; ++b)
 				{					
 					int dmaSize = sizeof(SpuSolverBody);
 					uint64_t dmaPpuAddress2 = reinterpret_cast<uint64_t> (taskDesc.m_solverData.m_solverBodyList + indexList[b]);
@@ -1726,8 +1730,9 @@ void processSolverTask(void* userPtr, void* lsMemory)
 					cellDmaWaitTagStatusAll(DMA_MASK(1));
 				}
 
+				int b;
 				// DMA the rigid bodies
-				for (int b = 0; b < packageSize; ++b)
+				for ( b = 0; b < packageSize; ++b)
 				{
 					btRigidBody* body = bodyPtrList[b];
 					int dmaSize = sizeof(btRigidBody);
@@ -1744,7 +1749,7 @@ void processSolverTask(void* userPtr, void* lsMemory)
 				cellDmaWaitTagStatusAll(DMA_MASK(1) | DMA_MASK(2));
 
 
-				for (int b = 0; b < packageSize; ++b)
+				for ( b = 0; b < packageSize; ++b)
 				{
 					btRigidBody* localBody = bodyList + b;
 					SpuSolverBody* solverBody = spuBodyList + b;
@@ -1758,7 +1763,7 @@ void processSolverTask(void* userPtr, void* lsMemory)
 				}
 
 				// DMA the rigid bodies
-				for (int b = 0; b < packageSize; ++b)
+				for ( b = 0; b < packageSize; ++b)
 				{
 					btRigidBody* body = bodyPtrList[b];
 					int dmaSize = sizeof(btRigidBody);

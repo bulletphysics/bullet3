@@ -53,15 +53,16 @@ static void clearHash (SpuSolverHash* hash)
 {
 	size_t hashSize = sizeof(SpuSolverHash);
 	memset(hash, 0, hashSize);
+	int i;
 
 	// Setup basic dependency
-	for (int i = 0; i < SPU_HASH_NUMCELLS; ++i)
+	for ( i = 0; i < SPU_HASH_NUMCELLS; ++i)
 	{
 		hash->m_dependencyMatrix[i][i >> 5] |= (1 << (i & 31));
 	}
 
 	// Set some ones to "unused cells"
-	for (int i = SPU_HASH_WORDWIDTH-SPU_HASH_NUMUNUSEDBITS; i < SPU_HASH_WORDWIDTH; ++i)
+	for ( i = SPU_HASH_WORDWIDTH-SPU_HASH_NUMUNUSEDBITS; i < SPU_HASH_WORDWIDTH; ++i)
 	{
 		hash->m_currentMask[0][SPU_HASH_NUMCELLDWORDS-1] |= (1 << i);
 	}
@@ -109,9 +110,11 @@ btScalar btParallelSequentialImpulseSolver::solveGroup(btCollisionObject** bodie
 {
 	if (!numManifolds && !numConstraints)
 		return 0;
+	int i;
+
 ///refresh contact points is not needed anymore, it has been moved into the processCollision detection part.
 #ifdef FORCE_REFESH_CONTACT_MANIFOLDS
-	for (int i = 0; i < numManifolds; ++i)
+	for ( i = 0; i < numManifolds; ++i)
 	{
 		btPersistentManifold* currManifold = manifold[i];
 		btRigidBody* rb0 = (btRigidBody*)currManifold->getBody0();
@@ -122,7 +125,7 @@ btScalar btParallelSequentialImpulseSolver::solveGroup(btCollisionObject** bodie
 #endif //FORCE_REFESH_CONTACT_MANIFOLDS
 
 	// Record and mark the manifolds to the cells
-	for (int i = 0; i < numManifolds; ++i)
+	for ( i = 0; i < numManifolds; ++i)
 	{
 		// Compute a hash cell for this manifold
 		btPersistentManifold* currManifold = manifold[i];
@@ -163,7 +166,7 @@ btScalar btParallelSequentialImpulseSolver::solveGroup(btCollisionObject** bodie
 	}
 
 	// Record and mark constraints to the cells
-	for (int i = 0; i < numConstraints; ++i)
+	for ( i = 0; i < numConstraints; ++i)
 	{
 		// Compute a hash cell for this manifold
 		btTypedConstraint* currConstraint = constraints[i];
@@ -202,7 +205,7 @@ btScalar btParallelSequentialImpulseSolver::solveGroup(btCollisionObject** bodie
 	}
 
 	// Save all RBs
-	for (int i = 0; i < numBodies; ++i)
+	for ( i = 0; i < numBodies; ++i)
 	{
 		btCollisionObject* obj = bodies[i];
 		//unsigned int cellIdx = getObjectIndex(obj);
