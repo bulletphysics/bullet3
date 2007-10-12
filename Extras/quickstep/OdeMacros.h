@@ -207,7 +207,8 @@ inline void dSetValue1 (btScalar *dest, int size, btScalar val)
 	dAASSERT (dest && size >= 0);
 	int n_mod4 = size & 3;		
 	int n4 = size - n_mod4;
-#ifdef __USE_SSE__
+/*#ifdef __USE_SSE__
+//it is not supported on double precision, todo...
 	if(IS_ALIGNED_16(dest)){
 		__m128 xmm0 = _mm_set_ps1(val);
 		for (int i=0; i<n4; i+=4)
@@ -216,6 +217,8 @@ inline void dSetValue1 (btScalar *dest, int size, btScalar val)
 		}
 	}else
 #endif
+	*/
+
 	{
 		for (int i=0; i<n4; i+=4) // Unrolled Loop
 		{
