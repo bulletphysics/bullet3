@@ -37,7 +37,7 @@ class btUniformScalingShape : public btConvexShape
 
 	virtual void	batchedUnitVectorGetSupportingVertexWithoutMargin(const btVector3* vectors,btVector3* supportVerticesOut,int numVectors) const;
 
-	virtual void	calculateLocalInertia(btScalar mass,btVector3& inertia);
+	virtual void	calculateLocalInertia(btScalar mass,btVector3& inertia) const;
 
 	btScalar	getUniformScalingFactor() const
 	{
@@ -54,7 +54,7 @@ class btUniformScalingShape : public btConvexShape
 		return m_childConvexShape;
 	}
 
-	virtual char*	getName()const 
+	virtual const char*	getName()const 
 	{
 		return "UniformScalingShape";
 	}

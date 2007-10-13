@@ -42,7 +42,7 @@ public:
 	btScalar getHeight() const { return m_height;}
 
 
-	virtual void	calculateLocalInertia(btScalar mass,btVector3& inertia)
+	virtual void	calculateLocalInertia(btScalar mass,btVector3& inertia) const
 	{
 		btTransform identity;
 		identity.setIdentity();
@@ -72,7 +72,7 @@ public:
 
 		virtual int	getShapeType() const { return CONE_SHAPE_PROXYTYPE; }
 
-		virtual char*	getName()const 
+		virtual const char*	getName()const 
 		{
 			return "Cone";
 		}

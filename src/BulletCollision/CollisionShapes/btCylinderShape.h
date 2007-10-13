@@ -60,7 +60,7 @@ public:
 
 
 	//use box inertia
-	//	virtual void	calculateLocalInertia(btScalar mass,btVector3& inertia);
+	//	virtual void	calculateLocalInertia(btScalar mass,btVector3& inertia) const;
 
 	virtual int	getShapeType() const
 	{
@@ -78,7 +78,7 @@ public:
 	}
 
 	//debugging
-	virtual char*	getName()const
+	virtual const char*	getName()const
 	{
 		return "CylinderY";
 	}
@@ -96,7 +96,7 @@ public:
 	virtual void	batchedUnitVectorGetSupportingVertexWithoutMargin(const btVector3* vectors,btVector3* supportVerticesOut,int numVectors) const;
 	
 		//debugging
-	virtual char*	getName()const
+	virtual const char*	getName()const
 	{
 		return "CylinderX";
 	}
@@ -121,7 +121,7 @@ public:
 		return 2;
 	}
 		//debugging
-	virtual char*	getName()const
+	virtual const char*	getName()const
 	{
 		return "CylinderZ";
 	}

@@ -36,7 +36,7 @@ public:
 	virtual void	batchedUnitVectorGetSupportingVertexWithoutMargin(const btVector3* vectors,btVector3* supportVerticesOut,int numVectors) const;
 
 
-	virtual void	calculateLocalInertia(btScalar mass,btVector3& inertia);
+	virtual void	calculateLocalInertia(btScalar mass,btVector3& inertia) const;
 
 	virtual void getAabb(const btTransform& t,btVector3& aabbMin,btVector3& aabbMax) const;
 
@@ -45,7 +45,7 @@ public:
 	btScalar	getRadius() const { return m_implicitShapeDimensions.getX() * m_localScaling.getX();}
 
 	//debugging
-	virtual char*	getName()const {return "SPHERE";}
+	virtual const char*	getName()const {return "SPHERE";}
 
 	virtual void	setMargin(btScalar margin)
 	{

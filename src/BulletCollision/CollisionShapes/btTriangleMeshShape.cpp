@@ -175,7 +175,7 @@ void	btTriangleMeshShape::processAllTriangles(btTriangleCallback* callback,const
 
 
 
-void	btTriangleMeshShape::calculateLocalInertia(btScalar mass,btVector3& inertia)
+void	btTriangleMeshShape::calculateLocalInertia(btScalar mass,btVector3& inertia) const
 {
 	(void)mass;
 	//moving concave objects not supported

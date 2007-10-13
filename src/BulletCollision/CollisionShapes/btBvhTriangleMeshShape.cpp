@@ -22,8 +22,9 @@ subject to the following restrictions:
 ///Bvh Concave triangle mesh is a static-triangle mesh shape with Bounding Volume Hierarchy optimization.
 ///Uses an interface to access the triangles to allow for sharing graphics/physics triangles.
 btBvhTriangleMeshShape::btBvhTriangleMeshShape(btStridingMeshInterface* meshInterface, bool useQuantizedAabbCompression, bool buildBvh)
-:btTriangleMeshShape(meshInterface),m_useQuantizedAabbCompression(useQuantizedAabbCompression),
+:btTriangleMeshShape(meshInterface),
 m_bvh(0),
+m_useQuantizedAabbCompression(useQuantizedAabbCompression),
 m_ownsBvh(false)
 {
 	//construct bvh from meshInterface
@@ -44,8 +45,9 @@ m_ownsBvh(false)
 }
 
 btBvhTriangleMeshShape::btBvhTriangleMeshShape(btStridingMeshInterface* meshInterface, bool useQuantizedAabbCompression,const btVector3& bvhAabbMin,const btVector3& bvhAabbMax,bool buildBvh)
-:btTriangleMeshShape(meshInterface),m_useQuantizedAabbCompression(useQuantizedAabbCompression),
+:btTriangleMeshShape(meshInterface),
 m_bvh(0),
+m_useQuantizedAabbCompression(useQuantizedAabbCompression),
 m_ownsBvh(false)
 {
 	//construct bvh from meshInterface

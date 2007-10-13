@@ -96,7 +96,7 @@ int main(int argc,char** argv)
 
 	BspDemo* bspDemo = new BspDemo();
 
-	char* bspfilename = "BspDemo.bsp";
+	const char* bspfilename = "BspDemo.bsp";
 
 	printf("argc=%i\n",argc);
 	{
@@ -113,7 +113,8 @@ int main(int argc,char** argv)
 		bspfilename = argv[1];
 	}
 
-	bspDemo->initPhysics(bspfilename);
+	// Enrico: TODO: Should change parameter type of initPhysics() to std::string or at least const char *
+	bspDemo->initPhysics((char*)bspfilename);
 	
 	bspDemo->setCameraDistance(22.f);
 

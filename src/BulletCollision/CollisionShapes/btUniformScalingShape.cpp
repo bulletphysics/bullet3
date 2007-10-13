@@ -52,7 +52,7 @@ btVector3	btUniformScalingShape::localGetSupportingVertex(const btVector3& vec)c
 }
 
 
-void	btUniformScalingShape::calculateLocalInertia(btScalar mass,btVector3& inertia)
+void	btUniformScalingShape::calculateLocalInertia(btScalar mass,btVector3& inertia) const
 {
 
 	///this linear upscaling is not realistic, but we don't deal with large mass ratios...

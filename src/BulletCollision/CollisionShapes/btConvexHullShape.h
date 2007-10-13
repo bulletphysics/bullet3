@@ -57,7 +57,7 @@ public:
 	virtual int	getShapeType()const { return CONVEX_HULL_SHAPE_PROXYTYPE; }
 
 	//debugging
-	virtual char*	getName()const {return "Convex";}
+	virtual const char*	getName()const {return "Convex";}
 
 	
 	virtual int	getNumVertices() const;

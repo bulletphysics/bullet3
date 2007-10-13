@@ -340,7 +340,6 @@ drawDinosaur(void)
 
 {
 	plReal matrix[16];
-	plVector3 dinoWorldPos;
 
 	glPushMatrix();
   /* Translate the dinosaur to be at (0,8,0). */
@@ -839,7 +838,7 @@ main(int argc, char **argv)
 	plVector3 dinoPos;
 	plQuaternion childOrn,dinoOrient;
 	
-	void* user_data;
+	void* user_data=NULL;
 	
 	physicsSdk = plNewBulletSdk();
 	dynamicsWorld = plCreateDynamicsWorld(physicsSdk);

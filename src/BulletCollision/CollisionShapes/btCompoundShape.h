@@ -99,7 +99,7 @@ public:
 		return m_localScaling;
 	}
 
-	virtual void	calculateLocalInertia(btScalar mass,btVector3& inertia);
+	virtual void	calculateLocalInertia(btScalar mass,btVector3& inertia) const;
 	
 	virtual int	getShapeType() const { return COMPOUND_SHAPE_PROXYTYPE;}
 
@@ -111,7 +111,7 @@ public:
 	{
 		return m_collisionMargin;
 	}
-	virtual char*	getName()const
+	virtual const char*	getName()const
 	{
 		return "Compound";
 	}

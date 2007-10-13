@@ -19,15 +19,15 @@ subject to the following restrictions:
 
 
 btHeightfieldTerrainShape::btHeightfieldTerrainShape(int width,int length,void* heightfieldData,btScalar maxHeight,int upAxis,bool useFloatData,bool flipQuadEdges)
-:m_localScaling(btScalar(1.),btScalar(1.),btScalar(1.)),
-m_width(width),
+:m_width(width),
 m_length(length),
-m_heightfieldDataUnknown(heightfieldData),
 m_maxHeight(maxHeight),
-m_upAxis(upAxis),
+m_heightfieldDataUnknown(heightfieldData),
 m_useFloatData(useFloatData),
 m_flipQuadEdges(flipQuadEdges),
-m_useDiamondSubdivision(false)
+m_useDiamondSubdivision(false),
+m_upAxis(upAxis),
+m_localScaling(btScalar(1.),btScalar(1.),btScalar(1.))
 {
 
 
@@ -322,7 +322,7 @@ void	btHeightfieldTerrainShape::processAllTriangles(btTriangleCallback* callback
 
 }
 
-void	btHeightfieldTerrainShape::calculateLocalInertia(btScalar ,btVector3& inertia)
+void	btHeightfieldTerrainShape::calculateLocalInertia(btScalar ,btVector3& inertia) const
 {
 	//moving concave objects not supported
 	

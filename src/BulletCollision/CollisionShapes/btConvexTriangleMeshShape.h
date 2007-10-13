@@ -28,7 +28,7 @@ public:
 	virtual int	getShapeType()const { return CONVEX_TRIANGLEMESH_SHAPE_PROXYTYPE; }
 
 	//debugging
-	virtual char*	getName()const {return "ConvexTrimesh";}
+	virtual const char*	getName()const {return "ConvexTrimesh";}
 	
 	virtual int	getNumVertices() const;
 	virtual int getNumEdges() const;

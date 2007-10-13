@@ -68,7 +68,7 @@ public:
 
 
 	///getName is for debugging
-	virtual  char*	getName()const { return "btBU_Simplex1to4";}
+	virtual const char*	getName()const { return "btBU_Simplex1to4";}
 
 };
 

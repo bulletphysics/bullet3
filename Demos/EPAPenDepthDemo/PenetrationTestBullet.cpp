@@ -675,8 +675,8 @@ static void RenderCallback()
 	glMatrixMode(GL_MODELVIEW);
 	glLoadIdentity();
 
-	float RefDMin;
-	btVector3 RefSep;
+	btVector3 RefSep(btScalar(0.), btScalar(0.), btScalar(0.));
+	float RefDMin=0.f;
 	bool RefResult = false;
 	if(gRefMode)
 		RefResult = ReferenceCode(gConvex0, gConvex1, RefDMin, RefSep);

@@ -228,7 +228,6 @@ void	ConcaveDemo::initPhysics()
 		int buffersize = size+btOptimizedBvh::getAlignmentSerializationPadding();
 
 		void* buffer = btAlignedAlloc(buffersize,16);
-		//memset(buffer,0xcc,size);
 		int read = fread(buffer,1,size,file);
 		fclose(file);
 		bool swapEndian = false;

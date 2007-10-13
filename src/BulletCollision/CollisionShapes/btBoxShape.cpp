@@ -37,7 +37,7 @@ void btBoxShape::getAabb(const btTransform& t,btVector3& aabbMin,btVector3& aabb
 }
 
 
-void	btBoxShape::calculateLocalInertia(btScalar mass,btVector3& inertia)
+void	btBoxShape::calculateLocalInertia(btScalar mass,btVector3& inertia) const
 {
 	//btScalar margin = btScalar(0.);
 	btVector3 halfExtents = getHalfExtentsWithMargin();

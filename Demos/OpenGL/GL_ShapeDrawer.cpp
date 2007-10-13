@@ -321,10 +321,10 @@ void GL_ShapeDrawer::drawOpenGL(btScalar* m, const btCollisionShape* shape, cons
 		const btConvexShape* convexShape = scalingShape->getChildShape();
 		float	scalingFactor = (float)scalingShape->getUniformScalingFactor();
 		{
-			btScalar tmpScaling[4][4]={scalingFactor,0,0,0,
-				0,scalingFactor,0,0,
-				0,0,scalingFactor,0,
-				0,0,0,1};
+			btScalar tmpScaling[4][4]={{scalingFactor,0,0,0},
+				{0,scalingFactor,0,0},
+				{0,0,scalingFactor,0},
+				{0,0,0,1}};
 			
 			drawOpenGL( (btScalar*)tmpScaling,convexShape,color,debugMode);
 		}

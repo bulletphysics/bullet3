@@ -25,7 +25,7 @@ subject to the following restrictions:
 
 #define CALC_EXACT_INERTIA 1
 
-void btGImpactCompoundShape::calculateLocalInertia(btScalar mass,btVector3& inertia)
+void btGImpactCompoundShape::calculateLocalInertia(btScalar mass,btVector3& inertia) const
 {
 	lockChildShapes();
 #ifdef CALC_EXACT_INERTIA
@@ -69,7 +69,7 @@ void btGImpactCompoundShape::calculateLocalInertia(btScalar mass,btVector3& iner
 
 
 
-void btGImpactMeshShapePart::calculateLocalInertia(btScalar mass,btVector3& inertia)
+void btGImpactMeshShapePart::calculateLocalInertia(btScalar mass,btVector3& inertia) const
 {
 	lockChildShapes();
 
@@ -107,7 +107,7 @@ void btGImpactMeshShapePart::calculateLocalInertia(btScalar mass,btVector3& iner
 	unlockChildShapes();
 }
 
-void btGImpactMeshShape::calculateLocalInertia(btScalar mass,btVector3& inertia)
+void btGImpactMeshShape::calculateLocalInertia(btScalar mass,btVector3& inertia) const
 {
 
 #ifdef CALC_EXACT_INERTIA

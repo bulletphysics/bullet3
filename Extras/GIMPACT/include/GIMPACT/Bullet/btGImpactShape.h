@@ -486,9 +486,9 @@ public:
 
 
 	//! Calculates the exact inertia tensor for this shape
-	virtual void	calculateLocalInertia(btScalar mass,btVector3& inertia);
+	virtual void	calculateLocalInertia(btScalar mass,btVector3& inertia) const;
 
-	virtual char*	getName()const
+	virtual const char*	getName()const
 	{
 		return "GImpactCompound";
 	}
@@ -790,12 +790,12 @@ public:
 
 
 
-	virtual void	calculateLocalInertia(btScalar mass,btVector3& inertia);
+	virtual void	calculateLocalInertia(btScalar mass,btVector3& inertia) const;
 
 
 
 
-	virtual char*	getName()const
+	virtual const char*	getName()const
 	{
 		return "GImpactMeshShapePart";
 	}
@@ -922,7 +922,7 @@ public:
 
 
 
-	int getMeshPartCount()
+	int getMeshPartCount() const
 	{
 		return m_mesh_parts.size();
 	}
@@ -981,7 +981,7 @@ public:
     	m_needs_update = true;
     }
 
-	virtual void	calculateLocalInertia(btScalar mass,btVector3& inertia);
+	virtual void	calculateLocalInertia(btScalar mass,btVector3& inertia) const;
 
 
 	//! Obtains the primitive manager
@@ -1091,7 +1091,7 @@ public:
 	}
 
 
-	virtual char*	getName()const
+	virtual const char*	getName()const
 	{
 		return "GImpactMesh";
 	}

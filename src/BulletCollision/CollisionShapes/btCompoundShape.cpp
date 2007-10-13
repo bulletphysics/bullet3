@@ -83,7 +83,7 @@ void btCompoundShape::getAabb(const btTransform& trans,btVector3& aabbMin,btVect
 	aabbMax = center + extent;
 }
 
-void	btCompoundShape::calculateLocalInertia(btScalar mass,btVector3& inertia)
+void	btCompoundShape::calculateLocalInertia(btScalar mass,btVector3& inertia) const
 {
 	//approximation: take the inertia from the aabb for now
 	btTransform ident;

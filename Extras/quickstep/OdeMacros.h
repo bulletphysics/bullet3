@@ -165,32 +165,8 @@ inline void dSetValue1 (btScalar *a, int n, btScalar value)
 
 /// This macros are for MSVC and XCode compilers. Remotion.
 
-#if  _MSC_VER   //Visual Studio Win32, Win64
-	#include <xmmintrin.h> // SSE
-	#include <emmintrin.h> // SSE2	
-	#include <intrin.h>	   // SSE3
-	
-	#define __USE_SSE__
 
-/*
-	#ifdef _WIN64
-		typedef unsigned __int64 size_t;
-	#else
-		typedef unsigned int size_t;
-	#endif
-*/
-#elif  __GNUC__  // XCode GCC
-	#if defined(__ppc__) || defined(__ppc64__) // Mac PPC
-		///PPC or PPC64 Mac no SSE support
-	#elif defined(__i386__)	// Intel Mac with SSE support 
-		#include <xmmintrin.h> // SSE
-		#include <emmintrin.h> // SSE2	
-		#include <pmmintrin.h> // SSE3
-		#define __USE_SSE__
-	#endif
-	#include <string.h>
-#endif
-
+#include <string.h> //for memset
 
 //Remotion: 10.10.2007
 //------------------------------------------------------------------------------

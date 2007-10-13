@@ -206,11 +206,11 @@ void	btAxisSweep3Internal<BP_FP_INT_TYPE>::setAabb(btBroadphaseProxy* proxy,cons
 
 template <typename BP_FP_INT_TYPE>
 btAxisSweep3Internal<BP_FP_INT_TYPE>::btAxisSweep3Internal(const btPoint3& worldAabbMin,const btPoint3& worldAabbMax, BP_FP_INT_TYPE handleMask, BP_FP_INT_TYPE handleSentinel,BP_FP_INT_TYPE maxHandles, btOverlappingPairCache* pairCache )
-:m_invalidPair(0),
+:m_bpHandleMask(handleMask),
+m_handleSentinel(handleSentinel),
 m_pairCache(pairCache),
 m_ownsPairCache(false),
-m_bpHandleMask(handleMask),
-m_handleSentinel(handleSentinel)
+m_invalidPair(0)
 {
 	if (!m_pairCache)
 	{

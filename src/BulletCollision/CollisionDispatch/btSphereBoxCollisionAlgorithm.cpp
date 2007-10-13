@@ -216,6 +216,10 @@ btScalar btSphereBoxCollisionAlgorithm::getSpherePenetration( btCollisionObject*
 	btVector3	p0, tmp, prel, n[6], normal;
 	btScalar   fSep = btScalar(-10000000.0), fSepThis;
 
+	// set p0 and normal to a default value to shup up GCC
+	p0.setValue(btScalar(0.), btScalar(0.), btScalar(0.));
+	normal.setValue(btScalar(0.), btScalar(0.), btScalar(0.));
+
 	n[0].setValue( btScalar(-1.0),  btScalar(0.0),  btScalar(0.0) );
 	n[1].setValue(  btScalar(0.0), btScalar(-1.0),  btScalar(0.0) );
 	n[2].setValue(  btScalar(0.0),  btScalar(0.0), btScalar(-1.0) );

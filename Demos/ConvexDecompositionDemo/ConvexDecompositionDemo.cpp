@@ -67,7 +67,7 @@ GLDebugDrawer debugDrawer;
 
 int main(int argc,char** argv)
 {
-	char* filename = "file.obj";
+	const char* filename = "file.obj";
 
 
 	ConvexDecompositionDemo* convexDecompDemo = new ConvexDecompositionDemo();

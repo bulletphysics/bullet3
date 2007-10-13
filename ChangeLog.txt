@@ -1,6 +1,13 @@
 Bullet Continuous Collision Detection and Physics Library
 Primary author and maintainer: Erwin Coumans
 
+2007 Oct 13
+	- made 'btCollisionShape::calculateLocalInertia' const
+	Thanks to cgripeos, see http://www.bulletphysics.com/Bullet/phpBB3/viewtopic.php?f=9&t=1514
+	- applied a large patch to remove warnings
+	Thanks to Enrico, see http://www.bulletphysics.com/Bullet/phpBB3/viewtopic.php?f=9&t=1568
+	- removed SSE includes, added #incude <string.h> for memset in Extras/quickstep, thanks Eternl Knight
+
 2007 Oct 11
 	- added Hashed Overlapping Pair Cache, recommended by Pierre Terdiman. It works like a charm, thanks Pierre and Erin Catto (code from Box2D)
 	- modified some margins inside btBoxShape, btCylinderShape and btSphereShape

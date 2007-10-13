@@ -115,7 +115,7 @@ public:
 
 	
 
-	virtual void	calculateLocalInertia(btScalar mass,btVector3& inertia);
+	virtual void	calculateLocalInertia(btScalar mass,btVector3& inertia) const;
 
 	virtual void getPlane(btVector3& planeNormal,btPoint3& planeSupport,int i ) const
 	{
@@ -279,7 +279,7 @@ public:
 
 
 	//debugging
-	virtual char*	getName()const
+	virtual const char*	getName()const
 	{
 		return "Box";
 	}

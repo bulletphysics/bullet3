@@ -28,8 +28,8 @@ int gAddedPairs =0;
 int gFindPairs =0;
 
 btOverlappingPairCache::btOverlappingPairCache():
-	m_blockedForChanges(false),
-	m_overlapFilterCallback(0)
+	m_overlapFilterCallback(0),
+	m_blockedForChanges(false)
 {
 	int initialAllocatedSize= 2;
 	m_overlappingPairArray.reserve(initialAllocatedSize);
@@ -164,7 +164,6 @@ void	btOverlappingPairCache::growTables()
 	{
 		//grow hashtable and next table
 		int curHashtableSize = m_hashTable.size();
-		int curNextTableSize = m_next.size();
 
 		m_hashTable.resize(newCapacity);
 		m_next.resize(newCapacity);

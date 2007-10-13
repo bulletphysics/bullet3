@@ -24,9 +24,9 @@ subject to the following restrictions:
 extern int gOverlappingPairs;
 
 btMultiSapBroadphase::btMultiSapBroadphase(int maxProxies,btOverlappingPairCache* pairCache)
-:m_invalidPair(0),
+:m_overlappingPairs(pairCache),
 m_ownsPairCache(false),
-m_overlappingPairs(pairCache)
+m_invalidPair(0)
 {
 	if (!m_overlappingPairs)
 	{
@@ -112,10 +112,10 @@ void	btMultiSapBroadphase::calculateOverlappingPairs(btDispatcher* dispatcher)
 {
 	m_simpleBroadphase->calculateOverlappingPairs(dispatcher);
 
-	btBroadphasePairArray&	overlappingPairArray = m_overlappingPairs->getOverlappingPairArray();
-
 #ifndef USE_HASH_PAIRCACHE
 
+	btBroadphasePairArray&	overlappingPairArray = m_overlappingPairs->getOverlappingPairArray();
+	
 	//perform a sort, to find duplicates and to sort 'invalid' pairs to the end
 	overlappingPairArray.heapSort(btBroadphasePairSortPredicate());
 

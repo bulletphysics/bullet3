@@ -37,9 +37,9 @@ void	btSimpleBroadphase::validate()
 }
 
 btSimpleBroadphase::btSimpleBroadphase(int maxProxies, btOverlappingPairCache* overlappingPairCache)
-	:m_invalidPair(0),
-	m_pairCache(overlappingPairCache),
-	m_ownsPairCache(false)
+	:m_pairCache(overlappingPairCache),
+	m_ownsPairCache(false),
+	m_invalidPair(0)
 {
 
 	if (!overlappingPairCache)
@@ -128,8 +128,6 @@ protected:
 
 void	btSimpleBroadphase::destroyProxy(btBroadphaseProxy* proxyOrg,btDispatcher* dispatcher)
 {
-		
-		int i;
 		
 		btSimpleBroadphaseProxy* proxy0 = static_cast<btSimpleBroadphaseProxy*>(proxyOrg);
 		freeHandle(proxy0);

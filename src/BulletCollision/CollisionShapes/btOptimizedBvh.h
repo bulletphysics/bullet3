@@ -17,6 +17,7 @@ subject to the following restrictions:
 #define OPTIMIZED_BVH_H
 
 
+
 #include "LinearMath/btVector3.h"
 #include "LinearMath/btAlignedAllocator.h"
 
@@ -98,6 +99,11 @@ public:
 	//4 bytes
 	int			m_subtreeSize;
 	int			m_padding[3];
+
+	btBvhSubtreeInfo()
+	{
+		//memset(&m_padding[0], 0, sizeof(m_padding));
+	}
 
 
 	void	setAabbFromQuantizeNode(const btQuantizedBvhNode& quantizedNode)

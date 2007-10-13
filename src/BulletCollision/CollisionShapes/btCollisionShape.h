@@ -76,11 +76,11 @@ public:
 	virtual int		getShapeType() const=0;
 	virtual void	setLocalScaling(const btVector3& scaling) =0;
 	virtual const btVector3& getLocalScaling() const =0;
-	virtual void	calculateLocalInertia(btScalar mass,btVector3& inertia) = 0;
+	virtual void	calculateLocalInertia(btScalar mass,btVector3& inertia) const = 0;
 
 
 //debugging support
-	virtual char*	getName()const =0 ;
+	virtual const char*	getName()const =0 ;
 #endif //__SPU__
 
 	

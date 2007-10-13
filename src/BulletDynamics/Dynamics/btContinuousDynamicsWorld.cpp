@@ -50,7 +50,7 @@ void	btContinuousDynamicsWorld::internalSingleStepSimulation( btScalar timeStep)
 
 	///update aabbs information
 	updateAabbs();
-	static int frame=0;
+	//static int frame=0;
 //	printf("frame %d\n",frame++);
 
 	///apply gravity, predict motion
@@ -144,7 +144,6 @@ void	btContinuousDynamicsWorld::updateTemporalAabbs(btScalar timeStep)
 		{
 			body->getCollisionShape()->getAabb(m_collisionObjects[i]->getWorldTransform(),temporalAabbMin,temporalAabbMax);
 			const btVector3& linvel = body->getLinearVelocity();
-			const btVector3& angvel = body->getAngularVelocity();
 
 			//make the AABB temporal
 			float temporalAabbMaxx = temporalAabbMax.getX();

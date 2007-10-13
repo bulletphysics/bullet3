@@ -263,9 +263,8 @@ void	btHingeConstraint::solveConstraint(btScalar	timeStep)
 	btVector3 pivotBInW = m_rbB.getCenterOfMassTransform()*m_rbBFrame.getOrigin();
 
 	btScalar tau = btScalar(0.3);
-	btScalar damping = btScalar(1.);
 
-//linear part
+	//linear part
 	if (!m_angularOnly)
 	{
 		btVector3 rel_pos1 = pivotAInW - m_rbA.getCenterOfMassPosition(); 

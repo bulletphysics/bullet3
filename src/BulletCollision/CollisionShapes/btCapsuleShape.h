@@ -29,7 +29,7 @@ public:
 	btCapsuleShape(btScalar radius,btScalar height);
 
 	///CollisionShape Interface
-	virtual void	calculateLocalInertia(btScalar mass,btVector3& inertia);
+	virtual void	calculateLocalInertia(btScalar mass,btVector3& inertia) const;
 
 	/// btConvexShape Interface
 	virtual btVector3	localGetSupportingVertexWithoutMargin(const btVector3& vec)const;
@@ -38,7 +38,7 @@ public:
 	
 	virtual int	getShapeType() const { return CAPSULE_SHAPE_PROXYTYPE; }
 
-	virtual char*	getName()const 
+	virtual const char*	getName()const 
 	{
 		return "CapsuleShape";
 	}
