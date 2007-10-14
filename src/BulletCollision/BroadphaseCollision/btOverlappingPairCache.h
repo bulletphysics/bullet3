@@ -55,7 +55,7 @@ extern int gRemovePairs;
 extern int gAddedPairs;
 extern int gFindPairs;
 
-#define BT_NULL_PAIR 0xffffffff
+const int BT_NULL_PAIR=0xffffffff;
 
 class btOverlappingPairCache
 {
@@ -63,11 +63,10 @@ class btOverlappingPairCache
 	btOverlapFilterCallback* m_overlapFilterCallback;
 	bool		m_blockedForChanges;
 
-	
 
 public:
 	btOverlappingPairCache();
-	~btOverlappingPairCache();
+	virtual ~btOverlappingPairCache();
 
 	
 	void	removeOverlappingPairsContainingProxy(btBroadphaseProxy* proxy,btDispatcher* dispatcher);
