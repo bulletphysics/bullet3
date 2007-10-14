@@ -43,25 +43,25 @@ m_localScaling(btScalar(1.),btScalar(1.),btScalar(1.))
 	case 0:
 		{
 			halfExtents.setValue(
-				m_maxHeight,
-				m_width,
-				m_length);
+				btScalar(m_maxHeight),
+				btScalar(m_width),
+				btScalar(m_length));
 			break;
 		}
 	case 1:
 		{
 			halfExtents.setValue(
-				m_width,
-				m_maxHeight,
-				m_length);
+				btScalar(m_width),
+				btScalar(m_maxHeight),
+				btScalar(m_length));
 			break;
 		};
 	case 2:
 		{
 			halfExtents.setValue(
-				m_width,
-				m_length,
-				m_maxHeight
+				btScalar(m_width),
+				btScalar(m_length),
+				btScalar(m_maxHeight)
 			);
 			break;
 		}

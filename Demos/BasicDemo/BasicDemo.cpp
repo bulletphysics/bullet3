@@ -19,6 +19,16 @@ subject to the following restrictions:
 //#define CHECK_MEMORY_LEAKS 1
 //#define USE_PARALLEL_DISPATCHER 1
 
+#define START_POS_X -5
+#define START_POS_Y -5
+#define START_POS_Z -3
+
+
+///create 1000 (10x10x10) dynamic objects
+#define ARRAY_SIZE_X 10
+#define ARRAY_SIZE_Y 10
+#define ARRAY_SIZE_Z 10
+
 
 //#define USE_SIMPLE_DYNAMICS_WORLD 1
 
@@ -201,33 +211,41 @@ void	BasicDemo::initPhysics()
 
 	btTransform groundTransform;
 	groundTransform.setIdentity();
-	groundTransform.setOrigin(btVector3(0,-50,0));
+	groundTransform.setOrigin(btVector3(0,-56,0));
 	localCreateRigidBody(btScalar(0.),groundTransform,groundShape);
 
 	//create a few dynamic sphere rigidbodies (re-using the same sphere shape)
 	//btCollisionShape* sphereShape = new btBoxShape(btVector3(1,1,1));
-	btCollisionShape* sphereShape = new btSphereShape(btScalar(1.));
-	m_collisionShapes.push_back(sphereShape);
+	btCollisionShape* colShape = new btSphereShape(btScalar(1.));
+	m_collisionShapes.push_back(colShape);
 
-	int i;
-	for (i=0;i<gNumObjects;i++)
+		/// Create Dynamic Objects
+	btTransform startTransform;
+	startTransform.setIdentity();
+
 	{
-		
-		sphereShape->setMargin(gCollisionMargin);
-		btTransform trans;
-		trans.setIdentity();
-		//stack them
-		int colsize = 2;
-		int row = (int)((i*HALF_EXTENTS*2)/(colsize*2*HALF_EXTENTS));
-		int row2 = row;
-		int col = (i)%(colsize)-colsize/2;
-		btVector3 pos(col*2*HALF_EXTENTS + (row2%2)*HALF_EXTENTS,
-			row*2*HALF_EXTENTS+HALF_EXTENTS,0);
 
-		trans.setOrigin(pos);
-		//btRigidBody* body = localCreateRigidBody(btScalar(1.),trans,sphereShape);
-		localCreateRigidBody(btScalar(1.),trans,sphereShape);
+		float start_x = START_POS_X - ARRAY_SIZE_X/2;
+		float start_y = START_POS_Y;
+		float start_z = START_POS_Z - ARRAY_SIZE_Z/2;
+
+		for (int k=0;k<ARRAY_SIZE_Y;k++)
+		{
+			for (int i=0;i<ARRAY_SIZE_X;i++)
+			{
+				for(int j = 0;j<ARRAY_SIZE_Z;j++)
+				{
+					startTransform.setOrigin(btVector3(
+										2.0*i + start_x,
+										2.0*k + start_y,
+										2.0*j + start_z));
+
+					localCreateRigidBody(1, startTransform,colShape);
+				}
+			}
+		}
 	}
+
 
 	clientResetScene();
 }
