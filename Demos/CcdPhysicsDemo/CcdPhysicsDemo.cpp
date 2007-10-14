@@ -366,7 +366,7 @@ void	CcdPhysicsDemo::initPhysics()
 #endif //DO_BENCHMARK_PYRAMIDS
 
 	btCollisionDispatcher* dispatcher=0;
-	
+	btDefaultCollisionConfiguration* collisionConfiguration = new btDefaultCollisionConfiguration();
 	
 #ifdef USE_PARALLEL_DISPATCHER
 
@@ -387,10 +387,10 @@ int maxNumOutstandingTasks = 4;//number of maximum outstanding tasks
 #endif
 
 
-	dispatcher = new	SpuGatheringCollisionDispatcher(threadSupportCollision,maxNumOutstandingTasks);
-//	dispatcher = new	btCollisionDispatcher();
+	dispatcher = new	SpuGatheringCollisionDispatcher(threadSupportCollision,maxNumOutstandingTasks,collisionConfiguration);
+//	dispatcher = new	btCollisionDispatcher(collisionConfiguration);
 #else
-	btDefaultCollisionConfiguration* collisionConfiguration = new btDefaultCollisionConfiguration();
+	
 	dispatcher = new	btCollisionDispatcher(collisionConfiguration);
 #endif //USE_PARALLEL_DISPATCHER
 
@@ -450,7 +450,11 @@ int maxNumOutstandingTasks = 4;//number of maximum outstanding tasks
 
 		btDiscreteDynamicsWorld* world = new btDiscreteDynamicsWorld(dispatcher,broadphase,solver);
 		m_dynamicsWorld = world;
-//		world->getSolverInfo().m_numIterations = 4;
+
+#ifdef DO_BENCHMARK_PYRAMIDS
+		world->getSolverInfo().m_numIterations = 4;
+#endif //DO_BENCHMARK_PYRAMIDS
+
 		m_dynamicsWorld->getDispatchInfo().m_enableSPU = true;
 		m_dynamicsWorld->setGravity(btVector3(0,-10,0));
 

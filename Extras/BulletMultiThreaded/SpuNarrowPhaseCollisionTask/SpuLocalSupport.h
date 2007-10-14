@@ -48,9 +48,8 @@ inline btPoint3 localGetSupportingVertexWithoutMargin(int shapeType, void* shape
 		{
 //			spu_printf("SPU: getSupport BOX_SHAPE_PROXYTYPE\n");
 			btConvexInternalShape* convexShape = (btConvexInternalShape*)shape;
-			btVector3 halfExtents = convexShape->getImplicitShapeDimensions();
-			float margin = convexShape->getMarginNV();
-			halfExtents -= btVector3(margin,margin,margin);
+			const btVector3& halfExtents = convexShape->getImplicitShapeDimensions();
+			
 			return btPoint3(
 				localDir.getX() < 0.0f ? -halfExtents.x() : halfExtents.x(),
 							localDir.getY() < 0.0f ? -halfExtents.y() : halfExtents.y(),

@@ -252,7 +252,7 @@ void GimpactConcaveDemo::renderme()
 
 			//bool useBulletLCP = !(getDebugMode() & btIDebugDraw::DBG_DisableBulletLCP);
 
-			bool useCCD = (getDebugMode() & btIDebugDraw::DBG_EnableCCD);
+			bool useCCD = ((getDebugMode() & btIDebugDraw::DBG_EnableCCD) != 0);
 
 			glRasterPos3f(xOffset,yStart,0);
 			sprintf(buf,"1 CCD mode (adhoc) = %i",useCCD);

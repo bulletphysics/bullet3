@@ -33,8 +33,9 @@ btOverlappingPairCache::btOverlappingPairCache():
 {
 	int initialAllocatedSize= 2;
 	m_overlappingPairArray.reserve(initialAllocatedSize);
-
+#ifdef USE_HASH_PAIRCACHE
 	growTables();
+#endif //USE_HASH_PAIRCACHE
 }
 
 

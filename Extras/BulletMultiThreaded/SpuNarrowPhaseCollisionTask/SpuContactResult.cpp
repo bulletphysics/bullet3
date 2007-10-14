@@ -170,6 +170,14 @@ void SpuContactResult::addContactPoint(const btVector3& normalOnBInWorld,const b
 
 void SpuContactResult::flush()
 {
+
+	if (m_spuManifold && m_spuManifold->getNumContacts())
+	{
+		m_spuManifold->refreshContactPoints(m_rootWorldTransform0,m_rootWorldTransform1);
+		m_RequiresWriteBack = true;
+	}
+
+
 	if (m_RequiresWriteBack)
 	{
 #ifdef DEBUG_SPU_COLLISION_DETECTION
