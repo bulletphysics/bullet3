@@ -160,7 +160,8 @@ void CcdPhysicsDemo::createStack( btCollisionShape* boxShape, float halfCubeSize
 			trans.setOrigin(pos);
 			btScalar mass = 1.f;
 
-			btRigidBody* body = localCreateRigidBody(mass,trans,boxShape);
+			btRigidBody* body = 0;
+			body = localCreateRigidBody(mass,trans,boxShape);
 		}
 	}
 }
@@ -282,7 +283,8 @@ void CcdPhysicsDemo::clientMoveAndDisplay()
 		if (m_idle)
 			dt = 1.0/420.f;
 
-		int numSimSteps = m_dynamicsWorld->stepSimulation(dt,maxSimSubSteps);
+		int numSimSteps = 0;
+		numSimSteps = m_dynamicsWorld->stepSimulation(dt,maxSimSubSteps);
 		/*
 		if (!numSimSteps)
 			printf("Interpolated transforms\n");

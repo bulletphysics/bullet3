@@ -24,10 +24,10 @@ subject to the following restrictions:
 #define START_POS_Z -3
 
 
-///create 1000 (10x10x10) dynamic objects
-#define ARRAY_SIZE_X 10
-#define ARRAY_SIZE_Y 10
-#define ARRAY_SIZE_Z 10
+///create 125 (5x5x5) dynamic object
+#define ARRAY_SIZE_X 5
+#define ARRAY_SIZE_Y 5
+#define ARRAY_SIZE_Z 5
 
 
 //#define USE_SIMPLE_DYNAMICS_WORLD 1
