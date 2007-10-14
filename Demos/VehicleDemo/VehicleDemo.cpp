@@ -135,7 +135,7 @@ btTransform tr;
 tr.setIdentity();
 
 //either use heightfield or triangle mesh
-//#define  USE_TRIMESH_GROUND 1
+#define  USE_TRIMESH_GROUND 1
 #ifdef USE_TRIMESH_GROUND
 	int i;
 
@@ -145,8 +145,8 @@ const float TRIANGLE_SIZE=20.f;
 	int vertStride = sizeof(btVector3);
 	int indexStride = 3*sizeof(int);
 
-	const int NUM_VERTS_X = 50;
-	const int NUM_VERTS_Y = 50;
+	const int NUM_VERTS_X = 20;
+	const int NUM_VERTS_Y = 20;
 	const int totalVerts = NUM_VERTS_X*NUM_VERTS_Y;
 	
 	const int totalTriangles = 2*(NUM_VERTS_X-1)*(NUM_VERTS_Y-1);
