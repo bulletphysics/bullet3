@@ -1,6 +1,15 @@
 Bullet Continuous Collision Detection and Physics Library
 Primary author and maintainer: Erwin Coumans
 
+2007 Oct 14
+	- Included working version of Cell SPU parallel optimized version for Libspe2 SPU task scheduler.
+	This version compiles and runs on Playstation 3 Linux and IBM CellBlade, see BulletSpuOptimized.pdf for build instructions
+	(Official Playstation 3 developers can request a SPURS version through Sony PS3 Devnet.)
+	Thanks to IBM 'Extreme Blue' project for the contribution
+	http://www-913.ibm.com/employment/us/extremeblue/ 
+	Thanks Minh Cuong Tran, Benjamin Hoeferlin, Frederick Roth and Martina Huellmann
+	for various contributions to get this initial Libspe2 parallel version up and running.
+
 2007 Oct 13
 	- made 'btCollisionShape::calculateLocalInertia' const
 	Thanks to cgripeos, see http://www.bulletphysics.com/Bullet/phpBB3/viewtopic.php?f=9&t=1514
