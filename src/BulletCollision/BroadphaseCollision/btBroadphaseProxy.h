@@ -98,6 +98,8 @@ BT_DECLARE_ALIGNED_ALLOCATOR();
 	};
 
 	int			m_uniqueId;//m_uniqueId is introduced for paircache. could get rid of this, by calculating the address offset etc.
+	int m_unusedPadding; //making the structure 16 bytes, better for alignment etc.
+
 	SIMD_FORCE_INLINE int getUid()
 	{
 		return m_uniqueId;//(int)this;
