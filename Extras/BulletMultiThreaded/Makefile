@@ -130,8 +130,6 @@ spu : SpuFakeDma SpuContactManifoldCollisionAlgorithm_spu SpuContactResult SpuTa
                             $(OUTDIR)/SpuMinkowskiPenetrationDepthSolver.o \
                             $(OUTDIR)/SpuVoronoiSimplexSolver.o \
                             $(OUTDIR)/btPersistentManifold.o \
-                            $(OUTDIR)/btOptimizedBvh.o \
-                            $(OUTDIR)/btCollisionObject.o \
                             $(OUTDIR)/btTriangleCallback.o \
                             $(OUTDIR)/btTriangleIndexVertexArray.o \
                             $(OUTDIR)/btStridingMeshInterface.o \
