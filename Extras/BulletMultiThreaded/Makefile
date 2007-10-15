@@ -43,8 +43,8 @@ PPU_LIBRARIES= -lstdc++ -lsupc++ -lgcc -lgcov -lspe2 -lpthread -L../../lib/ibmsd
 PPU_AR=/usr/bin/ar
 
 MakeOut :
-	rm -f -R $(OUTDIR) ; mkdir $(OUTDIR)
-
+#	rm -f -R $(OUTDIR) ; mkdir $(OUTDIR)
+	@echo "usage: make spu, make ppu, make all, or make clean"
 # SPU
 SpuTaskFile : MakeOut
 	$(SPU_GCC) $(SPU_DEFFLAGS) $(SPU_CFLAGS) $(SPU_INCLUDEDIR) -o $(OUTDIR)/SpuTaskFile.o $(SPU_TASKFILE).cpp

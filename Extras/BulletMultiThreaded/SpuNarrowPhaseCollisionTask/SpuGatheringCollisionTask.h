@@ -54,6 +54,8 @@ void*	createCollisionLocalStoreMemory();
 #include <spu_mfcio.h>
 #include <SpuFakeDma.h>
 
+//#define DEBUG_LIBSPE2_SPU_TASK
+
 
 
 int main(unsigned long long speid, addr64 argp, addr64 envp)
@@ -82,8 +84,10 @@ int main(unsigned long long speid, addr64 argp, addr64 envp)
 		
 		if( btLikely( received_message == Spu_Mailbox_Event_Task ))
 		{
+#ifdef DEBUG_LIBSPE2_SPU_TASK
 			printf("SPU: received Spu_Mailbox_Event_Task\n");
-		
+#endif //DEBUG_LIBSPE2_SPU_TASK
+
 			// refresh the status
 			cellDmaGet(&status, argp.ull, sizeof(btSpuStatus), DMA_TAG(3), 0, 0);
 			cellDmaWaitTagStatusAll(DMA_MASK(3));
@@ -92,14 +96,20 @@ int main(unsigned long long speid, addr64 argp, addr64 envp)
 			
 			cellDmaGet(&taskDesc, status.m_taskDesc.p, sizeof(SpuGatherAndProcessPairsTaskDesc), DMA_TAG(3), 0, 0);
 			cellDmaWaitTagStatusAll(DMA_MASK(3));
-		
+#ifdef DEBUG_LIBSPE2_SPU_TASK		
 			printf("SPU:processCollisionTask\n");	
+#endif //DEBUG_LIBSPE2_SPU_TASK
 			processCollisionTask((void*)&taskDesc, taskDesc.m_lsMemory);
+			
+#ifdef DEBUG_LIBSPE2_SPU_TASK
 			printf("SPU:finished processCollisionTask\n");
+#endif //DEBUG_LIBSPE2_SPU_TASK
 		}
 		else
 		{
+#ifdef DEBUG_LIBSPE2_SPU_TASK
 			printf("SPU: received ShutDown\n");
+#endif //DEBUG_LIBSPE2_SPU_TASK
 			if( btLikely( received_message == Spu_Mailbox_Event_Shutdown ) )
 			{
 				shutdown = true;
@@ -117,6 +127,7 @@ int main(unsigned long long speid, addr64 argp, addr64 envp)
 				
 		
   	}
+
 	printf("SPU: shutdown\n");
   	return 0;
 }

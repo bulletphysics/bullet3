@@ -39,7 +39,7 @@
 		
 #include <spu_mfcio.h>		
 		
-//#define DEBUG_DMA		
+#define DEBUG_DMA		
 #ifdef DEBUG_DMA
 #define dUASSERT(a,b) if (!(a)) { printf(b);}
 #ifdef USE_ADDR64

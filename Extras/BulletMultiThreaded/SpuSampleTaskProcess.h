@@ -93,6 +93,8 @@ public:
 void * SamplelsMemoryFunc();
 void SampleThreadFunc(void* userPtr,void* lsMemory);
 
+//#define DEBUG_LIBSPE2_MAINLOOP
+
 int main(unsigned long long speid, addr64 argp, addr64 envp)
 {
 	printf("SPU is up \n");
@@ -125,7 +127,9 @@ int main(unsigned long long speid, addr64 argp, addr64 envp)
 			break; 
 		case Spu_Mailbox_Event_Task:
 			// refresh the status
+#ifdef DEBUG_LIBSPE2_MAINLOOP
 			printf("SPU recieved Task \n");
+#endif //DEBUG_LIBSPE2_MAINLOOP
 			cellDmaGet(&status, argp.ull, sizeof(btSpuStatus), DMA_TAG(3), 0, 0);
 			cellDmaWaitTagStatusAll(DMA_MASK(3));
 		
