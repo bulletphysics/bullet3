@@ -43,10 +43,20 @@ subject to the following restrictions:
 
 #ifdef USE_PARALLEL_DISPATCHER
 #include "../../Extras/BulletMultiThreaded/SpuGatheringCollisionDispatcher.h"
+#ifdef WIN32
 #include "../../Extras/BulletMultiThreaded/Win32ThreadSupport.h"
 #include "../../Extras/BulletMultiThreaded/SpuNarrowPhaseCollisionTask/SpuGatheringCollisionTask.h"
+#endif //WIN32
+
+#ifdef USE_LIBSPE2
+#include "../../Extras/BulletMultiThreaded/SpuLibspe2Support.h"
+#endif //USE_LIBSPE2
+
+#ifdef USE_PARALLEL_SOLVER
 #include "../../Extras/BulletMultiThreaded/SpuParallelSolver.h"
 #include "../../Extras/BulletMultiThreaded/SpuSolverTask/SpuParallellSolverTask.h"
+#endif //USE_PARALLEL_SOLVER
+
 #endif//USE_PARALLEL_DISPATCHER
 
 
@@ -369,20 +379,39 @@ void	CcdPhysicsDemo::initPhysics()
 	btDefaultCollisionConfiguration* collisionConfiguration = new btDefaultCollisionConfiguration();
 	
 #ifdef USE_PARALLEL_DISPATCHER
+int maxNumOutstandingTasks = 4;
 
 #ifdef USE_WIN32_THREADING
 
-int maxNumOutstandingTasks = 4;//number of maximum outstanding tasks
 	Win32ThreadSupport* threadSupportCollision = new Win32ThreadSupport(Win32ThreadSupport::Win32ThreadConstructionInfo(
 								"collision",
 								processCollisionTask,
 								createCollisionLocalStoreMemory,
 								maxNumOutstandingTasks));
 #else
-///todo other platform threading
+
+#ifdef USE_LIBSPE2
+
+   spe_program_handle_t * program_handle;
+#ifndef USE_CESOF
+                        program_handle = spe_image_open ("./spuCollision.elf");
+                        if (program_handle == NULL)
+                    {
+                                perror( "SPU OPEN IMAGE ERROR\n");
+                    }
+                        else
+                        {
+                                printf( "IMAGE OPENED\n");
+                        }
+#else
+                        extern spe_program_handle_t spu_program;
+                        program_handle = &spu_program;
+#endif
+        SpuLibspe2Support* threadSupportCollision  = new SpuLibspe2Support( program_handle, maxNumOutstandingTasks);
+#endif //USE_LIBSPE2
+
 ///Playstation 3 SPU (SPURS)  version is available through PS3 Devnet
-///Libspe2 SPU support will be available soon
-///pthreads version
+/// For Unix/Mac someone could implement a pthreads version of btThreadSupportInterface?
 ///you can hook it up to your custom task scheduler by deriving from btThreadSupportInterface
 #endif
 

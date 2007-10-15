@@ -26,17 +26,21 @@ PROGRAM_ppu	:= CcdPhysicsDemo
 ######################################################################
 OBJS		= CcdPhysicsDemo.o
 
+CELL_TOP ?= /opt/ibm/cell-sdk/prototype
+
 ########################################################################
 #                       Libraries, Include paths,  Defines
 ########################################################################
-INCLUDE		=				\
+INCLUDE		=	-DUSE_LIBSPE2				\
+			-I$(CELL_TOP)/sysroot/usr/include	\
 			-I../			\
 			-I$(ROOT)/src		\
 			-I$(ROOT)/Demos/OpenGL	\
 			-I$(HOSTINC)
-SYS_LIBS	:= -lglut -lGLU -lGL -lm -lXext -lXmu -lX11
+SYS_LIBS	:= -lspe2  -lglut -lGLU -lGL -lm -lXext -lXmu -lX11
 
-IMPORTS		= 	$(ROOT)/lib/ibmsdk/bulletopenglsupport.a			\
+IMPORTS		= 	$(ROOT)/lib/ibmsdk/bulletmultithreaded.a		\
+			$(ROOT)/lib/ibmsdk/bulletopenglsupport.a		\
 			$(ROOT)/lib/ibmsdk/bulletdynamics.a 	\
 			$(ROOT)/lib/ibmsdk/bulletcollision.a	\
 			$(ROOT)/lib/ibmsdk/bulletmath.a	
@@ -50,7 +54,6 @@ INSTALL_FILES   = $(PROGRAM_ppu)
 #                       make.footer
 ########################################################################
 
-CELL_TOP ?= /opt/ibm/cell-sdk/prototype
 
 include $(CELL_TOP)/make.footer
 
