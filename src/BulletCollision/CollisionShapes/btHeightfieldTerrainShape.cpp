@@ -190,11 +190,11 @@ void btHeightfieldTerrainShape::quantizeWithClamp(int* out, const btVector3& poi
 
 	btVector3 v = (clampedPoint );// * m_quantization;
 
-	out[0] = (int)(v.getX());
-	out[1] = (int)(v.getY());
-	out[2] = (int)(v.getZ());
-	//correct for
-
+	// SMJ - Add 0.5 in the correct direction before doing the int conversion.
+	out[0] = (int)(v.getX() + v.getX() / btFabs(v.getX())* btScalar(0.5) );
+	out[1] = (int)(v.getY() + v.getY() / btFabs(v.getY())* btScalar(0.5) );
+	out[2] = (int)(v.getZ() + v.getZ() / btFabs(v.getZ())* btScalar(0.5) );
+	
 }
 
 
