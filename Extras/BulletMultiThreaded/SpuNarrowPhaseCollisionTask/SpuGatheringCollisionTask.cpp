@@ -1,6 +1,7 @@
 
 #include "SpuGatheringCollisionTask.h"
 
+//#define DEBUG_SPU_COLLISION_DETECTION 1
 #include "../SpuDoubleBuffer.h"
 
 #include "../SpuCollisionTaskProcess.h"
@@ -190,7 +191,7 @@ void	ProcessSpuConvexConvexCollision(SpuCollisionPairInput* wuInput, CollisionTa
 
 #define USE_BRANCHFREE_TEST 1
 #ifdef USE_BRANCHFREE_TEST
-unsigned int spuTestQuantizedAabbAgainstQuantizedAabb(unsigned short int* aabbMin1,unsigned short int* aabbMax1,const unsigned short int* aabbMin2,const unsigned short int* aabbMax2)
+SIMD_FORCE_INLINE unsigned int spuTestQuantizedAabbAgainstQuantizedAabb(unsigned short int* aabbMin1,unsigned short int* aabbMax1,const unsigned short int* aabbMin2,const unsigned short int* aabbMax2)
 {		
 	return btSelect((unsigned)((aabbMin1[0] <= aabbMax2[0]) & (aabbMax1[0] >= aabbMin2[0])
 		& (aabbMin1[2] <= aabbMax2[2]) & (aabbMax1[2] >= aabbMin2[2])

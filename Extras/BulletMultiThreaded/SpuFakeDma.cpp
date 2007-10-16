@@ -9,7 +9,9 @@
 ///this unalignedDma should not be frequently used, only for small data. It handles alignment and performs check on size (<16 bytes)
 int stallingUnalignedDmaSmallGet(void *ls, uint64_t ea, uint32_t size)
 {
-	btAssert(size<16);
+	
+	btAssert(size<32);
+	
 	ATTRIBUTE_ALIGNED16(char	tmpBuffer[32]);
 
 	char* mainMem = (char*)ea;
@@ -31,7 +33,7 @@ int stallingUnalignedDmaSmallGet(void *ls, uint64_t ea, uint32_t size)
 		}
 #endif //USE_MEMCPY
 #else
-	cellDmaSmallGet(tmpTarget,ea,size,DMA_TAG(1),0,0);
+	mfc_get(tmpTarget,ea,size,DMA_TAG(1),0,0);
 	//copy into final destination
 #endif //WIN32
 

@@ -64,8 +64,7 @@ CONCAVE_SHAPES_END_HERE,
 
 
 ///btBroadphaseProxy
-//ATTRIBUTE_ALIGNED16(struct) btBroadphaseProxy
-struct btBroadphaseProxy
+ATTRIBUTE_ALIGNED16(struct) btBroadphaseProxy
 {
 
 BT_DECLARE_ALIGNED_ALLOCATOR();
