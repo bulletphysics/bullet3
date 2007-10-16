@@ -5,6 +5,27 @@
 
 #define USE_MEMCPY 1
 
+void*	cellDmaLargeGetReadOnly(void *ls, uint64_t ea, uint32_t size, uint32_t tag, uint32_t tid, uint32_t rid)
+{
+#if defined (WIN32) || defined (__PPU__)
+	return (void*)(uint32_t)ea;
+#else
+	cellDmaLargeGet(ls,ea,size,tag,tid,rid);
+	return ls;
+#endif //WIN32
+}
+
+
+void*	cellDmaGetReadOnly(void *ls, uint64_t ea, uint32_t size, uint32_t tag, uint32_t tid, uint32_t rid)
+{
+#if defined (WIN32) || defined (__PPU__)
+	return (void*)(uint32_t)ea;
+#else
+	cellDmaGet(ls,ea,size,tag,tid,rid);
+	return ls;
+#endif //WIN32
+}
+
 
 ///this unalignedDma should not be frequently used, only for small data. It handles alignment and performs check on size (<16 bytes)
 int stallingUnalignedDmaSmallGet(void *ls, uint64_t ea, uint32_t size)

@@ -4,7 +4,7 @@
 
 
 #include "PlatformDefinitions.h"
-
+#include "LinearMath/btScalar.h"
 
 
 #ifdef __CELLOS_LV2__
@@ -117,5 +117,10 @@
 
 ///stallingUnalignedDmaSmallGet internally uses DMA_TAG(1)
 int	stallingUnalignedDmaSmallGet(void *ls, uint64_t ea, uint32_t size);
+
+
+void*	cellDmaLargeGetReadOnly(void *ls, uint64_t ea, uint32_t size, uint32_t tag, uint32_t tid, uint32_t rid);
+void*	cellDmaGetReadOnly(void *ls, uint64_t ea, uint32_t size, uint32_t tag, uint32_t tid, uint32_t rid);
+
 
 #endif //FAKE_DMA_H

@@ -149,7 +149,8 @@ struct	CollisionTask_LocalStoreMemory
 		return (btOptimizedBvh*) gOptimizedBvh;
 	}
 
-	ATTRIBUTE_ALIGNED16(btTriangleIndexVertexArray	gTriangleMeshInterface);
+	ATTRIBUTE_ALIGNED16(btTriangleIndexVertexArray	gTriangleMeshInterfaceStorage);
+	btTriangleIndexVertexArray*	gTriangleMeshInterfacePtr;
 	///only a single mesh part for now, we can add support for multiple parts, but quantized trees don't support this at the moment 
 	ATTRIBUTE_ALIGNED16(btIndexedMesh	gIndexMesh);
 
@@ -388,7 +389,7 @@ public:
 		//		spu_printf("SPU index2=%d ,",spuIndices[2]);
 		//		spu_printf("SPU: indexBasePtr=%llx\n",indexBasePtr);
 
-		const btVector3& meshScaling = m_lsMemPtr->gTriangleMeshInterface.getScaling();
+		const btVector3& meshScaling = m_lsMemPtr->gTriangleMeshInterfacePtr->getScaling();
 		for (int j=2;btLikely( j>=0 );j--)
 		{
 			int graphicsindex = m_lsMemPtr->spuIndices[j];
@@ -482,7 +483,7 @@ void	ProcessConvexConcaveSpuCollision(SpuCollisionPairInput* wuInput, CollisionT
 	dmaPpuAddress2 = reinterpret_cast<uint32_t>(trimeshShape->getMeshInterface());
 #endif
 	//	spu_printf("trimeshShape->getMeshInterface() == %llx\n",dmaPpuAddress2);
-	cellDmaGet(&lsMemPtr->gTriangleMeshInterface, dmaPpuAddress2  , dmaSize, DMA_TAG(1), 0, 0);
+	lsMemPtr->gTriangleMeshInterfacePtr = (btTriangleIndexVertexArray*)cellDmaGetReadOnly(&lsMemPtr->gTriangleMeshInterfaceStorage, dmaPpuAddress2  , dmaSize, DMA_TAG(1), 0, 0);
 	//cellDmaWaitTagStatusAll(DMA_MASK(1));
 	
 
@@ -611,7 +612,7 @@ void	ProcessConvexConcaveSpuCollision(SpuCollisionPairInput* wuInput, CollisionT
 	BvhSubtreeInfoArray& subTrees = lsMemPtr->getOptimizedBvh()->getSubtreeInfoArray();
 
 	spuNodeCallback	nodeCallback(wuInput,lsMemPtr,spuContacts);
-	IndexedMeshArray&	indexArray = lsMemPtr->gTriangleMeshInterface.getIndexedMeshArray();
+	IndexedMeshArray&	indexArray = lsMemPtr->gTriangleMeshInterfacePtr->getIndexedMeshArray();
 	//spu_printf("SPU:indexArray.size() = %d\n",indexArray.size());
 
 
