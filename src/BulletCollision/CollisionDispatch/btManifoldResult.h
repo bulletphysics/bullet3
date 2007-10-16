@@ -60,6 +60,15 @@ public:
 		m_manifoldPtr = manifoldPtr;
 	}
 
+	const btPersistentManifold*	getPersistentManifold() const
+	{
+		return m_manifoldPtr;
+	}
+	btPersistentManifold*	getPersistentManifold()
+	{
+		return m_manifoldPtr;
+	}
+
 	virtual void setShapeIdentifiers(int partId0,int index0,	int partId1,int index1)
 	{
 			m_partId0=partId0;
