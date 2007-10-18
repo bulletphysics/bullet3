@@ -12,7 +12,7 @@ if $(GLUT.AVAILABLE) = "yes"
 CFlags glui :
 ;
 
-LibDepends glui :    ;
+LibDepends glui :   ;
 
-  ExternalLibs bulletopenglsupport : GLUT ;
+  ExternalLibs glui : GLUT ;
 }

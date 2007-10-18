@@ -508,8 +508,8 @@ btScalar calcRollingFriction(btWheelContactPoint& contactPoint)
 
 	// calculate j that moves us to zero relative velocity
 	j1 = -vrel * contactPoint.m_jacDiagABInv;
-	GEN_set_min(j1, maxImpulse);
-	GEN_set_max(j1, -maxImpulse);
+	btSetMin(j1, maxImpulse);
+	btSetMax(j1, -maxImpulse);
 
 	return j1;
 }

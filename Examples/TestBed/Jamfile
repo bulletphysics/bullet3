@@ -1,0 +1,21 @@
+SubDir TOP Examples TestBed ;
+
+if $(GLUT.AVAILABLE) = "yes"
+{
+  # All demo apps have a lot in common, so use this rule to simply things
+  rule BulletDemo
+  {
+    Application $(<) : $(>) : noinstall console nomanifest ;
+    LinkWith $(<) :  Tests bulletdynamics bulletcollision bulletmath glui ;
+    CFlags $(<) : 
+	  [ FIncludes $(TOP)/Extras ] 
+    ;
+    MsvcIncDirs $(<) : 
+	"../../Extras" 
+	"../../src" ;
+  }
+}
+
+
+SubInclude TOP Examples TestBed FrameWork ;
+SubInclude TOP Examples TestBed Tests ;

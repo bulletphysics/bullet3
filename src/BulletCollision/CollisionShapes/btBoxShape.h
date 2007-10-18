@@ -20,7 +20,7 @@ subject to the following restrictions:
 #include "btCollisionMargin.h"
 #include "BulletCollision/BroadphaseCollision/btBroadphaseProxy.h"
 #include "LinearMath/btPoint3.h"
-#include "LinearMath/btSimdMinMax.h"
+#include "LinearMath/btMinMax.h"
 
 ///btBoxShape implements both a feature based (vertex/edge/plane) and implicit (getSupportingVertex) Box
 class btBoxShape: public btPolyhedralConvexShape

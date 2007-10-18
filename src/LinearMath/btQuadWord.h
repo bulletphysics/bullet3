@@ -17,7 +17,7 @@ subject to the following restrictions:
 #define SIMD_QUADWORD_H
 
 #include "btScalar.h"
-#include "btSimdMinMax.h"
+#include "btMinMax.h"
 
 //ATTRIBUTE_ALIGNED16(class) btQuadWordStorage
 //some issues under PS3 Linux with IBM 2.1 SDK, gcc compiler prevent from using aligned quadword. todo: look into this

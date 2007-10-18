@@ -1,0 +1,18 @@
+SubDir TOP Examples TestBed Tests ;
+
+if $(GLUT.AVAILABLE) = "yes"
+{
+
+
+  Description Tests : "Bullet Tests" ;
+  Library Tests : 
+  [ Wildcard *.h *.cpp ] : noinstall 
+;
+
+CFlags Tests :
+;
+
+LibDepends Tests : bulletdynamics   ;
+
+  ExternalLibs Tests : GLUT ;
+}
