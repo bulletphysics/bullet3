@@ -1,0 +1,18 @@
+SubDir TOP Extras glui ;
+
+if $(GLUT.AVAILABLE) = "yes"
+{
+
+
+  Description glui : "glui" ;
+  Library glui : 
+  [ Wildcard *.h *.cpp ] : noinstall 
+;
+
+CFlags glui :
+;
+
+LibDepends glui :    ;
+
+  ExternalLibs bulletopenglsupport : GLUT ;
+}
