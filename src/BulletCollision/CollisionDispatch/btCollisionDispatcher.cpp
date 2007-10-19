@@ -79,7 +79,16 @@ btPersistentManifold*	btCollisionDispatcher::getNewManifold(void* b0,void* b1)
 	btCollisionObject* body0 = (btCollisionObject*)b0;
 	btCollisionObject* body1 = (btCollisionObject*)b1;
 	
-	void* mem = m_persistentManifoldPoolAllocator->allocate(sizeof(btPersistentManifold));
+	void* mem = 0;
+	
+	if (m_persistentManifoldPoolAllocator->getFreeCount())
+	{
+		mem = m_persistentManifoldPoolAllocator->allocate(sizeof(btPersistentManifold));
+	} else
+	{
+		mem = btAlignedAlloc(sizeof(btPersistentManifold),16);
+
+	}
 	btPersistentManifold* manifold = new(mem) btPersistentManifold (body0,body1,0);
 	manifold->m_index1a = m_manifoldsPtr.size();
 	m_manifoldsPtr.push_back(manifold);
@@ -108,7 +117,13 @@ void btCollisionDispatcher::releaseManifold(btPersistentManifold* manifold)
 	m_manifoldsPtr.pop_back();
 
 	manifold->~btPersistentManifold();
-	m_persistentManifoldPoolAllocator->free(manifold);
+	if (m_persistentManifoldPoolAllocator->validPtr(manifold))
+	{
+		m_persistentManifoldPoolAllocator->free(manifold);
+	} else
+	{
+		btAlignedFree(manifold);
+	}
 	
 }
 
@@ -253,10 +268,22 @@ void btCollisionDispatcher::defaultNearCallback(btBroadphasePair& collisionPair,
 
 void* btCollisionDispatcher::allocateCollisionAlgorithm(int size)
 {
-	return m_collisionAlgorithmPoolAllocator->allocate(size);
+	if (m_collisionAlgorithmPoolAllocator->getFreeCount())
+	{
+		return m_collisionAlgorithmPoolAllocator->allocate(size);
+	}
+	
+	//warn user for overflow?
+	return	btAlignedAlloc(size,16);
 }
 
 void btCollisionDispatcher::freeCollisionAlgorithm(void* ptr)
 {
-	m_collisionAlgorithmPoolAllocator->free(ptr);
+	if (m_collisionAlgorithmPoolAllocator->validPtr(ptr))
+	{
+		m_collisionAlgorithmPoolAllocator->free(ptr);
+	} else
+	{
+		btAlignedFree(ptr);
+	}
 }

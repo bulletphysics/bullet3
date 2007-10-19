@@ -51,6 +51,11 @@ public:
 		btAlignedFree( m_pool);
 	}
 
+	int	getFreeCount() const
+	{
+		return m_freeCount;
+	}
+
 	void*	allocate(int size)
 	{
 		btAssert(!size || size<=m_elemSize);
