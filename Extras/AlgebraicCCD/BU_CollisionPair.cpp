@@ -23,7 +23,7 @@ subject to the following restrictions:
 
 #include "BU_MotionStateInterface.h"
 #include "BulletCollision/CollisionShapes/btPolyhedralConvexShape.h"
-#include <btSimdMinMax.h>
+#include <btMinMax.h>
 #include "LinearMath/btTransformUtil.h"
 
 

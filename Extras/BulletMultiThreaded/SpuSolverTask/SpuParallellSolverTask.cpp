@@ -477,8 +477,8 @@ static void solveFriction (SpuSolverInternalConstraint& constraint, SpuSolverBod
 			j1 = -rel_vel * constraint.m_jacDiagABInv;
 			btScalar oldTangentImpulse = constraint.m_appliedImpulse;
 			constraint.m_appliedImpulse = oldTangentImpulse + j1;
-			GEN_set_min(constraint.m_appliedImpulse, limit);
-			GEN_set_max(constraint.m_appliedImpulse, -limit);
+			btSetMin(constraint.m_appliedImpulse, limit);
+			btSetMax(constraint.m_appliedImpulse, -limit);
 			j1 = constraint.m_appliedImpulse - oldTangentImpulse;
 
 		}

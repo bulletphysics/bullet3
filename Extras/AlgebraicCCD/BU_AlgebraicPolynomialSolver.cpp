@@ -16,7 +16,7 @@ subject to the following restrictions:
 
 #include "BU_AlgebraicPolynomialSolver.h"
 #include <math.h>
-#include <btSimdMinMax.h>
+#include <btMinMax.h>
 
 int BU_AlgebraicPolynomialSolver::Solve2Quadratic(btScalar p, btScalar q) 
 { 
