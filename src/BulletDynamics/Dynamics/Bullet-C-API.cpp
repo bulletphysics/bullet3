@@ -70,7 +70,7 @@ plDynamicsWorldHandle plCreateDynamicsWorld(plPhysicsSdkHandle physicsSdkHandle)
 	btBroadphaseInterface*		pairCache = new btAxisSweep3(physicsSdk->m_worldAabbMin,physicsSdk->m_worldAabbMax);
 	btConstraintSolver*			constraintSolver = new btSequentialImpulseConstraintSolver();
 
-	return (plDynamicsWorldHandle) new btDiscreteDynamicsWorld(dispatcher,pairCache,constraintSolver);
+	return (plDynamicsWorldHandle) new btDiscreteDynamicsWorld(dispatcher,pairCache,constraintSolver,collisionConfiguration);
 }
 void           plDeleteDynamicsWorld(plDynamicsWorldHandle world)
 {

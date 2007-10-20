@@ -42,7 +42,7 @@ public:
 	virtual	void	storeIslandActivationState(btCollisionWorld* world);
 
 
-	void	findUnions(btDispatcher* dispatcher);
+	void	findUnions(btDispatcher* dispatcher,btCollisionWorld* colWorld);
 
 	
 

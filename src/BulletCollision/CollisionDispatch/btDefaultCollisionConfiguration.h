@@ -19,19 +19,23 @@ subject to the following restrictions:
 #include "btCollisionConfiguration.h"
 
 ///btCollisionConfiguration allows to configure Bullet collision detection
-///stack allocator size, default collision algorithms and persistent manifold pool size
+///stack allocator, pool memory allocators
 ///todo: describe the meaning
 class	btDefaultCollisionConfiguration : public btCollisionConfiguration
 {
 
 	int	m_persistentManifoldPoolSize;
 	
-	int	m_stackAllocatorSize;
+	btStackAlloc*	m_stackAlloc;
+	bool	m_ownsStackAllocator;
 
-	int m_collisionAlgorithmPoolSize;
+	btPoolAllocator*	m_persistentManifoldPool;
+	bool	m_ownsPersistentManifoldPool;
 
-	int m_collisionAlgorithmMaxElementSize;
+	btPoolAllocator*	m_collisionAlgorithmPool;
+	bool	m_ownsCollisionAlgorithmPool;
 
+	
 	//default CreationFunctions, filling the m_doubleDispatch table
 	btCollisionAlgorithmCreateFunc*	m_convexConvexCreateFunc;
 	btCollisionAlgorithmCreateFunc*	m_convexConcaveCreateFunc;
@@ -47,35 +51,30 @@ class	btDefaultCollisionConfiguration : public btCollisionConfiguration
 
 public:
 
-	btDefaultCollisionConfiguration();
+	btDefaultCollisionConfiguration(btStackAlloc*	stackAlloc=0,btPoolAllocator*	persistentManifoldPool=0,btPoolAllocator*	collisionAlgorithmPool=0);
 
 	virtual ~btDefaultCollisionConfiguration();
 
-	///pool size for the persistent contact manifold
-	virtual int	getPersistentManifoldPoolSize();
+		///memory pools
+	virtual btPoolAllocator* getPersistentManifoldPool()
+	{
+		return m_persistentManifoldPool;
+	}
 
-	virtual int	getStackAllocatorSize();
+	virtual btPoolAllocator* getCollisionAlgorithmPool()
+	{
+		return m_collisionAlgorithmPool;
+	}
 
-	virtual int	getCollisionAlgorithmPoolSize();
+	virtual btStackAlloc*	getStackAllocator()
+	{
+		return m_stackAlloc;
+	}
 
-	virtual int	getCollisionAlgorithmMaxElementSize();
 
 	btCollisionAlgorithmCreateFunc* getCollisionAlgorithmCreateFunc(int proxyType0,int proxyType1);
 
-	void	setStackAllocatorSize(int size)
-	{
-		m_stackAllocatorSize = size;
-	}
 
-	void	setPersistentManifoldPoolSize(int size)
-	{
-		m_persistentManifoldPoolSize = size;
-	}
-
-	void	setCollisionAlgorithmPoolSize(int size)
-	{
-		m_collisionAlgorithmPoolSize = size;
-	}
 };
 
 #endif //BT_DEFAULT_COLLISION_CONFIGURATION

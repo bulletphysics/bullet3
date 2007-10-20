@@ -187,9 +187,9 @@ void	BasicDemo::initPhysics()
 #ifdef USE_SIMPLE_DYNAMICS_WORLD
 	//btSimpleDynamicsWorld doesn't support 'cache friendly' optimization, so disable this
 	sol->setSolverMode(btSequentialImpulseConstraintSolver::SOLVER_RANDMIZE_ORDER);
-	m_dynamicsWorld = new btSimpleDynamicsWorld(m_dispatcher,m_overlappingPairCache,m_solver);
+	m_dynamicsWorld = new btSimpleDynamicsWorld(m_dispatcher,m_overlappingPairCache,m_solver,collisionConfiguration);
 #else
-	m_dynamicsWorld = new btDiscreteDynamicsWorld(m_dispatcher,m_overlappingPairCache,m_solver);
+	m_dynamicsWorld = new btDiscreteDynamicsWorld(m_dispatcher,m_overlappingPairCache,m_solver,collisionConfiguration);
 #endif //USE_SIMPLE_DYNAMICS_WORLD
 	m_dynamicsWorld->getDispatchInfo().m_enableSPU = true;
 

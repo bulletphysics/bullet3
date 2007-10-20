@@ -270,7 +270,7 @@ btDefaultCollisionConfiguration* collisionConfiguration = new btDefaultCollision
 	btVector3 worldMax(1000,1000,1000);
 	btBroadphaseInterface* pairCache = new btAxisSweep3(worldMin,worldMax);
 	btConstraintSolver* constraintSolver = new btSequentialImpulseConstraintSolver();
-	m_dynamicsWorld = new btDiscreteDynamicsWorld(dispatcher,pairCache,constraintSolver);
+	m_dynamicsWorld = new btDiscreteDynamicsWorld(dispatcher,pairCache,constraintSolver,collisionConfiguration);
 #ifdef USE_PARALLEL_DISPATCHER
 	m_dynamicsWorld->getDispatchInfo().m_enableSPU=true;
 #endif //USE_PARALLEL_DISPATCHER

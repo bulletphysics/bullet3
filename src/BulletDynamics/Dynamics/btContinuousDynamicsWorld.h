@@ -28,7 +28,7 @@ class btContinuousDynamicsWorld : public btDiscreteDynamicsWorld
 
 	public:
 
-		btContinuousDynamicsWorld(btDispatcher* dispatcher,btBroadphaseInterface* pairCache,btConstraintSolver* constraintSolver);
+		btContinuousDynamicsWorld(btDispatcher* dispatcher,btBroadphaseInterface* pairCache,btConstraintSolver* constraintSolver,btCollisionConfiguration* collisionConfiguration);
 		virtual ~btContinuousDynamicsWorld();
 		
 		///time stepping with calculation of time of impact for selected fast moving objects

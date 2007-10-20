@@ -91,7 +91,7 @@ void	CollisionInterfaceDemo::initPhysics()
 	//SimpleBroadphase is a brute force alternative, performing N^2 aabb overlap tests
 	//SimpleBroadphase*	broadphase = new btSimpleBroadphase;
 
-	collisionWorld = new btCollisionWorld(dispatcher,broadphase);
+	collisionWorld = new btCollisionWorld(dispatcher,broadphase,collisionConfiguration);
 		
 	collisionWorld->addCollisionObject(&objects[0]);
 	collisionWorld->addCollisionObject(&objects[1]);

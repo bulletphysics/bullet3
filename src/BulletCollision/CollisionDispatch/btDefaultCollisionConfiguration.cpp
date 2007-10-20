@@ -24,15 +24,16 @@ subject to the following restrictions:
 #include "BulletCollision/CollisionDispatch/btSphereBoxCollisionAlgorithm.h"
 #include "BulletCollision/CollisionDispatch/btSphereTriangleCollisionAlgorithm.h"
 
+#include "LinearMath/btStackAlloc.h"
+#include "LinearMath/btPoolAllocator.h"
+
+
+
 #define DEFAULT_MAX_OVERLAPPING_PAIRS 65535
 #define DEFAULT_STACK_ALLOCATOR_SIZE	(5*1024*1024)
 
 
-btDefaultCollisionConfiguration::btDefaultCollisionConfiguration()
-:m_persistentManifoldPoolSize(DEFAULT_MAX_OVERLAPPING_PAIRS),
-m_stackAllocatorSize(DEFAULT_STACK_ALLOCATOR_SIZE),
-m_collisionAlgorithmPoolSize(DEFAULT_MAX_OVERLAPPING_PAIRS),
-m_collisionAlgorithmMaxElementSize(0)
+btDefaultCollisionConfiguration::btDefaultCollisionConfiguration(btStackAlloc*	stackAlloc,btPoolAllocator*	persistentManifoldPool,btPoolAllocator*	collisionAlgorithmPool)
 {
 
 	//default CreationFunctions, filling the m_doubleDispatch table
@@ -58,14 +59,62 @@ m_collisionAlgorithmMaxElementSize(0)
 	int maxSize3 = sizeof(btCompoundCollisionAlgorithm);
 	int maxSize4 = sizeof(btEmptyAlgorithm);
 	
-	m_collisionAlgorithmMaxElementSize = btMax(maxSize,maxSize2);
-	m_collisionAlgorithmMaxElementSize = btMax(m_collisionAlgorithmMaxElementSize,maxSize3);
-	m_collisionAlgorithmMaxElementSize = btMax(m_collisionAlgorithmMaxElementSize,maxSize4);
+	int	collisionAlgorithmMaxElementSize = btMax(maxSize,maxSize2);
+	collisionAlgorithmMaxElementSize = btMax(collisionAlgorithmMaxElementSize,maxSize3);
+	collisionAlgorithmMaxElementSize = btMax(collisionAlgorithmMaxElementSize,maxSize4);
+
+	if (stackAlloc)
+	{
+		m_ownsStackAllocator = false;
+		this->m_stackAlloc = stackAlloc;
+	} else
+	{
+		m_ownsStackAllocator = true;
+		void* mem = btAlignedAlloc(sizeof(btStackAlloc),16);
+		m_stackAlloc = new(mem)btStackAlloc(DEFAULT_STACK_ALLOCATOR_SIZE);
+	}
+		
+	if (persistentManifoldPool)
+	{
+		m_ownsPersistentManifoldPool = false;
+		m_persistentManifoldPool = persistentManifoldPool;
+	} else
+	{
+		m_ownsPersistentManifoldPool = true;
+		void* mem = btAlignedAlloc(sizeof(btPoolAllocator),16);
+		m_persistentManifoldPool = new (mem) btPoolAllocator(sizeof(btPersistentManifold),DEFAULT_MAX_OVERLAPPING_PAIRS);
+	}
+	
+	if (collisionAlgorithmPool)
+	{
+		m_ownsCollisionAlgorithmPool = false;
+		m_collisionAlgorithmPool = collisionAlgorithmPool;
+	} else
+	{
+		m_ownsCollisionAlgorithmPool = true;
+		void* mem = btAlignedAlloc(sizeof(btPoolAllocator),16);
+		m_collisionAlgorithmPool = new(mem) btPoolAllocator(collisionAlgorithmMaxElementSize,DEFAULT_MAX_OVERLAPPING_PAIRS);
+	}
+
 
 }
 
 btDefaultCollisionConfiguration::~btDefaultCollisionConfiguration()
 {
+	if (m_ownsStackAllocator)
+	{
+		m_stackAlloc->destroy();
+		btAlignedFree(m_stackAlloc);
+	}
+	if (m_ownsCollisionAlgorithmPool)
+	{
+		btAlignedFree(m_collisionAlgorithmPool);
+	}
+	if (m_ownsPersistentManifoldPool)
+	{
+		btAlignedFree(m_persistentManifoldPool);
+	}
+
 	delete m_convexConvexCreateFunc;
 	delete m_convexConcaveCreateFunc;
 	delete m_swappedConvexConcaveCreateFunc;
@@ -78,28 +127,6 @@ btDefaultCollisionConfiguration::~btDefaultCollisionConfiguration()
 	delete m_sphereTriangleCF;
 	delete m_triangleSphereCF;
 
-
-}
-
-	///pool size for the persistent contact manifold
-int	btDefaultCollisionConfiguration::getPersistentManifoldPoolSize()
-{
-	return m_persistentManifoldPoolSize;
-}
-
-int	btDefaultCollisionConfiguration::getStackAllocatorSize()
-{
-	return m_stackAllocatorSize;
-}
-
-int	btDefaultCollisionConfiguration::getCollisionAlgorithmPoolSize()
-{
-	return m_collisionAlgorithmPoolSize;
-}
-
-int	btDefaultCollisionConfiguration::getCollisionAlgorithmMaxElementSize()
-{
-	return m_collisionAlgorithmMaxElementSize;
 
 }
 

@@ -17,6 +17,9 @@ subject to the following restrictions:
 #define BT_COLLISION_CONFIGURATION
 struct btCollisionAlgorithmCreateFunc;
 
+class btStackAlloc;
+class btPoolAllocator;
+
 ///btCollisionConfiguration allows to configure Bullet collision detection
 ///stack allocator size, default collision algorithms and persistent manifold pool size
 ///todo: describe the meaning
@@ -29,14 +32,12 @@ public:
 	{
 	}
 
-	///pool size for the persistent contact manifold
-	virtual int	getPersistentManifoldPoolSize() = 0;
+	///memory pools
+	virtual btPoolAllocator* getPersistentManifoldPool() = 0;
 
-	virtual int	getStackAllocatorSize() = 0;
+	virtual btPoolAllocator* getCollisionAlgorithmPool() = 0;
 
-	virtual int	getCollisionAlgorithmPoolSize() = 0;
-
-	virtual int	getCollisionAlgorithmMaxElementSize() = 0;
+	virtual btStackAlloc*	getStackAllocator() = 0;
 
 	virtual btCollisionAlgorithmCreateFunc* getCollisionAlgorithmCreateFunc(int proxyType0,int proxyType1) =0;
 

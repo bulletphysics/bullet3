@@ -447,6 +447,7 @@ btScalar btSequentialImpulseConstraintSolver::solveGroupCacheFriendlySetup(btCol
 	END_PROFILE("refreshManifolds");
 #endif //FORCE_REFESH_CONTACT_MANIFOLDS
 
+	btVector3 color(0,1,0);
 
 
 	BEGIN_PROFILE("gatherSolverData");
@@ -559,6 +560,9 @@ btScalar btSequentialImpulseConstraintSolver::solveGroupCacheFriendlySetup(btCol
 				{
 					
 					btManifoldPoint& cp = manifold->getContactPoint(j);
+					
+					if (debugDrawer)
+						debugDrawer->drawContactPoint(cp.m_positionWorldOnB,cp.m_normalWorldOnB,cp.getDistance(),cp.getLifeTime(),color);
 
 					
 					if (cp.getDistance() <= btScalar(0.))
@@ -938,6 +942,7 @@ btScalar btSequentialImpulseConstraintSolver::solveGroup(btCollisionObject** bod
 				solveFriction((btRigidBody*)manifold->getBody0(),
 					(btRigidBody*)manifold->getBody1(),manifold->getContactPoint(gOrder[j].m_pointIndex),info,iteration,debugDrawer);
 			}
+			
 		}
 	}
 		

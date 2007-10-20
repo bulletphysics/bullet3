@@ -77,7 +77,7 @@ void GenericJointDemo::initPhysics()
 
 
 
-	m_dynamicsWorld = new btDiscreteDynamicsWorld(dispatcher,overlappingPairCache,constraintSolver);
+	m_dynamicsWorld = new btDiscreteDynamicsWorld(dispatcher,overlappingPairCache,constraintSolver,collision_config);
 
 	m_dynamicsWorld->setGravity(btVector3(0,-30,0));
 

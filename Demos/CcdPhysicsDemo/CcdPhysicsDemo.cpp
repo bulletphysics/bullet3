@@ -477,7 +477,7 @@ int maxNumOutstandingTasks = 4;
 	solver->setSolverMode(btSequentialImpulseConstraintSolver::SOLVER_RANDMIZE_ORDER);
 #endif //USER_DEFINED_FRICTION_MODEL
 
-		btDiscreteDynamicsWorld* world = new btDiscreteDynamicsWorld(dispatcher,broadphase,solver);
+		btDiscreteDynamicsWorld* world = new btDiscreteDynamicsWorld(dispatcher,broadphase,solver,collisionConfiguration);
 		m_dynamicsWorld = world;
 
 #ifdef DO_BENCHMARK_PYRAMIDS

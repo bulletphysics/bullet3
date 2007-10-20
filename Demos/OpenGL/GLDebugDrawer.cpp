@@ -40,6 +40,12 @@ void	GLDebugDrawer::setDebugMode(int debugMode)
 
 }
 
+void	GLDebugDrawer::draw3dText(const btVector3& location,const char* textString)
+{
+	glRasterPos3f(location.x(),  location.y(),  location.z());
+	BMF_DrawString(BMF_GetFont(BMF_kHelvetica10),textString);
+}
+
 void	GLDebugDrawer::reportErrorWarning(const char* warningString)
 {
 	printf(warningString);

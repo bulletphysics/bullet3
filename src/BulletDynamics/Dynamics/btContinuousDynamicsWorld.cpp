@@ -33,8 +33,8 @@ subject to the following restrictions:
 
 #include <stdio.h>
 
-btContinuousDynamicsWorld::btContinuousDynamicsWorld(btDispatcher* dispatcher,btBroadphaseInterface* pairCache,btConstraintSolver* constraintSolver)
-:btDiscreteDynamicsWorld(dispatcher,pairCache,constraintSolver)
+btContinuousDynamicsWorld::btContinuousDynamicsWorld(btDispatcher* dispatcher,btBroadphaseInterface* pairCache,btConstraintSolver* constraintSolver,btCollisionConfiguration* collisionConfiguration)
+:btDiscreteDynamicsWorld(dispatcher,pairCache,constraintSolver,collisionConfiguration)
 {
 }
 

@@ -89,7 +89,7 @@ void	DoublePrecisionDemo::initPhysics()
 
 	btAxisSweep3*	broadphase = new btAxisSweep3(worldAabbMin,worldAabbMax);
 	
-	collisionWorld = new btCollisionWorld(dispatcher,broadphase);
+	collisionWorld = new btCollisionWorld(dispatcher,broadphase,collisionConfiguration);
 		
 	collisionWorld->addCollisionObject(&objects[0]);
 	collisionWorld->addCollisionObject(&objects[1]);

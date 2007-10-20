@@ -124,6 +124,20 @@ public:
 
 	virtual	void freeCollisionAlgorithm(void* ptr);
 
+	btCollisionConfiguration*	getCollisionConfiguration()
+	{
+		return m_collisionConfiguration;
+	}
+
+	const btCollisionConfiguration*	getCollisionConfiguration() const
+	{
+		return m_collisionConfiguration;
+	}
+
+	void	setCollisionConfiguration(btCollisionConfiguration* config)
+	{
+		m_collisionConfiguration = config;
+	}
 
 };
 

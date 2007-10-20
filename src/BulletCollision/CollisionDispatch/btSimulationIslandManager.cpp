@@ -25,17 +25,17 @@ void btSimulationIslandManager::initUnionFind(int n)
 }
 		
 
-void btSimulationIslandManager::findUnions(btDispatcher* dispatcher)
+void btSimulationIslandManager::findUnions(btDispatcher* dispatcher,btCollisionWorld* colWorld)
 {
 	
 	{
-		for (int i=0;i<dispatcher->getNumManifolds();i++)
-		{
-			const btPersistentManifold* manifold = dispatcher->getManifoldByIndexInternal(i);
-			//static objects (invmass btScalar(0.)) don't merge !
+		btBroadphasePair* pairPtr = colWorld->getPairCache()->getOverlappingPairArrayPtr();
 
-			 const  btCollisionObject* colObj0 = static_cast<const btCollisionObject*>(manifold->getBody0());
-			 const  btCollisionObject* colObj1 = static_cast<const btCollisionObject*>(manifold->getBody1());
+		for (int i=0;i<colWorld->getPairCache()->getNumOverlappingPairs();i++)
+		{
+			const btBroadphasePair& collisionPair = pairPtr[i];
+			btCollisionObject* colObj0 = (btCollisionObject*)collisionPair.m_pProxy0->m_clientObject;
+			btCollisionObject* colObj1 = (btCollisionObject*)collisionPair.m_pProxy1->m_clientObject;
 
 			if (((colObj0) && ((colObj0)->mergesSimulationIslands())) &&
 				((colObj1) && ((colObj1)->mergesSimulationIslands())))
@@ -71,7 +71,7 @@ void	btSimulationIslandManager::updateActivationState(btCollisionWorld* colWorld
 	}
 	// do the union find
 	
-	findUnions(dispatcher);
+	findUnions(dispatcher,colWorld);
 	
 
 	
@@ -259,11 +259,11 @@ void btSimulationIslandManager::buildAndProcessIslands(btDispatcher* dispatcher,
 		{
 		
 			//kinematic objects don't merge islands, but wake up all connected objects
-			if (colObj0->isStaticOrKinematicObject() && colObj0->getActivationState() != ISLAND_SLEEPING)
+			if (colObj0->isKinematicObject() && colObj0->getActivationState() != ISLAND_SLEEPING)
 			{
 				colObj1->activate();
 			}
-			if (colObj1->isStaticOrKinematicObject() && colObj1->getActivationState() != ISLAND_SLEEPING)
+			if (colObj1->isKinematicObject() && colObj1->getActivationState() != ISLAND_SLEEPING)
 			{
 				colObj0->activate();
 			}
@@ -300,6 +300,7 @@ void btSimulationIslandManager::buildAndProcessIslands(btDispatcher* dispatcher,
 
 	btAlignedObjectArray<btCollisionObject*>	islandBodies;
 
+//	printf("Start Islands\n");
 
 	//traverse the simulation islands, and call the solver, unless all objects are sleeping/deactivated
 	for ( startIslandIndex=0;startIslandIndex<numElem;startIslandIndex = endIslandIndex)
@@ -343,6 +344,7 @@ void btSimulationIslandManager::buildAndProcessIslands(btDispatcher* dispatcher,
 		if (!islandSleeping)
 		{
 			callback->ProcessIsland(&islandBodies[0],islandBodies.size(),startManifold,numIslandManifolds, islandId);
+//			printf("Island callback of size:%d bodies, %d manifolds\n",islandBodies.size(),numIslandManifolds);
 		}
 		
 		if (numIslandManifolds)

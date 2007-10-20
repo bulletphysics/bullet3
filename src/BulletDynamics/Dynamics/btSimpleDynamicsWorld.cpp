@@ -32,8 +32,8 @@ extern "C" void btBulletDynamicsProbe () {}
 
 
 
-btSimpleDynamicsWorld::btSimpleDynamicsWorld(btDispatcher* dispatcher,btBroadphaseInterface* pairCache,btConstraintSolver* constraintSolver)
-:btDynamicsWorld(dispatcher,pairCache),
+btSimpleDynamicsWorld::btSimpleDynamicsWorld(btDispatcher* dispatcher,btBroadphaseInterface* pairCache,btConstraintSolver* constraintSolver,btCollisionConfiguration* collisionConfiguration)
+:btDynamicsWorld(dispatcher,pairCache,collisionConfiguration),
 m_constraintSolver(constraintSolver),
 m_ownsConstraintSolver(false),
 m_debugDrawer(0),

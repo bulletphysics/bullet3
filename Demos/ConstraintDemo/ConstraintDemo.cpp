@@ -84,7 +84,7 @@ void	ConstraintDemo::initPhysics()
 	//btBroadphaseInterface* broadphase = new btSimpleBroadphase();
 	btConstraintSolver* constraintSolver = new btSequentialImpulseConstraintSolver();
 	//ConstraintSolver* solver = new OdeConstraintSolver;
-	m_dynamicsWorld = new btDiscreteDynamicsWorld(dispatcher,pairCache,constraintSolver);
+	m_dynamicsWorld = new btDiscreteDynamicsWorld(dispatcher,pairCache,constraintSolver,collisionConfiguration);
 
 	//m_dynamicsWorld->setGravity(btVector3(0,0,0));
 	

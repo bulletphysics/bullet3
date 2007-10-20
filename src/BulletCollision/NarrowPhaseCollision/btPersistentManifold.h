@@ -117,6 +117,7 @@ public:
 			m_pointCache[index] = m_pointCache[lastUsedIndex]; 
 			//get rid of duplicated userPersistentData pointer
 			m_pointCache[lastUsedIndex].m_userPersistentData = 0;
+			m_pointCache[lastUsedIndex].m_lifeTime = 0;
 		}
 
 		btAssert(m_pointCache[lastUsedIndex].m_userPersistentData==0);

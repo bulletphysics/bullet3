@@ -124,7 +124,7 @@ void VehicleDemo::setupPhysics()
 	btVector3 worldMax(1000,1000,1000);
 	btBroadphaseInterface* pairCache = new btAxisSweep3(worldMin,worldMax);
 	btConstraintSolver* constraintSolver = new btSequentialImpulseConstraintSolver();
-	m_dynamicsWorld = new btDiscreteDynamicsWorld(dispatcher,pairCache,constraintSolver);
+	m_dynamicsWorld = new btDiscreteDynamicsWorld(dispatcher,pairCache,constraintSolver,collisionConfiguration);
 #ifdef FORCE_ZAXIS_UP
 	m_dynamicsWorld->setGravity(btVector3(0,0,-10));
 #endif 

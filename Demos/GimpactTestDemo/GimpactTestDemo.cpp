@@ -415,7 +415,7 @@ void	GimpactConcaveDemo::initPhysics()
 
 	m_constraintSolver = new btSequentialImpulseConstraintSolver();
 
-	m_dynamicsWorld = new btDiscreteDynamicsWorld(m_dispatcher,m_broadphase,m_constraintSolver);
+	m_dynamicsWorld = new btDiscreteDynamicsWorld(m_dispatcher,m_broadphase,m_constraintSolver,m_collisionConfiguration);
 	m_dynamicsWorld->setDebugDrawer(&debugDrawer);
 
 	//create trimesh model and shape

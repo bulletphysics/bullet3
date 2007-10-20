@@ -98,7 +98,7 @@ protected:
 public:
 
 	//this constructor doesn't own the dispatcher and paircache/broadphase
-	btCollisionWorld(btDispatcher* dispatcher,btBroadphaseInterface* broadphasePairCache, int stackSize = 2*1024*1024);
+	btCollisionWorld(btDispatcher* dispatcher,btBroadphaseInterface* broadphasePairCache, btCollisionConfiguration* collisionConfiguration);
 
 	virtual ~btCollisionWorld();
 

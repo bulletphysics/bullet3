@@ -328,7 +328,7 @@ void RagdollDemo::initPhysics()
 
 	btConstraintSolver* solver = new btSequentialImpulseConstraintSolver;
 
-	m_dynamicsWorld = new btDiscreteDynamicsWorld(dispatcher,overlappingPairCache,solver);
+	m_dynamicsWorld = new btDiscreteDynamicsWorld(dispatcher,overlappingPairCache,solver,collisionConfiguration);
 
 	m_dynamicsWorld->setDebugDrawer(&debugDrawer);
 

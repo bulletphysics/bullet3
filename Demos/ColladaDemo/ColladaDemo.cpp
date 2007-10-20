@@ -178,7 +178,7 @@ void	ColladaDemo::initPhysics(const char* filename)
 	btVector3 worldMax(1000,1000,1000);
 	btBroadphaseInterface* pairCache = new btAxisSweep3(worldMin,worldMax);
 	btConstraintSolver* constraintSolver = new btSequentialImpulseConstraintSolver();
-	m_dynamicsWorld = new btDiscreteDynamicsWorld(dispatcher,pairCache,constraintSolver);
+	m_dynamicsWorld = new btDiscreteDynamicsWorld(dispatcher,pairCache,constraintSolver,collisionConfiguration);
 
 	//m_dynamicsWorld = new btSimpleDynamicsWorld();
 

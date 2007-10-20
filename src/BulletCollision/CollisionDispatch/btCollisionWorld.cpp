@@ -35,24 +35,22 @@ subject to the following restrictions:
 //When the user doesn't provide dispatcher or broadphase, create basic versions (and delete them in destructor)
 #include "BulletCollision/CollisionDispatch/btCollisionDispatcher.h"
 #include "BulletCollision/BroadphaseCollision/btSimpleBroadphase.h"
+#include "BulletCollision/CollisionDispatch/btCollisionConfiguration.h"
 
 
-
-btCollisionWorld::btCollisionWorld(btDispatcher* dispatcher,btBroadphaseInterface* pairCache, int stackSize)
+btCollisionWorld::btCollisionWorld(btDispatcher* dispatcher,btBroadphaseInterface* pairCache, btCollisionConfiguration* collisionConfiguration)
 :m_dispatcher1(dispatcher),
 m_broadphasePairCache(pairCache),
 m_ownsDispatcher(false),
 m_ownsBroadphasePairCache(false)
 {
-	m_stackAlloc = new btStackAlloc(stackSize);
+	m_stackAlloc = collisionConfiguration->getStackAllocator();
 	m_dispatchInfo.m_stackAllocator = m_stackAlloc;
 }
 
 
 btCollisionWorld::~btCollisionWorld()
 {
-	m_stackAlloc->destroy();
-	delete m_stackAlloc;
 
 	//clean up remaining objects
 	int i;

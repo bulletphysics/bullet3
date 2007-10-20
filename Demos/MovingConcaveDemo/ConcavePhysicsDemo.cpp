@@ -1652,7 +1652,7 @@ void	ConcaveDemo::initPhysics()
 	btBroadphaseInterface* broadphase = new btSimpleBroadphase();
 
 	btConstraintSolver* constraintSolver = new btSequentialImpulseConstraintSolver();
-	m_dynamicsWorld = new btDiscreteDynamicsWorld(dispatcher,broadphase,constraintSolver);
+	m_dynamicsWorld = new btDiscreteDynamicsWorld(dispatcher,broadphase,constraintSolver,collisionConfiguration);
 
 
 	//create trimesh model and shape

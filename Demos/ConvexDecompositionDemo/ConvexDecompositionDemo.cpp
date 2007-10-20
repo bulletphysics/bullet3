@@ -128,7 +128,7 @@ void ConvexDecompositionDemo::initPhysics(const char* filename)
 	//btBroadphaseInterface* broadphase = new btSimpleBroadphase();
 
 	btConstraintSolver* solver = new btSequentialImpulseConstraintSolver();
-	m_dynamicsWorld = new btDiscreteDynamicsWorld(dispatcher,broadphase,solver);
+	m_dynamicsWorld = new btDiscreteDynamicsWorld(dispatcher,broadphase,solver,collisionConfiguration);
 
 #ifdef USE_PARALLEL_DISPATCHER
 	m_dynamicsWorld->getDispatchInfo().m_enableSPU = true;

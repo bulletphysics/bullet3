@@ -144,7 +144,7 @@ void	BspDemo::initPhysics(char* bspfilename)
 	//btOverlappingPairCache* broadphase = new btSimpleBroadphase();
 	btConstraintSolver* constraintSolver = new btSequentialImpulseConstraintSolver();
 	//ConstraintSolver* solver = new OdeConstraintSolver;
-	m_dynamicsWorld = new btDiscreteDynamicsWorld(dispatcher,pairCache,constraintSolver);
+	m_dynamicsWorld = new btDiscreteDynamicsWorld(dispatcher,pairCache,constraintSolver,collisionConfiguration);
 
 	m_dynamicsWorld->setGravity(-m_cameraUp * 10);
 	m_dynamicsWorld->setDebugDrawer(&debugDrawer);
