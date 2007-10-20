@@ -14,7 +14,7 @@ CFlags quickstep : [ FIncludes $(TOP)/Extras/quickstep ] ;
 MsvcGenConfig QUICKSTEP.INCDIRS : $(TOP)/Extras/quickstep ;
 
 #for the include paths
-LibDepends quickstep : BulletDynamics ;
+LibDepends quickstep : bulletdynamics ;
 
 
 #InstallHeader [ Wildcard *.h ] : quickstep ;

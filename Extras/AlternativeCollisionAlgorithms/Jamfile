@@ -11,7 +11,7 @@ boxbox.CFLAGS = [ FIncludes $(TOP)/Extras/AlternativeCollisionAlgorithms ] ;
 MsvcGenConfig boxbox.INCDIRS : $(TOP)/Extras/AlternativeCollisionAlgorithms ;
 
 #for the include paths
-LibDepends boxbox : BulletCollision ;
+LibDepends boxbox : bulletcollision  ;
 
 
 #InstallHeader [ Wildcard *.h ] : AlternativeCollisionAlgorithms ;
