@@ -16,8 +16,9 @@ subject to the following restrictions:
 #define BASIC_DEMO_H
 
 #include "DemoApplication.h"
+#include "LinearMath/btAlignedObjectArray.h"
 
-
+class btBroadphaseInterface;
 class btCollisionShape;
 class btOverlappingPairCache;
 class btCollisionDispatcher;

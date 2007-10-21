@@ -3,7 +3,7 @@ SubDir TOP Examples TestBed ;
 if $(GLUT.AVAILABLE) = "yes"
 {
   # All demo apps have a lot in common, so use this rule to simply things
-  rule BulletDemo
+  rule FrameWorkDemo
   {
     Application $(<) : $(>) : noinstall console nomanifest ;
     LinkWith $(<) :  Tests bulletdynamics bulletcollision bulletmath glui ;

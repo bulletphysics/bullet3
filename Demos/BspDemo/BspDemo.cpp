@@ -31,7 +31,7 @@ subject to the following restrictions:
 #include "BMF_Api.h"
 #include <stdio.h> //printf debugging
 
-float deltaTime = 1.f/60.f;
+
 #include "BspDemo.h"
 #include "GL_ShapeDrawer.h"
 #include "GlutStuff.h"
@@ -85,41 +85,9 @@ public:
 
 
 
-GLDebugDrawer debugDrawer;
-
-char* makeExeToBspFilename(const char* lpCmdLine);
-char* getLastFileName();
 
 
-int main(int argc,char** argv)
-{
 
-	BspDemo* bspDemo = new BspDemo();
-
-	const char* bspfilename = "BspDemo.bsp";
-
-	printf("argc=%i\n",argc);
-	{
-		for (int i=0;i<argc;i++)
-		{
-			printf("argv[%i]=%s\n",i,argv[i]);
-		}
-		
-		bspfilename = makeExeToBspFilename(argv[0]);
-		printf("new name=%s\n",bspfilename);
-	}
-	if (argc>1)
-	{
-		bspfilename = argv[1];
-	}
-
-	// Enrico: TODO: Should change parameter type of initPhysics() to std::string or at least const char *
-	bspDemo->initPhysics((char*)bspfilename);
-	
-	bspDemo->setCameraDistance(22.f);
-
-	return glutmain(argc, argv,640,480,"Bullet Quake BSP Physics Viewer http://bullet.sourceforge.net",bspDemo);
-}
 
 BspDemo::~BspDemo()
 {
@@ -147,7 +115,6 @@ void	BspDemo::initPhysics(char* bspfilename)
 	m_dynamicsWorld = new btDiscreteDynamicsWorld(dispatcher,pairCache,constraintSolver,collisionConfiguration);
 
 	m_dynamicsWorld->setGravity(-m_cameraUp * 10);
-	m_dynamicsWorld->setDebugDrawer(&debugDrawer);
 
 
 #ifdef QUAKE_BSP_IMPORTING
@@ -224,8 +191,6 @@ void BspDemo::displayCallback(void) {
 
 	glClear(GL_COLOR_BUFFER_BIT | GL_DEPTH_BUFFER_BIT); 
 
-
-	//m_dynamicsWorld->UpdateAabbs(deltaTime);
 
 	renderme();
 

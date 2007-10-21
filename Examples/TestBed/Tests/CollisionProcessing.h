@@ -6,7 +6,7 @@
 class CollisionProcessing : public Test
 {
 public:
-void Step(Settings* settings)
+void Step(const Settings* settings)
 {
 
 }

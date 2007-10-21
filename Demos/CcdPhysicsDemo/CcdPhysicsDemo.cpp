@@ -71,7 +71,6 @@ subject to the following restrictions:
 #include "BMF_Api.h"
 #include <stdio.h> //printf debugging
 
-float deltaTime = 1.f/60.f;
 float	gCollisionMargin = 0.05f;
 #include "CcdPhysicsDemo.h"
 #include "GL_ShapeDrawer.h"
@@ -172,6 +171,11 @@ void CcdPhysicsDemo::createStack( btCollisionShape* boxShape, float halfCubeSize
 
 			btRigidBody* body = 0;
 			body = localCreateRigidBody(mass,trans,boxShape);
+#ifdef USER_DEFINED_FRICTION_MODEL	
+		///Advanced use: override the friction solver
+		body->m_frictionSolverType = USER_CONTACT_SOLVER_TYPE1;
+#endif //USER_DEFINED_FRICTION_MODEL
+
 		}
 	}
 }
@@ -220,25 +224,10 @@ void customNearCallback(btBroadphasePair& collisionPair, btCollisionDispatcher& 
 
 
 
-GLDebugDrawer debugDrawer;
 
 //experimental jitter damping (1 = no damping, 0 = total damping once motion below threshold)
 extern btScalar gJitterVelocityDampingFactor;
 
-int main(int argc,char** argv)
-{
-	gJitterVelocityDampingFactor = 0.7;
-
-	CcdPhysicsDemo* ccdDemo = new CcdPhysicsDemo();
-
-	ccdDemo->initPhysics();
-
-#ifdef DO_BENCHMARK_PYRAMIDS
-	ccdDemo->setCameraDistance(26.f);
-#endif
-
-	return glutmain(argc, argv,640,480,"Bullet Physics Demo. http://bullet.sf.net",ccdDemo);
-}
 
 
 
@@ -371,6 +360,11 @@ float myFrictionModel(	btRigidBody& body1,	btRigidBody& body2,	btManifoldPoint& 
 
 void	CcdPhysicsDemo::initPhysics()
 {
+
+#ifdef DO_BENCHMARK_PYRAMIDS
+	setCameraDistance(2.5f);
+#endif
+
 #ifdef DO_BENCHMARK_PYRAMIDS
 	m_azi = 90.f;
 #endif //DO_BENCHMARK_PYRAMIDS
@@ -487,7 +481,6 @@ int maxNumOutstandingTasks = 4;
 		m_dynamicsWorld->getDispatchInfo().m_enableSPU = true;
 		m_dynamicsWorld->setGravity(btVector3(0,-10,0));
 
-		m_dynamicsWorld->setDebugDrawer(&debugDrawer);
 		
 
 #ifdef USER_DEFINED_FRICTION_MODEL

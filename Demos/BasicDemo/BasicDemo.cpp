@@ -16,7 +16,6 @@ subject to the following restrictions:
 
 #define USE_GROUND_BOX 1
 //#define PRINT_CONTACT_STATISTICS 1
-//#define CHECK_MEMORY_LEAKS 1
 //#define USE_PARALLEL_DISPATCHER 1
 
 #define START_POS_X -5
@@ -65,22 +64,7 @@ class myTest
 
 
 
-int main(int argc,char** argv)
-{
 
-	BasicDemo ccdDemo;
-	ccdDemo.initPhysics();
-	ccdDemo.setCameraDistance(btScalar(50.));
-
-#ifdef CHECK_MEMORY_LEAKS
-	ccdDemo.exitPhysics();
-#else
-	return glutmain(argc, argv,640,480,"Bullet Physics Demo. http://bullet.sf.net",&ccdDemo);
-#endif
-	
-	//default glut doesn't return from mainloop
-	return 0;
-}
 
 
 
