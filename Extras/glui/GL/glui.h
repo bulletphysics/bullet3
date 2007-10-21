@@ -1312,7 +1312,7 @@ public:
 
 	virtual GLUI_Rollout*	dynamicCastGLUI_Rollout()
 	{
-		return 0;
+		return this;
 	}
 
 protected:
