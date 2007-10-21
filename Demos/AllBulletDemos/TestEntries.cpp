@@ -1,8 +1,8 @@
 
 
-#include "../FrameWork/Test.h"
+#include "Test.h"
 
-#include "../../../Demos/CcdPhysicsDemo/CcdPhysicsDemo.h"
+#include "../CcdPhysicsDemo/CcdPhysicsDemo.h"
 
 class CcdPhysicsTest : public Test
 {
@@ -27,7 +27,7 @@ public:
 	}
 };
 
-#include "../../../Demos/BspDemo/BspDemo.h"
+#include "../BspDemo/BspDemo.h"
 
 class BspDemoTest : public Test
 {

@@ -1,3 +1,0 @@
-SubDir TOP Examples ;
-
-SubInclude TOP Examples TestBed ;

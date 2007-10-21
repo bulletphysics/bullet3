@@ -1,0 +1,11 @@
+SubDir TOP Demos AllBulletDemos ;
+
+FrameWorkDemo AllBulletDemos : 
+[ Wildcard *.h *.cpp  ] 
+	../CcdPhysicsDemo/CcdPhysicsDemo.cpp
+        ../BasicDemo/BasicDemo.cpp
+        ../BspDemo/BspDemo.cpp
+        ../BspDemo/BspConverter.cpp
+        ../BspDemo/BspLoader.cpp
+
+;
