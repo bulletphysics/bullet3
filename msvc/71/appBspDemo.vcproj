@@ -310,6 +310,9 @@
 			<File
 				RelativePath="..\..\Demos\BspDemo\BspLoader.cpp">
 			</File>
+			<File
+				RelativePath="..\..\Demos\BspDemo\main.cpp">
+			</File>
 		</Filter>
 		<Filter
 			Name="Header Files"

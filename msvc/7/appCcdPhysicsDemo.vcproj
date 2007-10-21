@@ -304,6 +304,9 @@
 			<File
 				RelativePath="..\..\Demos\CcdPhysicsDemo\CcdPhysicsDemo.cpp">
 			</File>
+			<File
+				RelativePath="..\..\Demos\CcdPhysicsDemo\main.cpp">
+			</File>
 		</Filter>
 		<Filter
 			Name="Header Files"

@@ -172,6 +172,10 @@ SOURCE="$(InputPath)"
 
 SOURCE=..\..\Demos\CcdPhysicsDemo\CcdPhysicsDemo.cpp
 # End Source File
+# Begin Source File
+
+SOURCE=..\..\Demos\CcdPhysicsDemo\main.cpp
+# End Source File
 # End Group
 # Begin Group "Header Files"
 

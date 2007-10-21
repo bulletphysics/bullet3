@@ -359,9 +359,6 @@
 				RelativePath="..\..\src\LinearMath\btScalar.h">
 			</File>
 			<File
-				RelativePath="..\..\src\LinearMath\btSimdMinMax.h">
-			</File>
-			<File
 				RelativePath="..\..\src\LinearMath\btStackAlloc.h">
 			</File>
 			<File

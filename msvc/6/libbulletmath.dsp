@@ -256,10 +256,6 @@ SOURCE=..\..\src\LinearMath\btScalar.h
 # End Source File
 # Begin Source File
 
-SOURCE=..\..\src\LinearMath\btSimdMinMax.h
-# End Source File
-# Begin Source File
-
 SOURCE=..\..\src\LinearMath\btStackAlloc.h
 # End Source File
 # Begin Source File

@@ -180,6 +180,10 @@ SOURCE=..\..\Demos\BspDemo\BspDemo.cpp
 
 SOURCE=..\..\Demos\BspDemo\BspLoader.cpp
 # End Source File
+# Begin Source File
+
+SOURCE=..\..\Demos\BspDemo\main.cpp
+# End Source File
 # End Group
 # Begin Group "Header Files"
 

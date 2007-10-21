@@ -304,6 +304,9 @@
 			<File
 				RelativePath="..\..\Demos\BasicDemo\BasicDemo.cpp">
 			</File>
+			<File
+				RelativePath="..\..\Demos\BasicDemo\main.cpp">
+			</File>
 		</Filter>
 		<Filter
 			Name="Header Files"

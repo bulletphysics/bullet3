@@ -172,6 +172,10 @@ SOURCE="$(InputPath)"
 
 SOURCE=..\..\Demos\BasicDemo\BasicDemo.cpp
 # End Source File
+# Begin Source File
+
+SOURCE=..\..\Demos\BasicDemo\main.cpp
+# End Source File
 # End Group
 # Begin Group "Header Files"
 

@@ -3,6 +3,33 @@ Microsoft Developer Studio Workspace File, Format Version 6.00
 
 ###############################################################################
 
+Project: "appAllBulletDemos"=.\appAllBulletDemos.dsp - Package Owner=<4>
+
+Package=<5>
+{{{
+}}}
+
+Package=<4>
+{{{
+    Begin Project Dependency
+    Project_Dep_Name libbulletcollision
+    End Project Dependency
+    Begin Project Dependency
+    Project_Dep_Name libbulletdynamics
+    End Project Dependency
+    Begin Project Dependency
+    Project_Dep_Name libbulletmath
+    End Project Dependency
+    Begin Project Dependency
+    Project_Dep_Name libbulletopenglsupport
+    End Project Dependency
+    Begin Project Dependency
+    Project_Dep_Name libglui
+    End Project Dependency
+}}}
+
+###############################################################################
+
 Project: "appBasicDemo"=.\appBasicDemo.dsp - Package Owner=<4>
 
 Package=<5>
@@ -411,18 +438,6 @@ Package=<4>
 
 ###############################################################################
 
-Project: "appGPUphysics"=.\appGPUphysics.dsp - Package Owner=<4>
-
-Package=<5>
-{{{
-}}}
-
-Package=<4>
-{{{
-}}}
-
-###############################################################################
-
 Project: "appMovingConcaveDemo"=.\appMovingConcaveDemo.dsp - Package Owner=<4>
 
 Package=<5>
@@ -579,6 +594,9 @@ Package=<5>
 Package=<4>
 {{{
     Begin Project Dependency
+    Project_Dep_Name appAllBulletDemos
+    End Project Dependency
+    Begin Project Dependency
     Project_Dep_Name appBasicDemo
     End Project Dependency
     Begin Project Dependency
@@ -625,9 +643,6 @@ Package=<4>
     End Project Dependency
     Begin Project Dependency
     Project_Dep_Name appGjkConvexCastDemo
-    End Project Dependency
-    Begin Project Dependency
-    Project_Dep_Name appGPUphysics
     End Project Dependency
     Begin Project Dependency
     Project_Dep_Name appMovingConcaveDemo
@@ -663,9 +678,6 @@ Package=<4>
     Project_Dep_Name libbulletmath
     End Project Dependency
     Begin Project Dependency
-    Project_Dep_Name libbulletmultithreaded
-    End Project Dependency
-    Begin Project Dependency
     Project_Dep_Name libbulletopenglsupport
     End Project Dependency
     Begin Project Dependency
@@ -679,6 +691,9 @@ Package=<4>
     End Project Dependency
     Begin Project Dependency
     Project_Dep_Name libGIMPACTUtils
+    End Project Dependency
+    Begin Project Dependency
+    Project_Dep_Name libglui
     End Project Dependency
     Begin Project Dependency
     Project_Dep_Name liblibxml
@@ -698,6 +713,9 @@ Package=<5>
 
 Package=<4>
 {{{
+    Begin Project Dependency
+    Project_Dep_Name appAllBulletDemos
+    End Project Dependency
     Begin Project Dependency
     Project_Dep_Name appBasicDemo
     End Project Dependency
@@ -745,9 +763,6 @@ Package=<4>
     End Project Dependency
     Begin Project Dependency
     Project_Dep_Name appGjkConvexCastDemo
-    End Project Dependency
-    Begin Project Dependency
-    Project_Dep_Name appGPUphysics
     End Project Dependency
     Begin Project Dependency
     Project_Dep_Name appMovingConcaveDemo
@@ -795,9 +810,6 @@ Package=<4>
     Project_Dep_Name libbulletmath
     End Project Dependency
     Begin Project Dependency
-    Project_Dep_Name libbulletmultithreaded
-    End Project Dependency
-    Begin Project Dependency
     Project_Dep_Name libbulletopenglsupport
     End Project Dependency
     Begin Project Dependency
@@ -811,6 +823,9 @@ Package=<4>
     End Project Dependency
     Begin Project Dependency
     Project_Dep_Name libGIMPACTUtils
+    End Project Dependency
+    Begin Project Dependency
+    Project_Dep_Name libglui
     End Project Dependency
     Begin Project Dependency
     Project_Dep_Name liblibxml
@@ -882,18 +897,6 @@ Package=<4>
 
 ###############################################################################
 
-Project: "libbulletmultithreaded"=.\libbulletmultithreaded.dsp - Package Owner=<4>
-
-Package=<5>
-{{{
-}}}
-
-Package=<4>
-{{{
-}}}
-
-###############################################################################
-
 Project: "libbulletopenglsupport"=.\libbulletopenglsupport.dsp - Package Owner=<4>
 
 Package=<5>
@@ -943,6 +946,18 @@ Package=<4>
 ###############################################################################
 
 Project: "libGIMPACTUtils"=.\libGIMPACTUtils.dsp - Package Owner=<4>
+
+Package=<5>
+{{{
+}}}
+
+Package=<4>
+{{{
+}}}
+
+###############################################################################
+
+Project: "libglui"=.\libglui.dsp - Package Owner=<4>
 
 Package=<5>
 {{{
