@@ -16,7 +16,11 @@ class btConvexTriangleMeshShape : public btPolyhedralConvexShape
 public:
 	btConvexTriangleMeshShape(btStridingMeshInterface* meshInterface);
 
-	class btStridingMeshInterface*	getStridingMesh()
+	class btStridingMeshInterface*	getMeshInterface()
+	{
+		return m_stridingMesh;
+	}
+	const class btStridingMeshInterface* getMeshInterface() const
 	{
 		return m_stridingMesh;
 	}

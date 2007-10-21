@@ -572,7 +572,7 @@ void GL_ShapeDrawer::drawOpenGL(btScalar* m, const btCollisionShape* shape, cons
 			btVector3 aabbMax(btScalar(1e30),btScalar(1e30),btScalar(1e30));
 			btVector3 aabbMin(-btScalar(1e30),-btScalar(1e30),-btScalar(1e30));
 			TriangleGlDrawcallback drawCallback;
-			convexMesh->getStridingMesh()->InternalProcessAllTriangles(&drawCallback,aabbMin,aabbMax);
+			convexMesh->getMeshInterface()->InternalProcessAllTriangles(&drawCallback,aabbMin,aabbMax);
 
 		}
 		

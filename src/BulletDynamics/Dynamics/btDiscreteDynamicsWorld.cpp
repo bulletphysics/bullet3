@@ -926,7 +926,7 @@ void btDiscreteDynamicsWorld::debugDrawObject(const btTransform& worldTransform,
 					btVector3 aabbMin(btScalar(-1e30),btScalar(-1e30),btScalar(-1e30));
 					//DebugDrawcallback drawCallback;
 					DebugDrawcallback drawCallback(getDebugDrawer(),worldTransform,color);
-					convexMesh->getStridingMesh()->InternalProcessAllTriangles(&drawCallback,aabbMin,aabbMax);
+					convexMesh->getMeshInterface()->InternalProcessAllTriangles(&drawCallback,aabbMin,aabbMax);
 				}
 
 
