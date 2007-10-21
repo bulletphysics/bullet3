@@ -56,6 +56,7 @@ LINK_LIBRARIES(
 )
 
 ADD_EXECUTABLE(BspPhysicsDemo
+	main.cpp
 	BspDemo.cpp
 	BspLoader.cpp
 	BspConverter.cpp	

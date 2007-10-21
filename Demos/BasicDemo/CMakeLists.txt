@@ -56,6 +56,7 @@ LibOpenGLSupport  LibBulletDynamics  LibBulletCollision LibLinearMath    ${GLUT_
 )
 
 ADD_EXECUTABLE(BasicDemo
-	BasicDemo.cpp
+	main.cpp
+	BasicDemo.cpp 
 )
 
