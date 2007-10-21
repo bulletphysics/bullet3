@@ -40,16 +40,26 @@ extern "C" {
 
 /*	Particular physics SDK */
 	PL_DECLARE_HANDLE(plPhysicsSdkHandle);
+
 /* 	Dynamics world, belonging to some physics SDK */
 	PL_DECLARE_HANDLE(plDynamicsWorldHandle);
+
 /* Rigid Body that can be part of a Dynamics World */	
 	PL_DECLARE_HANDLE(plRigidBodyHandle);
+
 /* 	Collision Shape/Geometry, property of a Rigid Body */
 	PL_DECLARE_HANDLE(plCollisionShapeHandle);
+
 /* Constraint for Rigid Bodies */
 	PL_DECLARE_HANDLE(plConstraintHandle);
+
 /* Triangle Mesh interface */
 	PL_DECLARE_HANDLE(plMeshInterfaceHandle);
+
+/* Broadphase Scene/Proxy Handles */
+	PL_DECLARE_HANDLE(plCollisionBroadphaseHandle);
+	PL_DECLARE_HANDLE(plBroadphaseProxyHandle);
+	PL_DECLARE_HANDLE(plCollisionWorldHandle);
 
 /*
 	Create and Delete a Physics SDK	
@@ -57,6 +67,27 @@ extern "C" {
 
 	extern	plPhysicsSdkHandle	plNewBulletSdk(); //this could be also another sdk, like ODE, PhysX etc.
 	extern	void		plDeletePhysicsSdk(plPhysicsSdkHandle	physicsSdk);
+
+/* Collision World, not strictly necessary, you can also just create a Dynamics World with Rigid Bodies which internally manages the Collision World with Collision Objects */
+
+	typedef void(*btBroadphaseCallback)(void* clientData, void* object1,void* object2);
+
+	extern plCollisionBroadphaseHandle	plCreateSapBroadphase(btBroadphaseCallback beginCallback,btBroadphaseCallback endCallback);
+
+	extern void	plDestroyBroadphase(plCollisionBroadphaseHandle bp);
+
+	extern 	plBroadphaseProxyHandle plCreateProxy(plCollisionBroadphaseHandle bp, void* clientData, plReal minX,plReal minY,plReal minZ, plReal maxX,plReal maxY, plReal maxZ);
+
+	extern void plDestroyProxy(plCollisionBroadphaseHandle bp, plBroadphaseProxyHandle proxyHandle);
+
+	extern void plSetBoundingBox(plBroadphaseProxyHandle proxyHandle, plReal minX,plReal minY,plReal minZ, plReal maxX,plReal maxY, plReal maxZ);
+
+/* todo: add pair cache support with queries like add/remove/find pair */
+	
+	extern plCollisionWorldHandle plCreateCollisionWorld(plPhysicsSdkHandle physicsSdk);
+
+/* todo: add/remove objects */
+	
 
 /* Dynamics World */
 
