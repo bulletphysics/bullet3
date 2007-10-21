@@ -1,6 +1,15 @@
 Bullet Continuous Collision Detection and Physics Library
 Primary author and maintainer: Erwin Coumans
 
+2007 Oct 20
+	- included glui, a GLUT/OpenGL based toolkit for some graphical user elements
+	Removed dynamic_cast from glui, to allow linkage without rtti
+	- added Box2D framework using glui, allowing all demos to run within one executable
+	Thanks Erin Catto for the FrameWork skeleton (http://www.box2d.org)
+
+2007 Ocy 17
+	- Allow user to pass in their own memory (stack and pool) allocators, through collisionConfiguration. See demos how to use this
+
 2007 Oct 14
 	- Included working version of Cell SPU parallel optimized version for Libspe2 SPU task scheduler.
 	This version compiles and runs on Playstation 3 Linux and IBM CellBlade, see BulletSpuOptimized.pdf for build instructions
