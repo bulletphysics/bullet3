@@ -1,3 +1,3 @@
-SubDir TOP Examples TestBed Framework ;
+SubDir TOP Examples TestBed FrameWork ;
 
-FrameWorkDemo FrameWork : [ Wildcard *.h *.cpp  ] ;
+FrameWorkDemo AllBulletDemos : [ Wildcard *.h *.cpp  ] ;
