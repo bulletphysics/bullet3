@@ -6,10 +6,17 @@ if $(GLUT.AVAILABLE) = "yes"
 
   Description Tests : "Bullet Tests" ;
   Library Tests : 
-  [ Wildcard *.h *.cpp ] : noinstall 
+	../../../Demos/CcdPhysicsDemo/CcdPhysicsDemo.cpp 
+	../../../Demos/BasicDemo/BasicDemo.cpp 
+	../../../Demos/BspDemo/BspDemo.cpp
+	../../../Demos/BspDemo/BspConverter.cpp
+	../../../Demos/BspDemo/BspLoader.cpp
+	[ Wildcard *.h *.cpp ]
+ : noinstall 
 ;
 
 CFlags Tests :
+ [ FIncludes $(TOP)/Demos/OpenGL ]
 ;
 
 LibDepends Tests : bulletdynamics   ;

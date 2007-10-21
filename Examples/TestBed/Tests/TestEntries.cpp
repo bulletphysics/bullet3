@@ -3,7 +3,7 @@
 #include "../FrameWork/Test.h"
 #include "CollisionProcessing.h"
 
-#include "../../Demos/CcdPhysicsDemo/CcdPhysicsDemo.h"
+#include "../../../Demos/CcdPhysicsDemo/CcdPhysicsDemo.h"
 
 class CcdPhysicsTest : public Test
 {
@@ -28,7 +28,7 @@ public:
 	}
 };
 
-#include "../../Demos/BspDemo/BspDemo.h"
+#include "../../../Demos/BspDemo/BspDemo.h"
 
 class BspDemoTest : public Test
 {
