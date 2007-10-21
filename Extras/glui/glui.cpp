@@ -932,7 +932,7 @@ GLUI_Control  *GLUI_Main::find_control( int x, int y )
 
   node = main_panel;
   while( node != NULL ) {
-    if ( !dynamic_cast<GLUI_Column*>(node) AND
+    if ( !node->dynamicCastGLUI_Column() AND
          PT_IN_BOX( x, y, 
                     node->x_abs, node->x_abs + node->w, 
                     node->y_abs, node->y_abs + node->h ) 
@@ -944,7 +944,7 @@ GLUI_Control  *GLUI_Main::find_control( int x, int y )
         /*** SPECIAL CASE: for edittext boxes, we make sure click is
              in box, and not on name string.  This should be generalized
              for all controls later... ***/
-        if ( dynamic_cast<GLUI_EditText*>(node) ) {
+		  if ( node->dynamicCastGLUI_EditText() ) {
           if ( x < node->x_abs + ((GLUI_EditText*)node)->text_x_offset )
             return (GLUI_Control*) node->parent();
         }

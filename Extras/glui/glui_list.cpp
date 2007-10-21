@@ -527,7 +527,7 @@ int    GLUI_List::mouse_over( int state, int x, int y )
 }
 
 void GLUI_List::scrollbar_callback(GLUI_Control *my_scrollbar) {
-  GLUI_Scrollbar *sb = dynamic_cast<GLUI_Scrollbar*>(my_scrollbar);
+  GLUI_Scrollbar *sb = my_scrollbar->dynamicCastGLUI_Scrollbar();
   if (!sb) return;
   GLUI_List* me = (GLUI_List*) sb->associated_object;
   if (me->scrollbar == NULL)

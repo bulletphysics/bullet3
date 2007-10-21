@@ -283,7 +283,7 @@ static void listbox_callback( int i )
   int old_val;
 
   if ( NOT GLUI_Master.curr_left_button_glut_menu OR 
-       !dynamic_cast<GLUI_Listbox*>(GLUI_Master.curr_left_button_glut_menu) ) 
+	  !GLUI_Master.curr_left_button_glut_menu->dynamicCastGLUI_Listbox() ) 
     return;
 
   old_val = ((GLUI_Listbox*)GLUI_Master.curr_left_button_glut_menu)->int_val;

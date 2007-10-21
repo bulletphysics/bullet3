@@ -57,7 +57,7 @@ void GLUI_FileBrowser::dir_list_callback(GLUI_Control *glui_object) {
   GLUI_List *list = dynamic_cast<GLUI_List*>(glui_object);
   if (!list) 
     return;
-  GLUI_FileBrowser* me = dynamic_cast<GLUI_FileBrowser*>(list->associated_object);
+  GLUI_FileBrowser* me = list->associated_object->dynamicCastGLUI_FileBrowser();
   if (!me)
     return;
   int this_item;

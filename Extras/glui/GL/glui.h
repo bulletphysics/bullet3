@@ -315,6 +315,13 @@ private:
 /************************************************************/
 
 class GLUI_Control;
+class	GLUI_Column;
+class	GLUI_Panel;
+class GLUI_FileBrowser;
+class GLUI_Scrollbar;
+class GLUI_Listbox;
+class GLUI_List;
+
 
 /**
  GLUI_Node is a node in a sort of tree of GLUI controls.
@@ -353,6 +360,56 @@ public:
     void unlink();
 
     void dump( FILE *out, const char *name );
+
+		virtual GLUI_Panel*	dynamicCastGLUI_Panel()
+	{
+		return 0;
+	}
+
+	virtual GLUI_Column*	dynamicCastGLUI_Column()
+	{
+		return 0;
+	}
+	virtual GLUI_EditText*	dynamicCastGLUI_EditText()
+	{
+		return 0;
+	}
+	virtual GLUI_Rollout*	dynamicCastGLUI_Rollout()
+	{
+		return 0;
+	}
+
+	virtual GLUI_Tree*	dynamicCastGLUI_Tree()
+	{
+		return 0;
+	}
+
+	virtual GLUI_List*	dynamicCastGLUI_List()
+	{
+		return 0;
+	}
+
+	virtual GLUI_FileBrowser*	dynamicCastGLUI_FileBrowser()
+	{
+		return 0;
+	}
+
+	virtual GLUI_Scrollbar*	dynamicCastGLUI_Scrollbar()
+	{
+		return 0;
+	}
+
+	virtual GLUI_Listbox*	dynamicCastGLUI_Listbox()
+	{
+		return 0;
+	}
+
+	virtual GLUI_TreePanel*	dynamicCastGLUI_TreePanel()
+	{
+		return 0;
+	}
+	
+
 
 protected:
     static void add_child_to_control(GLUI_Node *parent,GLUI_Control *child);
@@ -745,6 +802,9 @@ public:
 /*                                                          */
 /************************************************************/
 
+//get rid of the dynamic_cast/RTTI requirements, just do a virtual function
+
+
 /**
  All the GUI objects inherit from GLUI_Control: buttons,
  checkboxes, labels, edit boxes, scrollbars, etc.
@@ -842,6 +902,7 @@ public:
     /** Hide (shrink into a rollout) and unhide (expose from a rollout) */
     void         hide_internal( int recurse );
     void         unhide_internal( int recurse );
+
 
     /** Return true if it currently makes sense to draw this class. */
     int          can_draw( void ) { return (glui != NULL && hidden == false); }
@@ -1073,6 +1134,10 @@ public:
     GLUI_Column( GLUI_Node *parent, int draw_bar = true );
     GLUI_Column( void ) { common_init(); }
 
+	virtual GLUI_Column*	dynamicCastGLUI_Column()
+	{
+		return this;
+	}
 protected:
     void common_init() {
         w            = 0;
@@ -1114,6 +1179,11 @@ public:
     void set_type( int new_type );
 
     void update_size( void );
+
+	virtual GLUI_Panel*	dynamicCastGLUI_Panel()
+	{
+		return this;
+	}
 
 protected:
     void common_init( void ) {
@@ -1166,6 +1236,11 @@ public:
     void set_h(int h);
     const char* get_file() { return file.c_str(); }
     void set_allow_change_dir(int c) { allow_change_dir = c; }
+
+	virtual GLUI_FileBrowser*	dynamicCastGLUI_FileBrowser()
+	{
+		return this;
+	}
 
 protected:
     void common_init() 
@@ -1234,6 +1309,11 @@ public:
     void  close( void );
 
     void update_size( void );
+
+	virtual GLUI_Rollout*	dynamicCastGLUI_Rollout()
+	{
+		return 0;
+	}
 
 protected:
     void common_init() {
@@ -1316,6 +1396,11 @@ public:
         green = g;
         blue  = b;
     }
+
+	virtual GLUI_Tree*	dynamicCastGLUI_Tree()
+	{
+		return this;
+	}
 protected:
     void common_init()
     {
@@ -1403,6 +1488,10 @@ public:
     void            update_all( void );
     void            initNode(GLUI_Tree *temp);
     void            formatNode(GLUI_Tree *temp);
+	virtual GLUI_TreePanel*	dynamicCastGLUI_TreePanel()
+	{
+		return this;
+	}
 
 protected:
     int uniqueID( void ) { next_id++; return next_id - 1; }
@@ -1659,6 +1748,12 @@ public:
                    int id, GLUI_CB callback );
     // Deprecated constructor, only called internally
     GLUI_EditText( void ) { common_init(); }
+
+	virtual GLUI_EditText*	dynamicCastGLUI_EditText()
+	{
+		return this;
+	}
+
 
 protected:
     void common_init( void ) {
@@ -2161,6 +2256,11 @@ public:
     void set_object_callback(GLUI_CB cb=GLUI_CB(), GLUI_Control*obj=NULL)
     { obj_cb=cb; associated_object=obj; }
 
+	virtual GLUI_List*	dynamicCastGLUI_List()
+	{
+		return this;
+	}
+
 protected:
     void common_init()
     {
@@ -2288,6 +2388,11 @@ public:
     void set_object_callback(GLUI_CB cb=GLUI_CB(), GLUI_Control*obj=NULL)
     { object_cb=cb; associated_object=obj; }
 
+	virtual GLUI_Scrollbar*	dynamicCastGLUI_Scrollbar()
+	{
+		return this;
+	}
+
 protected:
     void common_init ( void );
     void common_construct(
@@ -2357,6 +2462,11 @@ public:
                   const char *name, int *live_var=NULL,
                   int id=-1, GLUI_CB callback=GLUI_CB() );
     GLUI_Listbox( void ) { common_init(); }
+
+	virtual GLUI_Listbox*	dynamicCastGLUI_Listbox()
+	{
+		return this;
+	}
 
 protected:
     /** Change w and return true if we need to be widened to fit the current item. */

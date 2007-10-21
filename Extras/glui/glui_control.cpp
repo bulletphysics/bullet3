@@ -220,7 +220,7 @@ void GLUI_Control::draw_recursive( int x, int y )
   } 
   else 
   {
-    if ( dynamic_cast<GLUI_Column*>(this) ) {
+    if ( this->dynamicCastGLUI_Column() ) {
       /*   printf( "%s w/h:   %d/%d\n", (char*) name, w, h );              */
       /*w = 2;              */
     }
@@ -387,7 +387,7 @@ void GLUI_Control::align()
   get_this_column_dims(&col_x, &col_y, &col_w, &col_h, 
 		       &col_x_off, &col_y_off);
 
-  if ( dynamic_cast<GLUI_Column*>(this) ) {
+  if ( this->dynamicCastGLUI_Column() ) {
     /*		if ( this->prev() != NULL ) {
 		((GLUI_Control*)prev())->get_this_column_dims(&col_x, &col_y, &col_w, &col_h, 
 		&col_x_off, &col_y_off);
@@ -419,7 +419,7 @@ void GLUI_Control::align()
 		
     node = (GLUI_Control*) this->first_child();
     while( node != NULL ) {
-      if ( dynamic_cast<GLUI_Column*>(node) ) { 
+      if ( node->dynamicCastGLUI_Column() ) { 
 	node->x_abs += delta;
       } 
 
@@ -461,11 +461,11 @@ void GLUI_Control::pack_old(int x, int y)
   /*** Iterate over children, packing them first ***/
   node = (GLUI_Control*) this->first_child();
   while( node != NULL ) {
-    if ( dynamic_cast<GLUI_Panel*>(node) && !node->collapsible) { 
+	  if ( node->dynamicCastGLUI_Panel() && !node->collapsible) { 
       /* Pad some space above fixed size panels */
       curr_y += GLUI_ITEMSPACING;
     } 
-    else if ( dynamic_cast<GLUI_Column*>(node)) {
+	  else if ( node->dynamicCastGLUI_Column()) {
       curr_column = (GLUI_Column*) node;
       if ( 1 ) {
 	column_x += max_w + 2 * x_margin;
@@ -487,7 +487,7 @@ void GLUI_Control::pack_old(int x, int y)
       continue;
     }
     node->pack( curr_x, curr_y );
-    if ( dynamic_cast<GLUI_Panel*>(node) && !node->collapsible)  
+	if ( node->dynamicCastGLUI_Panel() && !node->collapsible)  
       /* Pad some space below fixed size panels */
       curr_y += GLUI_ITEMSPACING;
     curr_y  += node->h;
@@ -506,7 +506,7 @@ void GLUI_Control::pack_old(int x, int y)
   if ( this->is_container ) {
     max_y += y_margin_bot;  /*** Add bottom border inside box */
     if ( this->first_child() ) {
-      if ( dynamic_cast<GLUI_Rollout*>(this) ) {	
+		if ( this->dynamicCastGLUI_Rollout() ) {	
 	/**  We don't want the rollout to shrink in width when it's
 	  closed **/
 	this->w = MAX(this->w, column_x + max_w + 2 * x_margin );
@@ -544,7 +544,7 @@ void    GLUI_Control::get_this_column_dims( int *col_x, int *col_y,
   parent_h     = parent_ptr->h;
   parent_y_abs = parent_ptr->y_abs;
   
-  if ( dynamic_cast<GLUI_Panel*>(parent_ptr) AND
+  if ( parent_ptr->dynamicCastGLUI_Panel() AND
        parent_ptr->int_val == GLUI_PANEL_EMBOSSED AND
        parent_ptr->name != "" ) {
     parent_h -= GLUI_PANEL_EMBOSS_TOP;
@@ -556,12 +556,12 @@ void    GLUI_Control::get_this_column_dims( int *col_x, int *col_y,
 
     /**   Look for first control in this column   **/
     first = this;
-    while (first->prev() AND !dynamic_cast<GLUI_Column*>(first->prev()) ) 
+    while (first->prev() AND !(first->prev())->dynamicCastGLUI_Column() ) 
       first = first->prev();
 
     /**   Look for last control in this column    **/
     last = this;
-    while ( last->next() AND !dynamic_cast<GLUI_Column*>(first->next()) )
+    while ( last->next() AND !(first->next())->dynamicCastGLUI_Column() )
       last = last->next();
 
     curr = first;
@@ -596,7 +596,7 @@ void    GLUI_Control::get_this_column_dims( int *col_x, int *col_y,
     /*** Look for preceding column ***/
     node = (GLUI_Control*) this->prev();
     while( node ) {
-      if ( dynamic_cast<GLUI_Column*>(node) ) {
+		if ( node->dynamicCastGLUI_Column() ) {
 	*col_x     = node->x_abs;
 	*col_y     = parent_y_abs;
 	*col_w     = node->w;
@@ -613,7 +613,7 @@ void    GLUI_Control::get_this_column_dims( int *col_x, int *col_y,
     /*** Nope, Look for next column ***/
     node = (GLUI_Control*) this->next();
     while( node ) {
-      if ( dynamic_cast<GLUI_Column*>(node) ) {
+      if ( node->dynamicCastGLUI_Column() ) {
 	*col_x     = parent_ptr->x_abs;
 	*col_y     = parent_y_abs;
 	*col_w     = node->x_abs - parent_ptr->x_abs;
@@ -671,11 +671,11 @@ void    GLUI_Control::pack( int x, int y )
 
   node = (GLUI_Control*) this->first_child();
   while( node != NULL ) {
-    if ( dynamic_cast<GLUI_Panel*>(node) && !node->collapsible) { 
+	  if ( node->dynamicCastGLUI_Panel() && !node->collapsible) { 
       /* Pad some space above fixed-size panels */
       curr_y += GLUI_ITEMSPACING;
     } 
-    else if ( dynamic_cast<GLUI_Column*>(node) ) {
+    else if ( node->dynamicCastGLUI_Column() ) {
       curr_column = (GLUI_Column*) node;
       curr_x   += max_w + 1 * x_margin;
       column_x  = curr_x;
@@ -695,7 +695,7 @@ void    GLUI_Control::pack( int x, int y )
 		
     node->pack( curr_x, curr_y );
 
-    if ( dynamic_cast<GLUI_Panel*>(node)  && !node->collapsible)
+	if ( node->dynamicCastGLUI_Panel()  && !node->collapsible)
       /* Pad some space below fixed-size panels */
       curr_y += GLUI_ITEMSPACING;
     
@@ -729,8 +729,8 @@ void    GLUI_Control::pack( int x, int y )
       this->h        = (max_y - y_in);
     }
     else  {            /* An empty container, so just assign default w & h */
-      if ( !dynamic_cast<GLUI_Rollout*>(this) &&
-           !dynamic_cast<GLUI_Tree*>(this) ) {
+		if ( !this->dynamicCastGLUI_Rollout() &&
+		  !this->dynamicCastGLUI_Tree() ) {
 	this->w        = GLUI_DEFAULT_CONTROL_WIDTH;
 	this->h        = GLUI_DEFAULT_CONTROL_HEIGHT;
       }
@@ -744,7 +744,7 @@ void    GLUI_Control::pack( int x, int y )
     /*** Now we step through the GLUI_Columns, setting the 'h'  ***/
     node = (GLUI_Control*) this->first_child();
     while( node != NULL ) {
-      if ( dynamic_cast<GLUI_Column*>(node) ) {
+      if ( node->dynamicCastGLUI_Column() ) {
 	node->h = this->h - y_margin_bot - y_margin_top;
       }
 
