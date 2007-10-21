@@ -61,6 +61,7 @@ MsvcGenConfig GLEW.LIBS : glew32.lib ;
 
 SubInclude TOP src ;
 SubInclude TOP Extras ;
+SubInclude TOP Examples ;
 SubInclude TOP Demos ;
 
 Depends install_config : [ DoInstall bullet.pc : $(libdir)/pkgconfig ] ;
