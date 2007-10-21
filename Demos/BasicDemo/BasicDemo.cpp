@@ -39,7 +39,6 @@ int gNumObjects = 120;
 #include "GLDebugDrawer.h"
 #include <stdio.h> //printf debugging
 btScalar deltaTime = btScalar(1./60.);
-btScalar gCollisionMargin = btScalar(0.05);
 #include "BasicDemo.h"
 #include "GL_ShapeDrawer.h"
 #include "GlutStuff.h"

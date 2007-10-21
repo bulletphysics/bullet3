@@ -71,7 +71,7 @@ subject to the following restrictions:
 #include "BMF_Api.h"
 #include <stdio.h> //printf debugging
 
-float	gCollisionMargin = 0.05f;
+static float	gCollisionMargin = 0.05f;
 #include "CcdPhysicsDemo.h"
 #include "GL_ShapeDrawer.h"
 

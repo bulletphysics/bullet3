@@ -6,7 +6,7 @@ if $(GLUT.AVAILABLE) = "yes"
   rule FrameWorkDemo
   {
     Application $(<) : $(>) : noinstall console nomanifest ;
-    LinkWith $(<) :  Tests bulletopenglsupport bulletdynamics bulletcollision bulletmath glui ;
+    LinkWith $(<) :   bulletopenglsupport bulletdynamics bulletcollision bulletmath glui ;
     CFlags $(<) : 
 	  [ FIncludes $(TOP)/Extras ] 
 	 [ FIncludes $(TOP)/Demos/OpenGL ]
@@ -22,4 +22,3 @@ if $(GLUT.AVAILABLE) = "yes"
 
 
 SubInclude TOP Examples TestBed FrameWork ;
-SubInclude TOP Examples TestBed Tests ;

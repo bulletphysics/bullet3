@@ -1,3 +1,11 @@
 SubDir TOP Examples TestBed FrameWork ;
 
-FrameWorkDemo AllBulletDemos : [ Wildcard *.h *.cpp  ] ;
+FrameWorkDemo AllBulletDemos : 
+[ Wildcard *.h *.cpp  ] 
+	../../../Demos/CcdPhysicsDemo/CcdPhysicsDemo.cpp
+        ../../../Demos/BasicDemo/BasicDemo.cpp
+        ../../../Demos/BspDemo/BspDemo.cpp
+        ../../../Demos/BspDemo/BspConverter.cpp
+        ../../../Demos/BspDemo/BspLoader.cpp
+
+;
