@@ -35,7 +35,8 @@ m_ownsBvh(false)
 	
 	if (buildBvh)
 	{
-		m_bvh = new btOptimizedBvh();
+		void* mem = btAlignedAlloc(sizeof(btOptimizedBvh),16);
+		m_bvh = new (mem) btOptimizedBvh();
 		m_bvh->build(meshInterface,m_useQuantizedAabbCompression,bvhAabbMin,bvhAabbMax);
 		m_ownsBvh = true;
 	}
@@ -55,7 +56,9 @@ m_ownsBvh(false)
 
 	if (buildBvh)
 	{
-		m_bvh = new btOptimizedBvh();
+		void* mem = btAlignedAlloc(sizeof(btOptimizedBvh),16);
+		m_bvh = new (mem) btOptimizedBvh();
+		
 		m_bvh->build(meshInterface,m_useQuantizedAabbCompression,bvhAabbMin,bvhAabbMax);
 		m_ownsBvh = true;
 	}
@@ -83,7 +86,9 @@ void	btBvhTriangleMeshShape::refitTree()
 btBvhTriangleMeshShape::~btBvhTriangleMeshShape()
 {
 	if (m_ownsBvh)
-		delete m_bvh;
+	{
+		btAlignedFree(m_bvh);
+	}
 }
 
 //perform bvh tree traversal and report overlapping triangles to 'callback'
@@ -180,9 +185,12 @@ void	btBvhTriangleMeshShape::setLocalScaling(const btVector3& scaling)
 	{
 		btTriangleMeshShape::setLocalScaling(scaling);
 		if (m_ownsBvh)
-			delete m_bvh;
+		{
+			btAlignedFree(m_bvh);
+		}
 		///m_localAabbMin/m_localAabbMax is already re-calculated in btTriangleMeshShape. We could just scale aabb, but this needs some more work
-		m_bvh = new btOptimizedBvh();
+		void* mem = btAlignedAlloc(sizeof(btOptimizedBvh),16);
+		m_bvh = new(mem) btOptimizedBvh();
 		//rebuild the bvh...
 		m_bvh->build(m_meshInterface,m_useQuantizedAabbCompression,m_localAabbMin,m_localAabbMax);
 

@@ -40,9 +40,7 @@ subject to the following restrictions:
 
 btCollisionWorld::btCollisionWorld(btDispatcher* dispatcher,btBroadphaseInterface* pairCache, btCollisionConfiguration* collisionConfiguration)
 :m_dispatcher1(dispatcher),
-m_broadphasePairCache(pairCache),
-m_ownsDispatcher(false),
-m_ownsBroadphasePairCache(false)
+m_broadphasePairCache(pairCache)
 {
 	m_stackAlloc = collisionConfiguration->getStackAllocator();
 	m_dispatchInfo.m_stackAllocator = m_stackAlloc;
@@ -69,10 +67,6 @@ btCollisionWorld::~btCollisionWorld()
 		}
 	}
 
-	if (m_ownsDispatcher)
-		delete m_dispatcher1;
-	if (m_ownsBroadphasePairCache)
-		delete m_broadphasePairCache;
 
 }
 

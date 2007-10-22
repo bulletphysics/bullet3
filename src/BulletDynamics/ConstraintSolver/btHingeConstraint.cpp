@@ -139,11 +139,14 @@ btHingeConstraint::btHingeConstraint(btRigidBody& rbA, const btTransform& rbAFra
 m_angularOnly(false),
 m_enableAngularMotor(false)
 {
+	///not providing rigidbody B means implicitly using worldspace for body B
+
 	// flip axis
 	m_rbBFrame.getBasis()[0][2] *= btScalar(-1.);
 	m_rbBFrame.getBasis()[1][2] *= btScalar(-1.);
 	m_rbBFrame.getBasis()[2][2] *= btScalar(-1.);
 
+	m_rbBFrame.getOrigin() = m_rbA.getCenterOfMassTransform()(m_rbAFrame.getOrigin());
 
 	//start with free
 	m_lowerLimit = btScalar(1e30);

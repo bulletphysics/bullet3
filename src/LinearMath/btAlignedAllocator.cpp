@@ -15,12 +15,20 @@ subject to the following restrictions:
 
 #include "btAlignedAllocator.h"
 
+int gNumAlignedAllocs = 0;
+int gNumAlignedFree = 0;
 
 #if defined (BT_HAS_ALIGNED_ALLOCATOR)
+
+
+
+
 
 #include <malloc.h>
 void*	btAlignedAlloc	(size_t size, int alignment)
 {
+	gNumAlignedAllocs++;
+
 	void* ptr = _aligned_malloc(size,alignment);
 //	printf("btAlignedAlloc %d, %x\n",size,ptr);
 	return ptr;
@@ -28,6 +36,7 @@ void*	btAlignedAlloc	(size_t size, int alignment)
 
 void	btAlignedFree	(void* ptr)
 {
+	gNumAlignedFree++;
 //	printf("btAlignedFree %x\n",ptr);
 	_aligned_free(ptr);
 }
@@ -38,18 +47,17 @@ void	btAlignedFree	(void* ptr)
 
 #include <stdlib.h>
 
-int numAllocs = 0;
-int numFree = 0;
+
 
 void*	btAlignedAlloc	(size_t size, int alignment)
 {
-	numAllocs++;
+	gNumAlignedAllocs++;
 	return memalign(alignment, size);
 }
 
 void	btAlignedFree	(void* ptr)
 {
-	numFree++;
+	gNumAlignedFree++;
 	free(ptr);
 }
 
@@ -60,7 +68,9 @@ void*	btAlignedAlloc	(size_t size, int alignment)
  void *ret;
   char *real;
   unsigned long offset;
-  
+ 
+  gNumAlignedAllocs++;
+
   real = (char *)malloc(size + sizeof(void *) + (alignment-1));
   if (real) {
     offset = (alignment - (unsigned long)(real + sizeof(void *))) & (alignment-1);
@@ -76,6 +86,7 @@ void	btAlignedFree	(void* ptr)
 {
 
  void* real;
+ gNumAlignedFree++;
 
   if (ptr) {
     real = *((void **)(ptr)-1);

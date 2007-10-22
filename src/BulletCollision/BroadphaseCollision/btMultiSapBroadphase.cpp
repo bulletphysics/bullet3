@@ -52,11 +52,12 @@ m_invalidPair(0)
 		}
 	};
 
-	m_filterCallback = new btMultiSapOverlapFilterCallback();
+	void* mem = btAlignedAlloc(sizeof(btMultiSapOverlapFilterCallback),16);
+	m_filterCallback = new (mem)btMultiSapOverlapFilterCallback();
 
 	m_overlappingPairs->setOverlapFilterCallback(m_filterCallback);
-
-	m_simpleBroadphase = new  btSimpleBroadphase(maxProxies,m_overlappingPairs);
+	mem = btAlignedAlloc(sizeof(btSimpleBroadphase),16);
+	m_simpleBroadphase = new (mem) btSimpleBroadphase(maxProxies,m_overlappingPairs);
 }
 
 btMultiSapBroadphase::~btMultiSapBroadphase()
@@ -69,7 +70,8 @@ btMultiSapBroadphase::~btMultiSapBroadphase()
 
 btBroadphaseProxy*	btMultiSapBroadphase::createProxy(  const btVector3& aabbMin,  const btVector3& aabbMax,int shapeType,void* userPtr, short int collisionFilterGroup,short int collisionFilterMask, btDispatcher* dispatcher)
 {
-	btMultiSapProxy* proxy = new btMultiSapProxy(aabbMin,  aabbMax,shapeType,userPtr, collisionFilterGroup,collisionFilterMask);
+	void* mem = btAlignedAlloc(sizeof(btMultiSapProxy),16);
+	btMultiSapProxy* proxy = new (mem)btMultiSapProxy(aabbMin,  aabbMax,shapeType,userPtr, collisionFilterGroup,collisionFilterMask);
 	m_multiSapProxies.push_back(proxy);
 
 	///we don't pass the userPtr but our multisap proxy. We need to patch this, before processing an actual collision
@@ -77,6 +79,7 @@ btBroadphaseProxy*	btMultiSapBroadphase::createProxy(  const btVector3& aabbMin,
 	btBroadphaseProxy* simpleProxy = m_simpleBroadphase->createProxy(aabbMin,aabbMax,shapeType,userPtr,collisionFilterGroup,collisionFilterMask, dispatcher);
 	simpleProxy->m_multiSapParentProxy = proxy;
 
+	mem = btAlignedAlloc(sizeof(btChildProxy),16);
 	btChildProxy* childProxyRef = new btChildProxy();
 	childProxyRef->m_proxy = simpleProxy;
 	childProxyRef->m_childBroadphase = m_simpleBroadphase;

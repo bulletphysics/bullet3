@@ -59,15 +59,28 @@ subject to the following restrictions:
 
 btDiscreteDynamicsWorld::btDiscreteDynamicsWorld(btDispatcher* dispatcher,btBroadphaseInterface* pairCache,btConstraintSolver* constraintSolver, btCollisionConfiguration* collisionConfiguration)
 :btDynamicsWorld(dispatcher,pairCache,collisionConfiguration),
-m_constraintSolver(constraintSolver? constraintSolver: new btSequentialImpulseConstraintSolver),
+m_constraintSolver(constraintSolver),
 m_debugDrawer(0),
 m_gravity(0,-10,0),
 m_localTime(btScalar(1.)/btScalar(60.)),
 m_profileTimings(0)
 {
-	m_islandManager = new btSimulationIslandManager();
+	if (m_constraintSolver)
+	{
+		void* mem = btAlignedAlloc(sizeof(btSequentialImpulseConstraintSolver),16);
+		m_constraintSolver = new (mem) btSequentialImpulseConstraintSolver;
+		m_ownsConstraintSolver = true;
+	} else
+	{
+		m_ownsConstraintSolver = false;
+	}
+
+	{
+		void* mem = btAlignedAlloc(sizeof(btSimulationIslandManager),16);
+		m_islandManager = new (mem) btSimulationIslandManager();
+	}
+
 	m_ownsIslandManager = true;
-	m_ownsConstraintSolver = (constraintSolver==0);
 }
 
 
@@ -75,9 +88,9 @@ btDiscreteDynamicsWorld::~btDiscreteDynamicsWorld()
 {
 	//only delete it when we created it
 	if (m_ownsIslandManager)
-		delete m_islandManager;
+		btAlignedFree( m_islandManager);
 	if (m_ownsConstraintSolver)
-		 delete m_constraintSolver;
+		 btAlignedFree(m_constraintSolver);
 }
 
 void	btDiscreteDynamicsWorld::saveKinematicState(btScalar timeStep)
@@ -958,7 +971,7 @@ void	btDiscreteDynamicsWorld::setConstraintSolver(btConstraintSolver* solver)
 {
 	if (m_ownsConstraintSolver)
 	{
-		delete m_constraintSolver;
+		btAlignedFree( m_constraintSolver);
 	}
 	m_ownsConstraintSolver = false;
 	m_constraintSolver = solver;

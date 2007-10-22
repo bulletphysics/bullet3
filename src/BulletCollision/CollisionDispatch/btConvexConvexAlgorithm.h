@@ -59,10 +59,9 @@ public:
 	{
 		btConvexPenetrationDepthSolver*		m_pdSolver;
 		btSimplexSolverInterface*			m_simplexSolver;
-		bool	m_ownsSolvers;
 		
 		CreateFunc(btSimplexSolverInterface*			simplexSolver, btConvexPenetrationDepthSolver* pdSolver);
-		CreateFunc();
+		
 		virtual ~CreateFunc();
 
 		virtual	btCollisionAlgorithm* CreateCollisionAlgorithm(btCollisionAlgorithmConstructionInfo& ci, btCollisionObject* body0,btCollisionObject* body1)

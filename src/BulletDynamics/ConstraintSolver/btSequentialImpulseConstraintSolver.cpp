@@ -99,7 +99,7 @@ bool  MyContactDestroyedCallback(void* userPersistentData)
 {
 	assert (userPersistentData);
 	btConstraintPersistentData* cpd = (btConstraintPersistentData*)userPersistentData;
-	delete cpd;
+	btAlignedFree(cpd);
 	totalCpd--;
 	//printf("totalCpd = %i. DELETED Ptr %x\n",totalCpd,userPersistentData);
 	return true;
@@ -469,7 +469,7 @@ btScalar btSequentialImpulseConstraintSolver::solveGroupCacheFriendlySetup(btCol
 		//todo: use stack allocator for this temp memory
 		int minReservation = numManifolds*2;
 
-		tmpSolverBodyPool.reserve(minReservation);
+		//tmpSolverBodyPool.reserve(minReservation);
 
 		//don't convert all bodies, only the one we need so solver the constraints
 /*
@@ -489,8 +489,9 @@ btScalar btSequentialImpulseConstraintSolver::solveGroupCacheFriendlySetup(btCol
 		}
 */
 		
-		tmpSolverConstraintPool.reserve(minReservation);
-		tmpSolverFrictionConstraintPool.reserve(minReservation);
+		//tmpSolverConstraintPool.reserve(minReservation);
+		//tmpSolverFrictionConstraintPool.reserve(minReservation);
+
 		{
 			int i;
 
@@ -1024,7 +1025,9 @@ void	btSequentialImpulseConstraintSolver::prepareConstraints(btPersistentManifol
 				} else
 				{
 						
-					cpd = new btConstraintPersistentData;
+					//todo: should this be in a pool?
+					void* mem = btAlignedAlloc(sizeof(btConstraintPersistentData),16);
+					cpd = new (mem)btConstraintPersistentData;
 					assert(cpd);
 
 					totalCpd ++;
@@ -1070,7 +1073,6 @@ void	btSequentialImpulseConstraintSolver::prepareConstraints(btPersistentManifol
 				{
 					cpd->m_penetration = btScalar(0.);
 				} 				
-				
 				
 
 				btScalar relaxation = info.m_damping;

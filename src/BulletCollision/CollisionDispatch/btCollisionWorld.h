@@ -92,9 +92,6 @@ protected:
 
 	btBroadphaseInterface*	m_broadphasePairCache;
 	
-	bool	m_ownsDispatcher;
-	bool	m_ownsBroadphasePairCache;
-
 public:
 
 	//this constructor doesn't own the dispatcher and paircache/broadphase

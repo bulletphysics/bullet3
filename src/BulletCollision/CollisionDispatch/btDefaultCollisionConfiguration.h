@@ -17,6 +17,9 @@ subject to the following restrictions:
 #define BT_DEFAULT_COLLISION_CONFIGURATION
 
 #include "btCollisionConfiguration.h"
+class btVoronoiSimplexSolver;
+class btGjkEpaPenetrationDepthSolver;
+
 
 ///btCollisionConfiguration allows to configure Bullet collision detection
 ///stack allocator, pool memory allocators
@@ -35,6 +38,9 @@ class	btDefaultCollisionConfiguration : public btCollisionConfiguration
 	btPoolAllocator*	m_collisionAlgorithmPool;
 	bool	m_ownsCollisionAlgorithmPool;
 
+	//default simplex/penetration depth solvers
+	btVoronoiSimplexSolver*	m_simplexSolver;
+	btGjkEpaPenetrationDepthSolver*	m_pdSolver;
 	
 	//default CreationFunctions, filling the m_doubleDispatch table
 	btCollisionAlgorithmCreateFunc*	m_convexConvexCreateFunc;

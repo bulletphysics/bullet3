@@ -23,6 +23,10 @@ subject to the following restrictions:
 #include "BulletCollision/CollisionDispatch/btSphereSphereCollisionAlgorithm.h"
 #include "BulletCollision/CollisionDispatch/btSphereBoxCollisionAlgorithm.h"
 #include "BulletCollision/CollisionDispatch/btSphereTriangleCollisionAlgorithm.h"
+#include "BulletCollision/NarrowPhaseCollision/btGjkEpaPenetrationDepthSolver.h"
+#include "BulletCollision/NarrowPhaseCollision/btVoronoiSimplexSolver.h"
+
+
 
 #include "LinearMath/btStackAlloc.h"
 #include "LinearMath/btPoolAllocator.h"
@@ -36,20 +40,36 @@ subject to the following restrictions:
 btDefaultCollisionConfiguration::btDefaultCollisionConfiguration(btStackAlloc*	stackAlloc,btPoolAllocator*	persistentManifoldPool,btPoolAllocator*	collisionAlgorithmPool)
 {
 
+	void* mem = btAlignedAlloc(sizeof(btVoronoiSimplexSolver),16);
+	m_simplexSolver = new (mem)btVoronoiSimplexSolver();
+	mem = btAlignedAlloc(sizeof(btGjkEpaPenetrationDepthSolver),16);
+	m_pdSolver = new (mem)btGjkEpaPenetrationDepthSolver;
+
 	//default CreationFunctions, filling the m_doubleDispatch table
-	m_convexConvexCreateFunc = new btConvexConvexAlgorithm::CreateFunc;
-	m_convexConcaveCreateFunc = new btConvexConcaveCollisionAlgorithm::CreateFunc;
-	m_swappedConvexConcaveCreateFunc = new btConvexConcaveCollisionAlgorithm::SwappedCreateFunc;
-	m_compoundCreateFunc = new btCompoundCollisionAlgorithm::CreateFunc;
-	m_swappedCompoundCreateFunc = new btCompoundCollisionAlgorithm::SwappedCreateFunc;
-	m_emptyCreateFunc = new btEmptyAlgorithm::CreateFunc;
-	m_sphereSphereCF = new btSphereSphereCollisionAlgorithm::CreateFunc;
-	m_sphereBoxCF = new btSphereBoxCollisionAlgorithm::CreateFunc;
-	m_boxSphereCF = new btSphereBoxCollisionAlgorithm::CreateFunc;
+	mem = btAlignedAlloc(sizeof(btConvexConvexAlgorithm::CreateFunc),16);
+	m_convexConvexCreateFunc = new(mem) btConvexConvexAlgorithm::CreateFunc(m_simplexSolver,m_pdSolver);
+	mem = btAlignedAlloc(sizeof(btConvexConcaveCollisionAlgorithm::CreateFunc),16);
+	m_convexConcaveCreateFunc = new (mem)btConvexConcaveCollisionAlgorithm::CreateFunc;
+	mem = btAlignedAlloc(sizeof(btConvexConcaveCollisionAlgorithm::CreateFunc),16);
+	m_swappedConvexConcaveCreateFunc = new (mem)btConvexConcaveCollisionAlgorithm::SwappedCreateFunc;
+	mem = btAlignedAlloc(sizeof(btCompoundCollisionAlgorithm::CreateFunc),16);
+	m_compoundCreateFunc = new (mem)btCompoundCollisionAlgorithm::CreateFunc;
+	mem = btAlignedAlloc(sizeof(btCompoundCollisionAlgorithm::SwappedCreateFunc),16);
+	m_swappedCompoundCreateFunc = new (mem)btCompoundCollisionAlgorithm::SwappedCreateFunc;
+	mem = btAlignedAlloc(sizeof(btEmptyAlgorithm::CreateFunc),16);
+	m_emptyCreateFunc = new(mem) btEmptyAlgorithm::CreateFunc;
+
+	mem = btAlignedAlloc(sizeof(btSphereSphereCollisionAlgorithm::CreateFunc),16);
+	m_sphereSphereCF = new(mem) btSphereSphereCollisionAlgorithm::CreateFunc;
+	mem = btAlignedAlloc(sizeof(btSphereBoxCollisionAlgorithm::CreateFunc),16);
+	m_sphereBoxCF = new(mem) btSphereBoxCollisionAlgorithm::CreateFunc;
+	mem = btAlignedAlloc(sizeof(btSphereBoxCollisionAlgorithm::CreateFunc),16);
+	m_boxSphereCF = new (mem)btSphereBoxCollisionAlgorithm::CreateFunc;
 	m_boxSphereCF->m_swapped = true;
-	
-	m_sphereTriangleCF = new btSphereTriangleCollisionAlgorithm::CreateFunc;
-	m_triangleSphereCF = new btSphereTriangleCollisionAlgorithm::CreateFunc;
+	mem = btAlignedAlloc(sizeof(btSphereTriangleCollisionAlgorithm::CreateFunc),16);
+	m_sphereTriangleCF = new (mem)btSphereTriangleCollisionAlgorithm::CreateFunc;
+	mem = btAlignedAlloc(sizeof(btSphereTriangleCollisionAlgorithm::CreateFunc),16);
+	m_triangleSphereCF = new (mem)btSphereTriangleCollisionAlgorithm::CreateFunc;
 	m_triangleSphereCF->m_swapped = true;
 
 
@@ -115,17 +135,20 @@ btDefaultCollisionConfiguration::~btDefaultCollisionConfiguration()
 		btAlignedFree(m_persistentManifoldPool);
 	}
 
-	delete m_convexConvexCreateFunc;
-	delete m_convexConcaveCreateFunc;
-	delete m_swappedConvexConcaveCreateFunc;
-	delete m_compoundCreateFunc;
-	delete m_swappedCompoundCreateFunc;
-	delete m_emptyCreateFunc;
-	delete m_sphereSphereCF;
-	delete m_sphereBoxCF;
-	delete m_boxSphereCF;
-	delete m_sphereTriangleCF;
-	delete m_triangleSphereCF;
+	btAlignedFree(	m_convexConvexCreateFunc);
+	btAlignedFree( m_convexConcaveCreateFunc);
+	btAlignedFree( m_swappedConvexConcaveCreateFunc);
+	btAlignedFree( m_compoundCreateFunc);
+	btAlignedFree( m_swappedCompoundCreateFunc);
+	btAlignedFree( m_emptyCreateFunc);
+	btAlignedFree( m_sphereSphereCF);
+	btAlignedFree( m_sphereBoxCF);
+	btAlignedFree( m_boxSphereCF);
+	btAlignedFree( m_sphereTriangleCF);
+	btAlignedFree( m_triangleSphereCF);
+
+	btAlignedFree(m_simplexSolver);
+	btAlignedFree(m_pdSolver);
 
 
 }

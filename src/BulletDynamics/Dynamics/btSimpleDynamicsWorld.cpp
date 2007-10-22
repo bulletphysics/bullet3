@@ -46,7 +46,7 @@ m_gravity(0,0,-10)
 btSimpleDynamicsWorld::~btSimpleDynamicsWorld()
 {
 	if (m_ownsConstraintSolver)
-		delete m_constraintSolver;
+		btAlignedFree( m_constraintSolver);
 }
 
 int		btSimpleDynamicsWorld::stepSimulation( btScalar timeStep,int maxSubSteps, btScalar fixedTimeStep)
@@ -205,7 +205,7 @@ void	btSimpleDynamicsWorld::setConstraintSolver(btConstraintSolver* solver)
 {
 	if (m_ownsConstraintSolver)
 	{
-		delete m_constraintSolver;
+		btAlignedFree(m_constraintSolver);
 	}
 	m_ownsConstraintSolver = false;
 	m_constraintSolver = solver;

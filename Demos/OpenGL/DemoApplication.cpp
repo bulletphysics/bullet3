@@ -41,6 +41,9 @@ btCollisionShape* gShapePtr[maxNumObjects];//1 rigidbody has 1 shape (no re-use 
 #ifdef SHOW_NUM_DEEP_PENETRATIONS 
 extern int gNumDeepPenetrationChecks;
 extern int gNumGjkChecks;
+extern int gNumAlignedAllocs;
+extern int gNumAlignedFree;
+
 #endif //
 
 
@@ -885,6 +888,7 @@ void DemoApplication::renderme()
 
 #ifdef SHOW_NUM_DEEP_PENETRATIONS
 				
+
 				glRasterPos3f(xOffset,yStart,0);
 				sprintf(buf,"gNumDeepPenetrationChecks = %d",gNumDeepPenetrationChecks);
 				BMF_DrawString(BMF_GetFont(BMF_kHelvetica10),buf);
@@ -892,6 +896,22 @@ void DemoApplication::renderme()
 
 				glRasterPos3f(xOffset,yStart,0);
 				sprintf(buf,"gNumGjkChecks= %d",gNumGjkChecks);
+				BMF_DrawString(BMF_GetFont(BMF_kHelvetica10),buf);
+				yStart += yIncr;
+
+				
+				glRasterPos3f(xOffset,yStart,0);
+				sprintf(buf,"gNumAlignedAllocs = %d",gNumAlignedAllocs);
+				BMF_DrawString(BMF_GetFont(BMF_kHelvetica10),buf);
+				yStart += yIncr;
+
+				glRasterPos3f(xOffset,yStart,0);
+				sprintf(buf,"gNumAlignedFree= %d",gNumAlignedFree);
+				BMF_DrawString(BMF_GetFont(BMF_kHelvetica10),buf);
+				yStart += yIncr;
+
+				glRasterPos3f(xOffset,yStart,0);
+				sprintf(buf,"# alloc-free = %d",gNumAlignedAllocs-gNumAlignedFree);
 				BMF_DrawString(BMF_GetFont(BMF_kHelvetica10),buf);
 				yStart += yIncr;
 

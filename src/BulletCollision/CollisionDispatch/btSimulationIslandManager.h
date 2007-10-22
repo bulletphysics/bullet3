@@ -18,16 +18,24 @@ subject to the following restrictions:
 
 #include "BulletCollision/CollisionDispatch/btUnionFind.h"
 #include "btCollisionCreateFunc.h"
+#include "LinearMath/btAlignedObjectArray.h"
+
 
 class btCollisionObject;
 class btCollisionWorld;
 class btDispatcher;
+class btPersistentManifold;
+
 
 ///SimulationIslandManager creates and handles simulation islands, using btUnionFind
 class btSimulationIslandManager
 {
 	btUnionFind m_unionFind;
 
+	btAlignedObjectArray<btPersistentManifold*>  m_islandmanifold;
+	btAlignedObjectArray<btCollisionObject* >  m_islandBodies;
+	
+	
 public:
 	btSimulationIslandManager();
 	virtual ~btSimulationIslandManager();
