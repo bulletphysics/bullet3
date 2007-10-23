@@ -312,7 +312,7 @@ void DemoApplication::keyboardCallback(unsigned char key, int x, int y)
 				m_debugMode = m_debugMode & (~btIDebugDraw::DBG_NoDeactivation);
 			else
 				m_debugMode |= btIDebugDraw::DBG_NoDeactivation;
-			if (m_debugMode | btIDebugDraw::DBG_NoDeactivation)
+			if (m_debugMode & btIDebugDraw::DBG_NoDeactivation)
 			{
 				gDisableDeactivation = true;
 			} else
