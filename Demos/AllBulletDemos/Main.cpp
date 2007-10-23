@@ -22,7 +22,6 @@
 #include "LinearMath/btScalar.h"
 #include "LinearMath/btMinMax.h"
 
-#include "Render.h"
 #include "DemoApplication.h"
 #include "DemoEntries.h"
 
@@ -57,8 +56,6 @@ void Resize(int w, int h)
 	glLoadIdentity();
 	double ratio = (double)tw / (double)th;
 
-	gluOrtho2D(viewZoom * (viewX - ratio), viewZoom * (ratio + viewX),
-		viewZoom * (viewY - 0.1), viewZoom * (viewY + 1.9));
 
 	if (demo)
 		demo->reshape(w, h);
@@ -165,7 +162,7 @@ int main(int argc, char** argv)
 
 
 	glutInit(&argc, argv);
-	glutInitDisplayMode(GLUT_RGBA | GLUT_DOUBLE);
+	glutInitDisplayMode(GLUT_RGBA | GLUT_DOUBLE |GLUT_DEPTH);
 	glutInitWindowSize(width, height);
 	mainWindow = glutCreateWindow("http://bulletphysics.com");
 	//glutSetOption (GLUT_ACTION_ON_WINDOW_CLOSE, GLUT_ACTION_GLUTMAINLOOP_RETURNS);
@@ -179,6 +176,7 @@ int main(int argc, char** argv)
 	GLUI_Master.set_glutSpecialFunc(KeyboardSpecial);
 	GLUI_Master.set_glutMouseFunc(Mouse);
 	glutMotionFunc(MouseMotion);
+
 
 	glui = GLUI_Master.create_glui_subwindow( mainWindow, 
 		GLUI_SUBWINDOW_RIGHT );

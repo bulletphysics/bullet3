@@ -18,12 +18,19 @@ subject to the following restrictions:
 #include "../CcdPhysicsDemo/CcdPhysicsDemo.h"
 #include "../BspDemo/BspDemo.h"
 #include "../BasicDemo/BasicDemo.h"
+#include "../ConcaveDemo/ConcaveDemo.h"
+#include "../ConvexDecompositionDemo/ConvexDecompositionDemo.h"
+#include "../RagdollDemo/RagdollDemo.h"
+
 
 btDemoEntry g_demoEntries[] =
 {
+		{"RagdollDemo",RagdollDemo::Create},
+		{"ConvexDecomposition",ConvexDecompositionDemo::Create},
 		{"CcdPhysicsDemo", CcdPhysicsDemo::Create},
 		{"BasicDemo", BasicDemo::Create},
 		{"BspDemo", BspDemo::Create},
+		{"ConcaveDemo",ConcaveDemo::Create},
 		{0, 0}
 };
 

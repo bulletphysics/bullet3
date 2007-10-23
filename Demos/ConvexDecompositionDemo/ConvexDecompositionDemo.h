@@ -27,7 +27,14 @@ class ConvexDecompositionDemo : public DemoApplication
 	virtual void clientMoveAndDisplay();
 
 	virtual void displayCallback();
-	
+
+	static DemoApplication* Create()
+	{
+		ConvexDecompositionDemo* demo = new ConvexDecompositionDemo();
+		demo->myinit();
+		demo->initPhysics("file.obj");
+		return demo;
+	}	
 	
 	
 };

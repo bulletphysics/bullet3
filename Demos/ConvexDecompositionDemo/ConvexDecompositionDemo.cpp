@@ -39,7 +39,6 @@ subject to the following restrictions:
 #include <stdio.h> //printf debugging
 #include <vector>
 
-float deltaTime = 1.f/60.f;
 
 #include "ConvexDecompositionDemo.h"
 #include "GL_ShapeDrawer.h"
@@ -48,13 +47,13 @@ float deltaTime = 1.f/60.f;
 
 const int maxNumObjects = 450;
 
-int	shapeIndex[maxNumObjects];
+static int	shapeIndex[maxNumObjects];
 
 btVector3	centroid;
 
 #define CUBE_HALF_EXTENTS 4
 
-btCollisionShape* shapePtr[maxNumObjects];
+static btCollisionShape* shapePtr[maxNumObjects];
 
 
 
@@ -64,24 +63,6 @@ unsigned int tcount = 0;
 
 
 GLDebugDrawer debugDrawer;
-
-int main(int argc,char** argv)
-{
-	const char* filename = "file.obj";
-
-
-	ConvexDecompositionDemo* convexDecompDemo = new ConvexDecompositionDemo();
-
-	convexDecompDemo->initPhysics(filename);
-
-
-
-	convexDecompDemo->clientResetScene();
-
-	convexDecompDemo->setCameraDistance(26.f);
-
-	return glutmain(argc, argv,640,480,"Bullet Physics Demo. http://www.continuousphysics.com/Bullet/phpBB2/",convexDecompDemo);
-}
 
 void ConvexDecompositionDemo::initPhysics(const char* filename)
 {

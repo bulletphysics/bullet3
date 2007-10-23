@@ -7,5 +7,7 @@ FrameWorkDemo AllBulletDemos :
         ../BspDemo/BspDemo.cpp
         ../BspDemo/BspConverter.cpp
         ../BspDemo/BspLoader.cpp
-
+	../ConcaveDemo/ConcavePhysicsDemo.cpp
+	../ConvexDecompositionDemo/ConvexDecompositionDemo.cpp
+	../RagdollDemo/RagdollDemo.cpp
 ;

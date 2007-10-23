@@ -29,8 +29,6 @@ subject to the following restrictions:
 
 
 
-GLDebugDrawer	debugDrawer;
-class btIDebugDraw* debugDrawerPtr=0;
 
 btVector3*	gVertices=0;
 int*	gIndices=0;
@@ -97,20 +95,6 @@ bool CustomMaterialCombinerCallback(btManifoldPoint& cp,	const btCollisionObject
 
 extern ContactAddedCallback		gContactAddedCallback;
 
-
-
-int main(int argc,char** argv)
-{
-	gContactAddedCallback = CustomMaterialCombinerCallback;
-
-	ConcaveDemo* concaveDemo = new ConcaveDemo();
-	concaveDemo->initPhysics();
-	concaveDemo->setCameraDistance(30.f);
-
-	return glutmain(argc, argv,640,480,"Static Concave Mesh Demo",concaveDemo);
-}
-
-
 	const int NUM_VERTS_X = 30;
 	const int NUM_VERTS_Y = 30;
 	const int totalVerts = NUM_VERTS_X*NUM_VERTS_Y;
@@ -155,6 +139,9 @@ void ConcaveDemo::keyboardCallback(unsigned char key, int x, int y)
 void	ConcaveDemo::initPhysics()
 {
 	#define TRISIZE 10.f
+
+     gContactAddedCallback = CustomMaterialCombinerCallback;
+
 
 	int vertStride = sizeof(btVector3);
 	int indexStride = 3*sizeof(int);
@@ -274,8 +261,6 @@ btDefaultCollisionConfiguration* collisionConfiguration = new btDefaultCollision
 #ifdef USE_PARALLEL_DISPATCHER
 	m_dynamicsWorld->getDispatchInfo().m_enableSPU=true;
 #endif //USE_PARALLEL_DISPATCHER
-	m_dynamicsWorld->setDebugDrawer(&debugDrawer);
-	debugDrawerPtr = &debugDrawer;
 	
 	float mass = 0.f;
 	btTransform	startTransform;

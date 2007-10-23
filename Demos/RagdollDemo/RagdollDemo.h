@@ -37,6 +37,15 @@ public:
 	virtual void displayCallback();
 
 	virtual void keyboardCallback(unsigned char key, int x, int y);
+
+	static DemoApplication* Create()
+	{
+		RagdollDemo* demo = new RagdollDemo();
+		demo->myinit();
+		demo->initPhysics();
+		return demo;
+	}
+	
 };
 
 

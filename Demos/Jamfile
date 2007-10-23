@@ -35,15 +35,17 @@ if $(GLUT.AVAILABLE) = "yes"
   rule FrameWorkDemo
   {
     Application $(<) : $(>) : noinstall console nomanifest ;
-    LinkWith $(<) :   bulletopenglsupport bulletdynamics bulletcollision bulletmath glui ;
+    LinkWith $(<) :   bulletopenglsupport convexdecomposition bulletdynamics bulletcollision bulletmath glui ;
     CFlags $(<) :
           [ FIncludes $(TOP)/Extras ]
          [ FIncludes $(TOP)/Demos/OpenGL ]
+	[ FIncludes $(TOP)/Extras/ConvexDecomposition ]
     ;
     MsvcIncDirs $(<) :
         "../../Extras"
         "../../src"
         "../../Demos/OpenGL"
+	"../../Extras/ConvexDecomposition"
 ;
 
   }

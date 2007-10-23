@@ -26,7 +26,6 @@ Written by: Marten Svanfeldt
 #include "GLDebugDrawer.h"
 #include "RagdollDemo.h"
 
-GLDebugDrawer debugDrawer;
 
 // Enrico: Shouldn't these three variables be real constants and not defines?
 
@@ -303,16 +302,6 @@ public:
 
 
 
-int main(int argc,char* argv[])
-{
-	RagdollDemo demoApp;
-
-	demoApp.initPhysics();
-	demoApp.setCameraDistance(btScalar(10.));
-
-	return glutmain(argc, argv,640,480,"Bullet Physics Demo. http://bullet.sf.net",&demoApp);
-}
-
 
 void RagdollDemo::initPhysics()
 {
@@ -330,7 +319,6 @@ void RagdollDemo::initPhysics()
 
 	m_dynamicsWorld = new btDiscreteDynamicsWorld(dispatcher,overlappingPairCache,solver,collisionConfiguration);
 
-	m_dynamicsWorld->setDebugDrawer(&debugDrawer);
 
 	// Setup a big ground box
 	{

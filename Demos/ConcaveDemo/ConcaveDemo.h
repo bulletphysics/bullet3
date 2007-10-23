@@ -40,6 +40,14 @@ class ConcaveDemo : public DemoApplication
 	void	setVertexPositions(float waveheight, float offset);
 	
 	virtual void keyboardCallback(unsigned char key, int x, int y);
+	
+	static DemoApplication* Create()
+	{
+		ConcaveDemo* demo = new ConcaveDemo();
+		demo->myinit();
+		demo->initPhysics();
+		return demo;
+	};
 };
 
 #endif //CONCAVE_DEMO_H

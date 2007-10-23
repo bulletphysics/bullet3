@@ -54,7 +54,6 @@ btScalar deltaTime = btScalar(1./60.);
 
 ////////////////////////////////////
 
-GLDebugDrawer debugDrawer;
 
 class myTest
 {
@@ -178,7 +177,6 @@ void	BasicDemo::initPhysics()
 
 	m_dynamicsWorld->setGravity(btVector3(0,-10,0));
 
-	m_dynamicsWorld->setDebugDrawer(&debugDrawer);
 
 	///create a few basic rigid bodies
 
