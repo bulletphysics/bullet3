@@ -304,6 +304,9 @@
 			<File
 				RelativePath="..\..\Demos\ConcaveDemo\ConcavePhysicsDemo.cpp">
 			</File>
+			<File
+				RelativePath="..\..\Demos\ConcaveDemo\main.cpp">
+			</File>
 		</Filter>
 		<Filter
 			Name="Header Files"

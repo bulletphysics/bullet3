@@ -172,6 +172,10 @@ SOURCE="$(InputPath)"
 
 SOURCE=..\..\Demos\ConvexDecompositionDemo\ConvexDecompositionDemo.cpp
 # End Source File
+# Begin Source File
+
+SOURCE=..\..\Demos\ConvexDecompositionDemo\main.cpp
+# End Source File
 # End Group
 # Begin Group "Header Files"
 

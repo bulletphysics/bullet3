@@ -170,6 +170,10 @@ SOURCE="$(InputPath)"
 # PROP Default_Filter ""
 # Begin Source File
 
+SOURCE=..\..\Demos\RagdollDemo\main.cpp
+# End Source File
+# Begin Source File
+
 SOURCE=..\..\Demos\RagdollDemo\RagdollDemo.cpp
 # End Source File
 # End Group

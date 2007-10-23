@@ -172,6 +172,10 @@ SOURCE="$(InputPath)"
 
 SOURCE=..\..\Demos\ConcaveDemo\ConcavePhysicsDemo.cpp
 # End Source File
+# Begin Source File
+
+SOURCE=..\..\Demos\ConcaveDemo\main.cpp
+# End Source File
 # End Group
 # Begin Group "Header Files"
 

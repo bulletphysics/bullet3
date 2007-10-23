@@ -24,6 +24,9 @@ Package=<4>
     Project_Dep_Name libbulletopenglsupport
     End Project Dependency
     Begin Project Dependency
+    Project_Dep_Name libconvexdecomposition
+    End Project Dependency
+    Begin Project Dependency
     Project_Dep_Name libglui
     End Project Dependency
 }}}
@@ -678,6 +681,9 @@ Package=<4>
     Project_Dep_Name libbulletmath
     End Project Dependency
     Begin Project Dependency
+    Project_Dep_Name libbulletmultithreaded
+    End Project Dependency
+    Begin Project Dependency
     Project_Dep_Name libbulletopenglsupport
     End Project Dependency
     Begin Project Dependency
@@ -810,6 +816,9 @@ Package=<4>
     Project_Dep_Name libbulletmath
     End Project Dependency
     Begin Project Dependency
+    Project_Dep_Name libbulletmultithreaded
+    End Project Dependency
+    Begin Project Dependency
     Project_Dep_Name libbulletopenglsupport
     End Project Dependency
     Begin Project Dependency
@@ -886,6 +895,18 @@ Package=<4>
 ###############################################################################
 
 Project: "libbulletmath"=.\libbulletmath.dsp - Package Owner=<4>
+
+Package=<5>
+{{{
+}}}
+
+Package=<4>
+{{{
+}}}
+
+###############################################################################
+
+Project: "libbulletmultithreaded"=.\libbulletmultithreaded.dsp - Package Owner=<4>
 
 Package=<5>
 {{{

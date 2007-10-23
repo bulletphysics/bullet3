@@ -304,6 +304,9 @@
 			<File
 				RelativePath="..\..\Demos\ConvexDecompositionDemo\ConvexDecompositionDemo.cpp">
 			</File>
+			<File
+				RelativePath="..\..\Demos\ConvexDecompositionDemo\main.cpp">
+			</File>
 		</Filter>
 		<Filter
 			Name="Header Files"

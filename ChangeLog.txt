@@ -1,6 +1,12 @@
 Bullet Continuous Collision Detection and Physics Library
 Primary author and maintainer: Erwin Coumans
 
+2007 Oct 22
+	- All memory allocations go through btAlignedAlloc/btAlignedFree. User can override this to verify memory leaks
+	- added a few more demos to AllBulletDemos
+	- fix for one of the constructors of btHingeConstraint
+	Thanks Marcus Hennix
+	
 2007 Oct 20
 	- included glui, a GLUT/OpenGL based toolkit for some graphical user elements
 	Removed dynamic_cast from glui, to allow linkage without rtti
@@ -433,6 +439,12 @@ Added 3D Sweep and Prune Broadphase Collision Detection, Contribution from Simon
 	Rearranged files and dependencies to allow for easier standalone Collision Detection without Bullet Dynamics.
 	See Demos/CollisionInterfaceDemo and Extras/ode/ode/test/test_BulletGjk.cpp for examples how to use.
 
+2005 August 6
+	Bullet 0.2 release with demos, sources, doxygen, draft manual
+
+2005 June 1
+	First public release of Bullet
+	
 
 ... todo: add history
 
