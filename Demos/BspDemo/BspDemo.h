@@ -30,7 +30,13 @@ class BspDemo : public DemoApplication
 
 	virtual void displayCallback();
 	
-	
+	static DemoApplication* Create()
+	{
+		BspDemo* demo = new BspDemo;
+		demo->myinit();
+		demo->initPhysics("BspDemo.bsp");
+		return demo;
+	}
 
 };
 

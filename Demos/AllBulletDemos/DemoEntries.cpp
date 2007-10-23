@@ -12,33 +12,18 @@ subject to the following restrictions:
 2. Altered source versions must be plainly marked as such, and must not be misrepresented as being the original software.
 3. This notice may not be removed or altered from any source distribution.
 */
-#ifndef CCD_PHYSICS_DEMO_H
-#define CCD_PHYSICS_DEMO_H
 
-#include "DemoApplication.h"
+#include "DemoEntries.h"
 
-///CcdPhysicsDemo shows basic stacking using Bullet physics, and allows toggle of Ccd (using key '1')
-class CcdPhysicsDemo : public DemoApplication
+#include "../CcdPhysicsDemo/CcdPhysicsDemo.h"
+#include "../BspDemo/BspDemo.h"
+#include "../BasicDemo/BasicDemo.h"
+
+btDemoEntry g_demoEntries[] =
 {
-	public:
-
-	void	initPhysics();
-
-	virtual void clientMoveAndDisplay();
-
-	virtual void displayCallback();
-	
-	void createStack( btCollisionShape* boxShape, float halfCubeSize, int size, float zPos );
-	
-	static DemoApplication* Create()
-	{
-		CcdPhysicsDemo* demo = new CcdPhysicsDemo;
-		demo->myinit();
-		demo->initPhysics();
-		return demo;
-	}
-
+		{"CcdPhysicsDemo", CcdPhysicsDemo::Create},
+		{"BasicDemo", BasicDemo::Create},
+		{"BspDemo", BspDemo::Create},
+		{0, 0}
 };
-
-#endif //CCD_PHYSICS_DEMO_H
 

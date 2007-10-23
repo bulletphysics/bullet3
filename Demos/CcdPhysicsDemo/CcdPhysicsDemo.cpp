@@ -66,7 +66,7 @@ subject to the following restrictions:
 
 #include "LinearMath/btQuickprof.h"
 #include "LinearMath/btIDebugDraw.h"
-#include "GLDebugDrawer.h"
+
 
 #include "BMF_Api.h"
 #include <stdio.h> //printf debugging

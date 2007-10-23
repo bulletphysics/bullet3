@@ -52,6 +52,14 @@ class BasicDemo : public DemoApplication
 
 	virtual void displayCallback();
 	
+	static DemoApplication* Create()
+	{
+		BasicDemo* demo = new BasicDemo;
+		demo->myinit();
+		demo->initPhysics();
+		return demo;
+	}
+
 	
 };
 

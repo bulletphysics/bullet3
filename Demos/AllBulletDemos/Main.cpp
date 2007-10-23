@@ -23,20 +23,22 @@
 #include "LinearMath/btMinMax.h"
 
 #include "Render.h"
-#include "Test.h"
+#include "DemoApplication.h"
+#include "DemoEntries.h"
 
 namespace
 {
 	int testIndex = 0;
 	int testSelection = 0;
-	TestEntry* entry;
-	Test* test;
-	Settings settings;
+	btDemoEntry* entry;
+	DemoApplication* demo;
+	int iterationCount = 10;
 	int width = 640;
 	int height = 480;
 	int framePeriod = 16;
 	int mainWindow;
 	GLUI *glui;
+	float hz;
 	float viewZoom = 20.0f;
 	float viewX = 0.0f;
 	float viewY = 0.0f;
@@ -57,6 +59,9 @@ void Resize(int w, int h)
 
 	gluOrtho2D(viewZoom * (viewX - ratio), viewZoom * (ratio + viewX),
 		viewZoom * (viewY - 0.1), viewZoom * (viewY + 1.9));
+
+	if (demo)
+		demo->reshape(w, h);
 }
 
 /*b2Vec2 ConvertScreenToWorld(int x, int y)
@@ -87,8 +92,10 @@ void SimulationLoop()
 	glMatrixMode(GL_MODELVIEW);
 	glLoadIdentity();
 
-	test->SetTextLine(30);
-	test->Step(&settings);
+	//test->SetTextLine(30);
+	//test->Step(&settings);
+	demo->clientMoveAndDisplay();
+
 
 ///	DrawString(5, 15, entry->name);
 
@@ -97,9 +104,9 @@ void SimulationLoop()
 	if (testSelection != testIndex)
 	{
 		testIndex = testSelection;
-		delete test;
-		entry = g_testEntries + testIndex;
-		test = entry->createFcn();
+		delete demo;
+		entry = g_demoEntries + testIndex;
+		demo = entry->createFcn();
 		viewZoom = 20.0f;
 		viewX = 0.0f;
 		viewY = 0.0f;
@@ -116,40 +123,17 @@ void Keyboard(unsigned char key, int x, int y)
 		exit(0);
 		break;
 
-		// Press 'a' to zoom in.
-	case 'a':
-		viewZoom = btMax(viewZoom - 1.0f, 1.0f);
-		Resize(width, height);
-		break;
-
-		// Press 'z' to zoom out.
-	case 'z':
-		viewZoom = btMin(viewZoom + 1.0f, 100.0f);
-		Resize(width, height);
-		break;
-
 		// Press 'r' to reset.
 	case 'r':
-		delete test;
-		test = entry->createFcn();
-		break;
-
-		// Press space to launch a bomb.
-	case ' ':
-		if (test)
-		{
-			test->LaunchBomb();
-		}
-		break;
-
-	case 'h':
-		settings.pause = !settings.pause;
+		delete demo;
+		demo = entry->createFcn();
+		Resize(width,height);
 		break;
 
 	default:
-		if (test)
+		if (demo)
 		{
-			test->Keyboard(key);
+			demo->keyboardCallback(key,x,y);
 		}
 	}
 }
@@ -157,76 +141,37 @@ void Keyboard(unsigned char key, int x, int y)
 void KeyboardSpecial(int key, int x, int y)
 {
 
-	switch (key)
+	if (demo)
 	{
-		// Press left to pan left.
-	case GLUT_KEY_LEFT:
-		viewX += 0.1f;
-		Resize(width, height);
-		break;
-
-		// Press right to pan right.
-	case GLUT_KEY_RIGHT:
-		viewX -= 0.1f;
-		Resize(width, height);
-		break;
-
-		// Press down to pan down.
-	case GLUT_KEY_DOWN:
-		viewY += 0.1f;
-		Resize(width, height);
-		break;
-
-		// Press up to pan up.
-	case GLUT_KEY_UP:
-		viewY -= 0.1f;
-		Resize(width, height);
-		break;
-
-		// Press home to reset the view.
-	case GLUT_KEY_HOME:
-		viewZoom = 20.0f;
-		viewX = 0.0f;
-		viewY = 0.0f;
-		Resize(width, height);
-		break;
+		demo->specialKeyboard(key,x,y);
 	}
+	
 }
+
 
 void Mouse(int button, int state, int x, int y)
 {
-	// Use the mouse to move things around.
-	if (button == GLUT_LEFT_BUTTON)
-	{
-		if (state == GLUT_DOWN)
-		{
-		//	b2Vec2 p = ConvertScreenToWorld(x, y);
-		//	test->MouseDown(p);
-		}
-		
-		if (state == GLUT_UP)
-		{
-			test->MouseUp();
-		}
-	}
+	if (demo)
+		demo->mouseFunc(button,state,x,y);
 }
 
 void MouseMotion(int x, int y)
 {
-//	b2Vec2 p = ConvertScreenToWorld(x, y);
-//	test->MouseMove(p);
+	demo->mouseMotionFunc(x,y);
 }
 
 int main(int argc, char** argv)
 {
-	entry = g_testEntries + testIndex;
-	test = entry->createFcn();
+
 
 	glutInit(&argc, argv);
 	glutInitDisplayMode(GLUT_RGBA | GLUT_DOUBLE);
 	glutInitWindowSize(width, height);
 	mainWindow = glutCreateWindow("http://bulletphysics.com");
 	//glutSetOption (GLUT_ACTION_ON_WINDOW_CLOSE, GLUT_ACTION_GLUTMAINLOOP_RETURNS);
+
+	entry = g_demoEntries + testIndex;
+	demo = entry->createFcn();
 
 	glutDisplayFunc(SimulationLoop);
 	GLUI_Master.set_glutReshapeFunc(Resize);  
@@ -245,27 +190,27 @@ int main(int argc, char** argv)
 	glui->add_separator();
 
 	GLUI_Spinner* iterationSpinner =
-		glui->add_spinner("Iterations", GLUI_SPINNER_INT, &settings.iterationCount);
+		glui->add_spinner("Iterations", GLUI_SPINNER_INT, &iterationCount);
 	iterationSpinner->set_int_limits(1, 100);
 
 	GLUI_Spinner* hertzSpinner =
-		glui->add_spinner("Hertz", GLUI_SPINNER_FLOAT, &settings.hz);
+		glui->add_spinner("Hertz", GLUI_SPINNER_FLOAT, &hz);
 	hertzSpinner->set_float_limits(5.0f, 200.0f);
 
-	glui->add_checkbox("Position Correction", &settings.enablePositionCorrection);
-	glui->add_checkbox("Warm Starting", &settings.enablePositionCorrection);
+//	glui->add_checkbox("Position Correction", &settings.enablePositionCorrection);
+//	glui->add_checkbox("Warm Starting", &settings.enablePositionCorrection);
 
 	glui->add_separator();
 
 	GLUI_Panel* drawPanel =	glui->add_panel("Draw");
-	glui->add_checkbox_to_panel(drawPanel, "AABBs", &settings.drawAABBs);
-	glui->add_checkbox_to_panel(drawPanel, "Pairs", &settings.drawPairs);
-	glui->add_checkbox_to_panel(drawPanel, "Contacts", &settings.drawContacts);
-	glui->add_checkbox_to_panel(drawPanel, "Impulses", &settings.drawImpulses);
-	glui->add_checkbox_to_panel(drawPanel, "Statistics", &settings.drawStats);
+//	glui->add_checkbox_to_panel(drawPanel, "AABBs", &settings.drawAABBs);
+//	glui->add_checkbox_to_panel(drawPanel, "Pairs", &settings.drawPairs);
+//	glui->add_checkbox_to_panel(drawPanel, "Contacts", &settings.drawContacts);
+//	glui->add_checkbox_to_panel(drawPanel, "Impulses", &settings.drawImpulses);
+//	glui->add_checkbox_to_panel(drawPanel, "Statistics", &settings.drawStats);
 
 	int testCount = 0;
-	TestEntry* e = g_testEntries;
+	btDemoEntry* e = g_demoEntries;
 	while (e->createFcn)
 	{
 		testList->add_item(testCount, e->name);
