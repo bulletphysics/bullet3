@@ -45,7 +45,6 @@ extern int gNumGjkChecks;
 
 
 
-GLDebugDrawer	debugDrawer;
 //Real			dts = 0.000001f;
 Real			dts = 1.0 / 60.0;
 
@@ -116,23 +115,6 @@ extern ContactAddedCallback		gContactAddedCallback;
 
 
 
-//################################## main #####################################
-int main(int argc,char** argv)
-{
-	gContactAddedCallback = CustomMaterialCombinerCallback;
-
-	GimpactConcaveDemo* concaveDemo = new GimpactConcaveDemo();  /// This will not be Deleted!!!
-	concaveDemo->initPhysics();
-	concaveDemo->setCameraDistance(45.f);
-
-//cannot run stepFront yet, the OpenGL context is not opened (stepFront updates camera...)
-//	concaveDemo->stepFront();
-//	concaveDemo->stepFront();
-//	concaveDemo->stepFront();
-//	concaveDemo->stepFront();
-
-	return glutmain(argc, argv,640,480,"DevO,s GIMPACT Test Demo",concaveDemo);
-}
 
 //------------------------------------------------------------------------------
 void GimpactConcaveDemo::renderme()
@@ -416,7 +398,6 @@ void	GimpactConcaveDemo::initPhysics()
 	m_constraintSolver = new btSequentialImpulseConstraintSolver();
 
 	m_dynamicsWorld = new btDiscreteDynamicsWorld(m_dispatcher,m_broadphase,m_constraintSolver,m_collisionConfiguration);
-	m_dynamicsWorld->setDebugDrawer(&debugDrawer);
 
 	//create trimesh model and shape
 	initGImpactCollision();

@@ -16,6 +16,8 @@ subject to the following restrictions:
 #define TEST_CONCAVE_DEMO_H
 
 #include "DemoApplication.h"
+class btTriangleIndexVertexArray;
+class btDefaultCollisionConfiguration;
 
 //#define BULLET_TRIANGLE_COLLISION 1
 #define BULLET_GIMPACT 1
@@ -126,6 +128,14 @@ public: ///data
 	btCollisionDispatcher*			 m_dispatcher;
 	btBroadphaseInterface*			 m_broadphase;
 	btConstraintSolver*				 m_constraintSolver;
+
+	static DemoApplication* Create()
+	{
+		GimpactConcaveDemo* demo = new GimpactConcaveDemo();
+		demo->myinit();
+		demo->initPhysics();
+		return demo;
+	}
 };
 
 #endif //CONCAVE_DEMO_H

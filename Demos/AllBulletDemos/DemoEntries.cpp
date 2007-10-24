@@ -21,6 +21,7 @@ subject to the following restrictions:
 #include "../ConcaveDemo/ConcaveDemo.h"
 #include "../ConvexDecompositionDemo/ConvexDecompositionDemo.h"
 #include "../RagdollDemo/RagdollDemo.h"
+#include "../GimpactTestDemo/GimpactTestDemo.h"
 
 
 btDemoEntry g_demoEntries[] =
@@ -31,6 +32,7 @@ btDemoEntry g_demoEntries[] =
 		{"BasicDemo", BasicDemo::Create},
 		{"BspDemo", BspDemo::Create},
 		{"ConcaveDemo",ConcaveDemo::Create},
+		{"Gimpact Test", GimpactConcaveDemo::Create},
 		{0, 0}
 };
 

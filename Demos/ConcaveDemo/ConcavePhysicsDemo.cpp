@@ -30,10 +30,10 @@ subject to the following restrictions:
 
 
 
-btVector3*	gVertices=0;
-int*	gIndices=0;
-btBvhTriangleMeshShape* trimeshShape =0;
-btRigidBody* staticBody = 0;
+static btVector3*	gVertices=0;
+static int*	gIndices=0;
+static btBvhTriangleMeshShape* trimeshShape =0;
+static btRigidBody* staticBody = 0;
 static float waveheight = 5.f;
 
 const float TRIANGLE_SIZE=8.f;
@@ -61,7 +61,7 @@ inline btScalar	calculateCombinedRestitution(float restitution0,float restitutio
 
 
 
-bool CustomMaterialCombinerCallback(btManifoldPoint& cp,	const btCollisionObject* colObj0,int partId0,int index0,const btCollisionObject* colObj1,int partId1,int index1)
+static bool CustomMaterialCombinerCallback(btManifoldPoint& cp,	const btCollisionObject* colObj0,int partId0,int index0,const btCollisionObject* colObj1,int partId1,int index1)
 {
 
 	float friction0 = colObj0->getFriction();
