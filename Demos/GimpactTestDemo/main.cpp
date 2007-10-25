@@ -1,11 +1,10 @@
 
-#include "GimpactConcaveDemo.h"
+#include "GimpactTestDemo.h"
 #include "GlutStuff.h"
 
 //################################## main #####################################
 int main(int argc,char** argv)
 {
-        gContactAddedCallback = CustomMaterialCombinerCallback;
 
         GimpactConcaveDemo* concaveDemo = new GimpactConcaveDemo();  /// This will not be Deleted!!!
         concaveDemo->initPhysics();

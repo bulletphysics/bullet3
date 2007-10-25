@@ -42,7 +42,7 @@ class btDefaultCollisionConfiguration;
 
 
 
-
+class btConstraintSolver;
 struct btCollisionAlgorithmCreateFunc;
 
 ///GimpactConcaveDemo shows usage of static concave triangle meshes
@@ -67,6 +67,8 @@ public:
 
 	virtual ~GimpactConcaveDemo()
 	{
+		delete m_dynamicsWorld;
+
 		delete m_indexVertexArrays;
 		delete m_trimeshShape;
 
@@ -80,7 +82,6 @@ public:
 		delete m_broadphase;
 		delete m_constraintSolver;
 
-		delete m_dynamicsWorld;
 	}
 
 	void	initGImpactCollision();

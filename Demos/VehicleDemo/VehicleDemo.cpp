@@ -83,17 +83,6 @@ btScalar suspensionRestLength(0.6);
 
 
 
-GLDebugDrawer debugDrawer;
-
-int main(int argc,char** argv)
-{
-
-	VehicleDemo* vehicleDemo = new VehicleDemo;
-
-	vehicleDemo->setupPhysics();
-
-	return glutmain(argc, argv,640,480,"Bullet Vehicle Demo. http://www.continuousphysics.com/Bullet/phpBB2/", vehicleDemo);
-}
 
 VehicleDemo::VehicleDemo()
 :
@@ -106,7 +95,7 @@ m_maxCameraDistance(10.f)
 	m_cameraPosition = btVector3(30,30,30);
 }
 
-void VehicleDemo::setupPhysics()
+void VehicleDemo::initPhysics()
 {
 
 	extern btScalar	gJitterVelocityDampingFactor;
@@ -128,7 +117,6 @@ void VehicleDemo::setupPhysics()
 #ifdef FORCE_ZAXIS_UP
 	m_dynamicsWorld->setGravity(btVector3(0,0,-10));
 #endif 
-	m_dynamicsWorld->setDebugDrawer(&debugDrawer);
 
 	//m_dynamicsWorld->setGravity(btVector3(0,0,0));
 btTransform tr;
@@ -361,7 +349,6 @@ void VehicleDemo::renderme()
 	
 	updateCamera();
 
-	debugDrawer.setDebugMode(getDebugMode());
 	btScalar m[16];
 	int i;
 

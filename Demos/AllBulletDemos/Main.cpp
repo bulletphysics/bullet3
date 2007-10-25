@@ -160,6 +160,8 @@ void MouseMotion(int x, int y)
 int main(int argc, char** argv)
 {
 
+	int bulletVersion = btGetVersion();
+	printf("Bullet version %d\n",bulletVersion);
 
 	glutInit(&argc, argv);
 	glutInitDisplayMode(GLUT_RGBA | GLUT_DOUBLE |GLUT_DEPTH);

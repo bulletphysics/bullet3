@@ -27,7 +27,14 @@ class LinearConvexCastDemo : public DemoApplication
 	virtual void clientMoveAndDisplay();
 
 	virtual void displayCallback();
-	
+
+	static DemoApplication* Create()
+	{
+		LinearConvexCastDemo* demo = new LinearConvexCastDemo();
+		demo->myinit();
+		demo->initPhysics();
+		return demo;
+	}	
 	
 };
 

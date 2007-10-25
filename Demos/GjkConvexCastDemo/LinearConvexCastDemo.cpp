@@ -44,31 +44,19 @@
 #include "GlutStuff.h"
 
 
-float yaw=0.f,pitch=0.f,roll=0.f;
-const int maxNumObjects = 4;
-const int numObjects = 2;
+static float yaw=0.f,pitch=0.f,roll=0.f;
+static const int maxNumObjects = 4;
+static const int numObjects = 2;
 
 
-btPolyhedralConvexShape*	shapePtr[maxNumObjects];
+static btPolyhedralConvexShape*	shapePtr[maxNumObjects];
 
-btTransform tr[numObjects];
-int screenWidth = 640;
-int screenHeight = 480;
+static btTransform tr[numObjects];
 void DrawRasterizerLine(float const* , float const*, int)
 {
 
 }
 
-int main(int argc,char** argv)
-{
-
-	LinearConvexCastDemo* linearCastDemo = new LinearConvexCastDemo();
-
-	linearCastDemo->initPhysics();
-
-
-	return glutmain(argc, argv,screenWidth,screenHeight,"Linear Convex Cast Demo",linearCastDemo);
-}
 
 void LinearConvexCastDemo::initPhysics()
 {

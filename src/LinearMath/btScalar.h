@@ -24,7 +24,10 @@ subject to the following restrictions:
 #include <float.h>
 
 
-
+inline int	btGetVersion()
+{
+	return 264;
+}
 
 #ifdef WIN32
 

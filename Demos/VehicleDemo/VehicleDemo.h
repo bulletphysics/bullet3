@@ -55,7 +55,15 @@ class VehicleDemo : public DemoApplication
 
 	void renderme();
 
-	void setupPhysics();
+	void initPhysics();
+
+	static DemoApplication* Create()
+	{
+		VehicleDemo* demo = new VehicleDemo();
+		demo->myinit();
+		demo->initPhysics();
+		return demo;
+	}
 };
 
 #endif //VEHICLE_DEMO_H

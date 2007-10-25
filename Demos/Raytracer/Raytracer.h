@@ -27,8 +27,14 @@ class Raytracer : public DemoApplication
 	virtual void clientMoveAndDisplay();
 
 	virtual void displayCallback();
-	
-	
+
+	static DemoApplication* Create()
+	{
+		Raytracer* demo = new Raytracer();
+		demo->myinit();
+		demo->initPhysics();
+		return demo;
+	}	
 };
 
 #endif //RAYTRACER_H

@@ -11,4 +11,8 @@ FrameWorkDemo AllBulletDemos :
 	../ConvexDecompositionDemo/ConvexDecompositionDemo.cpp
 	../RagdollDemo/RagdollDemo.cpp
 	../GimpactTestDemo/GimpactTestDemo.cpp
+	../Raytracer/Raytracer.cpp
+	../GjkConvexCastDemo/LinearConvexCastDemo.cpp
+	../VehicleDemo/VehicleDemo.cpp
+	../ConstraintDemo/ConstraintDemo.cpp
 ;

@@ -383,6 +383,9 @@ btCollisionShape * GimpactConcaveDemo::createBunnyShape()
 //------------------------------------------------------------------------------
 void	GimpactConcaveDemo::initPhysics()
 {
+	gContactAddedCallback = CustomMaterialCombinerCallback;
+
+
 	/// Init Bullet
 	m_collisionConfiguration = new btDefaultCollisionConfiguration();
 

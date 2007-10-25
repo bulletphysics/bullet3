@@ -22,6 +22,10 @@ subject to the following restrictions:
 #include "../ConvexDecompositionDemo/ConvexDecompositionDemo.h"
 #include "../RagdollDemo/RagdollDemo.h"
 #include "../GimpactTestDemo/GimpactTestDemo.h"
+#include "../Raytracer/Raytracer.h"
+#include "../GjkConvexCastDemo/LinearConvexCastDemo.h"
+#include "../VehicleDemo/VehicleDemo.h"
+#include "../ConstraintDemo/ConstraintDemo.h"
 
 
 btDemoEntry g_demoEntries[] =
@@ -33,6 +37,12 @@ btDemoEntry g_demoEntries[] =
 		{"BspDemo", BspDemo::Create},
 		{"ConcaveDemo",ConcaveDemo::Create},
 		{"Gimpact Test", GimpactConcaveDemo::Create},
+		{"Raytracer Test",Raytracer::Create},
+		{"GjkConvexCast",LinearConvexCastDemo::Create},
+		{"VehicleDemo",VehicleDemo::Create},
+		{"ConstraintDemo",ConstraintDemo::Create},
 		{0, 0}
+
+
 };
 

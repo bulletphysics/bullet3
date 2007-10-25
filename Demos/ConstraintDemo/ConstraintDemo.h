@@ -27,7 +27,14 @@ class ConstraintDemo : public DemoApplication
 	virtual void clientMoveAndDisplay();
 
 	virtual void displayCallback();
-	
+
+	static DemoApplication* Create()
+	{
+		ConstraintDemo* demo = new ConstraintDemo();
+		demo->myinit();
+		demo->initPhysics();
+		return demo;
+	}	
 	
 };
 

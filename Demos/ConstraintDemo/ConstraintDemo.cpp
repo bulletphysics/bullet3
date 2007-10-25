@@ -32,19 +32,7 @@ const int numObjects = 3;
 
 #define CUBE_HALF_EXTENTS 1.f
 
-GLDebugDrawer debugDrawer;
 
-int main(int argc,char** argv)
-{
-
-	ConstraintDemo* constraintDemo = new ConstraintDemo();
-
-	constraintDemo->initPhysics();	
-
-	constraintDemo->setCameraDistance(26.f);
-
-	return glutmain(argc, argv,640,480,"Constraint Demo. http://www.continuousphysics.com/Bullet/phpBB2/",constraintDemo);
-}
 
 btTransform sliderTransform;
 btVector3 lowerSliderLimit = btVector3(-10,0,0);
@@ -88,7 +76,6 @@ void	ConstraintDemo::initPhysics()
 
 	//m_dynamicsWorld->setGravity(btVector3(0,0,0));
 	
-	m_dynamicsWorld->setDebugDrawer(&debugDrawer);
 
 	btCollisionShape* shape = new btBoxShape(btVector3(CUBE_HALF_EXTENTS,CUBE_HALF_EXTENTS,CUBE_HALF_EXTENTS));
 	btTransform trans;

@@ -99,24 +99,24 @@ Very basic raytracer, rendering into a texture.
 
 
 
-btVoronoiSimplexSolver	simplexSolver;
+static btVoronoiSimplexSolver	simplexSolver;
 
-float yaw=0.f,pitch=0.f,roll=0.f;
-const int maxNumObjects = 4;
-const int numObjects = 1;
+static float yaw=0.f,pitch=0.f,roll=0.f;
+static const int maxNumObjects = 4;
+static const int numObjects = 1;
 
 /// simplex contains the vertices, and some extra code to draw and debug
-GL_Simplex1to4	simplex;
+static GL_Simplex1to4	simplex;
 
-btCollisionShape*	shapePtr[maxNumObjects];
-btTransform transforms[maxNumObjects];
+static btCollisionShape*	shapePtr[maxNumObjects];
+static btTransform transforms[maxNumObjects];
 
 renderTexture*	raytracePicture = 0;
 
 //this applies to the raytracer virtual screen/image buffer
-int screenWidth = 128;
+static int screenWidth = 128;
 //float aspectRatio = (3.f/4.f);
-int screenHeight = 128;//screenWidth * aspectRatio;
+static int screenHeight = 128;//screenWidth * aspectRatio;
 GLuint glTextureId;
 
 btSphereShape	mySphere(1);
@@ -127,7 +127,6 @@ btCompoundShape compound;
 
 
 btMinkowskiSumShape myMink(&myCylinder,&myBox);
-GLDebugDrawer debugDrawer;
 
 
 
@@ -135,16 +134,6 @@ GLDebugDrawer debugDrawer;
 ///
 ///
 ///
-int main(int argc,char** argv)
-{
-	Raytracer* raytraceDemo = new Raytracer();
-
-	raytraceDemo->initPhysics();
-	
-	raytraceDemo->setCameraDistance(6.f);
-
-	return glutmain(argc, argv,640,640,"Bullet GJK Implicit Shape Raytracer Demo",raytraceDemo);
-}
 
 void	Raytracer::initPhysics()
 {
@@ -502,8 +491,6 @@ void Raytracer::displayCallback()
 		{
 			btVector3 aabbMin,aabbMax;
 			shapePtr[i]->getAabb(transforms[i],aabbMin,aabbMax);
-			debugDrawer.setDebugMode(1);
-			debugDrawer.drawAabb(aabbMin,aabbMax,btVector3(255,0,0));
 		}
 	}
 
