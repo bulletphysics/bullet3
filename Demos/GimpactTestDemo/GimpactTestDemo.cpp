@@ -56,6 +56,27 @@ Real			dts = 1.0 / 60.0;
 
 
 
+GimpactConcaveDemo::~GimpactConcaveDemo()
+{
+	delete m_dynamicsWorld;
+
+	delete m_indexVertexArrays;
+	delete m_trimeshShape;
+
+	delete m_indexVertexArrays2;
+	delete m_trimeshShape2;
+
+	delete m_gimpactCollisionCreateFunc;
+
+	delete m_collisionConfiguration;
+	delete m_dispatcher;
+	delete m_broadphase;
+	delete m_constraintSolver;
+
+}
+
+
+
 //------------------------------------------------------------------------------
 ///User can override this material combiner by implementing gContactAddedCallback and setting body0->m_collisionFlags |= btCollisionObject::customMaterialCallback;
 inline btScalar	calculateCombinedFriction(float friction0,float friction1)
@@ -279,6 +300,7 @@ void	GimpactConcaveDemo::initGImpactCollision()
 			3*sizeof(int),
 			NUM_VERTICES,
 			(Real*) &gVertices[0],sizeof(Real)*3);
+
 
 #ifdef BULLET_GIMPACT
 		#ifdef BULLET_GIMPACT_CONVEX_DECOMPOSITION

@@ -304,6 +304,9 @@
 			<File
 				RelativePath="..\..\Demos\GimpactTestDemo\GimpactTestDemo.cpp">
 			</File>
+			<File
+				RelativePath="..\..\Demos\GimpactTestDemo\main.cpp">
+			</File>
 		</Filter>
 		<Filter
 			Name="Header Files"

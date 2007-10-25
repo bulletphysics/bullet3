@@ -302,6 +302,9 @@
 			Name="Source Files"
 			Filter="">
 			<File
+				RelativePath="..\..\Demos\VehicleDemo\main.cpp">
+			</File>
+			<File
 				RelativePath="..\..\Demos\VehicleDemo\VehicleDemo.cpp">
 			</File>
 		</Filter>

@@ -18,6 +18,8 @@ subject to the following restrictions:
 
 #include "btStridingMeshInterface.h"
 #include "LinearMath/btAlignedObjectArray.h"
+#include "LinearMath/btScalar.h"
+
 
 ///IndexedMesh indexes into existing vertex and index arrays, in a similar way OpenGL glDrawElements
 ///instead of the number of indices, we pass the number of triangles
@@ -56,6 +58,8 @@ public:
 	btTriangleIndexVertexArray()
 	{
 	}
+
+	virtual ~btTriangleIndexVertexArray();
 
 	//just to be backwards compatible
 	btTriangleIndexVertexArray(int numTriangleIndices,int* triangleIndexBase,int triangleIndexStride,int numVertices,btScalar* vertexBase,int vertexStride);

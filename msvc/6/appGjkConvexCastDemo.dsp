@@ -172,6 +172,10 @@ SOURCE="$(InputPath)"
 
 SOURCE=..\..\Demos\GjkConvexCastDemo\LinearConvexCastDemo.cpp
 # End Source File
+# Begin Source File
+
+SOURCE=..\..\Demos\GjkConvexCastDemo\main.cpp
+# End Source File
 # End Group
 # Begin Group "Header Files"
 

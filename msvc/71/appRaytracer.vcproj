@@ -302,6 +302,9 @@
 			Name="Source Files"
 			Filter="">
 			<File
+				RelativePath="..\..\Demos\Raytracer\main.cpp">
+			</File>
+			<File
 				RelativePath="..\..\Demos\Raytracer\Raytracer.cpp">
 			</File>
 		</Filter>

@@ -172,6 +172,10 @@ SOURCE="$(InputPath)"
 
 SOURCE=..\..\Demos\ConstraintDemo\ConstraintDemo.cpp
 # End Source File
+# Begin Source File
+
+SOURCE=..\..\Demos\ConstraintDemo\main.cpp
+# End Source File
 # End Group
 # Begin Group "Header Files"
 

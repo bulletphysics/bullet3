@@ -170,6 +170,10 @@ SOURCE="$(InputPath)"
 # PROP Default_Filter ""
 # Begin Source File
 
+SOURCE=..\..\Demos\Raytracer\main.cpp
+# End Source File
+# Begin Source File
+
 SOURCE=..\..\Demos\Raytracer\Raytracer.cpp
 # End Source File
 # End Group

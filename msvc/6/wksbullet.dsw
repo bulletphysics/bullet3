@@ -3,7 +3,7 @@ Microsoft Developer Studio Workspace File, Format Version 6.00
 
 ###############################################################################
 
-Project: "appAllBulletDemos"=.\appAllBulletDemos.dsp - Package Owner=<4>
+Project: "appAllBulletDemos"=".\appAllBulletDemos.dsp" - Package Owner=<4>
 
 Package=<5>
 {{{
@@ -25,6 +25,12 @@ Package=<4>
     End Project Dependency
     Begin Project Dependency
     Project_Dep_Name libconvexdecomposition
+    End Project Dependency
+    Begin Project Dependency
+    Project_Dep_Name libGIMPACT
+    End Project Dependency
+    Begin Project Dependency
+    Project_Dep_Name libGIMPACTUtils
     End Project Dependency
     Begin Project Dependency
     Project_Dep_Name libglui
@@ -33,7 +39,7 @@ Package=<4>
 
 ###############################################################################
 
-Project: "appBasicDemo"=.\appBasicDemo.dsp - Package Owner=<4>
+Project: "appBasicDemo"=".\appBasicDemo.dsp" - Package Owner=<4>
 
 Package=<5>
 {{{
@@ -57,7 +63,7 @@ Package=<4>
 
 ###############################################################################
 
-Project: "appBspDemo"=.\appBspDemo.dsp - Package Owner=<4>
+Project: "appBspDemo"=".\appBspDemo.dsp" - Package Owner=<4>
 
 Package=<5>
 {{{
@@ -81,7 +87,7 @@ Package=<4>
 
 ###############################################################################
 
-Project: "appBulletDino"=.\appBulletDino.dsp - Package Owner=<4>
+Project: "appBulletDino"=".\appBulletDino.dsp" - Package Owner=<4>
 
 Package=<5>
 {{{
@@ -105,7 +111,7 @@ Package=<4>
 
 ###############################################################################
 
-Project: "appCcdPhysicsDemo"=.\appCcdPhysicsDemo.dsp - Package Owner=<4>
+Project: "appCcdPhysicsDemo"=".\appCcdPhysicsDemo.dsp" - Package Owner=<4>
 
 Package=<5>
 {{{
@@ -129,40 +135,7 @@ Package=<4>
 
 ###############################################################################
 
-Project: "appColladaDemo"=.\appColladaDemo.dsp - Package Owner=<4>
-
-Package=<5>
-{{{
-}}}
-
-Package=<4>
-{{{
-    Begin Project Dependency
-    Project_Dep_Name libBulletColladaConverter
-    End Project Dependency
-    Begin Project Dependency
-    Project_Dep_Name libbulletcollision
-    End Project Dependency
-    Begin Project Dependency
-    Project_Dep_Name libbulletdynamics
-    End Project Dependency
-    Begin Project Dependency
-    Project_Dep_Name libbulletmath
-    End Project Dependency
-    Begin Project Dependency
-    Project_Dep_Name libbulletopenglsupport
-    End Project Dependency
-    Begin Project Dependency
-    Project_Dep_Name libcolladadom
-    End Project Dependency
-    Begin Project Dependency
-    Project_Dep_Name liblibxml
-    End Project Dependency
-}}}
-
-###############################################################################
-
-Project: "appCollisionDemo"=.\appCollisionDemo.dsp - Package Owner=<4>
+Project: "appCollisionDemo"=".\appCollisionDemo.dsp" - Package Owner=<4>
 
 Package=<5>
 {{{
@@ -186,7 +159,7 @@ Package=<4>
 
 ###############################################################################
 
-Project: "appCollisionInterfaceDemo"=.\appCollisionInterfaceDemo.dsp - Package Owner=<4>
+Project: "appCollisionInterfaceDemo"=".\appCollisionInterfaceDemo.dsp" - Package Owner=<4>
 
 Package=<5>
 {{{
@@ -210,7 +183,7 @@ Package=<4>
 
 ###############################################################################
 
-Project: "appConcaveDemo"=.\appConcaveDemo.dsp - Package Owner=<4>
+Project: "appConcaveDemo"=".\appConcaveDemo.dsp" - Package Owner=<4>
 
 Package=<5>
 {{{
@@ -234,7 +207,7 @@ Package=<4>
 
 ###############################################################################
 
-Project: "appConstraintDemo"=.\appConstraintDemo.dsp - Package Owner=<4>
+Project: "appConstraintDemo"=".\appConstraintDemo.dsp" - Package Owner=<4>
 
 Package=<5>
 {{{
@@ -258,7 +231,7 @@ Package=<4>
 
 ###############################################################################
 
-Project: "appContinuousConvexCollision"=.\appContinuousConvexCollision.dsp - Package Owner=<4>
+Project: "appContinuousConvexCollision"=".\appContinuousConvexCollision.dsp" - Package Owner=<4>
 
 Package=<5>
 {{{
@@ -282,7 +255,7 @@ Package=<4>
 
 ###############################################################################
 
-Project: "appConvexDecompositionDemo"=.\appConvexDecompositionDemo.dsp - Package Owner=<4>
+Project: "appConvexDecompositionDemo"=".\appConvexDecompositionDemo.dsp" - Package Owner=<4>
 
 Package=<5>
 {{{
@@ -309,7 +282,7 @@ Package=<4>
 
 ###############################################################################
 
-Project: "appDoublePrecisionDemo"=.\appDoublePrecisionDemo.dsp - Package Owner=<4>
+Project: "appDoublePrecisionDemo"=".\appDoublePrecisionDemo.dsp" - Package Owner=<4>
 
 Package=<5>
 {{{
@@ -333,7 +306,7 @@ Package=<4>
 
 ###############################################################################
 
-Project: "appEPAPenDepthDemo"=.\appEPAPenDepthDemo.dsp - Package Owner=<4>
+Project: "appEPAPenDepthDemo"=".\appEPAPenDepthDemo.dsp" - Package Owner=<4>
 
 Package=<5>
 {{{
@@ -360,7 +333,7 @@ Package=<4>
 
 ###############################################################################
 
-Project: "appGenericJointDemo"=.\appGenericJointDemo.dsp - Package Owner=<4>
+Project: "appGenericJointDemo"=".\appGenericJointDemo.dsp" - Package Owner=<4>
 
 Package=<5>
 {{{
@@ -384,7 +357,7 @@ Package=<4>
 
 ###############################################################################
 
-Project: "appGimpactTestDemo"=.\appGimpactTestDemo.dsp - Package Owner=<4>
+Project: "appGimpactTestDemo"=".\appGimpactTestDemo.dsp" - Package Owner=<4>
 
 Package=<5>
 {{{
@@ -417,7 +390,7 @@ Package=<4>
 
 ###############################################################################
 
-Project: "appGjkConvexCastDemo"=.\appGjkConvexCastDemo.dsp - Package Owner=<4>
+Project: "appGjkConvexCastDemo"=".\appGjkConvexCastDemo.dsp" - Package Owner=<4>
 
 Package=<5>
 {{{
@@ -441,7 +414,7 @@ Package=<4>
 
 ###############################################################################
 
-Project: "appMovingConcaveDemo"=.\appMovingConcaveDemo.dsp - Package Owner=<4>
+Project: "appMovingConcaveDemo"=".\appMovingConcaveDemo.dsp" - Package Owner=<4>
 
 Package=<5>
 {{{
@@ -468,7 +441,7 @@ Package=<4>
 
 ###############################################################################
 
-Project: "appRagdollDemo"=.\appRagdollDemo.dsp - Package Owner=<4>
+Project: "appRagdollDemo"=".\appRagdollDemo.dsp" - Package Owner=<4>
 
 Package=<5>
 {{{
@@ -492,7 +465,7 @@ Package=<4>
 
 ###############################################################################
 
-Project: "appRaytracer"=.\appRaytracer.dsp - Package Owner=<4>
+Project: "appRaytracer"=".\appRaytracer.dsp" - Package Owner=<4>
 
 Package=<5>
 {{{
@@ -516,7 +489,7 @@ Package=<4>
 
 ###############################################################################
 
-Project: "appSimplexDemo"=.\appSimplexDemo.dsp - Package Owner=<4>
+Project: "appSimplexDemo"=".\appSimplexDemo.dsp" - Package Owner=<4>
 
 Package=<5>
 {{{
@@ -540,7 +513,7 @@ Package=<4>
 
 ###############################################################################
 
-Project: "appUserCollisionAlgorithm"=.\appUserCollisionAlgorithm.dsp - Package Owner=<4>
+Project: "appUserCollisionAlgorithm"=".\appUserCollisionAlgorithm.dsp" - Package Owner=<4>
 
 Package=<5>
 {{{
@@ -564,7 +537,7 @@ Package=<4>
 
 ###############################################################################
 
-Project: "appVehicleDemo"=.\appVehicleDemo.dsp - Package Owner=<4>
+Project: "appVehicleDemo"=".\appVehicleDemo.dsp" - Package Owner=<4>
 
 Package=<5>
 {{{
@@ -588,7 +561,7 @@ Package=<4>
 
 ###############################################################################
 
-Project: "grpall_bullet"=.\grpall_bullet.dsp - Package Owner=<4>
+Project: "grpall_bullet"=".\grpall_bullet.dsp" - Package Owner=<4>
 
 Package=<5>
 {{{
@@ -610,9 +583,6 @@ Package=<4>
     End Project Dependency
     Begin Project Dependency
     Project_Dep_Name appCcdPhysicsDemo
-    End Project Dependency
-    Begin Project Dependency
-    Project_Dep_Name appColladaDemo
     End Project Dependency
     Begin Project Dependency
     Project_Dep_Name appCollisionDemo
@@ -687,9 +657,6 @@ Package=<4>
     Project_Dep_Name libbulletopenglsupport
     End Project Dependency
     Begin Project Dependency
-    Project_Dep_Name libcolladadom
-    End Project Dependency
-    Begin Project Dependency
     Project_Dep_Name libconvexdecomposition
     End Project Dependency
     Begin Project Dependency
@@ -702,16 +669,13 @@ Package=<4>
     Project_Dep_Name libglui
     End Project Dependency
     Begin Project Dependency
-    Project_Dep_Name liblibxml
-    End Project Dependency
-    Begin Project Dependency
     Project_Dep_Name libquickstep
     End Project Dependency
 }}}
 
 ###############################################################################
 
-Project: "grpapps_bullet"=.\grpapps_bullet.dsp - Package Owner=<4>
+Project: "grpapps_bullet"=".\grpapps_bullet.dsp" - Package Owner=<4>
 
 Package=<5>
 {{{
@@ -733,9 +697,6 @@ Package=<4>
     End Project Dependency
     Begin Project Dependency
     Project_Dep_Name appCcdPhysicsDemo
-    End Project Dependency
-    Begin Project Dependency
-    Project_Dep_Name appColladaDemo
     End Project Dependency
     Begin Project Dependency
     Project_Dep_Name appCollisionDemo
@@ -792,7 +753,7 @@ Package=<4>
 
 ###############################################################################
 
-Project: "grplibs_bullet"=.\grplibs_bullet.dsp - Package Owner=<4>
+Project: "grplibs_bullet"=".\grplibs_bullet.dsp" - Package Owner=<4>
 
 Package=<5>
 {{{
@@ -822,9 +783,6 @@ Package=<4>
     Project_Dep_Name libbulletopenglsupport
     End Project Dependency
     Begin Project Dependency
-    Project_Dep_Name libcolladadom
-    End Project Dependency
-    Begin Project Dependency
     Project_Dep_Name libconvexdecomposition
     End Project Dependency
     Begin Project Dependency
@@ -837,16 +795,13 @@ Package=<4>
     Project_Dep_Name libglui
     End Project Dependency
     Begin Project Dependency
-    Project_Dep_Name liblibxml
-    End Project Dependency
-    Begin Project Dependency
     Project_Dep_Name libquickstep
     End Project Dependency
 }}}
 
 ###############################################################################
 
-Project: "libboxbox"=.\libboxbox.dsp - Package Owner=<4>
+Project: "libBulletColladaConverter"=".\libBulletColladaConverter.dsp" - Package Owner=<4>
 
 Package=<5>
 {{{
@@ -858,7 +813,7 @@ Package=<4>
 
 ###############################################################################
 
-Project: "libBulletColladaConverter"=.\libBulletColladaConverter.dsp - Package Owner=<4>
+Project: "libGIMPACT"=".\libGIMPACT.dsp" - Package Owner=<4>
 
 Package=<5>
 {{{
@@ -870,7 +825,7 @@ Package=<4>
 
 ###############################################################################
 
-Project: "libbulletcollision"=.\libbulletcollision.dsp - Package Owner=<4>
+Project: "libGIMPACTUtils"=".\libGIMPACTUtils.dsp" - Package Owner=<4>
 
 Package=<5>
 {{{
@@ -882,7 +837,7 @@ Package=<4>
 
 ###############################################################################
 
-Project: "libbulletdynamics"=.\libbulletdynamics.dsp - Package Owner=<4>
+Project: "libboxbox"=".\libboxbox.dsp" - Package Owner=<4>
 
 Package=<5>
 {{{
@@ -894,7 +849,7 @@ Package=<4>
 
 ###############################################################################
 
-Project: "libbulletmath"=.\libbulletmath.dsp - Package Owner=<4>
+Project: "libbulletcollision"=".\libbulletcollision.dsp" - Package Owner=<4>
 
 Package=<5>
 {{{
@@ -906,7 +861,7 @@ Package=<4>
 
 ###############################################################################
 
-Project: "libbulletmultithreaded"=.\libbulletmultithreaded.dsp - Package Owner=<4>
+Project: "libbulletdynamics"=".\libbulletdynamics.dsp" - Package Owner=<4>
 
 Package=<5>
 {{{
@@ -918,7 +873,7 @@ Package=<4>
 
 ###############################################################################
 
-Project: "libbulletopenglsupport"=.\libbulletopenglsupport.dsp - Package Owner=<4>
+Project: "libbulletmath"=".\libbulletmath.dsp" - Package Owner=<4>
 
 Package=<5>
 {{{
@@ -930,7 +885,7 @@ Package=<4>
 
 ###############################################################################
 
-Project: "libcolladadom"=.\libcolladadom.dsp - Package Owner=<4>
+Project: "libbulletmultithreaded"=".\libbulletmultithreaded.dsp" - Package Owner=<4>
 
 Package=<5>
 {{{
@@ -942,7 +897,7 @@ Package=<4>
 
 ###############################################################################
 
-Project: "libconvexdecomposition"=.\libconvexdecomposition.dsp - Package Owner=<4>
+Project: "libbulletopenglsupport"=".\libbulletopenglsupport.dsp" - Package Owner=<4>
 
 Package=<5>
 {{{
@@ -954,7 +909,7 @@ Package=<4>
 
 ###############################################################################
 
-Project: "libGIMPACT"=.\libGIMPACT.dsp - Package Owner=<4>
+Project: "libconvexdecomposition"=".\libconvexdecomposition.dsp" - Package Owner=<4>
 
 Package=<5>
 {{{
@@ -966,7 +921,7 @@ Package=<4>
 
 ###############################################################################
 
-Project: "libGIMPACTUtils"=.\libGIMPACTUtils.dsp - Package Owner=<4>
+Project: "libglui"=".\libglui.dsp" - Package Owner=<4>
 
 Package=<5>
 {{{
@@ -978,31 +933,7 @@ Package=<4>
 
 ###############################################################################
 
-Project: "libglui"=.\libglui.dsp - Package Owner=<4>
-
-Package=<5>
-{{{
-}}}
-
-Package=<4>
-{{{
-}}}
-
-###############################################################################
-
-Project: "liblibxml"=.\liblibxml.dsp - Package Owner=<4>
-
-Package=<5>
-{{{
-}}}
-
-Package=<4>
-{{{
-}}}
-
-###############################################################################
-
-Project: "libquickstep"=.\libquickstep.dsp - Package Owner=<4>
+Project: "libquickstep"=".\libquickstep.dsp" - Package Owner=<4>
 
 Package=<5>
 {{{

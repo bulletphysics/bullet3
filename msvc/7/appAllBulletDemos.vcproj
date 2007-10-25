@@ -32,7 +32,7 @@
 				OptimizeForProcessor="1"
 				ExceptionHandling="0"
 				AdditionalOptions=" "
-				AdditionalIncludeDirectories=".;..\..;..\..\src;..\..\Glut;..\..\Extras;..\..\Demos\OpenGL;..\..\Extras\ConvexDecomposition"
+				AdditionalIncludeDirectories=".;..\..;..\..\src;..\..\Glut;..\..\Extras;..\..\Demos\OpenGL;..\..\Extras\ConvexDecomposition;..\..\Extras\GIMPACT\include;..\..\Extras\GIMPACTUtils"
 				PrecompiledHeaderFile="..\..\out\release7\build\appAllBulletDemos\appAllBulletDemos.pch"
 				AssemblerListingLocation="..\..\out\release7\build\appAllBulletDemos\"
 				ObjectFile="..\..\out\release7\build\appAllBulletDemos\"
@@ -81,7 +81,7 @@
 			<Tool
 				Name="VCResourceCompilerTool"
 				PreprocessorDefinitions="NDEBUG;_CONSOLE;PROJECTGEN_VERSION=7"
-				AdditionalIncludeDirectories=".;..\..;..\..\src;..\..\Glut;..\..\Extras;..\..\Demos\OpenGL;..\..\Extras\ConvexDecomposition"
+				AdditionalIncludeDirectories=".;..\..;..\..\src;..\..\Glut;..\..\Extras;..\..\Demos\OpenGL;..\..\Extras\ConvexDecomposition;..\..\Extras\GIMPACT\include;..\..\Extras\GIMPACTUtils"
 				Culture="1033"/>
 			<Tool
 				Name="VCWebServiceProxyGeneratorTool"/>
@@ -102,7 +102,7 @@
 				OptimizeForProcessor="1"
 				ExceptionHandling="0"
 				AdditionalOptions=" "
-				AdditionalIncludeDirectories=".;..\..;..\..\src;..\..\Glut;..\..\Extras;..\..\Demos\OpenGL;..\..\Extras\ConvexDecomposition"
+				AdditionalIncludeDirectories=".;..\..;..\..\src;..\..\Glut;..\..\Extras;..\..\Demos\OpenGL;..\..\Extras\ConvexDecomposition;..\..\Extras\GIMPACT\include;..\..\Extras\GIMPACTUtils"
 				PrecompiledHeaderFile="..\..\out\release_dbl7\build\appAllBulletDemos\appAllBulletDemos.pch"
 				AssemblerListingLocation="..\..\out\release_dbl7\build\appAllBulletDemos\"
 				ObjectFile="..\..\out\release_dbl7\build\appAllBulletDemos\"
@@ -146,7 +146,7 @@
 			<Tool
 				Name="VCResourceCompilerTool"
 				PreprocessorDefinitions="NDEBUG;BT_USE_DOUBLE_PRECISION;_CONSOLE;PROJECTGEN_VERSION=7"
-				AdditionalIncludeDirectories=".;..\..;..\..\src;..\..\Glut;..\..\Extras;..\..\Demos\OpenGL;..\..\Extras\ConvexDecomposition"
+				AdditionalIncludeDirectories=".;..\..;..\..\src;..\..\Glut;..\..\Extras;..\..\Demos\OpenGL;..\..\Extras\ConvexDecomposition;..\..\Extras\GIMPACT\include;..\..\Extras\GIMPACTUtils"
 				Culture="1033"/>
 			<Tool
 				Name="VCWebServiceProxyGeneratorTool"/>
@@ -172,7 +172,7 @@
 				OptimizeForProcessor="1"
 				ExceptionHandling="0"
 				AdditionalOptions=" "
-				AdditionalIncludeDirectories=".;..\..;..\..\src;..\..\Glut;..\..\Extras;..\..\Demos\OpenGL;..\..\Extras\ConvexDecomposition"
+				AdditionalIncludeDirectories=".;..\..;..\..\src;..\..\Glut;..\..\Extras;..\..\Demos\OpenGL;..\..\Extras\ConvexDecomposition;..\..\Extras\GIMPACT\include;..\..\Extras\GIMPACTUtils"
 				PrecompiledHeaderFile="..\..\out\debug7\build\appAllBulletDemos\appAllBulletDemos.pch"
 				AssemblerListingLocation="..\..\out\debug7\build\appAllBulletDemos\"
 				ObjectFile="..\..\out\debug7\build\appAllBulletDemos\"
@@ -219,7 +219,7 @@
 			<Tool
 				Name="VCResourceCompilerTool"
 				PreprocessorDefinitions="_DEBUG;_CONSOLE;PROJECTGEN_VERSION=7"
-				AdditionalIncludeDirectories=".;..\..;..\..\src;..\..\Glut;..\..\Extras;..\..\Demos\OpenGL;..\..\Extras\ConvexDecomposition"
+				AdditionalIncludeDirectories=".;..\..;..\..\src;..\..\Glut;..\..\Extras;..\..\Demos\OpenGL;..\..\Extras\ConvexDecomposition;..\..\Extras\GIMPACT\include;..\..\Extras\GIMPACTUtils"
 				Culture="1033"/>
 			<Tool
 				Name="VCWebServiceProxyGeneratorTool"/>
@@ -245,7 +245,7 @@
 				OptimizeForProcessor="1"
 				ExceptionHandling="0"
 				AdditionalOptions=" "
-				AdditionalIncludeDirectories=".;..\..;..\..\src;..\..\Glut;..\..\Extras;..\..\Demos\OpenGL;..\..\Extras\ConvexDecomposition"
+				AdditionalIncludeDirectories=".;..\..;..\..\src;..\..\Glut;..\..\Extras;..\..\Demos\OpenGL;..\..\Extras\ConvexDecomposition;..\..\Extras\GIMPACT\include;..\..\Extras\GIMPACTUtils"
 				PrecompiledHeaderFile="..\..\out\debug_dbl7\build\appAllBulletDemos\appAllBulletDemos.pch"
 				AssemblerListingLocation="..\..\out\debug_dbl7\build\appAllBulletDemos\"
 				ObjectFile="..\..\out\debug_dbl7\build\appAllBulletDemos\"
@@ -289,7 +289,7 @@
 			<Tool
 				Name="VCResourceCompilerTool"
 				PreprocessorDefinitions="_DEBUG;BT_USE_DOUBLE_PRECISION;_CONSOLE;PROJECTGEN_VERSION=7"
-				AdditionalIncludeDirectories=".;..\..;..\..\src;..\..\Glut;..\..\Extras;..\..\Demos\OpenGL;..\..\Extras\ConvexDecomposition"
+				AdditionalIncludeDirectories=".;..\..;..\..\src;..\..\Glut;..\..\Extras;..\..\Demos\OpenGL;..\..\Extras\ConvexDecomposition;..\..\Extras\GIMPACT\include;..\..\Extras\GIMPACTUtils"
 				Culture="1033"/>
 			<Tool
 				Name="VCWebServiceProxyGeneratorTool"/>
@@ -320,10 +320,25 @@
 				RelativePath="..\..\Demos\AllBulletDemos\..\ConcaveDemo\ConcavePhysicsDemo.cpp">
 			</File>
 			<File
+				RelativePath="..\..\Demos\AllBulletDemos\..\ConstraintDemo\ConstraintDemo.cpp">
+			</File>
+			<File
 				RelativePath="..\..\Demos\AllBulletDemos\..\ConvexDecompositionDemo\ConvexDecompositionDemo.cpp">
 			</File>
 			<File
+				RelativePath="..\..\Demos\AllBulletDemos\..\GimpactTestDemo\GimpactTestDemo.cpp">
+			</File>
+			<File
+				RelativePath="..\..\Demos\AllBulletDemos\..\GjkConvexCastDemo\LinearConvexCastDemo.cpp">
+			</File>
+			<File
 				RelativePath="..\..\Demos\AllBulletDemos\..\RagdollDemo\RagdollDemo.cpp">
+			</File>
+			<File
+				RelativePath="..\..\Demos\AllBulletDemos\..\Raytracer\Raytracer.cpp">
+			</File>
+			<File
+				RelativePath="..\..\Demos\AllBulletDemos\..\VehicleDemo\VehicleDemo.cpp">
 			</File>
 			<File
 				RelativePath="..\..\Demos\AllBulletDemos\DemoEntries.cpp">

@@ -65,24 +65,8 @@ public:
 	{
 	}
 
-	virtual ~GimpactConcaveDemo()
-	{
-		delete m_dynamicsWorld;
+	virtual ~GimpactConcaveDemo();
 
-		delete m_indexVertexArrays;
-		delete m_trimeshShape;
-
-		delete m_indexVertexArrays2;
-		delete m_trimeshShape2;
-
-		delete m_gimpactCollisionCreateFunc;
-
-		delete m_collisionConfiguration;
-		delete m_dispatcher;
-		delete m_broadphase;
-		delete m_constraintSolver;
-
-	}
 
 	void	initGImpactCollision();
 	void	initPhysics();

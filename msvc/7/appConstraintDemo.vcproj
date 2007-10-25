@@ -304,6 +304,9 @@
 			<File
 				RelativePath="..\..\Demos\ConstraintDemo\ConstraintDemo.cpp">
 			</File>
+			<File
+				RelativePath="..\..\Demos\ConstraintDemo\main.cpp">
+			</File>
 		</Filter>
 		<Filter
 			Name="Header Files"

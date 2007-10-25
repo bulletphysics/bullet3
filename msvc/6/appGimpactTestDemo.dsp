@@ -172,6 +172,10 @@ SOURCE="$(InputPath)"
 
 SOURCE=..\..\Demos\GimpactTestDemo\GimpactTestDemo.cpp
 # End Source File
+# Begin Source File
+
+SOURCE=..\..\Demos\GimpactTestDemo\main.cpp
+# End Source File
 # End Group
 # Begin Group "Header Files"
 

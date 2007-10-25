@@ -45,11 +45,11 @@ RSC=rc.exe
 # PROP Ignore_Export_Lib 0
 # PROP Target_Dir ""
 # ADD BASE CPP /nologo /vmb /vms /W3 /Gm /G5 /D "WIN32" /FD /c
-# ADD CPP /nologo /vmb /vms /W3 /Gm /G5 /FD /c /Gy /GF /MD /Ob2 /Og /Oi /Ot /Oy /D "_MT" /D "_MBCS" /D "NDEBUG" /D "_CONSOLE" /D "WIN32"  /I "." /I "..\.." /I "..\..\src" /I "..\..\Glut" /I "..\..\Extras" /I "..\..\Demos\OpenGL" /I "..\..\Extras\ConvexDecomposition"
+# ADD CPP /nologo /vmb /vms /W3 /Gm /G5 /FD /c /Gy /GF /MD /Ob2 /Og /Oi /Ot /Oy /D "_MT" /D "_MBCS" /D "NDEBUG" /D "_CONSOLE" /D "WIN32"  /I "." /I "..\.." /I "..\..\src" /I "..\..\Glut" /I "..\..\Extras" /I "..\..\Demos\OpenGL" /I "..\..\Extras\ConvexDecomposition" /I "..\..\Extras\GIMPACT\include" /I "..\..\Extras\GIMPACTUtils"
 # ADD BASE MTL /nologo /mktyplib203 /o "NUL" /win32
 # ADD MTL /nologo /mktyplib203 /o "NUL" /win32 /D "NDEBUG" /D "_CONSOLE"
 # ADD BASE RSC /l 0x409
-# ADD RSC /l 0x409 /fo".\..\..\out\release6\build\appAllBulletDemos\appAllBulletDemos.res" /i "." /i "..\.." /i "..\..\src" /i "..\..\Glut" /i "..\..\Extras" /i "..\..\Demos\OpenGL" /i "..\..\Extras\ConvexDecomposition"
+# ADD RSC /l 0x409 /fo".\..\..\out\release6\build\appAllBulletDemos\appAllBulletDemos.res" /i "." /i "..\.." /i "..\..\src" /i "..\..\Glut" /i "..\..\Extras" /i "..\..\Demos\OpenGL" /i "..\..\Extras\ConvexDecomposition" /i "..\..\Extras\GIMPACT\include" /i "..\..\Extras\GIMPACTUtils"
 BSC32=bscmake.exe
 # ADD BASE BSC32 /nologo
 # ADD BSC32 /nologo
@@ -76,11 +76,11 @@ SOURCE="$(InputPath)"
 # PROP Intermediate_Dir "..\..\out\release_dbl6\build\appAllBulletDemos\"
 # PROP Target_Dir ""
 # ADD BASE CPP /nologo /vmb /vms /W3 /Gm /G5 /D "WIN32" /FD /c
-# ADD CPP /nologo /vmb /vms /W3 /Gm /G5 /FD /c  /D "_MT" /D "_MBCS" /D "NDEBUG" /D "BT_USE_DOUBLE_PRECISION" /D "_CONSOLE" /D "WIN32"  /I "." /I "..\.." /I "..\..\src" /I "..\..\Glut" /I "..\..\Extras" /I "..\..\Demos\OpenGL" /I "..\..\Extras\ConvexDecomposition"
+# ADD CPP /nologo /vmb /vms /W3 /Gm /G5 /FD /c  /D "_MT" /D "_MBCS" /D "NDEBUG" /D "BT_USE_DOUBLE_PRECISION" /D "_CONSOLE" /D "WIN32"  /I "." /I "..\.." /I "..\..\src" /I "..\..\Glut" /I "..\..\Extras" /I "..\..\Demos\OpenGL" /I "..\..\Extras\ConvexDecomposition" /I "..\..\Extras\GIMPACT\include" /I "..\..\Extras\GIMPACTUtils"
 # ADD BASE MTL /nologo /mktyplib203 /o "NUL" /win32
 # ADD MTL /nologo /mktyplib203 /o "NUL" /win32 /D "NDEBUG" /D "BT_USE_DOUBLE_PRECISION" /D "_CONSOLE"
 # ADD BASE RSC /l 0x409
-# ADD RSC /l 0x409 /fo".\..\..\out\release_dbl6\build\appAllBulletDemos\appAllBulletDemos.res" /i "." /i "..\.." /i "..\..\src" /i "..\..\Glut" /i "..\..\Extras" /i "..\..\Demos\OpenGL" /i "..\..\Extras\ConvexDecomposition"
+# ADD RSC /l 0x409 /fo".\..\..\out\release_dbl6\build\appAllBulletDemos\appAllBulletDemos.res" /i "." /i "..\.." /i "..\..\src" /i "..\..\Glut" /i "..\..\Extras" /i "..\..\Demos\OpenGL" /i "..\..\Extras\ConvexDecomposition" /i "..\..\Extras\GIMPACT\include" /i "..\..\Extras\GIMPACTUtils"
 BSC32=bscmake.exe
 # ADD BASE BSC32 /nologo
 # ADD BSC32 /nologo
@@ -108,11 +108,11 @@ SOURCE="$(InputPath)"
 # PROP Ignore_Export_Lib 1
 # PROP Target_Dir ""
 # ADD BASE CPP /nologo /vmb /vms /W3 /Gm /G5 /D "WIN32" /FD /c
-# ADD CPP /nologo /vmb /vms /W3 /Gm /G5 /FD /c /GR /MDd /ZI /Od /D "_MT" /D "_MBCS" /D "_DEBUG" /D "_CONSOLE" /D "WIN32"  /I "." /I "..\.." /I "..\..\src" /I "..\..\Glut" /I "..\..\Extras" /I "..\..\Demos\OpenGL" /I "..\..\Extras\ConvexDecomposition"
+# ADD CPP /nologo /vmb /vms /W3 /Gm /G5 /FD /c /GR /MDd /ZI /Od /D "_MT" /D "_MBCS" /D "_DEBUG" /D "_CONSOLE" /D "WIN32"  /I "." /I "..\.." /I "..\..\src" /I "..\..\Glut" /I "..\..\Extras" /I "..\..\Demos\OpenGL" /I "..\..\Extras\ConvexDecomposition" /I "..\..\Extras\GIMPACT\include" /I "..\..\Extras\GIMPACTUtils"
 # ADD BASE MTL /nologo /mktyplib203 /o "NUL" /win32
 # ADD MTL /nologo /mktyplib203 /o "NUL" /win32 /D "_DEBUG" /D "_CONSOLE"
 # ADD BASE RSC /l 0x409
-# ADD RSC /l 0x409 /fo".\..\..\out\debug6\build\appAllBulletDemos\appAllBulletDemos.res" /i "." /i "..\.." /i "..\..\src" /i "..\..\Glut" /i "..\..\Extras" /i "..\..\Demos\OpenGL" /i "..\..\Extras\ConvexDecomposition"
+# ADD RSC /l 0x409 /fo".\..\..\out\debug6\build\appAllBulletDemos\appAllBulletDemos.res" /i "." /i "..\.." /i "..\..\src" /i "..\..\Glut" /i "..\..\Extras" /i "..\..\Demos\OpenGL" /i "..\..\Extras\ConvexDecomposition" /i "..\..\Extras\GIMPACT\include" /i "..\..\Extras\GIMPACTUtils"
 BSC32=bscmake.exe
 # ADD BASE BSC32 /nologo
 # ADD BSC32 /nologo
@@ -139,11 +139,11 @@ SOURCE="$(InputPath)"
 # PROP Intermediate_Dir "..\..\out\debug_dbl6\build\appAllBulletDemos\"
 # PROP Target_Dir ""
 # ADD BASE CPP /nologo /vmb /vms /W3 /Gm /G5 /D "WIN32" /FD /c
-# ADD CPP /nologo /vmb /vms /W3 /Gm /G5 /FD /c  /D "_MT" /D "_MBCS" /D "_DEBUG" /D "BT_USE_DOUBLE_PRECISION" /D "_CONSOLE" /D "WIN32"  /I "." /I "..\.." /I "..\..\src" /I "..\..\Glut" /I "..\..\Extras" /I "..\..\Demos\OpenGL" /I "..\..\Extras\ConvexDecomposition"
+# ADD CPP /nologo /vmb /vms /W3 /Gm /G5 /FD /c  /D "_MT" /D "_MBCS" /D "_DEBUG" /D "BT_USE_DOUBLE_PRECISION" /D "_CONSOLE" /D "WIN32"  /I "." /I "..\.." /I "..\..\src" /I "..\..\Glut" /I "..\..\Extras" /I "..\..\Demos\OpenGL" /I "..\..\Extras\ConvexDecomposition" /I "..\..\Extras\GIMPACT\include" /I "..\..\Extras\GIMPACTUtils"
 # ADD BASE MTL /nologo /mktyplib203 /o "NUL" /win32
 # ADD MTL /nologo /mktyplib203 /o "NUL" /win32 /D "_DEBUG" /D "BT_USE_DOUBLE_PRECISION" /D "_CONSOLE"
 # ADD BASE RSC /l 0x409
-# ADD RSC /l 0x409 /fo".\..\..\out\debug_dbl6\build\appAllBulletDemos\appAllBulletDemos.res" /i "." /i "..\.." /i "..\..\src" /i "..\..\Glut" /i "..\..\Extras" /i "..\..\Demos\OpenGL" /i "..\..\Extras\ConvexDecomposition"
+# ADD RSC /l 0x409 /fo".\..\..\out\debug_dbl6\build\appAllBulletDemos\appAllBulletDemos.res" /i "." /i "..\.." /i "..\..\src" /i "..\..\Glut" /i "..\..\Extras" /i "..\..\Demos\OpenGL" /i "..\..\Extras\ConvexDecomposition" /i "..\..\Extras\GIMPACT\include" /i "..\..\Extras\GIMPACTUtils"
 BSC32=bscmake.exe
 # ADD BASE BSC32 /nologo
 # ADD BSC32 /nologo
@@ -194,11 +194,31 @@ SOURCE=..\..\Demos\AllBulletDemos\..\ConcaveDemo\ConcavePhysicsDemo.cpp
 # End Source File
 # Begin Source File
 
+SOURCE=..\..\Demos\AllBulletDemos\..\ConstraintDemo\ConstraintDemo.cpp
+# End Source File
+# Begin Source File
+
 SOURCE=..\..\Demos\AllBulletDemos\..\ConvexDecompositionDemo\ConvexDecompositionDemo.cpp
 # End Source File
 # Begin Source File
 
+SOURCE=..\..\Demos\AllBulletDemos\..\GimpactTestDemo\GimpactTestDemo.cpp
+# End Source File
+# Begin Source File
+
+SOURCE=..\..\Demos\AllBulletDemos\..\GjkConvexCastDemo\LinearConvexCastDemo.cpp
+# End Source File
+# Begin Source File
+
 SOURCE=..\..\Demos\AllBulletDemos\..\RagdollDemo\RagdollDemo.cpp
+# End Source File
+# Begin Source File
+
+SOURCE=..\..\Demos\AllBulletDemos\..\Raytracer\Raytracer.cpp
+# End Source File
+# Begin Source File
+
+SOURCE=..\..\Demos\AllBulletDemos\..\VehicleDemo\VehicleDemo.cpp
 # End Source File
 # Begin Source File
 

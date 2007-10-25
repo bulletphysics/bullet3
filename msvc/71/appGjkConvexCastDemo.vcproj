@@ -304,6 +304,9 @@
 			<File
 				RelativePath="..\..\Demos\GjkConvexCastDemo\LinearConvexCastDemo.cpp">
 			</File>
+			<File
+				RelativePath="..\..\Demos\GjkConvexCastDemo\main.cpp">
+			</File>
 		</Filter>
 		<Filter
 			Name="Header Files"
