@@ -57,5 +57,6 @@ LibOpenGLSupport  LibBulletDynamics  LibBulletCollision LibLinearMath    ${GLUT_
 
 ADD_EXECUTABLE(ConstraintDemo
 		ConstraintDemo.cpp
+		main.cpp
 )
 

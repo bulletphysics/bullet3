@@ -57,5 +57,6 @@ LINK_LIBRARIES(
 
 ADD_EXECUTABLE(VehicleDemo
 	VehicleDemo.cpp
+	main.cpp
 )
 
