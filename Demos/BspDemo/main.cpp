@@ -47,7 +47,7 @@ int main(int argc,char** argv)
 	// Enrico: TODO: Should change parameter type of initPhysics() to std::string or at least const char *
 	bspDemo->initPhysics((char*)bspfilename);
 	
-	bspDemo->setCameraDistance(22.f);
+	
 
 	return glutmain(argc, argv,640,480,"Bullet Quake BSP Physics Viewer http://bullet.sourceforge.net",bspDemo);
 }

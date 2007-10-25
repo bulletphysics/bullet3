@@ -541,11 +541,13 @@ void VehicleDemo::specialKeyboard(int key, int x, int y)
     case GLUT_KEY_UP :
 		{
 			gEngineForce = maxEngineForce;
+			gBreakingForce = 0.f;
 		break;
 		}
 	case GLUT_KEY_DOWN :
 		{			
 			gBreakingForce = maxBreakingForce; 
+			gEngineForce = 0.f;
 		break;
 		}
 	default:

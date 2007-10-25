@@ -63,6 +63,8 @@ void	drawLimit()
 
 void	ConstraintDemo::initPhysics()
 {
+	setCameraDistance(26.f);
+
 //	btCollisionShape* groundShape = new btBoxShape(btVector3(50,3,50));
 	btDefaultCollisionConfiguration* collisionConfiguration = new btDefaultCollisionConfiguration();
 	btCollisionDispatcher* dispatcher = new btCollisionDispatcher(collisionConfiguration);

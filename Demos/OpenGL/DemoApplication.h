@@ -100,11 +100,8 @@ public:
 		return m_debugMode ;
 	}
 	
-	void	setDebugMode(int mode)
-	{
-		m_debugMode = mode;
-	}
-
+	void	setDebugMode(int mode);
+	
 	
 	void	setCameraUp(const btVector3& camUp)
 	{

@@ -101,6 +101,8 @@ void	BspDemo::initPhysics(char* bspfilename)
 	m_cameraUp = btVector3(0,0,1);
 	m_forwardAxis = 1;
 
+	setCameraDistance(22.f);
+
 	///Setup a Physics Simulation Environment
 
 	btDefaultCollisionConfiguration* collisionConfiguration = new btDefaultCollisionConfiguration();

@@ -60,7 +60,8 @@ void DrawRasterizerLine(float const* , float const*, int)
 
 void LinearConvexCastDemo::initPhysics()
 {
-	setCameraDistance(30.f);
+
+	setCameraDistance(50.f);
 	tr[0].setOrigin(btVector3(0,0,0));
 	tr[1].setOrigin(btVector3(0,10,0));
 

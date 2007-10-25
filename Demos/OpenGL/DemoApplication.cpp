@@ -372,6 +372,14 @@ void DemoApplication::keyboardCallback(unsigned char key, int x, int y)
 
 }
 	
+void	DemoApplication::setDebugMode(int mode)
+{
+	m_debugMode = mode;
+	if (getDynamicsWorld() && getDynamicsWorld()->getDebugDrawer())
+		getDynamicsWorld()->getDebugDrawer()->setDebugMode(mode);
+}
+
+
 void DemoApplication::specialKeyboardUp(int key, int x, int y)
 {
 

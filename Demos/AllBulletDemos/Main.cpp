@@ -24,6 +24,12 @@
 
 #include "DemoApplication.h"
 #include "DemoEntries.h"
+#include "BulletDynamics/Dynamics/btDiscreteDynamicsWorld.h"
+
+#include "GLDebugDrawer.h"
+
+static GLDebugDrawer gDebugDrawer;
+
 
 namespace
 {
@@ -42,7 +48,12 @@ namespace
 	float viewX = 0.0f;
 	float viewY = 0.0f;
 	int tx, ty, tw, th;
+	int	gDrawAabb=0;
+	int	gDebugDraw=0;
+	int	gDebugContacts=0;
+	int gDebugNoDeactivation = 0;
 }
+
 
 void Resize(int w, int h)
 {
@@ -59,6 +70,18 @@ void Resize(int w, int h)
 
 	if (demo)
 		demo->reshape(w, h);
+}
+
+DemoApplication* CreatDemo(btDemoEntry* entry)
+{
+	DemoApplication* demo = entry->createFcn();
+	btAssert(demo);
+	if (demo->getDynamicsWorld())
+	{
+		demo->getDynamicsWorld()->setDebugDrawer(&gDebugDrawer);
+	}
+	return demo;
+
 }
 
 /*b2Vec2 ConvertScreenToWorld(int x, int y)
@@ -91,6 +114,45 @@ void SimulationLoop()
 
 	//test->SetTextLine(30);
 	//test->Step(&settings);
+	//sync debugging options
+	if (gDrawAabb)
+	{ 
+		demo->setDebugMode(demo->getDebugMode() |btIDebugDraw::DBG_DrawAabb);
+	} else
+	{
+		demo->setDebugMode(demo->getDebugMode() & (~btIDebugDraw::DBG_DrawAabb));
+	}
+	if (gDebugDraw)
+	{
+		demo->setDebugMode(demo->getDebugMode() |btIDebugDraw::DBG_DrawWireframe);
+	} else
+	{
+		demo->setDebugMode(demo->getDebugMode() & (~btIDebugDraw::DBG_DrawWireframe));
+
+	}
+	if (gDebugContacts)
+	{
+		demo->setDebugMode(demo->getDebugMode() |btIDebugDraw::DBG_DrawContactPoints);
+	} else
+	{
+		demo->setDebugMode(demo->getDebugMode() & (~btIDebugDraw::DBG_DrawContactPoints));
+	}
+
+	if (gDebugNoDeactivation)
+	{
+		demo->setDebugMode(demo->getDebugMode() |btIDebugDraw::DBG_NoDeactivation);
+	} else
+	{
+		demo->setDebugMode(demo->getDebugMode() & (~btIDebugDraw::DBG_NoDeactivation));
+	}
+
+	if (demo->getDynamicsWorld()->getWorldType() == BT_DISCRETE_DYNAMICS_WORLD)
+	{
+		btDiscreteDynamicsWorld* discreteWorld = (btDiscreteDynamicsWorld*) demo->getDynamicsWorld();
+		discreteWorld->getSolverInfo().m_numIterations = iterationCount;
+	}
+
+
 	demo->clientMoveAndDisplay();
 
 
@@ -103,7 +165,7 @@ void SimulationLoop()
 		testIndex = testSelection;
 		delete demo;
 		entry = g_demoEntries + testIndex;
-		demo = entry->createFcn();
+		demo = CreatDemo(entry);
 		viewZoom = 20.0f;
 		viewX = 0.0f;
 		viewY = 0.0f;
@@ -123,7 +185,7 @@ void Keyboard(unsigned char key, int x, int y)
 		// Press 'r' to reset.
 	case 'r':
 		delete demo;
-		demo = entry->createFcn();
+		demo = CreatDemo(entry);
 		Resize(width,height);
 		break;
 
@@ -170,8 +232,8 @@ int main(int argc, char** argv)
 	//glutSetOption (GLUT_ACTION_ON_WINDOW_CLOSE, GLUT_ACTION_GLUTMAINLOOP_RETURNS);
 
 	entry = g_demoEntries + testIndex;
-	demo = entry->createFcn();
-
+	demo = CreatDemo(entry);
+	
 	glutDisplayFunc(SimulationLoop);
 	GLUI_Master.set_glutReshapeFunc(Resize);  
 	GLUI_Master.set_glutKeyboardFunc(Keyboard);
@@ -193,21 +255,26 @@ int main(int argc, char** argv)
 		glui->add_spinner("Iterations", GLUI_SPINNER_INT, &iterationCount);
 	iterationSpinner->set_int_limits(1, 100);
 
-	GLUI_Spinner* hertzSpinner =
+/*	GLUI_Spinner* hertzSpinner =
 		glui->add_spinner("Hertz", GLUI_SPINNER_FLOAT, &hz);
 	hertzSpinner->set_float_limits(5.0f, 200.0f);
+*/
 
 //	glui->add_checkbox("Position Correction", &settings.enablePositionCorrection);
 //	glui->add_checkbox("Warm Starting", &settings.enablePositionCorrection);
+	glui->add_checkbox("DisableDeactivation", &gDebugNoDeactivation);
 
 	glui->add_separator();
 
 	GLUI_Panel* drawPanel =	glui->add_panel("Draw");
-//	glui->add_checkbox_to_panel(drawPanel, "AABBs", &settings.drawAABBs);
-//	glui->add_checkbox_to_panel(drawPanel, "Pairs", &settings.drawPairs);
-//	glui->add_checkbox_to_panel(drawPanel, "Contacts", &settings.drawContacts);
+
+	glui->add_checkbox_to_panel(drawPanel, "AABBs", &gDrawAabb);
+	glui->add_checkbox_to_panel(drawPanel, "DebugDrawer", &gDebugDraw);
+	glui->add_checkbox_to_panel(drawPanel, "Contacts", &gDebugContacts);
+
 //	glui->add_checkbox_to_panel(drawPanel, "Impulses", &settings.drawImpulses);
 //	glui->add_checkbox_to_panel(drawPanel, "Statistics", &settings.drawStats);
+
 
 	int testCount = 0;
 	btDemoEntry* e = g_demoEntries;

@@ -22,6 +22,13 @@ class btRaycastVehicle;
 class btConstraintSolver;
 
 
+enum btDynamicsWorldType
+{
+	BT_SIMPLE_DYNAMICS_WORLD=1,
+	BT_DISCRETE_DYNAMICS_WORLD=2,
+	BT_CONTINUOUS_DYNAMICS_WORLD=3
+};
+
 ///btDynamicsWorld is the baseclass for several dynamics implementation, basic, discrete, parallel, and continuous
 class btDynamicsWorld : public btCollisionWorld
 {
@@ -73,6 +80,8 @@ class btDynamicsWorld : public btCollisionWorld
 		virtual btTypedConstraint* getConstraint(int index)		{	(void)index;		return 0;		}
 		
 		virtual const btTypedConstraint* getConstraint(int index) const	{	(void)index;	return 0;	}
+
+		virtual btDynamicsWorldType	getWorldType() const=0;
 
 };
 

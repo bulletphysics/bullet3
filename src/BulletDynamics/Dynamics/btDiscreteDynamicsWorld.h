@@ -153,6 +153,11 @@ public:
 		return m_solverInfo;
 	}
 
+	virtual btDynamicsWorldType	getWorldType() const
+	{
+		return BT_DISCRETE_DYNAMICS_WORLD;
+	}
+
 
 };
 

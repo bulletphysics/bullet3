@@ -36,6 +36,11 @@ class btContinuousDynamicsWorld : public btDiscreteDynamicsWorld
 
 		virtual void	calculateTimeOfImpacts(btScalar timeStep);
 
+		virtual btDynamicsWorldType	getWorldType() const
+		{
+			return BT_CONTINUOUS_DYNAMICS_WORLD;
+		}
+
 };
 
 #endif //BT_CONTINUOUS_DYNAMICS_WORLD_H

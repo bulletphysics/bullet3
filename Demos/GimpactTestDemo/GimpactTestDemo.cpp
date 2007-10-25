@@ -405,6 +405,9 @@ btCollisionShape * GimpactConcaveDemo::createBunnyShape()
 //------------------------------------------------------------------------------
 void	GimpactConcaveDemo::initPhysics()
 {
+	setCameraDistance(45.f);
+
+
 	gContactAddedCallback = CustomMaterialCombinerCallback;
 
 

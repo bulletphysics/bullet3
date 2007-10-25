@@ -8,7 +8,6 @@ int main(int argc,char** argv)
 
         GimpactConcaveDemo* concaveDemo = new GimpactConcaveDemo();  /// This will not be Deleted!!!
         concaveDemo->initPhysics();
-        concaveDemo->setCameraDistance(45.f);
-
+       
         return glutmain(argc, argv,640,480,"DevO,s GIMPACT Test Demo",concaveDemo);
 }

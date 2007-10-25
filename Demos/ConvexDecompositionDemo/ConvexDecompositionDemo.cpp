@@ -66,6 +66,8 @@ GLDebugDrawer debugDrawer;
 
 void ConvexDecompositionDemo::initPhysics(const char* filename)
 {
+	setCameraDistance(26.f);
+
 	ConvexDecomposition::WavefrontObj wo;
 
 	tcount = wo.loadObj(filename);

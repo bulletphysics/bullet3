@@ -79,6 +79,11 @@ public:
 
 	virtual btConstraintSolver* getConstraintSolver();
 
+	virtual btDynamicsWorldType	getWorldType() const
+	{
+		return BT_SIMPLE_DYNAMICS_WORLD;
+	}
+
 };
 
 #endif //BT_SIMPLE_DYNAMICS_WORLD_H

@@ -17,7 +17,7 @@ int main(int argc,char** argv)
 
         convexDecompDemo->clientResetScene();
 
-        convexDecompDemo->setCameraDistance(26.f);
+       
 
         return glutmain(argc, argv,640,480,"Bullet Physics Demo. http://www.continuousphysics.com/Bullet/phpBB2/",convexDecompDemo);
 }

@@ -121,6 +121,9 @@ void BasicDemo::displayCallback(void) {
 void	BasicDemo::initPhysics()
 {
 
+	setCameraDistance(btScalar(50.));
+
+
 	btDefaultCollisionConfiguration* collisionConfiguration = new btDefaultCollisionConfiguration();
 
 #ifdef USE_PARALLEL_DISPATCHER
