@@ -108,7 +108,7 @@ static const int numObjects = 1;
 /// simplex contains the vertices, and some extra code to draw and debug
 static GL_Simplex1to4	simplex;
 
-static btCollisionShape*	shapePtr[maxNumObjects];
+static btConvexShape*	shapePtr[maxNumObjects];
 static btTransform transforms[maxNumObjects];
 
 renderTexture*	raytracePicture = 0;
@@ -329,7 +329,11 @@ void Raytracer::displayCallback()
 	}
 	
 
-//	btConvexCast::CastResult rayResult;
+#define USE_WORLD_RAYCAST 1
+#ifndef USE_WORLD_RAYCAST
+	btConvexCast::CastResult rayResult;
+#endif
+
 	btTransform rayToTrans;
 	rayToTrans.setIdentity();
 	btVector3 rayTo;
@@ -362,28 +366,38 @@ void Raytracer::displayCallback()
 				if (btRayAabb(rayFrom,rayTo,aabbMin,aabbMax,hitLambda,hitNormal))
 				{
 
-
+#ifdef USE_WORLD_RAYCAST
 					btCollisionWorld::rayTestSingle(rayFromTrans,rayToTrans,
 					  &tmpObj,
 					  shapePtr[s],
 					  transforms[s],
 					  resultCallback);
-				
-					//choose the continuous collision detection method
-					//btSubsimplexConvexCast convexCaster(&pointShape,shapePtr[s],&simplexSolver);
-					//GjkConvexCast convexCaster(&pointShape,shapePtr[0],&simplexSolver);
-					//ContinuousConvexCollision convexCaster(&pointShape,shapePtr[0],&simplexSolver,0);
-					
+					  if (resultCallback.HasHit())
+					  {
+							//float fog = 1.f - 0.1f * rayResult.m_fraction;
+							resultCallback.m_hitNormalWorld.normalize();//.m_normal.normalize();
+							btVector3 worldNormal = resultCallback.m_hitNormalWorld;
+							
+#else //use USE_WORLD_RAYCAST
 					//reset previous result
-					//rayResult.m_fraction = 1.f;
-					if (resultCallback.HasHit())
-//					if (convexCaster.calcTimeOfImpact(rayFromTrans,rayToTrans,transforms[s],transforms[s],rayResult))
-					{
-						//float fog = 1.f - 0.1f * rayResult.m_fraction;
-						resultCallback.m_hitNormalWorld.normalize();//.m_normal.normalize();
+					rayResult.m_fraction = 1.f;
 
-						btVector3 worldNormal = resultCallback.m_hitNormalWorld;
-//						worldNormal = transforms[s].getBasis() *rayResult.m_normal;
+					//choose the continuous collision detection method
+
+					btSubsimplexConvexCast convexCaster(&pointShape,shapePtr[s],&simplexSolver);
+					//btGjkConvexCast convexCaster(&pointShape,shapePtr[0],&simplexSolver);
+					//btContinuousConvexCollision convexCaster(&pointShape,shapePtr[0],&simplexSolver,0);
+					
+					if (convexCaster.calcTimeOfImpact(rayFromTrans,rayToTrans,transforms[s],transforms[s],rayResult))
+						{
+							btVector3 worldNormal;
+							worldNormal = transforms[s].getBasis() *rayResult.m_normal;
+							worldNormal.normalize();
+#endif //	USE_WORLD_RAYCAST
+					
+//					
+					
+
 						
 
 						float lightVec0 = worldNormal.dot(btVector3(0,-1,-1));//0.4f,-1.f,-0.4f));
