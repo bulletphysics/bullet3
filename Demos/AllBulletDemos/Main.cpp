@@ -146,14 +146,17 @@ void SimulationLoop()
 		demo->setDebugMode(demo->getDebugMode() & (~btIDebugDraw::DBG_NoDeactivation));
 	}
 
-	if (demo->getDynamicsWorld()->getWorldType() == BT_DISCRETE_DYNAMICS_WORLD)
+	if (demo->getDynamicsWorld() && demo->getDynamicsWorld()->getWorldType() == BT_DISCRETE_DYNAMICS_WORLD)
 	{
 		btDiscreteDynamicsWorld* discreteWorld = (btDiscreteDynamicsWorld*) demo->getDynamicsWorld();
 		discreteWorld->getSolverInfo().m_numIterations = iterationCount;
 	}
 
 
-	demo->clientMoveAndDisplay();
+	if (!demo->isIdle())
+		demo->clientMoveAndDisplay();
+	else
+		demo->displayCallback();
 
 
 ///	DrawString(5, 15, entry->name);

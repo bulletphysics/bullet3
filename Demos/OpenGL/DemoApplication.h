@@ -172,6 +172,17 @@ public:
 	void zoomIn();
 	void zoomOut();
 
+	bool	isIdle() const
+	{
+		return	m_idle;
+	}
+
+	void	setIdle(bool idle)
+	{
+		m_idle = idle;
+	}
+
+
 };
 
 #endif //DEMO_APPLICATION_H

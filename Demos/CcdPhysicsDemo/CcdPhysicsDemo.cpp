@@ -25,6 +25,7 @@ subject to the following restrictions:
 //#define USER_DEFINED_FRICTION_MODEL 1
 //#define USE_CUSTOM_NEAR_CALLBACK 1
 //#define CENTER_OF_MASS_SHIFT 1
+//#define VERBOSE_TIMESTEPPING_CONSOLEOUTPUT 1
 
 //#define USE_PARALLEL_SOLVER 1 //experimental parallel solver
 //#define USE_PARALLEL_DISPATCHER 1
@@ -284,7 +285,8 @@ void CcdPhysicsDemo::clientMoveAndDisplay()
 
 		int numSimSteps = 0;
 		numSimSteps = m_dynamicsWorld->stepSimulation(dt,maxSimSubSteps);
-		/*
+		
+#ifdef VERBOSE_TIMESTEPPING_CONSOLEOUTPUT
 		if (!numSimSteps)
 			printf("Interpolated transforms\n");
 		else
@@ -298,7 +300,7 @@ void CcdPhysicsDemo::clientMoveAndDisplay()
 				printf("Simulated (%i) steps\n",numSimSteps);
 			}
 		}
-		*/
+#endif //VERBOSE_TIMESTEPPING_CONSOLEOUTPUT
 
 #endif
 	}
