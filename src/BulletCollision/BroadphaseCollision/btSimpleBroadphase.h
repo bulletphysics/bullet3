@@ -77,7 +77,7 @@ protected:
 	void freeHandle(btSimpleBroadphaseProxy* proxy)
 	{
 		int handle = int(proxy-m_pHandles);
-		btAssert(handle > 0 && handle < m_maxHandles);
+		btAssert(handle >= 0 && handle < m_maxHandles);
 
 		proxy->SetNextFree(m_firstFreeHandle);
 		m_firstFreeHandle = handle;

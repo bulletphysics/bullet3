@@ -417,7 +417,16 @@ void DemoApplication::specialKeyboard(int key, int x, int y)
 			if (numObj)
 			{
 				btCollisionObject* obj = getDynamicsWorld()->getCollisionObjectArray()[numObj-1];
+				
 				getDynamicsWorld()->removeCollisionObject(obj);
+				btRigidBody* body = btRigidBody::upcast(obj);
+				if (body && body->getMotionState())
+				{
+					delete body->getMotionState();					
+				}
+				delete obj;
+				
+
 			}
 			break;
 		}

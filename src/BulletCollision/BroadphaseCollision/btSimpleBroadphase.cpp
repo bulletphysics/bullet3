@@ -77,6 +77,7 @@ btSimpleBroadphase::~btSimpleBroadphase()
 
 	if (m_ownsPairCache)
 	{
+		m_pairCache->~btOverlappingPairCache();
 		btAlignedFree(m_pairCache);
 	}
 }
