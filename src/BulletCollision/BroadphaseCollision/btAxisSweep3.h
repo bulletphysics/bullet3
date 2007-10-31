@@ -288,6 +288,7 @@ btAxisSweep3Internal<BP_FP_INT_TYPE>::~btAxisSweep3Internal()
 
 	if (m_ownsPairCache)
 	{
+		m_pairCache->~btOverlappingPairCache();
 		btAlignedFree(m_pairCache);
 	}
 }

@@ -124,7 +124,7 @@ void	BasicDemo::initPhysics()
 	setCameraDistance(btScalar(50.));
 
 
-	btDefaultCollisionConfiguration* collisionConfiguration = new btDefaultCollisionConfiguration();
+	m_collisionConfiguration = new btDefaultCollisionConfiguration();
 
 #ifdef USE_PARALLEL_DISPATCHER
 
@@ -147,7 +147,7 @@ void	BasicDemo::initPhysics()
 
 	m_dispatcher = new	SpuGatheringCollisionDispatcher(threadSupport,maxNumOutstandingTasks,collisionConfiguration);
 #else
-	m_dispatcher = new	btCollisionDispatcher(collisionConfiguration);
+	m_dispatcher = new	btCollisionDispatcher(m_collisionConfiguration);
 #endif //USE_PARALLEL_DISPATCHER
 
 #define USE_SWEEP_AND_PRUNE 1
@@ -172,9 +172,9 @@ void	BasicDemo::initPhysics()
 #ifdef USE_SIMPLE_DYNAMICS_WORLD
 	//btSimpleDynamicsWorld doesn't support 'cache friendly' optimization, so disable this
 	sol->setSolverMode(btSequentialImpulseConstraintSolver::SOLVER_RANDMIZE_ORDER);
-	m_dynamicsWorld = new btSimpleDynamicsWorld(m_dispatcher,m_overlappingPairCache,m_solver,collisionConfiguration);
+	m_dynamicsWorld = new btSimpleDynamicsWorld(m_dispatcher,m_overlappingPairCache,m_solver,m_collisionConfiguration);
 #else
-	m_dynamicsWorld = new btDiscreteDynamicsWorld(m_dispatcher,m_overlappingPairCache,m_solver,collisionConfiguration);
+	m_dynamicsWorld = new btDiscreteDynamicsWorld(m_dispatcher,m_overlappingPairCache,m_solver,m_collisionConfiguration);
 #endif //USE_SIMPLE_DYNAMICS_WORLD
 	m_dynamicsWorld->getDispatchInfo().m_enableSPU = true;
 
@@ -246,6 +246,11 @@ void	BasicDemo::exitPhysics()
 	for (i=m_dynamicsWorld->getNumCollisionObjects()-1; i>=0 ;i--)
 	{
 		btCollisionObject* obj = m_dynamicsWorld->getCollisionObjectArray()[i];
+		btRigidBody* body = btRigidBody::upcast(obj);
+		if (body && body->getMotionState())
+		{
+			delete body->getMotionState();
+		}
 		m_dynamicsWorld->removeCollisionObject( obj );
 		delete obj;
 	}
@@ -268,6 +273,8 @@ void	BasicDemo::exitPhysics()
 
 	//delete dispatcher
 	delete m_dispatcher;
+
+	delete m_collisionConfiguration;
 
 	
 }

@@ -58,6 +58,8 @@ class DemoApplication
 	///constraint for mouse picking
 	btTypedConstraint*		m_pickConstraint;
 
+	btCollisionShape*	m_shootBoxShape;
+
 	float	m_cameraDistance;
 	int	m_debugMode;
 	

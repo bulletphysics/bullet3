@@ -50,7 +50,7 @@ public:
 
 		if(usedsize==0)
 		{
-			if(!ischild)		
+			if(!ischild && data)		
 				btAlignedFree(data);
 
 			data				=	0;

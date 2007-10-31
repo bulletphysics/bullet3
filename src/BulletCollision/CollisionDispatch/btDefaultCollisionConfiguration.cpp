@@ -124,30 +124,52 @@ btDefaultCollisionConfiguration::~btDefaultCollisionConfiguration()
 	if (m_ownsStackAllocator)
 	{
 		m_stackAlloc->destroy();
+		m_stackAlloc->~btStackAlloc();
 		btAlignedFree(m_stackAlloc);
 	}
 	if (m_ownsCollisionAlgorithmPool)
 	{
+		m_collisionAlgorithmPool->~btPoolAllocator();
 		btAlignedFree(m_collisionAlgorithmPool);
 	}
 	if (m_ownsPersistentManifoldPool)
 	{
+		m_persistentManifoldPool->~btPoolAllocator();
 		btAlignedFree(m_persistentManifoldPool);
 	}
 
+	m_convexConvexCreateFunc->~btCollisionAlgorithmCreateFunc();
 	btAlignedFree(	m_convexConvexCreateFunc);
+
+	m_convexConcaveCreateFunc->~btCollisionAlgorithmCreateFunc();
 	btAlignedFree( m_convexConcaveCreateFunc);
+	m_swappedConvexConcaveCreateFunc->~btCollisionAlgorithmCreateFunc();
 	btAlignedFree( m_swappedConvexConcaveCreateFunc);
+
+	m_compoundCreateFunc->~btCollisionAlgorithmCreateFunc();
 	btAlignedFree( m_compoundCreateFunc);
+
+	m_swappedCompoundCreateFunc->~btCollisionAlgorithmCreateFunc();
 	btAlignedFree( m_swappedCompoundCreateFunc);
+
+	m_emptyCreateFunc->~btCollisionAlgorithmCreateFunc();
 	btAlignedFree( m_emptyCreateFunc);
+
+	m_sphereSphereCF->~btCollisionAlgorithmCreateFunc();
 	btAlignedFree( m_sphereSphereCF);
+
+	m_sphereBoxCF->~btCollisionAlgorithmCreateFunc();
 	btAlignedFree( m_sphereBoxCF);
+	m_boxSphereCF->~btCollisionAlgorithmCreateFunc();
 	btAlignedFree( m_boxSphereCF);
+	m_sphereTriangleCF->~btCollisionAlgorithmCreateFunc();
 	btAlignedFree( m_sphereTriangleCF);
+	m_triangleSphereCF->~btCollisionAlgorithmCreateFunc();
 	btAlignedFree( m_triangleSphereCF);
 
+	m_simplexSolver->~btVoronoiSimplexSolver();
 	btAlignedFree(m_simplexSolver);
+	m_pdSolver->~btGjkEpaPenetrationDepthSolver();
 	btAlignedFree(m_pdSolver);
 
 

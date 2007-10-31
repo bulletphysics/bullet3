@@ -27,22 +27,84 @@ subject to the following restrictions:
 #include "../VehicleDemo/VehicleDemo.h"
 #include "../ConstraintDemo/ConstraintDemo.h"
 
+#include "GlutStuff.h"//OpenGL stuff
+#include "BMF_Api.h"//font stuff
+
+extern int gNumAlignedAllocs;
+extern int gNumAlignedFree;
+extern int gTotalBytesAlignedAllocs;
+
+class btEmptyDebugDemo : public DemoApplication
+{
+public:
+	btEmptyDebugDemo()
+	{
+
+	}
+
+	virtual void clientMoveAndDisplay()
+	{
+		glClear(GL_COLOR_BUFFER_BIT | GL_DEPTH_BUFFER_BIT); 
+
+		float xOffset = 10.f;
+		float yStart = 20.f;
+		float yIncr = 20.f;
+		char buf[124];
+
+
+		glColor3f(0, 0, 0);
+
+		setOrthographicProjection();
+
+		glRasterPos3f(xOffset,yStart,0);
+		sprintf(buf,"gNumAlignedAllocs= %d",gNumAlignedAllocs);
+		BMF_DrawString(BMF_GetFont(BMF_kHelvetica10),buf);
+		yStart += yIncr;
+
+		glRasterPos3f(xOffset,yStart,0);
+		sprintf(buf,"gNumAlignedFree= %d",gNumAlignedFree);
+		BMF_DrawString(BMF_GetFont(BMF_kHelvetica10),buf);
+		yStart += yIncr;
+
+		glRasterPos3f(xOffset,yStart,0);
+		sprintf(buf,"# alloc-free = %d",gNumAlignedAllocs-gNumAlignedFree);
+		BMF_DrawString(BMF_GetFont(BMF_kHelvetica10),buf);
+		yStart += yIncr;
+#ifdef BT_DEBUG_MEMORY_ALLOCATIONS
+		glRasterPos3f(xOffset,yStart,0);
+		sprintf(buf,"gTotalBytesAlignedAllocs = %d",gTotalBytesAlignedAllocs);
+		BMF_DrawString(BMF_GetFont(BMF_kHelvetica10),buf);
+		yStart += yIncr;
+#endif //BT_DEBUG_MEMORY_ALLOCATIONS
+
+	glFlush();
+	glutSwapBuffers();
+			
+	}
+
+	static DemoApplication* Create()
+	{
+		btEmptyDebugDemo* demo = new btEmptyDebugDemo();
+		demo->myinit();
+		return demo;
+	}
+
+};
 
 btDemoEntry g_demoEntries[] =
 {
-		{"RagdollDemo",RagdollDemo::Create},
-		{"ConvexDecomposition",ConvexDecompositionDemo::Create},
-		{"CcdPhysicsDemo", CcdPhysicsDemo::Create},
-		{"BasicDemo", BasicDemo::Create},
-		{"BspDemo", BspDemo::Create},
-		{"ConcaveDemo",ConcaveDemo::Create},
-		{"Gimpact Test", GimpactConcaveDemo::Create},
-		{"Raytracer Test",Raytracer::Create},
-		{"GjkConvexCast",LinearConvexCastDemo::Create},
-		{"VehicleDemo",VehicleDemo::Create},
-		{"ConstraintDemo",ConstraintDemo::Create},
-		{0, 0}
-
-
+	{"BasicDemo", BasicDemo::Create},
+	{"RagdollDemo",RagdollDemo::Create},
+	{"ConvexDecomposition",ConvexDecompositionDemo::Create},
+	{"CcdPhysicsDemo", CcdPhysicsDemo::Create},
+	{"BspDemo", BspDemo::Create},
+	{"ConcaveDemo",ConcaveDemo::Create},
+	{"Gimpact Test", GimpactConcaveDemo::Create},
+	{"Raytracer Test",Raytracer::Create},
+	{"GjkConvexCast",LinearConvexCastDemo::Create},
+	{"VehicleDemo",VehicleDemo::Create},
+	{"ConstraintDemo",ConstraintDemo::Create},
+	{"MemoryLeakChecker",btEmptyDebugDemo::Create},	
+	{0, 0}
 };
 

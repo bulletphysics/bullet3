@@ -17,6 +17,60 @@ subject to the following restrictions:
 
 int gNumAlignedAllocs = 0;
 int gNumAlignedFree = 0;
+int gTotalBytesAlignedAllocs = 0;//detect memory leaks
+
+#ifdef BT_DEBUG_MEMORY_ALLOCATIONS
+//this generic allocator provides the total allocated number of bytes
+#include <stdio.h>
+
+void*   btAlignedAllocInternal  (size_t size, int alignment,int line,char* filename)
+{
+ void *ret;
+ char *real;
+ unsigned long offset;
+
+ gTotalBytesAlignedAllocs += size;
+ gNumAlignedAllocs++;
+
+ printf("allocation#%d from %s,line %d, size %d\n",gNumAlignedAllocs,filename,line,size);
+ real = (char *)malloc(size + 2*sizeof(void *) + (alignment-1));
+ if (real) {
+   offset = (alignment - (unsigned long)(real + 2*sizeof(void *))) &
+(alignment-1);
+   ret = (void *)((real + 2*sizeof(void *)) + offset);
+   *((void **)(ret)-1) = (void *)(real);
+       *((int*)(ret)-2) = size;
+
+ } else {
+   ret = (void *)(real);//??
+ }
+ int* ptr = (int*)ret;
+ *ptr = 12;
+ return (ret);
+}
+#include <stdio.h>
+void    btAlignedFreeInternal   (void* ptr,int line,char* filename)
+{
+
+ void* real;
+ gNumAlignedFree++;
+
+ if (ptr) {
+   real = *((void **)(ptr)-1);
+       int size = *((int*)(ptr)-2);
+       gTotalBytesAlignedAllocs -= size;
+
+	   printf("free #%d from %s,line %d, size %d\n",gNumAlignedFree,filename,line,size);
+
+   free(real);
+ } else
+ {
+	 printf("NULL ptr\n");
+ }
+}
+
+#else //BT_DEBUG_MEMORY_ALLOCATIONS
+
 
 #if defined (BT_HAS_ALIGNED_ALLOCATOR)
 
@@ -25,19 +79,19 @@ int gNumAlignedFree = 0;
 
 
 #include <malloc.h>
-void*	btAlignedAlloc	(size_t size, int alignment)
+void*	btAlignedAllocInternal	(size_t size, int alignment)
 {
 	gNumAlignedAllocs++;
 
 	void* ptr = _aligned_malloc(size,alignment);
-//	printf("btAlignedAlloc %d, %x\n",size,ptr);
+//	printf("btAlignedAllocInternal %d, %x\n",size,ptr);
 	return ptr;
 }
 
-void	btAlignedFree	(void* ptr)
+void	btAlignedFreeInternal	(void* ptr)
 {
 	gNumAlignedFree++;
-//	printf("btAlignedFree %x\n",ptr);
+//	printf("btAlignedFreeInternal %x\n",ptr);
 	_aligned_free(ptr);
 }
 
@@ -49,13 +103,13 @@ void	btAlignedFree	(void* ptr)
 
 
 
-void*	btAlignedAlloc	(size_t size, int alignment)
+void*	btAlignedAllocInternal	(size_t size, int alignment)
 {
 	gNumAlignedAllocs++;
 	return memalign(alignment, size);
 }
 
-void	btAlignedFree	(void* ptr)
+void	btAlignedFreeInternal	(void* ptr)
 {
 	gNumAlignedFree++;
 	free(ptr);
@@ -63,7 +117,7 @@ void	btAlignedFree	(void* ptr)
 
 #else
 
-void*	btAlignedAlloc	(size_t size, int alignment)
+void*	btAlignedAllocInternal	(size_t size, int alignment)
 {
  void *ret;
   char *real;
@@ -82,7 +136,7 @@ void*	btAlignedAlloc	(size_t size, int alignment)
   return (ret);
 }
 
-void	btAlignedFree	(void* ptr)
+void	btAlignedFreeInternal	(void* ptr)
 {
 
  void* real;
@@ -97,4 +151,5 @@ void	btAlignedFree	(void* ptr)
 
 #endif
 
+#endif //BT_DEBUG_MEMORY_ALLOCATIONS
 

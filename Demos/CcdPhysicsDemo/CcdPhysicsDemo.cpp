@@ -116,39 +116,7 @@ int	shapeIndex[maxNumObjects];
 //						   btPoint3(50,0,0));
 static const int numShapes = 4;
 
-btCollisionShape* shapePtr[numShapes] = 
-{
-	///Please don't make the box sizes larger then 1000: the collision detection will be inaccurate.
-	///See http://www.continuousphysics.com/Bullet/phpBB2/viewtopic.php?t=346
-
-//#define USE_GROUND_PLANE 1
-#ifdef USE_GROUND_PLANE
-	new btStaticPlaneShape(btVector3(0,1,0),0.5),
-#else
-	new btBoxShape (btVector3(200,CUBE_HALF_EXTENTS,200)),
-#endif
-		
-#ifdef DO_BENCHMARK_PYRAMIDS
-		new btBoxShape (btVector3(CUBE_HALF_EXTENTS,CUBE_HALF_EXTENTS,CUBE_HALF_EXTENTS)),
-#else
-		new btCylinderShape (btVector3(CUBE_HALF_EXTENTS,CUBE_HALF_EXTENTS,CUBE_HALF_EXTENTS)),
-#endif
-
-		//new btSphereShape (CUBE_HALF_EXTENTS),
-		//new btCapsuleShape(0.5*CUBE_HALF_EXTENTS,CUBE_HALF_EXTENTS),
-		//new btCylinderShape (btVector3(1-gCollisionMargin,CUBE_HALF_EXTENTS-gCollisionMargin,1-gCollisionMargin)),
-		//new btConeShapeX(CUBE_HALF_EXTENTS,2.f*CUBE_HALF_EXTENTS),
-		
-		new btSphereShape (CUBE_HALF_EXTENTS),
-		
-		//new btBU_Simplex1to4(btPoint3(-1,-1,-1),btPoint3(1,-1,-1),btPoint3(-1,1,-1),btPoint3(0,0,1)),
-
-		//new btEmptyShape(),
-
-		new btBoxShape (btVector3(0.4,1,0.8))
-
-};
-
+btCollisionShape* shapePtr[numShapes] = {0,0,0,0};
 
 void CcdPhysicsDemo::createStack( btCollisionShape* boxShape, float halfCubeSize, int size, float zPos )
 {
@@ -362,6 +330,39 @@ float myFrictionModel(	btRigidBody& body1,	btRigidBody& body2,	btManifoldPoint& 
 
 void	CcdPhysicsDemo::initPhysics()
 {
+
+	shapePtr[0] = 
+	///Please don't make the box sizes larger then 1000: the collision detection will be inaccurate.
+	///See http://www.continuousphysics.com/Bullet/phpBB2/viewtopic.php?t=346
+
+//#define USE_GROUND_PLANE 1
+#ifdef USE_GROUND_PLANE
+	new btStaticPlaneShape(btVector3(0,1,0),0.5);
+#else
+	new btBoxShape (btVector3(200,CUBE_HALF_EXTENTS,200));
+#endif
+
+	shapePtr[1] = 
+#ifdef DO_BENCHMARK_PYRAMIDS
+		new btBoxShape (btVector3(CUBE_HALF_EXTENTS,CUBE_HALF_EXTENTS,CUBE_HALF_EXTENTS));
+#else
+		new btCylinderShape (btVector3(CUBE_HALF_EXTENTS,CUBE_HALF_EXTENTS,CUBE_HALF_EXTENTS));
+#endif
+
+	shapePtr[2] = 
+		//new btSphereShape (CUBE_HALF_EXTENTS);
+		//new btCapsuleShape(0.5*CUBE_HALF_EXTENTS,CUBE_HALF_EXTENTS);
+		//new btCylinderShape (btVector3(1-gCollisionMargin,CUBE_HALF_EXTENTS-gCollisionMargin,1-gCollisionMargin));
+		//new btConeShapeX(CUBE_HALF_EXTENTS,2.f*CUBE_HALF_EXTENTS);
+		
+		new btSphereShape (CUBE_HALF_EXTENTS);
+		
+		//new btBU_Simplex1to4(btPoint3(-1,-1,-1),btPoint3(1,-1,-1),btPoint3(-1,1,-1),btPoint3(0,0,1));
+
+		//new btEmptyShape();
+
+	shapePtr[3] = new btBoxShape (btVector3(0.4,1,0.8));
+
 
 #ifdef DO_BENCHMARK_PYRAMIDS
 	setCameraDistance(2.5f);

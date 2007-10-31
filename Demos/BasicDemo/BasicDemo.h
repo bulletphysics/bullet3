@@ -24,6 +24,7 @@ class btOverlappingPairCache;
 class btCollisionDispatcher;
 class btConstraintSolver;
 struct btCollisionAlgorithmCreateFunc;
+class btDefaultCollisionConfiguration;
 
 ///BasicDemo is good starting point for learning the code base and porting.
 class BasicDemo : public DemoApplication
@@ -42,8 +43,17 @@ class BasicDemo : public DemoApplication
 	btCollisionAlgorithmCreateFunc*	m_sphereBoxCF;
 	btCollisionAlgorithmCreateFunc*	m_boxSphereCF;
 
+	btDefaultCollisionConfiguration* m_collisionConfiguration;
+
 	public:
 
+	BasicDemo()
+	{
+	}
+	virtual ~BasicDemo()
+	{
+		exitPhysics();
+	}
 	void	initPhysics();
 
 	void	exitPhysics();

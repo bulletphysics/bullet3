@@ -43,6 +43,7 @@ extern int gNumDeepPenetrationChecks;
 extern int gNumGjkChecks;
 extern int gNumAlignedAllocs;
 extern int gNumAlignedFree;
+extern int gTotalBytesAlignedAllocs;
 
 #endif //
 
@@ -52,6 +53,7 @@ DemoApplication::DemoApplication()
 :
 m_dynamicsWorld(0),
 m_pickConstraint(0),
+m_shootBoxShape(0),
 	m_cameraDistance(15.0),
 	m_debugMode(0),
 	m_ele(20.f),
@@ -75,6 +77,8 @@ m_pickConstraint(0),
 
 DemoApplication::~DemoApplication()
 {
+	if (m_shootBoxShape)
+		delete m_shootBoxShape;
 
 }
 
@@ -461,14 +465,19 @@ void	DemoApplication::shootBox(const btVector3& destination)
 		startTransform.setIdentity();
 		btVector3 camPos = getCameraPosition();
 		startTransform.setOrigin(camPos);
-//#define TEST_UNIFORM_SCALING_SHAPE 1
+
+		if (!m_shootBoxShape)
+		{
+		//#define TEST_UNIFORM_SCALING_SHAPE 1
 #ifdef TEST_UNIFORM_SCALING_SHAPE
 		btConvexShape* childShape = new btBoxShape(btVector3(1.f,1.f,1.f));
-		btUniformScalingShape* boxShape = new btUniformScalingShape(childShape,0.5f);
+		m_shootBoxShape = new btUniformScalingShape(childShape,0.5f);
 #else
-		btCollisionShape* boxShape = new btBoxShape(btVector3(0.5f,0.5f,0.5f));
+		m_shootBoxShape = new btBoxShape(btVector3(0.5f,0.5f,0.5f));
 #endif//
-		btRigidBody* body = this->localCreateRigidBody(mass, startTransform,boxShape);
+		}
+
+		btRigidBody* body = this->localCreateRigidBody(mass, startTransform,m_shootBoxShape);
 
 		btVector3 linVel(destination[0]-camPos[0],destination[1]-camPos[1],destination[2]-camPos[2]);
 		linVel.normalize();
@@ -701,7 +710,8 @@ btRigidBody*	DemoApplication::localCreateRigidBody(float mass, const btTransform
 	btRigidBody* body = new btRigidBody(mass,myMotionState,shape,localInertia);
 
 #else
-	btRigidBody* body = new btRigidBody(mass,startTransform,shape,localInertia);	
+	btRigidBody* body = new btRigidBody(mass,0,shape,localInertia);	
+	body->setWorldTransform(startTransform);
 #endif//
 	m_dynamicsWorld->addRigidBody(body);
 	
@@ -922,6 +932,28 @@ void DemoApplication::renderme()
 				sprintf(buf,"# alloc-free = %d",gNumAlignedAllocs-gNumAlignedFree);
 				BMF_DrawString(BMF_GetFont(BMF_kHelvetica10),buf);
 				yStart += yIncr;
+
+//enable BT_DEBUG_MEMORY_ALLOCATIONS define in Bullet/src/LinearMath/btAlignedAllocator.h for memory leak detection
+#ifdef BT_DEBUG_MEMORY_ALLOCATIONS
+				glRasterPos3f(xOffset,yStart,0);
+				sprintf(buf,"gTotalBytesAlignedAllocs = %d",gTotalBytesAlignedAllocs);
+				BMF_DrawString(BMF_GetFont(BMF_kHelvetica10),buf);
+				yStart += yIncr;
+#endif //BT_DEBUG_MEMORY_ALLOCATIONS
+
+				if (getDynamicsWorld())
+				{
+					glRasterPos3f(xOffset,yStart,0);
+					sprintf(buf,"# objects = %d",getDynamicsWorld()->getNumCollisionObjects());
+					BMF_DrawString(BMF_GetFont(BMF_kHelvetica10),buf);
+					yStart += yIncr;
+					glRasterPos3f(xOffset,yStart,0);
+					sprintf(buf,"# pairs = %d",getDynamicsWorld()->getBroadphase()->getOverlappingPairCache()->getNumOverlappingPairs());
+					BMF_DrawString(BMF_GetFont(BMF_kHelvetica10),buf);
+					yStart += yIncr;
+
+				}
+
 
 #endif //SHOW_NUM_DEEP_PENETRATIONS
 

@@ -65,7 +65,7 @@ m_gravity(0,-10,0),
 m_localTime(btScalar(1.)/btScalar(60.)),
 m_profileTimings(0)
 {
-	if (m_constraintSolver)
+	if (!m_constraintSolver)
 	{
 		void* mem = btAlignedAlloc(sizeof(btSequentialImpulseConstraintSolver),16);
 		m_constraintSolver = new (mem) btSequentialImpulseConstraintSolver;
@@ -88,9 +88,16 @@ btDiscreteDynamicsWorld::~btDiscreteDynamicsWorld()
 {
 	//only delete it when we created it
 	if (m_ownsIslandManager)
+	{
+		m_islandManager->~btSimulationIslandManager();
 		btAlignedFree( m_islandManager);
+	}
 	if (m_ownsConstraintSolver)
-		 btAlignedFree(m_constraintSolver);
+	{
+
+		m_constraintSolver->~btConstraintSolver();
+		btAlignedFree(m_constraintSolver);
+	}
 }
 
 void	btDiscreteDynamicsWorld::saveKinematicState(btScalar timeStep)
