@@ -107,14 +107,6 @@ void Timer(int)
 
 void SimulationLoop()
 {
-	glClear(GL_COLOR_BUFFER_BIT | GL_DEPTH_BUFFER_BIT);
-
-	glMatrixMode(GL_MODELVIEW);
-	glLoadIdentity();
-
-	//test->SetTextLine(30);
-	//test->Step(&settings);
-	//sync debugging options
 	if (gDrawAabb)
 	{ 
 		demo->setDebugMode(demo->getDebugMode() |btIDebugDraw::DBG_DrawAabb);
@@ -157,11 +149,6 @@ void SimulationLoop()
 		demo->clientMoveAndDisplay();
 	else
 		demo->displayCallback();
-
-
-///	DrawString(5, 15, entry->name);
-
-	glutSwapBuffers();
 
 	if (testSelection != testIndex)
 	{
