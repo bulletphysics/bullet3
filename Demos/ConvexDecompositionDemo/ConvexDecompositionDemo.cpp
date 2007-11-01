@@ -45,16 +45,10 @@ subject to the following restrictions:
 
 #include "GlutStuff.h"
 
-const int maxNumObjects = 450;
-
-static int	shapeIndex[maxNumObjects];
 
 btVector3	centroid;
 
 #define CUBE_HALF_EXTENTS 4
-
-static btCollisionShape* shapePtr[maxNumObjects];
-
 
 
 ////////////////////////////////////
@@ -78,7 +72,8 @@ void ConvexDecompositionDemo::initPhysics(const char* filename)
 		tcount = wo.loadObj("../../file.obj");
 	}
 
-	btDefaultCollisionConfiguration* collisionConfiguration = new btDefaultCollisionConfiguration();
+
+	m_collisionConfiguration = new btDefaultCollisionConfiguration();
 
 #ifdef USE_PARALLEL_DISPATCHER
 #ifdef USE_WIN32_THREADING
@@ -97,9 +92,9 @@ void ConvexDecompositionDemo::initPhysics(const char* filename)
 ///you can hook it up to your custom task scheduler by deriving from btThreadSupportInterface
 #endif
 
-	btCollisionDispatcher* dispatcher = new	SpuGatheringCollisionDispatcher(threadSupport,maxNumOutstandingTasks,collisionConfiguration);
+	m_dispatcher = new	SpuGatheringCollisionDispatcher(threadSupport,maxNumOutstandingTasks,collisionConfiguration);
 #else
-		btCollisionDispatcher* dispatcher = new	btCollisionDispatcher(collisionConfiguration);
+	m_dispatcher = new	btCollisionDispatcher(m_collisionConfiguration);
 #endif//USE_PARALLEL_DISPATCHER
 
 
@@ -107,11 +102,11 @@ void ConvexDecompositionDemo::initPhysics(const char* filename)
 	btVector3 worldAabbMin(-10000,-10000,-10000);
 	btVector3 worldAabbMax(10000,10000,10000);
 
-	btBroadphaseInterface* broadphase = new btAxisSweep3(worldAabbMin,worldAabbMax);
-	//btBroadphaseInterface* broadphase = new btSimpleBroadphase();
+	m_broadphase = new btAxisSweep3(worldAabbMin,worldAabbMax);
+	//m_broadphase = new btSimpleBroadphase();
 
-	btConstraintSolver* solver = new btSequentialImpulseConstraintSolver();
-	m_dynamicsWorld = new btDiscreteDynamicsWorld(dispatcher,broadphase,solver,collisionConfiguration);
+	m_solver = new btSequentialImpulseConstraintSolver();
+	m_dynamicsWorld = new btDiscreteDynamicsWorld(m_dispatcher,m_broadphase,m_solver,m_collisionConfiguration);
 
 #ifdef USE_PARALLEL_DISPATCHER
 	m_dynamicsWorld->getDispatchInfo().m_enableSPU = true;
@@ -121,7 +116,9 @@ void ConvexDecompositionDemo::initPhysics(const char* filename)
 	startTransform.setIdentity();
 	startTransform.setOrigin(btVector3(0,-4.5,0));
 
-	localCreateRigidBody(0.f,startTransform,new btBoxShape(btVector3(30,2,30)));
+	btCollisionShape* boxShape = new btBoxShape(btVector3(30,2,30));
+	m_collisionShapes.push_back(boxShape);
+	localCreateRigidBody(0.f,startTransform,boxShape);
 
 	class MyConvexDecomposition : public ConvexDecomposition::ConvexDecompInterface
 	{
@@ -259,6 +256,8 @@ void ConvexDecompositionDemo::initPhysics(const char* filename)
 #endif 
 
 					convexShape->setMargin(0.01);
+
+					m_convexDemo->m_collisionShapes.push_back(convexShape);
 					
 
 					btTransform trans;
@@ -278,7 +277,7 @@ void ConvexDecompositionDemo::initPhysics(const char* filename)
 
 	};
 
-	if (tcount)
+	if (0)//tcount)
 	{
 		btTriangleMesh* trimesh = new btTriangleMesh();
 
@@ -302,6 +301,8 @@ void ConvexDecompositionDemo::initPhysics(const char* filename)
 		}
 
 		btCollisionShape* convexShape = new btConvexTriangleMeshShape(trimesh);
+		m_collisionShapes.push_back(convexShape);
+
 		float mass = 1.f;
 		
 		btTransform startTransform;
@@ -394,4 +395,54 @@ void ConvexDecompositionDemo::displayCallback(void) {
 	glFlush();
 	glutSwapBuffers();
 }
+
+
+
+
+void	ConvexDecompositionDemo::exitPhysics()
+{
+
+
+	//cleanup in the reverse order of creation/initialization
+
+	//remove the rigidbodies from the dynamics world and delete them
+	int i;
+	for (i=m_dynamicsWorld->getNumCollisionObjects()-1; i>=0 ;i--)
+	{
+		btCollisionObject* obj = m_dynamicsWorld->getCollisionObjectArray()[i];
+		btRigidBody* body = btRigidBody::upcast(obj);
+		if (body && body->getMotionState())
+		{
+			delete body->getMotionState();
+		}
+		m_dynamicsWorld->removeCollisionObject( obj );
+		delete obj;
+	}
+
+	//delete collision shapes
+	for (int j=0;j<m_collisionShapes.size();j++)
+	{
+		btCollisionShape* shape = m_collisionShapes[j];
+		delete shape;
+	}
+
+	//delete dynamics world
+	delete m_dynamicsWorld;
+
+	//delete solver
+	delete m_solver;
+
+	//delete broadphase
+	delete m_broadphase;
+
+	//delete dispatcher
+	delete m_dispatcher;
+
+	delete m_collisionConfiguration;
+
+	
+}
+
+
+
 

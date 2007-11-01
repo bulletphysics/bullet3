@@ -16,13 +16,43 @@ subject to the following restrictions:
 #define CONVEX_DECOMPOSITION_DEMO_H
 
 #include "DemoApplication.h"
+#include "LinearMath/btAlignedObjectArray.h"
+
+class btBroadphaseInterface;
+class btCollisionShape;
+class btOverlappingPairCache;
+class btCollisionDispatcher;
+class btConstraintSolver;
+struct btCollisionAlgorithmCreateFunc;
+class btDefaultCollisionConfiguration;
 
 ///ConvexDecompositionDemo shows automatic convex decomposition of a concave mesh
 class ConvexDecompositionDemo : public DemoApplication
 {
-	public:
+
+public:
+
+	//keep the collision shapes, for deletion/cleanup
+	btAlignedObjectArray<btCollisionShape*>	m_collisionShapes;
+
+	btBroadphaseInterface*	m_broadphase;
+
+	btCollisionDispatcher*	m_dispatcher;
+
+	btConstraintSolver*	m_solver;
+	
+	btDefaultCollisionConfiguration* m_collisionConfiguration;
+
+
 
 	void	initPhysics(const char* filename);
+
+	void	exitPhysics();
+
+	virtual	~ConvexDecompositionDemo()
+	{
+		exitPhysics();
+	}
 
 	virtual void clientMoveAndDisplay();
 

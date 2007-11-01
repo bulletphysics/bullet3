@@ -16,11 +16,35 @@ subject to the following restrictions:
 #define BSP_DEMO_H
 
 #include "DemoApplication.h"
+#include "LinearMath/btAlignedObjectArray.h"
+
+class btBroadphaseInterface;
+class btCollisionShape;
+class btOverlappingPairCache;
+class btCollisionDispatcher;
+class btConstraintSolver;
+struct btCollisionAlgorithmCreateFunc;
+class btDefaultCollisionConfiguration;
+
 
 ///BspDemo shows the convex collision detection, by converting a Quake BSP file into convex objects and allowing interaction with boxes.
 class BspDemo : public DemoApplication
 {
 	public:
+
+	//keep the collision shapes, for deletion/cleanup
+	btAlignedObjectArray<btCollisionShape*>	m_collisionShapes;
+
+	btBroadphaseInterface*	m_broadphase;
+
+	btCollisionDispatcher*	m_dispatcher;
+
+	btConstraintSolver*	m_solver;
+
+	btDefaultCollisionConfiguration* m_collisionConfiguration;
+
+
+	
 
 	virtual ~BspDemo();
 

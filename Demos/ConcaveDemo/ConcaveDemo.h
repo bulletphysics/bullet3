@@ -16,11 +16,34 @@ subject to the following restrictions:
 #define CONCAVE_DEMO_H
 
 #include "DemoApplication.h"
+#include "LinearMath/btAlignedObjectArray.h"
+
+class btBroadphaseInterface;
+class btCollisionShape;
+class btOverlappingPairCache;
+class btCollisionDispatcher;
+class btConstraintSolver;
+struct btCollisionAlgorithmCreateFunc;
+class btDefaultCollisionConfiguration;
+class btTriangleIndexVertexArray;
 
 ///ConcaveDemo shows usage of static concave triangle meshes
 ///It also shows per-triangle material (friction/restitution) through CustomMaterialCombinerCallback
 class ConcaveDemo : public DemoApplication
 {
+
+	//keep the collision shapes, for deletion/cleanup
+	btAlignedObjectArray<btCollisionShape*>	m_collisionShapes;
+
+	btTriangleIndexVertexArray* m_indexVertexArrays;
+
+	btBroadphaseInterface*	m_broadphase;
+
+	btCollisionDispatcher*	m_dispatcher;
+
+	btConstraintSolver*	m_solver;
+
+	btDefaultCollisionConfiguration* m_collisionConfiguration;
 
 	bool	m_animatedMesh;
 
@@ -31,6 +54,13 @@ class ConcaveDemo : public DemoApplication
 
 	}
 	void	initPhysics();
+
+	void	exitPhysics();
+
+	virtual ~ConcaveDemo()
+	{
+		exitPhysics();
+	}
 
 	virtual void clientMoveAndDisplay();
 

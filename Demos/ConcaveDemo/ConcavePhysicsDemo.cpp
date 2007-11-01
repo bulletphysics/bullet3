@@ -142,6 +142,8 @@ void	ConcaveDemo::initPhysics()
 
      gContactAddedCallback = CustomMaterialCombinerCallback;
 
+#define USE_TRIMESH_SHAPE 1
+#ifdef USE_TRIMESH_SHAPE
 
 	int vertStride = sizeof(btVector3);
 	int indexStride = 3*sizeof(int);
@@ -171,8 +173,8 @@ void	ConcaveDemo::initPhysics()
 			gIndices[index++] = (j+1)*NUM_VERTS_X+i;
 		}
 	}
-	
-	btTriangleIndexVertexArray* indexVertexArrays = new btTriangleIndexVertexArray(totalTriangles,
+
+	m_indexVertexArrays = new btTriangleIndexVertexArray(totalTriangles,
 		gIndices,
 		indexStride,
 		totalVerts,(btScalar*) &gVertices[0].x(),vertStride);
@@ -182,7 +184,9 @@ void	ConcaveDemo::initPhysics()
 //comment out the next line to read the BVH from disk (first run the demo once to create the BVH)
 #define SERIALIZE_TO_DISK 1
 #ifdef SERIALIZE_TO_DISK
-	trimeshShape  = new btBvhTriangleMeshShape(indexVertexArrays,useQuantizedAabbCompression);
+	trimeshShape  = new btBvhTriangleMeshShape(m_indexVertexArrays,useQuantizedAabbCompression);
+	m_collisionShapes.push_back(trimeshShape);
+	
 	
 	///we can serialize the BVH data 
 	void* buffer = 0;
@@ -193,10 +197,13 @@ void	ConcaveDemo::initPhysics()
 	FILE* file = fopen("bvh.bin","wb");
 	fwrite(buffer,1,numBytes,file);
 	fclose(file);
+	btAlignedFree(buffer);
+	
+
 
 #else
 
-	trimeshShape  = new btBvhTriangleMeshShape(indexVertexArrays,useQuantizedAabbCompression,false);
+	trimeshShape  = new btBvhTriangleMeshShape(m_indexVertexArrays,useQuantizedAabbCompression,false);
 
 	char* fileName = "bvh.bin";
 
@@ -225,9 +232,15 @@ void	ConcaveDemo::initPhysics()
 
 #endif
 
-//	btCollisionShape* groundShape = new btBoxShape(btVector3(50,3,50));
+	btCollisionShape* groundShape = trimeshShape;
+	
+#else
+	btCollisionShape* groundShape = new btBoxShape(btVector3(50,3,50));
+	m_collisionShapes.push_back(groundShape);
 
-btDefaultCollisionConfiguration* collisionConfiguration = new btDefaultCollisionConfiguration();
+#endif //USE_TRIMESH_SHAPE
+
+	m_collisionConfiguration = new btDefaultCollisionConfiguration();
 
 #ifdef USE_PARALLEL_DISPATCHER
 
@@ -247,17 +260,17 @@ btDefaultCollisionConfiguration* collisionConfiguration = new btDefaultCollision
 ///you can hook it up to your custom task scheduler by deriving from btThreadSupportInterface
 #endif
 
-	btCollisionDispatcher* dispatcher = new	SpuGatheringCollisionDispatcher(threadSupport,maxNumOutstandingTasks,collisionConfiguration);
+	m_dispatcher = new	SpuGatheringCollisionDispatcher(threadSupport,maxNumOutstandingTasks,m_collisionConfiguration);
 #else
-		btCollisionDispatcher* dispatcher = new	btCollisionDispatcher(collisionConfiguration);
+	m_dispatcher = new	btCollisionDispatcher(m_collisionConfiguration);
 #endif//USE_PARALLEL_DISPATCHER
 
 
 	btVector3 worldMin(-1000,-1000,-1000);
 	btVector3 worldMax(1000,1000,1000);
-	btBroadphaseInterface* pairCache = new btAxisSweep3(worldMin,worldMax);
-	btConstraintSolver* constraintSolver = new btSequentialImpulseConstraintSolver();
-	m_dynamicsWorld = new btDiscreteDynamicsWorld(dispatcher,pairCache,constraintSolver,collisionConfiguration);
+	m_broadphase = new btAxisSweep3(worldMin,worldMax);
+	m_solver = new btSequentialImpulseConstraintSolver();
+	m_dynamicsWorld = new btDiscreteDynamicsWorld(m_dispatcher,m_broadphase,m_solver,m_collisionConfiguration);
 #ifdef USE_PARALLEL_DISPATCHER
 	m_dynamicsWorld->getDispatchInfo().m_enableSPU=true;
 #endif //USE_PARALLEL_DISPATCHER
@@ -267,10 +280,12 @@ btDefaultCollisionConfiguration* collisionConfiguration = new btDefaultCollision
 	startTransform.setIdentity();
 	startTransform.setOrigin(btVector3(0,-2,0));
 
+	btCollisionShape* colShape = new btBoxShape(btVector3(1,1,1));
+	m_collisionShapes.push_back(colShape);
+
 	{
 		for (int i=0;i<10;i++)
 		{
-			btCollisionShape* colShape = new btBoxShape(btVector3(1,1,1));
 			//btCollisionShape* colShape = new btCapsuleShape(0.5,2.0);//boxShape = new btSphereShape(1.f);
 			startTransform.setOrigin(btVector3(2*i,10,1));
 			localCreateRigidBody(1, startTransform,colShape);
@@ -278,7 +293,7 @@ btDefaultCollisionConfiguration* collisionConfiguration = new btDefaultCollision
 	}
 
 	startTransform.setIdentity();
-	staticBody = localCreateRigidBody(mass, startTransform,trimeshShape);
+	staticBody = localCreateRigidBody(mass, startTransform,groundShape);
 
 	staticBody->setCollisionFlags(staticBody->getCollisionFlags() | btCollisionObject::CF_STATIC_OBJECT);
 
@@ -330,5 +345,57 @@ void ConcaveDemo::displayCallback(void) {
     glFlush();
     glutSwapBuffers();
 }
+
+
+
+void	ConcaveDemo::exitPhysics()
+{
+
+
+
+	//cleanup in the reverse order of creation/initialization
+
+	//remove the rigidbodies from the dynamics world and delete them
+	int i;
+	for (i=m_dynamicsWorld->getNumCollisionObjects()-1; i>=0 ;i--)
+	{
+		btCollisionObject* obj = m_dynamicsWorld->getCollisionObjectArray()[i];
+		btRigidBody* body = btRigidBody::upcast(obj);
+		if (body && body->getMotionState())
+		{
+			delete body->getMotionState();
+		}
+		m_dynamicsWorld->removeCollisionObject( obj );
+		delete obj;
+	}
+
+	//delete collision shapes
+	for (int j=0;j<m_collisionShapes.size();j++)
+	{
+		btCollisionShape* shape = m_collisionShapes[j];
+		delete shape;
+	}
+
+	//delete dynamics world
+	delete m_dynamicsWorld;
+
+	if (m_indexVertexArrays)
+		delete m_indexVertexArrays;
+
+	//delete solver
+	delete m_solver;
+
+	//delete broadphase
+	delete m_broadphase;
+
+	//delete dispatcher
+	delete m_dispatcher;
+
+	delete m_collisionConfiguration;
+
+	
+}
+
+
 
 

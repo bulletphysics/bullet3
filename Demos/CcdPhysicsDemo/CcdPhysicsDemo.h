@@ -16,13 +16,44 @@ subject to the following restrictions:
 #define CCD_PHYSICS_DEMO_H
 
 #include "DemoApplication.h"
+#include "LinearMath/btAlignedObjectArray.h"
+
+class btBroadphaseInterface;
+class btCollisionShape;
+class btOverlappingPairCache;
+class btCollisionDispatcher;
+class btConstraintSolver;
+struct btCollisionAlgorithmCreateFunc;
+class btDefaultCollisionConfiguration;
 
 ///CcdPhysicsDemo shows basic stacking using Bullet physics, and allows toggle of Ccd (using key '1')
 class CcdPhysicsDemo : public DemoApplication
 {
+
+	//keep the collision shapes, for deletion/cleanup
+	btAlignedObjectArray<btCollisionShape*>	m_collisionShapes;
+
+	btBroadphaseInterface*	m_broadphase;
+
+	btCollisionDispatcher*	m_dispatcher;
+
+	btConstraintSolver*	m_solver;
+
+	btCollisionAlgorithmCreateFunc*	m_boxBoxCF;
+
+	btDefaultCollisionConfiguration* m_collisionConfiguration;
+
+
 	public:
 
 	void	initPhysics();
+
+	void	exitPhysics();
+
+	virtual ~CcdPhysicsDemo()
+	{
+		exitPhysics();
+	}
 
 	virtual void clientMoveAndDisplay();
 

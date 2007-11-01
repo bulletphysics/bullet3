@@ -114,9 +114,7 @@ int	shapeIndex[maxNumObjects];
 #define EXTRA_HEIGHT -10.f
 //GL_LineSegmentShape shapeE(btPoint3(-50,0,0),
 //						   btPoint3(50,0,0));
-static const int numShapes = 4;
 
-btCollisionShape* shapePtr[numShapes] = {0,0,0,0};
 
 void CcdPhysicsDemo::createStack( btCollisionShape* boxShape, float halfCubeSize, int size, float zPos )
 {
@@ -236,11 +234,6 @@ void CcdPhysicsDemo::clientMoveAndDisplay()
 	if (m_dynamicsWorld)
 	{
 
-		//swap solver
-#ifdef COMPARE_WITH_QUICKSTEP
-	  m_dynamicsWorld->setConstraintSolver( new OdeConstraintSolver());
-#endif //COMPARE_WITH_QUICKSTEP
-
 //#define FIXED_STEP 1
 #ifdef FIXED_STEP
   		m_dynamicsWorld->stepSimulation(1.0f/60.f,0);
@@ -330,38 +323,22 @@ float myFrictionModel(	btRigidBody& body1,	btRigidBody& body2,	btManifoldPoint& 
 
 void	CcdPhysicsDemo::initPhysics()
 {
-
-	shapePtr[0] = 
-	///Please don't make the box sizes larger then 1000: the collision detection will be inaccurate.
-	///See http://www.continuousphysics.com/Bullet/phpBB2/viewtopic.php?t=346
-
 //#define USE_GROUND_PLANE 1
 #ifdef USE_GROUND_PLANE
-	new btStaticPlaneShape(btVector3(0,1,0),0.5);
+	m_collisionShapes.push_back(new btStaticPlaneShape(btVector3(0,1,0),0.5));
 #else
-	new btBoxShape (btVector3(200,CUBE_HALF_EXTENTS,200));
+
+	///Please don't make the box sizes larger then 1000: the collision detection will be inaccurate.
+	///See http://www.continuousphysics.com/Bullet/phpBB2/viewtopic.php?t=346
+	m_collisionShapes.push_back(new btBoxShape (btVector3(200,CUBE_HALF_EXTENTS,200)));
 #endif
 
-	shapePtr[1] = 
 #ifdef DO_BENCHMARK_PYRAMIDS
-		new btBoxShape (btVector3(CUBE_HALF_EXTENTS,CUBE_HALF_EXTENTS,CUBE_HALF_EXTENTS));
+	m_collisionShapes.push_back(new btBoxShape (btVector3(CUBE_HALF_EXTENTS,CUBE_HALF_EXTENTS,CUBE_HALF_EXTENTS)));
 #else
-		new btCylinderShape (btVector3(CUBE_HALF_EXTENTS,CUBE_HALF_EXTENTS,CUBE_HALF_EXTENTS));
+	m_collisionShapes.push_back(new btCylinderShape (btVector3(CUBE_HALF_EXTENTS,CUBE_HALF_EXTENTS,CUBE_HALF_EXTENTS)));
 #endif
-
-	shapePtr[2] = 
-		//new btSphereShape (CUBE_HALF_EXTENTS);
-		//new btCapsuleShape(0.5*CUBE_HALF_EXTENTS,CUBE_HALF_EXTENTS);
-		//new btCylinderShape (btVector3(1-gCollisionMargin,CUBE_HALF_EXTENTS-gCollisionMargin,1-gCollisionMargin));
-		//new btConeShapeX(CUBE_HALF_EXTENTS,2.f*CUBE_HALF_EXTENTS);
-		
-		new btSphereShape (CUBE_HALF_EXTENTS);
-		
-		//new btBU_Simplex1to4(btPoint3(-1,-1,-1),btPoint3(1,-1,-1),btPoint3(-1,1,-1),btPoint3(0,0,1));
-
-		//new btEmptyShape();
-
-	shapePtr[3] = new btBoxShape (btVector3(0.4,1,0.8));
+	
 
 
 #ifdef DO_BENCHMARK_PYRAMIDS
@@ -372,8 +349,8 @@ void	CcdPhysicsDemo::initPhysics()
 	m_azi = 90.f;
 #endif //DO_BENCHMARK_PYRAMIDS
 
-	btCollisionDispatcher* dispatcher=0;
-	btDefaultCollisionConfiguration* collisionConfiguration = new btDefaultCollisionConfiguration();
+	m_dispatcher=0;
+	m_collisionConfiguration = new btDefaultCollisionConfiguration();
 	
 #ifdef USE_PARALLEL_DISPATCHER
 int maxNumOutstandingTasks = 4;
@@ -413,41 +390,34 @@ int maxNumOutstandingTasks = 4;
 #endif
 
 
-	dispatcher = new	SpuGatheringCollisionDispatcher(threadSupportCollision,maxNumOutstandingTasks,collisionConfiguration);
-//	dispatcher = new	btCollisionDispatcher(collisionConfiguration);
+	m_dispatcher = new	SpuGatheringCollisionDispatcher(threadSupportCollision,maxNumOutstandingTasks,m_collisionConfiguration);
+//	m_dispatcher = new	btCollisionDispatcher(m_collisionConfiguration);
 #else
 	
-	dispatcher = new	btCollisionDispatcher(collisionConfiguration);
+	m_dispatcher = new	btCollisionDispatcher(m_collisionConfiguration);
 #endif //USE_PARALLEL_DISPATCHER
 
 #ifdef USE_CUSTOM_NEAR_CALLBACK
 	//this is optional
-	dispatcher->setNearCallback(customNearCallback);
+	m_dispatcher->setNearCallback(customNearCallback);
 #endif
 
 	btVector3 worldAabbMin(-1000,-1000,-1000);
 	btVector3 worldAabbMax(1000,1000,1000);
 
-	btBroadphaseInterface* broadphase = new btAxisSweep3(worldAabbMin,worldAabbMax,maxProxies);
+	m_broadphase = new btAxisSweep3(worldAabbMin,worldAabbMax,maxProxies);
 /// For large worlds or over 16384 objects, use the bt32BitAxisSweep3 broadphase
-//	btBroadphaseInterface* broadphase = new bt32BitAxisSweep3(worldAabbMin,worldAabbMax,maxProxies);
+//	m_broadphase = new bt32BitAxisSweep3(worldAabbMin,worldAabbMax,maxProxies);
 /// When trying to debug broadphase issues, try to use the btSimpleBroadphase
-//	btBroadphaseInterface* broadphase = new btSimpleBroadphase;
+//	m_broadphase = new btSimpleBroadphase;
 	
-#ifdef REGISTER_CUSTOM_COLLISION_ALGORITHM
-	dispatcher->registerCollisionCreateFunc(SPHERE_SHAPE_PROXYTYPE,SPHERE_SHAPE_PROXYTYPE,new btSphereSphereCollisionAlgorithm::CreateFunc);
 	//box-box is in Extras/AlternativeCollisionAlgorithms:it requires inclusion of those files
 #ifdef REGISTER_BOX_BOX
-	dispatcher->registerCollisionCreateFunc(BOX_SHAPE_PROXYTYPE,BOX_SHAPE_PROXYTYPE,new BoxBoxCollisionAlgorithm::CreateFunc);
+	m_dispatcher->registerCollisionCreateFunc(BOX_SHAPE_PROXYTYPE,BOX_SHAPE_PROXYTYPE,new BoxBoxCollisionAlgorithm::CreateFunc);
 #endif //REGISTER_BOX_BOX
-	dispatcher->registerCollisionCreateFunc(SPHERE_SHAPE_PROXYTYPE,TRIANGLE_SHAPE_PROXYTYPE,new btSphereTriangleCollisionAlgorithm::CreateFunc);
-	btSphereTriangleCollisionAlgorithm::CreateFunc* triangleSphereCF = new btSphereTriangleCollisionAlgorithm::CreateFunc;
-	triangleSphereCF->m_swapped = true;
-	dispatcher->registerCollisionCreateFunc(TRIANGLE_SHAPE_PROXYTYPE,SPHERE_SHAPE_PROXYTYPE,triangleSphereCF);
-#endif //REGISTER_CUSTOM_COLLISION_ALGORITHM
 
 #ifdef COMPARE_WITH_QUICKSTEP
-	btConstraintSolver* solver = new OdeConstraintSolver();
+	m_solver = new OdeConstraintSolver();
 #else
 
 	
@@ -459,11 +429,11 @@ int maxNumOutstandingTasks = 4;
 								createSolverLocalStoreMemory,
 								maxNumOutstandingTasks));
 
-	btConstraintSolver* solver = new btParallelSequentialImpulseSolver(threadSupportSolver,maxNumOutstandingTasks);
+	m_solver = new btParallelSequentialImpulseSolver(threadSupportSolver,maxNumOutstandingTasks);
 #else
-	btSequentialImpulseConstraintSolver* solver = new btSequentialImpulseConstraintSolver;
+	m_solver = new btSequentialImpulseConstraintSolver;
 	//default solverMode is SOLVER_RANDMIZE_ORDER. Warmstarting seems not to improve convergence, see 
-	//solver->setSolverMode(btSequentialImpulseConstraintSolver::SOLVER_USE_WARMSTARTING | btSequentialImpulseConstraintSolver::SOLVER_RANDMIZE_ORDER);
+	//m_solver->setSolverMode(btSequentialImpulseConstraintSolver::SOLVER_USE_WARMSTARTING | btSequentialImpulseConstraintSolver::SOLVER_RANDMIZE_ORDER);
 	
 #endif //USE_PARALLEL_SOLVER
 
@@ -471,10 +441,10 @@ int maxNumOutstandingTasks = 4;
 		
 #ifdef	USER_DEFINED_FRICTION_MODEL
 	//user defined friction model is not supported in 'cache friendly' solver yet, so switch to old solver
-	solver->setSolverMode(btSequentialImpulseConstraintSolver::SOLVER_RANDMIZE_ORDER);
+	m_solver->setSolverMode(btSequentialImpulseConstraintSolver::SOLVER_RANDMIZE_ORDER);
 #endif //USER_DEFINED_FRICTION_MODEL
 
-		btDiscreteDynamicsWorld* world = new btDiscreteDynamicsWorld(dispatcher,broadphase,solver,collisionConfiguration);
+		btDiscreteDynamicsWorld* world = new btDiscreteDynamicsWorld(m_dispatcher,m_broadphase,m_solver,m_collisionConfiguration);
 		m_dynamicsWorld = world;
 
 #ifdef DO_BENCHMARK_PYRAMIDS
@@ -488,10 +458,10 @@ int maxNumOutstandingTasks = 4;
 
 #ifdef USER_DEFINED_FRICTION_MODEL
 	{
-		//solver->setContactSolverFunc(ContactSolverFunc func,USER_CONTACT_SOLVER_TYPE1,DEFAULT_CONTACT_SOLVER_TYPE);
-		solver->SetFrictionSolverFunc(myFrictionModel,USER_CONTACT_SOLVER_TYPE1,DEFAULT_CONTACT_SOLVER_TYPE);
-		solver->SetFrictionSolverFunc(myFrictionModel,DEFAULT_CONTACT_SOLVER_TYPE,USER_CONTACT_SOLVER_TYPE1);
-		solver->SetFrictionSolverFunc(myFrictionModel,USER_CONTACT_SOLVER_TYPE1,USER_CONTACT_SOLVER_TYPE1);
+		//m_solver->setContactSolverFunc(ContactSolverFunc func,USER_CONTACT_SOLVER_TYPE1,DEFAULT_CONTACT_SOLVER_TYPE);
+		m_solver->SetFrictionSolverFunc(myFrictionModel,USER_CONTACT_SOLVER_TYPE1,DEFAULT_CONTACT_SOLVER_TYPE);
+		m_solver->SetFrictionSolverFunc(myFrictionModel,DEFAULT_CONTACT_SOLVER_TYPE,USER_CONTACT_SOLVER_TYPE1);
+		m_solver->SetFrictionSolverFunc(myFrictionModel,USER_CONTACT_SOLVER_TYPE1,USER_CONTACT_SOLVER_TYPE1);
 		//m_physicsEnvironmentPtr->setNumIterations(2);
 	}
 #endif //USER_DEFINED_FRICTION_MODEL
@@ -517,8 +487,8 @@ int maxNumOutstandingTasks = 4;
 	if (useCompound)
 	{
 		btCompoundShape* compoundShape = new btCompoundShape();
-		btCollisionShape* oldShape = shapePtr[1];
-		shapePtr[1] = compoundShape;
+		btCollisionShape* oldShape = m_collisionShapes[1];
+		m_collisionShapes[1] = compoundShape;
 		btVector3 sphereOffset(0,0,2);
 
 		comOffset.setIdentity();
@@ -538,7 +508,7 @@ int maxNumOutstandingTasks = 4;
 
 	for (i=0;i<gNumObjects;i++)
 	{
-		btCollisionShape* shape = shapePtr[shapeIndex[i]];
+		btCollisionShape* shape = m_collisionShapes[shapeIndex[i]];
 		shape->setMargin(gCollisionMargin);
 
 		bool isDyna = i>0;
@@ -610,7 +580,7 @@ int maxNumOutstandingTasks = 4;
 
 
 
-	localCreateRigidBody(0.f,trans,shapePtr[shapeIndex[0]]);
+	localCreateRigidBody(0.f,trans,m_collisionShapes[shapeIndex[0]]);
 
 	int numWalls = 15;
 	int wallHeight = 15;
@@ -620,11 +590,11 @@ int maxNumOutstandingTasks = 4;
 	for (int i=0;i<numWalls;i++)
 	{
 		float zPos = (i-numWalls/2) * wallDistance;
-		createStack(shapePtr[shapeIndex[1]],halfExtents,wallHeight,zPos);
+		createStack(m_collisionShapes[shapeIndex[1]],halfExtents,wallHeight,zPos);
 	}
-//	createStack(shapePtr[shapeIndex[1]],halfExtends,20,10);
+//	createStack(m_collisionShapes[shapeIndex[1]],halfExtends,20,10);
 
-//	createStack(shapePtr[shapeIndex[1]],halfExtends,20,20);
+//	createStack(m_collisionShapes[shapeIndex[1]],halfExtends,20,20);
 #define DESTROYER_BALL 1
 #ifdef DESTROYER_BALL
 	btTransform sphereTrans;
@@ -641,5 +611,52 @@ int maxNumOutstandingTasks = 4;
 }
 	
 
+
+
+
+
+void	CcdPhysicsDemo::exitPhysics()
+{
+
+
+	//cleanup in the reverse order of creation/initialization
+
+	//remove the rigidbodies from the dynamics world and delete them
+	int i;
+	for (i=m_dynamicsWorld->getNumCollisionObjects()-1; i>=0 ;i--)
+	{
+		btCollisionObject* obj = m_dynamicsWorld->getCollisionObjectArray()[i];
+		btRigidBody* body = btRigidBody::upcast(obj);
+		if (body && body->getMotionState())
+		{
+			delete body->getMotionState();
+		}
+		m_dynamicsWorld->removeCollisionObject( obj );
+		delete obj;
+	}
+
+	//delete collision shapes
+	for (int j=0;j<m_collisionShapes.size();j++)
+	{
+		btCollisionShape* shape = m_collisionShapes[j];
+		delete shape;
+	}
+
+	//delete dynamics world
+	delete m_dynamicsWorld;
+
+	//delete solver
+	delete m_solver;
+
+	//delete broadphase
+	delete m_broadphase;
+
+	//delete dispatcher
+	delete m_dispatcher;
+
+	delete m_collisionConfiguration;
+
+	
+}
 
 

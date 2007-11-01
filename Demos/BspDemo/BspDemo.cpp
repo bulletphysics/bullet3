@@ -47,11 +47,11 @@ subject to the following restrictions:
 ///BspToBulletConverter  extends the BspConverter to convert to Bullet datastructures
 class BspToBulletConverter : public BspConverter
 {
-	DemoApplication* m_demoApp;
+	BspDemo* m_demoApp;
 
 public:
 
-	BspToBulletConverter(DemoApplication*	demoApp)
+	BspToBulletConverter(BspDemo*	demoApp)
 		:m_demoApp(demoApp)
 	{
 	}
@@ -69,7 +69,9 @@ public:
 				startTransform.setIdentity();
 				startTransform.setOrigin(btVector3(0,0,-10.f));
 				//this create an internal copy of the vertices
+				
 				btCollisionShape* shape = new btConvexHullShape(&(vertices[0].getX()),vertices.size());
+				m_demoApp->m_collisionShapes.push_back(shape);
 
 				//btRigidBody* body = m_demoApp->localCreateRigidBody(mass, startTransform,shape);
 				m_demoApp->localCreateRigidBody(mass, startTransform,shape);
@@ -91,7 +93,42 @@ public:
 
 BspDemo::~BspDemo()
 {
+		//cleanup in the reverse order of creation/initialization
+
+	//remove the rigidbodies from the dynamics world and delete them
+	int i;
+	for (i=m_dynamicsWorld->getNumCollisionObjects()-1; i>=0 ;i--)
+	{
+		btCollisionObject* obj = m_dynamicsWorld->getCollisionObjectArray()[i];
+		btRigidBody* body = btRigidBody::upcast(obj);
+		if (body && body->getMotionState())
+		{
+			delete body->getMotionState();
+		}
+		m_dynamicsWorld->removeCollisionObject( obj );
+		delete obj;
+	}
+
+	//delete collision shapes
+	for (int j=0;j<m_collisionShapes.size();j++)
+	{
+		btCollisionShape* shape = m_collisionShapes[j];
+		delete shape;
+	}
+
+	//delete dynamics world
 	delete m_dynamicsWorld;
+
+	//delete solver
+	delete m_solver;
+
+	//delete broadphase
+	delete m_broadphase;
+
+	//delete dispatcher
+	delete m_dispatcher;
+
+	delete m_collisionConfiguration;
 }
 
 void	BspDemo::initPhysics(char* bspfilename)
@@ -105,16 +142,16 @@ void	BspDemo::initPhysics(char* bspfilename)
 
 	///Setup a Physics Simulation Environment
 
-	btDefaultCollisionConfiguration* collisionConfiguration = new btDefaultCollisionConfiguration();
+	m_collisionConfiguration = new btDefaultCollisionConfiguration();
 //	btCollisionShape* groundShape = new btBoxShape(btVector3(50,3,50));
-	btCollisionDispatcher* dispatcher = new btCollisionDispatcher(collisionConfiguration);
+	m_dispatcher = new btCollisionDispatcher(m_collisionConfiguration);
 	btVector3 worldMin(-1000,-1000,-1000);
 	btVector3 worldMax(1000,1000,1000);
-	btBroadphaseInterface* pairCache = new btAxisSweep3(worldMin,worldMax);
+	m_broadphase = new btAxisSweep3(worldMin,worldMax);
 	//btOverlappingPairCache* broadphase = new btSimpleBroadphase();
-	btConstraintSolver* constraintSolver = new btSequentialImpulseConstraintSolver();
+	m_solver = new btSequentialImpulseConstraintSolver();
 	//ConstraintSolver* solver = new OdeConstraintSolver;
-	m_dynamicsWorld = new btDiscreteDynamicsWorld(dispatcher,pairCache,constraintSolver,collisionConfiguration);
+	m_dynamicsWorld = new btDiscreteDynamicsWorld(m_dispatcher,m_broadphase,m_solver,m_collisionConfiguration);
 
 	m_dynamicsWorld->setGravity(-m_cameraUp * 10);
 

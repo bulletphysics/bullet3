@@ -87,6 +87,7 @@ btBvhTriangleMeshShape::~btBvhTriangleMeshShape()
 {
 	if (m_ownsBvh)
 	{
+		m_bvh->~btOptimizedBvh();
 		btAlignedFree(m_bvh);
 	}
 }
@@ -186,6 +187,7 @@ void	btBvhTriangleMeshShape::setLocalScaling(const btVector3& scaling)
 		btTriangleMeshShape::setLocalScaling(scaling);
 		if (m_ownsBvh)
 		{
+			m_bvh->~btOptimizedBvh();
 			btAlignedFree(m_bvh);
 		}
 		///m_localAabbMin/m_localAabbMax is already re-calculated in btTriangleMeshShape. We could just scale aabb, but this needs some more work

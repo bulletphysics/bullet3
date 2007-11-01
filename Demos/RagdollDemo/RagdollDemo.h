@@ -21,14 +21,39 @@ Written by: Marten Svanfeldt
 
 #include "DemoApplication.h"
 #include "LinearMath/btAlignedObjectArray.h"
+class btBroadphaseInterface;
+class btCollisionShape;
+class btOverlappingPairCache;
+class btCollisionDispatcher;
+class btConstraintSolver;
+struct btCollisionAlgorithmCreateFunc;
+class btDefaultCollisionConfiguration;
 
 class RagdollDemo : public DemoApplication
 {
 
 	btAlignedObjectArray<class RagDoll*> m_ragdolls;
 
+	//keep the collision shapes, for deletion/cleanup
+	btAlignedObjectArray<btCollisionShape*>	m_collisionShapes;
+
+	btBroadphaseInterface*	m_broadphase;
+
+	btCollisionDispatcher*	m_dispatcher;
+
+	btConstraintSolver*	m_solver;
+
+	btDefaultCollisionConfiguration* m_collisionConfiguration;
+
 public:
 	void initPhysics();
+
+	void exitPhysics();
+
+	virtual ~RagdollDemo()
+	{
+		exitPhysics();
+	}
 
 	void spawnRagdoll(bool random = false);
 

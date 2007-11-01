@@ -276,7 +276,7 @@ public:
 		m_ownerWorld->addConstraint(m_joints[JOINT_RIGHT_ELBOW], true);
 	}
 
-	~RagDoll ()
+	virtual	~RagDoll ()
 	{
 		int i;
 
@@ -309,22 +309,23 @@ void RagdollDemo::initPhysics()
 
 	setCameraDistance(btScalar(5.));
 
-	btDefaultCollisionConfiguration* collisionConfiguration = new btDefaultCollisionConfiguration();
+	m_collisionConfiguration = new btDefaultCollisionConfiguration();
 
-	btCollisionDispatcher* dispatcher = new btCollisionDispatcher(collisionConfiguration);
+	m_dispatcher = new btCollisionDispatcher(m_collisionConfiguration);
 
 	btPoint3 worldAabbMin(-10000,-10000,-10000);
 	btPoint3 worldAabbMax(10000,10000,10000);
-	btBroadphaseInterface* overlappingPairCache = new btAxisSweep3 (worldAabbMin, worldAabbMax);
+	m_broadphase = new btAxisSweep3 (worldAabbMin, worldAabbMax);
 
-	btConstraintSolver* solver = new btSequentialImpulseConstraintSolver;
+	m_solver = new btSequentialImpulseConstraintSolver;
 
-	m_dynamicsWorld = new btDiscreteDynamicsWorld(dispatcher,overlappingPairCache,solver,collisionConfiguration);
+	m_dynamicsWorld = new btDiscreteDynamicsWorld(m_dispatcher,m_broadphase,m_solver,m_collisionConfiguration);
 
 
 	// Setup a big ground box
 	{
 		btCollisionShape* groundShape = new btBoxShape(btVector3(btScalar(200.),btScalar(10.),btScalar(200.)));
+		m_collisionShapes.push_back(groundShape);
 		btTransform groundTransform;
 		groundTransform.setIdentity();
 		groundTransform.setOrigin(btVector3(0,-10,0));
@@ -390,3 +391,60 @@ void RagdollDemo::keyboardCallback(unsigned char key, int x, int y)
 
 	
 }
+
+
+
+void	RagdollDemo::exitPhysics()
+{
+
+	int i;
+
+	for (i=0;i<m_ragdolls.size();i++)
+	{
+		RagDoll* doll = m_ragdolls[i];
+		delete doll;
+	}
+
+	//cleanup in the reverse order of creation/initialization
+
+	//remove the rigidbodies from the dynamics world and delete them
+	
+	for (i=m_dynamicsWorld->getNumCollisionObjects()-1; i>=0 ;i--)
+	{
+		btCollisionObject* obj = m_dynamicsWorld->getCollisionObjectArray()[i];
+		btRigidBody* body = btRigidBody::upcast(obj);
+		if (body && body->getMotionState())
+		{
+			delete body->getMotionState();
+		}
+		m_dynamicsWorld->removeCollisionObject( obj );
+		delete obj;
+	}
+
+	//delete collision shapes
+	for (int j=0;j<m_collisionShapes.size();j++)
+	{
+		btCollisionShape* shape = m_collisionShapes[j];
+		delete shape;
+	}
+
+	//delete dynamics world
+	delete m_dynamicsWorld;
+
+	//delete solver
+	delete m_solver;
+
+	//delete broadphase
+	delete m_broadphase;
+
+	//delete dispatcher
+	delete m_dispatcher;
+
+	delete m_collisionConfiguration;
+
+	
+}
+
+
+
+
