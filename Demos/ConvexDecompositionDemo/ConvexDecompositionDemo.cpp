@@ -33,7 +33,6 @@ subject to the following restrictions:
 
 
 
-#include "GLDebugDrawer.h"
 
 #include "BMF_Api.h"
 #include <stdio.h> //printf debugging
@@ -56,7 +55,6 @@ btVector3	centroid;
 unsigned int tcount = 0;
 
 
-GLDebugDrawer debugDrawer;
 
 void ConvexDecompositionDemo::initPhysics(const char* filename)
 {
@@ -360,8 +358,7 @@ void ConvexDecompositionDemo::initPhysics(const char* filename)
 	}
 
 
-	m_dynamicsWorld->setDebugDrawer(&debugDrawer);
-
+	
 }
 
 void ConvexDecompositionDemo::clientMoveAndDisplay()
