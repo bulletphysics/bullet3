@@ -20,7 +20,6 @@ subject to the following restrictions:
 #include "LinearMath/btAabbUtil2.h"
 #include "BulletCollision/CollisionShapes/btCollisionMargin.h"
 
-#include "stdio.h"
 
 btTriangleMeshShape::btTriangleMeshShape(btStridingMeshInterface* meshInterface)
 : m_meshInterface(meshInterface)
@@ -138,6 +137,7 @@ const btVector3& btTriangleMeshShape::getLocalScaling() const
 //#define DEBUG_TRIANGLE_MESH
 
 
+/*
 void	btTriangleMeshShape::processAllTriangles(btTriangleCallback* callback,const btVector3& aabbMin,const btVector3& aabbMax) const
 {
 		struct FilteredCallback : public btInternalTriangleIndexCallback
@@ -171,6 +171,7 @@ void	btTriangleMeshShape::processAllTriangles(btTriangleCallback* callback,const
 }
 
 
+*/
 
 
 

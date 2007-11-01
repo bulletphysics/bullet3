@@ -20,7 +20,7 @@ subject to the following restrictions:
 #include "btStridingMeshInterface.h"
 
 
-///Concave triangle mesh. Uses an interface to access the triangles to allow for sharing graphics/physics triangles.
+///Concave triangle mesh interface. Don't use this class directly, use btBvhTriangleMeshShape instead.
 class btTriangleMeshShape : public btConcaveShape
 {
 protected:
@@ -51,7 +51,12 @@ public:
 
 	virtual void getAabb(const btTransform& t,btVector3& aabbMin,btVector3& aabbMax) const;
 
+//this is a brute force processAllTriangles implementation to compare/unit test the btBvhTriangleMeshShape.
+//it has been disabled, so that users will not mistakenly use this class.
+//Don't use btTriangleMeshShape but use btBvhTriangleMeshShape instead!
+/*
 	virtual void	processAllTriangles(btTriangleCallback* callback,const btVector3& aabbMin,const btVector3& aabbMax) const;
+*/
 
 	virtual void	calculateLocalInertia(btScalar mass,btVector3& inertia) const;
 
