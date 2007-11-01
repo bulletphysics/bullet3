@@ -20,7 +20,6 @@ subject to the following restrictions:
 //Note: some of those settings need 'DO_WALL' demo
 //#define USE_KINEMATIC_GROUND 1
 //#define PRINT_CONTACT_STATISTICS 1
-//#define REGISTER_CUSTOM_COLLISION_ALGORITHM 1
 //#define REGISTER_BOX_BOX 1 //needs to be used in combination with REGISTER_CUSTOM_COLLISION_ALGORITHM
 //#define USER_DEFINED_FRICTION_MODEL 1
 //#define USE_CUSTOM_NEAR_CALLBACK 1
@@ -342,7 +341,7 @@ void	CcdPhysicsDemo::initPhysics()
 
 
 #ifdef DO_BENCHMARK_PYRAMIDS
-	setCameraDistance(2.5f);
+	setCameraDistance(32.5f);
 #endif
 
 #ifdef DO_BENCHMARK_PYRAMIDS
@@ -441,7 +440,7 @@ int maxNumOutstandingTasks = 4;
 		
 #ifdef	USER_DEFINED_FRICTION_MODEL
 	//user defined friction model is not supported in 'cache friendly' solver yet, so switch to old solver
-	m_solver->setSolverMode(btSequentialImpulseConstraintSolver::SOLVER_RANDMIZE_ORDER);
+		m_solver->setSolverMode(btSequentialImpulseConstraintSolver::SOLVER_RANDMIZE_ORDER);
 #endif //USER_DEFINED_FRICTION_MODEL
 
 		btDiscreteDynamicsWorld* world = new btDiscreteDynamicsWorld(m_dispatcher,m_broadphase,m_solver,m_collisionConfiguration);
@@ -601,6 +600,7 @@ int maxNumOutstandingTasks = 4;
 	sphereTrans.setIdentity();
 	sphereTrans.setOrigin(btVector3(0,2,40));
 	btSphereShape* ball = new btSphereShape(2.f);
+	m_collisionShapes.push_back(ball);
 	btRigidBody* ballBody = localCreateRigidBody(10000.f,sphereTrans,ball);
 	ballBody->setLinearVelocity(btVector3(0,0,-10));
 #endif 
