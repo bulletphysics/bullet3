@@ -24,7 +24,7 @@
 #include "btOverlappingPairCache.h"
 #include "btBroadphaseInterface.h"
 #include "btBroadphaseProxy.h"
-
+#include "btOverlappingPairCallback.h"
 
 //#define DEBUG_BROADPHASE 1
 
@@ -82,6 +82,10 @@ protected:
 	Edge* m_pEdges[3];						// edge arrays for the 3 axes (each array has m_maxHandles * 2 + 2 sentinel entries)
 
 	btOverlappingPairCache* m_pairCache;
+
+	///btOverlappingPairCallback is an additional optional user callback for adding/removing overlapping pairs, similar interface to btOverlappingPairCache.
+	btOverlappingPairCallback* m_userPairCallback;
+	
 	bool	m_ownsPairCache;
 
 	int	m_invalidPair;
@@ -139,7 +143,14 @@ public:
 		return m_pairCache;
 	}
 
-
+	void	setOverlappingPairUserCallback(btOverlappingPairCallback* pairCallback)
+	{
+		m_userPairCallback = pairCallback;
+	}
+	const btOverlappingPairCallback*	getOverlappingPairUserCallback() const
+	{
+		return m_userPairCallback;
+	}
 };
 
 ////////////////////////////////////////////////////////////////////
@@ -209,6 +220,7 @@ btAxisSweep3Internal<BP_FP_INT_TYPE>::btAxisSweep3Internal(const btPoint3& world
 :m_bpHandleMask(handleMask),
 m_handleSentinel(handleSentinel),
 m_pairCache(pairCache),
+m_userPairCallback(0),
 m_ownsPairCache(false),
 m_invalidPair(0)
 {
@@ -658,6 +670,8 @@ void btAxisSweep3Internal<BP_FP_INT_TYPE>::sortMinDown(int axis, BP_FP_INT_TYPE 
 			if (updateOverlaps && testOverlap(axis,pHandleEdge, pHandlePrev))
 			{
 				m_pairCache->addOverlappingPair(pHandleEdge,pHandlePrev);
+				if (m_userPairCallback)
+					m_userPairCallback->addOverlappingPair(pHandleEdge,pHandlePrev);
 
 				//AddOverlap(pEdge->m_handle, pPrev->m_handle);
 
@@ -709,6 +723,9 @@ void btAxisSweep3Internal<BP_FP_INT_TYPE>::sortMinUp(int axis, BP_FP_INT_TYPE ed
 				Handle* handle1 = getHandle(pNext->m_handle);
 
 				m_pairCache->removeOverlappingPair(handle0,handle1,dispatcher);	
+				if (m_userPairCallback)
+					m_userPairCallback->removeOverlappingPair(handle0,handle1);
+				
 			}
 #endif //USE_LAZY_REMOVAL
 
@@ -756,6 +773,8 @@ void btAxisSweep3Internal<BP_FP_INT_TYPE>::sortMaxDown(int axis, BP_FP_INT_TYPE 
 				Handle* handle0 = getHandle(pEdge->m_handle);
 				Handle* handle1 = getHandle(pPrev->m_handle);
 				m_pairCache->removeOverlappingPair(handle0,handle1,dispatcher);
+				if (m_userPairCallback)
+					m_userPairCallback->removeOverlappingPair(handle0,handle1);
 			
 #endif //USE_LAZY_REMOVAL		
 
@@ -806,6 +825,8 @@ void btAxisSweep3Internal<BP_FP_INT_TYPE>::sortMaxUp(int axis, BP_FP_INT_TYPE ed
 				Handle* handle0 = getHandle(pEdge->m_handle);
 				Handle* handle1 = getHandle(pNext->m_handle);
 				m_pairCache->addOverlappingPair(handle0,handle1);
+				if (m_userPairCallback)
+					m_userPairCallback->addOverlappingPair(handle0,handle1);
 			}
 
 			// update edge reference in other handle
