@@ -275,7 +275,7 @@ void ConvexDecompositionDemo::initPhysics(const char* filename)
 
 	};
 
-	if (0)//tcount)
+	if (tcount)
 	{
 		btTriangleMesh* trimesh = new btTriangleMesh();
 

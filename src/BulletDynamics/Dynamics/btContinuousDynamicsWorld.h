@@ -20,7 +20,7 @@ subject to the following restrictions:
 
 ///btContinuousDynamicsWorld adds optional (per object) continuous collision detection for fast moving objects to the btDiscreteDynamicsWorld.
 ///This copes with fast moving objects that otherwise would tunnel/miss collisions.
-///Under construction, don't use yet!
+///Under construction, don't use yet! Please use btDiscreteDynamicsWorld instead.
 class btContinuousDynamicsWorld : public btDiscreteDynamicsWorld
 {
 

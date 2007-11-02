@@ -333,14 +333,17 @@ void RagdollDemo::initPhysics()
 	}
 
 	// Spawn one ragdoll
-	spawnRagdoll();
+	btVector3 startOffset(1,0.5,0);
+	spawnRagdoll(startOffset);
+	startOffset.setValue(-1,0.5,0);
+	spawnRagdoll(startOffset);
 
 	clientResetScene();		
 }
 
-void RagdollDemo::spawnRagdoll(bool random)
+void RagdollDemo::spawnRagdoll(const btVector3& startOffset)
 {
-	RagDoll* ragDoll = new RagDoll (m_dynamicsWorld, btVector3 (0,1,0));
+	RagDoll* ragDoll = new RagDoll (m_dynamicsWorld, startOffset);
 	m_ragdolls.push_back(ragDoll);
 }	
 
@@ -383,8 +386,11 @@ void RagdollDemo::keyboardCallback(unsigned char key, int x, int y)
 	switch (key)
 	{
 	case 'e':
-		spawnRagdoll(true);
+		{
+		btVector3 startOffset(0,2,0);
+		spawnRagdoll(startOffset);
 		break;
+		}
 	default:
 		DemoApplication::keyboardCallback(key, x, y);
 	}

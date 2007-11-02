@@ -597,7 +597,6 @@ void	btOptimizedBvh::reportAabbOverlappingNodex(btNodeOverlapCallback* nodeCallb
 {
 	//either choose recursive traversal (walkTree) or stackless (walkStacklessTree)
 
-
 	if (m_useQuantization)
 	{
 		///quantize query AABB

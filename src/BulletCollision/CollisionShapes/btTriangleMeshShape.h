@@ -27,10 +27,12 @@ protected:
 	btVector3	m_localAabbMin;
 	btVector3	m_localAabbMax;
 	btStridingMeshInterface* m_meshInterface;
-	
+
+	///btTriangleMeshShape constructor has been disabled/protected, so that users will not mistakenly use this class.
+	///Don't use btTriangleMeshShape but use btBvhTriangleMeshShape instead!
+	btTriangleMeshShape(btStridingMeshInterface* meshInterface);
 
 public:
-	btTriangleMeshShape(btStridingMeshInterface* meshInterface);
 
 	virtual ~btTriangleMeshShape();
 
@@ -51,12 +53,7 @@ public:
 
 	virtual void getAabb(const btTransform& t,btVector3& aabbMin,btVector3& aabbMax) const;
 
-//this is a brute force processAllTriangles implementation to compare/unit test the btBvhTriangleMeshShape.
-//it has been disabled, so that users will not mistakenly use this class.
-//Don't use btTriangleMeshShape but use btBvhTriangleMeshShape instead!
-/*
 	virtual void	processAllTriangles(btTriangleCallback* callback,const btVector3& aabbMin,const btVector3& aabbMax) const;
-*/
 
 	virtual void	calculateLocalInertia(btScalar mass,btVector3& inertia) const;
 

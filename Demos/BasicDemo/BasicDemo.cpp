@@ -199,7 +199,7 @@ void	BasicDemo::initPhysics()
 	localCreateRigidBody(btScalar(0.),groundTransform,groundShape);
 
 	//create a few dynamic sphere rigidbodies (re-using the same sphere shape)
-	//btCollisionShape* sphereShape = new btBoxShape(btVector3(1,1,1));
+	//btCollisionShape* colShape = new btBoxShape(btVector3(1,1,1));
 	btCollisionShape* colShape = new btSphereShape(btScalar(1.));
 	m_collisionShapes.push_back(colShape);
 

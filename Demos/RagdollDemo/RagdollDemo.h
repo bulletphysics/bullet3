@@ -55,7 +55,7 @@ public:
 		exitPhysics();
 	}
 
-	void spawnRagdoll(bool random = false);
+	void spawnRagdoll(const btVector3& startOffset);
 
 	virtual void clientMoveAndDisplay();
 
