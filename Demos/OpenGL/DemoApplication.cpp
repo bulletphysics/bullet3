@@ -86,12 +86,12 @@ DemoApplication::~DemoApplication()
 void DemoApplication::myinit(void)
 {
 
-    GLfloat light_ambient[] = { 0.0, 0.0, 0.0, 1.0 };
+    GLfloat light_ambient[] = { 0.2, 0.2, 0.2, 1.0 };
     GLfloat light_diffuse[] = { 1.0, 1.0, 1.0, 1.0 };
     GLfloat light_specular[] = { 1.0, 1.0, 1.0, 1.0 };
     /*	light_position is NOT default value	*/
-    GLfloat light_position0[] = { 1.0, 1.0, 1.0, 0.0 };
-    GLfloat light_position1[] = { -1.0, -1.0, -1.0, 0.0 };
+    GLfloat light_position0[] = { 1.0, 10.0, 1.0, 0.0 };
+    GLfloat light_position1[] = { -1.0, -10.0, -1.0, 0.0 };
   
     glLightfv(GL_LIGHT0, GL_AMBIENT, light_ambient);
     glLightfv(GL_LIGHT0, GL_DIFFUSE, light_diffuse);
@@ -112,7 +112,7 @@ void DemoApplication::myinit(void)
     glEnable(GL_DEPTH_TEST);
     glDepthFunc(GL_LESS);
 
-		glClearColor(0.8,0.8,0.8,0);
+		glClearColor(0.7,0.7,0.7,0);
 
     //  glEnable(GL_CULL_FACE);
     //  glCullFace(GL_BACK);
@@ -816,6 +816,7 @@ void DemoApplication::renderme()
 			float yIncr = 20.f;
 			char buf[124];
 
+			glDisable(GL_LIGHTING);
 			glColor3f(0, 0, 0);
 
 			if ((m_debugMode & btIDebugDraw::DBG_NoHelpText)==0)
@@ -968,6 +969,9 @@ void DemoApplication::renderme()
 
 				resetPerspectiveProjection();
 			}
+
+			glEnable(GL_LIGHTING);
+
 		
 	}
 
