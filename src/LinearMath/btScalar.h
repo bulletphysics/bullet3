@@ -23,10 +23,11 @@ subject to the following restrictions:
 #include <cfloat>
 #include <float.h>
 
+#define BT_BULLET_VERSION 265
 
 inline int	btGetVersion()
 {
-	return 264;
+	return BT_BULLET_VERSION;
 }
 
 #ifdef WIN32
