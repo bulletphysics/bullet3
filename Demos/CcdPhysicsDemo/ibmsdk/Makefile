@@ -24,7 +24,7 @@ PROGRAM_ppu	:= CcdPhysicsDemo
 #######################################################################
 #			Objs
 ######################################################################
-OBJS		= CcdPhysicsDemo.o
+OBJS		= CcdPhysicsDemo.o main.o
 
 CELL_TOP ?= /opt/ibm/cell-sdk/prototype
 
