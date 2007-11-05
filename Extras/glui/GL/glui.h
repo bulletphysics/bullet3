@@ -321,6 +321,8 @@ class GLUI_FileBrowser;
 class GLUI_Scrollbar;
 class GLUI_Listbox;
 class GLUI_List;
+class GLUI_Rollout;
+class GLUI_Tree;
 
 
 /**
