@@ -34,7 +34,10 @@ ATTRIBUTE_ALIGNED16( struct)	btIndexedMesh
 	int			m_numVertices;
 	const unsigned char *		m_vertexBase;
 	int			m_vertexStride;
-	int			pad[2];
+	// The index type is set when adding an indexed mesh to the
+	// btTriangleIndexVertexArray, do not set it manually
+	PHY_ScalarType		m_indexType;
+	int			pad;
 }
 ;
 
@@ -64,9 +67,10 @@ public:
 	//just to be backwards compatible
 	btTriangleIndexVertexArray(int numTriangleIndices,int* triangleIndexBase,int triangleIndexStride,int numVertices,btScalar* vertexBase,int vertexStride);
 	
-	void	addIndexedMesh(const btIndexedMesh& mesh)
+	void	addIndexedMesh(const btIndexedMesh& mesh, PHY_ScalarType indexType = PHY_INTEGER)
 	{
 		m_indexedMeshes.push_back(mesh);
+		m_indexedMeshes[m_indexedMeshes.size()-1].m_indexType = indexType;
 	}
 	
 	

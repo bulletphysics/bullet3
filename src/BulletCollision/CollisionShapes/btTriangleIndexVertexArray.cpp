@@ -54,7 +54,7 @@ void	btTriangleIndexVertexArray::getLockedVertexIndexBase(unsigned char **vertex
 
 	(*indexbase) = (unsigned char *)mesh.m_triangleIndexBase;
 	indexstride = mesh.m_triangleIndexStride;
-	indicestype = PHY_INTEGER;
+	indicestype = mesh.m_indexType;
 }
 
 void	btTriangleIndexVertexArray::getLockedReadOnlyVertexIndexBase(const unsigned char **vertexbase, int& numverts,PHY_ScalarType& type, int& vertexStride,const unsigned char **indexbase,int & indexstride,int& numfaces,PHY_ScalarType& indicestype,int subpart) const
@@ -73,6 +73,6 @@ void	btTriangleIndexVertexArray::getLockedReadOnlyVertexIndexBase(const unsigned
 	numfaces = mesh.m_numTriangles;
 	(*indexbase) = (const unsigned char *)mesh.m_triangleIndexBase;
 	indexstride = mesh.m_triangleIndexStride;
-	indicestype = PHY_INTEGER;
+	indicestype = mesh.m_indexType;
 }
 

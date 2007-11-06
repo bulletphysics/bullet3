@@ -95,7 +95,9 @@ void btOptimizedBvh::build(btStridingMeshInterface* triangles, bool useQuantized
 
 		virtual void internalProcessTriangleIndex(btVector3* triangle,int partId,int  triangleIndex)
 		{
-			btAssert(partId==0);
+			// The partId and triangle index must fit in the same (positive) integer
+			btAssert(partId < (1<<MAX_NUM_PARTS_IN_BITS));
+			btAssert(triangleIndex < (1<<(31-MAX_NUM_PARTS_IN_BITS)));
 			//negative indices are reserved for escapeIndex
 			btAssert(triangleIndex>=0);
 
@@ -132,7 +134,7 @@ void btOptimizedBvh::build(btStridingMeshInterface* triangles, bool useQuantized
 			m_optimizedTree->quantizeWithClamp(&node.m_quantizedAabbMin[0],aabbMin);
 			m_optimizedTree->quantizeWithClamp(&node.m_quantizedAabbMax[0],aabbMax);
 
-			node.m_escapeIndexOrTriangleIndex = triangleIndex;
+			node.m_escapeIndexOrTriangleIndex = (partId<<(31-MAX_NUM_PARTS_IN_BITS)) | triangleIndex;
 
 			m_triangleNodes.push_back(node);
 		}
@@ -256,7 +258,7 @@ void	btOptimizedBvh::updateBvhNodes(btStridingMeshInterface* meshInterface,int f
 
 	btAssert(m_useQuantization);
 
-	int nodeSubPart=0;
+	int curNodeSubPart=-1;
 
 	//get access info to trianglemesh data
 		const unsigned char *vertexbase;
@@ -267,7 +269,6 @@ void	btOptimizedBvh::updateBvhNodes(btStridingMeshInterface* meshInterface,int f
 		int indexstride;
 		int numfaces;
 		PHY_ScalarType indicestype;
-		meshInterface->getLockedReadOnlyVertexIndexBase(&vertexbase,numverts,	type,stride,&indexbase,indexstride,numfaces,indicestype,nodeSubPart);
 
 		btVector3	triangleVerts[3];
 		btVector3	aabbMin,aabbMax;
@@ -282,7 +283,15 @@ void	btOptimizedBvh::updateBvhNodes(btStridingMeshInterface* meshInterface,int f
 			if (curNode.isLeafNode())
 			{
 				//recalc aabb from triangle data
+				int nodeSubPart = curNode.getPartId();
 				int nodeTriangleIndex = curNode.getTriangleIndex();
+				if (nodeSubPart != curNodeSubPart)
+				{
+					if (curNodeSubPart >= 0)
+						meshInterface->unLockReadOnlyVertexBase(curNodeSubPart);
+					meshInterface->getLockedReadOnlyVertexIndexBase(&vertexbase,numverts,	type,stride,&indexbase,indexstride,numfaces,indicestype,nodeSubPart);
+					btAssert(indicestype==PHY_INTEGER||indicestype==PHY_SHORT);
+				}
 				//triangles->getLockedReadOnlyVertexIndexBase(vertexBase,numVerts,
 
 				int* gfxbase = (int*)(indexbase+nodeTriangleIndex*indexstride);
@@ -291,7 +300,7 @@ void	btOptimizedBvh::updateBvhNodes(btStridingMeshInterface* meshInterface,int f
 				for (int j=2;j>=0;j--)
 				{
 					
-					int graphicsindex = gfxbase[j];
+					int graphicsindex = indicestype==PHY_SHORT?((short*)gfxbase)[j]:gfxbase[j];
 					btScalar* graphicsbase = (btScalar*)(vertexbase+graphicsindex*stride);
 #ifdef DEBUG_PATCH_COLORS
 					btVector3 mycolor = color[index&3];
@@ -347,7 +356,8 @@ void	btOptimizedBvh::updateBvhNodes(btStridingMeshInterface* meshInterface,int f
 
 		}
 
-		meshInterface->unLockReadOnlyVertexBase(nodeSubPart);
+		if (curNodeSubPart >= 0)
+			meshInterface->unLockReadOnlyVertexBase(curNodeSubPart);
 
 		
 }
@@ -713,7 +723,7 @@ void btOptimizedBvh::walkRecursiveQuantizedTreeAgainstQueryAabb(const btQuantize
 	{
 		if (isLeafNode)
 		{
-			nodeCallback->processNode(0,currentNode->getTriangleIndex());
+			nodeCallback->processNode(currentNode->getPartId(),currentNode->getTriangleIndex());
 		} else
 		{
 			//process left and right children
@@ -776,7 +786,7 @@ void	btOptimizedBvh::walkStacklessQuantizedTree(btNodeOverlapCallback* nodeCallb
 		
 		if (isLeafNode && aabbOverlap)
 		{
-			nodeCallback->processNode(0,rootNode->getTriangleIndex());
+			nodeCallback->processNode(rootNode->getPartId(),rootNode->getTriangleIndex());
 		} 
 		
 		//PCK: unsigned instead of bool

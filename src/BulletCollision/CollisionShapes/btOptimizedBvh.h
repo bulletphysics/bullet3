@@ -31,6 +31,9 @@ class btStridingMeshInterface;
 //Note: currently we have 16 bytes per quantized node
 #define MAX_SUBTREE_SIZE_IN_BYTES  2048
 
+// 10 gives the potential for 1024 parts, with at most 2^21 (2097152) (minus one
+// actually) triangles each (since the sign bit is reserved
+#define MAX_NUM_PARTS_IN_BITS 10
 
 ///btQuantizedBvhNode is a compressed aabb node, 16 bytes.
 ///Node can be used for leafnode or internal node. Leafnodes can point to 32-bit triangle index (non-negative range).
@@ -57,7 +60,14 @@ ATTRIBUTE_ALIGNED16	(struct) btQuantizedBvhNode
 	int	getTriangleIndex() const
 	{
 		btAssert(isLeafNode());
-		return m_escapeIndexOrTriangleIndex;
+		// Get only the lower bits where the triangle index is stored
+		return (m_escapeIndexOrTriangleIndex&~((~0)<<(31-MAX_NUM_PARTS_IN_BITS)));
+	}
+	int	getPartId() const
+	{
+		btAssert(isLeafNode());
+		// Get only the highest bits where the part index is stored
+		return (m_escapeIndexOrTriangleIndex>>(31-MAX_NUM_PARTS_IN_BITS));
 	}
 }
 ;
