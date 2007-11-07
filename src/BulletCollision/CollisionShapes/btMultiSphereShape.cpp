@@ -47,7 +47,7 @@ btMultiSphereShape::btMultiSphereShape (const btVector3& inertiaHalfExtents,cons
 
 	btVector3 vec = vec0;
 	btScalar lenSqr = vec.length2();
-	if (lenSqr < btScalar(0.0001))
+	if (lenSqr < (SIMD_EPSILON*SIMD_EPSILON))
 	{
 		vec.setValue(1,0,0);
 	} else
