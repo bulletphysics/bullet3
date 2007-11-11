@@ -433,10 +433,6 @@ static void solveContact (SpuSolverInternalConstraint& constraint, SpuSolverBody
 		float sum = oldNormalImpulse + normalImpulse;
 		constraint.m_appliedImpulse = float(0.) > sum ? float(0.): sum;
 
-		float oldVelocityImpulse = constraint.m_appliedVelocityImpulse;
-		float velocitySum = oldVelocityImpulse + velocityImpulse;
-		constraint.m_appliedVelocityImpulse = float(0.) > velocitySum ? float(0.): velocitySum;
-
 		normalImpulse = constraint.m_appliedImpulse - oldNormalImpulse;
 
 		if (bodyA.m_invertedMass > 0)
@@ -1074,7 +1070,6 @@ void processSolverTask(void* userPtr, void* lsMemory)
 										-(taskDesc.m_commandData.m_manifoldSetup.m_solverInfo.m_erp/taskDesc.m_commandData.m_manifoldSetup.m_solverInfo.m_timeStep);
 
 									constraint.m_appliedImpulse = 0.f;
-									constraint.m_appliedVelocityImpulse = 0.f;
 
 
 									btVector3 torqueAxis0 = rel_pos1.cross(cp.m_normalWorldOnB);
@@ -1101,9 +1096,8 @@ void processSolverTask(void* userPtr, void* lsMemory)
 									constraint.m_friction = cp.m_combinedFriction;
 
 									constraint.m_appliedImpulse = btScalar(0.);
-									constraint.m_appliedVelocityImpulse = 0.f;
 
-									constraint.m_jacDiagABInv = computeJacobianInverse (rb0, rb1, pos1, pos2, cp.m_normalWorldOnB);
+									constraint.m_jacDiagABInv = computeJacobianInverse (rb0, rb1, pos1, pos2, constraint.m_normal);
 
 									{
 										btVector3 ftorqueAxis0 = rel_pos1.cross(constraint.m_normal);
@@ -1128,9 +1122,8 @@ void processSolverTask(void* userPtr, void* lsMemory)
 									constraint.m_friction = cp.m_combinedFriction;
 
 									constraint.m_appliedImpulse = btScalar(0.);
-									constraint.m_appliedVelocityImpulse = 0.f;
 
-									constraint.m_jacDiagABInv = computeJacobianInverse (rb0, rb1, pos1, pos2, cp.m_normalWorldOnB);
+									constraint.m_jacDiagABInv = computeJacobianInverse (rb0, rb1, pos1, pos2, constraint.m_normal);
 
 									{
 										btVector3 ftorqueAxis0 = rel_pos1.cross(constraint.m_normal);

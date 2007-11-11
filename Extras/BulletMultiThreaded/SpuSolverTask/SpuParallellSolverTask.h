@@ -126,7 +126,6 @@ ATTRIBUTE_ALIGNED16(struct) SpuSolverInternalConstraint
 	uint32_t			m_localOffsetBodyB;
 
 	btScalar				m_appliedImpulse;
-	btScalar				m_appliedVelocityImpulse;
 
 	btScalar				m_friction;
 	btScalar				m_restitution;
