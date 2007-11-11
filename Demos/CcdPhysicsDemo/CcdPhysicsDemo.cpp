@@ -322,6 +322,9 @@ float myFrictionModel(	btRigidBody& body1,	btRigidBody& body2,	btManifoldPoint& 
 
 void	CcdPhysicsDemo::initPhysics()
 {
+	m_threadSupportSolver = 0;
+	m_threadSupportCollision = 0;
+
 //#define USE_GROUND_PLANE 1
 #ifdef USE_GROUND_PLANE
 	m_collisionShapes.push_back(new btStaticPlaneShape(btVector3(0,1,0),0.5));
@@ -356,7 +359,7 @@ int maxNumOutstandingTasks = 4;
 
 #ifdef USE_WIN32_THREADING
 
-	Win32ThreadSupport* threadSupportCollision = new Win32ThreadSupport(Win32ThreadSupport::Win32ThreadConstructionInfo(
+	m_threadSupportCollision = new Win32ThreadSupport(Win32ThreadSupport::Win32ThreadConstructionInfo(
 								"collision",
 								processCollisionTask,
 								createCollisionLocalStoreMemory,
@@ -389,7 +392,7 @@ int maxNumOutstandingTasks = 4;
 #endif
 
 
-	m_dispatcher = new	SpuGatheringCollisionDispatcher(threadSupportCollision,maxNumOutstandingTasks,m_collisionConfiguration);
+	m_dispatcher = new	SpuGatheringCollisionDispatcher(m_threadSupportCollision,maxNumOutstandingTasks,m_collisionConfiguration);
 //	m_dispatcher = new	btCollisionDispatcher(m_collisionConfiguration);
 #else
 	
@@ -422,7 +425,7 @@ int maxNumOutstandingTasks = 4;
 	
 #ifdef USE_PARALLEL_SOLVER
 
-	Win32ThreadSupport* threadSupportSolver = new Win32ThreadSupport(Win32ThreadSupport::Win32ThreadConstructionInfo(
+	m_threadSupportSolver = new Win32ThreadSupport(Win32ThreadSupport::Win32ThreadConstructionInfo(
 								"solver",
 								processSolverTask,
 								createSolverLocalStoreMemory,
@@ -648,11 +651,21 @@ void	CcdPhysicsDemo::exitPhysics()
 	//delete solver
 	delete m_solver;
 
+	if (m_threadSupportSolver)
+	{
+		delete m_threadSupportSolver;
+	}
+
 	//delete broadphase
 	delete m_broadphase;
 
 	//delete dispatcher
 	delete m_dispatcher;
+
+	if (m_threadSupportCollision)
+	{
+		delete m_threadSupportCollision;
+	}
 
 	delete m_collisionConfiguration;
 

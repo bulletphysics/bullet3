@@ -1026,6 +1026,9 @@ void processSolverTask(void* userPtr, void* lsMemory)
 								btVector3 rel_pos1 = pos1 - rb0->getCenterOfMassPosition(); 
 								btVector3 rel_pos2 = pos2 - rb1->getCenterOfMassPosition();
 
+								btScalar rel_vel;
+								btVector3 vel;
+
 								// De-penetration
 								{
 									SpuSolverInternalConstraint& constraint = localMemory->m_tempInternalConstr[0];
@@ -1034,7 +1037,6 @@ void processSolverTask(void* userPtr, void* lsMemory)
 									constraint.m_localOffsetBodyB = offsB;
 
 									constraint.m_normal = cp.m_normalWorldOnB;
-
 									{
 										//can be optimized, the cross products are already calculated										
 										constraint.m_jacDiagABInv = computeJacobianInverse (rb0, rb1, pos1, pos2, cp.m_normalWorldOnB);
@@ -1046,10 +1048,8 @@ void processSolverTask(void* userPtr, void* lsMemory)
 									btVector3 vel1 = rb0->getVelocityInLocalPoint(rel_pos1);
 									btVector3 vel2 = rb1->getVelocityInLocalPoint(rel_pos2);
 
-									btVector3 vel = vel1 - vel2;
-									btScalar rel_vel;
+									vel = vel1 - vel2;
 									rel_vel = cp.m_normalWorldOnB.dot(vel);
-
 
 									constraint.m_penetration = cp.getDistance();///btScalar(infoGlobal.m_numIterations);
 									constraint.m_friction = cp.m_combinedFriction;
@@ -1082,8 +1082,16 @@ void processSolverTask(void* userPtr, void* lsMemory)
 
 								btVector3 frictionTangential0a, frictionTangential1b;
 
-								btPlaneSpace1(cp.m_normalWorldOnB,frictionTangential0a,frictionTangential1b);
-
+								frictionTangential0a = vel - cp.m_normalWorldOnB * rel_vel;
+								btScalar lat_rel_vel = frictionTangential0a.length2();
+								if (lat_rel_vel > SIMD_EPSILON)//0.0f)
+								{
+									frictionTangential0a /= btSqrt(lat_rel_vel);
+									frictionTangential1b = frictionTangential0a.cross(cp.m_normalWorldOnB);
+								} else
+								{
+									btPlaneSpace1(cp.m_normalWorldOnB,frictionTangential0a,frictionTangential1b);
+								}
 
 								{
 									SpuSolverInternalConstraint& constraint = localMemory->m_tempInternalConstr[1];

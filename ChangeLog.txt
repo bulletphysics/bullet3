@@ -1,6 +1,15 @@
 Bullet Continuous Collision Detection and Physics Library
 Primary author and maintainer: Erwin Coumans
 
+2007 Nov 11
+	- Fixed parallel solver (BulletMultiThreaded) friction issue
+	- Terminate Win32 Threads when closing the CcdPhysicsDemo (when USE_PARALLEL_SOLVER/USE_PARALLEL_DISPATCHER is defined)
+
+2007 Nov 6
+	- Added support for 16-bit indices for triangle meshes
+	- Added support for multiple mesh parts using btBvhTriangleMeshShape.
+	Thanks to Tim Johansson
+	
 2007 Oct 22
 	- All memory allocations go through btAlignedAlloc/btAlignedFree. User can override this to verify memory leaks
 	- added a few more demos to AllBulletDemos

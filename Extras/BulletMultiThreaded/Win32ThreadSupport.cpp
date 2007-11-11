@@ -52,23 +52,27 @@ DWORD WINAPI Thread_no_1( LPVOID lpParam )
 	while (1)
 	{
 		WaitForSingleObject(status->m_eventStartHandle,INFINITE);
-		btAssert(status->m_status);
-
+		
 		void* userPtr = status->m_userPtr;
 
 		if (userPtr)
 		{
+			btAssert(status->m_status);
 			status->m_userThreadFunc(userPtr,status->m_lsMemory);
 			status->m_status = 2;
 			SetEvent(status->m_eventCompletetHandle);
 		} else
 		{
 			//exit Thread
+			status->m_status = 3;
+			SetEvent(status->m_eventCompletetHandle);
+			printf("Thread with taskId %i with handle %i exiting\n",status->m_taskId, status->m_threadHandle);
 			break;
 		}
 		
 	}
 
+	printf("Thread TERMINATED\n");
 	return 0;
 
 }
@@ -202,7 +206,7 @@ void Win32ThreadSupport::startThreads(Win32ThreadConstructionInfo& threadConstru
 		SetThreadPriority(handle,THREAD_PRIORITY_HIGHEST);
 		//SetThreadPriority(handle,THREAD_PRIORITY_TIME_CRITICAL);
 
-		//SetThreadAffinityMask(handle, 1<<i);
+		SetThreadAffinityMask(handle, 1<<i);
 
 		spuStatus.m_taskId = i;
 		spuStatus.m_commandId = 0;
@@ -225,10 +229,28 @@ void Win32ThreadSupport::startSPU()
 ///tell the task scheduler we are done with the SPU tasks
 void Win32ThreadSupport::stopSPU()
 {
-//	m_activeSpuStatus.pop_back();
-//	WaitForSingleObject(spuStatus.bla, INFINITE);
-//	CloseHandle(spuStatus.m_threadHandle);
-	
+	int i;
+	for (i=0;i<m_activeSpuStatus.size();i++)
+	{
+		btSpuStatus& spuStatus = m_activeSpuStatus[i];
+		if (spuStatus.m_status>0)
+		{
+			WaitForSingleObject(spuStatus.m_eventCompletetHandle, INFINITE);
+		}
+		
+
+		spuStatus.m_userPtr = 0;
+		SetEvent(spuStatus.m_eventStartHandle);
+		WaitForSingleObject(spuStatus.m_eventCompletetHandle, INFINITE);
+
+		CloseHandle(spuStatus.m_eventCompletetHandle);
+		CloseHandle(spuStatus.m_eventStartHandle);
+		CloseHandle(spuStatus.m_threadHandle);
+	}
+
+	m_activeSpuStatus.clear();
+	m_completeHandles.clear();
+
 }
 
 #endif //USE_WIN32_THREADING

@@ -25,6 +25,7 @@ class btCollisionDispatcher;
 class btConstraintSolver;
 struct btCollisionAlgorithmCreateFunc;
 class btDefaultCollisionConfiguration;
+class Win32ThreadSupport;
 
 ///CcdPhysicsDemo shows basic stacking using Bullet physics, and allows toggle of Ccd (using key '1')
 class CcdPhysicsDemo : public DemoApplication
@@ -36,6 +37,10 @@ class CcdPhysicsDemo : public DemoApplication
 	btBroadphaseInterface*	m_broadphase;
 
 	btCollisionDispatcher*	m_dispatcher;
+
+	Win32ThreadSupport*		m_threadSupportCollision;
+
+	Win32ThreadSupport*		m_threadSupportSolver;
 
 	btConstraintSolver*	m_solver;
 

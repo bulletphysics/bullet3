@@ -93,12 +93,12 @@ public:
 
 btDemoEntry g_demoEntries[] =
 {
-	{"BasicDemo", BasicDemo::Create},
 	{"RagdollDemo",RagdollDemo::Create},
-	{"ConvexDecomposition",ConvexDecompositionDemo::Create},
 	{"CcdPhysicsDemo", CcdPhysicsDemo::Create},
-	{"BspDemo", BspDemo::Create},
 	{"ConcaveDemo",ConcaveDemo::Create},
+	{"ConvexDecomposition",ConvexDecompositionDemo::Create},
+	{"BasicDemo", BasicDemo::Create},
+	{"BspDemo", BspDemo::Create},
 	{"Gimpact Test", GimpactConcaveDemo::Create},
 	{"Raytracer Test",Raytracer::Create},
 	{"GjkConvexCast",LinearConvexCastDemo::Create},
