@@ -21,7 +21,7 @@ subject to the following restrictions:
 #include "BulletCollision/BroadphaseCollision/btSimpleBroadphase.h"
 #include "BulletCollision/CollisionShapes/btCollisionShape.h"
 #include "BulletCollision/CollisionDispatch/btSimulationIslandManager.h"
-#include <LinearMath/btTransformUtil.h>
+#include "LinearMath/btTransformUtil.h"
 
 //rigidbody & constraints
 #include "BulletDynamics/Dynamics/btRigidBody.h"

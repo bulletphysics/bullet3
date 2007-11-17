@@ -26,7 +26,7 @@ Nov.2006
 
 #include "btGjkEpa.h"
 #include <string.h> //for memset
-#include <LinearMath/btStackAlloc.h>
+#include "LinearMath/btStackAlloc.h"
 
 #if defined(DEBUG) || defined (_DEBUG)
 #include <stdio.h> //for debug printf

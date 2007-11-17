@@ -13,7 +13,7 @@ subject to the following restrictions:
 3. This notice may not be removed or altered from any source distribution.
 */
 
-#include <BulletCollision/CollisionShapes/btPolyhedralConvexShape.h>
+#include "BulletCollision/CollisionShapes/btPolyhedralConvexShape.h"
 
 btPolyhedralConvexShape::btPolyhedralConvexShape()
 :m_localAabbMin(1,1,1),
