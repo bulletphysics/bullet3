@@ -133,8 +133,7 @@ void CollisionInterfaceDemo::displayCallback(void) {
 		btPersistentManifold* contactManifold = collisionWorld->getDispatcher()->getManifoldByIndexInternal(i);
 		btCollisionObject* obA = static_cast<btCollisionObject*>(contactManifold->getBody0());
 		btCollisionObject* obB = static_cast<btCollisionObject*>(contactManifold->getBody1());
-		contactManifold->refreshContactPoints(obA->getWorldTransform(),obB->getWorldTransform());
-
+	
 		int numContacts = contactManifold->getNumContacts();
 		for (int j=0;j<numContacts;j++)
 		{
