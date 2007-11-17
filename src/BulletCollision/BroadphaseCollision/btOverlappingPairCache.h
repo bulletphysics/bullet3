@@ -177,7 +177,7 @@ private:
 	
 	SIMD_FORCE_INLINE	unsigned int getHash(unsigned int proxyId1, unsigned int proxyId2)
 	{
-		int key = ((unsigned int)proxyId1) | (((unsigned int)proxyId1) <<16);
+		int key = ((unsigned int)proxyId1) | (((unsigned int)proxyId2) <<16);
 		// Thomas Wang's hash
 
 		key += ~(key << 15);

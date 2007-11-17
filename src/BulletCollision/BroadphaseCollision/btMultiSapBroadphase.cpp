@@ -80,7 +80,7 @@ btBroadphaseProxy*	btMultiSapBroadphase::createProxy(  const btVector3& aabbMin,
 	simpleProxy->m_multiSapParentProxy = proxy;
 
 	mem = btAlignedAlloc(sizeof(btChildProxy),16);
-	btChildProxy* childProxyRef = new btChildProxy();
+	btChildProxy* childProxyRef = new(mem) btChildProxy();
 	childProxyRef->m_proxy = simpleProxy;
 	childProxyRef->m_childBroadphase = m_simpleBroadphase;
 	proxy->m_childProxies.push_back(childProxyRef);
