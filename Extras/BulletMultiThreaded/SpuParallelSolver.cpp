@@ -28,7 +28,7 @@ Written by: Marten Svanfeldt
 #include "BulletCollision/CollisionShapes/btCollisionShape.h"
 #include "BulletCollision/CollisionDispatch/btCollisionObject.h"
 #include "BulletDynamics/ConstraintSolver/btTypedConstraint.h"
-#include "LinearMath/profile.h"
+#include "LinearMath/btQuickProf.h"
 
 #include "SpuSolverTask/SpuParallellSolverTask.h"
 
