@@ -72,6 +72,7 @@ m_shootBoxShape(0),
 	m_singleStep(false),
 	m_idle(false)
 {
+	m_profileIterator = CProfileManager::Get_Iterator();
 }
 
 
@@ -79,6 +80,7 @@ m_shootBoxShape(0),
 DemoApplication::~DemoApplication()
 {
 
+	CProfileManager::Release_Iterator(m_profileIterator);
 	if (m_shootBoxShape)
 		delete m_shootBoxShape;
 
@@ -241,6 +243,17 @@ void DemoApplication::keyboardCallback(unsigned char key, int x, int y)
 	(void)y;
 
 		m_lastKey = 0;
+
+        if (key >= 0x31 && key < 0x37)
+        {
+                int child = key-0x31;
+                m_profileIterator->Enter_Child(child);
+        }
+        if (key==0x30)
+        {
+                m_profileIterator->Enter_Parent();
+        }
+
 
     switch (key) 
     {
@@ -760,7 +773,7 @@ void DemoApplication::resetPerspectiveProjection()
 
 
 
-extern CProfileIterator * gProfileIterator;
+extern CProfileIterator * m_profileIterator;
 
 void DemoApplication::displayProfileString(int xOffset,int yStart,char* message)
 {
@@ -788,12 +801,12 @@ void DemoApplication::showProfileInfo(float& xOffset,float& yStart, float yIncr)
 		
 		int frames_since_reset = CProfileManager::Get_Frame_Count_Since_Reset();
 
-		gProfileIterator->First();
+		m_profileIterator->First();
 
-		double parent_time = gProfileIterator->Is_Root() ? time_since_reset : gProfileIterator->Get_Current_Parent_Total_Time();
+		double parent_time = m_profileIterator->Is_Root() ? time_since_reset : m_profileIterator->Get_Current_Parent_Total_Time();
 
 		{
-			sprintf(blockTime,"--- Profiling: %s (total running time: %.3f m) ---",	gProfileIterator->Get_Current_Parent_Name(), parent_time );
+			sprintf(blockTime,"--- Profiling: %s (total running time: %.3f m) ---",	m_profileIterator->Get_Current_Parent_Name(), parent_time );
 			displayProfileString(xOffset,yStart,blockTime);
 			yStart += yIncr;
 			sprintf(blockTime,"press number (1,2...) to display child timings, or 0 to go up to parent" );
@@ -805,15 +818,15 @@ void DemoApplication::showProfileInfo(float& xOffset,float& yStart, float yIncr)
 
 		double accumulated_time = 0.f;
 
-		for (int i = 0; !gProfileIterator->Is_Done(); gProfileIterator->Next())
+		for (int i = 0; !m_profileIterator->Is_Done(); m_profileIterator->Next())
 		{
-			double current_total_time = gProfileIterator->Get_Current_Total_Time();
+			double current_total_time = m_profileIterator->Get_Current_Total_Time();
 			accumulated_time += current_total_time;
 			double fraction = parent_time > SIMD_EPSILON ? (current_total_time / parent_time) * 100 : 0.f;
 
 			sprintf(blockTime,"%d -- %s (%.2f %%) :: %.3f ms / frame (%d calls)",
-				++i, gProfileIterator->Get_Current_Name(), fraction,
-				(current_total_time / (double)frames_since_reset),gProfileIterator->Get_Current_Total_Calls());
+				++i, m_profileIterator->Get_Current_Name(), fraction,
+				(current_total_time / (double)frames_since_reset),m_profileIterator->Get_Current_Total_Calls());
 			displayProfileString(xOffset,yStart,blockTime);
 			yStart += yIncr;
 			totalTime += current_total_time;

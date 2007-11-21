@@ -31,7 +31,6 @@
 static GLDebugDrawer gDebugDrawer;
 #include "LinearMath/btQuickProf.h"
 
-CProfileIterator * gProfileIterator=0;
 
 
 namespace
@@ -180,16 +179,6 @@ void SimulationLoop()
 void Keyboard(unsigned char key, int x, int y)
 {
 
-	if (key >= 0x31 && key < 0x37)
-	{
-		int child = key-0x31;
-		gProfileIterator->Enter_Child(child);
-	}
-	if (key==0x30)
-	{
-		gProfileIterator->Enter_Parent();
-		return;
-	}
 
 
 
@@ -239,7 +228,6 @@ void MouseMotion(int x, int y)
 int main(int argc, char** argv)
 {
 	
-	gProfileIterator = CProfileManager::Get_Iterator();
 
 	
 	int bulletVersion = btGetVersion();

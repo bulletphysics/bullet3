@@ -50,7 +50,7 @@ unsigned long int btProfiler::mCycleNumber = 0;
 
 static btClock gProfileClock;
 
-inline void Profile_Get_Ticks(_int64 * ticks)
+inline void Profile_Get_Ticks(unsigned long int * ticks)
 {
 	*ticks = gProfileClock.getTimeMicroseconds();
 }
@@ -152,7 +152,7 @@ void	CProfileNode::Call( void )
 bool	CProfileNode::Return( void )
 {
 	if ( --RecursionCounter == 0 && TotalCalls != 0 ) { 
-		__int64 time;
+		unsigned long int time;
 		Profile_Get_Ticks(&time);
 		time-=StartTime;
 		TotalTime += (float)time / Profile_Get_Tick_Rate();
@@ -224,7 +224,7 @@ void	CProfileIterator::Enter_Parent( void )
 CProfileNode	CProfileManager::Root( "Root", NULL );
 CProfileNode *	CProfileManager::CurrentNode = &CProfileManager::Root;
 int				CProfileManager::FrameCounter = 0;
-__int64			CProfileManager::ResetTime = 0;
+unsigned long int			CProfileManager::ResetTime = 0;
 
 
 /***********************************************************************************************
@@ -291,7 +291,7 @@ void CProfileManager::Increment_Frame_Counter( void )
  *=============================================================================================*/
 float CProfileManager::Get_Time_Since_Reset( void )
 {
-	__int64 time;
+	unsigned long int time;
 	Profile_Get_Ticks(&time);
 	time -= ResetTime;
 	return (float)time / Profile_Get_Tick_Rate();

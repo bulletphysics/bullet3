@@ -52,6 +52,7 @@ class	btTypedConstraint;
 class DemoApplication
 {
 	void	displayProfileString(int xOffset,int yStart,char* message);
+	class CProfileIterator* m_profileIterator;
 
 	protected:
 

@@ -746,7 +746,7 @@ protected:
 	const char *	Name;
 	int				TotalCalls;
 	float				TotalTime;
-	__int64			StartTime;
+	unsigned long int			StartTime;
 	int				RecursionCounter;
 
 	CProfileNode *	Parent;
@@ -810,7 +810,7 @@ private:
 	static	CProfileNode			Root;
 	static	CProfileNode *			CurrentNode;
 	static	int						FrameCounter;
-	static	__int64					ResetTime;
+	static	unsigned long int					ResetTime;
 };
 
 
