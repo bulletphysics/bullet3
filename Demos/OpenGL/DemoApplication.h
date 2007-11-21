@@ -39,15 +39,20 @@ subject to the following restrictions:
 #include "LinearMath/btMatrix3x3.h"
 #include "LinearMath/btTransform.h"
 #include "LinearMath/btQuickprof.h"
+#include "LinearMath/btAlignedObjectArray.h"
 
 class	btCollisionShape;
 class	btDynamicsWorld;
 class	btRigidBody;
 class	btTypedConstraint;
 
+
+
+
 class DemoApplication
 {
-	
+	void	displayProfileString(int xOffset,int yStart,char* message);
+
 	protected:
 
 	btClock m_clock;
@@ -82,7 +87,10 @@ class DemoApplication
 	bool m_singleStep;
 	bool m_idle;
 	int m_lastKey;
-	
+
+	void showProfileInfo(float& xOffset,float& yStart, float yIncr);
+
+
 public:
 		
 	DemoApplication();

@@ -300,8 +300,6 @@ void CcdPhysicsDemo::displayCallback(void) {
 
 	glClear(GL_COLOR_BUFFER_BIT | GL_DEPTH_BUFFER_BIT); 
 
-	m_dynamicsWorld->updateAabbs();
-
 	
 	renderme();
 
@@ -431,11 +429,13 @@ int maxNumOutstandingTasks = 4;
 								createSolverLocalStoreMemory,
 								maxNumOutstandingTasks));
 
-	m_solver = new btParallelSequentialImpulseSolver(threadSupportSolver,maxNumOutstandingTasks);
+	m_solver = new btParallelSequentialImpulseSolver(m_threadSupportSolver,maxNumOutstandingTasks);
 #else
-	m_solver = new btSequentialImpulseConstraintSolver;
+	btSequentialImpulseConstraintSolver* solver = new btSequentialImpulseConstraintSolver();
+
+	m_solver = solver;
 	//default solverMode is SOLVER_RANDMIZE_ORDER. Warmstarting seems not to improve convergence, see 
-	//m_solver->setSolverMode(btSequentialImpulseConstraintSolver::SOLVER_USE_WARMSTARTING | btSequentialImpulseConstraintSolver::SOLVER_RANDMIZE_ORDER);
+	//solver->setSolverMode(0);//btSequentialImpulseConstraintSolver::SOLVER_USE_WARMSTARTING | btSequentialImpulseConstraintSolver::SOLVER_RANDMIZE_ORDER);
 	
 #endif //USE_PARALLEL_SOLVER
 

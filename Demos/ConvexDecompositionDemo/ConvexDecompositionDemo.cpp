@@ -90,7 +90,7 @@ void ConvexDecompositionDemo::initPhysics(const char* filename)
 ///you can hook it up to your custom task scheduler by deriving from btThreadSupportInterface
 #endif
 
-	m_dispatcher = new	SpuGatheringCollisionDispatcher(threadSupport,maxNumOutstandingTasks,collisionConfiguration);
+	m_dispatcher = new	SpuGatheringCollisionDispatcher(threadSupport,maxNumOutstandingTasks,m_collisionConfiguration);
 #else
 	m_dispatcher = new	btCollisionDispatcher(m_collisionConfiguration);
 #endif//USE_PARALLEL_DISPATCHER

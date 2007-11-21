@@ -28,6 +28,7 @@ Written by: Marten Svanfeldt
 #include "BulletCollision/CollisionShapes/btCollisionShape.h"
 #include "BulletCollision/CollisionDispatch/btCollisionObject.h"
 #include "BulletDynamics/ConstraintSolver/btTypedConstraint.h"
+#include "LinearMath/profile.h"
 
 #include "SpuSolverTask/SpuParallellSolverTask.h"
 
@@ -108,6 +109,8 @@ void btParallelSequentialImpulseSolver::prepareSolve(int numBodies, int numManif
 
 btScalar btParallelSequentialImpulseSolver::solveGroup(btCollisionObject** bodies,int numBodies,btPersistentManifold** manifold,int numManifolds,btTypedConstraint** constraints,int numConstraints, const btContactSolverInfo& info,class btIDebugDraw* debugDrawer, btStackAlloc* stackAlloc,btDispatcher* dispatcher)
 {
+	PROFILE("parallel_solveGroup");
+
 	if (!numManifolds && !numConstraints)
 		return 0;
 	int i;
@@ -259,6 +262,8 @@ btAlignedObjectArray<SpuSolverConstraint> solverConstraintPool_persist;
 
 void btParallelSequentialImpulseSolver::allSolved (const btContactSolverInfo& info,class btIDebugDraw* debugDrawer, btStackAlloc* stackAlloc)
 {
+	PROFILE("parallel_allSolved");
+
 	if (!m_numberOfContacts && !m_sortedConstraints.size())
 	{
 		m_sortedManifolds.clear();
@@ -348,6 +353,8 @@ void btParallelSequentialImpulseSolver::allSolved (const btContactSolverInfo& in
 
 	// Setup all the moving rigid bodies
 	{
+		PROFILE("setup moving rigidbodies");
+
 		int bodiesPerTask = PARALLEL_SOLVER_BODIES_PER_TASK;
 		int bodiesToSchedule = numBodies;
 		int startBody = 0;
@@ -409,33 +416,37 @@ void btParallelSequentialImpulseSolver::allSolved (const btContactSolverInfo& in
 		m_taskScheduler.flushTasks();
 	}
 
-	btSpinlock::SpinVariable* spinVar = (btSpinlock::SpinVariable*)btAlignedAlloc(sizeof(btSpinlock::SpinVariable), 128);
-	for (int iter = 0; iter < info.m_numIterations; ++iter)
 	{
-		btSpinlock lock (spinVar);
-		lock.Init();
+		PROFILE("parallel_solve_iterations");
 
-		// Clear the "processed cells" part of the hash
-		memcpy(m_solverHash->m_currentMask[0], emptyCellMask, sizeof(uint32_t)*SPU_HASH_NUMCELLDWORDS);
-
-		for (int task = 0; task < m_taskScheduler.getMaxOutstandingTasks(); ++task)
+		btSpinlock::SpinVariable* spinVar = (btSpinlock::SpinVariable*)btAlignedAlloc(sizeof(btSpinlock::SpinVariable), 128);
+		for (int iter = 0; iter < info.m_numIterations; ++iter)
 		{
-			SpuSolverTaskDesc* desc = m_taskScheduler.getTask();
-			desc->m_solverCommand = CMD_SOLVER_SOLVE_ITERATE;
+			btSpinlock lock (spinVar);
+			lock.Init();
 
-			desc->m_solverData.m_solverHash = m_solverHash;
-			desc->m_solverData.m_solverBodyList = solverBodyPool;
-			desc->m_solverData.m_solverBodyOffsetList = solverBodyOffsetList;
-			desc->m_solverData.m_solverInternalConstraintList = solverInternalConstraintPool;
-			desc->m_solverData.m_solverConstraintList = solverConstraintPool;
+			// Clear the "processed cells" part of the hash
+			memcpy(m_solverHash->m_currentMask[0], emptyCellMask, sizeof(uint32_t)*SPU_HASH_NUMCELLDWORDS);
 
-			desc->m_commandData.m_iterate.m_spinLockVar = spinVar;
+			for (int task = 0; task < m_taskScheduler.getMaxOutstandingTasks(); ++task)
+			{
+				SpuSolverTaskDesc* desc = m_taskScheduler.getTask();
+				desc->m_solverCommand = CMD_SOLVER_SOLVE_ITERATE;
 
-			m_taskScheduler.issueTask();
-		} 
-		m_taskScheduler.flushTasks();		
+				desc->m_solverData.m_solverHash = m_solverHash;
+				desc->m_solverData.m_solverBodyList = solverBodyPool;
+				desc->m_solverData.m_solverBodyOffsetList = solverBodyOffsetList;
+				desc->m_solverData.m_solverInternalConstraintList = solverInternalConstraintPool;
+				desc->m_solverData.m_solverConstraintList = solverConstraintPool;
+
+				desc->m_commandData.m_iterate.m_spinLockVar = spinVar;
+
+				m_taskScheduler.issueTask();
+			} 
+			m_taskScheduler.flushTasks();		
+		}
+		btAlignedFree((void*)spinVar);
 	}
-	btAlignedFree((void*)spinVar);
 	
 	// Write back velocity
 	{

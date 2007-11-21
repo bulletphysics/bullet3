@@ -33,6 +33,7 @@ subject to the following restrictions:
 #include "btSolverBody.h"
 #include "btSolverConstraint.h"
 
+
 #include "LinearMath/btAlignedObjectArray.h"
 
 #ifdef USE_PROFILE
@@ -415,6 +416,7 @@ void	btSequentialImpulseConstraintSolver::addFrictionConstraint(const btVector3&
 
 btScalar btSequentialImpulseConstraintSolver::solveGroupCacheFriendlySetup(btCollisionObject** bodies,int numBodies,btPersistentManifold** manifoldPtr, int numManifolds,btTypedConstraint** constraints,int numConstraints,const btContactSolverInfo& infoGlobal,btIDebugDraw* debugDrawer,btStackAlloc* stackAlloc)
 {
+	PROFILE("solveGroupCacheFriendlySetup");
 	(void)stackAlloc;
 	(void)debugDrawer;
 
@@ -718,6 +720,7 @@ btScalar btSequentialImpulseConstraintSolver::solveGroupCacheFriendlySetup(btCol
 
 btScalar btSequentialImpulseConstraintSolver::solveGroupCacheFriendlyIterations(btCollisionObject** bodies,int numBodies,btPersistentManifold** manifoldPtr, int numManifolds,btTypedConstraint** constraints,int numConstraints,const btContactSolverInfo& infoGlobal,btIDebugDraw* debugDrawer,btStackAlloc* stackAlloc)
 {
+	PROFILE("solveGroupCacheFriendlyIterations");
 	BEGIN_PROFILE("solveConstraintsIterations");
 	int numConstraintPool = m_tmpSolverConstraintPool.size();
 	int numFrictionPool = m_tmpSolverFrictionConstraintPool.size();
@@ -750,6 +753,7 @@ btScalar btSequentialImpulseConstraintSolver::solveGroupCacheFriendlyIterations(
 
 			for (j=0;j<numConstraints;j++)
 			{
+				PROFILE("solveConstraint");
 				btTypedConstraint* constraint = constraints[j];
 				///todo: use solver bodies, so we don't need to copy from/to btRigidBody
 
@@ -776,9 +780,11 @@ btScalar btSequentialImpulseConstraintSolver::solveGroupCacheFriendlyIterations(
 			}
 
 			{
+				PROFILE("resolveSingleCollisionCombinedCacheFriendly");
 				int numPoolConstraints = m_tmpSolverConstraintPool.size();
 				for (j=0;j<numPoolConstraints;j++)
 				{
+					
 					const btSolverConstraint& solveManifold = m_tmpSolverConstraintPool[m_orderTmpConstraintPool[j]];
 					resolveSingleCollisionCombinedCacheFriendly(m_tmpSolverBodyPool[solveManifold.m_solverBodyIdA],
 						m_tmpSolverBodyPool[solveManifold.m_solverBodyIdB],solveManifold,infoGlobal);
@@ -786,6 +792,7 @@ btScalar btSequentialImpulseConstraintSolver::solveGroupCacheFriendlyIterations(
 			}
 
 			{
+				PROFILE("resolveSingleFrictionCacheFriendly");
 				 int numFrictionPoolConstraints = m_tmpSolverFrictionConstraintPool.size();
 				
 				 for (j=0;j<numFrictionPoolConstraints;j++)
@@ -850,7 +857,7 @@ btScalar btSequentialImpulseConstraintSolver::solveGroupCacheFriendly(btCollisio
 /// btSequentialImpulseConstraintSolver Sequentially applies impulses
 btScalar btSequentialImpulseConstraintSolver::solveGroup(btCollisionObject** bodies,int numBodies,btPersistentManifold** manifoldPtr, int numManifolds,btTypedConstraint** constraints,int numConstraints,const btContactSolverInfo& infoGlobal,btIDebugDraw* debugDrawer,btStackAlloc* stackAlloc,btDispatcher* dispatcher)
 {
-
+	PROFILE("solveGroup");
 	if (getSolverMode() & SOLVER_CACHE_FRIENDLY)
 	{
 		//you need to provide at least some bodies

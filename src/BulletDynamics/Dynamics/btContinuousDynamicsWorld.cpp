@@ -47,6 +47,7 @@ void	btContinuousDynamicsWorld::internalSingleStepSimulation( btScalar timeStep)
 {
 	
 	startProfiling(timeStep);
+	
 
 	///update aabbs information
 	updateAabbs();

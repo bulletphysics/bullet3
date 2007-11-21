@@ -29,6 +29,9 @@
 #include "GLDebugDrawer.h"
 
 static GLDebugDrawer gDebugDrawer;
+#include "LinearMath/btQuickProf.h"
+
+CProfileIterator * gProfileIterator=0;
 
 
 namespace
@@ -80,6 +83,9 @@ DemoApplication* CreatDemo(btDemoEntry* entry)
 	{
 		demo->getDynamicsWorld()->setDebugDrawer(&gDebugDrawer);
 	}
+	
+	CProfileManager::Reset();
+
 	return demo;
 
 }
@@ -107,6 +113,9 @@ void Timer(int)
 
 void SimulationLoop()
 {
+
+	
+
 	if (gDrawAabb)
 	{ 
 		demo->setDebugMode(demo->getDebugMode() |btIDebugDraw::DBG_DrawAabb);
@@ -146,10 +155,15 @@ void SimulationLoop()
 
 
 	if (!demo->isIdle())
+	{
 		demo->clientMoveAndDisplay();
-	else
-		demo->displayCallback();
+		
 
+	}
+	else
+	{
+		demo->displayCallback();
+	}
 	if (testSelection != testIndex)
 	{
 		testIndex = testSelection;
@@ -161,10 +175,23 @@ void SimulationLoop()
 		viewY = 0.0f;
 		Resize(width, height);
 	}
-}
+}	
 
 void Keyboard(unsigned char key, int x, int y)
 {
+
+	if (key >= 0x31 && key < 0x37)
+	{
+		int child = key-0x31;
+		gProfileIterator->Enter_Child(child);
+	}
+	if (key==0x30)
+	{
+		gProfileIterator->Enter_Parent();
+		return;
+	}
+
+
 
 	switch (key)
 	{
@@ -211,7 +238,10 @@ void MouseMotion(int x, int y)
 
 int main(int argc, char** argv)
 {
+	
+	gProfileIterator = CProfileManager::Get_Iterator();
 
+	
 	int bulletVersion = btGetVersion();
 	printf("Bullet version %d\n",bulletVersion);
 

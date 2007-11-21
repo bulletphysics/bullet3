@@ -449,21 +449,9 @@ void VehicleDemo::clientMoveAndDisplay()
 
 void VehicleDemo::displayCallback(void) 
 {
-
-	clientMoveAndDisplay();
-	return;
-
 	glClear(GL_COLOR_BUFFER_BIT | GL_DEPTH_BUFFER_BIT); 
 
-
-	
-	//m_dynamicsWorld->updateAabbs();
-	
-	//draw contactpoints
-	//m_physicsEnvironmentPtr->CallbackTriggers();
-
-
-	//renderme();
+	renderme();
 
 
 	glFlush();

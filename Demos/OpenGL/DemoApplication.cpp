@@ -29,6 +29,7 @@ subject to the following restrictions:
 #include "LinearMath/btQuickprof.h"
 #include "LinearMath/btDefaultMotionState.h"
 
+
 #include "BMF_Api.h"
 
 extern bool gDisableDeactivation;
@@ -77,6 +78,7 @@ m_shootBoxShape(0),
 
 DemoApplication::~DemoApplication()
 {
+
 	if (m_shootBoxShape)
 		delete m_shootBoxShape;
 
@@ -756,6 +758,88 @@ void DemoApplication::resetPerspectiveProjection()
 }
 
 
+
+
+extern CProfileIterator * gProfileIterator;
+
+void DemoApplication::displayProfileString(int xOffset,int yStart,char* message)
+{
+	glRasterPos3f(xOffset,yStart,0);
+	BMF_DrawString(BMF_GetFont(BMF_kHelvetica10),message);
+}
+
+
+void DemoApplication::showProfileInfo(float& xOffset,float& yStart, float yIncr)
+{
+
+	static double time_since_reset = 0.f;
+	if (!m_idle)
+	{
+			time_since_reset = CProfileManager::Get_Time_Since_Reset();
+	}
+
+
+	{
+		//recompute profiling data, and store profile strings
+
+		char blockTime[128];
+
+		double totalTime = 0;
+		
+		int frames_since_reset = CProfileManager::Get_Frame_Count_Since_Reset();
+
+		gProfileIterator->First();
+
+		double parent_time = gProfileIterator->Is_Root() ? time_since_reset : gProfileIterator->Get_Current_Parent_Total_Time();
+
+		{
+			sprintf(blockTime,"--- Profiling: %s (total running time: %.3f m) ---",	gProfileIterator->Get_Current_Parent_Name(), parent_time );
+			displayProfileString(xOffset,yStart,blockTime);
+			yStart += yIncr;
+			sprintf(blockTime,"press number (1,2...) to display child timings, or 0 to go up to parent" );
+			displayProfileString(xOffset,yStart,blockTime);
+			yStart += yIncr;
+
+		}
+
+
+		double accumulated_time = 0.f;
+
+		for (int i = 0; !gProfileIterator->Is_Done(); gProfileIterator->Next())
+		{
+			double current_total_time = gProfileIterator->Get_Current_Total_Time();
+			accumulated_time += current_total_time;
+			double fraction = parent_time > SIMD_EPSILON ? (current_total_time / parent_time) * 100 : 0.f;
+
+			sprintf(blockTime,"%d -- %s (%.2f %%) :: %.3f ms / frame (%d calls)",
+				++i, gProfileIterator->Get_Current_Name(), fraction,
+				(current_total_time / (double)frames_since_reset),gProfileIterator->Get_Current_Total_Calls());
+			displayProfileString(xOffset,yStart,blockTime);
+			yStart += yIncr;
+			totalTime += current_total_time;
+		}
+
+		sprintf(blockTime,"%s (%.3f %%) :: %.3f ms", "Unaccounted",
+			// (min(0, time_since_reset - totalTime) / time_since_reset) * 100);
+			parent_time > SIMD_EPSILON ? ((parent_time - accumulated_time) / parent_time) * 100 : 0.f, parent_time - accumulated_time);
+
+		displayProfileString(xOffset,yStart,blockTime);
+		yStart += yIncr;
+
+
+
+		sprintf(blockTime,"-------------------------------------------------");
+		displayProfileString(xOffset,yStart,blockTime);
+		yStart += yIncr;
+
+	}
+
+
+
+
+}
+
+
 void DemoApplication::renderme()
 {
 	updateCamera();
@@ -822,6 +906,8 @@ void DemoApplication::renderme()
 			if ((m_debugMode & btIDebugDraw::DBG_NoHelpText)==0)
 				{
 				setOrthographicProjection();
+
+				showProfileInfo(xOffset,yStart,yIncr);
 
 	#ifdef USE_QUICKPROF
 

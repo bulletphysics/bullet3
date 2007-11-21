@@ -32,6 +32,7 @@ subject to the following restrictions:
 #include "LinearMath/btQuickprof.h"
 #include "LinearMath/btStackAlloc.h"
 
+
 //When the user doesn't provide dispatcher or broadphase, create basic versions (and delete them in destructor)
 #include "BulletCollision/CollisionDispatch/btCollisionDispatcher.h"
 #include "BulletCollision/BroadphaseCollision/btSimpleBroadphase.h"
@@ -116,30 +117,38 @@ void	btCollisionWorld::addCollisionObject(btCollisionObject* collisionObject,sho
 
 void	btCollisionWorld::performDiscreteCollisionDetection()
 {
+	PROFILE("performDiscreteCollisionDetection");
+
 	btDispatcherInfo& dispatchInfo = getDispatchInfo();
 
 	BEGIN_PROFILE("perform Broadphase Collision Detection");
 
 
 	//update aabb (of all moved objects)
-
-	btVector3 aabbMin,aabbMax;
-	for (int i=0;i<m_collisionObjects.size();i++)
 	{
-		m_collisionObjects[i]->getCollisionShape()->getAabb(m_collisionObjects[i]->getWorldTransform(),aabbMin,aabbMax);
-		m_broadphasePairCache->setAabb(m_collisionObjects[i]->getBroadphaseHandle(),aabbMin,aabbMax,m_dispatcher1);
+		PROFILE("setAabb");
+		btVector3 aabbMin,aabbMax;
+		for (int i=0;i<m_collisionObjects.size();i++)
+		{
+			m_collisionObjects[i]->getCollisionShape()->getAabb(m_collisionObjects[i]->getWorldTransform(),aabbMin,aabbMax);
+			m_broadphasePairCache->setAabb(m_collisionObjects[i]->getBroadphaseHandle(),aabbMin,aabbMax,m_dispatcher1);
+		}
+	}
+	{
+		PROFILE("calculateOverlappingPairs");
+		m_broadphasePairCache->calculateOverlappingPairs(m_dispatcher1);
 	}
 
-	m_broadphasePairCache->calculateOverlappingPairs(m_dispatcher1);
-	
 	END_PROFILE("perform Broadphase Collision Detection");
 
 	BEGIN_PROFILE("performDiscreteCollisionDetection");
 
 	btDispatcher* dispatcher = getDispatcher();
-	if (dispatcher)
-		dispatcher->dispatchAllCollisionPairs(m_broadphasePairCache->getOverlappingPairCache(),dispatchInfo,m_dispatcher1);
-
+	{
+		PROFILE("dispatchAllCollisionPairs");
+		if (dispatcher)
+			dispatcher->dispatchAllCollisionPairs(m_broadphasePairCache->getOverlappingPairCache(),dispatchInfo,m_dispatcher1);
+	}
 	END_PROFILE("performDiscreteCollisionDetection");
 
 }

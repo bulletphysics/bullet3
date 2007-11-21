@@ -22,6 +22,7 @@ subject to the following restrictions:
 #include "BulletCollision/CollisionShapes/btCollisionShape.h"
 #include "BulletCollision/CollisionDispatch/btSimulationIslandManager.h"
 #include "LinearMath/btTransformUtil.h"
+#include "LinearMath/btQuickProf.h"
 
 //rigidbody & constraints
 #include "BulletDynamics/Dynamics/btRigidBody.h"
@@ -122,14 +123,14 @@ void	btDiscreteDynamicsWorld::saveKinematicState(btScalar timeStep)
 	}
 }
 
-void	btDiscreteDynamicsWorld::synchronizeMotionStates()
+void	btDiscreteDynamicsWorld::debugDrawWorld()
 {
-	//debug vehicle wheels
-	
-	
+	if (getDebugDrawer() && getDebugDrawer()->getDebugMode() & btIDebugDraw::DBG_DrawWireframe)
 	{
+		int i;
+
 		//todo: iterate over awake simulation islands!
-		for ( int i=0;i<m_collisionObjects.size();i++)
+		for (  i=0;i<m_collisionObjects.size();i++)
 		{
 			btCollisionObject* colObj = m_collisionObjects[i];
 			if (getDebugDrawer() && getDebugDrawer()->getDebugMode() & btIDebugDraw::DBG_DrawWireframe)
@@ -155,6 +156,47 @@ void	btDiscreteDynamicsWorld::synchronizeMotionStates()
 
 				debugDrawObject(colObj->getWorldTransform(),colObj->getCollisionShape(),color);
 			}
+		}
+	
+		for (  i=0;i<this->m_vehicles.size();i++)
+		{
+			for (int v=0;v<m_vehicles[i]->getNumWheels();v++)
+			{
+				btVector3 wheelColor(0,255,255);
+				if (m_vehicles[i]->getWheelInfo(v).m_raycastInfo.m_isInContact)
+				{
+					wheelColor.setValue(0,0,255);
+				} else
+				{
+					wheelColor.setValue(255,0,255);
+				}
+		
+				btVector3 wheelPosWS = m_vehicles[i]->getWheelInfo(v).m_worldTransform.getOrigin();
+
+				btVector3 axle = btVector3(	
+					m_vehicles[i]->getWheelInfo(v).m_worldTransform.getBasis()[0][m_vehicles[i]->getRightAxis()],
+					m_vehicles[i]->getWheelInfo(v).m_worldTransform.getBasis()[1][m_vehicles[i]->getRightAxis()],
+					m_vehicles[i]->getWheelInfo(v).m_worldTransform.getBasis()[2][m_vehicles[i]->getRightAxis()]);
+
+
+				//m_vehicles[i]->getWheelInfo(v).m_raycastInfo.m_wheelAxleWS
+				//debug wheels (cylinders)
+				m_debugDrawer->drawLine(wheelPosWS,wheelPosWS+axle,wheelColor);
+				m_debugDrawer->drawLine(wheelPosWS,m_vehicles[i]->getWheelInfo(v).m_raycastInfo.m_contactPointWS,wheelColor);
+
+			}
+		}
+	}
+}
+
+void	btDiscreteDynamicsWorld::synchronizeMotionStates()
+{
+	{
+		//todo: iterate over awake simulation islands!
+		for ( int i=0;i<m_collisionObjects.size();i++)
+		{
+			btCollisionObject* colObj = m_collisionObjects[i];
+			
 			btRigidBody* body = btRigidBody::upcast(colObj);
 			if (body && body->getMotionState() && !body->isStaticOrKinematicObject())
 			{
@@ -178,31 +220,8 @@ void	btDiscreteDynamicsWorld::synchronizeMotionStates()
 		{
 			for (int v=0;v<m_vehicles[i]->getNumWheels();v++)
 			{
-				btVector3 wheelColor(0,255,255);
-				if (m_vehicles[i]->getWheelInfo(v).m_raycastInfo.m_isInContact)
-				{
-					wheelColor.setValue(0,0,255);
-				} else
-				{
-					wheelColor.setValue(255,0,255);
-				}
-
 				//synchronize the wheels with the (interpolated) chassis worldtransform
 				m_vehicles[i]->updateWheelTransform(v,true);
-					
-				btVector3 wheelPosWS = m_vehicles[i]->getWheelInfo(v).m_worldTransform.getOrigin();
-
-				btVector3 axle = btVector3(	
-					m_vehicles[i]->getWheelInfo(v).m_worldTransform.getBasis()[0][m_vehicles[i]->getRightAxis()],
-					m_vehicles[i]->getWheelInfo(v).m_worldTransform.getBasis()[1][m_vehicles[i]->getRightAxis()],
-					m_vehicles[i]->getWheelInfo(v).m_worldTransform.getBasis()[2][m_vehicles[i]->getRightAxis()]);
-
-
-				//m_vehicles[i]->getWheelInfo(v).m_raycastInfo.m_wheelAxleWS
-				//debug wheels (cylinders)
-				m_debugDrawer->drawLine(wheelPosWS,wheelPosWS+axle,wheelColor);
-				m_debugDrawer->drawLine(wheelPosWS,m_vehicles[i]->getWheelInfo(v).m_raycastInfo.m_contactPointWS,wheelColor);
-
 			}
 		}
 	}
@@ -212,6 +231,10 @@ void	btDiscreteDynamicsWorld::synchronizeMotionStates()
 
 int	btDiscreteDynamicsWorld::stepSimulation( btScalar timeStep,int maxSubSteps, btScalar fixedTimeStep)
 {
+	startProfiling(timeStep);
+
+	PROFILE("stepSimulation");
+
 	int numSimulationSubSteps = 0;
 
 	if (maxSubSteps)
@@ -262,13 +285,16 @@ int	btDiscreteDynamicsWorld::stepSimulation( btScalar timeStep,int maxSubSteps, 
 
 	synchronizeMotionStates();
 
+	CProfileManager::Increment_Frame_Counter();
+
 	return numSimulationSubSteps;
 }
 
 void	btDiscreteDynamicsWorld::internalSingleStepSimulation(btScalar timeStep)
 {
 	
-	startProfiling(timeStep);
+	PROFILE("internalSingleStepSimulation");
+
 
 	///update aabbs information
 	updateAabbs();
@@ -305,8 +331,6 @@ void	btDiscreteDynamicsWorld::internalSingleStepSimulation(btScalar timeStep)
 
 
 	updateActivationState( timeStep );
-
-	
 
 }
 
@@ -363,6 +387,7 @@ void	btDiscreteDynamicsWorld::addRigidBody(btRigidBody* body, short group, short
 
 void	btDiscreteDynamicsWorld::updateVehicles(btScalar timeStep)
 {
+	PROFILE("updateVehicles");
 	BEGIN_PROFILE("updateVehicles");
 
 	for ( int i=0;i<m_vehicles.size();i++)
@@ -375,6 +400,7 @@ void	btDiscreteDynamicsWorld::updateVehicles(btScalar timeStep)
 
 void	btDiscreteDynamicsWorld::updateActivationState(btScalar timeStep)
 {
+	PROFILE("updateActivationState");
 	BEGIN_PROFILE("updateActivationState");
 
 	for ( int i=0;i<m_collisionObjects.size();i++)
@@ -462,6 +488,7 @@ class btSortConstraintOnIslandPredicate
 
 void	btDiscreteDynamicsWorld::solveConstraints(btContactSolverInfo& solverInfo)
 {
+	PROFILE("solveConstraints");
 	
 	struct InplaceSolverIslandCallback : public btSimulationIslandManager::IslandCallback
 	{
@@ -569,6 +596,7 @@ void	btDiscreteDynamicsWorld::solveConstraints(btContactSolverInfo& solverInfo)
 
 void	btDiscreteDynamicsWorld::calculateSimulationIslands()
 {
+	PROFILE("calculateSimulationIslands");
 	BEGIN_PROFILE("calculateSimulationIslands");
 
 	getSimulationIslandManager()->updateActivationState(getCollisionWorld(),getCollisionWorld()->getDispatcher());
@@ -606,7 +634,8 @@ void	btDiscreteDynamicsWorld::calculateSimulationIslands()
 
 void	btDiscreteDynamicsWorld::updateAabbs()
 {
-	BEGIN_PROFILE("updateAabbs");
+	PROFILE("updateAabbs");
+	
 	
 	btVector3 colorvec(1,0,0);
 	btTransform predictedTrans;
@@ -658,6 +687,7 @@ void	btDiscreteDynamicsWorld::updateAabbs()
 
 void	btDiscreteDynamicsWorld::integrateTransforms(btScalar timeStep)
 {
+	PROFILE("integrateTransforms");
 	BEGIN_PROFILE("integrateTransforms");
 	btTransform predictedTrans;
 	for ( int i=0;i<m_collisionObjects.size();i++)
@@ -680,6 +710,7 @@ void	btDiscreteDynamicsWorld::integrateTransforms(btScalar timeStep)
 
 void	btDiscreteDynamicsWorld::predictUnconstraintMotion(btScalar timeStep)
 {
+	PROFILE("predictUnconstraintMotion");
 	BEGIN_PROFILE("predictUnconstraintMotion");
 	for ( int i=0;i<m_collisionObjects.size();i++)
 	{
@@ -705,6 +736,10 @@ void	btDiscreteDynamicsWorld::predictUnconstraintMotion(btScalar timeStep)
 void	btDiscreteDynamicsWorld::startProfiling(btScalar timeStep)
 {
 	(void)timeStep;
+
+	CProfileManager::Reset();
+
+	
 	#ifdef USE_QUICKPROF
 
 
