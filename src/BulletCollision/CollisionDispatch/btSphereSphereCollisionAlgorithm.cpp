@@ -66,7 +66,12 @@ void btSphereSphereCollisionAlgorithm::processCollision (btCollisionObject* col0
 	///distance (negative means penetration)
 	btScalar dist = len - (radius0+radius1);
 
-	btVector3 normalOnSurfaceB = diff / len;
+	btVector3 normalOnSurfaceB(1,0,0);
+	if (len > SIMD_EPSILON)
+	{
+		normalOnSurfaceB = diff / len;
+	}
+
 	///point on A (worldspace)
 	btVector3 pos0 = col0->getWorldTransform().getOrigin() - radius0 * normalOnSurfaceB;
 	///point on B (worldspace)
