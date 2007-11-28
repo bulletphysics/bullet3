@@ -329,7 +329,17 @@ void RagdollDemo::initPhysics()
 		btTransform groundTransform;
 		groundTransform.setIdentity();
 		groundTransform.setOrigin(btVector3(0,-10,0));
+
+#define CREATE_GROUND_COLLISION_OBJECT 1
+#ifdef CREATE_GROUND_COLLISION_OBJECT
+		btCollisionObject* fixedGround = new btCollisionObject();
+		fixedGround->setCollisionShape(groundShape);
+		fixedGround->setWorldTransform(groundTransform);
+		m_dynamicsWorld->addCollisionObject(fixedGround);
+#else
 		localCreateRigidBody(btScalar(0.),groundTransform,groundShape);
+#endif //CREATE_GROUND_COLLISION_OBJECT
+
 	}
 
 	// Spawn one ragdoll
