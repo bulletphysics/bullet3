@@ -44,7 +44,12 @@ public:
 		return &m_points[0];
 	}
 
-	int getNumPoints()
+	const btPoint3* getPoints() const
+	{
+		return &m_points[0];
+	}
+
+	int getNumPoints() const 
 	{
 		return m_points.size();
 	}
