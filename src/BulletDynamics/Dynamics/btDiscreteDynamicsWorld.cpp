@@ -22,7 +22,7 @@ subject to the following restrictions:
 #include "BulletCollision/CollisionShapes/btCollisionShape.h"
 #include "BulletCollision/CollisionDispatch/btSimulationIslandManager.h"
 #include "LinearMath/btTransformUtil.h"
-#include "LinearMath/btQuickProf.h"
+#include "LinearMath/btQuickprof.h"
 
 //rigidbody & constraints
 #include "BulletDynamics/Dynamics/btRigidBody.h"
