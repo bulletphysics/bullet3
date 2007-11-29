@@ -20,7 +20,7 @@ subject to the following restrictions:
 #include "BulletCollision/CollisionShapes/btConvexShape.h"
 
 #include "BulletCollision/CollisionShapes/btSphereShape.h" //for raycasting
-#include "BulletCollision/CollisionShapes/btTriangleMeshShape.h" //for raycasting
+#include "BulletCollision/CollisionShapes/btBvhTriangleMeshShape.h" //for raycasting
 #include "BulletCollision/NarrowPhaseCollision/btRaycastCallback.h"
 #include "BulletCollision/CollisionShapes/btCompoundShape.h"
 #include "BulletCollision/NarrowPhaseCollision/btSubSimplexConvexCast.h"
@@ -254,19 +254,14 @@ void	btCollisionWorld::objectQuerySingle(const btConvexShape* castShape,const bt
 			}
 			else
 			{
-				
 				if (collisionShape->isConcave())
-					{
-
-						btTriangleMeshShape* triangleMesh = (btTriangleMeshShape*)collisionShape;
-						
+				{
+						btBvhTriangleMeshShape* triangleMesh = (btBvhTriangleMeshShape*)collisionShape;
 						btTransform worldTocollisionObject = colObjWorldTransform.inverse();
-
 						btVector3 rayFromLocal = worldTocollisionObject * rayFromTrans.getOrigin();
 						btVector3 rayToLocal = worldTocollisionObject * rayToTrans.getOrigin();
 
 						//ConvexCast::CastResult
-
 						struct BridgeTriangleRaycastCallback : public btTriangleRaycastCallback 
 						{
 							btCollisionWorld::RayResultCallback* m_resultCallback;
@@ -297,23 +292,13 @@ void	btCollisionWorld::objectQuerySingle(const btConvexShape* castShape,const bt
 								
 								bool	normalInWorldSpace = false;
 								return m_resultCallback->AddSingleResult(rayResult,normalInWorldSpace);
-								
-								
 							}
 	
 						};
 
-
-						BridgeTriangleRaycastCallback	rcb(rayFromLocal,rayToLocal,&resultCallback,collisionObject,triangleMesh);
+						BridgeTriangleRaycastCallback rcb(rayFromLocal,rayToLocal,&resultCallback,collisionObject,triangleMesh);
 						rcb.m_hitFraction = resultCallback.m_closestHitFraction;
-
-						btVector3 rayAabbMinLocal = rayFromLocal;
-						rayAabbMinLocal.setMin(rayToLocal);
-						btVector3 rayAabbMaxLocal = rayFromLocal;
-						rayAabbMaxLocal.setMax(rayToLocal);
-
-						triangleMesh->processAllTriangles(&rcb,rayAabbMinLocal,rayAabbMaxLocal);
-											
+						triangleMesh->performRaycast(&rcb,rayFromLocal,rayToLocal);
 					} else
 					{
 						//todo: use AABB tree or other BVH acceleration structure!

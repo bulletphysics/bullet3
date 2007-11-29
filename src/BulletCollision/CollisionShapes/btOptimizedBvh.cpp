@@ -12,6 +12,7 @@ subject to the following restrictions:
 2. Altered source versions must be plainly marked as such, and must not be misrepresented as being the original software.
 3. This notice may not be removed or altered from any source distribution.
 */
+
 #include "btOptimizedBvh.h"
 #include "btStridingMeshInterface.h"
 #include "LinearMath/btAabbUtil2.h"
@@ -740,7 +741,117 @@ void btOptimizedBvh::walkRecursiveQuantizedTreeAgainstQueryAabb(const btQuantize
 
 
 
+void	btOptimizedBvh::walkStacklessQuantizedTreeAgainstRay(btNodeOverlapCallback* nodeCallback, const btVector3& raySource, const btVector3& rayTarget, int startNodeIndex,int endNodeIndex) const
+{
+	btAssert(m_useQuantization);
+	
+	int curIndex = startNodeIndex;
+	int walkIterations = 0;
+	int subTreeSize = endNodeIndex - startNodeIndex;
 
+	const btQuantizedBvhNode* rootNode = &m_quantizedContiguousNodes[startNodeIndex];
+	int escapeIndex;
+	
+	bool isLeafNode;
+	//PCK: unsigned instead of bool
+	unsigned BoxBoxOverlap = 0;
+	unsigned RayBoxOverlap = 0;
+
+	btScalar lambda_max = 1.0;
+#define RAYAABB2
+#ifdef RAYAABB2
+	btVector3 rayFrom = raySource;
+	btVector3 rayDirection = (rayTarget-raySource);
+	rayDirection.normalize ();
+	lambda_max = rayDirection.dot(rayTarget-raySource);
+	rayDirection[0] = btScalar(1.0) / rayDirection[0];
+	rayDirection[1] = btScalar(1.0) / rayDirection[1];
+	rayDirection[2] = btScalar(1.0) / rayDirection[2];
+	unsigned int sign[3] = { rayDirection[0] < 0.0, rayDirection[1] < 0.0, rayDirection[2] < 0.0};
+#endif
+
+	/* Quick pruning by quantized box */
+	btVector3 rayAabbMin = raySource;
+	btVector3 rayAabbMax = raySource;
+	rayAabbMin.setMin(rayTarget);
+	rayAabbMax.setMax(rayTarget);
+
+	unsigned short int quantizedQueryAabbMin[3];
+	unsigned short int quantizedQueryAabbMax[3];
+	quantizeWithClamp(quantizedQueryAabbMin,rayAabbMin);
+	quantizeWithClamp(quantizedQueryAabbMax,rayAabbMax);
+
+	while (curIndex < endNodeIndex)
+	{
+
+//#define VISUALLY_ANALYZE_BVH 1
+#ifdef VISUALLY_ANALYZE_BVH
+		//some code snippet to debugDraw aabb, to visually analyze bvh structure
+		static int drawPatch = 0;
+		//need some global access to a debugDrawer
+		extern btIDebugDraw* debugDrawerPtr;
+		if (curIndex==drawPatch)
+		{
+			btVector3 aabbMin,aabbMax;
+			aabbMin = unQuantize(rootNode->m_quantizedAabbMin);
+			aabbMax = unQuantize(rootNode->m_quantizedAabbMax);
+			btVector3	color(1,0,0);
+			debugDrawerPtr->drawAabb(aabbMin,aabbMax,color);
+		}
+#endif//VISUALLY_ANALYZE_BVH
+
+		//catch bugs in tree data
+		assert (walkIterations < subTreeSize);
+
+		walkIterations++;
+		//PCK: unsigned instead of bool
+		// only interested if this is closer than any previous hit
+		btScalar param = 1.0;
+		RayBoxOverlap = 0;
+		BoxBoxOverlap = testQuantizedAabbAgainstQuantizedAabb(quantizedQueryAabbMin,quantizedQueryAabbMax,rootNode->m_quantizedAabbMin,rootNode->m_quantizedAabbMax);
+		isLeafNode = rootNode->isLeafNode();
+		if (BoxBoxOverlap)
+		{
+			btVector3 bounds[2];
+			bounds[0] = unQuantize(rootNode->m_quantizedAabbMin);
+			bounds[1] = unQuantize(rootNode->m_quantizedAabbMax);
+			btVector3 normal;
+#if 0
+			bool ra2 = btRayAabb2 (raySource, rayDirection, sign, bounds, param, 0.0, lambda_max);
+			bool ra = btRayAabb (raySource, rayTarget, bounds[0], bounds[1], param, normal);
+			if (ra2 != ra)
+			{
+				printf("functions don't match\n");
+			}
+#endif
+#ifdef RAYAABB2
+			RayBoxOverlap = btRayAabb2 (raySource, rayDirection, sign, bounds, param, 0.0, lambda_max);
+#else
+			RayBoxOverlap = btRayAabb(raySource, rayTarget, bounds[0], bounds[1], param, normal);
+#endif
+		}
+		
+		if (isLeafNode && RayBoxOverlap)
+		{
+			nodeCallback->processNode(rootNode->getPartId(),rootNode->getTriangleIndex());
+		}
+		
+		//PCK: unsigned instead of bool
+		if ((RayBoxOverlap != 0) || isLeafNode)
+		{
+			rootNode++;
+			curIndex++;
+		} else
+		{
+			escapeIndex = rootNode->getEscapeIndex();
+			rootNode += escapeIndex;
+			curIndex += escapeIndex;
+		}
+	}
+	if (maxIterations < walkIterations)
+		maxIterations = walkIterations;
+
+}
 
 void	btOptimizedBvh::walkStacklessQuantizedTree(btNodeOverlapCallback* nodeCallback,unsigned short int* quantizedQueryAabbMin,unsigned short int* quantizedQueryAabbMax,int startNodeIndex,int endNodeIndex) const
 {
@@ -830,6 +941,21 @@ void	btOptimizedBvh::walkStacklessQuantizedTreeCacheFriendly(btNodeOverlapCallba
 }
 
 
+void	btOptimizedBvh::reportRayOverlappingNodex (btNodeOverlapCallback* nodeCallback, const btVector3& raySource, const btVector3& rayTarget) const
+{
+	bool fast_path = m_useQuantization && m_traversalMode == TRAVERSAL_STACKLESS;
+	if (fast_path)
+	{
+		walkStacklessQuantizedTreeAgainstRay(nodeCallback, raySource, rayTarget, 0, m_curNodeIndex);
+	} else {
+		/* Otherwise fallback to AABB overlap test */
+		btVector3 aabbMin = raySource;
+		btVector3 aabbMax = raySource;
+		aabbMin.setMin(rayTarget);
+		aabbMax.setMax(rayTarget);
+		reportAabbOverlappingNodex(nodeCallback,aabbMin,aabbMax);
+	}
+}
 
 
 void	btOptimizedBvh::reportSphereOverlappingNodex(btNodeOverlapCallback* nodeCallback,const btVector3& aabbMin,const btVector3& aabbMax) const
@@ -1186,6 +1312,8 @@ m_bvhAabbMin(self.m_bvhAabbMin),
 m_bvhAabbMax(self.m_bvhAabbMax),
 m_bvhQuantization(self.m_bvhQuantization)
 {
-	
+
+
 }
+
 

@@ -29,8 +29,6 @@ btTriangleRaycastCallback::btTriangleRaycastCallback(const btVector3& from,const
 
 void btTriangleRaycastCallback::processTriangle(btVector3* triangle,int partId, int triangleIndex)
 {
-	
-
 	const btVector3 &vert0=triangle[0];
 	const btVector3 &vert1=triangle[1];
 	const btVector3 &vert2=triangle[2];
