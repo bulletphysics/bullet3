@@ -320,8 +320,12 @@ float myFrictionModel(	btRigidBody& body1,	btRigidBody& body2,	btManifoldPoint& 
 
 void	CcdPhysicsDemo::initPhysics()
 {
+#ifdef USE_PARALLEL_DISPATCHER
+#ifdef WIN32
 	m_threadSupportSolver = 0;
 	m_threadSupportCollision = 0;
+#endif //
+#endif
 
 //#define USE_GROUND_PLANE 1
 #ifdef USE_GROUND_PLANE
@@ -650,11 +654,14 @@ void	CcdPhysicsDemo::exitPhysics()
 
 	//delete solver
 	delete m_solver;
-
+#ifdef USE_PARALLEL_DISPATCHER
+#ifdef WIN32
 	if (m_threadSupportSolver)
 	{
 		delete m_threadSupportSolver;
 	}
+#endif
+#endif
 
 	//delete broadphase
 	delete m_broadphase;
@@ -662,10 +669,14 @@ void	CcdPhysicsDemo::exitPhysics()
 	//delete dispatcher
 	delete m_dispatcher;
 
+#ifdef USE_PARALLEL_DISPATCHER
+#ifdef WIN32
 	if (m_threadSupportCollision)
 	{
 		delete m_threadSupportCollision;
 	}
+#endif
+#endif
 
 	delete m_collisionConfiguration;
 

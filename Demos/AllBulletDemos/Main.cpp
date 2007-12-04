@@ -29,7 +29,7 @@
 #include "GLDebugDrawer.h"
 
 static GLDebugDrawer gDebugDrawer;
-#include "LinearMath/btQuickProf.h"
+#include "LinearMath/btQuickprof.h"
 
 
 
