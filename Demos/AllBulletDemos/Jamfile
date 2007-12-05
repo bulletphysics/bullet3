@@ -8,6 +8,7 @@ FrameWorkDemo AllBulletDemos :
         ../BspDemo/BspConverter.cpp
         ../BspDemo/BspLoader.cpp
 	../ConcaveDemo/ConcavePhysicsDemo.cpp
+	../ConcaveRaycastDemo/ConcaveRaycastDemo.cpp
 	../ConvexDecompositionDemo/ConvexDecompositionDemo.cpp
 	../RagdollDemo/RagdollDemo.cpp
 	../GimpactTestDemo/GimpactTestDemo.cpp

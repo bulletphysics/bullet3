@@ -69,7 +69,7 @@ CS_CHECK_HOST
 #----------------------------------------------------------------------------
 AS_IF([test $cs_host_family = windows],
     [# Tack the GLUT that comes with bullet onto compiler & linker flags.
-    _AC_SRCPATHS(["."])
+    _AC_SRCDIRS(["."])
     glut_cflags="-I$ac_top_srcdir/Glut"
     glut_lflags="-L$ac_top_srcdir/Glut"
     CFLAGS="$CFLAGS $glut_cflags"

@@ -112,6 +112,8 @@ AC_DEFUN([CS_CHECK_OPENGL],
     # MacOS/X or Darwin?
     AS_IF([test "x$cs_host_macosx" = "xyes"],
 	[cs_osx_gl=CS_CREATE_TUPLE([-DCS_OPENGL_PATH=OpenGL],[],[-framework OpenGL])])
+    AS_IF([test "x$cs_host_macosx" = "xyes"],
+          [cs_gl_plat_lflags="$cs_plat_lflags -Wl,-dylib_file,/System/Library/Frameworks/OpenGL.framework/Versions/A/Libraries/libGL.dylib:/System/Library/Frameworks/OpenGL.framework/Versions/A/Libraries/libGL.dylib"])
 
     # Windows?
     AS_IF([test $cs_host_family = windows],
