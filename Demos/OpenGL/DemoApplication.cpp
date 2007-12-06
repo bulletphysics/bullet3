@@ -806,7 +806,7 @@ void DemoApplication::showProfileInfo(float& xOffset,float& yStart, float yIncr)
 		double parent_time = m_profileIterator->Is_Root() ? time_since_reset : m_profileIterator->Get_Current_Parent_Total_Time();
 
 		{
-			sprintf(blockTime,"--- Profiling: %s (total running time: %.3f m) ---",	m_profileIterator->Get_Current_Parent_Name(), parent_time );
+			sprintf(blockTime,"--- Profiling: %s (total running time: %.3f ms) ---",	m_profileIterator->Get_Current_Parent_Name(), parent_time );
 			displayProfileString(xOffset,yStart,blockTime);
 			yStart += yIncr;
 			sprintf(blockTime,"press number (1,2...) to display child timings, or 0 to go up to parent" );
