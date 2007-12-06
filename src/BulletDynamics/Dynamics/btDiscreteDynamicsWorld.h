@@ -138,7 +138,7 @@ public:
 
 	void	debugDrawObject(const btTransform& worldTransform, const btCollisionShape* shape, const btVector3& color);
 
-	void	debugDrawWorld();
+	virtual void	debugDrawWorld();
 
 	virtual void	setConstraintSolver(btConstraintSolver* solver);
 

@@ -21,15 +21,6 @@ subject to the following restrictions:
 #include "GL_ShapeDrawer.h"
 #include "GlutStuff.h"
 
-//#define USE_PARALLEL_DISPATCHER 1
-#ifdef USE_PARALLEL_DISPATCHER
-#include "../../Extras/BulletMultiThreaded/SpuGatheringCollisionDispatcher.h"
-#include "../../Extras/BulletMultiThreaded/Win32ThreadSupport.h"
-#include "../../Extras/BulletMultiThreaded/SpuNarrowPhaseCollisionTask/SpuGatheringCollisionTask.h"
-#endif//USE_PARALLEL_DISPATCHER
-
-
-
 
 static btVector3*	gVertices=0;
 static int*	gIndices=0;
@@ -226,64 +217,13 @@ public:
 
 static btConvexcastBatch convexcastBatch;
 
-///User can override this material combiner by implementing gContactAddedCallback and setting body0->m_collisionFlags |= btCollisionObject::customMaterialCallback;
-inline btScalar	calculateCombinedFriction(float friction0,float friction1)
-{
-	btScalar friction = friction0 * friction1;
-
-	const btScalar MAX_FRICTION  = 10.f;
-	if (friction < -MAX_FRICTION)
-		friction = -MAX_FRICTION;
-	if (friction > MAX_FRICTION)
-		friction = MAX_FRICTION;
-	return friction;
-
-}
-
-inline btScalar	calculateCombinedRestitution(float restitution0,float restitution1)
-{
-	return restitution0 * restitution1;
-}
 
 
 
-static bool CustomMaterialCombinerCallback(btManifoldPoint& cp,	const btCollisionObject* colObj0,int partId0,int index0,const btCollisionObject* colObj1,int partId1,int index1)
-{
 
-	float friction0 = colObj0->getFriction();
-	float friction1 = colObj1->getFriction();
-	float restitution0 = colObj0->getRestitution();
-	float restitution1 = colObj1->getRestitution();
-
-	if (colObj0->getCollisionFlags() & btCollisionObject::CF_CUSTOM_MATERIAL_CALLBACK)
-	{
-		friction0 = 1.0;//partId0,index0
-		restitution0 = 0.f;
-	}
-	if (colObj1->getCollisionFlags() & btCollisionObject::CF_CUSTOM_MATERIAL_CALLBACK)
-	{
-		if (index1&1)
-		{
-			friction1 = 1.0f;//partId1,index1
-		} else
-		{
-			friction1 = 0.f;
-		}
-		restitution1 = 0.f;
-	}
-
-	cp.m_combinedFriction = calculateCombinedFriction(friction0,friction1);
-	cp.m_combinedRestitution = calculateCombinedRestitution(restitution0,restitution1);
-
-	//this return value is currently ignored, but to be on the safe side: return false if you don't calculate friction
-	return true;
-}
-
-extern ContactAddedCallback		gContactAddedCallback;
-
-	const int NUM_VERTS_X = 30;
-	const int NUM_VERTS_Y = 30;
-	const int totalVerts = NUM_VERTS_X*NUM_VERTS_Y;
+const int NUM_VERTS_X = 30;
+const int NUM_VERTS_Y = 30;
+const int totalVerts = NUM_VERTS_X*NUM_VERTS_Y;
 
 void	ConcaveConvexcastDemo::setVertexPositions(float waveheight, float offset)
 {
@@ -326,10 +266,7 @@ void	ConcaveConvexcastDemo::initPhysics()
 {
 	#define TRISIZE 10.f
 
-     gContactAddedCallback = CustomMaterialCombinerCallback;
-
-#define USE_TRIMESH_SHAPE 1
-#ifdef USE_TRIMESH_SHAPE
+   
 
 	int vertStride = sizeof(btVector3);
 	int indexStride = 3*sizeof(int);
@@ -367,99 +304,22 @@ void	ConcaveConvexcastDemo::initPhysics()
 
 	bool useQuantizedAabbCompression = true;
 
-//comment out the next line to read the BVH from disk (first run the demo once to create the BVH)
-#define SERIALIZE_TO_DISK 1
-#ifdef SERIALIZE_TO_DISK
 	trimeshShape  = new btBvhTriangleMeshShape(m_indexVertexArrays,useQuantizedAabbCompression);
+
 	m_collisionShapes.push_back(trimeshShape);
-	
-	
-	///we can serialize the BVH data 
-	void* buffer = 0;
-	int numBytes = trimeshShape->getOptimizedBvh()->calculateSerializeBufferSize();
-	buffer = btAlignedAlloc(numBytes,16);
-	bool swapEndian = false;
-	trimeshShape->getOptimizedBvh()->serialize(buffer,numBytes,swapEndian);
-	FILE* file = fopen("bvh.bin","wb");
-	fwrite(buffer,1,numBytes,file);
-	fclose(file);
-	btAlignedFree(buffer);
-	
-
-
-#else
-
-	trimeshShape  = new btBvhTriangleMeshShape(m_indexVertexArrays,useQuantizedAabbCompression,false);
-
-	char* fileName = "bvh.bin";
-
-	FILE* file = fopen(fileName,"rb");
-	int size=0;
-	btOptimizedBvh* bvh = 0;
-
-	if (fseek(file, 0, SEEK_END) || (size = ftell(file)) == EOF || fseek(file, 0, SEEK_SET)) {        /* File operations denied? ok, just close and return failure */
-		printf("Error: cannot get filesize from %s\n", fileName);
-		exit(0);
-	} else
-	{
-
-		fseek(file, 0, SEEK_SET);
-
-		int buffersize = size+btOptimizedBvh::getAlignmentSerializationPadding();
-
-		void* buffer = btAlignedAlloc(buffersize,16);
-		int read = fread(buffer,1,size,file);
-		fclose(file);
-		bool swapEndian = false;
-		bvh = btOptimizedBvh::deSerializeInPlace(buffer,buffersize,swapEndian);
-	}
-
-	trimeshShape->setOptimizedBvh(bvh);
-
-#endif
 
 	btCollisionShape* groundShape = trimeshShape;
 	
-#else
-	btCollisionShape* groundShape = new btBoxShape(btVector3(50,3,50));
-	m_collisionShapes.push_back(groundShape);
-
-#endif //USE_TRIMESH_SHAPE
 
 	m_collisionConfiguration = new btDefaultCollisionConfiguration();
 
-#ifdef USE_PARALLEL_DISPATCHER
-
-#ifdef USE_WIN32_THREADING
-
-	int maxNumOutstandingTasks = 4;//number of maximum outstanding tasks
-	Win32ThreadSupport* threadSupport = new Win32ThreadSupport(Win32ThreadSupport::Win32ThreadConstructionInfo(
-								"collision",
-								processCollisionTask,
-								createCollisionLocalStoreMemory,
-								maxNumOutstandingTasks));
-#else
-///todo other platform threading
-///Playstation 3 SPU (SPURS)  version is available through PS3 Devnet
-///Libspe2 SPU support will be available soon
-///pthreads version
-///you can hook it up to your custom task scheduler by deriving from btThreadSupportInterface
-#endif
-
-	m_dispatcher = new	SpuGatheringCollisionDispatcher(threadSupport,maxNumOutstandingTasks,m_collisionConfiguration);
-#else
 	m_dispatcher = new	btCollisionDispatcher(m_collisionConfiguration);
-#endif//USE_PARALLEL_DISPATCHER
-
 
 	btVector3 worldMin(-1000,-1000,-1000);
 	btVector3 worldMax(1000,1000,1000);
 	m_broadphase = new btAxisSweep3(worldMin,worldMax);
 	m_solver = new btSequentialImpulseConstraintSolver();
 	m_dynamicsWorld = new btDiscreteDynamicsWorld(m_dispatcher,m_broadphase,m_solver,m_collisionConfiguration);
-#ifdef USE_PARALLEL_DISPATCHER
-	m_dynamicsWorld->getDispatchInfo().m_enableSPU=true;
-#endif //USE_PARALLEL_DISPATCHER
 	
 	float mass = 0.f;
 	btTransform	startTransform;

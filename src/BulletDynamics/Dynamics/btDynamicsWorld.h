@@ -49,6 +49,8 @@ class btDynamicsWorld : public btCollisionWorld
 		virtual int		stepSimulation( btScalar timeStep,int maxSubSteps=1, btScalar fixedTimeStep=btScalar(1.)/btScalar(60.))=0;
 			
 		virtual void	updateAabbs() = 0;
+
+		virtual void	debugDrawWorld() = 0;
 				
 		virtual void	addConstraint(btTypedConstraint* constraint, bool disableCollisionsBetweenLinkedBodies=false) { (void)constraint;};
 

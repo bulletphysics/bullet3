@@ -20,15 +20,6 @@ subject to the following restrictions:
 #include "GL_ShapeDrawer.h"
 #include "GlutStuff.h"
 
-//#define USE_PARALLEL_DISPATCHER 1
-#ifdef USE_PARALLEL_DISPATCHER
-#include "../../Extras/BulletMultiThreaded/SpuGatheringCollisionDispatcher.h"
-#include "../../Extras/BulletMultiThreaded/Win32ThreadSupport.h"
-#include "../../Extras/BulletMultiThreaded/SpuNarrowPhaseCollisionTask/SpuGatheringCollisionTask.h"
-#endif//USE_PARALLEL_DISPATCHER
-
-
-
 
 static btVector3*	gVertices=0;
 static int*	gIndices=0;
@@ -211,27 +202,6 @@ public:
 
 static btRaycastBar raycastBar;
 
-///User can override this material combiner by implementing gContactAddedCallback and setting body0->m_collisionFlags |= btCollisionObject::customMaterialCallback;
-inline btScalar	calculateCombinedFriction(float friction0,float friction1)
-{
-	btScalar friction = friction0 * friction1;
-
-	const btScalar MAX_FRICTION  = 10.f;
-	if (friction < -MAX_FRICTION)
-		friction = -MAX_FRICTION;
-	if (friction > MAX_FRICTION)
-		friction = MAX_FRICTION;
-	return friction;
-
-}
-
-inline btScalar	calculateCombinedRestitution(float restitution0,float restitution1)
-{
-	return restitution0 * restitution1;
-}
-
-
-
 
 const int NUM_VERTS_X = 30;
 const int NUM_VERTS_Y = 30;
@@ -316,6 +286,7 @@ void	ConcaveRaycastDemo::initPhysics()
 	bool useQuantizedAabbCompression = true;
 
 	trimeshShape  = new btBvhTriangleMeshShape(m_indexVertexArrays,useQuantizedAabbCompression);
+	m_collisionShapes.push_back(trimeshShape);
 
 	btCollisionShape* groundShape = trimeshShape;
 	
@@ -449,6 +420,7 @@ void	ConcaveRaycastDemo::exitPhysics()
 
 	delete m_collisionConfiguration;
 
+	delete[] gVertices;
 	
 }
 

@@ -13,62 +13,24 @@ subject to the following restrictions:
 3. This notice may not be removed or altered from any source distribution.
 */
 
-
-#define USE_GROUND_BOX 1
-//#define PRINT_CONTACT_STATISTICS 1
-//#define USE_PARALLEL_DISPATCHER 1
-
-#define START_POS_X -5
-#define START_POS_Y -5
-#define START_POS_Z -3
-
-
 ///create 125 (5x5x5) dynamic object
 #define ARRAY_SIZE_X 5
 #define ARRAY_SIZE_Y 5
 #define ARRAY_SIZE_Z 5
 
+//maximum number of objects (and allow user to shoot additional boxes)
+#define MAX_PROXIES (ARRAY_SIZE_X*ARRAY_SIZE_Y*ARRAY_SIZE_Z + 1024)
 
-//#define USE_SIMPLE_DYNAMICS_WORLD 1
+#define START_POS_X -5
+#define START_POS_Y -5
+#define START_POS_Z -3
 
-int gNumObjects = 120;
-#define HALF_EXTENTS btScalar(1.)
-#include "btBulletDynamicsCommon.h"
-#include "BulletCollision/BroadphaseCollision/btMultiSapBroadphase.h"
-#include "LinearMath/btIDebugDraw.h"
-#include "GLDebugDrawer.h"
-#include <stdio.h> //printf debugging
-btScalar deltaTime = btScalar(1./60.);
 #include "BasicDemo.h"
-#include "GL_ShapeDrawer.h"
 #include "GlutStuff.h"
+///btBulletDynamicsCommon.h is the main Bullet include file, contains most common include files.
+#include "btBulletDynamicsCommon.h"
+#include <stdio.h> //printf debugging
 
-#ifdef USE_PARALLEL_DISPATCHER
-#include "../../Extras/BulletMultiThreaded/SpuGatheringCollisionDispatcher.h"
-#include "../../Extras/BulletMultiThreaded/Win32ThreadSupport.h"
-#include "../../Extras/BulletMultiThreaded/SpuNarrowPhaseCollisionTask/SpuGatheringCollisionTask.h"
-#endif//USE_PARALLEL_DISPATCHER
-
-
-#include <LinearMath/btAlignedObjectArray.h>
-
-////////////////////////////////////
-
-
-class myTest
-{
-
-};
-
-
-
-
-
-
-
-extern int gNumManifold;
-extern int gOverlappingPairs;
-extern int gTotalContactPoints;
 
 void BasicDemo::clientMoveAndDisplay()
 {
@@ -77,24 +39,19 @@ void BasicDemo::clientMoveAndDisplay()
 	//simple dynamics world doesn't handle fixed-time-stepping
 	float ms = m_clock.getTimeMicroseconds();
 	m_clock.reset();
-	float minFPS = 1000000.f/60.f;
-	if (ms > minFPS)
-		ms = minFPS;
-
+	
+	///step the simulation
 	if (m_dynamicsWorld)
+	{
 		m_dynamicsWorld->stepSimulation(ms / 1000000.f);
+		//optional but useful: debug drawing
+		m_dynamicsWorld->debugDrawWorld();
+	}
 		
 	renderme(); 
 
 	glFlush();
-	//some additional debugging info
-#ifdef PRINT_CONTACT_STATISTICS
-	printf("num manifolds: %i\n",gNumManifold);
-	printf("num gOverlappingPairs: %i\n",gOverlappingPairs);
-	printf("num gTotalContactPoints : %i\n",gTotalContactPoints );
-#endif //PRINT_CONTACT_STATISTICS
 
-	gTotalContactPoints = 0;
 	glutSwapBuffers();
 
 }
@@ -106,6 +63,10 @@ void BasicDemo::displayCallback(void) {
 	glClear(GL_COLOR_BUFFER_BIT | GL_DEPTH_BUFFER_BIT); 
 	
 	renderme();
+
+	//optional but useful: debug drawing to detect problems
+	if (m_dynamicsWorld)
+		m_dynamicsWorld->debugDrawWorld();
 
 	glFlush();
 	glutSwapBuffers();
@@ -120,73 +81,29 @@ void	BasicDemo::initPhysics()
 
 	setCameraDistance(btScalar(50.));
 
-
+	///collision configuration contains default setup for memory, collision setup
 	m_collisionConfiguration = new btDefaultCollisionConfiguration();
 
-#ifdef USE_PARALLEL_DISPATCHER
-
-#ifdef USE_WIN32_THREADING
-
-	int maxNumOutstandingTasks = 4;//number of maximum outstanding tasks
-	Win32ThreadSupport* threadSupport = new Win32ThreadSupport(Win32ThreadSupport::Win32ThreadConstructionInfo(
-								"collision",
-								processCollisionTask,
-								createCollisionLocalStoreMemory,
-								maxNumOutstandingTasks));
-#else
-///todo other platform threading
-///Playstation 3 SPU (SPURS)  version is available through PS3 Devnet
-///Libspe2 SPU support will be available soon
-///pthreads version
-///you can hook it up to your custom task scheduler by deriving from btThreadSupportInterface
-#endif
-
-
-	m_dispatcher = new	SpuGatheringCollisionDispatcher(threadSupport,maxNumOutstandingTasks,collisionConfiguration);
-#else
+	///use the default collision dispatcher. For parallel processing you can use a diffent dispatcher (see Extras/BulletMultiThreaded)
 	m_dispatcher = new	btCollisionDispatcher(m_collisionConfiguration);
-#endif //USE_PARALLEL_DISPATCHER
 
-#define USE_SWEEP_AND_PRUNE 1
-#ifdef USE_SWEEP_AND_PRUNE
-#define maxProxies 8192
+	///the maximum size of the collision world. Make sure objects stay within these boundaries
+	///Don't make the world AABB size too large, it will harm simulation quality and performance
 	btVector3 worldAabbMin(-10000,-10000,-10000);
 	btVector3 worldAabbMax(10000,10000,10000);
-	m_overlappingPairCache = new btAxisSweep3(worldAabbMin,worldAabbMax,maxProxies);
+	m_overlappingPairCache = new btAxisSweep3(worldAabbMin,worldAabbMax,MAX_PROXIES);
 
-
-
-#else
-	m_overlappingPairCache = new btSimpleBroadphase;
-#endif //USE_SWEEP_AND_PRUNE
-
-
-
+	///the default constraint solver. For parallel processing you can use a different solver (see Extras/BulletMultiThreaded)
 	btSequentialImpulseConstraintSolver* sol = new btSequentialImpulseConstraintSolver;
 	m_solver = sol;
 	
 
-#ifdef USE_SIMPLE_DYNAMICS_WORLD
-	//btSimpleDynamicsWorld doesn't support 'cache friendly' optimization, so disable this
-	sol->setSolverMode(btSequentialImpulseConstraintSolver::SOLVER_RANDMIZE_ORDER);
-	m_dynamicsWorld = new btSimpleDynamicsWorld(m_dispatcher,m_overlappingPairCache,m_solver,m_collisionConfiguration);
-#else
 	m_dynamicsWorld = new btDiscreteDynamicsWorld(m_dispatcher,m_overlappingPairCache,m_solver,m_collisionConfiguration);
-#endif //USE_SIMPLE_DYNAMICS_WORLD
-	m_dynamicsWorld->getDispatchInfo().m_enableSPU = true;
 
 	m_dynamicsWorld->setGravity(btVector3(0,-10,0));
 
-
 	///create a few basic rigid bodies
-
-
-	//static ground
-#ifdef USE_GROUND_BOX
 	btCollisionShape* groundShape = new btBoxShape(btVector3(btScalar(50.),btScalar(50.),btScalar(50.)));
-#else
-	btCollisionShape* groundShape = new btSphereShape(btScalar(50.));
-#endif//USE_GROUND_BOX
 
 	m_collisionShapes.push_back(groundShape);
 
@@ -200,7 +117,7 @@ void	BasicDemo::initPhysics()
 	btCollisionShape* colShape = new btSphereShape(btScalar(1.));
 	m_collisionShapes.push_back(colShape);
 
-		/// Create Dynamic Objects
+	/// Create Dynamic Objects
 	btTransform startTransform;
 	startTransform.setIdentity();
 

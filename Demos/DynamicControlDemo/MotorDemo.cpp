@@ -328,7 +328,10 @@ void MotorDemo::clientMoveAndDisplay()
 
 
 	if (m_dynamicsWorld)
+	{
 		m_dynamicsWorld->stepSimulation(ms / 1000000.f);
+		m_dynamicsWorld->debugDrawWorld();
+	}
 
 	renderme(); 
 
@@ -349,7 +352,7 @@ void MotorDemo::displayCallback()
 	glClear(GL_COLOR_BUFFER_BIT | GL_DEPTH_BUFFER_BIT); 
 
 	if (m_dynamicsWorld)
-		m_dynamicsWorld->updateAabbs();
+		m_dynamicsWorld->debugDrawWorld();
 
 	renderme();
 
