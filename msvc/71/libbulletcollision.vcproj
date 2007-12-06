@@ -503,6 +503,9 @@
 				RelativePath="..\..\src\BulletCollision\BroadphaseCollision\btOverlappingPairCache.h">
 			</File>
 			<File
+				RelativePath="..\..\src\BulletCollision\BroadphaseCollision\btOverlappingPairCallback.h">
+			</File>
+			<File
 				RelativePath="..\..\src\BulletCollision\BroadphaseCollision\btSimpleBroadphase.h">
 			</File>
 			<File

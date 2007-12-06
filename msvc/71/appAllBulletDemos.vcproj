@@ -317,13 +317,22 @@
 				RelativePath="..\..\Demos\AllBulletDemos\..\CcdPhysicsDemo\CcdPhysicsDemo.cpp">
 			</File>
 			<File
+				RelativePath="..\..\Demos\AllBulletDemos\..\ConcaveConvexcastDemo\ConcaveConvexcastDemo.cpp">
+			</File>
+			<File
 				RelativePath="..\..\Demos\AllBulletDemos\..\ConcaveDemo\ConcavePhysicsDemo.cpp">
+			</File>
+			<File
+				RelativePath="..\..\Demos\AllBulletDemos\..\ConcaveRaycastDemo\ConcaveRaycastDemo.cpp">
 			</File>
 			<File
 				RelativePath="..\..\Demos\AllBulletDemos\..\ConstraintDemo\ConstraintDemo.cpp">
 			</File>
 			<File
 				RelativePath="..\..\Demos\AllBulletDemos\..\ConvexDecompositionDemo\ConvexDecompositionDemo.cpp">
+			</File>
+			<File
+				RelativePath="..\..\Demos\AllBulletDemos\..\DynamicControlDemo\MotorDemo.cpp">
 			</File>
 			<File
 				RelativePath="..\..\Demos\AllBulletDemos\..\GimpactTestDemo\GimpactTestDemo.cpp">

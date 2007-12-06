@@ -190,7 +190,15 @@ SOURCE=..\..\Demos\AllBulletDemos\..\CcdPhysicsDemo\CcdPhysicsDemo.cpp
 # End Source File
 # Begin Source File
 
+SOURCE=..\..\Demos\AllBulletDemos\..\ConcaveConvexcastDemo\ConcaveConvexcastDemo.cpp
+# End Source File
+# Begin Source File
+
 SOURCE=..\..\Demos\AllBulletDemos\..\ConcaveDemo\ConcavePhysicsDemo.cpp
+# End Source File
+# Begin Source File
+
+SOURCE=..\..\Demos\AllBulletDemos\..\ConcaveRaycastDemo\ConcaveRaycastDemo.cpp
 # End Source File
 # Begin Source File
 
@@ -199,6 +207,10 @@ SOURCE=..\..\Demos\AllBulletDemos\..\ConstraintDemo\ConstraintDemo.cpp
 # Begin Source File
 
 SOURCE=..\..\Demos\AllBulletDemos\..\ConvexDecompositionDemo\ConvexDecompositionDemo.cpp
+# End Source File
+# Begin Source File
+
+SOURCE=..\..\Demos\AllBulletDemos\..\DynamicControlDemo\MotorDemo.cpp
 # End Source File
 # Begin Source File
 

@@ -448,6 +448,10 @@ SOURCE=..\..\src\BulletCollision\BroadphaseCollision\btOverlappingPairCache.h
 # End Source File
 # Begin Source File
 
+SOURCE=..\..\src\BulletCollision\BroadphaseCollision\btOverlappingPairCallback.h
+# End Source File
+# Begin Source File
+
 SOURCE=..\..\src\BulletCollision\BroadphaseCollision\btSimpleBroadphase.h
 # End Source File
 # Begin Source File
