@@ -151,6 +151,66 @@ void	btBvhTriangleMeshShape::performRaycast (btTriangleRaycastCallback* callback
 	m_bvh->reportRayOverlappingNodex(&myNodeCallback,raySource,rayTarget);
 }
 
+void	btBvhTriangleMeshShape::performConvexcast (btTriangleConvexcastCallback* callback, const btVector3& raySource, const btVector3& rayTarget, const btVector3& aabbMin, const btVector3& aabbMax)
+{
+	struct	MyNodeOverlapCallback : public btNodeOverlapCallback
+	{
+		btStridingMeshInterface*	m_meshInterface;
+		btTriangleConvexcastCallback* m_callback;
+
+		MyNodeOverlapCallback(btTriangleConvexcastCallback* callback,btStridingMeshInterface* meshInterface)
+			:m_meshInterface(meshInterface),
+			m_callback(callback)
+		{
+		}
+				
+		virtual void processNode(int nodeSubPart, int nodeTriangleIndex)
+		{
+			btVector3 m_triangle[3];
+			const unsigned char *vertexbase;
+			int numverts;
+			PHY_ScalarType type;
+			int stride;
+			const unsigned char *indexbase;
+			int indexstride;
+			int numfaces;
+			PHY_ScalarType indicestype;
+
+			m_meshInterface->getLockedReadOnlyVertexIndexBase(
+				&vertexbase,
+				numverts,
+				type,
+				stride,
+				&indexbase,
+				indexstride,
+				numfaces,
+				indicestype,
+				nodeSubPart);
+
+			int* gfxbase = (int*)(indexbase+nodeTriangleIndex*indexstride);
+			btAssert(indicestype==PHY_INTEGER||indicestype==PHY_SHORT);
+	
+			const btVector3& meshScaling = m_meshInterface->getScaling();
+			for (int j=2;j>=0;j--)
+			{
+				int graphicsindex = indicestype==PHY_SHORT?((short*)gfxbase)[j]:gfxbase[j];
+
+				btScalar* graphicsbase = (btScalar*)(vertexbase+graphicsindex*stride);
+
+				m_triangle[j] = btVector3(graphicsbase[0]*meshScaling.getX(),graphicsbase[1]*meshScaling.getY(),graphicsbase[2]*meshScaling.getZ());		
+			}
+
+			/* Perform ray vs. triangle collision here */
+			m_callback->processTriangle(m_triangle,nodeSubPart,nodeTriangleIndex);
+			m_meshInterface->unLockReadOnlyVertexBase(nodeSubPart);
+		}
+	};
+
+	MyNodeOverlapCallback	myNodeCallback(callback,m_meshInterface);
+
+	m_bvh->reportBoxCastOverlappingNodex (&myNodeCallback, raySource, rayTarget, aabbMin, aabbMax);
+}
+
 //perform bvh tree traversal and report overlapping triangles to 'callback'
 void	btBvhTriangleMeshShape::processAllTriangles(btTriangleCallback* callback,const btVector3& aabbMin,const btVector3& aabbMax) const
 {

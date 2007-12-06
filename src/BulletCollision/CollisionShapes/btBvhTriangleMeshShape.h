@@ -28,7 +28,7 @@ ATTRIBUTE_ALIGNED16(class) btBvhTriangleMeshShape : public btTriangleMeshShape
 
 	btOptimizedBvh*	m_bvh;
 	bool m_useQuantizedAabbCompression;
-	bool	m_ownsBvh;
+	bool m_ownsBvh;
 	bool m_pad[11];////need padding due to alignment
 
 public:
@@ -53,6 +53,7 @@ public:
 
 
 	void performRaycast (btTriangleRaycastCallback* callback, const btVector3& raySource, const btVector3& rayTarget);
+	void performConvexcast (btTriangleConvexcastCallback* callback, const btVector3& boxSource, const btVector3& boxTarget, const btVector3& boxMin, const btVector3& boxMax);
 
 	virtual void	processAllTriangles(btTriangleCallback* callback,const btVector3& aabbMin,const btVector3& aabbMax) const;
 

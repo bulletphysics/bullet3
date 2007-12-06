@@ -13,7 +13,14 @@ subject to the following restrictions:
 3. This notice may not be removed or altered from any source distribution.
 */
 
+#include <stdio.h>
 
+#include "BulletCollision/CollisionShapes/btConvexShape.h"
+#include "BulletCollision/CollisionShapes/btTriangleShape.h"
+#include "BulletCollision/CollisionDispatch/btCollisionWorld.h"
+#include "BulletCollision/NarrowPhaseCollision/btSubSimplexConvexCast.h"
+#include "BulletCollision/NarrowPhaseCollision/btGjkConvexCast.h"
+#include "BulletCollision/NarrowPhaseCollision/btContinuousConvexCollision.h"
 #include "btRaycastCallback.h"
 
 btTriangleRaycastCallback::btTriangleRaycastCallback(const btVector3& from,const btVector3& to)
@@ -93,6 +100,58 @@ void btTriangleRaycastCallback::processTriangle(btVector3* triangle,int partId, 
 						}
 					}
 				}
+			}
+		}
+	}
+}
+
+
+btTriangleConvexcastCallback::btTriangleConvexcastCallback (const btConvexShape* convexShape, const btTransform& convexShapeFrom, const btTransform& convexShapeTo, const btTransform& triangleToWorld)
+{
+	m_convexShape = convexShape;
+	m_convexShapeFrom = convexShapeFrom;
+	m_convexShapeTo = convexShapeTo;
+	m_triangleToWorld = triangleToWorld;
+	m_hitFraction = 1.0;
+}
+
+void
+btTriangleConvexcastCallback::processTriangle (btVector3* triangle, int partId, int triangleIndex)
+{
+		btTriangleShape triangleShape (triangle[0], triangle[1], triangle[2]);
+
+	btVoronoiSimplexSolver	simplexSolver;
+
+
+//#define  USE_SUBSIMPLEX_CONVEX_CAST 1
+#ifdef USE_SUBSIMPLEX_CONVEX_CAST
+	btSubsimplexConvexCast convexCaster(m_convexShape, &triangleShape, &simplexSolver);
+#else
+	//btGjkConvexCast	convexCaster(m_convexShape,&triangleShape,&simplexSolver);
+	btContinuousConvexCollision convexCaster(m_convexShape,&triangleShape,&simplexSolver,NULL);
+#endif //#USE_SUBSIMPLEX_CONVEX_CAST
+	
+	btConvexCast::CastResult castResult;
+	castResult.m_fraction = btScalar(1.);
+	if (convexCaster.calcTimeOfImpact(m_convexShapeFrom,m_convexShapeTo,m_triangleToWorld, m_triangleToWorld, castResult))
+	{
+		//add hit
+		if (castResult.m_normal.length2() > btScalar(0.0001))
+		{					
+			if (castResult.m_fraction < m_hitFraction)
+			{
+
+#ifdef USE_SUBSIMPLEX_CONVEX_CAST
+				//rotate normal into worldspace
+				castResult.m_normal = m_convexShapeFrom.getBasis() * castResult.m_normal;
+#endif //USE_SUBSIMPLEX_CONVEX_CAST
+				castResult.m_normal.normalize();
+
+				reportHit (castResult.m_normal,
+							btVector3(6,6,6),
+							castResult.m_fraction,
+							partId,
+							triangleIndex);
 			}
 		}
 	}

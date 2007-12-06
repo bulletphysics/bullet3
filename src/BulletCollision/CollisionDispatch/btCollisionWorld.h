@@ -204,7 +204,83 @@ public:
 	};
 
 
-	
+	struct LocalConvexResult
+	{
+		LocalConvexResult(btCollisionObject*	hitCollisionObject, 
+			LocalShapeInfo*	localShapeInfo,
+			const btVector3&		hitNormalLocal,
+			const btVector3&		hitPointLocal,
+			btScalar hitFraction
+			)
+		:m_hitCollisionObject(hitCollisionObject),
+		m_localShapeInfo(localShapeInfo),
+		m_hitNormalLocal(hitNormalLocal),
+		m_hitPointLocal(hitPointLocal),
+		m_hitFraction(hitFraction)
+		{
+		}
+
+		btCollisionObject*		m_hitCollisionObject;
+		LocalShapeInfo*			m_localShapeInfo;
+		btVector3				m_hitNormalLocal;
+		btVector3				m_hitPointLocal;
+		btScalar				m_hitFraction;
+	};
+
+	///RayResultCallback is used to report new raycast results
+	struct	ConvexResultCallback
+	{
+		virtual ~ConvexResultCallback()
+		{
+		}
+		btScalar	m_closestHitFraction;
+		bool	HasHit()
+		{
+			return (m_closestHitFraction < btScalar(1.));
+		}
+
+		ConvexResultCallback()
+			:m_closestHitFraction(btScalar(1.))
+		{
+		}
+		virtual	btScalar	AddSingleResult(LocalConvexResult& convexResult,bool normalInWorldSpace) = 0;
+	};
+
+	struct	ClosestConvexResultCallback : public ConvexResultCallback
+	{
+		ClosestConvexResultCallback(const btVector3&	convexFromWorld,const btVector3&	convexToWorld)
+		:m_convexFromWorld(convexFromWorld),
+		m_convexToWorld(convexToWorld),
+		m_hitCollisionObject(0)
+		{
+		}
+
+		btVector3	m_convexFromWorld;//used to calculate hitPointWorld from hitFraction
+		btVector3	m_convexToWorld;
+
+		btVector3	m_hitNormalWorld;
+		btVector3	m_hitPointWorld;
+		btCollisionObject*	m_hitCollisionObject;
+		
+		virtual	btScalar	AddSingleResult(LocalConvexResult& rayResult,bool normalInWorldSpace)
+		{
+//caller already does the filter on the m_closestHitFraction
+			assert(rayResult.m_hitFraction <= m_closestHitFraction);
+			
+			m_closestHitFraction = rayResult.m_hitFraction;
+			m_hitCollisionObject = rayResult.m_hitCollisionObject;
+			if (normalInWorldSpace)
+			{
+				m_hitNormalWorld = rayResult.m_hitNormalLocal;
+			} else
+			{
+				///need to transform normal into worldspace
+				m_hitNormalWorld = m_hitCollisionObject->getWorldTransform().getBasis()*rayResult.m_hitNormalLocal;
+			}
+			m_hitPointWorld.setInterpolate3(m_convexFromWorld,m_convexToWorld,rayResult.m_hitFraction);
+			return rayResult.m_hitFraction;
+		}
+	};
 
 	int	getNumCollisionObjects() const
 	{
@@ -214,6 +290,10 @@ public:
 	/// rayTest performs a raycast on all objects in the btCollisionWorld, and calls the resultCallback
 	/// This allows for several queries: first hit, all hits, any hit, dependent on the value returned by the callback.
 	void	rayTest(const btVector3& rayFromWorld, const btVector3& rayToWorld, RayResultCallback& resultCallback, short int collisionFilterMask=-1);
+
+	// convexTest performs a linear convex cast on all objects in the btCollisionWorld, and calls the resultCallback
+	// This allows for several queries: first hit, all hits, any hit, dependent on the value return by the callback.
+	void    convexTest (const btConvexShape* castShape, const btVector3& from, const btVector3& to, ConvexResultCallback& resultCallback, short int collisionFilterMask=-1);
 
 	/// rayTestSingle performs a raycast call and calls the resultCallback. It is used internally by rayTest.
 	/// In a future implementation, we consider moving the ray test as a virtual method in btCollisionShape.
@@ -229,7 +309,7 @@ public:
 					  btCollisionObject* collisionObject,
 					  const btCollisionShape* collisionShape,
 					  const btTransform& colObjWorldTransform,
-					  RayResultCallback& resultCallback, short int collisionFilterMask=-1);
+					  ConvexResultCallback& resultCallback, short int collisionFilterMask=-1);
 
 	void	addCollisionObject(btCollisionObject* collisionObject,short int collisionFilterGroup=1,short int collisionFilterMask=1);
 

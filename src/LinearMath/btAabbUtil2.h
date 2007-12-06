@@ -20,7 +20,14 @@ subject to the following restrictions:
 #include "btVector3.h"
 #include "btMinMax.h"
 
-
+SIMD_FORCE_INLINE void AabbExpand (btVector3& aabbMin,
+								   btVector3& aabbMax,
+								   const btVector3& expansionMin,
+								   const btVector3& expansionMax)
+{
+	aabbMin = aabbMin + expansionMin;
+	aabbMax = aabbMax + expansionMax;
+}
 
 
 /// conservative test for overlap between two aabbs

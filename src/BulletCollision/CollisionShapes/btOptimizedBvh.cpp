@@ -741,7 +741,7 @@ void btOptimizedBvh::walkRecursiveQuantizedTreeAgainstQueryAabb(const btQuantize
 
 
 
-void	btOptimizedBvh::walkStacklessQuantizedTreeAgainstRay(btNodeOverlapCallback* nodeCallback, const btVector3& raySource, const btVector3& rayTarget, int startNodeIndex,int endNodeIndex) const
+void	btOptimizedBvh::walkStacklessQuantizedTreeAgainstRay(btNodeOverlapCallback* nodeCallback, const btVector3& raySource, const btVector3& rayTarget, const btVector3& aabbMin, const btVector3& aabbMax, int startNodeIndex,int endNodeIndex) const
 {
 	btAssert(m_useQuantization);
 	
@@ -775,6 +775,10 @@ void	btOptimizedBvh::walkStacklessQuantizedTreeAgainstRay(btNodeOverlapCallback*
 	btVector3 rayAabbMax = raySource;
 	rayAabbMin.setMin(rayTarget);
 	rayAabbMax.setMax(rayTarget);
+
+	/* Add box cast extents to bounding box */
+	rayAabbMin += aabbMin;
+	rayAabbMax += aabbMax;
 
 	unsigned short int quantizedQueryAabbMin[3];
 	unsigned short int quantizedQueryAabbMax[3];
@@ -815,6 +819,9 @@ void	btOptimizedBvh::walkStacklessQuantizedTreeAgainstRay(btNodeOverlapCallback*
 			btVector3 bounds[2];
 			bounds[0] = unQuantize(rootNode->m_quantizedAabbMin);
 			bounds[1] = unQuantize(rootNode->m_quantizedAabbMax);
+			/* Add box cast extents */
+			bounds[0] += aabbMin;
+			bounds[1] += aabbMax;
 			btVector3 normal;
 #if 0
 			bool ra2 = btRayAabb2 (raySource, rayDirection, sign, bounds, param, 0.0, lambda_max);
@@ -831,6 +838,7 @@ void	btOptimizedBvh::walkStacklessQuantizedTreeAgainstRay(btNodeOverlapCallback*
 #endif
 		}
 		
+		RayBoxOverlap = true;
 		if (isLeafNode && RayBoxOverlap)
 		{
 			nodeCallback->processNode(rootNode->getPartId(),rootNode->getTriangleIndex());
@@ -946,7 +954,7 @@ void	btOptimizedBvh::reportRayOverlappingNodex (btNodeOverlapCallback* nodeCallb
 	bool fast_path = m_useQuantization && m_traversalMode == TRAVERSAL_STACKLESS;
 	if (fast_path)
 	{
-		walkStacklessQuantizedTreeAgainstRay(nodeCallback, raySource, rayTarget, 0, m_curNodeIndex);
+		walkStacklessQuantizedTreeAgainstRay(nodeCallback, raySource, rayTarget, btVector3(0, 0, 0), btVector3(0, 0, 0), 0, m_curNodeIndex);
 	} else {
 		/* Otherwise fallback to AABB overlap test */
 		btVector3 aabbMin = raySource;
@@ -958,13 +966,16 @@ void	btOptimizedBvh::reportRayOverlappingNodex (btNodeOverlapCallback* nodeCallb
 }
 
 
-void	btOptimizedBvh::reportSphereOverlappingNodex(btNodeOverlapCallback* nodeCallback,const btVector3& aabbMin,const btVector3& aabbMax) const
+void	btOptimizedBvh::reportBoxCastOverlappingNodex(btNodeOverlapCallback* nodeCallback, const btVector3& raySource, const btVector3& rayTarget, const btVector3& aabbMin,const btVector3& aabbMax) const
 {
-	(void)nodeCallback;
-	(void)aabbMin;
-	(void)aabbMax;
-	//not yet, please use aabb
-	btAssert(0);
+	bool supported = m_useQuantization && m_traversalMode == TRAVERSAL_STACKLESS;
+	if (supported)
+	{
+		walkStacklessQuantizedTreeAgainstRay(nodeCallback, raySource, rayTarget, aabbMin, aabbMax, 0, m_curNodeIndex);
+	} else {
+		//not yet, please implement different paths
+		btAssert("Box cast on this type of Bvh Tree is not supported yet" && 0);
+	}
 }
 
 
