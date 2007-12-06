@@ -135,10 +135,13 @@ public:
 		btTransform transform;
 		transform.setIdentity();
 		transform.setOrigin(vRoot);
-		m_bodies[0] = localCreateRigidBody(btScalar(1.), offset*transform, m_shapes[0]);
 		if (bFixed)
-			m_bodies[0]->setMassProps(0, btVector3(0,0,0));
-
+		{
+			m_bodies[0] = localCreateRigidBody(btScalar(0.), offset*transform, m_shapes[0]);
+		} else
+		{
+			m_bodies[0] = localCreateRigidBody(btScalar(1.), offset*transform, m_shapes[0]);
+		}
 		// legs
 		for (int i=0; i<NUM_LEGS; i++)
 		{
