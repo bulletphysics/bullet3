@@ -265,8 +265,8 @@ public:
 		virtual	btScalar	AddSingleResult(LocalConvexResult& rayResult,bool normalInWorldSpace)
 		{
 //caller already does the filter on the m_closestHitFraction
-			assert(rayResult.m_hitFraction <= m_closestHitFraction);
-			
+			btAssert(rayResult.m_hitFraction <= m_closestHitFraction);
+						
 			m_closestHitFraction = rayResult.m_hitFraction;
 			m_hitCollisionObject = rayResult.m_hitCollisionObject;
 			if (normalInWorldSpace)

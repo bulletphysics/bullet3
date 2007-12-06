@@ -238,49 +238,110 @@ void	btCollisionWorld::rayTestSingle(const btTransform& rayFromTrans,const btTra
 	} else {
 		if (collisionShape->isConcave())
 		{
-			btBvhTriangleMeshShape* triangleMesh = (btBvhTriangleMeshShape*)collisionShape;
-			btTransform worldTocollisionObject = colObjWorldTransform.inverse();
-			btVector3 rayFromLocal = worldTocollisionObject * rayFromTrans.getOrigin();
-			btVector3 rayToLocal = worldTocollisionObject * rayToTrans.getOrigin();
-
-			//ConvexCast::CastResult
-			struct BridgeTriangleRaycastCallback : public btTriangleRaycastCallback 
+			if (collisionShape->getShapeType()==TRIANGLE_MESH_SHAPE_PROXYTYPE)
 			{
-				btCollisionWorld::RayResultCallback* m_resultCallback;
-				btCollisionObject*	m_collisionObject;
-				btTriangleMeshShape*	m_triangleMesh;
+				///optimized version for btBvhTriangleMeshShape
+				btBvhTriangleMeshShape* triangleMesh = (btBvhTriangleMeshShape*)collisionShape;
+				btTransform worldTocollisionObject = colObjWorldTransform.inverse();
+				btVector3 rayFromLocal = worldTocollisionObject * rayFromTrans.getOrigin();
+				btVector3 rayToLocal = worldTocollisionObject * rayToTrans.getOrigin();
 
-				BridgeTriangleRaycastCallback( const btVector3& from,const btVector3& to,
-					btCollisionWorld::RayResultCallback* resultCallback, btCollisionObject* collisionObject,btTriangleMeshShape*	triangleMesh):
-					btTriangleRaycastCallback(from,to),
-						m_resultCallback(resultCallback),
-						m_collisionObject(collisionObject),
-						m_triangleMesh(triangleMesh)
+				//ConvexCast::CastResult
+				struct BridgeTriangleRaycastCallback : public btTriangleRaycastCallback 
+				{
+					btCollisionWorld::RayResultCallback* m_resultCallback;
+					btCollisionObject*	m_collisionObject;
+					btTriangleMeshShape*	m_triangleMesh;
+
+					BridgeTriangleRaycastCallback( const btVector3& from,const btVector3& to,
+						btCollisionWorld::RayResultCallback* resultCallback, btCollisionObject* collisionObject,btTriangleMeshShape*	triangleMesh):
+						btTriangleRaycastCallback(from,to),
+							m_resultCallback(resultCallback),
+							m_collisionObject(collisionObject),
+							m_triangleMesh(triangleMesh)
+						{
+						}
+
+
+					virtual btScalar reportHit(const btVector3& hitNormalLocal, btScalar hitFraction, int partId, int triangleIndex )
 					{
+						btCollisionWorld::LocalShapeInfo	shapeInfo;
+						shapeInfo.m_shapePart = partId;
+						shapeInfo.m_triangleIndex = triangleIndex;
+						
+						btCollisionWorld::LocalRayResult rayResult
+						(m_collisionObject, 
+							&shapeInfo,
+							hitNormalLocal,
+							hitFraction);
+						
+						bool	normalInWorldSpace = false;
+						return m_resultCallback->AddSingleResult(rayResult,normalInWorldSpace);
 					}
 
+				};
 
-				virtual btScalar reportHit(const btVector3& hitNormalLocal, btScalar hitFraction, int partId, int triangleIndex )
+				BridgeTriangleRaycastCallback rcb(rayFromLocal,rayToLocal,&resultCallback,collisionObject,triangleMesh);
+				rcb.m_hitFraction = resultCallback.m_closestHitFraction;
+				triangleMesh->performRaycast(&rcb,rayFromLocal,rayToLocal);
+			} else
+			{
+				btTriangleMeshShape* triangleMesh = (btTriangleMeshShape*)collisionShape;
+				
+				btTransform worldTocollisionObject = colObjWorldTransform.inverse();
+
+				btVector3 rayFromLocal = worldTocollisionObject * rayFromTrans.getOrigin();
+				btVector3 rayToLocal = worldTocollisionObject * rayToTrans.getOrigin();
+
+				//ConvexCast::CastResult
+
+				struct BridgeTriangleRaycastCallback : public btTriangleRaycastCallback 
 				{
-					btCollisionWorld::LocalShapeInfo	shapeInfo;
-					shapeInfo.m_shapePart = partId;
-					shapeInfo.m_triangleIndex = triangleIndex;
-					
-					btCollisionWorld::LocalRayResult rayResult
-					(m_collisionObject, 
-						&shapeInfo,
-						hitNormalLocal,
-						hitFraction);
-					
-					bool	normalInWorldSpace = false;
-					return m_resultCallback->AddSingleResult(rayResult,normalInWorldSpace);
-				}
+					btCollisionWorld::RayResultCallback* m_resultCallback;
+					btCollisionObject*	m_collisionObject;
+					btTriangleMeshShape*	m_triangleMesh;
 
-			};
+					BridgeTriangleRaycastCallback( const btVector3& from,const btVector3& to,
+						btCollisionWorld::RayResultCallback* resultCallback, btCollisionObject* collisionObject,btTriangleMeshShape*	triangleMesh):
+						btTriangleRaycastCallback(from,to),
+							m_resultCallback(resultCallback),
+							m_collisionObject(collisionObject),
+							m_triangleMesh(triangleMesh)
+						{
+						}
 
-			BridgeTriangleRaycastCallback rcb(rayFromLocal,rayToLocal,&resultCallback,collisionObject,triangleMesh);
-			rcb.m_hitFraction = resultCallback.m_closestHitFraction;
-			triangleMesh->performRaycast(&rcb,rayFromLocal,rayToLocal);
+
+					virtual btScalar reportHit(const btVector3& hitNormalLocal, btScalar hitFraction, int partId, int triangleIndex )
+					{
+						btCollisionWorld::LocalShapeInfo	shapeInfo;
+						shapeInfo.m_shapePart = partId;
+						shapeInfo.m_triangleIndex = triangleIndex;
+						
+						btCollisionWorld::LocalRayResult rayResult
+						(m_collisionObject, 
+							&shapeInfo,
+							hitNormalLocal,
+							hitFraction);
+						
+						bool	normalInWorldSpace = false;
+						return m_resultCallback->AddSingleResult(rayResult,normalInWorldSpace);
+						
+						
+					}
+
+				};
+
+
+				BridgeTriangleRaycastCallback	rcb(rayFromLocal,rayToLocal,&resultCallback,collisionObject,triangleMesh);
+				rcb.m_hitFraction = resultCallback.m_closestHitFraction;
+
+				btVector3 rayAabbMinLocal = rayFromLocal;
+				rayAabbMinLocal.setMin(rayToLocal);
+				btVector3 rayAabbMaxLocal = rayFromLocal;
+				rayAabbMaxLocal.setMax(rayToLocal);
+
+				triangleMesh->processAllTriangles(&rcb,rayAabbMinLocal,rayAabbMaxLocal);
+			}
 		} else {
 			//todo: use AABB tree or other BVH acceleration structure!
 			if (collisionShape->isCompound())
@@ -356,55 +417,69 @@ void	btCollisionWorld::objectQuerySingle(const btConvexShape* castShape,const bt
 	} else {
 		if (collisionShape->isConcave())
 		{
-			btBvhTriangleMeshShape* triangleMesh = (btBvhTriangleMeshShape*)collisionShape;
-			btTransform worldTocollisionObject = colObjWorldTransform.inverse();
-			btVector3 convexFromLocal = worldTocollisionObject * convexFromTrans.getOrigin();
-			btVector3 convexToLocal = worldTocollisionObject * convexToTrans.getOrigin();
-			btTransform rotationXform;
-
-			rotationXform.setIdentity (); // FIXME!!!
-
-			//ConvexCast::CastResult
-			struct BridgeTriangleConvexcastCallback : public btTriangleConvexcastCallback 
+			if (collisionShape->getShapeType()==TRIANGLE_MESH_SHAPE_PROXYTYPE)
 			{
-				btCollisionWorld::ConvexResultCallback* m_resultCallback;
-				btCollisionObject*	m_collisionObject;
-				btTriangleMeshShape*	m_triangleMesh;
+				btBvhTriangleMeshShape* triangleMesh = (btBvhTriangleMeshShape*)collisionShape;
+				btTransform worldTocollisionObject = colObjWorldTransform.inverse();
+				btVector3 convexFromLocal = worldTocollisionObject * convexFromTrans.getOrigin();
+				btVector3 convexToLocal = worldTocollisionObject * convexToTrans.getOrigin();
+				btTransform rotationXform;
 
-				BridgeTriangleConvexcastCallback(const btConvexShape* castShape, const btTransform& from,const btTransform& to,
-					btCollisionWorld::ConvexResultCallback* resultCallback, btCollisionObject* collisionObject,btTriangleMeshShape*	triangleMesh, const btTransform& triangleToWorld):
-					btTriangleConvexcastCallback(castShape, from,to, triangleToWorld),
-						m_resultCallback(resultCallback),
-						m_collisionObject(collisionObject),
-						m_triangleMesh(triangleMesh)
+				rotationXform.setIdentity (); // FIXME!!!
+
+				//ConvexCast::CastResult
+				struct BridgeTriangleConvexcastCallback : public btTriangleConvexcastCallback 
+				{
+					btCollisionWorld::ConvexResultCallback* m_resultCallback;
+					btCollisionObject*	m_collisionObject;
+					btTriangleMeshShape*	m_triangleMesh;
+
+					BridgeTriangleConvexcastCallback(const btConvexShape* castShape, const btTransform& from,const btTransform& to,
+						btCollisionWorld::ConvexResultCallback* resultCallback, btCollisionObject* collisionObject,btTriangleMeshShape*	triangleMesh, const btTransform& triangleToWorld):
+						btTriangleConvexcastCallback(castShape, from,to, triangleToWorld),
+							m_resultCallback(resultCallback),
+							m_collisionObject(collisionObject),
+							m_triangleMesh(triangleMesh)
+						{
+						}
+
+
+					virtual btScalar reportHit(const btVector3& hitNormalLocal, const btVector3& hitPointLocal, btScalar hitFraction, int partId, int triangleIndex )
 					{
+						btCollisionWorld::LocalShapeInfo	shapeInfo;
+						shapeInfo.m_shapePart = partId;
+						shapeInfo.m_triangleIndex = triangleIndex;
+						if (hitFraction <= m_resultCallback->m_closestHitFraction)
+						{
+
+							btCollisionWorld::LocalConvexResult convexResult
+							(m_collisionObject, 
+								&shapeInfo,
+								hitNormalLocal,
+								hitPointLocal,
+								hitFraction);
+							
+							bool	normalInWorldSpace = false;
+
+					
+							return m_resultCallback->AddSingleResult(convexResult,normalInWorldSpace);
+						}
+						return hitFraction;
 					}
 
+				};
 
-				virtual btScalar reportHit(const btVector3& hitNormalLocal, const btVector3& hitPointLocal, btScalar hitFraction, int partId, int triangleIndex )
-				{
-					btCollisionWorld::LocalShapeInfo	shapeInfo;
-					shapeInfo.m_shapePart = partId;
-					shapeInfo.m_triangleIndex = triangleIndex;
-					
-					btCollisionWorld::LocalConvexResult convexResult
-					(m_collisionObject, 
-						&shapeInfo,
-						hitNormalLocal,
-						hitPointLocal,
-						hitFraction);
-					
-					bool	normalInWorldSpace = false;
-					return m_resultCallback->AddSingleResult(convexResult,normalInWorldSpace);
-				}
-
-			};
-
-			BridgeTriangleConvexcastCallback tccb(castShape, convexFromTrans,convexToTrans,&resultCallback,collisionObject,triangleMesh, colObjWorldTransform);
-			tccb.m_hitFraction = resultCallback.m_closestHitFraction;
-			btVector3 boxMinLocal, boxMaxLocal;
-			castShape->getAabb(rotationXform, boxMinLocal, boxMaxLocal);
-			triangleMesh->performConvexcast(&tccb,convexFromLocal,convexToLocal,boxMinLocal, boxMaxLocal);
+				BridgeTriangleConvexcastCallback tccb(castShape, convexFromTrans,convexToTrans,&resultCallback,collisionObject,triangleMesh, colObjWorldTransform);
+				tccb.m_hitFraction = resultCallback.m_closestHitFraction;
+				btVector3 boxMinLocal, boxMaxLocal;
+				castShape->getAabb(rotationXform, boxMinLocal, boxMaxLocal);
+				triangleMesh->performConvexcast(&tccb,convexFromLocal,convexToLocal,boxMinLocal, boxMaxLocal);
+			} else
+			{
+				//currently there is no convex cast support for concave shapes other then btBvhTriangleMeshShape
+				//not yet
+				btAssert(0);
+			}
 		} else {
 			//todo: use AABB tree or other BVH acceleration structure!
 			if (collisionShape->isCompound())

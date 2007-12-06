@@ -754,8 +754,8 @@ void	btOptimizedBvh::walkStacklessQuantizedTreeAgainstRay(btNodeOverlapCallback*
 	
 	bool isLeafNode;
 	//PCK: unsigned instead of bool
-	unsigned BoxBoxOverlap = 0;
-	unsigned RayBoxOverlap = 0;
+	unsigned boxBoxOverlap = 0;
+	unsigned rayBoxOverlap = 0;
 
 	btScalar lambda_max = 1.0;
 #define RAYAABB2
@@ -811,10 +811,10 @@ void	btOptimizedBvh::walkStacklessQuantizedTreeAgainstRay(btNodeOverlapCallback*
 		//PCK: unsigned instead of bool
 		// only interested if this is closer than any previous hit
 		btScalar param = 1.0;
-		RayBoxOverlap = 0;
-		BoxBoxOverlap = testQuantizedAabbAgainstQuantizedAabb(quantizedQueryAabbMin,quantizedQueryAabbMax,rootNode->m_quantizedAabbMin,rootNode->m_quantizedAabbMax);
+		rayBoxOverlap = 0;
+		boxBoxOverlap = testQuantizedAabbAgainstQuantizedAabb(quantizedQueryAabbMin,quantizedQueryAabbMax,rootNode->m_quantizedAabbMin,rootNode->m_quantizedAabbMax);
 		isLeafNode = rootNode->isLeafNode();
-		if (BoxBoxOverlap)
+		if (boxBoxOverlap)
 		{
 			btVector3 bounds[2];
 			bounds[0] = unQuantize(rootNode->m_quantizedAabbMin);
@@ -832,20 +832,19 @@ void	btOptimizedBvh::walkStacklessQuantizedTreeAgainstRay(btNodeOverlapCallback*
 			}
 #endif
 #ifdef RAYAABB2
-			RayBoxOverlap = btRayAabb2 (raySource, rayDirection, sign, bounds, param, 0.0, lambda_max);
+			rayBoxOverlap = btRayAabb2 (raySource, rayDirection, sign, bounds, param, 0.0, lambda_max);
 #else
-			RayBoxOverlap = btRayAabb(raySource, rayTarget, bounds[0], bounds[1], param, normal);
+			rayBoxOverlap = btRayAabb(raySource, rayTarget, bounds[0], bounds[1], param, normal);
 #endif
 		}
 		
-		RayBoxOverlap = true;
-		if (isLeafNode && RayBoxOverlap)
+		if (isLeafNode && rayBoxOverlap)
 		{
 			nodeCallback->processNode(rootNode->getPartId(),rootNode->getTriangleIndex());
 		}
 		
 		//PCK: unsigned instead of bool
-		if ((RayBoxOverlap != 0) || isLeafNode)
+		if ((rayBoxOverlap != 0) || isLeafNode)
 		{
 			rootNode++;
 			curIndex++;

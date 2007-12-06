@@ -20,7 +20,9 @@ subject to the following restrictions:
 #include "../BasicDemo/BasicDemo.h"
 #include "../ConcaveDemo/ConcaveDemo.h"
 #include "../ConcaveRaycastDemo/ConcaveRaycastDemo.h"
+#include "../ConcaveConvexcastDemo/ConcaveConvexcastDemo.h"
 #include "../ConvexDecompositionDemo/ConvexDecompositionDemo.h"
+#include "../DynamicControlDemo/MotorDemo.h"
 #include "../RagdollDemo/RagdollDemo.h"
 #include "../GimpactTestDemo/GimpactTestDemo.h"
 #include "../Raytracer/Raytracer.h"
@@ -94,10 +96,12 @@ public:
 
 btDemoEntry g_demoEntries[] =
 {
+	{"DynamicControlDemo",MotorDemo::Create},
 	{"RagdollDemo",RagdollDemo::Create},
 	{"CcdPhysicsDemo", CcdPhysicsDemo::Create},
 	{"ConcaveDemo",ConcaveDemo::Create},
 	{"ConcaveRaycastDemo",ConcaveRaycastDemo::Create},
+	{"ConcaveConvexcastDemo",ConcaveConvexcastDemo::Create},
 	{"ConvexDecomposition",ConvexDecompositionDemo::Create},
 	{"BasicDemo", BasicDemo::Create},
 	{"BspDemo", BspDemo::Create},
