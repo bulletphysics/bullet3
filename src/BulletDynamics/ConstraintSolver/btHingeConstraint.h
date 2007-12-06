@@ -109,6 +109,17 @@ public:
 
 	}
 
+	btScalar	getLowerLimit() const
+	{
+		return m_lowerLimit;
+	}
+
+	btScalar	getUpperLimit() const
+	{
+		return m_upperLimit;
+	}
+
+
 	btScalar getHingeAngle();
 
 

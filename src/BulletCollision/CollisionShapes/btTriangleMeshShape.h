@@ -46,11 +46,6 @@ public:
 
 	void	recalcLocalAabb();
 
-	virtual int	getShapeType() const
-	{
-		return TRIANGLE_MESH_SHAPE_PROXYTYPE;
-	}
-
 	virtual void getAabb(const btTransform& t,btVector3& aabbMin,btVector3& aabbMax) const;
 
 	virtual void	processAllTriangles(btTriangleCallback* callback,const btVector3& aabbMin,const btVector3& aabbMax) const;

@@ -1211,7 +1211,7 @@ bool btOptimizedBvh::serialize(void *o_alignedDataBuffer, unsigned i_dataBufferS
 	return true;
 }
 
-btOptimizedBvh *btOptimizedBvh::deSerializeInPlace(void *i_alignedDataBuffer, unsigned i_dataBufferSize, bool i_swapEndian)
+btOptimizedBvh *btOptimizedBvh::deSerializeInPlace(void *i_alignedDataBuffer, unsigned int i_dataBufferSize, bool i_swapEndian)
 {
 
 	if (i_alignedDataBuffer == NULL)// || (((unsigned)i_alignedDataBuffer & BVH_ALIGNMENT_MASK) != 0))
@@ -1232,7 +1232,7 @@ btOptimizedBvh *btOptimizedBvh::deSerializeInPlace(void *i_alignedDataBuffer, un
 		bvh->m_subtreeHeaderCount = btSwapEndian(bvh->m_subtreeHeaderCount);
 	}
 
-	int calculatedBufSize = bvh->calculateSerializeBufferSize();
+	unsigned int calculatedBufSize = bvh->calculateSerializeBufferSize();
 	btAssert(calculatedBufSize <= i_dataBufferSize);
 
 	if (calculatedBufSize > i_dataBufferSize)

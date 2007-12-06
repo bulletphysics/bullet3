@@ -43,15 +43,11 @@ public:
 	
 	virtual ~btBvhTriangleMeshShape();
 
-	
-	/*
 	virtual int	getShapeType() const
 	{
 		return TRIANGLE_MESH_SHAPE_PROXYTYPE;
 	}
-	*/
-
-
+	
 	void performRaycast (btTriangleRaycastCallback* callback, const btVector3& raySource, const btVector3& rayTarget);
 	void performConvexcast (btTriangleConvexcastCallback* callback, const btVector3& boxSource, const btVector3& boxTarget, const btVector3& boxMin, const btVector3& boxMax);
 

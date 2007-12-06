@@ -381,7 +381,7 @@ public:
 	bool serialize(void *o_alignedDataBuffer, unsigned i_dataBufferSize, bool i_swapEndian);
 
 	///deSerializeInPlace loads and initializes a BVH from a buffer in memory 'in place'
-	static btOptimizedBvh *deSerializeInPlace(void *i_alignedDataBuffer, unsigned i_dataBufferSize, bool i_swapEndian);
+	static btOptimizedBvh *deSerializeInPlace(void *i_alignedDataBuffer, unsigned int i_dataBufferSize, bool i_swapEndian);
 
 	static unsigned int getAlignmentSerializationPadding();
 
