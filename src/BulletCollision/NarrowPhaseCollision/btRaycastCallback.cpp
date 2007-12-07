@@ -118,7 +118,7 @@ btTriangleConvexcastCallback::btTriangleConvexcastCallback (const btConvexShape*
 void
 btTriangleConvexcastCallback::processTriangle (btVector3* triangle, int partId, int triangleIndex)
 {
-		btTriangleShape triangleShape (triangle[0], triangle[1], triangle[2]);
+	btTriangleShape triangleShape (triangle[0], triangle[1], triangle[2]);
 
 	btVoronoiSimplexSolver	simplexSolver;
 
@@ -148,7 +148,7 @@ btTriangleConvexcastCallback::processTriangle (btVector3* triangle, int partId, 
 				castResult.m_normal.normalize();
 
 				reportHit (castResult.m_normal,
-							btVector3(6,6,6),
+							castResult.m_hitPoint,
 							castResult.m_fraction,
 							partId,
 							triangleIndex);

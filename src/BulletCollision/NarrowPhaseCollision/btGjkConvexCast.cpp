@@ -148,6 +148,7 @@ bool	btGjkConvexCast::calcTimeOfImpact(
 					//degeneracy, report a hit
 					result.m_fraction = lastLambda;
 					result.m_normal = n;
+					result.m_hitPoint = pointCollector.m_pointInWorld;
 					return true;
 				}
 				c = pointCollector.m_pointInWorld;			
@@ -165,6 +166,7 @@ bool	btGjkConvexCast::calcTimeOfImpact(
 		
 			result.m_fraction = lastLambda;
 			result.m_normal = n;
+			result.m_hitPoint = c;
 			return true;
 		}
 	}

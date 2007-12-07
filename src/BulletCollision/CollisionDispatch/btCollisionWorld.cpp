@@ -378,13 +378,7 @@ void	btCollisionWorld::objectQuerySingle(const btConvexShape* castShape,const bt
 
 		btConvexShape* convexShape = (btConvexShape*) collisionShape;
 		btVoronoiSimplexSolver	simplexSolver;
-#define  USE_SUBSIMPLEX_CONVEX_CAST 1
-#ifdef USE_SUBSIMPLEX_CONVEX_CAST
-		btSubsimplexConvexCast convexCaster(castShape,convexShape,&simplexSolver);
-#else
-		//btGjkConvexCast	convexCaster(castShape,convexShape,&simplexSolver);
-		//btContinuousConvexCollision convexCaster(castShape,convexShape,&simplexSolver,0);
-#endif //#USE_SUBSIMPLEX_CONVEX_CAST
+		btGjkConvexCast	convexCaster(castShape,convexShape,&simplexSolver);
 			
 		if (convexCaster.calcTimeOfImpact(convexFromTrans,convexToTrans,colObjWorldTransform,colObjWorldTransform,castResult))
 		{
@@ -404,7 +398,7 @@ void	btCollisionWorld::objectQuerySingle(const btConvexShape* castShape,const bt
 									collisionObject, 
 									0,
 									castResult.m_normal,
-									btVector3(6,6,6), // FIXME need real hitpoint
+									castResult.m_hitPoint,
 									castResult.m_fraction
 								);
 
@@ -423,9 +417,8 @@ void	btCollisionWorld::objectQuerySingle(const btConvexShape* castShape,const bt
 				btTransform worldTocollisionObject = colObjWorldTransform.inverse();
 				btVector3 convexFromLocal = worldTocollisionObject * convexFromTrans.getOrigin();
 				btVector3 convexToLocal = worldTocollisionObject * convexToTrans.getOrigin();
-				btTransform rotationXform;
-
-				rotationXform.setIdentity (); // FIXME!!!
+				// rotation of box in local mesh space = MeshRotation^-1 * ConvexToRotation
+				btTransform rotationXform = btTransform(worldTocollisionObject.getBasis() * convexToTrans.getBasis());
 
 				//ConvexCast::CastResult
 				struct BridgeTriangleConvexcastCallback : public btTriangleConvexcastCallback 
@@ -480,9 +473,8 @@ void	btCollisionWorld::objectQuerySingle(const btConvexShape* castShape,const bt
 				btTransform worldTocollisionObject = colObjWorldTransform.inverse();
 				btVector3 convexFromLocal = worldTocollisionObject * convexFromTrans.getOrigin();
 				btVector3 convexToLocal = worldTocollisionObject * convexToTrans.getOrigin();
-				btTransform rotationXform;
-
-				rotationXform.setIdentity (); // FIXME!!!
+				// rotation of box in local mesh space = MeshRotation^-1 * ConvexToRotation
+				btTransform rotationXform = btTransform(worldTocollisionObject.getBasis() * convexToTrans.getBasis());
 
 				//ConvexCast::CastResult
 				struct BridgeTriangleConvexcastCallback : public btTriangleConvexcastCallback 
@@ -518,7 +510,6 @@ void	btCollisionWorld::objectQuerySingle(const btConvexShape* castShape,const bt
 							
 							bool	normalInWorldSpace = false;
 
-					
 							return m_resultCallback->AddSingleResult(convexResult,normalInWorldSpace);
 						}
 						return hitFraction;

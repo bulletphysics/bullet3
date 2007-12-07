@@ -39,7 +39,8 @@ public:
 	btVector3 source[NUMRAYS_IN_BAR];
 	btVector3 dest[NUMRAYS_IN_BAR];
 	btVector3 direction[NUMRAYS_IN_BAR];
-	btVector3 hit[NUMRAYS_IN_BAR];
+	btVector3 hit_com[NUMRAYS_IN_BAR];
+	btVector3 hit_surface[NUMRAYS_IN_BAR];
 	btVector3 normal[NUMRAYS_IN_BAR];
 
 	int frame_counter;
@@ -153,11 +154,13 @@ public:
 			cw->convexTest (&boxShape, source[i], dest[i], cb);
 			if (cb.HasHit ())
 			{
-				hit[i] = cb.m_hitPointWorld;
+				hit_surface[i] = cb.m_hitPointWorld;
+				hit_com[i].setInterpolate3(source[i], dest[i], cb.m_closestHitFraction);
 				normal[i] = cb.m_hitNormalWorld;
 				normal[i].normalize ();
 			} else {
-				hit[i] = dest[i];
+				hit_com[i] = dest[i];
+				hit_surface[i] = dest[i];
 				normal[i] = btVector3(1.0, 0.0, 0.0);
 			}
 
@@ -195,20 +198,21 @@ public:
 		for (int i = 0; i < NUMRAYS_IN_BAR; i++)
 		{
 			glVertex3f (source[i][0], source[i][1], source[i][2]);
-			glVertex3f (hit[i][0], hit[i][1], hit[i][2]);
+			glVertex3f (hit_com[i][0], hit_com[i][1], hit_com[i][2]);
 		}
 		glColor3f (1.0, 1.0, 1.0);
 		glBegin (GL_LINES);
+		btScalar normal_scale = 10.0; // easier to see if this is big
 		for (int i = 0; i < NUMRAYS_IN_BAR; i++)
 		{
-			glVertex3f (hit[i][0], hit[i][1], hit[i][2]);
-			glVertex3f (hit[i][0] + normal[i][0], hit[i][1] + normal[i][1], hit[i][2] + normal[i][2]);
+			glVertex3f (hit_surface[i][0], hit_surface[i][1], hit_surface[i][2]);
+			glVertex3f (hit_surface[i][0] + normal_scale * normal[i][0], hit_surface[i][1] + normal_scale * normal[i][1], hit_surface[i][2] + normal_scale * normal[i][2]);
 		}
 		glEnd ();
 		glColor3f (0.0, 1.0, 1.0);
 		for (int i = 0; i < NUMRAYS_IN_BAR; i++)
 		{
-			drawCube (hit[i]);
+			drawCube (hit_com[i]);
 		}
 		glEnable (GL_LIGHTING);
 	}
@@ -339,6 +343,7 @@ void	ConcaveConvexcastDemo::initPhysics()
 	}
 
 	startTransform.setIdentity();
+	//startTransform = btTransform(btQuaternion (btVector3(1,1,1), 1.5));
 	staticBody = localCreateRigidBody(mass, startTransform,groundShape);
 
 	staticBody->setCollisionFlags(staticBody->getCollisionFlags() | btCollisionObject::CF_STATIC_OBJECT);

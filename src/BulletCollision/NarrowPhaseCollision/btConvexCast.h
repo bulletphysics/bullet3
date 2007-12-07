@@ -50,6 +50,7 @@ public:
 		virtual ~CastResult() {};
 
 		btVector3	m_normal;
+		btVector3   m_hitPoint;
 		btScalar	m_fraction;
 		btTransform	m_hitTransformA;
 		btTransform	m_hitTransformB;

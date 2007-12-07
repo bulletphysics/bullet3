@@ -174,6 +174,7 @@ bool	btContinuousConvexCollision::calcTimeOfImpact(
 					result.m_fraction = lastLambda;
 					n = pointCollector.m_normalOnBInWorld;
 					result.m_normal=n;//.setValue(1,1,1);// = n;
+					result.m_hitPoint = pointCollector.m_pointInWorld;
 					return true;
 				}
 				c = pointCollector.m_pointInWorld;		
@@ -189,6 +190,7 @@ bool	btContinuousConvexCollision::calcTimeOfImpact(
 
 		result.m_fraction = lambda;
 		result.m_normal = n;
+		result.m_hitPoint = c;
 		return true;
 	}
 

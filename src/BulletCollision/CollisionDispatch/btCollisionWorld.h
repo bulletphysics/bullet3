@@ -262,23 +262,23 @@ public:
 		btVector3	m_hitPointWorld;
 		btCollisionObject*	m_hitCollisionObject;
 		
-		virtual	btScalar	AddSingleResult(LocalConvexResult& rayResult,bool normalInWorldSpace)
+		virtual	btScalar	AddSingleResult(LocalConvexResult& convexResult,bool normalInWorldSpace)
 		{
 //caller already does the filter on the m_closestHitFraction
-			btAssert(rayResult.m_hitFraction <= m_closestHitFraction);
+			btAssert(convexResult.m_hitFraction <= m_closestHitFraction);
 						
-			m_closestHitFraction = rayResult.m_hitFraction;
-			m_hitCollisionObject = rayResult.m_hitCollisionObject;
+			m_closestHitFraction = convexResult.m_hitFraction;
+			m_hitCollisionObject = convexResult.m_hitCollisionObject;
 			if (normalInWorldSpace)
 			{
-				m_hitNormalWorld = rayResult.m_hitNormalLocal;
+				m_hitNormalWorld = convexResult.m_hitNormalLocal;
 			} else
 			{
 				///need to transform normal into worldspace
-				m_hitNormalWorld = m_hitCollisionObject->getWorldTransform().getBasis()*rayResult.m_hitNormalLocal;
+				m_hitNormalWorld = m_hitCollisionObject->getWorldTransform().getBasis()*convexResult.m_hitNormalLocal;
 			}
-			m_hitPointWorld.setInterpolate3(m_convexFromWorld,m_convexToWorld,rayResult.m_hitFraction);
-			return rayResult.m_hitFraction;
+			m_hitPointWorld = convexResult.m_hitPointLocal;
+			return convexResult.m_hitFraction;
 		}
 	};
 
