@@ -24,6 +24,8 @@ class Raytracer : public DemoApplication
 
 	void	initPhysics();
 
+	virtual ~Raytracer();
+
 	virtual void clientMoveAndDisplay();
 
 	virtual void displayCallback();

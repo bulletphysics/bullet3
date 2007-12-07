@@ -22,6 +22,8 @@ class LinearConvexCastDemo : public DemoApplication
 {
 	public:
 
+	virtual ~LinearConvexCastDemo();
+
 	void	initPhysics();
 
 	virtual void clientMoveAndDisplay();

@@ -11,47 +11,7 @@
 
 
 
-#define IN_TO_M_CONSTANT   (0.0254f)
-#define M_TO_IN_CONSTANT   (39.3700787f)
-#define CM_TO_IN_CONSTANT  (0.393700787f)
-#define LBS_TO_KG_CONSTANT (0.45359237f)
-
-#define FEET_TO_IN(x) (12.0f * (float)(x))
-#define IN_TO_FT(x)   ((float)(x)/12.0f)
-#define IN_TO_M(x)    ((float)(x) * IN_TO_M_CONSTANT)
-#define M_TO_IN(x)    ((float)(x) * M_TO_IN_CONSTANT)
-#define CM_TO_IN(x)   ((float)(x) * CM_TO_IN_CONSTANT)
-#define FT_TO_M(x)    (IN_TO_M(FEET_TO_IN(x)))
-#define LBS_TO_KG(x)  ((float)(x) * LBS_TO_KG_CONSTANT)
-
-#define PIN_HEIGHT     IN_TO_M(15.0f)
-#define PIN_DIAMETER   IN_TO_M(4.76f)
-#define PIN_MASS       LBS_TO_KG(3.5f)
-#define PIN_FRICTION   (BALL_FRICTION) // a guess
-//#define PIN_COR        (0.67f) // was 0.67
-#define PIN_COR        (0.2f)
-
-#define BALL_DIAMETER     IN_TO_M(8.55f)
-#define BALL_MASS         LBS_TO_KG(16.0f)
-#define BALL_FRICTION     (0.3f) // max is 0.32
-#define BALL_COR          (0.7)
-#define BALL_MAX_FRICTION (0.32f)
-#define BALL_MAX_MASS     (16.0f) // lbs
-#define BALL_MIN_MASS     (8.0f)  // lbs
-
-#define LANE_DECK_FUDGE (IN_TO_M(6.0f))
-
-#define LANE_WIDTH        IN_TO_M(42.0f)
-#define LANE_TOTAL_WIDTH  IN_TO_M(62.88f)
-#define LANE_LENGTH       FT_TO_M(60.0f-LANE_DECK_FUDGE)
-
-#define GRAVITY_VECTOR (btVector3(0.0f,-9.81f,0.0f))
-
-#define PIN_Z_DIST IN_TO_M(10.3923048f)
-#define PIN_Y_DIST IN_TO_M(12.0f)
-
 #include "BulletCollision/CollisionDispatch/btCollisionWorld.h"
-
 
 /*
 Raytracer uses the Convex rayCast to visualize the Collision Shapes/Minkowski Sum.
@@ -60,7 +20,6 @@ Very basic raytracer, rendering into a texture.
 
 ///Low level demo, doesn't include btBulletCollisionCommon.h
 
-#include "GL_Simplex1to4.h"
 #include "LinearMath/btQuaternion.h"
 #include "LinearMath/btTransform.h"
 #include "GL_ShapeDrawer.h"
@@ -74,10 +33,6 @@ Very basic raytracer, rendering into a texture.
 #include "BulletCollision/NarrowPhaseCollision/btSubSimplexConvexCast.h"
 #include "BulletCollision/NarrowPhaseCollision/btGjkConvexCast.h"
 #include "BulletCollision/NarrowPhaseCollision/btContinuousConvexCollision.h"
-#ifdef USE_ALGEBRAIC_CCD
-#include "NarrowPhaseCollision/BU_CollisionPair.h"
-#endif //USE_ALGEBRAIC_CCD
-
 
 #include "BulletCollision/CollisionShapes/btSphereShape.h"
 #include "BulletCollision/CollisionShapes/btMultiSphereShape.h"
@@ -105,8 +60,6 @@ static float yaw=0.f,pitch=0.f,roll=0.f;
 static const int maxNumObjects = 4;
 static const int numObjects = 1;
 
-/// simplex contains the vertices, and some extra code to draw and debug
-static GL_Simplex1to4	simplex;
 
 static btConvexShape*	shapePtr[maxNumObjects];
 static btTransform transforms[maxNumObjects];
@@ -119,14 +72,7 @@ static int screenWidth = 128;
 static int screenHeight = 128;//screenWidth * aspectRatio;
 GLuint glTextureId;
 
-btSphereShape	mySphere(1);
-btBoxShape myBox(btVector3(0.4f,0.4f,0.4f));
-btCylinderShape myCylinder(btVector3(0.3f,0.3f,0.3f));
 btConeShape myCone(1,1);
-btCompoundShape compound;
-
-
-btMinkowskiSumShape myMink(&myCylinder,&myBox);
 
 
 
@@ -139,15 +85,8 @@ void	Raytracer::initPhysics()
 {
 	raytracePicture = new renderTexture(screenWidth,screenHeight);
 
-	myBox.setMargin(0.02f);
 	myCone.setMargin(0.2f);
 
-	simplex.setSimplexSolver(&simplexSolver);
-	simplex.addVertex(btPoint3(-1,0,-1));
-	simplex.addVertex(btPoint3(1,0,-1));
-	simplex.addVertex(btPoint3(0,0,1));
-	simplex.addVertex(btPoint3(0,1,0));
-	
 	
 	/// convex hull of 5 spheres
 #define NUM_SPHERES 5
@@ -160,55 +99,22 @@ void	Raytracer::initPhysics()
 		btVector3(0.f,	0.f,	0.f)
 	};
 
-	//btMultiSphereShape* multiSphereShape = new btMultiSphereShape(inertiaHalfExtents,positions,radi,NUM_SPHERES);
 
 	btVector3 sphereOffset1(0,0,0);
 	btScalar sphereRadius = 2.f;
 	btVector3 nonUniformScaling(0.5,2,0.5);
-	btMultiSphereShape* nonuniformScaledSphere = new btMultiSphereShape(inertiaHalfExtents,&sphereOffset1,&sphereRadius,1);
-	nonuniformScaledSphere->setLocalScaling(nonUniformScaling);
-	nonuniformScaledSphere->setMargin(0.04);
-	btConvexHullShape* convexHullShape = new btConvexHullShape(&positions[0].getX(),3);
-
-	//attempt to approximate a bowling pin
 	//choose shape
-	shapePtr[0] = &myCone;//&compound;//&myCone;//&myBox;//nonuniformScaledSphere;//&myCone;
-	//	shapePtr[0] = &myCone;//&myBox;//nonuniformScaledSphere;//&myCone;
+	shapePtr[0] = &myCone;
 	
-	shapePtr[1] =&simplex;
-	shapePtr[2] =convexHullShape;
-	shapePtr[3] =&myMink;//myBox;//multiSphereShape
-
-	btVector3 sphereOffset(0,PIN_HEIGHT/4.0f,0);
-
-	// create pin collision shape
-	btCollisionShape* cyl = new btCylinderShape(btVector3(PIN_DIAMETER/4.0f, PIN_HEIGHT/4.0f, PIN_DIAMETER/4.0f));
-	cyl->setMargin(IN_TO_M(0.000025f));
-	btVector3	spherepositions[3] = {btVector3(0,-PIN_HEIGHT/2.f +(PIN_DIAMETER/2.0f)+IN_TO_M(1.25f),0),
-btVector3(0,-PIN_HEIGHT/2.f +(PIN_DIAMETER/2.0f)+IN_TO_M(1.25f),0)+sphereOffset,
-btVector3(0,-PIN_HEIGHT/2.f +(PIN_DIAMETER/2.0f)+IN_TO_M(1.25f),0)-sphereOffset};
-	btScalar	radii[3] = {(PIN_DIAMETER/2.0f),(PIN_DIAMETER/4.0f),(PIN_DIAMETER/4.0f)};
-	btCollisionShape* sph = new btMultiSphereShape(inertiaHalfExtents,spherepositions,radii,3);
-	
-	btTransform ident;
-	ident.setIdentity();
-	ident.setOrigin(btVector3(0.f,-PIN_HEIGHT/4.f,0.f));
-	compound.addChildShape(ident,cyl);
-	ident.setIdentity();
-	//ident.setOrigin(btVector3(0.0f, -PIN_HEIGHT/2.0f + PIN_DIAMETER/2.0f + IN_TO_M(3.5f), 0.0f));
-	compound.addChildShape(ident,sph);
-
-	btVector3	spherepositions2[2] = {btVector3(0,+PIN_HEIGHT/2.f -(PIN_DIAMETER/4.0f),0),
-		btVector3(0,0,0)};
-	btScalar	radii2[2] = {(PIN_DIAMETER/4.0f),(PIN_DIAMETER/6.0f)};
-
-	btCollisionShape* sph2 = new btMultiSphereShape(inertiaHalfExtents,spherepositions2,radii2,2);
-	compound.addChildShape(ident,sph2);
-	
-	compound.setMargin(0.001);
-	simplex.setMargin(0.3f);
 
 
+}
+
+Raytracer::~Raytracer()
+{
+
+	delete raytracePicture;
+	raytracePicture=0;
 }
 
 //to be implemented by the demo
@@ -242,7 +148,6 @@ void Raytracer::displayCallback()
 			//transforms[i].setRotation(orn);
 		}
 	}
-	myMink.setTransformA(btTransform(transforms[0].getRotation()));
 
 	glClear(GL_COLOR_BUFFER_BIT | GL_DEPTH_BUFFER_BIT); 
 	glDisable(GL_LIGHTING);
@@ -512,23 +417,6 @@ void Raytracer::displayCallback()
 	
 
 	
-	/*
-	/// normal opengl rendering
-	float m[16];
-	int i;
-
-	for (i=0;i<numObjects;i++)
-	{
-
-
-		transA.getOpenGLMatrix( m );
-		/// draw the simplex
-		GL_ShapeDrawer::drawOpenGL(m,shapePtr[i],btVector3(1,1,1));
-		/// calculate closest point from simplex to the origin, and draw this vector
-		simplex.calcClosest(m);
-
-	}
-	*/
 
 	glPopMatrix();
 
