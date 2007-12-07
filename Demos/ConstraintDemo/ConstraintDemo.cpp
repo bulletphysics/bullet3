@@ -65,21 +65,16 @@ void	ConstraintDemo::initPhysics()
 {
 	setCameraDistance(26.f);
 
-//	btCollisionShape* groundShape = new btBoxShape(btVector3(50,3,50));
-	btDefaultCollisionConfiguration* collisionConfiguration = new btDefaultCollisionConfiguration();
-	btCollisionDispatcher* dispatcher = new btCollisionDispatcher(collisionConfiguration);
+	m_collisionConfiguration = new btDefaultCollisionConfiguration();
+	m_dispatcher = new btCollisionDispatcher(m_collisionConfiguration);
 	btVector3 worldMin(-1000,-1000,-1000);
 	btVector3 worldMax(1000,1000,1000);
-	btBroadphaseInterface* pairCache = new btAxisSweep3(worldMin,worldMax);
-	//btBroadphaseInterface* broadphase = new btSimpleBroadphase();
-	btConstraintSolver* constraintSolver = new btSequentialImpulseConstraintSolver();
-	//ConstraintSolver* solver = new OdeConstraintSolver;
-	m_dynamicsWorld = new btDiscreteDynamicsWorld(dispatcher,pairCache,constraintSolver,collisionConfiguration);
-
-	//m_dynamicsWorld->setGravity(btVector3(0,0,0));
-	
+	m_overlappingPairCache = new btAxisSweep3(worldMin,worldMax);
+	m_constraintSolver = new btSequentialImpulseConstraintSolver();
+	m_dynamicsWorld = new btDiscreteDynamicsWorld(m_dispatcher,m_overlappingPairCache,m_constraintSolver,m_collisionConfiguration);
 
 	btCollisionShape* shape = new btBoxShape(btVector3(CUBE_HALF_EXTENTS,CUBE_HALF_EXTENTS,CUBE_HALF_EXTENTS));
+	m_collisionShapes.push_back(shape);
 	btTransform trans;
 	trans.setIdentity();
 	trans.setOrigin(btVector3(0,20,0));
@@ -155,6 +150,47 @@ void	ConstraintDemo::initPhysics()
 
 }
 
+ConstraintDemo::~ConstraintDemo()
+{
+	//cleanup in the reverse order of creation/initialization
+
+	//remove the rigidbodies from the dynamics world and delete them
+	int i;
+	for (i=m_dynamicsWorld->getNumCollisionObjects()-1; i>=0 ;i--)
+	{
+		btCollisionObject* obj = m_dynamicsWorld->getCollisionObjectArray()[i];
+		btRigidBody* body = btRigidBody::upcast(obj);
+		if (body && body->getMotionState())
+		{
+			delete body->getMotionState();
+		}
+		m_dynamicsWorld->removeCollisionObject( obj );
+		delete obj;
+	}
+
+	//delete collision shapes
+	for (int j=0;j<m_collisionShapes.size();j++)
+	{
+		btCollisionShape* shape = m_collisionShapes[j];
+		delete shape;
+	}
+
+	//delete dynamics world
+	delete m_dynamicsWorld;
+
+	//delete solver
+	delete m_constraintSolver;
+
+	//delete broadphase
+	delete m_overlappingPairCache;
+
+	//delete dispatcher
+	delete m_dispatcher;
+
+	delete m_collisionConfiguration;
+
+
+}
 
 void ConstraintDemo::clientMoveAndDisplay()
 {

@@ -20,7 +20,21 @@ subject to the following restrictions:
 ///ConstraintDemo shows how to create a constraint, like Hinge or btGenericD6constraint
 class ConstraintDemo : public DemoApplication
 {
+	//keep track of variables to delete memory at the end
+	btAlignedObjectArray<btCollisionShape*> m_collisionShapes;
+
+	class btBroadphaseInterface*	m_overlappingPairCache;
+
+	class btCollisionDispatcher*	m_dispatcher;
+
+	class btConstraintSolver*	m_constraintSolver;
+
+	class btDefaultCollisionConfiguration* m_collisionConfiguration;
+
 	public:
+
+
+	virtual ~ConstraintDemo();
 
 	void	initPhysics();
 
