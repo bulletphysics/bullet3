@@ -25,6 +25,7 @@ class btCollisionDispatcher;
 class btConstraintSolver;
 struct btCollisionAlgorithmCreateFunc;
 class btDefaultCollisionConfiguration;
+class btTriangleMesh;
 
 ///ConvexDecompositionDemo shows automatic convex decomposition of a concave mesh
 class ConvexDecompositionDemo : public DemoApplication
@@ -32,8 +33,11 @@ class ConvexDecompositionDemo : public DemoApplication
 
 public:
 
+
 	//keep the collision shapes, for deletion/cleanup
 	btAlignedObjectArray<btCollisionShape*>	m_collisionShapes;
+
+	btAlignedObjectArray<btTriangleMesh*> m_trimeshes;
 
 	btBroadphaseInterface*	m_broadphase;
 

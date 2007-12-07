@@ -137,6 +137,7 @@ void ConvexDecompositionDemo::initPhysics(const char* filename)
 			{
 
 				btTriangleMesh* trimesh = new btTriangleMesh();
+				m_convexDemo->m_trimeshes.push_back(trimesh);
 
 				btVector3 localScaling(6.f,6.f,6.f);
 
@@ -278,6 +279,7 @@ void ConvexDecompositionDemo::initPhysics(const char* filename)
 	if (tcount)
 	{
 		btTriangleMesh* trimesh = new btTriangleMesh();
+		m_trimeshes.push_back(trimesh);
 
 		btVector3 localScaling(6.f,6.f,6.f);
 		
@@ -417,11 +419,18 @@ void	ConvexDecompositionDemo::exitPhysics()
 	}
 
 	//delete collision shapes
-	for (int j=0;j<m_collisionShapes.size();j++)
+	for (i=0;i<m_collisionShapes.size();i++)
 	{
-		btCollisionShape* shape = m_collisionShapes[j];
+		btCollisionShape* shape = m_collisionShapes[i];
 		delete shape;
 	}
+
+	for (i=0;i<m_trimeshes.size();i++)
+	{
+		btTriangleMesh* mesh = m_trimeshes[i];
+		delete mesh;
+	}
+
 
 	//delete dynamics world
 	delete m_dynamicsWorld;
