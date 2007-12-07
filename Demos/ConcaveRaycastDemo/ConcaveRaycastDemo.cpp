@@ -325,8 +325,8 @@ void	ConcaveRaycastDemo::initPhysics()
 
 	staticBody->setCollisionFlags(staticBody->getCollisionFlags() | btCollisionObject::CF_STATIC_OBJECT);
 
-	//raycastBar = btRaycastBar (4000.0, 0.0);
-	raycastBar = btRaycastBar (true, 40.0, -50.0, 50.0);
+	raycastBar = btRaycastBar (4000.0, 0.0);
+	//raycastBar = btRaycastBar (true, 40.0, -50.0, 50.0);
 }
 
 void ConcaveRaycastDemo::clientMoveAndDisplay()

@@ -476,9 +476,68 @@ void	btCollisionWorld::objectQuerySingle(const btConvexShape* castShape,const bt
 				triangleMesh->performConvexcast(&tccb,convexFromLocal,convexToLocal,boxMinLocal, boxMaxLocal);
 			} else
 			{
-				//currently there is no convex cast support for concave shapes other then btBvhTriangleMeshShape
-				//not yet
-				btAssert(0);
+				btBvhTriangleMeshShape* triangleMesh = (btBvhTriangleMeshShape*)collisionShape;
+				btTransform worldTocollisionObject = colObjWorldTransform.inverse();
+				btVector3 convexFromLocal = worldTocollisionObject * convexFromTrans.getOrigin();
+				btVector3 convexToLocal = worldTocollisionObject * convexToTrans.getOrigin();
+				btTransform rotationXform;
+
+				rotationXform.setIdentity (); // FIXME!!!
+
+				//ConvexCast::CastResult
+				struct BridgeTriangleConvexcastCallback : public btTriangleConvexcastCallback 
+				{
+					btCollisionWorld::ConvexResultCallback* m_resultCallback;
+					btCollisionObject*	m_collisionObject;
+					btTriangleMeshShape*	m_triangleMesh;
+
+					BridgeTriangleConvexcastCallback(const btConvexShape* castShape, const btTransform& from,const btTransform& to,
+						btCollisionWorld::ConvexResultCallback* resultCallback, btCollisionObject* collisionObject,btTriangleMeshShape*	triangleMesh, const btTransform& triangleToWorld):
+						btTriangleConvexcastCallback(castShape, from,to, triangleToWorld),
+							m_resultCallback(resultCallback),
+							m_collisionObject(collisionObject),
+							m_triangleMesh(triangleMesh)
+						{
+						}
+
+
+					virtual btScalar reportHit(const btVector3& hitNormalLocal, const btVector3& hitPointLocal, btScalar hitFraction, int partId, int triangleIndex )
+					{
+						btCollisionWorld::LocalShapeInfo	shapeInfo;
+						shapeInfo.m_shapePart = partId;
+						shapeInfo.m_triangleIndex = triangleIndex;
+						if (hitFraction <= m_resultCallback->m_closestHitFraction)
+						{
+
+							btCollisionWorld::LocalConvexResult convexResult
+							(m_collisionObject, 
+								&shapeInfo,
+								hitNormalLocal,
+								hitPointLocal,
+								hitFraction);
+							
+							bool	normalInWorldSpace = false;
+
+					
+							return m_resultCallback->AddSingleResult(convexResult,normalInWorldSpace);
+						}
+						return hitFraction;
+					}
+
+				};
+
+				BridgeTriangleConvexcastCallback tccb(castShape, convexFromTrans,convexToTrans,&resultCallback,collisionObject,triangleMesh, colObjWorldTransform);
+				tccb.m_hitFraction = resultCallback.m_closestHitFraction;
+				btVector3 boxMinLocal, boxMaxLocal;
+				castShape->getAabb(rotationXform, boxMinLocal, boxMaxLocal);
+				
+				btVector3 rayAabbMinLocal = convexFromLocal;
+				rayAabbMinLocal.setMin(convexToLocal);
+				btVector3 rayAabbMaxLocal = convexFromLocal;
+				rayAabbMaxLocal.setMax(convexToLocal);
+				rayAabbMinLocal += boxMinLocal;
+				rayAabbMaxLocal += boxMaxLocal;
+				triangleMesh->processAllTriangles(&tccb,rayAabbMinLocal,rayAabbMaxLocal);
 			}
 		} else {
 			//todo: use AABB tree or other BVH acceleration structure!

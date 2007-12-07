@@ -967,13 +967,20 @@ void	btOptimizedBvh::reportRayOverlappingNodex (btNodeOverlapCallback* nodeCallb
 
 void	btOptimizedBvh::reportBoxCastOverlappingNodex(btNodeOverlapCallback* nodeCallback, const btVector3& raySource, const btVector3& rayTarget, const btVector3& aabbMin,const btVector3& aabbMax) const
 {
-	bool supported = m_useQuantization && m_traversalMode == TRAVERSAL_STACKLESS;
-	if (supported)
+	bool fast_path = m_useQuantization && m_traversalMode == TRAVERSAL_STACKLESS;
+	if (fast_path)
 	{
 		walkStacklessQuantizedTreeAgainstRay(nodeCallback, raySource, rayTarget, aabbMin, aabbMax, 0, m_curNodeIndex);
 	} else {
-		//not yet, please implement different paths
-		btAssert("Box cast on this type of Bvh Tree is not supported yet" && 0);
+		/* Slow path:
+		   Construct the bounding box for the entire box cast and send that down the tree */
+		btVector3 qaabbMin = raySource;
+		btVector3 qaabbMax = raySource;
+		qaabbMin.setMin(rayTarget);
+		qaabbMax.setMax(rayTarget);
+		qaabbMin += aabbMin;
+		qaabbMax += aabbMax;
+		reportAabbOverlappingNodex(nodeCallback,qaabbMin,qaabbMax);
 	}
 }
 
