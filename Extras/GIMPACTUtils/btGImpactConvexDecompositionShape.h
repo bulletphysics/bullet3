@@ -38,6 +38,8 @@ class btGImpactConvexDecompositionShape	: public btGImpactCompoundShape
 protected:
 	btAlignedObjectArray<btGImpactMeshShapePart::TrimeshPrimitiveManager> m_trimeshInterfaces;
 
+	class GIM_ConvexDecomposition*	m_decomposition;
+
 	void buildConvexDecomposition(bool transformSubShapes);
 public:
 
@@ -63,13 +65,12 @@ public:
 			m_trimeshInterfaces.push_back(triInterface);
 		}
 
+		m_decomposition = 0;
 
 		buildConvexDecomposition(children_has_transform);
 	}
 
-	virtual ~btGImpactConvexDecompositionShape()
-	{
-	}
+	virtual ~btGImpactConvexDecompositionShape();
 
 	SIMD_FORCE_INLINE btGImpactMeshShapePart::TrimeshPrimitiveManager * getTrimeshInterface(int part)
 	{

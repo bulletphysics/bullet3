@@ -58,6 +58,20 @@ Real			dts = 1.0 / 60.0;
 
 GimpactConcaveDemo::~GimpactConcaveDemo()
 {
+
+	int i;
+	for (i=m_dynamicsWorld->getNumCollisionObjects()-1; i>=0 ;i--)
+	{
+		btCollisionObject* obj = m_dynamicsWorld->getCollisionObjectArray()[i];
+		btRigidBody* body = btRigidBody::upcast(obj);
+		if (body && body->getMotionState())
+		{
+			delete body->getMotionState();
+		}
+		m_dynamicsWorld->removeCollisionObject( obj );
+		delete obj;
+	}
+
 	delete m_dynamicsWorld;
 
 	delete m_indexVertexArrays;
@@ -65,6 +79,13 @@ GimpactConcaveDemo::~GimpactConcaveDemo()
 
 	delete m_indexVertexArrays2;
 	delete m_trimeshShape2;
+
+	for (i=0;i<m_collisionShapes.size();i++)
+	{
+		btCollisionShape* shape = m_collisionShapes[i];
+		delete shape;
+	}
+
 
 	delete m_gimpactCollisionCreateFunc;
 
@@ -74,65 +95,6 @@ GimpactConcaveDemo::~GimpactConcaveDemo()
 	delete m_constraintSolver;
 
 }
-
-
-
-//------------------------------------------------------------------------------
-///User can override this material combiner by implementing gContactAddedCallback and setting body0->m_collisionFlags |= btCollisionObject::customMaterialCallback;
-inline btScalar	calculateCombinedFriction(float friction0,float friction1)
-{
-	btScalar friction = friction0 * friction1;
-
-	const btScalar MAX_FRICTION  = 10.f;
-	if (friction < -MAX_FRICTION)
-		friction = -MAX_FRICTION;
-	if (friction > MAX_FRICTION)
-		friction = MAX_FRICTION;
-	return friction;
-
-}
-
-//------------------------------------------------------------------------------
-inline btScalar	calculateCombinedRestitution(float restitution0,float restitution1)
-{
-	return restitution0 * restitution1;
-}
-
-
-//------------------------------------------------------------------------------
-bool CustomMaterialCombinerCallback(btManifoldPoint& cp,	const btCollisionObject* colObj0,int partId0,int index0,const btCollisionObject* colObj1,int partId1,int index1)
-{
-
-	float friction0 = colObj0->getFriction();
-	float friction1 = colObj1->getFriction();
-	float restitution0 = colObj0->getRestitution();
-	float restitution1 = colObj1->getRestitution();
-
-	if (colObj0->getCollisionFlags() & btCollisionObject::CF_CUSTOM_MATERIAL_CALLBACK)
-	{
-		friction0 = 1.0;//partId0,index0
-		restitution0 = 0.f;
-	}
-	if (colObj1->getCollisionFlags() & btCollisionObject::CF_CUSTOM_MATERIAL_CALLBACK)
-	{
-		if (index1&1)
-		{
-			friction1 = 1.0f;//partId1,index1
-		} else
-		{
-			friction1 = 0.f;
-		}
-		restitution1 = 0.f;
-	}
-
-	cp.m_combinedFriction = calculateCombinedFriction(friction0,friction1);
-	cp.m_combinedRestitution = calculateCombinedRestitution(restitution0,restitution1);
-
-	//this return value is currently ignored, but to be on the safe side: return false if you don't calculate friction
-	return true;
-}
-
-extern ContactAddedCallback		gContactAddedCallback;
 
 
 
@@ -373,19 +335,7 @@ void	GimpactConcaveDemo::initGImpactCollision()
 	btConcaveConcaveCollisionAlgorithm::registerAlgorithm(dispatcher);
 #endif
 
-//	{
-//		//btGImpactCollisionAlgorithm::registerAlgorithm(dispatcher); /// Register GIMPACT !!!
-//		if(!m_gimpactCollisionCreateFunc) m_gimpactCollisionCreateFunc = new btGImpactCollisionAlgorithm::CreateFunc;  /// NEW
-//
-//		for (int i = 0;i < MAX_BROADPHASE_COLLISION_TYPES ;i++ )
-//		{
-//			m_dispatcher->registerCollisionCreateFunc(GIMPACT_SHAPE_PROXYTYPE,i ,m_gimpactCollisionCreateFunc);
-//		}
-//		for (int i = 0;i < MAX_BROADPHASE_COLLISION_TYPES ;i++ )
-//		{
-//			m_dispatcher->registerCollisionCreateFunc(i,GIMPACT_SHAPE_PROXYTYPE ,m_gimpactCollisionCreateFunc);
-//		}
-//	}
+
 }
 
 #ifndef BULLET_GIMPACT
@@ -406,9 +356,6 @@ btCollisionShape * GimpactConcaveDemo::createBunnyShape()
 void	GimpactConcaveDemo::initPhysics()
 {
 	setCameraDistance(45.f);
-
-
-	gContactAddedCallback = CustomMaterialCombinerCallback;
 
 
 	/// Init Bullet
@@ -432,40 +379,36 @@ void	GimpactConcaveDemo::initPhysics()
 
 
 
-
 	/// Create Scene
 	float mass = 0.f;
 	btTransform	startTransform;
 	startTransform.setIdentity();
 
+
 	btCollisionShape* staticboxShape1 = new btBoxShape(btVector3(200,1,200));//floor
-	btCollisionShape* staticboxShape2 = new btBoxShape(btVector3(1,50,200));//left wall
-	btCollisionShape* staticboxShape3 = new btBoxShape(btVector3(1,50,200));//right wall
-	btCollisionShape* staticboxShape4 = new btBoxShape(btVector3(200,50,1));//front wall
-	btCollisionShape* staticboxShape5 = new btBoxShape(btVector3(200,50,1));//back wall
-
-	btCompoundShape* staticScenario = new btCompoundShape();//static scenario
-
+	m_collisionShapes.push_back(staticboxShape1);
 	startTransform.setOrigin(btVector3(0,-10,0));
-	staticScenario->addChildShape(startTransform,staticboxShape1);
+	localCreateRigidBody(mass, startTransform,staticboxShape1);
+
+	btCollisionShape* staticboxShape2 = new btBoxShape(btVector3(1,50,200));//left wall
+	m_collisionShapes.push_back(staticboxShape2);
 	startTransform.setOrigin(btVector3(-200,15,0));
-	staticScenario->addChildShape(startTransform,staticboxShape2);
+	localCreateRigidBody(mass, startTransform,staticboxShape2);
+
+	btCollisionShape* staticboxShape3 = new btBoxShape(btVector3(1,50,200));//right wall
+	m_collisionShapes.push_back(staticboxShape3);
 	startTransform.setOrigin(btVector3(200,15,0));
-	staticScenario->addChildShape(startTransform,staticboxShape3);
+	localCreateRigidBody(mass, startTransform,staticboxShape3);
+
+	btCollisionShape* staticboxShape4 = new btBoxShape(btVector3(200,50,1));//front wall
+	m_collisionShapes.push_back(staticboxShape4);
 	startTransform.setOrigin(btVector3(0,15,200));
-	staticScenario->addChildShape(startTransform,staticboxShape4);
+	localCreateRigidBody(mass, startTransform,staticboxShape4);
+
+	btCollisionShape* staticboxShape5 = new btBoxShape(btVector3(200,50,1));//back wall
+	m_collisionShapes.push_back(staticboxShape5);
 	startTransform.setOrigin(btVector3(0,15,-200));
-	staticScenario->addChildShape(startTransform,staticboxShape5);
-
-	startTransform.setOrigin(btVector3(0,0,0));
-
-	btRigidBody* staticBody = localCreateRigidBody(mass, startTransform,staticScenario);
-
-	staticBody->setCollisionFlags(staticBody->getCollisionFlags()|btCollisionObject::CF_STATIC_OBJECT);
-	staticBody->setActivationState(ISLAND_SLEEPING);
-
-	//enable custom material callback
-	staticBody->setCollisionFlags(staticBody->getCollisionFlags()|btCollisionObject::CF_CUSTOM_MATERIAL_CALLBACK);
+	localCreateRigidBody(mass, startTransform,staticboxShape5);
 
 
 	//static plane
@@ -473,28 +416,20 @@ void	GimpactConcaveDemo::initPhysics()
 	btVector3 normal(-0.5,0.5,0.0);
 	normal.normalize();
 	btCollisionShape* staticplaneShape6 = new btStaticPlaneShape(normal,0.0);// A plane
-
+	m_collisionShapes.push_back(staticplaneShape6);
 	startTransform.setOrigin(btVector3(0,-9,0));
 
 	btRigidBody* staticBody2 = localCreateRigidBody(mass, startTransform,staticplaneShape6 );
-
-	staticBody2->setCollisionFlags(staticBody2->getCollisionFlags()|btCollisionObject::CF_STATIC_OBJECT);
-	staticBody2->setActivationState(ISLAND_SLEEPING);
-	
 
 	//another static plane
 	
 	normal.setValue(0.5,0.7,0.0);
 	//normal.normalize();
 	btCollisionShape* staticplaneShape7 = new btStaticPlaneShape(normal,0.0);// A plane
-
+	m_collisionShapes.push_back(staticplaneShape7);
 	startTransform.setOrigin(btVector3(0,-10,0));
 
 	staticBody2 = localCreateRigidBody(mass, startTransform,staticplaneShape7 );
-
-	staticBody2->setCollisionFlags(staticBody2->getCollisionFlags()|btCollisionObject::CF_STATIC_OBJECT);
-	staticBody2->setActivationState(ISLAND_SLEEPING);
-
 
 	/// Create Static Torus
 	float  height = 28;
@@ -565,10 +500,13 @@ void	GimpactConcaveDemo::initPhysics()
 		for (int i=0;i<8;i++)
 		{
 			btCollisionShape* boxShape = new btBoxShape(btVector3(1,1,1));
+			m_collisionShapes.push_back(boxShape);
+			
 			startTransform.setOrigin(btVector3(2*i-5,2,-3));
 			localCreateRigidBody(1, startTransform,boxShape);
 		}
 	}
+
 
 	//m_debugMode |= btIDebugDraw::DBG_DrawWireframe;
 
@@ -614,7 +552,7 @@ void GimpactConcaveDemo::clientMoveAndDisplay()
 	//kinematic object
 	btCollisionObject* colObj = kinematicTorus;
 	//is this a rigidbody with a motionstate? then use the motionstate to update positions!
-	if (btRigidBody::upcast(colObj) && btRigidBody::upcast(colObj)->getMotionState())
+	if (colObj && btRigidBody::upcast(colObj) && btRigidBody::upcast(colObj)->getMotionState())
 	{
 		btTransform newTrans;
 		btRigidBody::upcast(colObj)->getMotionState()->getWorldTransform(newTrans);
@@ -719,153 +657,5 @@ void GimpactConcaveDemo::keyboardCallback(unsigned char key, int x, int y)
 	}
 }
 
-/*
-//------------------------------------------------------------------------------
-void GimpactConcaveDemo::keyboardCallback(unsigned char key, int x, int y)
-{
-	m_lastKey = 0;
 
-	switch (key)
-	{
-	case 'q' :
-	case  KEY_ESCAPE   :
-		exit(0); break;
-
-
-		//GLUT_KEY_LEFT
-	case 'l' : stepLeft(); break;
-	case 'r' : stepRight(); break;
-	case 'f' : stepFront(); break;
-	case 'b' : stepBack(); break;
-	case 'z' : zoomIn(); break;
-	case 'x' : zoomOut(); break;
-	case 'i' : toggleIdle(); break;
-	case 'h':
-		if (m_debugMode & btIDebugDraw::DBG_NoHelpText)
-			m_debugMode = m_debugMode & (~btIDebugDraw::DBG_NoHelpText);
-		else
-			m_debugMode |= btIDebugDraw::DBG_NoHelpText;
-		break;
-
-	case 'w':
-		if (m_debugMode & btIDebugDraw::DBG_DrawWireframe)
-			m_debugMode = m_debugMode & (~btIDebugDraw::DBG_DrawWireframe);
-		else
-			m_debugMode |= btIDebugDraw::DBG_DrawWireframe;
-		break;
-
-	case 'p':
-		if (m_debugMode & btIDebugDraw::DBG_ProfileTimings)
-			m_debugMode = m_debugMode & (~btIDebugDraw::DBG_ProfileTimings);
-		else
-			m_debugMode |= btIDebugDraw::DBG_ProfileTimings;
-		break;
-
-	case 'm':
-		if (m_debugMode & btIDebugDraw::DBG_EnableSatComparison)
-			m_debugMode = m_debugMode & (~btIDebugDraw::DBG_EnableSatComparison);
-		else
-			m_debugMode |= btIDebugDraw::DBG_EnableSatComparison;
-		break;
-
-	case 'n':
-		if (m_debugMode & btIDebugDraw::DBG_DisableBulletLCP)
-			m_debugMode = m_debugMode & (~btIDebugDraw::DBG_DisableBulletLCP);
-		else
-			m_debugMode |= btIDebugDraw::DBG_DisableBulletLCP;
-		break;
-
-	case 't' :
-		if (m_debugMode & btIDebugDraw::DBG_DrawText)
-			m_debugMode = m_debugMode & (~btIDebugDraw::DBG_DrawText);
-		else
-			m_debugMode |= btIDebugDraw::DBG_DrawText;
-		break;
-	case 'y':
-		if (m_debugMode & btIDebugDraw::DBG_DrawFeaturesText)
-			m_debugMode = m_debugMode & (~btIDebugDraw::DBG_DrawFeaturesText);
-		else
-			m_debugMode |= btIDebugDraw::DBG_DrawFeaturesText;
-		break;
-	case 'a':
-		if (m_debugMode & btIDebugDraw::DBG_DrawAabb){
-			m_debugMode = m_debugMode & (~btIDebugDraw::DBG_DrawAabb);
-			//printf("Not Draw AABB \n");
-		}else{
-			m_debugMode |= btIDebugDraw::DBG_DrawAabb;
-			//printf("Draw AABB \n");
-		}
-		break;
-	case 'c' :
-		if (m_debugMode & btIDebugDraw::DBG_DrawContactPoints)
-			m_debugMode = m_debugMode & (~btIDebugDraw::DBG_DrawContactPoints);
-		else
-			m_debugMode |= btIDebugDraw::DBG_DrawContactPoints;
-		break;
-
-	case 'd' :
-		if (m_debugMode & btIDebugDraw::DBG_NoDeactivation)
-			m_debugMode = m_debugMode & (~btIDebugDraw::DBG_NoDeactivation);
-		else
-			m_debugMode |= btIDebugDraw::DBG_NoDeactivation;
-		if (m_debugMode | btIDebugDraw::DBG_NoDeactivation)
-		{
-			gDisableDeactivation = true;
-		} else
-		{
-			gDisableDeactivation = false;
-		}
-		break;
-
-
-
-
-	case 'o' :
-		{
-			m_stepping = !m_stepping;
-			break;
-		}
-	case 's' : clientMoveAndDisplay(); break;
-		//    case ' ' : newRandom(); break;
-	case ' ':
-		clientResetScene();
-		break;
-	case '1':
-		{
-			if (m_debugMode & btIDebugDraw::DBG_EnableCCD)
-				m_debugMode = m_debugMode & (~btIDebugDraw::DBG_EnableCCD);
-			else
-				m_debugMode |= btIDebugDraw::DBG_EnableCCD;
-			break;
-		}
-
-	case '.':
-		{
-			shootTrimesh(getCameraTargetPosition());
-			break;
-		}
-
-	case '+':
-		{
-			m_ShootBoxInitialSpeed += 10.f;
-			break;
-		}
-	case '-':
-		{
-			m_ShootBoxInitialSpeed -= 10.f;
-			break;
-		}
-
-	default:
-		//        std::cout << "unused key : " << key << std::endl;
-		break;
-	}
-
-	if (getDynamicsWorld() && getDynamicsWorld()->getDebugDrawer())
-		getDynamicsWorld()->getDebugDrawer()->setDebugMode(m_debugMode);
-
-	glutPostRedisplay();
-
-}
-*/
 

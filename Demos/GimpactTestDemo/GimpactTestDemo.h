@@ -59,6 +59,7 @@ public:
 		  m_collisionConfiguration(NULL),
 		  m_dispatcher(NULL),
 		  m_broadphase(NULL),
+		  kinematicTorus(NULL),
 		  m_constraintSolver(NULL),
 		  m_gimpactCollisionCreateFunc(NULL),
 		  m_steps_done(0)
@@ -98,6 +99,9 @@ public: ///data
 	btCollisionShape * createBunnyShape();
 
 #endif
+
+		//keep the collision shapes, for deletion/cleanup
+	btAlignedObjectArray<btCollisionShape*>	m_collisionShapes;
 
 	btTriangleIndexVertexArray  *m_indexVertexArrays;
 	btTriangleIndexVertexArray  *m_indexVertexArrays2;

@@ -28,6 +28,9 @@ class GIM_ConvexDecomposition : public ConvexDecomposition::ConvexDecompInterfac
 protected:
 	btGImpactConvexDecompositionShape * m_compoundShape;
 
+	btAlignedObjectArray<btCollisionShape*> m_convexShapes;
+
+
 public:
 	int   	mBaseCount;
 	int		mHullCount;
@@ -39,6 +42,17 @@ public:
 		mHullCount = 0;
 		m_compoundShape = compoundShape;
 		m_transformSubShapes = transformSubShapes;
+	}
+
+	virtual ~GIM_ConvexDecomposition()
+	{
+		int i;
+		for (i=0;i<m_convexShapes.size();i++)
+		{
+			btCollisionShape* shape = m_convexShapes[i];
+			delete shape;
+		}
+
 	}
 
 	virtual void ConvexDecompResult(ConvexDecomposition::ConvexResult &result)
@@ -78,6 +92,7 @@ public:
 
 		btCollisionShape* convexShape = new btConvexHullShape(
 				&(vertices[0].getX()),vertices.size(),sizeof(btVector3));
+		m_convexShapes.push_back(convexShape);
 
 		convexShape->setMargin(m_compoundShape->getMargin());
 
@@ -179,18 +194,22 @@ public:
 
 void btGImpactConvexDecompositionShape::buildConvexDecomposition(bool transformSubShapes)
 {
-	GIM_ConvexDecomposition decomposition(this,transformSubShapes);
+
+	m_decomposition = new GIM_ConvexDecomposition(this,transformSubShapes);
 
 	int part_count = m_trimeshInterfaces.size();
 	for (int i = 0;i<part_count ;i++ )
 	{
-		decomposition.processDecomposition(i);
+		m_decomposition->processDecomposition(i);
 	}
 
 	postUpdate();
 }
 
-
+btGImpactConvexDecompositionShape::~btGImpactConvexDecompositionShape()
+{
+	delete m_decomposition;
+}
 void btGImpactConvexDecompositionShape::processAllTriangles(btTriangleCallback* callback,const btVector3& aabbMin,const btVector3& aabbMax) const
 {
 
