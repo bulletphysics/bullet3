@@ -39,10 +39,6 @@ class BasicDemo : public DemoApplication
 
 	btConstraintSolver*	m_solver;
 
-	btCollisionAlgorithmCreateFunc*	m_sphereSphereCF;
-	btCollisionAlgorithmCreateFunc*	m_sphereBoxCF;
-	btCollisionAlgorithmCreateFunc*	m_boxSphereCF;
-
 	btDefaultCollisionConfiguration* m_collisionConfiguration;
 
 	public:

@@ -17,6 +17,8 @@ subject to the following restrictions:
 
 class btVehicleTuning;
 struct btVehicleRaycaster;
+class btCollisionShape;
+
 #include "BulletDynamics/Vehicle/btRaycastVehicle.h"
 
 #include "DemoApplication.h"
@@ -27,6 +29,21 @@ class VehicleDemo : public DemoApplication
 	public:
 
 	btRigidBody* m_carChassis;
+
+	btAlignedObjectArray<btCollisionShape*> m_collisionShapes;
+
+	class btBroadphaseInterface*	m_overlappingPairCache;
+
+	class btCollisionDispatcher*	m_dispatcher;
+
+	class btConstraintSolver*	m_constraintSolver;
+
+	class btDefaultCollisionConfiguration* m_collisionConfiguration;
+
+	class btTriangleIndexVertexArray*	m_indexVertexArrays;
+
+	btVector3*	m_vertices;
+
 	
 	btRaycastVehicle::btVehicleTuning	m_tuning;
 	btVehicleRaycaster*	m_vehicleRayCaster;
@@ -39,6 +56,8 @@ class VehicleDemo : public DemoApplication
 
 
 	VehicleDemo();
+
+	virtual ~VehicleDemo();
 
 	virtual void clientMoveAndDisplay();
 

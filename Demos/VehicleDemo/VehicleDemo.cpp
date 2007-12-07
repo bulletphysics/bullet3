@@ -89,10 +89,60 @@ VehicleDemo::VehicleDemo()
 m_carChassis(0),
 m_cameraHeight(4.f),
 m_minCameraDistance(3.f),
-m_maxCameraDistance(10.f)
+m_maxCameraDistance(10.f),
+m_indexVertexArrays(0),
+m_vertices(0)
 {
 	m_vehicle = 0;
 	m_cameraPosition = btVector3(30,30,30);
+}
+
+VehicleDemo::~VehicleDemo()
+{
+		//cleanup in the reverse order of creation/initialization
+
+	//remove the rigidbodies from the dynamics world and delete them
+	int i;
+	for (i=m_dynamicsWorld->getNumCollisionObjects()-1; i>=0 ;i--)
+	{
+		btCollisionObject* obj = m_dynamicsWorld->getCollisionObjectArray()[i];
+		btRigidBody* body = btRigidBody::upcast(obj);
+		if (body && body->getMotionState())
+		{
+			delete body->getMotionState();
+		}
+		m_dynamicsWorld->removeCollisionObject( obj );
+		delete obj;
+	}
+
+	//delete collision shapes
+	for (int j=0;j<m_collisionShapes.size();j++)
+	{
+		btCollisionShape* shape = m_collisionShapes[j];
+		delete shape;
+	}
+
+	delete m_indexVertexArrays;
+	delete m_vertices;
+
+	//delete dynamics world
+	delete m_dynamicsWorld;
+
+	delete m_vehicleRayCaster;
+
+	delete m_vehicle;
+
+	//delete solver
+	delete m_constraintSolver;
+
+	//delete broadphase
+	delete m_overlappingPairCache;
+
+	//delete dispatcher
+	delete m_dispatcher;
+
+	delete m_collisionConfiguration;
+
 }
 
 void VehicleDemo::initPhysics()
@@ -107,13 +157,14 @@ void VehicleDemo::initPhysics()
 #endif
 
 	btCollisionShape* groundShape = new btBoxShape(btVector3(50,3,50));
-	btDefaultCollisionConfiguration* collisionConfiguration = new btDefaultCollisionConfiguration();
-	btCollisionDispatcher* dispatcher = new btCollisionDispatcher(collisionConfiguration);
+	m_collisionShapes.push_back(groundShape);
+	m_collisionConfiguration = new btDefaultCollisionConfiguration();
+	m_dispatcher = new btCollisionDispatcher(m_collisionConfiguration);
 	btVector3 worldMin(-1000,-1000,-1000);
 	btVector3 worldMax(1000,1000,1000);
-	btBroadphaseInterface* pairCache = new btAxisSweep3(worldMin,worldMax);
-	btConstraintSolver* constraintSolver = new btSequentialImpulseConstraintSolver();
-	m_dynamicsWorld = new btDiscreteDynamicsWorld(dispatcher,pairCache,constraintSolver,collisionConfiguration);
+	m_overlappingPairCache = new btAxisSweep3(worldMin,worldMax);
+	m_constraintSolver = new btSequentialImpulseConstraintSolver();
+	m_dynamicsWorld = new btDiscreteDynamicsWorld(m_dispatcher,m_overlappingPairCache,m_constraintSolver,m_collisionConfiguration);
 #ifdef FORCE_ZAXIS_UP
 	m_dynamicsWorld->setGravity(btVector3(0,0,-10));
 #endif 
@@ -139,7 +190,7 @@ const float TRIANGLE_SIZE=20.f;
 	
 	const int totalTriangles = 2*(NUM_VERTS_X-1)*(NUM_VERTS_Y-1);
 
-	btVector3*	gVertices = new btVector3[totalVerts];
+	m_vertices = new btVector3[totalVerts];
 	int*	gIndices = new int[totalTriangles*3];
 
 	
@@ -152,14 +203,14 @@ const float TRIANGLE_SIZE=20.f;
 			//height set to zero, but can also use curved landscape, just uncomment out the code
 			float height = 0.f;//20.f*sinf(float(i)*wl)*cosf(float(j)*wl);
 #ifdef FORCE_ZAXIS_UP
-			gVertices[i+j*NUM_VERTS_X].setValue(
+			m_vertices[i+j*NUM_VERTS_X].setValue(
 				(i-NUM_VERTS_X*0.5f)*TRIANGLE_SIZE,
 				(j-NUM_VERTS_Y*0.5f)*TRIANGLE_SIZE,
 				height
 				);
 
 #else
-			gVertices[i+j*NUM_VERTS_X].setValue(
+			m_vertices[i+j*NUM_VERTS_X].setValue(
 				(i-NUM_VERTS_X*0.5f)*TRIANGLE_SIZE,
 				height,
 				(j-NUM_VERTS_Y*0.5f)*TRIANGLE_SIZE);
@@ -183,13 +234,13 @@ const float TRIANGLE_SIZE=20.f;
 		}
 	}
 	
-	btTriangleIndexVertexArray* indexVertexArrays = new btTriangleIndexVertexArray(totalTriangles,
+	m_indexVertexArrays = new btTriangleIndexVertexArray(totalTriangles,
 		gIndices,
 		indexStride,
-		totalVerts,(btScalar*) &gVertices[0].x(),vertStride);
+		totalVerts,(btScalar*) &m_vertices[0].x(),vertStride);
 
 	bool useQuantizedAabbCompression = true;
-	groundShape = new btBvhTriangleMeshShape(indexVertexArrays,useQuantizedAabbCompression);
+	groundShape = new btBvhTriangleMeshShape(m_indexVertexArrays,useQuantizedAabbCompression);
 	
 	tr.setOrigin(btVector3(0,-4.5f,0));
 
@@ -231,6 +282,7 @@ const float TRIANGLE_SIZE=20.f;
 
 	btHeightfieldTerrainShape* heightFieldShape = new btHeightfieldTerrainShape(width,length,heightfieldData,maxHeight,upIndex,useFloatDatam,flipQuadEdges);;
 	groundShape = heightFieldShape;
+	
 	heightFieldShape->setUseDiamondSubdivision(true);
 
 	btVector3 localScaling(20,20,20);
@@ -241,11 +293,7 @@ const float TRIANGLE_SIZE=20.f;
 
 #endif //
 
-
-
-	
-
-
+	m_collisionShapes.push_back(groundShape);
 
 	//create ground object
 	localCreateRigidBody(0,tr,groundShape);
@@ -262,7 +310,10 @@ const float TRIANGLE_SIZE=20.f;
 	localTrans.setOrigin(btVector3(0,0,1));
 #else
 	btCollisionShape* chassisShape = new btBoxShape(btVector3(1.f,0.5f,2.f));
+	m_collisionShapes.push_back(chassisShape);
+
 	btCompoundShape* compound = new btCompoundShape();
+	m_collisionShapes.push_back(compound);
 	btTransform localTrans;
 	localTrans.setIdentity();
 	//localTrans effectively shifts the center of mass with respect to the chassis
