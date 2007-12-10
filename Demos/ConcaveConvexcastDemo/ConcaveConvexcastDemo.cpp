@@ -377,6 +377,9 @@ void ConcaveConvexcastDemo::clientMoveAndDisplay()
 
 	m_dynamicsWorld->stepSimulation(dt);
 	
+	//optional but useful: debug drawing
+	m_dynamicsWorld->debugDrawWorld();
+
 	convexcastBatch.move (dt);
 	convexcastBatch.cast (m_dynamicsWorld);
 	renderme();

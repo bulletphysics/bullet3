@@ -116,7 +116,11 @@ void GenericJointDemo::clientMoveAndDisplay()
 		ms = minFPS;
 
 	if (m_dynamicsWorld)
+	{
 		m_dynamicsWorld->stepSimulation(ms / 1000000.f);
+		//optional but useful: debug drawing
+		m_dynamicsWorld->debugDrawWorld();
+	}
 
 	renderme();
 
@@ -130,7 +134,7 @@ void GenericJointDemo::displayCallback()
 	glClear(GL_COLOR_BUFFER_BIT | GL_DEPTH_BUFFER_BIT);
 
 	if (m_dynamicsWorld)
-		m_dynamicsWorld->updateAabbs();
+		m_dynamicsWorld->debugDrawWorld();
 
 	renderme();
 

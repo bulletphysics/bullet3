@@ -201,13 +201,17 @@ void ConstraintDemo::clientMoveAndDisplay()
 	m_clock.reset();
 	//printf("dt = %f: ",dt);
 	
- {
+	{
 	 	//during idle mode, just run 1 simulation step maximum
 		int maxSimSubSteps = m_idle ? 1 : 1;
 		if (m_idle)
 			dt = 1.0/420.f;
 
 		int numSimSteps = m_dynamicsWorld->stepSimulation(dt,maxSimSubSteps);
+
+		//optional but useful: debug drawing
+		m_dynamicsWorld->debugDrawWorld();
+	
 		bool verbose = false;
 		if (verbose)
 		{
@@ -225,7 +229,7 @@ void ConstraintDemo::clientMoveAndDisplay()
 				}
 			}
 		}
- }
+	}
 	renderme();
 
 	drawLimit();
@@ -241,9 +245,9 @@ void ConstraintDemo::displayCallback(void) {
 
     glClear(GL_COLOR_BUFFER_BIT | GL_DEPTH_BUFFER_BIT); 
 
-	
-	m_dynamicsWorld->updateAabbs();
-	
+	if (m_dynamicsWorld)
+		m_dynamicsWorld->debugDrawWorld();
+
 	drawLimit();
 
 	renderme();

@@ -246,6 +246,9 @@ void CcdPhysicsDemo::clientMoveAndDisplay()
 		int numSimSteps = 0;
 		numSimSteps = m_dynamicsWorld->stepSimulation(dt,maxSimSubSteps);
 		
+		//optional but useful: debug drawing
+		m_dynamicsWorld->debugDrawWorld();
+
 #ifdef VERBOSE_TIMESTEPPING_CONSOLEOUTPUT
 		if (!numSimSteps)
 			printf("Interpolated transforms\n");

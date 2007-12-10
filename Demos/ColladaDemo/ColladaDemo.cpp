@@ -212,6 +212,9 @@ void ColladaDemo::clientMoveAndDisplay()
 
 	m_dynamicsWorld->stepSimulation(dt);
 
+	//optional but useful: debug drawing
+	m_dynamicsWorld->debugDrawWorld();
+
 	renderme();
 
 	glFlush();
@@ -226,7 +229,8 @@ void ColladaDemo::displayCallback(void) {
 	glClear(GL_COLOR_BUFFER_BIT | GL_DEPTH_BUFFER_BIT); 
 
 
-	m_dynamicsWorld->updateAabbs();
+	if (m_dynamicsWorld)
+		m_dynamicsWorld->debugDrawWorld();
 
 	renderme();
 

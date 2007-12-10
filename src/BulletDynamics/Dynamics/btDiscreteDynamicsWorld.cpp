@@ -125,7 +125,7 @@ void	btDiscreteDynamicsWorld::saveKinematicState(btScalar timeStep)
 
 void	btDiscreteDynamicsWorld::debugDrawWorld()
 {
-	if (getDebugDrawer() && getDebugDrawer()->getDebugMode() & btIDebugDraw::DBG_DrawWireframe)
+	if (getDebugDrawer() && getDebugDrawer()->getDebugMode() & (btIDebugDraw::DBG_DrawWireframe | btIDebugDraw::DBG_DrawAabb))
 	{
 		int i;
 
@@ -156,6 +156,14 @@ void	btDiscreteDynamicsWorld::debugDrawWorld()
 
 				debugDrawObject(colObj->getWorldTransform(),colObj->getCollisionShape(),color);
 			}
+			if (m_debugDrawer && (m_debugDrawer->getDebugMode() & btIDebugDraw::DBG_DrawAabb))
+			{
+				btPoint3 minAabb,maxAabb;
+				btVector3 colorvec(1,0,0);
+				colObj->getCollisionShape()->getAabb(colObj->getWorldTransform(), minAabb,maxAabb);
+				m_debugDrawer->drawAabb(minAabb,maxAabb,colorvec);
+			}
+
 		}
 	
 		for (  i=0;i<this->m_vehicles.size();i++)
@@ -636,8 +644,6 @@ void	btDiscreteDynamicsWorld::updateAabbs()
 {
 	PROFILE("updateAabbs");
 	
-	
-	btVector3 colorvec(1,0,0);
 	btTransform predictedTrans;
 	for ( int i=0;i<m_collisionObjects.size();i++)
 	{
@@ -646,7 +652,8 @@ void	btDiscreteDynamicsWorld::updateAabbs()
 		btRigidBody* body = btRigidBody::upcast(colObj);
 		if (body)
 		{
-		//	if (body->IsActive() && (!body->IsStatic()))
+			//only update aabb of active objects
+			if (body->isActive())
 			{
 				btPoint3 minAabb,maxAabb;
 				colObj->getCollisionShape()->getAabb(colObj->getWorldTransform(), minAabb,maxAabb);
@@ -673,10 +680,6 @@ void	btDiscreteDynamicsWorld::updateAabbs()
 					}
 
 
-				}
-				if (m_debugDrawer && (m_debugDrawer->getDebugMode() & btIDebugDraw::DBG_DrawAabb))
-				{
-					m_debugDrawer->drawAabb(minAabb,maxAabb,colorvec);
 				}
 			}
 		}

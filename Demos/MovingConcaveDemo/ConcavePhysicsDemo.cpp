@@ -1890,6 +1890,9 @@ void ConcaveDemo::clientMoveAndDisplay()
 	m_clock.reset();
 	m_dynamicsWorld->stepSimulation(dt);
 
+	//optional but useful: debug drawing
+	m_dynamicsWorld->debugDrawWorld();
+
 	renderme();
 
     glFlush();

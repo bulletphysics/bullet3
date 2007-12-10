@@ -351,6 +351,9 @@ void ConcaveRaycastDemo::clientMoveAndDisplay()
 
 	m_dynamicsWorld->stepSimulation(dt);
 	
+	//optional but useful: debug drawing
+	m_dynamicsWorld->debugDrawWorld();
+	
 	raycastBar.move (dt);
 	raycastBar.cast (m_dynamicsWorld);
 	renderme();
