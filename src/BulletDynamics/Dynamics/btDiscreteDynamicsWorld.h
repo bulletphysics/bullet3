@@ -42,7 +42,6 @@ protected:
 
 	btAlignedObjectArray<btTypedConstraint*> m_constraints;
 
-	btIDebugDraw*	m_debugDrawer;
 
 	btVector3	m_gravity;
 
@@ -93,7 +92,6 @@ public:
 	///if maxSubSteps > 0, it will interpolate motion between fixedTimeStep's
 	virtual int	stepSimulation( btScalar timeStep,int maxSubSteps=1, btScalar fixedTimeStep=btScalar(1.)/btScalar(60.));
 
-	virtual void	updateAabbs();
 
 	void	addConstraint(btTypedConstraint* constraint, bool disableCollisionsBetweenLinkedBodies=false);
 
@@ -118,15 +116,6 @@ public:
 		return this;
 	}
 
-	virtual void	setDebugDrawer(btIDebugDraw*	debugDrawer)
-	{
-			m_debugDrawer = debugDrawer;
-	}
-
-	virtual btIDebugDraw*	getDebugDrawer()
-	{
-		return m_debugDrawer;
-	}
 
 	virtual void	setGravity(const btVector3& gravity);
 

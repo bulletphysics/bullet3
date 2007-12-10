@@ -91,6 +91,9 @@ protected:
 	btStackAlloc*	m_stackAlloc;
 
 	btBroadphaseInterface*	m_broadphasePairCache;
+
+	btIDebugDraw*	m_debugDrawer;
+
 	
 public:
 
@@ -115,6 +118,19 @@ public:
 	{
 		return m_dispatcher1;
 	}
+
+	virtual void	updateAabbs();
+
+	virtual void	setDebugDrawer(btIDebugDraw*	debugDrawer)
+	{
+			m_debugDrawer = debugDrawer;
+	}
+
+	virtual btIDebugDraw*	getDebugDrawer()
+	{
+		return m_debugDrawer;
+	}
+
 
 	///LocalShapeInfo gives extra information for complex shapes
 	///Currently, only btTriangleMeshShape is available, so it just contains triangleIndex and subpart

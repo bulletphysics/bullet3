@@ -36,7 +36,6 @@ btSimpleDynamicsWorld::btSimpleDynamicsWorld(btDispatcher* dispatcher,btBroadpha
 :btDynamicsWorld(dispatcher,pairCache,collisionConfiguration),
 m_constraintSolver(constraintSolver),
 m_ownsConstraintSolver(false),
-m_debugDrawer(0),
 m_gravity(0,0,-10)
 {
 

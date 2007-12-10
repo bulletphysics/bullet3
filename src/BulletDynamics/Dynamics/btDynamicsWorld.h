@@ -48,8 +48,6 @@ class btDynamicsWorld : public btCollisionWorld
 		///if maxSubSteps > 0, it will interpolate time steps
 		virtual int		stepSimulation( btScalar timeStep,int maxSubSteps=1, btScalar fixedTimeStep=btScalar(1.)/btScalar(60.))=0;
 			
-		virtual void	updateAabbs() = 0;
-
 		virtual void	debugDrawWorld() = 0;
 				
 		virtual void	addConstraint(btTypedConstraint* constraint, bool disableCollisionsBetweenLinkedBodies=false) { (void)constraint;};
@@ -59,11 +57,6 @@ class btDynamicsWorld : public btCollisionWorld
 		virtual void	addVehicle(btRaycastVehicle* vehicle) {(void)vehicle;};
 
 		virtual void	removeVehicle(btRaycastVehicle* vehicle) {(void)vehicle;};
-
-
-		virtual void	setDebugDrawer(btIDebugDraw*	debugDrawer) = 0;
-
-		virtual btIDebugDraw*	getDebugDrawer() = 0;
 
 		//once a rigidbody is added to the dynamics world, it will get this gravity assigned
 		//existing rigidbodies in the world get gravity assigned too, during this method

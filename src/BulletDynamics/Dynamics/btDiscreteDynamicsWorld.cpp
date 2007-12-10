@@ -61,7 +61,6 @@ subject to the following restrictions:
 btDiscreteDynamicsWorld::btDiscreteDynamicsWorld(btDispatcher* dispatcher,btBroadphaseInterface* pairCache,btConstraintSolver* constraintSolver, btCollisionConfiguration* collisionConfiguration)
 :btDynamicsWorld(dispatcher,pairCache,collisionConfiguration),
 m_constraintSolver(constraintSolver),
-m_debugDrawer(0),
 m_gravity(0,-10,0),
 m_localTime(btScalar(1.)/btScalar(60.)),
 m_profileTimings(0)
@@ -302,10 +301,6 @@ void	btDiscreteDynamicsWorld::internalSingleStepSimulation(btScalar timeStep)
 {
 	
 	PROFILE("internalSingleStepSimulation");
-
-
-	///update aabbs information
-	updateAabbs();
 
 	///apply gravity, predict motion
 	predictUnconstraintMotion(timeStep);
@@ -640,53 +635,6 @@ void	btDiscreteDynamicsWorld::calculateSimulationIslands()
 }
 
 
-void	btDiscreteDynamicsWorld::updateAabbs()
-{
-	PROFILE("updateAabbs");
-	
-	btTransform predictedTrans;
-	for ( int i=0;i<m_collisionObjects.size();i++)
-	{
-		btCollisionObject* colObj = m_collisionObjects[i];
-		
-		btRigidBody* body = btRigidBody::upcast(colObj);
-		if (body)
-		{
-			//only update aabb of active objects
-			if (body->isActive())
-			{
-				btPoint3 minAabb,maxAabb;
-				colObj->getCollisionShape()->getAabb(colObj->getWorldTransform(), minAabb,maxAabb);
-				btBroadphaseInterface* bp = (btBroadphaseInterface*)m_broadphasePairCache;
-
-				//moving objects should be moderately sized, probably something wrong if not
-				if ( colObj->isStaticObject() || ((maxAabb-minAabb).length2() < btScalar(1e12)))
-				{
-					bp->setAabb(body->getBroadphaseHandle(),minAabb,maxAabb, m_dispatcher1);
-				} else
-				{
-					//something went wrong, investigate
-					//this assert is unwanted in 3D modelers (danger of loosing work)
-					body->setActivationState(DISABLE_SIMULATION);
-					
-					static bool reportMe = true;
-					if (reportMe && m_debugDrawer)
-					{
-						reportMe = false;
-						m_debugDrawer->reportErrorWarning("Overflow in AABB, object removed from simulation");
-						m_debugDrawer->reportErrorWarning("If you can reproduce this, please email bugs@continuousphysics.com\n");
-						m_debugDrawer->reportErrorWarning("Please include above information, your Platform, version of OS.\n");
-						m_debugDrawer->reportErrorWarning("Thanks.\n");
-					}
-
-
-				}
-			}
-		}
-	}
-	
-	END_PROFILE("updateAabbs");
-}
 
 void	btDiscreteDynamicsWorld::integrateTransforms(btScalar timeStep)
 {

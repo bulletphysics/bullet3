@@ -41,7 +41,8 @@ subject to the following restrictions:
 
 btCollisionWorld::btCollisionWorld(btDispatcher* dispatcher,btBroadphaseInterface* pairCache, btCollisionConfiguration* collisionConfiguration)
 :m_dispatcher1(dispatcher),
-m_broadphasePairCache(pairCache)
+m_broadphasePairCache(pairCache),
+m_debugDrawer(0)
 {
 	m_stackAlloc = collisionConfiguration->getStackAllocator();
 	m_dispatchInfo.m_stackAllocator = m_stackAlloc;
@@ -112,6 +113,47 @@ void	btCollisionWorld::addCollisionObject(btCollisionObject* collisionObject,sho
 
 }
 
+void	btCollisionWorld::updateAabbs()
+{
+	PROFILE("updateAabbs");
+	
+	btTransform predictedTrans;
+	for ( int i=0;i<m_collisionObjects.size();i++)
+	{
+		btCollisionObject* colObj = m_collisionObjects[i];
+		
+		//only update aabb of active objects
+		if (colObj->isActive())
+		{
+			btPoint3 minAabb,maxAabb;
+			colObj->getCollisionShape()->getAabb(colObj->getWorldTransform(), minAabb,maxAabb);
+			btBroadphaseInterface* bp = (btBroadphaseInterface*)m_broadphasePairCache;
+
+			//moving objects should be moderately sized, probably something wrong if not
+			if ( colObj->isStaticObject() || ((maxAabb-minAabb).length2() < btScalar(1e12)))
+			{
+				bp->setAabb(colObj->getBroadphaseHandle(),minAabb,maxAabb, m_dispatcher1);
+			} else
+			{
+				//something went wrong, investigate
+				//this assert is unwanted in 3D modelers (danger of loosing work)
+				colObj->setActivationState(DISABLE_SIMULATION);
+				
+				static bool reportMe = true;
+				if (reportMe && m_debugDrawer)
+				{
+					reportMe = false;
+					m_debugDrawer->reportErrorWarning("Overflow in AABB, object removed from simulation");
+					m_debugDrawer->reportErrorWarning("If you can reproduce this, please email bugs@continuousphysics.com\n");
+					m_debugDrawer->reportErrorWarning("Please include above information, your Platform, version of OS.\n");
+					m_debugDrawer->reportErrorWarning("Thanks.\n");
+				}
+			}
+		}
+	}
+	
+	END_PROFILE("updateAabbs");
+}
 
 
 
@@ -124,16 +166,8 @@ void	btCollisionWorld::performDiscreteCollisionDetection()
 	BEGIN_PROFILE("perform Broadphase Collision Detection");
 
 
-	//update aabb (of all moved objects)
-	{
-		PROFILE("setAabb");
-		btVector3 aabbMin,aabbMax;
-		for (int i=0;i<m_collisionObjects.size();i++)
-		{
-			m_collisionObjects[i]->getCollisionShape()->getAabb(m_collisionObjects[i]->getWorldTransform(),aabbMin,aabbMax);
-			m_broadphasePairCache->setAabb(m_collisionObjects[i]->getBroadphaseHandle(),aabbMin,aabbMax,m_dispatcher1);
-		}
-	}
+	updateAabbs();
+
 	{
 		PROFILE("calculateOverlappingPairs");
 		m_broadphasePairCache->calculateOverlappingPairs(m_dispatcher1);

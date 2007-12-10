@@ -32,8 +32,6 @@ protected:
 
 	bool	m_ownsConstraintSolver;
 
-	btIDebugDraw*	m_debugDrawer;
-
 	void	predictUnconstraintMotion(btScalar timeStep);
 	
 	void	integrateTransforms(btScalar timeStep);
@@ -51,16 +49,6 @@ public:
 		
 	///maxSubSteps/fixedTimeStep for interpolation is currently ignored for btSimpleDynamicsWorld, use btDiscreteDynamicsWorld instead
 	virtual int	stepSimulation( btScalar timeStep,int maxSubSteps=1, btScalar fixedTimeStep=btScalar(1.)/btScalar(60.));
-
-	virtual void	setDebugDrawer(btIDebugDraw*	debugDrawer) 
-	{
-		m_debugDrawer = debugDrawer;
-	};
-
-	virtual btIDebugDraw*	getDebugDrawer()
-	{
-		return m_debugDrawer;
-	}
 
 	virtual void	setGravity(const btVector3& gravity);
 
