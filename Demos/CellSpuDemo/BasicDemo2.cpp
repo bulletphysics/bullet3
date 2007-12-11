@@ -90,13 +90,9 @@ void BasicDemo::clientMoveAndDisplay()
 	if (ms > minFPS)
 		ms = minFPS;
 
-	printf("step\n");
-
 	if (m_dynamicsWorld)
 		m_dynamicsWorld->stepSimulation(ms / 1000000.f);
 
-	printf("step finished\n");
-		
 	renderme(); 
 
 	glFlush();
@@ -175,6 +171,8 @@ void	BasicDemo::initPhysics()
 #else
 	m_dispatcher = new	btCollisionDispatcher(collisionConfiguration);
 #endif //USE_PARALLEL_DISPATCHER
+	m_collisionConfiguration = new btDefaultCollisionConfiguration();
+
 
 #define USE_SWEEP_AND_PRUNE 1
 #ifdef USE_SWEEP_AND_PRUNE
@@ -200,7 +198,7 @@ void	BasicDemo::initPhysics()
 	sol->setSolverMode(btSequentialImpulseConstraintSolver::SOLVER_RANDMIZE_ORDER);
 	m_dynamicsWorld = new btSimpleDynamicsWorld(m_dispatcher,m_overlappingPairCache,m_solver);
 #else
-	m_dynamicsWorld = new btDiscreteDynamicsWorld(m_dispatcher,m_overlappingPairCache,m_solver);
+	m_dynamicsWorld = new btDiscreteDynamicsWorld(m_dispatcher,m_overlappingPairCache,m_solver,m_collisionConfiguration);
 #endif //USE_SIMPLE_DYNAMICS_WORLD
 	m_dynamicsWorld->getDispatchInfo().m_enableSPU = true;
 
@@ -288,7 +286,7 @@ void	BasicDemo::exitPhysics()
 	//delete dispatcher
 	delete m_dispatcher;
 
-	
+	delete m_collisionConfiguration;
 }
 
 

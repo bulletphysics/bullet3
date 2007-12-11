@@ -40,3 +40,4 @@ public:
 };
 
 #endif //THREAD_SUPPORT_INTERFACE_H
+

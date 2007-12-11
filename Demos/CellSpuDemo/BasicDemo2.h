@@ -34,7 +34,7 @@ class BasicDemo : public DemoApplication
 	btBroadphaseInterface*	m_overlappingPairCache;
 
 	btCollisionDispatcher*	m_dispatcher;
-
+	btDefaultCollisionConfiguration* m_collisionConfiguration;
 	btConstraintSolver*	m_solver;
 
 	btCollisionAlgorithmCreateFunc*	m_sphereSphereCF;

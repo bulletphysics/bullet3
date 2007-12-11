@@ -26,13 +26,23 @@ PROGRAM_ppu	:= CcdPhysicsDemo
 ######################################################################
 OBJS		= CcdPhysicsDemo.o main.o
 
-CELL_TOP ?= /opt/ibm/cell-sdk/prototype
+IBM_CELLSDK_VERSION := $(shell if [ -d /opt/cell ]; then echo "3.0"; fi)
+
+ifeq ("$(IBM_CELLSDK_VERSION)","3.0")
+        CELL_TOP ?= /opt/cell/sdk
+	CELL_SYSROOT = /opt/cell/sysroot
+        include $(CELL_TOP)/buildutils/make.footer
+else
+        CELL_TOP ?= /opt/ibm/cell-sdk/prototype
+	CELL_SYSROOT = $(CELL_TOP)/sysroot
+        include $(CELL_TOP)/make.footer
+endif
 
 ########################################################################
 #                       Libraries, Include paths,  Defines
 ########################################################################
 INCLUDE		=	-DUSE_LIBSPE2				\
-			-I$(CELL_TOP)/sysroot/usr/include	\
+			-I$(CELL_SYSROOT)/usr/include	\
 			-I../			\
 			-I$(ROOT)/src		\
 			-I$(ROOT)/Demos/OpenGL	\
@@ -55,7 +65,6 @@ INSTALL_FILES   = $(PROGRAM_ppu)
 ########################################################################
 
 
-include $(CELL_TOP)/make.footer
 
 $(PPMS): 
 	cp textures/$@ .

@@ -4,13 +4,25 @@ __ARCH_BITS__ := 32
 NARROWPHASEDIR=./SpuNarrowPhaseCollisionTask
 SPU_TASKFILE=$(NARROWPHASEDIR)/SpuGatheringCollisionTask
 
+IBM_CELLSDK_VERSION := $(shell if [ -d /opt/cell ]; then echo "3.0"; fi)
+
+ifeq ("$(IBM_CELLSDK_VERSION)","3.0")
+        CELL_TOP ?= /opt/cell/sdk
+	CELL_SYSROOT := /opt/cell/sysroot
+        include $(CELL_TOP)/buildutils/make.footer
+else
+        CELL_TOP ?= /opt/ibm/cell-sdk/prototype
+	CELL_SYSROOT := $(CELL_TOP)/sysroot
+        include $(CELL_TOP)/make.footer
+endif
+
+
 RM=rm -f 
 OUTDIR=./out
 DEBUGFLAG=-DNDEBUG
 LIBOUTDIR=../../lib/ibmsdk
 COLLISIONDIR=../../src/BulletCollision
 MATHDIR=../../src/LinearMath
-CELLSDKDIR=/opt/ibm/cell-sdk
 ARCHITECTUREFLAG=-m$(__ARCH_BITS__)
 ifeq "$(__ARCH_BITS__)" "64"
   SPU_DEFFLAGS= -DUSE_LIBSPE2 -D__SPU__ -DUSE_ADDR64
@@ -18,7 +30,7 @@ else
   SPU_DEFFLAGS= -DUSE_LIBSPE2 -D__SPU__
 endif
 SPU_GCC=/usr/bin/spu-gcc
-SPU_INCLUDEDIR= -I. -I$(CELLSDKDIR)/prototype/sysroot/usr/spu/include -I../../src -I$(NARROWPHASEDIR)
+SPU_INCLUDEDIR= -I. -I$(CELL_SYSROOT)/usr/spu/include -I../../src -I$(NARROWPHASEDIR)
 #SPU_CFLAGS= $(DEBUGFLAG) -W -Wall -Winline -Os -c -include spu_intrinsics.h -include stdbool.h
 SPU_CFLAGS= $(DEBUGFLAG) -W -Wall -Winline -O3 -mbranch-hints -fomit-frame-pointer -ftree-vectorize -finline-functions -ftree-vect-loop-version -ftree-loop-optimize -ffast-math -fno-rtti -fno-exceptions -c -include spu_intrinsics.h -include stdbool.h
 
@@ -37,9 +49,9 @@ else
 endif
 
 PPU_CFLAGS= $(ARCHITECTUREFLAG) $(DEBUGFLAG) -W -Wall -Winline -O3 -c -mabi=altivec -maltivec -include altivec.h -include stdbool.h
-PPU_INCLUDEDIR= -I. -I$(CELLSDKDIR)/prototype/sysroot/usr/include -I../../src -I$(NARROWPHASEDIR)
+PPU_INCLUDEDIR= -I. -I$(CELL_SYSROOT)/usr/include -I../../src -I$(NARROWPHASEDIR)
 PPU_LFLAGS= $(ARCHITECTUREFLAG) -Wl,-m,elf$(__ARCH_BITS__)ppc
-PPU_LIBRARIES= -lstdc++ -lsupc++ -lgcc -lgcov -lspe2 -lpthread -L../../lib/ibmsdk -lbulletcollision -lbulletdynamics -lbulletmath -L$(CELLSDKDIR)/prototype/sysroot/usr/lib$(__ARCH_BITS__) -R$(CELLSDKDIR)/prototype/sysroot/usr/lib
+PPU_LIBRARIES= -lstdc++ -lsupc++ -lgcc -lgcov -lspe2 -lpthread -L../../lib/ibmsdk -lbulletcollision -lbulletdynamics -lbulletmath -L$(CELL_SYSROOT)/usr/lib$(__ARCH_BITS__) -R$(CELL_SYSROOT)/usr/lib
 PPU_AR=/usr/bin/ar
 
 MakeOut :

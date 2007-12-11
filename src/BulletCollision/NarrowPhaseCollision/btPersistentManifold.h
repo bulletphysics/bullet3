@@ -70,6 +70,7 @@ public:
 	btPersistentManifold(void* body0,void* body1,int bla)
 		: m_body0(body0),m_body1(body1),m_cachedPoints(0)
 	{
+		(void)bla;
 	}
 
 	SIMD_FORCE_INLINE void* getBody0() { return m_body0;}

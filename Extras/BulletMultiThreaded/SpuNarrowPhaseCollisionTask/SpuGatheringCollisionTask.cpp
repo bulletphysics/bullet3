@@ -760,7 +760,7 @@ SIMD_FORCE_INLINE int		getShapeTypeSize(int shapeType)
 	default:
 		btAssert(0);
 		//unsupported shapetype, please add here
-		break;
+		return 0;
 	}
 }
 

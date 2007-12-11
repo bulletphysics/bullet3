@@ -40,6 +40,14 @@ btWheelInfo.o
 #### Install directories 
 INSTALL_DIR	=  $(ROOT)/lib/ibmsdk
 INSTALL_FILES	= $(LIBRARY_ppu)
-CELL_TOP ?= /opt/ibm/cell-sdk/prototype
 
-include $(CELL_TOP)/make.footer
+IBM_CELLSDK_VERSION := $(shell if [ -d /opt/cell ]; then echo "3.0"; fi)
+
+ifeq ("$(IBM_CELLSDK_VERSION)","3.0")
+        CELL_TOP ?= /opt/cell/sdk
+        include $(CELL_TOP)/buildutils/make.footer
+else
+        CELL_TOP ?= /opt/ibm/cell-sdk/prototype
+        include $(CELL_TOP)/make.footer
+endif
+
