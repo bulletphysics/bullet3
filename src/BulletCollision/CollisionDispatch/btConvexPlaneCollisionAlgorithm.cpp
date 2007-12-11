@@ -70,11 +70,10 @@ void btConvexPlaneCollisionAlgorithm::processCollision (btCollisionObject* body0
 	planeInConvex= convexObj->getWorldTransform().inverse() * planeObj->getWorldTransform();
 	btTransform convexInPlaneTrans;
 	convexInPlaneTrans= planeObj->getWorldTransform().inverse() * convexObj->getWorldTransform();
-	//btVector3 vtx = convexShape->localGetSupportingVertexWithoutMargin(planeNormal);
-	btVector3 vtx = convexShape->localGetSupportingVertex(planeInConvex.getBasis()*-planeNormal);
+
+	btVector3 vtx = convexShape->localGetSupportingVertexWithoutMargin(planeInConvex.getBasis()*-planeNormal);
 	btVector3 vtxInPlane = convexInPlaneTrans(vtx);
-	//btScalar distance = (planeNormal.dot(vtxInPlane) - planeConstant) - convexShape->getMargin();
-	btScalar distance = (planeNormal.dot(vtxInPlane) - planeConstant);
+	btScalar distance = (planeNormal.dot(vtxInPlane) - planeConstant) - convexShape->getMargin();
 
 	btVector3 vtxInPlaneProjected = vtxInPlane - distance*planeNormal;
 	btVector3 vtxInPlaneWorld = planeObj->getWorldTransform() * vtxInPlaneProjected;
