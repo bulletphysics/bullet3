@@ -18,9 +18,11 @@ subject to the following restrictions:
 #include "LinearMath/btTransformUtil.h"
 
 
-btHeightfieldTerrainShape::btHeightfieldTerrainShape(int width,int length,void* heightfieldData,btScalar maxHeight,int upAxis,bool useFloatData,bool flipQuadEdges)
-:m_width(width),
-m_length(length),
+btHeightfieldTerrainShape::btHeightfieldTerrainShape(int heightStickWidth, int heightStickLength,void* heightfieldData,btScalar maxHeight,int upAxis,bool useFloatData,bool flipQuadEdges)
+: m_heightStickWidth(heightStickWidth),
+m_heightStickLength(heightStickLength),
+m_width((btScalar)heightStickWidth-1),
+m_length((btScalar)heightStickLength-1),
 m_maxHeight(maxHeight),
 m_heightfieldDataUnknown(heightfieldData),
 m_useFloatData(useFloatData),
@@ -44,7 +46,7 @@ m_localScaling(btScalar(1.),btScalar(1.),btScalar(1.))
 		{
 			halfExtents.setValue(
 				btScalar(m_maxHeight),
-				btScalar(m_width),
+				btScalar(m_width), //?? don't know if this should change
 				btScalar(m_length));
 			break;
 		}
@@ -114,11 +116,11 @@ btScalar	btHeightfieldTerrainShape::getHeightFieldValue(int x,int y) const
 	btScalar val = 0.f;
 	if (m_useFloatData)
 	{
-		val = m_heightfieldDataFloat[(y*m_width)+x];
+		val = m_heightfieldDataFloat[(y*m_heightStickWidth)+x];
 	} else
 	{
 		//assume unsigned short int
-		unsigned char heightFieldValue = m_heightfieldDataUnsignedChar[(y*m_width)+x];
+		unsigned char heightFieldValue = m_heightfieldDataUnsignedChar[(y*m_heightStickWidth)+x];
 		val = heightFieldValue* (m_maxHeight/btScalar(65535));
 	}
 	return val;
@@ -133,8 +135,8 @@ void	btHeightfieldTerrainShape::getVertex(int x,int y,btVector3& vertex) const
 
 	btAssert(x>=0);
 	btAssert(y>=0);
-	btAssert(x<m_width);
-	btAssert(y<m_length);
+	btAssert(x<m_heightStickWidth);
+	btAssert(y<m_heightStickLength);
 
 
 	btScalar	height = getHeightFieldValue(x,y);
@@ -218,18 +220,18 @@ void	btHeightfieldTerrainShape::processAllTriangles(btTriangleCallback* callback
 	
 
 	int startX=0;
-	int endX=m_width-1;
+	int endX=m_heightStickWidth-1;
 	int startJ=0;
-	int endJ=m_length-1;
+	int endJ=m_heightStickLength-1;
 
 	switch (m_upAxis)
 	{
 	case 0:
 		{
-			quantizedAabbMin[1]+=m_width/2-1;
-			quantizedAabbMax[1]+=m_width/2+1;
-			quantizedAabbMin[2]+=m_length/2-1;
-			quantizedAabbMax[2]+=m_length/2+1;
+			quantizedAabbMin[1]+=m_heightStickWidth/2-1;
+			quantizedAabbMax[1]+=m_heightStickWidth/2+1;
+			quantizedAabbMin[2]+=m_heightStickLength/2-1;
+			quantizedAabbMax[2]+=m_heightStickLength/2+1;
 
 			if (quantizedAabbMin[1]>startX)
 				startX = quantizedAabbMin[1];
@@ -243,10 +245,10 @@ void	btHeightfieldTerrainShape::processAllTriangles(btTriangleCallback* callback
 		}
 	case 1:
 		{
-			quantizedAabbMin[0]+=m_width/2-1;
-			quantizedAabbMax[0]+=m_width/2+1;
-			quantizedAabbMin[2]+=m_length/2-1;
-			quantizedAabbMax[2]+=m_length/2+1;
+			quantizedAabbMin[0]+=m_heightStickWidth/2-1;
+			quantizedAabbMax[0]+=m_heightStickWidth/2+1;
+			quantizedAabbMin[2]+=m_heightStickLength/2-1;
+			quantizedAabbMax[2]+=m_heightStickLength/2+1;
 
 			if (quantizedAabbMin[0]>startX)
 				startX = quantizedAabbMin[0];
@@ -260,10 +262,10 @@ void	btHeightfieldTerrainShape::processAllTriangles(btTriangleCallback* callback
 		};
 	case 2:
 		{
-			quantizedAabbMin[0]+=m_width/2-1;
-			quantizedAabbMax[0]+=m_width/2+1;
-			quantizedAabbMin[1]+=m_length/2-1;
-			quantizedAabbMax[1]+=m_length/2+1;
+			quantizedAabbMin[0]+=m_heightStickWidth/2-1;
+			quantizedAabbMax[0]+=m_heightStickWidth/2+1;
+			quantizedAabbMin[1]+=m_heightStickLength/2-1;
+			quantizedAabbMax[1]+=m_heightStickLength/2+1;
 
 			if (quantizedAabbMin[0]>startX)
 				startX = quantizedAabbMin[0];
@@ -290,7 +292,7 @@ void	btHeightfieldTerrainShape::processAllTriangles(btTriangleCallback* callback
 		for(int x=startX; x<endX; x++)
 		{
 			btVector3 vertices[3];
-			if (m_flipQuadEdges || (m_useDiamondSubdivision && ((j+x) & 1)))
+			if (m_flipQuadEdges || (m_useDiamondSubdivision && !((j+x) & 1)))
 			{
         //first triangle
         getVertex(x,j,vertices[0]);

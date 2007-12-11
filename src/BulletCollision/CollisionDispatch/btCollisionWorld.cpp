@@ -412,8 +412,8 @@ void	btCollisionWorld::objectQuerySingle(const btConvexShape* castShape,const bt
 
 		btConvexShape* convexShape = (btConvexShape*) collisionShape;
 		btVoronoiSimplexSolver	simplexSolver;
-		btGjkConvexCast	convexCaster(castShape,convexShape,&simplexSolver);
-			
+		btContinuousConvexCollision convexCaster(castShape,convexShape,&simplexSolver,0);
+
 		if (convexCaster.calcTimeOfImpact(convexFromTrans,convexToTrans,colObjWorldTransform,colObjWorldTransform,castResult))
 		{
 			//add hit

@@ -26,9 +26,11 @@ protected:
 	btVector3	m_localAabbMax;
 	
 	///terrain data
-	int	m_width;
-	int m_length;
+	int	m_heightStickWidth;
+	int m_heightStickLength;
 	btScalar	m_maxHeight;
+	btScalar m_width;
+	btScalar m_length;
 	union
 	{
 		unsigned char*	m_heightfieldDataUnsignedChar;
@@ -58,7 +60,7 @@ protected:
 	}
 
 public:
-	btHeightfieldTerrainShape(int width,int height,void* heightfieldData, btScalar maxHeight,int upAxis,bool useFloatData,bool flipQuadEdges);
+	btHeightfieldTerrainShape(int heightStickWidth,int heightStickHeight,void* heightfieldData, btScalar maxHeight,int upAxis,bool useFloatData,bool flipQuadEdges);
 
 	virtual ~btHeightfieldTerrainShape();
 
