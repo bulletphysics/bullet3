@@ -96,15 +96,16 @@ void	BasicDemo::initPhysics()
 	///the default constraint solver. For parallel processing you can use a different solver (see Extras/BulletMultiThreaded)
 	btSequentialImpulseConstraintSolver* sol = new btSequentialImpulseConstraintSolver;
 	m_solver = sol;
-	
+
 
 	m_dynamicsWorld = new btDiscreteDynamicsWorld(m_dispatcher,m_overlappingPairCache,m_solver,m_collisionConfiguration);
 
 	m_dynamicsWorld->setGravity(btVector3(0,-10,0));
 
 	///create a few basic rigid bodies
-	btCollisionShape* groundShape = new btBoxShape(btVector3(btScalar(50.),btScalar(50.),btScalar(50.)));
-
+//	btCollisionShape* groundShape = new btBoxShape(btVector3(btScalar(50.),btScalar(50.),btScalar(50.)));
+	btCollisionShape* groundShape = new btStaticPlaneShape(btVector3(0,1,0),50);
+	
 	m_collisionShapes.push_back(groundShape);
 
 	btTransform groundTransform;
@@ -135,8 +136,8 @@ void	BasicDemo::initPhysics()
 		//create a few dynamic rigidbodies
 		// Re-using the same collision is better for memory usage and performance
 
-		//btCollisionShape* colShape = new btBoxShape(btVector3(1,1,1));
-		btCollisionShape* colShape = new btSphereShape(btScalar(1.));
+		btCollisionShape* colShape = new btBoxShape(btVector3(1,1,1));
+		//btCollisionShape* colShape = new btSphereShape(btScalar(1.));
 		m_collisionShapes.push_back(colShape);
 
 		/// Create Dynamic Objects

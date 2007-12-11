@@ -54,7 +54,9 @@ class	btDefaultCollisionConfiguration : public btCollisionConfiguration
 	btCollisionAlgorithmCreateFunc* m_boxSphereCF;
 	btCollisionAlgorithmCreateFunc*	m_sphereTriangleCF;
 	btCollisionAlgorithmCreateFunc*	m_triangleSphereCF;
-
+	btCollisionAlgorithmCreateFunc*	m_planeConvexCF;
+	btCollisionAlgorithmCreateFunc*	m_convexPlaneCF;
+	
 public:
 
 	btDefaultCollisionConfiguration(btStackAlloc*	stackAlloc=0,btPoolAllocator*	persistentManifoldPool=0,btPoolAllocator*	collisionAlgorithmPool=0);

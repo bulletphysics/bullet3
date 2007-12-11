@@ -15,14 +15,17 @@ subject to the following restrictions:
 
 #include "BasicDemo.h"
 #include "GlutStuff.h"
+#include "GLDebugDrawer.h"
+#include "btBulletDynamicsCommon.h"
 
-//#define CHECK_MEMORY_LEAKS 1
 
 int main(int argc,char** argv)
 {
+	GLDebugDrawer	gDebugDrawer;
 
 	BasicDemo ccdDemo;
 	ccdDemo.initPhysics();
+	ccdDemo.getDynamicsWorld()->setDebugDrawer(&gDebugDrawer);
 
 
 #ifdef CHECK_MEMORY_LEAKS

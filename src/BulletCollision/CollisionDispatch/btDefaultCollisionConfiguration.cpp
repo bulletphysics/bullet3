@@ -20,6 +20,8 @@ subject to the following restrictions:
 #include "BulletCollision/CollisionDispatch/btEmptyCollisionAlgorithm.h"
 #include "BulletCollision/CollisionDispatch/btConvexConcaveCollisionAlgorithm.h"
 #include "BulletCollision/CollisionDispatch/btCompoundCollisionAlgorithm.h"
+#include "BulletCollision/CollisionDispatch/btConvexPlaneCollisionAlgorithm.h"
+
 #include "BulletCollision/CollisionDispatch/btSphereSphereCollisionAlgorithm.h"
 #include "BulletCollision/CollisionDispatch/btSphereBoxCollisionAlgorithm.h"
 #include "BulletCollision/CollisionDispatch/btSphereTriangleCollisionAlgorithm.h"
@@ -58,7 +60,7 @@ btDefaultCollisionConfiguration::btDefaultCollisionConfiguration(btStackAlloc*	s
 	m_swappedCompoundCreateFunc = new (mem)btCompoundCollisionAlgorithm::SwappedCreateFunc;
 	mem = btAlignedAlloc(sizeof(btEmptyAlgorithm::CreateFunc),16);
 	m_emptyCreateFunc = new(mem) btEmptyAlgorithm::CreateFunc;
-
+	
 	mem = btAlignedAlloc(sizeof(btSphereSphereCollisionAlgorithm::CreateFunc),16);
 	m_sphereSphereCF = new(mem) btSphereSphereCollisionAlgorithm::CreateFunc;
 	mem = btAlignedAlloc(sizeof(btSphereBoxCollisionAlgorithm::CreateFunc),16);
@@ -72,7 +74,13 @@ btDefaultCollisionConfiguration::btDefaultCollisionConfiguration(btStackAlloc*	s
 	m_triangleSphereCF = new (mem)btSphereTriangleCollisionAlgorithm::CreateFunc;
 	m_triangleSphereCF->m_swapped = true;
 
-
+	//convex versus plane
+	mem = btAlignedAlloc (sizeof(btConvexPlaneCollisionAlgorithm::CreateFunc),16);
+	m_convexPlaneCF = new (mem) btConvexPlaneCollisionAlgorithm::CreateFunc;
+	mem = btAlignedAlloc (sizeof(btConvexPlaneCollisionAlgorithm::CreateFunc),16);
+	m_planeConvexCF = new (mem) btConvexPlaneCollisionAlgorithm::CreateFunc;
+	m_planeConvexCF->m_swapped = true;
+	
 	///calculate maximum element size, big enough to fit any collision algorithm in the memory pool
 	int maxSize = sizeof(btConvexConvexAlgorithm);
 	int maxSize2 = sizeof(btConvexConcaveCollisionAlgorithm);
@@ -167,6 +175,11 @@ btDefaultCollisionConfiguration::~btDefaultCollisionConfiguration()
 	m_triangleSphereCF->~btCollisionAlgorithmCreateFunc();
 	btAlignedFree( m_triangleSphereCF);
 
+	m_convexPlaneCF->~btCollisionAlgorithmCreateFunc();
+	btAlignedFree( m_convexPlaneCF);
+	m_planeConvexCF->~btCollisionAlgorithmCreateFunc();
+	btAlignedFree( m_planeConvexCF);
+
 	m_simplexSolver->~btVoronoiSimplexSolver();
 	btAlignedFree(m_simplexSolver);
 	m_pdSolver->~btGjkEpaPenetrationDepthSolver();
@@ -178,7 +191,8 @@ btDefaultCollisionConfiguration::~btDefaultCollisionConfiguration()
 
 btCollisionAlgorithmCreateFunc* btDefaultCollisionConfiguration::getCollisionAlgorithmCreateFunc(int proxyType0,int proxyType1)
 {
-	
+
+
 
 	if ((proxyType0 == SPHERE_SHAPE_PROXYTYPE) && (proxyType1==SPHERE_SHAPE_PROXYTYPE))
 	{
@@ -205,6 +219,15 @@ btCollisionAlgorithmCreateFunc* btDefaultCollisionConfiguration::getCollisionAlg
 		return	m_triangleSphereCF;
 	}
 	
+	if (btBroadphaseProxy::isConvex(proxyType0) && (proxyType1 == STATIC_PLANE_PROXYTYPE))
+	{
+		return m_convexPlaneCF;
+	}
+
+	if (btBroadphaseProxy::isConvex(proxyType1) && (proxyType0 == STATIC_PLANE_PROXYTYPE))
+	{
+		return m_planeConvexCF;
+	}
 
 	if (btBroadphaseProxy::isConvex(proxyType0) && btBroadphaseProxy::isConvex(proxyType1))
 	{
