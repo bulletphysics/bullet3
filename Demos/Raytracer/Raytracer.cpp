@@ -287,9 +287,9 @@ bool	Raytracer::lowlevelRaytest(const btVector3& rayFrom,const btVector3& rayTo,
 			//reset previous result
 
 			//choose the continuous collision detection method
-			//btSubsimplexConvexCast convexCaster(&pointShape,shapePtr[s],&simplexSolver);
-			//btGjkConvexCast convexCaster(&pointShape,shapePtr[0],&simplexSolver);
-			btContinuousConvexCollision convexCaster(&pointShape,shapePtr[0],&simplexSolver,0);
+			btSubsimplexConvexCast convexCaster(&pointShape,shapePtr[s],&simplexSolver);
+			//btGjkConvexCast convexCaster(&pointShape,shapePtr[s],&simplexSolver);
+			//btContinuousConvexCollision convexCaster(&pointShape,shapePtr[s],&simplexSolver,0);
 
 			if (convexCaster.calcTimeOfImpact(rayFromTrans,rayToTrans,transforms[s],transforms[s],rayResult))
 			{
