@@ -10,7 +10,7 @@ int main(int argc,char** argv)
         raytraceDemo->initPhysics();
         
         raytraceDemo->setCameraDistance(6.f);
-
+		
         return glutmain(argc, argv,640,640,"Bullet GJK Implicit Shape Raytracer Demo",raytraceDemo);
 }
 

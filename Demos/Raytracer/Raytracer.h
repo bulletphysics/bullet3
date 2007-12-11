@@ -17,9 +17,20 @@ subject to the following restrictions:
 
 #include "DemoApplication.h"
 
+class btDefaultCollisionConfiguration;
+class btCollisionDispatcher;
+class btAxisSweep3;
+class btCollisionWorld;
+
 ///Raytracer shows the inner working of the ray casting, using ray tracing rendering into a texture.
 class Raytracer : public DemoApplication
 {
+
+	btDefaultCollisionConfiguration*	m_collisionConfiguration;
+	btCollisionDispatcher*	m_dispatcher;
+	btAxisSweep3*	m_overlappingPairCache;
+	btCollisionWorld*	m_collisionWorld;
+	
 	public:
 
 	void	initPhysics();
@@ -29,6 +40,15 @@ class Raytracer : public DemoApplication
 	virtual void clientMoveAndDisplay();
 
 	virtual void displayCallback();
+
+	///worldRaytest performs a ray versus all objects in a collision world, returning true is a hit is found (filling in worldNormal and worldHitPoint)
+	bool	worldRaytest(const btVector3& rayFrom,const btVector3& rayTo,btVector3& worldNormal,btVector3& worldHitPoint);
+
+	///singleObjectRaytest performs a ray versus one collision shape, returning true is a hit is found (filling in worldNormal and worldHitPoint)
+	bool	singleObjectRaytest(const btVector3& rayFrom,const btVector3& rayTo,btVector3& worldNormal,btVector3& worldHitPoint);
+	
+	///lowlevelRaytest performs a ray versus convex shape, returning true is a hit is found (filling in worldNormal and worldHitPoint)
+	bool	lowlevelRaytest(const btVector3& rayFrom,const btVector3& rayTo,btVector3& worldNormal,btVector3& worldHitPoint);
 
 	static DemoApplication* Create()
 	{

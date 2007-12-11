@@ -166,17 +166,20 @@ public:
 	///RayResultCallback is used to report new raycast results
 	struct	RayResultCallback
 	{
+		btScalar	m_closestHitFraction;
+		btCollisionObject*		m_collisionObject;
+
 		virtual ~RayResultCallback()
 		{
 		}
-		btScalar	m_closestHitFraction;
 		bool	HasHit()
 		{
-			return (m_closestHitFraction < btScalar(1.));
+			return (m_collisionObject != 0);
 		}
 
 		RayResultCallback()
-			:m_closestHitFraction(btScalar(1.))
+			:m_closestHitFraction(btScalar(1.)),
+			m_collisionObject(0)
 		{
 		}
 		virtual	btScalar	AddSingleResult(LocalRayResult& rayResult,bool normalInWorldSpace) = 0;
@@ -186,8 +189,7 @@ public:
 	{
 		ClosestRayResultCallback(const btVector3&	rayFromWorld,const btVector3&	rayToWorld)
 		:m_rayFromWorld(rayFromWorld),
-		m_rayToWorld(rayToWorld),
-		m_collisionObject(0)
+		m_rayToWorld(rayToWorld)
 		{
 		}
 
@@ -196,13 +198,11 @@ public:
 
 		btVector3	m_hitNormalWorld;
 		btVector3	m_hitPointWorld;
-		btCollisionObject*	m_collisionObject;
-		
+			
 		virtual	btScalar	AddSingleResult(LocalRayResult& rayResult,bool normalInWorldSpace)
 		{
-
-//caller already does the filter on the m_closestHitFraction
-			assert(rayResult.m_hitFraction <= m_closestHitFraction);
+			//caller already does the filter on the m_closestHitFraction
+			btAssert(rayResult.m_hitFraction <= m_closestHitFraction);
 			
 			m_closestHitFraction = rayResult.m_hitFraction;
 			m_collisionObject = rayResult.m_collisionObject;

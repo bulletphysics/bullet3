@@ -230,7 +230,7 @@ void	btCollisionWorld::rayTestSingle(const btTransform& rayFromTrans,const btTra
 	if (collisionShape->isConvex())
 	{
 		btConvexCast::CastResult castResult;
-		castResult.m_fraction = btScalar(1.);//??
+		castResult.m_fraction = resultCallback.m_closestHitFraction;
 
 		btConvexShape* convexShape = (btConvexShape*) collisionShape;
 		btVoronoiSimplexSolver	simplexSolver;
@@ -602,6 +602,10 @@ void	btCollisionWorld::rayTest(const btVector3& rayFromWorld, const btVector3& r
 	int i;
 	for (i=0;i<m_collisionObjects.size();i++)
 	{
+		///terminate further ray tests, once the closestHitFraction reached zero
+		if (resultCallback.m_closestHitFraction == btScalar(0.f))
+			break;
+
 		btCollisionObject*	collisionObject= m_collisionObjects[i];
 		//only perform raycast if filterMask matches
 		if(collisionObject->getBroadphaseHandle()->m_collisionFilterGroup & collisionFilterMask) { 
@@ -609,7 +613,7 @@ void	btCollisionWorld::rayTest(const btVector3& rayFromWorld, const btVector3& r
 			btVector3 collisionObjectAabbMin,collisionObjectAabbMax;
 			collisionObject->getCollisionShape()->getAabb(collisionObject->getWorldTransform(),collisionObjectAabbMin,collisionObjectAabbMax);
 
-			btScalar hitLambda = btScalar(1.); //could use resultCallback.m_closestHitFraction, but needs testing
+			btScalar hitLambda = resultCallback.m_closestHitFraction;
 			btVector3 hitNormal;
 			if (btRayAabb(rayFromWorld,rayToWorld,collisionObjectAabbMin,collisionObjectAabbMax,hitLambda,hitNormal))
 			{
@@ -620,6 +624,7 @@ void	btCollisionWorld::rayTest(const btVector3& rayFromWorld, const btVector3& r
 						resultCallback);
 			}	
 		}
+		
 	}
 
 }

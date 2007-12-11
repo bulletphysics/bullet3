@@ -48,7 +48,8 @@ Very basic raytracer, rendering into a texture.
 #include "BulletCollision/CollisionShapes/btCylinderShape.h"
 #include "BulletCollision/CollisionShapes/btMinkowskiSumShape.h"
 
-
+#include "BulletCollision/CollisionDispatch/btDefaultCollisionConfiguration.h"
+#include "BulletCollision/BroadphaseCollision/btAxisSweep3.h"
 
 #include "RenderTexture.h"
 
@@ -58,7 +59,7 @@ static btVoronoiSimplexSolver	simplexSolver;
 
 static float yaw=0.f,pitch=0.f,roll=0.f;
 static const int maxNumObjects = 4;
-static const int numObjects = 1;
+static const int numObjects = 3;
 
 
 static btConvexShape*	shapePtr[maxNumObjects];
@@ -67,13 +68,16 @@ static btTransform transforms[maxNumObjects];
 renderTexture*	raytracePicture = 0;
 
 //this applies to the raytracer virtual screen/image buffer
-static int screenWidth = 128;
+static int screenWidth = 100;
 //float aspectRatio = (3.f/4.f);
-static int screenHeight = 128;//screenWidth * aspectRatio;
+static int screenHeight = 80;//screenWidth * aspectRatio;
 GLuint glTextureId;
 
 btConeShape myCone(1,1);
+btSphereShape mysphere(1);
+btBoxShape mybox(btVector3(1,1,1));
 
+btCollisionWorld* m_collisionWorld = 0;
 
 
 
@@ -83,29 +87,45 @@ btConeShape myCone(1,1);
 
 void	Raytracer::initPhysics()
 {
-	raytracePicture = new renderTexture(screenWidth,screenHeight);
+	m_ele = 0;
 
+	raytracePicture = new renderTexture(screenWidth,screenHeight);
 	myCone.setMargin(0.2f);
 
-	
-	/// convex hull of 5 spheres
-#define NUM_SPHERES 5
-	btVector3 inertiaHalfExtents(10.f,10.f,10.f);
-	btVector3 positions[NUM_SPHERES] = {
-		btVector3(-1.2f,	-0.3f,	0.f),
-		btVector3(0.8f,	-0.3f,	0.f),
-		btVector3(0.5f,	0.6f,	0.f),
-		btVector3(-0.5f,	0.6f,	0.f),
-		btVector3(0.f,	0.f,	0.f)
-	};
-
-
-	btVector3 sphereOffset1(0,0,0);
-	btScalar sphereRadius = 2.f;
-	btVector3 nonUniformScaling(0.5,2,0.5);
 	//choose shape
 	shapePtr[0] = &myCone;
+	shapePtr[1] = &mysphere;
+	shapePtr[2] = &mybox;
+
+	for (int i=0;i<numObjects;i++)
+	{
+		transforms[i].setIdentity();
+		btVector3	pos(0.f,0.f,-(2.5* numObjects * 0.5)+i*2.5f);
+		transforms[i].setOrigin( pos );
+		btQuaternion orn;
+		if (i < 2)
+		{
+			orn.setEuler(yaw,pitch,roll);
+			transforms[i].setRotation(orn);
+		}
+	}
+
+
+	m_collisionConfiguration = new btDefaultCollisionConfiguration();
+	m_dispatcher = new btCollisionDispatcher(m_collisionConfiguration);
+	btVector3 worldMin(-1000,-1000,-1000);
+	btVector3 worldMax(1000,1000,1000);
+	m_overlappingPairCache = new btAxisSweep3(worldMin,worldMax);
+
+	m_collisionWorld = new btCollisionWorld(m_dispatcher,m_overlappingPairCache,m_collisionConfiguration);
 	
+	for (int s=0;s<numObjects;s++)
+	{
+		btCollisionObject* obj = new btCollisionObject();
+		obj->setCollisionShape(shapePtr[s]);
+		obj->setWorldTransform(transforms[s]);
+		m_collisionWorld->addCollisionObject(obj);
+	}
 
 
 }
@@ -129,6 +149,165 @@ int once = 1;
 
 
 
+bool	Raytracer::worldRaytest(const btVector3& rayFrom,const btVector3& rayTo,btVector3& worldNormal,btVector3& worldHitPoint)
+{
+
+	struct	AllRayResultCallback : public btCollisionWorld::RayResultCallback
+	{
+		AllRayResultCallback(const btVector3&	rayFromWorld,const btVector3&	rayToWorld)
+		:m_rayFromWorld(rayFromWorld),
+		m_rayToWorld(rayToWorld)
+		{
+		}
+
+		btVector3	m_rayFromWorld;//used to calculate hitPointWorld from hitFraction
+		btVector3	m_rayToWorld;
+
+		btVector3	m_hitNormalWorld;
+		btVector3	m_hitPointWorld;
+			
+		virtual	btScalar	AddSingleResult(btCollisionWorld::LocalRayResult& rayResult,bool normalInWorldSpace)
+		{
+
+//caller already does the filter on the m_closestHitFraction
+			assert(rayResult.m_hitFraction <= m_closestHitFraction);
+			
+			m_closestHitFraction = rayResult.m_hitFraction;
+
+			m_collisionObject = rayResult.m_collisionObject;
+			if (normalInWorldSpace)
+			{
+				m_hitNormalWorld = rayResult.m_hitNormalLocal;
+			} else
+			{
+				///need to transform normal into worldspace
+				m_hitNormalWorld = m_collisionObject->getWorldTransform().getBasis()*rayResult.m_hitNormalLocal;
+			}
+			m_hitPointWorld.setInterpolate3(m_rayFromWorld,m_rayToWorld,rayResult.m_hitFraction);
+			return 1.f;
+		}
+	};
+
+
+	AllRayResultCallback	resultCallback(rayFrom,rayTo);
+//	btCollisionWorld::ClosestRayResultCallback resultCallback(rayFrom,rayTo);
+	m_collisionWorld->rayTest(rayFrom,rayTo,resultCallback);
+	if (resultCallback.HasHit())
+	{
+		worldNormal = resultCallback.m_hitNormalWorld;
+		return true;
+	}
+	return false;
+}
+
+
+bool	Raytracer::singleObjectRaytest(const btVector3& rayFrom,const btVector3& rayTo,btVector3& worldNormal,btVector3& worldHitPoint)
+{
+
+	btScalar closestHitResults = 1.f;
+
+	btCollisionWorld::ClosestRayResultCallback resultCallback(rayFrom,rayTo);
+
+	bool hasHit = false;
+	btConvexCast::CastResult rayResult;
+	btSphereShape pointShape(0.0f);
+	btTransform rayFromTrans;
+	btTransform rayToTrans;
+
+	rayFromTrans.setIdentity();
+	rayFromTrans.setOrigin(rayFrom);
+	rayToTrans.setIdentity();
+	rayToTrans.setOrigin(rayTo);
+
+	for (int s=0;s<numObjects;s++)
+	{
+		//comment-out next line to get all hits, instead of just the closest hit
+		//resultCallback.m_closestHitFraction = 1.f;
+
+		//do some culling, ray versus aabb
+		btVector3 aabbMin,aabbMax;
+		shapePtr[s]->getAabb(transforms[s],aabbMin,aabbMax);
+		btScalar hitLambda = 1.f;
+		btVector3 hitNormal;
+		btCollisionObject	tmpObj;
+		tmpObj.setWorldTransform(transforms[s]);
+
+
+		if (btRayAabb(rayFrom,rayTo,aabbMin,aabbMax,hitLambda,hitNormal))
+		{
+			//reset previous result
+
+			btCollisionWorld::rayTestSingle(rayFromTrans,rayToTrans, &tmpObj, shapePtr[s], transforms[s], resultCallback);
+			if (resultCallback.HasHit())
+			{
+				//float fog = 1.f - 0.1f * rayResult.m_fraction;
+				resultCallback.m_hitNormalWorld.normalize();//.m_normal.normalize();
+				worldNormal = resultCallback.m_hitNormalWorld;
+				//worldNormal = transforms[s].getBasis() *rayResult.m_normal;
+				worldNormal.normalize();
+				hasHit = true;
+			}
+		}
+	}
+
+	return hasHit;
+}
+
+
+bool	Raytracer::lowlevelRaytest(const btVector3& rayFrom,const btVector3& rayTo,btVector3& worldNormal,btVector3& worldHitPoint)
+{
+
+	btScalar closestHitResults = 1.f;
+
+	bool hasHit = false;
+	btConvexCast::CastResult rayResult;
+	btSphereShape pointShape(0.0f);
+	btTransform rayFromTrans;
+	btTransform rayToTrans;
+
+	rayFromTrans.setIdentity();
+	rayFromTrans.setOrigin(rayFrom);
+	rayToTrans.setIdentity();
+	rayToTrans.setOrigin(rayTo);
+
+	for (int s=0;s<numObjects;s++)
+	{
+		
+		//do some culling, ray versus aabb
+		btVector3 aabbMin,aabbMax;
+		shapePtr[s]->getAabb(transforms[s],aabbMin,aabbMax);
+		btScalar hitLambda = 1.f;
+		btVector3 hitNormal;
+		btCollisionObject	tmpObj;
+		tmpObj.setWorldTransform(transforms[s]);
+
+
+		if (btRayAabb(rayFrom,rayTo,aabbMin,aabbMax,hitLambda,hitNormal))
+		{
+			//reset previous result
+
+			//choose the continuous collision detection method
+			//btSubsimplexConvexCast convexCaster(&pointShape,shapePtr[s],&simplexSolver);
+			//btGjkConvexCast convexCaster(&pointShape,shapePtr[0],&simplexSolver);
+			btContinuousConvexCollision convexCaster(&pointShape,shapePtr[0],&simplexSolver,0);
+
+			if (convexCaster.calcTimeOfImpact(rayFromTrans,rayToTrans,transforms[s],transforms[s],rayResult))
+			{
+				if (rayResult.m_fraction < closestHitResults)
+				{
+					closestHitResults = rayResult.m_fraction;
+
+					worldNormal = transforms[s].getBasis() *rayResult.m_normal;
+					worldNormal.normalize();
+					hasHit = true;
+				}
+			}
+		}
+	}
+
+	return hasHit;
+
+}
 
 
 void Raytracer::displayCallback() 
@@ -139,13 +318,13 @@ void Raytracer::displayCallback()
 	for (int i=0;i<numObjects;i++)
 	{
 		transforms[i].setIdentity();
-		btVector3	pos(-(2.5* numObjects * 0.5)+i*2.5f,0.f,0.f);
+		btVector3	pos(0.f,0.f,-(2.5* numObjects * 0.5)+i*2.5f);
 		transforms[i].setOrigin( pos );
 		btQuaternion orn;
 		if (i < 2)
 		{
 			orn.setEuler(yaw,pitch,roll);
-			//transforms[i].setRotation(orn);
+			transforms[i].setRotation(orn);
 		}
 	}
 
@@ -167,13 +346,6 @@ void Raytracer::displayCallback()
 
 	glDisable(GL_TEXTURE_2D);
 	glDisable(GL_BLEND);
-
-#define RAYTRACER
-#ifdef RAYTRACER
-
-
-
-
 
 
 	btVector4 rgba(1.f,0.f,0.f,0.5f);
@@ -219,7 +391,7 @@ void Raytracer::displayCallback()
 	btTransform	rayToLocal;
 
 
-	btSphereShape pointShape(0.0f);
+
 
 	int x;
 
@@ -232,120 +404,74 @@ void Raytracer::displayCallback()
 			raytracePicture->setPixel(x,y,rgba);
 		}
 	}
-	
 
-#define USE_WORLD_RAYCAST 1
-#ifndef USE_WORLD_RAYCAST
-	btConvexCast::CastResult rayResult;
-#endif
 
-	btTransform rayToTrans;
-	rayToTrans.setIdentity();
 	btVector3 rayTo;
 	btTransform colObjWorldTransform;
 	colObjWorldTransform.setIdentity();
 
-	
+	int	mode = 0;
 
 	for (x=0;x<screenWidth;x++)
 	{
 		for (int y=0;y<screenHeight;y++)
 		{
+
 			rayTo = rayToCenter - 0.5f * hor + 0.5f * vertical;
 			rayTo += x * dHor;
 			rayTo -= y * dVert;
-			rayToTrans.setOrigin(rayTo);
-			for (int s=0;s<numObjects;s++)
+			btVector3	worldNormal(0,0,0);
+			btVector3	worldPoint(0,0,0);
+
+
+
+			bool hasHit = false;
+			int mode = 0;
+			switch (mode)
 			{
-				//do some culling, ray versus aabb
-				btVector3 aabbMin,aabbMax;
-				shapePtr[s]->getAabb(transforms[s],aabbMin,aabbMax);
-				btScalar hitLambda = 1.f;
-				btVector3 hitNormal;
-
-				btCollisionWorld::ClosestRayResultCallback resultCallback(rayFrom,rayTo);
-				btCollisionObject	tmpObj;
-				tmpObj.setWorldTransform(transforms[s]);
-		
-
-				if (btRayAabb(rayFrom,rayTo,aabbMin,aabbMax,hitLambda,hitNormal))
+			case 0:
+				hasHit = lowlevelRaytest(rayFrom,rayTo,worldNormal,worldPoint);
+				break;
+			case 1:
+				hasHit = singleObjectRaytest(rayFrom,rayTo,worldNormal,worldPoint);
+				break;
+			case 2:
+				hasHit = worldRaytest(rayFrom,rayTo,worldNormal,worldPoint);
+				break;
+			default:
 				{
-
-#ifdef USE_WORLD_RAYCAST
-					btCollisionWorld::rayTestSingle(rayFromTrans,rayToTrans,
-					  &tmpObj,
-					  shapePtr[s],
-					  transforms[s],
-					  resultCallback);
-					  if (resultCallback.HasHit())
-					  {
-							//float fog = 1.f - 0.1f * rayResult.m_fraction;
-							resultCallback.m_hitNormalWorld.normalize();//.m_normal.normalize();
-							btVector3 worldNormal = resultCallback.m_hitNormalWorld;
-							
-#else //use USE_WORLD_RAYCAST
-					//reset previous result
-					rayResult.m_fraction = 1.f;
-
-					//choose the continuous collision detection method
-
-					btSubsimplexConvexCast convexCaster(&pointShape,shapePtr[s],&simplexSolver);
-					//btGjkConvexCast convexCaster(&pointShape,shapePtr[0],&simplexSolver);
-					//btContinuousConvexCollision convexCaster(&pointShape,shapePtr[0],&simplexSolver,0);
-					
-					if (convexCaster.calcTimeOfImpact(rayFromTrans,rayToTrans,transforms[s],transforms[s],rayResult))
-						{
-							btVector3 worldNormal;
-							worldNormal = transforms[s].getBasis() *rayResult.m_normal;
-							worldNormal.normalize();
-#endif //	USE_WORLD_RAYCAST
-					
-//					
-					
-
-						
-
-						float lightVec0 = worldNormal.dot(btVector3(0,-1,-1));//0.4f,-1.f,-0.4f));
-						float lightVec1= worldNormal.dot(btVector3(-1,0,-1));//-0.4f,-1.f,-0.4f));
-
-
-						rgba = btVector4(lightVec0,lightVec1,0,1.f);
-						rgba.setMin(btVector3(1,1,1));
-						rgba.setMax(btVector3(0.2,0.2,0.2));
-						rgba[3] = 1.f;
-						raytracePicture->setPixel(x,y,rgba);
-					} else
-					{
-						//clear is already done
-						//rgba = btVector4(0.f,0.f,0.f,0.f);
-						//raytracePicture->setPixel(x,y,rgba);
-					}
-				} else
-				{
-					btVector4 rgba = raytracePicture->getPixel(x,y);
-					if (!rgba.length2())
-					{
-						raytracePicture->setPixel(x,y,btVector4(1,1,1,1));
-					}
 				}
-				
+			}
+
+			if (hasHit)
+			{
+				float lightVec0 = worldNormal.dot(btVector3(0,-1,-1));//0.4f,-1.f,-0.4f));
+				float lightVec1= worldNormal.dot(btVector3(-1,0,-1));//-0.4f,-1.f,-0.4f));
+
+
+				rgba = btVector4(lightVec0,lightVec1,0,1.f);
+				rgba.setMin(btVector3(1,1,1));
+				rgba.setMax(btVector3(0.2,0.2,0.2));
+				rgba[3] = 1.f;
+				raytracePicture->setPixel(x,y,rgba);
+			} else
+				btVector4 rgba = raytracePicture->getPixel(x,y);
+			if (!rgba.length2())
+			{
+				raytracePicture->setPixel(x,y,btVector4(1,1,1,1));
 			}
 		}
 	}
 
-#define TEST_PRINTF
-#ifdef TEST_PRINTF
 
-	
+
+
 	extern BMF_FontData BMF_font_helv10;
-	
+
 	raytracePicture->grapicalPrintf("CCD RAYTRACER",&BMF_font_helv10);
 	char buffer[256];
 	sprintf(buffer,"%d RAYS / Frame",screenWidth*screenHeight*numObjects);
 	raytracePicture->grapicalPrintf(buffer,&BMF_font_helv10,0,10);
-	
-
-#endif //TEST_PRINTF
 
 	glMatrixMode(GL_PROJECTION);
 	glPushMatrix();
@@ -396,14 +522,13 @@ void Raytracer::displayCallback()
 	glPopMatrix();
 	glMatrixMode(GL_MODELVIEW);
 
-#endif //RAYRACER
 
 	glDisable(GL_TEXTURE_2D);
 	glDisable(GL_DEPTH_TEST);
 
 	GL_ShapeDrawer::drawCoordSystem();
 
-	
+
 
 	{
 		for (int i=0;i<numObjects;i++)
@@ -414,14 +539,15 @@ void Raytracer::displayCallback()
 	}
 
 	glPushMatrix();
-	
 
-	
+
+
 
 	glPopMatrix();
 
 	pitch += 0.005f;
 	yaw += 0.01f;
+	m_azi += 1.f;
 
 	glFlush();
 	glutSwapBuffers();
