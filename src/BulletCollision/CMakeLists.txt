@@ -19,6 +19,7 @@ ADD_LIBRARY(LibBulletCollision
 				CollisionDispatch/btDefaultCollisionConfiguration.cpp
 				CollisionDispatch/btSphereSphereCollisionAlgorithm.cpp
 				CollisionDispatch/btSphereBoxCollisionAlgorithm.cpp
+				CollisionDispatch/btConvexPlaneCollisionAlgorithm.cpp
 				CollisionDispatch/btSphereTriangleCollisionAlgorithm.cpp
 				CollisionDispatch/btConvexConvexAlgorithm.cpp
 				CollisionDispatch/btEmptyCollisionAlgorithm.cpp
