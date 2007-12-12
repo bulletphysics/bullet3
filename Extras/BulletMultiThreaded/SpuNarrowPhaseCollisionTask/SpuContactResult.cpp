@@ -31,13 +31,38 @@ SpuContactResult::SpuContactResult()
 	g_manifoldDmaExport.swapBuffers();
 }
 
- void	SpuContactResult::setContactInfo(btPersistentManifold* spuManifold, uint64_t	manifoldAddress,const btTransform& worldTrans0,const btTransform& worldTrans1, bool isSwapped)
+ 	///User can override this material combiner by implementing gContactAddedCallback and setting body0->m_collisionFlags |= btCollisionObject::customMaterialCallback;
+inline btScalar	calculateCombinedFriction(btScalar friction0,btScalar friction1)
+{
+	btScalar friction = friction0*friction1;
+
+	const btScalar MAX_FRICTION  = btScalar(10.);
+
+	if (friction < -MAX_FRICTION)
+		friction = -MAX_FRICTION;
+	if (friction > MAX_FRICTION)
+		friction = MAX_FRICTION;
+	return friction;
+
+}
+
+inline btScalar	calculateCombinedRestitution(btScalar restitution0,btScalar restitution1)
+{
+	return restitution0*restitution1;
+}
+
+
+
+ void	SpuContactResult::setContactInfo(btPersistentManifold* spuManifold, uint64_t	manifoldAddress,const btTransform& worldTrans0,const btTransform& worldTrans1, btScalar restitution0,btScalar restitution1, btScalar friction0,btScalar friction1, bool isSwapped)
  {
 	//spu_printf("SpuContactResult::setContactInfo ManifoldAddress: %lu\n", manifoldAddress);
 	m_rootWorldTransform0 = worldTrans0;
 	m_rootWorldTransform1 = worldTrans1;
 	m_manifoldAddress = manifoldAddress;    
 	m_spuManifold = spuManifold;
+
+	m_combinedFriction = calculateCombinedFriction(friction0,friction1);
+	m_combinedRestitution = calculateCombinedRestitution(restitution0,restitution1);
 	m_isSwapped = isSwapped;
  }
 
@@ -55,6 +80,8 @@ bool ManifoldResultAddContactPoint(const btVector3& normalOnBInWorld,
 								   btPersistentManifold* manifoldPtr,
 								   btTransform& transA,
 								   btTransform& transB,
+									btScalar	combinedFriction,
+									btScalar	combinedRestitution,
 								   bool isSwapped)
 {
 	
@@ -109,8 +136,8 @@ bool ManifoldResultAddContactPoint(const btVector3& normalOnBInWorld,
 	} else
 	{
 
-		newPt.m_combinedFriction = 0.25f;//calculateCombinedFriction(m_body0,m_body1);
-		newPt.m_combinedRestitution = 0.0f;//calculateCombinedRestitution(m_body0,m_body1);
+		newPt.m_combinedFriction = combinedFriction;
+		newPt.m_combinedRestitution = combinedRestitution;
 
 		/*
 		//potential TODO: SPU callbacks, either immediate (local on the SPU), or deferred
@@ -165,6 +192,8 @@ void SpuContactResult::addContactPoint(const btVector3& normalOnBInWorld,const b
 		localManifold,
 		m_rootWorldTransform0,
 		m_rootWorldTransform1,
+		m_combinedFriction,
+		m_combinedRestitution,
 		m_isSwapped);
 	m_RequiresWriteBack = m_RequiresWriteBack || retVal;
 }

@@ -1062,15 +1062,14 @@ void processSolverTask(void* userPtr, void* lsMemory)
 									};
 
 									btScalar penVel = -constraint.m_penetration/taskDesc.m_commandData.m_manifoldSetup.m_solverInfo.m_timeStep;
-									if (rest > penVel)
-									{
-										rest = btScalar(0.);
-									}
-									constraint.m_restitution = rest;
-
 									constraint.m_penetration *= 
 										-(taskDesc.m_commandData.m_manifoldSetup.m_solverInfo.m_erp/taskDesc.m_commandData.m_manifoldSetup.m_solverInfo.m_timeStep);
-
+								
+									if (rest > penVel)
+									{
+										constraint.m_penetration = btScalar(0.);
+									}
+									constraint.m_restitution = rest;
 									constraint.m_appliedImpulse = 0.f;
 
 

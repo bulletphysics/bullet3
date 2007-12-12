@@ -932,7 +932,11 @@ void	ProcessSpuConvexConvexCollision(SpuCollisionPairInput* wuInput, CollisionTa
 #endif
 		btPersistentManifold* spuManifold=&lsMemPtr->gPersistentManifold;
 		//spuContacts.setContactInfo(spuManifold,manifoldAddress,wuInput->m_worldTransform0,wuInput->m_worldTransform1,wuInput->m_isSwapped);
-		spuContacts.setContactInfo(spuManifold,manifoldAddress,lsMemPtr->getColObj0()->getWorldTransform(),lsMemPtr->getColObj1()->getWorldTransform(),wuInput->m_isSwapped);
+		spuContacts.setContactInfo(spuManifold,manifoldAddress,lsMemPtr->getColObj0()->getWorldTransform(),
+			lsMemPtr->getColObj1()->getWorldTransform(),
+			lsMemPtr->getColObj0()->getRestitution(),lsMemPtr->getColObj1()->getRestitution(),
+			lsMemPtr->getColObj0()->getFriction(),lsMemPtr->getColObj1()->getFriction(),
+			wuInput->m_isSwapped);
 
 		SpuGjkPairDetector gjk(shape0Ptr,shape1Ptr,shapeType0,shapeType1,marginA,marginB,&vsSolver,&penetrationSolver);
 		gjk.getClosestPoints(cpInput,spuContacts);//,debugDraw);
