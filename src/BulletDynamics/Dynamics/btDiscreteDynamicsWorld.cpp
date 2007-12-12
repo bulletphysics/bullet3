@@ -196,6 +196,21 @@ void	btDiscreteDynamicsWorld::debugDrawWorld()
 	}
 }
 
+void	btDiscreteDynamicsWorld::clearForces()
+{
+	//todo: iterate over awake simulation islands!
+	for ( int i=0;i<m_collisionObjects.size();i++)
+	{
+		btCollisionObject* colObj = m_collisionObjects[i];
+		
+		btRigidBody* body = btRigidBody::upcast(colObj);
+		if (body)
+		{
+			body->clearForces();
+		}
+	}
+}	
+
 void	btDiscreteDynamicsWorld::synchronizeMotionStates()
 {
 	{
@@ -292,8 +307,10 @@ int	btDiscreteDynamicsWorld::stepSimulation( btScalar timeStep,int maxSubSteps, 
 
 	synchronizeMotionStates();
 
-	CProfileManager::Increment_Frame_Counter();
+	clearForces();
 
+	CProfileManager::Increment_Frame_Counter();
+	
 	return numSimulationSubSteps;
 }
 

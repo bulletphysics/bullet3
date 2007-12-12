@@ -290,7 +290,6 @@ void btRigidBody::integrateVelocities(btScalar step)
 		m_angularVelocity *= (MAX_ANGVEL/step) /angvel;
 	}
 
-	clearForces();
 }
 
 btQuaternion btRigidBody::getOrientation() const

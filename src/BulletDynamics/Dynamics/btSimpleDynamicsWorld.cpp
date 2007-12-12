@@ -85,9 +85,26 @@ int		btSimpleDynamicsWorld::stepSimulation( btScalar timeStep,int maxSubSteps, b
 
 	synchronizeMotionStates();
 
+	clearForces();
+
 	return 1;
 
 }
+
+void	btSimpleDynamicsWorld::clearForces()
+{
+	//todo: iterate over awake simulation islands!
+	for ( int i=0;i<m_collisionObjects.size();i++)
+	{
+		btCollisionObject* colObj = m_collisionObjects[i];
+		
+		btRigidBody* body = btRigidBody::upcast(colObj);
+		if (body)
+		{
+			body->clearForces();
+		}
+	}
+}	
 
 
 void	btSimpleDynamicsWorld::setGravity(const btVector3& gravity)

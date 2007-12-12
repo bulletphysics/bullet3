@@ -78,6 +78,9 @@ class btDynamicsWorld : public btCollisionWorld
 
 		virtual btDynamicsWorldType	getWorldType() const=0;
 
+		virtual void	clearForces() = 0;
+
+
 };
 
 #endif //BT_DYNAMICS_WORLD_H

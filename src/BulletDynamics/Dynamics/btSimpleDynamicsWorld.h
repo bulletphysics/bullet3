@@ -69,6 +69,8 @@ public:
 		return BT_SIMPLE_DYNAMICS_WORLD;
 	}
 
+	virtual void	clearForces();
+
 };
 
 #endif //BT_SIMPLE_DYNAMICS_WORLD_H

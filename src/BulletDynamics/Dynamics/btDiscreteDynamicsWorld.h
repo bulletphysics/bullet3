@@ -149,6 +149,9 @@ public:
 		return BT_DISCRETE_DYNAMICS_WORLD;
 	}
 
+	
+	virtual void	clearForces();
+
 
 };
 
