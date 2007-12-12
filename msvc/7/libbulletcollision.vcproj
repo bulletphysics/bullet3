@@ -334,6 +334,9 @@
 				RelativePath="..\..\src\BulletCollision\CollisionDispatch\btConvexConvexAlgorithm.cpp">
 			</File>
 			<File
+				RelativePath="..\..\src\BulletCollision\CollisionDispatch\btConvexPlaneCollisionAlgorithm.cpp">
+			</File>
+			<File
 				RelativePath="..\..\src\BulletCollision\CollisionDispatch\btDefaultCollisionConfiguration.cpp">
 			</File>
 			<File
@@ -531,6 +534,9 @@
 			</File>
 			<File
 				RelativePath="..\..\src\BulletCollision\CollisionDispatch\btConvexConvexAlgorithm.h">
+			</File>
+			<File
+				RelativePath="..\..\src\BulletCollision\CollisionDispatch\btConvexPlaneCollisionAlgorithm.h">
 			</File>
 			<File
 				RelativePath="..\..\src\BulletCollision\CollisionDispatch\btDefaultCollisionConfiguration.h">

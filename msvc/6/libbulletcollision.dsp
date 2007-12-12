@@ -224,6 +224,10 @@ SOURCE=..\..\src\BulletCollision\CollisionDispatch\btConvexConvexAlgorithm.cpp
 # End Source File
 # Begin Source File
 
+SOURCE=..\..\src\BulletCollision\CollisionDispatch\btConvexPlaneCollisionAlgorithm.cpp
+# End Source File
+# Begin Source File
+
 SOURCE=..\..\src\BulletCollision\CollisionDispatch\btDefaultCollisionConfiguration.cpp
 # End Source File
 # Begin Source File
@@ -485,6 +489,10 @@ SOURCE=..\..\src\BulletCollision\CollisionDispatch\btConvexConcaveCollisionAlgor
 # Begin Source File
 
 SOURCE=..\..\src\BulletCollision\CollisionDispatch\btConvexConvexAlgorithm.h
+# End Source File
+# Begin Source File
+
+SOURCE=..\..\src\BulletCollision\CollisionDispatch\btConvexPlaneCollisionAlgorithm.h
 # End Source File
 # Begin Source File
 
