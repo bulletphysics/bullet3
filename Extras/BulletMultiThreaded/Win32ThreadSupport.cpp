@@ -46,7 +46,7 @@ Win32ThreadSupport::~Win32ThreadSupport()
 DWORD WINAPI Thread_no_1( LPVOID lpParam ) 
 {
 
-	btSpuStatus* status = (btSpuStatus*)lpParam;
+	Win32ThreadSupport::btSpuStatus* status = (Win32ThreadSupport::btSpuStatus*)lpParam;
 
 	
 	while (1)

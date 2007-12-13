@@ -120,7 +120,7 @@ public:
 	
 	void	updateSuspension(btScalar deltaTime);
 
-	void	updateFriction(btScalar	timeStep);
+	virtual void	updateFriction(btScalar	timeStep);
 
 
 

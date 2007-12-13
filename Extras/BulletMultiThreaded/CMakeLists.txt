@@ -1,0 +1,53 @@
+INCLUDE_DIRECTORIES(
+${BULLET_PHYSICS_SOURCE_DIR}/Extras/BulletMultiThreaded/
+${BULLET_PHYSICS_SOURCE_DIR}/src
+)
+
+ADD_LIBRARY(LibBulletMultiThreaded
+		PlatformDefinitions.h
+		SpuFakeDma.cpp
+		SpuFakeDma.h
+		SpuSync.h
+		SpuDoubleBuffer.h
+		SpuLibspe2Support.cpp
+		SpuLibspe2Support.h
+		btThreadSupportInterface.cpp
+		btThreadSupportInterface.h
+		
+		Win32ThreadSupport.cpp
+		Win32ThreadSupport.h
+		SequentialThreadSupport.cpp
+		SequentialThreadSupport.h
+		SpuSampleTaskProcess.h
+		SpuSampleTaskProcess.cpp
+
+		SpuCollisionTaskProcess.h
+		SpuCollisionTaskProcess.cpp
+		SpuGatheringCollisionDispatcher.h
+		SpuGatheringCollisionDispatcher.cpp
+		SpuContactManifoldCollisionAlgorithm.cpp
+		SpuContactManifoldCollisionAlgorithm.h
+		SpuNarrowPhaseCollisionTask/SpuContactResult.cpp
+		SpuNarrowPhaseCollisionTask/SpuContactResult.h
+		SpuNarrowPhaseCollisionTask/SpuMinkowskiPenetrationDepthSolver.cpp
+		SpuNarrowPhaseCollisionTask/SpuMinkowskiPenetrationDepthSolver.h
+		SpuNarrowPhaseCollisionTask/SpuConvexPenetrationDepthSolver.h
+		SpuNarrowPhaseCollisionTask/SpuPreferredPenetrationDirections.h
+		SpuNarrowPhaseCollisionTask/SpuGatheringCollisionTask.cpp
+		SpuNarrowPhaseCollisionTask/SpuGatheringCollisionTask.h
+		SpuNarrowPhaseCollisionTask/SpuVoronoiSimplexSolver.cpp
+		SpuNarrowPhaseCollisionTask/SpuVoronoiSimplexSolver.h
+		SpuNarrowPhaseCollisionTask/SpuGjkPairDetector.cpp
+		SpuNarrowPhaseCollisionTask/SpuGjkPairDetector.h
+		SpuNarrowPhaseCollisionTask/SpuLocalSupport.h
+
+		SpuParallelSolver.cpp
+		SpuParallelSolver.h
+		SpuSolverTask/SpuParallellSolverTask.cpp
+		SpuSolverTask/SpuParallellSolverTask.h
+
+#		SpuRaycastTaskProcess.cpp
+#		SpuRaycastTaskProcess.h
+#		SpuRaycastTask/SpuRaycastTask.cpp
+#		SpuRaycastTask/SpuRaycastTask.h
+)

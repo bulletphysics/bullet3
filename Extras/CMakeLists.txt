@@ -1,1 +1,1 @@
-SUBDIRS( BulletColladaConverter LibXML COLLADA_DOM GIMPACT )
+SUBDIRS( BulletMultiThreaded BulletColladaConverter LibXML COLLADA_DOM GIMPACT )

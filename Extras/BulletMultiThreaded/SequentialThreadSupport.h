@@ -16,106 +16,69 @@ subject to the following restrictions:
 #include "LinearMath/btScalar.h"
 #include "PlatformDefinitions.h"
 
-#ifdef USE_WIN32_THREADING  //platform specific defines are defined in PlatformDefinitions.h
 
-#ifndef WIN32_THREAD_SUPPORT_H
-#define WIN32_THREAD_SUPPORT_H
+#ifndef SEQUENTIAL_THREAD_SUPPORT_H
+#define SEQUENTIAL_THREAD_SUPPORT_H
 
 #include "LinearMath/btAlignedObjectArray.h"
 
 #include "btThreadSupportInterface.h"
 
-
-typedef void (*Win32ThreadFunc)(void* userPtr,void* lsMemory);
-typedef void* (*Win32lsMemorySetupFunc)();
-
+typedef void (*SequentialThreadFunc)(void* userPtr,void* lsMemory);
+typedef void* (*SequentiallsMemorySetupFunc)();
 
 
 
-
-
-///Win32ThreadSupport helps to initialize/shutdown libspe2, start/stop SPU tasks and communication
-class Win32ThreadSupport : public btThreadSupportInterface 
+///SequentialThreadSupport is a portable non-parallel implementation of the btThreadSupportInterface
+class SequentialThreadSupport : public btThreadSupportInterface 
 {
 public:
-	///placeholder, until libspe2 support is there
 	struct	btSpuStatus
 	{
 		uint32_t	m_taskId;
 		uint32_t	m_commandId;
 		uint32_t	m_status;
 
-		Win32ThreadFunc	m_userThreadFunc;
+		SequentialThreadFunc	m_userThreadFunc;
+
 		void*	m_userPtr; //for taskDesc etc
-		void*	m_lsMemory; //initialized using Win32LocalStoreMemorySetupFunc
-
-		void*	m_threadHandle; //this one is calling 'Win32ThreadFunc'
-
-		void*	m_eventStartHandle;
-		char	m_eventStartHandleName[32];
-
-		void*	m_eventCompletetHandle;
-		char	m_eventCompletetHandleName[32];
-		
-
+		void*	m_lsMemory; //initialized using SequentiallsMemorySetupFunc
 	};
 private:
-
 	btAlignedObjectArray<btSpuStatus>	m_activeSpuStatus;
-	btAlignedObjectArray<void*>			m_completeHandles;
-	
+	btAlignedObjectArray<void*>			m_completeHandles;	
 public:
-	///Setup and initialize SPU/CELL/Libspe2
-
-	
-
-	struct	Win32ThreadConstructionInfo
+	struct	SequentialThreadConstructionInfo
 	{
-		Win32ThreadConstructionInfo(char* uniqueName,
-									Win32ThreadFunc userThreadFunc,
-									Win32lsMemorySetupFunc	lsMemoryFunc,
-									int numThreads=1,
-									int threadStackSize=65535
+		SequentialThreadConstructionInfo (char* uniqueName,
+									SequentialThreadFunc userThreadFunc,
+									SequentiallsMemorySetupFunc	lsMemoryFunc
 									)
 									:m_uniqueName(uniqueName),
 									m_userThreadFunc(userThreadFunc),
-									m_lsMemoryFunc(lsMemoryFunc),
-									m_numThreads(numThreads),
-									m_threadStackSize(threadStackSize)
+									m_lsMemoryFunc(lsMemoryFunc)
 		{
 
 		}
 
-		char*					m_uniqueName;
-		Win32ThreadFunc			m_userThreadFunc;
-		Win32lsMemorySetupFunc	m_lsMemoryFunc;
-		int						m_numThreads;
-		int						m_threadStackSize;
-
+		char*						m_uniqueName;
+		SequentialThreadFunc		m_userThreadFunc;
+		SequentiallsMemorySetupFunc	m_lsMemoryFunc;
 	};
 
-	Win32ThreadSupport(Win32ThreadConstructionInfo& threadConstructionInfo);
-
-///cleanup/shutdown Libspe2
-	virtual	~Win32ThreadSupport();
-
-	void	startThreads(Win32ThreadConstructionInfo&	threadInfo);
-
-
+	SequentialThreadSupport(SequentialThreadConstructionInfo& threadConstructionInfo);
+	virtual	~SequentialThreadSupport();
+	void	startThreads(SequentialThreadConstructionInfo&	threadInfo);
 ///send messages to SPUs
 	virtual	void sendRequest(uint32_t uiCommand, uint32_t uiArgument0, uint32_t uiArgument1);
-
 ///check for messages from SPUs
 	virtual	void waitForResponse(unsigned int *puiArgument0, unsigned int *puiArgument1);
-
 ///start the spus (can be called at the beginning of each frame, to make sure that the right SPU program is loaded)
 	virtual	void startSPU();
-
 ///tell the task scheduler we are done with the SPU tasks
 	virtual	void stopSPU();
 
 };
 
-#endif //WIN32_THREAD_SUPPORT_H
+#endif //SEQUENTIAL_THREAD_SUPPORT_H
 
-#endif //USE_WIN32_THREADING
