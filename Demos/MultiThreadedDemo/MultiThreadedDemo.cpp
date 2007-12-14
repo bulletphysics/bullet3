@@ -26,7 +26,7 @@ subject to the following restrictions:
 //#define CENTER_OF_MASS_SHIFT 1
 //#define VERBOSE_TIMESTEPPING_CONSOLEOUTPUT 1
 
-#define USE_PARALLEL_SOLVER 1 //experimental parallel solver
+//#define USE_PARALLEL_SOLVER 1 //experimental parallel solver
 #define USE_PARALLEL_DISPATCHER 1
 
 //following define allows to compare/replace Bullet's constraint solver with ODE quickstep
@@ -81,8 +81,6 @@ subject to the following restrictions:
 
 #include "GlutStuff.h"
 
-btTransform comOffset;
-btVector3 comOffsetVec(0,2,0);
 
 extern float eye[3];
 extern int glutScreenWidth;
@@ -91,12 +89,6 @@ extern int glutScreenHeight;
 const int maxProxies = 32766;
 const int maxOverlap = 65535;
 
-bool createConstraint = true;//false;
-#ifdef CENTER_OF_MASS_SHIFT
-bool useCompound = true;
-#else
-bool useCompound = false;
-#endif
 
 
 
@@ -109,7 +101,7 @@ const int gNumObjects = 120;//try this in release mode: 3000. never go above 163
 
 const int maxNumObjects = 32760;
 
-int	shapeIndex[maxNumObjects];
+static int	shapeIndex[maxNumObjects];
 
 
 #define CUBE_HALF_EXTENTS 0.5
@@ -152,44 +144,6 @@ void MultiThreadedDemo::createStack( btCollisionShape* boxShape, float halfCubeS
 
 
 ////////////////////////////////////
-
-
-
-//by default, Bullet will use its own nearcallback, but you can override it using dispatcher->setNearCallback()
-void customNearCallback(btBroadphasePair& collisionPair, btCollisionDispatcher& dispatcher, btDispatcherInfo& dispatchInfo)
-{
-		btCollisionObject* colObj0 = (btCollisionObject*)collisionPair.m_pProxy0->m_clientObject;
-		btCollisionObject* colObj1 = (btCollisionObject*)collisionPair.m_pProxy1->m_clientObject;
-
-		if (dispatcher.needsCollision(colObj0,colObj1))
-		{
-			//dispatcher will keep algorithms persistent in the collision pair
-			if (!collisionPair.m_algorithm)
-			{
-				collisionPair.m_algorithm = dispatcher.findAlgorithm(colObj0,colObj1);
-			}
-
-			if (collisionPair.m_algorithm)
-			{
-				btManifoldResult contactPointResult(colObj0,colObj1);
-				
-				if (dispatchInfo.m_dispatchFunc == 		btDispatcherInfo::DISPATCH_DISCRETE)
-				{
-					//discrete collision detection query
-					collisionPair.m_algorithm->processCollision(colObj0,colObj1,dispatchInfo,&contactPointResult);
-				} else
-				{
-					//continuous collision detection query, time of impact (toi)
-					float toi = collisionPair.m_algorithm->calculateTimeOfImpact(colObj0,colObj1,dispatchInfo,&contactPointResult);
-					if (dispatchInfo.m_timeOfImpact > toi)
-						dispatchInfo.m_timeOfImpact = toi;
-
-				}
-			}
-		}
-
-}
-
 
 
 
@@ -317,13 +271,6 @@ void MultiThreadedDemo::displayCallback(void) {
 
 
 
-
-///User-defined friction model, the most simple friction model available: no friction
-float myFrictionModel(	btRigidBody& body1,	btRigidBody& body2,	btManifoldPoint& contactPoint,	const btContactSolverInfo& solverInfo	)
-{
-	//don't do any friction
-	return 0.f;
-}
 
 void	MultiThreadedDemo::initPhysics()
 {
@@ -492,91 +439,6 @@ int maxNumOutstandingTasks = 4;
 		else
 			shapeIndex[i] = 0;
 	}
-
-	if (useCompound)
-	{
-		btCompoundShape* compoundShape = new btCompoundShape();
-		btCollisionShape* oldShape = m_collisionShapes[1];
-		m_collisionShapes[1] = compoundShape;
-		btVector3 sphereOffset(0,0,2);
-
-		comOffset.setIdentity();
-
-#ifdef CENTER_OF_MASS_SHIFT
-		comOffset.setOrigin(comOffsetVec);
-		compoundShape->addChildShape(comOffset,oldShape);
-
-#else
-		compoundShape->addChildShape(tr,oldShape);
-		tr.setOrigin(sphereOffset);
-		compoundShape->addChildShape(tr,new btSphereShape(0.9));
-#endif
-	}
-
-#ifdef DO_WALL
-
-	for (i=0;i<gNumObjects;i++)
-	{
-		btCollisionShape* shape = m_collisionShapes[shapeIndex[i]];
-		shape->setMargin(gCollisionMargin);
-
-		bool isDyna = i>0;
-
-		btTransform trans;
-		trans.setIdentity();
-		
-		if (i>0)
-		{
-			//stack them
-			int colsize = 10;
-			int row = (i*CUBE_HALF_EXTENTS*2)/(colsize*2*CUBE_HALF_EXTENTS);
-			int row2 = row;
-			int col = (i)%(colsize)-colsize/2;
-
-
-			if (col>3)
-			{
-				col=11;
-				row2 |=1;
-			}
-
-			btVector3 pos(col*2*CUBE_HALF_EXTENTS + (row2%2)*CUBE_HALF_EXTENTS,
-				row*2*CUBE_HALF_EXTENTS+CUBE_HALF_EXTENTS+EXTRA_HEIGHT,0);
-
-			trans.setOrigin(pos);
-		} else
-		{
-			trans.setOrigin(btVector3(0,EXTRA_HEIGHT-CUBE_HALF_EXTENTS,0));
-		}
-
-		float mass = 1.f;
-
-		if (!isDyna)
-			mass = 0.f;
-	
-		btRigidBody* body = localCreateRigidBody(mass,trans,shape);
-#ifdef USE_KINEMATIC_GROUND
-		if (mass == 0.f)
-		{
-			body->setCollisionFlags( body->getCollisionFlags() | btCollisionObject::CF_KINEMATIC_OBJECT);
-			body->setActivationState(DISABLE_DEACTIVATION);
-		}
-#endif //USE_KINEMATIC_GROUND
-		
-		
-		// Only do CCD if  motion in one timestep (1.f/60.f) exceeds CUBE_HALF_EXTENTS
-		body->setCcdSquareMotionThreshold( CUBE_HALF_EXTENTS );
-		
-		//Experimental: better estimation of CCD Time of Impact:
-		body->setCcdSweptSphereRadius( 0.2*CUBE_HALF_EXTENTS );
-
-#ifdef USER_DEFINED_FRICTION_MODEL	
-		///Advanced use: override the friction solver
-		body->m_frictionSolverType = USER_CONTACT_SOLVER_TYPE1;
-#endif //USER_DEFINED_FRICTION_MODEL
-
-	}
-#endif
 
 
 #ifdef DO_BENCHMARK_PYRAMIDS

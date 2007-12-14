@@ -25,6 +25,7 @@ subject to the following restrictions:
 #include "../DynamicControlDemo/MotorDemo.h"
 #include "../RagdollDemo/RagdollDemo.h"
 #include "../GimpactTestDemo/GimpactTestDemo.h"
+#include "../MultiThreadedDemo/MultiThreadedDemo.h"
 #include "../Raytracer/Raytracer.h"
 #include "../GjkConvexCastDemo/LinearConvexCastDemo.h"
 #include "../VehicleDemo/VehicleDemo.h"
@@ -106,6 +107,7 @@ btDemoEntry g_demoEntries[] =
 	{"BasicDemo", BasicDemo::Create},
 	{"BspDemo", BspDemo::Create},
 	{"Gimpact Test", GimpactConcaveDemo::Create},
+	{"MultiThreaded", MultiThreadedDemo::Create},
 	{"Raytracer Test",Raytracer::Create},
 	{"GjkConvexCast",LinearConvexCastDemo::Create},
 	{"VehicleDemo",VehicleDemo::Create},
