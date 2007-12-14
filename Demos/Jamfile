@@ -35,7 +35,7 @@ if $(GLUT.AVAILABLE) = "yes"
   rule FrameWorkDemo
   {
     Application $(<) : $(>) : noinstall console nomanifest ;
-    LinkWith $(<) :  GIMPACTUtils  GIMPACT  bulletopenglsupport convexdecomposition bulletdynamics bulletcollision bulletmath glui ;
+    LinkWith $(<) :  GIMPACTUtils  GIMPACT  bulletopenglsupport bulletmultithreaded convexdecomposition bulletdynamics bulletcollision bulletmath glui ;
     CFlags $(<) :
           [ FIncludes $(TOP)/Extras ]
          [ FIncludes $(TOP)/Demos/OpenGL ]
@@ -58,6 +58,7 @@ if $(GLUT.AVAILABLE) = "yes"
 SubInclude TOP Demos AllBulletDemos ;
 SubInclude TOP Demos CcdPhysicsDemo ;
 SubInclude TOP Demos UserCollisionAlgorithm ;
+SubInclude TOP Demos MultiThreadedDemo ;
 #SubInclude TOP Demos ForkLiftDemo ;
 SubInclude TOP Demos BulletDinoDemo ;
 SubInclude TOP Demos EPAPenDepthDemo ;

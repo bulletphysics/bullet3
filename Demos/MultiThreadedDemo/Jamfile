@@ -1,0 +1,3 @@
+SubDir TOP Demos MultiThreadedDemo ;
+
+FrameWorkDemo MultiThreadedDemo : [ Wildcard *.h *.cpp  ] ;

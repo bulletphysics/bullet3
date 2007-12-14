@@ -171,14 +171,9 @@ struct	CollisionTask_LocalStoreMemory
 
 
 
-#ifdef WIN32
-void* createCollisionLocalStoreMemory()
-{
-	return new CollisionTask_LocalStoreMemory;
-};
 
 
-#elif defined(__CELLOS_LV2__) || defined(USE_LIBSPE2) 
+#if defined(__CELLOS_LV2__) || defined(USE_LIBSPE2) 
 
 ATTRIBUTE_ALIGNED16(CollisionTask_LocalStoreMemory	gLocalStoreMemory);
 
@@ -186,6 +181,12 @@ void* createCollisionLocalStoreMemory()
 {
 	return &gLocalStoreMemory;
 }
+#else
+void* createCollisionLocalStoreMemory()
+{
+        return new CollisionTask_LocalStoreMemory;
+};
+
 #endif
 
 

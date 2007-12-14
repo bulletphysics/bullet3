@@ -55,14 +55,8 @@ struct SolverTask_LocalStoreMemory
 };
 
 
-#ifdef WIN32
-void* createSolverLocalStoreMemory()
-{
-	return new SolverTask_LocalStoreMemory;
-};
 
-
-#elif defined(__CELLOS_LV2__)
+#if defined(__CELLOS_LV2__) || defined (LIBSPE2)
 
 ATTRIBUTE_ALIGNED16(SolverTask_LocalStoreMemory	gLocalStoreMemory);
 
@@ -70,6 +64,12 @@ void* createSolverLocalStoreMemory()
 {
 	return &gLocalStoreMemory;
 }
+#else
+void* createSolverLocalStoreMemory()
+{
+        return new SolverTask_LocalStoreMemory;
+};
+
 #endif
 
 
