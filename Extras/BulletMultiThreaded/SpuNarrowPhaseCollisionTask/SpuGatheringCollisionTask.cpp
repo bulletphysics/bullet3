@@ -85,7 +85,8 @@ int g_CacheHits=0;
 #include <LibSN_SPU.h>
 #endif //USE_SN_TUNER
 
-#ifdef WIN32
+#if defined (__CELLOS_LV2__) || defined (USE_LIBSPE2)
+#else
 #define IGNORE_ALIGNMENT 1
 #define spu_printf printf
 #include <stdio.h>

@@ -260,7 +260,7 @@ void DemoApplication::keyboardCallback(unsigned char key, int x, int y)
 		//return from glutMainLoop(), detect memory leaks etc.
 		glutLeaveMainLoop();
 #else
-		exit();
+		exit(0);
 #endif
 		break;
 

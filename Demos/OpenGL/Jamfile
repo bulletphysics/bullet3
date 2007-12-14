@@ -12,7 +12,7 @@ if $(GLUT.AVAILABLE) = "yes"
 CFlags bulletopenglsupport :
 ;
 
-LibDepends bulletopenglsupport : bulletdynamics   ;
+LibDepends bulletopenglsupport : bulletdynamics  ;
 
   ExternalLibs bulletopenglsupport : GLUT ;
 }

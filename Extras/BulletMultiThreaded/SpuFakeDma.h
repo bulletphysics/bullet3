@@ -15,23 +15,6 @@
 #define DMA_TAG(xfer) (xfer + 1)
 #define DMA_MASK(xfer) (1 << DMA_TAG(xfer))
 
-
-#else
-#ifdef WIN32
-
-#define DMA_TAG(a) (a)
-#define DMA_MASK(a) (a)
-
-
-		/// cellDmaLargeGet Win32 replacements for Cell DMA to allow simulating most of the SPU code (just memcpy)
-		int	cellDmaLargeGet(void *ls, uint64_t ea, uint32_t size, uint32_t tag, uint32_t tid, uint32_t rid);
-		int	cellDmaGet(void *ls, uint64_t ea, uint32_t size, uint32_t tag, uint32_t tid, uint32_t rid);
-		/// cellDmaLargePut Win32 replacements for Cell DMA to allow simulating most of the SPU code (just memcpy)
-		int cellDmaLargePut(const void *ls, uint64_t ea, uint32_t size, uint32_t tag, uint32_t tid, uint32_t rid);
-		/// cellDmaWaitTagStatusAll Win32 replacements for Cell DMA to allow simulating most of the SPU code (just memcpy)
-		void	cellDmaWaitTagStatusAll(int ignore);
-
-
 #elif defined(USE_LIBSPE2)
 
 #define DMA_TAG(xfer) (xfer + 1)
@@ -109,9 +92,21 @@
 		
 		
 		
-		
-		
-#endif // WIN32
+#else
+//Simulate DMA using memcpy or direct access on non-CELL platforms that don't have DMAs and SPUs (Win32, Mac, Linux etc)
+//Potential to add networked simulation using this interface
+
+#define DMA_TAG(a) (a)
+#define DMA_MASK(a) (a)
+
+		/// cellDmaLargeGet Win32 replacements for Cell DMA to allow simulating most of the SPU code (just memcpy)
+		int	cellDmaLargeGet(void *ls, uint64_t ea, uint32_t size, uint32_t tag, uint32_t tid, uint32_t rid);
+		int	cellDmaGet(void *ls, uint64_t ea, uint32_t size, uint32_t tag, uint32_t tid, uint32_t rid);
+		/// cellDmaLargePut Win32 replacements for Cell DMA to allow simulating most of the SPU code (just memcpy)
+		int cellDmaLargePut(const void *ls, uint64_t ea, uint32_t size, uint32_t tag, uint32_t tid, uint32_t rid);
+		/// cellDmaWaitTagStatusAll Win32 replacements for Cell DMA to allow simulating most of the SPU code (just memcpy)
+		void	cellDmaWaitTagStatusAll(int ignore);
+
 
 #endif //__CELLOS_LV2__
 

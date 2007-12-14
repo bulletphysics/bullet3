@@ -106,6 +106,34 @@ private:
 	ATTRIBUTE_ALIGNED128(uint32_t		atomic_buf[32]);
 };
 
+#else
+//create a dummy implementation (without any locking) useful for serial processing
+class btSpinlock
+{
+public:
+	typedef int  SpinVariable;
+
+	btSpinlock (SpinVariable* var)
+		: spinVariable (var)
+	{}
+
+	void Init ()
+	{
+	}
+
+	void Lock ()
+	{
+	}
+
+	void Unlock ()
+	{
+	}
+
+private:
+	SpinVariable* spinVariable;
+};
+
+
 #endif
 
 

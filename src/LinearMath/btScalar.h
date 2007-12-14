@@ -111,6 +111,8 @@ inline int	btGetVersion()
 		#define btAssert assert
 		//btFullAssert is optional, slows down a lot
 		#define btFullAssert(x)
+		#define btLikely(_c)  _c
+		#define btUnlikely(_c) _c
 
 
 #endif // LIBSPE2

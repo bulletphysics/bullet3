@@ -4,26 +4,31 @@
 //Disabling memcpy sometimes helps debugging DMA
 
 #define USE_MEMCPY 1
+#ifdef USE_MEMCPY
+
+#endif
+
 
 void*	cellDmaLargeGetReadOnly(void *ls, uint64_t ea, uint32_t size, uint32_t tag, uint32_t tid, uint32_t rid)
 {
-#if defined (WIN32) || defined (__PPU__)
-	return (void*)(uint32_t)ea;
-#else
+
+#if defined (__CELLOS_LV2__) || defined (USE_LIBSPE2)
 	cellDmaLargeGet(ls,ea,size,tag,tid,rid);
 	return ls;
-#endif //WIN32
+#else
+	return (void*)(uint32_t)ea;
+#endif
 }
 
 
 void*	cellDmaGetReadOnly(void *ls, uint64_t ea, uint32_t size, uint32_t tag, uint32_t tid, uint32_t rid)
 {
-#if defined (WIN32) || defined (__PPU__)
-	return (void*)(uint32_t)ea;
-#else
+#if defined (__CELLOS_LV2__) || defined (USE_LIBSPE2)
 	cellDmaGet(ls,ea,size,tag,tid,rid);
 	return ls;
-#endif //WIN32
+#else
+	return (void*)(uint32_t)ea;
+#endif
 }
 
 
@@ -43,8 +48,10 @@ int stallingUnalignedDmaSmallGet(void *ls, uint64_t ea, uint32_t size)
 	///make sure last 4 bits are the same, for cellDmaSmallGet
 	uint32_t last4BitsOffset = ea & 0x0f;
 	char* tmpTarget = tmpBuffer + last4BitsOffset;
-#ifdef WIN32
-
+#if defined (__CELLOS_LV2__) || defined (USE_LIBSPE2)
+	mfc_get(tmpTarget,ea,size,DMA_TAG(1),0,0);
+#else
+	//copy into final destination
 #ifdef USE_MEMCPY
 		memcpy(tmpTarget,mainMem,size);
 #else
@@ -53,10 +60,8 @@ int stallingUnalignedDmaSmallGet(void *ls, uint64_t ea, uint32_t size)
 			tmpTarget[i] = mainMem[i];
 		}
 #endif //USE_MEMCPY
-#else
-	mfc_get(tmpTarget,ea,size,DMA_TAG(1),0,0);
-	//copy into final destination
-#endif //WIN32
+
+#endif
 
 	cellDmaWaitTagStatusAll(DMA_MASK(1));
 
@@ -69,8 +74,8 @@ int stallingUnalignedDmaSmallGet(void *ls, uint64_t ea, uint32_t size)
 	return 0;
 }
 
-
-#ifdef WIN32
+#if defined (__CELLOS_LV2__) || defined (USE_LIBSPE2)
+#else
 
 int	cellDmaLargeGet(void *ls, uint64_t ea, uint32_t size, uint32_t tag, uint32_t tid, uint32_t rid)
 {
@@ -126,4 +131,4 @@ void	cellDmaWaitTagStatusAll(int ignore)
 
 }
 
-#endif //WIN32
+#endif
