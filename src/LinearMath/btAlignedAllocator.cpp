@@ -32,7 +32,7 @@ void*   btAlignedAllocInternal  (size_t size, int alignment,int line,char* filen
  gTotalBytesAlignedAllocs += size;
  gNumAlignedAllocs++;
 
- printf("allocation#%d from %s,line %d, size %d\n",gNumAlignedAllocs,filename,line,size);
+ 
  real = (char *)malloc(size + 2*sizeof(void *) + (alignment-1));
  if (real) {
    offset = (alignment - (unsigned long)(real + 2*sizeof(void *))) &
@@ -44,6 +44,9 @@ void*   btAlignedAllocInternal  (size_t size, int alignment,int line,char* filen
  } else {
    ret = (void *)(real);//??
  }
+
+ printf("allocation#%d at address %x, from %s,line %d, size %d\n",gNumAlignedAllocs,real, filename,line,size);
+
  int* ptr = (int*)ret;
  *ptr = 12;
  return (ret);
@@ -60,7 +63,7 @@ void    btAlignedFreeInternal   (void* ptr,int line,char* filename)
        int size = *((int*)(ptr)-2);
        gTotalBytesAlignedAllocs -= size;
 
-	   printf("free #%d from %s,line %d, size %d\n",gNumAlignedFree,filename,line,size);
+	   printf("free #%d at address %x, from %s,line %d, size %d\n",gNumAlignedFree,real, filename,line,size);
 
    free(real);
  } else

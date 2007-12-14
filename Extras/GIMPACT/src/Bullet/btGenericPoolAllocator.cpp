@@ -136,7 +136,7 @@ void * btGenericMemoryPool::allocate(size_t size_bytes)
 	return get_element_data(alloc_pos);
 }
 
-bool btGenericMemoryPool::free(void * pointer)
+bool btGenericMemoryPool::freeMemory(void * pointer)
 {
 	unsigned char * pointer_pos = (unsigned char *)pointer;
 	unsigned char * pool_pos = (unsigned char *)m_pool;
@@ -228,14 +228,14 @@ void * btGenericPoolAllocator::allocate(size_t size_bytes)
 	return failback_alloc(size_bytes);
 }
 
-bool btGenericPoolAllocator::free(void * pointer)
+bool btGenericPoolAllocator::freeMemory(void * pointer)
 {
 	bool result = false;
 
 	size_t i = 0;
 	while(i<m_pool_count && result == false)
 	{
-		result = m_pools[i]->free(pointer);
+		result = m_pools[i]->freeMemory(pointer);
 		++i;
 	}
 
@@ -279,5 +279,5 @@ void * btPoolRealloc(void *ptr, size_t oldsize, size_t newsize)
 
 void btPoolFree(void *ptr)
 {
-	g_main_allocator.free(ptr);
+	g_main_allocator.freeMemory(ptr);
 }

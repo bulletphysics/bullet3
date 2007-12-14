@@ -117,7 +117,7 @@ void btCollisionDispatcher::releaseManifold(btPersistentManifold* manifold)
 	manifold->~btPersistentManifold();
 	if (m_persistentManifoldPoolAllocator->validPtr(manifold))
 	{
-		m_persistentManifoldPoolAllocator->free(manifold);
+		m_persistentManifoldPoolAllocator->freeMemory(manifold);
 	} else
 	{
 		btAlignedFree(manifold);
@@ -279,7 +279,7 @@ void btCollisionDispatcher::freeCollisionAlgorithm(void* ptr)
 {
 	if (m_collisionAlgorithmPoolAllocator->validPtr(ptr))
 	{
-		m_collisionAlgorithmPoolAllocator->free(ptr);
+		m_collisionAlgorithmPoolAllocator->freeMemory(ptr);
 	} else
 	{
 		btAlignedFree(ptr);

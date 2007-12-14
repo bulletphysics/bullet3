@@ -100,7 +100,7 @@ public:
 	*/
 	void * allocate(size_t size_bytes);
 
-	bool free(void * pointer);
+	bool freeMemory(void * pointer);
 };
 
 
@@ -150,7 +150,7 @@ public:
 	*/
 	void * allocate(size_t size_bytes);
 
-	bool free(void * pointer);
+	bool freeMemory(void * pointer);
 };
 
 
