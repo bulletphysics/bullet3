@@ -17,18 +17,7 @@ subject to the following restrictions:
 #define DEMO_APPLICATION_H
 
 
-#ifdef WIN32//for glut.h
-#include <windows.h>
-#endif
-
-//think different
-#if defined(__APPLE__) && !defined (VMDMESA)
-#include <OpenGL/gl.h>
-#include <OpenGL/glu.h>
-#include <GLUT/glut.h>
-#else
-#include <GL/glut.h>
-#endif
+#include "GlutStuff.h"
 
 #include <stdlib.h>
 #include <stdio.h>

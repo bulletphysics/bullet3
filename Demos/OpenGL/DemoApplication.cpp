@@ -235,8 +235,6 @@ void DemoApplication::reshape(int w, int h)
 }
 
 
-
-
 void DemoApplication::keyboardCallback(unsigned char key, int x, int y)
 {
 	(void)x;
@@ -257,7 +255,14 @@ void DemoApplication::keyboardCallback(unsigned char key, int x, int y)
 
     switch (key) 
     {
-    case 'q' : exit(0); break;
+    case 'q' : 
+#if (defined (WIN32) && defined (_MSC_VER))
+		//return from glutMainLoop(), detect memory leaks etc.
+		glutLeaveMainLoop();
+#else
+		exit();
+#endif
+		break;
 
     case 'l' : stepLeft(); break;
     case 'r' : stepRight(); break;

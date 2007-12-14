@@ -15,6 +15,24 @@ subject to the following restrictions:
 #ifndef GLUT_STUFF_H
 #define GLUT_STUFF_H
 
+#ifdef WIN32//for glut.h
+#include <windows.h>
+#endif
+
+//think different
+#if defined(__APPLE__) && !defined (VMDMESA)
+#include <OpenGL/gl.h>
+#include <OpenGL/glu.h>
+#include <GLUT/glut.h>
+#else
+#include <GL/glut.h>
+#endif
+
+#if (defined (WIN32) && defined (_MSC_VER))
+#include "GL/freeglut_ext.h" //to be able to return from glutMainLoop()
+#endif
+
+
 class DemoApplication;
 
 int glutmain(int argc, char **argv,int width,int height,const char* title,DemoApplication* demoApp);

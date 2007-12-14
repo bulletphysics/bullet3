@@ -77,7 +77,7 @@ public:
 		return false;
 	}
 
-	void	free(void* ptr)
+	void	freeMemory(void* ptr)
 	{
 		 if (ptr) {
             btAssert((unsigned char*)ptr >= m_pool && (unsigned char*)ptr < m_pool + m_maxElements * m_elemSize);

@@ -649,6 +649,7 @@ void	CcdPhysicsDemo::exitPhysics()
 	for (int j=0;j<m_collisionShapes.size();j++)
 	{
 		btCollisionShape* shape = m_collisionShapes[j];
+		m_collisionShapes[j] = 0;
 		delete shape;
 	}
 
