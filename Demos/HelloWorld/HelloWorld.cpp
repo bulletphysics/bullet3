@@ -116,9 +116,9 @@ int main(int argc, char** argv)
 		dynamicsWorld->stepSimulation(1.f/60.f,10);
 		
 		//print positions of all objects
-		for (i=dynamicsWorld->getNumCollisionObjects()-1; i>=0 ;i--)
+		for (int j=dynamicsWorld->getNumCollisionObjects()-1; j>=0 ;j--)
 		{
-			btCollisionObject* obj = dynamicsWorld->getCollisionObjectArray()[i];
+			btCollisionObject* obj = dynamicsWorld->getCollisionObjectArray()[j];
 			btRigidBody* body = btRigidBody::upcast(obj);
 			if (body && body->getMotionState())
 			{

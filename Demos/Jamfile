@@ -21,7 +21,7 @@ if $(GLUT.AVAILABLE) = "yes"
  rule BulletBasicDemo
   {
     Application $(<) : $(>) : noinstall console nomanifest ;
-    LinkWith $(<) :  bulletcollision  bulletmath ;
+    LinkWith $(<) :  bulletdynamics bulletcollision  bulletmath ;
     CFlags $(<) :
           [ FIncludes $(TOP)/src ]
            ;
@@ -62,6 +62,7 @@ SubInclude TOP Demos MultiThreadedDemo ;
 #SubInclude TOP Demos ForkLiftDemo ;
 SubInclude TOP Demos BulletDinoDemo ;
 SubInclude TOP Demos EPAPenDepthDemo ;
+SubInclude TOP Demos HelloWorld ;
 SubInclude TOP Demos BspDemo ;
 SubInclude TOP Demos BasicDemo ;
 SubInclude TOP Demos ConvexDecompositionDemo ;

@@ -126,7 +126,9 @@ void LinearConvexCastDemo::displayCallback(void)
 
 
 	gGjkSimplexSolver.reset();
-	btSubsimplexConvexCast convexCaster( shapePtr[ 0 ], shapePtr[ 1 ], &gGjkSimplexSolver );
+	
+	btGjkConvexCast convexCaster(shapePtr[ 0 ], shapePtr[ 1 ], &gGjkSimplexSolver );
+	//btSubsimplexConvexCast convexCaster( shapePtr[ 0 ], shapePtr[ 1 ], &gGjkSimplexSolver );
 
 	btConvexCast::CastResult result;
 	convexCaster.calcTimeOfImpact( tr[ 0 ], toA, tr[ 1 ], toB, result );
