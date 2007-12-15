@@ -1,6 +1,60 @@
 Bullet Continuous Collision Detection and Physics Library
 Primary author and maintainer: Erwin Coumans
 
+2007 Dec 14
+	- Added Hello World and BulletMultiThreaded demos
+	- Add portable version of BulletMultiThreaded, through SequentialThreadSupport (non-parallel but sharing the same code-path)
+	- Add Cmake support for AllBulletDemos
+	
+
+2007 Dec 11
+	- Moved the 'btRigidBody::clearForce' to the end of the stepSimulation, instead of in each substep.
+	See discussion http://www.bulletphysics.com/Bullet/phpBB3/viewtopic.php?f=9&t=1601
+	- Added btConvexPlaneCollisionAlgorithm, makes planes perform better, and prevents tunneling
+	Thanks Andy O'Neil for reporting the performance/functionality issue
+	- Fixes for IBM Cell SDK 3.0
+	Thanks to Jochen Roth for the patch.
+
+2007 Dec 10
+	- Fixes in btHeightfieldTerrainShape
+	Thanks to Jay Lee for the patch.
+
+2007	Dec 9
+	- Only update aabb of active objects
+	Thanks Peter Tchernev for reporting (http://bulletphysics.com/Bullet/phpBB3/viewtopic.php?f=9&t=1764 )
+	- Added workaround to compile libxml under Visual Studio 2008 Beta 2
+	- Make glui compile under MSVC 9.0 beta (vsnprintf is already defined)
+
+2007 Dec 6
+	- Added DynamicControlDemo, showing dynamic control through constraint motors
+		Thanks to Eddy Boxerman
+	- Add support for generic concave shapes for convex cast.
+	- Added convex cast query to collision world.
+	- Added workaround for OpenGL bug in Mac OS X 10.5.0 (Leopard)
+	- Added concave raycast demo
+		All above thanks to John McCutchan (JMC)
+	- Fixed issues that prevent Linux version to compile. 
+	Thanks to Enrico for reporting and patch, see
+	- Fixed misleading name 'numTriangleIndices' into 'numTriangles'
+	Thanks Sean Tasker for reporting:
+
+2007 Nov 28:
+	- Added raycast against trianglemesh. Will be extended to object cast soon.
+	Thanks John McCutchan (JMC)
+	- make getNumPoints const correct, add const getPoints(). 
+	Thanks Dirk Gregorius
+	- Bugfix: allow btCollisionObjects (non-btRigidBody) to interact properly with btRigidBody for cache-friendly btSequentialImpulseConstraintSolver.
+	Thanks Andy O'Neil for pointing this out.
+	- Bugfix: don't fail if spheres have identical center, use arbitrary separating normal (1,0,0)
+	Thanks Sean Tasker for reporting! http://www.bulletphysics.com/Bullet/phpBB3/viewtopic.php?f=9&t=1681
+
+
+2007, November 20
+	- Added hierarchical profiling
+	- Fixed memory leak in btMultiSapBroadphase,
+	- Fixed hash function (typo, should use 2 proxies)
+	Thanks to Stephen (shatcher) for reporting and fixes! http://www.bulletphysics.com/Bullet/phpBB3/viewtopic.php?f=9&t=1696
+
 2007 Nov 11
 	- Fixed parallel solver (BulletMultiThreaded) friction issue
 	- Terminate Win32 Threads when closing the CcdPhysicsDemo (when USE_PARALLEL_SOLVER/USE_PARALLEL_DISPATCHER is defined)
