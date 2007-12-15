@@ -256,7 +256,7 @@ void DemoApplication::keyboardCallback(unsigned char key, int x, int y)
     switch (key) 
     {
     case 'q' : 
-#if (defined (WIN32) && defined (_MSC_VER))
+#ifdef BT_USE_FREEGLUT
 		//return from glutMainLoop(), detect memory leaks etc.
 		glutLeaveMainLoop();
 #else

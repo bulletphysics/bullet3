@@ -75,7 +75,7 @@ int glutmain(int argc, char **argv,int width,int height,const char* title,DemoAp
     glutInitWindowPosition(0, 0);
     glutInitWindowSize(width, height);
     glutCreateWindow(title);
-#if (defined (WIN32) && defined (_MSC_VER))
+#ifdef BT_USE_FREEGLUT
 	glutSetOption (GLUT_ACTION_ON_WINDOW_CLOSE, GLUT_ACTION_GLUTMAINLOOP_RETURNS);
 #endif
 

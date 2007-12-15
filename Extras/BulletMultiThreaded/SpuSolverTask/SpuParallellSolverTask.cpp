@@ -35,7 +35,7 @@ Written by: Marten Svanfeldt
 #endif
 
 //NOTE! When changing this, make sure the package sizes etc below are updated
-#define TEMP_STORAGE_SIZE (150*1024)
+#define TEMP_STORAGE_SIZE (100*1024)
 #define CONSTRAINT_MAX_SIZE (46*16)
 
 struct SolverTask_LocalStoreMemory

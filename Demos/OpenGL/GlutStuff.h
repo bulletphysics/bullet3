@@ -28,7 +28,7 @@ subject to the following restrictions:
 #include <GL/glut.h>
 #endif
 
-#if (defined (WIN32) && defined (_MSC_VER))
+#if BT_USE_FREEGLUT
 #include "GL/freeglut_ext.h" //to be able to return from glutMainLoop()
 #endif
 

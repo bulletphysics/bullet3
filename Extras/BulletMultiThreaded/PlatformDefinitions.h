@@ -2,7 +2,6 @@
 #define TYPE_DEFINITIONS_H
 
 
-
 ///This file provides some platform/compiler checks for common definitions
 
 #ifdef WIN32
@@ -28,7 +27,6 @@ typedef union
 #include <string.h> //memcpy
 
 		#define USE_WIN32_THREADING 1
-
 
 		#include <stdio.h>		
 		#define spu_printf printf
@@ -67,6 +65,10 @@ typedef union
 #endif
 
 
+/* Included here because we need uint*_t typedefs */
+#include "PpuAddressSpace.h"
+
 #endif //TYPE_DEFINITIONS_H
+
 
 

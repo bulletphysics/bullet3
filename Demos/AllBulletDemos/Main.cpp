@@ -225,7 +225,7 @@ void MouseMotion(int x, int y)
 	demo->mouseMotionFunc(x,y);
 }
 
-#if (defined (WIN32) && defined (_MSC_VER))
+#ifdef BT_USE_FREEGLUT
 #include "GL/freeglut_ext.h"
 #endif
 
@@ -241,7 +241,7 @@ int main(int argc, char** argv)
 	glutInitDisplayMode(GLUT_RGBA | GLUT_DOUBLE |GLUT_DEPTH);
 	glutInitWindowSize(width, height);
 	mainWindow = glutCreateWindow("http://bulletphysics.com");
-#if (defined (WIN32) && defined (_MSC_VER))
+#ifdef BT_USE_FREEGLUT
 	glutSetOption (GLUT_ACTION_ON_WINDOW_CLOSE, GLUT_ACTION_GLUTMAINLOOP_RETURNS);
 #endif
 	entry = g_demoEntries + testIndex;

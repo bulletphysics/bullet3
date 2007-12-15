@@ -257,11 +257,7 @@ void	spuWalkStacklessQuantizedTree(btNodeOverlapCallback* nodeCallback,unsigned 
 }
 
 
-#ifdef USE_ADDR64
-SIMD_FORCE_INLINE void small_cache_read(void* buffer, uint64_t ea, size_t size)
-#else
-SIMD_FORCE_INLINE void small_cache_read(void* buffer, uint32_t ea, size_t size)
-#endif
+SIMD_FORCE_INLINE void small_cache_read(void* buffer, ppu_address_t ea, size_t size)
 {
 #if USE_SOFTWARE_CACHE
 	// Check for alignment requirements. We need to make sure the entire request fits within one cache line,
@@ -277,17 +273,10 @@ SIMD_FORCE_INLINE void small_cache_read(void* buffer, uint32_t ea, size_t size)
 
 
 #ifdef USE_LIBSPE2
-#ifdef USE_ADDR64
-SIMD_FORCE_INLINE void small_cache_read_triple(	void* ls0, uint64_t ea0,
-												void* ls1, uint64_t ea1,
-												void* ls2, uint64_t ea2,
+SIMD_FORCE_INLINE void small_cache_read_triple(	void* ls0, ppu_address_t ea0,
+												void* ls1, ppu_address_t ea1,
+												void* ls2, ppu_address_t ea2,
 												size_t size)
-#else
-SIMD_FORCE_INLINE void small_cache_read_triple(	void* ls0, uint32_t ea0,
-												void* ls1, uint32_t ea1,
-												void* ls2, uint32_t ea2,
-												size_t size)
-#endif
 {
 		btAssert(size<16);
 		ATTRIBUTE_ALIGNED16(char	tmpBuffer0[32]);
@@ -363,27 +352,14 @@ public:
 
 		///DMA the indices
 #ifdef USE_LIBSPE2
-#ifdef USE_ADDR64
-		small_cache_read_triple(&m_lsMemPtr->spuIndices[0],(uint64_t)&indexBasePtr[0],
-								&m_lsMemPtr->spuIndices[1],(uint64_t)&indexBasePtr[1],
-								&m_lsMemPtr->spuIndices[2],(uint64_t)&indexBasePtr[2],
+		small_cache_read_triple(&m_lsMemPtr->spuIndices[0],(ppu_address_t)&indexBasePtr[0],
+								&m_lsMemPtr->spuIndices[1],(ppu_address_t)&indexBasePtr[1],
+								&m_lsMemPtr->spuIndices[2],(ppu_address_t)&indexBasePtr[2],
 								sizeof(int));
 #else
-		small_cache_read_triple(&m_lsMemPtr->spuIndices[0],(uint32_t)&indexBasePtr[0],
-								&m_lsMemPtr->spuIndices[1],(uint32_t)&indexBasePtr[1],
-								&m_lsMemPtr->spuIndices[2],(uint32_t)&indexBasePtr[2],
-								sizeof(int));
-#endif
-#else
-#ifdef USE_ADDR64
-		small_cache_read(&m_lsMemPtr->spuIndices[0],(uint64_t)&indexBasePtr[0],sizeof(int));
-		small_cache_read(&m_lsMemPtr->spuIndices[1],(uint64_t)&indexBasePtr[1],sizeof(int));
-		small_cache_read(&m_lsMemPtr->spuIndices[2],(uint64_t)&indexBasePtr[2],sizeof(int));
-#else
-		small_cache_read(&m_lsMemPtr->spuIndices[0],(uint32_t)&indexBasePtr[0],sizeof(int));
-		small_cache_read(&m_lsMemPtr->spuIndices[1],(uint32_t)&indexBasePtr[1],sizeof(int));
-		small_cache_read(&m_lsMemPtr->spuIndices[2],(uint32_t)&indexBasePtr[2],sizeof(int));
-#endif
+		small_cache_read(&m_lsMemPtr->spuIndices[0],(ppu_address_t)&indexBasePtr[0],sizeof(int));
+		small_cache_read(&m_lsMemPtr->spuIndices[1],(ppu_address_t)&indexBasePtr[1],sizeof(int));
+		small_cache_read(&m_lsMemPtr->spuIndices[2],(ppu_address_t)&indexBasePtr[2],sizeof(int));
 #endif
 		
 		//		spu_printf("SPU index0=%d ,",spuIndices[0]);
@@ -405,27 +381,14 @@ public:
 
 			//another DMA for each vertex
 #ifdef USE_LIBSPE2
-#ifdef USE_ADDR64
-			small_cache_read_triple(	&spuUnscaledVertex[0],(uint64_t)&graphicsbasePtr[0],
-									&spuUnscaledVertex[1],(uint64_t)&graphicsbasePtr[1],
-									&spuUnscaledVertex[2],(uint64_t)&graphicsbasePtr[2],
+			small_cache_read_triple(&spuUnscaledVertex[0],(ppu_address_t)&graphicsbasePtr[0],
+									&spuUnscaledVertex[1],(ppu_address_t)&graphicsbasePtr[1],
+									&spuUnscaledVertex[2],(ppu_address_t)&graphicsbasePtr[2],
 									sizeof(btScalar));
 #else
-			small_cache_read_triple(	&spuUnscaledVertex[0],(uint32_t)&graphicsbasePtr[0],
-									&spuUnscaledVertex[1],(uint32_t)&graphicsbasePtr[1],
-									&spuUnscaledVertex[2],(uint32_t)&graphicsbasePtr[2],
-									sizeof(btScalar));
-#endif
-#else
-#ifdef USE_ADDR64
-			small_cache_read(&spuUnscaledVertex[0],(uint64_t)&graphicsbasePtr[0],sizeof(btScalar));
-			small_cache_read(&spuUnscaledVertex[1],(uint64_t)&graphicsbasePtr[1],sizeof(btScalar));
-			small_cache_read(&spuUnscaledVertex[2],(uint64_t)&graphicsbasePtr[2],sizeof(btScalar));
-#else
-			small_cache_read(&spuUnscaledVertex[0],(uint32_t)&graphicsbasePtr[0],sizeof(btScalar));
-			small_cache_read(&spuUnscaledVertex[1],(uint32_t)&graphicsbasePtr[1],sizeof(btScalar));
-			small_cache_read(&spuUnscaledVertex[2],(uint32_t)&graphicsbasePtr[2],sizeof(btScalar));
-#endif
+			small_cache_read(&spuUnscaledVertex[0],(ppu_address_t)&graphicsbasePtr[0],sizeof(btScalar));
+			small_cache_read(&spuUnscaledVertex[1],(ppu_address_t)&graphicsbasePtr[1],sizeof(btScalar));
+			small_cache_read(&spuUnscaledVertex[2],(ppu_address_t)&graphicsbasePtr[2],sizeof(btScalar));
 #endif		
 			
 			spuTriangleVertices[j] = btVector3(
@@ -468,22 +431,13 @@ void	ProcessConvexConcaveSpuCollision(SpuCollisionPairInput* wuInput, CollisionT
 
 
 	register int dmaSize;
-#ifdef USE_ADDR64
-	register uint64_t	dmaPpuAddress2;
-#else
-		register uint32_t	dmaPpuAddress2;
-#endif	
-
+	register ppu_address_t	dmaPpuAddress2;
 
 	btBvhTriangleMeshShape*	trimeshShape = (btBvhTriangleMeshShape*)wuInput->m_spuCollisionShapes[1];
 	//need the mesh interface, for access to triangle vertices
 	
 	dmaSize = sizeof(btTriangleIndexVertexArray);
-#ifdef USE_ADDR64
-	dmaPpuAddress2 = reinterpret_cast<uint64_t>(trimeshShape->getMeshInterface());
-#else
-	dmaPpuAddress2 = reinterpret_cast<uint32_t>(trimeshShape->getMeshInterface());
-#endif
+	dmaPpuAddress2 = reinterpret_cast<ppu_address_t>(trimeshShape->getMeshInterface());
 	//	spu_printf("trimeshShape->getMeshInterface() == %llx\n",dmaPpuAddress2);
 	lsMemPtr->gTriangleMeshInterfacePtr = (btTriangleIndexVertexArray*)cellDmaGetReadOnly(&lsMemPtr->gTriangleMeshInterfaceStorage, dmaPpuAddress2  , dmaSize, DMA_TAG(1), 0, 0);
 	//cellDmaWaitTagStatusAll(DMA_MASK(1));
@@ -492,11 +446,7 @@ void	ProcessConvexConcaveSpuCollision(SpuCollisionPairInput* wuInput, CollisionT
 	///now DMA over the BVH
 	
 	dmaSize = sizeof(btOptimizedBvh);
-#ifdef USE_ADDR64
-	dmaPpuAddress2 = reinterpret_cast<uint64_t>(trimeshShape->getOptimizedBvh());
-#else
-	dmaPpuAddress2 = reinterpret_cast<uint32_t>(trimeshShape->getOptimizedBvh());
-#endif
+	dmaPpuAddress2 = reinterpret_cast<ppu_address_t>(trimeshShape->getOptimizedBvh());
 	//spu_printf("trimeshShape->getOptimizedBvh() == %llx\n",dmaPpuAddress2);
 	cellDmaGet(&lsMemPtr->gOptimizedBvh, dmaPpuAddress2  , dmaSize, DMA_TAG(2), 0, 0);
 	//cellDmaWaitTagStatusAll(DMA_MASK(2));
@@ -566,11 +516,7 @@ void	ProcessConvexConcaveSpuCollision(SpuCollisionPairInput* wuInput, CollisionT
 	case CONVEX_HULL_SHAPE_PROXYTYPE:
 		{
 			dmaSize = sizeof(btConvexHullShape);
-#ifdef USE_ADDR64
 			dmaPpuAddress2 = wuInput->m_collisionShapes[0];
-#else
-			dmaPpuAddress2 = wuInput->m_collisionShapes[0];
-#endif
 			ATTRIBUTE_ALIGNED16(char convexHullShape0[sizeof(btConvexHullShape)]);
 
 			cellDmaGet(&convexHullShape0, dmaPpuAddress2  , dmaSize, DMA_TAG(1), 0, 0);
@@ -625,11 +571,7 @@ void	ProcessConvexConcaveSpuCollision(SpuCollisionPairInput* wuInput, CollisionT
 		///DMA in the index info
 		
 		dmaSize = sizeof(btIndexedMesh);
-#ifdef USE_ADDR64
-		dmaPpuAddress2 = reinterpret_cast<uint64_t>(&indexArray[0]);
-#else
-		dmaPpuAddress2 = reinterpret_cast<uint32_t>(&indexArray[0]);
-#endif
+		dmaPpuAddress2 = reinterpret_cast<ppu_address_t>(&indexArray[0]);
 		cellDmaGet(&lsMemPtr->gIndexMesh, dmaPpuAddress2  , dmaSize, DMA_TAG(1), 0, 0);
 		cellDmaWaitTagStatusAll(DMA_MASK(1));
 		
@@ -646,12 +588,8 @@ void	ProcessConvexConcaveSpuCollision(SpuCollisionPairInput* wuInput, CollisionT
 			int nextBatch = remaining < MAX_SPU_SUBTREE_HEADERS ? remaining : MAX_SPU_SUBTREE_HEADERS;
 			
 			dmaSize = nextBatch* sizeof(btBvhSubtreeInfo);
-#ifdef USE_ADDR64
-			dmaPpuAddress2 = reinterpret_cast<uint64_t>(&subTrees[i]);
-#else
-			dmaPpuAddress2 = reinterpret_cast<uint32_t>(&subTrees[i]);
-#endif
-				//				spu_printf("&subtree[i]=%llx, dmaSize = %d\n",dmaPpuAddress2,dmaSize);
+			dmaPpuAddress2 = reinterpret_cast<ppu_address_t>(&subTrees[i]);
+			//				spu_printf("&subtree[i]=%llx, dmaSize = %d\n",dmaPpuAddress2,dmaSize);
 			cellDmaGet(&lsMemPtr->gSubtreeHeaders[0], dmaPpuAddress2  , dmaSize, DMA_TAG(1), 0, 0);
 			cellDmaWaitTagStatusAll(DMA_MASK(1));
 			
@@ -670,11 +608,7 @@ void	ProcessConvexConcaveSpuCollision(SpuCollisionPairInput* wuInput, CollisionT
 					//dma the actual nodes of this subtree
 					
 					dmaSize = subtree.m_subtreeSize* sizeof(btQuantizedBvhNode);
-#ifdef USE_ADDR64
-					dmaPpuAddress2 = reinterpret_cast<uint64_t>(&nodeArray[subtree.m_rootNodeIndex]);
-#else
-					dmaPpuAddress2 = reinterpret_cast<uint32_t>(&nodeArray[subtree.m_rootNodeIndex]);
-#endif
+					dmaPpuAddress2 = reinterpret_cast<ppu_address_t>(&nodeArray[subtree.m_rootNodeIndex]);
 					cellDmaGet(&lsMemPtr->gSubtreeNodes[0], dmaPpuAddress2  , dmaSize, DMA_TAG(2), 0, 0);
 					cellDmaWaitTagStatusAll(DMA_MASK(2));
 					
@@ -777,11 +711,7 @@ void	ProcessSpuConvexConvexCollision(SpuCollisionPairInput* wuInput, CollisionTa
 
 	
 	register int dmaSize;
-#ifdef USE_ADDR64
-	register uint64_t	dmaPpuAddress2;
-#else
-	register uint32_t	dmaPpuAddress2;
-#endif	
+	register ppu_address_t	dmaPpuAddress2;
 	
 #ifdef DEBUG_SPU_COLLISION_DETECTION
 	//spu_printf("SPU: ProcessSpuConvexConvexCollision\n");
@@ -814,11 +744,8 @@ void	ProcessSpuConvexConvexCollision(SpuCollisionPairInput* wuInput, CollisionTa
 			//	spu_printf("SPU: DMA btConvexHullShape\n");
 			
 			dmaSize = sizeof(btConvexHullShape);
-#ifdef USE_ADDR64
 			dmaPpuAddress2 = wuInput->m_collisionShapes[0];
-#else
-			dmaPpuAddress2 = wuInput->m_collisionShapes[0];
-#endif
+
 			cellDmaGet(&convexHullShape0, dmaPpuAddress2  , dmaSize, DMA_TAG(1), 0, 0);
 			//cellDmaWaitTagStatusAll(DMA_MASK(1));
 		}
@@ -831,11 +758,7 @@ void	ProcessSpuConvexConvexCollision(SpuCollisionPairInput* wuInput, CollisionTa
 
 			//	spu_printf("SPU: DMA btConvexHullShape\n");
 			dmaSize = sizeof(btConvexHullShape);
-#ifdef USE_ADDR64
 			dmaPpuAddress2 = wuInput->m_collisionShapes[1];
-#else
-			dmaPpuAddress2 = wuInput->m_collisionShapes[1];
-#endif
 			cellDmaGet(&convexHullShape1, dmaPpuAddress2  , dmaSize, DMA_TAG(1), 0, 0);
 			//cellDmaWaitTagStatusAll(DMA_MASK(1));
 		}
@@ -857,11 +780,7 @@ void	ProcessSpuConvexConvexCollision(SpuCollisionPairInput* wuInput, CollisionTa
 			}
 			
 			dmaSize = lsMemPtr->convexVertexData.gNumConvexPoints0*sizeof(btPoint3);
-#ifdef USE_ADDR64
-			dmaPpuAddress2 = (uint64_t) localPtr->getPoints();
-#else
-			dmaPpuAddress2 = (uint32_t) localPtr->getPoints();
-#endif
+			dmaPpuAddress2 = (ppu_address_t) localPtr->getPoints();
 			cellDmaGet(&lsMemPtr->convexVertexData.g_convexPointBuffer0, dmaPpuAddress2  , dmaSize, DMA_TAG(2), 0, 0);
 
 			lsMemPtr->convexVertexData.gSpuConvexShapePtr0 = wuInput->m_spuCollisionShapes[0];
@@ -886,11 +805,7 @@ void	ProcessSpuConvexConvexCollision(SpuCollisionPairInput* wuInput, CollisionTa
 			
 			
 			dmaSize = lsMemPtr->convexVertexData.gNumConvexPoints1*sizeof(btPoint3);
-#ifdef USE_ADDR64
-			dmaPpuAddress2 = (uint64_t) localPtr->getPoints();
-#else
-			dmaPpuAddress2 = (uint32_t) localPtr->getPoints();
-#endif
+			dmaPpuAddress2 = (ppu_address_t) localPtr->getPoints();
 			cellDmaGet(&lsMemPtr->convexVertexData.g_convexPointBuffer1, dmaPpuAddress2  , dmaSize, DMA_TAG(2), 0, 0);
 
 			lsMemPtr->convexVertexData.gSpuConvexShapePtr1 = wuInput->m_spuCollisionShapes[1];
@@ -927,11 +842,8 @@ void	ProcessSpuConvexConvexCollision(SpuCollisionPairInput* wuInput, CollisionTa
 		float sumMargin = (marginA+marginB+lsMemPtr->gPersistentManifold.getContactBreakingThreshold());
 		cpInput.m_maximumDistanceSquared = sumMargin * sumMargin;
 
-#ifdef USE_ADDR64
-		uint64_t manifoldAddress = (uint64_t)manifold;
-#else
-		uint32_t manifoldAddress = (uint32_t)manifold;
-#endif
+		ppu_address_t manifoldAddress = (ppu_address_t)manifold;
+
 		btPersistentManifold* spuManifold=&lsMemPtr->gPersistentManifold;
 		//spuContacts.setContactInfo(spuManifold,manifoldAddress,wuInput->m_worldTransform0,wuInput->m_worldTransform1,wuInput->m_isSwapped);
 		spuContacts.setContactInfo(spuManifold,manifoldAddress,lsMemPtr->getColObj0()->getWorldTransform(),
@@ -959,28 +871,16 @@ template<typename T> void DoSwap(T& a, T& b)
 SIMD_FORCE_INLINE void	dmaAndSetupCollisionObjects(SpuCollisionPairInput& collisionPairInput, CollisionTask_LocalStoreMemory& lsMem)
 {
 	register int dmaSize;
-#ifdef USE_ADDR64
-	register uint64_t	dmaPpuAddress2;
-#else
-	register uint32_t	dmaPpuAddress2;
-#endif
+	register ppu_address_t	dmaPpuAddress2;
 		
 	
 		dmaSize = sizeof(btCollisionObject);
-#ifdef USE_ADDR64
-		dmaPpuAddress2 = /*collisionPairInput.m_isSwapped ? (uint64_t)lsMem.gProxyPtr1->m_clientObject :*/ (uint64_t)lsMem.gProxyPtr0->m_clientObject;
-#else
-		dmaPpuAddress2 = /*collisionPairInput.m_isSwapped ? (uint32_t)lsMem.gProxyPtr1->m_clientObject :*/ (uint32_t)lsMem.gProxyPtr0->m_clientObject;
-#endif
+		dmaPpuAddress2 = /*collisionPairInput.m_isSwapped ? (ppu_address_t)lsMem.gProxyPtr1->m_clientObject :*/ (ppu_address_t)lsMem.gProxyPtr0->m_clientObject;
 		cellDmaGet(&lsMem.gColObj0, dmaPpuAddress2  , dmaSize, DMA_TAG(1), 0, 0);		
 	
 	
 		dmaSize = sizeof(btCollisionObject);
-#ifdef USE_ADDR64
-		dmaPpuAddress2 = /*collisionPairInput.m_isSwapped ? (uint64_t)lsMem.gProxyPtr0->m_clientObject :*/ (uint64_t)lsMem.gProxyPtr1->m_clientObject;
-#else
-		dmaPpuAddress2 = /*collisionPairInput.m_isSwapped ? (uint32_t)lsMem.gProxyPtr0->m_clientObject :*/ (uint32_t)lsMem.gProxyPtr1->m_clientObject;
-#endif
+		dmaPpuAddress2 = /*collisionPairInput.m_isSwapped ? (ppu_address_t)lsMem.gProxyPtr0->m_clientObject :*/ (ppu_address_t)lsMem.gProxyPtr1->m_clientObject;
 		cellDmaGet(&lsMem.gColObj1, dmaPpuAddress2  , dmaSize, DMA_TAG(2), 0, 0);		
 	
 
@@ -998,24 +898,13 @@ SIMD_FORCE_INLINE void	dmaAndSetupCollisionObjects(SpuCollisionPairInput& collis
 
 
 
-#ifdef USE_ADDR64
 void	handleCollisionPair(SpuCollisionPairInput& collisionPairInput, CollisionTask_LocalStoreMemory& lsMem,
 							SpuContactResult &spuContacts,
-							uint64_t collisionShape0Ptr, void* collisionShape0Loc,
-							uint64_t collisionShape1Ptr, void* collisionShape1Loc, bool dmaShapes = true)
-#else
-void	handleCollisionPair(SpuCollisionPairInput& collisionPairInput, CollisionTask_LocalStoreMemory& lsMem,
-							SpuContactResult &spuContacts,
-							uint32_t collisionShape0Ptr, void* collisionShape0Loc,
-							uint32_t collisionShape1Ptr, void* collisionShape1Loc, bool dmaShapes = true)
-#endif
+							ppu_address_t collisionShape0Ptr, void* collisionShape0Loc,
+							ppu_address_t collisionShape1Ptr, void* collisionShape1Loc, bool dmaShapes = true)
 {
 	register int dmaSize;
-#ifdef USE_ADDR64
-	register	uint64_t	dmaPpuAddress2;
-#else
-	register	uint32_t	dmaPpuAddress2;
-#endif	
+	register	ppu_address_t	dmaPpuAddress2;
 	
 	if (btBroadphaseProxy::isConvex(collisionPairInput.m_shapeType0) 
 		&& btBroadphaseProxy::isConvex(collisionPairInput.m_shapeType1))
@@ -1028,21 +917,13 @@ void	handleCollisionPair(SpuCollisionPairInput& collisionPairInput, CollisionTas
 			
 				dmaSize = getShapeTypeSize(collisionPairInput.m_shapeType0);
 				//uint64_t	dmaPpuAddress2 = (uint64_t)lsMem.gColObj0.getCollisionShape();
-#ifdef USE_ADDR64
 				dmaPpuAddress2 = collisionShape0Ptr;
-#else
-				dmaPpuAddress2 = collisionShape0Ptr;
-#endif
 				cellDmaGet(collisionShape0Loc, dmaPpuAddress2  , dmaSize, DMA_TAG(1), 0, 0);
 				//cellDmaWaitTagStatusAll(DMA_MASK(1));
 			
 			
 				dmaSize = getShapeTypeSize(collisionPairInput.m_shapeType1);
-#ifdef USE_ADDR64
 				dmaPpuAddress2 = collisionShape1Ptr;
-#else
-				dmaPpuAddress2 = collisionShape1Ptr;
-#endif
 				cellDmaGet(collisionShape1Loc, dmaPpuAddress2  , dmaSize, DMA_TAG(2), 0, 0);
 				//cellDmaWaitTagStatusAll(DMA_MASK(2));
 				
@@ -1073,21 +954,13 @@ void	handleCollisionPair(SpuCollisionPairInput& collisionPairInput, CollisionTas
 		// TODO: add some AABB-based pruning
 		
 			dmaSize = getShapeTypeSize(collisionPairInput.m_shapeType0);
-#ifdef USE_ADDR64
 			dmaPpuAddress2 = collisionShape0Ptr;
-#else
-			dmaPpuAddress2 = collisionShape0Ptr;
-#endif
 			cellDmaGet(collisionShape0Loc, dmaPpuAddress2  , dmaSize, DMA_TAG(1), 0, 0);
 			//cellDmaWaitTagStatusAll(DMA_MASK(1));
 		
 		
 			dmaSize = getShapeTypeSize(collisionPairInput.m_shapeType1);
-#ifdef USE_ADDR64
 			dmaPpuAddress2 = collisionShape1Ptr;
-#else
-			dmaPpuAddress2 = collisionShape1Ptr;
-#endif
 			cellDmaGet(collisionShape1Loc, dmaPpuAddress2  , dmaSize, DMA_TAG(2), 0, 0);
 			//cellDmaWaitTagStatusAll(DMA_MASK(2));
 			
@@ -1103,11 +976,7 @@ void	handleCollisionPair(SpuCollisionPairInput& collisionPairInput, CollisionTas
 		// dma the first list of child shapes
 		
 			dmaSize = childShapeCount0 * sizeof(btCompoundShapeChild);
-#ifdef USE_ADDR64
-			dmaPpuAddress2 = (uint64_t)spuCompoundShape0->getChildList();
-#else
-			dmaPpuAddress2 = (uint32_t)spuCompoundShape0->getChildList();
-#endif
+			dmaPpuAddress2 = (ppu_address_t)spuCompoundShape0->getChildList();
 			cellDmaGet(lsMem.gSubshapes, dmaPpuAddress2, dmaSize, DMA_TAG(1), 0, 0);
 			//cellDmaWaitTagStatusAll(DMA_MASK(1));
 		
@@ -1115,11 +984,7 @@ void	handleCollisionPair(SpuCollisionPairInput& collisionPairInput, CollisionTas
 		// dma the second list of child shapes
 		
 			dmaSize = childShapeCount1 * sizeof(btCompoundShapeChild);
-#ifdef USE_ADDR64
-			dmaPpuAddress2 = (uint64_t)spuCompoundShape1->getChildList();
-#else
-			dmaPpuAddress2 = (uint32_t)spuCompoundShape1->getChildList();
-#endif
+			dmaPpuAddress2 = (ppu_address_t)spuCompoundShape1->getChildList();
 			cellDmaGet(&lsMem.gSubshapes[MAX_SPU_COMPOUND_SUBSHAPES], dmaPpuAddress2, dmaSize, DMA_TAG(2), 0, 0);
 			//cellDmaWaitTagStatusAll(DMA_MASK(2));
 			cellDmaWaitTagStatusAll(DMA_MASK(1) | DMA_MASK(2));
@@ -1133,11 +998,7 @@ void	handleCollisionPair(SpuCollisionPairInput& collisionPairInput, CollisionTas
 			btCompoundShapeChild& childShape = lsMem.gSubshapes[i];
 
 			dmaSize = getShapeTypeSize(childShape.m_childShapeType);
-#ifdef USE_ADDR64
-			dmaPpuAddress2 = (uint64_t)childShape.m_childShape;
-#else
-			dmaPpuAddress2 = (uint32_t)childShape.m_childShape;
-#endif
+			dmaPpuAddress2 = (ppu_address_t)childShape.m_childShape;
 			cellDmaGet(lsMem.gSubshapeShape[i], dmaPpuAddress2, dmaSize, DMA_TAG(1), 0, 0);
 			//cellDmaWaitTagStatusAll(DMA_MASK(1));
 		}
@@ -1148,11 +1009,8 @@ void	handleCollisionPair(SpuCollisionPairInput& collisionPairInput, CollisionTas
 			btCompoundShapeChild& childShape = lsMem.gSubshapes[MAX_SPU_COMPOUND_SUBSHAPES+i];
 
 			dmaSize = getShapeTypeSize(childShape.m_childShapeType);
-#ifdef USE_ADDR64
-			dmaPpuAddress2 = (uint64_t)childShape.m_childShape;
-#else
-			dmaPpuAddress2 = (uint32_t)childShape.m_childShape;
-#endif
+			dmaPpuAddress2 = (ppu_address_t)childShape.m_childShape;
+
 			cellDmaGet(lsMem.gSubshapeShape[MAX_SPU_COMPOUND_SUBSHAPES+i], dmaPpuAddress2, dmaSize, DMA_TAG(1), 0, 0);
 			//cellDmaWaitTagStatusAll(DMA_MASK(1));
 		}
@@ -1176,15 +1034,9 @@ void	handleCollisionPair(SpuCollisionPairInput& collisionPairInput, CollisionTas
 				cinput.m_shapeType1 = childShape1.m_childShapeType;
 				cinput.m_collisionMargin1 = childShape1.m_childMargin;
 
-#ifdef USE_ADDR64
 				handleCollisionPair(cinput, lsMem, spuContacts,			
-					(uint64_t)childShape0.m_childShape, lsMem.gSubshapeShape[i], 
-					(uint64_t)childShape1.m_childShape, lsMem.gSubshapeShape[MAX_SPU_COMPOUND_SUBSHAPES+i], false);
-#else
-				handleCollisionPair(cinput, lsMem, spuContacts,			
-					(uint32_t)childShape0.m_childShape, lsMem.gSubshapeShape[i], 
-					(uint32_t)childShape1.m_childShape, lsMem.gSubshapeShape[MAX_SPU_COMPOUND_SUBSHAPES+i], false);
-#endif
+					(ppu_address_t)childShape0.m_childShape, lsMem.gSubshapeShape[i], 
+					(ppu_address_t)childShape1.m_childShape, lsMem.gSubshapeShape[MAX_SPU_COMPOUND_SUBSHAPES+i], false);
 			}
 		}
 	}
@@ -1193,21 +1045,13 @@ void	handleCollisionPair(SpuCollisionPairInput& collisionPairInput, CollisionTas
 		//snPause();
 		
 			dmaSize = getShapeTypeSize(collisionPairInput.m_shapeType0);
-#ifdef USE_ADDR64
 			dmaPpuAddress2 = collisionShape0Ptr;
-#else
-			dmaPpuAddress2 = collisionShape0Ptr;
-#endif
 			cellDmaGet(collisionShape0Loc, dmaPpuAddress2  , dmaSize, DMA_TAG(1), 0, 0);
 			//cellDmaWaitTagStatusAll(DMA_MASK(1));
 		
 		
 			dmaSize = getShapeTypeSize(collisionPairInput.m_shapeType1);
-#ifdef USE_ADDR64
 			dmaPpuAddress2 = collisionShape1Ptr;
-#else
-			dmaPpuAddress2 = collisionShape1Ptr;
-#endif
 			cellDmaGet(collisionShape1Loc, dmaPpuAddress2  , dmaSize, DMA_TAG(2), 0, 0);
 //			cellDmaWaitTagStatusAll(DMA_MASK(2));
 			cellDmaWaitTagStatusAll(DMA_MASK(1) | DMA_MASK(2));
@@ -1221,11 +1065,9 @@ void	handleCollisionPair(SpuCollisionPairInput& collisionPairInput, CollisionTas
 		// dma the list of child shapes
 		
 			dmaSize = childShapeCount * sizeof(btCompoundShapeChild);
-#ifdef USE_ADDR64
-			dmaPpuAddress2 = (uint64_t)spuCompoundShape->getChildList();
-#else
-			dmaPpuAddress2 = (uint32_t)spuCompoundShape->getChildList();
-#endif
+
+			dmaPpuAddress2 = (ppu_address_t)spuCompoundShape->getChildList();
+
 			cellDmaGet(lsMem.gSubshapes, dmaPpuAddress2, dmaSize, DMA_TAG(1), 0, 0);
 			cellDmaWaitTagStatusAll(DMA_MASK(1));
 		
@@ -1237,11 +1079,8 @@ void	handleCollisionPair(SpuCollisionPairInput& collisionPairInput, CollisionTas
 			// Dma the child shape
 			
 				dmaSize = getShapeTypeSize(childShape.m_childShapeType);
-#ifdef USE_ADDR64
-				dmaPpuAddress2 = (uint64_t)childShape.m_childShape;
-#else
-				dmaPpuAddress2 = (uint32_t)childShape.m_childShape;
-#endif
+				dmaPpuAddress2 = (ppu_address_t)childShape.m_childShape;
+
 				cellDmaGet(lsMem.gSubshapeShape[i], dmaPpuAddress2, dmaSize, DMA_TAG(1), 0, 0);
 				cellDmaWaitTagStatusAll(DMA_MASK(1));
 			
@@ -1251,15 +1090,10 @@ void	handleCollisionPair(SpuCollisionPairInput& collisionPairInput, CollisionTas
 			cinput.m_shapeType0 = childShape.m_childShapeType;
 			cinput.m_collisionMargin0 = childShape.m_childMargin;
 
-#ifdef USE_ADDR64
+
 			handleCollisionPair(cinput, lsMem, spuContacts,			
-				(uint64_t)childShape.m_childShape, lsMem.gSubshapeShape[i], 
+				(ppu_address_t)childShape.m_childShape, lsMem.gSubshapeShape[i], 
 				collisionShape1Ptr, collisionShape1Loc, false);
-#else
-			handleCollisionPair(cinput, lsMem, spuContacts,			
-				(uint32_t)childShape.m_childShape, lsMem.gSubshapeShape[i], 
-				collisionShape1Ptr, collisionShape1Loc, false);
-#endif
 		}
 	}
 	else if (btBroadphaseProxy::isCompound(collisionPairInput.m_shapeType1) )
@@ -1267,21 +1101,14 @@ void	handleCollisionPair(SpuCollisionPairInput& collisionPairInput, CollisionTas
 		//snPause();
 		
 			dmaSize = getShapeTypeSize(collisionPairInput.m_shapeType0);
-#ifdef USE_ADDR64
 			dmaPpuAddress2 = collisionShape0Ptr;
-#else
-			dmaPpuAddress2 = collisionShape0Ptr;
-#endif
 			cellDmaGet(collisionShape0Loc, dmaPpuAddress2  , dmaSize, DMA_TAG(1), 0, 0);
 			//cellDmaWaitTagStatusAll(DMA_MASK(1));
 		
 		
 			dmaSize = getShapeTypeSize(collisionPairInput.m_shapeType1);
-#ifdef USE_ADDR64
 			dmaPpuAddress2 = collisionShape1Ptr;
-#else
-			dmaPpuAddress2 = collisionShape1Ptr;
-#endif
+
 			cellDmaGet(collisionShape1Loc, dmaPpuAddress2  , dmaSize, DMA_TAG(2), 0, 0);
 			//cellDmaWaitTagStatusAll(DMA_MASK(2));
 			cellDmaWaitTagStatusAll(DMA_MASK(1) | DMA_MASK(2));
@@ -1295,11 +1122,9 @@ void	handleCollisionPair(SpuCollisionPairInput& collisionPairInput, CollisionTas
 		// dma the list of child shapes
 		
 			dmaSize = childShapeCount * sizeof(btCompoundShapeChild);
-#ifdef USE_ADDR64
-			dmaPpuAddress2 = (uint64_t)spuCompoundShape->getChildList();
-#else
-			dmaPpuAddress2 = (uint32_t)spuCompoundShape->getChildList();
-#endif
+
+			dmaPpuAddress2 = (ppu_address_t)spuCompoundShape->getChildList();
+
 			cellDmaGet(lsMem.gSubshapes, dmaPpuAddress2, dmaSize, DMA_TAG(1), 0, 0);
 			cellDmaWaitTagStatusAll(DMA_MASK(1));
 		
@@ -1311,11 +1136,8 @@ void	handleCollisionPair(SpuCollisionPairInput& collisionPairInput, CollisionTas
 			// Dma the child shape
 			
 				dmaSize = getShapeTypeSize(childShape.m_childShapeType);
-#ifdef USE_ADDR64
-				dmaPpuAddress2 = (uint64_t)childShape.m_childShape;
-#else
-				dmaPpuAddress2 = (uint32_t)childShape.m_childShape;
-#endif
+				dmaPpuAddress2 = (ppu_address_t)childShape.m_childShape;
+
 				cellDmaGet(lsMem.gSubshapeShape[i], dmaPpuAddress2, dmaSize, DMA_TAG(1), 0, 0);
 				cellDmaWaitTagStatusAll(DMA_MASK(1));
 			
@@ -1325,15 +1147,10 @@ void	handleCollisionPair(SpuCollisionPairInput& collisionPairInput, CollisionTas
 			cinput.m_shapeType1 = childShape.m_childShapeType;
 			cinput.m_collisionMargin1 = childShape.m_childMargin;
 
-#ifdef USE_ADDR64
 			handleCollisionPair(cinput, lsMem, spuContacts,
 				collisionShape0Ptr, collisionShape0Loc, 
-				(uint64_t)childShape.m_childShape, lsMem.gSubshapeShape[i], false);
-#else
-			handleCollisionPair(cinput, lsMem, spuContacts,
-				collisionShape0Ptr, collisionShape0Loc, 
-				(uint32_t)childShape.m_childShape, lsMem.gSubshapeShape[i], false);
-#endif
+				(ppu_address_t)childShape.m_childShape, lsMem.gSubshapeShape[i], false);
+
 		}
 		
 	}
@@ -1371,22 +1188,18 @@ void	handleCollisionPair(SpuCollisionPairInput& collisionPairInput, CollisionTas
 				
 					dmaSize = getShapeTypeSize(collisionPairInput.m_shapeType0);
 					//uint64_t	dmaPpuAddress2 = (uint64_t)lsMem.gColObj0.getCollisionShape();
-#ifdef USE_ADDR64
+
 					dmaPpuAddress2 = collisionShape0Ptr;
-#else
-					dmaPpuAddress2 = collisionShape0Ptr;
-#endif
+
 					cellDmaGet(collisionShape0Loc, dmaPpuAddress2  , dmaSize, DMA_TAG(1), 0, 0);
 					//cellDmaWaitTagStatusAll(DMA_MASK(1));
 				
 				///dma and initialize the concave object
 				
 					dmaSize = getShapeTypeSize(collisionPairInput.m_shapeType1);
-#ifdef USE_ADDR64
+
 					dmaPpuAddress2 = collisionShape1Ptr;
-#else
-					dmaPpuAddress2 = collisionShape1Ptr;
-#endif
+
 					cellDmaGet(collisionShape1Loc, dmaPpuAddress2  , dmaSize, DMA_TAG(2), 0, 0);
 					//cellDmaWaitTagStatusAll(DMA_MASK(2));
 					cellDmaWaitTagStatusAll(DMA_MASK(1) | DMA_MASK(2));
@@ -1444,13 +1257,9 @@ void	processCollisionTask(void* userPtr, void* lsMemPtr)
 	register unsigned int j;
 	SpuGatherAndProcessWorkUnitInput* wuInputs;	
 	register int dmaSize;
-#ifdef USE_ADDR64
-	register uint64_t	dmaPpuAddress;
-	register uint64_t	dmaPpuAddress2;
-#else
-	register uint32_t	dmaPpuAddress;
-	register uint32_t	dmaPpuAddress2;
-#endif	
+	register ppu_address_t	dmaPpuAddress;
+	register ppu_address_t	dmaPpuAddress2;
+
 	int userInfo;
 	int numPairs;
 	register int p;
@@ -1493,11 +1302,7 @@ void	processCollisionTask(void* userPtr, void* lsMemPtr)
 			if ( btLikely( numPairs ) )
 			{
 					dmaSize = numPairs*sizeof(btBroadphasePair);
-#ifdef USE_ADDR64
 					dmaPpuAddress = wuInputs[j].m_pairArrayPtr+wuInputs[j].m_startIndex * sizeof(btBroadphasePair);
-#else
-					dmaPpuAddress = wuInputs[j].m_pairArrayPtr+wuInputs[j].m_startIndex * sizeof(btBroadphasePair);
-#endif
 					cellDmaGet(&lsMem.gBroadphasePairs, dmaPpuAddress  , dmaSize, DMA_TAG(1), 0, 0);
 					cellDmaWaitTagStatusAll(DMA_MASK(1));
 				
@@ -1523,11 +1328,9 @@ void	processCollisionTask(void* userPtr, void* lsMemPtr)
 
 						
 							dmaSize = sizeof(SpuContactManifoldCollisionAlgorithm);
-#ifdef USE_ADDR64
-							dmaPpuAddress2 = (uint64_t)pair.m_algorithm;
-#else
-							dmaPpuAddress2 = (uint32_t)pair.m_algorithm;
-#endif
+
+							dmaPpuAddress2 = (ppu_address_t)pair.m_algorithm;
+
 							cellDmaGet(&lsMem.gSpuContactManifoldAlgo, dmaPpuAddress2  , dmaSize, DMA_TAG(1), 0, 0);
 							//cellDmaWaitTagStatusAll(DMA_MASK(1));
 						
@@ -1542,11 +1345,9 @@ void	processCollisionTask(void* userPtr, void* lsMemPtr)
 
 						
 						dmaSize = sizeof(btBroadphaseProxy);
-#ifdef USE_ADDR64
-						dmaPpuAddress2 = (uint64_t)pair.m_pProxy0;
-#else
-						dmaPpuAddress2 = (uint32_t)pair.m_pProxy0;
-#endif							
+
+						dmaPpuAddress2 = (ppu_address_t)pair.m_pProxy0;
+
 						lsMem.gProxyPtr0 = (btBroadphaseProxy*) lsMem.bufferProxy0;
 						stallingUnalignedDmaSmallGet(lsMem.gProxyPtr0, dmaPpuAddress2  , dmaSize);
 
@@ -1555,11 +1356,9 @@ void	processCollisionTask(void* userPtr, void* lsMemPtr)
 						
 						
 						dmaSize = sizeof(btBroadphaseProxy);
-#ifdef USE_ADDR64
-						dmaPpuAddress2 = (uint64_t)pair.m_pProxy1;
-#else
-						dmaPpuAddress2 = (uint32_t)pair.m_pProxy1;
-#endif							
+
+						dmaPpuAddress2 = (ppu_address_t)pair.m_pProxy1;
+
 						lsMem.gProxyPtr1 = (btBroadphaseProxy*) lsMem.bufferProxy1;
 						stallingUnalignedDmaSmallGet(lsMem.gProxyPtr1, dmaPpuAddress2  , dmaSize);
 						
@@ -1601,15 +1400,11 @@ void	processCollisionTask(void* userPtr, void* lsMemPtr)
 
 								// Get the collision objects
 								dmaAndSetupCollisionObjects(collisionPairInput, lsMem);
-#ifdef USE_ADDR64
+
 								handleCollisionPair(collisionPairInput, lsMem, spuContacts, 
-									(uint64_t)lsMem.getColObj0()->getCollisionShape(), lsMem.gCollisionShape0,
-									(uint64_t)lsMem.getColObj1()->getCollisionShape(), lsMem.gCollisionShape1);
-#else
-								handleCollisionPair(collisionPairInput, lsMem, spuContacts, 
-									(uint32_t)lsMem.getColObj0()->getCollisionShape(), lsMem.gCollisionShape0,
-									(uint32_t)lsMem.getColObj1()->getCollisionShape(), lsMem.gCollisionShape1);
-#endif
+									(ppu_address_t)lsMem.getColObj0()->getCollisionShape(), lsMem.gCollisionShape0,
+									(ppu_address_t)lsMem.getColObj1()->getCollisionShape(), lsMem.gCollisionShape1);
+
 							}		
 						}
 
