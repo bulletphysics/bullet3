@@ -18,8 +18,6 @@ ADD_LIBRARY(LibLinearMath
 		btMinMax.h
 		btQuaternion.h
 		btStackAlloc.h
-		LibLinearMath.dir
-		btAlignedAllocator.cpp
 		btGeometryUtil.h
 		btMotionState.h
 		btQuickprof.cpp
