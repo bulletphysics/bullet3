@@ -2,6 +2,8 @@ INCLUDE_DIRECTORIES(
 ${BULLET_PHYSICS_SOURCE_DIR}/Extras/LibXML/include ${BULLET_PHYSICS_SOURCE_DIR}/Extras/COLLADA_DOM/include ${BULLET_PHYSICS_SOURCE_DIR}/Extras/COLLADA_DOM/include/1.4
 )
 
+ADD_DEFINITIONS( -D_CRT_SECURE_NO_WARNINGS)
+
 ADD_LIBRARY(LibColladaDom
 			src/1.4/dom/domAccessor.cpp
 			src/1.4/dom/domAnimation.cpp

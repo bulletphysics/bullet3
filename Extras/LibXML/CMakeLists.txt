@@ -2,6 +2,9 @@ INCLUDE_DIRECTORIES(
  ${BULLET_PHYSICS_SOURCE_DIR}/Extras/LibXML ${BULLET_PHYSICS_SOURCE_DIR}/Extras/LibXML/include }
 )
 	
+# Prevent MSVC from moaning
+ADD_DEFINITIONS( -D_CRT_SECURE_NO_WARNINGS)
+	
 ADD_LIBRARY(LibXML
 			c14n.c
 			catalog.c
