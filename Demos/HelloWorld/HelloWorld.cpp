@@ -110,12 +110,23 @@ int main(int argc, char** argv)
 /// Do some simulation
 
 
+
 	for (i=0;i<100;i++)
 	{
 		dynamicsWorld->stepSimulation(1.f/60.f,10);
 		
 		//print positions of all objects
-		
+		for (i=dynamicsWorld->getNumCollisionObjects()-1; i>=0 ;i--)
+		{
+			btCollisionObject* obj = dynamicsWorld->getCollisionObjectArray()[i];
+			btRigidBody* body = btRigidBody::upcast(obj);
+			if (body && body->getMotionState())
+			{
+				btTransform trans;
+				body->getMotionState()->getWorldTransform(trans);
+				printf("world pos = %f,%f,%f\n",float(trans.getOrigin().getX()),float(trans.getOrigin().getY()),float(trans.getOrigin().getZ()));
+			}
+		}
 	}
 
 
