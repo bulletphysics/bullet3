@@ -2,8 +2,8 @@
 <VisualStudioProject
 	ProjectType="Visual C++"
 	Version="7.00"
-	Name="appAllBulletDemos"
-	ProjectGUID="{7CE54E12-D3D5-878F-9CC5-786265A3F9CE}"
+	Name="appMultiThreadedDemo"
+	ProjectGUID="{6D016A7B-39C8-2018-733F-22921BE94AC4}"
 	SccProjectName=""
 	SccLocalPath="">
 	<Platforms>
@@ -13,8 +13,8 @@
 	<Configurations>
 		<Configuration
 			Name="Release|Win32"
-			OutputDirectory="..\..\out\release7\build\appAllBulletDemos\"
-			IntermediateDirectory="..\..\out\release7\build\appAllBulletDemos\"
+			OutputDirectory="..\..\out\release7\build\appMultiThreadedDemo\"
+			IntermediateDirectory="..\..\out\release7\build\appMultiThreadedDemo\"
 			ConfigurationType="1"
 			CharacterSet="2"
 			WholeProgramOptimization="1"
@@ -33,10 +33,10 @@
 				ExceptionHandling="0"
 				AdditionalOptions=" "
 				AdditionalIncludeDirectories=".;..\..;..\..\src;..\..\Glut;..\..\Extras;..\..\Demos\OpenGL;..\..\Extras\ConvexDecomposition;..\..\Extras\GIMPACT\include;..\..\Extras\GIMPACTUtils"
-				PrecompiledHeaderFile="..\..\out\release7\build\appAllBulletDemos\appAllBulletDemos.pch"
-				AssemblerListingLocation="..\..\out\release7\build\appAllBulletDemos\"
-				ObjectFile="..\..\out\release7\build\appAllBulletDemos\"
-				ProgramDataBaseFileName="..\..\out\release7\build\appAllBulletDemos\AllBulletDemos.pdb"
+				PrecompiledHeaderFile="..\..\out\release7\build\appMultiThreadedDemo\appMultiThreadedDemo.pch"
+				AssemblerListingLocation="..\..\out\release7\build\appMultiThreadedDemo\"
+				ObjectFile="..\..\out\release7\build\appMultiThreadedDemo\"
+				ProgramDataBaseFileName="..\..\out\release7\build\appMultiThreadedDemo\MultiThreadedDemo.pdb"
 				WarningLevel="3"
 				SuppressStartupBanner="TRUE"
 				Detect64BitPortabilityProblems="TRUE"
@@ -51,7 +51,7 @@
 				EnableCOMDATFolding="2"
 				GenerateDebugInformation="TRUE"
 				IgnoreDefaultLibraryNames="LIBC,LIBCD"
-				OutputFile="..\..\ReleaseAllBulletDemos.exe"
+				OutputFile="..\..\ReleaseMultiThreadedDemo.exe"
 				SubSystem="1"
 				AdditionalOptions=" "
 				AdditionalDependencies="glut32.lib"
@@ -59,7 +59,7 @@
 				SuppressStartupBanner="TRUE"
 				GenerateManifest="false"
 				AdditionalLibraryDirectories="..\..\Glut"
-				ProgramDatabaseFile="..\..\out\release7\build\appAllBulletDemos\AllBulletDemos.pdb"
+				ProgramDatabaseFile="..\..\out\release7\build\appMultiThreadedDemo\MultiThreadedDemo.pdb"
 				TargetMachine="1"/>
 			<Tool
 				Name="VCLibrarianTool"
@@ -70,7 +70,7 @@
 				MkTypLibCompatible="TRUE"
 				SuppressStartupBanner="TRUE"
 				TargetEnvironment="1"
-				TypeLibraryName="..\..\out\release7\build\appAllBulletDemos\appAllBulletDemos.tlb"/>
+				TypeLibraryName="..\..\out\release7\build\appMultiThreadedDemo\appMultiThreadedDemo.tlb"/>
 			<Tool
 				Name="VCPostBuildEventTool"
 				/>
@@ -90,8 +90,8 @@
 		</Configuration>
 		<Configuration
 			Name="ReleaseDoublePrecision|Win32"
-			OutputDirectory="..\..\out\release_dbl7\build\appAllBulletDemos\"
-			IntermediateDirectory="..\..\out\release_dbl7\build\appAllBulletDemos\"
+			OutputDirectory="..\..\out\release_dbl7\build\appMultiThreadedDemo\"
+			IntermediateDirectory="..\..\out\release_dbl7\build\appMultiThreadedDemo\"
 			ConfigurationType="1"
 			CharacterSet="2"
 			UseOfMFC="0"
@@ -103,10 +103,10 @@
 				ExceptionHandling="0"
 				AdditionalOptions=" "
 				AdditionalIncludeDirectories=".;..\..;..\..\src;..\..\Glut;..\..\Extras;..\..\Demos\OpenGL;..\..\Extras\ConvexDecomposition;..\..\Extras\GIMPACT\include;..\..\Extras\GIMPACTUtils"
-				PrecompiledHeaderFile="..\..\out\release_dbl7\build\appAllBulletDemos\appAllBulletDemos.pch"
-				AssemblerListingLocation="..\..\out\release_dbl7\build\appAllBulletDemos\"
-				ObjectFile="..\..\out\release_dbl7\build\appAllBulletDemos\"
-				ProgramDataBaseFileName="..\..\out\release_dbl7\build\appAllBulletDemos\AllBulletDemos.pdb"
+				PrecompiledHeaderFile="..\..\out\release_dbl7\build\appMultiThreadedDemo\appMultiThreadedDemo.pch"
+				AssemblerListingLocation="..\..\out\release_dbl7\build\appMultiThreadedDemo\"
+				ObjectFile="..\..\out\release_dbl7\build\appMultiThreadedDemo\"
+				ProgramDataBaseFileName="..\..\out\release_dbl7\build\appMultiThreadedDemo\MultiThreadedDemo.pdb"
 				WarningLevel="3"
 				SuppressStartupBanner="TRUE"
 				Detect64BitPortabilityProblems="TRUE"
@@ -116,7 +116,7 @@
 				Name="VCCustomBuildTool"/>
 			<Tool
 				Name="VCLinkerTool"
-                                OutputFile="..\..\ReleaseDblAllBulletDemos.exe"
+                                OutputFile="..\..\ReleaseDblMultiThreadedDemo.exe"
                                 SubSystem="1"
 				AdditionalOptions=" "
 				AdditionalDependencies="glut32.lib"
@@ -124,7 +124,7 @@
 				SuppressStartupBanner="TRUE"
 				GenerateManifest="false"
 				AdditionalLibraryDirectories="..\..\Glut"
-				ProgramDatabaseFile="..\..\out\release_dbl7\build\appAllBulletDemos\AllBulletDemos.pdb"
+				ProgramDatabaseFile="..\..\out\release_dbl7\build\appMultiThreadedDemo\MultiThreadedDemo.pdb"
 				TargetMachine="1"/>
 			<Tool
 				Name="VCLibrarianTool"
@@ -135,7 +135,7 @@
 				MkTypLibCompatible="TRUE"
 				SuppressStartupBanner="TRUE"
 				TargetEnvironment="1"
-				TypeLibraryName="..\..\out\release_dbl7\build\appAllBulletDemos\appAllBulletDemos.tlb"/>
+				TypeLibraryName="..\..\out\release_dbl7\build\appMultiThreadedDemo\appMultiThreadedDemo.tlb"/>
 			<Tool
 				Name="VCPostBuildEventTool"
 				/>
@@ -155,8 +155,8 @@
 		</Configuration>
 		<Configuration
 			Name="Debug|Win32"
-			OutputDirectory="..\..\out\debug7\build\appAllBulletDemos\"
-			IntermediateDirectory="..\..\out\debug7\build\appAllBulletDemos\"
+			OutputDirectory="..\..\out\debug7\build\appMultiThreadedDemo\"
+			IntermediateDirectory="..\..\out\debug7\build\appMultiThreadedDemo\"
 			ConfigurationType="1"
 			CharacterSet="2"
 			UseOfMFC="0"
@@ -173,10 +173,10 @@
 				ExceptionHandling="0"
 				AdditionalOptions=" "
 				AdditionalIncludeDirectories=".;..\..;..\..\src;..\..\Glut;..\..\Extras;..\..\Demos\OpenGL;..\..\Extras\ConvexDecomposition;..\..\Extras\GIMPACT\include;..\..\Extras\GIMPACTUtils"
-				PrecompiledHeaderFile="..\..\out\debug7\build\appAllBulletDemos\appAllBulletDemos.pch"
-				AssemblerListingLocation="..\..\out\debug7\build\appAllBulletDemos\"
-				ObjectFile="..\..\out\debug7\build\appAllBulletDemos\"
-				ProgramDataBaseFileName="..\..\out\debug7\build\appAllBulletDemos\AllBulletDemos.pdb"
+				PrecompiledHeaderFile="..\..\out\debug7\build\appMultiThreadedDemo\appMultiThreadedDemo.pch"
+				AssemblerListingLocation="..\..\out\debug7\build\appMultiThreadedDemo\"
+				ObjectFile="..\..\out\debug7\build\appMultiThreadedDemo\"
+				ProgramDataBaseFileName="..\..\out\debug7\build\appMultiThreadedDemo\MultiThreadedDemo.pdb"
 				WarningLevel="3"
 				SuppressStartupBanner="TRUE"
 				Detect64BitPortabilityProblems="TRUE"
@@ -189,7 +189,7 @@
 				LinkIncremental="2"
 				GenerateDebugInformation="TRUE"
 				IgnoreDefaultLibraryNames="LIBC,LIBCD"
-				OutputFile="..\..\DebugAllBulletDemos.exe"
+				OutputFile="..\..\DebugMultiThreadedDemo.exe"
 				SubSystem="1"
 				AdditionalOptions=" "
 				AdditionalDependencies="glut32.lib"
@@ -197,7 +197,7 @@
 				SuppressStartupBanner="TRUE"
 				GenerateManifest="false"
 				AdditionalLibraryDirectories="..\..\Glut"
-				ProgramDatabaseFile="..\..\out\debug7\build\appAllBulletDemos\AllBulletDemos.pdb"
+				ProgramDatabaseFile="..\..\out\debug7\build\appMultiThreadedDemo\MultiThreadedDemo.pdb"
 				TargetMachine="1"/>
 			<Tool
 				Name="VCLibrarianTool"
@@ -208,7 +208,7 @@
 				MkTypLibCompatible="TRUE"
 				SuppressStartupBanner="TRUE"
 				TargetEnvironment="1"
-				TypeLibraryName="..\..\out\debug7\build\appAllBulletDemos\appAllBulletDemos.tlb"/>
+				TypeLibraryName="..\..\out\debug7\build\appMultiThreadedDemo\appMultiThreadedDemo.tlb"/>
 			<Tool
 				Name="VCPostBuildEventTool"
 				/>
@@ -228,8 +228,8 @@
 		</Configuration>
 		<Configuration
 			Name="DebugDoublePrecision|Win32"
-			OutputDirectory="..\..\out\debug_dbl7\build\appAllBulletDemos\"
-			IntermediateDirectory="..\..\out\debug_dbl7\build\appAllBulletDemos\"
+			OutputDirectory="..\..\out\debug_dbl7\build\appMultiThreadedDemo\"
+			IntermediateDirectory="..\..\out\debug_dbl7\build\appMultiThreadedDemo\"
 			ConfigurationType="1"
 			CharacterSet="2"
 			UseOfMFC="0"
@@ -246,10 +246,10 @@
 				ExceptionHandling="0"
 				AdditionalOptions=" "
 				AdditionalIncludeDirectories=".;..\..;..\..\src;..\..\Glut;..\..\Extras;..\..\Demos\OpenGL;..\..\Extras\ConvexDecomposition;..\..\Extras\GIMPACT\include;..\..\Extras\GIMPACTUtils"
-				PrecompiledHeaderFile="..\..\out\debug_dbl7\build\appAllBulletDemos\appAllBulletDemos.pch"
-				AssemblerListingLocation="..\..\out\debug_dbl7\build\appAllBulletDemos\"
-				ObjectFile="..\..\out\debug_dbl7\build\appAllBulletDemos\"
-				ProgramDataBaseFileName="..\..\out\debug_dbl7\build\appAllBulletDemos\AllBulletDemos.pdb"
+				PrecompiledHeaderFile="..\..\out\debug_dbl7\build\appMultiThreadedDemo\appMultiThreadedDemo.pch"
+				AssemblerListingLocation="..\..\out\debug_dbl7\build\appMultiThreadedDemo\"
+				ObjectFile="..\..\out\debug_dbl7\build\appMultiThreadedDemo\"
+				ProgramDataBaseFileName="..\..\out\debug_dbl7\build\appMultiThreadedDemo\MultiThreadedDemo.pdb"
 				WarningLevel="3"
 				SuppressStartupBanner="TRUE"
 				Detect64BitPortabilityProblems="TRUE"
@@ -259,7 +259,7 @@
 				Name="VCCustomBuildTool"/>
 			<Tool
 				Name="VCLinkerTool"
-                                OutputFile="..\..\DebugDblAllBulletDemos.exe"
+                                OutputFile="..\..\DebugDblMultiThreadedDemo.exe"
                                 SubSystem="1"
 				AdditionalOptions=" "
 				AdditionalDependencies="glut32.lib"
@@ -267,7 +267,7 @@
 				SuppressStartupBanner="TRUE"
 				GenerateManifest="false"
 				AdditionalLibraryDirectories="..\..\Glut"
-				ProgramDatabaseFile="..\..\out\debug_dbl7\build\appAllBulletDemos\AllBulletDemos.pdb"
+				ProgramDatabaseFile="..\..\out\debug_dbl7\build\appMultiThreadedDemo\MultiThreadedDemo.pdb"
 				TargetMachine="1"/>
 			<Tool
 				Name="VCLibrarianTool"
@@ -278,7 +278,7 @@
 				MkTypLibCompatible="TRUE"
 				SuppressStartupBanner="TRUE"
 				TargetEnvironment="1"
-				TypeLibraryName="..\..\out\debug_dbl7\build\appAllBulletDemos\appAllBulletDemos.tlb"/>
+				TypeLibraryName="..\..\out\debug_dbl7\build\appMultiThreadedDemo\appMultiThreadedDemo.tlb"/>
 			<Tool
 				Name="VCPostBuildEventTool"
 				/>
@@ -302,75 +302,24 @@
 			Name="Source Files"
 			Filter="">
 			<File
-				RelativePath="..\..\Demos\AllBulletDemos\..\BasicDemo\BasicDemo.cpp">
+				RelativePath="..\..\Demos\MultiThreadedDemo\main.cpp">
 			</File>
 			<File
-				RelativePath="..\..\Demos\AllBulletDemos\..\BspDemo\BspConverter.cpp">
-			</File>
-			<File
-				RelativePath="..\..\Demos\AllBulletDemos\..\BspDemo\BspDemo.cpp">
-			</File>
-			<File
-				RelativePath="..\..\Demos\AllBulletDemos\..\BspDemo\BspLoader.cpp">
-			</File>
-			<File
-				RelativePath="..\..\Demos\AllBulletDemos\..\CcdPhysicsDemo\CcdPhysicsDemo.cpp">
-			</File>
-			<File
-				RelativePath="..\..\Demos\AllBulletDemos\..\ConcaveConvexcastDemo\ConcaveConvexcastDemo.cpp">
-			</File>
-			<File
-				RelativePath="..\..\Demos\AllBulletDemos\..\ConcaveDemo\ConcavePhysicsDemo.cpp">
-			</File>
-			<File
-				RelativePath="..\..\Demos\AllBulletDemos\..\ConcaveRaycastDemo\ConcaveRaycastDemo.cpp">
-			</File>
-			<File
-				RelativePath="..\..\Demos\AllBulletDemos\..\ConstraintDemo\ConstraintDemo.cpp">
-			</File>
-			<File
-				RelativePath="..\..\Demos\AllBulletDemos\..\ConvexDecompositionDemo\ConvexDecompositionDemo.cpp">
-			</File>
-			<File
-				RelativePath="..\..\Demos\AllBulletDemos\..\DynamicControlDemo\MotorDemo.cpp">
-			</File>
-			<File
-				RelativePath="..\..\Demos\AllBulletDemos\..\GimpactTestDemo\GimpactTestDemo.cpp">
-			</File>
-			<File
-				RelativePath="..\..\Demos\AllBulletDemos\..\GjkConvexCastDemo\LinearConvexCastDemo.cpp">
-			</File>
-			<File
-				RelativePath="..\..\Demos\AllBulletDemos\..\MultiThreadedDemo\MultiThreadedDemo.cpp">
-			</File>
-			<File
-				RelativePath="..\..\Demos\AllBulletDemos\..\RagdollDemo\RagdollDemo.cpp">
-			</File>
-			<File
-				RelativePath="..\..\Demos\AllBulletDemos\..\Raytracer\Raytracer.cpp">
-			</File>
-			<File
-				RelativePath="..\..\Demos\AllBulletDemos\..\VehicleDemo\VehicleDemo.cpp">
-			</File>
-			<File
-				RelativePath="..\..\Demos\AllBulletDemos\DemoEntries.cpp">
-			</File>
-			<File
-				RelativePath="..\..\Demos\AllBulletDemos\Main.cpp">
+				RelativePath="..\..\Demos\MultiThreadedDemo\MultiThreadedDemo.cpp">
 			</File>
 		</Filter>
 		<Filter
 			Name="Header Files"
 			Filter="">
 			<File
-				RelativePath="..\..\Demos\AllBulletDemos\DemoEntries.h">
+				RelativePath="..\..\Demos\MultiThreadedDemo\MultiThreadedDemo.h">
 			</File>
 		</Filter>
 		<Filter
 			Name="Resource Files"
 			Filter="">
 			<File
-				RelativePath="..\..\msvc\appAllBulletDemos.rc">
+				RelativePath="..\..\msvc\appMultiThreadedDemo.rc">
 			</File>
 		</Filter>
 	</Files>

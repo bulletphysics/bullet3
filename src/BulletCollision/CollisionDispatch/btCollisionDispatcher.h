@@ -47,6 +47,8 @@ class btCollisionDispatcher : public btDispatcher
 	btAlignedObjectArray<btPersistentManifold*>	m_manifoldsPtr;
 
 	bool m_useIslands;
+
+	bool	m_staticWarningReported;
 	
 	btManifoldResult	m_defaultManifoldResult;
 

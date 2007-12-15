@@ -222,6 +222,10 @@ SOURCE=..\..\Demos\AllBulletDemos\..\GjkConvexCastDemo\LinearConvexCastDemo.cpp
 # End Source File
 # Begin Source File
 
+SOURCE=..\..\Demos\AllBulletDemos\..\MultiThreadedDemo\MultiThreadedDemo.cpp
+# End Source File
+# Begin Source File
+
 SOURCE=..\..\Demos\AllBulletDemos\..\RagdollDemo\RagdollDemo.cpp
 # End Source File
 # Begin Source File

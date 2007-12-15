@@ -2,8 +2,8 @@
 <VisualStudioProject
 	ProjectType="Visual C++"
 	Version="8.00"
-	Name="appAllBulletDemos"
-	ProjectGUID="{7CE54E12-D3D5-878F-9CC5-786265A3F9CE}"
+	Name="appHelloWorld"
+	ProjectGUID="{5239CE6A-7C7A-2170-6334-DF8EE0C44543}"
 	SccProjectName=""
 	SccLocalPath="">
 	<Platforms>
@@ -13,8 +13,8 @@
 	<Configurations>
 		<Configuration
 			Name="Release|Win32"
-			OutputDirectory="..\..\out\release8\build\appAllBulletDemos\"
-			IntermediateDirectory="..\..\out\release8\build\appAllBulletDemos\"
+			OutputDirectory="..\..\out\release8\build\appHelloWorld\"
+			IntermediateDirectory="..\..\out\release8\build\appHelloWorld\"
 			ConfigurationType="1"
 			CharacterSet="2"
 			WholeProgramOptimization="1"
@@ -32,11 +32,11 @@
 				OptimizeForProcessor="1"
 				ExceptionHandling="0"
 				AdditionalOptions=" "
-				AdditionalIncludeDirectories=".;..\..;..\..\src;..\..\Glut;..\..\Extras;..\..\Demos\OpenGL;..\..\Extras\ConvexDecomposition;..\..\Extras\GIMPACT\include;..\..\Extras\GIMPACTUtils"
-				PrecompiledHeaderFile="..\..\out\release8\build\appAllBulletDemos\appAllBulletDemos.pch"
-				AssemblerListingLocation="..\..\out\release8\build\appAllBulletDemos\"
-				ObjectFile="..\..\out\release8\build\appAllBulletDemos\"
-				ProgramDataBaseFileName="..\..\out\release8\build\appAllBulletDemos\AllBulletDemos.pdb"
+				AdditionalIncludeDirectories=".;..\..;..\..\src"
+				PrecompiledHeaderFile="..\..\out\release8\build\appHelloWorld\appHelloWorld.pch"
+				AssemblerListingLocation="..\..\out\release8\build\appHelloWorld\"
+				ObjectFile="..\..\out\release8\build\appHelloWorld\"
+				ProgramDataBaseFileName="..\..\out\release8\build\appHelloWorld\HelloWorld.pdb"
 				WarningLevel="3"
 				SuppressStartupBanner="TRUE"
 				Detect64BitPortabilityProblems="TRUE"
@@ -51,15 +51,15 @@
 				EnableCOMDATFolding="2"
 				GenerateDebugInformation="TRUE"
 				IgnoreDefaultLibraryNames="LIBC,LIBCD"
-				OutputFile="..\..\ReleaseAllBulletDemos.exe"
+				OutputFile="..\..\ReleaseHelloWorld.exe"
 				SubSystem="1"
 				AdditionalOptions=" "
-				AdditionalDependencies="glut32.lib"
+				AdditionalDependencies=""
 				IgnoreImportLibrary="TRUE"
 				SuppressStartupBanner="TRUE"
 				GenerateManifest="false"
-				AdditionalLibraryDirectories="..\..\Glut"
-				ProgramDatabaseFile="..\..\out\release8\build\appAllBulletDemos\AllBulletDemos.pdb"
+				AdditionalLibraryDirectories=""
+				ProgramDatabaseFile="..\..\out\release8\build\appHelloWorld\HelloWorld.pdb"
 				TargetMachine="1"/>
 			<Tool
 				Name="VCLibrarianTool"
@@ -70,7 +70,7 @@
 				MkTypLibCompatible="TRUE"
 				SuppressStartupBanner="TRUE"
 				TargetEnvironment="1"
-				TypeLibraryName="..\..\out\release8\build\appAllBulletDemos\appAllBulletDemos.tlb"/>
+				TypeLibraryName="..\..\out\release8\build\appHelloWorld\appHelloWorld.tlb"/>
 			<Tool
 				Name="VCPostBuildEventTool"
 				/>
@@ -81,7 +81,7 @@
 			<Tool
 				Name="VCResourceCompilerTool"
 				PreprocessorDefinitions="NDEBUG;_CONSOLE;PROJECTGEN_VERSION=8"
-				AdditionalIncludeDirectories=".;..\..;..\..\src;..\..\Glut;..\..\Extras;..\..\Demos\OpenGL;..\..\Extras\ConvexDecomposition;..\..\Extras\GIMPACT\include;..\..\Extras\GIMPACTUtils"
+				AdditionalIncludeDirectories=".;..\..;..\..\src"
 				Culture="1033"/>
 			<Tool
 				Name="VCWebServiceProxyGeneratorTool"/>
@@ -90,8 +90,8 @@
 		</Configuration>
 		<Configuration
 			Name="ReleaseDoublePrecision|Win32"
-			OutputDirectory="..\..\out\release_dbl8\build\appAllBulletDemos\"
-			IntermediateDirectory="..\..\out\release_dbl8\build\appAllBulletDemos\"
+			OutputDirectory="..\..\out\release_dbl8\build\appHelloWorld\"
+			IntermediateDirectory="..\..\out\release_dbl8\build\appHelloWorld\"
 			ConfigurationType="1"
 			CharacterSet="2"
 			UseOfMFC="0"
@@ -102,11 +102,11 @@
 				OptimizeForProcessor="1"
 				ExceptionHandling="0"
 				AdditionalOptions=" "
-				AdditionalIncludeDirectories=".;..\..;..\..\src;..\..\Glut;..\..\Extras;..\..\Demos\OpenGL;..\..\Extras\ConvexDecomposition;..\..\Extras\GIMPACT\include;..\..\Extras\GIMPACTUtils"
-				PrecompiledHeaderFile="..\..\out\release_dbl8\build\appAllBulletDemos\appAllBulletDemos.pch"
-				AssemblerListingLocation="..\..\out\release_dbl8\build\appAllBulletDemos\"
-				ObjectFile="..\..\out\release_dbl8\build\appAllBulletDemos\"
-				ProgramDataBaseFileName="..\..\out\release_dbl8\build\appAllBulletDemos\AllBulletDemos.pdb"
+				AdditionalIncludeDirectories=".;..\..;..\..\src"
+				PrecompiledHeaderFile="..\..\out\release_dbl8\build\appHelloWorld\appHelloWorld.pch"
+				AssemblerListingLocation="..\..\out\release_dbl8\build\appHelloWorld\"
+				ObjectFile="..\..\out\release_dbl8\build\appHelloWorld\"
+				ProgramDataBaseFileName="..\..\out\release_dbl8\build\appHelloWorld\HelloWorld.pdb"
 				WarningLevel="3"
 				SuppressStartupBanner="TRUE"
 				Detect64BitPortabilityProblems="TRUE"
@@ -116,15 +116,15 @@
 				Name="VCCustomBuildTool"/>
 			<Tool
 				Name="VCLinkerTool"
-                                OutputFile="..\..\ReleaseDblAllBulletDemos.exe"
+                                OutputFile="..\..\ReleaseDblHelloWorld.exe"
                                 SubSystem="1"
 				AdditionalOptions=" "
-				AdditionalDependencies="glut32.lib"
+				AdditionalDependencies=""
 				IgnoreImportLibrary="TRUE"
 				SuppressStartupBanner="TRUE"
 				GenerateManifest="false"
-				AdditionalLibraryDirectories="..\..\Glut"
-				ProgramDatabaseFile="..\..\out\release_dbl8\build\appAllBulletDemos\AllBulletDemos.pdb"
+				AdditionalLibraryDirectories=""
+				ProgramDatabaseFile="..\..\out\release_dbl8\build\appHelloWorld\HelloWorld.pdb"
 				TargetMachine="1"/>
 			<Tool
 				Name="VCLibrarianTool"
@@ -135,7 +135,7 @@
 				MkTypLibCompatible="TRUE"
 				SuppressStartupBanner="TRUE"
 				TargetEnvironment="1"
-				TypeLibraryName="..\..\out\release_dbl8\build\appAllBulletDemos\appAllBulletDemos.tlb"/>
+				TypeLibraryName="..\..\out\release_dbl8\build\appHelloWorld\appHelloWorld.tlb"/>
 			<Tool
 				Name="VCPostBuildEventTool"
 				/>
@@ -146,7 +146,7 @@
 			<Tool
 				Name="VCResourceCompilerTool"
 				PreprocessorDefinitions="NDEBUG;BT_USE_DOUBLE_PRECISION;_CONSOLE;PROJECTGEN_VERSION=8"
-				AdditionalIncludeDirectories=".;..\..;..\..\src;..\..\Glut;..\..\Extras;..\..\Demos\OpenGL;..\..\Extras\ConvexDecomposition;..\..\Extras\GIMPACT\include;..\..\Extras\GIMPACTUtils"
+				AdditionalIncludeDirectories=".;..\..;..\..\src"
 				Culture="1033"/>
 			<Tool
 				Name="VCWebServiceProxyGeneratorTool"/>
@@ -155,8 +155,8 @@
 		</Configuration>
 		<Configuration
 			Name="Debug|Win32"
-			OutputDirectory="..\..\out\debug8\build\appAllBulletDemos\"
-			IntermediateDirectory="..\..\out\debug8\build\appAllBulletDemos\"
+			OutputDirectory="..\..\out\debug8\build\appHelloWorld\"
+			IntermediateDirectory="..\..\out\debug8\build\appHelloWorld\"
 			ConfigurationType="1"
 			CharacterSet="2"
 			UseOfMFC="0"
@@ -172,11 +172,11 @@
 				OptimizeForProcessor="1"
 				ExceptionHandling="0"
 				AdditionalOptions=" "
-				AdditionalIncludeDirectories=".;..\..;..\..\src;..\..\Glut;..\..\Extras;..\..\Demos\OpenGL;..\..\Extras\ConvexDecomposition;..\..\Extras\GIMPACT\include;..\..\Extras\GIMPACTUtils"
-				PrecompiledHeaderFile="..\..\out\debug8\build\appAllBulletDemos\appAllBulletDemos.pch"
-				AssemblerListingLocation="..\..\out\debug8\build\appAllBulletDemos\"
-				ObjectFile="..\..\out\debug8\build\appAllBulletDemos\"
-				ProgramDataBaseFileName="..\..\out\debug8\build\appAllBulletDemos\AllBulletDemos.pdb"
+				AdditionalIncludeDirectories=".;..\..;..\..\src"
+				PrecompiledHeaderFile="..\..\out\debug8\build\appHelloWorld\appHelloWorld.pch"
+				AssemblerListingLocation="..\..\out\debug8\build\appHelloWorld\"
+				ObjectFile="..\..\out\debug8\build\appHelloWorld\"
+				ProgramDataBaseFileName="..\..\out\debug8\build\appHelloWorld\HelloWorld.pdb"
 				WarningLevel="3"
 				SuppressStartupBanner="TRUE"
 				Detect64BitPortabilityProblems="TRUE"
@@ -189,15 +189,15 @@
 				LinkIncremental="2"
 				GenerateDebugInformation="TRUE"
 				IgnoreDefaultLibraryNames="LIBC,LIBCD"
-				OutputFile="..\..\DebugAllBulletDemos.exe"
+				OutputFile="..\..\DebugHelloWorld.exe"
 				SubSystem="1"
 				AdditionalOptions=" "
-				AdditionalDependencies="glut32.lib"
+				AdditionalDependencies=""
 				IgnoreImportLibrary="TRUE"
 				SuppressStartupBanner="TRUE"
 				GenerateManifest="false"
-				AdditionalLibraryDirectories="..\..\Glut"
-				ProgramDatabaseFile="..\..\out\debug8\build\appAllBulletDemos\AllBulletDemos.pdb"
+				AdditionalLibraryDirectories=""
+				ProgramDatabaseFile="..\..\out\debug8\build\appHelloWorld\HelloWorld.pdb"
 				TargetMachine="1"/>
 			<Tool
 				Name="VCLibrarianTool"
@@ -208,7 +208,7 @@
 				MkTypLibCompatible="TRUE"
 				SuppressStartupBanner="TRUE"
 				TargetEnvironment="1"
-				TypeLibraryName="..\..\out\debug8\build\appAllBulletDemos\appAllBulletDemos.tlb"/>
+				TypeLibraryName="..\..\out\debug8\build\appHelloWorld\appHelloWorld.tlb"/>
 			<Tool
 				Name="VCPostBuildEventTool"
 				/>
@@ -219,7 +219,7 @@
 			<Tool
 				Name="VCResourceCompilerTool"
 				PreprocessorDefinitions="_DEBUG;_CONSOLE;PROJECTGEN_VERSION=8"
-				AdditionalIncludeDirectories=".;..\..;..\..\src;..\..\Glut;..\..\Extras;..\..\Demos\OpenGL;..\..\Extras\ConvexDecomposition;..\..\Extras\GIMPACT\include;..\..\Extras\GIMPACTUtils"
+				AdditionalIncludeDirectories=".;..\..;..\..\src"
 				Culture="1033"/>
 			<Tool
 				Name="VCWebServiceProxyGeneratorTool"/>
@@ -228,8 +228,8 @@
 		</Configuration>
 		<Configuration
 			Name="DebugDoublePrecision|Win32"
-			OutputDirectory="..\..\out\debug_dbl8\build\appAllBulletDemos\"
-			IntermediateDirectory="..\..\out\debug_dbl8\build\appAllBulletDemos\"
+			OutputDirectory="..\..\out\debug_dbl8\build\appHelloWorld\"
+			IntermediateDirectory="..\..\out\debug_dbl8\build\appHelloWorld\"
 			ConfigurationType="1"
 			CharacterSet="2"
 			UseOfMFC="0"
@@ -245,11 +245,11 @@
 				OptimizeForProcessor="1"
 				ExceptionHandling="0"
 				AdditionalOptions=" "
-				AdditionalIncludeDirectories=".;..\..;..\..\src;..\..\Glut;..\..\Extras;..\..\Demos\OpenGL;..\..\Extras\ConvexDecomposition;..\..\Extras\GIMPACT\include;..\..\Extras\GIMPACTUtils"
-				PrecompiledHeaderFile="..\..\out\debug_dbl8\build\appAllBulletDemos\appAllBulletDemos.pch"
-				AssemblerListingLocation="..\..\out\debug_dbl8\build\appAllBulletDemos\"
-				ObjectFile="..\..\out\debug_dbl8\build\appAllBulletDemos\"
-				ProgramDataBaseFileName="..\..\out\debug_dbl8\build\appAllBulletDemos\AllBulletDemos.pdb"
+				AdditionalIncludeDirectories=".;..\..;..\..\src"
+				PrecompiledHeaderFile="..\..\out\debug_dbl8\build\appHelloWorld\appHelloWorld.pch"
+				AssemblerListingLocation="..\..\out\debug_dbl8\build\appHelloWorld\"
+				ObjectFile="..\..\out\debug_dbl8\build\appHelloWorld\"
+				ProgramDataBaseFileName="..\..\out\debug_dbl8\build\appHelloWorld\HelloWorld.pdb"
 				WarningLevel="3"
 				SuppressStartupBanner="TRUE"
 				Detect64BitPortabilityProblems="TRUE"
@@ -259,15 +259,15 @@
 				Name="VCCustomBuildTool"/>
 			<Tool
 				Name="VCLinkerTool"
-                                OutputFile="..\..\DebugDblAllBulletDemos.exe"
+                                OutputFile="..\..\DebugDblHelloWorld.exe"
                                 SubSystem="1"
 				AdditionalOptions=" "
-				AdditionalDependencies="glut32.lib"
+				AdditionalDependencies=""
 				IgnoreImportLibrary="TRUE"
 				SuppressStartupBanner="TRUE"
 				GenerateManifest="false"
-				AdditionalLibraryDirectories="..\..\Glut"
-				ProgramDatabaseFile="..\..\out\debug_dbl8\build\appAllBulletDemos\AllBulletDemos.pdb"
+				AdditionalLibraryDirectories=""
+				ProgramDatabaseFile="..\..\out\debug_dbl8\build\appHelloWorld\HelloWorld.pdb"
 				TargetMachine="1"/>
 			<Tool
 				Name="VCLibrarianTool"
@@ -278,7 +278,7 @@
 				MkTypLibCompatible="TRUE"
 				SuppressStartupBanner="TRUE"
 				TargetEnvironment="1"
-				TypeLibraryName="..\..\out\debug_dbl8\build\appAllBulletDemos\appAllBulletDemos.tlb"/>
+				TypeLibraryName="..\..\out\debug_dbl8\build\appHelloWorld\appHelloWorld.tlb"/>
 			<Tool
 				Name="VCPostBuildEventTool"
 				/>
@@ -289,7 +289,7 @@
 			<Tool
 				Name="VCResourceCompilerTool"
 				PreprocessorDefinitions="_DEBUG;BT_USE_DOUBLE_PRECISION;_CONSOLE;PROJECTGEN_VERSION=8"
-				AdditionalIncludeDirectories=".;..\..;..\..\src;..\..\Glut;..\..\Extras;..\..\Demos\OpenGL;..\..\Extras\ConvexDecomposition;..\..\Extras\GIMPACT\include;..\..\Extras\GIMPACTUtils"
+				AdditionalIncludeDirectories=".;..\..;..\..\src"
 				Culture="1033"/>
 			<Tool
 				Name="VCWebServiceProxyGeneratorTool"/>
@@ -302,75 +302,14 @@
 			Name="Source Files"
 			Filter="">
 			<File
-				RelativePath="..\..\Demos\AllBulletDemos\..\BasicDemo\BasicDemo.cpp">
-			</File>
-			<File
-				RelativePath="..\..\Demos\AllBulletDemos\..\BspDemo\BspConverter.cpp">
-			</File>
-			<File
-				RelativePath="..\..\Demos\AllBulletDemos\..\BspDemo\BspDemo.cpp">
-			</File>
-			<File
-				RelativePath="..\..\Demos\AllBulletDemos\..\BspDemo\BspLoader.cpp">
-			</File>
-			<File
-				RelativePath="..\..\Demos\AllBulletDemos\..\CcdPhysicsDemo\CcdPhysicsDemo.cpp">
-			</File>
-			<File
-				RelativePath="..\..\Demos\AllBulletDemos\..\ConcaveConvexcastDemo\ConcaveConvexcastDemo.cpp">
-			</File>
-			<File
-				RelativePath="..\..\Demos\AllBulletDemos\..\ConcaveDemo\ConcavePhysicsDemo.cpp">
-			</File>
-			<File
-				RelativePath="..\..\Demos\AllBulletDemos\..\ConcaveRaycastDemo\ConcaveRaycastDemo.cpp">
-			</File>
-			<File
-				RelativePath="..\..\Demos\AllBulletDemos\..\ConstraintDemo\ConstraintDemo.cpp">
-			</File>
-			<File
-				RelativePath="..\..\Demos\AllBulletDemos\..\ConvexDecompositionDemo\ConvexDecompositionDemo.cpp">
-			</File>
-			<File
-				RelativePath="..\..\Demos\AllBulletDemos\..\DynamicControlDemo\MotorDemo.cpp">
-			</File>
-			<File
-				RelativePath="..\..\Demos\AllBulletDemos\..\GimpactTestDemo\GimpactTestDemo.cpp">
-			</File>
-			<File
-				RelativePath="..\..\Demos\AllBulletDemos\..\GjkConvexCastDemo\LinearConvexCastDemo.cpp">
-			</File>
-			<File
-				RelativePath="..\..\Demos\AllBulletDemos\..\MultiThreadedDemo\MultiThreadedDemo.cpp">
-			</File>
-			<File
-				RelativePath="..\..\Demos\AllBulletDemos\..\RagdollDemo\RagdollDemo.cpp">
-			</File>
-			<File
-				RelativePath="..\..\Demos\AllBulletDemos\..\Raytracer\Raytracer.cpp">
-			</File>
-			<File
-				RelativePath="..\..\Demos\AllBulletDemos\..\VehicleDemo\VehicleDemo.cpp">
-			</File>
-			<File
-				RelativePath="..\..\Demos\AllBulletDemos\DemoEntries.cpp">
-			</File>
-			<File
-				RelativePath="..\..\Demos\AllBulletDemos\Main.cpp">
-			</File>
-		</Filter>
-		<Filter
-			Name="Header Files"
-			Filter="">
-			<File
-				RelativePath="..\..\Demos\AllBulletDemos\DemoEntries.h">
+				RelativePath="..\..\Demos\HelloWorld\HelloWorld.cpp">
 			</File>
 		</Filter>
 		<Filter
 			Name="Resource Files"
 			Filter="">
 			<File
-				RelativePath="..\..\msvc\appAllBulletDemos.rc">
+				RelativePath="..\..\msvc\appHelloWorld.rc">
 			</File>
 		</Filter>
 	</Files>

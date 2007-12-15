@@ -35,6 +35,7 @@ int gNumManifold = 0;
 btCollisionDispatcher::btCollisionDispatcher (btCollisionConfiguration* collisionConfiguration): 
 	m_count(0),
 	m_useIslands(true),
+	m_staticWarningReported(false),
 	m_collisionConfiguration(collisionConfiguration)
 {
 	int i;
@@ -161,13 +162,19 @@ bool	btCollisionDispatcher::needsCollision(btCollisionObject* body0,btCollisionO
 
 	bool needsCollision = true;
 
-	//broadphase filtering already deals with this
-	if ((body0->isStaticObject() || body0->isKinematicObject()) &&
-		(body1->isStaticObject() || body1->isKinematicObject()))
+#ifdef BT_DEBUG
+	if (!m_staticWarningReported)
 	{
-		printf("warning btCollisionDispatcher::needsCollision: static-static collision!\n");
+		//broadphase filtering already deals with this
+		if ((body0->isStaticObject() || body0->isKinematicObject()) &&
+			(body1->isStaticObject() || body1->isKinematicObject()))
+		{
+			m_staticWarningReported = true;
+			printf("warning btCollisionDispatcher::needsCollision: static-static collision!\n");
+		}
 	}
-		
+#endif //BT_DEBUG
+
 	if ((!body0->isActive()) && (!body1->isActive()))
 		needsCollision = false;
 	else if (!body0->checkCollideWith(body1))

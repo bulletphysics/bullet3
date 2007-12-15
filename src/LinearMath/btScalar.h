@@ -30,6 +30,11 @@ inline int	btGetVersion()
 	return BT_BULLET_VERSION;
 }
 
+#if defined(DEBUG) || defined (_DEBUG)
+#define BT_DEBUG
+#endif
+
+
 #ifdef WIN32
 
 		#if defined(__MINGW32__) || defined(__CYGWIN__) || (defined (_MSC_VER) && _MSC_VER < 1300)

@@ -20,6 +20,18 @@ void*	cellDmaLargeGetReadOnly(void *ls, uint64_t ea, uint32_t size, uint32_t tag
 #endif
 }
 
+void*	cellDmaSmallGetReadOnly(void *ls, uint64_t ea, uint32_t size, uint32_t tag, uint32_t tid, uint32_t rid)
+{
+#if defined (__CELLOS_LV2__) || defined (USE_LIBSPE2)
+	cellDmaGetSmall(ls,ea,size,tag,tid,rid);
+	return ls;
+#else
+	return (void*)(uint32_t)ea;
+#endif
+}
+
+
+
 
 void*	cellDmaGetReadOnly(void *ls, uint64_t ea, uint32_t size, uint32_t tag, uint32_t tid, uint32_t rid)
 {

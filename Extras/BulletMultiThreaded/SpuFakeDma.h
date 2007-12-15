@@ -25,11 +25,7 @@
 #define DEBUG_DMA		
 #ifdef DEBUG_DMA
 #define dUASSERT(a,b) if (!(a)) { printf(b);}
-#ifdef USE_ADDR64
-#define uintsize unsigned long long
-#else
-#define uintsize unsigned int
-#endif
+#define uintsize ppu_address_t
 		
 #define cellDmaLargeGet(ls, ea, size, tag, tid, rid) if (  (((uintsize)ls%16) != ((uintsize)ea%16)) || ((((uintsize)ea%16) || ((uintsize)ls%16)) && (( ((uintsize)ls%16) != ((uintsize)size%16) ) || ( ((uintsize)ea%16) != ((uintsize)size%16) ) ) ) || ( ((uintsize)size%16) && ((uintsize)size!=1) && ((uintsize)size!=2) && ((uintsize)size!=4) && ((uintsize)size!=8) ) || (size >= 16384) || !(uintsize)ls || !(uintsize)ea) { \
 															dUASSERT( (((uintsize)ea % 16) == 0) || (size < 16), "XDR Address not aligned: "); \
@@ -116,6 +112,7 @@ int	stallingUnalignedDmaSmallGet(void *ls, uint64_t ea, uint32_t size);
 
 void*	cellDmaLargeGetReadOnly(void *ls, uint64_t ea, uint32_t size, uint32_t tag, uint32_t tid, uint32_t rid);
 void*	cellDmaGetReadOnly(void *ls, uint64_t ea, uint32_t size, uint32_t tag, uint32_t tid, uint32_t rid);
+void*	cellDmaSmallGetReadOnly(void *ls, uint64_t ea, uint32_t size, uint32_t tag, uint32_t tid, uint32_t rid);
 
 
 #endif //FAKE_DMA_H

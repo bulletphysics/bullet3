@@ -272,7 +272,6 @@ SIMD_FORCE_INLINE void small_cache_read(void* buffer, ppu_address_t ea, size_t s
 }
 
 
-#ifdef USE_LIBSPE2
 SIMD_FORCE_INLINE void small_cache_read_triple(	void* ls0, ppu_address_t ea0,
 												void* ls1, ppu_address_t ea1,
 												void* ls2, ppu_address_t ea2,
@@ -290,18 +289,18 @@ SIMD_FORCE_INLINE void small_cache_read_triple(	void* ls0, ppu_address_t ea0,
 		char* localStore0 = (char*)ls0;
 		uint32_t last4BitsOffset = ea0 & 0x0f;
 		char* tmpTarget0 = tmpBuffer0 + last4BitsOffset;
-		cellDmaSmallGet(tmpTarget0,ea0,size,DMA_TAG(1),0,0);
+		cellDmaSmallGetReadOnly(tmpTarget0,ea0,size,DMA_TAG(1),0,0);
 
 
 		char* localStore1 = (char*)ls1;
 		last4BitsOffset = ea1 & 0x0f;
 		char* tmpTarget1 = tmpBuffer1 + last4BitsOffset;
-		cellDmaSmallGet(tmpTarget1,ea1,size,DMA_TAG(1),0,0);
+		cellDmaSmallGetReadOnly(tmpTarget1,ea1,size,DMA_TAG(1),0,0);
 		
 		char* localStore2 = (char*)ls2;
 		last4BitsOffset = ea2 & 0x0f;
 		char* tmpTarget2 = tmpBuffer2 + last4BitsOffset;
-		cellDmaSmallGet(tmpTarget2,ea2,size,DMA_TAG(1),0,0);
+		cellDmaSmallGetReadOnly(tmpTarget2,ea2,size,DMA_TAG(1),0,0);
 		
 		
 		cellDmaWaitTagStatusAll( DMA_MASK(1) );
@@ -316,7 +315,6 @@ SIMD_FORCE_INLINE void small_cache_read_triple(	void* ls0, ppu_address_t ea0,
 
 		
 }
-#endif
 
 
 
@@ -350,17 +348,10 @@ public:
 
 		int* indexBasePtr = (int*)(m_lsMemPtr->gIndexMesh.m_triangleIndexBase+triangleIndex*m_lsMemPtr->gIndexMesh.m_triangleIndexStride);
 
-		///DMA the indices
-#ifdef USE_LIBSPE2
 		small_cache_read_triple(&m_lsMemPtr->spuIndices[0],(ppu_address_t)&indexBasePtr[0],
 								&m_lsMemPtr->spuIndices[1],(ppu_address_t)&indexBasePtr[1],
 								&m_lsMemPtr->spuIndices[2],(ppu_address_t)&indexBasePtr[2],
 								sizeof(int));
-#else
-		small_cache_read(&m_lsMemPtr->spuIndices[0],(ppu_address_t)&indexBasePtr[0],sizeof(int));
-		small_cache_read(&m_lsMemPtr->spuIndices[1],(ppu_address_t)&indexBasePtr[1],sizeof(int));
-		small_cache_read(&m_lsMemPtr->spuIndices[2],(ppu_address_t)&indexBasePtr[2],sizeof(int));
-#endif
 		
 		//		spu_printf("SPU index0=%d ,",spuIndices[0]);
 		//		spu_printf("SPU index1=%d ,",spuIndices[1]);
@@ -380,16 +371,10 @@ public:
 			///handle un-aligned vertices...
 
 			//another DMA for each vertex
-#ifdef USE_LIBSPE2
 			small_cache_read_triple(&spuUnscaledVertex[0],(ppu_address_t)&graphicsbasePtr[0],
 									&spuUnscaledVertex[1],(ppu_address_t)&graphicsbasePtr[1],
 									&spuUnscaledVertex[2],(ppu_address_t)&graphicsbasePtr[2],
 									sizeof(btScalar));
-#else
-			small_cache_read(&spuUnscaledVertex[0],(ppu_address_t)&graphicsbasePtr[0],sizeof(btScalar));
-			small_cache_read(&spuUnscaledVertex[1],(ppu_address_t)&graphicsbasePtr[1],sizeof(btScalar));
-			small_cache_read(&spuUnscaledVertex[2],(ppu_address_t)&graphicsbasePtr[2],sizeof(btScalar));
-#endif		
 			
 			spuTriangleVertices[j] = btVector3(
 				spuUnscaledVertex[0]*meshScaling.getX(),

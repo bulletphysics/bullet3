@@ -176,6 +176,10 @@ SOURCE=..\..\Extras\BulletMultiThreaded\btThreadSupportInterface.cpp
 # End Source File
 # Begin Source File
 
+SOURCE=..\..\Extras\BulletMultiThreaded\SequentialThreadSupport.cpp
+# End Source File
+# Begin Source File
+
 SOURCE=..\..\Extras\BulletMultiThreaded\SpuCollisionTaskProcess.cpp
 # End Source File
 # Begin Source File
