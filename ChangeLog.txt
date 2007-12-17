@@ -1,6 +1,16 @@
 Bullet Continuous Collision Detection and Physics Library
 Primary author and maintainer: Erwin Coumans
 
+2007 Dec 16
+	- Added btRigidBodyConstructionInfo, to make it easier to set individual setting (and leave other untouched) during rigid body construction.
+	Thanks Vangelis Kokkevis for pointing this out.
+	- Fixed memoryleak in the ConstraintDemo and Raytracer demo.
+	- Fixed issue with clearing forces/gravity at the end of the stepSimulation, instead of during internalSingleStepSimulation.
+	Thanks chunky for pointing this out: http://www.bulletphysics.com/Bullet/phpBB3/viewtopic.php?f=9&t=1780
+	- Disabled additional damping in rigid body by default, but enable it in most demos. Set btRigidBodyConstructionInfo m_additionalDamping to true to enable this.
+	- Removed obsolete QUICKPROF BEGIN/END_PROFILE, and enabled BT_PROFILE. Profiling is enabled by default (see Bullet/Demos/OpenGL/DemoApplication.cpp how to use this).
+	User can switch off profiling by enabling define BT_NO_PROFILE in Bullet/src/btQuickprof.h.
+
 2007 Dec 14
 	- Added Hello World and BulletMultiThreaded demos
 	- Add portable version of BulletMultiThreaded, through SequentialThreadSupport (non-parallel but sharing the same code-path)
