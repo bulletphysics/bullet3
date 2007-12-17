@@ -127,7 +127,8 @@ plRigidBodyHandle plCreateRigidBody(	void* user_data,  float mass, plCollisionSh
 		shape->calculateLocalInertia(mass,localInertia);
 	}
 	void* mem = btAlignedAlloc(sizeof(btRigidBody),16);
-	btRigidBody* body = new (mem)btRigidBody(mass, 0,shape,localInertia);
+	btRigidBody::btRigidBodyConstructionInfo rbci(mass, 0,shape,localInertia);
+	btRigidBody* body = new (mem)btRigidBody(rbci);
 	body->setWorldTransform(trans);
 	body->setUserPointer(user_data);
 	return (plRigidBodyHandle) body;

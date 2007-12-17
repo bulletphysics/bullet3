@@ -99,15 +99,17 @@ btDemoEntry g_demoEntries[] =
 {
 	{"DynamicControlDemo",MotorDemo::Create},
 	{"RagdollDemo",RagdollDemo::Create},
+	{"BasicDemo", BasicDemo::Create},	
 	{"CcdPhysicsDemo", CcdPhysicsDemo::Create},
 	{"ConcaveDemo",ConcaveDemo::Create},
 	{"ConcaveRaycastDemo",ConcaveRaycastDemo::Create},
 	{"ConcaveConvexcastDemo",ConcaveConvexcastDemo::Create},
 	{"ConvexDecomposition",ConvexDecompositionDemo::Create},
-	{"BasicDemo", BasicDemo::Create},
 	{"BspDemo", BspDemo::Create},
 	{"Gimpact Test", GimpactConcaveDemo::Create},
+#ifndef BT_USE_DOUBLE_PRECISION
 	{"MultiThreaded", MultiThreadedDemo::Create},
+#endif //BT_USE_DOUBLE_PRECISION
 	{"Raytracer Test",Raytracer::Create},
 	{"GjkConvexCast",LinearConvexCastDemo::Create},
 	{"VehicleDemo",VehicleDemo::Create},

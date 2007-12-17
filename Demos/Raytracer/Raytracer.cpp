@@ -133,6 +133,28 @@ void	Raytracer::initPhysics()
 Raytracer::~Raytracer()
 {
 
+	//cleanup in the reverse order of creation/initialization
+
+	//remove the rigidbodies from the dynamics world and delete them
+	int i;
+	for (i=m_collisionWorld->getNumCollisionObjects()-1; i>=0 ;i--)
+	{
+		btCollisionObject* obj = m_collisionWorld->getCollisionObjectArray()[i];
+		m_collisionWorld->removeCollisionObject( obj );
+		delete obj;
+	}
+
+	//delete collision world
+	delete m_collisionWorld;
+
+	//delete broadphase
+	delete m_overlappingPairCache;
+
+	//delete dispatcher
+	delete m_dispatcher;
+
+	delete m_collisionConfiguration;
+
 	delete raytracePicture;
 	raytracePicture=0;
 }

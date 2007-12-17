@@ -13,32 +13,11 @@ subject to the following restrictions:
 3. This notice may not be removed or altered from any source distribution.
 */
 
-//enable just one, DO_BENCHMARK_PYRAMIDS or DO_WALL
-#define DO_BENCHMARK_PYRAMIDS 1
-//#define DO_WALL 1
-
-//Note: some of those settings need 'DO_WALL' demo
-//#define USE_KINEMATIC_GROUND 1
-//#define PRINT_CONTACT_STATISTICS 1
-//#define REGISTER_BOX_BOX 1 //needs to be used in combination with REGISTER_CUSTOM_COLLISION_ALGORITHM
-//#define USER_DEFINED_FRICTION_MODEL 1
-//#define USE_CUSTOM_NEAR_CALLBACK 1
-//#define CENTER_OF_MASS_SHIFT 1
-//#define VERBOSE_TIMESTEPPING_CONSOLEOUTPUT 1
-
 //#define USE_PARALLEL_SOLVER 1 //experimental parallel solver
 #define USE_PARALLEL_DISPATCHER 1
 
-//following define allows to compare/replace Bullet's constraint solver with ODE quickstep
-//this define requires to either add the libquickstep library (win32, see msvc/8/libquickstep.vcproj) or manually add the files from Extras/quickstep
-//#define COMPARE_WITH_QUICKSTEP 1
-
-
 #include "btBulletDynamicsCommon.h"
 #include "BulletCollision/CollisionDispatch/btSphereSphereCollisionAlgorithm.h"
-#ifdef REGISTER_BOX_BOX
-#include "../Extras/AlternativeCollisionAlgorithms/BoxBoxCollisionAlgorithm.h"
-#endif //REGISTER_BOX_BOX
 #include "BulletCollision/CollisionDispatch/btSphereTriangleCollisionAlgorithm.h"
 
 #ifdef USE_PARALLEL_DISPATCHER
@@ -65,9 +44,6 @@ subject to the following restrictions:
 #endif//USE_PARALLEL_DISPATCHER
 
 
-#ifdef COMPARE_WITH_QUICKSTEP
-#include "../Extras/quickstep/OdeConstraintSolver.h"
-#endif //COMPARE_WITH_QUICKSTEP
 
 #include "LinearMath/btQuickprof.h"
 #include "LinearMath/btIDebugDraw.h"
@@ -133,10 +109,6 @@ void MultiThreadedDemo::createStack( btCollisionShape* boxShape, float halfCubeS
 
 			btRigidBody* body = 0;
 			body = localCreateRigidBody(mass,trans,boxShape);
-#ifdef USER_DEFINED_FRICTION_MODEL	
-		///Advanced use: override the friction solver
-		body->m_frictionSolverType = USER_CONTACT_SOLVER_TYPE1;
-#endif //USER_DEFINED_FRICTION_MODEL
 
 		}
 	}
@@ -163,25 +135,6 @@ void MultiThreadedDemo::clientMoveAndDisplay()
 {
 	glClear(GL_COLOR_BUFFER_BIT | GL_DEPTH_BUFFER_BIT); 
 
-
-#ifdef USE_KINEMATIC_GROUND
-	//btQuaternion kinRotation(btVector3(0,0,1),0.);
-	btVector3 kinTranslation(-0.01,0,0);
-	//kinematic object
-	btCollisionObject* colObj = m_dynamicsWorld->getCollisionObjectArray()[0];
-	//is this a rigidbody with a motionstate? then use the motionstate to update positions!
-	if (btRigidBody::upcast(colObj) && btRigidBody::upcast(colObj)->getMotionState())
-	{
-		btTransform newTrans;
-		btRigidBody::upcast(colObj)->getMotionState()->getWorldTransform(newTrans);
-		newTrans.getOrigin()+=kinTranslation;
-		btRigidBody::upcast(colObj)->getMotionState()->setWorldTransform(newTrans);
-	} else
-	{
-		m_dynamicsWorld->getCollisionObjectArray()[0]->getWorldTransform().getOrigin() += kinTranslation;
-	}
-
-#endif //USE_KINEMATIC_GROUND
 
 
 	float dt = m_clock.getTimeMicroseconds() * 0.000001f;
@@ -243,12 +196,6 @@ void MultiThreadedDemo::clientMoveAndDisplay()
         btProfiler::endBlock("render"); 
 #endif 
 	glFlush();
-	//some additional debugging info
-#ifdef PRINT_CONTACT_STATISTICS
-	printf("num manifolds: %i\n",gNumManifold);
-	printf("num gOverlappingPairs: %i\n",gOverlappingPairs);
-	printf("num gTotalContactPoints : %i\n",gTotalContactPoints );
-#endif //PRINT_CONTACT_STATISTICS
 
 	gTotalContactPoints = 0;
 	glutSwapBuffers();
@@ -291,21 +238,13 @@ void	MultiThreadedDemo::initPhysics()
 	m_collisionShapes.push_back(new btBoxShape (btVector3(200,CUBE_HALF_EXTENTS,200)));
 #endif
 
-#ifdef DO_BENCHMARK_PYRAMIDS
 	m_collisionShapes.push_back(new btBoxShape (btVector3(CUBE_HALF_EXTENTS,CUBE_HALF_EXTENTS,CUBE_HALF_EXTENTS)));
-#else
-	m_collisionShapes.push_back(new btCylinderShape (btVector3(CUBE_HALF_EXTENTS,CUBE_HALF_EXTENTS,CUBE_HALF_EXTENTS)));
-#endif
 	
 
 
-#ifdef DO_BENCHMARK_PYRAMIDS
 	setCameraDistance(32.5f);
-#endif
 
-#ifdef DO_BENCHMARK_PYRAMIDS
 	m_azi = 90.f;
-#endif //DO_BENCHMARK_PYRAMIDS
 
 	m_dispatcher=0;
 	m_collisionConfiguration = new btDefaultCollisionConfiguration();
@@ -360,28 +299,12 @@ int maxNumOutstandingTasks = 4;
 	m_dispatcher = new	btCollisionDispatcher(m_collisionConfiguration);
 #endif //USE_PARALLEL_DISPATCHER
 
-#ifdef USE_CUSTOM_NEAR_CALLBACK
-	//this is optional
-	m_dispatcher->setNearCallback(customNearCallback);
-#endif
 
 	btVector3 worldAabbMin(-1000,-1000,-1000);
 	btVector3 worldAabbMax(1000,1000,1000);
 
 	m_broadphase = new btAxisSweep3(worldAabbMin,worldAabbMax,maxProxies);
-/// For large worlds or over 16384 objects, use the bt32BitAxisSweep3 broadphase
-//	m_broadphase = new bt32BitAxisSweep3(worldAabbMin,worldAabbMax,maxProxies);
-/// When trying to debug broadphase issues, try to use the btSimpleBroadphase
-//	m_broadphase = new btSimpleBroadphase;
-	
-	//box-box is in Extras/AlternativeCollisionAlgorithms:it requires inclusion of those files
-#ifdef REGISTER_BOX_BOX
-	m_dispatcher->registerCollisionCreateFunc(BOX_SHAPE_PROXYTYPE,BOX_SHAPE_PROXYTYPE,new BoxBoxCollisionAlgorithm::CreateFunc);
-#endif //REGISTER_BOX_BOX
 
-#ifdef COMPARE_WITH_QUICKSTEP
-	m_solver = new OdeConstraintSolver();
-#else
 
 	
 #ifdef USE_PARALLEL_SOLVER
@@ -411,9 +334,6 @@ int maxNumOutstandingTasks = 4;
 	
 #endif //USE_PARALLEL_SOLVER
 
-#endif
-		
-
 		btDiscreteDynamicsWorld* world = new btDiscreteDynamicsWorld(m_dispatcher,m_broadphase,m_solver,m_collisionConfiguration);
 		m_dynamicsWorld = world;
 
@@ -441,7 +361,6 @@ int maxNumOutstandingTasks = 4;
 	}
 
 
-#ifdef DO_BENCHMARK_PYRAMIDS
 	btTransform trans;
 	trans.setIdentity();
 	
@@ -463,9 +382,6 @@ int maxNumOutstandingTasks = 4;
 		float zPos = (i-numWalls/2) * wallDistance;
 		createStack(m_collisionShapes[shapeIndex[1]],halfExtents,wallHeight,zPos);
 	}
-//	createStack(m_collisionShapes[shapeIndex[1]],halfExtends,20,10);
-
-//	createStack(m_collisionShapes[shapeIndex[1]],halfExtends,20,20);
 #define DESTROYER_BALL 1
 #ifdef DESTROYER_BALL
 	btTransform sphereTrans;
@@ -476,7 +392,6 @@ int maxNumOutstandingTasks = 4;
 	btRigidBody* ballBody = localCreateRigidBody(10000.f,sphereTrans,ball);
 	ballBody->setLinearVelocity(btVector3(0,0,-10));
 #endif 
-#endif //DO_BENCHMARK_PYRAMIDS
 //	clientResetScene();
 
 

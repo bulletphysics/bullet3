@@ -363,7 +363,9 @@ btRigidBody* RagDoll::localCreateRigidBody (btScalar mass, const btTransform& st
 		shape->calculateLocalInertia(mass,localInertia);
 
 	btDefaultMotionState* myMotionState = new btDefaultMotionState(startTransform);
-	btRigidBody* body = new btRigidBody(mass,myMotionState,shape,localInertia);
+	btRigidBody::btRigidBodyConstructionInfo rbInfo(mass,myMotionState,shape,localInertia);
+	rbInfo.m_additionalDamping = true;
+	btRigidBody* body = new btRigidBody(rbInfo);
 
 	m_ownerWorld->addRigidBody(body);
 

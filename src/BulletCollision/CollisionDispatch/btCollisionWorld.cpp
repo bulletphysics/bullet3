@@ -115,7 +115,7 @@ void	btCollisionWorld::addCollisionObject(btCollisionObject* collisionObject,sho
 
 void	btCollisionWorld::updateAabbs()
 {
-	PROFILE("updateAabbs");
+	BT_PROFILE("updateAabbs");
 	
 	btTransform predictedTrans;
 	for ( int i=0;i<m_collisionObjects.size();i++)
@@ -152,38 +152,29 @@ void	btCollisionWorld::updateAabbs()
 		}
 	}
 	
-	END_PROFILE("updateAabbs");
 }
 
 
 
 void	btCollisionWorld::performDiscreteCollisionDetection()
 {
-	PROFILE("performDiscreteCollisionDetection");
+	BT_PROFILE("performDiscreteCollisionDetection");
 
 	btDispatcherInfo& dispatchInfo = getDispatchInfo();
-
-	BEGIN_PROFILE("perform Broadphase Collision Detection");
-
 
 	updateAabbs();
 
 	{
-		PROFILE("calculateOverlappingPairs");
 		m_broadphasePairCache->calculateOverlappingPairs(m_dispatcher1);
 	}
 
-	END_PROFILE("perform Broadphase Collision Detection");
-
-	BEGIN_PROFILE("performDiscreteCollisionDetection");
 
 	btDispatcher* dispatcher = getDispatcher();
 	{
-		PROFILE("dispatchAllCollisionPairs");
+		BT_PROFILE("dispatchAllCollisionPairs");
 		if (dispatcher)
 			dispatcher->dispatchAllCollisionPairs(m_broadphasePairCache->getOverlappingPairCache(),dispatchInfo,m_dispatcher1);
 	}
-	END_PROFILE("performDiscreteCollisionDetection");
 
 }
 

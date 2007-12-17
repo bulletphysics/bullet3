@@ -23,8 +23,6 @@
 
 #include "BulletDynamics/ConstraintSolver/btContactConstraint.h"
 
-
-
 static btRigidBody s_fixedObject( 0,0,0);
 
 btRaycastVehicle::btRaycastVehicle(const btVehicleTuning& tuning,btRigidBody* chassis,	btVehicleRaycaster* raycaster )

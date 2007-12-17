@@ -109,7 +109,7 @@ void btParallelSequentialImpulseSolver::prepareSolve(int numBodies, int numManif
 
 btScalar btParallelSequentialImpulseSolver::solveGroup(btCollisionObject** bodies,int numBodies,btPersistentManifold** manifold,int numManifolds,btTypedConstraint** constraints,int numConstraints, const btContactSolverInfo& info,class btIDebugDraw* debugDrawer, btStackAlloc* stackAlloc,btDispatcher* dispatcher)
 {
-	PROFILE("parallel_solveGroup");
+	BT_PROFILE("parallel_solveGroup");
 
 	if (!numManifolds && !numConstraints)
 		return 0;
@@ -262,7 +262,7 @@ btAlignedObjectArray<SpuSolverConstraint> solverConstraintPool_persist;
 
 void btParallelSequentialImpulseSolver::allSolved (const btContactSolverInfo& info,class btIDebugDraw* debugDrawer, btStackAlloc* stackAlloc)
 {
-	PROFILE("parallel_allSolved");
+	BT_PROFILE("parallel_allSolved");
 
 	if (!m_numberOfContacts && !m_sortedConstraints.size())
 	{
@@ -353,7 +353,7 @@ void btParallelSequentialImpulseSolver::allSolved (const btContactSolverInfo& in
 
 	// Setup all the moving rigid bodies
 	{
-		PROFILE("setup moving rigidbodies");
+		BT_PROFILE("setup moving rigidbodies");
 
 		int bodiesPerTask = PARALLEL_SOLVER_BODIES_PER_TASK;
 		int bodiesToSchedule = numBodies;
@@ -417,7 +417,7 @@ void btParallelSequentialImpulseSolver::allSolved (const btContactSolverInfo& in
 	}
 
 	{
-		PROFILE("parallel_solve_iterations");
+		BT_PROFILE("parallel_solve_iterations");
 
 		btSpinlock::SpinVariable* spinVar = (btSpinlock::SpinVariable*)btAlignedAlloc(sizeof(btSpinlock::SpinVariable), 128);
 		for (int iter = 0; iter < info.m_numIterations; ++iter)

@@ -125,7 +125,8 @@ void	BasicDemo::initPhysics()
 
 		//using motionstate is recommended, it provides interpolation capabilities, and only synchronizes 'active' objects
 		btDefaultMotionState* myMotionState = new btDefaultMotionState(groundTransform);
-		btRigidBody* body = new btRigidBody(mass,myMotionState,groundShape,localInertia);
+		btRigidBody::btRigidBodyConstructionInfo rbInfo(mass,myMotionState,groundShape,localInertia);
+		btRigidBody* body = new btRigidBody(rbInfo);
 
 		//add the body to the dynamics world
 		m_dynamicsWorld->addRigidBody(body);
@@ -171,7 +172,8 @@ void	BasicDemo::initPhysics()
 			
 					//using motionstate is recommended, it provides interpolation capabilities, and only synchronizes 'active' objects
 					btDefaultMotionState* myMotionState = new btDefaultMotionState(startTransform);
-					btRigidBody* body = new btRigidBody(mass,myMotionState,colShape,localInertia);
+					btRigidBody::btRigidBodyConstructionInfo rbInfo(mass,myMotionState,colShape,localInertia);
+					btRigidBody* body = new btRigidBody(rbInfo);
 
 					m_dynamicsWorld->addRigidBody(body);
 				}

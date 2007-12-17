@@ -62,7 +62,8 @@ class MyColladaConverter : public ColladaConverter
 			{
 				if (!bodyOther)
 				{
-					 bodyOther = new btRigidBody(0,0,0);
+					btRigidBody::btRigidBodyConstructionInfo	cinfo(0,0,0);
+					bodyOther = new btRigidBody(cinfo);
 
 					 bodyOther->setWorldTransform(bodyRef->getWorldTransform());
 					 localAttachmentOther = localAttachmentFrameRef;

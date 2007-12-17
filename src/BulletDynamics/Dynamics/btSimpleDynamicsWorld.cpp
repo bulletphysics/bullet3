@@ -188,8 +188,9 @@ void	btSimpleDynamicsWorld::predictUnconstraintMotion(btScalar timeStep)
 			{
 				if (body->isActive())
 				{
-					body->applyForces( timeStep);
+					body->applyGravity();
 					body->integrateVelocities( timeStep);
+					body->applyDamping(timeStep);
 					body->predictIntegratedTransform(timeStep,body->getInterpolationWorldTransform());
 				}
 			}

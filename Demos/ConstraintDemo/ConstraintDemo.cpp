@@ -114,7 +114,6 @@ void	ConstraintDemo::initPhysics()
 	}
 
 	
-
 	//create a slider, using the generic D6 constraint
 	{
 		mass = 1.f;
@@ -130,6 +129,7 @@ void	ConstraintDemo::initPhysics()
 		d6body0 = localCreateRigidBody( mass,trans,shape);
 		d6body0->setActivationState(DISABLE_DEACTIVATION);
 		btRigidBody* fixedBody1 = localCreateRigidBody(0,trans,0);
+		m_dynamicsWorld->addRigidBody(fixedBody1);
 
 		btTransform frameInA, frameInB;
 		frameInA = btTransform::getIdentity();
@@ -154,8 +154,17 @@ ConstraintDemo::~ConstraintDemo()
 {
 	//cleanup in the reverse order of creation/initialization
 
-	//remove the rigidbodies from the dynamics world and delete them
 	int i;
+
+	//removed/delete constraints
+	for (i=m_dynamicsWorld->getNumConstraints()-1; i>=0 ;i--)
+	{
+		btTypedConstraint* constraint = m_dynamicsWorld->getConstraint(i);
+		m_dynamicsWorld->removeConstraint(constraint);
+		delete constraint;
+	}
+
+	//remove the rigidbodies from the dynamics world and delete them
 	for (i=m_dynamicsWorld->getNumCollisionObjects()-1; i>=0 ;i--)
 	{
 		btCollisionObject* obj = m_dynamicsWorld->getCollisionObjectArray()[i];
@@ -167,6 +176,9 @@ ConstraintDemo::~ConstraintDemo()
 		m_dynamicsWorld->removeCollisionObject( obj );
 		delete obj;
 	}
+
+
+
 
 	//delete collision shapes
 	for (int j=0;j<m_collisionShapes.size();j++)

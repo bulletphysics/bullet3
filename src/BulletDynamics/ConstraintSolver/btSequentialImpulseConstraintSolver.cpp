@@ -36,9 +36,6 @@ subject to the following restrictions:
 
 #include "LinearMath/btAlignedObjectArray.h"
 
-#ifdef USE_PROFILE
-#include "LinearMath/btQuickprof.h"
-#endif //USE_PROFILE
 
 int totalCpd = 0;
 
@@ -434,7 +431,7 @@ void	btSequentialImpulseConstraintSolver::addFrictionConstraint(const btVector3&
 
 btScalar btSequentialImpulseConstraintSolver::solveGroupCacheFriendlySetup(btCollisionObject** bodies,int numBodies,btPersistentManifold** manifoldPtr, int numManifolds,btTypedConstraint** constraints,int numConstraints,const btContactSolverInfo& infoGlobal,btIDebugDraw* debugDrawer,btStackAlloc* stackAlloc)
 {
-	PROFILE("solveGroupCacheFriendlySetup");
+	BT_PROFILE("solveGroupCacheFriendlySetup");
 	(void)stackAlloc;
 	(void)debugDrawer;
 
@@ -473,7 +470,6 @@ btScalar btSequentialImpulseConstraintSolver::solveGroupCacheFriendlySetup(btCol
 	btVector3 color(0,1,0);
 
 
-	BEGIN_PROFILE("gatherSolverData");
 
 	//int sizeofSB = sizeof(btSolverBody);
 	//int sizeofSC = sizeof(btSolverConstraint);
@@ -706,10 +702,7 @@ btScalar btSequentialImpulseConstraintSolver::solveGroupCacheFriendlySetup(btCol
 			}
 		}
 	}
-	END_PROFILE("gatherSolverData");
-
-	BEGIN_PROFILE("prepareConstraints");
-
+	
 	btContactSolverInfo info = infoGlobal;
 
 	{
@@ -743,16 +736,13 @@ btScalar btSequentialImpulseConstraintSolver::solveGroupCacheFriendlySetup(btCol
 
 
 
-
-	END_PROFILE("prepareConstraints");
 	return 0.f;
 
 }
 
 btScalar btSequentialImpulseConstraintSolver::solveGroupCacheFriendlyIterations(btCollisionObject** bodies,int numBodies,btPersistentManifold** manifoldPtr, int numManifolds,btTypedConstraint** constraints,int numConstraints,const btContactSolverInfo& infoGlobal,btIDebugDraw* debugDrawer,btStackAlloc* stackAlloc)
 {
-	PROFILE("solveGroupCacheFriendlyIterations");
-	BEGIN_PROFILE("solveConstraintsIterations");
+	BT_PROFILE("solveGroupCacheFriendlyIterations");
 	int numConstraintPool = m_tmpSolverConstraintPool.size();
 	int numFrictionPool = m_tmpSolverFrictionConstraintPool.size();
 
@@ -784,7 +774,7 @@ btScalar btSequentialImpulseConstraintSolver::solveGroupCacheFriendlyIterations(
 
 			for (j=0;j<numConstraints;j++)
 			{
-				PROFILE("solveConstraint");
+				BT_PROFILE("solveConstraint");
 				btTypedConstraint* constraint = constraints[j];
 				///todo: use solver bodies, so we don't need to copy from/to btRigidBody
 
@@ -811,7 +801,7 @@ btScalar btSequentialImpulseConstraintSolver::solveGroupCacheFriendlyIterations(
 			}
 
 			{
-				PROFILE("resolveSingleCollisionCombinedCacheFriendly");
+				BT_PROFILE("resolveSingleCollisionCombinedCacheFriendly");
 				int numPoolConstraints = m_tmpSolverConstraintPool.size();
 				for (j=0;j<numPoolConstraints;j++)
 				{
@@ -823,7 +813,7 @@ btScalar btSequentialImpulseConstraintSolver::solveGroupCacheFriendlyIterations(
 			}
 
 			{
-				PROFILE("resolveSingleFrictionCacheFriendly");
+				BT_PROFILE("resolveSingleFrictionCacheFriendly");
 				 int numFrictionPoolConstraints = m_tmpSolverFrictionConstraintPool.size();
 				
 				 for (j=0;j<numFrictionPoolConstraints;j++)
@@ -842,8 +832,7 @@ btScalar btSequentialImpulseConstraintSolver::solveGroupCacheFriendlyIterations(
 		}
 	}
 
-		END_PROFILE("solveConstraintsIterations");
-
+	
 		return 0.f;
 }
 
@@ -855,14 +844,12 @@ btScalar btSequentialImpulseConstraintSolver::solveGroupCacheFriendly(btCollisio
 	solveGroupCacheFriendlySetup( bodies, numBodies, manifoldPtr,  numManifolds,constraints, numConstraints,infoGlobal,debugDrawer, stackAlloc);
 	solveGroupCacheFriendlyIterations(bodies, numBodies, manifoldPtr,  numManifolds,constraints, numConstraints,infoGlobal,debugDrawer, stackAlloc);
 
-	BEGIN_PROFILE("solveWriteBackVelocity");
 		
 	for ( i=0;i<m_tmpSolverBodyPool.size();i++)
 	{
 		m_tmpSolverBodyPool[i].writebackVelocity();
 	}
 
-	END_PROFILE("solveWriteBackVelocity");
 
 //	printf("m_tmpSolverConstraintPool.size() = %i\n",m_tmpSolverConstraintPool.size());
 
@@ -888,7 +875,7 @@ btScalar btSequentialImpulseConstraintSolver::solveGroupCacheFriendly(btCollisio
 /// btSequentialImpulseConstraintSolver Sequentially applies impulses
 btScalar btSequentialImpulseConstraintSolver::solveGroup(btCollisionObject** bodies,int numBodies,btPersistentManifold** manifoldPtr, int numManifolds,btTypedConstraint** constraints,int numConstraints,const btContactSolverInfo& infoGlobal,btIDebugDraw* debugDrawer,btStackAlloc* stackAlloc,btDispatcher* dispatcher)
 {
-	PROFILE("solveGroup");
+	BT_PROFILE("solveGroup");
 	if (getSolverMode() & SOLVER_CACHE_FRIENDLY)
 	{
 		//you need to provide at least some bodies
@@ -898,16 +885,11 @@ btScalar btSequentialImpulseConstraintSolver::solveGroup(btCollisionObject** bod
 		return solveGroupCacheFriendly(bodies,numBodies,manifoldPtr, numManifolds,constraints,numConstraints,infoGlobal,debugDrawer,stackAlloc);
 	}
 
-
-	BEGIN_PROFILE("prepareConstraints");
 	
 
 	btContactSolverInfo info = infoGlobal;
 
 	int numiter = infoGlobal.m_numIterations;
-#ifdef USE_PROFILE
-	btProfiler::beginBlock("solve");
-#endif //USE_PROFILE
 
 	int totalPoints = 0;
 
@@ -937,10 +919,6 @@ btScalar btSequentialImpulseConstraintSolver::solveGroup(btCollisionObject** bod
 		}
 	}
 	
-	END_PROFILE("prepareConstraints");
-
-
-	BEGIN_PROFILE("solveConstraints");
 
 	//should traverse the contacts random order...
 	int iteration;
@@ -985,13 +963,6 @@ btScalar btSequentialImpulseConstraintSolver::solveGroup(btCollisionObject** bod
 		}
 	}
 		
-	END_PROFILE("solveConstraints");
-
-
-#ifdef USE_PROFILE
-	btProfiler::endBlock("solve");
-#endif //USE_PROFILE
-
 
 
 

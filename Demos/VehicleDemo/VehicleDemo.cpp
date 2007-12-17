@@ -147,9 +147,6 @@ VehicleDemo::~VehicleDemo()
 
 void VehicleDemo::initPhysics()
 {
-
-	extern btScalar	gJitterVelocityDampingFactor;
-	gJitterVelocityDampingFactor = 1.f;
 	
 #ifdef FORCE_ZAXIS_UP
 	m_cameraUp = btVector3(0,0,1);

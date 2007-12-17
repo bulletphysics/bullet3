@@ -138,7 +138,7 @@ class btPersistentManifoldSortPredicate
 void btSimulationIslandManager::buildAndProcessIslands(btDispatcher* dispatcher,btCollisionObjectArray& collisionObjects, IslandCallback* callback)
 {
 
-	BEGIN_PROFILE("islandUnionFindAndHeapSort");
+	BT_PROFILE("islandUnionFindAndHeapSort");
 	
 	//we are going to sort the unionfind array, and store the element id in the size
 	//afterwards, we clean unionfind, to make sure no-one uses it anymore
@@ -294,8 +294,6 @@ void btSimulationIslandManager::buildAndProcessIslands(btDispatcher* dispatcher,
 	int endManifoldIndex = 1;
 
 	//int islandId;
-
-	END_PROFILE("islandUnionFindAndHeapSort");
 
 	
 

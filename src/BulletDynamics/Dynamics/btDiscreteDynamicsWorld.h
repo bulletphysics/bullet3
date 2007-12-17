@@ -59,7 +59,7 @@ protected:
 
 	int	m_profileTimings;
 
-	void	predictUnconstraintMotion(btScalar timeStep);
+	virtual void	predictUnconstraintMotion(btScalar timeStep);
 	
 	void	integrateTransforms(btScalar timeStep);
 		
@@ -148,9 +148,12 @@ public:
 	{
 		return BT_DISCRETE_DYNAMICS_WORLD;
 	}
-
 	
+	///the forces on each rigidbody is accumulating together with gravity. clear this after each timestep.
 	virtual void	clearForces();
+
+	///apply gravity, call this once per timestep
+	virtual void	applyGravity();
 
 
 };

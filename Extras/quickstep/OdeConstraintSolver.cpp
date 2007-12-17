@@ -69,7 +69,6 @@ OdeConstraintSolver::OdeConstraintSolver():
 //iterative lcp and penalty method
 btScalar OdeConstraintSolver::solveGroup(btCollisionObject** bodies,int numBulletBodies,btPersistentManifold** manifoldPtr, int numManifolds,btTypedConstraint** constraints,int numConstraints,const btContactSolverInfo& infoGlobal,btIDebugDraw* debugDrawer,btStackAlloc* stackAlloc,btDispatcher* dispatcher)
 {
-    BEGIN_PROFILE("prepareConstraints");
 
     m_CurBody = 0;
     m_CurJoint = 0;
@@ -126,9 +125,7 @@ btScalar OdeConstraintSolver::solveGroup(btCollisionObject** bodies,int numBulle
 	//	printf(" numJoints > numManifolds * 4 + numConstraints");
 
 
-    END_PROFILE("prepareConstraints");
-    BEGIN_PROFILE("solveConstraints");
-    m_SorLcpSolver.SolveInternal1(m_cfm,m_erp,m_odeBodies,numBodies,m_joints,numJoints,infoGlobal,stackAlloc); ///do
+     m_SorLcpSolver.SolveInternal1(m_cfm,m_erp,m_odeBodies,numBodies,m_joints,numJoints,infoGlobal,stackAlloc); ///do
 
     //write back resulting velocities
     for (int i=0;i<numBodies;i++)
@@ -139,8 +136,7 @@ btScalar OdeConstraintSolver::solveGroup(btCollisionObject** bodies,int numBulle
             m_odeBodies[i]->m_originalBody->setAngularVelocity(m_odeBodies[i]->m_angularVelocity);
         }
     }
-    END_PROFILE("solveConstraints");
-
+ 
 
 	/// Remotion, just free all this here
 	m_odeBodies.clear();

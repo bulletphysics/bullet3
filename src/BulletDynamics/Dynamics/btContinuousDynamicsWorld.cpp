@@ -116,13 +116,10 @@ void	btContinuousDynamicsWorld::calculateTimeOfImpacts(btScalar timeStep)
 
 		///calculate time of impact for overlapping pairs
 
-		BEGIN_PROFILE("performContinuousCollisionDetection");
 
 		btDispatcher* dispatcher = getDispatcher();
 		if (dispatcher)
 			dispatcher->dispatchAllCollisionPairs(m_broadphasePairCache->getOverlappingPairCache(),dispatchInfo,m_dispatcher1);
-
-		END_PROFILE("performContinuousCollisionDetection");
 
 		toi = dispatchInfo.m_timeOfImpact;
 
@@ -132,7 +129,6 @@ void	btContinuousDynamicsWorld::calculateTimeOfImpacts(btScalar timeStep)
 
 void	btContinuousDynamicsWorld::updateTemporalAabbs(btScalar timeStep)
 {
-	BEGIN_PROFILE("perform Temporal Broadphase Collision Detection");
 
 	btVector3 temporalAabbMin,temporalAabbMax;
 
@@ -187,7 +183,6 @@ void	btContinuousDynamicsWorld::updateTemporalAabbs(btScalar timeStep)
 
 	m_broadphasePairCache->calculateOverlappingPairs(m_dispatcher1);
 	
-	END_PROFILE("perform Temporal Broadphase Collision Detection");
 
 
 }

@@ -489,7 +489,7 @@ void	DemoApplication::shootBox(const btVector3& destination)
 
 	if (m_dynamicsWorld)
 	{
-		float mass = 100.f;
+		float mass = 10.f;
 		btTransform startTransform;
 		startTransform.setIdentity();
 		btVector3 camPos = getCameraPosition();
@@ -502,7 +502,7 @@ void	DemoApplication::shootBox(const btVector3& destination)
 		btConvexShape* childShape = new btBoxShape(btVector3(1.f,1.f,1.f));
 		m_shootBoxShape = new btUniformScalingShape(childShape,0.5f);
 #else
-		m_shootBoxShape = new btBoxShape(btVector3(0.5f,0.5f,0.5f));
+		m_shootBoxShape = new btBoxShape(btVector3(1.f,1.f,1.f));
 #endif//
 		}
 
@@ -736,7 +736,7 @@ btRigidBody*	DemoApplication::localCreateRigidBody(float mass, const btTransform
 #define USE_MOTIONSTATE 1
 #ifdef USE_MOTIONSTATE
 	btDefaultMotionState* myMotionState = new btDefaultMotionState(startTransform);
-	btRigidBody* body = new btRigidBody(mass,myMotionState,shape,localInertia);
+	btRigidBody* body = new btRigidBody(btRigidBody::btRigidBodyConstructionInfo(mass,myMotionState,shape,localInertia));
 
 #else
 	btRigidBody* body = new btRigidBody(mass,0,shape,localInertia);	

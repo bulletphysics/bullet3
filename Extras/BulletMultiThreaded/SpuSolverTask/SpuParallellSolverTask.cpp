@@ -809,7 +809,7 @@ static int getConstraintSize (btTypedConstraintType type)
 //-- MAIN METHOD
 void processSolverTask(void* userPtr, void* lsMemory)
 {
-//	PROFILE("processSolverTask");
+//	BT_PROFILE("processSolverTask");
 
 	SolverTask_LocalStoreMemory* localMemory = (SolverTask_LocalStoreMemory*)lsMemory;
 
