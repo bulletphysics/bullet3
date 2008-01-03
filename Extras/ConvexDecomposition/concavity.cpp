@@ -596,7 +596,7 @@ float computeConcavity(unsigned int vcount,
 
   if ( ret == QE_OK )
   {
-
+#if 0
 		float bmin[3];
 		float bmax[3];
 
@@ -609,6 +609,7 @@ float computeConcavity(unsigned int vcount,
 		center.x = bmin[0] + dx*0.5f;
 		center.y = bmin[1] + dy*0.5f;
 		center.z = bmin[2] + dz*0.5f;
+#endif
 
 		volume = computeMeshVolume2( result.mOutputVertices, result.mNumFaces, result.mIndices );
 

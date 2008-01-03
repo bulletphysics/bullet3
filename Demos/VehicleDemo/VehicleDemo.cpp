@@ -440,8 +440,8 @@ void VehicleDemo::clientMoveAndDisplay()
 	}
 
 
-	float dt = m_clock.getTimeMicroseconds() * 0.000001f;
-	m_clock.reset();
+	float dt = getDeltaTimeMicroseconds() * 0.000001f;
+	
 	if (m_dynamicsWorld)
 	{
 		//during idle mode, just run 1 simulation step maximum

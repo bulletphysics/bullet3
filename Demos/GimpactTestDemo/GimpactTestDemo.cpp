@@ -582,7 +582,7 @@ void GimpactConcaveDemo::clientMoveAndDisplay()
 #endif //USE_KINEMATIC_GROUND
 
 
-	unsigned long int time = m_clock.getTimeMilliseconds();
+	unsigned long int time = getDeltaTimeMicroseconds()/btScalar(1000);
 	printf("%i time %i ms \n",m_steps_done,time);
 
 //#ifdef BULLET_GIMPACT
@@ -596,7 +596,6 @@ void GimpactConcaveDemo::clientMoveAndDisplay()
 
 
 
-	m_clock.reset();
 	m_dynamicsWorld->stepSimulation(dt);
 
 	//optional but useful: debug drawing

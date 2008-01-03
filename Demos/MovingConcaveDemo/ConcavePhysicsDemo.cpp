@@ -1886,8 +1886,8 @@ void ConcaveDemo::clientMoveAndDisplay()
 {
 	 glClear(GL_COLOR_BUFFER_BIT | GL_DEPTH_BUFFER_BIT);
 
- 	float dt = float(m_clock.getTimeMicroseconds()) * 0.000001f;
-	m_clock.reset();
+ 	float dt = float(getDeltaTimeMicroseconds()) * 0.000001f;
+
 	m_dynamicsWorld->stepSimulation(dt);
 
 	//optional but useful: debug drawing

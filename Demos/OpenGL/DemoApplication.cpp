@@ -72,15 +72,19 @@ m_shootBoxShape(0),
 	m_singleStep(false),
 	m_idle(false)
 {
+#ifndef BT_NO_PROFILE
 	m_profileIterator = CProfileManager::Get_Iterator();
+#endif //BT_NO_PROFILE
 }
 
 
 
 DemoApplication::~DemoApplication()
 {
-
+#ifndef BT_NO_PROFILE
 	CProfileManager::Release_Iterator(m_profileIterator);
+#endif //BT_NO_PROFILE
+
 	if (m_shootBoxShape)
 		delete m_shootBoxShape;
 
@@ -242,6 +246,7 @@ void DemoApplication::keyboardCallback(unsigned char key, int x, int y)
 
 		m_lastKey = 0;
 
+#ifndef BT_NO_PROFILE
         if (key >= 0x31 && key < 0x37)
         {
                 int child = key-0x31;
@@ -251,7 +256,7 @@ void DemoApplication::keyboardCallback(unsigned char key, int x, int y)
         {
                 m_profileIterator->Enter_Parent();
         }
-
+#endif //BT_NO_PROFILE
 
     switch (key) 
     {
@@ -789,6 +794,7 @@ void DemoApplication::displayProfileString(int xOffset,int yStart,char* message)
 
 void DemoApplication::showProfileInfo(float& xOffset,float& yStart, float yIncr)
 {
+#ifndef BT_NO_PROFILE
 
 	static double time_since_reset = 0.f;
 	if (!m_idle)
@@ -851,6 +857,7 @@ void DemoApplication::showProfileInfo(float& xOffset,float& yStart, float yIncr)
 		yStart += yIncr;
 
 	}
+#endif//BT_NO_PROFILE
 
 
 

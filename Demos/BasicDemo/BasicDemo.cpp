@@ -37,8 +37,7 @@ void BasicDemo::clientMoveAndDisplay()
 	glClear(GL_COLOR_BUFFER_BIT | GL_DEPTH_BUFFER_BIT); 
 
 	//simple dynamics world doesn't handle fixed-time-stepping
-	float ms = m_clock.getTimeMicroseconds();
-	m_clock.reset();
+	float ms = getDeltaTimeMicroseconds();
 	
 	///step the simulation
 	if (m_dynamicsWorld)

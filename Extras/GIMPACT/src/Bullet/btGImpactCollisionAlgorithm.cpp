@@ -63,6 +63,7 @@ public:
 
 
 //////////////////////////////////////////////////////////////////////////////////////////////
+#ifdef TRI_COLLISION_PROFILING
 
 btClock g_triangle_clock;
 
@@ -79,7 +80,7 @@ void bt_end_gim02_tri_time()
 	g_accum_triangle_collision_time += g_triangle_clock.getTimeMicroseconds();
 	g_count_triangle_collision++;
 }
-
+#endif //TRI_COLLISION_PROFILING
 //! Retrieving shapes shapes
 /*!
 Declared here due of insuficent space on Pool allocators
@@ -163,6 +164,7 @@ public:
 //!@}
 
 
+#ifdef TRI_COLLISION_PROFILING
 
 //! Gets the average time in miliseconds of tree collisions
 float btGImpactCollisionAlgorithm::getAverageTreeCollisionTime()
@@ -185,6 +187,7 @@ float btGImpactCollisionAlgorithm::getAverageTriangleCollisionTime()
 	return avgtime;
 }
 
+#endif //TRI_COLLISION_PROFILING
 
 
 

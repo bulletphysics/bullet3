@@ -83,7 +83,9 @@ DemoApplication* CreatDemo(btDemoEntry* entry)
 		demo->getDynamicsWorld()->setDebugDrawer(&gDebugDrawer);
 	}
 	
+#ifndef BT_NO_PROFILE
 	CProfileManager::Reset();
+#endif //BT_NO_PROFILE
 
 	return demo;
 

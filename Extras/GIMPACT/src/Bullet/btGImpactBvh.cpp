@@ -23,8 +23,9 @@ subject to the following restrictions:
 #include "GIMPACT/Bullet/btGImpactBvh.h"
 #include "LinearMath/btQuickprof.h"
 
-btClock g_tree_clock;
+#ifdef TRI_COLLISION_PROFILING
 
+btClock g_tree_clock;
 
 float g_accum_tree_collision_time = 0;
 int g_count_traversing = 0;
@@ -59,6 +60,7 @@ float btGImpactBvh::getAverageTreeCollisionTime()
 
 }
 
+#endif //TRI_COLLISION_PROFILING
 
 /////////////////////// btBvhTree /////////////////////////////////
 
@@ -482,12 +484,16 @@ void btGImpactBvh::find_collision(btGImpactBvh * boxset0, const btTransform & tr
 
 	trans_cache_1to0.calc_from_homogenic(trans0,trans1);
 
+#ifdef TRI_COLLISION_PROFILING
 	bt_begin_gim02_tree_time();
+#endif //TRI_COLLISION_PROFILING
 
 	_find_collision_pairs_recursive(
 		boxset0,boxset1,
 		&collision_pairs,trans_cache_1to0,0,0,true);
-
+#ifdef TRI_COLLISION_PROFILING
 	bt_end_gim02_tree_time();
+#endif //TRI_COLLISION_PROFILING
+
 }
 

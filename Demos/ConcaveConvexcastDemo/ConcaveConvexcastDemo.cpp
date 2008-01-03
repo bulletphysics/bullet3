@@ -50,7 +50,9 @@ public:
 	int min_ms;
 	int max_ms;
 
+#ifdef USE_BT_CLOCK
 	btClock frame_timer;
+#endif //USE_BT_CLOCK
 
 	btScalar dx;
 	btScalar min_x;
@@ -146,7 +148,9 @@ public:
 
 	void cast (btCollisionWorld* cw)
 	{
+#ifdef USE_BT_CLOCK
 		frame_timer.reset ();
+#endif //USE_BT_CLOCK
 		for (int i = 0; i < NUMRAYS_IN_BAR; i++)
 		{
 			btCollisionWorld::ClosestConvexResultCallback cb(source[i], dest[i]);
@@ -165,7 +169,9 @@ public:
 			}
 
 		}
+#ifdef USE_BT_CLOCK
 		ms += frame_timer.getTimeMilliseconds ();
+#endif //USE_BT_CLOCK
 		frame_counter++;
 		if (frame_counter > 50)
 		{
@@ -359,8 +365,7 @@ void ConcaveConvexcastDemo::clientMoveAndDisplay()
 {
 	 glClear(GL_COLOR_BUFFER_BIT | GL_DEPTH_BUFFER_BIT); 
 
-	float dt = m_clock.getTimeMicroseconds() * 0.000001f;
-	m_clock.reset();
+	float dt = getDeltaTimeMicroseconds() * 0.000001f;
 
 	if (m_animatedMesh)
 	{

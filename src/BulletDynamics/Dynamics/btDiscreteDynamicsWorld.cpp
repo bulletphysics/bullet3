@@ -329,7 +329,9 @@ int	btDiscreteDynamicsWorld::stepSimulation( btScalar timeStep,int maxSubSteps, 
 
 	clearForces();
 
+#ifndef BT_NO_PROFILE
 	CProfileManager::Increment_Frame_Counter();
+#endif //BT_NO_PROFILE
 	
 	return numSimulationSubSteps;
 }
@@ -717,40 +719,10 @@ void	btDiscreteDynamicsWorld::startProfiling(btScalar timeStep)
 {
 	(void)timeStep;
 
+#ifndef BT_NO_PROFILE
 	CProfileManager::Reset();
+#endif //BT_NO_PROFILE
 
-	
-	#ifdef USE_QUICKPROF
-
-
-	//toggle btProfiler
-	if ( m_debugDrawer && m_debugDrawer->getDebugMode() & btIDebugDraw::DBG_ProfileTimings)
-	{
-		if (!m_profileTimings)
-		{
-			m_profileTimings = 1;
-			// To disable profiling, simply comment out the following line.
-			static int counter = 0;
-
-			char filename[128];
-			sprintf(filename,"quickprof_bullet_timings%i.csv",counter++);
-			btProfiler::init(filename, btProfiler::BLOCK_CYCLE_SECONDS);//BLOCK_TOTAL_MICROSECONDS
-		} else
-		{
-			btProfiler::endProfilingCycle();
-		}
-
-	} else
-	{
-		if (m_profileTimings)
-		{
-			btProfiler::endProfilingCycle();
-
-			m_profileTimings = 0;
-			btProfiler::destroy();
-		}
-	}
-#endif //USE_QUICKPROF
 }
 
 

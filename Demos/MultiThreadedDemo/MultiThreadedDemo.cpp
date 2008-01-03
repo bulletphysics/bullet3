@@ -137,8 +137,8 @@ void MultiThreadedDemo::clientMoveAndDisplay()
 
 
 
-	float dt = m_clock.getTimeMicroseconds() * 0.000001f;
-	m_clock.reset();
+	float dt = getDeltaTimeMicroseconds() * 0.000001f;
+	
 //	printf("dt = %f: ",dt);
 	
 	if (m_dynamicsWorld)

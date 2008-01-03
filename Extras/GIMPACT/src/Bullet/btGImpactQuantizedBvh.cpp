@@ -24,6 +24,7 @@ subject to the following restrictions:
 #include "GIMPACT/Bullet/btGImpactQuantizedBvh.h"
 #include "LinearMath/btQuickprof.h"
 
+#ifdef TRI_COLLISION_PROFILING
 btClock g_q_tree_clock;
 
 
@@ -61,6 +62,7 @@ float btGImpactQuantizedBvh::getAverageTreeCollisionTime()
 
 }
 
+#endif //TRI_COLLISION_PROFILING
 
 /////////////////////// btQuantizedBvhTree /////////////////////////////////
 
@@ -511,13 +513,17 @@ void btGImpactQuantizedBvh::find_collision(btGImpactQuantizedBvh * boxset0, cons
 
 	trans_cache_1to0.calc_from_homogenic(trans0,trans1);
 
+#ifdef TRI_COLLISION_PROFILING
 	bt_begin_gim02_q_tree_time();
+#endif //TRI_COLLISION_PROFILING
 
 	_find_quantized_collision_pairs_recursive(
 		boxset0,boxset1,
 		&collision_pairs,trans_cache_1to0,0,0,true);
-
+#ifdef TRI_COLLISION_PROFILING
 	bt_end_gim02_q_tree_time();
+#endif //TRI_COLLISION_PROFILING
+
 }
 
 

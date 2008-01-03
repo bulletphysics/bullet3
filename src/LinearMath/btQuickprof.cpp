@@ -15,6 +15,8 @@
 
 #include "LinearMath/btQuickprof.h"
 
+#ifdef USE_BT_CLOCK
+
 static btClock gProfileClock;
 
 inline void Profile_Get_Ticks(unsigned long int * ticks)
@@ -28,6 +30,8 @@ inline float Profile_Get_Tick_Rate(void)
 	return 1000.f;
 
 }
+
+
 
 /***************************************************************************************************
 **
@@ -264,5 +268,5 @@ float CProfileManager::Get_Time_Since_Reset( void )
 	return (float)time / Profile_Get_Tick_Rate();
 }
 
-
+#endif //USE_BT_CLOCK
 

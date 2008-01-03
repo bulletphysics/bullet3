@@ -4,6 +4,9 @@ INCLUDE_DIRECTORIES(
 	
 # Prevent MSVC from moaning
 ADD_DEFINITIONS( -D_CRT_SECURE_NO_WARNINGS)
+ADD_DEFINITIONS( -D_CRT_SECURE_NO_DEPRECATE)
+
+
 	
 ADD_LIBRARY(LibXML
 			c14n.c
@@ -27,8 +30,6 @@ ADD_LIBRARY(LibXML
 			parserInternals.c
 			pattern.c
 			relaxng.c
-			runsuite.c
-			runtest.c
 			SAX.c
 			SAX2.c
 			schematron.c
@@ -41,9 +42,7 @@ ADD_LIBRARY(LibXML
 			valid.c
 			xinclude.c
 			xlink.c
-			xmlcatalog.c
 			xmlIO.c
-			xmllint.c
 			xmlmemory.c
 			xmlmodule.c
 			xmlreader.c
