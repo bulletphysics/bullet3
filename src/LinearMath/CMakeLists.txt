@@ -14,13 +14,11 @@ ADD_LIBRARY(LibLinearMath
 		btQuadWord.h
 		btScalar.h
 		btAabbUtil2.h
-		btGeometryUtil.cpp
 		btMinMax.h
 		btQuaternion.h
 		btStackAlloc.h
 		btGeometryUtil.h
 		btMotionState.h
-		btQuickprof.cpp
 		btTransform.h
 		btAlignedAllocator.h
 		btIDebugDraw.h
@@ -31,5 +29,4 @@ ADD_LIBRARY(LibLinearMath
 		btGeometryUtil.cpp
 		btAlignedAllocator.cpp
 )
-
 
