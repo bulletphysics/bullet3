@@ -1,0 +1,48 @@
+#ifndef __SPU_RAYCAST_TASK_H
+#define __SPU_RAYCAST_TASK_H
+
+#include "BulletCollision/CollisionDispatch/btCollisionObject.h"
+#include "BulletCollision/CollisionDispatch/btCollisionWorld.h"
+#include "LinearMath/btVector3.h"
+#include "PlatformDefinitions.h"
+
+struct RaycastGatheredObjectData
+{
+	ppu_address_t m_collisionShape;
+	void* m_spuCollisionShape;
+	btVector3	m_primitiveDimensions;
+	int		m_shapeType;
+	float	m_collisionMargin;
+	btTransform	m_worldTransform;
+};
+
+struct SpuRaycastTaskWorkUnitOut
+{
+	btVector3 hitNormal; /* out */
+	btScalar hitFraction; /* out */
+	btCollisionWorld::LocalShapeInfo shapeInfo; /* out */
+};
+
+/* Perform a raycast on collision object */
+struct SpuRaycastTaskWorkUnit
+{
+	btVector3 rayFrom; /* in */
+	btVector3 rayTo; /* in */
+	SpuRaycastTaskWorkUnitOut* output; /* out */
+};
+
+#define SPU_RAYCAST_WORK_UNITS_PER_TASK 16
+
+struct SpuRaycastTaskDesc
+{
+	SpuRaycastTaskWorkUnit workUnits[SPU_RAYCAST_WORK_UNITS_PER_TASK];
+	int numWorkUnits;
+	void* spuCollisionObjectsWrappers;
+	int numSpuCollisionObjectWrappers;
+	int taskId;
+};
+
+void	processRaycastTask (void* userPtr, void* lsMemory);
+void*	createRaycastLocalStoreMemory ();
+
+#endif
