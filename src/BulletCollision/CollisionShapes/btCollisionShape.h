@@ -45,7 +45,7 @@ public:
 
 	///calculateTemporalAabb calculates the enclosing aabb for the moving object over interval [0..timeStep)
 	///result is conservative
-	void calculateTemporalAabb(const btTransform& curTrans,const btVector3& linvel,const btVector3& angvel,btScalar timeStep, btVector3& temporalAabbMin,btVector3& temporalAabbMax);
+	void calculateTemporalAabb(const btTransform& curTrans,const btVector3& linvel,const btVector3& angvel,btScalar timeStep, btVector3& temporalAabbMin,btVector3& temporalAabbMax) const;
 
 #ifndef __SPU__
 

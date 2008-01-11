@@ -41,6 +41,7 @@ public:
 	btVector3 direction[NUMRAYS_IN_BAR];
 	btVector3 hit_com[NUMRAYS_IN_BAR];
 	btVector3 hit_surface[NUMRAYS_IN_BAR];
+	btScalar hit_fraction[NUMRAYS_IN_BAR];
 	btVector3 normal[NUMRAYS_IN_BAR];
 
 	int frame_counter;
@@ -154,17 +155,24 @@ public:
 		for (int i = 0; i < NUMRAYS_IN_BAR; i++)
 		{
 			btCollisionWorld::ClosestConvexResultCallback cb(source[i], dest[i]);
-			
-			cw->convexTest (&boxShape, source[i], dest[i], cb);
+			btQuaternion qFrom;
+			btQuaternion qTo;
+			qFrom.setRotation (btVector3(1.0, 0.0, 0.0), 0.0);
+			qTo.setRotation (btVector3(1.0, 0.0, 0.0), 0.7);
+			btTransform from(qFrom, source[i]);
+			btTransform to(qTo, dest[i]);
+			cw->convexSweepTest (&boxShape, from, to, cb);
 			if (cb.HasHit ())
 			{
 				hit_surface[i] = cb.m_hitPointWorld;
 				hit_com[i].setInterpolate3(source[i], dest[i], cb.m_closestHitFraction);
+				hit_fraction[i] = cb.m_closestHitFraction;
 				normal[i] = cb.m_hitNormalWorld;
 				normal[i].normalize ();
 			} else {
 				hit_com[i] = dest[i];
 				hit_surface[i] = dest[i];
+				hit_fraction[i] = 1.0f;
 				normal[i] = btVector3(1.0, 0.0, 0.0);
 			}
 
@@ -187,10 +195,12 @@ public:
 	}
 
 
-	void drawCube (const btVector3& com)
+	void drawCube (const btTransform& T)
 	{
+		btScalar m[16];
+		T.getOpenGLMatrix (&m[0]);
 		glPushMatrix ();
-			glTranslatef (com[0], com[1], com[2]);
+			glMultMatrixf (&m[0]);
 			glScalef (2.0 * boxShapeHalfExtents[0], 2.0 * boxShapeHalfExtents[1], 2.0 * boxShapeHalfExtents[2]);
 			glutSolidCube (1.0);
 		glPopMatrix ();
@@ -216,9 +226,19 @@ public:
 		}
 		glEnd ();
 		glColor3f (0.0, 1.0, 1.0);
+		btQuaternion qFrom;
+		btQuaternion qTo;
+		qFrom.setRotation (btVector3(1.0, 0.0, 0.0), 0.0);
+		qTo.setRotation (btVector3(1.0, 0.0, 0.0), 0.7);
 		for (int i = 0; i < NUMRAYS_IN_BAR; i++)
 		{
-			drawCube (hit_com[i]);
+			btTransform from(qFrom, source[i]);
+			btTransform to(qTo, dest[i]);
+			btVector3 linVel, angVel;
+			btTransformUtil::calculateVelocity (from, to, 1.0, linVel, angVel);
+			btTransform T;
+			btTransformUtil::integrateTransform (from, linVel, angVel, hit_fraction[i], T);
+			drawCube (T);
 		}
 		glEnable (GL_LIGHTING);
 	}

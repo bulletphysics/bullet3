@@ -46,7 +46,7 @@ btScalar	btCollisionShape::getAngularMotionDisc() const
 	return disc;
 }
 
-void btCollisionShape::calculateTemporalAabb(const btTransform& curTrans,const btVector3& linvel,const btVector3& angvel,btScalar timeStep, btVector3& temporalAabbMin,btVector3& temporalAabbMax)
+void btCollisionShape::calculateTemporalAabb(const btTransform& curTrans,const btVector3& linvel,const btVector3& angvel,btScalar timeStep, btVector3& temporalAabbMin,btVector3& temporalAabbMax) const
 {
 	//start with static aabb
 	getAabb(curTrans,temporalAabbMin,temporalAabbMax);

@@ -620,17 +620,18 @@ void	btCollisionWorld::rayTest(const btVector3& rayFromWorld, const btVector3& r
 
 }
 
-void	btCollisionWorld::convexTest(const btConvexShape* castShape, const btVector3& convexFromWorld, const btVector3& convexToWorld, ConvexResultCallback& resultCallback,short int collisionFilterMask)
+void	btCollisionWorld::convexSweepTest(const btConvexShape* castShape, const btTransform& convexFromWorld, const btTransform& convexToWorld, ConvexResultCallback& resultCallback,short int collisionFilterMask)
 {
 	btTransform	convexFromTrans,convexToTrans;
-	convexFromTrans.setIdentity();
-	convexFromTrans.setOrigin(convexFromWorld);
-	convexToTrans.setIdentity();
-	convexToTrans.setOrigin(convexToWorld);
+	convexFromTrans = convexFromWorld;
+	convexToTrans = convexToWorld;
 	btVector3 castShapeAabbMin, castShapeAabbMax;
-	btTransform I;
-	I.setIdentity();
-	castShape->getAabb (I, castShapeAabbMin, castShapeAabbMax);
+	/* Compute AABB that encompasses movement */
+	{
+		btVector3 linVel, angVel;
+		btTransformUtil::calculateVelocity (convexFromTrans, convexToTrans, 1.0, linVel, angVel);
+		castShape->calculateTemporalAabb (convexFromTrans, linVel, angVel, 1.0, castShapeAabbMin, castShapeAabbMax);
+	}
 
 	/// go over all objects, and if the ray intersects their aabb + cast shape aabb,
 	// do a ray-shape query using convexCaster (CCD)
@@ -646,7 +647,7 @@ void	btCollisionWorld::convexTest(const btConvexShape* castShape, const btVector
 			AabbExpand (collisionObjectAabbMin, collisionObjectAabbMax, castShapeAabbMin, castShapeAabbMax);
 			btScalar hitLambda = btScalar(1.); //could use resultCallback.m_closestHitFraction, but needs testing
 			btVector3 hitNormal;
-			if (btRayAabb(convexFromWorld,convexToWorld,collisionObjectAabbMin,collisionObjectAabbMax,hitLambda,hitNormal))
+			if (btRayAabb(convexFromWorld.getOrigin(),convexToWorld.getOrigin(),collisionObjectAabbMin,collisionObjectAabbMax,hitLambda,hitNormal))
 			{
 				objectQuerySingle(castShape, convexFromTrans,convexToTrans,
 					collisionObject,

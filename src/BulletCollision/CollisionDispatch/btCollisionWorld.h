@@ -307,9 +307,10 @@ public:
 	/// This allows for several queries: first hit, all hits, any hit, dependent on the value returned by the callback.
 	void	rayTest(const btVector3& rayFromWorld, const btVector3& rayToWorld, RayResultCallback& resultCallback, short int collisionFilterMask=-1);
 
-	// convexTest performs a linear convex cast on all objects in the btCollisionWorld, and calls the resultCallback
+	// convexTest performs a swept convex cast on all objects in the btCollisionWorld, and calls the resultCallback
 	// This allows for several queries: first hit, all hits, any hit, dependent on the value return by the callback.
-	void    convexTest (const btConvexShape* castShape, const btVector3& from, const btVector3& to, ConvexResultCallback& resultCallback, short int collisionFilterMask=-1);
+	void    convexSweepTest (const btConvexShape* castShape, const btTransform& from, const btTransform& to, ConvexResultCallback& resultCallback, short int collisionFilterMask=-1);
+
 
 	/// rayTestSingle performs a raycast call and calls the resultCallback. It is used internally by rayTest.
 	/// In a future implementation, we consider moving the ray test as a virtual method in btCollisionShape.
