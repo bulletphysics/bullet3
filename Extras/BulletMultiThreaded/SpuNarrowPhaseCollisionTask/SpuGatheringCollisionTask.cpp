@@ -289,18 +289,18 @@ SIMD_FORCE_INLINE void small_cache_read_triple(	void* ls0, ppu_address_t ea0,
 		char* localStore0 = (char*)ls0;
 		uint32_t last4BitsOffset = ea0 & 0x0f;
 		char* tmpTarget0 = tmpBuffer0 + last4BitsOffset;
-		cellDmaSmallGetReadOnly(tmpTarget0,ea0,size,DMA_TAG(1),0,0);
+		tmpTarget0 = (char*)cellDmaSmallGetReadOnly(tmpTarget0,ea0,size,DMA_TAG(1),0,0);
 
 
 		char* localStore1 = (char*)ls1;
 		last4BitsOffset = ea1 & 0x0f;
 		char* tmpTarget1 = tmpBuffer1 + last4BitsOffset;
-		cellDmaSmallGetReadOnly(tmpTarget1,ea1,size,DMA_TAG(1),0,0);
+		tmpTarget1 = (char*)cellDmaSmallGetReadOnly(tmpTarget1,ea1,size,DMA_TAG(1),0,0);
 		
 		char* localStore2 = (char*)ls2;
 		last4BitsOffset = ea2 & 0x0f;
 		char* tmpTarget2 = tmpBuffer2 + last4BitsOffset;
-		cellDmaSmallGetReadOnly(tmpTarget2,ea2,size,DMA_TAG(1),0,0);
+		tmpTarget2 = (char*)cellDmaSmallGetReadOnly(tmpTarget2,ea2,size,DMA_TAG(1),0,0);
 		
 		
 		cellDmaWaitTagStatusAll( DMA_MASK(1) );
