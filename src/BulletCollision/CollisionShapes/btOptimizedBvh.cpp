@@ -985,20 +985,6 @@ void	btOptimizedBvh::reportBoxCastOverlappingNodex(btNodeOverlapCallback* nodeCa
 }
 
 
-
-
-btVector3	btOptimizedBvh::unQuantize(const unsigned short* vecIn) const
-{
-	btVector3	vecOut;
-	vecOut.setValue(
-		(btScalar)(vecIn[0]) / (m_bvhQuantization.getX()),
-		(btScalar)(vecIn[1]) / (m_bvhQuantization.getY()),
-		(btScalar)(vecIn[2]) / (m_bvhQuantization.getZ()));
-	vecOut += m_bvhAabbMin;
-	return vecOut;
-}
-
-
 void	btOptimizedBvh::swapLeafNodes(int i,int splitIndex)
 {
 	if (m_useQuantization)

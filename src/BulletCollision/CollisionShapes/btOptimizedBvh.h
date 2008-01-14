@@ -349,7 +349,16 @@ public:
 	}
 
 	
-	btVector3	unQuantize(const unsigned short* vecIn) const;
+	SIMD_FORCE_INLINE btVector3	unQuantize(const unsigned short* vecIn) const
+	{
+			btVector3	vecOut;
+			vecOut.setValue(
+			(btScalar)(vecIn[0]) / (m_bvhQuantization.getX()),
+			(btScalar)(vecIn[1]) / (m_bvhQuantization.getY()),
+			(btScalar)(vecIn[2]) / (m_bvhQuantization.getZ()));
+			vecOut += m_bvhAabbMin;
+			return vecOut;
+	}
 
 	///setTraversalMode let's you choose between stackless, recursive or stackless cache friendly tree traversal. Note this is only implemented for quantized trees.
 	void	setTraversalMode(btTraversalMode	traversalMode)
