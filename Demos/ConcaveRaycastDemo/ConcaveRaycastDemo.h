@@ -42,6 +42,8 @@ class ConcaveRaycastDemo : public DemoApplication
 
 	btConstraintSolver*	m_solver;
 
+	class btThreadSupportInterface* m_threadSupportRaycast;
+
 	btDefaultCollisionConfiguration* m_collisionConfiguration;
 
 	bool	m_animatedMesh;

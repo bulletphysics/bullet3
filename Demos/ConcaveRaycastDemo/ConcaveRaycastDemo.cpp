@@ -20,6 +20,21 @@ subject to the following restrictions:
 #include "GL_ShapeDrawer.h"
 #include "GlutStuff.h"
 
+//#define BATCH_RAYCASTER
+
+#ifdef BATCH_RAYCASTER
+#include "../../Extras/BulletMultiThreaded/SpuBatchRaycaster.h"
+static SpuBatchRaycaster* gBatchRaycaster = NULL;
+#endif
+
+#ifdef USE_LIBSPE2
+#include "../../Extras/BulletMultiThreaded/SpuLibspe2Support.h"
+#elif defined (WIN32)
+#include "../../Extras/BulletMultiThreaded/Win32ThreadSupport.h"
+#else
+//other platforms run the parallel code sequentially (until pthread support or other parallel implementation is added)
+#include "../../Extras/BulletMultiThreaded/SequentialThreadSupport.h"
+#endif //USE_LIBSPE2
 
 static btVector3*	gVertices=0;
 static int*	gIndices=0;
@@ -141,8 +156,25 @@ public:
 	{
 #ifdef USE_BT_CLOCK
 		frame_timer.reset ();
-#endif //USE_BT_CLOCK
 
+#ifdef BATCH_RAYCASTER
+		if (!gBatchRaycaster)
+			return;
+
+		gBatchRaycaster->clearRays ();
+		for (int i = 0; i < NUMRAYS_IN_BAR; i++)
+		{
+			gBatchRaycaster->addRay (source[i], dest[i]);
+		}
+		gBatchRaycaster->performBatchRaycast ();
+		for (int i = 0; i < gBatchRaycaster->getNumRays (); i++)
+		{
+				const SpuRaycastTaskWorkUnitOut& out = (*gBatchRaycaster)[i];
+				hit[i].setInterpolate3(source[i],dest[i],out.hitFraction);
+				normal[i] = out.hitNormal;
+				normal[i].normalize ();
+		}
+#else
 		for (int i = 0; i < NUMRAYS_IN_BAR; i++)
 		{
 			btCollisionWorld::ClosestRayResultCallback cb(source[i], dest[i]);
@@ -174,6 +206,7 @@ public:
 			ms = 0;
 			frame_counter = 0;
 		}
+#endif
 	}
 
 	void draw ()
@@ -256,6 +289,7 @@ void	ConcaveRaycastDemo::initPhysics()
 	#define TRISIZE 10.f
 
 
+
 	int vertStride = sizeof(btVector3);
 	int indexStride = 3*sizeof(int);
 
@@ -331,6 +365,21 @@ void	ConcaveRaycastDemo::initPhysics()
 	staticBody = localCreateRigidBody(mass, startTransform,groundShape);
 
 	staticBody->setCollisionFlags(staticBody->getCollisionFlags() | btCollisionObject::CF_STATIC_OBJECT);
+
+#ifdef BATCH_RAYCASTER
+int maxNumOutstandingTasks = 4;
+
+#ifdef USE_WIN32_THREADING
+	Win32ThreadSupport::Win32ThreadConstructionInfo tci("batch raycast",
+														processRaycastTask,
+														createRaycastLocalStoreMemory,
+														maxNumOutstandingTasks);
+	m_threadSupportRaycast = new Win32ThreadSupport(tci);
+	printf("m_threadSupportRaycast = %p\n", m_threadSupportRaycast);
+#endif
+
+	gBatchRaycaster = new SpuBatchRaycaster (m_threadSupportRaycast, maxNumOutstandingTasks, m_dynamicsWorld->getCollisionObjectArray(), m_dynamicsWorld->getNumCollisionObjects());
+#endif
 
 	raycastBar = btRaycastBar (4000.0, 0.0);
 	//raycastBar = btRaycastBar (true, 40.0, -50.0, 50.0);
