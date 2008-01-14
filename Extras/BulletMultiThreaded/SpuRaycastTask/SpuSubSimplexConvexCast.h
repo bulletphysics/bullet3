@@ -14,43 +14,47 @@ subject to the following restrictions:
 */
 
 
-#ifndef SPU_SUBSIMPLEX_CONVEX_CAST_H
-#define SPU_SUBSIMPLEX_CONVEX_CAST_H
+#ifndef SPU_SUBSIMPLEX_RAY_CAST_H
+#define SPU_SUBSIMPLEX_RAY_CAST_H
 
 #include "SpuNarrowPhaseCollisionTask/SpuVoronoiSimplexSolver.h"
+#include "SpuNarrowPhaseCollisionTask/SpuCollisionShapes.h"
 #include "SpuRaycastTask.h"
 
 class btConvexShape;
 
 struct SpuCastResult
 {
+	float m_fraction;
+	btVector3 m_normal;
 };
 
 /// btSubsimplexConvexCast implements Gino van den Bergens' paper
 ///"Ray Casting against bteral Convex Objects with Application to Continuous Collision Detection"
 /// GJK based Ray Cast, optimized version
 /// Objects should not start in overlap, otherwise results are not defined.
-class SpuSubsimplexConvexCast
+class SpuSubsimplexRayCast
 {
 	SpuVoronoiSimplexSolver* m_simplexSolver;
-	const void*				 m_convexA;
-	const void*				 m_convexB;
-	RaycastGatheredObjectData* m_dataB;
-public:
+	void* m_shapeB;
+	SpuConvexPolyhedronVertexData* m_convexDataB;
+	int m_shapeTypeB;
+	float m_marginB;
 
-	SpuSubsimplexConvexCast (const void* shapeA,
-							 const void* shapeB,
-							 SpuVoronoiSimplexSolver* simplexSolver);
+public:
+	SpuSubsimplexRayCast (void* shapeB, SpuConvexPolyhedronVertexData* convexDataB, int shapeTypeB, float marginB,
+						  SpuVoronoiSimplexSolver* simplexSolver);
 
 	//virtual ~btSubsimplexConvexCast();
+
 	///SimsimplexConvexCast calculateTimeOfImpact calculates the time of impact+normal for the linear cast (sweep) between two moving objects.
 	///Precondition is that objects should not penetration/overlap at the start from the interval. Overlap can be tested using btGjkPairDetector.
-	bool calcTimeOfImpact(const btTransform& fromA,
-						  const btTransform& toA,
+	bool calcTimeOfImpact(const btTransform& fromRay,
+						  const btTransform& toRay,
 						  const btTransform& fromB,
 						  const btTransform& toB,
 						  SpuCastResult& result);
 
 };
 
-#endif //SUBSIMPLEX_CONVEX_CAST_H
+#endif //SUBSIMPLEX_RAY_CAST_H

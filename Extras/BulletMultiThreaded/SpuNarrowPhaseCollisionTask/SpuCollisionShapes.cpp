@@ -390,7 +390,6 @@ void dmaConvexVertexData (SpuConvexPolyhedronVertexData* convexVertexData, btCon
 	register int dmaSize = convexVertexData->gNumConvexPoints*sizeof(btPoint3);
 	ppu_address_t pointsPPU = (ppu_address_t) convexShapeSPU->getPoints();
 	cellDmaGet(&convexVertexData->g_convexPointBuffer[0], pointsPPU  , dmaSize, DMA_TAG(2), 0, 0);
-	
 }
 
 void dmaCollisionShape (void* collisionShapeLocation, ppu_address_t collisionShapePtr, uint32_t dmaTag, int shapeType)
@@ -421,6 +420,7 @@ void dmaCompoundSubShapes (CompoundShape_LocalStoreMemory* compoundShapeLocation
 		dmaCollisionShape (&compoundShapeLocation->gSubshapeShape[i],(ppu_address_t)childShape.m_childShape, dmaTag, childShape.m_childShapeType);
 	}
 }
+
 
 void	spuWalkStacklessQuantizedTree(btNodeOverlapCallback* nodeCallback,unsigned short int* quantizedQueryAabbMin,unsigned short int* quantizedQueryAabbMax,const btQuantizedBvhNode* rootNode,int startNodeIndex,int endNodeIndex)
 {

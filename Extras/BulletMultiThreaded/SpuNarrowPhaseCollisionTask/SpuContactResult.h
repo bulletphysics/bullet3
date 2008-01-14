@@ -35,10 +35,10 @@ subject to the following restrictions:
 
 struct SpuCollisionPairInput
 {
-	uint64_t m_collisionShapes[2];
+	ppu_address_t m_collisionShapes[2];
 	void*	m_spuCollisionShapes[2];
 
-	uint64_t m_persistentManifoldPtr;
+	ppu_address_t m_persistentManifoldPtr;
 	btVector3	m_primitiveDimensions0;
 	btVector3	m_primitiveDimensions1;
 	int		m_shapeType0;
@@ -50,9 +50,6 @@ struct SpuCollisionPairInput
 	btTransform m_worldTransform1;
 	
 	bool	m_isSwapped;
-
-
-	
 };
 
 
@@ -68,7 +65,7 @@ struct SpuClosestPointInput
     btTransform m_transformB;
     float	m_maximumDistanceSquared;
     class	btStackAlloc* m_stackAlloc;
-	struct SpuConvexPolyhedronVertexData* m_convexVertexData;
+	struct SpuConvexPolyhedronVertexData* m_convexVertexData[2];
 };
 
 ///SpuContactResult exports the contact points using double-buffered DMA transfers, only when needed
@@ -77,7 +74,7 @@ class SpuContactResult
 {
     btTransform		m_rootWorldTransform0;
 	btTransform		m_rootWorldTransform1;
-	uint64_t	m_manifoldAddress;
+	ppu_address_t	m_manifoldAddress;
 
     btPersistentManifold* m_spuManifold;
 	bool m_RequiresWriteBack;
@@ -99,7 +96,7 @@ class SpuContactResult
 
 		virtual void setShapeIdentifiers(int partId0,int index0,	int partId1,int index1);
 
-		void	setContactInfo(btPersistentManifold* spuManifold, uint64_t	manifoldAddress,const btTransform& worldTrans0,const btTransform& worldTrans1, btScalar restitution0,btScalar restitution1, btScalar friction0,btScalar friction01, bool isSwapped);
+		void	setContactInfo(btPersistentManifold* spuManifold, ppu_address_t	manifoldAddress,const btTransform& worldTrans0,const btTransform& worldTrans1, btScalar restitution0,btScalar restitution1, btScalar friction0,btScalar friction01, bool isSwapped);
 
 
         void writeDoubleBufferedManifold(btPersistentManifold* lsManifold, btPersistentManifold* mmManifold);

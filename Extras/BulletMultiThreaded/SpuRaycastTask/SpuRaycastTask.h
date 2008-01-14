@@ -16,7 +16,7 @@ struct RaycastGatheredObjectData
 	btTransform	m_worldTransform;
 };
 
-struct SpuRaycastTaskWorkUnitOut
+ATTRIBUTE_ALIGNED16(struct) SpuRaycastTaskWorkUnitOut
 {
 	btVector3 hitNormal; /* out */
 	btScalar hitFraction; /* out */
@@ -24,14 +24,14 @@ struct SpuRaycastTaskWorkUnitOut
 };
 
 /* Perform a raycast on collision object */
-struct SpuRaycastTaskWorkUnit
+ATTRIBUTE_ALIGNED16(struct) SpuRaycastTaskWorkUnit
 {
 	btVector3 rayFrom; /* in */
 	btVector3 rayTo; /* in */
 	SpuRaycastTaskWorkUnitOut* output; /* out */
 };
 
-#define SPU_RAYCAST_WORK_UNITS_PER_TASK 16
+#define SPU_RAYCAST_WORK_UNITS_PER_TASK 4
 
 struct SpuRaycastTaskDesc
 {

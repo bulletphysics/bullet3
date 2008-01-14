@@ -13,8 +13,8 @@ subject to the following restrictions:
 3. This notice may not be removed or altered from any source distribution.
 */
 
-
 #include "SpuRaycastTaskProcess.h"
+
 
 SpuRaycastTaskProcess::SpuRaycastTaskProcess(class	btThreadSupportInterface*	threadInterface, unsigned int	maxNumOutstandingTasks)
 :m_threadInterface(threadInterface),

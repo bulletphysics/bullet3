@@ -20,7 +20,7 @@ subject to the following restrictions:
 #include "SpuPreferredPenetrationDirections.h"
 
 
-#include "SpuLocalSupport.h"
+#include "SpuCollisionShapes.h"
 
 #define NUM_UNITSPHERE_POINTS 42
 static btVector3	sPenetrationDirections[NUM_UNITSPHERE_POINTS+MAX_PREFERRED_PENETRATION_DIRECTIONS*2] = 
@@ -74,7 +74,8 @@ bool SpuMinkowskiPenetrationDepthSolver::calcPenDepth( SpuVoronoiSimplexSolver& 
             btTransform& transA,const btTransform& transB,
 			btVector3& v, btPoint3& pa, btPoint3& pb,
 			class btIDebugDraw* debugDraw,btStackAlloc* stackAlloc,
-			struct SpuConvexPolyhedronVertexData* convexVertexData
+			struct SpuConvexPolyhedronVertexData* convexVertexDataA,
+			struct SpuConvexPolyhedronVertexData* convexVertexDataB
 			) const
 {
 
@@ -241,8 +242,8 @@ bool SpuMinkowskiPenetrationDepthSolver::calcPenDepth( SpuVoronoiSimplexSolver& 
 		seperatingAxisInA = (-norm)* transA.getBasis();
 		seperatingAxisInB = norm* transB.getBasis();
 
-		pInA = localGetSupportingVertexWithoutMargin(shapeTypeA, convexA, seperatingAxisInA,convexVertexData);//, NULL);
-		qInB = localGetSupportingVertexWithoutMargin(shapeTypeB, convexB, seperatingAxisInB,convexVertexData);//, NULL);
+		pInA = localGetSupportingVertexWithoutMargin(shapeTypeA, convexA, seperatingAxisInA,convexVertexDataA);//, NULL);
+		qInB = localGetSupportingVertexWithoutMargin(shapeTypeB, convexB, seperatingAxisInB,convexVertexDataB);//, NULL);
 
 	//	pInA = convexA->localGetSupportingVertexWithoutMargin(seperatingAxisInA);
 	//	qInB = convexB->localGetSupportingVertexWithoutMargin(seperatingAxisInB);
@@ -299,7 +300,8 @@ bool SpuMinkowskiPenetrationDepthSolver::calcPenDepth( SpuVoronoiSimplexSolver& 
 	
 
 	SpuClosestPointInput input;
-	input.m_convexVertexData = convexVertexData;
+	input.m_convexVertexData[0] = convexVertexDataA;
+	input.m_convexVertexData[1] = convexVertexDataB;
 	btVector3 newOrg = transA.getOrigin() + offset;
 
 	btTransform displacedTrans = transA;

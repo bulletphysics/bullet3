@@ -39,7 +39,7 @@ void
 SpuBatchRaycaster::addRay (const btVector3& rayFrom, const btVector3& rayTo)
 {
 	SpuRaycastTaskWorkUnitOut workUnitOut;
-	workUnitOut.hitFraction = 0.99;
+	workUnitOut.hitFraction = 1.0;
 	workUnitOut.hitNormal = btVector3(0.0, 1.0, 0.0);
 
 	rayBatchOutput.push_back (workUnitOut);

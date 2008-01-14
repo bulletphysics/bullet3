@@ -55,7 +55,6 @@ void SequentialThreadSupport::sendRequest(uint32_t uiCommand, uint32_t uiArgumen
 
 }
 
-
 ///check for messages from SPUs
 void SequentialThreadSupport::waitForResponse(unsigned int *puiArgument0, unsigned int *puiArgument1)
 {
@@ -64,8 +63,6 @@ void SequentialThreadSupport::waitForResponse(unsigned int *puiArgument0, unsign
 	*puiArgument0 = spuStatus.m_taskId;
 	*puiArgument1 = spuStatus.m_status;
 }
-
-
 
 void SequentialThreadSupport::startThreads(SequentialThreadConstructionInfo& threadConstructionInfo)
 {
@@ -78,7 +75,7 @@ void SequentialThreadSupport::startThreads(SequentialThreadConstructionInfo& thr
 	spuStatus.m_status = 0;
 	spuStatus.m_lsMemory = threadConstructionInfo.m_lsMemoryFunc();
 	spuStatus.m_userThreadFunc = threadConstructionInfo.m_userThreadFunc;
-	printf("STS: Created local store at %p for function %p\n",spuStatus.m_lsMemory, spuStatus.m_userThreadFunc);
+	printf("STS: Created local store at %p for task %s\n", spuStatus.m_lsMemory, threadConstructionInfo.m_uniqueName);
 }
 
 void SequentialThreadSupport::startSPU()

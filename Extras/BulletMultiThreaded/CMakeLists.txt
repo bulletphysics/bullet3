@@ -21,6 +21,8 @@ ADD_LIBRARY(LibBulletMultiThreaded
 		SpuSampleTaskProcess.h
 		SpuSampleTaskProcess.cpp
 
+		SpuCollisionObjectWrapper.cpp 
+		SpuCollisionObjectWrapper.h 
 		SpuCollisionTaskProcess.h
 		SpuCollisionTaskProcess.cpp
 		SpuGatheringCollisionDispatcher.h
@@ -39,15 +41,20 @@ ADD_LIBRARY(LibBulletMultiThreaded
 		SpuNarrowPhaseCollisionTask/SpuVoronoiSimplexSolver.h
 		SpuNarrowPhaseCollisionTask/SpuGjkPairDetector.cpp
 		SpuNarrowPhaseCollisionTask/SpuGjkPairDetector.h
-		SpuNarrowPhaseCollisionTask/SpuLocalSupport.h
+		SpuNarrowPhaseCollisionTask/SpuCollisionShapes.cpp
+		SpuNarrowPhaseCollisionTask/SpuCollisionShapes.h
 
 		SpuParallelSolver.cpp
 		SpuParallelSolver.h
 		SpuSolverTask/SpuParallellSolverTask.cpp
 		SpuSolverTask/SpuParallellSolverTask.h
 
-#		SpuRaycastTaskProcess.cpp
-#		SpuRaycastTaskProcess.h
-#		SpuRaycastTask/SpuRaycastTask.cpp
-#		SpuRaycastTask/SpuRaycastTask.h
+		SpuBatchRaycaster.cpp
+		SpuBatchRaycaster.h
+		SpuRaycastTaskProcess.cpp
+		SpuRaycastTaskProcess.h
+		SpuRaycastTask/SpuRaycastTask.cpp
+		SpuRaycastTask/SpuRaycastTask.h
+		SpuRaycastTask/SpuSubSimplexConvexCast.cpp
+		SpuRaycastTask/SpuSubSimplexConvexCast.h
 )

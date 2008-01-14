@@ -13,19 +13,17 @@ subject to the following restrictions:
 3. This notice may not be removed or altered from any source distribution.
 */
 
-
 #include "SpuSubSimplexConvexCast.h"
-#include "SpuNarrowPhaseCollisionTask/SpuCollisionShapes.h"
+
 
 #include "BulletCollision/CollisionShapes/btConvexShape.h"
 #include "BulletCollision/CollisionShapes/btMinkowskiSumShape.h"
 #include "BulletCollision/NarrowPhaseCollision/btSimplexSolverInterface.h"
 
 
-SpuSubsimplexConvexCast::SpuSubsimplexConvexCast (const void* convexA,
-												  const void* convexB,
-												  SpuVoronoiSimplexSolver* simplexSolver)
-	:m_simplexSolver(simplexSolver), m_convexA(convexA),m_convexB(convexB)
+SpuSubsimplexRayCast::SpuSubsimplexRayCast (void* shapeB, SpuConvexPolyhedronVertexData* convexDataB, int shapeTypeB, float marginB,
+										    SpuVoronoiSimplexSolver* simplexSolver)
+	:m_simplexSolver(simplexSolver), m_shapeB(shapeB), m_convexDataB(convexDataB), m_shapeTypeB(shapeTypeB), m_marginB(marginB)
 {
 }
 
@@ -37,27 +35,33 @@ SpuSubsimplexConvexCast::SpuSubsimplexConvexCast (const void* convexA,
 #define MAX_ITERATIONS 32
 #endif
 
-bool	SpuSubsimplexConvexCast::calcTimeOfImpact(const btTransform& fromA,
-												  const btTransform& toA,
-												  const btTransform& fromB,
-												  const btTransform& toB,
-												  SpuCastResult& result)
+/* Returns the support point of the minkowski sum:
+ * MSUM(Pellet, ConvexShape)
+ *
+ */
+btVector3 supportPoint (btTransform xform, int shapeType, const void* shape, SpuConvexPolyhedronVertexData* convexVertexData, btVector3 seperatingAxis)
 {
-	//localGetSupportingVertexWithoutMargin(m_shapeTypeA, m_minkowskiA, seperatingAxisInA,input.m_convexVertexData[0]);
-#if 0
-	btMinkowskiSumShape combi(m_convexA,m_convexB);
-	btMinkowskiSumShape* convex = &combi;
+	btVector3 SupportPellet = btVector3(0.0, 0.0, 0.0);
+	btVector3 rotatedSeperatingAxis = seperatingAxis * xform.getBasis();
+	btVector3 SupportShape = xform(localGetSupportingVertexWithoutMargin(shapeType, (void*)shape, rotatedSeperatingAxis, convexVertexData));
+	return SupportPellet + SupportShape;
+}
 
+bool	SpuSubsimplexRayCast::calcTimeOfImpact(const btTransform& fromRay,
+											   const btTransform& toRay,
+											   const btTransform& fromB,
+											   const btTransform& toB,
+											   SpuCastResult& result)
+{
 	btTransform	rayFromLocalA;
 	btTransform	rayToLocalA;
 
-	rayFromLocalA = fromA.inverse()* fromB;
-	rayToLocalA = toA.inverse()* toB;
-
+	rayFromLocalA = fromRay.inverse()* fromB;
+	rayToLocalA = toRay.inverse()* toB;
 
 	m_simplexSolver->reset();
-
-	convex->setTransformB(btTransform(rayFromLocalA.getBasis()));
+	
+	btTransform bXform = btTransform(rayFromLocalA.getBasis());
 
 	//btScalar radius = btScalar(0.01);
 
@@ -69,8 +73,7 @@ bool	SpuSubsimplexConvexCast::calcTimeOfImpact(const btTransform& fromA,
 	btVector3 r = -(rayToLocalA.getOrigin()-rayFromLocalA.getOrigin());
 	btVector3 x = s;
 	btVector3 v;
-	btVector3 arbitraryPoint = convex->localGetSupportingVertex(r);
-	
+	btVector3 arbitraryPoint = supportPoint(bXform, m_shapeTypeB, m_shapeB, m_convexDataB, r);
 	v = x - arbitraryPoint;
 
 	int maxIter = MAX_ITERATIONS;
@@ -81,7 +84,6 @@ bool	SpuSubsimplexConvexCast::calcTimeOfImpact(const btTransform& fromA,
 	btVector3 c;
 
 	btScalar lastLambda = lambda;
-
 
 	btScalar dist2 = v.length2();
 #ifdef BT_USE_DOUBLE_PRECISION
@@ -94,8 +96,8 @@ bool	SpuSubsimplexConvexCast::calcTimeOfImpact(const btTransform& fromA,
 	
 	while ( (dist2 > epsilon) && maxIter--)
 	{
-		p = convex->localGetSupportingVertex( v);
-		 w = x - p;
+		p = supportPoint(bXform, m_shapeTypeB, m_shapeB, m_convexDataB, v);
+		w = x - p;
 
 		btScalar VdotW = v.dot(w);
 
@@ -135,8 +137,6 @@ bool	SpuSubsimplexConvexCast::calcTimeOfImpact(const btTransform& fromA,
 //	printf("number of iterations: %d", numiter);
 	result.m_fraction = lambda;
 	result.m_normal = n;
-
-#endif
 
 	return true;
 }

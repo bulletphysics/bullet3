@@ -16,7 +16,7 @@ subject to the following restrictions:
 #include "PlatformDefinitions.h"
 #include "BulletCollision/CollisionDispatch/btCollisionObject.h"
 
-class SpuCollisionObjectWrapper
+ATTRIBUTE_ALIGNED16(class) SpuCollisionObjectWrapper
 {
 protected:
 	int m_shapeType;

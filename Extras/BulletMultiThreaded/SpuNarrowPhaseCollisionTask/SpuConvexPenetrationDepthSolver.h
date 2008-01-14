@@ -39,7 +39,8 @@ public:
             btTransform& transA,const btTransform& transB,
 			btVector3& v, btPoint3& pa, btPoint3& pb,
 			class btIDebugDraw* debugDraw,btStackAlloc* stackAlloc,
-			struct SpuConvexPolyhedronVertexData* convexVertexData
+			struct SpuConvexPolyhedronVertexData* convexVertexDataA,
+			struct SpuConvexPolyhedronVertexData* convexVertexDataB
 			) const = 0;
 
 

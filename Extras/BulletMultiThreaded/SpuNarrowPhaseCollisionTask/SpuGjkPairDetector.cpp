@@ -15,7 +15,7 @@ subject to the following restrictions:
 
 #include "SpuGjkPairDetector.h"
 #include "SpuConvexPenetrationDepthSolver.h"
-#include "SpuLocalSupport.h"
+#include "SpuCollisionShapes.h"
 
 
 
@@ -106,8 +106,8 @@ void SpuGjkPairDetector::getClosestPoints(const SpuClosestPointInput& input,SpuC
 //			btVector3 pInA = m_minkowskiA->localGetSupportingVertexWithoutMargin(seperatingAxisInA);
 //			btVector3 qInB = m_minkowskiB->localGetSupportingVertexWithoutMargin(seperatingAxisInB);
 
-			btVector3 pInA  = localGetSupportingVertexWithoutMargin(m_shapeTypeA, m_minkowskiA, seperatingAxisInA,input.m_convexVertexData);//, &featureIndexA);
-			btVector3 qInB  = localGetSupportingVertexWithoutMargin(m_shapeTypeB, m_minkowskiB, seperatingAxisInB,input.m_convexVertexData);//, &featureIndexB);
+			btVector3 pInA  = localGetSupportingVertexWithoutMargin(m_shapeTypeA, m_minkowskiA, seperatingAxisInA,input.m_convexVertexData[0]);//, &featureIndexA);
+			btVector3 qInB  = localGetSupportingVertexWithoutMargin(m_shapeTypeB, m_minkowskiB, seperatingAxisInB,input.m_convexVertexData[1]);//, &featureIndexB);
 
 
 			btPoint3  pWorld = localTransA(pInA);	
@@ -250,7 +250,7 @@ void SpuGjkPairDetector::getClosestPoints(const SpuClosestPointInput& input,SpuC
                     marginA, marginB,
 					localTransA,localTransB,
 					m_cachedSeparatingAxis, tmpPointOnA, tmpPointOnB,
-					0,input.m_stackAlloc,input.m_convexVertexData
+					0,input.m_stackAlloc,input.m_convexVertexData[0], input.m_convexVertexData[1]
 					);
 
 				if (isValid2)

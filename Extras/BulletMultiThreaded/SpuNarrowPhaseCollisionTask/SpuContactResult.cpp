@@ -53,7 +53,7 @@ inline btScalar	calculateCombinedRestitution(btScalar restitution0,btScalar rest
 
 
 
- void	SpuContactResult::setContactInfo(btPersistentManifold* spuManifold, uint64_t	manifoldAddress,const btTransform& worldTrans0,const btTransform& worldTrans1, btScalar restitution0,btScalar restitution1, btScalar friction0,btScalar friction1, bool isSwapped)
+ void	SpuContactResult::setContactInfo(btPersistentManifold* spuManifold, ppu_address_t	manifoldAddress,const btTransform& worldTrans0,const btTransform& worldTrans1, btScalar restitution0,btScalar restitution1, btScalar friction0,btScalar friction1, bool isSwapped)
  {
 	//spu_printf("SpuContactResult::setContactInfo ManifoldAddress: %lu\n", manifoldAddress);
 	m_rootWorldTransform0 = worldTrans0;

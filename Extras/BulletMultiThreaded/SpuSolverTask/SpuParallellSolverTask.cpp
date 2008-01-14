@@ -17,6 +17,7 @@ Written by: Marten Svanfeldt
 
 #define IN_PARALLELL_SOLVER 1
 
+
 #include "SpuParallellSolverTask.h"
 #include "BulletDynamics/Dynamics/btRigidBody.h"
 #include "BulletCollision/NarrowPhaseCollision/btPersistentManifold.h"
