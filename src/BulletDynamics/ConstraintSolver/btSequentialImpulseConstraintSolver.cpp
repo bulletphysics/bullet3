@@ -435,6 +435,7 @@ btScalar btSequentialImpulseConstraintSolver::solveGroupCacheFriendlySetup(btCol
 	(void)stackAlloc;
 	(void)debugDrawer;
 
+
 	if (!(numConstraints + numManifolds))
 	{
 //		printf("empty\n");
@@ -774,7 +775,6 @@ btScalar btSequentialImpulseConstraintSolver::solveGroupCacheFriendlyIterations(
 
 			for (j=0;j<numConstraints;j++)
 			{
-				BT_PROFILE("solveConstraint");
 				btTypedConstraint* constraint = constraints[j];
 				///todo: use solver bodies, so we don't need to copy from/to btRigidBody
 
@@ -801,7 +801,6 @@ btScalar btSequentialImpulseConstraintSolver::solveGroupCacheFriendlyIterations(
 			}
 
 			{
-				BT_PROFILE("resolveSingleCollisionCombinedCacheFriendly");
 				int numPoolConstraints = m_tmpSolverConstraintPool.size();
 				for (j=0;j<numPoolConstraints;j++)
 				{
@@ -813,7 +812,6 @@ btScalar btSequentialImpulseConstraintSolver::solveGroupCacheFriendlyIterations(
 			}
 
 			{
-				BT_PROFILE("resolveSingleFrictionCacheFriendly");
 				 int numFrictionPoolConstraints = m_tmpSolverFrictionConstraintPool.size();
 				
 				 for (j=0;j<numFrictionPoolConstraints;j++)
