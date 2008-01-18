@@ -595,7 +595,11 @@ void	btDiscreteDynamicsWorld::solveConstraints(btContactSolverInfo& solverInfo)
 					}
 				}
 
-				m_solver->solveGroup( bodies,numBodies,manifolds, numManifolds,startConstraint,numCurConstraints,m_solverInfo,m_debugDrawer,m_stackAlloc,m_dispatcher);
+				///only call solveGroup if there is some work: avoid virtual function call, its overhead can be excessive
+				if (numManifolds + numCurConstraints)
+				{
+					m_solver->solveGroup( bodies,numBodies,manifolds, numManifolds,startConstraint,numCurConstraints,m_solverInfo,m_debugDrawer,m_stackAlloc,m_dispatcher);
+				}
 		
 			}
 		}
