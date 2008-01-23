@@ -39,7 +39,10 @@ subject to the following restrictions:
 #include "BulletCollision/CollisionShapes/btCapsuleShape.h"
 #include "BulletCollision/CollisionShapes/btConvexTriangleMeshShape.h"
 #include "BulletCollision/CollisionShapes/btUniformScalingShape.h"
+#include "BulletCollision/CollisionShapes/btStaticPlaneShape.h"
+#include "BulletCollision/CollisionShapes/btShapeHull.h"
 
+#include "LinearMath/btTransformUtil.h"
 
 
 #include "LinearMath/btIDebugDraw.h"
@@ -302,11 +305,18 @@ void GL_ShapeDrawer::drawCylinder(float radius,float halfHeight, int upAxis)
 	gluQuadricDrawStyle(quadObj, (GLenum)GLU_FILL);
 	gluQuadricNormals(quadObj, (GLenum)GLU_SMOOTH);
 	
+	gluDisk(quadObj,0,radius,15, 10);
 	
 	gluCylinder(quadObj, radius, radius, 2.f*halfHeight, 15, 10);
+	glTranslatef(0.0, 0.0, 2.*halfHeight);
+	glRotatef(-180.0, 0.0, 1.0, 0.0);
+	gluDisk(quadObj,0,radius,15, 10);
+
 	glPopMatrix();
 	gluDeleteQuadric(quadObj);
 }
+
+
 
 void GL_ShapeDrawer::drawOpenGL(btScalar* m, const btCollisionShape* shape, const btVector3& color,int	debugMode)
 {
@@ -358,6 +368,8 @@ void GL_ShapeDrawer::drawOpenGL(btScalar* m, const btCollisionShape* shape, cons
 
 		if (!(debugMode & btIDebugDraw::DBG_DrawWireframe))
 		{
+			///you can comment out any of the specific cases, and use the default
+			///the benefit of 'default' is that it approximates the actual collision shape including collision margin
 			switch (shape->getShapeType())
 			{
 			case BOX_SHAPE_PROXYTYPE:
@@ -369,15 +381,8 @@ void GL_ShapeDrawer::drawOpenGL(btScalar* m, const btCollisionShape* shape, cons
 					useWireframeFallback = false;
 					break;
 				}
-			case TRIANGLE_SHAPE_PROXYTYPE:
-			case TETRAHEDRAL_SHAPE_PROXYTYPE:
-				{
-					//todo:	
-//					useWireframeFallback = false;
-					break;
-				}
-			case CONVEX_HULL_SHAPE_PROXYTYPE:
-				break;
+		
+			
 			case SPHERE_SHAPE_PROXYTYPE:
 				{
 					const btSphereShape* sphereShape = static_cast<const btSphereShape*>(shape);
@@ -386,29 +391,7 @@ void GL_ShapeDrawer::drawOpenGL(btScalar* m, const btCollisionShape* shape, cons
 					useWireframeFallback = false;
 					break;
 				}
-			case CAPSULE_SHAPE_PROXYTYPE:
-			{
-				const btCapsuleShape* capsuleShape = static_cast<const btCapsuleShape*>(shape);
-				float radius = capsuleShape->getRadius();
-				float halfHeight = capsuleShape->getHalfHeight();
-				int upAxis = 1;
-
-				drawCylinder(radius,halfHeight,upAxis);
-
-				
-				glPushMatrix();
-				glTranslatef(0.0, -halfHeight,0.0);
-				glutSolidSphere(radius,10,10);
-				glTranslatef(0.0, 2*halfHeight,0.0);
-				glutSolidSphere(radius,10,10);
-				glPopMatrix();
-				useWireframeFallback = false;
-				break;
-			}
-			case MULTI_SPHERE_SHAPE_PROXYTYPE:
-				{
-					break;
-				}
+			
 			case CONE_SHAPE_PROXYTYPE:
 				{
 					const btConeShape* coneShape = static_cast<const btConeShape*>(shape);
@@ -436,13 +419,33 @@ void GL_ShapeDrawer::drawOpenGL(btScalar* m, const btCollisionShape* shape, cons
 					break;
 
 				}
-			case CONVEX_TRIANGLEMESH_SHAPE_PROXYTYPE:
+		
+
+			case STATIC_PLANE_PROXYTYPE:
 				{
-					useWireframeFallback = false;
+					const btStaticPlaneShape* staticPlaneShape = static_cast<const btStaticPlaneShape*>(shape);
+					btScalar planeConst = staticPlaneShape->getPlaneConstant();
+					const btVector3& planeNormal = staticPlaneShape->getPlaneNormal();
+					btVector3 planeOrigin = planeNormal * planeConst;
+					btVector3 vec0,vec1;
+					btPlaneSpace1(planeNormal,vec0,vec1);
+					btScalar vecLen = 100.f;
+					btVector3 pt0 = planeOrigin + vec0*vecLen;
+					btVector3 pt1 = planeOrigin - vec0*vecLen;
+					btVector3 pt2 = planeOrigin + vec1*vecLen;
+					btVector3 pt3 = planeOrigin - vec1*vecLen;
+					glBegin(GL_LINES);
+					glVertex3f(pt0.getX(),pt0.getY(),pt0.getZ());
+					glVertex3f(pt1.getX(),pt1.getY(),pt1.getZ());
+					glVertex3f(pt2.getX(),pt2.getY(),pt2.getZ());
+					glVertex3f(pt3.getX(),pt3.getY(),pt3.getZ());
+					glEnd();
+
+					
 					break;
+
 				}
 
-			case CONVEX_SHAPE_PROXYTYPE:
 			case CYLINDER_SHAPE_PROXYTYPE:
 				{
 					const btCylinderShape* cylinder = static_cast<const btCylinderShape*>(shape);
@@ -456,75 +459,129 @@ void GL_ShapeDrawer::drawOpenGL(btScalar* m, const btCollisionShape* shape, cons
 
 					break;
 				}
+			
 			default:
 				{
-				}
+					
+					
+					if (shape->isConvex())
+					{
+						btConvexShape* convexShape = (btConvexShape*)shape;
+						if (!shape->getUserPointer())
+						{
+							//create a hull approximation
+							btShapeHull* hull = new btShapeHull(convexShape);
+							btScalar margin = shape->getMargin();
+							hull->buildHull(margin);
+							convexShape->setUserPointer(hull);
 
-			};
+							
+							printf("numTriangles = %d\n", hull->numTriangles ());
+							printf("numIndices = %d\n", hull->numIndices ());
+							printf("numVertices = %d\n", hull->numVertices ());
+							
+
+						}
+						
+						
+
+
+						if (shape->getUserPointer())
+						{
+							//glutSolidCube(1.0);
+							btShapeHull* hull = (btShapeHull*)shape->getUserPointer();
+
+							
+							if (hull->numTriangles () > 0)
+							{
+								int index = 0;
+								const unsigned int* idx = hull->getIndexPointer();
+								const btVector3* vtx = hull->getVertexPointer();
+								
+								glBegin (GL_TRIANGLES);
+
+								for (int i = 0; i < hull->numTriangles (); i++)
+								{
+									int i1 = index++;
+									int i2 = index++;
+									int i3 = index++;
+									btAssert(i1 < hull->numIndices () &&
+										i2 < hull->numIndices () &&
+										i3 < hull->numIndices ());
+
+									int index1 = idx[i1];
+									int index2 = idx[i2];
+									int index3 = idx[i3];
+									btAssert(index1 < hull->numVertices () &&
+										index2 < hull->numVertices () &&
+										index3 < hull->numVertices ());
+
+									btVector3 v1 = vtx[index1];
+									btVector3 v2 = vtx[index2];
+									btVector3 v3 = vtx[index3];
+									btVector3 normal = (v3-v1).cross(v2-v1);
+									normal.normalize ();
+									
+									glNormal3f(normal.getX(),normal.getY(),normal.getZ());
+									glVertex3f (v1.x(), v1.y(), v1.z());
+									glVertex3f (v2.x(), v2.y(), v2.z());
+									glVertex3f (v3.x(), v3.y(), v3.z());
+									
+								}
+								glEnd ();
+						
+						}
+					} else
+					{
+//						printf("unhandled drawing\n");
+					}
+					
+
+				}
+			}
+		}
 
 		}
 		
 
 		
 
-		if (useWireframeFallback)
+		/// for polyhedral shapes
+		if (debugMode==btIDebugDraw::DBG_DrawFeaturesText && (shape->isPolyhedral()))
 		{
-			/// for polyhedral shapes
-			if (shape->isPolyhedral())
+			btPolyhedralConvexShape* polyshape = (btPolyhedralConvexShape*) shape;
+			
 			{
-				btPolyhedralConvexShape* polyshape = (btPolyhedralConvexShape*) shape;
-				
-				
-				glBegin(GL_LINES);
+				glRasterPos3f(0.0,  0.0,  0.0);
+				//BMF_DrawString(BMF_GetFont(BMF_kHelvetica10),polyshape->getExtraDebugInfo());
 
-
+				glColor3f(1.f, 1.f, 1.f);
 				int i;
-				for (i=0;i<polyshape->getNumEdges();i++)
+				for (i=0;i<polyshape->getNumVertices();i++)
 				{
-					btPoint3 a,b;
-					polyshape->getEdge(i,a,b);
-
-					glVertex3f(a.getX(),a.getY(),a.getZ());
-					glVertex3f(b.getX(),b.getY(),b.getZ());
-
-
-				}
-				glEnd();
-
-				
-				if (debugMode==btIDebugDraw::DBG_DrawFeaturesText)
-				{
-					glRasterPos3f(0.0,  0.0,  0.0);
-					//BMF_DrawString(BMF_GetFont(BMF_kHelvetica10),polyshape->getExtraDebugInfo());
-
-					glColor3f(1.f, 1.f, 1.f);
-					for (i=0;i<polyshape->getNumVertices();i++)
-					{
-						btPoint3 vtx;
-						polyshape->getVertex(i,vtx);
-						glRasterPos3f(vtx.x(),  vtx.y(),  vtx.z());
-						char buf[12];
-						sprintf(buf," %d",i);
-						BMF_DrawString(BMF_GetFont(BMF_kHelvetica10),buf);
-					}
-
-					for (i=0;i<polyshape->getNumPlanes();i++)
-					{
-						btVector3 normal;
-						btPoint3 vtx;
-						polyshape->getPlane(normal,vtx,i);
-						btScalar d = vtx.dot(normal);
-
-						glRasterPos3f(normal.x()*d,  normal.y()*d, normal.z()*d);
-						char buf[12];
-						sprintf(buf," plane %d",i);
-						BMF_DrawString(BMF_GetFont(BMF_kHelvetica10),buf);
-						
-					}
+					btPoint3 vtx;
+					polyshape->getVertex(i,vtx);
+					glRasterPos3f(vtx.x(),  vtx.y(),  vtx.z());
+					char buf[12];
+					sprintf(buf," %d",i);
+					BMF_DrawString(BMF_GetFont(BMF_kHelvetica10),buf);
 				}
 
-				
+				for (i=0;i<polyshape->getNumPlanes();i++)
+				{
+					btVector3 normal;
+					btPoint3 vtx;
+					polyshape->getPlane(normal,vtx,i);
+					btScalar d = vtx.dot(normal);
+
+					glRasterPos3f(normal.x()*d,  normal.y()*d, normal.z()*d);
+					char buf[12];
+					sprintf(buf," plane %d",i);
+					BMF_DrawString(BMF_GetFont(BMF_kHelvetica10),buf);
+					
+				}
 			}
+				
 		}
 
 

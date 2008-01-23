@@ -17,6 +17,7 @@ subject to the following restrictions:
 #include "BspDemo.h"
 #include "GlutStuff.h"
 #include "GLDebugDrawer.h"
+#include "btBulletDynamicsCommon.h"
 
 char* makeExeToBspFilename(const char* lpCmdLine);
 char* getLastFileName();
@@ -44,9 +45,13 @@ int main(int argc,char** argv)
 		bspfilename = argv[1];
 	}
 
+	GLDebugDrawer	gDebugDrawer;
+
 	// Enrico: TODO: Should change parameter type of initPhysics() to std::string or at least const char *
 	bspDemo->initPhysics((char*)bspfilename);
 	
+	bspDemo->getDynamicsWorld()->setDebugDrawer(&gDebugDrawer);
+
 	
 
 	return glutmain(argc, argv,640,480,"Bullet Quake BSP Physics Viewer http://bullet.sourceforge.net",bspDemo);
