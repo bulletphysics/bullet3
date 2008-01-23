@@ -17,10 +17,7 @@ class btConvexInternalShape : public btConvexShape
 	
 	btScalar	m_collisionMargin;
 
-	btScalar	m_padding[2];
-
-
-
+	btScalar	m_padding;
 
 public:
 
@@ -93,6 +90,8 @@ public:
 		btAssert(0);
 	}
 
+
+	
 };
 
 

@@ -42,6 +42,7 @@ subject to the following restrictions:
 #include "BulletCollision/CollisionShapes/btSphereShape.h"
 #include "BulletCollision/CollisionShapes/btTriangleCallback.h"
 #include "BulletCollision/CollisionShapes/btTriangleMeshShape.h"
+#include "BulletCollision/CollisionShapes/btStaticPlaneShape.h"
 #include "LinearMath/btIDebugDraw.h"
 
 
@@ -913,6 +914,25 @@ void btDiscreteDynamicsWorld::debugDrawObject(const btTransform& worldTransform,
 				getDebugDrawer()->drawLine(start+worldTransform.getBasis() * (offsetHeight-offsetRadius),start+worldTransform.getBasis() * (-offsetHeight-offsetRadius),color);
 				break;
 			}
+
+			case STATIC_PLANE_PROXYTYPE:
+				{
+					const btStaticPlaneShape* staticPlaneShape = static_cast<const btStaticPlaneShape*>(shape);
+					btScalar planeConst = staticPlaneShape->getPlaneConstant();
+					const btVector3& planeNormal = staticPlaneShape->getPlaneNormal();
+					btVector3 planeOrigin = planeNormal * planeConst;
+					btVector3 vec0,vec1;
+					btPlaneSpace1(planeNormal,vec0,vec1);
+					btScalar vecLen = 100.f;
+					btVector3 pt0 = planeOrigin + vec0*vecLen;
+					btVector3 pt1 = planeOrigin - vec0*vecLen;
+					btVector3 pt2 = planeOrigin + vec1*vecLen;
+					btVector3 pt3 = planeOrigin - vec1*vecLen;
+					getDebugDrawer()->drawLine(worldTransform*pt0,worldTransform*pt1,color);
+					getDebugDrawer()->drawLine(worldTransform*pt2,worldTransform*pt3,color);
+					break;
+
+				}
 		default:
 			{
 

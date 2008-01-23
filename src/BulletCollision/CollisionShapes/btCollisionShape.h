@@ -25,9 +25,12 @@ subject to the following restrictions:
 ///btCollisionShape provides interface for collision shapes that can be shared among btCollisionObjects.
 class btCollisionShape
 {
+
+	void* m_userPointer;
+
 public:
 
-	btCollisionShape() 
+	btCollisionShape() : m_userPointer(0)
 	{
 	}
 	virtual ~btCollisionShape()
@@ -87,6 +90,19 @@ public:
 
 	virtual void	setMargin(btScalar margin) = 0;
 	virtual btScalar	getMargin() const = 0;
+
+	
+	///optional user data pointer
+	void	setUserPointer(void* userPtr)
+	{
+		m_userPointer = userPtr;
+	}
+
+	void*	getUserPointer() const
+	{
+		return m_userPointer;
+	}
+
 
 };	
 
