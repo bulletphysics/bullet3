@@ -621,6 +621,7 @@ void GL_ShapeDrawer::drawOpenGL(btScalar* m, const btCollisionShape* shape, cons
 	}
 #endif
 
+	/*
 		if (shape->getShapeType() == CONVEX_TRIANGLEMESH_SHAPE_PROXYTYPE)
 		{
 			btConvexTriangleMeshShape* convexMesh = (btConvexTriangleMeshShape*) shape;
@@ -632,6 +633,8 @@ void GL_ShapeDrawer::drawOpenGL(btScalar* m, const btCollisionShape* shape, cons
 			convexMesh->getMeshInterface()->InternalProcessAllTriangles(&drawCallback,aabbMin,aabbMax);
 
 		}
+		*/
+
 		
 
 		glDisable(GL_DEPTH_BUFFER_BIT);

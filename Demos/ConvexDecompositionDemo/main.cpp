@@ -2,7 +2,10 @@
 
 #include "ConvexDecompositionDemo.h"
 #include "GlutStuff.h"
+#include "GLDebugDrawer.h"
+#include "btBulletDynamicsCommon.h"
 
+GLDebugDrawer	gDebugDrawer;
 
 int main(int argc,char** argv)
 {
@@ -13,6 +16,7 @@ int main(int argc,char** argv)
 
         convexDecompDemo->initPhysics(filename);
 
+		convexDecompDemo->getDynamicsWorld()->setDebugDrawer(&gDebugDrawer);
 
 
         convexDecompDemo->clientResetScene();
