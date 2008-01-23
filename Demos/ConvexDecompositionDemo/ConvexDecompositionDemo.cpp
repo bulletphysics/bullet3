@@ -46,6 +46,7 @@ subject to the following restrictions:
 
 
 btVector3	centroid;
+btVector3   convexDecompositionObjectOffset(10,0,0);
 
 #define CUBE_HALF_EXTENTS 4
 
@@ -257,11 +258,11 @@ void ConvexDecompositionDemo::initPhysics(const char* filename)
 					convexShape->setMargin(0.01);
 
 					m_convexDemo->m_collisionShapes.push_back(convexShape);
-					
 
 					btTransform trans;
 					trans.setIdentity();
-					trans.setOrigin(centroid);
+					trans.setOrigin(centroid-convexDecompositionObjectOffset);
+					
 					//btRigidBody* body = m_convexDemo->localCreateRigidBody( mass, trans,convexShape);
 					m_convexDemo->localCreateRigidBody( mass, trans,convexShape);
 					mBaseCount+=result.mHullVcount; // advance the 'base index' counter.
@@ -307,9 +308,14 @@ void ConvexDecompositionDemo::initPhysics(const char* filename)
 		
 		btTransform startTransform;
 		startTransform.setIdentity();
-		startTransform.setOrigin(btVector3(20,2,0));
+		startTransform.setOrigin(btVector3(0,2,0));
 
 		localCreateRigidBody(mass, startTransform,convexShape);
+		
+		bool useQuantization = true;
+		btCollisionShape* concaveShape = new btBvhTriangleMeshShape(trimesh,useQuantization);
+		startTransform.setOrigin(convexDecompositionObjectOffset);
+		localCreateRigidBody(0.f,startTransform,concaveShape);
 
 	}
 			
