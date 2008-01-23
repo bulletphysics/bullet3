@@ -210,7 +210,7 @@ btPoint3 localGetSupportingVertexWithoutMargin(int shapeType, void* shape, btVec
 
 		
 #if __ASSERT
-        spu_printf("localGetSupportingVertexWithoutMargin() - Unsupported bound type: %d.\n", shapeType);
+       // spu_printf("localGetSupportingVertexWithoutMargin() - Unsupported bound type: %d.\n", shapeType);
 #endif // __ASSERT
         return btPoint3(0.f, 0.f, 0.f);
     }
@@ -277,7 +277,9 @@ void computeAabb (btVector3& aabbMin, btVector3& aabbMax, btConvexInternalShape*
 		break;
 	}
 	default:
-		spu_printf("SPU: unsupported shapetype %d in AABB calculation\n");
+		{
+	//	spu_printf("SPU: unsupported shapetype %d in AABB calculation\n");
+		}
 	};
 }
 
@@ -383,7 +385,7 @@ void dmaConvexVertexData (SpuConvexPolyhedronVertexData* convexVertexData, btCon
 	if (convexVertexData->gNumConvexPoints>MAX_NUM_SPU_CONVEX_POINTS)
 	{
 		btAssert(0);
-		spu_printf("SPU: Error: MAX_NUM_SPU_CONVEX_POINTS(%d) exceeded: %d\n",MAX_NUM_SPU_CONVEX_POINTS,convexVertexData->gNumConvexPoints);
+	//	spu_printf("SPU: Error: MAX_NUM_SPU_CONVEX_POINTS(%d) exceeded: %d\n",MAX_NUM_SPU_CONVEX_POINTS,convexVertexData->gNumConvexPoints);
 		return;
 	}
 			

@@ -156,6 +156,7 @@ public:
 	{
 #ifdef USE_BT_CLOCK
 		frame_timer.reset ();
+#endif //USE_BT_CLOCK
 
 #ifdef BATCH_RAYCASTER
 		if (!gBatchRaycaster)
