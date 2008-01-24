@@ -19,6 +19,8 @@ subject to the following restrictions:
 #ifndef CD_HULL_H
 #define CD_HULL_H
 
+#include "LinearMath/btVector3.h"
+
 class HullResult
 {
 public:
@@ -33,7 +35,7 @@ public:
 	}
 	bool                    mPolygons;                  // true if indices represents polygons, false indices are triangles
 	unsigned int            mNumOutputVertices;         // number of vertices in the output hull
-	float                  *mOutputVertices;            // array of vertices, 3 floats each x,y,z
+	btVector3              *mOutputVertices;            // array of vertices
 	unsigned int            mNumFaces;                  // the number of faces produced
 	unsigned int            mNumIndices;                // the total number of indices
 	unsigned int           *mIndices;                   // pointer to indices.
@@ -46,8 +48,7 @@ enum HullFlag
 {
 	QF_TRIANGLES         = (1<<0),             // report results as triangles, not polygons.
 	QF_REVERSE_ORDER     = (1<<1),             // reverse order of the triangle indices.
-	QF_SKIN_WIDTH        = (1<<2),             // extrude hull based on this skin width
-	QF_DEFAULT           = 0
+	QF_DEFAULT           = QF_TRIANGLES
 };
 
 
@@ -59,25 +60,23 @@ public:
 		mFlags          = QF_DEFAULT;
 		mVcount         = 0;
 		mVertices       = 0;
-		mVertexStride   = sizeof(float)*3;
+		mVertexStride   = sizeof(btVector3);
 		mNormalEpsilon  = 0.001f;
-		mMaxVertices		= 4096; // maximum number of points to be considered for a convex hull.
-		mMaxFaces				= 4096;
-		mSkinWidth			= 0.01f; // default is one centimeter
+		mMaxVertices	= 4096; // maximum number of points to be considered for a convex hull.
+		mMaxFaces	= 4096;
 	};
 
 	HullDesc(HullFlag flag,
-					 unsigned int vcount,
-					 const float *vertices,
-					 unsigned int stride)
+		 unsigned int vcount,
+		 const btVector3 *vertices,
+		 unsigned int stride = sizeof(btVector3))
 	{
 		mFlags          = flag;
 		mVcount         = vcount;
 		mVertices       = vertices;
 		mVertexStride   = stride;
-		mNormalEpsilon  = 0.001f;
+		mNormalEpsilon  = btScalar(0.001);
 		mMaxVertices    = 4096;
-		mSkinWidth = 0.01f; // default is one centimeter
 	}
 
 	bool HasHullFlag(HullFlag flag) const
@@ -98,11 +97,10 @@ public:
 
 	unsigned int      mFlags;           // flags to use when generating the convex hull.
 	unsigned int      mVcount;          // number of vertices in the input point cloud
-	const float      *mVertices;        // the array of vertices.
+	const btVector3  *mVertices;        // the array of vertices.
 	unsigned int      mVertexStride;    // the stride of each vertex, in bytes.
-	float             mNormalEpsilon;   // the epsilon for removing duplicates.  This is a normalized value, if normalized bit is on.
-	float             mSkinWidth;
-	unsigned int      mMaxVertices;               // maximum number of vertices to be considered for the hull!
+	btScalar             mNormalEpsilon;   // the epsilon for removing duplicates.  This is a normalized value, if normalized bit is on.
+	unsigned int      mMaxVertices;     // maximum number of vertices to be considered for the hull!
 	unsigned int      mMaxFaces;
 };
 
@@ -116,26 +114,23 @@ class HullLibrary
 {
 public:
 
-	HullError CreateConvexHull(const HullDesc       &desc,           // describes the input request
-															HullResult           &result);        // contains the resulst
-
+	HullError CreateConvexHull(const HullDesc& desc, // describes the input request
+				   HullResult&     result);        // contains the resulst
 	HullError ReleaseResult(HullResult &result); // release memory allocated for this result, we are done with it.
-
 private:
-
 	//BringOutYourDead (John Ratcliff): When you create a convex hull you hand it a large input set of vertices forming a 'point cloud'. 
 	//After the hull is generated it give you back a set of polygon faces which index the *original* point cloud.
 	//The thing is, often times, there are many 'dead vertices' in the point cloud that are on longer referenced by the hull.
 	//The routine 'BringOutYourDead' find only the referenced vertices, copies them to an new buffer, and re-indexes the hull so that it is a minimal representation.
-	void BringOutYourDead(const float *verts,unsigned int vcount, float *overts,unsigned int &ocount,unsigned int *indices,unsigned indexcount);
+	void BringOutYourDead(const btVector3* verts,unsigned int vcount, btVector3* overts,unsigned int &ocount,unsigned int* indices,unsigned indexcount);
 
-	bool    CleanupVertices(unsigned int svcount,
-													const float *svertices,
-													unsigned int stride,
-													unsigned int &vcount,       // output number of vertices
-													float *vertices,                 // location to store the results.
-													float  normalepsilon,
-													float *scale);
+	bool CleanupVertices(unsigned int svcount,
+			     const btVector3* svertices,
+			     unsigned int stride,
+			     unsigned int &vcount, // output number of vertices
+			     btVector3* vertices, // location to store the results.
+			     btScalar  normalepsilon,
+			     btVector3& scale);
 };
 
 

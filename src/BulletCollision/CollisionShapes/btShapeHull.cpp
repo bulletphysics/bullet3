@@ -111,19 +111,10 @@ btShapeHull::buildHull (btScalar margin)
 	hd.mVcount = numSampleDirections;
 
 #ifdef BT_USE_DOUBLE_PRECISION
-	float* tmpVerts = new float[numSampleDirections*3];
-	
-	for (i=0;i<numSampleDirections;i++)
-	{
-		tmpVerts[i*3] = supportPoints[i].getX();
-		tmpVerts[i*3+1] = supportPoints[i].getY();
-		tmpVerts[i*3+2] = supportPoints[i].getZ();
-	}
-
-	hd.mVertices = tmpVerts;
-	hd.mVertexStride = 3*sizeof(float);//sizeof (btVector3);
+	hd.mVertices = &supportPoints[0];
+	hd.mVertexStride = sizeof(btVector3);
 #else
-	hd.mVertices = &supportPoints[0].getX();
+	hd.mVertices = &supportPoints[0];
 	hd.mVertexStride = sizeof (btVector3);
 #endif
 
@@ -135,12 +126,9 @@ btShapeHull::buildHull (btScalar margin)
 	}
 
 	m_vertices.resize (hr.mNumOutputVertices);
-	float* V = hr.mOutputVertices;
 	for (unsigned int i = 0; i < hr.mNumOutputVertices; i++)
 	{
-		btVector3 hp (V[0], V[1], V[2]);
-		V+=3;
-		m_vertices[i] = hp;
+		m_vertices[i] = hr.mOutputVertices[i];
 	}
 	m_numIndices = hr.mNumIndices;
 	m_indices = new unsigned int [m_numIndices];

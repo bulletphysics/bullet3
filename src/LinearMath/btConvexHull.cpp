@@ -13,34 +13,12 @@ subject to the following restrictions:
 3. This notice may not be removed or altered from any source distribution.
 */
 
-#include <stdio.h>
-#include <stdlib.h>
 #include <string.h>
-#include <assert.h>
-#include <math.h>
-#include <float.h>
 
 #include "btConvexHull.h"
 #include "LinearMath/btAlignedObjectArray.h"
-
+#include "LinearMath/btMinMax.h"
 #include "LinearMath/btVector3.h"
-
-#define PI 3.14159264f
-
-
-
-#define DEG2RAD (PI / 180.0f)
-#define RAD2DEG (180.0f / PI)
-#define SQRT_OF_2 (1.4142135f)
-#define OFFSET(Class,Member)  (((char*) (&(((Class*)NULL)-> Member )))- ((char*)NULL))
-
-
-
-int    argmin(float a[],int n);
-float  sqr(float a);
-float  clampf(float a) ;
-float  Round(float a,float precision);
-float  Interpolate(const float &f0,const float &f1,float alpha) ;
 
 template <class T>
 void Swap(T &a,T &b)
@@ -50,18 +28,6 @@ void Swap(T &a,T &b)
 	b=tmp;
 }
 
-
-template <class T>
-T Max(const T &a,const T &b)
-{
-	return (a>b)?a:b;
-}
-
-template <class T>
-T Min(const T &a,const T &b) 
-{
-	return (a<b)?a:b;
-}
 
 //----------------------------------
 
@@ -76,62 +42,14 @@ public:
 };
 
 
-//-------- 2D --------
-
-
-//--------- 3D ---------
-
-class float3 // 3D
-{
-	public:
-	float x,y,z;
-	float3(){x=0;y=0;z=0;};
-	float3(float _x,float _y,float _z){x=_x;y=_y;z=_z;};
-	//operator float *() { return &x;};
-	float& operator[](int i) {assert(i>=0&&i<3);return ((float*)this)[i];}
-	const float& operator[](int i) const {assert(i>=0&&i<3);return ((float*)this)[i];}
-#	ifdef PLUGIN_3DSMAX
-	float3(const Point3 &p):x(p.x),y(p.y),z(p.z){}
-	operator Point3(){return *((Point3*)this);}
-#	endif
-};
-
-
-float3& operator+=( float3 &a, const float3& b );
-float3& operator-=( float3 &a ,const float3& b );
-float3& operator*=( float3 &v ,const float s );
-float3& operator/=( float3 &v, const float s );
-
-float  magnitude( const float3& v );
-float3 normalize( const float3& v );
-float3 safenormalize(const float3 &v);
-float3 vabs(const float3 &v);
-float3 operator+( const float3& a, const float3& b );
-float3 operator-( const float3& a, const float3& b );
-float3 operator-( const float3& v );
-float3 operator*( const float3& v, const float s );
-float3 operator*( const float s, const float3& v );
-float3 operator/( const float3& v, const float s );
-inline int operator==( const float3 &a, const float3 &b ) { return (a.x==b.x && a.y==b.y && a.z==b.z); }
-inline int operator!=( const float3 &a, const float3 &b ) { return (a.x!=b.x || a.y!=b.y || a.z!=b.z); }
-// due to ambiguity and inconsistent standards ther are no overloaded operators for mult such as va*vb.
-float  dot( const float3& a, const float3& b );
-float3 cmul( const float3 &a, const float3 &b);
-float3 cross( const float3& a, const float3& b );
-float3 Interpolate(const float3 &v0,const float3 &v1,float alpha);
-float3 Round(const float3& a,float precision);
-float3	VectorMax(const float3 &a, const float3 &b);
-float3	VectorMin(const float3 &a, const float3 &b);
-
-
 //------- Plane ----------
 
 class Plane
 {
 	public:
-	float3	normal;
-	float	dist;   // distance below origin - the D from plane equasion Ax+By+Cz+D=0
-			Plane(const float3 &n,float d):normal(n),dist(d){}
+	btVector3	normal;
+	btScalar	dist;   // distance below origin - the D from plane equasion Ax+By+Cz+D=0
+			Plane(const btVector3 &n,btScalar d):normal(n),dist(d){}
 			Plane():normal(),dist(0){}
 	
 };
@@ -143,15 +61,14 @@ inline int coplanar( const Plane &a, const Plane &b ) { return (a==b || a==Plane
 
 //--------- Utility Functions ------
 
-float3  PlaneLineIntersection(const Plane &plane, const float3 &p0, const float3 &p1);
-float3  PlaneProject(const Plane &plane, const float3 &point);
-float3  LineProject(const float3 &p0, const float3 &p1, const float3 &a);  // projects a onto infinite line p0p1
-float   LineProjectTime(const float3 &p0, const float3 &p1, const float3 &a);
-float3  ThreePlaneIntersection(const Plane &p0,const Plane &p1, const Plane &p2)
+btVector3  PlaneLineIntersection(const Plane &plane, const btVector3 &p0, const btVector3 &p1);
+btVector3  PlaneProject(const Plane &plane, const btVector3 &point);
+
+btVector3  ThreePlaneIntersection(const Plane &p0,const Plane &p1, const Plane &p2)
 {
-	btVector3 N1(p0.normal.x,p0.normal.y,p0.normal.z);
-	btVector3 N2(p1.normal.x,p1.normal.y,p1.normal.z);
-	btVector3 N3(p2.normal.x,p2.normal.y,p2.normal.z);
+	btVector3 N1 = p0.normal;
+	btVector3 N2 = p1.normal;
+	btVector3 N3 = p2.normal;
 
 	btVector3 n2n3; n2n3 = N2.cross(N3);
 	btVector3 n3n1; n3n1 = N3.cross(N1);
@@ -170,395 +87,61 @@ float3  ThreePlaneIntersection(const Plane &p0,const Plane &p1, const Plane &p2)
 	potentialVertex += n1n2;
 	potentialVertex *= quotient;
 
-	float3 result(potentialVertex.getX(),potentialVertex.getY(),potentialVertex.getZ());
+	btVector3 result(potentialVertex.getX(),potentialVertex.getY(),potentialVertex.getZ());
 	return result;
 
 }
 
-int     BoxInside(const float3 &p,const float3 &bmin, const float3 &bmax) ;
-int     BoxIntersect(const float3 &v0, const float3 &v1, const float3 &bmin, const float3 &bmax, float3 *impact);
-float   DistanceBetweenLines(const float3 &ustart, const float3 &udir, const float3 &vstart, const float3 &vdir, float3 *upoint=NULL, float3 *vpoint=NULL);
-float3  TriNormal(const float3 &v0, const float3 &v1, const float3 &v2);
-float3  NormalOf(const float3 *vert, const int n);
+btScalar   DistanceBetweenLines(const btVector3 &ustart, const btVector3 &udir, const btVector3 &vstart, const btVector3 &vdir, btVector3 *upoint=NULL, btVector3 *vpoint=NULL);
+btVector3  TriNormal(const btVector3 &v0, const btVector3 &v1, const btVector3 &v2);
+btVector3  NormalOf(const btVector3 *vert, const int n);
 
 
-float   sqr(float a) {return a*a;}
-float   clampf(float a) {return Min(1.0f,Max(0.0f,a));}
-
-
-float Round(float a,float precision)
-{
-	return floorf(0.5f+a/precision)*precision;
-}
-
-
-float Interpolate(const float &f0,const float &f1,float alpha)
-{
-	return f0*(1-alpha) + f1*alpha;
-}
-
-
-int     argmin(float a[],int n)
-{
-	int r=0;
-	for(int i=1;i<n;i++) 
-		{
-		if(a[i]<a[r]) 
-				{
-			r = i;
-		}
-	}
-	return r;
-}
-
-
-
-//------------ float3 (3D) --------------
-
-
-
-float3 operator+( const float3& a, const float3& b ) 
-{
-	return float3(a.x+b.x, a.y+b.y, a.z+b.z); 
-}
-
-
-float3 operator-( const float3& a, const float3& b )
-{
-	return float3( a.x-b.x, a.y-b.y, a.z-b.z );
-}
-
-
-float3 operator-( const float3& v )                     
-{
-	return float3( -v.x, -v.y, -v.z );
-}
-
-
-float3 operator*( const float3& v, float s )      
-{
-	return float3( v.x*s, v.y*s, v.z*s );
-}
-
-
-float3 operator*( float s, const float3& v )      
-{
-	return float3( v.x*s, v.y*s, v.z*s ); 
-}
-
-
-float3 operator/( const float3& v, float s )
-{ 
-	return v*(1.0f/s); 
-}
-
-float  dot( const float3& a, const float3& b )    
-{
-	return a.x*b.x + a.y*b.y + a.z*b.z; 
-}
-
-float3 cmul( const float3 &v1, const float3 &v2) 
-{ 
-	return float3(v1.x*v2.x, v1.y*v2.y, v1.z*v2.z); 
-}
-
-
-float3 cross( const float3& a, const float3& b )
-{
-		return float3( a.y*b.z - a.z*b.y,
-									 a.z*b.x - a.x*b.z,
-									 a.x*b.y - a.y*b.x );
-}
-
-
-
-
-float3& operator+=( float3& a , const float3& b )
-{
-		a.x += b.x;
-		a.y += b.y;
-		a.z += b.z;
-		return a;
-}
-
-
-float3& operator-=( float3& a , const float3& b )
-{
-		a.x -= b.x;
-		a.y -= b.y;
-		a.z -= b.z;
-		return a;
-}
-
-
-float3& operator*=(float3& v , float s )
-{
-		v.x *= s;
-		v.y *= s;
-		v.z *= s;
-		return v;
-}
-
-
-float3& operator/=(float3& v , float s )
-{
-		float sinv = 1.0f / s;
-		v.x *= sinv;
-		v.y *= sinv;
-		v.z *= sinv;
-		return v;
-}
-
-float3 vabs(const float3 &v)
-{
-	return float3(fabsf(v.x),fabsf(v.y),fabsf(v.z));
-}
-
-
-float magnitude( const float3& v )
-{
-		return sqrtf(sqr(v.x) + sqr( v.y)+ sqr(v.z));
-}
-
-
-
-float3 normalize( const float3 &v )
-{
-	// this routine, normalize, is ok, provided magnitude works!!
-		float d=magnitude(v);
-		if (d==0)
-		{
-		printf("Cant normalize ZERO vector\n");
-		assert(0);// yes this could go here
-		d=0.1f;
-	}
-	d = 1/d;
-	return float3(v.x*d,v.y*d,v.z*d);
-}
-
-float3 safenormalize(const float3 &v)
-{
-	if(magnitude(v)<=0.0f)
-	{
-		return float3(1,0,0);
-	}
-	return normalize(v);
-}
-
-float3 Round(const float3 &a,float precision)
-{
-	return float3(Round(a.x,precision),Round(a.y,precision),Round(a.z,precision));
-}
-
-
-float3 Interpolate(const float3 &v0,const float3 &v1,float alpha) 
-{
-	return v0*(1-alpha) + v1*alpha;
-}
-
-float3 VectorMin(const float3 &a,const float3 &b)
-{
-	return float3(Min(a.x,b.x),Min(a.y,b.y),Min(a.z,b.z));
-}
-float3 VectorMax(const float3 &a,const float3 &b)
-{
-	return float3(Max(a.x,b.x),Max(a.y,b.y),Max(a.z,b.z));
-}
-
-// the statement v1*v2 is ambiguous since there are 3 types
-// of vector multiplication
-//  - componantwise (for example combining colors)
-//  - dot product
-//  - cross product
-// Therefore we never declare/implement this function.
-// So we will never see:  float3 operator*(float3 a,float3 b) 
-
-
-
-
-
-
-
-
-
-//------------- Plane --------------
-
-
-
-
-
-
-
-
-
-float3 PlaneLineIntersection(const Plane &plane, const float3 &p0, const float3 &p1)
+btVector3 PlaneLineIntersection(const Plane &plane, const btVector3 &p0, const btVector3 &p1)
 {
 	// returns the point where the line p0-p1 intersects the plane n&d
-				static float3 dif;
+				static btVector3 dif;
 		dif = p1-p0;
-				float dn= dot(plane.normal,dif);
-				float t = -(plane.dist+dot(plane.normal,p0) )/dn;
+				btScalar dn= dot(plane.normal,dif);
+				btScalar t = -(plane.dist+dot(plane.normal,p0) )/dn;
 				return p0 + (dif*t);
 }
 
-float3 PlaneProject(const Plane &plane, const float3 &point)
+btVector3 PlaneProject(const Plane &plane, const btVector3 &point)
 {
 	return point - plane.normal * (dot(point,plane.normal)+plane.dist);
 }
 
-float3 LineProject(const float3 &p0, const float3 &p1, const float3 &a)
-{
-	float3 w;
-	w = p1-p0;
-	float t= dot(w,(a-p0)) / (sqr(w.x)+sqr(w.y)+sqr(w.z));
-	return p0+ w*t;
-}
-
-
-float LineProjectTime(const float3 &p0, const float3 &p1, const float3 &a)
-{
-	float3 w;
-	w = p1-p0;
-	float t= dot(w,(a-p0)) / (sqr(w.x)+sqr(w.y)+sqr(w.z));
-	return t;
-}
-
-
-
-float3 TriNormal(const float3 &v0, const float3 &v1, const float3 &v2)
+btVector3 TriNormal(const btVector3 &v0, const btVector3 &v1, const btVector3 &v2)
 {
 	// return the normal of the triangle
 	// inscribed by v0, v1, and v2
-	float3 cp=cross(v1-v0,v2-v1);
-	float m=magnitude(cp);
-	if(m==0) return float3(1,0,0);
-	return cp*(1.0f/m);
+	btVector3 cp=cross(v1-v0,v2-v1);
+	btScalar m=cp.length();
+	if(m==0) return btVector3(1,0,0);
+	return cp*(btScalar(1.0)/m);
 }
 
 
-
-int BoxInside(const float3 &p, const float3 &bmin, const float3 &bmax) 
+btScalar DistanceBetweenLines(const btVector3 &ustart, const btVector3 &udir, const btVector3 &vstart, const btVector3 &vdir, btVector3 *upoint, btVector3 *vpoint)
 {
-	return (p.x >= bmin.x && p.x <=bmax.x && 
-			p.y >= bmin.y && p.y <=bmax.y && 
-			p.z >= bmin.z && p.z <=bmax.z );
-}
+	static btVector3 cp;
+	cp = cross(udir,vdir).normalized();
 
-
-int BoxIntersect(const float3 &v0, const float3 &v1, const float3 &bmin, const float3 &bmax,float3 *impact)
-{
-	if(BoxInside(v0,bmin,bmax))
-		{
-				*impact=v0;
-				return 1;
-		}
-	if(v0.x<=bmin.x && v1.x>=bmin.x) 
-		{
-		float a = (bmin.x-v0.x)/(v1.x-v0.x);
-		//v.x = bmin.x;
-		float vy =  (1-a) *v0.y + a*v1.y;
-		float vz =  (1-a) *v0.z + a*v1.z;
-		if(vy>=bmin.y && vy<=bmax.y && vz>=bmin.z && vz<=bmax.z) 
-				{
-			impact->x = bmin.x;
-			impact->y = vy;
-			impact->z = vz;
-			return 1;
-		}
-	}
-	else if(v0.x >= bmax.x  &&  v1.x <= bmax.x) 
-		{
-		float a = (bmax.x-v0.x)/(v1.x-v0.x);
-		//v.x = bmax.x;
-		float vy =  (1-a) *v0.y + a*v1.y;
-		float vz =  (1-a) *v0.z + a*v1.z;
-		if(vy>=bmin.y && vy<=bmax.y && vz>=bmin.z && vz<=bmax.z) 
-				{
-			impact->x = bmax.x;
-			impact->y = vy;
-			impact->z = vz;
-			return 1;
-		}
-	}
-	if(v0.y<=bmin.y && v1.y>=bmin.y) 
-		{
-		float a = (bmin.y-v0.y)/(v1.y-v0.y);
-		float vx =  (1-a) *v0.x + a*v1.x;
-		//v.y = bmin.y;
-		float vz =  (1-a) *v0.z + a*v1.z;
-		if(vx>=bmin.x && vx<=bmax.x && vz>=bmin.z && vz<=bmax.z) 
-				{
-			impact->x = vx;
-			impact->y = bmin.y;
-			impact->z = vz;
-			return 1;
-		}
-	}
-	else if(v0.y >= bmax.y  &&  v1.y <= bmax.y) 
-		{
-		float a = (bmax.y-v0.y)/(v1.y-v0.y);
-		float vx =  (1-a) *v0.x + a*v1.x;
-		// vy = bmax.y;
-		float vz =  (1-a) *v0.z + a*v1.z;
-		if(vx>=bmin.x && vx<=bmax.x && vz>=bmin.z && vz<=bmax.z)
-				{
-			impact->x = vx;
-			impact->y = bmax.y;
-			impact->z = vz;
-			return 1;
-		}
-	}
-	if(v0.z<=bmin.z && v1.z>=bmin.z) 
-		{
-		float a = (bmin.z-v0.z)/(v1.z-v0.z);
-		float vx =  (1-a) *v0.x + a*v1.x;
-		float vy =  (1-a) *v0.y + a*v1.y;
-		// v.z = bmin.z;
-		if(vy>=bmin.y && vy<=bmax.y && vx>=bmin.x && vx<=bmax.x) 
-				{
-			impact->x = vx;
-			impact->y = vy;
-			impact->z = bmin.z;
-			return 1;
-		}
-	}
-	else if(v0.z >= bmax.z  &&  v1.z <= bmax.z) 
-		{
-		float a = (bmax.z-v0.z)/(v1.z-v0.z);
-		float vx =  (1-a) *v0.x + a*v1.x;
-		float vy =  (1-a) *v0.y + a*v1.y;
-		// v.z = bmax.z;
-		if(vy>=bmin.y && vy<=bmax.y && vx>=bmin.x && vx<=bmax.x) 
-				{
-			impact->x = vx;
-			impact->y = vy;
-			impact->z = bmax.z;
-			return 1;
-		}
-	}
-	return 0;
-}
-
-
-float DistanceBetweenLines(const float3 &ustart, const float3 &udir, const float3 &vstart, const float3 &vdir, float3 *upoint, float3 *vpoint)
-{
-	static float3 cp;
-	cp = normalize(cross(udir,vdir));
-
-	float distu = -dot(cp,ustart);
-	float distv = -dot(cp,vstart);
-	float dist = (float)fabs(distu-distv);
+	btScalar distu = -dot(cp,ustart);
+	btScalar distv = -dot(cp,vstart);
+	btScalar dist = (btScalar)fabs(distu-distv);
 	if(upoint) 
 		{
 		Plane plane;
-		plane.normal = normalize(cross(vdir,cp));
+		plane.normal = cross(vdir,cp).normalized();
 		plane.dist = -dot(plane.normal,vstart);
 		*upoint = PlaneLineIntersection(plane,ustart,ustart+udir);
 	}
 	if(vpoint) 
 		{
 		Plane plane;
-		plane.normal = normalize(cross(udir,cp));
+		plane.normal = cross(udir,cp).normalized();
 		plane.dist = -dot(plane.normal,ustart);
 		*vpoint = PlaneLineIntersection(plane,vstart,vstart+vdir);
 	}
@@ -584,21 +167,21 @@ public:
 	unsigned int mVcount;
 	unsigned int mIndexCount;
 	unsigned int mFaceCount;
-	float       *mVertices;
+	btVector3*   mVertices;
 	unsigned int *mIndices;
 };
 
 
-#define REAL3 float3
-#define REAL  float
+#define REAL3 btVector3
+#define REAL  btScalar
 
 #define COPLANAR   (0)
 #define UNDER      (1)
 #define OVER       (2)
 #define SPLIT      (OVER|UNDER)
-#define PAPERWIDTH (0.001f)
+#define PAPERWIDTH (btScalar(0.001))
 
-float planetestepsilon = PAPERWIDTH;
+btScalar planetestepsilon = PAPERWIDTH;
 
 
 class ConvexH 
@@ -810,21 +393,21 @@ ConvexH *test_cube() {
 }
 ConvexH *ConvexHMakeCube(const REAL3 &bmin, const REAL3 &bmax) {
 	ConvexH *convex = test_cube();
-	convex->vertices[0] = REAL3(bmin.x,bmin.y,bmin.z);
-	convex->vertices[1] = REAL3(bmin.x,bmin.y,bmax.z);
-	convex->vertices[2] = REAL3(bmin.x,bmax.y,bmin.z);
-	convex->vertices[3] = REAL3(bmin.x,bmax.y,bmax.z);
-	convex->vertices[4] = REAL3(bmax.x,bmin.y,bmin.z);
-	convex->vertices[5] = REAL3(bmax.x,bmin.y,bmax.z);
-	convex->vertices[6] = REAL3(bmax.x,bmax.y,bmin.z);
-	convex->vertices[7] = REAL3(bmax.x,bmax.y,bmax.z);
+	convex->vertices[0] = REAL3(bmin.getX(),bmin.getY(),bmin.getZ());
+	convex->vertices[1] = REAL3(bmin.getX(),bmin.getY(),bmax.getZ());
+	convex->vertices[2] = REAL3(bmin.getX(),bmax.getY(),bmin.getZ());
+	convex->vertices[3] = REAL3(bmin.getX(),bmax.getY(),bmax.getZ());
+	convex->vertices[4] = REAL3(bmax.getX(),bmin.getY(),bmin.getZ());
+	convex->vertices[5] = REAL3(bmax.getX(),bmin.getY(),bmax.getZ());
+	convex->vertices[6] = REAL3(bmax.getX(),bmax.getY(),bmin.getZ());
+	convex->vertices[7] = REAL3(bmax.getX(),bmax.getY(),bmax.getZ());
 
-	convex->facets[0] = Plane(REAL3(-1,0,0), bmin.x);
-	convex->facets[1] = Plane(REAL3(1,0,0), -bmax.x);
-	convex->facets[2] = Plane(REAL3(0,-1,0), bmin.y);
-	convex->facets[3] = Plane(REAL3(0,1,0), -bmax.y);
-	convex->facets[4] = Plane(REAL3(0,0,-1), bmin.z);
-	convex->facets[5] = Plane(REAL3(0,0,1), -bmax.z);
+	convex->facets[0] = Plane(REAL3(-1,0,0), bmin.getX());
+	convex->facets[1] = Plane(REAL3(1,0,0), -bmax.getX());
+	convex->facets[2] = Plane(REAL3(0,-1,0), bmin.getY());
+	convex->facets[3] = Plane(REAL3(0,1,0), -bmax.getY());
+	convex->facets[4] = Plane(REAL3(0,0,-1), bmin.getZ());
+	convex->facets[5] = Plane(REAL3(0,0,1), -bmax.getZ());
 	return convex;
 }
 ConvexH *ConvexHCrop(ConvexH &convex,const Plane &slice)
@@ -1136,7 +719,7 @@ ConvexH *ConvexHCrop(ConvexH &convex,const Plane &slice)
 
 
 
-static int candidateplane(Plane *planes,int planes_count,ConvexH *convex,float epsilon)
+static int candidateplane(Plane *planes,int planes_count,ConvexH *convex,btScalar epsilon)
 {
 	int p = 0 ;
 	REAL md= 0 ;
@@ -1146,7 +729,7 @@ static int candidateplane(Plane *planes,int planes_count,ConvexH *convex,float e
 		REAL d=0;
 		for(int j=0;j<convex->vertices.size();j++)
 		{
-			d = Max(d,dot(convex->vertices[j],planes[i].normal)+planes[i].dist);
+			d = btMax(d,dot(convex->vertices[j],planes[i].normal)+planes[i].dist);
 		}
 		if(i==0 || d>md)
 		{
@@ -1175,19 +758,26 @@ int maxdirfiltered(const T *p,int count,const T &dir,btAlignedObjectArray<int> &
 {
 	assert(count);
 	int m=-1;
-	for(int i=0;i<count;i++) if(allow[i])
-	{
-		if(m==-1 || dot(p[i],dir)>dot(p[m],dir)) m=i;
-	}
+	for(int i=0;i<count;i++) 
+		if(allow[i])
+		{
+			if(m==-1 || dot(p[i],dir)>dot(p[m],dir))
+				m=i;
+		}
 	assert(m!=-1);
 	return m;
 } 
 
-float3 orth(const float3 &v)
+btVector3 orth(const btVector3 &v)
 {
-	float3 a=cross(v,float3(0,0,1));
-	float3 b=cross(v,float3(0,1,0));
-	return normalize((magnitude(a)>magnitude(b))?a:b);
+	btVector3 a=cross(v,btVector3(0,0,1));
+	btVector3 b=cross(v,btVector3(0,1,0));
+	if (a.length() > b.length())
+	{
+		return a.normalized();
+	} else {
+		return b.normalized();
+	}
 }
 
 
@@ -1202,11 +792,11 @@ int maxdirsterid(const T *p,int count,const T &dir,btAlignedObjectArray<int> &al
 		T u = orth(dir);
 		T v = cross(u,dir);
 		int ma=-1;
-		for(float x = 0.0f ; x<= 360.0f ; x+= 45.0f)
+		for(btScalar x = btScalar(0.0) ; x<= btScalar(360.0) ; x+= btScalar(45.0))
 		{
-			float s = sinf(DEG2RAD*(x));
-			float c = cosf(DEG2RAD*(x));
-			int mb = maxdirfiltered(p,count,dir+(u*s+v*c)*0.025f,allow);
+			btScalar s = sinf(SIMD_RADS_PER_DEG*(x));
+			btScalar c = cosf(SIMD_RADS_PER_DEG*(x));
+			int mb = maxdirfiltered(p,count,dir+(u*s+v*c)*btScalar(0.025),allow);
 			if(ma==m && mb==m)
 			{
 				allow[m]=3;
@@ -1215,11 +805,11 @@ int maxdirsterid(const T *p,int count,const T &dir,btAlignedObjectArray<int> &al
 			if(ma!=-1 && ma!=mb)  // Yuck - this is really ugly
 			{
 				int mc = ma;
-				for(float xx = x-40.0f ; xx <= x ; xx+= 5.0f)
+				for(btScalar xx = x-btScalar(40.0) ; xx <= x ; xx+= btScalar(5.0))
 				{
-					float s = sinf(DEG2RAD*(xx));
-					float c = cosf(DEG2RAD*(xx));
-					int md = maxdirfiltered(p,count,dir+(u*s+v*c)*0.025f,allow);
+					btScalar s = sinf(SIMD_RADS_PER_DEG*(xx));
+					btScalar c = cosf(SIMD_RADS_PER_DEG*(xx));
+					int md = maxdirfiltered(p,count,dir+(u*s+v*c)*btScalar(0.025),allow);
 					if(mc==m && md==m)
 					{
 						allow[m]=3;
@@ -1265,9 +855,9 @@ int b2b(const int3 &a,const int3 &b)
 {
 	return isa(a,int3(b[2],b[1],b[0]));
 }
-int above(float3* vertices,const int3& t, const float3 &p, float epsilon) 
+int above(btVector3* vertices,const int3& t, const btVector3 &p, btScalar epsilon) 
 {
-	float3 n=TriNormal(vertices[t[0]],vertices[t[1]],vertices[t[2]]);
+	btVector3 n=TriNormal(vertices[t[0]],vertices[t[1]],vertices[t[2]]);
 	return (dot(n,p-vertices[t[0]]) > epsilon); // EPSILON???
 }
 int hasedge(const int3 &t, int a,int b)
@@ -1304,13 +894,13 @@ public:
 	int3 n;
 	int id;
 	int vmax;
-	float rise;
+	btScalar rise;
 	Tri(int a,int b,int c):int3(a,b,c),n(-1,-1,-1)
 	{
 		id = tris.size();
 		tris.push_back(this);
 		vmax=-1;
-		rise = 0.0f;
+		rise = btScalar(0.0);
 	}
 	~Tri()
 	{
@@ -1395,7 +985,7 @@ void extrude(Tri *t0,int v)
 
 }
 
-Tri *extrudable(float epsilon)
+Tri *extrudable(btScalar epsilon)
 {
 	int i;
 	Tri *t=NULL;
@@ -1421,18 +1011,24 @@ public:
 
 
 
-int4 FindSimplex(float3 *verts,int verts_count,btAlignedObjectArray<int> &allow)
+int4 FindSimplex(btVector3 *verts,int verts_count,btAlignedObjectArray<int> &allow)
 {
-	float3 basis[3];
-	basis[0] = float3( 0.01f, 0.02f, 1.0f );      
+	btVector3 basis[3];
+	basis[0] = btVector3( btScalar(0.01), btScalar(0.02), btScalar(1.0) );      
 	int p0 = maxdirsterid(verts,verts_count, basis[0],allow);   
 	int	p1 = maxdirsterid(verts,verts_count,-basis[0],allow);
 	basis[0] = verts[p0]-verts[p1];
-	if(p0==p1 || basis[0]==float3(0,0,0)) 
+	if(p0==p1 || basis[0]==btVector3(0,0,0)) 
 		return int4(-1,-1,-1,-1);
-	basis[1] = cross(float3(     1, 0.02f, 0),basis[0]);
-	basis[2] = cross(float3(-0.02f,     1, 0),basis[0]);
-	basis[1] = normalize( (magnitude(basis[1])>magnitude(basis[2])) ? basis[1]:basis[2]);
+	basis[1] = cross(btVector3(     btScalar(1),btScalar(0.02), btScalar(0)),basis[0]);
+	basis[2] = cross(btVector3(btScalar(-0.02),     btScalar(1), btScalar(0)),basis[0]);
+	if (basis[1].length() > basis[2].length())
+	{
+		basis[1].normalize();
+	} else {
+		basis[1] = basis[2];
+		basis[1].normalize ();
+	}
 	int p2 = maxdirsterid(verts,verts_count,basis[1],allow);
 	if(p2 == p0 || p2 == p1)
 	{
@@ -1441,7 +1037,7 @@ int4 FindSimplex(float3 *verts,int verts_count,btAlignedObjectArray<int> &allow)
 	if(p2 == p0 || p2 == p1) 
 		return int4(-1,-1,-1,-1);
 	basis[1] = verts[p2] - verts[p0];
-	basis[2] = normalize(cross(basis[1],basis[0]));
+	basis[2] = cross(basis[1],basis[0]).normalized();
 	int p3 = maxdirsterid(verts,verts_count,basis[2],allow);
 	if(p3==p0||p3==p1||p3==p2) p3 = maxdirsterid(verts,verts_count,-basis[2],allow);
 	if(p3==p0||p3==p1||p3==p2) 
@@ -1451,12 +1047,12 @@ int4 FindSimplex(float3 *verts,int verts_count,btAlignedObjectArray<int> &allow)
 	return int4(p0,p1,p2,p3);
 }
 
-int calchullgen(float3 *verts,int verts_count, int vlimit)
+int calchullgen(btVector3 *verts,int verts_count, int vlimit)
 {
 	if(verts_count <4) return 0;
 	if(vlimit==0) vlimit=1000000000;
 	int j;
-	float3 bmin(*verts),bmax(*verts);
+	btVector3 bmin(*verts),bmax(*verts);
 	btAlignedObjectArray<int> isextreme;
 	isextreme.reserve(verts_count);
 	btAlignedObjectArray<int> allow;
@@ -1466,10 +1062,11 @@ int calchullgen(float3 *verts,int verts_count, int vlimit)
 	{
 		allow.push_back(1);
 		isextreme.push_back(0);
-		bmin = VectorMin(bmin,verts[j]);
-		bmax = VectorMax(bmax,verts[j]);
+		bmin.setMin (verts[j]);
+		bmax.setMax (verts[j]);
 	}
-	float epsilon = magnitude(bmax-bmin) * 0.001f;
+	btScalar epsilon = (bmax-bmin).length() * btScalar(0.001);
+	btAssert (epsilon != 0.0);
 
 
 	int4 p = FindSimplex(verts,verts_count,allow);
@@ -1477,7 +1074,7 @@ int calchullgen(float3 *verts,int verts_count, int vlimit)
 
 
 
-	float3 center = (verts[p[0]]+verts[p[1]]+verts[p[2]]+verts[p[3]]) /4.0f;  // a valid interior point
+	btVector3 center = (verts[p[0]]+verts[p[1]]+verts[p[2]]+verts[p[3]]) / btScalar(4.0);  // a valid interior point
 	Tri *t0 = new Tri(p[2],p[3],p[1]); t0->n=int3(2,3,1);
 	Tri *t1 = new Tri(p[3],p[2],p[0]); t1->n=int3(3,2,0);
 	Tri *t2 = new Tri(p[0],p[1],p[3]); t2->n=int3(0,1,3);
@@ -1490,7 +1087,7 @@ int calchullgen(float3 *verts,int verts_count, int vlimit)
 		Tri *t=tris[j];
 		assert(t);
 		assert(t->vmax<0);
-		float3 n=TriNormal(verts[(*t)[0]],verts[(*t)[1]],verts[(*t)[2]]);
+		btVector3 n=TriNormal(verts[(*t)[0]],verts[(*t)[1]],verts[(*t)[2]]);
 		t->vmax = maxdirsterid(verts,verts_count,n,allow);
 		t->rise = dot(n,verts[t->vmax]-verts[(*t)[0]]);
 	}
@@ -1500,6 +1097,7 @@ int calchullgen(float3 *verts,int verts_count, int vlimit)
 	{
 		int3 ti=*te;
 		int v=te->vmax;
+		assert(v != -1);
 		assert(!isextreme[v]);  // wtf we've already done this vertex
 		isextreme[v]=1;
 		//if(v==p0 || v==p1 || v==p2 || v==p3) continue; // done these already
@@ -1507,7 +1105,7 @@ int calchullgen(float3 *verts,int verts_count, int vlimit)
 		while(j--) {
 			if(!tris[j]) continue;
 			int3 t=*tris[j];
-			if(above(verts,t,verts[v],0.01f*epsilon)) 
+			if(above(verts,t,verts[v],btScalar(0.01)*epsilon)) 
 			{
 				extrude(tris[j],v);
 			}
@@ -1519,7 +1117,7 @@ int calchullgen(float3 *verts,int verts_count, int vlimit)
 			if(!tris[j]) continue;
 			if(!hasvert(*tris[j],v)) break;
 			int3 nt=*tris[j];
-			if(above(verts,nt,center,0.01f*epsilon)  || magnitude(cross(verts[nt[1]]-verts[nt[0]],verts[nt[2]]-verts[nt[1]]))< epsilon*epsilon*0.1f )
+			if(above(verts,nt,center,btScalar(0.01)*epsilon)  || cross(verts[nt[1]]-verts[nt[0]],verts[nt[2]]-verts[nt[1]]).length()< epsilon*epsilon*btScalar(0.1) )
 			{
 				Tri *nb = tris[tris[j]->n[0]];
 				assert(nb);assert(!hasvert(*nb,v));assert(nb->id<j);
@@ -1533,7 +1131,7 @@ int calchullgen(float3 *verts,int verts_count, int vlimit)
 			Tri *t=tris[j];
 			if(!t) continue;
 			if(t->vmax>=0) break;
-			float3 n=TriNormal(verts[(*t)[0]],verts[(*t)[1]],verts[(*t)[2]]);
+			btVector3 n=TriNormal(verts[(*t)[0]],verts[(*t)[1]],verts[(*t)[2]]);
 			t->vmax = maxdirsterid(verts,verts_count,n,allow);
 			if(isextreme[t->vmax]) 
 			{
@@ -1549,7 +1147,7 @@ int calchullgen(float3 *verts,int verts_count, int vlimit)
 	return 1;
 }
 
-int calchull(float3 *verts,int verts_count, int *&tris_out, int &tris_count,int vlimit) 
+int calchull(btVector3 *verts,int verts_count, int *&tris_out, int &tris_count,int vlimit) 
 {
 	int rc=calchullgen(verts,verts_count,  vlimit) ;
 	if(!rc) return 0;
@@ -1579,32 +1177,32 @@ int calchull(float3 *verts,int verts_count, int *&tris_out, int &tris_count,int 
 
 
 
-int overhull(Plane *planes,int planes_count,float3 *verts, int verts_count,int maxplanes, 
-			 float3 *&verts_out, int &verts_count_out,  int *&faces_out, int &faces_count_out ,float inflate)
+int overhull(Plane *planes,int planes_count,btVector3 *verts, int verts_count,int maxplanes, 
+			 btVector3 *&verts_out, int &verts_count_out,  int *&faces_out, int &faces_count_out ,btScalar inflate)
 {
 	int i,j;
 	if(verts_count <4) return 0;
-	maxplanes = Min(maxplanes,planes_count);
-	float3 bmin(verts[0]),bmax(verts[0]);
+	maxplanes = btMin(maxplanes,planes_count);
+	btVector3 bmin(verts[0]),bmax(verts[0]);
 	for(i=0;i<verts_count;i++) 
 	{
-		bmin = VectorMin(bmin,verts[i]);
-		bmax = VectorMax(bmax,verts[i]);
+		bmin.setMin(verts[i]);
+		bmax.setMax(verts[i]);
 	}
-//	float diameter = magnitude(bmax-bmin);
+//	btScalar diameter = magnitude(bmax-bmin);
 //	inflate *=diameter;   // RELATIVE INFLATION
-	bmin -= float3(inflate,inflate,inflate);
-	bmax += float3(inflate,inflate,inflate);
+	bmin -= btVector3(inflate,inflate,inflate);
+	bmax += btVector3(inflate,inflate,inflate);
 	for(i=0;i<planes_count;i++)
 	{
 		planes[i].dist -= inflate;
 	}
-	float3 emin = bmin; // VectorMin(bmin,float3(0,0,0));
-	float3 emax = bmax; // VectorMax(bmax,float3(0,0,0));
-	float epsilon  = magnitude(emax-emin) * 0.025f;
-	planetestepsilon = magnitude(emax-emin) * PAPERWIDTH;
+	btVector3 emin = bmin; // VectorMin(bmin,btVector3(0,0,0));
+	btVector3 emax = bmax; // VectorMax(bmax,btVector3(0,0,0));
+	btScalar epsilon  = (emax-emin).length() * btScalar(0.025);
+	planetestepsilon = (emax-emin).length() * PAPERWIDTH;
 	// todo: add bounding cube planes to force bevel. or try instead not adding the diameter expansion ??? must think.
-	// ConvexH *convex = ConvexHMakeCube(bmin - float3(diameter,diameter,diameter),bmax+float3(diameter,diameter,diameter));
+	// ConvexH *convex = ConvexHMakeCube(bmin - btVector3(diameter,diameter,diameter),bmax+btVector3(diameter,diameter,diameter));
 	ConvexH *c = ConvexHMakeCube(REAL3(bmin),REAL3(bmax)); 
 	int k;
 	while(maxplanes-- && (k=candidateplane(planes,planes_count,c,epsilon))>=0)
@@ -1638,11 +1236,11 @@ int overhull(Plane *planes,int planes_count,float3 *verts, int verts_count,int m
 	faces_out[0]=k; // number of faces.
 	assert(k==c->facets.size());
 	assert(faces_count_out == 1+c->facets.size()+c->edges.size());
-	verts_out = new float3[c->vertices.size()]; 
+	verts_out = new btVector3[c->vertices.size()]; 
 	verts_count_out = c->vertices.size();
 	for(i=0;i<c->vertices.size();i++)
 	{
-		verts_out[i] = float3(c->vertices[i]);
+		verts_out[i] = btVector3(c->vertices[i]);
 	}
 	c->vertices.resize(0);
 	delete c;
@@ -1651,7 +1249,7 @@ int overhull(Plane *planes,int planes_count,float3 *verts, int verts_count,int m
 
 
 
-bool ComputeHull(unsigned int vcount,const float *vertices,PHullResult &result,unsigned int vlimit,float inflate)
+bool ComputeHull(unsigned int vcount,const btVector3 *vertices,PHullResult &result,unsigned int vlimit)
 {
 
 
@@ -1659,11 +1257,11 @@ bool ComputeHull(unsigned int vcount,const float *vertices,PHullResult &result,u
 	
 	int  *tris_out;
 	int    tris_count;
-	int ret = calchull( (float3 *) vertices, (int) vcount, tris_out, tris_count, vlimit );
+	int ret = calchull( (btVector3 *) vertices, (int) vcount, tris_out, tris_count, vlimit );
 	if(!ret) return false;
 	result.mIndexCount = (unsigned int) (tris_count*3);
 	result.mFaceCount  = (unsigned int) tris_count;
-	result.mVertices   = (float*) vertices;
+	result.mVertices   = (btVector3*) vertices;
 	result.mVcount     = (unsigned int) vcount;
 	result.mIndices    = (unsigned int *) tris_out;
 	return true;
@@ -1709,10 +1307,9 @@ HullError HullLibrary::CreateConvexHull(const HullDesc       &desc,           //
 	unsigned int vcount = desc.mVcount;
 	if ( vcount < 8 ) vcount = 8;
 
-	float *vsource  = (float *) malloc( sizeof(float)*vcount*3);
+	btVector3* vsource = (btVector3*) malloc (sizeof(btVector3)*vcount);
 
-
-	float scale[3];
+	btVector3 scale;
 
 	unsigned int ovcount;
 
@@ -1726,24 +1323,20 @@ HullError HullLibrary::CreateConvexHull(const HullDesc       &desc,           //
 		{
 			for (unsigned int i=0; i<ovcount; i++)
 			{
-				float *v = &vsource[i*3];
+				btVector3& v = vsource[i];
 				v[0]*=scale[0];
 				v[1]*=scale[1];
 				v[2]*=scale[2];
 			}
 		}
 
-		float skinwidth = 0;
-		if ( desc.HasHullFlag(QF_SKIN_WIDTH) )
-			skinwidth = desc.mSkinWidth;
-
-		ok = ComputeHull(ovcount,vsource,hr,desc.mMaxVertices,skinwidth);
+		ok = ComputeHull(ovcount,vsource,hr,desc.mMaxVertices);
 
 		if ( ok )
 		{
 
 			// re-index triangle mesh so it refers to only used vertices, rebuild a new vertex table.
-			float *vscratch = (float *) malloc( sizeof(float)*hr.mVcount*3);
+			btVector3 *vscratch = (btVector3 *) malloc( sizeof(btVector3)*hr.mVcount);
 			BringOutYourDead(hr.mVertices,hr.mVcount, vscratch, ovcount, hr.mIndices, hr.mIndexCount );
 
 			ret = QE_OK;
@@ -1752,13 +1345,13 @@ HullError HullLibrary::CreateConvexHull(const HullDesc       &desc,           //
 			{
 				result.mPolygons          = false;
 				result.mNumOutputVertices = ovcount;
-				result.mOutputVertices    = (float *)malloc( sizeof(float)*ovcount*3);
+				result.mOutputVertices    = (btVector3 *)malloc( sizeof(btVector3)*ovcount);
 				result.mNumFaces          = hr.mFaceCount;
 				result.mNumIndices        = hr.mIndexCount;
 
 				result.mIndices           = (unsigned int *) malloc( sizeof(unsigned int)*hr.mIndexCount);
 
-				memcpy(result.mOutputVertices, vscratch, sizeof(float)*3*ovcount );
+				memcpy(result.mOutputVertices, vscratch, sizeof(btVector3)*ovcount );
 
   			if ( desc.HasHullFlag(QF_REVERSE_ORDER) )
 				{
@@ -1785,11 +1378,11 @@ HullError HullLibrary::CreateConvexHull(const HullDesc       &desc,           //
 			{
 				result.mPolygons          = true;
 				result.mNumOutputVertices = ovcount;
-				result.mOutputVertices    = (float *)malloc( sizeof(float)*ovcount*3);
+				result.mOutputVertices    = (btVector3 *)malloc( sizeof(btVector3)*ovcount);
 				result.mNumFaces          = hr.mFaceCount;
 				result.mNumIndices        = hr.mIndexCount+hr.mFaceCount;
 				result.mIndices           = (unsigned int *) malloc( sizeof(unsigned int)*result.mNumIndices);
-				memcpy(result.mOutputVertices, vscratch, sizeof(float)*3*ovcount );
+				memcpy(result.mOutputVertices, vscratch, sizeof(btVector3)*ovcount );
 
 				if ( 1 )
 				{
@@ -1851,9 +1444,10 @@ HullError HullLibrary::ReleaseResult(HullResult &result) // release memory alloc
 }
 
 
-static void addPoint(unsigned int &vcount,float *p,float x,float y,float z)
+static void addPoint(unsigned int &vcount,btVector3 *p,btScalar x,btScalar y,btScalar z)
 {
-	float *dest = &p[vcount*3];
+	// XXX, might be broken
+	btVector3& dest = p[vcount];
 	dest[0] = x;
 	dest[1] = y;
 	dest[2] = z;
@@ -1861,12 +1455,12 @@ static void addPoint(unsigned int &vcount,float *p,float x,float y,float z)
 }
 
 
-float GetDist(float px,float py,float pz,const float *p2)
+btScalar GetDist(btScalar px,btScalar py,btScalar pz,const btScalar *p2)
 {
 
-	float dx = px - p2[0];
-	float dy = py - p2[1];
-	float dz = pz - p2[2];
+	btScalar dx = px - p2[0];
+	btScalar dy = py - p2[1];
+	btScalar dz = pz - p2[2];
 
 	return dx*dx+dy*dy+dz*dz;
 }
@@ -1874,21 +1468,21 @@ float GetDist(float px,float py,float pz,const float *p2)
 
 
 bool  HullLibrary::CleanupVertices(unsigned int svcount,
-																const float *svertices,
-																unsigned int stride,
-																unsigned int &vcount,       // output number of vertices
-																float *vertices,                 // location to store the results.
-																float  normalepsilon,
-																float *scale)
+				   const btVector3 *svertices,
+				   unsigned int stride,
+				   unsigned int &vcount,       // output number of vertices
+				   btVector3 *vertices,                 // location to store the results.
+				   btScalar  normalepsilon,
+				   btVector3& scale)
 {
 	if ( svcount == 0 ) return false;
 
 
-#define EPSILON 0.000001f /* close enough to consider two floating point numbers to be 'the same'. */
+#define EPSILON btScalar(0.000001) /* close enough to consider two btScalaring point numbers to be 'the same'. */
 
 	vcount = 0;
 
-	float recip[3];
+	btScalar recip[3];
 
 	if ( scale )
 	{
@@ -1897,8 +1491,8 @@ bool  HullLibrary::CleanupVertices(unsigned int svcount,
 		scale[2] = 1;
 	}
 
-	float bmin[3] = {  FLT_MAX,  FLT_MAX,  FLT_MAX };
-	float bmax[3] = { -FLT_MAX, -FLT_MAX, -FLT_MAX };
+	btScalar bmin[3] = {  FLT_MAX,  FLT_MAX,  FLT_MAX };
+	btScalar bmax[3] = { -FLT_MAX, -FLT_MAX, -FLT_MAX };
 
 	const char *vtx = (const char *) svertices;
 
@@ -1906,7 +1500,7 @@ bool  HullLibrary::CleanupVertices(unsigned int svcount,
 	{
 		for (unsigned int i=0; i<svcount; i++)
 		{
-			const float *p = (const float *) vtx;
+			const btScalar *p = (const btScalar *) vtx;
 
 			vtx+=stride;
 
@@ -1918,20 +1512,20 @@ bool  HullLibrary::CleanupVertices(unsigned int svcount,
 		}
 	}
 
-	float dx = bmax[0] - bmin[0];
-	float dy = bmax[1] - bmin[1];
-	float dz = bmax[2] - bmin[2];
+	btScalar dx = bmax[0] - bmin[0];
+	btScalar dy = bmax[1] - bmin[1];
+	btScalar dz = bmax[2] - bmin[2];
 
-	float center[3];
+	btVector3 center;
 
-	center[0] = dx*0.5f + bmin[0];
-	center[1] = dy*0.5f + bmin[1];
-	center[2] = dz*0.5f + bmin[2];
+	center[0] = dx*btScalar(0.5) + bmin[0];
+	center[1] = dy*btScalar(0.5) + bmin[1];
+	center[2] = dz*btScalar(0.5) + bmin[2];
 
 	if ( dx < EPSILON || dy < EPSILON || dz < EPSILON || svcount < 3 )
 	{
 
-		float len = FLT_MAX;
+		btScalar len = FLT_MAX;
 
 		if ( dx > EPSILON && dx < len ) len = dx;
 		if ( dy > EPSILON && dy < len ) len = dy;
@@ -1939,23 +1533,23 @@ bool  HullLibrary::CleanupVertices(unsigned int svcount,
 
 		if ( len == FLT_MAX )
 		{
-			dx = dy = dz = 0.01f; // one centimeter
+			dx = dy = dz = btScalar(0.01); // one centimeter
 		}
 		else
 		{
-			if ( dx < EPSILON ) dx = len * 0.05f; // 1/5th the shortest non-zero edge.
-			if ( dy < EPSILON ) dy = len * 0.05f;
-			if ( dz < EPSILON ) dz = len * 0.05f;
+			if ( dx < EPSILON ) dx = len * btScalar(0.05); // 1/5th the shortest non-zero edge.
+			if ( dy < EPSILON ) dy = len * btScalar(0.05);
+			if ( dz < EPSILON ) dz = len * btScalar(0.05);
 		}
 
-		float x1 = center[0] - dx;
-		float x2 = center[0] + dx;
+		btScalar x1 = center[0] - dx;
+		btScalar x2 = center[0] + dx;
 
-		float y1 = center[1] - dy;
-		float y2 = center[1] + dy;
+		btScalar y1 = center[1] - dy;
+		btScalar y2 = center[1] + dy;
 
-		float z1 = center[2] - dz;
-		float z2 = center[2] + dz;
+		btScalar z1 = center[2] - dz;
+		btScalar z2 = center[2] + dz;
 
 		addPoint(vcount,vertices,x1,y1,z1);
 		addPoint(vcount,vertices,x2,y1,z1);
@@ -1996,13 +1590,12 @@ bool  HullLibrary::CleanupVertices(unsigned int svcount,
 
 	for (unsigned int i=0; i<svcount; i++)
 	{
-
-		const float *p = (const float *)vtx;
+		const btVector3 *p = (const btVector3 *)vtx;
 		vtx+=stride;
 
-		float px = p[0];
-		float py = p[1];
-		float pz = p[2];
+		btScalar px = p->getX();
+		btScalar py = p->getY();
+		btScalar pz = p->getZ();
 
 		if ( scale )
 		{
@@ -2017,15 +1610,16 @@ bool  HullLibrary::CleanupVertices(unsigned int svcount,
 
 			for (j=0; j<vcount; j++)
 			{
-				float *v = &vertices[j*3];
+				/// XXX might be broken
+				btVector3& v = vertices[j];
 
-				float x = v[0];
-				float y = v[1];
-				float z = v[2];
+				btScalar x = v[0];
+				btScalar y = v[1];
+				btScalar z = v[2];
 
-				float dx = fabsf(x - px );
-				float dy = fabsf(y - py );
-				float dz = fabsf(z - pz );
+				btScalar dx = fabsf(x - px );
+				btScalar dy = fabsf(y - py );
+				btScalar dz = fabsf(z - pz );
 
 				if ( dx < normalepsilon && dy < normalepsilon && dz < normalepsilon )
 				{
@@ -2033,8 +1627,8 @@ bool  HullLibrary::CleanupVertices(unsigned int svcount,
 					// now let us see if it is further from the center of the point cloud than the one we already recorded.
 					// in which case we keep this one instead.
 
-					float dist1 = GetDist(px,py,pz,center);
-					float dist2 = GetDist(v[0],v[1],v[2],center);
+					btScalar dist1 = GetDist(px,py,pz,center);
+					btScalar dist2 = GetDist(v[0],v[1],v[2],center);
 
 					if ( dist1 > dist2 )
 					{
@@ -2049,7 +1643,7 @@ bool  HullLibrary::CleanupVertices(unsigned int svcount,
 
 			if ( j == vcount )
 			{
-				float *dest = &vertices[vcount*3];
+				btVector3& dest = vertices[vcount];
 				dest[0] = px;
 				dest[1] = py;
 				dest[2] = pz;
@@ -2061,12 +1655,12 @@ bool  HullLibrary::CleanupVertices(unsigned int svcount,
 	// ok..now make sure we didn't prune so many vertices it is now invalid.
 	if ( 1 )
 	{
-		float bmin[3] = {  FLT_MAX,  FLT_MAX,  FLT_MAX };
-		float bmax[3] = { -FLT_MAX, -FLT_MAX, -FLT_MAX };
+		btScalar bmin[3] = {  FLT_MAX,  FLT_MAX,  FLT_MAX };
+		btScalar bmax[3] = { -FLT_MAX, -FLT_MAX, -FLT_MAX };
 
 		for (unsigned int i=0; i<vcount; i++)
 		{
-			const float *p = &vertices[i*3];
+			const btVector3& p = vertices[i];
 			for (int j=0; j<3; j++)
 			{
 				if ( p[j] < bmin[j] ) bmin[j] = p[j];
@@ -2074,17 +1668,17 @@ bool  HullLibrary::CleanupVertices(unsigned int svcount,
 			}
 		}
 
-		float dx = bmax[0] - bmin[0];
-		float dy = bmax[1] - bmin[1];
-		float dz = bmax[2] - bmin[2];
+		btScalar dx = bmax[0] - bmin[0];
+		btScalar dy = bmax[1] - bmin[1];
+		btScalar dz = bmax[2] - bmin[2];
 
 		if ( dx < EPSILON || dy < EPSILON || dz < EPSILON || vcount < 3)
 		{
-			float cx = dx*0.5f + bmin[0];
-			float cy = dy*0.5f + bmin[1];
-			float cz = dz*0.5f + bmin[2];
+			btScalar cx = dx*btScalar(0.5) + bmin[0];
+			btScalar cy = dy*btScalar(0.5) + bmin[1];
+			btScalar cz = dz*btScalar(0.5) + bmin[2];
 
-			float len = FLT_MAX;
+			btScalar len = FLT_MAX;
 
 			if ( dx >= EPSILON && dx < len ) len = dx;
 			if ( dy >= EPSILON && dy < len ) len = dy;
@@ -2092,23 +1686,23 @@ bool  HullLibrary::CleanupVertices(unsigned int svcount,
 
 			if ( len == FLT_MAX )
 			{
-				dx = dy = dz = 0.01f; // one centimeter
+				dx = dy = dz = btScalar(0.01); // one centimeter
 			}
 			else
 			{
-				if ( dx < EPSILON ) dx = len * 0.05f; // 1/5th the shortest non-zero edge.
-				if ( dy < EPSILON ) dy = len * 0.05f;
-				if ( dz < EPSILON ) dz = len * 0.05f;
+				if ( dx < EPSILON ) dx = len * btScalar(0.05); // 1/5th the shortest non-zero edge.
+				if ( dy < EPSILON ) dy = len * btScalar(0.05);
+				if ( dz < EPSILON ) dz = len * btScalar(0.05);
 			}
 
-			float x1 = cx - dx;
-			float x2 = cx + dx;
+			btScalar x1 = cx - dx;
+			btScalar x2 = cx + dx;
 
-			float y1 = cy - dy;
-			float y2 = cy + dy;
+			btScalar y1 = cy - dy;
+			btScalar y2 = cy + dy;
 
-			float z1 = cz - dz;
-			float z2 = cz + dz;
+			btScalar z1 = cz - dz;
+			btScalar z2 = cz + dz;
 
 			vcount = 0; // add box
 
@@ -2128,7 +1722,7 @@ bool  HullLibrary::CleanupVertices(unsigned int svcount,
 	return true;
 }
 
-void HullLibrary::BringOutYourDead(const float *verts,unsigned int vcount, float *overts,unsigned int &ocount,unsigned int *indices,unsigned indexcount)
+void HullLibrary::BringOutYourDead(const btVector3* verts,unsigned int vcount, btVector3* overts,unsigned int &ocount,unsigned int *indices,unsigned indexcount)
 {
 	unsigned int *used = (unsigned int *)malloc(sizeof(unsigned int)*vcount);
 	memset(used,0,sizeof(unsigned int)*vcount);
@@ -2150,9 +1744,9 @@ void HullLibrary::BringOutYourDead(const float *verts,unsigned int vcount, float
 
 			indices[i] = ocount;      // new index mapping
 
-			overts[ocount*3+0] = verts[v*3+0]; // copy old vert to new vert array
-			overts[ocount*3+1] = verts[v*3+1];
-			overts[ocount*3+2] = verts[v*3+2];
+			overts[ocount][0] = verts[v][0]; // copy old vert to new vert array
+			overts[ocount][1] = verts[v][1];
+			overts[ocount][2] = verts[v][2];
 
 			ocount++; // increment output vert count
 
