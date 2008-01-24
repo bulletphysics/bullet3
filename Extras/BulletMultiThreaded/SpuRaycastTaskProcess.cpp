@@ -99,7 +99,7 @@ void SpuRaycastTaskProcess::issueTask2()
 	}
 }
 
-void SpuRaycastTaskProcess::addWorkToTask(SpuRaycastTaskWorkUnit workunit)
+void SpuRaycastTaskProcess::addWorkToTask(SpuRaycastTaskWorkUnit& workunit)
 {
 	m_spuRaycastTaskDesc[m_currentTask].workUnits[m_currentWorkUnitInTask] = workunit;
 	m_currentWorkUnitInTask++;

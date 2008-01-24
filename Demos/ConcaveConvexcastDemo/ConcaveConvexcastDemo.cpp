@@ -200,8 +200,13 @@ public:
 		btScalar m[16];
 		T.getOpenGLMatrix (&m[0]);
 		glPushMatrix ();
+#ifdef BT_USE_DOUBLE_PRECISION
+		glMultMatrixd (&m[0]);
+			glScaled (2.0 * boxShapeHalfExtents[0], 2.0 * boxShapeHalfExtents[1], 2.0 * boxShapeHalfExtents[2]);
+#else
 			glMultMatrixf (&m[0]);
 			glScalef (2.0 * boxShapeHalfExtents[0], 2.0 * boxShapeHalfExtents[1], 2.0 * boxShapeHalfExtents[2]);
+#endif //BT_USE_DOUBLE_PRECISION
 			glutSolidCube (1.0);
 		glPopMatrix ();
 	}

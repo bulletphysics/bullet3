@@ -100,7 +100,8 @@ btShapeHull::buildHull (btScalar margin)
 	}
 
 	btVector3 supportPoints[NUM_UNITSPHERE_POINTS+MAX_PREFERRED_PENETRATION_DIRECTIONS*2];
-	for (int i = 0; i < numSampleDirections; i++)
+	int i;
+	for (i = 0; i < numSampleDirections; i++)
 	{
 		supportPoints[i] = m_shape->localGetSupportingVertex(btUnitSpherePoints[i]);
 	}
@@ -108,9 +109,23 @@ btShapeHull::buildHull (btScalar margin)
 	HullDesc hd;
 	hd.mFlags = QF_TRIANGLES;
 	hd.mVcount = numSampleDirections;
-	hd.mVertices = &supportPoints[0][0];
-	hd.mVertexStride = sizeof (btVector3);
 
+#ifdef BT_USE_DOUBLE_PRECISION
+	float* tmpVerts = new float[numSampleDirections*3];
+	
+	for (i=0;i<numSampleDirections;i++)
+	{
+		tmpVerts[i*3] = supportPoints[i].getX();
+		tmpVerts[i*3+1] = supportPoints[i].getY();
+		tmpVerts[i*3+2] = supportPoints[i].getZ();
+	}
+
+	hd.mVertices = tmpVerts;
+	hd.mVertexStride = 3*sizeof(float);//sizeof (btVector3);
+#else
+	hd.mVertices = &supportPoints[0];
+	hd.mVertexStride = sizeof (btVector3);
+#endif
 
 	HullLibrary hl;
 	HullResult hr;

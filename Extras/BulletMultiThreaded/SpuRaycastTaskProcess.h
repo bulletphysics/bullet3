@@ -61,7 +61,7 @@ public:
 	void initialize2(void* spuCollisionObjectsWrappers, int numSpuCollisionObjectWrappers);
 
 	/// batch up additional work to a current task for SPU processing. When batch is full, it issues the task.
-	void addWorkToTask(struct SpuRaycastTaskWorkUnit);
+	void addWorkToTask(struct SpuRaycastTaskWorkUnit&);
 
 	/// call flush to submit potential outstanding work to SPUs and wait for all involved SPUs to be finished
 	void flush2();
