@@ -21,7 +21,9 @@ subject to the following restrictions:
 #include <float.h>
 
 #include "btConvexHull.h"
+#include "LinearMath/btAlignedObjectArray.h"
 
+#include "LinearMath/btVector3.h"
 
 #define PI 3.14159264f
 
@@ -76,17 +78,6 @@ public:
 
 //-------- 2D --------
 
-class float2
-{
-public:
-	float x,y;
-	float2(){x=0;y=0;};
-	float2(float _x,float _y){x=_x;y=_y;}
-	float& operator[](int i) {assert(i>=0&&i<2);return ((float*)this)[i];}
-	const float& operator[](int i) const {assert(i>=0&&i<2);return ((float*)this)[i];}
-};
-inline float2 operator-( const float2& a, const float2& b ){return float2(a.x-b.x,a.y-b.y);}
-inline float2 operator+( const float2& a, const float2& b ){return float2(a.x+b.x,a.y+b.y);}
 
 //--------- 3D ---------
 
@@ -133,135 +124,6 @@ float3	VectorMax(const float3 &a, const float3 &b);
 float3	VectorMin(const float3 &a, const float3 &b);
 
 
-
-class float3x3
-{
-	public:
-	float3 x,y,z;  // the 3 rows of the Matrix
-	float3x3(){}
-	float3x3(float xx,float xy,float xz,float yx,float yy,float yz,float zx,float zy,float zz):x(xx,xy,xz),y(yx,yy,yz),z(zx,zy,zz){}
-	float3x3(float3 _x,float3 _y,float3 _z):x(_x),y(_y),z(_z){}
-	float3&       operator[](int i)       {assert(i>=0&&i<3);return (&x)[i];}
-	const float3& operator[](int i) const {assert(i>=0&&i<3);return (&x)[i];}
-	float&        operator()(int r, int c)       {assert(r>=0&&r<3&&c>=0&&c<3);return ((&x)[r])[c];}
-	const float&  operator()(int r, int c) const {assert(r>=0&&r<3&&c>=0&&c<3);return ((&x)[r])[c];}
-}; 
-float3x3 Transpose( const float3x3& m );
-float3   operator*( const float3& v  , const float3x3& m  );
-float3   operator*( const float3x3& m , const float3& v   );
-float3x3 operator*( const float3x3& m , const float& s   );
-float3x3 operator*( const float3x3& ma, const float3x3& mb );
-float3x3 operator/( const float3x3& a, const float& s ) ;
-float3x3 operator+( const float3x3& a, const float3x3& b );
-float3x3 operator-( const float3x3& a, const float3x3& b );
-float3x3 &operator+=( float3x3& a, const float3x3& b );
-float3x3 &operator-=( float3x3& a, const float3x3& b );
-float3x3 &operator*=( float3x3& a, const float& s );
-float    Determinant(const float3x3& m );
-float3x3 Inverse(const float3x3& a);  // its just 3x3 so we simply do that cofactor method
-
-
-//-------- 4D Math --------
-
-class float4
-{
-public:
-	float x,y,z,w;
-	float4(){x=0;y=0;z=0;w=0;};
-	float4(float _x,float _y,float _z,float _w){x=_x;y=_y;z=_z;w=_w;}
-	float4(const float3 &v,float _w){x=v.x;y=v.y;z=v.z;w=_w;}
-	//operator float *() { return &x;};
-	float& operator[](int i) {assert(i>=0&&i<4);return ((float*)this)[i];}
-	const float& operator[](int i) const {assert(i>=0&&i<4);return ((float*)this)[i];}
-	const float3& xyz() const { return *((float3*)this);}
-	float3&       xyz()       { return *((float3*)this);}
-};
-
-
-struct D3DXMATRIX;
-
-class float4x4
-{
-	public:
-	float4 x,y,z,w;  // the 4 rows
-	float4x4(){}
-	float4x4(const float4 &_x, const float4 &_y, const float4 &_z, const float4 &_w):x(_x),y(_y),z(_z),w(_w){}
-	float4x4(float m00, float m01, float m02, float m03,
-						float m10, float m11, float m12, float m13,
-				float m20, float m21, float m22, float m23, 
-				float m30, float m31, float m32, float m33 )
-			:x(m00,m01,m02,m03),y(m10,m11,m12,m13),z(m20,m21,m22,m23),w(m30,m31,m32,m33){}
-	float&       operator()(int r, int c)       {assert(r>=0&&r<4&&c>=0&&c<4);return ((&x)[r])[c];}
-	const float& operator()(int r, int c) const {assert(r>=0&&r<4&&c>=0&&c<4);return ((&x)[r])[c];}
-		operator       float* ()       {return &x.x;}
-		operator const float* () const {return &x.x;}
-	operator       struct D3DXMATRIX* ()       { return (struct D3DXMATRIX*) this;}
-	operator const struct D3DXMATRIX* () const { return (struct D3DXMATRIX*) this;}
-};
-
-
-int     operator==( const float4 &a, const float4 &b );
-float4 Homogenize(const float3 &v3,const float &w=1.0f); // Turns a 3D float3 4D vector4 by appending w
-float4 cmul( const float4 &a, const float4 &b);
-float4 operator*( const float4 &v, float s);
-float4 operator*( float s, const float4 &v);
-float4 operator+( const float4 &a, const float4 &b);
-float4 operator-( const float4 &a, const float4 &b);
-float4x4 operator*( const float4x4& a, const float4x4& b );
-float4 operator*( const float4& v, const float4x4& m );
-float4x4 Inverse(const float4x4 &m);
-float4x4 MatrixRigidInverse(const float4x4 &m);
-float4x4 MatrixTranspose(const float4x4 &m);
-float4x4 MatrixPerspectiveFov(float fovy, float Aspect, float zn, float zf );
-float4x4 MatrixTranslation(const float3 &t);
-float4x4 MatrixRotationZ(const float angle_radians);
-float4x4 MatrixLookAt(const float3& eye, const float3& at, const float3& up);
-int     operator==( const float4x4 &a, const float4x4 &b );
-
-
-//-------- Quaternion ------------
-
-class Quaternion :public float4
-{
- public:
-	Quaternion() { x = y = z = 0.0f; w = 1.0f; }
-	Quaternion( float3 v, float t ) { v = normalize(v); w = cosf(t/2.0f); v = v*sinf(t/2.0f); x = v.x; y = v.y; z = v.z; }
-	Quaternion(float _x, float _y, float _z, float _w){x=_x;y=_y;z=_z;w=_w;}
-	float angle() const { return acosf(w)*2.0f; }
-	float3 axis() const { float3 a(x,y,z); if(fabsf(angle())<0.0000001f) return float3(1,0,0); return a*(1/sinf(angle()/2.0f)); }
-	float3 xdir() const { return float3( 1-2*(y*y+z*z),  2*(x*y+w*z),  2*(x*z-w*y) ); }
-	float3 ydir() const { return float3(   2*(x*y-w*z),1-2*(x*x+z*z),  2*(y*z+w*x) ); }
-	float3 zdir() const { return float3(   2*(x*z+w*y),  2*(y*z-w*x),1-2*(x*x+y*y) ); }
-	float3x3 getmatrix() const { return float3x3( xdir(), ydir(), zdir() ); }
-	operator float3x3() { return getmatrix(); }
-	void Normalize();
-};
-
-Quaternion& operator*=(Quaternion& a, float s );
-Quaternion	operator*( const Quaternion& a, float s );
-Quaternion	operator*( const Quaternion& a, const Quaternion& b);
-Quaternion	operator+( const Quaternion& a, const Quaternion& b );
-Quaternion	normalize( Quaternion a );
-float		dot( const Quaternion &a, const Quaternion &b );
-float3		operator*( const Quaternion& q, const float3& v );
-float3		operator*( const float3& v, const Quaternion& q );
-Quaternion	slerp( Quaternion a, const Quaternion& b, float interp );
-Quaternion  Interpolate(const Quaternion &q0,const Quaternion &q1,float alpha); 
-Quaternion  RotationArc(float3 v0, float3 v1 );  // returns quat q where q*v0=v1
-Quaternion  Inverse(const Quaternion &q);
-float4x4     MatrixFromQuatVec(const Quaternion &q, const float3 &v);
-
-
-//------ Euler Angle -----
-
-Quaternion YawPitchRoll( float yaw, float pitch, float roll );
-float Yaw( const Quaternion& q );
-float Pitch( const Quaternion& q );
-float Roll( Quaternion q );
-float Yaw( const float3& v );
-float Pitch( const float3& v );
-
-
 //------- Plane ----------
 
 class Plane
@@ -271,7 +133,7 @@ class Plane
 	float	dist;   // distance below origin - the D from plane equasion Ax+By+Cz+D=0
 			Plane(const float3 &n,float d):normal(n),dist(d){}
 			Plane():normal(),dist(0){}
-	void	Transform(const float3 &position, const Quaternion &orientation);
+	
 };
 
 inline Plane PlaneFlip(const Plane &plane){return Plane(-plane.normal,-plane.dist);}
@@ -285,14 +147,39 @@ float3  PlaneLineIntersection(const Plane &plane, const float3 &p0, const float3
 float3  PlaneProject(const Plane &plane, const float3 &point);
 float3  LineProject(const float3 &p0, const float3 &p1, const float3 &a);  // projects a onto infinite line p0p1
 float   LineProjectTime(const float3 &p0, const float3 &p1, const float3 &a);
-float3  ThreePlaneIntersection(const Plane &p0,const Plane &p1, const Plane &p2);
-int     PolyHit(const float3 *vert,const int n,const float3 &v0, const float3 &v1, float3 *impact=NULL, float3 *normal=NULL);
+float3  ThreePlaneIntersection(const Plane &p0,const Plane &p1, const Plane &p2)
+{
+	btVector3 N1(p0.normal.x,p0.normal.y,p0.normal.z);
+	btVector3 N2(p1.normal.x,p1.normal.y,p1.normal.z);
+	btVector3 N3(p2.normal.x,p2.normal.y,p2.normal.z);
+
+	btVector3 n2n3; n2n3 = N2.cross(N3);
+	btVector3 n3n1; n3n1 = N3.cross(N1);
+	btVector3 n1n2; n1n2 = N1.cross(N2);
+
+	btScalar quotient = (N1.dot(n2n3));
+
+	btAssert(btFabs(quotient) > btScalar(0.000001));
+	
+	quotient = btScalar(-1.) / quotient;
+	n2n3 *= p0.dist;
+	n3n1 *= p1.dist;
+	n1n2 *= p2.dist;
+	btVector3 potentialVertex = n2n3;
+	potentialVertex += n3n1;
+	potentialVertex += n1n2;
+	potentialVertex *= quotient;
+
+	float3 result(potentialVertex.getX(),potentialVertex.getY(),potentialVertex.getZ());
+	return result;
+
+}
+
 int     BoxInside(const float3 &p,const float3 &bmin, const float3 &bmax) ;
 int     BoxIntersect(const float3 &v0, const float3 &v1, const float3 &bmin, const float3 &bmax, float3 *impact);
 float   DistanceBetweenLines(const float3 &ustart, const float3 &udir, const float3 &vstart, const float3 &vdir, float3 *upoint=NULL, float3 *vpoint=NULL);
 float3  TriNormal(const float3 &v0, const float3 &v1, const float3 &v2);
 float3  NormalOf(const float3 *vert, const int n);
-Quaternion VirtualTrackBall(const float3 &cop, const float3 &cor, const float3 &dir0, const float3 &dir1);
 
 
 float   sqr(float a) {return a*a;}
@@ -489,555 +376,19 @@ float3 VectorMax(const float3 &a,const float3 &b)
 
 
 
-//------------ float3x3 ---------------
-float Determinant(const float3x3 &m)
-{
-	return  m.x.x*m.y.y*m.z.z + m.y.x*m.z.y*m.x.z + m.z.x*m.x.y*m.y.z
-			 -m.x.x*m.z.y*m.y.z - m.y.x*m.x.y*m.z.z - m.z.x*m.y.y*m.x.z ;
-}
 
-float3x3 Inverse(const float3x3 &a)
-{
-	float3x3 b;
-	float d=Determinant(a);
-	assert(d!=0);
-	for(int i=0;i<3;i++) 
-		{
-		for(int j=0;j<3;j++) 
-				{
-			int i1=(i+1)%3;
-			int i2=(i+2)%3;
-			int j1=(j+1)%3;
-			int j2=(j+2)%3;
-			// reverse indexs i&j to take transpose
-			b[j][i] = (a[i1][j1]*a[i2][j2]-a[i1][j2]*a[i2][j1])/d;
-		}
-	}
-	// Matrix check=a*b; // Matrix 'check' should be the identity (or close to it)
-	return b;
-}
 
 
-float3x3 Transpose( const float3x3& m )
-{
-	return float3x3( float3(m.x.x,m.y.x,m.z.x),
-					float3(m.x.y,m.y.y,m.z.y),
-					float3(m.x.z,m.y.z,m.z.z));
-}
-
-
-float3 operator*(const float3& v , const float3x3 &m ) { 
-	return float3((m.x.x*v.x + m.y.x*v.y + m.z.x*v.z), 
-					(m.x.y*v.x + m.y.y*v.y + m.z.y*v.z), 
-					(m.x.z*v.x + m.y.z*v.y + m.z.z*v.z));
-}
-float3 operator*(const float3x3 &m,const float3& v  ) {
-	return float3(dot(m.x,v),dot(m.y,v),dot(m.z,v));
-}
-
-
-float3x3 operator*( const float3x3& a, const float3x3& b )
-{ 
-	return float3x3(a.x*b,a.y*b,a.z*b); 
-}
-
-float3x3 operator*( const float3x3& a, const float& s )  
-{ 
-	return float3x3(a.x*s, a.y*s ,a.z*s); 
-}
-float3x3 operator/( const float3x3& a, const float& s )  
-{ 
-	float t=1/s;
-	return float3x3(a.x*t, a.y*t ,a.z*t); 
-}
-float3x3 operator+( const float3x3& a, const float3x3& b )
-{
-	return float3x3(a.x+b.x, a.y+b.y, a.z+b.z);
-}
-float3x3 operator-( const float3x3& a, const float3x3& b )
-{
-	return float3x3(a.x-b.x, a.y-b.y, a.z-b.z);
-}
-float3x3 &operator+=( float3x3& a, const float3x3& b )
-{
-	a.x+=b.x;
-	a.y+=b.y;
-	a.z+=b.z;
-	return a;
-}
-float3x3 &operator-=( float3x3& a, const float3x3& b )
-{
-	a.x-=b.x;
-	a.y-=b.y;
-	a.z-=b.z;
-	return a;
-}
-float3x3 &operator*=( float3x3& a, const float& s )
-{
-	a.x*=s;
-	a.y*=s;
-	a.z*=s;
-	return a;
-}
-
-
-
-float3 ThreePlaneIntersection(const Plane &p0,const Plane &p1, const Plane &p2){
-	float3x3 mp =Transpose(float3x3(p0.normal,p1.normal,p2.normal));
-	float3x3 mi = Inverse(mp);
-	float3 b(p0.dist,p1.dist,p2.dist);
-	return -b * mi;
-}
-
-
-//--------------- 4D ----------------
-
-float4   operator*( const float4&   v, const float4x4& m )
-{
-	return v.x*m.x + v.y*m.y + v.z*m.z + v.w*m.w; // yes this actually works
-}
-
-int operator==( const float4 &a, const float4 &b ) 
-{
-	return (a.x==b.x && a.y==b.y && a.z==b.z && a.w==b.w); 
-}
-
-
-//  Dont implement m*v for now, since that might confuse us
-//  All our transforms are based on multiplying the "row" vector on the left
-//float4   operator*(const float4x4& m , const float4&   v )
-//{
-//	return float4(dot(v,m.x),dot(v,m.y),dot(v,m.z),dot(v,m.w));
-//}
-
-
-
-float4 cmul( const float4 &a, const float4 &b) 
-{
-	return float4(a.x*b.x,a.y*b.y,a.z*b.z,a.w*b.w);
-}
-
-
-float4 operator*( const float4 &v, float s) 
-{
-	return float4(v.x*s,v.y*s,v.z*s,v.w*s);
-}
-
-
-float4 operator*( float s, const float4 &v) 
-{
-	return float4(v.x*s,v.y*s,v.z*s,v.w*s);
-}
-
-
-float4 operator+( const float4 &a, const float4 &b) 
-{
-	return float4(a.x+b.x,a.y+b.y,a.z+b.z,a.w+b.w);
-}
-
-
-
-float4 operator-( const float4 &a, const float4 &b) 
-{
-	return float4(a.x-b.x,a.y-b.y,a.z-b.z,a.w-b.w);
-}
-
-
-float4 Homogenize(const float3 &v3,const float &w)
-{
-	return float4(v3.x,v3.y,v3.z,w);
-}
-
-
-
-float4x4 operator*( const float4x4& a, const float4x4& b )
-{
-	return float4x4(a.x*b,a.y*b,a.z*b,a.w*b);
-}
-
-float4x4 MatrixTranspose(const float4x4 &m)
-{
-	return float4x4(
-		m.x.x, m.y.x, m.z.x, m.w.x,
-		m.x.y, m.y.y, m.z.y, m.w.y,
-		m.x.z, m.y.z, m.z.z, m.w.z,
-		m.x.w, m.y.w, m.z.w, m.w.w );
-}
-
-float4x4 MatrixRigidInverse(const float4x4 &m)
-{
-	float4x4 trans_inverse = MatrixTranslation(-m.w.xyz());
-	float4x4 rot   = m;
-	rot.w = float4(0,0,0,1);
-	return trans_inverse * MatrixTranspose(rot);
-}
-
-
-float4x4 MatrixPerspectiveFov(float fovy, float aspect, float zn, float zf )
-{
-	float h = 1.0f/tanf(fovy/2.0f); // view space height
-	float w = h / aspect ;  // view space width
-	return float4x4(
-		w, 0, 0             ,   0,
-		0, h, 0             ,   0,
-		0, 0, zf/(zn-zf)    ,  -1,
-		0, 0, zn*zf/(zn-zf) ,   0 );
-}
-
-
-
-float4x4 MatrixLookAt(const float3& eye, const float3& at, const float3& up)
-{
-	float4x4 m;
-	m.w.w = 1.0f;
-	m.w.xyz() = eye;
-	m.z.xyz() = normalize(eye-at);
-	m.x.xyz() = normalize(cross(up,m.z.xyz()));
-	m.y.xyz() = cross(m.z.xyz(),m.x.xyz());
-	return MatrixRigidInverse(m);
-}
-
-
-float4x4 MatrixTranslation(const float3 &t)
-{
-	return float4x4(
-		1,  0,  0,  0,
-		0,  1,  0,  0,
-		0,  0,  1,  0,
-		t.x,t.y,t.z,1 );
-}
-
-
-float4x4 MatrixRotationZ(const float angle_radians)
-{
-	float s =  sinf(angle_radians);
-	float c =  cosf(angle_radians);
-	return float4x4(
-		c,  s,  0,  0,
-		-s, c,  0,  0,
-		0,  0,  1,  0,
-		0,  0,  0,  1 );
-}
-
-
-
-int operator==( const float4x4 &a, const float4x4 &b )
-{
-	return (a.x==b.x && a.y==b.y && a.z==b.z && a.w==b.w);
-}
-
-
-float4x4 Inverse(const float4x4 &m)
-{
-	float4x4 d;
-	float *dst = &d.x.x;
-	float tmp[12]; /* temp array for pairs */
-	float src[16]; /* array of transpose source matrix */
-	float det; /* determinant */
-	/* transpose matrix */
-	for ( int i = 0; i < 4; i++) {
-		src[i] = m(i,0) ;
-		src[i + 4] = m(i,1);
-		src[i + 8] = m(i,2);
-		src[i + 12] = m(i,3); 
-	}
-	/* calculate pairs for first 8 elements (cofactors) */
-	tmp[0]  = src[10] * src[15];
-	tmp[1]  = src[11] * src[14];
-	tmp[2]  = src[9] * src[15];
-	tmp[3]  = src[11] * src[13];
-	tmp[4]  = src[9] * src[14];
-	tmp[5]  = src[10] * src[13];
-	tmp[6]  = src[8] * src[15];
-	tmp[7]  = src[11] * src[12];
-	tmp[8]  = src[8] * src[14];
-	tmp[9]  = src[10] * src[12];
-	tmp[10] = src[8] * src[13];
-	tmp[11] = src[9] * src[12];
-	/* calculate first 8 elements (cofactors) */
-	dst[0]  = tmp[0]*src[5] + tmp[3]*src[6] + tmp[4]*src[7];
-	dst[0] -= tmp[1]*src[5] + tmp[2]*src[6] + tmp[5]*src[7];
-	dst[1]  = tmp[1]*src[4] + tmp[6]*src[6] + tmp[9]*src[7];
-	dst[1] -= tmp[0]*src[4] + tmp[7]*src[6] + tmp[8]*src[7];
-	dst[2]  = tmp[2]*src[4] + tmp[7]*src[5] + tmp[10]*src[7];
-	dst[2] -= tmp[3]*src[4] + tmp[6]*src[5] + tmp[11]*src[7];
-	dst[3]  = tmp[5]*src[4] + tmp[8]*src[5] + tmp[11]*src[6];
-	dst[3] -= tmp[4]*src[4] + tmp[9]*src[5] + tmp[10]*src[6];
-	dst[4]  = tmp[1]*src[1] + tmp[2]*src[2] + tmp[5]*src[3];
-	dst[4] -= tmp[0]*src[1] + tmp[3]*src[2] + tmp[4]*src[3];
-	dst[5]  = tmp[0]*src[0] + tmp[7]*src[2] + tmp[8]*src[3];
-	dst[5] -= tmp[1]*src[0] + tmp[6]*src[2] + tmp[9]*src[3];
-	dst[6]  = tmp[3]*src[0] + tmp[6]*src[1] + tmp[11]*src[3];
-	dst[6] -= tmp[2]*src[0] + tmp[7]*src[1] + tmp[10]*src[3];
-	dst[7]  = tmp[4]*src[0] + tmp[9]*src[1] + tmp[10]*src[2];
-	dst[7] -= tmp[5]*src[0] + tmp[8]*src[1] + tmp[11]*src[2];
-	/* calculate pairs for second 8 elements (cofactors) */
-	tmp[0]  = src[2]*src[7];
-	tmp[1]  = src[3]*src[6];
-	tmp[2]  = src[1]*src[7];
-	tmp[3]  = src[3]*src[5];
-	tmp[4]  = src[1]*src[6];
-	tmp[5]  = src[2]*src[5];
-	tmp[6]  = src[0]*src[7];
-	tmp[7]  = src[3]*src[4];
-	tmp[8]  = src[0]*src[6];
-	tmp[9]  = src[2]*src[4];
-	tmp[10] = src[0]*src[5];
-	tmp[11] = src[1]*src[4];
-	/* calculate second 8 elements (cofactors) */
-	dst[8]  = tmp[0]*src[13] + tmp[3]*src[14] + tmp[4]*src[15];
-	dst[8] -= tmp[1]*src[13] + tmp[2]*src[14] + tmp[5]*src[15];
-	dst[9]  = tmp[1]*src[12] + tmp[6]*src[14] + tmp[9]*src[15];
-	dst[9] -= tmp[0]*src[12] + tmp[7]*src[14] + tmp[8]*src[15];
-	dst[10] = tmp[2]*src[12] + tmp[7]*src[13] + tmp[10]*src[15];
-	dst[10]-= tmp[3]*src[12] + tmp[6]*src[13] + tmp[11]*src[15];
-	dst[11] = tmp[5]*src[12] + tmp[8]*src[13] + tmp[11]*src[14];
-	dst[11]-= tmp[4]*src[12] + tmp[9]*src[13] + tmp[10]*src[14];
-	dst[12] = tmp[2]*src[10] + tmp[5]*src[11] + tmp[1]*src[9];
-	dst[12]-= tmp[4]*src[11] + tmp[0]*src[9] + tmp[3]*src[10];
-	dst[13] = tmp[8]*src[11] + tmp[0]*src[8] + tmp[7]*src[10];
-	dst[13]-= tmp[6]*src[10] + tmp[9]*src[11] + tmp[1]*src[8];
-	dst[14] = tmp[6]*src[9] + tmp[11]*src[11] + tmp[3]*src[8];
-	dst[14]-= tmp[10]*src[11] + tmp[2]*src[8] + tmp[7]*src[9];
-	dst[15] = tmp[10]*src[10] + tmp[4]*src[8] + tmp[9]*src[9];
-	dst[15]-= tmp[8]*src[9] + tmp[11]*src[10] + tmp[5]*src[8];
-	/* calculate determinant */
-	det=src[0]*dst[0]+src[1]*dst[1]+src[2]*dst[2]+src[3]*dst[3];
-	/* calculate matrix inverse */
-	det = 1/det;
-	for ( int j = 0; j < 16; j++)
-	dst[j] *= det;
-	return d;
-}
-
-
-//--------- Quaternion --------------
-
-Quaternion operator*( const Quaternion& a, const Quaternion& b )
-{
-	Quaternion c;
-	c.w = a.w*b.w - a.x*b.x - a.y*b.y - a.z*b.z;
-	c.x = a.w*b.x + a.x*b.w + a.y*b.z - a.z*b.y; 
-	c.y = a.w*b.y - a.x*b.z + a.y*b.w + a.z*b.x; 
-	c.z = a.w*b.z + a.x*b.y - a.y*b.x + a.z*b.w; 
-	return c;
-}
-
-
-Quaternion operator*( const Quaternion& a, float b )
-{
-	return Quaternion(a.x*b, a.y*b, a.z*b ,a.w*b);
-}
-
-Quaternion  Inverse(const Quaternion &q)
-{
-	return Quaternion(-q.x,-q.y,-q.z,q.w);
-}
-
-Quaternion& operator*=( Quaternion& q, const float s )
-{
-		q.x *= s;
-		q.y *= s;
-		q.z *= s;
-		q.w *= s;
-		return q;
-}
-void Quaternion::Normalize()
-{
-	float m = sqrtf(sqr(w)+sqr(x)+sqr(y)+sqr(z));
-	if(m<0.000000001f) {
-		w=1.0f;
-		x=y=z=0.0f;
-		return;
-	}
-	(*this) *= (1.0f/m);
-}
-
-float3 operator*( const Quaternion& q, const float3& v )
-{
-	// The following is equivalent to:
-	//return (q.getmatrix() * v);
-	float qx2 = q.x*q.x;
-	float qy2 = q.y*q.y;
-	float qz2 = q.z*q.z;
-
-	float qxqy = q.x*q.y;
-	float qxqz = q.x*q.z;
-	float qxqw = q.x*q.w;
-	float qyqz = q.y*q.z;
-	float qyqw = q.y*q.w;
-	float qzqw = q.z*q.w;
-	return float3(
-		(1-2*(qy2+qz2))*v.x + (2*(qxqy-qzqw))*v.y + (2*(qxqz+qyqw))*v.z ,
-		(2*(qxqy+qzqw))*v.x + (1-2*(qx2+qz2))*v.y + (2*(qyqz-qxqw))*v.z ,
-		(2*(qxqz-qyqw))*v.x + (2*(qyqz+qxqw))*v.y + (1-2*(qx2+qy2))*v.z  );
-}
-
-float3 operator*( const float3& v, const Quaternion& q )
-{
-	assert(0);  // must multiply with the quat on the left
-	return float3(0.0f,0.0f,0.0f);
-}
-
-Quaternion operator+( const Quaternion& a, const Quaternion& b )
-{
-	return Quaternion(a.x+b.x, a.y+b.y, a.z+b.z, a.w+b.w);
-}
-
-float dot( const Quaternion &a,const Quaternion &b )
-{
-	return  (a.w*b.w + a.x*b.x + a.y*b.y + a.z*b.z);
-}
-
-Quaternion normalize( Quaternion a )
-{
-	float m = sqrtf(sqr(a.w)+sqr(a.x)+sqr(a.y)+sqr(a.z));
-	if(m<0.000000001) 
-		{    
-		a.w=1;
-		a.x=a.y=a.z=0;
-		return a;
-	}
-	return a * (1/m);
-}
-
-Quaternion slerp( Quaternion a, const Quaternion& b, float interp )
-{
-	if(dot(a,b) <0.0) 
-		{
-		a.w=-a.w;
-		a.x=-a.x;
-		a.y=-a.y;
-		a.z=-a.z;
-	}
-	float d = dot(a,b);
-	if(d>=1.0) {
-		return a;
-	}
-	float theta = acosf(d);
-	if(theta==0.0f) { return(a);}
-	return a*(sinf(theta-interp*theta)/sinf(theta)) + b*(sinf(interp*theta)/sinf(theta));
-}
-
-
-Quaternion Interpolate(const Quaternion &q0,const Quaternion &q1,float alpha) {
-	return slerp(q0,q1,alpha);
-}
-
-
-Quaternion YawPitchRoll( float yaw, float pitch, float roll ) 
-{
-	roll  *= DEG2RAD;
-	yaw   *= DEG2RAD;
-	pitch *= DEG2RAD;
-	return Quaternion(float3(0.0f,0.0f,1.0f),yaw)*Quaternion(float3(1.0f,0.0f,0.0f),pitch)*Quaternion(float3(0.0f,1.0f,0.0f),roll);
-}
-
-float Yaw( const Quaternion& q )
-{
-	static float3 v;
-	v=q.ydir();
-	return (v.y==0.0&&v.x==0.0) ? 0.0f: atan2f(-v.x,v.y)*RAD2DEG;
-}
-
-float Pitch( const Quaternion& q )
-{
-	static float3 v;
-	v=q.ydir();
-	return atan2f(v.z,sqrtf(sqr(v.x)+sqr(v.y)))*RAD2DEG;
-}
-
-float Roll( Quaternion q )
-{
-	q = Quaternion(float3(0.0f,0.0f,1.0f),-Yaw(q)*DEG2RAD)  *q;
-	q = Quaternion(float3(1.0f,0.0f,0.0f),-Pitch(q)*DEG2RAD)  *q;
-	return atan2f(-q.xdir().z,q.xdir().x)*RAD2DEG;
-}
-
-float Yaw( const float3& v )
-{
-	return (v.y==0.0&&v.x==0.0) ? 0.0f: atan2f(-v.x,v.y)*RAD2DEG;
-}
-
-float Pitch( const float3& v )
-{
-	return atan2f(v.z,sqrtf(sqr(v.x)+sqr(v.y)))*RAD2DEG;
-}
 
 
 //------------- Plane --------------
 
 
-void Plane::Transform(const float3 &position, const Quaternion &orientation) {
-	//   Transforms the plane to the space defined by the 
-	//   given position/orientation.
-	static float3 newnormal;
-	static float3 origin;
-
-	newnormal = Inverse(orientation)*normal;
-	origin = Inverse(orientation)*(-normal*dist - position);
-
-	normal = newnormal;
-	dist = -dot(newnormal, origin);
-}
 
 
 
 
-//--------- utility functions -------------
 
-//        RotationArc()
-// Given two vectors v0 and v1 this function
-// returns quaternion q where q*v0==v1.
-// Routine taken from game programming gems.
-Quaternion RotationArc(float3 v0,float3 v1){
-	static Quaternion q;
-	v0 = normalize(v0);  // Comment these two lines out if you know its not needed.
-	v1 = normalize(v1);  // If vector is already unit length then why do it again?
-	float3  c = cross(v0,v1);
-	float   d = dot(v0,v1);
-	if(d<=-1.0f) { return Quaternion(1,0,0,0);} // 180 about x axis
-	float   s = sqrtf((1+d)*2);
-	q.x = c.x / s;
-	q.y = c.y / s;
-	q.z = c.z / s;
-	q.w = s /2.0f;
-	return q;
-}
-
-
-float4x4 MatrixFromQuatVec(const Quaternion &q, const float3 &v) 
-{
-	// builds a 4x4 transformation matrix based on orientation q and translation v 
-	float qx2 = q.x*q.x;
-	float qy2 = q.y*q.y;
-	float qz2 = q.z*q.z;
-
-	float qxqy = q.x*q.y;
-	float qxqz = q.x*q.z;
-	float qxqw = q.x*q.w;
-	float qyqz = q.y*q.z;
-	float qyqw = q.y*q.w;
-	float qzqw = q.z*q.w;
-
-	return float4x4(
-		1-2*(qy2+qz2),  
-		2*(qxqy+qzqw),
-		2*(qxqz-qyqw),  
-		0            ,  
-		2*(qxqy-qzqw),  
-		1-2*(qx2+qz2),
-		2*(qyqz+qxqw),  
-		0            ,  
-		2*(qxqz+qyqw),  
-		2*(qyqz-qxqw),  
-		1-2*(qx2+qy2),  
-		0    , 
-		 v.x ,
-		 v.y ,
-		 v.z ,
-		 1.0f );
-}
 
 
 float3 PlaneLineIntersection(const Plane &plane, const float3 &p0, const float3 &p1)
@@ -1215,333 +566,7 @@ float DistanceBetweenLines(const float3 &ustart, const float3 &udir, const float
 }
 
 
-Quaternion VirtualTrackBall(const float3 &cop, const float3 &cor, const float3 &dir1, const float3 &dir2) 
-{
-	// routine taken from game programming gems.
-	// Implement track ball functionality to spin stuf on the screen
-	//  cop   center of projection
-	//  cor   center of rotation
-	//  dir1  old mouse direction 
-	//  dir2  new mouse direction
-	// pretend there is a sphere around cor.  Then find the points
-	// where dir1 and dir2 intersect that sphere.  Find the
-	// rotation that takes the first point to the second.
-	float m;
-	// compute plane 
-	float3 nrml = cor - cop;
-	float fudgefactor = 1.0f/(magnitude(nrml) * 0.25f); // since trackball proportional to distance from cop
-	nrml = normalize(nrml);
-	float dist = -dot(nrml,cor);
-	float3 u= PlaneLineIntersection(Plane(nrml,dist),cop,cop+dir1);
-	u=u-cor;
-	u=u*fudgefactor;
-	m= magnitude(u);
-	if(m>1)
-		{
-				u/=m;
-		}
-	else 
-		{
-		u=u - (nrml * sqrtf(1-m*m));
-	}
-	float3 v= PlaneLineIntersection(Plane(nrml,dist),cop,cop+dir2);
-	v=v-cor;
-	v=v*fudgefactor;
-	m= magnitude(v);
-	if(m>1) 
-		{
-				v/=m;
-		}
-	else 
-		{
-		v=v - (nrml * sqrtf(1-m*m));
-	}
-	return RotationArc(u,v);
-}
 
-
-int countpolyhit=0;
-int PolyHit(const float3 *vert, const int n, const float3 &v0, const float3 &v1, float3 *impact, float3 *normal)
-{
-	countpolyhit++;
-	int i;
-	float3 nrml(0,0,0);
-	for(i=0;i<n;i++) 
-		{
-		int i1=(i+1)%n;
-		int i2=(i+2)%n;
-		nrml = nrml + cross(vert[i1]-vert[i],vert[i2]-vert[i1]);
-	}
-
-	float m = magnitude(nrml);
-	if(m==0.0)
-		{
-				return 0;
-		}
-	nrml = nrml * (1.0f/m);
-	float dist = -dot(nrml,vert[0]);
-	float d0,d1;
-	if((d0=dot(v0,nrml)+dist) <0  ||  (d1=dot(v1,nrml)+dist) >0) 
-		{        
-				return 0;
-		}
-
-	static float3 the_point; 
-	// By using the cached plane distances d0 and d1
-	// we can optimize the following:
-	//     the_point = planelineintersection(nrml,dist,v0,v1);
-	float a = d0/(d0-d1);
-	the_point = v0*(1-a) + v1*a;
-
-
-	int inside=1;
-	for(int j=0;inside && j<n;j++) 
-		{
-			// let inside = 0 if outside
-			float3 pp1,pp2,side;
-			pp1 = vert[j] ;
-			pp2 = vert[(j+1)%n];
-			side = cross((pp2-pp1),(the_point-pp1));
-			inside = (dot(nrml,side) >= 0.0);
-	}
-	if(inside) 
-		{
-		if(normal){*normal=nrml;}
-		if(impact){*impact=the_point;}
-	}
-	return inside;
-}
-
-//**************************************************************************
-//**************************************************************************
-//*** Stan Melax's array template, needed to compile his hull generation code
-//**************************************************************************
-//**************************************************************************
-
-template <class Type> class ArrayRet;
-template <class Type> class Array {
-	public:
-				Array(int s=0);
-				Array(Array<Type> &array);
-				Array(ArrayRet<Type> &array);
-				~Array();
-	void		allocate(int s);
-	void		SetSize(int s);
-	void		Pack();
-	Type&		Add(Type);
-	void		AddUnique(Type);
-	int 		Contains(Type);
-	void		Insert(Type,int);
-	int			IndexOf(Type);
-	void		Remove(Type);
-	void		DelIndex(int i);
-	Type *		element;
-	int			count;
-	int			array_size;
-	const Type	&operator[](int i) const { assert(i>=0 && i<count);  return element[i]; }
-	Type		&operator[](int i)  { assert(i>=0 && i<count);  return element[i]; }
-	Type		&Pop() { assert(count); count--;  return element[count]; }
-	Array<Type> &operator=(Array<Type> &array);
-	Array<Type> &operator=(ArrayRet<Type> &array);
-	// operator ArrayRet<Type> &() { return *(ArrayRet<Type> *)this;} // this worked but i suspect could be dangerous
-};
-
-template <class Type> class ArrayRet:public Array<Type>
-{
-};
-
-template <class Type> Array<Type>::Array(int s)
-{
-	count=0;
-	array_size = 0;
-	element = NULL;
-	if(s) 
-	{
-		allocate(s);
-	}
-}
-
-
-template <class Type> Array<Type>::Array(Array<Type> &array)
-{
-	count=0;
-	array_size = 0;
-	element = NULL;
-	for(int i=0;i<array.count;i++)
-	{
-		Add(array[i]);
-	}
-}
-
-
-template <class Type> Array<Type>::Array(ArrayRet<Type> &array)
-{
-	*this = array;
-}
-template <class Type> Array<Type> &Array<Type>::operator=(ArrayRet<Type> &array)
-{
-	count=array.count;
-	array_size = array.array_size;
-	element = array.element;
-	array.element=NULL;
-	array.count=0;
-	array.array_size=0;
-	return *this;
-}
-
-
-template <class Type> Array<Type> &Array<Type>::operator=(Array<Type> &array)
-{
-	count=0;
-	for(int i=0;i<array.count;i++)
-	{
-		Add(array[i]);
-	}
-	return *this;
-}
-
-template <class Type> Array<Type>::~Array()
-{
-	if (element != NULL)
-	{
-	  free(element);
-	}
-	count=0;array_size=0;element=NULL;
-}
-
-template <class Type> void Array<Type>::allocate(int s)
-{
-	assert(s>0);
-	assert(s>=count);
-	Type *old = element;
-	array_size =s;
-	element = (Type *) malloc( sizeof(Type)*array_size);
-	assert(element);
-	for(int i=0;i<count;i++)
-	{
-		element[i]=old[i];
-	}
-	if(old)
-	{
-		free(old);
-	}
-}
-
-template <class Type> void Array<Type>::SetSize(int s)
-{
-	if(s==0)
-	{
-		if(element)
-		{
-			free(element);
-			element = NULL;
-		}
- 	  array_size = s;
-	}
-	else
-	{
-		allocate(s);
-	}
-	count=s;
-}
-
-template <class Type> void Array<Type>::Pack()
-{
-	allocate(count);
-}
-
-template <class Type> Type& Array<Type>::Add(Type t)
-{
-	assert(count<=array_size);
-	if(count==array_size)
-	{
-		allocate((array_size)?array_size *2:16);
-	}
-	element[count++] = t;
-	return element[count-1];
-}
-
-template <class Type> int Array<Type>::Contains(Type t)
-{
-	int i;
-	int found=0;
-	for(i=0;i<count;i++)
-	{
-		if(element[i] == t) found++;
-	}
-	return found;
-}
-
-template <class Type> void Array<Type>::AddUnique(Type t)
-{
-	if(!Contains(t)) Add(t);
-}
-
-
-template <class Type> void Array<Type>::DelIndex(int i)
-{
-	assert(i<count);
-	count--;
-	while(i<count)
-	{
-		element[i] = element[i+1];
-		i++;
-	}
-}
-
-template <class Type> void Array<Type>::Remove(Type t)
-{
-	int i;
-	for(i=0;i<count;i++)
-	{
-		if(element[i] == t)
-		{
-			break;
-		}
-	}
-	assert(i<count); // assert object t is in the array.
-	DelIndex(i);
-	for(i=0;i<count;i++)
-	{
-		assert(element[i] != t);
-	}
-}
-
-template <class Type> void Array<Type>::Insert(Type t,int k)
-{
-	int i=count;
-	Add(t); // to allocate space
-	while(i>k)
-	{
-		element[i]=element[i-1];
-		i--;
-	}
-	assert(i==k);
-	element[k]=t;
-}
-
-
-template <class Type> int Array<Type>::IndexOf(Type t)
-{
-	int i;
-	for(i=0;i<count;i++)
-	{
-		if(element[i] == t)
-		{
-			return i;
-		}
-	}
-	assert(0);
-	return -1;
-}
-
-
-
-//*********************************************************************
-//*********************************************************************
-//********  Hull header
-//*********************************************************************
-//*********************************************************************
 
 class PHullResult
 {
@@ -1588,29 +613,40 @@ class ConvexH
 		HalfEdge(){}
 		HalfEdge(short _ea,unsigned char _v, unsigned char _p):ea(_ea),v(_v),p(_p){}
 	};
-	Array<REAL3> vertices;
-	Array<HalfEdge> edges;
-	Array<Plane>  facets;
+	btAlignedObjectArray<REAL3> vertices;
+	btAlignedObjectArray<HalfEdge> edges;
+	btAlignedObjectArray<Plane>  facets;
 	ConvexH(int vertices_size,int edges_size,int facets_size);
 };
 
 typedef ConvexH::HalfEdge HalfEdge;
 
 ConvexH::ConvexH(int vertices_size,int edges_size,int facets_size)
-	:vertices(vertices_size)
-	,edges(edges_size)
-	,facets(facets_size)
 {
-	vertices.count=vertices_size;
-	edges.count   = edges_size;
-	facets.count  = facets_size;
+	vertices.resize(vertices_size);
+	edges.resize(edges_size);
+	facets.resize(facets_size);
 }
 
 ConvexH *ConvexHDup(ConvexH *src) {
-	ConvexH *dst = new ConvexH(src->vertices.count,src->edges.count,src->facets.count);
-	memcpy(dst->vertices.element,src->vertices.element,sizeof(float3)*src->vertices.count);
-	memcpy(dst->edges.element,src->edges.element,sizeof(HalfEdge)*src->edges.count);
-	memcpy(dst->facets.element,src->facets.element,sizeof(Plane)*src->facets.count);
+	ConvexH *dst = new ConvexH(src->vertices.size(),src->edges.size(),src->facets.size());
+
+	int i;
+	for (i=0;i<src->vertices.size();i++)
+	{
+		dst->vertices[i] = src->vertices[i];
+	}
+
+	for (i=0;i<src->edges.size();i++)
+	{
+		dst->edges[i] = src->edges[i];
+	}
+
+	for (i=0;i<src->facets.size();i++)
+	{
+		dst->facets[i] = src->facets[i];
+	}
+
 	return dst;
 }
 
@@ -1623,7 +659,7 @@ int PlaneTest(const Plane &p, const REAL3 &v) {
 
 int SplitTest(ConvexH &convex,const Plane &plane) {
 	int flag=0;
-	for(int i=0;i<convex.vertices.count;i++) {
+	for(int i=0;i<convex.vertices.size();i++) {
 		flag |= PlaneTest(plane,convex.vertices[i]);
 	}
 	return flag;
@@ -1661,12 +697,12 @@ public:
 int AssertIntact(ConvexH &convex) {
 	int i;
 	int estart=0;
-	for(i=0;i<convex.edges.count;i++) {
+	for(i=0;i<convex.edges.size();i++) {
 		if(convex.edges[estart].p!= convex.edges[i].p) {
 			estart=i;
 		}
 		int inext = i+1;
-		if(inext>= convex.edges.count || convex.edges[inext].p != convex.edges[i].p) {
+		if(inext>= convex.edges.size() || convex.edges[inext].p != convex.edges[i].p) {
 			inext = estart;
 		}
 		assert(convex.edges[inext].p == convex.edges[i].p);
@@ -1676,18 +712,18 @@ int AssertIntact(ConvexH &convex) {
 		assert(nb!=-1);
 		assert(i== convex.edges[nb].ea);
 	}
-	for(i=0;i<convex.edges.count;i++) {
+	for(i=0;i<convex.edges.size();i++) {
 		assert(COPLANAR==PlaneTest(convex.facets[convex.edges[i].p],convex.vertices[convex.edges[i].v]));
 		if(COPLANAR!=PlaneTest(convex.facets[convex.edges[i].p],convex.vertices[convex.edges[i].v])) return 0;
 		if(convex.edges[estart].p!= convex.edges[i].p) {
 			estart=i;
 		}
 		int i1 = i+1;
-		if(i1>= convex.edges.count || convex.edges[i1].p != convex.edges[i].p) {
+		if(i1>= convex.edges.size() || convex.edges[i1].p != convex.edges[i].p) {
 			i1 = estart;
 		}
 		int i2 = i1+1;
-		if(i2>= convex.edges.count || convex.edges[i2].p != convex.edges[i].p) {
+		if(i2>= convex.edges.size() || convex.edges[i2].p != convex.edges[i].p) {
 			i2 = estart;
 		}
 		if(i==i2) continue; // i sliced tangent to an edge and created 2 meaningless edges
@@ -1796,12 +832,12 @@ ConvexH *ConvexHCrop(ConvexH &convex,const Plane &slice)
 	int i;
 	int vertcountunder=0;
 	int vertcountover =0;
-	static Array<int> vertscoplanar;  // existing vertex members of convex that are coplanar
-	vertscoplanar.count=0;
-	static Array<int> edgesplit;  // existing edges that members of convex that cross the splitplane
-	edgesplit.count=0;
+	static btAlignedObjectArray<int> vertscoplanar;  // existing vertex members of convex that are coplanar
+	vertscoplanar.resize(0);
+	static btAlignedObjectArray<int> edgesplit;  // existing edges that members of convex that cross the splitplane
+	edgesplit.resize(0);
 
-	assert(convex.edges.count<480);
+	assert(convex.edges.size()<480);
 
 	EdgeFlag  edgeflag[512];
 	VertFlag  vertflag[256];
@@ -1811,9 +847,9 @@ ConvexH *ConvexHCrop(ConvexH &convex,const Plane &slice)
 	Coplanar coplanaredges[512];
 	int coplanaredges_num=0;
 
-	Array<REAL3> createdverts;
+	btAlignedObjectArray<REAL3> createdverts;
 	// do the side-of-plane tests
-	for(i=0;i<convex.vertices.count;i++) {
+	for(i=0;i<convex.vertices.size();i++) {
 		vertflag[i].planetest = PlaneTest(slice,convex.vertices[i]);
 		if(vertflag[i].planetest == COPLANAR) {
 			// ? vertscoplanar.Add(i);
@@ -1835,7 +871,7 @@ ConvexH *ConvexHCrop(ConvexH &convex,const Plane &slice)
 	int underplanescount=0;
 	int e0=0;
 
-	for(int currentplane=0; currentplane<convex.facets.count; currentplane++) {
+	for(int currentplane=0; currentplane<convex.facets.size(); currentplane++) {
 		int estart =e0;
 		int enextface = 0;
 		int planeside = 0;
@@ -1845,7 +881,7 @@ ConvexH *ConvexHCrop(ConvexH &convex,const Plane &slice)
 		int coplanaredge = -1;
 		do{
 
-			if(e1 >= convex.edges.count || convex.edges[e1].p!=currentplane) {
+			if(e1 >= convex.edges.size() || convex.edges[e1].p!=currentplane) {
 				enextface = e1;
 				e1=estart;
 			}
@@ -1883,7 +919,7 @@ ConvexH *ConvexHCrop(ConvexH &convex,const Plane &slice)
 				// both endpoints coplanar 
 				// must check a 3rd point to see if UNDER
 				int e2 = e1+1;
-				if(e2>=convex.edges.count || convex.edges[e2].p!=currentplane) {
+				if(e2>=convex.edges.size() || convex.edges[e2].p!=currentplane) {
 					e2 = estart;
 				}
 				assert(convex.edges[e2].p==currentplane);
@@ -1920,9 +956,9 @@ ConvexH *ConvexHCrop(ConvexH &convex,const Plane &slice)
 				else {
 					Plane &p0 = convex.facets[edge0.p];
 					Plane &pa = convex.facets[edgea.p];
-					createdverts.Add(ThreePlaneIntersection(p0,pa,slice));
-					//createdverts.Add(PlaneProject(slice,PlaneLineIntersection(slice,convex.vertices[edge0.v],convex.vertices[edgea.v])));
-					//createdverts.Add(PlaneLineIntersection(slice,convex.vertices[edge0.v],convex.vertices[edgea.v]));
+					createdverts.push_back(ThreePlaneIntersection(p0,pa,slice));
+					//createdverts.push_back(PlaneProject(slice,PlaneLineIntersection(slice,convex.vertices[edge0.v],convex.vertices[edgea.v])));
+					//createdverts.push_back(PlaneLineIntersection(slice,convex.vertices[edge0.v],convex.vertices[edgea.v]));
 					vout = vertcountunder++;
 				}
 				under_edge_count++;
@@ -1950,7 +986,7 @@ ConvexH *ConvexHCrop(ConvexH &convex,const Plane &slice)
 				// I hate this but i have to make sure part of this face is UNDER before ouputting this vert
 				int k=estart;
 				assert(edge0.p == currentplane);
-				while(!(planeside&UNDER) && k<convex.edges.count && convex.edges[k].p==edge0.p) {
+				while(!(planeside&UNDER) && k<convex.edges.size() && convex.edges[k].p==edge0.p) {
 					planeside |= vertflag[convex.edges[k].v].planetest;
 					k++;
 				}
@@ -1970,9 +1006,9 @@ ConvexH *ConvexHCrop(ConvexH &convex,const Plane &slice)
 				if(e0<edge0.ea) {
 					Plane &p0 = convex.facets[edge0.p];
 					Plane &pa = convex.facets[edgea.p];
-					createdverts.Add(ThreePlaneIntersection(p0,pa,slice));
-					//createdverts.Add(PlaneLineIntersection(slice,convex.vertices[edge0.v],convex.vertices[edgea.v]));
-					//createdverts.Add(PlaneProject(slice,PlaneLineIntersection(slice,convex.vertices[edge0.v],convex.vertices[edgea.v])));
+					createdverts.push_back(ThreePlaneIntersection(p0,pa,slice));
+					//createdverts.push_back(PlaneLineIntersection(slice,convex.vertices[edge0.v],convex.vertices[edgea.v]));
+					//createdverts.push_back(PlaneProject(slice,PlaneLineIntersection(slice,convex.vertices[edge0.v],convex.vertices[edgea.v])));
 					vin = vertcountunder++;
 				}
 				else {
@@ -2068,7 +1104,7 @@ ConvexH *ConvexHCrop(ConvexH &convex,const Plane &slice)
 	ConvexH *punder = new ConvexH(vertcountunder,under_edge_count+coplanaredges_num,underplanescount);
 	ConvexH &under = *punder;
 	int k=0;
-	for(i=0;i<convex.vertices.count;i++) {
+	for(i=0;i<convex.vertices.size();i++) {
 		if(vertflag[i].planetest != OVER){
 			under.vertices[k++] = convex.vertices[i];
 		}
@@ -2077,7 +1113,7 @@ ConvexH *ConvexHCrop(ConvexH &convex,const Plane &slice)
 	while(k<vertcountunder) {
 		under.vertices[k++] = createdverts[i++];
 	}
-	assert(i==createdverts.count);
+	assert(i==createdverts.size());
 
 	for(i=0;i<coplanaredges_num;i++) {
 		under.edges[under_edge_count+i].p  = underplanescount-1;
@@ -2086,8 +1122,15 @@ ConvexH *ConvexHCrop(ConvexH &convex,const Plane &slice)
 		under.edges[under_edge_count+i].v  = coplanaredges[i].v0;
 	}
 	
-	memcpy(under.edges.element,tmpunderedges,sizeof(HalfEdge)*under_edge_count);
-	memcpy(under.facets.element,tmpunderplanes,sizeof(Plane)*underplanescount);
+	for (i=0;i<under_edge_count;i++)
+	{
+		under.edges[i] = tmpunderedges[i];
+	}
+	for (i=0;i<underplanescount;i++)
+	{
+		under.facets[i] = tmpunderplanes[i];
+	}
+
 	return punder;
 }
 
@@ -2101,7 +1144,7 @@ static int candidateplane(Plane *planes,int planes_count,ConvexH *convex,float e
 	for(i=0;i<planes_count;i++)
 	{
 		REAL d=0;
-		for(int j=0;j<convex->vertices.count;j++)
+		for(int j=0;j<convex->vertices.size();j++)
 		{
 			d = Max(d,dot(convex->vertices[j],planes[i].normal)+planes[i].dist);
 		}
@@ -2128,7 +1171,7 @@ inline int maxdir(const T *p,int count,const T &dir)
 
 
 template<class T>
-int maxdirfiltered(const T *p,int count,const T &dir,Array<int> &allow)
+int maxdirfiltered(const T *p,int count,const T &dir,btAlignedObjectArray<int> &allow)
 {
 	assert(count);
 	int m=-1;
@@ -2149,7 +1192,7 @@ float3 orth(const float3 &v)
 
 
 template<class T>
-int maxdirsterid(const T *p,int count,const T &dir,Array<int> &allow)
+int maxdirsterid(const T *p,int count,const T &dir,btAlignedObjectArray<int> &allow)
 {
 	int m=-1;
 	while(m==-1)
@@ -2253,7 +1296,7 @@ int shareedge(const int3 &a,const int3 &b)
 
 class Tri;
 
-Array<Tri*> tris;
+btAlignedObjectArray<Tri*> tris;
 
 class Tri : public int3
 {
@@ -2264,8 +1307,8 @@ public:
 	float rise;
 	Tri(int a,int b,int c):int3(a,b,c),n(-1,-1,-1)
 	{
-		id = tris.count;
-		tris.Add(this);
+		id = tris.size();
+		tris.push_back(this);
 		vmax=-1;
 		rise = 0.0f;
 	}
@@ -2332,7 +1375,7 @@ void checkit(Tri *t)
 void extrude(Tri *t0,int v)
 {
 	int3 t= *t0;
-	int n = tris.count;
+	int n = tris.size();
 	Tri* ta = new Tri(v,t[1],t[2]);
 	ta->n = int3(t0->n[0],n+1,n+2);
 	tris[t0->n[0]]->neib(t[1],t[2]) = n+0;
@@ -2356,7 +1399,7 @@ Tri *extrudable(float epsilon)
 {
 	int i;
 	Tri *t=NULL;
-	for(i=0;i<tris.count;i++)
+	for(i=0;i<tris.size();i++)
 	{
 		if(!t || (tris[i] && t->rise<tris[i]->rise))
 		{
@@ -2378,7 +1421,7 @@ public:
 
 
 
-int4 FindSimplex(float3 *verts,int verts_count,Array<int> &allow)
+int4 FindSimplex(float3 *verts,int verts_count,btAlignedObjectArray<int> &allow)
 {
 	float3 basis[3];
 	basis[0] = float3( 0.01f, 0.02f, 1.0f );      
@@ -2414,12 +1457,15 @@ int calchullgen(float3 *verts,int verts_count, int vlimit)
 	if(vlimit==0) vlimit=1000000000;
 	int j;
 	float3 bmin(*verts),bmax(*verts);
-	Array<int> isextreme(verts_count);
-	Array<int> allow(verts_count);
+	btAlignedObjectArray<int> isextreme;
+	isextreme.reserve(verts_count);
+	btAlignedObjectArray<int> allow;
+	allow.reserve(verts_count);
+
 	for(j=0;j<verts_count;j++) 
 	{
-		allow.Add(1);
-		isextreme.Add(0);
+		allow.push_back(1);
+		isextreme.push_back(0);
 		bmin = VectorMin(bmin,verts[j]);
 		bmax = VectorMax(bmax,verts[j]);
 	}
@@ -2439,7 +1485,7 @@ int calchullgen(float3 *verts,int verts_count, int vlimit)
 	isextreme[p[0]]=isextreme[p[1]]=isextreme[p[2]]=isextreme[p[3]]=1;
 	checkit(t0);checkit(t1);checkit(t2);checkit(t3);
 
-	for(j=0;j<tris.count;j++)
+	for(j=0;j<tris.size();j++)
 	{
 		Tri *t=tris[j];
 		assert(t);
@@ -2457,7 +1503,7 @@ int calchullgen(float3 *verts,int verts_count, int vlimit)
 		assert(!isextreme[v]);  // wtf we've already done this vertex
 		isextreme[v]=1;
 		//if(v==p0 || v==p1 || v==p2 || v==p3) continue; // done these already
-		j=tris.count;
+		j=tris.size();
 		while(j--) {
 			if(!tris[j]) continue;
 			int3 t=*tris[j];
@@ -2467,7 +1513,7 @@ int calchullgen(float3 *verts,int verts_count, int vlimit)
 			}
 		}
 		// now check for those degenerate cases where we have a flipped triangle or a really skinny triangle
-		j=tris.count;
+		j=tris.size();
 		while(j--)
 		{
 			if(!tris[j]) continue;
@@ -2478,10 +1524,10 @@ int calchullgen(float3 *verts,int verts_count, int vlimit)
 				Tri *nb = tris[tris[j]->n[0]];
 				assert(nb);assert(!hasvert(*nb,v));assert(nb->id<j);
 				extrude(nb,v);
-				j=tris.count; 
+				j=tris.size(); 
 			}
 		} 
-		j=tris.count;
+		j=tris.size();
 		while(j--)
 		{
 			Tri *t=tris[j];
@@ -2507,50 +1553,31 @@ int calchull(float3 *verts,int verts_count, int *&tris_out, int &tris_count,int 
 {
 	int rc=calchullgen(verts,verts_count,  vlimit) ;
 	if(!rc) return 0;
-	Array<int> ts;
-	for(int i=0;i<tris.count;i++)if(tris[i])
-	{
-		for(int j=0;j<3;j++)ts.Add((*tris[i])[j]);
-		delete tris[i];
-	}
-	tris_count = ts.count/3;
-	tris_out   = ts.element;
-	ts.element=NULL; ts.count=ts.array_size=0;
-	tris.count=0;
-	return 1;
-}
+	btAlignedObjectArray<int> ts;
+	int i;
 
-int calchullpbev(float3 *verts,int verts_count,int vlimit, Array<Plane> &planes,float bevangle) 
-{
-	int i,j;
-	planes.count=0;
-	int rc = calchullgen(verts,verts_count,vlimit);
-	if(!rc) return 0;
-	for(i=0;i<tris.count;i++)if(tris[i])
+	for(i=0;i<tris.size();i++)
 	{
-		Plane p;
-		Tri *t = tris[i];
-		p.normal = TriNormal(verts[(*t)[0]],verts[(*t)[1]],verts[(*t)[2]]);
-		p.dist   = -dot(p.normal, verts[(*t)[0]]);
-		planes.Add(p);
-		for(j=0;j<3;j++)
+		if(tris[i])
 		{
-			if(t->n[j]<t->id) continue;
-			Tri *s = tris[t->n[j]];
-			REAL3 snormal = TriNormal(verts[(*s)[0]],verts[(*s)[1]],verts[(*s)[2]]);
-			if(dot(snormal,p.normal)>=cos(bevangle*DEG2RAD)) continue;
-			REAL3 n = normalize(snormal+p.normal);
-			planes.Add(Plane(n,-dot(n,verts[maxdir(verts,verts_count,n)])));
+			for(int j=0;j<3;j++)
+				ts.push_back((*tris[i])[j]);
+			delete tris[i];
 		}
 	}
-
-	for(i=0;i<tris.count;i++)if(tris[i])
+	tris_count = ts.size()/3;
+	tris_out = (int*)malloc(sizeof(int)*ts.size());
+	
+	for (i=0;i<ts.size();i++)
 	{
-		delete tris[i]; // delete tris[i];
+		tris_out[i] = ts[i];
 	}
-	tris.count=0;
+	tris.resize(0);
+
 	return 1;
 }
+
+
 
 int overhull(Plane *planes,int planes_count,float3 *verts, int verts_count,int maxplanes, 
 			 float3 *&verts_out, int &verts_count_out,  int *&faces_out, int &faces_count_out ,float inflate)
@@ -2591,15 +1618,15 @@ int overhull(Plane *planes,int planes_count,float3 *verts, int verts_count,int m
 
 	assert(AssertIntact(*c));
 	//return c;
-	faces_out = (int*)malloc(sizeof(int)*(1+c->facets.count+c->edges.count));     // new int[1+c->facets.count+c->edges.count];
+	faces_out = (int*)malloc(sizeof(int)*(1+c->facets.size()+c->edges.size()));     // new int[1+c->facets.size()+c->edges.size()];
 	faces_count_out=0;
 	i=0;
 	faces_out[faces_count_out++]=-1;
 	k=0;
-	while(i<c->edges.count)
+	while(i<c->edges.size())
 	{
 		j=1;
-		while(j+i<c->edges.count && c->edges[i].p==c->edges[i+j].p) { j++; }
+		while(j+i<c->edges.size() && c->edges[i].p==c->edges[i+j].p) { j++; }
 		faces_out[faces_count_out++]=j;
 		while(j--)
 		{
@@ -2609,82 +1636,45 @@ int overhull(Plane *planes,int planes_count,float3 *verts, int verts_count,int m
 		k++;
 	}
 	faces_out[0]=k; // number of faces.
-	assert(k==c->facets.count);
-	assert(faces_count_out == 1+c->facets.count+c->edges.count);
-	verts_out = c->vertices.element; // new float3[c->vertices.count]; 
-	verts_count_out = c->vertices.count;
-	for(i=0;i<c->vertices.count;i++)
+	assert(k==c->facets.size());
+	assert(faces_count_out == 1+c->facets.size()+c->edges.size());
+	verts_out = new float3[c->vertices.size()]; 
+	verts_count_out = c->vertices.size();
+	for(i=0;i<c->vertices.size();i++)
 	{
 		verts_out[i] = float3(c->vertices[i]);
 	}
-	c->vertices.count=c->vertices.array_size=0;	c->vertices.element=NULL;
+	c->vertices.resize(0);
 	delete c;
 	return 1;
 }
 
-int overhullv(float3 *verts, int verts_count,int maxplanes, 
-			 float3 *&verts_out, int &verts_count_out,  int *&faces_out, int &faces_count_out ,float inflate,float bevangle,int vlimit)
-{
-	if(!verts_count) return 0;
-	extern int calchullpbev(float3 *verts,int verts_count,int vlimit, Array<Plane> &planes,float bevangle) ;
-	Array<Plane> planes;
-	int rc=calchullpbev(verts,verts_count,vlimit,planes,bevangle) ;
-	if(!rc) return 0;
-	return overhull(planes.element,planes.count,verts,verts_count,maxplanes,verts_out,verts_count_out,faces_out,faces_count_out,inflate);
-}
 
 
 bool ComputeHull(unsigned int vcount,const float *vertices,PHullResult &result,unsigned int vlimit,float inflate)
 {
 
-	int index_count;
-	int *faces;
-	float3 *verts_out;
-	int     verts_count_out;
 
-	if(inflate==0.0f)
-	{
-		int  *tris_out;
-		int    tris_count;
-		int ret = calchull( (float3 *) vertices, (int) vcount, tris_out, tris_count, vlimit );
-		if(!ret) return false;
-		result.mIndexCount = (unsigned int) (tris_count*3);
-		result.mFaceCount  = (unsigned int) tris_count;
-		result.mVertices   = (float*) vertices;
-		result.mVcount     = (unsigned int) vcount;
-		result.mIndices    = (unsigned int *) tris_out;
-		return true;
-	}
 
-	int ret = overhullv((float3*)vertices,vcount,35,verts_out,verts_count_out,faces,index_count,inflate,120.0f,vlimit);
+	
+	int  *tris_out;
+	int    tris_count;
+	int ret = calchull( (float3 *) vertices, (int) vcount, tris_out, tris_count, vlimit );
 	if(!ret) return false;
-
-	Array<int3> tris;
-	int n=faces[0];
-	int k=1;
-	for(int i=0;i<n;i++)
-	{
-		int pn = faces[k++];
-		for(int j=2;j<pn;j++) tris.Add(int3(faces[k],faces[k+j-1],faces[k+j]));
-		k+=pn;
-	}
-	assert(tris.count == index_count-1-(n*3));
-
-	result.mIndexCount = (unsigned int) (tris.count*3);
-	result.mFaceCount  = (unsigned int) tris.count;
-	result.mVertices   = (float*) verts_out;
-	result.mVcount     = (unsigned int) verts_count_out;
-	result.mIndices    = (unsigned int *) tris.element;
-	tris.element=NULL; tris.count = tris.array_size=0;
-
+	result.mIndexCount = (unsigned int) (tris_count*3);
+	result.mFaceCount  = (unsigned int) tris_count;
+	result.mVertices   = (float*) vertices;
+	result.mVcount     = (unsigned int) vcount;
+	result.mIndices    = (unsigned int *) tris_out;
 	return true;
+
 }
 
 
 void ReleaseHull(PHullResult &result)
 {
 	if ( result.mIndices )
-  {
+	{
 	  free(result.mIndices);
 	}
 
