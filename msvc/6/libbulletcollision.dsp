@@ -336,6 +336,10 @@ SOURCE=..\..\src\BulletCollision\CollisionShapes\btPolyhedralConvexShape.cpp
 # End Source File
 # Begin Source File
 
+SOURCE=..\..\src\BulletCollision\CollisionShapes\btShapeHull.cpp
+# End Source File
+# Begin Source File
+
 SOURCE=..\..\src\BulletCollision\CollisionShapes\btSphereShape.cpp
 # End Source File
 # Begin Source File
@@ -605,6 +609,10 @@ SOURCE=..\..\src\BulletCollision\CollisionShapes\btOptimizedBvh.h
 # Begin Source File
 
 SOURCE=..\..\src\BulletCollision\CollisionShapes\btPolyhedralConvexShape.h
+# End Source File
+# Begin Source File
+
+SOURCE=..\..\src\BulletCollision\CollisionShapes\btShapeHull.h
 # End Source File
 # Begin Source File
 

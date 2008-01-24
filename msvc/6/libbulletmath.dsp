@@ -176,6 +176,10 @@ SOURCE=..\..\src\LinearMath\btAlignedAllocator.cpp
 # End Source File
 # Begin Source File
 
+SOURCE=..\..\src\LinearMath\btConvexHull.cpp
+# End Source File
+# Begin Source File
+
 SOURCE=..\..\src\LinearMath\btGeometryUtil.cpp
 # End Source File
 # Begin Source File
@@ -197,6 +201,10 @@ SOURCE=..\..\src\LinearMath\btAlignedAllocator.h
 # Begin Source File
 
 SOURCE=..\..\src\LinearMath\btAlignedObjectArray.h
+# End Source File
+# Begin Source File
+
+SOURCE=..\..\src\LinearMath\btConvexHull.h
 # End Source File
 # Begin Source File
 

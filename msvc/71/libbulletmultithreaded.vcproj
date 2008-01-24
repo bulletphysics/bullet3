@@ -301,6 +301,12 @@
 				RelativePath="..\..\Extras\BulletMultiThreaded\SequentialThreadSupport.cpp">
 			</File>
 			<File
+				RelativePath="..\..\Extras\BulletMultiThreaded\SpuBatchRaycaster.cpp">
+			</File>
+			<File
+				RelativePath="..\..\Extras\BulletMultiThreaded\SpuCollisionObjectWrapper.cpp">
+			</File>
+			<File
 				RelativePath="..\..\Extras\BulletMultiThreaded\SpuCollisionTaskProcess.cpp">
 			</File>
 			<File
@@ -314,6 +320,9 @@
 			</File>
 			<File
 				RelativePath="..\..\Extras\BulletMultiThreaded\SpuLibspe2Support.cpp">
+			</File>
+			<File
+				RelativePath="..\..\Extras\BulletMultiThreaded\SpuNarrowPhaseCollisionTask\SpuCollisionShapes.cpp">
 			</File>
 			<File
 				RelativePath="..\..\Extras\BulletMultiThreaded\SpuNarrowPhaseCollisionTask\SpuContactResult.cpp">
@@ -334,6 +343,9 @@
 				RelativePath="..\..\Extras\BulletMultiThreaded\SpuParallelSolver.cpp">
 			</File>
 			<File
+				RelativePath="..\..\Extras\BulletMultiThreaded\SpuRaycastTaskProcess.cpp">
+			</File>
+			<File
 				RelativePath="..\..\Extras\BulletMultiThreaded\SpuSampleTaskProcess.cpp">
 			</File>
 			<File
@@ -346,6 +358,9 @@
 		<Filter
 			Name="Header Files"
 			Filter="">
+			<File
+				RelativePath="..\..\Extras\BulletMultiThreaded\SpuNarrowPhaseCollisionTask\SpuCollisionShapes.h">
+			</File>
 			<File
 				RelativePath="..\..\Extras\BulletMultiThreaded\SpuNarrowPhaseCollisionTask\SpuContactResult.h">
 			</File>

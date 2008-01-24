@@ -180,6 +180,14 @@ SOURCE=..\..\Extras\BulletMultiThreaded\SequentialThreadSupport.cpp
 # End Source File
 # Begin Source File
 
+SOURCE=..\..\Extras\BulletMultiThreaded\SpuBatchRaycaster.cpp
+# End Source File
+# Begin Source File
+
+SOURCE=..\..\Extras\BulletMultiThreaded\SpuCollisionObjectWrapper.cpp
+# End Source File
+# Begin Source File
+
 SOURCE=..\..\Extras\BulletMultiThreaded\SpuCollisionTaskProcess.cpp
 # End Source File
 # Begin Source File
@@ -197,6 +205,10 @@ SOURCE=..\..\Extras\BulletMultiThreaded\SpuGatheringCollisionDispatcher.cpp
 # Begin Source File
 
 SOURCE=..\..\Extras\BulletMultiThreaded\SpuLibspe2Support.cpp
+# End Source File
+# Begin Source File
+
+SOURCE=..\..\Extras\BulletMultiThreaded\SpuNarrowPhaseCollisionTask\SpuCollisionShapes.cpp
 # End Source File
 # Begin Source File
 
@@ -224,6 +236,10 @@ SOURCE=..\..\Extras\BulletMultiThreaded\SpuParallelSolver.cpp
 # End Source File
 # Begin Source File
 
+SOURCE=..\..\Extras\BulletMultiThreaded\SpuRaycastTaskProcess.cpp
+# End Source File
+# Begin Source File
+
 SOURCE=..\..\Extras\BulletMultiThreaded\SpuSampleTaskProcess.cpp
 # End Source File
 # Begin Source File
@@ -238,6 +254,10 @@ SOURCE=..\..\Extras\BulletMultiThreaded\Win32ThreadSupport.cpp
 # Begin Group "Header Files"
 
 # PROP Default_Filter ""
+# Begin Source File
+
+SOURCE=..\..\Extras\BulletMultiThreaded\SpuNarrowPhaseCollisionTask\SpuCollisionShapes.h
+# End Source File
 # Begin Source File
 
 SOURCE=..\..\Extras\BulletMultiThreaded\SpuNarrowPhaseCollisionTask\SpuContactResult.h
