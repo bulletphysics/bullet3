@@ -123,7 +123,7 @@ btShapeHull::buildHull (btScalar margin)
 	hd.mVertices = tmpVerts;
 	hd.mVertexStride = 3*sizeof(float);//sizeof (btVector3);
 #else
-	hd.mVertices = &supportPoints[0];
+	hd.mVertices = &supportPoints[0].getX();
 	hd.mVertexStride = sizeof (btVector3);
 #endif
 
