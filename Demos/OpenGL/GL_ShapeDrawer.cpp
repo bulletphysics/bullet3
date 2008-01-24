@@ -476,9 +476,9 @@ void GL_ShapeDrawer::drawOpenGL(btScalar* m, const btCollisionShape* shape, cons
 							convexShape->setUserPointer(hull);
 
 							
-							printf("numTriangles = %d\n", hull->numTriangles ());
-							printf("numIndices = %d\n", hull->numIndices ());
-							printf("numVertices = %d\n", hull->numVertices ());
+						//	printf("numTriangles = %d\n", hull->numTriangles ());
+						//	printf("numIndices = %d\n", hull->numIndices ());
+						//	printf("numVertices = %d\n", hull->numVertices ());
 							
 
 						}

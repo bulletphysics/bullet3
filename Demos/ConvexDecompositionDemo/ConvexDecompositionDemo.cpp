@@ -21,7 +21,7 @@ subject to the following restrictions:
 #include "LinearMath/btQuickprof.h"
 #include "LinearMath/btIDebugDraw.h"
 #include "LinearMath/btGeometryUtil.h"
-
+#include "BulletCollision/CollisionShapes/btShapeHull.h"
 
 //#define USE_PARALLEL_DISPATCHER 1
 #ifdef USE_PARALLEL_DISPATCHER
@@ -143,7 +143,7 @@ void ConvexDecompositionDemo::initPhysics(const char* filename)
 				btVector3 localScaling(6.f,6.f,6.f);
 
 				//export data to .obj
-				printf("ConvexResult\n");
+				printf("ConvexResult. ");
 				if (mOutputFile)
 				{
 					fprintf(mOutputFile,"## Hull Piece %d with %d vertices and %d triangles.\r\n", mHullCount, result.mHullVcount, result.mHullTcount );
@@ -284,7 +284,8 @@ void ConvexDecompositionDemo::initPhysics(const char* filename)
 
 		btVector3 localScaling(6.f,6.f,6.f);
 		
-		for (int i=0;i<wo.mTriCount;i++)
+		int i;
+		for ( i=0;i<wo.mTriCount;i++)
 		{
 			int index0 = wo.mIndices[i*3];
 			int index1 = wo.mIndices[i*3+1];
@@ -301,7 +302,37 @@ void ConvexDecompositionDemo::initPhysics(const char* filename)
 			trimesh->addTriangle(vertex0,vertex1,vertex2);
 		}
 
-		btCollisionShape* convexShape = new btConvexTriangleMeshShape(trimesh);
+		
+		btConvexShape* tmpConvexShape = new btConvexTriangleMeshShape(trimesh);
+	
+		printf("old numTriangles= %d\n",wo.mTriCount);
+		printf("old numIndices = %d\n",wo.mTriCount*3);
+		printf("old numVertices = %d\n",wo.mVertexCount);
+		
+		printf("reducing vertices by creating a convex hull\n");
+
+		//create a hull approximation
+		btShapeHull* hull = new btShapeHull(tmpConvexShape);
+		btScalar margin = tmpConvexShape->getMargin();
+		hull->buildHull(margin);
+		tmpConvexShape->setUserPointer(hull);
+		
+		
+		printf("new numTriangles = %d\n", hull->numTriangles ());
+		printf("new numIndices = %d\n", hull->numIndices ());
+		printf("new numVertices = %d\n", hull->numVertices ());
+		
+		btConvexHullShape* convexShape = new btConvexHullShape();
+		for (i=0;i<hull->numVertices();i++)
+		{
+			convexShape->addPoint(btPoint3(hull->getVertexPointer()[i]));	
+		}
+
+		delete tmpConvexShape;
+		delete hull;
+
+
+
 		m_collisionShapes.push_back(convexShape);
 
 		float mass = 1.f;
@@ -337,7 +368,7 @@ void ConvexDecompositionDemo::initPhysics(const char* filename)
 		unsigned int maxv  = 16;
 		float skinWidth    = 0.0;
 
-		printf("WavefrontObj num triangles read %i",tcount);
+		printf("WavefrontObj num triangles read %i\n",tcount);
 		ConvexDecomposition::DecompDesc desc;
 		desc.mVcount       =	wo.mVertexCount;
 		desc.mVertices     = wo.mVertices;
