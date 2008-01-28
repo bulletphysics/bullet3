@@ -764,6 +764,7 @@ void	btOptimizedBvh::walkStacklessQuantizedTreeAgainstRay(btNodeOverlapCallback*
 	btVector3 rayDirection = (rayTarget-raySource);
 	rayDirection.normalize ();
 	lambda_max = rayDirection.dot(rayTarget-raySource);
+	///what about division by zero?
 	rayDirection[0] = btScalar(1.0) / rayDirection[0];
 	rayDirection[1] = btScalar(1.0) / rayDirection[1];
 	rayDirection[2] = btScalar(1.0) / rayDirection[2];
@@ -832,9 +833,13 @@ void	btOptimizedBvh::walkStacklessQuantizedTreeAgainstRay(btNodeOverlapCallback*
 			}
 #endif
 #ifdef RAYAABB2
-			rayBoxOverlap = btRayAabb2 (raySource, rayDirection, sign, bounds, param, 0.0, lambda_max);
+			///disable this check: need to check division by zero (above) and fix the unQuantize method
+			///thanks Joerg/hiker for the reproduction case!
+			///http://www.bulletphysics.com/Bullet/phpBB3/viewtopic.php?f=9&t=1858
+
+			rayBoxOverlap = true;//btRayAabb2 (raySource, rayDirection, sign, bounds, param, 0.0, lambda_max);
 #else
-			rayBoxOverlap = btRayAabb(raySource, rayTarget, bounds[0], bounds[1], param, normal);
+			rayBoxOverlap = true;//btRayAabb(raySource, rayTarget, bounds[0], bounds[1], param, normal);
 #endif
 		}
 		
