@@ -70,7 +70,9 @@ public:
 		predictedOrn += (angvel * predictedOrn) * (timeStep * btScalar(0.5));
 		predictedOrn.normalize();
 	#else
-		//exponential map
+		//Exponential map
+		//google for "Practical Parameterization of Rotations Using the Exponential Map", F. Sebastian Grassia
+
 		btVector3 axis;
 		btScalar	fAngle = angvel.length(); 
 		//limit the angular motion
