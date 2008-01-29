@@ -143,6 +143,3 @@
 [% MACRO librarian_library_release GET library_outfile('') %]
 [% MACRO librarian_library_debug   GET library_outfile('_d') %]
 [% MACRO librarian_group	   GET library_outfile('') %]
-[% MACRO postbuild_library BLOCK -%]
-		CommandLine="xcopy /r /y $(TARGETPATH) $(PROJECTDIR)..\..\lib\"
-[% END %]
