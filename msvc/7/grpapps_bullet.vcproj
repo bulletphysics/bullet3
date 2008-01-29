@@ -69,8 +69,7 @@
 				TargetEnvironment="1"
 				TypeLibraryName="..\..\out\release7\build\grpapps_bullet\grpapps_bullet.tlb"/>
 			<Tool
-				Name="VCPostBuildEventTool"
-				/>
+				Name="VCPostBuildEventTool"/>
 			<Tool
 				Name="VCPreBuildEventTool"/>
 			<Tool
@@ -132,8 +131,7 @@
 				TargetEnvironment="1"
 				TypeLibraryName="..\..\out\release_dbl7\build\grpapps_bullet\grpapps_bullet.tlb"/>
 			<Tool
-				Name="VCPostBuildEventTool"
-				/>
+				Name="VCPostBuildEventTool"/>
 			<Tool
 				Name="VCPreBuildEventTool"/>
 			<Tool
@@ -203,8 +201,7 @@
 				TargetEnvironment="1"
 				TypeLibraryName="..\..\out\debug7\build\grpapps_bullet\grpapps_bullet.tlb"/>
 			<Tool
-				Name="VCPostBuildEventTool"
-				/>
+				Name="VCPostBuildEventTool"/>
 			<Tool
 				Name="VCPreBuildEventTool"/>
 			<Tool
@@ -271,8 +268,7 @@
 				TargetEnvironment="1"
 				TypeLibraryName="..\..\out\debug_dbl7\build\grpapps_bullet\grpapps_bullet.tlb"/>
 			<Tool
-				Name="VCPostBuildEventTool"
-				/>
+				Name="VCPostBuildEventTool"/>
 			<Tool
 				Name="VCPreBuildEventTool"/>
 			<Tool

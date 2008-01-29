@@ -69,8 +69,7 @@
 				TargetEnvironment="1"
 				TypeLibraryName="..\..\out\release71\build\grpall_bullet_corelib\grpall_bullet_corelib.tlb"/>
 			<Tool
-				Name="VCPostBuildEventTool"
-				/>
+				Name="VCPostBuildEventTool"/>
 			<Tool
 				Name="VCPreBuildEventTool"/>
 			<Tool
@@ -132,8 +131,7 @@
 				TargetEnvironment="1"
 				TypeLibraryName="..\..\out\release_dbl71\build\grpall_bullet_corelib\grpall_bullet_corelib.tlb"/>
 			<Tool
-				Name="VCPostBuildEventTool"
-				/>
+				Name="VCPostBuildEventTool"/>
 			<Tool
 				Name="VCPreBuildEventTool"/>
 			<Tool
@@ -203,8 +201,7 @@
 				TargetEnvironment="1"
 				TypeLibraryName="..\..\out\debug71\build\grpall_bullet_corelib\grpall_bullet_corelib.tlb"/>
 			<Tool
-				Name="VCPostBuildEventTool"
-				/>
+				Name="VCPostBuildEventTool"/>
 			<Tool
 				Name="VCPreBuildEventTool"/>
 			<Tool
@@ -271,8 +268,7 @@
 				TargetEnvironment="1"
 				TypeLibraryName="..\..\out\debug_dbl71\build\grpall_bullet_corelib\grpall_bullet_corelib.tlb"/>
 			<Tool
-				Name="VCPostBuildEventTool"
-				/>
+				Name="VCPostBuildEventTool"/>
 			<Tool
 				Name="VCPreBuildEventTool"/>
 			<Tool

@@ -69,9 +69,7 @@
 				TargetEnvironment="1"
 				TypeLibraryName="..\..\out\release71\build\libGIMPACT\libGIMPACT.tlb"/>
 			<Tool
-				Name="VCPostBuildEventTool"
-		CommandLine="xcopy /r /y $(TARGETPATH) $(PROJECTDIR)..\..\lib\"
-				/>
+				Name="VCPostBuildEventTool"/>
 			<Tool
 				Name="VCPreBuildEventTool"/>
 			<Tool
@@ -132,9 +130,7 @@
 				TargetEnvironment="1"
 				TypeLibraryName="..\..\out\release_dbl71\build\libGIMPACT\libGIMPACT.tlb"/>
 			<Tool
-				Name="VCPostBuildEventTool"
-		CommandLine="xcopy /r /y $(TARGETPATH) $(PROJECTDIR)..\..\lib\"
-				/>
+				Name="VCPostBuildEventTool"/>
 			<Tool
 				Name="VCPreBuildEventTool"/>
 			<Tool
@@ -204,9 +200,7 @@
 				TargetEnvironment="1"
 				TypeLibraryName="..\..\out\debug71\build\libGIMPACT\libGIMPACT.tlb"/>
 			<Tool
-				Name="VCPostBuildEventTool"
-		CommandLine="xcopy /r /y $(TARGETPATH) $(PROJECTDIR)..\..\lib\"
-				/>
+				Name="VCPostBuildEventTool"/>
 			<Tool
 				Name="VCPreBuildEventTool"/>
 			<Tool
@@ -272,9 +266,7 @@
 				TargetEnvironment="1"
 				TypeLibraryName="..\..\out\debug_dbl71\build\libGIMPACT\libGIMPACT.tlb"/>
 			<Tool
-				Name="VCPostBuildEventTool"
-		CommandLine="xcopy /r /y $(TARGETPATH) $(PROJECTDIR)..\..\lib\"
-				/>
+				Name="VCPostBuildEventTool"/>
 			<Tool
 				Name="VCPreBuildEventTool"/>
 			<Tool

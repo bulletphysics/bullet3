@@ -72,8 +72,7 @@
 				TargetEnvironment="1"
 				TypeLibraryName="..\..\out\release8\build\appGjkConvexCastDemo\appGjkConvexCastDemo.tlb"/>
 			<Tool
-				Name="VCPostBuildEventTool"
-				/>
+				Name="VCPostBuildEventTool"/>
 			<Tool
 				Name="VCPreBuildEventTool"/>
 			<Tool
@@ -137,8 +136,7 @@
 				TargetEnvironment="1"
 				TypeLibraryName="..\..\out\release_dbl8\build\appGjkConvexCastDemo\appGjkConvexCastDemo.tlb"/>
 			<Tool
-				Name="VCPostBuildEventTool"
-				/>
+				Name="VCPostBuildEventTool"/>
 			<Tool
 				Name="VCPreBuildEventTool"/>
 			<Tool
@@ -210,8 +208,7 @@
 				TargetEnvironment="1"
 				TypeLibraryName="..\..\out\debug8\build\appGjkConvexCastDemo\appGjkConvexCastDemo.tlb"/>
 			<Tool
-				Name="VCPostBuildEventTool"
-				/>
+				Name="VCPostBuildEventTool"/>
 			<Tool
 				Name="VCPreBuildEventTool"/>
 			<Tool
@@ -280,8 +277,7 @@
 				TargetEnvironment="1"
 				TypeLibraryName="..\..\out\debug_dbl8\build\appGjkConvexCastDemo\appGjkConvexCastDemo.tlb"/>
 			<Tool
-				Name="VCPostBuildEventTool"
-				/>
+				Name="VCPostBuildEventTool"/>
 			<Tool
 				Name="VCPreBuildEventTool"/>
 			<Tool

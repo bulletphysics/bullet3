@@ -59,9 +59,6 @@ LIB32=link.exe -lib
 LINK32=link.exe
 # ADD BASE LINK32 user32.lib gdi32.lib advapi32.lib /nologo /machine:I386
 # ADD LINK32 shell32.lib user32.lib gdi32.lib advapi32.lib glut32.lib  /nologo /version:4.0 /machine:I386 /OPT:NOREF /out:"..\..\CollisionDemo.exe" /subsystem:console /libpath:"..\..\Glut" 
-# Begin Special Build Tool
-SOURCE="$(InputPath)"
-# End Special Build Tool
 
 !ELSEIF  "$(CFG)" == "appCollisionDemo - Win32 ReleaseDoublePrecision"
 
@@ -90,9 +87,6 @@ LIB32=link.exe -lib
 LINK32=link.exe
 # ADD BASE LINK32 user32.lib gdi32.lib advapi32.lib /nologo /machine:I386
 # ADD LINK32 shell32.lib user32.lib gdi32.lib advapi32.lib glut32.lib  /nologo /version:4.0 /machine:I386  /out:"..\..\CollisionDemo.exe" /subsystem:console /libpath:"..\..\Glut" 
-# Begin Special Build Tool
-SOURCE="$(InputPath)"
-# End Special Build Tool
 
 !ELSEIF  "$(CFG)" == "appCollisionDemo - Win32 Debug"
 
@@ -122,9 +116,6 @@ LIB32=link.exe -lib
 LINK32=link.exe
 # ADD BASE LINK32 user32.lib gdi32.lib advapi32.lib /nologo /machine:I386
 # ADD LINK32 shell32.lib user32.lib gdi32.lib advapi32.lib glut32.lib  /nologo /version:4.0 /machine:I386 /debug /pdbtype:sept /out:"..\..\CollisionDemo.exe" /subsystem:console /libpath:"..\..\Glut" 
-# Begin Special Build Tool
-SOURCE="$(InputPath)"
-# End Special Build Tool
 
 !ELSEIF  "$(CFG)" == "appCollisionDemo - Win32 DebugDoublePrecision"
 
@@ -153,9 +144,6 @@ LIB32=link.exe -lib
 LINK32=link.exe
 # ADD BASE LINK32 user32.lib gdi32.lib advapi32.lib /nologo /machine:I386
 # ADD LINK32 shell32.lib user32.lib gdi32.lib advapi32.lib glut32.lib  /nologo /version:4.0 /machine:I386  /out:"..\..\CollisionDemo.exe" /subsystem:console /libpath:"..\..\Glut" 
-# Begin Special Build Tool
-SOURCE="$(InputPath)"
-# End Special Build Tool
 
 !ENDIF 
 
