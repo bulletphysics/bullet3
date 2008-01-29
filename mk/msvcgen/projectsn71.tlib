@@ -89,6 +89,8 @@ END -%]
 				TargetEnvironment="1"
 				TypeLibraryName="[% workbuild([my.doc.project.0,'.tlb']) %]"/>
 			<Tool
+				Name="VCPostBuildEventTool"/>
+			<Tool
 				Name="VCPreBuildEventTool"/>
 			<Tool
 				Name="VCPreLinkEventTool"/>
