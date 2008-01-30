@@ -449,7 +449,6 @@ public:
 		return m_constraintRefs.size();
 	}
 
-
 	int	m_debugBodyId;
 };
 

@@ -52,6 +52,8 @@ public:
 
 	virtual void	setGravity(const btVector3& gravity);
 
+	virtual btVector3 getGravity () const;
+
 	virtual void	addRigidBody(btRigidBody* body);
 
 	virtual void	removeRigidBody(btRigidBody* body);

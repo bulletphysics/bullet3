@@ -27,10 +27,11 @@ class btCollisionShape
 {
 
 	void* m_userPointer;
+	char* m_shapeName;
 
 public:
 
-	btCollisionShape() : m_userPointer(0)
+	btCollisionShape() : m_userPointer(0), m_shapeName (0)
 	{
 	}
 	virtual ~btCollisionShape()
@@ -103,7 +104,16 @@ public:
 		return m_userPointer;
 	}
 
+	char* getShapeName () const
+	{
+		return m_shapeName;
+	}
 
+	/// the user is responsible for the memory management of name
+	void setShapeName (char* name)
+	{
+		m_shapeName = name;
+	}
 };	
 
 #endif //COLLISION_SHAPE_H

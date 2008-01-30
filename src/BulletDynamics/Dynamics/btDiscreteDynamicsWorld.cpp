@@ -391,6 +391,11 @@ void	btDiscreteDynamicsWorld::setGravity(const btVector3& gravity)
 	}
 }
 
+btVector3 btDiscreteDynamicsWorld::getGravity () const
+{
+	return m_gravity;
+}
+
 
 void	btDiscreteDynamicsWorld::removeRigidBody(btRigidBody* body)
 {

@@ -33,6 +33,7 @@ class btTypedConstraint
 {
 	int	m_userConstraintType;
 	int	m_userConstraintId;
+	char*   m_name;
 
 	btTypedConstraintType m_constraintType;
 
@@ -106,6 +107,16 @@ public:
 	btTypedConstraintType getConstraintType () const
 	{
 		return m_constraintType;
+	}
+
+	char* getName () const
+	{
+		return m_name;
+	}
+
+	void setName (char* name)
+	{
+		m_name = name;
 	}
 };
 

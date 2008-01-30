@@ -69,6 +69,9 @@ protected:
 	///m_internalOwner is reserved to point to Bullet's btRigidBody. Don't use this, use m_userObjectPointer instead.
 	void*			m_internalOwner;
 
+	// setName, getName
+	char*                   m_objectName;
+
 	///time of impact calculation
 	btScalar		m_hitFraction; 
 	
@@ -332,6 +335,18 @@ public:
 	void	setUserPointer(void* userPointer)
 	{
 		m_userObjectPointer = userPointer;
+	}
+
+	char* getName () const
+	{
+		return m_objectName;
+	}
+
+
+        /// the user is responsible for the memory management of name
+	void setName (char* name)
+	{
+		m_objectName = name;
 	}
 
 	inline bool checkCollideWith(btCollisionObject* co)

@@ -61,6 +61,7 @@ class btDynamicsWorld : public btCollisionWorld
 		//once a rigidbody is added to the dynamics world, it will get this gravity assigned
 		//existing rigidbodies in the world get gravity assigned too, during this method
 		virtual void	setGravity(const btVector3& gravity) = 0;
+		virtual btVector3 getGravity () const = 0;
 
 		virtual void	addRigidBody(btRigidBody* body) = 0;
 
