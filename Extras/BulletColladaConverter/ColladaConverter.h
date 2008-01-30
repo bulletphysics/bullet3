@@ -23,51 +23,49 @@ subject to the following restrictions:
 
 class btCollisionShape;
 class btRigidBody;
-class	btTypedConstraint;
+class btTypedConstraint;
 
 class ConstraintInput;
-
-//use some reasonable number here
-#define COLLADA_CONVERTER_MAX_NUM_OBJECTS 32768
-
-//namespace..
 
 ///ColladaConverter helps converting the physics assets from COLLADA DOM into physics objects
 class ColladaConverter
 {
-
 protected:
-
 	class DAE* m_collada;
 	class domCOLLADA* m_dom;
-	const char* m_filename;
+	char* m_filename;
+
 	float	m_unitMeterScaling;
 	
-	int	m_numObjects;
-	btRigidBody* m_rigidBodies[COLLADA_CONVERTER_MAX_NUM_OBJECTS];
-	
-	void	PreparePhysicsObject(struct btRigidBodyInput& input, bool isDynamics, float mass,btCollisionShape* colShape);
+	void	PreparePhysicsObject(struct btRigidBodyInput& input, bool isDynamics, float mass,btCollisionShape* colShape, btVector3 linearVelocity, btVector3 angularVelocity);
 	
 	void	prepareConstraints(ConstraintInput& input);
 
 	void	ConvertRigidBodyRef( struct btRigidBodyInput& , struct btRigidBodyOutput& output );
 
+	bool convert ();
 
+	void addConvexHull (btCollisionShape* shape, const char* nodeName, class domLibrary_geometries* geomLib);
+	void addConvexMesh (btCollisionShape* shape, const char* nodeName, class domLibrary_geometries* geomLib);
+	void addConcaveMesh(btCollisionShape* shape, const char* nodeName, class domLibrary_geometries* geomLib);
+	void addNode       (btRigidBody* body, const char* nodeName, const char* shapeName, class domVisual_scene* vscene);
+	void addConstraint (btTypedConstraint* constraint, class domPhysics_model* physicsModel);
+	void addConstraintInstance (btTypedConstraint* constraint, class domInstance_physics_model* mi);
+	void addMaterial   (btRigidBody* body, const char* nodeName, class domLibrary_physics_materials* materialsLib);
+	void buildShape (btCollisionShape* shape, void* collada_shape, const char* shapeName, class domLibrary_geometries* geomLib);
+	void addRigidBody  (btRigidBody* body, const char* nodeName, const char* shapeName, class domPhysics_model* physicsModel, class domLibrary_geometries* geomLib);
+	void addRigidBodyInstance (btRigidBody* body, const char* nodeName, class domInstance_physics_model* mi);
 public:
-	
 	ColladaConverter();
 
-	///open a COLLADA .dae file
+	///load a COLLADA .dae file
 	bool	load(const char* filename);
 	
 	///save a snapshot in COLLADA physics .dae format.
 	///if the filename is left empty, modify the filename used during loading
-	bool	saveAs(const char* filename = 0);
+	bool	save(const char* filename = 0);
 
-	///convert a Collada DOM document and call the 2 virtual methods for each rigid body/constraint
-	bool convert();
-
-	///those 2 virtuals are called for each constraint/physics object
+	///those virtuals are called by load and save.
 	virtual btTypedConstraint*			createUniversalD6Constraint(
 		class btRigidBody* body0,class btRigidBody* otherBody,
 			btTransform& localAttachmentFrameRef,
@@ -78,16 +76,17 @@ public:
 			const btVector3& angularMaxLimits,
 			bool disableCollisionsBetweenLinkedBodies
 			) = 0;
-
 	virtual btRigidBody*  createRigidBody(bool isDynamic, 
 		float mass, 
 		const btTransform& startTransform,
 		btCollisionShape* shape) = 0;
-
+	virtual int getNumRigidBodies () = 0;
+	virtual btRigidBody* getRigidBody (int i) = 0;
+	virtual int getNumConstraints () = 0;
+	virtual btTypedConstraint* getConstraint (int i) = 0;
 	virtual	void	setGravity(const btVector3& gravity) = 0;
-	
+	virtual btVector3 getGravity () = 0;
 	virtual	void	setCameraInfo(const btVector3& up, int forwardAxis) = 0;
-
 };
 
 #endif //COLLADA_CONVERTER_H
