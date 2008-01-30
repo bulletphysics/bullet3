@@ -109,11 +109,36 @@ class MyColladaConverter : public ColladaConverter
 		return body;
 	}
 
+	virtual int getNumRigidBodies ()
+	{
+		return m_demoApp->getDynamicsWorld()->getNumCollisionObjects();
+	}
+
+	virtual btRigidBody* getRigidBody (int i)
+	{
+		return btRigidBody::upcast(m_demoApp->getDynamicsWorld()->getCollisionObjectArray ()[i]);
+	}
+
+	virtual int getNumConstraints ()
+	{
+		return m_demoApp->getDynamicsWorld()->getNumConstraints ();
+	}
+
+	virtual btTypedConstraint* getConstraint (int i)
+	{
+		return m_demoApp->getDynamicsWorld()->getConstraint (i);
+	}
 
 	virtual	void	setGravity(const btVector3& grav)
 	{
 		m_demoApp->getDynamicsWorld()->setGravity(grav);
 	}
+
+	virtual btVector3 getGravity ()
+	{
+		return m_demoApp->getDynamicsWorld()->getGravity ();
+	}
+
 	virtual void	setCameraInfo(const btVector3& camUp,int forwardAxis) 
 	{
 		m_demoApp->setCameraUp(camUp);
@@ -189,17 +214,13 @@ void	ColladaDemo::initPhysics(const char* filename)
 	MyColladaConverter* converter = new MyColladaConverter(this);
 
 	bool result = converter->load(filename);
-
-	if (result)
-	{
-		result = converter->convert();
-	}
 	if (result)
 	{
 		gColladaConverter = converter;
 	} else
 	{
 		gColladaConverter = 0;
+		printf("gColladaConverter = 0\n");
 	}
 }
 
@@ -250,7 +271,7 @@ void ColladaDemo::keyboardCallback(unsigned char key, int x, int y)
 	{
 		//save a COLLADA .dae physics snapshot
 		if (gColladaConverter)
-			gColladaConverter->saveAs();
+			gColladaConverter->save();
 	} else
 	{
 	DemoApplication::keyboardCallback(key,x,y);
