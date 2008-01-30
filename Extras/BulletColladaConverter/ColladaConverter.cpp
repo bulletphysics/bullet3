@@ -13,6 +13,13 @@ subject to the following restrictions:
 3. This notice may not be removed or altered from any source distribution.
 */
 
+/* Some TODO items:
+ *
+ * Figure out why velocity loading appears not to be working
+ * Output convex hull geometry for every single shape
+ * Preserve normals and texture coordinates for mesh shapes
+ */
+
 #include <string>
 #include "ColladaConverter.h"
 #include "btBulletDynamicsCommon.h"
