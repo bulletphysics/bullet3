@@ -190,6 +190,7 @@ xmlModuleFree(xmlModulePtr module)
     return (0);
 }
 
+#if 0
 #ifdef HAVE_DLOPEN
 #ifdef HAVE_DLFCN_H
 #include <dlfcn.h>
@@ -287,6 +288,7 @@ xmlModulePlatformSymbol(void *handle, const char *name, void **symbol)
 
 #endif /* HAVE_SHLLOAD */
 #endif /* ! HAVE_DLOPEN */
+#endif //0
 
 #ifdef _WIN32
 

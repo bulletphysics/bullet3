@@ -67,8 +67,6 @@ private:
 public:
 	///Setup and initialize SPU/CELL/Libspe2
 
-	
-
 	struct	Win32ThreadConstructionInfo
 	{
 		Win32ThreadConstructionInfo(char* uniqueName,
@@ -94,12 +92,14 @@ public:
 
 	};
 
-	Win32ThreadSupport(Win32ThreadConstructionInfo& threadConstructionInfo);
+
+
+	Win32ThreadSupport(const Win32ThreadConstructionInfo& threadConstructionInfo);
 
 ///cleanup/shutdown Libspe2
 	virtual	~Win32ThreadSupport();
 
-	void	startThreads(Win32ThreadConstructionInfo&	threadInfo);
+	void	startThreads(const Win32ThreadConstructionInfo&	threadInfo);
 
 
 ///send messages to SPUs

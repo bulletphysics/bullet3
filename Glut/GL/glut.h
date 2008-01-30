@@ -40,7 +40,10 @@
 #  endif
    /* XXX This is from Win32's <ctype.h> */
 #  ifndef _WCHAR_T_DEFINED
-typedef unsigned short wchar_t;
+/* MinGW32 chokes on the next line */
+#ifndef __MINGW32__
+typedef unsigned short int wchar_t;
+#endif //__MINGW32__
 #   define _WCHAR_T_DEFINED
 #  endif
 # endif

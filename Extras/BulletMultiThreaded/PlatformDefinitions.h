@@ -12,6 +12,8 @@ typedef union
   void *p;
 } addr64;
 
+#define USE_WIN32_THREADING 1
+
 		#if defined(__MINGW32__) || defined(__CYGWIN__) || (defined (_MSC_VER) && _MSC_VER < 1300)
 		#else
 		#endif //__MINGW32__
@@ -26,7 +28,7 @@ typedef union
 			
 #include <string.h> //memcpy
 
-		#define USE_WIN32_THREADING 1
+		
 
 		#include <stdio.h>		
 		#define spu_printf printf

@@ -254,7 +254,7 @@ int maxNumOutstandingTasks = 4;
 
 #ifdef USE_WIN32_THREADING
 
-	m_threadSupportCollision = new Win32ThreadSupport(Win32ThreadSupport::Win32ThreadConstructionInfo(
+m_threadSupportCollision = new Win32ThreadSupport(Win32ThreadSupport::Win32ThreadConstructionInfo(
 								"collision",
 								processCollisionTask,
 								createCollisionLocalStoreMemory,

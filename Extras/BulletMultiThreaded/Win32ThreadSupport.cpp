@@ -17,17 +17,20 @@ subject to the following restrictions:
 
 #ifdef USE_WIN32_THREADING
 
+#include <windows.h>
+
 #include "SpuCollisionTaskProcess.h"
+
 #include "SpuNarrowPhaseCollisionTask/SpuGatheringCollisionTask.h"
 
-#include <Windows.h>
+
 
 ///The number of threads should be equal to the number of available cores
 ///Todo: each worker should be linked to a single core, using SetThreadIdealProcessor.
 
 ///Win32ThreadSupport helps to initialize/shutdown libspe2, start/stop SPU tasks and communication
 ///Setup and initialize SPU/CELL/Libspe2
-Win32ThreadSupport::Win32ThreadSupport(Win32ThreadConstructionInfo& threadConstructionInfo)
+Win32ThreadSupport::Win32ThreadSupport(const Win32ThreadConstructionInfo & threadConstructionInfo)
 {
 	startThreads(threadConstructionInfo);
 }
@@ -173,7 +176,7 @@ void Win32ThreadSupport::waitForResponse(unsigned int *puiArgument0, unsigned in
 
 
 
-void Win32ThreadSupport::startThreads(Win32ThreadConstructionInfo& threadConstructionInfo)
+void Win32ThreadSupport::startThreads(const Win32ThreadConstructionInfo& threadConstructionInfo)
 {
 
 	m_activeSpuStatus.resize(threadConstructionInfo.m_numThreads);

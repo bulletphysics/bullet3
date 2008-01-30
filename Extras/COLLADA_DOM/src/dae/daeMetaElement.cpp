@@ -225,7 +225,7 @@ void
 daeMetaElement::validate()
 {
 	if (_createFunc == NULL)
-		_createFunc = DAECreateElement;
+		_createFunc = (daeElementConstructFunctionPtr) DAECreateElement;
 	if (_elementSize == 0)
 	{
 		daeInt place=0;
