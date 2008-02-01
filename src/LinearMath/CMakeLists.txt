@@ -25,6 +25,7 @@ ADD_LIBRARY(LibLinearMath
 		btIDebugDraw.h
 		btPoint3.h
 		btQuickprof.h
+		btTypedUserInfo.h
 		btTransformUtil.h
 		btQuickprof.cpp
 		btConvexHull.cpp
