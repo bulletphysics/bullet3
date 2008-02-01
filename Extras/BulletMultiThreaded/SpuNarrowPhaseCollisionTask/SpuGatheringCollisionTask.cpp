@@ -135,6 +135,7 @@ struct	CollisionTask_LocalStoreMemory
 
 	CollisionShape_LocalStoreMemory gCollisionShapes[2];
 
+	///we reserve 32bit integer indices, even though they might be 16bit
 	ATTRIBUTE_ALIGNED16(int	spuIndices[16]);
 
 	bvhMeshShape_LocalStoreMemory bvhShapeData;
@@ -230,7 +231,7 @@ class spuNodeCallback : public btNodeOverlapCallback
 
 	ATTRIBUTE_ALIGNED16(btVector3	spuTriangleVertices[3]);
 	ATTRIBUTE_ALIGNED16(btScalar	spuUnscaledVertex[4]);
-	//ATTRIBUTE_ALIGNED16(int	spuIndices[16]);
+	
 
 
 public:
@@ -248,14 +249,31 @@ public:
 
 		//		spu_printf("processNode with triangleIndex %d\n",triangleIndex);
 
+///TODO: add switch between short int, and int indices, based on indexType
 
+		// ugly solution to support both 16bit and 32bit indices
+		if (m_lsMemPtr->bvhShapeData.gIndexMesh.m_indexType == PHY_SHORT)
+		{
+			short int* indexBasePtr = (short int*)(m_lsMemPtr->bvhShapeData.gIndexMesh.m_triangleIndexBase+triangleIndex*m_lsMemPtr->bvhShapeData.gIndexMesh.m_triangleIndexStride);
+			ATTRIBUTE_ALIGNED16(short int tmpIndices[3]);
 
-		int* indexBasePtr = (int*)(m_lsMemPtr->bvhShapeData.gIndexMesh.m_triangleIndexBase+triangleIndex*m_lsMemPtr->bvhShapeData.gIndexMesh.m_triangleIndexStride);
+			small_cache_read_triple(&tmpIndices[0],(ppu_address_t)&indexBasePtr[0],
+									&tmpIndices[1],(ppu_address_t)&indexBasePtr[1],
+									&tmpIndices[2],(ppu_address_t)&indexBasePtr[2],
+									sizeof(short int));
 
-		small_cache_read_triple(&m_lsMemPtr->spuIndices[0],(ppu_address_t)&indexBasePtr[0],
+			m_lsMemPtr->spuIndices[0] = int(tmpIndices[0]);
+			m_lsMemPtr->spuIndices[1] = int(tmpIndices[1]);
+			m_lsMemPtr->spuIndices[2] = int(tmpIndices[2]);
+		} else
+		{
+			int* indexBasePtr = (int*)(m_lsMemPtr->bvhShapeData.gIndexMesh.m_triangleIndexBase+triangleIndex*m_lsMemPtr->bvhShapeData.gIndexMesh.m_triangleIndexStride);
+
+			small_cache_read_triple(&m_lsMemPtr->spuIndices[0],(ppu_address_t)&indexBasePtr[0],
 								&m_lsMemPtr->spuIndices[1],(ppu_address_t)&indexBasePtr[1],
 								&m_lsMemPtr->spuIndices[2],(ppu_address_t)&indexBasePtr[2],
 								sizeof(int));
+		}
 		
 		//		spu_printf("SPU index0=%d ,",spuIndices[0]);
 		//		spu_printf("SPU index1=%d ,",spuIndices[1]);
@@ -352,6 +370,7 @@ void	ProcessConvexConcaveSpuCollision(SpuCollisionPairInput* wuInput, CollisionT
 	//spu_printf("SPU: numNodes = %d\n",nodeArray.size());
 
 	BvhSubtreeInfoArray& subTrees = lsMemPtr->bvhShapeData.getOptimizedBvh()->getSubtreeInfoArray();
+
 
 	spuNodeCallback	nodeCallback(wuInput,lsMemPtr,spuContacts);
 	IndexedMeshArray&	indexArray = lsMemPtr->bvhShapeData.gTriangleMeshInterfacePtr->getIndexedMeshArray();
