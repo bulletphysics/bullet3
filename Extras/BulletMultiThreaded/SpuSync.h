@@ -75,31 +75,37 @@ public:
 	btSpinlock (SpinVariable* var)
 		: spinVariable (var)
 	{}
-#ifndef __SPU__
+
 	void Init ()
 	{
+#ifndef __SPU__
 		//*spinVariable = 1;
 		cellSyncMutexInitialize(spinVariable);
-	}
 #endif
+	}
 
-#ifdef __SPU__
+
+
 	void Lock ()
 	{
+#ifdef __SPU__
 		// lock semaphore
 		/*while (cellAtomicTestAndDecr32(atomic_buf, (uint64_t)spinVariable) == 0) 
 		{
 
 		};*/
 		cellSyncMutexLock((uint64_t)spinVariable);
+#endif
 	}
 
 	void Unlock ()
 	{
+#ifdef __SPU__
 		//cellAtomicIncr32(atomic_buf, (uint64_t)spinVariable);
 		cellSyncMutexUnlock((uint64_t)spinVariable);
+#endif 
 	}
-#endif
+
 
 private:
 	SpinVariable*	spinVariable;
