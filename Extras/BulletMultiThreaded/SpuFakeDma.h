@@ -7,7 +7,7 @@
 #include "LinearMath/btScalar.h"
 
 
-#ifdef __CELLOS_LV2__
+#ifdef __SPU__
 
 #include <cell/dma.h>
 #include <stdint.h>

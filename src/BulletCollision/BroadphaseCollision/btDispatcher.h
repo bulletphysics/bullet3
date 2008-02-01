@@ -43,7 +43,7 @@ struct btDispatcherInfo
 		m_useContinuous(false),
 		m_debugDraw(0),
 		m_enableSatConvex(false),
-		m_enableSPU(false),
+		m_enableSPU(true),
 		m_stackAllocator(0)
 	{
 

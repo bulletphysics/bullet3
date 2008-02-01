@@ -9,7 +9,7 @@
 template<class T, int size>
 class DoubleBuffer
 {
-#if defined(__CELLOS_LV2__) || defined(USE_LIBSPE2)
+#if defined(__SPU__) || defined(USE_LIBSPE2)
 	ATTRIBUTE_ALIGNED128( T m_buffer0[size] ) ;
 	ATTRIBUTE_ALIGNED128( T m_buffer1[size] ) ;
 #else

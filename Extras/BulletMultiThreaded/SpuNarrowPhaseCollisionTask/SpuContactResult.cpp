@@ -15,7 +15,6 @@ subject to the following restrictions:
 
 #include "SpuContactResult.h"
 
-
 //#define DEBUG_SPU_COLLISION_DETECTION 1
 
 

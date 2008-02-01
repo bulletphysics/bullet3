@@ -28,7 +28,7 @@
 
 #include "SpuCollisionShapes.h" //definition of SpuConvexPolyhedronVertexData
 
-#ifdef __CELLOS_LV2__
+#ifdef __SPU__
 ///Software caching from the IBM Cell SDK, it reduces 25% SPU time for our test cases
 #define USE_SOFTWARE_CACHE 1
 #endif //__CELLOS_LV2__

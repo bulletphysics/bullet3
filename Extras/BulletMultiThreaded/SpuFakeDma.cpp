@@ -22,7 +22,7 @@ void*	cellDmaLargeGetReadOnly(void *ls, uint64_t ea, uint32_t size, uint32_t tag
 
 void*	cellDmaSmallGetReadOnly(void *ls, uint64_t ea, uint32_t size, uint32_t tag, uint32_t tid, uint32_t rid)
 {
-#if defined (__CELLOS_LV2__) || defined (USE_LIBSPE2)
+#if defined (__SPU__) || defined (USE_LIBSPE2)
 	mfc_get(ls,ea,size,tag,0,0);
 	return ls;
 #else
@@ -35,7 +35,7 @@ void*	cellDmaSmallGetReadOnly(void *ls, uint64_t ea, uint32_t size, uint32_t tag
 
 void*	cellDmaGetReadOnly(void *ls, uint64_t ea, uint32_t size, uint32_t tag, uint32_t tid, uint32_t rid)
 {
-#if defined (__CELLOS_LV2__) || defined (USE_LIBSPE2)
+#if defined (__SPU__) || defined (USE_LIBSPE2)
 	cellDmaGet(ls,ea,size,tag,tid,rid);
 	return ls;
 #else
@@ -60,7 +60,7 @@ int stallingUnalignedDmaSmallGet(void *ls, uint64_t ea, uint32_t size)
 	///make sure last 4 bits are the same, for cellDmaSmallGet
 	uint32_t last4BitsOffset = ea & 0x0f;
 	char* tmpTarget = tmpBuffer + last4BitsOffset;
-#if defined (__CELLOS_LV2__) || defined (USE_LIBSPE2)
+#if defined (__SPU__) || defined (USE_LIBSPE2)
 	mfc_get(tmpTarget,ea,size,DMA_TAG(1),0,0);
 #else
 	//copy into final destination
@@ -86,7 +86,7 @@ int stallingUnalignedDmaSmallGet(void *ls, uint64_t ea, uint32_t size)
 	return 0;
 }
 
-#if defined (__CELLOS_LV2__) || defined (USE_LIBSPE2)
+#if defined (__SPU__) || defined (USE_LIBSPE2)
 #else
 
 int	cellDmaLargeGet(void *ls, uint64_t ea, uint32_t size, uint32_t tag, uint32_t tid, uint32_t rid)
