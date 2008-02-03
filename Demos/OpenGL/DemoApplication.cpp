@@ -181,10 +181,11 @@ void DemoApplication::updateCamera() {
 	m_cameraPosition[2] = eyePos.getZ();
  
     glFrustum(-1.0, 1.0, -1.0, 1.0, 1.0, 10000.0);
-    gluLookAt(m_cameraPosition[0], m_cameraPosition[1], m_cameraPosition[2], 
+    glMatrixMode(GL_MODELVIEW);
+	glLoadIdentity();
+	gluLookAt(m_cameraPosition[0], m_cameraPosition[1], m_cameraPosition[2], 
               m_cameraTargetPosition[0], m_cameraTargetPosition[1], m_cameraTargetPosition[2], 
 			  m_cameraUp.getX(),m_cameraUp.getY(),m_cameraUp.getZ());
-    glMatrixMode(GL_MODELVIEW);
 }
 
 
