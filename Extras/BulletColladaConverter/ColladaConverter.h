@@ -35,26 +35,59 @@ protected:
 	class domCOLLADA* m_dom;
 	char* m_filename;
 
-	float	m_unitMeterScaling;
+	float m_unitMeterScaling;
 	
-	void	PreparePhysicsObject(struct btRigidBodyInput& input, bool isDynamics, float mass,btCollisionShape* colShape, btVector3 linearVelocity, btVector3 angularVelocity);
+	void PreparePhysicsObject(struct btRigidBodyInput& input, bool isDynamics, float mass,btCollisionShape* colShape, btVector3 linearVelocity, btVector3 angularVelocity);
 	
-	void	prepareConstraints(ConstraintInput& input);
+	void prepareConstraints(ConstraintInput& input);
 
-	void	ConvertRigidBodyRef( struct btRigidBodyInput& , struct btRigidBodyOutput& output );
+	void ConvertRigidBodyRef( struct btRigidBodyInput& , struct btRigidBodyOutput& output );
 
 	bool convert ();
 
-	void addConvexHull (btCollisionShape* shape, const char* nodeName, class domLibrary_geometries* geomLib);
-	void addConvexMesh (btCollisionShape* shape, const char* nodeName, class domLibrary_geometries* geomLib);
-	void addConcaveMesh(btCollisionShape* shape, const char* nodeName, class domLibrary_geometries* geomLib);
-	void addNode       (btRigidBody* body, const char* nodeName, const char* shapeName, class domVisual_scene* vscene);
-	void addConstraint (btTypedConstraint* constraint, class domPhysics_model* physicsModel);
-	void addConstraintInstance (btTypedConstraint* constraint, class domInstance_physics_model* mi);
-	void addMaterial   (btRigidBody* body, const char* nodeName, class domLibrary_physics_materials* materialsLib);
-	void buildShape (btCollisionShape* shape, void* collada_shape, const char* shapeName, class domLibrary_geometries* geomLib);
-	void addRigidBody  (btRigidBody* body, const char* nodeName, const char* shapeName, class domPhysics_model* physicsModel, class domLibrary_geometries* geomLib);
-	void addRigidBodyInstance (btRigidBody* body, const char* nodeName, class domInstance_physics_model* mi);
+	/* Searches based on matching name/id */
+	class domNode* findNode (const char* nodeName);
+	class domRigid_body* findRigid_body (const char* rigidBodyName);
+	class domInstance_rigid_body* findRigid_body_instance (const char* nodeName);
+	class domRigid_constraint* findRigid_constraint (const char* constraintName);
+	class domGeometry* findGeometry (const char* shapeName);
+
+	/* Use btTypedUserInfo->getPrivatePointer() */
+	class domNode* findNode (btRigidBody* rb);
+	class domRigid_body* findRigid_body (btRigidBody* rb);
+	class domInstance_rigid_body* findRigid_body_instance (btRigidBody* rb);
+	class domRigid_constraint* findRigid_constraint (btTypedConstraint* constraint);
+	class domGeometry* findGeometry (btCollisionShape* shape);
+
+	/* These are the locations that NEW elements will be added to */
+	class domLibrary_geometries* getDefaultGeomLib ();
+	class domLibrary_physics_materials* getDefaultMaterialsLib ();
+	class domPhysics_model* getDefaultPhysicsModel ();
+	class domInstance_physics_model* getDefaultInstancePhysicsModel ();
+
+	/* Currently we assume that there is only a single physics and visual scene */
+	class domPhysics_scene* getDefaultPhysicsScene ();
+	class domVisual_scene* getDefaultVisualScene ();
+
+	void buildShape (btCollisionShape* shape, void* collada_shape, const char* shapeName);
+
+	void addConvexHull (btCollisionShape* shape, const char* nodeName);
+	void addConvexMesh (btCollisionShape* shape, const char* nodeName);
+	void addConcaveMesh(btCollisionShape* shape, const char* nodeName);
+	void addNode       (btRigidBody* body, const char* nodeName, const char* shapeName);
+	void addConstraint (btTypedConstraint* constraint, const char* constraintName);
+	void addConstraintInstance (btTypedConstraint* constraint, const char* constraintName);
+	void addMaterial   (btRigidBody* body, const char* nodeName);
+	void addRigidBody  (btRigidBody* body, const char* nodeName, const char* shapeName);
+	void addRigidBodyInstance (btRigidBody* body, const char* nodeName);
+
+	void updateRigidBodyPosition (btRigidBody* body, class domNode* node);
+	void updateRigidBodyVelocity (btRigidBody* body);
+	void updateConstraint (btTypedConstraint* constraint, class domRigid_constraint* rigidConstraint);
+
+	void syncOrAddGeometry (btCollisionShape* shape, const char* nodeName);
+	void syncOrAddRigidBody (btRigidBody* body);
+	void syncOrAddConstraint (btTypedConstraint* constraint);
 public:
 	ColladaConverter();
 

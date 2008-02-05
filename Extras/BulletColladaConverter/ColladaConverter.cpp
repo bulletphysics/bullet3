@@ -14,13 +14,16 @@ subject to the following restrictions:
 */
 
 /* Some TODO items:
- *
- * Figure out why velocity loading appears not to be working
+ * Figure out why velocity loading is not working
  * Output convex hull geometry for every single shape
- * Preserve normals and texture coordinates for mesh shapes
+ * fix naming conflicts with BulletUnnamed-* across executions -> need to generate a real unique name.
+ * double check geometry sharing
+ * handle the case that the user is already using btTypedUserInfo
+ * cleanup all of the btTypedUserInfos that we create
  */
 
 #include <string>
+#include "LinearMath/btTypedUserInfo.h"
 #include "ColladaConverter.h"
 #include "btBulletDynamicsCommon.h"
 #include "dae.h"
@@ -44,6 +47,47 @@ subject to the following restrictions:
 #include "LinearMath/btDefaultMotionState.h"
 
 
+#define BT_RIGIDBODY_COLLADA_INFO_TYPE 0xdeed
+class btRigidBodyColladaInfo : public btTypedUserInfo 
+{
+public:
+	domNode* m_node;
+	domRigid_body* m_rigidBody;
+	domInstance_rigid_body* m_instanceRigidBody;
+
+	btRigidBodyColladaInfo (domNode* node, domRigid_body* rigidBody, domInstance_rigid_body* instanceRigidBody) : btTypedUserInfo()
+	{
+		m_node = node;
+		m_rigidBody = rigidBody;
+		m_instanceRigidBody = instanceRigidBody;
+		setType (BT_RIGIDBODY_COLLADA_INFO_TYPE);
+	}
+};
+
+#define BT_RIGID_CONSTRAINT_COLLADA_INFO_TYPE 0xcead
+class btRigidConstraintColladaInfo : public btTypedUserInfo
+{
+public:
+	domRigid_constraint* m_rigidConstraint;
+
+	btRigidConstraintColladaInfo (domRigid_constraint* rigidConstraint) : btTypedUserInfo ()
+	{
+		m_rigidConstraint = rigidConstraint;
+		setType (BT_RIGID_CONSTRAINT_COLLADA_INFO_TYPE);
+	}
+};
+
+#define BT_SHAPE_COLLADA_INFO_TYPE 0xbead
+class btShapeColladaInfo : public btTypedUserInfo
+{
+public:
+	domGeometry* m_geometry;
+	btShapeColladaInfo (domGeometry* geometry) : btTypedUserInfo ()
+	{
+		m_geometry = geometry;
+		setType (BT_SHAPE_COLLADA_INFO_TYPE);
+	}
+};
 
 char* getLastFileName();
 char* fixFileName(const char* lpCmdLine);
@@ -51,15 +95,16 @@ char* fixFileName(const char* lpCmdLine);
 
 struct	btRigidBodyInput
 {
-	domInstance_rigid_bodyRef	m_instanceRigidBodyRef;
-	domRigid_bodyRef	m_rigidBodyRef2;
+	domInstance_rigid_bodyRef m_instanceRigidBodyRef;
+	domRigid_bodyRef	  m_rigidBodyRef2;
+	domNodeRef		  m_nodeRef;
 
 	char* m_bodyName;
 };
 
 struct	ConstraintInput
 {
-	domInstance_physics_modelRef	m_instance_physicsModelRef;
+	domInstance_physics_model*	m_instance_physicsModelRef;
 	domPhysics_modelRef	m_model;
 };
 
@@ -171,7 +216,6 @@ bool	ColladaConverter::load(const char* orgfilename)
 	}
 
 	convert ();
-	delete m_collada;
 
 	return true;
 }
@@ -364,9 +408,19 @@ bool ColladaConverter::convert()
 									}
 									if (techniqueRef->getVelocity())
 									{
+										linearVelocity = btVector3(
+													techniqueRef->getVelocity()->getValue()[0],
+													techniqueRef->getVelocity()->getValue()[1],
+													techniqueRef->getVelocity()->getValue()[2]);
+
 									}
 									if (techniqueRef->getAngular_velocity())
 									{
+										angularVelocity = btVector3(
+													techniqueRef->getAngular_velocity()->getValue()[0],
+													techniqueRef->getAngular_velocity()->getValue()[1],
+													techniqueRef->getAngular_velocity()->getValue()[2]);
+
 									}
 								}
 
@@ -392,8 +446,9 @@ bool ColladaConverter::convert()
 											btRigidBodyInput rbInput;
 											rbInput.m_rigidBodyRef2 = rigidBodyRef;
 											rbInput.m_instanceRigidBodyRef = instRigidbodyRef;
+											printf("1 found body %s\n", bodyName);
+											/* The instance target points to the graphics node */
 											ConvertRigidBodyRef( rbInput , output );
-
 											mass = output.m_mass;
 											isDynamics = output.m_isDynamics;
 											colShape = output.m_colShape;
@@ -412,8 +467,8 @@ bool ColladaConverter::convert()
 								{
 									btRigidBodyInput input;
 									input.m_instanceRigidBodyRef = instRigidbodyRef;
-									input.m_rigidBodyRef2 = 0;
 									input.m_bodyName = (char*)bodyName;
+									printf("1 calling prepare %s\n", bodyName);
 									PreparePhysicsObject(input, isDynamics,mass,colShape, linearVelocity, angularVelocity);
 								}
 							}
@@ -464,6 +519,7 @@ bool ColladaConverter::convert()
 
 							printf("mass = %f, isDynamics %i\n",mass,isDynamics);
 
+							domRigid_bodyRef savedRbRef = NULL;
 							if (bodyName && model)
 							{
 								//try to find the rigid body
@@ -483,14 +539,15 @@ bool ColladaConverter::convert()
 
 										btRigidBodyInput rbInput;
 										rbInput.m_rigidBodyRef2 = rigidBodyRef;
+										savedRbRef = rigidBodyRef;
 										rbInput.m_instanceRigidBodyRef = instRigidbodyRef;
 										ConvertRigidBodyRef( rbInput , output );
+										printf("Found body converting %s\n", bodyName);
 
 										mass = output.m_mass;
 										isDynamics = output.m_isDynamics;
 										colShape = output.m_colShape;
 										compoundShape = output.m_compoundShape;
-
 									}
 								}
 
@@ -504,7 +561,7 @@ bool ColladaConverter::convert()
 							{
 								btRigidBodyInput input;
 								input.m_instanceRigidBodyRef = instRigidbodyRef;
-								input.m_rigidBodyRef2 = 0;
+								input.m_rigidBodyRef2 = savedRbRef;
 								input.m_bodyName = (char*)bodyName;
 								PreparePhysicsObject(input, isDynamics,mass,colShape, linearVelocity, angularVelocity);
 							}
@@ -555,10 +612,191 @@ bool ColladaConverter::convert()
 			return true;
 }
 
+domNode*
+ColladaConverter::findNode (const char* nodeName)
+{
+	if (!m_dom)
+		return NULL;
+
+	/* FIXME: We could search all visual scenes but we assume that only one exists */
+	domVisual_scene* visualScene = getDefaultVisualScene ();
+
+
+	domNode_Array& nodesArray = visualScene->getNode_array ();
+	for (int i = 0; i < nodesArray.getCount(); i++)
+	{
+		domNode* node = nodesArray[i];
+		if (!node->getId())
+		{
+			continue;
+		}
+		if (!strcmp(node->getId(), nodeName))
+		{
+			return node;
+		}
+	}
+	return NULL;
+}
+
+domNode*
+ColladaConverter::findNode (btRigidBody* rb)
+{
+	if (rb->getTypedUserInfo())
+	{
+		btTypedUserInfo* tui = rb->getTypedUserInfo ();
+		btAssert (tui->getType() == BT_RIGIDBODY_COLLADA_INFO_TYPE);
+		btRigidBodyColladaInfo* rbci = (btRigidBodyColladaInfo*)tui;
+		return rbci->m_node;
+	}
+	return NULL;
+}
+
+domRigid_body*
+ColladaConverter::findRigid_body (const char* rigidbodyName)
+{
+	domLibrary_physics_models_Array& physicsModelsArray = m_dom->getLibrary_physics_models_array();
+	for (int i = 0; i < physicsModelsArray.getCount(); i++)
+	{
+		domLibrary_physics_models* models = physicsModelsArray[i];
+		domPhysics_model_Array& modelArray = models->getPhysics_model_array();
+		for (int j = 0; j < modelArray.getCount(); j++)
+		{
+			domPhysics_model* model = modelArray[j];
+			domRigid_body_Array& rigidBodyArray = model->getRigid_body_array ();
+			for (int k = 0; k < rigidBodyArray.getCount(); k++)
+			{
+				domRigid_body* rigidBody = rigidBodyArray[k];
+				if (!strcmp(rigidBody->getSid(), rigidbodyName))
+				{
+					return rigidBody;
+				}
+			}
+		}
+	}
+	return NULL;
+}
+
+domRigid_body*
+ColladaConverter::findRigid_body (btRigidBody* rb)
+{
+	if (rb->getTypedUserInfo ())
+	{
+		btTypedUserInfo* tui = rb->getTypedUserInfo ();
+		btAssert (tui->getType() == BT_RIGIDBODY_COLLADA_INFO_TYPE);
+		btRigidBodyColladaInfo* rbci = (btRigidBodyColladaInfo*)tui;
+		return rbci->m_rigidBody;
+	}
+	return NULL;
+}
+
+domInstance_rigid_body*
+ColladaConverter::findRigid_body_instance (const char* nodeName)
+{
+	domPhysics_scene* physicsScene = getDefaultPhysicsScene ();
+	domInstance_physics_model_Array& physicsModelInstances = physicsScene->getInstance_physics_model_array ();
+	for (int i = 0; i < physicsModelInstances.getCount(); i++)
+	{
+		domInstance_physics_model* physicsModelInstance = physicsModelInstances[i];
+		domInstance_rigid_body_Array& rigidBodyInstances = physicsModelInstance->getInstance_rigid_body_array ();
+		for (int j = 0; j < rigidBodyInstances.getCount(); j++)
+		{
+			domInstance_rigid_body* rigidBodyInstance = rigidBodyInstances[j];
+			if (!strcmp(rigidBodyInstance->getTarget().getID(), nodeName))
+			{
+				return rigidBodyInstance;
+			}
+		}
+	}
+	return NULL;
+}
+
+domInstance_rigid_body*
+ColladaConverter::findRigid_body_instance (btRigidBody* rb)
+{
+	if (rb->getTypedUserInfo ())
+	{
+		btTypedUserInfo* tui = rb->getTypedUserInfo ();
+		btAssert (tui->getType() == BT_RIGIDBODY_COLLADA_INFO_TYPE);
+		btRigidBodyColladaInfo* rbci = (btRigidBodyColladaInfo*)tui;
+		return rbci->m_instanceRigidBody;
+	}
+	return NULL;
+}
+
+domRigid_constraint*
+ColladaConverter::findRigid_constraint (const char* constraintName)
+{
+	domLibrary_physics_models_Array& physicsModelsArray = m_dom->getLibrary_physics_models_array();
+	for (int i = 0; i < physicsModelsArray.getCount(); i++)
+	{
+		domLibrary_physics_models* models = physicsModelsArray[i];
+		domPhysics_model_Array& modelArray = models->getPhysics_model_array();
+		for (int j = 0; j < modelArray.getCount(); j++)
+		{
+			domPhysics_model* model = modelArray[j];
+			domRigid_constraint_Array& rigidConstraintArray = model->getRigid_constraint_array ();
+			for (int k = 0; k < rigidConstraintArray.getCount(); k++)
+			{
+				domRigid_constraint* rigidConstraint = rigidConstraintArray[k];
+				if (!strcmp(rigidConstraint->getSid(), constraintName))
+				{
+					printf("Found rigid constraint in DOM already.\n");
+					return rigidConstraint;
+				}
+			}
+		}
+	}
+	return NULL;
+}
+
+domRigid_constraint*
+ColladaConverter::findRigid_constraint (btTypedConstraint* constraint)
+{
+	if (constraint->getTypedUserInfo ())
+	{
+		btTypedUserInfo* tui = constraint->getTypedUserInfo ();
+		btAssert (tui->getType () == BT_RIGID_CONSTRAINT_COLLADA_INFO_TYPE);
+		btRigidConstraintColladaInfo* rcci = (btRigidConstraintColladaInfo*)tui;
+		return rcci->m_rigidConstraint;
+	}
+	return NULL;
+}
+
+domGeometry*
+ColladaConverter::findGeometry (const char* shapeName)
+{
+	domLibrary_geometries* geomLib = getDefaultGeomLib ();
+	domGeometry_Array& geometryArray = geomLib->getGeometry_array ();
+	for (int i = 0; i < geometryArray.getCount (); i++)
+	{
+		domGeometry* geom = geometryArray[i];
+		if (!geom->getId())
+			continue;
+
+		if (!strcmp(geom->getId(), shapeName))
+		{
+			return geom;
+		}
+	}
+	return NULL;
+}
+
+domGeometry*
+ColladaConverter::findGeometry (btCollisionShape* shape)
+{
+	if (shape->getTypedUserInfo ())
+	{
+		btTypedUserInfo* tui = shape->getTypedUserInfo ();
+		btAssert (tui->getType () == BT_SHAPE_COLLADA_INFO_TYPE);
+		btShapeColladaInfo* sci = (btShapeColladaInfo*)tui;
+		return sci->m_geometry;
+	}
+}
+
 
 void	ColladaConverter::prepareConstraints(ConstraintInput& input)
 {
-	domInstance_physics_modelRef instance_physicsModelRef = input.m_instance_physicsModelRef;
+	domInstance_physics_model* instance_physicsModelRef = input.m_instance_physicsModelRef;
 	domPhysics_modelRef model = input.m_model;
 
 	for (unsigned int c=0;c<instance_physicsModelRef->getInstance_rigid_constraint_array().getCount();c++)
@@ -589,11 +827,14 @@ void	ColladaConverter::prepareConstraints(ConstraintInput& input)
 					for (int i=0;i<getNumRigidBodies();i++)
 					{
 						btRigidBody* body = getRigidBody (i);
-						if (body->getName())
+						btTypedUserInfo* tui = body->getTypedUserInfo();
+						btAssert (tui->getType () == BT_RIGIDBODY_COLLADA_INFO_TYPE);
+						btRigidBodyColladaInfo* rbci = (btRigidBodyColladaInfo*)tui;
+						domRigid_body* domRigidBody = rbci->m_rigidBody;
+						const char* name = domRigidBody->getSid();
+						if (name)
 						{
-							char name[512];
-							snprintf(&name[0], 512, "%s-RigidBody", body->getName());
-							if (!strcmp(name,orgUri0))
+							if (!strcmp(name, orgUri0))
 							{
 								body0=body;
 							}
@@ -733,7 +974,8 @@ void	ColladaConverter::prepareConstraints(ConstraintInput& input)
 							}
 
 							// XXX: User must free this name before destroy the constraint
-							constraint->setName (strdup(rigidConstraintRef->getSid()));
+							btTypedUserInfo* tui = new btRigidConstraintColladaInfo (rigidConstraintRef);
+							constraint->setTypedUserInfo (tui);
 							printf("Added constraint %s to the world\n", rigidConstraintRef->getSid());
 						} else
 						{
@@ -750,7 +992,6 @@ void	ColladaConverter::prepareConstraints(ConstraintInput& input)
 		}
 
 	}
-
 }
 
 void	ColladaConverter::PreparePhysicsObject(struct btRigidBodyInput& input, bool isDynamics, float mass,btCollisionShape* colShape, btVector3 linearVelocity, btVector3 angularVelocity)
@@ -767,6 +1008,7 @@ void	ColladaConverter::PreparePhysicsObject(struct btRigidBodyInput& input, bool
 	{
 		domNodeRef node = *(domNodeRef*)&elem;
 		bodyName = node->getName();
+		input.m_nodeRef = node;
 
 		//find transform of the node that this rigidbody maps to
 
@@ -796,20 +1038,169 @@ void	ColladaConverter::PreparePhysicsObject(struct btRigidBodyInput& input, bool
 	btRigidBody* body= createRigidBody(isDynamics,mass,startTransform,colShape);
 	if (body)
 	{
+		btTypedUserInfo* tui = new btRigidBodyColladaInfo (input.m_nodeRef, input.m_rigidBodyRef2, input.m_instanceRigidBodyRef);
+		body->setTypedUserInfo (tui);
+		/* if the body is dynamic restore it's velocity */
 		if (body->getInvMass() != 0.0)
 		{
 			body->setLinearVelocity (linearVelocity);
 			body->setAngularVelocity (angularVelocity);
 		}
-		body->setName (strdup(bodyName));
-		printf("node = %s\n", body->getName());
-		printf("shape = %s\n", colShape->getShapeName());
+		//body->setName (strdup(bodyName));
+		//printf("node = %s\n", body->getName());
+		//printf("shape = %s\n", colShape->getShapeName());
 	}
 
 }
 
+domLibrary_geometries*
+ColladaConverter::getDefaultGeomLib ()
+{
+	domLibrary_geometries* geometriesLib = NULL;
+
+	if (m_dom->getLibrary_geometries_array().getCount())
+	{
+		return m_dom->getLibrary_geometries_array()[0];
+	} else {
+		geometriesLib = daeSafeCast<domLibrary_geometries>(m_dom->createAndPlace (COLLADA_ELEMENT_LIBRARY_GEOMETRIES));
+		return geometriesLib;
+	}
+}
+
+domLibrary_physics_materials*
+ColladaConverter::getDefaultMaterialsLib ()
+{
+	domLibrary_physics_materials* materialsLib = NULL;
+
+	if (m_dom->getLibrary_physics_materials_array().getCount())
+	{
+		domLibrary_physics_materials_Array& physicsMaterialsArray = m_dom->getLibrary_physics_materials_array();
+		for (int i = 0; i < physicsMaterialsArray.getCount(); i++)
+		{
+			materialsLib = physicsMaterialsArray[i];
+			if (!materialsLib->getName())
+			{
+				continue;
+			}
+			if (!strcmp("Bullet-PhysicsMaterials", materialsLib->getName()))
+			{
+				return materialsLib;
+			}
+		}
+	}
+	printf("No library physics materials. Creating one\n");
+	materialsLib = daeSafeCast<domLibrary_physics_materials> (m_dom->createAndPlace (COLLADA_ELEMENT_LIBRARY_PHYSICS_MATERIALS));
+	materialsLib->setName("Bullet-PhysicsMaterials");
+	return materialsLib;
+}
+
+domPhysics_model*
+ColladaConverter::getDefaultPhysicsModel ()
+{
+	domLibrary_physics_models* modelsLib = NULL;
+
+	if (m_dom->getLibrary_physics_models_array().getCount())
+	{
+		domLibrary_physics_models_Array& physicsModelsArray = m_dom->getLibrary_physics_models_array();
+		for (int i = 0; i < physicsModelsArray.getCount(); i++)
+		{
+			modelsLib = physicsModelsArray[i];
+			domPhysics_model_Array& modelArray = modelsLib->getPhysics_model_array();
+			for (int j = 0; j < modelArray.getCount(); j++)
+			{
+				domPhysics_model* model = modelArray[j];
+				if (!strcmp("Bullet-PhysicsModel", model->getId()))
+				{
+					printf("Found Bullet-PhysicsModel\n");
+					return model;
+				}
+			}
+		}
+	} else {
+		printf("No library physics model. Creating one\n");
+		modelsLib = daeSafeCast<domLibrary_physics_models> (m_dom->createAndPlace (COLLADA_ELEMENT_LIBRARY_PHYSICS_MODELS ));
+	}
+
+	/* Always create in first physics models library */
+	modelsLib = m_dom->getLibrary_physics_models_array()[0];
+
+	printf("Could not find physics model. Creating one\n");
+
+	domPhysics_model* physicsModel = daeSafeCast<domPhysics_model>(modelsLib->createAndPlace (COLLADA_ELEMENT_PHYSICS_MODEL));
+
+	physicsModel->setName("Bullet-PhysicsModel");
+	physicsModel->setId("Bullet-PhysicsModel");
+
+	return physicsModel;
+}
+
+
+domInstance_physics_model*
+ColladaConverter::getDefaultInstancePhysicsModel ()
+{
+	domPhysics_scene* physicsScene = getDefaultPhysicsScene ();
+	domInstance_physics_model_Array& physicsModelInstances = physicsScene->getInstance_physics_model_array ();
+	for (int i = 0; i < physicsModelInstances.getCount (); i++)
+	{
+		domInstance_physics_model* physicsModelInstance = physicsModelInstances[i];
+		if (!strcmp(physicsModelInstance->getUrl().getURI(), "#Bullet-PhysicsModel"))
+		{
+			printf("Found Bullet-PhysicsModel instance\n");
+			return physicsModelInstance;
+		}
+	}
+	printf("Creating Bullet-PhysicsModel instance\n");
+	domInstance_physics_model* physicsModelInstance = daeSafeCast<domInstance_physics_model>(physicsScene->createAndPlace (COLLADA_ELEMENT_INSTANCE_PHYSICS_MODEL));
+	physicsModelInstance->setUrl ("#Bullet-PhysicsModel");
+	return physicsModelInstance;
+}
+
+domPhysics_scene*
+ColladaConverter::getDefaultPhysicsScene ()
+{
+        domLibrary_physics_scenes* physicsScenesLib = NULL;
+
+        if (m_dom->getLibrary_physics_scenes_array().getCount ())
+        {
+                /* Always return the first physics scene */
+                physicsScenesLib = m_dom->getLibrary_physics_scenes_array()[0];
+                if (physicsScenesLib->getPhysics_scene_array().getCount())
+                {
+                        return physicsScenesLib->getPhysics_scene_array()[0];
+                }
+        } else {
+                physicsScenesLib = (domLibrary_physics_scenes*)m_dom->createAndPlace (COLLADA_ELEMENT_LIBRARY_PHYSICS_SCENES);
+                domPhysics_scene*  physicsScene = daeSafeCast<domPhysics_scene>(physicsScenesLib->createAndPlace (COLLADA_ELEMENT_PHYSICS_SCENE));
+                return physicsScene;
+        }
+
+}
+
+
+domVisual_scene*
+ColladaConverter::getDefaultVisualScene ()
+{
+	domLibrary_visual_scenes* visualScenesLib = NULL;
+
+	if (m_dom->getLibrary_visual_scenes_array().getCount ())
+	{
+		/* Always return the first visual scene */
+		visualScenesLib = m_dom->getLibrary_visual_scenes_array()[0];
+		if (visualScenesLib->getVisual_scene_array().getCount())
+		{
+			return visualScenesLib->getVisual_scene_array()[0];
+		}
+	} else {
+		visualScenesLib = (domLibrary_visual_scenes*)m_dom->createAndPlace (COLLADA_ELEMENT_LIBRARY_VISUAL_SCENES);
+		domVisual_scene* visualScene = daeSafeCast<domVisual_scene>(visualScenesLib->createAndPlace (COLLADA_ELEMENT_VISUAL_SCENE));
+		return visualScene;
+	}
+
+}
+
+
 void
-ColladaConverter::addConvexHull (btCollisionShape* shape, const char* nodeName, domLibrary_geometries* geomLib)
+ColladaConverter::addConvexHull (btCollisionShape* shape, const char* nodeName)
 {
 	btConvexHullShape* hullShape = (btConvexHullShape*)shape;
 	btShapeHull* triHull = new btShapeHull (hullShape);
@@ -819,7 +1210,15 @@ ColladaConverter::addConvexHull (btCollisionShape* shape, const char* nodeName, 
 		return;
 	}
 
-	domGeometry *geo = daeSafeCast<domGeometry>( geomLib->createAndPlace( COLLADA_ELEMENT_GEOMETRY ) );
+	domLibrary_geometries* geomLib = getDefaultGeomLib ();
+
+	domGeometry* geo = findGeometry (nodeName);
+
+	/* Already in the dom */
+	if (geo)
+		return;
+
+	geo = daeSafeCast<domGeometry>( geomLib->createAndPlace( COLLADA_ELEMENT_GEOMETRY ) );
 	if ( geo == NULL )
 	{
 		printf("Failed to create the geometry element\n");
@@ -920,19 +1319,25 @@ ColladaConverter::addConvexHull (btCollisionShape* shape, const char* nodeName, 
 }
 
 void
-ColladaConverter::addConvexMesh (btCollisionShape* shape, const char* nodeName, domLibrary_geometries* geomLib)
+ColladaConverter::addConvexMesh (btCollisionShape* shape, const char* nodeName)
 {
 	printf("convex Triangle Mesh Shape\n");
 	printf("ERROR: Unsupported.\n");
 }
 
 void
-ColladaConverter::addConcaveMesh(btCollisionShape* shape, const char* nodeName, domLibrary_geometries* geomLib)
+ColladaConverter::addConcaveMesh(btCollisionShape* shape, const char* nodeName)
 {
 	btTriangleMeshShape* meshShape = (btTriangleMeshShape*)shape;
 	btStridingMeshInterface* meshInterface = meshShape->getMeshInterface ();
 
-	domGeometry *geo = daeSafeCast<domGeometry>( geomLib->createAndPlace( COLLADA_ELEMENT_GEOMETRY ) );
+	domLibrary_geometries* geomLib = getDefaultGeomLib ();
+	domGeometry* geo = findGeometry (nodeName);
+
+	if (geo)
+		return;
+
+	geo = daeSafeCast<domGeometry>( geomLib->createAndPlace( COLLADA_ELEMENT_GEOMETRY ) );
 	if ( geo == NULL )
 	{
 		printf("Failed to create the geometry element\n");
@@ -1044,7 +1449,7 @@ ColladaConverter::addConcaveMesh(btCollisionShape* shape, const char* nodeName, 
 	}
 }
 
-void ColladaConverter::buildShape (btCollisionShape* shape, void* collada_shape, const char* shapeName, domLibrary_geometries* geomLib)
+void ColladaConverter::buildShape (btCollisionShape* shape, void* collada_shape, const char* shapeName)
 {
 	domRigid_body::domTechnique_common::domShape* colladaShape = (domRigid_body::domTechnique_common::domShape*)collada_shape;
 	switch (shape->getShapeType())
@@ -1123,13 +1528,13 @@ void ColladaConverter::buildShape (btCollisionShape* shape, void* collada_shape,
 				}
 			}
 			btCollisionShape* child_shape = cs->getChildShape (i);
-			buildShape (child_shape, colladaShape, shapeName, geomLib);
+			buildShape (child_shape, colladaShape, shapeName);
 		}
 	}
 	break;
 	case CONVEX_TRIANGLEMESH_SHAPE_PROXYTYPE:
 	{
-		addConvexMesh (shape, shapeName, geomLib);
+		addConvexMesh (shape, shapeName);
 		char shapeURL[512];
 		snprintf(&shapeURL[0], 512, "#%s", shapeName);
 		domInstance_geometry* gi = (domInstance_geometry*)colladaShape->createAndPlace (COLLADA_ELEMENT_INSTANCE_GEOMETRY);
@@ -1138,7 +1543,7 @@ void ColladaConverter::buildShape (btCollisionShape* shape, void* collada_shape,
 	break;
 	case CONVEX_HULL_SHAPE_PROXYTYPE:
 	{
-		addConvexHull (shape, shapeName, geomLib);
+		addConvexHull (shape, shapeName);
 		char shapeURL[512];
 		snprintf(&shapeURL[0], 512, "#%s", shapeName);
 		domInstance_geometry* gi = (domInstance_geometry*)colladaShape->createAndPlace (COLLADA_ELEMENT_INSTANCE_GEOMETRY);
@@ -1147,7 +1552,7 @@ void ColladaConverter::buildShape (btCollisionShape* shape, void* collada_shape,
 	break;
 	case TRIANGLE_MESH_SHAPE_PROXYTYPE:
 	{
-		addConcaveMesh (shape, shapeName, geomLib);
+		addConcaveMesh (shape, shapeName);
 		char shapeURL[512];
 		snprintf(&shapeURL[0], 512, "#%s", shapeName);
 		domInstance_geometry* gi = (domInstance_geometry*)colladaShape->createAndPlace (COLLADA_ELEMENT_INSTANCE_GEOMETRY);
@@ -1161,16 +1566,13 @@ void ColladaConverter::buildShape (btCollisionShape* shape, void* collada_shape,
 }
 
 void
-ColladaConverter::addRigidBody (btRigidBody* rb, const char* nodeName, const char* shapeName, domPhysics_model* physicsModel, domLibrary_geometries* geomLib)
+ColladaConverter::addRigidBody (btRigidBody* rb, const char* nodeName, const char* shapeName)
 {
 	btCollisionShape* shape = rb->getCollisionShape ();
-	char modelName[512];
 	char bodyName[512];
 	char material_name[512];
 	snprintf(&bodyName[0], 512, "%s-RigidBody", nodeName);
-	snprintf(&modelName[0], 512, "%s-PhysicsModel", nodeName);
-	physicsModel->setId (modelName);
-	physicsModel->setName (modelName);
+	domPhysics_model* physicsModel = getDefaultPhysicsModel ();
 	domRigid_body* colladaRigidBody = daeSafeCast<domRigid_body>(physicsModel->createAndPlace (COLLADA_ELEMENT_RIGID_BODY));
 	colladaRigidBody->setSid (bodyName);
 	colladaRigidBody->setName (bodyName);
@@ -1206,11 +1608,13 @@ ColladaConverter::addRigidBody (btRigidBody* rb, const char* nodeName, const cha
 	// collision shape
 
 	domRigid_body::domTechnique_common::domShape* colladaShape = (domRigid_body::domTechnique_common::domShape*)common->createAndPlace (COLLADA_ELEMENT_SHAPE);	
-	buildShape (shape, colladaShape, shapeName, geomLib);
+	buildShape (shape, colladaShape, shapeName);
 }
 
-void ColladaConverter::addNode (btRigidBody* rb, const char* nodeName, const char* shapeName, domVisual_scene* vscene)
+void ColladaConverter::addNode (btRigidBody* rb, const char* nodeName, const char* shapeName)
 {
+	domVisual_scene* vscene = getDefaultVisualScene ();
+
 	domNode* node = (domNode*)vscene->createAndPlace (COLLADA_ELEMENT_NODE);
 	node->setId (nodeName);
 	node->setName (nodeName);
@@ -1241,23 +1645,29 @@ void ColladaConverter::addNode (btRigidBody* rb, const char* nodeName, const cha
 
 }
 
-void ColladaConverter::addConstraint (btTypedConstraint* constraint, class domPhysics_model* physicsModel)
+void ColladaConverter::addConstraint (btTypedConstraint* constraint, const char* constraintName)
 {
+	if (!constraint->getConstraintType() != D6_CONSTRAINT_TYPE)
+		return;
+
 	btGeneric6DofConstraint* g6c = (btGeneric6DofConstraint*)constraint;
 	const btRigidBody& rb1 = g6c->getRigidBodyA ();
 	const btRigidBody& rb2 = g6c->getRigidBodyB ();
-	bool single = rb2.getName() == NULL;
+	bool single = rb2.getTypedUserInfo() == NULL || rb2.getTypedUserInfo()->getPrivatePointer () == NULL;
 
+	domPhysics_model* physicsModel = getDefaultPhysicsModel ();
 	domRigid_constraint* domRigidConstraint = (domRigid_constraint*)physicsModel->createAndPlace (COLLADA_ELEMENT_RIGID_CONSTRAINT);
-	domRigidConstraint->setName (daeStringRef(constraint->getName()));
-	domRigidConstraint->setSid (daeStringRef(constraint->getName()));
+	domRigidConstraint->setName (constraintName);
+	domRigidConstraint->setSid (constraintName);
 	if (single)
 	{
-		char name[512];
-		const char* rb1Name = rb1.getName ();
-		snprintf(&name[0], 512, "%s-RigidBody", rb1Name);
+		btTypedUserInfo* tui = rb1.getTypedUserInfo();
+		btAssert (tui->getType () == BT_RIGIDBODY_COLLADA_INFO_TYPE);
+		btRigidBodyColladaInfo* rbci = (btRigidBodyColladaInfo*)tui;
+		domRigid_body* domRigidBody = rbci->m_rigidBody;
+		const char* name = domRigidBody->getName();
 		btTransform rb1Frame = g6c->getFrameOffsetA ();
-		printf("Joint with single body\n");
+		printf("Joint with single body: %s\n", name);
 		domRigid_constraint::domAttachment* attachment = (domRigid_constraint::domAttachment*)domRigidConstraint->createAndPlace (COLLADA_ELEMENT_ATTACHMENT);
 		attachment->setRigid_body (name);
 		{
@@ -1287,18 +1697,28 @@ void ColladaConverter::addConstraint (btTypedConstraint* constraint, class domPh
 
 		}
 	} else {
-		const char* rb1Name = rb1.getName ();
-		const char* rb2Name = rb2.getName ();
+		btTypedUserInfo* tui1 = rb1.getTypedUserInfo();
+		btTypedUserInfo* tui2 = rb2.getTypedUserInfo();
+		btAssert (tui1->getType () == BT_RIGIDBODY_COLLADA_INFO_TYPE);
+		btAssert (tui2->getType () == BT_RIGIDBODY_COLLADA_INFO_TYPE);
+
+		btRigidBodyColladaInfo* rbci1 = (btRigidBodyColladaInfo*)tui1;
+		domRigid_body* domRigidBody1 = rbci1->m_rigidBody;
+
+		btRigidBodyColladaInfo* rbci2 = (btRigidBodyColladaInfo*)tui2;
+		domRigid_body* domRigidBody2 = rbci2->m_rigidBody;
+
+		const char* name1 = domRigidBody1->getName();
+		const char* name2 = domRigidBody2->getName();
+
+		printf("Joint attached to two bodies %s and %s\n", name1, name2);
+
 		btTransform rb1Frame = g6c->getFrameOffsetA ();
 		btTransform rb2Frame = g6c->getFrameOffsetB ();
-		char name[512];
-		snprintf(&name[0],512, "%s-RigidBody", rb1Name);
-		printf("Joint attached to two bodies\n");
 		domRigid_constraint::domRef_attachment* refAttachment = (domRigid_constraint::domRef_attachment*)domRigidConstraint->createAndPlace (COLLADA_ELEMENT_REF_ATTACHMENT);
 		domRigid_constraint::domAttachment* attachment = (domRigid_constraint::domAttachment*)domRigidConstraint->createAndPlace (COLLADA_ELEMENT_ATTACHMENT);
-		refAttachment->setRigid_body (name);
-		snprintf(&name[0],512, "%s-RigidBody", rb2Name);
-		attachment->setRigid_body (name);
+		refAttachment->setRigid_body (name1);
+		attachment->setRigid_body (name2);
 		{
 			domTranslate* translation = (domTranslate*)refAttachment->createAndPlace (COLLADA_ELEMENT_TRANSLATE);
 			{
@@ -1386,25 +1806,25 @@ void ColladaConverter::addConstraint (btTypedConstraint* constraint, class domPh
 	}
 }
 
-void ColladaConverter::addConstraintInstance (btTypedConstraint* constraint, domInstance_physics_model* mi)
+void ColladaConverter::addConstraintInstance (btTypedConstraint* constraint, const char* constraintName)
 {
+	domInstance_physics_model* mi = getDefaultInstancePhysicsModel ();
 	domInstance_rigid_constraint* rci = (domInstance_rigid_constraint*)mi->createAndPlace (COLLADA_ELEMENT_INSTANCE_RIGID_CONSTRAINT);
-	rci->setConstraint (daeStringRef(constraint->getName()));
+	rci->setConstraint (constraintName);
 }
 
 
-void ColladaConverter::addRigidBodyInstance (btRigidBody* rb, const char* nodeName, domInstance_physics_model* mi)
+void ColladaConverter::addRigidBodyInstance (btRigidBody* rb, const char* nodeName)
 {
 	char targetName[512];
 	char bodyName[512];
-	char modelName[512];
-	snprintf(&modelName[0], 512, "#%s-PhysicsModel", nodeName);
 	snprintf(&targetName[0], 512, "#%s", nodeName);
 	snprintf(&bodyName[0], 512, "%s-RigidBody", nodeName);
 
+	domInstance_physics_model* mi = getDefaultInstancePhysicsModel ();
 	domInstance_rigid_body* rbi = (domInstance_rigid_body*)mi->createAndPlace (COLLADA_ELEMENT_INSTANCE_RIGID_BODY);
 	domInstance_rigid_body::domTechnique_common* common = (domInstance_rigid_body::domTechnique_common*)rbi->createAndPlace (COLLADA_ELEMENT_TECHNIQUE_COMMON);
-	mi->setUrl (modelName);
+
 	rbi->setBody (bodyName);
 	rbi->setTarget (targetName);
 
@@ -1420,10 +1840,16 @@ void ColladaConverter::addRigidBodyInstance (btRigidBody* rb, const char* nodeNa
 	}
 }
 
-void ColladaConverter::addMaterial (btRigidBody* rb, const char* nodeName, domLibrary_physics_materials* materialsLib)
+void ColladaConverter::addMaterial (btRigidBody* rb, const char* nodeName)
 {
 	btScalar friction = rb->getFriction ();
 	btScalar restitution = rb->getRestitution ();
+	domLibrary_physics_materials* materialsLib = getDefaultMaterialsLib ();
+	if (!materialsLib)
+	{
+		printf("Something has gone terribly wrong.\n");
+		return;
+	}
 	domPhysics_material* material = (domPhysics_material*)materialsLib->createAndPlace (COLLADA_ELEMENT_PHYSICS_MATERIAL);
 	char material_name[512];
 	snprintf(&material_name[0], 512, "%s-PhysicsMaterial", nodeName);
@@ -1439,77 +1865,287 @@ void ColladaConverter::addMaterial (btRigidBody* rb, const char* nodeName, domLi
 
 }
 
-bool ColladaConverter::save(const char* filename)
+void
+ColladaConverter::updateRigidBodyPosition (btRigidBody* body, domNode* node)
 {
-	m_collada = new DAE;
-	daeInt error;
-	const char* documentName = "bullet snapshot";
-
-	//set the default IOPlugin and Database
-	m_collada->setIOPlugin( NULL );
-	m_collada->setDatabase( NULL );
-
-	//create a new document. Calling daeDatabase::insertDocument will create the 
-	//daeDocument for you. This function will also create a domCOLLADA root 
-	//element for you.
-	daeDocument *doc = NULL;
-	error = m_collada->getDatabase()->insertDocument(documentName, &doc );
-	if ( error != DAE_OK || doc == NULL )
+	// remove all translations
+	while (node->getTranslate_array().getCount())
 	{
-		printf("Failed to create new document\n");
-		return false;
+		node->removeFromParent(node->getTranslate_array().get(0));
 	}
 
-	domCOLLADA *domRoot = daeSafeCast<domCOLLADA>( doc->getDomRoot() );
-
-	//create the required asset tag
-	domAsset *asset = daeSafeCast<domAsset>( domRoot->createAndPlace( COLLADA_ELEMENT_ASSET ) );
-	domAsset::domCreated *created = daeSafeCast<domAsset::domCreated>( asset->createAndPlace( COLLADA_ELEMENT_CREATED ) );
-	created->setValue("2006-10-23T13:30:00Z");
-
-	domAsset::domModified *modified = daeSafeCast<domAsset::domModified>( asset->createAndPlace( COLLADA_ELEMENT_MODIFIED ) );
-	modified->setValue("2006-10-23T13:30:00Z");
-
-	//create the library_* elements to store the COLLADA elements we will use
-	domLibrary_geometries	 *geomLib    = daeSafeCast<domLibrary_geometries>( domRoot->createAndPlace( COLLADA_ELEMENT_LIBRARY_GEOMETRIES ) );
-	domLibrary_visual_scenes* vscenesLib = daeSafeCast<domLibrary_visual_scenes> (domRoot->createAndPlace (COLLADA_ELEMENT_LIBRARY_VISUAL_SCENES));
-	domLibrary_physics_materials* materialsLib = daeSafeCast<domLibrary_physics_materials> (domRoot->createAndPlace (COLLADA_ELEMENT_LIBRARY_PHYSICS_MATERIALS ));
-	domLibrary_physics_models* modelsLib = daeSafeCast<domLibrary_physics_models> (domRoot->createAndPlace (COLLADA_ELEMENT_LIBRARY_PHYSICS_MODELS ));
-	domLibrary_physics_scenes* scenesLib = daeSafeCast<domLibrary_physics_scenes> (domRoot->createAndPlace (COLLADA_ELEMENT_LIBRARY_PHYSICS_SCENES ));
-
-
-	domPhysics_model* physicsModel = daeSafeCast<domPhysics_model>(modelsLib->createAndPlace (COLLADA_ELEMENT_PHYSICS_MODEL));
-	domPhysics_scene* scene = (domPhysics_scene*)scenesLib->createAndPlace (COLLADA_ELEMENT_PHYSICS_SCENE);
-	scene->setId("Scene-Physics");
-	scene->setName("Scene-Physics");
-	domVisual_scene* vscene = (domVisual_scene*)vscenesLib->createAndPlace (COLLADA_ELEMENT_VISUAL_SCENE);
-	vscene->setId("Scene-Visuals");
-	vscene->setName("Scene-Visuals");
-
-	domInstance_physics_model* mi = (domInstance_physics_model*)scene->createAndPlace (COLLADA_ELEMENT_INSTANCE_PHYSICS_MODEL);
-
+	// remove all rotation matrices
+	while (node->getMatrix_array().getCount())
 	{
-		domPhysics_scene::domTechnique_common* common = (domPhysics_scene::domTechnique_common*)scene->createAndPlace (COLLADA_ELEMENT_TECHNIQUE_COMMON);
-		domTargetableFloat3* g = (domTargetableFloat3*)common->createAndPlace (COLLADA_ELEMENT_GRAVITY);
-		btVector3 btG = getGravity ();
-		g->getValue().set3 (btG[0], btG[1], btG[2]);
+		node->removeFromParent(node->getMatrix_array().get(0));
 	}
 
-	int random_node_name_key = 0;
-	/* Dump the scene */
-	for (int i = 0; i < getNumRigidBodies (); i++)
+	// remove all quaternions
+	while (node->getRotate_array().getCount())
 	{
+		node->removeFromParent(node->getRotate_array().get(0));
+	}
+
+	// update translation
+	{
+		domTranslateRef transl = daeSafeCast<domTranslate>(node->createAndPlace("translate"));
+		btVector3 np = body->getWorldTransform().getOrigin();
+		domFloat3 newPos = node->getTranslate_array().get(0)->getValue();
+		newPos.set(0,np[0]);
+		newPos.set(1,np[1]);
+		newPos.set(2,np[2]);
+		transl->setValue(newPos);
+	}
+
+	// update rotation
+	{
+		domRotateRef rot = daeSafeCast<domRotate>(node->createAndPlace("rotate"));
+		btQuaternion quat = body->getCenterOfMassTransform().getRotation();
+		btVector3 axis(quat.getX(),quat.getY(),quat.getZ());
+		axis[3] = 0.f;
+		//check for axis length
+		btScalar len = axis.length2();
+		if (len < SIMD_EPSILON*SIMD_EPSILON)
+			axis = btVector3(1.f,0.f,0.f);
+		else
+			axis /= btSqrt(len);
+		rot->getValue().set(0,axis[0]);
+		rot->getValue().set(1,axis[1]);
+		rot->getValue().set(2,axis[2]);
+		rot->getValue().set(3,quat.getAngle()*SIMD_DEGS_PER_RAD);
+	}
+}
+
+void
+ColladaConverter::updateRigidBodyVelocity (btRigidBody* body)
+{
+	domInstance_rigid_bodyRef rigidBodyInstance = findRigid_body_instance (body);
+	if (!rigidBodyInstance)
+		return;
+
+	printf("Updating rigid body velocities %ps\n", body);
+	domInstance_rigid_body::domTechnique_common* common = NULL;
+	domInstance_rigid_body::domTechnique_common::domAngular_velocity* av = NULL;
+	domInstance_rigid_body::domTechnique_common::domVelocity* lv = NULL;
+	
+	if (rigidBodyInstance->getTechnique_common())
+	{
+		common = rigidBodyInstance->getTechnique_common ();
+		av = common->getAngular_velocity ();
+		lv = common->getVelocity ();
+		if (av)
+			common->removeFromParent (av);
+		if (lv)
+			common->removeFromParent (lv);
+
+		av = NULL;
+		lv = NULL;
+	} else {
+		common = daeSafeCast<domInstance_rigid_body::domTechnique_common>(rigidBodyInstance->createAndPlace (COLLADA_ELEMENT_TECHNIQUE_COMMON));
+	}
+	av = daeSafeCast<domInstance_rigid_body::domTechnique_common::domAngular_velocity>(common->createAndPlace (COLLADA_ELEMENT_ANGULAR_VELOCITY));
+	lv = daeSafeCast<domInstance_rigid_body::domTechnique_common::domVelocity>(common->createAndPlace (COLLADA_ELEMENT_VELOCITY));
+
+	{
+		btVector3 btAv = body->getAngularVelocity ();
+		av->getValue().set3 (btAv[0], btAv[1], btAv[2]);
+	}
+	{
+		btVector3 btLv = body->getLinearVelocity ();
+		lv->getValue().set3 (btLv[0], btLv[1], btLv[2]);
+	}
+}
+
+void
+ColladaConverter::updateConstraint (btTypedConstraint* constraint, domRigid_constraint* rigidConstraint)
+{
+	if (!constraint->getConstraintType() != D6_CONSTRAINT_TYPE)
+		return;
+
+	btGeneric6DofConstraint* g6c = (btGeneric6DofConstraint*)constraint;
+	const btRigidBody& rb1 = g6c->getRigidBodyA ();
+	const btRigidBody& rb2 = g6c->getRigidBodyB ();
+	bool single = rb2.getTypedUserInfo() == NULL || rb2.getTypedUserInfo()->getPrivatePointer () == NULL;
+
+	if (single)
+	{
+		printf("Joint with single body\n");
+		btTypedUserInfo* tui = rb1.getTypedUserInfo();
+		btAssert (tui->getType () == BT_RIGIDBODY_COLLADA_INFO_TYPE);
+		btRigidBodyColladaInfo* rbci = (btRigidBodyColladaInfo*)tui;
+		domRigid_body* domRigidBody = rbci->m_rigidBody;
+		const char* name = domRigidBody->getSid();
+		btTransform rb1Frame = g6c->getFrameOffsetA ();
+		domRigid_constraint::domAttachmentRef attachment = daeSafeCast<domRigid_constraint::domAttachment>(rigidConstraint->createAndPlace (COLLADA_ELEMENT_ATTACHMENT));
+		attachment->setRigid_body (name);
+		{
+			domTranslateRef translation = daeSafeCast<domTranslate>(attachment->createAndPlace (COLLADA_ELEMENT_TRANSLATE));
+			{
+				btVector3 np = rb1Frame.getOrigin();
+				translation->getValue().append(np[0]);
+				translation->getValue().append(np[1]);
+				translation->getValue().append(np[2]);
+			}
+			domRotateRef rotation = daeSafeCast<domRotate>(attachment->createAndPlace (COLLADA_ELEMENT_ROTATE));
+			{
+				btQuaternion quat = rb1Frame.getRotation();
+				btVector3 axis(quat.getX(),quat.getY(),quat.getZ());
+				axis[3] = 0.f;
+				//check for axis length
+				btScalar len = axis.length2();
+				if (len < SIMD_EPSILON*SIMD_EPSILON)
+					axis = btVector3(1.f,0.f,0.f);
+				else
+					axis /= btSqrt(len);
+				rotation->getValue().set(0,axis[0]);
+				rotation->getValue().set(1,axis[1]);
+				rotation->getValue().set(2,axis[2]);
+				rotation->getValue().set(3,quat.getAngle()*SIMD_DEGS_PER_RAD);
+			}
+
+		}
+	} else {
+		printf("Joint attached to two bodies\n");
+
+		btTypedUserInfo* tui1 = rb1.getTypedUserInfo();
+		btTypedUserInfo* tui2 = rb2.getTypedUserInfo();
+		btAssert (tui1->getType () == BT_RIGIDBODY_COLLADA_INFO_TYPE);
+		btAssert (tui2->getType () == BT_RIGIDBODY_COLLADA_INFO_TYPE);
+
+		btRigidBodyColladaInfo* rbci1 = (btRigidBodyColladaInfo*)tui1;
+		domRigid_body* domRigidBody1 = rbci1->m_rigidBody;
+
+		btRigidBodyColladaInfo* rbci2 = (btRigidBodyColladaInfo*)tui2;
+		domRigid_body* domRigidBody2 = rbci2->m_rigidBody;
+
+		const char* name1 = domRigidBody1->getSid();
+		const char* name2 = domRigidBody2->getSid();
+
+		btTransform rb1Frame = g6c->getFrameOffsetA ();
+		btTransform rb2Frame = g6c->getFrameOffsetB ();
+		domRigid_constraint::domRef_attachmentRef refAttachment = daeSafeCast<domRigid_constraint::domRef_attachment>(rigidConstraint->createAndPlace (COLLADA_ELEMENT_REF_ATTACHMENT));
+		domRigid_constraint::domAttachmentRef attachment = daeSafeCast<domRigid_constraint::domAttachment>(rigidConstraint->createAndPlace (COLLADA_ELEMENT_ATTACHMENT));
+		refAttachment->setRigid_body (name1);
+		attachment->setRigid_body (name2);
+		{
+			domTranslate* translation = (domTranslate*)refAttachment->createAndPlace (COLLADA_ELEMENT_TRANSLATE);
+			{
+				btVector3 np = rb1Frame.getOrigin();
+				translation->getValue().append(np[0]);
+				translation->getValue().append(np[1]);
+				translation->getValue().append(np[2]);
+			}
+			domRotate* rotation = (domRotate*)refAttachment->createAndPlace (COLLADA_ELEMENT_ROTATE);
+			{
+				btQuaternion quat = rb1Frame.getRotation();
+				btVector3 axis(quat.getX(),quat.getY(),quat.getZ());
+				axis[3] = 0.f;
+				//check for axis length
+				btScalar len = axis.length2();
+				if (len < SIMD_EPSILON*SIMD_EPSILON)
+					axis = btVector3(1.f,0.f,0.f);
+				else
+					axis /= btSqrt(len);
+				rotation->getValue().set(0,axis[0]);
+				rotation->getValue().set(1,axis[1]);
+				rotation->getValue().set(2,axis[2]);
+				rotation->getValue().set(3,quat.getAngle()*SIMD_DEGS_PER_RAD);
+			}
+
+		}
+		{
+			domTranslate* translation = (domTranslate*)attachment->createAndPlace (COLLADA_ELEMENT_TRANSLATE);
+			{
+				btVector3 np = rb2Frame.getOrigin();
+				translation->getValue().append(np[0]);
+				translation->getValue().append(np[1]);
+				translation->getValue().append(np[2]);
+			}
+			domRotate* rotation = (domRotate*)attachment->createAndPlace (COLLADA_ELEMENT_ROTATE);
+			{
+				btQuaternion quat = rb2Frame.getRotation();
+				btVector3 axis(quat.getX(),quat.getY(),quat.getZ());
+				axis[3] = 0.f;
+				//check for axis length
+				btScalar len = axis.length2();
+				if (len < SIMD_EPSILON*SIMD_EPSILON)
+					axis = btVector3(1.f,0.f,0.f);
+				else
+					axis /= btSqrt(len);
+				rotation->getValue().set(0,axis[0]);
+				rotation->getValue().set(1,axis[1]);
+				rotation->getValue().set(2,axis[2]);
+				rotation->getValue().set(3,quat.getAngle()*SIMD_DEGS_PER_RAD);
+			}
+		}
+	}
+	domRigid_constraint::domTechnique_commonRef techniqueCommon = daeSafeCast<domRigid_constraint::domTechnique_common>(rigidConstraint->createAndPlace (COLLADA_ELEMENT_TECHNIQUE_COMMON));
+	domRigid_constraint::domTechnique_common::domEnabledRef enabled = daeSafeCast<domRigid_constraint::domTechnique_common::domEnabled>(techniqueCommon->createAndPlace (COLLADA_ELEMENT_ENABLED));
+	enabled->setValue (true);
+	domRigid_constraint::domTechnique_common::domInterpenetrateRef interpenetrate = daeSafeCast<domRigid_constraint::domTechnique_common::domInterpenetrate>(techniqueCommon->createAndPlace (COLLADA_ELEMENT_INTERPENETRATE));
+	interpenetrate->setValue (false);
+	domRigid_constraint::domTechnique_common::domLimitsRef limits = daeSafeCast<domRigid_constraint::domTechnique_common::domLimits>(techniqueCommon->createAndPlace (COLLADA_ELEMENT_LIMITS));
+	domRigid_constraint::domTechnique_common::domLimits::domSwing_cone_and_twistRef swingConeAndTwist = daeSafeCast<domRigid_constraint::domTechnique_common::domLimits::domSwing_cone_and_twist>(limits->createAndPlace (COLLADA_ELEMENT_SWING_CONE_AND_TWIST));
+	domRigid_constraint::domTechnique_common::domLimits::domLinearRef linear = daeSafeCast<domRigid_constraint::domTechnique_common::domLimits::domLinear>(limits->createAndPlace (COLLADA_ELEMENT_LINEAR));
+
+	{
+		domTargetableFloat3* min = (domTargetableFloat3*)swingConeAndTwist->createAndPlace (COLLADA_ELEMENT_MIN);
+		domTargetableFloat3* max = (domTargetableFloat3*)swingConeAndTwist->createAndPlace (COLLADA_ELEMENT_MAX);
+		btRotationalLimitMotor* limit = g6c->getRotationalLimitMotor (0);
+		min->getValue().set(0, limit->m_loLimit);
+		max->getValue().set(0, limit->m_hiLimit);
+		limit = g6c->getRotationalLimitMotor (1);
+		min->getValue().set(1, limit->m_loLimit);
+		max->getValue().set(1, limit->m_hiLimit);
+		limit = g6c->getRotationalLimitMotor (2);
+		min->getValue().set(2, limit->m_loLimit);
+		max->getValue().set(2, limit->m_hiLimit);
+	}
+	{
+		domTargetableFloat3* min = (domTargetableFloat3*)linear->createAndPlace (COLLADA_ELEMENT_MIN);
+		domTargetableFloat3* max = (domTargetableFloat3*)linear->createAndPlace (COLLADA_ELEMENT_MAX);
+		btTranslationalLimitMotor* limit = g6c->getTranslationalLimitMotor ();
+		min->getValue().set (0, limit->m_lowerLimit[0]);
+		min->getValue().set (1, limit->m_lowerLimit[1]);
+		min->getValue().set (2, limit->m_lowerLimit[2]);
+		max->getValue().set (0, limit->m_upperLimit[0]);
+		max->getValue().set (1, limit->m_upperLimit[1]);
+		max->getValue().set (2, limit->m_upperLimit[2]);
+	}
+}
+
+void
+ColladaConverter::syncOrAddGeometry (btCollisionShape* shape, const char* nodeName)
+{
+}
+
+void
+ColladaConverter::syncOrAddRigidBody (btRigidBody* body)
+{
+	domNodeRef node = findNode (body);
+	domLibrary_geometriesRef geomLib = getDefaultGeomLib ();
+	
+	static int random_node_name_key = 0;
+	if (node != NULL)
+	{
+		updateRigidBodyPosition (body, node);
+		updateRigidBodyVelocity (body);
+		printf("Updating %s in the COLLADA DOM.\n", node->getId() ? node->getId() : "");
+	} else {
+		/* This is a new body. */
 		const char* shapeName = NULL;
 		const char* nodeName = NULL;
 		char nodeNameGen[512];
 		char shapeNameGen[512];
 
+		printf("New body\n");
+		btCollisionShape* shape = body->getCollisionShape ();
 
-		btRigidBody* rb = getRigidBody (i);
-		btCollisionShape* shape = rb->getCollisionShape ();
+		if (body->getTypedUserInfo() != NULL && body->getTypedUserInfo()->getName() != NULL)
+			nodeName = body->getTypedUserInfo()->getName ();
 
-		nodeName = rb->getName ();
-		shapeName = shape->getShapeName ();
+		if (shape->getTypedUserInfo() && shape->getTypedUserInfo()->getName())
+			shapeName = body->getTypedUserInfo ()->getName();
 
 		if (!nodeName)
 		{
@@ -1523,26 +2159,104 @@ bool ColladaConverter::save(const char* filename)
 		}
 
 		if (shape->getShapeType () == TRIANGLE_MESH_SHAPE_PROXYTYPE) {
-			addConcaveMesh (shape, shapeName, geomLib);
+			addConcaveMesh (shape, shapeName);
 		} else if (!shape->isConvex () && !shape->isCompound()) {
 			printf("Unknown shape type. %d Skipping rigidbody.\n", shape->getShapeType());
-			continue;
+			return;
 		}
 
 
 		printf("Adding %s to COLLADA DOM.\n", nodeName);
 
-		addNode (rb, nodeName, shapeName, vscene);
-		addMaterial (rb, nodeName, materialsLib);
-		addRigidBody (rb, nodeName, shapeName, physicsModel, geomLib);
-		addRigidBodyInstance (rb, nodeName, mi);
+		addNode (body, nodeName, shapeName);
+		addMaterial (body, nodeName);
+		addRigidBody (body, nodeName, shapeName);
+		addRigidBodyInstance (body, nodeName);
+	}
+}
+
+void
+ColladaConverter::syncOrAddConstraint (btTypedConstraint* constraint)
+{
+	domRigid_constraintRef rigidConstraint = findRigid_constraint (constraint);
+	return;
+
+	static int random_node_name_key = 0;
+	if (rigidConstraint)
+	{
+		updateConstraint (constraint, rigidConstraint);
+	} else {
+		btTypedUserInfo* tui = constraint->getTypedUserInfo ();
+		char namebuf[512];
+		const char* constraintName = NULL;
+		if (tui)
+		{
+			btAssert (tui->getType () == BT_RIGID_CONSTRAINT_COLLADA_INFO_TYPE);
+			if (tui->getName())
+				constraintName = tui->getName();
+		}
+		if (!constraintName)
+		{
+			// generate one
+			sprintf(&namebuf[0], "BulletUnnamedConstraint-%d", random_node_name_key);
+			constraintName = &namebuf[0];
+		}
+		addConstraint (constraint, constraintName);
+		addConstraintInstance (constraint, constraintName);
+	}
+}
+
+bool ColladaConverter::save(const char* filename)
+{
+	if (!m_collada)
+	{
+		m_collada = new DAE;
+
+		//set the default IOPlugin and Database
+		m_collada->setIOPlugin( NULL );
+		m_collada->setDatabase( NULL );
+
+
+		daeInt error;
+		const char* documentName = "bullet snapshot";
+
+		//create a new document. Calling daeDatabase::insertDocument will create the 
+		//daeDocument for you. This function will also create a domCOLLADA root 
+		//element for you.
+		daeDocument *doc = NULL;
+		error = m_collada->getDatabase()->insertDocument(documentName, &doc );
+		if ( error != DAE_OK || doc == NULL )
+		{
+			printf("Failed to create new document\n");
+			return false;
+		}
+
+		m_dom = daeSafeCast<domCOLLADA>(doc->getDomRoot());
+
+		//create the required asset tag
+		domAssetRef asset = daeSafeCast<domAsset>( m_dom->createAndPlace( COLLADA_ELEMENT_ASSET ) );
+		domAsset::domCreatedRef created = daeSafeCast<domAsset::domCreated>( asset->createAndPlace( COLLADA_ELEMENT_CREATED ) );
+		created->setValue("FIXME O'CLOCK");
+
+		domAsset::domModifiedRef modified = daeSafeCast<domAsset::domModified>( asset->createAndPlace( COLLADA_ELEMENT_MODIFIED ) );
+		modified->setValue("FIXME O'CLOCK");
+		domPhysics_sceneRef physicsScene = getDefaultPhysicsScene ();
+		domPhysics_scene::domTechnique_commonRef common = daeSafeCast<domPhysics_scene::domTechnique_common>(physicsScene->createAndPlace (COLLADA_ELEMENT_TECHNIQUE_COMMON));
+		domTargetableFloat3Ref g = daeSafeCast<domTargetableFloat3>(common->createAndPlace (COLLADA_ELEMENT_GRAVITY));
+		btVector3 btG = getGravity ();
+		g->getValue().set3 (btG[0], btG[1], btG[2]);
 	}
 
+	/* Dump the scene */
+	for (int i = 0; i < getNumRigidBodies (); i++)
+	{
+		syncOrAddRigidBody (getRigidBody(i));
+	}
+
+	/* Dump the constraints */
 	for (int i = 0; i < getNumConstraints (); i++)
 	{
-		btTypedConstraint* constraint = getConstraint (i);
-		addConstraint (constraint, physicsModel);
-		addConstraintInstance (constraint, mi);
+		syncOrAddConstraint (getConstraint(i));
 	}
 
 	{
@@ -1946,18 +2660,17 @@ void	ColladaConverter::ConvertRigidBodyRef( btRigidBodyInput& rbInput,btRigidBod
 							{
 								printf("moving concave <mesh> not supported, transformed into convex\n");
 								rbOutput.m_colShape = new btConvexTriangleMeshShape(trimesh);
-								rbOutput.m_colShape->setShapeName (strdup(geom->getId()));
 							} else
 							{
 								printf("static concave triangle <mesh> added\n");
 								bool useQuantizedAabbCompression = true;
 								rbOutput.m_colShape = new btBvhTriangleMeshShape(trimesh,useQuantizedAabbCompression);
-								rbOutput.m_colShape->setShapeName (strdup(geom->getId()));
 								//rbOutput.m_colShape = new btBvhTriangleMeshShape(trimesh);
 								//rbOutput.m_colShape = new btConvexTriangleMeshShape(trimesh);
 								
 								//btTriangleMeshShape
 							}
+							rbOutput.m_colShape->setTypedUserInfo (new btShapeColladaInfo (geom));
 
 						} 
 					} else
@@ -2000,7 +2713,7 @@ void	ColladaConverter::ConvertRigidBodyRef( btRigidBodyInput& rbInput,btRigidBod
 							if (numAddedVerts > 0)
 							{
 								rbOutput.m_colShape = convexHull;
-								rbOutput.m_colShape->setShapeName (strdup(geom->getId()));
+								rbOutput.m_colShape->setTypedUserInfo (new btShapeColladaInfo (geom));
 							} else
 							{
 								delete convexHull;
@@ -2148,7 +2861,7 @@ void	ColladaConverter::ConvertRigidBodyRef( btRigidBodyInput& rbInput,btRigidBod
 					if (convexHullShape->getNumVertices())
 					{
 						rbOutput.m_colShape = convexHullShape;
-						rbOutput.m_colShape->setShapeName (strdup(geom->getId()));
+						rbOutput.m_colShape->setTypedUserInfo (new btShapeColladaInfo (geom));
 						printf("created convexHullShape with %i points\n",convexHullShape->getNumVertices());
 					} else
 					{
