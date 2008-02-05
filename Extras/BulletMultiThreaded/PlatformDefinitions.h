@@ -60,6 +60,11 @@ typedef union
 			} addr64;
 		
 		
+#else
+
+#include <stdio.h>		
+#define spu_printf printf	
+
 #endif // USE_LIBSPE2
 	
 #endif	//__CELLOS_LV2__
