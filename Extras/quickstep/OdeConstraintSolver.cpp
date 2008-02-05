@@ -73,9 +73,10 @@ btScalar OdeConstraintSolver::solveGroup(btCollisionObject** bodies,int numBulle
     m_CurBody = 0;
     m_CurJoint = 0;
     m_CurTypedJoint = 0;
+	int j;
 
 	int max_contacts = 0; /// should be 4 //Remotion
-	for (int j=0;j<numManifolds;j++){
+	for ( j=0;j<numManifolds;j++){
 		btPersistentManifold* manifold = manifoldPtr[j];
 		if (manifold->getNumContacts() > max_contacts)  max_contacts = manifold->getNumContacts();
 	}
@@ -98,7 +99,6 @@ btScalar OdeConstraintSolver::solveGroup(btCollisionObject** bodies,int numBulle
 
 
 	//capture contacts
-	int j;
 	int body0=-1,body1=-1;
     for (j=0;j<numManifolds;j++)
     {
