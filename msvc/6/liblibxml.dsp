@@ -244,14 +244,6 @@ SOURCE=..\..\Extras\LibXML\relaxng.c
 # End Source File
 # Begin Source File
 
-SOURCE=..\..\Extras\LibXML\runsuite.c
-# End Source File
-# Begin Source File
-
-SOURCE=..\..\Extras\LibXML\runtest.c
-# End Source File
-# Begin Source File
-
 SOURCE=..\..\Extras\LibXML\SAX.c
 # End Source File
 # Begin Source File
@@ -300,15 +292,7 @@ SOURCE=..\..\Extras\LibXML\xlink.c
 # End Source File
 # Begin Source File
 
-SOURCE=..\..\Extras\LibXML\xmlcatalog.c
-# End Source File
-# Begin Source File
-
 SOURCE=..\..\Extras\LibXML\xmlIO.c
-# End Source File
-# Begin Source File
-
-SOURCE=..\..\Extras\LibXML\xmllint.c
 # End Source File
 # Begin Source File
 

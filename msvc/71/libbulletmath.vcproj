@@ -366,6 +366,9 @@
 				RelativePath="..\..\src\LinearMath\btTransformUtil.h">
 			</File>
 			<File
+				RelativePath="..\..\src\LinearMath\btTypedUserInfo.h">
+			</File>
+			<File
 				RelativePath="..\..\src\LinearMath\btVector3.h">
 			</File>
 		</Filter>

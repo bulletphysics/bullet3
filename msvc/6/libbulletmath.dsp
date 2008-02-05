@@ -264,6 +264,10 @@ SOURCE=..\..\src\LinearMath\btTransformUtil.h
 # End Source File
 # Begin Source File
 
+SOURCE=..\..\src\LinearMath\btTypedUserInfo.h
+# End Source File
+# Begin Source File
+
 SOURCE=..\..\src\LinearMath\btVector3.h
 # End Source File
 # End Group

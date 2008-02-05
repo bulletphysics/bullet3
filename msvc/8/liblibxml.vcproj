@@ -350,12 +350,6 @@
 				RelativePath="..\..\Extras\LibXML\relaxng.c">
 			</File>
 			<File
-				RelativePath="..\..\Extras\LibXML\runsuite.c">
-			</File>
-			<File
-				RelativePath="..\..\Extras\LibXML\runtest.c">
-			</File>
-			<File
 				RelativePath="..\..\Extras\LibXML\SAX.c">
 			</File>
 			<File
@@ -392,13 +386,7 @@
 				RelativePath="..\..\Extras\LibXML\xlink.c">
 			</File>
 			<File
-				RelativePath="..\..\Extras\LibXML\xmlcatalog.c">
-			</File>
-			<File
 				RelativePath="..\..\Extras\LibXML\xmlIO.c">
-			</File>
-			<File
-				RelativePath="..\..\Extras\LibXML\xmllint.c">
 			</File>
 			<File
 				RelativePath="..\..\Extras\LibXML\xmlmemory.c">
