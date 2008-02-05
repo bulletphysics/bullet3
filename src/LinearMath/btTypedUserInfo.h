@@ -31,10 +31,13 @@ public:
 	btTypedUserInfo ()
 	{
 		m_type = 0;
-		m_name = NULL;
-		m_userPointer = NULL;
-		m_privatePointer = NULL;
+		m_name = 0;
+		m_userPointer = 0;
+		m_privatePointer = 0;
 	}
+
+	~btTypedUserInfo () {};
+
 	int getType () { return m_type; }
 	void setType (int type) { m_type = type; }
 
@@ -44,7 +47,7 @@ public:
 	void* getUserPointer () { return m_userPointer; }
 	void setUserPointer (void* userPointer) { m_userPointer = userPointer; }
 
-	void* getPrivatePointer () { returm m_privatePointer; }
+	void* getPrivatePointer () { return m_privatePointer; }
 	void setPrivatePointer (void* privatePointer) { m_privatePointer = privatePointer; }
 };
 
