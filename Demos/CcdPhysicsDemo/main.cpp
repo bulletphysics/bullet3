@@ -32,5 +32,6 @@ int main(int argc,char** argv)
 	glutmain(argc, argv,640,480,"Bullet Physics Demo. http://bullet.sf.net",ccdDemo);
 
 	delete ccdDemo;
+	return 0;
 
 }
