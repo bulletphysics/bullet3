@@ -118,7 +118,8 @@ public:
 		float fLegLength = 0.45f;
 		float fForeLegLength = 0.75f;
 		m_shapes[0] = new btCapsuleShape(btScalar(fBodySize), btScalar(0.10));
-		for (int i=0; i<NUM_LEGS; i++)
+		int i;
+		for ( i=0; i<NUM_LEGS; i++)
 		{
 			m_shapes[1 + 2*i] = new btCapsuleShape(btScalar(0.10), btScalar(fLegLength));
 			m_shapes[2 + 2*i] = new btCapsuleShape(btScalar(0.08), btScalar(fForeLegLength));
@@ -144,7 +145,7 @@ public:
 			m_bodies[0] = localCreateRigidBody(btScalar(1.), offset*transform, m_shapes[0]);
 		}
 		// legs
-		for (int i=0; i<NUM_LEGS; i++)
+		for ( i=0; i<NUM_LEGS; i++)
 		{
 			float fAngle = 2 * M_PI * i / NUM_LEGS;
 			float fSin = sin(fAngle);
@@ -167,7 +168,7 @@ public:
 		}
 
 		// Setup some damping on the m_bodies
-		for (int i = 0; i < BODYPART_COUNT; ++i)
+		for (i = 0; i < BODYPART_COUNT; ++i)
 		{
 			m_bodies[i]->setDamping(0.05, 0.85);
 			m_bodies[i]->setDeactivationTime(0.8);
@@ -184,7 +185,7 @@ public:
 
 		btTransform localA, localB, localC;
 
-		for (int i=0; i<NUM_LEGS; i++)
+		for ( i=0; i<NUM_LEGS; i++)
 		{
 			float fAngle = 2 * M_PI * i / NUM_LEGS;
 			float fSin = sin(fAngle);

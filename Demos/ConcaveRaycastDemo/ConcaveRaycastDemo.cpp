@@ -215,7 +215,9 @@ public:
 		glDisable (GL_LIGHTING);
 		glColor3f (0.0, 1.0, 0.0);
 		glBegin (GL_LINES);
-		for (int i = 0; i < NUMRAYS_IN_BAR; i++)
+		int i;
+
+		for (i = 0; i < NUMRAYS_IN_BAR; i++)
 		{
 			glVertex3f (source[i][0], source[i][1], source[i][2]);
 			glVertex3f (hit[i][0], hit[i][1], hit[i][2]);
@@ -223,7 +225,7 @@ public:
 		glEnd ();
 		glColor3f (1.0, 1.0, 1.0);
 		glBegin (GL_LINES);
-		for (int i = 0; i < NUMRAYS_IN_BAR; i++)
+		for (i = 0; i < NUMRAYS_IN_BAR; i++)
 		{
 			glVertex3f (hit[i][0], hit[i][1], hit[i][2]);
 			glVertex3f (hit[i][0] + normal[i][0], hit[i][1] + normal[i][1], hit[i][2] + normal[i][2]);
@@ -231,7 +233,7 @@ public:
 		glEnd ();
 		glColor3f (0.0, 1.0, 1.0);
 		glBegin (GL_POINTS);
-		for (int i = 0; i < NUMRAYS_IN_BAR; i++)
+		for ( i = 0; i < NUMRAYS_IN_BAR; i++)
 		{
 			glVertex3f (hit[i][0], hit[i][1], hit[i][2]);
 		}

@@ -126,13 +126,15 @@ btShapeHull::buildHull (btScalar margin)
 	}
 
 	m_vertices.resize (hr.mNumOutputVertices);
-	for (unsigned int i = 0; i < hr.mNumOutputVertices; i++)
+
+
+	for (i = 0; i < hr.mNumOutputVertices; i++)
 	{
 		m_vertices[i] = hr.mOutputVertices[i];
 	}
 	m_numIndices = hr.mNumIndices;
 	m_indices = new unsigned int [m_numIndices];
-	for (unsigned int i = 0; i < m_numIndices; i++)
+	for (i = 0; i < m_numIndices; i++)
 	{
 		m_indices[i] = hr.mIndices[i];
 	}

@@ -216,7 +216,8 @@ public:
 		glDisable (GL_LIGHTING);
 		glColor3f (0.0, 1.0, 0.0);
 		glBegin (GL_LINES);
-		for (int i = 0; i < NUMRAYS_IN_BAR; i++)
+		int i;
+		for (i = 0; i < NUMRAYS_IN_BAR; i++)
 		{
 			glVertex3f (source[i][0], source[i][1], source[i][2]);
 			glVertex3f (hit_com[i][0], hit_com[i][1], hit_com[i][2]);
@@ -224,7 +225,7 @@ public:
 		glColor3f (1.0, 1.0, 1.0);
 		glBegin (GL_LINES);
 		btScalar normal_scale = 10.0; // easier to see if this is big
-		for (int i = 0; i < NUMRAYS_IN_BAR; i++)
+		for (i = 0; i < NUMRAYS_IN_BAR; i++)
 		{
 			glVertex3f (hit_surface[i][0], hit_surface[i][1], hit_surface[i][2]);
 			glVertex3f (hit_surface[i][0] + normal_scale * normal[i][0], hit_surface[i][1] + normal_scale * normal[i][1], hit_surface[i][2] + normal_scale * normal[i][2]);
@@ -235,7 +236,7 @@ public:
 		btQuaternion qTo;
 		qFrom.setRotation (btVector3(1.0, 0.0, 0.0), 0.0);
 		qTo.setRotation (btVector3(1.0, 0.0, 0.0), 0.7);
-		for (int i = 0; i < NUMRAYS_IN_BAR; i++)
+		for ( i = 0; i < NUMRAYS_IN_BAR; i++)
 		{
 			btTransform from(qFrom, source[i]);
 			btTransform to(qTo, dest[i]);

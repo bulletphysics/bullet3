@@ -377,7 +377,7 @@ m_threadSupportCollision = new Win32ThreadSupport(Win32ThreadSupport::Win32Threa
 	float wallDistance = 3;
 
 
-	for (int i=0;i<numWalls;i++)
+	for ( i=0;i<numWalls;i++)
 	{
 		float zPos = (i-numWalls/2) * wallDistance;
 		createStack(m_collisionShapes[shapeIndex[1]],halfExtents,wallHeight,zPos);
