@@ -36,7 +36,7 @@ public:
 		m_privatePointer = 0;
 	}
 
-	~btTypedUserInfo () {};
+	virtual ~btTypedUserInfo () {};
 
 	int getType () { return m_type; }
 	void setType (int type) { m_type = type; }
