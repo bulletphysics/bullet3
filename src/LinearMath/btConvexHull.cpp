@@ -1164,7 +1164,7 @@ int calchull(btVector3 *verts,int verts_count, int *&tris_out, int &tris_count,i
 		}
 	}
 	tris_count = ts.size()/3;
-	tris_out = (int*)malloc(sizeof(int)*ts.size());
+	tris_out = (int*)btAlignedAlloc(sizeof(int)*ts.size(),16);
 	
 	for (i=0;i<ts.size();i++)
 	{
@@ -1216,7 +1216,7 @@ int overhull(Plane *planes,int planes_count,btVector3 *verts, int verts_count,in
 
 	assert(AssertIntact(*c));
 	//return c;
-	faces_out = (int*)malloc(sizeof(int)*(1+c->facets.size()+c->edges.size()));     // new int[1+c->facets.size()+c->edges.size()];
+	faces_out = (int*)btAlignedAlloc(sizeof(int)*(1+c->facets.size()+c->edges.size()),16);     // new int[1+c->facets.size()+c->edges.size()];
 	faces_count_out=0;
 	i=0;
 	faces_out[faces_count_out++]=-1;
@@ -1273,7 +1273,7 @@ void ReleaseHull(PHullResult &result)
 {
 	if ( result.mIndices )
 	{
-	  free(result.mIndices);
+	  btAlignedFree(result.mIndices);
 	}
 
 	result.mVcount = 0;
@@ -1307,7 +1307,7 @@ HullError HullLibrary::CreateConvexHull(const HullDesc       &desc,           //
 	unsigned int vcount = desc.mVcount;
 	if ( vcount < 8 ) vcount = 8;
 
-	btVector3* vsource = (btVector3*) malloc (sizeof(btVector3)*vcount);
+	btVector3* vsource = (btVector3*) btAlignedAlloc (sizeof(btVector3)*vcount,16);
 
 	btVector3 scale;
 
@@ -1336,7 +1336,7 @@ HullError HullLibrary::CreateConvexHull(const HullDesc       &desc,           //
 		{
 
 			// re-index triangle mesh so it refers to only used vertices, rebuild a new vertex table.
-			btVector3 *vscratch = (btVector3 *) malloc( sizeof(btVector3)*hr.mVcount);
+			btVector3 *vscratch = (btVector3 *) btAlignedAlloc( sizeof(btVector3)*hr.mVcount,16);
 			BringOutYourDead(hr.mVertices,hr.mVcount, vscratch, ovcount, hr.mIndices, hr.mIndexCount );
 
 			ret = QE_OK;
@@ -1345,11 +1345,11 @@ HullError HullLibrary::CreateConvexHull(const HullDesc       &desc,           //
 			{
 				result.mPolygons          = false;
 				result.mNumOutputVertices = ovcount;
-				result.mOutputVertices    = (btVector3 *)malloc( sizeof(btVector3)*ovcount);
+				result.mOutputVertices    = (btVector3 *)btAlignedAlloc( sizeof(btVector3)*ovcount,16);
 				result.mNumFaces          = hr.mFaceCount;
 				result.mNumIndices        = hr.mIndexCount;
 
-				result.mIndices           = (unsigned int *) malloc( sizeof(unsigned int)*hr.mIndexCount);
+				result.mIndices           = (unsigned int *) btAlignedAlloc( sizeof(unsigned int)*hr.mIndexCount,16);
 
 				memcpy(result.mOutputVertices, vscratch, sizeof(btVector3)*ovcount );
 
@@ -1378,10 +1378,10 @@ HullError HullLibrary::CreateConvexHull(const HullDesc       &desc,           //
 			{
 				result.mPolygons          = true;
 				result.mNumOutputVertices = ovcount;
-				result.mOutputVertices    = (btVector3 *)malloc( sizeof(btVector3)*ovcount);
+				result.mOutputVertices    = (btVector3 *)btAlignedAlloc( sizeof(btVector3)*ovcount,16);
 				result.mNumFaces          = hr.mFaceCount;
 				result.mNumIndices        = hr.mIndexCount+hr.mFaceCount;
-				result.mIndices           = (unsigned int *) malloc( sizeof(unsigned int)*result.mNumIndices);
+				result.mIndices           = (unsigned int *) btAlignedAlloc( sizeof(unsigned int)*result.mNumIndices,16);
 				memcpy(result.mOutputVertices, vscratch, sizeof(btVector3)*ovcount );
 
 				if ( 1 )
@@ -1412,14 +1412,14 @@ HullError HullLibrary::CreateConvexHull(const HullDesc       &desc,           //
 			ReleaseHull(hr);
 			if ( vscratch )
 			{
-				free(vscratch);
+				btAlignedFree(vscratch);
 			}
 		}
 	}
 
 	if ( vsource )
 	{
-		free(vsource);
+		btAlignedFree(vsource);
 	}
 
 
@@ -1432,12 +1432,12 @@ HullError HullLibrary::ReleaseResult(HullResult &result) // release memory alloc
 {
 	if ( result.mOutputVertices )
 	{
-		free(result.mOutputVertices);
+		btAlignedFree(result.mOutputVertices);
 		result.mOutputVertices = 0;
 	}
 	if ( result.mIndices )
 	{
-		free(result.mIndices);
+		btAlignedFree(result.mIndices);
 		result.mIndices = 0;
 	}
 	return QE_OK;
@@ -1724,7 +1724,7 @@ bool  HullLibrary::CleanupVertices(unsigned int svcount,
 
 void HullLibrary::BringOutYourDead(const btVector3* verts,unsigned int vcount, btVector3* overts,unsigned int &ocount,unsigned int *indices,unsigned indexcount)
 {
-	unsigned int *used = (unsigned int *)malloc(sizeof(unsigned int)*vcount);
+	unsigned int *used = (unsigned int *)btAlignedAlloc(sizeof(unsigned int)*vcount,16);
 	memset(used,0,sizeof(unsigned int)*vcount);
 
 	ocount = 0;
@@ -1756,5 +1756,5 @@ void HullLibrary::BringOutYourDead(const btVector3* verts,unsigned int vcount, b
 		}
 	}
 
-	free(used);
+	btAlignedFree(used);
 }
