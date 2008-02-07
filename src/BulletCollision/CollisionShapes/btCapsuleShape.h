@@ -22,8 +22,12 @@ subject to the following restrictions:
 
 ///btCapsuleShape represents a capsule around the Y axis
 ///A more general solution that can represent capsules is the btMultiSphereShape
+///the total height is height+2*radius, so the height is just the height between the center of each 'sphere' of the capsule caps.
 class btCapsuleShape : public btConvexInternalShape
 {
+protected:
+	///only used for btCapsuleShapeZ and btCapsuleShapeX subclasses.
+	btCapsuleShape() {};
 
 public:
 	btCapsuleShape(btScalar radius,btScalar height);
@@ -43,16 +47,80 @@ public:
 		return "CapsuleShape";
 	}
 
-	btScalar	getRadius() const
+	virtual int	getUpAxis() const
+	{
+		return 1;
+	}
+
+	virtual btScalar	getRadius() const
 	{
 		return m_implicitShapeDimensions.getX();
 	}
 
-	btScalar	getHalfHeight() const
+	virtual btScalar	getHalfHeight() const
 	{
 		return m_implicitShapeDimensions.getY();
 	}
 
+};
+
+///btCapsuleShapeX represents a capsule around the Z axis
+///the total height is height+2*radius, so the height is just the height between the center of each 'sphere' of the capsule caps.
+class btCapsuleShapeX : public btCapsuleShape
+{
+public:
+
+	btCapsuleShapeX(btScalar radius,btScalar height);
+	
+	virtual int	getUpAxis() const
+	{
+		return 0;
+	}
+
+		//debugging
+	virtual const char*	getName()const
+	{
+		return "CapsuleX";
+	}
+
+	virtual btScalar getRadius() const
+	{
+		return m_implicitShapeDimensions.getY();
+	}
+
+	virtual btScalar	getHalfHeight() const
+	{
+		return m_implicitShapeDimensions.getX();
+	}
+
+};
+
+///btCapsuleShapeZ represents a capsule around the Z axis
+///the total height is height+2*radius, so the height is just the height between the center of each 'sphere' of the capsule caps.
+class btCapsuleShapeZ : public btCapsuleShape
+{
+public:
+	btCapsuleShapeZ(btScalar radius,btScalar height);
+
+	virtual int	getUpAxis() const
+	{
+		return 2;
+	}
+		//debugging
+	virtual const char*	getName()const
+	{
+		return "CapsuleZ";
+	}
+
+	virtual btScalar getRadius() const
+	{
+		return m_implicitShapeDimensions.getX();
+	}
+
+	virtual btScalar	getHalfHeight() const
+	{
+		return m_implicitShapeDimensions.getZ();
+	}
 };
 
 
