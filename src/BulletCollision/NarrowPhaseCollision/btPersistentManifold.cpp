@@ -20,6 +20,7 @@ subject to the following restrictions:
 
 btScalar					gContactBreakingThreshold = btScalar(0.02);
 ContactDestroyedCallback	gContactDestroyedCallback = 0;
+ContactProcessedCallback	gContactProcessedCallback = 0;
 
 
 
@@ -234,6 +235,11 @@ void btPersistentManifold::refreshContactPoints(const btTransform& trA,const btT
 			if (distance2d  > getContactBreakingThreshold()*getContactBreakingThreshold() )
 			{
 				removeContactPoint(i);
+			} else
+			{
+				//contact point processed callback
+				if (gContactProcessedCallback)
+					(*gContactProcessedCallback)(manifoldPoint,m_body0,m_body1);
 			}
 		}
 	}

@@ -50,7 +50,9 @@ ATTRIBUTE_ALIGNED16 (struct)	btSolverConstraint
 	
 	int			m_constraintType;
 	int			m_frictionIndex;
-	int			m_unusedPadding[2];
+	void*		m_originalContactPoint;
+	int			m_unusedPadding[1];
+
 
 	enum		btSolverConstraintType
 	{

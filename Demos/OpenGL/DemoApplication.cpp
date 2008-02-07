@@ -742,12 +742,16 @@ btRigidBody*	DemoApplication::localCreateRigidBody(float mass, const btTransform
 #define USE_MOTIONSTATE 1
 #ifdef USE_MOTIONSTATE
 	btDefaultMotionState* myMotionState = new btDefaultMotionState(startTransform);
-	btRigidBody* body = new btRigidBody(btRigidBody::btRigidBodyConstructionInfo(mass,myMotionState,shape,localInertia));
+
+	btRigidBody::btRigidBodyConstructionInfo cInfo(mass,myMotionState,shape,localInertia);
+
+	btRigidBody* body = new btRigidBody(cInfo);
 
 #else
 	btRigidBody* body = new btRigidBody(mass,0,shape,localInertia);	
 	body->setWorldTransform(startTransform);
 #endif//
+
 	m_dynamicsWorld->addRigidBody(body);
 	
 	return body;
@@ -759,6 +763,7 @@ void DemoApplication::setOrthographicProjection()
 
 	// switch to projection mode
 	glMatrixMode(GL_PROJECTION);
+
 	// save previous matrix which contains the 
 	//settings for the perspective projection
 	glPushMatrix();
@@ -766,16 +771,20 @@ void DemoApplication::setOrthographicProjection()
 	glLoadIdentity();
 	// set a 2D orthographic projection
 	gluOrtho2D(0, m_glutScreenWidth, 0, m_glutScreenHeight);
+	glMatrixMode(GL_MODELVIEW);
+	glLoadIdentity();
+
 	// invert the y axis, down is positive
 	glScalef(1, -1, 1);
 	// mover the origin from the bottom left corner
 	// to the upper left corner
 	glTranslatef(0, -m_glutScreenHeight, 0);
-	glMatrixMode(GL_MODELVIEW);
+
 }
 
 void DemoApplication::resetPerspectiveProjection() 
 {
+
 	glMatrixMode(GL_PROJECTION);
 	glPopMatrix();
 	glMatrixMode(GL_MODELVIEW);

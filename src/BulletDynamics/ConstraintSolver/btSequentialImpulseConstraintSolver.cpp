@@ -106,7 +106,7 @@ bool  MyContactDestroyedCallback(void* userPersistentData)
 
 
 btSequentialImpulseConstraintSolver::btSequentialImpulseConstraintSolver()
-:m_solverMode(SOLVER_RANDMIZE_ORDER | SOLVER_CACHE_FRIENDLY), //not using SOLVER_USE_WARMSTARTING,
+:m_solverMode(SOLVER_RANDMIZE_ORDER | SOLVER_CACHE_FRIENDLY | SOLVER_USE_WARMSTARTING ),
 m_btSeed2(0)
 {
 	gContactDestroyedCallback = &MyContactDestroyedCallback;
@@ -386,6 +386,7 @@ void	btSequentialImpulseConstraintSolver::addFrictionConstraint(const btVector3&
 	solverConstraint.m_frictionIndex = frictionIndex;
 
 	solverConstraint.m_friction = cp.m_combinedFriction;
+	solverConstraint.m_originalContactPoint = 0;
 
 	solverConstraint.m_appliedImpulse = btScalar(0.);
 	solverConstraint.m_appliedVelocityImpulse = 0.f;
@@ -609,6 +610,8 @@ btScalar btSequentialImpulseConstraintSolver::solveGroupCacheFriendlySetup(btCol
 							solverConstraint.m_solverBodyIdB = solverBodyIdB;
 							solverConstraint.m_constraintType = btSolverConstraint::BT_SOLVER_CONTACT_1D;
 
+							solverConstraint.m_originalContactPoint = &cp;
+
 							btVector3 torqueAxis0 = rel_pos1.cross(cp.m_normalWorldOnB);
 							solverConstraint.m_angularComponentA = rb0 ? rb0->getInvInertiaTensorWorld()*torqueAxis0 : btVector3(0,0,0);
 							btVector3 torqueAxis1 = rel_pos2.cross(cp.m_normalWorldOnB);		
@@ -668,7 +671,14 @@ btScalar btSequentialImpulseConstraintSolver::solveGroupCacheFriendlySetup(btCol
 							
 							
 
-							solverConstraint.m_appliedImpulse = 0.f;
+							///warm starting (or zero if disabled)
+							if (m_solverMode & SOLVER_USE_WARMSTARTING)
+							{
+								solverConstraint.m_appliedImpulse = cp.m_appliedImpulse;
+							} else
+							{
+								solverConstraint.m_appliedImpulse = 0.f;
+							}
 							solverConstraint.m_appliedVelocityImpulse = 0.f;
 							
 					
@@ -830,6 +840,20 @@ btScalar btSequentialImpulseConstraintSolver::solveGroupCacheFriendlyIterations(
 		}
 	}
 
+	{
+		int numPoolConstraints = m_tmpSolverConstraintPool.size();
+		int j;
+		for (j=0;j<numPoolConstraints;j++)
+		{
+			
+			const btSolverConstraint& solveManifold = m_tmpSolverConstraintPool[j];
+			btManifoldPoint* pt = (btManifoldPoint*) solveManifold.m_originalContactPoint;
+			btAssert(pt);
+			pt->m_appliedImpulse = solveManifold.m_appliedImpulse;
+			//do a callback here?
+
+		}
+	}
 	
 		return 0.f;
 }

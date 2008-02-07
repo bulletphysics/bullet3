@@ -109,9 +109,12 @@ void btConvexTriangleCallback::processTriangle(btVector3* triangle,int partId, i
 	{
 		btTriangleShape tm(triangle[0],triangle[1],triangle[2]);	
 		tm.setMargin(m_collisionMarginTriangle);
-	
-		
 		btCollisionShape* tmpShape = ob->getCollisionShape();
+
+		//copy over user pointers to temporary shape
+		tm.setTypedUserInfo(tmpShape->getTypedUserInfo());
+		tm.setUserPointer(tmpShape->getUserPointer());
+		
 		ob->setCollisionShape( &tm );
 		
 

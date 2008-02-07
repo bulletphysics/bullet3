@@ -54,7 +54,7 @@ void	btRigidBody::setupRigidBody(const btRigidBody::btRigidBodyConstructionInfo&
 	m_contactSolverType = 0;
 	m_frictionSolverType = 0;
 	m_additionalDamping = constructionInfo.m_additionalDamping;
-
+	m_additionalDampingFactor = constructionInfo.m_additionalDampingFactor;
 	m_additionalLinearDampingThresholdSqr = constructionInfo.m_additionalLinearDampingThresholdSqr;
 	m_additionalAngularDampingThresholdSqr = constructionInfo.m_additionalAngularDampingThresholdSqr;
 	m_additionalAngularDampingFactor = constructionInfo.m_additionalAngularDampingFactor;
