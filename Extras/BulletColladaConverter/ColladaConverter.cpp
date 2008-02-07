@@ -615,8 +615,7 @@ bool ColladaConverter::convert()
 			return true;
 }
 
-domNode*
-ColladaConverter::findNode (const char* nodeName)
+domNode* ColladaConverter::findNode (const char* nodeName)
 {
 	if (!m_dom)
 		return NULL;
@@ -641,8 +640,7 @@ ColladaConverter::findNode (const char* nodeName)
 	return NULL;
 }
 
-domNode*
-ColladaConverter::findNode (btRigidBody* rb)
+domNode* ColladaConverter::findNode (btRigidBody* rb)
 {
 	if (rb->getTypedUserInfo())
 	{
@@ -654,8 +652,7 @@ ColladaConverter::findNode (btRigidBody* rb)
 	return NULL;
 }
 
-domRigid_body*
-ColladaConverter::findRigid_body (const char* rigidbodyName)
+domRigid_body* ColladaConverter::findRigid_body (const char* rigidbodyName)
 {
 	domLibrary_physics_models_Array& physicsModelsArray = m_dom->getLibrary_physics_models_array();
 	for (int i = 0; i < physicsModelsArray.getCount(); i++)
@@ -679,8 +676,7 @@ ColladaConverter::findRigid_body (const char* rigidbodyName)
 	return NULL;
 }
 
-domRigid_body*
-ColladaConverter::findRigid_body (btRigidBody* rb)
+domRigid_body* ColladaConverter::findRigid_body (btRigidBody* rb)
 {
 	if (rb->getTypedUserInfo ())
 	{
@@ -692,8 +688,7 @@ ColladaConverter::findRigid_body (btRigidBody* rb)
 	return NULL;
 }
 
-domInstance_rigid_body*
-ColladaConverter::findRigid_body_instance (const char* nodeName)
+domInstance_rigid_body* ColladaConverter::findRigid_body_instance (const char* nodeName)
 {
 	domPhysics_scene* physicsScene = getDefaultPhysicsScene ();
 	domInstance_physics_model_Array& physicsModelInstances = physicsScene->getInstance_physics_model_array ();
@@ -713,8 +708,7 @@ ColladaConverter::findRigid_body_instance (const char* nodeName)
 	return NULL;
 }
 
-domInstance_rigid_body*
-ColladaConverter::findRigid_body_instance (btRigidBody* rb)
+domInstance_rigid_body* ColladaConverter::findRigid_body_instance (btRigidBody* rb)
 {
 	if (rb->getTypedUserInfo ())
 	{
@@ -726,8 +720,7 @@ ColladaConverter::findRigid_body_instance (btRigidBody* rb)
 	return NULL;
 }
 
-domRigid_constraint*
-ColladaConverter::findRigid_constraint (const char* constraintName)
+domRigid_constraint* ColladaConverter::findRigid_constraint (const char* constraintName)
 {
 	domLibrary_physics_models_Array& physicsModelsArray = m_dom->getLibrary_physics_models_array();
 	for (int i = 0; i < physicsModelsArray.getCount(); i++)
@@ -752,8 +745,7 @@ ColladaConverter::findRigid_constraint (const char* constraintName)
 	return NULL;
 }
 
-domRigid_constraint*
-ColladaConverter::findRigid_constraint (btTypedConstraint* constraint)
+domRigid_constraint* ColladaConverter::findRigid_constraint (btTypedConstraint* constraint)
 {
 	if (constraint->getTypedUserInfo ())
 	{
@@ -765,8 +757,7 @@ ColladaConverter::findRigid_constraint (btTypedConstraint* constraint)
 	return NULL;
 }
 
-domGeometry*
-ColladaConverter::findGeometry (const char* shapeName)
+domGeometry* ColladaConverter::findGeometry (const char* shapeName)
 {
 	domLibrary_geometries* geomLib = getDefaultGeomLib ();
 	domGeometry_Array& geometryArray = geomLib->getGeometry_array ();
@@ -784,8 +775,7 @@ ColladaConverter::findGeometry (const char* shapeName)
 	return NULL;
 }
 
-domGeometry*
-ColladaConverter::findGeometry (btCollisionShape* shape)
+domGeometry* ColladaConverter::findGeometry (btCollisionShape* shape)
 {
 	if (shape->getTypedUserInfo ())
 	{
@@ -1057,8 +1047,7 @@ void	ColladaConverter::PreparePhysicsObject(struct btRigidBodyInput& input, bool
 
 }
 
-domLibrary_geometries*
-ColladaConverter::getDefaultGeomLib ()
+domLibrary_geometries* ColladaConverter::getDefaultGeomLib ()
 {
 	domLibrary_geometries* geometriesLib = NULL;
 
@@ -1071,8 +1060,7 @@ ColladaConverter::getDefaultGeomLib ()
 	}
 }
 
-domLibrary_physics_materials*
-ColladaConverter::getDefaultMaterialsLib ()
+domLibrary_physics_materials* ColladaConverter::getDefaultMaterialsLib ()
 {
 	domLibrary_physics_materials* materialsLib = NULL;
 
@@ -1098,8 +1086,7 @@ ColladaConverter::getDefaultMaterialsLib ()
 	return materialsLib;
 }
 
-domPhysics_model*
-ColladaConverter::getDefaultPhysicsModel ()
+domPhysics_model* ColladaConverter::getDefaultPhysicsModel ()
 {
 	domLibrary_physics_models* modelsLib = NULL;
 
@@ -1139,8 +1126,7 @@ ColladaConverter::getDefaultPhysicsModel ()
 }
 
 
-domInstance_physics_model*
-ColladaConverter::getDefaultInstancePhysicsModel ()
+domInstance_physics_model* ColladaConverter::getDefaultInstancePhysicsModel ()
 {
 	domPhysics_scene* physicsScene = getDefaultPhysicsScene ();
 	domInstance_physics_model_Array& physicsModelInstances = physicsScene->getInstance_physics_model_array ();
@@ -1159,8 +1145,7 @@ ColladaConverter::getDefaultInstancePhysicsModel ()
 	return physicsModelInstance;
 }
 
-domPhysics_scene*
-ColladaConverter::getDefaultPhysicsScene ()
+domPhysics_scene* ColladaConverter::getDefaultPhysicsScene ()
 {
         domLibrary_physics_scenes* physicsScenesLib = NULL;
 
@@ -1183,8 +1168,7 @@ ColladaConverter::getDefaultPhysicsScene ()
 }
 
 
-domVisual_scene*
-ColladaConverter::getDefaultVisualScene ()
+domVisual_scene* ColladaConverter::getDefaultVisualScene ()
 {
 	domLibrary_visual_scenes* visualScenesLib = NULL;
 
@@ -1206,8 +1190,7 @@ ColladaConverter::getDefaultVisualScene ()
 }
 
 
-void
-ColladaConverter::addConvexHull (btCollisionShape* shape, const char* nodeName)
+void ColladaConverter::addConvexHull (btCollisionShape* shape, const char* nodeName)
 {
 	btConvexHullShape* hullShape = (btConvexHullShape*)shape;
 	btShapeHull* triHull = new btShapeHull (hullShape);
@@ -2121,13 +2104,11 @@ ColladaConverter::updateConstraint (btTypedConstraint* constraint, domRigid_cons
 	}
 }
 
-void
-ColladaConverter::syncOrAddGeometry (btCollisionShape* shape, const char* nodeName)
+void ColladaConverter::syncOrAddGeometry (btCollisionShape* shape, const char* nodeName)
 {
 }
 
-void
-ColladaConverter::syncOrAddRigidBody (btRigidBody* body)
+void ColladaConverter::syncOrAddRigidBody (btRigidBody* body)
 {
 	domNodeRef node = findNode (body);
 	domLibrary_geometriesRef geomLib = getDefaultGeomLib ();
@@ -2182,8 +2163,7 @@ ColladaConverter::syncOrAddRigidBody (btRigidBody* body)
 	}
 }
 
-void
-ColladaConverter::syncOrAddConstraint (btTypedConstraint* constraint)
+void ColladaConverter::syncOrAddConstraint (btTypedConstraint* constraint)
 {
 	domRigid_constraintRef rigidConstraint = findRigid_constraint (constraint);
 	return;
