@@ -46,6 +46,9 @@ subject to the following restrictions:
 #include "BulletCollision/CollisionShapes/btCompoundShape.h"
 #include "LinearMath/btDefaultMotionState.h"
 
+#ifdef WIN32
+#define snprintf _snprintf
+#endif
 
 #define BT_RIGIDBODY_COLLADA_INFO_TYPE 0xdeed
 class btRigidBodyColladaInfo : public btTypedUserInfo 
@@ -791,6 +794,7 @@ ColladaConverter::findGeometry (btCollisionShape* shape)
 		btShapeColladaInfo* sci = (btShapeColladaInfo*)tui;
 		return sci->m_geometry;
 	}
+	return 0;
 }
 
 
@@ -1174,6 +1178,8 @@ ColladaConverter::getDefaultPhysicsScene ()
                 return physicsScene;
         }
 
+		return 0;
+
 }
 
 
@@ -1196,6 +1202,7 @@ ColladaConverter::getDefaultVisualScene ()
 		return visualScene;
 	}
 
+	return 0;
 }
 
 
