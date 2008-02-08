@@ -116,10 +116,12 @@ btPoint3 localGetSupportingVertexWithoutMargin(int shapeType, void* shape, btVec
 		//spu_printf("SPU: todo: getSupport CAPSULE_SHAPE_PROXYTYPE\n");
 		btVector3 vec0(localDir.getX(),localDir.getY(),localDir.getZ());
 
-		btConvexInternalShape* cnvxShape = (btConvexInternalShape*)shape;
-		btVector3 halfExtents = cnvxShape->getImplicitShapeDimensions();
-		btScalar halfHeight = halfExtents.getY();
-		btScalar radius = halfExtents.getX();
+		btCapsuleShape* capsuleShape = (btCapsuleShape*)shape;
+		btVector3 halfExtents = capsuleShape->getImplicitShapeDimensions();
+		btScalar halfHeight = capsuleShape->getHalfHeight();
+		int capsuleUpAxis = capsuleShape->getUpAxis();
+
+		btScalar radius = capsuleShape->getRadius();
 		btVector3 supVec(0,0,0);
 
 		btScalar maxDot(btScalar(-1e30));
@@ -137,7 +139,9 @@ btPoint3 localGetSupportingVertexWithoutMargin(int shapeType, void* shape, btVec
 		btVector3 vtx;
 		btScalar newDot;
 		{
-			btVector3 pos(0,halfHeight,0);
+			btVector3 pos(0,0,0);
+			pos[capsuleUpAxis] = halfHeight;
+
 			vtx = pos +vec*(radius);
 			newDot = vec.dot(vtx);
 			if (newDot > maxDot)
@@ -147,7 +151,9 @@ btPoint3 localGetSupportingVertexWithoutMargin(int shapeType, void* shape, btVec
 			}
 		}
 		{
-			btVector3 pos(0,-halfHeight,0);
+			btVector3 pos(0,0,0);
+			pos[capsuleUpAxis] = -halfHeight;
+
 			vtx = pos +vec*(radius);
 			newDot = vec.dot(vtx);
 			if (newDot > maxDot)
