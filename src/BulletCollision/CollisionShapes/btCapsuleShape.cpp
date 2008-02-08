@@ -21,6 +21,7 @@ subject to the following restrictions:
 
 btCapsuleShape::btCapsuleShape(btScalar radius, btScalar height)
 {
+	m_upAxis = 1;
 	m_implicitShapeDimensions.setValue(radius,0.5f*height,radius);
 }
 
@@ -149,6 +150,7 @@ void	btCapsuleShape::calculateLocalInertia(btScalar mass,btVector3& inertia) con
 
 btCapsuleShapeX::btCapsuleShapeX(btScalar radius,btScalar height)
 {
+	m_upAxis = 0;
 	m_implicitShapeDimensions.setValue(0.5f*height, radius,radius);
 }
 
@@ -159,6 +161,7 @@ btCapsuleShapeX::btCapsuleShapeX(btScalar radius,btScalar height)
 
 btCapsuleShapeZ::btCapsuleShapeZ(btScalar radius,btScalar height)
 {
+	m_upAxis = 2;
 	m_implicitShapeDimensions.setValue(radius,radius,0.5f*height);
 }
 

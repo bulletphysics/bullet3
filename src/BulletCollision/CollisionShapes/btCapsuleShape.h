@@ -26,6 +26,9 @@ subject to the following restrictions:
 class btCapsuleShape : public btConvexInternalShape
 {
 protected:
+	int	m_upAxis;
+
+protected:
 	///only used for btCapsuleShapeZ and btCapsuleShapeX subclasses.
 	btCapsuleShape() {};
 
@@ -47,19 +50,20 @@ public:
 		return "CapsuleShape";
 	}
 
-	virtual int	getUpAxis() const
+	int	getUpAxis() const
 	{
-		return 1;
+		return m_upAxis;
 	}
 
-	virtual btScalar	getRadius() const
+	btScalar	getRadius() const
 	{
-		return m_implicitShapeDimensions.getX();
+		int radiusAxis = (m_upAxis+2)%3;
+		return m_implicitShapeDimensions[radiusAxis];
 	}
 
-	virtual btScalar	getHalfHeight() const
+	btScalar	getHalfHeight() const
 	{
-		return m_implicitShapeDimensions.getY();
+		return m_implicitShapeDimensions[m_upAxis];
 	}
 
 };
@@ -71,27 +75,14 @@ class btCapsuleShapeX : public btCapsuleShape
 public:
 
 	btCapsuleShapeX(btScalar radius,btScalar height);
-	
-	virtual int	getUpAxis() const
-	{
-		return 0;
-	}
-
-		//debugging
+		
+	//debugging
 	virtual const char*	getName()const
 	{
 		return "CapsuleX";
 	}
 
-	virtual btScalar getRadius() const
-	{
-		return m_implicitShapeDimensions.getY();
-	}
-
-	virtual btScalar	getHalfHeight() const
-	{
-		return m_implicitShapeDimensions.getX();
-	}
+	
 
 };
 
@@ -102,25 +93,13 @@ class btCapsuleShapeZ : public btCapsuleShape
 public:
 	btCapsuleShapeZ(btScalar radius,btScalar height);
 
-	virtual int	getUpAxis() const
-	{
-		return 2;
-	}
 		//debugging
 	virtual const char*	getName()const
 	{
 		return "CapsuleZ";
 	}
 
-	virtual btScalar getRadius() const
-	{
-		return m_implicitShapeDimensions.getX();
-	}
-
-	virtual btScalar	getHalfHeight() const
-	{
-		return m_implicitShapeDimensions.getZ();
-	}
+	
 };
 
 
