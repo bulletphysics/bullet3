@@ -17,7 +17,6 @@ subject to the following restrictions:
 
 #include "BulletCollision/CollisionShapes/btConvexShape.h"
 #include "BulletCollision/CollisionShapes/btTriangleShape.h"
-#include "BulletCollision/CollisionDispatch/btCollisionWorld.h"
 #include "BulletCollision/NarrowPhaseCollision/btSubSimplexConvexCast.h"
 #include "BulletCollision/NarrowPhaseCollision/btGjkConvexCast.h"
 #include "BulletCollision/NarrowPhaseCollision/btContinuousConvexCollision.h"

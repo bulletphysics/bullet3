@@ -91,14 +91,14 @@ btBvhTriangleMeshShape::~btBvhTriangleMeshShape()
 	}
 }
 
-void	btBvhTriangleMeshShape::performRaycast (btTriangleRaycastCallback* callback, const btVector3& raySource, const btVector3& rayTarget)
+void	btBvhTriangleMeshShape::performRaycast (btTriangleCallback* callback, const btVector3& raySource, const btVector3& rayTarget)
 {
 	struct	MyNodeOverlapCallback : public btNodeOverlapCallback
 	{
 		btStridingMeshInterface*	m_meshInterface;
-		btTriangleRaycastCallback* m_callback;
+		btTriangleCallback* m_callback;
 
-		MyNodeOverlapCallback(btTriangleRaycastCallback* callback,btStridingMeshInterface* meshInterface)
+		MyNodeOverlapCallback(btTriangleCallback* callback,btStridingMeshInterface* meshInterface)
 			:m_meshInterface(meshInterface),
 			m_callback(callback)
 		{
@@ -151,14 +151,14 @@ void	btBvhTriangleMeshShape::performRaycast (btTriangleRaycastCallback* callback
 	m_bvh->reportRayOverlappingNodex(&myNodeCallback,raySource,rayTarget);
 }
 
-void	btBvhTriangleMeshShape::performConvexcast (btTriangleConvexcastCallback* callback, const btVector3& raySource, const btVector3& rayTarget, const btVector3& aabbMin, const btVector3& aabbMax)
+void	btBvhTriangleMeshShape::performConvexcast (btTriangleCallback* callback, const btVector3& raySource, const btVector3& rayTarget, const btVector3& aabbMin, const btVector3& aabbMax)
 {
 	struct	MyNodeOverlapCallback : public btNodeOverlapCallback
 	{
 		btStridingMeshInterface*	m_meshInterface;
-		btTriangleConvexcastCallback* m_callback;
+		btTriangleCallback* m_callback;
 
-		MyNodeOverlapCallback(btTriangleConvexcastCallback* callback,btStridingMeshInterface* meshInterface)
+		MyNodeOverlapCallback(btTriangleCallback* callback,btStridingMeshInterface* meshInterface)
 			:m_meshInterface(meshInterface),
 			m_callback(callback)
 		{
