@@ -42,103 +42,12 @@ class MyColladaConverter : public ColladaConverter
 	
 	public:
 		MyColladaConverter(DemoApplication* demoApp)
-		:m_demoApp(demoApp)
+		: ColladaConverter(demoApp->getDynamicsWorld()),
+		m_demoApp(demoApp)
 		{
 		}
 		
-		///those 2 virtuals are called for each constraint/physics object
-	virtual btTypedConstraint*			createUniversalD6Constraint(
-		class btRigidBody* bodyRef,class btRigidBody* bodyOther,
-			btTransform& localAttachmentFrameRef,
-			btTransform& localAttachmentOther,
-			const btVector3& linearMinLimits,
-			const btVector3& linearMaxLimits,
-			const btVector3& angularMinLimits,
-			const btVector3& angularMaxLimits,
-			bool disableCollisionsBetweenLinkedBodies
-			)
-		{
-			if (bodyRef)
-			{
-				if (!bodyOther)
-				{
-					btRigidBody::btRigidBodyConstructionInfo	cinfo(0,0,0);
-					bodyOther = new btRigidBody(cinfo);
-
-					 bodyOther->setWorldTransform(bodyRef->getWorldTransform());
-					 localAttachmentOther = localAttachmentFrameRef;
-
-				}
-
-				bool useReferenceFrameA = true;
-				btGeneric6DofConstraint* genericConstraint = new btGeneric6DofConstraint(
-							*bodyRef,*bodyOther,
-							localAttachmentFrameRef,localAttachmentOther,useReferenceFrameA);
-
-				genericConstraint->setLinearLowerLimit(linearMinLimits);
-				genericConstraint->setLinearUpperLimit(linearMaxLimits);
-				genericConstraint->setAngularLowerLimit(angularMinLimits);
-				genericConstraint->setAngularUpperLimit(angularMaxLimits);
-
-				m_demoApp->getDynamicsWorld()->addConstraint( genericConstraint,disableCollisionsBetweenLinkedBodies );
-				
-				return genericConstraint;
-			} 
-			return 0;
-		}
-
-	virtual btRigidBody*  createRigidBody(bool isDynamic, 
-		float mass, 
-		const btTransform& startTransform,
-		btCollisionShape* shape)
-	{
-
-		if (!isDynamic && (mass != 0.f))
-		{
-			printf("Warning: non-dynamic objects needs to have zero mass!\n");
-			mass = 0.f;
-		}
-
-		if (isDynamic && (mass == 0.f))
-		{
-			printf("Warning: dynamic rigidbodies needs nonzero mass!\n");
-			mass = 1.f;
-		}
-
-		btRigidBody* body = m_demoApp->localCreateRigidBody(mass, startTransform,shape);
-		return body;
-	}
-
-	virtual int getNumRigidBodies ()
-	{
-		return m_demoApp->getDynamicsWorld()->getNumCollisionObjects();
-	}
-
-	virtual btRigidBody* getRigidBody (int i)
-	{
-		return btRigidBody::upcast(m_demoApp->getDynamicsWorld()->getCollisionObjectArray ()[i]);
-	}
-
-	virtual int getNumConstraints ()
-	{
-		return m_demoApp->getDynamicsWorld()->getNumConstraints ();
-	}
-
-	virtual btTypedConstraint* getConstraint (int i)
-	{
-		return m_demoApp->getDynamicsWorld()->getConstraint (i);
-	}
-
-	virtual	void	setGravity(const btVector3& grav)
-	{
-		m_demoApp->getDynamicsWorld()->setGravity(grav);
-	}
-
-	virtual btVector3 getGravity ()
-	{
-		return m_demoApp->getDynamicsWorld()->getGravity ();
-	}
-
+	
 	virtual void	setCameraInfo(const btVector3& camUp,int forwardAxis) 
 	{
 		m_demoApp->setCameraUp(camUp);

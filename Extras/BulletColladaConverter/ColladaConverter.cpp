@@ -172,8 +172,9 @@ btTransform	GetbtTransformFromCOLLADA_DOM(domMatrix_Array& matrixArray,
 
 
 
-ColladaConverter::ColladaConverter()
-:m_collada(0),
+ColladaConverter::ColladaConverter(btDynamicsWorld* dynaWorld)
+:m_dynamicsWorld(dynaWorld),
+m_collada(0),
 m_dom(0),
 m_filename(0),
 m_unitMeterScaling(1.f)
@@ -2903,4 +2904,109 @@ void	ColladaConverter::ConvertRigidBodyRef( btRigidBodyInput& rbInput,btRigidBod
 	}
 
 
+}
+
+
+
+
+///those 2 virtuals are called for each constraint/physics object
+btTypedConstraint*			ColladaConverter::createUniversalD6Constraint(
+	class btRigidBody* bodyRef,class btRigidBody* bodyOther,
+		btTransform& localAttachmentFrameRef,
+		btTransform& localAttachmentOther,
+		const btVector3& linearMinLimits,
+		const btVector3& linearMaxLimits,
+		const btVector3& angularMinLimits,
+		const btVector3& angularMaxLimits,
+		bool disableCollisionsBetweenLinkedBodies
+		)
+	{
+		if (bodyRef)
+		{
+			if (!bodyOther)
+			{
+				btRigidBody::btRigidBodyConstructionInfo	cinfo(0,0,0);
+				bodyOther = new btRigidBody(cinfo);
+
+				 bodyOther->setWorldTransform(bodyRef->getWorldTransform());
+				 localAttachmentOther = localAttachmentFrameRef;
+
+			}
+
+			bool useReferenceFrameA = true;
+			btGeneric6DofConstraint* genericConstraint = new btGeneric6DofConstraint(
+						*bodyRef,*bodyOther,
+						localAttachmentFrameRef,localAttachmentOther,useReferenceFrameA);
+
+			genericConstraint->setLinearLowerLimit(linearMinLimits);
+			genericConstraint->setLinearUpperLimit(linearMaxLimits);
+			genericConstraint->setAngularLowerLimit(angularMinLimits);
+			genericConstraint->setAngularUpperLimit(angularMaxLimits);
+
+			m_dynamicsWorld->addConstraint( genericConstraint,disableCollisionsBetweenLinkedBodies );
+			
+			return genericConstraint;
+		} 
+		return 0;
+	}
+
+btRigidBody*  ColladaConverter::createRigidBody(bool isDynamic, 
+	float mass, 
+	const btTransform& startTransform,
+	btCollisionShape* shape)
+{
+
+	if (!isDynamic && (mass != 0.f))
+	{
+		printf("Warning: non-dynamic objects needs to have zero mass!\n");
+		mass = 0.f;
+	}
+
+	if (isDynamic && (mass == 0.f))
+	{
+		printf("Warning: dynamic rigidbodies needs nonzero mass!\n");
+		mass = 1.f;
+	}
+
+	btVector3 localInertia(0,0,0);
+	if (isDynamic)
+		shape->calculateLocalInertia(mass,localInertia);
+
+	//using motionstate is recommended, it provides interpolation capabilities, and only synchronizes 'active' objects
+	btDefaultMotionState* myMotionState = new btDefaultMotionState(startTransform);
+	btRigidBody::btRigidBodyConstructionInfo cInfo(mass,myMotionState,shape,localInertia);
+	btRigidBody* body = new btRigidBody(cInfo);
+
+	m_dynamicsWorld->addRigidBody(body);
+	return body;
+}
+
+int ColladaConverter::getNumRigidBodies ()
+{
+	return m_dynamicsWorld->getNumCollisionObjects();
+}
+
+btRigidBody* ColladaConverter::getRigidBody (int i)
+{
+	return btRigidBody::upcast(m_dynamicsWorld->getCollisionObjectArray ()[i]);
+}
+
+int ColladaConverter::getNumConstraints ()
+{
+	return m_dynamicsWorld->getNumConstraints ();
+}
+
+btTypedConstraint* ColladaConverter::getConstraint (int i)
+{
+	return m_dynamicsWorld->getConstraint (i);
+}
+
+void	ColladaConverter::setGravity(const btVector3& grav)
+{
+	m_dynamicsWorld->setGravity(grav);
+}
+
+btVector3 ColladaConverter::getGravity ()
+{
+	return m_dynamicsWorld->getGravity ();
 }

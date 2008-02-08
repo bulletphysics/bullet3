@@ -24,13 +24,16 @@ subject to the following restrictions:
 class btCollisionShape;
 class btRigidBody;
 class btTypedConstraint;
-
+class btDynamicsWorld;
 class ConstraintInput;
 
 ///ColladaConverter helps converting the physics assets from COLLADA DOM into physics objects
 class ColladaConverter
 {
 protected:
+
+	btDynamicsWorld* m_dynamicsWorld;
+
 	class DAE* m_collada;
 	class domCOLLADA* m_dom;
 	char* m_filename;
@@ -89,7 +92,7 @@ protected:
 	void syncOrAddRigidBody (btRigidBody* body);
 	void syncOrAddConstraint (btTypedConstraint* constraint);
 public:
-	ColladaConverter();
+	ColladaConverter(btDynamicsWorld* dynaWorld);
 
 	///load a COLLADA .dae file
 	bool	load(const char* filename);
@@ -108,18 +111,20 @@ public:
 			const btVector3& angularMinLimits,
 			const btVector3& angularMaxLimits,
 			bool disableCollisionsBetweenLinkedBodies
-			) = 0;
+			);
 	virtual btRigidBody*  createRigidBody(bool isDynamic, 
 		float mass, 
 		const btTransform& startTransform,
-		btCollisionShape* shape) = 0;
-	virtual int getNumRigidBodies () = 0;
-	virtual btRigidBody* getRigidBody (int i) = 0;
-	virtual int getNumConstraints () = 0;
-	virtual btTypedConstraint* getConstraint (int i) = 0;
-	virtual	void	setGravity(const btVector3& gravity) = 0;
-	virtual btVector3 getGravity () = 0;
-	virtual	void	setCameraInfo(const btVector3& up, int forwardAxis) = 0;
+		btCollisionShape* shape);
+	virtual int getNumRigidBodies ();
+	virtual btRigidBody* getRigidBody (int i);
+	virtual int getNumConstraints ();
+	virtual btTypedConstraint* getConstraint (int i);
+	virtual	void	setGravity(const btVector3& gravity);
+	virtual btVector3 getGravity ();
+	virtual	void	setCameraInfo(const btVector3& up, int forwardAxis)
+	{
+	};
 };
 
 #endif //COLLADA_CONVERTER_H

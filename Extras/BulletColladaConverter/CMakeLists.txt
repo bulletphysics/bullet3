@@ -3,5 +3,6 @@ ${BULLET_PHYSICS_SOURCE_DIR}/src ${BULLET_PHYSICS_SOURCE_DIR}/Extras/BulletColla
 )
 
 ADD_LIBRARY(LibBulletColladaConverter
+			ColladaConverter.h
 			ColladaConverter.cpp
 )
