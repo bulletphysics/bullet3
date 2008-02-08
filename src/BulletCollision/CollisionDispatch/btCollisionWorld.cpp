@@ -626,11 +626,14 @@ void	btCollisionWorld::convexSweepTest(const btConvexShape* castShape, const btT
 	convexFromTrans = convexFromWorld;
 	convexToTrans = convexToWorld;
 	btVector3 castShapeAabbMin, castShapeAabbMax;
-	/* Compute AABB that encompasses movement */
+	/* Compute AABB that encompasses angular movement */
 	{
 		btVector3 linVel, angVel;
 		btTransformUtil::calculateVelocity (convexFromTrans, convexToTrans, 1.0, linVel, angVel);
-		castShape->calculateTemporalAabb (convexFromTrans, linVel, angVel, 1.0, castShapeAabbMin, castShapeAabbMax);
+		btTransform R;
+		R.setIdentity ();
+		R.setRotation (convexFromTrans.getRotation());
+		castShape->calculateTemporalAabb (R, linVel, angVel, 1.0, castShapeAabbMin, castShapeAabbMax);
 	}
 
 	/// go over all objects, and if the ray intersects their aabb + cast shape aabb,
