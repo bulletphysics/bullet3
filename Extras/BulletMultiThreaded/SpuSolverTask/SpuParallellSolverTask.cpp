@@ -218,6 +218,7 @@ static void setupSpuBody (btRigidBody* rb, SpuSolverBody* spuBody)
 	spuBody->m_angularVelocity = rb->getAngularVelocity();
 	spuBody->m_worldInvInertiaTensor = rb->getInvInertiaTensorWorld();
 	spuBody->m_invertedMass = rb->getInvMass();
+	spuBody->m_angularFactor = rb->getAngularFactor ();
 }
 //-- RB HANDLING END
 
@@ -439,12 +440,12 @@ static void solveContact (SpuSolverInternalConstraint& constraint, SpuSolverBody
 		if (bodyA.m_invertedMass > 0)
 		{
 			bodyA.m_linearVelocity += constraint.m_normal*bodyA.m_invertedMass*normalImpulse;
-			bodyA.m_angularVelocity += constraint.m_angularComponentA*normalImpulse;
+			bodyA.m_angularVelocity += bodyA.m_angularFactor * constraint.m_angularComponentA*normalImpulse;
 		}
 		if (bodyB.m_invertedMass > 0)
 		{
 			bodyB.m_linearVelocity -= constraint.m_normal*bodyB.m_invertedMass*normalImpulse;
-			bodyB.m_angularVelocity -= constraint.m_angularComponentB*normalImpulse;
+			bodyB.m_angularVelocity -= bodyB.m_angularFactor * constraint.m_angularComponentB*normalImpulse;
 		}
 
 	}
@@ -483,12 +484,12 @@ static void solveFriction (SpuSolverInternalConstraint& constraint, SpuSolverBod
 		if (bodyA.m_invertedMass > 0)
 		{
 			bodyA.m_linearVelocity += constraint.m_normal*bodyA.m_invertedMass*j1;
-			bodyA.m_angularVelocity += constraint.m_angularComponentA*j1;
+			bodyA.m_angularVelocity += bodyA.m_angularFactor * constraint.m_angularComponentA*j1;
 		}
 		if (bodyB.m_invertedMass > 0)
 		{
 			bodyB.m_linearVelocity -= constraint.m_normal*bodyB.m_invertedMass*j1;
-			bodyB.m_angularVelocity -= constraint.m_angularComponentB*j1;
+			bodyB.m_angularVelocity -= bodyB.m_angularFactor * constraint.m_angularComponentB*j1;
 		}
 
 	} 
@@ -529,12 +530,12 @@ static void solveConstraint (SpuSolverConstraint& constraint, SpuSolverBody& bod
 				if (bodyA.m_invertedMass > 0)
 				{
 					bodyA.m_linearVelocity += impNormal*bodyA.m_invertedMass;
-					bodyA.m_angularVelocity += bodyA.m_worldInvInertiaTensor * (btVector3(constraint.m_relPos1).cross(impNormal));
+					bodyA.m_angularVelocity += bodyA.m_angularFactor * (bodyA.m_worldInvInertiaTensor * (btVector3(constraint.m_relPos1).cross(impNormal)));
 				}
 				if (bodyB.m_invertedMass > 0)
 				{
 					bodyB.m_linearVelocity -= impNormal*bodyB.m_invertedMass;
-					bodyB.m_angularVelocity -= bodyB.m_worldInvInertiaTensor * (btVector3(constraint.m_relPos2).cross(impNormal));
+					bodyB.m_angularVelocity -=  bodyB.m_angularFactor * (bodyB.m_worldInvInertiaTensor * (btVector3(constraint.m_relPos2).cross(impNormal)));
 				}
 
 				normal[i] = 0;
@@ -573,11 +574,11 @@ static void solveConstraint (SpuSolverConstraint& constraint, SpuSolverBody& bod
 				// Apply
 				if (bodyA.m_invertedMass > 0)
 				{
-					bodyA.m_angularVelocity += bodyA.m_worldInvInertiaTensor * impAxis;
+					bodyA.m_angularVelocity +=  bodyA.m_angularFactor * (bodyA.m_worldInvInertiaTensor * impAxis);
 				}
 				if (bodyB.m_invertedMass > 0)
 				{
-					bodyB.m_angularVelocity -= bodyB.m_worldInvInertiaTensor * impAxis;
+					bodyB.m_angularVelocity -= bodyB.m_angularFactor * (bodyB.m_worldInvInertiaTensor * impAxis);
 				}
 			}
 
@@ -603,11 +604,11 @@ static void solveConstraint (SpuSolverConstraint& constraint, SpuSolverBody& bod
 				// Apply
 				if (bodyA.m_invertedMass > 0)
 				{
-					bodyA.m_angularVelocity += bodyA.m_worldInvInertiaTensor * impAxis;
+					bodyA.m_angularVelocity += bodyA.m_angularFactor * (bodyA.m_worldInvInertiaTensor * impAxis);
 				}
 				if (bodyB.m_invertedMass > 0)
 				{
-					bodyB.m_angularVelocity -= bodyB.m_worldInvInertiaTensor * impAxis;
+					bodyB.m_angularVelocity -= bodyB.m_angularFactor * (bodyB.m_worldInvInertiaTensor * impAxis);
 				}				
 			}
 
@@ -633,11 +634,11 @@ static void solveConstraint (SpuSolverConstraint& constraint, SpuSolverBody& bod
 				// Apply
 				if (bodyA.m_invertedMass > 0)
 				{
-					bodyA.m_angularVelocity += bodyA.m_worldInvInertiaTensor * impAxis;
+					bodyA.m_angularVelocity += bodyA.m_angularFactor * (bodyA.m_worldInvInertiaTensor * impAxis);
 				}
 				if (bodyB.m_invertedMass > 0)
 				{
-					bodyB.m_angularVelocity -= bodyB.m_worldInvInertiaTensor * impAxis;
+					bodyB.m_angularVelocity -= bodyB.m_angularFactor * (bodyB.m_worldInvInertiaTensor * impAxis);
 				}
 			}
 		}
@@ -666,11 +667,11 @@ static void solveConstraint (SpuSolverConstraint& constraint, SpuSolverBody& bod
 				// Apply
 				if (bodyA.m_invertedMass > 0)
 				{
-					bodyA.m_angularVelocity += bodyA.m_worldInvInertiaTensor * impAxis;
+					bodyA.m_angularVelocity += bodyA.m_angularFactor * (bodyA.m_worldInvInertiaTensor * impAxis);
 				}
 				if (bodyB.m_invertedMass > 0)
 				{
-					bodyB.m_angularVelocity -= bodyB.m_worldInvInertiaTensor * impAxis;
+					bodyB.m_angularVelocity -= bodyB.m_angularFactor * (bodyB.m_worldInvInertiaTensor * impAxis);
 				}
 			}
 
@@ -696,11 +697,11 @@ static void solveConstraint (SpuSolverConstraint& constraint, SpuSolverBody& bod
 				// Apply
 				if (bodyA.m_invertedMass > 0)
 				{
-					bodyA.m_angularVelocity += bodyA.m_worldInvInertiaTensor * impAxis;
+					bodyA.m_angularVelocity += bodyA.m_angularFactor * (bodyA.m_worldInvInertiaTensor * impAxis);
 				}
 				if (bodyB.m_invertedMass > 0)
 				{
-					bodyB.m_angularVelocity -= bodyB.m_worldInvInertiaTensor * impAxis;
+					bodyB.m_angularVelocity -= bodyB.m_angularFactor * (bodyB.m_worldInvInertiaTensor * impAxis);
 				}	
 			}
 		}

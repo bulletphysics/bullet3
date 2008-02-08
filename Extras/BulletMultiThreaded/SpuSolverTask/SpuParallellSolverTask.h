@@ -114,7 +114,7 @@ ATTRIBUTE_ALIGNED16(struct) SpuSolverBody
 	btVector3			m_angularVelocity;
 
 	btMatrix3x3			m_worldInvInertiaTensor;
-
+	btScalar            m_angularFactor;
 	btScalar				m_invertedMass;
 };
 
