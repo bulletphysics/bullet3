@@ -1362,7 +1362,7 @@ ColladaConverter::addConcaveMesh(btCollisionShape* shape, const char* nodeName)
 		btAssert (vertexBase);
 		btAssert (indexBase);
 		btAssert (vertexType == PHY_FLOAT);
-		btAssert (indexType == PHY_INTEGER);
+	
 
 		//we will need 3 sources for this mesh. positions, normals, and UVs
 		domSource *positionSrc = daeSafeCast<domSource>( mesh->createAndPlace( COLLADA_ELEMENT_SOURCE ) );
@@ -1428,13 +1428,23 @@ ColladaConverter::addConcaveMesh(btCollisionShape* shape, const char* nodeName)
 		//each set of three is one number per input-offset. for this example it's vert, normal, uv.
 		//three sets of three indices per triangle
 
-		for (int t = 0; t < numFaces; t++)
+		if (indexType == PHY_SHORT)
 		{
-			int* index = (int*)indexBase;
-			indices.append3( index[0], index[1], index[2]);
-			indexBase += indexStride;
+			for (int t = 0; t < numFaces; t++)
+			{
+				short int* index = (short int*)indexBase;
+				indices.append3( index[0], index[1], index[2]);
+				indexBase += indexStride;
+			}
+		} else
+		{
+			for (int t = 0; t < numFaces; t++)
+			{
+				int* index = (int*)indexBase;
+				indices.append3( index[0], index[1], index[2]);
+				indexBase += indexStride;
+			}
 		}
-
 
 		meshInterface->unLockReadOnlyVertexBase (i);
 	}

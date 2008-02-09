@@ -87,6 +87,11 @@ void btManifoldResult::addContactPoint(const btVector3& normalOnBInWorld,const b
 	newPt.m_combinedFriction = calculateCombinedFriction(m_body0,m_body1);
 	newPt.m_combinedRestitution = calculateCombinedRestitution(m_body0,m_body1);
 
+   //BP mod, store contact triangles.
+   newPt.m_partId0 = m_partId0;
+   newPt.m_partId1 = m_partId1;
+   newPt.m_index0  = m_index0;
+   newPt.m_index1  = m_index1;
 	
 	///todo, check this for any side effects
 	if (insertIndex >= 0)

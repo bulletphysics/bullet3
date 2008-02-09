@@ -65,6 +65,11 @@ class btManifoldPoint
 			btScalar	m_combinedFriction;
 			btScalar	m_combinedRestitution;
 
+         //BP mod, store contact triangles.
+         int	   m_partId0;
+         int      m_partId1;
+         int      m_index0;
+         int      m_index1;
 				
 			mutable void*	m_userPersistentData;
 			btScalar		m_appliedImpulse;
