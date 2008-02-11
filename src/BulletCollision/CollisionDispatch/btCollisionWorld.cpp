@@ -227,7 +227,7 @@ void	btCollisionWorld::rayTestSingle(const btTransform& rayFromTrans,const btTra
 		btVoronoiSimplexSolver	simplexSolver;
 #define USE_SUBSIMPLEX_CONVEX_CAST 1
 #ifdef USE_SUBSIMPLEX_CONVEX_CAST
-				btSubsimplexConvexCast convexCaster(castShape,convexShape,&simplexSolver);
+		btSubsimplexConvexCast convexCaster(castShape,convexShape,&simplexSolver);
 #else
 		//btGjkConvexCast	convexCaster(castShape,convexShape,&simplexSolver);
 		//btContinuousConvexCollision convexCaster(castShape,convexShape,&simplexSolver,0);
@@ -412,11 +412,6 @@ void	btCollisionWorld::objectQuerySingle(const btConvexShape* castShape,const bt
 			{					
 				if (castResult.m_fraction < resultCallback.m_closestHitFraction)
 				{
-#ifdef USE_SUBSIMPLEX_CONVEX_CAST
-					//rotate normal into worldspace
-					castResult.m_normal = convexFromTrans.getBasis() * castResult.m_normal;
-#endif //USE_SUBSIMPLEX_CONVEX_CAST
-
 					castResult.m_normal.normalize();
 					btCollisionWorld::LocalConvexResult localConvexResult
 								(
@@ -477,7 +472,7 @@ void	btCollisionWorld::objectQuerySingle(const btConvexShape* castShape,const bt
 								hitPointLocal,
 								hitFraction);
 							
-							bool	normalInWorldSpace = false;
+							bool	normalInWorldSpace = true;
 
 					
 							return m_resultCallback->AddSingleResult(convexResult,normalInWorldSpace);
