@@ -4,7 +4,7 @@
 #include "BulletCollision/CollisionDispatch/btCollisionObject.h"
 #include "BulletCollision/CollisionDispatch/btCollisionWorld.h"
 #include "LinearMath/btVector3.h"
-#include "PlatformDefinitions.h"
+#include "../PlatformDefinitions.h"
 
 struct RaycastGatheredObjectData
 {

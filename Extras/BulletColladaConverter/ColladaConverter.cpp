@@ -2234,10 +2234,20 @@ bool ColladaConverter::save(const char* filename)
 		//create the required asset tag
 		domAssetRef asset = daeSafeCast<domAsset>( m_dom->createAndPlace( COLLADA_ELEMENT_ASSET ) );
 		domAsset::domCreatedRef created = daeSafeCast<domAsset::domCreated>( asset->createAndPlace( COLLADA_ELEMENT_CREATED ) );
-		created->setValue("FIXME O'CLOCK");
-
+		created->setValue("2008-02-12T15:28:54.891550");
 		domAsset::domModifiedRef modified = daeSafeCast<domAsset::domModified>( asset->createAndPlace( COLLADA_ELEMENT_MODIFIED ) );
-		modified->setValue("FIXME O'CLOCK");
+		modified->setValue("2008-02-12T15:28:54.891550");
+
+		domAsset::domContributorRef contrib = daeSafeCast<domAsset::domContributor>( asset->createAndPlace( COLLADA_TYPE_CONTRIBUTOR ) );
+
+		domAsset::domContributor::domAuthoring_toolRef authoringtool = daeSafeCast<domAsset::domContributor::domAuthoring_tool>( contrib->createAndPlace( COLLADA_ELEMENT_AUTHORING_TOOL ) );
+		char authbuffer[512];
+		sprintf(authbuffer,"Bullet Physics SDK %d Snapshot(BulletColladaConverter) http://bulletphysics.com",BT_BULLET_VERSION);
+		authoringtool->setValue(authbuffer);
+
+		domAsset::domUp_axisRef yup = daeSafeCast<domAsset::domUp_axis>( asset->createAndPlace( COLLADA_ELEMENT_UP_AXIS ) );
+		yup->setValue(UPAXISTYPE_Y_UP);
+		
 		domPhysics_sceneRef physicsScene = getDefaultPhysicsScene ();
 		domPhysics_scene::domTechnique_commonRef common = daeSafeCast<domPhysics_scene::domTechnique_common>(physicsScene->createAndPlace (COLLADA_ELEMENT_TECHNIQUE_COMMON));
 		domTargetableFloat3Ref g = daeSafeCast<domTargetableFloat3>(common->createAndPlace (COLLADA_ELEMENT_GRAVITY));
@@ -2258,6 +2268,8 @@ bool ColladaConverter::save(const char* filename)
 	}
 
 	{
+		//let the user deal with the name pre/post fixing etc.
+		/*
 		char	saveName[550];
 		static int saveCount=1;
 		sprintf(saveName,"%s%i",getLastFileName(),saveCount++);
@@ -2266,8 +2278,9 @@ bool ColladaConverter::save(const char* filename)
 		{
 			name = &saveName[1];
 		} 
+		*/
 
-		m_collada->saveAs (name);
+		m_collada->saveAs (filename);
 	}
 #if 0
 	if (m_collada)

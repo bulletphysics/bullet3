@@ -94,7 +94,7 @@ int main(int argc,char** argv)
 	colladaDemo->initPhysics(filename);
 
 	
-	colladaDemo->clientResetScene();
+//	colladaDemo->clientResetScene();
 
 	colladaDemo->setCameraDistance(26.f);
 
