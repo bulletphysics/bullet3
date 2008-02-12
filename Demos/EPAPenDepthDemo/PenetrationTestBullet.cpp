@@ -300,7 +300,7 @@ static bool TestEPA(const MyConvex& hull0, const MyConvex& hull1)
 #endif
 	
 
-	btConvexPenetrationDepthSolver* Solver;
+	btConvexPenetrationDepthSolver* Solver = NULL ;
 			if(gMethod==0)	
 				Solver = &Solver0;
 	else	if(gMethod==1)	

@@ -283,3 +283,4 @@ float	btConvexConvexAlgorithm::calculateTimeOfImpact(btCollisionObject* col0,btC
 	return resultFraction;
 
 }
+

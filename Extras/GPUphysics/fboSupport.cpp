@@ -170,25 +170,35 @@ FrameBufferObject::FrameBufferObject ( int         _width ,
       break ;
   }
 
+fprintf(stderr,"@a\n" ) ;
   glGenTextures ( 1, & textureHandle ) ;
+fprintf(stderr,"@b\n" ) ;
   glBindTexture   ( GL_TEXTURE_2D, textureHandle ) ;
+fprintf(stderr,"@c\n" ) ;
   glTexParameterf ( GL_TEXTURE_2D, GL_TEXTURE_MIN_FILTER, GL_NEAREST ) ;
+fprintf(stderr,"@d\n" ) ;
   glTexParameterf ( GL_TEXTURE_2D, GL_TEXTURE_MAG_FILTER, GL_NEAREST ) ;
+fprintf(stderr,"@e\n" ) ;
   //glTexParameteri ( GL_TEXTURE_2D, GL_TEXTURE_WRAP_S, GL_CLAMP_TO_EDGE ) ;
   //glTexParameteri ( GL_TEXTURE_2D, GL_TEXTURE_WRAP_T, GL_CLAMP_TO_EDGE ) ;
   fillTexture ( (void *) NULL ) ;
+fprintf(stderr,"@f\n" ) ;
 
   glGenFramebuffersEXT  ( 1, & fboHandle     ) ;
+fprintf(stderr,"@g\n" ) ;
   glBindFramebufferEXT  ( GL_FRAMEBUFFER_EXT, fboHandle ) ;
+fprintf(stderr,"@h\n" ) ;
 
   glFramebufferTexture2DEXT ( GL_FRAMEBUFFER_EXT, GL_COLOR_ATTACHMENT0_EXT,
                               GL_TEXTURE_2D, textureHandle, 0 ) ;
+fprintf(stderr,"@i\n" ) ;
 
 #ifdef NEED_DEPTH_BUFFER
   static GLuint depth_rb = 0 ;
 
   if ( depth_rb == 0 )
   {
+fprintf(stderr,"@j\n" ) ;
     glGenRenderbuffersEXT        ( 1, & depth_rb ) ;
     glBindRenderbufferEXT        ( GL_RENDERBUFFER_EXT, depth_rb ) ;
     glRenderbufferStorageEXT     ( GL_RENDERBUFFER_EXT, GL_DEPTH_COMPONENT24,
@@ -197,13 +207,19 @@ FrameBufferObject::FrameBufferObject ( int         _width ,
                                    GL_RENDERBUFFER_EXT, depth_rb ) ;
   }
   else
+{
+fprintf(stderr,"@k\n" ) ;
     glFramebufferRenderbufferEXT ( GL_FRAMEBUFFER_EXT, GL_DEPTH_ATTACHMENT_EXT,
                                    GL_RENDERBUFFER_EXT, depth_rb ) ;
+}
 #else
+fprintf(stderr,"@l\n" ) ;
   glDisable ( GL_DEPTH_TEST ) ;
   glDepthMask ( 0 ) ;
+fprintf(stderr,"@m\n" ) ;
   glFramebufferRenderbufferEXT ( GL_FRAMEBUFFER_EXT , GL_DEPTH_ATTACHMENT_EXT,
                                  GL_RENDERBUFFER_EXT, 0 ) ;
+fprintf(stderr,"@n\n" ) ;
 #endif
 
 #ifdef NEED_STENCIL_BUFFER
@@ -211,6 +227,7 @@ FrameBufferObject::FrameBufferObject ( int         _width ,
 
   if ( stencil_rb == 0 )
   {
+fprintf(stderr,"@o\n" ) ;
     glGenRenderbuffersEXT        ( 1, & stencil_rb ) ;
     glBindRenderbufferEXT        ( GL_RENDERBUFFER_EXT, stencil_rb ) ;
     glRenderbufferStorageEXT     ( GL_RENDERBUFFER_EXT, GL_STENCIL_INDEX,
@@ -222,16 +239,21 @@ FrameBufferObject::FrameBufferObject ( int         _width ,
     glFramebufferRenderbufferEXT ( GL_FRAMEBUFFER_EXT , GL_STENCIL_ATTACHMENT_EXT,
                                    GL_RENDERBUFFER_EXT, stencil_rb ) ;
 #else
+fprintf(stderr,"@p\n" ) ;
   glDisable ( GL_STENCIL_TEST ) ;
   glStencilMask ( 0 ) ;
+fprintf(stderr,"@q\n" ) ;
   glFramebufferRenderbufferEXT ( GL_FRAMEBUFFER_EXT , GL_STENCIL_ATTACHMENT_EXT,
                                  GL_RENDERBUFFER_EXT, 0 ) ;
+fprintf(stderr,"@r\n" ) ;
 #endif
 
   // Check framebuffer completeness at the end of initialization.
 
   checkFrameBufferStatus () ;
+fprintf(stderr,"@s\n" ) ;
   restoreFrameBuffer () ;
+fprintf(stderr,"@t\n" ) ;
 }
 
 

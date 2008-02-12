@@ -385,7 +385,7 @@ static GLfloat floorShadow[4][4];
 static void
 redraw(void)
 {
-  int start, end;
+  int start = 0, end = 0 ;
 
   if (reportSpeed) {
     start = glutGet(GLUT_ELAPSED_TIME);

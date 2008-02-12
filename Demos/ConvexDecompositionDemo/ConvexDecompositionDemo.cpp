@@ -138,7 +138,7 @@ void ConvexDecompositionDemo::initPhysics(const char* filename)
 					std::vector<btVector3> vertices;
 					if ( 1 )
 					{
-						const unsigned int *src = result.mHullIndices;
+						//const unsigned int *src = result.mHullIndices;
 						for (unsigned int i=0; i<result.mHullVcount; i++)
 						{
 							btVector3 vertex(result.mHullVertices[i*3],result.mHullVertices[i*3+1],result.mHullVertices[i*3+2]);
@@ -152,7 +152,7 @@ void ConvexDecompositionDemo::initPhysics(const char* filename)
 
 					if ( 1 )
 					{
-						const unsigned int *src = result.mHullIndices;
+						//const unsigned int *src = result.mHullIndices;
 						for (unsigned int i=0; i<result.mHullVcount; i++)
 						{
 							btVector3 vertex(result.mHullVertices[i*3],result.mHullVertices[i*3+1],result.mHullVertices[i*3+2]);
@@ -197,7 +197,7 @@ void ConvexDecompositionDemo::initPhysics(const char* filename)
 					}
 
 					float mass = 1.f;
-					float collisionMargin = 0.01f;
+					//float collisionMargin = 0.01f;
 
 //this is a tools issue: due to collision margin, convex objects overlap, compensate for it here:
 //#define SHRINK_OBJECT_INWARDS 1

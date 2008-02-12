@@ -1389,7 +1389,7 @@ Last column is added as the position
  */
 #define ADJOINT_4X4(a,m)					\
 {								\
-   char _i_,_j_;							\
+   int _i_,_j_;							\
 								\
    for (_i_=0; _i_<4; _i_++) {					\
       for (_j_=0; _j_<4; _j_++) {					\

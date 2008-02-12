@@ -74,6 +74,7 @@ void btGIMPACTMeshData::addMeshPart(btStridingMeshInterface* meshInterface, int 
 			int_type = G_STYPE_INT;
 			break;
 		case PHY_SHORT:
+                default :
 			int_type = G_STYPE_SHORT;
 			break;
 	}
@@ -85,6 +86,7 @@ void btGIMPACTMeshData::addMeshPart(btStridingMeshInterface* meshInterface, int 
 			vert_type = G_STYPE_REAL;
 			break;
 		case PHY_DOUBLE:
+                default :
 			vert_type = G_STYPE_REAL2;
 			break;
 	}

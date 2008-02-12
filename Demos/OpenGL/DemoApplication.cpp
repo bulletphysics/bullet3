@@ -431,7 +431,6 @@ void	DemoApplication::shootBox(const btVector3& destination)
 
 	if (m_dynamicsWorld)
 	{
-		bool isDynamic = true;
 		float mass = 1.f;
 		btTransform startTransform;
 		startTransform.setIdentity();
@@ -851,14 +850,11 @@ void DemoApplication::renderme()
 
 
 				//bool useBulletLCP = !(getDebugMode() & btIDebugDraw::DBG_DisableBulletLCP);
-
-				bool useCCD = (getDebugMode() & btIDebugDraw::DBG_EnableCCD);
-
-/*				glRasterPos3f(xOffset,yStart,0);
-				sprintf(buf,"1 CCD mode (adhoc) = %i",useCCD);
-				BMF_DrawString(BMF_GetFont(BMF_kHelvetica10),buf);
-				yStart += yIncr;
-				*/
+				//bool useCCD = (getDebugMode() & btIDebugDraw::DBG_EnableCCD);
+				//glRasterPos3f(xOffset,yStart,0);
+				//sprintf(buf,"1 CCD mode (adhoc) = %i",useCCD);
+				//BMF_DrawString(BMF_GetFont(BMF_kHelvetica10),buf);
+				//yStart += yIncr;
 
 
 				glRasterPos3f(xOffset,yStart,0);
