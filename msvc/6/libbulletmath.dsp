@@ -104,7 +104,7 @@ SOURCE="$(InputPath)"
 # PROP Default_Filter ""
 # Begin Source File
 
-SOURCE=..\..\src\LinearMath\GenQuickprof.cpp
+SOURCE=..\..\src\LinearMath\btQuickprof.cpp
 # End Source File
 # End Group
 # Begin Group "Header Files"
@@ -112,63 +112,63 @@ SOURCE=..\..\src\LinearMath\GenQuickprof.cpp
 # PROP Default_Filter ""
 # Begin Source File
 
-SOURCE=..\..\src\LinearMath\GenAabbUtil2.h
+SOURCE=..\..\src\LinearMath\btAabbUtil2.h
 # End Source File
 # Begin Source File
 
-SOURCE=..\..\src\LinearMath\GenIDebugDraw.h
+SOURCE=..\..\src\LinearMath\btIDebugDraw.h
 # End Source File
 # Begin Source File
 
-SOURCE=..\..\src\LinearMath\GenList.h
+SOURCE=..\..\src\LinearMath\btList.h
 # End Source File
 # Begin Source File
 
-SOURCE=..\..\src\LinearMath\GenMinMax.h
+SOURCE=..\..\src\LinearMath\btMatrix3x3.h
 # End Source File
 # Begin Source File
 
-SOURCE=..\..\src\LinearMath\GenQuickprof.h
+SOURCE=..\..\src\LinearMath\btMinMax.h
 # End Source File
 # Begin Source File
 
-SOURCE=..\..\src\LinearMath\GenRandom.h
+SOURCE=..\..\src\LinearMath\btPoint3.h
 # End Source File
 # Begin Source File
 
-SOURCE=..\..\src\LinearMath\SimdMatrix3x3.h
+SOURCE=..\..\src\LinearMath\btQuadWord.h
 # End Source File
 # Begin Source File
 
-SOURCE=..\..\src\LinearMath\SimdMinMax.h
+SOURCE=..\..\src\LinearMath\btQuaternion.h
 # End Source File
 # Begin Source File
 
-SOURCE=..\..\src\LinearMath\SimdPoint3.h
+SOURCE=..\..\src\LinearMath\btQuickprof.h
 # End Source File
 # Begin Source File
 
-SOURCE=..\..\src\LinearMath\SimdQuadWord.h
+SOURCE=..\..\src\LinearMath\btRandom.h
 # End Source File
 # Begin Source File
 
-SOURCE=..\..\src\LinearMath\SimdQuaternion.h
+SOURCE=..\..\src\LinearMath\btScalar.h
 # End Source File
 # Begin Source File
 
-SOURCE=..\..\src\LinearMath\SimdScalar.h
+SOURCE=..\..\src\LinearMath\btSimdMinMax.h
 # End Source File
 # Begin Source File
 
-SOURCE=..\..\src\LinearMath\SimdTransform.h
+SOURCE=..\..\src\LinearMath\btTransform.h
 # End Source File
 # Begin Source File
 
-SOURCE=..\..\src\LinearMath\SimdTransformUtil.h
+SOURCE=..\..\src\LinearMath\btTransformUtil.h
 # End Source File
 # Begin Source File
 
-SOURCE=..\..\src\LinearMath\SimdVector3.h
+SOURCE=..\..\src\LinearMath\btVector3.h
 # End Source File
 # End Group
 # End Target

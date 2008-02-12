@@ -132,7 +132,15 @@ SOURCE=..\..\src\BulletDynamics\ConstraintSolver\btTypedConstraint.cpp
 # End Source File
 # Begin Source File
 
+SOURCE=..\..\src\BulletDynamics\Dynamics\btDiscreteDynamicsWorld.cpp
+# End Source File
+# Begin Source File
+
 SOURCE=..\..\src\BulletDynamics\Dynamics\btRigidBody.cpp
+# End Source File
+# Begin Source File
+
+SOURCE=..\..\src\BulletDynamics\Dynamics\btSimpleDynamicsWorld.cpp
 # End Source File
 # Begin Source File
 
@@ -188,11 +196,23 @@ SOURCE=..\..\src\BulletDynamics\ConstraintSolver\btTypedConstraint.h
 # End Source File
 # Begin Source File
 
+SOURCE=..\..\src\BulletDynamics\Dynamics\btDiscreteDynamicsWorld.h
+# End Source File
+# Begin Source File
+
+SOURCE=..\..\src\BulletDynamics\Dynamics\btDynamicsWorld.h
+# End Source File
+# Begin Source File
+
 SOURCE=..\..\src\BulletDynamics\Dynamics\btMassProps.h
 # End Source File
 # Begin Source File
 
 SOURCE=..\..\src\BulletDynamics\Dynamics\btRigidBody.h
+# End Source File
+# Begin Source File
+
+SOURCE=..\..\src\BulletDynamics\Dynamics\btSimpleDynamicsWorld.h
 # End Source File
 # Begin Source File
 

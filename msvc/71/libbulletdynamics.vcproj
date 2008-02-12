@@ -183,7 +183,13 @@
 				RelativePath="..\..\src\BulletDynamics\ConstraintSolver\btTypedConstraint.cpp">
 			</File>
 			<File
+				RelativePath="..\..\src\BulletDynamics\Dynamics\btDiscreteDynamicsWorld.cpp">
+			</File>
+			<File
 				RelativePath="..\..\src\BulletDynamics\Dynamics\btRigidBody.cpp">
+			</File>
+			<File
+				RelativePath="..\..\src\BulletDynamics\Dynamics\btSimpleDynamicsWorld.cpp">
 			</File>
 			<File
 				RelativePath="..\..\src\BulletDynamics\Vehicle\btRaycastVehicle.cpp">
@@ -226,10 +232,19 @@
 				RelativePath="..\..\src\BulletDynamics\ConstraintSolver\btTypedConstraint.h">
 			</File>
 			<File
+				RelativePath="..\..\src\BulletDynamics\Dynamics\btDiscreteDynamicsWorld.h">
+			</File>
+			<File
+				RelativePath="..\..\src\BulletDynamics\Dynamics\btDynamicsWorld.h">
+			</File>
+			<File
 				RelativePath="..\..\src\BulletDynamics\Dynamics\btMassProps.h">
 			</File>
 			<File
 				RelativePath="..\..\src\BulletDynamics\Dynamics\btRigidBody.h">
+			</File>
+			<File
+				RelativePath="..\..\src\BulletDynamics\Dynamics\btSimpleDynamicsWorld.h">
 			</File>
 			<File
 				RelativePath="..\..\src\BulletDynamics\Vehicle\btRaycastVehicle.h">

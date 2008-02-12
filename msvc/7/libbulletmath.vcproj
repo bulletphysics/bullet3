@@ -162,56 +162,56 @@
 			Name="Source Files"
 			Filter="">
 			<File
-				RelativePath="..\..\src\LinearMath\GenQuickprof.cpp">
+				RelativePath="..\..\src\LinearMath\btQuickprof.cpp">
 			</File>
 		</Filter>
 		<Filter
 			Name="Header Files"
 			Filter="">
 			<File
-				RelativePath="..\..\src\LinearMath\GenAabbUtil2.h">
+				RelativePath="..\..\src\LinearMath\btAabbUtil2.h">
 			</File>
 			<File
-				RelativePath="..\..\src\LinearMath\GenIDebugDraw.h">
+				RelativePath="..\..\src\LinearMath\btIDebugDraw.h">
 			</File>
 			<File
-				RelativePath="..\..\src\LinearMath\GenList.h">
+				RelativePath="..\..\src\LinearMath\btList.h">
 			</File>
 			<File
-				RelativePath="..\..\src\LinearMath\GenMinMax.h">
+				RelativePath="..\..\src\LinearMath\btMatrix3x3.h">
 			</File>
 			<File
-				RelativePath="..\..\src\LinearMath\GenQuickprof.h">
+				RelativePath="..\..\src\LinearMath\btMinMax.h">
 			</File>
 			<File
-				RelativePath="..\..\src\LinearMath\GenRandom.h">
+				RelativePath="..\..\src\LinearMath\btPoint3.h">
 			</File>
 			<File
-				RelativePath="..\..\src\LinearMath\SimdMatrix3x3.h">
+				RelativePath="..\..\src\LinearMath\btQuadWord.h">
 			</File>
 			<File
-				RelativePath="..\..\src\LinearMath\SimdMinMax.h">
+				RelativePath="..\..\src\LinearMath\btQuaternion.h">
 			</File>
 			<File
-				RelativePath="..\..\src\LinearMath\SimdPoint3.h">
+				RelativePath="..\..\src\LinearMath\btQuickprof.h">
 			</File>
 			<File
-				RelativePath="..\..\src\LinearMath\SimdQuadWord.h">
+				RelativePath="..\..\src\LinearMath\btRandom.h">
 			</File>
 			<File
-				RelativePath="..\..\src\LinearMath\SimdQuaternion.h">
+				RelativePath="..\..\src\LinearMath\btScalar.h">
 			</File>
 			<File
-				RelativePath="..\..\src\LinearMath\SimdScalar.h">
+				RelativePath="..\..\src\LinearMath\btSimdMinMax.h">
 			</File>
 			<File
-				RelativePath="..\..\src\LinearMath\SimdTransform.h">
+				RelativePath="..\..\src\LinearMath\btTransform.h">
 			</File>
 			<File
-				RelativePath="..\..\src\LinearMath\SimdTransformUtil.h">
+				RelativePath="..\..\src\LinearMath\btTransformUtil.h">
 			</File>
 			<File
-				RelativePath="..\..\src\LinearMath\SimdVector3.h">
+				RelativePath="..\..\src\LinearMath\btVector3.h">
 			</File>
 		</Filter>
 	</Files>
