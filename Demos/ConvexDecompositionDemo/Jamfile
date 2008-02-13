@@ -10,11 +10,13 @@ SubDir TOP Demos ConvexDecompositionDemo ;
     CFlags $(<) :
           [ FIncludes $(TOP)/Demos/OpenGL ]
                                 [ FIncludes $(TOP)/Extras/ConvexDecomposition ]
+	[ FIncludes $(TOP)/Extras/ConvexHull ]
     ;
 
     MsvcIncDirs $(<) :
         "../../Demos/OpenGL"
-        "../../Extras/ConvexDecomposition" ;
+        "../../Extras/ConvexDecomposition" 
+	"../../Extras/ConvexHull" ;
   }
 
 ExtraDemo2 ConvexDecompositionDemo : [ Wildcard *.h *.cpp  ] ;

@@ -17,7 +17,6 @@ ADD_LIBRARY(LibLinearMath
 		btMinMax.h
 		btQuaternion.h
 		btStackAlloc.h
-		btConvexHull.h
 		btGeometryUtil.h
 		btMotionState.h
 		btTransform.h
@@ -28,7 +27,6 @@ ADD_LIBRARY(LibLinearMath
 		btTypedUserInfo.h
 		btTransformUtil.h
 		btQuickprof.cpp
-		btConvexHull.cpp
 		btGeometryUtil.cpp
 		btAlignedAllocator.cpp
 )

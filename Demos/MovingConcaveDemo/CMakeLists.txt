@@ -52,7 +52,7 @@ ${BULLET_PHYSICS_SOURCE_DIR}/Extras/GIMPACT/include ${BULLET_PHYSICS_SOURCE_DIR}
 )
 
 LINK_LIBRARIES(
-LibGIMPACT LibOpenGLSupport  LibBulletDynamics  LibBulletCollision LibLinearMath    ${GLUT_glut_LIBRARY} ${OPENGL_gl_LIBRARY} ${OPENGL_glu_LIBRARY}
+LibGIMPACT LibOpenGLSupport LibConvexHull LibBulletDynamics  LibBulletCollision LibLinearMath    ${GLUT_glut_LIBRARY} ${OPENGL_gl_LIBRARY} ${OPENGL_glu_LIBRARY}
 )
 
 ADD_EXECUTABLE(MovingConcaveDemo

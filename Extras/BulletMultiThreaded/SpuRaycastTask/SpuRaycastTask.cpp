@@ -289,7 +289,7 @@ void	spuWalkStacklessQuantizedTreeAgainstRay(RaycastTask_LocalStoreMemory* lsMem
 			bounds[0] = lsMemPtr->bvhShapeData.getOptimizedBvh()->unQuantize(rootNode->m_quantizedAabbMin);
 			bounds[1] = lsMemPtr->bvhShapeData.getOptimizedBvh()->unQuantize(rootNode->m_quantizedAabbMax);
 #ifdef RAYAABB2
-			rayBoxOverlap = true;//btRayAabb2 (raySource, rayDirection, sign, bounds, param, 0.0, lambda_max);
+			rayBoxOverlap = btRayAabb2 (raySource, rayDirection, sign, bounds, param, 0.0, lambda_max);
 #else
 			rayBoxOverlap = btRayAabb(raySource, rayTarget, bounds[0], bounds[1], param, normal);
 #endif
@@ -344,8 +344,8 @@ void performRaycastAgainstConcave (RaycastGatheredObjectData* gatheredObjectData
 
 	unsigned short int quantizedQueryAabbMin[3];
 	unsigned short int quantizedQueryAabbMax[3];
-	lsMemPtr->bvhShapeData.getOptimizedBvh()->quantizeWithClamp(quantizedQueryAabbMin,aabbMin);
-	lsMemPtr->bvhShapeData.getOptimizedBvh()->quantizeWithClamp(quantizedQueryAabbMax,aabbMax);
+	lsMemPtr->bvhShapeData.getOptimizedBvh()->quantizeWithClamp(quantizedQueryAabbMin,aabbMin,0);
+	lsMemPtr->bvhShapeData.getOptimizedBvh()->quantizeWithClamp(quantizedQueryAabbMax,aabbMax,1);
 
 	QuantizedNodeArray&	nodeArray = lsMemPtr->bvhShapeData.getOptimizedBvh()->getQuantizedNodeArray();
 	//spu_printf("SPU: numNodes = %d\n",nodeArray.size());

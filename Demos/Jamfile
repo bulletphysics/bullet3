@@ -8,12 +8,14 @@ if $(GLUT.AVAILABLE) = "yes"
   rule BulletDemo
   {
     Application $(<) : $(>) : noinstall console nomanifest ;
-    LinkWith $(<) :  bulletopenglsupport bulletdynamics bulletcollision bulletmath ;
+    LinkWith $(<) :  bulletopenglsupport convexhull bulletdynamics bulletcollision bulletmath ;
     CFlags $(<) : 
 	  [ FIncludes $(TOP)/Demos/OpenGL ] 
+	  [ FIncludes $(TOP)/Extras/ConvexHull ]
     ;
     MsvcIncDirs $(<) : 
 	"../../Demos/OpenGL" 
+	"../../Extras/ConvexHull"
 	"../../src" ;
   }
 }
@@ -35,17 +37,19 @@ if $(GLUT.AVAILABLE) = "yes"
   rule FrameWorkDemo
   {
     Application $(<) : $(>) : noinstall console nomanifest ;
-    LinkWith $(<) :  GIMPACTUtils  GIMPACT  bulletopenglsupport bulletmultithreaded convexdecomposition bulletdynamics bulletcollision bulletmath glui ;
+    LinkWith $(<) :  GIMPACTUtils  GIMPACT  bulletopenglsupport bulletmultithreaded convexdecomposition convexhull  bulletdynamics bulletcollision bulletmath glui ;
     CFlags $(<) :
           [ FIncludes $(TOP)/Extras ]
          [ FIncludes $(TOP)/Demos/OpenGL ]
 	[ FIncludes $(TOP)/Extras/ConvexDecomposition ]
+	[ FIncludes $(TOP)/Extras/ConvexHull ]
 	  [ FIncludes $(TOP)/Extras/GIMPACT/include ]
           [ FIncludes $(TOP)/Extras/GIMPACTUtils ]
     ;
     MsvcIncDirs $(<) :
         "../../Extras"
         "../../src"
+	"../../Extras/ConvexHull"
         "../../Demos/OpenGL"
 	"../../Extras/ConvexDecomposition"
 	"../../Extras/GIMPACT/include"

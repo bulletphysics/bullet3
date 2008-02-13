@@ -3,7 +3,7 @@ SubDir TOP Extras BulletColladaConverter ;
 #IncludeDir Extras/BulletColladaConverter ;
 
 Library BulletColladaConverter : [ Wildcard . : *.h *.cpp ]  : noinstall ;
-CFlags BulletColladaConverter : [ FIncludes $(TOP)/Extras/BulletColladaConverter ] [ FIncludes $(TOP)/Extras/COLLADA_DOM/include ] [ FIncludes $(TOP)/Extras/COLLADA_DOM/include/1.4 ] [ FIncludes $(TOP)/Extras/LibXML ] [ FIncludes $(TOP)/Extras/LibXML/include ] ;
+CFlags BulletColladaConverter : [ FIncludes $(TOP)/Extras/BulletColladaConverter ] [ FIncludes $(TOP)/Extras/COLLADA_DOM/include ] [ FIncludes $(TOP)/Extras/COLLADA_DOM/include/1.4 ] [ FIncludes $(TOP)/Extras/LibXML ] [ FIncludes $(TOP)/Extras/LibXML/include ] [ FIncludes $(TOP)/Extras/ConvexHull ] ;
 
 LibDepends BulletColladaConverter : colladadom libxml ;
 
@@ -13,6 +13,7 @@ LibDepends BulletColladaConverter : colladadom libxml ;
  	"../../Extras/COLLADA_DOM/include/1.4"
         "../../Extras/LibXML"
         "../../Extras/LibXML/include"  
+	"../../Extras/ConvexHull"
 
 ;
 
