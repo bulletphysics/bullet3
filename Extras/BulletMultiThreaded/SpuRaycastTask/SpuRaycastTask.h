@@ -6,7 +6,7 @@
 #include "LinearMath/btVector3.h"
 #include "../PlatformDefinitions.h"
 
-struct RaycastGatheredObjectData
+ATTRIBUTE_ALIGNED16(struct) RaycastGatheredObjectData
 {
 	ppu_address_t m_collisionShape;
 	void* m_spuCollisionShape;
@@ -33,7 +33,7 @@ ATTRIBUTE_ALIGNED16(struct) SpuRaycastTaskWorkUnit
 
 #define SPU_RAYCAST_WORK_UNITS_PER_TASK 4
 
-struct SpuRaycastTaskDesc
+ATTRIBUTE_ALIGNED128(struct) SpuRaycastTaskDesc
 {
 	SpuRaycastTaskWorkUnit workUnits[SPU_RAYCAST_WORK_UNITS_PER_TASK];
 	int numWorkUnits;

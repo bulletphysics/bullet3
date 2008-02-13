@@ -185,12 +185,30 @@ public:
 
 		//		spu_printf("processNode with triangleIndex %d\n",triangleIndex);
 
-		int* indexBasePtr = (int*)(m_lsMemPtr->bvhShapeData.gIndexMesh.m_triangleIndexBase+triangleIndex*m_lsMemPtr->bvhShapeData.gIndexMesh.m_triangleIndexStride);
-		
-		small_cache_read_triple(&m_lsMemPtr->spuIndices[0],(ppu_address_t)&indexBasePtr[0],
+			// ugly solution to support both 16bit and 32bit indices
+		if (m_lsMemPtr->bvhShapeData.gIndexMesh.m_indexType == PHY_SHORT)
+		{
+			short int* indexBasePtr = (short int*)(m_lsMemPtr->bvhShapeData.gIndexMesh.m_triangleIndexBase+triangleIndex*m_lsMemPtr->bvhShapeData.gIndexMesh.m_triangleIndexStride);
+			ATTRIBUTE_ALIGNED16(short int tmpIndices[3]);
+
+			small_cache_read_triple(&tmpIndices[0],(ppu_address_t)&indexBasePtr[0],
+									&tmpIndices[1],(ppu_address_t)&indexBasePtr[1],
+									&tmpIndices[2],(ppu_address_t)&indexBasePtr[2],
+									sizeof(short int));
+
+			m_lsMemPtr->spuIndices[0] = int(tmpIndices[0]);
+			m_lsMemPtr->spuIndices[1] = int(tmpIndices[1]);
+			m_lsMemPtr->spuIndices[2] = int(tmpIndices[2]);
+		} else
+		{
+			int* indexBasePtr = (int*)(m_lsMemPtr->bvhShapeData.gIndexMesh.m_triangleIndexBase+triangleIndex*m_lsMemPtr->bvhShapeData.gIndexMesh.m_triangleIndexStride);
+
+			small_cache_read_triple(&m_lsMemPtr->spuIndices[0],(ppu_address_t)&indexBasePtr[0],
 								&m_lsMemPtr->spuIndices[1],(ppu_address_t)&indexBasePtr[1],
 								&m_lsMemPtr->spuIndices[2],(ppu_address_t)&indexBasePtr[2],
 								sizeof(int));
+		}
+
 		//printf("%d %d %d\n", m_lsMemPtr->spuIndices[0], m_lsMemPtr->spuIndices[1], m_lsMemPtr->spuIndices[2]);
 		//		spu_printf("SPU index0=%d ,",spuIndices[0]);
 		//		spu_printf("SPU index1=%d ,",spuIndices[1]);
@@ -379,6 +397,7 @@ void performRaycastAgainstConcave (RaycastGatheredObjectData* gatheredObjectData
 
 			//			spu_printf("nextBatch = %d\n",nextBatch);
 
+			
 			for (int j=0;j<nextBatch;j++)
 			{
 				const btBvhSubtreeInfo& subtree = lsMemPtr->bvhShapeData.gSubtreeHeaders[j];
@@ -394,10 +413,13 @@ void performRaycastAgainstConcave (RaycastGatheredObjectData* gatheredObjectData
 					cellDmaWaitTagStatusAll(DMA_MASK(2));
 
 					/* Walk this subtree */
+					
+					{
 					spuWalkStacklessQuantizedTreeAgainstRay(lsMemPtr, &nodeCallback,rayFromInTriangleSpace, rayToInTriangleSpace, quantizedQueryAabbMin,quantizedQueryAabbMax,
 						&lsMemPtr->bvhShapeData.gSubtreeNodes[0],
 						0,
 						subtree.m_subtreeSize);
+					}
 				}
 				//				spu_printf("subtreeSize = %d\n",gSubtreeHeaders[j].m_subtreeSize);
 			}
@@ -484,10 +506,12 @@ void	processRaycastTask(void* userPtr, void* lsMemory)
 			SpuRaycastTaskWorkUnitOut tWorkUnitOut;
 			tWorkUnitOut.hitFraction = 1.0;
 
+
 			if (btBroadphaseProxy::isConvex (gatheredObjectData.m_shapeType))
 			{
 				performRaycastAgainstConvex (&gatheredObjectData, workUnit, &tWorkUnitOut, localMemory);
-			} else if (btBroadphaseProxy::isCompound (gatheredObjectData.m_shapeType)) {
+			}
+			else if (btBroadphaseProxy::isCompound (gatheredObjectData.m_shapeType)) {
 				performRaycastAgainstCompound (&gatheredObjectData, workUnit, &tWorkUnitOut, localMemory);
 			} else if (btBroadphaseProxy::isConcave (gatheredObjectData.m_shapeType)) {
 				performRaycastAgainstConcave (&gatheredObjectData, workUnit, &tWorkUnitOut, localMemory);
@@ -503,6 +527,8 @@ void	processRaycastTask(void* userPtr, void* lsMemory)
 			/* write ray cast data back */
 			dmaStoreRayOutput ((ppu_address_t)workUnit.output, &workUnitOut, 1);
 			cellDmaWaitTagStatusAll(DMA_MASK(1));
+
+
 		}
 	}
 	
