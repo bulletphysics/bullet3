@@ -35,8 +35,10 @@ protected:
 	SpuRaycastTaskProcess* m_spuRaycastTaskProcess;
 	class	btThreadSupportInterface*	m_threadInterface;
 public:
-	SpuBatchRaycaster (class btThreadSupportInterface* threadInterface, int maxNumOutstandingTasks, btCollisionObjectArray& castUponObjects, int numCastUponObjects);
+	SpuBatchRaycaster (class btThreadSupportInterface* threadInterface, int maxNumOutstandingTasks);
 	~SpuBatchRaycaster ();
+	void setCollisionObjects (btCollisionObjectArray& castUponObjects, int numCastUponObjects);
+
 	void addRay (const btVector3& rayFrom, const btVector3& rayTo);
 	void clearRays ();
 	void performBatchRaycast ();

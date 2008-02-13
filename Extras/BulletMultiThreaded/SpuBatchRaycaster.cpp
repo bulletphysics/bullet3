@@ -16,23 +16,39 @@ subject to the following restrictions:
 #include <new>
 #include "SpuBatchRaycaster.h"
 
-SpuBatchRaycaster::SpuBatchRaycaster (class	btThreadSupportInterface* threadInterface, int maxNumOutstandingTasks, btCollisionObjectArray& castUponObjects, int numCastUponObjects)
+SpuBatchRaycaster::SpuBatchRaycaster (class	btThreadSupportInterface* threadInterface, int maxNumOutstandingTasks)
 {
-	numCastUponObjectWrappers = numCastUponObjects;
 	m_threadInterface = threadInterface;
 
-	castUponObjectWrappers = new SpuCollisionObjectWrapper[numCastUponObjects];
-
-	for (int i = 0; i < numCastUponObjectWrappers; i++)
-	{
-		new (&castUponObjectWrappers[i]) SpuCollisionObjectWrapper(castUponObjects[i]);
-	}
+	castUponObjectWrappers = NULL;
+	numCastUponObjectWrappers = 0;
 
 	m_spuRaycastTaskProcess = new SpuRaycastTaskProcess(m_threadInterface,maxNumOutstandingTasks); // FIXME non constant
 }
 
 SpuBatchRaycaster::~SpuBatchRaycaster ()
 {
+	if (castUponObjectWrappers)
+	{
+		delete [] castUponObjectWrappers;
+	}
+}
+
+void
+SpuBatchRaycaster::setCollisionObjects (btCollisionObjectArray& castUponObjects, int numCastUponObjects)
+{
+	if (castUponObjectWrappers)
+	{
+		delete [] castUponObjectWrappers;
+	}
+
+	castUponObjectWrappers = new SpuCollisionObjectWrapper[numCastUponObjects];
+	numCastUponObjectWrappers = numCastUponObjects;
+
+	for (int i = 0; i < numCastUponObjectWrappers; i++)
+	{
+		new (&castUponObjectWrappers[i]) SpuCollisionObjectWrapper(castUponObjects[i]);
+	}
 }
 
 void

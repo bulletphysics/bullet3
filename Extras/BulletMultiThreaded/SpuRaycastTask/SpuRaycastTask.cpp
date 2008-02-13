@@ -1,8 +1,9 @@
 
 
+#include "../PlatformDefinitions.h"
 #include "SpuRaycastTask.h"
-#include "SpuCollisionObjectWrapper.h"
-#include "SpuNarrowPhaseCollisionTask/SpuCollisionShapes.h"
+#include "../SpuCollisionObjectWrapper.h"
+#include "../SpuNarrowPhaseCollisionTask/SpuCollisionShapes.h"
 #include "SpuSubSimplexConvexCast.h"
 #include "LinearMath/btAabbUtil2.h"
 
@@ -288,7 +289,7 @@ void	spuWalkStacklessQuantizedTreeAgainstRay(RaycastTask_LocalStoreMemory* lsMem
 			bounds[0] = lsMemPtr->bvhShapeData.getOptimizedBvh()->unQuantize(rootNode->m_quantizedAabbMin);
 			bounds[1] = lsMemPtr->bvhShapeData.getOptimizedBvh()->unQuantize(rootNode->m_quantizedAabbMax);
 #ifdef RAYAABB2
-			rayBoxOverlap = btRayAabb2 (raySource, rayDirection, sign, bounds, param, 0.0, lambda_max);
+			rayBoxOverlap = true;//btRayAabb2 (raySource, rayDirection, sign, bounds, param, 0.0, lambda_max);
 #else
 			rayBoxOverlap = btRayAabb(raySource, rayTarget, bounds[0], bounds[1], param, normal);
 #endif
@@ -414,7 +415,7 @@ void performRaycastAgainstConcave (RaycastGatheredObjectData* gatheredObjectData
 
 void performRaycastAgainstCompound (RaycastGatheredObjectData* gatheredObjectData, const SpuRaycastTaskWorkUnit& workUnit, SpuRaycastTaskWorkUnitOut* workUnitOut, RaycastTask_LocalStoreMemory* lsMemPtr)
 {
-	spu_printf ("Currently no support for ray. vs compound objects. Support coming soon.\n");
+	//XXX spu_printf ("Currently no support for ray. vs compound objects. Support coming soon.\n");
 }
 
 void
@@ -485,7 +486,7 @@ void	processRaycastTask(void* userPtr, void* lsMemory)
 
 			if (btBroadphaseProxy::isConvex (gatheredObjectData.m_shapeType))
 			{
-				//performRaycastAgainstConvex (&gatheredObjectData, workUnit, &tWorkUnitOut, localMemory);
+				performRaycastAgainstConvex (&gatheredObjectData, workUnit, &tWorkUnitOut, localMemory);
 			} else if (btBroadphaseProxy::isCompound (gatheredObjectData.m_shapeType)) {
 				performRaycastAgainstCompound (&gatheredObjectData, workUnit, &tWorkUnitOut, localMemory);
 			} else if (btBroadphaseProxy::isConcave (gatheredObjectData.m_shapeType)) {

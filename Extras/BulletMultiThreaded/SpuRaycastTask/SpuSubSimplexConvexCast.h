@@ -17,8 +17,8 @@ subject to the following restrictions:
 #ifndef SPU_SUBSIMPLEX_RAY_CAST_H
 #define SPU_SUBSIMPLEX_RAY_CAST_H
 
-#include "SpuNarrowPhaseCollisionTask/SpuVoronoiSimplexSolver.h"
-#include "SpuNarrowPhaseCollisionTask/SpuCollisionShapes.h"
+#include "../SpuNarrowPhaseCollisionTask/SpuVoronoiSimplexSolver.h"
+#include "../SpuNarrowPhaseCollisionTask/SpuCollisionShapes.h"
 #include "SpuRaycastTask.h"
 
 class btConvexShape;
