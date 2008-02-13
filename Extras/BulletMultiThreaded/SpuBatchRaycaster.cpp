@@ -14,6 +14,7 @@ subject to the following restrictions:
 */
 
 #include <new>
+#include "LinearMath/btAlignedAllocator.h"
 #include "SpuBatchRaycaster.h"
 
 SpuBatchRaycaster::SpuBatchRaycaster (class	btThreadSupportInterface* threadInterface, int maxNumOutstandingTasks)
@@ -30,7 +31,8 @@ SpuBatchRaycaster::~SpuBatchRaycaster ()
 {
 	if (castUponObjectWrappers)
 	{
-		delete [] castUponObjectWrappers;
+		btAlignedFree (castUponObjectWrappers);
+		castUponObjectWrappers = NULL;
 	}
 }
 
@@ -39,15 +41,16 @@ SpuBatchRaycaster::setCollisionObjects (btCollisionObjectArray& castUponObjects,
 {
 	if (castUponObjectWrappers)
 	{
-		delete [] castUponObjectWrappers;
+		btAlignedFree (castUponObjectWrappers);
+		castUponObjectWrappers = NULL;
 	}
 
-	castUponObjectWrappers = new SpuCollisionObjectWrapper[numCastUponObjects];
+	castUponObjectWrappers = (SpuCollisionObjectWrapper*)btAlignedAlloc (sizeof(SpuCollisionObjectWrapper) * numCastUponObjects,16);
 	numCastUponObjectWrappers = numCastUponObjects;
 
 	for (int i = 0; i < numCastUponObjectWrappers; i++)
 	{
-		new (&castUponObjectWrappers[i]) SpuCollisionObjectWrapper(castUponObjects[i]);
+		castUponObjectWrappers[i] = SpuCollisionObjectWrapper(castUponObjects[i]);
 	}
 }
 
