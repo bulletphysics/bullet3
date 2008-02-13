@@ -40,7 +40,8 @@ subject to the following restrictions:
 #include "BulletCollision/CollisionShapes/btConvexTriangleMeshShape.h"
 #include "BulletCollision/CollisionShapes/btUniformScalingShape.h"
 #include "BulletCollision/CollisionShapes/btStaticPlaneShape.h"
-#include "BulletCollision/CollisionShapes/btShapeHull.h"
+///
+#include "btShapeHull.h"
 
 #include "LinearMath/btTransformUtil.h"
 
@@ -470,7 +471,12 @@ void GL_ShapeDrawer::drawOpenGL(btScalar* m, const btCollisionShape* shape, cons
 						if (!shape->getUserPointer())
 						{
 							//create a hull approximation
-							btShapeHull* hull = new btShapeHull(convexShape);
+							void* mem = btAlignedAlloc(sizeof(btShapeHull),16);
+							btShapeHull* hull = new(mem) btShapeHull(convexShape);
+					
+							///cleanup memory
+							m_shapeHulls.push_back(hull);
+
 							btScalar margin = shape->getMargin();
 							hull->buildHull(margin);
 							convexShape->setUserPointer(hull);
@@ -655,3 +661,22 @@ void GL_ShapeDrawer::drawOpenGL(btScalar* m, const btCollisionShape* shape, cons
     glPopMatrix();
 	
 }
+
+
+GL_ShapeDrawer::GL_ShapeDrawer()
+{
+}
+
+GL_ShapeDrawer::~GL_ShapeDrawer()
+{
+	int i;
+	for (i=0;i<m_shapeHulls.size();i++)
+	{
+		btShapeHull* hull = m_shapeHulls[i];
+		hull->~btShapeHull();
+		btAlignedFree(hull);
+		m_shapeHulls[i] = 0;
+	}
+	m_shapeHulls.clear();
+}
+

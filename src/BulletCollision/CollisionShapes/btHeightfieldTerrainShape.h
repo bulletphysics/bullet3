@@ -47,7 +47,7 @@ protected:
 	btVector3	m_localScaling;
 
 	virtual btScalar	getHeightFieldValue(int x,int y) const;
-	void		quantizeWithClamp(int* out, const btVector3& point) const;
+	void		quantizeWithClamp(int* out, const btVector3& point,int isMax) const;
 	void		getVertex(int x,int y,btVector3& vertex) const;
 
 	inline bool testQuantizedAabbAgainstQuantizedAabb(int* aabbMin1, int* aabbMax1,const  int* aabbMin2,const  int* aabbMax2) const

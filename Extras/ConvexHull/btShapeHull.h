@@ -19,7 +19,7 @@ subject to the following restrictions:
 #define _SHAPE_HULL_H
 
 #include "LinearMath/btAlignedObjectArray.h"
-#include "btConvexShape.h"
+#include "BulletCollision/CollisionShapes/btConvexShape.h"
 
 
 ///btShapeHull takes a btConvexShape, builds the convex hull using btConvexHull and provides triangle indices and vertices.

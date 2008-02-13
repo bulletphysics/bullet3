@@ -191,7 +191,7 @@ protected:
 	{
 		if (m_useQuantization)
 		{
-			quantizeWithClamp(&m_quantizedContiguousNodes[nodeIndex].m_quantizedAabbMin[0] ,aabbMin);
+			quantizeWithClamp(&m_quantizedContiguousNodes[nodeIndex].m_quantizedAabbMin[0] ,aabbMin,0);
 		} else
 		{
 			m_contiguousNodes[nodeIndex].m_aabbMinOrg = aabbMin;
@@ -202,7 +202,7 @@ protected:
 	{
 		if (m_useQuantization)
 		{
-			quantizeWithClamp(&m_quantizedContiguousNodes[nodeIndex].m_quantizedAabbMax[0],aabbMax);
+			quantizeWithClamp(&m_quantizedContiguousNodes[nodeIndex].m_quantizedAabbMax[0],aabbMax,1);
 		} else
 		{
 			m_contiguousNodes[nodeIndex].m_aabbMaxOrg = aabbMax;
@@ -251,8 +251,8 @@ protected:
 		{
 			unsigned short int quantizedAabbMin[3];
 			unsigned short int quantizedAabbMax[3];
-			quantizeWithClamp(quantizedAabbMin,newAabbMin);
-			quantizeWithClamp(quantizedAabbMax,newAabbMax);
+			quantizeWithClamp(quantizedAabbMin,newAabbMin,0);
+			quantizeWithClamp(quantizedAabbMax,newAabbMax,1);
 			for (int i=0;i<3;i++)
 			{
 				if (m_quantizedContiguousNodes[nodeIndex].m_quantizedAabbMin[i] > quantizedAabbMin[i])
@@ -333,7 +333,7 @@ public:
 	void	reportRayOverlappingNodex (btNodeOverlapCallback* nodeCallback, const btVector3& raySource, const btVector3& rayTarget) const;
 	void	reportBoxCastOverlappingNodex(btNodeOverlapCallback* nodeCallback, const btVector3& raySource, const btVector3& rayTarget, const btVector3& aabbMin,const btVector3& aabbMax) const;
 	
-	SIMD_FORCE_INLINE void quantizeWithClamp(unsigned short* out, const btVector3& point) const
+	SIMD_FORCE_INLINE void quantizeWithClamp(unsigned short* out, const btVector3& point,int isMax) const
 	{
 
 		btAssert(m_useQuantization);
@@ -341,13 +341,11 @@ public:
 		btVector3 clampedPoint(point);
 		clampedPoint.setMax(m_bvhAabbMin);
 		clampedPoint.setMin(m_bvhAabbMax);
-
 		btVector3 v = (clampedPoint - m_bvhAabbMin) * m_bvhQuantization;
-		out[0] = (unsigned short)(v.getX()+0.5f);
-		out[1] = (unsigned short)(v.getY()+0.5f);
-		out[2] = (unsigned short)(v.getZ()+0.5f);		
+		out[0] = (unsigned short)(((unsigned short)v.getX() & 0xfffe) | isMax);
+		out[1] = (unsigned short)(((unsigned short)v.getY() & 0xfffe) | isMax);
+		out[2] = (unsigned short)(((unsigned short)v.getZ() & 0xfffe) | isMax);
 	}
-
 	
 	SIMD_FORCE_INLINE btVector3	unQuantize(const unsigned short* vecIn) const
 	{

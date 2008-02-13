@@ -152,7 +152,7 @@ void btContinuousConvexCollisionDemo::displayCallback(void) {
 	/*for (i=0;i<numObjects;i++)
 	{
 		fromTrans[i].getOpenGLMatrix( m );
-		GL_ShapeDrawer::drawOpenGL(m,shapePtr[i]);
+		m_shapeDrawer.drawOpenGL(m,shapePtr[i]);
 	}
 */
 
@@ -171,13 +171,13 @@ void btContinuousConvexCollisionDemo::displayCallback(void) {
 				btTransformUtil::integrateTransform(fromTrans[i],linVels[i],angVels[i],subStep,interpolatedTrans);
 
 				//fromTrans[i].getOpenGLMatrix(m);
-				//GL_ShapeDrawer::drawOpenGL(m,shapePtr[i]);
+				//m_shapeDrawer.drawOpenGL(m,shapePtr[i]);
 
 				//toTrans[i].getOpenGLMatrix(m);
-				//GL_ShapeDrawer::drawOpenGL(m,shapePtr[i]);
+				//m_shapeDrawer.drawOpenGL(m,shapePtr[i]);
 
 				interpolatedTrans.getOpenGLMatrix( m );
-				GL_ShapeDrawer::drawOpenGL(m,shapePtr[i],btVector3(1,0,1),getDebugMode());
+				m_shapeDrawer.drawOpenGL(m,shapePtr[i],btVector3(1,0,1),getDebugMode());
 			}
 		}
 	}
@@ -229,10 +229,10 @@ void btContinuousConvexCollisionDemo::displayCallback(void) {
 	for (i=0;i<numObjects;i++)
 	{	
 		fromTrans[i].getOpenGLMatrix(m);
-		GL_ShapeDrawer::drawOpenGL(m,shapePtr[i],btVector3(1,1,1),getDebugMode());
+		m_shapeDrawer.drawOpenGL(m,shapePtr[i],btVector3(1,1,1),getDebugMode());
 	}
 
-	btDebugCastResult	rayResult1(fromTrans[0],shapePtr[0],linVels[0],angVels[0]);
+	btDebugCastResult	rayResult1(fromTrans[0],shapePtr[0],linVels[0],angVels[0],&m_shapeDrawer);
 	
 
 	for (i=1;i<numObjects;i++)
@@ -267,12 +267,12 @@ void btContinuousConvexCollisionDemo::displayCallback(void) {
 			btTransformUtil::integrateTransform(fromTrans[0],linVels[0],angVels[0],rayResultPtr->m_fraction,hitTrans);
 
 			hitTrans.getOpenGLMatrix(m);
-			GL_ShapeDrawer::drawOpenGL(m,shapePtr[0],btVector3(0,1,0),getDebugMode());
+			m_shapeDrawer.drawOpenGL(m,shapePtr[0],btVector3(0,1,0),getDebugMode());
 
 			btTransformUtil::integrateTransform(fromTrans[i],linVels[i],angVels[i],rayResultPtr->m_fraction,hitTrans);
 
 			hitTrans.getOpenGLMatrix(m);
-			GL_ShapeDrawer::drawOpenGL(m,shapePtr[i],btVector3(0,1,1),getDebugMode());
+			m_shapeDrawer.drawOpenGL(m,shapePtr[i],btVector3(0,1,1),getDebugMode());
 	
 
 		}

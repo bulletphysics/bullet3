@@ -164,7 +164,7 @@ void CollisionInterfaceDemo::displayCallback(void) {
 	{
 		
 		objects[i].getWorldTransform().getOpenGLMatrix( m );
-		GL_ShapeDrawer::drawOpenGL(m,objects[i].getCollisionShape(),btVector3(1,1,1),getDebugMode());
+		m_shapeDrawer.drawOpenGL(m,objects[i].getCollisionShape(),btVector3(1,1,1),getDebugMode());
 
 	}
 

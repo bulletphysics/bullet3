@@ -37,9 +37,10 @@ struct btDebugCastResult : public btConvexCast::CastResult
 	const btPolyhedralConvexShape* m_shape;
 	btVector3	m_linVel;
 	btVector3 m_angVel;
+	GL_ShapeDrawer* m_shapeDrawer;
 
 	btDebugCastResult(const btTransform& fromTrans,const btPolyhedralConvexShape* shape,
-					const btVector3& linVel,const btVector3& angVel)
+					const btVector3& linVel,const btVector3& angVel,GL_ShapeDrawer* drawer)
 	:m_fromTrans(fromTrans),
 	m_shape(shape),
 	m_linVel(linVel),
@@ -74,8 +75,7 @@ struct btDebugCastResult : public btConvexCast::CastResult
 		btTransform hitTrans;
 		btTransformUtil::integrateTransform(m_fromTrans,m_linVel,m_angVel,fraction,hitTrans);
 		hitTrans.getOpenGLMatrix(m);
-		GL_ShapeDrawer::drawOpenGL(m,m_shape,btVector3(1,0,0),btIDebugDraw::DBG_NoDebug);
-	
+		m_shapeDrawer->drawOpenGL(m,m_shape,btVector3(1,0,0),btIDebugDraw::DBG_NoDebug);
 	}
 };
 

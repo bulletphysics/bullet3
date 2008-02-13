@@ -18,6 +18,7 @@ subject to the following restrictions:
 
 
 #include "GlutStuff.h"
+#include "GL_ShapeDrawer.h"
 
 #include <stdlib.h>
 #include <stdio.h>
@@ -34,7 +35,6 @@ class	btCollisionShape;
 class	btDynamicsWorld;
 class	btRigidBody;
 class	btTypedConstraint;
-
 
 
 
@@ -81,6 +81,7 @@ class DemoApplication
 
 	void showProfileInfo(float& xOffset,float& yStart, float yIncr);
 
+	GL_ShapeDrawer	m_shapeDrawer;
 
 public:
 		

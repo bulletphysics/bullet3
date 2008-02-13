@@ -16,7 +16,7 @@ subject to the following restrictions:
 */
 
 #include "btShapeHull.h"
-#include "LinearMath/btConvexHull.h"
+#include "btConvexHull.h"
 
 #define NUM_UNITSPHERE_POINTS 42
 

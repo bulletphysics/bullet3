@@ -409,7 +409,7 @@ void VehicleDemo::renderme()
 		m_vehicle->updateWheelTransform(i,true);
 		//draw wheels (cylinders)
 		m_vehicle->getWheelInfo(i).m_worldTransform.getOpenGLMatrix(m);
-		GL_ShapeDrawer::drawOpenGL(m,&wheelShape,wheelColor,getDebugMode());
+		m_shapeDrawer.drawOpenGL(m,&wheelShape,wheelColor,getDebugMode());
 	}
 
 

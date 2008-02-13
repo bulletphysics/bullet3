@@ -21,7 +21,7 @@ subject to the following restrictions:
 #include "LinearMath/btQuickprof.h"
 #include "LinearMath/btIDebugDraw.h"
 #include "LinearMath/btGeometryUtil.h"
-#include "BulletCollision/CollisionShapes/btShapeHull.h"
+#include "btShapeHull.h"
 
 //#define USE_PARALLEL_DISPATCHER 1
 #ifdef USE_PARALLEL_DISPATCHER

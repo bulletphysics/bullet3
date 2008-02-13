@@ -182,20 +182,16 @@ void	btHeightfieldTerrainShape::getVertex(int x,int y,btVector3& vertex) const
 }
 
 
-void btHeightfieldTerrainShape::quantizeWithClamp(int* out, const btVector3& point) const
+void btHeightfieldTerrainShape::quantizeWithClamp(int* out, const btVector3& point,int isMax) const
 {
-	
-
 	btVector3 clampedPoint(point);
 	clampedPoint.setMax(m_localAabbMin);
 	clampedPoint.setMin(m_localAabbMax);
 
-	btVector3 v = (clampedPoint );// * m_quantization;
-
-	// SMJ - Add 0.5 in the correct direction before doing the int conversion.
-	out[0] = (int)(v.getX() + v.getX() / btFabs(v.getX())* btScalar(0.5) );
-	out[1] = (int)(v.getY() + v.getY() / btFabs(v.getY())* btScalar(0.5) );
-	out[2] = (int)(v.getZ() + v.getZ() / btFabs(v.getZ())* btScalar(0.5) );
+	btVector3 v = (clampedPoint);// - m_bvhAabbMin) * m_bvhQuantization;
+	out[0] = (unsigned short)(((unsigned short)v.getX() & 0xffffffe) | isMax);
+	out[1] = (unsigned short)(((unsigned short)v.getY() & 0xffffffe) | isMax);
+	out[2] = (unsigned short)(((unsigned short)v.getZ() & 0xffffffe) | isMax);
 	
 }
 
@@ -214,8 +210,8 @@ void	btHeightfieldTerrainShape::processAllTriangles(btTriangleCallback* callback
 	btVector3	localAabbMin = aabbMin*btVector3(1.f/m_localScaling[0],1.f/m_localScaling[1],1.f/m_localScaling[2]);
 	btVector3	localAabbMax = aabbMax*btVector3(1.f/m_localScaling[0],1.f/m_localScaling[1],1.f/m_localScaling[2]);
 	
-	quantizeWithClamp(quantizedAabbMin, localAabbMin);
-	quantizeWithClamp(quantizedAabbMax, localAabbMax);
+	quantizeWithClamp(quantizedAabbMin, localAabbMin,0);
+	quantizeWithClamp(quantizedAabbMax, localAabbMax,1);
 	
 	
 

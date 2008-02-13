@@ -1,0 +1,17 @@
+SubDir TOP Extras ConvexHull ;
+
+
+Library convexhull : [ Wildcard *.h *.cpp ] : noinstall ;
+#internal header path to compile convexhull
+CFlags convexhull : [ FIncludes $(TOP)/Extras/ConvexHull ] ;
+
+#expose header include path for apps that depend on ConvexHull
+convexhull.CFLAGS = [ FIncludes $(TOP)/Extras/ConvexHull ] ;
+#same for msvcgen
+MsvcGenConfig convexhull.INCDIRS : $(TOP)/Extras/ConvexHull ;
+
+#for the include paths
+LibDepends convexhull : bulletcollision  ;
+
+
+#InstallHeader [ Wildcard *.h ] : ConvexHull ;

@@ -169,7 +169,7 @@ void DoublePrecisionDemo::displayCallback(void)
 	  temp = objects[i].getWorldTransform();
 	  temp.setOrigin(temp.getOrigin() - m_cameraPosition);
 		temp.getOpenGLMatrix( m );
-		GL_ShapeDrawer::drawOpenGL(m,objects[i].getCollisionShape(),color,getDebugMode());
+		m_shapeDrawer.drawOpenGL(m,objects[i].getCollisionShape(),color,getDebugMode());
 	}
 
   objects[1].getWorldTransform().setOrigin(objects[1].getWorldTransform().getOrigin()+btVector3(-VERY_SMALL_INCREMENT,-VERY_SMALL_INCREMENT,0));

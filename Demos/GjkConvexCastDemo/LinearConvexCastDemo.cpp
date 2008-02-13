@@ -137,8 +137,8 @@ void LinearConvexCastDemo::displayCallback(void)
 	tr[ 0 ].getOpenGLMatrix( m1 );
 	tr[ 1 ].getOpenGLMatrix( m2 );
 
-	GL_ShapeDrawer::drawOpenGL( m1, shapePtr[ 0 ], btVector3( 1, 0, 0 ), getDebugMode() );
-	GL_ShapeDrawer::drawOpenGL( m2, shapePtr[ 1 ], btVector3( 1, 0, 0 ), getDebugMode() );
+	m_shapeDrawer.drawOpenGL( m1, shapePtr[ 0 ], btVector3( 1, 0, 0 ), getDebugMode() );
+	m_shapeDrawer.drawOpenGL( m2, shapePtr[ 1 ], btVector3( 1, 0, 0 ), getDebugMode() );
 
 	btVector3 originA, originB;
 	originA.setInterpolate3( tr[ 0 ].getOrigin(), toA.getOrigin(), result.m_fraction );
@@ -153,8 +153,8 @@ void LinearConvexCastDemo::displayCallback(void)
 	A.getOpenGLMatrix( m1 );
 	B.getOpenGLMatrix( m2 );
 
-	GL_ShapeDrawer::drawOpenGL( m1, shapePtr[ 0 ], btVector3( 1, 1, 0 ), getDebugMode() );
-	GL_ShapeDrawer::drawOpenGL( m2, shapePtr[ 1 ], btVector3( 1, 1, 0 ), getDebugMode() );
+	m_shapeDrawer.drawOpenGL( m1, shapePtr[ 0 ], btVector3( 1, 1, 0 ), getDebugMode() );
+	m_shapeDrawer.drawOpenGL( m2, shapePtr[ 1 ], btVector3( 1, 1, 0 ), getDebugMode() );
 
 	glFlush();
     glutSwapBuffers();

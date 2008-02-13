@@ -1535,7 +1535,7 @@ void ConcaveDemo::renderme()
 				}
 			}
 
-			GL_ShapeDrawer::drawOpenGL(m,colObj->getCollisionShape(),wireColor,getDebugMode());
+			m_shapeDrawer.drawOpenGL(m,colObj->getCollisionShape(),wireColor,getDebugMode());
 		}
 
 

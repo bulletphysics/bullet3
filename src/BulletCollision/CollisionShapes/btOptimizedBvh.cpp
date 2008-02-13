@@ -132,8 +132,8 @@ void btOptimizedBvh::build(btStridingMeshInterface* triangles, bool useQuantized
 				aabbMin.setZ(aabbMin.z() - MIN_AABB_HALF_DIMENSION);
 			}
 
-			m_optimizedTree->quantizeWithClamp(&node.m_quantizedAabbMin[0],aabbMin);
-			m_optimizedTree->quantizeWithClamp(&node.m_quantizedAabbMax[0],aabbMax);
+			m_optimizedTree->quantizeWithClamp(&node.m_quantizedAabbMin[0],aabbMin,0);
+			m_optimizedTree->quantizeWithClamp(&node.m_quantizedAabbMax[0],aabbMax,1);
 
 			node.m_escapeIndexOrTriangleIndex = (partId<<(31-MAX_NUM_PARTS_IN_BITS)) | triangleIndex;
 
@@ -221,8 +221,8 @@ void	btOptimizedBvh::refitPartial(btStridingMeshInterface* meshInterface,const b
 	unsigned short	quantizedQueryAabbMin[3];
 	unsigned short	quantizedQueryAabbMax[3];
 
-	quantizeWithClamp(&quantizedQueryAabbMin[0],aabbMin);
-	quantizeWithClamp(&quantizedQueryAabbMax[0],aabbMax);
+	quantizeWithClamp(&quantizedQueryAabbMin[0],aabbMin,0);
+	quantizeWithClamp(&quantizedQueryAabbMax[0],aabbMax,1);
 
 	int i;
 	for (i=0;i<this->m_SubtreeHeaders.size();i++)
@@ -328,8 +328,8 @@ void	btOptimizedBvh::updateBvhNodes(btStridingMeshInterface* meshInterface,int f
 				aabbMin.setMin(triangleVerts[2]);
 				aabbMax.setMax(triangleVerts[2]);
 
-				quantizeWithClamp(&curNode.m_quantizedAabbMin[0],aabbMin);
-				quantizeWithClamp(&curNode.m_quantizedAabbMax[0],aabbMax);
+				quantizeWithClamp(&curNode.m_quantizedAabbMin[0],aabbMin,0);
+				quantizeWithClamp(&curNode.m_quantizedAabbMax[0],aabbMax,1);
 				
 			} else
 			{
@@ -613,8 +613,8 @@ void	btOptimizedBvh::reportAabbOverlappingNodex(btNodeOverlapCallback* nodeCallb
 		///quantize query AABB
 		unsigned short int quantizedQueryAabbMin[3];
 		unsigned short int quantizedQueryAabbMax[3];
-		quantizeWithClamp(quantizedQueryAabbMin,aabbMin);
-		quantizeWithClamp(quantizedQueryAabbMax,aabbMax);
+		quantizeWithClamp(quantizedQueryAabbMin,aabbMin,0);
+		quantizeWithClamp(quantizedQueryAabbMax,aabbMax,1);
 
 		switch (m_traversalMode)
 		{
@@ -783,8 +783,8 @@ void	btOptimizedBvh::walkStacklessQuantizedTreeAgainstRay(btNodeOverlapCallback*
 
 	unsigned short int quantizedQueryAabbMin[3];
 	unsigned short int quantizedQueryAabbMax[3];
-	quantizeWithClamp(quantizedQueryAabbMin,rayAabbMin);
-	quantizeWithClamp(quantizedQueryAabbMax,rayAabbMax);
+	quantizeWithClamp(quantizedQueryAabbMin,rayAabbMin,0);
+	quantizeWithClamp(quantizedQueryAabbMax,rayAabbMax,1);
 
 	while (curIndex < endNodeIndex)
 	{
@@ -833,11 +833,11 @@ void	btOptimizedBvh::walkStacklessQuantizedTreeAgainstRay(btNodeOverlapCallback*
 			}
 #endif
 #ifdef RAYAABB2
-			///disable this check: need to check division by zero (above) and fix the unQuantize method
+			///careful with this check: need to check division by zero (above) and fix the unQuantize method
 			///thanks Joerg/hiker for the reproduction case!
 			///http://www.bulletphysics.com/Bullet/phpBB3/viewtopic.php?f=9&t=1858
 
-			rayBoxOverlap = true;//btRayAabb2 (raySource, rayDirection, sign, bounds, param, 0.0, lambda_max);
+			rayBoxOverlap = btRayAabb2 (raySource, rayDirection, sign, bounds, param, 0.0f, lambda_max);
 #else
 			rayBoxOverlap = true;//btRayAabb(raySource, rayTarget, bounds[0], bounds[1], param, normal);
 #endif
