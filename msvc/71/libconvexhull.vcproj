@@ -1,9 +1,9 @@
 <?xml version="1.0" encoding = "Windows-1252"?>
 <VisualStudioProject
 	ProjectType="Visual C++"
-	Version="7.00"
-	Name="appGenericJointDemo"
-	ProjectGUID="{33C16464-831E-103A-5F37-65CCD4F9191F}"
+	Version="7.10"
+	Name="libconvexhull"
+	ProjectGUID="{F6CD8342-32FB-4428-13F9-9BE726E1709F}"
 	SccProjectName=""
 	SccLocalPath="">
 	<Platforms>
@@ -13,11 +13,9 @@
 	<Configurations>
 		<Configuration
 			Name="Release|Win32"
-			OutputDirectory="..\..\out\release7\build\appGenericJointDemo\"
-			IntermediateDirectory="..\..\out\release7\build\appGenericJointDemo\"
-			ConfigurationType="1"
-			CharacterSet="2"
-			WholeProgramOptimization="1"
+			OutputDirectory="..\..\out\release71\build\libconvexhull\"
+			IntermediateDirectory="..\..\out\release71\build\libconvexhull\"
+			ConfigurationType="4"
 			UseOfMFC="0"
 			ATLMinimizesCRunTimeLibraryUsage="FALSE">
 			<Tool
@@ -28,15 +26,15 @@
 				RuntimeLibrary="0"
 				DebugInformationFormat="3"
 				BufferSecurityCheck="FALSE"
-				PreprocessorDefinitions="NDEBUG;_CONSOLE;WIN32"
+				PreprocessorDefinitions="NDEBUG;_LIB;_WINDOWS;WIN32"
 				OptimizeForProcessor="1"
 				ExceptionHandling="0"
 				AdditionalOptions=" "
-				AdditionalIncludeDirectories=".;..\..;..\..\src;..\..\Glut;..\..\Demos\OpenGL;..\..\Extras\ConvexHull"
-				PrecompiledHeaderFile="..\..\out\release7\build\appGenericJointDemo\appGenericJointDemo.pch"
-				AssemblerListingLocation="..\..\out\release7\build\appGenericJointDemo\"
-				ObjectFile="..\..\out\release7\build\appGenericJointDemo\"
-				ProgramDataBaseFileName="..\..\out\release7\build\appGenericJointDemo\GenericJointDemo.pdb"
+				AdditionalIncludeDirectories=".;..\..;..\..\src"
+				PrecompiledHeaderFile="..\..\out\release71\build\libconvexhull\libconvexhull.pch"
+				AssemblerListingLocation="..\..\out\release71\build\libconvexhull\"
+				ObjectFile="..\..\out\release71\build\libconvexhull\"
+				ProgramDataBaseFileName="..\..\out\release71\build\libconvexhull\convexhull.pdb"
 				WarningLevel="3"
 				SuppressStartupBanner="TRUE"
 				Detect64BitPortabilityProblems="TRUE"
@@ -51,26 +49,25 @@
 				EnableCOMDATFolding="2"
 				GenerateDebugInformation="TRUE"
 				IgnoreDefaultLibraryNames="LIBC,LIBCD"
-				OutputFile="..\..\ReleaseGenericJointDemo.exe"
-				SubSystem="1"
 				AdditionalOptions=" "
-				AdditionalDependencies="glut32.lib"
+				AdditionalDependencies=""
 				IgnoreImportLibrary="TRUE"
 				SuppressStartupBanner="TRUE"
 				GenerateManifest="false"
-				AdditionalLibraryDirectories="..\..\Glut"
-				ProgramDatabaseFile="..\..\out\release7\build\appGenericJointDemo\GenericJointDemo.pdb"
+				AdditionalLibraryDirectories=""
+				ProgramDatabaseFile="..\..\out\release71\build\libconvexhull\convexhull.pdb"
 				TargetMachine="1"/>
 			<Tool
 				Name="VCLibrarianTool"
+				OutputFile="..\..\out\release71\libs\libconvexhull.lib"
 				SuppressStartupBanner="TRUE"/>
 			<Tool
 				Name="VCMIDLTool"
-				PreprocessorDefinitions="NDEBUG;_CONSOLE"
+				PreprocessorDefinitions="NDEBUG;_LIB;_WINDOWS"
 				MkTypLibCompatible="TRUE"
 				SuppressStartupBanner="TRUE"
 				TargetEnvironment="1"
-				TypeLibraryName="..\..\out\release7\build\appGenericJointDemo\appGenericJointDemo.tlb"/>
+				TypeLibraryName="..\..\out\release71\build\libconvexhull\libconvexhull.tlb"/>
 			<Tool
 				Name="VCPostBuildEventTool"/>
 			<Tool
@@ -79,8 +76,8 @@
 				Name="VCPreLinkEventTool"/>
 			<Tool
 				Name="VCResourceCompilerTool"
-				PreprocessorDefinitions="NDEBUG;_CONSOLE;PROJECTGEN_VERSION=7"
-				AdditionalIncludeDirectories=".;..\..;..\..\src;..\..\Glut;..\..\Demos\OpenGL;..\..\Extras\ConvexHull"
+				PreprocessorDefinitions="NDEBUG;_LIB;_WINDOWS;PROJECTGEN_VERSION=71"
+				AdditionalIncludeDirectories=".;..\..;..\..\src"
 				Culture="1033"/>
 			<Tool
 				Name="VCWebServiceProxyGeneratorTool"/>
@@ -89,23 +86,22 @@
 		</Configuration>
 		<Configuration
 			Name="ReleaseDoublePrecision|Win32"
-			OutputDirectory="..\..\out\release_dbl7\build\appGenericJointDemo\"
-			IntermediateDirectory="..\..\out\release_dbl7\build\appGenericJointDemo\"
-			ConfigurationType="1"
-			CharacterSet="2"
+			OutputDirectory="..\..\out\release_dbl71\build\libconvexhull\"
+			IntermediateDirectory="..\..\out\release_dbl71\build\libconvexhull\"
+			ConfigurationType="4"
 			UseOfMFC="0"
 			ATLMinimizesCRunTimeLibraryUsage="FALSE">
 			<Tool
 				Name="VCCLCompilerTool"
-				PreprocessorDefinitions="NDEBUG;BT_USE_DOUBLE_PRECISION;_CONSOLE;WIN32"
+				PreprocessorDefinitions="NDEBUG;BT_USE_DOUBLE_PRECISION;_LIB;_WINDOWS;WIN32"
 				OptimizeForProcessor="1"
 				ExceptionHandling="0"
 				AdditionalOptions=" "
-				AdditionalIncludeDirectories=".;..\..;..\..\src;..\..\Glut;..\..\Demos\OpenGL;..\..\Extras\ConvexHull"
-				PrecompiledHeaderFile="..\..\out\release_dbl7\build\appGenericJointDemo\appGenericJointDemo.pch"
-				AssemblerListingLocation="..\..\out\release_dbl7\build\appGenericJointDemo\"
-				ObjectFile="..\..\out\release_dbl7\build\appGenericJointDemo\"
-				ProgramDataBaseFileName="..\..\out\release_dbl7\build\appGenericJointDemo\GenericJointDemo.pdb"
+				AdditionalIncludeDirectories=".;..\..;..\..\src"
+				PrecompiledHeaderFile="..\..\out\release_dbl71\build\libconvexhull\libconvexhull.pch"
+				AssemblerListingLocation="..\..\out\release_dbl71\build\libconvexhull\"
+				ObjectFile="..\..\out\release_dbl71\build\libconvexhull\"
+				ProgramDataBaseFileName="..\..\out\release_dbl71\build\libconvexhull\convexhull.pdb"
 				WarningLevel="3"
 				SuppressStartupBanner="TRUE"
 				Detect64BitPortabilityProblems="TRUE"
@@ -115,26 +111,24 @@
 				Name="VCCustomBuildTool"/>
 			<Tool
 				Name="VCLinkerTool"
-                                OutputFile="..\..\ReleaseDblGenericJointDemo.exe"
-                                SubSystem="1"
 				AdditionalOptions=" "
-				AdditionalDependencies="glut32.lib"
+				AdditionalDependencies=""
 				IgnoreImportLibrary="TRUE"
 				SuppressStartupBanner="TRUE"
 				GenerateManifest="false"
-				AdditionalLibraryDirectories="..\..\Glut"
-				ProgramDatabaseFile="..\..\out\release_dbl7\build\appGenericJointDemo\GenericJointDemo.pdb"
+				AdditionalLibraryDirectories=""
+				ProgramDatabaseFile="..\..\out\release_dbl71\build\libconvexhull\convexhull.pdb"
 				TargetMachine="1"/>
 			<Tool
 				Name="VCLibrarianTool"
 				SuppressStartupBanner="TRUE"/>
 			<Tool
 				Name="VCMIDLTool"
-				PreprocessorDefinitions="NDEBUG;BT_USE_DOUBLE_PRECISION;_CONSOLE"
+				PreprocessorDefinitions="NDEBUG;BT_USE_DOUBLE_PRECISION;_LIB;_WINDOWS"
 				MkTypLibCompatible="TRUE"
 				SuppressStartupBanner="TRUE"
 				TargetEnvironment="1"
-				TypeLibraryName="..\..\out\release_dbl7\build\appGenericJointDemo\appGenericJointDemo.tlb"/>
+				TypeLibraryName="..\..\out\release_dbl71\build\libconvexhull\libconvexhull.tlb"/>
 			<Tool
 				Name="VCPostBuildEventTool"/>
 			<Tool
@@ -143,8 +137,8 @@
 				Name="VCPreLinkEventTool"/>
 			<Tool
 				Name="VCResourceCompilerTool"
-				PreprocessorDefinitions="NDEBUG;BT_USE_DOUBLE_PRECISION;_CONSOLE;PROJECTGEN_VERSION=7"
-				AdditionalIncludeDirectories=".;..\..;..\..\src;..\..\Glut;..\..\Demos\OpenGL;..\..\Extras\ConvexHull"
+				PreprocessorDefinitions="NDEBUG;BT_USE_DOUBLE_PRECISION;_LIB;_WINDOWS;PROJECTGEN_VERSION=71"
+				AdditionalIncludeDirectories=".;..\..;..\..\src"
 				Culture="1033"/>
 			<Tool
 				Name="VCWebServiceProxyGeneratorTool"/>
@@ -153,10 +147,9 @@
 		</Configuration>
 		<Configuration
 			Name="Debug|Win32"
-			OutputDirectory="..\..\out\debug7\build\appGenericJointDemo\"
-			IntermediateDirectory="..\..\out\debug7\build\appGenericJointDemo\"
-			ConfigurationType="1"
-			CharacterSet="2"
+			OutputDirectory="..\..\out\debug71\build\libconvexhull\"
+			IntermediateDirectory="..\..\out\debug71\build\libconvexhull\"
+			ConfigurationType="4"
 			UseOfMFC="0"
 			ATLMinimizesCRunTimeLibraryUsage="FALSE">
 			<Tool
@@ -166,15 +159,15 @@
 				DebugInformationFormat="4"
 				RuntimeTypeInfo="FALSE"
 				RuntimeLibrary="1"
-				PreprocessorDefinitions="_DEBUG;_CONSOLE;WIN32"
+				PreprocessorDefinitions="_DEBUG;_LIB;_WINDOWS;WIN32"
 				OptimizeForProcessor="1"
 				ExceptionHandling="0"
 				AdditionalOptions=" "
-				AdditionalIncludeDirectories=".;..\..;..\..\src;..\..\Glut;..\..\Demos\OpenGL;..\..\Extras\ConvexHull"
-				PrecompiledHeaderFile="..\..\out\debug7\build\appGenericJointDemo\appGenericJointDemo.pch"
-				AssemblerListingLocation="..\..\out\debug7\build\appGenericJointDemo\"
-				ObjectFile="..\..\out\debug7\build\appGenericJointDemo\"
-				ProgramDataBaseFileName="..\..\out\debug7\build\appGenericJointDemo\GenericJointDemo.pdb"
+				AdditionalIncludeDirectories=".;..\..;..\..\src"
+				PrecompiledHeaderFile="..\..\out\debug71\build\libconvexhull\libconvexhull.pch"
+				AssemblerListingLocation="..\..\out\debug71\build\libconvexhull\"
+				ObjectFile="..\..\out\debug71\build\libconvexhull\"
+				ProgramDataBaseFileName="..\..\out\debug71\build\libconvexhull\convexhull.pdb"
 				WarningLevel="3"
 				SuppressStartupBanner="TRUE"
 				Detect64BitPortabilityProblems="TRUE"
@@ -187,26 +180,25 @@
 				LinkIncremental="2"
 				GenerateDebugInformation="TRUE"
 				IgnoreDefaultLibraryNames="LIBC,LIBCD"
-				OutputFile="..\..\DebugGenericJointDemo.exe"
-				SubSystem="1"
 				AdditionalOptions=" "
-				AdditionalDependencies="glut32.lib"
+				AdditionalDependencies=""
 				IgnoreImportLibrary="TRUE"
 				SuppressStartupBanner="TRUE"
 				GenerateManifest="false"
-				AdditionalLibraryDirectories="..\..\Glut"
-				ProgramDatabaseFile="..\..\out\debug7\build\appGenericJointDemo\GenericJointDemo.pdb"
+				AdditionalLibraryDirectories=""
+				ProgramDatabaseFile="..\..\out\debug71\build\libconvexhull\convexhull.pdb"
 				TargetMachine="1"/>
 			<Tool
 				Name="VCLibrarianTool"
+				OutputFile="..\..\out\debug71\libs\libconvexhull_d.lib"
 				SuppressStartupBanner="TRUE"/>
 			<Tool
 				Name="VCMIDLTool"
-				PreprocessorDefinitions="_DEBUG;_CONSOLE"
+				PreprocessorDefinitions="_DEBUG;_LIB;_WINDOWS"
 				MkTypLibCompatible="TRUE"
 				SuppressStartupBanner="TRUE"
 				TargetEnvironment="1"
-				TypeLibraryName="..\..\out\debug7\build\appGenericJointDemo\appGenericJointDemo.tlb"/>
+				TypeLibraryName="..\..\out\debug71\build\libconvexhull\libconvexhull.tlb"/>
 			<Tool
 				Name="VCPostBuildEventTool"/>
 			<Tool
@@ -215,8 +207,8 @@
 				Name="VCPreLinkEventTool"/>
 			<Tool
 				Name="VCResourceCompilerTool"
-				PreprocessorDefinitions="_DEBUG;_CONSOLE;PROJECTGEN_VERSION=7"
-				AdditionalIncludeDirectories=".;..\..;..\..\src;..\..\Glut;..\..\Demos\OpenGL;..\..\Extras\ConvexHull"
+				PreprocessorDefinitions="_DEBUG;_LIB;_WINDOWS;PROJECTGEN_VERSION=71"
+				AdditionalIncludeDirectories=".;..\..;..\..\src"
 				Culture="1033"/>
 			<Tool
 				Name="VCWebServiceProxyGeneratorTool"/>
@@ -225,10 +217,9 @@
 		</Configuration>
 		<Configuration
 			Name="DebugDoublePrecision|Win32"
-			OutputDirectory="..\..\out\debug_dbl7\build\appGenericJointDemo\"
-			IntermediateDirectory="..\..\out\debug_dbl7\build\appGenericJointDemo\"
-			ConfigurationType="1"
-			CharacterSet="2"
+			OutputDirectory="..\..\out\debug_dbl71\build\libconvexhull\"
+			IntermediateDirectory="..\..\out\debug_dbl71\build\libconvexhull\"
+			ConfigurationType="4"
 			UseOfMFC="0"
 			ATLMinimizesCRunTimeLibraryUsage="FALSE">
 			<Tool
@@ -238,15 +229,15 @@
                                 DebugInformationFormat="4"
                                 RuntimeTypeInfo="FALSE"
                                 RuntimeLibrary="1"
-				PreprocessorDefinitions="_DEBUG;BT_USE_DOUBLE_PRECISION;_CONSOLE;WIN32"
+				PreprocessorDefinitions="_DEBUG;BT_USE_DOUBLE_PRECISION;_LIB;_WINDOWS;WIN32"
 				OptimizeForProcessor="1"
 				ExceptionHandling="0"
 				AdditionalOptions=" "
-				AdditionalIncludeDirectories=".;..\..;..\..\src;..\..\Glut;..\..\Demos\OpenGL;..\..\Extras\ConvexHull"
-				PrecompiledHeaderFile="..\..\out\debug_dbl7\build\appGenericJointDemo\appGenericJointDemo.pch"
-				AssemblerListingLocation="..\..\out\debug_dbl7\build\appGenericJointDemo\"
-				ObjectFile="..\..\out\debug_dbl7\build\appGenericJointDemo\"
-				ProgramDataBaseFileName="..\..\out\debug_dbl7\build\appGenericJointDemo\GenericJointDemo.pdb"
+				AdditionalIncludeDirectories=".;..\..;..\..\src"
+				PrecompiledHeaderFile="..\..\out\debug_dbl71\build\libconvexhull\libconvexhull.pch"
+				AssemblerListingLocation="..\..\out\debug_dbl71\build\libconvexhull\"
+				ObjectFile="..\..\out\debug_dbl71\build\libconvexhull\"
+				ProgramDataBaseFileName="..\..\out\debug_dbl71\build\libconvexhull\convexhull.pdb"
 				WarningLevel="3"
 				SuppressStartupBanner="TRUE"
 				Detect64BitPortabilityProblems="TRUE"
@@ -256,26 +247,24 @@
 				Name="VCCustomBuildTool"/>
 			<Tool
 				Name="VCLinkerTool"
-                                OutputFile="..\..\DebugDblGenericJointDemo.exe"
-                                SubSystem="1"
 				AdditionalOptions=" "
-				AdditionalDependencies="glut32.lib"
+				AdditionalDependencies=""
 				IgnoreImportLibrary="TRUE"
 				SuppressStartupBanner="TRUE"
 				GenerateManifest="false"
-				AdditionalLibraryDirectories="..\..\Glut"
-				ProgramDatabaseFile="..\..\out\debug_dbl7\build\appGenericJointDemo\GenericJointDemo.pdb"
+				AdditionalLibraryDirectories=""
+				ProgramDatabaseFile="..\..\out\debug_dbl71\build\libconvexhull\convexhull.pdb"
 				TargetMachine="1"/>
 			<Tool
 				Name="VCLibrarianTool"
 				SuppressStartupBanner="TRUE"/>
 			<Tool
 				Name="VCMIDLTool"
-				PreprocessorDefinitions="_DEBUG;BT_USE_DOUBLE_PRECISION;_CONSOLE"
+				PreprocessorDefinitions="_DEBUG;BT_USE_DOUBLE_PRECISION;_LIB;_WINDOWS"
 				MkTypLibCompatible="TRUE"
 				SuppressStartupBanner="TRUE"
 				TargetEnvironment="1"
-				TypeLibraryName="..\..\out\debug_dbl7\build\appGenericJointDemo\appGenericJointDemo.tlb"/>
+				TypeLibraryName="..\..\out\debug_dbl71\build\libconvexhull\libconvexhull.tlb"/>
 			<Tool
 				Name="VCPostBuildEventTool"/>
 			<Tool
@@ -284,8 +273,8 @@
 				Name="VCPreLinkEventTool"/>
 			<Tool
 				Name="VCResourceCompilerTool"
-				PreprocessorDefinitions="_DEBUG;BT_USE_DOUBLE_PRECISION;_CONSOLE;PROJECTGEN_VERSION=7"
-				AdditionalIncludeDirectories=".;..\..;..\..\src;..\..\Glut;..\..\Demos\OpenGL;..\..\Extras\ConvexHull"
+				PreprocessorDefinitions="_DEBUG;BT_USE_DOUBLE_PRECISION;_LIB;_WINDOWS;PROJECTGEN_VERSION=71"
+				AdditionalIncludeDirectories=".;..\..;..\..\src"
 				Culture="1033"/>
 			<Tool
 				Name="VCWebServiceProxyGeneratorTool"/>
@@ -298,27 +287,20 @@
 			Name="Source Files"
 			Filter="">
 			<File
-				RelativePath="..\..\Demos\GenericJointDemo\GenericJointDemo.cpp">
+				RelativePath="..\..\Extras\ConvexHull\btConvexHull.cpp">
 			</File>
 			<File
-				RelativePath="..\..\Demos\GenericJointDemo\Ragdoll.cpp">
+				RelativePath="..\..\Extras\ConvexHull\btShapeHull.cpp">
 			</File>
 		</Filter>
 		<Filter
 			Name="Header Files"
 			Filter="">
 			<File
-				RelativePath="..\..\Demos\GenericJointDemo\GenericJointDemo.h">
+				RelativePath="..\..\Extras\ConvexHull\btConvexHull.h">
 			</File>
 			<File
-				RelativePath="..\..\Demos\GenericJointDemo\Ragdoll.h">
-			</File>
-		</Filter>
-		<Filter
-			Name="Resource Files"
-			Filter="">
-			<File
-				RelativePath="..\..\msvc\appGenericJointDemo.rc">
+				RelativePath="..\..\Extras\ConvexHull\btShapeHull.h">
 			</File>
 		</Filter>
 	</Files>

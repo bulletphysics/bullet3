@@ -32,7 +32,7 @@
 				OptimizeForProcessor="1"
 				ExceptionHandling="0"
 				AdditionalOptions=" "
-				AdditionalIncludeDirectories=".;..\..;..\..\src;..\..\Glut;..\..\Extras;..\..\Demos\OpenGL;..\..\Extras\ConvexDecomposition;..\..\Extras\GIMPACT\include;..\..\Extras\GIMPACTUtils"
+				AdditionalIncludeDirectories=".;..\..;..\..\src;..\..\Glut;..\..\Extras;..\..\Extras\ConvexHull;..\..\Demos\OpenGL;..\..\Extras\ConvexDecomposition;..\..\Extras\GIMPACT\include;..\..\Extras\GIMPACTUtils"
 				PrecompiledHeaderFile="..\..\out\release7\build\appMultiThreadedDemo\appMultiThreadedDemo.pch"
 				AssemblerListingLocation="..\..\out\release7\build\appMultiThreadedDemo\"
 				ObjectFile="..\..\out\release7\build\appMultiThreadedDemo\"
@@ -80,7 +80,7 @@
 			<Tool
 				Name="VCResourceCompilerTool"
 				PreprocessorDefinitions="NDEBUG;_CONSOLE;PROJECTGEN_VERSION=7"
-				AdditionalIncludeDirectories=".;..\..;..\..\src;..\..\Glut;..\..\Extras;..\..\Demos\OpenGL;..\..\Extras\ConvexDecomposition;..\..\Extras\GIMPACT\include;..\..\Extras\GIMPACTUtils"
+				AdditionalIncludeDirectories=".;..\..;..\..\src;..\..\Glut;..\..\Extras;..\..\Extras\ConvexHull;..\..\Demos\OpenGL;..\..\Extras\ConvexDecomposition;..\..\Extras\GIMPACT\include;..\..\Extras\GIMPACTUtils"
 				Culture="1033"/>
 			<Tool
 				Name="VCWebServiceProxyGeneratorTool"/>
@@ -101,7 +101,7 @@
 				OptimizeForProcessor="1"
 				ExceptionHandling="0"
 				AdditionalOptions=" "
-				AdditionalIncludeDirectories=".;..\..;..\..\src;..\..\Glut;..\..\Extras;..\..\Demos\OpenGL;..\..\Extras\ConvexDecomposition;..\..\Extras\GIMPACT\include;..\..\Extras\GIMPACTUtils"
+				AdditionalIncludeDirectories=".;..\..;..\..\src;..\..\Glut;..\..\Extras;..\..\Extras\ConvexHull;..\..\Demos\OpenGL;..\..\Extras\ConvexDecomposition;..\..\Extras\GIMPACT\include;..\..\Extras\GIMPACTUtils"
 				PrecompiledHeaderFile="..\..\out\release_dbl7\build\appMultiThreadedDemo\appMultiThreadedDemo.pch"
 				AssemblerListingLocation="..\..\out\release_dbl7\build\appMultiThreadedDemo\"
 				ObjectFile="..\..\out\release_dbl7\build\appMultiThreadedDemo\"
@@ -144,7 +144,7 @@
 			<Tool
 				Name="VCResourceCompilerTool"
 				PreprocessorDefinitions="NDEBUG;BT_USE_DOUBLE_PRECISION;_CONSOLE;PROJECTGEN_VERSION=7"
-				AdditionalIncludeDirectories=".;..\..;..\..\src;..\..\Glut;..\..\Extras;..\..\Demos\OpenGL;..\..\Extras\ConvexDecomposition;..\..\Extras\GIMPACT\include;..\..\Extras\GIMPACTUtils"
+				AdditionalIncludeDirectories=".;..\..;..\..\src;..\..\Glut;..\..\Extras;..\..\Extras\ConvexHull;..\..\Demos\OpenGL;..\..\Extras\ConvexDecomposition;..\..\Extras\GIMPACT\include;..\..\Extras\GIMPACTUtils"
 				Culture="1033"/>
 			<Tool
 				Name="VCWebServiceProxyGeneratorTool"/>
@@ -170,7 +170,7 @@
 				OptimizeForProcessor="1"
 				ExceptionHandling="0"
 				AdditionalOptions=" "
-				AdditionalIncludeDirectories=".;..\..;..\..\src;..\..\Glut;..\..\Extras;..\..\Demos\OpenGL;..\..\Extras\ConvexDecomposition;..\..\Extras\GIMPACT\include;..\..\Extras\GIMPACTUtils"
+				AdditionalIncludeDirectories=".;..\..;..\..\src;..\..\Glut;..\..\Extras;..\..\Extras\ConvexHull;..\..\Demos\OpenGL;..\..\Extras\ConvexDecomposition;..\..\Extras\GIMPACT\include;..\..\Extras\GIMPACTUtils"
 				PrecompiledHeaderFile="..\..\out\debug7\build\appMultiThreadedDemo\appMultiThreadedDemo.pch"
 				AssemblerListingLocation="..\..\out\debug7\build\appMultiThreadedDemo\"
 				ObjectFile="..\..\out\debug7\build\appMultiThreadedDemo\"
@@ -216,7 +216,7 @@
 			<Tool
 				Name="VCResourceCompilerTool"
 				PreprocessorDefinitions="_DEBUG;_CONSOLE;PROJECTGEN_VERSION=7"
-				AdditionalIncludeDirectories=".;..\..;..\..\src;..\..\Glut;..\..\Extras;..\..\Demos\OpenGL;..\..\Extras\ConvexDecomposition;..\..\Extras\GIMPACT\include;..\..\Extras\GIMPACTUtils"
+				AdditionalIncludeDirectories=".;..\..;..\..\src;..\..\Glut;..\..\Extras;..\..\Extras\ConvexHull;..\..\Demos\OpenGL;..\..\Extras\ConvexDecomposition;..\..\Extras\GIMPACT\include;..\..\Extras\GIMPACTUtils"
 				Culture="1033"/>
 			<Tool
 				Name="VCWebServiceProxyGeneratorTool"/>
@@ -242,7 +242,7 @@
 				OptimizeForProcessor="1"
 				ExceptionHandling="0"
 				AdditionalOptions=" "
-				AdditionalIncludeDirectories=".;..\..;..\..\src;..\..\Glut;..\..\Extras;..\..\Demos\OpenGL;..\..\Extras\ConvexDecomposition;..\..\Extras\GIMPACT\include;..\..\Extras\GIMPACTUtils"
+				AdditionalIncludeDirectories=".;..\..;..\..\src;..\..\Glut;..\..\Extras;..\..\Extras\ConvexHull;..\..\Demos\OpenGL;..\..\Extras\ConvexDecomposition;..\..\Extras\GIMPACT\include;..\..\Extras\GIMPACTUtils"
 				PrecompiledHeaderFile="..\..\out\debug_dbl7\build\appMultiThreadedDemo\appMultiThreadedDemo.pch"
 				AssemblerListingLocation="..\..\out\debug_dbl7\build\appMultiThreadedDemo\"
 				ObjectFile="..\..\out\debug_dbl7\build\appMultiThreadedDemo\"
@@ -285,7 +285,7 @@
 			<Tool
 				Name="VCResourceCompilerTool"
 				PreprocessorDefinitions="_DEBUG;BT_USE_DOUBLE_PRECISION;_CONSOLE;PROJECTGEN_VERSION=7"
-				AdditionalIncludeDirectories=".;..\..;..\..\src;..\..\Glut;..\..\Extras;..\..\Demos\OpenGL;..\..\Extras\ConvexDecomposition;..\..\Extras\GIMPACT\include;..\..\Extras\GIMPACTUtils"
+				AdditionalIncludeDirectories=".;..\..;..\..\src;..\..\Glut;..\..\Extras;..\..\Extras\ConvexHull;..\..\Demos\OpenGL;..\..\Extras\ConvexDecomposition;..\..\Extras\GIMPACT\include;..\..\Extras\GIMPACTUtils"
 				Culture="1033"/>
 			<Tool
 				Name="VCWebServiceProxyGeneratorTool"/>

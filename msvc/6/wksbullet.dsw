@@ -30,6 +30,9 @@ Package=<4>
     Project_Dep_Name libconvexdecomposition
     End Project Dependency
     Begin Project Dependency
+    Project_Dep_Name libconvexhull
+    End Project Dependency
+    Begin Project Dependency
     Project_Dep_Name libGIMPACT
     End Project Dependency
     Begin Project Dependency
@@ -62,6 +65,9 @@ Package=<4>
     Begin Project Dependency
     Project_Dep_Name libbulletopenglsupport
     End Project Dependency
+    Begin Project Dependency
+    Project_Dep_Name libconvexhull
+    End Project Dependency
 }}}
 
 ###############################################################################
@@ -85,6 +91,9 @@ Package=<4>
     End Project Dependency
     Begin Project Dependency
     Project_Dep_Name libbulletopenglsupport
+    End Project Dependency
+    Begin Project Dependency
+    Project_Dep_Name libconvexhull
     End Project Dependency
 }}}
 
@@ -110,6 +119,9 @@ Package=<4>
     Begin Project Dependency
     Project_Dep_Name libbulletopenglsupport
     End Project Dependency
+    Begin Project Dependency
+    Project_Dep_Name libconvexhull
+    End Project Dependency
 }}}
 
 ###############################################################################
@@ -133,6 +145,9 @@ Package=<4>
     End Project Dependency
     Begin Project Dependency
     Project_Dep_Name libbulletopenglsupport
+    End Project Dependency
+    Begin Project Dependency
+    Project_Dep_Name libconvexhull
     End Project Dependency
 }}}
 
@@ -165,6 +180,9 @@ Package=<4>
     Project_Dep_Name libcolladadom
     End Project Dependency
     Begin Project Dependency
+    Project_Dep_Name libconvexhull
+    End Project Dependency
+    Begin Project Dependency
     Project_Dep_Name liblibxml
     End Project Dependency
 }}}
@@ -191,6 +209,9 @@ Package=<4>
     Begin Project Dependency
     Project_Dep_Name libbulletopenglsupport
     End Project Dependency
+    Begin Project Dependency
+    Project_Dep_Name libconvexhull
+    End Project Dependency
 }}}
 
 ###############################################################################
@@ -214,6 +235,9 @@ Package=<4>
     End Project Dependency
     Begin Project Dependency
     Project_Dep_Name libbulletopenglsupport
+    End Project Dependency
+    Begin Project Dependency
+    Project_Dep_Name libconvexhull
     End Project Dependency
 }}}
 
@@ -239,6 +263,9 @@ Package=<4>
     Begin Project Dependency
     Project_Dep_Name libbulletopenglsupport
     End Project Dependency
+    Begin Project Dependency
+    Project_Dep_Name libconvexhull
+    End Project Dependency
 }}}
 
 ###############################################################################
@@ -263,6 +290,9 @@ Package=<4>
     Begin Project Dependency
     Project_Dep_Name libbulletopenglsupport
     End Project Dependency
+    Begin Project Dependency
+    Project_Dep_Name libconvexhull
+    End Project Dependency
 }}}
 
 ###############################################################################
@@ -286,6 +316,9 @@ Package=<4>
     End Project Dependency
     Begin Project Dependency
     Project_Dep_Name libbulletopenglsupport
+    End Project Dependency
+    Begin Project Dependency
+    Project_Dep_Name libconvexhull
     End Project Dependency
 }}}
 
@@ -314,6 +347,9 @@ Package=<4>
     Begin Project Dependency
     Project_Dep_Name libconvexdecomposition
     End Project Dependency
+    Begin Project Dependency
+    Project_Dep_Name libconvexhull
+    End Project Dependency
 }}}
 
 ###############################################################################
@@ -338,6 +374,9 @@ Package=<4>
     Begin Project Dependency
     Project_Dep_Name libbulletopenglsupport
     End Project Dependency
+    Begin Project Dependency
+    Project_Dep_Name libconvexhull
+    End Project Dependency
 }}}
 
 ###############################################################################
@@ -361,6 +400,9 @@ Package=<4>
     End Project Dependency
     Begin Project Dependency
     Project_Dep_Name libbulletopenglsupport
+    End Project Dependency
+    Begin Project Dependency
+    Project_Dep_Name libconvexhull
     End Project Dependency
     Begin Project Dependency
     Project_Dep_Name libGIMPACT
@@ -389,6 +431,9 @@ Package=<4>
     Begin Project Dependency
     Project_Dep_Name libbulletopenglsupport
     End Project Dependency
+    Begin Project Dependency
+    Project_Dep_Name libconvexhull
+    End Project Dependency
 }}}
 
 ###############################################################################
@@ -415,6 +460,9 @@ Package=<4>
     End Project Dependency
     Begin Project Dependency
     Project_Dep_Name libconvexdecomposition
+    End Project Dependency
+    Begin Project Dependency
+    Project_Dep_Name libconvexhull
     End Project Dependency
     Begin Project Dependency
     Project_Dep_Name libGIMPACT
@@ -445,6 +493,9 @@ Package=<4>
     End Project Dependency
     Begin Project Dependency
     Project_Dep_Name libbulletopenglsupport
+    End Project Dependency
+    Begin Project Dependency
+    Project_Dep_Name libconvexhull
     End Project Dependency
 }}}
 
@@ -492,6 +543,9 @@ Package=<4>
     Project_Dep_Name libbulletopenglsupport
     End Project Dependency
     Begin Project Dependency
+    Project_Dep_Name libconvexhull
+    End Project Dependency
+    Begin Project Dependency
     Project_Dep_Name libGIMPACT
     End Project Dependency
 }}}
@@ -523,6 +577,9 @@ Package=<4>
     End Project Dependency
     Begin Project Dependency
     Project_Dep_Name libconvexdecomposition
+    End Project Dependency
+    Begin Project Dependency
+    Project_Dep_Name libconvexhull
     End Project Dependency
     Begin Project Dependency
     Project_Dep_Name libGIMPACT
@@ -557,6 +614,9 @@ Package=<4>
     Begin Project Dependency
     Project_Dep_Name libbulletopenglsupport
     End Project Dependency
+    Begin Project Dependency
+    Project_Dep_Name libconvexhull
+    End Project Dependency
 }}}
 
 ###############################################################################
@@ -580,6 +640,9 @@ Package=<4>
     End Project Dependency
     Begin Project Dependency
     Project_Dep_Name libbulletopenglsupport
+    End Project Dependency
+    Begin Project Dependency
+    Project_Dep_Name libconvexhull
     End Project Dependency
 }}}
 
@@ -605,6 +668,9 @@ Package=<4>
     Begin Project Dependency
     Project_Dep_Name libbulletopenglsupport
     End Project Dependency
+    Begin Project Dependency
+    Project_Dep_Name libconvexhull
+    End Project Dependency
 }}}
 
 ###############################################################################
@@ -629,6 +695,9 @@ Package=<4>
     Begin Project Dependency
     Project_Dep_Name libbulletopenglsupport
     End Project Dependency
+    Begin Project Dependency
+    Project_Dep_Name libconvexhull
+    End Project Dependency
 }}}
 
 ###############################################################################
@@ -652,6 +721,9 @@ Package=<4>
     End Project Dependency
     Begin Project Dependency
     Project_Dep_Name libbulletopenglsupport
+    End Project Dependency
+    Begin Project Dependency
+    Project_Dep_Name libconvexhull
     End Project Dependency
 }}}
 
@@ -766,6 +838,9 @@ Package=<4>
     End Project Dependency
     Begin Project Dependency
     Project_Dep_Name libconvexdecomposition
+    End Project Dependency
+    Begin Project Dependency
+    Project_Dep_Name libconvexhull
     End Project Dependency
     Begin Project Dependency
     Project_Dep_Name libGIMPACT
@@ -909,6 +984,9 @@ Package=<4>
     Project_Dep_Name libconvexdecomposition
     End Project Dependency
     Begin Project Dependency
+    Project_Dep_Name libconvexhull
+    End Project Dependency
+    Begin Project Dependency
     Project_Dep_Name libGIMPACT
     End Project Dependency
     Begin Project Dependency
@@ -1024,6 +1102,18 @@ Package=<4>
 ###############################################################################
 
 Project: "libconvexdecomposition"=.\libconvexdecomposition.dsp - Package Owner=<4>
+
+Package=<5>
+{{{
+}}}
+
+Package=<4>
+{{{
+}}}
+
+###############################################################################
+
+Project: "libconvexhull"=.\libconvexhull.dsp - Package Owner=<4>
 
 Package=<5>
 {{{

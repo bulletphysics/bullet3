@@ -290,9 +290,6 @@
 				RelativePath="..\..\src\LinearMath\btAlignedAllocator.cpp">
 			</File>
 			<File
-				RelativePath="..\..\src\LinearMath\btConvexHull.cpp">
-			</File>
-			<File
 				RelativePath="..\..\src\LinearMath\btGeometryUtil.cpp">
 			</File>
 			<File
@@ -310,9 +307,6 @@
 			</File>
 			<File
 				RelativePath="..\..\src\LinearMath\btAlignedObjectArray.h">
-			</File>
-			<File
-				RelativePath="..\..\src\LinearMath\btConvexHull.h">
 			</File>
 			<File
 				RelativePath="..\..\src\LinearMath\btDefaultMotionState.h">
