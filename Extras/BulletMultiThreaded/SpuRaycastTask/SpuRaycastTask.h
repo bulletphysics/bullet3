@@ -16,6 +16,7 @@ ATTRIBUTE_ALIGNED16(struct) RaycastGatheredObjectData
 	btTransform	m_worldTransform;
 };
 
+
 ATTRIBUTE_ALIGNED16(struct) SpuRaycastTaskWorkUnitOut
 {
 	btVector3 hitNormal; /* out */
@@ -31,16 +32,17 @@ ATTRIBUTE_ALIGNED16(struct) SpuRaycastTaskWorkUnit
 	SpuRaycastTaskWorkUnitOut* output; /* out */
 };
 
-#define SPU_RAYCAST_WORK_UNITS_PER_TASK 4
+#define SPU_RAYCAST_WORK_UNITS_PER_TASK 16
 
 ATTRIBUTE_ALIGNED128(struct) SpuRaycastTaskDesc
 {
 	SpuRaycastTaskWorkUnit workUnits[SPU_RAYCAST_WORK_UNITS_PER_TASK];
-	int numWorkUnits;
+	unsigned int numWorkUnits;
 	void* spuCollisionObjectsWrappers;
-	int numSpuCollisionObjectWrappers;
+	unsigned int numSpuCollisionObjectWrappers;
 	int taskId;
 };
+
 
 void	processRaycastTask (void* userPtr, void* lsMemory);
 void*	createRaycastLocalStoreMemory ();

@@ -18,6 +18,8 @@
 2. support compound objects
 */
 
+#define CALLBACK_ALL
+
 struct RaycastTask_LocalStoreMemory
 {
 	ATTRIBUTE_ALIGNED16(char gColObj [sizeof(btCollisionObject)+16]);
@@ -159,21 +161,131 @@ void small_cache_read_triple(	void* ls0, ppu_address_t ea0,
 
 void performRaycastAgainstConvex (RaycastGatheredObjectData* gatheredObjectData, const SpuRaycastTaskWorkUnit& workUnit, SpuRaycastTaskWorkUnitOut* workUnitOut, RaycastTask_LocalStoreMemory* lsMemPtr);
 
-class spuRaycastNodeCallback : public btNodeOverlapCallback
+class spuRaycastNodeCallback1 : public btNodeOverlapCallback
 {
 	RaycastGatheredObjectData* m_gatheredObjectData;
-	const SpuRaycastTaskWorkUnit& m_workUnit;
-	SpuRaycastTaskWorkUnitOut* m_workUnitOut;
+	const SpuRaycastTaskWorkUnit* m_workUnits;
+	SpuRaycastTaskWorkUnitOut* m_workUnitsOut;
+	int m_workUnit;
 	RaycastTask_LocalStoreMemory* m_lsMemPtr;
 
 	ATTRIBUTE_ALIGNED16(btVector3	spuTriangleVertices[3]);
 	ATTRIBUTE_ALIGNED16(btScalar	spuUnscaledVertex[4]);
 	//ATTRIBUTE_ALIGNED16(int	spuIndices[16]);
 public:
-	spuRaycastNodeCallback(RaycastGatheredObjectData* gatheredObjectData,const SpuRaycastTaskWorkUnit& workUnit, SpuRaycastTaskWorkUnitOut* workUnitOut, RaycastTask_LocalStoreMemory* lsMemPtr)
+	spuRaycastNodeCallback1(RaycastGatheredObjectData* gatheredObjectData,const SpuRaycastTaskWorkUnit* workUnits, SpuRaycastTaskWorkUnitOut* workUnitsOut, RaycastTask_LocalStoreMemory* lsMemPtr)
 		: m_gatheredObjectData(gatheredObjectData),
-		  m_workUnit(workUnit),
-		  m_workUnitOut(workUnitOut),
+		  m_workUnits(workUnits),
+		  m_workUnitsOut(workUnitsOut),
+		  m_workUnit(0),
+		  m_lsMemPtr (lsMemPtr)
+	{
+	}
+
+	void setWorkUnit (int workUnit) { m_workUnit = workUnit; }
+	virtual void processNode(int subPart, int triangleIndex)
+	{
+		///Create a triangle on the stack, call process collision, with GJK
+		///DMA the vertices, can benefit from software caching
+
+		//		spu_printf("processNode with triangleIndex %d\n",triangleIndex);
+
+			// ugly solution to support both 16bit and 32bit indices
+		if (m_lsMemPtr->bvhShapeData.gIndexMesh.m_indexType == PHY_SHORT)
+		{
+			short int* indexBasePtr = (short int*)(m_lsMemPtr->bvhShapeData.gIndexMesh.m_triangleIndexBase+triangleIndex*m_lsMemPtr->bvhShapeData.gIndexMesh.m_triangleIndexStride);
+			ATTRIBUTE_ALIGNED16(short int tmpIndices[3]);
+
+			small_cache_read_triple(&tmpIndices[0],(ppu_address_t)&indexBasePtr[0],
+									&tmpIndices[1],(ppu_address_t)&indexBasePtr[1],
+									&tmpIndices[2],(ppu_address_t)&indexBasePtr[2],
+									sizeof(short int));
+
+			m_lsMemPtr->spuIndices[0] = int(tmpIndices[0]);
+			m_lsMemPtr->spuIndices[1] = int(tmpIndices[1]);
+			m_lsMemPtr->spuIndices[2] = int(tmpIndices[2]);
+		} else
+		{
+			int* indexBasePtr = (int*)(m_lsMemPtr->bvhShapeData.gIndexMesh.m_triangleIndexBase+triangleIndex*m_lsMemPtr->bvhShapeData.gIndexMesh.m_triangleIndexStride);
+
+			small_cache_read_triple(&m_lsMemPtr->spuIndices[0],(ppu_address_t)&indexBasePtr[0],
+								&m_lsMemPtr->spuIndices[1],(ppu_address_t)&indexBasePtr[1],
+								&m_lsMemPtr->spuIndices[2],(ppu_address_t)&indexBasePtr[2],
+								sizeof(int));
+		}
+
+		//printf("%d %d %d\n", m_lsMemPtr->spuIndices[0], m_lsMemPtr->spuIndices[1], m_lsMemPtr->spuIndices[2]);
+		//		spu_printf("SPU index0=%d ,",spuIndices[0]);
+		//		spu_printf("SPU index1=%d ,",spuIndices[1]);
+		//		spu_printf("SPU index2=%d ,",spuIndices[2]);
+		//		spu_printf("SPU: indexBasePtr=%llx\n",indexBasePtr);
+
+		const btVector3& meshScaling = m_lsMemPtr->bvhShapeData.gTriangleMeshInterfacePtr->getScaling();
+	
+		for (int j=2;btLikely( j>=0 );j--)
+		{
+			int graphicsindex = m_lsMemPtr->spuIndices[j];
+
+						//spu_printf("SPU index=%d ,",graphicsindex);
+			btScalar* graphicsbasePtr = (btScalar*)(m_lsMemPtr->bvhShapeData.gIndexMesh.m_vertexBase+graphicsindex*m_lsMemPtr->bvhShapeData.gIndexMesh.m_vertexStride);
+			
+			//			spu_printf("SPU graphicsbasePtr=%llx\n",graphicsbasePtr);
+
+
+			///handle un-aligned vertices...
+
+			//another DMA for each vertex
+			small_cache_read_triple(&spuUnscaledVertex[0],(ppu_address_t)&graphicsbasePtr[0],
+									&spuUnscaledVertex[1],(ppu_address_t)&graphicsbasePtr[1],
+									&spuUnscaledVertex[2],(ppu_address_t)&graphicsbasePtr[2],
+									sizeof(btScalar));
+			
+			//printf("%f %f %f\n", spuUnscaledVertex[0],spuUnscaledVertex[1],spuUnscaledVertex[2]);
+			spuTriangleVertices[j] = btVector3(
+				spuUnscaledVertex[0]*meshScaling.getX(),
+				spuUnscaledVertex[1]*meshScaling.getY(),
+				spuUnscaledVertex[2]*meshScaling.getZ());
+
+				//spu_printf("SPU:triangle vertices:%f,%f,%f\n",spuTriangleVertices[j].x(),spuTriangleVertices[j].y(),spuTriangleVertices[j].z());
+		}
+		
+		RaycastGatheredObjectData triangleGatheredObjectData (*m_gatheredObjectData);
+		triangleGatheredObjectData.m_shapeType = TRIANGLE_SHAPE_PROXYTYPE;
+		triangleGatheredObjectData.m_spuCollisionShape = &spuTriangleVertices[0];
+
+		//printf("%f %f %f\n", spuTriangleVertices[0][0],spuTriangleVertices[0][1],spuTriangleVertices[0][2]);
+		//printf("%f %f %f\n", spuTriangleVertices[1][0],spuTriangleVertices[1][1],spuTriangleVertices[1][2]);
+		//printf("%f %f %f\n", spuTriangleVertices[2][0],spuTriangleVertices[2][1],spuTriangleVertices[2][2]);
+		SpuRaycastTaskWorkUnitOut out;
+		out.hitFraction = 1.0;
+		performRaycastAgainstConvex (&triangleGatheredObjectData, m_workUnits[m_workUnit], &out, m_lsMemPtr);
+		/* XXX: For now only take the closest hit */
+		if (out.hitFraction < m_workUnitsOut[m_workUnit].hitFraction)
+		{
+			m_workUnitsOut[m_workUnit].hitFraction = out.hitFraction;
+			m_workUnitsOut[m_workUnit].hitNormal = out.hitNormal;
+		}
+	}
+
+};
+
+class spuRaycastNodeCallback : public btNodeOverlapCallback
+{
+	RaycastGatheredObjectData* m_gatheredObjectData;
+	const SpuRaycastTaskWorkUnit* m_workUnits;
+	SpuRaycastTaskWorkUnitOut* m_workUnitsOut;
+	int m_numWorkUnits;
+	RaycastTask_LocalStoreMemory* m_lsMemPtr;
+
+	ATTRIBUTE_ALIGNED16(btVector3	spuTriangleVertices[3]);
+	ATTRIBUTE_ALIGNED16(btScalar	spuUnscaledVertex[4]);
+	//ATTRIBUTE_ALIGNED16(int	spuIndices[16]);
+public:
+	spuRaycastNodeCallback(RaycastGatheredObjectData* gatheredObjectData,const SpuRaycastTaskWorkUnit* workUnits, SpuRaycastTaskWorkUnitOut* workUnitsOut, int numWorkUnits, RaycastTask_LocalStoreMemory* lsMemPtr)
+		: m_gatheredObjectData(gatheredObjectData),
+		  m_workUnits(workUnits),
+		  m_workUnitsOut(workUnitsOut),
+		  m_numWorkUnits(numWorkUnits),
 		  m_lsMemPtr (lsMemPtr)
 	{
 	}
@@ -251,42 +363,59 @@ public:
 		//printf("%f %f %f\n", spuTriangleVertices[0][0],spuTriangleVertices[0][1],spuTriangleVertices[0][2]);
 		//printf("%f %f %f\n", spuTriangleVertices[1][0],spuTriangleVertices[1][1],spuTriangleVertices[1][2]);
 		//printf("%f %f %f\n", spuTriangleVertices[2][0],spuTriangleVertices[2][1],spuTriangleVertices[2][2]);
-		SpuRaycastTaskWorkUnitOut out;
-		out.hitFraction = 1.0;
-
-		performRaycastAgainstConvex (&triangleGatheredObjectData, m_workUnit, &out, m_lsMemPtr);
-		/* XXX: For now only take the closest hit */
-		if (out.hitFraction < m_workUnitOut->hitFraction)
+		for (int i = 0; i < m_numWorkUnits; i++)
 		{
-			m_workUnitOut->hitFraction = out.hitFraction;
-			m_workUnitOut->hitNormal = out.hitNormal;
+			SpuRaycastTaskWorkUnitOut out;
+			out.hitFraction = 1.0;
+			performRaycastAgainstConvex (&triangleGatheredObjectData, m_workUnits[i], &out, m_lsMemPtr);
+			/* XXX: For now only take the closest hit */
+			if (out.hitFraction < m_workUnitsOut[i].hitFraction)
+			{
+				m_workUnitsOut[i].hitFraction = out.hitFraction;
+				m_workUnitsOut[i].hitNormal = out.hitNormal;
+			}
 		}
 	}
 
 };
 
-void	spuWalkStacklessQuantizedTreeAgainstRay(RaycastTask_LocalStoreMemory* lsMemPtr, btNodeOverlapCallback* nodeCallback,const btVector3& raySource, const btVector3& rayTarget,unsigned short int* quantizedQueryAabbMin,unsigned short int* quantizedQueryAabbMax,const btQuantizedBvhNode* rootNode, int startNodeIndex,int endNodeIndex)
-{
 
+void	spuWalkStacklessQuantizedTreeAgainstRays(RaycastTask_LocalStoreMemory* lsMemPtr, 
+						 btNodeOverlapCallback* nodeCallback,
+						 const btVector3* rayFrom,
+						 const btVector3* rayTo,
+						 int numWorkUnits,
+						 unsigned short int* quantizedQueryAabbMin,
+						 unsigned short int* quantizedQueryAabbMax,
+						 const btQuantizedBvhNode* rootNode,
+						 int startNodeIndex,int endNodeIndex)
+{
 	int curIndex = startNodeIndex;
 	int walkIterations = 0;
 	int subTreeSize = endNodeIndex - startNodeIndex;
 
 	int escapeIndex;
 
-	unsigned int boxBoxOverlap, rayBoxOverlap;
+	unsigned int boxBoxOverlap, rayBoxOverlap, anyRayBoxOverlap;
 	unsigned int isLeafNode;
+
 #define RAYAABB2
 #ifdef RAYAABB2
-	btScalar lambda_max = 1.0;
-	btVector3 rayFrom = raySource;
-	btVector3 rayDirection = (rayTarget-raySource);
-	rayDirection.normalize ();
-	lambda_max = rayDirection.dot(rayTarget-raySource);
-	rayDirection[0] = btScalar(1.0) / rayDirection[0];
-	rayDirection[1] = btScalar(1.0) / rayDirection[1];
-	rayDirection[2] = btScalar(1.0) / rayDirection[2];
-	unsigned int sign[3] = { rayDirection[0] < 0.0, rayDirection[1] < 0.0, rayDirection[2] < 0.0};
+	unsigned int sign[numWorkUnits][3];
+	btVector3 rayInvDirection[numWorkUnits];
+	btScalar lambda_max[numWorkUnits];
+	for (int i = 0; i < numWorkUnits; i++)
+	{
+		btVector3 rayDirection = (rayTo[i]-rayFrom[i]);
+		rayDirection.normalize ();
+		lambda_max[i] = rayDirection.dot(rayTo[i]-rayFrom[i]);
+		rayInvDirection[i][0] = btScalar(1.0) / rayDirection[0];
+		rayInvDirection[i][1] = btScalar(1.0) / rayDirection[1];
+		rayInvDirection[i][2] = btScalar(1.0) / rayDirection[2];
+		sign[i][0] = rayDirection[0] < 0.0;
+		sign[i][1] = rayDirection[1] < 0.0;
+		sign[i][2] = rayDirection[2] < 0.0;
+	}
 #endif
 
 	while (curIndex < endNodeIndex)
@@ -295,32 +424,65 @@ void	spuWalkStacklessQuantizedTreeAgainstRay(RaycastTask_LocalStoreMemory* lsMem
 		assert (walkIterations < subTreeSize);
 
 		walkIterations++;
-		boxBoxOverlap = spuTestQuantizedAabbAgainstQuantizedAabb(quantizedQueryAabbMin,quantizedQueryAabbMax,rootNode->m_quantizedAabbMin,rootNode->m_quantizedAabbMax);
+
 		isLeafNode = rootNode->isLeafNode();
 
-		rayBoxOverlap = 0;
-		btScalar param = 1.0;
-		btVector3 normal;
-		if (boxBoxOverlap)
+		anyRayBoxOverlap = 0;
+
+		for (int i = 0; i < numWorkUnits; i++)
 		{
+			unsigned short int* quamin = (quantizedQueryAabbMin + 3 * i);
+			unsigned short int* quamax = (quantizedQueryAabbMax + 3 * i);
+			boxBoxOverlap = spuTestQuantizedAabbAgainstQuantizedAabb(quamin,quamax,rootNode->m_quantizedAabbMin,rootNode->m_quantizedAabbMax);
+			if (!boxBoxOverlap)
+				continue;
+
+			rayBoxOverlap = 0;
+			btScalar param = 1.0;
+			btVector3 normal;
 			btVector3 bounds[2];
 			bounds[0] = lsMemPtr->bvhShapeData.getOptimizedBvh()->unQuantize(rootNode->m_quantizedAabbMin);
 			bounds[1] = lsMemPtr->bvhShapeData.getOptimizedBvh()->unQuantize(rootNode->m_quantizedAabbMax);
 #ifdef RAYAABB2
-			rayBoxOverlap = btRayAabb2 (raySource, rayDirection, sign, bounds, param, 0.0, lambda_max);
+			rayBoxOverlap = btRayAabb2 (rayFrom[i], rayInvDirection[i], sign[i], bounds, param, 0.0, lambda_max[i]);
 #else
-			rayBoxOverlap = btRayAabb(raySource, rayTarget, bounds[0], bounds[1], param, normal);
+			rayBoxOverlap = btRayAabb(rayFrom[i], rayTo[i], bounds[0], bounds[1], param, normal);
+#endif
+
+#ifndef CALLBACK_ALL
+			anyRayBoxOverlap = rayBoxOverlap || anyRayBoxOverlap;
+			/* If we have any ray vs. box overlap and this isn't a leaf node
+			   we know that we need to dig deeper
+			*/
+			if (!isLeafNode && anyRayBoxOverlap)
+				break;
+
+			if (isLeafNode && rayBoxOverlap)
+			{
+				spuRaycastNodeCallback1* callback = (spuRaycastNodeCallback1*)nodeCallback;
+				callback->setWorkUnit (i);
+				nodeCallback->processNode (0, rootNode->getTriangleIndex());
+			}
+#else
+			/* If we have any ray vs. box overlap and this isn't a leaf node
+			   we know that we need to dig deeper
+			*/
+			if (rayBoxOverlap)
+			{
+				anyRayBoxOverlap = 1;
+				break;
+			}
 #endif
 		}
 
-		if (isLeafNode && rayBoxOverlap)
+#ifdef CALLBACK_ALL
+		if (isLeafNode && anyRayBoxOverlap)
 		{
-			//printf("overlap with node %d\n",rootNode->getTriangleIndex());
-			nodeCallback->processNode(0,rootNode->getTriangleIndex());
-			//			spu_printf("SPU: overlap detected with triangleIndex:%d\n",rootNode->getTriangleIndex());
-		} 
+			nodeCallback->processNode (0, rootNode->getTriangleIndex());
+		}
+#endif
 
-		if (rayBoxOverlap || isLeafNode)
+		if (anyRayBoxOverlap || isLeafNode)
 		{
 			rootNode++;
 			curIndex++;
@@ -334,7 +496,8 @@ void	spuWalkStacklessQuantizedTreeAgainstRay(RaycastTask_LocalStoreMemory* lsMem
 
 }
 
-void performRaycastAgainstConcave (RaycastGatheredObjectData* gatheredObjectData, const SpuRaycastTaskWorkUnit& workUnit, SpuRaycastTaskWorkUnitOut* workUnitOut, RaycastTask_LocalStoreMemory* lsMemPtr)
+
+void performRaycastAgainstConcave (RaycastGatheredObjectData* gatheredObjectData, const SpuRaycastTaskWorkUnit* workUnits, SpuRaycastTaskWorkUnitOut* workUnitsOut, int numWorkUnits, RaycastTask_LocalStoreMemory* lsMemPtr)
 {
 	//order: first collision shape is convex, second concave. m_isSwapped is true, if the original order was opposite
 	register int dmaSize;
@@ -345,32 +508,42 @@ void performRaycastAgainstConcave (RaycastGatheredObjectData* gatheredObjectData
 	//need the mesh interface, for access to triangle vertices
 	dmaBvhShapeData (&(lsMemPtr->bvhShapeData), trimeshShape);
 
-	btVector3 aabbMin;
-	btVector3 aabbMax;
+	unsigned short int quantizedQueryAabbMin[numWorkUnits][3];
+	unsigned short int quantizedQueryAabbMax[numWorkUnits][3];
+	btVector3 rayFromInTriangleSpace[numWorkUnits];
+	btVector3 rayToInTriangleSpace[numWorkUnits];
 
 	/* Calculate the AABB for the ray in the triangle mesh shape */
 	btTransform rayInTriangleSpace;
 	rayInTriangleSpace = gatheredObjectData->m_worldTransform.inverse();
 
-	btVector3 rayFromInTriangleSpace = rayInTriangleSpace(workUnit.rayFrom);
-	btVector3 rayToInTriangleSpace = rayInTriangleSpace(workUnit.rayTo);
+	for (int i = 0; i < numWorkUnits; i++)
+	{
+		btVector3 aabbMin;
+		btVector3 aabbMax;
 
-	aabbMin = rayFromInTriangleSpace;
-	aabbMin.setMin (rayToInTriangleSpace);
-	aabbMax = rayFromInTriangleSpace;
-	aabbMax.setMax (rayToInTriangleSpace);
+		rayFromInTriangleSpace[i] = rayInTriangleSpace(workUnits[i].rayFrom);
+		rayToInTriangleSpace[i] = rayInTriangleSpace(workUnits[i].rayTo);
 
-	unsigned short int quantizedQueryAabbMin[3];
-	unsigned short int quantizedQueryAabbMax[3];
-	lsMemPtr->bvhShapeData.getOptimizedBvh()->quantizeWithClamp(quantizedQueryAabbMin,aabbMin,0);
-	lsMemPtr->bvhShapeData.getOptimizedBvh()->quantizeWithClamp(quantizedQueryAabbMax,aabbMax,1);
+		aabbMin = rayFromInTriangleSpace[i];
+		aabbMin.setMin (rayToInTriangleSpace[i]);
+		aabbMax = rayFromInTriangleSpace[i];
+		aabbMax.setMax (rayToInTriangleSpace[i]);
+
+		lsMemPtr->bvhShapeData.getOptimizedBvh()->quantizeWithClamp(quantizedQueryAabbMin[i],aabbMin,0);
+		lsMemPtr->bvhShapeData.getOptimizedBvh()->quantizeWithClamp(quantizedQueryAabbMax[i],aabbMax,1);
+	}
 
 	QuantizedNodeArray&	nodeArray = lsMemPtr->bvhShapeData.getOptimizedBvh()->getQuantizedNodeArray();
 	//spu_printf("SPU: numNodes = %d\n",nodeArray.size());
 
 	BvhSubtreeInfoArray& subTrees = lsMemPtr->bvhShapeData.getOptimizedBvh()->getSubtreeInfoArray();	
 
-	spuRaycastNodeCallback nodeCallback (gatheredObjectData, workUnit, workUnitOut, lsMemPtr);
+#ifdef CALLBACK_ALL
+	spuRaycastNodeCallback nodeCallback (gatheredObjectData, workUnits, workUnitsOut, numWorkUnits, lsMemPtr);
+#else
+	spuRaycastNodeCallback1 nodeCallback (gatheredObjectData, workUnits, workUnitsOut, lsMemPtr);
+#endif
 	
 	IndexedMeshArray&	indexArray = lsMemPtr->bvhShapeData.gTriangleMeshInterfacePtr->getIndexedMeshArray();
 
@@ -402,7 +575,14 @@ void performRaycastAgainstConcave (RaycastGatheredObjectData* gatheredObjectData
 			{
 				const btBvhSubtreeInfo& subtree = lsMemPtr->bvhShapeData.gSubtreeHeaders[j];
 				
-				unsigned int overlap = spuTestQuantizedAabbAgainstQuantizedAabb(quantizedQueryAabbMin,quantizedQueryAabbMax,subtree.m_quantizedAabbMin,subtree.m_quantizedAabbMax);
+				unsigned int overlap = 1;
+				for (int boxId = 0; boxId < numWorkUnits; boxId++)
+				{
+					overlap = spuTestQuantizedAabbAgainstQuantizedAabb(quantizedQueryAabbMin[boxId],quantizedQueryAabbMax[boxId],subtree.m_quantizedAabbMin,subtree.m_quantizedAabbMax);
+					if (overlap)
+						break;
+				}
+
 				if (overlap)
 				{
 					btAssert(subtree.m_subtreeSize);
@@ -415,10 +595,14 @@ void performRaycastAgainstConcave (RaycastGatheredObjectData* gatheredObjectData
 					/* Walk this subtree */
 					
 					{
-					spuWalkStacklessQuantizedTreeAgainstRay(lsMemPtr, &nodeCallback,rayFromInTriangleSpace, rayToInTriangleSpace, quantizedQueryAabbMin,quantizedQueryAabbMax,
-						&lsMemPtr->bvhShapeData.gSubtreeNodes[0],
-						0,
-						subtree.m_subtreeSize);
+
+						spuWalkStacklessQuantizedTreeAgainstRays(lsMemPtr,
+										        &nodeCallback,
+										        &rayFromInTriangleSpace[0],
+											&rayToInTriangleSpace[0],
+											numWorkUnits,
+											&quantizedQueryAabbMin[0][0],&quantizedQueryAabbMax[0][0],
+											&lsMemPtr->bvhShapeData.gSubtreeNodes[0], 0, subtree.m_subtreeSize);
 					}
 				}
 				//				spu_printf("subtreeSize = %d\n",gSubtreeHeaders[j].m_subtreeSize);
@@ -471,7 +655,7 @@ performRaycastAgainstConvex (RaycastGatheredObjectData* gatheredObjectData, cons
 	}
 
 	/* performRaycast */
-	SpuSubsimplexRayCast caster (gatheredObjectData->m_spuCollisionShape, &lsMemPtr->convexVertexData, gatheredObjectData->m_shapeType, 0.0, &simplexSolver);
+	SpuSubsimplexRayCast caster (gatheredObjectData->m_spuCollisionShape, &lsMemPtr->convexVertexData, gatheredObjectData->m_shapeType, gatheredObjectData->m_collisionMargin, &simplexSolver);
 	bool r = caster.calcTimeOfImpact (rayFromTrans, rayToTrans, gatheredObjectData->m_worldTransform, gatheredObjectData->m_worldTransform,result);
 
 	if (r)
@@ -494,42 +678,100 @@ void	processRaycastTask(void* userPtr, void* lsMemory)
 	for (int objectId = 0; objectId < taskDesc.numSpuCollisionObjectWrappers; objectId++)
 	{
 		RaycastGatheredObjectData gatheredObjectData;
-		GatherCollisionObjectAndShapeData (&gatheredObjectData, localMemory, (ppu_address_t)&cows[objectId]);
 		/* load initial collision shape */
-		for (int rayId = 0; rayId < taskDesc.numWorkUnits; rayId++)
+		GatherCollisionObjectAndShapeData (&gatheredObjectData, localMemory, (ppu_address_t)&cows[objectId]);
+
+		if (btBroadphaseProxy::isConcave (gatheredObjectData.m_shapeType))
 		{
-			const SpuRaycastTaskWorkUnit& workUnit = taskDesc.workUnits[rayId];
-			ATTRIBUTE_ALIGNED16(SpuRaycastTaskWorkUnitOut workUnitOut);
-			dmaLoadRayOutput ((ppu_address_t)workUnit.output, &workUnitOut, 1);
-			cellDmaWaitTagStatusAll(DMA_MASK(1));
-
-			SpuRaycastTaskWorkUnitOut tWorkUnitOut;
-			tWorkUnitOut.hitFraction = 1.0;
-
-
-			if (btBroadphaseProxy::isConvex (gatheredObjectData.m_shapeType))
+			SpuRaycastTaskWorkUnitOut tWorkUnitsOut[taskDesc.numWorkUnits];
+			for (int rayId = 0; rayId < taskDesc.numWorkUnits; rayId++)
 			{
-				performRaycastAgainstConvex (&gatheredObjectData, workUnit, &tWorkUnitOut, localMemory);
+				tWorkUnitsOut[rayId].hitFraction = 1.0;
 			}
-			else if (btBroadphaseProxy::isCompound (gatheredObjectData.m_shapeType)) {
+
+			performRaycastAgainstConcave (&gatheredObjectData, &taskDesc.workUnits[0], &tWorkUnitsOut[0], taskDesc.numWorkUnits, localMemory);
+
+			for (int rayId = 0; rayId < taskDesc.numWorkUnits; rayId++)
+			{
+				const SpuRaycastTaskWorkUnit& workUnit = taskDesc.workUnits[rayId];
+				if (tWorkUnitsOut[rayId].hitFraction == 1.0)
+					continue;
+
+				ATTRIBUTE_ALIGNED16(SpuRaycastTaskWorkUnitOut workUnitOut);
+				dmaLoadRayOutput ((ppu_address_t)workUnit.output, &workUnitOut, 1);
+				cellDmaWaitTagStatusAll(DMA_MASK(1));
+				
+				
+				/* XXX Only support taking the closest hit for now */
+				if (tWorkUnitsOut[rayId].hitFraction < workUnitOut.hitFraction)
+				{
+					workUnitOut.hitFraction = tWorkUnitsOut[rayId].hitFraction;
+					workUnitOut.hitNormal = tWorkUnitsOut[rayId].hitNormal;
+				}
+
+				/* write ray cast data back */
+				dmaStoreRayOutput ((ppu_address_t)workUnit.output, &workUnitOut, 1);
+				cellDmaWaitTagStatusAll(DMA_MASK(1));
+			}
+		} else if (btBroadphaseProxy::isConvex (gatheredObjectData.m_shapeType)) {
+			for (unsigned int rayId = 0; rayId < taskDesc.numWorkUnits; rayId++)
+			{
+				const SpuRaycastTaskWorkUnit& workUnit = taskDesc.workUnits[rayId];
+				btVector3 objectBoxMin, objectBoxMax;
+				computeAabb (objectBoxMin, objectBoxMax, (btConvexInternalShape*)gatheredObjectData.m_spuCollisionShape, gatheredObjectData.m_collisionShape, gatheredObjectData.m_shapeType, gatheredObjectData.m_worldTransform);
+
+				btScalar ignored_param = 1.0;
+				btVector3 ignored_normal;
+				if (btRayAabb(workUnit.rayFrom, workUnit.rayTo, objectBoxMin, objectBoxMax, ignored_param, ignored_normal))
+				{
+					ATTRIBUTE_ALIGNED16(SpuRaycastTaskWorkUnitOut workUnitOut);
+					SpuRaycastTaskWorkUnitOut tWorkUnitOut;
+					tWorkUnitOut.hitFraction = 1.0;
+
+					performRaycastAgainstConvex (&gatheredObjectData, workUnit, &tWorkUnitOut, localMemory);
+					if (tWorkUnitOut.hitFraction == 1.0)
+						continue;
+	
+					dmaLoadRayOutput ((ppu_address_t)workUnit.output, &workUnitOut, 1);
+					cellDmaWaitTagStatusAll(DMA_MASK(1));
+
+					/* XXX Only support taking the closest hit for now */
+					if (tWorkUnitOut.hitFraction < workUnitOut.hitFraction)
+					{
+						workUnitOut.hitFraction = tWorkUnitOut.hitFraction;
+						workUnitOut.hitNormal = tWorkUnitOut.hitNormal;
+						/* write ray cast data back */
+						dmaStoreRayOutput ((ppu_address_t)workUnit.output, &workUnitOut, 1);
+						cellDmaWaitTagStatusAll(DMA_MASK(1));
+					}
+				}
+			}
+
+		} else if (btBroadphaseProxy::isCompound (gatheredObjectData.m_shapeType)) {
+			for (unsigned int rayId = 0; rayId < taskDesc.numWorkUnits; rayId++)
+			{
+				const SpuRaycastTaskWorkUnit& workUnit = taskDesc.workUnits[rayId];
+				ATTRIBUTE_ALIGNED16(SpuRaycastTaskWorkUnitOut workUnitOut);
+				SpuRaycastTaskWorkUnitOut tWorkUnitOut;
+				tWorkUnitOut.hitFraction = 1.0;
+
 				performRaycastAgainstCompound (&gatheredObjectData, workUnit, &tWorkUnitOut, localMemory);
-			} else if (btBroadphaseProxy::isConcave (gatheredObjectData.m_shapeType)) {
-				performRaycastAgainstConcave (&gatheredObjectData, workUnit, &tWorkUnitOut, localMemory);
+				if (tWorkUnitOut.hitFraction == 1.0)
+					continue;
+
+				dmaLoadRayOutput ((ppu_address_t)workUnit.output, &workUnitOut, 1);
+				cellDmaWaitTagStatusAll(DMA_MASK(1));
+				/* XXX Only support taking the closest hit for now */
+				if (tWorkUnitOut.hitFraction < workUnitOut.hitFraction)
+				{
+					workUnitOut.hitFraction = tWorkUnitOut.hitFraction;
+					workUnitOut.hitNormal = tWorkUnitOut.hitNormal;
+				}
+
+				/* write ray cast data back */
+				dmaStoreRayOutput ((ppu_address_t)workUnit.output, &workUnitOut, 1);
+				cellDmaWaitTagStatusAll(DMA_MASK(1));
 			}
-
-			/* XXX Only support taking the closest hit for now */
-			if (tWorkUnitOut.hitFraction < workUnitOut.hitFraction)
-			{
-				workUnitOut.hitFraction = tWorkUnitOut.hitFraction;
-				workUnitOut.hitNormal = tWorkUnitOut.hitNormal;
-			}
-
-			/* write ray cast data back */
-			dmaStoreRayOutput ((ppu_address_t)workUnit.output, &workUnitOut, 1);
-			cellDmaWaitTagStatusAll(DMA_MASK(1));
-
-
 		}
 	}
-	
 }
