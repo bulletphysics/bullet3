@@ -10,7 +10,10 @@
 
 /* Future optimization strategies: 
 1. BBOX prune before loading shape data
-2. When doing bvh tree traversal do it once for entire batch of rays.
+2. Could reduce number of dmas for ray output data to a single read and write.
+   By sharing the temporary work unit output structures across objects.
+3. The reason SpuRaycastNodeCallback1 is slower is because the triangle data isn't
+   being cached across calls. Fix that by doing the final ray pruning inside the callback.
 */
 
 /* Future work:
