@@ -1161,6 +1161,8 @@ domPhysics_scene* ColladaConverter::getDefaultPhysicsScene ()
         } else {
                 physicsScenesLib = (domLibrary_physics_scenes*)m_dom->createAndPlace (COLLADA_ELEMENT_LIBRARY_PHYSICS_SCENES);
                 domPhysics_scene*  physicsScene = daeSafeCast<domPhysics_scene>(physicsScenesLib->createAndPlace (COLLADA_ELEMENT_PHYSICS_SCENE));
+				physicsScene->setId("Scene-Physics");
+				physicsScene->setName("MyPhysicsScene");
                 return physicsScene;
         }
 
@@ -1184,6 +1186,8 @@ domVisual_scene* ColladaConverter::getDefaultVisualScene ()
 	} else {
 		visualScenesLib = (domLibrary_visual_scenes*)m_dom->createAndPlace (COLLADA_ELEMENT_LIBRARY_VISUAL_SCENES);
 		domVisual_scene* visualScene = daeSafeCast<domVisual_scene>(visualScenesLib->createAndPlace (COLLADA_ELEMENT_VISUAL_SCENE));
+		visualScene->setId("Scene");
+		visualScene->setName("MyScene");
 		return visualScene;
 	}
 
@@ -1191,9 +1195,12 @@ domVisual_scene* ColladaConverter::getDefaultVisualScene ()
 }
 
 
-void ColladaConverter::addConvexHull (btCollisionShape* shape, const char* nodeName)
+void ColladaConverter::addConvexHull (btCollisionShape* shape, const char* convexNodeName)
 {
-	btConvexHullShape* hullShape = (btConvexHullShape*)shape;
+	domGeometry* geoConcave = 0;
+
+	{
+	btConvexShape* hullShape = (btConvexShape*)shape;
 	btShapeHull* triHull = new btShapeHull (hullShape);
 	if (triHull->buildHull (0.0) == false)
 	{
@@ -1203,31 +1210,34 @@ void ColladaConverter::addConvexHull (btCollisionShape* shape, const char* nodeN
 
 	domLibrary_geometries* geomLib = getDefaultGeomLib ();
 
-	domGeometry* geo = findGeometry (nodeName);
+	geoConcave = findGeometry (convexNodeName);
 
 	/* Already in the dom */
-	if (geo)
+	if (geoConcave)
 		return;
 
-	geo = daeSafeCast<domGeometry>( geomLib->createAndPlace( COLLADA_ELEMENT_GEOMETRY ) );
-	if ( geo == NULL )
+	geoConcave = daeSafeCast<domGeometry>( geomLib->createAndPlace( COLLADA_ELEMENT_GEOMETRY ) );
+	if ( geoConcave == NULL )
 	{
 		printf("Failed to create the geometry element\n");
 		return;
 	}
-	//set it's id
-	geo->setId( nodeName );
-	geo->setName ( nodeName);
+	char nodeName[256];
+	sprintf(nodeName,"RenderMesh%s",convexNodeName);
 
-	domConvex_mesh *convexMesh = daeSafeCast<domConvex_mesh>( geo->createAndPlace( COLLADA_ELEMENT_CONVEX_MESH ) );
-	if ( convexMesh == NULL )
+	//set it's id
+	geoConcave->setId( nodeName );
+	geoConcave->setName ( nodeName);
+
+	domMesh *mesh = daeSafeCast<domMesh>( geoConcave->createAndPlace( COLLADA_ELEMENT_MESH ) );
+	if ( mesh == NULL )
 	{
 		printf("Failed to create the mesh element\n");
 		return;
 	}
 
 	//we will need 3 sources for this mesh. positions, normals, and UVs
-	domSource *positionSrc = daeSafeCast<domSource>( convexMesh->createAndPlace( COLLADA_ELEMENT_SOURCE ) );
+	domSource *positionSrc = daeSafeCast<domSource>( mesh->createAndPlace( COLLADA_ELEMENT_SOURCE ) );
 	if (!positionSrc)
 	{
 		printf("Failed to create position source\n");
@@ -1274,7 +1284,7 @@ void ColladaConverter::addConvexHull (btCollisionShape* shape, const char* nodeN
 	param->setName( "Z" );
 	param->setType( "float" );
 
-	domVertices *verts = daeSafeCast<domVertices>( convexMesh->createAndPlace( COLLADA_ELEMENT_VERTICES ) );
+	domVertices *verts = daeSafeCast<domVertices>( mesh->createAndPlace( COLLADA_ELEMENT_VERTICES ) );
 	srcName = std::string(nodeName) + std::string("-vertices");
 	verts->setId( srcName.c_str() );
 	domInputLocal *inputLocal = daeSafeCast<domInputLocal>( verts->createAndPlace( COLLADA_ELEMENT_INPUT ) );
@@ -1283,7 +1293,7 @@ void ColladaConverter::addConvexHull (btCollisionShape* shape, const char* nodeN
 	uri.resolveURI();
 	inputLocal->setSource( uri );
 
-	domTriangles *tris = daeSafeCast<domTriangles>( convexMesh->createAndPlace( COLLADA_ELEMENT_TRIANGLES ) );
+	domTriangles *tris = daeSafeCast<domTriangles>( mesh->createAndPlace( COLLADA_ELEMENT_TRIANGLES ) );
 	tris->setCount( triHull->numTriangles() );
 	domInputLocalOffset *ilo = daeSafeCast<domInputLocalOffset>( tris->createAndPlace( COLLADA_ELEMENT_INPUT ) );
 	ilo->setSemantic( COMMON_PROFILE_INPUT_VERTEX );
@@ -1307,6 +1317,46 @@ void ColladaConverter::addConvexHull (btCollisionShape* shape, const char* nodeN
 	}
 
 	delete triHull;
+	}
+	{
+		domLibrary_geometries* geomLib = getDefaultGeomLib ();
+		domGeometry* geo = daeSafeCast<domGeometry>( geomLib->createAndPlace( COLLADA_ELEMENT_GEOMETRY ) );
+
+		if ( geo == NULL )
+		{
+			printf("Failed to create the geometry element\n");
+			return;
+		}
+		
+		//set it's id
+		geo->setId( convexNodeName );
+		geo->setName ( convexNodeName);
+		//<convex_mesh convex_hull_of="Cube_008"/>
+		domConvex_mesh* meshRef = daeSafeCast<domConvex_mesh>( geo->createAndPlace( COLLADA_ELEMENT_CONVEX_MESH ) );
+		
+		if ( meshRef == NULL )
+		{
+			printf("Failed to create the mesh element\n");
+			return;
+		}
+		
+		daeURI uri;
+		uri.setElement( geoConcave);
+		uri.resolveURI();
+	
+
+		meshRef->setConvex_hull_of(uri);
+
+
+
+		
+
+
+
+
+	}
+
+
 }
 
 void
@@ -1457,6 +1507,7 @@ void ColladaConverter::buildShape (btCollisionShape* shape, void* collada_shape,
 	{
 	case BOX_SHAPE_PROXYTYPE:
 	{
+		addConvexHull (shape, shapeName);
 		btBoxShape* bs = (btBoxShape*)shape;
 		btVector3 halfe = bs->getHalfExtentsWithMargin();
 		domBox* box = (domBox*)colladaShape->createAndPlace (COLLADA_ELEMENT_BOX);
@@ -1466,6 +1517,7 @@ void ColladaConverter::buildShape (btCollisionShape* shape, void* collada_shape,
 	break;
 	case SPHERE_SHAPE_PROXYTYPE:
 	{
+		addConvexHull (shape, shapeName);
 		btSphereShape* ss = (btSphereShape*)shape;
 		domSphere* sphere = (domSphere*)colladaShape->createAndPlace (COLLADA_ELEMENT_SPHERE);
 		domSphere::domRadius* radius = (domSphere::domRadius*)sphere->createAndPlace (COLLADA_ELEMENT_RADIUS);
@@ -1478,7 +1530,9 @@ void ColladaConverter::buildShape (btCollisionShape* shape, void* collada_shape,
 		domCylinder* cylinder = (domCylinder*)colladaShape->createAndPlace (COLLADA_ELEMENT_CYLINDER);
 		domCylinder::domRadius* radius = (domCylinder::domRadius*)cylinder->createAndPlace (COLLADA_ELEMENT_RADIUS);
 		domCylinder::domHeight* height = (domCylinder::domHeight*)cylinder->createAndPlace (COLLADA_ELEMENT_HEIGHT);
-		radius->setValue (cs->getRadius());
+		domFloat2 radius2;
+		radius2.set2(cs->getRadius(),cs->getRadius());
+		radius->setValue (radius2);
 		height->setValue (cs->getHalfExtentsWithMargin()[1] * 1.0);
 	}
 	break;
@@ -1643,6 +1697,21 @@ void ColladaConverter::addNode (btRigidBody* rb, const char* nodeName, const cha
 		rotation->getValue().set(2,axis[2]);
 		rotation->getValue().set(3,quat.getAngle()*SIMD_DEGS_PER_RAD);
 	}
+
+	domInstance_geometryRef gr = daeSafeCast<domInstance_geometry>(node->createAndPlace(COLLADA_ELEMENT_INSTANCE_GEOMETRY));
+	
+	char shapeURL[512];
+	snprintf(&shapeURL[0], 512, "#%s", shapeName);
+	gr->setUrl(shapeURL);
+	gr->createAndPlace(COLLADA_ELEMENT_BIND_MATERIAL)->createAndPlace(COLLADA_ELEMENT_TECHNIQUE_COMMON);
+	
+	/*<instance_geometry url="#Mesh_001">
+		<bind_material>
+			<technique_common/>
+		</bind_material>
+	</instance_geometry>
+	*/
+
 
 }
 
@@ -2167,7 +2236,25 @@ void ColladaConverter::syncOrAddRigidBody (btRigidBody* body)
 
 		printf("Adding %s to COLLADA DOM.\n", nodeName);
 
-		addNode (body, nodeName, shapeName);
+		switch (shape->getShapeType())
+		{
+		case BOX_SHAPE_PROXYTYPE:
+		case SPHERE_SHAPE_PROXYTYPE:
+		case CYLINDER_SHAPE_PROXYTYPE:
+		case CONVEX_TRIANGLEMESH_SHAPE_PROXYTYPE:
+		case CONVEX_HULL_SHAPE_PROXYTYPE:
+			{
+				char concaveShapeName[256];
+				sprintf(concaveShapeName,"RenderMesh%s",shapeName);
+				addNode (body, nodeName, concaveShapeName);
+				break;
+			}
+		default:
+			{
+				addNode (body, nodeName, shapeName);
+			}
+		};
+
 		addMaterial (body, nodeName);
 		addRigidBody (body, nodeName, shapeName);
 		addRigidBodyInstance (body, nodeName);
@@ -2253,6 +2340,27 @@ bool ColladaConverter::save(const char* filename)
 		domTargetableFloat3Ref g = daeSafeCast<domTargetableFloat3>(common->createAndPlace (COLLADA_ELEMENT_GRAVITY));
 		btVector3 btG = getGravity ();
 		g->getValue().set3 (btG[0], btG[1], btG[2]);
+
+
+		if (!m_dom->getScene())
+		{
+			domCOLLADA::domScene* scene = daeSafeCast<domCOLLADA::domScene>( m_dom->createAndPlace( COLLADA_ELEMENT_SCENE ) );
+			{
+				domInstanceWithExtra* ivs = daeSafeCast<domInstanceWithExtra>( scene->createAndPlace( COLLADA_ELEMENT_INSTANCE_VISUAL_SCENE ) );
+				daeURI uri;
+				uri.setElement( getDefaultVisualScene() );
+				uri.resolveURI();
+				ivs->setUrl( uri );
+			}
+			{
+				domInstanceWithExtra* ips = daeSafeCast<domInstanceWithExtra>( scene->createAndPlace( COLLADA_ELEMENT_INSTANCE_PHYSICS_SCENE ) );
+				daeURI uri;
+				uri.setElement( getDefaultPhysicsScene() );
+				uri.resolveURI();
+				ips->setUrl( uri );
+			}
+
+		}
 	}
 
 	/* Dump the scene */
