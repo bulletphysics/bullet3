@@ -50,6 +50,7 @@ typedef btAlignedObjectArray<btIndexedMesh>	IndexedMeshArray;
 ///So keep those arrays around during the lifetime of this btTriangleIndexVertexArray.
 ATTRIBUTE_ALIGNED16( class) btTriangleIndexVertexArray : public btStridingMeshInterface
 {
+protected:
 	IndexedMeshArray	m_indexedMeshes;
 	int m_pad[3];
 

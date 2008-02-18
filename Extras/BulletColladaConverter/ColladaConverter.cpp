@@ -2693,9 +2693,8 @@ void	ColladaConverter::ConvertRigidBodyRef( btRigidBodyInput& rbInput,btRigidBod
 					if (meshRef->getTriangles_array().getCount())
 					{
 
-						btTriangleMesh* trimesh = new btTriangleMesh();
-						trimesh->setUse32bitIndices(m_use32bitIndices);
-						trimesh->setUse4componentVertices(m_use4componentVertices);
+						btTriangleMesh* trimesh = new btTriangleMesh(m_use32bitIndices,m_use4componentVertices);
+
 						
 						for (unsigned int tg = 0;tg<meshRef->getTriangles_array().getCount();tg++)
 						{
