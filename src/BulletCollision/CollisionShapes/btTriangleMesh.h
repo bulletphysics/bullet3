@@ -24,27 +24,80 @@ subject to the following restrictions:
 ///TriangleMesh provides storage for a concave triangle mesh. It can be used as data for the btTriangleMeshShape.
 class btTriangleMesh : public btStridingMeshInterface
 {
-	btAlignedObjectArray<btVector3>	m_vertices;
-	btAlignedObjectArray<int>		m_indices;
+	btAlignedObjectArray<btVector3>	m_4componentVertices;
+	btAlignedObjectArray<float>		m_3componentVertices;
+
+	btAlignedObjectArray<int>		m_32bitIndices;
+	btAlignedObjectArray<short int>		m_16bitIndices;
+	bool	m_use32bitIndices;
+	bool	m_use4componentVertices;
+
 
 	public:
 		btTriangleMesh ();
 
+		void	setUse32bitIndices(bool use32bitIndices)
+		{
+			m_use32bitIndices = use32bitIndices;
+		}
+		bool	getUse32bitIndices() const
+		{
+			return m_use32bitIndices;
+		}
+
+		void	setUse4componentVertices(bool use4componentVertices)
+		{
+			m_use4componentVertices = use4componentVertices;
+		}
+		bool	getUse4componentVertices() const
+		{
+			return m_use4componentVertices;
+		}
+		
 		void	addTriangle(const btVector3& vertex0,const btVector3& vertex1,const btVector3& vertex2)
 		{
-			int curIndex = m_indices.size();
-			m_vertices.push_back(vertex0);
-			m_vertices.push_back(vertex1);
-			m_vertices.push_back(vertex2);
+			if (m_use4componentVertices)
+			{
+				m_4componentVertices.push_back(vertex0);
+				m_4componentVertices.push_back(vertex1);
+				m_4componentVertices.push_back(vertex2);
+			} else
+			{
+				m_3componentVertices.push_back(vertex0.getX());
+				m_3componentVertices.push_back(vertex0.getY());
+				m_3componentVertices.push_back(vertex0.getZ());
 
-			m_indices.push_back(curIndex++);
-			m_indices.push_back(curIndex++);
-			m_indices.push_back(curIndex++);
+				m_3componentVertices.push_back(vertex1.getX());
+				m_3componentVertices.push_back(vertex1.getY());
+				m_3componentVertices.push_back(vertex1.getZ());
+
+				m_3componentVertices.push_back(vertex2.getX());
+				m_3componentVertices.push_back(vertex2.getY());
+				m_3componentVertices.push_back(vertex2.getZ());
+			}
+
+			if (m_use32bitIndices)
+			{
+				int curIndex = m_32bitIndices.size();
+				m_32bitIndices.push_back(curIndex++);
+				m_32bitIndices.push_back(curIndex++);
+				m_32bitIndices.push_back(curIndex++);
+			} else
+			{
+				int curIndex = m_16bitIndices.size();
+				m_16bitIndices.push_back(curIndex++);
+				m_16bitIndices.push_back(curIndex++);
+				m_16bitIndices.push_back(curIndex++);
+			}
 		}
 
 		int getNumTriangles() const
 		{
-			return m_indices.size() / 3;
+			if (m_use32bitIndices)
+			{
+				return m_32bitIndices.size() / 3;
+			}
+			return m_16bitIndices.size() / 3;
 		}
 
 		

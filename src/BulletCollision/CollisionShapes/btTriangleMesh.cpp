@@ -18,6 +18,8 @@ subject to the following restrictions:
 
 
 btTriangleMesh::btTriangleMesh ()
+:m_use32bitIndices(true),
+m_use4componentVertices(true)
 {
 
 }
@@ -25,31 +27,68 @@ btTriangleMesh::btTriangleMesh ()
 void	btTriangleMesh::getLockedVertexIndexBase(unsigned char **vertexbase, int& numverts,PHY_ScalarType& type, int& stride,unsigned char **indexbase,int & indexstride,int& numfaces,PHY_ScalarType& indicestype,int subpart)
 {
 	(void)subpart;
-	numverts = m_vertices.size();
-	*vertexbase = (unsigned char*)&m_vertices[0];
-	type = PHY_FLOAT;
-	stride = sizeof(btVector3);
+	if (m_use4componentVertices)
+	{
+		numverts = m_4componentVertices.size();
+		*vertexbase = (unsigned char*)&m_4componentVertices[0];
+		type = PHY_FLOAT;
+		stride = sizeof(btVector3);
+	} else
+	{
+		numverts = m_3componentVertices.size();
+		*vertexbase = (unsigned char*)&m_3componentVertices[0];
+		type = PHY_FLOAT;
+		stride = 3*sizeof(btScalar);
+	}
 
-	numfaces = m_indices.size()/3;
-	*indexbase = (unsigned char*) &m_indices[0];
-	indicestype = PHY_INTEGER;
-	indexstride = 3*sizeof(int);
+	if (m_use32bitIndices)
+	{
+		numfaces = m_32bitIndices.size()/3;
+		*indexbase = (unsigned char*) &m_32bitIndices[0];
+		indicestype = PHY_INTEGER;
+		indexstride = 3*sizeof(int);
+	} else
+	{
+		numfaces = m_16bitIndices.size()/3;
+		*indexbase = (unsigned char*) &m_16bitIndices[0];
+		indicestype = PHY_SHORT;
+		indexstride = 3*sizeof(short int);
+	}
 
 }
 
 void	btTriangleMesh::getLockedReadOnlyVertexIndexBase(const unsigned char **vertexbase, int& numverts,PHY_ScalarType& type, int& stride,const unsigned char **indexbase,int & indexstride,int& numfaces,PHY_ScalarType& indicestype,int subpart) const
 {
 	(void)subpart;
-	numverts = m_vertices.size();
-	*vertexbase = (unsigned char*)&m_vertices[0];
-	type = PHY_FLOAT;
-	stride = sizeof(btVector3);
 
-	numfaces = m_indices.size()/3;
-	*indexbase = (unsigned char*) &m_indices[0];
-	indicestype = PHY_INTEGER;
-	indexstride = 3*sizeof(int);
+	if (m_use4componentVertices)
+	{
+		numverts = m_4componentVertices.size();
+		*vertexbase = (unsigned char*)&m_4componentVertices[0];
+		type = PHY_FLOAT;
+		stride = sizeof(btVector3);
+	} else
+	{
+		numverts = m_3componentVertices.size();
+		*vertexbase = (unsigned char*)&m_3componentVertices[0];
+		type = PHY_FLOAT;
+		stride = 3*sizeof(btScalar);
+	}
 
+	
+	if (m_use32bitIndices)
+	{
+		numfaces = m_32bitIndices.size()/3;
+		*indexbase = (unsigned char*) &m_32bitIndices[0];
+		indicestype = PHY_INTEGER;
+		indexstride = 3*sizeof(int);
+	} else
+	{
+		numfaces = m_16bitIndices.size()/3;
+		*indexbase = (unsigned char*) &m_16bitIndices[0];
+		indicestype = PHY_SHORT;
+		indexstride = 3*sizeof(short int);
+	}
 }
 
 

@@ -19,8 +19,10 @@ typedef union
 		#endif //__MINGW32__
 
 		typedef unsigned char     uint8_t;
+#ifndef __PHYSICS_COMMON_H__
 		typedef unsigned long int uint64_t;
 		typedef unsigned int      uint32_t;
+#endif //__PHYSICS_COMMON_H__
 		typedef unsigned short    uint16_t;
 
 		#include <malloc.h>

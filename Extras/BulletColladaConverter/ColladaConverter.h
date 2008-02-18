@@ -39,6 +39,8 @@ protected:
 	char* m_filename;
 
 	float m_unitMeterScaling;
+	bool	m_use32bitIndices;
+	bool	m_use4componentVertices;
 	
 	void PreparePhysicsObject(struct btRigidBodyInput& input, bool isDynamics, float mass,btCollisionShape* colShape, btVector3 linearVelocity, btVector3 angularVelocity);
 	
@@ -101,6 +103,26 @@ public:
 	///if the filename is left empty, modify the filename used during loading
 	bool	save(const char* filename = 0);
 
+	void	setUse32bitIndices(bool use32bitIndices)
+	{
+		m_use32bitIndices = use32bitIndices;
+	}
+	bool	setUse32bitIndices() const
+	{
+		return m_use32bitIndices;
+	}
+
+	void	setUse4componentVertices(bool use4componentVertices)
+	{
+		m_use4componentVertices = use4componentVertices;
+	}
+	bool	getUse4componentVertices() const
+	{
+		return m_use4componentVertices;
+	}
+	
+
+
 	///those virtuals are called by load and save.
 	virtual btTypedConstraint*			createUniversalD6Constraint(
 		class btRigidBody* body0,class btRigidBody* otherBody,
@@ -125,6 +147,7 @@ public:
 	virtual	void	setCameraInfo(const btVector3& up, int forwardAxis)
 	{
 	};
+
 };
 
 #endif //COLLADA_CONVERTER_H

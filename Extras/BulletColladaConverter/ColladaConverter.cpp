@@ -177,7 +177,9 @@ ColladaConverter::ColladaConverter(btDynamicsWorld* dynaWorld)
 m_collada(0),
 m_dom(0),
 m_filename(0),
-m_unitMeterScaling(1.f)
+m_unitMeterScaling(1.f),
+m_use32bitIndices(true),
+m_use4componentVertices(true)
 {
 }
 	
@@ -2692,6 +2694,8 @@ void	ColladaConverter::ConvertRigidBodyRef( btRigidBodyInput& rbInput,btRigidBod
 					{
 
 						btTriangleMesh* trimesh = new btTriangleMesh();
+						trimesh->setUse32bitIndices(m_use32bitIndices);
+						trimesh->setUse4componentVertices(m_use4componentVertices);
 						
 						for (unsigned int tg = 0;tg<meshRef->getTriangles_array().getCount();tg++)
 						{
