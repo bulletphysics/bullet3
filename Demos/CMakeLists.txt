@@ -1,2 +1,2 @@
-SUBDIRS( OpenGL AllBulletDemos ConvexDecompositionDemo HelloWorld MultiThreadedDemo CcdPhysicsDemo ConstraintDemo GenericJointDemo RagdollDemo BasicDemo BspDemo MovingConcaveDemo VehicleDemo ColladaDemo UserCollisionAlgorithm )
+SUBDIRS( OpenGL AllBulletDemos ConvexDecompositionDemo HelloWorld MultiThreadedDemo CcdPhysicsDemo ConstraintDemo GenericJointDemo RagdollDemo BasicDemo BspDemo MovingConcaveDemo VehicleDemo ColladaDemo UserCollisionAlgorithm CharacterDemo )
 
