@@ -30,8 +30,10 @@
 
 #ifdef __SPU__
 ///Software caching from the IBM Cell SDK, it reduces 25% SPU time for our test cases
+#ifndef USE_LIBSPE2
 #define USE_SOFTWARE_CACHE 1
-#endif //__CELLOS_LV2__
+#endif
+#endif //__SPU__
 
 ////////////////////////////////////////////////
 /// software caching

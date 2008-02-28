@@ -9,13 +9,15 @@
 
 #ifdef __SPU__
 
+#ifndef USE_LIBSPE2
+
 #include <cell/dma.h>
 #include <stdint.h>
 
 #define DMA_TAG(xfer) (xfer + 1)
 #define DMA_MASK(xfer) (1 << DMA_TAG(xfer))
 
-#elif defined(USE_LIBSPE2)
+#else // !USE_LIBSPE2
 
 #define DMA_TAG(xfer) (xfer + 1)
 #define DMA_MASK(xfer) (1 << DMA_TAG(xfer))
@@ -88,7 +90,8 @@
 		
 		
 		
-#else
+#endif // USE_LIBSPE2
+#else // !__SPU__
 //Simulate DMA using memcpy or direct access on non-CELL platforms that don't have DMAs and SPUs (Win32, Mac, Linux etc)
 //Potential to add networked simulation using this interface
 

@@ -26,17 +26,6 @@ PROGRAM_ppu	:= CcdPhysicsDemo
 ######################################################################
 OBJS		= CcdPhysicsDemo.o main.o
 
-IBM_CELLSDK_VERSION := $(shell if [ -d /opt/cell ]; then echo "3.0"; fi)
-
-ifeq ("$(IBM_CELLSDK_VERSION)","3.0")
-        CELL_TOP ?= /opt/cell/sdk
-	CELL_SYSROOT = /opt/cell/sysroot
-        include $(CELL_TOP)/buildutils/make.footer
-else
-        CELL_TOP ?= /opt/ibm/cell-sdk/prototype
-	CELL_SYSROOT = $(CELL_TOP)/sysroot
-        include $(CELL_TOP)/make.footer
-endif
 
 ########################################################################
 #                       Libraries, Include paths,  Defines
@@ -52,6 +41,7 @@ SYS_LIBS	:= -lspe2  -lglut -lGLU -lGL -lm -lXext -lXmu -lX11
 IMPORTS		= 	$(ROOT)/lib/ibmsdk/bulletmultithreaded.a		\
 			$(ROOT)/lib/ibmsdk/bulletopenglsupport.a		\
 			$(ROOT)/lib/ibmsdk/bulletdynamics.a 	\
+			$(ROOT)/lib/ibmsdk/bulletconvexhull.a 	\
 			$(ROOT)/lib/ibmsdk/bulletcollision.a	\
 			$(ROOT)/lib/ibmsdk/bulletmath.a	
 	
@@ -64,7 +54,17 @@ INSTALL_FILES   = $(PROGRAM_ppu)
 #                       make.footer
 ########################################################################
 
+IBM_CELLSDK_VERSION := $(shell if [ -d /opt/cell ]; then echo "3.0"; fi)
 
+ifeq ("$(IBM_CELLSDK_VERSION)","3.0")
+        CELL_TOP ?= /opt/cell/sdk
+#	CELL_SYSROOT = $(CELL_TOP);
+        include $(CELL_TOP)/buildutils/make.footer
+else
+        CELL_TOP ?= /opt/ibm/cell-sdk/prototype
+	CELL_SYSROOT = $(CELL_TOP)/sysroot
+        include $(CELL_TOP)/make.footer
+endif
 
 $(PPMS): 
 	cp textures/$@ .

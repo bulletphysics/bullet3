@@ -39,6 +39,7 @@ SYS_LIBS	:= -lspe2 -lglut -lGLU -lGL -lm -lXext -lXmu -lX11
 IMPORTS		= 	$(ROOT)/lib/ibmsdk/bulletmultithreaded.a \
 			$(ROOT)/lib/ibmsdk/bulletopenglsupport.a			\
 			$(ROOT)/lib/ibmsdk/bulletdynamics.a 	\
+			$(ROOT)/lib/ibmsdk/bulletconvexhull.a 	\
 			$(ROOT)/lib/ibmsdk/bulletcollision.a	\
 			$(ROOT)/lib/ibmsdk/bulletmath.a	
 	

@@ -5,7 +5,7 @@ ROOT = ../../..
 HOST = /usr/include
 
 #### Library
-LIBRARY_ppu = bulletopenglsupport.a
+LIBRARY_ppu = bulletconvexhull.a
 
 #### Compiler flags
 CPPFLAGS        = -DUSE_LIBSPE2		\
@@ -20,15 +20,8 @@ CC_OPT_LEVEL =  -O3
 
 ##### Objects to be archived in lib
 OBJS = 				\
-BMF_Api.o			\
-BMF_BitmapFont.o		\
-BMF_font_helv10.o		\
-DemoApplication.o		\
-GLDebugDrawer.o			\
-GL_ShapeDrawer.o		\
-GL_Simplex1to4.o		\
-GlutStuff.o			\
-RenderTexture.o	
+btConvexHull.o			\
+btShapeHull.o
 
 #### Install directories
 INSTALL_DIR	= $(ROOT)/lib/ibmsdk/

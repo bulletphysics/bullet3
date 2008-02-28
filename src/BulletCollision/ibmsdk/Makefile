@@ -49,6 +49,7 @@ btCollisionDispatcher.o				\
 btCollisionObject.o				\
 btCollisionWorld.o				\
 btCompoundCollisionAlgorithm.o			\
+btConvexPlaneCollisionAlgorithm.o		\
 btConvexConcaveCollisionAlgorithm.o		\
 btConvexConvexAlgorithm.o			\
 btEmptyCollisionAlgorithm.o			\

@@ -9,14 +9,13 @@ IBM_CELLSDK_VERSION := $(shell if [ -d /opt/cell ]; then echo "3.0"; fi)
 ifeq ("$(IBM_CELLSDK_VERSION)","3.0")
         CELL_TOP ?= /opt/cell/sdk
 	CELL_SYSROOT := /opt/cell/sysroot
-        include $(CELL_TOP)/buildutils/make.footer
 else
         CELL_TOP ?= /opt/ibm/cell-sdk/prototype
 	CELL_SYSROOT := $(CELL_TOP)/sysroot
-        include $(CELL_TOP)/make.footer
 endif
 
 
+USE_CCACHE=ccache
 RM=rm -f 
 OUTDIR=./out
 DEBUGFLAG=-DNDEBUG
@@ -29,7 +28,7 @@ ifeq "$(__ARCH_BITS__)" "64"
 else
   SPU_DEFFLAGS= -DUSE_LIBSPE2 -D__SPU__
 endif
-SPU_GCC=/usr/bin/spu-gcc
+SPU_GCC=$(USE_CCACHE) /usr/bin/spu-gcc
 SPU_INCLUDEDIR= -I. -I$(CELL_SYSROOT)/usr/spu/include -I../../src -I$(NARROWPHASEDIR)
 #SPU_CFLAGS= $(DEBUGFLAG) -W -Wall -Winline -Os -c -include spu_intrinsics.h -include stdbool.h
 SPU_CFLAGS= $(DEBUGFLAG) -W -Wall -Winline -O3 -mbranch-hints -fomit-frame-pointer -ftree-vectorize -finline-functions -ftree-vect-loop-version -ftree-loop-optimize -ffast-math -fno-rtti -fno-exceptions -c -include spu_intrinsics.h -include stdbool.h
@@ -42,10 +41,10 @@ SYMBOLNAME=spu_program
 
 ifeq "$(__ARCH_BITS__)" "64"
   PPU_DEFFLAGS= -DUSE_LIBSPE2 -DUSE_ADDR64
-  PPU_GCC=/usr/bin/ppu-gcc
+  PPU_GCC=$(USE_CCACHE) /usr/bin/ppu-gcc
 else
   PPU_DEFFLAGS= -DUSE_LIBSPE2
-  PPU_GCC=/usr/bin/ppu32-gcc
+  PPU_GCC=$(USE_CCACHE) /usr/bin/ppu32-gcc
 endif
 
 PPU_CFLAGS= $(ARCHITECTUREFLAG) $(DEBUGFLAG) -W -Wall -Winline -O3 -c -mabi=altivec -maltivec -include altivec.h -include stdbool.h
@@ -66,6 +65,9 @@ SpuFakeDma : MakeOut
 
 SpuContactManifoldCollisionAlgorithm_spu : MakeOut
 	$(SPU_GCC) $(SPU_DEFFLAGS) $(SPU_CFLAGS) $(SPU_INCLUDEDIR) -o $(OUTDIR)/$@.o SpuContactManifoldCollisionAlgorithm.cpp
+
+SpuCollisionShapes : MakeOut
+	$(SPU_GCC) $(SPU_DEFFLAGS) $(SPU_CFLAGS) $(SPU_INCLUDEDIR) -o $(OUTDIR)/$@.o $(NARROWPHASEDIR)/$@.cpp
 
 SpuContactResult : MakeOut
 	$(SPU_GCC) $(SPU_DEFFLAGS) $(SPU_CFLAGS) $(SPU_INCLUDEDIR) -o $(OUTDIR)/$@.o $(NARROWPHASEDIR)/$@.cpp
@@ -130,7 +132,7 @@ SpuSampleTaskProcess : MakeOut
 
 
 spu : SpuFakeDma SpuContactManifoldCollisionAlgorithm_spu SpuContactResult SpuTaskFile \
-      SpuGjkPairDetector SpuMinkowskiPenetrationDepthSolver SpuVoronoiSimplexSolver \
+      SpuGjkPairDetector SpuMinkowskiPenetrationDepthSolver SpuVoronoiSimplexSolver SpuCollisionShapes \
       btPersistentManifold btOptimizedBvh btCollisionObject btTriangleCallback btTriangleIndexVertexArray \
       btStridingMeshInterface btAlignedAllocator
 	$(SPU_GCC) -o $(OUTDIR)/spuCollision.elf \
@@ -138,6 +140,7 @@ spu : SpuFakeDma SpuContactManifoldCollisionAlgorithm_spu SpuContactResult SpuTa
                             $(OUTDIR)/SpuFakeDma.o \
                             $(OUTDIR)/SpuContactManifoldCollisionAlgorithm_spu.o \
                             $(OUTDIR)/SpuContactResult.o \
+                            $(OUTDIR)/SpuCollisionShapes.o \
                             $(OUTDIR)/SpuGjkPairDetector.o \
                             $(OUTDIR)/SpuMinkowskiPenetrationDepthSolver.o \
                             $(OUTDIR)/SpuVoronoiSimplexSolver.o \
@@ -148,7 +151,7 @@ spu : SpuFakeDma SpuContactManifoldCollisionAlgorithm_spu SpuContactResult SpuTa
                             $(OUTDIR)/btAlignedAllocator.o \
                             $(SPU_LFLAGS) $(SPU_LIBRARIES)
 
-spu-embed : spu                            
+spu-embed : spu
 	$(SPU_EMBED) $(ARCHITECTUREFLAG) $(SYMBOLNAME) $(OUTDIR)/spuCollision.elf $(OUTDIR)/$@.o
 	$(SPU_AR) -qcs $(LIBOUTDIR)/libspu.a $(OUTDIR)/$@.o
 
@@ -164,13 +167,9 @@ ppu : SpuGatheringCollisionDispatcher SpuCollisionTaskProcess btThreadSupportInt
                                                           $(OUTDIR)/btThreadSupportInterface.o \
 							  $(OUTDIR)/SpuContactManifoldCollisionAlgorithm.o
 
+all : spu-embed ppu 
 
-all : spu ppu 
-
-all-embed : spu-embed ppu
-
-
-clean :
+clean:
 	$(RM) $(OUTDIR)/* ; $(RM) $(LIBOUTDIR)/libspu.a ; $(RM) $(LIBOUTDIR)/bulletmultithreaded.a
 
 
