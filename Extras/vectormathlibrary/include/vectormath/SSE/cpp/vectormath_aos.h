@@ -153,6 +153,15 @@ static inline __m128 vec_ctf(__m128 x, int a)
 #define recipf4(x) _mm_rcp_ps( x )
 #define negatef4(x) _mm_sub_ps( _mm_setzero_ps(), x )
 
+static __forceinline __m128 newtonrapson_rsqrt4( const __m128 v )
+{   
+#define _half4 _mm_setr_ps(.5f,.5f,.5f,.5f) 
+#define _three _mm_setr_ps(3.f,3.f,3.f,3.f)
+const __m128 approx = _mm_rsqrt_ps( v );   
+const __m128 muls = _mm_mul_ps(_mm_mul_ps(v, approx), approx);   
+return _mm_mul_ps(_mm_mul_ps(_half4, approx), _mm_sub_ps(_three, muls) );
+}
+
 static inline __m128 acosf4(__m128 x)
 {
     __m128 xabs = fabsf4(x);

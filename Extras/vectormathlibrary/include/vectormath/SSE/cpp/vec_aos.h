@@ -595,9 +595,15 @@ inline const floatInVec length( const Vector3 &vec )
     return floatInVec(  _mm_sqrt_ps(_vmathVfDot3( vec.get128(), vec.get128() )), 0 );
 }
 
-inline const Vector3 normalize( const Vector3 &vec )
+
+inline const Vector3 normalizeApprox( const Vector3 &vec )
 {
     return Vector3( _mm_mul_ps( vec.get128(), _mm_rsqrt_ps( _vmathVfDot3( vec.get128(), vec.get128() ) ) ) );
+}
+
+inline const Vector3 normalize( const Vector3 &vec )
+{
+	return Vector3( _mm_mul_ps( vec.get128(), newtonrapson_rsqrt4( _vmathVfDot3( vec.get128(), vec.get128() ) ) ) );
 }
 
 inline const Vector3 cross( const Vector3 &vec0, const Vector3 &vec1 )
@@ -1021,9 +1027,14 @@ inline const floatInVec length( const Vector4 &vec )
     return floatInVec(  _mm_sqrt_ps(_vmathVfDot4( vec.get128(), vec.get128() )), 0 );
 }
 
-inline const Vector4 normalize( const Vector4 &vec )
+inline const Vector4 normalizeApprox( const Vector4 &vec )
 {
     return Vector4( _mm_mul_ps( vec.get128(), _mm_rsqrt_ps( _vmathVfDot4( vec.get128(), vec.get128() ) ) ) );
+}
+
+inline const Vector4 normalize( const Vector4 &vec )
+{
+    return Vector4( _mm_mul_ps( vec.get128(), newtonrapson_rsqrt4( _vmathVfDot4( vec.get128(), vec.get128() ) ) ) );
 }
 
 inline const Vector4 select( const Vector4 &vec0, const Vector4 &vec1, bool select1 )

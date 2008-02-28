@@ -2060,7 +2060,10 @@ inline Quat::Quat( const Matrix3 & tfrm )
     diagSum = vec_add( vec_add( xx_yy_zz_xx, yy_zz_xx_yy ), zz_xx_yy_zz );
     diagDiff = vec_sub( vec_sub( xx_yy_zz_xx, yy_zz_xx_yy ), zz_xx_yy_zz );
     radicand = vec_add( vec_sel( diagDiff, diagSum, select_w ), _mm_set1_ps(1.0f) );
-    invSqrt = rsqrtf4( radicand );
+ //   invSqrt = rsqrtf4( radicand );
+	invSqrt = newtonrapson_rsqrt4( radicand );
+
+	
 
     zy_xz_yx = vec_sel( col0, col1, select_z );									// zy_xz_yx = 00 01 12 03
     //zy_xz_yx = vec_perm( zy_xz_yx, col2, _VECTORMATH_PERM_ZAYX );
