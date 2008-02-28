@@ -9,7 +9,7 @@ LIBRARY_ppu = bulletopenglsupport.a
 
 #### Compiler flags
 CPPFLAGS        = -DUSE_LIBSPE2		\
--I$(ROOT)/Extras/		\
+-I$(ROOT)/Extras/ConvexHull		\
 -I$(ROOT)/src/			\
 -I$(SDKINC)			\
 -I$(HOST)
