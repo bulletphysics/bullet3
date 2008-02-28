@@ -16,7 +16,15 @@ subject to the following restrictions:
 #ifndef OPTIMIZED_BVH_H
 #define OPTIMIZED_BVH_H
 
+//#define DEBUG_CHECK_DEQUANTIZATION 1
+#ifdef DEBUG_CHECK_DEQUANTIZATION
+#ifdef __SPU__
+#define printf spu_printf
+#endif //__SPU__
 
+#include <stdio.h>
+#include <stdlib.h>
+#endif //DEBUG_CHECK_DEQUANTIZATION
 
 #include "LinearMath/btVector3.h"
 #include "LinearMath/btAlignedAllocator.h"
@@ -191,7 +199,7 @@ protected:
 	{
 		if (m_useQuantization)
 		{
-			quantizeWithClamp(&m_quantizedContiguousNodes[nodeIndex].m_quantizedAabbMin[0] ,aabbMin,0);
+			quantize(&m_quantizedContiguousNodes[nodeIndex].m_quantizedAabbMin[0] ,aabbMin,0);
 		} else
 		{
 			m_contiguousNodes[nodeIndex].m_aabbMinOrg = aabbMin;
@@ -202,7 +210,7 @@ protected:
 	{
 		if (m_useQuantization)
 		{
-			quantizeWithClamp(&m_quantizedContiguousNodes[nodeIndex].m_quantizedAabbMax[0],aabbMax,1);
+			quantize(&m_quantizedContiguousNodes[nodeIndex].m_quantizedAabbMax[0],aabbMax,1);
 		} else
 		{
 			m_contiguousNodes[nodeIndex].m_aabbMaxOrg = aabbMax;
@@ -251,8 +259,8 @@ protected:
 		{
 			unsigned short int quantizedAabbMin[3];
 			unsigned short int quantizedAabbMax[3];
-			quantizeWithClamp(quantizedAabbMin,newAabbMin,0);
-			quantizeWithClamp(quantizedAabbMax,newAabbMax,1);
+			quantize(quantizedAabbMin,newAabbMin,0);
+			quantize(quantizedAabbMax,newAabbMax,1);
 			for (int i=0;i<3;i++)
 			{
 				if (m_quantizedContiguousNodes[nodeIndex].m_quantizedAabbMin[i] > quantizedAabbMin[i])
@@ -332,19 +340,85 @@ public:
 	void	reportAabbOverlappingNodex(btNodeOverlapCallback* nodeCallback,const btVector3& aabbMin,const btVector3& aabbMax) const;
 	void	reportRayOverlappingNodex (btNodeOverlapCallback* nodeCallback, const btVector3& raySource, const btVector3& rayTarget) const;
 	void	reportBoxCastOverlappingNodex(btNodeOverlapCallback* nodeCallback, const btVector3& raySource, const btVector3& rayTarget, const btVector3& aabbMin,const btVector3& aabbMax) const;
-	
-	SIMD_FORCE_INLINE void quantizeWithClamp(unsigned short* out, const btVector3& point,int isMax) const
+
+		SIMD_FORCE_INLINE void quantize(unsigned short* out, const btVector3& point,int isMax) const
 	{
 
 		btAssert(m_useQuantization);
 
-		btVector3 clampedPoint(point);
+		btAssert(point.getX() <= m_bvhAabbMax.getX());
+		btAssert(point.getY() <= m_bvhAabbMax.getY());
+		btAssert(point.getZ() <= m_bvhAabbMax.getZ());
+
+		btAssert(point.getX() >= m_bvhAabbMin.getX());
+		btAssert(point.getY() >= m_bvhAabbMin.getY());
+		btAssert(point.getZ() >= m_bvhAabbMin.getZ());
+
+		btVector3 v = (point - m_bvhAabbMin) * m_bvhQuantization;
+		///Make sure rounding is done in a way that unQuantize(quantizeWithClamp(...)) is conservative
+		///end-points always set the first bit, so that they are sorted properly (so that neighbouring AABBs overlap properly)
+		///todo: double-check this
+		if (isMax)
+		{
+			out[0] = (unsigned short) (((unsigned short)(v.getX()+btScalar(1.)) | 1));
+			out[1] = (unsigned short) (((unsigned short)(v.getY()+btScalar(1.)) | 1));
+			out[2] = (unsigned short) (((unsigned short)(v.getZ()+btScalar(1.)) | 1));
+		} else
+		{
+			out[0] = (unsigned short) (((unsigned short)(v.getX()) & 0xfffe));
+			out[1] = (unsigned short) (((unsigned short)(v.getY()) & 0xfffe));
+			out[2] = (unsigned short) (((unsigned short)(v.getZ()) & 0xfffe));
+		}
+
+
+#ifdef DEBUG_CHECK_DEQUANTIZATION
+		btVector3 newPoint = unQuantize(out);
+		if (isMax)
+		{
+			if (newPoint.getX() < point.getX())
+			{
+				printf("unconservative X, diffX = %f, oldX=%f,newX=%f\n",newPoint.getX()-point.getX(), newPoint.getX(),point.getX());
+			}
+			if (newPoint.getY() < point.getY())
+			{
+				printf("unconservative Y, diffY = %f, oldY=%f,newY=%f\n",newPoint.getY()-point.getY(), newPoint.getY(),point.getY());
+			}
+			if (newPoint.getZ() < point.getZ())
+			{
+
+				printf("unconservative Z, diffZ = %f, oldZ=%f,newZ=%f\n",newPoint.getZ()-point.getZ(), newPoint.getZ(),point.getZ());
+			}
+		} else
+		{
+			if (newPoint.getX() > point.getX())
+			{
+				printf("unconservative X, diffX = %f, oldX=%f,newX=%f\n",newPoint.getX()-point.getX(), newPoint.getX(),point.getX());
+			}
+			if (newPoint.getY() > point.getY())
+			{
+				printf("unconservative Y, diffY = %f, oldY=%f,newY=%f\n",newPoint.getY()-point.getY(), newPoint.getY(),point.getY());
+			}
+			if (newPoint.getZ() > point.getZ())
+			{
+				printf("unconservative Z, diffZ = %f, oldZ=%f,newZ=%f\n",newPoint.getZ()-point.getZ(), newPoint.getZ(),point.getZ());
+			}
+		}
+#endif //DEBUG_CHECK_DEQUANTIZATION
+
+	}
+
+
+	SIMD_FORCE_INLINE void quantizeWithClamp(unsigned short* out, const btVector3& point2,int isMax) const
+	{
+
+		btAssert(m_useQuantization);
+
+		btVector3 clampedPoint(point2);
 		clampedPoint.setMax(m_bvhAabbMin);
 		clampedPoint.setMin(m_bvhAabbMax);
-		btVector3 v = (clampedPoint - m_bvhAabbMin) * m_bvhQuantization;
-		out[0] = (unsigned short)(((unsigned short)v.getX() & 0xfffe) | isMax);
-		out[1] = (unsigned short)(((unsigned short)v.getY() & 0xfffe) | isMax);
-		out[2] = (unsigned short)(((unsigned short)v.getZ() & 0xfffe) | isMax);
+
+		quantize(out,clampedPoint,isMax);
+
 	}
 	
 	SIMD_FORCE_INLINE btVector3	unQuantize(const unsigned short* vecIn) const
@@ -364,7 +438,7 @@ public:
 		m_traversalMode = traversalMode;
 	}
 
-	void	refit(btStridingMeshInterface* triangles);
+	void	refit(btStridingMeshInterface* triangles,const btVector3& aabbMin,const btVector3& aabbMax);
 
 	void	refitPartial(btStridingMeshInterface* triangles,const btVector3& aabbMin, const btVector3& aabbMax);
 

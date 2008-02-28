@@ -317,7 +317,10 @@ void ConcaveDemo::clientMoveAndDisplay()
 
 		setVertexPositions(waveheight,offset);
 
-		trimeshShape->refitTree();
+		btVector3 worldMin(-1000,-1000,-1000);
+		btVector3 worldMax(1000,1000,1000);
+
+		trimeshShape->refitTree(worldMin,worldMax);
 
 		//clear all contact points involving mesh proxy. Note: this is a slow/unoptimized operation.
 		m_dynamicsWorld->getBroadphase()->getOverlappingPairCache()->cleanProxyFromPairs(staticBody->getBroadphaseHandle(),getDynamicsWorld()->getDispatcher());

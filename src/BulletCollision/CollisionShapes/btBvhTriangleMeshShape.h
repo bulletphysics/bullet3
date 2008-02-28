@@ -53,7 +53,7 @@ public:
 
 	virtual void	processAllTriangles(btTriangleCallback* callback,const btVector3& aabbMin,const btVector3& aabbMax) const;
 
-	void	refitTree();
+	void	refitTree(const btVector3& aabbMin,const btVector3& aabbMax);
 
 	///for a fast incremental refit of parts of the tree. Note: the entire AABB of the tree will become more conservative, it never shrinks
 	void	partialRefitTree(const btVector3& aabbMin,const btVector3& aabbMax);

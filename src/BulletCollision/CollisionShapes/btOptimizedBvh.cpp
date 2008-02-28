@@ -132,8 +132,8 @@ void btOptimizedBvh::build(btStridingMeshInterface* triangles, bool useQuantized
 				aabbMin.setZ(aabbMin.z() - MIN_AABB_HALF_DIMENSION);
 			}
 
-			m_optimizedTree->quantizeWithClamp(&node.m_quantizedAabbMin[0],aabbMin,0);
-			m_optimizedTree->quantizeWithClamp(&node.m_quantizedAabbMax[0],aabbMax,1);
+			m_optimizedTree->quantize(&node.m_quantizedAabbMin[0],aabbMin,0);
+			m_optimizedTree->quantize(&node.m_quantizedAabbMax[0],aabbMax,1);
 
 			node.m_escapeIndexOrTriangleIndex = (partId<<(31-MAX_NUM_PARTS_IN_BITS)) | triangleIndex;
 
@@ -221,8 +221,8 @@ void	btOptimizedBvh::refitPartial(btStridingMeshInterface* meshInterface,const b
 	unsigned short	quantizedQueryAabbMin[3];
 	unsigned short	quantizedQueryAabbMax[3];
 
-	quantizeWithClamp(&quantizedQueryAabbMin[0],aabbMin,0);
-	quantizeWithClamp(&quantizedQueryAabbMax[0],aabbMax,1);
+	quantize(&quantizedQueryAabbMin[0],aabbMin,0);
+	quantize(&quantizedQueryAabbMax[0],aabbMax,1);
 
 	int i;
 	for (i=0;i<this->m_SubtreeHeaders.size();i++)
@@ -328,8 +328,8 @@ void	btOptimizedBvh::updateBvhNodes(btStridingMeshInterface* meshInterface,int f
 				aabbMin.setMin(triangleVerts[2]);
 				aabbMax.setMax(triangleVerts[2]);
 
-				quantizeWithClamp(&curNode.m_quantizedAabbMin[0],aabbMin,0);
-				quantizeWithClamp(&curNode.m_quantizedAabbMax[0],aabbMax,1);
+				quantize(&curNode.m_quantizedAabbMin[0],aabbMin,0);
+				quantize(&curNode.m_quantizedAabbMax[0],aabbMax,1);
 				
 			} else
 			{
@@ -370,17 +370,14 @@ void	btOptimizedBvh::setQuantizationValues(const btVector3& bvhAabbMin,const btV
 	m_bvhAabbMin = bvhAabbMin - clampValue;
 	m_bvhAabbMax = bvhAabbMax + clampValue;
 	btVector3 aabbSize = m_bvhAabbMax - m_bvhAabbMin;
-	m_bvhQuantization = btVector3(btScalar(65535.0),btScalar(65535.0),btScalar(65535.0)) / aabbSize;
+	m_bvhQuantization = btVector3(btScalar(65533.0),btScalar(65533.0),btScalar(65533.0)) / aabbSize;
 }
 
 
-void	btOptimizedBvh::refit(btStridingMeshInterface* meshInterface)
+void	btOptimizedBvh::refit(btStridingMeshInterface* meshInterface,const btVector3& aabbMin,const btVector3& aabbMax)
 {
 	if (m_useQuantization)
 	{
-		//calculate new aabb
-		btVector3 aabbMin,aabbMax;
-		meshInterface->calculateAabbBruteForce(aabbMin,aabbMax);
 
 		setQuantizationValues(aabbMin,aabbMax);
 
@@ -446,8 +443,8 @@ void	btOptimizedBvh::buildTree	(int startIndex,int endIndex)
 
 	int internalNodeIndex = m_curNodeIndex;
 	
-	setInternalNodeAabbMax(m_curNodeIndex,btVector3(btScalar(-1e30),btScalar(-1e30),btScalar(-1e30)));
-	setInternalNodeAabbMin(m_curNodeIndex,btVector3(btScalar(1e30),btScalar(1e30),btScalar(1e30)));
+	setInternalNodeAabbMax(m_curNodeIndex,m_bvhAabbMin);
+	setInternalNodeAabbMin(m_curNodeIndex,m_bvhAabbMax);
 	
 	for (i=startIndex;i<endIndex;i++)
 	{

@@ -75,9 +75,9 @@ void	btBvhTriangleMeshShape::partialRefitTree(const btVector3& aabbMin,const btV
 }
 
 
-void	btBvhTriangleMeshShape::refitTree()
+void	btBvhTriangleMeshShape::refitTree(const btVector3& aabbMin,const btVector3& aabbMax)
 {
-	m_bvh->refit( m_meshInterface );
+	m_bvh->refit( m_meshInterface, aabbMin,aabbMax );
 	
 	recalcLocalAabb();
 }
