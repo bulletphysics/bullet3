@@ -1,6 +1,34 @@
 Bullet Continuous Collision Detection and Physics Library
 Primary author and maintainer: Erwin Coumans
 
+
+2008 Feb 27
+	- Added initial version for Character Control Demo
+	- Applied fixes to IBM Cell SDK 3.0 build makefiles
+	Thanks Jochen and mojo for reporting/providing patch: http://www.bulletphysics.com/Bullet/phpBB3/viewtopic.php?f=9&t=1922
+
+2008 Feb 8
+	- Bugfixes in ConvexCast support against the world.
+	Thanks to Isgmasa for reporting/providing fix: http://www.bulletphysics.com/Bullet/phpBB3/viewtopic.php?f=9&t=1823
+
+2008 Feb 6
+	- Added btCapsuleShapeX and btCapsuleShapeZ for capsules around X and Z axis (default capsule is around Y)
+	
+2008 Feb 3
+	- Added btTypedUserInfo, useful for serialization
+
+2008 Jan 31
+	- Add support for 16 and 32-bit indices for SPU / BulletMultiThreaded version.
+
+2008 Jan 29
+	- Added COLLADA Physics export/serialization/snapshot from any Bullet btDynamicsWorld. Saving the physics world into a text .xml file is useful for debugging etc.
+
+2008 Jan 23
+	- Added Stan Melax Convex Hull utility library in Extras/ConvexHull. This is useful to render non-polyhedral convex objects, and to simplify convex polyhedra.
+	
+2008 Jan 14
+	- Add support for batch raycasting on SPU / BulletMultiThreaded
+	
 2007 Dec 16
 	- Added btRigidBodyConstructionInfo, to make it easier to set individual setting (and leave other untouched) during rigid body construction.
 	Thanks Vangelis Kokkevis for pointing this out.

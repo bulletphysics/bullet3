@@ -12,6 +12,9 @@ if $(GLUT.AVAILABLE) = "yes"
 CFlags bulletopenglsupport : [ FIncludes $(TOP)/Extras/ConvexHull ]
 ;
 
+  MsvcIncDirs $(<) :
+        "../../Extras/ConvexHull" ;
+        
 bulletopenglsupport.CFLAGS = [ FIncludes $(TOP)/Extras/ConvexHull ] ;
 #same for msvcgen
 MsvcGenConfig bulletopenglsupport.INCDIRS : $(TOP)/Extras/ConvexHull ;
