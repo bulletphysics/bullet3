@@ -153,6 +153,33 @@ Package=<4>
 
 ###############################################################################
 
+Project: "appCharacterDemo"=.\appCharacterDemo.dsp - Package Owner=<4>
+
+Package=<5>
+{{{
+}}}
+
+Package=<4>
+{{{
+    Begin Project Dependency
+    Project_Dep_Name libbulletcollision
+    End Project Dependency
+    Begin Project Dependency
+    Project_Dep_Name libbulletdynamics
+    End Project Dependency
+    Begin Project Dependency
+    Project_Dep_Name libbulletmath
+    End Project Dependency
+    Begin Project Dependency
+    Project_Dep_Name libbulletopenglsupport
+    End Project Dependency
+    Begin Project Dependency
+    Project_Dep_Name libconvexhull
+    End Project Dependency
+}}}
+
+###############################################################################
+
 Project: "appColladaDemo"=.\appColladaDemo.dsp - Package Owner=<4>
 
 Package=<5>
@@ -753,6 +780,9 @@ Package=<4>
     Project_Dep_Name appCcdPhysicsDemo
     End Project Dependency
     Begin Project Dependency
+    Project_Dep_Name appCharacterDemo
+    End Project Dependency
+    Begin Project Dependency
     Project_Dep_Name appColladaDemo
     End Project Dependency
     Begin Project Dependency
@@ -883,6 +913,9 @@ Package=<4>
     End Project Dependency
     Begin Project Dependency
     Project_Dep_Name appCcdPhysicsDemo
+    End Project Dependency
+    Begin Project Dependency
+    Project_Dep_Name appCharacterDemo
     End Project Dependency
     Begin Project Dependency
     Project_Dep_Name appColladaDemo
