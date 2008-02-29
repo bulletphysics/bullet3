@@ -95,7 +95,7 @@ void CharacterController::preStep (btDynamicsWorld* dynamicsWorld)
 			if (rayResult.m_collisionObject == m_me)
 				return 1.0;
 
-			return btCollisionWorld::ClosestRayResultCallback::AddSingleResult (rayResult, normalInWorldSpace
+			return ClosestRayResultCallback::AddSingleResult (rayResult, normalInWorldSpace
 		);
 	}
 	protected:
