@@ -406,6 +406,15 @@ void CharacterDemo::displayCallback(void)
 void CharacterDemo::clientResetScene()
 {	
 	m_dynamicsWorld->getBroadphase()->getOverlappingPairCache()->cleanProxyFromPairs(m_character->getRigidBody()->getBroadphaseHandle(),getDynamicsWorld()->getDispatcher());
+	
+	btTransform startTransform;
+	startTransform.setIdentity ();
+	startTransform.setOrigin (btVector3(0.0, 2.0, 0.0));
+	
+	m_character->getRigidBody()->getMotionState()->setWorldTransform(startTransform);
+	m_character->getRigidBody()->setLinearVelocity(btVector3(0,0,0));
+	m_character->getRigidBody()->setAngularVelocity(btVector3(0,0,0));
+
 }
 
 void CharacterDemo::specialKeyboardUp(int key, int x, int y)
@@ -466,7 +475,7 @@ void CharacterDemo::specialKeyboard(int key, int x, int y)
 		gRight = 1;
 	}
 	break;
-	case GLUT_KEY_END:
+	case GLUT_KEY_F1:
 	{
 		if (m_character && m_character->canJump())
 			gJump = 1;

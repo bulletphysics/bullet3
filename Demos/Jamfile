@@ -71,6 +71,7 @@ SubInclude TOP Demos BspDemo ;
 SubInclude TOP Demos BasicDemo ;
 SubInclude TOP Demos ConvexDecompositionDemo ;
 SubInclude TOP Demos ColladaDemo ;
+SubInclude TOP Demos CharacterDemo ;
 SubInclude TOP Demos VehicleDemo ;
 SubInclude TOP Demos CollisionDemo ;
 SubInclude TOP Demos CollisionInterfaceDemo ;

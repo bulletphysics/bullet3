@@ -315,12 +315,33 @@ void ConcaveDemo::clientMoveAndDisplay()
 		static float offset=0.f;
 		offset+=0.01f;
 
-		setVertexPositions(waveheight,offset);
+	//	setVertexPositions(waveheight,offset);
+		
+		int i;
+		int j;
+		btVector3 aabbMin(1e30,1e30,1e30);
+		btVector3 aabbMax(-1e30,-1e30,-1e30);
 
-		btVector3 worldMin(-1000,-1000,-1000);
-		btVector3 worldMax(1000,1000,1000);
+		for ( i=NUM_VERTS_X/2-3;i<NUM_VERTS_X/2+2;i++)
+		{
+			for (j=NUM_VERTS_X/2-3;j<NUM_VERTS_Y/2+2;j++)
+			{
+			
+			aabbMax.setMax(gVertices[i+j*NUM_VERTS_X]);
+			aabbMin.setMin(gVertices[i+j*NUM_VERTS_X]);
+			
+				gVertices[i+j*NUM_VERTS_X].setValue((i-NUM_VERTS_X*0.5f)*TRIANGLE_SIZE,
+					//0.f,
+					waveheight*sinf((float)i+offset)*cosf((float)j+offset),
+					(j-NUM_VERTS_Y*0.5f)*TRIANGLE_SIZE);
+					
+			aabbMin.setMin(gVertices[i+j*NUM_VERTS_X]);
+			aabbMax.setMax(gVertices[i+j*NUM_VERTS_X]);
 
-		trimeshShape->refitTree(worldMin,worldMax);
+			}
+		}
+
+		trimeshShape->partialRefitTree(aabbMin,aabbMax);
 
 		//clear all contact points involving mesh proxy. Note: this is a slow/unoptimized operation.
 		m_dynamicsWorld->getBroadphase()->getOverlappingPairCache()->cleanProxyFromPairs(staticBody->getBroadphaseHandle(),getDynamicsWorld()->getDispatcher());

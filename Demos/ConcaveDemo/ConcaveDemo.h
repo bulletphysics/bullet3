@@ -49,7 +49,7 @@ class ConcaveDemo : public DemoApplication
 
 	public:
 
-	ConcaveDemo() : m_animatedMesh(false)
+	ConcaveDemo() : m_animatedMesh(true)
 	{
 
 	}
