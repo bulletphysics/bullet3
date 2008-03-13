@@ -87,6 +87,14 @@ void SpuRaycastTaskProcess::issueTask2()
 		unsigned int taskId;
 		unsigned int outputSize;
 
+		for (int i=0;i<m_maxNumOutstandingTasks;i++)
+	  {
+		  if (m_taskBusy[i])
+		  {
+			  taskId = i;
+			  break;
+		  }
+	  }
 		m_threadInterface->waitForResponse(&taskId, &outputSize);
 
 		//printf("PPU: after issue, received event: %u %d\n", taskId, outputSize);
@@ -154,6 +162,15 @@ SpuRaycastTaskProcess::flush2()
 	  unsigned int taskId;
 	  unsigned int outputSize;
 	  
+	  for (int i=0;i<m_maxNumOutstandingTasks;i++)
+	  {
+		  if (m_taskBusy[i])
+		  {
+			  taskId = i;
+			  break;
+		  }
+	  }
+
 	  //printf("Busy tasks... %d\n", m_numBusyTasks);
 
 	  {

@@ -16,7 +16,6 @@ subject to the following restrictions:
 #ifndef COLLISION_SHAPE_H
 #define COLLISION_SHAPE_H
 
-class btTypedUserInfo;
 #include "LinearMath/btTransform.h"
 #include "LinearMath/btVector3.h"
 #include "LinearMath/btMatrix3x3.h"
@@ -28,11 +27,10 @@ class btCollisionShape
 {
 
 	void* m_userPointer;
-	btTypedUserInfo* m_typedUserInfo;
 
 public:
 
-	btCollisionShape() : m_userPointer(0), m_typedUserInfo (0)
+	btCollisionShape() : m_userPointer(0)
 	{
 	}
 	virtual ~btCollisionShape()
@@ -105,15 +103,6 @@ public:
 		return m_userPointer;
 	}
 
-	btTypedUserInfo* getTypedUserInfo () const
-	{
-		return m_typedUserInfo;
-	}
-
-	void setTypedUserInfo (btTypedUserInfo* typedUserInfo)
-	{
-		m_typedUserInfo = typedUserInfo;
-	}
 };	
 
 #endif //COLLISION_SHAPE_H

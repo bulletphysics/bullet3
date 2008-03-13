@@ -180,7 +180,25 @@ void ColladaDemo::keyboardCallback(unsigned char key, int x, int y)
 	{
 		//save a COLLADA .dae physics snapshot
 		if (gColladaConverter)
-			gColladaConverter->save();
+		{
+			if (gColladaConverter->getLastFileName())
+			{
+				//deal with the name pre/post fixing etc.
+				char	saveName[550];
+				static int saveCount=1;
+				sprintf(saveName,"%s%i",gColladaConverter->getLastFileName(),saveCount++);
+				char* name = &saveName[0];
+				if (name[0] == '/')
+				{
+					name = &saveName[1];
+				} 
+				gColladaConverter->save(name);
+
+			} else
+			{
+				gColladaConverter->save("brandNew.dae");
+			}
+		}
 	} else
 	{
 	DemoApplication::keyboardCallback(key,x,y);

@@ -112,7 +112,6 @@ void btConvexTriangleCallback::processTriangle(btVector3* triangle,int partId, i
 		btCollisionShape* tmpShape = ob->getCollisionShape();
 
 		//copy over user pointers to temporary shape
-		tm.setTypedUserInfo(tmpShape->getTypedUserInfo());
 		tm.setUserPointer(tmpShape->getUserPointer());
 		
 		ob->setCollisionShape( &tm );

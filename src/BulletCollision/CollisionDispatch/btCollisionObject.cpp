@@ -26,7 +26,6 @@ btCollisionObject::btCollisionObject()
 		m_deactivationTime(btScalar(0.)),
 		m_friction(btScalar(0.5)),
 		m_restitution(btScalar(0.)),
-		m_typedUserInfo (NULL),
 		m_userObjectPointer(0),
 		m_internalOwner(0),
 		m_hitFraction(btScalar(1.)),

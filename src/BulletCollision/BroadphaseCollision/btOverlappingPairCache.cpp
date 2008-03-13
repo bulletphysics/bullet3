@@ -138,6 +138,11 @@ btBroadphasePair* btOverlappingPairCache::findPair(btBroadphaseProxy* proxy0, bt
 
 	int hash = getHash(proxyId1, proxyId2) & (m_overlappingPairArray.capacity()-1);
 
+	if (hash >= m_hashTable.size())
+	{
+		return NULL;
+	}
+
 	int index = m_hashTable[hash];
 	while (index != BT_NULL_PAIR && equalsPair(m_overlappingPairArray[index], proxyId1, proxyId2) == false)
 	{

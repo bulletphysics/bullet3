@@ -540,6 +540,15 @@ SpuSolverTaskDesc* SolverTaskScheduler::getTask()
 			unsigned int taskId;
 			unsigned int outputSize;
 
+			for (int i=0;i<m_maxNumOutstandingTasks;i++)
+			  {
+				  if (m_taskBusy[i])
+				  {
+					  taskId = i;
+					  break;
+				  }
+			  }
+
 			m_threadInterface->waitForResponse(&taskId, &outputSize);
 
 			m_taskBusy[taskId] = false;
@@ -575,6 +584,14 @@ void SolverTaskScheduler::flushTasks()
 	{
 		unsigned int taskId;
 		unsigned int outputSize;
+		for (int i=0;i<m_maxNumOutstandingTasks;i++)
+	  {
+		  if (m_taskBusy[i])
+		  {
+			  taskId = i;
+			  break;
+		  }
+	  }
 
 		m_threadInterface->waitForResponse(&taskId, &outputSize);
 

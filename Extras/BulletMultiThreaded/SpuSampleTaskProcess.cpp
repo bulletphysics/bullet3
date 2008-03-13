@@ -138,6 +138,14 @@ void SpuSampleTaskProcess::issueTask(void* sampleMainMemPtr,int sampleValue)
 		unsigned int taskId;
 		unsigned int outputSize;
 
+		for (int i=0;i<m_maxNumOutstandingTasks;i++)
+	  {
+		  if (m_taskBusy[i])
+		  {
+			  taskId = i;
+			  break;
+		  }
+	  }
 		m_threadInterface->waitForResponse(&taskId, &outputSize);
 
 		//printf("PPU: after issue, received event: %u %d\n", taskId, outputSize);
@@ -182,6 +190,14 @@ void SpuSampleTaskProcess::flush()
 	  unsigned int taskId;
 	  unsigned int outputSize;
 	  
+	  for (int i=0;i<m_maxNumOutstandingTasks;i++)
+	  {
+		  if (m_taskBusy[i])
+		  {
+			  taskId = i;
+			  break;
+		  }
+	  }
 	  {
 			
 		  m_threadInterface->waitForResponse(&taskId, &outputSize);

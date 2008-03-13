@@ -48,7 +48,7 @@ public:
 	virtual void getAabb (const btTransform& t, btVector3& aabbMin, btVector3& aabbMax) const
 	{
 			btVector3 halfExtents(getRadius(),getRadius(),getRadius());
-			halfExtents[m_upAxis] = getRadius()*btScalar(2.0) + btScalar(0.5)*getHalfHeight();
+			halfExtents[m_upAxis] = getRadius() + getHalfHeight();
 			btMatrix3x3 abs_b = t.getBasis().absolute();  
 			btPoint3 center = t.getOrigin();
 			btVector3 extent = btVector3(abs_b[0].dot(halfExtents),abs_b[1].dot(halfExtents),abs_b[2].dot(halfExtents));		  

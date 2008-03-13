@@ -14,16 +14,12 @@ subject to the following restrictions:
 */
 
 /* Some TODO items:
- * Figure out why velocity loading is not working
- * Output convex hull geometry for every single shape
  * fix naming conflicts with BulletUnnamed-* across executions -> need to generate a real unique name.
  * double check geometry sharing
- * handle the case that the user is already using btTypedUserInfo
- * cleanup all of the btTypedUserInfos that we create
  */
 
+
 #include <string>
-#include "LinearMath/btTypedUserInfo.h"
 #include "ColladaConverter.h"
 #include "btBulletDynamicsCommon.h"
 #include "dae.h"
@@ -50,51 +46,8 @@ subject to the following restrictions:
 #define snprintf _snprintf
 #endif
 
-#define BT_RIGIDBODY_COLLADA_INFO_TYPE 0xdeed
-class btRigidBodyColladaInfo : public btTypedUserInfo 
-{
-public:
-	domNode* m_node;
-	domRigid_body* m_rigidBody;
-	domInstance_rigid_body* m_instanceRigidBody;
 
-	btRigidBodyColladaInfo (domNode* node, domRigid_body* rigidBody, domInstance_rigid_body* instanceRigidBody) : btTypedUserInfo()
-	{
-		m_node = node;
-		m_rigidBody = rigidBody;
-		m_instanceRigidBody = instanceRigidBody;
-		setType (BT_RIGIDBODY_COLLADA_INFO_TYPE);
-	}
-};
 
-#define BT_RIGID_CONSTRAINT_COLLADA_INFO_TYPE 0xcead
-class btRigidConstraintColladaInfo : public btTypedUserInfo
-{
-public:
-	domRigid_constraint* m_rigidConstraint;
-
-	btRigidConstraintColladaInfo (domRigid_constraint* rigidConstraint) : btTypedUserInfo ()
-	{
-		m_rigidConstraint = rigidConstraint;
-		setType (BT_RIGID_CONSTRAINT_COLLADA_INFO_TYPE);
-	}
-};
-
-#define BT_SHAPE_COLLADA_INFO_TYPE 0xbead
-class btShapeColladaInfo : public btTypedUserInfo
-{
-public:
-	domGeometry* m_geometry;
-	btShapeColladaInfo (domGeometry* geometry) : btTypedUserInfo ()
-	{
-		m_geometry = geometry;
-		setType (BT_SHAPE_COLLADA_INFO_TYPE);
-	}
-};
-
-char* getLastFileName();
-char* fixFileName(const char* lpCmdLine);
-//todo: sort out this domInstance_rigid_bodyRef forward definition, put it in the headerfile and make it virtual (make code more re-usable)
 
 struct	btRigidBodyInput
 {
@@ -119,6 +72,25 @@ struct	btRigidBodyOutput
 	btCollisionShape*	m_colShape;
 	btCompoundShape*	m_compoundShape;
 };
+
+
+int	btRigidBodyColladaInfo::getUid()
+{
+	return m_body->getBroadphaseProxy()->getUid();
+}
+
+
+
+int btRigidConstraintColladaInfo::getUid()
+{
+	if (m_typedConstraint->getUid()==-1)
+	{
+		static int gConstraintUidGenerator=5;
+		m_typedConstraint->setUserConstraintId(gConstraintUidGenerator);
+		gConstraintUidGenerator++;
+	}
+	return m_typedConstraint->getUid();
+}
 
 
 
@@ -643,13 +615,27 @@ domNode* ColladaConverter::findNode (const char* nodeName)
 	return NULL;
 }
 
+btRigidBodyColladaInfo* ColladaConverter::findRigidBodyColladaInfo(const btRigidBody* body)
+{
+///we assume that the btRigidBody getUid matches btRigidBodyColladaInfo getUid
+
+	int uid = body->getBroadphaseProxy()->getUid();
+	btHashKeyPtr<btRigidBodyColladaInfo*> tmpKey(uid);
+	btRigidBodyColladaInfo** rbciPtr = this->m_rbUserInfoHashMap.find(tmpKey);
+	btRigidBodyColladaInfo* rbci = NULL;
+	if (rbciPtr)
+	{
+		rbci = *rbciPtr;
+	}
+	return rbci;
+}
+
 domNode* ColladaConverter::findNode (btRigidBody* rb)
 {
-	if (rb->getTypedUserInfo())
+
+	btRigidBodyColladaInfo* rbci = findRigidBodyColladaInfo(rb);
+	if (rbci)
 	{
-		btTypedUserInfo* tui = rb->getTypedUserInfo ();
-		btAssert (tui->getType() == BT_RIGIDBODY_COLLADA_INFO_TYPE);
-		btRigidBodyColladaInfo* rbci = (btRigidBodyColladaInfo*)tui;
 		return rbci->m_node;
 	}
 	return NULL;
@@ -679,14 +665,12 @@ domRigid_body* ColladaConverter::findRigid_body (const char* rigidbodyName)
 	return NULL;
 }
 
-domRigid_body* ColladaConverter::findRigid_body (btRigidBody* rb)
+domRigid_body* ColladaConverter::findRigid_body (const btRigidBody* rb)
 {
-	if (rb->getTypedUserInfo ())
+	btRigidBodyColladaInfo* rbci = findRigidBodyColladaInfo(rb);
+	if (rbci)
 	{
-		btTypedUserInfo* tui = rb->getTypedUserInfo ();
-		btAssert (tui->getType() == BT_RIGIDBODY_COLLADA_INFO_TYPE);
-		btRigidBodyColladaInfo* rbci = (btRigidBodyColladaInfo*)tui;
-		return rbci->m_rigidBody;
+		return rbci->m_domRigidBody;
 	}
 	return NULL;
 }
@@ -713,11 +697,9 @@ domInstance_rigid_body* ColladaConverter::findRigid_body_instance (const char* n
 
 domInstance_rigid_body* ColladaConverter::findRigid_body_instance (btRigidBody* rb)
 {
-	if (rb->getTypedUserInfo ())
+	btRigidBodyColladaInfo* rbci = findRigidBodyColladaInfo(rb);
+	if (rbci)
 	{
-		btTypedUserInfo* tui = rb->getTypedUserInfo ();
-		btAssert (tui->getType() == BT_RIGIDBODY_COLLADA_INFO_TYPE);
-		btRigidBodyColladaInfo* rbci = (btRigidBodyColladaInfo*)tui;
 		return rbci->m_instanceRigidBody;
 	}
 	return NULL;
@@ -748,14 +730,32 @@ domRigid_constraint* ColladaConverter::findRigid_constraint (const char* constra
 	return NULL;
 }
 
+btRigidConstraintColladaInfo*	ColladaConverter::findRigidConstraintColladaInfo(btTypedConstraint* constraint)
+{
+	///we assume that the btTypedConstraint getUid matches btRigidConstraintColladaInfo getUid
+	int uid = constraint->getUid();
+	if (uid==-1)
+		return NULL;//not in the map
+
+	btHashKeyPtr<btRigidConstraintColladaInfo*> tmpKey(uid);
+	btRigidConstraintColladaInfo** rbciPtr = this->m_constraintUserInfoHashMap.find(tmpKey);
+	btRigidConstraintColladaInfo* rbci = NULL;
+	if (rbciPtr)
+	{
+		rbci = *rbciPtr;
+	}
+	return rbci;
+
+}
+
 domRigid_constraint* ColladaConverter::findRigid_constraint (btTypedConstraint* constraint)
 {
-	if (constraint->getTypedUserInfo ())
+
+	btRigidConstraintColladaInfo* rcci = findRigidConstraintColladaInfo(constraint);
+
+	if (rcci)
 	{
-		btTypedUserInfo* tui = constraint->getTypedUserInfo ();
-		btAssert (tui->getType () == BT_RIGID_CONSTRAINT_COLLADA_INFO_TYPE);
-		btRigidConstraintColladaInfo* rcci = (btRigidConstraintColladaInfo*)tui;
-		return rcci->m_rigidConstraint;
+		return rcci->m_domRigidConstraint;
 	}
 	return NULL;
 }
@@ -777,18 +777,17 @@ domGeometry* ColladaConverter::findGeometry (const char* shapeName)
 	}
 	return NULL;
 }
-
+/*
 domGeometry* ColladaConverter::findGeometry (btCollisionShape* shape)
 {
 	if (shape->getTypedUserInfo ())
 	{
-		btTypedUserInfo* tui = shape->getTypedUserInfo ();
-		btAssert (tui->getType () == BT_SHAPE_COLLADA_INFO_TYPE);
 		btShapeColladaInfo* sci = (btShapeColladaInfo*)tui;
 		return sci->m_geometry;
 	}
 	return 0;
 }
+*/
 
 
 void	ColladaConverter::prepareConstraints(ConstraintInput& input)
@@ -824,10 +823,9 @@ void	ColladaConverter::prepareConstraints(ConstraintInput& input)
 					for (int i=0;i<getNumRigidBodies();i++)
 					{
 						btRigidBody* body = getRigidBody (i);
-						btTypedUserInfo* tui = body->getTypedUserInfo();
-						btAssert (tui->getType () == BT_RIGIDBODY_COLLADA_INFO_TYPE);
-						btRigidBodyColladaInfo* rbci = (btRigidBodyColladaInfo*)tui;
-						domRigid_body* domRigidBody = rbci->m_rigidBody;
+						domRigid_body* domRigidBody = findRigid_body(body);
+						btAssert(domRigidBody);
+
 						const char* name = domRigidBody->getSid();
 						if (name)
 						{
@@ -971,8 +969,9 @@ void	ColladaConverter::prepareConstraints(ConstraintInput& input)
 							}
 
 							// XXX: User must free this name before destroy the constraint
-							btTypedUserInfo* tui = new btRigidConstraintColladaInfo (rigidConstraintRef);
-							constraint->setTypedUserInfo (tui);
+							btRigidConstraintColladaInfo* tui = new btRigidConstraintColladaInfo (constraint,rigidConstraintRef, constraintRef);
+							m_constraintUserInfoHashMap.insert(btHashKeyPtr<btRigidConstraintColladaInfo*>(tui->getUid()),tui);
+
 							printf("Added constraint %s to the world\n", rigidConstraintRef->getSid());
 						} else
 						{
@@ -1035,8 +1034,9 @@ void	ColladaConverter::PreparePhysicsObject(struct btRigidBodyInput& input, bool
 	btRigidBody* body= createRigidBody(isDynamics,mass,startTransform,colShape);
 	if (body)
 	{
-		btTypedUserInfo* tui = new btRigidBodyColladaInfo (input.m_nodeRef, input.m_rigidBodyRef2, input.m_instanceRigidBodyRef);
-		body->setTypedUserInfo (tui);
+		btRigidBodyColladaInfo* tui = new btRigidBodyColladaInfo (body,input.m_nodeRef, input.m_rigidBodyRef2, input.m_instanceRigidBodyRef);
+		m_rbUserInfoHashMap.insert(btHashKeyPtr<btRigidBodyColladaInfo*>(tui->getUid()),tui);
+
 		/* if the body is dynamic restore it's velocity */
 		if (body->getInvMass() != 0.0)
 		{
@@ -1622,8 +1622,8 @@ void ColladaConverter::buildShape (btCollisionShape* shape, void* collada_shape,
 	}
 }
 
-void
-ColladaConverter::addRigidBody (btRigidBody* rb, const char* nodeName, const char* shapeName)
+
+domRigid_body* ColladaConverter::addRigidBody (btRigidBody* rb, const char* nodeName, const char* shapeName)
 {
 	btCollisionShape* shape = rb->getCollisionShape ();
 	char bodyName[512];
@@ -1664,15 +1664,19 @@ ColladaConverter::addRigidBody (btRigidBody* rb, const char* nodeName, const cha
 	mi->setUrl (material_name);
 	// collision shape
 
-	domRigid_body::domTechnique_common::domShape* colladaShape = (domRigid_body::domTechnique_common::domShape*)common->createAndPlace (COLLADA_ELEMENT_SHAPE);	
+	domRigid_body::domTechnique_common::domShape* colladaShape = (domRigid_body::domTechnique_common::domShape*)common->createAndPlace (COLLADA_ELEMENT_SHAPE);
 	buildShape (shape, colladaShape, shapeName);
+
+	return colladaRigidBody;
 }
 
-void ColladaConverter::addNode (btRigidBody* rb, const char* nodeName, const char* shapeName)
+
+domNode* ColladaConverter::addNode (btRigidBody* rb, const char* nodeName, const char* shapeName)
 {
 	domVisual_scene* vscene = getDefaultVisualScene ();
 
 	domNode* node = (domNode*)vscene->createAndPlace (COLLADA_ELEMENT_NODE);
+	
 	node->setId (nodeName);
 	node->setName (nodeName);
 
@@ -1714,18 +1718,20 @@ void ColladaConverter::addNode (btRigidBody* rb, const char* nodeName, const cha
 	</instance_geometry>
 	*/
 
-
+	return node;
 }
 
-void ColladaConverter::addConstraint (btTypedConstraint* constraint, const char* constraintName)
+
+domRigid_constraint* ColladaConverter::addConstraint (btTypedConstraint* constraint, const char* constraintName)
 {
 	if (!constraint->getConstraintType() != D6_CONSTRAINT_TYPE)
-		return;
+		return NULL;
 
 	btGeneric6DofConstraint* g6c = (btGeneric6DofConstraint*)constraint;
 	const btRigidBody& rb1 = g6c->getRigidBodyA ();
 	const btRigidBody& rb2 = g6c->getRigidBodyB ();
-	bool single = rb2.getTypedUserInfo() == NULL || rb2.getTypedUserInfo()->getPrivatePointer () == NULL;
+	
+	bool single = (findRigid_body(&rb2)==NULL);
 
 	domPhysics_model* physicsModel = getDefaultPhysicsModel ();
 	domRigid_constraint* domRigidConstraint = (domRigid_constraint*)physicsModel->createAndPlace (COLLADA_ELEMENT_RIGID_CONSTRAINT);
@@ -1733,10 +1739,9 @@ void ColladaConverter::addConstraint (btTypedConstraint* constraint, const char*
 	domRigidConstraint->setSid (constraintName);
 	if (single)
 	{
-		btTypedUserInfo* tui = rb1.getTypedUserInfo();
-		btAssert (tui->getType () == BT_RIGIDBODY_COLLADA_INFO_TYPE);
-		btRigidBodyColladaInfo* rbci = (btRigidBodyColladaInfo*)tui;
-		domRigid_body* domRigidBody = rbci->m_rigidBody;
+		domRigid_body* domRigidBody = findRigid_body(&rb1);
+		btAssert(domRigidBody);
+
 		const char* name = domRigidBody->getName();
 		btTransform rb1Frame = g6c->getFrameOffsetA ();
 		printf("Joint with single body: %s\n", name);
@@ -1769,16 +1774,8 @@ void ColladaConverter::addConstraint (btTypedConstraint* constraint, const char*
 
 		}
 	} else {
-		btTypedUserInfo* tui1 = rb1.getTypedUserInfo();
-		btTypedUserInfo* tui2 = rb2.getTypedUserInfo();
-		btAssert (tui1->getType () == BT_RIGIDBODY_COLLADA_INFO_TYPE);
-		btAssert (tui2->getType () == BT_RIGIDBODY_COLLADA_INFO_TYPE);
-
-		btRigidBodyColladaInfo* rbci1 = (btRigidBodyColladaInfo*)tui1;
-		domRigid_body* domRigidBody1 = rbci1->m_rigidBody;
-
-		btRigidBodyColladaInfo* rbci2 = (btRigidBodyColladaInfo*)tui2;
-		domRigid_body* domRigidBody2 = rbci2->m_rigidBody;
+		domRigid_body* domRigidBody1 = findRigid_body(&rb1);
+		domRigid_body* domRigidBody2 = findRigid_body(&rb2);
 
 		const char* name1 = domRigidBody1->getName();
 		const char* name2 = domRigidBody2->getName();
@@ -1876,17 +1873,18 @@ void ColladaConverter::addConstraint (btTypedConstraint* constraint, const char*
 		max->getValue().set (1, limit->m_upperLimit[1]);
 		max->getValue().set (2, limit->m_upperLimit[2]);
 	}
+	return domRigidConstraint;
 }
 
-void ColladaConverter::addConstraintInstance (btTypedConstraint* constraint, const char* constraintName)
+domInstance_rigid_constraint*  ColladaConverter::addConstraintInstance (btTypedConstraint* constraint, const char* constraintName)
 {
 	domInstance_physics_model* mi = getDefaultInstancePhysicsModel ();
 	domInstance_rigid_constraint* rci = (domInstance_rigid_constraint*)mi->createAndPlace (COLLADA_ELEMENT_INSTANCE_RIGID_CONSTRAINT);
 	rci->setConstraint (constraintName);
+	return rci;
 }
 
-
-void ColladaConverter::addRigidBodyInstance (btRigidBody* rb, const char* nodeName)
+domInstance_rigid_body* ColladaConverter::addRigidBodyInstance (btRigidBody* rb, const char* nodeName)
 {
 	char targetName[512];
 	char bodyName[512];
@@ -1910,6 +1908,7 @@ void ColladaConverter::addRigidBodyInstance (btRigidBody* rb, const char* nodeNa
 		btVector3 btLv = rb->getLinearVelocity ();
 		lv->getValue().set3 (btLv[0], btLv[1], btLv[2]);
 	}
+	return rbi;
 }
 
 void ColladaConverter::addMaterial (btRigidBody* rb, const char* nodeName)
@@ -2037,15 +2036,12 @@ ColladaConverter::updateConstraint (btTypedConstraint* constraint, domRigid_cons
 	btGeneric6DofConstraint* g6c = (btGeneric6DofConstraint*)constraint;
 	const btRigidBody& rb1 = g6c->getRigidBodyA ();
 	const btRigidBody& rb2 = g6c->getRigidBodyB ();
-	bool single = rb2.getTypedUserInfo() == NULL || rb2.getTypedUserInfo()->getPrivatePointer () == NULL;
+	bool single = (findRigid_body(&rb2)==NULL);
 
 	if (single)
 	{
 		printf("Joint with single body\n");
-		btTypedUserInfo* tui = rb1.getTypedUserInfo();
-		btAssert (tui->getType () == BT_RIGIDBODY_COLLADA_INFO_TYPE);
-		btRigidBodyColladaInfo* rbci = (btRigidBodyColladaInfo*)tui;
-		domRigid_body* domRigidBody = rbci->m_rigidBody;
+		domRigid_body* domRigidBody = findRigid_body(&rb1);
 		const char* name = domRigidBody->getSid();
 		btTransform rb1Frame = g6c->getFrameOffsetA ();
 		domRigid_constraint::domAttachmentRef attachment = daeSafeCast<domRigid_constraint::domAttachment>(rigidConstraint->createAndPlace (COLLADA_ELEMENT_ATTACHMENT));
@@ -2078,17 +2074,8 @@ ColladaConverter::updateConstraint (btTypedConstraint* constraint, domRigid_cons
 		}
 	} else {
 		printf("Joint attached to two bodies\n");
-
-		btTypedUserInfo* tui1 = rb1.getTypedUserInfo();
-		btTypedUserInfo* tui2 = rb2.getTypedUserInfo();
-		btAssert (tui1->getType () == BT_RIGIDBODY_COLLADA_INFO_TYPE);
-		btAssert (tui2->getType () == BT_RIGIDBODY_COLLADA_INFO_TYPE);
-
-		btRigidBodyColladaInfo* rbci1 = (btRigidBodyColladaInfo*)tui1;
-		domRigid_body* domRigidBody1 = rbci1->m_rigidBody;
-
-		btRigidBodyColladaInfo* rbci2 = (btRigidBodyColladaInfo*)tui2;
-		domRigid_body* domRigidBody2 = rbci2->m_rigidBody;
+		domRigid_body* domRigidBody1 = findRigid_body(&rb1);
+		domRigid_body* domRigidBody2 = findRigid_body(&rb2);
 
 		const char* name1 = domRigidBody1->getSid();
 		const char* name2 = domRigidBody2->getSid();
@@ -2208,14 +2195,13 @@ void ColladaConverter::syncOrAddRigidBody (btRigidBody* body)
 		char nodeNameGen[512];
 		char shapeNameGen[512];
 
+		domNode* dNode=NULL;
+		domRigid_body* dRigidBody=NULL;
+		domInstance_rigid_body* dInstanceRigidBody=NULL;
+
 		printf("New body\n");
 		btCollisionShape* shape = body->getCollisionShape ();
 
-		if (body->getTypedUserInfo() != NULL && body->getTypedUserInfo()->getName() != NULL)
-			nodeName = body->getTypedUserInfo()->getName ();
-
-		if (shape->getTypedUserInfo() && shape->getTypedUserInfo()->getName())
-			shapeName = body->getTypedUserInfo ()->getName();
 
 		if (!nodeName)
 		{
@@ -2248,48 +2234,57 @@ void ColladaConverter::syncOrAddRigidBody (btRigidBody* body)
 			{
 				char concaveShapeName[256];
 				sprintf(concaveShapeName,"RenderMesh%s",shapeName);
-				addNode (body, nodeName, concaveShapeName);
+				dNode = addNode (body, nodeName, concaveShapeName);
 				break;
 			}
 		default:
 			{
-				addNode (body, nodeName, shapeName);
+				dNode = addNode (body, nodeName, shapeName);
 			}
 		};
 
 		addMaterial (body, nodeName);
-		addRigidBody (body, nodeName, shapeName);
-		addRigidBodyInstance (body, nodeName);
+		
+		dRigidBody = addRigidBody (body, nodeName, shapeName);
+		dInstanceRigidBody = addRigidBodyInstance (body, nodeName);
+
+
+		btRigidBodyColladaInfo* value = new btRigidBodyColladaInfo(body,dNode,dRigidBody,dInstanceRigidBody);
+		m_rbUserInfoHashMap.insert(btHashKeyPtr<btRigidBodyColladaInfo*>(value->getUid()),value);
+		
 	}
 }
 
 void ColladaConverter::syncOrAddConstraint (btTypedConstraint* constraint)
 {
 	domRigid_constraintRef rigidConstraint = findRigid_constraint (constraint);
-	return;
-
+	
 	static int random_node_name_key = 0;
 	if (rigidConstraint)
 	{
 		updateConstraint (constraint, rigidConstraint);
 	} else {
-		btTypedUserInfo* tui = constraint->getTypedUserInfo ();
+		
+		
 		char namebuf[512];
 		const char* constraintName = NULL;
-		if (tui)
-		{
-			btAssert (tui->getType () == BT_RIGID_CONSTRAINT_COLLADA_INFO_TYPE);
-			if (tui->getName())
-				constraintName = tui->getName();
-		}
 		if (!constraintName)
 		{
 			// generate one
 			sprintf(&namebuf[0], "BulletUnnamedConstraint-%d", random_node_name_key);
 			constraintName = &namebuf[0];
 		}
-		addConstraint (constraint, constraintName);
-		addConstraintInstance (constraint, constraintName);
+
+		domRigid_constraint* dRigidConstraint = addConstraint (constraint, constraintName);
+		if (!dRigidConstraint)
+			return;
+
+		domInstance_rigid_constraint* dInstanceRigidConstraint = addConstraintInstance (constraint, constraintName);
+
+		btRigidConstraintColladaInfo* value = new btRigidConstraintColladaInfo(constraint,dRigidConstraint,dInstanceRigidConstraint);
+		this->m_constraintUserInfoHashMap.insert(btHashKeyPtr<btRigidConstraintColladaInfo*>(value->getUid()),value);
+
+		
 	}
 }
 
@@ -2378,18 +2373,6 @@ bool ColladaConverter::save(const char* filename)
 	}
 
 	{
-		//let the user deal with the name pre/post fixing etc.
-		/*
-		char	saveName[550];
-		static int saveCount=1;
-		sprintf(saveName,"%s%i",getLastFileName(),saveCount++);
-		char* name = &saveName[0];
-		if (name[0] == '/')
-		{
-			name = &saveName[1];
-		} 
-		*/
-
 		m_collada->saveAs (filename);
 	}
 #if 0
@@ -2513,23 +2496,28 @@ bool ColladaConverter::save(const char* filename)
 }
 
 //some code that de-mangles the windows filename passed in as argument
-char cleaned_filename[513];
-char* getLastFileName()
+
+
+char* ColladaConverter::getLastFileName()
 {
-	return cleaned_filename;
+	return m_cleaned_filename;
 }
 
 
-char* fixFileName(const char* lpCmdLine)
+char* ColladaConverter::fixFileName(const char* lpCmdLine)
 {
 
+	for (int i=0;i<513;i++)
+	{
+		m_cleaned_filename[i]=0;
+	}
 
 	// We might get a windows-style path on the command line, this can mess up the DOM which expects
 	// all paths to be URI's.  This block of code does some conversion to try and make the input
 	// compliant without breaking the ability to accept a properly formatted URI.  Right now this only
 	// displays the first filename
 	const char *in = lpCmdLine;
-	char* out = cleaned_filename;
+	char* out = m_cleaned_filename;
 	*out = '\0';
 	// If the first character is a ", skip it (filenames with spaces in them are quoted)
 	if(*in == '\"')
@@ -2560,8 +2548,8 @@ char* fixFileName(const char* lpCmdLine)
 		out++;
 	}
 	
-	cleaned_filename[i+1] = '\0'; 
-	return cleaned_filename;
+	
+	return m_cleaned_filename;
 }
 
 
@@ -2792,7 +2780,7 @@ void	ColladaConverter::ConvertRigidBodyRef( btRigidBodyInput& rbInput,btRigidBod
 								
 								//btTriangleMeshShape
 							}
-							rbOutput.m_colShape->setTypedUserInfo (new btShapeColladaInfo (geom));
+							//rbOutput.m_colShape->setTypedUserInfo (new btShapeColladaInfo (geom));
 
 						} 
 					} else
@@ -2835,7 +2823,7 @@ void	ColladaConverter::ConvertRigidBodyRef( btRigidBodyInput& rbInput,btRigidBod
 							if (numAddedVerts > 0)
 							{
 								rbOutput.m_colShape = convexHull;
-								rbOutput.m_colShape->setTypedUserInfo (new btShapeColladaInfo (geom));
+								//rbOutput.m_colShape->setTypedUserInfo (new btShapeColladaInfo (geom));
 							} else
 							{
 								delete convexHull;
@@ -2983,7 +2971,7 @@ void	ColladaConverter::ConvertRigidBodyRef( btRigidBodyInput& rbInput,btRigidBod
 					if (convexHullShape->getNumVertices())
 					{
 						rbOutput.m_colShape = convexHullShape;
-						rbOutput.m_colShape->setTypedUserInfo (new btShapeColladaInfo (geom));
+						//rbOutput.m_colShape->setTypedUserInfo (new btShapeColladaInfo (geom));
 						printf("created convexHullShape with %i points\n",convexHullShape->getNumVertices());
 					} else
 					{
@@ -3143,4 +3131,75 @@ void	ColladaConverter::setGravity(const btVector3& grav)
 btVector3 ColladaConverter::getGravity ()
 {
 	return m_dynamicsWorld->getGravity ();
+}
+
+
+void ColladaConverter::registerRigidBody(btRigidBody* body, const char* name)
+{
+	
+	btRigidBodyColladaInfo* rbci = findRigidBodyColladaInfo(body);
+
+	if (!rbci)
+	{
+		syncOrAddRigidBody (body);
+		rbci = findRigidBodyColladaInfo(body);
+	}
+
+	// update dom
+	char bodyName[512];
+	snprintf(&bodyName[0], 512, "%s-RigidBody", name);
+	rbci->m_domRigidBody->setSid (bodyName);
+	rbci->m_domRigidBody->setName (bodyName);
+	rbci->m_node->setId (name);
+	rbci->m_node->setName (name);
+	rbci->m_instanceRigidBody->setBody (bodyName);
+	daeURI uri;
+	uri.setElement( rbci->m_node );
+	uri.resolveURI();
+	rbci->m_instanceRigidBody->setTarget (uri);
+
+
+	int i;
+	for (i = 0; i < body->getNumConstraintRefs(); i++)
+	{
+		btTypedConstraint* constraint = body->getConstraintRef (i);
+		
+		// not support by the dom
+		if (!constraint->getConstraintType() != D6_CONSTRAINT_TYPE)
+			continue;
+
+		btRigidConstraintColladaInfo* rcci = findRigidConstraintColladaInfo(constraint);
+
+		// not added to the dom yet
+		if (!rcci)
+			continue;
+
+		domRigid_constraint* rigidConstraint = rcci->m_domRigidConstraint;
+
+		if (&constraint->getRigidBodyA() == body)
+		{
+			domRigid_constraint::domRef_attachment* refAttachment = (domRigid_constraint::domRef_attachment*)rigidConstraint->getRef_attachment();
+			refAttachment->setRigid_body (bodyName);
+		} else if (&constraint->getRigidBodyB() == body) {
+			domRigid_constraint::domAttachment* attachment = (domRigid_constraint::domAttachment*)rigidConstraint->getAttachment ();
+			attachment->setRigid_body (bodyName);
+		}
+	}
+
+	
+}
+
+void ColladaConverter::registerConstraint(btTypedConstraint* constraint, const char* name)
+{
+
+	btRigidConstraintColladaInfo* rcci = findRigidConstraintColladaInfo(constraint);
+	if (!rcci)
+	{
+		syncOrAddConstraint (constraint);
+		rcci = findRigidConstraintColladaInfo(constraint);
+	}
+
+	rcci->m_domRigidConstraint->setName(name);
+	rcci->m_domRigidConstraint->setSid(name);
+	rcci->m_domInstanceRigidConstraint->setConstraint (name);
 }

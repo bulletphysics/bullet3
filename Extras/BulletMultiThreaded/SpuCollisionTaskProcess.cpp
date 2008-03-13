@@ -134,7 +134,22 @@ void SpuCollisionTaskProcess::issueTask2()
 		unsigned int taskId;
 		unsigned int outputSize;
 
+		
+		for (int i=0;i<m_maxNumOutstandingTasks;i++)
+		  {
+			  if (m_taskBusy[i])
+			  {
+				  taskId = i;
+				  break;
+			  }
+		  }
+
+	  btAssert(taskId>=0);
+
+	  
 		m_threadInterface->waitForResponse(&taskId, &outputSize);
+
+//		printf("issueTask taskId %d completed, numBusy=%d\n",taskId,m_numBusyTasks);
 
 		//printf("PPU: after issue, received event: %u %d\n", taskId, outputSize);
 
@@ -251,15 +266,27 @@ SpuCollisionTaskProcess::flush2()
 	while(m_numBusyTasks > 0)
 	{
 	  // Consolidating SPU code
-	  unsigned int taskId;
+	  unsigned int taskId=-1;
 	  unsigned int outputSize;
 	  
+	  for (int i=0;i<m_maxNumOutstandingTasks;i++)
+	  {
+		  if (m_taskBusy[i])
+		  {
+			  taskId = i;
+			  break;
+		  }
+	  }
+
+	  btAssert(taskId>=0);
+
+	
 	  {
 			
 		// SPURS support.
 		  m_threadInterface->waitForResponse(&taskId, &outputSize);
 	  }
-
+//		 printf("flush2 taskId %d completed, numBusy =%d \n",taskId,m_numBusyTasks);
 		//printf("PPU: flushing, received event: %u %d\n", taskId, outputSize);
 
 		//postProcess(taskId, outputSize);

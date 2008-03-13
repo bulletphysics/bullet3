@@ -17,7 +17,6 @@ subject to the following restrictions:
 #define TYPED_CONSTRAINT_H
 
 class btRigidBody;
-class btTypedUserInfo;
 #include "LinearMath/btScalar.h"
 
 enum btTypedConstraintType
@@ -34,7 +33,6 @@ class btTypedConstraint
 {
 	int	m_userConstraintType;
 	int	m_userConstraintId;
-	btTypedUserInfo*   m_typedUserInfo;
 
 	btTypedConstraintType m_constraintType;
 
@@ -100,6 +98,13 @@ public:
 	{
 		return m_userConstraintId;
 	}
+	
+	///unique id is needed by the btHashMap during serialization
+	int	getUid() const
+	{
+		return m_userConstraintId;
+	}
+
 	btScalar	getAppliedImpulse() const
 	{
 		return m_appliedImpulse;
@@ -110,15 +115,6 @@ public:
 		return m_constraintType;
 	}
 
-	btTypedUserInfo* getTypedUserInfo () const
-	{
-		return m_typedUserInfo;
-	}
-
-	void setTypedUserInfo (btTypedUserInfo* typedUserInfo)
-	{
-		m_typedUserInfo = typedUserInfo;
-	}
 };
 
 #endif //TYPED_CONSTRAINT_H

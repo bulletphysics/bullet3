@@ -17,12 +17,62 @@ subject to the following restrictions:
 #include "GlutStuff.h"
 #include "GLDebugDrawer.h"
 #include "btBulletDynamicsCommon.h"
+#include "LinearMath/btHashMap.h"
 
+class OurValue
+	{
+		int m_uid;
 
+	public:
+		OurValue(const btVector3& initialPos)
+			:m_position(initialPos)
+		{
+			static int gUid=0;
+			m_uid=gUid;
+			gUid++;
+		}
+
+		btVector3	m_position;
+		int	getUid() const
+		{
+			return m_uid;
+		}
+	};
+
+	
 int main(int argc,char** argv)
 {
 	GLDebugDrawer	gDebugDrawer;
 
+	///testing the btHashMap	
+	btHashMap<btHashKey<OurValue>,OurValue> map;
+	
+	OurValue value1(btVector3(2,3,4));
+	btHashKey<OurValue> key1(value1.getUid());
+	map.insert(key1,value1);
+
+
+	OurValue value2(btVector3(5,6,7));
+	btHashKey<OurValue> key2(value2.getUid());
+	map.insert(key2,value2);
+	
+
+	{
+		OurValue value3(btVector3(7,8,9));
+		btHashKey<OurValue> key3(value3.getUid());
+		map.insert(key3,value3);
+	}
+
+
+	map.remove(key2);
+
+	const OurValue* ourPtr = map.find(key1);
+	for (int i=0;i<map.size();i++)
+	{
+		OurValue* tmp = map.getAtIndex(i);
+		//printf("tmp value=%f,%f,%f\n",tmp->m_position.getX(),tmp->m_position.getY(),tmp->m_position.getZ());
+	}
+	
 	BasicDemo ccdDemo;
 	ccdDemo.initPhysics();
 	ccdDemo.getDynamicsWorld()->setDebugDrawer(&gDebugDrawer);

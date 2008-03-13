@@ -83,6 +83,7 @@ class  btStridingMeshInterface
 			m_scaling = scaling;
 		}
 
+	
 
 };
 
