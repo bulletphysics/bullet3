@@ -32,7 +32,7 @@ m_invalidPair(0)
 	{
 		m_ownsPairCache = true;
 		void* mem = btAlignedAlloc(sizeof(btOverlappingPairCache),16);
-		m_overlappingPairs = new (mem)btOverlappingPairCache();
+		m_overlappingPairs = new (mem)btHashedOverlappingPairCache();
 	}
 
 	struct btMultiSapOverlapFilterCallback : public btOverlapFilterCallback

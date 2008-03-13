@@ -227,7 +227,7 @@ m_invalidPair(0)
 	if (!m_pairCache)
 	{
 		void* ptr = btAlignedAlloc(sizeof(btOverlappingPairCache),16);
-		m_pairCache = new(ptr) btOverlappingPairCache();
+		m_pairCache = new(ptr) btHashedOverlappingPairCache();
 		m_ownsPairCache = true;
 	}
 

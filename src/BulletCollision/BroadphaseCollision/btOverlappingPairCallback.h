@@ -17,6 +17,9 @@ subject to the following restrictions:
 #ifndef OVERLAPPING_PAIR_CALLBACK_H
 #define OVERLAPPING_PAIR_CALLBACK_H
 
+class btDispatcher;
+struct  btBroadphasePair;
+
 ///btOverlappingPairCallback provides user callback to keep track of overlap between objects, like a collision sensor
 class btOverlappingPairCallback
 {
@@ -26,11 +29,11 @@ public:
 
 	}
 	
-	virtual void	addOverlappingPair(btBroadphaseProxy* proxy0,btBroadphaseProxy* proxy1) = 0;
+	virtual btBroadphasePair*	addOverlappingPair(btBroadphaseProxy* proxy0,btBroadphaseProxy* proxy1) = 0;
 
-	virtual void	removeOverlappingPair(btBroadphaseProxy* proxy0,btBroadphaseProxy* proxy1) = 0;
+	virtual void*	removeOverlappingPair(btBroadphaseProxy* proxy0,btBroadphaseProxy* proxy1,btDispatcher* dispatcher) = 0;
 
-	virtual void	removeOverlappingPairsContainingProxy(btBroadphaseProxy* proxy0) = 0;
+	virtual void	removeOverlappingPairsContainingProxy(btBroadphaseProxy* proxy0,btDispatcher* dispatcher) = 0;
 
 };
 
