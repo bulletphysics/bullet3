@@ -99,7 +99,6 @@ protected:
 	btHashMap<btHashKeyPtr<btRigidBodyColladaInfo*>,btRigidBodyColladaInfo*>	m_rbUserInfoHashMap;
 	btHashMap<btHashKeyPtr<btRigidConstraintColladaInfo*>,btRigidConstraintColladaInfo*> m_constraintUserInfoHashMap;
 	
-	
 	class DAE* m_collada;
 	class domCOLLADA* m_dom;
 	char* m_filename;
@@ -191,10 +190,11 @@ public:
 	
 	void registerRigidBody(btRigidBody* body, const char* name);
 	void deRegisterRigidBody(btRigidBody* body);
+	const char* getName (btRigidBody* body);
 
 	void registerConstraint(btTypedConstraint* constraint, const char* name);
 	void deRegisterConstraint(btTypedConstraint* constraint);
-
+	const char* getName (btTypedConstraint* constraint);
 
 	///those virtuals are called by load and save.
 	virtual btTypedConstraint*			createUniversalD6Constraint(

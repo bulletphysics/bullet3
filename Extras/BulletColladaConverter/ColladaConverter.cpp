@@ -3189,6 +3189,35 @@ void ColladaConverter::registerRigidBody(btRigidBody* body, const char* name)
 	
 }
 
+void ColladaConverter::deRegisterRigidBody(btRigidBody* body)
+{
+	btRigidBodyColladaInfo* rbci = findRigidBodyColladaInfo (body);
+
+	if (!rbci)
+		return;
+
+	daeElement::removeFromParent (rbci->m_instanceRigidBody);
+	daeElement::removeFromParent (rbci->m_domRigidBody);
+	daeElement::removeFromParent (rbci->m_node);
+
+	delete rbci;
+	
+	// remove from map
+	int uid = body->getBroadphaseProxy()->getUid();
+	btHashKeyPtr<btRigidBodyColladaInfo*> tmpKey(uid);
+	m_rbUserInfoHashMap.remove (tmpKey);
+}
+
+const char* ColladaConverter::getName (btRigidBody* body)
+{
+	btRigidBodyColladaInfo* rbci = findRigidBodyColladaInfo (body);
+
+	if (!rbci)
+		return NULL;
+
+	return rbci->m_node->getSid();
+}
+
 void ColladaConverter::registerConstraint(btTypedConstraint* constraint, const char* name)
 {
 
@@ -3202,4 +3231,39 @@ void ColladaConverter::registerConstraint(btTypedConstraint* constraint, const c
 	rcci->m_domRigidConstraint->setName(name);
 	rcci->m_domRigidConstraint->setSid(name);
 	rcci->m_domInstanceRigidConstraint->setConstraint (name);
+}
+
+void ColladaConverter::deRegisterConstraint(btTypedConstraint* constraint)
+{
+	if (constraint->getConstraintType () != D6_CONSTRAINT_TYPE)
+	{
+		return;
+	}
+
+	btRigidConstraintColladaInfo* rcci = findRigidConstraintColladaInfo(constraint);
+
+	if (!rcci)
+	{
+		return;
+	}
+
+	daeElement::removeFromParent (rcci->m_domInstanceRigidConstraint);
+	daeElement::removeFromParent (rcci->m_domRigidConstraint);
+	delete rcci;
+	
+	// remove from map
+	int uid = constraint->getUid();
+	btHashKeyPtr<btRigidConstraintColladaInfo*> tmpKey(uid);
+	m_constraintUserInfoHashMap.remove (tmpKey);
+}
+
+
+const char* ColladaConverter::getName (btTypedConstraint* constraint)
+{
+	btRigidConstraintColladaInfo* rcci = findRigidConstraintColladaInfo (constraint);
+
+	if (!rcci)
+		return NULL;
+
+	return rcci->m_domRigidConstraint->getSid();
 }
