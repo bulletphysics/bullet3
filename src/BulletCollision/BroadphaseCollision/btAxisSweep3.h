@@ -226,8 +226,8 @@ m_invalidPair(0)
 {
 	if (!m_pairCache)
 	{
-		void* ptr = btAlignedAlloc(sizeof(btOverlappingPairCache),16);
-		m_pairCache = new(ptr) btOverlappingPairCache();
+		void* ptr = btAlignedAlloc(sizeof(btHashedOverlappingPairCache),16);
+		m_pairCache = new(ptr) btHashedOverlappingPairCache();
 		m_ownsPairCache = true;
 	}
 
@@ -463,9 +463,8 @@ extern int gOverlappingPairs;
 template <typename BP_FP_INT_TYPE>
 void	btAxisSweep3Internal<BP_FP_INT_TYPE>::calculateOverlappingPairs(btDispatcher* dispatcher)
 {
-#ifdef USE_LAZY_REMOVAL
 
-	if (m_ownsPairCache)
+	if (m_ownsPairCache && m_pairCache->hasDeferredRemoval())
 	{
 	
 		btBroadphasePairArray&	overlappingPairArray = m_pairCache->getOverlappingPairArray();
@@ -542,7 +541,7 @@ void	btAxisSweep3Internal<BP_FP_INT_TYPE>::calculateOverlappingPairs(btDispatche
 		
 		//printf("overlappingPairArray.size()=%d\n",overlappingPairArray.size());
 	}
-#endif //USE_LAZY_REMOVAL
+
 
 
 	
@@ -715,7 +714,7 @@ void btAxisSweep3Internal<BP_FP_INT_TYPE>::sortMinUp(int axis, BP_FP_INT_TYPE ed
 
 		if (pNext->IsMax())
 		{
-#ifndef USE_LAZY_REMOVAL
+
 			// if next edge is maximum remove any overlap between the two handles
 			if (updateOverlaps)
 			{
@@ -724,10 +723,10 @@ void btAxisSweep3Internal<BP_FP_INT_TYPE>::sortMinUp(int axis, BP_FP_INT_TYPE ed
 
 				m_pairCache->removeOverlappingPair(handle0,handle1,dispatcher);	
 				if (m_userPairCallback)
-					m_userPairCallback->removeOverlappingPair(handle0,handle1);
+					m_userPairCallback->removeOverlappingPair(handle0,handle1,dispatcher);
 				
 			}
-#endif //USE_LAZY_REMOVAL
+
 
 			// update edge reference in other handle
 			pHandleNext->m_maxEdges[axis]--;
@@ -769,14 +768,14 @@ void btAxisSweep3Internal<BP_FP_INT_TYPE>::sortMaxDown(int axis, BP_FP_INT_TYPE 
 			if (updateOverlaps)
 			{
 				//this is done during the overlappingpairarray iteration/narrowphase collision
-#ifndef USE_LAZY_REMOVAL
+
 				Handle* handle0 = getHandle(pEdge->m_handle);
 				Handle* handle1 = getHandle(pPrev->m_handle);
 				m_pairCache->removeOverlappingPair(handle0,handle1,dispatcher);
 				if (m_userPairCallback)
-					m_userPairCallback->removeOverlappingPair(handle0,handle1);
+					m_userPairCallback->removeOverlappingPair(handle0,handle1,dispatcher);
 			
-#endif //USE_LAZY_REMOVAL		
+
 
 			}
 

@@ -44,8 +44,8 @@ btSimpleBroadphase::btSimpleBroadphase(int maxProxies, btOverlappingPairCache* o
 
 	if (!overlappingPairCache)
 	{
-		void* mem = btAlignedAlloc(sizeof(btOverlappingPairCache),16);
-		m_pairCache = new (mem)btOverlappingPairCache();
+		void* mem = btAlignedAlloc(sizeof(btHashedOverlappingPairCache),16);
+		m_pairCache = new (mem)btHashedOverlappingPairCache();
 		m_ownsPairCache = true;
 	}
 
