@@ -204,12 +204,13 @@ void	btSimpleBroadphase::calculateOverlappingPairs(btDispatcher* dispatcher)
 						}
 					} else
 					{
-		#ifdef USE_HASH_PAIRCACHE
+					if (!m_pairCache->hasDeferredRemoval())
+					{
 						if ( m_pairCache->findPair(proxy0,proxy1))
 						{
 							m_pairCache->removeOverlappingPair(proxy0,proxy1,dispatcher);
 						}
-		#endif //USE_HASH_PAIRCACHE
+					}
 
 					}
 				}
@@ -220,9 +221,7 @@ void	btSimpleBroadphase::calculateOverlappingPairs(btDispatcher* dispatcher)
 
 		}
 
-	#ifndef USE_HASH_PAIRCACHE
-
-		if (m_ownsPairCache)
+		if (m_ownsPairCache && m_pairCache->hasDeferredRemoval())
 		{
 			
 			btBroadphasePairArray&	overlappingPairArray = m_pairCache->getOverlappingPairArray();
@@ -296,7 +295,6 @@ void	btSimpleBroadphase::calculateOverlappingPairs(btDispatcher* dispatcher)
 		#endif//CLEAN_INVALID_PAIRS
 
 		}
-	#endif //USE_HASH_PAIRCACHE
 	}
 }
 

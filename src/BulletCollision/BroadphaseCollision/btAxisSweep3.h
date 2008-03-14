@@ -464,7 +464,7 @@ template <typename BP_FP_INT_TYPE>
 void	btAxisSweep3Internal<BP_FP_INT_TYPE>::calculateOverlappingPairs(btDispatcher* dispatcher)
 {
 
-	if (m_ownsPairCache && m_pairCache->hasDeferredRemoval())
+	if (m_pairCache->hasDeferredRemoval())
 	{
 	
 		btBroadphasePairArray&	overlappingPairArray = m_pairCache->getOverlappingPairArray();

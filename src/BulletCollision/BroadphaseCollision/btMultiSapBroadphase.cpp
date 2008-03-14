@@ -64,6 +64,7 @@ btMultiSapBroadphase::~btMultiSapBroadphase()
 {
 	if (m_ownsPairCache)
 	{
+		m_overlappingPairs->~btOverlappingPairCache();
 		btAlignedFree(m_overlappingPairs);
 	}
 }
@@ -115,80 +116,82 @@ void	btMultiSapBroadphase::calculateOverlappingPairs(btDispatcher* dispatcher)
 {
 	m_simpleBroadphase->calculateOverlappingPairs(dispatcher);
 
-#ifndef USE_HASH_PAIRCACHE
-
-	btBroadphasePairArray&	overlappingPairArray = m_overlappingPairs->getOverlappingPairArray();
-	
-	//perform a sort, to find duplicates and to sort 'invalid' pairs to the end
-	overlappingPairArray.heapSort(btBroadphasePairSortPredicate());
-
-	overlappingPairArray.resize(overlappingPairArray.size() - m_invalidPair);
-	m_invalidPair = 0;
-
-
-	btBroadphasePair previousPair;
-	previousPair.m_pProxy0 = 0;
-	previousPair.m_pProxy1 = 0;
-	previousPair.m_algorithm = 0;
-	
-	int i;
-
-	for (i=0;i<overlappingPairArray.size();i++)
+	if (m_overlappingPairs->hasDeferredRemoval())
 	{
-	
-		btBroadphasePair& pair = overlappingPairArray[i];
 
-		bool isDuplicate = (pair == previousPair);
 
-		previousPair = pair;
+		btBroadphasePairArray&	overlappingPairArray = m_overlappingPairs->getOverlappingPairArray();
+		
+		//perform a sort, to find duplicates and to sort 'invalid' pairs to the end
+		overlappingPairArray.heapSort(btBroadphasePairSortPredicate());
 
-		bool needsRemoval = false;
+		overlappingPairArray.resize(overlappingPairArray.size() - m_invalidPair);
+		m_invalidPair = 0;
 
-		if (!isDuplicate)
+
+		btBroadphasePair previousPair;
+		previousPair.m_pProxy0 = 0;
+		previousPair.m_pProxy1 = 0;
+		previousPair.m_algorithm = 0;
+		
+		int i;
+
+		for (i=0;i<overlappingPairArray.size();i++)
 		{
-			bool hasOverlap = testAabbOverlap(pair.m_pProxy0,pair.m_pProxy1);
+		
+			btBroadphasePair& pair = overlappingPairArray[i];
 
-			if (hasOverlap)
+			bool isDuplicate = (pair == previousPair);
+
+			previousPair = pair;
+
+			bool needsRemoval = false;
+
+			if (!isDuplicate)
 			{
-				needsRemoval = false;//callback->processOverlap(pair);
+				bool hasOverlap = testAabbOverlap(pair.m_pProxy0,pair.m_pProxy1);
+
+				if (hasOverlap)
+				{
+					needsRemoval = false;//callback->processOverlap(pair);
+				} else
+				{
+					needsRemoval = true;
+				}
 			} else
 			{
+				//remove duplicate
 				needsRemoval = true;
+				//should have no algorithm
+				btAssert(!pair.m_algorithm);
 			}
-		} else
-		{
-			//remove duplicate
-			needsRemoval = true;
-			//should have no algorithm
-			btAssert(!pair.m_algorithm);
+			
+			if (needsRemoval)
+			{
+				m_overlappingPairs->cleanOverlappingPair(pair,dispatcher);
+
+		//		m_overlappingPairArray.swap(i,m_overlappingPairArray.size()-1);
+		//		m_overlappingPairArray.pop_back();
+				pair.m_pProxy0 = 0;
+				pair.m_pProxy1 = 0;
+				m_invalidPair++;
+				gOverlappingPairs--;
+			} 
+			
 		}
-		
-		if (needsRemoval)
-		{
-			m_overlappingPairs->cleanOverlappingPair(pair,dispatcher);
 
-	//		m_overlappingPairArray.swap(i,m_overlappingPairArray.size()-1);
-	//		m_overlappingPairArray.pop_back();
-			pair.m_pProxy0 = 0;
-			pair.m_pProxy1 = 0;
-			m_invalidPair++;
-			gOverlappingPairs--;
-		} 
-		
+	///if you don't like to skip the invalid pairs in the array, execute following code:
+	#define CLEAN_INVALID_PAIRS 1
+	#ifdef CLEAN_INVALID_PAIRS
+
+		//perform a sort, to sort 'invalid' pairs to the end
+		overlappingPairArray.heapSort(btBroadphasePairSortPredicate());
+
+		overlappingPairArray.resize(overlappingPairArray.size() - m_invalidPair);
+		m_invalidPair = 0;
+	#endif//CLEAN_INVALID_PAIRS
+
 	}
-
-///if you don't like to skip the invalid pairs in the array, execute following code:
-#define CLEAN_INVALID_PAIRS 1
-#ifdef CLEAN_INVALID_PAIRS
-
-	//perform a sort, to sort 'invalid' pairs to the end
-	overlappingPairArray.heapSort(btBroadphasePairSortPredicate());
-
-	overlappingPairArray.resize(overlappingPairArray.size() - m_invalidPair);
-	m_invalidPair = 0;
-#endif//CLEAN_INVALID_PAIRS
-
-#endif //USE_HASH_PAIRCACHE
 
 }
 
