@@ -158,8 +158,9 @@ m_use4componentVertices(true)
 
 bool	ColladaConverter::load(const char* orgfilename)
 {
-
 	const char* filename = fixFileName(orgfilename);
+
+	reset ();
 
 	//Collada-m_dom
 	m_collada = new DAE;
@@ -199,7 +200,20 @@ bool	ColladaConverter::load(const char* orgfilename)
 }
 
 
+// resets the collada converter state
+void ColladaConverter::reset ()
+{
+	// clear the maps
+	m_rbUserInfoHashMap.clear ();
+	m_constraintUserInfoHashMap.clear ();
 
+	// delete the dom
+	if (m_collada)
+		delete m_collada;
+
+	m_collada = NULL;
+	m_dom = NULL;
+}
 
 
 bool ColladaConverter::convert()
@@ -630,9 +644,80 @@ btRigidBodyColladaInfo* ColladaConverter::findRigidBodyColladaInfo(const btRigid
 	return rbci;
 }
 
+bool ColladaConverter::instantiateDom ()
+{
+	if (!m_collada)
+	{
+		m_collada = new DAE;
+
+		//set the default IOPlugin and Database
+		m_collada->setIOPlugin( NULL );
+		m_collada->setDatabase( NULL );
+
+		daeInt error;
+		const char* documentName = "bullet snapshot";
+
+		//create a new document. Calling daeDatabase::insertDocument will create the 
+		//daeDocument for you. This function will also create a domCOLLADA root 
+		//element for you.
+		daeDocument *doc = NULL;
+		error = m_collada->getDatabase()->insertDocument(documentName, &doc );
+		if ( error != DAE_OK || doc == NULL )
+		{
+			printf("Failed to create new document\n");
+			return false;
+		}
+
+		m_dom = daeSafeCast<domCOLLADA>(doc->getDomRoot());
+
+		//create the required asset tag
+		domAssetRef asset = daeSafeCast<domAsset>( m_dom->createAndPlace( COLLADA_ELEMENT_ASSET ) );
+		domAsset::domCreatedRef created = daeSafeCast<domAsset::domCreated>( asset->createAndPlace( COLLADA_ELEMENT_CREATED ) );
+		created->setValue("2008-02-12T15:28:54.891550");
+		domAsset::domModifiedRef modified = daeSafeCast<domAsset::domModified>( asset->createAndPlace( COLLADA_ELEMENT_MODIFIED ) );
+		modified->setValue("2008-02-12T15:28:54.891550");
+
+		domAsset::domContributorRef contrib = daeSafeCast<domAsset::domContributor>( asset->createAndPlace( COLLADA_TYPE_CONTRIBUTOR ) );
+
+		domAsset::domContributor::domAuthoring_toolRef authoringtool = daeSafeCast<domAsset::domContributor::domAuthoring_tool>( contrib->createAndPlace( COLLADA_ELEMENT_AUTHORING_TOOL ) );
+		char authbuffer[512];
+		sprintf(authbuffer,"Bullet Physics SDK %d Snapshot(BulletColladaConverter) http://bulletphysics.com",BT_BULLET_VERSION);
+		authoringtool->setValue(authbuffer);
+
+		domAsset::domUp_axisRef yup = daeSafeCast<domAsset::domUp_axis>( asset->createAndPlace( COLLADA_ELEMENT_UP_AXIS ) );
+		yup->setValue(UPAXISTYPE_Y_UP);
+		
+		domPhysics_sceneRef physicsScene = getDefaultPhysicsScene ();
+		domPhysics_scene::domTechnique_commonRef common = daeSafeCast<domPhysics_scene::domTechnique_common>(physicsScene->createAndPlace (COLLADA_ELEMENT_TECHNIQUE_COMMON));
+		domTargetableFloat3Ref g = daeSafeCast<domTargetableFloat3>(common->createAndPlace (COLLADA_ELEMENT_GRAVITY));
+		btVector3 btG = getGravity ();
+		g->getValue().set3 (btG[0], btG[1], btG[2]);
+
+		if (!m_dom->getScene())
+		{
+			domCOLLADA::domScene* scene = daeSafeCast<domCOLLADA::domScene>( m_dom->createAndPlace( COLLADA_ELEMENT_SCENE ) );
+			{
+				domInstanceWithExtra* ivs = daeSafeCast<domInstanceWithExtra>( scene->createAndPlace( COLLADA_ELEMENT_INSTANCE_VISUAL_SCENE ) );
+				daeURI uri;
+				uri.setElement( getDefaultVisualScene() );
+				uri.resolveURI();
+				ivs->setUrl( uri );
+			}
+			{
+				domInstanceWithExtra* ips = daeSafeCast<domInstanceWithExtra>( scene->createAndPlace( COLLADA_ELEMENT_INSTANCE_PHYSICS_SCENE ) );
+				daeURI uri;
+				uri.setElement( getDefaultPhysicsScene() );
+				uri.resolveURI();
+				ips->setUrl( uri );
+			}
+
+		}
+	}
+	return true;
+}
+
 domNode* ColladaConverter::findNode (btRigidBody* rb)
 {
-
 	btRigidBodyColladaInfo* rbci = findRigidBodyColladaInfo(rb);
 	if (rbci)
 	{
@@ -2202,7 +2287,6 @@ void ColladaConverter::syncOrAddRigidBody (btRigidBody* body)
 		printf("New body\n");
 		btCollisionShape* shape = body->getCollisionShape ();
 
-
 		if (!nodeName)
 		{
 			snprintf(&nodeNameGen[0], 512, "BulletUnnamed-%d", random_node_name_key++);
@@ -2251,7 +2335,6 @@ void ColladaConverter::syncOrAddRigidBody (btRigidBody* body)
 
 		btRigidBodyColladaInfo* value = new btRigidBodyColladaInfo(body,dNode,dRigidBody,dInstanceRigidBody);
 		m_rbUserInfoHashMap.insert(btHashKeyPtr<btRigidBodyColladaInfo*>(value->getUid()),value);
-		
 	}
 }
 
@@ -2290,74 +2373,9 @@ void ColladaConverter::syncOrAddConstraint (btTypedConstraint* constraint)
 
 bool ColladaConverter::save(const char* filename)
 {
-	if (!m_collada)
+	if (!instantiateDom ())
 	{
-		m_collada = new DAE;
-
-		//set the default IOPlugin and Database
-		m_collada->setIOPlugin( NULL );
-		m_collada->setDatabase( NULL );
-
-
-		daeInt error;
-		const char* documentName = "bullet snapshot";
-
-		//create a new document. Calling daeDatabase::insertDocument will create the 
-		//daeDocument for you. This function will also create a domCOLLADA root 
-		//element for you.
-		daeDocument *doc = NULL;
-		error = m_collada->getDatabase()->insertDocument(documentName, &doc );
-		if ( error != DAE_OK || doc == NULL )
-		{
-			printf("Failed to create new document\n");
-			return false;
-		}
-
-		m_dom = daeSafeCast<domCOLLADA>(doc->getDomRoot());
-
-		//create the required asset tag
-		domAssetRef asset = daeSafeCast<domAsset>( m_dom->createAndPlace( COLLADA_ELEMENT_ASSET ) );
-		domAsset::domCreatedRef created = daeSafeCast<domAsset::domCreated>( asset->createAndPlace( COLLADA_ELEMENT_CREATED ) );
-		created->setValue("2008-02-12T15:28:54.891550");
-		domAsset::domModifiedRef modified = daeSafeCast<domAsset::domModified>( asset->createAndPlace( COLLADA_ELEMENT_MODIFIED ) );
-		modified->setValue("2008-02-12T15:28:54.891550");
-
-		domAsset::domContributorRef contrib = daeSafeCast<domAsset::domContributor>( asset->createAndPlace( COLLADA_TYPE_CONTRIBUTOR ) );
-
-		domAsset::domContributor::domAuthoring_toolRef authoringtool = daeSafeCast<domAsset::domContributor::domAuthoring_tool>( contrib->createAndPlace( COLLADA_ELEMENT_AUTHORING_TOOL ) );
-		char authbuffer[512];
-		sprintf(authbuffer,"Bullet Physics SDK %d Snapshot(BulletColladaConverter) http://bulletphysics.com",BT_BULLET_VERSION);
-		authoringtool->setValue(authbuffer);
-
-		domAsset::domUp_axisRef yup = daeSafeCast<domAsset::domUp_axis>( asset->createAndPlace( COLLADA_ELEMENT_UP_AXIS ) );
-		yup->setValue(UPAXISTYPE_Y_UP);
-		
-		domPhysics_sceneRef physicsScene = getDefaultPhysicsScene ();
-		domPhysics_scene::domTechnique_commonRef common = daeSafeCast<domPhysics_scene::domTechnique_common>(physicsScene->createAndPlace (COLLADA_ELEMENT_TECHNIQUE_COMMON));
-		domTargetableFloat3Ref g = daeSafeCast<domTargetableFloat3>(common->createAndPlace (COLLADA_ELEMENT_GRAVITY));
-		btVector3 btG = getGravity ();
-		g->getValue().set3 (btG[0], btG[1], btG[2]);
-
-
-		if (!m_dom->getScene())
-		{
-			domCOLLADA::domScene* scene = daeSafeCast<domCOLLADA::domScene>( m_dom->createAndPlace( COLLADA_ELEMENT_SCENE ) );
-			{
-				domInstanceWithExtra* ivs = daeSafeCast<domInstanceWithExtra>( scene->createAndPlace( COLLADA_ELEMENT_INSTANCE_VISUAL_SCENE ) );
-				daeURI uri;
-				uri.setElement( getDefaultVisualScene() );
-				uri.resolveURI();
-				ivs->setUrl( uri );
-			}
-			{
-				domInstanceWithExtra* ips = daeSafeCast<domInstanceWithExtra>( scene->createAndPlace( COLLADA_ELEMENT_INSTANCE_PHYSICS_SCENE ) );
-				daeURI uri;
-				uri.setElement( getDefaultPhysicsScene() );
-				uri.resolveURI();
-				ips->setUrl( uri );
-			}
-
-		}
+		return false;
 	}
 
 	/* Dump the scene */
@@ -3136,13 +3154,18 @@ btVector3 ColladaConverter::getGravity ()
 
 void ColladaConverter::registerRigidBody(btRigidBody* body, const char* name)
 {
-	
+	if (!instantiateDom ())
+	{
+		return;
+	}
+
 	btRigidBodyColladaInfo* rbci = findRigidBodyColladaInfo(body);
 
 	if (!rbci)
 	{
 		syncOrAddRigidBody (body);
 		rbci = findRigidBodyColladaInfo(body);
+		btAssert (rbci);
 	}
 
 	// update dom
@@ -3220,6 +3243,10 @@ const char* ColladaConverter::getName (btRigidBody* body)
 
 void ColladaConverter::registerConstraint(btTypedConstraint* constraint, const char* name)
 {
+	if (!instantiateDom ())
+	{
+		return;
+	}
 
 	btRigidConstraintColladaInfo* rcci = findRigidConstraintColladaInfo(constraint);
 	if (!rcci)

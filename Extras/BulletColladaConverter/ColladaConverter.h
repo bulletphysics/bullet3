@@ -118,6 +118,8 @@ protected:
 	btRigidBodyColladaInfo*			findRigidBodyColladaInfo(const btRigidBody* body);
 	btRigidConstraintColladaInfo*	findRigidConstraintColladaInfo(btTypedConstraint* constraint);
 
+	bool instantiateDom ();
+
 	/* Searches based on matching name/id */
 	class domNode* findNode (const char* nodeName);
 	class domRigid_body* findRigid_body (const char* rigidBodyName);
@@ -166,6 +168,9 @@ public:
 	///load a COLLADA .dae file
 	bool	load(const char* filename);
 	
+	// resets the collada converter state
+	void    reset ();
+
 	///save a snapshot in COLLADA physics .dae format.
 	///if the filename is left empty, modify the filename used during loading
 	bool	save(const char* filename = 0);
