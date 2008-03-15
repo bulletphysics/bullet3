@@ -19,11 +19,12 @@ subject to the following restrictions:
 #include "LinearMath/btAlignedObjectArray.h"
 #include "btOverlappingPairCache.h"
 
-class btAxisSweep3;
+
+class btBroadphaseInterface;
 class btSimpleBroadphase;
 
 
-typedef btAlignedObjectArray<btAxisSweep3*> btSapBroadphaseArray;
+typedef btAlignedObjectArray<btBroadphaseInterface*> btSapBroadphaseArray;
 
 ///multi SAP broadphase
 ///See http://www.continuousphysics.com/Bullet/phpBB2/viewtopic.php?t=328
@@ -36,17 +37,21 @@ class btMultiSapBroadphase :public btBroadphaseInterface
 
 	btOverlappingPairCache*	m_overlappingPairs;
 
+	class btOptimizedBvh*			m_optimizedAabbTree;
+
+
 	bool					m_ownsPairCache;
 	
 	btOverlapFilterCallback*	m_filterCallback;
 
 	int			m_invalidPair;
 
-	struct	btChildProxy
+	struct	btBridgeProxy
 	{
-		btBroadphaseProxy*		m_proxy;
+		btBroadphaseProxy*		m_childProxy;
 		btBroadphaseInterface*	m_childBroadphase;
 	};
+
 
 public:
 
@@ -54,22 +59,21 @@ public:
 	{
 
 		///array with all the entries that this proxy belongs to
-		btAlignedObjectArray<btChildProxy*> m_childProxies;
+		btAlignedObjectArray<btBridgeProxy*> m_bridgeProxies;
 		btVector3	m_aabbMin;
 		btVector3	m_aabbMax;
 
 		int	m_shapeType;
-		void*	m_userPtr;
+
+/*		void*	m_userPtr;
 		short int	m_collisionFilterGroup;
 		short int	m_collisionFilterMask;
-
+*/
 		btMultiSapProxy(const btVector3& aabbMin,  const btVector3& aabbMax,int shapeType,void* userPtr, short int collisionFilterGroup,short int collisionFilterMask)
-			:m_aabbMin(aabbMin),
+			:btBroadphaseProxy(userPtr,collisionFilterGroup,collisionFilterMask),
+			m_aabbMin(aabbMin),
 			m_aabbMax(aabbMax),
-			m_shapeType(shapeType),
-			m_userPtr(userPtr),
-			m_collisionFilterGroup(collisionFilterGroup),
-			m_collisionFilterMask(collisionFilterMask)
+			m_shapeType(shapeType)
 		{
 
 		}
@@ -79,18 +83,21 @@ public:
 
 protected:
 
+	void	addToChildBroadphase(btMultiSapProxy* parentMultiSapProxy, btBroadphaseProxy* childProxy, btBroadphaseInterface*	childBroadphase);
+
 	btAlignedObjectArray<btMultiSapProxy*> m_multiSapProxies;
 
 public:
 
 	btMultiSapBroadphase(int maxProxies = 16384,btOverlappingPairCache* pairCache=0);
 
-	btSapBroadphaseArray	getBroadphaseArray()
+
+	btSapBroadphaseArray&	getBroadphaseArray()
 	{
 		return m_sapBroadphases;
 	}
 
-	const btSapBroadphaseArray	getBroadphaseArray() const
+	const btSapBroadphaseArray&	getBroadphaseArray() const
 	{
 		return m_sapBroadphases;
 	}
@@ -114,6 +121,17 @@ public:
 	{
 		return m_overlappingPairs;
 	}
+
+	///getAabb returns the axis aligned bounding box in the 'global' coordinate frame
+	///will add some transform later
+	virtual void getBroadphaseAabb(btVector3& aabbMin,btVector3& aabbMax) const
+	{
+		aabbMin.setValue(-1e30f,-1e30f,-1e30f);
+		aabbMax.setValue(1e30f,1e30f,1e30f);
+	}
+
+	void	buildTree(const btVector3& bvhAabbMin,const btVector3& bvhAabbMax);
+
 };
 
 #endif //BT_MULTI_SAP_BROADPHASE

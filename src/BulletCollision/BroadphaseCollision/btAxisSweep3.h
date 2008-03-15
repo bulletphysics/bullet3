@@ -151,6 +151,16 @@ public:
 	{
 		return m_userPairCallback;
 	}
+
+	///getAabb returns the axis aligned bounding box in the 'global' coordinate frame
+	///will add some transform later
+	virtual void getBroadphaseAabb(btVector3& aabbMin,btVector3& aabbMax) const
+	{
+		aabbMin = m_worldAabbMin;
+		aabbMax = m_worldAabbMax;
+	}
+
+
 };
 
 ////////////////////////////////////////////////////////////////////
@@ -216,7 +226,7 @@ void	btAxisSweep3Internal<BP_FP_INT_TYPE>::setAabb(btBroadphaseProxy* proxy,cons
 
 
 template <typename BP_FP_INT_TYPE>
-btAxisSweep3Internal<BP_FP_INT_TYPE>::btAxisSweep3Internal(const btPoint3& worldAabbMin,const btPoint3& worldAabbMax, BP_FP_INT_TYPE handleMask, BP_FP_INT_TYPE handleSentinel,BP_FP_INT_TYPE maxHandles, btOverlappingPairCache* pairCache )
+btAxisSweep3Internal<BP_FP_INT_TYPE>::btAxisSweep3Internal(const btPoint3& worldAabbMin,const btPoint3& worldAabbMax, BP_FP_INT_TYPE handleMask, BP_FP_INT_TYPE handleSentinel,BP_FP_INT_TYPE userMaxHandles, btOverlappingPairCache* pairCache )
 :m_bpHandleMask(handleMask),
 m_handleSentinel(handleSentinel),
 m_pairCache(pairCache),
@@ -224,6 +234,8 @@ m_userPairCallback(0),
 m_ownsPairCache(false),
 m_invalidPair(0)
 {
+	BP_FP_INT_TYPE maxHandles = userMaxHandles+1;//need to add one sentinel handle
+
 	if (!m_pairCache)
 	{
 		void* ptr = btAlignedAlloc(sizeof(btHashedOverlappingPairCache),16);
@@ -411,8 +423,10 @@ void btAxisSweep3Internal<BP_FP_INT_TYPE>::removeHandle(BP_FP_INT_TYPE handle,bt
 	//explicitly remove the pairs containing the proxy
 	//we could do it also in the sortMinUp (passing true)
 	//todo: compare performance
-	m_pairCache->removeOverlappingPairsContainingProxy(pHandle,dispatcher);
-
+	if (!m_pairCache->hasDeferredRemoval())
+	{
+		m_pairCache->removeOverlappingPairsContainingProxy(pHandle,dispatcher);
+	}
 
 	// compute current limit of edge arrays
 	int limit = m_numHandles * 2;

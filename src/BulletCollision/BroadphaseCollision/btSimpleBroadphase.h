@@ -139,6 +139,13 @@ public:
 	bool	testAabbOverlap(btBroadphaseProxy* proxy0,btBroadphaseProxy* proxy1);
 
 
+	///getAabb returns the axis aligned bounding box in the 'global' coordinate frame
+	///will add some transform later
+	virtual void getBroadphaseAabb(btVector3& aabbMin,btVector3& aabbMax) const
+	{
+		aabbMin.setValue(-1e30f,-1e30f,-1e30f);
+		aabbMax.setValue(1e30f,1e30f,1e30f);
+	}
 };
 
 

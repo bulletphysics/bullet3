@@ -41,6 +41,10 @@ public:
 	virtual	btOverlappingPairCache*	getOverlappingPairCache()=0;
 	virtual	const btOverlappingPairCache*	getOverlappingPairCache() const =0;
 
+	///getAabb returns the axis aligned bounding box in the 'global' coordinate frame
+	///will add some transform later
+	virtual void getBroadphaseAabb(btVector3& aabbMin,btVector3& aabbMax) const =0;
+
 };
 
 #endif //BROADPHASE_INTERFACE_H
