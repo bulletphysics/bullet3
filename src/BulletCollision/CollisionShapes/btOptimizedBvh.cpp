@@ -202,6 +202,45 @@ void btOptimizedBvh::build(btStridingMeshInterface* triangles, bool useQuantized
 
 
 
+
+void btOptimizedBvh::buildInternal()
+{
+	///assumes that caller filled in the m_quantizedLeafNodes
+	m_useQuantization = true;
+	int numLeafNodes = 0;
+	
+	if (m_useQuantization)
+	{
+		//now we have an array of leafnodes in m_leafNodes
+		numLeafNodes = m_quantizedLeafNodes.size();
+
+		m_quantizedContiguousNodes.resize(2*numLeafNodes);
+
+	}
+
+	m_curNodeIndex = 0;
+
+	buildTree(0,numLeafNodes);
+
+	///if the entire tree is small then subtree size, we need to create a header info for the tree
+	if(m_useQuantization && !m_SubtreeHeaders.size())
+	{
+		btBvhSubtreeInfo& subtree = m_SubtreeHeaders.expand();
+		subtree.setAabbFromQuantizeNode(m_quantizedContiguousNodes[0]);
+		subtree.m_rootNodeIndex = 0;
+		subtree.m_subtreeSize = m_quantizedContiguousNodes[0].isLeafNode() ? 1 : m_quantizedContiguousNodes[0].getEscapeIndex();
+	}
+
+	//PCK: update the copy of the size
+	m_subtreeHeaderCount = m_SubtreeHeaders.size();
+
+	//PCK: clear m_quantizedLeafNodes and m_leafNodes, they are temporary
+	m_quantizedLeafNodes.clear();
+	m_leafNodes.clear();
+}
+
+
+
 void	btOptimizedBvh::refitPartial(btStridingMeshInterface* meshInterface,const btVector3& aabbMin,const btVector3& aabbMax)
 {
 	//incrementally initialize quantization values
@@ -371,6 +410,7 @@ void	btOptimizedBvh::setQuantizationValues(const btVector3& bvhAabbMin,const btV
 	m_bvhAabbMax = bvhAabbMax + clampValue;
 	btVector3 aabbSize = m_bvhAabbMax - m_bvhAabbMin;
 	m_bvhQuantization = btVector3(btScalar(65533.0),btScalar(65533.0),btScalar(65533.0)) / aabbSize;
+	m_useQuantization = true;
 }
 
 

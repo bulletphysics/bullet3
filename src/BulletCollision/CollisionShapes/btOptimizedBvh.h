@@ -238,7 +238,6 @@ protected:
 		
 	}
 
-	void	setQuantizationValues(const btVector3& bvhAabbMin,const btVector3& bvhAabbMax,btScalar quantizationMargin=btScalar(1.0));
 	
 	void	setInternalNodeEscapeIndex(int nodeIndex, int escapeIndex)
 	{
@@ -336,6 +335,13 @@ public:
 	virtual ~btOptimizedBvh();
 
 	void	build(btStridingMeshInterface* triangles,bool useQuantizedAabbCompression, const btVector3& bvhAabbMin, const btVector3& bvhAabbMax);
+
+	///***************************************** expert/internal use only *************************
+	void	setQuantizationValues(const btVector3& bvhAabbMin,const btVector3& bvhAabbMax,btScalar quantizationMargin=btScalar(1.0));
+	QuantizedNodeArray&	getLeafNodeArray() {			return	m_quantizedLeafNodes;	}
+	///buildInternal is expert use only: assumes that setQuantizationValues and LeafNodeArray are initialized
+	void	buildInternal();
+	///***************************************** expert/internal use only *************************
 
 	void	reportAabbOverlappingNodex(btNodeOverlapCallback* nodeCallback,const btVector3& aabbMin,const btVector3& aabbMax) const;
 	void	reportRayOverlappingNodex (btNodeOverlapCallback* nodeCallback, const btVector3& raySource, const btVector3& rayTarget) const;
@@ -450,11 +456,13 @@ public:
 		return	m_quantizedContiguousNodes;
 	}
 
+
 	SIMD_FORCE_INLINE BvhSubtreeInfoArray&	getSubtreeInfoArray()
 	{
 		return m_SubtreeHeaders;
 	}
-	
+
+
 	/////Calculate space needed to store BVH for serialization
 	unsigned calculateSerializeBufferSize();
 
