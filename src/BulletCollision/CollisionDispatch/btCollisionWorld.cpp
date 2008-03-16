@@ -104,7 +104,7 @@ void	btCollisionWorld::addCollisionObject(btCollisionObject* collisionObject,sho
 			collisionObject,
 			collisionFilterGroup,
 			collisionFilterMask,
-			m_dispatcher1
+			m_dispatcher1,0
 			))	;
 
 		

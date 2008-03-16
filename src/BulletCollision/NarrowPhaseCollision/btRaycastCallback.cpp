@@ -13,7 +13,7 @@ subject to the following restrictions:
 3. This notice may not be removed or altered from any source distribution.
 */
 
-#include <stdio.h>
+//#include <stdio.h>
 
 #include "BulletCollision/CollisionShapes/btConvexShape.h"
 #include "BulletCollision/CollisionShapes/btTriangleShape.h"

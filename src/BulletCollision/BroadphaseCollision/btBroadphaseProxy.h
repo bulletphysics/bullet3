@@ -62,6 +62,7 @@ CONCAVE_SHAPES_END_HERE,
 	MAX_BROADPHASE_COLLISION_TYPES
 };
 
+//#include <stdio.h>
 
 ///btBroadphaseProxy
 ATTRIBUTE_ALIGNED16(struct) btBroadphaseProxy
@@ -83,21 +84,13 @@ BT_DECLARE_ALIGNED_ALLOCATOR();
 	//Usually the client btCollisionObject or Rigidbody class
 	void*	m_clientObject;
 
-	///in the case of btMultiSapBroadphase, we store the collifionFilterGroup/Mask in the m_multiSapParentProxy
-	union
-	{
-		struct
-		{
-			short int m_collisionFilterGroup;
-			short int m_collisionFilterMask;
-		};
+	short int m_collisionFilterGroup;
+	short int m_collisionFilterMask;
 
-		void*	m_multiSapParentProxy;
+	void*	m_multiSapParentProxy;		
 
-	};
 
 	int			m_uniqueId;//m_uniqueId is introduced for paircache. could get rid of this, by calculating the address offset etc.
-	int m_unusedPadding; //making the structure 16 bytes, better for alignment etc.
 
 	SIMD_FORCE_INLINE int getUid() const
 	{
@@ -105,13 +98,16 @@ BT_DECLARE_ALIGNED_ALLOCATOR();
 	}
 
 	//used for memory pools
-	btBroadphaseProxy() :m_clientObject(0){}
+	btBroadphaseProxy() :m_clientObject(0),m_multiSapParentProxy(0)
+	{
+	}
 
-	btBroadphaseProxy(void* userPtr,short int collisionFilterGroup, short int collisionFilterMask)
+	btBroadphaseProxy(void* userPtr,short int collisionFilterGroup, short int collisionFilterMask,void* multiSapParentProxy=0)
 		:m_clientObject(userPtr),
 		m_collisionFilterGroup(collisionFilterGroup),
 		m_collisionFilterMask(collisionFilterMask)
 	{
+		m_multiSapParentProxy = multiSapParentProxy;
 	}
 
 	

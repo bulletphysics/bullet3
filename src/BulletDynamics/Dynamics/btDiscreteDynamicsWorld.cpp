@@ -625,7 +625,7 @@ void	btDiscreteDynamicsWorld::solveConstraints(btContactSolverInfo& solverInfo)
 		
 	
 
-	sortedConstraints.heapSort(btSortConstraintOnIslandPredicate());
+	sortedConstraints.quickSort(btSortConstraintOnIslandPredicate());
 	
 	btTypedConstraint** constraintsPtr = getNumConstraints() ? &sortedConstraints[0] : 0;
 	

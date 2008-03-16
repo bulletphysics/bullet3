@@ -28,8 +28,9 @@ subject to the following restrictions:
 
 int gNumManifold = 0;
 
+#ifdef BT_DEBUG
 #include <stdio.h>
-
+#endif
 
 
 btCollisionDispatcher::btCollisionDispatcher (btCollisionConfiguration* collisionConfiguration): 

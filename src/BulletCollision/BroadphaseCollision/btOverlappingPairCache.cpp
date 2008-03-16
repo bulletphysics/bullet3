@@ -163,7 +163,7 @@ btBroadphasePair* btHashedOverlappingPairCache::findPair(btBroadphaseProxy* prox
 	return &m_overlappingPairArray[index];
 }
 
-#include <stdio.h>
+//#include <stdio.h>
 
 void	btHashedOverlappingPairCache::growTables()
 {
@@ -349,7 +349,7 @@ void* btHashedOverlappingPairCache::removeOverlappingPair(btBroadphaseProxy* pro
 
 	return userData;
 }
-#include <stdio.h>
+//#include <stdio.h>
 
 void	btHashedOverlappingPairCache::processAllOverlappingPairs(btOverlapCallback* callback,btDispatcher* dispatcher)
 {
@@ -450,7 +450,7 @@ btBroadphasePair*	btSortedOverlappingPairCache::addOverlappingPair(btBroadphaseP
 
 
 
-#include <stdio.h>
+//#include <stdio.h>
 
 void	btSortedOverlappingPairCache::processAllOverlappingPairs(btOverlapCallback* callback,btDispatcher* dispatcher)
 {

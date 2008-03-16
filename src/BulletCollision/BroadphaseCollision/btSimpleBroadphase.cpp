@@ -83,7 +83,7 @@ btSimpleBroadphase::~btSimpleBroadphase()
 }
 
 
-btBroadphaseProxy*	btSimpleBroadphase::createProxy(  const btVector3& aabbMin,  const btVector3& aabbMax,int shapeType,void* userPtr ,short int collisionFilterGroup,short int collisionFilterMask, btDispatcher* dispatcher)
+btBroadphaseProxy*	btSimpleBroadphase::createProxy(  const btVector3& aabbMin,  const btVector3& aabbMax,int shapeType,void* userPtr ,short int collisionFilterGroup,short int collisionFilterMask, btDispatcher* dispatcher,void* multiSapProxy)
 {
 	if (m_numHandles >= m_maxHandles)
 	{
@@ -93,7 +93,7 @@ btBroadphaseProxy*	btSimpleBroadphase::createProxy(  const btVector3& aabbMin,  
 	assert(aabbMin[0]<= aabbMax[0] && aabbMin[1]<= aabbMax[1] && aabbMin[2]<= aabbMax[2]);
 
 	int newHandleIndex = allocHandle();
-	btSimpleBroadphaseProxy* proxy = new (&m_pHandles[newHandleIndex])btSimpleBroadphaseProxy(aabbMin,aabbMax,shapeType,userPtr,collisionFilterGroup,collisionFilterMask);
+	btSimpleBroadphaseProxy* proxy = new (&m_pHandles[newHandleIndex])btSimpleBroadphaseProxy(aabbMin,aabbMax,shapeType,userPtr,collisionFilterGroup,collisionFilterMask,multiSapProxy);
 
 	return proxy;
 }
@@ -227,7 +227,7 @@ void	btSimpleBroadphase::calculateOverlappingPairs(btDispatcher* dispatcher)
 			btBroadphasePairArray&	overlappingPairArray = m_pairCache->getOverlappingPairArray();
 
 			//perform a sort, to find duplicates and to sort 'invalid' pairs to the end
-			overlappingPairArray.heapSort(btBroadphasePairSortPredicate());
+			overlappingPairArray.quickSort(btBroadphasePairSortPredicate());
 
 			overlappingPairArray.resize(overlappingPairArray.size() - m_invalidPair);
 			m_invalidPair = 0;
@@ -288,7 +288,7 @@ void	btSimpleBroadphase::calculateOverlappingPairs(btDispatcher* dispatcher)
 		#ifdef CLEAN_INVALID_PAIRS
 
 			//perform a sort, to sort 'invalid' pairs to the end
-			overlappingPairArray.heapSort(btBroadphasePairSortPredicate());
+			overlappingPairArray.quickSort(btBroadphasePairSortPredicate());
 
 			overlappingPairArray.resize(overlappingPairArray.size() - m_invalidPair);
 			m_invalidPair = 0;

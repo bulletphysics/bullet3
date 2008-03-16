@@ -7,7 +7,7 @@
 #include "BulletCollision/CollisionDispatch/btCollisionObject.h"
 #include "BulletCollision/CollisionDispatch/btCollisionWorld.h"
 
-#include <stdio.h>
+//#include <stdio.h>
 #include "LinearMath/btQuickprof.h"
 
 btSimulationIslandManager::btSimulationIslandManager()
@@ -138,7 +138,7 @@ class btPersistentManifoldSortPredicate
 void btSimulationIslandManager::buildAndProcessIslands(btDispatcher* dispatcher,btCollisionObjectArray& collisionObjects, IslandCallback* callback)
 {
 
-	BT_PROFILE("islandUnionFindAndHeapSort");
+	BT_PROFILE("islandUnionFindAndQuickSort");
 	
 	//we are going to sort the unionfind array, and store the element id in the size
 	//afterwards, we clean unionfind, to make sure no-one uses it anymore
@@ -170,7 +170,7 @@ void btSimulationIslandManager::buildAndProcessIslands(btDispatcher* dispatcher,
 			btCollisionObject* colObj0 = collisionObjects[i];
 			if ((colObj0->getIslandTag() != islandId) && (colObj0->getIslandTag() != -1))
 			{
-				printf("error in island management\n");
+//				printf("error in island management\n");
 			}
 
 			assert((colObj0->getIslandTag() == islandId) || (colObj0->getIslandTag() == -1));
@@ -197,7 +197,7 @@ void btSimulationIslandManager::buildAndProcessIslands(btDispatcher* dispatcher,
 				btCollisionObject* colObj0 = collisionObjects[i];
 				if ((colObj0->getIslandTag() != islandId) && (colObj0->getIslandTag() != -1))
 				{
-					printf("error in island management\n");
+//					printf("error in island management\n");
 				}
 
 				assert((colObj0->getIslandTag() == islandId) || (colObj0->getIslandTag() == -1));
@@ -218,7 +218,7 @@ void btSimulationIslandManager::buildAndProcessIslands(btDispatcher* dispatcher,
 				btCollisionObject* colObj0 = collisionObjects[i];
 				if ((colObj0->getIslandTag() != islandId) && (colObj0->getIslandTag() != -1))
 				{
-					printf("error in island management\n");
+//					printf("error in island management\n");
 				}
 
 				assert((colObj0->getIslandTag() == islandId) || (colObj0->getIslandTag() == -1));
@@ -286,7 +286,7 @@ void btSimulationIslandManager::buildAndProcessIslands(btDispatcher* dispatcher,
 	int numManifolds = int (m_islandmanifold.size());
 
 	//we should do radix sort, it it much faster (O(n) instead of O (n log2(n))
-	m_islandmanifold.heapSort(btPersistentManifoldSortPredicate());
+	m_islandmanifold.quickSort(btPersistentManifoldSortPredicate());
 
 	//now process all active islands (sets of manifolds for now)
 

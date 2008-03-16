@@ -278,11 +278,11 @@ void btParallelSequentialImpulseSolver::allSolved (const btContactSolverInfo& in
 
 	// Sort the manifolds list
 	int numManifolds = m_sortedManifolds.size();
-	m_sortedManifolds.heapSort(CellHolderPredicate<ManifoldCellHolder>());
+	m_sortedManifolds.quickSort(CellHolderPredicate<ManifoldCellHolder>());
 
 	// Sort the constraint list
 	int numConstraints = m_sortedConstraints.size();
-	m_sortedConstraints.heapSort(CellHolderPredicate<ConstraintCellHolder>());
+	m_sortedConstraints.quickSort(CellHolderPredicate<ConstraintCellHolder>());
 
 
 	// Sort the body list
