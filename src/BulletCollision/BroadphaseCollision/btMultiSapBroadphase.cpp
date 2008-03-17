@@ -316,25 +316,28 @@ void	btMultiSapBroadphase::setAabb(btBroadphaseProxy* proxy,const btVector3& aab
 bool stopUpdating=false;
 
 
-	///calculateOverlappingPairs is optional: incremental algorithms (sweep and prune) might do it during the set aabb
-void	btMultiSapBroadphase::calculateOverlappingPairs(btDispatcher* dispatcher)
-{
-	class btMultiSapBroadphasePairSortPredicate
+
+class btMultiSapBroadphasePairSortPredicate
 {
 	public:
 
 		bool operator() ( const btBroadphasePair& a1, const btBroadphasePair& b1 )
 		{
-				btMultiSapProxy* aProxy0 = a1.m_pProxy0 ? (btMultiSapProxy*)a1.m_pProxy0->m_multiSapParentProxy : 0;
-				btMultiSapProxy* aProxy1 = a1.m_pProxy1 ? (btMultiSapProxy*)a1.m_pProxy1->m_multiSapParentProxy : 0;
-				btMultiSapProxy* bProxy0 = b1.m_pProxy0 ? (btMultiSapProxy*)b1.m_pProxy0->m_multiSapParentProxy : 0;
-				btMultiSapProxy* bProxy1 = b1.m_pProxy1 ? (btMultiSapProxy*)b1.m_pProxy1->m_multiSapParentProxy : 0;
+				btMultiSapBroadphase::btMultiSapProxy* aProxy0 = a1.m_pProxy0 ? (btMultiSapBroadphase::btMultiSapProxy*)a1.m_pProxy0->m_multiSapParentProxy : 0;
+				btMultiSapBroadphase::btMultiSapProxy* aProxy1 = a1.m_pProxy1 ? (btMultiSapBroadphase::btMultiSapProxy*)a1.m_pProxy1->m_multiSapParentProxy : 0;
+				btMultiSapBroadphase::btMultiSapProxy* bProxy0 = b1.m_pProxy0 ? (btMultiSapBroadphase::btMultiSapProxy*)b1.m_pProxy0->m_multiSapParentProxy : 0;
+				btMultiSapBroadphase::btMultiSapProxy* bProxy1 = b1.m_pProxy1 ? (btMultiSapBroadphase::btMultiSapProxy*)b1.m_pProxy1->m_multiSapParentProxy : 0;
 
 				 return aProxy0 > bProxy0 || 
 					(aProxy0 == bProxy0 && aProxy1 > bProxy1) ||
 					(aProxy0 == bProxy0 && aProxy1 == bProxy1 && a1.m_algorithm > b1.m_algorithm); 
 		}
 };
+
+
+        ///calculateOverlappingPairs is optional: incremental algorithms (sweep and prune) might do it during the set aabb
+void    btMultiSapBroadphase::calculateOverlappingPairs(btDispatcher* dispatcher)
+{
 
 //	m_simpleBroadphase->calculateOverlappingPairs(dispatcher);
 
