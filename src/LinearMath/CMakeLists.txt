@@ -12,6 +12,7 @@ ADD_LIBRARY(LibLinearMath
 		btDefaultMotionState.h
 		btMatrix3x3.h
 		btQuadWord.h
+		btHashMap.h
 		btScalar.h
 		btAabbUtil2.h
 		btMinMax.h
@@ -24,7 +25,6 @@ ADD_LIBRARY(LibLinearMath
 		btIDebugDraw.h
 		btPoint3.h
 		btQuickprof.h
-		btTypedUserInfo.h
 		btTransformUtil.h
 		btQuickprof.cpp
 		btGeometryUtil.cpp
