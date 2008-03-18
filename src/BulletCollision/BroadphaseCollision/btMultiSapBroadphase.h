@@ -70,12 +70,12 @@ public:
 		short int	m_collisionFilterMask;
 */
 		btMultiSapProxy(const btVector3& aabbMin,  const btVector3& aabbMax,int shapeType,void* userPtr, short int collisionFilterGroup,short int collisionFilterMask)
-			:btBroadphaseProxy(userPtr,collisionFilterGroup,collisionFilterMask,this),
+			:btBroadphaseProxy(userPtr,collisionFilterGroup,collisionFilterMask),
 			m_aabbMin(aabbMin),
 			m_aabbMax(aabbMax),
 			m_shapeType(shapeType)
 		{
-
+			m_multiSapParentProxy =this;
 		}
 
 		
