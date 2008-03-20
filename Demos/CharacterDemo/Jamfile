@@ -1,0 +1,3 @@
+SubDir TOP Demos CharacterDemo ;
+
+BulletDemo CharacterDemo : [ Wildcard *.h *.cpp  ] ;
