@@ -30,6 +30,7 @@ subject to the following restrictions:
 #include "../GjkConvexCastDemo/LinearConvexCastDemo.h"
 #include "../VehicleDemo/VehicleDemo.h"
 #include "../ConstraintDemo/ConstraintDemo.h"
+#include "../Benchmarks/BenchmarkDemo.h"
 
 #include "GlutStuff.h"//OpenGL stuff
 #include "BMF_Api.h"//font stuff
@@ -113,7 +114,14 @@ btDemoEntry g_demoEntries[] =
 	{"Raytracer Test",Raytracer::Create},
 	{"GjkConvexCast",LinearConvexCastDemo::Create},
 	{"VehicleDemo",VehicleDemo::Create},
-	{"ConstraintDemo",ConstraintDemo::Create},
+	{"Benchmark 3000 FALL",BenchmarkDemo1::Create},
+	{"Benchmark 1000 STACK",BenchmarkDemo2::Create},
+	{"Benchmark 136 RAGDOLLS",BenchmarkDemo3::Create},
+	{"Benchmark 1000 CONVEX",BenchmarkDemo4::Create},
+	{"Benchmark Mesh-Prim",BenchmarkDemo5::Create},
+	{"Benchmark Mesh-Convex",BenchmarkDemo6::Create},
+	{"Benchmark Raycast",BenchmarkDemo7::Create},
+
 	{"MemoryLeakChecker",btEmptyDebugDemo::Create},	
 	{0, 0}
 };

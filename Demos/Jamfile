@@ -61,6 +61,7 @@ if $(GLUT.AVAILABLE) = "yes"
 
 SubInclude TOP Demos AllBulletDemos ;
 SubInclude TOP Demos CcdPhysicsDemo ;
+SubInclude TOP Demos Benchmarks ;
 SubInclude TOP Demos UserCollisionAlgorithm ;
 SubInclude TOP Demos MultiThreadedDemo ;
 #SubInclude TOP Demos ForkLiftDemo ;
