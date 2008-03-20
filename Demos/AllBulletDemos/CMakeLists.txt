@@ -60,6 +60,7 @@ ADD_EXECUTABLE(AllBulletDemos
 	DemoEntries.cpp
  	 ../CcdPhysicsDemo/CcdPhysicsDemo.cpp
         ../BasicDemo/BasicDemo.cpp
+	../Benchmarks/BenchmarkDemo.cpp
         ../BspDemo/BspDemo.cpp
         ../BspDemo/BspConverter.cpp
         ../BspDemo/BspLoader.cpp
