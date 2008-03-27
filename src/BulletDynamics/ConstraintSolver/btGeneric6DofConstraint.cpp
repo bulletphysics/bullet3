@@ -379,6 +379,14 @@ bool btGeneric6DofConstraint::testAngularLimitMotor(int axis_index)
 
 void btGeneric6DofConstraint::buildJacobian()
 {
+
+	// Clear accumulated impulses for the next simulation step
+    m_linearLimits.m_accumulatedImpulse.setValue(btScalar(0.), btScalar(0.), btScalar(0.));
+    int i;
+    for(i = 0; i < 3; i++)
+    {
+        m_angularLimits[i].m_accumulatedImpulse = btScalar(0.);
+    }
     //calculates transform
     calculateTransforms();
 
@@ -390,7 +398,6 @@ void btGeneric6DofConstraint::buildJacobian()
     btVector3 rel_pos2 = pivotBInW - m_rbB.getCenterOfMassPosition();
 
     btVector3 normalWorld;
-    int i;
     //linear part
     for (i=0;i<3;i++)
     {
