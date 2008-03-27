@@ -138,6 +138,10 @@ btShapeHull::buildHull (btScalar margin)
 	{
 		m_indices[i] = hr.mIndices[i];
 	}
+
+	// free temporary hull result that we just copied
+	hl.ReleaseResult (hr);
+
 	return true;
 }
 
