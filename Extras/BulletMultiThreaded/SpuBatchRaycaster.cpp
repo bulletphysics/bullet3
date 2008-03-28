@@ -14,6 +14,7 @@ subject to the following restrictions:
 */
 
 #include <new>
+#include "BulletCollision/CollisionShapes/btCollisionShape.h"
 #include "LinearMath/btAlignedAllocator.h"
 #include "SpuBatchRaycaster.h"
 
@@ -55,10 +56,57 @@ SpuBatchRaycaster::setCollisionObjects (btCollisionObjectArray& castUponObjects,
 }
 
 void
-SpuBatchRaycaster::addRay (const btVector3& rayFrom, const btVector3& rayTo)
+SpuBatchRaycaster::setCollisionObjectsSkipPE (btCollisionObjectArray& castUponObjects, int numCastUponObjects)
+{
+	if (castUponObjectWrappers)
+	{
+		btAlignedFree (castUponObjectWrappers);
+		castUponObjectWrappers = NULL;
+	}
+
+	int numNonPEShapes = 0;
+	for (int i = 0; i < numCastUponObjects; i++)
+	{
+		const btCollisionShape* shape = castUponObjects[i]->getCollisionShape();
+
+		if (shape->getShapeType () == BOX_SHAPE_PROXYTYPE ||
+			shape->getShapeType () == SPHERE_SHAPE_PROXYTYPE ||
+			shape->getShapeType () == CAPSULE_SHAPE_PROXYTYPE)
+		{
+			continue;
+		}
+
+		numNonPEShapes++;
+	}
+
+	castUponObjectWrappers = (SpuCollisionObjectWrapper*)btAlignedAlloc (sizeof(SpuCollisionObjectWrapper) * numNonPEShapes,16);
+	numCastUponObjectWrappers = numNonPEShapes;
+
+	int index = 0;
+	for (int i = 0; i < numCastUponObjects; i++)
+	{
+		const btCollisionShape* shape = castUponObjects[i]->getCollisionShape();
+
+		if (shape->getShapeType () == BOX_SHAPE_PROXYTYPE ||
+			shape->getShapeType () == SPHERE_SHAPE_PROXYTYPE ||
+			shape->getShapeType () == CAPSULE_SHAPE_PROXYTYPE)
+		{
+			continue;
+		}
+
+		castUponObjectWrappers[index] = SpuCollisionObjectWrapper(castUponObjects[i]);
+		index++;
+	}
+
+	printf("Number of shapes bullet is casting against: %d\n", numNonPEShapes);
+	btAssert (index == numNonPEShapes);
+}
+
+void
+SpuBatchRaycaster::addRay (const btVector3& rayFrom, const btVector3& rayTo, const btScalar hitFraction)
 {
 	SpuRaycastTaskWorkUnitOut workUnitOut;
-	workUnitOut.hitFraction = 1.0;
+	workUnitOut.hitFraction = hitFraction;
 	workUnitOut.hitNormal = btVector3(0.0, 1.0, 0.0);
 
 	rayBatchOutput.push_back (workUnitOut);

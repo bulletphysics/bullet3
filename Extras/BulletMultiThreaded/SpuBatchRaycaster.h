@@ -38,8 +38,8 @@ public:
 	SpuBatchRaycaster (class btThreadSupportInterface* threadInterface, int maxNumOutstandingTasks);
 	~SpuBatchRaycaster ();
 	void setCollisionObjects (btCollisionObjectArray& castUponObjects, int numCastUponObjects);
-
-	void addRay (const btVector3& rayFrom, const btVector3& rayTo);
+	void setCollisionObjectsSkipPE (btCollisionObjectArray& castUponObjects, int numCastUponObjects);
+	void addRay (const btVector3& rayFrom, const btVector3& rayTo, const btScalar hitFraction = 1.0);
 	void clearRays ();
 	void performBatchRaycast ();
 	const SpuRaycastTaskWorkUnitOut& operator [] (int i) const;
