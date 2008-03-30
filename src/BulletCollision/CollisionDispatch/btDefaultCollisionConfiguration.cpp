@@ -21,7 +21,7 @@ subject to the following restrictions:
 #include "BulletCollision/CollisionDispatch/btConvexConcaveCollisionAlgorithm.h"
 #include "BulletCollision/CollisionDispatch/btCompoundCollisionAlgorithm.h"
 #include "BulletCollision/CollisionDispatch/btConvexPlaneCollisionAlgorithm.h"
-
+#include "BulletCollision/CollisionDispatch/btBoxBoxCollisionAlgorithm.h"
 #include "BulletCollision/CollisionDispatch/btSphereSphereCollisionAlgorithm.h"
 #include "BulletCollision/CollisionDispatch/btSphereBoxCollisionAlgorithm.h"
 #include "BulletCollision/CollisionDispatch/btSphereTriangleCollisionAlgorithm.h"
@@ -73,6 +73,9 @@ btDefaultCollisionConfiguration::btDefaultCollisionConfiguration(btStackAlloc*	s
 	mem = btAlignedAlloc(sizeof(btSphereTriangleCollisionAlgorithm::CreateFunc),16);
 	m_triangleSphereCF = new (mem)btSphereTriangleCollisionAlgorithm::CreateFunc;
 	m_triangleSphereCF->m_swapped = true;
+	
+	mem = btAlignedAlloc(sizeof(btBoxBoxCollisionAlgorithm::CreateFunc),16);
+	m_boxBoxCF = new(mem)btBoxBoxCollisionAlgorithm::CreateFunc;
 
 	//convex versus plane
 	mem = btAlignedAlloc (sizeof(btConvexPlaneCollisionAlgorithm::CreateFunc),16);
@@ -174,6 +177,8 @@ btDefaultCollisionConfiguration::~btDefaultCollisionConfiguration()
 	btAlignedFree( m_sphereTriangleCF);
 	m_triangleSphereCF->~btCollisionAlgorithmCreateFunc();
 	btAlignedFree( m_triangleSphereCF);
+	m_boxBoxCF->~btCollisionAlgorithmCreateFunc();
+	btAlignedFree( m_boxBoxCF);
 
 	m_convexPlaneCF->~btCollisionAlgorithmCreateFunc();
 	btAlignedFree( m_convexPlaneCF);
@@ -217,6 +222,11 @@ btCollisionAlgorithmCreateFunc* btDefaultCollisionConfiguration::getCollisionAlg
 	if ((proxyType0 == TRIANGLE_SHAPE_PROXYTYPE  ) && (proxyType1==SPHERE_SHAPE_PROXYTYPE))
 	{
 		return	m_triangleSphereCF;
+	}
+
+	if ((proxyType0 == BOX_SHAPE_PROXYTYPE) && (proxyType1 == BOX_SHAPE_PROXYTYPE))
+	{
+		return m_boxBoxCF;
 	}
 	
 	if (btBroadphaseProxy::isConvex(proxyType0) && (proxyType1 == STATIC_PLANE_PROXYTYPE))
