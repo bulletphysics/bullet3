@@ -24,7 +24,7 @@ GLDebugDrawer::GLDebugDrawer()
 }
 void	GLDebugDrawer::drawLine(const btVector3& from,const btVector3& to,const btVector3& color)
 {
-	if (m_debugMode > 0)
+//	if (m_debugMode > 0)
 	{
 		glBegin(GL_LINES);
 		glColor3f(color.getX(), color.getY(), color.getZ());

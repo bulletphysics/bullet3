@@ -111,6 +111,8 @@ ADD_LIBRARY(LibBulletCollision
 				NarrowPhaseCollision/btContinuousConvexCollision.h
 				NarrowPhaseCollision/btGjkEpa.cpp
 				NarrowPhaseCollision/btGjkEpa.h
+				NarrowPhaseCollision/btGjkEpa2.cpp
+				NarrowPhaseCollision/btGjkEpa2.h
 				NarrowPhaseCollision/btGjkEpaPenetrationDepthSolver.cpp
 				NarrowPhaseCollision/btGjkEpaPenetrationDepthSolver.h
 				NarrowPhaseCollision/btConvexCast.cpp

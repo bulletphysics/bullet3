@@ -55,6 +55,17 @@ class	btIDebugDraw
 	virtual ~btIDebugDraw() {};
 
 	virtual void	drawLine(const btVector3& from,const btVector3& to,const btVector3& color)=0;
+	
+	virtual	void	drawTriangle(const btVector3& v0,const btVector3& v1,const btVector3& v2,const btVector3& n0,const btVector3& n1,const btVector3& n2,const btVector3& color, btScalar alpha)
+	{
+		drawTriangle(v0,v1,v2,color,alpha);
+	}
+	virtual	void	drawTriangle(const btVector3& v0,const btVector3& v1,const btVector3& v2,const btVector3& color, btScalar alpha)
+	{
+		drawLine(v0,v1,color);
+		drawLine(v1,v2,color);
+		drawLine(v2,v0,color);
+	}
 
 	virtual void	drawContactPoint(const btVector3& PointOnB,const btVector3& normalOnB,btScalar distance,int lifeTime,const btVector3& color)=0;
 
