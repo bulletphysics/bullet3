@@ -24,6 +24,7 @@ ADD_LIBRARY(LibBulletDynamics
 	ConstraintSolver/btOdeContactJoint.h
 	ConstraintSolver/btOdeJoint.cpp
 	ConstraintSolver/btOdeJoint.h
+	ConstraintSolver/btOdeSolverBody.h
 	ConstraintSolver/btOdeQuickstepConstraintSolver.cpp
 	ConstraintSolver/btOdeQuickstepConstraintSolver.h
 	ConstraintSolver/btOdeTypedJoint.cpp
@@ -43,4 +44,8 @@ ADD_LIBRARY(LibBulletDynamics
 	Vehicle/btRaycastVehicle.h
 	Vehicle/btWheelInfo.cpp
 	Vehicle/btWheelInfo.h
+	btSoftBody.cpp
+	btSoftBody.h
+	btSoftBodyHelpers.cpp
+	btSparseSDF.h
 )

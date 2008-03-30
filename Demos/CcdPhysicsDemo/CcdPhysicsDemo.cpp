@@ -20,7 +20,6 @@ subject to the following restrictions:
 //Note: some of those settings need 'DO_WALL' demo
 //#define USE_KINEMATIC_GROUND 1
 //#define PRINT_CONTACT_STATISTICS 1
-//#define REGISTER_BOX_BOX 1 //needs to be used in combination with REGISTER_CUSTOM_COLLISION_ALGORITHM
 //#define USER_DEFINED_FRICTION_MODEL 1
 //#define USE_CUSTOM_NEAR_CALLBACK 1
 //#define CENTER_OF_MASS_SHIFT 1
@@ -29,16 +28,12 @@ subject to the following restrictions:
 //#define USE_PARALLEL_SOLVER 1 //experimental parallel solver
 //#define USE_PARALLEL_DISPATCHER 1
 
-//following define allows to compare/replace Bullet's constraint solver with ODE quickstep
-//this define requires to either add the libquickstep library (win32, see msvc/8/libquickstep.vcproj) or manually add the files from Extras/quickstep
+//from Bullet 2.68 onwards ODE Quickstep constraint solver is optional part of Bullet, re-distributed under the ZLib license with permission of Russell L. Smith
 //#define COMPARE_WITH_QUICKSTEP 1
 
 
 #include "btBulletDynamicsCommon.h"
 #include "BulletCollision/CollisionDispatch/btSphereSphereCollisionAlgorithm.h"
-#ifdef REGISTER_BOX_BOX
-#include "../Extras/AlternativeCollisionAlgorithms/BoxBoxCollisionAlgorithm.h"
-#endif //REGISTER_BOX_BOX
 #include "BulletCollision/CollisionDispatch/btSphereTriangleCollisionAlgorithm.h"
 
 #ifdef USE_PARALLEL_DISPATCHER
@@ -60,9 +55,6 @@ subject to the following restrictions:
 #endif//USE_PARALLEL_DISPATCHER
 
 
-#ifdef COMPARE_WITH_QUICKSTEP
-#include "../Extras/quickstep/OdeConstraintSolver.h"
-#endif //COMPARE_WITH_QUICKSTEP
 
 #include "LinearMath/btQuickprof.h"
 #include "LinearMath/btIDebugDraw.h"
@@ -419,12 +411,9 @@ int maxNumOutstandingTasks = 4;
 //	m_broadphase = new btSimpleBroadphase;
 	
 	//box-box is in Extras/AlternativeCollisionAlgorithms:it requires inclusion of those files
-#ifdef REGISTER_BOX_BOX
-	m_dispatcher->registerCollisionCreateFunc(BOX_SHAPE_PROXYTYPE,BOX_SHAPE_PROXYTYPE,new BoxBoxCollisionAlgorithm::CreateFunc);
-#endif //REGISTER_BOX_BOX
 
 #ifdef COMPARE_WITH_QUICKSTEP
-	m_solver = new OdeConstraintSolver();
+	m_solver = new btOdeQuickstepConstraintSolver();
 #else
 
 	

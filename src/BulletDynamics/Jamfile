@@ -3,6 +3,7 @@ SubDir TOP src BulletDynamics ;
 Description bulletdynamics : "Bullet Rigidbody Dynamics" ;
 Library bulletdynamics : 
   [ Wildcard ConstraintSolver : *.h *.cpp ] 
+  [ Wildcard SoftBody : *.h *.cpp ]
   [ Wildcard Dynamics : *.h *.cpp ] 
   [ Wildcard Vehicle : *.h *.cpp ] 
 ;

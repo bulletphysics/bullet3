@@ -23,8 +23,8 @@ subject to the following restrictions:
 #include "LinearMath/btQuickprof.h"
 #include "LinearMath/btIDebugDraw.h"
 #include "BMF_Api.h"
-#include "demos\gimpacttestdemo\bunnymesh.h"
-#include "demos\gimpacttestdemo\torusmesh.h"
+#include "../GimpactTestDemo/BunnyMesh.h"
+#include "../GimpactTestDemo/TorusMesh.h"
 #include <stdio.h> //printf debugging
 
 static float	gCollisionMargin = 0.05f/*0.05f*/;

@@ -17,6 +17,9 @@ subject to the following restrictions:
 #ifndef _14F9D17F_EAE8_4aba_B41C_292DB2AA70F3_
 #define _14F9D17F_EAE8_4aba_B41C_292DB2AA70F3_
 
+#include "BulletCollision/CollisionDispatch/btCollisionObject.h"
+#include "BulletCollision/NarrowphaseCollision/btGjkEpa2.h"
+
 template <const int CELLSIZE>
 struct	btSparseSdf
 	{
