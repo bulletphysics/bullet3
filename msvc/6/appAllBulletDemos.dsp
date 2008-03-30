@@ -162,6 +162,10 @@ SOURCE=..\..\Demos\AllBulletDemos\..\BasicDemo\BasicDemo.cpp
 # End Source File
 # Begin Source File
 
+SOURCE=..\..\Demos\AllBulletDemos\..\Benchmarks\BenchmarkDemo.cpp
+# End Source File
+# Begin Source File
+
 SOURCE=..\..\Demos\AllBulletDemos\..\BspDemo\BspConverter.cpp
 # End Source File
 # Begin Source File

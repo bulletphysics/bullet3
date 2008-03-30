@@ -196,6 +196,10 @@ SOURCE=..\..\src\LinearMath\btGeometryUtil.h
 # End Source File
 # Begin Source File
 
+SOURCE=..\..\src\LinearMath\btHashMap.h
+# End Source File
+# Begin Source File
+
 SOURCE=..\..\src\LinearMath\btIDebugDraw.h
 # End Source File
 # Begin Source File
@@ -253,10 +257,6 @@ SOURCE=..\..\src\LinearMath\btTransform.h
 # Begin Source File
 
 SOURCE=..\..\src\LinearMath\btTransformUtil.h
-# End Source File
-# Begin Source File
-
-SOURCE=..\..\src\LinearMath\btTypedUserInfo.h
 # End Source File
 # Begin Source File
 

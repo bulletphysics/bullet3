@@ -188,6 +188,14 @@ SOURCE=..\..\src\BulletCollision\BroadphaseCollision\btSimpleBroadphase.cpp
 # End Source File
 # Begin Source File
 
+SOURCE=..\..\src\BulletCollision\CollisionDispatch\btBoxBoxCollisionAlgorithm.cpp
+# End Source File
+# Begin Source File
+
+SOURCE=..\..\src\BulletCollision\CollisionDispatch\btBoxBoxDetector.cpp
+# End Source File
+# Begin Source File
+
 SOURCE=..\..\src\BulletCollision\CollisionDispatch\btCollisionDispatcher.cpp
 # End Source File
 # Begin Source File
@@ -380,6 +388,10 @@ SOURCE=..\..\src\BulletCollision\NarrowPhaseCollision\btGjkEpa.cpp
 # End Source File
 # Begin Source File
 
+SOURCE=..\..\src\BulletCollision\NarrowPhaseCollision\btGjkEpa2.cpp
+# End Source File
+# Begin Source File
+
 SOURCE=..\..\src\BulletCollision\NarrowPhaseCollision\btGjkEpaPenetrationDepthSolver.cpp
 # End Source File
 # Begin Source File
@@ -445,6 +457,14 @@ SOURCE=..\..\src\BulletCollision\BroadphaseCollision\btOverlappingPairCallback.h
 # Begin Source File
 
 SOURCE=..\..\src\BulletCollision\BroadphaseCollision\btSimpleBroadphase.h
+# End Source File
+# Begin Source File
+
+SOURCE=..\..\src\BulletCollision\CollisionDispatch\btBoxBoxCollisionAlgorithm.h
+# End Source File
+# Begin Source File
+
+SOURCE=..\..\src\BulletCollision\CollisionDispatch\btBoxBoxDetector.h
 # End Source File
 # Begin Source File
 
@@ -661,6 +681,10 @@ SOURCE=..\..\src\BulletCollision\NarrowPhaseCollision\btGjkConvexCast.h
 # Begin Source File
 
 SOURCE=..\..\src\BulletCollision\NarrowPhaseCollision\btGjkEpa.h
+# End Source File
+# Begin Source File
+
+SOURCE=..\..\src\BulletCollision\NarrowPhaseCollision\btGjkEpa2.h
 # End Source File
 # Begin Source File
 

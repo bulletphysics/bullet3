@@ -308,6 +308,12 @@
 				RelativePath="..\..\src\BulletCollision\BroadphaseCollision\btSimpleBroadphase.cpp">
 			</File>
 			<File
+				RelativePath="..\..\src\BulletCollision\CollisionDispatch\btBoxBoxCollisionAlgorithm.cpp">
+			</File>
+			<File
+				RelativePath="..\..\src\BulletCollision\CollisionDispatch\btBoxBoxDetector.cpp">
+			</File>
+			<File
 				RelativePath="..\..\src\BulletCollision\CollisionDispatch\btCollisionDispatcher.cpp">
 			</File>
 			<File
@@ -452,6 +458,9 @@
 				RelativePath="..\..\src\BulletCollision\NarrowPhaseCollision\btGjkEpa.cpp">
 			</File>
 			<File
+				RelativePath="..\..\src\BulletCollision\NarrowPhaseCollision\btGjkEpa2.cpp">
+			</File>
+			<File
 				RelativePath="..\..\src\BulletCollision\NarrowPhaseCollision\btGjkEpaPenetrationDepthSolver.cpp">
 			</File>
 			<File
@@ -502,6 +511,12 @@
 			</File>
 			<File
 				RelativePath="..\..\src\BulletCollision\BroadphaseCollision\btSimpleBroadphase.h">
+			</File>
+			<File
+				RelativePath="..\..\src\BulletCollision\CollisionDispatch\btBoxBoxCollisionAlgorithm.h">
+			</File>
+			<File
+				RelativePath="..\..\src\BulletCollision\CollisionDispatch\btBoxBoxDetector.h">
 			</File>
 			<File
 				RelativePath="..\..\src\BulletCollision\CollisionDispatch\btCollisionConfiguration.h">
@@ -664,6 +679,9 @@
 			</File>
 			<File
 				RelativePath="..\..\src\BulletCollision\NarrowPhaseCollision\btGjkEpa.h">
+			</File>
+			<File
+				RelativePath="..\..\src\BulletCollision\NarrowPhaseCollision\btGjkEpa2.h">
 			</File>
 			<File
 				RelativePath="..\..\src\BulletCollision\NarrowPhaseCollision\btGjkEpaPenetrationDepthSolver.h">

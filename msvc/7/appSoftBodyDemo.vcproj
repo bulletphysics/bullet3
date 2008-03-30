@@ -2,8 +2,8 @@
 <VisualStudioProject
 	ProjectType="Visual C++"
 	Version="7.00"
-	Name="libboxbox"
-	ProjectGUID="{B6257B39-1C3C-09FF-BD85-AAC75B140A19}"
+	Name="appSoftBodyDemo"
+	ProjectGUID="{106E3D23-110E-5DD8-4A6A-D8A2250C43C9}"
 	SccProjectName=""
 	SccLocalPath="">
 	<Platforms>
@@ -13,9 +13,11 @@
 	<Configurations>
 		<Configuration
 			Name="Release|Win32"
-			OutputDirectory="..\..\out\release7\build\libboxbox\"
-			IntermediateDirectory="..\..\out\release7\build\libboxbox\"
-			ConfigurationType="4"
+			OutputDirectory="..\..\out\release7\build\appSoftBodyDemo\"
+			IntermediateDirectory="..\..\out\release7\build\appSoftBodyDemo\"
+			ConfigurationType="1"
+			CharacterSet="2"
+			WholeProgramOptimization="1"
 			UseOfMFC="0"
 			ATLMinimizesCRunTimeLibraryUsage="FALSE">
 			<Tool
@@ -26,15 +28,15 @@
 				RuntimeLibrary="0"
 				DebugInformationFormat="3"
 				BufferSecurityCheck="FALSE"
-				PreprocessorDefinitions="NDEBUG;_LIB;_WINDOWS;WIN32"
+				PreprocessorDefinitions="NDEBUG;_CONSOLE;WIN32"
 				OptimizeForProcessor="1"
 				ExceptionHandling="0"
 				AdditionalOptions=" "
-				AdditionalIncludeDirectories=".;..\..;..\..\src"
-				PrecompiledHeaderFile="..\..\out\release7\build\libboxbox\libboxbox.pch"
-				AssemblerListingLocation="..\..\out\release7\build\libboxbox\"
-				ObjectFile="..\..\out\release7\build\libboxbox\"
-				ProgramDataBaseFileName="..\..\out\release7\build\libboxbox\boxbox.pdb"
+				AdditionalIncludeDirectories=".;..\..;..\..\src;..\..\Glut;..\..\Demos\OpenGL;..\..\Extras\ConvexHull"
+				PrecompiledHeaderFile="..\..\out\release7\build\appSoftBodyDemo\appSoftBodyDemo.pch"
+				AssemblerListingLocation="..\..\out\release7\build\appSoftBodyDemo\"
+				ObjectFile="..\..\out\release7\build\appSoftBodyDemo\"
+				ProgramDataBaseFileName="..\..\out\release7\build\appSoftBodyDemo\SoftBodyDemo.pdb"
 				WarningLevel="3"
 				SuppressStartupBanner="TRUE"
 				Detect64BitPortabilityProblems="TRUE"
@@ -49,25 +51,26 @@
 				EnableCOMDATFolding="2"
 				GenerateDebugInformation="TRUE"
 				IgnoreDefaultLibraryNames="LIBC,LIBCD"
+				OutputFile="..\..\ReleaseSoftBodyDemo.exe"
+				SubSystem="1"
 				AdditionalOptions=" "
-				AdditionalDependencies=""
+				AdditionalDependencies="glut32.lib"
 				IgnoreImportLibrary="TRUE"
 				SuppressStartupBanner="TRUE"
 				GenerateManifest="false"
-				AdditionalLibraryDirectories=""
-				ProgramDatabaseFile="..\..\out\release7\build\libboxbox\boxbox.pdb"
+				AdditionalLibraryDirectories="..\..\Glut"
+				ProgramDatabaseFile="..\..\out\release7\build\appSoftBodyDemo\SoftBodyDemo.pdb"
 				TargetMachine="1"/>
 			<Tool
 				Name="VCLibrarianTool"
-				OutputFile="..\..\out\release7\libs\libboxbox.lib"
 				SuppressStartupBanner="TRUE"/>
 			<Tool
 				Name="VCMIDLTool"
-				PreprocessorDefinitions="NDEBUG;_LIB;_WINDOWS"
+				PreprocessorDefinitions="NDEBUG;_CONSOLE"
 				MkTypLibCompatible="TRUE"
 				SuppressStartupBanner="TRUE"
 				TargetEnvironment="1"
-				TypeLibraryName="..\..\out\release7\build\libboxbox\libboxbox.tlb"/>
+				TypeLibraryName="..\..\out\release7\build\appSoftBodyDemo\appSoftBodyDemo.tlb"/>
 			<Tool
 				Name="VCPostBuildEventTool"/>
 			<Tool
@@ -76,8 +79,8 @@
 				Name="VCPreLinkEventTool"/>
 			<Tool
 				Name="VCResourceCompilerTool"
-				PreprocessorDefinitions="NDEBUG;_LIB;_WINDOWS;PROJECTGEN_VERSION=7"
-				AdditionalIncludeDirectories=".;..\..;..\..\src"
+				PreprocessorDefinitions="NDEBUG;_CONSOLE;PROJECTGEN_VERSION=7"
+				AdditionalIncludeDirectories=".;..\..;..\..\src;..\..\Glut;..\..\Demos\OpenGL;..\..\Extras\ConvexHull"
 				Culture="1033"/>
 			<Tool
 				Name="VCWebServiceProxyGeneratorTool"/>
@@ -86,22 +89,23 @@
 		</Configuration>
 		<Configuration
 			Name="ReleaseDoublePrecision|Win32"
-			OutputDirectory="..\..\out\release_dbl7\build\libboxbox\"
-			IntermediateDirectory="..\..\out\release_dbl7\build\libboxbox\"
-			ConfigurationType="4"
+			OutputDirectory="..\..\out\release_dbl7\build\appSoftBodyDemo\"
+			IntermediateDirectory="..\..\out\release_dbl7\build\appSoftBodyDemo\"
+			ConfigurationType="1"
+			CharacterSet="2"
 			UseOfMFC="0"
 			ATLMinimizesCRunTimeLibraryUsage="FALSE">
 			<Tool
 				Name="VCCLCompilerTool"
-				PreprocessorDefinitions="NDEBUG;BT_USE_DOUBLE_PRECISION;_LIB;_WINDOWS;WIN32"
+				PreprocessorDefinitions="NDEBUG;BT_USE_DOUBLE_PRECISION;_CONSOLE;WIN32"
 				OptimizeForProcessor="1"
 				ExceptionHandling="0"
 				AdditionalOptions=" "
-				AdditionalIncludeDirectories=".;..\..;..\..\src"
-				PrecompiledHeaderFile="..\..\out\release_dbl7\build\libboxbox\libboxbox.pch"
-				AssemblerListingLocation="..\..\out\release_dbl7\build\libboxbox\"
-				ObjectFile="..\..\out\release_dbl7\build\libboxbox\"
-				ProgramDataBaseFileName="..\..\out\release_dbl7\build\libboxbox\boxbox.pdb"
+				AdditionalIncludeDirectories=".;..\..;..\..\src;..\..\Glut;..\..\Demos\OpenGL;..\..\Extras\ConvexHull"
+				PrecompiledHeaderFile="..\..\out\release_dbl7\build\appSoftBodyDemo\appSoftBodyDemo.pch"
+				AssemblerListingLocation="..\..\out\release_dbl7\build\appSoftBodyDemo\"
+				ObjectFile="..\..\out\release_dbl7\build\appSoftBodyDemo\"
+				ProgramDataBaseFileName="..\..\out\release_dbl7\build\appSoftBodyDemo\SoftBodyDemo.pdb"
 				WarningLevel="3"
 				SuppressStartupBanner="TRUE"
 				Detect64BitPortabilityProblems="TRUE"
@@ -111,24 +115,26 @@
 				Name="VCCustomBuildTool"/>
 			<Tool
 				Name="VCLinkerTool"
+                                OutputFile="..\..\ReleaseDblSoftBodyDemo.exe"
+                                SubSystem="1"
 				AdditionalOptions=" "
-				AdditionalDependencies=""
+				AdditionalDependencies="glut32.lib"
 				IgnoreImportLibrary="TRUE"
 				SuppressStartupBanner="TRUE"
 				GenerateManifest="false"
-				AdditionalLibraryDirectories=""
-				ProgramDatabaseFile="..\..\out\release_dbl7\build\libboxbox\boxbox.pdb"
+				AdditionalLibraryDirectories="..\..\Glut"
+				ProgramDatabaseFile="..\..\out\release_dbl7\build\appSoftBodyDemo\SoftBodyDemo.pdb"
 				TargetMachine="1"/>
 			<Tool
 				Name="VCLibrarianTool"
 				SuppressStartupBanner="TRUE"/>
 			<Tool
 				Name="VCMIDLTool"
-				PreprocessorDefinitions="NDEBUG;BT_USE_DOUBLE_PRECISION;_LIB;_WINDOWS"
+				PreprocessorDefinitions="NDEBUG;BT_USE_DOUBLE_PRECISION;_CONSOLE"
 				MkTypLibCompatible="TRUE"
 				SuppressStartupBanner="TRUE"
 				TargetEnvironment="1"
-				TypeLibraryName="..\..\out\release_dbl7\build\libboxbox\libboxbox.tlb"/>
+				TypeLibraryName="..\..\out\release_dbl7\build\appSoftBodyDemo\appSoftBodyDemo.tlb"/>
 			<Tool
 				Name="VCPostBuildEventTool"/>
 			<Tool
@@ -137,8 +143,8 @@
 				Name="VCPreLinkEventTool"/>
 			<Tool
 				Name="VCResourceCompilerTool"
-				PreprocessorDefinitions="NDEBUG;BT_USE_DOUBLE_PRECISION;_LIB;_WINDOWS;PROJECTGEN_VERSION=7"
-				AdditionalIncludeDirectories=".;..\..;..\..\src"
+				PreprocessorDefinitions="NDEBUG;BT_USE_DOUBLE_PRECISION;_CONSOLE;PROJECTGEN_VERSION=7"
+				AdditionalIncludeDirectories=".;..\..;..\..\src;..\..\Glut;..\..\Demos\OpenGL;..\..\Extras\ConvexHull"
 				Culture="1033"/>
 			<Tool
 				Name="VCWebServiceProxyGeneratorTool"/>
@@ -147,9 +153,10 @@
 		</Configuration>
 		<Configuration
 			Name="Debug|Win32"
-			OutputDirectory="..\..\out\debug7\build\libboxbox\"
-			IntermediateDirectory="..\..\out\debug7\build\libboxbox\"
-			ConfigurationType="4"
+			OutputDirectory="..\..\out\debug7\build\appSoftBodyDemo\"
+			IntermediateDirectory="..\..\out\debug7\build\appSoftBodyDemo\"
+			ConfigurationType="1"
+			CharacterSet="2"
 			UseOfMFC="0"
 			ATLMinimizesCRunTimeLibraryUsage="FALSE">
 			<Tool
@@ -159,15 +166,15 @@
 				DebugInformationFormat="4"
 				RuntimeTypeInfo="FALSE"
 				RuntimeLibrary="1"
-				PreprocessorDefinitions="_DEBUG;_LIB;_WINDOWS;WIN32"
+				PreprocessorDefinitions="_DEBUG;_CONSOLE;WIN32"
 				OptimizeForProcessor="1"
 				ExceptionHandling="0"
 				AdditionalOptions=" "
-				AdditionalIncludeDirectories=".;..\..;..\..\src"
-				PrecompiledHeaderFile="..\..\out\debug7\build\libboxbox\libboxbox.pch"
-				AssemblerListingLocation="..\..\out\debug7\build\libboxbox\"
-				ObjectFile="..\..\out\debug7\build\libboxbox\"
-				ProgramDataBaseFileName="..\..\out\debug7\build\libboxbox\boxbox.pdb"
+				AdditionalIncludeDirectories=".;..\..;..\..\src;..\..\Glut;..\..\Demos\OpenGL;..\..\Extras\ConvexHull"
+				PrecompiledHeaderFile="..\..\out\debug7\build\appSoftBodyDemo\appSoftBodyDemo.pch"
+				AssemblerListingLocation="..\..\out\debug7\build\appSoftBodyDemo\"
+				ObjectFile="..\..\out\debug7\build\appSoftBodyDemo\"
+				ProgramDataBaseFileName="..\..\out\debug7\build\appSoftBodyDemo\SoftBodyDemo.pdb"
 				WarningLevel="3"
 				SuppressStartupBanner="TRUE"
 				Detect64BitPortabilityProblems="TRUE"
@@ -180,25 +187,26 @@
 				LinkIncremental="2"
 				GenerateDebugInformation="TRUE"
 				IgnoreDefaultLibraryNames="LIBC,LIBCD"
+				OutputFile="..\..\DebugSoftBodyDemo.exe"
+				SubSystem="1"
 				AdditionalOptions=" "
-				AdditionalDependencies=""
+				AdditionalDependencies="glut32.lib"
 				IgnoreImportLibrary="TRUE"
 				SuppressStartupBanner="TRUE"
 				GenerateManifest="false"
-				AdditionalLibraryDirectories=""
-				ProgramDatabaseFile="..\..\out\debug7\build\libboxbox\boxbox.pdb"
+				AdditionalLibraryDirectories="..\..\Glut"
+				ProgramDatabaseFile="..\..\out\debug7\build\appSoftBodyDemo\SoftBodyDemo.pdb"
 				TargetMachine="1"/>
 			<Tool
 				Name="VCLibrarianTool"
-				OutputFile="..\..\out\debug7\libs\libboxbox_d.lib"
 				SuppressStartupBanner="TRUE"/>
 			<Tool
 				Name="VCMIDLTool"
-				PreprocessorDefinitions="_DEBUG;_LIB;_WINDOWS"
+				PreprocessorDefinitions="_DEBUG;_CONSOLE"
 				MkTypLibCompatible="TRUE"
 				SuppressStartupBanner="TRUE"
 				TargetEnvironment="1"
-				TypeLibraryName="..\..\out\debug7\build\libboxbox\libboxbox.tlb"/>
+				TypeLibraryName="..\..\out\debug7\build\appSoftBodyDemo\appSoftBodyDemo.tlb"/>
 			<Tool
 				Name="VCPostBuildEventTool"/>
 			<Tool
@@ -207,8 +215,8 @@
 				Name="VCPreLinkEventTool"/>
 			<Tool
 				Name="VCResourceCompilerTool"
-				PreprocessorDefinitions="_DEBUG;_LIB;_WINDOWS;PROJECTGEN_VERSION=7"
-				AdditionalIncludeDirectories=".;..\..;..\..\src"
+				PreprocessorDefinitions="_DEBUG;_CONSOLE;PROJECTGEN_VERSION=7"
+				AdditionalIncludeDirectories=".;..\..;..\..\src;..\..\Glut;..\..\Demos\OpenGL;..\..\Extras\ConvexHull"
 				Culture="1033"/>
 			<Tool
 				Name="VCWebServiceProxyGeneratorTool"/>
@@ -217,9 +225,10 @@
 		</Configuration>
 		<Configuration
 			Name="DebugDoublePrecision|Win32"
-			OutputDirectory="..\..\out\debug_dbl7\build\libboxbox\"
-			IntermediateDirectory="..\..\out\debug_dbl7\build\libboxbox\"
-			ConfigurationType="4"
+			OutputDirectory="..\..\out\debug_dbl7\build\appSoftBodyDemo\"
+			IntermediateDirectory="..\..\out\debug_dbl7\build\appSoftBodyDemo\"
+			ConfigurationType="1"
+			CharacterSet="2"
 			UseOfMFC="0"
 			ATLMinimizesCRunTimeLibraryUsage="FALSE">
 			<Tool
@@ -229,15 +238,15 @@
                                 DebugInformationFormat="4"
                                 RuntimeTypeInfo="FALSE"
                                 RuntimeLibrary="1"
-				PreprocessorDefinitions="_DEBUG;BT_USE_DOUBLE_PRECISION;_LIB;_WINDOWS;WIN32"
+				PreprocessorDefinitions="_DEBUG;BT_USE_DOUBLE_PRECISION;_CONSOLE;WIN32"
 				OptimizeForProcessor="1"
 				ExceptionHandling="0"
 				AdditionalOptions=" "
-				AdditionalIncludeDirectories=".;..\..;..\..\src"
-				PrecompiledHeaderFile="..\..\out\debug_dbl7\build\libboxbox\libboxbox.pch"
-				AssemblerListingLocation="..\..\out\debug_dbl7\build\libboxbox\"
-				ObjectFile="..\..\out\debug_dbl7\build\libboxbox\"
-				ProgramDataBaseFileName="..\..\out\debug_dbl7\build\libboxbox\boxbox.pdb"
+				AdditionalIncludeDirectories=".;..\..;..\..\src;..\..\Glut;..\..\Demos\OpenGL;..\..\Extras\ConvexHull"
+				PrecompiledHeaderFile="..\..\out\debug_dbl7\build\appSoftBodyDemo\appSoftBodyDemo.pch"
+				AssemblerListingLocation="..\..\out\debug_dbl7\build\appSoftBodyDemo\"
+				ObjectFile="..\..\out\debug_dbl7\build\appSoftBodyDemo\"
+				ProgramDataBaseFileName="..\..\out\debug_dbl7\build\appSoftBodyDemo\SoftBodyDemo.pdb"
 				WarningLevel="3"
 				SuppressStartupBanner="TRUE"
 				Detect64BitPortabilityProblems="TRUE"
@@ -247,24 +256,26 @@
 				Name="VCCustomBuildTool"/>
 			<Tool
 				Name="VCLinkerTool"
+                                OutputFile="..\..\DebugDblSoftBodyDemo.exe"
+                                SubSystem="1"
 				AdditionalOptions=" "
-				AdditionalDependencies=""
+				AdditionalDependencies="glut32.lib"
 				IgnoreImportLibrary="TRUE"
 				SuppressStartupBanner="TRUE"
 				GenerateManifest="false"
-				AdditionalLibraryDirectories=""
-				ProgramDatabaseFile="..\..\out\debug_dbl7\build\libboxbox\boxbox.pdb"
+				AdditionalLibraryDirectories="..\..\Glut"
+				ProgramDatabaseFile="..\..\out\debug_dbl7\build\appSoftBodyDemo\SoftBodyDemo.pdb"
 				TargetMachine="1"/>
 			<Tool
 				Name="VCLibrarianTool"
 				SuppressStartupBanner="TRUE"/>
 			<Tool
 				Name="VCMIDLTool"
-				PreprocessorDefinitions="_DEBUG;BT_USE_DOUBLE_PRECISION;_LIB;_WINDOWS"
+				PreprocessorDefinitions="_DEBUG;BT_USE_DOUBLE_PRECISION;_CONSOLE"
 				MkTypLibCompatible="TRUE"
 				SuppressStartupBanner="TRUE"
 				TargetEnvironment="1"
-				TypeLibraryName="..\..\out\debug_dbl7\build\libboxbox\libboxbox.tlb"/>
+				TypeLibraryName="..\..\out\debug_dbl7\build\appSoftBodyDemo\appSoftBodyDemo.tlb"/>
 			<Tool
 				Name="VCPostBuildEventTool"/>
 			<Tool
@@ -273,8 +284,8 @@
 				Name="VCPreLinkEventTool"/>
 			<Tool
 				Name="VCResourceCompilerTool"
-				PreprocessorDefinitions="_DEBUG;BT_USE_DOUBLE_PRECISION;_LIB;_WINDOWS;PROJECTGEN_VERSION=7"
-				AdditionalIncludeDirectories=".;..\..;..\..\src"
+				PreprocessorDefinitions="_DEBUG;BT_USE_DOUBLE_PRECISION;_CONSOLE;PROJECTGEN_VERSION=7"
+				AdditionalIncludeDirectories=".;..\..;..\..\src;..\..\Glut;..\..\Demos\OpenGL;..\..\Extras\ConvexHull"
 				Culture="1033"/>
 			<Tool
 				Name="VCWebServiceProxyGeneratorTool"/>
@@ -287,20 +298,24 @@
 			Name="Source Files"
 			Filter="">
 			<File
-				RelativePath="..\..\Extras\AlternativeCollisionAlgorithms\BoxBoxCollisionAlgorithm.cpp">
+				RelativePath="..\..\Demos\SoftDemo\main.cpp">
 			</File>
 			<File
-				RelativePath="..\..\Extras\AlternativeCollisionAlgorithms\BoxBoxDetector.cpp">
+				RelativePath="..\..\Demos\SoftDemo\SoftDemo.cpp">
 			</File>
 		</Filter>
 		<Filter
 			Name="Header Files"
 			Filter="">
 			<File
-				RelativePath="..\..\Extras\AlternativeCollisionAlgorithms\BoxBoxCollisionAlgorithm.h">
+				RelativePath="..\..\Demos\SoftDemo\SoftDemo.h">
 			</File>
+		</Filter>
+		<Filter
+			Name="Resource Files"
+			Filter="">
 			<File
-				RelativePath="..\..\Extras\AlternativeCollisionAlgorithms\BoxBoxDetector.h">
+				RelativePath="..\..\msvc\appSoftBodyDemo.rc">
 			</File>
 		</Filter>
 	</Files>

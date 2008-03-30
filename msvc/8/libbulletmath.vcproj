@@ -315,6 +315,9 @@
 				RelativePath="..\..\src\LinearMath\btGeometryUtil.h">
 			</File>
 			<File
+				RelativePath="..\..\src\LinearMath\btHashMap.h">
+			</File>
+			<File
 				RelativePath="..\..\src\LinearMath\btIDebugDraw.h">
 			</File>
 			<File
@@ -358,9 +361,6 @@
 			</File>
 			<File
 				RelativePath="..\..\src\LinearMath\btTransformUtil.h">
-			</File>
-			<File
-				RelativePath="..\..\src\LinearMath\btTypedUserInfo.h">
 			</File>
 			<File
 				RelativePath="..\..\src\LinearMath\btVector3.h">

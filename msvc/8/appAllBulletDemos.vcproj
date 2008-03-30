@@ -301,6 +301,9 @@
 				RelativePath="..\..\Demos\AllBulletDemos\..\BasicDemo\BasicDemo.cpp">
 			</File>
 			<File
+				RelativePath="..\..\Demos\AllBulletDemos\..\Benchmarks\BenchmarkDemo.cpp">
+			</File>
+			<File
 				RelativePath="..\..\Demos\AllBulletDemos\..\BspDemo\BspConverter.cpp">
 			</File>
 			<File
