@@ -75,6 +75,7 @@ ADD_EXECUTABLE(AllBulletDemos
         ../Raytracer/Raytracer.cpp
         ../GjkConvexCastDemo/LinearConvexCastDemo.cpp
         ../VehicleDemo/VehicleDemo.cpp
+        ../SoftDemo/SoftDemo.cpp
         ../ConstraintDemo/ConstraintDemo.cpp
 )
 

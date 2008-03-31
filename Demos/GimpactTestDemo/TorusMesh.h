@@ -10,7 +10,7 @@ const int NUM_VERTICES = 300;
 const int NUM_INDICES  = NUM_TRIANGLES * 3;
 
 
-Real gVertices[NUM_VERTICES * 3] = {
+static Real gVertices[NUM_VERTICES * 3] = {
 	Real(2.5),		Real(0),		Real(0),
 	Real(2.405),	Real(0.294),	Real(0),
 	Real(2.155),	Real(0.476),	Real(0),
@@ -314,7 +314,7 @@ Real gVertices[NUM_VERTICES * 3] = {
 };
 
 
-int gIndices[NUM_TRIANGLES][3] = {
+static int gIndices[NUM_TRIANGLES][3] = {
     {0,    1,    11},
     {1,    2,    12},
 	{2,    3,    13},

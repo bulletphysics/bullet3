@@ -31,6 +31,8 @@ subject to the following restrictions:
 #include "../VehicleDemo/VehicleDemo.h"
 #include "../ConstraintDemo/ConstraintDemo.h"
 #include "../Benchmarks/BenchmarkDemo.h"
+#include "../SoftDemo/SoftDemo.h"
+
 
 #include "GlutStuff.h"//OpenGL stuff
 #include "BMF_Api.h"//font stuff
@@ -98,6 +100,7 @@ public:
 
 btDemoEntry g_demoEntries[] =
 {
+	{"SoftBodyDemo",SoftDemo::Create},
 	{"DynamicControlDemo",MotorDemo::Create},
 	{"RagdollDemo",RagdollDemo::Create},
 	{"BasicDemo", BasicDemo::Create},	

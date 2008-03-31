@@ -15,7 +15,6 @@ subject to the following restrictions:
 
 ///btSoftBody implementation by Nathanael Presson
 
-#define DO_WALL 1
 
 #include "btBulletDynamicsCommon.h"
 #include "BulletCollision/CollisionDispatch/btSphereSphereCollisionAlgorithm.h"
@@ -33,8 +32,6 @@ static float	gCollisionMargin = 0.05f/*0.05f*/;
 
 #include "GlutStuff.h"
 
-btTransform comOffset;
-btVector3 comOffsetVec(0,2,0);
 extern float eye[3];
 extern int glutScreenWidth;
 extern int glutScreenHeight;
@@ -42,12 +39,6 @@ extern int glutScreenHeight;
 const int maxProxies = 32766;
 const int maxOverlap = 65535;
 
-bool createConstraint = true;//false;
-#ifdef CENTER_OF_MASS_SHIFT
-bool useCompound = true;
-#else
-bool useCompound = false;
-#endif
 
 #ifdef _DEBUG
 const int gNumObjects = 1;
@@ -56,7 +47,7 @@ const int gNumObjects = 1;//try this in release mode: 3000. never go above 16384
 #endif
 
 const int maxNumObjects = 32760;
-int	shapeIndex[maxNumObjects];
+
 #define CUBE_HALF_EXTENTS 1.5
 #define EXTRA_HEIGHT -10.f
 
@@ -83,10 +74,6 @@ void SoftDemo::createStack( btCollisionShape* boxShape, float halfCubeSize, int 
 
 			btRigidBody* body = 0;
 			body = localCreateRigidBody(mass,trans,boxShape);
-#ifdef USER_DEFINED_FRICTION_MODEL	
-		///Advanced use: override the friction solver
-		body->m_frictionSolverType = USER_CONTACT_SOLVER_TYPE1;
-#endif //USER_DEFINED_FRICTION_MODEL
 
 		}
 	}
@@ -97,40 +84,6 @@ void SoftDemo::createStack( btCollisionShape* boxShape, float halfCubeSize, int 
 
 
 
-//by default, Bullet will use its own nearcallback, but you can override it using dispatcher->setNearCallback()
-void customNearCallback(btBroadphasePair& collisionPair, btCollisionDispatcher& dispatcher, btDispatcherInfo& dispatchInfo)
-{
-		btCollisionObject* colObj0 = (btCollisionObject*)collisionPair.m_pProxy0->m_clientObject;
-		btCollisionObject* colObj1 = (btCollisionObject*)collisionPair.m_pProxy1->m_clientObject;
-
-		if (dispatcher.needsCollision(colObj0,colObj1))
-		{
-			//dispatcher will keep algorithms persistent in the collision pair
-			if (!collisionPair.m_algorithm)
-			{
-				collisionPair.m_algorithm = dispatcher.findAlgorithm(colObj0,colObj1);
-			}
-
-			if (collisionPair.m_algorithm)
-			{
-				btManifoldResult contactPointResult(colObj0,colObj1);
-				
-				if (dispatchInfo.m_dispatchFunc == 		btDispatcherInfo::DISPATCH_DISCRETE)
-				{
-					//discrete collision detection query
-					collisionPair.m_algorithm->processCollision(colObj0,colObj1,dispatchInfo,&contactPointResult);
-				} else
-				{
-					//continuous collision detection query, time of impact (toi)
-					float toi = collisionPair.m_algorithm->calculateTimeOfImpact(colObj0,colObj1,dispatchInfo,&contactPointResult);
-					if (dispatchInfo.m_timeOfImpact > toi)
-						dispatchInfo.m_timeOfImpact = toi;
-
-				}
-			}
-		}
-
-}
 
 //
 // ISoftBody implementation
@@ -241,24 +194,6 @@ void SoftDemo::clientMoveAndDisplay()
 	glClear(GL_COLOR_BUFFER_BIT | GL_DEPTH_BUFFER_BIT); 
 
 
-#ifdef USE_KINEMATIC_GROUND
-	//btQuaternion kinRotation(btVector3(0,0,1),0.);
-	btVector3 kinTranslation(-0.01,0,0);
-	//kinematic object
-	btCollisionObject* colObj = m_dynamicsWorld->getCollisionObjectArray()[0];
-	//is this a rigidbody with a motionstate? then use the motionstate to update positions!
-	if (btRigidBody::upcast(colObj) && btRigidBody::upcast(colObj)->getMotionState())
-	{
-		btTransform newTrans;
-		btRigidBody::upcast(colObj)->getMotionState()->getWorldTransform(newTrans);
-		newTrans.getOrigin()+=kinTranslation;
-		btRigidBody::upcast(colObj)->getMotionState()->setWorldTransform(newTrans);
-	} else
-	{
-		m_dynamicsWorld->getCollisionObjectArray()[0]->getWorldTransform().getOrigin() += kinTranslation;
-	}
-
-#endif //USE_KINEMATIC_GROUND
 
 
 	float dt = getDeltaTimeMicroseconds() * 0.000001f;
@@ -357,13 +292,6 @@ void SoftDemo::displayCallback(void) {
 
 
 
-
-///User-defined friction model, the most simple friction model available: no friction
-float myFrictionModel(	btRigidBody& body1,	btRigidBody& body2,	btManifoldPoint& contactPoint,	const btContactSolverInfo& solverInfo	)
-{
-	//don't do any friction
-	return 0.f;
-}
 
 //
 // Random
@@ -916,12 +844,6 @@ switch(key)
 
 void	SoftDemo::initPhysics()
 {
-#ifdef USE_PARALLEL_DISPATCHER
-#ifdef WIN32
-	m_threadSupportSolver = 0;
-	m_threadSupportCollision = 0;
-#endif //
-#endif
 
 //#define USE_GROUND_PLANE 1
 #ifdef USE_GROUND_PLANE
@@ -935,74 +857,14 @@ void	SoftDemo::initPhysics()
 	//m_collisionShapes.push_back(new btSphereShape(5));
 #endif
 
-#ifdef DO_BENCHMARK_PYRAMIDS
-	m_collisionShapes.push_back(new btBoxShape (btVector3(CUBE_HALF_EXTENTS,CUBE_HALF_EXTENTS,CUBE_HALF_EXTENTS)));
-#else
 	m_collisionShapes.push_back(new btCylinderShape (btVector3(CUBE_HALF_EXTENTS,CUBE_HALF_EXTENTS,CUBE_HALF_EXTENTS)));
-#endif
 	
-
-
-#ifdef DO_BENCHMARK_PYRAMIDS
-	setCameraDistance(32.5f);
-#endif
-
-#ifdef DO_BENCHMARK_PYRAMIDS
-	m_azi = 90.f;
-#endif //DO_BENCHMARK_PYRAMIDS
 
 	m_dispatcher=0;
 	m_collisionConfiguration = new btDefaultCollisionConfiguration();
 	
-#ifdef USE_PARALLEL_DISPATCHER
-int maxNumOutstandingTasks = 4;
-
-#ifdef USE_WIN32_THREADING
-
-	m_threadSupportCollision = new Win32ThreadSupport(Win32ThreadSupport::Win32ThreadConstructionInfo(
-								"collision",
-								processCollisionTask,
-								createCollisionLocalStoreMemory,
-								maxNumOutstandingTasks));
-#else
-
-#ifdef USE_LIBSPE2
-
-   spe_program_handle_t * program_handle;
-#ifndef USE_CESOF
-                        program_handle = spe_image_open ("./spuCollision.elf");
-                        if (program_handle == NULL)
-                    {
-                                perror( "SPU OPEN IMAGE ERROR\n");
-                    }
-                        else
-                        {
-                                printf( "IMAGE OPENED\n");
-                        }
-#else
-                        extern spe_program_handle_t spu_program;
-                        program_handle = &spu_program;
-#endif
-        SpuLibspe2Support* threadSupportCollision  = new SpuLibspe2Support( program_handle, maxNumOutstandingTasks);
-#endif //USE_LIBSPE2
-
-///Playstation 3 SPU (SPURS)  version is available through PS3 Devnet
-/// For Unix/Mac someone could implement a pthreads version of btThreadSupportInterface?
-///you can hook it up to your custom task scheduler by deriving from btThreadSupportInterface
-#endif
-
-
-	m_dispatcher = new	SpuGatheringCollisionDispatcher(m_threadSupportCollision,maxNumOutstandingTasks,m_collisionConfiguration);
-//	m_dispatcher = new	btCollisionDispatcher(m_collisionConfiguration);
-#else
 	
 	m_dispatcher = new	btCollisionDispatcher(m_collisionConfiguration);
-#endif //USE_PARALLEL_DISPATCHER
-
-#ifdef USE_CUSTOM_NEAR_CALLBACK
-	//this is optional
-	m_dispatcher->setNearCallback(customNearCallback);
-#endif
 
 	btVector3 worldAabbMin(-1000,-1000,-1000);
 	btVector3 worldAabbMax(1000,1000,1000);
@@ -1014,202 +876,35 @@ int maxNumOutstandingTasks = 4;
 //	m_broadphase = new btSimpleBroadphase;
 	
 	//box-box is in Extras/AlternativeCollisionAlgorithms:it requires inclusion of those files
-#ifdef REGISTER_BOX_BOX
-	m_dispatcher->registerCollisionCreateFunc(BOX_SHAPE_PROXYTYPE,BOX_SHAPE_PROXYTYPE,new BoxBoxCollisionAlgorithm::CreateFunc);
-#endif //REGISTER_BOX_BOX
 
-#ifdef COMPARE_WITH_QUICKSTEP
-	m_solver = new OdeConstraintSolver();
-#else
 
-	
-#ifdef USE_PARALLEL_SOLVER
-
-	m_threadSupportSolver = new Win32ThreadSupport(Win32ThreadSupport::Win32ThreadConstructionInfo(
-								"solver",
-								processSolverTask,
-								createSolverLocalStoreMemory,
-								maxNumOutstandingTasks));
-
-	m_solver = new btParallelSequentialImpulseSolver(m_threadSupportSolver,maxNumOutstandingTasks);
-#else
 	btSequentialImpulseConstraintSolver* solver = new btSequentialImpulseConstraintSolver();
 
 	m_solver = solver;
 	//default solverMode is SOLVER_RANDMIZE_ORDER. Warmstarting seems not to improve convergence, see 
 	//solver->setSolverMode(0);//btSequentialImpulseConstraintSolver::SOLVER_USE_WARMSTARTING | btSequentialImpulseConstraintSolver::SOLVER_RANDMIZE_ORDER);
+
+	btDiscreteDynamicsWorld* world = new btDiscreteDynamicsWorld(m_dispatcher,m_broadphase,m_solver,m_collisionConfiguration);
+	m_dynamicsWorld = world;
+
+
+	m_dynamicsWorld->getDispatchInfo().m_enableSPU = true;
+	m_dynamicsWorld->setGravity(btVector3(0,-10,0));
+
 	
-#endif //USE_PARALLEL_SOLVER
 
-#endif
-		
-#ifdef	USER_DEFINED_FRICTION_MODEL
-	//user defined friction model is not supported in 'cache friendly' solver yet, so switch to old solver
-		m_solver->setSolverMode(btSequentialImpulseConstraintSolver::SOLVER_RANDMIZE_ORDER);
-#endif //USER_DEFINED_FRICTION_MODEL
-
-		btDiscreteDynamicsWorld* world = new btDiscreteDynamicsWorld(m_dispatcher,m_broadphase,m_solver,m_collisionConfiguration);
-		m_dynamicsWorld = world;
-
-#ifdef DO_BENCHMARK_PYRAMIDS
-		world->getSolverInfo().m_numIterations = 4;
-#endif //DO_BENCHMARK_PYRAMIDS
-
-		m_dynamicsWorld->getDispatchInfo().m_enableSPU = true;
-		m_dynamicsWorld->setGravity(btVector3(0,-10,0));
-
-		
-
-#ifdef USER_DEFINED_FRICTION_MODEL
-	{
-		//m_solver->setContactSolverFunc(ContactSolverFunc func,USER_CONTACT_SOLVER_TYPE1,DEFAULT_CONTACT_SOLVER_TYPE);
-		m_solver->SetFrictionSolverFunc(myFrictionModel,USER_CONTACT_SOLVER_TYPE1,DEFAULT_CONTACT_SOLVER_TYPE);
-		m_solver->SetFrictionSolverFunc(myFrictionModel,DEFAULT_CONTACT_SOLVER_TYPE,USER_CONTACT_SOLVER_TYPE1);
-		m_solver->SetFrictionSolverFunc(myFrictionModel,USER_CONTACT_SOLVER_TYPE1,USER_CONTACT_SOLVER_TYPE1);
-		//m_physicsEnvironmentPtr->setNumIterations(2);
-	}
-#endif //USER_DEFINED_FRICTION_MODEL
 
 	int i;
 
 	btTransform tr;
 	tr.setIdentity();
+	tr.setOrigin(btVector3(0,-20,0));
 
 	
-	for (i=0;i<gNumObjects;i++)
-	{
-		if (i>0)
-		{
-			shapeIndex[i] = 1;//sphere
-		}
-		else
-			shapeIndex[i] = 0;
-	}
 
-	if (useCompound)
-	{
-		btCompoundShape* compoundShape = new btCompoundShape();
-		btCollisionShape* oldShape = m_collisionShapes[1];
-		m_collisionShapes[1] = compoundShape;
-		btVector3 sphereOffset(0,0,2);
+	btRigidBody* body = localCreateRigidBody(0.f,tr,m_collisionShapes[0]);
 
-		comOffset.setIdentity();
-
-#ifdef CENTER_OF_MASS_SHIFT
-		comOffset.setOrigin(comOffsetVec);
-		compoundShape->addChildShape(comOffset,oldShape);
-
-#else
-		compoundShape->addChildShape(tr,oldShape);
-		tr.setOrigin(sphereOffset);
-		compoundShape->addChildShape(tr,new btSphereShape(0.9));
-#endif
-	}
-
-#ifdef DO_WALL
-
-	for (i=0;i<gNumObjects;i++)
-	{
-		btCollisionShape* shape = m_collisionShapes[shapeIndex[i]];
-		shape->setMargin(gCollisionMargin);
-
-		bool isDyna = i>0;
-
-		btTransform trans;
-		trans.setIdentity();
-		
-		if (i>0)
-		{
-			//stack them
-			int colsize = 10;
-			int row = (i*CUBE_HALF_EXTENTS*2)/(colsize*2*CUBE_HALF_EXTENTS);
-			int row2 = row;
-			int col = (i)%(colsize)-colsize/2;
-
-
-			if (col>3)
-			{
-				col=11;
-				row2 |=1;
-			}
-
-			btVector3 pos(col*2*CUBE_HALF_EXTENTS + (row2%2)*CUBE_HALF_EXTENTS,
-				row*2*CUBE_HALF_EXTENTS+CUBE_HALF_EXTENTS+EXTRA_HEIGHT,0);
-
-			trans.setOrigin(pos);
-		} else
-		{
-			trans.setOrigin(btVector3(0,EXTRA_HEIGHT-CUBE_HALF_EXTENTS,0));
-			/*btQuaternion	q;
-			q.setRotation(btVector3(1,0,0).normalized(),SIMD_PI/4);
-			trans.setRotation(q);*/
-		}
-
-		float mass = 1.f;
-
-		if (!isDyna)
-			mass = 0.f;
-		btRigidBody* body = localCreateRigidBody(mass,trans,shape);
-#ifdef USE_KINEMATIC_GROUND
-		if (mass == 0.f)
-		{
-			body->setCollisionFlags( body->getCollisionFlags() | btCollisionObject::CF_KINEMATIC_OBJECT);
-			body->setActivationState(DISABLE_DEACTIVATION);
-		}
-#endif //USE_KINEMATIC_GROUND
-		
-		
-		// Only do CCD if  motion in one timestep (1.f/60.f) exceeds CUBE_HALF_EXTENTS
-		body->setCcdSquareMotionThreshold( CUBE_HALF_EXTENTS );
-		
-		//Experimental: better estimation of CCD Time of Impact:
-		body->setCcdSweptSphereRadius( 0.2*CUBE_HALF_EXTENTS );
-
-#ifdef USER_DEFINED_FRICTION_MODEL	
-		///Advanced use: override the friction solver
-		body->m_frictionSolverType = USER_CONTACT_SOLVER_TYPE1;
-#endif //USER_DEFINED_FRICTION_MODEL
-
-	}
-#endif
-
-
-#ifdef DO_BENCHMARK_PYRAMIDS
-	btTransform trans;
-	trans.setIdentity();
 	
-	btScalar halfExtents = CUBE_HALF_EXTENTS;
-
-	trans.setOrigin(btVector3(0,-halfExtents,0));
-
-
-
-	localCreateRigidBody(0.f,trans,m_collisionShapes[shapeIndex[0]]);
-
-	int numWalls = 15;
-	int wallHeight = 15;
-	float wallDistance = 3;
-
-
-	for (int i=0;i<numWalls;i++)
-	{
-		float zPos = (i-numWalls/2) * wallDistance;
-		createStack(m_collisionShapes[shapeIndex[1]],halfExtents,wallHeight,zPos);
-	}
-//	createStack(m_collisionShapes[shapeIndex[1]],halfExtends,20,10);
-
-//	createStack(m_collisionShapes[shapeIndex[1]],halfExtends,20,20);
-#define DESTROYER_BALL 1
-#ifdef DESTROYER_BALL
-	btTransform sphereTrans;
-	sphereTrans.setIdentity();
-	sphereTrans.setOrigin(btVector3(0,2,40));
-	btSphereShape* ball = new btSphereShape(2.f);
-	m_collisionShapes.push_back(ball);
-	btRigidBody* ballBody = localCreateRigidBody(10000.f,sphereTrans,ball);
-	ballBody->setLinearVelocity(btVector3(0,0,-10));
-#endif 
-#endif //DO_BENCHMARK_PYRAMIDS
 //	clientResetScene();
 
 m_softbodyimpl.pdemo=this;
@@ -1254,14 +949,6 @@ void	SoftDemo::exitPhysics()
 
 	//delete solver
 	delete m_solver;
-#ifdef USE_PARALLEL_DISPATCHER
-#ifdef WIN32
-	if (m_threadSupportSolver)
-	{
-		delete m_threadSupportSolver;
-	}
-#endif
-#endif
 
 	//delete broadphase
 	delete m_broadphase;
@@ -1269,14 +956,7 @@ void	SoftDemo::exitPhysics()
 	//delete dispatcher
 	delete m_dispatcher;
 
-#ifdef USE_PARALLEL_DISPATCHER
-#ifdef WIN32
-	if (m_threadSupportCollision)
-	{
-		delete m_threadSupportCollision;
-	}
-#endif
-#endif
+
 
 	delete m_collisionConfiguration;
 
