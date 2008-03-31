@@ -44,8 +44,8 @@ ADD_LIBRARY(LibBulletDynamics
 	Vehicle/btRaycastVehicle.h
 	Vehicle/btWheelInfo.cpp
 	Vehicle/btWheelInfo.h
-	btSoftBody.cpp
-	btSoftBody.h
-	btSoftBodyHelpers.cpp
-	btSparseSDF.h
+	SoftBody/btSoftBody.cpp
+	SoftBody/btSoftBody.h
+	SoftBody/btSoftBodyHelpers.cpp
+	SoftBody/btSparseSDF.h
 )
