@@ -349,6 +349,9 @@
 				RelativePath="..\..\Demos\AllBulletDemos\..\Raytracer\Raytracer.cpp">
 			</File>
 			<File
+				RelativePath="..\..\Demos\AllBulletDemos\..\SoftDemo\SoftDemo.cpp">
+			</File>
+			<File
 				RelativePath="..\..\Demos\AllBulletDemos\..\VehicleDemo\VehicleDemo.cpp">
 			</File>
 			<File

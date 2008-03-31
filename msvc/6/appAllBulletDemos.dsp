@@ -226,6 +226,10 @@ SOURCE=..\..\Demos\AllBulletDemos\..\Raytracer\Raytracer.cpp
 # End Source File
 # Begin Source File
 
+SOURCE=..\..\Demos\AllBulletDemos\..\SoftDemo\SoftDemo.cpp
+# End Source File
+# Begin Source File
+
 SOURCE=..\..\Demos\AllBulletDemos\..\VehicleDemo\VehicleDemo.cpp
 # End Source File
 # Begin Source File
