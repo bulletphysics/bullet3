@@ -33,6 +33,10 @@ ADD_LIBRARY(LibBulletCollision
 				CollisionDispatch/btDefaultCollisionConfiguration.h
 				CollisionDispatch/btSphereSphereCollisionAlgorithm.cpp
 				CollisionDispatch/btSphereSphereCollisionAlgorithm.h
+				CollisionDispatch/btBoxBoxCollisionAlgorithm.cpp
+				CollisionDispatch/btBoxBoxCollisionAlgorithm.h
+				CollisionDispatch/btBoxBoxDetector.cpp
+				CollisionDispatch/btBoxBoxDetector.h
 				CollisionDispatch/btSphereBoxCollisionAlgorithm.cpp
 				CollisionDispatch/btSphereBoxCollisionAlgorithm.h
 				CollisionDispatch/btConvexPlaneCollisionAlgorithm.cpp

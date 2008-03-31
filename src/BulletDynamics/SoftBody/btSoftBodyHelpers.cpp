@@ -15,7 +15,6 @@ subject to the following restrictions:
 ///btSoftBodyHelpers.cpp by Nathanael Presson
 
 #include "btSoftBody.h"
-#include "Extras/ConvexHull/btConvexHull.h"
 #include <stdio.h>
 #include <string.h>
 
@@ -356,36 +355,7 @@ for(int i=0;i<vtx.size();++i)
 return(CreateFromConvexHull(isoftbody,&vtx[0],vtx.size()));
 }
 
-//
-btSoftBody*		CreateFromConvexHull(	btSoftBody::ISoftBody*	isoftbody,
-										const btVector3* vertices,
-										int nvertices)
-{
-HullDesc		hdsc(QF_TRIANGLES,nvertices,vertices);
-HullResult		hres;
-HullLibrary		hlib;/*??*/ 
-hdsc.mMaxVertices=nvertices;
-hlib.CreateConvexHull(hdsc,hres);
-btSoftBody*		psb=btSoftBody::Create(	isoftbody,
-										(int)hres.mNumOutputVertices,
-										hres.mOutputVertices,0);
-for(int i=0;i<(int)hres.mNumFaces;++i)
-	{
-	const int idx[]={	hres.mIndices[i*3+0],
-						hres.mIndices[i*3+1],
-						hres.mIndices[i*3+2]};
-	if(idx[0]<idx[1]) psb->AppendLink(	idx[0],idx[1],
-										1,btSoftBody::eLType::Structural);
-	if(idx[1]<idx[2]) psb->AppendLink(	idx[1],idx[2],
-										1,btSoftBody::eLType::Structural);
-	if(idx[2]<idx[0]) psb->AppendLink(	idx[2],idx[0],
-										1,btSoftBody::eLType::Structural);
-	psb->AppendFace(idx[0],idx[1],idx[2]);
-	}
-hlib.ReleaseResult(hres);
-psb->RandomizeConstraints();
-return(psb);
-}
+
 
 //
 btSoftBody*		CreateFromTriMesh(	btSoftBody::ISoftBody*	isoftbody,
