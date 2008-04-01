@@ -298,11 +298,8 @@ void dmaBvhShapeData (bvhMeshShape_LocalStoreMemory* bvhMeshShape, btBvhTriangle
 	dmaSize = sizeof(btTriangleIndexVertexArray);
 	dmaPpuAddress2 = reinterpret_cast<ppu_address_t>(triMeshShape->getMeshInterface());
 	//	spu_printf("trimeshShape->getMeshInterface() == %llx\n",dmaPpuAddress2);
-#ifdef DISABLE_CELL_DMA_GET_READ_ONLY // needed for PE ray caster
-	cellDmaGet(&bvhMeshShape->gTriangleMeshInterfaceStorage, dmaPpuAddress2  , dmaSize, DMA_TAG(1), 0, 0);
-#else
 	bvhMeshShape->gTriangleMeshInterfacePtr = (btTriangleIndexVertexArray*)cellDmaGetReadOnly(&bvhMeshShape->gTriangleMeshInterfaceStorage, dmaPpuAddress2  , dmaSize, DMA_TAG(1), 0, 0);
-#endif
+
 	//cellDmaWaitTagStatusAll(DMA_MASK(1));
 	
 	///now DMA over the BVH

@@ -14,7 +14,6 @@ subject to the following restrictions:
 */
 
 
-
 #include "btOdeQuickstepConstraintSolver.h"
 
 #include "BulletCollision/NarrowPhaseCollision/btPersistentManifold.h"

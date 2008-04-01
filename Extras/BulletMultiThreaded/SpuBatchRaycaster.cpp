@@ -98,7 +98,7 @@ SpuBatchRaycaster::setCollisionObjectsSkipPE (btCollisionObjectArray& castUponOb
 		index++;
 	}
 
-	printf("Number of shapes bullet is casting against: %d\n", numNonPEShapes);
+//	printf("Number of shapes bullet is casting against: %d\n", numNonPEShapes);
 	btAssert (index == numNonPEShapes);
 }
 
