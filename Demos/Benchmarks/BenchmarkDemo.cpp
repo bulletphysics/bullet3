@@ -24,7 +24,7 @@ subject to the following restrictions:
 #include "btBulletDynamicsCommon.h"
 #include <stdio.h> //printf debugging
 #include "Taru.mdl"
-#include "Landscape.mdl"
+#include "landscape.mdl"
 
 
 

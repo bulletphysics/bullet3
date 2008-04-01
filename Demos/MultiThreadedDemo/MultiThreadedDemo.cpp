@@ -22,14 +22,19 @@ subject to the following restrictions:
 
 #ifdef USE_PARALLEL_DISPATCHER
 #include "../../Extras/BulletMultiThreaded/SpuGatheringCollisionDispatcher.h"
-#ifdef WIN32
-#endif //WIN32
+#include "../../Extras/BulletMultiThreaded/PlatformDefinitions.h"
 
 #ifdef USE_LIBSPE2
 #include "../../Extras/BulletMultiThreaded/SpuLibspe2Support.h"
 #elif defined (WIN32)
 #include "../../Extras/BulletMultiThreaded/Win32ThreadSupport.h"
 #include "../../Extras/BulletMultiThreaded/SpuNarrowPhaseCollisionTask/SpuGatheringCollisionTask.h"
+
+#elif defined (USE_PTHREADS)
+
+#include "../../Extras/BulletMultiThreaded/PosixThreadSupport.h"
+#include "../../Extras/BulletMultiThreaded/SpuNarrowPhaseCollisionTask/SpuGatheringCollisionTask.h"
+
 #else
 //other platforms run the parallel code sequentially (until pthread support or other parallel implementation is added)
 #include "../../Extras/BulletMultiThreaded/SequentialThreadSupport.h"
@@ -42,7 +47,6 @@ subject to the following restrictions:
 #endif //USE_PARALLEL_SOLVER
 
 #endif//USE_PARALLEL_DISPATCHER
-
 
 
 #include "LinearMath/btQuickprof.h"
@@ -222,10 +226,8 @@ void MultiThreadedDemo::displayCallback(void) {
 void	MultiThreadedDemo::initPhysics()
 {
 #ifdef USE_PARALLEL_DISPATCHER
-#ifdef WIN32
 	m_threadSupportSolver = 0;
 	m_threadSupportCollision = 0;
-#endif //
 #endif
 
 //#define USE_GROUND_PLANE 1
@@ -250,7 +252,7 @@ void	MultiThreadedDemo::initPhysics()
 	m_collisionConfiguration = new btDefaultCollisionConfiguration();
 	
 #ifdef USE_PARALLEL_DISPATCHER
-int maxNumOutstandingTasks = 4;
+	int maxNumOutstandingTasks = 4;
 
 #ifdef USE_WIN32_THREADING
 
@@ -279,6 +281,12 @@ m_threadSupportCollision = new Win32ThreadSupport(Win32ThreadSupport::Win32Threa
                         program_handle = &spu_program;
 #endif
         SpuLibspe2Support* threadSupportCollision  = new SpuLibspe2Support( program_handle, maxNumOutstandingTasks);
+#elif defined (USE_PTHREADS)
+    PosixThreadSupport::ThreadConstructionInfo constructionInfo("collision",
+								processCollisionTask,
+								createCollisionLocalStoreMemory,
+								maxNumOutstandingTasks);
+    m_threadSupportCollision = new PosixThreadSupport(constructionInfo);
 #else
 
 	SequentialThreadSupport::SequentialThreadConstructionInfo colCI("collision",processCollisionTask,createCollisionLocalStoreMemory);
@@ -315,7 +323,11 @@ m_threadSupportCollision = new Win32ThreadSupport(Win32ThreadSupport::Win32Threa
 								processSolverTask,
 								createSolverLocalStoreMemory,
 								maxNumOutstandingTasks));
+#elif defined (USE_PTHREADS)
+	PosixThreadSupport::ThreadConstructionInfo solverConstructionInfo("solver", processSolverTask,
+									createSolverLocalStoreMemory, maxNumOutstandingTasks);
 
+    	m_threadSupportSolver = new PosixThreadSupport(solverConstructionInfo);
 #else
 	//for now use sequential version	
 	SequentialThreadSupport::SequentialThreadConstructionInfo solverCI("solver",processSolverTask,createSolverLocalStoreMemory);
@@ -405,7 +417,6 @@ m_threadSupportCollision = new Win32ThreadSupport(Win32ThreadSupport::Win32Threa
 void	MultiThreadedDemo::exitPhysics()
 {
 
-
 	//cleanup in the reverse order of creation/initialization
 
 	//remove the rigidbodies from the dynamics world and delete them
@@ -436,12 +447,10 @@ void	MultiThreadedDemo::exitPhysics()
 	//delete solver
 	delete m_solver;
 #ifdef USE_PARALLEL_DISPATCHER
-#ifdef WIN32
 	if (m_threadSupportSolver)
 	{
 		delete m_threadSupportSolver;
 	}
-#endif
 #endif
 
 	//delete broadphase
@@ -451,12 +460,10 @@ void	MultiThreadedDemo::exitPhysics()
 	delete m_dispatcher;
 
 #ifdef USE_PARALLEL_DISPATCHER
-#ifdef WIN32
 	if (m_threadSupportCollision)
 	{
 		delete m_threadSupportCollision;
 	}
-#endif
 #endif
 
 	delete m_collisionConfiguration;

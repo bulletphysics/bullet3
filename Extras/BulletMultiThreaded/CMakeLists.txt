@@ -16,6 +16,8 @@ ADD_LIBRARY(LibBulletMultiThreaded
 		
 		Win32ThreadSupport.cpp
 		Win32ThreadSupport.h
+		PosixThreadSupport.cpp
+		PosixThreadSupport.h
 		SequentialThreadSupport.cpp
 		SequentialThreadSupport.h
 		SpuSampleTaskProcess.h

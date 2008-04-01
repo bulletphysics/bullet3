@@ -1,7 +1,6 @@
 #ifndef TYPE_DEFINITIONS_H
 #define TYPE_DEFINITIONS_H
 
-
 ///This file provides some platform/compiler checks for common definitions
 
 #ifdef WIN32
@@ -47,7 +46,7 @@ typedef union
 #else
 	// posix system
 
-#define USE_PTHREADS 
+#define USE_PTHREADS    (1)
 
 #ifdef USE_LIBSPE2
 #include <stdio.h>		

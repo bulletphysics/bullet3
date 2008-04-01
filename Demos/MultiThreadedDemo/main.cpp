@@ -12,7 +12,7 @@ subject to the following restrictions:
 2. Altered source versions must be plainly marked as such, and must not be misrepresented as being the original software.
 3. This notice may not be removed or altered from any source distribution.
 */
-
+#include <cstdio>
 #include "MultiThreadedDemo.h"
 #include "GlutStuff.h"
 #include "GLDebugDrawer.h"
@@ -22,7 +22,6 @@ GLDebugDrawer	gDebugDrawer;
 
 int main(int argc,char** argv)
 {
-
 	MultiThreadedDemo* demo = new MultiThreadedDemo();
 
 	demo->initPhysics();
@@ -33,4 +32,5 @@ int main(int argc,char** argv)
 
 	delete demo;
 
+	return EXIT_SUCCESS;
 }
