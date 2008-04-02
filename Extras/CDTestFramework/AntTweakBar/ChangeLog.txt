@@ -1,0 +1,23 @@
+--- AntTweakBar library changes ---
+
+- Version 1.04
+  OpenGL: Vertex buffer object state and Vertex/fragment program and object states are now reset and restored by TwDraw (thanks to Dylan and Siva for pointing this out).
+
+- Version 1.03 (2006/10/28)
+  Medium font is now antialiased.
+  Now also compiles on 64 bits x86 platform; use Makefile.x86_64 (thanks to Herling).
+  Slight changes to avoid visual 8 secure crt warnings.
+  Correct behaviour if min/max values are not defined.
+  Modif to avoid looping to max value when reaching zero with unsigned types.
+  Min/max/step commands for type TW_TYPE_CHAR now read ascii codes (not characters).
+  Add FPU precision control (because DirectX changes it).
+  Fix problem that occurs when the lib is initialized/unitialized more than once (thanks Lukasz for reporting it).
+  Distribution follows Savannah's recommendations.
+
+- Version 1.02 (2006/09/27)
+  Library sources released.
+
+- Version 1.01 (2006/09/14)
+  First official release.
+
+  

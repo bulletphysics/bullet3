@@ -1,0 +1,60 @@
+Microsoft Visual Studio Solution File, Format Version 9.00
+# Visual Studio 2005
+Project("{8BC9CEB8-8B4A-11D0-8D11-00A0C91BC942}") = "CDTestFramework", "CDTestFramework.vcproj", "{0565DB39-45CC-416E-B549-BFC24F2666D1}"
+	ProjectSection(ProjectDependencies) = postProject
+		{6ADA430D-009C-2ED4-A787-2AC2D6FEB8CE} = {6ADA430D-009C-2ED4-A787-2AC2D6FEB8CE}
+		{7D6E339F-9C2C-31DA-FDB0-5EE50973CF2A} = {7D6E339F-9C2C-31DA-FDB0-5EE50973CF2A}
+		{DBE44CA3-2912-4441-8D99-AA2242688AD2} = {DBE44CA3-2912-4441-8D99-AA2242688AD2}
+	EndProjectSection
+EndProject
+Project("{8BC9CEB8-8B4A-11D0-8D11-00A0C91BC942}") = "Opcode", "Opcode\Opcode.vcproj", "{DBE44CA3-2912-4441-8D99-AA2242688AD2}"
+EndProject
+Project("{8BC9CEB8-8B4A-11D0-8D11-00A0C91BC942}") = "libbulletcollision", "Bullet\msvc\8\libbulletcollision.vcproj", "{6ADA430D-009C-2ED4-A787-2AC2D6FEB8CE}"
+EndProject
+Project("{8BC9CEB8-8B4A-11D0-8D11-00A0C91BC942}") = "libbulletmath", "Bullet\msvc\8\libbulletmath.vcproj", "{7D6E339F-9C2C-31DA-FDB0-5EE50973CF2A}"
+EndProject
+Global
+	GlobalSection(SolutionConfigurationPlatforms) = preSolution
+		Debug|Win32 = Debug|Win32
+		DebugDoublePrecision|Win32 = DebugDoublePrecision|Win32
+		Release|Win32 = Release|Win32
+		ReleaseDoublePrecision|Win32 = ReleaseDoublePrecision|Win32
+	EndGlobalSection
+	GlobalSection(ProjectConfigurationPlatforms) = postSolution
+		{0565DB39-45CC-416E-B549-BFC24F2666D1}.Debug|Win32.ActiveCfg = Debug|Win32
+		{0565DB39-45CC-416E-B549-BFC24F2666D1}.Debug|Win32.Build.0 = Debug|Win32
+		{0565DB39-45CC-416E-B549-BFC24F2666D1}.DebugDoublePrecision|Win32.ActiveCfg = Debug|Win32
+		{0565DB39-45CC-416E-B549-BFC24F2666D1}.DebugDoublePrecision|Win32.Build.0 = Debug|Win32
+		{0565DB39-45CC-416E-B549-BFC24F2666D1}.Release|Win32.ActiveCfg = Release|Win32
+		{0565DB39-45CC-416E-B549-BFC24F2666D1}.Release|Win32.Build.0 = Release|Win32
+		{0565DB39-45CC-416E-B549-BFC24F2666D1}.ReleaseDoublePrecision|Win32.ActiveCfg = Release|Win32
+		{0565DB39-45CC-416E-B549-BFC24F2666D1}.ReleaseDoublePrecision|Win32.Build.0 = Release|Win32
+		{DBE44CA3-2912-4441-8D99-AA2242688AD2}.Debug|Win32.ActiveCfg = Debug|Win32
+		{DBE44CA3-2912-4441-8D99-AA2242688AD2}.Debug|Win32.Build.0 = Debug|Win32
+		{DBE44CA3-2912-4441-8D99-AA2242688AD2}.DebugDoublePrecision|Win32.ActiveCfg = Debug|Win32
+		{DBE44CA3-2912-4441-8D99-AA2242688AD2}.DebugDoublePrecision|Win32.Build.0 = Debug|Win32
+		{DBE44CA3-2912-4441-8D99-AA2242688AD2}.Release|Win32.ActiveCfg = Release|Win32
+		{DBE44CA3-2912-4441-8D99-AA2242688AD2}.Release|Win32.Build.0 = Release|Win32
+		{DBE44CA3-2912-4441-8D99-AA2242688AD2}.ReleaseDoublePrecision|Win32.ActiveCfg = Release|Win32
+		{DBE44CA3-2912-4441-8D99-AA2242688AD2}.ReleaseDoublePrecision|Win32.Build.0 = Release|Win32
+		{6ADA430D-009C-2ED4-A787-2AC2D6FEB8CE}.Debug|Win32.ActiveCfg = Debug|Win32
+		{6ADA430D-009C-2ED4-A787-2AC2D6FEB8CE}.Debug|Win32.Build.0 = Debug|Win32
+		{6ADA430D-009C-2ED4-A787-2AC2D6FEB8CE}.DebugDoublePrecision|Win32.ActiveCfg = DebugDoublePrecision|Win32
+		{6ADA430D-009C-2ED4-A787-2AC2D6FEB8CE}.DebugDoublePrecision|Win32.Build.0 = DebugDoublePrecision|Win32
+		{6ADA430D-009C-2ED4-A787-2AC2D6FEB8CE}.Release|Win32.ActiveCfg = Release|Win32
+		{6ADA430D-009C-2ED4-A787-2AC2D6FEB8CE}.Release|Win32.Build.0 = Release|Win32
+		{6ADA430D-009C-2ED4-A787-2AC2D6FEB8CE}.ReleaseDoublePrecision|Win32.ActiveCfg = ReleaseDoublePrecision|Win32
+		{6ADA430D-009C-2ED4-A787-2AC2D6FEB8CE}.ReleaseDoublePrecision|Win32.Build.0 = ReleaseDoublePrecision|Win32
+		{7D6E339F-9C2C-31DA-FDB0-5EE50973CF2A}.Debug|Win32.ActiveCfg = Debug|Win32
+		{7D6E339F-9C2C-31DA-FDB0-5EE50973CF2A}.Debug|Win32.Build.0 = Debug|Win32
+		{7D6E339F-9C2C-31DA-FDB0-5EE50973CF2A}.DebugDoublePrecision|Win32.ActiveCfg = DebugDoublePrecision|Win32
+		{7D6E339F-9C2C-31DA-FDB0-5EE50973CF2A}.DebugDoublePrecision|Win32.Build.0 = DebugDoublePrecision|Win32
+		{7D6E339F-9C2C-31DA-FDB0-5EE50973CF2A}.Release|Win32.ActiveCfg = Release|Win32
+		{7D6E339F-9C2C-31DA-FDB0-5EE50973CF2A}.Release|Win32.Build.0 = Release|Win32
+		{7D6E339F-9C2C-31DA-FDB0-5EE50973CF2A}.ReleaseDoublePrecision|Win32.ActiveCfg = ReleaseDoublePrecision|Win32
+		{7D6E339F-9C2C-31DA-FDB0-5EE50973CF2A}.ReleaseDoublePrecision|Win32.Build.0 = ReleaseDoublePrecision|Win32
+	EndGlobalSection
+	GlobalSection(SolutionProperties) = preSolution
+		HideSolutionNode = FALSE
+	EndGlobalSection
+EndGlobal

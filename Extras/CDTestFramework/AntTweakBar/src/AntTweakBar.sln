@@ -1,0 +1,29 @@
+Microsoft Visual Studio Solution File, Format Version 8.00
+Project("{8BC9CEB8-8B4A-11D0-8D11-00A0C91BC942}") = "AntTweakBar", "AntTweakBar.vcproj", "{B99E1FA1-C30A-45F2-9D57-9E9C21B2DF42}"
+	ProjectSection(ProjectDependencies) = postProject
+	EndProjectSection
+EndProject
+Project("{8BC9CEB8-8B4A-11D0-8D11-00A0C91BC942}") = "TwAdvanced1", "..\examples\TwAdvanced1.vcproj", "{008D1CEC-1586-4C89-B524-DF15D9605163}"
+	ProjectSection(ProjectDependencies) = postProject
+	EndProjectSection
+EndProject
+Global
+	GlobalSection(SolutionConfiguration) = preSolution
+		Debug = Debug
+		Release = Release
+	EndGlobalSection
+	GlobalSection(ProjectConfiguration) = postSolution
+		{B99E1FA1-C30A-45F2-9D57-9E9C21B2DF42}.Debug.ActiveCfg = Debug|Win32
+		{B99E1FA1-C30A-45F2-9D57-9E9C21B2DF42}.Debug.Build.0 = Debug|Win32
+		{B99E1FA1-C30A-45F2-9D57-9E9C21B2DF42}.Release.ActiveCfg = Release|Win32
+		{B99E1FA1-C30A-45F2-9D57-9E9C21B2DF42}.Release.Build.0 = Release|Win32
+		{008D1CEC-1586-4C89-B524-DF15D9605163}.Debug.ActiveCfg = Debug|Win32
+		{008D1CEC-1586-4C89-B524-DF15D9605163}.Debug.Build.0 = Debug|Win32
+		{008D1CEC-1586-4C89-B524-DF15D9605163}.Release.ActiveCfg = Release|Win32
+		{008D1CEC-1586-4C89-B524-DF15D9605163}.Release.Build.0 = Release|Win32
+	EndGlobalSection
+	GlobalSection(ExtensibilityGlobals) = postSolution
+	EndGlobalSection
+	GlobalSection(ExtensibilityAddIns) = postSolution
+	EndGlobalSection
+EndGlobal

@@ -1,0 +1,4 @@
+	linux-gate.so.1 =>  (0x00d1e000)
+	libgcc_s.so.1 => /lib/libgcc_s.so.1 (0x00dcf000)
+	libc.so.6 => /lib/tls/libc.so.6 (0x00113000)
+	/lib/ld-linux.so.2 => /lib/ld-linux.so.2 (0x00773000)

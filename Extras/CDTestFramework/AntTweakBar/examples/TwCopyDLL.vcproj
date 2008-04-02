@@ -1,0 +1,53 @@
+<?xml version="1.0" encoding="Windows-1252"?>
+<VisualStudioProject
+	ProjectType="Visual C++"
+	Version="7.10"
+	Name="TwCopyDLL"
+	ProjectGUID="{AB180E0E-0EFA-4AD4-8F08-4492D144D963}"
+	Keyword="Win32Proj">
+	<Platforms>
+		<Platform
+			Name="Win32"/>
+	</Platforms>
+	<Configurations>
+		<Configuration
+			Name="Debug|Win32"
+			OutputDirectory="debug"
+			IntermediateDirectory="debug"
+			ConfigurationType="10"
+			CharacterSet="2">
+			<Tool
+				Name="VCCustomBuildTool"/>
+			<Tool
+				Name="VCMIDLTool"/>
+			<Tool
+				Name="VCPostBuildEventTool"/>
+			<Tool
+				Name="VCPreBuildEventTool"
+				CommandLine="if exist ..\lib\debug\AntTweakBar.dll ( xcopy /y /f ..\lib\debug\AntTweakBar.dll debug ) else ( xcopy /y /f ..\lib\AntTweakBar.dll debug )
+"/>
+		</Configuration>
+		<Configuration
+			Name="Release|Win32"
+			OutputDirectory="bin"
+			IntermediateDirectory="bin"
+			ConfigurationType="10"
+			CharacterSet="2">
+			<Tool
+				Name="VCCustomBuildTool"/>
+			<Tool
+				Name="VCMIDLTool"/>
+			<Tool
+				Name="VCPostBuildEventTool"/>
+			<Tool
+				Name="VCPreBuildEventTool"
+				CommandLine="xcopy /y /f ..\lib\AntTweakBar.dll bin"/>
+		</Configuration>
+	</Configurations>
+	<References>
+	</References>
+	<Files>
+	</Files>
+	<Globals>
+	</Globals>
+</VisualStudioProject>
