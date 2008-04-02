@@ -107,7 +107,7 @@ bool CompleteBoxPruningTest::UpdateBoxes(int numBoxes)
 
 void CompleteBoxPruningTest::PerformTest()
 {
-	int numBoxes = mNbBoxes/*/10*/;
+	int numBoxes = (mNbBoxes*10)/100;
 	if (m_firstTime)
 	{
 		numBoxes = mNbBoxes;

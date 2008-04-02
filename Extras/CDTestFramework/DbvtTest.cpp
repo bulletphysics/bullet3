@@ -221,7 +221,7 @@ btDbvtBroadphase*	pb=(btDbvtBroadphase*)m_broadphase;
 const btScalar		speed=m_speed;
 const btScalar		ampl=m_amp;
 const int			nupd=m_bfirsttime?	pb->m_proxies.size():
-										(pb->m_proxies.size()*100)/100;
+										(pb->m_proxies.size()*10)/100;
 /* Move boxes		*/ 
 m_profiler.Start();
 for(int i=0;i<nupd;i++)

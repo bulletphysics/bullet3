@@ -198,7 +198,7 @@ extern int doTree;
 
 void BulletSAPCompleteBoxPruningTest::PerformTest()
 {
-	int numUpdatedBoxes = mNbBoxes/*/10*/;
+	int numUpdatedBoxes = (mNbBoxes*10)/100;
 	if (m_firstTime)
 	{
 		numUpdatedBoxes = mNbBoxes;

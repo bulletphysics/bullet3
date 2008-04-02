@@ -40,7 +40,7 @@
 			<Tool
 				Name="VCCLCompilerTool"
 				Optimization="0"
-				AdditionalIncludeDirectories=".\Opcode;&quot;.\bullet-2.46\src&quot;;.\AntTweakBar\include;.\GIMPACT\Include;.\Bullet\src"
+				AdditionalIncludeDirectories=".\Opcode;.\AntTweakBar\include;.\GIMPACT\Include;../../src;../../Glut"
 				PreprocessorDefinitions="WIN32;_DEBUG;_CONSOLE"
 				MinimalRebuild="true"
 				ExceptionHandling="0"
@@ -120,7 +120,7 @@
 			/>
 			<Tool
 				Name="VCCLCompilerTool"
-				AdditionalIncludeDirectories=".\Opcode;&quot;.\bullet-2.46\src&quot;;.\AntTweakBar\include;.\GIMPACT\Include;.\Bullet\src"
+				AdditionalIncludeDirectories=".\Opcode;.\AntTweakBar\include;.\GIMPACT\Include;../../src;../../Glut"
 				PreprocessorDefinitions="WIN32;NDEBUG;_CONSOLE"
 				ExceptionHandling="0"
 				RuntimeLibrary="0"
