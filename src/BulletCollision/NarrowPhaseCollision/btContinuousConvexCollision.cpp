@@ -16,7 +16,6 @@ subject to the following restrictions:
 
 #include "btContinuousConvexCollision.h"
 #include "BulletCollision/CollisionShapes/btConvexShape.h"
-#include "BulletCollision/CollisionShapes/btMinkowskiSumShape.h"
 #include "BulletCollision/NarrowPhaseCollision/btSimplexSolverInterface.h"
 #include "LinearMath/btTransformUtil.h"
 #include "BulletCollision/CollisionShapes/btSphereShape.h"
@@ -35,7 +34,7 @@ m_convexA(convexA),m_convexB(convexB)
 
 /// This maximum should not be necessary. It allows for untested/degenerate cases in production code.
 /// You don't want your game ever to lock-up.
-#define MAX_ITERATIONS 1000
+#define MAX_ITERATIONS 64
 
 bool	btContinuousConvexCollision::calcTimeOfImpact(
 				const btTransform& fromA,

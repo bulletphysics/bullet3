@@ -33,7 +33,6 @@ subject to the following restrictions:
 
 
 
-#include "BulletCollision/CollisionShapes/btMinkowskiSumShape.h"
 #include "BulletCollision/NarrowPhaseCollision/btVoronoiSimplexSolver.h"
 #include "BulletCollision/CollisionShapes/btSphereShape.h"
 

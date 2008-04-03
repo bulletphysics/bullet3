@@ -84,6 +84,7 @@ void LinearConvexCastDemo::initPhysics()
 	shapeA->addPoint( btVector3(   -r, -0.25f * h,   -r ) );
 
 
+
 	// Triangle
 	btConvexHullShape* shapeB = new btConvexHullShape;
 	shapeB->addPoint( btVector3(  0.0f,  1.0f, 0.0f ) );
@@ -118,24 +119,43 @@ void LinearConvexCastDemo::displayCallback(void)
 
 	GL_ShapeDrawer::drawCoordSystem();
 
+	
+
+	static btScalar angle = 0.f;
+	angle+=getDeltaTimeMicroseconds()/1000000.0;
+
+	tr[1].setRotation(btQuaternion(btVector3(1,0,0),angle));
+
 	btTransform toA, toB;
-	toA.setIdentity();
-	toA.setOrigin( btVector3( 0.0f, 1.5f, 0.0f  ) );
-	toB.setIdentity();
-	toB.setOrigin( btVector3( 0.0f, 4.0f, 0.0f  ) );
+	toA = tr[0];
+	toA.setOrigin( btVector3( 0.0f, 0.f, 0.0f  ) );
+	toB = tr[1];
+	toB.setOrigin( btVector3( 0.0f, 0.0f, 0.0f  ) );
 
 
 	gGjkSimplexSolver.reset();
 	
-	btGjkConvexCast convexCaster(shapePtr[ 0 ], shapePtr[ 1 ], &gGjkSimplexSolver );
-	//btSubsimplexConvexCast convexCaster( shapePtr[ 0 ], shapePtr[ 1 ], &gGjkSimplexSolver );
+
+	//btGjkConvexCast convexCaster(shapePtr[ 0 ], shapePtr[ 1 ], &gGjkSimplexSolver );
+	btSubsimplexConvexCast convexCaster( shapePtr[ 0 ], shapePtr[ 1 ], &gGjkSimplexSolver );
 
 	btConvexCast::CastResult result;
+
+	result.m_hitPoint.setValue(0,0,0);
+
 	convexCaster.calcTimeOfImpact( tr[ 0 ], toA, tr[ 1 ], toB, result );
 
-	btScalar m1[16], m2[16];
+	btScalar m1[16], m2[16],m3[16];
 	tr[ 0 ].getOpenGLMatrix( m1 );
 	tr[ 1 ].getOpenGLMatrix( m2 );
+
+	btSphereShape	sphere(0.2);
+
+	btTransform tmp = tr[0];
+	tmp.setOrigin(result.m_hitPoint);
+	tmp.getOpenGLMatrix(m3);
+	m_shapeDrawer.drawOpenGL( m3, &sphere, btVector3( 1, 0, 1 ), getDebugMode() );
+
 
 	m_shapeDrawer.drawOpenGL( m1, shapePtr[ 0 ], btVector3( 1, 0, 0 ), getDebugMode() );
 	m_shapeDrawer.drawOpenGL( m2, shapePtr[ 1 ], btVector3( 1, 0, 0 ), getDebugMode() );

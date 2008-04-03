@@ -14,11 +14,10 @@ subject to the following restrictions:
 */
 
 #include "btMinkowskiPenetrationDepthSolver.h"
-#include "BulletCollision/CollisionShapes/btMinkowskiSumShape.h"
 #include "BulletCollision/NarrowPhaseCollision/btSubSimplexConvexCast.h"
 #include "BulletCollision/NarrowPhaseCollision/btVoronoiSimplexSolver.h"
 #include "BulletCollision/NarrowPhaseCollision/btGjkPairDetector.h"
-
+#include "BulletCollision/CollisionShapes/btConvexShape.h"
 
 
 

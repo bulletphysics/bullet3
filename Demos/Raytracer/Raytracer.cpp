@@ -101,6 +101,7 @@ void	Raytracer::initPhysics()
 	{
 		transforms[i].setIdentity();
 		btVector3	pos(0.f,0.f,-(2.5* numObjects * 0.5)+i*2.5f);
+		transforms[i].setIdentity();
 		transforms[i].setOrigin( pos );
 		btQuaternion orn;
 		if (i < 2)
