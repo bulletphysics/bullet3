@@ -1,0 +1,296 @@
+/*
+Bullet Continuous Collision Detection and Physics Library
+Copyright (c) 2003-2006 Erwin Coumans  http://continuousphysics.com/Bullet/
+
+This software is provided 'as-is', without any express or implied warranty.
+In no event will the authors be held liable for any damages arising from the use of this software.
+Permission is granted to anyone to use this software for any purpose, 
+including commercial applications, and to alter it and redistribute it freely, 
+subject to the following restrictions:
+
+1. The origin of this software must not be misrepresented; you must not claim that you wrote the original software. If you use this software in a product, an acknowledgment in the product documentation would be appreciated but is not required.
+2. Altered source versions must be plainly marked as such, and must not be misrepresented as being the original software.
+3. This notice may not be removed or altered from any source distribution.
+*/
+
+/*
+Added by Roman Ponomarev (rponom@gmail.com)
+April 04, 2008
+*/
+
+//-----------------------------------------------------------------------------
+
+
+#include "btBulletDynamicsCommon.h"
+#include "LinearMath/btIDebugDraw.h"
+
+#include "GLDebugDrawer.h"
+
+#include "BMF_Api.h"
+#include <stdio.h> //printf debugging
+
+#include "SliderConstraintDemo.h"
+#include "GL_ShapeDrawer.h"
+#include "GlutStuff.h"
+
+//-----------------------------------------------------------------------------
+
+#define CUBE_HALF_EXTENTS 1.f
+
+//-----------------------------------------------------------------------------
+
+// A couple of sliders
+static btSliderConstraint *spSlider1, *spSlider2;
+
+//-----------------------------------------------------------------------------
+
+static void draw_axes(const btRigidBody& rb, const btTransform& frame)
+{
+	glBegin(GL_LINES);
+	// draw world transform
+	btVector3 from = rb.getWorldTransform().getOrigin();
+	btVector3 to = from + rb.getWorldTransform().getBasis() * btVector3(5,0,0);
+	// X in red
+	glColor3f(255.0F, 0.0F, 0.0F);
+	glVertex3d(from.getX(), from.getY(), from.getZ());
+	glVertex3d(to.getX(), to.getY(), to.getZ());
+	to = from + rb.getWorldTransform().getBasis() * btVector3(0,5,0);
+	// Y in green
+	glColor3f(0.0F, 255.0F, 0.0F);
+	glVertex3d(from.getX(), from.getY(), from.getZ());
+	glVertex3d(to.getX(), to.getY(), to.getZ());
+	to = from + rb.getWorldTransform().getBasis() * btVector3(0,0,5);
+	// Z in blue
+	glColor3f(0.0F, 0.0F, 255.0F);
+	glVertex3d(from.getX(), from.getY(), from.getZ());
+	glVertex3d(to.getX(), to.getY(), to.getZ());
+	// draw slider frame
+	btTransform calc_frame = rb.getWorldTransform() * frame;
+	from = calc_frame.getOrigin();
+	to = from + calc_frame.getBasis() * btVector3(10,0,0);
+	// X in red
+	glColor3f(255.0F, 0.0F, 0.0F);
+	glVertex3d(from.getX(), from.getY(), from.getZ());
+	glVertex3d(to.getX(), to.getY(), to.getZ());
+	to = from + calc_frame.getBasis() * btVector3(0,10,0);
+	// Y in green
+	glColor3f(0.0F, 255.0F, 0.0F);
+	glVertex3d(from.getX(), from.getY(), from.getZ());
+	glVertex3d(to.getX(), to.getY(), to.getZ());
+	to = from + calc_frame.getBasis() * btVector3(0,0,10);
+	// Z in blue
+	glColor3f(0.0F, 0.0F, 255.0F);
+	glVertex3d(from.getX(), from.getY(), from.getZ());
+	glVertex3d(to.getX(), to.getY(), to.getZ());
+	glEnd();
+} // draw_axes()
+
+//-----------------------------------------------------------------------------
+
+static void	drawSlider(btSliderConstraint* pSlider)
+{
+	draw_axes(pSlider->getRigidBodyA(), pSlider->getFrameOffsetA());
+	draw_axes(pSlider->getRigidBodyB(), pSlider->getFrameOffsetB());
+	// draw limits in white
+	btVector3 from(pSlider->getLowerLinLimit(), 0, 0);
+	btVector3 to(pSlider->getUpperLinLimit(), 0, 0);
+	btTransform trans;
+	if(pSlider->getUseLinearReferenceFrameA())
+	{
+		trans = pSlider->getRigidBodyA().getWorldTransform() * pSlider->getFrameOffsetA();
+	}
+	else
+	{
+		trans = pSlider->getRigidBodyB().getWorldTransform() * pSlider->getFrameOffsetB();
+	}
+	from = trans * from;
+	to = trans * to;
+	glBegin(GL_LINES);
+	glColor3f(255.0F, 255.0F, 255.0F);
+	glVertex3d(from.getX(), from.getY(), from.getZ());
+	glVertex3d(to.getX(), to.getY(), to.getZ());
+	glEnd();
+} // drawSlider()
+
+//-----------------------------------------------------------------------------
+
+void SliderConstraintDemo::initPhysics()
+{
+	setCameraDistance(26.f);
+
+	// init world
+	m_collisionConfiguration = new btDefaultCollisionConfiguration();
+	m_dispatcher = new btCollisionDispatcher(m_collisionConfiguration);
+	btVector3 worldMin(-1000,-1000,-1000);
+	btVector3 worldMax(1000,1000,1000);
+	m_overlappingPairCache = new btAxisSweep3(worldMin,worldMax);
+	m_constraintSolver = new btSequentialImpulseConstraintSolver();
+	btDiscreteDynamicsWorld* wp = new btDiscreteDynamicsWorld(m_dispatcher,m_overlappingPairCache,m_constraintSolver,m_collisionConfiguration);
+	//	wp->getSolverInfo().m_numIterations = 20; // default is 10
+	m_dynamicsWorld = wp;
+
+	// add floor
+	btCollisionShape* groundShape = new btStaticPlaneShape(btVector3(0,1,0),50);
+	m_collisionShapes.push_back(groundShape);
+	btTransform groundTransform;
+	groundTransform.setIdentity();
+	groundTransform.setOrigin(btVector3(0,-56,0));
+	btRigidBody* groundBody = localCreateRigidBody(0, groundTransform, groundShape);
+	
+	// add box shape (will be reused for all bodies)
+	btCollisionShape* shape = new btBoxShape(btVector3(CUBE_HALF_EXTENTS,CUBE_HALF_EXTENTS,CUBE_HALF_EXTENTS));
+	m_collisionShapes.push_back(shape);
+	// mass of dymamic bodies
+	btScalar mass = btScalar(1.);
+	
+	// add dynamic rigid body A1
+	btTransform trans;
+	trans.setIdentity();
+	btVector3 worldPos(0,0,0);
+	trans.setOrigin(worldPos);
+	btRigidBody* pRbA1 = localCreateRigidBody(mass, trans, shape);
+	pRbA1->setActivationState(DISABLE_DEACTIVATION);
+
+	// add dynamic rigid body B1
+	worldPos.setValue(-10,0,0);
+	trans.setOrigin(worldPos);
+	btRigidBody* pRbB1 = localCreateRigidBody(mass, trans, shape);
+	pRbB1->setActivationState(DISABLE_DEACTIVATION);
+
+	// create slider constraint between A1 and B1 and add it to world
+	btTransform frameInA, frameInB;
+	frameInA = btTransform::getIdentity();
+	frameInB = btTransform::getIdentity();
+	
+	spSlider1 = new btSliderConstraint(*pRbA1, *pRbB1, frameInA, frameInB, true);
+	spSlider1->setLowerLinLimit(-15.0F);
+	spSlider1->setUpperLinLimit(-5.0F);
+	spSlider1->setLowerAngLimit(-SIMD_PI / 3.0F);
+	spSlider1->setUpperAngLimit( SIMD_PI / 3.0F);
+
+	m_dynamicsWorld->addConstraint(spSlider1, true);
+
+	// add kinematic rigid body A2
+	worldPos.setValue(0,2,0);
+	trans.setOrigin(worldPos);
+	btRigidBody* pRbA2 = localCreateRigidBody(0, trans, shape);
+	pRbA2->setActivationState(DISABLE_DEACTIVATION);
+
+	// add dynamic rigid body B2
+	worldPos.setValue(-10,2,0);
+	trans.setOrigin(worldPos);
+	btRigidBody* pRbB2 = localCreateRigidBody(mass, trans, shape);
+	pRbB2->setActivationState(DISABLE_DEACTIVATION);
+
+	// create slider constraint between A2 and B2 and add it to world
+	spSlider2 = new btSliderConstraint(*pRbA2, *pRbB2, frameInA, frameInB, true);
+	spSlider2->setLowerLinLimit(-15.0F);
+	spSlider2->setUpperLinLimit(-5.0F);
+	spSlider2->setLowerAngLimit(-SIMD_PI / 3.0F);
+	spSlider2->setUpperAngLimit( SIMD_PI / 3.0F);
+	// change default damping and restitution
+	spSlider2->setDampingDirLin(0.005F);
+	spSlider2->setRestitutionLimLin(1.1F);
+
+	m_dynamicsWorld->addConstraint(spSlider2, true);
+
+} // SliderConstraintDemo::initPhysics()
+
+//-----------------------------------------------------------------------------
+
+SliderConstraintDemo::~SliderConstraintDemo()
+{
+	//cleanup in the reverse order of creation/initialization
+	int i;
+	//removed/delete constraints
+	for (i=m_dynamicsWorld->getNumConstraints()-1; i>=0 ;i--)
+	{
+		btTypedConstraint* constraint = m_dynamicsWorld->getConstraint(i);
+		m_dynamicsWorld->removeConstraint(constraint);
+		delete constraint;
+	}
+	//remove the rigidbodies from the dynamics world and delete them
+	for (i=m_dynamicsWorld->getNumCollisionObjects()-1; i>=0 ;i--)
+	{
+		btCollisionObject* obj = m_dynamicsWorld->getCollisionObjectArray()[i];
+		btRigidBody* body = btRigidBody::upcast(obj);
+		if (body && body->getMotionState())
+		{
+			delete body->getMotionState();
+		}
+		m_dynamicsWorld->removeCollisionObject( obj );
+		delete obj;
+	}
+	//delete collision shapes
+	for (int j=0;j<m_collisionShapes.size();j++)
+	{
+		btCollisionShape* shape = m_collisionShapes[j];
+		delete shape;
+	}
+	//delete dynamics world
+	delete m_dynamicsWorld;
+	//delete solver
+	delete m_constraintSolver;
+	//delete broadphase
+	delete m_overlappingPairCache;
+	//delete dispatcher
+	delete m_dispatcher;
+	delete m_collisionConfiguration;
+} // SliderConstraintDemo::~SliderConstraintDemo()
+
+//-----------------------------------------------------------------------------
+
+void SliderConstraintDemo::clientMoveAndDisplay()
+{
+	glClear(GL_COLOR_BUFFER_BIT | GL_DEPTH_BUFFER_BIT); 
+ 	float dt = float(getDeltaTimeMicroseconds()) * 0.000001f;
+ 	//during idle mode, just run 1 simulation step maximum
+	int maxSimSubSteps = m_idle ? 1 : 1;
+	if(m_idle)
+	{
+		dt = 1.0/420.f;
+	}
+	int numSimSteps = m_dynamicsWorld->stepSimulation(dt,maxSimSubSteps);
+	//optional but useful: debug drawing
+	m_dynamicsWorld->debugDrawWorld();
+	bool verbose = false;
+	if (verbose)
+	{
+		if (!numSimSteps)
+			printf("Interpolated transforms\n");
+		else
+		{
+			if (numSimSteps > maxSimSubSteps)
+			{
+				//detect dropping frames
+				printf("Dropped (%i) simulation steps out of %i\n",numSimSteps - maxSimSubSteps,numSimSteps);
+			} else
+			{
+				printf("Simulated (%i) steps\n",numSimSteps);
+			}
+		}
+	}
+	renderme();
+	drawSlider(spSlider1);
+	drawSlider(spSlider2);
+    glFlush();
+    glutSwapBuffers();
+} // SliderConstraintDemo::clientMoveAndDisplay()
+
+//-----------------------------------------------------------------------------
+
+void SliderConstraintDemo::displayCallback(void) 
+{
+    glClear(GL_COLOR_BUFFER_BIT | GL_DEPTH_BUFFER_BIT); 
+	if(m_dynamicsWorld)
+	{
+		m_dynamicsWorld->debugDrawWorld();
+	}
+	drawSlider(spSlider1);
+	drawSlider(spSlider2);
+	renderme();
+    glFlush();
+    glutSwapBuffers();
+} // SliderConstraintDemo::displayCallback()
+
+//-----------------------------------------------------------------------------
