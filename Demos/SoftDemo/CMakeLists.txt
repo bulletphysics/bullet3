@@ -57,6 +57,9 @@ LibOpenGLSupport LibConvexHull  LibBulletDynamics  LibBulletCollision LibLinearM
 
 ADD_EXECUTABLE(SoftBodyDemo
 	main.cpp
+	btSoftBodyRigidBodyCollisionConfiguration.cpp
+	btSoftRigidCollisionAlgorithm.cpp
+	btSoftSoftCollisionAlgorithm.cpp
 	SoftDemo.cpp
 )
 
