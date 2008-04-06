@@ -21,7 +21,7 @@ subject to the following restrictions:
 #include "DemoApplication.h"
 #include "LinearMath/btAlignedObjectArray.h"
 #include "BulletDynamics/SoftBody/btSoftBody.h"
-#include "BulletDynamics/SoftBody/btSparseSDF.h"
+
 
 class btBroadphaseInterface;
 class btCollisionShape;
@@ -31,33 +31,29 @@ class btConstraintSolver;
 struct btCollisionAlgorithmCreateFunc;
 class btDefaultCollisionConfiguration;
 
+///collisions between two btSoftBody's
+class btSoftSoftCollisionAlgorithm;
+
+///collisions between a btSoftBody and a btRigidBody
+class btSoftRididCollisionAlgorithm;
+
 
 ///CcdPhysicsDemo shows basic stacking using Bullet physics, and allows toggle of Ccd (using key '1')
 class SoftDemo : public DemoApplication
 {
 public:
-struct	SoftBodyImpl : btSoftBody::ISoftBody
-	{
-	void		Attach(btSoftBody*);
-	void		Detach(btSoftBody*);
-	void		StartCollide(const btVector3&,const btVector3&);
-	bool		CheckContactPrecise(const btVector3&,
-									btSoftBody::ISoftBody::sCti&);
-	bool		CheckContact(	const btVector3&,
-								btSoftBody::ISoftBody::sCti&);
-	void		EndCollide();
-	void		EvaluateMedium(	const btVector3&,
-								btSoftBody::ISoftBody::sMedium&);
-	SoftDemo*	pdemo;
-	btScalar	air_density;
-	btScalar	water_density;
-	btScalar	water_offset;
-	btVector3	water_normal;	
-	}									m_softbodyimpl;
+
+	btAlignedObjectArray<btSoftSoftCollisionAlgorithm*> m_SoftSoftCollisionAlgorithms;
+
+	btAlignedObjectArray<btSoftRididCollisionAlgorithm*> m_SoftRigidCollisionAlgorithms;
+
+	btSoftBody::btSoftBodyWorldInfo	m_softBodyWorldInfo;
+
 	btAlignedObjectArray<btSoftBody*>	m_softbodies;
-	btSparseSdf<3>						m_sparsesdf;
-	bool								m_autocam;
+
 	
+	bool								m_autocam;
+
 
 	//keep the collision shapes, for deletion/cleanup
 	btAlignedObjectArray<btCollisionShape*>		m_collisionShapes;
@@ -66,12 +62,6 @@ struct	SoftBodyImpl : btSoftBody::ISoftBody
 
 	btCollisionDispatcher*	m_dispatcher;
 
-#ifdef USE_PARALLEL_DISPATCHER
-#ifdef WIN32
-	class	Win32ThreadSupport*		m_threadSupportCollision;
-	class	Win32ThreadSupport*		m_threadSupportSolver;
-#endif
-#endif
 
 	btConstraintSolver*	m_solver;
 
@@ -80,7 +70,7 @@ struct	SoftBodyImpl : btSoftBody::ISoftBody
 	btDefaultCollisionConfiguration* m_collisionConfiguration;
 
 
-	public:
+public:
 
 	void	initPhysics();
 
@@ -94,9 +84,9 @@ struct	SoftBodyImpl : btSoftBody::ISoftBody
 	virtual void clientMoveAndDisplay();
 
 	virtual void displayCallback();
-	
+
 	void createStack( btCollisionShape* boxShape, float halfCubeSize, int size, float zPos );
-	
+
 	static DemoApplication* Create()
 	{
 		SoftDemo* demo = new SoftDemo;
@@ -104,7 +94,7 @@ struct	SoftBodyImpl : btSoftBody::ISoftBody
 		demo->initPhysics();
 		return demo;
 	}
-	
+
 	//
 	void	clientResetScene();
 	void	renderme();
