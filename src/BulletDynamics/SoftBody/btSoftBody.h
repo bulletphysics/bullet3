@@ -61,6 +61,7 @@ struct	btSoftBody : public btCollisionObject
 		btVector3	water_normal;	
 		btBroadphaseInterface*	m_broadphase;
 		btCollisionDispatcher*	m_dispatcher;
+		btVector3	m_gravity;
 
 		btSparseSdf<3>						m_sparsesdf;
 	};
@@ -109,12 +110,7 @@ struct	btSoftBody : public btCollisionObject
 		btScalar		m_density;	/* Density				*/ 
 	};
 
-	virtual void		EvaluateMedium(	const btVector3& /*position*/, 	sMedium& medium)
-	{	
-		medium.m_velocity=btVector3(0,0,0);
-		medium.m_pressure=0;
-		medium.m_density=0; 
-	}
+	virtual void		EvaluateMedium(	const btVector3& /*position*/, 	sMedium& medium);
 
 	
 

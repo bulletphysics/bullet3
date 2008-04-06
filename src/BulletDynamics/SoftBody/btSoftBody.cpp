@@ -72,7 +72,7 @@ btSoftBody::btSoftBody(btSoftBody::btSoftBodyWorldInfo&	worldInfo,int node_count
 	}
 	updateTransform();
 	///register to the broadphase
-	setBroadphaseHandle( m_worldInfo.m_broadphase->createProxy(m_bounds[0],m_bounds[1],SOFTBODY_SHAPE_PROXYTYPE,this,1,1,m_worldInfo.m_dispatcher,0));
+	setBroadphaseHandle( m_worldInfo.m_broadphase->createProxy(m_bounds[0],m_bounds[1],SOFTBODY_SHAPE_PROXYTYPE,this,btBroadphaseProxy::DefaultFilter,btBroadphaseProxy::AllFilter,m_worldInfo.m_dispatcher,0));
 
 
 }
@@ -124,7 +124,10 @@ void btSoftBody::updateBounds()
 
 		if (getBroadphaseHandle())
 		{
-			m_worldInfo.m_broadphase->setAabb(getBroadphaseHandle(),m_bounds[0],m_bounds[1],m_worldInfo.m_dispatcher);
+			///todo: figure out how much larger the aabb needs to be, based on motion?
+			btVector3 aabbMin = m_bounds[0]-btVector3(1,1,1);
+			btVector3 aabbMax = m_bounds[1]+btVector3(1,1,1);
+			m_worldInfo.m_broadphase->setAabb(getBroadphaseHandle(),aabbMin,aabbMax,m_worldInfo.m_dispatcher);
 		}
 
 	}
@@ -1240,7 +1243,9 @@ bool		btSoftBody::CheckContact(	const btVector3& x,
 		btRigidBody*		prb=btRigidBody::upcast(m_overlappingRigidBodies[i]);
 
 		btCollisionShape*	shp=prb->getCollisionShape();
+		btAssert(shp->isConvex());
 		btConvexShape*		csh=static_cast<btConvexShape*>(shp);
+
 		const btTransform&	wtr=prb->getWorldTransform();
 		btScalar			dst=m_worldInfo.m_sparsesdf.Evaluate(wtr.invXform(x),csh,nrm);
 		nrm=wtr.getBasis()*nrm;
@@ -1254,4 +1259,25 @@ bool		btSoftBody::CheckContact(	const btVector3& x,
 		}
 	}
 	return(maxdepth<0);
+}
+
+
+//
+void		btSoftBody::EvaluateMedium(	const btVector3& x,
+												   btSoftBody::sMedium& medium)
+{
+	medium.m_velocity	=	btVector3(0,0,0);
+	medium.m_pressure	=	0;
+	medium.m_density	=	m_worldInfo.air_density;
+	if(m_worldInfo.water_density>0)
+	{
+		const btScalar	depth=-(dot(x,m_worldInfo.water_normal)+m_worldInfo.water_offset);
+		if(depth>0)
+		{
+			medium.m_density	=	m_worldInfo.water_density;
+			medium.m_pressure	=	depth			*
+				m_worldInfo.water_density	*
+				m_worldInfo.m_gravity.length();
+		}
+	}
 }

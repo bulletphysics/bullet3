@@ -252,12 +252,6 @@ void SoftDemo::clientMoveAndDisplay()
 
 #endif		
 
-		/* soft bodies	collision detection */ 
-		for(int ib=0;ib<m_softbodies.size();++ib)
-		{
-			btSoftBody*	psb=m_softbodies[ib];
-//			psb->updateAabb(dt);
-		}
 
 		/* soft bodies simulation */ 
 		for(int ib=0;ib<m_softbodies.size();++ib)
@@ -769,7 +763,7 @@ static void	Init_TorusMatch(SoftDemo* pdemo)
 
 }
 
-static unsigned	current_demo=0;
+static unsigned	current_demo=1;
 
 void	SoftDemo::clientResetScene()
 {
@@ -818,6 +812,7 @@ void	SoftDemo::clientResetScene()
 	m_softBodyWorldInfo.water_density	=	0;
 	m_softBodyWorldInfo.water_offset		=	0;
 	m_softBodyWorldInfo.water_normal		=	btVector3(0,0,0);
+	m_softBodyWorldInfo.m_gravity.setValue(0,-10,0);
 
 
 	m_autocam						=	false;
@@ -921,6 +916,8 @@ void	SoftDemo::initPhysics()
 
 	m_dynamicsWorld->getDispatchInfo().m_enableSPU = true;
 	m_dynamicsWorld->setGravity(btVector3(0,-10,0));
+	m_softBodyWorldInfo.m_gravity.setValue(0,-10,0);
+
 
 
 
@@ -929,7 +926,7 @@ void	SoftDemo::initPhysics()
 
 	btTransform tr;
 	tr.setIdentity();
-	tr.setOrigin(btVector3(0,-20,0));
+	tr.setOrigin(btVector3(0,-12,0));
 
 
 
