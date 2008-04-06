@@ -25,7 +25,6 @@ subject to the following restrictions:
 #include "../DynamicControlDemo/MotorDemo.h"
 #include "../RagdollDemo/RagdollDemo.h"
 #include "../GimpactTestDemo/GimpactTestDemo.h"
-#include "../MultiThreadedDemo/MultiThreadedDemo.h"
 #include "../Raytracer/Raytracer.h"
 #include "../GjkConvexCastDemo/LinearConvexCastDemo.h"
 #include "../VehicleDemo/VehicleDemo.h"
@@ -111,9 +110,6 @@ btDemoEntry g_demoEntries[] =
 	{"ConvexDecomposition",ConvexDecompositionDemo::Create},
 	{"BspDemo", BspDemo::Create},
 	{"Gimpact Test", GimpactConcaveDemo::Create},
-#ifndef BT_USE_DOUBLE_PRECISION
-	{"MultiThreaded", MultiThreadedDemo::Create},
-#endif //BT_USE_DOUBLE_PRECISION
 	{"Raytracer Test",Raytracer::Create},
 	{"GjkConvexCast",LinearConvexCastDemo::Create},
 	{"VehicleDemo",VehicleDemo::Create},
