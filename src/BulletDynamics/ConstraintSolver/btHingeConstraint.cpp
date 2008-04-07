@@ -37,13 +37,19 @@ btHingeConstraint::btHingeConstraint(btRigidBody& rbA,btRigidBody& rbB, const bt
 	
 	// since no frame is given, assume this to be zero angle and just pick rb transform axis
 	btVector3 rbAxisA1 = rbA.getCenterOfMassTransform().getBasis().getColumn(0);
-	btScalar projection = rbAxisA1.dot(axisInA);
-	if (projection > SIMD_EPSILON)
-		rbAxisA1 = rbAxisA1*projection - axisInA;
-	 else
-		rbAxisA1 = rbA.getCenterOfMassTransform().getBasis().getColumn(1);
-	
-	btVector3 rbAxisA2 = rbAxisA1.cross(axisInA);
+
+	btVector3 rbAxisA2;
+	btScalar projection = axisInA.dot(rbAxisA1);
+	if (projection >= 1.0f - SIMD_EPSILON) {
+		rbAxisA1 = -rbA.getCenterOfMassTransform().getBasis().getColumn(2);
+		rbAxisA2 = rbA.getCenterOfMassTransform().getBasis().getColumn(1);
+	} else if (projection <= -1.0f + SIMD_EPSILON) {
+		rbAxisA1 = rbA.getCenterOfMassTransform().getBasis().getColumn(2);
+		rbAxisA2 = rbA.getCenterOfMassTransform().getBasis().getColumn(1);      
+	} else {
+		rbAxisA2 = axisInA.cross(rbAxisA1);
+		rbAxisA1 = rbAxisA2.cross(axisInA);
+	}
 
 	m_rbAFrame.getBasis().setValue( rbAxisA1.getX(),rbAxisA2.getX(),axisInA.getX(),
 									rbAxisA1.getY(),rbAxisA2.getY(),axisInA.getY(),
@@ -51,8 +57,7 @@ btHingeConstraint::btHingeConstraint(btRigidBody& rbA,btRigidBody& rbB, const bt
 
 	btQuaternion rotationArc = shortestArcQuat(axisInA,axisInB);
 	btVector3 rbAxisB1 =  quatRotate(rotationArc,rbAxisA1);
-	btVector3 rbAxisB2 =  rbAxisB1.cross(axisInB);
-	
+	btVector3 rbAxisB2 =  axisInB.cross(rbAxisB1);	
 	
 	m_rbBFrame.getOrigin() = pivotInB;
 	m_rbBFrame.getBasis().setValue( rbAxisB1.getX(),rbAxisB2.getX(),-axisInB.getX(),
