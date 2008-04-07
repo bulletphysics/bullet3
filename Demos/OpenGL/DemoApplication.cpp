@@ -179,8 +179,18 @@ void DemoApplication::updateCamera() {
 	m_cameraPosition[0] = eyePos.getX();
 	m_cameraPosition[1] = eyePos.getY();
 	m_cameraPosition[2] = eyePos.getZ();
- 
-    glFrustum(-1.0, 1.0, -1.0, 1.0, 1.0, 10000.0);
+
+	if (m_glutScreenWidth > m_glutScreenHeight) 
+	{
+		btScalar aspect = m_glutScreenWidth / (btScalar)m_glutScreenHeight;
+		glFrustum (-aspect, aspect, -1.0, 1.0, 1.0, 10000.0);
+	} else 
+	{
+		btScalar aspect = m_glutScreenHeight / (btScalar)m_glutScreenWidth;
+		glFrustum (-1.0, 1.0, -aspect, aspect, 1.0, 10000.0);
+	}
+
+
     glMatrixMode(GL_MODELVIEW);
 	glLoadIdentity();
 	gluLookAt(m_cameraPosition[0], m_cameraPosition[1], m_cameraPosition[2], 
@@ -545,7 +555,7 @@ btVector3	DemoApplication::getRayTo(int x,int y)
 	btVector3	rayFrom = getCameraPosition();
 	btVector3 rayForward = (getCameraTargetPosition()-getCameraPosition());
 	rayForward.normalize();
-	float farPlane = 600.f;
+	float farPlane = 10000.f;
 	rayForward*= farPlane;
 
 	btVector3 rightOffset;
@@ -558,11 +568,25 @@ btVector3	DemoApplication::getRayTo(int x,int y)
 	vertical.normalize();
 
 	float tanfov = tanf(0.5f*fov);
+	
+	btScalar aspect = m_glutScreenHeight / (btScalar)m_glutScreenWidth;
+
 	hor *= 2.f * farPlane * tanfov;
 	vertical *= 2.f * farPlane * tanfov;
+
+	if (aspect<1)
+	{
+		hor/=aspect;
+	} else
+	{
+		vertical*=aspect;
+	}
+
 	btVector3 rayToCenter = rayFrom + rayForward;
 	btVector3 dHor = hor * 1.f/float(m_glutScreenWidth);
 	btVector3 dVert = vertical * 1.f/float(m_glutScreenHeight);
+	
+
 	btVector3 rayTo = rayToCenter - 0.5f * hor + 0.5f * vertical;
 	rayTo += x * dHor;
 	rayTo -= y * dVert;
