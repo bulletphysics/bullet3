@@ -33,11 +33,6 @@ btConeTwistConstraint::btConeTwistConstraint(btRigidBody& rbA,btRigidBody& rbB,
 											 :btTypedConstraint(CONETWIST_CONSTRAINT_TYPE, rbA,rbB),m_rbAFrame(rbAFrame),m_rbBFrame(rbBFrame),
 											 m_angularOnly(false)
 {
-	// flip axis for correct angles
-	m_rbBFrame.getBasis()[1][0] *= btScalar(-1.);
-	m_rbBFrame.getBasis()[1][1] *= btScalar(-1.);
-	m_rbBFrame.getBasis()[1][2] *= btScalar(-1.);
-
 	m_swingSpan1 = btScalar(1e30);
 	m_swingSpan2 = btScalar(1e30);
 	m_twistSpan  = btScalar(1e30);
@@ -54,15 +49,6 @@ btConeTwistConstraint::btConeTwistConstraint(btRigidBody& rbA,const btTransform&
 											 m_angularOnly(false)
 {
 	m_rbBFrame = m_rbAFrame;
-	
-	// flip axis for correct angles
-	m_rbBFrame.getBasis()[1][0] *= btScalar(-1.);
-	m_rbBFrame.getBasis()[1][1] *= btScalar(-1.);
-	m_rbBFrame.getBasis()[1][2] *= btScalar(-1.);
-
-	m_rbBFrame.getBasis()[2][0] *= btScalar(-1.);
-	m_rbBFrame.getBasis()[2][1] *= btScalar(-1.);
-	m_rbBFrame.getBasis()[2][2] *= btScalar(-1.);
 	
 	m_swingSpan1 = btScalar(1e30);
 	m_swingSpan2 = btScalar(1e30);
@@ -143,7 +129,7 @@ void	btConeTwistConstraint::buildJacobian()
 
 	btScalar RMaxAngle1Sq = 1.0f / (m_swingSpan1*m_swingSpan1);		
 	btScalar RMaxAngle2Sq = 1.0f / (m_swingSpan2*m_swingSpan2);	
-	btScalar EllipseAngle = btFabs(swing1)* RMaxAngle1Sq + btFabs(swing2) * RMaxAngle2Sq;
+	btScalar EllipseAngle = btFabs(swing1*swing1)* RMaxAngle1Sq + btFabs(swing2*swing2) * RMaxAngle2Sq;
 
 	if (EllipseAngle > 1.0f)
 	{

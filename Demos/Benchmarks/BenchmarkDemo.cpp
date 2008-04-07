@@ -713,7 +713,7 @@ public:
 
 		localA.setIdentity(); localB.setIdentity();
 		localA.getBasis().setEulerZYX(0,0,M_PI_2); localA.setOrigin(scale*btVector3(btScalar(0.), btScalar(0.30), btScalar(0.)));
-		localB.getBasis().setEulerZYX(0,0,-M_PI_2); localB.setOrigin(scale*btVector3(btScalar(0.), btScalar(-0.14), btScalar(0.)));
+		localB.getBasis().setEulerZYX(0,0,M_PI_2); localB.setOrigin(scale*btVector3(btScalar(0.), btScalar(-0.14), btScalar(0.)));
 		coneC = new btConeTwistConstraint(*m_bodies[BODYPART_SPINE], *m_bodies[BODYPART_HEAD], localA, localB);
 		coneC->setLimit(M_PI_4, M_PI_4, M_PI_2);
 		m_joints[JOINT_SPINE_HEAD] = coneC;
@@ -722,7 +722,7 @@ public:
 
 		localA.setIdentity(); localB.setIdentity();
 		localA.getBasis().setEulerZYX(0,0,-M_PI_4*5); localA.setOrigin(scale*btVector3(btScalar(-0.18), btScalar(-0.10), btScalar(0.)));
-		localB.getBasis().setEulerZYX(0,0,M_PI_4*5); localB.setOrigin(scale*btVector3(btScalar(0.), btScalar(0.225), btScalar(0.)));
+		localB.getBasis().setEulerZYX(0,0,-M_PI_4*5); localB.setOrigin(scale*btVector3(btScalar(0.), btScalar(0.225), btScalar(0.)));
 		coneC = new btConeTwistConstraint(*m_bodies[BODYPART_PELVIS], *m_bodies[BODYPART_LEFT_UPPER_LEG], localA, localB);
 		coneC->setLimit(M_PI_4, M_PI_4, 0);
 		m_joints[JOINT_LEFT_HIP] = coneC;
@@ -739,7 +739,7 @@ public:
 
 		localA.setIdentity(); localB.setIdentity();
 		localA.getBasis().setEulerZYX(0,0,M_PI_4); localA.setOrigin(scale*btVector3(btScalar(0.18), btScalar(-0.10), btScalar(0.)));
-		localB.getBasis().setEulerZYX(0,0,-M_PI_4); localB.setOrigin(scale*btVector3(btScalar(0.), btScalar(0.225), btScalar(0.)));
+		localB.getBasis().setEulerZYX(0,0,M_PI_4); localB.setOrigin(scale*btVector3(btScalar(0.), btScalar(0.225), btScalar(0.)));
 		coneC = new btConeTwistConstraint(*m_bodies[BODYPART_PELVIS], *m_bodies[BODYPART_RIGHT_UPPER_LEG], localA, localB);
 		coneC->setLimit(M_PI_4, M_PI_4, 0);
 		m_joints[JOINT_RIGHT_HIP] = coneC;
@@ -756,7 +756,7 @@ public:
 
 		localA.setIdentity(); localB.setIdentity();
 		localA.getBasis().setEulerZYX(0,0,M_PI); localA.setOrigin(scale*btVector3(btScalar(-0.2), btScalar(0.15), btScalar(0.)));
-		localB.getBasis().setEulerZYX(0,0,-M_PI_2); localB.setOrigin(scale*btVector3(btScalar(0.), btScalar(-0.18), btScalar(0.)));
+		localB.getBasis().setEulerZYX(0,0,M_PI_2); localB.setOrigin(scale*btVector3(btScalar(0.), btScalar(-0.18), btScalar(0.)));
 		coneC = new btConeTwistConstraint(*m_bodies[BODYPART_SPINE], *m_bodies[BODYPART_LEFT_UPPER_ARM], localA, localB);
 		coneC->setLimit(M_PI_2, M_PI_2, 0);
 		m_joints[JOINT_LEFT_SHOULDER] = coneC;
@@ -774,7 +774,7 @@ public:
 
 		localA.setIdentity(); localB.setIdentity();
 		localA.getBasis().setEulerZYX(0,0,0); localA.setOrigin(scale*btVector3(btScalar(0.2), btScalar(0.15), btScalar(0.)));
-		localB.getBasis().setEulerZYX(0,0,-M_PI_2); localB.setOrigin(scale*btVector3(btScalar(0.), btScalar(-0.18), btScalar(0.)));
+		localB.getBasis().setEulerZYX(0,0,M_PI_2); localB.setOrigin(scale*btVector3(btScalar(0.), btScalar(-0.18), btScalar(0.)));
 		coneC = new btConeTwistConstraint(*m_bodies[BODYPART_SPINE], *m_bodies[BODYPART_RIGHT_UPPER_ARM], localA, localB);
 		coneC->setLimit(M_PI_2, M_PI_2, 0);
 		m_joints[JOINT_RIGHT_SHOULDER] = coneC;
@@ -1177,6 +1177,7 @@ void	BenchmarkDemo::exitPhysics()
 
 	
 }
+
 
 
 

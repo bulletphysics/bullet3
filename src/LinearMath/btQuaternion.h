@@ -158,7 +158,7 @@ public:
 
 	btQuaternion inverse() const
 	{
-		return btQuaternion(m_x, m_y, m_z, -m_unusedW);
+		return btQuaternion(-m_x, -m_y, -m_z, m_unusedW);
 	}
 
 	SIMD_FORCE_INLINE btQuaternion
@@ -316,6 +316,7 @@ shortestArcQuatNormalize2(btVector3& v0,btVector3& v1)
 }
 
 #endif
+
 
 
 
