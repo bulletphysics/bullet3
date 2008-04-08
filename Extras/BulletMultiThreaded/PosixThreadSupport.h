@@ -13,13 +13,13 @@ subject to the following restrictions:
 3. This notice may not be removed or altered from any source distribution.
 */
 
-#include <pthread.h>
-#include <semaphore.h>
 
 #include "LinearMath/btScalar.h"
 #include "PlatformDefinitions.h"
 
 #ifdef USE_PTHREADS  //platform specific defines are defined in PlatformDefinitions.h
+#include <pthread.h>
+#include <semaphore.h>
 
 #ifndef POSIX_THREAD_SUPPORT_H
 #define POSIX_THREAD_SUPPORT_H
