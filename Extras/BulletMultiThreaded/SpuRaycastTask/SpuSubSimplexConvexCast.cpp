@@ -97,8 +97,8 @@ bool	SpuSubsimplexRayCast::calcTimeOfImpact(const btTransform& fromRay,
 	while ( (dist2 > epsilon) && maxIter--)
 	{
 		p = supportPoint(bXform, m_shapeTypeB, m_shapeB, m_convexDataB, v);
-		btVector3 n = v.normalized();
-		p += m_marginB * n;
+		btVector3 supportunit = v.normalized();
+		p += m_marginB * supportunit;
 		w = x - p;
 
 		btScalar VdotW = v.dot(w);
