@@ -340,13 +340,19 @@
 				RelativePath="..\..\Demos\AllBulletDemos\..\GjkConvexCastDemo\LinearConvexCastDemo.cpp">
 			</File>
 			<File
-				RelativePath="..\..\Demos\AllBulletDemos\..\MultiThreadedDemo\MultiThreadedDemo.cpp">
-			</File>
-			<File
 				RelativePath="..\..\Demos\AllBulletDemos\..\RagdollDemo\RagdollDemo.cpp">
 			</File>
 			<File
 				RelativePath="..\..\Demos\AllBulletDemos\..\Raytracer\Raytracer.cpp">
+			</File>
+			<File
+				RelativePath="..\..\Demos\AllBulletDemos\..\SoftDemo\btSoftBodyRigidBodyCollisionConfiguration.cpp">
+			</File>
+			<File
+				RelativePath="..\..\Demos\AllBulletDemos\..\SoftDemo\btSoftRigidCollisionAlgorithm.cpp">
+			</File>
+			<File
+				RelativePath="..\..\Demos\AllBulletDemos\..\SoftDemo\btSoftSoftCollisionAlgorithm.cpp">
 			</File>
 			<File
 				RelativePath="..\..\Demos\AllBulletDemos\..\SoftDemo\SoftDemo.cpp">

@@ -290,6 +290,9 @@
 				RelativePath="..\..\Extras\BulletMultiThreaded\btThreadSupportInterface.cpp">
 			</File>
 			<File
+				RelativePath="..\..\Extras\BulletMultiThreaded\PosixThreadSupport.cpp">
+			</File>
+			<File
 				RelativePath="..\..\Extras\BulletMultiThreaded\SequentialThreadSupport.cpp">
 			</File>
 			<File

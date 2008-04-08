@@ -317,6 +317,9 @@
 				RelativePath="..\..\src\BulletDynamics\ConstraintSolver\btSequentialImpulseConstraintSolver.cpp">
 			</File>
 			<File
+				RelativePath="..\..\src\BulletDynamics\ConstraintSolver\btSliderConstraint.cpp">
+			</File>
+			<File
 				RelativePath="..\..\src\BulletDynamics\ConstraintSolver\btSolve2LinearConstraint.cpp">
 			</File>
 			<File
@@ -402,6 +405,9 @@
 				RelativePath="..\..\src\BulletDynamics\ConstraintSolver\btSequentialImpulseConstraintSolver.h">
 			</File>
 			<File
+				RelativePath="..\..\src\BulletDynamics\ConstraintSolver\btSliderConstraint.h">
+			</File>
+			<File
 				RelativePath="..\..\src\BulletDynamics\ConstraintSolver\btSolve2LinearConstraint.h">
 			</File>
 			<File
@@ -433,6 +439,9 @@
 			</File>
 			<File
 				RelativePath="..\..\src\BulletDynamics\SoftBody\btSoftBody.h">
+			</File>
+			<File
+				RelativePath="..\..\src\BulletDynamics\SoftBody\btSoftBodyHelpers.h">
 			</File>
 			<File
 				RelativePath="..\..\src\BulletDynamics\SoftBody\btSparseSDF.h">

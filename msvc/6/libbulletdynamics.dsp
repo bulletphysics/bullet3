@@ -200,6 +200,10 @@ SOURCE=..\..\src\BulletDynamics\ConstraintSolver\btSequentialImpulseConstraintSo
 # End Source File
 # Begin Source File
 
+SOURCE=..\..\src\BulletDynamics\ConstraintSolver\btSliderConstraint.cpp
+# End Source File
+# Begin Source File
+
 SOURCE=..\..\src\BulletDynamics\ConstraintSolver\btSolve2LinearConstraint.cpp
 # End Source File
 # Begin Source File
@@ -312,6 +316,10 @@ SOURCE=..\..\src\BulletDynamics\ConstraintSolver\btSequentialImpulseConstraintSo
 # End Source File
 # Begin Source File
 
+SOURCE=..\..\src\BulletDynamics\ConstraintSolver\btSliderConstraint.h
+# End Source File
+# Begin Source File
+
 SOURCE=..\..\src\BulletDynamics\ConstraintSolver\btSolve2LinearConstraint.h
 # End Source File
 # Begin Source File
@@ -353,6 +361,10 @@ SOURCE=..\..\src\BulletDynamics\Dynamics\btSimpleDynamicsWorld.h
 # Begin Source File
 
 SOURCE=..\..\src\BulletDynamics\SoftBody\btSoftBody.h
+# End Source File
+# Begin Source File
+
+SOURCE=..\..\src\BulletDynamics\SoftBody\btSoftBodyHelpers.h
 # End Source File
 # Begin Source File
 

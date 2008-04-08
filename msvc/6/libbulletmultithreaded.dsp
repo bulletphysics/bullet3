@@ -164,6 +164,10 @@ SOURCE=..\..\Extras\BulletMultiThreaded\btThreadSupportInterface.cpp
 # End Source File
 # Begin Source File
 
+SOURCE=..\..\Extras\BulletMultiThreaded\PosixThreadSupport.cpp
+# End Source File
+# Begin Source File
+
 SOURCE=..\..\Extras\BulletMultiThreaded\SequentialThreadSupport.cpp
 # End Source File
 # Begin Source File

@@ -298,6 +298,15 @@
 			Name="Source Files"
 			Filter="">
 			<File
+				RelativePath="..\..\Demos\SoftDemo\btSoftBodyRigidBodyCollisionConfiguration.cpp">
+			</File>
+			<File
+				RelativePath="..\..\Demos\SoftDemo\btSoftRigidCollisionAlgorithm.cpp">
+			</File>
+			<File
+				RelativePath="..\..\Demos\SoftDemo\btSoftSoftCollisionAlgorithm.cpp">
+			</File>
+			<File
 				RelativePath="..\..\Demos\SoftDemo\main.cpp">
 			</File>
 			<File
@@ -307,6 +316,15 @@
 		<Filter
 			Name="Header Files"
 			Filter="">
+			<File
+				RelativePath="..\..\Demos\SoftDemo\btSoftBodyRigidBodyCollisionConfiguration.h">
+			</File>
+			<File
+				RelativePath="..\..\Demos\SoftDemo\btSoftRigidCollisionAlgorithm.h">
+			</File>
+			<File
+				RelativePath="..\..\Demos\SoftDemo\btSoftSoftCollisionAlgorithm.h">
+			</File>
 			<File
 				RelativePath="..\..\Demos\SoftDemo\SoftDemo.h">
 			</File>

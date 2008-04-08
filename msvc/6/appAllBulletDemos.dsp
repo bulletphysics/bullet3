@@ -214,15 +214,23 @@ SOURCE=..\..\Demos\AllBulletDemos\..\GjkConvexCastDemo\LinearConvexCastDemo.cpp
 # End Source File
 # Begin Source File
 
-SOURCE=..\..\Demos\AllBulletDemos\..\MultiThreadedDemo\MultiThreadedDemo.cpp
-# End Source File
-# Begin Source File
-
 SOURCE=..\..\Demos\AllBulletDemos\..\RagdollDemo\RagdollDemo.cpp
 # End Source File
 # Begin Source File
 
 SOURCE=..\..\Demos\AllBulletDemos\..\Raytracer\Raytracer.cpp
+# End Source File
+# Begin Source File
+
+SOURCE=..\..\Demos\AllBulletDemos\..\SoftDemo\btSoftBodyRigidBodyCollisionConfiguration.cpp
+# End Source File
+# Begin Source File
+
+SOURCE=..\..\Demos\AllBulletDemos\..\SoftDemo\btSoftRigidCollisionAlgorithm.cpp
+# End Source File
+# Begin Source File
+
+SOURCE=..\..\Demos\AllBulletDemos\..\SoftDemo\btSoftSoftCollisionAlgorithm.cpp
 # End Source File
 # Begin Source File
 

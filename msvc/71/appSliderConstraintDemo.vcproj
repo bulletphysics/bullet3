@@ -1,9 +1,9 @@
 <?xml version="1.0" encoding = "Windows-1252"?>
 <VisualStudioProject
 	ProjectType="Visual C++"
-	Version="8.00"
-	Name="appSoftBodyDemo"
-	ProjectGUID="{106E3D23-110E-5DD8-4A6A-D8A2250C43C9}"
+	Version="7.10"
+	Name="appSliderConstraintDemo"
+	ProjectGUID="{E7461CAA-D8C1-90D0-FB1E-FCD4F340FAAE}"
 	SccProjectName=""
 	SccLocalPath="">
 	<Platforms>
@@ -13,8 +13,8 @@
 	<Configurations>
 		<Configuration
 			Name="Release|Win32"
-			OutputDirectory="..\..\out\release8\build\appSoftBodyDemo\"
-			IntermediateDirectory="..\..\out\release8\build\appSoftBodyDemo\"
+			OutputDirectory="..\..\out\release71\build\appSliderConstraintDemo\"
+			IntermediateDirectory="..\..\out\release71\build\appSliderConstraintDemo\"
 			ConfigurationType="1"
 			CharacterSet="2"
 			WholeProgramOptimization="1"
@@ -33,10 +33,10 @@
 				ExceptionHandling="0"
 				AdditionalOptions=" "
 				AdditionalIncludeDirectories=".;..\..;..\..\src;..\..\Glut;..\..\Demos\OpenGL;..\..\Extras\ConvexHull"
-				PrecompiledHeaderFile="..\..\out\release8\build\appSoftBodyDemo\appSoftBodyDemo.pch"
-				AssemblerListingLocation="..\..\out\release8\build\appSoftBodyDemo\"
-				ObjectFile="..\..\out\release8\build\appSoftBodyDemo\"
-				ProgramDataBaseFileName="..\..\out\release8\build\appSoftBodyDemo\SoftBodyDemo.pdb"
+				PrecompiledHeaderFile="..\..\out\release71\build\appSliderConstraintDemo\appSliderConstraintDemo.pch"
+				AssemblerListingLocation="..\..\out\release71\build\appSliderConstraintDemo\"
+				ObjectFile="..\..\out\release71\build\appSliderConstraintDemo\"
+				ProgramDataBaseFileName="..\..\out\release71\build\appSliderConstraintDemo\SliderConstraintDemo.pdb"
 				WarningLevel="3"
 				SuppressStartupBanner="TRUE"
 				Detect64BitPortabilityProblems="TRUE"
@@ -51,7 +51,7 @@
 				EnableCOMDATFolding="2"
 				GenerateDebugInformation="TRUE"
 				IgnoreDefaultLibraryNames="LIBC,LIBCD"
-				OutputFile="..\..\ReleaseSoftBodyDemo.exe"
+				OutputFile="..\..\ReleaseSliderConstraintDemo.exe"
 				SubSystem="1"
 				AdditionalOptions=" "
 				AdditionalDependencies="glut32.lib"
@@ -59,7 +59,7 @@
 				SuppressStartupBanner="TRUE"
 				GenerateManifest="false"
 				AdditionalLibraryDirectories="..\..\Glut"
-				ProgramDatabaseFile="..\..\out\release8\build\appSoftBodyDemo\SoftBodyDemo.pdb"
+				ProgramDatabaseFile="..\..\out\release71\build\appSliderConstraintDemo\SliderConstraintDemo.pdb"
 				TargetMachine="1"/>
 			<Tool
 				Name="VCLibrarianTool"
@@ -70,7 +70,7 @@
 				MkTypLibCompatible="TRUE"
 				SuppressStartupBanner="TRUE"
 				TargetEnvironment="1"
-				TypeLibraryName="..\..\out\release8\build\appSoftBodyDemo\appSoftBodyDemo.tlb"/>
+				TypeLibraryName="..\..\out\release71\build\appSliderConstraintDemo\appSliderConstraintDemo.tlb"/>
 			<Tool
 				Name="VCPostBuildEventTool"/>
 			<Tool
@@ -79,7 +79,7 @@
 				Name="VCPreLinkEventTool"/>
 			<Tool
 				Name="VCResourceCompilerTool"
-				PreprocessorDefinitions="NDEBUG;_CONSOLE;PROJECTGEN_VERSION=8"
+				PreprocessorDefinitions="NDEBUG;_CONSOLE;PROJECTGEN_VERSION=71"
 				AdditionalIncludeDirectories=".;..\..;..\..\src;..\..\Glut;..\..\Demos\OpenGL;..\..\Extras\ConvexHull"
 				Culture="1033"/>
 			<Tool
@@ -89,8 +89,8 @@
 		</Configuration>
 		<Configuration
 			Name="ReleaseDoublePrecision|Win32"
-			OutputDirectory="..\..\out\release_dbl8\build\appSoftBodyDemo\"
-			IntermediateDirectory="..\..\out\release_dbl8\build\appSoftBodyDemo\"
+			OutputDirectory="..\..\out\release_dbl71\build\appSliderConstraintDemo\"
+			IntermediateDirectory="..\..\out\release_dbl71\build\appSliderConstraintDemo\"
 			ConfigurationType="1"
 			CharacterSet="2"
 			UseOfMFC="0"
@@ -102,10 +102,10 @@
 				ExceptionHandling="0"
 				AdditionalOptions=" "
 				AdditionalIncludeDirectories=".;..\..;..\..\src;..\..\Glut;..\..\Demos\OpenGL;..\..\Extras\ConvexHull"
-				PrecompiledHeaderFile="..\..\out\release_dbl8\build\appSoftBodyDemo\appSoftBodyDemo.pch"
-				AssemblerListingLocation="..\..\out\release_dbl8\build\appSoftBodyDemo\"
-				ObjectFile="..\..\out\release_dbl8\build\appSoftBodyDemo\"
-				ProgramDataBaseFileName="..\..\out\release_dbl8\build\appSoftBodyDemo\SoftBodyDemo.pdb"
+				PrecompiledHeaderFile="..\..\out\release_dbl71\build\appSliderConstraintDemo\appSliderConstraintDemo.pch"
+				AssemblerListingLocation="..\..\out\release_dbl71\build\appSliderConstraintDemo\"
+				ObjectFile="..\..\out\release_dbl71\build\appSliderConstraintDemo\"
+				ProgramDataBaseFileName="..\..\out\release_dbl71\build\appSliderConstraintDemo\SliderConstraintDemo.pdb"
 				WarningLevel="3"
 				SuppressStartupBanner="TRUE"
 				Detect64BitPortabilityProblems="TRUE"
@@ -115,7 +115,7 @@
 				Name="VCCustomBuildTool"/>
 			<Tool
 				Name="VCLinkerTool"
-                                OutputFile="..\..\ReleaseDblSoftBodyDemo.exe"
+                                OutputFile="..\..\ReleaseDblSliderConstraintDemo.exe"
                                 SubSystem="1"
 				AdditionalOptions=" "
 				AdditionalDependencies="glut32.lib"
@@ -123,7 +123,7 @@
 				SuppressStartupBanner="TRUE"
 				GenerateManifest="false"
 				AdditionalLibraryDirectories="..\..\Glut"
-				ProgramDatabaseFile="..\..\out\release_dbl8\build\appSoftBodyDemo\SoftBodyDemo.pdb"
+				ProgramDatabaseFile="..\..\out\release_dbl71\build\appSliderConstraintDemo\SliderConstraintDemo.pdb"
 				TargetMachine="1"/>
 			<Tool
 				Name="VCLibrarianTool"
@@ -134,7 +134,7 @@
 				MkTypLibCompatible="TRUE"
 				SuppressStartupBanner="TRUE"
 				TargetEnvironment="1"
-				TypeLibraryName="..\..\out\release_dbl8\build\appSoftBodyDemo\appSoftBodyDemo.tlb"/>
+				TypeLibraryName="..\..\out\release_dbl71\build\appSliderConstraintDemo\appSliderConstraintDemo.tlb"/>
 			<Tool
 				Name="VCPostBuildEventTool"/>
 			<Tool
@@ -143,7 +143,7 @@
 				Name="VCPreLinkEventTool"/>
 			<Tool
 				Name="VCResourceCompilerTool"
-				PreprocessorDefinitions="NDEBUG;BT_USE_DOUBLE_PRECISION;_CONSOLE;PROJECTGEN_VERSION=8"
+				PreprocessorDefinitions="NDEBUG;BT_USE_DOUBLE_PRECISION;_CONSOLE;PROJECTGEN_VERSION=71"
 				AdditionalIncludeDirectories=".;..\..;..\..\src;..\..\Glut;..\..\Demos\OpenGL;..\..\Extras\ConvexHull"
 				Culture="1033"/>
 			<Tool
@@ -153,8 +153,8 @@
 		</Configuration>
 		<Configuration
 			Name="Debug|Win32"
-			OutputDirectory="..\..\out\debug8\build\appSoftBodyDemo\"
-			IntermediateDirectory="..\..\out\debug8\build\appSoftBodyDemo\"
+			OutputDirectory="..\..\out\debug71\build\appSliderConstraintDemo\"
+			IntermediateDirectory="..\..\out\debug71\build\appSliderConstraintDemo\"
 			ConfigurationType="1"
 			CharacterSet="2"
 			UseOfMFC="0"
@@ -171,10 +171,10 @@
 				ExceptionHandling="0"
 				AdditionalOptions=" "
 				AdditionalIncludeDirectories=".;..\..;..\..\src;..\..\Glut;..\..\Demos\OpenGL;..\..\Extras\ConvexHull"
-				PrecompiledHeaderFile="..\..\out\debug8\build\appSoftBodyDemo\appSoftBodyDemo.pch"
-				AssemblerListingLocation="..\..\out\debug8\build\appSoftBodyDemo\"
-				ObjectFile="..\..\out\debug8\build\appSoftBodyDemo\"
-				ProgramDataBaseFileName="..\..\out\debug8\build\appSoftBodyDemo\SoftBodyDemo.pdb"
+				PrecompiledHeaderFile="..\..\out\debug71\build\appSliderConstraintDemo\appSliderConstraintDemo.pch"
+				AssemblerListingLocation="..\..\out\debug71\build\appSliderConstraintDemo\"
+				ObjectFile="..\..\out\debug71\build\appSliderConstraintDemo\"
+				ProgramDataBaseFileName="..\..\out\debug71\build\appSliderConstraintDemo\SliderConstraintDemo.pdb"
 				WarningLevel="3"
 				SuppressStartupBanner="TRUE"
 				Detect64BitPortabilityProblems="TRUE"
@@ -187,7 +187,7 @@
 				LinkIncremental="2"
 				GenerateDebugInformation="TRUE"
 				IgnoreDefaultLibraryNames="LIBC,LIBCD"
-				OutputFile="..\..\DebugSoftBodyDemo.exe"
+				OutputFile="..\..\DebugSliderConstraintDemo.exe"
 				SubSystem="1"
 				AdditionalOptions=" "
 				AdditionalDependencies="glut32.lib"
@@ -195,7 +195,7 @@
 				SuppressStartupBanner="TRUE"
 				GenerateManifest="false"
 				AdditionalLibraryDirectories="..\..\Glut"
-				ProgramDatabaseFile="..\..\out\debug8\build\appSoftBodyDemo\SoftBodyDemo.pdb"
+				ProgramDatabaseFile="..\..\out\debug71\build\appSliderConstraintDemo\SliderConstraintDemo.pdb"
 				TargetMachine="1"/>
 			<Tool
 				Name="VCLibrarianTool"
@@ -206,7 +206,7 @@
 				MkTypLibCompatible="TRUE"
 				SuppressStartupBanner="TRUE"
 				TargetEnvironment="1"
-				TypeLibraryName="..\..\out\debug8\build\appSoftBodyDemo\appSoftBodyDemo.tlb"/>
+				TypeLibraryName="..\..\out\debug71\build\appSliderConstraintDemo\appSliderConstraintDemo.tlb"/>
 			<Tool
 				Name="VCPostBuildEventTool"/>
 			<Tool
@@ -215,7 +215,7 @@
 				Name="VCPreLinkEventTool"/>
 			<Tool
 				Name="VCResourceCompilerTool"
-				PreprocessorDefinitions="_DEBUG;_CONSOLE;PROJECTGEN_VERSION=8"
+				PreprocessorDefinitions="_DEBUG;_CONSOLE;PROJECTGEN_VERSION=71"
 				AdditionalIncludeDirectories=".;..\..;..\..\src;..\..\Glut;..\..\Demos\OpenGL;..\..\Extras\ConvexHull"
 				Culture="1033"/>
 			<Tool
@@ -225,8 +225,8 @@
 		</Configuration>
 		<Configuration
 			Name="DebugDoublePrecision|Win32"
-			OutputDirectory="..\..\out\debug_dbl8\build\appSoftBodyDemo\"
-			IntermediateDirectory="..\..\out\debug_dbl8\build\appSoftBodyDemo\"
+			OutputDirectory="..\..\out\debug_dbl71\build\appSliderConstraintDemo\"
+			IntermediateDirectory="..\..\out\debug_dbl71\build\appSliderConstraintDemo\"
 			ConfigurationType="1"
 			CharacterSet="2"
 			UseOfMFC="0"
@@ -243,10 +243,10 @@
 				ExceptionHandling="0"
 				AdditionalOptions=" "
 				AdditionalIncludeDirectories=".;..\..;..\..\src;..\..\Glut;..\..\Demos\OpenGL;..\..\Extras\ConvexHull"
-				PrecompiledHeaderFile="..\..\out\debug_dbl8\build\appSoftBodyDemo\appSoftBodyDemo.pch"
-				AssemblerListingLocation="..\..\out\debug_dbl8\build\appSoftBodyDemo\"
-				ObjectFile="..\..\out\debug_dbl8\build\appSoftBodyDemo\"
-				ProgramDataBaseFileName="..\..\out\debug_dbl8\build\appSoftBodyDemo\SoftBodyDemo.pdb"
+				PrecompiledHeaderFile="..\..\out\debug_dbl71\build\appSliderConstraintDemo\appSliderConstraintDemo.pch"
+				AssemblerListingLocation="..\..\out\debug_dbl71\build\appSliderConstraintDemo\"
+				ObjectFile="..\..\out\debug_dbl71\build\appSliderConstraintDemo\"
+				ProgramDataBaseFileName="..\..\out\debug_dbl71\build\appSliderConstraintDemo\SliderConstraintDemo.pdb"
 				WarningLevel="3"
 				SuppressStartupBanner="TRUE"
 				Detect64BitPortabilityProblems="TRUE"
@@ -256,7 +256,7 @@
 				Name="VCCustomBuildTool"/>
 			<Tool
 				Name="VCLinkerTool"
-                                OutputFile="..\..\DebugDblSoftBodyDemo.exe"
+                                OutputFile="..\..\DebugDblSliderConstraintDemo.exe"
                                 SubSystem="1"
 				AdditionalOptions=" "
 				AdditionalDependencies="glut32.lib"
@@ -264,7 +264,7 @@
 				SuppressStartupBanner="TRUE"
 				GenerateManifest="false"
 				AdditionalLibraryDirectories="..\..\Glut"
-				ProgramDatabaseFile="..\..\out\debug_dbl8\build\appSoftBodyDemo\SoftBodyDemo.pdb"
+				ProgramDatabaseFile="..\..\out\debug_dbl71\build\appSliderConstraintDemo\SliderConstraintDemo.pdb"
 				TargetMachine="1"/>
 			<Tool
 				Name="VCLibrarianTool"
@@ -275,7 +275,7 @@
 				MkTypLibCompatible="TRUE"
 				SuppressStartupBanner="TRUE"
 				TargetEnvironment="1"
-				TypeLibraryName="..\..\out\debug_dbl8\build\appSoftBodyDemo\appSoftBodyDemo.tlb"/>
+				TypeLibraryName="..\..\out\debug_dbl71\build\appSliderConstraintDemo\appSliderConstraintDemo.tlb"/>
 			<Tool
 				Name="VCPostBuildEventTool"/>
 			<Tool
@@ -284,7 +284,7 @@
 				Name="VCPreLinkEventTool"/>
 			<Tool
 				Name="VCResourceCompilerTool"
-				PreprocessorDefinitions="_DEBUG;BT_USE_DOUBLE_PRECISION;_CONSOLE;PROJECTGEN_VERSION=8"
+				PreprocessorDefinitions="_DEBUG;BT_USE_DOUBLE_PRECISION;_CONSOLE;PROJECTGEN_VERSION=71"
 				AdditionalIncludeDirectories=".;..\..;..\..\src;..\..\Glut;..\..\Demos\OpenGL;..\..\Extras\ConvexHull"
 				Culture="1033"/>
 			<Tool
@@ -298,42 +298,24 @@
 			Name="Source Files"
 			Filter="">
 			<File
-				RelativePath="..\..\Demos\SoftDemo\btSoftBodyRigidBodyCollisionConfiguration.cpp">
+				RelativePath="..\..\Demos\SliderConstraintDemo\main.cpp">
 			</File>
 			<File
-				RelativePath="..\..\Demos\SoftDemo\btSoftRigidCollisionAlgorithm.cpp">
-			</File>
-			<File
-				RelativePath="..\..\Demos\SoftDemo\btSoftSoftCollisionAlgorithm.cpp">
-			</File>
-			<File
-				RelativePath="..\..\Demos\SoftDemo\main.cpp">
-			</File>
-			<File
-				RelativePath="..\..\Demos\SoftDemo\SoftDemo.cpp">
+				RelativePath="..\..\Demos\SliderConstraintDemo\SliderConstraintDemo.cpp">
 			</File>
 		</Filter>
 		<Filter
 			Name="Header Files"
 			Filter="">
 			<File
-				RelativePath="..\..\Demos\SoftDemo\btSoftBodyRigidBodyCollisionConfiguration.h">
-			</File>
-			<File
-				RelativePath="..\..\Demos\SoftDemo\btSoftRigidCollisionAlgorithm.h">
-			</File>
-			<File
-				RelativePath="..\..\Demos\SoftDemo\btSoftSoftCollisionAlgorithm.h">
-			</File>
-			<File
-				RelativePath="..\..\Demos\SoftDemo\SoftDemo.h">
+				RelativePath="..\..\Demos\SliderConstraintDemo\SliderConstraintDemo.h">
 			</File>
 		</Filter>
 		<Filter
 			Name="Resource Files"
 			Filter="">
 			<File
-				RelativePath="..\..\msvc\appSoftBodyDemo.rc">
+				RelativePath="..\..\msvc\appSliderConstraintDemo.rc">
 			</File>
 		</Filter>
 	</Files>
