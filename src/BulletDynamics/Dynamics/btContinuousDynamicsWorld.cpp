@@ -77,7 +77,6 @@ void	btContinuousDynamicsWorld::internalSingleStepSimulation( btScalar timeStep)
 	solveConstraints(getSolverInfo());
 	
 	///CallbackTriggers();
-
 	calculateTimeOfImpacts(timeStep);
 
 	btScalar toi = dispatchInfo.m_timeOfImpact;
@@ -96,6 +95,9 @@ void	btContinuousDynamicsWorld::internalSingleStepSimulation( btScalar timeStep)
 
 	updateActivationState( timeStep );
 	
+	if(0 != m_internalTickCallback) {
+		(*m_internalTickCallback)(this, timeStep);
+	}
 }
 
 void	btContinuousDynamicsWorld::calculateTimeOfImpacts(btScalar timeStep)
@@ -186,5 +188,6 @@ void	btContinuousDynamicsWorld::updateTemporalAabbs(btScalar timeStep)
 
 
 }
+
 
 

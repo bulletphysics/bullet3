@@ -375,6 +375,9 @@ void	btDiscreteDynamicsWorld::internalSingleStepSimulation(btScalar timeStep)
 
 	updateActivationState( timeStep );
 
+	if(0 != m_internalTickCallback) {
+		(*m_internalTickCallback)(this, timeStep);
+	}	
 }
 
 void	btDiscreteDynamicsWorld::setGravity(const btVector3& gravity)

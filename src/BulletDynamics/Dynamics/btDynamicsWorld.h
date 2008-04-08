@@ -21,6 +21,9 @@ class btTypedConstraint;
 class btRaycastVehicle;
 class btConstraintSolver;
 
+class btDynamicsWorld;
+/// Type for the callback for each tick
+typedef void (*btInternalTickCallback)(const btDynamicsWorld *world, btScalar timeStep);
 
 enum btDynamicsWorldType
 {
@@ -36,7 +39,7 @@ class btDynamicsWorld : public btCollisionWorld
 		
 
 		btDynamicsWorld(btDispatcher* dispatcher,btBroadphaseInterface* broadphase,btCollisionConfiguration* collisionConfiguration)
-		:btCollisionWorld(dispatcher,broadphase,collisionConfiguration)
+		:btCollisionWorld(dispatcher,broadphase,collisionConfiguration), m_internalTickCallback(0)
 		{
 		}
 
@@ -81,8 +84,14 @@ class btDynamicsWorld : public btCollisionWorld
 
 		virtual void	clearForces() = 0;
 
+		/// Set the callback for when an internal tick (simulation substep) happens
+		void setInternalTickCallback(btInternalTickCallback cb) { m_internalTickCallback = cb; }
+		
+		btInternalTickCallback m_internalTickCallback;
+
 
 };
 
 #endif //BT_DYNAMICS_WORLD_H
+
 
