@@ -783,8 +783,16 @@ public:
 	{
 		btTriangleShapeEx tri1(triangle[0],triangle[1],triangle[2]);
 		tri1.setMargin(margin);
-        algorithm->setPart1(partId);
-        algorithm->setFace1(triangleIndex);
+        if(swapped)
+        {
+            algorithm->setPart0(partId);
+            algorithm->setFace0(triangleIndex);
+        }
+        else
+        {
+            algorithm->setPart1(partId);
+            algorithm->setFace1(triangleIndex);
+        }
 		algorithm->gimpact_vs_shape(
 							body0,body1,gimpactshape0,&tri1,swapped);
 	}
