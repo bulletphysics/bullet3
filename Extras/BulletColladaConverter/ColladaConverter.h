@@ -70,21 +70,7 @@ public:
 };
 
 
-/*
 
-class btShapeColladaInfo 
-{
-public:
-	domGeometry* m_geometry;
-
-	int getUid();
-
-	btShapeColladaInfo (domGeometry* geometry) : btTypedUserInfo ()
-	{
-		m_geometry = geometry;
-	}
-};
-*/
 
 
 ///ColladaConverter helps converting the physics assets from COLLADA DOM into physics objects
