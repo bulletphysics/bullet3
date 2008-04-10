@@ -70,14 +70,13 @@ btShapeHull::btShapeHull (const btConvexShape* shape)
 {
 	m_shape = shape;
 	m_vertices.clear ();
-	m_indices = NULL;
+	m_indices.clear();
 	m_numIndices = 0;
 }
 
 btShapeHull::~btShapeHull ()
 {
-	if (m_indices)
-		delete [] m_indices;
+	m_indices.clear();	
 	m_vertices.clear ();
 }
 
@@ -130,13 +129,13 @@ btShapeHull::buildHull (btScalar margin)
 
 	for (i = 0; i < hr.mNumOutputVertices; i++)
 	{
-		m_vertices[i] = hr.mOutputVertices[i];
+		m_vertices[i] = hr.m_OutputVertices[i];
 	}
 	m_numIndices = hr.mNumIndices;
-	m_indices = new unsigned int [m_numIndices];
+	m_indices.resize(m_numIndices);
 	for (i = 0; i < m_numIndices; i++)
 	{
-		m_indices[i] = hr.mIndices[i];
+		m_indices[i] = hr.m_Indices[i];
 	}
 
 	// free temporary hull result that we just copied

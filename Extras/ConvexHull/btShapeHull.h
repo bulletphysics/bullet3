@@ -41,12 +41,12 @@ public:
 	}
 	const unsigned int* getIndexPointer() const
 	{
-		return m_indices;
+		return &m_indices[0];
 	}
 
 protected:
 	btAlignedObjectArray<btVector3> m_vertices;
-	unsigned int* m_indices;
+	btAlignedObjectArray<unsigned int> m_indices;
 	unsigned int m_numIndices;
 	const btConvexShape* m_shape;
 };

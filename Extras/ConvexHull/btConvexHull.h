@@ -20,6 +20,9 @@ subject to the following restrictions:
 #define CD_HULL_H
 
 #include "LinearMath/btVector3.h"
+#include "LinearMath/btAlignedObjectArray.h"
+
+typedef btAlignedObjectArray<unsigned int> TUIntArray;
 
 class HullResult
 {
@@ -28,17 +31,15 @@ public:
 	{
 		mPolygons = true;
 		mNumOutputVertices = 0;
-		mOutputVertices = 0;
 		mNumFaces = 0;
 		mNumIndices = 0;
-		mIndices = 0;
 	}
 	bool                    mPolygons;                  // true if indices represents polygons, false indices are triangles
 	unsigned int            mNumOutputVertices;         // number of vertices in the output hull
-	btVector3              *mOutputVertices;            // array of vertices
+	btAlignedObjectArray<btVector3>	m_OutputVertices;            // array of vertices
 	unsigned int            mNumFaces;                  // the number of faces produced
 	unsigned int            mNumIndices;                // the total number of indices
-	unsigned int           *mIndices;                   // pointer to indices.
+	btAlignedObjectArray<unsigned int>    m_Indices;                   // pointer to indices.
 
 // If triangles, then indices are array indexes into the vertex list.
 // If polygons, indices are in the form (number of points in face) (p1, p2, p3, ..) etc..
@@ -110,14 +111,115 @@ enum HullError
 	QE_FAIL           // failed.
 };
 
+class btPlane
+{
+	public:
+	btVector3	normal;
+	btScalar	dist;   // distance below origin - the D from plane equasion Ax+By+Cz+D=0
+			btPlane(const btVector3 &n,btScalar d):normal(n),dist(d){}
+			btPlane():normal(),dist(0){}
+	
+};
+
+
+
+class ConvexH 
+{
+  public:
+	class HalfEdge
+	{
+	  public:
+		short ea;         // the other half of the edge (index into edges list)
+		unsigned char v;  // the vertex at the start of this edge (index into vertices list)
+		unsigned char p;  // the facet on which this edge lies (index into facets list)
+		HalfEdge(){}
+		HalfEdge(short _ea,unsigned char _v, unsigned char _p):ea(_ea),v(_v),p(_p){}
+	};
+	ConvexH()
+	{
+		int i;
+		i=0;
+	}
+	~ConvexH()
+	{
+		int i;
+		i=0;
+	}
+	btAlignedObjectArray<btVector3> vertices;
+	btAlignedObjectArray<HalfEdge> edges;
+	btAlignedObjectArray<btPlane>  facets;
+	ConvexH(int vertices_size,int edges_size,int facets_size);
+};
+
+
+class int4
+{
+public:
+	int x,y,z,w;
+	int4(){};
+	int4(int _x,int _y, int _z,int _w){x=_x;y=_y;z=_z;w=_w;}
+	const int& operator[](int i) const {return (&x)[i];}
+	int& operator[](int i) {return (&x)[i];}
+};
+
+class PHullResult
+{
+public:
+
+	PHullResult(void)
+	{
+		mVcount = 0;
+		mIndexCount = 0;
+		mFaceCount = 0;
+		mVertices = 0;
+	}
+
+	unsigned int mVcount;
+	unsigned int mIndexCount;
+	unsigned int mFaceCount;
+	btVector3*   mVertices;
+	TUIntArray m_Indices;
+};
+
+
+
 class HullLibrary
 {
+
+	btAlignedObjectArray<class Tri*> m_tris;
+
 public:
 
 	HullError CreateConvexHull(const HullDesc& desc, // describes the input request
 				   HullResult&     result);        // contains the resulst
 	HullError ReleaseResult(HullResult &result); // release memory allocated for this result, we are done with it.
+
 private:
+
+	bool ComputeHull(unsigned int vcount,const btVector3 *vertices,PHullResult &result,unsigned int vlimit);
+
+	class Tri*	allocateTriangle(int a,int b,int c);
+	void	deAllocateTriangle(Tri*);
+	void b2bfix(Tri* s,Tri*t);
+
+	void removeb2b(Tri* s,Tri*t);
+
+	void checkit(Tri *t);
+
+	Tri* extrudable(btScalar epsilon);
+
+	int calchull(btVector3 *verts,int verts_count, TUIntArray& tris_out, int &tris_count,int vlimit);
+
+	int calchullgen(btVector3 *verts,int verts_count, int vlimit);
+
+	int4 FindSimplex(btVector3 *verts,int verts_count,btAlignedObjectArray<int> &allow);
+
+	class ConvexH* ConvexHCrop(ConvexH& convex,const btPlane& slice);
+
+	void extrude(class Tri* t0,int v);
+
+	ConvexH* test_cube();
+
 	//BringOutYourDead (John Ratcliff): When you create a convex hull you hand it a large input set of vertices forming a 'point cloud'. 
 	//After the hull is generated it give you back a set of polygon faces which index the *original* point cloud.
 	//The thing is, often times, there are many 'dead vertices' in the point cloud that are on longer referenced by the hull.
