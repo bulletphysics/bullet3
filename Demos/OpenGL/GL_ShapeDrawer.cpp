@@ -41,7 +41,7 @@ subject to the following restrictions:
 #include "BulletCollision/CollisionShapes/btUniformScalingShape.h"
 #include "BulletCollision/CollisionShapes/btStaticPlaneShape.h"
 ///
-#include "btShapeHull.h"
+#include "BulletCollision/CollisionShapes/btShapeHull.h"
 
 #include "LinearMath/btTransformUtil.h"
 

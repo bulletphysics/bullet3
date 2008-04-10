@@ -95,6 +95,8 @@ ADD_LIBRARY(LibBulletCollision
 				CollisionShapes/btTetrahedronShape.h
 				CollisionShapes/btSphereShape.cpp
 				CollisionShapes/btSphereShape.h
+				CollisionShapes/btShapeHull.h
+				CollisionShapes/btShapeHull.cpp
 				CollisionShapes/btStaticPlaneShape.cpp
 				CollisionShapes/btStaticPlaneShape.h
 				CollisionShapes/btStridingMeshInterface.cpp

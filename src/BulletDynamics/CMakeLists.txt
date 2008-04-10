@@ -16,6 +16,8 @@ ADD_LIBRARY(LibBulletDynamics
 	ConstraintSolver/btPoint2PointConstraint.h
 	ConstraintSolver/btSequentialImpulseConstraintSolver.cpp
 	ConstraintSolver/btSequentialImpulseConstraintSolver.h
+	ConstraintSolver/btSliderConstraint.cpp
+	ConstraintSolver/btSliderConstraint.h
 	ConstraintSolver/btSolve2LinearConstraint.cpp
 	ConstraintSolver/btSolve2LinearConstraint.h
 	ConstraintSolver/btTypedConstraint.cpp
@@ -48,4 +50,14 @@ ADD_LIBRARY(LibBulletDynamics
 	SoftBody/btSoftBody.h
 	SoftBody/btSoftBodyHelpers.cpp
 	SoftBody/btSparseSDF.h
+	SoftBody/btDbvt.cpp  
+	SoftBody/btDbvt.h
+	SoftBody/btSoftBodyHelpers.h
+	SoftBody/btSoftBodyRigidBodyCollisionConfiguration.cpp
+	SoftBody/btSoftRigidCollisionAlgorithm.cpp
+	SoftBody/btSoftRigidCollisionAlgorithm.h
+	SoftBody/btSoftSoftCollisionAlgorithm.cpp
+	SoftBody/btSoftSoftCollisionAlgorithm.h
+	SoftBody/btSoftRigidDynamicsWorld.h
+	SoftBody/btSoftRigidDynamicsWorld.cpp
 )

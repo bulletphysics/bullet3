@@ -438,18 +438,14 @@ removeleaf(this,leaf);
 deletenode(this,leaf);
 }
 
+
 //
 void			btDbvt::collide(btDbvt* tree,
 								ICollide* icollide) const
 {
 if(tree->m_root&&m_root)
 	{
-	struct	sStkElm
-		{
-		const Node*	a;
-		const Node*	b;
-		sStkElm(const Node* na,const Node* nb) : a(na),b(nb) {}
-		};
+	
 	btAlignedObjectArray<sStkElm>	stack;
 	stack.reserve(128);
 	stack.push_back(sStkElm(m_root,tree->m_root));

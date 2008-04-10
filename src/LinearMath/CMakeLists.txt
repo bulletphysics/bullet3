@@ -15,6 +15,8 @@ ADD_LIBRARY(LibLinearMath
 		btHashMap.h
 		btScalar.h
 		btAabbUtil2.h
+		btConvexHull.h
+		btConvexHull.cpp
 		btMinMax.h
 		btQuaternion.h
 		btStackAlloc.h

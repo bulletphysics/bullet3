@@ -8,7 +8,7 @@ if $(GLUT.AVAILABLE) = "yes"
   rule BulletDemo
   {
     Application $(<) : $(>) : noinstall console nomanifest ;
-    LinkWith $(<) :  bulletopenglsupport convexhull bulletdynamics bulletcollision bulletmath ;
+    LinkWith $(<) :  bulletopenglsupport  bulletdynamics bulletcollision bulletmath ;
     CFlags $(<) : 
 	  [ FIncludes $(TOP)/Demos/OpenGL ] 
 	  [ FIncludes $(TOP)/Extras/ConvexHull ]
@@ -37,7 +37,7 @@ if $(GLUT.AVAILABLE) = "yes"
   rule FrameWorkDemo
   {
     Application $(<) : $(>) : noinstall console nomanifest ;
-    LinkWith $(<) :  GIMPACTUtils  GIMPACT  bulletopenglsupport bulletmultithreaded convexdecomposition convexhull  bulletdynamics bulletcollision bulletmath glui ;
+    LinkWith $(<) :  GIMPACTUtils  GIMPACT  bulletopenglsupport  convexdecomposition   bulletdynamics bulletcollision bulletmath glui ;
     CFlags $(<) :
           [ FIncludes $(TOP)/Extras ]
          [ FIncludes $(TOP)/Demos/OpenGL ]
@@ -80,6 +80,7 @@ SubInclude TOP Demos GimpactTestDemo ;
 SubInclude TOP Demos MovingConcaveDemo ;
 SubInclude TOP Demos ConcaveDemo ;
 SubInclude TOP Demos ConstraintDemo ;
+SubInclude TOP Demos SliderConstraintDemo ;
 SubInclude TOP Demos RagdollDemo ;
 SubInclude TOP Demos GenericJointDemo ;
 SubInclude TOP Demos SoftDemo ;

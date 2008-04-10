@@ -9,18 +9,11 @@ if $(GLUT.AVAILABLE) = "yes"
   [ Wildcard *.h *.cpp ] : noinstall 
 ;
 
-CFlags bulletopenglsupport : [ FIncludes $(TOP)/Extras/ConvexHull ]
-;
 
-  MsvcIncDirs bulletopenglsupport :
-        "../../Extras/ConvexHull" ;
         
-bulletopenglsupport.CFLAGS = [ FIncludes $(TOP)/Extras/ConvexHull ] ;
-#same for msvcgen
-MsvcGenConfig bulletopenglsupport.INCDIRS : $(TOP)/Extras/ConvexHull ;
 
 
-LibDepends bulletopenglsupport : bulletdynamics convexhull  ;
+LibDepends bulletopenglsupport : bulletdynamics   ;
 
   ExternalLibs bulletopenglsupport : GLUT ;
 }

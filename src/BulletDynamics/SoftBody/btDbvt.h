@@ -68,6 +68,13 @@ struct	btDbvt
 		};
 	// Interfaces
 	
+	struct	sStkElm
+		{
+		const Node*	a;
+		const Node*	b;
+		sStkElm(const Node* na,const Node* nb) : a(na),b(nb) {}
+		};
+		
 	/* ICollide	*/ 
 	struct	ICollide
 		{
