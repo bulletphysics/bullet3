@@ -160,11 +160,15 @@ public:
 	///but a rigidbody is derived from btCollisionObject, so we can safely perform an upcast
 	static const btRigidBody*	upcast(const btCollisionObject* colObj)
 	{
-		return (const btRigidBody*)colObj->getInternalOwner();
+		if (colObj->getInternalType()==btCollisionObject::CO_RIGID_BODY)
+			return (const btRigidBody*)colObj;
+		return 0;
 	}
 	static btRigidBody*	upcast(btCollisionObject* colObj)
 	{
-		return (btRigidBody*)colObj->getInternalOwner();
+		if (colObj->getInternalType()==btCollisionObject::CO_RIGID_BODY)
+			return (btRigidBody*)colObj;
+		return 0;
 	}
 	
 	/// continuous collision detection needs prediction

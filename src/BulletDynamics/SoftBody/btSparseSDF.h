@@ -32,21 +32,13 @@ struct	btSparseSdf
 		int					i;
 		btScalar			f;
 		};
-	struct	Client
-		{
-		btCollisionShape*	shape;
-		btVector3			center;
-		btVector3			extent;
-		btScalar			vsize;
-		int					id;
-		};
 	struct	Cell
 		{
 		btScalar			d[CELLSIZE+1][CELLSIZE+1][CELLSIZE+1];
 		int					c[3];
 		int					puid;
 		unsigned			hash;
-		const Client*		pclient;
+		btCollisionShape*	pclient;
 		Cell*				next;
 		};
 	//
@@ -54,11 +46,11 @@ struct	btSparseSdf
 	//
 	
 	btAlignedObjectArray<Cell*>		cells;	
-	btAlignedObjectArray<Client*>	clients;
+	btScalar						voxelsz;
 	int								puid;
 	int								ncells;
 	int								nprobes;
-	int								nqueries;
+	int								nqueries;	
 	
 	//
 	// Methods
@@ -84,13 +76,14 @@ struct	btSparseSdf
 				pc=pn;
 				}
 			}
+		voxelsz		=0.25;
 		puid		=0;
 		ncells		=0;
 		nprobes		=1;
 		nqueries	=1;
 		}
 	//
-	void					GarbageCollect(int lifetime=64)
+	void					GarbageCollect(int lifetime=256)
 		{
 		const int life=puid-lifetime;
 		for(int i=0;i<cells.size();++i)
@@ -116,39 +109,17 @@ struct	btSparseSdf
 				/* else setup a priority list...						*/ 
 		}
 	//
-	Client*					GetClient(	btCollisionShape* shape)
-		{
-		Client*	pc=(Client*)shape->getUserPointer();
-		if(!pc)
-			{
-			pc=new Client();
-			clients.push_back(pc);
-			shape->setUserPointer(pc);
-			pc->shape	=	shape;
-			pc->id		=	clients.size();
-			pc->vsize	=	0.25;
-			SetShapeBounds(*pc);
-			}
-		return(pc);
-		}
-	//
 	btScalar				Evaluate(	const btVector3& x,
 										btCollisionShape* shape,
-										btVector3& normal)
+										btVector3& normal,
+										btScalar margin)
 		{
-		const Client*	pclient=GetClient(shape);
-		/* Bounds check			*/ 
-		const btVector3	offset=x-pclient->center;
-		const btVector3	sqoffset=offset*offset;
-		if(	(sqoffset.x()>pclient->extent.x())	||
-			(sqoffset.y()>pclient->extent.y())	||
-			(sqoffset.z()>pclient->extent.z()))	return(SIMD_INFINITY);
 		/* Lookup cell			*/ 
-		const btVector3	scx=x/pclient->vsize;
+		const btVector3	scx=x/voxelsz;
 		const IntFrac	ix=Decompose(scx.x());
 		const IntFrac	iy=Decompose(scx.y());
 		const IntFrac	iz=Decompose(scx.z());
-		const unsigned	h=Hash(ix.b,iy.b,iz.b,pclient->id);
+		const unsigned	h=Hash(ix.b,iy.b,iz.b,shape);
 		Cell*&			root=cells[h%cells.size()];
 		Cell*			c=root;
 		++nqueries;
@@ -159,7 +130,7 @@ struct	btSparseSdf
 				(c->c[0]==ix.b)	&&
 				(c->c[1]==iy.b)	&&
 				(c->c[2]==iz.b)	&&
-				(c->pclient==pclient))
+				(c->pclient==shape))
 				{ break; }
 				else
 				{ c=c->next; }
@@ -170,7 +141,8 @@ struct	btSparseSdf
 			++ncells;
 			c=new Cell();
 			c->next=root;root=c;
-			c->pclient=pclient;c->hash=h;
+			c->pclient=shape;
+			c->hash=h;
 			c->c[0]=ix.b;c->c[1]=iy.b;c->c[2]=iz.b;
 			BuildCell(*c);
 			}
@@ -208,33 +180,33 @@ struct	btSparseSdf
 								Lerp(d[3],d[2],ix.f),iy.f);
 		const btScalar	d1=Lerp(Lerp(d[4],d[5],ix.f),
 								Lerp(d[7],d[6],ix.f),iy.f);
-		return(Lerp(d0,d1,iz.f));
+		return(Lerp(d0,d1,iz.f)-margin);
 		}
 	//
 	void					BuildCell(Cell& c)
 		{
-		const Client*	client=c.pclient;
-		const btVector3	org=btVector3(c.c[0],c.c[1],c.c[2])*CELLSIZE*client->vsize;
+		const btVector3	org=btVector3(	(btScalar)c.c[0],
+										(btScalar)c.c[1],
+										(btScalar)c.c[2])	*
+										CELLSIZE*voxelsz;
 		for(int k=0;k<=CELLSIZE;++k)
 			{
-			const btScalar	z=client->vsize*k+org.z();
+			const btScalar	z=voxelsz*k+org.z();
 			for(int j=0;j<=CELLSIZE;++j)
 				{
-				const btScalar	y=client->vsize*j+org.y();
+				const btScalar	y=voxelsz*j+org.y();
 				for(int i=0;i<=CELLSIZE;++i)
 					{
-					const btScalar	x=client->vsize*i+org.x();
+					const btScalar	x=voxelsz*i+org.x();
 					c.d[i][j][k]=DistanceToShape(	btVector3(x,y,z),
-													client->shape,
-													client->vsize);
+													c.pclient);
 					}
 				}
 			}
 		}
 	//
 	static inline btScalar	DistanceToShape(const btVector3& x,
-											btCollisionShape* shape,
-											btScalar margin)
+											btCollisionShape* shape)
 		{
 		btTransform	unit;
 		unit.setIdentity();
@@ -242,31 +214,9 @@ struct	btSparseSdf
 			{
 			btGjkEpaSolver2::sResults	res;
 			btConvexShape*				csh=static_cast<btConvexShape*>(shape);
-			return(btGjkEpaSolver2::SignedDistance(x,margin,csh,unit,res));
+			return(btGjkEpaSolver2::SignedDistance(x,0,csh,unit,res));
 			}
 		return(0);
-		}
-	//
-	static inline void		SetShapeBounds(Client& c)
-		{
-		if(c.shape->isConvex())
-			{
-			btConvexShape*	csh=static_cast<btConvexShape*>(c.shape);
-			const btVector3	x[]={	csh->localGetSupportingVertex(btVector3(+1,0,0)),
-									csh->localGetSupportingVertex(btVector3(-1,0,0))};
-			const btVector3	y[]={	csh->localGetSupportingVertex(btVector3(0,+1,0)),
-									csh->localGetSupportingVertex(btVector3(0,-1,0))};
-			const btVector3	z[]={	csh->localGetSupportingVertex(btVector3(0,0,+1)),
-									csh->localGetSupportingVertex(btVector3(0,0,-1))};
-			c.center	=	btVector3(	x[0].x()+x[1].x(),
-										y[0].y()+y[1].y(),
-										z[0].z()+z[1].z())*0.5;
-			c.extent	=	btVector3(	x[0].x()-x[1].x(),
-										y[0].y()-y[1].y(),
-										z[0].z()-z[1].z())*0.5;
-			c.extent	+=	btVector3(c.vsize,c.vsize,c.vsize);
-			c.extent	*=	c.extent;
-			}
 		}
 	//
 	static inline IntFrac	Decompose(btScalar x)
@@ -287,10 +237,11 @@ struct	btSparseSdf
 		return(a+(b-a)*t);
 		}
 	//
-	static inline unsigned	Hash(int x,int y,int z,int i)
+	static inline unsigned	Hash(int x,int y,int z,btCollisionShape* shape)
 		{
-		const int data[]={x,y,z,i};
-		return(HsiehHash<sizeof(data)/4>(data));
+		struct { int x,y,z;void* p; } set;
+		set.x=x;set.y=y;set.z=z;set.p=shape;
+		return(HsiehHash<sizeof(set)/4>(&set));
 		}
 	// Modified Paul Hsieh hash
 	template <const int DWORDLEN>

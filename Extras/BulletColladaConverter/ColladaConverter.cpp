@@ -26,7 +26,7 @@ subject to the following restrictions:
 #include "dom/domCOLLADA.h"
 #include "dae/domAny.h"
 #include "dom/domConstants.h"
-#include "btShapeHull.h"
+#include "BulletCollision/CollisionShapes/btShapeHull.h"
 
 #include "BulletCollision/CollisionShapes/btBoxShape.h"
 #include "BulletCollision/CollisionShapes/btSphereShape.h"

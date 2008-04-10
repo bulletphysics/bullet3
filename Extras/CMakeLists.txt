@@ -1,1 +1,1 @@
-SUBDIRS( glui ConvexDecomposition ConvexHull BulletMultiThreaded BulletColladaConverter LibXML COLLADA_DOM GIMPACTUtils GIMPACT )
+SUBDIRS( glui ConvexDecomposition BulletMultiThreaded BulletColladaConverter LibXML COLLADA_DOM GIMPACTUtils GIMPACT )

@@ -40,26 +40,29 @@ struct	fDrawFlags { enum _ {
 
 struct	btSoftBodyHelpers
 {
-
-	static btVector3			stresscolor(btScalar stress);
-
-	static void					drawVertex(	btIDebugDraw* idraw,
-		const btVector3& x,btScalar s,const btVector3& c);
-
-
 	/* Draw body															*/ 
-	static void			Draw(			btSoftBody* psb,
-						 btIDebugDraw* idraw,
-						 int drawflags=fDrawFlags::Std);
+	static void				Draw(		btSoftBody* psb,
+										btIDebugDraw* idraw,
+										int drawflags=fDrawFlags::Std);
 	/* Draw body infos														*/ 
-	static	void			DrawInfos(		btSoftBody* psb,
-							  btIDebugDraw* idraw,
-							  bool masses,
-							  bool areas,
-							  bool stress);
+	static	void			DrawInfos(	btSoftBody* psb,
+										btIDebugDraw* idraw,
+										bool masses,
+										bool areas,
+										bool stress);
+	/* Draw node tree														*/ 
+	static void				DrawNodeTree(	btSoftBody* psb,
+											btIDebugDraw* idraw,
+											int mindepth=0,
+											int maxdepth=-1);
+	/* Draw face tree														*/ 
+	static void				DrawFaceTree(	btSoftBody* psb,
+											btIDebugDraw* idraw,
+											int mindepth=0,
+											int maxdepth=-1);
 	/* Draw rigid frame														*/ 
 	static	void			DrawFrame(		btSoftBody* psb,
-							  btIDebugDraw* idraw);
+											btIDebugDraw* idraw);
 	/* Create a rope														*/ 
 	static	btSoftBody*		CreateRope(	 btSoftBody::btSoftBodyWorldInfo& worldInfo,const btVector3& from,
 							   const btVector3& to,

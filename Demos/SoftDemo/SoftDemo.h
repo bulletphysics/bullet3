@@ -36,6 +36,7 @@ class btSoftSoftCollisionAlgorithm;
 
 ///collisions between a btSoftBody and a btRigidBody
 class btSoftRididCollisionAlgorithm;
+class btSoftRigidDynamicsWorld;
 
 
 ///CcdPhysicsDemo shows basic stacking using Bullet physics, and allows toggle of Ccd (using key '1')
@@ -49,10 +50,9 @@ public:
 
 	btSoftBody::btSoftBodyWorldInfo	m_softBodyWorldInfo;
 
-	btAlignedObjectArray<btSoftBody*>	m_softbodies;
-
 	
 	bool								m_autocam;
+	int									m_showtrees;
 
 
 	//keep the collision shapes, for deletion/cleanup
@@ -95,6 +95,20 @@ public:
 		return demo;
 	}
 
+	const btSoftRigidDynamicsWorld*	getSoftDynamicsWorld() const
+	{
+		///just make it a btSoftRigidDynamicsWorld please
+		///or we will add type checking
+		return (btSoftRigidDynamicsWorld*) m_dynamicsWorld;
+	}
+
+	btSoftRigidDynamicsWorld*	getSoftDynamicsWorld()
+	{
+		///just make it a btSoftRigidDynamicsWorld please
+		///or we will add type checking
+		return (btSoftRigidDynamicsWorld*) m_dynamicsWorld;
+	}
+
 	//
 	void	clientResetScene();
 	void	renderme();
@@ -103,4 +117,5 @@ public:
 };
 
 #endif //CCD_PHYSICS_DEMO_H
+
 
