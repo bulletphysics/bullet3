@@ -236,11 +236,31 @@ SOURCE=..\..\src\BulletDynamics\Dynamics\Bullet-C-API.cpp
 # End Source File
 # Begin Source File
 
+SOURCE=..\..\src\BulletDynamics\SoftBody\btDbvt.cpp
+# End Source File
+# Begin Source File
+
 SOURCE=..\..\src\BulletDynamics\SoftBody\btSoftBody.cpp
 # End Source File
 # Begin Source File
 
 SOURCE=..\..\src\BulletDynamics\SoftBody\btSoftBodyHelpers.cpp
+# End Source File
+# Begin Source File
+
+SOURCE=..\..\src\BulletDynamics\SoftBody\btSoftBodyRigidBodyCollisionConfiguration.cpp
+# End Source File
+# Begin Source File
+
+SOURCE=..\..\src\BulletDynamics\SoftBody\btSoftRigidCollisionAlgorithm.cpp
+# End Source File
+# Begin Source File
+
+SOURCE=..\..\src\BulletDynamics\SoftBody\btSoftRigidDynamicsWorld.cpp
+# End Source File
+# Begin Source File
+
+SOURCE=..\..\src\BulletDynamics\SoftBody\btSoftSoftCollisionAlgorithm.cpp
 # End Source File
 # Begin Source File
 
@@ -360,11 +380,31 @@ SOURCE=..\..\src\BulletDynamics\Dynamics\btSimpleDynamicsWorld.h
 # End Source File
 # Begin Source File
 
+SOURCE=..\..\src\BulletDynamics\SoftBody\btDbvt.h
+# End Source File
+# Begin Source File
+
 SOURCE=..\..\src\BulletDynamics\SoftBody\btSoftBody.h
 # End Source File
 # Begin Source File
 
 SOURCE=..\..\src\BulletDynamics\SoftBody\btSoftBodyHelpers.h
+# End Source File
+# Begin Source File
+
+SOURCE=..\..\src\BulletDynamics\SoftBody\btSoftBodyRigidBodyCollisionConfiguration.h
+# End Source File
+# Begin Source File
+
+SOURCE=..\..\src\BulletDynamics\SoftBody\btSoftRigidCollisionAlgorithm.h
+# End Source File
+# Begin Source File
+
+SOURCE=..\..\src\BulletDynamics\SoftBody\btSoftRigidDynamicsWorld.h
+# End Source File
+# Begin Source File
+
+SOURCE=..\..\src\BulletDynamics\SoftBody\btSoftSoftCollisionAlgorithm.h
 # End Source File
 # Begin Source File
 

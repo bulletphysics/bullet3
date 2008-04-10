@@ -346,15 +346,6 @@
 				RelativePath="..\..\Demos\AllBulletDemos\..\Raytracer\Raytracer.cpp">
 			</File>
 			<File
-				RelativePath="..\..\Demos\AllBulletDemos\..\SoftDemo\btSoftBodyRigidBodyCollisionConfiguration.cpp">
-			</File>
-			<File
-				RelativePath="..\..\Demos\AllBulletDemos\..\SoftDemo\btSoftRigidCollisionAlgorithm.cpp">
-			</File>
-			<File
-				RelativePath="..\..\Demos\AllBulletDemos\..\SoftDemo\btSoftSoftCollisionAlgorithm.cpp">
-			</File>
-			<File
 				RelativePath="..\..\Demos\AllBulletDemos\..\SoftDemo\SoftDemo.cpp">
 			</File>
 			<File

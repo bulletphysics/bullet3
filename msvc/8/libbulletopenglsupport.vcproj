@@ -30,7 +30,7 @@
 				OptimizeForProcessor="1"
 				ExceptionHandling="0"
 				AdditionalOptions=" "
-				AdditionalIncludeDirectories=".;..\..;..\..\src;..\..\Extras\ConvexHull;..\..\Glut"
+				AdditionalIncludeDirectories=".;..\..;..\..\src;..\..\Glut"
 				PrecompiledHeaderFile="..\..\out\release8\build\libbulletopenglsupport\libbulletopenglsupport.pch"
 				AssemblerListingLocation="..\..\out\release8\build\libbulletopenglsupport\"
 				ObjectFile="..\..\out\release8\build\libbulletopenglsupport\"
@@ -77,7 +77,7 @@
 			<Tool
 				Name="VCResourceCompilerTool"
 				PreprocessorDefinitions="NDEBUG;_LIB;_WINDOWS;PROJECTGEN_VERSION=8"
-				AdditionalIncludeDirectories=".;..\..;..\..\src;..\..\Extras\ConvexHull;..\..\Glut"
+				AdditionalIncludeDirectories=".;..\..;..\..\src;..\..\Glut"
 				Culture="1033"/>
 			<Tool
 				Name="VCWebServiceProxyGeneratorTool"/>
@@ -97,7 +97,7 @@
 				OptimizeForProcessor="1"
 				ExceptionHandling="0"
 				AdditionalOptions=" "
-				AdditionalIncludeDirectories=".;..\..;..\..\src;..\..\Extras\ConvexHull;..\..\Glut"
+				AdditionalIncludeDirectories=".;..\..;..\..\src;..\..\Glut"
 				PrecompiledHeaderFile="..\..\out\release_dbl8\build\libbulletopenglsupport\libbulletopenglsupport.pch"
 				AssemblerListingLocation="..\..\out\release_dbl8\build\libbulletopenglsupport\"
 				ObjectFile="..\..\out\release_dbl8\build\libbulletopenglsupport\"
@@ -138,7 +138,7 @@
 			<Tool
 				Name="VCResourceCompilerTool"
 				PreprocessorDefinitions="NDEBUG;BT_USE_DOUBLE_PRECISION;_LIB;_WINDOWS;PROJECTGEN_VERSION=8"
-				AdditionalIncludeDirectories=".;..\..;..\..\src;..\..\Extras\ConvexHull;..\..\Glut"
+				AdditionalIncludeDirectories=".;..\..;..\..\src;..\..\Glut"
 				Culture="1033"/>
 			<Tool
 				Name="VCWebServiceProxyGeneratorTool"/>
@@ -163,7 +163,7 @@
 				OptimizeForProcessor="1"
 				ExceptionHandling="0"
 				AdditionalOptions=" "
-				AdditionalIncludeDirectories=".;..\..;..\..\src;..\..\Extras\ConvexHull;..\..\Glut"
+				AdditionalIncludeDirectories=".;..\..;..\..\src;..\..\Glut"
 				PrecompiledHeaderFile="..\..\out\debug8\build\libbulletopenglsupport\libbulletopenglsupport.pch"
 				AssemblerListingLocation="..\..\out\debug8\build\libbulletopenglsupport\"
 				ObjectFile="..\..\out\debug8\build\libbulletopenglsupport\"
@@ -208,7 +208,7 @@
 			<Tool
 				Name="VCResourceCompilerTool"
 				PreprocessorDefinitions="_DEBUG;_LIB;_WINDOWS;PROJECTGEN_VERSION=8"
-				AdditionalIncludeDirectories=".;..\..;..\..\src;..\..\Extras\ConvexHull;..\..\Glut"
+				AdditionalIncludeDirectories=".;..\..;..\..\src;..\..\Glut"
 				Culture="1033"/>
 			<Tool
 				Name="VCWebServiceProxyGeneratorTool"/>
@@ -233,7 +233,7 @@
 				OptimizeForProcessor="1"
 				ExceptionHandling="0"
 				AdditionalOptions=" "
-				AdditionalIncludeDirectories=".;..\..;..\..\src;..\..\Extras\ConvexHull;..\..\Glut"
+				AdditionalIncludeDirectories=".;..\..;..\..\src;..\..\Glut"
 				PrecompiledHeaderFile="..\..\out\debug_dbl8\build\libbulletopenglsupport\libbulletopenglsupport.pch"
 				AssemblerListingLocation="..\..\out\debug_dbl8\build\libbulletopenglsupport\"
 				ObjectFile="..\..\out\debug_dbl8\build\libbulletopenglsupport\"
@@ -274,7 +274,7 @@
 			<Tool
 				Name="VCResourceCompilerTool"
 				PreprocessorDefinitions="_DEBUG;BT_USE_DOUBLE_PRECISION;_LIB;_WINDOWS;PROJECTGEN_VERSION=8"
-				AdditionalIncludeDirectories=".;..\..;..\..\src;..\..\Extras\ConvexHull;..\..\Glut"
+				AdditionalIncludeDirectories=".;..\..;..\..\src;..\..\Glut"
 				Culture="1033"/>
 			<Tool
 				Name="VCWebServiceProxyGeneratorTool"/>
