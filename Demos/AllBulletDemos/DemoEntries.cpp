@@ -23,6 +23,7 @@ subject to the following restrictions:
 #include "../ConcaveConvexcastDemo/ConcaveConvexcastDemo.h"
 #include "../ConvexDecompositionDemo/ConvexDecompositionDemo.h"
 #include "../DynamicControlDemo/MotorDemo.h"
+#include "../SliderConstraintDemo/SliderConstraintDemo.h"
 #include "../RagdollDemo/RagdollDemo.h"
 #include "../GimpactTestDemo/GimpactTestDemo.h"
 #include "../Raytracer/Raytracer.h"
@@ -119,6 +120,7 @@ btDemoEntry g_demoEntries[] =
 	{"SoftBody Bunny Match",SoftDemo16::Create},	
 	{"DynamicControlDemo",MotorDemo::Create},
 	{"RagdollDemo",RagdollDemo::Create},
+	{"SliderConstraint",SliderConstraintDemo::Create},
 	{"BasicDemo", BasicDemo::Create},	
 	{"CcdPhysicsDemo", CcdPhysicsDemo::Create},
 	{"ConcaveDemo",ConcaveDemo::Create},

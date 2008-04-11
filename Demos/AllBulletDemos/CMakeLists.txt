@@ -53,7 +53,7 @@ ${BULLET_PHYSICS_SOURCE_DIR}/Extras/BulletColladaConverter ${BULLET_PHYSICS_SOUR
 )
 
 LINK_LIBRARIES(
-LibBulletColladaConverter LibGLUI  LibGIMPACTUtils LibGIMPACT LibConvexDecomposition LibColladaDom LibXML LibOpenGLSupport  LibBulletDynamics LibBulletCollision LibLinearMath    ${GLUT_glut_LIBRARY} ${OPENGL_gl_LIBRARY} ${OPENGL_glu_LIBRARY}
+LibBulletColladaConverter LibGLUI  LibGIMPACTUtils LibGIMPACT LibConvexDecomposition LibColladaDom LibXML LibOpenGLSupport  LibBulletSoftBody LibBulletDynamics LibBulletCollision LibLinearMath    ${GLUT_glut_LIBRARY} ${OPENGL_gl_LIBRARY} ${OPENGL_glu_LIBRARY}
 )
 
 ADD_EXECUTABLE(AllBulletDemos
@@ -70,7 +70,8 @@ ADD_EXECUTABLE(AllBulletDemos
         ../ConcaveRaycastDemo/ConcaveRaycastDemo.cpp
         ../ConcaveConvexcastDemo/ConcaveConvexcastDemo.cpp
         ../ConvexDecompositionDemo/ConvexDecompositionDemo.cpp
-        ../RagdollDemo/RagdollDemo.cpp
+        ../SliderConstraintDemo/SliderConstraintDemo.cpp
+	../RagdollDemo/RagdollDemo.cpp
         ../GimpactTestDemo/GimpactTestDemo.cpp
         ../Raytracer/Raytracer.cpp
         ../GjkConvexCastDemo/LinearConvexCastDemo.cpp
