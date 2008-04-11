@@ -32,7 +32,7 @@
 				OptimizeForProcessor="1"
 				ExceptionHandling="0"
 				AdditionalOptions=" "
-				AdditionalIncludeDirectories=".;..\..;..\..\src;..\..\Glut;..\..\Demos\OpenGL;..\..\Extras\ConvexHull"
+				AdditionalIncludeDirectories=".;..\..;..\..\src;..\..\Glut;..\..\Demos\OpenGL"
 				PrecompiledHeaderFile="..\..\out\release71\build\appSoftBodyDemo\appSoftBodyDemo.pch"
 				AssemblerListingLocation="..\..\out\release71\build\appSoftBodyDemo\"
 				ObjectFile="..\..\out\release71\build\appSoftBodyDemo\"
@@ -80,7 +80,7 @@
 			<Tool
 				Name="VCResourceCompilerTool"
 				PreprocessorDefinitions="NDEBUG;_CONSOLE;PROJECTGEN_VERSION=71"
-				AdditionalIncludeDirectories=".;..\..;..\..\src;..\..\Glut;..\..\Demos\OpenGL;..\..\Extras\ConvexHull"
+				AdditionalIncludeDirectories=".;..\..;..\..\src;..\..\Glut;..\..\Demos\OpenGL"
 				Culture="1033"/>
 			<Tool
 				Name="VCWebServiceProxyGeneratorTool"/>
@@ -101,7 +101,7 @@
 				OptimizeForProcessor="1"
 				ExceptionHandling="0"
 				AdditionalOptions=" "
-				AdditionalIncludeDirectories=".;..\..;..\..\src;..\..\Glut;..\..\Demos\OpenGL;..\..\Extras\ConvexHull"
+				AdditionalIncludeDirectories=".;..\..;..\..\src;..\..\Glut;..\..\Demos\OpenGL"
 				PrecompiledHeaderFile="..\..\out\release_dbl71\build\appSoftBodyDemo\appSoftBodyDemo.pch"
 				AssemblerListingLocation="..\..\out\release_dbl71\build\appSoftBodyDemo\"
 				ObjectFile="..\..\out\release_dbl71\build\appSoftBodyDemo\"
@@ -144,7 +144,7 @@
 			<Tool
 				Name="VCResourceCompilerTool"
 				PreprocessorDefinitions="NDEBUG;BT_USE_DOUBLE_PRECISION;_CONSOLE;PROJECTGEN_VERSION=71"
-				AdditionalIncludeDirectories=".;..\..;..\..\src;..\..\Glut;..\..\Demos\OpenGL;..\..\Extras\ConvexHull"
+				AdditionalIncludeDirectories=".;..\..;..\..\src;..\..\Glut;..\..\Demos\OpenGL"
 				Culture="1033"/>
 			<Tool
 				Name="VCWebServiceProxyGeneratorTool"/>
@@ -170,7 +170,7 @@
 				OptimizeForProcessor="1"
 				ExceptionHandling="0"
 				AdditionalOptions=" "
-				AdditionalIncludeDirectories=".;..\..;..\..\src;..\..\Glut;..\..\Demos\OpenGL;..\..\Extras\ConvexHull"
+				AdditionalIncludeDirectories=".;..\..;..\..\src;..\..\Glut;..\..\Demos\OpenGL"
 				PrecompiledHeaderFile="..\..\out\debug71\build\appSoftBodyDemo\appSoftBodyDemo.pch"
 				AssemblerListingLocation="..\..\out\debug71\build\appSoftBodyDemo\"
 				ObjectFile="..\..\out\debug71\build\appSoftBodyDemo\"
@@ -216,7 +216,7 @@
 			<Tool
 				Name="VCResourceCompilerTool"
 				PreprocessorDefinitions="_DEBUG;_CONSOLE;PROJECTGEN_VERSION=71"
-				AdditionalIncludeDirectories=".;..\..;..\..\src;..\..\Glut;..\..\Demos\OpenGL;..\..\Extras\ConvexHull"
+				AdditionalIncludeDirectories=".;..\..;..\..\src;..\..\Glut;..\..\Demos\OpenGL"
 				Culture="1033"/>
 			<Tool
 				Name="VCWebServiceProxyGeneratorTool"/>
@@ -242,7 +242,7 @@
 				OptimizeForProcessor="1"
 				ExceptionHandling="0"
 				AdditionalOptions=" "
-				AdditionalIncludeDirectories=".;..\..;..\..\src;..\..\Glut;..\..\Demos\OpenGL;..\..\Extras\ConvexHull"
+				AdditionalIncludeDirectories=".;..\..;..\..\src;..\..\Glut;..\..\Demos\OpenGL"
 				PrecompiledHeaderFile="..\..\out\debug_dbl71\build\appSoftBodyDemo\appSoftBodyDemo.pch"
 				AssemblerListingLocation="..\..\out\debug_dbl71\build\appSoftBodyDemo\"
 				ObjectFile="..\..\out\debug_dbl71\build\appSoftBodyDemo\"
@@ -285,7 +285,7 @@
 			<Tool
 				Name="VCResourceCompilerTool"
 				PreprocessorDefinitions="_DEBUG;BT_USE_DOUBLE_PRECISION;_CONSOLE;PROJECTGEN_VERSION=71"
-				AdditionalIncludeDirectories=".;..\..;..\..\src;..\..\Glut;..\..\Demos\OpenGL;..\..\Extras\ConvexHull"
+				AdditionalIncludeDirectories=".;..\..;..\..\src;..\..\Glut;..\..\Demos\OpenGL"
 				Culture="1033"/>
 			<Tool
 				Name="VCWebServiceProxyGeneratorTool"/>
@@ -298,15 +298,6 @@
 			Name="Source Files"
 			Filter="">
 			<File
-				RelativePath="..\..\Demos\SoftDemo\btSoftBodyRigidBodyCollisionConfiguration.cpp">
-			</File>
-			<File
-				RelativePath="..\..\Demos\SoftDemo\btSoftRigidCollisionAlgorithm.cpp">
-			</File>
-			<File
-				RelativePath="..\..\Demos\SoftDemo\btSoftSoftCollisionAlgorithm.cpp">
-			</File>
-			<File
 				RelativePath="..\..\Demos\SoftDemo\main.cpp">
 			</File>
 			<File
@@ -316,15 +307,6 @@
 		<Filter
 			Name="Header Files"
 			Filter="">
-			<File
-				RelativePath="..\..\Demos\SoftDemo\btSoftBodyRigidBodyCollisionConfiguration.h">
-			</File>
-			<File
-				RelativePath="..\..\Demos\SoftDemo\btSoftRigidCollisionAlgorithm.h">
-			</File>
-			<File
-				RelativePath="..\..\Demos\SoftDemo\btSoftSoftCollisionAlgorithm.h">
-			</File>
 			<File
 				RelativePath="..\..\Demos\SoftDemo\SoftDemo.h">
 			</File>

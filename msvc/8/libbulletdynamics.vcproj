@@ -344,27 +344,6 @@
 				RelativePath="..\..\src\BulletDynamics\Dynamics\Bullet-C-API.cpp">
 			</File>
 			<File
-				RelativePath="..\..\src\BulletDynamics\SoftBody\btDbvt.cpp">
-			</File>
-			<File
-				RelativePath="..\..\src\BulletDynamics\SoftBody\btSoftBody.cpp">
-			</File>
-			<File
-				RelativePath="..\..\src\BulletDynamics\SoftBody\btSoftBodyHelpers.cpp">
-			</File>
-			<File
-				RelativePath="..\..\src\BulletDynamics\SoftBody\btSoftBodyRigidBodyCollisionConfiguration.cpp">
-			</File>
-			<File
-				RelativePath="..\..\src\BulletDynamics\SoftBody\btSoftRigidCollisionAlgorithm.cpp">
-			</File>
-			<File
-				RelativePath="..\..\src\BulletDynamics\SoftBody\btSoftRigidDynamicsWorld.cpp">
-			</File>
-			<File
-				RelativePath="..\..\src\BulletDynamics\SoftBody\btSoftSoftCollisionAlgorithm.cpp">
-			</File>
-			<File
 				RelativePath="..\..\src\BulletDynamics\Vehicle\btRaycastVehicle.cpp">
 			</File>
 			<File
@@ -451,30 +430,6 @@
 			</File>
 			<File
 				RelativePath="..\..\src\BulletDynamics\Dynamics\btSimpleDynamicsWorld.h">
-			</File>
-			<File
-				RelativePath="..\..\src\BulletDynamics\SoftBody\btDbvt.h">
-			</File>
-			<File
-				RelativePath="..\..\src\BulletDynamics\SoftBody\btSoftBody.h">
-			</File>
-			<File
-				RelativePath="..\..\src\BulletDynamics\SoftBody\btSoftBodyHelpers.h">
-			</File>
-			<File
-				RelativePath="..\..\src\BulletDynamics\SoftBody\btSoftBodyRigidBodyCollisionConfiguration.h">
-			</File>
-			<File
-				RelativePath="..\..\src\BulletDynamics\SoftBody\btSoftRigidCollisionAlgorithm.h">
-			</File>
-			<File
-				RelativePath="..\..\src\BulletDynamics\SoftBody\btSoftRigidDynamicsWorld.h">
-			</File>
-			<File
-				RelativePath="..\..\src\BulletDynamics\SoftBody\btSoftSoftCollisionAlgorithm.h">
-			</File>
-			<File
-				RelativePath="..\..\src\BulletDynamics\SoftBody\btSparseSDF.h">
 			</File>
 			<File
 				RelativePath="..\..\src\BulletDynamics\Vehicle\btRaycastVehicle.h">

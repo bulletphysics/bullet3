@@ -24,6 +24,9 @@ Package=<4>
     Project_Dep_Name libbulletopenglsupport
     End Project Dependency
     Begin Project Dependency
+    Project_Dep_Name libbulletsoftbody
+    End Project Dependency
+    Begin Project Dependency
     Project_Dep_Name libconvexdecomposition
     End Project Dependency
     Begin Project Dependency
@@ -686,6 +689,9 @@ Package=<4>
     Begin Project Dependency
     Project_Dep_Name libbulletopenglsupport
     End Project Dependency
+    Begin Project Dependency
+    Project_Dep_Name libbulletsoftbody
+    End Project Dependency
 }}}
 
 ###############################################################################
@@ -852,6 +858,9 @@ Package=<4>
     Project_Dep_Name libbulletopenglsupport
     End Project Dependency
     Begin Project Dependency
+    Project_Dep_Name libbulletsoftbody
+    End Project Dependency
+    Begin Project Dependency
     Project_Dep_Name libcolladadom
     End Project Dependency
     Begin Project Dependency
@@ -999,6 +1008,9 @@ Package=<4>
     Project_Dep_Name libbulletopenglsupport
     End Project Dependency
     Begin Project Dependency
+    Project_Dep_Name libbulletsoftbody
+    End Project Dependency
+    Begin Project Dependency
     Project_Dep_Name libcolladadom
     End Project Dependency
     Begin Project Dependency
@@ -1081,6 +1093,18 @@ Package=<4>
 ###############################################################################
 
 Project: "libbulletopenglsupport"=.\libbulletopenglsupport.dsp - Package Owner=<4>
+
+Package=<5>
+{{{
+}}}
+
+Package=<4>
+{{{
+}}}
+
+###############################################################################
+
+Project: "libbulletsoftbody"=.\libbulletsoftbody.dsp - Package Owner=<4>
 
 Package=<5>
 {{{

@@ -346,6 +346,9 @@
 				RelativePath="..\..\Demos\AllBulletDemos\..\Raytracer\Raytracer.cpp">
 			</File>
 			<File
+				RelativePath="..\..\Demos\AllBulletDemos\..\SliderConstraintDemo\SliderConstraintDemo.cpp">
+			</File>
+			<File
 				RelativePath="..\..\Demos\AllBulletDemos\..\SoftDemo\SoftDemo.cpp">
 			</File>
 			<File
