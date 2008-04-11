@@ -46,18 +46,4 @@ ADD_LIBRARY(LibBulletDynamics
 	Vehicle/btRaycastVehicle.h
 	Vehicle/btWheelInfo.cpp
 	Vehicle/btWheelInfo.h
-	SoftBody/btSoftBody.cpp
-	SoftBody/btSoftBody.h
-	SoftBody/btSoftBodyHelpers.cpp
-	SoftBody/btSparseSDF.h
-	SoftBody/btDbvt.cpp  
-	SoftBody/btDbvt.h
-	SoftBody/btSoftBodyHelpers.h
-	SoftBody/btSoftBodyRigidBodyCollisionConfiguration.cpp
-	SoftBody/btSoftRigidCollisionAlgorithm.cpp
-	SoftBody/btSoftRigidCollisionAlgorithm.h
-	SoftBody/btSoftSoftCollisionAlgorithm.cpp
-	SoftBody/btSoftSoftCollisionAlgorithm.h
-	SoftBody/btSoftRigidDynamicsWorld.h
-	SoftBody/btSoftRigidDynamicsWorld.cpp
 )
