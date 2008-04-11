@@ -769,7 +769,7 @@ static void	Init_TorusMatch(SoftDemo* pdemo)
 
 }
 
-static unsigned	current_demo=14;
+unsigned	current_demo=14;
 
 void	SoftDemo::clientResetScene()
 {

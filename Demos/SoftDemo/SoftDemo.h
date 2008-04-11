@@ -116,6 +116,41 @@ public:
 
 };
 
+#define MACRO_SOFT_DEMO(a) class SoftDemo##a : public SoftDemo\
+{\
+public:\
+	static DemoApplication* Create()\
+	{\
+		SoftDemo* demo = new SoftDemo##a;\
+		extern unsigned int current_demo;\
+		current_demo=a;\
+		demo->myinit();\
+		demo->initPhysics();\
+		return demo;\
+	}\
+};
+
+
+MACRO_SOFT_DEMO(0) //Init_Cloth
+MACRO_SOFT_DEMO(1) //Init_Pressure
+MACRO_SOFT_DEMO(2)//Init_Volume
+MACRO_SOFT_DEMO(3)//Init_Ropes
+MACRO_SOFT_DEMO(4)//Init_Ropes_Attach
+MACRO_SOFT_DEMO(5)//Init_ClothAttach
+MACRO_SOFT_DEMO(6)//Init_Sticks
+MACRO_SOFT_DEMO(7)//Init_Collide
+MACRO_SOFT_DEMO(8)//Init_Collide2
+MACRO_SOFT_DEMO(9)//Init_Collide3
+MACRO_SOFT_DEMO(10)//Init_Impact
+MACRO_SOFT_DEMO(11)//Init_Aero
+MACRO_SOFT_DEMO(12)//Init_Friction
+MACRO_SOFT_DEMO(13)//Init_Torus
+MACRO_SOFT_DEMO(14)//Init_TorusMatch
+MACRO_SOFT_DEMO(15)//Init_Bunny
+MACRO_SOFT_DEMO(16)//Init_BunnyMatch
+
+
+
 #endif //CCD_PHYSICS_DEMO_H
 
 

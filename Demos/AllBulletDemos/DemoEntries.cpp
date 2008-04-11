@@ -97,9 +97,26 @@ public:
 
 };
 
+
 btDemoEntry g_demoEntries[] =
 {
-	{"SoftBodyDemo",SoftDemo::Create},
+	{"SoftBody Cloth",SoftDemo0::Create},
+	{"SoftBody Pressure",SoftDemo1::Create},
+	{"SoftBody Volume",SoftDemo2::Create},
+	{"SoftBody Ropes",SoftDemo3::Create},
+	{"SoftBody Ropes Attach",SoftDemo4::Create},
+	{"SoftBody Cloth Attach",SoftDemo5::Create},
+	{"SoftBody Sticks",SoftDemo6::Create},
+	{"SoftBody Collide",SoftDemo7::Create},
+	{"SoftBody Collide2",SoftDemo8::Create},
+	{"SoftBody Collide3",SoftDemo9::Create},
+	{"SoftBody Impact",SoftDemo10::Create},
+	{"SoftBody Aero",SoftDemo11::Create},
+	{"SoftBody Friction",SoftDemo12::Create},
+	{"SoftBody Torus",SoftDemo13::Create},
+	{"SoftBody Torus Match",SoftDemo14::Create},
+	{"SoftBody Bunny",SoftDemo15::Create},
+	{"SoftBody Bunny Match",SoftDemo16::Create},	
 	{"DynamicControlDemo",MotorDemo::Create},
 	{"RagdollDemo",RagdollDemo::Create},
 	{"BasicDemo", BasicDemo::Create},	
