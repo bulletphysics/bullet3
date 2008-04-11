@@ -18,8 +18,8 @@ subject to the following restrictions:
 #include "LinearMath/btQuickprof.h"
 
 //softbody & helpers
-#include "BulletDynamics/SoftBody/btSoftBody.h"
-#include "BulletDynamics/SoftBody/btSoftBodyHelpers.h"
+#include "btSoftBody.h"
+#include "btSoftBodyHelpers.h"
 
 btSoftRigidDynamicsWorld::btSoftRigidDynamicsWorld(btDispatcher* dispatcher,btBroadphaseInterface* pairCache,btConstraintSolver* constraintSolver,btCollisionConfiguration* collisionConfiguration)
 :btDiscreteDynamicsWorld(dispatcher,pairCache,constraintSolver,collisionConfiguration)

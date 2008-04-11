@@ -20,6 +20,19 @@ if $(GLUT.AVAILABLE) = "yes"
   }
 }
 
+rule BulletSoftBodyDemo
+{
+ Application $(<) : $(>) : noinstall console nomanifest ;
+    LinkWith $(<) :  bulletopenglsupport bulletsoftbody bulletdynamics bulletcollision  bulletmath ;
+    CFlags $(<) :
+          [ FIncludes $(TOP)/src ]
+	[ FIncludes $(TOP)/Demos/OpenGL ]
+           ;
+    MsvcIncDirs $(<) :
+	 "../../Demos/OpenGL"
+        "../../src" ;
+}
+
  rule BulletBasicDemo
   {
     Application $(<) : $(>) : noinstall console nomanifest ;
@@ -37,7 +50,7 @@ if $(GLUT.AVAILABLE) = "yes"
   rule FrameWorkDemo
   {
     Application $(<) : $(>) : noinstall console nomanifest ;
-    LinkWith $(<) :  GIMPACTUtils  GIMPACT  bulletopenglsupport  convexdecomposition   bulletdynamics bulletcollision bulletmath glui ;
+    LinkWith $(<) :  GIMPACTUtils  GIMPACT  bulletopenglsupport bulletsoftbody  convexdecomposition   bulletdynamics bulletcollision bulletmath glui ;
     CFlags $(<) :
           [ FIncludes $(TOP)/Extras ]
          [ FIncludes $(TOP)/Demos/OpenGL ]

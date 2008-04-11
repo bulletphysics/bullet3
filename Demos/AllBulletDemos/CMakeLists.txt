@@ -76,9 +76,6 @@ ADD_EXECUTABLE(AllBulletDemos
         ../GjkConvexCastDemo/LinearConvexCastDemo.cpp
         ../VehicleDemo/VehicleDemo.cpp
         ../SoftDemo/SoftDemo.cpp
-	../SoftDemo/btSoftBodyRigidBodyCollisionConfiguration.cpp
-	../SoftDemo/btSoftSoftCollisionAlgorithm.cpp
-	../SoftDemo/btSoftRigidCollisionAlgorithm.cpp
         ../ConstraintDemo/ConstraintDemo.cpp
 )
 

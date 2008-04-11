@@ -20,7 +20,7 @@ subject to the following restrictions:
 
 #include "DemoApplication.h"
 #include "LinearMath/btAlignedObjectArray.h"
-#include "BulletDynamics/SoftBody/btSoftBody.h"
+#include "BulletSoftBody/btSoftBody.h"
 
 
 class btBroadphaseInterface;

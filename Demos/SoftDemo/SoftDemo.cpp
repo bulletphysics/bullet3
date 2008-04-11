@@ -17,7 +17,7 @@ subject to the following restrictions:
 
 
 #include "btBulletDynamicsCommon.h"
-#include "BulletDynamics/SoftBody/btSoftRigidDynamicsWorld.h"
+#include "BulletSoftBody/btSoftRigidDynamicsWorld.h"
 
 #include "BulletCollision/CollisionDispatch/btSphereSphereCollisionAlgorithm.h"
 #include "BulletCollision/NarrowPhaseCollision/btGjkEpa2.h"
@@ -28,8 +28,8 @@ subject to the following restrictions:
 #include "../GimpactTestDemo/TorusMesh.h"
 #include <stdio.h> //printf debugging
 #include "LinearMath/btConvexHull.h"
-#include "btSoftBodyRigidBodyCollisionConfiguration.h"
-#include "BulletDynamics/SoftBody/btSoftBodyHelpers.h"
+#include "BulletSoftBody/btSoftBodyRigidBodyCollisionConfiguration.h"
+#include "BulletSoftBody/btSoftBodyHelpers.h"
 
 static float	gCollisionMargin = 0.05f/*0.05f*/;
 #include "SoftDemo.h"

@@ -25,8 +25,8 @@ subject to the following restrictions:
 
 #include "BulletCollision/CollisionShapes/btConcaveShape.h"
 #include "BulletCollision/CollisionDispatch/btCollisionCreateFunc.h"
-#include "BulletDynamics/SoftBody/btSparseSDF.h"
-#include "BulletDynamics/SoftBody/btDbvt.h"
+#include "btSparseSDF.h"
+#include "btDbvt.h"
 
 class btBroadphaseInterface;
 class btCollisionDispatcher;
