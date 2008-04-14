@@ -470,15 +470,7 @@ static inline btScalar		RayTriangle(const btVector3& org,
 // Private implementation
 //
 
-//
-static int		RaycastInternal(const btSoftBody* psb,
-	const btVector3& org,
-	const btVector3& dir,
-	btScalar& mint,
-	int& face,
-	bool bcountonly)
-{
-	struct	RayCaster : btDbvt::ICollide
+struct	RayCaster : public btDbvt::ICollide
 	{
 	btVector3			o;
 	btVector3			d;
@@ -518,6 +510,16 @@ static int		RaycastInternal(const btSoftBody* psb,
 		return((ctr-(nd*prj)).length2()<=sqr);
 		}
 	};
+
+
+//
+static int		RaycastInternal(const btSoftBody* psb,
+	const btVector3& org,
+	const btVector3& dir,
+	btScalar& mint,
+	int& face,
+	bool bcountonly)
+{
 	int	cnt=0;
 	if(bcountonly||psb->m_fdbvt.empty())
 		{/* Full search	*/ 
@@ -1515,6 +1517,7 @@ bool			btSoftBody::rayCast(const btVector3& org,
 								results.time,
 								results.face,false)!=0);
 		}
+
 	return(false);
 }
 

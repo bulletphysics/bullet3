@@ -826,7 +826,7 @@ void	SoftDemo::renderme()
 		m_cameraTargetPosition=btVector3(0,0,0);
 	/* Anm			*/ 
 	if(!isIdle())
-		m_animtime=::GetTickCount()/1000.;
+		m_animtime=m_clock.getTimeMilliseconds()/1000.f;
 	/* Ray cast		*/ 
 	if(m_raycast)
 		{		
