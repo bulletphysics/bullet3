@@ -1,10 +1,5 @@
 #include "btDbvt.h"
 
-#include <stdio.h>
-
-namespace btdbvt_internals
-{
-
 //
 typedef btAlignedObjectArray<btDbvt::Node*>	tNodeArray;
 
@@ -22,7 +17,6 @@ btDbvt::Aabb	res;
 Merge(a,b,res);
 return(res);
 }
-
 
 // volume+edge lengths
 static inline btScalar			size(const btDbvt::Aabb& a)
@@ -266,14 +260,20 @@ if(leafs.size()>1)
 		tNodeArray			sets[2];
 		int					bestaxis=-1;
 		int					bestmidp=leafs.size();
-		sets[0].reserve(leafs.size());
-		sets[1].reserve(leafs.size());
+		int					splitcount[3][2]={0,0,0,0,0,0};
+		for(int i=0;i<leafs.size();++i)
+			{
+			const btVector3	x=leafs[i]->box.Center()-org;
+			for(int j=0;j<3;++j)
+				{
+				++splitcount[j][dot(x,axis[j])>0?1:0];
+				}
+			}
 		for(int i=0;i<3;++i)
 			{
-			split(leafs,sets[0],sets[1],org,axis[i]);
-			if((sets[0].size()>0)&&(sets[1].size()>0))
+			if((splitcount[i][0]>0)&&(splitcount[i][1]>0))
 				{
-				const int	midp=abs(sets[0].size()-sets[1].size());
+				const int	midp=abs(splitcount[i][0]-splitcount[i][1]);
 				if(midp<bestmidp)
 					{
 					bestaxis=i;
@@ -283,12 +283,14 @@ if(leafs.size()>1)
 			}
 		if(bestaxis>=0)
 			{
+			sets[0].reserve(splitcount[bestaxis][0]);
+			sets[1].reserve(splitcount[bestaxis][1]);
 			split(leafs,sets[0],sets[1],org,axis[bestaxis]);
 			}
 			else
 			{
-			sets[0].resize(0);
-			sets[1].resize(0);
+			sets[0].reserve(leafs.size()/2+1);
+			sets[1].reserve(leafs.size()/2);
 			for(int i=0,ni=leafs.size();i<ni;++i)
 				{
 				sets[i&1].push_back(leafs[i]);
@@ -331,11 +333,6 @@ if(parent)
 	}
 return(node);
 }
-										
-
-}
-
-using namespace btdbvt_internals;
 
 //
 // Api
@@ -438,14 +435,12 @@ removeleaf(this,leaf);
 deletenode(this,leaf);
 }
 
-
 //
 void			btDbvt::collide(btDbvt* tree,
 								ICollide* icollide) const
 {
 if(tree->m_root&&m_root)
 	{
-	
 	btAlignedObjectArray<sStkElm>	stack;
 	stack.reserve(128);
 	stack.push_back(sStkElm(m_root,tree->m_root));
@@ -524,9 +519,23 @@ if(m_root)
 }
 							
 //
-void			btDbvt::collide(const btVector3& org,
-								const btVector3& dir,
-								ICollide* icollide) const
+void			btDbvt::collide(ICollide* icollide) const
 {
-/* not implemented	*/ 
+if(m_root)
+	{
+	btAlignedObjectArray<const Node*>	stack;
+	stack.reserve(64);
+	stack.push_back(m_root);
+	do	{
+		const Node*	n=stack[stack.size()-1];
+		stack.pop_back();
+		if(icollide->Descent(n))
+			{
+			if(n->isinternal())
+				{ stack.push_back(n->childs[0]);stack.push_back(n->childs[1]); }
+				else
+				{ icollide->Process(n); }
+			}
+		} while(stack.size()>0);
+	}
 }

@@ -15,7 +15,10 @@ subject to the following restrictions:
 ///btSoftBody implementation by Nathanael Presson
 
 #include "btSoftBody.h"
+#if	1
 #include <stdio.h>
+#define	DOTRACE
+#endif
 #include <string.h>
 #include "LinearMath/btQuickprof.h"
 #include "BulletCollision/NarrowPhaseCollision/btGjkEpa2.h"
@@ -67,7 +70,7 @@ public:
 	{
 		return SOFTBODY_SHAPE_PROXYTYPE;
 	}
-	virtual void	setLocalScaling(const btVector3& scaling)
+	virtual void	setLocalScaling(const btVector3& /*scaling*/)
 	{		
 		///na
 		btAssert(0);
@@ -77,7 +80,7 @@ public:
 	static const btVector3 dummy(1,1,1);
 	return dummy;
 	}
-	virtual void	calculateLocalInertia(btScalar mass,btVector3& inertia) const
+	virtual void	calculateLocalInertia(btScalar /*mass*/,btVector3& /*inertia*/) const
 	{
 		///not yet
 		btAssert(0);
@@ -99,18 +102,18 @@ btSoftBodyCollisionShape::~btSoftBodyCollisionShape()
 
 }
 
-void	btSoftBodyCollisionShape::processAllTriangles(btTriangleCallback* callback,const btVector3& aabbMin,const btVector3& aabbMax) const
+void	btSoftBodyCollisionShape::processAllTriangles(btTriangleCallback* /*callback*/,const btVector3& /*aabbMin*/,const btVector3& /*aabbMax*/) const
 {
 	//not yet
 	btAssert(0);
 }
-
 
 //
 // Helpers
 //
 
 //
+#ifdef DOTRACE
 static inline void			Trace(const btMatrix3x3& m,const char* name)
 {
 	printf("%s[0]: %.2f,\t%.2f,\t%.2f\r\n",name,m[0].x(),m[0].y(),m[0].z());
@@ -118,6 +121,9 @@ static inline void			Trace(const btMatrix3x3& m,const char* name)
 	printf("%s[2]: %.2f,\t%.2f,\t%.2f\r\n",name,m[2].x(),m[2].y(),m[2].z());
 	printf("\r\n");
 }
+#else
+static inline void			Trace(const btMatrix3x3&,const char*) {}
+#endif
 
 //
 template <typename T>
@@ -142,6 +148,10 @@ static inline T				Clamp(const T& x,const T& l,const T& h)
 template <typename T>
 static inline T				Sq(const T& x)
 { return(x*x); }
+//
+template <typename T>
+static inline T				Cube(const T& x)
+{ return(x*x*x); }
 //
 template <typename T>
 static inline T				Sign(const T& x)
@@ -348,6 +358,7 @@ static inline btVector3		NormalizeAny(const btVector3& v)
 }
 
 //
+#if 0
 static void					PointersToIndices(btSoftBody* psb)
 {
 #define	PTR2IDX(_p_,_b_)	reinterpret_cast<btSoftBody::Node*>((_p_)-(_b_))
@@ -365,8 +376,10 @@ static void					PointersToIndices(btSoftBody* psb)
 	}
 #undef	PTR2IDX
 }
+#endif
 
 //
+#if 0
 static void					IndicesToPointers(btSoftBody* psb)
 {
 #define	IDX2PTR(_p_,_b_)	((_b_)+(((char*)_p_)-(char*)0))
@@ -384,6 +397,7 @@ static void					IndicesToPointers(btSoftBody* psb)
 	}
 #undef	IDX2PTR
 }
+#endif
 
 //
 static inline btDbvt::Aabb	BoxOf(	const btSoftBody::Face& f,
@@ -431,7 +445,7 @@ static inline btScalar		RayTriangle(const btVector3& org,
 {
 	static const btScalar	ceps=-SIMD_EPSILON*10;
 	static const btScalar	teps=SIMD_EPSILON*10;
-	const btVector3			n=cross(b-a,c-a).normalized();
+	const btVector3			n=cross(b-a,c-a);
 	const btScalar			d=dot(a,n);
 	const btScalar			den=dot(dir,n);
 	if(!btFuzzyZero(den))
@@ -461,26 +475,91 @@ static int		RaycastInternal(const btSoftBody* psb,
 	const btVector3& org,
 	const btVector3& dir,
 	btScalar& mint,
+	int& face,
 	bool bcountonly)
 {
-	int	cnt=0;
-	mint=SIMD_INFINITY;
-	for(int i=0,ni=psb->getFaces().size();i<ni;++i)
+	struct	RayCaster : btDbvt::ICollide
 	{
-		const btSoftBody::Face&	f=psb->getFaces()[i];
-		const btScalar			t=RayTriangle(	org,dir,
-			f.m_n[0]->m_x,
-			f.m_n[1]->m_x,
-			f.m_n[2]->m_x,
-			mint);
-		if(t>0)
+	btVector3			o;
+	btVector3			d;
+	btVector3			nd;
+	btScalar			mint;
+	btSoftBody::Face*	face;
+	int					tests;
+			RayCaster(const btVector3& org,const btVector3& dir,btScalar mxt)
 		{
-			++cnt;if(!bcountonly) mint=t;
+		o		=	org;
+		d		=	dir;
+		nd		=	dir.normalized();	
+		mint	=	mxt;
+		face	=	0;
+		tests	=	0;
 		}
-	}
+	void	Process(const btDbvt::Node* leaf)
+		{
+		btSoftBody::Face&	f=*(btSoftBody::Face*)leaf->data;
+		const btScalar		t=RayTriangle(	o,d,
+											f.m_n[0]->m_x,
+											f.m_n[1]->m_x,
+											f.m_n[2]->m_x,
+											mint);
+		if((t>0)&&(t<mint))
+			{
+			mint=t;
+			face=&f;
+			}
+		++tests;
+		}
+	bool	Descent(const btDbvt::Node* node)
+		{
+		const btVector3	ctr=node->box.Center()-o;		
+		const btScalar	sqr=node->box.Lengths().length2()/4;
+		const btScalar	prj=dot(ctr,nd);
+		return((ctr-(nd*prj)).length2()<=sqr);
+		}
+	};
+	int	cnt=0;
+	if(bcountonly||psb->m_fdbvt.empty())
+		{/* Full search	*/ 
+		for(int i=0,ni=psb->getFaces().size();i<ni;++i)
+			{
+			const btSoftBody::Face&	f=psb->getFaces()[i];
+			const btScalar			t=RayTriangle(	org,dir,
+													f.m_n[0]->m_x,
+													f.m_n[1]->m_x,
+													f.m_n[2]->m_x,
+													mint);
+			if(t>0)
+				{
+				++cnt;if(!bcountonly) { face=i;mint=t; }
+				}
+			}
+		}
+		else
+		{/* Use dbvt	*/ 
+		RayCaster	collider(org,dir,mint);
+		psb->m_fdbvt.collideGeneric(collider);
+		if(collider.face)
+			{
+			mint=collider.mint;
+			face=(int)(collider.face-&psb->getFaces()[0]);
+			cnt=1;
+			}
+		}
 	return(cnt);
 }
 
+//
+static void			InitializeFaceTree(btSoftBody* psb)
+{
+psb->m_fdbvt.clear();
+for(int i=0;i<psb->getFaces().size();++i)
+	{
+	btSoftBody::Face&	f=psb->getFaces()[i];
+	f.m_leaf=psb->m_fdbvt.insert(BoxOf(f,0),&f);
+	}
+psb->m_fdbvt.optimizeTopDown();
+}
 
 //
 static btVector3	EvaluateCom(btSoftBody* psb)
@@ -519,13 +598,13 @@ static void			EvaluateMedium(	const btSoftBody::btSoftBodyWorldInfo* wfi,
 static bool			CheckContact(	btSoftBody* psb,
 									btRigidBody* prb,
 									const btVector3& x,
+									btScalar margin,
 									btSoftBody::sCti& cti)
 {
 	btVector3			nrm;
 	btCollisionShape*	shp=prb->getCollisionShape();
 	btAssert(shp->isConvex());
 	btConvexShape*		csh=static_cast<btConvexShape*>(shp);
-	const btScalar		margin=psb->getCollisionShape()->getMargin();
 	const btTransform&	wtr=prb->getInterpolationWorldTransform();
 	btScalar			dst=psb->m_worldInfo->m_sparsesdf.Evaluate(	wtr.invXform(x),
 																	csh,
@@ -693,6 +772,7 @@ static inline void	ApplyClampedForce(	btSoftBody::Node& n,
 //
 static void			ApplyForces(btSoftBody* psb,btScalar dt)
 {
+	BT_PROFILE("SoftBody applyForces");
 	const btScalar					kLF=psb->m_cfg.kLF;
 	const btScalar					kDG=psb->m_cfg.kDG;
 	const btScalar					kPR=psb->m_cfg.kPR;
@@ -832,7 +912,6 @@ static void			PSolve_Anchors(btSoftBody* psb,btScalar sdt)
 //
 static void			PSolve_RContacts(btSoftBody* psb,btScalar sdt)
 {
-	const btScalar	kCHR=psb->m_cfg.kCHR;
 	for(int i=0,ni=psb->m_rcontacts.size();i<ni;++i)
 	{
 		const btSoftBody::RContact&	c=psb->m_rcontacts[i];
@@ -840,12 +919,12 @@ static void			PSolve_RContacts(btSoftBody* psb,btScalar sdt)
 		const btVector3		va=cti.m_body->getVelocityInLocalPoint(c.m_c1)*sdt;
 		const btVector3		vb=c.m_node->m_x-c.m_node->m_q;	
 		const btVector3		vr=vb-va;
-		const btScalar		dn=dot(vr,cti.m_normal);
+		const btScalar		dn=dot(vr,cti.m_normal);		
 		if(dn<=SIMD_EPSILON)
 		{
 			const btScalar		dp=dot(c.m_node->m_x,cti.m_normal)+cti.m_offset;
 			const btVector3		fv=vr-cti.m_normal*dn;
-			const btVector3		impulse=c.m_c0*(vr-fv*c.m_c3+cti.m_normal*(dp*kCHR));
+			const btVector3		impulse=c.m_c0*(vr-fv*c.m_c3+cti.m_normal*(dp*c.m_c4));
 			c.m_node->m_x-=impulse*c.m_c2;
 			c.m_cti.m_body->applyImpulse(impulse,c.m_c1);
 		}
@@ -870,7 +949,7 @@ for(int i=0,ni=psb->m_scontacts.size();i<ni;++i)
 									f.m_n[2]->m_q,
 									c.m_weights);											
 	const btVector3		vr=(n.m_x-n.m_q)-(p-q);
-	btVector3		corr(0,0,0);
+	btVector3			corr(0,0,0);
 	if(dot(vr,nr)<0)
 		{
 		const btScalar	j=c.m_margin-(dot(nr,n.m_x)-dot(nr,p));
@@ -912,9 +991,8 @@ static void			PSolve_Links(btSoftBody* psb,btScalar w)
 btSoftBody::btSoftBody(btSoftBody::btSoftBodyWorldInfo*	worldInfo,int node_count,  const btVector3* x,  const btScalar* m)
 :m_worldInfo(worldInfo)
 {	
-	m_internalType=CO_SOFT_BODY;
-
 	/* Init		*/ 
+	m_internalType		=	CO_SOFT_BODY;
 	m_cfg.aeromodel		=	eAeroModel::V_Point;
 	m_cfg.kDG			=	0;
 	m_cfg.kLF			=	0;
@@ -1255,6 +1333,81 @@ void			btSoftBody::setPose(bool bvolume,bool bframe)
 }
 
 //
+void			btSoftBody::setDistanceField(int res)
+{
+struct SignChecker : btDbvt::ICollide
+	{
+	btVector3	m_x;
+	btVector3	m_axe;
+	int			m_count;
+				SignChecker(const btVector3& x,
+							const btVector3& a,
+							btDbvt& tree) : m_x(x),m_axe(a),m_count(0)
+		{
+		tree.collide(this);
+		}
+	void		Process(const btDbvt::Node* n)
+		{
+		const Face&	f=*(const Face*)n->data;		
+		if(RayTriangle(	m_x,
+						m_axe,
+						f.m_n[0]->m_x,
+						f.m_n[1]->m_x,
+						f.m_n[2]->m_x)>0)
+			{
+			++m_count;
+			}
+		}
+	bool		Descent(const btDbvt::Node* n)
+		{
+		return(dot(m_x-n->box.Maxs()*m_axe,m_axe)<=0);
+		}
+	};
+btDbvt			dbvt;
+int				ires[3];
+btScalar		fres[3];
+const btScalar	margin=getCollisionShape()->getMargin();
+const btVector3	lengths=m_bounds[1]-m_bounds[0];
+const btScalar	smallest=btMin(btMin(lengths.x(),lengths.y()),lengths.z());
+const btScalar	ratio=smallest/res;
+ires[0]=btMax(2,(int)(lengths.x()/ratio));
+ires[1]=btMax(2,(int)(lengths.y()/ratio));
+ires[2]=btMax(2,(int)(lengths.z()/ratio));
+fres[0]=(btScalar)ires[0]-1;
+fres[1]=(btScalar)ires[1]-1;
+fres[2]=(btScalar)ires[2]-1;
+for(int i=0;i<getFaces().size();++i)
+	{
+	dbvt.insert(BoxOf(getFaces()[i],margin),&getFaces()[i]);
+	}
+dbvt.optimizeTopDown(256);
+m_dfld.pts.clear();
+for(int z=0;z<ires[2];++z)
+	{
+	const btScalar	fz=Lerp(m_bounds[0].z(),m_bounds[1].z(),z/fres[2]);
+	for(int y=0;y<ires[1];++y)
+		{
+		const btScalar	fy=Lerp(m_bounds[0].y(),m_bounds[1].y(),y/fres[1]);
+		for(int x=0;x<ires[0];++x)
+			{
+			const btScalar		fx=Lerp(m_bounds[0].x(),m_bounds[1].x(),x/fres[0]);
+			const btVector3		p(fx,fy,fz);
+			const SignChecker	scx(p,btVector3(1,0,0),dbvt);
+			const SignChecker	scy(p,btVector3(0,1,0),dbvt);
+			const SignChecker	scz(p,btVector3(0,0,1),dbvt);
+			const int			parity=	((scx.m_count&1)?1:0)+
+										((scy.m_count&1)?1:0)+
+										((scz.m_count&1)?1:0);
+			if(parity>1)
+				{
+				m_dfld.pts.push_back(p-m_pose.m_com);
+				}
+			}
+		}
+	}
+}
+
+//
 btScalar		btSoftBody::getVolume() const
 {
 	btScalar	vol=0;
@@ -1348,14 +1501,21 @@ void			btSoftBody::randomizeConstraints()
 }
 
 //
-btScalar		btSoftBody::raycast(const btVector3& org,
-									const btVector3& dir) const
+bool			btSoftBody::rayCast(const btVector3& org,
+									const btVector3& dir,
+									sRayCast& results,
+									btScalar maxtime)
 {
-	btScalar	mint=0;
-	if(RaycastInternal(this,org,dir,mint,false))
-		return(mint);
-	else
-		return(-1);
+	if(getFaces().size())
+		{
+		if(m_fdbvt.empty()) InitializeFaceTree(this);
+		results.time	=	maxtime;
+		results.face	=	-1;
+		return(RaycastInternal(	this,org,dir,
+								results.time,
+								results.face,false)!=0);
+		}
+	return(false);
 }
 
 //
@@ -1369,24 +1529,20 @@ void			btSoftBody::predictMotion(btScalar dt)
 		m_fdbvt.clear();
 		if(m_cfg.collisions&fCollision::VF_SS)
 			{
-			for(int i=0;i<getFaces().size();++i)
-				{
-				Face&	f=getFaces()[i];
-				f.m_leaf=m_fdbvt.insert(BoxOf(f,0),&f);
-				}
+			InitializeFaceTree(this);			
 			}
 	}
 	/* Prepare				*/ 
 	m_sst.iit		=	1/(btScalar)m_cfg.iterations;
 	m_sst.sdt		=	dt*m_cfg.timescale;
 	m_sst.isdt		=	1/m_sst.sdt;
-	m_sst.velmrg	=	m_sst.sdt*2;
+	m_sst.velmrg	=	m_sst.sdt*3;
+	m_sst.radmrg	=	getCollisionShape()->getMargin();
+	m_sst.updmrg	=	m_sst.radmrg*(btScalar)0.25;
 	/* Forces				*/ 
 	addVelocity(m_worldInfo->m_gravity*m_sst.sdt);
 	ApplyForces(this,m_sst.sdt);	
 	/* Integrate			*/ 
-	const btScalar	margin=getCollisionShape()->getMargin();
-	const btScalar	updmrg=margin*(btScalar)1.0;
 	for(int i=0,ni=getNodes().size();i<ni;++i)
 	{
 		Node&	n=getNodes()[i];
@@ -1394,12 +1550,13 @@ void			btSoftBody::predictMotion(btScalar dt)
 		n.m_v	+=	n.m_f*n.m_im*m_sst.sdt;
 		n.m_x	+=	n.m_v*m_sst.sdt;
 		m_ndbvt.update(	n.m_leaf,
-						btDbvt::Aabb::FromCR(n.m_x,margin),
-						n.m_v*m_sst.velmrg,updmrg);
+						btDbvt::Aabb::FromCR(n.m_x,m_sst.radmrg),
+						n.m_v*m_sst.velmrg,
+						m_sst.updmrg);
 	}
 	UpdateBounds(this);	
 	/* Faces				*/ 
-	if(m_fdbvt.m_root)
+	if(!m_fdbvt.empty())
 		{
 		for(int i=0;i<getFaces().size();++i)
 			{
@@ -1407,7 +1564,10 @@ void			btSoftBody::predictMotion(btScalar dt)
 			const btVector3	v=(	f.m_n[0]->m_v+
 								f.m_n[1]->m_v+
 								f.m_n[2]->m_v)/3;
-			m_fdbvt.update(f.m_leaf,BoxOf(f,margin),v*m_sst.velmrg,updmrg);
+			m_fdbvt.update(	f.m_leaf,
+							BoxOf(f,m_sst.radmrg),
+							v*m_sst.velmrg,
+							m_sst.updmrg);
 			}
 		}
 	/* Pose					*/ 
@@ -1459,18 +1619,9 @@ void			btSoftBody::solveConstraints()
 }
 
 //
-void			btSoftBody::solveCommonConstraints(btSoftBody** bodies,int count,int iterations)
+void			btSoftBody::solveCommonConstraints(btSoftBody** /*bodies*/,int /*count*/,int /*iterations*/)
 {
 /// placeholder
-#if 0
-for(int isolve=0;isolve<iterations;++isolve)
-	{
-	for(int ibody=0;ibody<count;++ibody)
-		{
-		PSolve_SContacts(bodies[ibody]);
-		}
-	}
-#endif
 }
 
 //
@@ -1504,9 +1655,10 @@ switch(m_cfg.collisions&fCollision::RVSmask)
 				}
 			void		DoNode(Node& n) const
 				{				
-				RContact	c;
+				const btScalar	m=n.m_im>0?dynmargin:stamargin;
+				RContact		c;
 				if(	(!n.m_battach)&&
-					CheckContact(psb,prb,n.m_x,c.m_cti))
+					CheckContact(psb,prb,n.m_x,m,c.m_cti))
 					{
 					const btScalar	ima=n.m_im;
 					const btScalar	imb=prb->getInvMass();
@@ -1527,6 +1679,7 @@ switch(m_cfg.collisions&fCollision::RVSmask)
 						c.m_c1		=	ra;
 						c.m_c2		=	ima*psb->m_sst.sdt;
 						c.m_c3		=	fv.length2()<(btFabs(dn)*fc)?0:1-fc;
+						c.m_c4		=	psb->m_cfg.kCHR*(btScalar)(prb->isStaticOrKinematicObject()?0.5:1);
 						psb->m_rcontacts.push_back(c);
 						prb->activate();
 						}
@@ -1534,18 +1687,26 @@ switch(m_cfg.collisions&fCollision::RVSmask)
 				}
 			btSoftBody*		psb;
 			btRigidBody*	prb;
-			}			docollide;
-		const btScalar	margin=getCollisionShape()->getMargin();
-		btVector3		mins;
-		btVector3		maxs;
-		btDbvt::Aabb	aabb;
+			btScalar		dynmargin;
+			btScalar		stamargin;
+			}				docollide;
+		btRigidBody*		prb=btRigidBody::upcast(pco);
+		const btTransform	wtr=prb->getInterpolationWorldTransform();
+		const btTransform	ctr=prb->getWorldTransform();
+		const btScalar		timemargin=(wtr.getOrigin()-ctr.getOrigin()).length();
+		const btScalar		basemargin=getCollisionShape()->getMargin();
+		btVector3			mins;
+		btVector3			maxs;
+		btDbvt::Aabb		aabb;
 		pco->getCollisionShape()->getAabb(	pco->getInterpolationWorldTransform(),
 											mins,
 											maxs);
 		aabb=btDbvt::Aabb::FromMM(mins,maxs);
-		aabb.Expand(btVector3(margin,margin,margin));		
-		docollide.psb=this;
-		docollide.prb=btRigidBody::upcast(pco);
+		aabb.Expand(btVector3(basemargin,basemargin,basemargin));		
+		docollide.psb		=	this;
+		docollide.prb		=	prb;
+		docollide.dynmargin	=	basemargin+timemargin;
+		docollide.stamargin	=	basemargin;
 		m_ndbvt.collide(aabb,&docollide);
 		}
 	break;
@@ -1577,15 +1738,16 @@ switch(cf&fCollision::SVSmask)
 				const btScalar	m=mrg+(o-node->m_q).length()*2;
 				if(d<(m*m))
 					{
-					const btVector3	w=BaryCoord(face->m_n[0]->m_x,
-												face->m_n[1]->m_x,
-												face->m_n[2]->m_x,
-												p+o);
+					const Node*		n[]={face->m_n[0],face->m_n[1],face->m_n[2]};
+					const btVector3	w=BaryCoord(n[0]->m_x,n[1]->m_x,n[2]->m_x,p+o);
 					const btScalar	ma=node->m_im;
-					const btScalar	mb=BaryEval(face->m_n[0]->m_im,
-												face->m_n[1]->m_im,
-												face->m_n[2]->m_im,
-												w);
+					btScalar		mb=BaryEval(n[0]->m_im,n[1]->m_im,n[2]->m_im,w);
+					if(	(n[0]->m_im<=0)||
+						(n[1]->m_im<=0)||
+						(n[2]->m_im<=0))
+						{
+						mb=0;
+						}
 					const btScalar	ms=ma+mb;
 					if(ms>0)
 						{
@@ -1600,7 +1762,7 @@ switch(cf&fCollision::SVSmask)
 						c.m_cfm[1]		=	mb/ms*psb[1]->m_cfg.kSHR;
 						psb[0]->m_scontacts.push_back(c);
 						}
-					}				
+					}	
 				}
 			btSoftBody*		psb[2];
 			btScalar		mrg;

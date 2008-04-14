@@ -70,6 +70,17 @@ public:
 	};};
 	
 	//
+	// API Types
+	//
+	
+	/* sRayCast		*/ 
+	struct sRayCast
+	{
+		int			face;	/// face
+		btScalar	time;	/// time of impact (rayorg+raydir*time)
+	};
+	
+	//
 	// Internal types
 	//
 
@@ -150,6 +161,7 @@ public:
 		btVector3				m_c1;			// Relative anchor
 		btScalar				m_c2;			// ima*dt
 		btScalar				m_c3;			// Friction
+		btScalar				m_c4;			// Hardness
 	};
 	/* SContact		*/ 
 	struct	SContact
@@ -184,7 +196,12 @@ public:
 		btMatrix3x3				m_rot;			// Rotation
 		btMatrix3x3				m_scl;			// Scale
 		btMatrix3x3				m_aqq;			// Base scaling
-	};	
+	};
+	/* DFld			*/ 
+	struct	DFld
+	{
+		btAlignedObjectArray<btVector3>	pts;
+	};
 	/* Config		*/ 
 	struct	Config
 	{
@@ -213,6 +230,8 @@ public:
 		btScalar				sdt;			// dt*timescale
 		btScalar				isdt;			// 1/sdt
 		btScalar				velmrg;			// velocity margin
+		btScalar				radmrg;			// radial margin
+		btScalar				updmrg;			// Update margin
 	};
 
 	//
@@ -220,6 +239,7 @@ public:
 	//
 
 	typedef btAlignedObjectArray<Node>			tNodeArray;
+	typedef btAlignedObjectArray<btDbvt::Node*>	tLeafArray;
 	typedef btAlignedObjectArray<Link>			tLinkArray;
 	typedef btAlignedObjectArray<Face>			tFaceArray;
 	typedef btAlignedObjectArray<Anchor>		tAnchorArray;
@@ -234,6 +254,7 @@ public:
 	Config					m_cfg;			// Configuration
 	SolverState				m_sst;			// Solver state
 	Pose					m_pose;			// Pose
+	DFld					m_dfld;			// Distance field
 	void*					m_tag;			// User data
 	btSoftBodyWorldInfo*	m_worldInfo;	//
 	tAnchorArray			m_anchors;		// Anchors
@@ -310,7 +331,9 @@ public:
 	void				scale(			const btVector3& scl);
 	/* Set current state as pose											*/ 
 	void				setPose(		bool bvolume,
-		bool bframe);
+										bool bframe);
+	/* Set current state as distance field									*/ 
+	void				setDistanceField(int nominalresolution);
 	/* Return the volume													*/ 
 	btScalar			getVolume() const;
 	/* Generate bending constraints based on distance in the adjency graph	*/ 
@@ -319,8 +342,10 @@ public:
 	/* Randomize constraints to reduce solver bias							*/ 
 	void				randomizeConstraints();
 	/* Ray casting															*/ 
-	btScalar			raycast(const btVector3& org,
-								const btVector3& dir) const;
+	bool				rayCast(const btVector3& org,
+								const btVector3& dir,
+								sRayCast& results,
+								btScalar maxtime=SIMD_INFINITY);
 	/* predictMotion														*/ 
 	void				predictMotion(btScalar dt);
 	/* solveConstraints														*/ 
@@ -333,23 +358,8 @@ public:
 	void				defaultCollisionHandler(btCollisionObject* pco);
 	void				defaultCollisionHandler(btSoftBody* psb);
 	
-	///to keep collision detection and dynamics separate we don't store a rigidbody pointer
-	///but a rigidbody is derived from btCollisionObject, so we can safely perform an upcast
-	static const btSoftBody*	upcast(const btCollisionObject* colObj)
-	{
-		if (colObj->getInternalType()==CO_SOFT_BODY)
-			return (const btSoftBody*)colObj;
-		return 0;
-	}
-	static btSoftBody*	upcast(btCollisionObject* colObj)
-	{
-		if (colObj->getInternalType()==CO_SOFT_BODY)
-			return (btSoftBody*)colObj;
-		return 0;
-	}
-
 	//
-	// ...
+	// Accessor's and cast.
 	//
 	
 	tNodeArray&			getNodes();
@@ -358,6 +368,23 @@ public:
 	const tLinkArray&	getLinks() const;
 	tFaceArray&			getFaces();
 	const tFaceArray&	getFaces() const;
+	
+	//
+	// Cast
+	//
+		
+	static const btSoftBody*	upcast(const btCollisionObject* colObj)
+	{
+		if (colObj->getInternalType()==CO_SOFT_BODY)
+			return (const btSoftBody*)colObj;
+		return 0;
+	}
+	static btSoftBody*			upcast(btCollisionObject* colObj)
+	{
+		if (colObj->getInternalType()==CO_SOFT_BODY)
+			return (btSoftBody*)colObj;
+		return 0;
+	}
 	
 };
 

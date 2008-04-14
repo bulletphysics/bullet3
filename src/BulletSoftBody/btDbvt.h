@@ -27,7 +27,7 @@ struct	btDbvt
 	{
 	// Types
 
-	/* Aabb		*/ 
+	/* Aabb				*/ 
 	struct	Aabb
 		{
 		inline btVector3		Center() const	{ return((mi+mx)/2); }
@@ -45,6 +45,8 @@ struct	btDbvt
 		inline bool				Contain(const Aabb& a) const;
 		inline friend bool		Intersect(	const Aabb& a,
 											const Aabb& b);
+		inline friend bool		Intersect(	const Aabb& a,
+											const btVector3& b);
 		inline friend btScalar	Proximity(	const Aabb& a,
 											const Aabb& b);
 		inline friend void		Merge(	const Aabb& a,
@@ -54,7 +56,7 @@ struct	btDbvt
 											const Aabb& b);
 		btVector3	mi,mx;
 		};
-	/* Node			*/ 
+	/* Node				*/ 
 	struct	Node
 		{
 		Aabb	box;
@@ -66,20 +68,22 @@ struct	btDbvt
 				void*	data;
 				};
 		};
-	// Interfaces
-	
+	/* Stack element	*/ 
 	struct	sStkElm
 		{
 		const Node*	a;
 		const Node*	b;
 		sStkElm(const Node* na,const Node* nb) : a(na),b(nb) {}
 		};
-		
+	
+	// Interfaces
+			
 	/* ICollide	*/ 
 	struct	ICollide
 		{
-		virtual void	Process(const Node* leaf0,const Node* leaf1) {};
-		virtual void	Process(const Node* leaf) {};
+		virtual void	Process(const Node*,const Node*)		{}
+		virtual void	Process(const Node*)					{}
+		virtual bool	Descent(const Node*)					{ return(false); }		
 		};
 		
 	// Fields
@@ -90,6 +94,7 @@ struct	btDbvt
 					btDbvt();
 					~btDbvt();
 	void			clear();
+	bool			empty() const { return(0==m_root); }
 	int				leafCount() const;
 	void			optimizeBottomUp();
 	void			optimizeTopDown(int bu_treshold=128);
@@ -104,6 +109,29 @@ struct	btDbvt
 	void			collide(const btVector3& org,
 							const btVector3& dir,
 							ICollide* icollide) const;
+	void			collide(ICollide* icollide) const;
+	// Generics
+	template <typename T/* must implement ICollide*/>	
+	void			collideGeneric(T& policy) const
+		{
+		if(m_root)
+			{
+			btAlignedObjectArray<const Node*>	stack;
+			stack.reserve(64);
+			stack.push_back(m_root);
+			do	{
+				const Node*	n=stack[stack.size()-1];
+				stack.pop_back();
+				if(policy.Descent(n))
+					{
+					if(n->isinternal())
+						{ stack.push_back(n->childs[0]);stack.push_back(n->childs[1]); }
+						else
+						{ policy.Process(n); }
+					}
+				} while(stack.size()>0);
+			}
+		}
 	//
 	private:
 	btDbvt(const btDbvt&)	{}
@@ -196,6 +224,18 @@ return(	(a.mi.x()<=b.mx.x())&&
 		(a.mx.x()>=b.mi.x())&&
 		(a.mx.y()>=b.mi.y())&&
 		(a.mx.z()>=b.mi.z()));
+}
+
+//
+inline bool				Intersect(	const btDbvt::Aabb& a,
+									const btVector3& b)
+{
+return(	(b.x()>=a.mi.x())&&
+		(b.y()>=a.mi.y())&&
+		(b.z()>=a.mi.z())&&
+		(b.x()<=a.mx.x())&&
+		(b.y()<=a.mx.y())&&
+		(b.z()<=a.mx.z()));
 }
 	
 //

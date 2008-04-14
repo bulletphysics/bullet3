@@ -46,7 +46,6 @@ void	btSoftRigidDynamicsWorld::predictUnconstraintMotion(btScalar timeStep)
 		
 void	btSoftRigidDynamicsWorld::internalSingleStepSimulation( btScalar timeStep)
 {
-
 	btDiscreteDynamicsWorld::internalSingleStepSimulation( timeStep );
 
 	///solve soft bodies constraints
@@ -100,32 +99,18 @@ void	btSoftRigidDynamicsWorld::debugDrawWorld()
 {
 	btDiscreteDynamicsWorld::debugDrawWorld();
 
-	if (getDebugDrawer() && getDebugDrawer()->getDebugMode() & (btIDebugDraw::DBG_DrawWireframe | btIDebugDraw::DBG_DrawAabb))
+	if (getDebugDrawer())
 	{
 		int i;
 		for (  i=0;i<this->m_softBodies.size();i++)
 		{
 			btSoftBody*	psb=(btSoftBody*)this->m_softBodies[i];
 			btSoftBodyHelpers::DrawFrame(psb,m_debugDrawer);
-			btSoftBodyHelpers::Draw(psb,m_debugDrawer,fDrawFlags::Std+fDrawFlags::Nodes);
+			btSoftBodyHelpers::Draw(psb,m_debugDrawer,fDrawFlags::Std);
 			if (m_debugDrawer && (m_debugDrawer->getDebugMode() & btIDebugDraw::DBG_DrawAabb))
 			{
 				btSoftBodyHelpers::DrawNodeTree(psb,m_debugDrawer);
 				//btSoftBodyHelpers::DrawFaceTree(psb,m_debugDrawer);
-			}
-		}
-		
-		if (getDebugDrawer())
-		{
-			for (int  i=0;i<this->m_softBodies.size();i++)
-			{
-				btSoftBody*	psb=(btSoftBody*)this->m_softBodies[i];
-				btSoftBodyHelpers::DrawFrame(psb,m_debugDrawer);
-				btSoftBodyHelpers::Draw(psb,m_debugDrawer,fDrawFlags::Std);
-				if (m_debugDrawer && (m_debugDrawer->getDebugMode() & btIDebugDraw::DBG_DrawAabb))
-				{
-					btSoftBodyHelpers::DrawNodeTree(psb,m_debugDrawer);
-				}
 			}
 		}
 	}

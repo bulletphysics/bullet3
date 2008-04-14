@@ -79,6 +79,7 @@ if(node)
 }
 
 //
+#if 0
 static btVector3		stresscolor(btScalar stress)
 	{
 	static const btVector3	spectrum[]=	{	btVector3(1,0,1),
@@ -95,6 +96,7 @@ static btVector3		stresscolor(btScalar stress)
 	const btScalar			frc=stress-sel;
 	return(spectrum[sel]+(spectrum[sel+1]-spectrum[sel])*frc);
 	}
+#endif
 
 //
 void			btSoftBodyHelpers::Draw(	btSoftBody* psb,
@@ -103,7 +105,6 @@ void			btSoftBodyHelpers::Draw(	btSoftBody* psb,
 {
 	const btScalar		scl=(btScalar)0.1;
 	const btScalar		nscl=scl*5;
-	const btScalar		alpha=(btScalar)0.5;
 	const btVector3		scolor=btVector3(0,0,0);
 	const btVector3		bcolor=btVector3(1,1,0);
 	const btVector3		ncolor=btVector3(1,1,1);
@@ -208,7 +209,7 @@ void			btSoftBodyHelpers::DrawInfos(		btSoftBody* psb,
 						  btIDebugDraw* idraw,
 						  bool masses,
 						  bool areas,
-						  bool stress)
+						  bool /*stress*/)
 {
 	for(int i=0;i<psb->getNodes().size();++i)
 	{
@@ -266,10 +267,13 @@ void			btSoftBodyHelpers::DrawFrame(		btSoftBody* psb,
 		for(int i=0;i<psb->m_pose.m_pos.size();++i)
 		{
 			const btVector3	x=com+trs*psb->m_pose.m_pos[i];
-			idraw->drawLine(x-btVector3(1,0,0)*nscl,x+btVector3(1,0,0)*nscl,btVector3(1,0,1));
-			idraw->drawLine(x-btVector3(0,1,0)*nscl,x+btVector3(0,1,0)*nscl,btVector3(1,0,1));
-			idraw->drawLine(x-btVector3(0,0,1)*nscl,x+btVector3(0,0,1)*nscl,btVector3(1,0,1));
+			drawVertex(idraw,x,nscl,btVector3(1,0,1));
 		}
+		for(int i=0;i<psb->m_dfld.pts.size();++i)
+			{
+			const btVector3	x=com+trs*psb->m_dfld.pts[i];
+			drawVertex(idraw,x,nscl*(btScalar)0.5,btVector3(0,0,1));
+			}
 	}
 }
 
@@ -482,4 +486,5 @@ btSoftBody*		btSoftBodyHelpers::CreateFromConvexHull(btSoftBody::btSoftBodyWorld
 	psb->randomizeConstraints();
 	return(psb);
 }
+
 

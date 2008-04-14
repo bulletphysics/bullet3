@@ -41,7 +41,7 @@ namespace
 	int iterationCount = 10;
 	int width = 640;
 	int height = 480;
-	int framePeriod = 16;
+	int framePeriod = 16;//todo: test if this value should be 0
 	int mainWindow;
 	GLUI *glui;
 	float hz;
@@ -66,11 +66,8 @@ void Resize(int w, int h)
 
 	glMatrixMode(GL_PROJECTION);
 	glLoadIdentity();
-	double ratio = (double)tw / (double)th;
-
-
 	if (demo)
-		demo->reshape(w, h);
+		demo->reshape(tw, th);
 }
 
 DemoApplication* CreatDemo(btDemoEntry* entry)

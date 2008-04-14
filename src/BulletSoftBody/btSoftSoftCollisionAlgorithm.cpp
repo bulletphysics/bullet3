@@ -21,84 +21,25 @@ subject to the following restrictions:
 
 #define USE_PERSISTENT_CONTACTS 1
 
-btSoftSoftCollisionAlgorithm::btSoftSoftCollisionAlgorithm(btPersistentManifold* mf,const btCollisionAlgorithmConstructionInfo& ci,btCollisionObject* obj0,btCollisionObject* obj1)
+btSoftSoftCollisionAlgorithm::btSoftSoftCollisionAlgorithm(btPersistentManifold* /*mf*/,const btCollisionAlgorithmConstructionInfo& ci,btCollisionObject* /*obj0*/,btCollisionObject* /*obj1*/)
 : btCollisionAlgorithm(ci)
 //m_ownManifold(false),
 //m_manifoldPtr(mf)
 {
-	/*m_softBody0 = (btSoftBody*) obj0;
-	m_softBody1 = (btSoftBody*) obj1;
-
-	m_softBody0->m_overlappingSoftBodies.push_back(m_softBody1);
-	m_softBody1->m_overlappingSoftBodies.push_back(m_softBody0);*/
-
-	/*if (!m_manifoldPtr && m_dispatcher->needsCollision(obj0,obj1))
-	{
-		m_manifoldPtr = m_dispatcher->getNewManifold(obj0,obj1);
-		m_ownManifold = true;
-	}
-	*/
-
 }
 
 btSoftSoftCollisionAlgorithm::~btSoftSoftCollisionAlgorithm()
 {
-	//m_softBody0->m_overlappingSoftBodies.remove(m_softBody1);
-	//m_softBody1->m_overlappingSoftBodies.remove(m_softBody0);
-
-	//this gets called when the overlap stops.
-
-	//here is where contacts (manifolds) should be removed
-
-	/*
-	if (m_ownManifold)
-	{
-		if (m_manifoldPtr)
-			m_dispatcher->releaseManifold(m_manifoldPtr);
-	}
-	*/
-
 }
 
-void btSoftSoftCollisionAlgorithm::processCollision (btCollisionObject* body0,btCollisionObject* body1,const btDispatcherInfo& dispatchInfo,btManifoldResult* resultOut)
+void btSoftSoftCollisionAlgorithm::processCollision (btCollisionObject* body0,btCollisionObject* body1,const btDispatcherInfo& /*dispatchInfo*/,btManifoldResult* /*resultOut*/)
 {
-	
 	btSoftBody* soft0 =	(btSoftBody*)body0;
 	btSoftBody* soft1 =	(btSoftBody*)body1;
-
 	soft0->defaultCollisionHandler(soft1);
-	/*
-	btBoxShape* box0 = (btBoxShape*)col0->getCollisionShape();
-	btBoxShape* box1 = (btBoxShape*)col1->getCollisionShape();
-
-
-
-	/// report a contact. internally this will be kept persistent, and contact reduction is done
-	resultOut->setPersistentManifold(m_manifoldPtr);
-#ifndef USE_PERSISTENT_CONTACTS	
-	m_manifoldPtr->clearManifold();
-#endif //USE_PERSISTENT_CONTACTS
-
-	btDiscreteCollisionDetectorInterface::ClosestPointInput input;
-	input.m_maximumDistanceSquared = 1e30f;
-	input.m_transformA = body0->getWorldTransform();
-	input.m_transformB = body1->getWorldTransform();
-
-	btBoxBoxDetector detector(box0,box1);
-	detector.getClosestPoints(input,*resultOut,dispatchInfo.m_debugDraw);
-
-#ifdef USE_PERSISTENT_CONTACTS
-	//  refreshContactPoints is only necessary when using persistent contact points. otherwise all points are newly added
-	if (m_ownManifold)
-	{
-		resultOut->refreshContactPoints();
-	}
-#endif //USE_PERSISTENT_CONTACTS
-*/
-
 }
 
-btScalar btSoftSoftCollisionAlgorithm::calculateTimeOfImpact(btCollisionObject* body0,btCollisionObject* body1,const btDispatcherInfo& dispatchInfo,btManifoldResult* resultOut)
+btScalar btSoftSoftCollisionAlgorithm::calculateTimeOfImpact(btCollisionObject* /*body0*/,btCollisionObject* /*body1*/,const btDispatcherInfo& /*dispatchInfo*/,btManifoldResult* /*resultOut*/)
 {
 	//not yet
 	return 1.f;

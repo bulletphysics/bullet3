@@ -24,30 +24,12 @@ subject to the following restrictions:
 
 //#include <stdio.h>
 
-btSoftRigidCollisionAlgorithm::btSoftRigidCollisionAlgorithm(btPersistentManifold* mf,const btCollisionAlgorithmConstructionInfo& ci,btCollisionObject* col0,btCollisionObject* col1, bool isSwapped)
+btSoftRigidCollisionAlgorithm::btSoftRigidCollisionAlgorithm(btPersistentManifold* /*mf*/,const btCollisionAlgorithmConstructionInfo& ci,btCollisionObject* /*col0*/,btCollisionObject* /*col1*/, bool isSwapped)
 : btCollisionAlgorithm(ci),
 //m_ownManifold(false),
 //m_manifoldPtr(mf),
 m_isSwapped(isSwapped)
 {
-
-	//m_softBody =  m_isSwapped? (btSoftBody*)col1 : (btSoftBody*)col0;
-	//m_rigidCollisionObject = m_isSwapped? col0 : col1;
-
-	//quick fix, add overlapping rigidbody to softbody, so it can be handled within btSoftBody::Step method
-	//m_softBody->m_overlappingRigidBodies.push_back(m_rigidCollisionObject);
-
-	///store the contacts straight into the btSoftBody for now?
-
-	/*if (!m_manifoldPtr && m_dispatcher->needsCollision(sphereObj,boxObj))
-	{
-		m_manifoldPtr = m_dispatcher->getNewManifold(sphereObj,boxObj);
-		m_ownManifold = true;
-	}
-	*/
-
-
-
 }
 
 
@@ -92,5 +74,6 @@ btScalar btSoftRigidCollisionAlgorithm::calculateTimeOfImpact(btCollisionObject*
 	//not yet
 	return btScalar(1.);
 }
+
 
 

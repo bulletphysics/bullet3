@@ -106,7 +106,7 @@ void SoftDemo::clientMoveAndDisplay()
 
 	if (m_dynamicsWorld)
 	{
-#define FIXED_STEP 0
+//#define FIXED_STEP
 #ifdef FIXED_STEP
 		m_dynamicsWorld->stepSimulation(dt=1.0f/60.f,0);
 
@@ -340,8 +340,6 @@ static void	Init_RopeAttach(SoftDemo* pdemo)
 		static btSoftBody* CtorRope(SoftDemo* pdemo,const btVector3& p)
 		{
 			btSoftBody*	psb=btSoftBodyHelpers::CreateRope(pdemo->m_softBodyWorldInfo,p,p+btVector3(10,0,0),8,1);
-			psb->m_cfg.kDF			=	0;
-			psb->m_cfg.kDP			=	0.001;
 			psb->setTotalMass(50);
 			pdemo->getSoftDynamicsWorld()->addSoftBody(psb);
 			return(psb);
@@ -391,7 +389,7 @@ static void	Init_Impact(SoftDemo* pdemo)
 		0,
 		1);
 	pdemo->getSoftDynamicsWorld()->addSoftBody(psb);
-	
+	psb->m_cfg.kCHR=0.5;
 	btTransform startTransform;
 	startTransform.setIdentity();
 	startTransform.setOrigin(btVector3(0,20,0));
@@ -428,36 +426,6 @@ static void	Init_Collide(SoftDemo* pdemo)
 		{
 		Functor::Create(pdemo,btVector3(3*i,2,0),btVector3(SIMD_PI/2*(1-(i&1)),SIMD_PI/2*(i&1),0));
 		}
-	#if 0
-	const btScalar	s=2;
-	const btScalar	s2=s*1.01;
-		{		
-		const btScalar	h=0;
-		const btVector3	p[]={	btVector3(-s,h,-s),btVector3(+s,h,-s),
-								btVector3(+s,h,+s),btVector3(-s,h,+s)};
-		btSoftBody*	psb=new btSoftBody(&pdemo->m_softBodyWorldInfo,4,p,0);
-		psb->appendLink(0,1,1,btSoftBody::eLType::Structural);
-		psb->appendLink(1,2,1,btSoftBody::eLType::Structural);
-		psb->appendLink(2,3,1,btSoftBody::eLType::Structural);
-		psb->appendLink(3,0,1,btSoftBody::eLType::Structural);
-		psb->appendLink(0,2,1,btSoftBody::eLType::Structural);
-		psb->appendFace(0,1,2);
-		psb->appendFace(2,3,0);
-		/*psb->setMass(0,0);
-		psb->setMass(1,0);
-		psb->setMass(2,0);
-		psb->setMass(3,0);*/
-		psb->m_cfg.collisions|=btSoftBody::fCollision::VF_SS;
-		pdemo->getSoftDynamicsWorld()->addSoftBody(psb);
-		}
-		{
-		btVector3	p[]={btVector3(0.5,5,-0.5)};
-		btSoftBody*	psb=new btSoftBody(&pdemo->m_softBodyWorldInfo,1,p,0);
-		//psb->setMass(0,0);
-		psb->m_cfg.collisions|=btSoftBody::fCollision::VF_SS;
-		pdemo->getSoftDynamicsWorld()->addSoftBody(psb);
-		}
-	#endif	
 }
 
 //
@@ -489,7 +457,7 @@ static void	Init_Collide2(SoftDemo* pdemo)
 		};
 	for(int i=0;i<3;++i)
 		{
-		Functor::Create(pdemo,btVector3(0,-1+4*i,0),btVector3(0,SIMD_PI/2*(i&1),0));
+		Functor::Create(pdemo,btVector3(0,-1+5*i,0),btVector3(0,SIMD_PI/2*(i&1),0));
 		}	
 }
 
@@ -511,7 +479,7 @@ static void	Init_Collide3(SoftDemo* pdemo)
 		psb->setTotalMass(150);
 		pdemo->getSoftDynamicsWorld()->addSoftBody(psb);
 		}
-		{
+		{		
 		const btScalar	s=4;
 		const btVector3	o=btVector3(4,10,0);
 		btSoftBody*		psb=btSoftBodyHelpers::CreatePatch(	pdemo->m_softBodyWorldInfo,
@@ -519,7 +487,7 @@ static void	Init_Collide3(SoftDemo* pdemo)
 			btVector3(+s,0,-s)+o,
 			btVector3(-s,0,+s)+o,
 			btVector3(+s,0,+s)+o,
-			15,15,0,true);
+			7,7,0,true);
 		psb->generateBendingConstraints(2,0.5);
 		psb->m_cfg.kLST			=	0.4;
 		psb->m_cfg.collisions	|=	btSoftBody::fCollision::VF_SS;
@@ -595,7 +563,7 @@ static void	Init_Pressure(SoftDemo* pdemo)
 		512);
 	psb->m_cfg.kLST		=	0.1;
 	psb->m_cfg.kDF		=	1;
-	psb->m_cfg.kDP		=	0.008; // fun factor...
+	psb->m_cfg.kDP		=	0.001; // fun factor...
 	psb->m_cfg.kPR		=	2500;
 	psb->setTotalMass(30,true);
 	pdemo->getSoftDynamicsWorld()->addSoftBody(psb);
@@ -769,7 +737,7 @@ static void	Init_TorusMatch(SoftDemo* pdemo)
 
 }
 
-unsigned	current_demo=14;
+unsigned	current_demo=0;
 
 void	SoftDemo::clientResetScene()
 {
@@ -827,13 +795,12 @@ void	SoftDemo::clientResetScene()
 
 
 	m_autocam						=	false;
-	m_showtrees						=	0;
+	m_raycast						=	false;
 	demofncs[current_demo](this);
 }
 
 void	SoftDemo::renderme()
 {
-	DemoApplication::renderme();
 	btIDebugDraw*	idraw=m_dynamicsWorld->getDebugDrawer();
 	
 	m_dynamicsWorld->debugDrawWorld();
@@ -850,17 +817,88 @@ void	SoftDemo::renderme()
 		for(int i=0;i<psb->getNodes().size();++i)
 		{
 			ps+=psb->getNodes()[i].m_x;
-		}
-		btSoftBodyHelpers::DrawFrame(psb,idraw);
-		btSoftBodyHelpers::Draw(psb,idraw,fDrawFlags::Std);
-		if(m_showtrees&1)	
-			btSoftBodyHelpers::DrawNodeTree(psb,idraw);
+		}		
 	}
 	ps/=nps;
 	if(m_autocam)
 		m_cameraTargetPosition+=(ps-m_cameraTargetPosition)*0.01;
 	else
 		m_cameraTargetPosition=btVector3(0,0,0);
+	/* Anm			*/ 
+	if(!isIdle())
+		m_animtime=::GetTickCount()/1000.;
+	/* Ray cast		*/ 
+	if(m_raycast)
+		{		
+		/* Prepare rays	*/ 
+		const int		res=64;
+		const btScalar	fres=res-1;
+		const btScalar	size=8;
+		const btScalar	dist=10;
+		btTransform		trs;
+		trs.setOrigin(ps);
+		const btScalar	angle=m_animtime*0.2;
+		trs.setRotation(btQuaternion(angle,SIMD_PI/4,0));
+		const btVector3	dir=trs.getBasis()*btVector3(0,-1,0);
+		trs.setOrigin(ps-dir*dist);
+		btAlignedObjectArray<btVector3>	origins;
+		btAlignedObjectArray<btScalar>	times;
+		origins.resize(res*res);
+		times.resize(res*res,SIMD_INFINITY);
+		for(int y=0;y<res;++y)
+			{
+			for(int x=0;x<res;++x)
+				{
+				const int	idx=y*res+x;
+				origins[idx]=trs*btVector3(-size+size*2*x/fres,dist,-size+size*2*y/fres);
+				}
+			}
+		/* Cast rays	*/ 		
+			{
+			m_clock.reset();
+			const btVector3*		org=&origins[0];
+			btScalar*				mint=&times[0];
+			btSoftBody**			psbs=&sbs[0];
+			btSoftBody::sRayCast	results;
+			for(int i=0,ni=origins.size(),nb=sbs.size();i<ni;++i)
+				{
+				for(int ib=0;ib<nb;++ib)
+					{
+					if(psbs[ib]->rayCast(*org,dir,results,*mint))
+						{
+						*mint=results.time;
+						}
+					}
+				++org;++mint;
+				}
+			long	ms=btMax<long>(m_clock.getTimeMilliseconds(),1);
+			long	rayperseconds=(1000*(origins.size()*sbs.size()))/ms;
+			printf("%d ms (%d rays/s)\r\n",ms,rayperseconds);
+			}
+		/* Draw rays	*/ 
+		const btVector3	c[]={	origins[0],
+								origins[res-1],
+								origins[res*(res-1)],
+								origins[res*(res-1)+res-1]};
+		idraw->drawLine(c[0],c[1],btVector3(0,0,0));
+		idraw->drawLine(c[1],c[3],btVector3(0,0,0));
+		idraw->drawLine(c[3],c[2],btVector3(0,0,0));
+		idraw->drawLine(c[2],c[0],btVector3(0,0,0));
+		for(int i=0,ni=origins.size();i<ni;++i)
+			{
+			const btScalar		tim=times[i];
+			const btVector3&	org=origins[i];
+			if(tim<SIMD_INFINITY)
+				{
+				idraw->drawLine(org,org+dir*tim,btVector3(1,0,0));
+				}
+				else
+				{
+				idraw->drawLine(org,org-dir*0.1,btVector3(0,0,0));
+				}
+			}
+		#undef RES
+		}
 	/* Water level	*/ 
 	static const btVector3	axis[]={btVector3(1,0,0),
 		btVector3(0,1,0),
@@ -877,6 +915,8 @@ void	SoftDemo::renderme()
 		idraw->drawTriangle(o-x*s-y*s,o+x*s-y*s,o+x*s+y*s,c,a);
 		idraw->drawTriangle(o-x*s-y*s,o+x*s+y*s,o-x*s+y*s,c,a);
 	}
+	DemoApplication::renderme();
+	
 }
 
 void	SoftDemo::keyboardCallback(unsigned char key, int x, int y)
@@ -885,8 +925,8 @@ void	SoftDemo::keyboardCallback(unsigned char key, int x, int y)
 	{
 	case	']':	++current_demo;clientResetScene();break;
 	case	'[':	--current_demo;clientResetScene();break;
+	case	',':	m_raycast=!m_raycast;break;
 	case	';':	m_autocam=!m_autocam;break;
-	case	',':	m_showtrees+=1;break;
 	default:		DemoApplication::keyboardCallback(key,x,y);
 	}
 }
@@ -1007,6 +1047,7 @@ void	SoftDemo::exitPhysics()
 
 
 }
+
 
 
 

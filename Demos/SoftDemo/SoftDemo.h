@@ -52,7 +52,9 @@ public:
 
 	
 	bool								m_autocam;
-	int									m_showtrees;
+	bool								m_raycast;
+	btScalar							m_animtime;
+	btClock								m_clock;
 
 
 	//keep the collision shapes, for deletion/cleanup
@@ -152,5 +154,6 @@ MACRO_SOFT_DEMO(16)//Init_BunnyMatch
 
 
 #endif //CCD_PHYSICS_DEMO_H
+
 
 
