@@ -60,14 +60,14 @@ btCollisionAlgorithmCreateFunc* btSoftBodyRigidBodyCollisionConfiguration::getCo
 		return	m_softSoftCreateFunc;
 	}
 
-	///other can't be also softbody, so assume rigid for now
-	if (proxyType0 == SOFTBODY_SHAPE_PROXYTYPE )
+	///softbody versus convex
+	if (proxyType0 == SOFTBODY_SHAPE_PROXYTYPE  && btBroadphaseProxy::isConvex(proxyType1))
 	{
 		return	m_softRigidCreateFunc;
 	}
 
-	///other can't be also softbody, so assume rigid for now
-	if (proxyType1 == SOFTBODY_SHAPE_PROXYTYPE )
+	///convex versus soft body
+	if (btBroadphaseProxy::isConvex(proxyType0) && proxyType1 == SOFTBODY_SHAPE_PROXYTYPE )
 	{
 		return	m_swappedSoftRigidCreateFunc;
 	}
