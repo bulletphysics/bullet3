@@ -368,6 +368,12 @@ public:
 	const tLinkArray&	getLinks() const;
 	tFaceArray&			getFaces();
 	const tFaceArray&	getFaces() const;
+
+	virtual void getAabb(btVector3& aabbMin,btVector3& aabbMax) const
+	{
+		aabbMin = m_bounds[0];
+		aabbMax = m_bounds[1];
+	}
 	
 	//
 	// Cast
