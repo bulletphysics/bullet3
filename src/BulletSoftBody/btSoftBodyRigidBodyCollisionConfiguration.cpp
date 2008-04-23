@@ -18,6 +18,7 @@ subject to the following restrictions:
 #include "btSoftBodyConcaveCollisionAlgorithm.h"
 #include "btSoftSoftCollisionAlgorithm.h"
 
+//#define ENABLE_SOFTBODY_CONCAVE_COLLISIONS 1
 
 btSoftBodyRigidBodyCollisionConfiguration::btSoftBodyRigidBodyCollisionConfiguration(btStackAlloc*	stackAlloc,btPoolAllocator*	persistentManifoldPool,btPoolAllocator*	collisionAlgorithmPool)
 :btDefaultCollisionConfiguration(stackAlloc,persistentManifoldPool,collisionAlgorithmPool)
@@ -34,13 +35,14 @@ btSoftBodyRigidBodyCollisionConfiguration::btSoftBodyRigidBodyCollisionConfigura
 	m_swappedSoftRigidConvexCreateFunc = new(mem) btSoftRigidCollisionAlgorithm::CreateFunc;
 	m_swappedSoftRigidConvexCreateFunc->m_swapped=true;
 
-
+#ifdef ENABLE_SOFTBODY_CONCAVE_COLLISIONS
 	mem = btAlignedAlloc(sizeof(btSoftBodyConcaveCollisionAlgorithm::CreateFunc),16);
 	m_softRigidConcaveCreateFunc = new(mem) btSoftBodyConcaveCollisionAlgorithm::CreateFunc;
 	
 	mem = btAlignedAlloc(sizeof(btSoftBodyConcaveCollisionAlgorithm::CreateFunc),16);
 	m_swappedSoftRigidConcaveCreateFunc = new(mem) btSoftBodyConcaveCollisionAlgorithm::CreateFunc;
 	m_swappedSoftRigidConcaveCreateFunc->m_swapped=true;
+#endif
 
 }
 
@@ -55,13 +57,13 @@ btSoftBodyRigidBodyCollisionConfiguration::~btSoftBodyRigidBodyCollisionConfigur
 	m_swappedSoftRigidConvexCreateFunc->~btCollisionAlgorithmCreateFunc();
 	btAlignedFree(	m_swappedSoftRigidConvexCreateFunc);
 
+#ifdef ENABLE_SOFTBODY_CONCAVE_COLLISIONS
 	m_softRigidConcaveCreateFunc->~btCollisionAlgorithmCreateFunc();
 	btAlignedFree(	m_softRigidConcaveCreateFunc);
 
 	m_swappedSoftRigidConcaveCreateFunc->~btCollisionAlgorithmCreateFunc();
 	btAlignedFree(	m_swappedSoftRigidConcaveCreateFunc);
-
-
+#endif
 }
 	
 ///creation of soft-soft and soft-rigid, and otherwise fallback to base class implementation
@@ -87,6 +89,7 @@ btCollisionAlgorithmCreateFunc* btSoftBodyRigidBodyCollisionConfiguration::getCo
 		return	m_swappedSoftRigidConvexCreateFunc;
 	}
 
+#ifdef ENABLE_SOFTBODY_CONCAVE_COLLISIONS
 	///softbody versus convex
 	if (proxyType0 == SOFTBODY_SHAPE_PROXYTYPE  && btBroadphaseProxy::isConcave(proxyType1))
 	{
@@ -98,6 +101,7 @@ btCollisionAlgorithmCreateFunc* btSoftBodyRigidBodyCollisionConfiguration::getCo
 	{
 		return	m_swappedSoftRigidConcaveCreateFunc;
 	}
+#endif
 
 	///fallback to the regular rigid collision shape
 	return btDefaultCollisionConfiguration::getCollisionAlgorithmCreateFunc(proxyType0,proxyType1);
