@@ -150,6 +150,7 @@ protected:
 	void syncOrAddConstraint (btTypedConstraint* constraint);
 public:
 	ColladaConverter(btDynamicsWorld* dynaWorld);
+	virtual ~ColladaConverter ();
 
 	///load a COLLADA .dae file
 	bool	load(const char* filename);

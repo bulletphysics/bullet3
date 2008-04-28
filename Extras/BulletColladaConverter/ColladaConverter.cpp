@@ -154,6 +154,17 @@ m_use32bitIndices(true),
 m_use4componentVertices(true)
 {
 }
+
+ColladaConverter::~ColladaConverter ()
+{
+	if (m_collada)
+		delete m_collada;
+
+	DAE::cleanup ();
+
+	m_collada = NULL;
+	m_dom = NULL;
+}
 	
 
 bool	ColladaConverter::load(const char* orgfilename)
@@ -210,6 +221,8 @@ void ColladaConverter::reset ()
 	// delete the dom
 	if (m_collada)
 		delete m_collada;
+
+	DAE::cleanup ();
 
 	m_collada = NULL;
 	m_dom = NULL;
@@ -2898,7 +2911,7 @@ void	ColladaConverter::ConvertRigidBodyRef( btRigidBodyInput& rbInput,btRigidBod
 							{
 								//ReadGeometry(  ); 
 								domGeometryRef lib = libgeom->getGeometry_array()[i];
-								if (!strcmp(lib->getId(),urlref2))
+								if (!strcmp(lib->getId(),urlref2+1)) // skip the # at the front of urlref2
 								{
 									//found convex_hull geometry
 									domMesh			*meshElement		= lib->getMesh();//linkedGeom->getMesh();
@@ -3238,7 +3251,10 @@ const char* ColladaConverter::getName (btRigidBody* body)
 	if (!rbci)
 		return NULL;
 
-	return rbci->m_node->getSid();
+	if (rbci->m_node->getId())
+		return rbci->m_node->getId();
+	else
+		return rbci->m_node->getSid();
 }
 
 void ColladaConverter::registerConstraint(btTypedConstraint* constraint, const char* name)
