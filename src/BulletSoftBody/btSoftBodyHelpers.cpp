@@ -71,15 +71,27 @@ if(node)
 	if(depth>=mindepth)
 		{
 		const btScalar	scl=(btScalar)(node->isinternal()?1:1);
-		const btVector3	mi=node->box.Center()-node->box.Extent()*scl;
-		const btVector3	mx=node->box.Center()+node->box.Extent()*scl;
+		const btVector3	mi=node->volume.Center()-node->volume.Extent()*scl;
+		const btVector3	mx=node->volume.Center()+node->volume.Extent()*scl;
 		drawBox(idraw,mi,mx,node->isleaf()?lcolor:ncolor);
 		}
 	}
 }
 
 //
-#if 0
+//
+static inline btScalar		tetravolume(const btVector3& x0,
+										const btVector3& x1,
+										const btVector3& x2,
+										const btVector3& x3)
+{
+	const btVector3	a=x1-x0;
+	const btVector3	b=x2-x0;
+	const btVector3	c=x3-x0;
+	return(dot(a,cross(b,c)));
+}
+
+//
 static btVector3		stresscolor(btScalar stress)
 	{
 	static const btVector3	spectrum[]=	{	btVector3(1,0,1),
@@ -96,7 +108,6 @@ static btVector3		stresscolor(btScalar stress)
 	const btScalar			frc=stress-sel;
 	return(spectrum[sel]+(spectrum[sel+1]-spectrum[sel])*frc);
 	}
-#endif
 
 //
 void			btSoftBodyHelpers::Draw(	btSoftBody* psb,
@@ -105,16 +116,16 @@ void			btSoftBodyHelpers::Draw(	btSoftBody* psb,
 {
 	const btScalar		scl=(btScalar)0.1;
 	const btScalar		nscl=scl*5;
-	const btVector3		scolor=btVector3(0,0,0);
-	const btVector3		bcolor=btVector3(1,1,0);
+	const btVector3		lcolor=btVector3(0,0,0);
 	const btVector3		ncolor=btVector3(1,1,1);
 	const btVector3		ccolor=btVector3(1,0,0);
 	/* Nodes	*/ 
 	if(0!=(drawflags&fDrawFlags::Nodes))
 	{
-		for(int i=0;i<psb->getNodes().size();++i)
+		for(int i=0;i<psb->m_nodes.size();++i)
 		{
-			const btSoftBody::Node&	n=psb->getNodes()[i];		
+			const btSoftBody::Node&	n=psb->m_nodes[i];
+			if(0==(n.m_material->m_flags&btSoftBody::fMaterial::DebugDraw)) continue;
 			idraw->drawLine(n.m_x-btVector3(scl,0,0),n.m_x+btVector3(scl,0,0),btVector3(1,0,0));
 			idraw->drawLine(n.m_x-btVector3(0,scl,0),n.m_x+btVector3(0,scl,0),btVector3(0,1,0));
 			idraw->drawLine(n.m_x-btVector3(0,0,scl),n.m_x+btVector3(0,0,scl),btVector3(0,0,1));
@@ -123,24 +134,20 @@ void			btSoftBodyHelpers::Draw(	btSoftBody* psb,
 	/* Links	*/ 
 	if(0!=(drawflags&fDrawFlags::Links))
 	{
-		for(int i=0;i<psb->getLinks().size();++i)
+		for(int i=0;i<psb->m_links.size();++i)
 		{
-			const btSoftBody::Link&	l=psb->getLinks()[i];
-			switch(l.m_type)
-			{
-			case	btSoftBody::eLType::Structural:
-				if(0!=(drawflags&fDrawFlags::SLinks)) idraw->drawLine(l.m_n[0]->m_x,l.m_n[1]->m_x,scolor);break;
-			case	btSoftBody::eLType::Bending:
-				if(0!=(drawflags&fDrawFlags::BLinks)) idraw->drawLine(l.m_n[0]->m_x,l.m_n[1]->m_x,bcolor);break;
-			}
+			const btSoftBody::Link&	l=psb->m_links[i];
+			if(0==(l.m_material->m_flags&btSoftBody::fMaterial::DebugDraw)) continue;
+			idraw->drawLine(l.m_n[0]->m_x,l.m_n[1]->m_x,lcolor);
 		}
 	}
 	/* Normals	*/ 
 	if(0!=(drawflags&fDrawFlags::Normals))
 	{
-		for(int i=0;i<psb->getNodes().size();++i)
+		for(int i=0;i<psb->m_nodes.size();++i)
 		{
-			const btSoftBody::Node&	n=psb->getNodes()[i];
+			const btSoftBody::Node&	n=psb->m_nodes[i];
+			if(0==(n.m_material->m_flags&btSoftBody::fMaterial::DebugDraw)) continue;
 			const btVector3			d=n.m_n*nscl;
 			idraw->drawLine(n.m_x,n.m_x+d,ncolor);
 			idraw->drawLine(n.m_x,n.m_x-d,ncolor*0.5);
@@ -175,9 +182,10 @@ void			btSoftBodyHelpers::Draw(	btSoftBody* psb,
 			drawVertex(idraw,q,0.25,btVector3(0,1,0));
 			idraw->drawLine(a.m_node->m_x,q,btVector3(1,1,1));
 		}
-		for(int i=0;i<psb->getNodes().size();++i)
+		for(int i=0;i<psb->m_nodes.size();++i)
 		{
-			const btSoftBody::Node&	n=psb->getNodes()[i];		
+			const btSoftBody::Node&	n=psb->m_nodes[i];		
+			if(0==(n.m_material->m_flags&btSoftBody::fMaterial::DebugDraw)) continue;
 			if(n.m_im<=0)
 			{
 				drawVertex(idraw,n.m_x,0.25,btVector3(1,0,0));
@@ -187,20 +195,60 @@ void			btSoftBodyHelpers::Draw(	btSoftBody* psb,
 	/* Faces	*/ 
 	if(0!=(drawflags&fDrawFlags::Faces))
 	{
-		const btScalar	scl=(btScalar)0.7;
+		const btScalar	scl=(btScalar)0.8;
 		const btScalar	alp=(btScalar)1;
 		const btVector3	col(0,(btScalar)0.7,0);
-		for(int i=0;i<psb->getFaces().size();++i)
+		for(int i=0;i<psb->m_faces.size();++i)
 		{
-			const btSoftBody::Face&	f=psb->getFaces()[i];
+			const btSoftBody::Face&	f=psb->m_faces[i];
+			if(0==(f.m_material->m_flags&btSoftBody::fMaterial::DebugDraw)) continue;
 			const btVector3			x[]={f.m_n[0]->m_x,f.m_n[1]->m_x,f.m_n[2]->m_x};
 			const btVector3			c=(x[0]+x[1]+x[2])/3;
+			/*idraw->drawLine((x[0]-c)*scl+c,(x[1]-c)*scl+c,col);
+			idraw->drawLine((x[1]-c)*scl+c,(x[2]-c)*scl+c,col);
+			idraw->drawLine((x[2]-c)*scl+c,(x[0]-c)*scl+c,col);*/
 			idraw->drawTriangle((x[0]-c)*scl+c,
+								(x[1]-c)*scl+c,
+								(x[2]-c)*scl+c,
+								col,alp);
+			/*idraw->drawTriangle((x[0]-c)*scl+c,
 				(x[1]-c)*scl+c,
 				(x[2]-c)*scl+c,
 				f.m_n[0]->m_n,f.m_n[1]->m_n,f.m_n[2]->m_n,
-				col,alp);
+				col,alp);*/
 		}	
+	}
+	/* Tetras	*/ 
+	if(0!=(drawflags&fDrawFlags::Tetras))
+	{
+		const btScalar	scl=(btScalar)0.8;
+		const btScalar	alp=(btScalar)1;
+		const btVector3	col((btScalar)0.7,(btScalar)0.7,(btScalar)0.7);
+		for(int i=0;i<psb->m_tetras.size();++i)
+		{
+			const btSoftBody::Tetra&	t=psb->m_tetras[i];
+			if(0==(t.m_material->m_flags&btSoftBody::fMaterial::DebugDraw)) continue;
+			const btVector3				x[]={t.m_n[0]->m_x,t.m_n[1]->m_x,t.m_n[2]->m_x,t.m_n[3]->m_x};
+			const btVector3				c=(x[0]+x[1]+x[2]+x[3])/4;
+			idraw->drawTriangle((x[0]-c)*scl+c,(x[1]-c)*scl+c,(x[2]-c)*scl+c,col,alp);
+			idraw->drawTriangle((x[0]-c)*scl+c,(x[1]-c)*scl+c,(x[3]-c)*scl+c,col,alp);
+			idraw->drawTriangle((x[1]-c)*scl+c,(x[2]-c)*scl+c,(x[3]-c)*scl+c,col,alp);
+			idraw->drawTriangle((x[2]-c)*scl+c,(x[0]-c)*scl+c,(x[3]-c)*scl+c,col,alp);
+		}	
+	}
+	/* Notes	*/ 
+	if(0!=(drawflags&fDrawFlags::Notes))
+	{
+		for(int i=0;i<psb->m_notes.size();++i)
+		{
+			const btSoftBody::Note&	n=psb->m_notes[i];
+			btVector3				p=n.m_offset;
+			for(int j=0;j<n.m_rank;++j)
+				{
+				p+=n.m_nodes[j]->m_x*n.m_coords[j];
+				}
+			idraw->draw3dText(p,n.m_text);
+		}
 	}
 }
 
@@ -211,9 +259,9 @@ void			btSoftBodyHelpers::DrawInfos(		btSoftBody* psb,
 						  bool areas,
 						  bool /*stress*/)
 {
-	for(int i=0;i<psb->getNodes().size();++i)
+	for(int i=0;i<psb->m_nodes.size();++i)
 	{
-		const btSoftBody::Node&	n=psb->getNodes()[i];
+		const btSoftBody::Node&	n=psb->m_nodes[i];
 		char					text[2048]={0};
 		char					buff[1024];
 		if(masses)
@@ -269,11 +317,6 @@ void			btSoftBodyHelpers::DrawFrame(		btSoftBody* psb,
 			const btVector3	x=com+trs*psb->m_pose.m_pos[i];
 			drawVertex(idraw,x,nscl,btVector3(1,0,1));
 		}
-		for(int i=0;i<psb->m_dfld.pts.size();++i)
-			{
-			const btVector3	x=com+trs*psb->m_dfld.pts[i];
-			drawVertex(idraw,x,nscl*(btScalar)0.5,btVector3(0,0,1));
-			}
 	}
 }
 
@@ -301,7 +344,7 @@ btSoftBody*		btSoftBodyHelpers::CreateRope(	btSoftBody::btSoftBodyWorldInfo& wor
 	/* Create links	*/ 
 	for(int i=1;i<r;++i)
 	{
-		psb->appendLink(i-1,i,1,btSoftBody::eLType::Structural);
+		psb->appendLink(i-1,i);
 	}
 	/* Finished		*/ 
 	return(psb);
@@ -352,10 +395,8 @@ btSoftBody*		btSoftBodyHelpers::CreatePatch(btSoftBody::btSoftBodyWorldInfo& wor
 			const int	idx=IDX(ix,iy);
 			const bool	mdx=(ix+1)<rx;
 			const bool	mdy=(iy+1)<ry;
-			if(mdx) psb->appendLink(idx,IDX(ix+1,iy),
-				1,btSoftBody::eLType::Structural);
-			if(mdy) psb->appendLink(idx,IDX(ix,iy+1),
-				1,btSoftBody::eLType::Structural);			
+			if(mdx) psb->appendLink(idx,IDX(ix+1,iy));
+			if(mdy) psb->appendLink(idx,IDX(ix,iy+1));
 			if(mdx&&mdy)
 			{
 				if((ix+iy)&1)
@@ -364,8 +405,7 @@ btSoftBody*		btSoftBodyHelpers::CreatePatch(btSoftBody::btSoftBodyWorldInfo& wor
 					psb->appendFace(IDX(ix,iy),IDX(ix+1,iy+1),IDX(ix,iy+1));
 					if(gendiags)
 					{
-						psb->appendLink(IDX(ix,iy),IDX(ix+1,iy+1),
-							1,btSoftBody::eLType::Structural);
+						psb->appendLink(IDX(ix,iy),IDX(ix+1,iy+1));
 					}
 				}
 				else
@@ -374,8 +414,7 @@ btSoftBody*		btSoftBodyHelpers::CreatePatch(btSoftBody::btSoftBodyWorldInfo& wor
 					psb->appendFace(IDX(ix,iy+1),IDX(ix+1,iy),IDX(ix+1,iy+1));
 					if(gendiags)
 					{
-						psb->appendLink(IDX(ix+1,iy),IDX(ix,iy+1),
-							1,btSoftBody::eLType::Structural);
+						psb->appendLink(IDX(ix+1,iy),IDX(ix,iy+1));
 					}
 				}
 			}
@@ -448,7 +487,7 @@ btSoftBody*		btSoftBodyHelpers::CreateFromTriMesh(btSoftBody::btSoftBodyWorldInf
 			{
 				chks[IDX(idx[j],idx[k])]=true;
 				chks[IDX(idx[k],idx[k])]=true;
-				psb->appendLink(idx[j],idx[k],1,btSoftBody::eLType::Structural);
+				psb->appendLink(idx[j],idx[k]);
 			}
 		}
 #undef IDX
@@ -474,12 +513,9 @@ btSoftBody*		btSoftBodyHelpers::CreateFromConvexHull(btSoftBody::btSoftBodyWorld
 		const int idx[]={	hres.m_Indices[i*3+0],
 			hres.m_Indices[i*3+1],
 			hres.m_Indices[i*3+2]};
-		if(idx[0]<idx[1]) psb->appendLink(	idx[0],idx[1],
-			1,btSoftBody::eLType::Structural);
-		if(idx[1]<idx[2]) psb->appendLink(	idx[1],idx[2],
-			1,btSoftBody::eLType::Structural);
-		if(idx[2]<idx[0]) psb->appendLink(	idx[2],idx[0],
-			1,btSoftBody::eLType::Structural);
+		if(idx[0]<idx[1]) psb->appendLink(	idx[0],idx[1]);
+		if(idx[1]<idx[2]) psb->appendLink(	idx[1],idx[2]);
+		if(idx[2]<idx[0]) psb->appendLink(	idx[2],idx[0]);
 		psb->appendFace(idx[0],idx[1],idx[2]);
 	}
 	hlib.ReleaseResult(hres);
@@ -487,4 +523,154 @@ btSoftBody*		btSoftBodyHelpers::CreateFromConvexHull(btSoftBody::btSoftBodyWorld
 	return(psb);
 }
 
+#if BT_SOFTBODY_USE_STL
+
+#include <string>
+#include <sstream>
+#include <fstream>
+#include <iostream>
+#include <stdio.h>
+
+//
+void		btSoftBodyHelpers::ExportAsSMeshFile(btSoftBody* psb,
+												const char* filename)
+{
+std::ofstream	output(filename);
+output << psb->m_nodes.size() << " " << 3 << " " << 0 << " " << 0 << "\n";
+for(int i=0;i<psb->m_nodes.size();++i)
+	{
+	const btSoftBody::Node& n=psb->m_nodes[i];
+	output	<< i << " "
+			<< n.m_x.x() << " "
+			<< n.m_x.y() << " "
+			<< n.m_x.z() << "\n";
+	}
+output << psb->m_faces.size() << " " << 1 << "\n";
+for(int i=0;i<psb->m_faces.size();++i)
+	{
+	const btSoftBody::Node*	b=&psb->m_nodes[0];
+	const btSoftBody::Face&	f=psb->m_faces[i];
+	output	<< 3 << " "
+			<< int(f.m_n[0]-b) << " "
+			<< int(f.m_n[1]-b) << " "
+			<< int(f.m_n[2]-b) << " "
+			<< 1 << "\n";
+	}
+output << 0 << "\n";
+output << 0 << "\n";
+output.close();
+}
+
+/* Create from TetGen .ele, .face, .node files							*/ 
+btSoftBody*	btSoftBodyHelpers::CreateFromTetGenFile(btSoftBody::btSoftBodyWorldInfo& worldInfo,
+													const char* ele,
+													const char* face,
+													const char* node,
+													bool bfacelinks,
+													bool btetralinks,
+													bool bfacesfromtetras)
+{
+std::ifstream	efile(ele?ele:"");
+std::ifstream	ffile(face?face:"");
+std::ifstream	nfile(node);
+std::string		edata;
+std::string		fdata;
+std::string		ndata;
+if(efile.good()) while(!efile.eof()) edata+=efile.get();
+if(ffile.good()) while(!ffile.eof()) fdata+=ffile.get();
+if(nfile.good()) while(!nfile.eof()) ndata+=nfile.get();
+efile.close();
+ffile.close();
+nfile.close();
+return(CreateFromTetGenData(worldInfo,edata.c_str(),fdata.c_str(),ndata.c_str(),
+							bfacelinks,btetralinks,bfacesfromtetras));
+}
+
+/* Create from TetGen .ele, .face, .node data							*/ 
+btSoftBody*	btSoftBodyHelpers::CreateFromTetGenData(btSoftBody::btSoftBodyWorldInfo& worldInfo,
+													const char* ele,
+													const char* face,
+													const char* node,
+													bool bfacelinks,
+													bool btetralinks,
+													bool bfacesfromtetras)
+{
+std::istringstream				se(ele?ele:"");
+std::istringstream				sf(face?face:"");
+std::istringstream				sn(node?node:"");
+btAlignedObjectArray<btVector3>	pos;
+int								nnode=0;
+int								ndims=0;
+int								nattrb=0;
+int								hasbounds=0;
+sn>>nnode;sn>>ndims;sn>>nattrb;sn>>hasbounds;
+pos.resize(nnode);
+for(int i=0;i<pos.size();++i)
+	{
+	int			index=0;
+	int			bound=0;
+	btScalar	x,y,z,a;
+	sn>>index;
+	sn>>x;sn>>y;sn>>z;
+	for(int j=0;j<nattrb;++j) sn>>a;
+	if(hasbounds) sn>>bound;
+	pos[index].setX(x);
+	pos[index].setY(y);
+	pos[index].setZ(z);
+	}
+btSoftBody*						psb=new btSoftBody(&worldInfo,nnode,&pos[0],0);
+if(face&&face[0])
+	{
+	int								nface=0;
+	sf>>nface;sf>>hasbounds;
+	for(int i=0;i<nface;++i)
+		{
+		int			index=0;
+		int			bound=0;
+		int			ni[3];
+		sf>>index;
+		sf>>ni[0];sf>>ni[1];sf>>ni[2];
+		sf>>bound;
+		psb->appendFace(ni[0],ni[1],ni[2]);	
+		if(btetralinks)
+			{
+			psb->appendLink(ni[0],ni[1],0,true);
+			psb->appendLink(ni[1],ni[2],0,true);
+			psb->appendLink(ni[2],ni[0],0,true);
+			}
+		}
+	}
+if(ele&&ele[0])
+	{
+	int								ntetra=0;
+	int								ncorner=0;
+	int								neattrb=0;
+	se>>ntetra;se>>ncorner;se>>neattrb;
+	for(int i=0;i<ntetra;++i)
+		{
+		int			index=0;
+		int			ni[4],a;
+		se>>index;
+		se>>ni[0];se>>ni[1];se>>ni[2];se>>ni[3];
+		for(int j=0;j<neattrb;++j) se>>a;
+		psb->appendTetra(ni[0],ni[1],ni[2],ni[3]);
+		if(btetralinks)
+			{
+			psb->appendLink(ni[0],ni[1],0,true);
+			psb->appendLink(ni[1],ni[2],0,true);
+			psb->appendLink(ni[2],ni[0],0,true);
+			psb->appendLink(ni[0],ni[3],0,true);
+			psb->appendLink(ni[1],ni[3],0,true);
+			psb->appendLink(ni[2],ni[3],0,true);
+			}
+		}
+	}
+printf("Nodes:  %u\r\n",psb->m_nodes.size());
+printf("Links:  %u\r\n",psb->m_links.size());
+printf("Faces:  %u\r\n",psb->m_faces.size());
+printf("Tetras: %u\r\n",psb->m_tetras.size());
+return(psb);
+}
+
+#endif
 

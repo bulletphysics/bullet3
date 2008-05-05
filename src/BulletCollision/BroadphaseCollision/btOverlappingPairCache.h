@@ -225,8 +225,10 @@ private:
 	{
 		int proxyId1 = proxy0->getUid();
 		int proxyId2 = proxy1->getUid();
+		#if 0 // wrong, 'equalsPair' use unsorted uids, copy-past devil striked again. Nat.
 		if (proxyId1 > proxyId2) 
 			btSwap(proxyId1, proxyId2);
+		#endif
 
 		int index = m_hashTable[hash];
 		
@@ -430,5 +432,6 @@ public:
 
 
 #endif //OVERLAPPING_PAIR_CACHE_H
+
 
 

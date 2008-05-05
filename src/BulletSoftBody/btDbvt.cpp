@@ -1,3 +1,19 @@
+/*
+Bullet Continuous Collision Detection and Physics Library
+Copyright (c) 2003-2006 Erwin Coumans  http://continuousphysics.com/Bullet/
+
+This software is provided 'as-is', without any express or implied warranty.
+In no event will the authors be held liable for any damages arising from the use of this software.
+Permission is granted to anyone to use this software for any purpose,
+including commercial applications, and to alter it and redistribute it freely,
+subject to the following restrictions:
+
+1. The origin of this software must not be misrepresented; you must not claim that you wrote the original software. If you use this software in a product, an acknowledgment in the product documentation would be appreciated but is not required.
+2. Altered source versions must be plainly marked as such, and must not be misrepresented as being the original software.
+3. This notice may not be removed or altered from any source distribution.
+*/
+///btDbvt implementation by Nathanael Presson
+
 #include "btDbvt.h"
 
 //
@@ -10,16 +26,16 @@ return(node->parent->childs[1]==node);
 }
 
 //
-static inline btDbvt::Aabb		merge(		const btDbvt::Aabb& a,
-											const btDbvt::Aabb& b)
+static inline btDbvt::Volume	merge(		const btDbvt::Volume& a,
+											const btDbvt::Volume& b)
 {
-btDbvt::Aabb	res;
+btDbvt::Volume	res;
 Merge(a,b,res);
 return(res);
 }
 
 // volume+edge lengths
-static inline btScalar			size(const btDbvt::Aabb& a)
+static inline btScalar			size(const btDbvt::Volume& a)
 {
 const btVector3	edges=a.Lengths();
 return(	edges.x()*edges.y()*edges.z()+
@@ -50,7 +66,7 @@ deletenode(pdbvt,node);
 //
 static inline btDbvt::Node*		createnode(	btDbvt* pdbvt,
 											btDbvt::Node* parent,
-											const btDbvt::Aabb& box,
+											const btDbvt::Volume& volume,
 											void* data)
 {
 btDbvt::Node*	node;
@@ -59,7 +75,7 @@ if(pdbvt->m_free)
 	else
 	{ node=new btDbvt::Node(); }
 node->parent	=	parent;
-node->box		=	box;
+node->volume	=	volume;
 node->data		=	data;
 node->childs[1]	=	0;
 return(node);
@@ -80,25 +96,25 @@ if(!pdbvt->m_root)
 	if(!root->isleaf())
 		{
 		do	{
-			if(	Proximity(root->childs[0]->box,leaf->box)<
-				Proximity(root->childs[1]->box,leaf->box))
+			if(	Proximity(root->childs[0]->volume,leaf->volume)<
+				Proximity(root->childs[1]->volume,leaf->volume))
 				root=root->childs[0];
 				else
 				root=root->childs[1];
 			} while(!root->isleaf());
 		}
 	btDbvt::Node*	prev=root->parent;
-	btDbvt::Node*	node=createnode(pdbvt,prev,merge(leaf->box,root->box),0);
+	btDbvt::Node*	node=createnode(pdbvt,prev,merge(leaf->volume,root->volume),0);
 	if(prev)
 		{
 		prev->childs[indexof(root)]	=	node;
 		node->childs[0]				=	root;root->parent=node;
 		node->childs[1]				=	leaf;leaf->parent=node;
 		do	{
-			if(prev->box.Contain(node->box))
+			if(prev->volume.Contain(node->volume))
 				break;
 				else
-				Merge(prev->childs[0]->box,prev->childs[1]->box,prev->box);
+				Merge(prev->childs[0]->volume,prev->childs[1]->volume,prev->volume);
 			node=prev;
 			} while(0!=(prev=node->parent));
 		}
@@ -132,9 +148,9 @@ if(leaf==pdbvt->m_root)
 		deletenode(pdbvt,parent);
 		while(prev)
 			{
-			const btDbvt::Aabb	pb=prev->box;
-			Merge(prev->childs[0]->box,prev->childs[1]->box,prev->box);
-			if(NotEqual(pb,prev->box))
+			const btDbvt::Volume	pb=prev->volume;
+			Merge(prev->childs[0]->volume,prev->childs[1]->volume,prev->volume);
+			if(NotEqual(pb,prev->volume))
 				{
 				sibling		=	prev;
 				prev		=	prev->parent;
@@ -171,17 +187,6 @@ if(root->isinternal()&&depth)
 }
 
 //
-static int						leafcount(btDbvt::Node* root)
-{
-if(root->isinternal())
-	{
-	return(	leafcount(root->childs[0])+
-			leafcount(root->childs[1]));
-	}
-return(1);
-}
-
-//
 static void						split(	const tNodeArray& leafs,
 										tNodeArray& left,
 										tNodeArray& right,
@@ -192,7 +197,7 @@ left.resize(0);
 right.resize(0);
 for(int i=0,ni=leafs.size();i<ni;++i)
 	{
-	if(dot(axis,leafs[i]->box.Center()-org)<0)
+	if(dot(axis,leafs[i]->volume.Center()-org)<0)
 		left.push_back(leafs[i]);
 		else
 		right.push_back(leafs[i]);
@@ -200,14 +205,14 @@ for(int i=0,ni=leafs.size();i<ni;++i)
 }
 
 //
-static btDbvt::Aabb				bounds(	const tNodeArray& leafs)
+static btDbvt::Volume			bounds(	const tNodeArray& leafs)
 {
-btDbvt::Aabb	box=leafs[0]->box;
+btDbvt::Volume	volume=leafs[0]->volume;
 for(int i=1,ni=leafs.size();i<ni;++i)
 	{
-	box=merge(box,leafs[i]->box);
+	volume=merge(volume,leafs[i]->volume);
 	}
-return(box);
+return(volume);
 }
 
 //
@@ -222,7 +227,7 @@ while(leafs.size()>1)
 		{
 		for(int j=i+1;j<leafs.size();++j)
 			{
-			const btScalar	sz=size(merge(leafs[i]->box,leafs[j]->box));
+			const btScalar	sz=size(merge(leafs[i]->volume,leafs[j]->volume));
 			if(sz<minsize)
 				{
 				minsize		=	sz;
@@ -232,7 +237,7 @@ while(leafs.size()>1)
 			}
 		}
 	btDbvt::Node*	n[]	=	{leafs[minidx[0]],leafs[minidx[1]]};
-	btDbvt::Node*	p	=	createnode(pdbvt,0,merge(n[0]->box,n[1]->box),0);
+	btDbvt::Node*	p	=	createnode(pdbvt,0,merge(n[0]->volume,n[1]->volume),0);
 	p->childs[0]		=	n[0];
 	p->childs[1]		=	n[1];
 	n[0]->parent		=	p;
@@ -255,15 +260,15 @@ if(leafs.size()>1)
 	{
 	if(leafs.size()>bu_treshold)
 		{
-		const btDbvt::Aabb	box=bounds(leafs);
-		const btVector3		org=box.Center();
-		tNodeArray			sets[2];
-		int					bestaxis=-1;
-		int					bestmidp=leafs.size();
-		int					splitcount[3][2]={0,0,0,0,0,0};
+		const btDbvt::Volume	vol=bounds(leafs);
+		const btVector3			org=vol.Center();
+		tNodeArray				sets[2];
+		int						bestaxis=-1;
+		int						bestmidp=leafs.size();
+		int						splitcount[3][2]={0,0,0,0,0,0};
 		for(int i=0;i<leafs.size();++i)
 			{
-			const btVector3	x=leafs[i]->box.Center()-org;
+			const btVector3	x=leafs[i]->volume.Center()-org;
 			for(int j=0;j<3;++j)
 				{
 				++splitcount[j][dot(x,axis[j])>0?1:0];
@@ -296,7 +301,7 @@ if(leafs.size()>1)
 				sets[i&1].push_back(leafs[i]);
 				}
 			}
-		btDbvt::Node*	node=createnode(pdbvt,0,box,0);
+		btDbvt::Node*	node=createnode(pdbvt,0,vol,0);
 		node->childs[0]=topdown(pdbvt,sets[0],bu_treshold);
 		node->childs[1]=topdown(pdbvt,sets[1],bu_treshold);
 		node->childs[0]->parent=node;
@@ -344,6 +349,7 @@ return(node);
 m_root	=	0;
 m_free	=	0;
 m_lkhd	=	2;
+m_leafs	=	0;
 }
 
 //
@@ -361,20 +367,12 @@ m_free=0;
 }
 
 //
-int				btDbvt::leafCount() const
-{
-if(m_root)	return(leafcount(m_root));
-			else
-			return(0);
-}
-
-//
 void			btDbvt::optimizeBottomUp()
 {
 if(m_root)
 	{
 	tNodeArray leafs;
-	leafs.reserve(leafCount());
+	leafs.reserve(m_leafs);
 	fetchleafs(this,m_root,leafs);
 	bottomup(this,leafs);
 	m_root=leafs[0];
@@ -387,22 +385,37 @@ void			btDbvt::optimizeTopDown(int bu_treshold)
 if(m_root)
 	{
 	tNodeArray	leafs;
-	leafs.reserve(leafCount());
+	leafs.reserve(m_leafs);
 	fetchleafs(this,m_root,leafs);
 	m_root=topdown(this,leafs,bu_treshold);
 	}
 }
 
 //
-btDbvt::Node*	btDbvt::insert(const Aabb& box,void* data)
+btDbvt::Node*	btDbvt::insert(const Volume& volume,void* data)
 {
-Node*	leaf=createnode(this,0,box,data);
+Node*	leaf=createnode(this,0,volume,data);
 insertleaf(this,m_root,leaf);
+++m_leafs;
 return(leaf);
 }
 
 //
-void			btDbvt::update(Node* leaf,const Aabb& box)
+void			btDbvt::update(Node* leaf,int lookahead)
+{
+Node*	root=removeleaf(this,leaf);
+if(root)
+	{
+	for(int i=0;(i<lookahead)&&root->parent;++i)
+		{
+		root=root->parent;
+		}
+	}
+insertleaf(this,root,leaf);
+}
+
+//
+void			btDbvt::update(Node* leaf,const Volume& volume)
 {
 Node*	root=removeleaf(this,leaf);
 if(root)
@@ -412,19 +425,35 @@ if(root)
 		root=root->parent;
 		}
 	}
-leaf->box=box;
+leaf->volume=volume;
 insertleaf(this,root,leaf);
 }
 
 //
-bool			btDbvt::update(Node* leaf,Aabb box,const btVector3& velocity,btScalar margin)
+bool			btDbvt::update(Node* leaf,Volume volume,const btVector3& velocity,btScalar margin)
 {
-if(leaf->box.Contain(box)) return(false);
-if(margin>0)
-	box.Expand(btVector3(margin,margin,margin));
-if(velocity.length2()>0)
-	box.SignedExpand(velocity);
-update(leaf,box);
+if(leaf->volume.Contain(volume)) return(false);
+volume.Expand(btVector3(margin,margin,margin));
+volume.SignedExpand(velocity);
+update(leaf,volume);
+return(true);
+}
+
+//
+bool			btDbvt::update(Node* leaf,Volume volume,const btVector3& velocity)
+{
+if(leaf->volume.Contain(volume)) return(false);
+volume.SignedExpand(velocity);
+update(leaf,volume);
+return(true);
+}
+
+//
+bool			btDbvt::update(Node* leaf,Volume volume,btScalar margin)
+{
+if(leaf->volume.Contain(volume)) return(false);
+volume.Expand(btVector3(margin,margin,margin));
+update(leaf,volume);
 return(true);
 }
 
@@ -433,109 +462,32 @@ void			btDbvt::remove(Node* leaf)
 {
 removeleaf(this,leaf);
 deletenode(this,leaf);
+--m_leafs;
 }
 
 //
 void			btDbvt::collide(btDbvt* tree,
 								ICollide* icollide) const
 {
-if(tree->m_root&&m_root)
-	{
-	btAlignedObjectArray<sStkElm>	stack;
-	stack.reserve(128);
-	stack.push_back(sStkElm(m_root,tree->m_root));
-	do	{
-		sStkElm	p=stack[stack.size()-1];
-		stack.pop_back();
-		if(p.a==p.b)
-			{
-			if(p.a->isinternal())
-				{
-				stack.push_back(sStkElm(p.a->childs[0],p.a->childs[0]));
-				stack.push_back(sStkElm(p.a->childs[1],p.a->childs[1]));
-				stack.push_back(sStkElm(p.a->childs[0],p.a->childs[1]));
-				}
-			}
-		else if(Intersect(p.a->box,p.b->box))
-			{
-			if(p.a->isinternal())
-				{
-				if(p.b->isinternal())
-					{
-					stack.push_back(sStkElm(p.a->childs[0],p.b->childs[0]));
-					stack.push_back(sStkElm(p.a->childs[1],p.b->childs[0]));
-					stack.push_back(sStkElm(p.a->childs[0],p.b->childs[1]));
-					stack.push_back(sStkElm(p.a->childs[1],p.b->childs[1]));
-					}
-					else
-					{
-					stack.push_back(sStkElm(p.a->childs[0],p.b));
-					stack.push_back(sStkElm(p.a->childs[1],p.b));
-					}
-				}
-				else
-				{
-				if(p.b->isinternal())
-					{
-					stack.push_back(sStkElm(p.a,p.b->childs[0]));
-					stack.push_back(sStkElm(p.a,p.b->childs[1]));
-					}
-					else
-					{
-					icollide->Process(p.a,p.b);
-					}
-				}
-			}
-		} while(stack.size()>0);
-	}
+collideGeneric(tree,GCollide(icollide));
+}
+
+//
+void			btDbvt::collide(btDbvt::Node* node,
+								ICollide* icollide) const
+{
+collideGeneric(node,GCollide(icollide));
 }
 							
 //
-void			btDbvt::collide(const Aabb& box,
+void			btDbvt::collide(const Volume& volume,
 								ICollide* icollide) const
 {
-if(m_root)
-	{
-	btAlignedObjectArray<const Node*>	stack;
-	stack.reserve(64);
-	stack.push_back(m_root);
-	do	{
-		const Node*	n=stack[stack.size()-1];
-		stack.pop_back();
-		if(Intersect(n->box,box))
-			{
-			if(n->isinternal())
-				{
-				stack.push_back(n->childs[0]);
-				stack.push_back(n->childs[1]);
-				}
-				else
-				{
-				icollide->Process(n);
-				}
-			}
-		} while(stack.size()>0);
-	}
+collideGeneric(volume,GCollide(icollide));
 }
 							
 //
 void			btDbvt::collide(ICollide* icollide) const
 {
-if(m_root)
-	{
-	btAlignedObjectArray<const Node*>	stack;
-	stack.reserve(64);
-	stack.push_back(m_root);
-	do	{
-		const Node*	n=stack[stack.size()-1];
-		stack.pop_back();
-		if(icollide->Descent(n))
-			{
-			if(n->isinternal())
-				{ stack.push_back(n->childs[0]);stack.push_back(n->childs[1]); }
-				else
-				{ icollide->Process(n); }
-			}
-		} while(stack.size()>0);
-	}
+collideGeneric(GCollide(icollide));
 }

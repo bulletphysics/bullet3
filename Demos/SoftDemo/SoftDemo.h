@@ -53,6 +53,7 @@ public:
 
 	
 	bool								m_autocam;
+	bool								m_cutting;
 	bool								m_raycast;
 	btScalar							m_animtime;
 	btClock								m_clock;
@@ -116,6 +117,7 @@ public:
 	void	clientResetScene();
 	void	renderme();
 	void	keyboardCallback(unsigned char key, int x, int y);
+	void	mouseFunc(int button, int state, int x, int y);
 
 };
 
@@ -155,6 +157,7 @@ MACRO_SOFT_DEMO(16)//Init_BunnyMatch
 
 
 #endif //CCD_PHYSICS_DEMO_H
+
 
 
 

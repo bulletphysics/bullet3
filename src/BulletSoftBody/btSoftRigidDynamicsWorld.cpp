@@ -106,7 +106,7 @@ void	btSoftRigidDynamicsWorld::debugDrawWorld()
 		{
 			btSoftBody*	psb=(btSoftBody*)this->m_softBodies[i];
 			btSoftBodyHelpers::DrawFrame(psb,m_debugDrawer);
-			btSoftBodyHelpers::Draw(psb,m_debugDrawer,fDrawFlags::Std);
+			btSoftBodyHelpers::Draw(psb,m_debugDrawer,fDrawFlags::Nodes+fDrawFlags::Std);
 			if (m_debugDrawer && (m_debugDrawer->getDebugMode() & btIDebugDraw::DBG_DrawAabb))
 			{
 				btSoftBodyHelpers::DrawNodeTree(psb,m_debugDrawer);

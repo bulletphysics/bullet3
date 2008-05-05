@@ -8,6 +8,8 @@ ADD_LIBRARY(LibBulletSoftBody
 	btSoftBody.h
 	btSoftBodyHelpers.cpp
 	btSparseSDF.h
+	btDbvtBroadphase.cpp
+	btDbvtBroadphase.h
 	btDbvt.cpp  
 	btDbvt.h
 	btSoftBodyHelpers.h
@@ -16,6 +18,8 @@ ADD_LIBRARY(LibBulletSoftBody
 	btSoftRigidCollisionAlgorithm.h
 	btSoftSoftCollisionAlgorithm.cpp
 	btSoftSoftCollisionAlgorithm.h
+	btSoftBodyConcaveCollisionAlgorithm.cpp
+	btSoftBodyConcaveCollisionAlgorithm.h
 	btSoftRigidDynamicsWorld.h
 	btSoftRigidDynamicsWorld.cpp
 )

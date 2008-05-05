@@ -34,6 +34,21 @@ void	GLDebugDrawer::drawLine(const btVector3& from,const btVector3& to,const btV
 	}
 }
 
+void	GLDebugDrawer::drawTriangle(const btVector3& a,const btVector3& b,const btVector3& c,const btVector3& color,btScalar alpha)
+{
+//	if (m_debugMode > 0)
+	{
+		const btVector3	n=cross(b-a,c-a).normalized();
+		glBegin(GL_TRIANGLES);		
+		glColor4f(color.getX(), color.getY(), color.getZ(),alpha);
+		glNormal3d(n.getX(),n.getY(),n.getZ());
+		glVertex3d(a.getX(),a.getY(),a.getZ());
+		glVertex3d(b.getX(),b.getY(),b.getZ());
+		glVertex3d(c.getX(),c.getY(),c.getZ());
+		glEnd();
+	}
+}
+
 void	GLDebugDrawer::setDebugMode(int debugMode)
 {
 	m_debugMode = debugMode;
@@ -72,6 +87,7 @@ void	GLDebugDrawer::drawContactPoint(const btVector3& pointOnB,const btVector3& 
 
 	}
 }
+
 
 
 

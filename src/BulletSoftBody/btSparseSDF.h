@@ -109,6 +109,28 @@ struct	btSparseSdf
 				/* else setup a priority list...						*/ 
 		}
 	//
+	int						RemoveReferences(btCollisionShape* pcs)
+		{
+		int	refcount=0;
+		for(int i=0;i<cells.size();++i)
+			{
+			Cell*&	root=cells[i];
+			Cell*	pp=0;
+			Cell*	pc=root;
+			while(pc)
+				{
+				Cell*	pn=pc->next;
+				if(pc->pclient==pcs)
+					{
+					if(pp) pp->next=pn; else root=pn;
+					delete pc;pc=pp;++refcount;
+					}
+				pp=pc;pc=pn;
+				}
+			}
+		return(refcount);
+		}
+	//
 	btScalar				Evaluate(	const btVector3& x,
 										btCollisionShape* shape,
 										btVector3& normal,

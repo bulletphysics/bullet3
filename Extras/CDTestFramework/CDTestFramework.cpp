@@ -32,8 +32,9 @@ subject to the following restrictions:
 //#define NUM_SAP_BOXES 8192
 //#define NUM_SAP_BOXES 4096
 
-#define NUM_SAP_BOXES 4096
+#define NUM_SAP_BOXES 8192
 
+int percentUpdate	=	10;
 
 //Broadphase comparison
 //Static case (updating 10% of objects to same position ( -> no swaps)
@@ -73,8 +74,8 @@ enum TestIndex
 	MAX_NB_TESTS
 };
 
-static int gTest = TEST_BULLET_MULTISAP_8192;
-static int gSelectedTest = TEST_BULLET_MULTISAP_8192;
+static int gTest = TEST_DBVT_8192;//TEST_BULLET_MULTISAP_8192;
+static int gSelectedTest = TEST_DBVT_8192;//TEST_BULLET_MULTISAP_8192;
 static CollisionTest* gCollisionTests[MAX_NB_TESTS];
 
 static GLFontRenderer gFnt;
@@ -300,6 +301,7 @@ int main(int argc, char** argv)
 		};
 		TwType testType = TwDefineEnum("CollisionTest", testEV, MAX_NB_TESTS);
 		TwAddVarRW(gMainBar, "CollisionTests", testType, &gSelectedTest, "");
+		TwAddVarRW(gMainBar, "% of updates",TW_TYPE_INT32,&percentUpdate,"min=0 max=100");
 	}
 
 	// Create tests
@@ -315,7 +317,7 @@ int main(int argc, char** argv)
 //	gCollisionTests[TEST_BULLET_SAP_SORTEDPAIRS_8192]	= new BulletSAPCompleteBoxPruningTest(NUM_SAP_BOXES,3);
 	gCollisionTests[TEST_BULLET_MULTISAP_8192]	= new BulletSAPCompleteBoxPruningTest(NUM_SAP_BOXES,6);
 //	gCollisionTests[TEST_BIPARTITE_BOX_PRUNING]	= new BipartiteBoxPruningTest;
-	gCollisionTests[TEST_DBVT_8192]	= new DbvtTest(NUM_SAP_BOXES);
+	gCollisionTests[TEST_DBVT_8192]	= new BulletSAPCompleteBoxPruningTest(NUM_SAP_BOXES,7);
 
 	for(int i=0;i<MAX_NB_TESTS;i++)
 		gCollisionTests[i]->Init();

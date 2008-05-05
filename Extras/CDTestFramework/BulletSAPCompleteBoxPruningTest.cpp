@@ -22,6 +22,7 @@ subject to the following restrictions:
 #include "RenderingHelpers.h"
 #include "GLFontRenderer.h"
 #include "btBulletCollisionCommon.h"
+#include "BulletSoftBody/btDbvtBroadphase.h"
 
 int numParts =2;
 
@@ -99,7 +100,10 @@ BulletSAPCompleteBoxPruningTest::BulletSAPCompleteBoxPruningTest(int numBoxes,in
 	
 		}
 		break;
-
+	case	7:
+		m_broadphase = new btDbvtBroadphase();
+		methodname	=	"btDbvtBroadphase";
+	break;
 	default:
 		{
 			m_broadphase = new btAxisSweep3(aabbMin,aabbMax,numBoxes,new btNullPairCache());
@@ -179,7 +183,7 @@ bool BulletSAPCompleteBoxPruningTest::UpdateBoxes(int numBoxes)
 {
 	static bool once=true;
 
-	for(udword i=0;i<numBoxes;i++)
+	for(udword i=0;i<(udword)numBoxes;i++)
 	{
 		mBoxTime[i] += mSpeed;
 
@@ -195,18 +199,19 @@ bool BulletSAPCompleteBoxPruningTest::UpdateBoxes(int numBoxes)
 	return true;
 }
 extern int doTree;
+extern int percentUpdate;
 
 void BulletSAPCompleteBoxPruningTest::PerformTest()
 {
-	int numUpdatedBoxes = (mNbBoxes*10)/100;
+	int numUpdatedBoxes = (mNbBoxes*percentUpdate)/100;
 	if (m_firstTime)
 	{
 		numUpdatedBoxes = mNbBoxes;
 		m_firstTime = false;
 	}
-
 	mProfiler.Start();
 	UpdateBoxes(numUpdatedBoxes);
+	
 
 	mPairs.ResetPairs();
 	
@@ -240,7 +245,7 @@ void BulletSAPCompleteBoxPruningTest::PerformTest()
 	btOverlappingPairCache* pairCache = m_broadphase->getOverlappingPairCache();
 	const btBroadphasePair* pairPtr = pairCache->getOverlappingPairArrayPtr();
 
-	for(udword i=0;i<pairCache->getNumOverlappingPairs();i++)
+	for(udword i=0;i<(udword)pairCache->getNumOverlappingPairs();i++)
 	{
 //		Flags[pairPtr[i].m_pProxy0->getUid()-1] = true;
 //		Flags[pairPtr[i].m_pProxy1->getUid()-1] = true;

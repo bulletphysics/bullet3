@@ -39,12 +39,6 @@ public:
 	// Enumerations
 	//
 
-	///eLType
-	struct eLType { enum _ {
-		Structural,	///Master constraints 
-		Bending,	///Secondary constraints
-	};};
-
 	///eAeroModel 
 	struct eAeroModel { enum _ {
 		V_Point,	///Vertex normals are oriented toward velocity
@@ -53,6 +47,40 @@ public:
 		F_TwoSided,	///Face normals are fliped to match velocity
 		F_OneSided,	///Face normals are taken as it is
 	};};
+	
+	///eVSolver : velocities solvers
+	struct	eVSolver { enum _ {
+		Linear,		///Linear solver
+		Volume,		///Volume solver
+	};};
+	
+	///ePSolver : positions solvers
+	struct	ePSolver { enum _ {
+		Linear,		///Linear solver
+		Volume,		///Volume solver
+		Anchors,	///Anchor solver
+		RContacts,	///Rigid contacts solver
+		SContacts,	///Soft contacts solver
+	};};
+	
+	///eSolverPresets
+	struct	eSolverPresets { enum _ {
+		Positions,
+		Velocities,
+		Default	=	Positions,
+	};};
+	
+	///eFeature
+	struct	eFeature { enum _ {
+		None,
+		Node,
+		Link,
+		Face,
+		Tetra,
+	};};
+	
+	typedef btAlignedObjectArray<eVSolver::_>	tVSolverArray;
+	typedef btAlignedObjectArray<ePSolver::_>	tPSolverArray;
 	
 	//
 	// Flags
@@ -69,6 +97,13 @@ public:
 		Default	=	SDF_RS,
 	};};
 	
+	///fMaterial
+	struct fMaterial { enum _ {
+		DebugDraw	=	0x0001,	/// Enable debug draw
+		/* presets	*/ 
+		Default		=	DebugDraw,
+	};};
+		
 	//
 	// API Types
 	//
@@ -76,8 +111,16 @@ public:
 	/* sRayCast		*/ 
 	struct sRayCast
 	{
-		int			face;	/// face
-		btScalar	time;	/// time of impact (rayorg+raydir*time)
+		btSoftBody*	body;		/// soft body
+		eFeature::_	feature;	/// feature type
+		int			index;		/// feature index
+		btScalar	time;		/// time of impact (rayorg+raydir*time)
+	};
+	
+	/* ImplicitFn	*/ 
+	struct	ImplicitFn
+	{
+		virtual btScalar	Eval(const btVector3& x)=0;
 	};
 	
 	//
@@ -86,7 +129,6 @@ public:
 
 	typedef btAlignedObjectArray<btScalar>	tScalarArray;
 	typedef btAlignedObjectArray<btVector3>	tVector3Array;
-
 	/* btSoftBodyWorldInfo	*/ 
 	struct	btSoftBodyWorldInfo
 	{
@@ -121,8 +163,22 @@ public:
 	{
 		void*			m_tag;			// User data
 	};
+	/* Material		*/ 
+	struct	Material : Element
+	{
+		btScalar				m_kLST;			// Linear stiffness coefficient [0,1]
+		btScalar				m_kAST;			// Area stiffness coefficient [0,1]
+		btScalar				m_kVST;			// Volume stiffness coefficient [0,1]
+		int						m_flags;		// Flags
+	};
+		
+	/* Feature		*/ 
+	struct	Feature : Element
+	{
+		Material*				m_material;		// Material
+	};
 	/* Node			*/ 
-	struct	Node : Element
+	struct	Node : Feature
 	{
 		btVector3				m_x;			// Position
 		btVector3				m_q;			// Previous step position
@@ -135,22 +191,32 @@ public:
 		int						m_battach:1;	// Attached
 	};
 	/* Link			*/ 
-	struct	Link : Element
+	struct	Link : Feature
 	{
 		Node*					m_n[2];			// Node pointers
 		btScalar				m_rl;			// Rest length
-		btScalar				m_kST;			// Stiffness coefficient
 		btScalar				m_c0;			// (ima+imb)*kLST
 		btScalar				m_c1;			// rl^2
-		btSoftBody::eLType::_	m_type;			// Link type
+		btScalar				m_c2;			// |gradient|^2/c0
+		btVector3				m_c3;			// gradient
 	};
 	/* Face			*/ 
-	struct	Face : Element
+	struct	Face : Feature
 	{
 		Node*					m_n[3];			// Node pointers
 		btVector3				m_normal;		// Normal
 		btScalar				m_ra;			// Rest area
 		btDbvt::Node*			m_leaf;			// Leaf data
+	};
+	/* Tetra		*/ 
+	struct	Tetra : Feature
+	{
+		Node*					m_n[4];			// Node pointers		
+		btScalar				m_rv;			// Rest volume
+		btDbvt::Node*			m_leaf;			// Leaf data
+		btVector3				m_c0[4];		// gradients
+		btScalar				m_c1;			// (4*kVST)/(im0+im1+im2+im3)
+		btScalar				m_c2;			// m_c1/sum(|g0..3|^2)
 	};
 	/* RContact		*/ 
 	struct	RContact
@@ -184,6 +250,15 @@ public:
 		btVector3				m_c1;			// Relative anchor
 		btScalar				m_c2;			// ima*dt
 	};
+	/* Note			*/ 
+	struct	Note : Element
+	{
+		const char*				m_text;			// Text
+		btVector3				m_offset;		// Offset
+		int						m_rank;			// Rank
+		Node*					m_nodes[4];		// Nodes
+		btScalar				m_coords[4];	// Coordinates
+	};	
 	/* Pose			*/ 
 	struct	Pose
 	{
@@ -197,16 +272,11 @@ public:
 		btMatrix3x3				m_scl;			// Scale
 		btMatrix3x3				m_aqq;			// Base scaling
 	};
-	/* DFld			*/ 
-	struct	DFld
-	{
-		btAlignedObjectArray<btVector3>	pts;
-	};
 	/* Config		*/ 
 	struct	Config
 	{
-		btSoftBody::eAeroModel::_	aeromodel;		// Aerodynamic model (default: V_Point)
-		btScalar				kLST;			// Linear stiffness coefficient [0,1]
+		eAeroModel::_			aeromodel;		// Aerodynamic model (default: V_Point)
+		btScalar				kVCF;			// Velocities correction factor (Baumgarte)
 		btScalar				kDP;			// Damping coefficient [0,1]
 		btScalar				kDG;			// Drag coefficient [0,+inf]
 		btScalar				kLF;			// Lift coefficient [0,+inf]
@@ -214,19 +284,23 @@ public:
 		btScalar				kVC;			// Volume conversation coefficient [0,+inf]
 		btScalar				kDF;			// Dynamic friction coefficient [0,1]
 		btScalar				kMT;			// Pose matching coefficient [0,1]		
-		btScalar				kSOR;			// SOR(w) [1,2] default 1, never use with solver!=Accurate
 		btScalar				kCHR;			// Rigid contacts hardness [0,1]
+		btScalar				kKHR;			// Kinetic contacts hardness [0,1]
 		btScalar				kSHR;			// Soft contacts hardness [0,1]
 		btScalar				kAHR;			// Anchors hardness [0,1]
 		btScalar				maxvolume;		// Maximum volume ratio for pose
 		btScalar				timescale;		// Time scale
-		int						iterations;		// Solver iterations
+		int						viterations;	// Velocities solver iterations
+		int						piterations;	// Positions solver iterations
+		int						diterations;	// Drift solver iterations
 		int						collisions;		// Collisions flags
+		tVSolverArray			m_vsequence;	// Velocity solvers sequence
+		tPSolverArray			m_psequence;	// Position solvers sequence
+		tPSolverArray			m_dsequence;	// Drift solvers sequence
 	};
 	/* SolverState	*/ 
 	struct	SolverState
 	{
-		btScalar				iit;			// 1/iterations
 		btScalar				sdt;			// dt*timescale
 		btScalar				isdt;			// 1/sdt
 		btScalar				velmrg;			// velocity margin
@@ -238,14 +312,17 @@ public:
 	// Typedef's
 	//
 
+	typedef btAlignedObjectArray<Note>			tNoteArray;
 	typedef btAlignedObjectArray<Node>			tNodeArray;
 	typedef btAlignedObjectArray<btDbvt::Node*>	tLeafArray;
 	typedef btAlignedObjectArray<Link>			tLinkArray;
 	typedef btAlignedObjectArray<Face>			tFaceArray;
+	typedef btAlignedObjectArray<Tetra>			tTetraArray;
 	typedef btAlignedObjectArray<Anchor>		tAnchorArray;
 	typedef btAlignedObjectArray<RContact>		tRContactArray;
 	typedef btAlignedObjectArray<SContact>		tSContactArray;
-	typedef btAlignedObjectArray<btSoftBody*>	tSoftBodyArray;
+	typedef btAlignedObjectArray<Material*>		tMaterialArray;
+	typedef btAlignedObjectArray<btSoftBody*>	tSoftBodyArray;		
 
 	//
 	// Fields
@@ -254,18 +331,22 @@ public:
 	Config					m_cfg;			// Configuration
 	SolverState				m_sst;			// Solver state
 	Pose					m_pose;			// Pose
-	DFld					m_dfld;			// Distance field
 	void*					m_tag;			// User data
 	btSoftBodyWorldInfo*	m_worldInfo;	//
+	tNoteArray				m_notes;		// Notes
+	tNodeArray				m_nodes;		// Nodes
+	tLinkArray				m_links;		// Links
+	tFaceArray				m_faces;		// Faces
+	tTetraArray				m_tetras;		// Tetras
 	tAnchorArray			m_anchors;		// Anchors
 	tRContactArray			m_rcontacts;	// Rigid contacts
 	tSContactArray			m_scontacts;	// Soft contacts
+	tMaterialArray			m_materials;	// Materials
 	btScalar				m_timeacc;		// Time accumulator
 	btVector3				m_bounds[2];	// Spatial bounds	
 	bool					m_bUpdateRtCst;	// Update runtime constants
 	btDbvt					m_ndbvt;		// Nodes tree
 	btDbvt					m_fdbvt;		// Faces tree
-	
 	//
 	// Api
 	//
@@ -285,71 +366,120 @@ public:
 	bool				checkFace(	int node0,
 		int node1,
 		int node2) const;
+	/* Append material														*/ 
+	Material*			appendMaterial();
+	/* Append note															*/ 
+	void				appendNote(	const char* text,
+									const btVector3& o,
+									const btVector4& c=btVector4(1,0,0,0),
+									Node* n0=0,
+									Node* n1=0,
+									Node* n2=0,
+									Node* n3=0);
+	void				appendNote(	const char* text,
+									const btVector3& o,
+									Node* feature);
+	void				appendNote(	const char* text,
+									const btVector3& o,
+									Link* feature);
+	void				appendNote(	const char* text,
+									const btVector3& o,
+									Face* feature);
+	void				appendNote(	const char* text,
+									const btVector3& o,
+									Tetra* feature);
+	/* Append node															*/ 
+	void				appendNode(	const btVector3& x,btScalar m);
 	/* Append link															*/ 
-	void				appendLink(		int node0,
-		int node1,
-		btScalar kST,
-		btSoftBody::eLType::_ type,
-		bool bcheckexist=false);
-	void				appendLink(		btSoftBody::Node* node0,
-		btSoftBody::Node* node1,
-		btScalar kST,
-		btSoftBody::eLType::_ type,
-		bool bcheckexist=false);
+	void				appendLink(int model=-1,Material* mat=0);
+	void				appendLink(	int node0,
+									int node1,
+									Material* mat=0,
+									bool bcheckexist=false);
+	void				appendLink(	btSoftBody::Node* node0,
+									btSoftBody::Node* node1,
+									Material* mat=0,
+									bool bcheckexist=false);
 	/* Append face															*/ 
-	void				appendFace(		int node0,
-		int node1,
-		int node2);
+	void				appendFace(int model=-1,Material* mat=0);
+	void				appendFace(	int node0,
+									int node1,
+									int node2,
+									Material* mat=0);
+	/* Append tetrahedron													*/ 
+	void				appendTetra(int model=-1,Material* mat=0);
+	void				appendTetra(int node0,
+									int node1,
+									int node2,
+									int node3,
+									Material* mat=0);
 	/* Append anchor														*/ 
 	void				appendAnchor(	int node,
-		btRigidBody* body);
+										btRigidBody* body);
 	/* Add force (or gravity) to the entire body							*/ 
 	void				addForce(		const btVector3& force);
 	/* Add force (or gravity) to a node of the body							*/ 
 	void				addForce(		const btVector3& force,
-		int node);
+										int node);
 	/* Add velocity to the entire body										*/ 
 	void				addVelocity(	const btVector3& velocity);
 	/* Add velocity to a node of the body									*/ 
 	void				addVelocity(	const btVector3& velocity,
-		int node);
+										int node);
 	/* Set mass																*/ 
 	void				setMass(		int node,
-		btScalar mass);
+										btScalar mass);
 	/* Get mass																*/ 
 	btScalar			getMass(		int node) const;
 	/* Get total mass														*/ 
 	btScalar			getTotalMass() const;
 	/* Set total mass (weighted by previous masses)							*/ 
 	void				setTotalMass(	btScalar mass,
-		bool fromfaces=false);
+										bool fromfaces=false);
 	/* Set total density													*/ 
 	void				setTotalDensity(btScalar density);
+	/* Set volume mass (using tetrahedrons)									*/ 
+	void				setVolumeMass(		btScalar mass);
+	/* Set volume density (using tetrahedrons)								*/ 
+	void				setVolumeDensity(	btScalar density);
 	/* Transform															*/ 
 	void				transform(		const btTransform& trs);
+	/* Translate															*/ 
+	void				translate(		const btVector3& trs);
+	/* Rotate															*/ 
+	void				rotate(	const btQuaternion& rot);
 	/* Scale																*/ 
-	void				scale(			const btVector3& scl);
+	void				scale(	const btVector3& scl);
 	/* Set current state as pose											*/ 
 	void				setPose(		bool bvolume,
 										bool bframe);
-	/* Set current state as distance field									*/ 
-	void				setDistanceField(int nominalresolution);
 	/* Return the volume													*/ 
 	btScalar			getVolume() const;
 	/* Generate bending constraints based on distance in the adjency graph	*/ 
 	int					generateBendingConstraints(	int distance,
-		btScalar stiffness);
+													Material* mat=0);
+	/* Generate tetrahedral constraints										*/ 
+	int					generateTetrahedralConstraints();
 	/* Randomize constraints to reduce solver bias							*/ 
 	void				randomizeConstraints();
+	/* Refine																*/ 
+	void				refine(ImplicitFn* ifn,btScalar accurary,bool cut);
+	/* CutLink																*/ 
+	bool				cutLink(int node0,int node1,btScalar position);
+	bool				cutLink(const Node* node0,const Node* node1,btScalar position);
 	/* Ray casting															*/ 
 	bool				rayCast(const btVector3& org,
 								const btVector3& dir,
 								sRayCast& results,
 								btScalar maxtime=SIMD_INFINITY);
+	/* Solver presets														*/ 
+	void				setSolver(eSolverPresets::_ preset);
 	/* predictMotion														*/ 
 	void				predictMotion(btScalar dt);
 	/* solveConstraints														*/ 
 	void				solveConstraints();
+	/* staticSolve															*/ 
+	void				staticSolve(int iterations);
 	/* solveCommonConstraints												*/ 
 	static void			solveCommonConstraints(btSoftBody** bodies,int count,int iterations);
 	/* integrateMotion														*/ 
@@ -357,24 +487,7 @@ public:
 	/* defaultCollisionHandlers												*/ 
 	void				defaultCollisionHandler(btCollisionObject* pco);
 	void				defaultCollisionHandler(btSoftBody* psb);
-	
-	//
-	// Accessor's and cast.
-	//
-	
-	tNodeArray&			getNodes();
-	const tNodeArray&	getNodes() const;
-	tLinkArray&			getLinks();
-	const tLinkArray&	getLinks() const;
-	tFaceArray&			getFaces();
-	const tFaceArray&	getFaces() const;
-
-	virtual void getAabb(btVector3& aabbMin,btVector3& aabbMax) const
-	{
-		aabbMin = m_bounds[0];
-		aabbMax = m_bounds[1];
-	}
-	
+		
 	//
 	// Cast
 	//
@@ -391,6 +504,13 @@ public:
 			return (btSoftBody*)colObj;
 		return 0;
 	}
+
+	virtual void getAabb(btVector3& aabbMin,btVector3& aabbMax) const
+	{
+		aabbMin = m_bounds[0];
+		aabbMax = m_bounds[1];
+	}
+
 	
 };
 
