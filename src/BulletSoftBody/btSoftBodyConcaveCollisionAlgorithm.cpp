@@ -65,7 +65,7 @@ btSoftBodyTriangleCallback::~btSoftBodyTriangleCallback()
 
 void	btSoftBodyTriangleCallback::clearCache()
 {
-	m_dispatcher->clearManifold(m_manifoldPtr);
+	//m_dispatcher->clearManifold(m_manifoldPtr);
 };
 
 
