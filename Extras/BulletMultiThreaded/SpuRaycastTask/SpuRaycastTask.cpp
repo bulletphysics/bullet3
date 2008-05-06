@@ -62,7 +62,6 @@ void GatherCollisionObjectAndShapeData (RaycastGatheredObjectData* gatheredObjec
 {
 	register int dmaSize;
 	register ppu_address_t	dmaPpuAddress2;
-
 	/* DMA Collision object wrapper into local store */
 	dmaSize = sizeof(SpuCollisionObjectWrapper);
 	dmaPpuAddress2 = objectWrapper;
@@ -92,6 +91,7 @@ void GatherCollisionObjectAndShapeData (RaycastGatheredObjectData* gatheredObjec
 	} else {
 		gatheredObjectData->m_primitiveDimensions = btVector3(1.0, 1.0, 1.0);
 	}
+
 }
 
 void dmaLoadRayOutput (ppu_address_t rayOutputAddr, SpuRaycastTaskWorkUnitOut* rayOutput, uint32_t dmaTag)
@@ -506,6 +506,7 @@ void performRaycastAgainstConcave (RaycastGatheredObjectData* gatheredObjectData
 	register int dmaSize;
 	register ppu_address_t	dmaPpuAddress2;
 
+	
 	btBvhTriangleMeshShape*	trimeshShape = (btBvhTriangleMeshShape*)gatheredObjectData->m_spuCollisionShape;
 
 	//need the mesh interface, for access to triangle vertices
@@ -620,6 +621,7 @@ void performRaycastAgainstConcave (RaycastGatheredObjectData* gatheredObjectData
 
 		//pre-fetch first tree, then loop and double buffer
 	}
+	
 }
 
 void performRaycastAgainstCompound (RaycastGatheredObjectData* gatheredObjectData, const SpuRaycastTaskWorkUnit& workUnit, SpuRaycastTaskWorkUnitOut* workUnitOut, RaycastTask_LocalStoreMemory* lsMemPtr)
@@ -677,9 +679,11 @@ void	processRaycastTask(void* userPtr, void* lsMemory)
 
 	SpuCollisionObjectWrapper* cows = (SpuCollisionObjectWrapper*)taskDesc.spuCollisionObjectsWrappers;
 
+	//spu_printf("in processRaycastTask %d\n", taskDesc.numSpuCollisionObjectWrappers);
 	/* for each object */
 	for (int objectId = 0; objectId < taskDesc.numSpuCollisionObjectWrappers; objectId++)
 	{
+		//spu_printf("%d / %d\n", objectId, taskDesc.numSpuCollisionObjectWrappers);
 		RaycastGatheredObjectData gatheredObjectData;
 		/* load initial collision shape */
 		GatherCollisionObjectAndShapeData (&gatheredObjectData, localMemory, (ppu_address_t)&cows[objectId]);

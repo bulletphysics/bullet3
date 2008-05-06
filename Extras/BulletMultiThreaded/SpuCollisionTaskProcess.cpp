@@ -71,7 +71,7 @@ SpuCollisionTaskProcess::~SpuCollisionTaskProcess()
 
 
 
-void SpuCollisionTaskProcess::initialize2()
+void SpuCollisionTaskProcess::initialize2(bool useEpa)
 {
 
 #ifdef DEBUG_SPU_TASK_SCHEDULING
@@ -82,6 +82,7 @@ void SpuCollisionTaskProcess::initialize2()
 		m_workUnitTaskBuffers = (unsigned char *)btAlignedAlloc(MIDPHASE_WORKUNIT_TASK_SIZE*m_maxNumOutstandingTasks, 128);
 	}
 
+	
 	for (int i = 0; i < m_maxNumOutstandingTasks; i++)
 	{
 		m_taskBusy[i] = false;
@@ -90,6 +91,7 @@ void SpuCollisionTaskProcess::initialize2()
 	m_currentTask = 0;
 	m_currentPage = 0;
 	m_currentPageEntry = 0;
+	m_useEpa = useEpa;
 
 #ifdef DEBUG_SpuCollisionTaskProcess
 	m_initialized = true;
@@ -110,6 +112,8 @@ void SpuCollisionTaskProcess::issueTask2()
 
 
 	SpuGatherAndProcessPairsTaskDesc& taskDesc = m_spuGatherTaskDesc[m_currentTask];
+	taskDesc.m_useEpa = m_useEpa;
+
 	{
 		// send task description in event message
 		// no error checking here...

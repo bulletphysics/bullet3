@@ -271,7 +271,7 @@ bool SpuMinkowskiPenetrationDepthSolver::calcPenDepth( SpuVoronoiSimplexSolver& 
 	if (minProj < btScalar(0.))
 		return false;
 
-	minProj += (marginA + marginB);
+	minProj += (marginA + marginB) + btScalar(1.00);
 
 
 
@@ -336,6 +336,9 @@ bool SpuMinkowskiPenetrationDepthSolver::calcPenDepth( SpuVoronoiSimplexSolver& 
 #endif//DEBUG_DRAW
 
 
+	} else {
+		// could not seperate shapes
+		btAssert (false);
 	}
 	return res.m_hasResult;
 }

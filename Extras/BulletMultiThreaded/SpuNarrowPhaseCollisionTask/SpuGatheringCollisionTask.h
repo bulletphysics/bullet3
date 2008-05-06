@@ -33,6 +33,7 @@ struct SpuGatherAndProcessPairsTaskDesc
 
 	uint16_t numPages;
 	uint16_t taskId;
+	bool m_useEpa;
 
 	struct	CollisionTask_LocalStoreMemory*	m_lsMemory; 
 }

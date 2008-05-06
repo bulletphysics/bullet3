@@ -39,12 +39,26 @@ SpuSubsimplexRayCast::SpuSubsimplexRayCast (void* shapeB, SpuConvexPolyhedronVer
  * MSUM(Pellet, ConvexShape)
  *
  */
-btVector3 supportPoint (btTransform xform, int shapeType, const void* shape, SpuConvexPolyhedronVertexData* convexVertexData, btVector3 seperatingAxis)
+void supportPoints (const btTransform xformRay,
+		    const btTransform xformB,
+		    const int shapeType,
+		    const void* shape,
+		    SpuConvexPolyhedronVertexData* convexVertexData,
+		    const btScalar marginB,
+		    const btVector3& seperatingAxis,
+		    btVector3& w,
+		    btVector3& supVertexRay,
+		    btVector3& supVertexB)
 {
-	btVector3 SupportPellet = btVector3(0.0, 0.0, 0.0);
-	btVector3 rotatedSeperatingAxis = seperatingAxis * xform.getBasis();
-	btVector3 SupportShape = xform(localGetSupportingVertexWithoutMargin(shapeType, (void*)shape, rotatedSeperatingAxis, convexVertexData));
-	return SupportPellet + SupportShape;
+	btVector3 saUnit = seperatingAxis;
+	saUnit.normalize();
+	btVector3 SupportPellet = xformRay(0.0001 * -saUnit);
+	btVector3 rotatedSeperatingAxis = seperatingAxis * xformB.getBasis();
+	btVector3 SupportShape = xformB(localGetSupportingVertexWithoutMargin(shapeType, (void*)shape, rotatedSeperatingAxis, convexVertexData));
+	SupportShape += saUnit * marginB;
+	w = SupportPellet - SupportShape;
+	supVertexRay = SupportPellet;
+	supVertexB = SupportShape;
 }
 
 bool	SpuSubsimplexRayCast::calcTimeOfImpact(const btTransform& fromRay,
@@ -53,55 +67,51 @@ bool	SpuSubsimplexRayCast::calcTimeOfImpact(const btTransform& fromRay,
 											   const btTransform& toB,
 											   SpuCastResult& result)
 {
-	btTransform	rayFromLocalA;
-	btTransform	rayToLocalA;
-
-	rayFromLocalA = fromRay.inverse()* fromB;
-	rayToLocalA = toRay.inverse()* toB;
-
 	m_simplexSolver->reset();
-	
-	btTransform bXform = btTransform(rayFromLocalA.getBasis());
 
-	//btScalar radius = btScalar(0.01);
+	btVector3 linVelRay, linVelB;
+	linVelRay = toRay.getOrigin() - fromRay.getOrigin();
+	linVelB = toB.getOrigin() - fromB.getOrigin ();
 
 	btScalar lambda = btScalar(0.);
-	//todo: need to verify this:
-	//because of minkowski difference, we need the inverse direction
 	
-	btVector3 s = -rayFromLocalA.getOrigin();
-	btVector3 r = -(rayToLocalA.getOrigin()-rayFromLocalA.getOrigin());
-	btVector3 x = s;
-	btVector3 v;
-	btVector3 arbitraryPoint = supportPoint(bXform, m_shapeTypeB, m_shapeB, m_convexDataB, r);
-	v = x - arbitraryPoint;
+	btTransform interpolatedTransRay = fromRay;
+	btTransform interpolatedTransB = fromB;
 
-	int maxIter = MAX_ITERATIONS;
+	btVector3 r = (linVelRay-linVelB);
+	btVector3 supVertexRay;
+	btVector3 supVertexB;
+	btVector3 v;
+	supportPoints (fromRay, fromB, m_shapeTypeB, m_shapeB, m_convexDataB, m_marginB, r, v, supVertexRay, supVertexB);
 
 	btVector3 n;
-	n.setValue(btScalar(0.),btScalar(0.),btScalar(0.));
+	n.setValue(btScalar(0.), btScalar(0.), btScalar(0.));
 	bool hasResult = false;
 	btVector3 c;
+	int maxIter = MAX_ITERATIONS;
 
 	btScalar lastLambda = lambda;
 
 	btScalar dist2 = v.length2();
+
 #ifdef BT_USE_DOUBLE_PRECISION
 	btScalar epsilon = btScalar(0.0001);
 #else
 	btScalar epsilon = btScalar(0.0001);
 #endif //BT_USE_DOUBLE_PRECISION
-	btVector3	w,p;
+	btVector3 w,p;
 	btScalar VdotR;
 	
 	while ( (dist2 > epsilon) && maxIter--)
 	{
-		p = supportPoint(bXform, m_shapeTypeB, m_shapeB, m_convexDataB, v);
-		btVector3 supportunit = v.normalized();
-		p += m_marginB * supportunit;
-		w = x - p;
+		supportPoints (interpolatedTransRay, interpolatedTransB, m_shapeTypeB, m_shapeB, m_convexDataB, m_marginB, v, w, supVertexRay, supVertexB);
 
 		btScalar VdotW = v.dot(w);
+
+		if (lambda > btScalar(1.0))
+		{
+			return false;
+		}
 
 		if ( VdotW > btScalar(0.))
 		{
@@ -112,16 +122,14 @@ bool	SpuSubsimplexRayCast::calcTimeOfImpact(const btTransform& fromRay,
 			else
 			{
 				lambda = lambda - VdotW / VdotR;
-				x = s + lambda * r;
-				m_simplexSolver->reset();
-				//check next line
-				w = x-p;
+				interpolatedTransRay.getOrigin().setInterpolate3(fromRay.getOrigin(), toRay.getOrigin(), lambda);
+				interpolatedTransB.getOrigin().setInterpolate3(fromB.getOrigin(), toB.getOrigin(), lambda);
 				lastLambda = lambda;
 				n = v;
 				hasResult = true;
 			}
 		} 
-		m_simplexSolver->addVertex( w, x , p);
+		m_simplexSolver->addVertex(w, supVertexRay, supVertexB);
 		if (m_simplexSolver->closest(v))
 		{
 			dist2 = v.length2();
@@ -135,13 +143,10 @@ bool	SpuSubsimplexRayCast::calcTimeOfImpact(const btTransform& fromRay,
 		} 
 	}
 
-	//int numiter = MAX_ITERATIONS - maxIter;
-//	printf("number of iterations: %d", numiter);
 	result.m_fraction = lambda;
 	result.m_normal = n;
-
+	btVector3 hitRay, hitB;
+	m_simplexSolver->compute_points (hitRay, hitB);
+	/* TODO: We could output hit point here (hitB) */
 	return true;
 }
-
-
-

@@ -16,7 +16,7 @@ subject to the following restrictions:
 
 #include "SpuCollisionShapes.h"
 
-btPoint3 localGetSupportingVertexWithoutMargin(int shapeType, void* shape, btVector3& localDir,struct	SpuConvexPolyhedronVertexData* convexVertexData)//, int *featureIndex)
+btPoint3 localGetSupportingVertexWithoutMargin(int shapeType, void* shape, const btVector3& localDir,struct	SpuConvexPolyhedronVertexData* convexVertexData)//, int *featureIndex)
 {
     switch (shapeType)
     {
@@ -250,6 +250,12 @@ void computeAabb (btVector3& aabbMin, btVector3& aabbMax, btConvexInternalShape*
 		//add the radius to y-axis to get full height
 		btScalar radius = halfExtents[0];
 		halfExtents[1] += radius;
+#if 0
+		int capsuleUpAxis = convexShape->getUpAxis();
+		btScalar halfHeight = convexShape->getHalfHeight();
+		btScalar radius = convexShape->getRadius();
+		halfExtents[capsuleUpAxis] = radius + halfHeight;
+#endif
 		btTransform& t = xform;
 		btMatrix3x3 abs_b = t.getBasis().absolute();  
 		btPoint3 center = t.getOrigin();
@@ -298,7 +304,12 @@ void dmaBvhShapeData (bvhMeshShape_LocalStoreMemory* bvhMeshShape, btBvhTriangle
 	dmaSize = sizeof(btTriangleIndexVertexArray);
 	dmaPpuAddress2 = reinterpret_cast<ppu_address_t>(triMeshShape->getMeshInterface());
 	//	spu_printf("trimeshShape->getMeshInterface() == %llx\n",dmaPpuAddress2);
+#ifdef __SPU__
+	cellDmaGet(&bvhMeshShape->gTriangleMeshInterfaceStorage, dmaPpuAddress2  , dmaSize, DMA_TAG(1), 0, 0);
+	bvhMeshShape->gTriangleMeshInterfacePtr = &bvhMeshShape->gTriangleMeshInterfaceStorage;
+#else
 	bvhMeshShape->gTriangleMeshInterfacePtr = (btTriangleIndexVertexArray*)cellDmaGetReadOnly(&bvhMeshShape->gTriangleMeshInterfaceStorage, dmaPpuAddress2  , dmaSize, DMA_TAG(1), 0, 0);
+#endif
 
 	//cellDmaWaitTagStatusAll(DMA_MASK(1));
 	

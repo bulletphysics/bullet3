@@ -23,6 +23,7 @@
 #include "BulletCollision/CollisionShapes/btCompoundShape.h"
 
 #include "SpuMinkowskiPenetrationDepthSolver.h"
+#include "SpuEpaPenetrationDepthSolver.h"
 #include "SpuGjkPairDetector.h"
 #include "SpuVoronoiSimplexSolver.h"
 
@@ -82,6 +83,7 @@ int g_CacheHits=0;
 
 #endif // USE_SOFTWARE_CACHE
 
+bool gUseEpa = false;
 
 #ifdef USE_SN_TUNER
 #include <LibSN_SPU.h>
@@ -196,18 +198,30 @@ SIMD_FORCE_INLINE void small_cache_read_triple(	void* ls0, ppu_address_t ea0,
 		char* localStore0 = (char*)ls0;
 		uint32_t last4BitsOffset = ea0 & 0x0f;
 		char* tmpTarget0 = tmpBuffer0 + last4BitsOffset;
+#ifdef __SPU__
+		cellDmaSmallGet(tmpTarget0,ea0,size,DMA_TAG(1),0,0);
+#else
 		tmpTarget0 = (char*)cellDmaSmallGetReadOnly(tmpTarget0,ea0,size,DMA_TAG(1),0,0);
+#endif
 
 
 		char* localStore1 = (char*)ls1;
 		last4BitsOffset = ea1 & 0x0f;
 		char* tmpTarget1 = tmpBuffer1 + last4BitsOffset;
+#ifdef __SPU__
+		cellDmaSmallGet(tmpTarget1,ea1,size,DMA_TAG(1),0,0);
+#else
 		tmpTarget1 = (char*)cellDmaSmallGetReadOnly(tmpTarget1,ea1,size,DMA_TAG(1),0,0);
+#endif
 		
 		char* localStore2 = (char*)ls2;
 		last4BitsOffset = ea2 & 0x0f;
 		char* tmpTarget2 = tmpBuffer2 + last4BitsOffset;
+#ifdef __SPU__
+		cellDmaSmallGet(tmpTarget2,ea2,size,DMA_TAG(1),0,0);
+#else
 		tmpTarget2 = (char*)cellDmaSmallGetReadOnly(tmpTarget2,ea2,size,DMA_TAG(1),0,0);
+#endif
 		
 		
 		cellDmaWaitTagStatusAll( DMA_MASK(1) );
@@ -458,7 +472,17 @@ void	ProcessSpuConvexConvexCollision(SpuCollisionPairInput* wuInput, CollisionTa
 		//try generic GJK
 
 		SpuVoronoiSimplexSolver vsSolver;
-		SpuMinkowskiPenetrationDepthSolver	penetrationSolver;
+		SpuEpaPenetrationDepthSolver epaPenetrationSolver;
+		SpuMinkowskiPenetrationDepthSolver	minkowskiPenetrationSolver;
+		SpuConvexPenetrationDepthSolver* penetrationSolver;
+
+		if (gUseEpa)
+		{
+			penetrationSolver = &epaPenetrationSolver;
+		} else {
+			penetrationSolver = &minkowskiPenetrationSolver;
+		}
+
 
 		///DMA in the vertices for convex shapes
 		ATTRIBUTE_ALIGNED16(char convexHullShape0[sizeof(btConvexHullShape)]);
@@ -537,7 +561,7 @@ void	ProcessSpuConvexConvexCollision(SpuCollisionPairInput* wuInput, CollisionTa
 			lsMemPtr->getColObj0()->getFriction(),lsMemPtr->getColObj1()->getFriction(),
 			wuInput->m_isSwapped);
 
-		SpuGjkPairDetector gjk(shape0Ptr,shape1Ptr,shapeType0,shapeType1,marginA,marginB,&vsSolver,&penetrationSolver);
+		SpuGjkPairDetector gjk(shape0Ptr,shape1Ptr,shapeType0,shapeType1,marginA,marginB,&vsSolver,penetrationSolver);
 		gjk.getClosestPoints(cpInput,spuContacts);//,debugDraw);
 	}
 
@@ -784,6 +808,8 @@ void	processCollisionTask(void* userPtr, void* lsMemPtr)
 	SpuGatherAndProcessPairsTaskDesc& taskDesc = *taskDescPtr;
 	CollisionTask_LocalStoreMemory*	colMemPtr = (CollisionTask_LocalStoreMemory*)lsMemPtr;
 	CollisionTask_LocalStoreMemory& lsMem = *(colMemPtr);
+
+	gUseEpa = taskDesc.m_useEpa;
 
 	//	spu_printf("taskDescPtr=%llx\n",taskDescPtr);
 

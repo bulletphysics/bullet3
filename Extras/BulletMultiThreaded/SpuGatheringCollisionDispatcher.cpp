@@ -149,7 +149,7 @@ void	SpuGatheringCollisionDispatcher::dispatchAllCollisionPairs(btOverlappingPai
 		if (!m_spuCollisionTaskProcess)
 			m_spuCollisionTaskProcess = new SpuCollisionTaskProcess(m_threadInterface,m_maxNumOutstandingTasks);
 	
-		m_spuCollisionTaskProcess->initialize2();
+		m_spuCollisionTaskProcess->initialize2(dispatchInfo.m_useEpa);
 	
 		///modified version of btCollisionDispatcher::dispatchAllCollisionPairs:
 		{

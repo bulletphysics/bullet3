@@ -111,6 +111,8 @@ class SpuCollisionTaskProcess
 	unsigned int   m_currentPage;
 	unsigned int   m_currentPageEntry;
 
+	bool m_useEpa;
+
 #ifdef DEBUG_SpuCollisionTaskProcess
 	bool m_initialized;
 #endif
@@ -123,7 +125,7 @@ public:
 	~SpuCollisionTaskProcess();
 	
 	///call initialize in the beginning of the frame, before addCollisionPairToTask
-	void initialize2();
+	void initialize2(bool useEpa = false);
 
 	///batch up additional work to a current task for SPU processing. When batch is full, it issues the task.
 	void addWorkToTask(void* pairArrayPtr,int startIndex,int endIndex);

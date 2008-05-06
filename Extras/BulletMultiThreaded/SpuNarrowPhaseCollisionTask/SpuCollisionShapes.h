@@ -63,8 +63,7 @@ struct bvhMeshShape_LocalStoreMemory
 };
 
 
-
-btPoint3 localGetSupportingVertexWithoutMargin(int shapeType, void* shape, btVector3& localDir,struct	SpuConvexPolyhedronVertexData* convexVertexData);//, int *featureIndex)
+btPoint3 localGetSupportingVertexWithoutMargin(int shapeType, void* shape, const btVector3& localDir,struct	SpuConvexPolyhedronVertexData* convexVertexData);//, int *featureIndex)
 void computeAabb (btVector3& aabbMin, btVector3& aabbMax, btConvexInternalShape* convexShape, ppu_address_t convexShapePtr, int shapeType, btTransform xform);
 void dmaBvhShapeData (bvhMeshShape_LocalStoreMemory* bvhMeshShape, btBvhTriangleMeshShape* triMeshShape);
 void dmaBvhIndexedMesh (btIndexedMesh* IndexMesh, IndexedMeshArray& indexArray, int index, uint32_t dmaTag);

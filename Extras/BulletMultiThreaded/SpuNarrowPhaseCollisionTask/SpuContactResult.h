@@ -50,6 +50,7 @@ struct SpuCollisionPairInput
 	btTransform m_worldTransform1;
 	
 	bool	m_isSwapped;
+	bool    m_useEpa;
 };
 
 
