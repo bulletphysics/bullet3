@@ -56,6 +56,7 @@ struct btDispatcherInfo
 	class btIDebugDraw*	m_debugDraw;
 	bool	m_enableSatConvex;
 	bool	m_enableSPU;
+	bool	m_useEpa;
 	btStackAlloc*	m_stackAllocator;
 	
 };
