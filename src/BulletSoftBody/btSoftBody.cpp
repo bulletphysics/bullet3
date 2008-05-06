@@ -622,7 +622,13 @@ struct	RayCaster : public btDbvt::ICollide
 		face	=	0;
 		tests	=	0;
 		}
-	void	Process(const btDbvt::Node* leaf)
+
+	virtual void	Process(const btDbvt::Node* a,const btDbvt::Node* b)
+	{
+
+	}
+
+	virtual void	Process(const btDbvt::Node* leaf)
 		{
 		btSoftBody::Face&	f=*(btSoftBody::Face*)leaf->data;
 		const btScalar		t=RayTriangle(	o,d,
@@ -637,7 +643,7 @@ struct	RayCaster : public btDbvt::ICollide
 			}
 		++tests;
 		}
-	bool	Descent(const btDbvt::Node* node)
+	virtual bool	Descent(const btDbvt::Node* node)
 		{
 		const btVector3	ctr=node->volume.Center()-o;		
 		const btScalar	sqr=node->volume.Lengths().length2()/4;
@@ -715,7 +721,7 @@ static int		RaycastInternal(const btSoftBody* psb,
 		else
 		{/* Use dbvt	*/ 
 		RayCaster	collider(org,dir,mint);
-		psb->m_fdbvt.collideGeneric(collider);
+		psb->m_fdbvt.collideGeneric(&collider);
 		if(collider.face)
 			{
 			mint=collider.mint;
@@ -2533,7 +2539,17 @@ switch(m_cfg.collisions&fCollision::RVSmask)
 		{
 		struct	DoCollide : btDbvt::ICollide
 			{
-			void		Process(const btDbvt::Node* leaf)
+				
+				virtual void		Process(const btDbvt::Node* a,const btDbvt::Node* b)
+				{
+
+				}
+
+			virtual bool	Descent(const btDbvt::Node*)
+			{
+				return false;
+			}
+			virtual void		Process(const btDbvt::Node* leaf)
 				{
 				Node*	node=(Node*)leaf->data;
 				DoNode(*node);
@@ -2608,6 +2624,15 @@ switch(cf&fCollision::SVSmask)
 		{
 		struct	DoCollide : btDbvt::ICollide
 			{
+			virtual bool	Descent(const btDbvt::Node*)
+			{
+				return false;
+			}
+			virtual void		Process(const btDbvt::Node* leaf)
+			{
+			
+			}
+
 			void		Process(const btDbvt::Node* lnode,
 								const btDbvt::Node* lface)
 				{

@@ -25,7 +25,7 @@ subject to the following restrictions:
 #include <stdio.h> //printf debugging
 #include "Taru.mdl"
 #include "landscape.mdl"
-
+#include "BulletCollision/BroadphaseCollision/btDbvtBroadphase.h"
 
 
 
@@ -272,7 +272,9 @@ void	BenchmarkDemo::initPhysics()
 	///Don't make the world AABB size too large, it will harm simulation quality and performance
 	btVector3 worldAabbMin(-10000,-10000,-10000);
 	btVector3 worldAabbMax(10000,10000,10000);
-	m_overlappingPairCache = new btAxisSweep3(worldAabbMin,worldAabbMax,3500);
+	//m_overlappingPairCache = new btAxisSweep3(worldAabbMin,worldAabbMax,3500);
+	m_overlappingPairCache = new btDbvtBroadphase();
+		
 
 	///the default constraint solver. For parallel processing you can use a different solver (see Extras/BulletMultiThreaded)
 	btSequentialImpulseConstraintSolver* sol = new btSequentialImpulseConstraintSolver;

@@ -87,20 +87,11 @@ struct	btDbvt
 	/* ICollide	*/ 
 	struct	ICollide
 	{
-		virtual void	Process(const Node*,const Node*)		{}
-		virtual void	Process(const Node*)					{}
-		virtual bool	Descent(const Node*)					{ return(false); }
+		virtual void	Process(const Node*,const Node*)=0;
+		virtual void	Process(const Node*)=0;
+		virtual bool	Descent(const Node*)=0;
 	};
-	/* GCollide	*/ 
-	struct	GCollide
-	{
-		ICollide*		icollide;
-		GCollide(ICollide* ic) : icollide(ic)	{}
-		void			Process(const Node* a,const Node* b)	{ icollide->Process(a,b); }
-		void			Process(const Node* a)					{ icollide->Process(a); }
-		bool			Descent(const Node* a)					{ return(icollide->Descent(a)); }
-	};
-
+	
 	// Constants
 	enum	{
 		TREETREE_STACKSIZE		=	128,
@@ -137,14 +128,14 @@ struct	btDbvt
 		ICollide* icollide) const;
 	void			collide(ICollide* icollide) const;
 	// Generics : T must implement ICollide
-	template <typename T>
-	void			collideGeneric(	btDbvt* tree,T& policy) const;
-	template <typename T>
-	void			collideGeneric(	btDbvt::Node* node,T& policy) const;
-	template <typename T>
-	void			collideGeneric(const Volume& volume,T& policy) const;
-	template <typename T>
-	void			collideGeneric(T& policy) const;
+
+	void			collideGeneric(	btDbvt* tree,ICollide* policy) const;
+
+	void			collideGeneric(	btDbvt::Node* node,ICollide*  policy) const;
+
+	void			collideGeneric(const Volume& volume,ICollide*  policy) const;
+
+	void			collideGeneric(ICollide*  policy) const;
 	//
 private:
 	btDbvt(const btDbvt&)	{}
@@ -300,8 +291,7 @@ inline bool				NotEqual(	const btDbvtAabbMm& a,
 //
 
 //
-template <typename T>
-inline void			btDbvt::collideGeneric(	btDbvt::Node* node,T& policy) const
+inline void			btDbvt::collideGeneric(	btDbvt::Node* node,ICollide*  policy) const
 {
 	if(m_root&&node)
 	{
@@ -346,7 +336,7 @@ inline void			btDbvt::collideGeneric(	btDbvt::Node* node,T& policy) const
 					}
 					else
 					{
-						policy.Process(p.a,p.b);
+						policy->Process(p.a,p.b);
 					}
 				}
 			}
@@ -355,15 +345,13 @@ inline void			btDbvt::collideGeneric(	btDbvt::Node* node,T& policy) const
 }
 
 //
-template <typename T>
-inline void			btDbvt::collideGeneric(	btDbvt* tree,T& policy) const
+inline void			btDbvt::collideGeneric(	btDbvt* tree,ICollide* policy) const
 {
-	collideGeneric<T>(tree->m_root,policy);
+	collideGeneric(tree->m_root,policy);
 }
 
 //
-template <typename T>
-inline void			btDbvt::collideGeneric(const Volume& volume,T& policy) const
+inline void			btDbvt::collideGeneric(const Volume& volume,ICollide* policy) const
 {
 	if(m_root)
 	{
@@ -382,7 +370,7 @@ inline void			btDbvt::collideGeneric(const Volume& volume,T& policy) const
 				}
 				else
 				{
-					policy.Process(n);
+					policy->Process(n);
 				}
 			}
 		} while(stack.size()>0);
@@ -390,8 +378,8 @@ inline void			btDbvt::collideGeneric(const Volume& volume,T& policy) const
 }
 
 //
-template <typename T>
-inline void			btDbvt::collideGeneric(T& policy) const
+
+inline void			btDbvt::collideGeneric(ICollide* policy) const
 {
 	if(m_root)
 	{
@@ -401,12 +389,12 @@ inline void			btDbvt::collideGeneric(T& policy) const
 		do	{
 			const Node*	n=stack[stack.size()-1];
 			stack.pop_back();
-			if(policy.Descent(n))
+			if(policy->Descent(n))
 			{
 				if(n->isinternal())
 				{ stack.push_back(n->childs[0]);stack.push_back(n->childs[1]); }
 				else
-				{ policy.Process(n); }
+				{ policy->Process(n); }
 			}
 		} while(stack.size()>0);
 	}

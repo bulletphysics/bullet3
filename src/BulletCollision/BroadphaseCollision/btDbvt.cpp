@@ -279,7 +279,7 @@ static btDbvt::Node*			topdown(btDbvt* pdbvt,
 			{
 				if((splitcount[i][0]>0)&&(splitcount[i][1]>0))
 				{
-					const int	midp=abs(splitcount[i][0]-splitcount[i][1]);
+					const int	midp=btFabs(splitcount[i][0]-splitcount[i][1]);
 					if(midp<bestmidp)
 					{
 						bestaxis=i;
@@ -470,25 +470,25 @@ void			btDbvt::remove(Node* leaf)
 void			btDbvt::collide(btDbvt* tree,
 								ICollide* icollide) const
 {
-	collideGeneric(tree,GCollide(icollide));
+	collideGeneric(tree,icollide);
 }
 
 //
 void			btDbvt::collide(btDbvt::Node* node,
 								ICollide* icollide) const
 {
-	collideGeneric(node,GCollide(icollide));
+	collideGeneric(node,icollide);
 }
 
 //
 void			btDbvt::collide(const Volume& volume,
 								ICollide* icollide) const
 {
-	collideGeneric(volume,GCollide(icollide));
+	collideGeneric(volume,icollide);
 }
 
 //
 void			btDbvt::collide(ICollide* icollide) const
 {
-	collideGeneric(GCollide(icollide));
+	collideGeneric(icollide);
 }
