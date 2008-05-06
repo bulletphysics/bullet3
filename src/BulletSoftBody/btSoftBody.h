@@ -162,6 +162,10 @@ public:
 	struct	Element
 	{
 		void*			m_tag;			// User data
+		Element()
+		{
+			m_tag=0;
+		}
 	};
 	/* Material		*/ 
 	struct	Material : Element
