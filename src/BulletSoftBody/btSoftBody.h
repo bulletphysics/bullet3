@@ -120,6 +120,7 @@ public:
 	/* ImplicitFn	*/ 
 	struct	ImplicitFn
 	{
+		virtual ~ImplicitFn() {}
 		virtual btScalar	Eval(const btVector3& x)=0;
 	};
 	

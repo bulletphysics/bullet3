@@ -947,7 +947,7 @@ static void	Init_Tetra(SoftDemo* pdemo)
 	pdemo->toggleIdle();
 }
 
-unsigned	current_demo=1;
+unsigned	current_demo=0;
 
 void	SoftDemo::clientResetScene()
 {
@@ -976,12 +976,12 @@ void	SoftDemo::clientResetScene()
 	/* Init		*/ 
 	void (*demofncs[])(SoftDemo*)=
 	{
+		Init_Cloth,
 		Init_Cutting1,
 #ifdef BT_SOFTBODY_USE_STL
 		Init_TetraBunny,
 		Init_TetraCube,
 #endif //BT_SOFTBODY_USE_STL
-		Init_Cloth,
 		Init_Pressure,
 		Init_Volume,
 		Init_Ropes,

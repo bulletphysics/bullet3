@@ -12,6 +12,10 @@ ADD_LIBRARY(LibBulletCollision
 				BroadphaseCollision/btCollisionAlgorithm.h
 				BroadphaseCollision/btDispatcher.cpp
 				BroadphaseCollision/btDispatcher.h
+				BroadphaseCollision/btDbvtBroadphase.cpp
+				BroadphaseCollision/btDbvtBroadphase.h
+				BroadphaseCollision/btDbvt.cpp
+				BroadphaseCollision/btDbvt.h
 				BroadphaseCollision/btMultiSapBroadphase.cpp
 				BroadphaseCollision/btMultiSapBroadphase.h
 				BroadphaseCollision/btOverlappingPairCache.cpp

@@ -8,10 +8,6 @@ ADD_LIBRARY(LibBulletSoftBody
 	btSoftBody.h
 	btSoftBodyHelpers.cpp
 	btSparseSDF.h
-	btDbvtBroadphase.cpp
-	btDbvtBroadphase.h
-	btDbvt.cpp  
-	btDbvt.h
 	btSoftBodyHelpers.h
 	btSoftBodyRigidBodyCollisionConfiguration.cpp
 	btSoftRigidCollisionAlgorithm.cpp

@@ -34,6 +34,10 @@ ADD_LIBRARY(LibBulletMultiThreaded
 		SpuNarrowPhaseCollisionTask/SpuContactResult.cpp
 		SpuNarrowPhaseCollisionTask/SpuContactResult.h
 		SpuNarrowPhaseCollisionTask/SpuMinkowskiPenetrationDepthSolver.cpp
+		SpuNarrowPhaseCollisionTask/SpuEpaPenetrationDepthSolver.cpp
+		SpuNarrowPhaseCollisionTask/SpuEpaPenetrationDepthSolver.h
+		SpuNarrowPhaseCollisionTask/SpuGjkEpa2.cpp
+		SpuNarrowPhaseCollisionTask/SpuGjkEpa2.h
 		SpuNarrowPhaseCollisionTask/SpuMinkowskiPenetrationDepthSolver.h
 		SpuNarrowPhaseCollisionTask/SpuConvexPenetrationDepthSolver.h
 		SpuNarrowPhaseCollisionTask/SpuPreferredPenetrationDirections.h
