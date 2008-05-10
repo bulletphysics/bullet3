@@ -97,7 +97,7 @@ void	btTriangleMesh::addTriangle(const btVector3& vertex0,const btVector3& verte
 		m_indexedMeshes[0].m_triangleIndexBase = (unsigned char*) &m_32bitIndices[0];
 	} else
 	{
-		int curIndex = m_16bitIndices.size();
+		short curIndex = static_cast<short>(m_16bitIndices.size());
 		m_16bitIndices.push_back(curIndex++);
 		m_16bitIndices.push_back(curIndex++);
 		m_16bitIndices.push_back(curIndex++);

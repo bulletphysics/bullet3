@@ -486,6 +486,7 @@ struct btWheelContactPoint
 
 };
 
+btScalar calcRollingFriction(btWheelContactPoint& contactPoint);
 btScalar calcRollingFriction(btWheelContactPoint& contactPoint)
 {
 

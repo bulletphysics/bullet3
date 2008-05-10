@@ -37,7 +37,7 @@ struct	fDrawFlags { enum _ {
 	Notes		=	0x0080,
 	/* presets	*/ 
 	Std			=	Links+Faces+Tetras+Anchors+Notes,
-	StdTetra	=	Std-Faces+Tetras,
+	StdTetra	=	Std-Faces+Tetras
 };};
 
 struct	btSoftBodyHelpers
@@ -46,12 +46,14 @@ struct	btSoftBodyHelpers
 	static void				Draw(		btSoftBody* psb,
 										btIDebugDraw* idraw,
 										int drawflags=fDrawFlags::Std);
+#if 0
 	/* Draw body infos														*/ 
 	static	void			DrawInfos(	btSoftBody* psb,
 										btIDebugDraw* idraw,
 										bool masses,
 										bool areas,
 										bool stress);
+#endif
 	/* Draw node tree														*/ 
 	static void				DrawNodeTree(	btSoftBody* psb,
 											btIDebugDraw* idraw,

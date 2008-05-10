@@ -237,6 +237,12 @@ btScalar resolveSingleFrictionOriginal(
 	btRigidBody& body1,
 	btRigidBody& body2,
 	btManifoldPoint& contactPoint,
+	const btContactSolverInfo& solverInfo);
+
+btScalar resolveSingleFrictionOriginal(
+	btRigidBody& body1,
+	btRigidBody& body2,
+	btManifoldPoint& contactPoint,
 	const btContactSolverInfo& solverInfo)
 {
 
@@ -399,6 +405,12 @@ btScalar resolveSingleCollisionCombined(
 
 	return normalImpulse;
 }
+
+btScalar resolveSingleFrictionEmpty(
+	btRigidBody& body1,
+	btRigidBody& body2,
+	btManifoldPoint& contactPoint,
+	const btContactSolverInfo& solverInfo);
 
 btScalar resolveSingleFrictionEmpty(
 	btRigidBody& body1,

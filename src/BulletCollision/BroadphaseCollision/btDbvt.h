@@ -95,7 +95,7 @@ struct	btDbvt
 	// Constants
 	enum	{
 		TREETREE_STACKSIZE		=	128,
-		VOLUMETREE_STACKSIZE	=	64,
+		VOLUMETREE_STACKSIZE	=	64
 	};
 
 	// Fields

@@ -26,7 +26,7 @@
 				RuntimeLibrary="0"
 				DebugInformationFormat="3"
 				BufferSecurityCheck="FALSE"
-				PreprocessorDefinitions="NDEBUG;_LIB;_WINDOWS;WIN32"
+				PreprocessorDefinitions="NDEBUG;_LIB;_WINDOWS;_CRT_SECURE_NO_DEPRECATE;_CRT_NONSTDC_NO_DEPRECATE;WIN32"
 				OptimizeForProcessor="1"
 				ExceptionHandling="0"
 				AdditionalOptions=" "
@@ -63,7 +63,7 @@
 				SuppressStartupBanner="TRUE"/>
 			<Tool
 				Name="VCMIDLTool"
-				PreprocessorDefinitions="NDEBUG;_LIB;_WINDOWS"
+				PreprocessorDefinitions="NDEBUG;_LIB;_WINDOWS;_CRT_SECURE_NO_DEPRECATE;_CRT_NONSTDC_NO_DEPRECATE"
 				MkTypLibCompatible="TRUE"
 				SuppressStartupBanner="TRUE"
 				TargetEnvironment="1"
@@ -76,7 +76,7 @@
 				Name="VCPreLinkEventTool"/>
 			<Tool
 				Name="VCResourceCompilerTool"
-				PreprocessorDefinitions="NDEBUG;_LIB;_WINDOWS;PROJECTGEN_VERSION=71"
+				PreprocessorDefinitions="NDEBUG;_LIB;_WINDOWS;_CRT_SECURE_NO_DEPRECATE;_CRT_NONSTDC_NO_DEPRECATE;PROJECTGEN_VERSION=71"
 				AdditionalIncludeDirectories=".;..\..;..\..\src;..\..\Extras\GIMPACT\include"
 				Culture="1033"/>
 			<Tool
@@ -93,7 +93,7 @@
 			ATLMinimizesCRunTimeLibraryUsage="FALSE">
 			<Tool
 				Name="VCCLCompilerTool"
-				PreprocessorDefinitions="NDEBUG;BT_USE_DOUBLE_PRECISION;_LIB;_WINDOWS;WIN32"
+				PreprocessorDefinitions="NDEBUG;BT_USE_DOUBLE_PRECISION;_LIB;_WINDOWS;_CRT_SECURE_NO_DEPRECATE;_CRT_NONSTDC_NO_DEPRECATE;WIN32"
 				OptimizeForProcessor="1"
 				ExceptionHandling="0"
 				AdditionalOptions=" "
@@ -124,7 +124,7 @@
 				SuppressStartupBanner="TRUE"/>
 			<Tool
 				Name="VCMIDLTool"
-				PreprocessorDefinitions="NDEBUG;BT_USE_DOUBLE_PRECISION;_LIB;_WINDOWS"
+				PreprocessorDefinitions="NDEBUG;BT_USE_DOUBLE_PRECISION;_LIB;_WINDOWS;_CRT_SECURE_NO_DEPRECATE;_CRT_NONSTDC_NO_DEPRECATE"
 				MkTypLibCompatible="TRUE"
 				SuppressStartupBanner="TRUE"
 				TargetEnvironment="1"
@@ -137,7 +137,7 @@
 				Name="VCPreLinkEventTool"/>
 			<Tool
 				Name="VCResourceCompilerTool"
-				PreprocessorDefinitions="NDEBUG;BT_USE_DOUBLE_PRECISION;_LIB;_WINDOWS;PROJECTGEN_VERSION=71"
+				PreprocessorDefinitions="NDEBUG;BT_USE_DOUBLE_PRECISION;_LIB;_WINDOWS;_CRT_SECURE_NO_DEPRECATE;_CRT_NONSTDC_NO_DEPRECATE;PROJECTGEN_VERSION=71"
 				AdditionalIncludeDirectories=".;..\..;..\..\src;..\..\Extras\GIMPACT\include"
 				Culture="1033"/>
 			<Tool
@@ -159,7 +159,7 @@
 				DebugInformationFormat="4"
 				RuntimeTypeInfo="FALSE"
 				RuntimeLibrary="1"
-				PreprocessorDefinitions="_DEBUG;_LIB;_WINDOWS;WIN32"
+				PreprocessorDefinitions="_DEBUG;_LIB;_WINDOWS;_CRT_SECURE_NO_DEPRECATE;_CRT_NONSTDC_NO_DEPRECATE;WIN32"
 				OptimizeForProcessor="1"
 				ExceptionHandling="0"
 				AdditionalOptions=" "
@@ -194,7 +194,7 @@
 				SuppressStartupBanner="TRUE"/>
 			<Tool
 				Name="VCMIDLTool"
-				PreprocessorDefinitions="_DEBUG;_LIB;_WINDOWS"
+				PreprocessorDefinitions="_DEBUG;_LIB;_WINDOWS;_CRT_SECURE_NO_DEPRECATE;_CRT_NONSTDC_NO_DEPRECATE"
 				MkTypLibCompatible="TRUE"
 				SuppressStartupBanner="TRUE"
 				TargetEnvironment="1"
@@ -207,7 +207,7 @@
 				Name="VCPreLinkEventTool"/>
 			<Tool
 				Name="VCResourceCompilerTool"
-				PreprocessorDefinitions="_DEBUG;_LIB;_WINDOWS;PROJECTGEN_VERSION=71"
+				PreprocessorDefinitions="_DEBUG;_LIB;_WINDOWS;_CRT_SECURE_NO_DEPRECATE;_CRT_NONSTDC_NO_DEPRECATE;PROJECTGEN_VERSION=71"
 				AdditionalIncludeDirectories=".;..\..;..\..\src;..\..\Extras\GIMPACT\include"
 				Culture="1033"/>
 			<Tool
@@ -229,7 +229,7 @@
                                 DebugInformationFormat="4"
                                 RuntimeTypeInfo="FALSE"
                                 RuntimeLibrary="1"
-				PreprocessorDefinitions="_DEBUG;BT_USE_DOUBLE_PRECISION;_LIB;_WINDOWS;WIN32"
+				PreprocessorDefinitions="_DEBUG;BT_USE_DOUBLE_PRECISION;_LIB;_WINDOWS;_CRT_SECURE_NO_DEPRECATE;_CRT_NONSTDC_NO_DEPRECATE;WIN32"
 				OptimizeForProcessor="1"
 				ExceptionHandling="0"
 				AdditionalOptions=" "
@@ -260,7 +260,7 @@
 				SuppressStartupBanner="TRUE"/>
 			<Tool
 				Name="VCMIDLTool"
-				PreprocessorDefinitions="_DEBUG;BT_USE_DOUBLE_PRECISION;_LIB;_WINDOWS"
+				PreprocessorDefinitions="_DEBUG;BT_USE_DOUBLE_PRECISION;_LIB;_WINDOWS;_CRT_SECURE_NO_DEPRECATE;_CRT_NONSTDC_NO_DEPRECATE"
 				MkTypLibCompatible="TRUE"
 				SuppressStartupBanner="TRUE"
 				TargetEnvironment="1"
@@ -273,7 +273,7 @@
 				Name="VCPreLinkEventTool"/>
 			<Tool
 				Name="VCResourceCompilerTool"
-				PreprocessorDefinitions="_DEBUG;BT_USE_DOUBLE_PRECISION;_LIB;_WINDOWS;PROJECTGEN_VERSION=71"
+				PreprocessorDefinitions="_DEBUG;BT_USE_DOUBLE_PRECISION;_LIB;_WINDOWS;_CRT_SECURE_NO_DEPRECATE;_CRT_NONSTDC_NO_DEPRECATE;PROJECTGEN_VERSION=71"
 				AdditionalIncludeDirectories=".;..\..;..\..\src;..\..\Extras\GIMPACT\include"
 				Culture="1033"/>
 			<Tool

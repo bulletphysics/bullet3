@@ -4,6 +4,8 @@
 #include <cstdio>
 #include <cmath>
 
+
+
 #ifndef AND
 #define AND &&
 #define OR  ||

@@ -47,7 +47,7 @@ public:
 		BP_FP_INT_TYPE m_pos;			// low bit is min/max
 		BP_FP_INT_TYPE m_handle;
 
-		BP_FP_INT_TYPE IsMax() const {return m_pos & 1;}
+		BP_FP_INT_TYPE IsMax() const {return static_cast<BP_FP_INT_TYPE>(m_pos & 1);}
 	};
 
 public:
@@ -223,14 +223,14 @@ template <typename BP_FP_INT_TYPE>
 void	btAxisSweep3Internal<BP_FP_INT_TYPE>::destroyProxy(btBroadphaseProxy* proxy,btDispatcher* dispatcher)
 {
 	Handle* handle = static_cast<Handle*>(proxy);
-	removeHandle(handle->m_uniqueId,dispatcher);
+	removeHandle(static_cast<BP_FP_INT_TYPE>(handle->m_uniqueId), dispatcher);
 }
 
 template <typename BP_FP_INT_TYPE>
 void	btAxisSweep3Internal<BP_FP_INT_TYPE>::setAabb(btBroadphaseProxy* proxy,const btVector3& aabbMin,const btVector3& aabbMax,btDispatcher* dispatcher)
 {
 	Handle* handle = static_cast<Handle*>(proxy);
-	updateHandle(handle->m_uniqueId,aabbMin,aabbMax,dispatcher);
+	updateHandle(static_cast<BP_FP_INT_TYPE>(handle->m_uniqueId), aabbMin, aabbMax,dispatcher);
 
 }
 
@@ -247,7 +247,7 @@ m_userPairCallback(0),
 m_ownsPairCache(false),
 m_invalidPair(0)
 {
-	BP_FP_INT_TYPE maxHandles = userMaxHandles+1;//need to add one sentinel handle
+	BP_FP_INT_TYPE maxHandles = static_cast<BP_FP_INT_TYPE>(userMaxHandles+1);//need to add one sentinel handle
 
 	if (!m_pairCache)
 	{
@@ -278,7 +278,7 @@ m_invalidPair(0)
 	m_firstFreeHandle = 1;
 	{
 		for (BP_FP_INT_TYPE i = m_firstFreeHandle; i < maxHandles; i++)
-			m_pHandles[i].SetNextFree(i + 1);
+			m_pHandles[i].SetNextFree(static_cast<BP_FP_INT_TYPE>(i + 1));
 		m_pHandles[maxHandles - 1].SetNextFree(0);
 	}
 
@@ -386,7 +386,7 @@ BP_FP_INT_TYPE btAxisSweep3Internal<BP_FP_INT_TYPE>::addHandle(const btPoint3& a
 
 	Handle* pHandle = getHandle(handle);
 	
-	pHandle->m_uniqueId = handle;
+	pHandle->m_uniqueId = static_cast<int>(handle);
 	//pHandle->m_pOverlaps = 0;
 	pHandle->m_clientObject = pOwner;
 	pHandle->m_collisionFilterGroup = collisionFilterGroup;
@@ -394,7 +394,7 @@ BP_FP_INT_TYPE btAxisSweep3Internal<BP_FP_INT_TYPE>::addHandle(const btPoint3& a
 	pHandle->m_multiSapParentProxy = multiSapProxy;
 
 	// compute current limit of edge arrays
-	BP_FP_INT_TYPE limit = m_numHandles * 2;
+	BP_FP_INT_TYPE limit = static_cast<BP_FP_INT_TYPE>(m_numHandles * 2);
 
 	
 	// insert new edges just inside the max boundary edge
@@ -411,7 +411,7 @@ BP_FP_INT_TYPE btAxisSweep3Internal<BP_FP_INT_TYPE>::addHandle(const btPoint3& a
 		m_pEdges[axis][limit].m_pos = max[axis];
 		m_pEdges[axis][limit].m_handle = handle;
 
-		pHandle->m_minEdges[axis] = limit - 1;
+		pHandle->m_minEdges[axis] = static_cast<BP_FP_INT_TYPE>(limit - 1);
 		pHandle->m_maxEdges[axis] = limit;
 	}
 
@@ -443,7 +443,7 @@ void btAxisSweep3Internal<BP_FP_INT_TYPE>::removeHandle(BP_FP_INT_TYPE handle,bt
 	}
 
 	// compute current limit of edge arrays
-	int limit = m_numHandles * 2;
+	int limit = static_cast<int>(m_numHandles * 2);
 	
 	int axis;
 
@@ -680,7 +680,7 @@ void btAxisSweep3Internal<BP_FP_INT_TYPE>::updateHandle(BP_FP_INT_TYPE handle, c
 
 // sorting a min edge downwards can only ever *add* overlaps
 template <typename BP_FP_INT_TYPE>
-void btAxisSweep3Internal<BP_FP_INT_TYPE>::sortMinDown(int axis, BP_FP_INT_TYPE edge, btDispatcher* dispatcher, bool updateOverlaps)
+void btAxisSweep3Internal<BP_FP_INT_TYPE>::sortMinDown(int axis, BP_FP_INT_TYPE edge, btDispatcher* /* dispatcher */, bool updateOverlaps)
 {
 
 	Edge* pEdge = m_pEdges[axis] + edge;
@@ -834,7 +834,7 @@ void btAxisSweep3Internal<BP_FP_INT_TYPE>::sortMaxDown(int axis, BP_FP_INT_TYPE 
 
 // sorting a max edge upwards can only ever *add* overlaps
 template <typename BP_FP_INT_TYPE>
-void btAxisSweep3Internal<BP_FP_INT_TYPE>::sortMaxUp(int axis, BP_FP_INT_TYPE edge, btDispatcher* dispatcher, bool updateOverlaps)
+void btAxisSweep3Internal<BP_FP_INT_TYPE>::sortMaxUp(int axis, BP_FP_INT_TYPE edge, btDispatcher* /* dispatcher */, bool updateOverlaps)
 {
 	Edge* pEdge = m_pEdges[axis] + edge;
 	Edge* pNext = pEdge + 1;

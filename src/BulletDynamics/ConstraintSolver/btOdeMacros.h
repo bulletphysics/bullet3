@@ -69,14 +69,14 @@ inline btScalar dDOT1 (const btScalar *a, const btScalar *b)
  */
 
 #define dCROSSMAT(A,a,skip,plus,minus) \
-do { \
+{ \
   (A)[1] = minus (a)[2]; \
   (A)[2] = plus (a)[1]; \
   (A)[(skip)+0] = plus (a)[2]; \
   (A)[(skip)+2] = minus (a)[0]; \
   (A)[2*(skip)+0] = minus (a)[1]; \
   (A)[2*(skip)+1] = plus (a)[0]; \
-} while(0)
+} 
 
 
 #define dMULTIPLYOP2_333(A,op,B,C) \
@@ -130,9 +130,9 @@ typedef btScalar *dRealMutablePtr;
 
 //#define dRealAllocaArray(name,size) btScalar *name = (btScalar*) stackAlloc->allocate(dEFFICIENT_SIZE(size)*sizeof(btScalar));
 #define dRealAllocaArray(name,size) btScalar *name = NULL; \
-	int memNeeded_##name = dEFFICIENT_SIZE(size)*sizeof(btScalar); \
-	if (memNeeded_##name < stackAlloc->getAvailableMemory()) name = (btScalar*) stackAlloc->allocate(memNeeded_##name); \
-	else{ btAssert(memNeeded_##name < stackAlloc->getAvailableMemory()); name = (btScalar*) alloca(memNeeded_##name); } 
+	unsigned int  memNeeded_##name = dEFFICIENT_SIZE(size)*sizeof(btScalar); \
+	if (memNeeded_##name < static_cast<std::size_t>(stackAlloc->getAvailableMemory())) name = (btScalar*) stackAlloc->allocate(memNeeded_##name); \
+	else{ btAssert(memNeeded_##name < static_cast<std::size_t>(stackAlloc->getAvailableMemory())); name = (btScalar*) alloca(memNeeded_##name); } 
 
 
 

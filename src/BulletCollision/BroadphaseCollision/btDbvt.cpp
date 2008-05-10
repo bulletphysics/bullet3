@@ -279,7 +279,7 @@ static btDbvt::Node*			topdown(btDbvt* pdbvt,
 			{
 				if((splitcount[i][0]>0)&&(splitcount[i][1]>0))
 				{
-					const int	midp=btFabs(splitcount[i][0]-splitcount[i][1]);
+					const int	midp=static_cast<int>(btFabs(static_cast<btScalar>(splitcount[i][0]-splitcount[i][1])));
 					if(midp<bestmidp)
 					{
 						bestaxis=i;

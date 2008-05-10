@@ -205,7 +205,7 @@ private:
 	
 	SIMD_FORCE_INLINE	unsigned int getHash(unsigned int proxyId1, unsigned int proxyId2)
 	{
-		int key = ((unsigned int)proxyId1) | (((unsigned int)proxyId2) <<16);
+		int key = static_cast<int>(((unsigned int)proxyId1) | (((unsigned int)proxyId2) <<16));
 		// Thomas Wang's hash
 
 		key += ~(key << 15);
@@ -214,7 +214,7 @@ private:
 		key ^=  (key >> 6);
 		key += ~(key << 11);
 		key ^=  (key >> 16);
-		return key;
+		return static_cast<unsigned int>(key);
 	}
 	
 
@@ -380,7 +380,7 @@ public:
 		return m_overlappingPairArray;
 	}
 	
-	virtual	void	cleanOverlappingPair(btBroadphasePair& pair,btDispatcher* dispatcher)
+	virtual	void	cleanOverlappingPair(btBroadphasePair& /*pair*/,btDispatcher* /*dispatcher*/)
 	{
 
 	}
@@ -390,20 +390,20 @@ public:
 		return 0;
 	}
 
-	virtual void	cleanProxyFromPairs(btBroadphaseProxy* proxy,btDispatcher* dispatcher)
+	virtual void	cleanProxyFromPairs(btBroadphaseProxy* /*proxy*/,btDispatcher* /*dispatcher*/)
 	{
 
 	}
 
-	virtual	void setOverlapFilterCallback(btOverlapFilterCallback* callback)
+	virtual	void setOverlapFilterCallback(btOverlapFilterCallback* /*callback*/)
 	{
 	}
 
-	virtual void	processAllOverlappingPairs(btOverlapCallback*,btDispatcher* dispatcher)
+	virtual void	processAllOverlappingPairs(btOverlapCallback*,btDispatcher* /*dispatcher*/)
 	{
 	}
 
-	virtual btBroadphasePair* findPair(btBroadphaseProxy* proxy0, btBroadphaseProxy* proxy1)
+	virtual btBroadphasePair* findPair(btBroadphaseProxy* /*proxy0*/, btBroadphaseProxy* /*proxy1*/)
 	{
 		return 0;
 	}
@@ -413,17 +413,17 @@ public:
 		return true;
 	}
 
-	virtual btBroadphasePair*	addOverlappingPair(btBroadphaseProxy* proxy0,btBroadphaseProxy* proxy1)
+	virtual btBroadphasePair*	addOverlappingPair(btBroadphaseProxy* /*proxy0*/,btBroadphaseProxy* /*proxy1*/)
 	{
 		return 0;
 	}
 
-	virtual void*	removeOverlappingPair(btBroadphaseProxy* proxy0,btBroadphaseProxy* proxy1,btDispatcher* dispatcher)
+	virtual void*	removeOverlappingPair(btBroadphaseProxy* /*proxy0*/,btBroadphaseProxy* /*proxy1*/,btDispatcher* /*dispatcher*/)
 	{
 		return 0;
 	}
 
-	virtual void	removeOverlappingPairsContainingProxy(btBroadphaseProxy* proxy0,btDispatcher* dispatcher)
+	virtual void	removeOverlappingPairsContainingProxy(btBroadphaseProxy* /*proxy0*/,btDispatcher* /*dispatcher*/)
 	{
 	}
 
@@ -432,6 +432,5 @@ public:
 
 
 #endif //OVERLAPPING_PAIR_CACHE_H
-
 
 

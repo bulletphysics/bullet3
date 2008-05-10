@@ -21,7 +21,12 @@ subject to the following restrictions:
   can be used by probes that are checking whether the
   library is actually installed.
 */
-extern "C" void btBulletCollisionProbe () {}
+extern "C" 
+{
+void btBulletCollisionProbe ();
+
+void btBulletCollisionProbe () {}
+}
 
 
 

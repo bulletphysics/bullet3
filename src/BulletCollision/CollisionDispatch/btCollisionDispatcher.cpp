@@ -280,7 +280,7 @@ void* btCollisionDispatcher::allocateCollisionAlgorithm(int size)
 	}
 	
 	//warn user for overflow?
-	return	btAlignedAlloc(size,16);
+	return	btAlignedAlloc(static_cast<std::size_t>(size), 16);
 }
 
 void btCollisionDispatcher::freeCollisionAlgorithm(void* ptr)

@@ -92,6 +92,7 @@ static inline btScalar		tetravolume(const btVector3& x0,
 }
 
 //
+/*
 static btVector3		stresscolor(btScalar stress)
 {
 	static const btVector3	spectrum[]=	{	btVector3(1,0,1),
@@ -108,7 +109,7 @@ static btVector3		stresscolor(btScalar stress)
 	const btScalar			frc=stress-sel;
 	return(spectrum[sel]+(spectrum[sel+1]-spectrum[sel])*frc);
 }
-
+*/
 //
 void			btSoftBodyHelpers::Draw(	btSoftBody* psb,
 										btIDebugDraw* idraw,
@@ -252,6 +253,7 @@ void			btSoftBodyHelpers::Draw(	btSoftBody* psb,
 	}
 }
 
+#if 0
 //
 void			btSoftBodyHelpers::DrawInfos(		btSoftBody* psb,
 											 btIDebugDraw* idraw,
@@ -277,6 +279,7 @@ void			btSoftBodyHelpers::DrawInfos(		btSoftBody* psb,
 		if(text[0]) idraw->draw3dText(n.m_x,text);
 	}
 }
+#endif
 
 //
 void			btSoftBodyHelpers::DrawNodeTree(	btSoftBody* psb,
@@ -501,18 +504,18 @@ btSoftBody*		btSoftBodyHelpers::CreateFromTriMesh(btSoftBody::btSoftBodyWorldInf
 btSoftBody*		btSoftBodyHelpers::CreateFromConvexHull(btSoftBody::btSoftBodyWorldInfo& worldInfo,	const btVector3* vertices,
 														int nvertices)
 {
-	HullDesc		hdsc(QF_TRIANGLES,nvertices,vertices);
+	HullDesc		hdsc(QF_TRIANGLES,static_cast<unsigned int>(nvertices),vertices);
 	HullResult		hres;
 	HullLibrary		hlib;/*??*/ 
-	hdsc.mMaxVertices=nvertices;
+	hdsc.mMaxVertices=static_cast<unsigned int>(nvertices);
 	hlib.CreateConvexHull(hdsc,hres);
 	btSoftBody*		psb=new btSoftBody(&worldInfo,(int)hres.mNumOutputVertices,
 		&hres.m_OutputVertices[0],0);
 	for(int i=0;i<(int)hres.mNumFaces;++i)
 	{
-		const int idx[]={	hres.m_Indices[i*3+0],
-			hres.m_Indices[i*3+1],
-			hres.m_Indices[i*3+2]};
+		const int idx[]={	static_cast<int>(hres.m_Indices[i*3+0]),
+			static_cast<int>(hres.m_Indices[i*3+1]),
+			static_cast<int>(hres.m_Indices[i*3+2])};
 		if(idx[0]<idx[1]) psb->appendLink(	idx[0],idx[1]);
 		if(idx[1]<idx[2]) psb->appendLink(	idx[1],idx[2]);
 		if(idx[2]<idx[0]) psb->appendLink(	idx[2],idx[0]);

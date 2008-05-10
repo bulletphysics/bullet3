@@ -120,35 +120,41 @@ void	btAlignedFreeInternal	(void* ptr)
 
 #else
 
-void*	btAlignedAllocInternal	(size_t size, int alignment)
-{
- void *ret;
-  char *real;
-  unsigned long offset;
- 
-  gNumAlignedAllocs++;
+void*	btAlignedAllocInternal	(std::size_t size, int alignment);
 
-  real = (char *)malloc(size + sizeof(void *) + (alignment-1));
-  if (real) {
-    offset = (alignment - (unsigned long)(real + sizeof(void *))) & (alignment-1);
-    ret = (void *)((real + sizeof(void *)) + offset);
-    *((void **)(ret)-1) = (void *)(real);
-  } else {
-    ret = (void *)(real);
-  }
-  return (ret);
+void*	btAlignedAllocInternal	(std::size_t size, int alignment)
+{
+	void *ret;
+	char *real;
+	unsigned long offset;
+
+	gNumAlignedAllocs++;
+
+	real = (char*) malloc(size + sizeof(void *) + (alignment-1));
+	if (real != 0) 
+	{
+		offset = (alignment - (unsigned long)(real + sizeof(void *))) & (alignment-1);
+		ret = (void *)((real + sizeof(void *)) + offset);
+		*((void **)(ret)-1) = (void *)(real);
+	} 
+	else 
+	{
+		ret = (void *)(real);
+	}
+	return (ret);
 }
 
 void	btAlignedFreeInternal	(void* ptr)
 {
+	void* real;
+	gNumAlignedFree++;
 
- void* real;
- gNumAlignedFree++;
-
-  if (ptr) {
-    real = *((void **)(ptr)-1);
-    free(real);
-  }
+	if (ptr != 0) 
+	{
+		real = *((void **)(ptr)-1);
+		//::operator delete(real);
+		free(real);
+	}
 }
 #endif //
 

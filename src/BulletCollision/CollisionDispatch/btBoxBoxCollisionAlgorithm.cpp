@@ -78,7 +78,7 @@ void btBoxBoxCollisionAlgorithm::processCollision (btCollisionObject* body0,btCo
 
 }
 
-btScalar btBoxBoxCollisionAlgorithm::calculateTimeOfImpact(btCollisionObject* body0,btCollisionObject* body1,const btDispatcherInfo& dispatchInfo,btManifoldResult* resultOut)
+btScalar btBoxBoxCollisionAlgorithm::calculateTimeOfImpact(btCollisionObject* /*body0*/,btCollisionObject* /*body1*/,const btDispatcherInfo& /*dispatchInfo*/,btManifoldResult* /*resultOut*/)
 {
 	//not yet
 	return 1.f;

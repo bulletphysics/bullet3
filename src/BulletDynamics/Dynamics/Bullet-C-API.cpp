@@ -231,6 +231,7 @@ void plSetEuler(plReal yaw,plReal pitch,plReal roll, plQuaternion orient)
 void		plAddVertex(plCollisionShapeHandle cshape, plReal x,plReal y,plReal z)
 {
 	btCollisionShape* colShape = reinterpret_cast<btCollisionShape*>( cshape);
+	(void)colShape;
 	btAssert(colShape->getShapeType()==CONVEX_HULL_SHAPE_PROXYTYPE);
 	btConvexHullShape* convexHullShape = reinterpret_cast<btConvexHullShape*>( cshape);
 	convexHullShape->addPoint(btPoint3(x,y,z));

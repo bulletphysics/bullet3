@@ -142,7 +142,7 @@ struct	btSparseSdf
 		const IntFrac	iy=Decompose(scx.y());
 		const IntFrac	iz=Decompose(scx.z());
 		const unsigned	h=Hash(ix.b,iy.b,iz.b,shape);
-		Cell*&			root=cells[h%cells.size()];
+		Cell*&			root=cells[static_cast<int>(h%cells.size())];
 		Cell*			c=root;
 		++nqueries;
 		while(c)

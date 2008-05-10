@@ -28,7 +28,7 @@
 				RuntimeLibrary="0"
 				DebugInformationFormat="3"
 				BufferSecurityCheck="FALSE"
-				PreprocessorDefinitions="NDEBUG;_CONSOLE;WIN32"
+				PreprocessorDefinitions="NDEBUG;_CONSOLE;_CRT_SECURE_NO_DEPRECATE;_CRT_NONSTDC_NO_DEPRECATE;WIN32"
 				OptimizeForProcessor="1"
 				ExceptionHandling="0"
 				AdditionalOptions=" "
@@ -66,7 +66,7 @@
 				SuppressStartupBanner="TRUE"/>
 			<Tool
 				Name="VCMIDLTool"
-				PreprocessorDefinitions="NDEBUG;_CONSOLE"
+				PreprocessorDefinitions="NDEBUG;_CONSOLE;_CRT_SECURE_NO_DEPRECATE;_CRT_NONSTDC_NO_DEPRECATE"
 				MkTypLibCompatible="TRUE"
 				SuppressStartupBanner="TRUE"
 				TargetEnvironment="1"
@@ -79,7 +79,7 @@
 				Name="VCPreLinkEventTool"/>
 			<Tool
 				Name="VCResourceCompilerTool"
-				PreprocessorDefinitions="NDEBUG;_CONSOLE;PROJECTGEN_VERSION=71"
+				PreprocessorDefinitions="NDEBUG;_CONSOLE;_CRT_SECURE_NO_DEPRECATE;_CRT_NONSTDC_NO_DEPRECATE;PROJECTGEN_VERSION=71"
 				AdditionalIncludeDirectories=".;..\..;..\..\src;..\..\Glut;..\..\Extras;..\..\Extras\ConvexHull;..\..\Demos\OpenGL;..\..\Extras\ConvexDecomposition;..\..\Extras\GIMPACT\include;..\..\Extras\GIMPACTUtils"
 				Culture="1033"/>
 			<Tool
@@ -97,7 +97,7 @@
 			ATLMinimizesCRunTimeLibraryUsage="FALSE">
 			<Tool
 				Name="VCCLCompilerTool"
-				PreprocessorDefinitions="NDEBUG;BT_USE_DOUBLE_PRECISION;_CONSOLE;WIN32"
+				PreprocessorDefinitions="NDEBUG;BT_USE_DOUBLE_PRECISION;_CONSOLE;_CRT_SECURE_NO_DEPRECATE;_CRT_NONSTDC_NO_DEPRECATE;WIN32"
 				OptimizeForProcessor="1"
 				ExceptionHandling="0"
 				AdditionalOptions=" "
@@ -130,7 +130,7 @@
 				SuppressStartupBanner="TRUE"/>
 			<Tool
 				Name="VCMIDLTool"
-				PreprocessorDefinitions="NDEBUG;BT_USE_DOUBLE_PRECISION;_CONSOLE"
+				PreprocessorDefinitions="NDEBUG;BT_USE_DOUBLE_PRECISION;_CONSOLE;_CRT_SECURE_NO_DEPRECATE;_CRT_NONSTDC_NO_DEPRECATE"
 				MkTypLibCompatible="TRUE"
 				SuppressStartupBanner="TRUE"
 				TargetEnvironment="1"
@@ -143,7 +143,7 @@
 				Name="VCPreLinkEventTool"/>
 			<Tool
 				Name="VCResourceCompilerTool"
-				PreprocessorDefinitions="NDEBUG;BT_USE_DOUBLE_PRECISION;_CONSOLE;PROJECTGEN_VERSION=71"
+				PreprocessorDefinitions="NDEBUG;BT_USE_DOUBLE_PRECISION;_CONSOLE;_CRT_SECURE_NO_DEPRECATE;_CRT_NONSTDC_NO_DEPRECATE;PROJECTGEN_VERSION=71"
 				AdditionalIncludeDirectories=".;..\..;..\..\src;..\..\Glut;..\..\Extras;..\..\Extras\ConvexHull;..\..\Demos\OpenGL;..\..\Extras\ConvexDecomposition;..\..\Extras\GIMPACT\include;..\..\Extras\GIMPACTUtils"
 				Culture="1033"/>
 			<Tool
@@ -166,7 +166,7 @@
 				DebugInformationFormat="4"
 				RuntimeTypeInfo="FALSE"
 				RuntimeLibrary="1"
-				PreprocessorDefinitions="_DEBUG;_CONSOLE;WIN32"
+				PreprocessorDefinitions="_DEBUG;_CONSOLE;_CRT_SECURE_NO_DEPRECATE;_CRT_NONSTDC_NO_DEPRECATE;WIN32"
 				OptimizeForProcessor="1"
 				ExceptionHandling="0"
 				AdditionalOptions=" "
@@ -202,7 +202,7 @@
 				SuppressStartupBanner="TRUE"/>
 			<Tool
 				Name="VCMIDLTool"
-				PreprocessorDefinitions="_DEBUG;_CONSOLE"
+				PreprocessorDefinitions="_DEBUG;_CONSOLE;_CRT_SECURE_NO_DEPRECATE;_CRT_NONSTDC_NO_DEPRECATE"
 				MkTypLibCompatible="TRUE"
 				SuppressStartupBanner="TRUE"
 				TargetEnvironment="1"
@@ -215,7 +215,7 @@
 				Name="VCPreLinkEventTool"/>
 			<Tool
 				Name="VCResourceCompilerTool"
-				PreprocessorDefinitions="_DEBUG;_CONSOLE;PROJECTGEN_VERSION=71"
+				PreprocessorDefinitions="_DEBUG;_CONSOLE;_CRT_SECURE_NO_DEPRECATE;_CRT_NONSTDC_NO_DEPRECATE;PROJECTGEN_VERSION=71"
 				AdditionalIncludeDirectories=".;..\..;..\..\src;..\..\Glut;..\..\Extras;..\..\Extras\ConvexHull;..\..\Demos\OpenGL;..\..\Extras\ConvexDecomposition;..\..\Extras\GIMPACT\include;..\..\Extras\GIMPACTUtils"
 				Culture="1033"/>
 			<Tool
@@ -238,7 +238,7 @@
                                 DebugInformationFormat="4"
                                 RuntimeTypeInfo="FALSE"
                                 RuntimeLibrary="1"
-				PreprocessorDefinitions="_DEBUG;BT_USE_DOUBLE_PRECISION;_CONSOLE;WIN32"
+				PreprocessorDefinitions="_DEBUG;BT_USE_DOUBLE_PRECISION;_CONSOLE;_CRT_SECURE_NO_DEPRECATE;_CRT_NONSTDC_NO_DEPRECATE;WIN32"
 				OptimizeForProcessor="1"
 				ExceptionHandling="0"
 				AdditionalOptions=" "
@@ -271,7 +271,7 @@
 				SuppressStartupBanner="TRUE"/>
 			<Tool
 				Name="VCMIDLTool"
-				PreprocessorDefinitions="_DEBUG;BT_USE_DOUBLE_PRECISION;_CONSOLE"
+				PreprocessorDefinitions="_DEBUG;BT_USE_DOUBLE_PRECISION;_CONSOLE;_CRT_SECURE_NO_DEPRECATE;_CRT_NONSTDC_NO_DEPRECATE"
 				MkTypLibCompatible="TRUE"
 				SuppressStartupBanner="TRUE"
 				TargetEnvironment="1"
@@ -284,7 +284,7 @@
 				Name="VCPreLinkEventTool"/>
 			<Tool
 				Name="VCResourceCompilerTool"
-				PreprocessorDefinitions="_DEBUG;BT_USE_DOUBLE_PRECISION;_CONSOLE;PROJECTGEN_VERSION=71"
+				PreprocessorDefinitions="_DEBUG;BT_USE_DOUBLE_PRECISION;_CONSOLE;_CRT_SECURE_NO_DEPRECATE;_CRT_NONSTDC_NO_DEPRECATE;PROJECTGEN_VERSION=71"
 				AdditionalIncludeDirectories=".;..\..;..\..\src;..\..\Glut;..\..\Extras;..\..\Extras\ConvexHull;..\..\Demos\OpenGL;..\..\Extras\ConvexDecomposition;..\..\Extras\GIMPACT\include;..\..\Extras\GIMPACTUtils"
 				Culture="1033"/>
 			<Tool

@@ -182,7 +182,7 @@ void	btHeightfieldTerrainShape::getVertex(int x,int y,btVector3& vertex) const
 }
 
 
-void btHeightfieldTerrainShape::quantizeWithClamp(int* out, const btVector3& point,int isMax) const
+void btHeightfieldTerrainShape::quantizeWithClamp(int* out, const btVector3& point,int /*isMax*/) const
 {
 	btVector3 clampedPoint(point);
 	clampedPoint.setMax(m_localAabbMin);

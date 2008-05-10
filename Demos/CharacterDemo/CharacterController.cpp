@@ -153,7 +153,7 @@ void CharacterController::playerStep (btScalar dt,
 	if (!forward && !backward && onGround())
 	{
 		/* Dampen when on the ground and not being moved by the player */
-		linearVelocity *= 0.2;
+		linearVelocity *= btScalar(0.2);
 		m_rigidBody->setLinearVelocity (linearVelocity);
 	} else {
 		if (speed < m_maxLinearVelocity)

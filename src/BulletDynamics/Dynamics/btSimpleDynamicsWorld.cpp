@@ -27,7 +27,11 @@ subject to the following restrictions:
   can be used by probes that are checking whether the
   library is actually installed.
 */
-extern "C" void btBulletDynamicsProbe () {}
+extern "C" 
+{
+	void btBulletDynamicsProbe ();
+	void btBulletDynamicsProbe () {}
+}
 
 
 

@@ -53,13 +53,16 @@ class btDynamicsWorld : public btCollisionWorld
 			
 		virtual void	debugDrawWorld() = 0;
 				
-		virtual void	addConstraint(btTypedConstraint* constraint, bool disableCollisionsBetweenLinkedBodies=false) { (void)constraint;};
+		virtual void	addConstraint(btTypedConstraint* constraint, bool disableCollisionsBetweenLinkedBodies=false) 
+		{ 
+			(void)constraint; (void)disableCollisionsBetweenLinkedBodies;
+		}
 
-		virtual void	removeConstraint(btTypedConstraint* constraint) {(void)constraint;};
+		virtual void	removeConstraint(btTypedConstraint* constraint) {(void)constraint;}
 
-		virtual void	addVehicle(btRaycastVehicle* vehicle) {(void)vehicle;};
+		virtual void	addVehicle(btRaycastVehicle* vehicle) {(void)vehicle;}
 
-		virtual void	removeVehicle(btRaycastVehicle* vehicle) {(void)vehicle;};
+		virtual void	removeVehicle(btRaycastVehicle* vehicle) {(void)vehicle;}
 
 		//once a rigidbody is added to the dynamics world, it will get this gravity assigned
 		//existing rigidbodies in the world get gravity assigned too, during this method

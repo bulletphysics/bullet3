@@ -35,7 +35,7 @@ void*	btAlignedAllocInternal	(size_t size, int alignment,int line,char* filename
 void	btAlignedFreeInternal	(void* ptr,int line,char* filename);
 
 #else
-	void*	btAlignedAllocInternal	(size_t size, int alignment);
+void*	btAlignedAllocInternal	(std::size_t size, int alignment);
 	void	btAlignedFreeInternal	(void* ptr);
 
 	#define btAlignedAlloc(a,b) btAlignedAllocInternal(a,b)

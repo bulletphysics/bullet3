@@ -63,23 +63,27 @@ static btScalar dDOT44 (const btScalar *a, const btScalar *b) { return dDOTpq(a,
 static btScalar dDOT41 (const btScalar *a, const btScalar *b) { return dDOTpq(a,b,4,1); }
 static btScalar dDOT14 (const btScalar *a, const btScalar *b) { return dDOTpq(a,b,1,4); }
 #define dMULTIPLYOP1_331(A,op,B,C) \
-do { \
+{\
   (A)[0] op dDOT41((B),(C)); \
   (A)[1] op dDOT41((B+1),(C)); \
   (A)[2] op dDOT41((B+2),(C)); \
-} while(0)
+}
+
 #define dMULTIPLYOP0_331(A,op,B,C) \
-do { \
+{ \
   (A)[0] op dDOT((B),(C)); \
   (A)[1] op dDOT((B+4),(C)); \
   (A)[2] op dDOT((B+8),(C)); \
-} while(0)
+} 
 
 #define dMULTIPLY1_331(A,B,C) dMULTIPLYOP1_331(A,=,B,C)
 #define dMULTIPLY0_331(A,B,C) dMULTIPLYOP0_331(A,=,B,C)
 
 typedef btScalar dMatrix3[4*3];
 
+void dLineClosestApproach (const btVector3& pa, const btVector3& ua,
+			   const btVector3& pb, const btVector3& ub,
+			   btScalar *alpha, btScalar *beta);
 void dLineClosestApproach (const btVector3& pa, const btVector3& ua,
 			   const btVector3& pb, const btVector3& ub,
 			   btScalar *alpha, btScalar *beta)
@@ -118,7 +122,7 @@ static int intersectRectQuad2 (btScalar h[2], btScalar p[8], btScalar ret[16])
 {
   // q (and r) contain nq (and nr) coordinate points for the current (and
   // chopped) polygons
-  int nq=4,nr;
+  int nq=4,nr=0;
   btScalar buffer[16];
   btScalar *q = p;
   btScalar *r = ret;
@@ -178,6 +182,7 @@ static int intersectRectQuad2 (btScalar h[2], btScalar p[8], btScalar ret[16])
 // n must be in the range [1..8]. m must be in the range [1..n]. i0 must be
 // in the range [0..n-1].
 
+void cullPoints2 (int n, btScalar p[], int m, int i0, int iret[]);
 void cullPoints2 (int n, btScalar p[], int m, int i0, int iret[])
 {
   // compute the centroid of the polygon in cx,cy
@@ -244,12 +249,16 @@ void cullPoints2 (int n, btScalar p[], int m, int i0, int iret[])
 
 
 
-
 int dBoxBox2 (const btVector3& p1, const dMatrix3 R1,
 	     const btVector3& side1, const btVector3& p2,
 	     const dMatrix3 R2, const btVector3& side2,
 	     btVector3& normal, btScalar *depth, int *return_code,
-		 int maxc, dContactGeom *contact, int skip,btDiscreteCollisionDetectorInterface::Result& output)
+		 int maxc, dContactGeom * /*contact*/, int /*skip*/,btDiscreteCollisionDetectorInterface::Result& output);
+int dBoxBox2 (const btVector3& p1, const dMatrix3 R1,
+	     const btVector3& side1, const btVector3& p2,
+	     const dMatrix3 R2, const btVector3& side2,
+	     btVector3& normal, btScalar *depth, int *return_code,
+		 int maxc, dContactGeom * /*contact*/, int /*skip*/,btDiscreteCollisionDetectorInterface::Result& output)
 {
   const btScalar fudge_factor = btScalar(1.05);
   btVector3 p,pp,normalC;
@@ -626,7 +635,7 @@ int dBoxBox2 (const btVector3& p1, const dMatrix3 R1,
   return cnum;
 }
 
-void	btBoxBoxDetector::getClosestPoints(const ClosestPointInput& input,Result& output,class btIDebugDraw* debugDraw)
+void	btBoxBoxDetector::getClosestPoints(const ClosestPointInput& input,Result& output,class btIDebugDraw* /*debugDraw*/)
 {
 	
 	const btTransform& transformA = input.m_transformA;

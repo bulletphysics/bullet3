@@ -61,7 +61,7 @@ public:
 
 	int	getAvailableMemory() const
 	{
-		return totalsize - usedsize;
+		return static_cast<int>(totalsize - usedsize);
 	}
 
 	unsigned char*			allocate(unsigned int size)

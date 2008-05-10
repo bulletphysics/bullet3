@@ -21,6 +21,7 @@ subject to the following restrictions:
 
 
 
+
 #define NUM_UNITSPHERE_POINTS 42
 static btVector3	sPenetrationDirections[NUM_UNITSPHERE_POINTS+MAX_PREFERRED_PENETRATION_DIRECTIONS*2] = 
 {

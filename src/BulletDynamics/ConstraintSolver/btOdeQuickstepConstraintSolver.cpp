@@ -66,7 +66,7 @@ btOdeQuickstepConstraintSolver::btOdeQuickstepConstraintSolver():
 
 
 //iterative lcp and penalty method
-btScalar btOdeQuickstepConstraintSolver::solveGroup(btCollisionObject** bodies,int numBulletBodies,btPersistentManifold** manifoldPtr, int numManifolds,btTypedConstraint** constraints,int numConstraints,const btContactSolverInfo& infoGlobal,btIDebugDraw* debugDrawer,btStackAlloc* stackAlloc,btDispatcher* dispatcher)
+btScalar btOdeQuickstepConstraintSolver::solveGroup(btCollisionObject** /*bodies*/,int numBulletBodies,btPersistentManifold** manifoldPtr, int numManifolds,btTypedConstraint** constraints,int numConstraints,const btContactSolverInfo& infoGlobal,btIDebugDraw* debugDrawer,btStackAlloc* stackAlloc,btDispatcher* /*dispatcher*/)
 {
 
     m_CurBody = 0;
@@ -155,6 +155,7 @@ btScalar btOdeQuickstepConstraintSolver::solveGroup(btCollisionObject** bodies,i
 typedef btScalar dQuaternion[4];
 #define _R(i,j) R[(i)*4+(j)]
 
+void dRfromQ1 (dMatrix3 R, const dQuaternion q);
 void dRfromQ1 (dMatrix3 R, const dQuaternion q)
 {
     // q = (s,vx,vy,vz)
@@ -339,7 +340,7 @@ void btOdeQuickstepConstraintSolver::ConvertConstraint(btPersistentManifold* man
 void btOdeQuickstepConstraintSolver::ConvertTypedConstraint(
 					btTypedConstraint * constraint,
 					btAlignedObjectArray<btOdeJoint*> &joints,int& numJoints,
-					const btAlignedObjectArray< btOdeSolverBody*> &bodies,int _bodyId0,int _bodyId1,btIDebugDraw* debugDrawer)
+					const btAlignedObjectArray< btOdeSolverBody*> &bodies,int _bodyId0,int _bodyId1,btIDebugDraw* /*debugDrawer*/)
 {
 
     int bodyId0 = _bodyId0,bodyId1 = _bodyId1;

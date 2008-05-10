@@ -307,11 +307,8 @@ const float TRIANGLE_SIZE=20.f;
 //to be implemented by the demo
 void CharacterDemo::renderme()
 {
-	
 	updateCamera();
 
-	btScalar m[16];
-	int i;
 	DemoApplication::renderme();
 }
 

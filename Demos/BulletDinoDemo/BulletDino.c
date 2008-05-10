@@ -350,7 +350,11 @@ drawDinosaur(void)
   //glTranslatef(0.0, jump, 0.0);
 //	glTranslatef(dinoWorldPos[0],dinoWorldPos[1],dinoWorldPos[2]);
 
+#ifdef BT_USE_DOUBLE_PRECISION
+	glMultMatrixd(matrix);
+#else
 	glMultMatrixf(matrix);
+#endif
 //	glutSolidCube(15);
 	glTranslatef(-8.5, -8.5, 0);
 

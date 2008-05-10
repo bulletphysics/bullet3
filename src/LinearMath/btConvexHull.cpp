@@ -57,6 +57,7 @@ inline int coplanar( const btPlane &a, const btPlane &b ) { return (a==b || a==P
 btVector3  PlaneLineIntersection(const btPlane &plane, const btVector3 &p0, const btVector3 &p1);
 btVector3  PlaneProject(const btPlane &plane, const btVector3 &point);
 
+btVector3  ThreePlaneIntersection(const btPlane &p0,const btPlane &p1, const btPlane &p2);
 btVector3  ThreePlaneIntersection(const btPlane &p0,const btPlane &p1, const btPlane &p2)
 {
 	btVector3 N1 = p0.normal;
@@ -167,13 +168,14 @@ ConvexH::ConvexH(int vertices_size,int edges_size,int facets_size)
 }
 
 
-
+int PlaneTest(const btPlane &p, const btVector3 &v);
 int PlaneTest(const btPlane &p, const btVector3 &v) {
 	btScalar a  = dot(v,p.normal)+p.dist;
 	int   flag = (a>planetestepsilon)?OVER:((a<-planetestepsilon)?UNDER:COPLANAR);
 	return flag;
 }
 
+int SplitTest(ConvexH &convex,const btPlane &plane);
 int SplitTest(ConvexH &convex,const btPlane &plane) {
 	int flag=0;
 	for(int i=0;i<convex.vertices.size();i++) {
@@ -233,6 +235,7 @@ int maxdirfiltered(const T *p,int count,const T &dir,btAlignedObjectArray<int> &
 	return m;
 } 
 
+btVector3 orth(const btVector3 &v);
 btVector3 orth(const btVector3 &v)
 {
 	btVector3 a=cross(v,btVector3(0,0,1));
@@ -295,6 +298,7 @@ int maxdirsterid(const T *p,int count,const T &dir,btAlignedObjectArray<int> &al
 
 
 
+int operator ==(const int3 &a,const int3 &b);
 int operator ==(const int3 &a,const int3 &b) 
 {
 	for(int i=0;i<3;i++) 
@@ -305,12 +309,13 @@ int operator ==(const int3 &a,const int3 &b)
 }
 
 
-
+int above(btVector3* vertices,const int3& t, const btVector3 &p, btScalar epsilon);
 int above(btVector3* vertices,const int3& t, const btVector3 &p, btScalar epsilon) 
 {
 	btVector3 n=TriNormal(vertices[t[0]],vertices[t[1]],vertices[t[2]]);
 	return (dot(n,p-vertices[t[0]]) > epsilon); // EPSILON???
 }
+int hasedge(const int3 &t, int a,int b);
 int hasedge(const int3 &t, int a,int b)
 {
 	for(int i=0;i<3;i++)
@@ -320,10 +325,12 @@ int hasedge(const int3 &t, int a,int b)
 	}
 	return 0;
 }
+int hasvert(const int3 &t, int v);
 int hasvert(const int3 &t, int v)
 {
 	return (t[0]==v || t[1]==v || t[2]==v) ;
 }
+int shareedge(const int3 &a,const int3 &b);
 int shareedge(const int3 &a,const int3 &b)
 {
 	int i;
@@ -398,6 +405,8 @@ void HullLibrary::removeb2b(Tri* s,Tri*t)
 
 void HullLibrary::checkit(Tri *t)
 {
+	(void)t;
+
 	int i;
 	btAssert(m_tris[t->id]==t);
 	for(i=0;i<3;i++)
@@ -406,6 +415,13 @@ void HullLibrary::checkit(Tri *t)
 		int i2=(i+2)%3;
 		int a = (*t)[i1];
 		int b = (*t)[i2];
+
+		// release compile fix
+		(void)i1;
+		(void)i2;
+		(void)a;
+		(void)b;
+
 		btAssert(a!=b);
 		btAssert( m_tris[t->n[i]]->neib(b,a) == t->id);
 	}
@@ -552,7 +568,7 @@ int HullLibrary::calchullgen(btVector3 *verts,int verts_count, int vlimit)
 	}
 	Tri *te;
 	vlimit-=4;
-	while(vlimit >0 && (te=extrudable(epsilon)))
+	while(vlimit >0 && ((te=extrudable(epsilon)) != 0))
 	{
 		int3 ti=*te;
 		int v=te->vmax;
@@ -627,7 +643,7 @@ int HullLibrary::calchull(btVector3 *verts,int verts_count, TUIntArray& tris_out
 	
 	for (i=0;i<ts.size();i++)
 	{
-		tris_out[i] = ts[i];
+		tris_out[i] = static_cast<unsigned int>(ts[i]);
 	}
 	m_tris.resize(0);
 
@@ -642,7 +658,7 @@ bool HullLibrary::ComputeHull(unsigned int vcount,const btVector3 *vertices,PHul
 {
 	
 	int    tris_count;
-	int ret = calchull( (btVector3 *) vertices, (int) vcount, result.m_Indices, tris_count, vlimit );
+	int ret = calchull( (btVector3 *) vertices, (int) vcount, result.m_Indices, tris_count, static_cast<int>(vlimit) );
 	if(!ret) return false;
 	result.mIndexCount = (unsigned int) (tris_count*3);
 	result.mFaceCount  = (unsigned int) tris_count;
@@ -653,6 +669,7 @@ bool HullLibrary::ComputeHull(unsigned int vcount,const btVector3 *vertices,PHul
 }
 
 
+void ReleaseHull(PHullResult &result);
 void ReleaseHull(PHullResult &result)
 {
 	if ( result.m_Indices.size() )
@@ -690,7 +707,7 @@ HullError HullLibrary::CreateConvexHull(const HullDesc       &desc,           //
 	if ( vcount < 8 ) vcount = 8;
 
 	btAlignedObjectArray<btVector3> vertexSource;
-	vertexSource.resize(vcount);
+	vertexSource.resize(static_cast<int>(vcount));
 
 	btVector3 scale;
 
@@ -702,11 +719,11 @@ HullError HullLibrary::CreateConvexHull(const HullDesc       &desc,           //
 	{
 
 
-		if ( 1 ) // scale vertices back to their original size.
+//		if ( 1 ) // scale vertices back to their original size.
 		{
 			for (unsigned int i=0; i<ovcount; i++)
 			{
-				btVector3& v = vertexSource[i];
+				btVector3& v = vertexSource[static_cast<int>(i)];
 				v[0]*=scale[0];
 				v[1]*=scale[1];
 				v[2]*=scale[2];
@@ -720,7 +737,7 @@ HullError HullLibrary::CreateConvexHull(const HullDesc       &desc,           //
 
 			// re-index triangle mesh so it refers to only used vertices, rebuild a new vertex table.
 			btAlignedObjectArray<btVector3>	vertexScratch;
-			vertexScratch.resize(hr.mVcount);
+			vertexScratch.resize(static_cast<int>(hr.mVcount));
 
 			BringOutYourDead(hr.mVertices,hr.mVcount, &vertexScratch[0], ovcount, &hr.m_Indices[0], hr.mIndexCount );
 
@@ -730,11 +747,11 @@ HullError HullLibrary::CreateConvexHull(const HullDesc       &desc,           //
 			{
 				result.mPolygons          = false;
 				result.mNumOutputVertices = ovcount;
-				result.m_OutputVertices.resize(ovcount);
+				result.m_OutputVertices.resize(static_cast<int>(ovcount));
 				result.mNumFaces          = hr.mFaceCount;
 				result.mNumIndices        = hr.mIndexCount;
 
-				result.m_Indices.resize(hr.mIndexCount);
+				result.m_Indices.resize(static_cast<int>(hr.mIndexCount));
 
 				memcpy(&result.m_OutputVertices[0], &vertexScratch[0], sizeof(btVector3)*ovcount );
 
@@ -763,13 +780,13 @@ HullError HullLibrary::CreateConvexHull(const HullDesc       &desc,           //
 			{
 				result.mPolygons          = true;
 				result.mNumOutputVertices = ovcount;
-				result.m_OutputVertices.resize(ovcount);
+				result.m_OutputVertices.resize(static_cast<int>(ovcount));
 				result.mNumFaces          = hr.mFaceCount;
 				result.mNumIndices        = hr.mIndexCount+hr.mFaceCount;
-				result.m_Indices.resize(result.mNumIndices);
+				result.m_Indices.resize(static_cast<int>(result.mNumIndices));
 				memcpy(&result.m_OutputVertices[0], &vertexScratch[0], sizeof(btVector3)*ovcount );
 
-				if ( 1 )
+//				if ( 1 )
 				{
 					const unsigned int *source = &hr.m_Indices[0];
 					unsigned int *dest   = &result.m_Indices[0];
@@ -829,7 +846,7 @@ static void addPoint(unsigned int &vcount,btVector3 *p,btScalar x,btScalar y,btS
 	vcount++;
 }
 
-
+btScalar GetDist(btScalar px,btScalar py,btScalar pz,const btScalar *p2);
 btScalar GetDist(btScalar px,btScalar py,btScalar pz,const btScalar *p2)
 {
 
@@ -871,7 +888,7 @@ bool  HullLibrary::CleanupVertices(unsigned int svcount,
 
 	const char *vtx = (const char *) svertices;
 
-	if ( 1 )
+//	if ( 1 )
 	{
 		for (unsigned int i=0; i<svcount; i++)
 		{
@@ -979,7 +996,7 @@ bool  HullLibrary::CleanupVertices(unsigned int svcount,
 			pz = pz*recip[2]; // normalize
 		}
 
-		if ( 1 )
+//		if ( 1 )
 		{
 			unsigned int j;
 
@@ -1028,7 +1045,7 @@ bool  HullLibrary::CleanupVertices(unsigned int svcount,
 	}
 
 	// ok..now make sure we didn't prune so many vertices it is now invalid.
-	if ( 1 )
+//	if ( 1 )
 	{
 		btScalar bmin[3] = {  FLT_MAX,  FLT_MAX,  FLT_MAX };
 		btScalar bmax[3] = { -FLT_MAX, -FLT_MAX, -FLT_MAX };
@@ -1100,7 +1117,7 @@ bool  HullLibrary::CleanupVertices(unsigned int svcount,
 void HullLibrary::BringOutYourDead(const btVector3* verts,unsigned int vcount, btVector3* overts,unsigned int &ocount,unsigned int *indices,unsigned indexcount)
 {
 	TUIntArray usedIndices;
-	usedIndices.resize(vcount);
+	usedIndices.resize(static_cast<int>(vcount));
 	memset(&usedIndices[0],0,sizeof(unsigned int)*vcount);
 
 	ocount = 0;
@@ -1111,9 +1128,9 @@ void HullLibrary::BringOutYourDead(const btVector3* verts,unsigned int vcount, b
 
 		btAssert( v >= 0 && v < vcount );
 
-		if ( usedIndices[v] ) // if already remapped
+		if ( usedIndices[static_cast<int>(v)] ) // if already remapped
 		{
-			indices[i] = usedIndices[v]-1; // index to new array
+			indices[i] = usedIndices[static_cast<int>(v)]-1; // index to new array
 		}
 		else
 		{
@@ -1128,7 +1145,7 @@ void HullLibrary::BringOutYourDead(const btVector3* verts,unsigned int vcount, b
 
 			btAssert( ocount >=0 && ocount <= vcount );
 
-			usedIndices[v] = ocount; // assign new index remapping
+			usedIndices[static_cast<int>(v)] = ocount; // assign new index remapping
 		}
 	}
 

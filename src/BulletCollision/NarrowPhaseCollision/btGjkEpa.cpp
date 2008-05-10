@@ -602,13 +602,13 @@ GJK			gjk(stackAlloc,
 				wtrs1.getBasis(),wtrs1.getOrigin(),shape1,
 				radialmargin+EPA_accuracy);
 const Z		collide(gjk.SearchOrigin());
-results.gjk_iterations	=	gjk.iterations+1;
+results.gjk_iterations	=	static_cast<int>(gjk.iterations+1);
 if(collide)
 	{
 	/* Then EPA for penetration depth	*/
 	EPA			epa(&gjk);
 	const F		pd(epa.EvaluatePD());
-	results.epa_iterations	=	epa.iterations+1;
+	results.epa_iterations	=	static_cast<int>(epa.iterations+1);
 	if(pd>0)
 		{
 		results.status			=	sResults::Penetrating;

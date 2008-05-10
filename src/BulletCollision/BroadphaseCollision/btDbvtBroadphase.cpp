@@ -50,7 +50,7 @@ struct	ProfileScope
 //
 static inline int	hash(unsigned int i,unsigned int j)
 {
-	int key=((unsigned int)i)|(((unsigned int)j)<<16);
+	int key=static_cast<int>(((unsigned int)i)|(((unsigned int)j)<<16));
 	key+=~(key<<15);
 	key^= (key>>10);
 	key+= (key<<3);
@@ -104,7 +104,7 @@ struct	btDbvtBroadphaseCollider : btDbvt::ICollide
 	int					pid;
 	btDbvtBroadphaseCollider(btDbvtBroadphase* p,int id) : pbp(p),pid(id) {}
 
-	virtual void	Process(const btDbvt::Node* na)
+	virtual void	Process(const btDbvt::Node* /*na*/)
 	{
 	}
 	virtual bool	Descent(const btDbvt::Node*)
@@ -163,12 +163,12 @@ btDbvtBroadphase::~btDbvtBroadphase()
 //
 btBroadphaseProxy*				btDbvtBroadphase::createProxy(	const btVector3& aabbMin,
 															  const btVector3& aabbMax,
-															  int shapeType,
+															  int /*shapeType*/,
 															  void* userPtr,
 															  short int collisionFilterGroup,
 															  short int collisionFilterMask,
-															  btDispatcher* dispatcher,
-															  void* multiSapProxy)
+															  btDispatcher* /*dispatcher*/,
+															  void* /*multiSapProxy*/)
 {
 	btDbvtProxy*	proxy=new btDbvtProxy(userPtr,collisionFilterGroup,collisionFilterMask);
 	proxy->aabb			=	btDbvtAabbMm::FromMM(aabbMin,aabbMax);
@@ -197,7 +197,7 @@ void							btDbvtBroadphase::destroyProxy(	btBroadphaseProxy* absproxy,
 void							btDbvtBroadphase::setAabb(		btBroadphaseProxy* absproxy,
 														  const btVector3& aabbMin,
 														  const btVector3& aabbMax,
-														  btDispatcher* dispatcher)
+														  btDispatcher* /*dispatcher*/)
 {
 	btDbvtProxy*	proxy=(btDbvtProxy*)absproxy;
 	btDbvtAabbMm	aabb=btDbvtAabbMm::FromMM(aabbMin,aabbMax);

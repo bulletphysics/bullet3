@@ -37,7 +37,7 @@ public:
 
 */
 
-btMultiSapBroadphase::btMultiSapBroadphase(int maxProxies,btOverlappingPairCache* pairCache)
+btMultiSapBroadphase::btMultiSapBroadphase(int /*maxProxies*/,btOverlappingPairCache* pairCache)
 :m_overlappingPairs(pairCache),
 m_ownsPairCache(false),
 m_invalidPair(0),
@@ -104,7 +104,7 @@ void	btMultiSapBroadphase::buildTree(const btVector3& bvhAabbMin,const btVector3
 	m_optimizedAabbTree->buildInternal();
 }
 
-btBroadphaseProxy*	btMultiSapBroadphase::createProxy(  const btVector3& aabbMin,  const btVector3& aabbMax,int shapeType,void* userPtr, short int collisionFilterGroup,short int collisionFilterMask, btDispatcher* dispatcher,void* ignoreMe)
+btBroadphaseProxy*	btMultiSapBroadphase::createProxy(  const btVector3& aabbMin,  const btVector3& aabbMax,int shapeType,void* userPtr, short int collisionFilterGroup,short int collisionFilterMask, btDispatcher* dispatcher,void* /*ignoreMe*/)
 {
 	//void* ignoreMe -> we could think of recursive multi-sap, if someone is interested
 
@@ -117,7 +117,7 @@ btBroadphaseProxy*	btMultiSapBroadphase::createProxy(  const btVector3& aabbMin,
 	return proxy;
 }
 
-void	btMultiSapBroadphase::destroyProxy(btBroadphaseProxy* proxy,btDispatcher* dispatcher)
+void	btMultiSapBroadphase::destroyProxy(btBroadphaseProxy* /*proxy*/,btDispatcher* /*dispatcher*/)
 {
 	///not yet
 	btAssert(0);
@@ -128,13 +128,14 @@ void	btMultiSapBroadphase::destroyProxy(btBroadphaseProxy* proxy,btDispatcher* d
 void	btMultiSapBroadphase::addToChildBroadphase(btMultiSapProxy* parentMultiSapProxy, btBroadphaseProxy* childProxy, btBroadphaseInterface*	childBroadphase)
 {
 	void* mem = btAlignedAlloc(sizeof(btBridgeProxy),16);
-	btBridgeProxy* bridgeProxyRef = new(mem) btBridgeProxy();
+	btBridgeProxy* bridgeProxyRef = new(mem) btBridgeProxy;
 	bridgeProxyRef->m_childProxy = childProxy;
 	bridgeProxyRef->m_childBroadphase = childBroadphase;
 	parentMultiSapProxy->m_bridgeProxies.push_back(bridgeProxyRef);
 }
 
 
+bool boxIsContainedWithinBox(const btVector3& amin,const btVector3& amax,const btVector3& bmin,const btVector3& bmax);
 bool boxIsContainedWithinBox(const btVector3& amin,const btVector3& amax,const btVector3& bmin,const btVector3& bmax)
 {
 return
@@ -157,8 +158,8 @@ void	btMultiSapBroadphase::setAabb(btBroadphaseProxy* proxy,const btVector3& aab
 	multiProxy->m_aabbMax = aabbMax;
 	
 	
-	bool fullyContained = false;
-	bool alreadyInSimple = false;
+//	bool fullyContained = false;
+//	bool alreadyInSimple = false;
 	
 
 
@@ -177,7 +178,7 @@ void	btMultiSapBroadphase::setAabb(btBroadphaseProxy* proxy,const btVector3& aab
 
 		}
 
-		virtual void processNode(int nodeSubPart, int broadphaseIndex)
+		virtual void processNode(int /*nodeSubPart*/, int broadphaseIndex)
 		{
 			btBroadphaseInterface* childBroadphase = m_multiSap->getBroadphaseArray()[broadphaseIndex];
 

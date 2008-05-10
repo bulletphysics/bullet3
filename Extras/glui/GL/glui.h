@@ -32,6 +32,13 @@
 #ifndef GLUI_GLUI_H
 #define GLUI_GLUI_H
 
+#ifdef WIN32
+	#pragma warning(disable : 4324) // disable padding warning
+	#pragma warning(disable:4530) // Disable the exception disable but used in MSCV Stl warning.
+	#pragma warning(disable:4996) //Turn off warnings about deprecated C routines
+	#pragma warning(disable:4786) // Disable the "debug name too long" warning
+#endif
+
 #if defined(GLUI_FREEGLUT)
 
   // FreeGLUT does not yet work perfectly with GLUI

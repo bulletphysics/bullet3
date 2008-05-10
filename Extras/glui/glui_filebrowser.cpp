@@ -54,7 +54,7 @@ GLUI_FileBrowser::GLUI_FileBrowser( GLUI_Node *parent,
 /****************************** GLUI_FileBrowser::draw() **********/
 
 void GLUI_FileBrowser::dir_list_callback(GLUI_Control *glui_object) {
-  GLUI_List *list = dynamic_cast<GLUI_List*>(glui_object);
+  GLUI_List *list = glui_object->dynamicCastGLUI_List();
   if (!list) 
     return;
   GLUI_FileBrowser* me = list->associated_object->dynamicCastGLUI_FileBrowser();

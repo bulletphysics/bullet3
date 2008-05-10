@@ -30,7 +30,7 @@
   Oct 2003, Nigel Stewart - GLUI Code Cleaning
   
 ************************************************************************/
-
+#include "glui_internal_control.h"
 #include "quaternion.h"
 #include <cmath>
 #include "glui_internal.h"

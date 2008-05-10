@@ -64,7 +64,6 @@ CONCAVE_SHAPES_END_HERE,
 	MAX_BROADPHASE_COLLISION_TYPES
 };
 
-//#include <stdio.h>
 
 ///btBroadphaseProxy
 ATTRIBUTE_ALIGNED16(struct) btBroadphaseProxy

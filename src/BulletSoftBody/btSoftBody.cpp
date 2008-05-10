@@ -623,7 +623,7 @@ struct	RayCaster : public btDbvt::ICollide
 		tests	=	0;
 		}
 
-	virtual void	Process(const btDbvt::Node* a,const btDbvt::Node* b)
+	virtual void	Process(const btDbvt::Node* /*a*/,const btDbvt::Node* /*b*/)
 	{
 
 	}
@@ -1892,11 +1892,11 @@ void			btSoftBody::randomizeConstraints()
 {
 	for(int i=0,ni=m_links.size();i<ni;++i)
 	{
-		btSwap(m_links[i],m_links[rand()%ni]);
+		btSwap(m_links[i],m_links[std::rand()%ni]);
 	}
 	for(int i=0,ni=m_faces.size();i<ni;++i)
 	{
-		btSwap(m_faces[i],m_faces[rand()%ni]);
+		btSwap(m_faces[i],m_faces[std::rand()%ni]);
 	}
 }
 
@@ -2540,7 +2540,7 @@ switch(m_cfg.collisions&fCollision::RVSmask)
 		struct	DoCollide : btDbvt::ICollide
 			{
 				
-				virtual void		Process(const btDbvt::Node* a,const btDbvt::Node* b)
+				virtual void		Process(const btDbvt::Node* /*a*/,const btDbvt::Node* /*b*/)
 				{
 
 				}
@@ -2628,7 +2628,7 @@ switch(cf&fCollision::SVSmask)
 			{
 				return false;
 			}
-			virtual void		Process(const btDbvt::Node* leaf)
+			virtual void		Process(const btDbvt::Node* /*leaf*/)
 			{
 			
 			}

@@ -29,6 +29,7 @@
 typedef int intptr_t;
 #endif
 
+
 #ifdef DOM_DYNAMIC
 
 #ifdef DOM_EXPORT

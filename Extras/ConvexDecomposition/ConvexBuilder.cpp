@@ -1,9 +1,10 @@
+#include "float_math.h"
 #include "ConvexBuilder.h"
 #include "meshvolume.h"
 #include "bestfit.h"
 #include <assert.h>
 #include "cd_hull.h"
-#include "float_math.h"
+
 #include <algorithm>
 #include "fitsphere.h"
 #include "bestfitobb.h"

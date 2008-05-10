@@ -37,6 +37,7 @@
 //
 // http://www.amillionpixels.us
 //
+#include "float_math.h"
 
 #include "cd_wavefront.h"
 

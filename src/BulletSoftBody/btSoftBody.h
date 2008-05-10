@@ -45,13 +45,13 @@ public:
 		V_TwoSided,	///Vertex normals are fliped to match velocity	
 		V_OneSided,	///Vertex normals are taken as it is	
 		F_TwoSided,	///Face normals are fliped to match velocity
-		F_OneSided,	///Face normals are taken as it is
+		F_OneSided	///Face normals are taken as it is
 	};};
 	
 	///eVSolver : velocities solvers
 	struct	eVSolver { enum _ {
 		Linear,		///Linear solver
-		Volume,		///Volume solver
+		Volume		///Volume solver
 	};};
 	
 	///ePSolver : positions solvers
@@ -60,14 +60,14 @@ public:
 		Volume,		///Volume solver
 		Anchors,	///Anchor solver
 		RContacts,	///Rigid contacts solver
-		SContacts,	///Soft contacts solver
+		SContacts	///Soft contacts solver
 	};};
 	
 	///eSolverPresets
 	struct	eSolverPresets { enum _ {
 		Positions,
 		Velocities,
-		Default	=	Positions,
+		Default	=	Positions
 	};};
 	
 	///eFeature
@@ -76,7 +76,7 @@ public:
 		Node,
 		Link,
 		Face,
-		Tetra,
+		Tetra
 	};};
 	
 	typedef btAlignedObjectArray<eVSolver::_>	tVSolverArray;
@@ -94,14 +94,14 @@ public:
 		SVSmask	=	0x00f0,	///Rigid versus soft mask		
 		VF_SS	=	0x0010,	///Vertex vs face soft vs soft handling
 		/* presets	*/ 
-		Default	=	SDF_RS,
+		Default	=	SDF_RS
 	};};
 	
 	///fMaterial
 	struct fMaterial { enum _ {
 		DebugDraw	=	0x0001,	/// Enable debug draw
 		/* presets	*/ 
-		Default		=	DebugDraw,
+		Default		=	DebugDraw
 	};};
 		
 	//

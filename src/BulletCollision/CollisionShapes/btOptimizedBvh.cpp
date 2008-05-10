@@ -301,14 +301,14 @@ void	btOptimizedBvh::updateBvhNodes(btStridingMeshInterface* meshInterface,int f
 	int curNodeSubPart=-1;
 
 	//get access info to trianglemesh data
-		const unsigned char *vertexbase;
-		int numverts;
-		PHY_ScalarType type;
-		int stride;
-		const unsigned char *indexbase;
-		int indexstride;
-		int numfaces;
-		PHY_ScalarType indicestype;
+		const unsigned char *vertexbase = 0;
+		int numverts = 0;
+		PHY_ScalarType type = PHY_INTEGER;
+		int stride = 0;
+		const unsigned char *indexbase = 0;
+		int indexstride = 0;
+		int numfaces = 0;
+		PHY_ScalarType indicestype = PHY_INTEGER;
 
 		btVector3	triangleVerts[3];
 		btVector3	aabbMin,aabbMax;
@@ -532,11 +532,11 @@ void	btOptimizedBvh::updateSubtreeHeaders(int leftChildNodexIndex,int rightChild
 
 	btQuantizedBvhNode& leftChildNode = m_quantizedContiguousNodes[leftChildNodexIndex];
 	int leftSubTreeSize = leftChildNode.isLeafNode() ? 1 : leftChildNode.getEscapeIndex();
-	int leftSubTreeSizeInBytes =  leftSubTreeSize * sizeof(btQuantizedBvhNode);
+	int leftSubTreeSizeInBytes =  leftSubTreeSize * static_cast<int>(sizeof(btQuantizedBvhNode));
 	
 	btQuantizedBvhNode& rightChildNode = m_quantizedContiguousNodes[rightChildNodexIndex];
 	int rightSubTreeSize = rightChildNode.isLeafNode() ? 1 : rightChildNode.getEscapeIndex();
-	int rightSubTreeSizeInBytes =  rightSubTreeSize * sizeof(btQuantizedBvhNode);
+	int rightSubTreeSizeInBytes =  rightSubTreeSize *  static_cast<int>(sizeof(btQuantizedBvhNode));
 
 	if(leftSubTreeSizeInBytes <= MAX_SUBTREE_SIZE_IN_BYTES)
 	{
@@ -606,6 +606,7 @@ int	btOptimizedBvh::sortAndCalcSplittingIndex(int startIndex,int endIndex,int sp
 	}
 
 	bool unbal = (splitIndex==startIndex) || (splitIndex == (endIndex));
+	(void)unbal;
 	btAssert(!unbal);
 
 	return splitIndex;
@@ -785,6 +786,7 @@ void	btOptimizedBvh::walkStacklessQuantizedTreeAgainstRay(btNodeOverlapCallback*
 	int curIndex = startNodeIndex;
 	int walkIterations = 0;
 	int subTreeSize = endNodeIndex - startNodeIndex;
+	(void)subTreeSize;
 
 	const btQuantizedBvhNode* rootNode = &m_quantizedContiguousNodes[startNodeIndex];
 	int escapeIndex;
@@ -909,6 +911,7 @@ void	btOptimizedBvh::walkStacklessQuantizedTree(btNodeOverlapCallback* nodeCallb
 	int curIndex = startNodeIndex;
 	int walkIterations = 0;
 	int subTreeSize = endNodeIndex - startNodeIndex;
+	(void)subTreeSize;
 
 	const btQuantizedBvhNode* rootNode = &m_quantizedContiguousNodes[startNodeIndex];
 	int escapeIndex;
@@ -1080,7 +1083,7 @@ unsigned btOptimizedBvh::calculateSerializeBufferSize()
 	return baseSize + m_curNodeIndex * sizeof(btOptimizedBvhNode);
 }
 
-bool btOptimizedBvh::serialize(void *o_alignedDataBuffer, unsigned i_dataBufferSize, bool i_swapEndian)
+bool btOptimizedBvh::serialize(void *o_alignedDataBuffer, unsigned /*i_dataBufferSize */, bool i_swapEndian)
 {
 	assert(m_subtreeHeaderCount == m_SubtreeHeaders.size());
 	m_subtreeHeaderCount = m_SubtreeHeaders.size();
@@ -1101,7 +1104,7 @@ bool btOptimizedBvh::serialize(void *o_alignedDataBuffer, unsigned i_dataBufferS
 
 	if (i_swapEndian)
 	{
-		targetBvh->m_curNodeIndex = btSwapEndian(m_curNodeIndex);
+		targetBvh->m_curNodeIndex = static_cast<int>(btSwapEndian(m_curNodeIndex));
 
 
 		btSwapVector3Endian(m_bvhAabbMin,targetBvh->m_bvhAabbMin);
@@ -1109,7 +1112,7 @@ bool btOptimizedBvh::serialize(void *o_alignedDataBuffer, unsigned i_dataBufferS
 		btSwapVector3Endian(m_bvhQuantization,targetBvh->m_bvhQuantization);
 
 		targetBvh->m_traversalMode = (btTraversalMode)btSwapEndian(m_traversalMode);
-		targetBvh->m_subtreeHeaderCount = btSwapEndian(m_subtreeHeaderCount);
+		targetBvh->m_subtreeHeaderCount = static_cast<int>(btSwapEndian(m_subtreeHeaderCount));
 	}
 	else
 	{
@@ -1147,7 +1150,7 @@ bool btOptimizedBvh::serialize(void *o_alignedDataBuffer, unsigned i_dataBufferS
 				targetBvh->m_quantizedContiguousNodes[nodeIndex].m_quantizedAabbMax[1] = btSwapEndian(m_quantizedContiguousNodes[nodeIndex].m_quantizedAabbMax[1]);
 				targetBvh->m_quantizedContiguousNodes[nodeIndex].m_quantizedAabbMax[2] = btSwapEndian(m_quantizedContiguousNodes[nodeIndex].m_quantizedAabbMax[2]);
 
-				targetBvh->m_quantizedContiguousNodes[nodeIndex].m_escapeIndexOrTriangleIndex = btSwapEndian(m_quantizedContiguousNodes[nodeIndex].m_escapeIndexOrTriangleIndex);
+				targetBvh->m_quantizedContiguousNodes[nodeIndex].m_escapeIndexOrTriangleIndex = static_cast<int>(btSwapEndian(m_quantizedContiguousNodes[nodeIndex].m_escapeIndexOrTriangleIndex));
 			}
 		}
 		else
@@ -1181,9 +1184,9 @@ bool btOptimizedBvh::serialize(void *o_alignedDataBuffer, unsigned i_dataBufferS
 				btSwapVector3Endian(m_contiguousNodes[nodeIndex].m_aabbMinOrg, targetBvh->m_contiguousNodes[nodeIndex].m_aabbMinOrg);
 				btSwapVector3Endian(m_contiguousNodes[nodeIndex].m_aabbMaxOrg, targetBvh->m_contiguousNodes[nodeIndex].m_aabbMaxOrg);
 
-				targetBvh->m_contiguousNodes[nodeIndex].m_escapeIndex = btSwapEndian(m_contiguousNodes[nodeIndex].m_escapeIndex);
-				targetBvh->m_contiguousNodes[nodeIndex].m_subPart = btSwapEndian(m_contiguousNodes[nodeIndex].m_subPart);
-				targetBvh->m_contiguousNodes[nodeIndex].m_triangleIndex = btSwapEndian(m_contiguousNodes[nodeIndex].m_triangleIndex);
+				targetBvh->m_contiguousNodes[nodeIndex].m_escapeIndex = static_cast<int>(btSwapEndian(m_contiguousNodes[nodeIndex].m_escapeIndex));
+				targetBvh->m_contiguousNodes[nodeIndex].m_subPart = static_cast<int>(btSwapEndian(m_contiguousNodes[nodeIndex].m_subPart));
+				targetBvh->m_contiguousNodes[nodeIndex].m_triangleIndex = static_cast<int>(btSwapEndian(m_contiguousNodes[nodeIndex].m_triangleIndex));
 			}
 		}
 		else
@@ -1218,8 +1221,8 @@ bool btOptimizedBvh::serialize(void *o_alignedDataBuffer, unsigned i_dataBufferS
 			targetBvh->m_SubtreeHeaders[i].m_quantizedAabbMax[1] = btSwapEndian(m_SubtreeHeaders[i].m_quantizedAabbMax[1]);
 			targetBvh->m_SubtreeHeaders[i].m_quantizedAabbMax[2] = btSwapEndian(m_SubtreeHeaders[i].m_quantizedAabbMax[2]);
 
-			targetBvh->m_SubtreeHeaders[i].m_rootNodeIndex = btSwapEndian(m_SubtreeHeaders[i].m_rootNodeIndex);
-			targetBvh->m_SubtreeHeaders[i].m_subtreeSize = btSwapEndian(m_SubtreeHeaders[i].m_subtreeSize);
+			targetBvh->m_SubtreeHeaders[i].m_rootNodeIndex = static_cast<int>(btSwapEndian(m_SubtreeHeaders[i].m_rootNodeIndex));
+			targetBvh->m_SubtreeHeaders[i].m_subtreeSize = static_cast<int>(btSwapEndian(m_SubtreeHeaders[i].m_subtreeSize));
 		}
 	}
 	else
@@ -1256,14 +1259,14 @@ btOptimizedBvh *btOptimizedBvh::deSerializeInPlace(void *i_alignedDataBuffer, un
 
 	if (i_swapEndian)
 	{
-		bvh->m_curNodeIndex = btSwapEndian(bvh->m_curNodeIndex);
+		bvh->m_curNodeIndex = static_cast<int>(btSwapEndian(bvh->m_curNodeIndex));
 
 		btUnSwapVector3Endian(bvh->m_bvhAabbMin);
 		btUnSwapVector3Endian(bvh->m_bvhAabbMax);
 		btUnSwapVector3Endian(bvh->m_bvhQuantization);
 
 		bvh->m_traversalMode = (btTraversalMode)btSwapEndian(bvh->m_traversalMode);
-		bvh->m_subtreeHeaderCount = btSwapEndian(bvh->m_subtreeHeaderCount);
+		bvh->m_subtreeHeaderCount = static_cast<int>(btSwapEndian(bvh->m_subtreeHeaderCount));
 	}
 
 	unsigned int calculatedBufSize = bvh->calculateSerializeBufferSize();
@@ -1302,7 +1305,7 @@ btOptimizedBvh *btOptimizedBvh::deSerializeInPlace(void *i_alignedDataBuffer, un
 				bvh->m_quantizedContiguousNodes[nodeIndex].m_quantizedAabbMax[1] = btSwapEndian(bvh->m_quantizedContiguousNodes[nodeIndex].m_quantizedAabbMax[1]);
 				bvh->m_quantizedContiguousNodes[nodeIndex].m_quantizedAabbMax[2] = btSwapEndian(bvh->m_quantizedContiguousNodes[nodeIndex].m_quantizedAabbMax[2]);
 
-				bvh->m_quantizedContiguousNodes[nodeIndex].m_escapeIndexOrTriangleIndex = btSwapEndian(bvh->m_quantizedContiguousNodes[nodeIndex].m_escapeIndexOrTriangleIndex);
+				bvh->m_quantizedContiguousNodes[nodeIndex].m_escapeIndexOrTriangleIndex = static_cast<int>(btSwapEndian(bvh->m_quantizedContiguousNodes[nodeIndex].m_escapeIndexOrTriangleIndex));
 			}
 		}
 		nodeData += sizeof(btQuantizedBvhNode) * nodeCount;
@@ -1318,9 +1321,9 @@ btOptimizedBvh *btOptimizedBvh::deSerializeInPlace(void *i_alignedDataBuffer, un
 				btUnSwapVector3Endian(bvh->m_contiguousNodes[nodeIndex].m_aabbMinOrg);
 				btUnSwapVector3Endian(bvh->m_contiguousNodes[nodeIndex].m_aabbMaxOrg);
 				
-				bvh->m_contiguousNodes[nodeIndex].m_escapeIndex = btSwapEndian(bvh->m_contiguousNodes[nodeIndex].m_escapeIndex);
-				bvh->m_contiguousNodes[nodeIndex].m_subPart = btSwapEndian(bvh->m_contiguousNodes[nodeIndex].m_subPart);
-				bvh->m_contiguousNodes[nodeIndex].m_triangleIndex = btSwapEndian(bvh->m_contiguousNodes[nodeIndex].m_triangleIndex);
+				bvh->m_contiguousNodes[nodeIndex].m_escapeIndex = static_cast<int>(btSwapEndian(bvh->m_contiguousNodes[nodeIndex].m_escapeIndex));
+				bvh->m_contiguousNodes[nodeIndex].m_subPart = static_cast<int>(btSwapEndian(bvh->m_contiguousNodes[nodeIndex].m_subPart));
+				bvh->m_contiguousNodes[nodeIndex].m_triangleIndex = static_cast<int>(btSwapEndian(bvh->m_contiguousNodes[nodeIndex].m_triangleIndex));
 			}
 		}
 		nodeData += sizeof(btOptimizedBvhNode) * nodeCount;
@@ -1343,8 +1346,8 @@ btOptimizedBvh *btOptimizedBvh::deSerializeInPlace(void *i_alignedDataBuffer, un
 			bvh->m_SubtreeHeaders[i].m_quantizedAabbMax[1] = btSwapEndian(bvh->m_SubtreeHeaders[i].m_quantizedAabbMax[1]);
 			bvh->m_SubtreeHeaders[i].m_quantizedAabbMax[2] = btSwapEndian(bvh->m_SubtreeHeaders[i].m_quantizedAabbMax[2]);
 
-			bvh->m_SubtreeHeaders[i].m_rootNodeIndex = btSwapEndian(bvh->m_SubtreeHeaders[i].m_rootNodeIndex);
-			bvh->m_SubtreeHeaders[i].m_subtreeSize = btSwapEndian(bvh->m_SubtreeHeaders[i].m_subtreeSize);
+			bvh->m_SubtreeHeaders[i].m_rootNodeIndex = static_cast<int>(btSwapEndian(bvh->m_SubtreeHeaders[i].m_rootNodeIndex));
+			bvh->m_SubtreeHeaders[i].m_subtreeSize = static_cast<int>(btSwapEndian(bvh->m_SubtreeHeaders[i].m_subtreeSize));
 		}
 	}
 
@@ -1352,7 +1355,7 @@ btOptimizedBvh *btOptimizedBvh::deSerializeInPlace(void *i_alignedDataBuffer, un
 }
 
 // Constructor that prevents btVector3's default constructor from being called
-btOptimizedBvh::btOptimizedBvh(btOptimizedBvh &self, bool ownsMemory) :
+btOptimizedBvh::btOptimizedBvh(btOptimizedBvh &self, bool /* ownsMemory */) :
 m_bvhAabbMin(self.m_bvhAabbMin),
 m_bvhAabbMax(self.m_bvhAabbMax),
 m_bvhQuantization(self.m_bvhQuantization)

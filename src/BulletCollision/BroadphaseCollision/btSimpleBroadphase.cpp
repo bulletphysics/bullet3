@@ -83,7 +83,7 @@ btSimpleBroadphase::~btSimpleBroadphase()
 }
 
 
-btBroadphaseProxy*	btSimpleBroadphase::createProxy(  const btVector3& aabbMin,  const btVector3& aabbMax,int shapeType,void* userPtr ,short int collisionFilterGroup,short int collisionFilterMask, btDispatcher* dispatcher,void* multiSapProxy)
+btBroadphaseProxy*	btSimpleBroadphase::createProxy(  const btVector3& aabbMin,  const btVector3& aabbMax,int shapeType,void* userPtr ,short int collisionFilterGroup,short int collisionFilterMask, btDispatcher* /*dispatcher*/,void* multiSapProxy)
 {
 	if (m_numHandles >= m_maxHandles)
 	{
@@ -139,7 +139,7 @@ void	btSimpleBroadphase::destroyProxy(btBroadphaseProxy* proxyOrg,btDispatcher* 
 		
 }
 
-void	btSimpleBroadphase::setAabb(btBroadphaseProxy* proxy,const btVector3& aabbMin,const btVector3& aabbMax, btDispatcher* dispatcher)
+void	btSimpleBroadphase::setAabb(btBroadphaseProxy* proxy,const btVector3& aabbMin,const btVector3& aabbMax, btDispatcher* /*dispatcher*/)
 {
 	btSimpleBroadphaseProxy* sbp = getSimpleProxyFromProxy(proxy);
 	sbp->m_min = aabbMin;

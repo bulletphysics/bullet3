@@ -44,9 +44,11 @@ inline int	btGetVersion()
 			#define ATTRIBUTE_ALIGNED128(a) a
 		#else
 			#define BT_HAS_ALIGNED_ALLOCATOR
-			#pragma warning(disable:4530)
-			#pragma warning(disable:4996)
-			#pragma warning(disable:4786)
+			#pragma warning(disable : 4324) // disable padding warning
+//			#pragma warning(disable:4530) // Disable the exception disable but used in MSCV Stl warning.
+//			#pragma warning(disable:4996) //Turn off warnings about deprecated C routines
+//			#pragma warning(disable:4786) // Disable the "debug name too long" warning
+
 			#define SIMD_FORCE_INLINE __forceinline
 			#define ATTRIBUTE_ALIGNED16(a) __declspec(align(16)) a
 			#define ATTRIBUTE_ALIGNED128(a) __declspec (align(128)) a
@@ -142,9 +144,9 @@ typedef float btScalar;
 
 
 #define BT_DECLARE_ALIGNED_ALLOCATOR() \
-	SIMD_FORCE_INLINE void* operator new(size_t sizeInBytes)	{ return btAlignedAlloc(sizeInBytes,16); }	\
+	SIMD_FORCE_INLINE void* operator new(std::size_t sizeInBytes)	{ return btAlignedAlloc(sizeInBytes,16); }	\
 	SIMD_FORCE_INLINE void  operator delete(void* ptr)			{ btAlignedFree(ptr); }	\
-	SIMD_FORCE_INLINE void* operator new(size_t, void* ptr)	{ return ptr; }	\
+	SIMD_FORCE_INLINE void* operator new(std::size_t, void* ptr)	{ return ptr; }	\
 	SIMD_FORCE_INLINE void  operator delete(void*, void*)		{ }	\
 
 
@@ -289,7 +291,7 @@ SIMD_FORCE_INLINE int btSelect(unsigned condition, int valueIfConditionNonZero, 
 {
     unsigned testNz = (unsigned)(((int)condition | -(int)condition) >> 31);
     unsigned testEqz = ~testNz; 
-    return ((valueIfConditionNonZero & testNz) | (valueIfConditionZero & testEqz));
+    return static_cast<int>((valueIfConditionNonZero & testNz) | (valueIfConditionZero & testEqz));
 }
 SIMD_FORCE_INLINE float btSelect(unsigned condition, float valueIfConditionNonZero, float valueIfConditionZero)
 {
@@ -316,7 +318,7 @@ SIMD_FORCE_INLINE unsigned btSwapEndian(unsigned val)
 
 SIMD_FORCE_INLINE unsigned short btSwapEndian(unsigned short val)
 {
-	return (((val & 0xff00) >> 8) | ((val & 0x00ff) << 8));
+	return static_cast<unsigned short>(((val & 0xff00) >> 8) | ((val & 0x00ff) << 8));
 }
 
 SIMD_FORCE_INLINE unsigned btSwapEndian(int val)
@@ -337,7 +339,7 @@ SIMD_FORCE_INLINE unsigned short btSwapEndian(short val)
 ///so instead of returning a float/double, we return integer/long long integer
 SIMD_FORCE_INLINE unsigned int  btSwapEndianFloat(float d)
 {
-    unsigned int a;
+    unsigned int a = 0;
     unsigned char *dst = (unsigned char *)&a;
     unsigned char *src = (unsigned char *)&d;
 
@@ -351,7 +353,7 @@ SIMD_FORCE_INLINE unsigned int  btSwapEndianFloat(float d)
 // unswap using char pointers
 SIMD_FORCE_INLINE float btUnswapEndianFloat(unsigned int a) 
 {
-    float d;
+    float d = 0.0f;
     unsigned char *src = (unsigned char *)&a;
     unsigned char *dst = (unsigned char *)&d;
 
@@ -383,7 +385,7 @@ SIMD_FORCE_INLINE void  btSwapEndianDouble(double d, unsigned char* dst)
 // unswap using char pointers
 SIMD_FORCE_INLINE double btUnswapEndianDouble(const unsigned char *src) 
 {
-    double d;
+    double d = 0.0;
     unsigned char *dst = (unsigned char *)&d;
 
     dst[0] = src[7];

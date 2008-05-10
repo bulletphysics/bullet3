@@ -53,6 +53,8 @@ void	SphereTriangleDetector::getClosestPoints(const ClosestPointInput& input,Res
 
 // See also geometrictools.com
 // Basic idea: D = |p - (lo + t0*lv)| where t0 = lv . (p - lo) / lv . lv
+btScalar SegmentSqrDistance(const btVector3& from, const btVector3& to,const btVector3 &p, btVector3 &nearest);
+
 btScalar SegmentSqrDistance(const btVector3& from, const btVector3& to,const btVector3 &p, btVector3 &nearest) {
 	btVector3 diff = p - from;
 	btVector3 v = to - from;

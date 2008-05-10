@@ -52,6 +52,7 @@ void btOdeContactJoint::GetInfo1(Info1 *info)
 
 
 
+void dPlaneSpace1 (const dVector3 n, dVector3 p, dVector3 q);
 void dPlaneSpace1 (const dVector3 n, dVector3 p, dVector3 q)
 {
   if (btFabs(n[2]) > M_SQRT12) {
@@ -200,16 +201,16 @@ void btOdeContactJoint::GetInfo2(Info2 *info)
 		info->J1l[s+1] = t1[1];
 		info->J1l[s+2] = t1[2];
 		dCROSS (info->J1a+s,=,c1,t1);
-		if (1) { //j->node[1].body) {
+//		if (1) { //j->node[1].body) {
 			info->J2l[s+0] = -t1[0];
 			info->J2l[s+1] = -t1[1];
 			info->J2l[s+2] = -t1[2];
 			dCROSS (info->J2a+s,= -,c2,t1);
-		}
+//		}
 		// set right hand side
-		if (0) {//j->contact.surface.mode & dContactMotion1) {
+//		if (0) {//j->contact.surface.mode & dContactMotion1) {
 			//info->c[1] = j->contact.surface.motion1;
-		}
+//		}
 		// set LCP bounds and friction index. this depends on the approximation
 		// mode
 		//1e30f
@@ -217,17 +218,17 @@ void btOdeContactJoint::GetInfo2(Info2 *info)
 		
 		info->lo[1] = -friction;//-j->contact.surface.mu;
 		info->hi[1] = friction;//j->contact.surface.mu;
-		if (1)//j->contact.surface.mode & dContactApprox1_1) 
+//		if (1)//j->contact.surface.mode & dContactApprox1_1) 
 			info->findex[1] = 0;
 		
 		// set slip (constraint force mixing)
-		if (0)//j->contact.surface.mode & dContactSlip1)
-		{
-			//	info->cfm[1] = j->contact.surface.slip1;
-		} else
-		{
-			//info->cfm[1] = 0.f;
-		}
+//		if (0)//j->contact.surface.mode & dContactSlip1)
+//		{
+//			//	info->cfm[1] = j->contact.surface.slip1;
+//		} else
+//		{
+//			//info->cfm[1] = 0.f;
+//		}
 	}
 	
 	// second friction direction
@@ -236,39 +237,39 @@ void btOdeContactJoint::GetInfo2(Info2 *info)
 		info->J1l[s2+1] = t2[1];
 		info->J1l[s2+2] = t2[2];
 		dCROSS (info->J1a+s2,=,c1,t2);
-		if (1) { //j->node[1].body) {
+//		if (1) { //j->node[1].body) {
 			info->J2l[s2+0] = -t2[0];
 			info->J2l[s2+1] = -t2[1];
 			info->J2l[s2+2] = -t2[2];
 			dCROSS (info->J2a+s2,= -,c2,t2);
-		}
+//		}
 
 		// set right hand side
-		if (0){//j->contact.surface.mode & dContactMotion2) {
+//		if (0){//j->contact.surface.mode & dContactMotion2) {
 			//info->c[2] = j->contact.surface.motion2;
-		}
+//		}
 		// set LCP bounds and friction index. this depends on the approximation
 		// mode
-		if (0){//j->contact.surface.mode & dContactMu2) {
+//		if (0){//j->contact.surface.mode & dContactMu2) {
 			//info->lo[2] = -j->contact.surface.mu2;
 			//info->hi[2] = j->contact.surface.mu2;
-		}
-		else {
+//		}
+//		else {
 			info->lo[2] = -friction;
 			info->hi[2] = friction;
-		}
-		if (0)//j->contact.surface.mode & dContactApprox1_2) 
+//		}
+//		if (0)//j->contact.surface.mode & dContactApprox1_2) 
 			
-		{
-			info->findex[2] = 0;
-		}
+//		{
+//			info->findex[2] = 0;
+//		}
 		// set slip (constraint force mixing)
-		if (0) //j->contact.surface.mode & dContactSlip2)
+//		if (0) //j->contact.surface.mode & dContactSlip2)
 			
-		{
+//		{
 			//info->cfm[2] = j->contact.surface.slip2;
 			
-		}
+//		}
 	}
 	
 #endif //DO_THE_FRICTION_2

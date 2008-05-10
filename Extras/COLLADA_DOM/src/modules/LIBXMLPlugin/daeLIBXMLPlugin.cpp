@@ -16,10 +16,11 @@
 // because I'm not sure if all the plugin handling stuff has been tested.  Once I get a working
 // plugin I'll look into renaming it so the old daeLIBXMLPlugin can coexist with it.
 //
+#include <dae/daeMetaElement.h>
 #include <modules/daeLIBXMLPlugin.h>
 #include <dae.h>
 #include <dom.h>
-#include <dae/daeMetaElement.h>
+
 #include <libxml/xmlreader.h>
 #include <libxml/xmlwriter.h>
 #include <libxml/xmlmemory.h>

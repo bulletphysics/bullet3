@@ -26,6 +26,7 @@ subject to the following restrictions:
 
 class btOptimizedBvh;
 
+
 ATTRIBUTE_ALIGNED16(struct) btCompoundShapeChild
 {
 	BT_DECLARE_ALIGNED_ALLOCATOR();

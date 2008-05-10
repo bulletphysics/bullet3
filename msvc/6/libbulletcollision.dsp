@@ -45,9 +45,9 @@ RSC=rc.exe
 # PROP Ignore_Export_Lib 0
 # PROP Target_Dir ""
 # ADD BASE CPP /nologo /vmb /vms /W3 /Gm /G5 /D "WIN32" /FD /c
-# ADD CPP /nologo /vmb /vms /W3 /Gm /G5 /FD /c /Gy /GF /MD /Ob2 /Og /Oi /Ot /Oy /D "_LIB" /D "_MT" /D "_MBCS" /D "NDEBUG" /D "_LIB" /D "_WINDOWS" /D "WIN32"  /I "." /I "..\.." /I "..\..\src"
+# ADD CPP /nologo /vmb /vms /W3 /Gm /G5 /FD /c /Gy /GF /MD /Ob2 /Og /Oi /Ot /Oy /D "_LIB" /D "_MT" /D "_MBCS" /D "NDEBUG" /D "_LIB" /D "_WINDOWS" /D "_CRT_SECURE_NO_DEPRECATE" /D "_CRT_NONSTDC_NO_DEPRECATE" /D "WIN32"  /I "." /I "..\.." /I "..\..\src"
 # ADD BASE MTL /nologo /mktyplib203 /o "NUL" /win32
-# ADD MTL /nologo /mktyplib203 /o "NUL" /win32 /D "NDEBUG" /D "_LIB" /D "_WINDOWS"
+# ADD MTL /nologo /mktyplib203 /o "NUL" /win32 /D "NDEBUG" /D "_LIB" /D "_WINDOWS" /D "_CRT_SECURE_NO_DEPRECATE" /D "_CRT_NONSTDC_NO_DEPRECATE"
 # ADD BASE RSC /l 0x409
 # ADD RSC /l 0x409 /fo".\..\..\out\release6\build\libbulletcollision\libbulletcollision.res" /i "." /i "..\.." /i "..\..\src"
 BSC32=bscmake.exe
@@ -74,9 +74,9 @@ LINK32=link.exe
 # PROP Ignore_Export_Lib 0
 # PROP Target_Dir ""
 # ADD BASE CPP /nologo /vmb /vms /W3 /Gm /G5 /D "WIN32" /FD /c
-# ADD CPP /nologo /vmb /vms /W3 /Gm /G5 /FD /c /D "_LIB" /D "_MT" /D "_MBCS" /D "NDEBUG" /D "BT_USE_DOUBLE_PRECISION" /D "_LIB" /D "_WINDOWS" /D "WIN32"  /I "." /I "..\.." /I "..\..\src"
+# ADD CPP /nologo /vmb /vms /W3 /Gm /G5 /FD /c /D "_LIB" /D "_MT" /D "_MBCS" /D "NDEBUG" /D "BT_USE_DOUBLE_PRECISION" /D "_LIB" /D "_WINDOWS" /D "_CRT_SECURE_NO_DEPRECATE" /D "_CRT_NONSTDC_NO_DEPRECATE" /D "WIN32"  /I "." /I "..\.." /I "..\..\src"
 # ADD BASE MTL /nologo /mktyplib203 /o "NUL" /win32
-# ADD MTL /nologo /mktyplib203 /o "NUL" /win32 /D "NDEBUG" /D "BT_USE_DOUBLE_PRECISION" /D "_LIB" /D "_WINDOWS"
+# ADD MTL /nologo /mktyplib203 /o "NUL" /win32 /D "NDEBUG" /D "BT_USE_DOUBLE_PRECISION" /D "_LIB" /D "_WINDOWS" /D "_CRT_SECURE_NO_DEPRECATE" /D "_CRT_NONSTDC_NO_DEPRECATE"
 # ADD BASE RSC /l 0x409
 # ADD RSC /l 0x409 /fo".\..\..\out\release_dbl6\build\libbulletcollision\libbulletcollision.res" /i "." /i "..\.." /i "..\..\src"
 BSC32=bscmake.exe
@@ -103,9 +103,9 @@ LINK32=link.exe
 # PROP Ignore_Export_Lib 0
 # PROP Target_Dir ""
 # ADD BASE CPP /nologo /vmb /vms /W3 /Gm /G5 /D "WIN32" /FD /c
-# ADD CPP /nologo /vmb /vms /W3 /Gm /G5 /FD /c /GR /MDd /ZI /Od /D "_LIB" /D "_MT" /D "_MBCS" /D "_DEBUG" /D "_LIB" /D "_WINDOWS" /D "WIN32"  /I "." /I "..\.." /I "..\..\src"
+# ADD CPP /nologo /vmb /vms /W3 /Gm /G5 /FD /c /GR /MDd /ZI /Od /D "_LIB" /D "_MT" /D "_MBCS" /D "_DEBUG" /D "_LIB" /D "_WINDOWS" /D "_CRT_SECURE_NO_DEPRECATE" /D "_CRT_NONSTDC_NO_DEPRECATE" /D "WIN32"  /I "." /I "..\.." /I "..\..\src"
 # ADD BASE MTL /nologo /mktyplib203 /o "NUL" /win32
-# ADD MTL /nologo /mktyplib203 /o "NUL" /win32 /D "_DEBUG" /D "_LIB" /D "_WINDOWS"
+# ADD MTL /nologo /mktyplib203 /o "NUL" /win32 /D "_DEBUG" /D "_LIB" /D "_WINDOWS" /D "_CRT_SECURE_NO_DEPRECATE" /D "_CRT_NONSTDC_NO_DEPRECATE"
 # ADD BASE RSC /l 0x409
 # ADD RSC /l 0x409 /fo".\..\..\out\debug6\build\libbulletcollision\libbulletcollision.res" /i "." /i "..\.." /i "..\..\src"
 BSC32=bscmake.exe
@@ -132,9 +132,9 @@ LINK32=link.exe
 # PROP Ignore_Export_Lib 0
 # PROP Target_Dir ""
 # ADD BASE CPP /nologo /vmb /vms /W3 /Gm /G5 /D "WIN32" /FD /c
-# ADD CPP /nologo /vmb /vms /W3 /Gm /G5 /FD /c /D "_LIB" /D "_MT" /D "_MBCS" /D "_DEBUG" /D "BT_USE_DOUBLE_PRECISION" /D "_LIB" /D "_WINDOWS" /D "WIN32"  /I "." /I "..\.." /I "..\..\src"
+# ADD CPP /nologo /vmb /vms /W3 /Gm /G5 /FD /c /D "_LIB" /D "_MT" /D "_MBCS" /D "_DEBUG" /D "BT_USE_DOUBLE_PRECISION" /D "_LIB" /D "_WINDOWS" /D "_CRT_SECURE_NO_DEPRECATE" /D "_CRT_NONSTDC_NO_DEPRECATE" /D "WIN32"  /I "." /I "..\.." /I "..\..\src"
 # ADD BASE MTL /nologo /mktyplib203 /o "NUL" /win32
-# ADD MTL /nologo /mktyplib203 /o "NUL" /win32 /D "_DEBUG" /D "BT_USE_DOUBLE_PRECISION" /D "_LIB" /D "_WINDOWS"
+# ADD MTL /nologo /mktyplib203 /o "NUL" /win32 /D "_DEBUG" /D "BT_USE_DOUBLE_PRECISION" /D "_LIB" /D "_WINDOWS" /D "_CRT_SECURE_NO_DEPRECATE" /D "_CRT_NONSTDC_NO_DEPRECATE"
 # ADD BASE RSC /l 0x409
 # ADD RSC /l 0x409 /fo".\..\..\out\debug_dbl6\build\libbulletcollision\libbulletcollision.res" /i "." /i "..\.." /i "..\..\src"
 BSC32=bscmake.exe
@@ -169,6 +169,14 @@ SOURCE=..\..\src\BulletCollision\BroadphaseCollision\btBroadphaseProxy.cpp
 # Begin Source File
 
 SOURCE=..\..\src\BulletCollision\BroadphaseCollision\btCollisionAlgorithm.cpp
+# End Source File
+# Begin Source File
+
+SOURCE=..\..\src\BulletCollision\BroadphaseCollision\btDbvt.cpp
+# End Source File
+# Begin Source File
+
+SOURCE=..\..\src\BulletCollision\BroadphaseCollision\btDbvtBroadphase.cpp
 # End Source File
 # Begin Source File
 
@@ -441,6 +449,14 @@ SOURCE=..\..\src\BulletCollision\BroadphaseCollision\btBroadphaseProxy.h
 # Begin Source File
 
 SOURCE=..\..\src\BulletCollision\BroadphaseCollision\btCollisionAlgorithm.h
+# End Source File
+# Begin Source File
+
+SOURCE=..\..\src\BulletCollision\BroadphaseCollision\btDbvt.h
+# End Source File
+# Begin Source File
+
+SOURCE=..\..\src\BulletCollision\BroadphaseCollision\btDbvtBroadphase.h
 # End Source File
 # Begin Source File
 

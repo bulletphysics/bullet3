@@ -11,8 +11,8 @@
  * License. 
  */
 
-#include <modules/daeSTLDatabase.h>
 #include <dae/daeMetaElement.h>
+#include <modules/daeSTLDatabase.h>
 
 daeSTLDatabase::daeSTLDatabase()
 {}

@@ -31,6 +31,7 @@ static const int kAxisA[] = { 1, 0, 0 };
 static const int kAxisB[] = { 2, 2, 1 };
 #define GENERIC_D6_DISABLE_WARMSTARTING 1
 
+btScalar btGetMatrixElem(const btMatrix3x3& mat, int index);
 btScalar btGetMatrixElem(const btMatrix3x3& mat, int index)
 {
 	int i = index%3;
@@ -39,6 +40,7 @@ btScalar btGetMatrixElem(const btMatrix3x3& mat, int index)
 }
 
 ///MatrixToEulerXYZ from http://www.geometrictools.com/LibFoundation/Mathematics/Wm4Matrix3.inl.html
+bool	matrixToEulerXYZ(const btMatrix3x3& mat,btVector3& xyz);
 bool	matrixToEulerXYZ(const btMatrix3x3& mat,btVector3& xyz)
 {
 //	// rot =  cy*cz          -cy*sz           sy
@@ -101,13 +103,11 @@ int btRotationalLimitMotor::testLimitValue(btScalar test_value)
 		m_currentLimit = 2;//High limit violation
 		m_currentLimitError = test_value - m_hiLimit;
 		return 2;
-	}
-	else
-	{
-		m_currentLimit = 0;//Free from violation
-		return 0;
-	}
+	};
+
+	m_currentLimit = 0;//Free from violation
 	return 0;
+	
 }
 
 

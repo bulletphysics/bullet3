@@ -84,7 +84,7 @@ protected:
 
 	char	m_pad[7];
 
-	virtual bool	checkCollideWithOverride(btCollisionObject* co)
+	virtual bool	checkCollideWithOverride(btCollisionObject* /* co */)
 	{
 		return true;
 	}
