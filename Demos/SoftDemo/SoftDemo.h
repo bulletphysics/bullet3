@@ -57,6 +57,12 @@ public:
 	bool								m_raycast;
 	btScalar							m_animtime;
 	btClock								m_clock;
+	int									m_lastmousepos[2];
+	btVector3							m_impact;
+	btSoftBody::sRayCast				m_results;
+	btSoftBody::Node*					m_node;
+	btVector3							m_goal;
+	bool								m_drag;
 
 
 	//keep the collision shapes, for deletion/cleanup
@@ -80,6 +86,10 @@ public:
 
 	void	exitPhysics();
 
+	SoftDemo() : m_drag(false)
+	{
+
+	}
 	virtual ~SoftDemo()
 	{
 		exitPhysics();
@@ -118,6 +128,7 @@ public:
 	void	renderme();
 	void	keyboardCallback(unsigned char key, int x, int y);
 	void	mouseFunc(int button, int state, int x, int y);
+	void	mouseMotionFunc(int x,int y);
 
 };
 

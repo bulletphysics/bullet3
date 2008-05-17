@@ -15,13 +15,7 @@ subject to the following restrictions:
 ///btSoftBody implementation by Nathanael Presson
 
 #include "btSoftBody.h"
-#if	1
-#include <stdio.h>
-#define	DOTRACE
-#endif
-#include <string.h>
 #include "LinearMath/btQuickprof.h"
-#include "BulletCollision/NarrowPhaseCollision/btGjkEpa2.h"
 #include "BulletCollision/BroadphaseCollision/btBroadphaseInterface.h"
 #include "BulletCollision/CollisionDispatch/btCollisionDispatcher.h"
 
@@ -136,17 +130,6 @@ void	btSoftBodyCollisionShape::processAllTriangles(btTriangleCallback* /*callbac
 //
 
 //
-#ifdef DOTRACE
-static inline void			Trace(const btMatrix3x3& m,const char* name)
-{
-	printf("%s[0]: %.2f,\t%.2f,\t%.2f\r\n",name,m[0].x(),m[0].y(),m[0].z());
-	printf("%s[1]: %.2f,\t%.2f,\t%.2f\r\n",name,m[1].x(),m[1].y(),m[1].z());
-	printf("%s[2]: %.2f,\t%.2f,\t%.2f\r\n",name,m[2].x(),m[2].y(),m[2].z());
-	printf("\r\n");
-}
-#else
-static inline void			Trace(const btMatrix3x3&,const char*) {}
-#endif
 
 //
 template <typename T>
@@ -198,6 +181,10 @@ static inline T				Cube(const T& x)
 template <typename T>
 static inline T				Sign(const T& x)
 { return((T)(x<0?-1:+1)); }
+//
+template <typename T>
+static inline bool			SameSign(const T& x,const T& y)
+{ return((x*y)>0); }
 //
 static inline btMatrix3x3	ScaleAlongAxis(const btVector3& a,btScalar s)
 {
@@ -456,17 +443,6 @@ static void					PointersToIndices(btSoftBody* psb)
 			psb->m_faces[i].m_leaf->data=*(void**)&i;
 			}
 	}
-	for(int i=0,ni=psb->m_tetras.size();i<ni;++i)
-	{
-		psb->m_tetras[i].m_n[0]=PTR2IDX(psb->m_tetras[i].m_n[0],base);
-		psb->m_tetras[i].m_n[1]=PTR2IDX(psb->m_tetras[i].m_n[1],base);
-		psb->m_tetras[i].m_n[2]=PTR2IDX(psb->m_tetras[i].m_n[2],base);
-		psb->m_tetras[i].m_n[3]=PTR2IDX(psb->m_tetras[i].m_n[3],base);
-		if(psb->m_tetras[i].m_leaf)
-			{
-			psb->m_tetras[i].m_leaf->data=*(void**)&i;
-			}
-	}
 	for(int i=0,ni=psb->m_anchors.size();i<ni;++i)
 		{
 		psb->m_anchors[i].m_node=PTR2IDX(psb->m_anchors[i].m_node,base);
@@ -507,17 +483,6 @@ static void					IndicesToPointers(btSoftBody* psb,const int* map=0)
 		if(psb->m_faces[i].m_leaf)
 			{
 			psb->m_faces[i].m_leaf->data=&psb->m_faces[i];
-			}
-	}
-	for(int i=0,ni=psb->m_tetras.size();i<ni;++i)
-	{
-		psb->m_tetras[i].m_n[0]=IDX2PTR(psb->m_tetras[i].m_n[0],base);
-		psb->m_tetras[i].m_n[1]=IDX2PTR(psb->m_tetras[i].m_n[1],base);
-		psb->m_tetras[i].m_n[2]=IDX2PTR(psb->m_tetras[i].m_n[2],base);
-		psb->m_tetras[i].m_n[3]=IDX2PTR(psb->m_tetras[i].m_n[3],base);
-		if(psb->m_tetras[i].m_leaf)
-			{
-			psb->m_tetras[i].m_leaf->data=&psb->m_tetras[i];
 			}
 	}
 	for(int i=0,ni=psb->m_anchors.size();i<ni;++i)
@@ -605,11 +570,10 @@ static inline btScalar		RayTriangle(const btVector3& org,
 // Private implementation
 //
 
-struct	RayCaster : public btDbvt::ICollide
+struct	RayCaster : btDbvt::ICollide
 	{
 	btVector3			o;
 	btVector3			d;
-	btVector3			nd;
 	btScalar			mint;
 	btSoftBody::Face*	face;
 	int					tests;
@@ -617,18 +581,11 @@ struct	RayCaster : public btDbvt::ICollide
 		{
 		o		=	org;
 		d		=	dir;
-		nd		=	dir.normalized();	
 		mint	=	mxt;
 		face	=	0;
 		tests	=	0;
 		}
-
-	virtual void	Process(const btDbvt::Node* /*a*/,const btDbvt::Node* /*b*/)
-	{
-
-	}
-
-	virtual void	Process(const btDbvt::Node* leaf)
+	void	Process(const btDbvt::Node* leaf)
 		{
 		btSoftBody::Face&	f=*(btSoftBody::Face*)leaf->data;
 		const btScalar		t=RayTriangle(	o,d,
@@ -642,13 +599,6 @@ struct	RayCaster : public btDbvt::ICollide
 			face=&f;
 			}
 		++tests;
-		}
-	virtual bool	Descent(const btDbvt::Node* node)
-		{
-		const btVector3	ctr=node->volume.Center()-o;		
-		const btScalar	sqr=node->volume.Lengths().length2()/4;
-		const btScalar	prj=dot(ctr,nd);
-		return((ctr-(nd*prj)).length2()<=sqr);
 		}
 	};
 
@@ -665,55 +615,22 @@ static int		RaycastInternal(const btSoftBody* psb,
 	int	cnt=0;
 	if(bcountonly||psb->m_fdbvt.empty())
 		{/* Full search	*/ 
-		if(!psb->m_faces.size())
-			{/* Tetras		*/ 
-			for(int i=0,ni=psb->m_tetras.size();i<ni;++i)
-				{
-				const btSoftBody::Tetra&		t=psb->m_tetras[i];
-				const btSoftBody::Node* const*	n=t.m_n;
-				const int						f[]={	0,1,2,
-														0,1,3,
-														1,2,3,
-														2,0,3};
-				for(int j=0;j<12;j+=3)
-					{
-					const btScalar	t=RayTriangle(	org,dir,
-													n[f[j+0]]->m_x,
-													n[f[j+1]]->m_x,
-													n[f[j+2]]->m_x,
+		for(int i=0,ni=psb->m_faces.size();i<ni;++i)
+			{
+			const btSoftBody::Face&	f=psb->m_faces[i];
+			const btScalar			t=RayTriangle(	org,dir,
+													f.m_n[0]->m_x,
+													f.m_n[1]->m_x,
+													f.m_n[2]->m_x,
 													mint);
-					if(t>0)
-						{
-						++cnt;
-						if(!bcountonly)
-							{
-							feature=btSoftBody::eFeature::Tetra;
-							index=-1;
-							mint=t;
-							}
-						}
-					}
-				}
-			}
-			else
-			{/* Faces		*/ 
-			for(int i=0,ni=psb->m_faces.size();i<ni;++i)
+			if(t>0)
 				{
-				const btSoftBody::Face&	f=psb->m_faces[i];
-				const btScalar			t=RayTriangle(	org,dir,
-														f.m_n[0]->m_x,
-														f.m_n[1]->m_x,
-														f.m_n[2]->m_x,
-														mint);
-				if(t>0)
+				++cnt;
+				if(!bcountonly)
 					{
-					++cnt;
-					if(!bcountonly)
-						{
-						feature=btSoftBody::eFeature::Face;
-						index=i;
-						mint=t;
-						}
+					feature=btSoftBody::eFeature::Face;
+					index=i;
+					mint=t;
 					}
 				}
 			}
@@ -721,7 +638,7 @@ static int		RaycastInternal(const btSoftBody* psb,
 		else
 		{/* Use dbvt	*/ 
 		RayCaster	collider(org,dir,mint);
-		psb->m_fdbvt.collideGeneric(&collider);
+		btDbvt::collideRAY(psb->m_fdbvt.m_root,org,dir,collider);
 		if(collider.face)
 			{
 			mint=collider.mint;
@@ -742,7 +659,6 @@ for(int i=0;i<psb->m_faces.size();++i)
 	btSoftBody::Face&	f=psb->m_faces[i];
 	f.m_leaf=psb->m_fdbvt.insert(VolumeOf(f,0),&f);
 	}
-psb->m_fdbvt.optimizeTopDown();
 }
 
 //
@@ -910,15 +826,6 @@ static void			UpdateConstants(btSoftBody* psb)
 		btSoftBody::Face&	f=psb->m_faces[i];
 		f.m_ra	=	AreaOf(f.m_n[0]->m_x,f.m_n[1]->m_x,f.m_n[2]->m_x);
 	}
-	/* Tetras		*/ 
-	for(int i=0,ni=psb->m_tetras.size();i<ni;++i)
-	{
-		btSoftBody::Tetra&		t=psb->m_tetras[i];
-		btSoftBody::Material&	m=*t.m_material;
-		btSoftBody::Node**		n=t.m_n;
-		t.m_rv	=	VolumeOf(n[0]->m_x,n[1]->m_x,n[2]->m_x,n[3]->m_x);
-		t.m_c1	=	(4*m.m_kVST)/(n[0]->m_im+n[1]->m_im+n[2]->m_im+n[3]->m_im);
-	}
 	/* Area's		*/ 
 	btAlignedObjectArray<int>	counts;
 	counts.resize(psb->m_nodes.size(),0);
@@ -1081,9 +988,9 @@ static void			ApplyForces(btSoftBody* psb,btScalar dt)
 }
 
 //
-static void			PSolve_Anchors(btSoftBody* psb)
+static void			PSolve_Anchors(btSoftBody* psb,btScalar kst)
 {
-	const btScalar	kAHR=psb->m_cfg.kAHR;
+	const btScalar	kAHR=psb->m_cfg.kAHR*kst;
 	const btScalar	dt=psb->m_sst.sdt;
 	for(int i=0,ni=psb->m_anchors.size();i<ni;++i)
 	{
@@ -1101,9 +1008,10 @@ static void			PSolve_Anchors(btSoftBody* psb)
 }
 
 //
-static void			PSolve_RContacts(btSoftBody* psb)
+static void			PSolve_RContacts(btSoftBody* psb,btScalar kst)
 {
 	const btScalar	dt=psb->m_sst.sdt;
+	const btScalar	mrg=psb->getCollisionShape()->getMargin();
 	for(int i=0,ni=psb->m_rcontacts.size();i<ni;++i)
 	{
 		const btSoftBody::RContact&	c=psb->m_rcontacts[i];
@@ -1114,9 +1022,9 @@ static void			PSolve_RContacts(btSoftBody* psb)
 		const btScalar		dn=dot(vr,cti.m_normal);		
 		if(dn<=SIMD_EPSILON)
 		{
-			const btScalar		dp=dot(c.m_node->m_x,cti.m_normal)+cti.m_offset;
+			const btScalar		dp=btMin(dot(c.m_node->m_x,cti.m_normal)+cti.m_offset,mrg);
 			const btVector3		fv=vr-cti.m_normal*dn;
-			const btVector3		impulse=c.m_c0*(vr-fv*c.m_c3+cti.m_normal*(dp*c.m_c4));
+			const btVector3		impulse=c.m_c0*((vr-fv*c.m_c3+cti.m_normal*(dp*c.m_c4))*kst);
 			c.m_node->m_x-=impulse*c.m_c2;
 			c.m_cti.m_body->applyImpulse(impulse,c.m_c1);
 		}
@@ -1124,7 +1032,7 @@ static void			PSolve_RContacts(btSoftBody* psb)
 }
 
 //
-static void			PSolve_SContacts(btSoftBody* psb)
+static void			PSolve_SContacts(btSoftBody* psb,btScalar)
 {
 for(int i=0,ni=psb->m_scontacts.size();i<ni;++i)
 	{
@@ -1156,7 +1064,7 @@ for(int i=0,ni=psb->m_scontacts.size();i<ni;++i)
 }
 
 //
-static void			PSolve_Links(btSoftBody* psb)
+static void			PSolve_Links(btSoftBody* psb,btScalar kst)
 {
 	for(int i=0,ni=psb->m_links.size();i<ni;++i)
 	{			
@@ -1167,7 +1075,7 @@ static void			PSolve_Links(btSoftBody* psb)
 			btSoftBody::Node&	b=*l.m_n[1];
 			const btVector3		del=b.m_x-a.m_x;
 			const btScalar		len=del.length2();
-			const btScalar		k=((l.m_c1-len)/(l.m_c0*(l.m_c1+len)));
+			const btScalar		k=((l.m_c1-len)/(l.m_c0*(l.m_c1+len)))*kst;
 			a.m_x-=del*(k*a.m_im);
 			b.m_x+=del*(k*b.m_im);
 		}
@@ -1175,72 +1083,30 @@ static void			PSolve_Links(btSoftBody* psb)
 }
 
 //
-static void			PSolve_Tetras(btSoftBody* psb)
-{
-for(int i=0,ni=psb->m_tetras.size();i<ni;++i)
-	{			
-	btSoftBody::Tetra&	t=psb->m_tetras[i];
-	btSoftBody::Node**	n=t.m_n;
-	const btVector3		g0=cross(n[3]->m_x-n[1]->m_x,n[2]->m_x-n[1]->m_x);
-	const btVector3		g1=cross(n[3]->m_x-n[2]->m_x,n[0]->m_x-n[2]->m_x);
-	const btVector3		g2=cross(n[3]->m_x-n[0]->m_x,n[1]->m_x-n[0]->m_x);
-	const btVector3		g3=cross(n[1]->m_x-n[0]->m_x,n[2]->m_x-n[0]->m_x);
-	const btScalar		v1=VolumeOf(n[0]->m_x,n[1]->m_x,n[2]->m_x,n[3]->m_x);
-	const btScalar		k=(t.m_rv-v1)/(g0.length2()+g1.length2()+g2.length2()+g3.length2());
-	const btScalar		j=k*t.m_c1;
-	n[0]->m_x	+=	g0*j*n[0]->m_im;
-	n[1]->m_x	+=	g1*j*n[1]->m_im;
-	n[2]->m_x	+=	g2*j*n[2]->m_im;
-	n[3]->m_x	+=	g3*j*n[3]->m_im;
-	}
-}
-
-//
-static void			VSolve_Links(btSoftBody* psb)
+static void			VSolve_Links(btSoftBody* psb,btScalar kst)
 {
 for(int i=0,ni=psb->m_links.size();i<ni;++i)
 	{			
 	btSoftBody::Link&	l=psb->m_links[i];
 	btSoftBody::Node**	n=l.m_n;
-	const btScalar		j=-dot(l.m_c3,n[0]->m_v-n[1]->m_v)*l.m_c2;
+	const btScalar		j=-dot(l.m_c3,n[0]->m_v-n[1]->m_v)*l.m_c2*kst;
 	n[0]->m_v+=	l.m_c3*(j*n[0]->m_im);
 	n[1]->m_v-=	l.m_c3*(j*n[1]->m_im);
 	}
 }
 
 //
-static void			VSolve_Tetras(btSoftBody* psb)
-{
-for(int i=0,ni=psb->m_tetras.size();i<ni;++i)
-	{			
-	btSoftBody::Tetra&	t=psb->m_tetras[i];		
-	btSoftBody::Node**	n=t.m_n;
-	const btScalar		r=	dot(t.m_c0[0],n[0]->m_v)+
-							dot(t.m_c0[1],n[1]->m_v)+
-							dot(t.m_c0[2],n[2]->m_v)+
-							dot(t.m_c0[3],n[3]->m_v);
-	const btScalar		j=r*t.m_c2;
-	n[0]->m_v	+=	t.m_c0[0]*(j*n[0]->m_im);
-	n[1]->m_v	+=	t.m_c0[1]*(j*n[1]->m_im);
-	n[2]->m_v	+=	t.m_c0[2]*(j*n[2]->m_im);
-	n[3]->m_v	+=	t.m_c0[3]*(j*n[3]->m_im);
-	}
-}
-
-//
-static void (* const VSolvers[])(btSoftBody*)=	{
-												VSolve_Links,
-												VSolve_Tetras,
-												};
+static void (* const VSolvers[])(btSoftBody*,btScalar)=	{
+														VSolve_Links,
+														};
 												
 //
-static void (* const PSolvers[])(btSoftBody*)=	{
-												PSolve_Links,
-												PSolve_Tetras,
-												PSolve_Anchors,
-												PSolve_RContacts,
-												PSolve_SContacts,
-												};
+static void (* const PSolvers[])(btSoftBody*,btScalar)=	{
+														PSolve_Links,
+														PSolve_Anchors,
+														PSolve_RContacts,
+														PSolve_SContacts,
+														};
 
 //
 // btSoftBody
@@ -1262,7 +1128,7 @@ btSoftBody::btSoftBody(btSoftBody::btSoftBodyWorldInfo*	worldInfo,int node_count
 	m_cfg.kDF			=	(btScalar)0.2;
 	m_cfg.kMT			=	0;
 	m_cfg.kCHR			=	(btScalar)1.0;
-	m_cfg.kKHR			=	(btScalar)0.5;
+	m_cfg.kKHR			=	(btScalar)0.1;
 	m_cfg.kSHR			=	(btScalar)1.0;
 	m_cfg.kAHR			=	(btScalar)0.7;
 	m_cfg.maxvolume		=	(btScalar)1;
@@ -1308,7 +1174,6 @@ btSoftBody::btSoftBody(btSoftBody::btSoftBodyWorldInfo*	worldInfo,int node_count
 		n.m_leaf	=	m_ndbvt.insert(btDbvt::Volume::FromCR(n.m_x,margin),&n);
 		n.m_material=	pm;
 	}
-	m_ndbvt.optimizeTopDown();
 	UpdateBounds(this);	
 
 
@@ -1319,7 +1184,7 @@ btSoftBody::~btSoftBody()
 {
 	//for now, delete the internal shape
 	delete m_collisionShape;	
-	for(int i=0;i<m_materials.size();++i) delete m_materials[i];
+	for(int i=0;i<m_materials.size();++i) btAlignedFree(m_materials[i]);
 }
 
 //
@@ -1368,7 +1233,7 @@ bool			btSoftBody::checkFace(int node0,int node1,int node2) const
 //
 btSoftBody::Material*		btSoftBody::appendMaterial()
 {
-Material*	pm=new Material();
+Material*	pm=new(btAlignedAlloc(sizeof(Material),16)) Material();
 if(m_materials.size()>0)
 	*pm=*m_materials[0];
 	else
@@ -1429,18 +1294,6 @@ static const btScalar	w=1/(btScalar)3;
 appendNote(text,o,btVector4(w,w,w,0),	feature->m_n[0],
 										feature->m_n[1],
 										feature->m_n[2]);
-}
-								
-//
-void			btSoftBody::appendNote(	const char* text,
-										const btVector3& o,
-										Tetra* feature)
-{
-static const btScalar	w=1/(btScalar)4;
-appendNote(text,o,btVector4(w,w,w,w),	feature->m_n[0],
-										feature->m_n[1],
-										feature->m_n[2],
-										feature->m_n[3]);
 }
 
 //
@@ -1522,34 +1375,6 @@ void			btSoftBody::appendFace(int node0,int node1,int node2,Material* mat)
 	f.m_ra		=	AreaOf(	f.m_n[0]->m_x,
 		f.m_n[1]->m_x,
 		f.m_n[2]->m_x);	
-	m_bUpdateRtCst=true;
-}
-
-//
-void			btSoftBody::appendTetra(int model,Material* mat)
-{
-Tetra	t;
-if(model>=0)
-	t=m_tetras[model];
-	else
-	{ ZeroInitialize(t);t.m_material=mat?mat:m_materials[0]; }
-m_tetras.push_back(t);
-}
-
-//
-void			btSoftBody::appendTetra(int node0,
-										int node1,
-										int node2,
-										int node3,
-										Material* mat)
-{
-	appendTetra(-1,mat);
-	Tetra&	t=m_tetras[m_tetras.size()-1];
-	t.m_n[0]	=	&m_nodes[node0];
-	t.m_n[1]	=	&m_nodes[node1];
-	t.m_n[2]	=	&m_nodes[node2];
-	t.m_n[3]	=	&m_nodes[node3];
-	t.m_rv		=	VolumeOf(t.m_n[0]->m_x,t.m_n[1]->m_x,t.m_n[2]->m_x,t.m_n[3]->m_x);
 	m_bUpdateRtCst=true;
 }
 
@@ -1661,49 +1486,6 @@ void			btSoftBody::setTotalDensity(btScalar density)
 }
 
 //
-void			btSoftBody::setVolumeMass(btScalar mass)
-{
-btAlignedObjectArray<btScalar>	ranks;
-ranks.resize(m_nodes.size(),0);
-for(int i=0;i<m_nodes.size();++i)
-	{
-	m_nodes[i].m_im=0;
-	}
-for(int i=0;i<m_tetras.size();++i)
-	{
-	const Tetra& t=m_tetras[i];
-	for(int j=0;j<4;++j)
-		{
-		t.m_n[j]->m_im+=btFabs(t.m_rv);
-		ranks[int(t.m_n[j]-&m_nodes[0])]+=1;
-		}
-	}
-for(int i=0;i<m_nodes.size();++i)
-	{
-	if(m_nodes[i].m_im>0)
-		{
-		m_nodes[i].m_im=ranks[i]/m_nodes[i].m_im;
-		}
-	}
-setTotalMass(mass,false);
-}
-
-//
-void			btSoftBody::setVolumeDensity(btScalar density)
-{
-btScalar	volume=0;
-for(int i=0;i<m_tetras.size();++i)
-	{
-	const Tetra& t=m_tetras[i];
-	for(int j=0;j<4;++j)
-		{
-		volume+=btFabs(t.m_rv);
-		}
-	}
-setVolumeMass(volume*density/6);
-}
-
-//
 void			btSoftBody::transform(const btTransform& trs)
 {
 	const btScalar	margin=getCollisionShape()->getMargin();
@@ -1715,7 +1497,6 @@ void			btSoftBody::transform(const btTransform& trs)
 		n.m_n=trs.getBasis()*n.m_n;
 		m_ndbvt.update(n.m_leaf,btDbvt::Volume::FromCR(n.m_x,margin));
 	}
-	m_ndbvt.optimizeTopDown();
 	UpdateNormals(this);
 	UpdateBounds(this);
 	UpdateConstants(this);
@@ -1750,7 +1531,6 @@ void			btSoftBody::scale(const btVector3& scl)
 		n.m_q*=scl;
 		m_ndbvt.update(n.m_leaf,btDbvt::Volume::FromCR(n.m_x,margin));
 	}
-	m_ndbvt.optimizeTopDown();
 	UpdateNormals(this);
 	UpdateBounds(this);
 	UpdateConstants(this);
@@ -1870,34 +1650,31 @@ int				btSoftBody::generateBendingConstraints(int distance,Material* mat)
 				if(adj[IDX(i,j)]==(unsigned)distance)
 				{
 					appendLink(i,j,mat);
+					m_links[m_links.size()-1].m_bbending=1;
 					++nlinks;
 				}
 			}
 		}
-		delete[] adj;
+		delete[] adj;		
 		return(nlinks);
 	}
 	return(0);
 }
 
 //
-int				btSoftBody::generateTetrahedralConstraints()
-{
-/// not implemented
-return(0);
-}
-
-//
 void			btSoftBody::randomizeConstraints()
 {
+unsigned long	seed=243703;
+#define NEXTRAND (seed=(1664525L*seed+1013904223L)&0xffffffff)
 	for(int i=0,ni=m_links.size();i<ni;++i)
 	{
-		btSwap(m_links[i],m_links[std::rand()%ni]);
+		btSwap(m_links[i],m_links[NEXTRAND%ni]);
 	}
 	for(int i=0,ni=m_faces.size();i<ni;++i)
 	{
-		btSwap(m_faces[i],m_faces[std::rand()%ni]);
+		btSwap(m_faces[i],m_faces[NEXTRAND%ni]);
 	}
+#undef NEXTRAND
 }
 
 //
@@ -1907,6 +1684,19 @@ const Node*			nbase(&m_nodes[0]);
 int					ncount(m_nodes.size());
 btSymMatrix<int>	edges(ncount,-2);
 int					newnodes=0;
+/* Filter out		*/ 
+for(int i=0;i<m_links.size();++i)
+	{
+	Link&	l=m_links[i];
+	if(l.m_bbending)
+		{
+		if(!SameSign(ifn->Eval(l.m_n[0]->m_x),ifn->Eval(l.m_n[1]->m_x)))
+			{
+			btSwap(m_links[i],m_links[m_links.size()-1]);
+			m_links.pop_back();--i;
+			}
+		}	
+	}
 /* Fill edges		*/ 
 for(int i=0;i<m_links.size();++i)
 	{
@@ -1919,16 +1709,6 @@ for(int i=0;i<m_faces.size();++i)
 	edges(int(f.m_n[0]-nbase),int(f.m_n[1]-nbase))=-1;
 	edges(int(f.m_n[1]-nbase),int(f.m_n[2]-nbase))=-1;
 	edges(int(f.m_n[2]-nbase),int(f.m_n[0]-nbase))=-1;
-	}
-for(int i=0;i<m_tetras.size();++i)
-	{
-	Tetra&	t=m_tetras[i];
-	edges(int(t.m_n[0]-nbase),int(t.m_n[1]-nbase))=-1;
-	edges(int(t.m_n[1]-nbase),int(t.m_n[2]-nbase))=-1;
-	edges(int(t.m_n[2]-nbase),int(t.m_n[0]-nbase))=-1;
-	edges(int(t.m_n[0]-nbase),int(t.m_n[3]-nbase))=-1;
-	edges(int(t.m_n[1]-nbase),int(t.m_n[3]-nbase))=-1;
-	edges(int(t.m_n[2]-nbase),int(t.m_n[3]-nbase))=-1;
 	}
 /* Intersect		*/ 
 for(int i=0;i<ncount;++i)
@@ -2027,60 +1807,6 @@ for(int i=0;i<m_faces.size();++i)
 			}
 		}
 	}
-/* Refine tetras	*/ 
-static const int	edg[]={0,1,1,2,2,0,0,3,1,3,2,3};
-static const int	apx[]={2,3,0,3,1,3,1,2,2,0,0,1};
-for(int i=0;i<m_tetras.size();++i)
-	{
-	const Tetra&	feat=m_tetras[i];
-	const int		idx[]={	int(feat.m_n[0]-nbase),
-							int(feat.m_n[1]-nbase),
-							int(feat.m_n[2]-nbase),
-							int(feat.m_n[3]-nbase)};	
-	for(int j=0;j<(sizeof(edg)/sizeof(edg[0]));j+=2)
-		{
-		const int	ia=idx[edg[j]];
-		const int	ib=idx[edg[j+1]];
-		if((ia<ncount)&&(ib<ncount))
-			{
-			const int ni=edges(ia,ib);
-			const int xa=idx[apx[j]];
-			const int xb=idx[apx[j+1]];
-			if(ni!=-1)
-				{
-				appendTetra(i);			
-				Tetra*			pft[]={	&m_tetras[i],
-										&m_tetras[m_tetras.size()-1]};
-				const btScalar	sig=Sign(pft[0]->m_rv);
-				pft[0]->m_n[0]=&m_nodes[ia];
-				pft[0]->m_n[1]=&m_nodes[xb];
-				pft[0]->m_n[2]=&m_nodes[xa];
-				pft[0]->m_n[3]=&m_nodes[ni];
-				if(Sign(VolumeOf(	pft[0]->m_n[0]->m_x,
-									pft[0]->m_n[1]->m_x,
-									pft[0]->m_n[2]->m_x,
-									pft[0]->m_n[3]->m_x))!=sig)
-					{
-					btSwap(pft[0]->m_n[0],pft[0]->m_n[1]);
-					}
-				pft[1]->m_n[0]=&m_nodes[ib];
-				pft[1]->m_n[1]=&m_nodes[xa];
-				pft[1]->m_n[2]=&m_nodes[xb];
-				pft[1]->m_n[3]=&m_nodes[ni];
-				if(Sign(VolumeOf(	pft[1]->m_n[0]->m_x,
-									pft[1]->m_n[1]->m_x,
-									pft[1]->m_n[2]->m_x,
-									pft[1]->m_n[3]->m_x))!=sig)
-					{
-					btSwap(pft[1]->m_n[0],pft[1]->m_n[1]);
-					}
-				appendLink(ni,xa,pft[0]->m_material,true);
-				appendLink(ni,xb,pft[0]->m_material,true);
-				--i;break;
-				}
-			}
-		}
-	}
 /* Cut				*/ 
 if(cut)
 	{	
@@ -2145,22 +1871,6 @@ if(cut)
 				}
 			}
 		}
-	/* Tetras		*/ 
-	for(int i=0,ni=m_tetras.size();i<ni;++i)
-		{
-		Node**			n=	m_tetras[i].m_n;
-		if(	(ifn->Eval(n[0]->m_x)<accurary)&&
-			(ifn->Eval(n[1]->m_x)<accurary)&&
-			(ifn->Eval(n[2]->m_x)<accurary)&&
-			(ifn->Eval(n[3]->m_x)<accurary))
-			{
-			for(int j=0;j<4;++j)
-				{
-				int cn=cnodes[int(n[j]-nbase)];
-				if(cn) n[j]=&m_nodes[cn];
-				}
-			}		
-		}
 	/* Clean orphans	*/ 
 	int							nnodes=m_nodes.size();
 	btAlignedObjectArray<int>	ranks;
@@ -2173,10 +1883,6 @@ if(cut)
 	for(int i=0,ni=m_faces.size();i<ni;++i)
 		{
 		for(int j=0;j<3;++j) ranks[int(m_faces[i].m_n[j]-nbase)]++;
-		}
-	for(int i=0,ni=m_tetras.size();i<ni;++i)
-		{
-		for(int j=0;j<4;++j) ranks[int(m_tetras[i].m_n[j]-nbase)]++;
 		}
 	for(int i=0;i<m_links.size();++i)
 		{
@@ -2318,18 +2024,15 @@ switch(preset)
 	m_cfg.m_psequence.push_back(ePSolver::Anchors);
 	m_cfg.m_psequence.push_back(ePSolver::RContacts);
 	m_cfg.m_psequence.push_back(ePSolver::SContacts);
-	m_cfg.m_psequence.push_back(ePSolver::Volume);
 	m_cfg.m_psequence.push_back(ePSolver::Linear);	
 	break;	
 	case	eSolverPresets::Velocities:
-	m_cfg.m_vsequence.push_back(eVSolver::Volume);
 	m_cfg.m_vsequence.push_back(eVSolver::Linear);
 	
 	m_cfg.m_psequence.push_back(ePSolver::Anchors);
 	m_cfg.m_psequence.push_back(ePSolver::RContacts);
 	m_cfg.m_psequence.push_back(ePSolver::SContacts);
 	
-	m_cfg.m_dsequence.push_back(ePSolver::Volume);
 	m_cfg.m_dsequence.push_back(ePSolver::Linear);
 	break;
 	}
@@ -2389,65 +2092,36 @@ void			btSoftBody::predictMotion(btScalar dt)
 		}
 	/* Pose					*/ 
 	UpdatePose(this);
-	/* Clear contacts	*/ 
+	/* Match				*/ 
+	if(m_pose.m_bframe&&(m_cfg.kMT>0))
+		{
+		for(int i=0,ni=m_nodes.size();i<ni;++i)
+			{
+			Node&	n=m_nodes[i];
+			if(n.m_im>0)
+				{
+				const btVector3	x=m_pose.m_rot*m_pose.m_pos[i]+m_pose.m_com;
+				n.m_x=Lerp(n.m_x,x,m_cfg.kMT);
+				}
+			}
+		}
+	/* Clear contacts		*/ 
 	m_rcontacts.resize(0);
 	m_scontacts.resize(0);
+	/* Optimize dbvt's		*/ 
+	m_ndbvt.optimizeIncremental(1);
+	m_fdbvt.optimizeIncremental(1);
 }
 
 //
 void			btSoftBody::solveConstraints()
 {
-/* Solve velocities		*/ 
-if(m_cfg.viterations>0)
+/* Prepare links		*/ 
+for(int i=0,ni=m_links.size();i<ni;++i)
 	{
-	/* Prepare			*/ 
-	for(int i=0,ni=m_links.size();i<ni;++i)
-		{
-		Link&	l=m_links[i];
-		l.m_c3		=	l.m_n[1]->m_x-l.m_n[0]->m_x;
-		l.m_c2		=	1/(l.m_c3.length2()*l.m_c0);
-		}
-	for(int i=0,ni=m_tetras.size();i<ni;++i)
-		{
-		Tetra&	t=m_tetras[i];
-		Node**	n=t.m_n;
-		t.m_c0[0]	=	cross(n[3]->m_x-n[1]->m_x,n[2]->m_x-n[1]->m_x);
-		t.m_c0[1]	=	cross(n[3]->m_x-n[2]->m_x,n[0]->m_x-n[2]->m_x);
-		t.m_c0[2]	=	cross(n[3]->m_x-n[0]->m_x,n[1]->m_x-n[0]->m_x);
-		t.m_c0[3]	=	cross(n[1]->m_x-n[0]->m_x,n[2]->m_x-n[0]->m_x);
-		const btScalar	den=t.m_c0[0].length2()+
-							t.m_c0[1].length2()+
-							t.m_c0[2].length2()+
-							t.m_c0[3].length2();
-		t.m_c2		=	-t.m_c1/den;
-		}
-	/* Solve			*/ 
-	for(int isolve=0;isolve<m_cfg.viterations;++isolve)
-		{
-		for(int iseq=0;iseq<m_cfg.m_vsequence.size();++iseq)
-			{
-			VSolvers[m_cfg.m_vsequence[iseq]](this);
-			}
-		}
-	/* Update			*/ 
-	for(int i=0,ni=m_nodes.size();i<ni;++i)
-		{
-		Node&	n=m_nodes[i];
-		n.m_x	=	n.m_q+n.m_v*m_sst.sdt;
-		}
-	}
-/* Match				*/ 
-if(m_pose.m_bframe&&(m_cfg.kMT>0))
-	{
-	for(int i=0,ni=m_nodes.size();i<ni;++i)
-		{
-		Node&	n=m_nodes[i];
-		if(n.m_im>0)
-			{
-			const btVector3	x=m_pose.m_rot*m_pose.m_pos[i]+m_pose.m_com;
-			n.m_x=Lerp(n.m_x,x,m_cfg.kMT);
-			}
-		}
+	Link&	l=m_links[i];
+	l.m_c3		=	l.m_n[1]->m_x-l.m_n[0]->m_x;
+	l.m_c2		=	1/(l.m_c3.length2()*l.m_c0);
 	}
 /* Prepare anchors		*/ 
 for(int i=0,ni=m_anchors.size();i<ni;++i)
@@ -2463,6 +2137,24 @@ for(int i=0,ni=m_anchors.size();i<ni;++i)
 	a.m_c2	=	m_sst.sdt*a.m_node->m_im;
 	a.m_body->activate();
 	}
+/* Solve velocities		*/ 
+if(m_cfg.viterations>0)
+	{	
+	/* Solve			*/ 
+	for(int isolve=0;isolve<m_cfg.viterations;++isolve)
+		{
+		for(int iseq=0;iseq<m_cfg.m_vsequence.size();++iseq)
+			{
+			VSolvers[m_cfg.m_vsequence[iseq]](this,1);
+			}
+		}
+	/* Update			*/ 
+	for(int i=0,ni=m_nodes.size();i<ni;++i)
+		{
+		Node&	n=m_nodes[i];
+		n.m_x	=	n.m_q+n.m_v*m_sst.sdt;
+		}
+	}
 /* Solve positions		*/ 
 if(m_cfg.piterations>0)
 	{
@@ -2470,7 +2162,7 @@ if(m_cfg.piterations>0)
 		{
 		for(int iseq=0;iseq<m_cfg.m_psequence.size();++iseq)
 			{
-			PSolvers[m_cfg.m_psequence[iseq]](this);
+			PSolvers[m_cfg.m_psequence[iseq]](this,1);
 			}
 		}
 	const btScalar	vc=m_sst.isdt*(1-m_cfg.kDP);
@@ -2494,7 +2186,7 @@ if(m_cfg.diterations>0)
 		{
 		for(int iseq=0;iseq<m_cfg.m_dsequence.size();++iseq)
 			{
-			PSolvers[m_cfg.m_dsequence[iseq]](this);
+			PSolvers[m_cfg.m_dsequence[iseq]](this,1);
 			}
 		}
 	for(int i=0,ni=m_nodes.size();i<ni;++i)
@@ -2502,7 +2194,7 @@ if(m_cfg.diterations>0)
 		Node&	n=m_nodes[i];
 		n.m_v	+=	(n.m_x-n.m_q)*vcf;
 		}
-	}	
+	}
 }
 
 //
@@ -2512,7 +2204,7 @@ for(int isolve=0;isolve<iterations;++isolve)
 	{
 	for(int iseq=0;iseq<m_cfg.m_psequence.size();++iseq)
 		{
-		PSolvers[m_cfg.m_psequence[iseq]](this);
+		PSolvers[m_cfg.m_psequence[iseq]](this,1);
 		}
 	}
 }
@@ -2539,17 +2231,7 @@ switch(m_cfg.collisions&fCollision::RVSmask)
 		{
 		struct	DoCollide : btDbvt::ICollide
 			{
-				
-				virtual void		Process(const btDbvt::Node* /*a*/,const btDbvt::Node* /*b*/)
-				{
-
-				}
-
-			virtual bool	Descent(const btDbvt::Node*)
-			{
-				return false;
-			}
-			virtual void		Process(const btDbvt::Node* leaf)
+			void		Process(const btDbvt::Node* leaf)
 				{
 				Node*	node=(Node*)leaf->data;
 				DoNode(*node);
@@ -2608,7 +2290,7 @@ switch(m_cfg.collisions&fCollision::RVSmask)
 		docollide.prb		=	prb;
 		docollide.dynmargin	=	basemargin+timemargin;
 		docollide.stamargin	=	basemargin;
-		m_ndbvt.collide(volume,&docollide);
+		btDbvt::collideTV(m_ndbvt.m_root,volume,docollide);
 		}
 	break;
 	}
@@ -2624,15 +2306,6 @@ switch(cf&fCollision::SVSmask)
 		{
 		struct	DoCollide : btDbvt::ICollide
 			{
-			virtual bool	Descent(const btDbvt::Node*)
-			{
-				return false;
-			}
-			virtual void		Process(const btDbvt::Node* /*leaf*/)
-			{
-			
-			}
-
 			void		Process(const btDbvt::Node* lnode,
 								const btDbvt::Node* lface)
 				{
@@ -2683,13 +2356,15 @@ switch(cf&fCollision::SVSmask)
 		/* psb0 nodes vs psb1 faces	*/ 
 		docollide.psb[0]=this;
 		docollide.psb[1]=psb;
-		docollide.psb[0]->m_ndbvt.collide(	&docollide.psb[1]->m_fdbvt,
-											&docollide);
+		btDbvt::collideTT(	docollide.psb[0]->m_ndbvt.m_root,
+							docollide.psb[1]->m_fdbvt.m_root,
+							docollide);
 		/* psb1 nodes vs psb0 faces	*/ 
 		docollide.psb[0]=psb;
 		docollide.psb[1]=this;
-		docollide.psb[0]->m_ndbvt.collide(	&docollide.psb[1]->m_fdbvt,
-											&docollide);
+		btDbvt::collideTT(	docollide.psb[0]->m_ndbvt.m_root,
+							docollide.psb[1]->m_fdbvt.m_root,
+							docollide);
 		}
 	break;
 	}

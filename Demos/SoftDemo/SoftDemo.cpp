@@ -99,13 +99,32 @@ void SoftDemo::clientMoveAndDisplay()
 
 
 
-	float dt = getDeltaTimeMicroseconds() * 0.000001f;
-
-	//	printf("dt = %f: ",dt);
-
+	float dt = 1.0/60.;	
 
 	if (m_dynamicsWorld)
 	{
+	if(m_drag)
+		{
+		const int				x=m_lastmousepos[0];
+		const int				y=m_lastmousepos[1];
+		const btVector3			rayFrom=m_cameraPosition;
+		const btVector3			rayTo=getRayTo(x,y);
+		const btVector3			rayDir=(rayTo-rayFrom).normalized();
+		const btVector3			N=(m_cameraTargetPosition-m_cameraPosition).normalized();
+		const btScalar			O=dot(m_impact,N);
+		const btScalar			den=dot(N,rayDir);
+		if((den*den)>0)
+			{
+			const btScalar			num=O-dot(N,rayFrom);
+			const btScalar			hit=num/den;
+			if((hit>0)&&(hit<1500))
+				{				
+				m_goal=rayFrom+rayDir*hit;
+				}				
+			}		
+		m_node->m_v+=(m_goal-m_node->m_x)/dt;
+		}
+	
 #define FIXED_STEP
 #ifdef FIXED_STEP
 		m_dynamicsWorld->stepSimulation(dt=1.0f/60.f,0);
@@ -137,6 +156,10 @@ void SoftDemo::clientMoveAndDisplay()
 
 #endif		
 
+		if(m_drag)
+		{
+		m_node->m_v*=0;
+		}
 
 		m_softBodyWorldInfo.m_sparsesdf.GarbageCollect();
 
@@ -671,6 +694,28 @@ static void	Init_Sticks(SoftDemo* pdemo)
 }
 
 //
+// Bending
+//
+static void	Init_Bending(SoftDemo* pdemo)
+{
+	//TRACEDEMO
+	const btScalar	s=4;
+	const btVector3	x[]={	btVector3(-s,0,-s),
+							btVector3(+s,0,-s),
+							btVector3(+s,0,+s),
+							btVector3(-s,0,+s)};
+	const btScalar	m[]={	0,0,0,1};
+	btSoftBody*		psb=new btSoftBody(&pdemo->m_softBodyWorldInfo,4,x,m);
+	psb->appendLink(0,1);
+	psb->appendLink(1,2);
+	psb->appendLink(2,3);
+	psb->appendLink(3,0);
+	psb->appendLink(0,2);
+	
+	pdemo->getSoftDynamicsWorld()->addSoftBody(psb);
+}
+
+//
 // 100kg cloth locked at corners, 10 falling 10kg rb's.
 //
 static void	Init_Cloth(SoftDemo* pdemo)
@@ -715,6 +760,7 @@ static void	Init_Bunny(SoftDemo* pdemo)
 	psb->scale(btVector3(6,6,6));
 	psb->setTotalMass(100,true);
 	pdemo->getSoftDynamicsWorld()->addSoftBody(psb);
+	pdemo->m_cutting=true;
 
 }
 
@@ -756,6 +802,7 @@ static void	Init_Torus(SoftDemo* pdemo)
 	psb->scale(btVector3(2,2,2));
 	psb->setTotalMass(50,true);
 	pdemo->getSoftDynamicsWorld()->addSoftBody(psb);
+	pdemo->m_cutting=true;
 
 }
 
@@ -798,155 +845,6 @@ static void	Init_Cutting1(SoftDemo* pdemo)
 	pdemo->m_cutting=true;	
 }
 
-#ifdef BT_SOFTBODY_USE_STL
-//
-// TetraBunny
-//
-static void	Init_TetraBunny(SoftDemo* pdemo)
-{
-	btSoftBody* psb=btSoftBodyHelpers::CreateFromTetGenData(pdemo->m_softBodyWorldInfo,
-															TetraBunny::getElements(),
-															0,
-															TetraBunny::getNodes(),
-															false,true,true);
-	pdemo->getSoftDynamicsWorld()->addSoftBody(psb);
-	psb->rotate(btQuaternion(SIMD_PI/2,0,0));
-	psb->setVolumeMass(150);
-	psb->m_cfg.piterations=2;
-	pdemo->m_cutting=true;	
-}
-
-//
-// TetraCube
-//
-static void	Init_TetraCube(SoftDemo* pdemo)
-{
-	btSoftBody* psb=btSoftBodyHelpers::CreateFromTetGenData(pdemo->m_softBodyWorldInfo,
-															TetraCube::getElements(),
-															0,
-															TetraCube::getNodes(),
-															false,true,true);
-	pdemo->getSoftDynamicsWorld()->addSoftBody(psb);
-	psb->scale(btVector3(4,4,4));
-	psb->translate(btVector3(0,5,0));
-	psb->setVolumeMass(300);
-	psb->setMass(0,0);
-	/*psb->setMass(10,0);
-	psb->setMass(20,0);*/
-	psb->m_cfg.piterations=1;
-	//psb->m_materials[0]->m_kLST=0.05;
-	pdemo->m_cutting=true;	
-}
-#endif //BT_SOFTBODY_USE_STL
-
-//
-// Tetra
-//
-static void	Init_Tetra(SoftDemo* pdemo)
-{
-	//TRACEDEMO
-	#if 0
-		{
-		btVector3	pts[]={	btVector3(-1,-1,-1),
-							btVector3(+1,-1,-1),
-							btVector3(+1,+1,-1),
-							btVector3(-1,+1,-1),
-							btVector3(-1,-1,+1),
-							btVector3(+1,-1,+1),
-							btVector3(+1,+1,+1),
-							btVector3(-1,+1,+1)};
-		btSoftBody*	psb=btSoftBodyHelpers::CreateFromConvexHull(pdemo->m_softBodyWorldInfo,pts,8);
-		btSoftBodyHelpers::ExportAsSMeshFile(psb,"C:/HomeH/Oss/tetgen/Release/cube.smesh");
-		delete psb;
-		/*btSoftBody*	psb=btSoftBodyHelpers::CreateFromTriMesh(	pdemo->m_softBodyWorldInfo,gVerticesBunny,
-																&gIndicesBunny[0][0],
-																BUNNY_NUM_TRIANGLES);
-		psb->scale(btVector3(6,6,6));
-		btSoftBodyHelpers::ExportAsSMeshFile(psb,"C:/HomeH/Oss/tetgen/Release/bunny.smesh");
-		delete psb;*/
-		}
-	btSoftBody* psb=btSoftBodyHelpers::CreateFromTetGenFile(pdemo->m_softBodyWorldInfo,
-												/*"C:/HomeH/Oss/tetgen/Release/bunny.1.ele",
-												"C:/HomeH/Oss/tetgen/Release/bunny.1.face",
-												"C:/HomeH/Oss/tetgen/Release/bunny.1.node",*/
-												"C:/HomeH/Oss/tetgen/Release/cube.1.ele",
-												0/*"C:/HomeH/Oss/tetgen/Release/cube.1.face"*/,
-												"C:/HomeH/Oss/tetgen/Release/cube.1.node",
-												true,true);
-	pdemo->getSoftDynamicsWorld()->addSoftBody(psb);
-	psb->scale(btVector3(4,4,4));
-	/*psb->rotate(btQuaternion(SIMD_PI/4,SIMD_PI/4,0));
-	psb->translate(btVector3(0,10,0));*/
-	psb->setVolumeMass(30);
-	psb->m_cfg.piterations=1;
-	psb->m_cfg.kKHR=1;
-	//psb->addVelocity(btVector3(0,50,0));
-	//psb->m_tetras.clear();
-	ImplicitSphere	fnc;
-	fnc.center	=	btVector3(4,4,4);
-	fnc.radius	=	4;
-	psb->refine(&fnc,0.001,true);
-	//psb->m_tetras.clear();
-	printf("Nodes:  %u\r\n",psb->m_nodes.size());
-	printf("Links:  %u\r\n",psb->m_links.size());
-	printf("Faces:  %u\r\n",psb->m_faces.size());
-	printf("Tetras: %u\r\n",psb->m_tetras.size());
-	#else
-	
-	#if 1
-	const btScalar	s=4;
-	const int		r=32;
-	const btVector3	p[]={	btVector3(+s,0,-s),
-							btVector3(-s,0,-s),
-							btVector3(+s,0,+s),
-							btVector3(-s,0,+s)};
-	btSoftBody*	psb=btSoftBodyHelpers::CreatePatch(pdemo->m_softBodyWorldInfo,p[0],p[1],p[2],p[3],r,r,1+2+4+8,true);
-	pdemo->getSoftDynamicsWorld()->addSoftBody(psb);
-	psb->m_cfg.piterations=2;
-	/*ImplicitSphere	fnc;
-	fnc.center	=	btVector3(0,0,0);
-	fnc.radius	=	1.5;
-	psb->refine(&fnc,0.001,true);*/
-	//psb->m_faces.clear();
-	/*fnc.center	=	btVector3(4,0,4);
-	fnc.radius	=	2;
-	psb->refine(&fnc,0.001,true);*/
-	#else
-	const btScalar	s=4;
-	const btVector3	p[]={	btVector3(+s,-s,0),
-							btVector3(-s,0,0),
-							btVector3(0,0,+s),
-							btVector3(0,+s,0)};
-	btSoftBody*	psb=new btSoftBody(&pdemo->m_softBodyWorldInfo,4,p,0);
-	psb->appendTetra(0,1,2,3);
-	psb->appendLink(0,1,1,btSoftBody::eLType::Structural);
-	psb->appendLink(1,2,1,btSoftBody::eLType::Structural);
-	psb->appendLink(2,0,1,btSoftBody::eLType::Structural);
-	psb->appendLink(0,3,1,btSoftBody::eLType::Structural);
-	psb->appendLink(1,3,1,btSoftBody::eLType::Structural);
-	psb->appendLink(2,3,1,btSoftBody::eLType::Structural);
-	pdemo->getSoftDynamicsWorld()->addSoftBody(psb);	
-	psb->setSolver(btSoftBody::eSolverPresets::Velocities);
-	psb->m_cfg.viterations=1;
-	psb->m_cfg.diterations=1;
-	psb->m_cfg.kDF=0;
-	psb->m_cfg.kLST=0.000001;
-	//psb1->m_cfg.diterations=1;
-	/*btSoftBody*	psb0=btSoftBodyHelpers::CreateRope(	pdemo->m_softBodyWorldInfo,
-													btVector3(0,0,0),btVector3(5,0,0),16,1);
-	pdemo->getSoftDynamicsWorld()->addSoftBody(psb0);
-	
-	btSoftBody*	psb1=btSoftBodyHelpers::CreateRope(	pdemo->m_softBodyWorldInfo,
-													btVector3(0,0,2),btVector3(5,0,2),16,1);
-	psb1->m_cfg.viterations=1;
-	psb1->m_cfg.diterations=1;
-	psb1->setSolver(btSoftBody::eSolverPresets::Velocities);
-	pdemo->getSoftDynamicsWorld()->addSoftBody(psb1);*/
-	#endif
-	#endif
-	pdemo->toggleIdle();
-}
-
 unsigned	current_demo=0;
 
 void	SoftDemo::clientResetScene()
@@ -977,11 +875,6 @@ void	SoftDemo::clientResetScene()
 	void (*demofncs[])(SoftDemo*)=
 	{
 		Init_Cloth,
-		Init_Cutting1,
-#ifdef BT_SOFTBODY_USE_STL
-		Init_TetraBunny,
-		Init_TetraCube,
-#endif //BT_SOFTBODY_USE_STL
 		Init_Pressure,
 		Init_Volume,
 		Init_Ropes,
@@ -998,6 +891,7 @@ void	SoftDemo::clientResetScene()
 		Init_TorusMatch,
 		Init_Bunny,
 		Init_BunnyMatch,
+		Init_Cutting1,
 	};
 	current_demo=current_demo%(sizeof(demofncs)/sizeof(demofncs[0]));
 
@@ -1012,6 +906,7 @@ void	SoftDemo::clientResetScene()
 	m_autocam						=	false;
 	m_raycast						=	false;
 	m_cutting						=	false;
+	m_results.time					=	SIMD_INFINITY;
 	demofncs[current_demo](this);
 }
 
@@ -1158,52 +1053,105 @@ void	SoftDemo::keyboardCallback(unsigned char key, int x, int y)
 }
 
 //
-void	SoftDemo::mouseFunc(int button, int state, int x, int y)
+void	SoftDemo::mouseMotionFunc(int x,int y)
 {
-if(m_cutting&&(state==0)&&(button==0))
+if(m_node&&(m_results.time<SIMD_INFINITY))
 	{
-	const btVector3			rayFrom=m_cameraPosition;
-	const btVector3			rayTo=getRayTo(x,y);
-	const btVector3			rayDir=(rayTo-rayFrom).normalized();
-	btSoftBodyArray&		sbs=getSoftDynamicsWorld()->getSoftBodyArray();
-	btSoftBody::sRayCast	results;
-	results.time=SIMD_INFINITY;
-	for(int ib=0;ib<sbs.size();++ib)
+	if(!m_drag)
 		{
-		btSoftBody*				psb=sbs[ib];
-		btSoftBody::sRayCast	res;
-		if(psb->rayCast(rayFrom,rayDir,res,results.time))
+		#define SQ(_x_) (_x_)*(_x_)
+		if((SQ(x-m_lastmousepos[0])+SQ(y-m_lastmousepos[1]))>6)
 			{
-			results=res;
+			m_drag=true;
 			}
+		#undef SQ
 		}
-	if(results.time<SIMD_INFINITY)
+	if(m_drag)
 		{
-		#if 0
-		const btVector3			x=rayFrom+rayDir*results.time;
-		const btSoftBody::Face& f=results.body->m_faces[results.index];
-		btScalar				bestarea=SIMD_INFINITY;
-		const btSoftBody::Node*	n[2]={0,0};
-		for(int i=2,j=0;j<3;i=j++)
-			{
-			const btScalar a2=cross(f.m_n[i]->m_x-x,f.m_n[j]->m_x-x).length2();
-			if(a2<bestarea)
-				{
-				bestarea=a2;
-				n[0]=f.m_n[i];
-				n[1]=f.m_n[j];
-				}
-			}
-		results.body->cutLink(n[0],n[1],0.5);
-		#endif
-		ImplicitSphere	isphere(rayFrom+rayDir*results.time,1);
-		printf("Mass before: %f\r\n",results.body->getTotalMass());
-		results.body->refine(&isphere,0.0001,true);
-		printf("Mass after: %f\r\n",results.body->getTotalMass());
-		return;
+		m_lastmousepos[0]	=	x;
+		m_lastmousepos[1]	=	y;		
 		}
 	}
-DemoApplication::mouseFunc(button,state,x,y);
+	else
+	{
+	DemoApplication::mouseMotionFunc(x,y);
+	}
+}
+
+//
+void	SoftDemo::mouseFunc(int button, int state, int x, int y)
+{
+if(button==0)
+	{
+	switch(state)
+		{
+		case	0:
+			{
+			m_results.time=SIMD_INFINITY;
+			DemoApplication::mouseFunc(button,state,x,y);
+			if(!m_pickConstraint)
+				{
+				const btVector3			rayFrom=m_cameraPosition;
+				const btVector3			rayTo=getRayTo(x,y);
+				const btVector3			rayDir=(rayTo-rayFrom).normalized();
+				btSoftBodyArray&		sbs=getSoftDynamicsWorld()->getSoftBodyArray();
+				for(int ib=0;ib<sbs.size();++ib)
+					{
+					btSoftBody*				psb=sbs[ib];
+					btSoftBody::sRayCast	res;
+					if(psb->rayCast(rayFrom,rayDir,res,m_results.time))
+						{
+						m_results=res;
+						}
+					}
+				if(m_results.time<SIMD_INFINITY)
+					{				
+					m_impact			=	rayFrom+rayDir*m_results.time;
+					m_drag				=	false;
+					m_lastmousepos[0]	=	x;
+					m_lastmousepos[1]	=	y;
+					m_node				=	0;
+					switch(m_results.feature)
+						{
+						case	btSoftBody::eFeature::Face:
+							{
+							btSoftBody::Face&	f=m_results.body->m_faces[m_results.index];
+							m_node=f.m_n[0];
+							for(int i=1;i<3;++i)
+								{
+								if(	(m_node->m_x-m_impact).length2()>
+									(f.m_n[i]->m_x-m_impact).length2())
+									{
+									m_node=f.m_n[i];
+									}
+								}
+							}
+						break;
+						}
+					if(m_node) m_goal=m_node->m_x;
+					return;
+					}
+				}
+			}
+		break;
+		case	1:
+		if((!m_drag)&&m_cutting&&(m_results.time<SIMD_INFINITY))
+			{
+			ImplicitSphere	isphere(m_impact,1);
+			printf("Mass before: %f\r\n",m_results.body->getTotalMass());
+			m_results.body->refine(&isphere,0.0001,true);
+			printf("Mass after: %f\r\n",m_results.body->getTotalMass());
+			}
+		m_results.time=SIMD_INFINITY;
+		m_drag=false;
+		DemoApplication::mouseFunc(button,state,x,y);
+		break;
+		}
+	}
+	else
+	{
+	DemoApplication::mouseFunc(button,state,x,y);
+	}
 }
 
 

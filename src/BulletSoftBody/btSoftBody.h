@@ -45,29 +45,31 @@ public:
 		V_TwoSided,	///Vertex normals are fliped to match velocity	
 		V_OneSided,	///Vertex normals are taken as it is	
 		F_TwoSided,	///Face normals are fliped to match velocity
-		F_OneSided	///Face normals are taken as it is
+		F_OneSided,	///Face normals are taken as it is
+		END
 	};};
 	
 	///eVSolver : velocities solvers
 	struct	eVSolver { enum _ {
 		Linear,		///Linear solver
-		Volume		///Volume solver
+		END
 	};};
 	
 	///ePSolver : positions solvers
 	struct	ePSolver { enum _ {
 		Linear,		///Linear solver
-		Volume,		///Volume solver
 		Anchors,	///Anchor solver
 		RContacts,	///Rigid contacts solver
-		SContacts	///Soft contacts solver
+		SContacts,	///Soft contacts solver
+		END
 	};};
 	
 	///eSolverPresets
 	struct	eSolverPresets { enum _ {
 		Positions,
 		Velocities,
-		Default	=	Positions
+		Default	=	Positions,
+		END
 	};};
 	
 	///eFeature
@@ -76,7 +78,7 @@ public:
 		Node,
 		Link,
 		Face,
-		Tetra
+		END
 	};};
 	
 	typedef btAlignedObjectArray<eVSolver::_>	tVSolverArray;
@@ -94,14 +96,16 @@ public:
 		SVSmask	=	0x00f0,	///Rigid versus soft mask		
 		VF_SS	=	0x0010,	///Vertex vs face soft vs soft handling
 		/* presets	*/ 
-		Default	=	SDF_RS
+		Default	=	SDF_RS,
+		END
 	};};
 	
 	///fMaterial
 	struct fMaterial { enum _ {
 		DebugDraw	=	0x0001,	/// Enable debug draw
 		/* presets	*/ 
-		Default		=	DebugDraw
+		Default		=	DebugDraw,
+		END
 	};};
 		
 	//
@@ -120,7 +124,6 @@ public:
 	/* ImplicitFn	*/ 
 	struct	ImplicitFn
 	{
-		virtual ~ImplicitFn() {}
 		virtual btScalar	Eval(const btVector3& x)=0;
 	};
 	
@@ -163,16 +166,13 @@ public:
 	struct	Element
 	{
 		void*			m_tag;			// User data
-		Element()
-		{
-			m_tag=0;
-		}
+		Element() : m_tag(0) {}
 	};
 	/* Material		*/ 
 	struct	Material : Element
 	{
 		btScalar				m_kLST;			// Linear stiffness coefficient [0,1]
-		btScalar				m_kAST;			// Area stiffness coefficient [0,1]
+		btScalar				m_kAST;			// Area/Angular stiffness coefficient [0,1]
 		btScalar				m_kVST;			// Volume stiffness coefficient [0,1]
 		int						m_flags;		// Flags
 	};
@@ -199,7 +199,8 @@ public:
 	struct	Link : Feature
 	{
 		Node*					m_n[2];			// Node pointers
-		btScalar				m_rl;			// Rest length
+		btScalar				m_rl;			// Rest length		
+		int						m_bbending:1;	// Bending link
 		btScalar				m_c0;			// (ima+imb)*kLST
 		btScalar				m_c1;			// rl^2
 		btScalar				m_c2;			// |gradient|^2/c0
@@ -212,16 +213,6 @@ public:
 		btVector3				m_normal;		// Normal
 		btScalar				m_ra;			// Rest area
 		btDbvt::Node*			m_leaf;			// Leaf data
-	};
-	/* Tetra		*/ 
-	struct	Tetra : Feature
-	{
-		Node*					m_n[4];			// Node pointers		
-		btScalar				m_rv;			// Rest volume
-		btDbvt::Node*			m_leaf;			// Leaf data
-		btVector3				m_c0[4];		// gradients
-		btScalar				m_c1;			// (4*kVST)/(im0+im1+im2+im3)
-		btScalar				m_c2;			// m_c1/sum(|g0..3|^2)
 	};
 	/* RContact		*/ 
 	struct	RContact
@@ -322,7 +313,6 @@ public:
 	typedef btAlignedObjectArray<btDbvt::Node*>	tLeafArray;
 	typedef btAlignedObjectArray<Link>			tLinkArray;
 	typedef btAlignedObjectArray<Face>			tFaceArray;
-	typedef btAlignedObjectArray<Tetra>			tTetraArray;
 	typedef btAlignedObjectArray<Anchor>		tAnchorArray;
 	typedef btAlignedObjectArray<RContact>		tRContactArray;
 	typedef btAlignedObjectArray<SContact>		tSContactArray;
@@ -342,7 +332,6 @@ public:
 	tNodeArray				m_nodes;		// Nodes
 	tLinkArray				m_links;		// Links
 	tFaceArray				m_faces;		// Faces
-	tTetraArray				m_tetras;		// Tetras
 	tAnchorArray			m_anchors;		// Anchors
 	tRContactArray			m_rcontacts;	// Rigid contacts
 	tSContactArray			m_scontacts;	// Soft contacts
@@ -365,12 +354,12 @@ public:
 	/* Check for existing link												*/ 
 	bool				checkLink(	int node0,
 		int node1) const;
-	bool				checkLink(	const btSoftBody::Node* node0,
-		const btSoftBody::Node* node1) const;
+	bool				checkLink(	const Node* node0,
+									const Node* node1) const;
 	/* Check for existring face												*/ 
 	bool				checkFace(	int node0,
-		int node1,
-		int node2) const;
+									int node1,
+									int node2) const;
 	/* Append material														*/ 
 	Material*			appendMaterial();
 	/* Append note															*/ 
@@ -390,9 +379,6 @@ public:
 	void				appendNote(	const char* text,
 									const btVector3& o,
 									Face* feature);
-	void				appendNote(	const char* text,
-									const btVector3& o,
-									Tetra* feature);
 	/* Append node															*/ 
 	void				appendNode(	const btVector3& x,btScalar m);
 	/* Append link															*/ 
@@ -401,8 +387,8 @@ public:
 									int node1,
 									Material* mat=0,
 									bool bcheckexist=false);
-	void				appendLink(	btSoftBody::Node* node0,
-									btSoftBody::Node* node1,
+	void				appendLink(	Node* node0,
+									Node* node1,
 									Material* mat=0,
 									bool bcheckexist=false);
 	/* Append face															*/ 
@@ -410,13 +396,6 @@ public:
 	void				appendFace(	int node0,
 									int node1,
 									int node2,
-									Material* mat=0);
-	/* Append tetrahedron													*/ 
-	void				appendTetra(int model=-1,Material* mat=0);
-	void				appendTetra(int node0,
-									int node1,
-									int node2,
-									int node3,
 									Material* mat=0);
 	/* Append anchor														*/ 
 	void				appendAnchor(	int node,
@@ -443,10 +422,6 @@ public:
 										bool fromfaces=false);
 	/* Set total density													*/ 
 	void				setTotalDensity(btScalar density);
-	/* Set volume mass (using tetrahedrons)									*/ 
-	void				setVolumeMass(		btScalar mass);
-	/* Set volume density (using tetrahedrons)								*/ 
-	void				setVolumeDensity(	btScalar density);
 	/* Transform															*/ 
 	void				transform(		const btTransform& trs);
 	/* Translate															*/ 
@@ -463,8 +438,6 @@ public:
 	/* Generate bending constraints based on distance in the adjency graph	*/ 
 	int					generateBendingConstraints(	int distance,
 													Material* mat=0);
-	/* Generate tetrahedral constraints										*/ 
-	int					generateTetrahedralConstraints();
 	/* Randomize constraints to reduce solver bias							*/ 
 	void				randomizeConstraints();
 	/* Refine																*/ 

@@ -21,20 +21,15 @@ subject to the following restrictions:
 #include "CapsuleMeshQuery.h"
 #include "CompleteBoxPruning.h"
 #include "BulletSAPCompleteBoxPruningTest.h"
-#include "DbvtTest.h"
 #include "BipartiteBoxPruning.h"
 #include "RenderingHelpers.h"
 #include "Terrain.h"
 #include "Camera.h"
 #include "GLFontRenderer.h"
 
-///#define NUM_SAP_BOXES 16384
-//#define NUM_SAP_BOXES 8192
-//#define NUM_SAP_BOXES 4096
-
 #define NUM_SAP_BOXES 8192
 
-int percentUpdate	=	10;
+int		percentUpdate	=	10;
 
 //Broadphase comparison
 //Static case (updating 10% of objects to same position ( -> no swaps)
@@ -64,11 +59,11 @@ enum TestIndex
 //	TEST_OBB_MESH_QUERY,
 //	TEST_CAPSULE_MESH_QUERY,
 //	TEST_COMPLETE_BOX_PRUNING=0,
-	TEST_COMPLETE_BOX_PRUNING_8192,
+ //	TEST_COMPLETE_BOX_PRUNING_8192,
 //	TEST_BULLET_SAP_1024,
-	TEST_BULLET_SAP_8192,
+ //	TEST_BULLET_SAP_8192,
 //	TEST_BULLET_SAP_SORTEDPAIRS_8192,
-	TEST_BULLET_MULTISAP_8192,
+ 	TEST_BULLET_MULTISAP_8192,
 //	TEST_BIPARTITE_BOX_PRUNING,
 	TEST_DBVT_8192,
 	MAX_NB_TESTS
@@ -291,17 +286,17 @@ int main(int argc, char** argv)
 //			{TEST_OBB_MESH_QUERY, "OBB-mesh query"},
 //			{TEST_CAPSULE_MESH_QUERY, "Capsule-mesh query"},
 //			{TEST_COMPLETE_BOX_PRUNING, "OPCODE SAP 1024"},
-			{TEST_COMPLETE_BOX_PRUNING_8192, "OPCODE SAP 8192"},
+	//		{TEST_COMPLETE_BOX_PRUNING_8192, "OPCODE SAP 8192"},
 //			{TEST_BULLET_SAP_1024, "Bullet SAP HASHPAIR 1024"},
-			{TEST_BULLET_SAP_8192, "Bullet SAP HASHPAIR 8192"},
+	//		{TEST_BULLET_SAP_8192, "Bullet SAP HASHPAIR 8192"},
 //			{TEST_BULLET_SAP_SORTEDPAIRS_8192, "Bullet SAP SORTEDPAIR 8192"},
 			{TEST_BULLET_MULTISAP_8192, "Bullet MultiSAP 8192"},
 //			{TEST_BIPARTITE_BOX_PRUNING, "Bipartite box pruning"},
 			{TEST_DBVT_8192, "DBVT 8192"},
 		};
 		TwType testType = TwDefineEnum("CollisionTest", testEV, MAX_NB_TESTS);
-		TwAddVarRW(gMainBar, "CollisionTests", testType, &gSelectedTest, "");
-		TwAddVarRW(gMainBar, "% of updates",TW_TYPE_INT32,&percentUpdate,"min=0 max=100");
+		TwAddVarRW(gMainBar, "CollisionTests", testType, &gSelectedTest, "");		
+		TwAddVarRW(gMainBar, "% of updates",TW_TYPE_INT32,&percentUpdate,"min=0 max=100");		
 	}
 
 	// Create tests
@@ -310,12 +305,12 @@ int main(int argc, char** argv)
 //	gCollisionTests[TEST_OBB_MESH_QUERY]	= new OBBMeshQuery;
 //	gCollisionTests[TEST_CAPSULE_MESH_QUERY]	= new CapsuleMeshQuery;
 //	gCollisionTests[TEST_COMPLETE_BOX_PRUNING]	= new CompleteBoxPruningTest(NUM_SAP_BOXES);
-	gCollisionTests[TEST_COMPLETE_BOX_PRUNING_8192]	= new CompleteBoxPruningTest(NUM_SAP_BOXES);
+ //	gCollisionTests[TEST_COMPLETE_BOX_PRUNING_8192]	= new CompleteBoxPruningTest(NUM_SAP_BOXES);
 //	gCollisionTests[TEST_COMPLETE_BOX_PRUNING_8192]	= new CompleteBoxPruningTest(NUM_SAP_BOXES);
 //	gCollisionTests[TEST_BULLET_SAP_1024]	= new BulletSAPCompleteBoxPruningTest(NUM_SAP_BOXES,1);
-	gCollisionTests[TEST_BULLET_SAP_8192]	= new BulletSAPCompleteBoxPruningTest(NUM_SAP_BOXES,1);
+ //	gCollisionTests[TEST_BULLET_SAP_8192]	= new BulletSAPCompleteBoxPruningTest(NUM_SAP_BOXES,1);
 //	gCollisionTests[TEST_BULLET_SAP_SORTEDPAIRS_8192]	= new BulletSAPCompleteBoxPruningTest(NUM_SAP_BOXES,3);
-	gCollisionTests[TEST_BULLET_MULTISAP_8192]	= new BulletSAPCompleteBoxPruningTest(NUM_SAP_BOXES,6);
+ 	gCollisionTests[TEST_BULLET_MULTISAP_8192]	= new BulletSAPCompleteBoxPruningTest(NUM_SAP_BOXES,6);
 //	gCollisionTests[TEST_BIPARTITE_BOX_PRUNING]	= new BipartiteBoxPruningTest;
 	gCollisionTests[TEST_DBVT_8192]	= new BulletSAPCompleteBoxPruningTest(NUM_SAP_BOXES,7);
 
