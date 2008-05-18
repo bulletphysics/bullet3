@@ -449,7 +449,7 @@ void	btCollisionWorld::objectQuerySingle(const btConvexShape* castShape,const bt
 
 					BridgeTriangleConvexcastCallback(const btConvexShape* castShape, const btTransform& from,const btTransform& to,
 						btCollisionWorld::ConvexResultCallback* resultCallback, btCollisionObject* collisionObject,btTriangleMeshShape*	triangleMesh, const btTransform& triangleToWorld):
-						btTriangleConvexcastCallback(castShape, from,to, triangleToWorld),
+						btTriangleConvexcastCallback(castShape, from,to, triangleToWorld, triangleMesh->getMargin()),
 							m_resultCallback(resultCallback),
 							m_collisionObject(collisionObject),
 							m_triangleMesh(triangleMesh)
@@ -505,7 +505,7 @@ void	btCollisionWorld::objectQuerySingle(const btConvexShape* castShape,const bt
 
 					BridgeTriangleConvexcastCallback(const btConvexShape* castShape, const btTransform& from,const btTransform& to,
 						btCollisionWorld::ConvexResultCallback* resultCallback, btCollisionObject* collisionObject,btTriangleMeshShape*	triangleMesh, const btTransform& triangleToWorld):
-						btTriangleConvexcastCallback(castShape, from,to, triangleToWorld),
+						btTriangleConvexcastCallback(castShape, from,to, triangleToWorld, triangleMesh->getMargin()),
 							m_resultCallback(resultCallback),
 							m_collisionObject(collisionObject),
 							m_triangleMesh(triangleMesh)

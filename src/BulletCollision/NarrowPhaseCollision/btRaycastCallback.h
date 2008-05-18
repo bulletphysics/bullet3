@@ -47,8 +47,9 @@ public:
 	btTransform m_convexShapeTo;
 	btTransform m_triangleToWorld;
 	btScalar m_hitFraction;
+    btScalar m_triangleCollisionMargin;
 
-	btTriangleConvexcastCallback (const btConvexShape* convexShape, const btTransform& convexShapeFrom, const btTransform& convexShapeTo, const btTransform& triangleToWorld);
+	btTriangleConvexcastCallback (const btConvexShape* convexShape, const btTransform& convexShapeFrom, const btTransform& convexShapeTo, const btTransform& triangleToWorld, const btScalar triangleCollisionMargin);
 
 	virtual void processTriangle (btVector3* triangle, int partId, int triangleIndex);
 

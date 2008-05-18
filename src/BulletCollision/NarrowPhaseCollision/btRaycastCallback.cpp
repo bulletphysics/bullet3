@@ -105,19 +105,21 @@ void btTriangleRaycastCallback::processTriangle(btVector3* triangle,int partId, 
 }
 
 
-btTriangleConvexcastCallback::btTriangleConvexcastCallback (const btConvexShape* convexShape, const btTransform& convexShapeFrom, const btTransform& convexShapeTo, const btTransform& triangleToWorld)
+btTriangleConvexcastCallback::btTriangleConvexcastCallback (const btConvexShape* convexShape, const btTransform& convexShapeFrom, const btTransform& convexShapeTo, const btTransform& triangleToWorld, const btScalar triangleCollisionMargin)
 {
 	m_convexShape = convexShape;
 	m_convexShapeFrom = convexShapeFrom;
 	m_convexShapeTo = convexShapeTo;
 	m_triangleToWorld = triangleToWorld;
 	m_hitFraction = 1.0;
+    m_triangleCollisionMargin = triangleCollisionMargin;
 }
 
 void
 btTriangleConvexcastCallback::processTriangle (btVector3* triangle, int partId, int triangleIndex)
 {
 	btTriangleShape triangleShape (triangle[0], triangle[1], triangle[2]);
+    triangleShape.setMargin(m_triangleCollisionMargin);
 
 	btVoronoiSimplexSolver	simplexSolver;
 
