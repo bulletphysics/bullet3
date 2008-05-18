@@ -31,7 +31,6 @@ subject to the following restrictions:
 #include "BulletSoftBody/btSoftBodyRigidBodyCollisionConfiguration.h"
 #include "BulletSoftBody/btSoftBodyHelpers.h"
 
-static float	gCollisionMargin = 0.05f/*0.05f*/;
 #include "SoftDemo.h"
 #include "GL_ShapeDrawer.h"
 
@@ -267,16 +266,29 @@ static inline btVector3	Vector3Rand()
 static void	Ctor_RbUpStack(SoftDemo* pdemo,int count)
 {
 	float				mass=10;
+	
+	btCompoundShape* cylinderCompound = new btCompoundShape;
+	btCollisionShape* cylinderShape = new btCylinderShapeX(btVector3(4,1,1));
+	btCollisionShape* boxShape = new btBoxShape(btVector3(4,1,1));
+	btTransform localTransform;
+	localTransform.setIdentity();
+	cylinderCompound->addChildShape(localTransform,boxShape);
+	btQuaternion orn(SIMD_HALF_PI,0,0);
+	localTransform.setRotation(orn);
+//	localTransform.setOrigin(btVector3(1,1,1));
+	cylinderCompound->addChildShape(localTransform,cylinderShape);
+
+	
 	btCollisionShape*	shape[]={	new btSphereShape(1.5),
 		new btBoxShape(btVector3(1,1,1)),
-		new btCylinderShapeX(btVector3(4,1,1))};
+		cylinderCompound};
 	static const int	nshapes=sizeof(shape)/sizeof(shape[0]);
 	for(int i=0;i<count;++i)
 	{
 		btTransform startTransform;
 		startTransform.setIdentity();
 		startTransform.setOrigin(btVector3(0,1+6*i,0));
-		btRigidBody*		body=pdemo->localCreateRigidBody(mass,startTransform,shape[i%nshapes]);
+		pdemo->localCreateRigidBody(mass,startTransform,shape[i%nshapes]);
 	}
 }
 
@@ -288,7 +300,7 @@ static void	Ctor_BigBall(SoftDemo* pdemo,btScalar mass=10)
 	btTransform startTransform;
 	startTransform.setIdentity();
 	startTransform.setOrigin(btVector3(0,13,0));
-	btRigidBody*		body=pdemo->localCreateRigidBody(mass,startTransform,new btSphereShape(3));
+	pdemo->localCreateRigidBody(mass,startTransform,new btSphereShape(3));
 }
 
 //
@@ -447,7 +459,7 @@ static void	Init_Impact(SoftDemo* pdemo)
 	btTransform startTransform;
 	startTransform.setIdentity();
 	startTransform.setOrigin(btVector3(0,20,0));
-	btRigidBody*		body=pdemo->localCreateRigidBody(10,startTransform,new btBoxShape(btVector3(2,2,2)));
+	pdemo->localCreateRigidBody(10,startTransform,new btBoxShape(btVector3(2,2,2)));
 }
 
 //
@@ -1160,8 +1172,17 @@ void	SoftDemo::initPhysics()
 
 	
 	m_collisionShapes.push_back(new btBoxShape (btVector3(200,CUBE_HALF_EXTENTS,200)));
-
-	m_collisionShapes.push_back(new btCylinderShape (btVector3(CUBE_HALF_EXTENTS,CUBE_HALF_EXTENTS,CUBE_HALF_EXTENTS)));
+	
+	btCompoundShape* cylinderCompound = new btCompoundShape;
+	btCollisionShape* cylinderShape = new btCylinderShape (btVector3(CUBE_HALF_EXTENTS,CUBE_HALF_EXTENTS,CUBE_HALF_EXTENTS));
+	btTransform localTransform;
+	localTransform.setIdentity();
+	cylinderCompound->addChildShape(localTransform,cylinderShape);
+	btQuaternion orn(btVector3(0,1,0),SIMD_PI);
+	localTransform.setRotation(orn);
+	cylinderCompound->addChildShape(localTransform,cylinderShape);
+	
+	m_collisionShapes.push_back(cylinderCompound);
 
 
 	m_dispatcher=0;
@@ -1211,7 +1232,7 @@ void	SoftDemo::initPhysics()
 
 
 
-	btRigidBody* body = localCreateRigidBody(0.f,tr,m_collisionShapes[0]);
+	localCreateRigidBody(0.f,tr,m_collisionShapes[0]);
 
 
 	//	clientResetScene();
