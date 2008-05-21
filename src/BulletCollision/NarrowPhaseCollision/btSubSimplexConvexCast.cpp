@@ -88,6 +88,11 @@ bool	btSubsimplexConvexCast::calcTimeOfImpact(
 
 		btScalar VdotW = v.dot(w);
 
+		if (lambda > btScalar(1.0))
+		{
+			return false;
+		}
+
 		if ( VdotW > btScalar(0.))
 		{
 			VdotR = v.dot(r);
