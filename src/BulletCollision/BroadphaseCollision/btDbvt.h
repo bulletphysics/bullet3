@@ -30,11 +30,13 @@ subject to the following restrictions:
 
 #ifdef DBVT_USE_TEMPLATE
 #define	DBVT_VIRTUAL
+#define DBVT_VIRTUAL_DESTRUCTOR(a)
 #define DBVT_PREFIX		template <typename T>
 #define DBVT_IPOLICY	T& policy
 #define DBVT_CHECKTYPE	static const ICollide&	typechecker=*(T*)0;
 #else
-#define	DBVT_VIRTUAL	virtual
+#define	DBVT_VIRTUAL_DESTRUCTOR(a)	virtual ~a() {}
+#define DBVT_VIRTUAL	virtual
 #define DBVT_PREFIX
 #define DBVT_IPOLICY	ICollide& policy
 #define DBVT_CHECKTYPE
@@ -110,13 +112,13 @@ struct	btDbvt
 	struct	sStkNP
 		{
 		const Node*	node;
-		unsigned	mask;
+		int	mask;
 		sStkNP(const Node* n,unsigned m) : node(n),mask(m) {}
 		};
 	struct	sStkNPS
 		{
 		const Node*	node;
-		unsigned	mask;
+		int	mask;
 		btScalar	value;
 		sStkNPS(const Node* n,unsigned m,btScalar v) : node(n),mask(m),value(v) {}
 		};
@@ -125,6 +127,7 @@ struct	btDbvt
 	/* ICollide	*/ 
 	struct	ICollide
 		{		
+		DBVT_VIRTUAL_DESTRUCTOR(ICollide)
 		DBVT_VIRTUAL void	Process(const Node*,const Node*)		{}
 		DBVT_VIRTUAL void	Process(const Node*)					{}
 		DBVT_VIRTUAL bool	Descent(const Node*)					{ return(true); }
@@ -133,6 +136,7 @@ struct	btDbvt
 	/* IWriter	*/ 
 	struct	IWriter
 		{
+		virtual ~IWriter() {}
 		virtual void		Prepare(const Node* root,int numnodes)=0;
 		virtual void		WriteNode(const Node*,int index,int parent,int child0,int child1)=0;
 		virtual void		WriteLeaf(const Node*,int index,int parent)=0;
@@ -734,6 +738,7 @@ if(root)
 #ifdef DBVT_USE_TEMPLATE
 	#undef DBVT_USE_TEMPLATE
 #endif
+#undef DBVT_VIRTUAL_DESTRUCTOR
 #undef DBVT_VIRTUAL
 #undef DBVT_PREFIX
 #undef DBVT_IPOLICY

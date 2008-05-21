@@ -14,7 +14,7 @@ subject to the following restrictions:
 */
 
 #include "btTriangleMesh.h"
-#include <assert.h>
+
 
 
 btTriangleMesh::btTriangleMesh (bool use32bitIndices,bool use4componentVertices)

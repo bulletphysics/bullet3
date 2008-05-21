@@ -26,7 +26,7 @@ class SolverTaskScheduler
 {
 protected:
 	class	btThreadSupportInterface*	m_threadInterface;
-	unsigned int						m_maxNumOutstandingTasks;
+	int						m_maxNumOutstandingTasks;
 
 	unsigned int						m_currentTask;
 	unsigned int						m_numBusyTasks;
@@ -43,7 +43,7 @@ public:
 	void issueTask();
 	void flushTasks();
 
-	unsigned int getMaxOutstandingTasks()
+	int getMaxOutstandingTasks()
 	{
 		return m_maxNumOutstandingTasks;
 	}

@@ -39,9 +39,9 @@ public:
 
 btMultiSapBroadphase::btMultiSapBroadphase(int /*maxProxies*/,btOverlappingPairCache* pairCache)
 :m_overlappingPairs(pairCache),
+m_optimizedAabbTree(0),
 m_ownsPairCache(false),
-m_invalidPair(0),
-m_optimizedAabbTree(0)
+m_invalidPair(0)
 {
 	if (!m_overlappingPairs)
 	{

@@ -68,11 +68,13 @@ static void clearHash (SpuSolverHash* hash)
 		hash->m_currentMask[0][SPU_HASH_NUMCELLDWORDS-1] |= (1 << i);
 	}
 }
-
+/*
 static bool getDependency(SpuSolverHash* hash, unsigned int i, unsigned int j)
 {
 	return (hash->m_dependencyMatrix[i][j >> 5] & (1 << (j & 31))) != 0;
 }
+*/
+
 
 static unsigned int getObjectIndex (btCollisionObject* object)
 {
@@ -231,7 +233,7 @@ public:
 };
 
 
-static void printDependencyMatrix(SpuSolverHash* hash)
+/*static void printDependencyMatrix(SpuSolverHash* hash)
 {
 	for (int r = 0; r < SPU_HASH_NUMCELLS; ++r)
 	{
@@ -252,6 +254,7 @@ static void printDependencyMatrix(SpuSolverHash* hash)
 	printf("\n");
 	fflush(stdout);
 }
+*/
 
 // Solver caches
 btAlignedObjectArray<SpuSolverBody> solverBodyPool_persist;
@@ -525,7 +528,7 @@ SpuSolverTaskDesc* SolverTaskScheduler::getTask()
 	if (m_taskBusy[m_currentTask])
 	{
 		//try to find a new one
-		for (unsigned int i = 0; i < m_maxNumOutstandingTasks; ++i)
+		for (int i = 0; i < m_maxNumOutstandingTasks; ++i)
 		{
 			if (!m_taskBusy[i])
 			{

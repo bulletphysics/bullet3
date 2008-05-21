@@ -141,7 +141,7 @@ public:
 		SYS_TIMEBASE_GET( newTime );
 		//__asm __volatile__( "mftb %0" : "=r" (newTime) : : "memory");
 
-		return (newTime-mStartTime) / dFreq;
+		return (unsigned long int)((double(newTime-mStartTime)) / dFreq);
 #else
 
 		struct timeval currentTime;
@@ -200,7 +200,7 @@ public:
 		//__asm __volatile__( "mftb %0" : "=r" (newTime) : : "memory");
 		SYS_TIMEBASE_GET( newTime );
 
-		return (newTime-mStartTime) / dFreq;
+		return (unsigned long int)((double(newTime-mStartTime)) / dFreq);
 #else
 
 		struct timeval currentTime;

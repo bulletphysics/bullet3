@@ -273,7 +273,7 @@ if(leafs.size()>1)
 		tNodeArray				sets[2];
 		int						bestaxis=-1;
 		int						bestmidp=leafs.size();
-		int						splitcount[3][2]={0,0,0,0,0,0};
+		int						splitcount[3][2]={{0,0},{0,0},{0,0}};
 		for(int i=0;i<leafs.size();++i)
 			{
 			const btVector3	x=leafs[i]->volume.Center()-org;
@@ -286,7 +286,7 @@ if(leafs.size()>1)
 			{
 			if((splitcount[i][0]>0)&&(splitcount[i][1]>0))
 				{
-				const int	midp=abs(splitcount[i][0]-splitcount[i][1]);
+				const int	midp=(int)btFabs(btScalar(splitcount[i][0]-splitcount[i][1]));
 				if(midp<bestmidp)
 					{
 					bestaxis=i;

@@ -21,9 +21,9 @@ subject to the following restrictions:
 btHeightfieldTerrainShape::btHeightfieldTerrainShape(int heightStickWidth, int heightStickLength,void* heightfieldData,btScalar maxHeight,int upAxis,bool useFloatData,bool flipQuadEdges)
 : m_heightStickWidth(heightStickWidth),
 m_heightStickLength(heightStickLength),
+m_maxHeight(maxHeight),
 m_width((btScalar)heightStickWidth-1),
 m_length((btScalar)heightStickLength-1),
-m_maxHeight(maxHeight),
 m_heightfieldDataUnknown(heightfieldData),
 m_useFloatData(useFloatData),
 m_flipQuadEdges(flipQuadEdges),
