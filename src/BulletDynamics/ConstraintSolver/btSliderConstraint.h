@@ -106,6 +106,15 @@ protected:
 	btScalar m_angDepth;
 	btScalar m_kAngle;
 
+	bool	 m_poweredLinMotor;
+    btScalar m_targetLinMotorVelocity;
+    btScalar m_maxLinMotorForce;
+    btScalar m_accumulatedLinMotorImpulse;
+	
+	bool	 m_poweredAngMotor;
+    btScalar m_targetAngMotorVelocity;
+    btScalar m_maxAngMotorForce;
+    btScalar m_accumulatedAngMotorImpulse;
 	
 	//------------------------    
 	void initParams();
@@ -170,9 +179,31 @@ public:
 	void setSoftnessOrthoAng(btScalar softnessOrthoAng) { m_softnessOrthoAng = softnessOrthoAng; }
 	void setRestitutionOrthoAng(btScalar restitutionOrthoAng) { m_restitutionOrthoAng = restitutionOrthoAng; }
 	void setDampingOrthoAng(btScalar dampingOrthoAng) { m_dampingOrthoAng = dampingOrthoAng; }
+	void setPoweredLinMotor(bool onOff) { m_poweredLinMotor = onOff; }
+	bool getPoweredLinMotor() { return m_poweredLinMotor; }
+	void setTargetLinMotorVelocity(btScalar targetLinMotorVelocity) { m_targetLinMotorVelocity = targetLinMotorVelocity; }
+	btScalar getTargetLinMotorVelocity() { return m_targetLinMotorVelocity; }
+	void setMaxLinMotorForce(btScalar maxLinMotorForce) { m_maxLinMotorForce = maxLinMotorForce; }
+	btScalar getMaxLinMotorForce() { return m_maxLinMotorForce; }
+	void setPoweredAngMotor(bool onOff) { m_poweredAngMotor = onOff; }
+	bool getPoweredAngMotor() { return m_poweredAngMotor; }
+	void setTargetAngMotorVelocity(btScalar targetAngMotorVelocity) { m_targetAngMotorVelocity = targetAngMotorVelocity; }
+	btScalar getTargetAngMotorVelocity() { return m_targetAngMotorVelocity; }
+	void setMaxAngMotorForce(btScalar maxAngMotorForce) { m_maxAngMotorForce = maxAngMotorForce; }
+	btScalar getMaxAngMotorForce() { return m_maxAngMotorForce; }
+
+	// access for ODE solver
+	bool getSolveLinLimit() { return m_solveLinLim; }
+	btScalar getLinDepth() { return m_depth[0]; }
+	bool getSolveAngLimit() { return m_solveAngLim; }
+	btScalar getAngDepth() { return m_angDepth; }
 	// internal
     void	buildJacobianInt(btRigidBody& rbA, btRigidBody& rbB, const btTransform& frameInA, const btTransform& frameInB);
     void	solveConstraintInt(btRigidBody& rbA, btRigidBody& rbB);
+	// shared code used by ODE solver
+	void	calculateTransforms(void);
+	void	testLinLimits(void);
+	void	testAngLimits(void);
 };
 
 //-----------------------------------------------------------------------------

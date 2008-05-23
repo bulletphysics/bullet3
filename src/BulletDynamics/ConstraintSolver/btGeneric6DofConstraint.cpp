@@ -14,7 +14,7 @@ subject to the following restrictions:
 */
 /*
 2007-09-09
-Refactored by Francisco León
+Refactored by Francisco Le?n
 email: projectileman@yahoo.com
 http://gimpact.sf.net
 */
@@ -199,12 +199,15 @@ btScalar btTranslationalLimitMotor::solveLinearAxis(
         btRigidBody& body1,const btVector3 &pointInA,
         btRigidBody& body2,const btVector3 &pointInB,
         int limit_index,
-        const btVector3 & axis_normal_on_a)
+        const btVector3 & axis_normal_on_a,
+		const btVector3 & anchorPos)
 {
 
 ///find relative velocity
-    btVector3 rel_pos1 = pointInA - body1.getCenterOfMassPosition();
-    btVector3 rel_pos2 = pointInB - body2.getCenterOfMassPosition();
+//    btVector3 rel_pos1 = pointInA - body1.getCenterOfMassPosition();
+//    btVector3 rel_pos2 = pointInB - body2.getCenterOfMassPosition();
+    btVector3 rel_pos1 = anchorPos - body1.getCenterOfMassPosition();
+    btVector3 rel_pos2 = anchorPos - body2.getCenterOfMassPosition();
 
     btVector3 vel1 = body1.getVelocityInLocalPoint(rel_pos1);
     btVector3 vel2 = body2.getVelocityInLocalPoint(rel_pos2);
@@ -390,12 +393,15 @@ void btGeneric6DofConstraint::buildJacobian()
     //calculates transform
     calculateTransforms();
 
-    const btVector3& pivotAInW = m_calculatedTransformA.getOrigin();
-    const btVector3& pivotBInW = m_calculatedTransformB.getOrigin();
+//  const btVector3& pivotAInW = m_calculatedTransformA.getOrigin();
+//  const btVector3& pivotBInW = m_calculatedTransformB.getOrigin();
+	calcAnchorPos();
+	btVector3 pivotAInW = m_AnchorPos;
+	btVector3 pivotBInW = m_AnchorPos;
 
-
-    btVector3 rel_pos1 = pivotAInW - m_rbA.getCenterOfMassPosition();
-    btVector3 rel_pos2 = pivotBInW - m_rbB.getCenterOfMassPosition();
+// not used here
+//    btVector3 rel_pos1 = pivotAInW - m_rbA.getCenterOfMassPosition();
+//    btVector3 rel_pos2 = pivotBInW - m_rbB.getCenterOfMassPosition();
 
     btVector3 normalWorld;
     //linear part
@@ -462,7 +468,7 @@ void btGeneric6DofConstraint::solveConstraint(btScalar	timeStep)
             	jacDiagABInv,
             	m_rbA,pointInA,
                 m_rbB,pointInB,
-                i,linear_axis);
+                i,linear_axis, m_AnchorPos);
 
         }
     }
@@ -501,4 +507,22 @@ btScalar btGeneric6DofConstraint::getAngle(int axis_index) const
     return m_calculatedAxisAngleDiff[axis_index];
 }
 
+void btGeneric6DofConstraint::calcAnchorPos(void)
+{
+	btScalar imA = m_rbA.getInvMass();
+	btScalar imB = m_rbB.getInvMass();
+	btScalar weight;
+	if(imB == btScalar(0.0))
+	{
+		weight = btScalar(1.0);
+	}
+	else
+	{
+		weight = imA / (imA + imB);
+	}
+	const btVector3& pA = m_calculatedTransformA.getOrigin();
+	const btVector3& pB = m_calculatedTransformB.getOrigin();
+	m_AnchorPos = pA * weight + pB * (btScalar(1.0) - weight);
+	return;
+} // btGeneric6DofConstraint::calcAnchorPos()
 

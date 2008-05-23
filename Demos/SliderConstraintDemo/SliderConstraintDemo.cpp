@@ -16,6 +16,9 @@ subject to the following restrictions:
 /*
 Added by Roman Ponomarev (rponom@gmail.com)
 April 04, 2008
+
+Added support for ODE sover
+April 24, 2008
 */
 
 //-----------------------------------------------------------------------------
@@ -35,12 +38,19 @@ April 04, 2008
 
 //-----------------------------------------------------------------------------
 
+#define SLIDER_DEMO_USE_ODE_SOLVER 0
+#define SLIDER_DEMO_USE_6DOF 0
+
 #define CUBE_HALF_EXTENTS 1.f
 
 //-----------------------------------------------------------------------------
 
 // A couple of sliders
-static btSliderConstraint *spSlider1, *spSlider2;
+#if SLIDER_DEMO_USE_6DOF
+	static btGeneric6DofConstraint *spSlider1, *spSlider2;
+#else
+	static btSliderConstraint *spSlider1, *spSlider2;
+#endif
 
 //-----------------------------------------------------------------------------
 
@@ -87,6 +97,13 @@ static void draw_axes(const btRigidBody& rb, const btTransform& frame)
 
 //-----------------------------------------------------------------------------
 
+#if SLIDER_DEMO_USE_6DOF
+static void	drawSlider(btGeneric6DofConstraint* pSlider)
+{
+	draw_axes(pSlider->getRigidBodyA(), pSlider->getFrameOffsetA());
+	draw_axes(pSlider->getRigidBodyB(), pSlider->getFrameOffsetB());
+} // drawSlider()
+#else
 static void	drawSlider(btSliderConstraint* pSlider)
 {
 	draw_axes(pSlider->getRigidBodyA(), pSlider->getFrameOffsetA());
@@ -111,6 +128,7 @@ static void	drawSlider(btSliderConstraint* pSlider)
 	glVertex3d(to.getX(), to.getY(), to.getZ());
 	glEnd();
 } // drawSlider()
+#endif
 
 //-----------------------------------------------------------------------------
 
@@ -124,7 +142,13 @@ void SliderConstraintDemo::initPhysics()
 	btVector3 worldMin(-1000,-1000,-1000);
 	btVector3 worldMax(1000,1000,1000);
 	m_overlappingPairCache = new btAxisSweep3(worldMin,worldMax);
+
+#if SLIDER_DEMO_USE_ODE_SOLVER
+	m_constraintSolver = new btOdeQuickstepConstraintSolver();
+#else
 	m_constraintSolver = new btSequentialImpulseConstraintSolver();
+#endif
+
 	btDiscreteDynamicsWorld* wp = new btDiscreteDynamicsWorld(m_dispatcher,m_overlappingPairCache,m_constraintSolver,m_collisionConfiguration);
 	//	wp->getSolverInfo().m_numIterations = 20; // default is 10
 	m_dynamicsWorld = wp;
@@ -162,11 +186,25 @@ void SliderConstraintDemo::initPhysics()
 	frameInA = btTransform::getIdentity();
 	frameInB = btTransform::getIdentity();
 	
+#if SLIDER_DEMO_USE_6DOF
+	spSlider1 = new btGeneric6DofConstraint(*pRbA1, *pRbB1, frameInA, frameInB, true);
+	btVector3 lowerSliderLimit = btVector3(-20,0,0);
+	btVector3 hiSliderLimit = btVector3(-10,0,0);
+//	btVector3 lowerSliderLimit = btVector3(-20,-5,-5);
+//	btVector3 hiSliderLimit = btVector3(-10,5,5);
+	spSlider1->setLinearLowerLimit(lowerSliderLimit);
+	spSlider1->setLinearUpperLimit(hiSliderLimit);
+	spSlider1->setAngularLowerLimit(btVector3(0,0,0));
+	spSlider1->setAngularUpperLimit(btVector3(0,0,0));
+#else
 	spSlider1 = new btSliderConstraint(*pRbA1, *pRbB1, frameInA, frameInB, true);
 	spSlider1->setLowerLinLimit(-15.0F);
 	spSlider1->setUpperLinLimit(-5.0F);
+//	spSlider1->setLowerLinLimit(-10.0F);
+//	spSlider1->setUpperLinLimit(-10.0F);
 	spSlider1->setLowerAngLimit(-SIMD_PI / 3.0F);
 	spSlider1->setUpperAngLimit( SIMD_PI / 3.0F);
+#endif
 
 	m_dynamicsWorld->addConstraint(spSlider1, true);
 
@@ -183,16 +221,43 @@ void SliderConstraintDemo::initPhysics()
 	pRbB2->setActivationState(DISABLE_DEACTIVATION);
 
 	// create slider constraint between A2 and B2 and add it to world
+#if SLIDER_DEMO_USE_6DOF
+	spSlider2 = new btGeneric6DofConstraint(*pRbA2, *pRbB2, frameInA, frameInB, true);
+	spSlider2->setLinearLowerLimit(lowerSliderLimit);
+	spSlider2->setLinearUpperLimit(hiSliderLimit);
+	spSlider2->setAngularLowerLimit(btVector3(0,0,0));
+	spSlider2->setAngularUpperLimit(btVector3(0,0,0));
+#else
 	spSlider2 = new btSliderConstraint(*pRbA2, *pRbB2, frameInA, frameInB, true);
-	spSlider2->setLowerLinLimit(-15.0F);
+	spSlider2->setLowerLinLimit(-25.0F);
 	spSlider2->setUpperLinLimit(-5.0F);
-	spSlider2->setLowerAngLimit(-SIMD_PI / 3.0F);
-	spSlider2->setUpperAngLimit( SIMD_PI / 3.0F);
+	spSlider2->setLowerAngLimit(SIMD_PI / 2.0F);
+	spSlider2->setUpperAngLimit(-SIMD_PI / 2.0F);
+	// add motors
+	spSlider2->setPoweredLinMotor(true);
+	spSlider2->setMaxLinMotorForce(0.1);
+	spSlider2->setTargetLinMotorVelocity(5.0);
+
+	spSlider2->setPoweredAngMotor(true);
+//	spSlider2->setMaxAngMotorForce(0.01);
+	spSlider2->setMaxAngMotorForce(10.0);
+	spSlider2->setTargetAngMotorVelocity(1.0);
+
 	// change default damping and restitution
+
 	spSlider2->setDampingDirLin(0.005F);
 	spSlider2->setRestitutionLimLin(1.1F);
 
+	// various ODE tests
+//	spSlider2->setDampingLimLin(0.1F); // linear bounce factor for ODE == 1.0 - DampingLimLin;
+//	spSlider2->setDampingLimAng(0.1F); // angular bounce factor for ODE == 1.0 - DampingLimAng;
+//	spSlider2->setSoftnessOrthoAng(0.1);
+//	spSlider2->setSoftnessOrthoLin(0.1);
+//	spSlider2->setSoftnessLimLin(0.1);
+//	spSlider2->setSoftnessLimAng(0.1);
+#endif
 	m_dynamicsWorld->addConstraint(spSlider2, true);
+
 
 } // SliderConstraintDemo::initPhysics()
 

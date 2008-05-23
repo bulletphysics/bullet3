@@ -51,6 +51,17 @@ void btSliderConstraint::initParams()
 	m_softnessLimAng = SLIDER_CONSTRAINT_DEF_SOFTNESS;
 	m_restitutionLimAng = SLIDER_CONSTRAINT_DEF_RESTITUTION;
 	m_dampingLimAng = SLIDER_CONSTRAINT_DEF_DAMPING;
+
+	m_poweredLinMotor = false;
+    m_targetLinMotorVelocity = btScalar(0.);
+    m_maxLinMotorForce = btScalar(0.);
+	m_accumulatedLinMotorImpulse = btScalar(0.0);
+
+	m_poweredAngMotor = false;
+    m_targetAngMotorVelocity = btScalar(0.);
+    m_maxAngMotorForce = btScalar(0.);
+	m_accumulatedAngMotorImpulse = btScalar(0.0);
+
 } // btSliderConstraint::initParams()
 
 //-----------------------------------------------------------------------------
@@ -121,28 +132,7 @@ void btSliderConstraint::buildJacobianInt(btRigidBody& rbA, btRigidBody& rbB, co
 		m_jacLinDiagABInv[i] = btScalar(1.) / m_jacLin[i].getDiagonal();
 		m_depth[i] = m_delta.dot(normalWorld);
     }
-	m_solveLinLim = false;
-	if(m_lowerLinLimit <= m_upperLinLimit)
-	{
-		if(m_depth[0] > m_upperLinLimit)
-		{
-			m_depth[0] -= m_upperLinLimit;
-			m_solveLinLim = true;
-		}
-		else if(m_depth[0] < m_lowerLinLimit)
-		{
-			m_depth[0] -= m_lowerLinLimit;
-			m_solveLinLim = true;
-		}
-		else
-		{
-			m_depth[0] = btScalar(0.);
-		}
-	}
-	else
-	{
-		m_depth[0] = btScalar(0.);
-	}
+	testLinLimits();
     // angular part
     for(i = 0; i < 3; i++)
     {
@@ -155,27 +145,12 @@ void btSliderConstraint::buildJacobianInt(btRigidBody& rbA, btRigidBody& rbB, co
             rbB.getInvInertiaDiagLocal()
 			);
 	}
-	m_angDepth = btScalar(0.);
-	m_solveAngLim = false;
-	if(m_lowerAngLimit <= m_upperAngLimit)
-	{
-		const btVector3 axisA0 = m_calculatedTransformA.getBasis().getColumn(1);
-		const btVector3 axisA1 = m_calculatedTransformA.getBasis().getColumn(2);
-		const btVector3 axisB0 = m_calculatedTransformB.getBasis().getColumn(1);
-		btScalar rot = btAtan2Fast(axisB0.dot(axisA1), axisB0.dot(axisA0));  
-		if(rot < m_lowerAngLimit)
-		{
-			m_angDepth = rot - m_lowerAngLimit;
-			m_solveAngLim = true;
-		} 
-		else if(rot > m_upperAngLimit)
-		{
-			m_angDepth = rot - m_upperAngLimit;
-			m_solveAngLim = true;
-		}
-	}
+	testAngLimits();
 	btVector3 axisA = m_calculatedTransformA.getBasis().getColumn(0);
 	m_kAngle = btScalar(1.0 )/ (rbA.computeAngularImpulseDenominator(axisA) + rbB.computeAngularImpulseDenominator(axisA));
+	// clear accumulator for motors
+	m_accumulatedLinMotorImpulse = btScalar(0.0);
+	m_accumulatedAngMotorImpulse = btScalar(0.0);
 } // btSliderConstraint::buildJacobianInt()
 
 //-----------------------------------------------------------------------------
@@ -217,6 +192,35 @@ void btSliderConstraint::solveConstraintInt(btRigidBody& rbA, btRigidBody& rbB)
 		btVector3 impulse_vector = normal * normalImpulse;
 		rbA.applyImpulse( impulse_vector, m_relPosA);
 		rbB.applyImpulse(-impulse_vector, m_relPosB);
+		if(m_poweredLinMotor && (!i))
+		{ // apply linear motor
+			if(m_accumulatedLinMotorImpulse < m_maxLinMotorForce)
+			{
+				btScalar desiredMotorVel = m_targetLinMotorVelocity;
+				btScalar motor_relvel = desiredMotorVel + rel_vel;
+				normalImpulse = -motor_relvel * m_jacLinDiagABInv[i];
+				// clamp accumulated impulse
+				btScalar new_acc = m_accumulatedLinMotorImpulse + btFabs(normalImpulse);
+				if(new_acc  > m_maxLinMotorForce)
+				{
+					new_acc = m_maxLinMotorForce;
+				}
+				btScalar del = new_acc  - m_accumulatedLinMotorImpulse;
+				if(normalImpulse < btScalar(0.0))
+				{
+					normalImpulse = -del;
+				}
+				else
+				{
+					normalImpulse = del;
+				}
+				m_accumulatedLinMotorImpulse = new_acc;
+				// apply clamped impulse
+				impulse_vector = normal * normalImpulse;
+				rbA.applyImpulse( impulse_vector, m_relPosA);
+				rbB.applyImpulse(-impulse_vector, m_relPosB);
+			}
+		}
     }
 	// angular 
 	// get axes in world space
@@ -267,7 +271,127 @@ void btSliderConstraint::solveConstraintInt(btRigidBody& rbA, btRigidBody& rbB)
 	btVector3 impulse = axisA * impulseMag;
 	rbA.applyTorqueImpulse(impulse);
 	rbB.applyTorqueImpulse(-impulse);
+	//apply angular motor
+	if(m_poweredAngMotor) 
+	{
+		if(m_accumulatedAngMotorImpulse < m_maxAngMotorForce)
+		{
+			btVector3 velrel = angVelAroundAxisA - angVelAroundAxisB;
+			btScalar projRelVel = velrel.dot(axisA);
+
+			btScalar desiredMotorVel = m_targetAngMotorVelocity;
+			btScalar motor_relvel = desiredMotorVel - projRelVel;
+
+			btScalar angImpulse = m_kAngle * motor_relvel;
+			// clamp accumulated impulse
+			btScalar new_acc = m_accumulatedAngMotorImpulse + btFabs(angImpulse);
+			if(new_acc  > m_maxAngMotorForce)
+			{
+				new_acc = m_maxAngMotorForce;
+			}
+			btScalar del = new_acc  - m_accumulatedAngMotorImpulse;
+			if(angImpulse < btScalar(0.0))
+			{
+				angImpulse = -del;
+			}
+			else
+			{
+				angImpulse = del;
+			}
+			m_accumulatedAngMotorImpulse = new_acc;
+			// apply clamped impulse
+			btVector3 motorImp = angImpulse * axisA;
+			m_rbA.applyTorqueImpulse(motorImp);
+			m_rbB.applyTorqueImpulse(-motorImp);
+		}
+	}
 } // btSliderConstraint::solveConstraint()
 
 //-----------------------------------------------------------------------------
+
+//-----------------------------------------------------------------------------
+
+void btSliderConstraint::calculateTransforms(void){
+	if(m_useLinearReferenceFrameA)
+	{
+		m_calculatedTransformA = m_rbA.getCenterOfMassTransform() * m_frameInA;
+		m_calculatedTransformB = m_rbB.getCenterOfMassTransform() * m_frameInB;
+	}
+	else
+	{
+		m_calculatedTransformA = m_rbB.getCenterOfMassTransform() * m_frameInB;
+		m_calculatedTransformB = m_rbA.getCenterOfMassTransform() * m_frameInA;
+	}
+	m_realPivotAInW = m_calculatedTransformA.getOrigin();
+	m_realPivotBInW = m_calculatedTransformB.getOrigin();
+	m_sliderAxis = m_calculatedTransformA.getBasis().getColumn(0); // along X
+	m_delta = m_realPivotBInW - m_realPivotAInW;
+	m_projPivotInW = m_realPivotAInW + m_sliderAxis.dot(m_delta) * m_sliderAxis;
+    btVector3 normalWorld;
+    int i;
+    //linear part
+    for(i = 0; i < 3; i++)
+    {
+		normalWorld = m_calculatedTransformA.getBasis().getColumn(i);
+		m_depth[i] = m_delta.dot(normalWorld);
+    }
+} // btSliderConstraint::calculateTransforms()
+ 
+//-----------------------------------------------------------------------------
+
+void btSliderConstraint::testLinLimits(void)
+{
+	m_solveLinLim = false;
+	if(m_lowerLinLimit <= m_upperLinLimit)
+	{
+		if(m_depth[0] > m_upperLinLimit)
+		{
+			m_depth[0] -= m_upperLinLimit;
+			m_solveLinLim = true;
+		}
+		else if(m_depth[0] < m_lowerLinLimit)
+		{
+			m_depth[0] -= m_lowerLinLimit;
+			m_solveLinLim = true;
+		}
+		else
+		{
+			m_depth[0] = btScalar(0.);
+		}
+	}
+	else
+	{
+		m_depth[0] = btScalar(0.);
+	}
+} // btSliderConstraint::testLinLimits()
+
+//-----------------------------------------------------------------------------
+ 
+
+void btSliderConstraint::testAngLimits(void)
+{
+	m_angDepth = btScalar(0.);
+	m_solveAngLim = false;
+	if(m_lowerAngLimit <= m_upperAngLimit)
+	{
+		const btVector3 axisA0 = m_calculatedTransformA.getBasis().getColumn(1);
+		const btVector3 axisA1 = m_calculatedTransformA.getBasis().getColumn(2);
+		const btVector3 axisB0 = m_calculatedTransformB.getBasis().getColumn(1);
+		btScalar rot = btAtan2Fast(axisB0.dot(axisA1), axisB0.dot(axisA0));  
+		if(rot < m_lowerAngLimit)
+		{
+			m_angDepth = rot - m_lowerAngLimit;
+			m_solveAngLim = true;
+		} 
+		else if(rot > m_upperAngLimit)
+		{
+			m_angDepth = rot - m_upperAngLimit;
+			m_solveAngLim = true;
+		}
+	}
+} // btSliderConstraint::testAngLimits()
+
+	
+//-----------------------------------------------------------------------------
+
 

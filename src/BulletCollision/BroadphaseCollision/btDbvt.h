@@ -25,7 +25,7 @@ subject to the following restrictions:
 //
 
 #ifdef WIN32
-#define	DBVT_USE_TEMPLATE
+//#define	DBVT_USE_TEMPLATE
 #endif
 
 #ifdef DBVT_USE_TEMPLATE

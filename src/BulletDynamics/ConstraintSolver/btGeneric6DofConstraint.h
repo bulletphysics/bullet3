@@ -14,7 +14,7 @@ subject to the following restrictions:
 */
 /*
 2007-09-09
-btGeneric6DofConstraint Refactored by Francisco León
+btGeneric6DofConstraint Refactored by Francisco Le?n
 email: projectileman@yahoo.com
 http://gimpact.sf.net
 */
@@ -171,7 +171,8 @@ public:
         btRigidBody& body1,const btVector3 &pointInA,
         btRigidBody& body2,const btVector3 &pointInB,
         int limit_index,
-        const btVector3 & axis_normal_on_a);
+        const btVector3 & axis_normal_on_a,
+		const btVector3 & anchorPos);
 
 
 };
@@ -247,6 +248,8 @@ protected:
     btVector3 m_calculatedAxisAngleDiff;
     btVector3 m_calculatedAxis[3];
     
+	btVector3 m_AnchorPos; // point betwen pivots of bodies A and B to solve linear axes
+
     bool	m_useLinearReferenceFrameA;
     
     //!@}
@@ -427,6 +430,7 @@ public:
         return m_rbB;
     }
 
+	virtual void calcAnchorPos(void); // overridable
 
 };
 

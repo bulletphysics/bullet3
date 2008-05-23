@@ -14,7 +14,7 @@ subject to the following restrictions:
 */
 /*
 2007-09-09
-Added support for typed joints by Francisco León
+Added support for typed joints by Francisco Le?n
 email: projectileman@yahoo.com
 http://gimpact.sf.net
 */
@@ -25,6 +25,7 @@ http://gimpact.sf.net
 #include "btOdeJoint.h"
 #include "BulletDynamics/ConstraintSolver/btPoint2PointConstraint.h"
 #include "BulletDynamics/ConstraintSolver/btGeneric6DofConstraint.h"
+#include "BulletDynamics/ConstraintSolver/btSliderConstraint.h"
 
 struct btOdeSolverBody;
 
@@ -107,5 +108,35 @@ int bt_get_limit_motor_info2(
 	btRigidBody * body0, btRigidBody * body1,
 	btOdeJoint::Info2 *info, int row, btVector3& ax1, int rotational);
 
+/*
+OdeSliderJoint
+Ported from ODE by Roman Ponomarev (rponom@gmail.com)
+April 24, 2008
+*/
+class OdeSliderJoint : public btOdeTypedJoint
+{
+protected:
+	inline btSliderConstraint * getSliderConstraint()
+	{
+		return static_cast<btSliderConstraint * >(m_constraint);
+	}
+public:
+
+	OdeSliderJoint() {};
+
+	OdeSliderJoint(btTypedConstraint* constraint,int index,bool swap, btOdeSolverBody* body0, btOdeSolverBody* body1);
+
+	//BU_Joint interface for solver
+
+	virtual void GetInfo1(Info1 *info);
+
+	virtual void GetInfo2(Info2 *info);
+};
+
+
+
+
 #endif //CONTACT_JOINT_H
+
+
 
