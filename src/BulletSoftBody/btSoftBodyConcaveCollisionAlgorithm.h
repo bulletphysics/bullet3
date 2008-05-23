@@ -44,7 +44,7 @@ class btSoftBodyTriangleCallback : public btTriangleCallback
 public:
 int	m_triangleCount;
 	
-	btPersistentManifold*	m_manifoldPtr;
+//	btPersistentManifold*	m_manifoldPtr;
 
 	btSoftBodyTriangleCallback(btDispatcher* dispatcher,btCollisionObject* body0,btCollisionObject* body1,bool isSwapped);
 
