@@ -43,6 +43,14 @@ extern int glutScreenHeight;
 const int maxProxies = 32766;
 const int maxOverlap = 65535;
 
+static btVector3*	gGroundVertices=0;
+static int*	gGroundIndices=0;
+static btBvhTriangleMeshShape* trimeshShape =0;
+static btRigidBody* staticBody = 0;
+static float waveheight = 5.f;
+
+const float TRIANGLE_SIZE=8.f;
+
 
 
 #ifdef _DEBUG
@@ -279,9 +287,10 @@ static void	Ctor_RbUpStack(SoftDemo* pdemo,int count)
 	cylinderCompound->addChildShape(localTransform,cylinderShape);
 
 	
-	btCollisionShape*	shape[]={	new btSphereShape(1.5),
-		new btBoxShape(btVector3(1,1,1)),
-		cylinderCompound};
+	btCollisionShape*	shape[]={	cylinderCompound,
+		new btSphereShape(1.5),
+		new btBoxShape(btVector3(1,1,1))
+		};
 	static const int	nshapes=sizeof(shape)/sizeof(shape[0]);
 	for(int i=0;i<count;++i)
 	{
@@ -1169,9 +1178,71 @@ if(button==0)
 
 void	SoftDemo::initPhysics()
 {
+///create concave ground mesh
 
-	
-	m_collisionShapes.push_back(new btBoxShape (btVector3(200,CUBE_HALF_EXTENTS,200)));
+
+	btCollisionShape* groundShape = 0;
+	bool useConcaveMesh = false;//not ready yet true;
+
+	if (useConcaveMesh)
+	{
+		int i;
+		int j;
+
+		const int NUM_VERTS_X = 30;
+		const int NUM_VERTS_Y = 30;
+		const int totalVerts = NUM_VERTS_X*NUM_VERTS_Y;
+		const int totalTriangles = 2*(NUM_VERTS_X-1)*(NUM_VERTS_Y-1);
+
+		gGroundVertices = new btVector3[totalVerts];
+		gGroundIndices = new int[totalTriangles*3];
+
+		btScalar offset(-50);
+
+		for ( i=0;i<NUM_VERTS_X;i++)
+		{
+			for (j=0;j<NUM_VERTS_Y;j++)
+			{
+				gGroundVertices[i+j*NUM_VERTS_X].setValue((i-NUM_VERTS_X*0.5f)*TRIANGLE_SIZE,
+					//0.f,
+					waveheight*sinf((float)i)*cosf((float)j+offset),
+					(j-NUM_VERTS_Y*0.5f)*TRIANGLE_SIZE);
+			}
+		}
+
+		int vertStride = sizeof(btVector3);
+		int indexStride = 3*sizeof(int);
+		
+		int index=0;
+		for ( i=0;i<NUM_VERTS_X-1;i++)
+		{
+			for (int j=0;j<NUM_VERTS_Y-1;j++)
+			{
+				gGroundIndices[index++] = j*NUM_VERTS_X+i;
+				gGroundIndices[index++] = j*NUM_VERTS_X+i+1;
+				gGroundIndices[index++] = (j+1)*NUM_VERTS_X+i+1;
+
+				gGroundIndices[index++] = j*NUM_VERTS_X+i;
+				gGroundIndices[index++] = (j+1)*NUM_VERTS_X+i+1;
+				gGroundIndices[index++] = (j+1)*NUM_VERTS_X+i;
+			}
+		}
+
+		btTriangleIndexVertexArray* indexVertexArrays = new btTriangleIndexVertexArray(totalTriangles,
+			gGroundIndices,
+			indexStride,
+			totalVerts,(btScalar*) &gGroundVertices[0].x(),vertStride);
+
+		bool useQuantizedAabbCompression = true;
+
+		groundShape = new btBvhTriangleMeshShape(indexVertexArrays,useQuantizedAabbCompression);
+	} else
+	{
+		groundShape = new btBoxShape (btVector3(200,CUBE_HALF_EXTENTS,200));
+	}
+
+	 
+	m_collisionShapes.push_back(groundShape);
 	
 	btCompoundShape* cylinderCompound = new btCompoundShape;
 	btCollisionShape* cylinderShape = new btCylinderShape (btVector3(CUBE_HALF_EXTENTS,CUBE_HALF_EXTENTS,CUBE_HALF_EXTENTS));

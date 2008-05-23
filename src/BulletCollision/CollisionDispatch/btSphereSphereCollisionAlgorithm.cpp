@@ -56,7 +56,7 @@ void btSphereSphereCollisionAlgorithm::processCollision (btCollisionObject* col0
 	btScalar radius0 = sphere0->getRadius();
 	btScalar radius1 = sphere1->getRadius();
 
-	m_manifoldPtr->clearManifold();
+	//m_manifoldPtr->clearManifold(); //don't do this, it disables warmstarting
 
 	///iff distance positive, don't generate a new contact
 	if ( len > (radius0+radius1))

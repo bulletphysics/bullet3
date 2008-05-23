@@ -26,7 +26,12 @@ struct btContactSolverInfoData
 	int		m_numIterations;
 	btScalar	m_maxErrorReduction;
 	btScalar	m_sor;
-	btScalar	m_erp;
+	btScalar	m_erp;//used as Baumgarte factor
+	bool		m_splitImpulse;
+	btScalar	m_splitImpulsePenetrationThreshold;
+	btScalar	m_linearSlop;
+
+
 
 };
 
@@ -41,11 +46,12 @@ struct btContactSolverInfo : public btContactSolverInfoData
 		m_restitution = btScalar(0.);
 		m_maxErrorReduction = btScalar(20.);
 		m_numIterations = 10;
-		m_erp = btScalar(0.4);
+		m_erp = btScalar(0.2);
 		m_sor = btScalar(1.3);
+		m_splitImpulse = true;
+		m_splitImpulsePenetrationThreshold = 1.f;
+		m_linearSlop = 0.0002f;
 	}
-
-	
 };
 
 #endif //CONTACT_SOLVER_INFO

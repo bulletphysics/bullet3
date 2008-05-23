@@ -77,17 +77,22 @@ void btCompoundCollisionAlgorithm::processCollision (btCollisionObject* body0,bt
 
 		//backup
 		btTransform	orgTrans = colObj->getWorldTransform();
+		btTransform	orgInterpolationTrans = colObj->getInterpolationWorldTransform();
+
 		btCollisionShape* orgShape = colObj->getCollisionShape();
 
 		const btTransform& childTrans = compoundShape->getChildTransform(i);
-		//btTransform	newChildWorldTrans = orgTrans*childTrans ;
-		colObj->setWorldTransform( orgTrans*childTrans );
+		btTransform	newChildWorldTrans = orgTrans*childTrans ;
+		colObj->setWorldTransform( newChildWorldTrans);
+		colObj->setInterpolationWorldTransform(newChildWorldTrans);
+
 		//the contactpoint is still projected back using the original inverted worldtrans
 		colObj->setCollisionShape( childShape );
 		m_childCollisionAlgorithms[i]->processCollision(colObj,otherObj,dispatchInfo,resultOut);
 		//revert back
 		colObj->setCollisionShape( orgShape);
 		colObj->setWorldTransform(  orgTrans );
+		colObj->setInterpolationWorldTransform(orgInterpolationTrans);
 	}
 }
 

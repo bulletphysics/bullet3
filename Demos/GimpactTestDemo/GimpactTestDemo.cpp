@@ -40,6 +40,7 @@ subject to the following restrictions:
 
 #ifdef SHOW_NUM_DEEP_PENETRATIONS 
 extern int gNumDeepPenetrationChecks;
+extern int gNumSplitImpulseRecoveries;
 extern int gNumGjkChecks;
 #endif //
 
@@ -235,6 +236,14 @@ void GimpactConcaveDemo::renderme()
 				sprintf(buf,"gNumDeepPenetrationChecks = %d",gNumDeepPenetrationChecks);
 				BMF_DrawString(BMF_GetFont(BMF_kHelvetica10),buf);
 				yStart += yIncr;
+
+				glRasterPos3f(xOffset,yStart,0);
+				sprintf(buf,"gNumSplitImpulseRecoveries= %d",gNumSplitImpulseRecoveries);
+				BMF_DrawString(BMF_GetFont(BMF_kHelvetica10),buf);
+				yStart += yIncr;
+
+				
+
 
 				glRasterPos3f(xOffset,yStart,0);
 				sprintf(buf,"gNumGjkChecks= %d",gNumGjkChecks);

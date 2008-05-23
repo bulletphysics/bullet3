@@ -183,7 +183,8 @@ void btPersistentManifold::AddManifoldPoint(const btManifoldPoint& newPoint)
 
 		
 	}
-	replaceContactPoint(newPoint,insertIndex);
+	btAssert(m_pointCache[insertIndex].m_userPersistentData==0);
+	m_pointCache[insertIndex] = newPoint;
 }
 
 btScalar	btPersistentManifold::getContactBreakingThreshold() const

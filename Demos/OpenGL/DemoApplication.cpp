@@ -41,6 +41,7 @@ btCollisionShape* gShapePtr[maxNumObjects];//1 rigidbody has 1 shape (no re-use 
 
 #ifdef SHOW_NUM_DEEP_PENETRATIONS 
 extern int gNumDeepPenetrationChecks;
+extern int gNumSplitImpulseRecoveries;
 extern int gNumGjkChecks;
 extern int gNumAlignedAllocs;
 extern int gNumAlignedFree;
@@ -1073,7 +1074,11 @@ void DemoApplication::renderme()
 				BMF_DrawString(BMF_GetFont(BMF_kHelvetica10),buf);
 				yStart += yIncr;
 
-				
+				glRasterPos3f(xOffset,yStart,0);
+				sprintf(buf,"gNumSplitImpulseRecoveries= %d",gNumSplitImpulseRecoveries);
+				BMF_DrawString(BMF_GetFont(BMF_kHelvetica10),buf);
+				yStart += yIncr;
+								
 				glRasterPos3f(xOffset,yStart,0);
 				sprintf(buf,"gNumAlignedAllocs = %d",gNumAlignedAllocs);
 				BMF_DrawString(BMF_GetFont(BMF_kHelvetica10),buf);

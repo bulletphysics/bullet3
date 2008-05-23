@@ -36,7 +36,9 @@ ATTRIBUTE_ALIGNED16 (struct)	btSolverConstraint
 	btVector3	m_angularComponentA;
 
 	btVector3	m_angularComponentB;
-	mutable btScalar	m_appliedVelocityImpulse;
+
+	mutable btScalar	m_appliedPushImpulse;
+	
 	mutable btScalar	m_appliedImpulse;
 	int			m_solverBodyIdA;
 	int			m_solverBodyIdB;
@@ -67,5 +69,6 @@ ATTRIBUTE_ALIGNED16 (struct)	btSolverConstraint
 
 
 #endif //BT_SOLVER_CONSTRAINT_H
+
 
 
