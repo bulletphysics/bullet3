@@ -32,6 +32,8 @@ subject to the following restrictions:
 #include "BulletCollision/NarrowPhaseCollision/btSubSimplexConvexCast.h"
 #include "BulletSoftBody/btSoftBody.h"
 
+#define BT_SOFTBODY_TRIANGLE_EXTRUSION btScalar(0.3)
+
 btSoftBodyConcaveCollisionAlgorithm::btSoftBodyConcaveCollisionAlgorithm( const btCollisionAlgorithmConstructionInfo& ci, btCollisionObject* body0,btCollisionObject* body1,bool isSwapped)
 : btCollisionAlgorithm(ci),
 m_isSwapped(isSwapped),
@@ -163,7 +165,7 @@ btCollisionObject* ob = static_cast<btCollisionObject*>(m_triBody);
 //		btVector3 other;
 		btVector3 normal = (triangle[1]-triangle[0]).cross(triangle[2]-triangle[0]);
 		normal.normalize();
-		normal*= 1.3f;
+		normal*= BT_SOFTBODY_TRIANGLE_EXTRUSION;
 //		other=(triangle[0]+triangle[1]+triangle[2])*0.333333f;
 //		other+=normal*22.f;
 		btVector3	pts[6] = {triangle[0]+normal,
@@ -241,7 +243,7 @@ void	btSoftBodyTriangleCallback::setTimeStepAndCounters(btScalar collisionMargin
 	m_aabbMin = center - extent;
 	m_aabbMax = center + extent;
 
-	btScalar extraMargin = collisionMarginTriangle;
+	btScalar extraMargin = collisionMarginTriangle+btScalar(BT_SOFTBODY_TRIANGLE_EXTRUSION);
 	btVector3 extra(extraMargin,extraMargin,extraMargin);
 
 	m_aabbMax += extra;

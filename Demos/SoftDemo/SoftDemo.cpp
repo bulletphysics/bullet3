@@ -1182,7 +1182,7 @@ void	SoftDemo::initPhysics()
 
 
 	btCollisionShape* groundShape = 0;
-	bool useConcaveMesh = true;//not ready yet true;
+	bool useConcaveMesh = false;//not ready yet true;
 
 	if (useConcaveMesh)
 	{
