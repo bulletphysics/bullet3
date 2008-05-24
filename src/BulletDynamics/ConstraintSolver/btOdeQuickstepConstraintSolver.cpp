@@ -25,7 +25,7 @@ subject to the following restrictions:
 #include "btOdeContactJoint.h"
 #include "btOdeTypedJoint.h"
 #include "btOdeSolverBody.h"
-#include <new.h>
+#include <new>
 #include "LinearMath/btQuickprof.h"
 
 #include "LinearMath/btIDebugDraw.h"

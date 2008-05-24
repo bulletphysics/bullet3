@@ -35,14 +35,22 @@ void*	btAlignedAllocInternal	(size_t size, int alignment,int line,char* filename
 void	btAlignedFreeInternal	(void* ptr,int line,char* filename);
 
 #else
-void*	btAlignedAllocInternal	(std::size_t size, int alignment);
+	void*	btAlignedAllocInternal	(size_t size, int alignment);
 	void	btAlignedFreeInternal	(void* ptr);
 
 	#define btAlignedAlloc(a,b) btAlignedAllocInternal(a,b)
 	#define btAlignedFree(ptr) btAlignedFreeInternal(ptr)
+
 #endif
 typedef int	size_type;
 
+typedef void *(btAlignedAllocFunc)(size_t size, int alignment);
+typedef void (btAlignedFreeFunc)(void *memblock);
+typedef void *(btAllocFunc)(size_t size);
+typedef void (btFreeFunc)(void *memblock);
+
+void btAlignedAllocSetCustomAligned(btAlignedAllocFunc *allocFunc, btAlignedFreeFunc *freeFunc);
+void btAlignedAllocSetCustom(btAllocFunc *allocFunc, btFreeFunc *freeFunc);
 
 template < typename T , unsigned Alignment >
 class btAlignedAllocator {

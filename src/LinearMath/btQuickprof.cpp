@@ -15,6 +15,7 @@
 
 #include "LinearMath/btQuickprof.h"
 
+
 #ifdef USE_BT_CLOCK
 
 static btClock gProfileClock;
@@ -62,10 +63,18 @@ CProfileNode::CProfileNode( const char * name, CProfileNode * parent ) :
 }
 
 
+void	CProfileNode::CleanupMemory()
+{
+	delete ( Child);
+	Child = NULL;
+	delete ( Sibling);
+	Sibling = NULL;
+}
+
 CProfileNode::~CProfileNode( void )
 {
-	delete Child;
-	delete Sibling;
+	delete ( Child);
+	delete ( Sibling);
 }
 
 
@@ -89,6 +98,7 @@ CProfileNode * CProfileNode::Get_Sub_Node( const char * name )
 	}
 
 	// We didn't find it, so add it
+	
 	CProfileNode * node = new CProfileNode( name, this );
 	node->Sibling = Child;
 	Child = node;

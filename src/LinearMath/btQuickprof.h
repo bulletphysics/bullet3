@@ -14,7 +14,8 @@
 #define QUICK_PROF_H
 
 #include "btScalar.h"
-
+#include "LinearMath/btAlignedAllocator.h"
+#include <new>
 //To disable built-in profiling, please comment out next line
 //#define BT_NO_PROFILE 1
 
@@ -247,6 +248,7 @@ public:
 	CProfileNode * Get_Sibling( void )		{ return Sibling; }
 	CProfileNode * Get_Child( void )			{ return Child; }
 
+	void				CleanupMemory();
 	void				Reset( void );
 	void				Call( void );
 	bool				Return( void );
@@ -312,13 +314,22 @@ public:
 	static	void						Start_Profile( const char * name );
 	static	void						Stop_Profile( void );
 
+	static	void						CleanupMemory(void)
+	{
+		Root.CleanupMemory();
+	}
+
 	static	void						Reset( void );
 	static	void						Increment_Frame_Counter( void );
 	static	int						Get_Frame_Count_Since_Reset( void )		{ return FrameCounter; }
 	static	float						Get_Time_Since_Reset( void );
 
-	static	CProfileIterator *	Get_Iterator( void )	{ return new CProfileIterator( &Root ); }
-	static	void						Release_Iterator( CProfileIterator * iterator ) { delete iterator; }
+	static	CProfileIterator *	Get_Iterator( void )	
+	{ 
+		
+		return new CProfileIterator( &Root ); 
+	}
+	static	void						Release_Iterator( CProfileIterator * iterator ) { delete ( iterator); }
 
 private:
 	static	CProfileNode			Root;
