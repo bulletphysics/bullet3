@@ -20,6 +20,7 @@ subject to the following restrictions:
 #include "BulletCollision/NarrowPhaseCollision/btSubSimplexConvexCast.h"
 #include "BulletCollision/NarrowPhaseCollision/btGjkConvexCast.h"
 #include "BulletCollision/NarrowPhaseCollision/btContinuousConvexCollision.h"
+#include "BulletCollision/NarrowPhaseCollision/btGjkEpaPenetrationDepthSolver.h"
 #include "btRaycastCallback.h"
 
 btTriangleRaycastCallback::btTriangleRaycastCallback(const btVector3& from,const btVector3& to)
@@ -122,7 +123,7 @@ btTriangleConvexcastCallback::processTriangle (btVector3* triangle, int partId, 
     triangleShape.setMargin(m_triangleCollisionMargin);
 
 	btVoronoiSimplexSolver	simplexSolver;
-
+	btGjkEpaPenetrationDepthSolver	gjkEpaPenetrationSolver;
 
 //#define  USE_SUBSIMPLEX_CONVEX_CAST 1
 //if you reenable USE_SUBSIMPLEX_CONVEX_CAST see commented out code below
@@ -130,7 +131,7 @@ btTriangleConvexcastCallback::processTriangle (btVector3* triangle, int partId, 
 	btSubsimplexConvexCast convexCaster(m_convexShape, &triangleShape, &simplexSolver);
 #else
 	//btGjkConvexCast	convexCaster(m_convexShape,&triangleShape,&simplexSolver);
-	btContinuousConvexCollision convexCaster(m_convexShape,&triangleShape,&simplexSolver,NULL);
+	btContinuousConvexCollision convexCaster(m_convexShape,&triangleShape,&simplexSolver,&gjkEpaPenetrationSolver);
 #endif //#USE_SUBSIMPLEX_CONVEX_CAST
 	
 	btConvexCast::CastResult castResult;

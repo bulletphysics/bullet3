@@ -18,6 +18,7 @@ subject to the following restrictions:
 #include "BulletCollision/CollisionShapes/btConvexShape.h"
 #include "btGjkEpaPenetrationDepthSolver.h"
 #include "BulletCollision/NarrowPhaseCollision/btGjkEpa.h"
+#include "BulletCollision/NarrowPhaseCollision/btGjkEpa2.h"
 
 bool btGjkEpaPenetrationDepthSolver::calcPenDepth( btSimplexSolverInterface& simplexSolver,
 											  const btConvexShape* pConvexA, const btConvexShape* pConvexB,
@@ -32,10 +33,20 @@ bool btGjkEpaPenetrationDepthSolver::calcPenDepth( btSimplexSolverInterface& sim
 
 	const btScalar				radialmargin(btScalar(0.));
 	
+//#define USE_ORIGINAL_GJK 1
+#ifdef USE_ORIGINAL_GJK
 	btGjkEpaSolver::sResults	results;
 	if(btGjkEpaSolver::Collide(	pConvexA,transformA,
 								pConvexB,transformB,
 								radialmargin,stackAlloc,results))
+#else
+	btVector3	guessVector(transformA.getOrigin()-transformB.getOrigin());
+	btGjkEpaSolver2::sResults	results;
+	if(btGjkEpaSolver2::Penetration(pConvexA,transformA,
+								pConvexB,transformB,
+								guessVector,results))
+	
+#endif
 		{
 	//	debugDraw->drawLine(results.witnesses[1],results.witnesses[1]+results.normal,btVector3(255,0,0));
 		//resultOut->addContactPoint(results.normal,results.witnesses[1],-results.depth);

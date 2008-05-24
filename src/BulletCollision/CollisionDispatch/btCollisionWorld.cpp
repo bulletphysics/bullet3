@@ -18,7 +18,7 @@ subject to the following restrictions:
 #include "BulletCollision/CollisionDispatch/btCollisionObject.h"
 #include "BulletCollision/CollisionShapes/btCollisionShape.h"
 #include "BulletCollision/CollisionShapes/btConvexShape.h"
-
+#include "BulletCollision/NarrowPhaseCollision/btGjkEpaPenetrationDepthSolver.h"
 #include "BulletCollision/CollisionShapes/btSphereShape.h" //for raycasting
 #include "BulletCollision/CollisionShapes/btBvhTriangleMeshShape.h" //for raycasting
 #include "BulletCollision/NarrowPhaseCollision/btRaycastCallback.h"
@@ -403,7 +403,8 @@ void	btCollisionWorld::objectQuerySingle(const btConvexShape* castShape,const bt
 
 		btConvexShape* convexShape = (btConvexShape*) collisionShape;
 		btVoronoiSimplexSolver	simplexSolver;
-		btContinuousConvexCollision convexCaster(castShape,convexShape,&simplexSolver,0);
+		btGjkEpaPenetrationDepthSolver	gjkEpaPenetrationSolver;
+		btContinuousConvexCollision convexCaster(castShape,convexShape,&simplexSolver,&gjkEpaPenetrationSolver);
 
 		if (convexCaster.calcTimeOfImpact(convexFromTrans,convexToTrans,colObjWorldTransform,colObjWorldTransform,castResult))
 		{
