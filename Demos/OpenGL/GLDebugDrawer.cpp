@@ -68,7 +68,7 @@ void	GLDebugDrawer::reportErrorWarning(const char* warningString)
 
 void	GLDebugDrawer::drawContactPoint(const btVector3& pointOnB,const btVector3& normalOnB,btScalar distance,int lifeTime,const btVector3& color)
 {
-	if (m_debugMode & btIDebugDraw::DBG_DrawContactPoints)
+	
 	{
 		btVector3 to=pointOnB+normalOnB*distance;
 		const btVector3&from = pointOnB;

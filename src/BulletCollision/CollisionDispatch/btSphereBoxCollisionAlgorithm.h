@@ -42,6 +42,14 @@ public:
 
 	virtual btScalar calculateTimeOfImpact(btCollisionObject* body0,btCollisionObject* body1,const btDispatcherInfo& dispatchInfo,btManifoldResult* resultOut);
 
+	virtual	void	getAllContactManifolds(btManifoldArray&	manifoldArray)
+	{
+		if (m_manifoldPtr && m_ownManifold)
+		{
+			manifoldArray.push_back(m_manifoldPtr);
+		}
+	}
+
 	btScalar getSphereDistance( btCollisionObject* boxObj,btVector3& v3PointOnBox, btVector3& v3PointOnSphere, const btVector3& v3SphereCenter, btScalar fRadius );
 
 	btScalar getSpherePenetration( btCollisionObject* boxObj, btVector3& v3PointOnBox, btVector3& v3PointOnSphere, const btVector3& v3SphereCenter, btScalar fRadius, const btVector3& aabbMin, const btVector3& aabbMax);

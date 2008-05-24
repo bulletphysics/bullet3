@@ -18,7 +18,7 @@ subject to the following restrictions:
 #include "btSoftBodyConcaveCollisionAlgorithm.h"
 #include "btSoftSoftCollisionAlgorithm.h"
 
-//#define ENABLE_SOFTBODY_CONCAVE_COLLISIONS 1
+#define ENABLE_SOFTBODY_CONCAVE_COLLISIONS 1
 
 btSoftBodyRigidBodyCollisionConfiguration::btSoftBodyRigidBodyCollisionConfiguration(btStackAlloc*	stackAlloc,btPoolAllocator*	persistentManifoldPool,btPoolAllocator*	collisionAlgorithmPool)
 :btDefaultCollisionConfiguration(stackAlloc,persistentManifoldPool,collisionAlgorithmPool)

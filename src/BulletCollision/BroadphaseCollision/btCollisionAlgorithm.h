@@ -17,6 +17,7 @@ subject to the following restrictions:
 #define COLLISION_ALGORITHM_H
 
 #include "LinearMath/btScalar.h"
+#include "LinearMath/btAlignedObjectArray.h"
 
 struct btBroadphaseProxy;
 class btDispatcher;
@@ -25,6 +26,7 @@ class btCollisionObject;
 struct btDispatcherInfo;
 class	btPersistentManifold;
 
+typedef btAlignedObjectArray<btPersistentManifold*>	btManifoldArray;
 
 struct btCollisionAlgorithmConstructionInfo
 {
@@ -71,6 +73,7 @@ public:
 
 	virtual btScalar calculateTimeOfImpact(btCollisionObject* body0,btCollisionObject* body1,const btDispatcherInfo& dispatchInfo,btManifoldResult* resultOut) = 0;
 
+	virtual	void	getAllContactManifolds(btManifoldArray&	manifoldArray) = 0;
 };
 
 

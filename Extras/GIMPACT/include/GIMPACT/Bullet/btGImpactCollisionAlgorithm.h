@@ -204,7 +204,11 @@ public:
 
 	btScalar	calculateTimeOfImpact(btCollisionObject* body0,btCollisionObject* body1,const btDispatcherInfo& dispatchInfo,btManifoldResult* resultOut);
 
-
+	virtual	void	getAllContactManifolds(btManifoldArray&	manifoldArray)
+	{
+		if (m_manifoldPtr)
+			manifoldArray.push_back(m_manifoldPtr);
+	}
 
 
 	struct CreateFunc :public 	btCollisionAlgorithmCreateFunc

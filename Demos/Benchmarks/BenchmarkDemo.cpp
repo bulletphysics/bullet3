@@ -274,7 +274,6 @@ void	BenchmarkDemo::initPhysics()
 	btVector3 worldAabbMax(10000,10000,10000);
 	m_overlappingPairCache = new btAxisSweep3(worldAabbMin,worldAabbMax,3500);
 	//m_overlappingPairCache = new btDbvtBroadphase();
-		
 
 	///the default constraint solver. For parallel processing you can use a different solver (see Extras/BulletMultiThreaded)
 	btSequentialImpulseConstraintSolver* sol = new btSequentialImpulseConstraintSolver;

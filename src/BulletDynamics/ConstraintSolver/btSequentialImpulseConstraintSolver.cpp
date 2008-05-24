@@ -536,7 +536,7 @@ btScalar btSequentialImpulseConstraintSolver::solveGroupCacheFriendlySetup(btCol
 	END_PROFILE("refreshManifolds");
 #endif //FORCE_REFESH_CONTACT_MANIFOLDS
 
-	btVector3 color(0,1,0);
+	
 
 
 
@@ -647,10 +647,6 @@ btScalar btSequentialImpulseConstraintSolver::solveGroupCacheFriendlySetup(btCol
 				{
 					
 					btManifoldPoint& cp = manifold->getContactPoint(j);
-					
-					if (debugDrawer)
-						debugDrawer->drawContactPoint(cp.m_positionWorldOnB,cp.m_normalWorldOnB,cp.getDistance(),cp.getLifeTime(),color);
-
 					
 					if (cp.getDistance() <= btScalar(0.))
 					{
@@ -1110,7 +1106,7 @@ void	btSequentialImpulseConstraintSolver::prepareConstraints(btPersistentManifol
 
 		gTotalContactPoints += numpoints;
 
-		btVector3 color(0,1,0);
+		
 		for (int i=0;i<numpoints ;i++)
 		{
 			btManifoldPoint& cp = manifoldPtr->getContactPoint(i);
@@ -1287,16 +1283,12 @@ btScalar btSequentialImpulseConstraintSolver::solveCombinedContactFriction(btRig
 
 	{
 
-		btVector3 color(0,1,0);
+		
 		{
 			if (cp.getDistance() <= btScalar(0.))
 			{
 
-				if (iter == 0)
-				{
-					if (debugDrawer)
-						debugDrawer->drawContactPoint(cp.m_positionWorldOnB,cp.m_normalWorldOnB,cp.getDistance(),cp.getLifeTime(),color);
-				}
+				
 
 				{
 
@@ -1325,16 +1317,12 @@ btScalar btSequentialImpulseConstraintSolver::solve(btRigidBody* body0,btRigidBo
 
 	{
 
-		btVector3 color(0,1,0);
+		
 		{
 			if (cp.getDistance() <= btScalar(0.))
 			{
 
-				if (iter == 0)
-				{
-					if (debugDrawer)
-						debugDrawer->drawContactPoint(cp.m_positionWorldOnB,cp.m_normalWorldOnB,cp.getDistance(),cp.getLifeTime(),color);
-				}
+				
 
 				{
 
@@ -1363,7 +1351,7 @@ btScalar btSequentialImpulseConstraintSolver::solveFriction(btRigidBody* body0,b
 
 	{
 
-		btVector3 color(0,1,0);
+		
 		{
 			
 			if (cp.getDistance() <= btScalar(0.))

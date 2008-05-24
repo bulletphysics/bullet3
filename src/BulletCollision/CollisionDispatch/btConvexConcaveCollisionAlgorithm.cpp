@@ -37,6 +37,13 @@ btConvexConcaveCollisionAlgorithm::~btConvexConcaveCollisionAlgorithm()
 {
 }
 
+void	btConvexConcaveCollisionAlgorithm::getAllContactManifolds(btManifoldArray&	manifoldArray)
+{
+	if (m_btConvexTriangleCallback.m_manifoldPtr)
+	{
+		manifoldArray.push_back(m_btConvexTriangleCallback.m_manifoldPtr);
+	}
+}
 
 
 btConvexTriangleCallback::btConvexTriangleCallback(btDispatcher*  dispatcher,btCollisionObject* body0,btCollisionObject* body1,bool isSwapped):

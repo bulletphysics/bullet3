@@ -39,6 +39,8 @@ m_btSoftBodyTriangleCallback(ci.m_dispatcher1,body0,body1,isSwapped)
 {
 }
 
+
+
 btSoftBodyConcaveCollisionAlgorithm::~btSoftBodyConcaveCollisionAlgorithm()
 {
 }
@@ -161,7 +163,7 @@ btCollisionObject* ob = static_cast<btCollisionObject*>(m_triBody);
 //		btVector3 other;
 		btVector3 normal = (triangle[1]-triangle[0]).cross(triangle[2]-triangle[0]);
 		normal.normalize();
-		normal*= 0.3f;
+		normal*= 1.3f;
 //		other=(triangle[0]+triangle[1]+triangle[2])*0.333333f;
 //		other+=normal*22.f;
 		btVector3	pts[6] = {triangle[0]+normal,

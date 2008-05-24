@@ -450,9 +450,7 @@ void VehicleDemo::clientMoveAndDisplay()
 			dt = 1.0/420.f;
 
 		int numSimSteps = m_dynamicsWorld->stepSimulation(dt,maxSimSubSteps);
-		//optional but useful: debug drawing
-		m_dynamicsWorld->debugDrawWorld();
-
+		
 
 //#define VERBOSE_FEEDBACK
 #ifdef VERBOSE_FEEDBACK
@@ -486,6 +484,10 @@ void VehicleDemo::clientMoveAndDisplay()
 
 	renderme(); 
 
+	//optional but useful: debug drawing
+	if (m_dynamicsWorld)
+		m_dynamicsWorld->debugDrawWorld();
+
 #ifdef USE_QUICKPROF 
         btProfiler::endBlock("render"); 
 #endif 
@@ -504,6 +506,9 @@ void VehicleDemo::displayCallback(void)
 
 	renderme();
 
+//optional but useful: debug drawing
+	if (m_dynamicsWorld)
+		m_dynamicsWorld->debugDrawWorld();
 
 	glFlush();
 	glutSwapBuffers();

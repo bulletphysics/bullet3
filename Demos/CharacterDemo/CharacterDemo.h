@@ -41,6 +41,8 @@ class CharacterDemo : public DemoApplication
 
 	class btTriangleIndexVertexArray*	m_indexVertexArrays;
 
+	class	MyCustomOverlappingPairCallback*	m_customPairCallback;
+
 	btVector3*	m_vertices;
 
 	

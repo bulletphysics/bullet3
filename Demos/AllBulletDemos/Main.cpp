@@ -50,7 +50,7 @@ namespace
 	float viewY = 0.0f;
 	int tx, ty, tw, th;
 	int	gDrawAabb=0;
-	int	gDebugDraw=0;
+	int	gWireFrame=0;
 	int	gDebugContacts=0;
 	int gDebugNoDeactivation = 0;
 }
@@ -120,7 +120,7 @@ void SimulationLoop()
 	{
 		demo->setDebugMode(demo->getDebugMode() & (~btIDebugDraw::DBG_DrawAabb));
 	}
-	if (gDebugDraw)
+	if (gWireFrame)
 	{
 		demo->setDebugMode(demo->getDebugMode() |btIDebugDraw::DBG_DrawWireframe);
 	} else
@@ -284,7 +284,7 @@ int main(int argc, char** argv)
 	GLUI_Panel* drawPanel =	glui->add_panel("Draw");
 
 	glui->add_checkbox_to_panel(drawPanel, "AABBs", &gDrawAabb);
-	glui->add_checkbox_to_panel(drawPanel, "DebugDrawer", &gDebugDraw);
+	glui->add_checkbox_to_panel(drawPanel, "Wireframe", &gWireFrame);
 	glui->add_checkbox_to_panel(drawPanel, "Contacts", &gDebugContacts);
 
 //	glui->add_checkbox_to_panel(drawPanel, "Impulses", &settings.drawImpulses);

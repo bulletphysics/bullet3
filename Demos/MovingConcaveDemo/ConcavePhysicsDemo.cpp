@@ -1909,6 +1909,10 @@ void ConcaveDemo::displayCallback(void) {
 
 	renderme();
 
+	//optional but useful: debug drawing
+	if (m_dynamicsWorld)
+		m_dynamicsWorld->debugDrawWorld();
+
     glFlush();
     glutSwapBuffers();
 }

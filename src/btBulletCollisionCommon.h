@@ -51,6 +51,7 @@ subject to the following restrictions:
 #include "BulletCollision/BroadphaseCollision/btSimpleBroadphase.h"
 #include "BulletCollision/BroadphaseCollision/btAxisSweep3.h"
 #include "BulletCollision/BroadphaseCollision/btMultiSapBroadphase.h"
+#include "BulletCollision/BroadphaseCollision/btDbvtBroadphase.h"
 
 ///Math library & Utils
 #include "LinearMath/btQuaternion.h"

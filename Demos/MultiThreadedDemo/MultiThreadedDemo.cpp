@@ -212,6 +212,10 @@ void MultiThreadedDemo::displayCallback(void) {
 
 	glClear(GL_COLOR_BUFFER_BIT | GL_DEPTH_BUFFER_BIT); 
 
+	//optional but useful: debug drawing
+	if (m_dynamicsWorld)
+		m_dynamicsWorld->debugDrawWorld();
+
 	
 	renderme();
 

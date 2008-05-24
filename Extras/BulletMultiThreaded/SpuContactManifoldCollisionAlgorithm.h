@@ -46,6 +46,12 @@ public:
 
 	virtual ~SpuContactManifoldCollisionAlgorithm();
 
+	virtual	void	getAllContactManifolds(btManifoldArray&	manifoldArray)
+	{
+		if (m_manifoldPtr)
+			manifoldArray.push_back(m_manifoldPtr);
+	}
+
 	btPersistentManifold*	getContactManifoldPtr()
 	{
 		return m_manifoldPtr;

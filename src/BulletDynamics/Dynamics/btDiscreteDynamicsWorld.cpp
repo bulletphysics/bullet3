@@ -125,6 +125,27 @@ void	btDiscreteDynamicsWorld::saveKinematicState(btScalar timeStep)
 
 void	btDiscreteDynamicsWorld::debugDrawWorld()
 {
+
+	if (getDebugDrawer() && getDebugDrawer()->getDebugMode() & btIDebugDraw::DBG_DrawContactPoints)
+	{
+		int numManifolds = getDispatcher()->getNumManifolds();
+		btVector3 color(0,1,0);
+		for (int i=0;i<numManifolds;i++)
+		{
+			btPersistentManifold* contactManifold = getDispatcher()->getManifoldByIndexInternal(i);
+			btCollisionObject* obA = static_cast<btCollisionObject*>(contactManifold->getBody0());
+			btCollisionObject* obB = static_cast<btCollisionObject*>(contactManifold->getBody1());
+
+			int numContacts = contactManifold->getNumContacts();
+			for (int j=0;j<numContacts;j++)
+			{
+				btManifoldPoint& cp = contactManifold->getContactPoint(j);
+				getDebugDrawer()->drawContactPoint(cp.m_positionWorldOnB,cp.m_normalWorldOnB,cp.getDistance(),cp.getLifeTime(),color);
+			}
+		}
+	}
+
+
 	if (getDebugDrawer() && getDebugDrawer()->getDebugMode() & (btIDebugDraw::DBG_DrawWireframe | btIDebugDraw::DBG_DrawAabb))
 	{
 		int i;

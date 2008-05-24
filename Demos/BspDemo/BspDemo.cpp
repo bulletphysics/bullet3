@@ -147,7 +147,8 @@ void	BspDemo::initPhysics(char* bspfilename)
 	m_dispatcher = new btCollisionDispatcher(m_collisionConfiguration);
 	btVector3 worldMin(-1000,-1000,-1000);
 	btVector3 worldMax(1000,1000,1000);
-	m_broadphase = new btAxisSweep3(worldMin,worldMax);
+	m_broadphase = new btDbvtBroadphase();
+	//m_broadphase = new btAxisSweep3(worldMin,worldMax);
 	//btOverlappingPairCache* broadphase = new btSimpleBroadphase();
 	m_solver = new btSequentialImpulseConstraintSolver();
 	//ConstraintSolver* solver = new OdeConstraintSolver;
@@ -235,6 +236,9 @@ void BspDemo::displayCallback(void) {
 
 	renderme();
 
+	//optional but useful: debug drawing
+	if (m_dynamicsWorld)
+		m_dynamicsWorld->debugDrawWorld();
 
 	glFlush();
 	glutSwapBuffers();

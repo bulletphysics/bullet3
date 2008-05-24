@@ -97,6 +97,64 @@ CharacterDemo::~CharacterDemo()
 
 }
 
+class MyCustomOverlappingPairCallback : public btOverlappingPairCallback
+{
+
+	CharacterDemo*	m_characterDemo;
+	btCollisionObject*	m_characterCollider;
+
+	btHashedOverlappingPairCache*	m_hashPairCache;
+
+public:
+
+	MyCustomOverlappingPairCallback(CharacterDemo* demo,btCollisionObject* characterCollider)
+		:m_characterDemo(demo),
+		m_characterCollider(characterCollider)
+	{
+		m_hashPairCache = new btHashedOverlappingPairCache();
+	}
+	
+	virtual ~MyCustomOverlappingPairCallback()
+	{
+		delete m_hashPairCache;
+	}
+
+	virtual btBroadphasePair*	addOverlappingPair(btBroadphaseProxy* proxy0,btBroadphaseProxy* proxy1)
+	{
+		if (proxy0->m_clientObject==m_characterCollider || proxy1->m_clientObject==m_characterCollider)
+		{
+			printf("addOverlappingPair (%x,%x)\n",proxy0,proxy1);
+			return m_hashPairCache->addOverlappingPair(proxy0,proxy1);
+		}
+		return 0;
+	}
+
+	virtual void*	removeOverlappingPair(btBroadphaseProxy* proxy0,btBroadphaseProxy* proxy1,btDispatcher* dispatcher)
+	{
+		if (proxy0->m_clientObject==m_characterCollider || proxy1->m_clientObject==m_characterCollider)
+		{
+			printf("removeOverlappingPair (%x,%x)\n",proxy0,proxy1);
+			return m_hashPairCache->removeOverlappingPair(proxy0,proxy1,dispatcher);
+		}
+		return 0;
+	}
+
+	virtual void	removeOverlappingPairsContainingProxy(btBroadphaseProxy* proxy0,btDispatcher* dispatcher)
+	{
+		if (proxy0->m_clientObject==m_characterCollider)
+		{
+			printf("removeOverlappingPairsContainingProxy (%x)\n",proxy0);
+			m_hashPairCache->removeOverlappingPairsContainingProxy(proxy0,dispatcher);
+		}
+	}
+	
+	btBroadphasePairArray&	getOverlappingPairArray()
+	{
+		return m_hashPairCache->getOverlappingPairArray();
+	}
+
+};
+
 void CharacterDemo::initPhysics()
 {
 
@@ -106,7 +164,9 @@ void CharacterDemo::initPhysics()
 	m_dispatcher = new btCollisionDispatcher(m_collisionConfiguration);
 	btVector3 worldMin(-1000,-1000,-1000);
 	btVector3 worldMax(1000,1000,1000);
-	m_overlappingPairCache = new btAxisSweep3(worldMin,worldMax);
+	btAxisSweep3* sweepBP = new btAxisSweep3(worldMin,worldMax);
+	m_overlappingPairCache = sweepBP;
+		
 	m_constraintSolver = new btSequentialImpulseConstraintSolver();
 	m_dynamicsWorld = new btDiscreteDynamicsWorld(m_dispatcher,m_overlappingPairCache,m_constraintSolver,m_collisionConfiguration);
 	//m_dynamicsWorld->setGravity(btVector3(0,0,0));
@@ -240,6 +300,14 @@ const float TRIANGLE_SIZE=20.f;
 	m_character = new CharacterController ();
 	m_character->setup (m_dynamicsWorld);
 
+	//we need to remove the rigid body from the broadphase in order to register all collisions
+	m_dynamicsWorld->removeRigidBody(m_character->getRigidBody());
+	//some custom callback sample
+	m_customPairCallback = new MyCustomOverlappingPairCallback(this,m_character->getRigidBody());
+	sweepBP->setOverlappingPairUserCallback(m_customPairCallback);
+	m_dynamicsWorld->addRigidBody(m_character->getRigidBody());
+
+
 #define CUBE_HALF_EXTENTS 0.5
 #define EXTRA_HEIGHT 10.0
 	btBoxShape* boxShape = new btBoxShape (btVector3(1.0, 1.0, 1.0));
@@ -330,6 +398,34 @@ void CharacterDemo::clientMoveAndDisplay()
 			m_character->jump ();
 		}
 	}
+
+	printf("numPairs = %d\n",m_customPairCallback->getOverlappingPairArray().size());
+	{
+		btManifoldArray	manifoldArray;
+		for (int i=0;i<m_customPairCallback->getOverlappingPairArray().size();i++)
+		{
+			manifoldArray.clear();
+			
+			const btBroadphasePair& pair = m_customPairCallback->getOverlappingPairArray()[i];
+			btBroadphasePair* collisionPair = m_overlappingPairCache->getOverlappingPairCache()->findPair(pair.m_pProxy0,pair.m_pProxy1);
+
+			if (collisionPair->m_algorithm)
+				collisionPair->m_algorithm->getAllContactManifolds(manifoldArray);
+
+			for (int j=0;j<manifoldArray.size();j++)
+			{
+				btPersistentManifold* manifold = manifoldArray[j];
+				for (int p=0;p<manifold->getNumContacts();p++)
+				{
+					const btManifoldPoint&pt = manifold->getContactPoint(p);
+
+					m_dynamicsWorld->getDebugDrawer()->drawContactPoint(pt.getPositionWorldOnB(),pt.m_normalWorldOnB,pt.getDistance(),pt.getLifeTime(),btVector3(1.f,1.f,0.f));
+				}
+			}
+		}
+	}
+
+
 	
 	if (m_dynamicsWorld)
 	{
@@ -339,9 +435,10 @@ void CharacterDemo::clientMoveAndDisplay()
 			dt = 1.0/420.f;
 
 		int numSimSteps = m_dynamicsWorld->stepSimulation(dt,maxSimSubSteps);
+		
 		//optional but useful: debug drawing
-		m_dynamicsWorld->debugDrawWorld();
-
+		if (m_dynamicsWorld)
+			m_dynamicsWorld->debugDrawWorld();
 
 //#define VERBOSE_FEEDBACK
 #ifdef VERBOSE_FEEDBACK
@@ -392,6 +489,10 @@ void CharacterDemo::displayCallback(void)
 	glClear(GL_COLOR_BUFFER_BIT | GL_DEPTH_BUFFER_BIT); 
 
 	renderme();
+
+	//optional but useful: debug drawing
+	if (m_dynamicsWorld)
+		m_dynamicsWorld->debugDrawWorld();
 
 
 	glFlush();

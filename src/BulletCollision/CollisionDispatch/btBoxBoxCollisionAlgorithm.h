@@ -41,6 +41,15 @@ public:
 
 	virtual ~btBoxBoxCollisionAlgorithm();
 
+	virtual	void	getAllContactManifolds(btManifoldArray&	manifoldArray)
+	{
+		if (m_manifoldPtr && m_ownManifold)
+		{
+			manifoldArray.push_back(m_manifoldPtr);
+		}
+	}
+
+
 	struct CreateFunc :public 	btCollisionAlgorithmCreateFunc
 	{
 		virtual	btCollisionAlgorithm* CreateCollisionAlgorithm(btCollisionAlgorithmConstructionInfo& ci, btCollisionObject* body0,btCollisionObject* body1)

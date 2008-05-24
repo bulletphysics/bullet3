@@ -240,7 +240,7 @@ void CcdPhysicsDemo::clientMoveAndDisplay()
 		
 		//optional but useful: debug drawing
 		m_dynamicsWorld->debugDrawWorld();
-
+		
 #ifdef VERBOSE_TIMESTEPPING_CONSOLEOUTPUT
 		if (!numSimSteps)
 			printf("Interpolated transforms\n");
@@ -295,8 +295,11 @@ void CcdPhysicsDemo::displayCallback(void) {
 
 	glClear(GL_COLOR_BUFFER_BIT | GL_DEPTH_BUFFER_BIT); 
 
-	
 	renderme();
+
+	//optional but useful: debug drawing
+	if (m_dynamicsWorld)
+		m_dynamicsWorld->debugDrawWorld();
 
 	glFlush();
 	glutSwapBuffers();

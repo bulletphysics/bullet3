@@ -42,6 +42,12 @@ public:
 
 	virtual btScalar calculateTimeOfImpact(btCollisionObject* body0,btCollisionObject* body1,const btDispatcherInfo& dispatchInfo,btManifoldResult* resultOut);
 
+	virtual	void	getAllContactManifolds(btManifoldArray&	manifoldArray)
+	{
+		if (m_manifoldPtr && m_ownManifold)
+			manifoldArray.push_back(m_manifoldPtr);
+	}
+
 	btSoftSoftCollisionAlgorithm(btPersistentManifold* mf,const btCollisionAlgorithmConstructionInfo& ci,btCollisionObject* body0,btCollisionObject* body1);
 
 	virtual ~btSoftSoftCollisionAlgorithm();
