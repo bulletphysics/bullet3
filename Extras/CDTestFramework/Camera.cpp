@@ -19,12 +19,19 @@ subject to the following restrictions:
 static const float gCamSpeed = 1.0f;
 static Point gEye(3.0616338f, 1.1985892f, 2.5769043f);
 static Point gDir(-0.66853905,-0.14004262,-0.73037237);
+//static Point gEye(140, 105, 105);
+//static Point gDir(-1,-1,-1);
 static Point gN;
 static float gFOV = 60.0f;
 
 const Point& GetCameraPos()
 {
 	return gEye;
+}
+
+const Point& GetCameraDir()
+{
+	return gDir;
 }
 
 void MoveCameraForward()

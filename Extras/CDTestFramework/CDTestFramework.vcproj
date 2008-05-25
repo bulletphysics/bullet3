@@ -64,7 +64,7 @@
 				Name="VCLinkerTool"
 				OutputFile="./Bin/CDTestFrameworkDEBUG.exe"
 				LinkIncremental="2"
-				AdditionalLibraryDirectories=".\AntTweakBar\lib"
+				AdditionalLibraryDirectories=".\AntTweakBar\lib,../../Glut"
 				GenerateDebugInformation="true"
 				ProgramDatabaseFile="$(OutDir)/CDTestFramework.pdb"
 				SubSystem="1"
@@ -142,7 +142,7 @@
 				Name="VCLinkerTool"
 				OutputFile="./Bin/CDTestFramework.exe"
 				LinkIncremental="1"
-				AdditionalLibraryDirectories=".\AntTweakBar\lib"
+				AdditionalLibraryDirectories=".\AntTweakBar\lib,../../Glut"
 				GenerateDebugInformation="true"
 				SubSystem="1"
 				OptimizeReferences="2"
@@ -192,10 +192,6 @@
 				>
 			</File>
 			<File
-				RelativePath=".\btDbvt.cpp"
-				>
-			</File>
-			<File
 				RelativePath=".\BulletSAPCompleteBoxPruningTest.cpp"
 				>
 			</File>
@@ -237,10 +233,6 @@
 			</File>
 			<File
 				RelativePath=".\CompleteBoxPruning.h"
-				>
-			</File>
-			<File
-				RelativePath=".\DbvtTest.cpp"
 				>
 			</File>
 			<File
@@ -326,15 +318,7 @@
 			UniqueIdentifier="{93995380-89BD-4b04-88EB-625FBE52EBFB}"
 			>
 			<File
-				RelativePath=".\btDbvt.h"
-				>
-			</File>
-			<File
 				RelativePath=".\BulletSAPCompleteBoxPruningTest.h"
-				>
-			</File>
-			<File
-				RelativePath=".\DbvtTest.h"
 				>
 			</File>
 			<File

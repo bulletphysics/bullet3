@@ -32,6 +32,8 @@ subject to the following restrictions:
 		virtual	void			Init();
 		virtual	void			Release();
 		virtual	void			PerformTest();
+		void					RenderAll();
+		void					Render();
 		virtual	void			Select();
 		virtual	void			Deselect();
 		virtual	void			KeyboardCallback(unsigned char key, int x, int y);
@@ -42,10 +44,12 @@ subject to the following restrictions:
 				Profiler		mProfiler;
 
 				class btBroadphaseInterface*	m_broadphase;
+				bool							m_isdbvt;
 				btAlignedObjectArray<struct  btBroadphaseProxy*> m_proxies;
 
 				udword			mNbBoxes;
 				AABB*			mBoxes;
+				bool*			mFlags;
 				const char*		methodname;
 				const AABB**	mBoxPtrs;
 				Pairs			mPairs;

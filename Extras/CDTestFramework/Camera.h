@@ -18,6 +18,7 @@ subject to the following restrictions:
 #define CAMERA_H
 
 	const Point&	GetCameraPos();
+	const Point&	GetCameraDir();
 	void			RotateCamera(int dx, int dy);
 
 	void			MoveCameraForward();
