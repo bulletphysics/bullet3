@@ -287,7 +287,7 @@ bool					EncloseOrigin()
 				{
 				btVector3		axis=btVector3(0,0,0);
 				axis[i]=1;
-				if(btFabs(dot(axis,d))>0)
+				if(btFabs(dot(axis,d))<1)
 					{
 					const btVector3	p=cross(d,axis);
 					appendvertice(*m_simplex, p);

@@ -144,6 +144,13 @@ void btGjkPairDetector::getClosestPoints(const ClosestPointInput& input,Result& 
 				break;
 			}
 
+			if(m_cachedSeparatingAxis.length2()<REL_ERROR2)
+            {
+                m_degenerateSimplex = 6;
+                checkSimplex = true;
+                break;
+            }
+
 			btScalar previousSquaredDistance = squaredDistance;
 			squaredDistance = m_cachedSeparatingAxis.length2();
 			
