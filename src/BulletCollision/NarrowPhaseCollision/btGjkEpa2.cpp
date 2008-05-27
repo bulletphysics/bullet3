@@ -287,9 +287,9 @@ bool					EncloseOrigin()
 				{
 				btVector3		axis=btVector3(0,0,0);
 				axis[i]=1;
-				if(btFabs(dot(axis,d))<1)
+				const btVector3	p=cross(d,axis);
+				if(p.length2()>0)
 					{
-					const btVector3	p=cross(d,axis);
 					appendvertice(*m_simplex, p);
 					if(EncloseOrigin())	return(true);
 					removevertice(*m_simplex);
@@ -304,8 +304,7 @@ bool					EncloseOrigin()
 			{
 			const btVector3	n=cross(m_simplex->c[1]->w-m_simplex->c[0]->w,
 									m_simplex->c[2]->w-m_simplex->c[0]->w);
-			const btScalar	l=n.length();
-			if(l>0)
+			if(n.length2()>0)
 				{
 				appendvertice(*m_simplex,n);
 				if(EncloseOrigin())	return(true);
