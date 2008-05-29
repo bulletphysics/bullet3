@@ -537,7 +537,6 @@ void BulletSAPCompleteBoxPruningTest::PerformTest()
 	if (m_firstTime)
 	{
 		numUpdatedBoxes = mNbBoxes;
-		m_firstTime = false;
 	}
 	mProfiler.Start();
 	UpdateBoxes(numUpdatedBoxes);
@@ -567,6 +566,13 @@ void BulletSAPCompleteBoxPruningTest::PerformTest()
 	mProfiler.End();
 	mProfiler.Accum();
 
+	if (m_firstTime)
+	{
+		//initialization messes up timings
+		m_firstTime = false;
+		mProfiler.Reset();
+	}
+	
 //	printf("%d pairs colliding\r     ", mPairs.GetNbPairs());
 
 	ZeroMemory(mFlags,sizeof(bool)*mNbBoxes);

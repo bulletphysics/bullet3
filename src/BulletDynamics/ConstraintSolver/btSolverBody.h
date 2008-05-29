@@ -64,8 +64,8 @@ ATTRIBUTE_ALIGNED16 (struct)	btSolverBody
 			m_turnVelocity += angularComponent*(impulseMagnitude*m_angularFactor);
 		}
 	}
-	
 
+	
 	void	writebackVelocity()
 	{
 		if (m_invMass)

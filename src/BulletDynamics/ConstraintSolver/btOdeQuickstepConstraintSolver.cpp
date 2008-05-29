@@ -297,18 +297,6 @@ void btOdeQuickstepConstraintSolver::ConvertConstraint(btPersistentManifold* man
     for (i=0;i<numContacts;i++)
     {
 
-        if (debugDrawer)
-        {
-            const btManifoldPoint& cp = manifold->getContactPoint(i);
-
-            debugDrawer->drawContactPoint(
-                cp.m_positionWorldOnB,
-                cp.m_normalWorldOnB,
-                cp.getDistance(),
-                cp.getLifeTime(),
-                color);
-
-        }
         //assert (m_CurJoint < ODE_MAX_SOLVER_JOINTS);
 
 //		if (manifold->getContactPoint(i).getDistance() < 0.0f)

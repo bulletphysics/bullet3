@@ -21,7 +21,7 @@
 #include "glui/GL/glui.h"
 #include "LinearMath/btScalar.h"
 #include "LinearMath/btMinMax.h"
-
+#include "BulletDynamics/ConstraintSolver/btSequentialImpulseConstraintSolver.h"
 #include "DemoApplication.h"
 #include "DemoEntries.h"
 #include "BulletDynamics/Dynamics/btDiscreteDynamicsWorld.h"
@@ -34,25 +34,83 @@
 
 namespace
 {
-	int testIndex = 0;
-	int testSelection = 0;
+	int testIndex=0;
+	int testSelection=0;
 	btDemoEntry* entry;
 	DemoApplication* demo;
-	int iterationCount = 10;
-	int width = 640;
-	int height = 480;
-	int framePeriod = 16;//todo: test if this value should be 0
+	int iterationCount;
+	int width;
+	int height;
+	int framePeriod;//todo: test if this value should be 0
 	int mainWindow;
 	GLUI *glui;
 	float hz;
-	float viewZoom = 20.0f;
-	float viewX = 0.0f;
-	float viewY = 0.0f;
+	float viewZoom=20.f;
+	float viewX;
+	float viewY;
 	int tx, ty, tw, th;
-	int	gDrawAabb=0;
-	int	gWireFrame=0;
-	int	gDebugContacts=0;
-	int gDebugNoDeactivation = 0;
+	int	gDrawAabb;
+	int	gWireFrame;
+	int	gDebugContacts;
+	int gDebugNoDeactivation;
+	int	gUseWarmstarting;
+	int	gRandomizeConstraints;
+	int	gUseSplitImpulse;
+	float	gErp;
+	float	gSlop;
+	float	gErp2;
+	float	gWarmStartingParameter;
+}
+
+
+void	setDefaultSettings()
+{
+	viewX = 0.0f;
+	viewY = 0.0f;
+	framePeriod = 16;//todo: test if this value should be 0
+	
+	width = 640;
+	height = 480;
+	iterationCount = 10;
+	gDrawAabb=0;
+	gWireFrame=0;
+	gDebugContacts=0;
+	gDebugNoDeactivation = 0;
+	gUseSplitImpulse = 0;
+	gUseWarmstarting = 1;
+	gRandomizeConstraints = 1;
+	gErp = 0.2f;
+	gSlop=0.0f;
+	gErp2 = 0.1f;
+	gWarmStartingParameter = 0.85f;
+	
+}
+
+void	setDefaultSettingsAndSync()
+{
+	setDefaultSettings();
+	glui->sync_live();
+}
+
+
+void	TogglePause()
+{
+	if (demo)
+		demo->toggleIdle();
+}
+
+void	ResetScene()
+{
+	if (demo)
+		demo->clientResetScene();
+}
+
+
+
+void	SingleSimulationStep()
+{
+	if (demo)
+		demo->clientMoveAndDisplay();
 }
 
 
@@ -136,6 +194,7 @@ void SimulationLoop()
 		demo->setDebugMode(demo->getDebugMode() & (~btIDebugDraw::DBG_DrawContactPoints));
 	}
 
+	
 	if (gDebugNoDeactivation)
 	{
 		demo->setDebugMode(demo->getDebugMode() |btIDebugDraw::DBG_NoDeactivation);
@@ -148,8 +207,31 @@ void SimulationLoop()
 	{
 		btDiscreteDynamicsWorld* discreteWorld = (btDiscreteDynamicsWorld*) demo->getDynamicsWorld();
 		discreteWorld->getSolverInfo().m_numIterations = iterationCount;
-	}
+		discreteWorld->getSolverInfo().m_erp = gErp;
+		discreteWorld->getSolverInfo().m_erp2 = gErp2;
+		
+		discreteWorld->getSolverInfo().m_linearSlop = gSlop;
+				
+		discreteWorld->getSolverInfo().m_warmstartingFactor = gWarmStartingParameter;
+		discreteWorld->getSolverInfo().m_splitImpulse = gUseSplitImpulse;
 
+		btSequentialImpulseConstraintSolver* solver = ((btSequentialImpulseConstraintSolver*) discreteWorld->getConstraintSolver());
+
+		if (gUseWarmstarting)
+		{
+			discreteWorld->getSolverInfo().m_solverMode |= SOLVER_USE_WARMSTARTING;
+		} else
+		{
+			discreteWorld->getSolverInfo().m_solverMode &= (~SOLVER_USE_WARMSTARTING);
+		}
+		if (gRandomizeConstraints)
+		{
+			discreteWorld->getSolverInfo().m_solverMode |= SOLVER_RANDMIZE_ORDER;
+		} else
+		{
+			discreteWorld->getSolverInfo().m_solverMode &= (~SOLVER_RANDMIZE_ORDER);
+		}
+	}
 
 	if (!demo->isIdle())
 	{
@@ -175,6 +257,19 @@ void SimulationLoop()
 		Resize(width, height);
 	}
 }	
+
+void	RestartScene()
+{
+	if (demo->getDynamicsWorld() && demo->getDynamicsWorld()->getDebugDrawer())
+			delete demo->getDynamicsWorld()->getDebugDrawer();
+	delete demo;
+	entry = g_demoEntries + testIndex;
+	demo = CreatDemo(entry);
+	viewZoom = 20.0f;
+	viewX = 0.0f;
+	viewY = 0.0f;
+	Resize(width, height);
+}
 
 void Keyboard(unsigned char key, int x, int y)
 {
@@ -234,7 +329,7 @@ void MouseMotion(int x, int y)
 int main(int argc, char** argv)
 {
 	
-
+	setDefaultSettings();
 	
 	int bulletVersion = btGetVersion();
 	printf("Bullet version %d\n",bulletVersion);
@@ -260,6 +355,8 @@ int main(int argc, char** argv)
 	glui = GLUI_Master.create_glui_subwindow( mainWindow, 
 		GLUI_SUBWINDOW_RIGHT );
 
+	
+
 	glui->add_statictext("Tests");
 	GLUI_Listbox* testList =
 		glui->add_listbox("", &testSelection);
@@ -268,20 +365,35 @@ int main(int argc, char** argv)
 
 	GLUI_Spinner* iterationSpinner =
 		glui->add_spinner("Iterations", GLUI_SPINNER_INT, &iterationCount);
-	iterationSpinner->set_int_limits(1, 100);
+	iterationSpinner->set_int_limits(1, 250);
 
 /*	GLUI_Spinner* hertzSpinner =
 		glui->add_spinner("Hertz", GLUI_SPINNER_FLOAT, &hz);
 	hertzSpinner->set_float_limits(5.0f, 200.0f);
 */
 
-//	glui->add_checkbox("Position Correction", &settings.enablePositionCorrection);
-//	glui->add_checkbox("Warm Starting", &settings.enablePositionCorrection);
+	
 	glui->add_checkbox("DisableDeactivation", &gDebugNoDeactivation);
+	glui->add_checkbox("Split Impulse", &gUseSplitImpulse);
+	GLUI_Spinner* spinner = 0;
 
+	spinner = glui->add_spinner("ERP", GLUI_SPINNER_FLOAT, &gErp);
+	spinner->set_float_limits(0.f,1.f);
+	spinner = glui->add_spinner("ERP2", GLUI_SPINNER_FLOAT, &gErp2);
+	spinner->set_float_limits(0.f,1.f);
+	spinner = glui->add_spinner("Slop", GLUI_SPINNER_FLOAT, &gSlop);
+	spinner->set_float_limits(0.f,1.f);
+
+	spinner = glui->add_spinner("WSP", GLUI_SPINNER_FLOAT,&gWarmStartingParameter);
+	spinner->set_float_limits (0.f,1.0);
+	glui->add_checkbox("Warmstarting", &gUseWarmstarting);
+	glui->add_checkbox("Randomize Constraints", &gRandomizeConstraints);
+	
+
+	glui->add_button("Reset Defaults", 0,(GLUI_Update_CB)setDefaultSettingsAndSync);
 	glui->add_separator();
 
-	GLUI_Panel* drawPanel =	glui->add_panel("Draw");
+	GLUI_Panel* drawPanel =	glui->add_panel("Debug Draw");
 
 	glui->add_checkbox_to_panel(drawPanel, "AABBs", &gDrawAabb);
 	glui->add_checkbox_to_panel(drawPanel, "Wireframe", &gWireFrame);
@@ -299,8 +411,19 @@ int main(int argc, char** argv)
 		++testCount;
 		++e;
 	}
+	
+	glui->add_separator();
 
-	glui->add_button("Quit", 0,(GLUI_Update_CB)exit);
+	glui->add_button("Toggle Pause", 0,(GLUI_Update_CB)TogglePause);
+	
+	glui->add_button("Single Step", 0,(GLUI_Update_CB)SingleSimulationStep);
+	glui->add_button("Reset Scene", 0,(GLUI_Update_CB)ResetScene);
+	glui->add_button("Restart Scene", 0,(GLUI_Update_CB)RestartScene);
+
+	glui->add_separator();
+	
+	glui->add_button("Exit", 0,(GLUI_Update_CB)exit);
+
 	glui->set_main_gfx_window( mainWindow );
 
 	// Use a timer to control the frame rate.

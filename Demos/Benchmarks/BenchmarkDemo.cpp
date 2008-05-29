@@ -277,7 +277,7 @@ void	BenchmarkDemo::initPhysics()
 
 	///the default constraint solver. For parallel processing you can use a different solver (see Extras/BulletMultiThreaded)
 	btSequentialImpulseConstraintSolver* sol = new btSequentialImpulseConstraintSolver;
-	sol->setSolverMode(btSequentialImpulseConstraintSolver::SOLVER_CACHE_FRIENDLY);
+	
 	m_solver = sol;
 
 	m_dynamicsWorld = new btDiscreteDynamicsWorld(m_dispatcher,m_overlappingPairCache,m_solver,m_collisionConfiguration);

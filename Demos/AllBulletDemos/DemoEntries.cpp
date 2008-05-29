@@ -102,6 +102,7 @@ public:
 
 btDemoEntry g_demoEntries[] =
 {
+	
 	{"SoftBody Cloth",SoftDemo0::Create},
 	{"SoftBody Pressure",SoftDemo1::Create},
 	{"SoftBody Volume",SoftDemo2::Create},

@@ -20,8 +20,8 @@ subject to the following restrictions:
 
 #define ENABLE_SOFTBODY_CONCAVE_COLLISIONS 1
 
-btSoftBodyRigidBodyCollisionConfiguration::btSoftBodyRigidBodyCollisionConfiguration(btStackAlloc*	stackAlloc,btPoolAllocator*	persistentManifoldPool,btPoolAllocator*	collisionAlgorithmPool)
-:btDefaultCollisionConfiguration(stackAlloc,persistentManifoldPool,collisionAlgorithmPool)
+btSoftBodyRigidBodyCollisionConfiguration::btSoftBodyRigidBodyCollisionConfiguration(const btDefaultCollisionConstructionInfo& constructionInfo)
+:btDefaultCollisionConfiguration(constructionInfo)
 {
 	void* mem;
 

@@ -17,11 +17,13 @@ subject to the following restrictions:
 #define BT_DYNAMICS_WORLD_H
 
 #include "BulletCollision/CollisionDispatch/btCollisionWorld.h"
+#include "BulletDynamics/ConstraintSolver/btContactSolverInfo.h"
+
 class btTypedConstraint;
 class btRaycastVehicle;
 class btConstraintSolver;
-
 class btDynamicsWorld;
+
 /// Type for the callback for each tick
 typedef void (*btInternalTickCallback)(const btDynamicsWorld *world, btScalar timeStep);
 
@@ -35,7 +37,13 @@ enum btDynamicsWorldType
 ///btDynamicsWorld is the baseclass for several dynamics implementation, basic, discrete, parallel, and continuous
 class btDynamicsWorld : public btCollisionWorld
 {
-	public:
+
+protected:
+			btInternalTickCallback m_internalTickCallback;
+
+			btContactSolverInfo	m_solverInfo;
+
+public:
 		
 
 		btDynamicsWorld(btDispatcher* dispatcher,btBroadphaseInterface* broadphase,btCollisionConfiguration* collisionConfiguration)
@@ -89,8 +97,11 @@ class btDynamicsWorld : public btCollisionWorld
 
 		/// Set the callback for when an internal tick (simulation substep) happens
 		void setInternalTickCallback(btInternalTickCallback cb) { m_internalTickCallback = cb; }
-		
-		btInternalTickCallback m_internalTickCallback;
+
+		btContactSolverInfo& getSolverInfo()
+		{
+			return m_solverInfo;
+		}
 
 
 };

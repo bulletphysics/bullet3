@@ -35,7 +35,7 @@ class	btSoftBodyRigidBodyCollisionConfiguration : public btDefaultCollisionConfi
 	
 public:
 
-	btSoftBodyRigidBodyCollisionConfiguration(btStackAlloc*	stackAlloc=0,btPoolAllocator*	persistentManifoldPool=0,btPoolAllocator*	collisionAlgorithmPool=0);
+	btSoftBodyRigidBodyCollisionConfiguration(const btDefaultCollisionConstructionInfo& constructionInfo = btDefaultCollisionConstructionInfo());
 
 	virtual ~btSoftBodyRigidBodyCollisionConfiguration();
 

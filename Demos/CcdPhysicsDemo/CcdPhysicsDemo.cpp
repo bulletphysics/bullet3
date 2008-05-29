@@ -25,8 +25,9 @@ subject to the following restrictions:
 //#define CENTER_OF_MASS_SHIFT 1
 //#define VERBOSE_TIMESTEPPING_CONSOLEOUTPUT 1
 
-//#define USE_PARALLEL_SOLVER 1 //experimental parallel solver
 //#define USE_PARALLEL_DISPATCHER 1
+//#define USE_PARALLEL_SOLVER 1 //experimental parallel solver
+
 
 //from Bullet 2.68 onwards ODE Quickstep constraint solver is optional part of Bullet, re-distributed under the ZLib license with permission of Russell L. Smith
 //#define COMPARE_WITH_QUICKSTEP 1
@@ -338,6 +339,7 @@ void	CcdPhysicsDemo::initPhysics()
 #ifdef DO_BENCHMARK_PYRAMIDS
 	m_collisionShapes.push_back(new btBoxShape (btVector3(CUBE_HALF_EXTENTS,CUBE_HALF_EXTENTS,CUBE_HALF_EXTENTS)));
 #else
+//	m_collisionShapes.push_back(new btBoxShape (btVector3(CUBE_HALF_EXTENTS,CUBE_HALF_EXTENTS,CUBE_HALF_EXTENTS)));
 	m_collisionShapes.push_back(new btCylinderShape (btVector3(CUBE_HALF_EXTENTS,CUBE_HALF_EXTENTS,CUBE_HALF_EXTENTS)));
 #endif
 	
@@ -432,21 +434,23 @@ int maxNumOutstandingTasks = 4;
 #else
 	btSequentialImpulseConstraintSolver* solver = new btSequentialImpulseConstraintSolver();
 
-	m_solver = solver;
-	//default solverMode is SOLVER_RANDMIZE_ORDER. Warmstarting seems not to improve convergence, see 
-	//solver->setSolverMode(0);//btSequentialImpulseConstraintSolver::SOLVER_USE_WARMSTARTING | btSequentialImpulseConstraintSolver::SOLVER_RANDMIZE_ORDER);
+	m_solver = solver;//new btOdeQuickstepConstraintSolver();
 	
 #endif //USE_PARALLEL_SOLVER
 
 #endif
 		
-#ifdef	USER_DEFINED_FRICTION_MODEL
-	//user defined friction model is not supported in 'cache friendly' solver yet, so switch to old solver
-		m_solver->setSolverMode(btSequentialImpulseConstraintSolver::SOLVER_RANDMIZE_ORDER);
-#endif //USER_DEFINED_FRICTION_MODEL
+
 
 		btDiscreteDynamicsWorld* world = new btDiscreteDynamicsWorld(m_dispatcher,m_broadphase,m_solver,m_collisionConfiguration);
 		m_dynamicsWorld = world;
+
+#ifdef	USER_DEFINED_FRICTION_MODEL
+	//user defined friction model is not supported in 'cache friendly' solver yet, so switch to old solver
+
+		world->getSolverInfo().m_solverMode = SOLVER_RANDMIZE_ORDER;
+
+#endif //USER_DEFINED_FRICTION_MODEL
 
 #ifdef DO_BENCHMARK_PYRAMIDS
 		world->getSolverInfo().m_numIterations = 4;
@@ -460,9 +464,9 @@ int maxNumOutstandingTasks = 4;
 #ifdef USER_DEFINED_FRICTION_MODEL
 	{
 		//m_solver->setContactSolverFunc(ContactSolverFunc func,USER_CONTACT_SOLVER_TYPE1,DEFAULT_CONTACT_SOLVER_TYPE);
-		m_solver->SetFrictionSolverFunc(myFrictionModel,USER_CONTACT_SOLVER_TYPE1,DEFAULT_CONTACT_SOLVER_TYPE);
-		m_solver->SetFrictionSolverFunc(myFrictionModel,DEFAULT_CONTACT_SOLVER_TYPE,USER_CONTACT_SOLVER_TYPE1);
-		m_solver->SetFrictionSolverFunc(myFrictionModel,USER_CONTACT_SOLVER_TYPE1,USER_CONTACT_SOLVER_TYPE1);
+		solver->SetFrictionSolverFunc(myFrictionModel,USER_CONTACT_SOLVER_TYPE1,DEFAULT_CONTACT_SOLVER_TYPE);
+		solver->SetFrictionSolverFunc(myFrictionModel,DEFAULT_CONTACT_SOLVER_TYPE,USER_CONTACT_SOLVER_TYPE1);
+		solver->SetFrictionSolverFunc(myFrictionModel,USER_CONTACT_SOLVER_TYPE1,USER_CONTACT_SOLVER_TYPE1);
 		//m_physicsEnvironmentPtr->setNumIterations(2);
 	}
 #endif //USER_DEFINED_FRICTION_MODEL

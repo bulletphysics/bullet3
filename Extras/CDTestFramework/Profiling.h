@@ -60,6 +60,14 @@ subject to the following restrictions:
 									QueryPerformanceCounter((LARGE_INTEGER*)&mCounter1);
 								}
 
+					void	Reset()
+								{
+									mCycles = 0;
+									mTime = 0.0f;
+									mNbQueries = 0;
+									mMsTime=0.0f;
+								}
+
 				void			Accum()
 								{
 									double t = ((double)mCounter1 - (double)mCounter0)/(double)mFreq;

@@ -132,18 +132,18 @@ void SoftDemo::clientMoveAndDisplay()
 		m_node->m_v+=(m_goal-m_node->m_x)/dt;
 		}
 	
-#define FIXED_STEP
+//#define FIXED_STEP
 #ifdef FIXED_STEP
 		m_dynamicsWorld->stepSimulation(dt=1.0f/60.f,0);
 
 #else
-		//during idle mode, just run 1 simulation step maximum
-		int maxSimSubSteps = m_idle ? 1 : 1;
-		if (m_idle)
-			dt = 1.0/420.f;
+		//during idle mode, just run 1 simulation step maximum, otherwise 4 at max
+		int maxSimSubSteps = m_idle ? 1 : 4;
+		//if (m_idle)
+		//	dt = 1.0/420.f;
 
-		int numSimSteps = 0;
-		numSimSteps = m_dynamicsWorld->stepSimulation(dt,maxSimSubSteps);		
+		int numSimSteps;
+		numSimSteps = m_dynamicsWorld->stepSimulation(dt);
 
 #ifdef VERBOSE_TIMESTEPPING_CONSOLEOUTPUT
 		if (!numSimSteps)

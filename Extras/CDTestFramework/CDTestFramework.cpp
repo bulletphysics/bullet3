@@ -59,7 +59,7 @@ enum TestIndex
 //	TEST_OBB_MESH_QUERY,
 //	TEST_CAPSULE_MESH_QUERY,
 //	TEST_COMPLETE_BOX_PRUNING=0,
- //	TEST_COMPLETE_BOX_PRUNING_8192,
+ 	TEST_COMPLETE_BOX_PRUNING_8192,
 //	TEST_BULLET_SAP_1024,
  //	TEST_BULLET_SAP_8192,
 //	TEST_BULLET_SAP_SORTEDPAIRS_8192,
@@ -286,7 +286,7 @@ int main(int argc, char** argv)
 //			{TEST_OBB_MESH_QUERY, "OBB-mesh query"},
 //			{TEST_CAPSULE_MESH_QUERY, "Capsule-mesh query"},
 //			{TEST_COMPLETE_BOX_PRUNING, "OPCODE SAP 1024"},
-	//		{TEST_COMPLETE_BOX_PRUNING_8192, "OPCODE SAP 8192"},
+			{TEST_COMPLETE_BOX_PRUNING_8192, "OPCODE SAP 8192"},
 //			{TEST_BULLET_SAP_1024, "Bullet SAP HASHPAIR 1024"},
 	//		{TEST_BULLET_SAP_8192, "Bullet SAP HASHPAIR 8192"},
 //			{TEST_BULLET_SAP_SORTEDPAIRS_8192, "Bullet SAP SORTEDPAIR 8192"},
@@ -306,7 +306,7 @@ int main(int argc, char** argv)
 //	gCollisionTests[TEST_CAPSULE_MESH_QUERY]	= new CapsuleMeshQuery;
 //	gCollisionTests[TEST_COMPLETE_BOX_PRUNING]	= new CompleteBoxPruningTest(NUM_SAP_BOXES);
  //	gCollisionTests[TEST_COMPLETE_BOX_PRUNING_8192]	= new CompleteBoxPruningTest(NUM_SAP_BOXES);
-//	gCollisionTests[TEST_COMPLETE_BOX_PRUNING_8192]	= new CompleteBoxPruningTest(NUM_SAP_BOXES);
+	gCollisionTests[TEST_COMPLETE_BOX_PRUNING_8192]	= new CompleteBoxPruningTest(NUM_SAP_BOXES);
 //	gCollisionTests[TEST_BULLET_SAP_1024]	= new BulletSAPCompleteBoxPruningTest(NUM_SAP_BOXES,1);
  //	gCollisionTests[TEST_BULLET_SAP_8192]	= new BulletSAPCompleteBoxPruningTest(NUM_SAP_BOXES,1);
 //	gCollisionTests[TEST_BULLET_SAP_SORTEDPAIRS_8192]	= new BulletSAPCompleteBoxPruningTest(NUM_SAP_BOXES,3);

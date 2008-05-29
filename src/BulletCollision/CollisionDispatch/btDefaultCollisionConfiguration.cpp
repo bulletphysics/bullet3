@@ -1,4 +1,3 @@
-
 /*
 Bullet Continuous Collision Detection and Physics Library
 Copyright (c) 2003-2006 Erwin Coumans  http://continuousphysics.com/Bullet/
@@ -26,6 +25,7 @@ subject to the following restrictions:
 #include "BulletCollision/CollisionDispatch/btSphereBoxCollisionAlgorithm.h"
 #include "BulletCollision/CollisionDispatch/btSphereTriangleCollisionAlgorithm.h"
 #include "BulletCollision/NarrowPhaseCollision/btGjkEpaPenetrationDepthSolver.h"
+#include "BulletCollision/NarrowPhaseCollision/btMinkowskiPenetrationDepthSolver.h"
 #include "BulletCollision/NarrowPhaseCollision/btVoronoiSimplexSolver.h"
 
 
@@ -35,17 +35,24 @@ subject to the following restrictions:
 
 
 
-#define DEFAULT_MAX_OVERLAPPING_PAIRS 65535
-#define DEFAULT_STACK_ALLOCATOR_SIZE	(5*1024*1024)
 
 
-btDefaultCollisionConfiguration::btDefaultCollisionConfiguration(btStackAlloc*	stackAlloc,btPoolAllocator*	persistentManifoldPool,btPoolAllocator*	collisionAlgorithmPool)
+btDefaultCollisionConfiguration::btDefaultCollisionConfiguration(const btDefaultCollisionConstructionInfo& constructionInfo)
+//btDefaultCollisionConfiguration::btDefaultCollisionConfiguration(btStackAlloc*	stackAlloc,btPoolAllocator*	persistentManifoldPool,btPoolAllocator*	collisionAlgorithmPool)
 {
 
 	void* mem = btAlignedAlloc(sizeof(btVoronoiSimplexSolver),16);
 	m_simplexSolver = new (mem)btVoronoiSimplexSolver();
+	
+#define USE_EPA 1
+#ifdef USE_EPA
 	mem = btAlignedAlloc(sizeof(btGjkEpaPenetrationDepthSolver),16);
 	m_pdSolver = new (mem)btGjkEpaPenetrationDepthSolver;
+#else
+	mem = btAlignedAlloc(sizeof(btMinkowskiPenetrationDepthSolver),16);
+	m_pdSolver = new (mem)btMinkowskiPenetrationDepthSolver;
+#endif//USE_EPA	
+	
 
 	//default CreationFunctions, filling the m_doubleDispatch table
 	mem = btAlignedAlloc(sizeof(btConvexConvexAlgorithm::CreateFunc),16);
@@ -94,37 +101,37 @@ btDefaultCollisionConfiguration::btDefaultCollisionConfiguration(btStackAlloc*	s
 	collisionAlgorithmMaxElementSize = btMax(collisionAlgorithmMaxElementSize,maxSize3);
 	collisionAlgorithmMaxElementSize = btMax(collisionAlgorithmMaxElementSize,maxSize4);
 
-	if (stackAlloc)
+	if (constructionInfo.m_stackAlloc)
 	{
 		m_ownsStackAllocator = false;
-		this->m_stackAlloc = stackAlloc;
+		this->m_stackAlloc = constructionInfo.m_stackAlloc;
 	} else
 	{
 		m_ownsStackAllocator = true;
 		void* mem = btAlignedAlloc(sizeof(btStackAlloc),16);
-		m_stackAlloc = new(mem)btStackAlloc(DEFAULT_STACK_ALLOCATOR_SIZE);
+		m_stackAlloc = new(mem)btStackAlloc(constructionInfo.m_defaultStackAllocatorSize);
 	}
 		
-	if (persistentManifoldPool)
+	if (constructionInfo.m_persistentManifoldPool)
 	{
 		m_ownsPersistentManifoldPool = false;
-		m_persistentManifoldPool = persistentManifoldPool;
+		m_persistentManifoldPool = constructionInfo.m_persistentManifoldPool;
 	} else
 	{
 		m_ownsPersistentManifoldPool = true;
 		void* mem = btAlignedAlloc(sizeof(btPoolAllocator),16);
-		m_persistentManifoldPool = new (mem) btPoolAllocator(sizeof(btPersistentManifold),DEFAULT_MAX_OVERLAPPING_PAIRS);
+		m_persistentManifoldPool = new (mem) btPoolAllocator(sizeof(btPersistentManifold),constructionInfo.m_defaultMaxPersistentManifoldPoolSize);
 	}
 	
-	if (collisionAlgorithmPool)
+	if (constructionInfo.m_collisionAlgorithmPool)
 	{
 		m_ownsCollisionAlgorithmPool = false;
-		m_collisionAlgorithmPool = collisionAlgorithmPool;
+		m_collisionAlgorithmPool = constructionInfo.m_collisionAlgorithmPool;
 	} else
 	{
 		m_ownsCollisionAlgorithmPool = true;
 		void* mem = btAlignedAlloc(sizeof(btPoolAllocator),16);
-		m_collisionAlgorithmPool = new(mem) btPoolAllocator(collisionAlgorithmMaxElementSize,DEFAULT_MAX_OVERLAPPING_PAIRS);
+		m_collisionAlgorithmPool = new(mem) btPoolAllocator(collisionAlgorithmMaxElementSize,constructionInfo.m_defaultMaxCollisionAlgorithmPoolSize);
 	}
 
 
@@ -187,7 +194,9 @@ btDefaultCollisionConfiguration::~btDefaultCollisionConfiguration()
 
 	m_simplexSolver->~btVoronoiSimplexSolver();
 	btAlignedFree(m_simplexSolver);
-	m_pdSolver->~btGjkEpaPenetrationDepthSolver();
+
+	m_pdSolver->~btConvexPenetrationDepthSolver();
+	
 	btAlignedFree(m_pdSolver);
 
 

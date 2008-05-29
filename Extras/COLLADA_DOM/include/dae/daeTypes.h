@@ -20,6 +20,9 @@
 	#pragma warning(disable:4996) //Turn off warnings about deprecated C routines
 	#pragma warning(disable:4786) // Disable the "debug name too long" warning
 	#pragma warning(disable:4244) // Disable the "possible loss of data" warning
+	#pragma warning(disable:4018) // signed/unsigned int mismatch
+	#pragma warning(disable:4267) // possible loss of data
+	#pragma warning(disable:4530) // C++ exception handler used
 
 #include <dae/daeWin32Platform.h>
 #elif defined( __GCC__ )
