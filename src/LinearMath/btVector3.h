@@ -47,7 +47,14 @@ public:
 
 	SIMD_FORCE_INLINE btVector3& operator+=(const btVector3& v)
 	{
+
+#ifdef __PPU__
+		m_Vec128 = vec_add( m_Vec128, v.get128() );
+#elif defined __SPU__
+		m_Vec128 = spu_add( m_Vec128, v.get128() ); 
+#else
 		m_x += v.x(); m_y += v.y(); m_z += v.z();
+#endif
 		return *this;
 	}
 

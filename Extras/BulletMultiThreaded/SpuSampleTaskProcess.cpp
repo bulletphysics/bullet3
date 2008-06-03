@@ -105,7 +105,7 @@ void	SpuSampleTaskProcess::initialize()
 }
 
 
-void SpuSampleTaskProcess::issueTask(void* sampleMainMemPtr,int sampleValue)
+void SpuSampleTaskProcess::issueTask(void* sampleMainMemPtr,int sampleValue,int sampleCommand)
 {
 
 #ifdef DEBUG_SPU_TASK_SCHEDULING
@@ -123,13 +123,14 @@ void SpuSampleTaskProcess::issueTask(void* sampleMainMemPtr,int sampleValue)
 	
 		taskDesc.m_mainMemoryPtr = reinterpret_cast<uint64_t>(sampleMainMemPtr);
 		taskDesc.m_sampleValue = sampleValue;
+		taskDesc.m_sampleCommand = sampleCommand;
 
 		//some bookkeeping to recognize finished tasks
 		taskDesc.m_taskId = m_currentTask;
 	}
 
 
-	m_threadInterface->sendRequest(CMD_SAMPLE_TASK_COMMAND, (uint32_t) &taskDesc, m_currentTask);
+	m_threadInterface->sendRequest(1, (uint32_t) &taskDesc, m_currentTask);
 
 	// if all tasks busy, wait for spu event to clear the task.
 	

@@ -26,18 +26,8 @@ subject to the following restrictions:
 #include "LinearMath/btAlignedObjectArray.h"
 
 
-///SpuSampleTaskDesc
-struct SpuSampleTaskDesc
-{
-	uint64_t 	m_mainMemoryPtr;
-	int			m_sampleValue;
-	
-	uint16_t 	m_taskId;
-}
-#if defined(__CELLOS_LV2__) || defined(USE_LIBSPE2)
-__attribute__ ((aligned (16)))
-#endif
-;
+#include "SpuSampleTask/SpuSampleTask.h"
+
 
 //just add your commands here, try to keep them globally unique for debugging purposes
 #define CMD_SAMPLE_TASK_COMMAND 10
@@ -76,7 +66,7 @@ public:
 	///call initialize in the beginning of the frame, before addCollisionPairToTask
 	void initialize();
 
-	void issueTask(void* sampleMainMemPtr,int sampleValue);
+	void issueTask(void* sampleMainMemPtr,int sampleValue,int sampleCommand);
 
 	///call flush to submit potential outstanding work to SPUs and wait for all involved SPUs to be finished
 	void flush();
