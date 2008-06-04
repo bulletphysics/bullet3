@@ -19,13 +19,7 @@ subject to the following restrictions:
 #include "btScalar.h"
 #include "btMinMax.h"
 #include <math.h>
-#ifdef __PPU__
-#include <altivec.h>
-#endif
 
-#ifdef __SPU__
-#include <spu_intrinsics.h>
-#endif
 
 //ATTRIBUTE_ALIGNED16(class) btQuadWordStorage
 //some issues under PS3 Linux with IBM 2.1 SDK, gcc compiler prevent from using aligned quadword. todo: look into this
@@ -33,34 +27,13 @@ subject to the following restrictions:
 class btQuadWordStorage
 {
 protected:
-#if defined __PPU__ || defined __SPU__
-	union {
-		vec_float4 m_Vec128;
-		struct	
-		{
-#endif
+
 	btScalar	m_x;
 	btScalar	m_y;
 	btScalar	m_z;
 	btScalar	m_unusedW;
-#if defined __PPU__ || defined __SPU__
-		};
-	};
-#endif
 
 public:
-#if defined __PPU__ || defined __SPU__
-
-	inline const vec_float4 get128( ) const
-	{
-		return m_Vec128;
-	}
-
-	inline vec_float4 get128( )
-	{
-		return m_Vec128;
-	}
-#endif //
 
 };
 

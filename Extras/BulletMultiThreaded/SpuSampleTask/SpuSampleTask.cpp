@@ -19,13 +19,21 @@ subject to the following restrictions:
 #include "../PlatformDefinitions.h"
 #include "../SpuFakeDma.h"
 #include "LinearMath/btMinMax.h"
-#include <stdio.h>
 
+#ifdef __SPU__
+#include <spu_printf.h>
+#else
+#include <stdio.h>
+#define spu_printf printf
+#endif
 
 struct SampleTask_LocalStoreMemory
 {
+	ATTRIBUTE_ALIGNED16(char gLocalRigidBody [sizeof(btRigidBody)+16]);
+	ATTRIBUTE_ALIGNED16(void* gPointerArray[1024]); //at max upload 1024 pointers
 
 };
+
 
 
 
@@ -43,11 +51,70 @@ void processSampleTask(void* userPtr, void* lsMemory)
 	{
 	case CMD_SAMPLE_INTEGRATE_BODIES:
 		{
+			btTransform predictedTrans;
+			btCollisionObject** eaPtr = (btCollisionObject**)taskDesc.m_mainMemoryPtr;
+
+			int batchSize = taskDesc.m_sampleValue;
+			int dmaArraySize = batchSize*sizeof(void*);
+
+			uint64_t ppuArrayAddress = reinterpret_cast<uint64_t>(eaPtr);
+			
+//			spu_printf("array location is at %llx, batchSize = %d, DMA size = %d\n",ppuArrayAddress,batchSize,dmaArraySize);
+
+			if (dmaArraySize>=16)
+			{
+				cellDmaLargeGet((void*)&localMemory->gPointerArray[0], ppuArrayAddress  , dmaArraySize, DMA_TAG(1), 0, 0);	
+				cellDmaWaitTagStatusAll(DMA_MASK(1));
+			} else
+			{
+				stallingUnalignedDmaSmallGet((void*)&localMemory->gPointerArray[0], ppuArrayAddress  , dmaArraySize);
+			}
+			
+			
+			for ( int i=0;i<batchSize;i++)
+			{
+				///DMA rigid body
+				
+				void* localPtr = &localMemory->gLocalRigidBody[0];
+				void* shortAdd = localMemory->gPointerArray[i];
+				uint64_t ppuRigidBodyAddress = reinterpret_cast<uint64_t>(shortAdd);
+				
+			//	spu_printf("cellDmaGet at CMD_SAMPLE_INTEGRATE_BODIES from %llx to %llx\n",ppuRigidBodyAddress,localPtr);
+
+				int dmaBodySize = sizeof(btRigidBody);
+			
+				cellDmaGet((void*)localPtr, ppuRigidBodyAddress  , dmaBodySize, DMA_TAG(1), 0, 0);	
+				cellDmaWaitTagStatusAll(DMA_MASK(1));
+
+					
+				float timeStep = 1.f/60.f;
+
+				btRigidBody* body = (btRigidBody*) localPtr;//btRigidBody::upcast(colObj);
+				if (body)
+				{
+					if (body->isActive() && (!body->isStaticOrKinematicObject()))
+					{
+						body->predictIntegratedTransform(timeStep, predictedTrans);
+						body->proceedToTransform( predictedTrans);
+						void* ptr = (void*)localPtr;
+					//	spu_printf("cellDmaLargePut from %llx to LS %llx\n",ptr,ppuRigidBodyAddress);
+
+						cellDmaLargePut(ptr, ppuRigidBodyAddress  , dmaBodySize, DMA_TAG(1), 0, 0);
+						cellDmaWaitTagStatusAll(DMA_MASK(1));
+
+					}
+				}
+
+			}
+
+			/*
 #ifdef __SPU__
 			spu_printf("hello SPU world\n");
 #else
 			printf("hello world\n");
 #endif
+			*/
+
 			break;
 		}
 	default:
