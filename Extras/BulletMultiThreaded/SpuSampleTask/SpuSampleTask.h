@@ -26,7 +26,8 @@ subject to the following restrictions:
 
 enum
 {
-	CMD_SAMPLE_INTEGRATE_BODIES = 1
+	CMD_SAMPLE_INTEGRATE_BODIES = 1,
+	CMD_SAMPLE_PREDICT_MOTION_BODIES
 };
 
 
