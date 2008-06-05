@@ -646,6 +646,9 @@ btRigidBodyColladaInfo* ColladaConverter::findRigidBodyColladaInfo(const btRigid
 {
 ///we assume that the btRigidBody getUid matches btRigidBodyColladaInfo getUid
 
+	if (!body->getBroadphaseProxy())
+		return 0;
+
 	int uid = body->getBroadphaseProxy()->getUid();
 	btHashKeyPtr<btRigidBodyColladaInfo*> tmpKey(uid);
 	btRigidBodyColladaInfo** rbciPtr = this->m_rbUserInfoHashMap.find(tmpKey);
@@ -1822,7 +1825,7 @@ domNode* ColladaConverter::addNode (btRigidBody* rb, const char* nodeName, const
 
 domRigid_constraint* ColladaConverter::addConstraint (btTypedConstraint* constraint, const char* constraintName)
 {
-	if (!constraint->getConstraintType() != D6_CONSTRAINT_TYPE)
+	if (constraint->getConstraintType() != D6_CONSTRAINT_TYPE)
 		return NULL;
 
 	btGeneric6DofConstraint* g6c = (btGeneric6DofConstraint*)constraint;
@@ -3080,6 +3083,8 @@ btTypedConstraint*			ColladaConverter::createUniversalD6Constraint(
 			{
 				btRigidBody::btRigidBodyConstructionInfo	cinfo(0,0,0);
 				bodyOther = new btRigidBody(cinfo);
+				//needs to be in the world!
+				m_dynamicsWorld->addRigidBody(bodyOther);
 
 				 bodyOther->setWorldTransform(bodyRef->getWorldTransform());
 				 localAttachmentOther = localAttachmentFrameRef;
