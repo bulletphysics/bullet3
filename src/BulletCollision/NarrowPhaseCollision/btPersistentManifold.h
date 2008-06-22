@@ -111,7 +111,7 @@ public:
 	
 	int getCacheEntry(const btManifoldPoint& newPoint) const;
 
-	void AddManifoldPoint( const btManifoldPoint& newPoint);
+	int addManifoldPoint( const btManifoldPoint& newPoint);
 
 	void removeContactPoint (int index)
 	{

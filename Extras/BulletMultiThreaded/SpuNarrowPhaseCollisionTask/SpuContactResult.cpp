@@ -150,7 +150,7 @@ bool ManifoldResultAddContactPoint(const btVector3& normalOnBInWorld,
 			(*gContactAddedCallback)(newPt,m_body0,m_partId0,m_index0,m_body1,m_partId1,m_index1);
 		}
 		*/
-		manifoldPtr->AddManifoldPoint(newPt);
+		manifoldPtr->addManifoldPoint(newPt);
 		return true;
 
 	}
