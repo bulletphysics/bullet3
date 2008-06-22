@@ -175,7 +175,7 @@ void btPersistentManifold::AddManifoldPoint(const btManifoldPoint& newPoint)
 #else
 		insertIndex = 0;
 #endif
-
+		clearUserCache(m_pointCache[insertIndex]);
 		
 	} else
 	{
