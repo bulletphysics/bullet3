@@ -60,8 +60,54 @@ int stallingUnalignedDmaSmallGet(void *ls, uint64_t ea, uint32_t size)
 	///make sure last 4 bits are the same, for cellDmaSmallGet
 	uint32_t last4BitsOffset = ea & 0x0f;
 	char* tmpTarget = tmpBuffer + last4BitsOffset;
+	
 #if defined (__SPU__) || defined (USE_LIBSPE2)
-	mfc_get(tmpTarget,ea,size,DMA_TAG(1),0,0);
+	
+	int remainingSize = size;
+
+	//cellDmaUnalignedGet(tmpTarget,ea,size,DMA_TAG(1),0,0);
+
+	char* remainingTmpTarget = tmpTarget;
+	uint64_t remainingEa = ea;
+
+	while (remainingSize)
+	{
+		switch (remainingSize)
+		{
+		case 1:
+		case 2:
+		case 4:
+		case 8:
+		case 16:
+			{
+				mfc_get(remainingTmpTarget,remainingEa,remainingSize,DMA_TAG(1),0,0);
+				remainingSize=0;
+				break;
+			}
+		default:
+			{
+				//spu_printf("unaligned DMA with non-natural size:%d\n",remainingSize);
+				int actualSize = 0;
+
+				if (remainingSize > 16)
+					actualSize = 16;
+				else
+					if (remainingSize >8)
+						actualSize=8;
+					else
+						if (remainingSize >4)
+							actualSize=4;
+						else
+							if (remainingSize >2)
+								actualSize=2;
+				mfc_get(remainingTmpTarget,remainingEa,actualSize,DMA_TAG(1),0,0);
+				remainingSize-=actualSize;
+				remainingTmpTarget+=actualSize;
+				remainingEa += actualSize;
+			}
+		}
+	}
+
 #else
 	//copy into final destination
 #ifdef USE_MEMCPY

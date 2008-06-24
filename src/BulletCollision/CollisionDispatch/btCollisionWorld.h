@@ -102,6 +102,10 @@ public:
 
 	virtual ~btCollisionWorld();
 
+	void	setBroadphase(btBroadphaseInterface*	pairCache)
+	{
+		m_broadphasePairCache = pairCache;
+	}
 
 	btBroadphaseInterface*	getBroadphase()
 	{
