@@ -165,6 +165,7 @@ void	btCollisionWorld::performDiscreteCollisionDetection()
 	updateAabbs();
 
 	{
+		BT_PROFILE("calculateOverlappingPairs");
 		m_broadphasePairCache->calculateOverlappingPairs(m_dispatcher1);
 	}
 
