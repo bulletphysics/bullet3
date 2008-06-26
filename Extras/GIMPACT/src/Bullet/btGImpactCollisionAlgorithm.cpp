@@ -651,7 +651,10 @@ void btGImpactCollisionAlgorithm::gimpact_vs_shape(btCollisionObject * body0,
 	while(i--)
 	{
 		int child_index = collided_results[i];
-		m_triface0 = child_index;
+        if(swapped)
+    		m_triface1 = child_index;
+        else
+            m_triface0 = child_index;
 
 		btCollisionShape * colshape0 = retriever0.getChildShape(child_index);
 
