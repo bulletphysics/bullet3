@@ -188,11 +188,17 @@ btTransform::operator*(const btTransform& t) const
 {
 	return btTransform(m_basis * t.m_basis, 
 		(*this)(t.m_origin));
-}	
+}
 
+SIMD_FORCE_INLINE bool operator==(const btTransform& t1, const btTransform& t2)
+{
+   return ( t1.getBasis()  == t2.getBasis() &&
+            t1.getOrigin() == t2.getOrigin() );
+}
 
 
 #endif
+
 
 
 

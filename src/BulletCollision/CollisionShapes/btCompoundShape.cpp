@@ -62,9 +62,53 @@ void	btCompoundShape::addChildShape(const btTransform& localTransform,btCollisio
 	}
 }
 
+void btCompoundShape::removeChildShape(btCollisionShape* shape)
+{
+   bool done_removing;
+   
+   // Find the children containing the shape specified, and remove those children.
+   do
+   {
+      done_removing = true;
+      
+      for(int i = 0; i < m_children.size(); i++)
+      {
+         if(m_children[i].m_childShape == shape)
+         {
+            m_children.remove(m_children[i]);
+            done_removing = false;  // Do another iteration pass after removing from the vector
+            break;
+         }
+      }
+   }
+   while (!done_removing);
+   
+   recalculateLocalAabb();
+}
 
-
-	///getAabb's default implementation is brute force, expected derived classes to implement a fast dedicated version
+void btCompoundShape::recalculateLocalAabb()
+{
+   // Recalculate the local aabb
+   // Brute force, it iterates over all the shapes left.
+   m_localAabbMin = btVector3(btScalar(1e30),btScalar(1e30),btScalar(1e30));
+   m_localAabbMax = btVector3(btScalar(-1e30),btScalar(-1e30),btScalar(-1e30));
+   
+   //extend the local aabbMin/aabbMax
+   for (int j = 0; j < m_children.size(); j++)
+   {
+      btVector3 localAabbMin,localAabbMax;
+      m_children[j].m_childShape->getAabb(m_children[j].m_transform, localAabbMin, localAabbMax);
+      for (int i=0;i<3;i++)
+      {
+         if (m_localAabbMin[i] > localAabbMin[i])
+             m_localAabbMin[i] = localAabbMin[i];
+         if (m_localAabbMax[i] < localAabbMax[i])
+             m_localAabbMax[i] = localAabbMax[i];
+      }
+   }
+}
+	
+   ///getAabb's default implementation is brute force, expected derived classes to implement a fast dedicated version
 void btCompoundShape::getAabb(const btTransform& trans,btVector3& aabbMin,btVector3& aabbMax) const
 {
 	btVector3 localHalfExtents = btScalar(0.5)*(m_localAabbMax-m_localAabbMin);

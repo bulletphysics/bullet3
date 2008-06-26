@@ -36,7 +36,15 @@ ATTRIBUTE_ALIGNED16(struct) btCompoundShapeChild
 	int					m_childShapeType;
 	btScalar			m_childMargin;
 };
-	
+
+SIMD_FORCE_INLINE bool operator==(const btCompoundShapeChild& c1, const btCompoundShapeChild& c2)
+{
+   return  ( c1.m_transform      == c2.m_transform &&
+             c1.m_childShape     == c2.m_childShape &&
+             c1.m_childShapeType == c2.m_childShapeType &&
+             c1.m_childMargin    == c2.m_childMargin );
+}
+
 /// btCompoundShape allows to store multiple other btCollisionShapes
 /// This allows for concave collision objects. This is more general then the Static Concave btTriangleMeshShape.
 ATTRIBUTE_ALIGNED16(class) btCompoundShape	: public btCollisionShape
@@ -57,6 +65,12 @@ public:
 	virtual ~btCompoundShape();
 
 	void	addChildShape(const btTransform& localTransform,btCollisionShape* shape);
+
+   /** Remove all children shapes that contain the specified shape. */
+	virtual void removeChildShape(btCollisionShape* shape);
+
+	  
+	
 
 	int		getNumChildShapes() const
 	{
@@ -88,8 +102,11 @@ public:
 	}
 
 	///getAabb's default implementation is brute force, expected derived classes to implement a fast dedicated version
-	void getAabb(const btTransform& t,btVector3& aabbMin,btVector3& aabbMax) const;
-
+	virtual	void getAabb(const btTransform& t,btVector3& aabbMin,btVector3& aabbMax) const;
+	
+   /** Re-calculate the local Aabb. Is called at the end of removeChildShapes. 
+       Use this yourself if you modify the children or their transforms. */
+	virtual void recalculateLocalAabb(); 
 
 	virtual void	setLocalScaling(const btVector3& scaling)
 	{
