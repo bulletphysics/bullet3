@@ -878,27 +878,52 @@ void btDiscreteDynamicsWorld::debugDrawObject(const btTransform& worldTransform,
 
 				btScalar radius = capsuleShape->getRadius();
 				btScalar halfHeight = capsuleShape->getHalfHeight();
+				
+				int upAxis = capsuleShape->getUpAxis();
+
+				
+				btVector3 capStart(0.f,0.f,0.f);
+				capStart[upAxis] = -halfHeight;
+
+				btVector3 capEnd(0.f,0.f,0.f);
+				capEnd[upAxis] = halfHeight;
 
 				// Draw the ends
 				{
+					
 					btTransform childTransform = worldTransform;
-					childTransform.getOrigin() = worldTransform * btVector3(0,halfHeight,0);
+					childTransform.getOrigin() = worldTransform * capStart;
 					debugDrawSphere(radius, childTransform, color);
 				}
 
 				{
 					btTransform childTransform = worldTransform;
-					childTransform.getOrigin() = worldTransform * btVector3(0,-halfHeight,0);
+					childTransform.getOrigin() = worldTransform * capEnd;
 					debugDrawSphere(radius, childTransform, color);
 				}
 
 				// Draw some additional lines
 				btVector3 start = worldTransform.getOrigin();
-				getDebugDrawer()->drawLine(start+worldTransform.getBasis() * btVector3(-radius,halfHeight,0),start+worldTransform.getBasis() * btVector3(-radius,-halfHeight,0), color);
-				getDebugDrawer()->drawLine(start+worldTransform.getBasis() * btVector3(radius,halfHeight,0),start+worldTransform.getBasis() * btVector3(radius,-halfHeight,0), color);
-				getDebugDrawer()->drawLine(start+worldTransform.getBasis() * btVector3(0,halfHeight,-radius),start+worldTransform.getBasis() * btVector3(0,-halfHeight,-radius), color);
-				getDebugDrawer()->drawLine(start+worldTransform.getBasis() * btVector3(0,halfHeight,radius),start+worldTransform.getBasis() * btVector3(0,-halfHeight,radius), color);
 
+				
+				capStart[(upAxis+1)%3] = radius;
+				capEnd[(upAxis+1)%3] = radius;
+				getDebugDrawer()->drawLine(start+worldTransform.getBasis() * capStart,start+worldTransform.getBasis() * capEnd, color);
+				capStart[(upAxis+1)%3] = -radius;
+				capEnd[(upAxis+1)%3] = -radius;
+				getDebugDrawer()->drawLine(start+worldTransform.getBasis() * capStart,start+worldTransform.getBasis() * capEnd, color);
+
+				capStart[(upAxis+1)%3] = 0.f;
+				capEnd[(upAxis+1)%3] = 0.f;
+
+				capStart[(upAxis+2)%3] = radius;
+				capEnd[(upAxis+2)%3] = radius;
+				getDebugDrawer()->drawLine(start+worldTransform.getBasis() * capStart,start+worldTransform.getBasis() * capEnd, color);
+				capStart[(upAxis+2)%3] = -radius;
+				capEnd[(upAxis+2)%3] = -radius;
+				getDebugDrawer()->drawLine(start+worldTransform.getBasis() * capStart,start+worldTransform.getBasis() * capEnd, color);
+
+				
 				break;
 			}
 		case CONE_SHAPE_PROXYTYPE:
