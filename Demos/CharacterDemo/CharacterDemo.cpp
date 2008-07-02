@@ -28,7 +28,11 @@ subject to the following restrictions:
 
 #include "GlutStuff.h"
 #include "CharacterDemo.h"
-#include "CharacterController.h"
+#ifdef DYNAMIC_CHARACTER_CONTROLLER
+#include "DynamicCharacterController.h"
+#else
+#include "KinematicCharacterController.h"
+#endif
 
 const int maxProxies = 32766;
 const int maxOverlap = 65535;
@@ -38,6 +42,55 @@ static int gBackward = 0;
 static int gLeft = 0;
 static int gRight = 0;
 static int gJump = 0;
+
+#define QUAKE_BSP_IMPORTING 1
+
+#ifdef QUAKE_BSP_IMPORTING
+#include "Demos/BspDemo/BspLoader.h"
+#include "Demos/BspDemo/BspConverter.h"
+#endif //QUAKE_BSP_IMPORTING
+
+
+class BspToBulletConverter : public BspConverter
+{
+	CharacterDemo* m_demoApp;
+
+public:
+
+	BspToBulletConverter(CharacterDemo*	demoApp)
+		:m_demoApp(demoApp)
+	{
+	}
+
+		virtual void	addConvexVerticesCollider(btAlignedObjectArray<btVector3>& vertices, bool isEntity, const btVector3& entityTargetLocation)
+		{
+			///perhaps we can do something special with entities (isEntity)
+			///like adding a collision Triggering (as example)
+			
+			if (vertices.size() > 0)
+			{
+				float mass = 0.f;
+				btTransform startTransform;
+				//can use a shift
+				startTransform.setIdentity();
+				startTransform.setOrigin(btVector3(0,-10.0f,0.0f));
+				//this create an internal copy of the vertices
+				for (int i = 0; i < vertices.size(); i++)
+				{
+					vertices[i] *= btScalar(0.5);
+					float t = vertices[i].getZ() * btScalar(0.75);
+					vertices[i].setZ(-vertices[i].getY());
+					vertices[i].setY(t);
+				}
+
+				btCollisionShape* shape = new btConvexHullShape(&(vertices[0].getX()),vertices.size());
+				m_demoApp->m_collisionShapes.push_back(shape);
+
+				//btRigidBody* body = m_demoApp->localCreateRigidBody(mass, startTransform,shape);
+				m_demoApp->localCreateRigidBody(mass, startTransform,shape);
+			}
+		}
+};
 
 CharacterDemo::CharacterDemo()
 :
@@ -56,6 +109,7 @@ CharacterDemo::~CharacterDemo()
 	//cleanup in the reverse order of creation/initialization
 	if (m_character)
 		m_character->destroy (m_dynamicsWorld);
+
 
 	//remove the rigidbodies from the dynamics world and delete them
 	int i;
@@ -153,11 +207,15 @@ public:
 		return m_hashPairCache->getOverlappingPairArray();
 	}
 
+	btOverlappingPairCache* getOverlappingPairCache()
+	{
+		return m_hashPairCache;
+	}
+
 };
 
 void CharacterDemo::initPhysics()
 {
-
 	btCollisionShape* groundShape = new btBoxShape(btVector3(50,3,50));
 	m_collisionShapes.push_back(groundShape);
 	m_collisionConfiguration = new btDefaultCollisionConfiguration();
@@ -173,7 +231,53 @@ void CharacterDemo::initPhysics()
 	btTransform tr;
 	tr.setIdentity();
 
-//either use heightfield or triangle mesh
+#define USE_BSP_STAGE
+#ifdef USE_BSP_STAGE
+#ifdef QUAKE_BSP_IMPORTING
+	char* bspfilename = "BspDemo.bsp";
+	void* memoryBuffer = 0;
+	
+	FILE* file = fopen(bspfilename,"r");
+	if (!file)
+	{
+		//try again other path, 
+		//sight... visual studio leaves the current working directory in the projectfiles folder
+		//instead of executable folder. who wants this default behaviour?!?
+		bspfilename = "../../BspDemo.bsp";
+		file = fopen(bspfilename,"r");
+	}
+	if (!file)
+	{
+		//try again other path, 
+		//sight... visual studio leaves the current working directory in the projectfiles folder
+		//instead of executable folder. who wants this default behaviour?!?
+		bspfilename = "BspDemo.bsp";
+		file = fopen(bspfilename,"r");
+	}
+
+	if (file)
+	{
+		BspLoader bspLoader;
+		int size=0;
+		if (fseek(file, 0, SEEK_END) || (size = ftell(file)) == EOF || fseek(file, 0, SEEK_SET)) {        /* File operations denied? ok, just close and return failure */
+			printf("Error: cannot get filesize from %s\n", bspfilename);
+		} else
+		{
+			//how to detect file size?
+			memoryBuffer = malloc(size+1);
+			fread(memoryBuffer,1,size,file);
+			bspLoader.loadBSPFile( memoryBuffer);
+
+			BspToBulletConverter bsp2bullet(this);
+			float bspScaling = 0.1f;
+			bsp2bullet.convertBsp(bspLoader,bspScaling);
+
+		}
+		fclose(file);
+	}
+
+#endif
+#else
 #define  USE_TRIMESH_GROUND 1
 #ifdef USE_TRIMESH_GROUND
 	int i;
@@ -297,15 +401,6 @@ const float TRIANGLE_SIZE=20.f;
 	//create ground object
 	localCreateRigidBody(0,tr,groundShape);
 
-	m_character = new CharacterController ();
-	m_character->setup (m_dynamicsWorld);
-
-	//we need to remove the rigid body from the broadphase in order to register all collisions
-	m_dynamicsWorld->removeRigidBody(m_character->getRigidBody());
-	//some custom callback sample
-	m_customPairCallback = new MyCustomOverlappingPairCallback(this,m_character->getRigidBody());
-	sweepBP->setOverlappingPairUserCallback(m_customPairCallback);
-	m_dynamicsWorld->addRigidBody(m_character->getRigidBody());
 
 
 #define CUBE_HALF_EXTENTS 0.5
@@ -364,7 +459,23 @@ const float TRIANGLE_SIZE=20.f;
 		
 	}
 #endif
-	
+
+#endif
+
+#ifdef DYNAMIC_CHARACTER_CONTROLLER
+	m_character = new DynamicCharacterController ();
+#else
+	m_character = new KinematicCharacterController ();
+#endif
+	m_character->setup (m_dynamicsWorld);
+
+	//we need to remove the rigid body from the broadphase in order to register all collisions
+	m_dynamicsWorld->removeRigidBody(m_character->getRigidBody());
+	//some custom callback sample
+	m_customPairCallback = new MyCustomOverlappingPairCallback(this,m_character->getRigidBody());
+	sweepBP->setOverlappingPairUserCallback(m_customPairCallback);
+	m_dynamicsWorld->addRigidBody(m_character->getRigidBody());
+	m_character->registerPairCache (m_customPairCallback->getOverlappingPairCache());
 	clientResetScene();
 	
 	setCameraDistance(26.f);
@@ -391,7 +502,7 @@ void CharacterDemo::clientMoveAndDisplay()
 	if (m_character)
 	{			
 		m_character->preStep (m_dynamicsWorld);
-		m_character->playerStep (dt, gForward, gBackward, gLeft, gRight);
+		m_character->playerStep (m_dynamicsWorld, dt, gForward, gBackward, gLeft, gRight);
 		if (gJump)
 		{
 			gJump = 0;
@@ -616,8 +727,8 @@ void	CharacterDemo::updateCamera()
 	//update OpenGL camera settings
     glFrustum(-1.0, 1.0, -1.0, 1.0, 1.0, 10000.0);
 
-	 glMatrixMode(GL_MODELVIEW);
-	 glLoadIdentity();
+	glMatrixMode(GL_MODELVIEW);
+	glLoadIdentity();
 
     gluLookAt(m_cameraPosition[0],m_cameraPosition[1],m_cameraPosition[2],
 		      m_cameraTargetPosition[0],m_cameraTargetPosition[1], m_cameraTargetPosition[2],

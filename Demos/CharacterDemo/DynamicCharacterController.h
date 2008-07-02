@@ -3,11 +3,13 @@
 
 #include "LinearMath/btVector3.h"
 
+#include "CharacterControllerInterface.h"
+
 class btCollisionShape;
 class btRigidBody;
 class btDynamicsWorld;
 
-class CharacterController
+class DynamicCharacterController : public CharacterControllerInterface
 {
 protected:
 	btScalar m_halfHeight;
@@ -25,9 +27,9 @@ protected:
 	btScalar m_walkVelocity;
 	btScalar m_turnVelocity;
 public:
-	CharacterController ();
-	~CharacterController ();
-	void setup (btDynamicsWorld* dynamicsWorld, btScalar height = 2.0, btScalar width = 0.25);
+	DynamicCharacterController ();
+	~DynamicCharacterController ();
+	void setup (btDynamicsWorld* dynamicsWorld, btScalar height = 2.0, btScalar width = 0.25, btScalar stepHeight = 0.25);
 	void destroy (btDynamicsWorld* dynamicsWorld);
 
 	btRigidBody* getRigidBody ();

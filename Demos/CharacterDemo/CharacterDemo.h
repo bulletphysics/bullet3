@@ -16,6 +16,7 @@ subject to the following restrictions:
 #define CHARACTER_DEMO_H
 
 class CharacterController;
+class KinematicCharacterController;
 
 class btCollisionShape;
 
@@ -27,7 +28,11 @@ class CharacterDemo : public DemoApplication
 {
 	public:
 
+#ifdef DYNAMIC_CHARACTER_CONTROLLER
 	CharacterController* m_character;
+#else
+	KinematicCharacterController* m_character;
+#endif
 
 	btAlignedObjectArray<btCollisionShape*> m_collisionShapes;
 

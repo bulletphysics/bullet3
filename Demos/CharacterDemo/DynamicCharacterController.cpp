@@ -2,9 +2,9 @@
 #include "BulletDynamics/Dynamics/btRigidBody.h"
 #include "BulletDynamics/Dynamics/btDynamicsWorld.h"
 #include "LinearMath/btDefaultMotionState.h"
-#include "CharacterController.h"
+#include "DynamicCharacterController.h"
 
-CharacterController::CharacterController ()
+DynamicCharacterController::DynamicCharacterController ()
 {
 	m_rayLambda[0] = 1.0;
 	m_rayLambda[1] = 1.0;
@@ -17,11 +17,11 @@ CharacterController::CharacterController ()
 	m_rigidBody = NULL;
 }
 
-CharacterController::~CharacterController ()
+DynamicCharacterController::~DynamicCharacterController ()
 {
 }
 
-void CharacterController::setup (btDynamicsWorld* dynamicsWorld, btScalar height, btScalar width)
+void DynamicCharacterController::setup (btDynamicsWorld* dynamicsWorld, btScalar height, btScalar width, btScalar stepHeight)
 {
 	btVector3 spherePositions[2];
 	btScalar sphereRadii[2];
@@ -48,7 +48,7 @@ void CharacterController::setup (btDynamicsWorld* dynamicsWorld, btScalar height
 	dynamicsWorld->addRigidBody (m_rigidBody);
 }
 
-void CharacterController::destroy (btDynamicsWorld* dynamicsWorld)
+void DynamicCharacterController::destroy (btDynamicsWorld* dynamicsWorld)
 {
 	if (m_shape)
 	{
@@ -62,12 +62,12 @@ void CharacterController::destroy (btDynamicsWorld* dynamicsWorld)
 	}
 }
 
-btRigidBody* CharacterController::getRigidBody ()
+btRigidBody* DynamicCharacterController::getRigidBody ()
 {
 	return m_rigidBody;
 }
 
-void CharacterController::preStep (btDynamicsWorld* dynamicsWorld)
+void DynamicCharacterController::preStep (btDynamicsWorld* dynamicsWorld)
 {
 	btTransform xform;
 	m_rigidBody->getMotionState()->getWorldTransform (xform);
@@ -118,7 +118,7 @@ void CharacterController::preStep (btDynamicsWorld* dynamicsWorld)
 	}
 }
 
-void CharacterController::playerStep (btScalar dt,
+void DynamicCharacterController::playerStep (btScalar dt,
 					 int forward,
 					 int backward,
 					 int left,
@@ -167,12 +167,12 @@ void CharacterController::playerStep (btScalar dt,
 	m_rigidBody->setCenterOfMassTransform (xform);
 }
 
-bool CharacterController::canJump () const
+bool DynamicCharacterController::canJump () const
 {
 	return onGround();
 }
 
-void CharacterController::jump ()
+void DynamicCharacterController::jump ()
 {
 	if (!canJump())
 		return;
@@ -185,7 +185,7 @@ void CharacterController::jump ()
 	m_rigidBody->applyCentralImpulse (up * magnitude);
 }
 
-bool CharacterController::onGround () const
+bool DynamicCharacterController::onGround () const
 {
 	return m_rayLambda[0] < btScalar(1.0);
 }
