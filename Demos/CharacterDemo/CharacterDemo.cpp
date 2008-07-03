@@ -4,8 +4,8 @@ Copyright (c) 2003-2006 Erwin Coumans  http://continuousphysics.com/Bullet/
 
 This software is provided 'as-is', without any express or implied warranty.
 In no event will the authors be held liable for any damages arising from the use of this software.
-Permission is granted to anyone to use this software for any purpose, 
-including commercial applications, and to alter it and redistribute it freely, 
+Permission is granted to anyone to use this software for any purpose,
+including commercial applications, and to alter it and redistribute it freely,
 subject to the following restrictions:
 
 1. The origin of this software must not be misrepresented; you must not claim that you wrote the original software. If you use this software in a product, an acknowledgment in the product documentation would be appreciated but is not required.
@@ -46,9 +46,9 @@ static int gJump = 0;
 #define QUAKE_BSP_IMPORTING 1
 
 #ifdef QUAKE_BSP_IMPORTING
-#include "Demos/BspDemo/BspLoader.h"
-#include "Demos/BspDemo/BspConverter.h"
-#endif //QUAKE_BSP_IMPORTING
+#include "../BspDemo/BspLoader.h"
+#include "../BspDemo/BspConverter.h"
+
 
 
 class BspToBulletConverter : public BspConverter
@@ -66,7 +66,7 @@ public:
 		{
 			///perhaps we can do something special with entities (isEntity)
 			///like adding a collision Triggering (as example)
-			
+
 			if (vertices.size() > 0)
 			{
 				float mass = 0.f;
@@ -91,7 +91,7 @@ public:
 			}
 		}
 };
-
+#endif //QUAKE_BSP_IMPORTING
 CharacterDemo::CharacterDemo()
 :
 m_cameraHeight(4.f),
@@ -177,7 +177,7 @@ public:
 		m_hashPairCache = new btHashedOverlappingPairCache();
 		m_hashPairCache->setOverlapFilterCallback (&myCustomOverlapFilterCallback);
 	}
-	
+
 	virtual ~MyCustomOverlappingPairCallback()
 	{
 		delete m_hashPairCache;
@@ -211,7 +211,7 @@ public:
 			m_hashPairCache->removeOverlappingPairsContainingProxy(proxy0,dispatcher);
 		}
 	}
-	
+
 	btBroadphasePairArray&	getOverlappingPairArray()
 	{
 		return m_hashPairCache->getOverlappingPairArray();
@@ -234,7 +234,7 @@ void CharacterDemo::initPhysics()
 	btVector3 worldMax(1000,1000,1000);
 	btAxisSweep3* sweepBP = new btAxisSweep3(worldMin,worldMax);
 	m_overlappingPairCache = sweepBP;
-		
+
 	m_constraintSolver = new btSequentialImpulseConstraintSolver();
 	m_dynamicsWorld = new btDiscreteDynamicsWorld(m_dispatcher,m_overlappingPairCache,m_constraintSolver,m_collisionConfiguration);
 	//m_dynamicsWorld->setGravity(btVector3(0,0,0));
@@ -246,11 +246,11 @@ void CharacterDemo::initPhysics()
 #ifdef QUAKE_BSP_IMPORTING
 	char* bspfilename = "BspDemo.bsp";
 	void* memoryBuffer = 0;
-	
+
 	FILE* file = fopen(bspfilename,"r");
 	if (!file)
 	{
-		//try again other path, 
+		//try again other path,
 		//sight... visual studio leaves the current working directory in the projectfiles folder
 		//instead of executable folder. who wants this default behaviour?!?
 		bspfilename = "../../BspDemo.bsp";
@@ -258,7 +258,7 @@ void CharacterDemo::initPhysics()
 	}
 	if (!file)
 	{
-		//try again other path, 
+		//try again other path,
 		//sight... visual studio leaves the current working directory in the projectfiles folder
 		//instead of executable folder. who wants this default behaviour?!?
 		bspfilename = "BspDemo.bsp";
@@ -301,13 +301,13 @@ const float TRIANGLE_SIZE=20.f;
 	const int NUM_VERTS_X = 20;
 	const int NUM_VERTS_Y = 20;
 	const int totalVerts = NUM_VERTS_X*NUM_VERTS_Y;
-	
+
 	const int totalTriangles = 2*(NUM_VERTS_X-1)*(NUM_VERTS_Y-1);
 
 	m_vertices = new btVector3[totalVerts];
 	int*	gIndices = new int[totalTriangles*3];
 
-	
+
 
 	for ( i=0;i<NUM_VERTS_X;i++)
 	{
@@ -347,7 +347,7 @@ const float TRIANGLE_SIZE=20.f;
 			gIndices[index++] = (j+1)*NUM_VERTS_X+i;
 		}
 	}
-	
+
 	m_indexVertexArrays = new btTriangleIndexVertexArray(totalTriangles,
 		gIndices,
 		indexStride,
@@ -355,7 +355,7 @@ const float TRIANGLE_SIZE=20.f;
 
 	bool useQuantizedAabbCompression = true;
 	groundShape = new btBvhTriangleMeshShape(m_indexVertexArrays,useQuantizedAabbCompression);
-	
+
 	tr.setOrigin(btVector3(0,-4.5f,0));
 
 #else
@@ -387,16 +387,16 @@ const float TRIANGLE_SIZE=20.f;
 		}
 		fclose (heightfieldFile);
 	}
-	
+
 
 	btScalar maxHeight = 20000.f;
-	
+
 	bool useFloatDatam=false;
 	bool flipQuadEdges=false;
 
 	btHeightfieldTerrainShape* heightFieldShape = new btHeightfieldTerrainShape(width,length,heightfieldData,maxHeight,upIndex,useFloatDatam,flipQuadEdges);;
 	groundShape = heightFieldShape;
-	
+
 	heightFieldShape->setUseDiamondSubdivision(true);
 
 	btVector3 localScaling(20,20,20);
@@ -428,7 +428,7 @@ const float TRIANGLE_SIZE=20.f;
 
 		btTransform trans;
 		trans.setIdentity();
-		
+
 		if (i>0)
 		{
 			//stack them
@@ -457,7 +457,7 @@ const float TRIANGLE_SIZE=20.f;
 
 		if (!isDyna)
 			mass = 0.f;
-	
+
 		btRigidBody* body = localCreateRigidBody(mass,trans,shape);
 #ifdef USE_KINEMATIC_GROUND
 		if (mass == 0.f)
@@ -466,7 +466,7 @@ const float TRIANGLE_SIZE=20.f;
 			body->setActivationState(DISABLE_DEACTIVATION);
 		}
 #endif //USE_KINEMATIC_GROUND
-		
+
 	}
 #endif
 
@@ -484,7 +484,7 @@ const float TRIANGLE_SIZE=20.f;
 	sweepBP->setOverlappingPairUserCallback(m_customPairCallback);
 	m_character->registerPairCache (m_customPairCallback->getOverlappingPairCache());
 	clientResetScene();
-	
+
 	setCameraDistance(26.f);
 
 }
@@ -501,13 +501,13 @@ void CharacterDemo::renderme()
 void CharacterDemo::clientMoveAndDisplay()
 {
 
-	glClear(GL_COLOR_BUFFER_BIT | GL_DEPTH_BUFFER_BIT); 
+	glClear(GL_COLOR_BUFFER_BIT | GL_DEPTH_BUFFER_BIT);
 
 	float dt = getDeltaTimeMicroseconds() * 0.000001f;
 
 	/* Character stuff &*/
 	if (m_character)
-	{			
+	{
 		m_character->preStep (m_dynamicsWorld);
 		m_character->playerStep (m_dynamicsWorld, dt, gForward, gBackward, gLeft, gRight, gJump);
 	}
@@ -519,7 +519,7 @@ void CharacterDemo::clientMoveAndDisplay()
 		for (int i=0;i<m_customPairCallback->getOverlappingPairArray().size();i++)
 		{
 			manifoldArray.clear();
-			
+
 			const btBroadphasePair& pair = m_customPairCallback->getOverlappingPairArray()[i];
 			btBroadphasePair* collisionPair = m_overlappingPairCache->getOverlappingPairCache()->findPair(pair.m_pProxy0,pair.m_pProxy1);
 
@@ -544,7 +544,7 @@ void CharacterDemo::clientMoveAndDisplay()
 #endif
 
 
-	
+
 	if (m_dynamicsWorld)
 	{
 		//during idle mode, just run 1 simulation step maximum
@@ -553,7 +553,7 @@ void CharacterDemo::clientMoveAndDisplay()
 			dt = 1.0/420.f;
 
 		int numSimSteps = m_dynamicsWorld->stepSimulation(dt,maxSimSubSteps);
-		
+
 		//optional but useful: debug drawing
 		if (m_dynamicsWorld)
 			m_dynamicsWorld->debugDrawWorld();
@@ -577,23 +577,23 @@ void CharacterDemo::clientMoveAndDisplay()
 
 	}
 
-	
-	
 
 
 
 
-#ifdef USE_QUICKPROF 
-        btProfiler::beginBlock("render"); 
-#endif //USE_QUICKPROF 
 
 
-	renderme(); 
+#ifdef USE_QUICKPROF
+        btProfiler::beginBlock("render");
+#endif //USE_QUICKPROF
 
-#ifdef USE_QUICKPROF 
-        btProfiler::endBlock("render"); 
-#endif 
-	
+
+	renderme();
+
+#ifdef USE_QUICKPROF
+        btProfiler::endBlock("render");
+#endif
+
 
 	glFlush();
 	glutSwapBuffers();
@@ -602,9 +602,9 @@ void CharacterDemo::clientMoveAndDisplay()
 
 
 
-void CharacterDemo::displayCallback(void) 
+void CharacterDemo::displayCallback(void)
 {
-	glClear(GL_COLOR_BUFFER_BIT | GL_DEPTH_BUFFER_BIT); 
+	glClear(GL_COLOR_BUFFER_BIT | GL_DEPTH_BUFFER_BIT);
 
 	renderme();
 
@@ -618,16 +618,16 @@ void CharacterDemo::displayCallback(void)
 }
 
 void CharacterDemo::clientResetScene()
-{	
+{
 	m_dynamicsWorld->getBroadphase()->getOverlappingPairCache()->cleanProxyFromPairs(m_character->getCollisionObject()->getBroadphaseHandle(),getDynamicsWorld()->getDispatcher());
-	
+
 	m_character->reset ();
 	m_character->warp (btVector3(0.0, 1.75, 0.0));
 }
 
 void CharacterDemo::specialKeyboardUp(int key, int x, int y)
 {
-   switch (key) 
+   switch (key)
     {
     case GLUT_KEY_UP:
 	{
@@ -635,7 +635,7 @@ void CharacterDemo::specialKeyboardUp(int key, int x, int y)
 	}
 	break;
 	case GLUT_KEY_DOWN:
-	{	
+	{
 		gBackward = 0;
 	}
 	break;
@@ -661,7 +661,7 @@ void CharacterDemo::specialKeyboard(int key, int x, int y)
 
 //	printf("key = %i x=%i y=%i\n",key,x,y);
 
-    switch (key) 
+    switch (key)
     {
     case GLUT_KEY_UP:
 	{
@@ -669,7 +669,7 @@ void CharacterDemo::specialKeyboard(int key, int x, int y)
 	}
 	break;
 	case GLUT_KEY_DOWN:
-	{	
+	{
 		gBackward = 1;
 	}
 	break;
@@ -701,7 +701,7 @@ void CharacterDemo::specialKeyboard(int key, int x, int y)
 
 void	CharacterDemo::updateCamera()
 {
-	
+
 //#define DISABLE_CAMERA 1
 #ifdef DISABLE_CAMERA
 	DemoApplication::updateCamera();
@@ -722,7 +722,7 @@ void	CharacterDemo::updateCamera()
 
 	m_cameraTargetPosition = characterWorldTrans.getOrigin();
 	m_cameraPosition = m_cameraTargetPosition + up * 2.0 + backward * 2.0;
-		
+
 	//update OpenGL camera settings
     glFrustum(-1.0, 1.0, -1.0, 1.0, 1.0, 10000.0);
 
@@ -732,7 +732,7 @@ void	CharacterDemo::updateCamera()
     gluLookAt(m_cameraPosition[0],m_cameraPosition[1],m_cameraPosition[2],
 		      m_cameraTargetPosition[0],m_cameraTargetPosition[1], m_cameraTargetPosition[2],
 			  m_cameraUp.getX(),m_cameraUp.getY(),m_cameraUp.getZ());
-  
+
 
 
 }

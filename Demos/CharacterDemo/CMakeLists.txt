@@ -25,6 +25,10 @@ ADD_EXECUTABLE(CharacterDemo
 	CharacterControllerInterface.h
 	CharacterDemo.cpp
 	CharacterDemo.h
+	../BspDemo/BspConverter.cpp
+	../BspDemo/BspConverter.h
+	../BspDemo/BspLoader.cpp
+	../BspDemo/BspLoader.h
 	main.cpp
 )
 
