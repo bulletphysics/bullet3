@@ -39,7 +39,12 @@
 	#pragma warning(disable:4786) // Disable the "debug name too long" warning
 #endif
 
-#if defined(GLUI_FREEGLUT)
+
+#ifdef WIN32//for glut.h
+#include <windows.h>
+#endif
+
+#if defined(GLUI_FREEGLUT) || defined(BT_USE_FREEGLUT)
 
   // FreeGLUT does not yet work perfectly with GLUI
   //  - use at your own risk.
@@ -54,9 +59,11 @@
 
 #else 
 
-  #ifdef __APPLE__
+#if defined(__APPLE__) && !defined (VMDMESA)
+  #include <OpenGL/gl.h>
+  #include <OpenGL/glu.h>
   #include <GLUT/glut.h>
-  #else
+#else
 //	#include "../../freeglut/gl/glut.h"
   #include <GL/glut.h>
   #endif
