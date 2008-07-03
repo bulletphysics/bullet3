@@ -62,7 +62,7 @@ void DynamicCharacterController::destroy (btDynamicsWorld* dynamicsWorld)
 	}
 }
 
-btRigidBody* DynamicCharacterController::getRigidBody ()
+btCollisionObject* DynamicCharacterController::getCollisionObject ()
 {
 	return m_rigidBody;
 }
@@ -122,7 +122,8 @@ void DynamicCharacterController::playerStep (btScalar dt,
 					 int forward,
 					 int backward,
 					 int left,
-					 int right)
+					 int right,
+					 int jump)
 {
 	btTransform xform;
 	m_rigidBody->getMotionState()->getWorldTransform (xform);

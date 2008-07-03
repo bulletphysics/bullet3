@@ -159,6 +159,15 @@ class MyCustomOverlappingPairCallback : public btOverlappingPairCallback
 
 	btHashedOverlappingPairCache*	m_hashPairCache;
 
+	struct customOverlapFilterCallback : public btOverlapFilterCallback
+	{
+		bool needBroadphaseCollision(btBroadphaseProxy* proxy0,btBroadphaseProxy* proxy1) const
+		{
+			// we already know that the character proxy is either proxy0 or proxy1
+			return true;
+		}
+	} myCustomOverlapFilterCallback;
+
 public:
 
 	MyCustomOverlappingPairCallback(CharacterDemo* demo,btCollisionObject* characterCollider)
@@ -166,6 +175,7 @@ public:
 		m_characterCollider(characterCollider)
 	{
 		m_hashPairCache = new btHashedOverlappingPairCache();
+		m_hashPairCache->setOverlapFilterCallback (&myCustomOverlapFilterCallback);
 	}
 	
 	virtual ~MyCustomOverlappingPairCallback()
@@ -177,7 +187,7 @@ public:
 	{
 		if (proxy0->m_clientObject==m_characterCollider || proxy1->m_clientObject==m_characterCollider)
 		{
-			printf("addOverlappingPair (%x,%x)\n",proxy0,proxy1);
+			//printf("addOverlappingPair (%p,%p)\n",proxy0,proxy1);
 			return m_hashPairCache->addOverlappingPair(proxy0,proxy1);
 		}
 		return 0;
@@ -187,7 +197,7 @@ public:
 	{
 		if (proxy0->m_clientObject==m_characterCollider || proxy1->m_clientObject==m_characterCollider)
 		{
-			printf("removeOverlappingPair (%x,%x)\n",proxy0,proxy1);
+			//printf("removeOverlappingPair (%p,%p)\n",proxy0,proxy1);
 			return m_hashPairCache->removeOverlappingPair(proxy0,proxy1,dispatcher);
 		}
 		return 0;
@@ -197,7 +207,7 @@ public:
 	{
 		if (proxy0->m_clientObject==m_characterCollider)
 		{
-			printf("removeOverlappingPairsContainingProxy (%x)\n",proxy0);
+			//printf("removeOverlappingPairsContainingProxy (%p)\n",proxy0);
 			m_hashPairCache->removeOverlappingPairsContainingProxy(proxy0,dispatcher);
 		}
 	}
@@ -469,12 +479,9 @@ const float TRIANGLE_SIZE=20.f;
 #endif
 	m_character->setup (m_dynamicsWorld);
 
-	//we need to remove the rigid body from the broadphase in order to register all collisions
-	m_dynamicsWorld->removeRigidBody(m_character->getRigidBody());
 	//some custom callback sample
-	m_customPairCallback = new MyCustomOverlappingPairCallback(this,m_character->getRigidBody());
+	m_customPairCallback = new MyCustomOverlappingPairCallback(this,m_character->getCollisionObject());
 	sweepBP->setOverlappingPairUserCallback(m_customPairCallback);
-	m_dynamicsWorld->addRigidBody(m_character->getRigidBody());
 	m_character->registerPairCache (m_customPairCallback->getOverlappingPairCache());
 	clientResetScene();
 	
@@ -502,14 +509,10 @@ void CharacterDemo::clientMoveAndDisplay()
 	if (m_character)
 	{			
 		m_character->preStep (m_dynamicsWorld);
-		m_character->playerStep (m_dynamicsWorld, dt, gForward, gBackward, gLeft, gRight);
-		if (gJump)
-		{
-			gJump = 0;
-			m_character->jump ();
-		}
+		m_character->playerStep (m_dynamicsWorld, dt, gForward, gBackward, gLeft, gRight, gJump);
 	}
 
+#if 0
 	printf("numPairs = %d\n",m_customPairCallback->getOverlappingPairArray().size());
 	{
 		btManifoldArray	manifoldArray;
@@ -519,6 +522,9 @@ void CharacterDemo::clientMoveAndDisplay()
 			
 			const btBroadphasePair& pair = m_customPairCallback->getOverlappingPairArray()[i];
 			btBroadphasePair* collisionPair = m_overlappingPairCache->getOverlappingPairCache()->findPair(pair.m_pProxy0,pair.m_pProxy1);
+
+			if (!collisionPair)
+				continue;
 
 			if (collisionPair->m_algorithm)
 				collisionPair->m_algorithm->getAllContactManifolds(manifoldArray);
@@ -535,6 +541,7 @@ void CharacterDemo::clientMoveAndDisplay()
 			}
 		}
 	}
+#endif
 
 
 	
@@ -610,20 +617,12 @@ void CharacterDemo::displayCallback(void)
 	glutSwapBuffers();
 }
 
-
-
 void CharacterDemo::clientResetScene()
 {	
-	m_dynamicsWorld->getBroadphase()->getOverlappingPairCache()->cleanProxyFromPairs(m_character->getRigidBody()->getBroadphaseHandle(),getDynamicsWorld()->getDispatcher());
+	m_dynamicsWorld->getBroadphase()->getOverlappingPairCache()->cleanProxyFromPairs(m_character->getCollisionObject()->getBroadphaseHandle(),getDynamicsWorld()->getDispatcher());
 	
-	btTransform startTransform;
-	startTransform.setIdentity ();
-	startTransform.setOrigin (btVector3(0.0, 2.0, 0.0));
-	
-	m_character->getRigidBody()->getMotionState()->setWorldTransform(startTransform);
-	m_character->getRigidBody()->setLinearVelocity(btVector3(0,0,0));
-	m_character->getRigidBody()->setAngularVelocity(btVector3(0,0,0));
-
+	m_character->reset ();
+	m_character->warp (btVector3(0.0, 1.75, 0.0));
 }
 
 void CharacterDemo::specialKeyboardUp(int key, int x, int y)
@@ -715,14 +714,14 @@ void	CharacterDemo::updateCamera()
 	btTransform characterWorldTrans;
 
 	//look at the vehicle
-	m_character->getRigidBody()->getMotionState()->getWorldTransform(characterWorldTrans);
+	characterWorldTrans = m_character->getCollisionObject()->getWorldTransform();
 	btVector3 up = characterWorldTrans.getBasis()[1];
 	btVector3 backward = -characterWorldTrans.getBasis()[2];
 	up.normalize ();
 	backward.normalize ();
 
 	m_cameraTargetPosition = characterWorldTrans.getOrigin();
-	m_cameraPosition = m_cameraTargetPosition + up * 5.0 + backward * 5.0;
+	m_cameraPosition = m_cameraTargetPosition + up * 2.0 + backward * 2.0;
 		
 	//update OpenGL camera settings
     glFrustum(-1.0, 1.0, -1.0, 1.0, 1.0, 10000.0);

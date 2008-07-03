@@ -14,8 +14,12 @@ class KinematicCharacterController : public CharacterControllerInterface
 protected:
 	btScalar m_halfHeight;
 	btConvexShape* m_shape;
-	btRigidBody* m_rigidBody;
+	btCollisionObject* m_collisionObject;
 	btOverlappingPairCache* m_pairCache;
+
+	btScalar m_fallSpeed;
+	btScalar m_jumpSpeed;
+	btScalar m_maxJumpHeight;
 
 	btScalar m_turnAngle;
 	btScalar m_walkVelocity;
@@ -31,8 +35,11 @@ protected:
 	btVector3 m_currentPosition;
 	btScalar  m_currentStepOffset;
 	btVector3 m_targetPosition;
+
+	bool m_touchingContact;
+	btVector3 m_touchingNormal;
 	
-	void recoverFromPenetration (btDynamicsWorld* dynamicsWorld);
+	bool recoverFromPenetration (btDynamicsWorld* dynamicsWorld);
 	void stepUp (btDynamicsWorld* dynamicsWorld);
 	void updateTargetPositionBasedOnCollision (const btVector3& hit_normal, btScalar tangentMag = btScalar(1.0), btScalar normalMag = btScalar(0.0));
 	void stepForwardAndStrafe (btDynamicsWorld* dynamicsWorld, const btVector3& walkMove);
@@ -43,7 +50,10 @@ public:
 	void setup (btDynamicsWorld* dynamicsWorld, btScalar height = btScalar(1.75), btScalar width = btScalar(0.4), btScalar stepHeight = btScalar(0.35));
 	void destroy (btDynamicsWorld* dynamicsWorld);
 
-	btRigidBody* getRigidBody ();
+	btCollisionObject* getCollisionObject ();
+
+	void reset ();
+	void warp (const btVector3& origin);
 
 	void registerPairCache (btOverlappingPairCache* pairCache);
 	void preStep (btDynamicsWorld* dynamicsWorld);
@@ -51,7 +61,12 @@ public:
 					 int forward,
 					 int backward,
 					 int left,
-					 int right);
+					 int right,
+					 int jump);
+
+	void setFallSpeed (btScalar fallSpeed);
+	void setJumpSpeed (btScalar jumpSpeed);
+	void setMaxJumpHeight (btScalar maxJumpHeight);
 	bool canJump () const;
 	void jump ();
 

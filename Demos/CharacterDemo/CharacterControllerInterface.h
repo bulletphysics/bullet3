@@ -15,14 +15,18 @@ public:
 	virtual void setup (btDynamicsWorld* dynamicsWorld, btScalar height = 2.0, btScalar width = 0.25, btScalar stepHeight = 0.25) = 0;
 	virtual void destroy (btDynamicsWorld* dynamicsWorld) = 0;
 
-	virtual btRigidBody* getRigidBody () = 0;
+	virtual btCollisionObject* getCollisionObject () = 0;
+
+	virtual void reset () = 0;
+	virtual void warp (const btVector3& origin) = 0;
 
 	virtual void preStep (btDynamicsWorld* dynamicsWorld) = 0;
 	virtual void playerStep (btDynamicsWorld* dynamicsWorld, btScalar dt,
 					         int forward,
 							 int backward,
 							 int left,
-							 int right) = 0;
+							 int right,
+							 int jump) = 0;
 	virtual bool canJump () const = 0;
 	virtual void jump () = 0;
 

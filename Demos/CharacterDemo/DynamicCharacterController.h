@@ -32,14 +32,15 @@ public:
 	void setup (btDynamicsWorld* dynamicsWorld, btScalar height = 2.0, btScalar width = 0.25, btScalar stepHeight = 0.25);
 	void destroy (btDynamicsWorld* dynamicsWorld);
 
-	btRigidBody* getRigidBody ();
+	btCollisionObject* getCollisionObject ();
 
 	void preStep (btDynamicsWorld* dynamicsWorld);
 	void playerStep (btScalar dt,
 					 int forward,
 					 int backward,
 					 int left,
-					 int right);
+					 int right,
+					 int jump);
 	bool canJump () const;
 	void jump ();
 
