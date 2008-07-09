@@ -133,8 +133,8 @@ void	btDiscreteDynamicsWorld::debugDrawWorld()
 		for (int i=0;i<numManifolds;i++)
 		{
 			btPersistentManifold* contactManifold = getDispatcher()->getManifoldByIndexInternal(i);
-			btCollisionObject* obA = static_cast<btCollisionObject*>(contactManifold->getBody0());
-			btCollisionObject* obB = static_cast<btCollisionObject*>(contactManifold->getBody1());
+			//btCollisionObject* obA = static_cast<btCollisionObject*>(contactManifold->getBody0());
+			//btCollisionObject* obB = static_cast<btCollisionObject*>(contactManifold->getBody1());
 
 			int numContacts = contactManifold->getNumContacts();
 			for (int j=0;j<numContacts;j++)

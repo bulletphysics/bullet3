@@ -16,7 +16,7 @@ subject to the following restrictions:
 #include "SpuRaycastTaskProcess.h"
 
 
-SpuRaycastTaskProcess::SpuRaycastTaskProcess(class	btThreadSupportInterface*	threadInterface, unsigned int	maxNumOutstandingTasks)
+SpuRaycastTaskProcess::SpuRaycastTaskProcess(class	btThreadSupportInterface*	threadInterface,  int	maxNumOutstandingTasks)
 :m_threadInterface(threadInterface),
 m_maxNumOutstandingTasks(maxNumOutstandingTasks)
 {
@@ -122,7 +122,7 @@ void SpuRaycastTaskProcess::addWorkToTask(SpuRaycastTaskWorkUnit& workunit)
 		m_currentWorkUnitInTask = 0;
 
 		// find new task buffer
-		for (unsigned int i = 0; i < m_maxNumOutstandingTasks; i++)
+		for (int i = 0; i < m_maxNumOutstandingTasks; i++)
 		{
 			if (!m_taskBusy[i])
 			{

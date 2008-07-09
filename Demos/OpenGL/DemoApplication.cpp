@@ -626,7 +626,7 @@ void DemoApplication::mouseFunc(int button, int state, int x, int y)
 				{
 					btCollisionWorld::ClosestRayResultCallback rayCallback(m_cameraPosition,rayTo);
 					m_dynamicsWorld->rayTest(m_cameraPosition,rayTo,rayCallback);
-					if (rayCallback.HasHit())
+					if (rayCallback.hasHit())
 					{
 						
 						btRigidBody* body = btRigidBody::upcast(rayCallback.m_collisionObject);
@@ -662,7 +662,7 @@ void DemoApplication::mouseFunc(int button, int state, int x, int y)
 				{
 					btCollisionWorld::ClosestRayResultCallback rayCallback(m_cameraPosition,rayTo);
 					m_dynamicsWorld->rayTest(m_cameraPosition,rayTo,rayCallback);
-					if (rayCallback.HasHit())
+					if (rayCallback.hasHit())
 					{
 						
 						

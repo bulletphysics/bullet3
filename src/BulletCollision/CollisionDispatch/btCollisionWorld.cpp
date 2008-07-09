@@ -213,7 +213,7 @@ void	btCollisionWorld::rayTestSingle(const btTransform& rayFromTrans,const btTra
 					  btCollisionObject* collisionObject,
 					  const btCollisionShape* collisionShape,
 					  const btTransform& colObjWorldTransform,
-					  RayResultCallback& resultCallback,short int collisionFilterMask)
+					  RayResultCallback& resultCallback)
 {
 	btSphereShape pointShape(btScalar(0.0));
 	pointShape.setMargin(0.f);
@@ -256,7 +256,7 @@ void	btCollisionWorld::rayTestSingle(const btTransform& rayFromTrans,const btTra
 						);
 
 					bool normalInWorldSpace = true;
-					resultCallback.AddSingleResult(localRayResult, normalInWorldSpace);
+					resultCallback.addSingleResult(localRayResult, normalInWorldSpace);
 
 				}
 			}
@@ -302,7 +302,7 @@ void	btCollisionWorld::rayTestSingle(const btTransform& rayFromTrans,const btTra
 							hitFraction);
 
 						bool	normalInWorldSpace = false;
-						return m_resultCallback->AddSingleResult(rayResult,normalInWorldSpace);
+						return m_resultCallback->addSingleResult(rayResult,normalInWorldSpace);
 					}
 
 				};
@@ -350,7 +350,7 @@ void	btCollisionWorld::rayTestSingle(const btTransform& rayFromTrans,const btTra
 							hitFraction);
 
 						bool	normalInWorldSpace = false;
-						return m_resultCallback->AddSingleResult(rayResult,normalInWorldSpace);
+						return m_resultCallback->addSingleResult(rayResult,normalInWorldSpace);
 
 
 					}
@@ -383,7 +383,7 @@ void	btCollisionWorld::rayTestSingle(const btTransform& rayFromTrans,const btTra
 						collisionObject,
 						childCollisionShape,
 						childWorldTrans,
-						resultCallback, collisionFilterMask);
+						resultCallback);
 
 				}
 			}
@@ -395,7 +395,7 @@ void	btCollisionWorld::objectQuerySingle(const btConvexShape* castShape,const bt
 					  btCollisionObject* collisionObject,
 					  const btCollisionShape* collisionShape,
 					  const btTransform& colObjWorldTransform,
-					  ConvexResultCallback& resultCallback, btScalar allowedPenetration,short int collisionFilterMask)
+					  ConvexResultCallback& resultCallback, btScalar allowedPenetration)
 {
 	if (collisionShape->isConvex())
 	{
@@ -435,7 +435,7 @@ void	btCollisionWorld::objectQuerySingle(const btConvexShape* castShape,const bt
 								);
 
 					bool normalInWorldSpace = true;
-					resultCallback.AddSingleResult(localConvexResult, normalInWorldSpace);
+					resultCallback.addSingleResult(localConvexResult, normalInWorldSpace);
 
 				}
 			}
@@ -487,7 +487,7 @@ void	btCollisionWorld::objectQuerySingle(const btConvexShape* castShape,const bt
 							bool	normalInWorldSpace = true;
 
 
-							return m_resultCallback->AddSingleResult(convexResult,normalInWorldSpace);
+							return m_resultCallback->addSingleResult(convexResult,normalInWorldSpace);
 						}
 						return hitFraction;
 					}
@@ -542,7 +542,7 @@ void	btCollisionWorld::objectQuerySingle(const btConvexShape* castShape,const bt
 
 							bool	normalInWorldSpace = false;
 
-							return m_resultCallback->AddSingleResult(convexResult,normalInWorldSpace);
+							return m_resultCallback->addSingleResult(convexResult,normalInWorldSpace);
 						}
 						return hitFraction;
 					}
@@ -577,14 +577,14 @@ void	btCollisionWorld::objectQuerySingle(const btConvexShape* castShape,const bt
 						collisionObject,
 						childCollisionShape,
 						childWorldTrans,
-						resultCallback, allowedPenetration,collisionFilterMask);
+						resultCallback, allowedPenetration);
 				}
 			}
 		}
 	}
 }
 
-void	btCollisionWorld::rayTest(const btVector3& rayFromWorld, const btVector3& rayToWorld, RayResultCallback& resultCallback,short int collisionFilterMask) const
+void	btCollisionWorld::rayTest(const btVector3& rayFromWorld, const btVector3& rayToWorld, RayResultCallback& resultCallback) const
 {
 
 
@@ -606,7 +606,7 @@ void	btCollisionWorld::rayTest(const btVector3& rayFromWorld, const btVector3& r
 
 		btCollisionObject*	collisionObject= m_collisionObjects[i];
 		//only perform raycast if filterMask matches
-		if(collisionObject->getBroadphaseHandle()->m_collisionFilterGroup & collisionFilterMask) {
+		if(resultCallback.needsCollision(collisionObject->getBroadphaseHandle())) {
 			//RigidcollisionObject* collisionObject = ctrl->GetRigidcollisionObject();
 			btVector3 collisionObjectAabbMin,collisionObjectAabbMax;
 			collisionObject->getCollisionShape()->getAabb(collisionObject->getWorldTransform(),collisionObjectAabbMin,collisionObjectAabbMax);
@@ -627,7 +627,7 @@ void	btCollisionWorld::rayTest(const btVector3& rayFromWorld, const btVector3& r
 
 }
 
-void	btCollisionWorld::convexSweepTest(const btConvexShape* castShape, const btTransform& convexFromWorld, const btTransform& convexToWorld, ConvexResultCallback& resultCallback,short int collisionFilterMask) const
+void	btCollisionWorld::convexSweepTest(const btConvexShape* castShape, const btTransform& convexFromWorld, const btTransform& convexToWorld, ConvexResultCallback& resultCallback) const
 {
 	btTransform	convexFromTrans,convexToTrans;
 	convexFromTrans = convexFromWorld;
@@ -650,7 +650,7 @@ void	btCollisionWorld::convexSweepTest(const btConvexShape* castShape, const btT
 	{
 		btCollisionObject*	collisionObject= m_collisionObjects[i];
 		//only perform raycast if filterMask matches
-		if(collisionObject->getBroadphaseHandle()->m_collisionFilterGroup & collisionFilterMask) {
+		if(resultCallback.needsCollision(collisionObject->getBroadphaseHandle())) {
 			//RigidcollisionObject* collisionObject = ctrl->GetRigidcollisionObject();
 			btVector3 collisionObjectAabbMin,collisionObjectAabbMax;
 			collisionObject->getCollisionShape()->getAabb(collisionObject->getWorldTransform(),collisionObjectAabbMin,collisionObjectAabbMax);
@@ -664,8 +664,7 @@ void	btCollisionWorld::convexSweepTest(const btConvexShape* castShape, const btT
 						collisionObject->getCollisionShape(),
 						collisionObject->getWorldTransform(),
 						resultCallback,
-						getDispatchInfo().m_allowedCcdPenetration,
-						collisionFilterMask);
+						getDispatchInfo().m_allowedCcdPenetration);
 			}
 		}
 	}

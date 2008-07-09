@@ -9,7 +9,6 @@
 #include "KinematicCharacterController.h"
 
 /* TODO:
- * Fix jitter
  * Interact with dynamic objects
  * Ride kinematicly animated platforms properly
  * More realistic (or maybe just a config option) falling
@@ -25,12 +24,12 @@ public:
 		m_me = me;
 	}
 
-	virtual btScalar AddSingleResult(btCollisionWorld::LocalRayResult& rayResult,bool normalInWorldSpace)
+	virtual btScalar addSingleResult(btCollisionWorld::LocalRayResult& rayResult,bool normalInWorldSpace)
 	{
 		if (rayResult.m_collisionObject == m_me)
 			return 1.0;
 
-		return ClosestRayResultCallback::AddSingleResult (rayResult, normalInWorldSpace);
+		return ClosestRayResultCallback::addSingleResult (rayResult, normalInWorldSpace);
 	}
 protected:
 	btCollisionObject* m_me;
@@ -44,12 +43,12 @@ public:
 		m_me = me;
 	}
 
-	virtual btScalar AddSingleResult(btCollisionWorld::LocalConvexResult& convexResult,bool normalInWorldSpace)
+	virtual btScalar addSingleResult(btCollisionWorld::LocalConvexResult& convexResult,bool normalInWorldSpace)
 	{
 		if (convexResult.m_hitCollisionObject == m_me)
 			return 1.0;
 
-		return ClosestConvexResultCallback::AddSingleResult (convexResult, normalInWorldSpace);
+		return ClosestConvexResultCallback::addSingleResult (convexResult, normalInWorldSpace);
 	}
 protected:
 	btCollisionObject* m_me;
@@ -213,10 +212,12 @@ void KinematicCharacterController::stepUp (const btCollisionWorld* world)
 	end.setOrigin (m_targetPosition);
 
 	ClosestNotMeConvexResultCallback callback (m_collisionObject);
+	callback.m_collisionFilterGroup = getCollisionObject()->getBroadphaseHandle()->m_collisionFilterGroup;
+	callback.m_collisionFilterMask = getCollisionObject()->getBroadphaseHandle()->m_collisionFilterMask;
 	
 	world->convexSweepTest (m_shape, start, end, callback);
 
-	if (callback.HasHit())
+	if (callback.hasHit())
 	{
 		// we moved up only a fraction of the step height
 		m_currentStepOffset = m_stepHeight * callback.m_closestHitFraction;
@@ -296,6 +297,9 @@ void KinematicCharacterController::stepForwardAndStrafe (const btCollisionWorld*
 		end.setOrigin (m_targetPosition);
 
 		ClosestNotMeConvexResultCallback callback (m_collisionObject);
+		callback.m_collisionFilterGroup = getCollisionObject()->getBroadphaseHandle()->m_collisionFilterGroup;
+		callback.m_collisionFilterMask = getCollisionObject()->getBroadphaseHandle()->m_collisionFilterMask;
+
 
 		//btScalar margin = m_shape->getMargin();
 		//m_shape->setMargin(margin - 0.06f);
@@ -305,7 +309,7 @@ void KinematicCharacterController::stepForwardAndStrafe (const btCollisionWorld*
 		
 		fraction -= callback.m_closestHitFraction;
 
-		if (callback.HasHit())
+		if (callback.hasHit())
 		{	
 			// we moved only a fraction
 			btScalar hitDistance = (callback.m_hitPointWorld - m_currentPosition).length();
@@ -364,10 +368,12 @@ void KinematicCharacterController::stepDown (const btCollisionWorld* collisionWo
 	end.setOrigin (m_targetPosition);
 
 	ClosestNotMeConvexResultCallback callback (m_collisionObject);
+	callback.m_collisionFilterGroup = getCollisionObject()->getBroadphaseHandle()->m_collisionFilterGroup;
+	callback.m_collisionFilterMask = getCollisionObject()->getBroadphaseHandle()->m_collisionFilterMask;
 	
 	collisionWorld->convexSweepTest (m_shape, start, end, callback);
 
-	if (callback.HasHit())
+	if (callback.hasHit())
 	{
 		// we dropped a fraction of the height -> hit floor
 		m_currentPosition.setInterpolate3 (m_currentPosition, m_targetPosition, callback.m_closestHitFraction);

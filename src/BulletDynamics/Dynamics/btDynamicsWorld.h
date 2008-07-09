@@ -25,7 +25,7 @@ class btConstraintSolver;
 class btDynamicsWorld;
 
 /// Type for the callback for each tick
-typedef void (*btInternalTickCallback)(const btDynamicsWorld *world, btScalar timeStep);
+typedef void (*btInternalTickCallback)(btDynamicsWorld *world, btScalar timeStep);
 
 enum btDynamicsWorldType
 {
@@ -100,6 +100,11 @@ public:
 		void setInternalTickCallback(btInternalTickCallback cb,	void* worldUserInfo=0) 
 		{ 
 			m_internalTickCallback = cb; 
+			m_worldUserInfo = worldUserInfo;
+		}
+
+		void	setWorldUserInfo(void* worldUserInfo)
+		{
 			m_worldUserInfo = worldUserInfo;
 		}
 

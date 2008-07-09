@@ -191,7 +191,7 @@ struct	btDbvt
 	// Constants
 	enum	{
 			SIMPLE_STACKSIZE	=	64,
-			DOUBLE_STACKSIZE	=	SIMPLE_STACKSIZE*2,
+			DOUBLE_STACKSIZE	=	SIMPLE_STACKSIZE*2
 			};
 		
 	// Fields
@@ -759,7 +759,7 @@ if(root)
 	const int						inside=(1<<count)-1;
 	btAlignedObjectArray<sStkNP>	stack;
 	int								signs[sizeof(unsigned)*8];
-	btAssert(count<(sizeof(signs)/sizeof(signs[0])));
+	btAssert(count<int (sizeof(signs)/sizeof(signs[0])));
 	for(int i=0;i<count;++i)
 		{
 		signs[i]=	((normals[i].x()>=0)?1:0)+
@@ -821,7 +821,7 @@ if(root)
 	btAlignedObjectArray<int>		ifree;
 	btAlignedObjectArray<int>		stack;
 	int								signs[sizeof(unsigned)*8];
-	btAssert(count<(sizeof(signs)/sizeof(signs[0])));
+	btAssert(count<int (sizeof(signs)/sizeof(signs[0])));
 	for(int i=0;i<count;++i)
 		{
 		signs[i]=	((normals[i].x()>=0)?1:0)+

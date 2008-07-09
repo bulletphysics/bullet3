@@ -181,7 +181,7 @@ public:
 			btCollisionWorld::ClosestRayResultCallback cb(source[i], dest[i]);
 			
 			cw->rayTest (source[i], dest[i], cb);
-			if (cb.HasHit ())
+			if (cb.hasHit ())
 			{
 				hit[i] = cb.m_hitPointWorld;
 				normal[i] = cb.m_hitNormalWorld;

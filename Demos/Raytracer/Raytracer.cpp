@@ -189,7 +189,7 @@ bool	Raytracer::worldRaytest(const btVector3& rayFrom,const btVector3& rayTo,btV
 		btVector3	m_hitNormalWorld;
 		btVector3	m_hitPointWorld;
 			
-		virtual	btScalar	AddSingleResult(btCollisionWorld::LocalRayResult& rayResult,bool normalInWorldSpace)
+		virtual	btScalar	addSingleResult(btCollisionWorld::LocalRayResult& rayResult,bool normalInWorldSpace)
 		{
 
 //caller already does the filter on the m_closestHitFraction
@@ -215,7 +215,7 @@ bool	Raytracer::worldRaytest(const btVector3& rayFrom,const btVector3& rayTo,btV
 	AllRayResultCallback	resultCallback(rayFrom,rayTo);
 //	btCollisionWorld::ClosestRayResultCallback resultCallback(rayFrom,rayTo);
 	m_collisionWorld->rayTest(rayFrom,rayTo,resultCallback);
-	if (resultCallback.HasHit())
+	if (resultCallback.hasHit())
 	{
 		worldNormal = resultCallback.m_hitNormalWorld;
 		return true;
@@ -261,7 +261,7 @@ bool	Raytracer::singleObjectRaytest(const btVector3& rayFrom,const btVector3& ra
 			//reset previous result
 
 			btCollisionWorld::rayTestSingle(rayFromTrans,rayToTrans, &tmpObj, shapePtr[s], transforms[s], resultCallback);
-			if (resultCallback.HasHit())
+			if (resultCallback.hasHit())
 			{
 				//float fog = 1.f - 0.1f * rayResult.m_fraction;
 				resultCallback.m_hitNormalWorld.normalize();//.m_normal.normalize();

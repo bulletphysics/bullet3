@@ -177,21 +177,34 @@ public:
 	{
 		btScalar	m_closestHitFraction;
 		btCollisionObject*		m_collisionObject;
+		short int	m_collisionFilterGroup;
+		short int	m_collisionFilterMask;
 
 		virtual ~RayResultCallback()
 		{
 		}
-		bool	HasHit()
+		bool	hasHit()
 		{
 			return (m_collisionObject != 0);
 		}
 
 		RayResultCallback()
 			:m_closestHitFraction(btScalar(1.)),
-			m_collisionObject(0)
+			m_collisionObject(0),
+			m_collisionFilterGroup(btBroadphaseProxy::DefaultFilter),
+			m_collisionFilterMask(btBroadphaseProxy::AllFilter)
 		{
 		}
-		virtual	btScalar	AddSingleResult(LocalRayResult& rayResult,bool normalInWorldSpace) = 0;
+
+		virtual bool needsCollision(btBroadphaseProxy* proxy0) const
+		{
+			bool collides = (proxy0->m_collisionFilterGroup & m_collisionFilterMask) != 0;
+			collides = collides && (m_collisionFilterGroup & proxy0->m_collisionFilterMask);
+			return collides;
+		}
+
+
+		virtual	btScalar	addSingleResult(LocalRayResult& rayResult,bool normalInWorldSpace) = 0;
 	};
 
 	struct	ClosestRayResultCallback : public RayResultCallback
@@ -208,7 +221,7 @@ public:
 		btVector3	m_hitNormalWorld;
 		btVector3	m_hitPointWorld;
 			
-		virtual	btScalar	AddSingleResult(LocalRayResult& rayResult,bool normalInWorldSpace)
+		virtual	btScalar	addSingleResult(LocalRayResult& rayResult,bool normalInWorldSpace)
 		{
 			//caller already does the filter on the m_closestHitFraction
 			btAssert(rayResult.m_hitFraction <= m_closestHitFraction);
@@ -255,20 +268,36 @@ public:
 	///RayResultCallback is used to report new raycast results
 	struct	ConvexResultCallback
 	{
+		btScalar	m_closestHitFraction;
+		short int	m_collisionFilterGroup;
+		short int	m_collisionFilterMask;
+		
+		ConvexResultCallback()
+			:m_closestHitFraction(btScalar(1.)),
+			m_collisionFilterGroup(btBroadphaseProxy::DefaultFilter),
+			m_collisionFilterMask(btBroadphaseProxy::AllFilter)
+		{
+		}
+
 		virtual ~ConvexResultCallback()
 		{
 		}
-		btScalar	m_closestHitFraction;
-		bool	HasHit()
+		
+		bool	hasHit()
 		{
 			return (m_closestHitFraction < btScalar(1.));
 		}
 
-		ConvexResultCallback()
-			:m_closestHitFraction(btScalar(1.))
+		
+
+		virtual bool needsCollision(btBroadphaseProxy* proxy0) const
 		{
+			bool collides = (proxy0->m_collisionFilterGroup & m_collisionFilterMask) != 0;
+			collides = collides && (m_collisionFilterGroup & proxy0->m_collisionFilterMask);
+			return collides;
 		}
-		virtual	btScalar	AddSingleResult(LocalConvexResult& convexResult,bool normalInWorldSpace) = 0;
+
+		virtual	btScalar	addSingleResult(LocalConvexResult& convexResult,bool normalInWorldSpace) = 0;
 	};
 
 	struct	ClosestConvexResultCallback : public ConvexResultCallback
@@ -287,7 +316,7 @@ public:
 		btVector3	m_hitPointWorld;
 		btCollisionObject*	m_hitCollisionObject;
 		
-		virtual	btScalar	AddSingleResult(LocalConvexResult& convexResult,bool normalInWorldSpace)
+		virtual	btScalar	addSingleResult(LocalConvexResult& convexResult,bool normalInWorldSpace)
 		{
 //caller already does the filter on the m_closestHitFraction
 			btAssert(convexResult.m_hitFraction <= m_closestHitFraction);
@@ -314,11 +343,11 @@ public:
 
 	/// rayTest performs a raycast on all objects in the btCollisionWorld, and calls the resultCallback
 	/// This allows for several queries: first hit, all hits, any hit, dependent on the value returned by the callback.
-	void	rayTest(const btVector3& rayFromWorld, const btVector3& rayToWorld, RayResultCallback& resultCallback, short int collisionFilterMask=-1) const; 
+	void	rayTest(const btVector3& rayFromWorld, const btVector3& rayToWorld, RayResultCallback& resultCallback) const; 
 
 	// convexTest performs a swept convex cast on all objects in the btCollisionWorld, and calls the resultCallback
 	// This allows for several queries: first hit, all hits, any hit, dependent on the value return by the callback.
-	void    convexSweepTest (const btConvexShape* castShape, const btTransform& from, const btTransform& to, ConvexResultCallback& resultCallback, short int collisionFilterMask=-1) const;
+	void    convexSweepTest (const btConvexShape* castShape, const btTransform& from, const btTransform& to, ConvexResultCallback& resultCallback) const;
 
 
 	/// rayTestSingle performs a raycast call and calls the resultCallback. It is used internally by rayTest.
@@ -328,16 +357,16 @@ public:
 					  btCollisionObject* collisionObject,
 					  const btCollisionShape* collisionShape,
 					  const btTransform& colObjWorldTransform,
-					  RayResultCallback& resultCallback, short int collisionFilterMask=-1);
+					  RayResultCallback& resultCallback);
 
 	/// objectQuerySingle performs a collision detection query and calls the resultCallback. It is used internally by rayTest.
 	static void	objectQuerySingle(const btConvexShape* castShape, const btTransform& rayFromTrans,const btTransform& rayToTrans,
 					  btCollisionObject* collisionObject,
 					  const btCollisionShape* collisionShape,
 					  const btTransform& colObjWorldTransform,
-					  ConvexResultCallback& resultCallback, btScalar	allowedPenetration, short int collisionFilterMask=-1);
+					  ConvexResultCallback& resultCallback, btScalar	allowedPenetration);
 
-	void	addCollisionObject(btCollisionObject* collisionObject,short int collisionFilterGroup=1,short int collisionFilterMask=1);
+	void	addCollisionObject(btCollisionObject* collisionObject,short int collisionFilterGroup=btBroadphaseProxy::DefaultFilter,short int collisionFilterMask=btBroadphaseProxy::AllFilter);
 
 	btCollisionObjectArray& getCollisionObjectArray()
 	{

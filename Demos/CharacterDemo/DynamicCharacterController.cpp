@@ -90,12 +90,12 @@ void DynamicCharacterController::preStep (const btCollisionWorld* collisionWorld
 			m_me = me;
 		}
 
-		virtual btScalar AddSingleResult(btCollisionWorld::LocalRayResult& rayResult,bool normalInWorldSpace)
+		virtual btScalar addSingleResult(btCollisionWorld::LocalRayResult& rayResult,bool normalInWorldSpace)
 		{
 			if (rayResult.m_collisionObject == m_me)
 				return 1.0;
 
-			return ClosestRayResultCallback::AddSingleResult (rayResult, normalInWorldSpace
+			return ClosestRayResultCallback::addSingleResult (rayResult, normalInWorldSpace
 		);
 	}
 	protected:
@@ -109,7 +109,7 @@ void DynamicCharacterController::preStep (const btCollisionWorld* collisionWorld
 	{
 		rayCallback.m_closestHitFraction = 1.0;
 		collisionWorld->rayTest (m_raySource[i], m_rayTarget[i], rayCallback);
-		if (rayCallback.HasHit())
+		if (rayCallback.hasHit())
 		{
 			m_rayLambda[i] = rayCallback.m_closestHitFraction;
 		} else {

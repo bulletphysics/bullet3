@@ -162,7 +162,7 @@ public:
 			btTransform from(qFrom, source[i]);
 			btTransform to(qTo, dest[i]);
 			cw->convexSweepTest (&boxShape, from, to, cb);
-			if (cb.HasHit ())
+			if (cb.hasHit ())
 			{
 				hit_surface[i] = cb.m_hitPointWorld;
 				hit_com[i].setInterpolate3(source[i], dest[i], cb.m_closestHitFraction);

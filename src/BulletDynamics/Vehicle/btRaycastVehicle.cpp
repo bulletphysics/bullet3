@@ -712,7 +712,7 @@ void* btDefaultVehicleRaycaster::castRay(const btVector3& from,const btVector3& 
 
 	m_dynamicsWorld->rayTest(from, to, rayCallback);
 
-	if (rayCallback.HasHit())
+	if (rayCallback.hasHit())
 	{
 		
 		btRigidBody* body = btRigidBody::upcast(rayCallback.m_collisionObject);

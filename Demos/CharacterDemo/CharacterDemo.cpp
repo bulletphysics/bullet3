@@ -46,7 +46,7 @@ static int gJump = 0;
 ///playerStepCallback is the main function that is updating the character.
 ///Register this callback using: m_dynamicsWorld->setInternalTickCallback(playerStepCallback,m_character);
 ///This function will be called at the end of each internal simulation time step
-void playerStepCallback(const btDynamicsWorld* dynamicsWorld, btScalar timeStep)
+void playerStepCallback(btDynamicsWorld* dynamicsWorld, btScalar timeStep)
 {
 	CharacterControllerInterface* characterInterface= (CharacterControllerInterface*) dynamicsWorld->getWorldUserInfo();
 	characterInterface->preStep (dynamicsWorld);
@@ -501,10 +501,9 @@ const float TRIANGLE_SIZE=20.f;
 	sweepBP->setOverlappingPairUserCallback(m_customPairCallback);
 	m_character->registerPairCacheAndDispatcher (m_customPairCallback->getOverlappingPairCache(), m_dispatcher);
 
-	m_dynamicsWorld->addCollisionObject(m_character->getCollisionObject(),btBroadphaseProxy::DebrisFilter, btBroadphaseProxy::StaticFilter);//AllFilter);
-
+	///only collide with static for now (no interaction with dynamic objects)
+	m_dynamicsWorld->addCollisionObject(m_character->getCollisionObject(),btBroadphaseProxy::DebrisFilter, btBroadphaseProxy::StaticFilter);
 	
-
 	clientResetScene();
 
 	setCameraDistance(26.f);
