@@ -298,10 +298,19 @@
 			Name="Source Files"
 			Filter="">
 			<File
-				RelativePath="..\..\Demos\CharacterDemo\CharacterController.cpp">
+				RelativePath="..\..\Demos\CharacterDemo\..\BspDemo\BspConverter.cpp">
+			</File>
+			<File
+				RelativePath="..\..\Demos\CharacterDemo\..\BspDemo\BspLoader.cpp">
 			</File>
 			<File
 				RelativePath="..\..\Demos\CharacterDemo\CharacterDemo.cpp">
+			</File>
+			<File
+				RelativePath="..\..\Demos\CharacterDemo\DynamicCharacterController.cpp">
+			</File>
+			<File
+				RelativePath="..\..\Demos\CharacterDemo\KinematicCharacterController.cpp">
 			</File>
 			<File
 				RelativePath="..\..\Demos\CharacterDemo\main.cpp">
@@ -311,10 +320,22 @@
 			Name="Header Files"
 			Filter="">
 			<File
-				RelativePath="..\..\Demos\CharacterDemo\CharacterController.h">
+				RelativePath="..\..\Demos\CharacterDemo\..\BspDemo\BspConverter.h">
+			</File>
+			<File
+				RelativePath="..\..\Demos\CharacterDemo\..\BspDemo\BspLoader.h">
+			</File>
+			<File
+				RelativePath="..\..\Demos\CharacterDemo\CharacterControllerInterface.h">
 			</File>
 			<File
 				RelativePath="..\..\Demos\CharacterDemo\CharacterDemo.h">
+			</File>
+			<File
+				RelativePath="..\..\Demos\CharacterDemo\DynamicCharacterController.h">
+			</File>
+			<File
+				RelativePath="..\..\Demos\CharacterDemo\KinematicCharacterController.h">
 			</File>
 		</Filter>
 		<Filter

@@ -158,11 +158,23 @@ LINK32=link.exe
 # PROP Default_Filter ""
 # Begin Source File
 
-SOURCE=..\..\Demos\CharacterDemo\CharacterController.cpp
+SOURCE=..\..\Demos\CharacterDemo\..\BspDemo\BspConverter.cpp
+# End Source File
+# Begin Source File
+
+SOURCE=..\..\Demos\CharacterDemo\..\BspDemo\BspLoader.cpp
 # End Source File
 # Begin Source File
 
 SOURCE=..\..\Demos\CharacterDemo\CharacterDemo.cpp
+# End Source File
+# Begin Source File
+
+SOURCE=..\..\Demos\CharacterDemo\DynamicCharacterController.cpp
+# End Source File
+# Begin Source File
+
+SOURCE=..\..\Demos\CharacterDemo\KinematicCharacterController.cpp
 # End Source File
 # Begin Source File
 
@@ -174,11 +186,27 @@ SOURCE=..\..\Demos\CharacterDemo\main.cpp
 # PROP Default_Filter ""
 # Begin Source File
 
-SOURCE=..\..\Demos\CharacterDemo\CharacterController.h
+SOURCE=..\..\Demos\CharacterDemo\..\BspDemo\BspConverter.h
+# End Source File
+# Begin Source File
+
+SOURCE=..\..\Demos\CharacterDemo\..\BspDemo\BspLoader.h
+# End Source File
+# Begin Source File
+
+SOURCE=..\..\Demos\CharacterDemo\CharacterControllerInterface.h
 # End Source File
 # Begin Source File
 
 SOURCE=..\..\Demos\CharacterDemo\CharacterDemo.h
+# End Source File
+# Begin Source File
+
+SOURCE=..\..\Demos\CharacterDemo\DynamicCharacterController.h
+# End Source File
+# Begin Source File
+
+SOURCE=..\..\Demos\CharacterDemo\KinematicCharacterController.h
 # End Source File
 # End Group
 # Begin Group "Resource Files"
