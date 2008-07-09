@@ -41,6 +41,7 @@ static int     NumIterations = 10;
 static BOOL	   DisableDeactivation = NO;
 static BOOL	   DrawAABBs = NO;
 static BOOL	   DebugDraw = NO;
+static BOOL	   SplitImpulse = NO;
 static BOOL	   DrawContacts = NO;
 
 ///////////////////////////////////////////////////////////////////////
@@ -374,6 +375,16 @@ static BOOL	   DrawContacts = NO;
 + (BOOL) debugDraw
 {
 	return DebugDraw;
+}
+
++ (void) setSplitImpulse: (BOOL) splitImpulse
+{
+	SplitImpulse = splitImpulse;
+}
+
++ (BOOL) splitImpulse
+{
+	return SplitImpulse;
 }
 
 + (void) setDrawContacts: (BOOL) drawContacts

@@ -97,6 +97,9 @@ subject to the following restrictions:
 + (void) setDebugDraw: (BOOL) debugDraw;
 + (BOOL) debugDraw;
 
++ (void) setSplitImpulse: (BOOL) splitImpulse;
++ (BOOL) splitImpulse;
+
 + (void) setDrawContacts: (BOOL) drawContacts;
 + (BOOL) drawContacts;
 

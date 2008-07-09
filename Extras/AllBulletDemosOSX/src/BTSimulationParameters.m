@@ -72,6 +72,17 @@ subject to the following restrictions:
 	return [BTDemo debugDraw];
 }
 
+- (void) setSplitImpulse: (BOOL) splitImpulse
+{
+	[BTDemo setSplitImpulse: splitImpulse];
+}
+
+- (BOOL) splitImpulse
+{
+	return [BTDemo splitImpulse];
+}
+
+
 - (void) setDrawContacts: (BOOL) drawContacts
 {
 	[BTDemo setDrawContacts: drawContacts];
