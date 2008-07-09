@@ -1,3 +1,19 @@
+/*
+Bullet Continuous Collision Detection and Physics Library
+Copyright (c) 2003-2007 Erwin Coumans  http://continuousphysics.com/Bullet/
+
+This software is provided 'as-is', without any express or implied warranty.
+In no event will the authors be held liable for any damages arising from the use of this software.
+Permission is granted to anyone to use this software for any purpose, 
+including commercial applications, and to alter it and redistribute it freely, 
+subject to the following restrictions:
+
+1. The origin of this software must not be misrepresented; you must not claim that you wrote the original software. If you use this software in a product, an acknowledgment in the product documentation would be appreciated but is not required.
+2. Altered source versions must be plainly marked as such, and must not be misrepresented as being the original software.
+3. This notice may not be removed or altered from any source distribution.
+*/
+///btDbvtBroadphase implementation by Nathanael Presson
+
 #include "btDbvtBroadphase.h"
 
 //
@@ -120,7 +136,9 @@ void	Process(const btDbvt::Node* na,const btDbvt::Node* nb)
 //
 btDbvtBroadphase::btDbvtBroadphase(btOverlappingPairCache* paircache)
 {
+btDbvt::benchmark();
 m_releasepaircache	=	(paircache!=0)?false:true;
+m_predictedframes	=	2;
 m_stageCurrent		=	0;
 m_fupdates			=	1;
 m_dupdates			=	1;
@@ -198,9 +216,9 @@ if(proxy->stage==STAGECOUNT)
 		{/* Moving				*/ 
 		const btVector3	delta=(aabbMin+aabbMax)/2-proxy->aabb.Center();
 		#ifdef DBVT_BP_MARGIN
-		m_sets[0].update(proxy->leaf,aabb,delta*PREDICTED_FRAMES,DBVT_BP_MARGIN);
+		m_sets[0].update(proxy->leaf,aabb,delta*m_predictedframes,DBVT_BP_MARGIN);
 		#else
-		m_sets[0].update(proxy->leaf,aabb,delta*PREDICTED_FRAMES);
+		m_sets[0].update(proxy->leaf,aabb,delta*m_predictedframes);
 		#endif
 		}
 		else
@@ -246,8 +264,8 @@ void							btDbvtBroadphase::collide(btDispatcher* dispatcher)
 {
 SPC(m_profiling.m_total);
 /* optimize				*/ 
-m_sets[0].optimizeIncremental(1+(m_sets[0].m_leafs*m_dupdates)/100);
-m_sets[1].optimizeIncremental(1+(m_sets[1].m_leafs*m_fupdates)/100);
+m_sets[0].optimizeIncremental(1+(m_sets[0].m_leaves*m_dupdates)/100);
+m_sets[1].optimizeIncremental(1+(m_sets[1].m_leaves*m_fupdates)/100);
 /* dynamic -> fixed set	*/ 
 m_stageCurrent=(m_stageCurrent+1)%STAGECOUNT;
 btDbvtProxy*	current=m_stageRoots[m_stageCurrent];

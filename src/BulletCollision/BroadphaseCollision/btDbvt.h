@@ -19,27 +19,54 @@ subject to the following restrictions:
 
 #include "LinearMath/btAlignedObjectArray.h"
 #include "LinearMath/btVector3.h"
+#include "LinearMath/btTransform.h"
 
 //
 // Compile time configuration
 //
 
 #ifdef WIN32
-//#define	DBVT_USE_TEMPLATE
+#define	DBVT_USE_TEMPLATE		1	// Enable template for ICollide
+#else
+#define	DBVT_USE_TEMPLATE		0	// Enable template for ICollide
 #endif
 
-#ifdef DBVT_USE_TEMPLATE
+#define DBVT_USE_MEMMOVE		1	// Enable memmove (collideOCL)
+#define	DBVT_ENABLE_BENCHMARK	0	// Enable benchmarking code
+
+//
+// Auto config and checks
+//
+
+#if DBVT_USE_TEMPLATE
 #define	DBVT_VIRTUAL
-#define DBVT_VIRTUAL_DESTRUCTOR(a)
-#define DBVT_PREFIX		template <typename T>
-#define DBVT_IPOLICY	T& policy
-#define DBVT_CHECKTYPE	static const ICollide&	typechecker=*(T*)0;
+#define DBVT_VIRTUAL_DTOR(a)
+#define DBVT_PREFIX					template <typename T>
+#define DBVT_IPOLICY				T& policy
+#define DBVT_CHECKTYPE				static const ICollide&	typechecker=*(T*)0;
 #else
-#define	DBVT_VIRTUAL_DESTRUCTOR(a)	virtual ~a() {}
-#define DBVT_VIRTUAL	virtual
+#define	DBVT_VIRTUAL_DTOR(a)		virtual ~a() {}
+#define DBVT_VIRTUAL				virtual
 #define DBVT_PREFIX
-#define DBVT_IPOLICY	ICollide& policy
+#define DBVT_IPOLICY				ICollide& policy
 #define DBVT_CHECKTYPE
+#endif
+
+#if DBVT_USE_MEMMOVE
+#include <memory.h>
+#include <string.h>
+#endif
+
+#ifndef DBVT_USE_TEMPLATE
+#error "DBVT_USE_TEMPLATE undefined"
+#endif
+
+#ifndef DBVT_USE_MEMMOVE
+#error "DBVT_USE_MEMMOVE undefined"
+#endif
+
+#ifndef DBVT_ENABLE_BENCHMARK
+#error "DBVT_ENABLE_BENCHMARK undefined"
 #endif
 
 //
@@ -50,10 +77,10 @@ subject to the following restrictions:
 struct	btDbvtAabbMm
 {
 inline btVector3			Center() const	{ return((mi+mx)/2); }
-inline btVector3			Extent() const	{ return((mx-mi)/2); }
+inline btVector3			Lengths() const	{ return(mx-mi); }
+inline btVector3			Extents() const	{ return((mx-mi)/2); }
 inline const btVector3&		Mins() const	{ return(mi); }
 inline const btVector3&		Maxs() const	{ return(mx); }
-inline btVector3			Lengths() const	{ return(mx-mi); }
 static inline btDbvtAabbMm	FromCE(const btVector3& c,const btVector3& e);
 static inline btDbvtAabbMm	FromCR(const btVector3& c,btScalar r);
 static inline btDbvtAabbMm	FromMM(const btVector3& mi,const btVector3& mx);
@@ -67,6 +94,9 @@ inline btScalar				ProjectMinimum(const btVector3& v,unsigned signs) const;
 inline friend bool			Intersect(	const btDbvtAabbMm& a,
 										const btDbvtAabbMm& b);
 inline friend bool			Intersect(	const btDbvtAabbMm& a,
+										const btDbvtAabbMm& b,
+										const btTransform& xform);
+inline friend bool			Intersect(	const btDbvtAabbMm& a,
 										const btVector3& b);
 inline friend bool			Intersect(	const btDbvtAabbMm& a,
 										const btVector3& org,
@@ -79,6 +109,8 @@ inline friend void			Merge(	const btDbvtAabbMm& a,
 									btDbvtAabbMm& r);
 inline friend bool			NotEqual(	const btDbvtAabbMm& a,
 										const btDbvtAabbMm& b);
+private:
+inline void					AddSpan(const btVector3& d,btScalar& smi,btScalar& smx) const;
 private:
 btVector3	mi,mx;
 };
@@ -112,26 +144,34 @@ struct	btDbvt
 	struct	sStkNP
 		{
 		const Node*	node;
-		int	mask;
+		int			mask;
 		sStkNP(const Node* n,unsigned m) : node(n),mask(m) {}
 		};
 	struct	sStkNPS
 		{
 		const Node*	node;
-		int	mask;
+		int			mask;
 		btScalar	value;
+		sStkNPS() {}
 		sStkNPS(const Node* n,unsigned m,btScalar v) : node(n),mask(m),value(v) {}
+		};
+	struct	sStkCLN
+		{
+		const Node*	node;
+		Node*		parent;
+		sStkCLN(const Node* n,Node* p) : node(n),parent(p) {}
 		};
 	// Policies/Interfaces
 			
 	/* ICollide	*/ 
 	struct	ICollide
 		{		
-		DBVT_VIRTUAL_DESTRUCTOR(ICollide)
+		DBVT_VIRTUAL_DTOR(ICollide)
 		DBVT_VIRTUAL void	Process(const Node*,const Node*)		{}
 		DBVT_VIRTUAL void	Process(const Node*)					{}
+		DBVT_VIRTUAL void	Process(const Node* n,btScalar)			{ Process(n); }
 		DBVT_VIRTUAL bool	Descent(const Node*)					{ return(true); }
-		DBVT_VIRTUAL bool	AllLeafs(const Node*)					{ return(true); }
+		DBVT_VIRTUAL bool	AllLeaves(const Node*)					{ return(true); }
 		};
 	/* IWriter	*/ 
 	struct	IWriter
@@ -140,6 +180,12 @@ struct	btDbvt
 		virtual void		Prepare(const Node* root,int numnodes)=0;
 		virtual void		WriteNode(const Node*,int index,int parent,int child0,int child1)=0;
 		virtual void		WriteLeaf(const Node*,int index,int parent)=0;
+		};
+	/* IClone	*/ 
+	struct	IClone
+		{
+		virtual ~IClone()	{}
+		virtual void		CloneLeaf(Node*) {}
 		};
 		
 	// Constants
@@ -152,7 +198,7 @@ struct	btDbvt
 	Node*			m_root;
 	Node*			m_free;
 	int				m_lkhd;
-	int				m_leafs;
+	int				m_leaves;
 	unsigned		m_opath;
 	// Methods
 					btDbvt();
@@ -167,19 +213,38 @@ struct	btDbvt
 	void			update(Node* leaf,const Volume& volume);
 	bool			update(Node* leaf,Volume volume,const btVector3& velocity,btScalar margin);
 	bool			update(Node* leaf,Volume volume,const btVector3& velocity);
-	bool			update(Node* leaf,Volume volume,btScalar margin);
+	bool			update(Node* leaf,Volume volume,btScalar margin);	
 	void			remove(Node* leaf);
 	void			write(IWriter* iwriter) const;
+	void			clone(btDbvt& dest,IClone* iclone=0) const;	
+	static int		countLeaves(const Node* node);
+	static void		extractLeaves(const Node* node,btAlignedObjectArray<const Node*>& leaves);
+	#if DBVT_ENABLE_BENCHMARK
+	static void		benchmark();
+	#else
+	static void		benchmark(){}
+	#endif
 	// DBVT_IPOLICY must support ICollide policy/interface
 	DBVT_PREFIX
 	static void		enumNodes(	const Node* root,
 								DBVT_IPOLICY);
 	DBVT_PREFIX
-	static void		enumLeafs(	const Node* root,
+	static void		enumLeaves(	const Node* root,
 								DBVT_IPOLICY);
 	DBVT_PREFIX
 	static void		collideTT(	const Node* root0,
 								const Node* root1,
+								DBVT_IPOLICY);
+	DBVT_PREFIX
+	static void		collideTT(	const Node* root0,
+								const Node* root1,
+								const btTransform& xform,
+								DBVT_IPOLICY);
+	DBVT_PREFIX
+	static void		collideTT(	const Node* root0,
+								const btTransform& xform0,
+								const Node* root1,
+								const btTransform& xform1,
 								DBVT_IPOLICY);
 	DBVT_PREFIX
 	static void		collideTV(	const Node* root,
@@ -202,13 +267,36 @@ struct	btDbvt
 								const btScalar* offsets,
 								const btVector3& sortaxis,
 								int count,								
-								DBVT_IPOLICY);
+								DBVT_IPOLICY,
+								bool fullsort=true);
 	DBVT_PREFIX
 	static void		collideTU(	const Node* root,
 								DBVT_IPOLICY);
+	// Helpers	
+	static inline int		nearest(const int* i,const btDbvt::sStkNPS* a,btScalar v,int l,int h)
+		{
+		int	m=0;
+		while(l<h)
+			{
+			m=(l+h)>>1;
+			if(a[i[m]].value>=v) l=m+1; else h=m;
+			}
+		return(h);
+		}
+	static inline int		allocate(	btAlignedObjectArray<int>& ifree,
+										btAlignedObjectArray<btDbvt::sStkNPS>& stock,
+										const btDbvt::sStkNPS& value)
+		{
+		int	i;
+		if(ifree.size()>0)
+			{ i=ifree[ifree.size()-1];ifree.pop_back();stock[i]=value; }
+			else
+			{ i=stock.size();stock.push_back(value); }
+		return(i); 
+		}
 	//
 	private:
-	btDbvt(const btDbvt&)	{}
+					btDbvt(const btDbvt&)	{}	
 	};
 
 //
@@ -325,31 +413,45 @@ const btVector3		p(	b[(signs>>0)&1]->x(),
 						b[(signs>>2)&1]->z());
 return(dot(p,v));
 }
+
+//
+inline void				btDbvtAabbMm::AddSpan(const btVector3& d,btScalar& smi,btScalar& smx) const
+{
+for(int i=0;i<3;++i)
+	{
+	if(d[i]<0)
+		{ smi+=mx[i]*d[i];smx+=mi[i]*d[i]; }
+		else
+		{ smi+=mi[i]*d[i];smx+=mx[i]*d[i]; }
+	}
+}
 	
 //
 inline bool				Intersect(	const btDbvtAabbMm& a,
 									const btDbvtAabbMm& b)
 {
-#if 0
-const btScalar	mi[]={	b.mx.x()-a.mi.x(),
-						b.mx.y()-a.mi.y(),
-						b.mx.z()-a.mi.z()};
-const unsigned*	imi=(const unsigned*)mi;
-if((imi[0]|imi[1]|imi[2])&0x80000000) return(false);
-const btScalar	mx[]={	a.mx.x()-b.mi.x(),
-						a.mx.y()-b.mi.y(),
-						a.mx.z()-b.mi.z()};
-const unsigned*	imx=(const unsigned*)mx;
-if((imx[0]|imx[1]|imx[2])&0x80000000) return(false);
-return(true);
-#else
 return(	(a.mi.x()<=b.mx.x())&&
-		(a.mi.y()<=b.mx.y())&&
-		(a.mi.z()<=b.mx.z())&&
 		(a.mx.x()>=b.mi.x())&&
+		(a.mi.y()<=b.mx.y())&&
 		(a.mx.y()>=b.mi.y())&&
+		(a.mi.z()<=b.mx.z())&&		
 		(a.mx.z()>=b.mi.z()));
-#endif
+}
+
+//
+inline bool				Intersect(	const btDbvtAabbMm& a,
+									const btDbvtAabbMm& b,
+									const btTransform& xform)
+{
+const btVector3		d0=xform*b.Center()-a.Center();
+const btVector3		d1=d0*xform.getBasis();
+btScalar			s0[2]={0,0};
+btScalar			s1[2]={dot(xform.getOrigin(),d0),s1[0]};
+a.AddSpan(d0,s0[0],s0[1]);
+b.AddSpan(d1,s1[0],s1[1]);
+if(s0[0]>(s1[1])) return(false);
+if(s0[1]<(s1[0])) return(false);
+return(true);
 }
 
 //
@@ -399,9 +501,11 @@ inline void				Merge(	const btDbvtAabbMm& a,
 								const btDbvtAabbMm& b,
 								btDbvtAabbMm& r)
 {
-r=a;
-r.mi.setMin(b.mi);
-r.mx.setMax(b.mx);
+for(int i=0;i<3;++i)
+	{
+	if(a.mi[i]<b.mi[i]) r.mi[i]=a.mi[i]; else r.mi[i]=b.mi[i];
+	if(a.mx[i]>b.mx[i]) r.mx[i]=a.mx[i]; else r.mx[i]=b.mx[i];
+	}
 }
 
 //
@@ -436,14 +540,14 @@ if(root->isinternal())
 
 //
 DBVT_PREFIX
-inline void		btDbvt::enumLeafs(	const Node* root,
+inline void		btDbvt::enumLeaves(	const Node* root,
 									DBVT_IPOLICY)
 {
 DBVT_CHECKTYPE
 if(root->isinternal())
 	{
-	enumLeafs(root->childs[0],policy);
-	enumLeafs(root->childs[1],policy);
+	enumLeaves(root->childs[0],policy);
+	enumLeaves(root->childs[1],policy);
 	}
 	else
 	{
@@ -507,6 +611,68 @@ if(root0&&root1)
 			}
 		} while(stack.size()>0);
 	}
+}
+
+//
+DBVT_PREFIX
+inline void		btDbvt::collideTT(	const Node* root0,
+									const Node* root1,
+									const btTransform& xform,
+									DBVT_IPOLICY)
+{
+DBVT_CHECKTYPE
+if(root0&&root1)
+	{
+	btAlignedObjectArray<sStkNN>	stack;
+	stack.reserve(DOUBLE_STACKSIZE);
+	stack.push_back(sStkNN(root0,root1));
+	do	{
+		sStkNN	p=stack[stack.size()-1];
+		stack.pop_back();
+		if(Intersect(p.a->volume,p.b->volume,xform))
+			{
+			if(p.a->isinternal())
+				{
+				if(p.b->isinternal())
+					{
+					stack.push_back(sStkNN(p.a->childs[0],p.b->childs[0]));
+					stack.push_back(sStkNN(p.a->childs[1],p.b->childs[0]));
+					stack.push_back(sStkNN(p.a->childs[0],p.b->childs[1]));
+					stack.push_back(sStkNN(p.a->childs[1],p.b->childs[1]));
+					}
+					else
+					{
+					stack.push_back(sStkNN(p.a->childs[0],p.b));
+					stack.push_back(sStkNN(p.a->childs[1],p.b));
+					}
+				}
+				else
+				{
+				if(p.b->isinternal())
+					{
+					stack.push_back(sStkNN(p.a,p.b->childs[0]));
+					stack.push_back(sStkNN(p.a,p.b->childs[1]));
+					}
+					else
+					{
+					policy.Process(p.a,p.b);
+					}
+				}
+			}
+		} while(stack.size()>0);
+	}
+}
+
+//
+DBVT_PREFIX
+inline void		btDbvt::collideTT(	const Node* root0,
+									const btTransform& xform0,
+									const Node* root1,
+									const btTransform& xform1,
+									DBVT_IPOLICY)
+{
+const btTransform	xform=xform0.inverse()*xform1;
+collideTT(root0,root1,xform,policy);
 }
 
 //
@@ -627,7 +793,7 @@ if(root)
 				}
 				else
 				{
-				if(policy.AllLeafs(se.node)) enumLeafs(se.node,policy);
+				if(policy.AllLeaves(se.node)) enumLeaves(se.node,policy);
 				}
 			}
 		} while(stack.size());
@@ -641,7 +807,8 @@ inline void		btDbvt::collideOCL(	const Node* root,
 									const btScalar* offsets,
 									const btVector3& sortaxis,
 									int count,
-									DBVT_IPOLICY)
+									DBVT_IPOLICY,
+									bool fsort)
 {
 DBVT_CHECKTYPE
 if(root)
@@ -650,7 +817,9 @@ if(root)
 											(sortaxis[1]>=0?2:0)+
 											(sortaxis[2]>=0?4:0);
 	const int						inside=(1<<count)-1;
-	btAlignedObjectArray<sStkNPS>	stack;
+	btAlignedObjectArray<sStkNPS>	stock;
+	btAlignedObjectArray<int>		ifree;
+	btAlignedObjectArray<int>		stack;
 	int								signs[sizeof(unsigned)*8];
 	btAssert(count<(sizeof(signs)/sizeof(signs[0])));
 	for(int i=0;i<count;++i)
@@ -659,11 +828,14 @@ if(root)
 					((normals[i].y()>=0)?2:0)+
 					((normals[i].z()>=0)?4:0);
 		}
+	stock.reserve(SIMPLE_STACKSIZE);
 	stack.reserve(SIMPLE_STACKSIZE);
-	stack.push_back(sStkNPS(root,0,root->volume.ProjectMinimum(sortaxis,srtsgns)));
+	ifree.reserve(SIMPLE_STACKSIZE);
+	stack.push_back(allocate(ifree,stock,sStkNPS(root,0,root->volume.ProjectMinimum(sortaxis,srtsgns))));
 	do	{
-		sStkNPS	se=stack[stack.size()-1];
-		stack.pop_back();
+		const int	id=stack[stack.size()-1];
+		sStkNPS		se=stock[id];
+		stack.pop_back();ifree.push_back(id);
 		if(se.mask!=inside)
 			{
 			bool	out=false;
@@ -685,21 +857,41 @@ if(root)
 			{
 			if(se.node->isinternal())
 				{
-				for(int i=0;i<2;++i)
+				const Node* pns[]={	se.node->childs[0],se.node->childs[1]};
+				sStkNPS		nes[]={	sStkNPS(pns[0],se.mask,pns[0]->volume.ProjectMinimum(sortaxis,srtsgns)),
+									sStkNPS(pns[1],se.mask,pns[1]->volume.ProjectMinimum(sortaxis,srtsgns))};
+				const int	q=nes[0].value<nes[1].value?1:0;				
+				int			j=stack.size();
+				if(fsort&&(j>0))
 					{
-					const Node* n=se.node->childs[i];
-					int			j=stack.size();
-					sStkNPS		ne(n,se.mask,n->volume.ProjectMinimum(sortaxis,srtsgns));
-					stack.push_back(ne);
-					while((j>0)&&(ne.value>stack[j-1].value))
-						{
-						btSwap(stack[j],stack[j-1]);--j;
-						}
+					/* Insert 0	*/ 
+					j=nearest(&stack[0],&stock[0],nes[q].value,0,stack.size());
+					stack.push_back(0);
+					#if DBVT_USE_MEMMOVE
+					memmove(&stack[j+1],&stack[j],sizeof(int)*(stack.size()-j-1));
+					#else
+					for(int k=stack.size()-1;k>j;--k) stack[k]=stack[k-1];
+					#endif
+					stack[j]=allocate(ifree,stock,nes[q]);
+					/* Insert 1	*/ 
+					j=nearest(&stack[0],&stock[0],nes[1-q].value,j,stack.size());
+					stack.push_back(0);
+					#if DBVT_USE_MEMMOVE
+					memmove(&stack[j+1],&stack[j],sizeof(int)*(stack.size()-j-1));
+					#else
+					for(int k=stack.size()-1;k>j;--k) stack[k]=stack[k-1];
+					#endif
+					stack[j]=allocate(ifree,stock,nes[1-q]);
+					}
+					else
+					{
+					stack.push_back(allocate(ifree,stock,nes[q]));
+					stack.push_back(allocate(ifree,stock,nes[1-q]));
 					}
 				}
 				else
 				{
-				policy.Process(se.node);
+				policy.Process(se.node,se.value);
 				}
 			}
 		} while(stack.size());
@@ -735,10 +927,9 @@ if(root)
 // PP Cleanup
 //
 
-#ifdef DBVT_USE_TEMPLATE
-	#undef DBVT_USE_TEMPLATE
-#endif
-#undef DBVT_VIRTUAL_DESTRUCTOR
+#undef DBVT_USE_MEMMOVE
+#undef DBVT_USE_TEMPLATE
+#undef DBVT_VIRTUAL_DTOR
 #undef DBVT_VIRTUAL
 #undef DBVT_PREFIX
 #undef DBVT_IPOLICY

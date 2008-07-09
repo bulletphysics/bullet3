@@ -70,8 +70,8 @@ if(node)
 	if(depth>=mindepth)
 		{
 		const btScalar	scl=(btScalar)(node->isinternal()?1:1);
-		const btVector3	mi=node->volume.Center()-node->volume.Extent()*scl;
-		const btVector3	mx=node->volume.Center()+node->volume.Extent()*scl;
+		const btVector3	mi=node->volume.Center()-node->volume.Extents()*scl;
+		const btVector3	mx=node->volume.Center()+node->volume.Extents()*scl;
 		drawBox(idraw,mi,mx,node->isleaf()?lcolor:ncolor);
 		}
 	}

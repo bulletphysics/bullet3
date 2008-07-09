@@ -62,12 +62,12 @@ enum	{
 		DYNAMIC_SET			=	0,	/* Dynamic set index	*/ 
 		FIXED_SET			=	1,	/* Fixed set index		*/ 
 		STAGECOUNT			=	2,	/* Number of stages		*/ 
-		PREDICTED_FRAMES	=	2	/* Frames prediction	*/ 
 		};
 /* Fields		*/ 
 btDbvt					m_sets[2];					// Dbvt sets
 btDbvtProxy*			m_stageRoots[STAGECOUNT+1];	// Stages list
 btOverlappingPairCache*	m_paircache;				// Pair cache
+btScalar				m_predictedframes;			// Frames predicted
 int						m_stageCurrent;				// Current stage
 int						m_fupdates;					// % of fixed updates per frame
 int						m_dupdates;					// % of dynamic updates per frame
@@ -100,4 +100,3 @@ void							printStats();
 };
 
 #endif
-
