@@ -7,7 +7,7 @@
 
 class btCollisionShape;
 class btRigidBody;
-class btDynamicsWorld;
+class btCollisionWorld;
 class btCollisionDispatcher;
 
 
@@ -47,11 +47,11 @@ protected:
 	bool m_touchingContact;
 	btVector3 m_touchingNormal;
 	
-	bool recoverFromPenetration (const btDynamicsWorld* dynamicsWorld);
-	void stepUp (const btDynamicsWorld* dynamicsWorld);
+	bool recoverFromPenetration (const btCollisionWorld* collisionWorld);
+	void stepUp (const btCollisionWorld* collisionWorld);
 	void updateTargetPositionBasedOnCollision (const btVector3& hit_normal, btScalar tangentMag = btScalar(0.0), btScalar normalMag = btScalar(1.0));
-	void stepForwardAndStrafe (const btDynamicsWorld* dynamicsWorld, const btVector3& walkMove);
-	void stepDown (const btDynamicsWorld* dynamicsWorld, btScalar dt);
+	void stepForwardAndStrafe (const btCollisionWorld* collisionWorld, const btVector3& walkMove);
+	void stepDown (const btCollisionWorld* collisionWorld, btScalar dt);
 public:
 	KinematicCharacterController ();
 	~KinematicCharacterController ();
@@ -64,8 +64,8 @@ public:
 	void warp (const btVector3& origin);
 
 	virtual void registerPairCacheAndDispatcher (btOverlappingPairCache* pairCache, btCollisionDispatcher* dispatcher);
-	void preStep (const btDynamicsWorld* dynamicsWorld);
-	void playerStep (const btDynamicsWorld* dynamicsWorld, btScalar dt,
+	void preStep (const btCollisionWorld* collisionWorld);
+	void playerStep (const btCollisionWorld* collisionWorld, btScalar dt,
 					 int forward,
 					 int backward,
 					 int left,

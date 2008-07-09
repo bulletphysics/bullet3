@@ -1,6 +1,6 @@
 #include "BulletCollision/CollisionShapes/btMultiSphereShape.h"
 #include "BulletDynamics/Dynamics/btRigidBody.h"
-#include "BulletDynamics/Dynamics/btDynamicsWorld.h"
+#include "BulletCollision/CollisionDispatch/btCollisionWorld.h"
 #include "LinearMath/btDefaultMotionState.h"
 #include "DynamicCharacterController.h"
 
@@ -67,7 +67,7 @@ btCollisionObject* DynamicCharacterController::getCollisionObject ()
 	return m_rigidBody;
 }
 
-void DynamicCharacterController::preStep (const btDynamicsWorld* dynamicsWorld)
+void DynamicCharacterController::preStep (const btCollisionWorld* collisionWorld)
 {
 	btTransform xform;
 	m_rigidBody->getMotionState()->getWorldTransform (xform);
@@ -108,7 +108,7 @@ void DynamicCharacterController::preStep (const btDynamicsWorld* dynamicsWorld)
 	for (i = 0; i < 2; i++)
 	{
 		rayCallback.m_closestHitFraction = 1.0;
-		dynamicsWorld->rayTest (m_raySource[i], m_rayTarget[i], rayCallback);
+		collisionWorld->rayTest (m_raySource[i], m_rayTarget[i], rayCallback);
 		if (rayCallback.HasHit())
 		{
 			m_rayLambda[i] = rayCallback.m_closestHitFraction;
@@ -118,7 +118,7 @@ void DynamicCharacterController::preStep (const btDynamicsWorld* dynamicsWorld)
 	}
 }
 
-void DynamicCharacterController::playerStep (const btDynamicsWorld* dynaWorld,btScalar dt,
+void DynamicCharacterController::playerStep (const btCollisionWorld* dynaWorld,btScalar dt,
 					 int forward,
 					 int backward,
 					 int left,

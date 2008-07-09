@@ -1,12 +1,10 @@
-#include <stdio.h>
 
 #include "GLDebugDrawer.h"
 
 #include "BulletCollision/CollisionShapes/btMultiSphereShape.h"
 #include "BulletCollision/BroadphaseCollision/btOverlappingPairCache.h"
 #include "BulletCollision/BroadphaseCollision/btCollisionAlgorithm.h"
-#include "BulletDynamics/Dynamics/btRigidBody.h"
-#include "BulletDynamics/Dynamics/btDynamicsWorld.h"
+#include "BulletCollision/CollisionDispatch/btCollisionWorld.h"
 #include "LinearMath/btDefaultMotionState.h"
 #include "KinematicCharacterController.h"
 
@@ -87,7 +85,7 @@ btVector3 perpindicularComponent (const btVector3& direction, const btVector3& n
 KinematicCharacterController::KinematicCharacterController ()
 {
 	m_turnAngle = btScalar(0.0);
-	m_walkVelocity = btScalar(1.1) * 14.0; // 4 km/h -> 1.1 m/s
+	m_walkVelocity = btScalar(1.1) * 4.0; // 4 km/h -> 1.1 m/s
 	m_shape = NULL;
 	m_pairCache = NULL;
 	m_collisionObject = NULL;
@@ -117,7 +115,7 @@ void KinematicCharacterController::setup (btScalar height, btScalar width, btSca
 	startTransform.setIdentity ();
 	startTransform.setOrigin (btVector3(0.0, 4.0, 0.0));
 	//btDefaultMotionState* myMotionState = new btDefaultMotionState(startTransform);
-	//btRigidBody::btRigidBodyConstructionInfo cInfo(1.0, myMotionState, m_shape);
+	
 	m_collisionObject = new btCollisionObject ();
 
 	m_collisionObject->setWorldTransform(startTransform);
@@ -144,7 +142,7 @@ btCollisionObject* KinematicCharacterController::getCollisionObject ()
 	return m_collisionObject;
 }
 
-bool KinematicCharacterController::recoverFromPenetration (const btDynamicsWorld* dynamicsWorld)
+bool KinematicCharacterController::recoverFromPenetration (const btCollisionWorld* collisionWorld)
 {
 
 	if (m_pairCache == NULL)
@@ -153,7 +151,7 @@ bool KinematicCharacterController::recoverFromPenetration (const btDynamicsWorld
 	bool penetration = false;
 
 	
-	m_dispatcher->dispatchAllCollisionPairs (m_pairCache, dynamicsWorld->getDispatchInfo(), m_dispatcher);
+	m_dispatcher->dispatchAllCollisionPairs (m_pairCache, collisionWorld->getDispatchInfo(), m_dispatcher);
 
 	m_currentPosition = m_collisionObject->getWorldTransform().getOrigin();
 	
@@ -201,7 +199,7 @@ bool KinematicCharacterController::recoverFromPenetration (const btDynamicsWorld
 	return penetration;
 }
 
-void KinematicCharacterController::stepUp (const btDynamicsWorld* dynamicsWorld)
+void KinematicCharacterController::stepUp (const btCollisionWorld* world)
 {
 	// phase 1: up
 	btTransform start, end;
@@ -216,7 +214,7 @@ void KinematicCharacterController::stepUp (const btDynamicsWorld* dynamicsWorld)
 
 	ClosestNotMeConvexResultCallback callback (m_collisionObject);
 	
-	dynamicsWorld->convexSweepTest (m_shape, start, end, callback);
+	world->convexSweepTest (m_shape, start, end, callback);
 
 	if (callback.HasHit())
 	{
@@ -265,7 +263,7 @@ void KinematicCharacterController::updateTargetPositionBasedOnCollision (const b
 	}
 }
 
-void KinematicCharacterController::stepForwardAndStrafe (const btDynamicsWorld* dynamicsWorld, const btVector3& walkMove)
+void KinematicCharacterController::stepForwardAndStrafe (const btCollisionWorld* collisionWorld, const btVector3& walkMove)
 {
 
 	btVector3 originalDir = walkMove.normalized();
@@ -301,7 +299,7 @@ void KinematicCharacterController::stepForwardAndStrafe (const btDynamicsWorld* 
 
 		//btScalar margin = m_shape->getMargin();
 		//m_shape->setMargin(margin - 0.06f);
-		dynamicsWorld->convexSweepTest (m_shape, start, end, callback);
+		collisionWorld->convexSweepTest (m_shape, start, end, callback);
 		//m_shape->setMargin(margin);
 
 		
@@ -350,7 +348,7 @@ void KinematicCharacterController::stepForwardAndStrafe (const btDynamicsWorld* 
 	}
 }
 
-void KinematicCharacterController::stepDown (const btDynamicsWorld* dynamicsWorld, btScalar dt)
+void KinematicCharacterController::stepDown (const btCollisionWorld* collisionWorld, btScalar dt)
 {
 	btTransform start, end;
 
@@ -367,7 +365,7 @@ void KinematicCharacterController::stepDown (const btDynamicsWorld* dynamicsWorl
 
 	ClosestNotMeConvexResultCallback callback (m_collisionObject);
 	
-	dynamicsWorld->convexSweepTest (m_shape, start, end, callback);
+	collisionWorld->convexSweepTest (m_shape, start, end, callback);
 
 	if (callback.HasHit())
 	{
@@ -398,12 +396,12 @@ void KinematicCharacterController::registerPairCacheAndDispatcher (btOverlapping
 	m_dispatcher = dispatcher;
 }
 
-void KinematicCharacterController::preStep (const btDynamicsWorld* dynamicsWorld)
+void KinematicCharacterController::preStep (const btCollisionWorld* collisionWorld)
 {
 	
 	int numPenetrationLoops = 0;
 	m_touchingContact = false;
-	while (recoverFromPenetration (dynamicsWorld))
+	while (recoverFromPenetration (collisionWorld))
 	{
 		numPenetrationLoops++;
 		m_touchingContact = true;
@@ -435,7 +433,7 @@ void KinematicCharacterController::preStep (const btDynamicsWorld* dynamicsWorld
 	
 }
 
-void KinematicCharacterController::playerStep (const btDynamicsWorld* dynamicsWorld,
+void KinematicCharacterController::playerStep (const btCollisionWorld* collisionWorld,
 					 btScalar dt,
 					 int forward,
 					 int backward,
@@ -464,9 +462,9 @@ void KinematicCharacterController::playerStep (const btDynamicsWorld* dynamicsWo
 //	printf("walkDirection(%f,%f,%f)\n",walkDirection[0],walkDirection[1],walkDirection[2]);
 //	printf("walkSpeed=%f\n",walkSpeed);
 
-	stepUp (dynamicsWorld);
-	stepForwardAndStrafe (dynamicsWorld, walkDirection * walkSpeed);
-	stepDown (dynamicsWorld, dt);
+	stepUp (collisionWorld);
+	stepForwardAndStrafe (collisionWorld, walkDirection * walkSpeed);
+	stepDown (collisionWorld, dt);
 
 	xform.setOrigin (m_currentPosition);
 	m_collisionObject->setWorldTransform (xform);

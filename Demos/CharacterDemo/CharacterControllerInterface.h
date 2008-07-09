@@ -5,7 +5,7 @@
 
 class btCollisionShape;
 class btRigidBody;
-class btDynamicsWorld;
+class btCollisionWorld;
 
 class CharacterControllerInterface
 {
@@ -20,8 +20,8 @@ public:
 	virtual void reset () = 0;
 	virtual void warp (const btVector3& origin) = 0;
 	virtual void registerPairCacheAndDispatcher (btOverlappingPairCache* pairCache, btCollisionDispatcher* dispatcher)=0;
-	virtual void preStep (const btDynamicsWorld* dynamicsWorld) = 0;
-	virtual void playerStep (const btDynamicsWorld* dynamicsWorld, btScalar dt,
+	virtual void preStep (const btCollisionWorld* collisionWorld) = 0;
+	virtual void playerStep (const btCollisionWorld* collisionWorld, btScalar dt,
 					         int forward,
 							 int backward,
 							 int left,

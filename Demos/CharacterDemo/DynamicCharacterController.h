@@ -7,7 +7,7 @@
 
 class btCollisionShape;
 class btRigidBody;
-class btDynamicsWorld;
+class btCollisionWorld;
 
 ///DynamicCharacterController is obsolete/unsupported at the moment
 class DynamicCharacterController : public CharacterControllerInterface
@@ -39,8 +39,8 @@ public:
 
 	btCollisionObject* getCollisionObject ();
 
-	void preStep (const btDynamicsWorld* dynamicsWorld);
-	void playerStep (const btDynamicsWorld* dynaWorld,btScalar dt,
+	void preStep (const btCollisionWorld* collisionWorld);
+	void playerStep (const btCollisionWorld* collisionWorld,btScalar dt,
 					 int forward,
 					 int backward,
 					 int left,
