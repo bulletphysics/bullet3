@@ -4,8 +4,8 @@ Copyright (c) 2003-2006 Erwin Coumans  http://continuousphysics.com/Bullet/
 
 This software is provided 'as-is', without any express or implied warranty.
 In no event will the authors be held liable for any damages arising from the use of this software.
-Permission is granted to anyone to use this software for any purpose, 
-including commercial applications, and to alter it and redistribute it freely, 
+Permission is granted to anyone to use this software for any purpose,
+including commercial applications, and to alter it and redistribute it freely,
 subject to the following restrictions:
 
 1. The origin of this software must not be misrepresented; you must not claim that you wrote the original software. If you use this software in a product, an acknowledgment in the product documentation would be appreciated but is not required.
@@ -124,13 +124,13 @@ void CcdPhysicsDemo::createStack( btCollisionShape* boxShape, float halfCubeSize
 				-rowSize * halfCubeSize + halfCubeSize + j * 2.0f * halfCubeSize,
 				halfCubeSize + i * halfCubeSize * 2.0f,
 				zPos);
-			
+
 			trans.setOrigin(pos);
 			btScalar mass = 1.f;
 
 			btRigidBody* body = 0;
 			body = localCreateRigidBody(mass,trans,boxShape);
-#ifdef USER_DEFINED_FRICTION_MODEL	
+#ifdef USER_DEFINED_FRICTION_MODEL
 		///Advanced use: override the friction solver
 		body->m_frictionSolverType = USER_CONTACT_SOLVER_TYPE1;
 #endif //USER_DEFINED_FRICTION_MODEL
@@ -145,7 +145,7 @@ void CcdPhysicsDemo::createStack( btCollisionShape* boxShape, float halfCubeSize
 
 
 //by default, Bullet will use its own nearcallback, but you can override it using dispatcher->setNearCallback()
-void customNearCallback(btBroadphasePair& collisionPair, btCollisionDispatcher& dispatcher, btDispatcherInfo& dispatchInfo)
+void customNearCallback(btBroadphasePair& collisionPair, btCollisionDispatcher& dispatcher, const btDispatcherInfo& dispatchInfo)
 {
 		btCollisionObject* colObj0 = (btCollisionObject*)collisionPair.m_pProxy0->m_clientObject;
 		btCollisionObject* colObj1 = (btCollisionObject*)collisionPair.m_pProxy1->m_clientObject;
@@ -161,7 +161,7 @@ void customNearCallback(btBroadphasePair& collisionPair, btCollisionDispatcher& 
 			if (collisionPair.m_algorithm)
 			{
 				btManifoldResult contactPointResult(colObj0,colObj1);
-				
+
 				if (dispatchInfo.m_dispatchFunc == 		btDispatcherInfo::DISPATCH_DISCRETE)
 				{
 					//discrete collision detection query
@@ -196,7 +196,7 @@ extern int gTotalContactPoints;
 
 void CcdPhysicsDemo::clientMoveAndDisplay()
 {
-	glClear(GL_COLOR_BUFFER_BIT | GL_DEPTH_BUFFER_BIT); 
+	glClear(GL_COLOR_BUFFER_BIT | GL_DEPTH_BUFFER_BIT);
 
 
 #ifdef USE_KINEMATIC_GROUND
@@ -220,16 +220,16 @@ void CcdPhysicsDemo::clientMoveAndDisplay()
 
 
 	float dt = getDeltaTimeMicroseconds() * 0.000001f;
-	
+
 //	printf("dt = %f: ",dt);
-	
+
 	if (m_dynamicsWorld)
 	{
 
 //#define FIXED_STEP 1
 #ifdef FIXED_STEP
   		m_dynamicsWorld->stepSimulation(1.0f/60.f,0);
-	
+
 #else
 		//during idle mode, just run 1 simulation step maximum
 		int maxSimSubSteps = m_idle ? 1 : 1;
@@ -238,10 +238,10 @@ void CcdPhysicsDemo::clientMoveAndDisplay()
 
 		int numSimSteps = 0;
 		numSimSteps = m_dynamicsWorld->stepSimulation(dt,maxSimSubSteps);
-		
+
 		//optional but useful: debug drawing
 		m_dynamicsWorld->debugDrawWorld();
-		
+
 #ifdef VERBOSE_TIMESTEPPING_CONSOLEOUTPUT
 		if (!numSimSteps)
 			printf("Interpolated transforms\n");
@@ -260,12 +260,12 @@ void CcdPhysicsDemo::clientMoveAndDisplay()
 
 #endif
 	}
-	
-#ifdef USE_QUICKPROF 
-        btProfiler::beginBlock("render"); 
-#endif //USE_QUICKPROF 
-	
-	renderme(); 
+
+#ifdef USE_QUICKPROF
+        btProfiler::beginBlock("render");
+#endif //USE_QUICKPROF
+
+	renderme();
 
 
 	//render the graphics objects, with center of mass shift
@@ -274,9 +274,9 @@ void CcdPhysicsDemo::clientMoveAndDisplay()
 
 
 
-#ifdef USE_QUICKPROF 
-        btProfiler::endBlock("render"); 
-#endif 
+#ifdef USE_QUICKPROF
+        btProfiler::endBlock("render");
+#endif
 	glFlush();
 	//some additional debugging info
 #ifdef PRINT_CONTACT_STATISTICS
@@ -294,7 +294,7 @@ void CcdPhysicsDemo::clientMoveAndDisplay()
 
 void CcdPhysicsDemo::displayCallback(void) {
 
-	glClear(GL_COLOR_BUFFER_BIT | GL_DEPTH_BUFFER_BIT); 
+	glClear(GL_COLOR_BUFFER_BIT | GL_DEPTH_BUFFER_BIT);
 
 	renderme();
 
@@ -342,7 +342,7 @@ void	CcdPhysicsDemo::initPhysics()
 //	m_collisionShapes.push_back(new btBoxShape (btVector3(CUBE_HALF_EXTENTS,CUBE_HALF_EXTENTS,CUBE_HALF_EXTENTS)));
 	m_collisionShapes.push_back(new btCylinderShape (btVector3(CUBE_HALF_EXTENTS,CUBE_HALF_EXTENTS,CUBE_HALF_EXTENTS)));
 #endif
-	
+
 
 
 #ifdef DO_BENCHMARK_PYRAMIDS
@@ -355,7 +355,7 @@ void	CcdPhysicsDemo::initPhysics()
 
 	m_dispatcher=0;
 	m_collisionConfiguration = new btDefaultCollisionConfiguration();
-	
+
 #ifdef USE_PARALLEL_DISPATCHER
 int maxNumOutstandingTasks = 4;
 
@@ -397,7 +397,7 @@ int maxNumOutstandingTasks = 4;
 	m_dispatcher = new	SpuGatheringCollisionDispatcher(m_threadSupportCollision,maxNumOutstandingTasks,m_collisionConfiguration);
 //	m_dispatcher = new	btCollisionDispatcher(m_collisionConfiguration);
 #else
-	
+
 	m_dispatcher = new	btCollisionDispatcher(m_collisionConfiguration);
 #endif //USE_PARALLEL_DISPATCHER
 
@@ -414,14 +414,14 @@ int maxNumOutstandingTasks = 4;
 //	m_broadphase = new bt32BitAxisSweep3(worldAabbMin,worldAabbMax,maxProxies);
 /// When trying to debug broadphase issues, try to use the btSimpleBroadphase
 //	m_broadphase = new btSimpleBroadphase;
-	
+
 	//box-box is in Extras/AlternativeCollisionAlgorithms:it requires inclusion of those files
 
 #ifdef COMPARE_WITH_QUICKSTEP
 	m_solver = new btOdeQuickstepConstraintSolver();
 #else
 
-	
+
 #ifdef USE_PARALLEL_SOLVER
 
 	m_threadSupportSolver = new Win32ThreadSupport(Win32ThreadSupport::Win32ThreadConstructionInfo(
@@ -435,11 +435,11 @@ int maxNumOutstandingTasks = 4;
 	btSequentialImpulseConstraintSolver* solver = new btSequentialImpulseConstraintSolver();
 
 	m_solver = solver;//new btOdeQuickstepConstraintSolver();
-	
+
 #endif //USE_PARALLEL_SOLVER
 
 #endif
-		
+
 
 
 		btDiscreteDynamicsWorld* world = new btDiscreteDynamicsWorld(m_dispatcher,m_broadphase,m_solver,m_collisionConfiguration);
@@ -459,7 +459,7 @@ int maxNumOutstandingTasks = 4;
 		m_dynamicsWorld->getDispatchInfo().m_enableSPU = true;
 		m_dynamicsWorld->setGravity(btVector3(0,-10,0));
 
-		
+
 
 #ifdef USER_DEFINED_FRICTION_MODEL
 	{
@@ -478,7 +478,7 @@ int maxNumOutstandingTasks = 4;
 	btTransform tr;
 	tr.setIdentity();
 
-	
+
 	for (i=0;i<gNumObjects;i++)
 	{
 		if (i>0)
@@ -520,7 +520,7 @@ int maxNumOutstandingTasks = 4;
 
 		btTransform trans;
 		trans.setIdentity();
-		
+
 		if (i>0)
 		{
 			//stack them
@@ -549,7 +549,7 @@ int maxNumOutstandingTasks = 4;
 
 		if (!isDyna)
 			mass = 0.f;
-	
+
 		btRigidBody* body = localCreateRigidBody(mass,trans,shape);
 #ifdef USE_KINEMATIC_GROUND
 		if (mass == 0.f)
@@ -558,15 +558,15 @@ int maxNumOutstandingTasks = 4;
 			body->setActivationState(DISABLE_DEACTIVATION);
 		}
 #endif //USE_KINEMATIC_GROUND
-		
-		
+
+
 		// Only do CCD if  motion in one timestep (1.f/60.f) exceeds CUBE_HALF_EXTENTS
 		body->setCcdSquareMotionThreshold( CUBE_HALF_EXTENTS );
-		
+
 		//Experimental: better estimation of CCD Time of Impact:
 		body->setCcdSweptSphereRadius( 0.2*CUBE_HALF_EXTENTS );
 
-#ifdef USER_DEFINED_FRICTION_MODEL	
+#ifdef USER_DEFINED_FRICTION_MODEL
 		///Advanced use: override the friction solver
 		body->m_frictionSolverType = USER_CONTACT_SOLVER_TYPE1;
 #endif //USER_DEFINED_FRICTION_MODEL
@@ -578,7 +578,7 @@ int maxNumOutstandingTasks = 4;
 #ifdef DO_BENCHMARK_PYRAMIDS
 	btTransform trans;
 	trans.setIdentity();
-	
+
 	btScalar halfExtents = CUBE_HALF_EXTENTS;
 
 	trans.setOrigin(btVector3(0,-halfExtents,0));
@@ -609,13 +609,13 @@ int maxNumOutstandingTasks = 4;
 	m_collisionShapes.push_back(ball);
 	btRigidBody* ballBody = localCreateRigidBody(10000.f,sphereTrans,ball);
 	ballBody->setLinearVelocity(btVector3(0,0,-10));
-#endif 
+#endif
 #endif //DO_BENCHMARK_PYRAMIDS
 //	clientResetScene();
 
 
 }
-	
+
 
 
 
@@ -680,7 +680,7 @@ void	CcdPhysicsDemo::exitPhysics()
 
 	delete m_collisionConfiguration;
 
-	
+
 }
 
 

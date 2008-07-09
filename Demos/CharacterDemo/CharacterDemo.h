@@ -15,7 +15,12 @@ subject to the following restrictions:
 #ifndef CHARACTER_DEMO_H
 #define CHARACTER_DEMO_H
 
-class CharacterController;
+
+///DYNAMIC_CHARACTER_CONTROLLER is not supported/obsolete at the moment
+//#define DYNAMIC_CHARACTER_CONTROLLER 1
+
+class CharacterControllerInterface;
+class DynamicCharacterController;
 class KinematicCharacterController;
 
 class btCollisionShape;
@@ -29,7 +34,7 @@ class CharacterDemo : public DemoApplication
 	public:
 
 #ifdef DYNAMIC_CHARACTER_CONTROLLER
-	CharacterController* m_character;
+	CharacterControllerInterface* m_character;
 #else
 	KinematicCharacterController* m_character;
 #endif
@@ -50,6 +55,7 @@ class CharacterDemo : public DemoApplication
 
 	btVector3*	m_vertices;
 
+	void	debugDrawContacts();
 	
 	float		m_cameraHeight;
 
@@ -67,7 +73,7 @@ class CharacterDemo : public DemoApplication
 
 	virtual void displayCallback();
 	
-	///a very basic camera following the vehicle
+	///a very basic camera following the character
 	virtual void updateCamera();
 
 	virtual void specialKeyboard(int key, int x, int y);

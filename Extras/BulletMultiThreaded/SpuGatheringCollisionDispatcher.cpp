@@ -82,12 +82,12 @@ SpuGatheringCollisionDispatcher::~SpuGatheringCollisionDispatcher()
 ///this is useful for the collision dispatcher.
 class btSpuCollisionPairCallback : public btOverlapCallback
 {
-	btDispatcherInfo& m_dispatchInfo;
+	const btDispatcherInfo& m_dispatchInfo;
 	SpuGatheringCollisionDispatcher*	m_dispatcher;
 
 public:
 
-	btSpuCollisionPairCallback(btDispatcherInfo& dispatchInfo,SpuGatheringCollisionDispatcher*	dispatcher)
+	btSpuCollisionPairCallback(const btDispatcherInfo& dispatchInfo, SpuGatheringCollisionDispatcher*	dispatcher)
 	:m_dispatchInfo(dispatchInfo),
 	m_dispatcher(dispatcher)
 	{
@@ -141,7 +141,7 @@ public:
 	}
 };
 
-void	SpuGatheringCollisionDispatcher::dispatchAllCollisionPairs(btOverlappingPairCache* pairCache,btDispatcherInfo& dispatchInfo,btDispatcher* dispatcher)
+void	SpuGatheringCollisionDispatcher::dispatchAllCollisionPairs(btOverlappingPairCache* pairCache,const btDispatcherInfo& dispatchInfo, btDispatcher* dispatcher) 
 {
 
 	if (dispatchInfo.m_enableSPU)

@@ -158,6 +158,11 @@ bool	btGjkConvexCast::calcTimeOfImpact(
 
 		}
 
+		//is n normalized?
+		//don't report time of impact for motion away from the contact normal (or causes minor penetration)
+		if (n.dot(r)>=-result.m_allowedPenetration)
+			return false;
+
 		result.m_fraction = lambda;
 		result.m_normal = n;
 		result.m_hitPoint = c;

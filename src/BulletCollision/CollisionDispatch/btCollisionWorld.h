@@ -123,6 +123,11 @@ public:
 		return m_dispatcher1;
 	}
 
+	const btDispatcher*	getDispatcher() const
+	{
+		return m_dispatcher1;
+	}
+
 	virtual void	updateAabbs();
 
 	virtual void	setDebugDrawer(btIDebugDraw*	debugDrawer)
@@ -309,11 +314,11 @@ public:
 
 	/// rayTest performs a raycast on all objects in the btCollisionWorld, and calls the resultCallback
 	/// This allows for several queries: first hit, all hits, any hit, dependent on the value returned by the callback.
-	void	rayTest(const btVector3& rayFromWorld, const btVector3& rayToWorld, RayResultCallback& resultCallback, short int collisionFilterMask=-1);
+	void	rayTest(const btVector3& rayFromWorld, const btVector3& rayToWorld, RayResultCallback& resultCallback, short int collisionFilterMask=-1) const; 
 
 	// convexTest performs a swept convex cast on all objects in the btCollisionWorld, and calls the resultCallback
 	// This allows for several queries: first hit, all hits, any hit, dependent on the value return by the callback.
-	void    convexSweepTest (const btConvexShape* castShape, const btTransform& from, const btTransform& to, ConvexResultCallback& resultCallback, short int collisionFilterMask=-1);
+	void    convexSweepTest (const btConvexShape* castShape, const btTransform& from, const btTransform& to, ConvexResultCallback& resultCallback, short int collisionFilterMask=-1) const;
 
 
 	/// rayTestSingle performs a raycast call and calls the resultCallback. It is used internally by rayTest.
@@ -330,7 +335,7 @@ public:
 					  btCollisionObject* collisionObject,
 					  const btCollisionShape* collisionShape,
 					  const btTransform& colObjWorldTransform,
-					  ConvexResultCallback& resultCallback, short int collisionFilterMask=-1);
+					  ConvexResultCallback& resultCallback, btScalar	allowedPenetration, short int collisionFilterMask=-1);
 
 	void	addCollisionObject(btCollisionObject* collisionObject,short int collisionFilterGroup=1,short int collisionFilterMask=1);
 
@@ -350,6 +355,11 @@ public:
 	virtual void	performDiscreteCollisionDetection();
 
 	btDispatcherInfo& getDispatchInfo()
+	{
+		return m_dispatchInfo;
+	}
+
+	const btDispatcherInfo& getDispatchInfo() const
 	{
 		return m_dispatchInfo;
 	}

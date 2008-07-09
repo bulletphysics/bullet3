@@ -43,11 +43,22 @@ static int gLeft = 0;
 static int gRight = 0;
 static int gJump = 0;
 
-#define QUAKE_BSP_IMPORTING 1
+///playerStepCallback is the main function that is updating the character.
+///Register this callback using: m_dynamicsWorld->setInternalTickCallback(playerStepCallback,m_character);
+///This function will be called at the end of each internal simulation time step
+void playerStepCallback(const btDynamicsWorld* dynamicsWorld, btScalar timeStep)
+{
+	CharacterControllerInterface* characterInterface= (CharacterControllerInterface*) dynamicsWorld->getWorldUserInfo();
+	characterInterface->preStep (dynamicsWorld);
+	characterInterface->playerStep (dynamicsWorld, timeStep, gForward, gBackward, gLeft, gRight, gJump);
+}
 
+
+#define QUAKE_BSP_IMPORTING 1
 #ifdef QUAKE_BSP_IMPORTING
 #include "../BspDemo/BspLoader.h"
 #include "../BspDemo/BspConverter.h"
+
 
 
 
@@ -108,7 +119,10 @@ CharacterDemo::~CharacterDemo()
 {
 	//cleanup in the reverse order of creation/initialization
 	if (m_character)
-		m_character->destroy (m_dynamicsWorld);
+	{
+		m_dynamicsWorld->removeCollisionObject(m_character->getCollisionObject());
+		m_character->destroy ();
+	}
 
 
 	//remove the rigidbodies from the dynamics world and delete them
@@ -163,8 +177,10 @@ class MyCustomOverlappingPairCallback : public btOverlappingPairCallback
 	{
 		bool needBroadphaseCollision(btBroadphaseProxy* proxy0,btBroadphaseProxy* proxy1) const
 		{
-			// we already know that the character proxy is either proxy0 or proxy1
-			return true;
+			bool collides = (proxy0->m_collisionFilterGroup & proxy1->m_collisionFilterMask) != 0;
+			collides = collides && (proxy1->m_collisionFilterGroup & proxy0->m_collisionFilterMask);
+			return collides;
+
 		}
 	} myCustomOverlapFilterCallback;
 
@@ -237,12 +253,12 @@ void CharacterDemo::initPhysics()
 
 	m_constraintSolver = new btSequentialImpulseConstraintSolver();
 	m_dynamicsWorld = new btDiscreteDynamicsWorld(m_dispatcher,m_overlappingPairCache,m_constraintSolver,m_collisionConfiguration);
+	
 	//m_dynamicsWorld->setGravity(btVector3(0,0,0));
 	btTransform tr;
 	tr.setIdentity();
 
-#define USE_BSP_STAGE
-#ifdef USE_BSP_STAGE
+
 #ifdef QUAKE_BSP_IMPORTING
 	char* bspfilename = "BspDemo.bsp";
 	void* memoryBuffer = 0;
@@ -286,7 +302,6 @@ void CharacterDemo::initPhysics()
 		fclose(file);
 	}
 
-#endif
 #else
 #define  USE_TRIMESH_GROUND 1
 #ifdef USE_TRIMESH_GROUND
@@ -477,12 +492,19 @@ const float TRIANGLE_SIZE=20.f;
 #else
 	m_character = new KinematicCharacterController ();
 #endif
-	m_character->setup (m_dynamicsWorld);
+	m_character->setup ();
+	
+	m_dynamicsWorld->setInternalTickCallback(playerStepCallback,m_character);
 
 	//some custom callback sample
 	m_customPairCallback = new MyCustomOverlappingPairCallback(this,m_character->getCollisionObject());
 	sweepBP->setOverlappingPairUserCallback(m_customPairCallback);
-	m_character->registerPairCache (m_customPairCallback->getOverlappingPairCache());
+	m_character->registerPairCacheAndDispatcher (m_customPairCallback->getOverlappingPairCache(), m_dispatcher);
+
+	m_dynamicsWorld->addCollisionObject(m_character->getCollisionObject(),btBroadphaseProxy::DebrisFilter, btBroadphaseProxy::StaticFilter);//AllFilter);
+
+	
+
 	clientResetScene();
 
 	setCameraDistance(26.f);
@@ -498,22 +520,11 @@ void CharacterDemo::renderme()
 	DemoApplication::renderme();
 }
 
-void CharacterDemo::clientMoveAndDisplay()
+
+
+void	CharacterDemo::debugDrawContacts()
 {
-
-	glClear(GL_COLOR_BUFFER_BIT | GL_DEPTH_BUFFER_BIT);
-
-	float dt = getDeltaTimeMicroseconds() * 0.000001f;
-
-	/* Character stuff &*/
-	if (m_character)
-	{
-		m_character->preStep (m_dynamicsWorld);
-		m_character->playerStep (m_dynamicsWorld, dt, gForward, gBackward, gLeft, gRight, gJump);
-	}
-
-#if 0
-	printf("numPairs = %d\n",m_customPairCallback->getOverlappingPairArray().size());
+//	printf("numPairs = %d\n",m_customPairCallback->getOverlappingPairArray().size());
 	{
 		btManifoldArray	manifoldArray;
 		for (int i=0;i<m_customPairCallback->getOverlappingPairArray().size();i++)
@@ -541,8 +552,23 @@ void CharacterDemo::clientMoveAndDisplay()
 			}
 		}
 	}
-#endif
 
+}
+
+void CharacterDemo::clientMoveAndDisplay()
+{
+
+	glClear(GL_COLOR_BUFFER_BIT | GL_DEPTH_BUFFER_BIT);
+
+	float dt = getDeltaTimeMicroseconds() * 0.000001f;
+
+	/* Character stuff &*/
+	if (m_character)
+	{
+		
+	}
+
+	debugDrawContacts();
 
 
 	if (m_dynamicsWorld)
@@ -612,6 +638,7 @@ void CharacterDemo::displayCallback(void)
 	if (m_dynamicsWorld)
 		m_dynamicsWorld->debugDrawWorld();
 
+	debugDrawContacts();
 
 	glFlush();
 	glutSwapBuffers();
@@ -622,7 +649,8 @@ void CharacterDemo::clientResetScene()
 	m_dynamicsWorld->getBroadphase()->getOverlappingPairCache()->cleanProxyFromPairs(m_character->getCollisionObject()->getBroadphaseHandle(),getDynamicsWorld()->getDispatcher());
 
 	m_character->reset ();
-	m_character->warp (btVector3(0.0, 1.75, 0.0));
+	///WTF
+	m_character->warp (btVector3(0, -2.0, 0.));
 }
 
 void CharacterDemo::specialKeyboardUp(int key, int x, int y)

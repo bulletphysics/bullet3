@@ -191,23 +191,25 @@ bool	btCollisionDispatcher::needsCollision(btCollisionObject* body0,btCollisionO
 ///this is useful for the collision dispatcher.
 class btCollisionPairCallback : public btOverlapCallback
 {
-	btDispatcherInfo& m_dispatchInfo;
+	const btDispatcherInfo& m_dispatchInfo;
 	btCollisionDispatcher*	m_dispatcher;
 
 public:
 
-	btCollisionPairCallback(btDispatcherInfo& dispatchInfo,btCollisionDispatcher*	dispatcher)
+	btCollisionPairCallback(const btDispatcherInfo& dispatchInfo,btCollisionDispatcher*	dispatcher)
 	:m_dispatchInfo(dispatchInfo),
 	m_dispatcher(dispatcher)
 	{
 	}
 
-	btCollisionPairCallback& operator=(btCollisionPairCallback& other)
+	/*btCollisionPairCallback& operator=(btCollisionPairCallback& other)
 	{
 		m_dispatchInfo = other.m_dispatchInfo;
 		m_dispatcher = other.m_dispatcher;
 		return *this;
 	}
+	*/
+
 
 	virtual ~btCollisionPairCallback() {}
 
@@ -221,7 +223,8 @@ public:
 };
 
 
-void	btCollisionDispatcher::dispatchAllCollisionPairs(btOverlappingPairCache* pairCache,btDispatcherInfo& dispatchInfo,btDispatcher* dispatcher)
+
+void	btCollisionDispatcher::dispatchAllCollisionPairs(btOverlappingPairCache* pairCache,const btDispatcherInfo& dispatchInfo,btDispatcher* dispatcher) 
 {
 	//m_blockedForChanges = true;
 
@@ -237,7 +240,7 @@ void	btCollisionDispatcher::dispatchAllCollisionPairs(btOverlappingPairCache* pa
 
 
 //by default, Bullet will use this near callback
-void btCollisionDispatcher::defaultNearCallback(btBroadphasePair& collisionPair, btCollisionDispatcher& dispatcher, btDispatcherInfo& dispatchInfo)
+void btCollisionDispatcher::defaultNearCallback(btBroadphasePair& collisionPair, btCollisionDispatcher& dispatcher, const btDispatcherInfo& dispatchInfo)
 {
 		btCollisionObject* colObj0 = (btCollisionObject*)collisionPair.m_pProxy0->m_clientObject;
 		btCollisionObject* colObj1 = (btCollisionObject*)collisionPair.m_pProxy1->m_clientObject;

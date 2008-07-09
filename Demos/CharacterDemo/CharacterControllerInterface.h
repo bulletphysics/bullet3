@@ -12,16 +12,16 @@ class CharacterControllerInterface
 public:
 	CharacterControllerInterface () {};
 	virtual ~CharacterControllerInterface () {};
-	virtual void setup (btDynamicsWorld* dynamicsWorld, btScalar height = 2.0, btScalar width = 0.25, btScalar stepHeight = 0.25) = 0;
-	virtual void destroy (btDynamicsWorld* dynamicsWorld) = 0;
+	virtual void setup (btScalar height = 2.0, btScalar width = 0.25, btScalar stepHeight = 0.25) = 0;
+	virtual void destroy () = 0;
 
 	virtual btCollisionObject* getCollisionObject () = 0;
 
 	virtual void reset () = 0;
 	virtual void warp (const btVector3& origin) = 0;
-
-	virtual void preStep (btDynamicsWorld* dynamicsWorld) = 0;
-	virtual void playerStep (btDynamicsWorld* dynamicsWorld, btScalar dt,
+	virtual void registerPairCacheAndDispatcher (btOverlappingPairCache* pairCache, btCollisionDispatcher* dispatcher)=0;
+	virtual void preStep (const btDynamicsWorld* dynamicsWorld) = 0;
+	virtual void playerStep (const btDynamicsWorld* dynamicsWorld, btScalar dt,
 					         int forward,
 							 int backward,
 							 int left,

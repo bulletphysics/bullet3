@@ -35,7 +35,7 @@ class btCollisionConfiguration;
 
 class btCollisionDispatcher;
 ///user can override this nearcallback for collision filtering and more finegrained control over collision detection
-typedef void (*btNearCallback)(btBroadphasePair& collisionPair, btCollisionDispatcher& dispatcher, btDispatcherInfo& dispatchInfo);
+typedef void (*btNearCallback)(btBroadphasePair& collisionPair, btCollisionDispatcher& dispatcher, const btDispatcherInfo& dispatchInfo);
 
 
 ///btCollisionDispatcher supports algorithms that handle ConvexConvex and ConvexConcave collision pairs.
@@ -107,7 +107,7 @@ public:
 	
 	virtual bool	needsResponse(btCollisionObject* body0,btCollisionObject* body1);
 	
-	virtual void	dispatchAllCollisionPairs(btOverlappingPairCache* pairCache,btDispatcherInfo& dispatchInfo,btDispatcher* dispatcher);
+	virtual void	dispatchAllCollisionPairs(btOverlappingPairCache* pairCache,const btDispatcherInfo& dispatchInfo,btDispatcher* dispatcher) ;
 
 	void	setNearCallback(btNearCallback	nearCallback)
 	{
@@ -120,7 +120,7 @@ public:
 	}
 
 	//by default, Bullet will use this near callback
-	static void  defaultNearCallback(btBroadphasePair& collisionPair, btCollisionDispatcher& dispatcher, btDispatcherInfo& dispatchInfo);
+	static void  defaultNearCallback(btBroadphasePair& collisionPair, btCollisionDispatcher& dispatcher, const btDispatcherInfo& dispatchInfo);
 
 	virtual	void* allocateCollisionAlgorithm(int size);
 

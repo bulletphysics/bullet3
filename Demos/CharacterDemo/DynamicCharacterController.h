@@ -9,6 +9,7 @@ class btCollisionShape;
 class btRigidBody;
 class btDynamicsWorld;
 
+///DynamicCharacterController is obsolete/unsupported at the moment
 class DynamicCharacterController : public CharacterControllerInterface
 {
 protected:
@@ -29,13 +30,17 @@ protected:
 public:
 	DynamicCharacterController ();
 	~DynamicCharacterController ();
-	void setup (btDynamicsWorld* dynamicsWorld, btScalar height = 2.0, btScalar width = 0.25, btScalar stepHeight = 0.25);
-	void destroy (btDynamicsWorld* dynamicsWorld);
+	void setup (btScalar height = 2.0, btScalar width = 0.25, btScalar stepHeight = 0.25);
+	void destroy ();
+
+	virtual void reset ();
+	virtual void warp (const btVector3& origin);
+	virtual void registerPairCacheAndDispatcher (btOverlappingPairCache* pairCache, btCollisionDispatcher* dispatcher);
 
 	btCollisionObject* getCollisionObject ();
 
-	void preStep (btDynamicsWorld* dynamicsWorld);
-	void playerStep (btScalar dt,
+	void preStep (const btDynamicsWorld* dynamicsWorld);
+	void playerStep (const btDynamicsWorld* dynaWorld,btScalar dt,
 					 int forward,
 					 int backward,
 					 int left,

@@ -21,7 +21,7 @@ DynamicCharacterController::~DynamicCharacterController ()
 {
 }
 
-void DynamicCharacterController::setup (btDynamicsWorld* dynamicsWorld, btScalar height, btScalar width, btScalar stepHeight)
+void DynamicCharacterController::setup (btScalar height, btScalar width, btScalar stepHeight)
 {
 	btVector3 spherePositions[2];
 	btScalar sphereRadii[2];
@@ -45,10 +45,10 @@ void DynamicCharacterController::setup (btDynamicsWorld* dynamicsWorld, btScalar
 	//m_rigidBody->setCollisionFlags( m_rigidBody->getCollisionFlags() | btCollisionObject::CF_KINEMATIC_OBJECT);
 	m_rigidBody->setSleepingThresholds (0.0, 0.0);
 	m_rigidBody->setAngularFactor (0.0);
-	dynamicsWorld->addRigidBody (m_rigidBody);
+	
 }
 
-void DynamicCharacterController::destroy (btDynamicsWorld* dynamicsWorld)
+void DynamicCharacterController::destroy ()
 {
 	if (m_shape)
 	{
@@ -57,8 +57,8 @@ void DynamicCharacterController::destroy (btDynamicsWorld* dynamicsWorld)
 
 	if (m_rigidBody)
 	{
-		dynamicsWorld->removeRigidBody (m_rigidBody);
 		delete m_rigidBody;
+		m_rigidBody = 0;
 	}
 }
 
@@ -67,7 +67,7 @@ btCollisionObject* DynamicCharacterController::getCollisionObject ()
 	return m_rigidBody;
 }
 
-void DynamicCharacterController::preStep (btDynamicsWorld* dynamicsWorld)
+void DynamicCharacterController::preStep (const btDynamicsWorld* dynamicsWorld)
 {
 	btTransform xform;
 	m_rigidBody->getMotionState()->getWorldTransform (xform);
@@ -118,7 +118,7 @@ void DynamicCharacterController::preStep (btDynamicsWorld* dynamicsWorld)
 	}
 }
 
-void DynamicCharacterController::playerStep (btScalar dt,
+void DynamicCharacterController::playerStep (const btDynamicsWorld* dynaWorld,btScalar dt,
 					 int forward,
 					 int backward,
 					 int left,
@@ -190,3 +190,15 @@ bool DynamicCharacterController::onGround () const
 {
 	return m_rayLambda[0] < btScalar(1.0);
 }
+
+void DynamicCharacterController::reset ()
+{
+}
+void DynamicCharacterController::warp (const btVector3& origin)
+{
+}
+void DynamicCharacterController::registerPairCacheAndDispatcher (btOverlappingPairCache* pairCache, btCollisionDispatcher* dispatcher)
+{
+
+}
+

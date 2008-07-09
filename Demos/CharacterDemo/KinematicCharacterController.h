@@ -8,7 +8,12 @@
 class btCollisionShape;
 class btRigidBody;
 class btDynamicsWorld;
+class btCollisionDispatcher;
 
+
+///KinematicCharacterController is a collision object with support for sliding motion in a world.
+///It uses the convex sweep test to test for upcoming collisions. This is combined with discrete collision detection to recover from penetrations.
+///Interaction between KinematicCharacterController and dynamic rigid bodies needs to be explicity implemented by the user.
 class KinematicCharacterController : public CharacterControllerInterface
 {
 protected:
@@ -16,6 +21,7 @@ protected:
 	btConvexShape* m_shape;
 	btCollisionObject* m_collisionObject;
 	btOverlappingPairCache* m_pairCache;
+	btCollisionDispatcher*	m_dispatcher;
 
 	btScalar m_fallSpeed;
 	btScalar m_jumpSpeed;
@@ -36,28 +42,30 @@ protected:
 	btScalar  m_currentStepOffset;
 	btVector3 m_targetPosition;
 
+	btManifoldArray	m_manifoldArray;
+
 	bool m_touchingContact;
 	btVector3 m_touchingNormal;
 	
-	bool recoverFromPenetration (btDynamicsWorld* dynamicsWorld);
-	void stepUp (btDynamicsWorld* dynamicsWorld);
-	void updateTargetPositionBasedOnCollision (const btVector3& hit_normal, btScalar tangentMag = btScalar(1.0), btScalar normalMag = btScalar(0.0));
-	void stepForwardAndStrafe (btDynamicsWorld* dynamicsWorld, const btVector3& walkMove);
-	void stepDown (btDynamicsWorld* dynamicsWorld, btScalar dt);
+	bool recoverFromPenetration (const btDynamicsWorld* dynamicsWorld);
+	void stepUp (const btDynamicsWorld* dynamicsWorld);
+	void updateTargetPositionBasedOnCollision (const btVector3& hit_normal, btScalar tangentMag = btScalar(0.0), btScalar normalMag = btScalar(1.0));
+	void stepForwardAndStrafe (const btDynamicsWorld* dynamicsWorld, const btVector3& walkMove);
+	void stepDown (const btDynamicsWorld* dynamicsWorld, btScalar dt);
 public:
 	KinematicCharacterController ();
 	~KinematicCharacterController ();
-	void setup (btDynamicsWorld* dynamicsWorld, btScalar height = btScalar(1.75), btScalar width = btScalar(0.4), btScalar stepHeight = btScalar(0.35));
-	void destroy (btDynamicsWorld* dynamicsWorld);
+	void setup (btScalar height = btScalar(1.75), btScalar width = btScalar(0.4), btScalar stepHeight = btScalar(0.35));
+	void destroy ();
 
 	btCollisionObject* getCollisionObject ();
 
 	void reset ();
 	void warp (const btVector3& origin);
 
-	void registerPairCache (btOverlappingPairCache* pairCache);
-	void preStep (btDynamicsWorld* dynamicsWorld);
-	void playerStep (btDynamicsWorld* dynamicsWorld, btScalar dt,
+	virtual void registerPairCacheAndDispatcher (btOverlappingPairCache* pairCache, btCollisionDispatcher* dispatcher);
+	void preStep (const btDynamicsWorld* dynamicsWorld);
+	void playerStep (const btDynamicsWorld* dynamicsWorld, btScalar dt,
 					 int forward,
 					 int backward,
 					 int left,
