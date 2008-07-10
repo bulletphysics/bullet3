@@ -399,7 +399,7 @@ public:
 	{
 	}
 
-	virtual void	processAllOverlappingPairs(btOverlapCallback*,const btDispatcher* /*dispatcher*/)
+	virtual void	processAllOverlappingPairs(btOverlapCallback*,btDispatcher* /*dispatcher*/)
 	{
 	}
 

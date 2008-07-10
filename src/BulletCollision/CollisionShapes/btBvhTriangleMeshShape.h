@@ -43,6 +43,11 @@ public:
 	
 	virtual ~btBvhTriangleMeshShape();
 
+	bool getOwnsBvh () const
+	{
+		return m_ownsBvh;
+	}
+
 	virtual int	getShapeType() const
 	{
 		return TRIANGLE_MESH_SHAPE_PROXYTYPE;
