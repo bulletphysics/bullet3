@@ -19,6 +19,7 @@ subject to the following restrictions:
 btCollisionObject::btCollisionObject()
 	:	m_broadphaseHandle(0),
 		m_collisionShape(0),
+		m_rootCollisionShape(0),
 		m_collisionFlags(btCollisionObject::CF_STATIC_OBJECT),
 		m_islandTag1(-1),
 		m_companionId(-1),

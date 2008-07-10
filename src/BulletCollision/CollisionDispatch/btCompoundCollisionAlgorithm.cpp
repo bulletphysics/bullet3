@@ -34,10 +34,9 @@ m_isSwapped(isSwapped)
 	for (i=0;i<numChildren;i++)
 	{
 		btCollisionShape* childShape = compoundShape->getChildShape(i);
-		btCollisionShape* orgShape = colObj->getCollisionShape();
-		colObj->setCollisionShape( childShape );
+		colObj->internalSetTemporaryCollisionShape( childShape );
 		m_childCollisionAlgorithms[i] = ci.m_dispatcher1->findAlgorithm(colObj,otherObj);
-		colObj->setCollisionShape( orgShape );
+		colObj->setCollisionShape( colObj->getRootCollisionShape());
 	}
 }
 

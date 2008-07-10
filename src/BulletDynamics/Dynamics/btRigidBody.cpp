@@ -77,7 +77,7 @@ void	btRigidBody::setupRigidBody(const btRigidBody::btRigidBodyConstructionInfo&
 	m_friction = constructionInfo.m_friction;
 	m_restitution = constructionInfo.m_restitution;
 
-	m_collisionShape = constructionInfo.m_collisionShape;
+	setCollisionShape( constructionInfo.m_collisionShape );
 	m_debugBodyId = uniqueId++;
 	
 	setMassProps(constructionInfo.m_mass, constructionInfo.m_localInertia);

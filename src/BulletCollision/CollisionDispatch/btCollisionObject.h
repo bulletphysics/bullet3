@@ -51,6 +51,11 @@ protected:
 	btVector3	m_interpolationAngularVelocity;
 	btBroadphaseProxy*		m_broadphaseHandle;
 	btCollisionShape*		m_collisionShape;
+	
+	///m_rootCollisionShape is temporarily used to store the original collision shape
+	///The m_collisionShape might be temporarily replaced by a child collision shape during collision detection purposes
+	///If it is NULL, the m_collisionShape is not temporarily replaced.
+	btCollisionShape*		m_rootCollisionShape;
 
 	int				m_collisionFlags;
 
@@ -141,6 +146,7 @@ public:
 	void	setCollisionShape(btCollisionShape* collisionShape)
 	{
 		m_collisionShape = collisionShape;
+		m_rootCollisionShape = collisionShape;
 	}
 
 	SIMD_FORCE_INLINE const btCollisionShape*	getCollisionShape() const
@@ -153,8 +159,22 @@ public:
 		return m_collisionShape;
 	}
 
-	
+	SIMD_FORCE_INLINE const btCollisionShape*	getRootCollisionShape() const
+	{
+		return m_rootCollisionShape;
+	}
 
+	SIMD_FORCE_INLINE btCollisionShape*	getRootCollisionShape()
+	{
+		return m_rootCollisionShape;
+	}
+
+	///Avoid using this internal API call
+	///internalSetTemporaryCollisionShape is used to temporary replace the actual collision shape by a child collision shape.
+	void	internalSetTemporaryCollisionShape(btCollisionShape* collisionShape)
+	{
+		m_collisionShape = collisionShape;
+	}
 
 	int	getActivationState() const { return m_activationState1;}
 	
