@@ -28,7 +28,6 @@
 #include <sys/sys_time.h>
 #include <sys/time_util.h>
 #include <stdio.h>
-typedef uint64_t __int64;
 #endif
 
 #if defined (SUNOS) || defined (__SUNOS__) 
@@ -81,8 +80,7 @@ public:
 #else
 #ifdef __CELLOS_LV2__
 
-		typedef uint64_t __int64;
-		typedef __int64  ClockSize;
+		typedef uint64_t  ClockSize;
 		ClockSize newTime;
 		//__asm __volatile__( "mftb %0" : "=r" (newTime) : : "memory");
 		SYS_TIMEBASE_GET( newTime );
@@ -134,10 +132,9 @@ public:
 #else
 
 #ifdef __CELLOS_LV2__
-		__int64 freq=sys_time_get_timebase_frequency();
+		uint64_t freq=sys_time_get_timebase_frequency();
 		double dFreq=((double) freq) / 1000.0;
-		typedef uint64_t __int64;
-		typedef __int64  ClockSize;
+		typedef uint64_t  ClockSize;
 		ClockSize newTime;
 		SYS_TIMEBASE_GET( newTime );
 		//__asm __volatile__( "mftb %0" : "=r" (newTime) : : "memory");
@@ -193,10 +190,9 @@ public:
 #else
 
 #ifdef __CELLOS_LV2__
-		__int64 freq=sys_time_get_timebase_frequency();
+		uint64_t freq=sys_time_get_timebase_frequency();
 		double dFreq=((double) freq)/ 1000000.0;
-		typedef uint64_t __int64;
-		typedef __int64  ClockSize;
+		typedef uint64_t  ClockSize;
 		ClockSize newTime;
 		//__asm __volatile__( "mftb %0" : "=r" (newTime) : : "memory");
 		SYS_TIMEBASE_GET( newTime );
