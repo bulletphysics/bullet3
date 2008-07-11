@@ -328,6 +328,10 @@ SOURCE=..\..\src\BulletCollision\CollisionShapes\btMinkowskiSumShape.cpp
 # End Source File
 # Begin Source File
 
+SOURCE=..\..\src\BulletCollision\CollisionShapes\btMultimaterialTriangleMeshShape.cpp
+# End Source File
+# Begin Source File
+
 SOURCE=..\..\src\BulletCollision\CollisionShapes\btMultiSphereShape.cpp
 # End Source File
 # Begin Source File
@@ -369,6 +373,10 @@ SOURCE=..\..\src\BulletCollision\CollisionShapes\btTriangleCallback.cpp
 # Begin Source File
 
 SOURCE=..\..\src\BulletCollision\CollisionShapes\btTriangleIndexVertexArray.cpp
+# End Source File
+# Begin Source File
+
+SOURCE=..\..\src\BulletCollision\CollisionShapes\btTriangleIndexVertexMaterialArray.cpp
 # End Source File
 # Begin Source File
 
@@ -620,7 +628,15 @@ SOURCE=..\..\src\BulletCollision\CollisionShapes\btHeightfieldTerrainShape.h
 # End Source File
 # Begin Source File
 
+SOURCE=..\..\src\BulletCollision\CollisionShapes\btMaterial.h
+# End Source File
+# Begin Source File
+
 SOURCE=..\..\src\BulletCollision\CollisionShapes\btMinkowskiSumShape.h
+# End Source File
+# Begin Source File
+
+SOURCE=..\..\src\BulletCollision\CollisionShapes\btMultimaterialTriangleMeshShape.h
 # End Source File
 # Begin Source File
 
@@ -665,6 +681,10 @@ SOURCE=..\..\src\BulletCollision\CollisionShapes\btTriangleCallback.h
 # Begin Source File
 
 SOURCE=..\..\src\BulletCollision\CollisionShapes\btTriangleIndexVertexArray.h
+# End Source File
+# Begin Source File
+
+SOURCE=..\..\src\BulletCollision\CollisionShapes\btTriangleIndexVertexMaterialArray.h
 # End Source File
 # Begin Source File
 

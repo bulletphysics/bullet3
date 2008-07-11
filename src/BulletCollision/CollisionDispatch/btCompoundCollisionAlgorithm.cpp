@@ -33,10 +33,11 @@ m_isSwapped(isSwapped)
 	m_childCollisionAlgorithms.resize(numChildren);
 	for (i=0;i<numChildren;i++)
 	{
+		btCollisionShape* tmpShape = colObj->getCollisionShape();
 		btCollisionShape* childShape = compoundShape->getChildShape(i);
 		colObj->internalSetTemporaryCollisionShape( childShape );
 		m_childCollisionAlgorithms[i] = ci.m_dispatcher1->findAlgorithm(colObj,otherObj);
-		colObj->setCollisionShape( colObj->getRootCollisionShape());
+		colObj->internalSetTemporaryCollisionShape( tmpShape );
 	}
 }
 
@@ -78,18 +79,17 @@ void btCompoundCollisionAlgorithm::processCollision (btCollisionObject* body0,bt
 		btTransform	orgTrans = colObj->getWorldTransform();
 		btTransform	orgInterpolationTrans = colObj->getInterpolationWorldTransform();
 
-		btCollisionShape* orgShape = colObj->getCollisionShape();
-
 		const btTransform& childTrans = compoundShape->getChildTransform(i);
 		btTransform	newChildWorldTrans = orgTrans*childTrans ;
 		colObj->setWorldTransform( newChildWorldTrans);
 		colObj->setInterpolationWorldTransform(newChildWorldTrans);
 
 		//the contactpoint is still projected back using the original inverted worldtrans
-		colObj->setCollisionShape( childShape );
+		btCollisionShape* tmpShape = colObj->getCollisionShape();
+		colObj->internalSetTemporaryCollisionShape( childShape );
 		m_childCollisionAlgorithms[i]->processCollision(colObj,otherObj,dispatchInfo,resultOut);
 		//revert back
-		colObj->setCollisionShape( orgShape);
+		colObj->internalSetTemporaryCollisionShape( tmpShape);
 		colObj->setWorldTransform(  orgTrans );
 		colObj->setInterpolationWorldTransform(orgInterpolationTrans);
 	}
@@ -123,20 +123,20 @@ btScalar	btCompoundCollisionAlgorithm::calculateTimeOfImpact(btCollisionObject* 
 
 		//backup
 		btTransform	orgTrans = colObj->getWorldTransform();
-		btCollisionShape* orgShape = colObj->getCollisionShape();
-
+	
 		const btTransform& childTrans = compoundShape->getChildTransform(i);
 		//btTransform	newChildWorldTrans = orgTrans*childTrans ;
 		colObj->setWorldTransform( orgTrans*childTrans );
 
-		colObj->setCollisionShape( childShape );
+		btCollisionShape* tmpShape = colObj->getCollisionShape();
+		colObj->internalSetTemporaryCollisionShape( childShape );
 		btScalar frac = m_childCollisionAlgorithms[i]->calculateTimeOfImpact(colObj,otherObj,dispatchInfo,resultOut);
 		if (frac<hitFraction)
 		{
 			hitFraction = frac;
 		}
 		//revert back
-		colObj->setCollisionShape( orgShape);
+		colObj->internalSetTemporaryCollisionShape( tmpShape);
 		colObj->setWorldTransform( orgTrans);
 	}
 	return hitFraction;

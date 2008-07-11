@@ -28,7 +28,7 @@ class btTriangleShape;
 /// sphere-triangle to match the btDiscreteCollisionDetectorInterface
 struct SphereTriangleDetector : public btDiscreteCollisionDetectorInterface
 {
-	virtual void	getClosestPoints(const ClosestPointInput& input,Result& output,class btIDebugDraw* debugDraw);
+	virtual void	getClosestPoints(const ClosestPointInput& input,Result& output,class btIDebugDraw* debugDraw,bool swapResults=false);
 
 	SphereTriangleDetector(btSphereShape* sphere,btTriangleShape* triangle);
 

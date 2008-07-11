@@ -226,11 +226,11 @@ void btGImpactCollisionAlgorithm::shape_vs_shape_collision(
 					  btCollisionShape * shape1)
 {
 
-	btCollisionShape * orgshape0 = body0->getCollisionShape();
-	btCollisionShape * orgshape1 = body1->getCollisionShape();
-
-	body0->setCollisionShape(shape0);
-	body1->setCollisionShape(shape1);
+	btCollisionShape* tmpShape0 = body0->getCollisionShape();
+	btCollisionShape* tmpShape1 = body1->getCollisionShape();
+	
+	body0->internalSetTemporaryCollisionShape(shape0);
+	body1->internalSetTemporaryCollisionShape(shape1);
 
 	{
 		btCollisionAlgorithm* algor = newAlgorithm(body0,body1);
@@ -244,8 +244,8 @@ void btGImpactCollisionAlgorithm::shape_vs_shape_collision(
 		m_dispatcher->freeCollisionAlgorithm(algor);
 	}
 
-	body0->setCollisionShape(orgshape0);
-	body1->setCollisionShape(orgshape1);
+	body0->internalSetTemporaryCollisionShape(tmpShape0);
+	body1->internalSetTemporaryCollisionShape(tmpShape1);
 }
 
 void btGImpactCollisionAlgorithm::convex_vs_convex_collision(
@@ -255,11 +255,11 @@ void btGImpactCollisionAlgorithm::convex_vs_convex_collision(
 					  btCollisionShape * shape1)
 {
 
-	btCollisionShape * orgshape0 = body0->getCollisionShape();
-	btCollisionShape * orgshape1 = body1->getCollisionShape();
-
-	body0->setCollisionShape(shape0);
-	body1->setCollisionShape(shape1);
+	btCollisionShape* tmpShape0 = body0->getCollisionShape();
+	btCollisionShape* tmpShape1 = body1->getCollisionShape();
+	
+	body0->internalSetTemporaryCollisionShape(shape0);
+	body1->internalSetTemporaryCollisionShape(shape1);
 
 
 	m_resultOut->setShapeIdentifiers(m_part0,m_triface0,m_part1,m_triface1);
@@ -267,8 +267,8 @@ void btGImpactCollisionAlgorithm::convex_vs_convex_collision(
 	checkConvexAlgorithm(body0,body1);
 	m_convex_algorithm->processCollision(body0,body1,*m_dispatchInfo,m_resultOut);
 
-	body0->setCollisionShape(orgshape0);
-	body1->setCollisionShape(orgshape1);
+	body0->internalSetTemporaryCollisionShape(tmpShape0);
+	body1->internalSetTemporaryCollisionShape(tmpShape1);
 
 }
 

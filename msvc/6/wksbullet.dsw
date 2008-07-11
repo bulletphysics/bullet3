@@ -546,6 +546,30 @@ Package=<4>
 
 ###############################################################################
 
+Project: "appMultiMaterialDemo"=.\appMultiMaterialDemo.dsp - Package Owner=<4>
+
+Package=<5>
+{{{
+}}}
+
+Package=<4>
+{{{
+    Begin Project Dependency
+    Project_Dep_Name libbulletcollision
+    End Project Dependency
+    Begin Project Dependency
+    Project_Dep_Name libbulletdynamics
+    End Project Dependency
+    Begin Project Dependency
+    Project_Dep_Name libbulletmath
+    End Project Dependency
+    Begin Project Dependency
+    Project_Dep_Name libbulletopenglsupport
+    End Project Dependency
+}}}
+
+###############################################################################
+
 Project: "appMultiThreadedDemo"=.\appMultiThreadedDemo.dsp - Package Owner=<4>
 
 Package=<5>
@@ -816,6 +840,9 @@ Package=<4>
     Project_Dep_Name appMovingConcaveDemo
     End Project Dependency
     Begin Project Dependency
+    Project_Dep_Name appMultiMaterialDemo
+    End Project Dependency
+    Begin Project Dependency
     Project_Dep_Name appMultiThreadedDemo
     End Project Dependency
     Begin Project Dependency
@@ -952,6 +979,9 @@ Package=<4>
     End Project Dependency
     Begin Project Dependency
     Project_Dep_Name appMovingConcaveDemo
+    End Project Dependency
+    Begin Project Dependency
+    Project_Dep_Name appMultiMaterialDemo
     End Project Dependency
     Begin Project Dependency
     Project_Dep_Name appMultiThreadedDemo

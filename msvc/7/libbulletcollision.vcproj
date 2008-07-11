@@ -413,6 +413,9 @@
 				RelativePath="..\..\src\BulletCollision\CollisionShapes\btMinkowskiSumShape.cpp">
 			</File>
 			<File
+				RelativePath="..\..\src\BulletCollision\CollisionShapes\btMultimaterialTriangleMeshShape.cpp">
+			</File>
+			<File
 				RelativePath="..\..\src\BulletCollision\CollisionShapes\btMultiSphereShape.cpp">
 			</File>
 			<File
@@ -444,6 +447,9 @@
 			</File>
 			<File
 				RelativePath="..\..\src\BulletCollision\CollisionShapes\btTriangleIndexVertexArray.cpp">
+			</File>
+			<File
+				RelativePath="..\..\src\BulletCollision\CollisionShapes\btTriangleIndexVertexMaterialArray.cpp">
 			</File>
 			<File
 				RelativePath="..\..\src\BulletCollision\CollisionShapes\btTriangleMesh.cpp">
@@ -633,7 +639,13 @@
 				RelativePath="..\..\src\BulletCollision\CollisionShapes\btHeightfieldTerrainShape.h">
 			</File>
 			<File
+				RelativePath="..\..\src\BulletCollision\CollisionShapes\btMaterial.h">
+			</File>
+			<File
 				RelativePath="..\..\src\BulletCollision\CollisionShapes\btMinkowskiSumShape.h">
+			</File>
+			<File
+				RelativePath="..\..\src\BulletCollision\CollisionShapes\btMultimaterialTriangleMeshShape.h">
 			</File>
 			<File
 				RelativePath="..\..\src\BulletCollision\CollisionShapes\btMultiSphereShape.h">
@@ -667,6 +679,9 @@
 			</File>
 			<File
 				RelativePath="..\..\src\BulletCollision\CollisionShapes\btTriangleIndexVertexArray.h">
+			</File>
+			<File
+				RelativePath="..\..\src\BulletCollision\CollisionShapes\btTriangleIndexVertexMaterialArray.h">
 			</File>
 			<File
 				RelativePath="..\..\src\BulletCollision\CollisionShapes\btTriangleMesh.h">

@@ -635,7 +635,7 @@ int dBoxBox2 (const btVector3& p1, const dMatrix3 R1,
   return cnum;
 }
 
-void	btBoxBoxDetector::getClosestPoints(const ClosestPointInput& input,Result& output,class btIDebugDraw* /*debugDraw*/)
+void	btBoxBoxDetector::getClosestPoints(const ClosestPointInput& input,Result& output,class btIDebugDraw* /*debugDraw*/,bool /*swapResults*/)
 {
 	
 	const btTransform& transformA = input.m_transformA;

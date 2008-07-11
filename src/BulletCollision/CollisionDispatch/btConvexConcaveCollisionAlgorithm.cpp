@@ -117,6 +117,7 @@ void btConvexTriangleCallback::processTriangle(btVector3* triangle,int partId, i
 		btTriangleShape tm(triangle[0],triangle[1],triangle[2]);	
 		tm.setMargin(m_collisionMarginTriangle);
 		
+		btCollisionShape* tmpShape = ob->getCollisionShape();
 		ob->internalSetTemporaryCollisionShape( &tm );
 		
 		btCollisionAlgorithm* colAlgo = ci.m_dispatcher1->findAlgorithm(m_convexBody,m_triBody,m_manifoldPtr);
@@ -129,7 +130,7 @@ void btConvexTriangleCallback::processTriangle(btVector3* triangle,int partId, i
 		colAlgo->processCollision(m_convexBody,m_triBody,*m_dispatchInfoPtr,m_resultOut);
 		colAlgo->~btCollisionAlgorithm();
 		ci.m_dispatcher1->freeCollisionAlgorithm(colAlgo);
-		ob->setCollisionShape( ob->getRootCollisionShape());
+		ob->internalSetTemporaryCollisionShape( tmpShape);
 	}
 
 

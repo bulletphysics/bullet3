@@ -60,10 +60,12 @@ void btSphereTriangleCollisionAlgorithm::processCollision (btCollisionObject* co
 	
 	btDiscreteCollisionDetectorInterface::ClosestPointInput input;
 	input.m_maximumDistanceSquared = btScalar(1e30);//todo: tighter bounds
-	input.m_transformA = col0->getWorldTransform();
-	input.m_transformB = col1->getWorldTransform();
+	input.m_transformA = sphereObj->getWorldTransform();
+	input.m_transformB = triObj->getWorldTransform();
 
-	detector.getClosestPoints(input,*resultOut,dispatchInfo.m_debugDraw);
+	bool swapResults = m_swapped && !m_ownManifold;
+
+	detector.getClosestPoints(input,*resultOut,dispatchInfo.m_debugDraw,swapResults);
 
 	if (m_ownManifold)
 		resultOut->refreshContactPoints();

@@ -127,25 +127,19 @@ btCollisionObject* ob = static_cast<btCollisionObject*>(m_triBody);
 	{
 		btCollisionShape* tm = shapeCache[partId][triangleIndex];
 
-		btCollisionShape* tmpShape = ob->getCollisionShape();
-
 		//copy over user pointers to temporary shape
-		tm->setUserPointer(tmpShape->getUserPointer());
+		tm->setUserPointer(ob->getRootCollisionShape()->getUserPointer());
 		
-		ob->setCollisionShape( tm );
+		btCollisionShape* tmpShape = ob->getCollisionShape();
+		ob->internalSetTemporaryCollisionShape( tm );
 		
 
 		btCollisionAlgorithm* colAlgo = ci.m_dispatcher1->findAlgorithm(m_softBody,m_triBody,0);//m_manifoldPtr);
-		///this should use the btDispatcher, so the actual registered algorithm is used
-		//		btConvexConvexAlgorithm cvxcvxalgo(m_manifoldPtr,ci,m_convexBody,m_triBody);
-
-		//m_resultOut->setShapeIdentifiers(-1,-1,partId,triangleIndex);
-	//	cvxcvxalgo.setShapeIdentifiers(-1,-1,partId,triangleIndex);
-//		cvxcvxalgo.processCollision(m_convexBody,m_triBody,*m_dispatchInfoPtr,m_resultOut);
+		
 		colAlgo->processCollision(m_softBody,m_triBody,*m_dispatchInfoPtr,m_resultOut);
 		colAlgo->~btCollisionAlgorithm();
 		ci.m_dispatcher1->freeCollisionAlgorithm(colAlgo);
-		ob->setCollisionShape( tmpShape );
+		ob->internalSetTemporaryCollisionShape( tmpShape);
 		return;
 	}
 
@@ -182,12 +176,12 @@ btCollisionObject* ob = static_cast<btCollisionObject*>(m_triBody);
 		
 		//btTriangleShape tm(triangle[0],triangle[1],triangle[2]);	
 	//	tm.setMargin(m_collisionMarginTriangle);
-		btCollisionShape* tmpShape = ob->getCollisionShape();
-
-		//copy over user pointers to temporary shape
-		tm->setUserPointer(tmpShape->getUserPointer());
 		
-		ob->setCollisionShape( tm );
+		//copy over user pointers to temporary shape
+		tm->setUserPointer(ob->getRootCollisionShape()->getUserPointer());
+		
+		btCollisionShape* tmpShape = ob->getCollisionShape();
+		ob->internalSetTemporaryCollisionShape( tm );
 		
 
 		btCollisionAlgorithm* colAlgo = ci.m_dispatcher1->findAlgorithm(m_softBody,m_triBody,0);//m_manifoldPtr);
@@ -200,7 +194,7 @@ btCollisionObject* ob = static_cast<btCollisionObject*>(m_triBody);
 		colAlgo->processCollision(m_softBody,m_triBody,*m_dispatchInfoPtr,m_resultOut);
 		colAlgo->~btCollisionAlgorithm();
 		ci.m_dispatcher1->freeCollisionAlgorithm(colAlgo);
-		ob->setCollisionShape( tmpShape );
+		ob->internalSetTemporaryCollisionShape( tmpShape );
 //		delete tm;
 
 		shapeCache[partId][triangleIndex] = tm;

@@ -47,7 +47,7 @@ m_catchDegeneracies(1)
 {
 }
 
-void btGjkPairDetector::getClosestPoints(const ClosestPointInput& input,Result& output,class btIDebugDraw* debugDraw)
+void btGjkPairDetector::getClosestPoints(const ClosestPointInput& input,Result& output,class btIDebugDraw* debugDraw,bool swapResults)
 {
 	btScalar distance=btScalar(0.);
 	btVector3	normalInB(btScalar(0.),btScalar(0.),btScalar(0.));
