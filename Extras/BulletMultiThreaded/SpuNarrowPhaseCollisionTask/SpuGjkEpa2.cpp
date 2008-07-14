@@ -11,7 +11,7 @@
 #endif //__SPU__
 #endif
 
-namespace gjkepa2_impl
+namespace gjkepa2_spu_impl
 {
 
 // Config
@@ -778,7 +778,7 @@ shape.EnableMargin(withmargins);
 // Api
 //
 
-using namespace	gjkepa2_impl;
+using namespace	gjkepa2_spu_impl;
 
 //
 int			SpuGjkEpaSolver2::StackSizeRequirement()
