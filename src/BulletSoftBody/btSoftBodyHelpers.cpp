@@ -53,7 +53,7 @@ idraw->drawLine(c[2],c[6],color);idraw->drawLine(c[3],c[7],color);
 
 //
 static void				drawTree(	btIDebugDraw* idraw,
-									const btDbvt::Node* node,
+									const btDbvtNode* node,
 									int depth,
 									const btVector3& ncolor,
 									const btVector3& lcolor,
@@ -175,7 +175,9 @@ void			btSoftBodyHelpers::Draw(	btSoftBody* psb,
 	/* Anchors	*/ 
 	if(0!=(drawflags&fDrawFlags::Anchors))
 	{
-		for(int i=0;i<psb->m_anchors.size();++i)
+		int i;
+
+		for(i=0;i<psb->m_anchors.size();++i)
 		{
 			const btSoftBody::Anchor&	a=psb->m_anchors[i];
 			const btVector3				q=a.m_body->getWorldTransform()*a.m_local;
@@ -183,7 +185,7 @@ void			btSoftBodyHelpers::Draw(	btSoftBody* psb,
 			drawVertex(idraw,q,0.25,btVector3(0,1,0));
 			idraw->drawLine(a.m_node->m_x,q,btVector3(1,1,1));
 		}
-		for(int i=0;i<psb->m_nodes.size();++i)
+		for(i=0;i<psb->m_nodes.size();++i)
 		{
 			const btSoftBody::Node&	n=psb->m_nodes[i];		
 			if(0==(n.m_material->m_flags&btSoftBody::fMaterial::DebugDraw)) continue;
@@ -313,7 +315,9 @@ btSoftBody*		btSoftBodyHelpers::CreateRope(	btSoftBody::btSoftBodyWorldInfo& wor
 	const int		r=res+2;
 	btVector3*		x=new btVector3[r];
 	btScalar*		m=new btScalar[r];
-	for(int i=0;i<r;++i)
+	int i;
+
+	for(i=0;i<r;++i)
 	{
 		const btScalar	t=i/(btScalar)(r-1);
 		x[i]=lerp(from,to,t);
@@ -325,7 +329,7 @@ btSoftBody*		btSoftBodyHelpers::CreateRope(	btSoftBody::btSoftBodyWorldInfo& wor
 	delete[] x;
 	delete[] m;
 	/* Create links	*/ 
-	for(int i=1;i<r;++i)
+	for(i=1;i<r;++i)
 	{
 		psb->appendLink(i-1,i);
 	}
@@ -351,7 +355,9 @@ btSoftBody*		btSoftBodyHelpers::CreatePatch(btSoftBody::btSoftBodyWorldInfo& wor
 	const int	tot=rx*ry;
 	btVector3*	x=new btVector3[tot];
 	btScalar*	m=new btScalar[tot];
-	for(int iy=0;iy<ry;++iy)
+	int iy;
+
+	for(iy=0;iy<ry;++iy)
 	{
 		const btScalar	ty=iy/(btScalar)(ry-1);
 		const btVector3	py0=lerp(corner00,corner01,ty);
@@ -371,7 +377,7 @@ btSoftBody*		btSoftBodyHelpers::CreatePatch(btSoftBody::btSoftBodyWorldInfo& wor
 	delete[] x;
 	delete[] m;
 	/* Create links	and faces */ 
-	for(int iy=0;iy<ry;++iy)
+	for(iy=0;iy<ry;++iy)
 	{
 		for(int ix=0;ix<rx;++ix)
 		{
@@ -446,7 +452,10 @@ btSoftBody*		btSoftBodyHelpers::CreateFromTriMesh(btSoftBody::btSoftBodyWorldInf
 								  int ntriangles)
 {
 	int		maxidx=0;
-	for(int i=0,ni=ntriangles*3;i<ni;++i)
+	int		i,j;
+	int		ni;
+
+	for( i=0,ni=ntriangles*3;i<ni;++i)
 	{
 		maxidx=btMax(triangles[i],maxidx);
 	}
@@ -455,12 +464,12 @@ btSoftBody*		btSoftBodyHelpers::CreateFromTriMesh(btSoftBody::btSoftBodyWorldInf
 	btAlignedObjectArray<btVector3>	vtx;
 	chks.resize(maxidx*maxidx,false);
 	vtx.resize(maxidx);
-	for(int i=0,j=0,ni=maxidx*3;i<ni;++j,i+=3)
+	for( i=0,j=0,ni=maxidx*3;i<ni;++j,i+=3)
 	{
 		vtx[j]=btVector3(vertices[i],vertices[i+1],vertices[i+2]);
 	}
 	btSoftBody*		psb=new btSoftBody(&worldInfo,vtx.size(),&vtx[0],0);
-	for(int i=0,ni=ntriangles*3;i<ni;i+=3)
+	for(i=0,ni=ntriangles*3;i<ni;i+=3)
 	{
 		const int idx[]={triangles[i],triangles[i+1],triangles[i+2]};
 #define IDX(_x_,_y_) ((_y_)*maxidx+(_x_))

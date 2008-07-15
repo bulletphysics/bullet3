@@ -716,7 +716,7 @@ btScalar btSequentialImpulseConstraintSolver::solveGroupCacheFriendlySetup(btCol
 							
 							rel_vel = cp.m_normalWorldOnB.dot(vel);
 							
-							solverConstraint.m_penetration = btMin(cp.getDistance()+infoGlobal.m_linearSlop,0.f);
+							solverConstraint.m_penetration = btMin(cp.getDistance()+infoGlobal.m_linearSlop,btScalar(0.));
 							//solverConstraint.m_penetration = cp.getDistance();
 
 							solverConstraint.m_friction = cp.m_combinedFriction;

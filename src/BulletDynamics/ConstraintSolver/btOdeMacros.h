@@ -131,8 +131,8 @@ typedef btScalar *dRealMutablePtr;
 //#define dRealAllocaArray(name,size) btScalar *name = (btScalar*) stackAlloc->allocate(dEFFICIENT_SIZE(size)*sizeof(btScalar));
 #define dRealAllocaArray(name,size) btScalar *name = NULL; \
 	unsigned int  memNeeded_##name = dEFFICIENT_SIZE(size)*sizeof(btScalar); \
-	if (memNeeded_##name < static_cast<std::size_t>(stackAlloc->getAvailableMemory())) name = (btScalar*) stackAlloc->allocate(memNeeded_##name); \
-	else{ btAssert(memNeeded_##name < static_cast<std::size_t>(stackAlloc->getAvailableMemory())); name = (btScalar*) alloca(memNeeded_##name); } 
+	if (memNeeded_##name < static_cast<size_t>(stackAlloc->getAvailableMemory())) name = (btScalar*) stackAlloc->allocate(memNeeded_##name); \
+	else{ btAssert(memNeeded_##name < static_cast<size_t>(stackAlloc->getAvailableMemory())); name = (btScalar*) alloca(memNeeded_##name); } 
 
 
 

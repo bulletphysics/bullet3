@@ -28,65 +28,36 @@ CFG=appAllBulletDemos - Win32 Release
 # PROP Scc_ProjName ""
 # PROP Scc_LocalPath ""
 CPP=cl.exe
-MTL=midl.exe
 RSC=rc.exe
 
-!IF  "$(CFG)" == "appAllBulletDemos - Win32 Release"
+!IF  "$(CFG)" == "appAllBulletDemos - Win32 DebugDoublePrecision"
 
 # PROP BASE Use_MFC 0
 # PROP BASE Use_Debug_Libraries 0
-# PROP BASE Output_Dir "release"
-# PROP BASE Intermediate_Dir "release"
+# PROP BASE Output_Dir "debug_dbl"
+# PROP BASE Intermediate_Dir "debug_dbl"
 # PROP BASE Target_Dir ""
 # PROP Use_MFC 0
 # PROP Use_Debug_Libraries 0
-# PROP Output_Dir "..\..\out\release6\build\appAllBulletDemos\"
-# PROP Intermediate_Dir "..\..\out\release6\build\appAllBulletDemos\"
-# PROP Ignore_Export_Lib 0
+# PROP Output_Dir "..\..\out\debug_dbl6\build\appAllBulletDemos\"
+# PROP Intermediate_Dir "..\..\out\debug_dbl6\build\appAllBulletDemos\"
 # PROP Target_Dir ""
-# ADD BASE CPP /nologo /vmb /vms /W3 /Gm /G5 /D "WIN32" /FD /c
-# ADD CPP /nologo /vmb /vms /W3 /Gm /G5 /FD /c /Gy /GF /MD /Ob2 /Og /Oi /Ot /Oy /D "_MT" /D "_MBCS" /D "NDEBUG" /D "_CONSOLE" /D "_CRT_SECURE_NO_DEPRECATE" /D "_CRT_NONSTDC_NO_DEPRECATE" /D "WIN32"  /I "." /I "..\.." /I "..\..\src" /I "..\..\Glut" /I "..\..\Extras" /I "..\..\Extras\ConvexHull" /I "..\..\Demos\OpenGL" /I "..\..\Extras\ConvexDecomposition" /I "..\..\Extras\GIMPACT\include" /I "..\..\Extras\GIMPACTUtils"
+LIB32=link.exe -lib
+# ADD BASE LIB32 /nologo
+# ADD LIB32 /nologo
+MTL=midl.exe
 # ADD BASE MTL /nologo /mktyplib203 /o "NUL" /win32
-# ADD MTL /nologo /mktyplib203 /o "NUL" /win32 /D "NDEBUG" /D "_CONSOLE" /D "_CRT_SECURE_NO_DEPRECATE" /D "_CRT_NONSTDC_NO_DEPRECATE"
+# ADD MTL /nologo /mktyplib203 /o "NUL" /win32 /D "_DEBUG" /D "BT_USE_DOUBLE_PRECISION" /D "_CONSOLE" /D "_CRT_SECURE_NO_DEPRECATE" /D "_CRT_NONSTDC_NO_DEPRECATE"
+# ADD BASE CPP /nologo /G5 /W3 /D "WIN32" /FD /c
+# ADD CPP /nologo /G5 /W3 /I "." /I "..\.." /I "..\..\src" /I "..\..\Glut" /I "..\..\Extras" /I "..\..\Extras\ConvexHull" /I "..\..\Demos\OpenGL" /I "..\..\Extras\ConvexDecomposition" /I "..\..\Extras\GIMPACT\include" /I "..\..\Extras\GIMPACTUtils" /D "_MT" /D "_MBCS" /D "_DEBUG" /D "BT_USE_DOUBLE_PRECISION" /D "_CONSOLE" /D "_CRT_SECURE_NO_DEPRECATE" /D "_CRT_NONSTDC_NO_DEPRECATE" /D "WIN32" /FD /c
 # ADD BASE RSC /l 0x409
-# ADD RSC /l 0x409 /fo".\..\..\out\release6\build\appAllBulletDemos\appAllBulletDemos.res" /i "." /i "..\.." /i "..\..\src" /i "..\..\Glut" /i "..\..\Extras" /i "..\..\Extras\ConvexHull" /i "..\..\Demos\OpenGL" /i "..\..\Extras\ConvexDecomposition" /i "..\..\Extras\GIMPACT\include" /i "..\..\Extras\GIMPACTUtils"
+# ADD RSC /l 0x409 /fo".\..\..\out\debug_dbl6\build\appAllBulletDemos\appAllBulletDemos.res" /i "." /i "..\.." /i "..\..\src" /i "..\..\Glut" /i "..\..\Extras" /i "..\..\Extras\ConvexHull" /i "..\..\Demos\OpenGL" /i "..\..\Extras\ConvexDecomposition" /i "..\..\Extras\GIMPACT\include" /i "..\..\Extras\GIMPACTUtils"
 BSC32=bscmake.exe
 # ADD BASE BSC32 /nologo
 # ADD BSC32 /nologo
-LIB32=link.exe -lib
-# ADD BASE LIB32 /nologo
-# ADD LIB32 /nologo 
 LINK32=link.exe
 # ADD BASE LINK32 user32.lib gdi32.lib advapi32.lib /nologo /machine:I386
-# ADD LINK32 shell32.lib user32.lib gdi32.lib advapi32.lib glut32.lib  /nologo /version:4.0 /machine:I386 /OPT:NOREF /out:"..\..\AllBulletDemos.exe" /subsystem:console /libpath:"..\..\Glut" 
-
-!ELSEIF  "$(CFG)" == "appAllBulletDemos - Win32 ReleaseDoublePrecision"
-
-# PROP BASE Use_MFC 0
-# PROP BASE Use_Debug_Libraries 
-# PROP BASE Output_Dir "release_dbl"
-# PROP BASE Intermediate_Dir "release_dbl"
-# PROP BASE Target_Dir ""
-# PROP Use_MFC 0
-# PROP Use_Debug_Libraries 
-# PROP Output_Dir "..\..\out\release_dbl6\build\appAllBulletDemos\"
-# PROP Intermediate_Dir "..\..\out\release_dbl6\build\appAllBulletDemos\"
-# PROP Target_Dir ""
-# ADD BASE CPP /nologo /vmb /vms /W3 /Gm /G5 /D "WIN32" /FD /c
-# ADD CPP /nologo /vmb /vms /W3 /Gm /G5 /FD /c  /D "_MT" /D "_MBCS" /D "NDEBUG" /D "BT_USE_DOUBLE_PRECISION" /D "_CONSOLE" /D "_CRT_SECURE_NO_DEPRECATE" /D "_CRT_NONSTDC_NO_DEPRECATE" /D "WIN32"  /I "." /I "..\.." /I "..\..\src" /I "..\..\Glut" /I "..\..\Extras" /I "..\..\Extras\ConvexHull" /I "..\..\Demos\OpenGL" /I "..\..\Extras\ConvexDecomposition" /I "..\..\Extras\GIMPACT\include" /I "..\..\Extras\GIMPACTUtils"
-# ADD BASE MTL /nologo /mktyplib203 /o "NUL" /win32
-# ADD MTL /nologo /mktyplib203 /o "NUL" /win32 /D "NDEBUG" /D "BT_USE_DOUBLE_PRECISION" /D "_CONSOLE" /D "_CRT_SECURE_NO_DEPRECATE" /D "_CRT_NONSTDC_NO_DEPRECATE"
-# ADD BASE RSC /l 0x409
-# ADD RSC /l 0x409 /fo".\..\..\out\release_dbl6\build\appAllBulletDemos\appAllBulletDemos.res" /i "." /i "..\.." /i "..\..\src" /i "..\..\Glut" /i "..\..\Extras" /i "..\..\Extras\ConvexHull" /i "..\..\Demos\OpenGL" /i "..\..\Extras\ConvexDecomposition" /i "..\..\Extras\GIMPACT\include" /i "..\..\Extras\GIMPACTUtils"
-BSC32=bscmake.exe
-# ADD BASE BSC32 /nologo
-# ADD BSC32 /nologo
-LIB32=link.exe -lib
-# ADD BASE LIB32 /nologo
-# ADD LIB32 /nologo 
-LINK32=link.exe
-# ADD BASE LINK32 user32.lib gdi32.lib advapi32.lib /nologo /machine:I386
-# ADD LINK32 shell32.lib user32.lib gdi32.lib advapi32.lib glut32.lib  /nologo /version:4.0 /machine:I386  /out:"..\..\AllBulletDemos.exe" /subsystem:console /libpath:"..\..\Glut" 
+# ADD LINK32 shell32.lib user32.lib gdi32.lib advapi32.lib glut32.lib /nologo /version:4.0 /subsystem:console /machine:I386 /out:"..\..\AllBulletDemos.exe" /libpath:"..\..\Glut"
 
 !ELSEIF  "$(CFG)" == "appAllBulletDemos - Win32 Debug"
 
@@ -101,58 +72,90 @@ LINK32=link.exe
 # PROP Intermediate_Dir "..\..\out\debug6\build\appAllBulletDemos\"
 # PROP Ignore_Export_Lib 1
 # PROP Target_Dir ""
-# ADD BASE CPP /nologo /vmb /vms /W3 /Gm /G5 /D "WIN32" /FD /c
-# ADD CPP /nologo /vmb /vms /W3 /Gm /G5 /FD /c /GR /MDd /ZI /Od /D "_MT" /D "_MBCS" /D "_DEBUG" /D "_CONSOLE" /D "_CRT_SECURE_NO_DEPRECATE" /D "_CRT_NONSTDC_NO_DEPRECATE" /D "WIN32"  /I "." /I "..\.." /I "..\..\src" /I "..\..\Glut" /I "..\..\Extras" /I "..\..\Extras\ConvexHull" /I "..\..\Demos\OpenGL" /I "..\..\Extras\ConvexDecomposition" /I "..\..\Extras\GIMPACT\include" /I "..\..\Extras\GIMPACTUtils"
+LIB32=link.exe -lib
+# ADD BASE LIB32 /nologo
+# ADD LIB32 /nologo
+MTL=midl.exe
 # ADD BASE MTL /nologo /mktyplib203 /o "NUL" /win32
 # ADD MTL /nologo /mktyplib203 /o "NUL" /win32 /D "_DEBUG" /D "_CONSOLE" /D "_CRT_SECURE_NO_DEPRECATE" /D "_CRT_NONSTDC_NO_DEPRECATE"
+# ADD BASE CPP /nologo /G5 /W3 /D "WIN32" /FD /c
+# ADD CPP /nologo /G5 /MDd /W3 /Gm /GR /ZI /Od /I "." /I "..\.." /I "..\..\src" /I "..\..\Glut" /I "..\..\Extras" /I "..\..\Extras\ConvexHull" /I "..\..\Demos\OpenGL" /I "..\..\Extras\ConvexDecomposition" /I "..\..\Extras\GIMPACT\include" /I "..\..\Extras\GIMPACTUtils" /D "_MT" /D "_MBCS" /D "_DEBUG" /D "_CONSOLE" /D "_CRT_SECURE_NO_DEPRECATE" /D "_CRT_NONSTDC_NO_DEPRECATE" /D "WIN32" /FD /Zm1000 /c
 # ADD BASE RSC /l 0x409
 # ADD RSC /l 0x409 /fo".\..\..\out\debug6\build\appAllBulletDemos\appAllBulletDemos.res" /i "." /i "..\.." /i "..\..\src" /i "..\..\Glut" /i "..\..\Extras" /i "..\..\Extras\ConvexHull" /i "..\..\Demos\OpenGL" /i "..\..\Extras\ConvexDecomposition" /i "..\..\Extras\GIMPACT\include" /i "..\..\Extras\GIMPACTUtils"
 BSC32=bscmake.exe
 # ADD BASE BSC32 /nologo
 # ADD BSC32 /nologo
-LIB32=link.exe -lib
-# ADD BASE LIB32 /nologo
-# ADD LIB32 /nologo 
 LINK32=link.exe
 # ADD BASE LINK32 user32.lib gdi32.lib advapi32.lib /nologo /machine:I386
-# ADD LINK32 shell32.lib user32.lib gdi32.lib advapi32.lib glut32.lib  /nologo /version:4.0 /machine:I386 /debug /pdbtype:sept /out:"..\..\AllBulletDemos.exe" /subsystem:console /libpath:"..\..\Glut" 
+# ADD LINK32 shell32.lib user32.lib gdi32.lib advapi32.lib glut32.lib /nologo /version:4.0 /subsystem:console /debug /machine:I386 /out:"..\..\AllBulletDemos.exe" /pdbtype:sept /libpath:"..\..\Glut"
 
-!ELSEIF  "$(CFG)" == "appAllBulletDemos - Win32 DebugDoublePrecision"
+!ELSEIF  "$(CFG)" == "appAllBulletDemos - Win32 ReleaseDoublePrecision"
 
 # PROP BASE Use_MFC 0
-# PROP BASE Use_Debug_Libraries 
-# PROP BASE Output_Dir "debug_dbl"
-# PROP BASE Intermediate_Dir "debug_dbl"
+# PROP BASE Use_Debug_Libraries 0
+# PROP BASE Output_Dir "release_dbl"
+# PROP BASE Intermediate_Dir "release_dbl"
 # PROP BASE Target_Dir ""
 # PROP Use_MFC 0
-# PROP Use_Debug_Libraries 
-# PROP Output_Dir "..\..\out\debug_dbl6\build\appAllBulletDemos\"
-# PROP Intermediate_Dir "..\..\out\debug_dbl6\build\appAllBulletDemos\"
+# PROP Use_Debug_Libraries 0
+# PROP Output_Dir "..\..\out\release_dbl6\build\appAllBulletDemos\"
+# PROP Intermediate_Dir "..\..\out\release_dbl6\build\appAllBulletDemos\"
 # PROP Target_Dir ""
-# ADD BASE CPP /nologo /vmb /vms /W3 /Gm /G5 /D "WIN32" /FD /c
-# ADD CPP /nologo /vmb /vms /W3 /Gm /G5 /FD /c  /D "_MT" /D "_MBCS" /D "_DEBUG" /D "BT_USE_DOUBLE_PRECISION" /D "_CONSOLE" /D "_CRT_SECURE_NO_DEPRECATE" /D "_CRT_NONSTDC_NO_DEPRECATE" /D "WIN32"  /I "." /I "..\.." /I "..\..\src" /I "..\..\Glut" /I "..\..\Extras" /I "..\..\Extras\ConvexHull" /I "..\..\Demos\OpenGL" /I "..\..\Extras\ConvexDecomposition" /I "..\..\Extras\GIMPACT\include" /I "..\..\Extras\GIMPACTUtils"
+LIB32=link.exe -lib
+# ADD BASE LIB32 /nologo
+# ADD LIB32 /nologo
+MTL=midl.exe
 # ADD BASE MTL /nologo /mktyplib203 /o "NUL" /win32
-# ADD MTL /nologo /mktyplib203 /o "NUL" /win32 /D "_DEBUG" /D "BT_USE_DOUBLE_PRECISION" /D "_CONSOLE" /D "_CRT_SECURE_NO_DEPRECATE" /D "_CRT_NONSTDC_NO_DEPRECATE"
+# ADD MTL /nologo /mktyplib203 /o "NUL" /win32 /D "NDEBUG" /D "BT_USE_DOUBLE_PRECISION" /D "_CONSOLE" /D "_CRT_SECURE_NO_DEPRECATE" /D "_CRT_NONSTDC_NO_DEPRECATE"
+# ADD BASE CPP /nologo /G5 /W3 /D "WIN32" /FD /c
+# ADD CPP /nologo /G5 /W3 /I "." /I "..\.." /I "..\..\src" /I "..\..\Glut" /I "..\..\Extras" /I "..\..\Extras\ConvexHull" /I "..\..\Demos\OpenGL" /I "..\..\Extras\ConvexDecomposition" /I "..\..\Extras\GIMPACT\include" /I "..\..\Extras\GIMPACTUtils" /D "_MT" /D "_MBCS" /D "NDEBUG" /D "BT_USE_DOUBLE_PRECISION" /D "_CONSOLE" /D "_CRT_SECURE_NO_DEPRECATE" /D "_CRT_NONSTDC_NO_DEPRECATE" /D "WIN32" /FD /c
 # ADD BASE RSC /l 0x409
-# ADD RSC /l 0x409 /fo".\..\..\out\debug_dbl6\build\appAllBulletDemos\appAllBulletDemos.res" /i "." /i "..\.." /i "..\..\src" /i "..\..\Glut" /i "..\..\Extras" /i "..\..\Extras\ConvexHull" /i "..\..\Demos\OpenGL" /i "..\..\Extras\ConvexDecomposition" /i "..\..\Extras\GIMPACT\include" /i "..\..\Extras\GIMPACTUtils"
+# ADD RSC /l 0x409 /fo".\..\..\out\release_dbl6\build\appAllBulletDemos\appAllBulletDemos.res" /i "." /i "..\.." /i "..\..\src" /i "..\..\Glut" /i "..\..\Extras" /i "..\..\Extras\ConvexHull" /i "..\..\Demos\OpenGL" /i "..\..\Extras\ConvexDecomposition" /i "..\..\Extras\GIMPACT\include" /i "..\..\Extras\GIMPACTUtils"
 BSC32=bscmake.exe
 # ADD BASE BSC32 /nologo
 # ADD BSC32 /nologo
-LIB32=link.exe -lib
-# ADD BASE LIB32 /nologo
-# ADD LIB32 /nologo 
 LINK32=link.exe
 # ADD BASE LINK32 user32.lib gdi32.lib advapi32.lib /nologo /machine:I386
-# ADD LINK32 shell32.lib user32.lib gdi32.lib advapi32.lib glut32.lib  /nologo /version:4.0 /machine:I386  /out:"..\..\AllBulletDemos.exe" /subsystem:console /libpath:"..\..\Glut" 
+# ADD LINK32 shell32.lib user32.lib gdi32.lib advapi32.lib glut32.lib /nologo /version:4.0 /subsystem:console /machine:I386 /out:"..\..\AllBulletDemos.exe" /libpath:"..\..\Glut"
+
+!ELSEIF  "$(CFG)" == "appAllBulletDemos - Win32 Release"
+
+# PROP BASE Use_MFC 0
+# PROP BASE Use_Debug_Libraries 0
+# PROP BASE Output_Dir "release"
+# PROP BASE Intermediate_Dir "release"
+# PROP BASE Target_Dir ""
+# PROP Use_MFC 0
+# PROP Use_Debug_Libraries 0
+# PROP Output_Dir "..\..\out\release6\build\appAllBulletDemos\"
+# PROP Intermediate_Dir "..\..\out\release6\build\appAllBulletDemos\"
+# PROP Ignore_Export_Lib 0
+# PROP Target_Dir ""
+LIB32=link.exe -lib
+# ADD BASE LIB32 /nologo
+# ADD LIB32 /nologo
+MTL=midl.exe
+# ADD BASE MTL /nologo /mktyplib203 /o "NUL" /win32
+# ADD MTL /nologo /mktyplib203 /o "NUL" /win32 /D "NDEBUG" /D "_CONSOLE" /D "_CRT_SECURE_NO_DEPRECATE" /D "_CRT_NONSTDC_NO_DEPRECATE"
+# ADD BASE CPP /nologo /G5 /W3 /D "WIN32" /FD /c
+# ADD CPP /nologo /G5 /MD /W3 /Ot /Og /Oi /Oy /Ob2 /Gy /I "." /I "..\.." /I "..\..\src" /I "..\..\Glut" /I "..\..\Extras" /I "..\..\Extras\ConvexHull" /I "..\..\Demos\OpenGL" /I "..\..\Extras\ConvexDecomposition" /I "..\..\Extras\GIMPACT\include" /I "..\..\Extras\GIMPACTUtils" /D "_MT" /D "_MBCS" /D "NDEBUG" /D "_CONSOLE" /D "_CRT_SECURE_NO_DEPRECATE" /D "_CRT_NONSTDC_NO_DEPRECATE" /D "WIN32" /FR /FD /GF /Zm1000 /c
+# ADD BASE RSC /l 0x409
+# ADD RSC /l 0x409 /fo".\..\..\out\release6\build\appAllBulletDemos\appAllBulletDemos.res" /i "." /i "..\.." /i "..\..\src" /i "..\..\Glut" /i "..\..\Extras" /i "..\..\Extras\ConvexHull" /i "..\..\Demos\OpenGL" /i "..\..\Extras\ConvexDecomposition" /i "..\..\Extras\GIMPACT\include" /i "..\..\Extras\GIMPACTUtils"
+BSC32=bscmake.exe
+# ADD BASE BSC32 /nologo
+# ADD BSC32 /nologo
+LINK32=link.exe
+# ADD BASE LINK32 user32.lib gdi32.lib advapi32.lib /nologo /machine:I386
+# ADD LINK32 shell32.lib user32.lib gdi32.lib advapi32.lib glut32.lib /nologo /version:4.0 /subsystem:console /machine:I386 /out:"..\..\AllBulletDemos.exe" /libpath:"..\..\Glut" /OPT:NOREF
 
 !ENDIF 
 
 # Begin Target
 
-# Name "appAllBulletDemos - Win32 Release"
-# Name "appAllBulletDemos - Win32 ReleaseDoublePrecision"
-# Name "appAllBulletDemos - Win32 Debug"
 # Name "appAllBulletDemos - Win32 DebugDoublePrecision"
+# Name "appAllBulletDemos - Win32 Debug"
+# Name "appAllBulletDemos - Win32 ReleaseDoublePrecision"
+# Name "appAllBulletDemos - Win32 Release"
 # Begin Group "Source Files"
 
 # PROP Default_Filter ""
@@ -202,7 +205,7 @@ SOURCE=..\..\Demos\AllBulletDemos\..\ConvexDecompositionDemo\ConvexDecomposition
 # End Source File
 # Begin Source File
 
-SOURCE=..\..\Demos\AllBulletDemos\..\DynamicControlDemo\MotorDemo.cpp
+SOURCE=..\..\Demos\AllBulletDemos\DemoEntries.cpp
 # End Source File
 # Begin Source File
 
@@ -211,6 +214,14 @@ SOURCE=..\..\Demos\AllBulletDemos\..\GimpactTestDemo\GimpactTestDemo.cpp
 # Begin Source File
 
 SOURCE=..\..\Demos\AllBulletDemos\..\GjkConvexCastDemo\LinearConvexCastDemo.cpp
+# End Source File
+# Begin Source File
+
+SOURCE=..\..\Demos\AllBulletDemos\Main.cpp
+# End Source File
+# Begin Source File
+
+SOURCE=..\..\Demos\AllBulletDemos\..\DynamicControlDemo\MotorDemo.cpp
 # End Source File
 # Begin Source File
 
@@ -231,14 +242,6 @@ SOURCE=..\..\Demos\AllBulletDemos\..\SoftDemo\SoftDemo.cpp
 # Begin Source File
 
 SOURCE=..\..\Demos\AllBulletDemos\..\VehicleDemo\VehicleDemo.cpp
-# End Source File
-# Begin Source File
-
-SOURCE=..\..\Demos\AllBulletDemos\DemoEntries.cpp
-# End Source File
-# Begin Source File
-
-SOURCE=..\..\Demos\AllBulletDemos\Main.cpp
 # End Source File
 # End Group
 # Begin Group "Header Files"

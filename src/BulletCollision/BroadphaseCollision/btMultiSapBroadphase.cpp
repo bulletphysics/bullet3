@@ -209,8 +209,9 @@ void	btMultiSapBroadphase::setAabb(btBroadphaseProxy* proxy,const btVector3& aab
 
 	
 	m_optimizedAabbTree->reportAabbOverlappingNodex(&myNodeCallback,aabbMin,aabbMax);
+	int i;
 
-		for (int i=0;i<multiProxy->m_bridgeProxies.size();i++)
+	for ( i=0;i<multiProxy->m_bridgeProxies.size();i++)
 	{
 		btVector3 worldAabbMin,worldAabbMax;
 		multiProxy->m_bridgeProxies[i]->m_childBroadphase->getBroadphaseAabb(worldAabbMin,worldAabbMax);
@@ -307,7 +308,7 @@ void	btMultiSapBroadphase::setAabb(btBroadphaseProxy* proxy,const btVector3& aab
 
 
 	//update
-	for (int i=0;i<multiProxy->m_bridgeProxies.size();i++)
+	for ( i=0;i<multiProxy->m_bridgeProxies.size();i++)
 	{
 		btBridgeProxy* bridgeProxyRef = multiProxy->m_bridgeProxies[i];
 		bridgeProxyRef->m_childBroadphase->setAabb(bridgeProxyRef->m_childProxy,aabbMin,aabbMax,dispatcher);

@@ -192,7 +192,7 @@ public:
 		btVector3				m_n;			// Normal
 		btScalar				m_im;			// 1/mass
 		btScalar				m_area;			// Area
-		btDbvt::Node*			m_leaf;			// Leaf data
+		btDbvtNode*			m_leaf;			// Leaf data
 		int						m_battach:1;	// Attached
 	};
 	/* Link			*/ 
@@ -212,12 +212,12 @@ public:
 		Node*					m_n[3];			// Node pointers
 		btVector3				m_normal;		// Normal
 		btScalar				m_ra;			// Rest area
-		btDbvt::Node*			m_leaf;			// Leaf data
+		btDbvtNode*			m_leaf;			// Leaf data
 	};
 	/* RContact		*/ 
 	struct	RContact
 	{
-		btSoftBody::sCti		m_cti;			// Contact infos
+		sCti		m_cti;			// Contact infos
 		Node*					m_node;			// Owner node
 		btMatrix3x3				m_c0;			// Impulse matrix
 		btVector3				m_c1;			// Relative anchor
@@ -310,7 +310,7 @@ public:
 
 	typedef btAlignedObjectArray<Note>			tNoteArray;
 	typedef btAlignedObjectArray<Node>			tNodeArray;
-	typedef btAlignedObjectArray<btDbvt::Node*>	tLeafArray;
+	typedef btAlignedObjectArray<btDbvtNode*>	tLeafArray;
 	typedef btAlignedObjectArray<Link>			tLinkArray;
 	typedef btAlignedObjectArray<Face>			tFaceArray;
 	typedef btAlignedObjectArray<Anchor>		tAnchorArray;
@@ -346,7 +346,7 @@ public:
 	//
 	
 	/* ctor																	*/ 
-	btSoftBody(	btSoftBody::btSoftBodyWorldInfo* worldInfo,int node_count,
+	btSoftBody(	btSoftBodyWorldInfo* worldInfo,int node_count,
 				const btVector3* x,
 				const btScalar* m);
 	/* dtor																	*/ 

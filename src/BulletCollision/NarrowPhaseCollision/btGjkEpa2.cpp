@@ -99,6 +99,7 @@ struct	MinkowskiDiff
 
 typedef	MinkowskiDiff	tShape;
 
+
 // GJK
 struct	GJK
 {
@@ -515,6 +516,30 @@ sList			m_stock;
 	{
 	Initialize();	
 	}
+
+
+					static inline void		bind(sFace* fa,U ea,sFace* fb,U eb)
+	{
+	fa->e[ea]=(U1)eb;fa->f[ea]=fb;
+	fb->e[eb]=(U1)ea;fb->f[eb]=fa;
+	}
+static inline void		append(sList& list,sFace* face)
+	{
+	face->l[0]	=	0;
+	face->l[1]	=	list.root;
+	if(list.root) list.root->l[0]=face;
+	list.root	=	face;
+	++list.count;
+	}
+static inline void		remove(sList& list,sFace* face)
+	{
+	if(face->l[1]) face->l[1]->l[0]=face->l[0];
+	if(face->l[0]) face->l[0]->l[1]=face->l[1];
+	if(face==list.root) list.root=face->l[1];
+	--list.count;
+	}
+
+
 void				Initialize()
 	{
 	m_status	=	eStatus::Failed;
@@ -531,10 +556,11 @@ eStatus::_			Evaluate(GJK& gjk,const btVector3& guess)
 	GJK::sSimplex&	simplex=*gjk.m_simplex;
 	if((simplex.rank>1)&&gjk.EncloseOrigin())
 		{
+
 		/* Clean up				*/ 
 		while(m_hull.root)
 			{
-			sFace*	f(m_hull.root);
+			sFace*	f = m_hull.root;
 			remove(m_hull,f);
 			append(m_stock,f);
 			}
@@ -716,26 +742,7 @@ bool				expand(U pass,sSV* w,sFace* f,U e,sHorizon& horizon)
 		}
 	return(false);
 	}
-static inline void		bind(sFace* fa,U ea,sFace* fb,U eb)
-	{
-	fa->e[ea]=(U1)eb;fa->f[ea]=fb;
-	fb->e[eb]=(U1)ea;fb->f[eb]=fa;
-	}
-static inline void		append(sList& list,sFace* face)
-	{
-	face->l[0]	=	0;
-	face->l[1]	=	list.root;
-	if(list.root) list.root->l[0]=face;
-	list.root	=	face;
-	++list.count;
-	}
-static inline void		remove(sList& list,sFace* face)
-	{
-	if(face->l[1]) face->l[1]->l[0]=face->l[0];
-	if(face->l[0]) face->l[0]->l[1]=face->l[1];
-	if(face==list.root) list.root=face->l[1];
-	--list.count;
-	}
+
 };
 
 //

@@ -92,9 +92,9 @@ struct	btDbvtLeafCollider : btDbvt::ICollide
 btDbvtBroadphase*	pbp;
 btDbvtProxy*		ppx;
 		btDbvtLeafCollider(btDbvtBroadphase* p,btDbvtProxy* px) : pbp(p),ppx(px) {}
-void	Process(const btDbvt::Node* na)
+void	Process(const btDbvtNode* na)
 	{
-	const btDbvt::Node*	nb=ppx->leaf;
+	const btDbvtNode*	nb=ppx->leaf;
 	if(nb!=na)
 		{
 		btDbvtProxy*		pa=(btDbvtProxy*)na->data;
@@ -115,7 +115,7 @@ struct	btDbvtTreeCollider : btDbvt::ICollide
 {
 btDbvtBroadphase*	pbp;
 		btDbvtTreeCollider(btDbvtBroadphase* p) : pbp(p) {}
-void	Process(const btDbvt::Node* na,const btDbvt::Node* nb)
+void	Process(const btDbvtNode* na,const btDbvtNode* nb)
 	{
 	btDbvtProxy*	pa=(btDbvtProxy*)na->data;
 	btDbvtProxy*	pb=(btDbvtProxy*)nb->data;

@@ -171,7 +171,7 @@ static int intersectRectQuad2 (btScalar h[2], btScalar p[8], btScalar ret[16])
   return nr;
 }
 
-#define dAtan2(y,x) ((float)atan2f((y),(x)))	/* arc tangent with 2 args */
+
 #define M__PI 3.14159265f
 
 // given n points in the plane (array p, of size 2*n), generate m points that
@@ -214,7 +214,7 @@ void cullPoints2 (int n, btScalar p[], int m, int i0, int iret[])
 
   // compute the angle of each point w.r.t. the centroid
   btScalar A[8];
-  for (i=0; i<n; i++) A[i] = dAtan2(p[i*2+1]-cy,p[i*2]-cx);
+  for (i=0; i<n; i++) A[i] = btAtan2(p[i*2+1]-cy,p[i*2]-cx);
 
   // search for points that have angles closest to A[i0] + i*(2*pi/m).
   int avail[8];
@@ -231,7 +231,7 @@ void cullPoints2 (int n, btScalar p[], int m, int i0, int iret[])
 #endif
     for (i=0; i<n; i++) {
       if (avail[i]) {
-	diff = fabsf (A[i]-a);
+	diff = btFabs (A[i]-a);
 	if (diff > M__PI) diff = 2*M__PI - diff;
 	if (diff < maxdiff) {
 	  maxdiff = diff;
@@ -284,9 +284,9 @@ int dBoxBox2 (const btVector3& p1, const dMatrix3 R1,
   R21 = dDOT44(R1+1,R2+0); R22 = dDOT44(R1+1,R2+1); R23 = dDOT44(R1+1,R2+2);
   R31 = dDOT44(R1+2,R2+0); R32 = dDOT44(R1+2,R2+1); R33 = dDOT44(R1+2,R2+2);
 
-  Q11 = fabsf(R11); Q12 = fabsf(R12); Q13 = fabsf(R13);
-  Q21 = fabsf(R21); Q22 = fabsf(R22); Q23 = fabsf(R23);
-  Q31 = fabsf(R31); Q32 = fabsf(R32); Q33 = fabsf(R33);
+  Q11 = btFabs(R11); Q12 = btFabs(R12); Q13 = btFabs(R13);
+  Q21 = btFabs(R21); Q22 = btFabs(R22); Q23 = btFabs(R23);
+  Q31 = btFabs(R31); Q32 = btFabs(R32); Q33 = btFabs(R33);
 
   // for all 15 possible separating axes:
   //   * see if the axis separates the boxes. if so, return 0.
@@ -299,7 +299,7 @@ int dBoxBox2 (const btVector3& p1, const dMatrix3 R1,
   // the normal should be flipped.
 
 #define TST(expr1,expr2,norm,cc) \
-  s2 = fabsf(expr1) - (expr2); \
+  s2 = btFabs(expr1) - (expr2); \
   if (s2 > 0) return 0; \
   if (s2 > s) { \
     s = s2; \
@@ -326,9 +326,9 @@ int dBoxBox2 (const btVector3& p1, const dMatrix3 R1,
   // normal (n1,n2,n3) is relative to box 1.
 #undef TST
 #define TST(expr1,expr2,n1,n2,n3,cc) \
-  s2 = fabsf(expr1) - (expr2); \
+  s2 = btFabs(expr1) - (expr2); \
   if (s2 > 0) return 0; \
-  l = sqrtf((n1)*(n1) + (n2)*(n2) + (n3)*(n3)); \
+  l = btSqrt((n1)*(n1) + (n2)*(n2) + (n3)*(n3)); \
   if (l > 0) { \
     s2 /= l; \
     if (s2*fudge_factor > s) { \
@@ -461,9 +461,9 @@ int dBoxBox2 (const btVector3& p1, const dMatrix3 R1,
     normal2[2] = -normal[2];
   }
   dMULTIPLY1_331 (nr,Rb,normal2);
-  anr[0] = fabsf (nr[0]);
-  anr[1] = fabsf (nr[1]);
-  anr[2] = fabsf (nr[2]);
+  anr[0] = btFabs (nr[0]);
+  anr[1] = btFabs (nr[1]);
+  anr[2] = btFabs (nr[2]);
 
   // find the largest compontent of anr: this corresponds to the normal
   // for the indident face. the other axis numbers of the indicent face

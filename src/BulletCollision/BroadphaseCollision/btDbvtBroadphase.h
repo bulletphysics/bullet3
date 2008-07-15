@@ -39,7 +39,7 @@ struct btDbvtProxy : btBroadphaseProxy
 {
 /* Fields		*/ 
 btDbvtAabbMm		aabb;
-btDbvt::Node*		leaf;
+btDbvtNode*		leaf;
 btDbvtProxy*		links[2];
 int					stage;
 /* ctor			*/ 
