@@ -237,6 +237,13 @@ static BOOL	   DrawContacts = NO;
 		return;
 	}
 
+	if (SplitImpulse)
+	{
+		demo->getDynamicsWorld()->getSolverInfo().m_splitImpulse=1;
+	} else
+	{
+		demo->getDynamicsWorld()->getSolverInfo().m_splitImpulse=0;
+	}
 	if (DrawAABBs)
 	{ 
 		demo->setDebugMode(demo->getDebugMode() |btIDebugDraw::DBG_DrawAabb);

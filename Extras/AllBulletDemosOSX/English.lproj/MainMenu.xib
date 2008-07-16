@@ -2,13 +2,14 @@
 <archive type="com.apple.InterfaceBuilder3.Cocoa.XIB" version="7.02">
 	<data>
 		<int key="IBDocument.SystemTarget">1040</int>
-		<string key="IBDocument.SystemVersion">9C7010</string>
-		<string key="IBDocument.InterfaceBuilderVersion">658</string>
-		<string key="IBDocument.AppKitVersion">949.26</string>
+		<string key="IBDocument.SystemVersion">9E17</string>
+		<string key="IBDocument.InterfaceBuilderVersion">670</string>
+		<string key="IBDocument.AppKitVersion">949.33</string>
 		<string key="IBDocument.HIToolboxVersion">352.00</string>
 		<object class="NSMutableArray" key="IBDocument.EditedObjectIDs">
 			<bool key="EncodedWithXMLCoder">YES</bool>
-			<integer value="24"/>
+			<integer value="582"/>
+			<integer value="561"/>
 		</object>
 		<object class="NSArray" key="IBDocument.PluginDependencies">
 			<bool key="EncodedWithXMLCoder">YES</bool>
@@ -348,6 +349,7 @@
 				<string key="NSWindowTitle">All Bullet Demos</string>
 				<string key="NSWindowClass">NSWindow</string>
 				<nil key="NSViewClass"/>
+				<string key="NSWindowContentMaxSize">{3.40282e+38, 3.40282e+38}</string>
 				<string key="NSWindowContentMinSize">{593, 360}</string>
 				<object class="NSView" key="NSWindowView" id="439893737">
 					<nil key="NSNextResponder"/>
@@ -524,7 +526,7 @@
 				<string key="NSWindowContentMaxSize">{276, 219}</string>
 				<string key="NSWindowContentMinSize">{276, 219}</string>
 				<object class="NSView" key="NSWindowView" id="83671082">
-					<nil key="NSNextResponder"/>
+					<reference key="NSNextResponder"/>
 					<int key="NSvFlags">256</int>
 					<object class="NSMutableArray" key="NSSubviews">
 						<bool key="EncodedWithXMLCoder">YES</bool>
@@ -801,7 +803,7 @@
 							<reference key="NSSuperview" ref="83671082"/>
 							<bool key="NSEnabled">YES</bool>
 							<object class="NSButtonCell" key="NSCell" id="152458272">
-								<int key="NSCellFlags">67239424</int>
+								<int key="NSCellFlags">-2080244224</int>
 								<int key="NSCellFlags2">0</int>
 								<string key="NSContents">Enable Split Impulse</string>
 								<reference key="NSSupport" ref="806355103"/>
@@ -818,6 +820,7 @@
 						</object>
 					</object>
 					<string key="NSFrameSize">{276, 219}</string>
+					<reference key="NSSuperview"/>
 				</object>
 				<string key="NSScreenRect">{{0, 0}, {1440, 878}}</string>
 				<string key="NSMinSize">{276, 235}</string>
@@ -1221,6 +1224,22 @@
 					</object>
 					<int key="connectionID">580</int>
 				</object>
+				<object class="IBConnectionRecord">
+					<object class="IBBindingConnection" key="connection">
+						<string key="label">value: splitImpulse</string>
+						<reference key="source" ref="152458272"/>
+						<reference key="destination" ref="491180710"/>
+						<object class="NSNibBindingConnector" key="connector">
+							<reference key="NSSource" ref="152458272"/>
+							<reference key="NSDestination" ref="491180710"/>
+							<string key="NSLabel">value: splitImpulse</string>
+							<string key="NSBinding">value</string>
+							<string key="NSKeyPath">splitImpulse</string>
+							<int key="NSNibBindingConnectorVersion">2</int>
+						</object>
+					</object>
+					<int key="connectionID">589</int>
+				</object>
 			</object>
 			<object class="IBMutableOrderedSet" key="objectRecords">
 				<object class="NSArray" key="orderedObjects">
@@ -1554,8 +1573,8 @@
 							<reference ref="1057027809"/>
 							<reference ref="218963095"/>
 							<reference ref="177981682"/>
-							<reference ref="763559558"/>
 							<reference ref="992172993"/>
+							<reference ref="763559558"/>
 						</object>
 						<reference key="parent" ref="553415515"/>
 					</object>
@@ -1844,6 +1863,7 @@
 					<string>371.NSWindowTemplate.visibleAtLaunch</string>
 					<string>371.editorWindowContentRectSynchronizationRect</string>
 					<string>371.windowTemplate.hasMinSize</string>
+					<string>371.windowTemplate.maxSize</string>
 					<string>371.windowTemplate.minSize</string>
 					<string>372.IBPluginDependency</string>
 					<string>449.IBPluginDependency</string>
@@ -1962,12 +1982,13 @@
 					<string>{{390, 212}, {192, 73}}</string>
 					<string>com.apple.InterfaceBuilder.CocoaPlugin</string>
 					<string>{{475, 832}, {234, 43}}</string>
-					<string>{{115, 412}, {593, 360}}</string>
+					<string>{{1073, 539}, {593, 360}}</string>
 					<string>com.apple.InterfaceBuilder.CocoaPlugin</string>
-					<string>{{115, 412}, {593, 360}}</string>
+					<string>{{1073, 539}, {593, 360}}</string>
 					<reference ref="9"/>
 					<string>{{33, 99}, {480, 360}}</string>
 					<reference ref="9"/>
+					<string>{3.40282e+38, 3.40282e+38}</string>
 					<string>{593, 360}</string>
 					<string>com.apple.InterfaceBuilder.CocoaPlugin</string>
 					<string>com.apple.InterfaceBuilder.CocoaPlugin</string>
@@ -1985,9 +2006,9 @@
 					<string>com.apple.InterfaceBuilder.CocoaPlugin</string>
 					<reference ref="9"/>
 					<string>com.apple.InterfaceBuilder.CocoaPlugin</string>
-					<string>{{543, 587}, {276, 219}}</string>
+					<string>{{378, 681}, {276, 219}}</string>
 					<string>com.apple.InterfaceBuilder.CocoaPlugin</string>
-					<string>{{543, 587}, {276, 219}}</string>
+					<string>{{378, 681}, {276, 219}}</string>
 					<integer value="0"/>
 					<reference ref="9"/>
 					<reference ref="9"/>
@@ -2060,7 +2081,7 @@
 				</object>
 			</object>
 			<nil key="sourceID"/>
-			<int key="maxID">582</int>
+			<int key="maxID">589</int>
 		</object>
 		<object class="IBClassDescriber" key="IBDocument.Classes">
 			<object class="NSMutableArray" key="referencedPartialClassDescriptions">
