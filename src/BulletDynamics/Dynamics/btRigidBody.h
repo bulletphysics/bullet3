@@ -237,7 +237,7 @@ public:
 	void	applyForce(const btVector3& force, const btVector3& rel_pos) 
 	{
 		applyCentralForce(force);
-		applyTorque(rel_pos.cross(force));
+		applyTorque(rel_pos.cross(force)*m_angularFactor);
 	}
 	
 	void applyCentralImpulse(const btVector3& impulse)

@@ -163,10 +163,12 @@ void			btSoftBodyHelpers::Draw(	btSoftBody* psb,
 	const btVector3		lcolor=btVector3(0,0,0);
 	const btVector3		ncolor=btVector3(1,1,1);
 	const btVector3		ccolor=btVector3(1,0,0);
+	int i,j,nj;
+
 	/* Nodes	*/ 
 	if(0!=(drawflags&fDrawFlags::Nodes))
 	{
-		for(int i=0;i<psb->m_nodes.size();++i)
+		for(i=0;i<psb->m_nodes.size();++i)
 		{
 			const btSoftBody::Node&	n=psb->m_nodes[i];
 			if(0==(n.m_material->m_flags&btSoftBody::fMaterial::DebugDraw)) continue;
@@ -178,7 +180,7 @@ void			btSoftBodyHelpers::Draw(	btSoftBody* psb,
 	/* Links	*/ 
 	if(0!=(drawflags&fDrawFlags::Links))
 	{
-		for(int i=0;i<psb->m_links.size();++i)
+		for(i=0;i<psb->m_links.size();++i)
 		{
 			const btSoftBody::Link&	l=psb->m_links[i];
 			if(0==(l.m_material->m_flags&btSoftBody::fMaterial::DebugDraw)) continue;
@@ -188,7 +190,7 @@ void			btSoftBodyHelpers::Draw(	btSoftBody* psb,
 	/* Normals	*/ 
 	if(0!=(drawflags&fDrawFlags::Normals))
 	{
-		for(int i=0;i<psb->m_nodes.size();++i)
+		for(i=0;i<psb->m_nodes.size();++i)
 		{
 			const btSoftBody::Node&	n=psb->m_nodes[i];
 			if(0==(n.m_material->m_flags&btSoftBody::fMaterial::DebugDraw)) continue;
@@ -203,7 +205,7 @@ void			btSoftBodyHelpers::Draw(	btSoftBody* psb,
 		static const btVector3		axis[]={btVector3(1,0,0),
 			btVector3(0,1,0),
 			btVector3(0,0,1)};
-		for(int i=0;i<psb->m_rcontacts.size();++i)
+		for(i=0;i<psb->m_rcontacts.size();++i)
 		{		
 			const btSoftBody::RContact&	c=psb->m_rcontacts[i];
 			const btVector3				o=	c.m_node->m_x-c.m_cti.m_normal*
@@ -218,7 +220,7 @@ void			btSoftBodyHelpers::Draw(	btSoftBody* psb,
 	/* Anchors	*/ 
 	if(0!=(drawflags&fDrawFlags::Anchors))
 	{
-		for(int i=0;i<psb->m_anchors.size();++i)
+		for(i=0;i<psb->m_anchors.size();++i)
 		{
 			const btSoftBody::Anchor&	a=psb->m_anchors[i];
 			const btVector3				q=a.m_body->getWorldTransform()*a.m_local;
@@ -226,7 +228,7 @@ void			btSoftBodyHelpers::Draw(	btSoftBody* psb,
 			drawVertex(idraw,q,0.25,btVector3(0,1,0));
 			idraw->drawLine(a.m_node->m_x,q,btVector3(1,1,1));
 		}
-		for(int i=0;i<psb->m_nodes.size();++i)
+		for(i=0;i<psb->m_nodes.size();++i)
 		{
 			const btSoftBody::Node&	n=psb->m_nodes[i];		
 			if(0==(n.m_material->m_flags&btSoftBody::fMaterial::DebugDraw)) continue;
@@ -242,7 +244,7 @@ void			btSoftBodyHelpers::Draw(	btSoftBody* psb,
 		const btScalar	scl=(btScalar)0.8;
 		const btScalar	alp=(btScalar)1;
 		const btVector3	col(0,(btScalar)0.7,0);
-		for(int i=0;i<psb->m_faces.size();++i)
+		for(i=0;i<psb->m_faces.size();++i)
 		{
 			const btSoftBody::Face&	f=psb->m_faces[i];
 			if(0==(f.m_material->m_flags&btSoftBody::fMaterial::DebugDraw)) continue;
@@ -258,7 +260,7 @@ void			btSoftBodyHelpers::Draw(	btSoftBody* psb,
 	if(0!=(drawflags&fDrawFlags::Clusters))
 		{
 		srand(1806);
-		for(int i=0;i<psb->m_clusters.size();++i)
+		for(i=0;i<psb->m_clusters.size();++i)
 			{
 			if(psb->m_clusters[i]->m_collide)
 				{
@@ -268,7 +270,7 @@ void			btSoftBodyHelpers::Draw(	btSoftBody* psb,
 				color=color.normalized()*0.75;
 				btAlignedObjectArray<btVector3>	vertices;
 				vertices.resize(psb->m_clusters[i]->m_nodes.size());
-				for(int j=0,nj=vertices.size();j<nj;++j)
+				for(j=0,nj=vertices.size();j<nj;++j)
 					{				
 					vertices[j]=psb->m_clusters[i]->m_nodes[j]->m_x;
 					}
@@ -281,7 +283,7 @@ void			btSoftBodyHelpers::Draw(	btSoftBody* psb,
 				add(hres.m_OutputVertices,-center);
 				mul(hres.m_OutputVertices,(btScalar)1);
 				add(hres.m_OutputVertices,center);
-				for(int j=0;j<(int)hres.mNumFaces;++j)
+				for(j=0;j<(int)hres.mNumFaces;++j)
 					{
 					const int idx[]={hres.m_Indices[j*3+0],hres.m_Indices[j*3+1],hres.m_Indices[j*3+2]};
 					idraw->drawTriangle(hres.m_OutputVertices[idx[0]],
@@ -311,7 +313,7 @@ void			btSoftBodyHelpers::Draw(	btSoftBody* psb,
 	/* Notes	*/ 
 	if(0!=(drawflags&fDrawFlags::Notes))
 	{
-		for(int i=0;i<psb->m_notes.size();++i)
+		for(i=0;i<psb->m_notes.size();++i)
 		{
 			const btSoftBody::Note&	n=psb->m_notes[i];
 			btVector3				p=n.m_offset;
@@ -331,7 +333,7 @@ void			btSoftBodyHelpers::Draw(	btSoftBody* psb,
 	/* Joints		*/ 
 	if(0!=(drawflags&fDrawFlags::Joints))
 	{
-	for(int i=0;i<psb->m_joints.size();++i)
+	for(i=0;i<psb->m_joints.size();++i)
 		{
 		const btSoftBody::Joint*	pj=psb->m_joints[i];
 		switch(pj->Type())
@@ -451,7 +453,9 @@ btSoftBody*		btSoftBodyHelpers::CreateRope(	btSoftBody::btSoftBodyWorldInfo& wor
 	const int		r=res+2;
 	btVector3*		x=new btVector3[r];
 	btScalar*		m=new btScalar[r];
-	for(int i=0;i<r;++i)
+	int i;
+
+	for(i=0;i<r;++i)
 	{
 		const btScalar	t=i/(btScalar)(r-1);
 		x[i]=lerp(from,to,t);
@@ -463,7 +467,7 @@ btSoftBody*		btSoftBodyHelpers::CreateRope(	btSoftBody::btSoftBodyWorldInfo& wor
 	delete[] x;
 	delete[] m;
 	/* Create links	*/ 
-	for(int i=1;i<r;++i)
+	for(i=1;i<r;++i)
 	{
 		psb->appendLink(i-1,i);
 	}
@@ -489,7 +493,9 @@ btSoftBody*		btSoftBodyHelpers::CreatePatch(btSoftBody::btSoftBodyWorldInfo& wor
 	const int	tot=rx*ry;
 	btVector3*	x=new btVector3[tot];
 	btScalar*	m=new btScalar[tot];
-	for(int iy=0;iy<ry;++iy)
+	int iy;
+
+	for(iy=0;iy<ry;++iy)
 	{
 		const btScalar	ty=iy/(btScalar)(ry-1);
 		const btVector3	py0=lerp(corner00,corner01,ty);
@@ -509,7 +515,7 @@ btSoftBody*		btSoftBodyHelpers::CreatePatch(btSoftBody::btSoftBodyWorldInfo& wor
 	delete[] x;
 	delete[] m;
 	/* Create links	and faces */ 
-	for(int iy=0;iy<ry;++iy)
+	for(iy=0;iy<ry;++iy)
 	{
 		for(int ix=0;ix<rx;++ix)
 		{
@@ -584,7 +590,9 @@ btSoftBody*		btSoftBodyHelpers::CreateFromTriMesh(btSoftBody::btSoftBodyWorldInf
 								  int ntriangles)
 {
 	int		maxidx=0;
-	for(int i=0,ni=ntriangles*3;i<ni;++i)
+	int i,j,ni;
+
+	for(i=0,ni=ntriangles*3;i<ni;++i)
 	{
 		maxidx=btMax(triangles[i],maxidx);
 	}
@@ -593,12 +601,12 @@ btSoftBody*		btSoftBodyHelpers::CreateFromTriMesh(btSoftBody::btSoftBodyWorldInf
 	btAlignedObjectArray<btVector3>	vtx;
 	chks.resize(maxidx*maxidx,false);
 	vtx.resize(maxidx);
-	for(int i=0,j=0,ni=maxidx*3;i<ni;++j,i+=3)
+	for(i=0,j=0,ni=maxidx*3;i<ni;++j,i+=3)
 	{
 		vtx[j]=btVector3(vertices[i],vertices[i+1],vertices[i+2]);
 	}
 	btSoftBody*		psb=new btSoftBody(&worldInfo,vtx.size(),&vtx[0],0);
-	for(int i=0,ni=ntriangles*3;i<ni;i+=3)
+	for( i=0,ni=ntriangles*3;i<ni;i+=3)
 	{
 		const int idx[]={triangles[i],triangles[i+1],triangles[i+2]};
 #define IDX(_x_,_y_) ((_y_)*maxidx+(_x_))

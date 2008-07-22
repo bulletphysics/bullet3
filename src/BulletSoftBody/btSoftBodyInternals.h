@@ -595,15 +595,19 @@ static inline void	mulTPQ(btMatrix3x3& a,btScalar c,btScalar s,int p,int q)
 	{
 	const btScalar	m[2][3]={	{a[p][0],a[p][1],a[p][2]},
 								{a[q][0],a[q][1],a[q][2]}};
-	for(int i=0;i<3;++i) a[p][i]=c*m[0][i]-s*m[1][i];
-	for(int i=0;i<3;++i) a[q][i]=c*m[1][i]+s*m[0][i];
+	int i;
+
+	for(i=0;i<3;++i) a[p][i]=c*m[0][i]-s*m[1][i];
+	for(i=0;i<3;++i) a[q][i]=c*m[1][i]+s*m[0][i];
 	}
 static inline void	mulPQ(btMatrix3x3& a,btScalar c,btScalar s,int p,int q)
 	{
 	const btScalar	m[2][3]={	{a[0][p],a[1][p],a[2][p]},
 								{a[0][q],a[1][q],a[2][q]}};
-	for(int i=0;i<3;++i) a[i][p]=c*m[0][i]-s*m[1][i];
-	for(int i=0;i<3;++i) a[i][q]=c*m[1][i]+s*m[0][i];
+	int i;
+
+	for(i=0;i<3;++i) a[i][p]=c*m[0][i]-s*m[1][i];
+	for(i=0;i<3;++i) a[i][q]=c*m[1][i]+s*m[0][i];
 	}
 };
 

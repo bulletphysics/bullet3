@@ -219,7 +219,7 @@ public:
 	/* RContact		*/ 
 	struct	RContact
 	{
-		btSoftBody::sCti		m_cti;			// Contact infos
+		sCti		m_cti;			// Contact infos
 		Node*					m_node;			// Owner node
 		btMatrix3x3				m_c0;			// Impulse matrix
 		btVector3				m_c1;			// Relative anchor
@@ -322,10 +322,10 @@ public:
 	/* Body			*/ 
 	struct	Body
 	{
-		btSoftBody::Cluster*		m_soft;
+		Cluster*		m_soft;
 		btRigidBody*				m_rigid;
 									Body() : m_soft(0),m_rigid(0)				{}
-									Body(btSoftBody::Cluster* p) : m_soft(p),m_rigid(0)	{}
+									Body(Cluster* p) : m_soft(p),m_rigid(0)	{}
 									Body(btRigidBody* p) : m_soft(0),m_rigid(p)	{}
 		void						activate() const
 			{
@@ -536,7 +536,7 @@ public:
 		btVector3			o;
 		btVector3			d;
 		btScalar			mint;
-		btSoftBody::Face*	face;
+		Face*	face;
 		int					tests;
 								RayCaster(const btVector3& org,const btVector3& dir,btScalar mxt);
 		void					Process(const btDbvtNode* leaf);
@@ -598,7 +598,7 @@ public:
 	//
 	
 	/* ctor																	*/ 
-	btSoftBody(	btSoftBody::btSoftBodyWorldInfo* worldInfo,int node_count,
+	btSoftBody(	btSoftBodyWorldInfo* worldInfo,int node_count,
 				const btVector3* x,
 				const btScalar* m);
 	/* dtor																	*/ 
