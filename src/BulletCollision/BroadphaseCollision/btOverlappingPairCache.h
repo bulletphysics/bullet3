@@ -61,6 +61,7 @@ const int BT_NULL_PAIR=0xffffffff;
 class btOverlappingPairCache : public btOverlappingPairCallback
 {
 public:
+	virtual ~btOverlappingPairCache() {} // this is needed so we can get to the derived class destructor
 
 	virtual btBroadphasePair*	getOverlappingPairArrayPtr() = 0;
 	

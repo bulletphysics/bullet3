@@ -159,7 +159,11 @@ clear(m_profiling);
 //
 btDbvtBroadphase::~btDbvtBroadphase()
 {
-if(m_releasepaircache) btAlignedFree(m_paircache);
+if(m_releasepaircache) 
+{
+	m_paircache->~btOverlappingPairCache();
+	btAlignedFree(m_paircache);
+}
 }
 
 //
