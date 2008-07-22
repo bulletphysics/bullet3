@@ -1883,9 +1883,12 @@ for( i=0;i<m_clusters.size();++i)
 	c.m_framexform.setIdentity();
 	c.m_framexform.setOrigin(c.m_com);
 	c.m_framerefs.resize(c.m_nodes.size());
-	for(i=0;i<c.m_framerefs.size();++i)
-		{
-		c.m_framerefs[i]=c.m_nodes[i]->m_x-c.m_com;
+	{
+		int i;
+		for(i=0;i<c.m_framerefs.size();++i)
+			{
+			c.m_framerefs[i]=c.m_nodes[i]->m_x-c.m_com;
+			}
 		}
 	}
 }
