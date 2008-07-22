@@ -32,8 +32,13 @@ struct	fDrawFlags { enum _ {
 	Contacts	=	0x0020,
 	Anchors		=	0x0040,
 	Notes		=	0x0080,
+	Clusters	=	0x0100,
+	NodeTree	=	0x0200,
+	FaceTree	=	0x0400,
+	ClusterTree	=	0x0800,
+	Joints		=	0x1000,
 	/* presets	*/ 
-	Std			=	Links+Faces+Tetras+Anchors+Notes,
+	Std			=	Links+Faces+Tetras+Anchors+Notes+Joints,
 	StdTetra	=	Std-Faces+Tetras,
 };};
 
@@ -56,6 +61,11 @@ struct	btSoftBodyHelpers
 											int maxdepth=-1);
 	/* Draw face tree														*/ 
 	static void				DrawFaceTree(	btSoftBody* psb,
+											btIDebugDraw* idraw,
+											int mindepth=0,
+											int maxdepth=-1);
+	/* Draw cluster tree													*/ 
+	static void				DrawClusterTree(btSoftBody* psb,
 											btIDebugDraw* idraw,
 											int mindepth=0,
 											int maxdepth=-1);

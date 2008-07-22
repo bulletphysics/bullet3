@@ -24,7 +24,10 @@ subject to the following restrictions:
 btSoftRigidDynamicsWorld::btSoftRigidDynamicsWorld(btDispatcher* dispatcher,btBroadphaseInterface* pairCache,btConstraintSolver* constraintSolver,btCollisionConfiguration* collisionConfiguration)
 :btDiscreteDynamicsWorld(dispatcher,pairCache,constraintSolver,collisionConfiguration)
 {
-
+m_drawFlags			=	fDrawFlags::Std;
+m_drawNodeTree		=	true;
+m_drawFaceTree		=	false;
+m_drawClusterTree	=	false;
 }
 		
 btSoftRigidDynamicsWorld::~btSoftRigidDynamicsWorld()
@@ -70,7 +73,12 @@ void	btSoftRigidDynamicsWorld::updateSoftBodies()
 void	btSoftRigidDynamicsWorld::solveSoftBodiesConstraints()
 {
 	BT_PROFILE("solveSoftConstraints");
-		
+	
+	if(m_softBodies.size())
+		{
+		btSoftBody::solveClusters(m_softBodies);
+		}
+	
 	for(int i=0;i<m_softBodies.size();++i)
 	{
 		btSoftBody*	psb=(btSoftBody*)m_softBodies[i];
@@ -106,12 +114,13 @@ void	btSoftRigidDynamicsWorld::debugDrawWorld()
 		{
 			btSoftBody*	psb=(btSoftBody*)this->m_softBodies[i];
 			btSoftBodyHelpers::DrawFrame(psb,m_debugDrawer);
-			btSoftBodyHelpers::Draw(psb,m_debugDrawer,fDrawFlags::Nodes+fDrawFlags::Std);
+			btSoftBodyHelpers::Draw(psb,m_debugDrawer,m_drawFlags);
 			if (m_debugDrawer && (m_debugDrawer->getDebugMode() & btIDebugDraw::DBG_DrawAabb))
 			{
-				btSoftBodyHelpers::DrawNodeTree(psb,m_debugDrawer);
-				//btSoftBodyHelpers::DrawFaceTree(psb,m_debugDrawer);
+				if(m_drawNodeTree)		btSoftBodyHelpers::DrawNodeTree(psb,m_debugDrawer);
+				if(m_drawFaceTree)		btSoftBodyHelpers::DrawFaceTree(psb,m_debugDrawer);
+				if(m_drawClusterTree)	btSoftBodyHelpers::DrawClusterTree(psb,m_debugDrawer);
 			}
-		}
-	}
+		}		
+	}	
 }

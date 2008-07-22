@@ -180,6 +180,7 @@ void DemoApplication::updateCamera() {
 	m_cameraPosition[0] = eyePos.getX();
 	m_cameraPosition[1] = eyePos.getY();
 	m_cameraPosition[2] = eyePos.getZ();
+	m_cameraPosition += m_cameraTargetPosition;
 
 	if (m_glutScreenWidth > m_glutScreenHeight) 
 	{

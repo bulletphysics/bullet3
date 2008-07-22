@@ -25,6 +25,10 @@ class btSoftRigidDynamicsWorld : public btDiscreteDynamicsWorld
 {
 	
 	btSoftBodyArray	m_softBodies;
+	int				m_drawFlags;
+	bool			m_drawNodeTree;
+	bool			m_drawFaceTree;
+	bool			m_drawClusterTree;
 		
 protected:
 	
@@ -48,6 +52,9 @@ public:
 	void	addSoftBody(btSoftBody* body);
 
 	void	removeSoftBody(btSoftBody* body);
+	
+	int		getDrawFlags() const { return(m_drawFlags); }
+	void	setDrawFlags(int f)	{ m_drawFlags=f; }
 
 			
 	btSoftBodyArray& getSoftBodyArray()
