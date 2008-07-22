@@ -135,7 +135,24 @@ public:
 	{
 		return m_limitSign;
 	}
-		
+
+	inline bool getAngularOnly() 
+	{ 
+		return m_angularOnly; 
+	}
+	inline bool getEnableAngularMotor() 
+	{ 
+		return m_enableAngularMotor; 
+	}
+	inline btScalar getMotorTargetVelosity() 
+	{ 
+		return m_motorTargetVelocity; 
+	}
+	inline btScalar getMaxMotorImpulse() 
+	{ 
+		return m_maxMotorImpulse; 
+	}
+
 };
 
 #endif //HINGECONSTRAINT_H

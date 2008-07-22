@@ -403,3 +403,4 @@ btScalar btHingeConstraint::getHingeAngle()
 
 	return btAtan2Fast( swingAxis.dot(refAxis0), swingAxis.dot(refAxis1)  );
 }
+

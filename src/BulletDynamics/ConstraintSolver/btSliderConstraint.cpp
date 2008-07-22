@@ -395,3 +395,20 @@ void btSliderConstraint::testAngLimits(void)
 //-----------------------------------------------------------------------------
 
 
+
+btVector3 btSliderConstraint::getAncorInA(void)
+{
+	btVector3 ancorInA;
+	ancorInA = m_realPivotAInW + (m_lowerLinLimit + m_upperLinLimit) * btScalar(0.5) * m_sliderAxis;
+	ancorInA = m_rbA.getCenterOfMassTransform().inverse() * ancorInA;
+	return ancorInA;
+} // btSliderConstraint::getAncorInA()
+
+//-----------------------------------------------------------------------------
+
+btVector3 btSliderConstraint::getAncorInB(void)
+{
+	btVector3 ancorInB;
+	ancorInB = m_frameInB.getOrigin();
+	return ancorInB;
+} // btSliderConstraint::getAncorInB();

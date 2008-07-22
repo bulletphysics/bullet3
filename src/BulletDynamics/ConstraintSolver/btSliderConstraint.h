@@ -115,7 +115,7 @@ protected:
     btScalar m_targetAngMotorVelocity;
     btScalar m_maxAngMotorForce;
     btScalar m_accumulatedAngMotorImpulse;
-	
+
 	//------------------------    
 	void initParams();
 public:
@@ -204,6 +204,9 @@ public:
 	void	calculateTransforms(void);
 	void	testLinLimits(void);
 	void	testAngLimits(void);
+	// access for PE Solver
+	btVector3 getAncorInA(void);
+	btVector3 getAncorInB(void);
 };
 
 //-----------------------------------------------------------------------------
