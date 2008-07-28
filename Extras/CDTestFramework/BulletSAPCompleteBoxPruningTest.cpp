@@ -492,8 +492,8 @@ void BulletSAPCompleteBoxPruningTest::Select()
 			TwAddVarRW(mBar, "Fix lkhd",TW_TYPE_INT32,&((btDbvtBroadphase*)m_broadphase)->m_sets[1].m_lkhd,"min=-1 max=32");
 			TwAddVarRW(mBar, "Dyn opt/f(%)",TW_TYPE_INT32,&((btDbvtBroadphase*)m_broadphase)->m_dupdates,"min=0 max=100");
 			TwAddVarRW(mBar, "Fix opt/f(%)",TW_TYPE_INT32,&((btDbvtBroadphase*)m_broadphase)->m_fupdates,"min=0 max=100");
-			TwAddVarRO(mBar, "Dyn leafs",TW_TYPE_INT32,&((btDbvtBroadphase*)m_broadphase)->m_sets[0].m_leafs,"");
-			TwAddVarRO(mBar, "Fix leafs",TW_TYPE_INT32,&((btDbvtBroadphase*)m_broadphase)->m_sets[1].m_leafs,"");
+			TwAddVarRO(mBar, "Dyn leafs",TW_TYPE_INT32,&((btDbvtBroadphase*)m_broadphase)->m_sets[0].m_leaves,"");
+			TwAddVarRO(mBar, "Fix leafs",TW_TYPE_INT32,&((btDbvtBroadphase*)m_broadphase)->m_sets[1].m_leaves,"");
 			TwAddVarRO(mBar, "Visible",TW_TYPE_INT32,&visiblecount,"");			
 			}
 	}
@@ -669,7 +669,7 @@ void BulletSAPCompleteBoxPruningTest::PerformTest()
 }
 
 //
-static void	DrawVolume(const btDbvt::Volume& volume,const btVector3& color)
+static void	DrawVolume(const btDbvtVolume& volume,const btVector3& color)
 {
 const btVector3	mins=volume.Mins();
 const btVector3	maxs=volume.Maxs();
@@ -789,11 +789,15 @@ if((!m_isdbvt)||(!enableCulling))
 			drawn=0;
 			box.mRot.Identity();
 			}
-		bool	Descent(const btDbvt::Node* node)
+		bool	Descent(const btDbvtNode* node)
 			{
-			return(ocb->queryOccluder(node->volume.Center(),node->volume.Extent()));
+			return(ocb->queryOccluder(node->volume.Center(),node->volume.Extents()));
 			}
-		void	Process(const btDbvt::Node* leaf)
+		void	Process(const btDbvtNode* node,btScalar depth)
+			{
+			Process(node);
+			}
+		void	Process(const btDbvtNode* leaf)
 			{	
 			btBroadphaseProxy*	proxy=(btBroadphaseProxy*)leaf->data;
 			int					i=((AABB*)proxy->m_clientObject)-self->mBoxes;
@@ -874,20 +878,24 @@ if((!m_isdbvt)||(!enableCulling))
 		{
 		OcclusionBuffer*	ocb;
 		int					sid;
-		bool	AllLeafs(const btDbvt::Node* node)
+		bool	AllLeafs(const btDbvtNode* node)
 			{
 			Process(node);
 			return(false);
 			}
-		bool	Descent(const btDbvt::Node* node)
+		bool	Descent(const btDbvtNode* node)
 			{
-			return(ocb->queryOccluder(node->volume.Center(),node->volume.Extent()));
+			return(ocb->queryOccluder(node->volume.Center(),node->volume.Extents()));
 			}
-		void	Process(const btDbvt::Node* node)
+		void	Process(const btDbvtNode* node,btScalar depth)
+			{
+			Process(node);
+			}
+		void	Process(const btDbvtNode* node)
 			{
 			if(ocb)
 				{
-				ocb->appendOccluder(node->volume.Center(),node->volume.Extent());
+				ocb->appendOccluder(node->volume.Center(),node->volume.Extents());
 				}
 			if(sid>=0)
 				{

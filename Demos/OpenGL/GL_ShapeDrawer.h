@@ -20,11 +20,26 @@ class btShapeHull;
 #include "LinearMath/btAlignedObjectArray.h"
 #include "LinearMath/btVector3.h"
 
+#include "BulletCollision/CollisionShapes/btShapeHull.h"
+
 /// OpenGL shape drawing
 class GL_ShapeDrawer
 {
+	struct ShapeCache
+	{
+	struct Edge { btVector3 n[2];int v[2]; };
+	ShapeCache(btConvexShape* s) : m_shapehull(s) {}
+	btShapeHull					m_shapehull;
+	btAlignedObjectArray<Edge>	m_edges;
+	};
 	//clean-up memory of dynamically created shape hulls
-	btAlignedObjectArray<btShapeHull*>	m_shapeHulls;
+	btAlignedObjectArray<ShapeCache*>	m_shapecaches;
+	unsigned int						m_texturehandle;
+	bool								m_textureenabled;
+	bool								m_textureinitialized;
+	
+	private:
+	ShapeCache*							cache(btConvexShape*);
 
 	public:
 		GL_ShapeDrawer();
@@ -33,9 +48,13 @@ class GL_ShapeDrawer
 
 		///drawOpenGL might allocate temporary memoty, stores pointer in shape userpointer
 		void		drawOpenGL(btScalar* m, const btCollisionShape* shape, const btVector3& color,int	debugMode);
+		void		drawShadow(btScalar* m, const btVector3& extrusion,const btCollisionShape* shape);
+		
+		bool		enableTexture(bool enable) { bool p=m_textureenabled;m_textureenabled=enable;return(p); }
 		
 		static void		drawCylinder(float radius,float halfHeight, int upAxis);
 		static void		drawCoordSystem();
+		
 };
 
 void OGL_displaylist_register_shape(btCollisionShape * shape);

@@ -80,8 +80,11 @@ class DemoApplication
 	int m_lastKey;
 
 	void showProfileInfo(float& xOffset,float& yStart, float yIncr);
+	void renderscene(int pass);
 
 	GL_ShapeDrawer	m_shapeDrawer;
+	bool			m_enableshadows;
+	btVector3		m_sundirection;
 
 public:
 		
@@ -96,6 +99,9 @@ public:
 	
 	void setOrthographicProjection();
 	void resetPerspectiveProjection();
+	
+	bool	setTexturing(bool enable) { return(m_shapeDrawer.enableTexture(enable)); }
+	bool	setShadows(bool enable)	{ bool p=m_enableshadows;m_enableshadows=enable;return(p); }
 
 	int		getDebugMode()
 	{
@@ -198,4 +204,5 @@ public:
 };
 
 #endif //DEMO_APPLICATION_H
+
 

@@ -88,6 +88,7 @@ struct	{
 btDbvtBroadphase(btOverlappingPairCache* paircache=0);
 ~btDbvtBroadphase();
 void							collide(btDispatcher* dispatcher);
+void							optimize();
 /* btBroadphaseInterface Implementation	*/ 
 btBroadphaseProxy*				createProxy(const btVector3& aabbMin,const btVector3& aabbMax,int shapeType,void* userPtr,short int collisionFilterGroup,short int collisionFilterMask,btDispatcher* dispatcher,void* multiSapProxy);
 void							destroyProxy(btBroadphaseProxy* proxy,btDispatcher* dispatcher);

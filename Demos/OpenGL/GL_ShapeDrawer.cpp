@@ -317,7 +317,48 @@ void GL_ShapeDrawer::drawCylinder(float radius,float halfHeight, int upAxis)
 	gluDeleteQuadric(quadObj);
 }
 
-
+GL_ShapeDrawer::ShapeCache*		GL_ShapeDrawer::cache(btConvexShape* shape)
+{
+ShapeCache*		sc=(ShapeCache*)shape->getUserPointer();
+if(!sc)
+	{
+	sc=new(btAlignedAlloc(sizeof(ShapeCache),16)) ShapeCache(shape);
+	sc->m_shapehull.buildHull(shape->getMargin());
+	m_shapecaches.push_back(sc);
+	shape->setUserPointer(sc);
+	/* Build edges	*/ 
+	const int			ni=sc->m_shapehull.numIndices();
+	const int			nv=sc->m_shapehull.numVertices();
+	const unsigned int*	pi=sc->m_shapehull.getIndexPointer();
+	const btVector3*	pv=sc->m_shapehull.getVertexPointer();
+	btAlignedObjectArray<ShapeCache::Edge*>	edges;
+	sc->m_edges.reserve(ni);
+	edges.resize(nv*nv,0);
+	for(int i=0;i<ni;i+=3)
+		{
+		const unsigned int* ti=pi+i;
+		const btVector3		nrm=cross(pv[ti[1]]-pv[ti[0]],pv[ti[2]]-pv[ti[0]]).normalized();
+		for(int j=2,k=0;k<3;j=k++)
+			{
+			const unsigned int	a=ti[j];
+			const unsigned int	b=ti[k];
+			ShapeCache::Edge*&	e=edges[btMin(a,b)*nv+btMax(a,b)];
+			if(!e)
+				{
+				sc->m_edges.push_back(ShapeCache::Edge());
+				e=&sc->m_edges[sc->m_edges.size()-1];
+				e->n[0]=nrm;e->n[1]=-nrm;
+				e->v[0]=a;e->v[1]=b;
+				}
+				else
+				{
+				e->n[1]=nrm;
+				}
+			}
+		}
+	}
+return(sc);
+}
 
 void GL_ShapeDrawer::drawOpenGL(btScalar* m, const btCollisionShape* shape, const btVector3& color,int	debugMode)
 {
@@ -357,13 +398,53 @@ void GL_ShapeDrawer::drawOpenGL(btScalar* m, const btCollisionShape* shape, cons
 
 	} else
 	{
+		if(m_textureenabled&&(!m_textureinitialized))
+			{
+			GLubyte*	image=new GLubyte[256*256*3];
+			for(int y=0;y<256;++y)
+				{
+				const int	t=y>>4;
+				GLubyte*	pi=image+y*256*3;
+				for(int x=0;x<256;++x)
+					{
+					const int		s=x>>4;
+					const GLubyte	b=180;					
+					GLubyte			c=b+((s+t&1)&1)*(255-b);
+					pi[0]=pi[1]=pi[2]=c;pi+=3;
+					}
+				}
+			glGenTextures(1,&m_texturehandle);
+			glBindTexture(GL_TEXTURE_2D,m_texturehandle);
+			glTexEnvf(GL_TEXTURE_ENV,GL_TEXTURE_ENV_MODE,GL_MODULATE);
+			glTexParameterf(GL_TEXTURE_2D,GL_TEXTURE_MIN_FILTER,GL_LINEAR_MIPMAP_LINEAR);
+			glTexParameterf(GL_TEXTURE_2D,GL_TEXTURE_MAG_FILTER,GL_LINEAR_MIPMAP_LINEAR);
+			glTexParameterf(GL_TEXTURE_2D,GL_TEXTURE_WRAP_S,GL_REPEAT);
+			glTexParameterf(GL_TEXTURE_2D,GL_TEXTURE_WRAP_T,GL_REPEAT);
+			gluBuild2DMipmaps(GL_TEXTURE_2D,3,256,256,GL_RGB,GL_UNSIGNED_BYTE,image);
+			delete[] image;
+			
+			glMatrixMode(GL_TEXTURE);
+			glLoadIdentity();
+			glScalef(0.025,0.025,0.025);
+			
+			static const GLfloat	planex[]={1,0,0,0};
+			static const GLfloat	planey[]={0,1,0,0};
+			static const GLfloat	planez[]={0,0,1,0};
+			glTexGenfv(GL_S,GL_OBJECT_PLANE,planex);
+			glTexGenfv(GL_T,GL_OBJECT_PLANE,planez);
+			glTexGeni(GL_S,GL_TEXTURE_GEN_MODE,GL_OBJECT_LINEAR);
+			glTexGeni(GL_T,GL_TEXTURE_GEN_MODE,GL_OBJECT_LINEAR);
+			glEnable(GL_TEXTURE_GEN_S);
+			glEnable(GL_TEXTURE_GEN_T);
+			glEnable(GL_TEXTURE_GEN_R);
+			m_textureinitialized=true;
+			}
 		//drawCoordSystem();
 	    
 		//glPushMatrix();
 		glEnable(GL_COLOR_MATERIAL);
-		glColor3f(color.x(),color.y(), color.z());
-
-		
+		if(m_textureenabled) glEnable(GL_TEXTURE_2D);
+		glColor3f(color.x(),color.y(), color.z());		
 
 		bool useWireframeFallback = true;
 
@@ -371,7 +452,8 @@ void GL_ShapeDrawer::drawOpenGL(btScalar* m, const btCollisionShape* shape, cons
 		{
 			///you can comment out any of the specific cases, and use the default
 			///the benefit of 'default' is that it approximates the actual collision shape including collision margin
-			switch (shape->getShapeType())
+			int shapetype=m_textureenabled?MAX_BROADPHASE_COLLISION_TYPES:shape->getShapeType();
+			switch (shapetype)
 			{
 			case BOX_SHAPE_PROXYTYPE:
 				{
@@ -467,6 +549,8 @@ void GL_ShapeDrawer::drawOpenGL(btScalar* m, const btCollisionShape* shape, cons
 					
 					if (shape->isConvex())
 					{
+						ShapeCache*	sc=cache((btConvexShape*)shape);
+						#if 0
 						btConvexShape* convexShape = (btConvexShape*)shape;
 						if (!shape->getUserPointer())
 						{
@@ -488,14 +572,14 @@ void GL_ShapeDrawer::drawOpenGL(btScalar* m, const btCollisionShape* shape, cons
 							
 
 						}
-						
+						#endif
 						
 
 
-						if (shape->getUserPointer())
+						//if (shape->getUserPointer())
 						{
 							//glutSolidCube(1.0);
-							btShapeHull* hull = (btShapeHull*)shape->getUserPointer();
+							btShapeHull* hull = &sc->m_shapehull/*(btShapeHull*)shape->getUserPointer()*/;
 
 							
 							if (hull->numTriangles () > 0)
@@ -537,12 +621,7 @@ void GL_ShapeDrawer::drawOpenGL(btScalar* m, const btCollisionShape* shape, cons
 								glEnd ();
 						
 						}
-					} else
-					{
-//						printf("unhandled drawing\n");
 					}
-					
-
 				}
 			}
 		}
@@ -656,27 +735,115 @@ void GL_ShapeDrawer::drawOpenGL(btScalar* m, const btCollisionShape* shape, cons
 		}
 		glEnable(GL_DEPTH_BUFFER_BIT);
 
-	//	glPopMatrix();
+	//	glPopMatrix();	
+	if(m_textureenabled) glDisable(GL_TEXTURE_2D);
 	}
     glPopMatrix();
 	
 }
 
+//
+void		GL_ShapeDrawer::drawShadow(btScalar* m,const btVector3& extrusion,const btCollisionShape* shape)
+{
+glPushMatrix(); 
+btglMultMatrix(m);
+if(shape->getShapeType() == UNIFORM_SCALING_SHAPE_PROXYTYPE)
+	{
+	const btUniformScalingShape* scalingShape = static_cast<const btUniformScalingShape*>(shape);
+	const btConvexShape* convexShape = scalingShape->getChildShape();
+	float	scalingFactor = (float)scalingShape->getUniformScalingFactor();
+	btScalar tmpScaling[4][4]={	{scalingFactor,0,0,0},
+								{0,scalingFactor,0,0},
+								{0,0,scalingFactor,0},
+								{0,0,0,1}};
+	drawShadow((btScalar*)tmpScaling,extrusion,convexShape);
+	glPopMatrix();
+	return;
+	}
+else if(shape->getShapeType()==COMPOUND_SHAPE_PROXYTYPE)
+	{
+	const btCompoundShape* compoundShape = static_cast<const btCompoundShape*>(shape);
+	for (int i=compoundShape->getNumChildShapes()-1;i>=0;i--)
+		{
+		btTransform childTrans = compoundShape->getChildTransform(i);
+		const btCollisionShape* colShape = compoundShape->getChildShape(i);
+		btScalar childMat[16];
+		childTrans.getOpenGLMatrix(childMat);
+		drawShadow(childMat,extrusion*childTrans.getBasis(),colShape);
+		}
+	}
+else
+	{
+		bool useWireframeFallback = true;
+		if (shape->isConvex())
+				{
+					ShapeCache*	sc=cache((btConvexShape*)shape);
+					btShapeHull* hull =&sc->m_shapehull;
+					glBegin(GL_QUADS);
+					for(int i=0;i<sc->m_edges.size();++i)
+						{			
+						const btScalar		d=dot(sc->m_edges[i].n[0],extrusion);
+						if((d*dot(sc->m_edges[i].n[1],extrusion))<0)
+							{
+							const int			q=	d<0?1:0;
+							const btVector3&	a=	hull->getVertexPointer()[sc->m_edges[i].v[q]];
+							const btVector3&	b=	hull->getVertexPointer()[sc->m_edges[i].v[1-q]];
+							glVertex3f(a[0],a[1],a[2]);
+							glVertex3f(b[0],b[1],b[2]);
+							glVertex3f(b[0]+extrusion[0],b[1]+extrusion[1],b[2]+extrusion[2]);
+							glVertex3f(a[0]+extrusion[0],a[1]+extrusion[1],a[2]+extrusion[2]);
+							}
+						}
+					glEnd();
+	}
 
+		}
+		
+
+		
+
+	if (shape->isConcave())//>getShapeType() == TRIANGLE_MESH_SHAPE_PROXYTYPE||shape->getShapeType() == GIMPACT_SHAPE_PROXYTYPE)
+//		if (shape->getShapeType() == TRIANGLE_MESH_SHAPE_PROXYTYPE)
+		{
+			btConcaveShape* concaveMesh = (btConcaveShape*) shape;
+			//btVector3 aabbMax(btScalar(1e30),btScalar(1e30),btScalar(1e30));
+			//btVector3 aabbMax(100,100,100);//btScalar(1e30),btScalar(1e30),btScalar(1e30));
+
+			//todo pass camera, for some culling
+			btVector3 aabbMax(btScalar(1e30),btScalar(1e30),btScalar(1e30));
+			btVector3 aabbMin(-btScalar(1e30),-btScalar(1e30),-btScalar(1e30));
+
+			GlDrawcallback drawCallback;
+			drawCallback.m_wireframe = false;
+
+			concaveMesh->processAllTriangles(&drawCallback,aabbMin,aabbMax);
+
+		}
+    glPopMatrix();
+	
+}
+
+//
 GL_ShapeDrawer::GL_ShapeDrawer()
 {
+m_texturehandle			=	0;
+m_textureenabled		=	false;
+m_textureinitialized	=	false;
 }
 
 GL_ShapeDrawer::~GL_ShapeDrawer()
 {
 	int i;
-	for (i=0;i<m_shapeHulls.size();i++)
+	for (i=0;i<m_shapecaches.size();i++)
 	{
-		btShapeHull* hull = m_shapeHulls[i];
-		hull->~btShapeHull();
-		btAlignedFree(hull);
-		m_shapeHulls[i] = 0;
+	m_shapecaches[i]->~ShapeCache();
+	btAlignedFree(m_shapecaches[i]);
 	}
-	m_shapeHulls.clear();
+	m_shapecaches.clear();
+	if(m_textureinitialized)
+		{
+		glDeleteTextures(1,&m_texturehandle);
+		}
 }
+
 

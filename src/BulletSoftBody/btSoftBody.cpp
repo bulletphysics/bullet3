@@ -771,7 +771,8 @@ if(k>0)
 	/* Initialize		*/ 
 	btAlignedObjectArray<btVector3>	centers;
 	btVector3						cog(0,0,0);
-	for(int i=0;i<m_nodes.size();++i)
+	int								i;
+	for(i=0;i<m_nodes.size();++i)
 		{
 		cog+=m_nodes[i].m_x;
 		m_clusters[(i*29873)%m_clusters.size()]->m_nodes.push_back(&m_nodes[i]);
@@ -824,7 +825,7 @@ if(k>0)
 	/* Merge		*/ 
 	btAlignedObjectArray<int>	cids;
 	cids.resize(m_nodes.size(),-1);
-	for( i=0;i<m_clusters.size();++i)
+	for(i=0;i<m_clusters.size();++i)
 		{
 		for(int j=0;j<m_clusters[i]->m_nodes.size();++j)
 			{
@@ -1018,10 +1019,11 @@ if(cut)
 	{	
 	btAlignedObjectArray<int>	cnodes;
 	const int					pcount=ncount;
+	int							i;
 	ncount=m_nodes.size();
 	cnodes.resize(ncount,0);
 	/* Nodes		*/ 
-	for(int i=0;i<ncount;++i)
+	for(i=0;i<ncount;++i)
 		{
 		const btVector3	x=m_nodes[i].m_x;
 		if((i>=pcount)||(btFabs(ifn->Eval(x))<accurary))
@@ -1907,8 +1909,12 @@ for(i=0;i<m_clusters.size();++i)
 	if(n)
 		{
 		/* Frame				*/ 
-		btMatrix3x3	m,r,s;
+		const btScalar	eps=0.0001;
+		btMatrix3x3		m,r,s;
 		m[0]=m[1]=m[2]=btVector3(0,0,0);
+		m[0][0]=eps*1;
+		m[1][1]=eps*2;
+		m[2][2]=eps*3;
 		c.m_com=clusterCom(&c);
 		for(int i=0;i<c.m_nodes.size();++i)
 			{

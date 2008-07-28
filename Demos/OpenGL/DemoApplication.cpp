@@ -71,7 +71,9 @@ m_shootBoxShape(0),
 	m_ShootBoxInitialSpeed(40.f),
 	m_stepping(true),
 	m_singleStep(false),
-	m_idle(false)
+	m_idle(false),
+	m_enableshadows(false),
+	m_sundirection(btVector3(1,-2,1)*1000)
 {
 #ifndef BT_NO_PROFILE
 	m_profileIterator = CProfileManager::Get_Iterator();
@@ -289,6 +291,8 @@ void DemoApplication::keyboardCallback(unsigned char key, int x, int y)
     case 'z' : zoomIn(); break;
     case 'x' : zoomOut(); break;
     case 'i' : toggleIdle(); break;
+    case 'g' : m_enableshadows=!m_enableshadows;break;
+    case 'u' : m_shapeDrawer.enableTexture(!m_shapeDrawer.enableTexture(false));break;
 	case 'h':
 			if (m_debugMode & btIDebugDraw::DBG_NoHelpText)
 				m_debugMode = m_debugMode & (~btIDebugDraw::DBG_NoHelpText);
@@ -902,60 +906,115 @@ void DemoApplication::showProfileInfo(float& xOffset,float& yStart, float yIncr)
 }
 
 
+//
+void	DemoApplication::renderscene(int pass)
+{
+btScalar	m[16];
+btMatrix3x3	rot;rot.setIdentity();
+const int	numObjects=m_dynamicsWorld->getNumCollisionObjects();
+btVector3 wireColor(1,0,0);
+for(int i=0;i<numObjects;i++)
+	{
+	btCollisionObject*	colObj=m_dynamicsWorld->getCollisionObjectArray()[i];
+	btRigidBody*		body=btRigidBody::upcast(colObj);
+	if(body&&body->getMotionState())
+		{
+		btDefaultMotionState* myMotionState = (btDefaultMotionState*)body->getMotionState();
+		myMotionState->m_graphicsWorldTrans.getOpenGLMatrix(m);
+		rot=myMotionState->m_graphicsWorldTrans.getBasis();
+		}
+		else
+		{
+		colObj->getWorldTransform().getOpenGLMatrix(m);
+		rot=colObj->getWorldTransform().getBasis();
+		}
+	btVector3 wireColor(1.f,1.0f,0.5f); //wants deactivation
+	if(i&1) wireColor=btVector3(0.f,0.0f,1.f);
+	///color differently for active, sleeping, wantsdeactivation states
+	if (colObj->getActivationState() == 1) //active
+		{
+		if (i & 1)
+			{
+			wireColor += btVector3 (1.f,0.f,0.f);
+			}
+			else
+			{			
+			wireColor += btVector3 (.5f,0.f,0.f);
+			}
+		}
+	if(colObj->getActivationState()==2) //ISLAND_SLEEPING
+		{
+		if(i&1)
+			{
+			wireColor += btVector3 (0.f,1.f, 0.f);
+			}
+			else
+			{
+			wireColor += btVector3 (0.f,0.5f,0.f);
+			}
+		}
+	switch(pass)
+		{
+		case	0:	m_shapeDrawer.drawOpenGL(m,colObj->getCollisionShape(),wireColor,getDebugMode());break;
+		case	1:	m_shapeDrawer.drawShadow(m,m_sundirection*rot,colObj->getCollisionShape());break;
+		case	2:	m_shapeDrawer.drawOpenGL(m,colObj->getCollisionShape(),wireColor*0.3,0);break;
+		}
+	}
+}
+
+//
 void DemoApplication::renderme()
 {
 	updateCamera();
 
-	btScalar m[16];
-
 	if (m_dynamicsWorld)
-	{
-		int numObjects = m_dynamicsWorld->getNumCollisionObjects();
-		btVector3 wireColor(1,0,0);
-		for (int i=0;i<numObjects;i++)
-		{
-			btCollisionObject* colObj = m_dynamicsWorld->getCollisionObjectArray()[i];
-			btRigidBody* body = btRigidBody::upcast(colObj);
-
-			if (body && body->getMotionState())
+	{			
+		if(m_enableshadows)
 			{
-				btDefaultMotionState* myMotionState = (btDefaultMotionState*)body->getMotionState();
-				myMotionState->m_graphicsWorldTrans.getOpenGLMatrix(m);
-			} else
-			{
-				colObj->getWorldTransform().getOpenGLMatrix(m);
+			glClear(GL_STENCIL_BUFFER_BIT);
+			glEnable(GL_CULL_FACE);
+			renderscene(0);
+			
+			glDisable(GL_LIGHTING);
+			glDepthMask(GL_FALSE);
+			glDepthFunc(GL_LEQUAL);
+			glEnable(GL_STENCIL_TEST);
+			glColorMask(GL_FALSE,GL_FALSE,GL_FALSE,GL_FALSE);
+			glStencilFunc(GL_ALWAYS,1,0xFFFFFFFFL);
+			glFrontFace(GL_CCW);
+			glStencilOp(GL_KEEP,GL_KEEP,GL_INCR);
+			renderscene(1);
+			glFrontFace(GL_CW);
+			glStencilOp(GL_KEEP,GL_KEEP,GL_DECR);
+			renderscene(1);
+			glFrontFace(GL_CCW);
+			
+			glPolygonMode(GL_FRONT,GL_FILL);
+			glPolygonMode(GL_BACK,GL_FILL);
+			glShadeModel(GL_SMOOTH);
+			glEnable(GL_DEPTH_TEST);
+			glDepthFunc(GL_LESS);
+			glEnable(GL_LIGHTING);
+			glDepthMask(GL_TRUE);
+			glCullFace(GL_BACK);
+			glFrontFace(GL_CCW);
+			glEnable(GL_CULL_FACE);
+			glColorMask(GL_TRUE,GL_TRUE,GL_TRUE,GL_TRUE);
+			
+			glDepthFunc(GL_LEQUAL);
+			glStencilFunc( GL_NOTEQUAL, 0, 0xFFFFFFFFL );
+			glStencilOp( GL_KEEP, GL_KEEP, GL_KEEP );
+			glDisable(GL_LIGHTING);
+			renderscene(2);
+			glEnable(GL_LIGHTING);
+			glDepthFunc(GL_LESS);
+			glDisable(GL_STENCIL_TEST);
+			glDisable(GL_CULL_FACE);
 			}
-
-			btVector3 wireColor(1.f,1.0f,0.5f); //wants deactivation
-			if (i & 1)
+			else
 			{
-				wireColor = btVector3(0.f,0.0f,1.f);
+			renderscene(0);
 			}
-			///color differently for active, sleeping, wantsdeactivation states
-			if (colObj->getActivationState() == 1) //active
-			{
-				if (i & 1)
-				{
-					wireColor += btVector3 (1.f,0.f,0.f);
-				} else
-				{			
-					wireColor += btVector3 (.5f,0.f,0.f);
-				}
-			}
-			if (colObj->getActivationState() == 2) //ISLAND_SLEEPING
-			{
-				if (i & 1)
-				{
-					wireColor += btVector3 (0.f,1.f, 0.f);
-				} else
-				{
-					wireColor += btVector3 (0.f,0.5f,0.f);
-				}
-			}
-
-			m_shapeDrawer.drawOpenGL(m,colObj->getCollisionShape(),wireColor,getDebugMode());
-		}
-
 
 			float xOffset = 10.f;
 			float yStart = 20.f;

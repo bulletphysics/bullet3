@@ -101,7 +101,7 @@ extern int gTotalContactPoints;
 
 void SoftDemo::clientMoveAndDisplay()
 {
-	glClear(GL_COLOR_BUFFER_BIT | GL_DEPTH_BUFFER_BIT); 
+	glClear(GL_COLOR_BUFFER_BIT | GL_DEPTH_BUFFER_BIT|GL_STENCIL_BUFFER_BIT); 
 
 
 
@@ -1030,10 +1030,15 @@ struct Functor
 		btSoftBody*	psb=btSoftBodyHelpers::CreateFromTriMesh(pdemo->m_softBodyWorldInfo,gVertices,
 			&gIndices[0][0],
 			NUM_TRIANGLES);
-		psb->generateBendingConstraints(2);
+		btSoftBody::Material* pm=psb->appendMaterial();
+		pm->m_flags		-=	btSoftBody::fMaterial::DebugDraw;
+		psb->generateBendingConstraints(2,pm);
 		psb->m_cfg.piterations=2;
+		psb->m_cfg.kDF			=1;
 		psb->m_cfg.kSSHR_CL		=1;
 		psb->m_cfg.kSS_SPLT_CL	=0;
+		psb->m_cfg.kSKHR_CL		=0.1f;
+		psb->m_cfg.kSK_SPLT_CL	=1;
 		psb->m_cfg.collisions=	btSoftBody::fCollision::CL_SS+
 								btSoftBody::fCollision::CL_RS;		
 		psb->randomizeConstraints();
@@ -1757,6 +1762,7 @@ void	SoftDemo::exitPhysics()
 
 
 }
+
 
 
 

@@ -88,7 +88,8 @@ public:
 
 	SoftDemo() : m_drag(false)
 	{
-
+		setTexturing(true);
+		setShadows(true);
 	}
 	virtual ~SoftDemo()
 	{
@@ -168,6 +169,7 @@ MACRO_SOFT_DEMO(16)//Init_BunnyMatch
 
 
 #endif //CCD_PHYSICS_DEMO_H
+
 
 
 

@@ -71,7 +71,7 @@ int glutmain(int argc, char **argv,int width,int height,const char* title,DemoAp
 	gDemoApplication = demoApp;
 
 	glutInit(&argc, argv);
-    glutInitDisplayMode(GLUT_DOUBLE | GLUT_RGBA | GLUT_DEPTH);
+    glutInitDisplayMode(GLUT_DOUBLE | GLUT_RGBA | GLUT_DEPTH | GLUT_STENCIL);
     glutInitWindowPosition(0, 0);
     glutInitWindowSize(width, height);
     glutCreateWindow(title);
