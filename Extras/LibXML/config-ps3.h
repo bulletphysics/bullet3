@@ -149,7 +149,7 @@
 /* #undef HAVE_SIGNAL */
 
 /* Define to 1 if you have the <signal.h> header file. */
-#define HAVE_SIGNAL_H 1
+//#define HAVE_SIGNAL_H 0
 
 /* Define to 1 if you have the `snprintf' function. */
 #define HAVE_SNPRINTF 1

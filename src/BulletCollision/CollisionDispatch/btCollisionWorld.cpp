@@ -407,8 +407,6 @@ void	btCollisionWorld::objectQuerySingle(const btConvexShape* castShape,const bt
 		btVoronoiSimplexSolver	simplexSolver;
 		btGjkEpaPenetrationDepthSolver	gjkEpaPenetrationSolver;
 		
-		bool result =  false;
-		
 		btContinuousConvexCollision convexCaster1(castShape,convexShape,&simplexSolver,&gjkEpaPenetrationSolver);
 		//btGjkConvexCast convexCaster2(castShape,convexShape,&simplexSolver);
 		//btSubsimplexConvexCast convexCaster3(castShape,convexShape,&simplexSolver);

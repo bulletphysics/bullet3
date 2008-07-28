@@ -46,7 +46,19 @@ subject to the following restrictions:
 #define snprintf _snprintf
 #endif
 
-
+#ifdef __CELLOS_LV2__
+//provide some dummy stubs for getcwd and getenv on PS3
+extern "C" {
+	int getcwd(char* dir, int maxlen)
+	{
+		return 0;
+	}
+	int getenv(int bla)
+	{
+		return 0;
+	}
+}
+#endif
 
 
 struct	btRigidBodyInput

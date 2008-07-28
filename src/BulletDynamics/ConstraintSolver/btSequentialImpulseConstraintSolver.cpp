@@ -245,7 +245,6 @@ btScalar resolveSingleCollisionCombinedCacheFriendly(
 	(void)solverInfo;
 
 	btScalar normalImpulse;
-	bool	useSplitImpulse = false;
 
 	{
 

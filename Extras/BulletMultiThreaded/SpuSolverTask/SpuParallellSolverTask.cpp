@@ -779,7 +779,6 @@ static void setupLinearConstraintWorld (SpuSolverConstraint& constraint, const b
 
 
 
-
 static int getConstraintSize (btTypedConstraintType type)
 {
 	switch (type)
