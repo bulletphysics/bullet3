@@ -1597,7 +1597,7 @@ ColladaConverter::addConcaveMesh(btCollisionShape* shape, const char* nodeName)
 		{
 			for (int t = 0; t < numFaces; t++)
 			{
-				short int* index = (short int*)indexBase;
+				unsigned short int* index = (unsigned short int*)indexBase;
 				indices.append3( index[0], index[1], index[2]);
 				indexBase += indexStride;
 			}
@@ -1605,7 +1605,7 @@ ColladaConverter::addConcaveMesh(btCollisionShape* shape, const char* nodeName)
 		{
 			for (int t = 0; t < numFaces; t++)
 			{
-				int* index = (int*)indexBase;
+				unsigned int* index = (unsigned int*)indexBase;
 				indices.append3( index[0], index[1], index[2]);
 				indexBase += indexStride;
 			}

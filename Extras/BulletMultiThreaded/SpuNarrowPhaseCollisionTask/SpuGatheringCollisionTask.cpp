@@ -270,20 +270,20 @@ public:
 		// ugly solution to support both 16bit and 32bit indices
 		if (m_lsMemPtr->bvhShapeData.gIndexMesh.m_indexType == PHY_SHORT)
 		{
-			short int* indexBasePtr = (short int*)(m_lsMemPtr->bvhShapeData.gIndexMesh.m_triangleIndexBase+triangleIndex*m_lsMemPtr->bvhShapeData.gIndexMesh.m_triangleIndexStride);
-			ATTRIBUTE_ALIGNED16(short int tmpIndices[3]);
+			unsigned short int* indexBasePtr = (unsigned short int*)(m_lsMemPtr->bvhShapeData.gIndexMesh.m_triangleIndexBase+triangleIndex*m_lsMemPtr->bvhShapeData.gIndexMesh.m_triangleIndexStride);
+			ATTRIBUTE_ALIGNED16(unsigned short int tmpIndices[3]);
 
 			small_cache_read_triple(&tmpIndices[0],(ppu_address_t)&indexBasePtr[0],
 									&tmpIndices[1],(ppu_address_t)&indexBasePtr[1],
 									&tmpIndices[2],(ppu_address_t)&indexBasePtr[2],
-									sizeof(short int));
+									sizeof(unsigned short int));
 
 			m_lsMemPtr->spuIndices[0] = int(tmpIndices[0]);
 			m_lsMemPtr->spuIndices[1] = int(tmpIndices[1]);
 			m_lsMemPtr->spuIndices[2] = int(tmpIndices[2]);
 		} else
 		{
-			int* indexBasePtr = (int*)(m_lsMemPtr->bvhShapeData.gIndexMesh.m_triangleIndexBase+triangleIndex*m_lsMemPtr->bvhShapeData.gIndexMesh.m_triangleIndexStride);
+			unsigned int* indexBasePtr = (unsigned int*)(m_lsMemPtr->bvhShapeData.gIndexMesh.m_triangleIndexBase+triangleIndex*m_lsMemPtr->bvhShapeData.gIndexMesh.m_triangleIndexStride);
 
 			small_cache_read_triple(&m_lsMemPtr->spuIndices[0],(ppu_address_t)&indexBasePtr[0],
 								&m_lsMemPtr->spuIndices[1],(ppu_address_t)&indexBasePtr[1],
@@ -978,9 +978,12 @@ void	processCollisionTask(void* userPtr, void* lsMemPtr)
 								// Get the collision objects
 								dmaAndSetupCollisionObjects(collisionPairInput, lsMem);
 
-								handleCollisionPair(collisionPairInput, lsMem, spuContacts, 
-									(ppu_address_t)lsMem.getColObj0()->getCollisionShape(), &lsMem.gCollisionShapes[0].collisionShape,
-									(ppu_address_t)lsMem.getColObj1()->getCollisionShape(), &lsMem.gCollisionShapes[1].collisionShape);
+								if (lsMem.getColObj0()->isActive() || lsMem.getColObj1()->isActive())
+								{
+									handleCollisionPair(collisionPairInput, lsMem, spuContacts, 
+										(ppu_address_t)lsMem.getColObj0()->getCollisionShape(), &lsMem.gCollisionShapes[0].collisionShape,
+										(ppu_address_t)lsMem.getColObj1()->getCollisionShape(), &lsMem.gCollisionShapes[1].collisionShape);
+								}
 
 							}
 						}

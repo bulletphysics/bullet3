@@ -335,7 +335,7 @@ int main(int argc, char** argv)
 	printf("Bullet version %d\n",bulletVersion);
 
 	glutInit(&argc, argv);
-	glutInitDisplayMode(GLUT_RGBA | GLUT_DOUBLE |GLUT_DEPTH);
+	glutInitDisplayMode(GLUT_RGBA | GLUT_DOUBLE |GLUT_DEPTH | GLUT_STENCIL);
 	glutInitWindowSize(width, height);
 	mainWindow = glutCreateWindow("http://bulletphysics.com");
 #ifdef BT_USE_FREEGLUT

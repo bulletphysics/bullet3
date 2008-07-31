@@ -154,7 +154,6 @@ void	initSolverBody(btSolverBody* solverBody, btCollisionObject* collisionObject
 }
 
 
-
 int		gNumSplitImpulseRecoveries = 0;
 
 btScalar restitutionCurve(btScalar rel_vel, btScalar restitution);

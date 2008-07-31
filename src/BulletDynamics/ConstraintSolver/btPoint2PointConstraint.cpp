@@ -100,6 +100,16 @@ void	btPoint2PointConstraint::solveConstraint(btScalar	timeStep)
 		btScalar depth = -(pivotAInW - pivotBInW).dot(normal); //this is the error projected on the normal
 		
 		btScalar impulse = depth*m_setting.m_tau/timeStep  * jacDiagABInv -  m_setting.m_damping * rel_vel * jacDiagABInv;
+
+		btScalar impulseClamp = m_setting.m_impulseClamp;
+		if (impulseClamp > 0)
+		{
+			if (impulse < -impulseClamp) 
+				impulse = -impulseClamp;
+			if (impulse > impulseClamp) 
+				impulse = impulseClamp;
+		}
+
 		m_appliedImpulse+=impulse;
 		btVector3 impulse_vector = normal * impulse;
 		m_rbA.applyImpulse(impulse_vector, pivotAInW - m_rbA.getCenterOfMassPosition());

@@ -181,19 +181,23 @@ void	SpuGatheringCollisionDispatcher::dispatchAllCollisionPairs(btOverlappingPai
 				{
 					btCollisionObject* colObj0 = (btCollisionObject*)collisionPair.m_pProxy0->m_clientObject;
 					btCollisionObject* colObj1 = (btCollisionObject*)collisionPair.m_pProxy1->m_clientObject;
-					btManifoldResult contactPointResult(colObj0,colObj1);
-					
-					if (dispatchInfo.m_dispatchFunc == 		btDispatcherInfo::DISPATCH_DISCRETE)
-					{
-						//discrete collision detection query
-						collisionPair.m_algorithm->processCollision(colObj0,colObj1,dispatchInfo,&contactPointResult);
-					} else
-					{
-						//continuous collision detection query, time of impact (toi)
-						btScalar toi = collisionPair.m_algorithm->calculateTimeOfImpact(colObj0,colObj1,dispatchInfo,&contactPointResult);
-						if (dispatchInfo.m_timeOfImpact > toi)
-							dispatchInfo.m_timeOfImpact = toi;
 
+					if (dispatcher->needsCollision(colObj0,colObj1))
+					{
+						btManifoldResult contactPointResult(colObj0,colObj1);
+						
+						if (dispatchInfo.m_dispatchFunc == 		btDispatcherInfo::DISPATCH_DISCRETE)
+						{
+							//discrete collision detection query
+							collisionPair.m_algorithm->processCollision(colObj0,colObj1,dispatchInfo,&contactPointResult);
+						} else
+						{
+							//continuous collision detection query, time of impact (toi)
+							btScalar toi = collisionPair.m_algorithm->calculateTimeOfImpact(colObj0,colObj1,dispatchInfo,&contactPointResult);
+							if (dispatchInfo.m_timeOfImpact > toi)
+								dispatchInfo.m_timeOfImpact = toi;
+
+						}
 					}
 				}
 			}

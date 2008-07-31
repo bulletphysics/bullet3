@@ -599,6 +599,8 @@ btVector3	DemoApplication::getRayTo(int x,int y)
 	return rayTo;
 }
 
+btScalar mousePickClamping = 3.f;
+
 
 void DemoApplication::mouseFunc(int button, int state, int x, int y)
 {
@@ -686,6 +688,8 @@ void DemoApplication::mouseFunc(int button, int state, int x, int y)
 								btVector3 localPivot = body->getCenterOfMassTransform().inverse() * pickPos;
 
 								btPoint2PointConstraint* p2p = new btPoint2PointConstraint(*body,localPivot);
+								p2p->m_setting.m_impulseClamp = mousePickClamping;
+
 								m_dynamicsWorld->addConstraint(p2p);
 								m_pickConstraint = p2p;
 								
@@ -965,6 +969,8 @@ for(int i=0;i<numObjects;i++)
 //
 void DemoApplication::renderme()
 {
+	myinit();
+
 	updateCamera();
 
 	if (m_dynamicsWorld)

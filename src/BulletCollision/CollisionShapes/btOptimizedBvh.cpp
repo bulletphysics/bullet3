@@ -334,13 +334,13 @@ void	btOptimizedBvh::updateBvhNodes(btStridingMeshInterface* meshInterface,int f
 				}
 				//triangles->getLockedReadOnlyVertexIndexBase(vertexBase,numVerts,
 
-				int* gfxbase = (int*)(indexbase+nodeTriangleIndex*indexstride);
+				unsigned int* gfxbase = (unsigned int*)(indexbase+nodeTriangleIndex*indexstride);
 				
 				
 				for (int j=2;j>=0;j--)
 				{
 					
-					int graphicsindex = indicestype==PHY_SHORT?((short*)gfxbase)[j]:gfxbase[j];
+					int graphicsindex = indicestype==PHY_SHORT?((unsigned short*)gfxbase)[j]:gfxbase[j];
 					btScalar* graphicsbase = (btScalar*)(vertexbase+graphicsindex*stride);
 #ifdef DEBUG_PATCH_COLORS
 					btVector3 mycolor = color[index&3];

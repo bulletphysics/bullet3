@@ -127,13 +127,13 @@ void	btBvhTriangleMeshShape::performRaycast (btTriangleCallback* callback, const
 				indicestype,
 				nodeSubPart);
 
-			int* gfxbase = (int*)(indexbase+nodeTriangleIndex*indexstride);
+			unsigned int* gfxbase = (unsigned int*)(indexbase+nodeTriangleIndex*indexstride);
 			btAssert(indicestype==PHY_INTEGER||indicestype==PHY_SHORT);
 	
 			const btVector3& meshScaling = m_meshInterface->getScaling();
 			for (int j=2;j>=0;j--)
 			{
-				int graphicsindex = indicestype==PHY_SHORT?((short*)gfxbase)[j]:gfxbase[j];
+				int graphicsindex = indicestype==PHY_SHORT?((unsigned short*)gfxbase)[j]:gfxbase[j];
 
 				btScalar* graphicsbase = (btScalar*)(vertexbase+graphicsindex*stride);
 
@@ -187,13 +187,13 @@ void	btBvhTriangleMeshShape::performConvexcast (btTriangleCallback* callback, co
 				indicestype,
 				nodeSubPart);
 
-			int* gfxbase = (int*)(indexbase+nodeTriangleIndex*indexstride);
+			unsigned int* gfxbase = (unsigned int*)(indexbase+nodeTriangleIndex*indexstride);
 			btAssert(indicestype==PHY_INTEGER||indicestype==PHY_SHORT);
 	
 			const btVector3& meshScaling = m_meshInterface->getScaling();
 			for (int j=2;j>=0;j--)
 			{
-				int graphicsindex = indicestype==PHY_SHORT?((short*)gfxbase)[j]:gfxbase[j];
+				int graphicsindex = indicestype==PHY_SHORT?((unsigned short*)gfxbase)[j]:gfxbase[j];
 
 				btScalar* graphicsbase = (btScalar*)(vertexbase+graphicsindex*stride);
 
@@ -259,14 +259,14 @@ void	btBvhTriangleMeshShape::processAllTriangles(btTriangleCallback* callback,co
 				indicestype,
 				nodeSubPart);
 
-			int* gfxbase = (int*)(indexbase+nodeTriangleIndex*indexstride);
+			unsigned int* gfxbase = (unsigned int*)(indexbase+nodeTriangleIndex*indexstride);
 			btAssert(indicestype==PHY_INTEGER||indicestype==PHY_SHORT);
 	
 			const btVector3& meshScaling = m_meshInterface->getScaling();
 			for (int j=2;j>=0;j--)
 			{
 				
-				int graphicsindex = indicestype==PHY_SHORT?((short*)gfxbase)[j]:gfxbase[j];
+				int graphicsindex = indicestype==PHY_SHORT?((unsigned short*)gfxbase)[j]:gfxbase[j];
 
 
 #ifdef DEBUG_TRIANGLE_MESH
@@ -299,22 +299,37 @@ void	btBvhTriangleMeshShape::processAllTriangles(btTriangleCallback* callback,co
 
 }
 
-
-void	btBvhTriangleMeshShape::setLocalScaling(const btVector3& scaling)
+void   btBvhTriangleMeshShape::setLocalScaling(const btVector3& scaling)
 {
-	if ((getLocalScaling() -scaling).length2() > SIMD_EPSILON)
-	{
-		btTriangleMeshShape::setLocalScaling(scaling);
-		if (m_ownsBvh)
-		{
-			m_bvh->~btOptimizedBvh();
-			btAlignedFree(m_bvh);
-		}
-		///m_localAabbMin/m_localAabbMax is already re-calculated in btTriangleMeshShape. We could just scale aabb, but this needs some more work
-		void* mem = btAlignedAlloc(sizeof(btOptimizedBvh),16);
-		m_bvh = new(mem) btOptimizedBvh();
-		//rebuild the bvh...
-		m_bvh->build(m_meshInterface,m_useQuantizedAabbCompression,m_localAabbMin,m_localAabbMax);
-
-	}
+   if ((getLocalScaling() -scaling).length2() > SIMD_EPSILON)
+   {
+      btTriangleMeshShape::setLocalScaling(scaling);
+      if (m_ownsBvh)
+      {
+         m_bvh->~btOptimizedBvh();
+         btAlignedFree(m_bvh);
+      }
+      ///m_localAabbMin/m_localAabbMax is already re-calculated in btTriangleMeshShape. We could just scale aabb, but this needs some more work
+      void* mem = btAlignedAlloc(sizeof(btOptimizedBvh),16);
+      m_bvh = new(mem) btOptimizedBvh();
+      //rebuild the bvh...
+      m_bvh->build(m_meshInterface,m_useQuantizedAabbCompression,m_localAabbMin,m_localAabbMax);
+      m_ownsBvh = true;
+   }
 }
+
+void   btBvhTriangleMeshShape::setOptimizedBvh(btOptimizedBvh* bvh, const btVector3& scaling)
+{
+   btAssert(!m_bvh);
+   btAssert(!m_ownsBvh);
+
+   m_bvh = bvh;
+   m_ownsBvh = false;
+   // update the scaling without rebuilding the bvh
+   if ((getLocalScaling() -scaling).length2() > SIMD_EPSILON)
+   {
+      btTriangleMeshShape::setLocalScaling(scaling);
+   }
+}
+
+

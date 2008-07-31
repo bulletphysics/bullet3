@@ -143,17 +143,13 @@ class btPersistentManifoldSortPredicate
 };
 
 
-
-
-
-//
-// todo: this is random access, it can be walked 'cache friendly'!
-//
-void btSimulationIslandManager::buildAndProcessIslands(btDispatcher* dispatcher,btCollisionObjectArray& collisionObjects, IslandCallback* callback)
+void btSimulationIslandManager::buildIslands(btDispatcher* dispatcher,btCollisionObjectArray& collisionObjects)
 {
 
 	BT_PROFILE("islandUnionFindAndQuickSort");
 	
+	m_islandmanifold.resize(0);
+
 	//we are going to sort the unionfind array, and store the element id in the size
 	//afterwards, we clean unionfind, to make sure no-one uses it anymore
 	
@@ -287,6 +283,23 @@ void btSimulationIslandManager::buildAndProcessIslands(btDispatcher* dispatcher,
 #endif //SPLIT_ISLANDS
 		}
 	}
+}
+
+
+
+//
+// todo: this is random access, it can be walked 'cache friendly'!
+//
+void btSimulationIslandManager::buildAndProcessIslands(btDispatcher* dispatcher,btCollisionObjectArray& collisionObjects, IslandCallback* callback)
+{
+
+	buildIslands(dispatcher,collisionObjects);
+
+	int endIslandIndex=1;
+	int startIslandIndex;
+	int numElem = getUnionFind().getNumElements();
+
+	BT_PROFILE("processIslands");
 
 #ifndef SPLIT_ISLANDS
 	btPersistentManifold** manifold = dispatcher->getInternalManifoldPointer();
@@ -367,5 +380,5 @@ void btSimulationIslandManager::buildAndProcessIslands(btDispatcher* dispatcher,
 	}
 #endif //SPLIT_ISLANDS
 
-	m_islandmanifold.resize(0);
+
 }

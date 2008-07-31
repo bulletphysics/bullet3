@@ -47,7 +47,7 @@ class  btStridingMeshInterface
 
 
 
-		void	InternalProcessAllTriangles(btInternalTriangleIndexCallback* callback,const btVector3& aabbMin,const btVector3& aabbMax) const;
+		virtual void	InternalProcessAllTriangles(btInternalTriangleIndexCallback* callback,const btVector3& aabbMin,const btVector3& aabbMax) const;
 
 		///brute force method to calculate aabb
 		void	calculateAabbBruteForce(btVector3& aabbMin,btVector3& aabbMax);

@@ -404,9 +404,9 @@ void	spuWalkStacklessQuantizedTreeAgainstRays(RaycastTask_LocalStoreMemory* lsMe
 
 #define RAYAABB2
 #ifdef RAYAABB2
-	unsigned int sign[numWorkUnits][3];
-	btVector3 rayInvDirection[numWorkUnits];
-	btScalar lambda_max[numWorkUnits];
+	unsigned int sign[SPU_RAYCAST_WORK_UNITS_PER_TASK][3];
+	btVector3 rayInvDirection[SPU_RAYCAST_WORK_UNITS_PER_TASK];
+	btScalar lambda_max[SPU_RAYCAST_WORK_UNITS_PER_TASK];
 	for (int i = 0; i < numWorkUnits; i++)
 	{
 		btVector3 rayDirection = (rayTo[i]-rayFrom[i]);
@@ -512,10 +512,10 @@ void performRaycastAgainstConcave (RaycastGatheredObjectData* gatheredObjectData
 	//need the mesh interface, for access to triangle vertices
 	dmaBvhShapeData (&(lsMemPtr->bvhShapeData), trimeshShape);
 
-	unsigned short int quantizedQueryAabbMin[numWorkUnits][3];
-	unsigned short int quantizedQueryAabbMax[numWorkUnits][3];
-	btVector3 rayFromInTriangleSpace[numWorkUnits];
-	btVector3 rayToInTriangleSpace[numWorkUnits];
+	unsigned short int quantizedQueryAabbMin[SPU_RAYCAST_WORK_UNITS_PER_TASK][3];
+	unsigned short int quantizedQueryAabbMax[SPU_RAYCAST_WORK_UNITS_PER_TASK][3];
+	btVector3 rayFromInTriangleSpace[SPU_RAYCAST_WORK_UNITS_PER_TASK];
+	btVector3 rayToInTriangleSpace[SPU_RAYCAST_WORK_UNITS_PER_TASK];
 
 	/* Calculate the AABB for the ray in the triangle mesh shape */
 	btTransform rayInTriangleSpace;

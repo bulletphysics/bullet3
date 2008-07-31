@@ -30,8 +30,8 @@ class btTriangleMesh : public btTriangleIndexVertexArray
 	btAlignedObjectArray<btVector3>	m_4componentVertices;
 	btAlignedObjectArray<float>		m_3componentVertices;
 
-	btAlignedObjectArray<int>		m_32bitIndices;
-	btAlignedObjectArray<short int>		m_16bitIndices;
+	btAlignedObjectArray<unsigned int>		m_32bitIndices;
+	btAlignedObjectArray<unsigned short int>		m_16bitIndices;
 	bool	m_use32bitIndices;
 	bool	m_use4componentVertices;
 

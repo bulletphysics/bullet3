@@ -63,6 +63,8 @@ public:
 
 	void	buildAndProcessIslands(btDispatcher* dispatcher,btCollisionObjectArray& collisionObjects, IslandCallback* callback);
 
+	void buildIslands(btDispatcher* dispatcher,btCollisionObjectArray& collisionObjects);
+
 };
 
 #endif //SIMULATION_ISLAND_MANAGER_H

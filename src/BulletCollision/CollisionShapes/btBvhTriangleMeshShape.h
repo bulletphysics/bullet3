@@ -75,14 +75,7 @@ public:
 	}
 
 
-	void	setOptimizedBvh(btOptimizedBvh* bvh)
-	{
-		btAssert(!m_bvh);
-		btAssert(!m_ownsBvh);
-
-		m_bvh = bvh;
-		m_ownsBvh = false;
-	}
+	void	setOptimizedBvh(btOptimizedBvh* bvh, const btVector3& localScaling=btVector3(1,1,1));
 
 	bool	usesQuantizedAabbCompression() const
 	{

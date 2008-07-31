@@ -184,7 +184,9 @@ void	ConcaveDemo::initPhysics()
 //comment out the next line to read the BVH from disk (first run the demo once to create the BVH)
 #define SERIALIZE_TO_DISK 1
 #ifdef SERIALIZE_TO_DISK
-	trimeshShape  = new btBvhTriangleMeshShape(m_indexVertexArrays,useQuantizedAabbCompression);
+	btVector3 aabbMin(-1000,-1000,-1000),aabbMax(1000,1000,1000);
+	
+	trimeshShape  = new btBvhTriangleMeshShape(m_indexVertexArrays,useQuantizedAabbCompression,aabbMin,aabbMax);
 	m_collisionShapes.push_back(trimeshShape);
 	
 	
@@ -295,7 +297,7 @@ void	ConcaveDemo::initPhysics()
 	startTransform.setIdentity();
 	staticBody = localCreateRigidBody(mass, startTransform,groundShape);
 
-	staticBody->setCollisionFlags(staticBody->getCollisionFlags() | btCollisionObject::CF_STATIC_OBJECT);
+	staticBody->setCollisionFlags(staticBody->getCollisionFlags() | btCollisionObject::CF_KINEMATIC_OBJECT);//STATIC_OBJECT);
 
 	//enable custom material callback
 	staticBody->setCollisionFlags(staticBody->getCollisionFlags()  | btCollisionObject::CF_CUSTOM_MATERIAL_CALLBACK);

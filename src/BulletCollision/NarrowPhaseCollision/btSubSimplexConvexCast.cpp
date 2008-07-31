@@ -120,7 +120,7 @@ bool	btSubsimplexConvexCast::calcTimeOfImpact(
 			dist2 = v.length2();
 			hasResult = true;
 			//todo: check this normal for validity
-			n=v;
+			//n=v;
 			//printf("V=%f , %f, %f\n",v[0],v[1],v[2]);
 			//printf("DIST2=%f\n",dist2);
 			//printf("numverts = %i\n",m_simplexSolver->numVertices());
