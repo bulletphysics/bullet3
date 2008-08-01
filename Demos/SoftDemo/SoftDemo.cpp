@@ -1452,8 +1452,8 @@ void	SoftDemo::keyboardCallback(unsigned char key, int x, int y)
 	{
 	case	'n':	motorcontrol.maxtorque=10;motorcontrol.goal+=1;break;
 	case	'm':	motorcontrol.maxtorque=10;motorcontrol.goal-=1;break;
-	case	'4':	steercontrol_f.angle+=0.1;steercontrol_r.angle+=0.1;break;
-	case	'6':	steercontrol_f.angle-=0.1;steercontrol_r.angle-=0.1;break;
+	case	'l':	steercontrol_f.angle+=0.1;steercontrol_r.angle+=0.1;break;
+	case	'k':	steercontrol_f.angle-=0.1;steercontrol_r.angle-=0.1;break;
 	case	']':	++current_demo;clientResetScene();break;
 	case	'[':	--current_demo;clientResetScene();break;
 	case	',':	m_raycast=!m_raycast;break;
