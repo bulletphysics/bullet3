@@ -1,7 +1,37 @@
 Bullet Continuous Collision Detection and Physics Library
 Primary author and maintainer: Erwin Coumans
 
-todo: update changelog from April - July 2008
+Todo: update changelog from April - July 2008
+See http://code.google.com/p/bullet/source/list for more complete log in Subversion
+
+2008 July 31
+	- Added Havok .hkx to COLLADA Physics .dae converter patch+information
+	- Fix btSubsimplexConvexCast
+	Thanks to Nacho, http://www.bulletphysics.com/Bullet/phpBB3/viewtopic.php?f=9&t=2422)
+	- Fix in rendering, GL_STENCIL
+	- btTriangleIndexVertexArray indices should be unsigned int/unsigned short int,
+	- Made InternalProcessAllTriangles virtual, thanks to
+	Both thank to Fullmetalcoder, http://www.bulletphysics.com/Bullet/phpBB3/viewtopic.php?f=9&t=2401
+	- clamp impulse for btPoint2PointConstraint
+	Thanks to Martijn Reuvers, http://www.bulletphysics.com/Bullet/phpBB3/viewtopic.php?f=9&t=2418
+	- Free memory of bvh, pass in scaling factor (optional)
+	Thanks to Roy Eltham, http://www.bulletphysics.com/Bullet/phpBB3/viewtopic.php?f=9&t=2375
+
+2008 July 27
+
+btDbvtBroadphase:
+	- Fixed a performance issues reported by 'reltham'
+	- Added btDbvtBroadphase::optimize() for people who want good performances right
+away or don't do dynamics.
+	- fixed compilation issues when DBVT_BP_PROFILE was set.
+btSoftBody:
+	- Fixed singular matrix issues related to polar decomposition (flat meshes).
+DemoApplication:
+	- Shadows (enable/disable through 'g' or DemoApplication::setShadows(bool)).
+	- Texture can be enable/disable through 'u'
+CDFramework:
+	- fixed compilation issues.
+	All thanks to Nathanael Presson
 
 2008 July 10
 	- Added btMultimaterialTriangleMeshShape and MultiMaterialDemo
