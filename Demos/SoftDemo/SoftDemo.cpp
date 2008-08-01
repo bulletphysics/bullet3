@@ -1108,6 +1108,7 @@ psb0->appendLinearJoint(lj,psb1);
 //
 static void	Init_ClusterCar(SoftDemo* pdemo)
 {
+	pdemo->setAzi(270);
 const btVector3		origin(100,80,0);
 const btQuaternion	orientation(-SIMD_PI/2,0,0);
 const btScalar	widthf=8;
@@ -1446,6 +1447,19 @@ void	SoftDemo::renderme()
 	
 }
 
+void	SoftDemo::setDrawClusters(bool drawClusters)
+{
+	if (drawClusters)
+	{
+		getSoftDynamicsWorld()->setDrawFlags(getSoftDynamicsWorld()->getDrawFlags()|fDrawFlags::Clusters);
+	} else
+	{
+		getSoftDynamicsWorld()->setDrawFlags(getSoftDynamicsWorld()->getDrawFlags()& (~fDrawFlags::Clusters));
+	}
+}
+
+
+
 void	SoftDemo::keyboardCallback(unsigned char key, int x, int y)
 {
 	switch(key)
@@ -1580,6 +1594,10 @@ void	SoftDemo::initPhysics()
 {
 ///create concave ground mesh
 
+	//reset and disable motorcontrol at the start
+	motorcontrol.goal = 0;
+	motorcontrol.maxtorque = 0;
+	m_azi = 0;
 
 	btCollisionShape* groundShape = 0;
 	bool useConcaveMesh = false;//not ready yet true;

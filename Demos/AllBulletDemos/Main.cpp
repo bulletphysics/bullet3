@@ -52,6 +52,9 @@ namespace
 	int	gDrawAabb;
 	int	gWireFrame;
 	int	gDebugContacts;
+	int	gDrawTextures=1;
+	int gDrawShadows=0;
+	int gDrawClusters=0;
 	int gDebugNoDeactivation;
 	int	gUseWarmstarting;
 	int	gRandomizeConstraints;
@@ -75,6 +78,10 @@ void	setDefaultSettings()
 	gDrawAabb=0;
 	gWireFrame=0;
 	gDebugContacts=0;
+	gDrawTextures=1;
+	gDrawShadows=0;
+	gDrawClusters=0;
+
 	gDebugNoDeactivation = 0;
 	gUseSplitImpulse = 0;
 	gUseWarmstarting = 1;
@@ -135,6 +142,10 @@ DemoApplication* CreatDemo(btDemoEntry* entry)
 	if (demo->getDynamicsWorld())
 	{
 		demo->getDynamicsWorld()->setDebugDrawer(new GLDebugDrawer());
+		gDrawTextures = demo->getTexturing();
+		gDrawShadows = demo->getShadows();
+		if (glui)
+			glui->sync_live();
 	}
 	
 #ifndef BT_NO_PROFILE
@@ -194,6 +205,9 @@ void SimulationLoop()
 		demo->setDebugMode(demo->getDebugMode() & (~btIDebugDraw::DBG_DrawContactPoints));
 	}
 
+	demo->setTexturing(0!=gDrawTextures);
+	demo->setShadows(0!=gDrawShadows);
+	demo->setDrawClusters(0!=gDrawClusters);
 	
 	if (gDebugNoDeactivation)
 	{
@@ -202,6 +216,9 @@ void SimulationLoop()
 	{
 		demo->setDebugMode(demo->getDebugMode() & (~btIDebugDraw::DBG_NoDeactivation));
 	}
+
+	
+
 
 	if (demo->getDynamicsWorld() && demo->getDynamicsWorld()->getWorldType() == BT_DISCRETE_DYNAMICS_WORLD)
 	{
@@ -285,7 +302,7 @@ void Keyboard(unsigned char key, int x, int y)
 
 		// Press 'r' to reset.
 	case 'r':
-		if (demo->getDynamicsWorld()->getDebugDrawer())
+		if (demo->getDynamicsWorld() && demo->getDynamicsWorld()->getDebugDrawer())
 			delete demo->getDynamicsWorld()->getDebugDrawer();
 		delete demo;
 		demo = CreatDemo(entry);
@@ -413,6 +430,13 @@ int main(int argc, char** argv)
 	glui->add_checkbox_to_panel(drawPanel, "AABBs", &gDrawAabb);
 	glui->add_checkbox_to_panel(drawPanel, "Wireframe", &gWireFrame);
 	glui->add_checkbox_to_panel(drawPanel, "Contacts", &gDebugContacts);
+	glui->add_checkbox_to_panel(drawPanel, "Textures", &gDrawTextures);
+	glui->add_checkbox_to_panel(drawPanel, "Shadows", &gDrawShadows);
+	glui->add_checkbox_to_panel(drawPanel, "Clusters", &gDrawClusters);
+
+
+	
+
 
 //	glui->add_checkbox_to_panel(drawPanel, "Impulses", &settings.drawImpulses);
 //	glui->add_checkbox_to_panel(drawPanel, "Statistics", &settings.drawStats);

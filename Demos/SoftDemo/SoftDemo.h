@@ -110,14 +110,16 @@ public:
 		return demo;
 	}
 
-	const btSoftRigidDynamicsWorld*	getSoftDynamicsWorld() const
+	virtual	void setDrawClusters(bool drawClusters);
+
+	virtual const btSoftRigidDynamicsWorld*	getSoftDynamicsWorld() const
 	{
 		///just make it a btSoftRigidDynamicsWorld please
 		///or we will add type checking
 		return (btSoftRigidDynamicsWorld*) m_dynamicsWorld;
 	}
 
-	btSoftRigidDynamicsWorld*	getSoftDynamicsWorld()
+	virtual btSoftRigidDynamicsWorld*	getSoftDynamicsWorld()
 	{
 		///just make it a btSoftRigidDynamicsWorld please
 		///or we will add type checking

@@ -96,12 +96,26 @@ public:
 	{
 		return m_dynamicsWorld;
 	}
-	
+
+	virtual	void setDrawClusters(bool drawClusters)
+	{
+
+	}
+
 	void setOrthographicProjection();
 	void resetPerspectiveProjection();
 	
 	bool	setTexturing(bool enable) { return(m_shapeDrawer.enableTexture(enable)); }
 	bool	setShadows(bool enable)	{ bool p=m_enableshadows;m_enableshadows=enable;return(p); }
+	bool	getTexturing() const
+	{
+		return m_shapeDrawer.hasTextureEnabled();
+	}
+	bool	getShadows() const
+	{
+		return m_enableshadows;
+	}
+
 
 	int		getDebugMode()
 	{
@@ -110,6 +124,10 @@ public:
 	
 	void	setDebugMode(int mode);
 	
+	void	setAzi(float azi)
+	{
+		m_azi = azi;
+	}
 	
 	void	setCameraUp(const btVector3& camUp)
 	{

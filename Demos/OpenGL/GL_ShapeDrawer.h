@@ -51,6 +51,10 @@ class GL_ShapeDrawer
 		void		drawShadow(btScalar* m, const btVector3& extrusion,const btCollisionShape* shape,const btVector3& worldBoundsMin,const btVector3& worldBoundsMax);
 		
 		bool		enableTexture(bool enable) { bool p=m_textureenabled;m_textureenabled=enable;return(p); }
+		bool		hasTextureEnabled() const
+		{
+			return m_textureenabled;
+		}
 		
 		static void		drawCylinder(float radius,float halfHeight, int upAxis);
 		static void		drawCoordSystem();

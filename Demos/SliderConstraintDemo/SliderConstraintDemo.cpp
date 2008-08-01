@@ -134,6 +134,9 @@ static void	drawSlider(btSliderConstraint* pSlider)
 
 void SliderConstraintDemo::initPhysics()
 {
+	setTexturing(true);
+	setShadows(true);
+
 	setCameraDistance(26.f);
 
 	// init world
@@ -154,7 +157,8 @@ void SliderConstraintDemo::initPhysics()
 	m_dynamicsWorld = wp;
 
 	// add floor
-	btCollisionShape* groundShape = new btStaticPlaneShape(btVector3(0,1,0),50);
+	//btCollisionShape* groundShape = new btStaticPlaneShape(btVector3(0,1,0),50);
+	btCollisionShape* groundShape = new btBoxShape(btVector3(btScalar(50.),btScalar(50.),btScalar(50.)));
 	m_collisionShapes.push_back(groundShape);
 	btTransform groundTransform;
 	groundTransform.setIdentity();
