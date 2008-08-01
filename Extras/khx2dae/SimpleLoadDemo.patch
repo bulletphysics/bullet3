@@ -1,0 +1,428 @@
+Index: SimpleLoadDemo.cpp
+===================================================================
+--- SimpleLoadDemo.cpp	(revision 37)
++++ SimpleLoadDemo.cpp	(working copy)
+@@ -9,6 +9,9 @@
+ #include <Demos/demos.h>
+ #include <Demos/Common/Api/Serialize/SimpleLoad/SimpleLoadDemo.h>
+ 
++#include "btBulletDynamicsCommon.h"
++#include "ColladaConverter.h"
++ColladaConverter* converter=0;
+ 
+ // Serialize includes
+ #include <Common/Base/System/Io/IStream/hkIStream.h>
+@@ -20,6 +23,16 @@
+ #include <Common/Serialize/Util/hkRootLevelContainer.h>
+ #include <Common/Base/System/Io/FileSystem/hkNativeFileSystem.h>
+ 
++#include <Physics/Collide/Shape/Convex/Cylinder/hkpCylinderShape.h>
++#include <Physics/Collide/Shape/Convex/Capsule/hkpCapsuleShape.h>
++#include <Physics/Collide/Shape/Convex/ConvexTranslate/hkpConvexTranslateShape.h>
++
++#include <Physics/Collide/Shape/Convex/ConvexTransform/hkpConvexTransformShape.h>
++#include <Physics/Dynamics/Constraint/Bilateral/LimitedHinge/hkpLimitedHingeConstraintData.h>
++
++
++
++
+ // We can optionally version the packfile contents on load
+ // This requires linking with hkcompat
+ #define SIMPLE_LOAD_WITH_VERSIONING
+@@ -59,7 +72,167 @@
+ 		hkStructureLayout::HostLayoutRules.m_emptyBaseClassOptimization? 1 : 0);
+ }
+ 
++btTransform	getBulletFromHavokTransform(const hkTransform& trans)
++{
+ 
++	btVector3 bulletStartPos(trans.getTranslation()(0),
++				trans.getTranslation()(1),
++				trans.getTranslation()(2));
++
++	//todo: check matrix storage
++	btMatrix3x3 bulletMatrix(
++				trans.getRotation()(0,0),
++				trans.getRotation()(0,1),
++				trans.getRotation()(0,2),
++				trans.getRotation()(1,0),
++				trans.getRotation()(1,1),
++				trans.getRotation()(1,2),
++				trans.getRotation()(2,0),
++				trans.getRotation()(2,1),
++				trans.getRotation()(2,2));
++
++	btTransform bulletTrans(bulletMatrix,bulletStartPos);
++	return bulletTrans;
++}			
++
++btCollisionShape* createBulletFromHavokShape(const hkpShape* havokShape)
++{
++	btCollisionShape* bulletShape = 0;
++
++			switch (havokShape->getType())
++			{
++			case HK_SHAPE_SPHERE:
++				{
++					hkpSphereShape* havokSphere = (hkpSphereShape*)havokShape;
++					bulletShape = new btSphereShape(havokSphere->getRadius());
++					break;
++				}
++			case HK_SHAPE_CYLINDER:
++				{
++					hkpCylinderShape* havokCylinder = (hkpCylinderShape*)havokShape;
++					hkVector4 vec = havokCylinder->getVertex(0);
++					vec.sub4(havokCylinder->getVertex(1));
++					hkReal len = vec.length3();
++					hkReal radius = havokCylinder->getRadius();
++					///todo: convert cylinder, or create new Bullet shape
++					btVector3 halfExtents(radius,len,radius);
++					bulletShape = new btCylinderShape(halfExtents);
++					break;
++				}
++			case HK_SHAPE_BOX:
++				{
++					hkpBoxShape* havokBox = (hkpBoxShape*)havokShape;
++					bulletShape = new btBoxShape(btVector3(havokBox->getHalfExtents()(0),havokBox->getHalfExtents()(1),havokBox->getHalfExtents()(2)));
++					break;
++				}
++			case HK_SHAPE_CAPSULE:
++				{
++					hkpCapsuleShape* havokCapsule = (hkpCapsuleShape*)havokShape;
++					hkVector4 vec = havokCapsule->getVertex(0);
++					vec.sub4(havokCapsule->getVertex(1));
++					hkReal len = vec.length3();
++					hkReal radius = havokCapsule->getRadius();
++					///todo: convert capsule, or create new Bullet shape
++					bulletShape = new btCapsuleShape(radius,len);
++					break;
++				}
++			case HK_SHAPE_CONVEX_TRANSFORM:
++				{
++					hkpConvexTransformShape* convexTransform = (hkpConvexTransformShape*)havokShape;
++					btTransform localTrans = getBulletFromHavokTransform(convexTransform->getTransform());
++					btCompoundShape* bulletCompound = new btCompoundShape();
++					bulletCompound->addChildShape(localTrans,createBulletFromHavokShape(convexTransform->getChildShape()));
++					break;
++				}
++			case HK_SHAPE_CONVEX_TRANSLATE:
++				{
++					hkpConvexTranslateShape* convexTranslate = (hkpConvexTranslateShape*)havokShape;
++					btTransform localTrans;
++					localTrans.setIdentity();
++					localTrans.setOrigin(btVector3(convexTranslate->getTranslation()(0),convexTranslate->getTranslation()(1),convexTranslate->getTranslation()(2)));
++					btCompoundShape* bulletCompound = new btCompoundShape();
++					bulletCompound->addChildShape(localTrans,createBulletFromHavokShape(convexTranslate->getChildShape()));
++					
++					break;
++				}
++			case HK_SHAPE_CONVEX_VERTICES:
++				{
++					hkpConvexVerticesShape* havokConvex = (hkpConvexVerticesShape*)havokShape;
++					hkArray<hkVector4> vertices;
++					havokConvex->getOriginalVertices(vertices);
++					bulletShape = new btConvexHullShape(&vertices[0](0),vertices.getSize(),sizeof(hkVector4));
++					break;
++				};
++			case HK_SHAPE_MOPP:
++				{
++					hkpMoppBvTreeShape* moppShape = (hkpMoppBvTreeShape*)havokShape;
++					switch (moppShape->getShapeCollection()->getType())
++					{
++						case HK_SHAPE_TRIANGLE_COLLECTION:
++						{					
++							int numChildren = moppShape->getShapeCollection()->getNumChildShapes();
++							printf("found HK_SHAPE_TRIANGLE_COLLECTION with numChildren=%d\n",numChildren);
++
++							if (numChildren)
++							{
++								
++								btTriangleMesh* meshInterface = new btTriangleMesh();
++								
++								hkpShapeKey key = moppShape->getShapeCollection()->getFirstKey();
++								for (int i=0;i<numChildren;i++)
++								{
++									hkpShapeContainer::ShapeBuffer buffer;
++									const hkpTriangleShape* child = (hkpTriangleShape*)moppShape->getShapeCollection()->getChildShape(key,buffer);
++									btVector3 vtx0(child->getVertex(0)(0),child->getVertex(0)(1),child->getVertex(0)(2));
++									btVector3 vtx1(child->getVertex(1)(0),child->getVertex(1)(1),child->getVertex(1)(2));
++									btVector3 vtx2(child->getVertex(2)(0),child->getVertex(2)(1),child->getVertex(2)(2));
++									
++									meshInterface->addTriangle(vtx0,vtx1,vtx2);
++
++									key = moppShape->getShapeCollection()->getNextKey(key);
++								}
++								bulletShape = new btBvhTriangleMeshShape(meshInterface,true);
++							}
++							break;
++						}
++						default:
++						{
++							printf("Unrecognized MOPP getShapeCollection\n");
++						}
++						
++					}
++					break;
++				}
++
++				//HK_SHAPE_MOPP
++				//HK_SHAPE_TRIANGLE_COLLECTION
++
++				
++				//HK_SHAPE_HEIGHT_FIELD
++				//btHeightField
++
++
++				//For those, create a btCompoundShape
++				//HK_SHAPE_CONVEX_TRANSFORM
++				//
++				//HK_SHAPE_LIST
++				//HK_SHAPE_MULTI_SPHERE
++				//HK_SHAPE_BV_TREE
++				
++				
++								
++
++			default:
++				{
++					printf("unknown shape type=%d\n",havokShape->getType());
++				}
++			};
++
++			return bulletShape;
++
++
++}
++
+ SimpleLoadDemo::SimpleLoadDemo( hkDemoEnvironment* env) 
+ 	: hkDefaultPhysicsDemo(env) 
+ {
+@@ -74,7 +247,9 @@
+ 		setupDefaultCameras( env, from, to, up );
+ 	}
+ 
+-	hkString path("Common/Api/Serialize/SimpleLoad");
++	//hkString path("Common/Api/Serialize/SimpleLoad");
++	hkString path(".");
++
+ 	hkPackfileReader* reader = HK_NULL;
+ 	{
+ 		hkString fileName;
+@@ -83,7 +258,8 @@
+ 		{
+ 			case hkPackfileReader::FORMAT_BINARY:
+ 			{
+-				SimpleLoadDemo_getBinaryFileName(fileName);
++				//SimpleLoadDemo_getBinaryFileName(fileName);
++				fileName = "inputfile.hkx";
+ 				reader = new hkBinaryPackfileReader();
+ 				break;
+ 			}
+@@ -141,17 +317,206 @@
+ 
+ 	// Create a world and add the physics systems to it
+ 	m_world = new hkpWorld( *m_physicsData->getWorldCinfo() );
++
++	int MAX_PROXIES = 16384;
++	btVector3 bulletGravity (m_physicsData->getWorldCinfo()->m_gravity(0),m_physicsData->getWorldCinfo()->m_gravity(1),m_physicsData->getWorldCinfo()->m_gravity(2));
++	
++	btVector3 worldAabbMin(
++		m_physicsData->getWorldCinfo()->m_broadPhaseWorldAabb.m_min(0),
++		m_physicsData->getWorldCinfo()->m_broadPhaseWorldAabb.m_min(1),
++		m_physicsData->getWorldCinfo()->m_broadPhaseWorldAabb.m_min(2));
++	btVector3 worldAabbMax(
++		m_physicsData->getWorldCinfo()->m_broadPhaseWorldAabb.m_max(0),
++		m_physicsData->getWorldCinfo()->m_broadPhaseWorldAabb.m_max(1),
++		m_physicsData->getWorldCinfo()->m_broadPhaseWorldAabb.m_max(2));
++
++	int bulletNumSolverIterations = m_physicsData->getWorldCinfo()->m_solverIterations;
++
++	btBroadphaseInterface*	bulletPairCache = new btAxisSweep3(worldAabbMin,worldAabbMax,MAX_PROXIES);
++	btConstraintSolver*	bulletSolver = new btSequentialImpulseConstraintSolver();
++	btDefaultCollisionConfiguration* bulletCollisionConfiguration = new btDefaultCollisionConfiguration();
++	btCollisionDispatcher*	bulletDispatcher = new btCollisionDispatcher(bulletCollisionConfiguration);
++	btDiscreteDynamicsWorld* bulletWorld = new btDiscreteDynamicsWorld(bulletDispatcher,bulletPairCache,bulletSolver,bulletCollisionConfiguration);
++	//bulletNumSolverIterations is not exported, but just to show how to use the Bullet API
++	bulletWorld->getSolverInfo().m_numIterations = bulletNumSolverIterations;
++	
++	
+ 	m_world->lock();
+ 
+ 	// Register all collision agents
+ 	hkpAgentRegisterUtil::registerAllAgents( m_world->getCollisionDispatcher() );
+ 
++	printf("Number of Physics Systems:%d\n",m_physicsData->getPhysicsSystems().getSize());
++
++	converter = new ColladaConverter(bulletWorld);
++
+ 	// Add all the physics systems to the world
+ 	for ( int i = 0; i < m_physicsData->getPhysicsSystems().getSize(); ++i )
+ 	{
+-		m_world->addPhysicsSystem( m_physicsData->getPhysicsSystems()[i] );
++		hkpPhysicsSystem* physSystem = m_physicsData->getPhysicsSystems()[i];
++		m_world->addPhysicsSystem( physSystem );
++		int numRigidBodies = physSystem->getRigidBodies().getSize();
++		printf("Number of Rigid Bodies:%d\n",numRigidBodies);
++		for (int r=0;r<numRigidBodies;r++)
++		{
++			hkpRigidBody* hrb = physSystem->getRigidBodies()[r];
++			bool isDynamic = !hrb->isFixedOrKeyframed();
++			btTransform bulletTrans = getBulletFromHavokTransform(hrb->getCollidable()->getTransform());
++
++			const hkpShape* havokShape = hrb->getCollidable()->getShape();
++			btCollisionShape* bulletShape = createBulletFromHavokShape(havokShape);
++
++			if (bulletShape)
++			{
++				btRigidBody* body = converter->createRigidBody(isDynamic,hrb->getMass(),bulletTrans,bulletShape);
++				hrb->setUserData((hkUlong)body);
++			}
++		}
++
++		int numConstraints = physSystem->getConstraints().getSize();
++		printf("Number of Constraints:%d\n",numConstraints);
++
++		for (int c=0;c<numConstraints;c++)
++		{
++			hkpConstraintInstance* constraint = physSystem->getConstraints()[c];
++			switch (constraint->getData()->getType())
++			{
++			
++			case hkpConstraintData::CONSTRAINT_TYPE_BALLANDSOCKET:
++				{
++					printf("TODO: create ballsocket constraint\n");
++					break;
++				}
++			case hkpConstraintData::CONSTRAINT_TYPE_HINGE:
++				{
++					printf("TODO: create hinge constraint\n");
++					break;
++				}
++			case hkpConstraintData::CONSTRAINT_TYPE_PRISMATIC:
++				{
++					printf("TODO: create prismatic (slider) constraint\n");
++					break;
++				}
++			case hkpConstraintData::CONSTRAINT_TYPE_GENERIC:
++				{
++					printf("TODO: create generic constraint\n");
++					break;
++				}
++			case hkpConstraintData::CONSTRAINT_TYPE_LIMITEDHINGE:
++				{
++					hkpLimitedHingeConstraintData* limHingeData = (hkpLimitedHingeConstraintData*)constraint->getData();
++					
++					hkpConstraintData::ConstraintInfo infoOut;
++					limHingeData->getConstraintInfo(infoOut);
++
++					int i=0;
++					
++					btTransform localAttachmentFrameRef;
++					localAttachmentFrameRef.setIdentity();
++					btTransform localAttachmentFrameOther;
++					localAttachmentFrameOther.setIdentity();
++					
++					if (infoOut.m_atoms)
++					{
++						while (infoOut.m_atoms[i].getType() != hkpConstraintAtom::TYPE_INVALID)
++						{
++							switch (infoOut.m_atoms[i].getType())
++							{
++
++							case hkpConstraintAtom::TYPE_SET_LOCAL_TRANSFORMS:
++								{
++									localAttachmentFrameRef = getBulletFromHavokTransform(limHingeData->m_atoms.m_transforms.m_transformA);
++									localAttachmentFrameOther = getBulletFromHavokTransform(limHingeData->m_atoms.m_transforms.m_transformB);
++									
++									break;
++								}
++							case hkpConstraintAtom::TYPE_SET_LOCAL_TRANSLATIONS:
++								{
++									//???
++									localAttachmentFrameRef = getBulletFromHavokTransform(limHingeData->m_atoms.m_transforms.m_transformA);
++									localAttachmentFrameOther = getBulletFromHavokTransform(limHingeData->m_atoms.m_transforms.m_transformB);
++									break;
++								}
++							case hkpConstraintAtom::TYPE_SET_LOCAL_ROTATIONS:
++								{
++									//???
++									localAttachmentFrameRef = getBulletFromHavokTransform(limHingeData->m_atoms.m_transforms.m_transformA);
++									localAttachmentFrameOther = getBulletFromHavokTransform(limHingeData->m_atoms.m_transforms.m_transformB);
++									break;
++								}
++
++							default:
++								{
++									printf("unhandled constraint atom\n");
++								}
++							};
++							i++;
++						}
++						
++					}
++					
++					
++					
++					bool disableCollisionsBetweenLinkedBodies = true;
++					btRigidBody* body0 = (btRigidBody*) constraint->getRigidBodyA()->getUserData();
++					btRigidBody* body1 = (btRigidBody*) constraint->getRigidBodyB()->getUserData();
++					//if (body0 || body1)
++					{
++						
++
++						btVector3 linearMinLimits(0,0,0);
++						btVector3 linMaxLimits(0,0,0);
++						btVector3 angularMinLimits(1,0,0);
++						btVector3 angularMaxLimits(-1,0,0);
++						btTypedConstraint* constraint = converter->createUniversalD6Constraint(body0,body1,localAttachmentFrameRef,localAttachmentFrameOther,linearMinLimits,linMaxLimits,angularMinLimits,angularMaxLimits,disableCollisionsBetweenLinkedBodies);
++						if (constraint)
++						{
++							printf("create limited hinge constraint\n");
++						} else
++						{
++							printf("unable to create limited hinge constraint\n");
++						}
++					}
++					
++					break;
++				}
++
++				//CONSTRAINT_TYPE_LIMITEDHINGE = 2,
++				//CONSTRAINT_TYPE_POINTTOPATH = 3,
++				//CONSTRAINT_TYPE_RAGDOLL = 7,
++				//CONSTRAINT_TYPE_STIFFSPRING = 8,
++				//CONSTRAINT_TYPE_WHEEL = 9,
++				//CONSTRAINT_TYPE_CONTACT = 11,
++				//CONSTRAINT_TYPE_BREAKABLE = 12,
++				//CONSTRAINT_TYPE_MALLEABLE = 13,
++				//CONSTRAINT_TYPE_POINTTOPLANE = 14,
++				//CONSTRAINT_TYPE_PULLEY = 15,
++				//CONSTRAINT_TYPE_ROTATIONAL = 16,
++				//CONSTRAINT_TYPE_HINGE_LIMITS = 18,
++				//CONSTRAINT_TYPE_RAGDOLL_LIMITS = 19,
++				//CONSTRAINT_TYPE_CUSTOM = 20,
++				// Constraint Chains
++				//BEGIN_CONSTRAINT_CHAIN_TYPES = 100,        
++				//CONSTRAINT_TYPE_STIFF_SPRING_CHAIN = 100,
++				//CONSTRAINT_TYPE_BALL_SOCKET_CHAIN = 101,
++				//CONSTRAINT_TYPE_POWERED_CHAIN = 102
++			default:
++				{
++					printf("Unrecognized constraint type=$d\n",constraint->getData()->getType());
++				}
++
++			};
++		}
++
+ 	}
+ 
++
++
++	//Export the Bullet dynamics world to COLLADA .dae XML
++	
++	converter ->save("havokToCollada.dae");
++
++
+ 	// Setup graphics - this creates graphics objects for all rigid bodies and phantoms in the world
+ 	setupGraphics();
+ 
