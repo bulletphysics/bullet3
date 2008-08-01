@@ -35,7 +35,7 @@
 namespace
 {
 	int testIndex=0;
-	int testSelection=0;
+	int testSelection=24;
 	btDemoEntry* entry;
 	DemoApplication* demo;
 	int iterationCount;
