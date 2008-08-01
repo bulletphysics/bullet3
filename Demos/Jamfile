@@ -92,6 +92,7 @@ SubInclude TOP Demos CollisionInterfaceDemo ;
 SubInclude TOP Demos GimpactTestDemo ;
 SubInclude TOP Demos MovingConcaveDemo ;
 SubInclude TOP Demos ConcaveDemo ;
+SubInclude TOP Demos MultiMaterialDemo ;
 SubInclude TOP Demos ConstraintDemo ;
 SubInclude TOP Demos SliderConstraintDemo ;
 SubInclude TOP Demos RagdollDemo ;

@@ -20,10 +20,10 @@ subject to the following restrictions:
 #include "GL_ShapeDrawer.h"
 #include "GlutStuff.h"
 
-#include "BulletCollision\CollisionShapes\btTriangleShape.h"
-#include "BulletCollision\CollisionShapes\btTriangleIndexVertexMaterialArray.h"
-#include "BulletCollision\CollisionShapes\btMultimaterialTriangleMeshShape.h"
-#include "BulletCollision\CollisionShapes\btMaterial.h"
+#include "BulletCollision/CollisionShapes/btTriangleShape.h"
+#include "BulletCollision/CollisionShapes/btTriangleIndexVertexMaterialArray.h"
+#include "BulletCollision/CollisionShapes/btMultimaterialTriangleMeshShape.h"
+#include "BulletCollision/CollisionShapes/btMaterial.h"
 
 // Create a custom material, just because we can
 class CustomMaterial : public btMaterial

@@ -413,7 +413,7 @@ void GL_ShapeDrawer::drawOpenGL(btScalar* m, const btCollisionShape* shape, cons
 					pi[0]=pi[1]=pi[2]=c;pi+=3;
 				}
 			}
-			glGenTextures(1,&m_texturehandle);
+			glGenTextures(1,(GLuint*)&m_texturehandle);
 			glBindTexture(GL_TEXTURE_2D,m_texturehandle);
 			glTexEnvf(GL_TEXTURE_ENV,GL_TEXTURE_ENV_MODE,GL_MODULATE);
 			glTexParameterf(GL_TEXTURE_2D,GL_TEXTURE_MIN_FILTER,GL_LINEAR_MIPMAP_LINEAR);
@@ -839,7 +839,7 @@ GL_ShapeDrawer::~GL_ShapeDrawer()
 	m_shapecaches.clear();
 	if(m_textureinitialized)
 	{
-		glDeleteTextures(1,&m_texturehandle);
+		glDeleteTextures(1,(const GLuint*) &m_texturehandle);
 	}
 }
 

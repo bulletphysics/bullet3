@@ -1,6 +1,15 @@
 Bullet Continuous Collision Detection and Physics Library
 Primary author and maintainer: Erwin Coumans
 
+todo: update changelog from April - July 2008
+
+2008 July 10
+	- Added btMultimaterialTriangleMeshShape and MultiMaterialDemo
+	Thanks to Alex Silverman for the contribution
+
+2008 June 30
+	- Added initial support for kinematic character controller
+	Thanks to John McCutchan
 
 2008 April 14
 	- Added ray cast support for Soft Bodies

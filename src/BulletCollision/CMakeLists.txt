@@ -89,6 +89,9 @@ ADD_LIBRARY(LibBulletCollision
 				CollisionShapes/btHeightfieldTerrainShape.h
 				CollisionShapes/btMinkowskiSumShape.cpp
 				CollisionShapes/btMinkowskiSumShape.h
+				CollisionShapes/btMaterial.h
+				CollisionShapes/btMultiMaterialTriangleMeshShape.cpp
+				CollisionShapes/btMultiMaterialTriangleMeshShape.h
 				CollisionShapes/btMultiSphereShape.cpp
 				CollisionShapes/btMultiSphereShape.h
 				CollisionShapes/btOptimizedBvh.cpp
@@ -111,6 +114,8 @@ ADD_LIBRARY(LibBulletCollision
 				CollisionShapes/btTriangleBuffer.h
 				CollisionShapes/btTriangleIndexVertexArray.cpp
 				CollisionShapes/btTriangleIndexVertexArray.h
+				CollisionShapes/btTriangleIndexVertexMaterialArray.h
+				CollisionShapes/btTriangleIndexVertexMaterialArray.cpp
 				CollisionShapes/btTriangleMesh.cpp
 				CollisionShapes/btTriangleMesh.h
 				CollisionShapes/btTriangleMeshShape.cpp
