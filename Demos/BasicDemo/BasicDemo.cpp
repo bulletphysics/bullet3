@@ -77,6 +77,8 @@ void BasicDemo::displayCallback(void) {
 
 void	BasicDemo::initPhysics()
 {
+	setTexturing(true);
+	setShadows(true);
 
 	setCameraDistance(btScalar(50.));
 
@@ -102,8 +104,8 @@ void	BasicDemo::initPhysics()
 	m_dynamicsWorld->setGravity(btVector3(0,-10,0));
 
 	///create a few basic rigid bodies
-//	btCollisionShape* groundShape = new btBoxShape(btVector3(btScalar(50.),btScalar(50.),btScalar(50.)));
-	btCollisionShape* groundShape = new btStaticPlaneShape(btVector3(0,1,0),50);
+	btCollisionShape* groundShape = new btBoxShape(btVector3(btScalar(50.),btScalar(50.),btScalar(50.)));
+//	btCollisionShape* groundShape = new btStaticPlaneShape(btVector3(0,1,0),50);
 	
 	m_collisionShapes.push_back(groundShape);
 

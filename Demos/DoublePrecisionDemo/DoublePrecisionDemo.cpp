@@ -121,6 +121,10 @@ void DoublePrecisionDemo::displayCallback(void)
 
   int i;
 
+	btVector3	worldBoundsMin,worldBoundsMax;
+	collisionWorld->getBroadphase()->getBroadphaseAabb(worldBoundsMin,worldBoundsMax);
+
+
   ///one way to draw all the contact points is iterating over contact manifolds / points:
   int numManifolds = collisionWorld->getDispatcher()->getNumManifolds();
   for (i=0;i<numManifolds;i++)
@@ -169,7 +173,7 @@ void DoublePrecisionDemo::displayCallback(void)
 	  temp = objects[i].getWorldTransform();
 	  temp.setOrigin(temp.getOrigin() - m_cameraPosition);
 		temp.getOpenGLMatrix( m );
-		m_shapeDrawer.drawOpenGL(m,objects[i].getCollisionShape(),color,getDebugMode());
+		m_shapeDrawer.drawOpenGL(m,objects[i].getCollisionShape(),color,getDebugMode(),worldBoundsMin,worldBoundsMax);
 	}
 
   objects[1].getWorldTransform().setOrigin(objects[1].getWorldTransform().getOrigin()+btVector3(-VERY_SMALL_INCREMENT,-VERY_SMALL_INCREMENT,0));

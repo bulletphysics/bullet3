@@ -135,6 +135,10 @@ void LinearConvexCastDemo::displayCallback(void)
 
 	gGjkSimplexSolver.reset();
 	
+	
+	btVector3 worldBoundsMin(-1000,-1000,-1000);
+	btVector3 worldBoundsMax(1000,1000,1000);
+
 
 	//btGjkConvexCast convexCaster(shapePtr[ 0 ], shapePtr[ 1 ], &gGjkSimplexSolver );
 	btSubsimplexConvexCast convexCaster( shapePtr[ 0 ], shapePtr[ 1 ], &gGjkSimplexSolver );
@@ -154,11 +158,11 @@ void LinearConvexCastDemo::displayCallback(void)
 	btTransform tmp = tr[0];
 	tmp.setOrigin(result.m_hitPoint);
 	tmp.getOpenGLMatrix(m3);
-	m_shapeDrawer.drawOpenGL( m3, &sphere, btVector3( 1, 0, 1 ), getDebugMode() );
+	m_shapeDrawer.drawOpenGL( m3, &sphere, btVector3( 1, 0, 1 ), getDebugMode() ,worldBoundsMin,worldBoundsMax);
 
 
-	m_shapeDrawer.drawOpenGL( m1, shapePtr[ 0 ], btVector3( 1, 0, 0 ), getDebugMode() );
-	m_shapeDrawer.drawOpenGL( m2, shapePtr[ 1 ], btVector3( 1, 0, 0 ), getDebugMode() );
+	m_shapeDrawer.drawOpenGL( m1, shapePtr[ 0 ], btVector3( 1, 0, 0 ), getDebugMode() ,worldBoundsMin,worldBoundsMax);
+	m_shapeDrawer.drawOpenGL( m2, shapePtr[ 1 ], btVector3( 1, 0, 0 ), getDebugMode() ,worldBoundsMin,worldBoundsMax);
 
 	btVector3 originA, originB;
 	originA.setInterpolate3( tr[ 0 ].getOrigin(), toA.getOrigin(), result.m_fraction );
@@ -173,8 +177,8 @@ void LinearConvexCastDemo::displayCallback(void)
 	A.getOpenGLMatrix( m1 );
 	B.getOpenGLMatrix( m2 );
 
-	m_shapeDrawer.drawOpenGL( m1, shapePtr[ 0 ], btVector3( 1, 1, 0 ), getDebugMode() );
-	m_shapeDrawer.drawOpenGL( m2, shapePtr[ 1 ], btVector3( 1, 1, 0 ), getDebugMode() );
+	m_shapeDrawer.drawOpenGL( m1, shapePtr[ 0 ], btVector3( 1, 1, 0 ), getDebugMode() ,worldBoundsMin,worldBoundsMax);
+	m_shapeDrawer.drawOpenGL( m2, shapePtr[ 1 ], btVector3( 1, 1, 0 ), getDebugMode() ,worldBoundsMin,worldBoundsMax);
 
 	glFlush();
     glutSwapBuffers();

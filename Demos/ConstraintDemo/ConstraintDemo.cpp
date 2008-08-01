@@ -63,6 +63,9 @@ void	drawLimit()
 
 void	ConstraintDemo::initPhysics()
 {
+	setTexturing(true);
+	setShadows(true);
+
 	setCameraDistance(26.f);
 
 	m_collisionConfiguration = new btDefaultCollisionConfiguration();

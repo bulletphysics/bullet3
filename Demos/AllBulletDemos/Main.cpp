@@ -328,7 +328,22 @@ void MouseMotion(int x, int y)
 
 int main(int argc, char** argv)
 {
-	
+
+//#define CHECK_FPU_EXCEPTIONS 1
+#ifdef CHECK_FPU_EXCEPTIONS
+
+	int cw = _control87(0, 0);
+
+	// Set the exception masks off, turn exceptions on
+	cw &= ~(EM_ZERODIVIDE | EM_INVALID);
+
+	printf("control87 = %#x\n", cw);
+
+	// Set the control word
+	_control87(cw, MCW_EM);
+#endif //CHECK_FPU_EXCEPTIONS
+
+
 	setDefaultSettings();
 	
 	int bulletVersion = btGetVersion();

@@ -70,12 +70,15 @@ struct btDebugCastResult : public btConvexCast::CastResult
 
 	virtual void	DebugDraw(btScalar	fraction)
 	{
+		btVector3 worldBoundsMin(-1000,-1000,-1000);
+		btVector3 worldBoundsMax(1000,1000,1000);
+
 	
 		btScalar m[16];
 		btTransform hitTrans;
 		btTransformUtil::integrateTransform(m_fromTrans,m_linVel,m_angVel,fraction,hitTrans);
 		hitTrans.getOpenGLMatrix(m);
-		m_shapeDrawer->drawOpenGL(m,m_shape,btVector3(1,0,0),btIDebugDraw::DBG_NoDebug);
+		m_shapeDrawer->drawOpenGL(m,m_shape,btVector3(1,0,0),btIDebugDraw::DBG_NoDebug,worldBoundsMin,worldBoundsMax);
 	}
 };
 

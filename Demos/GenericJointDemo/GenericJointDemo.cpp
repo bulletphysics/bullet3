@@ -59,6 +59,9 @@ int main(int argc,char* argv[])
 
 void GenericJointDemo::initPhysics()
 {
+	setTexturing(true);
+	setShadows(true);
+
 	// Setup the basic world
 
 	btDefaultCollisionConfiguration * collision_config = new btDefaultCollisionConfiguration();

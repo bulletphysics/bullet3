@@ -23,4 +23,7 @@ ADD_EXECUTABLE(MultiThreadedDemo
 	MultiThreadedDemo.cpp
 	MultiThreadedDemo.h
 )
+IF (UNIX)
+  TARGET_LINK_LIBRARIES(MultiThreadedDemo pthread)
+ENDIF(UNIX)
 

@@ -803,10 +803,10 @@ void	btOptimizedBvh::walkStacklessQuantizedTreeAgainstRay(btNodeOverlapCallback*
 	btVector3 rayDirection = (rayTarget-raySource);
 	rayDirection.normalize ();
 	lambda_max = rayDirection.dot(rayTarget-raySource);
-	///what about division by zero?
-	rayDirection[0] = btScalar(1.0) / rayDirection[0];
-	rayDirection[1] = btScalar(1.0) / rayDirection[1];
-	rayDirection[2] = btScalar(1.0) / rayDirection[2];
+	///what about division by zero? --> just set rayDirection[i] to 1.0
+	rayDirection[0] = rayDirection[0] == btScalar(0.0) ? btScalar(1.0) : btScalar(1.0) / rayDirection[0];
+	rayDirection[1] = rayDirection[1] == btScalar(0.0) ? btScalar(1.0) : btScalar(1.0) / rayDirection[1];
+	rayDirection[2] = rayDirection[2] == btScalar(0.0) ? btScalar(1.0) : btScalar(1.0) / rayDirection[2];
 	unsigned int sign[3] = { rayDirection[0] < 0.0, rayDirection[1] < 0.0, rayDirection[2] < 0.0};
 #endif
 
@@ -1363,5 +1363,6 @@ m_bvhQuantization(self.m_bvhQuantization)
 
 
 }
+
 
 

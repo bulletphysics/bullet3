@@ -319,6 +319,9 @@ float myFrictionModel(	btRigidBody& body1,	btRigidBody& body2,	btManifoldPoint& 
 
 void	CcdPhysicsDemo::initPhysics()
 {
+	setTexturing(true);
+	setShadows(false);
+
 #ifdef USE_PARALLEL_DISPATCHER
 #ifdef WIN32
 	m_threadSupportSolver = 0;

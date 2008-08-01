@@ -57,7 +57,7 @@ int main(int argc,char** argv)
 void	CollisionInterfaceDemo::initPhysics()
 {
 			
-	m_debugMode |= btIDebugDraw::DBG_DrawWireframe;
+	//m_debugMode |= btIDebugDraw::DBG_DrawWireframe;
 	
 	btMatrix3x3 basisA;
 	basisA.setIdentity();
@@ -158,13 +158,15 @@ void CollisionInterfaceDemo::displayCallback(void) {
 
 	btScalar m[16];
 	
+	btVector3	worldBoundsMin,worldBoundsMax;
+	collisionWorld->getBroadphase()->getBroadphaseAabb(worldBoundsMin,worldBoundsMax);
 
 
 	for (i=0;i<numObjects;i++)
 	{
 		
 		objects[i].getWorldTransform().getOpenGLMatrix( m );
-		m_shapeDrawer.drawOpenGL(m,objects[i].getCollisionShape(),btVector3(1,1,1),getDebugMode());
+		m_shapeDrawer.drawOpenGL(m,objects[i].getCollisionShape(),btVector3(1,1,1),getDebugMode(),worldBoundsMin,worldBoundsMax);
 
 	}
 

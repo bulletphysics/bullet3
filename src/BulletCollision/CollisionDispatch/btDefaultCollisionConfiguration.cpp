@@ -231,11 +231,11 @@ btCollisionAlgorithmCreateFunc* btDefaultCollisionConfiguration::getCollisionAlg
 	if ((proxyType0 == TRIANGLE_SHAPE_PROXYTYPE  ) && (proxyType1==SPHERE_SHAPE_PROXYTYPE))
 	{
 		return	m_triangleSphereCF;
-	}
+	} 
 
 	if ((proxyType0 == BOX_SHAPE_PROXYTYPE) && (proxyType1 == BOX_SHAPE_PROXYTYPE))
 	{
-		//return m_boxBoxCF;
+		return m_boxBoxCF;
 	}
 	
 	if (btBroadphaseProxy::isConvex(proxyType0) && (proxyType1 == STATIC_PLANE_PROXYTYPE))

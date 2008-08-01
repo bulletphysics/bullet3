@@ -165,6 +165,17 @@ MACRO_SOFT_DEMO(13)//Init_Torus
 MACRO_SOFT_DEMO(14)//Init_TorusMatch
 MACRO_SOFT_DEMO(15)//Init_Bunny
 MACRO_SOFT_DEMO(16)//Init_BunnyMatch
+MACRO_SOFT_DEMO(17)//Init_Cutting1
+MACRO_SOFT_DEMO(18)//Init_ClusterDeform
+MACRO_SOFT_DEMO(19)//Init_ClusterCollide1
+MACRO_SOFT_DEMO(20)//Init_ClusterCollide2
+MACRO_SOFT_DEMO(21)//Init_ClusterSocket
+MACRO_SOFT_DEMO(22)//Init_ClusterHinge
+MACRO_SOFT_DEMO(23)//Init_ClusterCombine
+MACRO_SOFT_DEMO(24)//Init_ClusterCar
+MACRO_SOFT_DEMO(25)//Init_ClusterRobot
+MACRO_SOFT_DEMO(26)//Init_ClusterStackSoft
+MACRO_SOFT_DEMO(27)//Init_ClusterStackMixed
 
 
 

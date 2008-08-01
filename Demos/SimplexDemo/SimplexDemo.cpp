@@ -76,6 +76,9 @@ void SimplexDemo::displayCallback()
 	btScalar m[16];
 	int i;
 
+	btVector3 worldBoundsMin(-1000,-1000,-1000);
+	btVector3 worldBoundsMax(1000,1000,1000);
+
 	for (i=0;i<numObjects;i++)
 	{
 		btTransform transA;
@@ -88,7 +91,7 @@ void SimplexDemo::displayCallback()
 		transA.getOpenGLMatrix( m );
 
 		/// draw the simplex
-		m_shapeDrawer.drawOpenGL(m,shapePtr[i],btVector3(1,1,1),getDebugMode());
+		m_shapeDrawer.drawOpenGL(m,shapePtr[i],btVector3(1,1,1),getDebugMode(),worldBoundsMin,worldBoundsMax);
 
 		/// calculate closest point from simplex to the origin, and draw this vector
 		simplex.calcClosest(m);

@@ -138,6 +138,10 @@ void ConcaveDemo::keyboardCallback(unsigned char key, int x, int y)
 
 void	ConcaveDemo::initPhysics()
 {
+	
+	setTexturing(true);
+	setShadows(false);
+
 	#define TRISIZE 10.f
 
      gContactAddedCallback = CustomMaterialCombinerCallback;

@@ -403,13 +403,18 @@ void VehicleDemo::renderme()
 	btCylinderShapeX wheelShape(btVector3(wheelWidth,wheelRadius,wheelRadius));
 	btVector3 wheelColor(1,0,0);
 
+	btVector3	worldBoundsMin,worldBoundsMax;
+	getDynamicsWorld()->getBroadphase()->getBroadphaseAabb(worldBoundsMin,worldBoundsMax);
+
+
+
 	for (i=0;i<m_vehicle->getNumWheels();i++)
 	{
 		//synchronize the wheels with the (interpolated) chassis worldtransform
 		m_vehicle->updateWheelTransform(i,true);
 		//draw wheels (cylinders)
 		m_vehicle->getWheelInfo(i).m_worldTransform.getOpenGLMatrix(m);
-		m_shapeDrawer.drawOpenGL(m,&wheelShape,wheelColor,getDebugMode());
+		m_shapeDrawer.drawOpenGL(m,&wheelShape,wheelColor,getDebugMode(),worldBoundsMin,worldBoundsMax);
 	}
 
 

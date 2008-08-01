@@ -78,6 +78,9 @@ m_shootBoxShape(0),
 #ifndef BT_NO_PROFILE
 	m_profileIterator = CProfileManager::Get_Iterator();
 #endif //BT_NO_PROFILE
+
+	m_shapeDrawer.enableTexture(true);
+	m_enableshadows = false;
 }
 
 
@@ -957,11 +960,15 @@ for(int i=0;i<numObjects;i++)
 			wireColor += btVector3 (0.f,0.5f,0.f);
 			}
 		}
+
+	btVector3 aabbMin,aabbMax;
+	m_dynamicsWorld->getBroadphase()->getBroadphaseAabb(aabbMin,aabbMax);
+
 	switch(pass)
 		{
-		case	0:	m_shapeDrawer.drawOpenGL(m,colObj->getCollisionShape(),wireColor,getDebugMode());break;
-		case	1:	m_shapeDrawer.drawShadow(m,m_sundirection*rot,colObj->getCollisionShape());break;
-		case	2:	m_shapeDrawer.drawOpenGL(m,colObj->getCollisionShape(),wireColor*0.3,0);break;
+	case	0:	m_shapeDrawer.drawOpenGL(m,colObj->getCollisionShape(),wireColor,getDebugMode(),aabbMin,aabbMax);break;
+		case	1:	m_shapeDrawer.drawShadow(m,m_sundirection*rot,colObj->getCollisionShape(),aabbMin,aabbMax);break;
+		case	2:	m_shapeDrawer.drawOpenGL(m,colObj->getCollisionShape(),wireColor*0.3,0,aabbMin,aabbMax);break;
 		}
 	}
 }

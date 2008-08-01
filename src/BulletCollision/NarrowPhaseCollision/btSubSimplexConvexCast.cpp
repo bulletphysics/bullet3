@@ -137,7 +137,10 @@ bool	btSubsimplexConvexCast::calcTimeOfImpact(
 	
 
 	result.m_fraction = lambda;
-	result.m_normal = n.normalized();
+	if (n.length2() >= (SIMD_EPSILON*SIMD_EPSILON))
+		result.m_normal = n.normalized();
+	else
+		result.m_normal = btVector3(btScalar(0.0), btScalar(0.0), btScalar(0.0));
 
 	//don't report time of impact for motion away from the contact normal (or causes minor penetration)
 	if (result.m_normal.dot(r)>=-result.m_allowedPenetration)
@@ -148,6 +151,7 @@ bool	btSubsimplexConvexCast::calcTimeOfImpact(
 	result.m_hitPoint=hitB;
 	return true;
 }
+
 
 
 

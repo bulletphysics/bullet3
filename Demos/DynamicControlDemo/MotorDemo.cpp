@@ -249,6 +249,9 @@ public:
 
 void MotorDemo::initPhysics()
 {
+	setTexturing(true);
+	setShadows(true);
+
 	// Setup the basic world
 
 	m_Time = 0;

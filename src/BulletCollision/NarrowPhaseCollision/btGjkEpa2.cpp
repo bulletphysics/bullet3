@@ -901,7 +901,8 @@ if(gjk_status==GJK::eStatus::Valid)
 			const btVector3	delta=	results.witnesses[0]-
 									results.witnesses[1];
 			const btScalar	length=	delta.length();
-			results.normal	=	delta/length;			
+			if (length >= SIMD_EPSILON)
+				results.normal	=	delta/length;			
 			return(-length);
 			}
 		}	

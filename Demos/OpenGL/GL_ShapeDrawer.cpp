@@ -360,7 +360,7 @@ GL_ShapeDrawer::ShapeCache*		GL_ShapeDrawer::cache(btConvexShape* shape)
 	return(sc);
 }
 
-void GL_ShapeDrawer::drawOpenGL(btScalar* m, const btCollisionShape* shape, const btVector3& color,int	debugMode)
+void GL_ShapeDrawer::drawOpenGL(btScalar* m, const btCollisionShape* shape, const btVector3& color,int	debugMode,const btVector3& worldBoundsMin,const btVector3& worldBoundsMax)
 {
 
 
@@ -378,7 +378,7 @@ void GL_ShapeDrawer::drawOpenGL(btScalar* m, const btCollisionShape* shape, cons
 			{0,0,scalingFactor,0},
 			{0,0,0,1}};
 
-			drawOpenGL( (btScalar*)tmpScaling,convexShape,color,debugMode);
+			drawOpenGL( (btScalar*)tmpScaling,convexShape,color,debugMode,worldBoundsMin,worldBoundsMax);
 		}
 		glPopMatrix();
 		return;
@@ -393,7 +393,7 @@ void GL_ShapeDrawer::drawOpenGL(btScalar* m, const btCollisionShape* shape, cons
 			const btCollisionShape* colShape = compoundShape->getChildShape(i);
 			btScalar childMat[16];
 			childTrans.getOpenGLMatrix(childMat);
-			drawOpenGL(childMat,colShape,color,debugMode);
+			drawOpenGL(childMat,colShape,color,debugMode,worldBoundsMin,worldBoundsMax);
 		}
 
 	} else
@@ -447,9 +447,12 @@ void GL_ShapeDrawer::drawOpenGL(btScalar* m, const btCollisionShape* shape, cons
 		{
 			glEnable(GL_TEXTURE_2D);
 			glBindTexture(GL_TEXTURE_2D,m_texturehandle);
+		} else
+		{
+			glDisable(GL_TEXTURE_2D);
 		}
 
-		
+
 		glColor3f(color.x(),color.y(), color.z());		
 
 		bool useWireframeFallback = true;
@@ -692,17 +695,11 @@ void GL_ShapeDrawer::drawOpenGL(btScalar* m, const btCollisionShape* shape, cons
 			//		if (shape->getShapeType() == TRIANGLE_MESH_SHAPE_PROXYTYPE)
 		{
 			btConcaveShape* concaveMesh = (btConcaveShape*) shape;
-			//btVector3 aabbMax(btScalar(1e30),btScalar(1e30),btScalar(1e30));
-			//btVector3 aabbMax(100,100,100);//btScalar(1e30),btScalar(1e30),btScalar(1e30));
-
-			//todo pass camera, for some culling
-			btVector3 aabbMax(btScalar(1e30),btScalar(1e30),btScalar(1e30));
-			btVector3 aabbMin(-btScalar(1e30),-btScalar(1e30),-btScalar(1e30));
 
 			GlDrawcallback drawCallback;
 			drawCallback.m_wireframe = (debugMode & btIDebugDraw::DBG_DrawWireframe)!=0;
 
-			concaveMesh->processAllTriangles(&drawCallback,aabbMin,aabbMax);
+			concaveMesh->processAllTriangles(&drawCallback,worldBoundsMin,worldBoundsMax);
 
 		}
 #endif
@@ -749,7 +746,7 @@ if(m_textureenabled) glDisable(GL_TEXTURE_2D);
 }
 
 //
-void		GL_ShapeDrawer::drawShadow(btScalar* m,const btVector3& extrusion,const btCollisionShape* shape)
+void		GL_ShapeDrawer::drawShadow(btScalar* m,const btVector3& extrusion,const btCollisionShape* shape,const btVector3& worldBoundsMin,const btVector3& worldBoundsMax)
 {
 	glPushMatrix(); 
 	btglMultMatrix(m);
@@ -762,7 +759,7 @@ void		GL_ShapeDrawer::drawShadow(btScalar* m,const btVector3& extrusion,const bt
 		{0,scalingFactor,0,0},
 		{0,0,scalingFactor,0},
 		{0,0,0,1}};
-		drawShadow((btScalar*)tmpScaling,extrusion,convexShape);
+		drawShadow((btScalar*)tmpScaling,extrusion,convexShape,worldBoundsMin,worldBoundsMax);
 		glPopMatrix();
 		return;
 	}
@@ -775,7 +772,7 @@ void		GL_ShapeDrawer::drawShadow(btScalar* m,const btVector3& extrusion,const bt
 			const btCollisionShape* colShape = compoundShape->getChildShape(i);
 			btScalar childMat[16];
 			childTrans.getOpenGLMatrix(childMat);
-			drawShadow(childMat,extrusion*childTrans.getBasis(),colShape);
+			drawShadow(childMat,extrusion*childTrans.getBasis(),colShape,worldBoundsMin,worldBoundsMax);
 		}
 	}
 	else
@@ -812,17 +809,11 @@ void		GL_ShapeDrawer::drawShadow(btScalar* m,const btVector3& extrusion,const bt
 		//		if (shape->getShapeType() == TRIANGLE_MESH_SHAPE_PROXYTYPE)
 	{
 		btConcaveShape* concaveMesh = (btConcaveShape*) shape;
-		//btVector3 aabbMax(btScalar(1e30),btScalar(1e30),btScalar(1e30));
-		//btVector3 aabbMax(100,100,100);//btScalar(1e30),btScalar(1e30),btScalar(1e30));
-
-		//todo pass camera, for some culling
-		btVector3 aabbMax(btScalar(1e30),btScalar(1e30),btScalar(1e30));
-		btVector3 aabbMin(-btScalar(1e30),-btScalar(1e30),-btScalar(1e30));
 
 		GlDrawcallback drawCallback;
 		drawCallback.m_wireframe = false;
 
-		concaveMesh->processAllTriangles(&drawCallback,aabbMin,aabbMax);
+		concaveMesh->processAllTriangles(&drawCallback,worldBoundsMin,worldBoundsMax);
 
 	}
 	glPopMatrix();

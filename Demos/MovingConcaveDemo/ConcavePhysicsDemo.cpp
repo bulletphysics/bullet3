@@ -1492,6 +1492,10 @@ void ConcaveDemo::renderme()
 
 	if (m_dynamicsWorld)
 	{
+		btVector3	worldBoundsMin,worldBoundsMax;
+		getDynamicsWorld()->getBroadphase()->getBroadphaseAabb(worldBoundsMin,worldBoundsMax);
+
+
 		int numObjects = m_dynamicsWorld->getNumCollisionObjects();
 		btVector3 wireColor(1,0,0);
 		for (int i=0;i<numObjects;i++)
@@ -1535,7 +1539,7 @@ void ConcaveDemo::renderme()
 				}
 			}
 
-			m_shapeDrawer.drawOpenGL(m,colObj->getCollisionShape(),wireColor,getDebugMode());
+			m_shapeDrawer.drawOpenGL(m,colObj->getCollisionShape(),wireColor,getDebugMode(),worldBoundsMin,worldBoundsMax);
 		}
 
 

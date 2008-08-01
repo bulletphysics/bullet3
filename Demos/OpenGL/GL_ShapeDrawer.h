@@ -47,8 +47,8 @@ class GL_ShapeDrawer
 		virtual ~GL_ShapeDrawer();
 
 		///drawOpenGL might allocate temporary memoty, stores pointer in shape userpointer
-		void		drawOpenGL(btScalar* m, const btCollisionShape* shape, const btVector3& color,int	debugMode);
-		void		drawShadow(btScalar* m, const btVector3& extrusion,const btCollisionShape* shape);
+		void		drawOpenGL(btScalar* m, const btCollisionShape* shape, const btVector3& color,int	debugMode,const btVector3& worldBoundsMin,const btVector3& worldBoundsMax);
+		void		drawShadow(btScalar* m, const btVector3& extrusion,const btCollisionShape* shape,const btVector3& worldBoundsMin,const btVector3& worldBoundsMax);
 		
 		bool		enableTexture(bool enable) { bool p=m_textureenabled;m_textureenabled=enable;return(p); }
 		

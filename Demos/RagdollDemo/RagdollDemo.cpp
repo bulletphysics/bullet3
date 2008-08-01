@@ -309,6 +309,9 @@ void RagdollDemo::initPhysics()
 {
 	// Setup the basic world
 
+	setTexturing(true);
+	setShadows(true);
+
 	setCameraDistance(btScalar(5.));
 
 	m_collisionConfiguration = new btDefaultCollisionConfiguration();

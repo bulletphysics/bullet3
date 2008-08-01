@@ -59,6 +59,9 @@ unsigned int tcount = 0;
 
 void ConvexDecompositionDemo::initPhysics(const char* filename)
 {
+	setTexturing(true);
+	setShadows(true);
+
 	setCameraDistance(26.f);
 
 	ConvexDecomposition::WavefrontObj wo;

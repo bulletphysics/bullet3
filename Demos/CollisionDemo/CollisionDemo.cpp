@@ -226,13 +226,16 @@ void CollisionDemo::displayCallback(void) {
 
 	convexConvex.getClosestPoints(input ,gjkOutput,0);
 
+	btVector3 worldBoundsMin(-1000,-1000,-1000);
+	btVector3 worldBoundsMax(1000,1000,1000);
+
 
 	for (i=0;i<numObjects;i++)
 	{
 		
 		tr[i].getOpenGLMatrix( m );
 
-		m_shapeDrawer.drawOpenGL(m,shapePtr[i],btVector3(1,1,1),getDebugMode());
+		m_shapeDrawer.drawOpenGL(m,shapePtr[i],btVector3(1,1,1),getDebugMode(),worldBoundsMin,worldBoundsMax);
 
 
 	}
@@ -248,7 +251,7 @@ void CollisionDemo::displayCallback(void) {
 	btTransform ident;
 	ident.setIdentity();
 	ident.getOpenGLMatrix(m);
-	m_shapeDrawer.drawOpenGL(m,&simplex,btVector3(1,1,1),getDebugMode());
+	m_shapeDrawer.drawOpenGL(m,&simplex,btVector3(1,1,1),getDebugMode(),worldBoundsMin,worldBoundsMax);
 
 
 	btQuaternion orn;

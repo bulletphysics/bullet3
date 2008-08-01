@@ -1723,7 +1723,9 @@ void					btSoftBody::updateNormals()
 	}
 	for(i=0,ni=m_nodes.size();i<ni;++i)
 	{
-		m_nodes[i].m_n.normalize();
+		btScalar len = m_nodes[i].m_n.length();
+		if (len>SIMD_EPSILON)
+			m_nodes[i].m_n /= len;
 	}
 }
 

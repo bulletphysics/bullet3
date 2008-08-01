@@ -133,8 +133,9 @@ BspDemo::~BspDemo()
 
 void	BspDemo::initPhysics(char* bspfilename)
 {
+	setTexturing(true);
+	setShadows(false);
 	
-
 	m_cameraUp = btVector3(0,0,1);
 	m_forwardAxis = 1;
 
