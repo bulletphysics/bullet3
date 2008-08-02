@@ -90,8 +90,8 @@ ADD_LIBRARY(LibBulletCollision
 				CollisionShapes/btMinkowskiSumShape.cpp
 				CollisionShapes/btMinkowskiSumShape.h
 				CollisionShapes/btMaterial.h
-				CollisionShapes/btMultiMaterialTriangleMeshShape.cpp
-				CollisionShapes/btMultiMaterialTriangleMeshShape.h
+				CollisionShapes/btMultimaterialTriangleMeshShape.cpp
+				CollisionShapes/btMultimaterialTriangleMeshShape.h
 				CollisionShapes/btMultiSphereShape.cpp
 				CollisionShapes/btMultiSphereShape.h
 				CollisionShapes/btOptimizedBvh.cpp
