@@ -50,8 +50,8 @@ btSimpleBroadphase::btSimpleBroadphase(int maxProxies, btOverlappingPairCache* o
 	}
 
 	// allocate handles buffer and put all handles on free list
-	void* ptr = btAlignedAlloc(sizeof(btSimpleBroadphaseProxy)*maxProxies,16);
-	m_pHandles = new(ptr) btSimpleBroadphaseProxy[maxProxies];
+	m_pHandlesRawPtr = btAlignedAlloc(sizeof(btSimpleBroadphaseProxy)*maxProxies,16);
+	m_pHandles = new(m_pHandlesRawPtr) btSimpleBroadphaseProxy[maxProxies];
 	m_maxHandles = maxProxies;
 	m_numHandles = 0;
 	m_firstFreeHandle = 0;
@@ -73,7 +73,7 @@ btSimpleBroadphase::btSimpleBroadphase(int maxProxies, btOverlappingPairCache* o
 
 btSimpleBroadphase::~btSimpleBroadphase()
 {
-	btAlignedFree(m_pHandles);
+	btAlignedFree(m_pHandlesRawPtr);
 
 	if (m_ownsPairCache)
 	{

@@ -59,6 +59,7 @@ protected:
 	int		m_numHandles;						// number of active handles
 	int		m_maxHandles;						// max number of handles
 	btSimpleBroadphaseProxy* m_pHandles;						// handles pool
+	void* m_pHandlesRawPtr;
 	int		m_firstFreeHandle;		// free handles list
 	int		m_firstAllocatedHandle;
 

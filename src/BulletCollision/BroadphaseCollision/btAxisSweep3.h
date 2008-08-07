@@ -77,9 +77,11 @@ protected:
 	BP_FP_INT_TYPE m_numHandles;						// number of active handles
 	BP_FP_INT_TYPE m_maxHandles;						// max number of handles
 	Handle* m_pHandles;						// handles pool
+	void* m_pHandlesRawPtr;
 	BP_FP_INT_TYPE m_firstFreeHandle;		// free handles list
 
 	Edge* m_pEdges[3];						// edge arrays for the 3 axes (each array has m_maxHandles * 2 + 2 sentinel entries)
+	void* m_pEdgesRawPtr[3];
 
 	btOverlappingPairCache* m_pairCache;
 
@@ -269,8 +271,9 @@ m_invalidPair(0)
 	m_quantize = btVector3(btScalar(maxInt),btScalar(maxInt),btScalar(maxInt)) / aabbSize;
 
 	// allocate handles buffer and put all handles on free list
-	void* ptr = btAlignedAlloc(sizeof(Handle)*maxHandles,16);
-	m_pHandles = new(ptr) Handle[maxHandles];
+	m_pHandlesRawPtr = btAlignedAlloc(sizeof(Handle)*maxHandles,16);
+	m_pHandles = new(m_pHandlesRawPtr) Handle[maxHandles];
+
 	m_maxHandles = maxHandles;
 	m_numHandles = 0;
 
@@ -286,8 +289,8 @@ m_invalidPair(0)
 		// allocate edge buffers
 		for (int i = 0; i < 3; i++)
 		{
-			void* ptr = btAlignedAlloc(sizeof(Edge)*maxHandles*2,16);
-			m_pEdges[i] = new(ptr) Edge[maxHandles * 2];
+			m_pEdgesRawPtr[i] = btAlignedAlloc(sizeof(Edge)*maxHandles*2,16);
+			m_pEdges[i] = new(m_pEdgesRawPtr[i]) Edge[maxHandles * 2];
 		}
 	}
 	//removed overlap management
@@ -319,9 +322,9 @@ btAxisSweep3Internal<BP_FP_INT_TYPE>::~btAxisSweep3Internal()
 	
 	for (int i = 2; i >= 0; i--)
 	{
-		btAlignedFree(m_pEdges[i]);
+		btAlignedFree(m_pEdgesRawPtr[i]);
 	}
-	btAlignedFree(m_pHandles);
+	btAlignedFree(m_pHandlesRawPtr);
 
 	if (m_ownsPairCache)
 	{
