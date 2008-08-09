@@ -56,6 +56,6 @@ LINK_LIBRARIES(
 )
 
 ADD_EXECUTABLE(BulletDino
-	BulletDino.cpp	
+	BulletDino.c	
 )
 
