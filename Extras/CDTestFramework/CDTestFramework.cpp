@@ -26,6 +26,7 @@ subject to the following restrictions:
 #include "Terrain.h"
 #include "Camera.h"
 #include "GLFontRenderer.h"
+#include "BulletCollision/BroadphaseCollision/btDbvt.h"
 
 #define NUM_SAP_BOXES 8192
 
@@ -224,6 +225,15 @@ static void Terminate()
 
 int main(int argc, char** argv)
 {
+	{
+	::SetPriorityClass(::GetCurrentProcess(),HIGH_PRIORITY_CLASS);
+	::SetThreadPriority(::GetCurrentThread(),THREAD_PRIORITY_TIME_CRITICAL);
+	#if 0
+	btDbvt::benchmark();
+	exit(0);
+	#endif
+	}
+
 	// Initialize AntTweakBar
 	// (note that AntTweakBar could also be intialize after GLUT, no matter)
 	if(!TwInit(TW_OPENGL, NULL))
