@@ -121,8 +121,8 @@ namespace ConvexDecomposition
 
 		~ConvexResult(void)
 		{
-			delete mHullVertices;
-			delete mHullIndices;
+			delete [] mHullVertices;
+			delete [] mHullIndices;
 		}
 
 		// the convex hull.
