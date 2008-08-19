@@ -31,6 +31,20 @@ subject to the following restrictions:
 class btBroadphaseInterface;
 class btCollisionDispatcher;
 
+/* btSoftBodyWorldInfo	*/ 
+struct	btSoftBodyWorldInfo
+{
+	btScalar				air_density;
+	btScalar				water_density;
+	btScalar				water_offset;
+	btVector3				water_normal;
+	btBroadphaseInterface*	m_broadphase;
+	btCollisionDispatcher*	m_dispatcher;
+	btVector3				m_gravity;
+	btSparseSdf<3>			m_sparsesdf;
+};	
+
+
 /// btSoftBody is work-in-progress
 class	btSoftBody : public btCollisionObject
 {
@@ -135,18 +149,6 @@ public:
 
 	typedef btAlignedObjectArray<btScalar>	tScalarArray;
 	typedef btAlignedObjectArray<btVector3>	tVector3Array;
-	/* btSoftBodyWorldInfo	*/ 
-	struct	btSoftBodyWorldInfo
-	{
-		btScalar				air_density;
-		btScalar				water_density;
-		btScalar				water_offset;
-		btVector3				water_normal;
-		btBroadphaseInterface*	m_broadphase;
-		btCollisionDispatcher*	m_dispatcher;
-		btVector3				m_gravity;
-		btSparseSdf<3>			m_sparsesdf;
-	};	
 
 	/* sCti is Softbody contact info	*/ 
 	struct	sCti

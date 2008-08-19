@@ -187,6 +187,26 @@ public:
 
 	void			setDamping(btScalar lin_damping, btScalar ang_damping);
 
+	btScalar getLinearDamping() const
+	{
+		return m_linearDamping;
+	}
+
+	btScalar getAngularDamping() const
+	{
+		return m_angularDamping;
+	}
+
+	btScalar getLinearSleepingThreshold() const
+	{
+		return m_linearSleepingThreshold;
+	}
+
+	btScalar getAngularSleepingThreshold() const
+	{
+		return m_angularSleepingThreshold;
+	}
+
 	void			applyDamping(btScalar timeStep);
 
 	SIMD_FORCE_INLINE const btCollisionShape*	getCollisionShape() const {

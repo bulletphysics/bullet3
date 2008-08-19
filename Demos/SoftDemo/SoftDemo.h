@@ -49,7 +49,7 @@ public:
 
 	btAlignedObjectArray<btSoftRididCollisionAlgorithm*> m_SoftRigidCollisionAlgorithms;
 
-	btSoftBody::btSoftBodyWorldInfo	m_softBodyWorldInfo;
+	btSoftBodyWorldInfo	m_softBodyWorldInfo;
 
 	
 	bool								m_autocam;

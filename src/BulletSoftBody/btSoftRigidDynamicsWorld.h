@@ -40,14 +40,15 @@ protected:
 
 	void	solveSoftBodiesConstraints();
 
-	virtual void	debugDrawWorld();
+	
 
 public:
 	
 	btSoftRigidDynamicsWorld(btDispatcher* dispatcher,btBroadphaseInterface* pairCache,btConstraintSolver* constraintSolver,btCollisionConfiguration* collisionConfiguration);
 
 	virtual ~btSoftRigidDynamicsWorld();
-		
+	
+	virtual void	debugDrawWorld();
 			
 	void	addSoftBody(btSoftBody* body);
 

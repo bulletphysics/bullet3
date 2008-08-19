@@ -17,7 +17,7 @@ subject to the following restrictions:
 #include "btSoftBodyInternals.h"
 
 //
-btSoftBody::btSoftBody(btSoftBody::btSoftBodyWorldInfo*	worldInfo,int node_count,  const btVector3* x,  const btScalar* m)
+btSoftBody::btSoftBody(btSoftBodyWorldInfo*	worldInfo,int node_count,  const btVector3* x,  const btScalar* m)
 :m_worldInfo(worldInfo)
 {	
 	/* Init		*/ 
@@ -1911,7 +1911,7 @@ for(i=0;i<m_clusters.size();++i)
 	if(n)
 		{
 		/* Frame				*/ 
-		const btScalar	eps=0.0001;
+		const btScalar	eps=btScalar(0.0001);
 		btMatrix3x3		m,r,s;
 		m[0]=m[1]=m[2]=btVector3(0,0,0);
 		m[0][0]=eps*1;

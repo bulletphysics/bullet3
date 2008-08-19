@@ -506,7 +506,7 @@ static inline btScalar		VolumeOf(	const btVector3& x0,
 }
 
 //
-static void					EvaluateMedium(	const btSoftBody::btSoftBodyWorldInfo* wfi,
+static void					EvaluateMedium(	const btSoftBodyWorldInfo* wfi,
 											const btVector3& x,
 											btSoftBody::sMedium& medium)
 {

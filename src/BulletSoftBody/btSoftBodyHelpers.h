@@ -73,13 +73,13 @@ struct	btSoftBodyHelpers
 	static	void			DrawFrame(		btSoftBody* psb,
 											btIDebugDraw* idraw);
 	/* Create a rope														*/ 
-	static	btSoftBody*		CreateRope( btSoftBody::btSoftBodyWorldInfo& worldInfo,
+	static	btSoftBody*		CreateRope( btSoftBodyWorldInfo& worldInfo,
 										const btVector3& from,
 										const btVector3& to,
 										int res,
 										int fixeds);
 	/* Create a patch														*/ 
-	static	btSoftBody*		CreatePatch(btSoftBody::btSoftBodyWorldInfo& worldInfo,
+	static	btSoftBody*		CreatePatch(btSoftBodyWorldInfo& worldInfo,
 										const btVector3& corner00,
 										const btVector3& corner10,
 										const btVector3& corner01,
@@ -89,17 +89,17 @@ struct	btSoftBodyHelpers
 										int fixeds,
 										bool gendiags);
 	/* Create an ellipsoid													*/ 
-	static	btSoftBody*		CreateEllipsoid(btSoftBody::btSoftBodyWorldInfo& worldInfo,
+	static	btSoftBody*		CreateEllipsoid(btSoftBodyWorldInfo& worldInfo,
 											const btVector3& center,
 											const btVector3& radius,
 											int res);	
 	/* Create from trimesh													*/ 
-	static	btSoftBody*		CreateFromTriMesh(	btSoftBody::btSoftBodyWorldInfo& worldInfo,
+	static	btSoftBody*		CreateFromTriMesh(	btSoftBodyWorldInfo& worldInfo,
 												const btScalar*	vertices,
 												const int* triangles,
 												int ntriangles);
 	/* Create from convex-hull												*/ 
-	static	btSoftBody*		CreateFromConvexHull(	btSoftBody::btSoftBodyWorldInfo& worldInfo,
+	static	btSoftBody*		CreateFromConvexHull(	btSoftBodyWorldInfo& worldInfo,
 													const btVector3* vertices,
 													int nvertices);
 };
