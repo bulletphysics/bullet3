@@ -61,7 +61,7 @@ struct	btDbvtBroadphase : btBroadphaseInterface
 enum	{
 		DYNAMIC_SET			=	0,	/* Dynamic set index	*/ 
 		FIXED_SET			=	1,	/* Fixed set index		*/ 
-		STAGECOUNT			=	2,	/* Number of stages		*/ 
+		STAGECOUNT			=	2	/* Number of stages		*/ 
 		};
 /* Fields		*/ 
 btDbvt					m_sets[2];					// Dbvt sets
