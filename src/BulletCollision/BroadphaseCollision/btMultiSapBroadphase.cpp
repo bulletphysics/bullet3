@@ -17,7 +17,7 @@ subject to the following restrictions:
 
 #include "btSimpleBroadphase.h"
 #include "LinearMath/btAabbUtil2.h"
-#include "BulletCollision/CollisionShapes/btOptimizedBvh.h"
+#include "btQuantizedBvh.h"
 
 ///	btSapBroadphaseArray	m_sapBroadphases;
 
@@ -87,7 +87,7 @@ btMultiSapBroadphase::~btMultiSapBroadphase()
 
 void	btMultiSapBroadphase::buildTree(const btVector3& bvhAabbMin,const btVector3& bvhAabbMax)
 {
-	m_optimizedAabbTree = new btOptimizedBvh();
+	m_optimizedAabbTree = new btQuantizedBvh();
 	m_optimizedAabbTree->setQuantizationValues(bvhAabbMin,bvhAabbMax);
 	QuantizedNodeArray&	nodes = m_optimizedAabbTree->getLeafNodeArray();
 	for (int i=0;i<m_sapBroadphases.size();i++)

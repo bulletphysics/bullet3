@@ -37,7 +37,7 @@ class btMultiSapBroadphase :public btBroadphaseInterface
 
 	btOverlappingPairCache*	m_overlappingPairs;
 
-	class btOptimizedBvh*			m_optimizedAabbTree;
+	class btQuantizedBvh*			m_optimizedAabbTree;
 
 
 	bool					m_ownsPairCache;
