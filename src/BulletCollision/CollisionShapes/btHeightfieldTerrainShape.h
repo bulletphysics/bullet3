@@ -18,7 +18,8 @@ subject to the following restrictions:
 
 #include "btConcaveShape.h"
 
-///btHeightfieldTerrainShape simulates a 2D heightfield terrain 
+///The btHeightfieldTerrainShape simulates a 2D heightfield terrain collision shape. You can also use the more general btBvhTriangleMeshShape instead.
+///An example implementation of btHeightfieldTerrainShape is provided in Demos/VehicleDemo/VehicleDemo.cpp
 class btHeightfieldTerrainShape : public btConcaveShape
 {
 protected:

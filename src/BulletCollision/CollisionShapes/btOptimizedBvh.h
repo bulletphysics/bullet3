@@ -21,7 +21,7 @@ subject to the following restrictions:
 class btStridingMeshInterface;
 
 
-///OptimizedBvh extends the btQuantizedBvh to create AABB tree for triangle meshes, through the btStridingMeshInterface.
+///The btOptimizedBvh extends the btQuantizedBvh to create AABB tree for triangle meshes, through the btStridingMeshInterface.
 ATTRIBUTE_ALIGNED16(class) btOptimizedBvh : public btQuantizedBvh
 {
 	

@@ -21,8 +21,8 @@ subject to the following restrictions:
 #include "btTriangleCallback.h"
 
 
-///Concave shape proves an interface concave shapes that can produce triangles that overlapping a given AABB.
-///Static triangle mesh, infinite plane, height field/landscapes are example that implement this interface.
+///The btConcaveShape class provides an interface for non-moving (static) concave shapes.
+///It has been implemented by the btStaticPlaneShape, btBvhTriangleMeshShape and btHeightfieldTerrainShape.
 class btConcaveShape : public btCollisionShape
 {
 protected:

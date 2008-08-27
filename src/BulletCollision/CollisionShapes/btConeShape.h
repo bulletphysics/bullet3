@@ -19,7 +19,7 @@ subject to the following restrictions:
 #include "btConvexInternalShape.h"
 #include "BulletCollision/BroadphaseCollision/btBroadphaseProxy.h" // for the types
 
-///btConeShape implements a Cone shape, around the Y axis
+///The btConeShape implements a cone shape primitive, centered around the origin and aligned with the Y axis. The btConeShapeX is aligned around the X axis and btConeShapeZ around the Z axis.
 class btConeShape : public btConvexInternalShape
 
 {

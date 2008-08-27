@@ -29,7 +29,8 @@ typedef enum PHY_ScalarType {
 	PHY_FIXEDPOINT88
 } PHY_ScalarType;
 
-///	btStridingMeshInterface is the interface class for high performance access to triangle meshes
+///	The btStridingMeshInterface is the interface class for high performance generic access to triangle meshes, used in combination with btBvhTriangleMeshShape and some other collision shapes.
+/// Using index striding of 3*sizeof(integer) it can use triangle arrays, using index striding of 1*sizeof(integer) it can handle triangle strips.
 /// It allows for sharing graphics and collision meshes. Also it provides locking/unlocking of graphics meshes that are in gpu memory.
 class  btStridingMeshInterface
 {

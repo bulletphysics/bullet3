@@ -28,9 +28,8 @@ subject to the following restrictions:
 struct btConvexCastResult;
 #define MAX_PREFERRED_PENETRATION_DIRECTIONS 10
 
-/// btConvexShape is an abstract shape interface.
-/// It describes general convex shapes using the localGetSupportingVertex interface
-/// used in combination with GJK or btConvexCast
+/// The btConvexShape is an abstract shape interface, implemented by all convex shapes such as btBoxShape, btConvexHullShape etc.
+/// It describes general convex shapes using the localGetSupportingVertex interface, used by collision detectors such as btGjkPairDetector.
 ATTRIBUTE_ALIGNED16(class) btConvexShape : public btCollisionShape
 {
 

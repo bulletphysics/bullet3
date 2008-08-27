@@ -22,7 +22,7 @@ subject to the following restrictions:
 #include "LinearMath/btPoint3.h"
 #include "BulletCollision/BroadphaseCollision/btBroadphaseProxy.h" //for the shape types
 
-///btCollisionShape provides interface for collision shapes that can be shared among btCollisionObjects.
+///The btCollisionShape class provides an interface for collision shapes that can be shared among btCollisionObjects.
 class btCollisionShape
 {
 

@@ -20,9 +20,9 @@ subject to the following restrictions:
 #include "BulletCollision/BroadphaseCollision/btBroadphaseProxy.h" // for the types
 
 
-///btCapsuleShape represents a capsule around the Y axis
-///A more general solution that can represent capsules is the btMultiSphereShape
-///the total height is height+2*radius, so the height is just the height between the center of each 'sphere' of the capsule caps.
+///The btCapsuleShape represents a capsule around the Y axis, there is also the btCapsuleShapeX aligned around the X axis and btCapsuleShapeZ around the Z axis.
+///The total height is height+2*radius, so the height is just the height between the center of each 'sphere' of the capsule caps.
+///The btCapsuleShape is a convex hull of two spheres. The btMultiSphereShape is a more general collision shape that takes the convex hull of multiple sphere, so it can also represent a capsule when just using two spheres.
 class btCapsuleShape : public btConvexInternalShape
 {
 protected:

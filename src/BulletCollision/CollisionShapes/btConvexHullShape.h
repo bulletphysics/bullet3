@@ -20,10 +20,8 @@ subject to the following restrictions:
 #include "BulletCollision/BroadphaseCollision/btBroadphaseProxy.h" // for the types
 #include "LinearMath/btAlignedObjectArray.h"
 
-///ConvexHullShape implements an implicit (getSupportingVertex) Convex Hull of a Point Cloud (vertices)
-///No connectivity is needed. localGetSupportingVertex iterates linearly though all vertices.
-///on modern hardware, due to cache coherency this isn't that bad. Complex algorithms tend to trash the cash.
-///(memory is much slower then the cpu)
+///The btConvexHullShape implements an implicit convex hull of an array of vertices.
+///Bullet provides a general and fast collision detector for convex shapes based on GJK and EPA using localGetSupportingVertex.
 ATTRIBUTE_ALIGNED16(class) btConvexHullShape : public btPolyhedralConvexShape
 {
 	btAlignedObjectArray<btPoint3>	m_points;

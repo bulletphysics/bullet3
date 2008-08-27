@@ -46,7 +46,7 @@ SIMD_FORCE_INLINE bool operator==(const btCompoundShapeChild& c1, const btCompou
 }
 
 /// btCompoundShape allows to store multiple other btCollisionShapes
-/// This allows for concave collision objects. This is more general then the Static Concave btTriangleMeshShape.
+/// This allows for moving concave collision objects. This is more general then the static concave btBvhTriangleMeshShape.
 ATTRIBUTE_ALIGNED16(class) btCompoundShape	: public btCollisionShape
 {
 	//btAlignedObjectArray<btTransform>		m_childTransforms;

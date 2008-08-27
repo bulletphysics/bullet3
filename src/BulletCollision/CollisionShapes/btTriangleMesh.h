@@ -21,10 +21,10 @@ subject to the following restrictions:
 #include "LinearMath/btVector3.h"
 #include "LinearMath/btAlignedObjectArray.h"
 
-///btTriangleMesh provides storage for a concave triangle mesh. It can be used as data for the btTriangleMeshShape.
+///The btTriangleMesh class is a convenience class derived from btTriangleIndexVertexArray, that provides storage for a concave triangle mesh. It can be used as data for the btBvhTriangleMeshShape.
 ///It allows either 32bit or 16bit indices, and 4 (x-y-z-w) or 3 (x-y-z) component vertices.
-///btTriangleMesh will duplicate/keep all mesh data. 
-///If you prefer, you can avoid using btTriangleMesh and directly use btTriangleIndexVertexArray or derive your own class from btStridingMeshInterface. This allows to share render and collision meshes.
+///If you want to share triangle/index data between graphics mesh and collision mesh (btBvhTriangleMeshShape), you can directly use btTriangleIndexVertexArray or derive your own class from btStridingMeshInterface.
+///Performance of btTriangleMesh and btTriangleIndexVertexArray used in a btBvhTriangleMeshShape is the same.
 class btTriangleMesh : public btTriangleIndexVertexArray
 {
 	btAlignedObjectArray<btVector3>	m_4componentVertices;

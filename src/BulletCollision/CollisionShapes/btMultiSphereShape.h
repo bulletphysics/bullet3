@@ -21,7 +21,8 @@ subject to the following restrictions:
 
 #define MAX_NUM_SPHERES 5
 
-///btMultiSphereShape represents implicit convex hull of a collection of spheres (using getSupportingVertex)
+///The btMultiSphereShape represents the convex hull of a collection of spheres. You can create special capsules or other smooth volumes.
+///It is possible to animate the spheres for deformation.
 class btMultiSphereShape : public btConvexInternalShape
 
 {

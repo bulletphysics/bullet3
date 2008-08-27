@@ -21,7 +21,7 @@ subject to the following restrictions:
 #include "btConvexInternalShape.h"
 
 
-///PolyhedralConvexShape is an interface class for feature based (vertex/edge/face) convex shapes.
+///The btPolyhedralConvexShape is an internal interface class for polyhedral convex shapes.
 class btPolyhedralConvexShape : public btConvexInternalShape
 {
 

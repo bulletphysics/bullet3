@@ -19,8 +19,7 @@ subject to the following restrictions:
 #include "btConcaveShape.h"
 
 
-///StaticPlaneShape simulates an 'infinite' plane by dynamically reporting triangles approximated by intersection of the plane with the AABB.
-///Assumed is that the other objects is not also infinite, so a reasonable sized AABB.
+///The btStaticPlaneShape simulates an infinite non-moving (static) collision plane.
 class btStaticPlaneShape : public btConcaveShape
 {
 protected:

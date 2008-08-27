@@ -26,8 +26,8 @@ subject to the following restrictions:
 
 
 
-/// btEmptyShape is a collision shape without actual collision detection. 
-///It can be replaced by another shape during runtime
+/// The btEmptyShape is a collision shape without actual collision detection shape, so most users should ignore this class.
+/// It can be replaced by another shape during runtime, but the inertia tensor should be recomputed.
 class btEmptyShape	: public btConcaveShape
 {
 public:

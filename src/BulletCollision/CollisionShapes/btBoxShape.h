@@ -22,7 +22,7 @@ subject to the following restrictions:
 #include "LinearMath/btPoint3.h"
 #include "LinearMath/btMinMax.h"
 
-///btBoxShape implements both a feature based (vertex/edge/plane) and implicit (getSupportingVertex) Box
+///The btBoxShape is a box primitive around the origin, its sides axis aligned with length specified by half extents, in local shape coordinates. When used as part of a btCollisionObject or btRigidBody it will be an oriented box in world space.
 class btBoxShape: public btPolyhedralConvexShape
 {
 
