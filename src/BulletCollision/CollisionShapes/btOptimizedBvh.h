@@ -44,6 +44,17 @@ public:
 
 	void	updateBvhNodes(btStridingMeshInterface* meshInterface,int firstNode,int endNode,int index);
 
+	/// Data buffer MUST be 16 byte aligned
+	virtual bool serialize(void *o_alignedDataBuffer, unsigned i_dataBufferSize, bool i_swapEndian)
+	{
+		return btQuantizedBvh::serialize(o_alignedDataBuffer,i_dataBufferSize,i_swapEndian);
+
+	}
+
+	///deSerializeInPlace loads and initializes a BVH from a buffer in memory 'in place'
+	static btOptimizedBvh *deSerializeInPlace(void *i_alignedDataBuffer, unsigned int i_dataBufferSize, bool i_swapEndian);
+
+
 };
 
 
