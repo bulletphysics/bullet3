@@ -181,9 +181,9 @@ struct	btDbvtNode
 		};
 };
 
-//
-// Dynamic bounding volume tree
-//
+///The btDbvt class implements a fast dynamic bounding volume tree based on axis aligned bounding boxes (aabb tree).
+///This btDbvt is used for soft body collision detection and for the btDbvtBroadphase. It has a fast insert, remove and update of nodes.
+///Unlike the btQuantizedBvh, nodes can be dynamically moved around, which allows for change in topology of the underlying data structure.
 struct	btDbvt
 	{
 	

@@ -31,6 +31,9 @@ DEALINGS IN THE SOFTWARE.
 #include "btVector3.h"
 
 
+///The btIDebugDraw interface class allows hooking up a debug renderer to visually debug simulations.
+///Typical use case: create a debug drawer object, and assign it to a btCollisionWorld or btDynamicsWorld using setDebugDrawer and call debugDrawWorld.
+///A class that implements the btIDebugDraw interface has to implement the drawLine method at a minimum.
 class	btIDebugDraw
 {
 	public:

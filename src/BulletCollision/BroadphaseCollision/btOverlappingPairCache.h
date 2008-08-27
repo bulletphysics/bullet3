@@ -56,8 +56,8 @@ extern int gFindPairs;
 
 const int BT_NULL_PAIR=0xffffffff;
 
-///btOverlappingPairCache is an interface that allows different ways of pair management.
-///btHashedOverlappingPairCache or btSortedOverlappingPairCache are two implementations.
+///The btOverlappingPairCache provides an interface for overlapping pair management (add, remove, storage), used by the btBroadphaseInterface broadphases.
+///The btHashedOverlappingPairCache and btSortedOverlappingPairCache classes are two implementations.
 class btOverlappingPairCache : public btOverlappingPairCallback
 {
 public:

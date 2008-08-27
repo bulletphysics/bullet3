@@ -21,7 +21,8 @@ subject to the following restrictions:
 #include "btMatrix3x3.h"
 
 
-///btTransform supports rigid transforms (only translation and rotation, no scaling/shear)
+///The btTransform class supports rigid transforms with only translation and rotation and no scaling/shear.
+///It can be used in combination with btVector3, btQuaternion and btMatrix3x3 linear algebra classes.
 class btTransform {
 	
 

@@ -52,9 +52,9 @@ btDbvtProxy(void* userPtr,short int collisionFilterGroup, short int collisionFil
 
 typedef btAlignedObjectArray<btDbvtProxy*>	btDbvtProxyArray;
 
-//
-// btDbvtBroadphase
-//
+///The btDbvtBroadphase implements a broadphase using two dynamic AABB bounding volume hierarchies/trees (see btDbvt).
+///One tree is used for static/non-moving objects, and another tree is used for dynamic objects. Objects can move from one tree to the other.
+///This is a very fast broadphase, especially for very dynamic worlds where many objects are moving. Its insert/add and remove of objects is generally faster than the sweep and prune broadphases btAxisSweep3 and bt32BitAxisSweep3.
 struct	btDbvtBroadphase : btBroadphaseInterface
 {
 /* Config		*/ 

@@ -19,6 +19,7 @@ subject to the following restrictions:
 #include "btScalar.h"
 #include "btAlignedAllocator.h"
 
+///The btPoolAllocator class allows to efficiently allocate a large pool of objects, instead of dynamically allocating them separately.
 class btPoolAllocator
 {
 	int				m_elemSize;

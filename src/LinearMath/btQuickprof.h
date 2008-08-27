@@ -54,7 +54,7 @@
 
 #define mymin(a,b) (a > b ? a : b)
 
-/// basic clock
+///The btClock is a portable basic clock that measures accurate time in seconds, use for profiling.
 class btClock
 {
 public:
@@ -229,9 +229,7 @@ private:
 
 
 
-/*
-** A node in the Profile Hierarchy Tree
-*/
+///A node in the Profile Hierarchy Tree
 class	CProfileNode {
 
 public:
@@ -266,9 +264,7 @@ protected:
 	CProfileNode *	Sibling;
 };
 
-/*
-** An iterator to navigate through the tree
-*/
+///An iterator to navigate through the tree
 class CProfileIterator
 {
 public:
@@ -302,9 +298,7 @@ protected:
 };
 
 
-/*
-** The Manager for the Profile system
-*/
+///The Manager for the Profile system
 class	CProfileManager {
 public:
 	static	void						Start_Profile( const char * name );
@@ -335,10 +329,8 @@ private:
 };
 
 
-/*
-** ProfileSampleClass is a simple way to profile a function's scope
-** Use the BT_PROFILE macro at the start of scope to time
-*/
+///ProfileSampleClass is a simple way to profile a function's scope
+///Use the BT_PROFILE macro at the start of scope to time
 class	CProfileSample {
 public:
 	CProfileSample( const char * name )

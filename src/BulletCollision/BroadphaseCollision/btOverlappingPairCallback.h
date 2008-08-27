@@ -20,7 +20,7 @@ subject to the following restrictions:
 class btDispatcher;
 struct  btBroadphasePair;
 
-///btOverlappingPairCallback provides user callback to keep track of overlap between objects, like a collision sensor
+///The btOverlappingPairCallback class is an additional optional broadphase user callback for adding/removing overlapping pairs, similar interface to btOverlappingPairCache.
 class btOverlappingPairCallback
 {
 public:

@@ -52,6 +52,8 @@ typedef void (btFreeFunc)(void *memblock);
 void btAlignedAllocSetCustomAligned(btAlignedAllocFunc *allocFunc, btAlignedFreeFunc *freeFunc);
 void btAlignedAllocSetCustom(btAllocFunc *allocFunc, btFreeFunc *freeFunc);
 
+///The btAlignedAllocator is a portable class for aligned memory allocations.
+///Default implementations for unaligned and aligned allocations can be overridden by a custom allocator using btAlignedAllocSetCustom and btAlignedAllocSetCustomAligned.
 template < typename T , unsigned Alignment >
 class btAlignedAllocator {
 	

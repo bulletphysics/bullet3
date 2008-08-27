@@ -153,7 +153,9 @@ typedef btAlignedObjectArray<btQuantizedBvhNode>	QuantizedNodeArray;
 typedef btAlignedObjectArray<btBvhSubtreeInfo>		BvhSubtreeInfoArray;
 
 
-///OptimizedBvh store an AABB tree that can be quickly traversed on CPU (and SPU,GPU in future)
+///The btQuantizedBvh class stores an AABB tree that can be quickly traversed on CPU and Cell SPU.
+///It is used by the btBvhTriangleMeshShape as midphase, and by the btMultiSapBroadphase.
+///It is recommended to use quantization for better performance and lower memory requirements.
 ATTRIBUTE_ALIGNED16(class) btQuantizedBvh
 {
 protected:

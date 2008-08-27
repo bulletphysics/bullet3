@@ -67,7 +67,8 @@ CONCAVE_SHAPES_END_HERE,
 };
 
 
-///btBroadphaseProxy
+///The btBroadphaseProxy is the main class that can be used with the Bullet broadphases. 
+///It stores collision shape type information, collision filter information and a client object, typically a btCollisionObject or btRigidBody.
 ATTRIBUTE_ALIGNED16(struct) btBroadphaseProxy
 {
 
@@ -148,7 +149,8 @@ struct btBroadphaseProxy;
 
 
 
-/// contains a pair of aabb-overlapping objects
+///The btBroadphasePair class contains a pair of aabb-overlapping objects.
+///A btDispatcher can search a btCollisionAlgorithm that performs exact/narrowphase collision detection on the actual collision shapes.
 ATTRIBUTE_ALIGNED16(struct) btBroadphasePair
 {
 	btBroadphasePair ()

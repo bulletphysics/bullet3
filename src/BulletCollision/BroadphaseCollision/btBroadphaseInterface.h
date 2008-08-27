@@ -25,7 +25,9 @@ class btOverlappingPairCache;
 
 #include "LinearMath/btVector3.h"
 
-///BroadphaseInterface for aabb-overlapping object pairs
+///The btBroadphaseInterface class provides an interface to detect aabb-overlapping object pairs.
+///Some implementations for this broadphase interface include btAxisSweep3, bt32BitAxisSweep3 and btDbvtBroadphase.
+///The actual overlapping pair management, storage, adding and removing of pairs is dealt by the btOverlappingPairCache class.
 class btBroadphaseInterface
 {
 public:

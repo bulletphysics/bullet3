@@ -21,9 +21,10 @@ subject to the following restrictions:
 #include <math.h>
 
 
-//ATTRIBUTE_ALIGNED16(class) btQuadWordStorage
-//some issues under PS3 Linux with IBM 2.1 SDK, gcc compiler prevent from using aligned quadword. todo: look into this
 
+///The btQuadWordStorage class is base class for btVector3 and btQuaternion. 
+///Some issues under PS3 Linux with IBM 2.1 SDK, gcc compiler prevent from using aligned quadword. todo: look into this
+///ATTRIBUTE_ALIGNED16(class) btQuadWordStorage
 class btQuadWordStorage
 {
 protected:

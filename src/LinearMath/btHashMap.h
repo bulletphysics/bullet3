@@ -78,6 +78,8 @@ public:
 	}
 };
 
+///The btHashMap template class implements a generic and lightweight hashmap.
+///A basic sample of how to use btHashMap is located in Demos\BasicDemo\main.cpp
 template <class Key, class Value>
 class btHashMap
 {

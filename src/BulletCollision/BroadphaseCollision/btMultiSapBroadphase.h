@@ -26,7 +26,9 @@ class btSimpleBroadphase;
 
 typedef btAlignedObjectArray<btBroadphaseInterface*> btSapBroadphaseArray;
 
-///multi SAP broadphase
+///The btMultiSapBroadphase is a broadphase that contains multiple SAP broadphases.
+///The user can add SAP broadphases that cover the world. A btBroadphaseProxy can be in multiple child broadphases at the same time.
+///A btQuantizedBvh acceleration structures finds overlapping SAPs for each btBroadphaseProxy.
 ///See http://www.continuousphysics.com/Bullet/phpBB2/viewtopic.php?t=328
 ///and http://www.continuousphysics.com/Bullet/phpBB2/viewtopic.php?t=1329
 class btMultiSapBroadphase :public btBroadphaseInterface

@@ -28,7 +28,8 @@
 
 //#define DEBUG_BROADPHASE 1
 
-/// btAxisSweep3Internal is an internal template class that implements sweep and prune.
+/// The internal templace class btAxisSweep3Internal implements the sweep and prune broadphase.
+/// It uses quantized integers to represent the begin and end points for each of the 3 axis.
 /// Dont use this class directly, use btAxisSweep3 or bt32BitAxisSweep3 instead.
 template <typename BP_FP_INT_TYPE>
 class btAxisSweep3Internal : public btBroadphaseInterface
@@ -884,9 +885,9 @@ void btAxisSweep3Internal<BP_FP_INT_TYPE>::sortMaxUp(int axis, BP_FP_INT_TYPE ed
 ////////////////////////////////////////////////////////////////////
 
 
-/// btAxisSweep3 is an efficient implementation of the 3d axis sweep and prune broadphase.
+/// The btAxisSweep3 is an efficient implementation of the 3d axis sweep and prune broadphase.
 /// It uses arrays rather then lists for storage of the 3 axis. Also it operates using 16 bit integer coordinates instead of floats.
-/// For large worlds and many objects, use bt32BitAxisSweep3 instead. bt32BitAxisSweep3 has higher precision and allows more then 16384 objects at the cost of more memory and bit of performance.
+/// For large worlds and many objects, use bt32BitAxisSweep3 or btDbvtBroadphase instead. bt32BitAxisSweep3 has higher precision and allows more then 16384 objects at the cost of more memory and bit of performance.
 class btAxisSweep3 : public btAxisSweep3Internal<unsigned short int>
 {
 public:
@@ -895,7 +896,7 @@ public:
 
 };
 
-/// bt32BitAxisSweep3 allows higher precision quantization and more objects compared to the btAxisSweep3 sweep and prune.
+/// The bt32BitAxisSweep3 allows higher precision quantization and more objects compared to the btAxisSweep3 sweep and prune.
 /// This comes at the cost of more memory per handle, and a bit slower performance.
 /// It uses arrays rather then lists for storage of the 3 axis.
 class bt32BitAxisSweep3 : public btAxisSweep3Internal<unsigned int>

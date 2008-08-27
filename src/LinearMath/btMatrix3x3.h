@@ -22,6 +22,9 @@ subject to the following restrictions:
 #include "btQuaternion.h"
 
 
+
+///The btMatrix3x3 class implements a 3x3 rotation matrix, to perform linear algebra in combination with btQuaternion, btTransform and btVector3.
+///Make sure to only include a pure orthogonal matrix without scaling.
 class btMatrix3x3 {
 	public:
 		btMatrix3x3 () {}
