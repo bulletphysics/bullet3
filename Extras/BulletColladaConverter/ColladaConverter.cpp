@@ -176,6 +176,19 @@ ColladaConverter::~ColladaConverter ()
 
 	m_collada = NULL;
 	m_dom = NULL;
+
+	for(int i=0;i<m_rbUserInfoHashMap.size();i++)
+	{
+		btRigidBodyColladaInfo* rbci = *(m_rbUserInfoHashMap.getAtIndex(i));
+		delete rbci;
+	}
+
+	for(int i=0;i<m_constraintUserInfoHashMap.size();i++)
+	{
+		btRigidConstraintColladaInfo* rcci = *(m_constraintUserInfoHashMap.getAtIndex(i));
+		delete rcci;
+	}
+
 }
 	
 
@@ -226,6 +239,18 @@ bool	ColladaConverter::load(const char* orgfilename)
 // resets the collada converter state
 void ColladaConverter::reset ()
 {
+	for(int i=0;i<m_rbUserInfoHashMap.size();i++)
+	{
+		btRigidBodyColladaInfo* rbci = *(m_rbUserInfoHashMap.getAtIndex(i));
+		delete rbci;
+	}
+
+	for(int i=0;i<m_constraintUserInfoHashMap.size();i++)
+	{
+		btRigidConstraintColladaInfo* rcci = *(m_constraintUserInfoHashMap.getAtIndex(i));
+		delete rcci;
+	}
+
 	// clear the maps
 	m_rbUserInfoHashMap.clear ();
 	m_constraintUserInfoHashMap.clear ();
@@ -2808,27 +2833,24 @@ void	ColladaConverter::ConvertRigidBodyRef( btRigidBodyInput& rbInput,btRigidBod
 								}
 							}
 
-
-
-
-
-							if (rbOutput.m_isDynamics)
-							{
-								printf("moving concave <mesh> not supported, transformed into convex\n");
-								rbOutput.m_colShape = new btConvexTriangleMeshShape(trimesh);
-							} else
-							{
-								printf("static concave triangle <mesh> added\n");
-								bool useQuantizedAabbCompression = true;
-								rbOutput.m_colShape = new btBvhTriangleMeshShape(trimesh,useQuantizedAabbCompression);
-								//rbOutput.m_colShape = new btBvhTriangleMeshShape(trimesh);
-								//rbOutput.m_colShape = new btConvexTriangleMeshShape(trimesh);
-								
-								//btTriangleMeshShape
-							}
-							//rbOutput.m_colShape->setTypedUserInfo (new btShapeColladaInfo (geom));
-
 						} 
+
+						if (rbOutput.m_isDynamics)
+						{
+							printf("moving concave <mesh> not supported, transformed into convex\n");
+							rbOutput.m_colShape = new btConvexTriangleMeshShape(trimesh);
+						} else
+						{
+							printf("static concave triangle <mesh> added\n");
+							bool useQuantizedAabbCompression = true;
+							rbOutput.m_colShape = new btBvhTriangleMeshShape(trimesh,useQuantizedAabbCompression);
+							//rbOutput.m_colShape = new btBvhTriangleMeshShape(trimesh);
+							//rbOutput.m_colShape = new btConvexTriangleMeshShape(trimesh);
+							
+							//btTriangleMeshShape
+						}
+						//rbOutput.m_colShape->setTypedUserInfo (new btShapeColladaInfo (geom));
+
 					} else
 						{
 

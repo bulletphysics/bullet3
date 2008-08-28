@@ -23,6 +23,10 @@ int main(int argc,char** argv)
 
        
 
-        return glutmain(argc, argv,640,480,"Bullet Physics Demo. http://www.continuousphysics.com/Bullet/phpBB2/",convexDecompDemo);
+        glutmain(argc, argv,640,480,"Bullet Physics Demo. http://www.continuousphysics.com/Bullet/phpBB2/",convexDecompDemo);
+
+	delete convexDecompDemo;
+
+	return 0;
 }
 

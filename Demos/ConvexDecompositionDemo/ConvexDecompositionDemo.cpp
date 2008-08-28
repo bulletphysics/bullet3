@@ -351,6 +351,8 @@ void ConvexDecompositionDemo::initPhysics(const char* filename)
 		startTransform.setOrigin(convexDecompositionObjectOffset);
 		localCreateRigidBody(0.f,startTransform,concaveShape);
 
+		m_collisionShapes.push_back (concaveShape);
+
 	}
 			
 

@@ -97,6 +97,8 @@ btSoftBody::~btSoftBody()
 	delete m_collisionShape;	
 	int i;
 
+	for(i=0;i<m_clusters.size();++i)
+		btAlignedFree(m_clusters[i]);
 	for(i=0;i<m_materials.size();++i) 
 		btAlignedFree(m_materials[i]);
 	for(i=0;i<m_joints.size();++i) 

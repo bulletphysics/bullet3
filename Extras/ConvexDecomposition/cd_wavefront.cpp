@@ -816,8 +816,8 @@ WavefrontObj::WavefrontObj(void)
 
 WavefrontObj::~WavefrontObj(void)
 {
-	delete mIndices;
-	delete mVertices;
+	delete [] mIndices;
+	delete [] mVertices;
 }
 
 unsigned int WavefrontObj::loadObj(const char *fname) // load a wavefront obj returns number of triangles that were loaded.  Data is persists until the class is destructed.
@@ -825,9 +825,9 @@ unsigned int WavefrontObj::loadObj(const char *fname) // load a wavefront obj re
 
 	unsigned int ret = 0;
 
-	delete mVertices;
+	delete [] mVertices;
 	mVertices = 0;
-	delete mIndices;
+	delete [] mIndices;
 	mIndices = 0;
 	mVertexCount = 0;
 	mTriCount = 0;

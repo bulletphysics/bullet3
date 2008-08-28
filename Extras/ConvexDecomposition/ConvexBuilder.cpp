@@ -150,7 +150,10 @@ CHull * ConvexBuilder::canMerge(CHull *a,CHull *b)
 	
 	//don't do anything if hull is empty
 	if (!tcount)
+	{
+		Vl_releaseVertexLookup (vc);
 		return 0;
+	}
 
 	HullResult hresult;
 	HullLibrary hl;
@@ -322,6 +325,8 @@ unsigned int ConvexBuilder::process(const DecompDesc &desc)
 
 			mCallback->ConvexDecompResult(r);
 		}
+
+		hl.ReleaseResult (result);
 
 
 		delete cr;

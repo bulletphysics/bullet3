@@ -204,6 +204,7 @@ void calcConvexDecomposition(unsigned int           vcount,
     }
 #endif
 
+    hl.ReleaseResult (result);
     return;
 
   }
