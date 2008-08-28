@@ -44,7 +44,8 @@ struct btDebugCastResult : public btConvexCast::CastResult
 	:m_fromTrans(fromTrans),
 	m_shape(shape),
 	m_linVel(linVel),
-	m_angVel(angVel)
+	m_angVel(angVel),
+	m_shapeDrawer(drawer)
 	{
 	}
 
@@ -78,7 +79,8 @@ struct btDebugCastResult : public btConvexCast::CastResult
 		btTransform hitTrans;
 		btTransformUtil::integrateTransform(m_fromTrans,m_linVel,m_angVel,fraction,hitTrans);
 		hitTrans.getOpenGLMatrix(m);
-		m_shapeDrawer->drawOpenGL(m,m_shape,btVector3(1,0,0),btIDebugDraw::DBG_NoDebug,worldBoundsMin,worldBoundsMax);
+		if (m_shapeDrawer)
+			m_shapeDrawer->drawOpenGL(m,m_shape,btVector3(1,0,0),btIDebugDraw::DBG_NoDebug,worldBoundsMin,worldBoundsMax);
 	}
 };
 
