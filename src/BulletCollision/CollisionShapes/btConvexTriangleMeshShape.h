@@ -14,7 +14,7 @@ class btConvexTriangleMeshShape : public btPolyhedralConvexShape
 	class btStridingMeshInterface*	m_stridingMesh;
 
 public:
-	btConvexTriangleMeshShape(btStridingMeshInterface* meshInterface);
+	btConvexTriangleMeshShape(btStridingMeshInterface* meshInterface, bool calcAabb = true);
 
 	class btStridingMeshInterface*	getMeshInterface()
 	{
@@ -51,5 +51,6 @@ public:
 
 
 #endif //CONVEX_TRIANGLEMESH_SHAPE_H
+
 
 

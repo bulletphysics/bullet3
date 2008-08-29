@@ -489,6 +489,12 @@ void	btDiscreteDynamicsWorld::updateActivationState(btScalar timeStep)
 				{
 					if (body->getActivationState() == ACTIVE_TAG)
 						body->setActivationState( WANTS_DEACTIVATION );
+					if (body->getActivationState() == ISLAND_SLEEPING) 
+					{
+						body->setAngularVelocity(btVector3(0,0,0));
+						body->setLinearVelocity(btVector3(0,0,0));
+					}
+
 				}
 			} else
 			{
