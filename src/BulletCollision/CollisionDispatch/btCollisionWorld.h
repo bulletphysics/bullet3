@@ -183,7 +183,7 @@ public:
 		virtual ~RayResultCallback()
 		{
 		}
-		bool	hasHit()
+		bool	hasHit() const
 		{
 			return (m_collisionObject != 0);
 		}
@@ -283,7 +283,7 @@ public:
 		{
 		}
 		
-		bool	hasHit()
+		bool	hasHit() const
 		{
 			return (m_closestHitFraction < btScalar(1.));
 		}
