@@ -65,8 +65,10 @@ int stallingUnalignedDmaSmallGet(void *ls, uint64_t ea, uint32_t size)
 	
 	int remainingSize = size;
 
-	//cellDmaUnalignedGet(tmpTarget,ea,size,DMA_TAG(1),0,0);
-
+//#define FORCE_cellDmaUnalignedGet 1
+#ifdef FORCE_cellDmaUnalignedGet
+	cellDmaUnalignedGet(tmpTarget,ea,size,DMA_TAG(1),0,0);
+#else
 	char* remainingTmpTarget = tmpTarget;
 	uint64_t remainingEa = ea;
 
@@ -107,6 +109,7 @@ int stallingUnalignedDmaSmallGet(void *ls, uint64_t ea, uint32_t size)
 			}
 		}
 	}
+#endif//FORCE_cellDmaUnalignedGet
 
 #else
 	//copy into final destination
