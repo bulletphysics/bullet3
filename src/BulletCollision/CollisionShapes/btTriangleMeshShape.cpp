@@ -24,7 +24,14 @@ subject to the following restrictions:
 btTriangleMeshShape::btTriangleMeshShape(btStridingMeshInterface* meshInterface)
 : m_meshInterface(meshInterface)
 {
-	recalcLocalAabb();
+	if(meshInterface->hasPremadeAabb())
+	{
+		meshInterface->getPremadeAabb(&m_localAabbMin, &m_localAabbMax);
+	}
+	else
+	{
+		recalcLocalAabb();
+	}
 }
 
 

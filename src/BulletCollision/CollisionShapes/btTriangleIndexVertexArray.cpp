@@ -76,3 +76,21 @@ void	btTriangleIndexVertexArray::getLockedReadOnlyVertexIndexBase(const unsigned
 	indicestype = mesh.m_indexType;
 }
 
+bool	btTriangleIndexVertexArray::hasPremadeAabb() const
+{
+	return (m_hasAabb == 1);
+}
+
+void	btTriangleIndexVertexArray::setPremadeAabb(const btVector3& aabbMin, const btVector3& aabbMax )
+{
+	m_aabbMin = aabbMin;
+	m_aabbMax = aabbMax;
+	m_hasAabb = 1; // this is intentionally an int see notes in header
+}
+
+void	btTriangleIndexVertexArray::getPremadeAabb(btVector3* aabbMin, btVector3* aabbMax ) const
+{
+	*aabbMin = m_aabbMin;
+	*aabbMax = m_aabbMax;
+}
+

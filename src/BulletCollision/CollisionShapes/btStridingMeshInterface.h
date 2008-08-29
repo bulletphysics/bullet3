@@ -76,6 +76,10 @@ class  btStridingMeshInterface
 		virtual void	preallocateVertices(int numverts)=0;
 		virtual void	preallocateIndices(int numindices)=0;
 
+		virtual bool	hasPremadeAabb() const { return false; }
+		virtual void	setPremadeAabb(const btVector3& aabbMin, const btVector3& aabbMax ) const {}
+		virtual void	getPremadeAabb(btVector3* aabbMin, btVector3* aabbMax ) const {}
+
 		const btVector3&	getScaling() const {
 			return m_scaling;
 		}

@@ -30,7 +30,14 @@ m_ownsBvh(false)
 #ifndef DISABLE_BVH
 
 	btVector3 bvhAabbMin,bvhAabbMax;
-	meshInterface->calculateAabbBruteForce(bvhAabbMin,bvhAabbMax);
+	if(meshInterface->hasPremadeAabb())
+	{
+		meshInterface->getPremadeAabb(&bvhAabbMin, &bvhAabbMax);
+	}
+	else
+	{
+		meshInterface->calculateAabbBruteForce(bvhAabbMin,bvhAabbMax);
+	}
 	
 	if (buildBvh)
 	{
