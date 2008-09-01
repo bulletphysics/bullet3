@@ -1,3 +1,19 @@
+/*
+ *	ICE / OPCODE - Optimized Collision Detection
+ * http://www.codercorner.com/Opcode.htm
+ * 
+ * Copyright (c) 2001-2008 Pierre Terdiman,  pierre@codercorner.com
+
+This software is provided 'as-is', without any express or implied warranty.
+In no event will the authors be held liable for any damages arising from the use of this software.
+Permission is granted to anyone to use this software for any purpose, 
+including commercial applications, and to alter it and redistribute it freely, 
+subject to the following restrictions:
+
+1. The origin of this software must not be misrepresented; you must not claim that you wrote the original software. If you use this software in a product, an acknowledgment in the product documentation would be appreciated but is not required.
+2. Altered source versions must be plainly marked as such, and must not be misrepresented as being the original software.
+3. This notice may not be removed or altered from any source distribution.
+*/
 ///////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
 /**
  *	Contains source code from the article "Radix Sort Revisited".
@@ -9,8 +25,8 @@
 
 ///////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
 // Include Guard
-#ifndef ICERADIXSORT_H
-#define ICERADIXSORT_H
+#ifndef __ICERADIXSORT_H__
+#define __ICERADIXSORT_H__
 
 	//! Allocate histograms & offsets locally
 	#define RADIX_LOCAL_RAM
@@ -23,7 +39,7 @@
 		RADIX_FORCE_DWORD = 0x7fffffff
 	};
 
-	class ICECORE_API RadixSort : public Allocateable
+	class ICECORE_API RadixSort
 	{
 		public:
 		// Constructor/Destructor
@@ -46,9 +62,6 @@
 		//! Returns the number of eraly exits due to temporal coherence.
 		inline_	udword			GetNbHits()			const	{ return mNbHits;		}
 
-				bool			SetRankBuffers(udword* ranks0, udword* ranks1);
-
-								PREVENT_COPY(RadixSort)
 		private:
 #ifndef RADIX_LOCAL_RAM
 				udword*			mHistogram;			//!< Counters for each byte
@@ -60,15 +73,9 @@
 		// Stats
 				udword			mTotalCalls;		//!< Total number of calls to the sort routine
 				udword			mNbHits;			//!< Number of early exits due to coherence
-		// Stack-radix
-				bool			mDeleteRanks;		//!<
 		// Internal methods
 				void			CheckResize(udword nb);
 				bool			Resize(udword nb);
 	};
 
-	#define StackRadixSort(name, ranks0, ranks1)	\
-		RadixSort name;								\
-		name.SetRankBuffers(ranks0, ranks1);
-
-#endif // ICERADIXSORT_H
+#endif // __ICERADIXSORT_H__

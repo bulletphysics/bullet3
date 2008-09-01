@@ -22,13 +22,14 @@ subject to the following restrictions:
 #include "CompleteBoxPruning.h"
 #include "BulletSAPCompleteBoxPruningTest.h"
 #include "BipartiteBoxPruning.h"
+#include "OpcodeArraySAPTest.h"
 #include "RenderingHelpers.h"
 #include "Terrain.h"
 #include "Camera.h"
 #include "GLFontRenderer.h"
-#include "BulletCollision/BroadphaseCollision/btDbvt.h"
 
 #define NUM_SAP_BOXES 8192
+//#define NUM_SAP_BOXES 1024
 
 int		percentUpdate	=	10;
 
@@ -62,11 +63,12 @@ enum TestIndex
 //	TEST_COMPLETE_BOX_PRUNING=0,
  	TEST_COMPLETE_BOX_PRUNING_8192,
 //	TEST_BULLET_SAP_1024,
- //	TEST_BULLET_SAP_8192,
+	TEST_BULLET_SAP_8192,
 //	TEST_BULLET_SAP_SORTEDPAIRS_8192,
  	TEST_BULLET_MULTISAP_8192,
 //	TEST_BIPARTITE_BOX_PRUNING,
 	TEST_DBVT_8192,
+ 	TEST_OPCODE_ARRAY_SAP,
 	MAX_NB_TESTS
 };
 
@@ -225,15 +227,6 @@ static void Terminate()
 
 int main(int argc, char** argv)
 {
-	{
-	::SetPriorityClass(::GetCurrentProcess(),HIGH_PRIORITY_CLASS);
-	::SetThreadPriority(::GetCurrentThread(),THREAD_PRIORITY_TIME_CRITICAL);
-	#if 0
-	btDbvt::benchmark();
-	exit(0);
-	#endif
-	}
-
 	// Initialize AntTweakBar
 	// (note that AntTweakBar could also be intialize after GLUT, no matter)
 	if(!TwInit(TW_OPENGL, NULL))
@@ -296,13 +289,14 @@ int main(int argc, char** argv)
 //			{TEST_OBB_MESH_QUERY, "OBB-mesh query"},
 //			{TEST_CAPSULE_MESH_QUERY, "Capsule-mesh query"},
 //			{TEST_COMPLETE_BOX_PRUNING, "OPCODE SAP 1024"},
-			{TEST_COMPLETE_BOX_PRUNING_8192, "OPCODE SAP 8192"},
+			{TEST_COMPLETE_BOX_PRUNING_8192, "OPCODE BOX PRUNING 8192"},
 //			{TEST_BULLET_SAP_1024, "Bullet SAP HASHPAIR 1024"},
-	//		{TEST_BULLET_SAP_8192, "Bullet SAP HASHPAIR 8192"},
+			{TEST_BULLET_SAP_8192, "Bullet SAP HASHPAIR 8192"},
 //			{TEST_BULLET_SAP_SORTEDPAIRS_8192, "Bullet SAP SORTEDPAIR 8192"},
 			{TEST_BULLET_MULTISAP_8192, "Bullet MultiSAP 8192"},
 //			{TEST_BIPARTITE_BOX_PRUNING, "Bipartite box pruning"},
-			{TEST_DBVT_8192, "DBVT 8192"},
+			{TEST_DBVT_8192, "Bullet DBVT 8192"},
+			{TEST_OPCODE_ARRAY_SAP, "OPCODE ARRAY SAP"},
 		};
 		TwType testType = TwDefineEnum("CollisionTest", testEV, MAX_NB_TESTS);
 		TwAddVarRW(gMainBar, "CollisionTests", testType, &gSelectedTest, "");		
@@ -318,11 +312,12 @@ int main(int argc, char** argv)
  //	gCollisionTests[TEST_COMPLETE_BOX_PRUNING_8192]	= new CompleteBoxPruningTest(NUM_SAP_BOXES);
 	gCollisionTests[TEST_COMPLETE_BOX_PRUNING_8192]	= new CompleteBoxPruningTest(NUM_SAP_BOXES);
 //	gCollisionTests[TEST_BULLET_SAP_1024]	= new BulletSAPCompleteBoxPruningTest(NUM_SAP_BOXES,1);
- //	gCollisionTests[TEST_BULLET_SAP_8192]	= new BulletSAPCompleteBoxPruningTest(NUM_SAP_BOXES,1);
+ 	gCollisionTests[TEST_BULLET_SAP_8192]	= new BulletSAPCompleteBoxPruningTest(NUM_SAP_BOXES,1);
 //	gCollisionTests[TEST_BULLET_SAP_SORTEDPAIRS_8192]	= new BulletSAPCompleteBoxPruningTest(NUM_SAP_BOXES,3);
  	gCollisionTests[TEST_BULLET_MULTISAP_8192]	= new BulletSAPCompleteBoxPruningTest(NUM_SAP_BOXES,6);
 //	gCollisionTests[TEST_BIPARTITE_BOX_PRUNING]	= new BipartiteBoxPruningTest;
 	gCollisionTests[TEST_DBVT_8192]	= new BulletSAPCompleteBoxPruningTest(NUM_SAP_BOXES,7);
+	gCollisionTests[TEST_OPCODE_ARRAY_SAP]	= new OpcodeArraySAPTest(NUM_SAP_BOXES);
 
 	for(int i=0;i<MAX_NB_TESTS;i++)
 		gCollisionTests[i]->Init();

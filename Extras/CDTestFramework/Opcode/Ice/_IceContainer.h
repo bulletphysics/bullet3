@@ -1,3 +1,19 @@
+/*
+ *	ICE / OPCODE - Optimized Collision Detection
+ * http://www.codercorner.com/Opcode.htm
+ * 
+ * Copyright (c) 2001-2008 Pierre Terdiman,  pierre@codercorner.com
+
+This software is provided 'as-is', without any express or implied warranty.
+In no event will the authors be held liable for any damages arising from the use of this software.
+Permission is granted to anyone to use this software for any purpose, 
+including commercial applications, and to alter it and redistribute it freely, 
+subject to the following restrictions:
+
+1. The origin of this software must not be misrepresented; you must not claim that you wrote the original software. If you use this software in a product, an acknowledgment in the product documentation would be appreciated but is not required.
+2. Altered source versions must be plainly marked as such, and must not be misrepresented as being the original software.
+3. This notice may not be removed or altered from any source distribution.
+*/
 ///////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
 /**
  *	Contains a simple container class.
@@ -9,12 +25,10 @@
 
 ///////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
 // Include Guard
-#ifndef ICECONTAINER_H
-#define ICECONTAINER_H
+#ifndef __ICECONTAINER_H__
+#define __ICECONTAINER_H__
 
-//	#define CONTAINER_STATS			// #### doesn't work with micro-threads!
-
-	class LinkedList;
+	#define CONTAINER_STATS
 
 	enum FindMode
 	{
@@ -24,10 +38,7 @@
 		FIND_FORCE_DWORD = 0x7fffffff
 	};
 
-	class ICECORE_API Container : public Allocateable
-#ifdef CONTAINER_STATS
-		, public ListElem
-#endif
+	class ICECORE_API Container
 	{
 		public:
 		// Constructor / Destructor
@@ -36,15 +47,6 @@
 								Container(udword size, float growth_factor);
 								~Container();
 		// Management
-		///////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
-		/**
-		 *	Initializes the container so that it uses an external memory buffer. The container doesn't own the memory, resizing is disabled.
-		 *	\param		max_entries		[in] max number of entries in the container
-		 *	\param		entries			[in] external memory buffer
-		 */
-		///////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
-				void			InitSharedBuffers(udword max_entries, udword* entries);
-
 		///////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
 		/**
 		 *	A O(1) method to add a value in the container. The container is automatically resized if needed.
@@ -70,36 +72,13 @@
 
 		inline_	Container&		Add(const udword* entries, udword nb)
 								{
-									if(entries && nb)
-									{
-										// Resize if needed
-										if(mCurNbEntries+nb>mMaxNbEntries)	Resize(nb);
-
-										// Add new entry
-										CopyMemory(&mEntries[mCurNbEntries], entries, nb*sizeof(udword));
-										mCurNbEntries += nb;
-									}
-									return *this;
-								}
-
-		inline_	Container&		Add(const Container& container)
-								{
-									return Add(container.GetEntries(), container.GetNbEntries());
-								}
-
-		inline_	udword*			Reserve(udword nb)
-								{
 									// Resize if needed
 									if(mCurNbEntries+nb>mMaxNbEntries)	Resize(nb);
 
-									// We expect the user to fill reserved memory with 'nb' udwords
-									udword* Reserved = &mEntries[mCurNbEntries];
-
-									// Meanwhile, we do as if it had been filled
-									mCurNbEntries += nb;
-
-									// This is mainly used to avoid the copy when possible
-									return Reserved;
+									// Add new entry
+									CopyMemory(&mEntries[mCurNbEntries], entries, nb*sizeof(udword));
+									mCurNbEntries+=nb;
+									return *this;
 								}
 
 		///////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
@@ -166,7 +145,7 @@
 									if(mCurNbEntries)	mCurNbEntries = 0;
 								}
 
-		// HANDLE WITH CARE - I hope you know what you're doing
+		// HANDLE WITH CARE
 		inline_	void			ForceSize(udword size)
 								{
 									mCurNbEntries = size;
@@ -189,8 +168,6 @@
 		///////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
 				bool			Refit();
 
-				bool			Shrink();
-
 		// Checks whether the container already contains a given value.
 				bool			Contains(udword entry, udword* location=null) const;
 		// Deletes an entry - doesn't preserve insertion order.
@@ -207,16 +184,15 @@
 				Container&		FindPrev(udword& entry, FindMode find_mode=FIND_CLAMP);
 		// Data access.
 		inline_	udword			GetNbEntries()					const	{ return mCurNbEntries;					}	//!< Returns the current number of entries.
-		inline_	udword			GetMaxNbEntries()				const	{ return mMaxNbEntries;					}	//!< Returns max number of entries before resizing.
-		inline_	udword			GetEntry(udword i)				const	{ return mEntries[i];					}	//!< Returns ith entry.
+		inline_	udword			GetEntry(udword i)				const	{ return mEntries[i];					}	//!< Returns ith entry
 		inline_	udword*			GetEntries()					const	{ return mEntries;						}	//!< Returns the list of entries.
 
 		inline_	udword			GetFirst()						const	{ return mEntries[0];					}
 		inline_	udword			GetLast()						const	{ return mEntries[mCurNbEntries-1];		}
 
 		// Growth control
-				float			GetGrowthFactor()				const;												//!< Returns the growth factor
-				void			SetGrowthFactor(float growth);														//!< Sets the growth factor
+		inline_	float			GetGrowthFactor()				const	{ return mGrowthFactor;					}	//!< Returns the growth factor
+		inline_	void			SetGrowthFactor(float growth)			{ mGrowthFactor = growth;				}	//!< Sets the growth factor
 		inline_	bool			IsFull()						const	{ return mCurNbEntries==mMaxNbEntries;	}	//!< Checks the container is full
 		inline_	BOOL			IsNotEmpty()					const	{ return mCurNbEntries;					}	//!< Checks the container is empty
 
@@ -232,14 +208,12 @@
 				void			operator = (const Container& object);
 
 #ifdef CONTAINER_STATS
-		static	udword			GetNbContainers()						{ return mNbContainers;	}
-		static	udword			GetTotalBytes()							{ return mUsedRam;		}
-		static	LinkedList&		GetContainers()							{ return mContainers;	}
+		inline_	udword			GetNbContainers()				const	{ return mNbContainers;		}
+		inline_	udword			GetTotalBytes()					const	{ return mUsedRam;			}
 		private:
 
 		static	udword			mNbContainers;		//!< Number of containers around
 		static	udword			mUsedRam;			//!< Amount of bytes used by containers in the system
-		static	LinkedList		mContainers;
 #endif
 		private:
 		// Resizing
@@ -251,4 +225,4 @@
 				float			mGrowthFactor;		//!< Resize: new number of entries = old number * mGrowthFactor
 	};
 
-#endif // ICECONTAINER_H
+#endif // __ICECONTAINER_H__

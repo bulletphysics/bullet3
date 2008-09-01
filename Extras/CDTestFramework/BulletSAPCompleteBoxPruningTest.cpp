@@ -342,7 +342,8 @@ BulletSAPCompleteBoxPruningTest::BulletSAPCompleteBoxPruningTest(int numBoxes,in
 	mBoxPtrs		(null),
 	mBoxTime		(null),
 	mSpeed			(0.005f),
-	mAmplitude		(100.0f)
+	mAmplitude		(100.0f),
+	m_method(method)
 {
 	btVector3 aabbMin(-200,-200,-200);
 	btVector3 aabbMax(200,200,200);
@@ -412,7 +413,7 @@ BulletSAPCompleteBoxPruningTest::BulletSAPCompleteBoxPruningTest(int numBoxes,in
 	case	7:
 		m_broadphase	=	new btDbvtBroadphase();
 		m_isdbvt		=	true;
-		methodname		=	"btDbvtBroadphase";
+		methodname		=	"dynamic AABB tree, btDbvtBroadphase";
 	break;
 	default:
 		{
@@ -660,8 +661,8 @@ void BulletSAPCompleteBoxPruningTest::PerformTest()
 	}*/
 
 	char Buffer[4096];
-	sprintf(Buffer, "CompleteBoxPruning: %5.1f us (%d cycles) : %d pairs\n", mProfiler.mMsTime, mProfiler.mCycles, 
-		m_broadphase->getOverlappingPairCache()->getNumOverlappingPairs());
+	sprintf(Buffer, "Bullet %s: %5.1f us (%d cycles) : %d pairs\n", methodname, mProfiler.mMsTime, mProfiler.mCycles, 
+			m_broadphase->getOverlappingPairCache()->getNumOverlappingPairs());
 
 //	m_broadphase)->printStats();
 

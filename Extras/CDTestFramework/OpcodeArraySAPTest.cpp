@@ -14,36 +14,57 @@ subject to the following restrictions:
 */
 
 #include "stdafx.h"
-#include "CompleteBoxPruning.h"
+#include "OpcodeArraySAPTest.h"
 #include "RenderingHelpers.h"
 #include "GLFontRenderer.h"
 
-CompleteBoxPruningTest::CompleteBoxPruningTest(int numBoxes) :
+static udword gNbCreatedPairs;
+static udword gNbDeletedPairs;
+static udword gTotalNbPairs;
+
+static void* CBData = (void*)0x12345678;
+static void* PairUserData = (void*)0xDeadDead;
+
+static void* CreatePairCB(const void* object0, const void* object1, void* user_data)
+{
+	assert(user_data==CBData);
+
+	gNbCreatedPairs++;
+	return PairUserData;
+}
+
+static void DeletePairCB(const void* object0, const void* object1, void* user_data, void* pair_user_data)
+{
+	assert(user_data==CBData);
+	assert(pair_user_data==PairUserData);
+
+	gNbDeletedPairs++;
+}
+
+OpcodeArraySAPTest::OpcodeArraySAPTest(int numBoxes) :
 	mBar			(null),
 	mNbBoxes		(numBoxes),
 	mBoxes			(null),
-	mBoxPtrs		(null),
+	mHandles		(null),
 	mBoxTime		(null),
 	mSpeed			(0.005f),
 	mAmplitude		(100.0f)
 {
 }
 
-CompleteBoxPruningTest::~CompleteBoxPruningTest()
+OpcodeArraySAPTest::~OpcodeArraySAPTest()
 {
-	DELETEARRAY(mBoxTime);
-	DELETEARRAY(mBoxPtrs);
-	DELETEARRAY(mBoxes);
+	Release();
 }
 
-void CompleteBoxPruningTest::Init()
+void OpcodeArraySAPTest::Init()
 {
 	m_firstTime = true;
 
 	SRand(0);
 	mBoxes = new AABB[mNbBoxes];
-	mBoxPtrs = new const AABB*[mNbBoxes];
 	mBoxTime = new float[mNbBoxes];
+	mHandles = new void*[mNbBoxes];
 	for(udword i=0;i<mNbBoxes;i++)
 	{
 		Point Center, Extents;
@@ -56,29 +77,41 @@ void CompleteBoxPruningTest::Init()
 		Extents.z = 2.0f + UnitRandomFloat() * 2.0f;
 
 		mBoxes[i].SetCenterExtents(Center, Extents);
-		mBoxPtrs[i] = &mBoxes[i];
 
 		mBoxTime[i] = 2000.0f*UnitRandomFloat();
 	}
+
+	UpdateBoxes(mNbBoxes);
+
+	for(udword i=0;i<mNbBoxes;i++)
+	{
+		// It is mandatory to pass a valid pointer as a first parameter. This is supposed to be the game object
+		// associated with the AABB. In this small example I just pass a pointer to the SAP itself.
+		mHandles[i] = (void*)mASAP.AddObject(&mASAP, i, mBoxes[i]);
+	}
+
+	udword MyNbInitialPairs = mASAP.DumpPairs(CreatePairCB, DeletePairCB, CBData);
+	gTotalNbPairs = MyNbInitialPairs;
 }
 
-void CompleteBoxPruningTest::Release()
+void OpcodeArraySAPTest::Release()
 {
+	DELETEARRAY(mHandles);
 	DELETEARRAY(mBoxTime);
 	DELETEARRAY(mBoxes);
 }
 
-void CompleteBoxPruningTest::Select()
+void OpcodeArraySAPTest::Select()
 {
 	// Create a tweak bar
 	{
-		mBar = TwNewBar("OPC_CompleteBoxPruning");
+		mBar = TwNewBar("OpcodeArraySAPTest");
 		TwAddVarRW(mBar, "Speed", TW_TYPE_FLOAT, &mSpeed, " min=0.0 max=0.01 step=0.00001");
 		TwAddVarRW(mBar, "Amplitude", TW_TYPE_FLOAT, &mAmplitude, " min=10.0 max=200.0 step=0.1");
 	}
 }
 
-void CompleteBoxPruningTest::Deselect()
+void OpcodeArraySAPTest::Deselect()
 {
 	if(mBar)
 	{
@@ -87,9 +120,9 @@ void CompleteBoxPruningTest::Deselect()
 	}
 }
 
-bool CompleteBoxPruningTest::UpdateBoxes(int numBoxes)
+bool OpcodeArraySAPTest::UpdateBoxes(int numBoxes)
 {
-	for(udword i=0;i<numBoxes;i++)
+	for(int i=0;i<numBoxes;i++)
 	{
 		mBoxTime[i] += mSpeed;
 
@@ -107,7 +140,7 @@ bool CompleteBoxPruningTest::UpdateBoxes(int numBoxes)
 
 extern int	percentUpdate;
 
-void CompleteBoxPruningTest::PerformTest()
+void OpcodeArraySAPTest::PerformTest()
 {
 	int numBoxes = (mNbBoxes*percentUpdate)/100;
 	if (m_firstTime)
@@ -119,11 +152,21 @@ void CompleteBoxPruningTest::PerformTest()
 	mProfiler.Start();
 	UpdateBoxes(numBoxes);
 
-	mPairs.ResetPairs();	
-	
+	gNbCreatedPairs = 0;
+	gNbDeletedPairs = 0;
+
+	for(int i=0;i<numBoxes;i++)
+	{
+		mASAP.UpdateObject((udword)mHandles[i], mBoxes[i]);
+	}
+
+	ASAP_Pair* Pairs;
+	udword NbPairs = mASAP.DumpPairs(CreatePairCB, DeletePairCB, CBData, &Pairs);
+
+	gTotalNbPairs += gNbCreatedPairs;
+	gTotalNbPairs -= gNbDeletedPairs;
 	
 
-	CompleteBoxPruning(mNbBoxes, mBoxPtrs, mPairs, Axes(AXES_XZY));
 	mProfiler.End();
 	mProfiler.Accum();
 
@@ -131,11 +174,10 @@ void CompleteBoxPruningTest::PerformTest()
 
 	bool* Flags = (bool*)_alloca(sizeof(bool)*mNbBoxes);
 	ZeroMemory(Flags, sizeof(bool)*mNbBoxes);
-	const Pair* P = mPairs.GetPairs();
-	for(udword i=0;i<mPairs.GetNbPairs();i++)
+	for(udword i=0;i<NbPairs;i++)
 	{
-		Flags[P[i].id0] = true;
-		Flags[P[i].id1] = true;
+		Flags[Pairs[i].id0] = true;
+		Flags[Pairs[i].id1] = true;
 	}
 
 	// Render boxes
@@ -151,18 +193,18 @@ void CompleteBoxPruningTest::PerformTest()
 	}
 
 	char Buffer[4096];
-	sprintf(Buffer, "CompleteBoxPruning:  %5.1f us (%d cycles) : %d pairs\n", mProfiler.mMsTime, mProfiler.mCycles, mPairs.GetNbPairs());
+	sprintf(Buffer, "OpcodeArraySAPTest:  %5.1f us (%d cycles) : %d pairs\n", mProfiler.mMsTime, mProfiler.mCycles, NbPairs);
 	GLFontRenderer::print(10.0f, 10.0f, 0.02f, Buffer);
 }
 
-void CompleteBoxPruningTest::KeyboardCallback(unsigned char key, int x, int y)
+void OpcodeArraySAPTest::KeyboardCallback(unsigned char key, int x, int y)
 {
 }
 
-void CompleteBoxPruningTest::MouseCallback(int button, int state, int x, int y)
+void OpcodeArraySAPTest::MouseCallback(int button, int state, int x, int y)
 {
 }
 
-void CompleteBoxPruningTest::MotionCallback(int x, int y)
+void OpcodeArraySAPTest::MotionCallback(int x, int y)
 {
 }

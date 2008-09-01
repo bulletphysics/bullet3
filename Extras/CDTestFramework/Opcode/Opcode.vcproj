@@ -1,7 +1,7 @@
 <?xml version="1.0" encoding="Windows-1252"?>
 <VisualStudioProject
 	ProjectType="Visual C++"
-	Version="8.00"
+	Version="8,00"
 	Name="Opcode"
 	ProjectGUID="{DBE44CA3-2912-4441-8D99-AA2242688AD2}"
 	>
@@ -826,6 +826,14 @@
 			Name="SweepAndPrune"
 			>
 			<File
+				RelativePath=".\OPC_ArraySAP.cpp"
+				>
+			</File>
+			<File
+				RelativePath=".\OPC_ArraySAP.h"
+				>
+			</File>
+			<File
 				RelativePath="OPC_BoxPruning.cpp"
 				>
 				<FileConfiguration
@@ -946,7 +954,27 @@
 				>
 			</File>
 			<File
+				RelativePath=".\Ice\IceAllocator.cpp"
+				>
+			</File>
+			<File
+				RelativePath=".\Ice\IceAllocator.h"
+				>
+			</File>
+			<File
+				RelativePath=".\Ice\IceAssert.h"
+				>
+			</File>
+			<File
 				RelativePath="Ice\IceAxes.h"
+				>
+			</File>
+			<File
+				RelativePath=".\Ice\IceBitArray.cpp"
+				>
+			</File>
+			<File
+				RelativePath=".\Ice\IceBitArray.h"
 				>
 			</File>
 			<File
@@ -983,6 +1011,10 @@
 			</File>
 			<File
 				RelativePath="Ice\IceFPU.h"
+				>
+			</File>
+			<File
+				RelativePath=".\Ice\IceHashing.h"
 				>
 			</File>
 			<File

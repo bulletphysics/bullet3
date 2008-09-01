@@ -1,3 +1,19 @@
+/*
+ *	ICE / OPCODE - Optimized Collision Detection
+ * http://www.codercorner.com/Opcode.htm
+ * 
+ * Copyright (c) 2001-2008 Pierre Terdiman,  pierre@codercorner.com
+
+This software is provided 'as-is', without any express or implied warranty.
+In no event will the authors be held liable for any damages arising from the use of this software.
+Permission is granted to anyone to use this software for any purpose, 
+including commercial applications, and to alter it and redistribute it freely, 
+subject to the following restrictions:
+
+1. The origin of this software must not be misrepresented; you must not claim that you wrote the original software. If you use this software in a product, an acknowledgment in the product documentation would be appreciated but is not required.
+2. Altered source versions must be plainly marked as such, and must not be misrepresented as being the original software.
+3. This notice may not be removed or altered from any source distribution.
+*/
 ///////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
 /**
  *	Contains FPU related code.
@@ -9,8 +25,8 @@
 
 ///////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
 // Include Guard
-#ifndef ICEFPU_H
-#define ICEFPU_H
+#ifndef __ICEFPU_H__
+#define __ICEFPU_H__
 
 	#define	SIGN_BITMASK			0x80000000
 
@@ -29,12 +45,6 @@
 	//! Integer-based comparison of a floating point value.
 	//! Don't use it blindly, it can be faster or slower than the FPU comparison, depends on the context.
 	#define IS_NEGATIVE_FLOAT(x)	(IR(x)&0x80000000)
-
-	//! Checks 2 values have different signs
-	inline_ BOOL DifferentSign(float f0, float f1)
-	{
-		return (IR(f0)^IR(f1))&SIGN_BITMASK;
-	}
 
 	//! Fast fabs for floating-point values. It just clears the sign bit.
 	//! Don't use it blindy, it can be faster or slower than the FPU comparison, depends on the context.
@@ -282,46 +292,6 @@
 		return Res;
 	}
 
-	//! A global function to find MAX(a,b,c,d) using FCOMI/FCMOV
-	inline_ float FCMax4(float a, float b, float c, float d)
-	{
-		float Res;
-		_asm	fld		[a]
-		_asm	fld		[b]
-		_asm	fld		[c]
-		_asm	fld		[d]
-		FCOMI_ST1
-		FCMOVB_ST1
-		FCOMI_ST2
-		FCMOVB_ST2
-		FCOMI_ST3
-		FCMOVB_ST3
-		_asm	fstp	[Res]
-		_asm	fcompp
-		_asm	fcomp
-		return Res;
-	}
-
-	//! A global function to find MIN(a,b,c,d) using FCOMI/FCMOV
-	inline_ float FCMin4(float a, float b, float c, float d)
-	{
-		float Res;
-		_asm	fld		[a]
-		_asm	fld		[b]
-		_asm	fld		[c]
-		_asm	fld		[d]
-		FCOMI_ST1
-		FCMOVNB_ST1
-		FCOMI_ST2
-		FCMOVNB_ST2
-		FCOMI_ST3
-		FCMOVNB_ST3
-		_asm	fstp	[Res]
-		_asm	fcompp
-		_asm	fcomp
-		return Res;
-	}
-
 	inline_ int ConvertToSortable(float f)
 	{
 		int& Fi = (int&)f;
@@ -330,32 +300,6 @@
 		Fmask &= ~(1<<31);
 		Fi -= Fmask;
 		return Fi;
-	}
-
-	inline_ udword EncodeFloat(const float val)
-	{
-		// We may need to check on -0 and 0
-		// But it should make no practical difference.
-		udword ir = IR(val);
-
-		if(ir & 0x80000000) //negative?
-			ir = ~ir;//reverse sequence of negative numbers
-		else
-			ir |= 0x80000000; // flip sign
-
-		return ir;
-	}
-
-	inline_ float DecodeFloat(udword ir)
-	{
-		udword rv;
-
-		if(ir & 0x80000000) //positive?
-			rv = ir & ~0x80000000; //flip sign
-		else
-			rv = ~ir; //undo reversal
-
-		return FR(rv);
 	}
 
 	enum FPUMode
@@ -386,18 +330,4 @@
 	FUNCTION ICECORE_API int		intFloor(const float& f);
 	FUNCTION ICECORE_API int		intCeil(const float& f);
 
-	inline_ sdword MyFloor(float f)
-	{
-		return (sdword)f - (IR(f)>>31);
-	}
-
-	class ICECORE_API FPUGuard
-	{
-		public:
-				FPUGuard();
-				~FPUGuard();
-		private:
-		uword	mControlWord;
-	};
-
-#endif // ICEFPU_H
+#endif // __ICEFPU_H__

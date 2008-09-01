@@ -1,3 +1,19 @@
+/*
+ *	ICE / OPCODE - Optimized Collision Detection
+ * http://www.codercorner.com/Opcode.htm
+ * 
+ * Copyright (c) 2001-2008 Pierre Terdiman,  pierre@codercorner.com
+
+This software is provided 'as-is', without any express or implied warranty.
+In no event will the authors be held liable for any damages arising from the use of this software.
+Permission is granted to anyone to use this software for any purpose, 
+including commercial applications, and to alter it and redistribute it freely, 
+subject to the following restrictions:
+
+1. The origin of this software must not be misrepresented; you must not claim that you wrote the original software. If you use this software in a product, an acknowledgment in the product documentation would be appreciated but is not required.
+2. Altered source versions must be plainly marked as such, and must not be misrepresented as being the original software.
+3. This notice may not be removed or altered from any source distribution.
+*/
 ///////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
 /**
  *	Contains a simple container class.
@@ -22,7 +38,7 @@
 
 ///////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
 // Precompiled Header
-#include "StdAfx.h"
+#include "Stdafx.h"
 
 using namespace IceCore;
 
@@ -30,7 +46,6 @@ using namespace IceCore;
 #ifdef CONTAINER_STATS
 udword Container::mNbContainers = 0;
 udword Container::mUsedRam = 0;
-LinkedList Container::mContainers;
 #endif
 
 ///////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
@@ -43,7 +58,6 @@ Container::Container() : mMaxNbEntries(0), mCurNbEntries(0), mEntries(null), mGr
 #ifdef CONTAINER_STATS
 	mNbContainers++;
 	mUsedRam+=sizeof(Container);
-	mContainers.AddElem(this);
 #endif
 }
 
@@ -52,13 +66,11 @@ Container::Container() : mMaxNbEntries(0), mCurNbEntries(0), mEntries(null), mGr
  *	Constructor. Also allocates a given number of entries.
  */
 ///////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
-Container::Container(udword size, float growth_factor) : mMaxNbEntries(0), mCurNbEntries(0), mEntries(null)
+Container::Container(udword size, float growth_factor) : mMaxNbEntries(0), mCurNbEntries(0), mEntries(null), mGrowthFactor(growth_factor)
 {
-	SetGrowthFactor(growth_factor);
 #ifdef CONTAINER_STATS
 	mNbContainers++;
 	mUsedRam+=sizeof(Container);
-	mContainers.AddElem(this);
 #endif
 	SetSize(size);
 }
@@ -73,7 +85,6 @@ Container::Container(const Container& object) : mMaxNbEntries(0), mCurNbEntries(
 #ifdef CONTAINER_STATS
 	mNbContainers++;
 	mUsedRam+=sizeof(Container);
-	mContainers.AddElem(this);
 #endif
 	*this = object;
 }
@@ -89,23 +100,7 @@ Container::~Container()
 #ifdef CONTAINER_STATS
 	mNbContainers--;
 	mUsedRam-=GetUsedRam();
-	mContainers.RemElem(this);
 #endif
-}
-
-///////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
-/**
- *	Initializes the container so that it uses an external memory buffer. The container doesn't own the memory, resizing is disabled.
- *	\param		max_entries		[in] max number of entries in the container
- *	\param		entries			[in] external memory buffer
- */
-///////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
-void Container::InitSharedBuffers(udword max_entries, udword* entries)
-{
-	Empty();	// Make sure everything has been released
-	mMaxNbEntries	= max_entries;
-	mEntries		= entries;
-	mGrowthFactor	= -1.0f;	// Negative growth ==> resize is disabled
 }
 
 ///////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
@@ -120,7 +115,7 @@ Container& Container::Empty()
 #ifdef CONTAINER_STATS
 	mUsedRam-=mMaxNbEntries*sizeof(udword);
 #endif
-	if(mGrowthFactor>=0.0f)	ICE_FREE(mEntries);	// Release memory if we own it
+	DELETEARRAY(mEntries);
 	mCurNbEntries = mMaxNbEntries = 0;
 	return *this;
 }
@@ -134,13 +129,6 @@ Container& Container::Empty()
 ///////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
 bool Container::Resize(udword needed)
 {
-	// Check growth is allowed
-	if(mGrowthFactor<=0.0f)
-	{
-		ASSERT(!"Invalid operation - trying to resize a static buffer!");
-		return false;
-	}
-
 #ifdef CONTAINER_STATS
 	// Subtract previous amount of bytes
 	mUsedRam-=mMaxNbEntries*sizeof(udword);
@@ -151,7 +139,7 @@ bool Container::Resize(udword needed)
 	if(mMaxNbEntries<mCurNbEntries + needed)	mMaxNbEntries = mCurNbEntries + needed;
 
 	// Get some bytes for new entries
-	udword*	NewEntries = (udword*)ICE_ALLOC(sizeof(udword)*mMaxNbEntries);
+	udword*	NewEntries = new udword[mMaxNbEntries];
 	CHECKALLOC(NewEntries);
 
 #ifdef CONTAINER_STATS
@@ -163,7 +151,7 @@ bool Container::Resize(udword needed)
 	if(mCurNbEntries)	CopyMemory(NewEntries, mEntries, mCurNbEntries*sizeof(udword));
 
 	// Delete old data
-	ICE_FREE(mEntries);
+	DELETEARRAY(mEntries);
 
 	// Assign new pointer
 	mEntries = NewEntries;
@@ -190,7 +178,7 @@ bool Container::SetSize(udword nb)
 	mMaxNbEntries = nb;
 
 	// Get some bytes for new entries
-	mEntries = (udword*)ICE_ALLOC(sizeof(udword)*mMaxNbEntries);
+	mEntries = new udword[mMaxNbEntries];
 	CHECKALLOC(mEntries);
 
 #ifdef CONTAINER_STATS
@@ -208,13 +196,6 @@ bool Container::SetSize(udword nb)
 ///////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
 bool Container::Refit()
 {
-	// Check refit is allowed
-	if(mGrowthFactor<=0.0f)
-	{
-		ASSERT(!"Invalid operation - trying to refit a static buffer!");
-		return false;
-	}
-
 #ifdef CONTAINER_STATS
 	// Subtract previous amount of bytes
 	mUsedRam-=mMaxNbEntries*sizeof(udword);
@@ -225,7 +206,7 @@ bool Container::Refit()
 	if(!mMaxNbEntries)	return false;
 
 	// Get just enough bytes
-	udword*	NewEntries = (udword*)ICE_ALLOC(sizeof(udword)*mMaxNbEntries);
+	udword*	NewEntries = new udword[mMaxNbEntries];
 	CHECKALLOC(NewEntries);
 
 #ifdef CONTAINER_STATS
@@ -237,40 +218,10 @@ bool Container::Refit()
 	CopyMemory(NewEntries, mEntries, mCurNbEntries*sizeof(udword));
 
 	// Delete old data
-	ICE_FREE(mEntries);
+	DELETEARRAY(mEntries);
 
 	// Assign new pointer
 	mEntries = NewEntries;
-
-	return true;
-}
-
-// Same as Refit but more efficient
-bool Container::Shrink()
-{
-	if(!mEntries)	return false;
-	if(!mCurNbEntries)
-	{
-		Empty();
-		return true;
-	}
-
-	// Try to shrink the pointer
-	if(!GetAllocator()->shrink(mEntries, sizeof(udword)*mCurNbEntries))
-		return false;
-
-#ifdef CONTAINER_STATS
-	// Subtract previous amount of bytes
-	mUsedRam-=mMaxNbEntries*sizeof(udword);
-#endif
-
-	// Get just enough entries
-	mMaxNbEntries = mCurNbEntries;
-
-#ifdef CONTAINER_STATS
-	// Add current amount of bytes
-	mUsedRam+=mMaxNbEntries*sizeof(udword);
-#endif
 
 	return true;
 }
@@ -402,19 +353,6 @@ udword Container::GetUsedRam() const
 	return sizeof(Container) + mMaxNbEntries * sizeof(udword);
 }
 
-float Container::GetGrowthFactor() const
-{
-	return mGrowthFactor;
-}
-
-void Container::SetGrowthFactor(float growth)
-{
-	// Negative growths are reserved for internal usages
-	if(growth<0.0f)	growth = 0.0f;
-	mGrowthFactor = growth;
-}
-
-//! Operator for "Container A = Container B"
 void Container::operator=(const Container& object)
 {
 	SetSize(object.GetNbEntries());

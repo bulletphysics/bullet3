@@ -1,3 +1,19 @@
+/*
+ *	ICE / OPCODE - Optimized Collision Detection
+ * http://www.codercorner.com/Opcode.htm
+ * 
+ * Copyright (c) 2001-2008 Pierre Terdiman,  pierre@codercorner.com
+
+This software is provided 'as-is', without any express or implied warranty.
+In no event will the authors be held liable for any damages arising from the use of this software.
+Permission is granted to anyone to use this software for any purpose, 
+including commercial applications, and to alter it and redistribute it freely, 
+subject to the following restrictions:
+
+1. The origin of this software must not be misrepresented; you must not claim that you wrote the original software. If you use this software in a product, an acknowledgment in the product documentation would be appreciated but is not required.
+2. Altered source versions must be plainly marked as such, and must not be misrepresented as being the original software.
+3. This notice may not be removed or altered from any source distribution.
+*/
 ///////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
 /**
  *	Contains custom types.
@@ -9,15 +25,13 @@
 
 ///////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
 // Include Guard
-#ifndef ICETYPES_H
-#define ICETYPES_H
+#ifndef __ICETYPES_H__
+#define __ICETYPES_H__
 
 	#define USE_HANDLE_MANAGER
 
 	// Constants
-#ifndef PI
 	#define	PI					3.1415926535897932384626433832795028841971693993751f	//!< PI
-#endif
 	#define	HALFPI				1.57079632679489661923f									//!< 0.5 * PI
 	#define	TWOPI				6.28318530717958647692f									//!< 2.0 * PI
 	#define	INVPI				0.31830988618379067154f									//!< 1.0 / PI
@@ -45,32 +59,16 @@
 	#define null				0														//!< our own NULL pointer
 
 	// Custom types used in ICE
-	typedef signed char			sbyte;		//!< sizeof(sbyte)		must be 1
-	typedef unsigned char		ubyte;		//!< sizeof(ubyte)		must be 1
-	typedef signed short		sword;		//!< sizeof(sword)		must be 2
-	typedef unsigned short		uword;		//!< sizeof(uword)		must be 2
-	typedef signed int			sdword;		//!< sizeof(sdword)		must be 4
-	typedef unsigned int		udword;		//!< sizeof(udword)		must be 4
-#ifdef WIN32
-	typedef signed __int64		sqword;		//!< sizeof(sqword)		must be 8
-	typedef unsigned __int64	uqword;		//!< sizeof(uqword)		must be 8
-#elif LINUX
-	typedef signed long long	sqword;		//!< sizeof(sqword)		must be 8
-	typedef unsigned long long	uqword;		//!< sizeof(uqword)		must be 8
-#elif defined(__APPLE__)
-	typedef signed long long	sqword;		//!< sizeof(sqword)		must be 8
-	typedef unsigned long long	uqword;		//!< sizeof(uqword)		must be 8
-#elif defined(_XBOX)
-	typedef signed __int64		sqword;		//!< sizeof(sqword)		must be 8
-	typedef unsigned __int64	uqword;		//!< sizeof(uqword)		must be 8
-#endif
+	typedef signed char			sbyte;		//!< sizeof(sbyte)	must be 1
+	typedef unsigned char		ubyte;		//!< sizeof(ubyte)	must be 1
+	typedef signed short		sword;		//!< sizeof(sword)	must be 2
+	typedef unsigned short		uword;		//!< sizeof(uword)	must be 2
+	typedef signed int			sdword;		//!< sizeof(sdword)	must be 4
+	typedef unsigned int		udword;		//!< sizeof(udword)	must be 4
+	typedef signed __int64		sqword;		//!< sizeof(sqword)	must be 8
+	typedef unsigned __int64	uqword;		//!< sizeof(uqword)	must be 8
 	typedef float				float32;	//!< sizeof(float32)	must be 4
-	typedef double				float64;	//!< sizeof(float64)	must be 8
-	typedef size_t				regsize;	//!< sizeof(regsize)	must be sizeof(void*)
-
-	// For test purpose you can force one of those:
-//	typedef udword				regsize;
-//	typedef uqword				regsize;
+	typedef double				float64;	//!< sizeof(float64)	must be 4
 
 	ICE_COMPILE_TIME_ASSERT(sizeof(bool)==1);	// ...otherwise things might fail with VC++ 4.2 !
 	ICE_COMPILE_TIME_ASSERT(sizeof(ubyte)==1);
@@ -81,9 +79,6 @@
 	ICE_COMPILE_TIME_ASSERT(sizeof(sdword)==4);
 	ICE_COMPILE_TIME_ASSERT(sizeof(uqword)==8);
 	ICE_COMPILE_TIME_ASSERT(sizeof(sqword)==8);
-	ICE_COMPILE_TIME_ASSERT(sizeof(float32)==4);
-	ICE_COMPILE_TIME_ASSERT(sizeof(float64)==8);
-	ICE_COMPILE_TIME_ASSERT(sizeof(regsize)==sizeof(void*));
 
 	//! TO BE DOCUMENTED
 	#define DECLARE_ICE_HANDLE(name)	struct name##__ { int unused; }; typedef struct name##__ *name
@@ -95,6 +90,7 @@
 #else
 	typedef uword				KID;		//!< Kernel ID
 #endif
+	typedef udword				RTYPE;		//!< Relationship-type (!) between owners and references
 	#define	INVALID_ID			0xffffffff	//!< Invalid dword ID (counterpart of null pointers)
 #ifdef USE_HANDLE_MANAGER
 	#define	INVALID_KID			0xffffffff	//!< Invalid Kernel ID
@@ -143,7 +139,9 @@
 
 	#define ONE_OVER_RAND_MAX		(1.0f / float(RAND_MAX))	//!< Inverse of the max possible value returned by rand()
 
-	typedef	void**					VTABLE;						//!< A V-Table.
+	typedef int					(__stdcall* PROC)();			//!< A standard procedure call.
+	typedef bool				(*ENUMERATION)(udword value, udword param, udword context);	//!< ICE standard enumeration call
+	typedef	void**				VTABLE;							//!< A V-Table.
 
 	#undef		MIN
 	#undef		MAX
@@ -156,7 +154,6 @@
 	template<class T>	inline_ void		TSetMin	(T& a, const T& b)			{ if(a>b)	a = b;		}
 	template<class T>	inline_ void		TSetMax	(T& a, const T& b)			{ if(a<b)	a = b;		}
 
-/* Obsolete stuff - if needed, move to dedicated header and include in few files using this.
 	#define		SQR(x)			((x)*(x))						//!< Returns x square
 	#define		CUBE(x)			((x)*(x)*(x))					//!< Returns x cube
 
@@ -166,16 +163,11 @@
 
 	#define		QUADRAT(x)		((x)*(x))						//!< Returns x square
 
-	typedef int					(__stdcall* PROC)();			//!< A standard procedure call.
-	typedef bool				(*ENUMERATION)(udword value, udword param, udword context);	//!< ICE standard enumeration call
-
 #ifdef _WIN32
-	// Used to compile legacy code
-	__forceinline	void	srand48(udword x)	{ srand(x);														}
-	__forceinline	void	srandom(udword x)	{ srand(x);														}
-	__forceinline	double	random()			{ return (double)rand();										}
-	__forceinline	double	drand48()			{ return (double) ( ((double)rand()) / ((double)RAND_MAX) );	}
+#   define srand48(x) srand((unsigned int) (x))
+#	define srandom(x) srand((unsigned int) (x))
+#	define random()   ((double) rand())
+#   define drand48()  ((double) (((double) rand()) / ((double) RAND_MAX)))
 #endif
-*/
 
-#endif // ICETYPES_H
+#endif // __ICETYPES_H__

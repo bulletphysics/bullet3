@@ -1,6 +1,4 @@
 /*
-BulletSAPCompleteBoxPruningTest, Copyright (c) 2008 Erwin Coumans
-Part of:
 CDTestFramework http://codercorner.com
 Copyright (c) 2007-2008 Pierre Terdiman,  pierre@codercorner.com
 
@@ -15,25 +13,21 @@ subject to the following restrictions:
 3. This notice may not be removed or altered from any source distribution.
 */
 
-#ifndef BULLET_SAP_COMPLETEBOXPRUNING_H
-#define BULLET_SAP_COMPLETEBOXPRUNING_H
-
-#include "LinearMath/btAlignedObjectArray.h"
+#ifndef OPCODEARRAYSAPTEST_H
+#define OPCODEARRAYSAPTEST_H
 
 #include "CollisionTest.h"
 #include "Profiling.h"
 
-	class BulletSAPCompleteBoxPruningTest : public CollisionTest
+	class OpcodeArraySAPTest : public CollisionTest
 	{
 		public:
-								BulletSAPCompleteBoxPruningTest(int numBoxes,int method);
-		virtual					~BulletSAPCompleteBoxPruningTest();
+								OpcodeArraySAPTest(int numBoxes);
+		virtual					~OpcodeArraySAPTest();
 
 		virtual	void			Init();
 		virtual	void			Release();
 		virtual	void			PerformTest();
-		void					RenderAll();
-		void					Render();
 		virtual	void			Select();
 		virtual	void			Deselect();
 		virtual	void			KeyboardCallback(unsigned char key, int x, int y);
@@ -43,24 +37,17 @@ subject to the following restrictions:
 				TwBar*			mBar;		//!< AntTweakBar
 				Profiler		mProfiler;
 
-				class btBroadphaseInterface*	m_broadphase;
-				bool							m_isdbvt;
-				btAlignedObjectArray<struct  btBroadphaseProxy*> m_proxies;
+				ArraySAP		mASAP;
 
 				udword			mNbBoxes;
 				AABB*			mBoxes;
-				bool*			mFlags;
-				const char*		methodname;
-				const AABB**	mBoxPtrs;
-				Pairs			mPairs;
+				void**			mHandles;
 				float*			mBoxTime;
 				float			mSpeed;
 				float			mAmplitude;
 				bool			m_firstTime;
-				int				m_method;
 
-		private:
 				bool			UpdateBoxes(int numBoxes);
 	};
 
-#endif	// BULLET_SAP_COMPLETEBOXPRUNING_H
+#endif	// OPCODEARRAYSAPTEST_H

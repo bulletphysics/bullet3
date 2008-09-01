@@ -56,11 +56,14 @@ subject to the following restrictions:
 
 	namespace IceCore
 	{
+		#include ".\Ice\IceAllocator.h"
 		#include ".\Ice\IceUtils.h"
+		#include ".\Ice\IceBitArray.h"
 		#include ".\Ice\IceContainer.h"
 		#include ".\Ice\IcePairs.h"
 		#include ".\Ice\IceRevisitedRadix.h"
 		#include ".\Ice\IceRandom.h"
+		#include ".\Ice\IceHashing.h"
 	}
 	using namespace IceCore;
 

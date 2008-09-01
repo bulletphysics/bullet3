@@ -1,32 +1,22 @@
-========================================================================
-    CONSOLE APPLICATION : CDTestFramework Project Overview
-========================================================================
 
-AppWizard has created this CDTestFramework application for you.  
-This file contains a summary of what you will find in each of the files that
-make up your CDTestFramework application.
+This is a modified CDTestFramework to test Bullet's dynamic AABB tree against a SAP. It's the same demo as here: http://bulletphysics.com/ftp/pub/test/physics/demos/CDTestFramework2.70.zip
+
+But I added an extra challenger: http://www.codercorner.com/Code/SweepAndPrune2.rar. This is the code described in this document: http://www.codercorner.com/SAP.pdf
+
+So there are 4 tests:
+- OPCODE's "box pruning"
+- Bullet's Multi SAP
+- Bullet's dbvt (dynamic AABB tree)
+- OPCODE's array-based SAP
+
+For 8192 boxes and 10% of them moving, OPCODE's SAP is roughly as fast as dbvt (and twice faster than Bullet's SAP on my machine). For less boxes (say 1024 or 2048), OPCODE's SAP is faster than dbvt. Figures and "winner" vary a lot depending on the number of objects and how many of them are moving each frame.
+
+If you're interested you can see for yourself:
+- download Bullet 2.70
+- replace the content of this directory with the new files: \bullet-2.70\bullet-2.70\Extras\CDTestFramework
 
 
-CDTestFramework.vcproj
-    This is the main project file for VC++ projects generated using an Application Wizard. 
-    It contains information about the version of Visual C++ that generated the file, and 
-    information about the platforms, configurations, and project features selected with the
-    Application Wizard.
+Cheers,
 
-CDTestFramework.cpp
-    This is the main application source file.
-
-/////////////////////////////////////////////////////////////////////////////
-Other standard files:
-
-StdAfx.h, StdAfx.cpp
-    These files are used to build a precompiled header (PCH) file
-    named CDTestFramework.pch and a precompiled types file named StdAfx.obj.
-
-/////////////////////////////////////////////////////////////////////////////
-Other notes:
-
-AppWizard uses "TODO:" comments to indicate parts of the source code you
-should add to or customize.
-
-/////////////////////////////////////////////////////////////////////////////
+- Pierre Terdiman
+August 31, 2008

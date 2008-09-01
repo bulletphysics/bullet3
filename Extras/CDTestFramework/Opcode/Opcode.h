@@ -90,6 +90,7 @@ subject to the following restrictions:
 		// Sweep-and-prune
 		#include "OPC_BoxPruning.h"
 		#include "OPC_SweepAndPrune.h"
+		#include "OPC_ArraySAP.h"
 
 		FUNCTION OPCODE_API bool InitOpcode();
 		FUNCTION OPCODE_API bool CloseOpcode();

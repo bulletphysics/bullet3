@@ -1,3 +1,19 @@
+/*
+ *	ICE / OPCODE - Optimized Collision Detection
+ * http://www.codercorner.com/Opcode.htm
+ * 
+ * Copyright (c) 2001-2008 Pierre Terdiman,  pierre@codercorner.com
+
+This software is provided 'as-is', without any express or implied warranty.
+In no event will the authors be held liable for any damages arising from the use of this software.
+Permission is granted to anyone to use this software for any purpose, 
+including commercial applications, and to alter it and redistribute it freely, 
+subject to the following restrictions:
+
+1. The origin of this software must not be misrepresented; you must not claim that you wrote the original software. If you use this software in a product, an acknowledgment in the product documentation would be appreciated but is not required.
+2. Altered source versions must be plainly marked as such, and must not be misrepresented as being the original software.
+3. This notice may not be removed or altered from any source distribution.
+*/
 ///////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
 /**
  *	Contains source code from the article "Radix Sort Revisited".
@@ -28,18 +44,12 @@
  *	- 01.20.02: bugfix! In very particular cases the last pass was skipped in the float code-path, leading to incorrect sorting......
  *	- 01.02.02:	- "mIndices" renamed => "mRanks". That's a rank sorter after all.
  *				- ranks are not "reset" anymore, but implicit on first calls
- *	- 07.05.02:	offsets rewritten with one less indirection.
- *	- 11.03.02:	"bool" replaced with RadixHint enum
- *	- 07.15.04:	stack-based radix added
- *				- we want to use the radix sort but without making it static, and without allocating anything.
- *				- we internally allocate two arrays of ranks. Each of them has N udwords to sort N values.
- *				- 1Mb/2/sizeof(udword) = 131072 values max, at the same time.
- *	- 09.22.04:	- adapted to MacOS by Chris Lamb
- *	- 01.12.06:	- added optimizations suggested by Kyle Hubert
+ *	- 07.05.02:	- offsets rewritten with one less indirection.
+ *	- 11.03.02:	- "bool" replaced with RadixHint enum
  *
  *	\class		RadixSort
  *	\author		Pierre Terdiman
- *	\version	1.5
+ *	\version	1.4
  *	\date		August, 15, 1998
  */
 ///////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
@@ -48,13 +58,14 @@
 To do:
 	- add an offset parameter between two input values (avoid some data recopy sometimes)
 	- unroll ? asm ?
+	- 11 bits trick & 3 passes as Michael did
 	- prefetch stuff the day I have a P3
 	- make a version with 16-bits indices ?
 */
 
 ///////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
 // Precompiled Header
-#include "StdAfx.h"
+#include "Stdafx.h"
 
 using namespace IceCore;
 
@@ -71,31 +82,17 @@ using namespace IceCore;
 		mPreviousSize = n;																	\
 	}
 
-#if defined(__APPLE__) || defined(_XBOX)
-	#define H0_OFFSET	768
-	#define H1_OFFSET	512
-	#define H2_OFFSET	256
-	#define H3_OFFSET	0
-	#define BYTES_INC	(3-j)
-#else 
-	#define H0_OFFSET	0
-	#define H1_OFFSET	256
-	#define H2_OFFSET	512
-	#define H3_OFFSET	768
-	#define BYTES_INC	j
-#endif
-
 #define CREATE_HISTOGRAMS(type, buffer)														\
 	/* Clear counters/histograms */															\
 	ZeroMemory(mHistogram, 256*4*sizeof(udword));											\
 																							\
 	/* Prepare to count */																	\
-	const ubyte* p = (const ubyte*)input;													\
-	const ubyte* pe = &p[nb*4];																\
-	udword* h0= &mHistogram[H0_OFFSET];	/* Histogram for first pass (LSB)	*/				\
-	udword* h1= &mHistogram[H1_OFFSET];	/* Histogram for second pass		*/				\
-	udword* h2= &mHistogram[H2_OFFSET];	/* Histogram for third pass			*/				\
-	udword* h3= &mHistogram[H3_OFFSET];	/* Histogram for last pass (MSB)	*/				\
+	ubyte* p = (ubyte*)input;																\
+	ubyte* pe = &p[nb*4];																	\
+	udword* h0= &mHistogram[0];		/* Histogram for first pass (LSB)	*/					\
+	udword* h1= &mHistogram[256];	/* Histogram for second pass		*/					\
+	udword* h2= &mHistogram[512];	/* Histogram for third pass			*/					\
+	udword* h3= &mHistogram[768];	/* Histogram for last pass (MSB)	*/					\
 																							\
 	bool AlreadySorted = true;	/* Optimism... */											\
 																							\
@@ -131,7 +128,7 @@ using namespace IceCore;
 	else																					\
 	{																						\
 		/* Prepare for temporal coherence */												\
-		const udword* Indices = mRanks;														\
+		udword* Indices = mRanks;															\
 		type PrevVal = (type)buffer[*Indices];												\
 																							\
 		while(p!=pe)																		\
@@ -162,7 +159,7 @@ using namespace IceCore;
 
 #define CHECK_PASS_VALIDITY(pass)															\
 	/* Shortcut to current counters */														\
-	const udword* CurCount = &mHistogram[pass<<8];											\
+	udword* CurCount = &mHistogram[pass<<8];												\
 																							\
 	/* Reset flag. The sorting pass is supposed to be performed. (default) */				\
 	bool PerformPass = true;																\
@@ -186,12 +183,12 @@ using namespace IceCore;
  *	Constructor.
  */
 ///////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
-RadixSort::RadixSort() : mRanks(null), mRanks2(null), mCurrentSize(0), mTotalCalls(0), mNbHits(0), mDeleteRanks(true)
+RadixSort::RadixSort() : mRanks(null), mRanks2(null), mCurrentSize(0), mTotalCalls(0), mNbHits(0)
 {
 #ifndef RADIX_LOCAL_RAM
 	// Allocate input-independent ram
-	mHistogram	= ICE_ALLOC(sizeof(udword)*256*4);
-	mOffset		= ICE_ALLOC(sizeof(udword)*256);
+	mHistogram	= new udword[256*4];
+	mOffset		= new udword[256];
 #endif
 	// Initialize indices
 	INVALIDATE_RANKS;
@@ -206,14 +203,11 @@ RadixSort::~RadixSort()
 {
 	// Release everything
 #ifndef RADIX_LOCAL_RAM
-	ICE_FREE(mOffset);
-	ICE_FREE(mHistogram);
+	DELETEARRAY(mOffset);
+	DELETEARRAY(mHistogram);
 #endif
-	if(mDeleteRanks)
-	{
-		ICE_FREE(mRanks2);
-		ICE_FREE(mRanks);
-	}
+	DELETEARRAY(mRanks2);
+	DELETEARRAY(mRanks);
 }
 
 ///////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
@@ -225,16 +219,14 @@ RadixSort::~RadixSort()
 ///////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
 bool RadixSort::Resize(udword nb)
 {
-	if(mDeleteRanks)
-	{
-		// Free previously used ram
-		ICE_FREE(mRanks2);
-		ICE_FREE(mRanks);
+	// Free previously used ram
+	DELETEARRAY(mRanks2);
+	DELETEARRAY(mRanks);
 
-		// Get some fresh one
-		mRanks	= (udword*)ICE_ALLOC(sizeof(udword)*nb);	CHECKALLOC(mRanks);
-		mRanks2	= (udword*)ICE_ALLOC(sizeof(udword)*nb);	CHECKALLOC(mRanks2);
-	}
+	// Get some fresh one
+	mRanks	= new udword[nb];	CHECKALLOC(mRanks);
+	mRanks2	= new udword[nb];	CHECKALLOC(mRanks2);
+
 	return true;
 }
 
@@ -284,7 +276,7 @@ RadixSort& RadixSort::Sort(const udword* input, udword nb, RadixHint hint)
 	// have 2 code paths even if just a single opcode changes. Self-modifying code, someone?
 	if(hint==RADIX_UNSIGNED)	{ CREATE_HISTOGRAMS(udword, input);	}
 	else						{ CREATE_HISTOGRAMS(sdword, input);	}
-/*
+
 	// Compute #negative values involved if needed
 	udword NbNegativeValues = 0;
 	if(hint==RADIX_SIGNED)
@@ -295,7 +287,7 @@ RadixSort& RadixSort::Sort(const udword* input, udword nb, RadixHint hint)
 		udword* h3= &mHistogram[768];
 		for(udword i=128;i<256;i++)	NbNegativeValues += h3[i];	// 768 for last histogram, 128 for negative part
 	}
-*/
+
 	// Radix sort, j is the pass number (0=LSB, 3=MSB)
 	for(udword j=0;j<4;j++)
 	{
@@ -319,38 +311,23 @@ RadixSort& RadixSort::Sort(const udword* input, udword nb, RadixHint hint)
 			else
 			{
 				// This is a special case to correctly handle negative integers. They're sorted in the right order but at the wrong place.
-/*
+
 				// Create biased offsets, in order for negative numbers to be sorted as well
 //				mOffset[0] = NbNegativeValues;												// First positive number takes place after the negative ones
-//				for(udword i=1;i<128;i++)		mOffset[i] = mOffset[i-1] + CurCount[i-1];	// 1 to 128 for positive numbers
 				mLink[0] = &mRanks2[NbNegativeValues];										// First positive number takes place after the negative ones
+//				for(udword i=1;i<128;i++)		mOffset[i] = mOffset[i-1] + CurCount[i-1];	// 1 to 128 for positive numbers
 				for(udword i=1;i<128;i++)		mLink[i] = mLink[i-1] + CurCount[i-1];		// 1 to 128 for positive numbers
 
 				// Fixing the wrong place for negative values
 //				mOffset[128] = 0;
-//				for(i=129;i<256;i++)			mOffset[i] = mOffset[i-1] + CurCount[i-1];
 				mLink[128] = mRanks2;
+//				for(i=129;i<256;i++)			mOffset[i] = mOffset[i-1] + CurCount[i-1];
 				for(udword i=129;i<256;i++)		mLink[i] = mLink[i-1] + CurCount[i-1];
-*/
-
-// From Kyle Hubert:
-
-//mOffset[128] = 0;
-mLink[128] = mRanks2;
-//for(i=129;i<256;i++)	mOffset[i] = mOffset[i-1] + CurCount[i-1];
-for(udword i=129;i<256;i++)	mLink[i] = mLink[i-1] + CurCount[i-1];
-
-//mOffset[0] = mOffset[255] + CurCount[255];
-mLink[0] = mLink[255] + CurCount[255];
-//for(i=1;i<128;i++)	mOffset[i] = mOffset[i-1] + CurCount[i-1];
-for(udword i=1;i<128;i++)	mLink[i] = mLink[i-1] + CurCount[i-1];
-
-
 			}
 
 			// Perform Radix Sort
-			const ubyte* InputBytes	= (const ubyte*)input;
-			InputBytes += BYTES_INC;
+			ubyte* InputBytes	= (ubyte*)input;
+			InputBytes += j;
 			if(INVALID_RANKS)
 			{
 //				for(udword i=0;i<nb;i++)	mRanks2[mOffset[InputBytes[i<<2]]++] = i;
@@ -359,8 +336,8 @@ for(udword i=1;i<128;i++)	mLink[i] = mLink[i-1] + CurCount[i-1];
 			}
 			else
 			{
-				const udword* Indices		= mRanks;
-				const udword* IndicesEnd	= &mRanks[nb];
+				udword* Indices		= mRanks;
+				udword* IndicesEnd	= &mRanks[nb];
 				while(Indices!=IndicesEnd)
 				{
 					udword id = *Indices++;
@@ -370,9 +347,7 @@ for(udword i=1;i<128;i++)	mLink[i] = mLink[i-1] + CurCount[i-1];
 			}
 
 			// Swap pointers for next pass. Valid indices - the most recent ones - are in mRanks after the swap.
-			udword* Tmp = mRanks;
-			mRanks = mRanks2;
-			mRanks2 = Tmp;
+			udword* Tmp	= mRanks;	mRanks = mRanks2; mRanks2 = Tmp;
 		}
 	}
 	return *this;
@@ -396,7 +371,7 @@ RadixSort& RadixSort::Sort(const float* input2, udword nb)
 	// Stats
 	mTotalCalls++;
 
-	const udword* input = (const udword*)input2;
+	udword* input = (udword*)input2;
 
 	// Resize lists if needed
 	CheckResize(nb);
@@ -417,16 +392,15 @@ RadixSort& RadixSort::Sort(const float* input2, udword nb)
 	// generation Pentiums....We can't make comparison on integer representations because, as Chris said, it just
 	// wouldn't work with mixed positive/negative values....
 	{ CREATE_HISTOGRAMS(float, input2); }
-/*
+
 	// Compute #negative values involved if needed
 	udword NbNegativeValues = 0;
 	// An efficient way to compute the number of negatives values we'll have to deal with is simply to sum the 128
 	// last values of the last histogram. Last histogram because that's the one for the Most Significant Byte,
 	// responsible for the sign. 128 last values because the 128 first ones are related to positive numbers.
-	// ### is that ok on Apple ?!
 	udword* h3= &mHistogram[768];
 	for(udword i=128;i<256;i++)	NbNegativeValues += h3[i];	// 768 for last histogram, 128 for negative part
-*/
+
 	// Radix sort, j is the pass number (0=LSB, 3=MSB)
 	for(udword j=0;j<4;j++)
 	{
@@ -445,8 +419,8 @@ RadixSort& RadixSort::Sort(const float* input2, udword nb)
 				for(udword i=1;i<256;i++)		mLink[i] = mLink[i-1] + CurCount[i-1];
 
 				// Perform Radix Sort
-				const ubyte* InputBytes = (const ubyte*)input;
-				InputBytes += BYTES_INC;
+				ubyte* InputBytes = (ubyte*)input;
+				InputBytes += j;
 				if(INVALID_RANKS)
 				{
 //					for(i=0;i<nb;i++)	mRanks2[mOffset[InputBytes[i<<2]]++] = i;
@@ -455,8 +429,8 @@ RadixSort& RadixSort::Sort(const float* input2, udword nb)
 				}
 				else
 				{
-					const udword* Indices		= mRanks;
-					const udword* IndicesEnd	= &mRanks[nb];
+					udword* Indices		= mRanks;
+					udword* IndicesEnd	= &mRanks[nb];
 					while(Indices!=IndicesEnd)
 					{
 						udword id = *Indices++;
@@ -466,9 +440,7 @@ RadixSort& RadixSort::Sort(const float* input2, udword nb)
 				}
 
 				// Swap pointers for next pass. Valid indices - the most recent ones - are in mRanks after the swap.
-				udword* Tmp = mRanks;
-				mRanks = mRanks2;
-				mRanks2 = Tmp;
+				udword* Tmp	= mRanks;	mRanks = mRanks2; mRanks2 = Tmp;
 			}
 		}
 		else
@@ -478,32 +450,19 @@ RadixSort& RadixSort::Sort(const float* input2, udword nb)
 
 			if(PerformPass)
 			{
-/*
 				// Create biased offsets, in order for negative numbers to be sorted as well
 //				mOffset[0] = NbNegativeValues;												// First positive number takes place after the negative ones
-//				for(udword i=1;i<128;i++)		mOffset[i] = mOffset[i-1] + CurCount[i-1];	// 1 to 128 for positive numbers
 				mLink[0] = &mRanks2[NbNegativeValues];										// First positive number takes place after the negative ones
+//				for(udword i=1;i<128;i++)		mOffset[i] = mOffset[i-1] + CurCount[i-1];	// 1 to 128 for positive numbers
 				for(udword i=1;i<128;i++)		mLink[i] = mLink[i-1] + CurCount[i-1];		// 1 to 128 for positive numbers
 
 				// We must reverse the sorting order for negative numbers!
 //				mOffset[255] = 0;
-//				for(i=0;i<127;i++)		mOffset[254-i] = mOffset[255-i] + CurCount[255-i];	// Fixing the wrong order for negative values
-//				for(i=128;i<256;i++)	mOffset[i] += CurCount[i];							// Fixing the wrong place for negative values
 				mLink[255] = mRanks2;
+//				for(i=0;i<127;i++)		mOffset[254-i] = mOffset[255-i] + CurCount[255-i];	// Fixing the wrong order for negative values
 				for(udword i=0;i<127;i++)	mLink[254-i] = mLink[255-i] + CurCount[255-i];		// Fixing the wrong order for negative values
+//				for(i=128;i<256;i++)	mOffset[i] += CurCount[i];							// Fixing the wrong place for negative values
 				for(udword i=128;i<256;i++)	mLink[i] += CurCount[i];							// Fixing the wrong place for negative values
-*/
-
-// From Kyle Hubert:
-
-//mOffset[255] = CurCount[255];
-mLink[255] = mRanks2 + CurCount[255];
-//for(udword i=254;i>127;i--)	mOffset[i] = mOffset[i+1] + CurCount[i];
-for(udword i=254;i>127;i--)	mLink[i] = mLink[i+1] + CurCount[i];
-//mOffset[0] = mOffset[128] + CurCount[128];
-mLink[0] = mLink[128] + CurCount[128];
-//for(udword i=1;i<128;i++)	mOffset[i] = mOffset[i-1] + CurCount[i-1];
-for(udword i=1;i<128;i++)	mLink[i] = mLink[i-1] + CurCount[i-1];
 
 				// Perform Radix Sort
 				if(INVALID_RANKS)
@@ -532,9 +491,7 @@ for(udword i=1;i<128;i++)	mLink[i] = mLink[i-1] + CurCount[i-1];
 					}
 				}
 				// Swap pointers for next pass. Valid indices - the most recent ones - are in mRanks after the swap.
-				udword* Tmp = mRanks;
-				mRanks = mRanks2;
-				mRanks2 = Tmp;
+				udword* Tmp	= mRanks;	mRanks = mRanks2; mRanks2 = Tmp;
 			}
 			else
 			{
@@ -553,9 +510,7 @@ for(udword i=1;i<128;i++)	mLink[i] = mLink[i-1] + CurCount[i-1];
 					}
 
 					// Swap pointers for next pass. Valid indices - the most recent ones - are in mRanks after the swap.
-					udword* Tmp = mRanks;
-					mRanks = mRanks2;
-					mRanks2 = Tmp;
+					udword* Tmp	= mRanks;	mRanks = mRanks2; mRanks2 = Tmp;
 				}
 			}
 		}
@@ -578,15 +533,4 @@ udword RadixSort::GetUsedRam() const
 #endif
 	UsedRam += 2*CURRENT_SIZE*sizeof(udword);	// 2 lists of indices
 	return UsedRam;
-}
-
-bool RadixSort::SetRankBuffers(udword* ranks0, udword* ranks1)
-{
-	if(!ranks0 || !ranks1)	return false;
-
-	mRanks			= ranks0;
-	mRanks2			= ranks1;
-	mDeleteRanks	= false;
-
-	return true;
 }

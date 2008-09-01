@@ -67,17 +67,17 @@ static PRUNING_SORTER* gBipartitePruningSorter0 = null;
 static PRUNING_SORTER* gBipartitePruningSorter1 = null;
 inline_ PRUNING_SORTER* GetCompletePruningSorter()
 {
-	if(!gCompletePruningSorter)	gCompletePruningSorter = new PRUNING_SORTER;
+	if(!gCompletePruningSorter)	gCompletePruningSorter = ICE_NEW(PRUNING_SORTER);
 	return gCompletePruningSorter;
 }
 inline_ PRUNING_SORTER* GetBipartitePruningSorter0()
 {
-	if(!gBipartitePruningSorter0)	gBipartitePruningSorter0 = new PRUNING_SORTER;
+	if(!gBipartitePruningSorter0)	gBipartitePruningSorter0 = ICE_NEW(PRUNING_SORTER);
 	return gBipartitePruningSorter0;
 }
 inline_ PRUNING_SORTER* GetBipartitePruningSorter1()
 {
-	if(!gBipartitePruningSorter1)	gBipartitePruningSorter1 = new PRUNING_SORTER;
+	if(!gBipartitePruningSorter1)	gBipartitePruningSorter1 = ICE_NEW(PRUNING_SORTER);
 	return gBipartitePruningSorter1;
 }
 void ReleasePruningSorters()

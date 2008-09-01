@@ -1,3 +1,20 @@
+/*
+ *	ICE / OPCODE - Optimized Collision Detection
+ * http://www.codercorner.com/Opcode.htm
+ * 
+ * Copyright (c) 2001-2008 Pierre Terdiman,  pierre@codercorner.com
+
+This software is provided 'as-is', without any express or implied warranty.
+In no event will the authors be held liable for any damages arising from the use of this software.
+Permission is granted to anyone to use this software for any purpose, 
+including commercial applications, and to alter it and redistribute it freely, 
+subject to the following restrictions:
+
+1. The origin of this software must not be misrepresented; you must not claim that you wrote the original software. If you use this software in a product, an acknowledgment in the product documentation would be appreciated but is not required.
+2. Altered source versions must be plainly marked as such, and must not be misrepresented as being the original software.
+3. This notice may not be removed or altered from any source distribution.
+*/
+
 ///////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
 /**
  *	Contains AABB-related code. (axis-aligned bounding box)
@@ -9,20 +26,8 @@
 
 ///////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
 // Include Guard
-#ifndef ICEAABB_H
-#define ICEAABB_H
-
-	inline_ void ComputeMinMax(const Point& p, Point& min, Point& max)
-	{
-		if(p.x > max.x)	max.x = p.x;
-		if(p.x < min.x)	min.x = p.x;
-
-		if(p.y > max.y)	max.y = p.y;
-		if(p.y < min.y)	min.y = p.y;
-
-		if(p.z > max.z)	max.z = p.z;
-		if(p.z < min.z)	min.z = p.z;
-	}
+#ifndef __ICEAABB_H__
+#define __ICEAABB_H__
 
 	// Forward declarations
 	class Sphere;
@@ -30,7 +35,6 @@
 //! Declarations of type-independent methods (most of them implemented in the .cpp)
 #define AABB_COMMON_METHODS																											\
 			AABB&			Add(const AABB& aabb);																					\
-			AABB&			Sub(const AABB& aabb);																					\
 			float			MakeCube(AABB& cube)																			const;	\
 			void			MakeSphere(Sphere& sphere)																		const;	\
 			const sbyte*	ComputeOutline(const Point& local_eye, sdword& num)												const;	\
@@ -65,7 +69,7 @@
 		Point	mMax;
 	};
 
-	class ICEMATHS_API AABB : public Allocateable
+	class ICEMATHS_API AABB
 	{
 		public:
 		//! Constructor
@@ -122,8 +126,17 @@
 		 *	\param		p	[in] the next point
 		 */
 		///////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
-		inline_			void		Extend(const Point& p)								{ ComputeMinMax(p, mMin, mMax);				}
+						void		Extend(const Point& p)
+									{
+										if(p.x > mMax.x)	mMax.x = p.x;
+										if(p.x < mMin.x)	mMin.x = p.x;
 
+										if(p.y > mMax.y)	mMax.y = p.y;
+										if(p.y < mMin.y)	mMin.y = p.y;
+
+										if(p.z > mMax.z)	mMax.z = p.z;
+										if(p.z < mMin.z)	mMin.z = p.z;
+									}
 		// Data access
 
 		//! Get min point of the box
@@ -479,7 +492,18 @@
 
 #endif
 
-	//! Computes the AABB around a set of vertices
+	inline_ void ComputeMinMax(const Point& p, Point& min, Point& max)
+	{
+		if(p.x > max.x)	max.x = p.x;
+		if(p.x < min.x)	min.x = p.x;
+
+		if(p.y > max.y)	max.y = p.y;
+		if(p.y < min.y)	min.y = p.y;
+
+		if(p.z > max.z)	max.z = p.z;
+		if(p.z < min.z)	min.z = p.z;
+	}
+
 	inline_ void ComputeAABB(AABB& aabb, const Point* list, udword nb_pts)
 	{
 		if(list)
@@ -495,20 +519,4 @@
 		}
 	}
 
-	//! Computes the AABB around a set of vertices after transform by a matrix
-	inline_ void ComputeAABB(AABB& aabb, const Point* list, udword nb_pts, const Matrix4x4& world)
-	{
-		if(list)
-		{
-			Point Maxi(MIN_FLOAT, MIN_FLOAT, MIN_FLOAT);
-			Point Mini(MAX_FLOAT, MAX_FLOAT, MAX_FLOAT);
-			while(nb_pts--)
-			{
-//				_prefetch(list+1);	// off by one ?
-				ComputeMinMax((*list++)*world, Mini, Maxi);
-			}
-			aabb.SetMinMax(Mini, Maxi);
-		}
-	}
-
-#endif	// ICEAABB_H
+#endif	// __ICEAABB_H__

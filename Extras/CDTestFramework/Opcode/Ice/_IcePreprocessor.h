@@ -1,3 +1,19 @@
+/*
+ *	ICE / OPCODE - Optimized Collision Detection
+ * http://www.codercorner.com/Opcode.htm
+ * 
+ * Copyright (c) 2001-2008 Pierre Terdiman,  pierre@codercorner.com
+
+This software is provided 'as-is', without any express or implied warranty.
+In no event will the authors be held liable for any damages arising from the use of this software.
+Permission is granted to anyone to use this software for any purpose, 
+including commercial applications, and to alter it and redistribute it freely, 
+subject to the following restrictions:
+
+1. The origin of this software must not be misrepresented; you must not claim that you wrote the original software. If you use this software in a product, an acknowledgment in the product documentation would be appreciated but is not required.
+2. Altered source versions must be plainly marked as such, and must not be misrepresented as being the original software.
+3. This notice may not be removed or altered from any source distribution.
+*/
 ///////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
 /**
  *	Contains preprocessor stuff. This should be the first included header.
@@ -9,8 +25,8 @@
 
 ///////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
 // Include Guard
-#ifndef ICEPREPROCESSOR_H
-#define ICEPREPROCESSOR_H
+#ifndef __ICEPREPROCESSOR_H__
+#define __ICEPREPROCESSOR_H__
 
 	// Check platform
 	#if defined( _WIN32 ) || defined( WIN32 )
@@ -24,14 +40,6 @@
 	#if defined(_MSC_VER)
 		#pragma message("Compiling with VC++...")
 		#define COMPILER_VISUAL_CPP
-
-		#if _MSC_VER > 1300
-			#pragma message("Compiling with VC7")
-			#define COMPILER_VC7
-		#else
-			#pragma message("Compiling with VC6")
-			#define COMPILER_VC6
-		#endif
 	#else
 		#pragma message("Compiling with unknown compiler...")
 	#endif
@@ -65,7 +73,7 @@
 	#endif
 
 	#ifdef  _DEBUG
-		// Here you may define items for debug builds
+	// Here you may define items for debug builds
 	#endif
 
 	#ifndef THIS_FILE
@@ -74,13 +82,17 @@
 
 	#ifndef ICE_NO_DLL
 		#ifdef ICECORE_EXPORTS
-			#define ICECORE_API		__declspec(dllexport)
+			#define ICECORE_API			__declspec(dllexport)
 		#else
-			#define ICECORE_API		__declspec(dllimport)
+			#define ICECORE_API			__declspec(dllimport)
 		#endif
 	#else
 			#define ICECORE_API
 	#endif
+
+	// Don't override new/delete
+//	#define DEFAULT_NEWDELETE
+	#define DONT_TRACK_MEMORY_LEAKS
 
 	#define FUNCTION				extern "C"
 
@@ -94,16 +106,16 @@
 //	#define inline_				inline
 
 	// Contributed by Bruce Mitchener
-	#if defined(COMPILER_VISUAL_CPP)
-		#define inline_			__forceinline
-//		#define inline_			inline
-	#elif defined(__GNUC__) && __GNUC__ < 3
-		#define inline_ inline
-	#elif defined(__GNUC__)
-		#define inline_ inline __attribute__ ((always_inline))
-	#else
-		#define inline_ inline
-	#endif
+		#if defined(COMPILER_VISUAL_CPP)
+			#define inline_			__forceinline
+//			#define inline_			inline
+		#elif defined(__GNUC__) && __GNUC__ < 3
+			#define inline_ inline
+		#elif defined(__GNUC__)
+			#define inline_ inline __attribute__ ((always_inline))
+		#else
+			#define inline_ inline
+		#endif
 
 	// Down the hatch
 	#pragma inline_depth( 255 )
@@ -123,36 +135,10 @@
 	// ANSI compliance
 	#ifdef  _DEBUG
 		// Remove painful warning in debug
-		inline_ bool ReturnsFalse(){ return false; }
-		#define for if(ReturnsFalse()){}	else for
+		inline_ bool __False__(){ return false; }
+		#define for if(__False__()){}	else for
 	#else
 		#define for if(0){}	else for
 	#endif
 
-	// Don't override new/delete
-	#define DEFAULT_NEWDELETE
-	#define DONT_TRACK_MEMORY_LEAKS
-
-	//! Macro used to give me a clue when it crashes in release and only the assembly is available
-	#define	INCLUDE_GUARDIANS
-	#ifdef INCLUDE_GUARDIANS
-		#define	GUARD(x)						\
-			{									\
-			static const char guard_text[] = x;	\
-			_asm	push	eax					\
-			_asm	nop							\
-			_asm	nop							\
-			_asm	nop							\
-			_asm	nop							\
-			_asm	lea		eax, guard_text		\
-			_asm	nop							\
-			_asm	nop							\
-			_asm	nop							\
-			_asm	nop							\
-			_asm	pop		eax					\
-			}
-	#else
-		#define	GUARD(x)
-	#endif
-
-#endif // ICEPREPROCESSOR_H
+#endif // __ICEPREPROCESSOR_H__
