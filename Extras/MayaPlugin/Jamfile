@@ -1,0 +1,20 @@
+SubDir TOP Extras MayaPlugin ;
+
+#if $(GLUT.AVAILABLE) = "yes"
+#{
+
+Description MayaPlugin : "MayaPlugin" ;
+
+FIncludes $(MAYA_LOCATION)/include
+
+Library MayaPlugin : 
+  [ Wildcard *.h *.cpp ] : noinstall 
+;
+
+CFlags MayaPlugin :	;
+
+LibDepends MayaPlugin :   ;
+
+ExternalLibs MayaPlugin : GLUT ;
+
+#}

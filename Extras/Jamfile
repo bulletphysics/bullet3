@@ -12,3 +12,5 @@ SubInclude TOP Extras GIMPACT ;
 SubInclude TOP Extras GIMPACTUtils ;
 #GPUphysics needs 'make', not jam compatible build yet:
 #SubInclude TOP Extras GPUphysics ;
+#MayaPlugin needs 'make' as well 
+#SubInclude TOP Extras MayaPlugin ;

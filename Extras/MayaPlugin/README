@@ -1,0 +1,12 @@
+Bullet Maya Plugin
+
+
+How to build in linux:
+
+Please check the beginning of the Makefile to make sure that the variables are correct.
+Then do:
+
+make install
+
+
+

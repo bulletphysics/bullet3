@@ -1,5 +1,18 @@
+#MayaPlugin Makefile
 
-#Dynamica Makefile
+## MAYA_LOCATION is the Maya installation directory. It should be already defined in your
+# environment variables. If not, please change it to the appropriate directory
+MAYA=$(MAYA_LOCATION)
+
+## Change this if you want to change the installation directory
+MAYA_PLUG_IN_PATH=/tmp
+
+## Change this if you want to change the name of the final plugin 
+LIBRARY=mayaplugin.so
+
+##################################
+
+BULLET=../..
 
 CPP = g++412
 LD = ld
@@ -13,37 +26,13 @@ CPPFLAGS = -DBits64_ -m64 -DUNIX -D_BOOL -DLINUX -DFUNCPROTO -D_GNU_SOURCE -DLIN
 
 LDFLAGS =-Wl,-Bsymbolic -shared
 
-LIBRARY=dynamica.so
-
-ifdef DISNEY
-#inside Disney
-CPPFLAGS += -DINSIDE_DISNEY
-
-MAYA_PLUG_IN_PATH=/tmp 
-
-BULLET=$(RP_bullet)
-BULLET_INCLUDE=-I$(BULLET)/include
-BULLET_LIB=-L$(BULLET)/lib \
-                -lGIMPACT -lGIMPACTUtils -lbulletdynamics \
-                 -lbulletmath -lbulletcollision
-
-GL_INCLUDE=-I$(RP_glut)/include -I$(RP_glew)/include
-GL_LIB=-L$(RP_glut)/lib -L$(RP_glew)/lib -lGL -lGLU -lglut -lGLEW
-else
-#Nicola's
-
-MAYA_PLUG_IN_PATH=/usr/maya-plugins
-
-BULLET=/usr/bullet-2.70
 BULLET_INCLUDE=-I$(BULLET)/src -I$(BULLET)/Extras/GIMPACT/include
-BULLET_LIB=-L$(BULLET)/out/linux/optimize/libs \
+BULLET_LIB=-L$(BULLET)/out/linux/optimize/libs -L$(BULLET)/src \
                 -lGIMPACT -lGIMPACTUtils -lbulletdynamics \
                  -lbulletmath -lbulletcollision -lbulletopenglsupport
 
 GL_LIB=-lGL -lGLU -lglut -lGLEW
-endif
 
-MAYA=$(MAYA_LOCATION)
 MAYA_INCLUDE=-I$(MAYA)/include
 MAYA_LIB=-L$(MAYA)/lib -lOpenMaya -lFoundation -lOpenMayaUI -lOpenMayaFX
 
@@ -64,7 +53,7 @@ HEADERS = box_shape.h             bt_sphere_shape.h         dSolverNode.h       
 
 
 INCLUDE_FLAGS= $(GL_INCLUDE) $(BULLET_INCLUDE) $(MAYA_INCLUDE)
-LIB_FLAGS=$(BULLET_LIB) $(MAYA_LIB) $(GL_LIB) 
+LIB_FLAGS=$(BULLET_LIB) $(MAYA_LIB) $(GL_LIB)
 
 OBJECTS=$(SOURCES:.cpp=.o)
 
