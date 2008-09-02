@@ -128,6 +128,11 @@ void btPolyhedralConvexShape::getAabb(const btTransform& trans,btVector3& aabbMi
 
 
 
+void	btPolyhedralConvexShape::setLocalScaling(const btVector3& scaling)
+{
+	btConvexInternalShape::setLocalScaling(scaling);
+	recalcLocalAabb();
+}
 
 void	btPolyhedralConvexShape::recalcLocalAabb()
 {

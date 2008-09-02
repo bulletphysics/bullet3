@@ -73,6 +73,8 @@ public:
 	
 	virtual void getAabb(const btTransform& t,btVector3& aabbMin,btVector3& aabbMax) const;
 
+	virtual void	setLocalScaling(const btVector3& scaling);
+
 	void	recalcLocalAabb();
 
 	virtual int	getNumVertices() const = 0 ;
