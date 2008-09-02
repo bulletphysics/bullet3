@@ -321,6 +321,9 @@
 				RelativePath="..\..\src\BulletSoftBody\btSoftBodyHelpers.h">
 			</File>
 			<File
+				RelativePath="..\..\src\BulletSoftBody\btSoftBodyInternals.h">
+			</File>
+			<File
 				RelativePath="..\..\src\BulletSoftBody\btSoftBodyRigidBodyCollisionConfiguration.h">
 			</File>
 			<File

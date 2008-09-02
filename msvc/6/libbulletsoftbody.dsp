@@ -204,6 +204,10 @@ SOURCE=..\..\src\BulletSoftBody\btSoftBodyHelpers.h
 # End Source File
 # Begin Source File
 
+SOURCE=..\..\src\BulletSoftBody\btSoftBodyInternals.h
+# End Source File
+# Begin Source File
+
 SOURCE=..\..\src\BulletSoftBody\btSoftBodyRigidBodyCollisionConfiguration.h
 # End Source File
 # Begin Source File

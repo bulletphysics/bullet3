@@ -192,6 +192,10 @@ SOURCE=..\..\src\BulletCollision\BroadphaseCollision\btOverlappingPairCache.cpp
 # End Source File
 # Begin Source File
 
+SOURCE=..\..\src\BulletCollision\BroadphaseCollision\btQuantizedBvh.cpp
+# End Source File
+# Begin Source File
+
 SOURCE=..\..\src\BulletCollision\BroadphaseCollision\btSimpleBroadphase.cpp
 # End Source File
 # Begin Source File
@@ -481,6 +485,10 @@ SOURCE=..\..\src\BulletCollision\BroadphaseCollision\btOverlappingPairCache.h
 # Begin Source File
 
 SOURCE=..\..\src\BulletCollision\BroadphaseCollision\btOverlappingPairCallback.h
+# End Source File
+# Begin Source File
+
+SOURCE=..\..\src\BulletCollision\BroadphaseCollision\btQuantizedBvh.h
 # End Source File
 # Begin Source File
 
