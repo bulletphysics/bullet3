@@ -386,6 +386,17 @@ typedef const char* (WINAPI * PFNWGLGETEXTENSIONSSTRINGEXTPROC) (void);
 
 #endif /* WGL_EXT_extensions_string */
 
+/* ------------------------ WGL_EXT_framebuffer_sRGB ----------------------- */
+
+#ifndef WGL_EXT_framebuffer_sRGB
+#define WGL_EXT_framebuffer_sRGB 1
+
+#define WGL_FRAMEBUFFER_SRGB_CAPABLE_EXT 0x20A9
+
+#define WGLEW_EXT_framebuffer_sRGB WGLEW_GET_VAR(__WGLEW_EXT_framebuffer_sRGB)
+
+#endif /* WGL_EXT_framebuffer_sRGB */
+
 /* ----------------------- WGL_EXT_make_current_read ----------------------- */
 
 #ifndef WGL_EXT_make_current_read
@@ -508,6 +519,17 @@ typedef BOOL (WINAPI * PFNWGLGETPIXELFORMATATTRIBIVEXTPROC) (HDC hdc, int iPixel
 #define WGLEW_EXT_pixel_format WGLEW_GET_VAR(__WGLEW_EXT_pixel_format)
 
 #endif /* WGL_EXT_pixel_format */
+
+/* ------------------- WGL_EXT_pixel_format_packed_float ------------------- */
+
+#ifndef WGL_EXT_pixel_format_packed_float
+#define WGL_EXT_pixel_format_packed_float 1
+
+#define WGL_TYPE_RGBA_UNSIGNED_FLOAT_EXT 0x20A8
+
+#define WGLEW_EXT_pixel_format_packed_float WGLEW_GET_VAR(__WGLEW_EXT_pixel_format_packed_float)
+
+#endif /* WGL_EXT_pixel_format_packed_float */
 
 /* -------------------------- WGL_EXT_swap_control ------------------------- */
 
@@ -879,10 +901,12 @@ WGLEW_EXPORT GLboolean __WGLEW_ATI_render_texture_rectangle;
 WGLEW_EXPORT GLboolean __WGLEW_EXT_depth_float;
 WGLEW_EXPORT GLboolean __WGLEW_EXT_display_color_table;
 WGLEW_EXPORT GLboolean __WGLEW_EXT_extensions_string;
+WGLEW_EXPORT GLboolean __WGLEW_EXT_framebuffer_sRGB;
 WGLEW_EXPORT GLboolean __WGLEW_EXT_make_current_read;
 WGLEW_EXPORT GLboolean __WGLEW_EXT_multisample;
 WGLEW_EXPORT GLboolean __WGLEW_EXT_pbuffer;
 WGLEW_EXPORT GLboolean __WGLEW_EXT_pixel_format;
+WGLEW_EXPORT GLboolean __WGLEW_EXT_pixel_format_packed_float;
 WGLEW_EXPORT GLboolean __WGLEW_EXT_swap_control;
 WGLEW_EXPORT GLboolean __WGLEW_I3D_digital_video_control;
 WGLEW_EXPORT GLboolean __WGLEW_I3D_gamma;

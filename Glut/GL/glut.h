@@ -51,6 +51,7 @@ typedef unsigned short int wchar_t;
 #pragma comment (lib, "winmm.lib")     /* link with Windows MultiMedia lib */
 #pragma comment (lib, "opengl32.lib")  /* link with Microsoft OpenGL lib */
 #pragma comment (lib, "glu32.lib")     /* link with OpenGL Utility lib */
+#pragma message("Note: including lib: glut32.lib\n")
 #pragma comment (lib, "glut32.lib")    /* link with Win32 GLUT lib */
 
 #pragma warning (disable:4244)	/* Disable bogus conversion warnings. */
