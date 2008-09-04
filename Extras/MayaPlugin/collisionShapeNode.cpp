@@ -42,8 +42,8 @@ Written by: Nicola Candussi <nicola@fluidinteractive.com>
 #include "mayaUtils.h"
 #include "solver.h"
 
-MTypeId     collisionShapeNode::typeId( 0x100307 );
-MString     collisionShapeNode::typeName( "dCollisionShape" );
+MTypeId     collisionShapeNode::typeId(0x100332);
+MString     collisionShapeNode::typeName("dCollisionShape");
 
 MObject     collisionShapeNode::ia_shape;
 MObject     collisionShapeNode::ia_type;

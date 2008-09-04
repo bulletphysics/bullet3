@@ -50,8 +50,8 @@ Written by: Nicola Candussi <nicola@fluidinteractive.com>
 #include "rigidBodyArrayNode.h"
 #include "pdbIO.h"
 
-MTypeId dSolverNode::typeId( 0x104203 );
-MString dSolverNode::typeName( "dSolver" );
+MTypeId dSolverNode::typeId(0x100331);
+MString dSolverNode::typeName("dSolver");
 
 MObject dSolverNode::ia_time;
 MObject dSolverNode::ia_startTime;

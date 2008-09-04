@@ -45,8 +45,8 @@ Written by: Nicola Candussi <nicola@fluidinteractive.com>
 
 #include "solver.h"
 
-MTypeId     rigidBodyArrayNode::typeId( 0x100314 );
-MString     rigidBodyArrayNode::typeName( "dRigidBodyArray" );
+MTypeId     rigidBodyArrayNode::typeId(0x100330);
+MString     rigidBodyArrayNode::typeName("dRigidBodyArray");
 
 MObject     rigidBodyArrayNode::ia_collisionShape;
 MObject     rigidBodyArrayNode::ia_solver;
