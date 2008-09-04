@@ -147,5 +147,62 @@ void	btCompoundShape::calculateLocalInertia(btScalar mass,btVector3& inertia) co
 
 }
 
-	
+
+
+
+void btCompoundShape::calculatePrincipalAxisTransform(btScalar* masses, btTransform& principal, btVector3& inertia) const
+{
+   int n = m_children.size();
+
+   btScalar totalMass = 0;
+   btVector3 center(0, 0, 0);
+   for (int k = 0; k < n; k++)
+   {
+      center += m_children[k].m_transform.getOrigin() * masses[k];
+      totalMass += masses[k];
+   }
+   center /= totalMass;
+   principal.setOrigin(center);
+
+   btMatrix3x3 tensor(0, 0, 0, 0, 0, 0, 0, 0, 0);
+   for (int k = 0; k < n; k++)
+   {
+      btVector3 i;
+      m_children[k].m_childShape->calculateLocalInertia(masses[k], i);
+
+      const btTransform& t = m_children[k].m_transform;
+      btVector3 o = t.getOrigin() - center;
+      
+      //compute inertia tensor in coordinate system of compound shape
+      btMatrix3x3 j = t.getBasis().transpose();
+      j[0] *= i[0];
+      j[1] *= i[1];
+      j[2] *= i[2];
+      j = t.getBasis() * j;
+      
+      //add inertia tensor
+      tensor[0] += j[0];
+      tensor[1] += j[1];
+      tensor[2] += j[2];
+
+      //compute inertia tensor of pointmass at o
+      btScalar o2 = o.length2();
+      j[0].setValue(o2, 0, 0);
+      j[1].setValue(0, o2, 0);
+      j[2].setValue(0, 0, o2);
+      j[0] += o * -o.x(); 
+      j[1] += o * -o.y(); 
+      j[2] += o * -o.z();
+
+      //add inertia tensor of pointmass
+      tensor[0] += masses[k] * j[0];
+      tensor[1] += masses[k] * j[1];
+      tensor[2] += masses[k] * j[2];
+   }
+
+   tensor.diagonalize(principal.getBasis(), btScalar(0.00001), 20);
+   inertia.setValue(tensor[0][0], tensor[1][1], tensor[2][2]);
+}
+
+
 	
