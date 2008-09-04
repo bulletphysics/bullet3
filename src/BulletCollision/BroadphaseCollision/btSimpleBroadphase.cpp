@@ -55,7 +55,7 @@ btSimpleBroadphase::btSimpleBroadphase(int maxProxies, btOverlappingPairCache* o
 	m_maxHandles = maxProxies;
 	m_numHandles = 0;
 	m_firstFreeHandle = 0;
-	m_firstAllocatedHandle = -1;
+	
 
 	{
 		for (int i = m_firstFreeHandle; i < maxProxies; i++)

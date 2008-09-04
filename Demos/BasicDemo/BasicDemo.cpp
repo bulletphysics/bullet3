@@ -92,6 +92,7 @@ void	BasicDemo::initPhysics()
 	///Don't make the world AABB size too large, it will harm simulation quality and performance
 	btVector3 worldAabbMin(-10000,-10000,-10000);
 	btVector3 worldAabbMax(10000,10000,10000);
+	//m_overlappingPairCache = new btSimpleBroadphase();//new btAxisSweep3(worldAabbMin,worldAabbMax,MAX_PROXIES);
 	m_overlappingPairCache = new btAxisSweep3(worldAabbMin,worldAabbMax,MAX_PROXIES);
 
 	///the default constraint solver. For parallel processing you can use a different solver (see Extras/BulletMultiThreaded)
@@ -104,8 +105,8 @@ void	BasicDemo::initPhysics()
 	m_dynamicsWorld->setGravity(btVector3(0,-10,0));
 
 	///create a few basic rigid bodies
-	btCollisionShape* groundShape = new btBoxShape(btVector3(btScalar(50.),btScalar(50.),btScalar(50.)));
-//	btCollisionShape* groundShape = new btStaticPlaneShape(btVector3(0,1,0),50);
+//	btCollisionShape* groundShape = new btBoxShape(btVector3(btScalar(50.),btScalar(50.),btScalar(50.)));
+	btCollisionShape* groundShape = new btStaticPlaneShape(btVector3(0,1,0),50);
 	
 	m_collisionShapes.push_back(groundShape);
 
@@ -161,13 +162,15 @@ void	BasicDemo::initPhysics()
 
 		for (int k=0;k<ARRAY_SIZE_Y;k++)
 		{
-			for (int i=0;i<ARRAY_SIZE_X;i++)
+			int i=0;
+//			for (int i=0;i<ARRAY_SIZE_X;i++)
 			{
-				for(int j = 0;j<ARRAY_SIZE_Z;j++)
+				int j=0;
+//				for(int j = 0;j<ARRAY_SIZE_Z;j++)
 				{
 					startTransform.setOrigin(btVector3(
 										2.0*i + start_x,
-										2.0*k + start_y,
+										10+2.0*k + start_y,
 										2.0*j + start_z));
 
 			
@@ -175,8 +178,10 @@ void	BasicDemo::initPhysics()
 					btDefaultMotionState* myMotionState = new btDefaultMotionState(startTransform);
 					btRigidBody::btRigidBodyConstructionInfo rbInfo(mass,myMotionState,colShape,localInertia);
 					btRigidBody* body = new btRigidBody(rbInfo);
+					body->setActivationState(ISLAND_SLEEPING);
 
 					m_dynamicsWorld->addRigidBody(body);
+					body->setActivationState(ISLAND_SLEEPING);
 				}
 			}
 		}

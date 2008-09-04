@@ -127,6 +127,11 @@ void	btCollisionWorld::updateAabbs()
 		{
 			btPoint3 minAabb,maxAabb;
 			colObj->getCollisionShape()->getAabb(colObj->getWorldTransform(), minAabb,maxAabb);
+			//need to increase the aabb for contact thresholds
+			btVector3 contactThreshold(gContactBreakingThreshold,gContactBreakingThreshold,gContactBreakingThreshold);
+			minAabb -= contactThreshold;
+			maxAabb += contactThreshold;
+
 			btBroadphaseInterface* bp = (btBroadphaseInterface*)m_broadphasePairCache;
 
 			//moving objects should be moderately sized, probably something wrong if not

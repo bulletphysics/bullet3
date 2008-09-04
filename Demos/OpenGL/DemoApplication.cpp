@@ -1229,7 +1229,8 @@ void	DemoApplication::clientResetScene()
 				myMotionState->m_graphicsWorldTrans = myMotionState->m_startWorldTrans;
 				colObj->setWorldTransform( myMotionState->m_graphicsWorldTrans );
 				colObj->setInterpolationWorldTransform( myMotionState->m_startWorldTrans );
-				colObj->activate();
+				//colObj->activate();
+				colObj->setActivationState(WANTS_DEACTIVATION);
 			}
 			//removed cached contact points
 			m_dynamicsWorld->getBroadphase()->getOverlappingPairCache()->cleanProxyFromPairs(colObj->getBroadphaseHandle(),getDynamicsWorld()->getDispatcher());

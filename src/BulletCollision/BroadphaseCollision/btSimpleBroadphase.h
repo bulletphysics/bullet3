@@ -61,11 +61,10 @@ protected:
 
 	void* m_pHandlesRawPtr;
 	int		m_firstFreeHandle;		// free handles list
-	int		m_firstAllocatedHandle;
-
+	
 	int allocHandle()
 	{
-		btAssert(m_firstFreeHandle);
+		btAssert(m_numHandles < m_maxHandles);
 		int freeHandle = m_firstFreeHandle;
 		m_firstFreeHandle = m_pHandles[freeHandle].GetNextFree();
 		m_numHandles++;

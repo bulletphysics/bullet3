@@ -112,6 +112,7 @@ void btCompoundShape::recalculateLocalAabb()
 void btCompoundShape::getAabb(const btTransform& trans,btVector3& aabbMin,btVector3& aabbMax) const
 {
 	btVector3 localHalfExtents = btScalar(0.5)*(m_localAabbMax-m_localAabbMin);
+	localHalfExtents += btVector3(getMargin(),getMargin(),getMargin());
 	btVector3 localCenter = btScalar(0.5)*(m_localAabbMax+m_localAabbMin);
 	
 	btMatrix3x3 abs_b = trans.getBasis().absolute();  
@@ -121,10 +122,7 @@ void btCompoundShape::getAabb(const btTransform& trans,btVector3& aabbMin,btVect
 	btVector3 extent = btVector3(abs_b[0].dot(localHalfExtents),
 		   abs_b[1].dot(localHalfExtents),
 		  abs_b[2].dot(localHalfExtents));
-	extent += btVector3(getMargin(),getMargin(),getMargin());
 
-	aabbMin = center - extent;
-	aabbMax = center + extent;
 }
 
 void	btCompoundShape::calculateLocalInertia(btScalar mass,btVector3& inertia) const

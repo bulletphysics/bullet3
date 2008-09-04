@@ -22,19 +22,6 @@ ADD_LIBRARY(LibBulletDynamics
 	ConstraintSolver/btSolve2LinearConstraint.h
 	ConstraintSolver/btTypedConstraint.cpp
 	ConstraintSolver/btTypedConstraint.h
-	ConstraintSolver/btOdeContactJoint.cpp
-	ConstraintSolver/btOdeContactJoint.h
-	ConstraintSolver/btOdeJoint.cpp
-	ConstraintSolver/btOdeJoint.h
-	ConstraintSolver/btOdeSolverBody.h
-	ConstraintSolver/btOdeQuickstepConstraintSolver.cpp
-	ConstraintSolver/btOdeQuickstepConstraintSolver.h
-	ConstraintSolver/btOdeTypedJoint.cpp
-	ConstraintSolver/btOdeTypedJoint.h
-	ConstraintSolver/btSorLcp.cpp
-	ConstraintSolver/btSorLcp.h
-	ConstraintSolver/btOdeQuickstepConstraintSolver.h
-	ConstraintSolver/btOdeMacros.h	
 	Dynamics/Bullet-C-API.cpp
 	Dynamics/btDiscreteDynamicsWorld.cpp
 	Dynamics/btDiscreteDynamicsWorld.h

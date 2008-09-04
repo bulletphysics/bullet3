@@ -85,15 +85,15 @@ public:
 		normal.normalize();
 
 		glBegin(GL_TRIANGLES);
-		glColor3f(0, 1, 0);
+		glColor3f(1, 1, 1);
 		glNormal3d(normal.getX(),normal.getY(),normal.getZ());
 		glVertex3d(triangle[0].getX(), triangle[0].getY(), triangle[0].getZ());
 
-		glColor3f(0, 1, 0);
+		//glColor3f(0, 1, 0);
 		glNormal3d(normal.getX(),normal.getY(),normal.getZ());
 		glVertex3d(triangle[1].getX(), triangle[1].getY(), triangle[1].getZ());
 
-		glColor3f(0, 1, 0);
+		//glColor3f(0, 1, 0);
 		glNormal3d(normal.getX(),normal.getY(),normal.getZ());
 		glVertex3d(triangle[2].getX(), triangle[2].getY(), triangle[2].getZ());
 		glEnd();
@@ -237,11 +237,11 @@ public:
 		} else
 		{
 			glBegin(GL_TRIANGLES);
-			glColor3f(1, 0, 0);
+			glColor3f(1, 1, 1);
 			glVertex3d(triangle[0].getX(), triangle[0].getY(), triangle[0].getZ());
-			glColor3f(0, 1, 0);
+			//glColor3f(0, 1, 0);
 			glVertex3d(triangle[1].getX(), triangle[1].getY(), triangle[1].getZ());
-			glColor3f(0, 0, 1);
+			//glColor3f(0, 0, 1);
 			glVertex3d(triangle[2].getX(), triangle[2].getY(), triangle[2].getZ());
 			glEnd();
 		}
