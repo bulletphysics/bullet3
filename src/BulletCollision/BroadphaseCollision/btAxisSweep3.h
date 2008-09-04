@@ -52,7 +52,7 @@ public:
 	};
 
 public:
-	ATTRIBUTE_ALIGNED16(class) Handle : public btBroadphaseProxy
+	class	Handle : public btBroadphaseProxy
 	{
 	public:
 	BT_DECLARE_ALIGNED_ALLOCATOR();
@@ -274,6 +274,7 @@ m_invalidPair(0)
 	// allocate handles buffer and put all handles on free list
 	m_pHandlesRawPtr = btAlignedAlloc(sizeof(Handle)*maxHandles,16);
 	m_pHandles = new(m_pHandlesRawPtr) Handle[maxHandles];
+	btAssert(m_pHandlesRawPtr==m_pHandles); //placement new[] should just return the same pointer
 
 	m_maxHandles = maxHandles;
 	m_numHandles = 0;

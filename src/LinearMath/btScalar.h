@@ -145,11 +145,16 @@ typedef float btScalar;
 #endif
 
 
+
 #define BT_DECLARE_ALIGNED_ALLOCATOR() \
-	SIMD_FORCE_INLINE void* operator new(size_t sizeInBytes)	{ return btAlignedAlloc(sizeInBytes,16); }	\
-	SIMD_FORCE_INLINE void  operator delete(void* ptr)			{ btAlignedFree(ptr); }	\
-	SIMD_FORCE_INLINE void* operator new(size_t, void* ptr)	{ return ptr; }	\
-	SIMD_FORCE_INLINE void  operator delete(void*, void*)		{ }	\
+   SIMD_FORCE_INLINE void* operator new(size_t sizeInBytes)   { return btAlignedAlloc(sizeInBytes,16); }   \
+   SIMD_FORCE_INLINE void  operator delete(void* ptr)         { btAlignedFree(ptr); }   \
+   SIMD_FORCE_INLINE void* operator new(size_t, void* ptr)   { return ptr; }   \
+   SIMD_FORCE_INLINE void  operator delete(void*, void*)      { }   \
+   SIMD_FORCE_INLINE void* operator new[](size_t sizeInBytes)   { return btAlignedAlloc(sizeInBytes,16); }   \
+   SIMD_FORCE_INLINE void  operator delete[](void* ptr)         { btAlignedFree(ptr); }   \
+   SIMD_FORCE_INLINE void* operator new[](size_t, void* ptr)   { return ptr; }   \
+   SIMD_FORCE_INLINE void  operator delete[](void*, void*)      { }   \
 
 
 
