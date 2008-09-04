@@ -51,7 +51,6 @@ public:
 #else
         return ++m_count;
 #endif
-        return c;
     }
 
     long use_count() { return m_count;  }

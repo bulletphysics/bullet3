@@ -22,8 +22,7 @@ Written by: Nicola Candussi <nicola@fluidinteractive.com>
 
 //pluginMain.cpp
 
-#include <GL/glew.h>
-#include <GL/glut.h>
+
 #include <maya/MFnPlugin.h>
 #include <maya/MGlobal.h>
 #include <maya/MDGMessage.h>
@@ -42,10 +41,6 @@ MStatus initializePlugin( MObject obj )
 {
     MStatus   status;
     MFnPlugin plugin( obj, "Walt Disney Feature Animation", "1.0", "Any");
-
-    int argc = 1;
-    char* argv[1] = {"ciao"};
-    glutInit(&argc, argv);
 
     solver_t::initialize();
 

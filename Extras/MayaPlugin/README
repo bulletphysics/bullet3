@@ -9,4 +9,15 @@ Then do:
 make install
 
 
+-------------------------
 
+How to build under Windows, using Microsoft Visual Studio 2005 or later:
+
+Open BulletMayaPlugin.sln and select Debug or Release configuration and compile.
+
+Maya 2008 is assumed at the default location C:\Program Files\Autodesk\Maya2008\include
+Otherwise change the include path in the project settings.
+
+Installation:
+
+copy the folder 'icons', 'mvl' and 'scripts' into C:\Program Files\Autodesk\Maya2008
