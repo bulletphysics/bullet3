@@ -234,11 +234,12 @@ void computeAabb (btVector3& aabbMin, btVector3& aabbMax, btConvexInternalShape*
 	{
 		float margin=convexShape->getMarginNV();
 		btVector3 halfExtents = convexShape->getImplicitShapeDimensions();
+		halfExtents += btVector3(margin,margin,margin);
 		btTransform& t = xform;
 		btMatrix3x3 abs_b = t.getBasis().absolute();  
 		btPoint3 center = t.getOrigin();
 		btVector3 extent = btVector3(abs_b[0].dot(halfExtents),abs_b[1].dot(halfExtents),abs_b[2].dot(halfExtents));
-		extent += btVector3(margin,margin,margin);
+		
 		aabbMin = center - extent;
 		aabbMax = center + extent;
 		break;
@@ -250,6 +251,7 @@ void computeAabb (btVector3& aabbMin, btVector3& aabbMax, btConvexInternalShape*
 		//add the radius to y-axis to get full height
 		btScalar radius = halfExtents[0];
 		halfExtents[1] += radius;
+		halfExtents += btVector3(margin,margin,margin);
 #if 0
 		int capsuleUpAxis = convexShape->getUpAxis();
 		btScalar halfHeight = convexShape->getHalfHeight();
@@ -260,7 +262,7 @@ void computeAabb (btVector3& aabbMin, btVector3& aabbMax, btConvexInternalShape*
 		btMatrix3x3 abs_b = t.getBasis().absolute();  
 		btPoint3 center = t.getOrigin();
 		btVector3 extent = btVector3(abs_b[0].dot(halfExtents),abs_b[1].dot(halfExtents),abs_b[2].dot(halfExtents));
-		extent += btVector3(margin,margin,margin);
+		
 		aabbMin = center - extent;
 		aabbMax = center + extent;
 		break;

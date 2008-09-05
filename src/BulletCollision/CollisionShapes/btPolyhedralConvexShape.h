@@ -64,6 +64,9 @@ public:
 			   abs_b[1].dot(localHalfExtents),
 			  abs_b[2].dot(localHalfExtents));
 
+		aabbMin = center-extent;
+		aabbMax = center+extent;
+
 		
 	}
 

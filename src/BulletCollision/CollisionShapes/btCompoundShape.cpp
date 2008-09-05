@@ -122,6 +122,8 @@ void btCompoundShape::getAabb(const btTransform& trans,btVector3& aabbMin,btVect
 	btVector3 extent = btVector3(abs_b[0].dot(localHalfExtents),
 		   abs_b[1].dot(localHalfExtents),
 		  abs_b[2].dot(localHalfExtents));
+	aabbMin = center-extent;
+	aabbMax = center+extent;
 
 }
 
