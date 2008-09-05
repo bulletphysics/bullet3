@@ -4,6 +4,26 @@ Primary author and maintainer: Erwin Coumans
 Todo: update changelog from April - July 2008
 See http://code.google.com/p/bullet/source/list for more complete log in Subversion
 
+2008 Sept 4
+	- Added btCudaBroadphase in Extras/CUDA: some research into accelerating Bullet using CUDA.
+	Thanks to the particle demo from the NVidia CUDA SDK.
+	
+2008 Sept 3
+	- Several bug fixes and contributions related to inertia tensor, memory leaks etc.
+	Thanks to Ole K.
+
+2008 Sept 1
+	- Updated CDTestFramework, with latest version of OPCODE Array SAP. See Extras/CDTestFramework
+	Thanks to Pierre Terdiman for the update
+
+2008 August 25
+	- Walt Disney Studios contributes their in-house Maya Plugin for simulating Bullet physics, with options for other engines such as PhysBam or PhysX.
+	Thanks to Nicola Candussi and Arthur Shek
+	
+2008 August 14
+	- Improved performance for btDbvtBroadphase, based on dual dynamic AABB trees (one for static, one for dynamic objects, where objects can move from one to the other tree)
+	Thanks to Nathanael Presson again, for all his work.
+	
 2008 July 31
 	- Added Havok .hkx to COLLADA Physics .dae converter patch+information
 	- Fix btSubsimplexConvexCast
