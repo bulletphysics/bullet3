@@ -176,22 +176,6 @@ SOURCE=..\..\src\BulletDynamics\ConstraintSolver\btHingeConstraint.cpp
 # End Source File
 # Begin Source File
 
-SOURCE=..\..\src\BulletDynamics\ConstraintSolver\btOdeContactJoint.cpp
-# End Source File
-# Begin Source File
-
-SOURCE=..\..\src\BulletDynamics\ConstraintSolver\btOdeJoint.cpp
-# End Source File
-# Begin Source File
-
-SOURCE=..\..\src\BulletDynamics\ConstraintSolver\btOdeQuickstepConstraintSolver.cpp
-# End Source File
-# Begin Source File
-
-SOURCE=..\..\src\BulletDynamics\ConstraintSolver\btOdeTypedJoint.cpp
-# End Source File
-# Begin Source File
-
 SOURCE=..\..\src\BulletDynamics\ConstraintSolver\btPoint2PointConstraint.cpp
 # End Source File
 # Begin Source File
@@ -205,10 +189,6 @@ SOURCE=..\..\src\BulletDynamics\ConstraintSolver\btSliderConstraint.cpp
 # Begin Source File
 
 SOURCE=..\..\src\BulletDynamics\ConstraintSolver\btSolve2LinearConstraint.cpp
-# End Source File
-# Begin Source File
-
-SOURCE=..\..\src\BulletDynamics\ConstraintSolver\btSorLcp.cpp
 # End Source File
 # Begin Source File
 
@@ -276,30 +256,6 @@ SOURCE=..\..\src\BulletDynamics\ConstraintSolver\btJacobianEntry.h
 # End Source File
 # Begin Source File
 
-SOURCE=..\..\src\BulletDynamics\ConstraintSolver\btOdeContactJoint.h
-# End Source File
-# Begin Source File
-
-SOURCE=..\..\src\BulletDynamics\ConstraintSolver\btOdeJoint.h
-# End Source File
-# Begin Source File
-
-SOURCE=..\..\src\BulletDynamics\ConstraintSolver\btOdeMacros.h
-# End Source File
-# Begin Source File
-
-SOURCE=..\..\src\BulletDynamics\ConstraintSolver\btOdeQuickstepConstraintSolver.h
-# End Source File
-# Begin Source File
-
-SOURCE=..\..\src\BulletDynamics\ConstraintSolver\btOdeSolverBody.h
-# End Source File
-# Begin Source File
-
-SOURCE=..\..\src\BulletDynamics\ConstraintSolver\btOdeTypedJoint.h
-# End Source File
-# Begin Source File
-
 SOURCE=..\..\src\BulletDynamics\ConstraintSolver\btPoint2PointConstraint.h
 # End Source File
 # Begin Source File
@@ -321,10 +277,6 @@ SOURCE=..\..\src\BulletDynamics\ConstraintSolver\btSolverBody.h
 # Begin Source File
 
 SOURCE=..\..\src\BulletDynamics\ConstraintSolver\btSolverConstraint.h
-# End Source File
-# Begin Source File
-
-SOURCE=..\..\src\BulletDynamics\ConstraintSolver\btSorLcp.h
 # End Source File
 # Begin Source File
 
