@@ -725,7 +725,7 @@ convexMesh->getMeshInterface()->InternalProcessAllTriangles(&drawCallback,aabbMi
 
 
 
-glDisable(GL_DEPTH_BUFFER_BIT);
+glDisable(GL_DEPTH_TEST);
 glRasterPos3f(0,0,0);//mvtx.x(),  vtx.y(),  vtx.z());
 if (debugMode&btIDebugDraw::DBG_DrawText)
 {
@@ -736,7 +736,7 @@ if (debugMode& btIDebugDraw::DBG_DrawFeaturesText)
 {
 	//BMF_DrawString(BMF_GetFont(BMF_kHelvetica10),shape->getExtraDebugInfo());
 }
-glEnable(GL_DEPTH_BUFFER_BIT);
+glEnable(GL_DEPTH_TEST);
 
 //	glPopMatrix();	
 if(m_textureenabled) glDisable(GL_TEXTURE_2D);
