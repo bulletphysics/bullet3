@@ -51,7 +51,7 @@ public:
 	///by the mass. The resulting transform "principal" has to be applied inversely to the mesh in order for the local coordinate system of the
 	///shape to be centered at the center of mass and to coincide with the principal axes. This also necessitates a correction of the world transform
 	///of the collision object by the principal transform. This method also computes the volume of the convex mesh.
-	void btConvexTriangleMeshShape::calculatePrincipalAxisTransform(btTransform& principal, btVector3& inertia, btScalar& volume) const;
+	void calculatePrincipalAxisTransform(btTransform& principal, btVector3& inertia, btScalar& volume) const;
 
 };
 
