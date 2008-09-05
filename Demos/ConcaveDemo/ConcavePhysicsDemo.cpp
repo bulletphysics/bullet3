@@ -186,7 +186,7 @@ void	ConcaveDemo::initPhysics()
 	bool useQuantizedAabbCompression = true;
 
 //comment out the next line to read the BVH from disk (first run the demo once to create the BVH)
-//#define SERIALIZE_TO_DISK 1
+#define SERIALIZE_TO_DISK 1
 #ifdef SERIALIZE_TO_DISK
 	btVector3 aabbMin(-1000,-1000,-1000),aabbMax(1000,1000,1000);
 	

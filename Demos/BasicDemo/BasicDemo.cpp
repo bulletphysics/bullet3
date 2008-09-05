@@ -88,25 +88,19 @@ void	BasicDemo::initPhysics()
 	///use the default collision dispatcher. For parallel processing you can use a diffent dispatcher (see Extras/BulletMultiThreaded)
 	m_dispatcher = new	btCollisionDispatcher(m_collisionConfiguration);
 
-	///the maximum size of the collision world. Make sure objects stay within these boundaries
-	///Don't make the world AABB size too large, it will harm simulation quality and performance
-	btVector3 worldAabbMin(-10000,-10000,-10000);
-	btVector3 worldAabbMax(10000,10000,10000);
-	//m_overlappingPairCache = new btSimpleBroadphase();//new btAxisSweep3(worldAabbMin,worldAabbMax,MAX_PROXIES);
-	m_overlappingPairCache = new btAxisSweep3(worldAabbMin,worldAabbMax,MAX_PROXIES);
+	m_broadphase = new btDbvtBroadphase();
 
 	///the default constraint solver. For parallel processing you can use a different solver (see Extras/BulletMultiThreaded)
 	btSequentialImpulseConstraintSolver* sol = new btSequentialImpulseConstraintSolver;
 	m_solver = sol;
 
-
-	m_dynamicsWorld = new btDiscreteDynamicsWorld(m_dispatcher,m_overlappingPairCache,m_solver,m_collisionConfiguration);
+	m_dynamicsWorld = new btDiscreteDynamicsWorld(m_dispatcher,m_broadphase,m_solver,m_collisionConfiguration);
 
 	m_dynamicsWorld->setGravity(btVector3(0,-10,0));
 
 	///create a few basic rigid bodies
-//	btCollisionShape* groundShape = new btBoxShape(btVector3(btScalar(50.),btScalar(50.),btScalar(50.)));
-	btCollisionShape* groundShape = new btStaticPlaneShape(btVector3(0,1,0),50);
+	btCollisionShape* groundShape = new btBoxShape(btVector3(btScalar(50.),btScalar(50.),btScalar(50.)));
+//	btCollisionShape* groundShape = new btStaticPlaneShape(btVector3(0,1,0),50);
 	
 	m_collisionShapes.push_back(groundShape);
 
@@ -162,11 +156,9 @@ void	BasicDemo::initPhysics()
 
 		for (int k=0;k<ARRAY_SIZE_Y;k++)
 		{
-			int i=0;
-//			for (int i=0;i<ARRAY_SIZE_X;i++)
+			for (int i=0;i<ARRAY_SIZE_X;i++)
 			{
-				int j=0;
-//				for(int j = 0;j<ARRAY_SIZE_Z;j++)
+				for(int j = 0;j<ARRAY_SIZE_Z;j++)
 				{
 					startTransform.setOrigin(btVector3(
 										2.0*i + start_x,
@@ -195,7 +187,6 @@ void	BasicDemo::initPhysics()
 void	BasicDemo::exitPhysics()
 {
 
-
 	//cleanup in the reverse order of creation/initialization
 
 	//remove the rigidbodies from the dynamics world and delete them
@@ -219,16 +210,12 @@ void	BasicDemo::exitPhysics()
 		delete shape;
 	}
 
-	//delete dynamics world
 	delete m_dynamicsWorld;
-
-	//delete solver
+	
 	delete m_solver;
-
-	//delete broadphase
-	delete m_overlappingPairCache;
-
-	//delete dispatcher
+	
+	delete m_broadphase;
+	
 	delete m_dispatcher;
 
 	delete m_collisionConfiguration;

@@ -409,16 +409,8 @@ int maxNumOutstandingTasks = 4;
 	m_dispatcher->setNearCallback(customNearCallback);
 #endif
 
-	btVector3 worldAabbMin(-1000,-1000,-1000);
-	btVector3 worldAabbMax(1000,1000,1000);
 
-	m_broadphase = new btAxisSweep3(worldAabbMin,worldAabbMax,maxProxies);
-/// For large worlds or over 16384 objects, use the bt32BitAxisSweep3 broadphase
-//	m_broadphase = new bt32BitAxisSweep3(worldAabbMin,worldAabbMax,maxProxies);
-/// When trying to debug broadphase issues, try to use the btSimpleBroadphase
-//	m_broadphase = new btSimpleBroadphase;
-
-	//box-box is in Extras/AlternativeCollisionAlgorithms:it requires inclusion of those files
+	m_broadphase = new btDbvtBroadphase();
 
 #ifdef COMPARE_WITH_QUICKSTEP
 	m_solver = new btOdeQuickstepConstraintSolver();
