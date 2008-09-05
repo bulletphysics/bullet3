@@ -1,2 +1,5 @@
+if (CMAKE_SIZEOF_VOID_P MATCHES "8")
+SUBDIRS( OpenGL AllBulletDemos BulletDinoDemo ConvexDecompositionDemo Benchmarks HelloWorld CcdPhysicsDemo ConstraintDemo SliderConstraintDemo GenericJointDemo RagdollDemo BasicDemo BspDemo MovingConcaveDemo VehicleDemo ColladaDemo UserCollisionAlgorithm CharacterDemo SoftDemo )
+else (CMAKE_SIZEOF_VOID_P MATCHES "8")
 SUBDIRS( OpenGL AllBulletDemos BulletDinoDemo ConvexDecompositionDemo Benchmarks HelloWorld MultiThreadedDemo CcdPhysicsDemo ConstraintDemo SliderConstraintDemo GenericJointDemo RagdollDemo BasicDemo BspDemo MovingConcaveDemo VehicleDemo ColladaDemo UserCollisionAlgorithm CharacterDemo SoftDemo )
-
+endif (CMAKE_SIZEOF_VOID_P MATCHES "8")
