@@ -78,7 +78,7 @@ protected:
 	BP_FP_INT_TYPE m_numHandles;						// number of active handles
 	BP_FP_INT_TYPE m_maxHandles;						// max number of handles
 	Handle* m_pHandles;						// handles pool
-	void* m_pHandlesRawPtr;
+	
 	BP_FP_INT_TYPE m_firstFreeHandle;		// free handles list
 
 	Edge* m_pEdges[3];						// edge arrays for the 3 axes (each array has m_maxHandles * 2 + 2 sentinel entries)
@@ -271,11 +271,9 @@ m_invalidPair(0)
 
 	m_quantize = btVector3(btScalar(maxInt),btScalar(maxInt),btScalar(maxInt)) / aabbSize;
 
-	// allocate handles buffer and put all handles on free list
-	m_pHandlesRawPtr = btAlignedAlloc(sizeof(Handle)*maxHandles,16);
-	m_pHandles = new(m_pHandlesRawPtr) Handle[maxHandles];
-	btAssert(m_pHandlesRawPtr==m_pHandles); //placement new[] should just return the same pointer
-
+	// allocate handles buffer, using btAlignedAlloc, and put all handles on free list
+	m_pHandles = new Handle[maxHandles];
+	
 	m_maxHandles = maxHandles;
 	m_numHandles = 0;
 
@@ -326,7 +324,7 @@ btAxisSweep3Internal<BP_FP_INT_TYPE>::~btAxisSweep3Internal()
 	{
 		btAlignedFree(m_pEdgesRawPtr[i]);
 	}
-	btAlignedFree(m_pHandlesRawPtr);
+	delete [] m_pHandles;
 
 	if (m_ownsPairCache)
 	{
