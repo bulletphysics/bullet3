@@ -41,6 +41,7 @@
 		36A05DD50DCBBAC000ADF289 /* BTSimulationParameters.m in Sources */ = {isa = PBXBuildFile; fileRef = 36A05DCE0DCBBAC000ADF289 /* BTSimulationParameters.m */; };
 		36A05DD60DCBBAC000ADF289 /* BTDemosAppController.m in Sources */ = {isa = PBXBuildFile; fileRef = 36A05DCF0DCBBAC000ADF289 /* BTDemosAppController.m */; };
 		36A72EFF0DCC816F00BA8039 /* BTDemo.mm in Sources */ = {isa = PBXBuildFile; fileRef = 36A72EFE0DCC816F00BA8039 /* BTDemo.mm */; };
+		7A3940790E70B63B008C5E4B /* btQuantizedBvh.cpp in Sources */ = {isa = PBXBuildFile; fileRef = 7A3940770E70B63B008C5E4B /* btQuantizedBvh.cpp */; };
 		7ACE56F10DDFA1E600CA06EA /* btAxisSweep3.cpp in Sources */ = {isa = PBXBuildFile; fileRef = 7ACE52CE0DDFA1E200CA06EA /* btAxisSweep3.cpp */; };
 		7ACE56F20DDFA1E600CA06EA /* btBroadphaseProxy.cpp in Sources */ = {isa = PBXBuildFile; fileRef = 7ACE52D10DDFA1E200CA06EA /* btBroadphaseProxy.cpp */; };
 		7ACE56F30DDFA1E600CA06EA /* btCollisionAlgorithm.cpp in Sources */ = {isa = PBXBuildFile; fileRef = 7ACE52D30DDFA1E200CA06EA /* btCollisionAlgorithm.cpp */; };
@@ -113,15 +114,10 @@
 		7ACE59AB0DDFA1E700CA06EA /* btContactConstraint.cpp in Sources */ = {isa = PBXBuildFile; fileRef = 7ACE56040DDFA1E500CA06EA /* btContactConstraint.cpp */; };
 		7ACE59AC0DDFA1E700CA06EA /* btGeneric6DofConstraint.cpp in Sources */ = {isa = PBXBuildFile; fileRef = 7ACE56070DDFA1E500CA06EA /* btGeneric6DofConstraint.cpp */; };
 		7ACE59AD0DDFA1E700CA06EA /* btHingeConstraint.cpp in Sources */ = {isa = PBXBuildFile; fileRef = 7ACE56090DDFA1E500CA06EA /* btHingeConstraint.cpp */; };
-		7ACE59AE0DDFA1E700CA06EA /* btOdeContactJoint.cpp in Sources */ = {isa = PBXBuildFile; fileRef = 7ACE560C0DDFA1E500CA06EA /* btOdeContactJoint.cpp */; };
-		7ACE59AF0DDFA1E700CA06EA /* btOdeJoint.cpp in Sources */ = {isa = PBXBuildFile; fileRef = 7ACE560E0DDFA1E500CA06EA /* btOdeJoint.cpp */; };
-		7ACE59B00DDFA1E700CA06EA /* btOdeQuickstepConstraintSolver.cpp in Sources */ = {isa = PBXBuildFile; fileRef = 7ACE56110DDFA1E500CA06EA /* btOdeQuickstepConstraintSolver.cpp */; };
-		7ACE59B10DDFA1E700CA06EA /* btOdeTypedJoint.cpp in Sources */ = {isa = PBXBuildFile; fileRef = 7ACE56140DDFA1E500CA06EA /* btOdeTypedJoint.cpp */; };
 		7ACE59B20DDFA1E700CA06EA /* btPoint2PointConstraint.cpp in Sources */ = {isa = PBXBuildFile; fileRef = 7ACE56160DDFA1E500CA06EA /* btPoint2PointConstraint.cpp */; };
 		7ACE59B30DDFA1E700CA06EA /* btSequentialImpulseConstraintSolver.cpp in Sources */ = {isa = PBXBuildFile; fileRef = 7ACE56180DDFA1E500CA06EA /* btSequentialImpulseConstraintSolver.cpp */; };
 		7ACE59B40DDFA1E700CA06EA /* btSliderConstraint.cpp in Sources */ = {isa = PBXBuildFile; fileRef = 7ACE561A0DDFA1E500CA06EA /* btSliderConstraint.cpp */; };
 		7ACE59B50DDFA1E700CA06EA /* btSolve2LinearConstraint.cpp in Sources */ = {isa = PBXBuildFile; fileRef = 7ACE561C0DDFA1E500CA06EA /* btSolve2LinearConstraint.cpp */; };
-		7ACE59B60DDFA1E700CA06EA /* btSorLcp.cpp in Sources */ = {isa = PBXBuildFile; fileRef = 7ACE56200DDFA1E500CA06EA /* btSorLcp.cpp */; };
 		7ACE59B70DDFA1E700CA06EA /* btTypedConstraint.cpp in Sources */ = {isa = PBXBuildFile; fileRef = 7ACE56220DDFA1E500CA06EA /* btTypedConstraint.cpp */; };
 		7ACE59B90DDFA1E700CA06EA /* btContinuousDynamicsWorld.cpp in Sources */ = {isa = PBXBuildFile; fileRef = 7ACE56270DDFA1E500CA06EA /* btContinuousDynamicsWorld.cpp */; };
 		7ACE59BA0DDFA1E700CA06EA /* btDiscreteDynamicsWorld.cpp in Sources */ = {isa = PBXBuildFile; fileRef = 7ACE56290DDFA1E500CA06EA /* btDiscreteDynamicsWorld.cpp */; };
@@ -229,6 +225,8 @@
 		36A05DD10DCBBAC000ADF289 /* BTDemosAppController.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = BTDemosAppController.h; sourceTree = "<group>"; };
 		36A72EFD0DCC816F00BA8039 /* BTDemo.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = BTDemo.h; sourceTree = "<group>"; };
 		36A72EFE0DCC816F00BA8039 /* BTDemo.mm */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.cpp.objcpp; path = BTDemo.mm; sourceTree = "<group>"; };
+		7A3940770E70B63B008C5E4B /* btQuantizedBvh.cpp */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.cpp.cpp; path = btQuantizedBvh.cpp; sourceTree = "<group>"; };
+		7A3940780E70B63B008C5E4B /* btQuantizedBvh.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = btQuantizedBvh.h; sourceTree = "<group>"; };
 		7ACE52C90DDFA1E200CA06EA /* btBulletCollisionCommon.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = btBulletCollisionCommon.h; sourceTree = "<group>"; };
 		7ACE52CA0DDFA1E200CA06EA /* btBulletDynamicsCommon.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = btBulletDynamicsCommon.h; sourceTree = "<group>"; };
 		7ACE52CB0DDFA1E200CA06EA /* Bullet-C-Api.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = "Bullet-C-Api.h"; sourceTree = "<group>"; };
@@ -390,16 +388,6 @@
 		7ACE56090DDFA1E500CA06EA /* btHingeConstraint.cpp */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.cpp.cpp; path = btHingeConstraint.cpp; sourceTree = "<group>"; };
 		7ACE560A0DDFA1E500CA06EA /* btHingeConstraint.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = btHingeConstraint.h; sourceTree = "<group>"; };
 		7ACE560B0DDFA1E500CA06EA /* btJacobianEntry.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = btJacobianEntry.h; sourceTree = "<group>"; };
-		7ACE560C0DDFA1E500CA06EA /* btOdeContactJoint.cpp */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.cpp.cpp; path = btOdeContactJoint.cpp; sourceTree = "<group>"; };
-		7ACE560D0DDFA1E500CA06EA /* btOdeContactJoint.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = btOdeContactJoint.h; sourceTree = "<group>"; };
-		7ACE560E0DDFA1E500CA06EA /* btOdeJoint.cpp */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.cpp.cpp; path = btOdeJoint.cpp; sourceTree = "<group>"; };
-		7ACE560F0DDFA1E500CA06EA /* btOdeJoint.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = btOdeJoint.h; sourceTree = "<group>"; };
-		7ACE56100DDFA1E500CA06EA /* btOdeMacros.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = btOdeMacros.h; sourceTree = "<group>"; };
-		7ACE56110DDFA1E500CA06EA /* btOdeQuickstepConstraintSolver.cpp */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.cpp.cpp; path = btOdeQuickstepConstraintSolver.cpp; sourceTree = "<group>"; };
-		7ACE56120DDFA1E500CA06EA /* btOdeQuickstepConstraintSolver.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = btOdeQuickstepConstraintSolver.h; sourceTree = "<group>"; };
-		7ACE56130DDFA1E500CA06EA /* btOdeSolverBody.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = btOdeSolverBody.h; sourceTree = "<group>"; };
-		7ACE56140DDFA1E500CA06EA /* btOdeTypedJoint.cpp */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.cpp.cpp; path = btOdeTypedJoint.cpp; sourceTree = "<group>"; };
-		7ACE56150DDFA1E500CA06EA /* btOdeTypedJoint.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = btOdeTypedJoint.h; sourceTree = "<group>"; };
 		7ACE56160DDFA1E500CA06EA /* btPoint2PointConstraint.cpp */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.cpp.cpp; path = btPoint2PointConstraint.cpp; sourceTree = "<group>"; };
 		7ACE56170DDFA1E500CA06EA /* btPoint2PointConstraint.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = btPoint2PointConstraint.h; sourceTree = "<group>"; };
 		7ACE56180DDFA1E500CA06EA /* btSequentialImpulseConstraintSolver.cpp */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.cpp.cpp; path = btSequentialImpulseConstraintSolver.cpp; sourceTree = "<group>"; };
@@ -410,8 +398,6 @@
 		7ACE561D0DDFA1E500CA06EA /* btSolve2LinearConstraint.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = btSolve2LinearConstraint.h; sourceTree = "<group>"; };
 		7ACE561E0DDFA1E500CA06EA /* btSolverBody.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = btSolverBody.h; sourceTree = "<group>"; };
 		7ACE561F0DDFA1E500CA06EA /* btSolverConstraint.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = btSolverConstraint.h; sourceTree = "<group>"; };
-		7ACE56200DDFA1E500CA06EA /* btSorLcp.cpp */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.cpp.cpp; path = btSorLcp.cpp; sourceTree = "<group>"; };
-		7ACE56210DDFA1E500CA06EA /* btSorLcp.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = btSorLcp.h; sourceTree = "<group>"; };
 		7ACE56220DDFA1E500CA06EA /* btTypedConstraint.cpp */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.cpp.cpp; path = btTypedConstraint.cpp; sourceTree = "<group>"; };
 		7ACE56230DDFA1E500CA06EA /* btTypedConstraint.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = btTypedConstraint.h; sourceTree = "<group>"; };
 		7ACE56270DDFA1E500CA06EA /* btContinuousDynamicsWorld.cpp */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.cpp.cpp; path = btContinuousDynamicsWorld.cpp; sourceTree = "<group>"; };
@@ -743,6 +729,8 @@
 		7ACE52CD0DDFA1E200CA06EA /* BroadphaseCollision */ = {
 			isa = PBXGroup;
 			children = (
+				7A3940770E70B63B008C5E4B /* btQuantizedBvh.cpp */,
+				7A3940780E70B63B008C5E4B /* btQuantizedBvh.h */,
 				7ACE52CE0DDFA1E200CA06EA /* btAxisSweep3.cpp */,
 				7ACE52CF0DDFA1E200CA06EA /* btAxisSweep3.h */,
 				7ACE52D00DDFA1E200CA06EA /* btBroadphaseInterface.h */,
@@ -939,16 +927,6 @@
 				7ACE56090DDFA1E500CA06EA /* btHingeConstraint.cpp */,
 				7ACE560A0DDFA1E500CA06EA /* btHingeConstraint.h */,
 				7ACE560B0DDFA1E500CA06EA /* btJacobianEntry.h */,
-				7ACE560C0DDFA1E500CA06EA /* btOdeContactJoint.cpp */,
-				7ACE560D0DDFA1E500CA06EA /* btOdeContactJoint.h */,
-				7ACE560E0DDFA1E500CA06EA /* btOdeJoint.cpp */,
-				7ACE560F0DDFA1E500CA06EA /* btOdeJoint.h */,
-				7ACE56100DDFA1E500CA06EA /* btOdeMacros.h */,
-				7ACE56110DDFA1E500CA06EA /* btOdeQuickstepConstraintSolver.cpp */,
-				7ACE56120DDFA1E500CA06EA /* btOdeQuickstepConstraintSolver.h */,
-				7ACE56130DDFA1E500CA06EA /* btOdeSolverBody.h */,
-				7ACE56140DDFA1E500CA06EA /* btOdeTypedJoint.cpp */,
-				7ACE56150DDFA1E500CA06EA /* btOdeTypedJoint.h */,
 				7ACE56160DDFA1E500CA06EA /* btPoint2PointConstraint.cpp */,
 				7ACE56170DDFA1E500CA06EA /* btPoint2PointConstraint.h */,
 				7ACE56180DDFA1E500CA06EA /* btSequentialImpulseConstraintSolver.cpp */,
@@ -959,8 +937,6 @@
 				7ACE561D0DDFA1E500CA06EA /* btSolve2LinearConstraint.h */,
 				7ACE561E0DDFA1E500CA06EA /* btSolverBody.h */,
 				7ACE561F0DDFA1E500CA06EA /* btSolverConstraint.h */,
-				7ACE56200DDFA1E500CA06EA /* btSorLcp.cpp */,
-				7ACE56210DDFA1E500CA06EA /* btSorLcp.h */,
 				7ACE56220DDFA1E500CA06EA /* btTypedConstraint.cpp */,
 				7ACE56230DDFA1E500CA06EA /* btTypedConstraint.h */,
 			);
@@ -1387,15 +1363,10 @@
 				7ACE59AB0DDFA1E700CA06EA /* btContactConstraint.cpp in Sources */,
 				7ACE59AC0DDFA1E700CA06EA /* btGeneric6DofConstraint.cpp in Sources */,
 				7ACE59AD0DDFA1E700CA06EA /* btHingeConstraint.cpp in Sources */,
-				7ACE59AE0DDFA1E700CA06EA /* btOdeContactJoint.cpp in Sources */,
-				7ACE59AF0DDFA1E700CA06EA /* btOdeJoint.cpp in Sources */,
-				7ACE59B00DDFA1E700CA06EA /* btOdeQuickstepConstraintSolver.cpp in Sources */,
-				7ACE59B10DDFA1E700CA06EA /* btOdeTypedJoint.cpp in Sources */,
 				7ACE59B20DDFA1E700CA06EA /* btPoint2PointConstraint.cpp in Sources */,
 				7ACE59B30DDFA1E700CA06EA /* btSequentialImpulseConstraintSolver.cpp in Sources */,
 				7ACE59B40DDFA1E700CA06EA /* btSliderConstraint.cpp in Sources */,
 				7ACE59B50DDFA1E700CA06EA /* btSolve2LinearConstraint.cpp in Sources */,
-				7ACE59B60DDFA1E700CA06EA /* btSorLcp.cpp in Sources */,
 				7ACE59B70DDFA1E700CA06EA /* btTypedConstraint.cpp in Sources */,
 				7ACE59B90DDFA1E700CA06EA /* btContinuousDynamicsWorld.cpp in Sources */,
 				7ACE59BA0DDFA1E700CA06EA /* btDiscreteDynamicsWorld.cpp in Sources */,
@@ -1449,6 +1420,7 @@
 				7ACE5D8F0DDFA38000CA06EA /* gim_memory.cpp in Sources */,
 				7ACE5D900DDFA38000CA06EA /* gim_tri_collision.cpp in Sources */,
 				7ACE5DD60DDFA39800CA06EA /* btGImpactConvexDecompositionShape.cpp in Sources */,
+				7A3940790E70B63B008C5E4B /* btQuantizedBvh.cpp in Sources */,
 			);
 			runOnlyForDeploymentPostprocessing = 0;
 		};
