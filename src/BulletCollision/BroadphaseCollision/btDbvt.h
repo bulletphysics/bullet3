@@ -57,7 +57,10 @@ subject to the following restrictions:
 #endif
 
 // Specific methods implementation
-#ifdef WIN32
+
+//disabled by default, it breaks certain compilers and platforms (Intel compiler on Win32 and any compiler on Windows 64 bits)
+//#define WIN32_USE_SSE 1
+#ifdef WIN32_USE_SSE
 #define DBVT_PROXIMITY_IMPL		DBVT_IMPL_SSE
 #define DBVT_SELECT_IMPL		DBVT_IMPL_SSE
 #define DBVT_MERGE_IMPL			DBVT_IMPL_SSE
