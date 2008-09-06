@@ -77,7 +77,7 @@ SubInclude TOP Demos CcdPhysicsDemo ;
 SubInclude TOP Demos Benchmarks ;
 SubInclude TOP Demos UserCollisionAlgorithm ;
 SubInclude TOP Demos MultiThreadedDemo ;
-#SubInclude TOP Demos ForkLiftDemo ;
+SubInclude TOP Demos ForkLiftDemo ;
 SubInclude TOP Demos BulletDinoDemo ;
 SubInclude TOP Demos EPAPenDepthDemo ;
 SubInclude TOP Demos HelloWorld ;

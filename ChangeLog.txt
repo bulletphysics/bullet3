@@ -4,6 +4,10 @@ Primary author and maintainer: Erwin Coumans
 Todo: update changelog from April - July 2008
 See http://code.google.com/p/bullet/source/list for more complete log in Subversion
 
+2008 Sept 5
+	- Enabled Demos/ForkLiftDemo
+	Thanks Roman Ponomarev.
+
 2008 Sept 4
 	- Added btCudaBroadphase in Extras/CUDA: some research into accelerating Bullet using CUDA.
 	Thanks to the particle demo from the NVidia CUDA SDK.
