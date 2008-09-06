@@ -1,0 +1,113 @@
+<html>
+<!-- Dynamica documentation v. 0.0.1 -->
+<head>
+<title>Introduction to Dynamica, the Dynamics plugin for Maya</title>
+</head>
+
+<body>
+<h1> Introduction to Dynamica </h1>
+
+<p>
+<h3>Rationale</h3>
+Dynamica allows to perform rigid body simulations inside Maya, using different underlying libraries. Right now
+only Bullet Physics is supported, but in the future other library will be added, such as NVidia PhysX. It will be possible
+to switch between libraries on the fly. This will be useful for example when some parts of the simulation are particularly 
+critical, requiring the need for a more precise (but slower library). It will still be possible to use a less precise (but faster)
+library in the non-critical part of the simulation.
+</p>
+
+<p>
+<h3>Basics</h3>
+The functionality is provided by four types of custom Maya nodes that interact with each other: <b>dSolver</b>, <b>dRigidBody</b>,
+<b>dRigidBodyArray</b>, <b>dCollisionShape</b>. The different nodes can be created thru the Dynamica UI. This UI can be accessed
+by clicking on the Dynamica icon in the EfxToolsLumiere shelf.
+
+<h5>dSolver</h5>
+There is only one of this nodes per scene. It controls the global parameters of the simulation, such as time step, library used for
+the simulation, ecc. It is created automatically every time a Rigid Body or a Rigid Body array is created.
+
+<h5>dRigidBody</h5>
+There can be multiple rigid bodies in the scene. It has different attributes that control it's behavior, such as mass, damping, 
+initial position/velocity, ecc. 
+It can be active or passive. An active rigid body is controlled by the forces and collisions in the simulation. A passive rigid 
+body (sometimes called Kinematic) is just keyframed.
+</p>
+
+<h5>dCollisionShape</h5>
+Represents the shape that is used to compute the collisions between rigid bodies. Every rigid body connects to a collision shape.  
+Best practice is to use a collision shape that is good enough to represent the desired collision behavior. The simpler the collision
+shape, the faster the simulation.
+Currently the collision shape available are: sphere, box, infinite plane, convex hull, mesh. The convex hull collision shape and the  
+mesh connect directly to a Maya mesh. The mesh collision shape is more precise for concave meshes, otherwise the convex hull shape should 
+be used, because it's faster.
+</body>
+
+<h5>dRigidBodyArray</h5>
+It's like a rigid body but can contain multiple rigid bodies sharing the same collision shape and simulation parameters. It's 
+the node of choice when the rigid bodies have the same shape and speed is required. The attributes that control the initial configuration are:
+<b>NumRigidBodies</b>, <b>InitialPosition (Multi)</b>, <b>InitialRotation (Multi)</b>, <b>InitialVelocity (Multi)</b>,  
+<b>InitialSpin (Multi)</b>
+
+<h3>Quick Start</h3>
+The following are simple examples that show the basic functionalities of Dynamica. All the command can be accessed thru the Dynamica
+UI from the EfxToolsLumiere shelf.
+
+<h5>Simple rolling sphere</h5>
+In the dynamica UI, click on "Create passive plane". It creates an infinite plane centered in (0,0,0). With the rotation manipulator,
+tilt the plane a little bit. <br>
+Deselect the plane. (<b>Important:</b> when creating a rigid body, if something is selected, the newly created rigid body has it's 
+initial position and rotation set to the one of the selected object).
+Click on "Create active sphere". It creates an active rigid body with a sphere as collision shape, centered in (0,0,0). With  
+the move manipulator, move it up to (0,10,0). <br>
+Now roll back the time slider to the first frame and hit play (Remember to extend the animation range as necessary). <br>
+In general, it's good to roll back the animation to the first frame every time new objects are created, to allow everything to synch up.
+By taking a look at the hypergraph for the rigid body, it's possible to have a better idea on how things are organized.
+
+<h5>Arbitrary Mesh</h5>
+Create a polygonal mesh in Maya, for example, an helix. With the helix still selected, click on "Create active Mesh". A new rigid body is created, 
+with the helix as input to the Mesh collision shape. Alternatively, "Create active Convex Hull" could be used. The convex hull provides  
+faster simulations at the expense of less precise collisions (if the input mesh is convex, the is no difference between Convex Hull and Mesh
+collision shapes in term of precision).
+Then repeat the same step of the Simple rolling sphere example.
+
+<h5>Rigid Body Array</h5>
+Create a maya polygonal mesh in Maya, for example a torus. Resize the torus so that the size of the bounding box is around 1x1x1.
+With the torus still selected, hit "Create Active Rigid Body Array" in the UI. As small dialog box appears, asking for the dimensions    
+of the array and the offset between the rigid bodies. Enter (10, 20, 10) for the dimensions and (2.5, 2.5, 2.5) as offset. <br>
+Create a passive plane as before, then translate the rigid body array so that all donuts are above the plane. <br> 
+Roll back the simulation, then hit play. <br> 
+The initial configuration of the rigid body array can be changed by modifying the proper attributes, for example with a mel script.
+The following is an example mel script that changes the initial configuration of a rigid body array: <br>
+<pre>
+proc setConfiguration()
+{
+    //the name of the rigid body array node
+    string $rigidBodyArray = "myRigidBodyArray";    
+
+    //set the number of bodies
+    setAttr ($rigidBodyArray + ".numBodies") (10 * 10 * 10);
+    for($i = 0; $i < 10; $i++) {
+        for($j = 0; $j < 10; $j++) {
+            for($k = 0; $k < 10; $k++) {
+                //set the initial position
+                setAttr ($children[0] + ".initialPosition[" + string($i + 10 * $j + 100 * $k) + "]") ($i * 2) (10 + $k * 2) ($j * 2);
+
+                //set the initial rotation to (0, 0, 0)
+                setAttr ($children[0] + ".initialRotation[" + string($i + 10 * $j + 100 * $k) + "]") 0 0 0;
+            }
+        }
+    }
+}
+</pre>
+
+
+<h5>Kinematic objects</h5>
+Kinematic objects are handled by setting the keyframing the parent transform of a passive rigid body. If the keyframed animation is really fast,
+it's possible that some object would leak thru the kinematic object. To reduce the problem, try increasing the number of substeps in the Solver
+tab of the Dynamica UI or in the dSolver1 node. Note how the substeps attribute is keyable. This way, it's possible to set a different number of 
+substeps all along the simulation, depending on how complicated it is at each time step, trading speed for accuracy.   
+
+<h5>Sample scenes</h5>
+In the subdirectory scenes/ there are some sample setups.
+
+</html>
