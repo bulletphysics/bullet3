@@ -71,7 +71,9 @@ const int maxOverlap = 65535;
 ///notice that for higher-quality slow-moving vehicles, another approach might be better
 ///implementing explicit hinged-wheel constraints with cylinder collision, rather then raycasts
 float	gEngineForce = 0.f;
-float	gBreakingForce = 0.f;
+
+float	defaultBreakingForce = 10.f;
+float	gBreakingForce = 10.f;
 
 float	maxEngineForce = 1000.f;//this should be engine/velocity dependent
 float	maxBreakingForce = 100.f;
@@ -544,21 +546,12 @@ void ForkLiftDemo::renderme()
 		glColor3f(0, 0, 0);
 		char buf[124];
 		glRasterPos3f(400, 20, 0);
-		sprintf(buf,"PgUp - rotate lift up");
+		sprintf(buf,"SHIFT+Cursor Left/Right - rotate lift");
 		BMF_DrawString(BMF_GetFont(BMF_kHelvetica10),buf);
 		glRasterPos3f(400, 40, 0);
-		sprintf(buf,"PgUp - rotate lift down");
+		sprintf(buf,"SHIFT+Cursor UP/Down - move fork up/down");
 		BMF_DrawString(BMF_GetFont(BMF_kHelvetica10),buf);
 		glRasterPos3f(400, 60, 0);
-		sprintf(buf,"Home - move fork up");
-		BMF_DrawString(BMF_GetFont(BMF_kHelvetica10),buf);
-		glRasterPos3f(400, 80, 0);
-		sprintf(buf,"End - move fork down");
-		BMF_DrawString(BMF_GetFont(BMF_kHelvetica10),buf);
-		glRasterPos3f(400, 100, 0);
-		sprintf(buf,"Insert - move vehicle back");
-		BMF_DrawString(BMF_GetFont(BMF_kHelvetica10),buf);
-		glRasterPos3f(400, 120, 0);
 		sprintf(buf,"F5 - toggle camera mode");
 		BMF_DrawString(BMF_GetFont(BMF_kHelvetica10),buf);
 
@@ -686,6 +679,7 @@ void ForkLiftDemo::clientResetScene()
 	btTransform liftTrans;
 	liftTrans.setIdentity();
 	liftTrans.setOrigin(m_liftStartPos);
+	m_liftBody->activate();
 	m_liftBody->setCenterOfMassTransform(liftTrans);
 	m_liftBody->setLinearVelocity(btVector3(0,0,0));
 	m_liftBody->setAngularVelocity(btVector3(0,0,0));
@@ -693,6 +687,7 @@ void ForkLiftDemo::clientResetScene()
 	btTransform forkTrans;
 	forkTrans.setIdentity();
 	forkTrans.setOrigin(m_forkStartPos);
+	m_forkBody->activate();
 	m_forkBody->setCenterOfMassTransform(forkTrans);
 	m_forkBody->setLinearVelocity(btVector3(0,0,0));
 	m_forkBody->setAngularVelocity(btVector3(0,0,0));
@@ -700,6 +695,7 @@ void ForkLiftDemo::clientResetScene()
 	m_liftHinge->setLimit(-LIFT_EPS, LIFT_EPS);
 	m_liftHinge->enableAngularMotor(false, 0, 0);
 
+	
 	m_forkSlider->setLowerLinLimit(0.1f);
 	m_forkSlider->setUpperLinLimit(0.1f);
 	m_forkSlider->setPoweredLinMotor(false);
@@ -707,6 +703,7 @@ void ForkLiftDemo::clientResetScene()
 	btTransform loadTrans;
 	loadTrans.setIdentity();
 	loadTrans.setOrigin(m_loadStartPos);
+	m_loadBody->activate();
 	m_loadBody->setCenterOfMassTransform(loadTrans);
 	m_loadBody->setLinearVelocity(btVector3(0,0,0));
 	m_loadBody->setAngularVelocity(btVector3(0,0,0));
@@ -718,109 +715,129 @@ void ForkLiftDemo::clientResetScene()
 void ForkLiftDemo::specialKeyboardUp(int key, int x, int y)
 {
    switch (key) 
-    {
-    case GLUT_KEY_UP :
+	{
+	case GLUT_KEY_UP :
 		{
+			lockForkSlider();
 			gEngineForce = 0.f;
+			gBreakingForce = defaultBreakingForce; 
 		break;
 		}
 	case GLUT_KEY_DOWN :
-		{			
-			gBreakingForce = 0.f; 
+		{
+			lockForkSlider();
+			gEngineForce = 0.f;
+			gBreakingForce = defaultBreakingForce;
 		break;
 		}
-	case GLUT_KEY_PAGE_UP:
-		lockLiftHinge();
-		break;
-	case GLUT_KEY_PAGE_DOWN:
-		lockLiftHinge();
-		break;
-	case GLUT_KEY_HOME:
-		lockForkSlider();
-		break;
-	case GLUT_KEY_END:
-		lockForkSlider();
-		break;
+	case GLUT_KEY_LEFT:
+	case GLUT_KEY_RIGHT:
+		{
+			lockLiftHinge();
+			break;
+		}
 	default:
 		DemoApplication::specialKeyboardUp(key,x,y);
-        break;
-    }
-
+		break;
+	}
 }
 
 
 void ForkLiftDemo::specialKeyboard(int key, int x, int y)
 {
 
-//	printf("key = %i x=%i y=%i\n",key,x,y);
+	if (key==GLUT_KEY_END)
+		return;
 
-    switch (key) 
-    {
-    case GLUT_KEY_LEFT : 
-		{
-			gVehicleSteering += steeringIncrement;
-			if (	gVehicleSteering > steeringClamp)
-					gVehicleSteering = steeringClamp;
+	//	printf("key = %i x=%i y=%i\n",key,x,y);
 
-		break;
-		}
-    case GLUT_KEY_RIGHT : 
-		{
-			gVehicleSteering -= steeringIncrement;
-			if (	gVehicleSteering < -steeringClamp)
-					gVehicleSteering = -steeringClamp;
+	int state;
+	state=glutGetModifiers();
+	if (state & GLUT_ACTIVE_SHIFT) 
+	{
+		switch (key) 
+			{
+			case GLUT_KEY_LEFT : 
+				{
+				
+					m_liftHinge->setLimit(-M_PI/16.0f, M_PI/8.0f);
+					m_liftHinge->enableAngularMotor(true, -0.1, 10.0);
+					break;
+				}
+			case GLUT_KEY_RIGHT : 
+				{
+					
+					m_liftHinge->setLimit(-M_PI/16.0f, M_PI/8.0f);
+					m_liftHinge->enableAngularMotor(true, 0.1, 10.0);
+					break;
+				}
+			case GLUT_KEY_UP :
+				{
+					m_forkSlider->setLowerLinLimit(0.1f);
+					m_forkSlider->setUpperLinLimit(3.9f);
+					m_forkSlider->setPoweredLinMotor(true);
+					m_forkSlider->setMaxLinMotorForce(10.0);
+					m_forkSlider->setTargetLinMotorVelocity(1.0);
+					break;
+				}
+			case GLUT_KEY_DOWN :
+				{
+					m_forkSlider->setLowerLinLimit(0.1f);
+					m_forkSlider->setUpperLinLimit(3.9f);
+					m_forkSlider->setPoweredLinMotor(true);
+					m_forkSlider->setMaxLinMotorForce(10.0);
+					m_forkSlider->setTargetLinMotorVelocity(-1.0);
+					break;
+				}
 
-		break;
-		}
-    case GLUT_KEY_UP :
-		{
-			gEngineForce = maxEngineForce;
-			gBreakingForce = 0.f;
-		break;
-		}
-	case GLUT_KEY_DOWN :
-		{			
-			gBreakingForce = maxBreakingForce; 
-			gEngineForce = 0.f;
-		break;
-		}
-    case GLUT_KEY_INSERT :
-		{
-			gEngineForce = -maxEngineForce;
-			gBreakingForce = 0.f;
-		break;
-		}
-	case GLUT_KEY_PAGE_UP:
-		m_liftHinge->setLimit(-M_PI/16.0f, M_PI/8.0f);
-		m_liftHinge->enableAngularMotor(true, 0.1, 10.0);
-		break;
-	case GLUT_KEY_PAGE_DOWN:
-		m_liftHinge->setLimit(-M_PI/16.0f, M_PI/8.0f);
-		m_liftHinge->enableAngularMotor(true, -0.1, 10.0);
-		break;
-	case GLUT_KEY_HOME:
-		m_forkSlider->setLowerLinLimit(0.1f);
-		m_forkSlider->setUpperLinLimit(3.9f);
-		m_forkSlider->setPoweredLinMotor(true);
-		m_forkSlider->setMaxLinMotorForce(10.0);
-		m_forkSlider->setTargetLinMotorVelocity(1.0);
-		break;
-	case GLUT_KEY_END:
-		m_forkSlider->setLowerLinLimit(0.1f);
-		m_forkSlider->setUpperLinLimit(3.9f);
-		m_forkSlider->setPoweredLinMotor(true);
-		m_forkSlider->setMaxLinMotorForce(10.0);
-		m_forkSlider->setTargetLinMotorVelocity(-1.0);
-		break;
-	case GLUT_KEY_F5:
-		m_useDefaultCamera = !m_useDefaultCamera;
-		break;
-	default:
-		DemoApplication::specialKeyboard(key,x,y);
-        break;
-    }
+			default:
+				DemoApplication::specialKeyboard(key,x,y);
+				break;
+			}
 
-//	glutPostRedisplay();
+	} else
+	{
+			switch (key) 
+			{
+			case GLUT_KEY_LEFT : 
+				{
+					gVehicleSteering += steeringIncrement;
+					if (	gVehicleSteering > steeringClamp)
+						gVehicleSteering = steeringClamp;
+
+					break;
+				}
+			case GLUT_KEY_RIGHT : 
+				{
+					gVehicleSteering -= steeringIncrement;
+					if (	gVehicleSteering < -steeringClamp)
+						gVehicleSteering = -steeringClamp;
+
+					break;
+				}
+			case GLUT_KEY_UP :
+				{
+					gEngineForce = maxEngineForce;
+					gBreakingForce = 0.f;
+					break;
+				}
+			case GLUT_KEY_DOWN :
+				{
+					gEngineForce = -maxEngineForce;
+					gBreakingForce = 0.f;
+					break;
+				}
+
+			case GLUT_KEY_F5:
+				m_useDefaultCamera = !m_useDefaultCamera;
+				break;
+			default:
+				DemoApplication::specialKeyboard(key,x,y);
+				break;
+			}
+
+	}
+	//	glutPostRedisplay();
 
 
 }
