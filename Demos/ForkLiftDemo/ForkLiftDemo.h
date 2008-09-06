@@ -17,17 +17,59 @@ subject to the following restrictions:
 
 class btVehicleTuning;
 struct btVehicleRaycaster;
+class btCollisionShape;
+
 #include "BulletDynamics/Vehicle/btRaycastVehicle.h"
+#include "BulletDynamics/ConstraintSolver/btHingeConstraint.h"
+#include "BulletDynamics/ConstraintSolver/btSliderConstraint.h"
 
 #include "DemoApplication.h"
 
-///ForkLiftDemo shows how to setup and use the built-in raycast vehicle
+///VehicleDemo shows how to setup and use the built-in raycast vehicle
 class ForkLiftDemo : public DemoApplication
 {
 	public:
 
 	btRigidBody* m_carChassis;
+
+//----------------------------
+	btRigidBody* m_liftBody;
+	btVector3	m_liftStartPos;
+	btHingeConstraint* m_liftHinge;
+
+	btRigidBody* m_forkBody;
+	btVector3	m_forkStartPos;
+	btSliderConstraint* m_forkSlider;
+
+	btRigidBody* m_loadBody;
+	btVector3	m_loadStartPos;
+
+	void lockLiftHinge(void);
+	void lockForkSlider(void);
+
+	bool m_useDefaultCamera;
+//----------------------------
+
+
+	btAlignedObjectArray<btCollisionShape*> m_collisionShapes;
+
+	class btBroadphaseInterface*	m_overlappingPairCache;
+
+	class btCollisionDispatcher*	m_dispatcher;
+
+	class btConstraintSolver*	m_constraintSolver;
+
+	class btDefaultCollisionConfiguration* m_collisionConfiguration;
+
+	class btTriangleIndexVertexArray*	m_indexVertexArrays;
+
+	btVector3*	m_vertices;
+
 	
+	btRaycastVehicle::btVehicleTuning	m_tuning;
+	btVehicleRaycaster*	m_vehicleRayCaster;
+	btRaycastVehicle*	m_vehicle;
+
 	float		m_cameraHeight;
 
 	float	m_minCameraDistance;
@@ -36,8 +78,11 @@ class ForkLiftDemo : public DemoApplication
 
 	ForkLiftDemo();
 
+	virtual ~ForkLiftDemo();
+
 	virtual void clientMoveAndDisplay();
 
+	virtual void	clientResetScene();
 
 	virtual void displayCallback();
 	
@@ -46,11 +91,22 @@ class ForkLiftDemo : public DemoApplication
 
 	virtual void specialKeyboard(int key, int x, int y);
 
+	virtual void specialKeyboardUp(int key, int x, int y);
+
 	void renderme();
 
-	void setupPhysics();
+	void initPhysics();
+	void termPhysics();
+
+	static DemoApplication* Create()
+	{
+		ForkLiftDemo* demo = new ForkLiftDemo();
+		demo->myinit();
+		demo->initPhysics();
+		return demo;
+	}
 };
 
-#endif //FORKLIFT_DEMO_H
+#endif // FORKLIFT_DEMO_H
 
 
