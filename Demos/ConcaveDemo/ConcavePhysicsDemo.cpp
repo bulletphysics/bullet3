@@ -286,14 +286,29 @@ void	ConcaveDemo::initPhysics()
 	startTransform.setIdentity();
 	startTransform.setOrigin(btVector3(0,-2,0));
 
+#ifdef USE_BOX_SHAPE
 	btCollisionShape* colShape = new btBoxShape(btVector3(1,1,1));
+#else
+	
+	btCompoundShape* colShape = new btCompoundShape;
+	btCollisionShape* cylinderShape = new btCylinderShapeX(btVector3(4,1,1));
+	btCollisionShape* boxShape = new btBoxShape(btVector3(4,1,1));
+	btTransform localTransform;
+	localTransform.setIdentity();
+	colShape->addChildShape(localTransform,boxShape);
+	btQuaternion orn(SIMD_HALF_PI,0,0);
+	localTransform.setRotation(orn);
+	colShape->addChildShape(localTransform,cylinderShape);
+	
+#endif //USE_BOX_SHAPE
+
+
 	m_collisionShapes.push_back(colShape);
 
 	{
 		for (int i=0;i<10;i++)
 		{
-			//btCollisionShape* colShape = new btCapsuleShape(0.5,2.0);//boxShape = new btSphereShape(1.f);
-			startTransform.setOrigin(btVector3(2*i,10,1));
+			startTransform.setOrigin(btVector3(2,10+i*2,1));
 			localCreateRigidBody(1, startTransform,colShape);
 		}
 	}
