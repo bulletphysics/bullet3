@@ -24,11 +24,13 @@ subject to the following restrictions:
 ATTRIBUTE_ALIGNED16(class) btScaledBvhTriangleMeshShape : public btConcaveShape
 {
 	
-public:
-
+	
 	btVector3	m_localScaling;
 
 	btBvhTriangleMeshShape*	m_bvhTriMeshShape;
+
+public:
+
 
 	btScaledBvhTriangleMeshShape(btBvhTriangleMeshShape* childShape,btVector3 localScaling);
 
