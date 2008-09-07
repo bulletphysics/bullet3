@@ -41,6 +41,9 @@ subject to the following restrictions:
 #define	DBVT_USE_TEMPLATE		0
 #endif
 
+// Use only intrinsics instead of inline asm
+#define DBVT_USE_INTRINSIC_SSE	1
+
 // Using memmov for collideOCL
 #define DBVT_USE_MEMMOVE		1
 
@@ -58,16 +61,16 @@ subject to the following restrictions:
 
 // Specific methods implementation
 
-//disabled by default, it breaks certain compilers and platforms (Intel compiler on Win32 and any compiler on Windows 64 bits)
-//#define WIN32_USE_SSE 1
-#ifdef WIN32_USE_SSE
-#define DBVT_PROXIMITY_IMPL		DBVT_IMPL_SSE
+#ifdef WIN32
 #define DBVT_SELECT_IMPL		DBVT_IMPL_SSE
 #define DBVT_MERGE_IMPL			DBVT_IMPL_SSE
 #else
-#define DBVT_PROXIMITY_IMPL		DBVT_IMPL_GENERIC
 #define DBVT_SELECT_IMPL		DBVT_IMPL_GENERIC
 #define DBVT_MERGE_IMPL			DBVT_IMPL_GENERIC
+#endif
+
+#if	(DBVT_SELECT_IMPL==DBVT_IMPL_SSE)||(DBVT_MERGE_IMPL==DBVT_IMPL_SSE)
+#include <xmmintrin.h>
 #endif
 
 //
@@ -105,10 +108,6 @@ subject to the following restrictions:
 
 #ifndef DBVT_ENABLE_BENCHMARK
 #error "DBVT_ENABLE_BENCHMARK undefined"
-#endif
-
-#ifndef DBVT_PROXIMITY_IMPL
-#error "DBVT_PROXIMITY_IMPL undefined"
 #endif
 
 #ifndef DBVT_SELECT_IMPL
@@ -561,32 +560,8 @@ return(txmax>0);
 DBVT_INLINE btScalar	Proximity(	const btDbvtAabbMm& a,
 									const btDbvtAabbMm& b)
 {
-#if	DBVT_PROXIMITY_IMPL == DBVT_IMPL_SSE
-DBVT_ALIGN btScalar							r[1];
-static DBVT_ALIGN const unsigned __int32	mask[]={0x7fffffff,0x7fffffff,0x7fffffff,0x7fffffff};
-__asm
-	{
-	mov		eax,a
-	mov		ecx,b
-	movaps	xmm0,[eax]
-	movaps	xmm2,[ecx]
-	movaps	xmm1,[eax+16]
-	movaps	xmm3,[ecx+16]
-	addps	xmm0,xmm1
-	addps	xmm2,xmm3
-	subps	xmm0,xmm2
-	andps	xmm0,mask
-	movhlps	xmm1,xmm0
-	addps	xmm0,xmm1
-	pshufd	xmm1,xmm0,1
-	addss	xmm0,xmm1
-	movss	r,xmm0
-	}
-return(r[0]);
-#else
 const btVector3	d=(a.mi+a.mx)-(b.mi+b.mx);
 return(btFabs(d.x())+btFabs(d.y())+btFabs(d.z()));
-#endif
 }
 
 //
@@ -595,36 +570,57 @@ DBVT_INLINE int			Select(	const btDbvtAabbMm& o,
 								const btDbvtAabbMm& b)
 {
 #if	DBVT_SELECT_IMPL == DBVT_IMPL_SSE
-DBVT_ALIGN __int32							r[1];
 static DBVT_ALIGN const unsigned __int32	mask[]={0x7fffffff,0x7fffffff,0x7fffffff,0x7fffffff};
-__asm
-	{
-	mov		eax,o
-	mov		ecx,a
-	mov		edx,b
-	movaps	xmm0,[eax]
-	movaps	xmm5,mask
-	addps	xmm0,[eax+16]	
-	movaps	xmm1,[ecx]
-	movaps	xmm2,[edx]
-	addps	xmm1,[ecx+16]
-	addps	xmm2,[edx+16]
-	subps	xmm1,xmm0
-	subps	xmm2,xmm0
-	andps	xmm1,xmm5
-	andps	xmm2,xmm5
-	movhlps	xmm3,xmm1
-	movhlps	xmm4,xmm2
-	addps	xmm1,xmm3
-	addps	xmm2,xmm4
-	pshufd	xmm3,xmm1,1
-	pshufd	xmm4,xmm2,1
-	addss	xmm1,xmm3
-	addss	xmm2,xmm4
-	cmpless	xmm2,xmm1
-	movss	r,xmm2
-	}
-return(r[0]&1);
+	// TODO: the intrinsic version is 11% slower
+	#if DBVT_USE_INTRINSIC_SSE
+	__m128	omi(_mm_load_ps(o.mi));
+	omi=_mm_add_ps(omi,_mm_load_ps(o.mx));
+	__m128	ami(_mm_load_ps(a.mi));
+	ami=_mm_add_ps(ami,_mm_load_ps(a.mx));
+	ami=_mm_sub_ps(ami,omi);
+	ami=_mm_and_ps(ami,_mm_load_ps((const float*)mask));
+	__m128	bmi(_mm_load_ps(b.mi));
+	bmi=_mm_add_ps(bmi,_mm_load_ps(b.mx));
+	bmi=_mm_sub_ps(bmi,omi);
+	bmi=_mm_and_ps(bmi,_mm_load_ps((const float*)mask));
+	__m128	t0(_mm_movehl_ps(ami,ami));
+	ami=_mm_add_ps(ami,t0);
+	ami=_mm_add_ss(ami,_mm_shuffle_ps(ami,ami,1));
+	__m128	t1(_mm_movehl_ps(bmi,bmi));
+	bmi=_mm_add_ps(bmi,t1);
+	bmi=_mm_add_ss(bmi,_mm_shuffle_ps(bmi,bmi,1));
+	return(_mm_cmple_ss(bmi,ami).m128_u32[0]&1);
+	#else
+	DBVT_ALIGN __int32	r[1];
+	__asm
+		{
+		mov		eax,o
+		mov		ecx,a
+		mov		edx,b
+		movaps	xmm0,[eax]
+		movaps	xmm5,mask
+		addps	xmm0,[eax+16]	
+		movaps	xmm1,[ecx]
+		movaps	xmm2,[edx]
+		addps	xmm1,[ecx+16]
+		addps	xmm2,[edx+16]
+		subps	xmm1,xmm0
+		subps	xmm2,xmm0
+		andps	xmm1,xmm5
+		andps	xmm2,xmm5
+		movhlps	xmm3,xmm1
+		movhlps	xmm4,xmm2
+		addps	xmm1,xmm3
+		addps	xmm2,xmm4
+		pshufd	xmm3,xmm1,1
+		pshufd	xmm4,xmm2,1
+		addss	xmm1,xmm3
+		addss	xmm2,xmm4
+		cmpless	xmm2,xmm1
+		movss	r,xmm2
+		}
+	return(r[0]&1);
+	#endif
 #else
 return(Proximity(o,a)<Proximity(o,b)?0:1);
 #endif
@@ -636,20 +632,14 @@ DBVT_INLINE void		Merge(	const btDbvtAabbMm& a,
 								btDbvtAabbMm& r)
 {
 #if DBVT_MERGE_IMPL==DBVT_IMPL_SSE
-__asm
-	{
-	mov		eax,a
-	mov		edx,b
-	mov		ecx,r
-	movaps	xmm0,[eax+0]
-	movaps	xmm1,[edx+0]
-	movaps	xmm2,[eax+16]
-	movaps	xmm3,[edx+16]
-	minps	xmm0,xmm1
-	maxps	xmm2,xmm3
-	movaps	[ecx+0],xmm0
-	movaps	[ecx+16],xmm2
-	}
+__m128	ami(_mm_load_ps(a.mi));
+__m128	amx(_mm_load_ps(a.mx));
+__m128	bmi(_mm_load_ps(b.mi));
+__m128	bmx(_mm_load_ps(b.mx));
+ami=_mm_min_ps(ami,bmi);
+amx=_mm_max_ps(amx,bmx);
+_mm_store_ps(r.mi,ami);
+_mm_store_ps(r.mx,amx);
 #else
 for(int i=0;i<3;++i)
 	{
@@ -1098,7 +1088,9 @@ if(root)
 #undef DBVT_IPOLICY
 #undef DBVT_CHECKTYPE
 #undef DBVT_IMPL_GENERIC
-#undef DBVT_IMPL_FPU0x86
 #undef DBVT_IMPL_SSE
+#undef DBVT_USE_INTRINSIC_SSE
+#undef DBVT_SELECT_IMPL
+#undef DBVT_MERGE_IMPL
 
 #endif

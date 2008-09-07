@@ -663,24 +663,24 @@ Benchmarking dbvt...
         Leaves: 8192
         sizeof(btDbvtVolume): 32 bytes
         sizeof(btDbvtNode):   44 bytes
-[1] btDbvtVolume intersections: 3537 ms (0%)
-[2] btDbvtVolume merges: 1945 ms (0%)
-[3] btDbvt::collideTT: 6646 ms (0%)
-[4] btDbvt::collideTT self: 3389 ms (0%)
-[5] btDbvt::collideTT xform: 7505 ms (0%)
-[6] btDbvt::collideTT xform,self: 7480 ms (0%)
-[7] btDbvt::collideRAY: 6307 ms (0%),(332511 r/s)
-[8] insert/remove: 2105 ms (-3%),(996271 ir/s)
-[9] updates (teleport): 1943 ms (0%),(1079337 u/s)
-[10] updates (jitter): 1301 ms (0%),(1611953 u/s)
-[11] optimize (incremental): 2510 ms (0%),(1671000 o/s)
-[12] btDbvtVolume notequal: 3677 ms (0%)
-[13] culling(OCL+fullsort): 2231 ms (0%),(458 t/s)
-[14] culling(OCL+qsort): 3500 ms (0%),(2340 t/s)
-[15] culling(KDOP+qsort): 1151 ms (0%),(7117 t/s)
-[16] insert/remove batch(256): 5138 ms (0%),(816330 bir/s)
-[17] btDbvtVolume proximity: 2842 ms (0%)
-[18] btDbvtVolume select: 3390 ms (0%)
+[1] btDbvtVolume intersections: 3499 ms (-1%)
+[2] btDbvtVolume merges: 1934 ms (0%)
+[3] btDbvt::collideTT: 5485 ms (-21%)
+[4] btDbvt::collideTT self: 2814 ms (-20%)
+[5] btDbvt::collideTT xform: 7379 ms (-1%)
+[6] btDbvt::collideTT xform,self: 7270 ms (-2%)
+[7] btDbvt::collideRAY: 6314 ms (0%),(332143 r/s)
+[8] insert/remove: 2093 ms (0%),(1001983 ir/s)
+[9] updates (teleport): 1879 ms (-3%),(1116100 u/s)
+[10] updates (jitter): 1244 ms (-4%),(1685813 u/s)
+[11] optimize (incremental): 2514 ms (0%),(1668000 o/s)
+[12] btDbvtVolume notequal: 3659 ms (0%)
+[13] culling(OCL+fullsort): 2218 ms (0%),(461 t/s)
+[14] culling(OCL+qsort): 3688 ms (5%),(2221 t/s)
+[15] culling(KDOP+qsort): 1139 ms (-1%),(7192 t/s)
+[16] insert/remove batch(256): 5092 ms (0%),(823704 bir/s)
+[17] btDbvtVolume proximity: 2887 ms (1%)
+[18] btDbvtVolume select: 3419 ms (0%)
 */
 
 struct btDbvtBenchmark
@@ -782,12 +782,12 @@ static const btScalar	cfgVolumeCenterScale		=	100;
 static const btScalar	cfgVolumeExentsBase			=	1;
 static const btScalar	cfgVolumeExentsScale		=	4;
 static const int		cfgLeaves					=	8192;
-static const bool		cfgEnable					=	true;
+static const bool		cfgEnable					=	false;
 
 //[1] btDbvtVolume intersections
 bool					cfgBenchmark1_Enable		=	cfgEnable;
 static const int		cfgBenchmark1_Iterations	=	8;
-static const int		cfgBenchmark1_Reference		=	3537;
+static const int		cfgBenchmark1_Reference		=	3499;
 //[2] btDbvtVolume merges
 bool					cfgBenchmark2_Enable		=	cfgEnable;
 static const int		cfgBenchmark2_Iterations	=	4;
@@ -795,21 +795,21 @@ static const int		cfgBenchmark2_Reference		=	1945;
 //[3] btDbvt::collideTT
 bool					cfgBenchmark3_Enable		=	cfgEnable;
 static const int		cfgBenchmark3_Iterations	=	512;
-static const int		cfgBenchmark3_Reference		=	6646;
+static const int		cfgBenchmark3_Reference		=	5485;
 //[4] btDbvt::collideTT self
 bool					cfgBenchmark4_Enable		=	cfgEnable;
 static const int		cfgBenchmark4_Iterations	=	512;
-static const int		cfgBenchmark4_Reference		=	3389;
+static const int		cfgBenchmark4_Reference		=	2814;
 //[5] btDbvt::collideTT xform
 bool					cfgBenchmark5_Enable		=	cfgEnable;
 static const int		cfgBenchmark5_Iterations	=	512;
 static const btScalar	cfgBenchmark5_OffsetScale	=	2;
-static const int		cfgBenchmark5_Reference		=	7505;
+static const int		cfgBenchmark5_Reference		=	7379;
 //[6] btDbvt::collideTT xform,self
 bool					cfgBenchmark6_Enable		=	cfgEnable;
 static const int		cfgBenchmark6_Iterations	=	512;
 static const btScalar	cfgBenchmark6_OffsetScale	=	2;
-static const int		cfgBenchmark6_Reference		=	7480;
+static const int		cfgBenchmark6_Reference		=	7270;
 //[7] btDbvt::collideRAY
 bool					cfgBenchmark7_Enable		=	cfgEnable;
 static const int		cfgBenchmark7_Passes		=	32;
@@ -824,13 +824,13 @@ static const int		cfgBenchmark8_Reference		=	2105;
 bool					cfgBenchmark9_Enable		=	cfgEnable;
 static const int		cfgBenchmark9_Passes		=	32;
 static const int		cfgBenchmark9_Iterations	=	65536;
-static const int		cfgBenchmark9_Reference		=	1943;
+static const int		cfgBenchmark9_Reference		=	1879;
 //[10] updates (jitter)
 bool					cfgBenchmark10_Enable		=	cfgEnable;
 static const btScalar	cfgBenchmark10_Scale		=	cfgVolumeCenterScale/10000;
 static const int		cfgBenchmark10_Passes		=	32;
 static const int		cfgBenchmark10_Iterations	=	65536;
-static const int		cfgBenchmark10_Reference	=	1301;
+static const int		cfgBenchmark10_Reference	=	1244;
 //[11] optimize (incremental)
 bool					cfgBenchmark11_Enable		=	cfgEnable;
 static const int		cfgBenchmark11_Passes		=	64;
@@ -862,7 +862,7 @@ bool					cfgBenchmark17_Enable		=	cfgEnable;
 static const int		cfgBenchmark17_Iterations	=	8;
 static const int		cfgBenchmark17_Reference	=	2842;
 //[18] select
-bool					cfgBenchmark18_Enable		=	cfgEnable;
+bool					cfgBenchmark18_Enable		=	true;
 static const int		cfgBenchmark18_Iterations	=	4;
 static const int		cfgBenchmark18_Reference	=	3390;
 
