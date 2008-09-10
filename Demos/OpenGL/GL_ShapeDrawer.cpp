@@ -166,7 +166,7 @@ void OGL_displaylist_register_shape(btCollisionShape * shape)
 
 	glNewList(dlist.m_dlist,GL_COMPILE);
 
-	glEnable(GL_CULL_FACE);
+//	glEnable(GL_CULL_FACE);
 
 	glCullFace(GL_BACK);
 
@@ -177,7 +177,7 @@ void OGL_displaylist_register_shape(btCollisionShape * shape)
 		concaveMesh->processAllTriangles(&drawCallback,aabbMin,aabbMax);
 	}
 
-	glDisable(GL_CULL_FACE);	
+//	glDisable(GL_CULL_FACE);	
 
 	glEndList();
 }
@@ -237,12 +237,16 @@ public:
 		} else
 		{
 			glBegin(GL_TRIANGLES);
-			glColor3f(1, 1, 1);
+			//glColor3f(1, 1, 1);
+			
+			
 			glVertex3d(triangle[0].getX(), triangle[0].getY(), triangle[0].getZ());
-			//glColor3f(0, 1, 0);
 			glVertex3d(triangle[1].getX(), triangle[1].getY(), triangle[1].getZ());
-			//glColor3f(0, 0, 1);
 			glVertex3d(triangle[2].getX(), triangle[2].getY(), triangle[2].getZ());
+
+			glVertex3d(triangle[2].getX(), triangle[2].getY(), triangle[2].getZ());
+			glVertex3d(triangle[1].getX(), triangle[1].getY(), triangle[1].getZ());
+			glVertex3d(triangle[0].getX(), triangle[0].getY(), triangle[0].getZ());
 			glEnd();
 		}
 	}

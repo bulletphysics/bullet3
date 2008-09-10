@@ -51,29 +51,29 @@ extern int gTotalBytesAlignedAllocs;
 
 
 DemoApplication::DemoApplication()
-		//see btIDebugDraw.h for modes
+//see btIDebugDraw.h for modes
 :
 m_dynamicsWorld(0),
 m_pickConstraint(0),
 m_shootBoxShape(0),
-	m_cameraDistance(15.0),
-	m_debugMode(0),
-	m_ele(20.f),
-	m_azi(0.f),
-	m_cameraPosition(0.f,0.f,0.f),
-	m_cameraTargetPosition(0.f,0.f,0.f),
-	m_scaleBottom(0.5f),
-	m_scaleFactor(2.f),
-	m_cameraUp(0,1,0),
-	m_forwardAxis(2),	
-	m_glutScreenWidth(0),
-	m_glutScreenHeight(0),
-	m_ShootBoxInitialSpeed(40.f),
-	m_stepping(true),
-	m_singleStep(false),
-	m_idle(false),
-	m_enableshadows(false),
-	m_sundirection(btVector3(1,-2,1)*1000)
+m_cameraDistance(15.0),
+m_debugMode(0),
+m_ele(20.f),
+m_azi(0.f),
+m_cameraPosition(0.f,0.f,0.f),
+m_cameraTargetPosition(0.f,0.f,0.f),
+m_scaleBottom(0.5f),
+m_scaleFactor(2.f),
+m_cameraUp(0,1,0),
+m_forwardAxis(2),	
+m_glutScreenWidth(0),
+m_glutScreenHeight(0),
+m_ShootBoxInitialSpeed(40.f),
+m_stepping(true),
+m_singleStep(false),
+m_idle(false),
+m_enableshadows(false),
+m_sundirection(btVector3(1,-2,1)*1000)
 {
 #ifndef BT_NO_PROFILE
 	m_profileIterator = CProfileManager::Get_Iterator();
@@ -100,36 +100,36 @@ DemoApplication::~DemoApplication()
 void DemoApplication::myinit(void)
 {
 
-    GLfloat light_ambient[] = { 0.2, 0.2, 0.2, 1.0 };
-    GLfloat light_diffuse[] = { 1.0, 1.0, 1.0, 1.0 };
-    GLfloat light_specular[] = { 1.0, 1.0, 1.0, 1.0 };
-    /*	light_position is NOT default value	*/
-    GLfloat light_position0[] = { 1.0, 10.0, 1.0, 0.0 };
-    GLfloat light_position1[] = { -1.0, -10.0, -1.0, 0.0 };
-  
-    glLightfv(GL_LIGHT0, GL_AMBIENT, light_ambient);
-    glLightfv(GL_LIGHT0, GL_DIFFUSE, light_diffuse);
-    glLightfv(GL_LIGHT0, GL_SPECULAR, light_specular);
-    glLightfv(GL_LIGHT0, GL_POSITION, light_position0);
-  
-    glLightfv(GL_LIGHT1, GL_AMBIENT, light_ambient);
-    glLightfv(GL_LIGHT1, GL_DIFFUSE, light_diffuse);
-    glLightfv(GL_LIGHT1, GL_SPECULAR, light_specular);
-    glLightfv(GL_LIGHT1, GL_POSITION, light_position1);
+	GLfloat light_ambient[] = { 0.2, 0.2, 0.2, 1.0 };
+	GLfloat light_diffuse[] = { 1.0, 1.0, 1.0, 1.0 };
+	GLfloat light_specular[] = { 1.0, 1.0, 1.0, 1.0 };
+	/*	light_position is NOT default value	*/
+	GLfloat light_position0[] = { 1.0, 10.0, 1.0, 0.0 };
+	GLfloat light_position1[] = { -1.0, -10.0, -1.0, 0.0 };
 
-    glEnable(GL_LIGHTING);
-    glEnable(GL_LIGHT0);
-    glEnable(GL_LIGHT1);
- 
+	glLightfv(GL_LIGHT0, GL_AMBIENT, light_ambient);
+	glLightfv(GL_LIGHT0, GL_DIFFUSE, light_diffuse);
+	glLightfv(GL_LIGHT0, GL_SPECULAR, light_specular);
+	glLightfv(GL_LIGHT0, GL_POSITION, light_position0);
 
-    glShadeModel(GL_SMOOTH);
-    glEnable(GL_DEPTH_TEST);
-    glDepthFunc(GL_LESS);
+	glLightfv(GL_LIGHT1, GL_AMBIENT, light_ambient);
+	glLightfv(GL_LIGHT1, GL_DIFFUSE, light_diffuse);
+	glLightfv(GL_LIGHT1, GL_SPECULAR, light_specular);
+	glLightfv(GL_LIGHT1, GL_POSITION, light_position1);
 
-		glClearColor(0.7,0.7,0.7,0);
+	glEnable(GL_LIGHTING);
+	glEnable(GL_LIGHT0);
+	glEnable(GL_LIGHT1);
 
-    //  glEnable(GL_CULL_FACE);
-    //  glCullFace(GL_BACK);
+
+	glShadeModel(GL_SMOOTH);
+	glEnable(GL_DEPTH_TEST);
+	glDepthFunc(GL_LESS);
+
+	glClearColor(0.7,0.7,0.7,0);
+
+	//  glEnable(GL_CULL_FACE);
+	//  glCullFace(GL_BACK);
 }
 
 
@@ -146,12 +146,12 @@ float	DemoApplication::getCameraDistance()
 
 
 void DemoApplication::toggleIdle() {
-    if (m_idle) {
-        m_idle = false;
-    }
-    else {
-        m_idle = true;
-    }
+	if (m_idle) {
+		m_idle = false;
+	}
+	else {
+		m_idle = true;
+	}
 }
 
 
@@ -159,12 +159,12 @@ void DemoApplication::toggleIdle() {
 
 void DemoApplication::updateCamera() {
 
-	
+
 	glMatrixMode(GL_PROJECTION);
 	glLoadIdentity();
 	float rele = m_ele * 0.01745329251994329547;// rads per deg
 	float razi = m_azi * 0.01745329251994329547;// rads per deg
-	
+
 
 	btQuaternion rot(m_cameraUp,razi);
 
@@ -198,11 +198,11 @@ void DemoApplication::updateCamera() {
 	}
 
 
-    glMatrixMode(GL_MODELVIEW);
+	glMatrixMode(GL_MODELVIEW);
 	glLoadIdentity();
 	gluLookAt(m_cameraPosition[0], m_cameraPosition[1], m_cameraPosition[2], 
-              m_cameraTargetPosition[0], m_cameraTargetPosition[1], m_cameraTargetPosition[2], 
-			  m_cameraUp.getX(),m_cameraUp.getY(),m_cameraUp.getZ());
+		m_cameraTargetPosition[0], m_cameraTargetPosition[1], m_cameraTargetPosition[2], 
+		m_cameraUp.getX(),m_cameraUp.getY(),m_cameraUp.getZ());
 }
 
 
@@ -235,7 +235,7 @@ void DemoApplication::zoomIn()
 void DemoApplication::zoomOut() 
 { 
 	m_cameraDistance += 0.4; updateCamera(); 
-	
+
 }
 
 
@@ -246,12 +246,12 @@ void DemoApplication::zoomOut()
 
 
 
-	
+
 void DemoApplication::reshape(int w, int h) 
 {
 	m_glutScreenWidth = w;
 	m_glutScreenHeight = h;
-	
+
 	glViewport(0, 0, w, h);
 	updateCamera();
 }
@@ -262,23 +262,23 @@ void DemoApplication::keyboardCallback(unsigned char key, int x, int y)
 	(void)x;
 	(void)y;
 
-		m_lastKey = 0;
+	m_lastKey = 0;
 
 #ifndef BT_NO_PROFILE
-        if (key >= 0x31 && key < 0x37)
-        {
-                int child = key-0x31;
-                m_profileIterator->Enter_Child(child);
-        }
-        if (key==0x30)
-        {
-                m_profileIterator->Enter_Parent();
-        }
+	if (key >= 0x31 && key < 0x37)
+	{
+		int child = key-0x31;
+		m_profileIterator->Enter_Child(child);
+	}
+	if (key==0x30)
+	{
+		m_profileIterator->Enter_Parent();
+	}
 #endif //BT_NO_PROFILE
 
-    switch (key) 
-    {
-    case 'q' : 
+	switch (key) 
+	{
+	case 'q' : 
 #ifdef BT_USE_FREEGLUT
 		//return from glutMainLoop(), detect memory leaks etc.
 		glutLeaveMainLoop();
@@ -287,91 +287,91 @@ void DemoApplication::keyboardCallback(unsigned char key, int x, int y)
 #endif
 		break;
 
-    case 'l' : stepLeft(); break;
-    case 'r' : stepRight(); break;
-    case 'f' : stepFront(); break;
-    case 'b' : stepBack(); break;
-    case 'z' : zoomIn(); break;
-    case 'x' : zoomOut(); break;
-    case 'i' : toggleIdle(); break;
-    case 'g' : m_enableshadows=!m_enableshadows;break;
-    case 'u' : m_shapeDrawer.enableTexture(!m_shapeDrawer.enableTexture(false));break;
+	case 'l' : stepLeft(); break;
+	case 'r' : stepRight(); break;
+	case 'f' : stepFront(); break;
+	case 'b' : stepBack(); break;
+	case 'z' : zoomIn(); break;
+	case 'x' : zoomOut(); break;
+	case 'i' : toggleIdle(); break;
+	case 'g' : m_enableshadows=!m_enableshadows;break;
+	case 'u' : m_shapeDrawer.enableTexture(!m_shapeDrawer.enableTexture(false));break;
 	case 'h':
-			if (m_debugMode & btIDebugDraw::DBG_NoHelpText)
-				m_debugMode = m_debugMode & (~btIDebugDraw::DBG_NoHelpText);
-			else
-				m_debugMode |= btIDebugDraw::DBG_NoHelpText;
-			break;
+		if (m_debugMode & btIDebugDraw::DBG_NoHelpText)
+			m_debugMode = m_debugMode & (~btIDebugDraw::DBG_NoHelpText);
+		else
+			m_debugMode |= btIDebugDraw::DBG_NoHelpText;
+		break;
 
 	case 'w':
-			if (m_debugMode & btIDebugDraw::DBG_DrawWireframe)
-				m_debugMode = m_debugMode & (~btIDebugDraw::DBG_DrawWireframe);
-			else
-				m_debugMode |= btIDebugDraw::DBG_DrawWireframe;
-		   break;
+		if (m_debugMode & btIDebugDraw::DBG_DrawWireframe)
+			m_debugMode = m_debugMode & (~btIDebugDraw::DBG_DrawWireframe);
+		else
+			m_debugMode |= btIDebugDraw::DBG_DrawWireframe;
+		break;
 
-   case 'p':
-	   if (m_debugMode & btIDebugDraw::DBG_ProfileTimings)
-		m_debugMode = m_debugMode & (~btIDebugDraw::DBG_ProfileTimings);
-	else
-		m_debugMode |= btIDebugDraw::DBG_ProfileTimings;
-   break;
+	case 'p':
+		if (m_debugMode & btIDebugDraw::DBG_ProfileTimings)
+			m_debugMode = m_debugMode & (~btIDebugDraw::DBG_ProfileTimings);
+		else
+			m_debugMode |= btIDebugDraw::DBG_ProfileTimings;
+		break;
 
-   case 'm':
-	   if (m_debugMode & btIDebugDraw::DBG_EnableSatComparison)
-		m_debugMode = m_debugMode & (~btIDebugDraw::DBG_EnableSatComparison);
-	else
-		m_debugMode |= btIDebugDraw::DBG_EnableSatComparison;
-   break;
+	case 'm':
+		if (m_debugMode & btIDebugDraw::DBG_EnableSatComparison)
+			m_debugMode = m_debugMode & (~btIDebugDraw::DBG_EnableSatComparison);
+		else
+			m_debugMode |= btIDebugDraw::DBG_EnableSatComparison;
+		break;
 
-   case 'n':
-	   if (m_debugMode & btIDebugDraw::DBG_DisableBulletLCP)
-		m_debugMode = m_debugMode & (~btIDebugDraw::DBG_DisableBulletLCP);
-	else
-		m_debugMode |= btIDebugDraw::DBG_DisableBulletLCP;
-   break;
+	case 'n':
+		if (m_debugMode & btIDebugDraw::DBG_DisableBulletLCP)
+			m_debugMode = m_debugMode & (~btIDebugDraw::DBG_DisableBulletLCP);
+		else
+			m_debugMode |= btIDebugDraw::DBG_DisableBulletLCP;
+		break;
 
 	case 't' : 
-			if (m_debugMode & btIDebugDraw::DBG_DrawText)
-				m_debugMode = m_debugMode & (~btIDebugDraw::DBG_DrawText);
-			else
-				m_debugMode |= btIDebugDraw::DBG_DrawText;
-		   break;
+		if (m_debugMode & btIDebugDraw::DBG_DrawText)
+			m_debugMode = m_debugMode & (~btIDebugDraw::DBG_DrawText);
+		else
+			m_debugMode |= btIDebugDraw::DBG_DrawText;
+		break;
 	case 'y':		
-			if (m_debugMode & btIDebugDraw::DBG_DrawFeaturesText)
-				m_debugMode = m_debugMode & (~btIDebugDraw::DBG_DrawFeaturesText);
-			else
-				m_debugMode |= btIDebugDraw::DBG_DrawFeaturesText;
+		if (m_debugMode & btIDebugDraw::DBG_DrawFeaturesText)
+			m_debugMode = m_debugMode & (~btIDebugDraw::DBG_DrawFeaturesText);
+		else
+			m_debugMode |= btIDebugDraw::DBG_DrawFeaturesText;
 		break;
 	case 'a':	
 		if (m_debugMode & btIDebugDraw::DBG_DrawAabb)
-				m_debugMode = m_debugMode & (~btIDebugDraw::DBG_DrawAabb);
-			else
-				m_debugMode |= btIDebugDraw::DBG_DrawAabb;
-			break;
-		case 'c' : 
-			if (m_debugMode & btIDebugDraw::DBG_DrawContactPoints)
-				m_debugMode = m_debugMode & (~btIDebugDraw::DBG_DrawContactPoints);
-			else
-				m_debugMode |= btIDebugDraw::DBG_DrawContactPoints;
-			break;
+			m_debugMode = m_debugMode & (~btIDebugDraw::DBG_DrawAabb);
+		else
+			m_debugMode |= btIDebugDraw::DBG_DrawAabb;
+		break;
+	case 'c' : 
+		if (m_debugMode & btIDebugDraw::DBG_DrawContactPoints)
+			m_debugMode = m_debugMode & (~btIDebugDraw::DBG_DrawContactPoints);
+		else
+			m_debugMode |= btIDebugDraw::DBG_DrawContactPoints;
+		break;
 
-		case 'd' : 
-			if (m_debugMode & btIDebugDraw::DBG_NoDeactivation)
-				m_debugMode = m_debugMode & (~btIDebugDraw::DBG_NoDeactivation);
-			else
-				m_debugMode |= btIDebugDraw::DBG_NoDeactivation;
-			if (m_debugMode & btIDebugDraw::DBG_NoDeactivation)
-			{
-				gDisableDeactivation = true;
-			} else
-			{
-				gDisableDeactivation = false;
-			}
-			break;
-			
+	case 'd' : 
+		if (m_debugMode & btIDebugDraw::DBG_NoDeactivation)
+			m_debugMode = m_debugMode & (~btIDebugDraw::DBG_NoDeactivation);
+		else
+			m_debugMode |= btIDebugDraw::DBG_NoDeactivation;
+		if (m_debugMode & btIDebugDraw::DBG_NoDeactivation)
+		{
+			gDisableDeactivation = true;
+		} else
+		{
+			gDisableDeactivation = false;
+		}
+		break;
 
-		
+
+
 
 	case 'o' :
 		{
@@ -379,10 +379,10 @@ void DemoApplication::keyboardCallback(unsigned char key, int x, int y)
 			break;
 		}
 	case 's' : clientMoveAndDisplay(); break;
-//    case ' ' : newRandom(); break;
+		//    case ' ' : newRandom(); break;
 	case ' ':
 		clientResetScene();
-			break;
+		break;
 	case '1':
 		{
 			if (m_debugMode & btIDebugDraw::DBG_EnableCCD)
@@ -392,27 +392,27 @@ void DemoApplication::keyboardCallback(unsigned char key, int x, int y)
 			break;
 		}
 
-		case '.':
+	case '.':
 		{
 			shootBox(getCameraTargetPosition());
 			break;
 		}
 
-		case '+':
+	case '+':
 		{
 			m_ShootBoxInitialSpeed += 10.f;
 			break;
 		}
-		case '-':
+	case '-':
 		{
 			m_ShootBoxInitialSpeed -= 10.f;
 			break;
 		}
 
-    default:
-//        std::cout << "unused key : " << key << std::endl;
-        break;
-    }
+	default:
+		//        std::cout << "unused key : " << key << std::endl;
+		break;
+	}
 
 	if (getDynamicsWorld() && getDynamicsWorld()->getDebugDrawer())
 		getDynamicsWorld()->getDebugDrawer()->setDebugMode(m_debugMode);
@@ -420,7 +420,7 @@ void DemoApplication::keyboardCallback(unsigned char key, int x, int y)
 	glutPostRedisplay();
 
 }
-	
+
 void	DemoApplication::setDebugMode(int mode)
 {
 	m_debugMode = mode;
@@ -432,7 +432,7 @@ void	DemoApplication::setDebugMode(int mode)
 void DemoApplication::specialKeyboardUp(int key, int x, int y)
 {
 
-		glutPostRedisplay();
+	glutPostRedisplay();
 
 }
 
@@ -441,8 +441,8 @@ void DemoApplication::specialKeyboard(int key, int x, int y)
 	(void)x;
 	(void)y;
 
-    switch (key) 
-    {
+	switch (key) 
+	{
 	case GLUT_KEY_F1:
 		{
 
@@ -450,10 +450,10 @@ void DemoApplication::specialKeyboard(int key, int x, int y)
 		}
 
 	case GLUT_KEY_F2:
-	{
+		{
 
-		break;
-	}
+			break;
+		}
 
 
 	case GLUT_KEY_END:
@@ -462,7 +462,7 @@ void DemoApplication::specialKeyboard(int key, int x, int y)
 			if (numObj)
 			{
 				btCollisionObject* obj = getDynamicsWorld()->getCollisionObjectArray()[numObj-1];
-				
+
 				getDynamicsWorld()->removeCollisionObject(obj);
 				btRigidBody* body = btRigidBody::upcast(obj);
 				if (body && body->getMotionState())
@@ -470,22 +470,22 @@ void DemoApplication::specialKeyboard(int key, int x, int y)
 					delete body->getMotionState();					
 				}
 				delete obj;
-				
+
 
 			}
 			break;
 		}
-    case GLUT_KEY_LEFT : stepLeft(); break;
-    case GLUT_KEY_RIGHT : stepRight(); break;
-    case GLUT_KEY_UP : stepFront(); break;
-    case GLUT_KEY_DOWN : stepBack(); break;
-    case GLUT_KEY_PAGE_UP : zoomIn(); break;
-    case GLUT_KEY_PAGE_DOWN : zoomOut(); break;
-    case GLUT_KEY_HOME : toggleIdle(); break;
-    default:
-//        std::cout << "unused (special) key : " << key << std::endl;
-        break;
-    }
+	case GLUT_KEY_LEFT : stepLeft(); break;
+	case GLUT_KEY_RIGHT : stepRight(); break;
+	case GLUT_KEY_UP : stepFront(); break;
+	case GLUT_KEY_DOWN : stepBack(); break;
+	case GLUT_KEY_PAGE_UP : zoomIn(); break;
+	case GLUT_KEY_PAGE_DOWN : zoomOut(); break;
+	case GLUT_KEY_HOME : toggleIdle(); break;
+	default:
+		//        std::cout << "unused (special) key : " << key << std::endl;
+		break;
+	}
 
 	glutPostRedisplay();
 
@@ -501,7 +501,7 @@ void DemoApplication::moveAndDisplay()
 
 
 
-	
+
 void DemoApplication::displayCallback()
 {
 }
@@ -522,12 +522,12 @@ void	DemoApplication::shootBox(const btVector3& destination)
 
 		if (!m_shootBoxShape)
 		{
-		//#define TEST_UNIFORM_SCALING_SHAPE 1
+			//#define TEST_UNIFORM_SCALING_SHAPE 1
 #ifdef TEST_UNIFORM_SCALING_SHAPE
-		btConvexShape* childShape = new btBoxShape(btVector3(1.f,1.f,1.f));
-		m_shootBoxShape = new btUniformScalingShape(childShape,0.5f);
+			btConvexShape* childShape = new btBoxShape(btVector3(1.f,1.f,1.f));
+			m_shootBoxShape = new btUniformScalingShape(childShape,0.5f);
 #else
-		m_shootBoxShape = new btBoxShape(btVector3(1.f,1.f,1.f));
+			m_shootBoxShape = new btBoxShape(btVector3(1.f,1.f,1.f));
 #endif//
 		}
 
@@ -555,7 +555,7 @@ btRigidBody* pickedBody = 0;//for deactivation state
 btVector3	DemoApplication::getRayTo(int x,int y)
 {
 
-		float top = 1.f;
+	float top = 1.f;
 	float bottom = -1.f;
 	float nearPlane = 1.f;
 	float tanFov = (top-bottom)*0.5f / nearPlane;
@@ -577,7 +577,7 @@ btVector3	DemoApplication::getRayTo(int x,int y)
 	vertical.normalize();
 
 	float tanfov = tanf(0.5f*fov);
-	
+
 	btScalar aspect = m_glutScreenHeight / (btScalar)m_glutScreenWidth;
 
 	hor *= 2.f * farPlane * tanfov;
@@ -594,7 +594,7 @@ btVector3	DemoApplication::getRayTo(int x,int y)
 	btVector3 rayToCenter = rayFrom + rayForward;
 	btVector3 dHor = hor * 1.f/float(m_glutScreenWidth);
 	btVector3 dVert = vertical * 1.f/float(m_glutScreenHeight);
-	
+
 
 	btVector3 rayTo = rayToCenter - 0.5f * hor + 0.5f * vertical;
 	rayTo += x * dHor;
@@ -629,7 +629,7 @@ void DemoApplication::mouseFunc(int button, int state, int x, int y)
 
 			if (state==0)
 			{
-				
+
 
 				//apply an impulse
 				if (m_dynamicsWorld)
@@ -638,22 +638,22 @@ void DemoApplication::mouseFunc(int button, int state, int x, int y)
 					m_dynamicsWorld->rayTest(m_cameraPosition,rayTo,rayCallback);
 					if (rayCallback.hasHit())
 					{
-						
+
 						btRigidBody* body = btRigidBody::upcast(rayCallback.m_collisionObject);
 						if (body)
 						{
-								body->setActivationState(ACTIVE_TAG);
-								btVector3 impulse = rayTo;
-								impulse.normalize();
-								float impulseStrength = 10.f;
-								impulse *= impulseStrength;
-								btVector3 relPos = rayCallback.m_hitPointWorld - body->getCenterOfMassPosition();
-								body->applyImpulse(impulse,relPos);
-							}
+							body->setActivationState(ACTIVE_TAG);
+							btVector3 impulse = rayTo;
+							impulse.normalize();
+							float impulseStrength = 10.f;
+							impulse *= impulseStrength;
+							btVector3 relPos = rayCallback.m_hitPointWorld - body->getCenterOfMassPosition();
+							body->applyImpulse(impulse,relPos);
+						}
 					}
 				}
 
-				
+
 
 			} else
 			{
@@ -665,7 +665,7 @@ void DemoApplication::mouseFunc(int button, int state, int x, int y)
 		{
 			if (state==0)
 			{
-		
+
 
 				//add a point to point constraint for picking
 				if (m_dynamicsWorld)
@@ -674,8 +674,8 @@ void DemoApplication::mouseFunc(int button, int state, int x, int y)
 					m_dynamicsWorld->rayTest(m_cameraPosition,rayTo,rayCallback);
 					if (rayCallback.hasHit())
 					{
-						
-						
+
+
 						btRigidBody* body = btRigidBody::upcast(rayCallback.m_collisionObject);
 						if (body)
 						{
@@ -685,7 +685,7 @@ void DemoApplication::mouseFunc(int button, int state, int x, int y)
 								pickedBody = body;
 								pickedBody->setActivationState(DISABLE_DEACTIVATION);
 
-								
+
 								btVector3 pickPos = rayCallback.m_hitPointWorld;
 
 								btVector3 localPivot = body->getCenterOfMassTransform().inverse() * pickPos;
@@ -695,7 +695,7 @@ void DemoApplication::mouseFunc(int button, int state, int x, int y)
 
 								m_dynamicsWorld->addConstraint(p2p);
 								m_pickConstraint = p2p;
-								
+
 								//save mouse position for dragging
 								gOldPickingPos = rayTo;
 
@@ -724,7 +724,7 @@ void DemoApplication::mouseFunc(int button, int state, int x, int y)
 					pickedBody = 0;
 				}
 
-				
+
 			}
 
 			break;
@@ -760,7 +760,7 @@ void	DemoApplication::mouseMotionFunc(int x,int y)
 
 	}
 
-	
+
 }
 
 
@@ -790,7 +790,7 @@ btRigidBody*	DemoApplication::localCreateRigidBody(float mass, const btTransform
 #endif//
 
 	m_dynamicsWorld->addRigidBody(body);
-	
+
 	return body;
 }
 
@@ -847,7 +847,7 @@ void DemoApplication::showProfileInfo(float& xOffset,float& yStart, float yIncr)
 	static double time_since_reset = 0.f;
 	if (!m_idle)
 	{
-			time_since_reset = CProfileManager::Get_Time_Since_Reset();
+		time_since_reset = CProfileManager::Get_Time_Since_Reset();
 	}
 
 
@@ -857,7 +857,7 @@ void DemoApplication::showProfileInfo(float& xOffset,float& yStart, float yIncr)
 		char blockTime[128];
 
 		double totalTime = 0;
-		
+
 		int frames_since_reset = CProfileManager::Get_Frame_Count_Since_Reset();
 
 		m_profileIterator->First();
@@ -916,57 +916,64 @@ void DemoApplication::showProfileInfo(float& xOffset,float& yStart, float yIncr)
 //
 void	DemoApplication::renderscene(int pass)
 {
-btScalar	m[16];
-btMatrix3x3	rot;rot.setIdentity();
-const int	numObjects=m_dynamicsWorld->getNumCollisionObjects();
-btVector3 wireColor(1,0,0);
-for(int i=0;i<numObjects;i++)
+	btScalar	m[16];
+	btMatrix3x3	rot;rot.setIdentity();
+	const int	numObjects=m_dynamicsWorld->getNumCollisionObjects();
+	btVector3 wireColor(1,0,0);
+	for(int i=0;i<numObjects;i++)
 	{
-	btCollisionObject*	colObj=m_dynamicsWorld->getCollisionObjectArray()[i];
-	btRigidBody*		body=btRigidBody::upcast(colObj);
-	if(body&&body->getMotionState())
+		btCollisionObject*	colObj=m_dynamicsWorld->getCollisionObjectArray()[i];
+		btRigidBody*		body=btRigidBody::upcast(colObj);
+		if(body&&body->getMotionState())
 		{
-		btDefaultMotionState* myMotionState = (btDefaultMotionState*)body->getMotionState();
-		myMotionState->m_graphicsWorldTrans.getOpenGLMatrix(m);
-		rot=myMotionState->m_graphicsWorldTrans.getBasis();
+			btDefaultMotionState* myMotionState = (btDefaultMotionState*)body->getMotionState();
+			myMotionState->m_graphicsWorldTrans.getOpenGLMatrix(m);
+			rot=myMotionState->m_graphicsWorldTrans.getBasis();
 		}
 		else
 		{
-		colObj->getWorldTransform().getOpenGLMatrix(m);
-		rot=colObj->getWorldTransform().getBasis();
+			colObj->getWorldTransform().getOpenGLMatrix(m);
+			rot=colObj->getWorldTransform().getBasis();
 		}
-	btVector3 wireColor(1.f,1.0f,0.5f); //wants deactivation
-	if(i&1) wireColor=btVector3(0.f,0.0f,1.f);
-	///color differently for active, sleeping, wantsdeactivation states
-	if (colObj->getActivationState() == 1) //active
+		btVector3 wireColor(1.f,1.0f,0.5f); //wants deactivation
+		if(i&1) wireColor=btVector3(0.f,0.0f,1.f);
+		///color differently for active, sleeping, wantsdeactivation states
+		if (colObj->getActivationState() == 1) //active
 		{
-		if (i & 1)
+			if (i & 1)
 			{
-			wireColor += btVector3 (1.f,0.f,0.f);
+				wireColor += btVector3 (1.f,0.f,0.f);
 			}
 			else
 			{			
-			wireColor += btVector3 (.5f,0.f,0.f);
+				wireColor += btVector3 (.5f,0.f,0.f);
 			}
 		}
-	if(colObj->getActivationState()==2) //ISLAND_SLEEPING
+		if(colObj->getActivationState()==2) //ISLAND_SLEEPING
 		{
-		if(i&1)
+			if(i&1)
 			{
-			wireColor += btVector3 (0.f,1.f, 0.f);
+				wireColor += btVector3 (0.f,1.f, 0.f);
 			}
 			else
 			{
-			wireColor += btVector3 (0.f,0.5f,0.f);
+				wireColor += btVector3 (0.f,0.5f,0.f);
 			}
 		}
 
-	btVector3 aabbMin,aabbMax;
-	m_dynamicsWorld->getBroadphase()->getBroadphaseAabb(aabbMin,aabbMax);
+		btVector3 aabbMin,aabbMax;
+		m_dynamicsWorld->getBroadphase()->getBroadphaseAabb(aabbMin,aabbMax);
+		
+		aabbMin-=btVector3(1e30,1e30,1e30);
+		aabbMax+=btVector3(1e30,1e30,1e30);
+//		printf("aabbMin=(%f,%f,%f)\n",aabbMin.getX(),aabbMin.getY(),aabbMin.getZ());
+//		printf("aabbMax=(%f,%f,%f)\n",aabbMax.getX(),aabbMax.getY(),aabbMax.getZ());
+//		m_dynamicsWorld->getDebugDrawer()->drawAabb(aabbMin,aabbMax,btVector3(1,1,1));
 
-	switch(pass)
+
+		switch(pass)
 		{
-	case	0:	m_shapeDrawer.drawOpenGL(m,colObj->getCollisionShape(),wireColor,getDebugMode(),aabbMin,aabbMax);break;
+		case	0:	m_shapeDrawer.drawOpenGL(m,colObj->getCollisionShape(),wireColor,getDebugMode(),aabbMin,aabbMax);break;
 		case	1:	m_shapeDrawer.drawShadow(m,m_sundirection*rot,colObj->getCollisionShape(),aabbMin,aabbMax);break;
 		case	2:	m_shapeDrawer.drawOpenGL(m,colObj->getCollisionShape(),wireColor*0.3,0,aabbMin,aabbMax);break;
 		}
@@ -983,11 +990,11 @@ void DemoApplication::renderme()
 	if (m_dynamicsWorld)
 	{			
 		if(m_enableshadows)
-			{
+		{
 			glClear(GL_STENCIL_BUFFER_BIT);
 			glEnable(GL_CULL_FACE);
 			renderscene(0);
-			
+
 			glDisable(GL_LIGHTING);
 			glDepthMask(GL_FALSE);
 			glDepthFunc(GL_LEQUAL);
@@ -1001,7 +1008,7 @@ void DemoApplication::renderme()
 			glStencilOp(GL_KEEP,GL_KEEP,GL_DECR);
 			renderscene(1);
 			glFrontFace(GL_CCW);
-			
+
 			glPolygonMode(GL_FRONT,GL_FILL);
 			glPolygonMode(GL_BACK,GL_FILL);
 			glShadeModel(GL_SMOOTH);
@@ -1013,7 +1020,7 @@ void DemoApplication::renderme()
 			glFrontFace(GL_CCW);
 			glEnable(GL_CULL_FACE);
 			glColorMask(GL_TRUE,GL_TRUE,GL_TRUE,GL_TRUE);
-			
+
 			glDepthFunc(GL_LEQUAL);
 			glStencilFunc( GL_NOTEQUAL, 0, 0xFFFFFFFFL );
 			glStencilOp( GL_KEEP, GL_KEEP, GL_KEEP );
@@ -1023,27 +1030,28 @@ void DemoApplication::renderme()
 			glDepthFunc(GL_LESS);
 			glDisable(GL_STENCIL_TEST);
 			glDisable(GL_CULL_FACE);
-			}
-			else
-			{
+		}
+		else
+		{
+			glDisable(GL_CULL_FACE);
 			renderscene(0);
-			}
+		}
 
-			float xOffset = 10.f;
-			float yStart = 20.f;
-			float yIncr = 20.f;
-			char buf[124];
+		float xOffset = 10.f;
+		float yStart = 20.f;
+		float yIncr = 20.f;
+		char buf[124];
 
-			glDisable(GL_LIGHTING);
-			glColor3f(0, 0, 0);
+		glDisable(GL_LIGHTING);
+		glColor3f(0, 0, 0);
 
-			if ((m_debugMode & btIDebugDraw::DBG_NoHelpText)==0)
-				{
-				setOrthographicProjection();
+		if ((m_debugMode & btIDebugDraw::DBG_NoHelpText)==0)
+		{
+			setOrthographicProjection();
 
-				showProfileInfo(xOffset,yStart,yIncr);
+			showProfileInfo(xOffset,yStart,yIncr);
 
-	#ifdef USE_QUICKPROF
+#ifdef USE_QUICKPROF
 
 
 			if ( getDebugMode() & btIDebugDraw::DBG_ProfileTimings)
@@ -1062,141 +1070,141 @@ void DemoApplication::renderme()
 				}
 
 			}
-	#endif //USE_QUICKPROF
-
-			
-				glRasterPos3f(xOffset,yStart,0);
-				sprintf(buf,"mouse to interact");
-				BMF_DrawString(BMF_GetFont(BMF_kHelvetica10),buf);
-				yStart += yIncr;
-
-				glRasterPos3f(xOffset,yStart,0);
-				sprintf(buf,"space to reset");
-				BMF_DrawString(BMF_GetFont(BMF_kHelvetica10),buf);
-				yStart += yIncr;
-			
-				glRasterPos3f(xOffset,yStart,0);
-				sprintf(buf,"cursor keys and z,x to navigate");
-				BMF_DrawString(BMF_GetFont(BMF_kHelvetica10),buf);
-				yStart += yIncr;
-
-				glRasterPos3f(xOffset,yStart,0);
-				sprintf(buf,"i to toggle simulation, s single step");
-				BMF_DrawString(BMF_GetFont(BMF_kHelvetica10),buf);
-				yStart += yIncr;
-
-				glRasterPos3f(xOffset,yStart,0);
-				sprintf(buf,"q to quit");
-				BMF_DrawString(BMF_GetFont(BMF_kHelvetica10),buf);
-				yStart += yIncr;
-
-				glRasterPos3f(xOffset,yStart,0);
-				sprintf(buf,". to shoot box");
-				BMF_DrawString(BMF_GetFont(BMF_kHelvetica10),buf);
-				yStart += yIncr;
-
-				// not yet hooked up again after refactoring...
-
-				glRasterPos3f(xOffset,yStart,0);
-				sprintf(buf,"d to toggle deactivation");
-				BMF_DrawString(BMF_GetFont(BMF_kHelvetica10),buf);
-				yStart += yIncr;
-
-				
-				glRasterPos3f(xOffset,yStart,0);
-				sprintf(buf,"g to toggle mesh animation (ConcaveDemo)");
-				BMF_DrawString(BMF_GetFont(BMF_kHelvetica10),buf);
-				yStart += yIncr;
-			
-
-				glRasterPos3f(xOffset,yStart,0);
-				sprintf(buf,"h to toggle help text");
-				BMF_DrawString(BMF_GetFont(BMF_kHelvetica10),buf);
-				yStart += yIncr;
-
-				
-				glRasterPos3f(xOffset,yStart,0);
-				sprintf(buf,"p to toggle profiling (+results to file)");
-				BMF_DrawString(BMF_GetFont(BMF_kHelvetica10),buf);
-				yStart += yIncr;
+#endif //USE_QUICKPROF
 
 
-				//bool useBulletLCP = !(getDebugMode() & btIDebugDraw::DBG_DisableBulletLCP);
-				//bool useCCD = (getDebugMode() & btIDebugDraw::DBG_EnableCCD);
-				//glRasterPos3f(xOffset,yStart,0);
-				//sprintf(buf,"1 CCD mode (adhoc) = %i",useCCD);
-				//BMF_DrawString(BMF_GetFont(BMF_kHelvetica10),buf);
-				//yStart += yIncr;
+			glRasterPos3f(xOffset,yStart,0);
+			sprintf(buf,"mouse to interact");
+			BMF_DrawString(BMF_GetFont(BMF_kHelvetica10),buf);
+			yStart += yIncr;
+
+			glRasterPos3f(xOffset,yStart,0);
+			sprintf(buf,"space to reset");
+			BMF_DrawString(BMF_GetFont(BMF_kHelvetica10),buf);
+			yStart += yIncr;
+
+			glRasterPos3f(xOffset,yStart,0);
+			sprintf(buf,"cursor keys and z,x to navigate");
+			BMF_DrawString(BMF_GetFont(BMF_kHelvetica10),buf);
+			yStart += yIncr;
+
+			glRasterPos3f(xOffset,yStart,0);
+			sprintf(buf,"i to toggle simulation, s single step");
+			BMF_DrawString(BMF_GetFont(BMF_kHelvetica10),buf);
+			yStart += yIncr;
+
+			glRasterPos3f(xOffset,yStart,0);
+			sprintf(buf,"q to quit");
+			BMF_DrawString(BMF_GetFont(BMF_kHelvetica10),buf);
+			yStart += yIncr;
+
+			glRasterPos3f(xOffset,yStart,0);
+			sprintf(buf,". to shoot box");
+			BMF_DrawString(BMF_GetFont(BMF_kHelvetica10),buf);
+			yStart += yIncr;
+
+			// not yet hooked up again after refactoring...
+
+			glRasterPos3f(xOffset,yStart,0);
+			sprintf(buf,"d to toggle deactivation");
+			BMF_DrawString(BMF_GetFont(BMF_kHelvetica10),buf);
+			yStart += yIncr;
 
 
-				glRasterPos3f(xOffset,yStart,0);
-				sprintf(buf,"+- shooting speed = %10.2f",m_ShootBoxInitialSpeed);
-				BMF_DrawString(BMF_GetFont(BMF_kHelvetica10),buf);
-				yStart += yIncr;
+			glRasterPos3f(xOffset,yStart,0);
+			sprintf(buf,"g to toggle mesh animation (ConcaveDemo)");
+			BMF_DrawString(BMF_GetFont(BMF_kHelvetica10),buf);
+			yStart += yIncr;
+
+
+			glRasterPos3f(xOffset,yStart,0);
+			sprintf(buf,"h to toggle help text");
+			BMF_DrawString(BMF_GetFont(BMF_kHelvetica10),buf);
+			yStart += yIncr;
+
+
+			glRasterPos3f(xOffset,yStart,0);
+			sprintf(buf,"p to toggle profiling (+results to file)");
+			BMF_DrawString(BMF_GetFont(BMF_kHelvetica10),buf);
+			yStart += yIncr;
+
+
+			//bool useBulletLCP = !(getDebugMode() & btIDebugDraw::DBG_DisableBulletLCP);
+			//bool useCCD = (getDebugMode() & btIDebugDraw::DBG_EnableCCD);
+			//glRasterPos3f(xOffset,yStart,0);
+			//sprintf(buf,"1 CCD mode (adhoc) = %i",useCCD);
+			//BMF_DrawString(BMF_GetFont(BMF_kHelvetica10),buf);
+			//yStart += yIncr;
+
+
+			glRasterPos3f(xOffset,yStart,0);
+			sprintf(buf,"+- shooting speed = %10.2f",m_ShootBoxInitialSpeed);
+			BMF_DrawString(BMF_GetFont(BMF_kHelvetica10),buf);
+			yStart += yIncr;
 
 #ifdef SHOW_NUM_DEEP_PENETRATIONS
-				
 
-				glRasterPos3f(xOffset,yStart,0);
-				sprintf(buf,"gNumDeepPenetrationChecks = %d",gNumDeepPenetrationChecks);
-				BMF_DrawString(BMF_GetFont(BMF_kHelvetica10),buf);
-				yStart += yIncr;
 
-				glRasterPos3f(xOffset,yStart,0);
-				sprintf(buf,"gNumGjkChecks= %d",gNumGjkChecks);
-				BMF_DrawString(BMF_GetFont(BMF_kHelvetica10),buf);
-				yStart += yIncr;
+			glRasterPos3f(xOffset,yStart,0);
+			sprintf(buf,"gNumDeepPenetrationChecks = %d",gNumDeepPenetrationChecks);
+			BMF_DrawString(BMF_GetFont(BMF_kHelvetica10),buf);
+			yStart += yIncr;
 
-				glRasterPos3f(xOffset,yStart,0);
-				sprintf(buf,"gNumSplitImpulseRecoveries= %d",gNumSplitImpulseRecoveries);
-				BMF_DrawString(BMF_GetFont(BMF_kHelvetica10),buf);
-				yStart += yIncr;
-								
-				glRasterPos3f(xOffset,yStart,0);
-				sprintf(buf,"gNumAlignedAllocs = %d",gNumAlignedAllocs);
-				BMF_DrawString(BMF_GetFont(BMF_kHelvetica10),buf);
-				yStart += yIncr;
+			glRasterPos3f(xOffset,yStart,0);
+			sprintf(buf,"gNumGjkChecks= %d",gNumGjkChecks);
+			BMF_DrawString(BMF_GetFont(BMF_kHelvetica10),buf);
+			yStart += yIncr;
 
-				glRasterPos3f(xOffset,yStart,0);
-				sprintf(buf,"gNumAlignedFree= %d",gNumAlignedFree);
-				BMF_DrawString(BMF_GetFont(BMF_kHelvetica10),buf);
-				yStart += yIncr;
+			glRasterPos3f(xOffset,yStart,0);
+			sprintf(buf,"gNumSplitImpulseRecoveries= %d",gNumSplitImpulseRecoveries);
+			BMF_DrawString(BMF_GetFont(BMF_kHelvetica10),buf);
+			yStart += yIncr;
 
-				glRasterPos3f(xOffset,yStart,0);
-				sprintf(buf,"# alloc-free = %d",gNumAlignedAllocs-gNumAlignedFree);
-				BMF_DrawString(BMF_GetFont(BMF_kHelvetica10),buf);
-				yStart += yIncr;
+			glRasterPos3f(xOffset,yStart,0);
+			sprintf(buf,"gNumAlignedAllocs = %d",gNumAlignedAllocs);
+			BMF_DrawString(BMF_GetFont(BMF_kHelvetica10),buf);
+			yStart += yIncr;
 
-//enable BT_DEBUG_MEMORY_ALLOCATIONS define in Bullet/src/LinearMath/btAlignedAllocator.h for memory leak detection
+			glRasterPos3f(xOffset,yStart,0);
+			sprintf(buf,"gNumAlignedFree= %d",gNumAlignedFree);
+			BMF_DrawString(BMF_GetFont(BMF_kHelvetica10),buf);
+			yStart += yIncr;
+
+			glRasterPos3f(xOffset,yStart,0);
+			sprintf(buf,"# alloc-free = %d",gNumAlignedAllocs-gNumAlignedFree);
+			BMF_DrawString(BMF_GetFont(BMF_kHelvetica10),buf);
+			yStart += yIncr;
+
+			//enable BT_DEBUG_MEMORY_ALLOCATIONS define in Bullet/src/LinearMath/btAlignedAllocator.h for memory leak detection
 #ifdef BT_DEBUG_MEMORY_ALLOCATIONS
-				glRasterPos3f(xOffset,yStart,0);
-				sprintf(buf,"gTotalBytesAlignedAllocs = %d",gTotalBytesAlignedAllocs);
-				BMF_DrawString(BMF_GetFont(BMF_kHelvetica10),buf);
-				yStart += yIncr;
+			glRasterPos3f(xOffset,yStart,0);
+			sprintf(buf,"gTotalBytesAlignedAllocs = %d",gTotalBytesAlignedAllocs);
+			BMF_DrawString(BMF_GetFont(BMF_kHelvetica10),buf);
+			yStart += yIncr;
 #endif //BT_DEBUG_MEMORY_ALLOCATIONS
 
-				if (getDynamicsWorld())
-				{
-					glRasterPos3f(xOffset,yStart,0);
-					sprintf(buf,"# objects = %d",getDynamicsWorld()->getNumCollisionObjects());
-					BMF_DrawString(BMF_GetFont(BMF_kHelvetica10),buf);
-					yStart += yIncr;
-					glRasterPos3f(xOffset,yStart,0);
-					sprintf(buf,"# pairs = %d",getDynamicsWorld()->getBroadphase()->getOverlappingPairCache()->getNumOverlappingPairs());
-					BMF_DrawString(BMF_GetFont(BMF_kHelvetica10),buf);
-					yStart += yIncr;
+			if (getDynamicsWorld())
+			{
+				glRasterPos3f(xOffset,yStart,0);
+				sprintf(buf,"# objects = %d",getDynamicsWorld()->getNumCollisionObjects());
+				BMF_DrawString(BMF_GetFont(BMF_kHelvetica10),buf);
+				yStart += yIncr;
+				glRasterPos3f(xOffset,yStart,0);
+				sprintf(buf,"# pairs = %d",getDynamicsWorld()->getBroadphase()->getOverlappingPairCache()->getNumOverlappingPairs());
+				BMF_DrawString(BMF_GetFont(BMF_kHelvetica10),buf);
+				yStart += yIncr;
 
-				}
+			}
 
 
 #endif //SHOW_NUM_DEEP_PENETRATIONS
 
-				resetPerspectiveProjection();
-			}
+			resetPerspectiveProjection();
+		}
 
-			glEnable(GL_LIGHTING);
+		glEnable(GL_LIGHTING);
 
-		
+
 	}
 
 	updateCamera();
@@ -1216,7 +1224,7 @@ void	DemoApplication::clientResetScene()
 		m_dynamicsWorld->stepSimulation(1.f/60.f,0);
 		numObjects = m_dynamicsWorld->getNumCollisionObjects();
 	}
-	
+
 	for (int i=0;i<numObjects;i++)
 	{
 		btCollisionObject* colObj = m_dynamicsWorld->getCollisionObjectArray()[i];
@@ -1243,13 +1251,13 @@ void	DemoApplication::clientResetScene()
 			}
 		}
 
-	/*
-	//quickly search some issue at a certain simulation frame, pressing space to reset
+		/*
+		//quickly search some issue at a certain simulation frame, pressing space to reset
 		int fixed=18;
 		for (int i=0;i<fixed;i++)
 		{
-			getDynamicsWorld()->stepSimulation(1./60.f,1);
+		getDynamicsWorld()->stepSimulation(1./60.f,1);
 		}
-	*/
+		*/
 	}
 }

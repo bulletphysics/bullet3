@@ -45,7 +45,7 @@ subject to the following restrictions:
 #include "GlutStuff.h"
 
 
-btVector3	centroid;
+btVector3	centroid=btVector3(0,0,0);
 btVector3   convexDecompositionObjectOffset(10,0,0);
 
 #define CUBE_HALF_EXTENTS 4
@@ -100,6 +100,7 @@ void ConvexDecompositionDemo::initPhysics(const char* filename)
 #endif//USE_PARALLEL_DISPATCHER
 
 
+	convexDecompositionObjectOffset.setValue(10,0,0);
 
 	btVector3 worldAabbMin(-10000,-10000,-10000);
 	btVector3 worldAabbMax(10000,10000,10000);
@@ -124,9 +125,12 @@ void ConvexDecompositionDemo::initPhysics(const char* filename)
 
 	class MyConvexDecomposition : public ConvexDecomposition::ConvexDecompInterface
 	{
-
 		ConvexDecompositionDemo*	m_convexDemo;
+		
 		public:
+
+		btAlignedObjectArray<btConvexHullShape*> m_convexShapes;
+		btAlignedObjectArray<btVector3> m_convexCentroids;
 
 		MyConvexDecomposition (FILE* outputFile,ConvexDecompositionDemo* demo)
 			:m_convexDemo(demo),
@@ -162,6 +166,7 @@ void ConvexDecompositionDemo::initPhysics(const char* filename)
 
 					//calc centroid, to shift vertices around center of mass
 					centroid.setValue(0,0,0);
+
 					btAlignedObjectArray<btVector3> vertices;
 					if ( 1 )
 					{
@@ -245,29 +250,17 @@ void ConvexDecompositionDemo::initPhysics(const char* filename)
 					btGeometryUtil::getVerticesFromPlaneEquations(shiftedPlaneEquations,shiftedVertices);
 
 					
-					btCollisionShape* convexShape = new btConvexHullShape(&(shiftedVertices[0].getX()),shiftedVertices.size());
+					btConvexHullShape* convexShape = new btConvexHullShape(&(shiftedVertices[0].getX()),shiftedVertices.size());
 					
 #else //SHRINK_OBJECT_INWARDS
 					
-#ifdef USE_PARALLEL_DISPATCHER
-					//SPU/multi threaded version only supports convex hull with contiguous vertices at the moment
-					btCollisionShape* convexShape = new btConvexHullShape(&(vertices[0].getX()),vertices.size());
-#else
-					btCollisionShape* convexShape = new btConvexTriangleMeshShape(trimesh);
-#endif //USE_PARALLEL_DISPATCHER
-
+					btConvexHullShape* convexShape = new btConvexHullShape(&(vertices[0].getX()),vertices.size());
 #endif 
 
 					convexShape->setMargin(0.01);
-
+					m_convexShapes.push_back(convexShape);
+					m_convexCentroids.push_back(centroid);
 					m_convexDemo->m_collisionShapes.push_back(convexShape);
-
-					btTransform trans;
-					trans.setIdentity();
-					trans.setOrigin(centroid-convexDecompositionObjectOffset);
-					
-					//btRigidBody* body = m_convexDemo->localCreateRigidBody( mass, trans,convexShape);
-					m_convexDemo->localCreateRigidBody( mass, trans,convexShape);
 					mBaseCount+=result.mHullVcount; // advance the 'base index' counter.
 
 
@@ -394,6 +387,34 @@ void ConvexDecompositionDemo::initPhysics(const char* filename)
 
 		ConvexBuilder cb(desc.mCallback);
 		cb.process(desc);
+		//now create some bodies
+		
+		{
+			btCompoundShape* compound = new btCompoundShape();
+			m_collisionShapes.push_back (compound);
+
+			btTransform trans;
+			trans.setIdentity();
+			for (int i=0;i<convexDecomposition.m_convexShapes.size();i++)
+			{
+				
+				btVector3 centroid = convexDecomposition.m_convexCentroids[i];
+				trans.setOrigin(centroid);
+				btConvexHullShape* convexShape = convexDecomposition.m_convexShapes[i];
+				compound->addChildShape(trans,convexShape);
+			}
+			btScalar mass=10.f;
+			trans.setOrigin(-convexDecompositionObjectOffset);
+			localCreateRigidBody( mass, trans,compound);
+			convexDecompositionObjectOffset.setZ(6);
+			trans.setOrigin(-convexDecompositionObjectOffset);
+			localCreateRigidBody( mass, trans,compound);
+			convexDecompositionObjectOffset.setZ(-6);
+			trans.setOrigin(-convexDecompositionObjectOffset);
+			localCreateRigidBody( mass, trans,compound);
+			
+		}
+
 		
 		if (outputFile)
 			fclose(outputFile);

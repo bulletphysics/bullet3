@@ -21,20 +21,7 @@ subject to the following restrictions:
 
 void btBoxShape::getAabb(const btTransform& t,btVector3& aabbMin,btVector3& aabbMax) const
 {
-	btVector3 halfExtents = getHalfExtentsWithoutMargin();
-	halfExtents += btVector3(getMargin(),getMargin(),getMargin());
-
-
-	btMatrix3x3 abs_b = t.getBasis().absolute();  
-	btPoint3 center = t.getOrigin();
-	btVector3 extent = btVector3(abs_b[0].dot(halfExtents),
-		   abs_b[1].dot(halfExtents),
-		  abs_b[2].dot(halfExtents));
-
-	aabbMin = center - extent;
-	aabbMax = center + extent;
-
-
+	btTransformAabb(getHalfExtentsWithoutMargin(),getMargin(),t,aabbMin,aabbMax);
 }
 
 

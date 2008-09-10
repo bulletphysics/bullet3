@@ -28,11 +28,13 @@ class btDispatcher;
 class btDispatcher;
 
 /// btCompoundCollisionAlgorithm  supports collision between CompoundCollisionShapes and other collision shapes
-/// Place holder, not fully implemented yet
 class btCompoundCollisionAlgorithm  : public btCollisionAlgorithm
 {
 	btAlignedObjectArray<btCollisionAlgorithm*> m_childCollisionAlgorithms;
 	bool m_isSwapped;
+
+	class btPersistentManifold*	m_sharedManifold;
+	bool					m_ownsManifold;
 	
 public:
 

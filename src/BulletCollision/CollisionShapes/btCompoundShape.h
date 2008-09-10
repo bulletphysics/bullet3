@@ -24,8 +24,8 @@ subject to the following restrictions:
 #include "btCollisionMargin.h"
 #include "LinearMath/btAlignedObjectArray.h"
 
-class btOptimizedBvh;
-
+//class btOptimizedBvh;
+struct btDbvt;
 
 ATTRIBUTE_ALIGNED16(struct) btCompoundShapeChild
 {
@@ -35,14 +35,15 @@ ATTRIBUTE_ALIGNED16(struct) btCompoundShapeChild
 	btCollisionShape*	m_childShape;
 	int					m_childShapeType;
 	btScalar			m_childMargin;
+	struct btDbvtNode*	m_node;
 };
 
 SIMD_FORCE_INLINE bool operator==(const btCompoundShapeChild& c1, const btCompoundShapeChild& c2)
 {
-   return  ( c1.m_transform      == c2.m_transform &&
-             c1.m_childShape     == c2.m_childShape &&
-             c1.m_childShapeType == c2.m_childShapeType &&
-             c1.m_childMargin    == c2.m_childMargin );
+	return  ( c1.m_transform      == c2.m_transform &&
+		c1.m_childShape     == c2.m_childShape &&
+		c1.m_childShapeType == c2.m_childShapeType &&
+		c1.m_childMargin    == c2.m_childMargin );
 }
 
 /// btCompoundShape allows to store multiple other btCollisionShapes
@@ -55,7 +56,8 @@ ATTRIBUTE_ALIGNED16(class) btCompoundShape	: public btCollisionShape
 	btVector3						m_localAabbMin;
 	btVector3						m_localAabbMax;
 
-	btOptimizedBvh*					m_aabbTree;
+	//btOptimizedBvh*					m_aabbTree;
+	btDbvt*							m_dynamicAabbTree;
 
 public:
 	BT_DECLARE_ALIGNED_ALLOCATOR();
@@ -66,11 +68,11 @@ public:
 
 	void	addChildShape(const btTransform& localTransform,btCollisionShape* shape);
 
-   /** Remove all children shapes that contain the specified shape. */
+	/// Remove all children shapes that contain the specified shape
 	virtual void removeChildShape(btCollisionShape* shape);
 
-	  
-	
+	void removeChildShapeByIndex(int childShapeindex);
+
 
 	int		getNumChildShapes() const
 	{
@@ -103,9 +105,9 @@ public:
 
 	///getAabb's default implementation is brute force, expected derived classes to implement a fast dedicated version
 	virtual	void getAabb(const btTransform& t,btVector3& aabbMin,btVector3& aabbMax) const;
-	
-   /** Re-calculate the local Aabb. Is called at the end of removeChildShapes. 
-       Use this yourself if you modify the children or their transforms. */
+
+	/** Re-calculate the local Aabb. Is called at the end of removeChildShapes. 
+	Use this yourself if you modify the children or their transforms. */
 	virtual void recalculateLocalAabb(); 
 
 	virtual void	setLocalScaling(const btVector3& scaling)
@@ -118,7 +120,7 @@ public:
 	}
 
 	virtual void	calculateLocalInertia(btScalar mass,btVector3& inertia) const;
-	
+
 	virtual int	getShapeType() const { return COMPOUND_SHAPE_PROXYTYPE;}
 
 	virtual void	setMargin(btScalar margin)
@@ -137,9 +139,9 @@ public:
 	//this is optional, but should make collision queries faster, by culling non-overlapping nodes
 	void	createAabbTreeFromChildren();
 
-	const btOptimizedBvh*					getAabbTree() const
+	btDbvt*							getDynamicAabbTree()
 	{
-		return m_aabbTree;
+		return m_dynamicAabbTree;
 	}
 
 	///computes the exact moment of inertia and the transform from the coordinate system defined by the principal axes of the moment of inertia
