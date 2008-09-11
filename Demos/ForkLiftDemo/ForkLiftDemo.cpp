@@ -34,7 +34,7 @@ subject to the following restrictions:
 #define M_PI_4     0.785398163397448309616
 #endif
 
-#define LIFT_EPS 0.0000001f
+//#define LIFT_EPS 0.0000001f
 //
 // By default, Bullet Vehicle uses Y as up axis.
 // You can override the up axis, for example Z-axis up. Enable this define to see how to:
@@ -379,7 +379,8 @@ const float TRIANGLE_SIZE=20.f;
 		localB.getBasis().setEulerZYX(0, M_PI_2, 0);
 		localB.setOrigin(btVector3(0.0, -1.5, -0.05));
 		m_liftHinge = new btHingeConstraint(*m_carChassis,*m_liftBody, localA, localB);
-		m_liftHinge->setLimit(-LIFT_EPS, LIFT_EPS);
+//		m_liftHinge->setLimit(-LIFT_EPS, LIFT_EPS);
+		m_liftHinge->setLimit(0.0f, 0.0f);
 		m_dynamicsWorld->addConstraint(m_liftHinge, true);
 
 		btCollisionShape* forkShapeA = new btBoxShape(btVector3(1.0f,0.1f,0.1f));
@@ -417,8 +418,10 @@ const float TRIANGLE_SIZE=20.f;
 		m_forkSlider = new btSliderConstraint(*m_liftBody, *m_forkBody, localA, localB, true);
 		m_forkSlider->setLowerLinLimit(0.1f);
 		m_forkSlider->setUpperLinLimit(0.1f);
-		m_forkSlider->setLowerAngLimit(-LIFT_EPS);
-		m_forkSlider->setUpperAngLimit(LIFT_EPS);
+//		m_forkSlider->setLowerAngLimit(-LIFT_EPS);
+//		m_forkSlider->setUpperAngLimit(LIFT_EPS);
+		m_forkSlider->setLowerAngLimit(0.0f);
+		m_forkSlider->setUpperAngLimit(0.0f);
 		m_dynamicsWorld->addConstraint(m_forkSlider, true);
 
 
@@ -692,7 +695,8 @@ void ForkLiftDemo::clientResetScene()
 	m_forkBody->setLinearVelocity(btVector3(0,0,0));
 	m_forkBody->setAngularVelocity(btVector3(0,0,0));
 
-	m_liftHinge->setLimit(-LIFT_EPS, LIFT_EPS);
+//	m_liftHinge->setLimit(-LIFT_EPS, LIFT_EPS);
+	m_liftHinge->setLimit(0.0f, 0.0f);
 	m_liftHinge->enableAngularMotor(false, 0, 0);
 
 	
@@ -905,15 +909,18 @@ void ForkLiftDemo::lockLiftHinge(void)
 	m_liftHinge->enableAngularMotor(false, 0, 0);
 	if(hingeAngle < lowLim)
 	{
-		m_liftHinge->setLimit(lowLim, lowLim + LIFT_EPS);
+//		m_liftHinge->setLimit(lowLim, lowLim + LIFT_EPS);
+		m_liftHinge->setLimit(lowLim, lowLim);
 	}
 	else if(hingeAngle > hiLim)
 	{
-		m_liftHinge->setLimit(hiLim - LIFT_EPS, hiLim);
+//		m_liftHinge->setLimit(hiLim - LIFT_EPS, hiLim);
+		m_liftHinge->setLimit(hiLim, hiLim);
 	}
 	else
 	{
-		m_liftHinge->setLimit(hingeAngle - LIFT_EPS, hingeAngle + LIFT_EPS);
+//		m_liftHinge->setLimit(hingeAngle - LIFT_EPS, hingeAngle + LIFT_EPS);
+		m_liftHinge->setLimit(hingeAngle, hingeAngle);
 	}
 	return;
 } // ForkLiftDemo::lockLiftHinge()
