@@ -54,7 +54,6 @@ subject to the following restrictions:
 				const AABB**	mBoxPtrs;
 				Pairs			mPairs;
 				float*			mBoxTime;
-				float			mSpeed;
 				float			mAmplitude;
 				bool			m_firstTime;
 				int				m_method;

@@ -43,7 +43,6 @@ subject to the following restrictions:
 				AABB*			mBoxes;
 				void**			mHandles;
 				float*			mBoxTime;
-				float			mSpeed;
 				float			mAmplitude;
 				bool			m_firstTime;
 

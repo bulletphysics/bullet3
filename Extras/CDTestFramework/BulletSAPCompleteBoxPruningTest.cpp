@@ -341,7 +341,6 @@ BulletSAPCompleteBoxPruningTest::BulletSAPCompleteBoxPruningTest(int numBoxes,in
 	mBoxes			(null),
 	mBoxPtrs		(null),
 	mBoxTime		(null),
-	mSpeed			(0.005f),
 	mAmplitude		(100.0f),
 	m_method(method)
 {
@@ -473,15 +472,34 @@ void BulletSAPCompleteBoxPruningTest::Release()
 	DELETEARRAY(mBoxes);
 }
 
+extern int		doTree;
+extern int		percentUpdate;
+extern float	objectSpeed;
+
+static void TW_CALL NormalMode(void* pdata)
+{
+btDbvtBroadphase*	pb=(btDbvtBroadphase*)pdata;
+pb->m_deferedcollide	=	true;
+pb->m_predictedframes	=	2;
+}
+
+static void TW_CALL SlowSpeedMode(void* pdata)
+{
+btDbvtBroadphase*	pb=(btDbvtBroadphase*)pdata;
+pb->m_deferedcollide	=	false;
+pb->m_predictedframes	=	15;
+}
+
 void BulletSAPCompleteBoxPruningTest::Select()
 {
 	// Create a tweak bar
 	{
 		mBar = TwNewBar("OPC_CompleteBoxPruning");
-		TwAddVarRW(mBar, "Speed", TW_TYPE_FLOAT, &mSpeed, " min=0.0 max=0.01 step=0.00001");
+		TwAddVarRW(mBar, "Speed", TW_TYPE_FLOAT, &objectSpeed, " min=0.0 max=0.01 step=0.0001");
 		TwAddVarRW(mBar, "Amplitude", TW_TYPE_FLOAT, &mAmplitude, " min=10.0 max=200.0 step=0.1");
 		if(m_isdbvt)
 			{
+			btDbvtBroadphase*	pbp=(btDbvtBroadphase*)m_broadphase;
 			TwAddVarRW(mBar, "Enable culling",TW_TYPE_BOOLCPP,&enableCulling,"");
 			TwAddVarRW(mBar, "Enable occlusion",TW_TYPE_BOOLCPP,&enableOcclusion,"");
 			TwAddVarRW(mBar, "Show culling",TW_TYPE_BOOLCPP,&showCulling,"");			
@@ -489,13 +507,19 @@ void BulletSAPCompleteBoxPruningTest::Select()
 			TwAddVarRW(mBar, "Cull far plane",TW_TYPE_BOOLCPP,&cullFarPlane,"");
 			TwAddVarRW(mBar, "OC Min area",TW_TYPE_FLOAT,&ocb.ocarea,"min=0.0 max=1.0 step=0.001");
 			TwAddVarRW(mBar, "QR Min area",TW_TYPE_FLOAT,&ocb.qrarea,"min=0.0 max=1.0 step=0.001");
-			TwAddVarRW(mBar, "Dyn lkhd",TW_TYPE_INT32,&((btDbvtBroadphase*)m_broadphase)->m_sets[0].m_lkhd,"min=-1 max=32");
-			TwAddVarRW(mBar, "Fix lkhd",TW_TYPE_INT32,&((btDbvtBroadphase*)m_broadphase)->m_sets[1].m_lkhd,"min=-1 max=32");
-			TwAddVarRW(mBar, "Dyn opt/f(%)",TW_TYPE_INT32,&((btDbvtBroadphase*)m_broadphase)->m_dupdates,"min=0 max=100");
-			TwAddVarRW(mBar, "Fix opt/f(%)",TW_TYPE_INT32,&((btDbvtBroadphase*)m_broadphase)->m_fupdates,"min=0 max=100");
-			TwAddVarRO(mBar, "Dyn leafs",TW_TYPE_INT32,&((btDbvtBroadphase*)m_broadphase)->m_sets[0].m_leaves,"");
-			TwAddVarRO(mBar, "Fix leafs",TW_TYPE_INT32,&((btDbvtBroadphase*)m_broadphase)->m_sets[1].m_leaves,"");
-			TwAddVarRO(mBar, "Visible",TW_TYPE_INT32,&visiblecount,"");			
+			TwAddVarRW(mBar, "Dyn lkhd",TW_TYPE_INT32,&pbp->m_sets[0].m_lkhd,"min=-1 max=32");
+			TwAddVarRW(mBar, "Fix lkhd",TW_TYPE_INT32,&pbp->m_sets[1].m_lkhd,"min=-1 max=32");
+			TwAddVarRW(mBar, "Dyn opt/f(%)",TW_TYPE_INT32,&pbp->m_dupdates,"min=0 max=100");
+			TwAddVarRW(mBar, "Fix opt/f(%)",TW_TYPE_INT32,&pbp->m_fupdates,"min=0 max=100");
+			TwAddVarRW(mBar, "Cln opt/f(%)",TW_TYPE_INT32,&pbp->m_cupdates,"min=0 max=100");
+			TwAddVarRW(mBar, "Pred.frames",TW_TYPE_FLOAT,&pbp->m_predictedframes,"min=0.0 max=50.0 step=0.5");
+			TwAddVarRW(mBar, "Defered collide",TW_TYPE_BOOLCPP,&pbp->m_deferedcollide,"");
+			TwAddVarRO(mBar, "Dyn leafs",TW_TYPE_INT32,&pbp->m_sets[0].m_leaves,"");
+			TwAddVarRO(mBar, "Fix leafs",TW_TYPE_INT32,&pbp->m_sets[1].m_leaves,"");
+			TwAddVarRO(mBar, "Updates ratio",TW_TYPE_FLOAT,&pbp->m_updates_ratio,"");
+			TwAddVarRO(mBar, "Visible",TW_TYPE_INT32,&visiblecount,"");
+			TwAddButton(mBar,"Normal mode",&NormalMode,m_broadphase,"");
+			TwAddButton(mBar,"Slow speed mode",&SlowSpeedMode,m_broadphase,"");
 			}
 	}
 	printf("SubMethod: %s\r\n",methodname);
@@ -516,7 +540,7 @@ bool BulletSAPCompleteBoxPruningTest::UpdateBoxes(int numBoxes)
 
 	for(udword i=0;i<(udword)numBoxes;i++)
 	{
-		mBoxTime[i] += mSpeed;
+		mBoxTime[i] += objectSpeed;
 
 		Point Center,Extents;
 		mBoxes[i].GetExtents(Extents);
@@ -529,8 +553,6 @@ bool BulletSAPCompleteBoxPruningTest::UpdateBoxes(int numBoxes)
 	}
 	return true;
 }
-extern int	doTree;
-extern int	percentUpdate;
 
 void BulletSAPCompleteBoxPruningTest::PerformTest()
 {

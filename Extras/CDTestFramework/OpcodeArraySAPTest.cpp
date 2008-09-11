@@ -47,7 +47,6 @@ OpcodeArraySAPTest::OpcodeArraySAPTest(int numBoxes) :
 	mBoxes			(null),
 	mHandles		(null),
 	mBoxTime		(null),
-	mSpeed			(0.005f),
 	mAmplitude		(100.0f)
 {
 }
@@ -101,12 +100,14 @@ void OpcodeArraySAPTest::Release()
 	DELETEARRAY(mBoxes);
 }
 
+extern float	objectSpeed;
+
 void OpcodeArraySAPTest::Select()
 {
 	// Create a tweak bar
 	{
 		mBar = TwNewBar("OpcodeArraySAPTest");
-		TwAddVarRW(mBar, "Speed", TW_TYPE_FLOAT, &mSpeed, " min=0.0 max=0.01 step=0.00001");
+		TwAddVarRW(mBar, "Speed", TW_TYPE_FLOAT, &objectSpeed, " min=0.0 max=0.01 step=0.00001");
 		TwAddVarRW(mBar, "Amplitude", TW_TYPE_FLOAT, &mAmplitude, " min=10.0 max=200.0 step=0.1");
 	}
 }
@@ -124,7 +125,7 @@ bool OpcodeArraySAPTest::UpdateBoxes(int numBoxes)
 {
 	for(int i=0;i<numBoxes;i++)
 	{
-		mBoxTime[i] += mSpeed;
+		mBoxTime[i] += objectSpeed;
 
 		Point Center,Extents;
 		mBoxes[i].GetExtents(Extents);

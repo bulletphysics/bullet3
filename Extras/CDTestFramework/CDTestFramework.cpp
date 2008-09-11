@@ -21,17 +21,21 @@ subject to the following restrictions:
 #include "CapsuleMeshQuery.h"
 #include "CompleteBoxPruning.h"
 #include "BulletSAPCompleteBoxPruningTest.h"
+#include "BulletSAPCompleteBoxPruningTest.h"
 #include "BipartiteBoxPruning.h"
 #include "OpcodeArraySAPTest.h"
 #include "RenderingHelpers.h"
 #include "Terrain.h"
 #include "Camera.h"
 #include "GLFontRenderer.h"
+#include "BulletCollision/BroadphaseCollision/btDbvtBroadphase.h"
 
 #define NUM_SAP_BOXES 8192
 //#define NUM_SAP_BOXES 1024
 
 int		percentUpdate	=	10;
+//float	objectSpeed		=	0.005f;
+float	objectSpeed		=	0.0005f;
 
 //Broadphase comparison
 //Static case (updating 10% of objects to same position ( -> no swaps)
@@ -227,6 +231,11 @@ static void Terminate()
 
 int main(int argc, char** argv)
 {
+	{
+	::SetPriorityClass(::GetCurrentProcess(),REALTIME_PRIORITY_CLASS);
+	/*btDbvt::benchmark();
+	exit(0);*/
+	}
 	// Initialize AntTweakBar
 	// (note that AntTweakBar could also be intialize after GLUT, no matter)
 	if(!TwInit(TW_OPENGL, NULL))
@@ -300,7 +309,7 @@ int main(int argc, char** argv)
 		};
 		TwType testType = TwDefineEnum("CollisionTest", testEV, MAX_NB_TESTS);
 		TwAddVarRW(gMainBar, "CollisionTests", testType, &gSelectedTest, "");		
-		TwAddVarRW(gMainBar, "% of updates",TW_TYPE_INT32,&percentUpdate,"min=0 max=100");		
+		TwAddVarRW(gMainBar, "% of updates",TW_TYPE_INT32,&percentUpdate,"min=0 max=100");
 	}
 
 	// Create tests
