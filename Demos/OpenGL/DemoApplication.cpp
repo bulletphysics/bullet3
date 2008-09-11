@@ -39,8 +39,11 @@ btTransform startTransforms[maxNumObjects];
 btCollisionShape* gShapePtr[maxNumObjects];//1 rigidbody has 1 shape (no re-use of shapes)
 #define SHOW_NUM_DEEP_PENETRATIONS 1
 
+extern int gNumClampedCcdMotions;
+
 #ifdef SHOW_NUM_DEEP_PENETRATIONS 
 extern int gNumDeepPenetrationChecks;
+
 extern int gNumSplitImpulseRecoveries;
 extern int gNumGjkChecks;
 extern int gNumAlignedAllocs;
@@ -541,6 +544,9 @@ void	DemoApplication::shootBox(const btVector3& destination)
 		body->getWorldTransform().setRotation(btQuaternion(0,0,0,1));
 		body->setLinearVelocity(linVel);
 		body->setAngularVelocity(btVector3(0,0,0));
+		body->setCcdSquareMotionThreshold(3600);//1600);//40ms/sec for 60 hertz gives 0.66 m/frame. 40*40=1600
+		body->setCcdSweptSphereRadius(0.2f);
+		
 	}
 
 }
@@ -1154,6 +1160,11 @@ void DemoApplication::renderme()
 			sprintf(buf,"gNumGjkChecks= %d",gNumGjkChecks);
 			BMF_DrawString(BMF_GetFont(BMF_kHelvetica10),buf);
 			yStart += yIncr;
+			
+			glRasterPos3f(xOffset,yStart,0);
+			sprintf(buf,"gNumClampedCcdMotions = %d",gNumClampedCcdMotions);
+			BMF_DrawString(BMF_GetFont(BMF_kHelvetica10),buf);
+			yStart += yIncr;
 
 			glRasterPos3f(xOffset,yStart,0);
 			sprintf(buf,"gNumSplitImpulseRecoveries= %d",gNumSplitImpulseRecoveries);
@@ -1218,6 +1229,7 @@ void	DemoApplication::clientResetScene()
 	gNumGjkChecks = 0;
 #endif //SHOW_NUM_DEEP_PENETRATIONS
 
+	gNumClampedCcdMotions = 0;
 	int numObjects = 0;
 	if (m_dynamicsWorld)
 	{

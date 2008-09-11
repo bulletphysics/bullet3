@@ -707,6 +707,7 @@ void	btDiscreteDynamicsWorld::calculateSimulationIslands()
 	
 }
 
+
 #include "BulletCollision/BroadphaseCollision/btCollisionAlgorithm.h"
 
 class btClosestNotMeConvexResultCallback : public btCollisionWorld::ClosestConvexResultCallback
@@ -775,6 +776,9 @@ public:
 
 };
 
+///internal debugging variable. this value shouldn't be too high
+int gNumClampedCcdMotions=0;
+
 //#include "stdio.h"
 void	btDiscreteDynamicsWorld::integrateTransforms(btScalar timeStep)
 {
@@ -796,6 +800,7 @@ void	btDiscreteDynamicsWorld::integrateTransforms(btScalar timeStep)
 					BT_PROFILE("CCD motion clamping");
 					if (body->getCollisionShape()->isConvex())
 					{
+						gNumClampedCcdMotions++;
 						body->predictIntegratedTransform(timeStep, predictedTrans);
 						btClosestNotMeConvexResultCallback sweepResults(body,body->getWorldTransform().getOrigin(),predictedTrans.getOrigin(),getBroadphase()->getOverlappingPairCache());
 						btConvexShape* convexShape = static_cast<btConvexShape*>(body->getCollisionShape());
