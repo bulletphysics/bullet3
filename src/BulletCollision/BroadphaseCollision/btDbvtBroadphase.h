@@ -23,9 +23,10 @@ subject to the following restrictions:
 // Compile time config
 //
 
-#define	DBVT_BP_PROFILE			0
-#define DBVT_BP_DISCRETPAIRS	1
-#define DBVT_BP_MARGIN			(btScalar)0.05
+#define	DBVT_BP_PROFILE				0
+#define DBVT_BP_SORTPAIRS			1
+#define DBVT_BP_ENABLE_BENCHMARK	0
+#define DBVT_BP_MARGIN				(btScalar)0.05
 
 #if DBVT_BP_PROFILE
 	#define	DBVT_BP_PROFILING_RATE	256
@@ -38,10 +39,10 @@ subject to the following restrictions:
 struct btDbvtProxy : btBroadphaseProxy
 {
 /* Fields		*/ 
-btDbvtAabbMm		aabb;
+btDbvtAabbMm	aabb;
 btDbvtNode*		leaf;
-btDbvtProxy*		links[2];
-int					stage;
+btDbvtProxy*	links[2];
+int				stage;
 /* ctor			*/ 
 btDbvtProxy(void* userPtr,short int collisionFilterGroup, short int collisionFilterMask) :
 	btBroadphaseProxy(userPtr,collisionFilterGroup,collisionFilterMask)
@@ -71,9 +72,16 @@ btScalar				m_predictedframes;			// Frames predicted
 int						m_stageCurrent;				// Current stage
 int						m_fupdates;					// % of fixed updates per frame
 int						m_dupdates;					// % of dynamic updates per frame
+int						m_cupdates;					// % of cleanup updates per frame
+int						m_newpairs;					// Number of pairs created
+unsigned				m_updates_call;				// Number of updates call
+unsigned				m_updates_done;				// Number of updates done
+btScalar				m_updates_ratio;			// m_updates_done/m_updates_call
 int						m_pid;						// Parse id
+int						m_cid;						// Cleanup index
 int						m_gid;						// Gen id
 bool					m_releasepaircache;			// Release pair cache on delete
+bool					m_deferedcollide;			// Defere dynamic/static collision to collide call
 #if DBVT_BP_PROFILE
 btClock					m_clock;
 struct	{
@@ -98,6 +106,7 @@ btOverlappingPairCache*			getOverlappingPairCache();
 const btOverlappingPairCache*	getOverlappingPairCache() const;
 void							getBroadphaseAabb(btVector3& aabbMin,btVector3& aabbMax) const;
 void							printStats();
+static void						benchmark(btBroadphaseInterface*);
 };
 
 #endif
