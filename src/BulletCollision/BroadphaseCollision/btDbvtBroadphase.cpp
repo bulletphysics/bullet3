@@ -114,7 +114,8 @@ void	Process(const btDbvtNode* na,const btDbvtNode* nb)
 //
 btDbvtBroadphase::btDbvtBroadphase(btOverlappingPairCache* paircache)
 {
-m_deferedcollide	=	false;
+m_initialize		=	true;
+m_deferedcollide	=	true;
 m_releasepaircache	=	(paircache!=0)?false:true;
 m_predictedframes	=	15;
 m_stageCurrent		=	0;
@@ -317,7 +318,7 @@ if(current)
 			btBroadphasePair&	p=pairs[(m_cid+i)%ci];
 			btDbvtProxy*		pa=(btDbvtProxy*)p.m_pProxy0;
 			btDbvtProxy*		pb=(btDbvtProxy*)p.m_pProxy1;
-			if((pa->stage==0)||(pb->stage==0))
+			//if((pa->stage==0)||(pb->stage==0))
 				{
 				if(!Intersect(pa->leaf->volume,pb->leaf->volume))
 					{
@@ -340,6 +341,11 @@ if(m_updates_call>0)
 	{ m_updates_ratio=0; }
 m_updates_done/=2;
 m_updates_call/=2;
+if(m_initialize)
+	{
+	m_initialize=false;
+	m_deferedcollide=false;
+	}
 }
 
 //
