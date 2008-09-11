@@ -27,6 +27,7 @@
 #include "btOverlappingPairCallback.h"
 
 //#define DEBUG_BROADPHASE 1
+#define USE_OVERLAP_TEST_ON_REMOVES 1
 
 /// The internal templace class btAxisSweep3Internal implements the sweep and prune broadphase.
 /// It uses quantized integers to represent the begin and end points for each of the 3 axis.
@@ -98,7 +99,7 @@ protected:
 	void freeHandle(BP_FP_INT_TYPE handle);
 	
 
-	bool testOverlap(int ignoreAxis,const Handle* pHandleA, const Handle* pHandleB);
+	bool testOverlap2D(const Handle* pHandleA, const Handle* pHandleB,int axis0,int axis1);
 
 #ifdef DEBUG_BROADPHASE
 	void debugPrintAxis(int axis,bool checkCardinality=true);
@@ -600,34 +601,17 @@ bool btAxisSweep3Internal<BP_FP_INT_TYPE>::testAabbOverlap(btBroadphaseProxy* pr
 }
 
 template <typename BP_FP_INT_TYPE>
-bool btAxisSweep3Internal<BP_FP_INT_TYPE>::testOverlap(int ignoreAxis,const Handle* pHandleA, const Handle* pHandleB)
+bool btAxisSweep3Internal<BP_FP_INT_TYPE>::testOverlap2D(const Handle* pHandleA, const Handle* pHandleB,int axis0,int axis1)
 {
 	//optimization 1: check the array index (memory address), instead of the m_pos
 
-	for (int axis = 0; axis < 3; axis++)
+	if (pHandleA->m_maxEdges[axis0] < pHandleB->m_minEdges[axis0] || 
+		pHandleB->m_maxEdges[axis0] < pHandleA->m_minEdges[axis0] ||
+		pHandleA->m_maxEdges[axis1] < pHandleB->m_minEdges[axis1] ||
+		pHandleB->m_maxEdges[axis1] < pHandleA->m_minEdges[axis1]) 
 	{ 
-		if (axis != ignoreAxis)
-		{
-			if (pHandleA->m_maxEdges[axis] < pHandleB->m_minEdges[axis] || 
-				pHandleB->m_maxEdges[axis] < pHandleA->m_minEdges[axis]) 
-			{ 
-				return false; 
-			} 
-		}
+		return false; 
 	} 
-
-	//optimization 2: only 2 axis need to be tested (conflicts with 'delayed removal' optimization)
-
-	/*for (int axis = 0; axis < 3; axis++)
-	{
-		if (m_pEdges[axis][pHandleA->m_maxEdges[axis]].m_pos < m_pEdges[axis][pHandleB->m_minEdges[axis]].m_pos ||
-			m_pEdges[axis][pHandleB->m_maxEdges[axis]].m_pos < m_pEdges[axis][pHandleA->m_minEdges[axis]].m_pos)
-		{
-			return false;
-		}
-	}
-	*/
-
 	return true;
 }
 
@@ -697,7 +681,9 @@ void btAxisSweep3Internal<BP_FP_INT_TYPE>::sortMinDown(int axis, BP_FP_INT_TYPE 
 		if (pPrev->IsMax())
 		{
 			// if previous edge is a maximum check the bounds and add an overlap if necessary
-			if (updateOverlaps && testOverlap(axis,pHandleEdge, pHandlePrev))
+			const int axis1 = (1  << axis) & 3;
+			const int axis2 = (1  << axis1) & 3;
+			if (updateOverlaps && testOverlap2D(pHandleEdge, pHandlePrev,axis1,axis2))
 			{
 				m_pairCache->addOverlappingPair(pHandleEdge,pHandlePrev);
 				if (m_userPairCallback)
@@ -745,12 +731,19 @@ void btAxisSweep3Internal<BP_FP_INT_TYPE>::sortMinUp(int axis, BP_FP_INT_TYPE ed
 
 		if (pNext->IsMax())
 		{
-
+			Handle* handle0 = getHandle(pEdge->m_handle);
+			Handle* handle1 = getHandle(pNext->m_handle);
+			const int axis1 = (1  << axis) & 3;
+			const int axis2 = (1  << axis1) & 3;
+			
 			// if next edge is maximum remove any overlap between the two handles
-			if (updateOverlaps)
+			if (updateOverlaps 
+#ifdef USE_OVERLAP_TEST_ON_REMOVES
+				&& testOverlap2D(handle0,handle1,axis1,axis2)
+#endif //USE_OVERLAP_TEST_ON_REMOVES
+				)
 			{
-				Handle* handle0 = getHandle(pEdge->m_handle);
-				Handle* handle1 = getHandle(pNext->m_handle);
+				
 
 				m_pairCache->removeOverlappingPair(handle0,handle1,dispatcher);	
 				if (m_userPairCallback)
@@ -796,12 +789,20 @@ void btAxisSweep3Internal<BP_FP_INT_TYPE>::sortMaxDown(int axis, BP_FP_INT_TYPE 
 		if (!pPrev->IsMax())
 		{
 			// if previous edge was a minimum remove any overlap between the two handles
-			if (updateOverlaps)
+			Handle* handle0 = getHandle(pEdge->m_handle);
+			Handle* handle1 = getHandle(pPrev->m_handle);
+			const int axis1 = (1  << axis) & 3;
+			const int axis2 = (1  << axis1) & 3;
+
+			if (updateOverlaps  
+#ifdef USE_OVERLAP_TEST_ON_REMOVES
+				&& testOverlap2D(handle0,handle1,axis1,axis2)
+#endif //USE_OVERLAP_TEST_ON_REMOVES
+				)
 			{
 				//this is done during the overlappingpairarray iteration/narrowphase collision
 
-				Handle* handle0 = getHandle(pEdge->m_handle);
-				Handle* handle1 = getHandle(pPrev->m_handle);
+				
 				m_pairCache->removeOverlappingPair(handle0,handle1,dispatcher);
 				if (m_userPairCallback)
 					m_userPairCallback->removeOverlappingPair(handle0,handle1,dispatcher);
@@ -847,10 +848,13 @@ void btAxisSweep3Internal<BP_FP_INT_TYPE>::sortMaxUp(int axis, BP_FP_INT_TYPE ed
 	{
 		Handle* pHandleNext = getHandle(pNext->m_handle);
 
+		const int axis1 = (1  << axis) & 3;
+		const int axis2 = (1  << axis1) & 3;
+
 		if (!pNext->IsMax())
 		{
 			// if next edge is a minimum check the bounds and add an overlap if necessary
-			if (updateOverlaps && testOverlap(axis, pHandleEdge, pHandleNext))
+			if (updateOverlaps && testOverlap2D(pHandleEdge, pHandleNext,axis1,axis2))
 			{
 				Handle* handle0 = getHandle(pEdge->m_handle);
 				Handle* handle1 = getHandle(pNext->m_handle);
