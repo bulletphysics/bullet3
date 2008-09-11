@@ -198,7 +198,8 @@ void							btDbvtBroadphase::setAabb(		btBroadphaseProxy* absproxy,
 																btDispatcher* /*dispatcher*/)
 {
 btDbvtProxy*	proxy=(btDbvtProxy*)absproxy;
-btDbvtVolume	aabb=btDbvtVolume::FromMM(aabbMin,aabbMax);
+ATTRIBUTE_ALIGNED16(btDbvtVolume)	aabb=btDbvtVolume::FromMM(aabbMin,aabbMax);
+
 #if DBVT_BP_PREVENTFALSEUPDATE
 if(NotEqual(aabb,proxy->leaf->volume))
 #endif
