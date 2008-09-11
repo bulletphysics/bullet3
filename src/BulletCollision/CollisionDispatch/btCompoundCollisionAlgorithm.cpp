@@ -183,7 +183,7 @@ void btCompoundCollisionAlgorithm::processCollision (btCollisionObject* body0,bt
 		otherInCompoundSpace = colObj->getWorldTransform().inverse() * otherObj->getWorldTransform();
 		otherObj->getCollisionShape()->getAabb(otherInCompoundSpace,localAabbMin,localAabbMax);
 
-		const btDbvtVolume	bounds=btDbvtVolume::FromMM(localAabbMin,localAabbMax);
+		const ATTRIBUTE_ALIGNED16(btDbvtVolume)	bounds=btDbvtVolume::FromMM(localAabbMin,localAabbMax);
 		//process all children, that overlap with  the given AABB bounds
 		tree->collideTV(tree->m_root,bounds,callback);
 
