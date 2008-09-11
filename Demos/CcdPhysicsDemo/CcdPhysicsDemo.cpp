@@ -556,7 +556,7 @@ int maxNumOutstandingTasks = 4;
 
 
 		// Only do CCD if  motion in one timestep (1.f/60.f) exceeds CUBE_HALF_EXTENTS
-		body->setCcdSquareMotionThreshold( CUBE_HALF_EXTENTS );
+		body->setCcdMotionThreshold( CUBE_HALF_EXTENTS );
 
 		//Experimental: better estimation of CCD Time of Impact:
 		body->setCcdSweptSphereRadius( 0.2*CUBE_HALF_EXTENTS );

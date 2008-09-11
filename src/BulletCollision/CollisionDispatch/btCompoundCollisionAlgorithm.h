@@ -51,7 +51,8 @@ public:
 		int i;
 		for (i=0;i<m_childCollisionAlgorithms.size();i++)
 		{
-			m_childCollisionAlgorithms[i]->getAllContactManifolds(manifoldArray);
+			if (m_childCollisionAlgorithms[i])
+				m_childCollisionAlgorithms[i]->getAllContactManifolds(manifoldArray);
 		}
 	}
 

@@ -269,7 +269,7 @@ void	btDiscreteDynamicsWorld::synchronizeMotionStates()
 				{
 					btTransform interpolatedTransform;
 					btTransformUtil::integrateTransform(body->getInterpolationWorldTransform(),
-						body->getInterpolationLinearVelocity(),body->getInterpolationAngularVelocity(),m_localTime,interpolatedTransform);
+						body->getInterpolationLinearVelocity(),body->getInterpolationAngularVelocity(),m_localTime*body->getHitFraction(),interpolatedTransform);
 					body->getMotionState()->setWorldTransform(interpolatedTransform);
 				}
 			}
@@ -790,30 +790,34 @@ void	btDiscreteDynamicsWorld::integrateTransforms(btScalar timeStep)
 		btRigidBody* body = btRigidBody::upcast(colObj);
 		if (body)
 		{
+			body->setHitFraction(1.f);
+
 			if (body->isActive() && (!body->isStaticOrKinematicObject()))
 			{
-				btScalar fraction = 1.f;
-				btScalar squareVel =  body->getLinearVelocity().length2();
+				body->predictIntegratedTransform(timeStep, predictedTrans);
+				btScalar squareMotion = (predictedTrans.getOrigin()-body->getWorldTransform().getOrigin()).length2();
 
-				if (body->getCcdSquareMotionThreshold() && body->getCcdSquareMotionThreshold() < squareVel)
+				if (body->getCcdSquareMotionThreshold() && body->getCcdSquareMotionThreshold() < squareMotion)
 				{
 					BT_PROFILE("CCD motion clamping");
 					if (body->getCollisionShape()->isConvex())
 					{
 						gNumClampedCcdMotions++;
-						body->predictIntegratedTransform(timeStep, predictedTrans);
+						
 						btClosestNotMeConvexResultCallback sweepResults(body,body->getWorldTransform().getOrigin(),predictedTrans.getOrigin(),getBroadphase()->getOverlappingPairCache());
 						btConvexShape* convexShape = static_cast<btConvexShape*>(body->getCollisionShape());
 						btSphereShape tmpSphere(body->getCcdSweptSphereRadius());//btConvexShape* convexShape = static_cast<btConvexShape*>(body->getCollisionShape());
 						convexSweepTest(&tmpSphere,body->getWorldTransform(),predictedTrans,sweepResults);
 						if (sweepResults.hasHit() && (sweepResults.m_closestHitFraction < 1.f))
 						{
-							fraction = sweepResults.m_closestHitFraction;
+							body->setHitFraction(sweepResults.m_closestHitFraction);
+							body->predictIntegratedTransform(timeStep*body->getHitFraction(), predictedTrans);
+							body->setHitFraction(0.f);
 //							printf("clamped integration to hit fraction = %f\n",fraction);
 						}
 					}
 				}
-				body->predictIntegratedTransform(timeStep*fraction, predictedTrans);
+				
 				body->proceedToTransform( predictedTrans);
 			}
 		}
