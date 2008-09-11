@@ -175,7 +175,8 @@ SIMD_FORCE_INLINE	void btTransformAabb(const btVector3& halfExtents, btScalar ma
 		  abs_b[2].dot(halfExtentsWithMargin));
 	aabbMinOut = center - extent;
 	aabbMaxOut = center + extent;
-};
+}
+
 
 SIMD_FORCE_INLINE	void btTransformAabb(const btVector3& localAabbMin,const btVector3& localAabbMax, btScalar margin,const btTransform& trans,btVector3& aabbMinOut,btVector3& aabbMaxOut)
 {
