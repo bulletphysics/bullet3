@@ -430,11 +430,18 @@ void rigidBodyArrayNode::computeRigidBodies(const MPlug& plug, MDataBlock& data)
     }
 
     m_rigid_bodies.resize(numBodies);
-    for(size_t i = 0; i < m_rigid_bodies.size(); ++i) {
+	for(size_t i = 0; i < m_rigid_bodies.size(); ++i) {
         m_rigid_bodies[i] = solver_t::create_rigid_body(collision_shape);
-        m_rigid_bodies[i]->set_transform(positions[i], rotations[i]);
+		if (i < positions.size())
+		{
+			m_rigid_bodies[i]->set_transform(positions[i], rotations[i]);
+		} else
+		{
+			m_rigid_bodies[i]->set_transform(vec3f(0.f,0.f,0.f),quatf(1.f,0.f,0.f,0.f));
+		}
         solver_t::add_rigid_body(m_rigid_bodies[i]);
     }
+
 
     data.outputValue(ca_rigidBodies).set(true);
     data.setClean(plug);
