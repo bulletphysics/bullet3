@@ -679,8 +679,7 @@ Benchmarking dbvt...
 [14] culling(OCL+qsort): 3688 ms (5%),(2221 t/s)
 [15] culling(KDOP+qsort): 1139 ms (-1%),(7192 t/s)
 [16] insert/remove batch(256): 5092 ms (0%),(823704 bir/s)
-[17] btDbvtVolume proximity: 2887 ms (1%)
-[18] btDbvtVolume select: 3419 ms (0%)
+[17] btDbvtVolume select: 3419 ms (0%)
 */
 
 struct btDbvtBenchmark
@@ -782,7 +781,7 @@ static const btScalar	cfgVolumeCenterScale		=	100;
 static const btScalar	cfgVolumeExentsBase			=	1;
 static const btScalar	cfgVolumeExentsScale		=	4;
 static const int		cfgLeaves					=	8192;
-static const bool		cfgEnable					=	false;
+static const bool		cfgEnable					=	true;
 
 //[1] btDbvtVolume intersections
 bool					cfgBenchmark1_Enable		=	cfgEnable;
@@ -857,14 +856,10 @@ bool					cfgBenchmark16_Enable		=	cfgEnable;
 static const int		cfgBenchmark16_BatchCount	=	256;
 static const int		cfgBenchmark16_Passes		=	16384;
 static const int		cfgBenchmark16_Reference	=	5138;
-//[17] proximity
+//[17] select
 bool					cfgBenchmark17_Enable		=	cfgEnable;
-static const int		cfgBenchmark17_Iterations	=	8;
-static const int		cfgBenchmark17_Reference	=	2842;
-//[18] select
-bool					cfgBenchmark18_Enable		=	true;
-static const int		cfgBenchmark18_Iterations	=	4;
-static const int		cfgBenchmark18_Reference	=	3390;
+static const int		cfgBenchmark17_Iterations	=	4;
+static const int		cfgBenchmark17_Reference	=	3390;
 
 btClock					wallclock;
 printf("Benchmarking dbvt...\r\n");
@@ -1259,32 +1254,6 @@ if(cfgBenchmark17_Enable)
 	{// Benchmark 17
 	srand(380843);
 	btAlignedObjectArray<btDbvtVolume>	volumes;
-	btAlignedObjectArray<btScalar>		results;
-	volumes.resize(cfgLeaves);
-	results.resize(cfgLeaves);
-	for(int i=0;i<cfgLeaves;++i)
-		{
-		volumes[i]=btDbvtBenchmark::RandVolume(cfgVolumeCenterScale,cfgVolumeExentsBase,cfgVolumeExentsScale);
-		}
-	printf("[17] btDbvtVolume proximity: ");
-	wallclock.reset();
-	for(int i=0;i<cfgBenchmark17_Iterations;++i)
-		{
-		for(int j=0;j<cfgLeaves;++j)
-			{
-			for(int k=0;k<cfgLeaves;++k)
-				{
-				results[k]=Proximity(volumes[j],volumes[k]);
-				}
-			}
-		}
-	const int time=(int)wallclock.getTimeMilliseconds();
-	printf("%u ms (%i%%)\r\n",time,(time-cfgBenchmark17_Reference)*100/time);
-	}
-if(cfgBenchmark18_Enable)
-	{// Benchmark 18
-	srand(380843);
-	btAlignedObjectArray<btDbvtVolume>	volumes;
 	btAlignedObjectArray<int>			results;
 	btAlignedObjectArray<int>			indices;
 	volumes.resize(cfgLeaves);
@@ -1299,9 +1268,9 @@ if(cfgBenchmark18_Enable)
 		{
 		btSwap(indices[i],indices[rand()%cfgLeaves]);
 		}
-	printf("[18] btDbvtVolume select: ");
+	printf("[17] btDbvtVolume select: ");
 	wallclock.reset();
-	for(int i=0;i<cfgBenchmark18_Iterations;++i)
+	for(int i=0;i<cfgBenchmark17_Iterations;++i)
 		{
 		for(int j=0;j<cfgLeaves;++j)
 			{
@@ -1313,7 +1282,7 @@ if(cfgBenchmark18_Enable)
 			}
 		}
 	const int time=(int)wallclock.getTimeMilliseconds();
-	printf("%u ms (%i%%)\r\n",time,(time-cfgBenchmark18_Reference)*100/time);
+	printf("%u ms (%i%%)\r\n",time,(time-cfgBenchmark17_Reference)*100/time);
 	}
 printf("\r\n\r\n");
 }

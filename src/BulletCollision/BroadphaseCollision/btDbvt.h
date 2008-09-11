@@ -64,13 +64,17 @@ subject to the following restrictions:
 #ifdef WIN32
 #define DBVT_SELECT_IMPL		DBVT_IMPL_SSE
 #define DBVT_MERGE_IMPL			DBVT_IMPL_SSE
+#define DBVT_INT0_IMPL			DBVT_IMPL_SSE
 #else
 #define DBVT_SELECT_IMPL		DBVT_IMPL_GENERIC
 #define DBVT_MERGE_IMPL			DBVT_IMPL_GENERIC
+#define DBVT_INT0_IMPL			DBVT_IMPL_GENERIC
 #endif
 
-#if	(DBVT_SELECT_IMPL==DBVT_IMPL_SSE)||(DBVT_MERGE_IMPL==DBVT_IMPL_SSE)
-#include <xmmintrin.h>
+#if	(DBVT_SELECT_IMPL==DBVT_IMPL_SSE)||	\
+	(DBVT_MERGE_IMPL==DBVT_IMPL_SSE)||	\
+	(DBVT_INT0_IMPL==DBVT_IMPL_SSE)
+#include <emmintrin.h>
 #endif
 
 //
@@ -118,6 +122,10 @@ subject to the following restrictions:
 #error "DBVT_MERGE_IMPL undefined"
 #endif
 
+#ifndef DBVT_INT0_IMPL
+#error "DBVT_INT0_IMPL undefined"
+#endif
+
 //
 // Defaults volumes
 //
@@ -135,8 +143,8 @@ static inline btDbvtAabbMm		FromCR(const btVector3& c,btScalar r);
 static inline btDbvtAabbMm		FromMM(const btVector3& mi,const btVector3& mx);
 static inline btDbvtAabbMm		FromPoints(const btVector3* pts,int n);
 static inline btDbvtAabbMm		FromPoints(const btVector3** ppts,int n);
-DBVT_INLINE void				Expand(const btVector3 e);
-DBVT_INLINE void				SignedExpand(const btVector3 e);
+DBVT_INLINE void				Expand(const btVector3& e);
+DBVT_INLINE void				SignedExpand(const btVector3& e);
 DBVT_INLINE bool				Contain(const btDbvtAabbMm& a) const;
 DBVT_INLINE int					Classify(const btVector3& n,btScalar o,int s) const;
 DBVT_INLINE btScalar			ProjectMinimum(const btVector3& v,unsigned signs) const;
@@ -175,12 +183,12 @@ struct	btDbvtNode
 {
 	btDbvtVolume	volume;
 	btDbvtNode*		parent;
-	bool	isleaf() const		{ return(childs[1]==0); }
-	bool	isinternal() const	{ return(!isleaf()); }
+	DBVT_INLINE bool	isleaf() const		{ return(childs[1]==0); }
+	DBVT_INLINE bool	isinternal() const	{ return(!isleaf()); }
 	union	{
-		btDbvtNode*	childs[2];
-		void*	data;
-		};
+			btDbvtNode*	childs[2];
+			void*	data;
+			};
 };
 
 ///The btDbvt class implements a fast dynamic bounding volume tree based on axis aligned bounding boxes (aabb tree).
@@ -188,8 +196,6 @@ struct	btDbvtNode
 ///Unlike the btQuantizedBvh, nodes can be dynamically moved around, which allows for change in topology of the underlying data structure.
 struct	btDbvt
 	{
-	
-	
 	/* Stack element	*/ 
 	struct	sStkNN
 		{
@@ -252,8 +258,8 @@ struct	btDbvt
 			};
 		
 	// Fields
-	btDbvtNode*			m_root;
-	btDbvtNode*			m_free;
+	btDbvtNode*		m_root;
+	btDbvtNode*		m_free;
 	int				m_lkhd;
 	int				m_leaves;
 	unsigned		m_opath;
@@ -410,17 +416,17 @@ return(box);
 }
 
 //
-DBVT_INLINE void		btDbvtAabbMm::Expand(const btVector3 e)
+DBVT_INLINE void		btDbvtAabbMm::Expand(const btVector3& e)
 {
 mi-=e;mx+=e;
 }
 	
 //
-DBVT_INLINE void		btDbvtAabbMm::SignedExpand(const btVector3 e)
+DBVT_INLINE void		btDbvtAabbMm::SignedExpand(const btVector3& e)
 {
-if(e.x()>0) mx.setX(mx.x()+e.x()); else mi.setX(mi.x()+e.x());
-if(e.y()>0) mx.setY(mx.y()+e.y()); else mi.setY(mi.y()+e.y());
-if(e.z()>0) mx.setZ(mx.z()+e.z()); else mi.setZ(mi.z()+e.z());
+if(e.x()>0) mx.setX(mx.x()+e[0]); else mi.setX(mi.x()+e[0]);
+if(e.y()>0) mx.setY(mx.y()+e[1]); else mi.setY(mi.y()+e[1]);
+if(e.z()>0) mx.setZ(mx.z()+e[2]); else mi.setZ(mi.z()+e[2]);
 }
 	
 //
@@ -488,12 +494,18 @@ for(int i=0;i<3;++i)
 DBVT_INLINE bool		Intersect(	const btDbvtAabbMm& a,
 									const btDbvtAabbMm& b)
 {
+#if	DBVT_INT0_IMPL == DBVT_IMPL_SSE
+const __m128	rt(_mm_or_ps(	_mm_cmplt_ps(_mm_load_ps(b.mx),_mm_load_ps(a.mi)),
+								_mm_cmplt_ps(_mm_load_ps(a.mx),_mm_load_ps(b.mi))));
+return((rt.m128_u32[0]|rt.m128_u32[1]|rt.m128_u32[2])==0);
+#else
 return(	(a.mi.x()<=b.mx.x())&&
 		(a.mx.x()>=b.mi.x())&&
 		(a.mi.y()<=b.mx.y())&&
 		(a.mx.y()>=b.mi.y())&&
 		(a.mi.z()<=b.mx.z())&&		
 		(a.mx.z()>=b.mi.z()));
+#endif
 }
 
 //
@@ -710,7 +722,7 @@ if(root0&&root1)
 	int								treshold=DOUBLE_STACKSIZE-4;
 	stack.resize(DOUBLE_STACKSIZE);
 	stack[0]=sStkNN(root0,root1);
-	do	{
+	do	{		
 		sStkNN	p=stack[--depth];
 		if(depth>treshold)
 			{
@@ -1092,5 +1104,6 @@ if(root)
 #undef DBVT_USE_INTRINSIC_SSE
 #undef DBVT_SELECT_IMPL
 #undef DBVT_MERGE_IMPL
+#undef DBVT_INT0_IMPL
 
 #endif
