@@ -428,6 +428,9 @@
 				RelativePath="..\..\src\BulletCollision\CollisionShapes\btPolyhedralConvexShape.cpp">
 			</File>
 			<File
+				RelativePath="..\..\src\BulletCollision\CollisionShapes\btScaledBvhTriangleMeshShape.cpp">
+			</File>
+			<File
 				RelativePath="..\..\src\BulletCollision\CollisionShapes\btShapeHull.cpp">
 			</File>
 			<File
@@ -661,6 +664,9 @@
 			</File>
 			<File
 				RelativePath="..\..\src\BulletCollision\CollisionShapes\btPolyhedralConvexShape.h">
+			</File>
+			<File
+				RelativePath="..\..\src\BulletCollision\CollisionShapes\btScaledBvhTriangleMeshShape.h">
 			</File>
 			<File
 				RelativePath="..\..\src\BulletCollision\CollisionShapes\btShapeHull.h">
