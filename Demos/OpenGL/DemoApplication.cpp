@@ -544,7 +544,7 @@ void	DemoApplication::shootBox(const btVector3& destination)
 		body->getWorldTransform().setRotation(btQuaternion(0,0,0,1));
 		body->setLinearVelocity(linVel);
 		body->setAngularVelocity(btVector3(0,0,0));
-		body->setCcdSquareMotionThreshold(3600);//1600);//40ms/sec for 60 hertz gives 0.66 m/frame. 40*40=1600
+		body->setCcdMotionThreshold(1.);
 		body->setCcdSweptSphereRadius(0.2f);
 		
 	}

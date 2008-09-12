@@ -100,6 +100,8 @@ ADD_LIBRARY(LibBulletCollision
 				CollisionShapes/btOptimizedBvh.h
 				CollisionShapes/btPolyhedralConvexShape.cpp
 				CollisionShapes/btPolyhedralConvexShape.h
+				CollisionShapes/btScaledBvhTriangleMeshShape.cpp
+				CollisionShapes/btScaledBvhTriangleMeshShape.h
 				CollisionShapes/btTetrahedronShape.cpp
 				CollisionShapes/btTetrahedronShape.h
 				CollisionShapes/btSphereShape.cpp
