@@ -91,6 +91,7 @@ value=zerodummy;
 struct	btDbvtTreeCollider : btDbvt::ICollide
 {
 btDbvtBroadphase*	pbp;
+btDbvtProxy*		proxy;
 		btDbvtTreeCollider(btDbvtBroadphase* p) : pbp(p) {}
 void	Process(const btDbvtNode* na,const btDbvtNode* nb)
 	{
@@ -105,6 +106,10 @@ void	Process(const btDbvtNode* na,const btDbvtNode* nb)
 		++pbp->m_newpairs;
 		}
 	}
+void	Process(const btDbvtNode* n)
+	{
+	Process(n,proxy->leaf);
+	}
 };
 
 //
@@ -116,7 +121,6 @@ btDbvtBroadphase::btDbvtBroadphase(btOverlappingPairCache* paircache)
 {
 m_initialize		=	true;
 m_deferedcollide	=	true;
-m_predictedframes	=	2;
 m_needcleanup		=	true;
 m_releasepaircache	=	(paircache!=0)?false:true;
 m_prediction		=	1/(btScalar)2;
@@ -198,9 +202,8 @@ void							btDbvtBroadphase::setAabb(		btBroadphaseProxy* absproxy,
 																const btVector3& aabbMax,
 																btDispatcher* /*dispatcher*/)
 {
-btDbvtProxy*	proxy=(btDbvtProxy*)absproxy;
+btDbvtProxy*						proxy=(btDbvtProxy*)absproxy;
 ATTRIBUTE_ALIGNED16(btDbvtVolume)	aabb=btDbvtVolume::FromMM(aabbMin,aabbMax);
-
 #if DBVT_BP_PREVENTFALSEUPDATE
 if(NotEqual(aabb,proxy->leaf->volume))
 #endif
@@ -305,7 +308,9 @@ if(current)
 		btDbvtProxy*	next=current->links[1];
 		listremove(current,m_stageRoots[current->stage]);
 		listappend(current,m_stageRoots[STAGECOUNT]);
-		btDbvt::collideTT(m_sets[1].m_root,current->leaf,collider);
+		m_paircache->removeOverlappingPairsContainingProxy(current,dispatcher);
+		collider.proxy=current;
+		btDbvt::collideTV(m_sets[1].m_root,current->aabb,collider);
 		m_sets[0].remove(current->leaf);
 		current->leaf	=	m_sets[1].insert(current->aabb,current);
 		current->stage	=	STAGECOUNT;	

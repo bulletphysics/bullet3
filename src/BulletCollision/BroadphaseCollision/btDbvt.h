@@ -61,8 +61,7 @@ subject to the following restrictions:
 
 // Specific methods implementation
 
-//SSE gives errors on a MSVC 7.1
-#if (defined (WIN32) && (_MSC_VER) && _MSC_VER >= 1400)
+#ifdef WIN32
 #define DBVT_SELECT_IMPL		DBVT_IMPL_SSE
 #define DBVT_MERGE_IMPL			DBVT_IMPL_SSE
 #define DBVT_INT0_IMPL			DBVT_IMPL_SSE
@@ -498,7 +497,8 @@ DBVT_INLINE bool		Intersect(	const btDbvtAabbMm& a,
 #if	DBVT_INT0_IMPL == DBVT_IMPL_SSE
 const __m128	rt(_mm_or_ps(	_mm_cmplt_ps(_mm_load_ps(b.mx),_mm_load_ps(a.mi)),
 								_mm_cmplt_ps(_mm_load_ps(a.mx),_mm_load_ps(b.mi))));
-return((rt.m128_u32[0]|rt.m128_u32[1]|rt.m128_u32[2])==0);
+const __int32*	pu((const __int32*)&rt);
+return((pu[0]|pu[1]|pu[2])==0);
 #else
 return(	(a.mi.x()<=b.mx.x())&&
 		(a.mx.x()>=b.mi.x())&&
