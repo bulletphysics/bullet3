@@ -844,12 +844,13 @@ collideTT(root0,root1,xform,policy);
 //
 DBVT_PREFIX
 inline void		btDbvt::collideTV(	const btDbvtNode* root,
-									const btDbvtVolume& volume,
+									const btDbvtVolume& vol,
 									DBVT_IPOLICY)
 {
 DBVT_CHECKTYPE
 if(root)
 	{
+	ATTRIBUTE_ALIGNED16(btDbvtVolume)		volume(vol);
 	btAlignedObjectArray<const btDbvtNode*>	stack;
 	stack.reserve(SIMPLE_STACKSIZE);
 	stack.push_back(root);
