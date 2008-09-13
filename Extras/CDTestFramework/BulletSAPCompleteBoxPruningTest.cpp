@@ -410,9 +410,13 @@ BulletSAPCompleteBoxPruningTest::BulletSAPCompleteBoxPruningTest(int numBoxes,in
 		}
 		break;
 	case	7:
-		m_broadphase	=	new btDbvtBroadphase();
-		m_isdbvt		=	true;
-		methodname		=	"dynamic AABB tree, btDbvtBroadphase";
+		{
+		btDbvtBroadphase*	pbp=new btDbvtBroadphase();
+		m_broadphase			=	pbp;
+		pbp->m_deferedcollide	=	true;	/* Faster initialization, set to false after.	*/ 
+		m_isdbvt				=	true;
+		methodname				=	"dynamic AABB tree, btDbvtBroadphase";
+		}
 	break;
 	default:
 		{
@@ -475,19 +479,18 @@ void BulletSAPCompleteBoxPruningTest::Release()
 extern int		doTree;
 extern int		percentUpdate;
 extern float	objectSpeed;
+extern bool		enableDraw;
 
 static void TW_CALL NormalMode(void* pdata)
 {
 btDbvtBroadphase*	pb=(btDbvtBroadphase*)pdata;
 pb->m_deferedcollide	=	true;
-pb->m_predictedframes	=	2;
 }
 
 static void TW_CALL SlowSpeedMode(void* pdata)
 {
 btDbvtBroadphase*	pb=(btDbvtBroadphase*)pdata;
 pb->m_deferedcollide	=	false;
-pb->m_predictedframes	=	15;
 }
 
 void BulletSAPCompleteBoxPruningTest::Select()
@@ -512,7 +515,7 @@ void BulletSAPCompleteBoxPruningTest::Select()
 			TwAddVarRW(mBar, "Dyn opt/f(%)",TW_TYPE_INT32,&pbp->m_dupdates,"min=0 max=100");
 			TwAddVarRW(mBar, "Fix opt/f(%)",TW_TYPE_INT32,&pbp->m_fupdates,"min=0 max=100");
 			TwAddVarRW(mBar, "Cln opt/f(%)",TW_TYPE_INT32,&pbp->m_cupdates,"min=0 max=100");
-			TwAddVarRW(mBar, "Pred.frames",TW_TYPE_FLOAT,&pbp->m_predictedframes,"min=0.0 max=50.0 step=0.5");
+			TwAddVarRW(mBar, "Prediction",TW_TYPE_FLOAT,&pbp->m_prediction,"min=0.0 max=2.0 step=0.1");
 			TwAddVarRW(mBar, "Defered collide",TW_TYPE_BOOLCPP,&pbp->m_deferedcollide,"");
 			TwAddVarRO(mBar, "Dyn leafs",TW_TYPE_INT32,&pbp->m_sets[0].m_leaves,"");
 			TwAddVarRO(mBar, "Fix leafs",TW_TYPE_INT32,&pbp->m_sets[1].m_leaves,"");
@@ -593,8 +596,38 @@ void BulletSAPCompleteBoxPruningTest::PerformTest()
 	{
 		//initialization messes up timings
 		m_firstTime = false;
-		mProfiler.Reset();
+		if(m_isdbvt)
+			{
+			((btDbvtBroadphase*)m_broadphase)->m_deferedcollide=false;
+			}
+		mProfiler.Reset();		
 	}
+	
+	#if 0
+		{
+		int	missedpairs=0;
+		for(int i=0;i<m_proxies.size();++i)
+			{
+			btDbvtProxy*	pa((btDbvtProxy*)m_proxies[i]);
+			for(int j=i+1;j<m_proxies.size();++j)
+				{
+				btDbvtProxy*	pb((btDbvtProxy*)m_proxies[j]);				
+				if(Intersect(pa->aabb,pb->aabb))
+					{
+					btDbvtProxy*	spa=pa;
+					btDbvtProxy*	spb=pb;
+					if(spa>spb) btSwap(spa,spb);
+					if(!m_broadphase->getOverlappingPairCache()->findPair(spa,spb))
+						{
+						++missedpairs;
+						printf("Cannot find %i,%i\r\n",i,j);
+						}
+					}
+				}
+			}
+		if(missedpairs>0) printf("Missed pairs: %u\r\n",missedpairs);
+		}
+	#endif
 	
 //	printf("%d pairs colliding\r     ", mPairs.GetNbPairs());
 
@@ -614,74 +647,63 @@ void BulletSAPCompleteBoxPruningTest::PerformTest()
 		mFlags[j] = true;
 	}
 	
+	if(enableDraw)
+		{
+		btVector3 aabbMin(-200,-200,-200);
+		btVector3 aabbMax(200,200,200);
 
-	btVector3 aabbMin(-200,-200,-200);
-	btVector3 aabbMax(200,200,200);
-
-	btVector3 tmpAabbMin,tmpAabbMax;
-
-	glDisable(GL_DEPTH_TEST);
+		btVector3 tmpAabbMin,tmpAabbMax;	
+		glDisable(GL_DEPTH_TEST);
 
 
-			float numP = (float) numParts;
-	
-			for (int i=0;i<numParts;i++)
-			{
-				tmpAabbMin[0] = aabbMin[0] + i*(aabbMax[0]-aabbMin[0])/numP;
-				tmpAabbMax[0] = aabbMin[0] + (i+1)*(aabbMax[0]-aabbMin[0])/numP;
-
-				for (int j=0;j<numParts;j++)
+				float numP = (float) numParts;
+		
+				for (int i=0;i<numParts;i++)
 				{
-					tmpAabbMin[1] = aabbMin[1] + j*(aabbMax[1]-aabbMin[1])/numP;
-					tmpAabbMax[1] = aabbMin[1] + (j+1)*(aabbMax[1]-aabbMin[1])/numP;
+					tmpAabbMin[0] = aabbMin[0] + i*(aabbMax[0]-aabbMin[0])/numP;
+					tmpAabbMax[0] = aabbMin[0] + (i+1)*(aabbMax[0]-aabbMin[0])/numP;
 
-					for (int k=0;k<numParts;k++)
+					for (int j=0;j<numParts;j++)
 					{
-						tmpAabbMin[2] = aabbMin[2] + k*(aabbMax[2]-aabbMin[2])/numP;
-						tmpAabbMax[2] = aabbMin[2] + (k+1)*(aabbMax[2]-aabbMin[2])/numP;
+						tmpAabbMin[1] = aabbMin[1] + j*(aabbMax[1]-aabbMin[1])/numP;
+						tmpAabbMax[1] = aabbMin[1] + (j+1)*(aabbMax[1]-aabbMin[1])/numP;
 
-			
-				OBB CurrentBox;
-				CurrentBox.mRot.Identity();
+						for (int k=0;k<numParts;k++)
+						{
+							tmpAabbMin[2] = aabbMin[2] + k*(aabbMax[2]-aabbMin[2])/numP;
+							tmpAabbMax[2] = aabbMin[2] + (k+1)*(aabbMax[2]-aabbMin[2])/numP;
+
 				
-				{
-					Point mmin(tmpAabbMin[0],tmpAabbMin[1],tmpAabbMin[2]);
-					Point mmax(tmpAabbMax[0],tmpAabbMax[1],tmpAabbMax[2]);
+					OBB CurrentBox;
+					CurrentBox.mRot.Identity();
+					
+					{
+						Point mmin(tmpAabbMin[0],tmpAabbMin[1],tmpAabbMin[2]);
+						Point mmax(tmpAabbMax[0],tmpAabbMax[1],tmpAabbMax[2]);
 
-					glBlendFunc(GL_SRC_ALPHA, GL_ONE_MINUS_SRC_ALPHA); 
-					glEnable(GL_BLEND);
-					glColor4f(i, j,k,0.2);//1.0f, 0.0f);
-					CurrentBox.mCenter = (mmin+mmax)*0.5;
-					CurrentBox.mExtents = (mmax-mmin)*0.5;
-				
-					DrawOBB(CurrentBox);
+						glBlendFunc(GL_SRC_ALPHA, GL_ONE_MINUS_SRC_ALPHA); 
+						glEnable(GL_BLEND);
+						glColor4f(i, j,k,0.2);//1.0f, 0.0f);
+						CurrentBox.mCenter = (mmin+mmax)*0.5;
+						CurrentBox.mExtents = (mmax-mmin)*0.5;
+					
+						DrawOBB(CurrentBox);
 
+					}
 				}
 			}
+
 		}
 
-	}
+			
 
-		
+		glEnable(GL_DEPTH_TEST);
+		//glDisable(GL_DEPTH_TEST);
 
-	glEnable(GL_DEPTH_TEST);
-	//glDisable(GL_DEPTH_TEST);
-
-	glDisable(GL_BLEND);
-
-	// Render boxes
-	Render();
-	/*OBB CurrentBox;
-	CurrentBox.mRot.Identity();
-	for(udword i=0;i<mNbBoxes;i++)
-	{
-		if(Flags[i])	glColor3f(1.0f, 0.0f, 0.0f);
-		else			glColor3f(0.0f, 1.0f, 0.0f);
-		mBoxes[i].GetCenter(CurrentBox.mCenter);
-		mBoxes[i].GetExtents(CurrentBox.mExtents);
-		DrawOBB(CurrentBox);
-	}*/
-
+		glDisable(GL_BLEND);
+		Render();
+		}
+	
 	char Buffer[4096];
 	sprintf(Buffer, "Bullet %s: %5.1f us (%d cycles) : %d pairs\n", methodname, mProfiler.mMsTime, mProfiler.mCycles, 
 			m_broadphase->getOverlappingPairCache()->getNumOverlappingPairs());

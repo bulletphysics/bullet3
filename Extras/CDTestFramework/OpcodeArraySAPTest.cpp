@@ -140,6 +140,7 @@ bool OpcodeArraySAPTest::UpdateBoxes(int numBoxes)
 }
 
 extern int	percentUpdate;
+extern bool	enableDraw;
 
 void OpcodeArraySAPTest::PerformTest()
 {
@@ -182,16 +183,19 @@ void OpcodeArraySAPTest::PerformTest()
 	}
 
 	// Render boxes
-	OBB CurrentBox;
-	CurrentBox.mRot.Identity();
-	for(udword i=0;i<mNbBoxes;i++)
-	{
-		if(Flags[i])	glColor3f(1.0f, 0.0f, 0.0f);
-		else			glColor3f(0.0f, 1.0f, 0.0f);
-		mBoxes[i].GetCenter(CurrentBox.mCenter);
-		mBoxes[i].GetExtents(CurrentBox.mExtents);
-		DrawOBB(CurrentBox);
-	}
+	if(enableDraw)
+		{
+		OBB CurrentBox;
+		CurrentBox.mRot.Identity();
+		for(udword i=0;i<mNbBoxes;i++)
+		{
+			if(Flags[i])	glColor3f(1.0f, 0.0f, 0.0f);
+			else			glColor3f(0.0f, 1.0f, 0.0f);
+			mBoxes[i].GetCenter(CurrentBox.mCenter);
+			mBoxes[i].GetExtents(CurrentBox.mExtents);
+			DrawOBB(CurrentBox);
+		}
+		}
 
 	char Buffer[4096];
 	sprintf(Buffer, "OpcodeArraySAPTest:  %5.1f us (%d cycles) : %d pairs\n", mProfiler.mMsTime, mProfiler.mCycles, NbPairs);

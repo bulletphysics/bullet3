@@ -36,6 +36,7 @@ subject to the following restrictions:
 int		percentUpdate	=	10;
 //float	objectSpeed		=	0.005f;
 float	objectSpeed		=	0.0005f;
+bool	enableDraw		=	true;
 
 //Broadphase comparison
 //Static case (updating 10% of objects to same position ( -> no swaps)
@@ -310,6 +311,7 @@ int main(int argc, char** argv)
 		TwType testType = TwDefineEnum("CollisionTest", testEV, MAX_NB_TESTS);
 		TwAddVarRW(gMainBar, "CollisionTests", testType, &gSelectedTest, "");		
 		TwAddVarRW(gMainBar, "% of updates",TW_TYPE_INT32,&percentUpdate,"min=0 max=100");
+		TwAddVarRW(gMainBar, "Draw",TW_TYPE_BOOLCPP,&enableDraw,"");
 	}
 
 	// Create tests
