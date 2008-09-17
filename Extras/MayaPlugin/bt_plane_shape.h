@@ -26,6 +26,7 @@ Written by: Nicola Candussi <nicola@fluidinteractive.com>
 #define DYN_BT_PLANE_SHAPE_H
 
 #include "plane_shape_impl.h"
+#include "drawUtils.h"
 
 class bt_plane_shape_t: public bt_collision_shape_t, public plane_shape_impl_t 
 {
@@ -35,9 +36,9 @@ public:
         glPushMatrix();
         glScalef(100.0, 0.001, 100.0); 
         if(draw_style & collision_shape_t::kDSSolid) {
-            glutSolidCube(1.0);
+            solid_cube();
         } else {
-            glutWireCube(1.0);
+            wire_cube();
         }
         glPopMatrix();
     }

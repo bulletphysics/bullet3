@@ -25,22 +25,26 @@ Written by: Nicola Candussi <nicola@fluidinteractive.com>
 #ifndef DYN_BT_SPHERE_SHAPE_H
 #define DYN_BT_SPHERE_SHAPE_H
 
-#include <GL/glut.h>
+#include <GL/gl.h>
 
 #include "sphere_shape_impl.h"
 #include "bt_collision_shape.h"
 #include "collision_shape.h"
+#include "drawUtils.h"
 
 class bt_sphere_shape_t: public bt_collision_shape_t, public sphere_shape_impl_t 
 {
 public:
     virtual void gl_draw(size_t draw_style) {
         btSphereShape *sphere_shape = static_cast<btSphereShape*>(shape());
+        glPushMatrix();
+        glScalef(sphere_shape->getRadius(), sphere_shape->getRadius(), sphere_shape->getRadius());
         if(draw_style & collision_shape_t::kDSSolid) {
-            glutSolidSphere(sphere_shape->getRadius(), 10, 10);
+            solid_sphere();
         } else {
-            glutWireSphere(sphere_shape->getRadius(), 10, 10);
+            wire_sphere();
         }
+        glPopMatrix();
     }
 
     virtual void set_scale(vec3f const& s) {

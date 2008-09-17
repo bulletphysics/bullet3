@@ -22,8 +22,6 @@ Written by: Nicola Candussi <nicola@fluidinteractive.com>
 
 //collisionShapeNode.cpp
 
-#include <GL/glut.h>
-
 #include <maya/MFnMessageAttribute.h>
 #include <maya/MFnNumericAttribute.h>
 #include <maya/MFnEnumAttribute.h>

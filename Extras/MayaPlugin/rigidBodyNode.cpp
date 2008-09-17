@@ -22,8 +22,6 @@ Written by: Nicola Candussi <nicola@fluidinteractive.com>
 
 //rigidBodyNode.cpp
 
-//#include <GL/glut.h>
-
 #include <maya/MFnDependencyNode.h>
 #include <maya/MPlugArray.h>
 #include <maya/MFnMessageAttribute.h>

@@ -139,7 +139,7 @@ dRigidBodyCmd::redoIt()
 	m_dagModifier->doIt();
     }
 
-    MGlobal::select(parentObj, MGlobal::kReplaceList);
+  //  MGlobal::select(parentObj, MGlobal::kReplaceList);
 
     setResult(MFnDependencyNode(dRigidBodyObj).name());
 

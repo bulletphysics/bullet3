@@ -386,20 +386,24 @@ proc dynamicaUI_createRigidBody(int $active, int $collisionShapeType)
 
     //create dSolver node if necessary
     dSolver;
-   
-    string $rigidBodyNode = `dRigidBody`;
-    string $collisionShapeNode = `createNode dCollisionShape`;
-    connectAttr ($collisionShapeNode + ".outCollisionShape") ($rigidBodyNode + ".inCollisionShape");
-    string $rigidBodyTransforms[] = `listRelatives -parent $rigidBodyNode`;
 
-    if(size($selection) != 0) {
-        string $shapeTransforms[] = `listRelatives -parent $selection[0]`;
-        if($selection[1] == "mesh") {
-            connectAttr ($selection[0] + ".message") ($collisionShapeNode + ".inShape");
-            hide $shapeTransforms[0];
-        }
-        //pick the selected object's transform only if we are creating a hull or a mesh
-        if($collisionShapeType == 0 || $collisionShapeType == 1) {
+    string $newBodies[];
+
+    //pick the selected object's transform only if we are creating a hull or a mesh
+    if($collisionShapeType == 0 || $collisionShapeType == 1) {
+
+        for($i = 0; $i < size($selection) / 2; $i++) {
+    
+            string $rigidBodyNode = `dRigidBody`;
+            string $collisionShapeNode = `createNode dCollisionShape`;
+            connectAttr ($collisionShapeNode + ".outCollisionShape") ($rigidBodyNode + ".inCollisionShape");
+            string $rigidBodyTransforms[] = `listRelatives -parent $rigidBodyNode`;
+    
+            string $shapeTransforms[] = `listRelatives -parent $selection[$i * 2]`;
+            if($selection[$i * 2 + 1] == "mesh") {
+                connectAttr ($selection[$i * 2] + ".message") ($collisionShapeNode + ".inShape");
+                hide $shapeTransforms[0];
+            }
             float $pos[]= `getAttr ($shapeTransforms[0] + ".translate")`;
             float $rot[]= `getAttr ($shapeTransforms[0] + ".rotate")`;
 
@@ -408,13 +412,25 @@ proc dynamicaUI_createRigidBody(int $active, int $collisionShapeType)
 
             setAttr ($rigidBodyTransforms[0] + ".rotate") -type double3 $rot[0] $rot[1] $rot[2];
             // setAttr ($rigidBodyNode + ".initialRotation") -type double3 $rot[0] $rot[1] $rot[2];
+    
+            setAttr ($rigidBodyNode + ".active" ) $active;
+            setAttr ($collisionShapeNode + ".type" ) $collisionShapeType;
+
+            $newBodies[$i] = $rigidBodyTransforms[0];
         }
+    } else {
+        string $rigidBodyNode = `dRigidBody`;
+        string $collisionShapeNode = `createNode dCollisionShape`;
+        connectAttr ($collisionShapeNode + ".outCollisionShape") ($rigidBodyNode + ".inCollisionShape");
+        string $rigidBodyTransforms[] = `listRelatives -parent $rigidBodyNode`;
+
+        setAttr ($rigidBodyNode + ".active" ) $active;
+        setAttr ($collisionShapeNode + ".type" ) $collisionShapeType;
+
+        $newBodies[0] = $rigidBodyTransforms[0];
     }
 
-    setAttr ($rigidBodyNode + ".active" ) $active;
-    setAttr ($collisionShapeNode + ".type" ) $collisionShapeType;
-
-    select -r $rigidBodyTransforms[0];
+    select -r $newBodies;
 }
 
 global proc dynamicaUI_createArrayUIdismissCB(string $button)

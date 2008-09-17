@@ -26,6 +26,7 @@ Written by: Nicola Candussi <nicola@fluidinteractive.com>
 #define DYN_BT_BOX_SHAPE_H
 
 #include "box_shape_impl.h"
+#include "drawUtils.h"
 
 class bt_box_shape_t: public bt_collision_shape_t, public box_shape_impl_t 
 {
@@ -37,9 +38,9 @@ public:
 
         glScalef(2 * e.x(), 2 * e.y(), 2 * e.z()); 
         if(draw_style & collision_shape_t::kDSSolid) {
-            glutSolidCube(1.0);
+            solid_cube();
         } else {
-            glutWireCube(1.0);
+            wire_cube();
         }
         glPopMatrix();
     }

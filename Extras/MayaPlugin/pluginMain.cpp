@@ -21,8 +21,6 @@ Written by: Nicola Candussi <nicola@fluidinteractive.com>
 */
 
 //pluginMain.cpp
-
-
 #include <maya/MFnPlugin.h>
 #include <maya/MGlobal.h>
 #include <maya/MDGMessage.h>
