@@ -61,7 +61,8 @@ subject to the following restrictions:
 
 // Specific methods implementation
 
-#ifdef WIN32
+//SSE gives errors on a MSVC 7.1
+#if (defined (WIN32) && (_MSC_VER) && _MSC_VER >= 1400)
 #define DBVT_SELECT_IMPL		DBVT_IMPL_SSE
 #define DBVT_MERGE_IMPL			DBVT_IMPL_SSE
 #define DBVT_INT0_IMPL			DBVT_IMPL_SSE

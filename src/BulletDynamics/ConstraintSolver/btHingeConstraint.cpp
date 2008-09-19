@@ -75,26 +75,20 @@ btHingeConstraint::btHingeConstraint(btRigidBody& rbA,btRigidBody& rbB, const bt
 }
 
 
+
 btHingeConstraint::btHingeConstraint(btRigidBody& rbA,const btVector3& pivotInA,btVector3& axisInA)
 :btTypedConstraint(HINGE_CONSTRAINT_TYPE, rbA), m_angularOnly(false), m_enableAngularMotor(false)
 {
 
 	// since no frame is given, assume this to be zero angle and just pick rb transform axis
 	// fixed axis in worldspace
-	btVector3 rbAxisA1 = rbA.getCenterOfMassTransform().getBasis().getColumn(0);
-	btScalar projection = rbAxisA1.dot(axisInA);
-	if (projection > SIMD_EPSILON)
-		rbAxisA1 = rbAxisA1*projection - axisInA;
-	else
-		rbAxisA1 = rbA.getCenterOfMassTransform().getBasis().getColumn(1);
-
-	btVector3 rbAxisA2 = axisInA.cross(rbAxisA1);
+	btVector3 rbAxisA1, rbAxisA2;
+	btPlaneSpace1(axisInA, rbAxisA1, rbAxisA2);
 
 	m_rbAFrame.getOrigin() = pivotInA;
 	m_rbAFrame.getBasis().setValue( rbAxisA1.getX(),rbAxisA2.getX(),axisInA.getX(),
 									rbAxisA1.getY(),rbAxisA2.getY(),axisInA.getY(),
 									rbAxisA1.getZ(),rbAxisA2.getZ(),axisInA.getZ() );
-
 
 	btVector3 axisInB = rbA.getCenterOfMassTransform().getBasis() * -axisInA;
 
