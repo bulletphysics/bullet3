@@ -25,7 +25,18 @@ Written by: Nicola Candussi <nicola@fluidinteractive.com>
 #ifndef DYN_BT_SPHERE_SHAPE_H
 #define DYN_BT_SPHERE_SHAPE_H
 
+#ifdef WIN32//for glut.h
+#include <windows.h>
+#endif
+
+//think different
+#if defined(__APPLE__) && !defined (VMDMESA)
+#include <OpenGL/gl.h>
+#include <OpenGL/glu.h>
+#else
 #include <GL/gl.h>
+#endif
+
 
 #include "sphere_shape_impl.h"
 #include "bt_collision_shape.h"

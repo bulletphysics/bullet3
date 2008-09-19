@@ -22,8 +22,20 @@ Written by: Nicola Candussi <nicola@fluidinteractive.com>
 
 //drawUtils.cpp
 
+#ifdef WIN32//for glut.h
+#include <windows.h>
+#endif
+
+//think different
+#if defined(__APPLE__) && !defined (VMDMESA)
+#include <OpenGL/gl.h>
+#include <OpenGL/glu.h>
+#include <GLUT/glut.h>
+#else
 #include <GL/gl.h>
 #include <GL/glu.h>
+#endif
+
 
 void wire_cube()
 {
