@@ -271,7 +271,7 @@
 			<Tool
 				Name="VCLinkerTool"
 				AdditionalOptions="/export:initializePlugin /export:uninitializePlugin "
-				AdditionalDependencies="odbc32.lib odbccp32.lib OpenMaya.lib Foundation.lib OpenMayaRender.lib OpenMayaFX.lib OpenMayaAnim.lib OpenMayaUI.lib"
+				AdditionalDependencies="opengl32.lib glu32.lib odbc32.lib odbccp32.lib OpenMaya.lib Foundation.lib OpenMayaRender.lib OpenMayaFX.lib OpenMayaAnim.lib OpenMayaUI.lib"
 				OutputFile=".\BulletMayaPlugin.mll"
 				LinkIncremental="1"
 				SuppressStartupBanner="true"
@@ -539,6 +539,14 @@
 			>
 		</File>
 		<File
+			RelativePath=".\colladaExport.cpp"
+			>
+		</File>
+		<File
+			RelativePath=".\colladaExport.h"
+			>
+		</File>
+		<File
 			RelativePath=".\collision_shape.h"
 			>
 		</File>
@@ -560,6 +568,14 @@
 		</File>
 		<File
 			RelativePath=".\convex_hull_shape_impl.h"
+			>
+		</File>
+		<File
+			RelativePath=".\drawUtils.cpp"
+			>
+		</File>
+		<File
+			RelativePath=".\drawUtils.h"
 			>
 		</File>
 		<File
