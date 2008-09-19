@@ -32,13 +32,16 @@ const int numObjects = 3;
 
 #define CUBE_HALF_EXTENTS 1.f
 
-
+#define M_PI 3.1415926f
+#define M_PI_2 ((M_PI)*0.5f)
 
 btTransform sliderTransform;
 btVector3 lowerSliderLimit = btVector3(-10,0,0);
 btVector3 hiSliderLimit = btVector3(10,0,0);
 
 btRigidBody* d6body0 =0;
+
+btHingeConstraint* spDoorHinge = NULL;
 
 void	drawLimit()
 {
@@ -144,11 +147,28 @@ void	ConstraintDemo::initPhysics()
 		slider->setLinearUpperLimit(hiSliderLimit);
 
 		//range should be small, otherwise singularities will 'explode' the constraint
-		slider->setAngularLowerLimit(btVector3(10,0,0));
+		slider->setAngularLowerLimit(btVector3(20,0,0));
 		slider->setAngularUpperLimit(btVector3(0,0,0));
 
 		m_dynamicsWorld->addConstraint(slider);
 
+	}
+
+	{ // create a door using hinge constraint attached to the world
+		btCollisionShape* pDoorShape = new btBoxShape(btVector3(2.0f, 5.0f, 0.2f));
+		m_collisionShapes.push_back(pDoorShape);
+		btTransform doorTrans;
+		doorTrans.setIdentity();
+		doorTrans.setOrigin(btVector3(-5.0f, 0.0f, 0.0f));
+		btRigidBody* pDoorBody = localCreateRigidBody( 1.0, doorTrans, pDoorShape);
+		pDoorBody->setActivationState(DISABLE_DEACTIVATION);
+		const btVector3 btPivotA( 2.1f, 0.0f, 0.0f ); // right next to the door slightly outside
+		btVector3 btAxisA( 0.0f, 1.0f, 0.0f ); // pointing upwards, aka Y-axis
+
+		spDoorHinge = new btHingeConstraint( *pDoorBody, btPivotA, btAxisA );
+
+		spDoorHinge->setLimit( 0.0f, M_PI_2 );
+		m_dynamicsWorld->addConstraint(spDoorHinge);
 	}
 
 }
