@@ -34,6 +34,17 @@ Written by: Nicola Candussi <nicola@fluidinteractive.com>
 #include "dRigidBodyCmd.h"
 #include "dRigidBodyArrayCmd.h" 
 #include "mvl/util.h"
+#include "colladaExport.h"
+
+const char *const colladaOptionScript = "colladaExportOptions";
+const char *const colladaDefaultOptions =
+    "groups=1;"
+    "ptgroups=1;"
+    "materials=1;"
+    "smoothing=1;"
+    "normals=1;"
+    ;
+
 
 MStatus initializePlugin( MObject obj )
 {
@@ -42,7 +53,17 @@ MStatus initializePlugin( MObject obj )
 
     solver_t::initialize();
 
-    // 
+
+// Register the translator with the system
+   status =  plugin.registerFileTranslator( "COLLADA Physics export", "none",
+                                          ObjTranslator::creator,
+                                          (char *)colladaOptionScript,
+                                          (char *)colladaDefaultOptions );
+
+	MCHECKSTATUS(status,"registerFileTranslator COLLADA Physics export")
+
+    
+// 
     status = plugin.registerNode( rigidBodyNode::typeName, rigidBodyNode::typeId,
                                   rigidBodyNode::creator,
                                   rigidBodyNode::initialize,
@@ -120,6 +141,9 @@ MStatus uninitializePlugin( MObject obj )
 
     status = plugin.deregisterNode(rigidBodyNode::typeId);
     MCHECKSTATUS(status, "deregistering rigidBodyNode")
+
+    status =  plugin.deregisterFileTranslator( "OBJexport" );
+    MCHECKSTATUS(status,"deregistering OBJexport" )
 
     solver_t::cleanup();
 

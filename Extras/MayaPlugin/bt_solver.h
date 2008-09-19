@@ -98,6 +98,11 @@ public:
         m_dynamicsWorld->stepSimulation(dt, 1000, 1.0 / 120.0);
     }
 
+    virtual void export_collada_file(const char* fileName);
+
+    virtual void import_collada_file(const char* filename);
+
+
 protected:
     friend class solver_t;
     bt_solver_t();

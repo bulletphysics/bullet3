@@ -28,6 +28,12 @@ Written by: Nicola Candussi <nicola@fluidinteractive.com>
 shared_ptr<solver_impl_t> solver_t::m_impl;
 std::set<rigid_body_t::pointer> solver_t::m_rigid_bodies;
 
+shared_ptr<solver_impl_t> solver_t::get_solver()
+{
+    return m_impl;
+}
+
+
 
 void solver_t::initialize()
 {

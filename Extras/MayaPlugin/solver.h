@@ -77,6 +77,8 @@ public:
     //
     static void step_simulation(float dt);
 
+    static shared_ptr<solver_impl_t> get_solver();
+
 private:
     static shared_ptr<solver_impl_t> m_impl;
     static std::set<rigid_body_t::pointer> m_rigid_bodies;

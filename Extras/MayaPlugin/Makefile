@@ -28,7 +28,7 @@ LDFLAGS =-Wl,-Bsymbolic -shared
 
 BULLET_INCLUDE=-I$(BULLET)/src -I$(BULLET)/Extras/GIMPACT/include
 BULLET_LIB=-L$(BULLET)/out/linux/optimize/libs -L$(BULLET)/src \
-                -lGIMPACT -lGIMPACTUtils -lbulletdynamics \
+               -lBulletColladaConverter -lcolladadom -llibxml -lGIMPACT -lGIMPACTUtils -lbulletdynamics \
                  -lbulletmath -lbulletcollision -lbulletopenglsupport
 
 GL_LIB=-lGL -lGLU 
@@ -36,7 +36,7 @@ GL_LIB=-lGL -lGLU
 MAYA_INCLUDE=-I$(MAYA)/include
 MAYA_LIB=-L$(MAYA)/lib -lOpenMaya -lFoundation -lOpenMayaUI -lOpenMayaFX
 
-SOURCES = pluginMain.cpp rigidBodyNode.cpp rigidBodyArrayNode.cpp collisionShapeNode.cpp \
+SOURCES = pluginMain.cpp colladaExport.cpp rigidBodyNode.cpp rigidBodyArrayNode.cpp collisionShapeNode.cpp \
 	  solver.cpp bt_solver.cpp dSolverNode.cpp dSolverCmd.cpp dRigidBodyCmd.cpp dRigidBodyArrayCmd.cpp \
 	  pdbIO.cpp drawUtils.cpp
 

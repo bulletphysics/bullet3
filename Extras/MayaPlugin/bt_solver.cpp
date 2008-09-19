@@ -23,15 +23,32 @@ Written by: Nicola Candussi <nicola@fluidinteractive.com>
 //bt_solver.cpp
 
 #include "bt_solver.h"
+#include "../BulletColladaConverter/ColladaConverter.h"
+
+btVector3 minWorld(-10000,-10000,-10000);
+btVector3 maxWorld(10000,10000,10000);
+int maxNumObj=32768;
 
 
-btVector3 worldAabbMin(-10000, -10000, -10000);
-btVector3 worldAabbMax(10000, 10000, 10000);
-int	maxProxies = 32000;
+void bt_solver_t::export_collada_file(const char* fileName)
+{
+	ColladaConverter tmpConverter(m_dynamicsWorld.get());
+	tmpConverter.save(fileName);
+
+}
+
+void bt_solver_t::import_collada_file(const char* filename)
+{
+//todo: need to create actual bodies etc
+	ColladaConverter tmpConverter(m_dynamicsWorld.get());
+	tmpConverter.load(filename);
+}
+
 
 bt_solver_t::bt_solver_t():
-            m_broadphase(new btAxisSweep3(worldAabbMin, worldAabbMax, maxProxies)),
-            m_solver(new btSequentialImpulseConstraintSolver),
+//            m_broadphase(new btAxisSweep3(minWorld,maxWorld,maxNumObj)),
+	m_broadphase(new btDbvtBroadphase()),  
+          m_solver(new btSequentialImpulseConstraintSolver),
             m_collisionConfiguration(new btDefaultCollisionConfiguration),
             m_dispatcher(new btCollisionDispatcher(m_collisionConfiguration.get())),
             m_dynamicsWorld(new btDiscreteDynamicsWorld(m_dispatcher.get(),
@@ -39,6 +56,7 @@ bt_solver_t::bt_solver_t():
                                                         m_solver.get(),
                                                         m_collisionConfiguration.get()))
 {
+
     //register algorithm for concave meshes
     btGImpactCollisionAlgorithm::registerAlgorithm(m_dispatcher.get());
 
