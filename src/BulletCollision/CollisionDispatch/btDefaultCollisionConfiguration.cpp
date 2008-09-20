@@ -216,12 +216,11 @@ btCollisionAlgorithmCreateFunc* btDefaultCollisionConfiguration::getCollisionAlg
 
 
 
-#ifdef USE_BUGGY_SPHERE_BOX_ALGORITHM
 	if ((proxyType0 == SPHERE_SHAPE_PROXYTYPE) && (proxyType1==SPHERE_SHAPE_PROXYTYPE))
 	{
-		//return	m_sphereSphereCF;
+		return	m_sphereSphereCF;
 	}
-
+#ifdef USE_BUGGY_SPHERE_BOX_ALGORITHM
 	if ((proxyType0 == SPHERE_SHAPE_PROXYTYPE) && (proxyType1==BOX_SHAPE_PROXYTYPE))
 	{
 		return	m_sphereBoxCF;
