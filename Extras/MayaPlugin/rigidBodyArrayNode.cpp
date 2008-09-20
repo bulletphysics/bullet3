@@ -166,25 +166,6 @@ MStatus rigidBodyArrayNode::initialize()
     status = addAttribute(ia_fioFiles);
     MCHECKSTATUS(status, "adding ia_fioFiles attribute")
 
- /*   ia_fioPositionAttribute = fnTypedAttr.create( "positionAttribute", "posa", MFnData::kString, 
-                                     fnStringData.create("position"), &status );
-    MCHECKSTATUS(status, "creating ia_fioPositionAttribute attribute")
-    fnTypedAttr.setKeyable(false);
-    status = addAttribute(ia_fioPositionAttribute);
-    MCHECKSTATUS(status, "adding ia_fioPositionAttribute attribute")
-
-    ia_fioRotationAttribute = fnTypedAttr.create( "rotationAttribute", "rota", MFnData::kString, 
-                                     fnStringData.create("rotation"), &status );
-    MCHECKSTATUS(status, "creating ia_fioRotationAttribute attribute")
-    fnTypedAttr.setKeyable(false);
-    status = addAttribute(ia_fioRotationAttribute);
-    MCHECKSTATUS(status, "adding ia_fioRotationAttribute attribute")*/
-
-    /*
-    MObject     rigidBodyArrayNode::ia_fioFiles;
-MObject     rigidBodyArrayNode::ia_fioPositionAttribute;
-MObject     rigidBodyArrayNode::ia_fioRotationAttribute;*/
-
     io_position = fnNumericAttr.createPoint("position", "pos", &status);
     MCHECKSTATUS(status, "creating position attribute")
     fnNumericAttr.setArray(true);
@@ -428,18 +409,15 @@ void rigidBodyArrayNode::computeRigidBodies(const MPlug& plug, MDataBlock& data)
     }
 
     m_rigid_bodies.resize(numBodies);
-	for(size_t i = 0; i < m_rigid_bodies.size(); ++i) {
+    for(size_t i = 0; i < m_rigid_bodies.size(); ++i) {
         m_rigid_bodies[i] = solver_t::create_rigid_body(collision_shape);
-		if (i < positions.size())
-		{
-			m_rigid_bodies[i]->set_transform(positions[i], rotations[i]);
-		} else
-		{
-			m_rigid_bodies[i]->set_transform(vec3f(0.f,0.f,0.f),quatf(1.f,0.f,0.f,0.f));
-		}
+	if (i < positions.size()) {
+            m_rigid_bodies[i]->set_transform(positions[i], rotations[i]);
+	} else {
+            m_rigid_bodies[i]->set_transform(vec3f(0.f,0.f,0.f),quatf(1.f,0.f,0.f,0.f));
+	}
         solver_t::add_rigid_body(m_rigid_bodies[i]);
     }
-
 
     data.outputValue(ca_rigidBodies).set(true);
     data.setClean(plug);

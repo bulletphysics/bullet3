@@ -110,6 +110,8 @@ protected:
         gimpactShape->updateBound();
         set_shape(gimpactShape);
 
+        //std::cout << "construtor: " << m_center << std::endl;
+
        // gimpactShape->setMargin(0.05);
     }
 

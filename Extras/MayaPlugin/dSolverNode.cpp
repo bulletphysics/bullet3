@@ -39,6 +39,7 @@ Written by: Nicola Candussi <nicola@fluidinteractive.com>
 #include <maya/MFnField.h>
 #include <maya/MVectorArray.h>
 #include <maya/MItDag.h>
+#include <maya/MConditionMessage.h>
 
 #include <fstream>
 #include <sstream>
@@ -499,6 +500,39 @@ void dSolverNode::updateActiveRigidBodies(MPlugArray &rbConnections)
                 fnTransform.setTranslation(MVector(pos[0], pos[1], pos[2]), MSpace::kTransform);
             }
         } else if(fnDagNode.typeId() == rigidBodyArrayNode::typeId) {
+            rigidBodyArrayNode *rbNode = static_cast<rigidBodyArrayNode*>(fnDagNode.userNode()); 
+            std::vector<rigid_body_t::pointer>& rbs = rbNode->rigid_bodies();
+
+            MPlug plgActive(node, rigidBodyArrayNode::ia_active);
+            bool active = false;
+            plgActive.getValue(active);
+
+            //write the position and rotations 
+            if(active) {
+                MPlug plgPosition(node, rigidBodyArrayNode::io_position);
+                MPlug plgRotation(node, rigidBodyArrayNode::io_rotation);
+
+                MPlug plgElement;
+                for(size_t j = 0; j < rbs.size(); ++j) {
+                    vec3f pos;
+                    quatf rot;
+                    rbs[j]->get_transform(pos, rot); 
+
+                    MEulerRotation meuler(MQuaternion(rot[1], rot[2], rot[3], rot[0]).asEulerRotation());
+
+                    plgElement = plgPosition.elementByLogicalIndex(j);
+                    plgElement.child(0).setValue(pos[0]);
+                    plgElement.child(1).setValue(pos[1]);
+                    plgElement.child(2).setValue(pos[2]);
+
+                    plgElement = plgRotation.elementByLogicalIndex(j);
+                    plgElement.child(0).setValue(rad2deg(meuler.x));
+                    plgElement.child(1).setValue(rad2deg(meuler.y));
+                    plgElement.child(2).setValue(rad2deg(meuler.z));
+
+                }
+            }
+
             //check if we have to output the rigid bodies to a file
             MPlug plgFileIO(node, rigidBodyArrayNode::ia_fileIO);
             bool doIO;
@@ -600,42 +634,47 @@ void dSolverNode::computeRigidBodies(const MPlug& plug, MDataBlock& data)
         initRigidBodies(rbConnections);
         solver_t::set_split_impulse(splitImpulseEnabled);
         m_prevTime = time;
-    } else if(time > m_prevTime && ((time - m_prevTime).value() <= 1.0)) { 
-         //step the simulation forward,
-        //don't update if we are jumping more than one frame
+    } else {
+        double delta_frames = (time - m_prevTime).value();
+        bool playback = MConditionMessage::getConditionState("playingBack");
+        if(time > m_prevTime && 
+           ((delta_frames <= 1.0) || (playback && delta_frames < 100))) { 
+             //step the simulation forward,
+            //don't update if we are jumping more than one frame
+    
+            float dt = (time - m_prevTime).as(MTime::kSeconds);
+    
+            //gather start and end transform for passive rigid bodies, used for interpolation
+            std::vector<xforms_t> passiveXForms;
+            gatherPassiveTransforms(rbConnections, passiveXForms);
+    
+    
+            //set the gravity in the solver
+            MPlug plgGravity(thisObject, ia_gravity);
+            vec3f gravity;
+            plgGravity.child(0).getValue(gravity[0]);
+            plgGravity.child(1).getValue(gravity[1]);
+            plgGravity.child(2).getValue(gravity[2]);
+    
+            solver_t::set_gravity(gravity);
+    
+            solver_t::set_split_impulse(splitImpulseEnabled);
+    
+            for(int i = 1; i <= subSteps; ++i) {
+                //first update the passive rigid bodies
+                updatePassiveRigidBodies(rbConnections, passiveXForms, i * dt / subSteps);
+    
+                //fields
+                applyFields(rbConnections, dt / subSteps);
+    
+                //step the simulation
+                solver_t::step_simulation(dt / subSteps);
+            }
+    
+            m_prevTime = time;
 
-        float dt = (time - m_prevTime).as(MTime::kSeconds);
-
-        //gather start and end transform for passive rigid bodies, used for interpolation
-        std::vector<xforms_t> passiveXForms;
-        gatherPassiveTransforms(rbConnections, passiveXForms);
-
-
-        //set the gravity in the solver
-        MPlug plgGravity(thisObject, ia_gravity);
-        vec3f gravity;
-        plgGravity.child(0).getValue(gravity[0]);
-        plgGravity.child(1).getValue(gravity[1]);
-        plgGravity.child(2).getValue(gravity[2]);
-
-        solver_t::set_gravity(gravity);
-
-        solver_t::set_split_impulse(splitImpulseEnabled);
-
-        for(int i = 1; i <= subSteps; ++i) {
-            //first update the passive rigid bodies
-            updatePassiveRigidBodies(rbConnections, passiveXForms, i * dt / subSteps);
-
-            //fields
-            applyFields(rbConnections, dt / subSteps);
-
-            //step the simulation
-            solver_t::step_simulation(dt / subSteps);
+            updateActiveRigidBodies(rbConnections);
         }
-
-        m_prevTime = time;
-
-        updateActiveRigidBodies(rbConnections);
     } 
 
     data.outputValue(oa_rigidBodies).set(true);

@@ -409,7 +409,7 @@ void rigidBodyNode::computeRigidBody(const MPlug& plug, MDataBlock& data)
 
 void rigidBodyNode::computeWorldMatrix(const MPlug& plug, MDataBlock& data)
 {
-   // std::cout << "rigidBodyNode::computeWorldMatrix" << std::endl;
+    //std::cout << "rigidBodyNode::computeWorldMatrix" << std::endl;
 
     MObject thisObject(thisMObject());
     MFnDagNode fnDagNode(thisObject);
@@ -427,8 +427,6 @@ void rigidBodyNode::computeWorldMatrix(const MPlug& plug, MDataBlock& data)
     fnParentTransform.getRotation(mrotation, MSpace::kTransform);
     double mscale[3];
     fnParentTransform.getScale(mscale);
-
-  // std::cout << mtranslation << std::endl;
 
     m_rigid_body->get_transform(pos, rot);
 

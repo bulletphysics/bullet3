@@ -209,8 +209,8 @@ void collisionShapeNode::computeCollisionShape(const MPlug& plug, MDataBlock& da
                 MFloatVectorArray mnormals;
                 MIntArray mtrianglecounts;
                 MIntArray mtrianglevertices;
-                fnMesh.getPoints(mpoints, MSpace::kWorld);
-                fnMesh.getNormals(mnormals, MSpace::kWorld);
+                fnMesh.getPoints(mpoints, MSpace::kObject);
+                fnMesh.getNormals(mnormals, MSpace::kObject);
                 fnMesh.getTriangles(mtrianglecounts, mtrianglevertices);
 
                 std::vector<vec3f> vertices(mpoints.length());
@@ -246,8 +246,8 @@ void collisionShapeNode::computeCollisionShape(const MPlug& plug, MDataBlock& da
                 MFloatVectorArray mnormals;
                 MIntArray mtrianglecounts;
                 MIntArray mtrianglevertices;
-                fnMesh.getPoints(mpoints, MSpace::kWorld);
-                fnMesh.getNormals(mnormals, MSpace::kWorld);
+                fnMesh.getPoints(mpoints, MSpace::kObject);
+                fnMesh.getNormals(mnormals, MSpace::kObject);
                 fnMesh.getTriangles(mtrianglecounts, mtrianglevertices);
 
                 std::vector<vec3f> vertices(mpoints.length());
