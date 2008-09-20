@@ -18,8 +18,10 @@ CFG=libGIMPACT - Win32 Release
 !MESSAGE Possible choices for configuration are:
 !MESSAGE 
 !MESSAGE "libGIMPACT - Win32 DebugDoublePrecision" (based on "Win32 (x86) Static Library")
+!MESSAGE "libGIMPACT - Win32 DebugDll" (based on "Win32 (x86) Static Library")
 !MESSAGE "libGIMPACT - Win32 Debug" (based on "Win32 (x86) Static Library")
 !MESSAGE "libGIMPACT - Win32 ReleaseDoublePrecision" (based on "Win32 (x86) Static Library")
+!MESSAGE "libGIMPACT - Win32 ReleaseDll" (based on "Win32 (x86) Static Library")
 !MESSAGE "libGIMPACT - Win32 Release" (based on "Win32 (x86) Static Library")
 !MESSAGE 
 
@@ -59,6 +61,35 @@ LIB32=link.exe -lib
 LINK32=link.exe
 # ADD BASE LINK32 user32.lib gdi32.lib advapi32.lib /nologo /machine:I386
 # ADD LINK32 shell32.lib user32.lib gdi32.lib advapi32.lib   /nologo /version:4.0 /machine:I386 /OPT:NOREF /subsystem:windows  
+
+!ELSEIF  "$(CFG)" == "libGIMPACT - Win32 ReleaseDll"
+
+# PROP BASE Use_MFC 0
+# PROP BASE Use_Debug_Libraries 
+# PROP BASE Output_Dir "release_dll"
+# PROP BASE Intermediate_Dir "release_dll"
+# PROP BASE Target_Dir ""
+# PROP Use_MFC 0
+# PROP Use_Debug_Libraries 
+# PROP Output_Dir "..\..\out\release_dll6\build\libGIMPACT\"
+# PROP Intermediate_Dir "..\..\out\release_dll6\build\libGIMPACT\"
+# PROP Ignore_Export_Lib 0
+# PROP Target_Dir ""
+# ADD BASE CPP /nologo /vmb /vms /W3 /Gm /G5 /D "WIN32" /FD /c
+# ADD CPP /nologo /vmb /vms /W3 /Gm /G5 /FD /c /D "_LIB" /D "_MT" /D "_MBCS" /D "NDEBUG" /D "_LIB" /D "_WINDOWS" /D "_CRT_SECURE_NO_DEPRECATE" /D "_CRT_NONSTDC_NO_DEPRECATE" /D "WIN32"  /I "." /I "..\.." /I "..\..\src" /I "..\..\Extras\GIMPACT\include"
+# ADD BASE MTL /nologo /mktyplib203 /o "NUL" /win32
+# ADD MTL /nologo /mktyplib203 /o "NUL" /win32 /D "NDEBUG" /D "_LIB" /D "_WINDOWS" /D "_CRT_SECURE_NO_DEPRECATE" /D "_CRT_NONSTDC_NO_DEPRECATE"
+# ADD BASE RSC /l 0x409
+# ADD RSC /l 0x409 /fo".\..\..\out\release_dll6\build\libGIMPACT\libGIMPACT.res" /i "." /i "..\.." /i "..\..\src" /i "..\..\Extras\GIMPACT\include"
+BSC32=bscmake.exe
+# ADD BASE BSC32 /nologo
+# ADD BSC32 /nologo
+LIB32=link.exe -lib
+# ADD BASE LIB32 /nologo
+# ADD LIB32 /nologo 
+LINK32=link.exe
+# ADD BASE LINK32 user32.lib gdi32.lib advapi32.lib /nologo /machine:I386
+# ADD LINK32 shell32.lib user32.lib gdi32.lib advapi32.lib   /nologo /version:4.0 /machine:I386  /subsystem:windows  
 
 !ELSEIF  "$(CFG)" == "libGIMPACT - Win32 ReleaseDoublePrecision"
 
@@ -118,6 +149,35 @@ LINK32=link.exe
 # ADD BASE LINK32 user32.lib gdi32.lib advapi32.lib /nologo /machine:I386
 # ADD LINK32 shell32.lib user32.lib gdi32.lib advapi32.lib   /nologo /version:4.0 /machine:I386 /debug /pdbtype:sept /subsystem:windows  
 
+!ELSEIF  "$(CFG)" == "libGIMPACT - Win32 DebugDll"
+
+# PROP BASE Use_MFC 0
+# PROP BASE Use_Debug_Libraries 
+# PROP BASE Output_Dir "debug_dll"
+# PROP BASE Intermediate_Dir "debug_dll"
+# PROP BASE Target_Dir ""
+# PROP Use_MFC 0
+# PROP Use_Debug_Libraries 
+# PROP Output_Dir "..\..\out\debug_dll6\build\libGIMPACT\"
+# PROP Intermediate_Dir "..\..\out\debug_dll6\build\libGIMPACT\"
+# PROP Ignore_Export_Lib 0
+# PROP Target_Dir ""
+# ADD BASE CPP /nologo /vmb /vms /W3 /Gm /G5 /D "WIN32" /FD /c
+# ADD CPP /nologo /vmb /vms /W3 /Gm /G5 /FD /c /D "_LIB" /D "_MT" /D "_MBCS" /D "_DEBUG" /D "_LIB" /D "_WINDOWS" /D "_CRT_SECURE_NO_DEPRECATE" /D "_CRT_NONSTDC_NO_DEPRECATE" /D "WIN32"  /I "." /I "..\.." /I "..\..\src" /I "..\..\Extras\GIMPACT\include"
+# ADD BASE MTL /nologo /mktyplib203 /o "NUL" /win32
+# ADD MTL /nologo /mktyplib203 /o "NUL" /win32 /D "_DEBUG" /D "_LIB" /D "_WINDOWS" /D "_CRT_SECURE_NO_DEPRECATE" /D "_CRT_NONSTDC_NO_DEPRECATE"
+# ADD BASE RSC /l 0x409
+# ADD RSC /l 0x409 /fo".\..\..\out\debug_dll6\build\libGIMPACT\libGIMPACT.res" /i "." /i "..\.." /i "..\..\src" /i "..\..\Extras\GIMPACT\include"
+BSC32=bscmake.exe
+# ADD BASE BSC32 /nologo
+# ADD BSC32 /nologo
+LIB32=link.exe -lib
+# ADD BASE LIB32 /nologo
+# ADD LIB32 /nologo 
+LINK32=link.exe
+# ADD BASE LINK32 user32.lib gdi32.lib advapi32.lib /nologo /machine:I386
+# ADD LINK32 shell32.lib user32.lib gdi32.lib advapi32.lib   /nologo /version:4.0 /machine:I386  /subsystem:windows  
+
 !ELSEIF  "$(CFG)" == "libGIMPACT - Win32 DebugDoublePrecision"
 
 # PROP BASE Use_MFC 0
@@ -152,8 +212,10 @@ LINK32=link.exe
 # Begin Target
 
 # Name "libGIMPACT - Win32 Release"
+# Name "libGIMPACT - Win32 ReleaseDll"
 # Name "libGIMPACT - Win32 ReleaseDoublePrecision"
 # Name "libGIMPACT - Win32 Debug"
+# Name "libGIMPACT - Win32 DebugDll"
 # Name "libGIMPACT - Win32 DebugDoublePrecision"
 # Begin Group "Source Files"
 

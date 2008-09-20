@@ -88,6 +88,76 @@
 				Name="VCWebDeploymentTool"/>
 		</Configuration>
 		<Configuration
+			Name="ReleaseDll|Win32"
+			OutputDirectory="..\..\out\release_dll71\build\appCcdPhysicsDemo\"
+			IntermediateDirectory="..\..\out\release_dll71\build\appCcdPhysicsDemo\"
+			ConfigurationType="1"
+			CharacterSet="2"
+			UseOfMFC="0"
+			ATLMinimizesCRunTimeLibraryUsage="FALSE">
+			<Tool
+				Name="VCCLCompilerTool"
+                                Optimization="2"
+                                StringPooling="TRUE"
+                                EnableFunctionLevelLinking="TRUE"
+                                RuntimeLibrary="2"
+                                DebugInformationFormat="3"
+                                BufferSecurityCheck="FALSE"
+				PreprocessorDefinitions="NDEBUG;_CONSOLE;_CRT_SECURE_NO_DEPRECATE;_CRT_NONSTDC_NO_DEPRECATE;WIN32"
+				OptimizeForProcessor="1"
+				ExceptionHandling="0"
+				AdditionalOptions=" "
+				AdditionalIncludeDirectories=".;..\..;..\..\src;..\..\Glut;..\..\Demos\OpenGL;..\..\Extras\ConvexHull"
+				PrecompiledHeaderFile="..\..\out\release_dll71\build\appCcdPhysicsDemo\appCcdPhysicsDemo.pch"
+				AssemblerListingLocation="..\..\out\release_dll71\build\appCcdPhysicsDemo\"
+				ObjectFile="..\..\out\release_dll71\build\appCcdPhysicsDemo\"
+				ProgramDataBaseFileName="..\..\out\release_dll71\build\appCcdPhysicsDemo\CcdPhysicsDemo.pdb"
+				WarningLevel="3"
+				SuppressStartupBanner="TRUE"
+				Detect64BitPortabilityProblems="TRUE"
+				TreatWChar_tAsBuiltInType="false"
+				CompileAs="0"/>
+			<Tool
+				Name="VCCustomBuildTool"/>
+			<Tool
+				Name="VCLinkerTool"
+                                OutputFile="..\..\ReleaseDllCcdPhysicsDemo.exe"
+                                SubSystem="1"
+				AdditionalOptions=" "
+				AdditionalDependencies="glut32.lib"
+				IgnoreImportLibrary="TRUE"
+				SuppressStartupBanner="TRUE"
+				GenerateManifest="false"
+				AdditionalLibraryDirectories="..\..\Glut"
+				ProgramDatabaseFile="..\..\out\release_dll71\build\appCcdPhysicsDemo\CcdPhysicsDemo.pdb"
+				TargetMachine="1"/>
+			<Tool
+				Name="VCLibrarianTool"
+				SuppressStartupBanner="TRUE"/>
+			<Tool
+				Name="VCMIDLTool"
+				PreprocessorDefinitions="NDEBUG;_CONSOLE;_CRT_SECURE_NO_DEPRECATE;_CRT_NONSTDC_NO_DEPRECATE"
+				MkTypLibCompatible="TRUE"
+				SuppressStartupBanner="TRUE"
+				TargetEnvironment="1"
+				TypeLibraryName="..\..\out\release_dll71\build\appCcdPhysicsDemo\appCcdPhysicsDemo.tlb"/>
+			<Tool
+				Name="VCPostBuildEventTool"/>
+			<Tool
+				Name="VCPreBuildEventTool"/>
+			<Tool
+				Name="VCPreLinkEventTool"/>
+			<Tool
+				Name="VCResourceCompilerTool"
+				PreprocessorDefinitions="NDEBUG;_CONSOLE;_CRT_SECURE_NO_DEPRECATE;_CRT_NONSTDC_NO_DEPRECATE;PROJECTGEN_VERSION=71"
+				AdditionalIncludeDirectories=".;..\..;..\..\src;..\..\Glut;..\..\Demos\OpenGL;..\..\Extras\ConvexHull"
+				Culture="1033"/>
+			<Tool
+				Name="VCWebServiceProxyGeneratorTool"/>
+			<Tool
+				Name="VCWebDeploymentTool"/>
+		</Configuration>
+		<Configuration
 			Name="ReleaseDoublePrecision|Win32"
 			OutputDirectory="..\..\out\release_dbl71\build\appCcdPhysicsDemo\"
 			IntermediateDirectory="..\..\out\release_dbl71\build\appCcdPhysicsDemo\"
@@ -207,6 +277,75 @@
 				SuppressStartupBanner="TRUE"
 				TargetEnvironment="1"
 				TypeLibraryName="..\..\out\debug71\build\appCcdPhysicsDemo\appCcdPhysicsDemo.tlb"/>
+			<Tool
+				Name="VCPostBuildEventTool"/>
+			<Tool
+				Name="VCPreBuildEventTool"/>
+			<Tool
+				Name="VCPreLinkEventTool"/>
+			<Tool
+				Name="VCResourceCompilerTool"
+				PreprocessorDefinitions="_DEBUG;_CONSOLE;_CRT_SECURE_NO_DEPRECATE;_CRT_NONSTDC_NO_DEPRECATE;PROJECTGEN_VERSION=71"
+				AdditionalIncludeDirectories=".;..\..;..\..\src;..\..\Glut;..\..\Demos\OpenGL;..\..\Extras\ConvexHull"
+				Culture="1033"/>
+			<Tool
+				Name="VCWebServiceProxyGeneratorTool"/>
+			<Tool
+				Name="VCWebDeploymentTool"/>
+		</Configuration>
+		<Configuration
+			Name="DebugDll|Win32"
+			OutputDirectory="..\..\out\debug_dll71\build\appCcdPhysicsDemo\"
+			IntermediateDirectory="..\..\out\debug_dll71\build\appCcdPhysicsDemo\"
+			ConfigurationType="1"
+			CharacterSet="2"
+			UseOfMFC="0"
+			ATLMinimizesCRunTimeLibraryUsage="FALSE">
+			<Tool
+				Name="VCCLCompilerTool"
+                                Optimization="0"
+                                MinimalRebuild="TRUE"
+                                DebugInformationFormat="4"
+                                RuntimeTypeInfo="FALSE"
+                                RuntimeLibrary="3"
+				PreprocessorDefinitions="_DEBUG;_CONSOLE;_CRT_SECURE_NO_DEPRECATE;_CRT_NONSTDC_NO_DEPRECATE;WIN32"
+				OptimizeForProcessor="1"
+				ExceptionHandling="0"
+				AdditionalOptions=" "
+				AdditionalIncludeDirectories=".;..\..;..\..\src;..\..\Glut;..\..\Demos\OpenGL;..\..\Extras\ConvexHull"
+				PrecompiledHeaderFile="..\..\out\debug_dll71\build\appCcdPhysicsDemo\appCcdPhysicsDemo.pch"
+				AssemblerListingLocation="..\..\out\debug_dll71\build\appCcdPhysicsDemo\"
+				ObjectFile="..\..\out\debug_dll71\build\appCcdPhysicsDemo\"
+				ProgramDataBaseFileName="..\..\out\debug_dll71\build\appCcdPhysicsDemo\CcdPhysicsDemo.pdb"
+				WarningLevel="3"
+				SuppressStartupBanner="TRUE"
+				Detect64BitPortabilityProblems="TRUE"
+				TreatWChar_tAsBuiltInType="false"
+				CompileAs="0"/>
+			<Tool
+				Name="VCCustomBuildTool"/>
+			<Tool
+				Name="VCLinkerTool"
+                                OutputFile="..\..\DebugDllCcdPhysicsDemo.exe"
+                                SubSystem="1"
+				AdditionalOptions=" "
+				AdditionalDependencies="glut32.lib"
+				IgnoreImportLibrary="TRUE"
+				SuppressStartupBanner="TRUE"
+				GenerateManifest="false"
+				AdditionalLibraryDirectories="..\..\Glut"
+				ProgramDatabaseFile="..\..\out\debug_dll71\build\appCcdPhysicsDemo\CcdPhysicsDemo.pdb"
+				TargetMachine="1"/>
+			<Tool
+				Name="VCLibrarianTool"
+				SuppressStartupBanner="TRUE"/>
+			<Tool
+				Name="VCMIDLTool"
+				PreprocessorDefinitions="_DEBUG;_CONSOLE;_CRT_SECURE_NO_DEPRECATE;_CRT_NONSTDC_NO_DEPRECATE"
+				MkTypLibCompatible="TRUE"
+				SuppressStartupBanner="TRUE"
+				TargetEnvironment="1"
+				TypeLibraryName="..\..\out\debug_dll71\build\appCcdPhysicsDemo\appCcdPhysicsDemo.tlb"/>
 			<Tool
 				Name="VCPostBuildEventTool"/>
 			<Tool

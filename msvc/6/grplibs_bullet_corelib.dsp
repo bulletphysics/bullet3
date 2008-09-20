@@ -18,8 +18,10 @@ CFG=grplibs_bullet_corelib - Win32 Release
 !MESSAGE Possible choices for configuration are:
 !MESSAGE 
 !MESSAGE "grplibs_bullet_corelib - Win32 DebugDoublePrecision" (based on "Win32 (x86) Static Library")
+!MESSAGE "grplibs_bullet_corelib - Win32 DebugDll" (based on "Win32 (x86) Static Library")
 !MESSAGE "grplibs_bullet_corelib - Win32 Debug" (based on "Win32 (x86) Static Library")
 !MESSAGE "grplibs_bullet_corelib - Win32 ReleaseDoublePrecision" (based on "Win32 (x86) Static Library")
+!MESSAGE "grplibs_bullet_corelib - Win32 ReleaseDll" (based on "Win32 (x86) Static Library")
 !MESSAGE "grplibs_bullet_corelib - Win32 Release" (based on "Win32 (x86) Static Library")
 !MESSAGE 
 
@@ -59,6 +61,35 @@ LIB32=link.exe -lib
 LINK32=link.exe
 # ADD BASE LINK32 user32.lib gdi32.lib advapi32.lib /nologo /machine:I386
 # ADD LINK32 shell32.lib user32.lib gdi32.lib advapi32.lib   /nologo /version:4.0 /machine:I386 /OPT:NOREF   
+
+!ELSEIF  "$(CFG)" == "grplibs_bullet_corelib - Win32 ReleaseDll"
+
+# PROP BASE Use_MFC 0
+# PROP BASE Use_Debug_Libraries 
+# PROP BASE Output_Dir "release_dll"
+# PROP BASE Intermediate_Dir "release_dll"
+# PROP BASE Target_Dir ""
+# PROP Use_MFC 0
+# PROP Use_Debug_Libraries 
+# PROP Output_Dir "..\..\out\release_dll6\build\grplibs_bullet_corelib\"
+# PROP Intermediate_Dir "..\..\out\release_dll6\build\grplibs_bullet_corelib\"
+# PROP Ignore_Export_Lib 0
+# PROP Target_Dir ""
+# ADD BASE CPP /nologo /vmb /vms /W3 /Gm /G5 /D "WIN32" /FD /c
+# ADD CPP /nologo /vmb /vms /W3 /Gm /G5 /FD /c  /D "_MT" /D "_MBCS" /D "NDEBUG" /D "WIN32"  /I "." /I "..\.." /I "..\..\src"
+# ADD BASE MTL /nologo /mktyplib203 /o "NUL" /win32
+# ADD MTL /nologo /mktyplib203 /o "NUL" /win32 /D "NDEBUG"
+# ADD BASE RSC /l 0x409
+# ADD RSC /l 0x409 /fo".\..\..\out\release_dll6\build\grplibs_bullet_corelib\grplibs_bullet_corelib.res" /i "." /i "..\.." /i "..\..\src"
+BSC32=bscmake.exe
+# ADD BASE BSC32 /nologo
+# ADD BSC32 /nologo
+LIB32=link.exe -lib
+# ADD BASE LIB32 /nologo
+# ADD LIB32 /nologo /out:"..\..\out\release_dll6\libs\grplibs_bullet_corelib.lib"
+LINK32=link.exe
+# ADD BASE LINK32 user32.lib gdi32.lib advapi32.lib /nologo /machine:I386
+# ADD LINK32 shell32.lib user32.lib gdi32.lib advapi32.lib   /nologo /version:4.0 /machine:I386    
 
 !ELSEIF  "$(CFG)" == "grplibs_bullet_corelib - Win32 ReleaseDoublePrecision"
 
@@ -118,6 +149,35 @@ LINK32=link.exe
 # ADD BASE LINK32 user32.lib gdi32.lib advapi32.lib /nologo /machine:I386
 # ADD LINK32 shell32.lib user32.lib gdi32.lib advapi32.lib   /nologo /version:4.0 /machine:I386 /debug /pdbtype:sept   
 
+!ELSEIF  "$(CFG)" == "grplibs_bullet_corelib - Win32 DebugDll"
+
+# PROP BASE Use_MFC 0
+# PROP BASE Use_Debug_Libraries 
+# PROP BASE Output_Dir "debug_dll"
+# PROP BASE Intermediate_Dir "debug_dll"
+# PROP BASE Target_Dir ""
+# PROP Use_MFC 0
+# PROP Use_Debug_Libraries 
+# PROP Output_Dir "..\..\out\debug_dll6\build\grplibs_bullet_corelib\"
+# PROP Intermediate_Dir "..\..\out\debug_dll6\build\grplibs_bullet_corelib\"
+# PROP Ignore_Export_Lib 0
+# PROP Target_Dir ""
+# ADD BASE CPP /nologo /vmb /vms /W3 /Gm /G5 /D "WIN32" /FD /c
+# ADD CPP /nologo /vmb /vms /W3 /Gm /G5 /FD /c  /D "_MT" /D "_MBCS" /D "_DEBUG" /D "WIN32"  /I "." /I "..\.." /I "..\..\src"
+# ADD BASE MTL /nologo /mktyplib203 /o "NUL" /win32
+# ADD MTL /nologo /mktyplib203 /o "NUL" /win32 /D "_DEBUG"
+# ADD BASE RSC /l 0x409
+# ADD RSC /l 0x409 /fo".\..\..\out\debug_dll6\build\grplibs_bullet_corelib\grplibs_bullet_corelib.res" /i "." /i "..\.." /i "..\..\src"
+BSC32=bscmake.exe
+# ADD BASE BSC32 /nologo
+# ADD BSC32 /nologo
+LIB32=link.exe -lib
+# ADD BASE LIB32 /nologo
+# ADD LIB32 /nologo /out:"..\..\out\debug_dll6\libs\grplibs_bullet_corelib.lib"
+LINK32=link.exe
+# ADD BASE LINK32 user32.lib gdi32.lib advapi32.lib /nologo /machine:I386
+# ADD LINK32 shell32.lib user32.lib gdi32.lib advapi32.lib   /nologo /version:4.0 /machine:I386    
+
 !ELSEIF  "$(CFG)" == "grplibs_bullet_corelib - Win32 DebugDoublePrecision"
 
 # PROP BASE Use_MFC 0
@@ -152,8 +212,10 @@ LINK32=link.exe
 # Begin Target
 
 # Name "grplibs_bullet_corelib - Win32 Release"
+# Name "grplibs_bullet_corelib - Win32 ReleaseDll"
 # Name "grplibs_bullet_corelib - Win32 ReleaseDoublePrecision"
 # Name "grplibs_bullet_corelib - Win32 Debug"
+# Name "grplibs_bullet_corelib - Win32 DebugDll"
 # Name "grplibs_bullet_corelib - Win32 DebugDoublePrecision"
 # End Target
 # End Project

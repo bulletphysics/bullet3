@@ -85,6 +85,74 @@
 				Name="VCWebDeploymentTool"/>
 		</Configuration>
 		<Configuration
+			Name="ReleaseDll|Win32"
+			OutputDirectory="..\..\out\release_dll7\build\grpall_bullet_corelib\"
+			IntermediateDirectory="..\..\out\release_dll7\build\grpall_bullet_corelib\"
+			ConfigurationType="4"
+			UseOfMFC="0"
+			ATLMinimizesCRunTimeLibraryUsage="FALSE">
+			<Tool
+				Name="VCCLCompilerTool"
+                                Optimization="2"
+                                StringPooling="TRUE"
+                                EnableFunctionLevelLinking="TRUE"
+                                RuntimeLibrary="2"
+                                DebugInformationFormat="3"
+                                BufferSecurityCheck="FALSE"
+				PreprocessorDefinitions="NDEBUG;WIN32"
+				OptimizeForProcessor="1"
+				ExceptionHandling="0"
+				AdditionalOptions=" "
+				AdditionalIncludeDirectories=".;..\..;..\..\src"
+				PrecompiledHeaderFile="..\..\out\release_dll7\build\grpall_bullet_corelib\grpall_bullet_corelib.pch"
+				AssemblerListingLocation="..\..\out\release_dll7\build\grpall_bullet_corelib\"
+				ObjectFile="..\..\out\release_dll7\build\grpall_bullet_corelib\"
+				ProgramDataBaseFileName="..\..\out\release_dll7\build\grpall_bullet_corelib\all_bullet_corelib.pdb"
+				WarningLevel="3"
+				SuppressStartupBanner="TRUE"
+				Detect64BitPortabilityProblems="TRUE"
+				TreatWChar_tAsBuiltInType="false"
+				CompileAs="0"/>
+			<Tool
+				Name="VCCustomBuildTool"/>
+			<Tool
+				Name="VCLinkerTool"
+				AdditionalOptions=" "
+				AdditionalDependencies=""
+				IgnoreImportLibrary="TRUE"
+				SuppressStartupBanner="TRUE"
+				GenerateManifest="false"
+				AdditionalLibraryDirectories=""
+				ProgramDatabaseFile="..\..\out\release_dll7\build\grpall_bullet_corelib\all_bullet_corelib.pdb"
+				TargetMachine="1"/>
+			<Tool
+				Name="VCLibrarianTool"
+				OutputFile="..\..\out\release_dll7\libs\grpall_bullet_corelib.lib"
+				SuppressStartupBanner="TRUE"/>
+			<Tool
+				Name="VCMIDLTool"
+				PreprocessorDefinitions="NDEBUG"
+				MkTypLibCompatible="TRUE"
+				SuppressStartupBanner="TRUE"
+				TargetEnvironment="1"
+				TypeLibraryName="..\..\out\release_dll7\build\grpall_bullet_corelib\grpall_bullet_corelib.tlb"/>
+			<Tool
+				Name="VCPostBuildEventTool"/>
+			<Tool
+				Name="VCPreBuildEventTool"/>
+			<Tool
+				Name="VCPreLinkEventTool"/>
+			<Tool
+				Name="VCResourceCompilerTool"
+				PreprocessorDefinitions="NDEBUG;PROJECTGEN_VERSION=7"
+				AdditionalIncludeDirectories=".;..\..;..\..\src"
+				Culture="1033"/>
+			<Tool
+				Name="VCWebServiceProxyGeneratorTool"/>
+			<Tool
+				Name="VCWebDeploymentTool"/>
+		</Configuration>
+		<Configuration
 			Name="ReleaseDoublePrecision|Win32"
 			OutputDirectory="..\..\out\release_dbl7\build\grpall_bullet_corelib\"
 			IntermediateDirectory="..\..\out\release_dbl7\build\grpall_bullet_corelib\"
@@ -200,6 +268,73 @@
 				SuppressStartupBanner="TRUE"
 				TargetEnvironment="1"
 				TypeLibraryName="..\..\out\debug7\build\grpall_bullet_corelib\grpall_bullet_corelib.tlb"/>
+			<Tool
+				Name="VCPostBuildEventTool"/>
+			<Tool
+				Name="VCPreBuildEventTool"/>
+			<Tool
+				Name="VCPreLinkEventTool"/>
+			<Tool
+				Name="VCResourceCompilerTool"
+				PreprocessorDefinitions="_DEBUG;PROJECTGEN_VERSION=7"
+				AdditionalIncludeDirectories=".;..\..;..\..\src"
+				Culture="1033"/>
+			<Tool
+				Name="VCWebServiceProxyGeneratorTool"/>
+			<Tool
+				Name="VCWebDeploymentTool"/>
+		</Configuration>
+		<Configuration
+			Name="DebugDll|Win32"
+			OutputDirectory="..\..\out\debug_dll7\build\grpall_bullet_corelib\"
+			IntermediateDirectory="..\..\out\debug_dll7\build\grpall_bullet_corelib\"
+			ConfigurationType="4"
+			UseOfMFC="0"
+			ATLMinimizesCRunTimeLibraryUsage="FALSE">
+			<Tool
+				Name="VCCLCompilerTool"
+                                Optimization="0"
+                                MinimalRebuild="TRUE"
+                                DebugInformationFormat="4"
+                                RuntimeTypeInfo="FALSE"
+                                RuntimeLibrary="3"
+				PreprocessorDefinitions="_DEBUG;WIN32"
+				OptimizeForProcessor="1"
+				ExceptionHandling="0"
+				AdditionalOptions=" "
+				AdditionalIncludeDirectories=".;..\..;..\..\src"
+				PrecompiledHeaderFile="..\..\out\debug_dll7\build\grpall_bullet_corelib\grpall_bullet_corelib.pch"
+				AssemblerListingLocation="..\..\out\debug_dll7\build\grpall_bullet_corelib\"
+				ObjectFile="..\..\out\debug_dll7\build\grpall_bullet_corelib\"
+				ProgramDataBaseFileName="..\..\out\debug_dll7\build\grpall_bullet_corelib\all_bullet_corelib.pdb"
+				WarningLevel="3"
+				SuppressStartupBanner="TRUE"
+				Detect64BitPortabilityProblems="TRUE"
+				TreatWChar_tAsBuiltInType="false"
+				CompileAs="0"/>
+			<Tool
+				Name="VCCustomBuildTool"/>
+			<Tool
+				Name="VCLinkerTool"
+				AdditionalOptions=" "
+				AdditionalDependencies=""
+				IgnoreImportLibrary="TRUE"
+				SuppressStartupBanner="TRUE"
+				GenerateManifest="false"
+				AdditionalLibraryDirectories=""
+				ProgramDatabaseFile="..\..\out\debug_dll7\build\grpall_bullet_corelib\all_bullet_corelib.pdb"
+				TargetMachine="1"/>
+			<Tool
+				Name="VCLibrarianTool"
+				OutputFile="..\..\out\debug_dll7\libs\grpall_bullet_corelib.lib"
+				SuppressStartupBanner="TRUE"/>
+			<Tool
+				Name="VCMIDLTool"
+				PreprocessorDefinitions="_DEBUG"
+				MkTypLibCompatible="TRUE"
+				SuppressStartupBanner="TRUE"
+				TargetEnvironment="1"
+				TypeLibraryName="..\..\out\debug_dll7\build\grpall_bullet_corelib\grpall_bullet_corelib.tlb"/>
 			<Tool
 				Name="VCPostBuildEventTool"/>
 			<Tool

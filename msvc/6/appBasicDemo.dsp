@@ -18,8 +18,10 @@ CFG=appBasicDemo - Win32 Release
 !MESSAGE Possible choices for configuration are:
 !MESSAGE 
 !MESSAGE "appBasicDemo - Win32 DebugDoublePrecision" (based on "Win32 (x86) Console Application")
+!MESSAGE "appBasicDemo - Win32 DebugDll" (based on "Win32 (x86) Console Application")
 !MESSAGE "appBasicDemo - Win32 Debug" (based on "Win32 (x86) Console Application")
 !MESSAGE "appBasicDemo - Win32 ReleaseDoublePrecision" (based on "Win32 (x86) Console Application")
+!MESSAGE "appBasicDemo - Win32 ReleaseDll" (based on "Win32 (x86) Console Application")
 !MESSAGE "appBasicDemo - Win32 Release" (based on "Win32 (x86) Console Application")
 !MESSAGE 
 
@@ -59,6 +61,34 @@ LIB32=link.exe -lib
 LINK32=link.exe
 # ADD BASE LINK32 user32.lib gdi32.lib advapi32.lib /nologo /machine:I386
 # ADD LINK32 shell32.lib user32.lib gdi32.lib advapi32.lib glut32.lib  /nologo /version:4.0 /machine:I386 /OPT:NOREF /out:"..\..\BasicDemo.exe" /subsystem:console /libpath:"..\..\Glut" 
+
+!ELSEIF  "$(CFG)" == "appBasicDemo - Win32 ReleaseDll"
+
+# PROP BASE Use_MFC 0
+# PROP BASE Use_Debug_Libraries 
+# PROP BASE Output_Dir "release_dll"
+# PROP BASE Intermediate_Dir "release_dll"
+# PROP BASE Target_Dir ""
+# PROP Use_MFC 0
+# PROP Use_Debug_Libraries 
+# PROP Output_Dir "..\..\out\release_dll6\build\appBasicDemo\"
+# PROP Intermediate_Dir "..\..\out\release_dll6\build\appBasicDemo\"
+# PROP Target_Dir ""
+# ADD BASE CPP /nologo /vmb /vms /W3 /Gm /G5 /D "WIN32" /FD /c
+# ADD CPP /nologo /vmb /vms /W3 /Gm /G5 /FD /c  /D "_MT" /D "_MBCS" /D "NDEBUG" /D "_CONSOLE" /D "_CRT_SECURE_NO_DEPRECATE" /D "_CRT_NONSTDC_NO_DEPRECATE" /D "WIN32"  /I "." /I "..\.." /I "..\..\src" /I "..\..\Glut" /I "..\..\Demos\OpenGL" /I "..\..\Extras\ConvexHull"
+# ADD BASE MTL /nologo /mktyplib203 /o "NUL" /win32
+# ADD MTL /nologo /mktyplib203 /o "NUL" /win32 /D "NDEBUG" /D "_CONSOLE" /D "_CRT_SECURE_NO_DEPRECATE" /D "_CRT_NONSTDC_NO_DEPRECATE"
+# ADD BASE RSC /l 0x409
+# ADD RSC /l 0x409 /fo".\..\..\out\release_dll6\build\appBasicDemo\appBasicDemo.res" /i "." /i "..\.." /i "..\..\src" /i "..\..\Glut" /i "..\..\Demos\OpenGL" /i "..\..\Extras\ConvexHull"
+BSC32=bscmake.exe
+# ADD BASE BSC32 /nologo
+# ADD BSC32 /nologo
+LIB32=link.exe -lib
+# ADD BASE LIB32 /nologo
+# ADD LIB32 /nologo 
+LINK32=link.exe
+# ADD BASE LINK32 user32.lib gdi32.lib advapi32.lib /nologo /machine:I386
+# ADD LINK32 shell32.lib user32.lib gdi32.lib advapi32.lib glut32.lib  /nologo /version:4.0 /machine:I386  /out:"..\..\BasicDemo.exe" /subsystem:console /libpath:"..\..\Glut" 
 
 !ELSEIF  "$(CFG)" == "appBasicDemo - Win32 ReleaseDoublePrecision"
 
@@ -117,6 +147,34 @@ LINK32=link.exe
 # ADD BASE LINK32 user32.lib gdi32.lib advapi32.lib /nologo /machine:I386
 # ADD LINK32 shell32.lib user32.lib gdi32.lib advapi32.lib glut32.lib  /nologo /version:4.0 /machine:I386 /debug /pdbtype:sept /out:"..\..\BasicDemo.exe" /subsystem:console /libpath:"..\..\Glut" 
 
+!ELSEIF  "$(CFG)" == "appBasicDemo - Win32 DebugDll"
+
+# PROP BASE Use_MFC 0
+# PROP BASE Use_Debug_Libraries 
+# PROP BASE Output_Dir "debug_dll"
+# PROP BASE Intermediate_Dir "debug_dll"
+# PROP BASE Target_Dir ""
+# PROP Use_MFC 0
+# PROP Use_Debug_Libraries 
+# PROP Output_Dir "..\..\out\debug_dll6\build\appBasicDemo\"
+# PROP Intermediate_Dir "..\..\out\debug_dll6\build\appBasicDemo\"
+# PROP Target_Dir ""
+# ADD BASE CPP /nologo /vmb /vms /W3 /Gm /G5 /D "WIN32" /FD /c
+# ADD CPP /nologo /vmb /vms /W3 /Gm /G5 /FD /c  /D "_MT" /D "_MBCS" /D "_DEBUG" /D "_CONSOLE" /D "_CRT_SECURE_NO_DEPRECATE" /D "_CRT_NONSTDC_NO_DEPRECATE" /D "WIN32"  /I "." /I "..\.." /I "..\..\src" /I "..\..\Glut" /I "..\..\Demos\OpenGL" /I "..\..\Extras\ConvexHull"
+# ADD BASE MTL /nologo /mktyplib203 /o "NUL" /win32
+# ADD MTL /nologo /mktyplib203 /o "NUL" /win32 /D "_DEBUG" /D "_CONSOLE" /D "_CRT_SECURE_NO_DEPRECATE" /D "_CRT_NONSTDC_NO_DEPRECATE"
+# ADD BASE RSC /l 0x409
+# ADD RSC /l 0x409 /fo".\..\..\out\debug_dll6\build\appBasicDemo\appBasicDemo.res" /i "." /i "..\.." /i "..\..\src" /i "..\..\Glut" /i "..\..\Demos\OpenGL" /i "..\..\Extras\ConvexHull"
+BSC32=bscmake.exe
+# ADD BASE BSC32 /nologo
+# ADD BSC32 /nologo
+LIB32=link.exe -lib
+# ADD BASE LIB32 /nologo
+# ADD LIB32 /nologo 
+LINK32=link.exe
+# ADD BASE LINK32 user32.lib gdi32.lib advapi32.lib /nologo /machine:I386
+# ADD LINK32 shell32.lib user32.lib gdi32.lib advapi32.lib glut32.lib  /nologo /version:4.0 /machine:I386  /out:"..\..\BasicDemo.exe" /subsystem:console /libpath:"..\..\Glut" 
+
 !ELSEIF  "$(CFG)" == "appBasicDemo - Win32 DebugDoublePrecision"
 
 # PROP BASE Use_MFC 0
@@ -150,8 +208,10 @@ LINK32=link.exe
 # Begin Target
 
 # Name "appBasicDemo - Win32 Release"
+# Name "appBasicDemo - Win32 ReleaseDll"
 # Name "appBasicDemo - Win32 ReleaseDoublePrecision"
 # Name "appBasicDemo - Win32 Debug"
+# Name "appBasicDemo - Win32 DebugDll"
 # Name "appBasicDemo - Win32 DebugDoublePrecision"
 # Begin Group "Source Files"
 

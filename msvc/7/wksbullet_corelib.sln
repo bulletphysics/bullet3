@@ -3,9 +3,11 @@ Microsoft Visual Studio Solution File, Format Version 7.00
 Global
 	GlobalSection(SolutionConfiguration) = preSolution
 		ConfigName.0 = Release
-		ConfigName.1 = ReleaseDoublePrecision
-		ConfigName.2 = Debug
-		ConfigName.3 = DebugDoublePrecision
+		ConfigName.1 = ReleaseDll
+		ConfigName.2 = ReleaseDoublePrecision
+		ConfigName.3 = Debug
+		ConfigName.4 = DebugDll
+		ConfigName.5 = DebugDoublePrecision
 	EndGlobalSection
 	GlobalSection(ProjectDependencies) = postSolution
 	EndGlobalSection
