@@ -29,7 +29,7 @@ LDFLAGS =-Wl,-Bsymbolic -shared
 BULLET_INCLUDE=-I$(BULLET)/src -I$(BULLET)/Extras/GIMPACT/include
 BULLET_LIB=-L$(BULLET)/out/linux/optimize/libs -L$(BULLET)/src \
                -lBulletColladaConverter -lcolladadom -llibxml -lGIMPACT -lGIMPACTUtils -lbulletdynamics \
-                 -lbulletmath -lbulletcollision -lbulletopenglsupport
+                 -lbulletcollision -lbulletmath
 
 GL_LIB=-lGL -lGLU 
 
