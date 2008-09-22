@@ -40,7 +40,11 @@ public:
 
         btVector3 const& scale = shape()->getLocalScaling();
         glPushMatrix();
-        //glTranslatef(m_center[0], m_center[1], m_center[2]);
+        glTranslatef(m_center[0], m_center[1], m_center[2]);
+        float angle;
+        vec3f axis;
+        q_to_axis_angle(m_rotation, axis, angle);
+        glRotatef(rad2deg(angle), axis[0], axis[1], axis[2]);
         glScalef(scale.x(), scale.y(), scale.z());
         glEnableClientState(GL_VERTEX_ARRAY);
         glEnableClientState(GL_NORMAL_ARRAY);
@@ -105,10 +109,19 @@ protected:
         m_tiva.reset(new btTriangleIndexVertexArray(num_indices / 3, (int*)&(m_indices[0]), 3 * sizeof(unsigned int),
                                                     num_vertices, (float*)&(m_vertices[0]), sizeof(vec3f)));
 
-        btGImpactMeshShape* gimpactShape = new btGImpactMeshShape(m_tiva.get());
-	gimpactShape->setLocalScaling(btVector3(1.0f,1.0f,1.0f));
-        gimpactShape->updateBound();
-        set_shape(gimpactShape);
+        m_gi_shape.reset(new btGImpactMeshShape(m_tiva.get()));
+	m_gi_shape->setLocalScaling(btVector3(1.0f,1.0f,1.0f));
+        m_gi_shape->updateBound();
+        btCompoundShape *compound_shape = new btCompoundShape;
+        compound_shape->addChildShape(btTransform(btQuaternion(m_rotation[1],
+                                                               m_rotation[2],
+                                                               m_rotation[3],
+                                                               m_rotation[0]),
+                                                  btVector3(m_center[0],
+                                                            m_center[1],
+                                                            m_center[2])),
+                                      m_gi_shape.get());
+        set_shape(compound_shape);
 
         //std::cout << "construtor: " << m_center << std::endl;
 
@@ -117,10 +130,8 @@ protected:
 
     void update()
     {
-        btGImpactMeshShape *gi_shape = static_cast<btGImpactMeshShape*>(shape());
-
         //apply the scaling
-        btVector3 const& scale = gi_shape->getLocalScaling();
+        btVector3 const& scale = m_gi_shape->getLocalScaling();
 
         std::vector<vec3f> vertices(m_vertices.size());
         for(int i = 0; i < vertices.size(); ++i) {
@@ -142,10 +153,11 @@ protected:
     }
 
 private:
-    std::vector<vec3f> m_vertices;
-    std::vector<vec3f> m_normals;
-    std::vector<unsigned int> m_indices; 
-    shared_ptr<btTriangleIndexVertexArray> m_tiva;
+    shared_ptr<btGImpactMeshShape>          m_gi_shape;
+    std::vector<vec3f>                      m_vertices;
+    std::vector<vec3f>                      m_normals;
+    std::vector<unsigned int>               m_indices; 
+    shared_ptr<btTriangleIndexVertexArray>  m_tiva;
 
     float m_volume;
     vec3f m_center;

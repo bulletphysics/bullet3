@@ -121,22 +121,21 @@ q_from_axis_angle(vec<T1, 3> const& axis, T2 theta)  {
 template<typename T1, typename T2, typename T3> 
 inline 
 void
-q_to_axis_angle(vec<T1, 4> const& q, vec<T2, 3>& axis, T3& theta) {
-    
-	T3 half_theta= acos(q[0]);
+q_to_axis_angle(vec<T1, 4> const& q, vec<T2, 3>& axis, T3& theta)
+{
+    T3 half_theta= acos(q[0]);
 	
-	if(half_theta > 10 * std::numeric_limits<T3>::epsilon()) {
+    if(half_theta > 10 * std::numeric_limits<T3>::epsilon()) {
+        T3 oost = 1 / sin(half_theta);
 		
-		T3 oost = 1 / sin(half_theta);
-		
-		axis[0] = oost * q[1];
-		axis[1] = oost * q[2];
-		axis[2] = oost * q[3];
-		theta = 2 * half_theta;
-	} else {
+	axis[0] = oost * q[1];
+	axis[1] = oost * q[2];
+	axis[2] = oost * q[3];
+	theta = 2 * half_theta;
+    } else {
         axis[0] = axis[1] = axis[2] = 0;
-		theta = 0;
-	}
+        theta = 0;
+    }
 }
 
 //init quaternion from rotation matrix

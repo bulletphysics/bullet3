@@ -37,6 +37,12 @@ public:
 
         if(m_vertices.empty() || m_indices.empty()) return;
 
+        glPushMatrix();
+        glTranslatef(m_center[0], m_center[1], m_center[2]);
+        float angle;
+        vec3f axis;
+        q_to_axis_angle(m_rotation, axis, angle);
+        glRotatef(rad2deg(angle), axis[0], axis[1], axis[2]);
         glEnableClientState(GL_VERTEX_ARRAY);
         glEnableClientState(GL_NORMAL_ARRAY);
         if(draw_style & collision_shape_t::kDSSolid) {
@@ -50,6 +56,7 @@ public:
         glDisableClientState(GL_VERTEX_ARRAY);
         glDisableClientState(GL_NORMAL_ARRAY);
         glPolygonMode(GL_FRONT_AND_BACK, GL_FILL);
+        glPopMatrix();
     }
 
     virtual void set_scale(vec3f const& s) {
@@ -94,17 +101,27 @@ protected:
             m_vertices[i] = prod(Qinv, vertices[i] - m_center);
         }
 
-        set_shape(new btConvexHullShape((float const*)&(m_vertices[0]), num_vertices, sizeof(vec3f)));
+        m_ch_shape.reset(new btConvexHullShape((float const*)&(m_vertices[0]), num_vertices, sizeof(vec3f)));
+        btCompoundShape *compound_shape = new btCompoundShape;
+        compound_shape->addChildShape(btTransform(btQuaternion(m_rotation[1],
+                                                               m_rotation[2],
+                                                               m_rotation[3],
+                                                               m_rotation[0]),
+                                                  btVector3(m_center[0],
+                                                            m_center[1],
+                                                            m_center[2])),
+                                      m_ch_shape.get());
+        set_shape(compound_shape);
     }
 
     void update()
     {
-        btConvexHullShape *cu_shape = static_cast<btConvexHullShape*>(shape());
+        btConvexHullShape *ch_shape = static_cast<btConvexHullShape*>(shape());
 
         //apply the scaling
-        btVector3 const& scale = cu_shape->getLocalScaling();
-        btPoint3 const* points = cu_shape->getPoints();
-        for(int i = 0; i < cu_shape->getNumPoints(); ++i) {
+        btVector3 const& scale = m_ch_shape->getLocalScaling();
+        btPoint3 const* points = m_ch_shape->getPoints();
+        for(int i = 0; i < m_ch_shape->getNumPoints(); ++i) {
             m_vertices[i] = vec3f(scale.x() * points[i].x(), scale.y() * points[i].y(), scale.z() * points[i].z()); 
         }
         m_volume = ::volume(&(m_vertices[0]), (int*)&(m_indices[0]), m_indices.size());
@@ -123,16 +140,15 @@ protected:
     }
 
 private:
-    std::vector<vec3f> m_vertices;
-    std::vector<vec3f> m_normals;
-    std::vector<unsigned int> m_indices; 
+    shared_ptr<btConvexHullShape>   m_ch_shape;
+    std::vector<vec3f>              m_vertices;
+    std::vector<vec3f>              m_normals;
+    std::vector<unsigned int>       m_indices; 
 
-    float m_volume;
-    vec3f m_center;
-    quatf m_rotation;
-    vec3f m_local_inertia;
-
-
+    float                           m_volume;
+    vec3f                           m_center;
+    quatf                           m_rotation;
+    vec3f                           m_local_inertia;
 };
 
 #endif

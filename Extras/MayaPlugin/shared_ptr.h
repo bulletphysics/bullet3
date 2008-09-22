@@ -190,8 +190,8 @@ protected:
     }
 
 protected:
-    T           *m_ptr;
-   shared_count *m_count;
+    T               *m_ptr;
+    shared_count    *m_count;
 
 };
 
