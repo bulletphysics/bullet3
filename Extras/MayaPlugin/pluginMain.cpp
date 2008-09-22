@@ -142,8 +142,8 @@ MStatus uninitializePlugin( MObject obj )
     status = plugin.deregisterNode(rigidBodyNode::typeId);
     MCHECKSTATUS(status, "deregistering rigidBodyNode")
 
-    status =  plugin.deregisterFileTranslator( "OBJexport" );
-    MCHECKSTATUS(status,"deregistering OBJexport" )
+    status =  plugin.deregisterFileTranslator( "COLLADA Physics export" );
+    MCHECKSTATUS(status,"deregistering COLLADA Physics export" )
 
     solver_t::cleanup();
 
