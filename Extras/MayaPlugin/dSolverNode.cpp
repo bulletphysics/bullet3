@@ -271,6 +271,9 @@ void initRigidBodyArray(MObject &node)
         MPlug plgInitialVelocity(node, rigidBodyArrayNode::ia_initialVelocity);
         MPlug plgInitialSpin(node, rigidBodyArrayNode::ia_initialSpin);
 
+        MPlug plgPosition(node, rigidBodyArrayNode::io_position);
+        MPlug plgRotation(node, rigidBodyArrayNode::io_rotation);
+
         MPlug plgElement;
         for(size_t j = 0; j < rbs.size(); ++j) {
             vec3f pos;
@@ -299,10 +302,21 @@ void initRigidBodyArray(MObject &node)
 
             MEulerRotation meuler(deg2rad(rot[0]), deg2rad(rot[1]), deg2rad(rot[2]));
             MQuaternion mquat = meuler.asQuaternion();
+
             rbs[j]->set_transform(pos, quatf(mquat.w, mquat.x, mquat.y, mquat.z)); 
             rbs[j]->set_linear_velocity(vel);
             rbs[j]->set_angular_velocity(spin);
             rbs[j]->set_kinematic(false);
+
+            plgElement = plgPosition.elementByLogicalIndex(j);
+            plgElement.child(0).setValue(pos[0]);
+            plgElement.child(1).setValue(pos[1]);
+            plgElement.child(2).setValue(pos[2]);
+
+            plgElement = plgRotation.elementByLogicalIndex(j);
+            plgElement.child(0).setValue(rot[0]);
+            plgElement.child(1).setValue(rot[1]);
+            plgElement.child(2).setValue(rot[2]);
         }
 
     } else {

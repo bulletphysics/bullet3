@@ -293,7 +293,7 @@ void rigidBodyNode::draw( M3dView & view, const MDagPath &path,
     glPushAttrib( GL_ALL_ATTRIB_BITS );
 
     if(m_rigid_body) {
-        //remove the scale, since it's already include in the node transform 
+        //remove the scale, since it's already included in the node transform 
         vec3f scale;
         m_rigid_body->collision_shape()->get_scale(scale);
 
