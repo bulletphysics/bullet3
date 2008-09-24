@@ -120,6 +120,11 @@ dSolverCmd::redoIt()
 	m_dgModifier->connect(plgOutTime, plgInTime);
 	m_dgModifier->doIt();
     }
+    //force update of the solver on creation
+    MPlug plgRigidBodies(dSolverObj, dSolverNode::oa_rigidBodies);
+    bool update;
+    plgRigidBodies.getValue(update);
+    
     setResult(MFnDependencyNode(dSolverObj).name());
 
     return stat;

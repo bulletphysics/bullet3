@@ -622,7 +622,7 @@ void dSolverNode::applyFields(MPlugArray &rbConnections, float dt)
 
 void dSolverNode::computeRigidBodies(const MPlug& plug, MDataBlock& data)
 {
-  //  std::cout << "dSolverNode::computeRigidBodies" << std::endl;
+   // std::cout << "dSolverNode::computeRigidBodies" << std::endl;
 
     bool enabled = data.inputValue(ia_enabled).asBool();
     if(!enabled) {

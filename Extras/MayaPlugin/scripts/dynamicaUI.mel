@@ -404,6 +404,9 @@ proc dynamicaUI_createRigidBody(int $active, int $collisionShapeType)
                 connectAttr ($selection[$i * 2] + ".message") ($collisionShapeNode + ".inShape");
                 hide $shapeTransforms[0];
             }
+            setAttr ($rigidBodyNode + ".active" ) $active;
+            setAttr ($collisionShapeNode + ".type" ) $collisionShapeType;
+
             float $pos[]= `getAttr ($shapeTransforms[0] + ".translate")`;
             float $rot[]= `getAttr ($shapeTransforms[0] + ".rotate")`;
 
@@ -412,9 +415,6 @@ proc dynamicaUI_createRigidBody(int $active, int $collisionShapeType)
 
             setAttr ($rigidBodyTransforms[0] + ".rotate") -type double3 $rot[0] $rot[1] $rot[2];
             // setAttr ($rigidBodyNode + ".initialRotation") -type double3 $rot[0] $rot[1] $rot[2];
-    
-            setAttr ($rigidBodyNode + ".active" ) $active;
-            setAttr ($collisionShapeNode + ".type" ) $collisionShapeType;
 
             $newBodies[$i] = $rigidBodyTransforms[0];
         }
@@ -426,7 +426,6 @@ proc dynamicaUI_createRigidBody(int $active, int $collisionShapeType)
 
         setAttr ($rigidBodyNode + ".active" ) $active;
         setAttr ($collisionShapeNode + ".type" ) $collisionShapeType;
-
         $newBodies[0] = $rigidBodyTransforms[0];
     }
 
