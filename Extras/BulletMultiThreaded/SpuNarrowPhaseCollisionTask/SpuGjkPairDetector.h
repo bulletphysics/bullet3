@@ -24,18 +24,15 @@ subject to the following restrictions:
 
 #include "SpuContactResult.h"
 
-
-#include "SpuVoronoiSimplexSolver.h"
+#include "BulletCollision/NarrowPhaseCollision/btVoronoiSimplexSolver.h"
 class SpuConvexPenetrationDepthSolver;
 
 /// btGjkPairDetector uses GJK to implement the btDiscreteCollisionDetectorInterface
 class SpuGjkPairDetector 
 {
-	
-
 	btVector3	m_cachedSeparatingAxis;
 	const SpuConvexPenetrationDepthSolver*	m_penetrationDepthSolver;
-	SpuVoronoiSimplexSolver* m_simplexSolver;
+	btVoronoiSimplexSolver* m_simplexSolver;
 	void* m_minkowskiA;
 	void* m_minkowskiB;
     int m_shapeTypeA;
@@ -54,7 +51,7 @@ public:
 	int			m_catchDegeneracies;
 
 
-	SpuGjkPairDetector(void* objectA,void* objectB,int m_shapeTypeA, int m_shapeTypeB, float marginA, float marginB, SpuVoronoiSimplexSolver* simplexSolver, const SpuConvexPenetrationDepthSolver*	penetrationDepthSolver);
+	SpuGjkPairDetector(void* objectA,void* objectB,int m_shapeTypeA, int m_shapeTypeB, float marginA, float marginB, btVoronoiSimplexSolver* simplexSolver, const SpuConvexPenetrationDepthSolver*	penetrationDepthSolver);
 	virtual ~SpuGjkPairDetector() {};
 
 	virtual void	getClosestPoints(const SpuClosestPointInput& input,SpuContactResult& output);

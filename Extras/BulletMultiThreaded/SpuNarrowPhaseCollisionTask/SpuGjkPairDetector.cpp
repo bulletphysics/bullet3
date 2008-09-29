@@ -36,7 +36,7 @@ int gSpuNumGjkChecks = 0;
 
 
 
-SpuGjkPairDetector::SpuGjkPairDetector(void* objectA,void* objectB,int shapeTypeA, int shapeTypeB, float marginA,float marginB,SpuVoronoiSimplexSolver* simplexSolver, const SpuConvexPenetrationDepthSolver*	penetrationDepthSolver)
+SpuGjkPairDetector::SpuGjkPairDetector(void* objectA,void* objectB,int shapeTypeA, int shapeTypeB, float marginA,float marginB,btVoronoiSimplexSolver* simplexSolver, const SpuConvexPenetrationDepthSolver*	penetrationDepthSolver)
 :m_cachedSeparatingAxis(float(0.),float(0.),float(1.)),
 m_penetrationDepthSolver(penetrationDepthSolver),
 m_simplexSolver(simplexSolver),

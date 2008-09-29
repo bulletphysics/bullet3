@@ -632,7 +632,7 @@ void performRaycastAgainstCompound (RaycastGatheredObjectData* gatheredObjectDat
 void
 performRaycastAgainstConvex (RaycastGatheredObjectData* gatheredObjectData, const SpuRaycastTaskWorkUnit& workUnit, SpuRaycastTaskWorkUnitOut* workUnitOut, RaycastTask_LocalStoreMemory* lsMemPtr)
 {
-	SpuVoronoiSimplexSolver simplexSolver;
+	btVoronoiSimplexSolver simplexSolver;
 
 	btTransform rayFromTrans, rayToTrans;
 	rayFromTrans.setIdentity ();

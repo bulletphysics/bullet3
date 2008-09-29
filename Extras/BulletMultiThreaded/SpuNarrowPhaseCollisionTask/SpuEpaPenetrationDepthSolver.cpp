@@ -13,13 +13,14 @@ subject to the following restrictions:
 3. This notice may not be removed or altered from any source distribution.
 */
 
+#include "BulletCollision/NarrowPhaseCollision/btVoronoiSimplexSolver.h"
+#include "BulletCollision/NarrowPhaseCollision/btGjkPairDetector.h"
+
 #include "SpuEpaPenetrationDepthSolver.h"
-#include "SpuVoronoiSimplexSolver.h"
-#include "SpuGjkPairDetector.h"
 #include "SpuContactResult.h"
 #include "SpuGjkEpa2.h"
 
-bool SpuEpaPenetrationDepthSolver::calcPenDepth( SpuVoronoiSimplexSolver& simplexSolver,
+bool SpuEpaPenetrationDepthSolver::calcPenDepth( btVoronoiSimplexSolver& simplexSolver,
 	        void* convexA,void* convexB,int shapeTypeA, int shapeTypeB, float marginA, float marginB,
 		btTransform& transA,const btTransform& transB,
 			btVector3& v, btPoint3& pa, btPoint3& pb,

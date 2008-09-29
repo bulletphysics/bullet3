@@ -22,7 +22,7 @@ subject to the following restrictions:
 
 class btStackAlloc;
 class btIDebugDraw;
-class SpuVoronoiSimplexSolver;
+class btVoronoiSimplexSolver;
 
 ///MinkowskiPenetrationDepthSolver implements bruteforce penetration depth estimation.
 ///Implementation is based on sampling the depth using support mapping, and using GJK step to get the witness points.
@@ -30,7 +30,7 @@ class SpuEpaPenetrationDepthSolver : public SpuConvexPenetrationDepthSolver
 {
 public:
 
-	virtual bool calcPenDepth( SpuVoronoiSimplexSolver& simplexSolver,
+	virtual bool calcPenDepth( btVoronoiSimplexSolver& simplexSolver,
 	        void* convexA,void* convexB,int shapeTypeA, int shapeTypeB, float marginA, float marginB,
             btTransform& transA,const btTransform& transB,
 			btVector3& v, btPoint3& pa, btPoint3& pb,

@@ -13,14 +13,14 @@ subject to the following restrictions:
 3. This notice may not be removed or altered from any source distribution.
 */
 
+#include "BulletCollision/NarrowPhaseCollision/btVoronoiSimplexSolver.h"
+#include "BulletCollision/NarrowPhaseCollision/btGjkPairDetector.h"
+
+#include "SpuCollisionShapes.h"
 #include "SpuMinkowskiPenetrationDepthSolver.h"
-#include "SpuVoronoiSimplexSolver.h"
-#include "SpuGjkPairDetector.h"
 #include "SpuContactResult.h"
 #include "SpuPreferredPenetrationDirections.h"
 
-
-#include "SpuCollisionShapes.h"
 
 #define NUM_UNITSPHERE_POINTS 42
 static btVector3	sPenetrationDirections[NUM_UNITSPHERE_POINTS+MAX_PREFERRED_PENETRATION_DIRECTIONS*2] = 
@@ -69,7 +69,7 @@ btVector3(btScalar(-0.425323) , btScalar(0.309011),btScalar(0.850654)),
 btVector3(btScalar(0.162456) , btScalar(0.499995),btScalar(0.850654))
 };
 
-bool SpuMinkowskiPenetrationDepthSolver::calcPenDepth( SpuVoronoiSimplexSolver& simplexSolver,
+bool SpuMinkowskiPenetrationDepthSolver::calcPenDepth( btVoronoiSimplexSolver& simplexSolver,
 	        void* convexA,void* convexB,int shapeTypeA, int shapeTypeB, float marginA, float marginB,
             btTransform& transA,const btTransform& transB,
 			btVector3& v, btPoint3& pa, btPoint3& pb,
@@ -113,7 +113,7 @@ bool SpuMinkowskiPenetrationDepthSolver::calcPenDepth( SpuVoronoiSimplexSolver& 
 
 	//just take fixed number of orientation, and sample the penetration depth in that direction
 	btScalar minProj = btScalar(1e30);
-	btVector3 minNorm;
+	btVector3 minNorm = btVector3(btScalar(0.0f), btScalar(0.0f), btScalar(0.0f));
 	btVector3 minVertex;
 	btVector3 minA,minB;
 	btVector3 seperatingAxisInA,seperatingAxisInB;
@@ -291,7 +291,8 @@ bool SpuMinkowskiPenetrationDepthSolver::calcPenDepth( SpuVoronoiSimplexSolver& 
 	}
 #endif //DEBUG_DRAW
 
-	
+	return false;
+#if 0 //FIXME
 
 	SpuGjkPairDetector gjkdet(convexA,convexB,shapeTypeA,shapeTypeB,marginA,marginB,&simplexSolver,0);
 
@@ -341,6 +342,7 @@ bool SpuMinkowskiPenetrationDepthSolver::calcPenDepth( SpuVoronoiSimplexSolver& 
 		btAssert (false);
 	}
 	return res.m_hasResult;
+#endif
 }
 
 

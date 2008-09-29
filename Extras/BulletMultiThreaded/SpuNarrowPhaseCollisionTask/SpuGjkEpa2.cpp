@@ -377,7 +377,7 @@ static btScalar		projectorigin(	const btVector3& a,
 	if(l>GJK_SIMPLEX3_EPS)
 		{
 		btScalar	mindist=-1;
-		btScalar	subw[2];
+		btScalar	subw[2] = { btScalar(0.0f), btScalar(0.0f) };
 		U			subm;
 		for(U i=0;i<3;++i)
 			{
