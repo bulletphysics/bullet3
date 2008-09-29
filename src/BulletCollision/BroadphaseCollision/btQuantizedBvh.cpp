@@ -726,7 +726,8 @@ static const unsigned BVH_ALIGNMENT_BLOCKS = 2;
 
 unsigned int btQuantizedBvh::getAlignmentSerializationPadding()
 {
-	return BVH_ALIGNMENT_BLOCKS * BVH_ALIGNMENT;
+	// I changed this to 0 since the extra padding is not needed or used.
+	return 0;//BVH_ALIGNMENT_BLOCKS * BVH_ALIGNMENT;
 }
 
 unsigned btQuantizedBvh::calculateSerializeBufferSize()
@@ -829,6 +830,11 @@ bool btQuantizedBvh::serialize(void *o_alignedDataBuffer, unsigned /*i_dataBuffe
 			}
 		}
 		nodeData += sizeof(btQuantizedBvhNode) * nodeCount;
+
+		// this clears the pointer in the member variable it doesn't really do anything to the data
+		// it does call the destructor on the contained objects, but they are all classes with no destructor defined
+		// so the memory (which is not freed) is left alone
+		targetBvh->m_quantizedContiguousNodes.initializeFromBuffer(NULL, 0, 0);
 	}
 	else
 	{
@@ -859,6 +865,11 @@ bool btQuantizedBvh::serialize(void *o_alignedDataBuffer, unsigned /*i_dataBuffe
 			}
 		}
 		nodeData += sizeof(btOptimizedBvhNode) * nodeCount;
+
+		// this clears the pointer in the member variable it doesn't really do anything to the data
+		// it does call the destructor on the contained objects, but they are all classes with no destructor defined
+		// so the memory (which is not freed) is left alone
+		targetBvh->m_contiguousNodes.initializeFromBuffer(NULL, 0, 0);
 	}
 
 	sizeToAdd = 0;//(BVH_ALIGNMENT-((unsigned)nodeData & BVH_ALIGNMENT_MASK))&BVH_ALIGNMENT_MASK;
@@ -896,11 +907,22 @@ bool btQuantizedBvh::serialize(void *o_alignedDataBuffer, unsigned /*i_dataBuffe
 
 			targetBvh->m_SubtreeHeaders[i].m_rootNodeIndex = (m_SubtreeHeaders[i].m_rootNodeIndex);
 			targetBvh->m_SubtreeHeaders[i].m_subtreeSize = (m_SubtreeHeaders[i].m_subtreeSize);
-			targetBvh->m_SubtreeHeaders[i] = m_SubtreeHeaders[i];
+
+			// need to clear padding in destination buffer
+			targetBvh->m_SubtreeHeaders[i].m_padding[0] = 0;
+			targetBvh->m_SubtreeHeaders[i].m_padding[1] = 0;
+			targetBvh->m_SubtreeHeaders[i].m_padding[2] = 0;
 		}
 	}
-
 	nodeData += sizeof(btBvhSubtreeInfo) * m_subtreeHeaderCount;
+
+	// this clears the pointer in the member variable it doesn't really do anything to the data
+	// it does call the destructor on the contained objects, but they are all classes with no destructor defined
+	// so the memory (which is not freed) is left alone
+	targetBvh->m_SubtreeHeaders.initializeFromBuffer(NULL, 0, 0);
+
+	// this wipes the virtual function table pointer at the start of the buffer for the class
+	*((void**)o_alignedDataBuffer) = NULL;
 
 	return true;
 }
