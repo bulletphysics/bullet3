@@ -19,8 +19,9 @@ subject to the following restrictions:
 
 
 
-btConvexHullShape ::btConvexHullShape (const btScalar* points,int numPoints,int stride)
+btConvexHullShape ::btConvexHullShape (const btScalar* points,int numPoints,int stride) : btPolyhedralConvexShape ()
 {
+	m_shapeType = CONVEX_HULL_SHAPE_PROXYTYPE;
 	m_points.resize(numPoints);
 
 	unsigned char* pointsBaseAddress = (unsigned char*)points;

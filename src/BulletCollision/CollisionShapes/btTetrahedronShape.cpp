@@ -16,35 +16,40 @@ subject to the following restrictions:
 #include "btTetrahedronShape.h"
 #include "LinearMath/btMatrix3x3.h"
 
-btBU_Simplex1to4::btBU_Simplex1to4()
-:m_numVertices(0)
+btBU_Simplex1to4::btBU_Simplex1to4() : btPolyhedralConvexShape (),
+m_numVertices(0)
 {
+	m_shapeType = TETRAHEDRAL_SHAPE_PROXYTYPE;
 }
 
-btBU_Simplex1to4::btBU_Simplex1to4(const btPoint3& pt0)
-:m_numVertices(0)
+btBU_Simplex1to4::btBU_Simplex1to4(const btPoint3& pt0) : btPolyhedralConvexShape (),
+m_numVertices(0)
 {
+	m_shapeType = TETRAHEDRAL_SHAPE_PROXYTYPE;
 	addVertex(pt0);
 }
 
-btBU_Simplex1to4::btBU_Simplex1to4(const btPoint3& pt0,const btPoint3& pt1)
-:m_numVertices(0)
+btBU_Simplex1to4::btBU_Simplex1to4(const btPoint3& pt0,const btPoint3& pt1) : btPolyhedralConvexShape (),
+m_numVertices(0)
 {
+	m_shapeType = TETRAHEDRAL_SHAPE_PROXYTYPE;
 	addVertex(pt0);
 	addVertex(pt1);
 }
 
-btBU_Simplex1to4::btBU_Simplex1to4(const btPoint3& pt0,const btPoint3& pt1,const btPoint3& pt2)
-:m_numVertices(0)
+btBU_Simplex1to4::btBU_Simplex1to4(const btPoint3& pt0,const btPoint3& pt1,const btPoint3& pt2) : btPolyhedralConvexShape (),
+m_numVertices(0)
 {
+	m_shapeType = TETRAHEDRAL_SHAPE_PROXYTYPE;
 	addVertex(pt0);
 	addVertex(pt1);
 	addVertex(pt2);
 }
 
-btBU_Simplex1to4::btBU_Simplex1to4(const btPoint3& pt0,const btPoint3& pt1,const btPoint3& pt2,const btPoint3& pt3)
-:m_numVertices(0)
+btBU_Simplex1to4::btBU_Simplex1to4(const btPoint3& pt0,const btPoint3& pt1,const btPoint3& pt2,const btPoint3& pt3) : btPolyhedralConvexShape (),
+m_numVertices(0)
 {
+	m_shapeType = TETRAHEDRAL_SHAPE_PROXYTYPE;
 	addVertex(pt0);
 	addVertex(pt1);
 	addVertex(pt2);

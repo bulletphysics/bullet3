@@ -36,11 +36,6 @@ public:
 
 	virtual ~btScaledBvhTriangleMeshShape();
 
-	virtual int	getShapeType() const
-	{
-		//use un-used 'FAST_CONCAVE_MESH_PROXYTYPE' for now, later add SCALED_TRIANGLE_MESH_SHAPE_PROXYTYPE to btBroadphaseProxy.h
-		return SCALED_TRIANGLE_MESH_SHAPE_PROXYTYPE;
-	}
 
 	virtual void getAabb(const btTransform& t,btVector3& aabbMin,btVector3& aabbMax) const;
 	virtual void	setLocalScaling(const btVector3& scaling);

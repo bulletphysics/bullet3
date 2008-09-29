@@ -18,7 +18,7 @@ subject to the following restrictions:
 #include "BulletCollision/BroadphaseCollision/btDbvt.h"
 
 btCompoundShape::btCompoundShape()
-:m_localAabbMin(btScalar(1e30),btScalar(1e30),btScalar(1e30)),
+: m_localAabbMin(btScalar(1e30),btScalar(1e30),btScalar(1e30)),
 m_localAabbMax(btScalar(-1e30),btScalar(-1e30),btScalar(-1e30)),
 m_collisionMargin(btScalar(0.)),
 m_localScaling(btScalar(1.),btScalar(1.),btScalar(1.)),

@@ -72,9 +72,9 @@ struct	MinkowskiDiff
 	void					EnableMargin(bool enable)
 		{
 		if(enable)
-			Ls=&btConvexShape::localGetSupportingVertex;
+			Ls=&btConvexShape::localGetSupportVertexNonVirtual;
 			else
-			Ls=&btConvexShape::localGetSupportingVertexWithoutMargin;
+			Ls=&btConvexShape::localGetSupportVertexWithoutMarginNonVirtual;
 		}	
 	inline btVector3		Support0(const btVector3& d) const
 		{

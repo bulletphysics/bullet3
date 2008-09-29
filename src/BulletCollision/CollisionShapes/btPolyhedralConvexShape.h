@@ -31,9 +31,10 @@ protected:
 	btVector3	m_localAabbMax;
 	bool		m_isLocalAabbValid;
 
+	btPolyhedralConvexShape();
 public:
 
-	btPolyhedralConvexShape();
+	
 
 	//brute force implementations
 	virtual btVector3	localGetSupportingVertexWithoutMargin(const btVector3& vec)const;

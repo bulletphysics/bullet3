@@ -17,7 +17,15 @@ subject to the following restrictions:
 
 #include "BulletCollision/CollisionShapes/btConvexShape.h"
 #include "btGjkEpaPenetrationDepthSolver.h"
+
+#ifndef __SPU__
+//#define USE_ORIGINAL_GJK 1
+#endif
+
+#ifdef USE_ORIGINAL_GJK
 #include "BulletCollision/NarrowPhaseCollision/btGjkEpa.h"
+#endif
+
 #include "BulletCollision/NarrowPhaseCollision/btGjkEpa2.h"
 
 bool btGjkEpaPenetrationDepthSolver::calcPenDepth( btSimplexSolverInterface& simplexSolver,

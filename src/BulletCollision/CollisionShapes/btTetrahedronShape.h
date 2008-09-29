@@ -44,7 +44,6 @@ public:
 	}
 	
 
-	virtual int	getShapeType() const{ return TETRAHEDRAL_SHAPE_PROXYTYPE; }
 
 	void addVertex(const btPoint3& pt);
 

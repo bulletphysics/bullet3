@@ -16,7 +16,8 @@ subject to the following restrictions:
 #include "BulletCollision/CollisionShapes/btPolyhedralConvexShape.h"
 
 btPolyhedralConvexShape::btPolyhedralConvexShape()
-:m_localAabbMin(1,1,1),
+:btConvexInternalShape(),
+m_localAabbMin(1,1,1),
 m_localAabbMax(-1,-1,-1),
 m_isLocalAabbValid(false),
 m_optionalHull(0)

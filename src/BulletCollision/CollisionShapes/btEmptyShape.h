@@ -51,9 +51,6 @@ public:
 
 	virtual void	calculateLocalInertia(btScalar mass,btVector3& inertia) const;
 	
-	virtual int	getShapeType() const { return EMPTY_SHAPE_PROXYTYPE;}
-
-	
 	virtual const char*	getName()const
 	{
 		return "Empty";

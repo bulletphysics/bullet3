@@ -40,10 +40,6 @@ public:
 	{
 		vert = m_vertices1[index];
 	}
-	virtual int	getShapeType() const
-	{
-		return TRIANGLE_SHAPE_PROXYTYPE;
-	}
 
 	virtual int getNumEdges() const
 	{
@@ -83,8 +79,9 @@ public:
 
 
 
-    btTriangleShape(const btVector3& p0,const btVector3& p1,const btVector3& p2)
+	btTriangleShape(const btVector3& p0,const btVector3& p1,const btVector3& p2) : btPolyhedralConvexShape ()
     {
+		m_shapeType = TRIANGLE_SHAPE_PROXYTYPE;
         m_vertices1[0] = p0;
         m_vertices1[1] = p1;
         m_vertices1[2] = p2;

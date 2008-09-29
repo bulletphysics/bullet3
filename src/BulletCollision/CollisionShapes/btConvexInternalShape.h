@@ -19,9 +19,11 @@ class btConvexInternalShape : public btConvexShape
 
 	btScalar	m_padding;
 
+	btConvexInternalShape();
+
 public:
 
-	btConvexInternalShape();
+	
 
 	virtual ~btConvexInternalShape()
 	{

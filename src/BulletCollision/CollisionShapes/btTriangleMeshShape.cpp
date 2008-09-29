@@ -22,8 +22,9 @@ subject to the following restrictions:
 
 
 btTriangleMeshShape::btTriangleMeshShape(btStridingMeshInterface* meshInterface)
-: m_meshInterface(meshInterface)
+: btConcaveShape (), m_meshInterface(meshInterface)
 {
+	m_shapeType = TRIANGLE_MESH_SHAPE_PROXYTYPE;
 	if(meshInterface->hasPremadeAabb())
 	{
 		meshInterface->getPremadeAabb(&m_localAabbMin, &m_localAabbMax);

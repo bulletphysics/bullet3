@@ -18,7 +18,7 @@ subject to the following restrictions:
 
 
 btConvexInternalShape::btConvexInternalShape()
-: m_localScaling(btScalar(1.),btScalar(1.),btScalar(1.)),
+: btConvexShape (), m_localScaling(btScalar(1.),btScalar(1.),btScalar(1.)),
 m_collisionMargin(CONVEX_DISTANCE_MARGIN)
 {
 }

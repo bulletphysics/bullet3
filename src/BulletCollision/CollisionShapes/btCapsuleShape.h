@@ -30,7 +30,7 @@ protected:
 
 protected:
 	///only used for btCapsuleShapeZ and btCapsuleShapeX subclasses.
-	btCapsuleShape() {};
+	btCapsuleShape() : btConvexInternalShape() {m_shapeType = CAPSULE_SHAPE_PROXYTYPE;};
 
 public:
 	btCapsuleShape(btScalar radius,btScalar height);
@@ -43,8 +43,6 @@ public:
 
 	virtual void	batchedUnitVectorGetSupportingVertexWithoutMargin(const btVector3* vectors,btVector3* supportVerticesOut,int numVectors) const;
 	
-	virtual int	getShapeType() const { return CAPSULE_SHAPE_PROXYTYPE; }
-
 	virtual void getAabb (const btTransform& t, btVector3& aabbMin, btVector3& aabbMax) const
 	{
 			btVector3 halfExtents(getRadius(),getRadius(),getRadius());

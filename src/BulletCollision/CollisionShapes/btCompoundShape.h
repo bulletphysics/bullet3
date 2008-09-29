@@ -121,8 +121,6 @@ public:
 
 	virtual void	calculateLocalInertia(btScalar mass,btVector3& inertia) const;
 
-	virtual int	getShapeType() const { return COMPOUND_SHAPE_PROXYTYPE;}
-
 	virtual void	setMargin(btScalar margin)
 	{
 		m_collisionMargin = margin;

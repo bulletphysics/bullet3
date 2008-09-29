@@ -16,10 +16,9 @@ subject to the following restrictions:
 #include "btScaledBvhTriangleMeshShape.h"
 
 btScaledBvhTriangleMeshShape::btScaledBvhTriangleMeshShape(btBvhTriangleMeshShape* childShape,btVector3 localScaling)
-:m_bvhTriMeshShape(childShape),
-m_localScaling(localScaling)
+:m_localScaling(localScaling),m_bvhTriMeshShape(childShape)
 {
-
+	m_shapeType = SCALED_TRIANGLE_MESH_SHAPE_PROXYTYPE;
 }
 
 btScaledBvhTriangleMeshShape::~btScaledBvhTriangleMeshShape()

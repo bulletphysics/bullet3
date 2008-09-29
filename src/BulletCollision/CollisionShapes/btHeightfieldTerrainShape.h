@@ -68,10 +68,6 @@ public:
 
 	void setUseDiamondSubdivision(bool useDiamondSubdivision=true) { m_useDiamondSubdivision = useDiamondSubdivision;}
 
-	virtual int	getShapeType() const
-	{
-		return TERRAIN_SHAPE_PROXYTYPE;
-	}
 
 	virtual void getAabb(const btTransform& t,btVector3& aabbMin,btVector3& aabbMax) const;
 

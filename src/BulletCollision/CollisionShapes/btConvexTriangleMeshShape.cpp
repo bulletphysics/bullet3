@@ -20,8 +20,9 @@ subject to the following restrictions:
 
 
 btConvexTriangleMeshShape ::btConvexTriangleMeshShape (btStridingMeshInterface* meshInterface, bool calcAabb)
-:m_stridingMesh(meshInterface)
+: btPolyhedralConvexShape(), m_stridingMesh(meshInterface)
 {
+	m_shapeType = CONVEX_TRIANGLEMESH_SHAPE_PROXYTYPE;
 	if ( calcAabb )
 		recalcLocalAabb();
 }

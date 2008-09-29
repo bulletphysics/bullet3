@@ -17,9 +17,11 @@ subject to the following restrictions:
 
 
 btMinkowskiSumShape::btMinkowskiSumShape(const btConvexShape* shapeA,const btConvexShape* shapeB)
-:m_shapeA(shapeA),
+: btConvexInternalShape (),
+m_shapeA(shapeA),
 m_shapeB(shapeB)
 {
+	m_shapeType = MINKOWSKI_DIFFERENCE_SHAPE_PROXYTYPE;
 	m_transA.setIdentity();
 	m_transB.setIdentity();
 }

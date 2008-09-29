@@ -18,10 +18,11 @@ subject to the following restrictions:
 
 
 
-btConeShape::btConeShape (btScalar radius,btScalar height):
+btConeShape::btConeShape (btScalar radius,btScalar height): btConvexInternalShape (),
 m_radius (radius),
 m_height(height)
 {
+	m_shapeType = CONE_SHAPE_PROXYTYPE;
 	setConeUpIndex(1);
 	btVector3 halfExtents;
 	m_sinAngle = (m_radius / btSqrt(m_radius * m_radius + m_height * m_height));

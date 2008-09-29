@@ -45,8 +45,6 @@ public:
 	}
 	
 
-	virtual int	getShapeType() const { return BOX_SHAPE_PROXYTYPE;}
-
 	virtual btVector3	localGetSupportingVertex(const btVector3& vec) const
 	{
 		btVector3 halfExtents = getHalfExtentsWithoutMargin();
@@ -82,8 +80,10 @@ public:
 	}
 
 
-	btBoxShape( const btVector3& boxHalfExtents)
+	btBoxShape( const btVector3& boxHalfExtents) 
+		: btPolyhedralConvexShape()
 	{
+		m_shapeType = BOX_SHAPE_PROXYTYPE;
 		btVector3 margin(getMargin(),getMargin(),getMargin());
 		m_implicitShapeDimensions = (boxHalfExtents * m_localScaling) - margin;
 	};

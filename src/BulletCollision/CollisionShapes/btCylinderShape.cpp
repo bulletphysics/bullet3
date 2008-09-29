@@ -19,6 +19,7 @@ btCylinderShape::btCylinderShape (const btVector3& halfExtents)
 :btBoxShape(halfExtents),
 m_upAxis(1)
 {
+	m_shapeType = CYLINDER_SHAPE_PROXYTYPE;
 	recalcLocalAabb();
 }
 

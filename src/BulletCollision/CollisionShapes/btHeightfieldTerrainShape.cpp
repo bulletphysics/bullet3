@@ -19,7 +19,7 @@ subject to the following restrictions:
 
 
 btHeightfieldTerrainShape::btHeightfieldTerrainShape(int heightStickWidth, int heightStickLength,void* heightfieldData,btScalar maxHeight,int upAxis,bool useFloatData,bool flipQuadEdges)
-: m_heightStickWidth(heightStickWidth),
+: btConcaveShape (), m_heightStickWidth(heightStickWidth),
 m_heightStickLength(heightStickLength),
 m_maxHeight(maxHeight),
 m_width((btScalar)heightStickWidth-1),
@@ -31,7 +31,7 @@ m_useDiamondSubdivision(false),
 m_upAxis(upAxis),
 m_localScaling(btScalar(1.),btScalar(1.),btScalar(1.))
 {
-
+	m_shapeType = TERRAIN_SHAPE_PROXYTYPE;
 
 	btScalar	quantizationMargin = 1.f;
 

@@ -25,14 +25,16 @@ subject to the following restrictions:
 ///The btCollisionShape class provides an interface for collision shapes that can be shared among btCollisionObjects.
 class btCollisionShape
 {
-
+protected:
+	int m_shapeType;
 	void* m_userPointer;
 
 public:
 
-	btCollisionShape() : m_userPointer(0)
+	btCollisionShape() : m_shapeType (INVALID_SHAPE_PROXYTYPE), m_userPointer(0)
 	{
 	}
+
 	virtual ~btCollisionShape()
 	{
 	}
@@ -76,7 +78,7 @@ public:
 		return btBroadphaseProxy::isInfinite(getShapeType());
 	}
 
-	virtual int		getShapeType() const=0;
+	
 	virtual void	setLocalScaling(const btVector3& scaling) =0;
 	virtual const btVector3& getLocalScaling() const =0;
 	virtual void	calculateLocalInertia(btScalar mass,btVector3& inertia) const = 0;
@@ -87,13 +89,13 @@ public:
 #endif //__SPU__
 
 	
-
+	int		getShapeType() const { return m_shapeType; }
 	virtual void	setMargin(btScalar margin) = 0;
 	virtual btScalar	getMargin() const = 0;
 
 	
 	///optional user data pointer
-	void	setUserPointer(void* userPtr)
+	void	setUserPointer(void*  userPtr)
 	{
 		m_userPointer = userPtr;
 	}

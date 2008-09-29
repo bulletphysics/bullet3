@@ -30,7 +30,6 @@ public:
 			btVector3& v, btPoint3& pa, btPoint3& pb,
 			class btIDebugDraw* debugDraw,btStackAlloc* stackAlloc
 			);
-
 };
 
 #endif //MINKOWSKI_PENETRATION_DEPTH_SOLVER_H
