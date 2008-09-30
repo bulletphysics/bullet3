@@ -773,6 +773,8 @@ void	DemoApplication::mouseMotionFunc(int x,int y)
 
 btRigidBody*	DemoApplication::localCreateRigidBody(float mass, const btTransform& startTransform,btCollisionShape* shape)
 {
+	btAssert(shape->getShapeType() != INVALID_SHAPE_PROXYTYPE);
+
 	//rigidbody is dynamic if and only if mass is non zero, otherwise static
 	bool isDynamic = (mass != 0.f);
 

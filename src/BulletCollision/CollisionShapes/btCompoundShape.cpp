@@ -24,6 +24,7 @@ m_collisionMargin(btScalar(0.)),
 m_localScaling(btScalar(1.),btScalar(1.),btScalar(1.)),
 m_dynamicAabbTree(0)
 {
+	m_shapeType = COMPOUND_SHAPE_PROXYTYPE;
 	void* mem = btAlignedAlloc(sizeof(btDbvt),16);
 	m_dynamicAabbTree = new(mem) btDbvt();
 	btAssert(mem==m_dynamicAabbTree);

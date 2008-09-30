@@ -21,6 +21,7 @@ subject to the following restrictions:
 
 btCapsuleShape::btCapsuleShape(btScalar radius, btScalar height) : btConvexInternalShape ()
 {
+	m_shapeType = CAPSULE_SHAPE_PROXYTYPE;
 	m_upAxis = 1;
 	m_implicitShapeDimensions.setValue(radius,0.5f*height,radius);
 }

@@ -105,6 +105,7 @@ protected:
 public:
 	btGImpactShapeInterface()
 	{
+		m_shapeType = GIMPACT_SHAPE_PROXYTYPE;
 		m_localAABB.invalidate();
 		m_needs_update = true;
 		localScaling.setValue(1.f,1.f,1.f);
@@ -150,10 +151,7 @@ public:
 	}
 
 
-    virtual int	getShapeType() const
-    {
-        return GIMPACT_SHAPE_PROXYTYPE;
-    }
+    
 
     /*!
 	\post You must call updateBound() for update the box set.
