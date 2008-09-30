@@ -51,7 +51,8 @@ public:
 	
 	btSoftBodyCollisionShape(btSoftBody* backptr)
 	{
-	m_body=backptr;
+		m_shapeType = SOFTBODY_SHAPE_PROXYTYPE;
+		m_body=backptr;
 	}
 
 	virtual ~btSoftBodyCollisionShape()
@@ -87,10 +88,7 @@ public:
 		}
 	}
 
-	virtual int		getShapeType() const
-	{
-		return SOFTBODY_SHAPE_PROXYTYPE;
-	}
+	
 	virtual void	setLocalScaling(const btVector3& /*scaling*/)
 	{		
 		///na
