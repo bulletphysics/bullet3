@@ -18,7 +18,10 @@ subject to the following restrictions:
 #include "BulletCollision/NarrowPhaseCollision/btSimplexSolverInterface.h"
 #include "BulletCollision/NarrowPhaseCollision/btConvexPenetrationDepthSolver.h"
 
+
+
 #if defined(DEBUG) || defined (_DEBUG)
+#define TEST_NON_VIRTUAL 1
 #include <stdio.h> //for debug printf
 #ifdef __SPU__
 #include <spu_printf.h>
@@ -59,8 +62,17 @@ void btGjkPairDetector::getClosestPoints(const ClosestPointInput& input,Result& 
 	localTransA.getOrigin() -= positionOffset;
 	localTransB.getOrigin() -= positionOffset;
 
+
 	btScalar marginA = m_minkowskiA->getMarginNonVirtual();
 	btScalar marginB = m_minkowskiB->getMarginNonVirtual();
+
+#ifdef TEST_NON_VIRTUAL
+	btScalar marginAv = m_minkowskiA->getMargin();
+	btScalar marginBv = m_minkowskiB->getMargin();
+
+	btAssert(marginA == marginAv);
+	btAssert(marginB == marginBv);
+#endif //TEST_NON_VIRTUAL
 
 	gNumGjkChecks++;
 
@@ -105,8 +117,17 @@ void btGjkPairDetector::getClosestPoints(const ClosestPointInput& input,Result& 
 			btVector3 seperatingAxisInA = (-m_cachedSeparatingAxis)* input.m_transformA.getBasis();
 			btVector3 seperatingAxisInB = m_cachedSeparatingAxis* input.m_transformB.getBasis();
 
+#ifdef TEST_NON_VIRTUAL
+			btVector3 pInAv = m_minkowskiA->localGetSupportingVertexWithoutMargin(seperatingAxisInA);
+			btVector3 qInBv = m_minkowskiB->localGetSupportingVertexWithoutMargin(seperatingAxisInB);
+#endif 
 			btVector3 pInA = m_minkowskiA->localGetSupportVertexWithoutMarginNonVirtual(seperatingAxisInA);
 			btVector3 qInB = m_minkowskiB->localGetSupportVertexWithoutMarginNonVirtual(seperatingAxisInB);
+#ifdef TEST_NON_VIRTUAL
+			btAssert((pInAv-pInA).length() < 0.0001);
+			btAssert((qInBv-qInB).length() < 0.0001);
+#endif //
+
 			btPoint3  pWorld = localTransA(pInA);	
 			btPoint3  qWorld = localTransB(qInB);
 

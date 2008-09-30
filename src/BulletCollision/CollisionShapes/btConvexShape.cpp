@@ -67,9 +67,9 @@ btVector3 btConvexShape::localGetSupportVertexWithoutMarginNonVirtual (const btV
 		btConvexInternalShape* convexShape = (btConvexInternalShape*)this;
 		const btVector3& halfExtents = convexShape->getImplicitShapeDimensions();
 
-		return btVector3(localDir.getX() < 0.0f ? -halfExtents.x() : halfExtents.x(),
-						localDir.getY() < 0.0f ? -halfExtents.y() : halfExtents.y(),
-						localDir.getZ() < 0.0f ? -halfExtents.z() : halfExtents.z());
+		return btVector3(btFsels(localDir.x(), halfExtents.x(), -halfExtents.x()),
+			btFsels(localDir.y(), halfExtents.y(), -halfExtents.y()),
+			btFsels(localDir.z(), halfExtents.z(), -halfExtents.z()));
 	}
 	break;
 	case TRIANGLE_SHAPE_PROXYTYPE:
@@ -173,8 +173,11 @@ btVector3 btConvexShape::localGetSupportVertexWithoutMarginNonVirtual (const btV
 			btVector3 pos(0,0,0);
 			pos[capsuleUpAxis] = halfHeight;
 
-			vtx = pos +vec*(radius);
+			//vtx = pos +vec*(radius);
+			vtx = pos +vec*capsuleShape->getLocalScalingNV()*(radius) - vec * capsuleShape->getMarginNV();
 			newDot = vec.dot(vtx);
+			
+
 			if (newDot > maxDot)
 			{
 				maxDot = newDot;
@@ -185,7 +188,8 @@ btVector3 btConvexShape::localGetSupportVertexWithoutMarginNonVirtual (const btV
 			btVector3 pos(0,0,0);
 			pos[capsuleUpAxis] = -halfHeight;
 
-			vtx = pos +vec*(radius);
+			//vtx = pos +vec*(radius);
+			vtx = pos +vec*capsuleShape->getLocalScalingNV()*(radius) - vec * capsuleShape->getMarginNV();
 			newDot = vec.dot(vtx);
 			if (newDot > maxDot)
 			{
