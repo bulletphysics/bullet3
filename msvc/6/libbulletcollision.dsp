@@ -370,6 +370,10 @@ SOURCE=..\..\src\BulletCollision\CollisionShapes\btConvexInternalShape.cpp
 # End Source File
 # Begin Source File
 
+SOURCE=..\..\src\BulletCollision\CollisionShapes\btConvexPointCloudShape.cpp
+# End Source File
+# Begin Source File
+
 SOURCE=..\..\src\BulletCollision\CollisionShapes\btConvexShape.cpp
 # End Source File
 # Begin Source File
@@ -679,6 +683,10 @@ SOURCE=..\..\src\BulletCollision\CollisionShapes\btConvexHullShape.h
 # Begin Source File
 
 SOURCE=..\..\src\BulletCollision\CollisionShapes\btConvexInternalShape.h
+# End Source File
+# Begin Source File
+
+SOURCE=..\..\src\BulletCollision\CollisionShapes\btConvexPointCloudShape.h
 # End Source File
 # Begin Source File
 
