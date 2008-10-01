@@ -77,6 +77,8 @@ ADD_LIBRARY(LibBulletCollision
 				CollisionShapes/btConeShape.h
 				CollisionShapes/btConvexHullShape.cpp
 				CollisionShapes/btConvexHullShape.h
+				CollisionShapes/btConvexPointCloudShape.cpp
+				CollisionShapes/btConvexPointCloudShape.h
 				CollisionShapes/btConvexShape.cpp
 				CollisionShapes/btConvexShape.h
 				CollisionShapes/btConvexInternalShape.cpp

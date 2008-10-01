@@ -4,6 +4,13 @@ Primary author and maintainer: Erwin Coumans
 Todo: update changelog from April - July 2008
 See http://code.google.com/p/bullet/source/list for more complete log in Subversion
 
+2008 Sept 30
+	- Improved Soft Body support, fixed issues related to soft body colliding against concave triangle meshes
+	- Shared more code between regular version and SPU/BulletMultiThreaded, in particular GJK/EPA
+
+2008 Sept 28
+	- Fixed rotation issues in Dynamic Maya Plugin
+
 2008 Sept 11
 	- Enable CCD motion clamping for btDiscreteDynamicsWorld, to avoid tunneling. A more advanced solution will be implemented in btContinuousDynamicsWorld.
 
