@@ -38,7 +38,7 @@ DIST_COMMON = README $(am__configure_deps) $(srcdir)/Jamfile.in \
 	$(srcdir)/Makefile.am $(srcdir)/Makefile.in \
 	$(srcdir)/bullet.pc.in $(srcdir)/config.h.in \
 	$(top_srcdir)/configure AUTHORS COPYING ChangeLog INSTALL NEWS \
-	config.guess config.sub install-sh mk/autoconf/compile \
+	config.sub install-sh mk/autoconf/compile \
 	mk/autoconf/config.guess mk/autoconf/config.sub \
 	mk/autoconf/depcomp mk/autoconf/install-sh \
 	mk/autoconf/ltmain.sh mk/autoconf/missing
