@@ -11,13 +11,17 @@ AC_INIT(
     [bullet],
     [2.72],
     [bullet@erwincoumans.com])
+AC_CANONICAL_HOST
 CS_PACKAGEINFO(
     [Bullet Continuous Collision Detection and Physics Library],
     [Copyright (c) 2005-2008  Erwin Coumans],
     [http://www.bulletphysics.com])
-AC_CONFIG_SRCDIR([mk/jam/build.jam])
+AC_CONFIG_SRCDIR([configure.ac])
 AC_CONFIG_AUX_DIR([mk/autoconf])
-AC_CANONICAL_HOST
+AM_INIT_AUTOMAKE
+AC_PROG_CC
+AC_PROG_CXX
+AC_PROG_LIBTOOL
 
 #----------------------------------------------------------------------------
 # Setup for the configuration header.
@@ -79,6 +83,7 @@ AS_IF([test $cs_host_family = windows],
     ])
 CS_CHECK_GLUT
 
+
 #----------------------------------------------------------------------------
 # Package configuration switches.
 #----------------------------------------------------------------------------
@@ -99,18 +104,22 @@ CS_EMIT_BUILD_PROPERTY([MODE], [$build_mode])
 CS_OUTPUT_INSTALLDIRS
 CS_EMIT_PACKAGEINFO
 
+opengl_LIBS="-lGL -lGLU -lglut"
+AC_SUBST(opengl_LIBS)
+
+CXXFLAGS="$CXXFLAGS $CFLAGS"
 #----------------------------------------------------------------------------
 # Emit generated files.
 #----------------------------------------------------------------------------
 CS_JAMCONFIG_OUTPUT([Jamconfig])
-AC_CONFIG_FILES([Jamfile bullet.pc])
+AC_CONFIG_FILES([bullet.pc Jamfile Makefile Demos/MultiThreadedDemo/Makefile Demos/ColladaDemo/Makefile Demos/OpenGL/Makefile Demos/BasicDemo/Makefile Demos/CcdPhysicsDemo/Makefile Demos/VehicleDemo/Makefile src/Makefile Extras/Makefile])
 AC_OUTPUT
 
 AC_MSG_NOTICE([
-
-Please note that this project uses Jam as its build tool,
-therefore you must type 'jam' to build the project.
+You can type 'make' or 'jam' to build Bullet
 
 Jam home: http://www.perforce.com/jam/jam.html
 Jam source: ftp://ftp.perforce.com/jam/
+
+Please type 'make' to build Bullet
 ])
