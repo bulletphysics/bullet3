@@ -9,27 +9,18 @@ if test ! -f configure.ac ; then
 	exit 1
 fi
 
-#MACROFILE=aclocal.m4
-#MACRODIR=mk/autoconf
-#rm -f $MACROFILE
-
 aclocal -I mk/autoconf
 rc=$?
 
-#for i in $MACRODIR/*.m4 ; do
-#  cat $i >> $MACROFILE
-#done
-
 if test $rc -eq 0; then
-	automake --add-missing
+	libtoolize --force --automake --copy
 	rc=$?
 fi
 
 if test $rc -eq 0; then
-	libtoolize --force
+	automake --add-missing --copy
 	rc=$?
 fi
-
 
 if test $rc -eq 0; then
 	autoheader
@@ -41,4 +32,5 @@ if test $rc -eq 0; then
 	rc=$?
 fi
 
+echo "autogen.sh complete"
 exit $rc

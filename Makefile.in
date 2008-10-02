@@ -38,11 +38,10 @@ DIST_COMMON = README $(am__configure_deps) $(srcdir)/Jamfile.in \
 	$(srcdir)/Makefile.am $(srcdir)/Makefile.in \
 	$(srcdir)/bullet.pc.in $(srcdir)/config.h.in \
 	$(top_srcdir)/configure AUTHORS COPYING ChangeLog INSTALL NEWS \
-	config.guess config.sub depcomp install-sh missing \
-	mk/autoconf/compile mk/autoconf/config.guess \
-	mk/autoconf/config.sub mk/autoconf/depcomp \
-	mk/autoconf/install-sh mk/autoconf/ltmain.sh \
-	mk/autoconf/missing
+	config.guess config.sub install-sh mk/autoconf/compile \
+	mk/autoconf/config.guess mk/autoconf/config.sub \
+	mk/autoconf/depcomp mk/autoconf/install-sh \
+	mk/autoconf/ltmain.sh mk/autoconf/missing
 subdir = .
 ACLOCAL_M4 = $(top_srcdir)/aclocal.m4
 am__aclocal_m4_deps = $(top_srcdir)/mk/autoconf/checkbuild.m4 \

@@ -28954,16 +28954,18 @@ fi
 
 
 { echo "$as_me:$LINENO:
-Please note that this project uses Jam as its build tool,
-therefore you must type 'jam' to build the project.
+You can type 'make' or 'jam' to build Bullet
 
 Jam home: http://www.perforce.com/jam/jam.html
 Jam source: ftp://ftp.perforce.com/jam/
+
+Please type 'make' to build Bullet
 " >&5
 echo "$as_me:
-Please note that this project uses Jam as its build tool,
-therefore you must type 'jam' to build the project.
+You can type 'make' or 'jam' to build Bullet
 
 Jam home: http://www.perforce.com/jam/jam.html
 Jam source: ftp://ftp.perforce.com/jam/
+
+Please type 'make' to build Bullet
 " >&6;}
