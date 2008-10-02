@@ -447,8 +447,20 @@ void rigidBodyNode::computeWorldMatrix(const MPlug& plug, MDataBlock& data)
     MVector newipos(ipos[0] + deltapos.x, ipos[1] + deltapos.y, ipos[2] + deltapos.z); 
     MEulerRotation newirot((iquat * deltarot).asEulerRotation());
 
-    hInitPos.set3Float(newipos.x, newipos.y, newipos.z);
-    hInitRot.set3Float(rad2deg(newirot.x), rad2deg(newirot.y), rad2deg(newirot.z));
+	float3 &ihpos = hInitPos.asFloat3();
+    //hInitPos.set3Float(newipos.x, newipos.y, newipos.z);
+	//for Maya 8.5
+	ihpos[0] = newipos.x;
+	ihpos[1] = newipos.y;
+	ihpos[2] = newipos.z;
+	
+	float3 &ihrot = hInitRot.asFloat3();
+    //hInitRot.set3Float(rad2deg(newirot.x), rad2deg(newirot.y), rad2deg(newirot.z));
+	//for Maya 8.5
+	ihrot[0] = rad2deg(newirot.x);
+	ihrot[1] = rad2deg(newirot.y);
+	ihrot[2] = rad2deg(newirot.z);
+
 
     m_rigid_body->set_transform(vec3f(mtranslation.x, mtranslation.y, mtranslation.z),
                                 quatf(mrotation.w, mrotation.x, mrotation.y, mrotation.z));

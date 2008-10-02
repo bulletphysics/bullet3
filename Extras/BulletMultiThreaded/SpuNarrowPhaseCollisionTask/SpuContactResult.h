@@ -102,7 +102,7 @@ class SpuContactResult : public btDiscreteCollisionDetectorInterface::Result
 
         void writeDoubleBufferedManifold(btPersistentManifold* lsManifold, btPersistentManifold* mmManifold);
 
-        virtual void addContactPoint(const btVector3& normalOnBInWorld,const btPoint3& pointInWorld,float depth);
+        virtual void addContactPoint(const btVector3& normalOnBInWorld,const btPoint3& pointInWorld,btScalar depth);
 
 		void flush();
 };

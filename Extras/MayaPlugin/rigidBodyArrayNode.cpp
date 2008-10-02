@@ -492,7 +492,12 @@ void rigidBodyArrayNode::computeWorldMatrix(const MPlug& plug, MDataBlock& data)
 
         m_rigid_bodies[i]->set_transform(newpos, newrot);
 
-        hInitPos.set3Float(ipos[0] + mtranslation.x, ipos[1] + mtranslation.y, ipos[2] + mtranslation.z);
+		float3 &ihpos=hInitPos.asFloat3();
+        //hInitPos.set3Float(ipos[0] + mtranslation.x, ipos[1] + mtranslation.y, ipos[2] + mtranslation.z);
+		ihpos[0] = ipos[0] + mtranslation.x;
+		ihpos[1] = ipos[1] + mtranslation.y;
+		ihpos[2] = ipos[2] + mtranslation.z;
+
 
         hInitPosArray.next();
     }

@@ -170,7 +170,7 @@ void SpuContactResult::writeDoubleBufferedManifold(btPersistentManifold* lsManif
 	//no, the swapBuffers does the wait
 }
 
-void SpuContactResult::addContactPoint(const btVector3& normalOnBInWorld,const btPoint3& pointInWorld,float depth)
+void SpuContactResult::addContactPoint(const btVector3& normalOnBInWorld,const btPoint3& pointInWorld,btScalar depth)
 {
 	//spu_printf("*** SpuContactResult::addContactPoint: depth = %f\n",depth);
 
