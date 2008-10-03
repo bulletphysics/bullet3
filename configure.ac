@@ -17,7 +17,6 @@ CS_PACKAGEINFO(
     [Copyright (c) 2005-2008  Erwin Coumans],
     [http://www.bulletphysics.com])
 AC_CONFIG_SRCDIR([configure.ac])
-AC_CONFIG_AUX_DIR([mk/autoconf])
 AM_INIT_AUTOMAKE
 AC_PROG_CC
 AC_PROG_CXX
