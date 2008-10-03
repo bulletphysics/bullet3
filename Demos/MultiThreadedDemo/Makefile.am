@@ -1,4 +1,4 @@
-bin_PROGRAMS=MultiThreadedDemo
+noinst_PROGRAMS=MultiThreadedDemo
 
 MultiThreadedDemo_SOURCES=MultiThreadedDemo.cpp MultiThreadedDemo.h main.cpp
 MultiThreadedDemo_CXXFLAGS=-I@top_builddir@/src -I@top_builddir@/Demos/OpenGL -I@top_builddir@/Extras -I@top_builddir@/Extras/BulletMultiThreaded  $(CXXFLAGS)

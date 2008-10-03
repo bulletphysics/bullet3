@@ -1,4 +1,4 @@
-bin_PROGRAMS=BasicDemo
+noinst_PROGRAMS=BasicDemo
 
 BasicDemo_SOURCES=BasicDemo.cpp BasicDemo.h main.cpp
 BasicDemo_CXXFLAGS=-I@top_builddir@/src -I@top_builddir@/Demos/OpenGL $(CXXFLAGS)
