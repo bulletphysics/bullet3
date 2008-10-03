@@ -22,6 +22,51 @@ AC_PROG_CC
 AC_PROG_CXX
 AC_PROG_LIBTOOL
 
+case "$host" in
+        *-*-mingw*|*-*-cygwin*)
+                AC_DEFINE(PLATFORM_WIN32, 1, [Platform is Win32])
+                opengl_LIBS="-lunsupported_platform"
+                PLATFORM_STRING="Win32"
+                ;;
+        *-*-linux*)
+                AC_DEFINE(PLATFORM_LINUX, 1, [Platform is Linux])
+                opengl_LIBS="-lGL -lGLU -lglut"
+                PLATFORM_STRING="Linux"
+                ;;
+        *-*-darwin*)
+                AC_DEFINE(PLATFORM_APPLE, 1, [Platform is Apple])
+                opengl_LIBS="-framework AGL -framework OpenGL"
+                PLATFORM_STRING="Apple"
+                ;;
+        *)
+                AC_MSG_WARN([*** Please add $host to configure.ac checks!])
+                ;;
+esac
+AC_SUBST(opengl_LIBS)
+
+case "$host" in
+        i?86-* | k?-* | athlon-* | pentium*-)
+                AC_DEFINE(ARCH_X86, 1, [Architecture is x86])
+                ARCH_SPECIFIC_CFLAGS="-mmmx -msse"
+                ARCH_STRING="X86"
+                ;;
+        x86_64-*)
+                AC_DEFINE(ARCH_X86_64, 1, [Architecture is x86-64])
+                ARCH_SPECIFIC_CFLAGS="-mmmx -msse"
+                ARCH_STRING="X86-64"
+                ;;
+        ppc-* | powerpc-*)
+                AC_DEFINE(ARCH_PPC, 1, [Architecture is PowerPC])
+                ARCH_SPECIFIC_CFLAGS="-maltivec"
+                ARCH_STRING="PowerPC"
+                ;;
+        *)
+                AC_MSG_ERROR([Unknown Architecture])
+                ;;
+esac
+AC_C_BIGENDIAN
+
+
 #----------------------------------------------------------------------------
 # Setup for the configuration header.
 #----------------------------------------------------------------------------
@@ -103,8 +148,6 @@ CS_EMIT_BUILD_PROPERTY([MODE], [$build_mode])
 CS_OUTPUT_INSTALLDIRS
 CS_EMIT_PACKAGEINFO
 
-opengl_LIBS="-lGL -lGLU -lglut"
-AC_SUBST(opengl_LIBS)
 
 CXXFLAGS="$CXXFLAGS $CFLAGS"
 #----------------------------------------------------------------------------
