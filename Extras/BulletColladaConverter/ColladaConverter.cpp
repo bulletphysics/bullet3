@@ -2353,7 +2353,7 @@ void ColladaConverter::syncOrAddRigidBody (btRigidBody* body)
 
 		if (shape->getShapeType () == TRIANGLE_MESH_SHAPE_PROXYTYPE) {
 			addConcaveMesh (shape, shapeName);
-		} else if (!shape->isConvex () && !shape->isCompound()) {
+		} else if (!shape->isConvex () && !shape->isCompound() && (shape->getShapeType()!=STATIC_PLANE_PROXYTYPE)) {
 			printf("Unknown shape type. %d Skipping rigidbody.\n", shape->getShapeType());
 			return;
 		}
@@ -2363,6 +2363,7 @@ void ColladaConverter::syncOrAddRigidBody (btRigidBody* body)
 
 		switch (shape->getShapeType())
 		{
+		case STATIC_PLANE_PROXYTYPE:
 		case BOX_SHAPE_PROXYTYPE:
 		case SPHERE_SHAPE_PROXYTYPE:
 		case CYLINDER_SHAPE_PROXYTYPE:
