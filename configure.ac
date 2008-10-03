@@ -35,7 +35,7 @@ case "$host" in
                 ;;
         *-*-darwin*)
                 AC_DEFINE(PLATFORM_APPLE, 1, [Platform is Apple])
-                opengl_LIBS="-framework AGL -framework OpenGL"
+                opengl_LIBS="-framework AGL -framework OpenGL -framework GLUT"
                 PLATFORM_STRING="Apple"
                 ;;
         *)

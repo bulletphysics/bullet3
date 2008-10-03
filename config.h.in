@@ -1,5 +1,14 @@
 /* config.h.in.  Generated from configure.ac by autoheader.  */
 
+/* Architecture is PowerPC */
+#undef ARCH_PPC
+
+/* Architecture is x86 */
+#undef ARCH_X86
+
+/* Architecture is x86-64 */
+#undef ARCH_X86_64
+
 /* Define when compiling for MacOS/X */
 #undef CS_PLATFORM_MACOSX
 
@@ -69,11 +78,24 @@
 /* Define to the version of this package. */
 #undef PACKAGE_VERSION
 
+/* Platform is Apple */
+#undef PLATFORM_APPLE
+
+/* Platform is Linux */
+#undef PLATFORM_LINUX
+
+/* Platform is Win32 */
+#undef PLATFORM_WIN32
+
 /* Define to 1 if you have the ANSI C header files. */
 #undef STDC_HEADERS
 
 /* Version number of package */
 #undef VERSION
+
+/* Define to 1 if your processor stores words with the most significant byte
+   first (like Motorola and SPARC, unlike Intel and VAX). */
+#undef WORDS_BIGENDIAN
 
 /* Define to 1 if the X Window System is missing or not being used. */
 #undef X_DISPLAY_MISSING

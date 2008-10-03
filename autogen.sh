@@ -23,6 +23,14 @@ else
 fi
 
 if test $rc -eq 0; then
+	echo "libtool worked."
+else
+	echo "libtool failed. trying glibtool."
+	glibtoolize --force --automake --copy
+	rc=$?
+fi
+
+if test $rc -eq 0; then
 	echo "running automake"
 	automake --add-missing --copy
 	rc=$?
