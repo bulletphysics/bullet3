@@ -25,7 +25,7 @@ fi
 if test $rc -eq 0; then
 	echo "libtool worked."
 else
-	echo "libtool failed. trying glibtool."
+	echo "libtool not found. trying glibtool."
 	glibtoolize --force --automake --copy
 	rc=$?
 fi

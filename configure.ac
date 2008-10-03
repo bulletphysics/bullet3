@@ -158,8 +158,10 @@ AC_CONFIG_FILES([bullet.pc Jamfile Makefile Demos/MultiThreadedDemo/Makefile Dem
 AC_OUTPUT
 
 AC_MSG_NOTICE([
-You can type 'make' or 'jam' to build Bullet
+You can type 'make' or 'jam' to build Bullet.
+Alternatively, you can use cmake or use the wksbullet.sln visual studio x solutions in the msvc/x folder.
 
+CMake home:http://cmake.org
 Jam home: http://www.perforce.com/jam/jam.html
 Jam source: ftp://ftp.perforce.com/jam/
 
