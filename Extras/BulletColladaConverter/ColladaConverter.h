@@ -50,6 +50,8 @@ public:
 };
 
 
+
+
 class btRigidConstraintColladaInfo
 {
 public:
@@ -77,11 +79,15 @@ public:
 class ColladaConverter
 {
 	char m_cleaned_filename[513];
-
+	
+	
 protected:
 
 	btDynamicsWorld* m_dynamicsWorld;
 
+	btAlignedObjectArray<class btCollisionShape*>	m_allocatedCollisionShapes;
+
+	
 	btHashMap<btHashKeyPtr<btRigidBodyColladaInfo*>,btRigidBodyColladaInfo*>	m_rbUserInfoHashMap;
 	btHashMap<btHashKeyPtr<btRigidConstraintColladaInfo*>,btRigidConstraintColladaInfo*> m_constraintUserInfoHashMap;
 	
@@ -212,6 +218,22 @@ public:
 	virtual	void	setCameraInfo(const btVector3& up, int forwardAxis)
 	{
 	};
+
+	virtual btCollisionShape* createPlaneShape(const btVector3& planeNormal,btScalar planeConstant);
+	virtual btCollisionShape* createBoxShape(const btVector3& halfExtents);
+	virtual btCollisionShape* createSphereShape(btScalar radius);
+	virtual btCollisionShape* createCylinderShapeY(btScalar radius,btScalar height);
+	virtual class btTriangleMesh*	createTriangleMeshContainer();
+	virtual	btCollisionShape* createBvhTriangleMeshShape(btTriangleMesh* trimesh);
+	virtual btCollisionShape* createConvexTriangleMeshShape(btTriangleMesh* trimesh);
+	virtual class btConvexHullShape* createConvexHullShape();
+	virtual class btCompoundShape* createCompoundShape();
+
+	int	getNumCollisionShapes() const;
+	btCollisionShape* getCollisionShape(int shapeIndex);
+	void	deleteAllocatedCollisionShapes();
+	void	deleteShape(btCollisionShape* shape);
+
 
 	char* getLastFileName();
 

@@ -93,6 +93,11 @@ int	btRigidBodyColladaInfo::getUid()
 
 
 
+
+
+
+
+
 int btRigidConstraintColladaInfo::getUid()
 {
 	if (m_typedConstraint->getUid()==-1)
@@ -2624,6 +2629,110 @@ char* ColladaConverter::fixFileName(const char* lpCmdLine)
 	return m_cleaned_filename;
 }
 
+btCollisionShape* ColladaConverter::createPlaneShape(const btVector3& planeNormal,btScalar planeConstant)
+{
+	btCollisionShape* planeShape = new btStaticPlaneShape(planeNormal,planeConstant);
+	m_allocatedCollisionShapes.push_back(planeShape);
+
+	return planeShape;
+}
+
+btCollisionShape* ColladaConverter::createBoxShape(const btVector3& halfExtents)
+{
+	btCollisionShape* shape = new btBoxShape(halfExtents);
+	m_allocatedCollisionShapes.push_back(shape);
+	return shape;
+}
+
+btCollisionShape* ColladaConverter::createSphereShape(btScalar radius)
+{
+	btCollisionShape* shape = new btSphereShape(radius);
+	m_allocatedCollisionShapes.push_back(shape);
+	return shape;
+}
+
+btCompoundShape* ColladaConverter::createCompoundShape()
+{
+	btCompoundShape* shape = new btCompoundShape();
+	m_allocatedCollisionShapes.push_back(shape);
+	return shape;
+}
+
+
+
+
+btCollisionShape* ColladaConverter::createCylinderShapeY(btScalar radius,btScalar height)
+{
+	btCollisionShape* shape = new btCylinderShape(btVector3(radius,height,radius));
+	m_allocatedCollisionShapes.push_back(shape);
+	return shape;
+}
+
+btTriangleMesh*	ColladaConverter::createTriangleMeshContainer()
+{
+	btTriangleMesh* meshContainer = new btTriangleMesh(m_use32bitIndices,m_use4componentVertices);
+	return meshContainer;
+}
+
+btConvexHullShape* ColladaConverter::createConvexHullShape()
+{
+	btConvexHullShape* shape = new btConvexHullShape();
+	m_allocatedCollisionShapes.push_back(shape);
+	return shape;
+}
+
+btCollisionShape* ColladaConverter::createBvhTriangleMeshShape(btTriangleMesh* trimesh)
+{
+	bool useQuantizedAabbCompression = true;
+	btCollisionShape* shape = new btBvhTriangleMeshShape(trimesh,useQuantizedAabbCompression);
+	m_allocatedCollisionShapes.push_back(shape);
+	return shape;
+}
+
+btCollisionShape* ColladaConverter::createConvexTriangleMeshShape(btTriangleMesh* trimesh)
+{
+	btCollisionShape* shape = new btConvexTriangleMeshShape(trimesh);
+	m_allocatedCollisionShapes.push_back(shape);
+	return shape;
+}
+
+
+int	ColladaConverter::getNumCollisionShapes() const
+{
+	return m_allocatedCollisionShapes.size();
+}
+
+btCollisionShape* ColladaConverter::getCollisionShape(int shapeIndex)
+{
+	return m_allocatedCollisionShapes[shapeIndex];
+}
+
+
+void	ColladaConverter::deleteAllocatedCollisionShapes()
+{
+	int i;
+	for (int i=0;i<m_allocatedCollisionShapes.size();i++)
+	{
+		delete m_allocatedCollisionShapes[i];
+	}
+	m_allocatedCollisionShapes.clear();
+}
+
+void	ColladaConverter::deleteShape(btCollisionShape* shape)
+{
+	for (int i=0;i<m_allocatedCollisionShapes.size();i++)
+	{
+		if (m_allocatedCollisionShapes[i]==shape)
+		{
+			delete m_allocatedCollisionShapes[i];
+			m_allocatedCollisionShapes.swap( i,m_allocatedCollisionShapes.size()-1);
+			m_allocatedCollisionShapes.pop_back();
+			break;
+		}
+	}
+}
+
+
 
 void	ColladaConverter::ConvertRigidBodyRef( btRigidBodyInput& rbInput,btRigidBodyOutput& rbOutput)
 {
@@ -2695,400 +2804,420 @@ void	ColladaConverter::ConvertRigidBodyRef( btRigidBodyInput& rbInput,btRigidBod
 		{
 			domRigid_body::domTechnique_common::domShapeRef shapeRef = techniqueRef->getShape_array()[s];
 
-			if (shapeRef->getPlane())
+			rbOutput.m_colShape = 0;
+			//future shape instancing
+			//rbOutput.m_colShape = findShapeForShapeRef(&shapeRef)
+			
+
+			if (rbOutput.m_colShape)
 			{
-				domPlaneRef planeRef = shapeRef->getPlane();
-				if (planeRef->getEquation())
+
+			} else
+			{
+		
+
+			
+				
+				if (shapeRef->getPlane())
 				{
-					const domFloat4 planeEq = planeRef->getEquation()->getValue();
-					btVector3 planeNormal(planeEq.get(0),planeEq.get(1),planeEq.get(2));
-					btScalar planeConstant = planeEq.get(3)*m_unitMeterScaling;
-					rbOutput.m_colShape = new btStaticPlaneShape(planeNormal,planeConstant);
+					domPlaneRef planeRef = shapeRef->getPlane();
+					if (planeRef->getEquation())
+					{
+						const domFloat4 planeEq = planeRef->getEquation()->getValue();
+						btVector3 planeNormal(planeEq.get(0),planeEq.get(1),planeEq.get(2));
+						btScalar planeConstant = planeEq.get(3)*m_unitMeterScaling;
+						rbOutput.m_colShape = createPlaneShape(planeNormal,planeConstant);
+					}
+
 				}
 
-			}
-
-			if (shapeRef->getBox())
-			{
-				domBoxRef boxRef = shapeRef->getBox();
-				domBox::domHalf_extentsRef	domHalfExtentsRef = boxRef->getHalf_extents();
-				domFloat3& halfExtents = domHalfExtentsRef->getValue();
-				float x = halfExtents.get(0)*m_unitMeterScaling;
-				float y = halfExtents.get(1)*m_unitMeterScaling;
-				float z = halfExtents.get(2)*m_unitMeterScaling;
-				rbOutput.m_colShape = new btBoxShape(btVector3(x,y,z));
-			}
-			if (shapeRef->getSphere())
-			{
-				domSphereRef sphereRef = shapeRef->getSphere();
-				domSphere::domRadiusRef radiusRef = sphereRef->getRadius();
-				domFloat radius = radiusRef->getValue()*m_unitMeterScaling;
-				rbOutput.m_colShape = new btSphereShape(radius);
-			}
-
-			if (shapeRef->getCylinder())
-			{
-				domCylinderRef cylinderRef = shapeRef->getCylinder();
-				domFloat height = cylinderRef->getHeight()->getValue()*m_unitMeterScaling;
-				domFloat2 radius2 = cylinderRef->getRadius()->getValue();
-				domFloat radius0 = radius2.get(0)*m_unitMeterScaling;
-
-				//Cylinder around the local Y axis
-				rbOutput.m_colShape = new btCylinderShape(btVector3(radius0,height,radius0));
-
-			}
-
-			if (shapeRef->getInstance_geometry())
-			{
-				const domInstance_geometryRef geomInstRef = shapeRef->getInstance_geometry();
-				daeElement* geomElem = geomInstRef->getUrl().getElement();
-				//elemRef->getTypeName();
-				domGeometry* geom = (domGeometry*) geomElem;
-				if (geom && geom->getMesh())
+				if (shapeRef->getBox())
 				{
-					const domMeshRef meshRef = geom->getMesh();
+					domBoxRef boxRef = shapeRef->getBox();
+					domBox::domHalf_extentsRef	domHalfExtentsRef = boxRef->getHalf_extents();
+					domFloat3& halfExtents = domHalfExtentsRef->getValue();
+					float x = halfExtents.get(0)*m_unitMeterScaling;
+					float y = halfExtents.get(1)*m_unitMeterScaling;
+					float z = halfExtents.get(2)*m_unitMeterScaling;
+					rbOutput.m_colShape = createBoxShape(btVector3(x,y,z));
+				}
+				if (shapeRef->getSphere())
+				{
+					domSphereRef sphereRef = shapeRef->getSphere();
+					domSphere::domRadiusRef radiusRef = sphereRef->getRadius();
+					domFloat radius = radiusRef->getValue()*m_unitMeterScaling;
+					rbOutput.m_colShape = createSphereShape(radius);
+				}
 
-					//it can be either triangle mesh, or we just pick the vertices/positions
+				if (shapeRef->getCylinder())
+				{
+					domCylinderRef cylinderRef = shapeRef->getCylinder();
+					domFloat height = cylinderRef->getHeight()->getValue()*m_unitMeterScaling;
+					domFloat2 radius2 = cylinderRef->getRadius()->getValue();
+					domFloat radius0 = radius2.get(0)*m_unitMeterScaling;
 
-					if (meshRef->getTriangles_array().getCount())
+					//Cylinder around the local Y axis
+					rbOutput.m_colShape = createCylinderShapeY(radius0,height);
+				}
+
+				if (shapeRef->getInstance_geometry())
+				{
+					const domInstance_geometryRef geomInstRef = shapeRef->getInstance_geometry();
+					daeElement* geomElem = geomInstRef->getUrl().getElement();
+					//elemRef->getTypeName();
+					domGeometry* geom = (domGeometry*) geomElem;
+					if (geom && geom->getMesh())
 					{
+						const domMeshRef meshRef = geom->getMesh();
 
-						btTriangleMesh* trimesh = new btTriangleMesh(m_use32bitIndices,m_use4componentVertices);
+						//it can be either triangle mesh, or we just pick the vertices/positions
 
-						
-						for (unsigned int tg = 0;tg<meshRef->getTriangles_array().getCount();tg++)
+						if (meshRef->getTriangles_array().getCount())
 						{
 
-
-							domTrianglesRef triRef = meshRef->getTriangles_array()[tg];
-							const domPRef pRef = triRef->getP();
-							btIndexedMesh meshPart;
-							meshPart.m_triangleIndexStride=0;
-
+							btTriangleMesh* trimesh = createTriangleMeshContainer();
 
 							
-							int vertexoffset = -1;
-							domInputLocalOffsetRef indexOffsetRef;
-							
-
-							for (unsigned int w=0;w<triRef->getInput_array().getCount();w++)
+							for (unsigned int tg = 0;tg<meshRef->getTriangles_array().getCount();tg++)
 							{
-								int offset = triRef->getInput_array()[w]->getOffset();
-								daeString str = triRef->getInput_array()[w]->getSemantic();
-								if (!strcmp(str,"VERTEX"))
+
+
+								domTrianglesRef triRef = meshRef->getTriangles_array()[tg];
+								const domPRef pRef = triRef->getP();
+								btIndexedMesh meshPart;
+								meshPart.m_triangleIndexStride=0;
+
+
+								
+								int vertexoffset = -1;
+								domInputLocalOffsetRef indexOffsetRef;
+								
+
+								for (unsigned int w=0;w<triRef->getInput_array().getCount();w++)
 								{
-									indexOffsetRef = triRef->getInput_array()[w];
-									vertexoffset = offset;
-								}
-								if (offset > meshPart.m_triangleIndexStride)
-								{
-									meshPart.m_triangleIndexStride = offset;
-								}
-							}
-							meshPart.m_triangleIndexStride++;
-							domListOfUInts indexArray =triRef->getP()->getValue(); 
-
-							//int*		m_triangleIndexBase;
-
-
-
-							meshPart.m_numTriangles = triRef->getCount();
-
-							const domVerticesRef vertsRef = meshRef->getVertices();
-							int numInputs = vertsRef->getInput_array().getCount();
-							for (int i=0;i<numInputs;i++)
-							{
-								domInputLocalRef localRef = vertsRef->getInput_array()[i];
-								daeString str = localRef->getSemantic();
-								if ( !strcmp(str,"POSITION"))
-								{
-									const domURIFragmentType& frag = localRef->getSource();
-
-									daeElementConstRef constElem = frag.getElement();
-
-									const domSourceRef node = *(const domSourceRef*)&constElem;
-									const domFloat_arrayRef flArray = node->getFloat_array();
-									if (flArray)
+									int offset = triRef->getInput_array()[w]->getOffset();
+									daeString str = triRef->getInput_array()[w]->getSemantic();
+									if (!strcmp(str,"VERTEX"))
 									{
-										const domListOfFloats& listFloats = flArray->getValue();
+										indexOffsetRef = triRef->getInput_array()[w];
+										vertexoffset = offset;
+									}
+									if (offset > meshPart.m_triangleIndexStride)
+									{
+										meshPart.m_triangleIndexStride = offset;
+									}
+								}
+								meshPart.m_triangleIndexStride++;
+								domListOfUInts indexArray =triRef->getP()->getValue(); 
 
-										int k=vertexoffset;
-										int t=0;
-										int vertexStride = 3;//instead of hardcoded stride, should use the 'accessor'
-										for (;t<meshPart.m_numTriangles;t++)
+								//int*		m_triangleIndexBase;
+
+
+
+								meshPart.m_numTriangles = triRef->getCount();
+
+								const domVerticesRef vertsRef = meshRef->getVertices();
+								int numInputs = vertsRef->getInput_array().getCount();
+								for (int i=0;i<numInputs;i++)
+								{
+									domInputLocalRef localRef = vertsRef->getInput_array()[i];
+									daeString str = localRef->getSemantic();
+									if ( !strcmp(str,"POSITION"))
+									{
+										const domURIFragmentType& frag = localRef->getSource();
+
+										daeElementConstRef constElem = frag.getElement();
+
+										const domSourceRef node = *(const domSourceRef*)&constElem;
+										const domFloat_arrayRef flArray = node->getFloat_array();
+										if (flArray)
 										{
-											btVector3 verts[3];
-											int index0;
-											for (int i=0;i<3;i++)
+											const domListOfFloats& listFloats = flArray->getValue();
+
+											int k=vertexoffset;
+											int t=0;
+											int vertexStride = 3;//instead of hardcoded stride, should use the 'accessor'
+											for (;t<meshPart.m_numTriangles;t++)
 											{
-												index0 = indexArray.get(k)*vertexStride;
-												domFloat fl0 = listFloats.get(index0);
-												domFloat fl1 = listFloats.get(index0+1);
-												domFloat fl2 = listFloats.get(index0+2);
-												k+=meshPart.m_triangleIndexStride;
-												verts[i].setValue(fl0*m_unitMeterScaling,fl1*m_unitMeterScaling,fl2*m_unitMeterScaling);
+												btVector3 verts[3];
+												int index0;
+												for (int i=0;i<3;i++)
+												{
+													index0 = indexArray.get(k)*vertexStride;
+													domFloat fl0 = listFloats.get(index0);
+													domFloat fl1 = listFloats.get(index0+1);
+													domFloat fl2 = listFloats.get(index0+2);
+													k+=meshPart.m_triangleIndexStride;
+													verts[i].setValue(fl0*m_unitMeterScaling,fl1*m_unitMeterScaling,fl2*m_unitMeterScaling);
+												}
+												trimesh->addTriangle(verts[0],verts[1],verts[2]);
 											}
-											trimesh->addTriangle(verts[0],verts[1],verts[2]);
 										}
 									}
 								}
-							}
 
-						} 
+							} 
 
-						if (rbOutput.m_isDynamics)
-						{
-							printf("moving concave <mesh> not supported, transformed into convex\n");
-							rbOutput.m_colShape = new btConvexTriangleMeshShape(trimesh);
-						} else
-						{
-							printf("static concave triangle <mesh> added\n");
-							bool useQuantizedAabbCompression = true;
-							rbOutput.m_colShape = new btBvhTriangleMeshShape(trimesh,useQuantizedAabbCompression);
-							//rbOutput.m_colShape = new btBvhTriangleMeshShape(trimesh);
-							//rbOutput.m_colShape = new btConvexTriangleMeshShape(trimesh);
-							
-							//btTriangleMeshShape
-						}
-						//rbOutput.m_colShape->setTypedUserInfo (new btShapeColladaInfo (geom));
-
-					} else
-						{
-
-							btConvexHullShape* convexHull = new btConvexHullShape();
-							int numAddedVerts = 0;
-
-							const domVerticesRef vertsRef = meshRef->getVertices();
-							int numInputs = vertsRef->getInput_array().getCount();
-							for (int i=0;i<numInputs;i++)
+							if (rbOutput.m_isDynamics)
 							{
-								domInputLocalRef localRef = vertsRef->getInput_array()[i];
-								daeString str = localRef->getSemantic();
-								if ( !strcmp(str,"POSITION"))
-								{
-									const domURIFragmentType& frag = localRef->getSource();
-
-									daeElementConstRef constElem = frag.getElement();
-
-									const domSourceRef node = *(const domSourceRef*)&constElem;
-									const domFloat_arrayRef flArray = node->getFloat_array();
-									if (flArray)
-									{
-										const domListOfFloats& listFloats = flArray->getValue();
-										int vertexStride = 3;//instead of hardcoded stride, should use the 'accessor'
-										unsigned int vertIndex = 0;
-										for (vertIndex = 0;vertIndex < listFloats.getCount();vertIndex+=vertexStride)
-										{
-											//btVector3 verts[3];
-											domFloat fl0 = listFloats.get(vertIndex);
-											domFloat fl1 = listFloats.get(vertIndex+1);
-											domFloat fl2 = listFloats.get(vertIndex+2);
-											convexHull->addPoint(btPoint3(fl0,fl1,fl2) * m_unitMeterScaling);
-										}
-									}
-								}
-							}
-							//convexHull->addPoint();
-							if (numAddedVerts > 0)
-							{
-								rbOutput.m_colShape = convexHull;
-								//rbOutput.m_colShape->setTypedUserInfo (new btShapeColladaInfo (geom));
+								printf("moving concave <mesh> not supported, transformed into convex\n");
+								rbOutput.m_colShape = createConvexTriangleMeshShape(trimesh);
 							} else
 							{
-								delete convexHull;
-								printf("no vertices found for convex hull\n");
+								printf("static concave triangle <mesh> added\n");
+								
+								rbOutput.m_colShape = createBvhTriangleMeshShape(trimesh);
+
+								//rbOutput.m_colShape = new btBvhTriangleMeshShape(trimesh);
+								//rbOutput.m_colShape = new btConvexTriangleMeshShape(trimesh);
+								
+								//btTriangleMeshShape
 							}
+							//rbOutput.m_colShape->setTypedUserInfo (new btShapeColladaInfo (geom));
 
-					}
-						
-
-				}
-
-				if (geom && geom->getConvex_mesh())
-				{
-
-					{
-						const domConvex_meshRef convexRef = geom->getConvex_mesh();
-						daeElementRef otherElemRef = convexRef->getConvex_hull_of().getElement();
-						if ( otherElemRef != NULL )
-						{
-							domGeometryRef linkedGeom = *(domGeometryRef*)&otherElemRef;
-							printf( "otherLinked\n");
 						} else
-						{
-							printf("convexMesh polyCount = %i\n",convexRef->getPolygons_array().getCount());
-							printf("convexMesh triCount = %i\n",convexRef->getTriangles_array().getCount());
+							{
+
+								btConvexHullShape* convexHull = createConvexHullShape();
+								int numAddedVerts = 0;
+
+								const domVerticesRef vertsRef = meshRef->getVertices();
+								int numInputs = vertsRef->getInput_array().getCount();
+								for (int i=0;i<numInputs;i++)
+								{
+									domInputLocalRef localRef = vertsRef->getInput_array()[i];
+									daeString str = localRef->getSemantic();
+									if ( !strcmp(str,"POSITION"))
+									{
+										const domURIFragmentType& frag = localRef->getSource();
+
+										daeElementConstRef constElem = frag.getElement();
+
+										const domSourceRef node = *(const domSourceRef*)&constElem;
+										const domFloat_arrayRef flArray = node->getFloat_array();
+										if (flArray)
+										{
+											const domListOfFloats& listFloats = flArray->getValue();
+											int vertexStride = 3;//instead of hardcoded stride, should use the 'accessor'
+											unsigned int vertIndex = 0;
+											for (vertIndex = 0;vertIndex < listFloats.getCount();vertIndex+=vertexStride)
+											{
+												//btVector3 verts[3];
+												domFloat fl0 = listFloats.get(vertIndex);
+												domFloat fl1 = listFloats.get(vertIndex+1);
+												domFloat fl2 = listFloats.get(vertIndex+2);
+												convexHull->addPoint(btPoint3(fl0,fl1,fl2) * m_unitMeterScaling);
+											}
+										}
+									}
+								}
+								//convexHull->addPoint();
+								if (numAddedVerts > 0)
+								{
+									rbOutput.m_colShape = convexHull;
+									//rbOutput.m_colShape->setTypedUserInfo (new btShapeColladaInfo (geom));
+								} else
+								{
+									deleteShape( convexHull);
+									printf("no vertices found for convex hull\n");
+								}
 
 						}
+							
+
 					}
 
-
-
-					btConvexHullShape* convexHullShape = new btConvexHullShape(0,0);
-
-					//it is quite a trick to get to the vertices, using Collada.
-					//we are not there yet...
-
-					const domConvex_meshRef convexRef = geom->getConvex_mesh();
-					//daeString urlref = convexRef->getConvex_hull_of().getURI();
-					daeString urlref2 = convexRef->getConvex_hull_of().getOriginalURI();
-					if (urlref2)
+					if (geom && geom->getConvex_mesh())
 					{
-						daeElementRef otherElemRef = convexRef->getConvex_hull_of().getElement();
-						//	if ( otherElemRef != NULL )
-						//		domGeometryRef linkedGeom = *(domGeometryRef*)&otherElemRef;
 
-						// Load all the geometry libraries
-						for ( unsigned int i = 0; i < m_dom->getLibrary_geometries_array().getCount(); i++)
 						{
-							domLibrary_geometriesRef libgeom = m_dom->getLibrary_geometries_array()[i];
-							//int index = libgeom->findLastIndexOf(urlref2);
-							//can't find it
-
-							for ( unsigned int  i = 0; i < libgeom->getGeometry_array().getCount(); i++)
+							const domConvex_meshRef convexRef = geom->getConvex_mesh();
+							daeElementRef otherElemRef = convexRef->getConvex_hull_of().getElement();
+							if ( otherElemRef != NULL )
 							{
-								//ReadGeometry(  ); 
-								domGeometryRef lib = libgeom->getGeometry_array()[i];
-								if (!strcmp(lib->getId(),urlref2+1)) // skip the # at the front of urlref2
+								domGeometryRef linkedGeom = *(domGeometryRef*)&otherElemRef;
+								printf( "otherLinked\n");
+							} else
+							{
+								printf("convexMesh polyCount = %i\n",convexRef->getPolygons_array().getCount());
+								printf("convexMesh triCount = %i\n",convexRef->getTriangles_array().getCount());
+
+							}
+						}
+
+
+
+						btConvexHullShape* convexHullShape = createConvexHullShape();
+
+						//it is quite a trick to get to the vertices, using Collada.
+						//we are not there yet...
+
+						const domConvex_meshRef convexRef = geom->getConvex_mesh();
+						//daeString urlref = convexRef->getConvex_hull_of().getURI();
+						daeString urlref2 = convexRef->getConvex_hull_of().getOriginalURI();
+						if (urlref2)
+						{
+							daeElementRef otherElemRef = convexRef->getConvex_hull_of().getElement();
+							//	if ( otherElemRef != NULL )
+							//		domGeometryRef linkedGeom = *(domGeometryRef*)&otherElemRef;
+
+							// Load all the geometry libraries
+							for ( unsigned int i = 0; i < m_dom->getLibrary_geometries_array().getCount(); i++)
+							{
+								domLibrary_geometriesRef libgeom = m_dom->getLibrary_geometries_array()[i];
+								//int index = libgeom->findLastIndexOf(urlref2);
+								//can't find it
+
+								for ( unsigned int  i = 0; i < libgeom->getGeometry_array().getCount(); i++)
 								{
-									//found convex_hull geometry
-									domMesh			*meshElement		= lib->getMesh();//linkedGeom->getMesh();
-									if (meshElement)
+									//ReadGeometry(  ); 
+									domGeometryRef lib = libgeom->getGeometry_array()[i];
+									if (!strcmp(lib->getId(),urlref2+1)) // skip the # at the front of urlref2
 									{
-										const domVerticesRef vertsRef = meshElement->getVertices();
-										int numInputs = vertsRef->getInput_array().getCount();
-										for (int i=0;i<numInputs;i++)
+										//found convex_hull geometry
+										domMesh			*meshElement		= lib->getMesh();//linkedGeom->getMesh();
+										if (meshElement)
 										{
-											domInputLocalRef localRef = vertsRef->getInput_array()[i];
-											daeString str = localRef->getSemantic();
-											if ( !strcmp(str,"POSITION"))
+											const domVerticesRef vertsRef = meshElement->getVertices();
+											int numInputs = vertsRef->getInput_array().getCount();
+											for (int i=0;i<numInputs;i++)
 											{
-												const domURIFragmentType& frag = localRef->getSource();
-
-												daeElementConstRef constElem = frag.getElement();
-
-												const domSourceRef node = *(const domSourceRef*)&constElem;
-												const domFloat_arrayRef flArray = node->getFloat_array();
-												if (flArray)
+												domInputLocalRef localRef = vertsRef->getInput_array()[i];
+												daeString str = localRef->getSemantic();
+												if ( !strcmp(str,"POSITION"))
 												{
-													int numElem = flArray->getCount();
-													const domListOfFloats& listFloats = flArray->getValue();
+													const domURIFragmentType& frag = localRef->getSource();
 
-													for (int k=0;k+2<numElem;k+=3)
+													daeElementConstRef constElem = frag.getElement();
+
+													const domSourceRef node = *(const domSourceRef*)&constElem;
+													const domFloat_arrayRef flArray = node->getFloat_array();
+													if (flArray)
 													{
-														domFloat fl0 = listFloats.get(k);
-														domFloat fl1 = listFloats.get(k+1);
-														domFloat fl2 = listFloats.get(k+2);
-														//printf("float %f %f %f\n",fl0,fl1,fl2);
+														int numElem = flArray->getCount();
+														const domListOfFloats& listFloats = flArray->getValue();
 
-														convexHullShape->addPoint(btPoint3(fl0,fl1,fl2) * m_unitMeterScaling);
+														for (int k=0;k+2<numElem;k+=3)
+														{
+															domFloat fl0 = listFloats.get(k);
+															domFloat fl1 = listFloats.get(k+1);
+															domFloat fl2 = listFloats.get(k+2);
+															//printf("float %f %f %f\n",fl0,fl1,fl2);
+
+															convexHullShape->addPoint(btPoint3(fl0,fl1,fl2) * m_unitMeterScaling);
+														}
+
 													}
 
 												}
 
+
 											}
 
+										}
+									}
+								
+										
+									
+								}
+							}
+						} else {
+							//no getConvex_hull_of but direct vertices
+							const domVerticesRef vertsRef = convexRef->getVertices();
+							int numInputs = vertsRef->getInput_array().getCount();
+							for (int i=0;i<numInputs;i++)
+							{
+								domInputLocalRef localRef = vertsRef->getInput_array()[i];
+								daeString str = localRef->getSemantic();
+								if ( !strcmp(str,"POSITION"))
+								{
+									const domURIFragmentType& frag = localRef->getSource();
 
+									daeElementConstRef constElem = frag.getElement();
+
+									const domSourceRef node = *(const domSourceRef*)&constElem;
+									const domFloat_arrayRef flArray = node->getFloat_array();
+									if (flArray)
+									{
+										int numElem = flArray->getCount();
+										const domListOfFloats& listFloats = flArray->getValue();
+
+										for (int k=0;k+2<numElem;k+=3)
+										{
+											domFloat fl0 = listFloats.get(k);
+											domFloat fl1 = listFloats.get(k+1);
+											domFloat fl2 = listFloats.get(k+2);
+											//printf("float %f %f %f\n",fl0,fl1,fl2);
+
+											convexHullShape->addPoint(btPoint3(fl0,fl1,fl2)*m_unitMeterScaling);
 										}
 
 									}
 								}
-							
-									
-								
+
 							}
+
+
 						}
-					} else {
-						//no getConvex_hull_of but direct vertices
-						const domVerticesRef vertsRef = convexRef->getVertices();
-						int numInputs = vertsRef->getInput_array().getCount();
-						for (int i=0;i<numInputs;i++)
+
+						if (convexHullShape->getNumVertices())
 						{
-							domInputLocalRef localRef = vertsRef->getInput_array()[i];
-							daeString str = localRef->getSemantic();
-							if ( !strcmp(str,"POSITION"))
-							{
-								const domURIFragmentType& frag = localRef->getSource();
-
-								daeElementConstRef constElem = frag.getElement();
-
-								const domSourceRef node = *(const domSourceRef*)&constElem;
-								const domFloat_arrayRef flArray = node->getFloat_array();
-								if (flArray)
-								{
-									int numElem = flArray->getCount();
-									const domListOfFloats& listFloats = flArray->getValue();
-
-									for (int k=0;k+2<numElem;k+=3)
-									{
-										domFloat fl0 = listFloats.get(k);
-										domFloat fl1 = listFloats.get(k+1);
-										domFloat fl2 = listFloats.get(k+2);
-										//printf("float %f %f %f\n",fl0,fl1,fl2);
-
-										convexHullShape->addPoint(btPoint3(fl0,fl1,fl2)*m_unitMeterScaling);
-									}
-
-								}
-							}
-
+							rbOutput.m_colShape = convexHullShape;
+							//rbOutput.m_colShape->setTypedUserInfo (new btShapeColladaInfo (geom));
+							printf("created convexHullShape with %i points\n",convexHullShape->getNumVertices());
+						} else
+						{
+							deleteShape( convexHullShape);
+							printf("failed to create convexHullShape\n");
 						}
 
 
+						//domGeometryRef linkedGeom = *(domGeometryRef*)&otherElemRef;
+
+						printf("convexmesh\n");
+
 					}
-
-					if (convexHullShape->getNumVertices())
-					{
-						rbOutput.m_colShape = convexHullShape;
-						//rbOutput.m_colShape->setTypedUserInfo (new btShapeColladaInfo (geom));
-						printf("created convexHullShape with %i points\n",convexHullShape->getNumVertices());
-					} else
-					{
-						delete convexHullShape;
-						printf("failed to create convexHullShape\n");
-					}
-
-
-					//domGeometryRef linkedGeom = *(domGeometryRef*)&otherElemRef;
-
-					printf("convexmesh\n");
-
 				}
-			}
 
-			//if more then 1 shape, or a non-identity local shapetransform
-			//use a compound
+				//if more then 1 shape, or a non-identity local shapetransform
+				//use a compound
 
-			bool hasShapeLocalTransform = ((shapeRef->getRotate_array().getCount() > 0) ||
-				(shapeRef->getTranslate_array().getCount() > 0));
-			
-			if (rbOutput.m_colShape)
-			{
-				if ((techniqueRef->getShape_array().getCount()>1) ||
-					(hasShapeLocalTransform))
+				bool hasShapeLocalTransform = ((shapeRef->getRotate_array().getCount() > 0) ||
+					(shapeRef->getTranslate_array().getCount() > 0));
+				
+				if (rbOutput.m_colShape)
 				{
-					
-					if (!rbOutput.m_compoundShape)
+					if ((techniqueRef->getShape_array().getCount()>1) ||
+						(hasShapeLocalTransform))
 					{
-						rbOutput.m_compoundShape = new btCompoundShape();
-					}
+						
+						if (!rbOutput.m_compoundShape)
+						{
+							rbOutput.m_compoundShape = createCompoundShape();
+						}
 
-					btTransform localTransform;
-					localTransform.setIdentity();
-					if (hasShapeLocalTransform)
-					{
-					localTransform = GetbtTransformFromCOLLADA_DOM(
-						emptyMatrixArray,
-						shapeRef->getRotate_array(),
-						shapeRef->getTranslate_array(),
-						m_unitMeterScaling
-						);
-					}
+						btTransform localTransform;
+						localTransform.setIdentity();
+						if (hasShapeLocalTransform)
+						{
+						localTransform = GetbtTransformFromCOLLADA_DOM(
+							emptyMatrixArray,
+							shapeRef->getRotate_array(),
+							shapeRef->getTranslate_array(),
+							m_unitMeterScaling
+							);
+						}
 
-					rbOutput.m_compoundShape->addChildShape(localTransform,rbOutput.m_colShape);
-					rbOutput.m_colShape = 0;
+						rbOutput.m_compoundShape->addChildShape(localTransform,rbOutput.m_colShape);
+						rbOutput.m_colShape = 0;
+					}
 				}
+				
 			}
+
+
+			//for future shape instancing
+			//storeShapeRef(shapeRef,rbOutput.m_colShape);
 
 
 		}//for each shape
