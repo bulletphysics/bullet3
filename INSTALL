@@ -12,11 +12,13 @@ For other systems, for example Linux or Mac OS-X:
 
 Download/install  CMake from www.cmake.org, and run cmake . -G Xcode (or replace Xcode with other available buildsystem).
 
-Alternatively use jam:
+Alternatively use make or jam:
+
+./autogen.sh
 
 ./configure
 
-jam
+jam or make
 
 If jam is not available for your system, you can compile it, jam sources are included with the Bullet sources in jam-2.5
 
