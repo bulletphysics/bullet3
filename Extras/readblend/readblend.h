@@ -30,7 +30,7 @@
 #include <math.h>
 #include <stdlib.h>//size_t for MSVC 6.0
 
-#include <cfloat>
+//#include <cfloat>
 #include <float.h>
 
 #include "abs-file.h"
