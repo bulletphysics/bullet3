@@ -386,8 +386,8 @@ void SpuConvexConvexCollisionAlgorithm (SpuCollisionPairInput& collisionPairInpu
 									    SpuInternalConvexHull* shape0Points,
 									    SpuInternalConvexHull* shape1Points)
 {
-	btConvexPointCloudShape shape0ConvexHull (NULL, 0);
-	btConvexPointCloudShape shape1ConvexHull (NULL, 0);
+	btConvexPointCloudShape shape0ConvexHull (NULL, 0, false);
+	btConvexPointCloudShape shape1ConvexHull (NULL, 0, false);
 	btConvexShape* shape0;
 	btConvexShape* shape1;
 	btPersistentManifold* manifold = (btPersistentManifold*)collisionPairInput.m_persistentManifoldPtr;
@@ -397,7 +397,13 @@ void SpuConvexConvexCollisionAlgorithm (SpuCollisionPairInput& collisionPairInpu
 #endif
 	if (collisionPairInput.m_shapeType0== CONVEX_HULL_SHAPE_PROXYTYPE )
 	{
-		shape0ConvexHull.setPoints (shape0Points->m_points, shape0Points->m_numPoints);
+		shape0ConvexHull.setPoints (shape0Points->m_points, shape0Points->m_numPoints, false);
+		{
+			btVector3 aabbMin, aabbMax;
+			btPolyhedralConvexShape* pcs = (btPolyhedralConvexShape*)shape0Internal->m_convexShape;
+			pcs->getCachedLocalAabb (aabbMin, aabbMax);
+			shape0ConvexHull.setCachedLocalAabb (aabbMin, aabbMax);
+		}
 		shape0 = &shape0ConvexHull;
 	} else {
 		shape0 = shape0Internal->m_convexShape;
@@ -405,7 +411,13 @@ void SpuConvexConvexCollisionAlgorithm (SpuCollisionPairInput& collisionPairInpu
 
 	if (collisionPairInput.m_shapeType1 == CONVEX_HULL_SHAPE_PROXYTYPE )
 	{
-		shape1ConvexHull.setPoints (shape1Points->m_points, shape1Points->m_numPoints);
+		shape1ConvexHull.setPoints (shape1Points->m_points, shape1Points->m_numPoints, false);
+		{
+			btVector3 aabbMin, aabbMax;
+			btPolyhedralConvexShape* pcs = (btPolyhedralConvexShape*)shape1Internal->m_convexShape;
+			pcs->getCachedLocalAabb (aabbMin, aabbMax);
+			shape1ConvexHull.setCachedLocalAabb (aabbMin, aabbMax);
+		}
 		shape1 = &shape1ConvexHull;
 	} else {
 		shape1 = shape1Internal->m_convexShape;
@@ -417,7 +429,7 @@ void SpuConvexConvexCollisionAlgorithm (SpuCollisionPairInput& collisionPairInpu
 	{
 		btVoronoiSimplexSolver vsSolver;
 		btConvexPenetrationDepthSolver* penetrationSolver = NULL;
-#define SPU_ENABLE_EPA 1
+//#define SPU_ENABLE_EPA 1
 #ifdef SPU_ENABLE_EPA
 		btGjkEpaPenetrationDepthSolver epaPenetrationSolver;
 		btMinkowskiPenetrationDepthSolver	minkowskiPenetrationSolver;
@@ -570,7 +582,7 @@ void SpuConvexConcaveCollisionAlgorithm (SpuCollisionPairInput& collisionPairInp
 									     SpuInternalConvexHull* shape0Points,
 									     SpuInternalConvexHull* shape1Points)
 {
-	btConvexPointCloudShape shape0ConvexHull (NULL, 0);
+	btConvexPointCloudShape shape0ConvexHull (NULL, 0, false);
 	btConvexShape* shape0;
 
 #ifdef DEBUG_SPU_COLLISION_DETECTION
@@ -578,7 +590,13 @@ void SpuConvexConcaveCollisionAlgorithm (SpuCollisionPairInput& collisionPairInp
 #endif
 	if (collisionPairInput.m_shapeType0== CONVEX_HULL_SHAPE_PROXYTYPE )
 	{
-		shape0ConvexHull.setPoints (shape0Points->m_points, shape0Points->m_numPoints);
+		shape0ConvexHull.setPoints (shape0Points->m_points, shape0Points->m_numPoints, false);
+		{
+			btVector3 aabbMin, aabbMax;
+			btPolyhedralConvexShape* pcs = (btPolyhedralConvexShape*)shape0Internal->m_convexShape;
+			pcs->getCachedLocalAabb (aabbMin, aabbMax);
+			shape0ConvexHull.setCachedLocalAabb (aabbMin, aabbMax);
+		}
 		shape0 = &shape0ConvexHull;
 	} else {
 		shape0 = shape0Internal->m_convexShape;
@@ -981,7 +999,6 @@ void	handleCollisionPair(SpuCollisionPairInput& collisionPairInput, CollisionTas
 
 void	processCollisionTask(void* userPtr, void* lsMemPtr)
 {
-
 	SpuGatherAndProcessPairsTaskDesc* taskDescPtr = (SpuGatherAndProcessPairsTaskDesc*)userPtr;
 	SpuGatherAndProcessPairsTaskDesc& taskDesc = *taskDescPtr;
 	CollisionTask_LocalStoreMemory*	colMemPtr = (CollisionTask_LocalStoreMemory*)lsMemPtr;
