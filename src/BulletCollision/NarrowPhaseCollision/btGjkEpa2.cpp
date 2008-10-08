@@ -885,8 +885,8 @@ if(gjk_status==GJK::eStatus::Valid)
 	results.witnesses[1]	=	wtrs0*w1;
 	const btVector3	delta=	results.witnesses[1]-
 							results.witnesses[0];
-	const btScalar	margin=	shape0->getMargin()+
-							shape1.getMargin();
+	const btScalar	margin=	shape0->getMarginNonVirtual()+
+							shape1.getMarginNonVirtual();
 	const btScalar	length=	delta.length();	
 	results.normal			=	delta/length;
 	results.witnesses[0]	+=	results.normal*margin;
