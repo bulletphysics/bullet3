@@ -22,7 +22,7 @@ subject to the following restrictions:
 
 
 SpuSubsimplexRayCast::SpuSubsimplexRayCast (void* shapeB, SpuConvexPolyhedronVertexData* convexDataB, int shapeTypeB, float marginB,
-										    btVoronoiSimplexSolver* simplexSolver)
+										    SpuVoronoiSimplexSolver* simplexSolver)
 	:m_simplexSolver(simplexSolver), m_shapeB(shapeB), m_convexDataB(convexDataB), m_shapeTypeB(shapeTypeB), m_marginB(marginB)
 {
 }

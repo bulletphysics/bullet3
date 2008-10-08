@@ -31,7 +31,7 @@ subject to the following restrictions:
 
 
 #include "BulletCollision/NarrowPhaseCollision/btPersistentManifold.h"
-#include "BulletCollision/NarrowPhaseCollision/btDiscreteCollisionDetectorInterface.h"
+
 
 struct SpuCollisionPairInput
 {
@@ -53,6 +53,7 @@ struct SpuCollisionPairInput
 	bool    m_useEpa;
 };
 
+
 struct SpuClosestPointInput
 {
     SpuClosestPointInput()
@@ -63,15 +64,14 @@ struct SpuClosestPointInput
 
     btTransform m_transformA;
     btTransform m_transformB;
-    float       m_maximumDistanceSquared;
-    class       btStackAlloc* m_stackAlloc;
-        struct SpuConvexPolyhedronVertexData* m_convexVertexData[2];
+    float	m_maximumDistanceSquared;
+    class	btStackAlloc* m_stackAlloc;
+	struct SpuConvexPolyhedronVertexData* m_convexVertexData[2];
 };
-
 
 ///SpuContactResult exports the contact points using double-buffered DMA transfers, only when needed
 ///So when an existing contact point is duplicated, no transfer/refresh is performed.
-class SpuContactResult : public btDiscreteCollisionDetectorInterface::Result
+class SpuContactResult
 {
     btTransform		m_rootWorldTransform0;
 	btTransform		m_rootWorldTransform1;
@@ -102,7 +102,7 @@ class SpuContactResult : public btDiscreteCollisionDetectorInterface::Result
 
         void writeDoubleBufferedManifold(btPersistentManifold* lsManifold, btPersistentManifold* mmManifold);
 
-        virtual void addContactPoint(const btVector3& normalOnBInWorld,const btPoint3& pointInWorld,btScalar depth);
+        virtual void addContactPoint(const btVector3& normalOnBInWorld,const btPoint3& pointInWorld,float depth);
 
 		void flush();
 };

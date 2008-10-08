@@ -4,7 +4,6 @@
 #include "../SpuDoubleBuffer.h"
 
 #include "BulletCollision/BroadphaseCollision/btBroadphaseProxy.h"
-#include "BulletCollision/CollisionShapes/btCollisionShape.h"
 #include "BulletCollision/CollisionShapes/btConvexInternalShape.h"
 #include "BulletCollision/CollisionShapes/btCylinderShape.h"
 
@@ -19,68 +18,7 @@
 #include "BulletCollision/CollisionShapes/btConvexHullShape.h"
 #include "BulletCollision/CollisionShapes/btCompoundShape.h"
 
-#define MAX_SHAPE_SIZE 256
 #define MAX_NUM_SPU_CONVEX_POINTS 128
-
-struct SpuInternalShape
-{
-	ATTRIBUTE_ALIGNED16(char m_collisionShapeStorage[MAX_SHAPE_SIZE]);
-	btConvexShape* m_convexShape;
-	btCollisionShape* m_collisionShape;
-	ppu_address_t m_ppuConvexShapePtr;
-	SpuInternalShape ()
-	{
-		m_convexShape = (btConvexShape*)&m_collisionShapeStorage[0];
-		m_collisionShape = (btCollisionShape*)&m_collisionShapeStorage[0];
-		m_ppuConvexShapePtr = 0;
-	}
-
-	void dmaShapeData (ppu_address_t ppuAddress, int shapeType, uint32_t dmaTag);
-};
-
-struct SpuInternalConvexHull
-{
-	ATTRIBUTE_ALIGNED16(btVector3 m_pointsBuffer[MAX_NUM_SPU_CONVEX_POINTS]);
-	int m_numPoints;
-	btVector3* m_points;
-	ppu_address_t m_ppuPointsPtr;
-
-	SpuInternalConvexHull ()
-	{
-		m_points = (btVector3*)&m_pointsBuffer[0];
-		m_numPoints = 0;
-		m_ppuPointsPtr = 0;
-	}
-
-	void dmaPointsData (const SpuInternalShape& shape, uint32_t dmaTag);
-	void dmaPointsData (ppu_address_t ppuPointsAddress, int numPoints, uint32_t dmaTag);
-};
-
-
-
-struct SpuBvhMeshShape
-{
-	ATTRIBUTE_ALIGNED16(char m_optimizedBvhBuffer[sizeof(btOptimizedBvh)+16]);
-	ATTRIBUTE_ALIGNED16(btTriangleIndexVertexArray m_triangleMeshInterfaceBuffer);
-	#define MAX_SPU_SUBTREE_HEADERS 32
-	///only a single mesh part for now, we can add support for multiple parts, but quantized trees don't support this at the moment 
-	ATTRIBUTE_ALIGNED16(btIndexedMesh	m_indexMesh);
-	ATTRIBUTE_ALIGNED16(btBvhSubtreeInfo m_subtreeHeaders[MAX_SPU_SUBTREE_HEADERS]);
-	ATTRIBUTE_ALIGNED16(btQuantizedBvhNode m_subtreeNodes[MAX_SUBTREE_SIZE_IN_BYTES/sizeof(btQuantizedBvhNode)]);
-	btOptimizedBvh* m_optimizedBvh;
-	btTriangleIndexVertexArray* m_triangleMeshInterface;
-
-	SpuBvhMeshShape ()
-	{
-		m_optimizedBvh = (btOptimizedBvh*)&m_optimizedBvhBuffer[0];
-		m_triangleMeshInterface = (btTriangleIndexVertexArray*)&m_triangleMeshInterfaceBuffer;
-	}
-
-	void dmaMeshInterfaceAndOptimizedBvh (const SpuInternalShape& triangleMeshShape, uint32_t dmaTag1, uint32_t dmaTag2);
-	void dmaIndexedMesh (int index, uint32_t dmaTag);
-	void dmaSubTreeHeaders (ppu_address_t subTreePtr, int numHeaders, uint32_t dmaTag);
-	void dmaSubTreeNodes (const btBvhSubtreeInfo& subtree, QuantizedNodeArray&	nodeArray, int dmaTag);
-};
 
 struct	SpuConvexPolyhedronVertexData
 {
@@ -90,19 +28,7 @@ struct	SpuConvexPolyhedronVertexData
 	ATTRIBUTE_ALIGNED16(btPoint3 g_convexPointBuffer[MAX_NUM_SPU_CONVEX_POINTS]);
 };
 
-struct SpuCompoundShape
-{
-	#define MAX_SPU_COMPOUND_SUBSHAPES 16
-	ATTRIBUTE_ALIGNED16(btCompoundShapeChild m_subshapes[MAX_SPU_COMPOUND_SUBSHAPES]);
-
-	void dmaChildShapeInfo (btCompoundShape* compoundShape, uint32_t dmaTag);
-	void dmaChildShape (int childShape,
-							SpuInternalShape* localShape,
-							SpuInternalConvexHull* localShapeHull,
-							uint32_t dmaTag);
-};
-
-
+#define MAX_SHAPE_SIZE 256
 
 struct CollisionShape_LocalStoreMemory
 {

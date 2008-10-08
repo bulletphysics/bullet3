@@ -22,7 +22,7 @@ subject to the following restrictions:
 
 class btStackAlloc;
 class btIDebugDraw;
-class btVoronoiSimplexSolver;
+class SpuVoronoiSimplexSolver;
 
 #include <LinearMath/btTransform.h>
 #include <LinearMath/btPoint3.h>
@@ -34,7 +34,7 @@ class SpuConvexPenetrationDepthSolver
 public:	
 	
 	virtual ~SpuConvexPenetrationDepthSolver() {};
-	virtual bool calcPenDepth( btVoronoiSimplexSolver& simplexSolver,
+	virtual bool calcPenDepth( SpuVoronoiSimplexSolver& simplexSolver,
 	        void* convexA,void* convexB,int shapeTypeA, int shapeTypeB, float marginA, float marginB,
             btTransform& transA,const btTransform& transB,
 			btVector3& v, btPoint3& pa, btPoint3& pb,

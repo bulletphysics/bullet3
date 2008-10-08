@@ -16,155 +16,6 @@ subject to the following restrictions:
 
 #include "SpuCollisionShapes.h"
 
-#if 0
-int  SpuInternalShape::dmaShapeTypeIntoShapeStorage (ppu_address_t ppuAddress, uint32_t dmaTag)
-{
-	m_ppuConvexShapePtr = ppuAddress;
-	/* This assumes that m_shapeType is the first entry in the struct */
-	cellDmaSmallGet (m_collisionShape, m_ppuConvexShapePtr, 4, DMA_TAG(dmaTag), 0, 0);
-	cellDmaWaitTagStatusAll(DMA_MASK(dmaTag));
-	return m_collisionShape->getShapeType ();
-}
-#endif
-
-void SpuInternalShape::dmaShapeData (ppu_address_t ppuAddress, int shapeType, uint32_t dmaTag)
-{
-	m_ppuConvexShapePtr = ppuAddress;
-	uint32_t shapeSize = getShapeTypeSize (shapeType);
-	cellDmaGet (m_collisionShape, m_ppuConvexShapePtr, shapeSize, DMA_TAG(dmaTag), 0, 0);
-}
-
-
-void SpuInternalConvexHull::dmaPointsData (const SpuInternalShape& shape, uint32_t dmaTag)
-{
-	btAssert (shape.m_collisionShape->getShapeType () == CONVEX_HULL_SHAPE_PROXYTYPE);
-	btConvexHullShape* convexHullShape = (btConvexHullShape*)shape.m_collisionShape;
-	ppu_address_t ppuPointsAddress = (ppu_address_t)convexHullShape->getPoints();
-	int numPoints = convexHullShape->getNumPoints ();
-	dmaPointsData (ppuPointsAddress, numPoints, dmaTag);
-}
-
-void SpuInternalConvexHull::dmaPointsData (ppu_address_t ppuPointsAddress, int numPoints, uint32_t dmaTag)
-{
-	m_ppuPointsPtr = ppuPointsAddress;
-	m_numPoints = numPoints;
-	cellDmaGet (m_points, m_ppuPointsPtr, sizeof(btVector3)*numPoints, DMA_TAG(dmaTag), 0, 0);
-}
-
-void SpuCompoundShape::dmaChildShapeInfo (btCompoundShape* compoundShape, uint32_t dmaTag)
-{
-	register int dmaSize;
-	register ppu_address_t dmaPpuAddress;
-	int childShapeCount = compoundShape->getNumChildShapes();
-	dmaSize = childShapeCount * sizeof(btCompoundShapeChild);
-	dmaPpuAddress = (ppu_address_t)compoundShape->getChildList();
-	cellDmaGet(&m_subshapes[0], dmaPpuAddress, dmaSize, DMA_TAG(dmaTag), 0, 0);
-}
-
-void SpuCompoundShape::dmaChildShape (int childShape,
-							SpuInternalShape* localShape,
-							SpuInternalConvexHull* localShapeHull,
-							uint32_t dmaTag)
-{
-	btCompoundShapeChild& compoundChildShape = m_subshapes[childShape];
-	localShape->dmaShapeData ((ppu_address_t)compoundChildShape.m_childShape, compoundChildShape.m_childShapeType, dmaTag);
-	cellDmaWaitTagStatusAll (DMA_MASK(dmaTag));
-	if (compoundChildShape.m_childShapeType == CONVEX_HULL_SHAPE_PROXYTYPE)
-	{
-		localShapeHull->dmaPointsData (*localShape, dmaTag);
-	}
-}
-
-
-void dmaBvhShapeData (bvhMeshShape_LocalStoreMemory* bvhMeshShape, btBvhTriangleMeshShape* triMeshShape)
-{
-	register int dmaSize;
-	register ppu_address_t	dmaPpuAddress2;
-
-	dmaSize = sizeof(btTriangleIndexVertexArray);
-	dmaPpuAddress2 = reinterpret_cast<ppu_address_t>(triMeshShape->getMeshInterface());
-	//	spu_printf("trimeshShape->getMeshInterface() == %llx\n",dmaPpuAddress2);
-#ifdef __SPU__
-	cellDmaGet(&bvhMeshShape->gTriangleMeshInterfaceStorage, dmaPpuAddress2  , dmaSize, DMA_TAG(1), 0, 0);
-	bvhMeshShape->gTriangleMeshInterfacePtr = &bvhMeshShape->gTriangleMeshInterfaceStorage;
-#else
-	bvhMeshShape->gTriangleMeshInterfacePtr = (btTriangleIndexVertexArray*)cellDmaGetReadOnly(&bvhMeshShape->gTriangleMeshInterfaceStorage, dmaPpuAddress2  , dmaSize, DMA_TAG(1), 0, 0);
-#endif
-
-	//cellDmaWaitTagStatusAll(DMA_MASK(1));
-	
-	///now DMA over the BVH
-	
-	dmaSize = sizeof(btOptimizedBvh);
-	dmaPpuAddress2 = reinterpret_cast<ppu_address_t>(triMeshShape->getOptimizedBvh());
-	//spu_printf("trimeshShape->getOptimizedBvh() == %llx\n",dmaPpuAddress2);
-	cellDmaGet(&bvhMeshShape->gOptimizedBvh, dmaPpuAddress2  , dmaSize, DMA_TAG(2), 0, 0);
-	//cellDmaWaitTagStatusAll(DMA_MASK(2));
-	cellDmaWaitTagStatusAll(DMA_MASK(1) | DMA_MASK(2));
-}
-
-void dmaBvhIndexedMesh (btIndexedMesh* IndexMesh, IndexedMeshArray& indexArray, int index, uint32_t dmaTag)
-{		
-	cellDmaGet(IndexMesh, (ppu_address_t)&indexArray[index]  , sizeof(btIndexedMesh), DMA_TAG(dmaTag), 0, 0);
-	
-}
-
-void dmaBvhSubTreeHeaders (btBvhSubtreeInfo* subTreeHeaders, ppu_address_t subTreePtr, int batchSize, uint32_t dmaTag)
-{
-	cellDmaGet(subTreeHeaders, subTreePtr, batchSize * sizeof(btBvhSubtreeInfo), DMA_TAG(dmaTag), 0, 0);
-}
-
-void dmaBvhSubTreeNodes (btQuantizedBvhNode* nodes, const btBvhSubtreeInfo& subtree, QuantizedNodeArray&	nodeArray, int dmaTag)
-{
-	cellDmaGet(nodes, reinterpret_cast<ppu_address_t>(&nodeArray[subtree.m_rootNodeIndex]) , subtree.m_subtreeSize* sizeof(btQuantizedBvhNode), DMA_TAG(2), 0, 0);
-}
-
-
-void SpuBvhMeshShape::dmaMeshInterfaceAndOptimizedBvh (const SpuInternalShape& triangleMeshShape, uint32_t dmaTag1, uint32_t dmaTag2)
-{
-	register int dmaSize;
-	register ppu_address_t dmaPpuAddress;
-
-	btBvhTriangleMeshShape* triMeshShape = (btBvhTriangleMeshShape*)triangleMeshShape.m_collisionShape;
-
-	// DMA: triangle mesh interface
-	dmaSize = sizeof(btTriangleIndexVertexArray);
-	dmaPpuAddress = reinterpret_cast<ppu_address_t>(triMeshShape->getMeshInterface());
-#ifdef __SPU__
-	cellDmaGet(&m_triangleMeshInterfaceBuffer, dmaPpuAddress, dmaSize, DMA_TAG(dmaTag1), 0, 0);
-#else
-	m_triangleMeshInterface = (btTriangleIndexVertexArray*)cellDmaGetReadOnly(&m_triangleMeshInterfaceBuffer, dmaPpuAddress, dmaSize, DMA_TAG(dmaTag1), 0, 0);
-#endif
-
-	//cellDmaWaitTagStatusAll(DMA_MASK(dmaTag1));
-	
-	// DMA: btOptimizedBvh
-	dmaSize = sizeof(btOptimizedBvh);
-	dmaPpuAddress = reinterpret_cast<ppu_address_t>(triMeshShape->getOptimizedBvh());
-	cellDmaGet(m_optimizedBvh, dmaPpuAddress  , dmaSize, DMA_TAG(dmaTag2), 0, 0);
-
-	//cellDmaWaitTagStatusAll(DMA_MASK(dmaTag2));
-
-	// wait for both triangle mesh interface and optimized bvh 
-	cellDmaWaitTagStatusAll(DMA_MASK(dmaTag1) | DMA_MASK(dmaTag2));
-}
-
-void SpuBvhMeshShape::dmaIndexedMesh (int index, uint32_t dmaTag)
-{
-	cellDmaGet(&m_indexMesh, (ppu_address_t)&m_triangleMeshInterface->getIndexedMeshArray()[index]  , sizeof(btIndexedMesh), DMA_TAG(dmaTag), 0, 0);
-}
-
-void SpuBvhMeshShape::dmaSubTreeHeaders (ppu_address_t subTreePtr, int numHeaders, uint32_t dmaTag)
-{
-	cellDmaGet(&m_subtreeHeaders[0], subTreePtr, numHeaders * sizeof(btBvhSubtreeInfo), DMA_TAG(dmaTag), 0, 0);
-}
-
-void SpuBvhMeshShape::dmaSubTreeNodes (const btBvhSubtreeInfo& subtree, QuantizedNodeArray&	nodeArray, int dmaTag)
-{
-	cellDmaGet(&m_subtreeNodes[0], reinterpret_cast<ppu_address_t>(&nodeArray[subtree.m_rootNodeIndex]) , subtree.m_subtreeSize* sizeof(btQuantizedBvhNode), DMA_TAG(dmaTag), 0, 0);
-}
-
-
 btPoint3 localGetSupportingVertexWithoutMargin(int shapeType, void* shape, const btVector3& localDir,struct	SpuConvexPolyhedronVertexData* convexVertexData)//, int *featureIndex)
 {
     switch (shapeType)
@@ -445,6 +296,49 @@ void computeAabb (btVector3& aabbMin, btVector3& aabbMax, btConvexInternalShape*
 	//	spu_printf("SPU: unsupported shapetype %d in AABB calculation\n");
 		}
 	};
+}
+
+void dmaBvhShapeData (bvhMeshShape_LocalStoreMemory* bvhMeshShape, btBvhTriangleMeshShape* triMeshShape)
+{
+	register int dmaSize;
+	register ppu_address_t	dmaPpuAddress2;
+
+	dmaSize = sizeof(btTriangleIndexVertexArray);
+	dmaPpuAddress2 = reinterpret_cast<ppu_address_t>(triMeshShape->getMeshInterface());
+	//	spu_printf("trimeshShape->getMeshInterface() == %llx\n",dmaPpuAddress2);
+#ifdef __SPU__
+	cellDmaGet(&bvhMeshShape->gTriangleMeshInterfaceStorage, dmaPpuAddress2  , dmaSize, DMA_TAG(1), 0, 0);
+	bvhMeshShape->gTriangleMeshInterfacePtr = &bvhMeshShape->gTriangleMeshInterfaceStorage;
+#else
+	bvhMeshShape->gTriangleMeshInterfacePtr = (btTriangleIndexVertexArray*)cellDmaGetReadOnly(&bvhMeshShape->gTriangleMeshInterfaceStorage, dmaPpuAddress2  , dmaSize, DMA_TAG(1), 0, 0);
+#endif
+
+	//cellDmaWaitTagStatusAll(DMA_MASK(1));
+	
+	///now DMA over the BVH
+	
+	dmaSize = sizeof(btOptimizedBvh);
+	dmaPpuAddress2 = reinterpret_cast<ppu_address_t>(triMeshShape->getOptimizedBvh());
+	//spu_printf("trimeshShape->getOptimizedBvh() == %llx\n",dmaPpuAddress2);
+	cellDmaGet(&bvhMeshShape->gOptimizedBvh, dmaPpuAddress2  , dmaSize, DMA_TAG(2), 0, 0);
+	//cellDmaWaitTagStatusAll(DMA_MASK(2));
+	cellDmaWaitTagStatusAll(DMA_MASK(1) | DMA_MASK(2));
+}
+
+void dmaBvhIndexedMesh (btIndexedMesh* IndexMesh, IndexedMeshArray& indexArray, int index, uint32_t dmaTag)
+{		
+	cellDmaGet(IndexMesh, (ppu_address_t)&indexArray[index]  , sizeof(btIndexedMesh), DMA_TAG(dmaTag), 0, 0);
+	
+}
+
+void dmaBvhSubTreeHeaders (btBvhSubtreeInfo* subTreeHeaders, ppu_address_t subTreePtr, int batchSize, uint32_t dmaTag)
+{
+	cellDmaGet(subTreeHeaders, subTreePtr, batchSize * sizeof(btBvhSubtreeInfo), DMA_TAG(dmaTag), 0, 0);
+}
+
+void dmaBvhSubTreeNodes (btQuantizedBvhNode* nodes, const btBvhSubtreeInfo& subtree, QuantizedNodeArray&	nodeArray, int dmaTag)
+{
+	cellDmaGet(nodes, reinterpret_cast<ppu_address_t>(&nodeArray[subtree.m_rootNodeIndex]) , subtree.m_subtreeSize* sizeof(btQuantizedBvhNode), DMA_TAG(2), 0, 0);
 }
 
 ///getShapeTypeSize could easily be optimized, but it is not likely a bottleneck
