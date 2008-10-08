@@ -28,9 +28,24 @@ ATTRIBUTE_ALIGNED16(class) btConvexPointCloudShape : public btPolyhedralConvexSh
 public:
 	BT_DECLARE_ALIGNED_ALLOCATOR();
 
-	btConvexPointCloudShape(btVector3* points,int numPoints);
+	btConvexPointCloudShape(btVector3* points,int numPoints, bool computeAabb = true)
+	{
+		m_shapeType = CONVEX_POINT_CLOUD_SHAPE_PROXYTYPE;
+		m_points = points;
+		m_numPoints = numPoints;
 
-	void setPoints (btVector3* points, int numPoints);
+		if (computeAabb)
+			recalcLocalAabb();
+	}
+
+	void setPoints (btVector3* points, int numPoints, bool computeAabb = true)
+	{
+		m_points = points;
+		m_numPoints = numPoints;
+
+		if (computeAabb)
+			recalcLocalAabb();
+	}
 
 	btPoint3* getPoints()
 	{
@@ -47,9 +62,11 @@ public:
 		return m_numPoints;
 	}
 
+#ifndef __SPU__
 	virtual btVector3	localGetSupportingVertex(const btVector3& vec)const;
 	virtual btVector3	localGetSupportingVertexWithoutMargin(const btVector3& vec)const;
 	virtual void	batchedUnitVectorGetSupportingVertexWithoutMargin(const btVector3* vectors,btVector3* supportVerticesOut,int numVectors) const;
+#endif
 
 
 	//debugging

@@ -31,17 +31,40 @@ protected:
 	btVector3	m_localAabbMax;
 	bool		m_isLocalAabbValid;
 
-	btPolyhedralConvexShape();
+	btPolyhedralConvexShape() :btConvexInternalShape(),
+m_localAabbMin(1,1,1),
+m_localAabbMax(-1,-1,-1),
+m_isLocalAabbValid(false),
+m_optionalHull(0)
+{
+
+}
 public:
 
 	
 
 	//brute force implementations
+
 	virtual btVector3	localGetSupportingVertexWithoutMargin(const btVector3& vec)const;
 	virtual void	batchedUnitVectorGetSupportingVertexWithoutMargin(const btVector3* vectors,btVector3* supportVerticesOut,int numVectors) const;
+
 	
 	virtual void	calculateLocalInertia(btScalar mass,btVector3& inertia) const;
 
+
+	void setCachedLocalAabb (const btVector3& aabbMin, const btVector3& aabbMax)
+	{
+		m_isLocalAabbValid = true;
+		m_localAabbMin = aabbMin;
+		m_localAabbMax = aabbMax;
+	}
+
+	inline void getCachedLocalAabb (btVector3& aabbMin, btVector3& aabbMax) const
+	{
+		btAssert(m_isLocalAabbValid);
+		aabbMin = m_localAabbMin;
+		aabbMax = m_localAabbMax;
+	}
 
 	inline void getNonvirtualAabb(const btTransform& trans,btVector3& aabbMin,btVector3& aabbMax, btScalar margin) const
 	{
