@@ -21,7 +21,7 @@ subject to the following restrictions:
 
 
 #if defined(DEBUG) || defined (_DEBUG)
-#define TEST_NON_VIRTUAL 1
+//#define TEST_NON_VIRTUAL 1
 #include <stdio.h> //for debug printf
 #ifdef __SPU__
 #include <spu_printf.h>
