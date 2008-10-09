@@ -44,6 +44,7 @@ struct btContactSolverInfoData
 	btScalar	m_warmstartingFactor;
 
 	int			m_solverMode;
+	int	m_restingContactRestitutionThreshold;
 
 
 };
@@ -69,6 +70,7 @@ struct btContactSolverInfo : public btContactSolverInfoData
 		m_linearSlop = btScalar(0.0);
 		m_warmstartingFactor=btScalar(0.85);
 		m_solverMode = SOLVER_RANDMIZE_ORDER | SOLVER_CACHE_FRIENDLY | SOLVER_USE_WARMSTARTING;
+		m_restingContactRestitutionThreshold = 2;//resting contact lifetime threshold to disable restitution
 	}
 };
 
