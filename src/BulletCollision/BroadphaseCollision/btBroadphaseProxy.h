@@ -17,6 +17,7 @@ subject to the following restrictions:
 #define BROADPHASE_PROXY_H
 
 #include "LinearMath/btScalar.h" //for SIMD_FORCE_INLINE
+#include "LinearMath/btVector3.h"
 #include "LinearMath/btAlignedAllocator.h"
 
 
@@ -90,6 +91,9 @@ BT_DECLARE_ALIGNED_ALLOCATOR();
 	        AllFilter = -1 //all bits sets: DefaultFilter | StaticFilter | KinematicFilter | DebrisFilter | SensorTrigger
 	};
 
+	btVector3	m_aabbMin;
+	btVector3	m_aabbMax;
+
 	//Usually the client btCollisionObject or Rigidbody class
 	void*	m_clientObject;
 
@@ -111,8 +115,10 @@ BT_DECLARE_ALIGNED_ALLOCATOR();
 	{
 	}
 
-	btBroadphaseProxy(void* userPtr,short int collisionFilterGroup, short int collisionFilterMask,void* multiSapParentProxy=0)
-		:m_clientObject(userPtr),
+	btBroadphaseProxy(const btVector3& aabbMin,const btVector3& aabbMax,void* userPtr,short int collisionFilterGroup, short int collisionFilterMask,void* multiSapParentProxy=0)
+		:m_aabbMin(aabbMin),
+		m_aabbMax(aabbMax),
+		m_clientObject(userPtr),
 		m_collisionFilterGroup(collisionFilterGroup),
 		m_collisionFilterMask(collisionFilterMask)
 	{

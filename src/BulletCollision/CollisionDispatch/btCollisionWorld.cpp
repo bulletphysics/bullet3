@@ -226,6 +226,7 @@ void	btCollisionWorld::rayTestSingle(const btTransform& rayFromTrans,const btTra
 
 	if (collisionShape->isConvex())
 	{
+		BT_PROFILE("rayTestConvex");
 		btConvexCast::CastResult castResult;
 		castResult.m_fraction = resultCallback.m_closestHitFraction;
 
@@ -269,6 +270,7 @@ void	btCollisionWorld::rayTestSingle(const btTransform& rayFromTrans,const btTra
 	} else {
 		if (collisionShape->isConcave())
 		{
+			BT_PROFILE("rayTestConcave");
 			if (collisionShape->getShapeType()==TRIANGLE_MESH_SHAPE_PROXYTYPE)
 			{
 				///optimized version for btBvhTriangleMeshShape
@@ -374,6 +376,7 @@ void	btCollisionWorld::rayTestSingle(const btTransform& rayFromTrans,const btTra
 				triangleMesh->processAllTriangles(&rcb,rayAabbMinLocal,rayAabbMaxLocal);
 			}
 		} else {
+			BT_PROFILE("rayTestCompound");
 			//todo: use AABB tree or other BVH acceleration structure!
 			if (collisionShape->isCompound())
 			{
@@ -598,6 +601,7 @@ void	btCollisionWorld::objectQuerySingle(const btConvexShape* castShape,const bt
 
 void	btCollisionWorld::rayTest(const btVector3& rayFromWorld, const btVector3& rayToWorld, RayResultCallback& resultCallback) const
 {
+	BT_PROFILE("rayTest");
 
 
 	btTransform	rayFromTrans,rayToTrans;
@@ -618,20 +622,25 @@ void	btCollisionWorld::rayTest(const btVector3& rayFromWorld, const btVector3& r
 
 		btCollisionObject*	collisionObject= m_collisionObjects[i];
 		//only perform raycast if filterMask matches
-		if(resultCallback.needsCollision(collisionObject->getBroadphaseHandle())) {
+		if(resultCallback.needsCollision(collisionObject->getBroadphaseHandle())) 
+		{
 			//RigidcollisionObject* collisionObject = ctrl->GetRigidcollisionObject();
-			btVector3 collisionObjectAabbMin,collisionObjectAabbMax;
-			collisionObject->getCollisionShape()->getAabb(collisionObject->getWorldTransform(),collisionObjectAabbMin,collisionObjectAabbMax);
+			//btVector3 collisionObjectAabbMin,collisionObjectAabbMax;
+			//collisionObject->getCollisionShape()->getAabb(collisionObject->getWorldTransform(),collisionObjectAabbMin,collisionObjectAabbMax);
+			//getBroadphase()->getAabb(collisionObject->getBroadphaseHandle(),collisionObjectAabbMin,collisionObjectAabbMax);
 
 			btScalar hitLambda = resultCallback.m_closestHitFraction;
 			btVector3 hitNormal;
-			if (btRayAabb(rayFromWorld,rayToWorld,collisionObjectAabbMin,collisionObjectAabbMax,hitLambda,hitNormal))
 			{
-				rayTestSingle(rayFromTrans,rayToTrans,
-					collisionObject,
-						collisionObject->getCollisionShape(),
-						collisionObject->getWorldTransform(),
-						resultCallback);
+				if (btRayAabb(rayFromWorld,rayToWorld,collisionObject->getBroadphaseHandle()->m_aabbMin,collisionObject->getBroadphaseHandle()->m_aabbMax,hitLambda,hitNormal))
+				{
+					rayTestSingle(rayFromTrans,rayToTrans,
+						collisionObject,
+							collisionObject->getCollisionShape(),
+							collisionObject->getWorldTransform(),
+							resultCallback);
+				}
+
 			}
 		}
 

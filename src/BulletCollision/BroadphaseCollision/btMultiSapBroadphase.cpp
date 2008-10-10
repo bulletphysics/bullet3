@@ -149,6 +149,14 @@ amin.getZ() >= bmin.getZ() && amax.getZ() <= bmax.getZ();
 
 
 
+void	btMultiSapBroadphase::getAabb(btBroadphaseProxy* proxy,btVector3& aabbMin, btVector3& aabbMax ) const
+{
+	btMultiSapProxy* multiProxy = static_cast<btMultiSapProxy*>(proxy);
+	aabbMin = multiProxy->m_aabbMin;
+	aabbMax = multiProxy->m_aabbMax;
+}
+
+
 //#include <stdio.h>
 
 void	btMultiSapBroadphase::setAabb(btBroadphaseProxy* proxy,const btVector3& aabbMin,const btVector3& aabbMax, btDispatcher* dispatcher)

@@ -681,16 +681,17 @@ void	processRaycastTask(void* userPtr, void* lsMemory)
 
 	//spu_printf("in processRaycastTask %d\n", taskDesc.numSpuCollisionObjectWrappers);
 	/* for each object */
+	RaycastGatheredObjectData gatheredObjectData;
 	for (int objectId = 0; objectId < taskDesc.numSpuCollisionObjectWrappers; objectId++)
 	{
 		//spu_printf("%d / %d\n", objectId, taskDesc.numSpuCollisionObjectWrappers);
-		RaycastGatheredObjectData gatheredObjectData;
+		
 		/* load initial collision shape */
 		GatherCollisionObjectAndShapeData (&gatheredObjectData, localMemory, (ppu_address_t)&cows[objectId]);
 
 		if (btBroadphaseProxy::isConcave (gatheredObjectData.m_shapeType))
 		{
-			SpuRaycastTaskWorkUnitOut tWorkUnitsOut[taskDesc.numWorkUnits];
+			SpuRaycastTaskWorkUnitOut tWorkUnitsOut[SPU_RAYCAST_WORK_UNITS_PER_TASK];
 			for (int rayId = 0; rayId < taskDesc.numWorkUnits; rayId++)
 			{
 				tWorkUnitsOut[rayId].hitFraction = 1.0;
@@ -721,12 +722,13 @@ void	processRaycastTask(void* userPtr, void* lsMemory)
 				cellDmaWaitTagStatusAll(DMA_MASK(1));
 			}
 		} else if (btBroadphaseProxy::isConvex (gatheredObjectData.m_shapeType)) {
+
+			btVector3 objectBoxMin, objectBoxMax;
+			computeAabb (objectBoxMin, objectBoxMax, (btConvexInternalShape*)gatheredObjectData.m_spuCollisionShape, gatheredObjectData.m_collisionShape, gatheredObjectData.m_shapeType, gatheredObjectData.m_worldTransform);
 			for (unsigned int rayId = 0; rayId < taskDesc.numWorkUnits; rayId++)
 			{
 				const SpuRaycastTaskWorkUnit& workUnit = taskDesc.workUnits[rayId];
-				btVector3 objectBoxMin, objectBoxMax;
-				computeAabb (objectBoxMin, objectBoxMax, (btConvexInternalShape*)gatheredObjectData.m_spuCollisionShape, gatheredObjectData.m_collisionShape, gatheredObjectData.m_shapeType, gatheredObjectData.m_worldTransform);
-
+			
 				btScalar ignored_param = 1.0;
 				btVector3 ignored_normal;
 				if (btRayAabb(workUnit.rayFrom, workUnit.rayTo, objectBoxMin, objectBoxMax, ignored_param, ignored_normal))

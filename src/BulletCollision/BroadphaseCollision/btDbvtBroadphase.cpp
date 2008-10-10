@@ -167,20 +167,23 @@ btBroadphaseProxy*				btDbvtBroadphase::createProxy(	const btVector3& aabbMin,
 																btDispatcher* /*dispatcher*/,
 																void* /*multiSapProxy*/)
 {
-btDbvtProxy*		proxy=new(btAlignedAlloc(sizeof(btDbvtProxy),16)) btDbvtProxy(	userPtr,
+btDbvtProxy*		proxy=new(btAlignedAlloc(sizeof(btDbvtProxy),16)) btDbvtProxy(	aabbMin,aabbMax,userPtr,
 																					collisionFilterGroup,
 																					collisionFilterMask);
-proxy->aabb			=	btDbvtVolume::FromMM(aabbMin,aabbMax);
+
+btDbvtAabbMm aabb = btDbvtVolume::FromMM(aabbMin,aabbMax);
+
+//bproxy->aabb			=	btDbvtVolume::FromMM(aabbMin,aabbMax);
 proxy->stage		=	m_stageCurrent;
 proxy->m_uniqueId	=	++m_gid;
-proxy->leaf			=	m_sets[0].insert(proxy->aabb,proxy);
+proxy->leaf			=	m_sets[0].insert(aabb,proxy);
 listappend(proxy,m_stageRoots[m_stageCurrent]);
 if(!m_deferedcollide)
 	{
 	btDbvtTreeCollider	collider(this);
 	collider.proxy=proxy;
-	btDbvt::collideTV(m_sets[0].m_root,proxy->aabb,collider);
-	btDbvt::collideTV(m_sets[1].m_root,proxy->aabb,collider);
+	btDbvt::collideTV(m_sets[0].m_root,aabb,collider);
+	btDbvt::collideTV(m_sets[1].m_root,aabb,collider);
 	}
 return(proxy);
 }
@@ -198,6 +201,13 @@ listremove(proxy,m_stageRoots[proxy->stage]);
 m_paircache->removeOverlappingPairsContainingProxy(proxy,dispatcher);
 btAlignedFree(proxy);
 m_needcleanup=true;
+}
+
+void	btDbvtBroadphase::getAabb(btBroadphaseProxy* absproxy,btVector3& aabbMin, btVector3& aabbMax ) const
+{
+	btDbvtProxy*						proxy=(btDbvtProxy*)absproxy;
+	aabbMin = proxy->m_aabbMin;
+	aabbMax = proxy->m_aabbMax;
 }
 
 //
@@ -224,8 +234,9 @@ if(NotEqual(aabb,proxy->leaf->volume))
 		++m_updates_call;
 		if(Intersect(proxy->leaf->volume,aabb))
 			{/* Moving				*/ 
-			const btVector3	delta=aabbMin-proxy->aabb.Mins();
-			btVector3		velocity(aabb.Extents()*m_prediction);
+
+			const btVector3	delta=aabbMin-proxy->m_aabbMin;
+			btVector3		velocity(((proxy->m_aabbMax-proxy->m_aabbMin)/2)*m_prediction);
 			if(delta[0]<0) velocity[0]=-velocity[0];
 			if(delta[1]<0) velocity[1]=-velocity[1];
 			if(delta[2]<0) velocity[2]=-velocity[2];
@@ -249,7 +260,8 @@ if(NotEqual(aabb,proxy->leaf->volume))
 			}	
 		}
 	listremove(proxy,m_stageRoots[proxy->stage]);
-	proxy->aabb		=	aabb;
+	proxy->m_aabbMin = aabbMin;
+	proxy->m_aabbMax = aabbMax;
 	proxy->stage	=	m_stageCurrent;
 	listappend(proxy,m_stageRoots[m_stageCurrent]);
 	if(docollide)
@@ -319,7 +331,8 @@ if(current)
 		btDbvt::collideTV(m_sets[1].m_root,current->aabb,collider);
 		#endif
 		m_sets[0].remove(current->leaf);
-		current->leaf	=	m_sets[1].insert(current->aabb,current);
+		ATTRIBUTE_ALIGNED16(btDbvtVolume)	curAabb=btDbvtVolume::FromMM(current->m_aabbMin,current->m_aabbMax);
+		current->leaf	=	m_sets[1].insert(curAabb,current);
 		current->stage	=	STAGECOUNT;	
 		current			=	next;
 		} while(current);

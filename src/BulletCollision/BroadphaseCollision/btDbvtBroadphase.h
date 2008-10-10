@@ -41,13 +41,13 @@ subject to the following restrictions:
 struct btDbvtProxy : btBroadphaseProxy
 {
 /* Fields		*/ 
-btDbvtAabbMm	aabb;
+//btDbvtAabbMm	aabb;
 btDbvtNode*		leaf;
 btDbvtProxy*	links[2];
 int				stage;
 /* ctor			*/ 
-btDbvtProxy(void* userPtr,short int collisionFilterGroup, short int collisionFilterMask) :
-	btBroadphaseProxy(userPtr,collisionFilterGroup,collisionFilterMask)
+btDbvtProxy(const btVector3& aabbMin,const btVector3& aabbMax,void* userPtr,short int collisionFilterGroup, short int collisionFilterMask) :
+	btBroadphaseProxy(aabbMin,aabbMax,userPtr,collisionFilterGroup,collisionFilterMask)
 	{
 	links[0]=links[1]=0;
 	}
@@ -105,6 +105,7 @@ void							optimize();
 btBroadphaseProxy*				createProxy(const btVector3& aabbMin,const btVector3& aabbMax,int shapeType,void* userPtr,short int collisionFilterGroup,short int collisionFilterMask,btDispatcher* dispatcher,void* multiSapProxy);
 void							destroyProxy(btBroadphaseProxy* proxy,btDispatcher* dispatcher);
 void							setAabb(btBroadphaseProxy* proxy,const btVector3& aabbMin,const btVector3& aabbMax,btDispatcher* dispatcher);
+virtual void	getAabb(btBroadphaseProxy* proxy,btVector3& aabbMin, btVector3& aabbMax ) const;
 void							calculateOverlappingPairs(btDispatcher* dispatcher);
 btOverlappingPairCache*			getOverlappingPairCache();
 const btOverlappingPairCache*	getOverlappingPairCache() const;

@@ -22,8 +22,6 @@ subject to the following restrictions:
 
 struct btSimpleBroadphaseProxy : public btBroadphaseProxy
 {
-	btVector3	m_min;
-	btVector3	m_max;
 	int			m_nextFree;
 	
 //	int			m_handleId;
@@ -32,8 +30,7 @@ struct btSimpleBroadphaseProxy : public btBroadphaseProxy
 	btSimpleBroadphaseProxy() {};
 
 	btSimpleBroadphaseProxy(const btPoint3& minpt,const btPoint3& maxpt,int shapeType,void* userPtr,short int collisionFilterGroup,short int collisionFilterMask,void* multiSapProxy)
-	:btBroadphaseProxy(userPtr,collisionFilterGroup,collisionFilterMask,multiSapProxy),
-	m_min(minpt),m_max(maxpt)		
+	:btBroadphaseProxy(minpt,maxpt,userPtr,collisionFilterGroup,collisionFilterMask,multiSapProxy)
 	{
 		(void)shapeType;
 	}
@@ -95,6 +92,12 @@ protected:
 		return proxy0;
 	}
 
+	inline const btSimpleBroadphaseProxy*	getSimpleProxyFromProxy(btBroadphaseProxy* proxy) const
+	{
+		const btSimpleBroadphaseProxy* proxy0 = static_cast<const btSimpleBroadphaseProxy*>(proxy);
+		return proxy0;
+	}
+
 
 	void	validate();
 
@@ -117,6 +120,7 @@ public:
 
 	virtual void	destroyProxy(btBroadphaseProxy* proxy,btDispatcher* dispatcher);
 	virtual void	setAabb(btBroadphaseProxy* proxy,const btVector3& aabbMin,const btVector3& aabbMax, btDispatcher* dispatcher);
+	virtual void	getAabb(btBroadphaseProxy* proxy,btVector3& aabbMin, btVector3& aabbMax ) const;
 		
 	btOverlappingPairCache*	getOverlappingPairCache()
 	{

@@ -62,7 +62,6 @@ public:
 		BP_FP_INT_TYPE m_minEdges[3], m_maxEdges[3];		// 6 * 2 = 12
 //		BP_FP_INT_TYPE m_uniqueId;
 		BP_FP_INT_TYPE m_pad;
-		
 		//void* m_pOwner; this is now in btBroadphaseProxy.m_clientObject
 	
 		SIMD_FORCE_INLINE void SetNextFree(BP_FP_INT_TYPE next) {m_minEdges[0] = next;}
@@ -108,7 +107,7 @@ protected:
 	//Overlap* AddOverlap(BP_FP_INT_TYPE handleA, BP_FP_INT_TYPE handleB);
 	//void RemoveOverlap(BP_FP_INT_TYPE handleA, BP_FP_INT_TYPE handleB);
 
-	void quantize(BP_FP_INT_TYPE* out, const btPoint3& point, int isMax) const;
+	
 
 	void sortMinDown(int axis, BP_FP_INT_TYPE edge, btDispatcher* dispatcher, bool updateOverlaps );
 	void sortMinUp(int axis, BP_FP_INT_TYPE edge, btDispatcher* dispatcher, bool updateOverlaps );
@@ -139,6 +138,11 @@ public:
 	virtual btBroadphaseProxy*	createProxy(  const btVector3& aabbMin,  const btVector3& aabbMax,int shapeType,void* userPtr ,short int collisionFilterGroup,short int collisionFilterMask,btDispatcher* dispatcher,void* multiSapProxy);
 	virtual void	destroyProxy(btBroadphaseProxy* proxy,btDispatcher* dispatcher);
 	virtual void	setAabb(btBroadphaseProxy* proxy,const btVector3& aabbMin,const btVector3& aabbMax,btDispatcher* dispatcher);
+	virtual void  getAabb(btBroadphaseProxy* proxy,btVector3& aabbMin, btVector3& aabbMax ) const;
+	
+	void quantize(BP_FP_INT_TYPE* out, const btPoint3& point, int isMax) const;
+	///unQuantize should be conservative: aabbMin/aabbMax should be larger then 'getAabb' result
+	void unQuantize(btBroadphaseProxy* proxy,btVector3& aabbMin, btVector3& aabbMax ) const;
 	
 	bool	testAabbOverlap(btBroadphaseProxy* proxy0,btBroadphaseProxy* proxy1);
 
@@ -234,10 +238,42 @@ template <typename BP_FP_INT_TYPE>
 void	btAxisSweep3Internal<BP_FP_INT_TYPE>::setAabb(btBroadphaseProxy* proxy,const btVector3& aabbMin,const btVector3& aabbMax,btDispatcher* dispatcher)
 {
 	Handle* handle = static_cast<Handle*>(proxy);
+	handle->m_aabbMin = aabbMin;
+	handle->m_aabbMax = aabbMax;
 	updateHandle(static_cast<BP_FP_INT_TYPE>(handle->m_uniqueId), aabbMin, aabbMax,dispatcher);
 
 }
 
+template <typename BP_FP_INT_TYPE>
+void btAxisSweep3Internal<BP_FP_INT_TYPE>::getAabb(btBroadphaseProxy* proxy,btVector3& aabbMin, btVector3& aabbMax ) const
+{
+	Handle* pHandle = static_cast<Handle*>(proxy);
+	aabbMin = pHandle->m_aabbMin;
+	aabbMax = pHandle->m_aabbMax;
+}
+
+
+template <typename BP_FP_INT_TYPE>
+void btAxisSweep3Internal<BP_FP_INT_TYPE>::unQuantize(btBroadphaseProxy* proxy,btVector3& aabbMin, btVector3& aabbMax ) const
+{
+	Handle* pHandle = static_cast<Handle*>(proxy);
+
+	unsigned short vecInMin[3];
+	unsigned short vecInMax[3];
+
+	vecInMin[0] = m_pEdges[0][pHandle->m_minEdges[0]].m_pos ;
+	vecInMax[0] = m_pEdges[0][pHandle->m_maxEdges[0]].m_pos +1 ;
+	vecInMin[1] = m_pEdges[1][pHandle->m_minEdges[1]].m_pos ;
+	vecInMax[1] = m_pEdges[1][pHandle->m_maxEdges[1]].m_pos +1 ;
+	vecInMin[2] = m_pEdges[2][pHandle->m_minEdges[2]].m_pos ;
+	vecInMax[2] = m_pEdges[2][pHandle->m_maxEdges[2]].m_pos +1 ;
+	
+	aabbMin.setValue((btScalar)(vecInMin[0]) / (m_quantize.getX()),(btScalar)(vecInMin[1]) / (m_quantize.getY()),(btScalar)(vecInMin[2]) / (m_quantize.getZ()));
+	aabbMin += m_worldAabbMin;
+	
+	aabbMax.setValue((btScalar)(vecInMax[0]) / (m_quantize.getX()),(btScalar)(vecInMax[1]) / (m_quantize.getY()),(btScalar)(vecInMax[2]) / (m_quantize.getZ()));
+	aabbMax += m_worldAabbMin;
+}
 
 
 
