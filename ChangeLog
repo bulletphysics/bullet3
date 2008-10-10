@@ -4,6 +4,8 @@ Primary author and maintainer: Erwin Coumans
 Todo: update changelog from April - July 2008
 See http://code.google.com/p/bullet/source/list for more complete log in Subversion
 
+2008 October 10
+	- Moved aabb to btBroadphaseProxy, improves rayTest dramatically. Further raytest improvements using the broadphase acceleration structures are planned
 
 2008 October 3
 	- Add support for autoconf automake
