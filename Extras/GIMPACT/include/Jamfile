@@ -1,4 +1,0 @@
-SubDir TOP Extras GIMPACT include ;
-
-
-Recurse InstallHeader : .h  ;
