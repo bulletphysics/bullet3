@@ -50,7 +50,7 @@
 #define SPE_CACHELINE_SIZE 		128
 #define SPE_CACHE_SET_TAGID(set) 	15
 ///make sure that spe_cache.h is below those defines!
-#include "spe_cache.h"
+#include "software_cache/cache/include/spe_cache.h"
 
 
 int g_CacheMisses=0;
@@ -101,8 +101,8 @@ bool gUseEpa = false;
 ///Make sure no destructors are called on this memory
 struct	CollisionTask_LocalStoreMemory
 {
-	ATTRIBUTE_ALIGNED16(char	bufferProxy0[16]);
-	ATTRIBUTE_ALIGNED16(char	bufferProxy1[16]);
+	ATTRIBUTE_ALIGNED16(char	bufferProxy0[sizeof(btBroadphaseProxy)+16]);
+	ATTRIBUTE_ALIGNED16(char	bufferProxy1[sizeof(btBroadphaseProxy)+16]);
 
 	ATTRIBUTE_ALIGNED16(btBroadphaseProxy*	gProxyPtr0);
 	ATTRIBUTE_ALIGNED16(btBroadphaseProxy*	gProxyPtr1);
@@ -901,18 +901,9 @@ void	processCollisionTask(void* userPtr, void* lsMemPtr)
 
 					if (userInfo == 2 && pair.m_algorithm && pair.m_pProxy0 && pair.m_pProxy1)
 					{
-
-
-						
-							dmaSize = sizeof(SpuContactManifoldCollisionAlgorithm);
-
-							dmaPpuAddress2 = (ppu_address_t)pair.m_algorithm;
-
-							cellDmaGet(&lsMem.gSpuContactManifoldAlgo, dmaPpuAddress2  , dmaSize, DMA_TAG(1), 0, 0);
-							//cellDmaWaitTagStatusAll(DMA_MASK(1));
-						
-
-
+						dmaSize = sizeof(SpuContactManifoldCollisionAlgorithm);
+						dmaPpuAddress2 = (ppu_address_t)pair.m_algorithm;
+						cellDmaGet(&lsMem.gSpuContactManifoldAlgo, dmaPpuAddress2  , dmaSize, DMA_TAG(1), 0, 0);
 
 						//snPause();
 
@@ -922,27 +913,21 @@ void	processCollisionTask(void* userPtr, void* lsMemPtr)
 
 						
 						dmaSize = sizeof(btBroadphaseProxy);
-
 						dmaPpuAddress2 = (ppu_address_t)pair.m_pProxy0;
+						//stallingUnalignedDmaSmallGet(lsMem.gProxyPtr0, dmaPpuAddress2  , dmaSize);
+						void* tmpPtr = cellDmaSmallGetReadOnly(&lsMem.bufferProxy0, dmaPpuAddress2  , dmaSize,DMA_TAG(1), 0, 0);
+						lsMem.gProxyPtr0 = (btBroadphaseProxy*) tmpPtr;
 
-						lsMem.gProxyPtr0 = (btBroadphaseProxy*) lsMem.bufferProxy0;
-						stallingUnalignedDmaSmallGet(lsMem.gProxyPtr0, dmaPpuAddress2  , dmaSize);
+						dmaSize = sizeof(btBroadphaseProxy);
+						dmaPpuAddress2 = (ppu_address_t)pair.m_pProxy1;
+						tmpPtr  = cellDmaSmallGetReadOnly(&lsMem.bufferProxy1, dmaPpuAddress2  , dmaSize,DMA_TAG(1), 0, 0);
+
+						lsMem.gProxyPtr1 = (btBroadphaseProxy*)tmpPtr;
+
+						cellDmaWaitTagStatusAll(DMA_MASK(1));
 
 						collisionPairInput.m_persistentManifoldPtr = (ppu_address_t) lsMem.gSpuContactManifoldAlgo.getContactManifoldPtr();
 						collisionPairInput.m_isSwapped = false;
-						
-						
-						dmaSize = sizeof(btBroadphaseProxy);
-
-						dmaPpuAddress2 = (ppu_address_t)pair.m_pProxy1;
-
-						lsMem.gProxyPtr1 = (btBroadphaseProxy*) lsMem.bufferProxy1;
-						stallingUnalignedDmaSmallGet(lsMem.gProxyPtr1, dmaPpuAddress2  , dmaSize);
-						
-
-						//btCollisionObject* colObj0 = (btCollisionObject*)gProxy0.m_clientObject;
-						//btCollisionObject* colObj1 = (btCollisionObject*)gProxy1.m_clientObject;
-						
 
 						if (1)
 						{
@@ -968,7 +953,7 @@ void	processCollisionTask(void* userPtr, void* lsMemPtr)
 							
 							
 							
-							cellDmaWaitTagStatusAll(DMA_MASK(1));
+							//??cellDmaWaitTagStatusAll(DMA_MASK(1));
 							
 
 							if (1)

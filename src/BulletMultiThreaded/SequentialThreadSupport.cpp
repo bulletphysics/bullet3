@@ -87,3 +87,7 @@ void SequentialThreadSupport::stopSPU()
 	m_activeSpuStatus.clear();
 }
 
+void SequentialThreadSupport::setNumTasks(int numTasks)
+{
+	printf("SequentialThreadSupport::setNumTasks(%d) is not implemented and has no effect\n",numTasks);
+}
