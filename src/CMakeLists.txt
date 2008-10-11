@@ -1,7 +1,5 @@
 if (CMAKE_SIZEOF_VOID_P MATCHES "8")
-SUBDIRS( BulletSoftBody BulletCollision BulletDynamics Linea
-rMath )
+SUBDIRS( BulletSoftBody BulletCollision BulletDynamics LinearMath )
 else (CMAKE_SIZEOF_VOID_P MATCHES "8")
-SUBDIRS( BulletMultiThreaded BulletSoftBody BulletCollision BulletDynamics Linea
-rMath )
+SUBDIRS( BulletMultiThreaded BulletSoftBody BulletCollision BulletDynamics LinearMath )
 endif (CMAKE_SIZEOF_VOID_P MATCHES "8")

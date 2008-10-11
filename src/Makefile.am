@@ -1,4 +1,4 @@
-noinst_LIBRARIES	= libbulletmath.a libbulletcollision.a libbulletdynamics.a libbulletsoftbody.a
+noinst_LIBRARIES	= libbulletmath.a libbulletcollision.a libbulletdynamics.a libbulletsoftbody.a libbulletmultithreaded.a
 
 libbulletmath_a_SOURCES	= \
 		LinearMath/btQuickprof.cpp \
@@ -188,8 +188,16 @@ libbulletcollision_a_SOURCES = \
 		BulletCollision/BroadphaseCollision/btBroadphaseProxy.h \
 		BulletCollision/BroadphaseCollision/btOverlappingPairCache.h \
 		BulletCollision/BroadphaseCollision/btBroadphaseInterface.h \
-		BulletCollision/BroadphaseCollision/btQuantizedBvh.h 
-
+		BulletCollision/BroadphaseCollision/btQuantizedBvh.h \
+		BulletCollision/Gimpact/btGImpactBvh.cpp\
+                BulletCollision/Gimpact/btGImpactQuantizedBvh.cpp\
+                BulletCollision/Gimpact/btTriangleShapeEx.cpp\
+                BulletCollision/Gimpact/btGImpactCollisionAlgorithm.cpp\
+                BulletCollision/Gimpact/btGImpactShape.cpp\
+                BulletCollision/Gimpact/gim_box_set.cpp\
+                BulletCollision/Gimpact/gim_contact.cpp\
+                BulletCollision/Gimpact/gim_memory.cpp\
+                BulletCollision/Gimpact/gim_tri_collision.cpp
 
 libbulletdynamics_a_SOURCES = \
 		BulletDynamics/Dynamics/btContinuousDynamicsWorld.cpp \
@@ -248,3 +256,65 @@ libbulletsoftbody_a_SOURCES = \
 		BulletSoftBody/btSoftBodyConcaveCollisionAlgorithm.h \
 		BulletSoftBody/btSoftRigidDynamicsWorld.h \
 		BulletSoftBody/btSoftBodyHelpers.h
+
+libbulletmultithreaded_a_SOURCES =\
+                BulletMultiThreaded/SpuCollisionObjectWrapper.cpp \
+                BulletMultiThreaded/SpuSampleTask/SpuSampleTask.cpp \
+                BulletMultiThreaded/SpuLibspe2Support.cpp \
+                BulletMultiThreaded/SpuBatchRaycaster.cpp \
+                BulletMultiThreaded/SpuNarrowPhaseCollisionTask/SpuGjkEpa2.cpp \
+                BulletMultiThreaded/SpuNarrowPhaseCollisionTask/SpuEpaPenetrationDepthSolver.cpp \
+                BulletMultiThreaded/SpuNarrowPhaseCollisionTask/SpuContactResult.cpp \
+                BulletMultiThreaded/SpuNarrowPhaseCollisionTask/SpuGatheringCollisionTask.cpp \
+                BulletMultiThreaded/SpuNarrowPhaseCollisionTask/SpuGjkPairDetector.cpp \
+                BulletMultiThreaded/SpuNarrowPhaseCollisionTask/SpuVoronoiSimplexSolver.cpp \
+                BulletMultiThreaded/SpuNarrowPhaseCollisionTask/SpuMinkowskiPenetrationDepthSolver.cpp \
+                BulletMultiThreaded/SpuNarrowPhaseCollisionTask/SpuCollisionShapes.cpp \
+                BulletMultiThreaded/SpuRaycastTask/SpuRaycastTask.cpp \
+                BulletMultiThreaded/SpuRaycastTask/SpuSubSimplexConvexCast.cpp \
+                BulletMultiThreaded/SpuParallelSolver.cpp \
+                BulletMultiThreaded/SpuSolverTask/SpuParallellSolverTask.cpp \
+                BulletMultiThreaded/btThreadSupportInterface.cpp \
+                BulletMultiThreaded/SequentialThreadSupport.cpp \
+                BulletMultiThreaded/SpuGatheringCollisionDispatcher.cpp \
+                BulletMultiThreaded/Win32ThreadSupport.cpp \
+                BulletMultiThreaded/SpuFakeDma.cpp \
+                BulletMultiThreaded/SpuRaycastTaskProcess.cpp \
+                BulletMultiThreaded/PosixThreadSupport.cpp \
+                BulletMultiThreaded/SpuCollisionTaskProcess.cpp \
+                BulletMultiThreaded/SpuContactManifoldCollisionAlgorithm.cpp \
+                BulletMultiThreaded/SpuSampleTaskProcess.cpp \
+                BulletMultiThreaded/SpuSampleTask/SpuSampleTask.h \
+                BulletMultiThreaded/PpuAddressSpace.h \
+                BulletMultiThreaded/SpuSampleTaskProcess.h \
+                BulletMultiThreaded/SequentialThreadSupport.h \
+                BulletMultiThreaded/PlatformDefinitions.h \
+                BulletMultiThreaded/Win32ThreadSupport.h \
+                BulletMultiThreaded/SpuContactManifoldCollisionAlgorithm.h \
+                BulletMultiThreaded/SpuParallelSolver.h \
+                BulletMultiThreaded/btThreadSupportInterface.h \
+                BulletMultiThreaded/SpuNarrowPhaseCollisionTask/SpuGatheringCollisionTask.h \
+                BulletMultiThreaded/SpuNarrowPhaseCollisionTask/SpuGjkEpa2.h \
+                BulletMultiThreaded/SpuNarrowPhaseCollisionTask/SpuEpaPenetrationDepthSolver.h \
+                BulletMultiThreaded/SpuNarrowPhaseCollisionTask/SpuVoronoiSimplexSolver.h \
+                BulletMultiThreaded/SpuNarrowPhaseCollisionTask/SpuConvexPenetrationDepthSolver.h \
+                BulletMultiThreaded/SpuNarrowPhaseCollisionTask/SpuPreferredPenetrationDirections.h \
+                BulletMultiThreaded/SpuNarrowPhaseCollisionTask/SpuCollisionShapes.h \
+                BulletMultiThreaded/SpuNarrowPhaseCollisionTask/SpuGjkPairDetector.h \
+                BulletMultiThreaded/SpuNarrowPhaseCollisionTask/SpuLocalSupport.h \
+                BulletMultiThreaded/SpuNarrowPhaseCollisionTask/SpuMinkowskiPenetrationDepthSolver.h \
+                BulletMultiThreaded/SpuNarrowPhaseCollisionTask/SpuContactResult.h \
+                BulletMultiThreaded/SpuRaycastTask/SpuSubSimplexConvexCast.h \
+                BulletMultiThreaded/SpuRaycastTask/SpuRaycastTask.h \
+                BulletMultiThreaded/SpuSolverTask/SpuParallellSolverTask.h \
+                BulletMultiThreaded/SpuGatheringCollisionDispatcher.h \
+		BulletMultiThreaded/SpuFakeDma.h \
+                BulletMultiThreaded/SpuSync.h \
+                BulletMultiThreaded/SpuCollisionObjectWrapper.h \
+                BulletMultiThreaded/SpuDoubleBuffer.h \
+                BulletMultiThreaded/SpuCollisionTaskProcess.h \
+                BulletMultiThreaded/SpuBatchRaycaster.h \
+                BulletMultiThreaded/PosixThreadSupport.h \
+                BulletMultiThreaded/SpuLibspe2Support.h \
+                BulletMultiThreaded/SpuRaycastTaskProcess.h
+

@@ -24,7 +24,6 @@ AllBulletDemo_SOURCES=\
 			Main.cpp
 AllBulletDemo_CXXFLAGS=\
 		       	-I@top_builddir@/src \
-		       	-I@top_builddir@/Extras/GIMPACT/include \
 		       	-I@top_builddir@/Extras/GIMPACTUtils \
 		       	-I@top_builddir@/Extras/ConvexDecomposition \
 		       	-I@top_builddir@/Extras \
@@ -32,4 +31,4 @@ AllBulletDemo_CXXFLAGS=\
 			-I@top_builddir@/Demos/SoftDemo \
 			-I@top_builddir@/Demos/Benchmarks \
 			$(CXXFLAGS)
-AllBulletDemo_LDADD=-L../OpenGL -lbulletopenglsupport -L../../src -L../../Extras -lgimpact -lgimpactutils -lconvexdecomposition -lbulletsoftbody -lbulletdynamics -lbulletcollision -lbulletmath -lglui @opengl_LIBS@
+AllBulletDemo_LDADD=-L../OpenGL -lbulletopenglsupport -L../../src -L../../Extras -lgimpactutils -lconvexdecomposition -lbulletsoftbody -lbulletdynamics -lbulletcollision -lbulletmath -lglui @opengl_LIBS@

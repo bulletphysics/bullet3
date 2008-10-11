@@ -73,85 +73,10 @@ libconvexdecomposition_a_SOURCES =\
 		ConvexDecomposition/bestfitobb.h\
 		ConvexDecomposition/meshvolume.h
 
-libgimpactutils_a_CXXFLAGS = ${CXXFLAGS} -IGIMPACT/include -I../src -IGIMPACTUtils -IConvexDecomposition
+libgimpactutils_a_CXXFLAGS = ${CXXFLAGS}  -I../src -IGIMPACTUtils -IConvexDecomposition
 libgimpactutils_a_SOURCES = GIMPACTUtils/btGImpactConvexDecompositionShape.cpp GIMPACTUtils/btGImpactConvexDecompositionShape.h
 
-libgimpact_a_CXXFLAGS = ${CXXFLAGS} -IGIMPACT/include -I../src
-libgimpact_a_SOURCES =\
-		GIMPACT/src/Bullet/btGImpactBvh.cpp\
-                GIMPACT/src/Bullet/btGImpactQuantizedBvh.cpp\
-                GIMPACT/src/Bullet/btTriangleShapeEx.cpp\
-                GIMPACT/src/Bullet/btGImpactCollisionAlgorithm.cpp\
-                GIMPACT/src/Bullet/btGImpactShape.cpp\
-                GIMPACT/src/core/gim_box_set.cpp\
-                GIMPACT/src/core/gim_contact.cpp\
-                GIMPACT/src/core/gim_memory.cpp\
-                GIMPACT/src/core/gim_tri_collision.cpp
-
 		      
-libbulletmultithreaded_a_CXXFLAGS = $(CXXFLAGS) -I../src -IBulletMultiThreaded
-libbulletmultithreaded_a_SOURCES =\
-		BulletMultiThreaded/SpuCollisionObjectWrapper.cpp \
-		BulletMultiThreaded/SpuSampleTask/SpuSampleTask.cpp \
-		BulletMultiThreaded/SpuLibspe2Support.cpp \
-		BulletMultiThreaded/SpuBatchRaycaster.cpp \
-		BulletMultiThreaded/SpuNarrowPhaseCollisionTask/SpuGjkEpa2.cpp \
-		BulletMultiThreaded/SpuNarrowPhaseCollisionTask/SpuEpaPenetrationDepthSolver.cpp \
-		BulletMultiThreaded/SpuNarrowPhaseCollisionTask/SpuContactResult.cpp \
-		BulletMultiThreaded/SpuNarrowPhaseCollisionTask/SpuGatheringCollisionTask.cpp \
-		BulletMultiThreaded/SpuNarrowPhaseCollisionTask/SpuGjkPairDetector.cpp \
-		BulletMultiThreaded/SpuNarrowPhaseCollisionTask/SpuVoronoiSimplexSolver.cpp \
-		BulletMultiThreaded/SpuNarrowPhaseCollisionTask/SpuMinkowskiPenetrationDepthSolver.cpp \
-		BulletMultiThreaded/SpuNarrowPhaseCollisionTask/SpuCollisionShapes.cpp \
-		BulletMultiThreaded/SpuRaycastTask/SpuRaycastTask.cpp \
-		BulletMultiThreaded/SpuRaycastTask/SpuSubSimplexConvexCast.cpp \
-		BulletMultiThreaded/SpuParallelSolver.cpp \
-		BulletMultiThreaded/SpuSolverTask/SpuParallellSolverTask.cpp \
-		BulletMultiThreaded/btThreadSupportInterface.cpp \
-		BulletMultiThreaded/SequentialThreadSupport.cpp \
-		BulletMultiThreaded/SpuGatheringCollisionDispatcher.cpp \
-		BulletMultiThreaded/Win32ThreadSupport.cpp \
-		BulletMultiThreaded/SpuFakeDma.cpp \
-		BulletMultiThreaded/SpuRaycastTaskProcess.cpp \
-		BulletMultiThreaded/PosixThreadSupport.cpp \
-		BulletMultiThreaded/SpuCollisionTaskProcess.cpp \
-		BulletMultiThreaded/SpuContactManifoldCollisionAlgorithm.cpp \
-		BulletMultiThreaded/SpuSampleTaskProcess.cpp \
-		BulletMultiThreaded/SpuSampleTask/SpuSampleTask.h \
-		BulletMultiThreaded/PpuAddressSpace.h \
-		BulletMultiThreaded/SpuSampleTaskProcess.h \
-		BulletMultiThreaded/SequentialThreadSupport.h \
-		BulletMultiThreaded/PlatformDefinitions.h \
-		BulletMultiThreaded/Win32ThreadSupport.h \
-		BulletMultiThreaded/SpuContactManifoldCollisionAlgorithm.h \
-		BulletMultiThreaded/SpuParallelSolver.h \
-		BulletMultiThreaded/btThreadSupportInterface.h \
-		BulletMultiThreaded/SpuNarrowPhaseCollisionTask/SpuGatheringCollisionTask.h \
-		BulletMultiThreaded/SpuNarrowPhaseCollisionTask/SpuGjkEpa2.h \
-		BulletMultiThreaded/SpuNarrowPhaseCollisionTask/SpuEpaPenetrationDepthSolver.h \
-		BulletMultiThreaded/SpuNarrowPhaseCollisionTask/SpuVoronoiSimplexSolver.h \
-		BulletMultiThreaded/SpuNarrowPhaseCollisionTask/SpuConvexPenetrationDepthSolver.h \
-		BulletMultiThreaded/SpuNarrowPhaseCollisionTask/SpuPreferredPenetrationDirections.h \
-		BulletMultiThreaded/SpuNarrowPhaseCollisionTask/SpuCollisionShapes.h \
-		BulletMultiThreaded/SpuNarrowPhaseCollisionTask/SpuGjkPairDetector.h \
-		BulletMultiThreaded/SpuNarrowPhaseCollisionTask/SpuLocalSupport.h \
-		BulletMultiThreaded/SpuNarrowPhaseCollisionTask/SpuMinkowskiPenetrationDepthSolver.h \
-		BulletMultiThreaded/SpuNarrowPhaseCollisionTask/SpuContactResult.h \
-		BulletMultiThreaded/SpuRaycastTask/SpuSubSimplexConvexCast.h \
-		BulletMultiThreaded/SpuRaycastTask/SpuRaycastTask.h \
-		BulletMultiThreaded/SpuSolverTask/SpuParallellSolverTask.h \
-		BulletMultiThreaded/SpuGatheringCollisionDispatcher.h \
-		BulletMultiThreaded/SpuFakeDma.h \
-		BulletMultiThreaded/SpuSync.h \
-		BulletMultiThreaded/SpuCollisionObjectWrapper.h \
-		BulletMultiThreaded/SpuDoubleBuffer.h \
-		BulletMultiThreaded/SpuCollisionTaskProcess.h \
-		BulletMultiThreaded/SpuBatchRaycaster.h \
-		BulletMultiThreaded/PosixThreadSupport.h \
-		BulletMultiThreaded/SpuLibspe2Support.h \
-		BulletMultiThreaded/SpuRaycastTaskProcess.h
-
-
 libxml_a_CFLAGS = -ILibXML/ -ILibXML/include/ -D_CRT_SECURE_NO_WARNINGS -D_CRT_SECURE_NO_DEPRECATE $(CXXFLAGS)
 libxml_a_SOURCES =\
 		LibXML/c14n.c\
