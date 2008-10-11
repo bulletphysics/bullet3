@@ -128,6 +128,17 @@ ADD_LIBRARY(LibBulletCollision
 				CollisionShapes/btTriangleMeshShape.h
 				CollisionShapes/btUniformScalingShape.cpp
 				CollisionShapes/btUniformScalingShape.h
+				Gimpact/btContactProcessing.cpp
+				Gimpact/btGImpactShape.cpp
+				Gimpact/gim_contact.cpp
+				Gimpact/btGImpactBvh.cpp
+				Gimpact/btGenericPoolAllocator.cpp
+				Gimpact/gim_memory.cpp
+				Gimpact/btGImpactCollisionAlgorithm.cpp
+				Gimpact/btTriangleShapeEx.cpp
+				Gimpact/gim_tri_collision.cpp
+				Gimpact/btGImpactQuantizedBvh.cpp
+				Gimpact/gim_box_set.cpp
 				NarrowPhaseCollision/btContinuousConvexCollision.cpp
 				NarrowPhaseCollision/btContinuousConvexCollision.h
 				NarrowPhaseCollision/btGjkEpa.cpp
