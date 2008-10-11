@@ -20,8 +20,8 @@ subject to the following restrictions:
 #include "LinearMath/btIDebugDraw.h"
 #include "LinearMath/btQuickprof.h"
 #include "LinearMath/btDefaultMotionState.h"
-#include "GIMPACT/Bullet/btGImpactShape.h"
-#include "GIMPACT/Bullet/btGImpactCollisionAlgorithm.h"
+#include "BulletCollision/Gimpact/btGImpactShape.h"
+#include "BulletCollision/Gimpact/btGImpactCollisionAlgorithm.h"
 
 
 

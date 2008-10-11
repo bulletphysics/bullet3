@@ -50,13 +50,12 @@ if $(GLUT.AVAILABLE) = "yes"
   rule FrameWorkDemo
   {
     Application $(<) : $(>) : noinstall console nomanifest ;
-    LinkWith $(<) :  GIMPACTUtils  GIMPACT  bulletopenglsupport bulletsoftbody  convexdecomposition   bulletdynamics bulletcollision bulletmath glui ;
+    LinkWith $(<) :  GIMPACTUtils   bulletopenglsupport bulletsoftbody  convexdecomposition   bulletdynamics bulletcollision bulletmath glui ;
     CFlags $(<) :
           [ FIncludes $(TOP)/Extras ]
          [ FIncludes $(TOP)/Demos/OpenGL ]
 	[ FIncludes $(TOP)/Extras/ConvexDecomposition ]
 	[ FIncludes $(TOP)/Extras/ConvexHull ]
-	  [ FIncludes $(TOP)/Extras/GIMPACT/include ]
           [ FIncludes $(TOP)/Extras/GIMPACTUtils ]
     ;
     MsvcIncDirs $(<) :
@@ -65,7 +64,6 @@ if $(GLUT.AVAILABLE) = "yes"
 	"../../Extras/ConvexHull"
         "../../Demos/OpenGL"
 	"../../Extras/ConvexDecomposition"
-	"../../Extras/GIMPACT/include"
         "../../Extras/GIMPACTUtils"
 ;
 

@@ -1,10 +1,8 @@
 SubDir TOP Extras GIMPACTUtils ;
 
-#IncludeDir Extras/GIMPACT/include ;
 
 Library GIMPACTUtils : [ Wildcard .  : */.h *.cpp ] : noinstall ;
-CFlags GIMPACTUtils : [ FIncludes $(TOP)/Extras/GIMPACT/include ] [ FIncludes $(TOP)/Extras/GIMPACTUtils ] [ FIncludes $(TOP)/Extras/ConvexDecomposition ] ;
-LibDepends GIMPACTUtils : GIMPACT ;
+CFlags GIMPACTUtils : [ FIncludes $(TOP)/Extras/GIMPACTUtils ] [ FIncludes $(TOP)/Extras/ConvexDecomposition ] ;
 LibDepends GIMPACTUtils : convexdecomposition ;
 
    MsvcIncDirs GIMPACTUtils : 

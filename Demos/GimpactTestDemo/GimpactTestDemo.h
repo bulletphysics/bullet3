@@ -27,16 +27,16 @@ class btDefaultCollisionConfiguration;
 
 #ifdef BULLET_GIMPACT
 
-#include "GIMPACT/Bullet/btGImpactCollisionAlgorithm.h"
+#include "BulletCollision/Gimpact/btGImpactCollisionAlgorithm.h"
 	#ifdef BULLET_GIMPACT_CONVEX_DECOMPOSITION
-	#include "btGImpactConvexDecompositionShape.h"
+	#include "../Extras/GIMPACTUtils/btGImpactConvexDecompositionShape.h"
 	#endif
 
 
 #else
 
-#include "btConcaveConcaveCollisionAlgorithm.h"
-#include "btGIMPACTMeshShape.h"
+#include "BulletCollision/Gimpact/btConcaveConcaveCollisionAlgorithm.h"
+#include "BulletCollision/Gimpact/btGIMPACTMeshShape.h"
 
 #endif
 

@@ -31,17 +31,9 @@ protected:
 	btVector3	m_localAabbMax;
 	bool		m_isLocalAabbValid;
 
-	btPolyhedralConvexShape() :btConvexInternalShape(),
-m_localAabbMin(1,1,1),
-m_localAabbMax(-1,-1,-1),
-m_isLocalAabbValid(false),
-m_optionalHull(0)
-{
-
-}
 public:
 
-	
+	btPolyhedralConvexShape();
 
 	//brute force implementations
 

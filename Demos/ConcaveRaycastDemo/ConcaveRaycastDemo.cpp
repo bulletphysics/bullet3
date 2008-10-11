@@ -23,17 +23,17 @@ subject to the following restrictions:
 //#define BATCH_RAYCASTER
 
 #ifdef BATCH_RAYCASTER
-#include "../../Extras/BulletMultiThreaded/SpuBatchRaycaster.h"
+#include "BulletMultiThreaded/SpuBatchRaycaster.h"
 static SpuBatchRaycaster* gBatchRaycaster = NULL;
 #endif
 
 #ifdef USE_LIBSPE2
-#include "../../Extras/BulletMultiThreaded/SpuLibspe2Support.h"
+#include "BulletMultiThreaded/SpuLibspe2Support.h"
 #elif defined (WIN32)
-#include "../../Extras/BulletMultiThreaded/Win32ThreadSupport.h"
+#include "BulletMultiThreaded/Win32ThreadSupport.h"
 #else
 //other platforms run the parallel code sequentially (until pthread support or other parallel implementation is added)
-#include "../../Extras/BulletMultiThreaded/SequentialThreadSupport.h"
+#include "BulletMultiThreaded/SequentialThreadSupport.h"
 #endif //USE_LIBSPE2
 
 static btVector3*	gVertices=0;

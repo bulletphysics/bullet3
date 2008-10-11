@@ -3,6 +3,7 @@ SubDir TOP src BulletCollision ;
 
 Description bulletcollision : "Bullet Collision Detection" ;
 Library bulletcollision :
+  [ Wildcard Gimpact : *.h *.cpp ]
   [ Wildcard BroadphaseCollision : *.h *.cpp ] 
   [ Wildcard CollisionDispatch : *.h *.cpp ] 
   [ Wildcard CollisionShapes : *.h *.cpp ] 
