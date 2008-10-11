@@ -466,6 +466,50 @@ SOURCE=..\..\src\BulletCollision\CollisionShapes\btUniformScalingShape.cpp
 # End Source File
 # Begin Source File
 
+SOURCE=..\..\src\BulletCollision\Gimpact\btContactProcessing.cpp
+# End Source File
+# Begin Source File
+
+SOURCE=..\..\src\BulletCollision\Gimpact\btGenericPoolAllocator.cpp
+# End Source File
+# Begin Source File
+
+SOURCE=..\..\src\BulletCollision\Gimpact\btGImpactBvh.cpp
+# End Source File
+# Begin Source File
+
+SOURCE=..\..\src\BulletCollision\Gimpact\btGImpactCollisionAlgorithm.cpp
+# End Source File
+# Begin Source File
+
+SOURCE=..\..\src\BulletCollision\Gimpact\btGImpactQuantizedBvh.cpp
+# End Source File
+# Begin Source File
+
+SOURCE=..\..\src\BulletCollision\Gimpact\btGImpactShape.cpp
+# End Source File
+# Begin Source File
+
+SOURCE=..\..\src\BulletCollision\Gimpact\btTriangleShapeEx.cpp
+# End Source File
+# Begin Source File
+
+SOURCE=..\..\src\BulletCollision\Gimpact\gim_box_set.cpp
+# End Source File
+# Begin Source File
+
+SOURCE=..\..\src\BulletCollision\Gimpact\gim_contact.cpp
+# End Source File
+# Begin Source File
+
+SOURCE=..\..\src\BulletCollision\Gimpact\gim_memory.cpp
+# End Source File
+# Begin Source File
+
+SOURCE=..\..\src\BulletCollision\Gimpact\gim_tri_collision.cpp
+# End Source File
+# Begin Source File
+
 SOURCE=..\..\src\BulletCollision\NarrowPhaseCollision\btContinuousConvexCollision.cpp
 # End Source File
 # Begin Source File
@@ -787,6 +831,114 @@ SOURCE=..\..\src\BulletCollision\CollisionShapes\btTriangleShape.h
 # Begin Source File
 
 SOURCE=..\..\src\BulletCollision\CollisionShapes\btUniformScalingShape.h
+# End Source File
+# Begin Source File
+
+SOURCE=..\..\src\BulletCollision\Gimpact\btBoxCollision.h
+# End Source File
+# Begin Source File
+
+SOURCE=..\..\src\BulletCollision\Gimpact\btClipPolygon.h
+# End Source File
+# Begin Source File
+
+SOURCE=..\..\src\BulletCollision\Gimpact\btContactProcessing.h
+# End Source File
+# Begin Source File
+
+SOURCE=..\..\src\BulletCollision\Gimpact\btGenericPoolAllocator.h
+# End Source File
+# Begin Source File
+
+SOURCE=..\..\src\BulletCollision\Gimpact\btGeometryOperations.h
+# End Source File
+# Begin Source File
+
+SOURCE=..\..\src\BulletCollision\Gimpact\btGImpactBvh.h
+# End Source File
+# Begin Source File
+
+SOURCE=..\..\src\BulletCollision\Gimpact\btGImpactCollisionAlgorithm.h
+# End Source File
+# Begin Source File
+
+SOURCE=..\..\src\BulletCollision\Gimpact\btGImpactMassUtil.h
+# End Source File
+# Begin Source File
+
+SOURCE=..\..\src\BulletCollision\Gimpact\btGImpactQuantizedBvh.h
+# End Source File
+# Begin Source File
+
+SOURCE=..\..\src\BulletCollision\Gimpact\btGImpactShape.h
+# End Source File
+# Begin Source File
+
+SOURCE=..\..\src\BulletCollision\Gimpact\btQuantization.h
+# End Source File
+# Begin Source File
+
+SOURCE=..\..\src\BulletCollision\Gimpact\btTriangleShapeEx.h
+# End Source File
+# Begin Source File
+
+SOURCE=..\..\src\BulletCollision\Gimpact\gim_array.h
+# End Source File
+# Begin Source File
+
+SOURCE=..\..\src\BulletCollision\Gimpact\gim_basic_geometry_operations.h
+# End Source File
+# Begin Source File
+
+SOURCE=..\..\src\BulletCollision\Gimpact\gim_bitset.h
+# End Source File
+# Begin Source File
+
+SOURCE=..\..\src\BulletCollision\Gimpact\gim_box_collision.h
+# End Source File
+# Begin Source File
+
+SOURCE=..\..\src\BulletCollision\Gimpact\gim_box_set.h
+# End Source File
+# Begin Source File
+
+SOURCE=..\..\src\BulletCollision\Gimpact\gim_clip_polygon.h
+# End Source File
+# Begin Source File
+
+SOURCE=..\..\src\BulletCollision\Gimpact\gim_contact.h
+# End Source File
+# Begin Source File
+
+SOURCE=..\..\src\BulletCollision\Gimpact\gim_geom_types.h
+# End Source File
+# Begin Source File
+
+SOURCE=..\..\src\BulletCollision\Gimpact\gim_geometry.h
+# End Source File
+# Begin Source File
+
+SOURCE=..\..\src\BulletCollision\Gimpact\gim_hash_table.h
+# End Source File
+# Begin Source File
+
+SOURCE=..\..\src\BulletCollision\Gimpact\gim_linear_math.h
+# End Source File
+# Begin Source File
+
+SOURCE=..\..\src\BulletCollision\Gimpact\gim_math.h
+# End Source File
+# Begin Source File
+
+SOURCE=..\..\src\BulletCollision\Gimpact\gim_memory.h
+# End Source File
+# Begin Source File
+
+SOURCE=..\..\src\BulletCollision\Gimpact\gim_radixsort.h
+# End Source File
+# Begin Source File
+
+SOURCE=..\..\src\BulletCollision\Gimpact\gim_tri_collision.h
 # End Source File
 # Begin Source File
 

@@ -32,7 +32,7 @@
 				OptimizeForProcessor="1"
 				ExceptionHandling="0"
 				AdditionalOptions=" "
-				AdditionalIncludeDirectories=".;..\..;..\..\src;..\..\Glut;..\..\Demos\OpenGL;..\..\Extras\GIMPACT\include;..\..\Extras\GIMPACTUtils"
+				AdditionalIncludeDirectories=".;..\..;..\..\src;..\..\Glut;..\..\Demos\OpenGL;..\..\Extras\GIMPACTUtils"
 				PrecompiledHeaderFile="..\..\out\release7\build\appGimpactTestDemo\appGimpactTestDemo.pch"
 				AssemblerListingLocation="..\..\out\release7\build\appGimpactTestDemo\"
 				ObjectFile="..\..\out\release7\build\appGimpactTestDemo\"
@@ -80,7 +80,7 @@
 			<Tool
 				Name="VCResourceCompilerTool"
 				PreprocessorDefinitions="NDEBUG;_CONSOLE;_CRT_SECURE_NO_DEPRECATE;_CRT_NONSTDC_NO_DEPRECATE;PROJECTGEN_VERSION=7"
-				AdditionalIncludeDirectories=".;..\..;..\..\src;..\..\Glut;..\..\Demos\OpenGL;..\..\Extras\GIMPACT\include;..\..\Extras\GIMPACTUtils"
+				AdditionalIncludeDirectories=".;..\..;..\..\src;..\..\Glut;..\..\Demos\OpenGL;..\..\Extras\GIMPACTUtils"
 				Culture="1033"/>
 			<Tool
 				Name="VCWebServiceProxyGeneratorTool"/>
@@ -107,7 +107,7 @@
 				OptimizeForProcessor="1"
 				ExceptionHandling="0"
 				AdditionalOptions=" "
-				AdditionalIncludeDirectories=".;..\..;..\..\src;..\..\Glut;..\..\Demos\OpenGL;..\..\Extras\GIMPACT\include;..\..\Extras\GIMPACTUtils"
+				AdditionalIncludeDirectories=".;..\..;..\..\src;..\..\Glut;..\..\Demos\OpenGL;..\..\Extras\GIMPACTUtils"
 				PrecompiledHeaderFile="..\..\out\release_dll7\build\appGimpactTestDemo\appGimpactTestDemo.pch"
 				AssemblerListingLocation="..\..\out\release_dll7\build\appGimpactTestDemo\"
 				ObjectFile="..\..\out\release_dll7\build\appGimpactTestDemo\"
@@ -150,7 +150,7 @@
 			<Tool
 				Name="VCResourceCompilerTool"
 				PreprocessorDefinitions="NDEBUG;_CONSOLE;_CRT_SECURE_NO_DEPRECATE;_CRT_NONSTDC_NO_DEPRECATE;PROJECTGEN_VERSION=7"
-				AdditionalIncludeDirectories=".;..\..;..\..\src;..\..\Glut;..\..\Demos\OpenGL;..\..\Extras\GIMPACT\include;..\..\Extras\GIMPACTUtils"
+				AdditionalIncludeDirectories=".;..\..;..\..\src;..\..\Glut;..\..\Demos\OpenGL;..\..\Extras\GIMPACTUtils"
 				Culture="1033"/>
 			<Tool
 				Name="VCWebServiceProxyGeneratorTool"/>
@@ -171,7 +171,7 @@
 				OptimizeForProcessor="1"
 				ExceptionHandling="0"
 				AdditionalOptions=" "
-				AdditionalIncludeDirectories=".;..\..;..\..\src;..\..\Glut;..\..\Demos\OpenGL;..\..\Extras\GIMPACT\include;..\..\Extras\GIMPACTUtils"
+				AdditionalIncludeDirectories=".;..\..;..\..\src;..\..\Glut;..\..\Demos\OpenGL;..\..\Extras\GIMPACTUtils"
 				PrecompiledHeaderFile="..\..\out\release_dbl7\build\appGimpactTestDemo\appGimpactTestDemo.pch"
 				AssemblerListingLocation="..\..\out\release_dbl7\build\appGimpactTestDemo\"
 				ObjectFile="..\..\out\release_dbl7\build\appGimpactTestDemo\"
@@ -214,7 +214,7 @@
 			<Tool
 				Name="VCResourceCompilerTool"
 				PreprocessorDefinitions="NDEBUG;BT_USE_DOUBLE_PRECISION;_CONSOLE;_CRT_SECURE_NO_DEPRECATE;_CRT_NONSTDC_NO_DEPRECATE;PROJECTGEN_VERSION=7"
-				AdditionalIncludeDirectories=".;..\..;..\..\src;..\..\Glut;..\..\Demos\OpenGL;..\..\Extras\GIMPACT\include;..\..\Extras\GIMPACTUtils"
+				AdditionalIncludeDirectories=".;..\..;..\..\src;..\..\Glut;..\..\Demos\OpenGL;..\..\Extras\GIMPACTUtils"
 				Culture="1033"/>
 			<Tool
 				Name="VCWebServiceProxyGeneratorTool"/>
@@ -240,7 +240,7 @@
 				OptimizeForProcessor="1"
 				ExceptionHandling="0"
 				AdditionalOptions=" "
-				AdditionalIncludeDirectories=".;..\..;..\..\src;..\..\Glut;..\..\Demos\OpenGL;..\..\Extras\GIMPACT\include;..\..\Extras\GIMPACTUtils"
+				AdditionalIncludeDirectories=".;..\..;..\..\src;..\..\Glut;..\..\Demos\OpenGL;..\..\Extras\GIMPACTUtils"
 				PrecompiledHeaderFile="..\..\out\debug7\build\appGimpactTestDemo\appGimpactTestDemo.pch"
 				AssemblerListingLocation="..\..\out\debug7\build\appGimpactTestDemo\"
 				ObjectFile="..\..\out\debug7\build\appGimpactTestDemo\"
@@ -286,7 +286,7 @@
 			<Tool
 				Name="VCResourceCompilerTool"
 				PreprocessorDefinitions="_DEBUG;_CONSOLE;_CRT_SECURE_NO_DEPRECATE;_CRT_NONSTDC_NO_DEPRECATE;PROJECTGEN_VERSION=7"
-				AdditionalIncludeDirectories=".;..\..;..\..\src;..\..\Glut;..\..\Demos\OpenGL;..\..\Extras\GIMPACT\include;..\..\Extras\GIMPACTUtils"
+				AdditionalIncludeDirectories=".;..\..;..\..\src;..\..\Glut;..\..\Demos\OpenGL;..\..\Extras\GIMPACTUtils"
 				Culture="1033"/>
 			<Tool
 				Name="VCWebServiceProxyGeneratorTool"/>
@@ -312,7 +312,7 @@
 				OptimizeForProcessor="1"
 				ExceptionHandling="0"
 				AdditionalOptions=" "
-				AdditionalIncludeDirectories=".;..\..;..\..\src;..\..\Glut;..\..\Demos\OpenGL;..\..\Extras\GIMPACT\include;..\..\Extras\GIMPACTUtils"
+				AdditionalIncludeDirectories=".;..\..;..\..\src;..\..\Glut;..\..\Demos\OpenGL;..\..\Extras\GIMPACTUtils"
 				PrecompiledHeaderFile="..\..\out\debug_dll7\build\appGimpactTestDemo\appGimpactTestDemo.pch"
 				AssemblerListingLocation="..\..\out\debug_dll7\build\appGimpactTestDemo\"
 				ObjectFile="..\..\out\debug_dll7\build\appGimpactTestDemo\"
@@ -355,7 +355,7 @@
 			<Tool
 				Name="VCResourceCompilerTool"
 				PreprocessorDefinitions="_DEBUG;_CONSOLE;_CRT_SECURE_NO_DEPRECATE;_CRT_NONSTDC_NO_DEPRECATE;PROJECTGEN_VERSION=7"
-				AdditionalIncludeDirectories=".;..\..;..\..\src;..\..\Glut;..\..\Demos\OpenGL;..\..\Extras\GIMPACT\include;..\..\Extras\GIMPACTUtils"
+				AdditionalIncludeDirectories=".;..\..;..\..\src;..\..\Glut;..\..\Demos\OpenGL;..\..\Extras\GIMPACTUtils"
 				Culture="1033"/>
 			<Tool
 				Name="VCWebServiceProxyGeneratorTool"/>
@@ -381,7 +381,7 @@
 				OptimizeForProcessor="1"
 				ExceptionHandling="0"
 				AdditionalOptions=" "
-				AdditionalIncludeDirectories=".;..\..;..\..\src;..\..\Glut;..\..\Demos\OpenGL;..\..\Extras\GIMPACT\include;..\..\Extras\GIMPACTUtils"
+				AdditionalIncludeDirectories=".;..\..;..\..\src;..\..\Glut;..\..\Demos\OpenGL;..\..\Extras\GIMPACTUtils"
 				PrecompiledHeaderFile="..\..\out\debug_dbl7\build\appGimpactTestDemo\appGimpactTestDemo.pch"
 				AssemblerListingLocation="..\..\out\debug_dbl7\build\appGimpactTestDemo\"
 				ObjectFile="..\..\out\debug_dbl7\build\appGimpactTestDemo\"
@@ -424,7 +424,7 @@
 			<Tool
 				Name="VCResourceCompilerTool"
 				PreprocessorDefinitions="_DEBUG;BT_USE_DOUBLE_PRECISION;_CONSOLE;_CRT_SECURE_NO_DEPRECATE;_CRT_NONSTDC_NO_DEPRECATE;PROJECTGEN_VERSION=7"
-				AdditionalIncludeDirectories=".;..\..;..\..\src;..\..\Glut;..\..\Demos\OpenGL;..\..\Extras\GIMPACT\include;..\..\Extras\GIMPACTUtils"
+				AdditionalIncludeDirectories=".;..\..;..\..\src;..\..\Glut;..\..\Demos\OpenGL;..\..\Extras\GIMPACTUtils"
 				Culture="1033"/>
 			<Tool
 				Name="VCWebServiceProxyGeneratorTool"/>

@@ -105,6 +105,7 @@ protected:
 public:
 	btGImpactShapeInterface()
 	{
+		m_shapeType=GIMPACT_SHAPE_PROXYTYPE;
 		m_localAABB.invalidate();
 		m_needs_update = true;
 		localScaling.setValue(1.f,1.f,1.f);

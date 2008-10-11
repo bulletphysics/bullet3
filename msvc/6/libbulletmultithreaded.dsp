@@ -47,11 +47,11 @@ RSC=rc.exe
 # PROP Ignore_Export_Lib 0
 # PROP Target_Dir ""
 # ADD BASE CPP /nologo /vmb /vms /W3 /Gm /G5 /D "WIN32" /FD /c
-# ADD CPP /nologo /vmb /vms /W3 /Gm /G5 /FD /c /Gy /GF /MD /Ob2 /Og /Oi /Ot /Oy /D "_LIB" /D "_MT" /D "_MBCS" /D "NDEBUG" /D "_LIB" /D "_WINDOWS" /D "_CRT_SECURE_NO_DEPRECATE" /D "_CRT_NONSTDC_NO_DEPRECATE" /D "WIN32"  /I "." /I "..\.." /I "..\..\src" /I "..\..\Extras\BulletMultiThreaded"
+# ADD CPP /nologo /vmb /vms /W3 /Gm /G5 /FD /c /Gy /GF /MD /Ob2 /Og /Oi /Ot /Oy /D "_LIB" /D "_MT" /D "_MBCS" /D "NDEBUG" /D "_LIB" /D "_WINDOWS" /D "_CRT_SECURE_NO_DEPRECATE" /D "_CRT_NONSTDC_NO_DEPRECATE" /D "WIN32"  /I "." /I "..\.." /I "..\..\src" /I "..\..\src\BulletMultiThreaded"
 # ADD BASE MTL /nologo /mktyplib203 /o "NUL" /win32
 # ADD MTL /nologo /mktyplib203 /o "NUL" /win32 /D "NDEBUG" /D "_LIB" /D "_WINDOWS" /D "_CRT_SECURE_NO_DEPRECATE" /D "_CRT_NONSTDC_NO_DEPRECATE"
 # ADD BASE RSC /l 0x409
-# ADD RSC /l 0x409 /fo".\..\..\out\release6\build\libbulletmultithreaded\libbulletmultithreaded.res" /i "." /i "..\.." /i "..\..\src" /i "..\..\Extras\BulletMultiThreaded"
+# ADD RSC /l 0x409 /fo".\..\..\out\release6\build\libbulletmultithreaded\libbulletmultithreaded.res" /i "." /i "..\.." /i "..\..\src" /i "..\..\src\BulletMultiThreaded"
 BSC32=bscmake.exe
 # ADD BASE BSC32 /nologo
 # ADD BSC32 /nologo
@@ -76,11 +76,11 @@ LINK32=link.exe
 # PROP Ignore_Export_Lib 0
 # PROP Target_Dir ""
 # ADD BASE CPP /nologo /vmb /vms /W3 /Gm /G5 /D "WIN32" /FD /c
-# ADD CPP /nologo /vmb /vms /W3 /Gm /G5 /FD /c /D "_LIB" /D "_MT" /D "_MBCS" /D "NDEBUG" /D "_LIB" /D "_WINDOWS" /D "_CRT_SECURE_NO_DEPRECATE" /D "_CRT_NONSTDC_NO_DEPRECATE" /D "WIN32"  /I "." /I "..\.." /I "..\..\src" /I "..\..\Extras\BulletMultiThreaded"
+# ADD CPP /nologo /vmb /vms /W3 /Gm /G5 /FD /c /D "_LIB" /D "_MT" /D "_MBCS" /D "NDEBUG" /D "_LIB" /D "_WINDOWS" /D "_CRT_SECURE_NO_DEPRECATE" /D "_CRT_NONSTDC_NO_DEPRECATE" /D "WIN32"  /I "." /I "..\.." /I "..\..\src" /I "..\..\src\BulletMultiThreaded"
 # ADD BASE MTL /nologo /mktyplib203 /o "NUL" /win32
 # ADD MTL /nologo /mktyplib203 /o "NUL" /win32 /D "NDEBUG" /D "_LIB" /D "_WINDOWS" /D "_CRT_SECURE_NO_DEPRECATE" /D "_CRT_NONSTDC_NO_DEPRECATE"
 # ADD BASE RSC /l 0x409
-# ADD RSC /l 0x409 /fo".\..\..\out\release_dll6\build\libbulletmultithreaded\libbulletmultithreaded.res" /i "." /i "..\.." /i "..\..\src" /i "..\..\Extras\BulletMultiThreaded"
+# ADD RSC /l 0x409 /fo".\..\..\out\release_dll6\build\libbulletmultithreaded\libbulletmultithreaded.res" /i "." /i "..\.." /i "..\..\src" /i "..\..\src\BulletMultiThreaded"
 BSC32=bscmake.exe
 # ADD BASE BSC32 /nologo
 # ADD BSC32 /nologo
@@ -105,11 +105,11 @@ LINK32=link.exe
 # PROP Ignore_Export_Lib 0
 # PROP Target_Dir ""
 # ADD BASE CPP /nologo /vmb /vms /W3 /Gm /G5 /D "WIN32" /FD /c
-# ADD CPP /nologo /vmb /vms /W3 /Gm /G5 /FD /c /D "_LIB" /D "_MT" /D "_MBCS" /D "NDEBUG" /D "BT_USE_DOUBLE_PRECISION" /D "_LIB" /D "_WINDOWS" /D "_CRT_SECURE_NO_DEPRECATE" /D "_CRT_NONSTDC_NO_DEPRECATE" /D "WIN32"  /I "." /I "..\.." /I "..\..\src" /I "..\..\Extras\BulletMultiThreaded"
+# ADD CPP /nologo /vmb /vms /W3 /Gm /G5 /FD /c /D "_LIB" /D "_MT" /D "_MBCS" /D "NDEBUG" /D "BT_USE_DOUBLE_PRECISION" /D "_LIB" /D "_WINDOWS" /D "_CRT_SECURE_NO_DEPRECATE" /D "_CRT_NONSTDC_NO_DEPRECATE" /D "WIN32"  /I "." /I "..\.." /I "..\..\src" /I "..\..\src\BulletMultiThreaded"
 # ADD BASE MTL /nologo /mktyplib203 /o "NUL" /win32
 # ADD MTL /nologo /mktyplib203 /o "NUL" /win32 /D "NDEBUG" /D "BT_USE_DOUBLE_PRECISION" /D "_LIB" /D "_WINDOWS" /D "_CRT_SECURE_NO_DEPRECATE" /D "_CRT_NONSTDC_NO_DEPRECATE"
 # ADD BASE RSC /l 0x409
-# ADD RSC /l 0x409 /fo".\..\..\out\release_dbl6\build\libbulletmultithreaded\libbulletmultithreaded.res" /i "." /i "..\.." /i "..\..\src" /i "..\..\Extras\BulletMultiThreaded"
+# ADD RSC /l 0x409 /fo".\..\..\out\release_dbl6\build\libbulletmultithreaded\libbulletmultithreaded.res" /i "." /i "..\.." /i "..\..\src" /i "..\..\src\BulletMultiThreaded"
 BSC32=bscmake.exe
 # ADD BASE BSC32 /nologo
 # ADD BSC32 /nologo
@@ -134,11 +134,11 @@ LINK32=link.exe
 # PROP Ignore_Export_Lib 0
 # PROP Target_Dir ""
 # ADD BASE CPP /nologo /vmb /vms /W3 /Gm /G5 /D "WIN32" /FD /c
-# ADD CPP /nologo /vmb /vms /W3 /Gm /G5 /FD /c /GR /MDd /ZI /Od /D "_LIB" /D "_MT" /D "_MBCS" /D "_DEBUG" /D "_LIB" /D "_WINDOWS" /D "_CRT_SECURE_NO_DEPRECATE" /D "_CRT_NONSTDC_NO_DEPRECATE" /D "WIN32"  /I "." /I "..\.." /I "..\..\src" /I "..\..\Extras\BulletMultiThreaded"
+# ADD CPP /nologo /vmb /vms /W3 /Gm /G5 /FD /c /GR /MDd /ZI /Od /D "_LIB" /D "_MT" /D "_MBCS" /D "_DEBUG" /D "_LIB" /D "_WINDOWS" /D "_CRT_SECURE_NO_DEPRECATE" /D "_CRT_NONSTDC_NO_DEPRECATE" /D "WIN32"  /I "." /I "..\.." /I "..\..\src" /I "..\..\src\BulletMultiThreaded"
 # ADD BASE MTL /nologo /mktyplib203 /o "NUL" /win32
 # ADD MTL /nologo /mktyplib203 /o "NUL" /win32 /D "_DEBUG" /D "_LIB" /D "_WINDOWS" /D "_CRT_SECURE_NO_DEPRECATE" /D "_CRT_NONSTDC_NO_DEPRECATE"
 # ADD BASE RSC /l 0x409
-# ADD RSC /l 0x409 /fo".\..\..\out\debug6\build\libbulletmultithreaded\libbulletmultithreaded.res" /i "." /i "..\.." /i "..\..\src" /i "..\..\Extras\BulletMultiThreaded"
+# ADD RSC /l 0x409 /fo".\..\..\out\debug6\build\libbulletmultithreaded\libbulletmultithreaded.res" /i "." /i "..\.." /i "..\..\src" /i "..\..\src\BulletMultiThreaded"
 BSC32=bscmake.exe
 # ADD BASE BSC32 /nologo
 # ADD BSC32 /nologo
@@ -163,11 +163,11 @@ LINK32=link.exe
 # PROP Ignore_Export_Lib 0
 # PROP Target_Dir ""
 # ADD BASE CPP /nologo /vmb /vms /W3 /Gm /G5 /D "WIN32" /FD /c
-# ADD CPP /nologo /vmb /vms /W3 /Gm /G5 /FD /c /D "_LIB" /D "_MT" /D "_MBCS" /D "_DEBUG" /D "_LIB" /D "_WINDOWS" /D "_CRT_SECURE_NO_DEPRECATE" /D "_CRT_NONSTDC_NO_DEPRECATE" /D "WIN32"  /I "." /I "..\.." /I "..\..\src" /I "..\..\Extras\BulletMultiThreaded"
+# ADD CPP /nologo /vmb /vms /W3 /Gm /G5 /FD /c /D "_LIB" /D "_MT" /D "_MBCS" /D "_DEBUG" /D "_LIB" /D "_WINDOWS" /D "_CRT_SECURE_NO_DEPRECATE" /D "_CRT_NONSTDC_NO_DEPRECATE" /D "WIN32"  /I "." /I "..\.." /I "..\..\src" /I "..\..\src\BulletMultiThreaded"
 # ADD BASE MTL /nologo /mktyplib203 /o "NUL" /win32
 # ADD MTL /nologo /mktyplib203 /o "NUL" /win32 /D "_DEBUG" /D "_LIB" /D "_WINDOWS" /D "_CRT_SECURE_NO_DEPRECATE" /D "_CRT_NONSTDC_NO_DEPRECATE"
 # ADD BASE RSC /l 0x409
-# ADD RSC /l 0x409 /fo".\..\..\out\debug_dll6\build\libbulletmultithreaded\libbulletmultithreaded.res" /i "." /i "..\.." /i "..\..\src" /i "..\..\Extras\BulletMultiThreaded"
+# ADD RSC /l 0x409 /fo".\..\..\out\debug_dll6\build\libbulletmultithreaded\libbulletmultithreaded.res" /i "." /i "..\.." /i "..\..\src" /i "..\..\src\BulletMultiThreaded"
 BSC32=bscmake.exe
 # ADD BASE BSC32 /nologo
 # ADD BSC32 /nologo
@@ -192,11 +192,11 @@ LINK32=link.exe
 # PROP Ignore_Export_Lib 0
 # PROP Target_Dir ""
 # ADD BASE CPP /nologo /vmb /vms /W3 /Gm /G5 /D "WIN32" /FD /c
-# ADD CPP /nologo /vmb /vms /W3 /Gm /G5 /FD /c /D "_LIB" /D "_MT" /D "_MBCS" /D "_DEBUG" /D "BT_USE_DOUBLE_PRECISION" /D "_LIB" /D "_WINDOWS" /D "_CRT_SECURE_NO_DEPRECATE" /D "_CRT_NONSTDC_NO_DEPRECATE" /D "WIN32"  /I "." /I "..\.." /I "..\..\src" /I "..\..\Extras\BulletMultiThreaded"
+# ADD CPP /nologo /vmb /vms /W3 /Gm /G5 /FD /c /D "_LIB" /D "_MT" /D "_MBCS" /D "_DEBUG" /D "BT_USE_DOUBLE_PRECISION" /D "_LIB" /D "_WINDOWS" /D "_CRT_SECURE_NO_DEPRECATE" /D "_CRT_NONSTDC_NO_DEPRECATE" /D "WIN32"  /I "." /I "..\.." /I "..\..\src" /I "..\..\src\BulletMultiThreaded"
 # ADD BASE MTL /nologo /mktyplib203 /o "NUL" /win32
 # ADD MTL /nologo /mktyplib203 /o "NUL" /win32 /D "_DEBUG" /D "BT_USE_DOUBLE_PRECISION" /D "_LIB" /D "_WINDOWS" /D "_CRT_SECURE_NO_DEPRECATE" /D "_CRT_NONSTDC_NO_DEPRECATE"
 # ADD BASE RSC /l 0x409
-# ADD RSC /l 0x409 /fo".\..\..\out\debug_dbl6\build\libbulletmultithreaded\libbulletmultithreaded.res" /i "." /i "..\.." /i "..\..\src" /i "..\..\Extras\BulletMultiThreaded"
+# ADD RSC /l 0x409 /fo".\..\..\out\debug_dbl6\build\libbulletmultithreaded\libbulletmultithreaded.res" /i "." /i "..\.." /i "..\..\src" /i "..\..\src\BulletMultiThreaded"
 BSC32=bscmake.exe
 # ADD BASE BSC32 /nologo
 # ADD BSC32 /nologo
@@ -222,95 +222,95 @@ LINK32=link.exe
 # PROP Default_Filter ""
 # Begin Source File
 
-SOURCE=..\..\Extras\BulletMultiThreaded\btThreadSupportInterface.cpp
+SOURCE=..\..\src\BulletMultiThreaded\btThreadSupportInterface.cpp
 # End Source File
 # Begin Source File
 
-SOURCE=..\..\Extras\BulletMultiThreaded\PosixThreadSupport.cpp
+SOURCE=..\..\src\BulletMultiThreaded\PosixThreadSupport.cpp
 # End Source File
 # Begin Source File
 
-SOURCE=..\..\Extras\BulletMultiThreaded\SequentialThreadSupport.cpp
+SOURCE=..\..\src\BulletMultiThreaded\SequentialThreadSupport.cpp
 # End Source File
 # Begin Source File
 
-SOURCE=..\..\Extras\BulletMultiThreaded\SpuBatchRaycaster.cpp
+SOURCE=..\..\src\BulletMultiThreaded\SpuBatchRaycaster.cpp
 # End Source File
 # Begin Source File
 
-SOURCE=..\..\Extras\BulletMultiThreaded\SpuCollisionObjectWrapper.cpp
+SOURCE=..\..\src\BulletMultiThreaded\SpuCollisionObjectWrapper.cpp
 # End Source File
 # Begin Source File
 
-SOURCE=..\..\Extras\BulletMultiThreaded\SpuCollisionTaskProcess.cpp
+SOURCE=..\..\src\BulletMultiThreaded\SpuCollisionTaskProcess.cpp
 # End Source File
 # Begin Source File
 
-SOURCE=..\..\Extras\BulletMultiThreaded\SpuContactManifoldCollisionAlgorithm.cpp
+SOURCE=..\..\src\BulletMultiThreaded\SpuContactManifoldCollisionAlgorithm.cpp
 # End Source File
 # Begin Source File
 
-SOURCE=..\..\Extras\BulletMultiThreaded\SpuFakeDma.cpp
+SOURCE=..\..\src\BulletMultiThreaded\SpuFakeDma.cpp
 # End Source File
 # Begin Source File
 
-SOURCE=..\..\Extras\BulletMultiThreaded\SpuGatheringCollisionDispatcher.cpp
+SOURCE=..\..\src\BulletMultiThreaded\SpuGatheringCollisionDispatcher.cpp
 # End Source File
 # Begin Source File
 
-SOURCE=..\..\Extras\BulletMultiThreaded\SpuLibspe2Support.cpp
+SOURCE=..\..\src\BulletMultiThreaded\SpuLibspe2Support.cpp
 # End Source File
 # Begin Source File
 
-SOURCE=..\..\Extras\BulletMultiThreaded\SpuNarrowPhaseCollisionTask\SpuCollisionShapes.cpp
+SOURCE=..\..\src\BulletMultiThreaded\SpuNarrowPhaseCollisionTask\SpuCollisionShapes.cpp
 # End Source File
 # Begin Source File
 
-SOURCE=..\..\Extras\BulletMultiThreaded\SpuNarrowPhaseCollisionTask\SpuContactResult.cpp
+SOURCE=..\..\src\BulletMultiThreaded\SpuNarrowPhaseCollisionTask\SpuContactResult.cpp
 # End Source File
 # Begin Source File
 
-SOURCE=..\..\Extras\BulletMultiThreaded\SpuNarrowPhaseCollisionTask\SpuEpaPenetrationDepthSolver.cpp
+SOURCE=..\..\src\BulletMultiThreaded\SpuNarrowPhaseCollisionTask\SpuEpaPenetrationDepthSolver.cpp
 # End Source File
 # Begin Source File
 
-SOURCE=..\..\Extras\BulletMultiThreaded\SpuNarrowPhaseCollisionTask\SpuGatheringCollisionTask.cpp
+SOURCE=..\..\src\BulletMultiThreaded\SpuNarrowPhaseCollisionTask\SpuGatheringCollisionTask.cpp
 # End Source File
 # Begin Source File
 
-SOURCE=..\..\Extras\BulletMultiThreaded\SpuNarrowPhaseCollisionTask\SpuGjkEpa2.cpp
+SOURCE=..\..\src\BulletMultiThreaded\SpuNarrowPhaseCollisionTask\SpuGjkEpa2.cpp
 # End Source File
 # Begin Source File
 
-SOURCE=..\..\Extras\BulletMultiThreaded\SpuNarrowPhaseCollisionTask\SpuGjkPairDetector.cpp
+SOURCE=..\..\src\BulletMultiThreaded\SpuNarrowPhaseCollisionTask\SpuGjkPairDetector.cpp
 # End Source File
 # Begin Source File
 
-SOURCE=..\..\Extras\BulletMultiThreaded\SpuNarrowPhaseCollisionTask\SpuMinkowskiPenetrationDepthSolver.cpp
+SOURCE=..\..\src\BulletMultiThreaded\SpuNarrowPhaseCollisionTask\SpuMinkowskiPenetrationDepthSolver.cpp
 # End Source File
 # Begin Source File
 
-SOURCE=..\..\Extras\BulletMultiThreaded\SpuNarrowPhaseCollisionTask\SpuVoronoiSimplexSolver.cpp
+SOURCE=..\..\src\BulletMultiThreaded\SpuNarrowPhaseCollisionTask\SpuVoronoiSimplexSolver.cpp
 # End Source File
 # Begin Source File
 
-SOURCE=..\..\Extras\BulletMultiThreaded\SpuParallelSolver.cpp
+SOURCE=..\..\src\BulletMultiThreaded\SpuParallelSolver.cpp
 # End Source File
 # Begin Source File
 
-SOURCE=..\..\Extras\BulletMultiThreaded\SpuRaycastTaskProcess.cpp
+SOURCE=..\..\src\BulletMultiThreaded\SpuRaycastTaskProcess.cpp
 # End Source File
 # Begin Source File
 
-SOURCE=..\..\Extras\BulletMultiThreaded\SpuSampleTaskProcess.cpp
+SOURCE=..\..\src\BulletMultiThreaded\SpuSampleTaskProcess.cpp
 # End Source File
 # Begin Source File
 
-SOURCE=..\..\Extras\BulletMultiThreaded\SpuSolverTask\SpuParallellSolverTask.cpp
+SOURCE=..\..\src\BulletMultiThreaded\SpuSolverTask\SpuParallellSolverTask.cpp
 # End Source File
 # Begin Source File
 
-SOURCE=..\..\Extras\BulletMultiThreaded\Win32ThreadSupport.cpp
+SOURCE=..\..\src\BulletMultiThreaded\Win32ThreadSupport.cpp
 # End Source File
 # End Group
 # Begin Group "Header Files"
@@ -318,51 +318,51 @@ SOURCE=..\..\Extras\BulletMultiThreaded\Win32ThreadSupport.cpp
 # PROP Default_Filter ""
 # Begin Source File
 
-SOURCE=..\..\Extras\BulletMultiThreaded\SpuNarrowPhaseCollisionTask\SpuCollisionShapes.h
+SOURCE=..\..\src\BulletMultiThreaded\SpuNarrowPhaseCollisionTask\SpuCollisionShapes.h
 # End Source File
 # Begin Source File
 
-SOURCE=..\..\Extras\BulletMultiThreaded\SpuNarrowPhaseCollisionTask\SpuContactResult.h
+SOURCE=..\..\src\BulletMultiThreaded\SpuNarrowPhaseCollisionTask\SpuContactResult.h
 # End Source File
 # Begin Source File
 
-SOURCE=..\..\Extras\BulletMultiThreaded\SpuNarrowPhaseCollisionTask\SpuConvexPenetrationDepthSolver.h
+SOURCE=..\..\src\BulletMultiThreaded\SpuNarrowPhaseCollisionTask\SpuConvexPenetrationDepthSolver.h
 # End Source File
 # Begin Source File
 
-SOURCE=..\..\Extras\BulletMultiThreaded\SpuNarrowPhaseCollisionTask\SpuEpaPenetrationDepthSolver.h
+SOURCE=..\..\src\BulletMultiThreaded\SpuNarrowPhaseCollisionTask\SpuEpaPenetrationDepthSolver.h
 # End Source File
 # Begin Source File
 
-SOURCE=..\..\Extras\BulletMultiThreaded\SpuNarrowPhaseCollisionTask\SpuGatheringCollisionTask.h
+SOURCE=..\..\src\BulletMultiThreaded\SpuNarrowPhaseCollisionTask\SpuGatheringCollisionTask.h
 # End Source File
 # Begin Source File
 
-SOURCE=..\..\Extras\BulletMultiThreaded\SpuNarrowPhaseCollisionTask\SpuGjkEpa2.h
+SOURCE=..\..\src\BulletMultiThreaded\SpuNarrowPhaseCollisionTask\SpuGjkEpa2.h
 # End Source File
 # Begin Source File
 
-SOURCE=..\..\Extras\BulletMultiThreaded\SpuNarrowPhaseCollisionTask\SpuGjkPairDetector.h
+SOURCE=..\..\src\BulletMultiThreaded\SpuNarrowPhaseCollisionTask\SpuGjkPairDetector.h
 # End Source File
 # Begin Source File
 
-SOURCE=..\..\Extras\BulletMultiThreaded\SpuNarrowPhaseCollisionTask\SpuLocalSupport.h
+SOURCE=..\..\src\BulletMultiThreaded\SpuNarrowPhaseCollisionTask\SpuLocalSupport.h
 # End Source File
 # Begin Source File
 
-SOURCE=..\..\Extras\BulletMultiThreaded\SpuNarrowPhaseCollisionTask\SpuMinkowskiPenetrationDepthSolver.h
+SOURCE=..\..\src\BulletMultiThreaded\SpuNarrowPhaseCollisionTask\SpuMinkowskiPenetrationDepthSolver.h
 # End Source File
 # Begin Source File
 
-SOURCE=..\..\Extras\BulletMultiThreaded\SpuNarrowPhaseCollisionTask\SpuPreferredPenetrationDirections.h
+SOURCE=..\..\src\BulletMultiThreaded\SpuNarrowPhaseCollisionTask\SpuPreferredPenetrationDirections.h
 # End Source File
 # Begin Source File
 
-SOURCE=..\..\Extras\BulletMultiThreaded\SpuNarrowPhaseCollisionTask\SpuVoronoiSimplexSolver.h
+SOURCE=..\..\src\BulletMultiThreaded\SpuNarrowPhaseCollisionTask\SpuVoronoiSimplexSolver.h
 # End Source File
 # Begin Source File
 
-SOURCE=..\..\Extras\BulletMultiThreaded\SpuSolverTask\SpuParallellSolverTask.h
+SOURCE=..\..\src\BulletMultiThreaded\SpuSolverTask\SpuParallellSolverTask.h
 # End Source File
 # End Group
 # End Target

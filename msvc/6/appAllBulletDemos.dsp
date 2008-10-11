@@ -47,11 +47,11 @@ RSC=rc.exe
 # PROP Ignore_Export_Lib 0
 # PROP Target_Dir ""
 # ADD BASE CPP /nologo /vmb /vms /W3 /Gm /G5 /D "WIN32" /FD /c
-# ADD CPP /nologo /vmb /vms /W3 /Gm /G5 /FD /c /Gy /GF /MD /Ob2 /Og /Oi /Ot /Oy /D "_MT" /D "_MBCS" /D "NDEBUG" /D "_CONSOLE" /D "_CRT_SECURE_NO_DEPRECATE" /D "_CRT_NONSTDC_NO_DEPRECATE" /D "WIN32"  /I "." /I "..\.." /I "..\..\src" /I "..\..\Glut" /I "..\..\Extras" /I "..\..\Extras\ConvexHull" /I "..\..\Demos\OpenGL" /I "..\..\Extras\ConvexDecomposition" /I "..\..\Extras\GIMPACT\include" /I "..\..\Extras\GIMPACTUtils"
+# ADD CPP /nologo /vmb /vms /W3 /Gm /G5 /FD /c /Gy /GF /MD /Ob2 /Og /Oi /Ot /Oy /D "_MT" /D "_MBCS" /D "NDEBUG" /D "_CONSOLE" /D "_CRT_SECURE_NO_DEPRECATE" /D "_CRT_NONSTDC_NO_DEPRECATE" /D "WIN32"  /I "." /I "..\.." /I "..\..\src" /I "..\..\Glut" /I "..\..\Extras" /I "..\..\Extras\ConvexHull" /I "..\..\Demos\OpenGL" /I "..\..\Extras\ConvexDecomposition" /I "..\..\Extras\GIMPACTUtils"
 # ADD BASE MTL /nologo /mktyplib203 /o "NUL" /win32
 # ADD MTL /nologo /mktyplib203 /o "NUL" /win32 /D "NDEBUG" /D "_CONSOLE" /D "_CRT_SECURE_NO_DEPRECATE" /D "_CRT_NONSTDC_NO_DEPRECATE"
 # ADD BASE RSC /l 0x409
-# ADD RSC /l 0x409 /fo".\..\..\out\release6\build\appAllBulletDemos\appAllBulletDemos.res" /i "." /i "..\.." /i "..\..\src" /i "..\..\Glut" /i "..\..\Extras" /i "..\..\Extras\ConvexHull" /i "..\..\Demos\OpenGL" /i "..\..\Extras\ConvexDecomposition" /i "..\..\Extras\GIMPACT\include" /i "..\..\Extras\GIMPACTUtils"
+# ADD RSC /l 0x409 /fo".\..\..\out\release6\build\appAllBulletDemos\appAllBulletDemos.res" /i "." /i "..\.." /i "..\..\src" /i "..\..\Glut" /i "..\..\Extras" /i "..\..\Extras\ConvexHull" /i "..\..\Demos\OpenGL" /i "..\..\Extras\ConvexDecomposition" /i "..\..\Extras\GIMPACTUtils"
 BSC32=bscmake.exe
 # ADD BASE BSC32 /nologo
 # ADD BSC32 /nologo
@@ -75,11 +75,11 @@ LINK32=link.exe
 # PROP Intermediate_Dir "..\..\out\release_dll6\build\appAllBulletDemos\"
 # PROP Target_Dir ""
 # ADD BASE CPP /nologo /vmb /vms /W3 /Gm /G5 /D "WIN32" /FD /c
-# ADD CPP /nologo /vmb /vms /W3 /Gm /G5 /FD /c  /D "_MT" /D "_MBCS" /D "NDEBUG" /D "_CONSOLE" /D "_CRT_SECURE_NO_DEPRECATE" /D "_CRT_NONSTDC_NO_DEPRECATE" /D "WIN32"  /I "." /I "..\.." /I "..\..\src" /I "..\..\Glut" /I "..\..\Extras" /I "..\..\Extras\ConvexHull" /I "..\..\Demos\OpenGL" /I "..\..\Extras\ConvexDecomposition" /I "..\..\Extras\GIMPACT\include" /I "..\..\Extras\GIMPACTUtils"
+# ADD CPP /nologo /vmb /vms /W3 /Gm /G5 /FD /c  /D "_MT" /D "_MBCS" /D "NDEBUG" /D "_CONSOLE" /D "_CRT_SECURE_NO_DEPRECATE" /D "_CRT_NONSTDC_NO_DEPRECATE" /D "WIN32"  /I "." /I "..\.." /I "..\..\src" /I "..\..\Glut" /I "..\..\Extras" /I "..\..\Extras\ConvexHull" /I "..\..\Demos\OpenGL" /I "..\..\Extras\ConvexDecomposition" /I "..\..\Extras\GIMPACTUtils"
 # ADD BASE MTL /nologo /mktyplib203 /o "NUL" /win32
 # ADD MTL /nologo /mktyplib203 /o "NUL" /win32 /D "NDEBUG" /D "_CONSOLE" /D "_CRT_SECURE_NO_DEPRECATE" /D "_CRT_NONSTDC_NO_DEPRECATE"
 # ADD BASE RSC /l 0x409
-# ADD RSC /l 0x409 /fo".\..\..\out\release_dll6\build\appAllBulletDemos\appAllBulletDemos.res" /i "." /i "..\.." /i "..\..\src" /i "..\..\Glut" /i "..\..\Extras" /i "..\..\Extras\ConvexHull" /i "..\..\Demos\OpenGL" /i "..\..\Extras\ConvexDecomposition" /i "..\..\Extras\GIMPACT\include" /i "..\..\Extras\GIMPACTUtils"
+# ADD RSC /l 0x409 /fo".\..\..\out\release_dll6\build\appAllBulletDemos\appAllBulletDemos.res" /i "." /i "..\.." /i "..\..\src" /i "..\..\Glut" /i "..\..\Extras" /i "..\..\Extras\ConvexHull" /i "..\..\Demos\OpenGL" /i "..\..\Extras\ConvexDecomposition" /i "..\..\Extras\GIMPACTUtils"
 BSC32=bscmake.exe
 # ADD BASE BSC32 /nologo
 # ADD BSC32 /nologo
@@ -103,11 +103,11 @@ LINK32=link.exe
 # PROP Intermediate_Dir "..\..\out\release_dbl6\build\appAllBulletDemos\"
 # PROP Target_Dir ""
 # ADD BASE CPP /nologo /vmb /vms /W3 /Gm /G5 /D "WIN32" /FD /c
-# ADD CPP /nologo /vmb /vms /W3 /Gm /G5 /FD /c  /D "_MT" /D "_MBCS" /D "NDEBUG" /D "BT_USE_DOUBLE_PRECISION" /D "_CONSOLE" /D "_CRT_SECURE_NO_DEPRECATE" /D "_CRT_NONSTDC_NO_DEPRECATE" /D "WIN32"  /I "." /I "..\.." /I "..\..\src" /I "..\..\Glut" /I "..\..\Extras" /I "..\..\Extras\ConvexHull" /I "..\..\Demos\OpenGL" /I "..\..\Extras\ConvexDecomposition" /I "..\..\Extras\GIMPACT\include" /I "..\..\Extras\GIMPACTUtils"
+# ADD CPP /nologo /vmb /vms /W3 /Gm /G5 /FD /c  /D "_MT" /D "_MBCS" /D "NDEBUG" /D "BT_USE_DOUBLE_PRECISION" /D "_CONSOLE" /D "_CRT_SECURE_NO_DEPRECATE" /D "_CRT_NONSTDC_NO_DEPRECATE" /D "WIN32"  /I "." /I "..\.." /I "..\..\src" /I "..\..\Glut" /I "..\..\Extras" /I "..\..\Extras\ConvexHull" /I "..\..\Demos\OpenGL" /I "..\..\Extras\ConvexDecomposition" /I "..\..\Extras\GIMPACTUtils"
 # ADD BASE MTL /nologo /mktyplib203 /o "NUL" /win32
 # ADD MTL /nologo /mktyplib203 /o "NUL" /win32 /D "NDEBUG" /D "BT_USE_DOUBLE_PRECISION" /D "_CONSOLE" /D "_CRT_SECURE_NO_DEPRECATE" /D "_CRT_NONSTDC_NO_DEPRECATE"
 # ADD BASE RSC /l 0x409
-# ADD RSC /l 0x409 /fo".\..\..\out\release_dbl6\build\appAllBulletDemos\appAllBulletDemos.res" /i "." /i "..\.." /i "..\..\src" /i "..\..\Glut" /i "..\..\Extras" /i "..\..\Extras\ConvexHull" /i "..\..\Demos\OpenGL" /i "..\..\Extras\ConvexDecomposition" /i "..\..\Extras\GIMPACT\include" /i "..\..\Extras\GIMPACTUtils"
+# ADD RSC /l 0x409 /fo".\..\..\out\release_dbl6\build\appAllBulletDemos\appAllBulletDemos.res" /i "." /i "..\.." /i "..\..\src" /i "..\..\Glut" /i "..\..\Extras" /i "..\..\Extras\ConvexHull" /i "..\..\Demos\OpenGL" /i "..\..\Extras\ConvexDecomposition" /i "..\..\Extras\GIMPACTUtils"
 BSC32=bscmake.exe
 # ADD BASE BSC32 /nologo
 # ADD BSC32 /nologo
@@ -132,11 +132,11 @@ LINK32=link.exe
 # PROP Ignore_Export_Lib 1
 # PROP Target_Dir ""
 # ADD BASE CPP /nologo /vmb /vms /W3 /Gm /G5 /D "WIN32" /FD /c
-# ADD CPP /nologo /vmb /vms /W3 /Gm /G5 /FD /c /GR /MDd /ZI /Od /D "_MT" /D "_MBCS" /D "_DEBUG" /D "_CONSOLE" /D "_CRT_SECURE_NO_DEPRECATE" /D "_CRT_NONSTDC_NO_DEPRECATE" /D "WIN32"  /I "." /I "..\.." /I "..\..\src" /I "..\..\Glut" /I "..\..\Extras" /I "..\..\Extras\ConvexHull" /I "..\..\Demos\OpenGL" /I "..\..\Extras\ConvexDecomposition" /I "..\..\Extras\GIMPACT\include" /I "..\..\Extras\GIMPACTUtils"
+# ADD CPP /nologo /vmb /vms /W3 /Gm /G5 /FD /c /GR /MDd /ZI /Od /D "_MT" /D "_MBCS" /D "_DEBUG" /D "_CONSOLE" /D "_CRT_SECURE_NO_DEPRECATE" /D "_CRT_NONSTDC_NO_DEPRECATE" /D "WIN32"  /I "." /I "..\.." /I "..\..\src" /I "..\..\Glut" /I "..\..\Extras" /I "..\..\Extras\ConvexHull" /I "..\..\Demos\OpenGL" /I "..\..\Extras\ConvexDecomposition" /I "..\..\Extras\GIMPACTUtils"
 # ADD BASE MTL /nologo /mktyplib203 /o "NUL" /win32
 # ADD MTL /nologo /mktyplib203 /o "NUL" /win32 /D "_DEBUG" /D "_CONSOLE" /D "_CRT_SECURE_NO_DEPRECATE" /D "_CRT_NONSTDC_NO_DEPRECATE"
 # ADD BASE RSC /l 0x409
-# ADD RSC /l 0x409 /fo".\..\..\out\debug6\build\appAllBulletDemos\appAllBulletDemos.res" /i "." /i "..\.." /i "..\..\src" /i "..\..\Glut" /i "..\..\Extras" /i "..\..\Extras\ConvexHull" /i "..\..\Demos\OpenGL" /i "..\..\Extras\ConvexDecomposition" /i "..\..\Extras\GIMPACT\include" /i "..\..\Extras\GIMPACTUtils"
+# ADD RSC /l 0x409 /fo".\..\..\out\debug6\build\appAllBulletDemos\appAllBulletDemos.res" /i "." /i "..\.." /i "..\..\src" /i "..\..\Glut" /i "..\..\Extras" /i "..\..\Extras\ConvexHull" /i "..\..\Demos\OpenGL" /i "..\..\Extras\ConvexDecomposition" /i "..\..\Extras\GIMPACTUtils"
 BSC32=bscmake.exe
 # ADD BASE BSC32 /nologo
 # ADD BSC32 /nologo
@@ -160,11 +160,11 @@ LINK32=link.exe
 # PROP Intermediate_Dir "..\..\out\debug_dll6\build\appAllBulletDemos\"
 # PROP Target_Dir ""
 # ADD BASE CPP /nologo /vmb /vms /W3 /Gm /G5 /D "WIN32" /FD /c
-# ADD CPP /nologo /vmb /vms /W3 /Gm /G5 /FD /c  /D "_MT" /D "_MBCS" /D "_DEBUG" /D "_CONSOLE" /D "_CRT_SECURE_NO_DEPRECATE" /D "_CRT_NONSTDC_NO_DEPRECATE" /D "WIN32"  /I "." /I "..\.." /I "..\..\src" /I "..\..\Glut" /I "..\..\Extras" /I "..\..\Extras\ConvexHull" /I "..\..\Demos\OpenGL" /I "..\..\Extras\ConvexDecomposition" /I "..\..\Extras\GIMPACT\include" /I "..\..\Extras\GIMPACTUtils"
+# ADD CPP /nologo /vmb /vms /W3 /Gm /G5 /FD /c  /D "_MT" /D "_MBCS" /D "_DEBUG" /D "_CONSOLE" /D "_CRT_SECURE_NO_DEPRECATE" /D "_CRT_NONSTDC_NO_DEPRECATE" /D "WIN32"  /I "." /I "..\.." /I "..\..\src" /I "..\..\Glut" /I "..\..\Extras" /I "..\..\Extras\ConvexHull" /I "..\..\Demos\OpenGL" /I "..\..\Extras\ConvexDecomposition" /I "..\..\Extras\GIMPACTUtils"
 # ADD BASE MTL /nologo /mktyplib203 /o "NUL" /win32
 # ADD MTL /nologo /mktyplib203 /o "NUL" /win32 /D "_DEBUG" /D "_CONSOLE" /D "_CRT_SECURE_NO_DEPRECATE" /D "_CRT_NONSTDC_NO_DEPRECATE"
 # ADD BASE RSC /l 0x409
-# ADD RSC /l 0x409 /fo".\..\..\out\debug_dll6\build\appAllBulletDemos\appAllBulletDemos.res" /i "." /i "..\.." /i "..\..\src" /i "..\..\Glut" /i "..\..\Extras" /i "..\..\Extras\ConvexHull" /i "..\..\Demos\OpenGL" /i "..\..\Extras\ConvexDecomposition" /i "..\..\Extras\GIMPACT\include" /i "..\..\Extras\GIMPACTUtils"
+# ADD RSC /l 0x409 /fo".\..\..\out\debug_dll6\build\appAllBulletDemos\appAllBulletDemos.res" /i "." /i "..\.." /i "..\..\src" /i "..\..\Glut" /i "..\..\Extras" /i "..\..\Extras\ConvexHull" /i "..\..\Demos\OpenGL" /i "..\..\Extras\ConvexDecomposition" /i "..\..\Extras\GIMPACTUtils"
 BSC32=bscmake.exe
 # ADD BASE BSC32 /nologo
 # ADD BSC32 /nologo
@@ -188,11 +188,11 @@ LINK32=link.exe
 # PROP Intermediate_Dir "..\..\out\debug_dbl6\build\appAllBulletDemos\"
 # PROP Target_Dir ""
 # ADD BASE CPP /nologo /vmb /vms /W3 /Gm /G5 /D "WIN32" /FD /c
-# ADD CPP /nologo /vmb /vms /W3 /Gm /G5 /FD /c  /D "_MT" /D "_MBCS" /D "_DEBUG" /D "BT_USE_DOUBLE_PRECISION" /D "_CONSOLE" /D "_CRT_SECURE_NO_DEPRECATE" /D "_CRT_NONSTDC_NO_DEPRECATE" /D "WIN32"  /I "." /I "..\.." /I "..\..\src" /I "..\..\Glut" /I "..\..\Extras" /I "..\..\Extras\ConvexHull" /I "..\..\Demos\OpenGL" /I "..\..\Extras\ConvexDecomposition" /I "..\..\Extras\GIMPACT\include" /I "..\..\Extras\GIMPACTUtils"
+# ADD CPP /nologo /vmb /vms /W3 /Gm /G5 /FD /c  /D "_MT" /D "_MBCS" /D "_DEBUG" /D "BT_USE_DOUBLE_PRECISION" /D "_CONSOLE" /D "_CRT_SECURE_NO_DEPRECATE" /D "_CRT_NONSTDC_NO_DEPRECATE" /D "WIN32"  /I "." /I "..\.." /I "..\..\src" /I "..\..\Glut" /I "..\..\Extras" /I "..\..\Extras\ConvexHull" /I "..\..\Demos\OpenGL" /I "..\..\Extras\ConvexDecomposition" /I "..\..\Extras\GIMPACTUtils"
 # ADD BASE MTL /nologo /mktyplib203 /o "NUL" /win32
 # ADD MTL /nologo /mktyplib203 /o "NUL" /win32 /D "_DEBUG" /D "BT_USE_DOUBLE_PRECISION" /D "_CONSOLE" /D "_CRT_SECURE_NO_DEPRECATE" /D "_CRT_NONSTDC_NO_DEPRECATE"
 # ADD BASE RSC /l 0x409
-# ADD RSC /l 0x409 /fo".\..\..\out\debug_dbl6\build\appAllBulletDemos\appAllBulletDemos.res" /i "." /i "..\.." /i "..\..\src" /i "..\..\Glut" /i "..\..\Extras" /i "..\..\Extras\ConvexHull" /i "..\..\Demos\OpenGL" /i "..\..\Extras\ConvexDecomposition" /i "..\..\Extras\GIMPACT\include" /i "..\..\Extras\GIMPACTUtils"
+# ADD RSC /l 0x409 /fo".\..\..\out\debug_dbl6\build\appAllBulletDemos\appAllBulletDemos.res" /i "." /i "..\.." /i "..\..\src" /i "..\..\Glut" /i "..\..\Extras" /i "..\..\Extras\ConvexHull" /i "..\..\Demos\OpenGL" /i "..\..\Extras\ConvexDecomposition" /i "..\..\Extras\GIMPACTUtils"
 BSC32=bscmake.exe
 # ADD BASE BSC32 /nologo
 # ADD BSC32 /nologo

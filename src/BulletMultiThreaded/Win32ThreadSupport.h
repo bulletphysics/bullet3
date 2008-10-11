@@ -114,6 +114,10 @@ public:
 ///tell the task scheduler we are done with the SPU tasks
 	virtual	void stopSPU();
 
+	virtual	void	setNumTasks(int numTasks)
+	{
+	}
+
 };
 
 #endif //WIN32_THREAD_SUPPORT_H

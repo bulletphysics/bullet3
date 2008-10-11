@@ -32,7 +32,7 @@
 				OptimizeForProcessor="1"
 				ExceptionHandling="0"
 				AdditionalOptions=" "
-				AdditionalIncludeDirectories=".;..\..;..\..\src;..\..\Glut;..\..\Demos\OpenGL;..\..\Extras\GIMPACT\include"
+				AdditionalIncludeDirectories=".;..\..;..\..\src;..\..\Glut;..\..\Demos\OpenGL"
 				PrecompiledHeaderFile="..\..\out\release71\build\appMovingConcaveDemo\appMovingConcaveDemo.pch"
 				AssemblerListingLocation="..\..\out\release71\build\appMovingConcaveDemo\"
 				ObjectFile="..\..\out\release71\build\appMovingConcaveDemo\"
@@ -80,7 +80,7 @@
 			<Tool
 				Name="VCResourceCompilerTool"
 				PreprocessorDefinitions="NDEBUG;_CONSOLE;_CRT_SECURE_NO_DEPRECATE;_CRT_NONSTDC_NO_DEPRECATE;PROJECTGEN_VERSION=71"
-				AdditionalIncludeDirectories=".;..\..;..\..\src;..\..\Glut;..\..\Demos\OpenGL;..\..\Extras\GIMPACT\include"
+				AdditionalIncludeDirectories=".;..\..;..\..\src;..\..\Glut;..\..\Demos\OpenGL"
 				Culture="1033"/>
 			<Tool
 				Name="VCWebServiceProxyGeneratorTool"/>
@@ -107,7 +107,7 @@
 				OptimizeForProcessor="1"
 				ExceptionHandling="0"
 				AdditionalOptions=" "
-				AdditionalIncludeDirectories=".;..\..;..\..\src;..\..\Glut;..\..\Demos\OpenGL;..\..\Extras\GIMPACT\include"
+				AdditionalIncludeDirectories=".;..\..;..\..\src;..\..\Glut;..\..\Demos\OpenGL"
 				PrecompiledHeaderFile="..\..\out\release_dll71\build\appMovingConcaveDemo\appMovingConcaveDemo.pch"
 				AssemblerListingLocation="..\..\out\release_dll71\build\appMovingConcaveDemo\"
 				ObjectFile="..\..\out\release_dll71\build\appMovingConcaveDemo\"
@@ -150,7 +150,7 @@
 			<Tool
 				Name="VCResourceCompilerTool"
 				PreprocessorDefinitions="NDEBUG;_CONSOLE;_CRT_SECURE_NO_DEPRECATE;_CRT_NONSTDC_NO_DEPRECATE;PROJECTGEN_VERSION=71"
-				AdditionalIncludeDirectories=".;..\..;..\..\src;..\..\Glut;..\..\Demos\OpenGL;..\..\Extras\GIMPACT\include"
+				AdditionalIncludeDirectories=".;..\..;..\..\src;..\..\Glut;..\..\Demos\OpenGL"
 				Culture="1033"/>
 			<Tool
 				Name="VCWebServiceProxyGeneratorTool"/>
@@ -171,7 +171,7 @@
 				OptimizeForProcessor="1"
 				ExceptionHandling="0"
 				AdditionalOptions=" "
-				AdditionalIncludeDirectories=".;..\..;..\..\src;..\..\Glut;..\..\Demos\OpenGL;..\..\Extras\GIMPACT\include"
+				AdditionalIncludeDirectories=".;..\..;..\..\src;..\..\Glut;..\..\Demos\OpenGL"
 				PrecompiledHeaderFile="..\..\out\release_dbl71\build\appMovingConcaveDemo\appMovingConcaveDemo.pch"
 				AssemblerListingLocation="..\..\out\release_dbl71\build\appMovingConcaveDemo\"
 				ObjectFile="..\..\out\release_dbl71\build\appMovingConcaveDemo\"
@@ -214,7 +214,7 @@
 			<Tool
 				Name="VCResourceCompilerTool"
 				PreprocessorDefinitions="NDEBUG;BT_USE_DOUBLE_PRECISION;_CONSOLE;_CRT_SECURE_NO_DEPRECATE;_CRT_NONSTDC_NO_DEPRECATE;PROJECTGEN_VERSION=71"
-				AdditionalIncludeDirectories=".;..\..;..\..\src;..\..\Glut;..\..\Demos\OpenGL;..\..\Extras\GIMPACT\include"
+				AdditionalIncludeDirectories=".;..\..;..\..\src;..\..\Glut;..\..\Demos\OpenGL"
 				Culture="1033"/>
 			<Tool
 				Name="VCWebServiceProxyGeneratorTool"/>
@@ -240,7 +240,7 @@
 				OptimizeForProcessor="1"
 				ExceptionHandling="0"
 				AdditionalOptions=" "
-				AdditionalIncludeDirectories=".;..\..;..\..\src;..\..\Glut;..\..\Demos\OpenGL;..\..\Extras\GIMPACT\include"
+				AdditionalIncludeDirectories=".;..\..;..\..\src;..\..\Glut;..\..\Demos\OpenGL"
 				PrecompiledHeaderFile="..\..\out\debug71\build\appMovingConcaveDemo\appMovingConcaveDemo.pch"
 				AssemblerListingLocation="..\..\out\debug71\build\appMovingConcaveDemo\"
 				ObjectFile="..\..\out\debug71\build\appMovingConcaveDemo\"
@@ -286,7 +286,7 @@
 			<Tool
 				Name="VCResourceCompilerTool"
 				PreprocessorDefinitions="_DEBUG;_CONSOLE;_CRT_SECURE_NO_DEPRECATE;_CRT_NONSTDC_NO_DEPRECATE;PROJECTGEN_VERSION=71"
-				AdditionalIncludeDirectories=".;..\..;..\..\src;..\..\Glut;..\..\Demos\OpenGL;..\..\Extras\GIMPACT\include"
+				AdditionalIncludeDirectories=".;..\..;..\..\src;..\..\Glut;..\..\Demos\OpenGL"
 				Culture="1033"/>
 			<Tool
 				Name="VCWebServiceProxyGeneratorTool"/>
@@ -312,7 +312,7 @@
 				OptimizeForProcessor="1"
 				ExceptionHandling="0"
 				AdditionalOptions=" "
-				AdditionalIncludeDirectories=".;..\..;..\..\src;..\..\Glut;..\..\Demos\OpenGL;..\..\Extras\GIMPACT\include"
+				AdditionalIncludeDirectories=".;..\..;..\..\src;..\..\Glut;..\..\Demos\OpenGL"
 				PrecompiledHeaderFile="..\..\out\debug_dll71\build\appMovingConcaveDemo\appMovingConcaveDemo.pch"
 				AssemblerListingLocation="..\..\out\debug_dll71\build\appMovingConcaveDemo\"
 				ObjectFile="..\..\out\debug_dll71\build\appMovingConcaveDemo\"
@@ -355,7 +355,7 @@
 			<Tool
 				Name="VCResourceCompilerTool"
 				PreprocessorDefinitions="_DEBUG;_CONSOLE;_CRT_SECURE_NO_DEPRECATE;_CRT_NONSTDC_NO_DEPRECATE;PROJECTGEN_VERSION=71"
-				AdditionalIncludeDirectories=".;..\..;..\..\src;..\..\Glut;..\..\Demos\OpenGL;..\..\Extras\GIMPACT\include"
+				AdditionalIncludeDirectories=".;..\..;..\..\src;..\..\Glut;..\..\Demos\OpenGL"
 				Culture="1033"/>
 			<Tool
 				Name="VCWebServiceProxyGeneratorTool"/>
@@ -381,7 +381,7 @@
 				OptimizeForProcessor="1"
 				ExceptionHandling="0"
 				AdditionalOptions=" "
-				AdditionalIncludeDirectories=".;..\..;..\..\src;..\..\Glut;..\..\Demos\OpenGL;..\..\Extras\GIMPACT\include"
+				AdditionalIncludeDirectories=".;..\..;..\..\src;..\..\Glut;..\..\Demos\OpenGL"
 				PrecompiledHeaderFile="..\..\out\debug_dbl71\build\appMovingConcaveDemo\appMovingConcaveDemo.pch"
 				AssemblerListingLocation="..\..\out\debug_dbl71\build\appMovingConcaveDemo\"
 				ObjectFile="..\..\out\debug_dbl71\build\appMovingConcaveDemo\"
@@ -424,7 +424,7 @@
 			<Tool
 				Name="VCResourceCompilerTool"
 				PreprocessorDefinitions="_DEBUG;BT_USE_DOUBLE_PRECISION;_CONSOLE;_CRT_SECURE_NO_DEPRECATE;_CRT_NONSTDC_NO_DEPRECATE;PROJECTGEN_VERSION=71"
-				AdditionalIncludeDirectories=".;..\..;..\..\src;..\..\Glut;..\..\Demos\OpenGL;..\..\Extras\GIMPACT\include"
+				AdditionalIncludeDirectories=".;..\..;..\..\src;..\..\Glut;..\..\Demos\OpenGL"
 				Culture="1033"/>
 			<Tool
 				Name="VCWebServiceProxyGeneratorTool"/>

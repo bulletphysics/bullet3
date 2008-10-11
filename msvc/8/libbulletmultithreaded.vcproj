@@ -30,7 +30,7 @@
 				OptimizeForProcessor="1"
 				ExceptionHandling="0"
 				AdditionalOptions=" "
-				AdditionalIncludeDirectories=".;..\..;..\..\src;..\..\Extras\BulletMultiThreaded"
+				AdditionalIncludeDirectories=".;..\..;..\..\src;..\..\src\BulletMultiThreaded"
 				PrecompiledHeaderFile="..\..\out\release8\build\libbulletmultithreaded\libbulletmultithreaded.pch"
 				AssemblerListingLocation="..\..\out\release8\build\libbulletmultithreaded\"
 				ObjectFile="..\..\out\release8\build\libbulletmultithreaded\"
@@ -77,7 +77,7 @@
 			<Tool
 				Name="VCResourceCompilerTool"
 				PreprocessorDefinitions="NDEBUG;_LIB;_WINDOWS;_CRT_SECURE_NO_DEPRECATE;_CRT_NONSTDC_NO_DEPRECATE;PROJECTGEN_VERSION=8"
-				AdditionalIncludeDirectories=".;..\..;..\..\src;..\..\Extras\BulletMultiThreaded"
+				AdditionalIncludeDirectories=".;..\..;..\..\src;..\..\src\BulletMultiThreaded"
 				Culture="1033"/>
 			<Tool
 				Name="VCWebServiceProxyGeneratorTool"/>
@@ -103,7 +103,7 @@
 				OptimizeForProcessor="1"
 				ExceptionHandling="0"
 				AdditionalOptions=" "
-				AdditionalIncludeDirectories=".;..\..;..\..\src;..\..\Extras\BulletMultiThreaded"
+				AdditionalIncludeDirectories=".;..\..;..\..\src;..\..\src\BulletMultiThreaded"
 				PrecompiledHeaderFile="..\..\out\release_dll8\build\libbulletmultithreaded\libbulletmultithreaded.pch"
 				AssemblerListingLocation="..\..\out\release_dll8\build\libbulletmultithreaded\"
 				ObjectFile="..\..\out\release_dll8\build\libbulletmultithreaded\"
@@ -144,7 +144,7 @@
 			<Tool
 				Name="VCResourceCompilerTool"
 				PreprocessorDefinitions="NDEBUG;_LIB;_WINDOWS;_CRT_SECURE_NO_DEPRECATE;_CRT_NONSTDC_NO_DEPRECATE;PROJECTGEN_VERSION=8"
-				AdditionalIncludeDirectories=".;..\..;..\..\src;..\..\Extras\BulletMultiThreaded"
+				AdditionalIncludeDirectories=".;..\..;..\..\src;..\..\src\BulletMultiThreaded"
 				Culture="1033"/>
 			<Tool
 				Name="VCWebServiceProxyGeneratorTool"/>
@@ -164,7 +164,7 @@
 				OptimizeForProcessor="1"
 				ExceptionHandling="0"
 				AdditionalOptions=" "
-				AdditionalIncludeDirectories=".;..\..;..\..\src;..\..\Extras\BulletMultiThreaded"
+				AdditionalIncludeDirectories=".;..\..;..\..\src;..\..\src\BulletMultiThreaded"
 				PrecompiledHeaderFile="..\..\out\release_dbl8\build\libbulletmultithreaded\libbulletmultithreaded.pch"
 				AssemblerListingLocation="..\..\out\release_dbl8\build\libbulletmultithreaded\"
 				ObjectFile="..\..\out\release_dbl8\build\libbulletmultithreaded\"
@@ -205,7 +205,7 @@
 			<Tool
 				Name="VCResourceCompilerTool"
 				PreprocessorDefinitions="NDEBUG;BT_USE_DOUBLE_PRECISION;_LIB;_WINDOWS;_CRT_SECURE_NO_DEPRECATE;_CRT_NONSTDC_NO_DEPRECATE;PROJECTGEN_VERSION=8"
-				AdditionalIncludeDirectories=".;..\..;..\..\src;..\..\Extras\BulletMultiThreaded"
+				AdditionalIncludeDirectories=".;..\..;..\..\src;..\..\src\BulletMultiThreaded"
 				Culture="1033"/>
 			<Tool
 				Name="VCWebServiceProxyGeneratorTool"/>
@@ -230,7 +230,7 @@
 				OptimizeForProcessor="1"
 				ExceptionHandling="0"
 				AdditionalOptions=" "
-				AdditionalIncludeDirectories=".;..\..;..\..\src;..\..\Extras\BulletMultiThreaded"
+				AdditionalIncludeDirectories=".;..\..;..\..\src;..\..\src\BulletMultiThreaded"
 				PrecompiledHeaderFile="..\..\out\debug8\build\libbulletmultithreaded\libbulletmultithreaded.pch"
 				AssemblerListingLocation="..\..\out\debug8\build\libbulletmultithreaded\"
 				ObjectFile="..\..\out\debug8\build\libbulletmultithreaded\"
@@ -275,7 +275,7 @@
 			<Tool
 				Name="VCResourceCompilerTool"
 				PreprocessorDefinitions="_DEBUG;_LIB;_WINDOWS;_CRT_SECURE_NO_DEPRECATE;_CRT_NONSTDC_NO_DEPRECATE;PROJECTGEN_VERSION=8"
-				AdditionalIncludeDirectories=".;..\..;..\..\src;..\..\Extras\BulletMultiThreaded"
+				AdditionalIncludeDirectories=".;..\..;..\..\src;..\..\src\BulletMultiThreaded"
 				Culture="1033"/>
 			<Tool
 				Name="VCWebServiceProxyGeneratorTool"/>
@@ -300,7 +300,7 @@
 				OptimizeForProcessor="1"
 				ExceptionHandling="0"
 				AdditionalOptions=" "
-				AdditionalIncludeDirectories=".;..\..;..\..\src;..\..\Extras\BulletMultiThreaded"
+				AdditionalIncludeDirectories=".;..\..;..\..\src;..\..\src\BulletMultiThreaded"
 				PrecompiledHeaderFile="..\..\out\debug_dll8\build\libbulletmultithreaded\libbulletmultithreaded.pch"
 				AssemblerListingLocation="..\..\out\debug_dll8\build\libbulletmultithreaded\"
 				ObjectFile="..\..\out\debug_dll8\build\libbulletmultithreaded\"
@@ -341,7 +341,7 @@
 			<Tool
 				Name="VCResourceCompilerTool"
 				PreprocessorDefinitions="_DEBUG;_LIB;_WINDOWS;_CRT_SECURE_NO_DEPRECATE;_CRT_NONSTDC_NO_DEPRECATE;PROJECTGEN_VERSION=8"
-				AdditionalIncludeDirectories=".;..\..;..\..\src;..\..\Extras\BulletMultiThreaded"
+				AdditionalIncludeDirectories=".;..\..;..\..\src;..\..\src\BulletMultiThreaded"
 				Culture="1033"/>
 			<Tool
 				Name="VCWebServiceProxyGeneratorTool"/>
@@ -366,7 +366,7 @@
 				OptimizeForProcessor="1"
 				ExceptionHandling="0"
 				AdditionalOptions=" "
-				AdditionalIncludeDirectories=".;..\..;..\..\src;..\..\Extras\BulletMultiThreaded"
+				AdditionalIncludeDirectories=".;..\..;..\..\src;..\..\src\BulletMultiThreaded"
 				PrecompiledHeaderFile="..\..\out\debug_dbl8\build\libbulletmultithreaded\libbulletmultithreaded.pch"
 				AssemblerListingLocation="..\..\out\debug_dbl8\build\libbulletmultithreaded\"
 				ObjectFile="..\..\out\debug_dbl8\build\libbulletmultithreaded\"
@@ -407,7 +407,7 @@
 			<Tool
 				Name="VCResourceCompilerTool"
 				PreprocessorDefinitions="_DEBUG;BT_USE_DOUBLE_PRECISION;_LIB;_WINDOWS;_CRT_SECURE_NO_DEPRECATE;_CRT_NONSTDC_NO_DEPRECATE;PROJECTGEN_VERSION=8"
-				AdditionalIncludeDirectories=".;..\..;..\..\src;..\..\Extras\BulletMultiThreaded"
+				AdditionalIncludeDirectories=".;..\..;..\..\src;..\..\src\BulletMultiThreaded"
 				Culture="1033"/>
 			<Tool
 				Name="VCWebServiceProxyGeneratorTool"/>
@@ -420,113 +420,113 @@
 			Name="Source Files"
 			Filter="">
 			<File
-				RelativePath="..\..\Extras\BulletMultiThreaded\btThreadSupportInterface.cpp">
+				RelativePath="..\..\src\BulletMultiThreaded\btThreadSupportInterface.cpp">
 			</File>
 			<File
-				RelativePath="..\..\Extras\BulletMultiThreaded\PosixThreadSupport.cpp">
+				RelativePath="..\..\src\BulletMultiThreaded\PosixThreadSupport.cpp">
 			</File>
 			<File
-				RelativePath="..\..\Extras\BulletMultiThreaded\SequentialThreadSupport.cpp">
+				RelativePath="..\..\src\BulletMultiThreaded\SequentialThreadSupport.cpp">
 			</File>
 			<File
-				RelativePath="..\..\Extras\BulletMultiThreaded\SpuBatchRaycaster.cpp">
+				RelativePath="..\..\src\BulletMultiThreaded\SpuBatchRaycaster.cpp">
 			</File>
 			<File
-				RelativePath="..\..\Extras\BulletMultiThreaded\SpuCollisionObjectWrapper.cpp">
+				RelativePath="..\..\src\BulletMultiThreaded\SpuCollisionObjectWrapper.cpp">
 			</File>
 			<File
-				RelativePath="..\..\Extras\BulletMultiThreaded\SpuCollisionTaskProcess.cpp">
+				RelativePath="..\..\src\BulletMultiThreaded\SpuCollisionTaskProcess.cpp">
 			</File>
 			<File
-				RelativePath="..\..\Extras\BulletMultiThreaded\SpuContactManifoldCollisionAlgorithm.cpp">
+				RelativePath="..\..\src\BulletMultiThreaded\SpuContactManifoldCollisionAlgorithm.cpp">
 			</File>
 			<File
-				RelativePath="..\..\Extras\BulletMultiThreaded\SpuFakeDma.cpp">
+				RelativePath="..\..\src\BulletMultiThreaded\SpuFakeDma.cpp">
 			</File>
 			<File
-				RelativePath="..\..\Extras\BulletMultiThreaded\SpuGatheringCollisionDispatcher.cpp">
+				RelativePath="..\..\src\BulletMultiThreaded\SpuGatheringCollisionDispatcher.cpp">
 			</File>
 			<File
-				RelativePath="..\..\Extras\BulletMultiThreaded\SpuLibspe2Support.cpp">
+				RelativePath="..\..\src\BulletMultiThreaded\SpuLibspe2Support.cpp">
 			</File>
 			<File
-				RelativePath="..\..\Extras\BulletMultiThreaded\SpuNarrowPhaseCollisionTask\SpuCollisionShapes.cpp">
+				RelativePath="..\..\src\BulletMultiThreaded\SpuNarrowPhaseCollisionTask\SpuCollisionShapes.cpp">
 			</File>
 			<File
-				RelativePath="..\..\Extras\BulletMultiThreaded\SpuNarrowPhaseCollisionTask\SpuContactResult.cpp">
+				RelativePath="..\..\src\BulletMultiThreaded\SpuNarrowPhaseCollisionTask\SpuContactResult.cpp">
 			</File>
 			<File
-				RelativePath="..\..\Extras\BulletMultiThreaded\SpuNarrowPhaseCollisionTask\SpuEpaPenetrationDepthSolver.cpp">
+				RelativePath="..\..\src\BulletMultiThreaded\SpuNarrowPhaseCollisionTask\SpuEpaPenetrationDepthSolver.cpp">
 			</File>
 			<File
-				RelativePath="..\..\Extras\BulletMultiThreaded\SpuNarrowPhaseCollisionTask\SpuGatheringCollisionTask.cpp">
+				RelativePath="..\..\src\BulletMultiThreaded\SpuNarrowPhaseCollisionTask\SpuGatheringCollisionTask.cpp">
 			</File>
 			<File
-				RelativePath="..\..\Extras\BulletMultiThreaded\SpuNarrowPhaseCollisionTask\SpuGjkEpa2.cpp">
+				RelativePath="..\..\src\BulletMultiThreaded\SpuNarrowPhaseCollisionTask\SpuGjkEpa2.cpp">
 			</File>
 			<File
-				RelativePath="..\..\Extras\BulletMultiThreaded\SpuNarrowPhaseCollisionTask\SpuGjkPairDetector.cpp">
+				RelativePath="..\..\src\BulletMultiThreaded\SpuNarrowPhaseCollisionTask\SpuGjkPairDetector.cpp">
 			</File>
 			<File
-				RelativePath="..\..\Extras\BulletMultiThreaded\SpuNarrowPhaseCollisionTask\SpuMinkowskiPenetrationDepthSolver.cpp">
+				RelativePath="..\..\src\BulletMultiThreaded\SpuNarrowPhaseCollisionTask\SpuMinkowskiPenetrationDepthSolver.cpp">
 			</File>
 			<File
-				RelativePath="..\..\Extras\BulletMultiThreaded\SpuNarrowPhaseCollisionTask\SpuVoronoiSimplexSolver.cpp">
+				RelativePath="..\..\src\BulletMultiThreaded\SpuNarrowPhaseCollisionTask\SpuVoronoiSimplexSolver.cpp">
 			</File>
 			<File
-				RelativePath="..\..\Extras\BulletMultiThreaded\SpuParallelSolver.cpp">
+				RelativePath="..\..\src\BulletMultiThreaded\SpuParallelSolver.cpp">
 			</File>
 			<File
-				RelativePath="..\..\Extras\BulletMultiThreaded\SpuRaycastTaskProcess.cpp">
+				RelativePath="..\..\src\BulletMultiThreaded\SpuRaycastTaskProcess.cpp">
 			</File>
 			<File
-				RelativePath="..\..\Extras\BulletMultiThreaded\SpuSampleTaskProcess.cpp">
+				RelativePath="..\..\src\BulletMultiThreaded\SpuSampleTaskProcess.cpp">
 			</File>
 			<File
-				RelativePath="..\..\Extras\BulletMultiThreaded\SpuSolverTask\SpuParallellSolverTask.cpp">
+				RelativePath="..\..\src\BulletMultiThreaded\SpuSolverTask\SpuParallellSolverTask.cpp">
 			</File>
 			<File
-				RelativePath="..\..\Extras\BulletMultiThreaded\Win32ThreadSupport.cpp">
+				RelativePath="..\..\src\BulletMultiThreaded\Win32ThreadSupport.cpp">
 			</File>
 		</Filter>
 		<Filter
 			Name="Header Files"
 			Filter="">
 			<File
-				RelativePath="..\..\Extras\BulletMultiThreaded\SpuNarrowPhaseCollisionTask\SpuCollisionShapes.h">
+				RelativePath="..\..\src\BulletMultiThreaded\SpuNarrowPhaseCollisionTask\SpuCollisionShapes.h">
 			</File>
 			<File
-				RelativePath="..\..\Extras\BulletMultiThreaded\SpuNarrowPhaseCollisionTask\SpuContactResult.h">
+				RelativePath="..\..\src\BulletMultiThreaded\SpuNarrowPhaseCollisionTask\SpuContactResult.h">
 			</File>
 			<File
-				RelativePath="..\..\Extras\BulletMultiThreaded\SpuNarrowPhaseCollisionTask\SpuConvexPenetrationDepthSolver.h">
+				RelativePath="..\..\src\BulletMultiThreaded\SpuNarrowPhaseCollisionTask\SpuConvexPenetrationDepthSolver.h">
 			</File>
 			<File
-				RelativePath="..\..\Extras\BulletMultiThreaded\SpuNarrowPhaseCollisionTask\SpuEpaPenetrationDepthSolver.h">
+				RelativePath="..\..\src\BulletMultiThreaded\SpuNarrowPhaseCollisionTask\SpuEpaPenetrationDepthSolver.h">
 			</File>
 			<File
-				RelativePath="..\..\Extras\BulletMultiThreaded\SpuNarrowPhaseCollisionTask\SpuGatheringCollisionTask.h">
+				RelativePath="..\..\src\BulletMultiThreaded\SpuNarrowPhaseCollisionTask\SpuGatheringCollisionTask.h">
 			</File>
 			<File
-				RelativePath="..\..\Extras\BulletMultiThreaded\SpuNarrowPhaseCollisionTask\SpuGjkEpa2.h">
+				RelativePath="..\..\src\BulletMultiThreaded\SpuNarrowPhaseCollisionTask\SpuGjkEpa2.h">
 			</File>
 			<File
-				RelativePath="..\..\Extras\BulletMultiThreaded\SpuNarrowPhaseCollisionTask\SpuGjkPairDetector.h">
+				RelativePath="..\..\src\BulletMultiThreaded\SpuNarrowPhaseCollisionTask\SpuGjkPairDetector.h">
 			</File>
 			<File
-				RelativePath="..\..\Extras\BulletMultiThreaded\SpuNarrowPhaseCollisionTask\SpuLocalSupport.h">
+				RelativePath="..\..\src\BulletMultiThreaded\SpuNarrowPhaseCollisionTask\SpuLocalSupport.h">
 			</File>
 			<File
-				RelativePath="..\..\Extras\BulletMultiThreaded\SpuNarrowPhaseCollisionTask\SpuMinkowskiPenetrationDepthSolver.h">
+				RelativePath="..\..\src\BulletMultiThreaded\SpuNarrowPhaseCollisionTask\SpuMinkowskiPenetrationDepthSolver.h">
 			</File>
 			<File
-				RelativePath="..\..\Extras\BulletMultiThreaded\SpuNarrowPhaseCollisionTask\SpuPreferredPenetrationDirections.h">
+				RelativePath="..\..\src\BulletMultiThreaded\SpuNarrowPhaseCollisionTask\SpuPreferredPenetrationDirections.h">
 			</File>
 			<File
-				RelativePath="..\..\Extras\BulletMultiThreaded\SpuNarrowPhaseCollisionTask\SpuVoronoiSimplexSolver.h">
+				RelativePath="..\..\src\BulletMultiThreaded\SpuNarrowPhaseCollisionTask\SpuVoronoiSimplexSolver.h">
 			</File>
 			<File
-				RelativePath="..\..\Extras\BulletMultiThreaded\SpuSolverTask\SpuParallellSolverTask.h">
+				RelativePath="..\..\src\BulletMultiThreaded\SpuSolverTask\SpuParallellSolverTask.h">
 			</File>
 		</Filter>
 	</Files>
