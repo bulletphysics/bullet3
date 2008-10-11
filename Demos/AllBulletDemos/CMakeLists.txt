@@ -13,11 +13,11 @@ LINK_DIRECTORIES(
 )
 
 INCLUDE_DIRECTORIES(
-${BULLET_PHYSICS_SOURCE_DIR}/Extras/BulletColladaConverter ${BULLET_PHYSICS_SOURCE_DIR}/Extras  ${BULLET_PHYSICS_SOURCE_DIR}/Extras/GIMPACT/include ${BULLET_PHYSICS_SOURCE_DIR}/Extras/GIMPACTUtils  ${BULLET_PHYSICS_SOURCE_DIR}/Extras/ConvexDecomposition  ${BULLET_PHYSICS_SOURCE_DIR}/Extras/LibXML ${BULLET_PHYSICS_SOURCE_DIR}/Extras/LibXML/include ${BULLET_PHYSICS_SOURCE_DIR}/Extras/COLLADA_DOM/include/1.4 ${BULLET_PHYSICS_SOURCE_DIR}/Extras/COLLADA_DOM/include ${BULLET_PHYSICS_SOURCE_DIR}/src ${BULLET_PHYSICS_SOURCE_DIR}/Demos/OpenGL }
+${BULLET_PHYSICS_SOURCE_DIR}/Extras/BulletColladaConverter ${BULLET_PHYSICS_SOURCE_DIR}/Extras  ${BULLET_PHYSICS_SOURCE_DIR}/Extras/GIMPACTUtils  ${BULLET_PHYSICS_SOURCE_DIR}/Extras/ConvexDecomposition  ${BULLET_PHYSICS_SOURCE_DIR}/Extras/LibXML ${BULLET_PHYSICS_SOURCE_DIR}/Extras/LibXML/include ${BULLET_PHYSICS_SOURCE_DIR}/Extras/COLLADA_DOM/include/1.4 ${BULLET_PHYSICS_SOURCE_DIR}/Extras/COLLADA_DOM/include ${BULLET_PHYSICS_SOURCE_DIR}/src ${BULLET_PHYSICS_SOURCE_DIR}/Demos/OpenGL }
 )
 
 LINK_LIBRARIES(
-LibBulletColladaConverter LibGLUI  LibGIMPACTUtils LibGIMPACT LibConvexDecomposition LibColladaDom LibXML LibOpenGLSupport  LibBulletSoftBody LibBulletDynamics LibBulletCollision LibLinearMath ${GLUT_glut_LIBRARY} ${OPENGL_gl_LIBRARY} ${OPENGL_glu_LIBRARY}
+LibBulletColladaConverter LibGLUI  LibGIMPACTUtils LibConvexDecomposition LibColladaDom LibXML LibOpenGLSupport  LibBulletSoftBody LibBulletDynamics LibBulletCollision LibLinearMath ${GLUT_glut_LIBRARY} ${OPENGL_gl_LIBRARY} ${OPENGL_glu_LIBRARY}
 )
 
 

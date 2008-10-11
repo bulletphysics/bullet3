@@ -1,4 +1,4 @@
-noinst_LIBRARIES	= libxml.a libbulletcolladaconverter.a libcollada_dom.a libbulletmultithreaded.a libgimpact.a libgimpactutils.a libconvexdecomposition.a libglui.a
+noinst_LIBRARIES	= libxml.a libbulletcolladaconverter.a libcollada_dom.a libgimpactutils.a libconvexdecomposition.a libglui.a
 
 libglui_a_CXXFLAGS = ${CXXFLAGS} -Iglui
 libglui_a_SOURCES =\
