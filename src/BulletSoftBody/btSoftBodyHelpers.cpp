@@ -553,6 +553,210 @@ btSoftBody*		btSoftBodyHelpers::CreatePatch(btSoftBodyWorldInfo& worldInfo,const
 }
 
 //
+btSoftBody*		btSoftBodyHelpers::CreatePatchUV(btSoftBodyWorldInfo& worldInfo,
+						const btVector3& corner00,
+						const btVector3& corner10,
+						const btVector3& corner01,
+						const btVector3& corner11,
+						int resx,
+						int resy,
+						int fixeds,
+						bool gendiags,
+						float* tex_coords)
+{
+
+/*
+ *
+ *  corners:
+ *
+ *  [0][0]     corner00 ------- corner01   [resx][0]
+ *                |                |
+ *                |                |
+ *  [0][resy]  corner10 -------- corner11  [resx][resy]
+ *
+ *
+ *
+ *
+ *
+ *
+ *   "fixedgs" map:
+ *
+ *  corner00     -->   +1
+ *  corner01     -->   +2
+ *  corner10     -->   +4
+ *  corner11     -->   +8
+ *  upper middle -->  +16
+ *  left middle  -->  +32
+ *  right middle -->  +64
+ *  lower middle --> +128
+ *  center       --> +256
+ *
+ *
+ *   tex_coords size   (resx-1)*(resy-1)*12
+ *
+ *
+ *
+ *     SINGLE QUAD INTERNALS
+ *
+ *  1) btSoftBody's nodes and links,
+ *     diagonal link is optional ("gendiags")
+ *
+ *
+ *    node00 ------ node01
+ *      | .              
+ *      |   .            
+ *      |     .          
+ *      |       .        
+ *      |         .      
+ *    node10        node11
+ *
+ *
+ *
+ *   2) Faces:
+ *      two triangles,
+ *      UV Coordinates (hier example for single quad)
+ *      
+ *     (0,1)          (0,1)  (1,1)
+ *     1 |\            3 \-----| 2
+ *       | \              \    |
+ *       |  \              \   |
+ *       |   \              \  |
+ *       |    \              \ |
+ *     2 |-----\ 3            \| 1
+ *     (0,0)    (1,0)       (1,0)
+ *
+ *
+ *
+ *
+ *
+ *
+ */
+
+#define IDX(_x_,_y_)	((_y_)*rx+(_x_))
+	/* Create nodes		*/ 
+	if((resx<2)||(resy<2)) return(0);
+	const int	rx=resx;
+	const int	ry=resy;
+	const int	tot=rx*ry;
+	btVector3*	x=new btVector3[tot];
+	btScalar*	m=new btScalar[tot];
+
+	for(int iy=0;iy<ry;++iy)
+	{
+		const btScalar	ty=iy/(btScalar)(ry-1);
+		const btVector3	py0=lerp(corner00,corner01,ty);
+		const btVector3	py1=lerp(corner10,corner11,ty);
+		for(int ix=0;ix<rx;++ix)
+		{
+			const btScalar	tx=ix/(btScalar)(rx-1);
+			x[IDX(ix,iy)]=lerp(py0,py1,tx);
+			m[IDX(ix,iy)]=1;
+		}
+	}
+	btSoftBody*	psb=new btSoftBody(&worldInfo,tot,x,m);
+	if(fixeds&1)		psb->setMass(IDX(0,0),0);
+	if(fixeds&2)		psb->setMass(IDX(rx-1,0),0);
+	if(fixeds&4)		psb->setMass(IDX(0,ry-1),0);
+	if(fixeds&8)		psb->setMass(IDX(rx-1,ry-1),0);
+	if(fixeds&16)		psb->setMass(IDX((rx-1)/2,0),0);
+	if(fixeds&32)		psb->setMass(IDX(0,(ry-1)/2),0);
+	if(fixeds&64)		psb->setMass(IDX(rx-1,(ry-1)/2),0);
+	if(fixeds&128)		psb->setMass(IDX((rx-1)/2,ry-1),0);
+	if(fixeds&256)		psb->setMass(IDX((rx-1)/2,(ry-1)/2),0);
+	delete[] x;
+	delete[] m;
+
+
+	int z = 0;
+	/* Create links	and faces	*/ 
+	for(int iy=0;iy<ry;++iy)
+	{
+		for(int ix=0;ix<rx;++ix)
+		{
+			const bool	mdx=(ix+1)<rx;
+			const bool	mdy=(iy+1)<ry;
+			
+			int node00=IDX(ix,iy);
+			int node01=IDX(ix+1,iy);
+			int node10=IDX(ix,iy+1);
+			int node11=IDX(ix+1,iy+1);
+			
+			if(mdx) psb->appendLink(node00,node01);
+			if(mdy) psb->appendLink(node00,node10);
+			if(mdx&&mdy)
+			{
+				psb->appendFace(node00,node10,node11);
+				if (tex_coords) {
+					tex_coords[z+0]=CalculateUV(resx,resy,ix,iy,0);
+					tex_coords[z+1]=CalculateUV(resx,resy,ix,iy,1);
+					tex_coords[z+2]=CalculateUV(resx,resy,ix,iy,0);
+					tex_coords[z+3]=CalculateUV(resx,resy,ix,iy,2);
+					tex_coords[z+4]=CalculateUV(resx,resy,ix,iy,3);
+					tex_coords[z+5]=CalculateUV(resx,resy,ix,iy,2);
+				}
+				psb->appendFace(node11,node01,node00);
+				if (tex_coords) {
+					tex_coords[z+6 ]=CalculateUV(resx,resy,ix,iy,3);
+					tex_coords[z+7 ]=CalculateUV(resx,resy,ix,iy,2);
+					tex_coords[z+8 ]=CalculateUV(resx,resy,ix,iy,3);
+					tex_coords[z+9 ]=CalculateUV(resx,resy,ix,iy,1);
+					tex_coords[z+10]=CalculateUV(resx,resy,ix,iy,0);
+					tex_coords[z+11]=CalculateUV(resx,resy,ix,iy,1);
+				}
+				if (gendiags) psb->appendLink(node00,node11);
+				z += 12;
+			}
+		}
+	}
+	/* Finished	*/ 
+#undef IDX
+	return(psb);
+}
+
+float   btSoftBodyHelpers::CalculateUV(int resx,int resy,int ix,int iy,int id)
+{
+
+/*
+ *
+ *
+ *    node00 --- node01
+ *      |          |
+ *    node10 --- node11
+ *
+ *
+ *   ID map:
+ *
+ *   node00 s --> 0
+ *   node00 t --> 1
+ *
+ *   node01 s --> 3
+ *   node01 t --> 1
+ *
+ *   node10 s --> 0
+ *   node10 t --> 2
+ *
+ *   node11 s --> 3
+ *   node11 t --> 2
+ *
+ *
+ */
+
+float tc=0.0f;
+	if (id == 0) {
+		tc = (1.0f/((resx-1))*ix);
+	}
+	else if (id==1) {
+		tc = (1.0f/((resy-1))*(resy-1-iy));
+	}
+	else if (id==2) {
+		tc = (1.0f/((resy-1))*(resy-1-iy-1));
+	}
+	else if (id==3) {
+		tc = (1.0f/((resx-1))*(ix+1));
+	}
+return tc;
+}
+//
 btSoftBody*		btSoftBodyHelpers::CreateEllipsoid(btSoftBodyWorldInfo& worldInfo,const btVector3& center,
 								const btVector3& radius,
 								int res)
