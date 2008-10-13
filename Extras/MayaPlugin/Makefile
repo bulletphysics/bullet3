@@ -26,9 +26,9 @@ CPPFLAGS = -DBits64_ -m64 -DUNIX -D_BOOL -DLINUX -DFUNCPROTO -D_GNU_SOURCE -DLIN
 
 LDFLAGS =-Wl,-Bsymbolic -shared
 
-BULLET_INCLUDE=-I$(BULLET)/src -I$(BULLET)/Extras/GIMPACT/include
+BULLET_INCLUDE=-I$(BULLET)/src
 BULLET_LIB=-L$(BULLET)/out/linux/optimize/libs -L$(BULLET)/src \
-               -lBulletColladaConverter -lcolladadom -llibxml -lGIMPACT -lGIMPACTUtils -lbulletdynamics \
+               -lBulletColladaConverter -lcolladadom -llibxml -lGIMPACTUtils -lbulletdynamics \
                  -lbulletcollision -lbulletmath
 
 GL_LIB=-lGL -lGLU 

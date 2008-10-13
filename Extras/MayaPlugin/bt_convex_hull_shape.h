@@ -116,8 +116,6 @@ protected:
 
     void update()
     {
-        btConvexHullShape *ch_shape = static_cast<btConvexHullShape*>(shape());
-
         //apply the scaling
         btVector3 const& scale = m_ch_shape->getLocalScaling();
         btPoint3 const* points = m_ch_shape->getPoints();

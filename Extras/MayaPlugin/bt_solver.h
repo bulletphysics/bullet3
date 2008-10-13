@@ -27,8 +27,8 @@ Written by: Nicola Candussi <nicola@fluidinteractive.com>
 
 #include "btBulletCollisionCommon.h"
 #include "btBulletDynamicsCommon.h"
-#include "GIMPACT/Bullet/btGImpactShape.h"
-#include "GIMPACT/Bullet/btGImpactCollisionAlgorithm.h"
+#include "BulletCollision/Gimpact/btGImpactShape.h"
+#include "BulletCollision/Gimpact/btGImpactCollisionAlgorithm.h"
 
 #include "solver_impl.h"
 #include "bt_rigid_body.h"

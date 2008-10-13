@@ -31,11 +31,12 @@ Written by: Nicola Candussi <nicola@fluidinteractive.com>
 class bt_box_shape_t: public bt_collision_shape_t, public box_shape_impl_t 
 {
 public:
-    virtual void gl_draw(size_t draw_style) {
+    virtual void gl_draw(size_t draw_style) 
+    {
+//      std::cout << "bt_box_shape_t::draw" << std::endl;
         btBoxShape *box_shape = static_cast<btBoxShape*>(shape());
         btVector3 const& e = box_shape->getHalfExtentsWithoutMargin();
         glPushMatrix();
-
         glScalef(2 * e.x(), 2 * e.y(), 2 * e.z()); 
         if(draw_style & collision_shape_t::kDSSolid) {
             solid_cube();

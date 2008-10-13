@@ -31,7 +31,9 @@ Written by: Nicola Candussi <nicola@fluidinteractive.com>
 class bt_plane_shape_t: public bt_collision_shape_t, public plane_shape_impl_t 
 {
 public:
-    virtual void gl_draw(size_t draw_style) {
+    virtual void gl_draw(size_t draw_style) 
+    {
+    //    std::cout << "bt_plane_shape_t::draw" << std::endl;
       //  btStaticPlaneShape *plane_shape = static_cast<btStaticPlaneShape*>(shape());
         glPushMatrix();
         glScalef(100.0, 0.001, 100.0); 
