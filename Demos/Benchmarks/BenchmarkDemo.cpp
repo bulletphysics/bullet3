@@ -272,9 +272,11 @@ void	BenchmarkDemo::initPhysics()
 	///Don't make the world AABB size too large, it will harm simulation quality and performance
 	btVector3 worldAabbMin(-10000,-10000,-10000);
 	btVector3 worldAabbMax(10000,10000,10000);
-//	m_overlappingPairCache = new btAxisSweep3(worldAabbMin,worldAabbMax,3500);
+	
+	btHashedOverlappingPairCache* pairCache = new btHashedOverlappingPairCache();
+	m_overlappingPairCache = new btAxisSweep3(worldAabbMin,worldAabbMax,3500,pairCache);
 //	m_overlappingPairCache = new btSimpleBroadphase();
-	m_overlappingPairCache = new btDbvtBroadphase();
+//	m_overlappingPairCache = new btDbvtBroadphase();
 	
 
 
@@ -287,34 +289,37 @@ void	BenchmarkDemo::initPhysics()
 
 	m_dynamicsWorld->setGravity(btVector3(0,-10,0));
 
-	///create a few basic rigid bodies
-//	btCollisionShape* groundShape = new btBoxShape(btVector3(btScalar(50.),btScalar(50.),btScalar(50.)));
-	btCollisionShape* groundShape = new btStaticPlaneShape(btVector3(0,1,0),0);
-	
-	m_collisionShapes.push_back(groundShape);
-
-	btTransform groundTransform;
-	groundTransform.setIdentity();
-	groundTransform.setOrigin(btVector3(0,0,0));
-
-	//We can also use DemoApplication::localCreateRigidBody, but for clarity it is provided here:
+	if (m_benchmark<5)
 	{
-		btScalar mass(0.);
+		///create a few basic rigid bodies
+	//	btCollisionShape* groundShape = new btBoxShape(btVector3(btScalar(50.),btScalar(50.),btScalar(50.)));
+		btCollisionShape* groundShape = new btStaticPlaneShape(btVector3(0,1,0),0);
+		
+		m_collisionShapes.push_back(groundShape);
 
-		//rigidbody is dynamic if and only if mass is non zero, otherwise static
-		bool isDynamic = (mass != 0.f);
+		btTransform groundTransform;
+		groundTransform.setIdentity();
+		groundTransform.setOrigin(btVector3(0,0,0));
 
-		btVector3 localInertia(0,0,0);
-		if (isDynamic)
-			groundShape->calculateLocalInertia(mass,localInertia);
+		//We can also use DemoApplication::localCreateRigidBody, but for clarity it is provided here:
+		{
+			btScalar mass(0.);
 
-		//using motionstate is recommended, it provides interpolation capabilities, and only synchronizes 'active' objects
-		btDefaultMotionState* myMotionState = new btDefaultMotionState(groundTransform);
-		btRigidBody::btRigidBodyConstructionInfo rbInfo(mass,myMotionState,groundShape,localInertia);
-		btRigidBody* body = new btRigidBody(rbInfo);
+			//rigidbody is dynamic if and only if mass is non zero, otherwise static
+			bool isDynamic = (mass != 0.f);
 
-		//add the body to the dynamics world
-		m_dynamicsWorld->addRigidBody(body);
+			btVector3 localInertia(0,0,0);
+			if (isDynamic)
+				groundShape->calculateLocalInertia(mass,localInertia);
+
+			//using motionstate is recommended, it provides interpolation capabilities, and only synchronizes 'active' objects
+			btDefaultMotionState* myMotionState = new btDefaultMotionState(groundTransform);
+			btRigidBody::btRigidBodyConstructionInfo rbInfo(mass,myMotionState,groundShape,localInertia);
+			btRigidBody* body = new btRigidBody(rbInfo);
+
+			//add the body to the dynamics world
+			m_dynamicsWorld->addRigidBody(body);
+		}
 	}
 
 	switch (m_benchmark)
@@ -912,7 +917,7 @@ int LandscapeIdxCount[] = {
 	Landscape08IdxCount,
 };
 
-float *LandscapeVtx[] = {
+btScalar *LandscapeVtx[] = {
 	Landscape01Vtx,
 	Landscape02Vtx,
 	Landscape03Vtx,
@@ -923,7 +928,7 @@ float *LandscapeVtx[] = {
 	Landscape08Vtx,
 };
 
-float *LandscapeNml[] = {
+btScalar *LandscapeNml[] = {
 	Landscape01Nml,
 	Landscape02Nml,
 	Landscape03Nml,
@@ -934,7 +939,7 @@ float *LandscapeNml[] = {
 	Landscape08Nml,
 };
 
-float *LandscapeTex[] = {
+btScalar* LandscapeTex[] = {
 	Landscape01Tex,
 	Landscape02Tex,
 	Landscape03Tex,
@@ -967,7 +972,7 @@ void BenchmarkDemo::createLargeMeshBody()
 		btIndexedMesh part;
 
 		part.m_vertexBase = (const unsigned char*)LandscapeVtx[i];
-		part.m_vertexStride = sizeof(float) * 3;
+		part.m_vertexStride = sizeof(btScalar) * 3;
 		part.m_numVertices = LandscapeVtxCount[i];
 		part.m_triangleIndexBase = (const unsigned char*)LandscapeIdx[i];
 		part.m_triangleIndexStride = sizeof( short) * 3;
