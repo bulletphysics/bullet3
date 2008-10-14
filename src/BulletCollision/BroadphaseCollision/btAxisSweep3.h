@@ -25,6 +25,7 @@
 #include "btBroadphaseInterface.h"
 #include "btBroadphaseProxy.h"
 #include "btOverlappingPairCallback.h"
+#include "btDbvtBroadphase.h"
 
 //#define DEBUG_BROADPHASE 1
 #define USE_OVERLAP_TEST_ON_REMOVES 1
@@ -61,7 +62,7 @@ public:
 		// indexes into the edge arrays
 		BP_FP_INT_TYPE m_minEdges[3], m_maxEdges[3];		// 6 * 2 = 12
 //		BP_FP_INT_TYPE m_uniqueId;
-		BP_FP_INT_TYPE m_pad;
+		btBroadphaseProxy*	m_dbvtProxy;//for faster raycast
 		//void* m_pOwner; this is now in btBroadphaseProxy.m_clientObject
 	
 		SIMD_FORCE_INLINE void SetNextFree(BP_FP_INT_TYPE next) {m_minEdges[0] = next;}
@@ -93,6 +94,11 @@ protected:
 
 	int	m_invalidPair;
 
+	///additional dynamic aabb structure, used to accelerate ray cast queries.
+	///can be disabled using a optional argument in the constructor
+	btDbvtBroadphase*	m_raycastAccelerator;
+
+
 	// allocation/deallocation
 	BP_FP_INT_TYPE allocHandle();
 	void freeHandle(BP_FP_INT_TYPE handle);
@@ -116,7 +122,7 @@ protected:
 
 public:
 
-	btAxisSweep3Internal(const btPoint3& worldAabbMin,const btPoint3& worldAabbMax, BP_FP_INT_TYPE handleMask, BP_FP_INT_TYPE handleSentinel, BP_FP_INT_TYPE maxHandles = 16384, btOverlappingPairCache* pairCache=0);
+	btAxisSweep3Internal(const btPoint3& worldAabbMin,const btPoint3& worldAabbMax, BP_FP_INT_TYPE handleMask, BP_FP_INT_TYPE handleSentinel, BP_FP_INT_TYPE maxHandles = 16384, btOverlappingPairCache* pairCache=0,bool disableRaycastAccelerator = false);
 
 	virtual	~btAxisSweep3Internal();
 
@@ -223,7 +229,12 @@ btBroadphaseProxy*	btAxisSweep3Internal<BP_FP_INT_TYPE>::createProxy(  const btV
 		BP_FP_INT_TYPE handleId = addHandle(aabbMin,aabbMax, userPtr,collisionFilterGroup,collisionFilterMask,dispatcher,multiSapProxy);
 		
 		Handle* handle = getHandle(handleId);
-				
+		
+		if (m_raycastAccelerator)
+		{
+			btBroadphaseProxy* rayProxy = m_raycastAccelerator->createProxy(aabbMin,aabbMax,shapeType,userPtr,collisionFilterGroup,collisionFilterMask,dispatcher,0);
+			handle->m_dbvtProxy = rayProxy;
+		}
 		return handle;
 }
 
@@ -233,6 +244,8 @@ template <typename BP_FP_INT_TYPE>
 void	btAxisSweep3Internal<BP_FP_INT_TYPE>::destroyProxy(btBroadphaseProxy* proxy,btDispatcher* dispatcher)
 {
 	Handle* handle = static_cast<Handle*>(proxy);
+	if (m_raycastAccelerator)
+		m_raycastAccelerator->destroyProxy(handle->m_dbvtProxy,dispatcher);
 	removeHandle(static_cast<BP_FP_INT_TYPE>(handle->m_uniqueId), dispatcher);
 }
 
@@ -243,6 +256,8 @@ void	btAxisSweep3Internal<BP_FP_INT_TYPE>::setAabb(btBroadphaseProxy* proxy,cons
 	handle->m_aabbMin = aabbMin;
 	handle->m_aabbMax = aabbMax;
 	updateHandle(static_cast<BP_FP_INT_TYPE>(handle->m_uniqueId), aabbMin, aabbMax,dispatcher);
+	if (m_raycastAccelerator)
+		m_raycastAccelerator->setAabb(handle->m_dbvtProxy,aabbMin,aabbMax,dispatcher);
 
 }
 
@@ -250,14 +265,20 @@ template <typename BP_FP_INT_TYPE>
 
 void	btAxisSweep3Internal<BP_FP_INT_TYPE>::rayTest(const btVector3& rayFrom,const btVector3& rayTo, btBroadphaseRayCallback& rayCallback)
 {
-	//choose axis?
-	BP_FP_INT_TYPE axis = 0;
-	//for each proxy
-	for (BP_FP_INT_TYPE i=1;i<m_numHandles*2+1;i++)
+	if (m_raycastAccelerator)
 	{
-		if (m_pEdges[axis][i].IsMax())
+		m_raycastAccelerator->rayTest(rayFrom,rayTo,rayCallback);
+	} else
+	{
+		//choose axis?
+		BP_FP_INT_TYPE axis = 0;
+		//for each proxy
+		for (BP_FP_INT_TYPE i=1;i<m_numHandles*2+1;i++)
 		{
-			rayCallback.process(getHandle(m_pEdges[axis][i].m_handle));
+			if (m_pEdges[axis][i].IsMax())
+			{
+				rayCallback.process(getHandle(m_pEdges[axis][i].m_handle));
+			}
 		}
 	}
 }
@@ -298,13 +319,14 @@ void btAxisSweep3Internal<BP_FP_INT_TYPE>::unQuantize(btBroadphaseProxy* proxy,b
 
 
 template <typename BP_FP_INT_TYPE>
-btAxisSweep3Internal<BP_FP_INT_TYPE>::btAxisSweep3Internal(const btPoint3& worldAabbMin,const btPoint3& worldAabbMax, BP_FP_INT_TYPE handleMask, BP_FP_INT_TYPE handleSentinel,BP_FP_INT_TYPE userMaxHandles, btOverlappingPairCache* pairCache )
+btAxisSweep3Internal<BP_FP_INT_TYPE>::btAxisSweep3Internal(const btPoint3& worldAabbMin,const btPoint3& worldAabbMax, BP_FP_INT_TYPE handleMask, BP_FP_INT_TYPE handleSentinel,BP_FP_INT_TYPE userMaxHandles, btOverlappingPairCache* pairCache , bool disableRaycastAccelerator)
 :m_bpHandleMask(handleMask),
 m_handleSentinel(handleSentinel),
 m_pairCache(pairCache),
 m_userPairCallback(0),
 m_ownsPairCache(false),
-m_invalidPair(0)
+m_invalidPair(0),
+m_raycastAccelerator(0)
 {
 	BP_FP_INT_TYPE maxHandles = static_cast<BP_FP_INT_TYPE>(userMaxHandles+1);//need to add one sentinel handle
 
@@ -313,6 +335,12 @@ m_invalidPair(0)
 		void* ptr = btAlignedAlloc(sizeof(btHashedOverlappingPairCache),16);
 		m_pairCache = new(ptr) btHashedOverlappingPairCache();
 		m_ownsPairCache = true;
+	}
+
+	if (!disableRaycastAccelerator)
+	{
+		m_raycastAccelerator = new (btAlignedAlloc(sizeof(btDbvtBroadphase),16)) btDbvtBroadphase();//m_pairCache);
+		m_raycastAccelerator->m_deferedcollide = true;//don't add/remove pairs
 	}
 
 	//assert(bounds.HasVolume());
@@ -375,7 +403,9 @@ m_invalidPair(0)
 template <typename BP_FP_INT_TYPE>
 btAxisSweep3Internal<BP_FP_INT_TYPE>::~btAxisSweep3Internal()
 {
-	
+	if (m_raycastAccelerator)
+		btAlignedFree (m_raycastAccelerator);
+
 	for (int i = 2; i >= 0; i--)
 	{
 		btAlignedFree(m_pEdgesRawPtr[i]);
@@ -954,7 +984,7 @@ class btAxisSweep3 : public btAxisSweep3Internal<unsigned short int>
 {
 public:
 
-	btAxisSweep3(const btPoint3& worldAabbMin,const btPoint3& worldAabbMax, unsigned short int maxHandles = 16384, btOverlappingPairCache* pairCache = 0);
+	btAxisSweep3(const btPoint3& worldAabbMin,const btPoint3& worldAabbMax, unsigned short int maxHandles = 16384, btOverlappingPairCache* pairCache = 0, bool disableRaycastAccelerator = false);
 
 };
 
@@ -965,7 +995,7 @@ class bt32BitAxisSweep3 : public btAxisSweep3Internal<unsigned int>
 {
 public:
 
-	bt32BitAxisSweep3(const btPoint3& worldAabbMin,const btPoint3& worldAabbMax, unsigned int maxHandles = 1500000, btOverlappingPairCache* pairCache = 0);
+	bt32BitAxisSweep3(const btPoint3& worldAabbMin,const btPoint3& worldAabbMax, unsigned int maxHandles = 1500000, btOverlappingPairCache* pairCache = 0, bool disableRaycastAccelerator = false);
 
 };
 

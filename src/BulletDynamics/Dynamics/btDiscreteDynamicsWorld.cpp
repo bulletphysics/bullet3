@@ -125,6 +125,7 @@ void	btDiscreteDynamicsWorld::saveKinematicState(btScalar timeStep)
 
 void	btDiscreteDynamicsWorld::debugDrawWorld()
 {
+	BT_PROFILE("debugDrawWorld");
 
 	if (getDebugDrawer() && getDebugDrawer()->getDebugMode() & btIDebugDraw::DBG_DrawContactPoints)
 	{
@@ -253,6 +254,7 @@ void	btDiscreteDynamicsWorld::applyGravity()
 
 void	btDiscreteDynamicsWorld::synchronizeMotionStates()
 {
+	BT_PROFILE("synchronizeMotionStates");
 	{
 		//todo: iterate over awake simulation islands!
 		for ( int i=0;i<m_collisionObjects.size();i++)

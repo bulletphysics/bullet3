@@ -25,6 +25,7 @@ class btOverlappingPairCache;
 
 struct	btBroadphaseRayCallback
 {
+	virtual ~btBroadphaseRayCallback() {}
 	virtual bool	process(const btBroadphaseProxy* proxy) = 0;
 };
 
