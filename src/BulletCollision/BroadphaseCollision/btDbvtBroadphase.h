@@ -105,6 +105,8 @@ void							optimize();
 btBroadphaseProxy*				createProxy(const btVector3& aabbMin,const btVector3& aabbMax,int shapeType,void* userPtr,short int collisionFilterGroup,short int collisionFilterMask,btDispatcher* dispatcher,void* multiSapProxy);
 void							destroyProxy(btBroadphaseProxy* proxy,btDispatcher* dispatcher);
 void							setAabb(btBroadphaseProxy* proxy,const btVector3& aabbMin,const btVector3& aabbMax,btDispatcher* dispatcher);
+virtual void	rayTest(const btVector3& rayFrom,const btVector3& rayTo, btBroadphaseRayCallback& rayCallback);
+
 virtual void	getAabb(btBroadphaseProxy* proxy,btVector3& aabbMin, btVector3& aabbMax ) const;
 void							calculateOverlappingPairs(btDispatcher* dispatcher);
 btOverlappingPairCache*			getOverlappingPairCache();

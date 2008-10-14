@@ -599,52 +599,70 @@ void	btCollisionWorld::objectQuerySingle(const btConvexShape* castShape,const bt
 	}
 }
 
-void	btCollisionWorld::rayTest(const btVector3& rayFromWorld, const btVector3& rayToWorld, RayResultCallback& resultCallback) const
+
+struct btSingleRayCallback : public btBroadphaseRayCallback
 {
-	BT_PROFILE("rayTest");
 
+	btVector3	m_rayFromWorld;
+	btVector3	m_rayToWorld;
+	const btCollisionWorld*	m_world;
+	btCollisionWorld::RayResultCallback&	m_resultCallback;
 
-	btTransform	rayFromTrans,rayToTrans;
-	rayFromTrans.setIdentity();
-	rayFromTrans.setOrigin(rayFromWorld);
-	rayToTrans.setIdentity();
+	btSingleRayCallback(const btVector3& rayFromWorld,const btVector3& rayToWorld,const btCollisionWorld* world,btCollisionWorld::RayResultCallback& resultCallback)
+	:m_rayFromWorld(rayFromWorld),
+	m_rayToWorld(rayToWorld),
+	m_world(world),
+	m_resultCallback(resultCallback)
+	{
 
-	rayToTrans.setOrigin(rayToWorld);
+	}
 
-	/// go over all objects, and if the ray intersects their aabb, do a ray-shape query using convexCaster (CCD)
-
-	int i;
-	for (i=0;i<m_collisionObjects.size();i++)
+	virtual bool	process(const btBroadphaseProxy* proxy)
 	{
 		///terminate further ray tests, once the closestHitFraction reached zero
-		if (resultCallback.m_closestHitFraction == btScalar(0.f))
-			break;
+		if (m_resultCallback.m_closestHitFraction == btScalar(0.f))
+			return false;
 
-		btCollisionObject*	collisionObject= m_collisionObjects[i];
+		btCollisionObject*	collisionObject = (btCollisionObject*)proxy->m_clientObject;
+
 		//only perform raycast if filterMask matches
-		if(resultCallback.needsCollision(collisionObject->getBroadphaseHandle())) 
+		if(m_resultCallback.needsCollision(collisionObject->getBroadphaseHandle())) 
 		{
 			//RigidcollisionObject* collisionObject = ctrl->GetRigidcollisionObject();
 			//btVector3 collisionObjectAabbMin,collisionObjectAabbMax;
 			//collisionObject->getCollisionShape()->getAabb(collisionObject->getWorldTransform(),collisionObjectAabbMin,collisionObjectAabbMax);
 			//getBroadphase()->getAabb(collisionObject->getBroadphaseHandle(),collisionObjectAabbMin,collisionObjectAabbMax);
 
-			btScalar hitLambda = resultCallback.m_closestHitFraction;
+			btScalar hitLambda = m_resultCallback.m_closestHitFraction;
 			btVector3 hitNormal;
 			{
-				if (btRayAabb(rayFromWorld,rayToWorld,collisionObject->getBroadphaseHandle()->m_aabbMin,collisionObject->getBroadphaseHandle()->m_aabbMax,hitLambda,hitNormal))
+				if (btRayAabb(m_rayFromWorld,m_rayToWorld,collisionObject->getBroadphaseHandle()->m_aabbMin,collisionObject->getBroadphaseHandle()->m_aabbMax,hitLambda,hitNormal))
 				{
-					rayTestSingle(rayFromTrans,rayToTrans,
+					btTransform	rayFromTrans,rayToTrans;
+					rayFromTrans.setIdentity();
+					rayFromTrans.setOrigin(m_rayFromWorld);
+					rayToTrans.setIdentity();
+					rayToTrans.setOrigin(m_rayToWorld);
+
+					m_world->rayTestSingle(rayFromTrans,rayToTrans,
 						collisionObject,
 							collisionObject->getCollisionShape(),
 							collisionObject->getWorldTransform(),
-							resultCallback);
+							m_resultCallback);
 				}
 
 			}
 		}
-
+		return true;
 	}
+};
+
+void	btCollisionWorld::rayTest(const btVector3& rayFromWorld, const btVector3& rayToWorld, RayResultCallback& resultCallback) const
+{
+	BT_PROFILE("rayTest");
+	/// go over all objects, and if the ray intersects their aabb, do a ray-shape query using convexCaster (CCD)
+	btSingleRayCallback rayCB(rayFromWorld,rayToWorld,this,resultCallback);
+	m_broadphasePairCache->rayTest(rayFromWorld,rayToWorld,rayCB);
 
 }
 

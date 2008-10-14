@@ -156,6 +156,14 @@ void	btMultiSapBroadphase::getAabb(btBroadphaseProxy* proxy,btVector3& aabbMin, 
 	aabbMax = multiProxy->m_aabbMax;
 }
 
+void	btMultiSapBroadphase::rayTest(const btVector3& rayFrom,const btVector3& rayTo, btBroadphaseRayCallback& rayCallback)
+{
+	for (int i=0;i<m_multiSapProxies.size();i++)
+	{
+		rayCallback.process(m_multiSapProxies[i]);
+	}
+}
+
 
 //#include <stdio.h>
 

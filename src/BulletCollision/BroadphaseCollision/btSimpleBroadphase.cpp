@@ -151,7 +151,14 @@ void	btSimpleBroadphase::setAabb(btBroadphaseProxy* proxy,const btVector3& aabbM
 	sbp->m_aabbMax = aabbMax;
 }
 
-
+void	btSimpleBroadphase::rayTest(const btVector3& rayFrom,const btVector3& rayTo, btBroadphaseRayCallback& rayCallback)
+{
+	for (int i=0;i<m_numHandles;i++)
+	{
+		btSimpleBroadphaseProxy* proxy = &m_pHandles[i];
+		rayCallback.process(proxy);
+	}
+}
 
 
 

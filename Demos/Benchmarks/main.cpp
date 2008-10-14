@@ -26,13 +26,13 @@ int main(int argc,char** argv)
 {
 	GLDebugDrawer	gDebugDrawer;
 
-	BenchmarkDemo1 benchmarkDemo;
+//	BenchmarkDemo1 benchmarkDemo;
 //	BenchmarkDemo2 benchmarkDemo;
 //	BenchmarkDemo3 benchmarkDemo;
 //	BenchmarkDemo4 benchmarkDemo;
 //	BenchmarkDemo5 benchmarkDemo;
 //	BenchmarkDemo6 benchmarkDemo;
-//	BenchmarkDemo7 benchmarkDemo;
+	BenchmarkDemo7 benchmarkDemo;
 
 
 	benchmarkDemo.initPhysics();
