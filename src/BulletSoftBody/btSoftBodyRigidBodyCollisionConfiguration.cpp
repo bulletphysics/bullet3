@@ -29,10 +29,10 @@ btSoftBodyRigidBodyCollisionConfiguration::btSoftBodyRigidBodyCollisionConfigura
 
 	mem = btAlignedAlloc(sizeof(btSoftSoftCollisionAlgorithm::CreateFunc),16);
 	m_softSoftCreateFunc = new(mem) btSoftSoftCollisionAlgorithm::CreateFunc;
-	
+
 	mem = btAlignedAlloc(sizeof(btSoftRigidCollisionAlgorithm::CreateFunc),16);
 	m_softRigidConvexCreateFunc = new(mem) btSoftRigidCollisionAlgorithm::CreateFunc;
-	
+
 	mem = btAlignedAlloc(sizeof(btSoftRigidCollisionAlgorithm::CreateFunc),16);
 	m_swappedSoftRigidConvexCreateFunc = new(mem) btSoftRigidCollisionAlgorithm::CreateFunc;
 	m_swappedSoftRigidConvexCreateFunc->m_swapped=true;
@@ -40,20 +40,20 @@ btSoftBodyRigidBodyCollisionConfiguration::btSoftBodyRigidBodyCollisionConfigura
 #ifdef ENABLE_SOFTBODY_CONCAVE_COLLISIONS
 	mem = btAlignedAlloc(sizeof(btSoftBodyConcaveCollisionAlgorithm::CreateFunc),16);
 	m_softRigidConcaveCreateFunc = new(mem) btSoftBodyConcaveCollisionAlgorithm::CreateFunc;
-	
+
 	mem = btAlignedAlloc(sizeof(btSoftBodyConcaveCollisionAlgorithm::CreateFunc),16);
 	m_swappedSoftRigidConcaveCreateFunc = new(mem) btSoftBodyConcaveCollisionAlgorithm::SwappedCreateFunc;
 	m_swappedSoftRigidConcaveCreateFunc->m_swapped=true;
 #endif
 
 	//replace pool by a new one, with potential larger size
-	
+
 	if (m_ownsCollisionAlgorithmPool && m_collisionAlgorithmPool)
 	{
 		int curElemSize = m_collisionAlgorithmPool->getElementSize();
 		///calculate maximum element size, big enough to fit any collision algorithm in the memory pool
-		
-		
+
+
 		int maxSize0 = sizeof(btSoftSoftCollisionAlgorithm);
 		int maxSize1 = sizeof(btSoftRigidCollisionAlgorithm);
 		int maxSize2 = sizeof(btSoftBodyConcaveCollisionAlgorithm);
@@ -92,7 +92,7 @@ btSoftBodyRigidBodyCollisionConfiguration::~btSoftBodyRigidBodyCollisionConfigur
 	btAlignedFree(	m_swappedSoftRigidConcaveCreateFunc);
 #endif
 }
-	
+
 ///creation of soft-soft and soft-rigid, and otherwise fallback to base class implementation
 btCollisionAlgorithmCreateFunc* btSoftBodyRigidBodyCollisionConfiguration::getCollisionAlgorithmCreateFunc(int proxyType0,int proxyType1)
 {

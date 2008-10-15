@@ -110,34 +110,34 @@ void SoftDemo::clientMoveAndDisplay()
 
 	if (m_dynamicsWorld)
 	{
-	if(m_drag)
+		if(m_drag)
 		{
-		const int				x=m_lastmousepos[0];
-		const int				y=m_lastmousepos[1];
-		const btVector3			rayFrom=m_cameraPosition;
-		const btVector3			rayTo=getRayTo(x,y);
-		const btVector3			rayDir=(rayTo-rayFrom).normalized();
-		const btVector3			N=(m_cameraTargetPosition-m_cameraPosition).normalized();
-		const btScalar			O=dot(m_impact,N);
-		const btScalar			den=dot(N,rayDir);
-		if((den*den)>0)
+			const int				x=m_lastmousepos[0];
+			const int				y=m_lastmousepos[1];
+			const btVector3			rayFrom=m_cameraPosition;
+			const btVector3			rayTo=getRayTo(x,y);
+			const btVector3			rayDir=(rayTo-rayFrom).normalized();
+			const btVector3			N=(m_cameraTargetPosition-m_cameraPosition).normalized();
+			const btScalar			O=dot(m_impact,N);
+			const btScalar			den=dot(N,rayDir);
+			if((den*den)>0)
 			{
-			const btScalar			num=O-dot(N,rayFrom);
-			const btScalar			hit=num/den;
-			if((hit>0)&&(hit<1500))
+				const btScalar			num=O-dot(N,rayFrom);
+				const btScalar			hit=num/den;
+				if((hit>0)&&(hit<1500))
 				{				
-				m_goal=rayFrom+rayDir*hit;
+					m_goal=rayFrom+rayDir*hit;
 				}				
 			}		
-		btVector3				delta=m_goal-m_node->m_x;
-		static const btScalar	maxdrag=10;
-		if(delta.length2()>(maxdrag*maxdrag))
+			btVector3				delta=m_goal-m_node->m_x;
+			static const btScalar	maxdrag=10;
+			if(delta.length2()>(maxdrag*maxdrag))
 			{
-			delta=delta.normalized()*maxdrag;
+				delta=delta.normalized()*maxdrag;
 			}
-		m_node->m_v+=delta/dt;
+			m_node->m_v+=delta/dt;
 		}
-	
+
 #define FIXED_STEP
 #ifdef FIXED_STEP
 		m_dynamicsWorld->stepSimulation(dt=1.0f/60.f,0);
@@ -171,13 +171,13 @@ void SoftDemo::clientMoveAndDisplay()
 
 		if(m_drag)
 		{
-		m_node->m_v*=0;
+			m_node->m_v*=0;
 		}
 
 		m_softBodyWorldInfo.m_sparsesdf.GarbageCollect();
 
 		//optional but useful: debug drawing
-		
+
 	}
 
 #ifdef USE_QUICKPROF 
@@ -229,13 +229,13 @@ void SoftDemo::displayCallback(void) {
 //
 struct	ImplicitSphere : btSoftBody::ImplicitFn
 {
-btVector3	center;
-btScalar	sqradius;
-			ImplicitSphere() {}
-			ImplicitSphere(const btVector3& c,btScalar r) : center(c),sqradius(r*r) {}
-btScalar	Eval(const btVector3& x)
+	btVector3	center;
+	btScalar	sqradius;
+	ImplicitSphere() {}
+	ImplicitSphere(const btVector3& c,btScalar r) : center(c),sqradius(r*r) {}
+	btScalar	Eval(const btVector3& x)
 	{
-	return((x-center).length2()-sqradius);
+		return((x-center).length2()-sqradius);
 	}
 };
 
@@ -280,7 +280,7 @@ static inline btVector3	Vector3Rand()
 static void	Ctor_RbUpStack(SoftDemo* pdemo,int count)
 {
 	float				mass=10;
-	
+
 	btCompoundShape* cylinderCompound = new btCompoundShape;
 	btCollisionShape* cylinderShape = new btCylinderShapeX(btVector3(4,1,1));
 	btCollisionShape* boxShape = new btBoxShape(btVector3(4,1,1));
@@ -289,14 +289,14 @@ static void	Ctor_RbUpStack(SoftDemo* pdemo,int count)
 	cylinderCompound->addChildShape(localTransform,boxShape);
 	btQuaternion orn(SIMD_HALF_PI,0,0);
 	localTransform.setRotation(orn);
-//	localTransform.setOrigin(btVector3(1,1,1));
+	//	localTransform.setOrigin(btVector3(1,1,1));
 	cylinderCompound->addChildShape(localTransform,cylinderShape);
 
-	
+
 	btCollisionShape*	shape[]={	cylinderCompound,
 		new btSphereShape(1.5),
 		new btBoxShape(btVector3(1,1,1))
-		};
+	};
 	static const int	nshapes=sizeof(shape)/sizeof(shape[0]);
 	for(int i=0;i<count;++i)
 	{
@@ -364,7 +364,7 @@ static btSoftBody* Ctor_SoftBox(SoftDemo* pdemo,const btVector3& p,const btVecto
 	btSoftBody*		psb=btSoftBodyHelpers::CreateFromConvexHull(pdemo->m_softBodyWorldInfo,c,8);
 	psb->generateBendingConstraints(2);
 	pdemo->getSoftDynamicsWorld()->addSoftBody(psb);
-	
+
 	return(psb);
 
 }
@@ -406,7 +406,7 @@ static void	Init_Ropes(SoftDemo* pdemo)
 		psb->m_materials[0]->m_kLST	=	0.1+(i/(btScalar)(n-1))*0.9;
 		psb->setTotalMass(20);
 		pdemo->getSoftDynamicsWorld()->addSoftBody(psb);
-	
+
 	}
 }
 
@@ -486,9 +486,9 @@ static void	Init_Collide(SoftDemo* pdemo)
 {
 	//TRACEDEMO
 	struct Functor
-		{
+	{
 		static btSoftBody* Create(SoftDemo* pdemo,const btVector3& x,const btVector3& a)
-			{
+		{
 			btSoftBody*	psb=btSoftBodyHelpers::CreateFromTriMesh(pdemo->m_softBodyWorldInfo,gVertices,
 				&gIndices[0][0],
 				NUM_TRIANGLES);
@@ -503,12 +503,12 @@ static void	Init_Collide(SoftDemo* pdemo)
 			psb->setTotalMass(50,true);
 			pdemo->getSoftDynamicsWorld()->addSoftBody(psb);
 			return(psb);
-			}
-		};
-	for(int i=0;i<3;++i)
-		{
-		Functor::Create(pdemo,btVector3(3*i,2,0),btVector3(SIMD_PI/2*(1-(i&1)),SIMD_PI/2*(i&1),0));
 		}
+	};
+	for(int i=0;i<3;++i)
+	{
+		Functor::Create(pdemo,btVector3(3*i,2,0),btVector3(SIMD_PI/2*(1-(i&1)),SIMD_PI/2*(i&1),0));
+	}
 	pdemo->m_cutting=true;
 }
 
@@ -519,9 +519,9 @@ static void	Init_Collide2(SoftDemo* pdemo)
 {
 	//TRACEDEMO
 	struct Functor
-		{
+	{
 		static btSoftBody* Create(SoftDemo* pdemo,const btVector3& x,const btVector3& a)
-			{
+		{
 			btSoftBody*	psb=btSoftBodyHelpers::CreateFromTriMesh(pdemo->m_softBodyWorldInfo,gVerticesBunny,
 				&gIndicesBunny[0][0],
 				BUNNY_NUM_TRIANGLES);
@@ -540,12 +540,12 @@ static void	Init_Collide2(SoftDemo* pdemo)
 			psb->setTotalMass(100,true);
 			pdemo->getSoftDynamicsWorld()->addSoftBody(psb);
 			return(psb);
-			}
-		};
+		}
+	};
 	for(int i=0;i<3;++i)
-		{
+	{
 		Functor::Create(pdemo,btVector3(0,-1+5*i,0),btVector3(0,SIMD_PI/2*(i&1),0));
-		}	
+	}	
 	pdemo->m_cutting=true;
 }
 
@@ -555,7 +555,7 @@ static void	Init_Collide2(SoftDemo* pdemo)
 static void	Init_Collide3(SoftDemo* pdemo)
 {
 	//TRACEDEMO
-		{
+	{
 		const btScalar	s=8;
 		btSoftBody*		psb=btSoftBodyHelpers::CreatePatch(	pdemo->m_softBodyWorldInfo,btVector3(-s,0,-s),
 			btVector3(+s,0,-s),
@@ -566,8 +566,8 @@ static void	Init_Collide3(SoftDemo* pdemo)
 		psb->m_cfg.collisions		|=	btSoftBody::fCollision::VF_SS;
 		psb->setTotalMass(150);
 		pdemo->getSoftDynamicsWorld()->addSoftBody(psb);
-		}
-		{		
+	}
+	{		
 		const btScalar	s=4;
 		const btVector3	o=btVector3(5,10,0);
 		btSoftBody*		psb=btSoftBodyHelpers::CreatePatch(	pdemo->m_softBodyWorldInfo,
@@ -585,7 +585,7 @@ static void	Init_Collide3(SoftDemo* pdemo)
 		psb->setTotalMass(150);
 		pdemo->getSoftDynamicsWorld()->addSoftBody(psb);
 		pdemo->m_cutting=true;
-		}
+	}
 }
 
 //
@@ -732,9 +732,9 @@ static void	Init_Bending(SoftDemo* pdemo)
 	//TRACEDEMO
 	const btScalar	s=4;
 	const btVector3	x[]={	btVector3(-s,0,-s),
-							btVector3(+s,0,-s),
-							btVector3(+s,0,+s),
-							btVector3(-s,0,+s)};
+		btVector3(+s,0,-s),
+		btVector3(+s,0,+s),
+		btVector3(-s,0,+s)};
 	const btScalar	m[]={	0,0,0,1};
 	btSoftBody*		psb=new btSoftBody(&pdemo->m_softBodyWorldInfo,4,x,m);
 	psb->appendLink(0,1);
@@ -742,7 +742,7 @@ static void	Init_Bending(SoftDemo* pdemo)
 	psb->appendLink(2,3);
 	psb->appendLink(3,0);
 	psb->appendLink(0,2);
-	
+
 	pdemo->getSoftDynamicsWorld()->addSoftBody(psb);
 }
 
@@ -867,9 +867,9 @@ static void	Init_Cutting1(SoftDemo* pdemo)
 	const btScalar	h=2;
 	const int		r=16;	
 	const btVector3	p[]={	btVector3(+s,h,-s),
-							btVector3(-s,h,-s),
-							btVector3(+s,h,+s),
-							btVector3(-s,h,+s)};
+		btVector3(-s,h,-s),
+		btVector3(+s,h,+s),
+		btVector3(-s,h,+s)};
 	btSoftBody*	psb=btSoftBodyHelpers::CreatePatch(pdemo->m_softBodyWorldInfo,p[0],p[1],p[2],p[3],r,r,1+2+4+8,true);
 	pdemo->getSoftDynamicsWorld()->addSoftBody(psb);
 	psb->m_cfg.piterations=1;
@@ -883,104 +883,104 @@ static void	Init_Cutting1(SoftDemo* pdemo)
 //
 static void			Ctor_Gear(SoftDemo* pdemo,const btVector3& pos,btScalar speed)
 {
-btTransform startTransform;
-startTransform.setIdentity();
-startTransform.setOrigin(pos);
-btCompoundShape*	shape=new btCompoundShape();
+	btTransform startTransform;
+	startTransform.setIdentity();
+	startTransform.setOrigin(pos);
+	btCompoundShape*	shape=new btCompoundShape();
 #if 1
-shape->addChildShape(btTransform(btQuaternion(0,0,0)),new btBoxShape(btVector3(5,1,6)));
-shape->addChildShape(btTransform(btQuaternion(0,0,SIMD_HALF_PI)),new btBoxShape(btVector3(5,1,6)));
+	shape->addChildShape(btTransform(btQuaternion(0,0,0)),new btBoxShape(btVector3(5,1,6)));
+	shape->addChildShape(btTransform(btQuaternion(0,0,SIMD_HALF_PI)),new btBoxShape(btVector3(5,1,6)));
 #else
-shape->addChildShape(btTransform(btQuaternion(0,0,0)),new btCylinderShapeZ(btVector3(5,1,7)));
-shape->addChildShape(btTransform(btQuaternion(0,0,SIMD_HALF_PI)),new btBoxShape(btVector3(4,1,8)));
+	shape->addChildShape(btTransform(btQuaternion(0,0,0)),new btCylinderShapeZ(btVector3(5,1,7)));
+	shape->addChildShape(btTransform(btQuaternion(0,0,SIMD_HALF_PI)),new btBoxShape(btVector3(4,1,8)));
 #endif
-btRigidBody*		body=pdemo->localCreateRigidBody(10,startTransform,shape);
-body->setFriction(1);
-btDynamicsWorld*	world=pdemo->getDynamicsWorld();
-btHingeConstraint*	hinge=new btHingeConstraint(*body,btTransform::getIdentity());
-if(speed!=0) hinge->enableAngularMotor(true,speed,3);
-world->addConstraint(hinge);
+	btRigidBody*		body=pdemo->localCreateRigidBody(10,startTransform,shape);
+	body->setFriction(1);
+	btDynamicsWorld*	world=pdemo->getDynamicsWorld();
+	btHingeConstraint*	hinge=new btHingeConstraint(*body,btTransform::getIdentity());
+	if(speed!=0) hinge->enableAngularMotor(true,speed,3);
+	world->addConstraint(hinge);
 }
 
 //
 static btSoftBody*	Ctor_ClusterBunny(SoftDemo* pdemo,const btVector3& x,const btVector3& a)
 {
-btSoftBody*	psb=btSoftBodyHelpers::CreateFromTriMesh(pdemo->m_softBodyWorldInfo,gVerticesBunny,&gIndicesBunny[0][0],BUNNY_NUM_TRIANGLES);
-btSoftBody::Material*	pm=psb->appendMaterial();
-pm->m_kLST				=	1;
-pm->m_flags				-=	btSoftBody::fMaterial::DebugDraw;
-psb->generateBendingConstraints(2,pm);
-psb->m_cfg.piterations	=	2;
-psb->m_cfg.kDF			=	1;
-psb->m_cfg.collisions	=	btSoftBody::fCollision::CL_SS+
-							btSoftBody::fCollision::CL_RS;
-psb->randomizeConstraints();
-btMatrix3x3	m;
-m.setEulerZYX(a.x(),a.y(),a.z());
-psb->transform(btTransform(m,x));
-psb->scale(btVector3(8,8,8));
-psb->setTotalMass(150,true);
-psb->generateClusters(1);
-pdemo->getSoftDynamicsWorld()->addSoftBody(psb);
-return(psb);
+	btSoftBody*	psb=btSoftBodyHelpers::CreateFromTriMesh(pdemo->m_softBodyWorldInfo,gVerticesBunny,&gIndicesBunny[0][0],BUNNY_NUM_TRIANGLES);
+	btSoftBody::Material*	pm=psb->appendMaterial();
+	pm->m_kLST				=	1;
+	pm->m_flags				-=	btSoftBody::fMaterial::DebugDraw;
+	psb->generateBendingConstraints(2,pm);
+	psb->m_cfg.piterations	=	2;
+	psb->m_cfg.kDF			=	1;
+	psb->m_cfg.collisions	=	btSoftBody::fCollision::CL_SS+
+		btSoftBody::fCollision::CL_RS;
+	psb->randomizeConstraints();
+	btMatrix3x3	m;
+	m.setEulerZYX(a.x(),a.y(),a.z());
+	psb->transform(btTransform(m,x));
+	psb->scale(btVector3(8,8,8));
+	psb->setTotalMass(150,true);
+	psb->generateClusters(1);
+	pdemo->getSoftDynamicsWorld()->addSoftBody(psb);
+	return(psb);
 }
 
 //
 static btSoftBody*	Ctor_ClusterTorus(SoftDemo* pdemo,const btVector3& x,const btVector3& a,const btVector3& s=btVector3(2,2,2))
 {
-btSoftBody*	psb=btSoftBodyHelpers::CreateFromTriMesh(pdemo->m_softBodyWorldInfo,gVertices,&gIndices[0][0],NUM_TRIANGLES);
-btSoftBody::Material*	pm=psb->appendMaterial();
-pm->m_kLST				=	1;
-pm->m_flags				-=	btSoftBody::fMaterial::DebugDraw;			
-psb->generateBendingConstraints(2,pm);
-psb->m_cfg.piterations	=	2;
-psb->m_cfg.collisions	=	btSoftBody::fCollision::CL_SS+
-							btSoftBody::fCollision::CL_RS;
-psb->randomizeConstraints();
-psb->scale(s);
-psb->rotate(btQuaternion(a[0],a[1],a[2]));
-psb->translate(x);
-psb->setTotalMass(50,true);
-psb->generateClusters(64);			
-pdemo->getSoftDynamicsWorld()->addSoftBody(psb);
-return(psb);
+	btSoftBody*	psb=btSoftBodyHelpers::CreateFromTriMesh(pdemo->m_softBodyWorldInfo,gVertices,&gIndices[0][0],NUM_TRIANGLES);
+	btSoftBody::Material*	pm=psb->appendMaterial();
+	pm->m_kLST				=	1;
+	pm->m_flags				-=	btSoftBody::fMaterial::DebugDraw;			
+	psb->generateBendingConstraints(2,pm);
+	psb->m_cfg.piterations	=	2;
+	psb->m_cfg.collisions	=	btSoftBody::fCollision::CL_SS+
+		btSoftBody::fCollision::CL_RS;
+	psb->randomizeConstraints();
+	psb->scale(s);
+	psb->rotate(btQuaternion(a[0],a[1],a[2]));
+	psb->translate(x);
+	psb->setTotalMass(50,true);
+	psb->generateClusters(64);			
+	pdemo->getSoftDynamicsWorld()->addSoftBody(psb);
+	return(psb);
 }
 
 //
 static struct MotorControl : btSoftBody::AJoint::IControl
 {
-			MotorControl()
+	MotorControl()
 	{
-	goal=0;
-	maxtorque=0;
+		goal=0;
+		maxtorque=0;
 	}
-btScalar	Speed(btSoftBody::AJoint*,btScalar current)
+	btScalar	Speed(btSoftBody::AJoint*,btScalar current)
 	{
-	return(current+btMin(maxtorque,btMax(-maxtorque,goal-current)));
+		return(current+btMin(maxtorque,btMax(-maxtorque,goal-current)));
 	}
-btScalar	goal;
-btScalar	maxtorque;
+	btScalar	goal;
+	btScalar	maxtorque;
 }	motorcontrol;
 
 //
 struct SteerControl : btSoftBody::AJoint::IControl
 {
-			SteerControl(btScalar s)
+	SteerControl(btScalar s)
 	{
-	angle=0;
-	sign=s;
+		angle=0;
+		sign=s;
 	}
-void		Prepare(btSoftBody::AJoint* joint)
+	void		Prepare(btSoftBody::AJoint* joint)
 	{
-	joint->m_refs[0][0]=btCos(angle*sign);
-	joint->m_refs[0][2]=btSin(angle*sign);
+		joint->m_refs[0][0]=btCos(angle*sign);
+		joint->m_refs[0][2]=btSin(angle*sign);
 	}
-btScalar	Speed(btSoftBody::AJoint* joint,btScalar current)
+	btScalar	Speed(btSoftBody::AJoint* joint,btScalar current)
 	{
-	return(motorcontrol.Speed(joint,current));
+		return(motorcontrol.Speed(joint,current));
 	}
-btScalar	angle;
-btScalar	sign;
+	btScalar	angle;
+	btScalar	sign;
 };
 
 static SteerControl	steercontrol_f(+1);
@@ -989,259 +989,259 @@ static SteerControl	steercontrol_r(-1);
 //
 static void	Init_ClusterDeform(SoftDemo* pdemo)
 {
-btSoftBody*		psb=Ctor_ClusterTorus(pdemo,btVector3(0,0,0),btVector3(SIMD_PI/2,0,SIMD_HALF_PI));
-psb->generateClusters(8);
-psb->m_cfg.kDF=1;
+	btSoftBody*		psb=Ctor_ClusterTorus(pdemo,btVector3(0,0,0),btVector3(SIMD_PI/2,0,SIMD_HALF_PI));
+	psb->generateClusters(8);
+	psb->m_cfg.kDF=1;
 }
 
 //
 static void	Init_ClusterCollide1(SoftDemo* pdemo)
 {
-const btScalar	s=8;
-btSoftBody*		psb=btSoftBodyHelpers::CreatePatch(	pdemo->m_softBodyWorldInfo,btVector3(-s,0,-s),
-	btVector3(+s,0,-s),
-	btVector3(-s,0,+s),
-	btVector3(+s,0,+s),
-	31,31,
-	1+2+4+8,true);
-btSoftBody::Material* pm=psb->appendMaterial();
-pm->m_kLST		=	0.4;
-pm->m_flags		-=	btSoftBody::fMaterial::DebugDraw;
-psb->m_cfg.kDF	=	1;
-psb->m_cfg.kSRHR_CL		=	1;
-psb->m_cfg.kSR_SPLT_CL	=	0;
-psb->m_cfg.collisions	=	btSoftBody::fCollision::CL_SS+
-							btSoftBody::fCollision::CL_RS;
-psb->generateBendingConstraints(2,pm);
-psb->setTotalMass(50);
-psb->generateClusters(64);
-pdemo->getSoftDynamicsWorld()->addSoftBody(psb);
+	const btScalar	s=8;
+	btSoftBody*		psb=btSoftBodyHelpers::CreatePatch(	pdemo->m_softBodyWorldInfo,btVector3(-s,0,-s),
+		btVector3(+s,0,-s),
+		btVector3(-s,0,+s),
+		btVector3(+s,0,+s),
+		31,31,
+		1+2+4+8,true);
+	btSoftBody::Material* pm=psb->appendMaterial();
+	pm->m_kLST		=	0.4;
+	pm->m_flags		-=	btSoftBody::fMaterial::DebugDraw;
+	psb->m_cfg.kDF	=	1;
+	psb->m_cfg.kSRHR_CL		=	1;
+	psb->m_cfg.kSR_SPLT_CL	=	0;
+	psb->m_cfg.collisions	=	btSoftBody::fCollision::CL_SS+
+		btSoftBody::fCollision::CL_RS;
+	psb->generateBendingConstraints(2,pm);
+	psb->setTotalMass(50);
+	psb->generateClusters(64);
+	pdemo->getSoftDynamicsWorld()->addSoftBody(psb);
 
-Ctor_RbUpStack(pdemo,10);
+	Ctor_RbUpStack(pdemo,10);
 }
 
 //
 static void	Init_ClusterCollide2(SoftDemo* pdemo)
 {
-struct Functor
+	struct Functor
 	{
-	static btSoftBody* Create(SoftDemo* pdemo,const btVector3& x,const btVector3& a)
+		static btSoftBody* Create(SoftDemo* pdemo,const btVector3& x,const btVector3& a)
 		{
-		btSoftBody*	psb=btSoftBodyHelpers::CreateFromTriMesh(pdemo->m_softBodyWorldInfo,gVertices,
-			&gIndices[0][0],
-			NUM_TRIANGLES);
-		btSoftBody::Material* pm=psb->appendMaterial();
-		pm->m_flags		-=	btSoftBody::fMaterial::DebugDraw;
-		psb->generateBendingConstraints(2,pm);
-		psb->m_cfg.piterations=2;
-		psb->m_cfg.kDF			=1;
-		psb->m_cfg.kSSHR_CL		=1;
-		psb->m_cfg.kSS_SPLT_CL	=0;
-		psb->m_cfg.kSKHR_CL		=0.1f;
-		psb->m_cfg.kSK_SPLT_CL	=1;
-		psb->m_cfg.collisions=	btSoftBody::fCollision::CL_SS+
-								btSoftBody::fCollision::CL_RS;		
-		psb->randomizeConstraints();
-		btMatrix3x3	m;
-		m.setEulerZYX(a.x(),a.y(),a.z());
-		psb->transform(btTransform(m,x));
-		psb->scale(btVector3(2,2,2));
-		psb->setTotalMass(50,true);
-		psb->generateClusters(16);
-		pdemo->getSoftDynamicsWorld()->addSoftBody(psb);
-		return(psb);
+			btSoftBody*	psb=btSoftBodyHelpers::CreateFromTriMesh(pdemo->m_softBodyWorldInfo,gVertices,
+				&gIndices[0][0],
+				NUM_TRIANGLES);
+			btSoftBody::Material* pm=psb->appendMaterial();
+			pm->m_flags		-=	btSoftBody::fMaterial::DebugDraw;
+			psb->generateBendingConstraints(2,pm);
+			psb->m_cfg.piterations=2;
+			psb->m_cfg.kDF			=1;
+			psb->m_cfg.kSSHR_CL		=1;
+			psb->m_cfg.kSS_SPLT_CL	=0;
+			psb->m_cfg.kSKHR_CL		=0.1f;
+			psb->m_cfg.kSK_SPLT_CL	=1;
+			psb->m_cfg.collisions=	btSoftBody::fCollision::CL_SS+
+				btSoftBody::fCollision::CL_RS;		
+			psb->randomizeConstraints();
+			btMatrix3x3	m;
+			m.setEulerZYX(a.x(),a.y(),a.z());
+			psb->transform(btTransform(m,x));
+			psb->scale(btVector3(2,2,2));
+			psb->setTotalMass(50,true);
+			psb->generateClusters(16);
+			pdemo->getSoftDynamicsWorld()->addSoftBody(psb);
+			return(psb);
 		}
 	};
-for(int i=0;i<3;++i)
+	for(int i=0;i<3;++i)
 	{
-	Functor::Create(pdemo,btVector3(3*i,2,0),btVector3(SIMD_PI/2*(1-(i&1)),SIMD_PI/2*(i&1),0));
+		Functor::Create(pdemo,btVector3(3*i,2,0),btVector3(SIMD_PI/2*(1-(i&1)),SIMD_PI/2*(i&1),0));
 	}
 }
 
 //
 static void	Init_ClusterSocket(SoftDemo* pdemo)
 {
-btSoftBody*		psb=Ctor_ClusterTorus(pdemo,btVector3(0,0,0),btVector3(SIMD_PI/2,0,SIMD_HALF_PI));
-btRigidBody*	prb=Ctor_BigPlate(pdemo,50,8);
-psb->m_cfg.kDF=1;
-btSoftBody::LJoint::Specs	lj;
-lj.position	=	btVector3(0,5,0);
-psb->appendLinearJoint(lj,prb);
+	btSoftBody*		psb=Ctor_ClusterTorus(pdemo,btVector3(0,0,0),btVector3(SIMD_PI/2,0,SIMD_HALF_PI));
+	btRigidBody*	prb=Ctor_BigPlate(pdemo,50,8);
+	psb->m_cfg.kDF=1;
+	btSoftBody::LJoint::Specs	lj;
+	lj.position	=	btVector3(0,5,0);
+	psb->appendLinearJoint(lj,prb);
 }
 
 //
 static void	Init_ClusterHinge(SoftDemo* pdemo)
 {
-btSoftBody*		psb=Ctor_ClusterTorus(pdemo,btVector3(0,0,0),btVector3(SIMD_PI/2,0,SIMD_HALF_PI));
-btRigidBody*	prb=Ctor_BigPlate(pdemo,50,8);
-psb->m_cfg.kDF=1;
-btSoftBody::AJoint::Specs	aj;
-aj.axis	=	btVector3(0,0,1);
-psb->appendAngularJoint(aj,prb);
+	btSoftBody*		psb=Ctor_ClusterTorus(pdemo,btVector3(0,0,0),btVector3(SIMD_PI/2,0,SIMD_HALF_PI));
+	btRigidBody*	prb=Ctor_BigPlate(pdemo,50,8);
+	psb->m_cfg.kDF=1;
+	btSoftBody::AJoint::Specs	aj;
+	aj.axis	=	btVector3(0,0,1);
+	psb->appendAngularJoint(aj,prb);
 }
 
 //
 static void	Init_ClusterCombine(SoftDemo* pdemo)
 {
-const btVector3	sz(2,4,2);		
-btSoftBody*	psb0=Ctor_ClusterTorus(pdemo,btVector3(0,8,0),btVector3(SIMD_PI/2,0,SIMD_HALF_PI),sz);
-btSoftBody*	psb1=Ctor_ClusterTorus(pdemo,btVector3(0,8,10),btVector3(SIMD_PI/2,0,SIMD_HALF_PI),sz);
-btSoftBody*	psbs[]={psb0,psb1};
-for(int j=0;j<2;++j)
+	const btVector3	sz(2,4,2);		
+	btSoftBody*	psb0=Ctor_ClusterTorus(pdemo,btVector3(0,8,0),btVector3(SIMD_PI/2,0,SIMD_HALF_PI),sz);
+	btSoftBody*	psb1=Ctor_ClusterTorus(pdemo,btVector3(0,8,10),btVector3(SIMD_PI/2,0,SIMD_HALF_PI),sz);
+	btSoftBody*	psbs[]={psb0,psb1};
+	for(int j=0;j<2;++j)
 	{
-	psbs[j]->m_cfg.kDF=1;
-	psbs[j]->m_cfg.kDP=0;
-	psbs[j]->m_cfg.piterations=1;
-	psbs[j]->m_clusters[0]->m_matching	=	0.05;
-	psbs[j]->m_clusters[0]->m_ndamping	=	0.05;
+		psbs[j]->m_cfg.kDF=1;
+		psbs[j]->m_cfg.kDP=0;
+		psbs[j]->m_cfg.piterations=1;
+		psbs[j]->m_clusters[0]->m_matching	=	0.05;
+		psbs[j]->m_clusters[0]->m_ndamping	=	0.05;
 	}
-btSoftBody::AJoint::Specs	aj;
-aj.axis		=	btVector3(0,0,1);
-aj.icontrol	=	&motorcontrol;
-psb0->appendAngularJoint(aj,psb1);
+	btSoftBody::AJoint::Specs	aj;
+	aj.axis		=	btVector3(0,0,1);
+	aj.icontrol	=	&motorcontrol;
+	psb0->appendAngularJoint(aj,psb1);
 
-btSoftBody::LJoint::Specs	lj;
-lj.position	=	btVector3(0,8,5);
-psb0->appendLinearJoint(lj,psb1);
+	btSoftBody::LJoint::Specs	lj;
+	lj.position	=	btVector3(0,8,5);
+	psb0->appendLinearJoint(lj,psb1);
 }
 
 //
 static void	Init_ClusterCar(SoftDemo* pdemo)
 {
 	pdemo->setAzi(270);
-const btVector3		origin(100,80,0);
-const btQuaternion	orientation(-SIMD_PI/2,0,0);
-const btScalar	widthf=8;
-const btScalar	widthr=9;
-const btScalar	length=8;
-const btScalar	height=4;
-const btVector3	wheels[]=	{
-							btVector3(+widthf,-height,+length),	// Front left
-							btVector3(-widthf,-height,+length),	// Front right
-							btVector3(+widthr,-height,-length),	// Rear left
-							btVector3(-widthr,-height,-length),	// Rear right
-							};
-btSoftBody*	pa=Ctor_ClusterBunny(pdemo,btVector3(0,0,0),btVector3(0,0,0));
-btSoftBody*	pfl=Ctor_ClusterTorus(pdemo,wheels[0],btVector3(0,0,SIMD_HALF_PI),btVector3(2,4,2));
-btSoftBody*	pfr=Ctor_ClusterTorus(pdemo,wheels[1],btVector3(0,0,SIMD_HALF_PI),btVector3(2,4,2));
-btSoftBody*	prl=Ctor_ClusterTorus(pdemo,wheels[2],btVector3(0,0,SIMD_HALF_PI),btVector3(2,5,2));
-btSoftBody*	prr=Ctor_ClusterTorus(pdemo,wheels[3],btVector3(0,0,SIMD_HALF_PI),btVector3(2,5,2));
+	const btVector3		origin(100,80,0);
+	const btQuaternion	orientation(-SIMD_PI/2,0,0);
+	const btScalar	widthf=8;
+	const btScalar	widthr=9;
+	const btScalar	length=8;
+	const btScalar	height=4;
+	const btVector3	wheels[]=	{
+		btVector3(+widthf,-height,+length),	// Front left
+		btVector3(-widthf,-height,+length),	// Front right
+		btVector3(+widthr,-height,-length),	// Rear left
+		btVector3(-widthr,-height,-length),	// Rear right
+	};
+	btSoftBody*	pa=Ctor_ClusterBunny(pdemo,btVector3(0,0,0),btVector3(0,0,0));
+	btSoftBody*	pfl=Ctor_ClusterTorus(pdemo,wheels[0],btVector3(0,0,SIMD_HALF_PI),btVector3(2,4,2));
+	btSoftBody*	pfr=Ctor_ClusterTorus(pdemo,wheels[1],btVector3(0,0,SIMD_HALF_PI),btVector3(2,4,2));
+	btSoftBody*	prl=Ctor_ClusterTorus(pdemo,wheels[2],btVector3(0,0,SIMD_HALF_PI),btVector3(2,5,2));
+	btSoftBody*	prr=Ctor_ClusterTorus(pdemo,wheels[3],btVector3(0,0,SIMD_HALF_PI),btVector3(2,5,2));
 
-pfl->m_cfg.kDF	=
-pfr->m_cfg.kDF	=
-prl->m_cfg.kDF	=
-prr->m_cfg.kDF	=	1;
+	pfl->m_cfg.kDF	=
+		pfr->m_cfg.kDF	=
+		prl->m_cfg.kDF	=
+		prr->m_cfg.kDF	=	1;
 
-btSoftBody::LJoint::Specs	lspecs;
-lspecs.cfm		=	1;
-lspecs.erp		=	1;
-lspecs.position	=	btVector3(0,0,0);
+	btSoftBody::LJoint::Specs	lspecs;
+	lspecs.cfm		=	1;
+	lspecs.erp		=	1;
+	lspecs.position	=	btVector3(0,0,0);
 
-lspecs.position=wheels[0];pa->appendLinearJoint(lspecs,pfl);
-lspecs.position=wheels[1];pa->appendLinearJoint(lspecs,pfr);
-lspecs.position=wheels[2];pa->appendLinearJoint(lspecs,prl);
-lspecs.position=wheels[3];pa->appendLinearJoint(lspecs,prr);
+	lspecs.position=wheels[0];pa->appendLinearJoint(lspecs,pfl);
+	lspecs.position=wheels[1];pa->appendLinearJoint(lspecs,pfr);
+	lspecs.position=wheels[2];pa->appendLinearJoint(lspecs,prl);
+	lspecs.position=wheels[3];pa->appendLinearJoint(lspecs,prr);
 
-btSoftBody::AJoint::Specs	aspecs;
-aspecs.cfm		=	1;
-aspecs.erp		=	1;
-aspecs.axis		=	btVector3(1,0,0);
+	btSoftBody::AJoint::Specs	aspecs;
+	aspecs.cfm		=	1;
+	aspecs.erp		=	1;
+	aspecs.axis		=	btVector3(1,0,0);
 
-aspecs.icontrol	=	&steercontrol_f;
-pa->appendAngularJoint(aspecs,pfl);
-pa->appendAngularJoint(aspecs,pfr);
+	aspecs.icontrol	=	&steercontrol_f;
+	pa->appendAngularJoint(aspecs,pfl);
+	pa->appendAngularJoint(aspecs,pfr);
 
-aspecs.icontrol	=	&motorcontrol;
-pa->appendAngularJoint(aspecs,prl);
-pa->appendAngularJoint(aspecs,prr);
+	aspecs.icontrol	=	&motorcontrol;
+	pa->appendAngularJoint(aspecs,prl);
+	pa->appendAngularJoint(aspecs,prr);
 
-pa->rotate(orientation);
-pfl->rotate(orientation);
-pfr->rotate(orientation);
-prl->rotate(orientation);
-prr->rotate(orientation);
-pa->translate(origin);
-pfl->translate(origin);
-pfr->translate(origin);
-prl->translate(origin);
-prr->translate(origin);
-pfl->m_cfg.piterations	=
-pfr->m_cfg.piterations	=
-prl->m_cfg.piterations	=
-prr->m_cfg.piterations	= 1;
-pfl->m_clusters[0]->m_matching	=
-pfr->m_clusters[0]->m_matching	=
-prl->m_clusters[0]->m_matching	=
-prr->m_clusters[0]->m_matching	= 0.05;
-pfl->m_clusters[0]->m_ndamping	=
-pfr->m_clusters[0]->m_ndamping	=
-prl->m_clusters[0]->m_ndamping	=
-prr->m_clusters[0]->m_ndamping	= 0.05;
-		
-Ctor_LinearStair(pdemo,btVector3(0,-8,0),btVector3(3,2,40),0,20);
-Ctor_RbUpStack(pdemo,50);
-pdemo->m_autocam=true;
+	pa->rotate(orientation);
+	pfl->rotate(orientation);
+	pfr->rotate(orientation);
+	prl->rotate(orientation);
+	prr->rotate(orientation);
+	pa->translate(origin);
+	pfl->translate(origin);
+	pfr->translate(origin);
+	prl->translate(origin);
+	prr->translate(origin);
+	pfl->m_cfg.piterations	=
+		pfr->m_cfg.piterations	=
+		prl->m_cfg.piterations	=
+		prr->m_cfg.piterations	= 1;
+	pfl->m_clusters[0]->m_matching	=
+		pfr->m_clusters[0]->m_matching	=
+		prl->m_clusters[0]->m_matching	=
+		prr->m_clusters[0]->m_matching	= 0.05;
+	pfl->m_clusters[0]->m_ndamping	=
+		pfr->m_clusters[0]->m_ndamping	=
+		prl->m_clusters[0]->m_ndamping	=
+		prr->m_clusters[0]->m_ndamping	= 0.05;
+
+	Ctor_LinearStair(pdemo,btVector3(0,-8,0),btVector3(3,2,40),0,20);
+	Ctor_RbUpStack(pdemo,50);
+	pdemo->m_autocam=true;
 }
 
 //
 static void	Init_ClusterRobot(SoftDemo* pdemo)
 {
-struct Functor
+	struct Functor
 	{
-	static btSoftBody*	CreateBall(SoftDemo* pdemo,const btVector3& pos)
+		static btSoftBody*	CreateBall(SoftDemo* pdemo,const btVector3& pos)
 		{
-		btSoftBody*	psb=btSoftBodyHelpers::CreateEllipsoid(pdemo->m_softBodyWorldInfo,pos,btVector3(1,1,1)*3,512);
-		psb->m_materials[0]->m_kLST	=	0.45;
-		psb->m_cfg.kVC				=	20;
-		psb->setTotalMass(50,true);
-		psb->setPose(true,false);
-		psb->generateClusters(1);
-		pdemo->getSoftDynamicsWorld()->addSoftBody(psb);
-		return(psb);
+			btSoftBody*	psb=btSoftBodyHelpers::CreateEllipsoid(pdemo->m_softBodyWorldInfo,pos,btVector3(1,1,1)*3,512);
+			psb->m_materials[0]->m_kLST	=	0.45;
+			psb->m_cfg.kVC				=	20;
+			psb->setTotalMass(50,true);
+			psb->setPose(true,false);
+			psb->generateClusters(1);
+			pdemo->getSoftDynamicsWorld()->addSoftBody(psb);
+			return(psb);
 		}
 	};
-const btVector3		base=btVector3(0,25,8);
-btSoftBody*			psb0=Functor::CreateBall(pdemo,base+btVector3(-8,0,0));
-btSoftBody*			psb1=Functor::CreateBall(pdemo,base+btVector3(+8,0,0));
-btSoftBody*			psb2=Functor::CreateBall(pdemo,base+btVector3(0,0,+8*btSqrt(2)));
-const btVector3		ctr=(psb0->clusterCom(0)+psb1->clusterCom(0)+psb2->clusterCom(0))/3;
-btCylinderShape*	pshp=new btCylinderShape(btVector3(8,1,8));
-btRigidBody*		prb=pdemo->localCreateRigidBody(50,btTransform(btQuaternion(0,0,0),ctr+btVector3(0,5,0)),pshp);
-btSoftBody::LJoint::Specs	ls;
-ls.erp=0.5f;
-ls.position=psb0->clusterCom(0);psb0->appendLinearJoint(ls,prb);
-ls.position=psb1->clusterCom(0);psb1->appendLinearJoint(ls,prb);
-ls.position=psb2->clusterCom(0);psb2->appendLinearJoint(ls,prb);
+	const btVector3		base=btVector3(0,25,8);
+	btSoftBody*			psb0=Functor::CreateBall(pdemo,base+btVector3(-8,0,0));
+	btSoftBody*			psb1=Functor::CreateBall(pdemo,base+btVector3(+8,0,0));
+	btSoftBody*			psb2=Functor::CreateBall(pdemo,base+btVector3(0,0,+8*btSqrt(2)));
+	const btVector3		ctr=(psb0->clusterCom(0)+psb1->clusterCom(0)+psb2->clusterCom(0))/3;
+	btCylinderShape*	pshp=new btCylinderShape(btVector3(8,1,8));
+	btRigidBody*		prb=pdemo->localCreateRigidBody(50,btTransform(btQuaternion(0,0,0),ctr+btVector3(0,5,0)),pshp);
+	btSoftBody::LJoint::Specs	ls;
+	ls.erp=0.5f;
+	ls.position=psb0->clusterCom(0);psb0->appendLinearJoint(ls,prb);
+	ls.position=psb1->clusterCom(0);psb1->appendLinearJoint(ls,prb);
+	ls.position=psb2->clusterCom(0);psb2->appendLinearJoint(ls,prb);
 
-btBoxShape*			pbox=new btBoxShape(btVector3(20,1,40));
-btRigidBody*		pgrn=pdemo->localCreateRigidBody(0,btTransform(btQuaternion(0,-SIMD_HALF_PI/2,0),btVector3(0,0,0)),pbox);
+	btBoxShape*			pbox=new btBoxShape(btVector3(20,1,40));
+	btRigidBody*		pgrn=pdemo->localCreateRigidBody(0,btTransform(btQuaternion(0,-SIMD_HALF_PI/2,0),btVector3(0,0,0)),pbox);
 
-pdemo->m_autocam=true;
+	pdemo->m_autocam=true;
 }
 
 //
 static void	Init_ClusterStackSoft(SoftDemo* pdemo)
 {
-for(int i=0;i<10;++i)
+	for(int i=0;i<10;++i)
 	{
-	btSoftBody*	psb=Ctor_ClusterTorus(pdemo,btVector3(0,-9+8.25*i,0),btVector3(0,0,0));
-	psb->m_cfg.kDF=1;
+		btSoftBody*	psb=Ctor_ClusterTorus(pdemo,btVector3(0,-9+8.25*i,0),btVector3(0,0,0));
+		psb->m_cfg.kDF=1;
 	}
 }
 
 //
 static void	Init_ClusterStackMixed(SoftDemo* pdemo)
 {
-for(int i=0;i<10;++i)
+	for(int i=0;i<10;++i)
 	{
-	if((i+1)&1)
+		if((i+1)&1)
 		{
-		Ctor_BigPlate(pdemo,50,-9+4.25*i);
+			Ctor_BigPlate(pdemo,50,-9+4.25*i);
 		}
 		else
 		{
-		btSoftBody*	psb=Ctor_ClusterTorus(pdemo,btVector3(0,-9+4.25*i,0),btVector3(0,0,0));
-		psb->m_cfg.kDF=1;
+			btSoftBody*	psb=Ctor_ClusterTorus(pdemo,btVector3(0,-9+4.25*i,0),btVector3(0,0,0));
+			psb->m_cfg.kDF=1;
 		}
 	}
 }
@@ -1261,11 +1261,11 @@ void	SoftDemo::clientResetScene()
 			delete body->getMotionState();
 		}
 		while(m_dynamicsWorld->getNumConstraints())
-			{
+		{
 			btTypedConstraint*	pc=m_dynamicsWorld->getConstraint(0);
 			m_dynamicsWorld->removeConstraint(pc);
 			delete pc;
-			}
+		}
 		btSoftBody* softBody = btSoftBody::upcast(obj);
 		if (softBody)
 		{
@@ -1276,7 +1276,7 @@ void	SoftDemo::clientResetScene()
 		}
 		delete obj;
 	}
-	
+
 	m_softBodyWorldInfo.m_sparsesdf.Reset();
 	/* Init		*/ 
 	void (*demofncs[])(SoftDemo*)=
@@ -1311,7 +1311,7 @@ void	SoftDemo::clientResetScene()
 		Init_ClusterStackMixed,
 	};
 	current_demo=current_demo%(sizeof(demofncs)/sizeof(demofncs[0]));
-	
+
 	m_softBodyWorldInfo.air_density		=	(btScalar)1.2;
 	m_softBodyWorldInfo.water_density	=	0;
 	m_softBodyWorldInfo.water_offset		=	0;
@@ -1329,13 +1329,13 @@ void	SoftDemo::clientResetScene()
 void	SoftDemo::renderme()
 {
 	btIDebugDraw*	idraw=m_dynamicsWorld->getDebugDrawer();
-	
+
 	m_dynamicsWorld->debugDrawWorld();
-	
+
 	/* Bodies		*/ 
 	btVector3	ps(0,0,0);
 	int			nps=0;
-	
+
 	btSoftBodyArray&	sbs=getSoftDynamicsWorld()->getSoftBodyArray();
 	for(int ib=0;ib<sbs.size();++ib)
 	{
@@ -1356,7 +1356,7 @@ void	SoftDemo::renderme()
 		m_animtime=m_clock.getTimeMilliseconds()/1000.f;
 	/* Ray cast		*/ 
 	if(m_raycast)
-		{		
+	{		
 		/* Prepare rays	*/ 
 		const int		res=64;
 		const btScalar	fres=res-1;
@@ -1375,61 +1375,61 @@ void	SoftDemo::renderme()
 		origins.resize(res*res);
 		fractions.resize(res*res,1.f);
 		for(int y=0;y<res;++y)
-			{
+		{
 			for(int x=0;x<res;++x)
-				{
+			{
 				const int	idx=y*res+x;
 				origins[idx]=trs*btVector3(-size+size*2*x/fres,dist,-size+size*2*y/fres);
-				}
 			}
+		}
 		/* Cast rays	*/ 		
-			{
+		{
 			m_clock.reset();
 			btVector3*		org=&origins[0];
 			btScalar*				fraction=&fractions[0];
 			btSoftBody**			psbs=&sbs[0];
 			btSoftBody::sRayCast	results;
 			for(int i=0,ni=origins.size(),nb=sbs.size();i<ni;++i)
-				{
+			{
 				for(int ib=0;ib<nb;++ib)
-					{
-						btVector3 rayFrom = *org;
-						btVector3 rayTo = rayFrom+dir*rayLength;
+				{
+					btVector3 rayFrom = *org;
+					btVector3 rayTo = rayFrom+dir*rayLength;
 					if(psbs[ib]->rayTest(rayFrom,rayTo,results))
-						{
-							*fraction=results.fraction;
-						}
+					{
+						*fraction=results.fraction;
 					}
-				++org;++fraction;
 				}
+				++org;++fraction;
+			}
 			long	ms=btMax<long>(m_clock.getTimeMilliseconds(),1);
 			long	rayperseconds=(1000*(origins.size()*sbs.size()))/ms;
 			printf("%d ms (%d rays/s)\r\n",ms,rayperseconds);
-			}
+		}
 		/* Draw rays	*/ 
 		const btVector3	c[]={	origins[0],
-								origins[res-1],
-								origins[res*(res-1)],
-								origins[res*(res-1)+res-1]};
+			origins[res-1],
+			origins[res*(res-1)],
+			origins[res*(res-1)+res-1]};
 		idraw->drawLine(c[0],c[1],btVector3(0,0,0));
 		idraw->drawLine(c[1],c[3],btVector3(0,0,0));
 		idraw->drawLine(c[3],c[2],btVector3(0,0,0));
 		idraw->drawLine(c[2],c[0],btVector3(0,0,0));
 		for(int i=0,ni=origins.size();i<ni;++i)
-			{
+		{
 			const btScalar		fraction=fractions[i];
 			const btVector3&	org=origins[i];
 			if(fraction<1.f)
-				{
+			{
 				idraw->drawLine(org,org+dir*rayLength*fraction,btVector3(1,0,0));
-				}
-				else
-				{
-				idraw->drawLine(org,org-dir*rayLength*0.1,btVector3(0,0,0));
-				}
 			}
-		#undef RES
+			else
+			{
+				idraw->drawLine(org,org-dir*rayLength*0.1,btVector3(0,0,0));
+			}
 		}
+#undef RES
+	}
 	/* Water level	*/ 
 	static const btVector3	axis[]={btVector3(1,0,0),
 		btVector3(0,1,0),
@@ -1448,7 +1448,7 @@ void	SoftDemo::renderme()
 	}
 	//
 	DemoApplication::renderme();
-	
+
 }
 
 void	SoftDemo::setDrawClusters(bool drawClusters)
@@ -1479,14 +1479,14 @@ void	SoftDemo::keyboardCallback(unsigned char key, int x, int y)
 	case	'c':	getSoftDynamicsWorld()->setDrawFlags(getSoftDynamicsWorld()->getDrawFlags()^fDrawFlags::Clusters);break;
 	case	'`':
 		{
-		btSoftBodyArray&	sbs=getSoftDynamicsWorld()->getSoftBodyArray();
-		for(int ib=0;ib<sbs.size();++ib)
+			btSoftBodyArray&	sbs=getSoftDynamicsWorld()->getSoftBodyArray();
+			for(int ib=0;ib<sbs.size();++ib)
 			{
-			btSoftBody*	psb=sbs[ib];
-			psb->staticSolve(128);
+				btSoftBody*	psb=sbs[ib];
+				psb->staticSolve(128);
 			}
 		}
-	break;
+		break;
 	default:		DemoApplication::keyboardCallback(key,x,y);
 	}
 }
@@ -1494,109 +1494,109 @@ void	SoftDemo::keyboardCallback(unsigned char key, int x, int y)
 //
 void	SoftDemo::mouseMotionFunc(int x,int y)
 {
-if(m_node&&(m_results.fraction<1.f))
+	if(m_node&&(m_results.fraction<1.f))
 	{
-	if(!m_drag)
+		if(!m_drag)
 		{
-		#define SQ(_x_) (_x_)*(_x_)
-		if((SQ(x-m_lastmousepos[0])+SQ(y-m_lastmousepos[1]))>6)
+#define SQ(_x_) (_x_)*(_x_)
+			if((SQ(x-m_lastmousepos[0])+SQ(y-m_lastmousepos[1]))>6)
 			{
-			m_drag=true;
+				m_drag=true;
 			}
-		#undef SQ
+#undef SQ
 		}
-	if(m_drag)
+		if(m_drag)
 		{
-		m_lastmousepos[0]	=	x;
-		m_lastmousepos[1]	=	y;		
+			m_lastmousepos[0]	=	x;
+			m_lastmousepos[1]	=	y;		
 		}
 	}
 	else
 	{
-	DemoApplication::mouseMotionFunc(x,y);
+		DemoApplication::mouseMotionFunc(x,y);
 	}
 }
 
 //
 void	SoftDemo::mouseFunc(int button, int state, int x, int y)
 {
-if(button==0)
+	if(button==0)
 	{
-	switch(state)
+		switch(state)
 		{
 		case	0:
 			{
-			m_results.fraction=1.f;
-			DemoApplication::mouseFunc(button,state,x,y);
-			if(!m_pickConstraint)
+				m_results.fraction=1.f;
+				DemoApplication::mouseFunc(button,state,x,y);
+				if(!m_pickConstraint)
 				{
-				const btVector3			rayFrom=m_cameraPosition;
-				const btVector3			rayTo=getRayTo(x,y);
-				const btVector3			rayDir=(rayTo-rayFrom).normalized();
-				btSoftBodyArray&		sbs=getSoftDynamicsWorld()->getSoftBodyArray();
-				for(int ib=0;ib<sbs.size();++ib)
+					const btVector3			rayFrom=m_cameraPosition;
+					const btVector3			rayTo=getRayTo(x,y);
+					const btVector3			rayDir=(rayTo-rayFrom).normalized();
+					btSoftBodyArray&		sbs=getSoftDynamicsWorld()->getSoftBodyArray();
+					for(int ib=0;ib<sbs.size();++ib)
 					{
-					btSoftBody*				psb=sbs[ib];
-					btSoftBody::sRayCast	res;
-					if(psb->rayTest(rayFrom,rayTo,res))
+						btSoftBody*				psb=sbs[ib];
+						btSoftBody::sRayCast	res;
+						if(psb->rayTest(rayFrom,rayTo,res))
 						{
-						m_results=res;
+							m_results=res;
 						}
 					}
-				if(m_results.fraction<1.f)
+					if(m_results.fraction<1.f)
 					{				
-					m_impact			=	rayFrom+(rayTo-rayFrom)*m_results.fraction;
-					m_drag				=	false;
-					m_lastmousepos[0]	=	x;
-					m_lastmousepos[1]	=	y;
-					m_node				=	0;
-					switch(m_results.feature)
+						m_impact			=	rayFrom+(rayTo-rayFrom)*m_results.fraction;
+						m_drag				=	false;
+						m_lastmousepos[0]	=	x;
+						m_lastmousepos[1]	=	y;
+						m_node				=	0;
+						switch(m_results.feature)
 						{
 						case	btSoftBody::eFeature::Face:
 							{
-							btSoftBody::Face&	f=m_results.body->m_faces[m_results.index];
-							m_node=f.m_n[0];
-							for(int i=1;i<3;++i)
+								btSoftBody::Face&	f=m_results.body->m_faces[m_results.index];
+								m_node=f.m_n[0];
+								for(int i=1;i<3;++i)
 								{
-								if(	(m_node->m_x-m_impact).length2()>
-									(f.m_n[i]->m_x-m_impact).length2())
+									if(	(m_node->m_x-m_impact).length2()>
+										(f.m_n[i]->m_x-m_impact).length2())
 									{
-									m_node=f.m_n[i];
+										m_node=f.m_n[i];
 									}
 								}
 							}
-						break;
+							break;
 						}
-					if(m_node) m_goal=m_node->m_x;
-					return;
+						if(m_node) m_goal=m_node->m_x;
+						return;
 					}
 				}
 			}
-		break;
+			break;
 		case	1:
-		if((!m_drag)&&m_cutting&&(m_results.fraction<1.f))
+			if((!m_drag)&&m_cutting&&(m_results.fraction<1.f))
 			{
-			ImplicitSphere	isphere(m_impact,1);
-			printf("Mass before: %f\r\n",m_results.body->getTotalMass());
-			m_results.body->refine(&isphere,0.0001,true);
-			printf("Mass after: %f\r\n",m_results.body->getTotalMass());
+				ImplicitSphere	isphere(m_impact,1);
+				printf("Mass before: %f\r\n",m_results.body->getTotalMass());
+				m_results.body->refine(&isphere,0.0001,true);
+				printf("Mass after: %f\r\n",m_results.body->getTotalMass());
 			}
-		m_results.fraction=1.f;
-		m_drag=false;
-		DemoApplication::mouseFunc(button,state,x,y);
-		break;
+			m_results.fraction=1.f;
+			m_drag=false;
+			DemoApplication::mouseFunc(button,state,x,y);
+			break;
 		}
 	}
 	else
 	{
-	DemoApplication::mouseFunc(button,state,x,y);
+		DemoApplication::mouseFunc(button,state,x,y);
 	}
 }
 
 
 void	SoftDemo::initPhysics()
 {
-///create concave ground mesh
+	///create concave ground mesh
 
 	//reset and disable motorcontrol at the start
 	motorcontrol.goal = 0;
@@ -1634,7 +1634,7 @@ void	SoftDemo::initPhysics()
 
 		int vertStride = sizeof(btVector3);
 		int indexStride = 3*sizeof(int);
-		
+
 		int index=0;
 		for ( i=0;i<NUM_VERTS_X-1;i++)
 		{
@@ -1663,9 +1663,9 @@ void	SoftDemo::initPhysics()
 		groundShape = new btBoxShape (btVector3(200,CUBE_HALF_EXTENTS,200));
 	}
 
-	 
+
 	m_collisionShapes.push_back(groundShape);
-	
+
 	btCompoundShape* cylinderCompound = new btCompoundShape;
 	btCollisionShape* cylinderShape = new btCylinderShape (btVector3(CUBE_HALF_EXTENTS,CUBE_HALF_EXTENTS,CUBE_HALF_EXTENTS));
 	btTransform localTransform;
@@ -1674,7 +1674,7 @@ void	SoftDemo::initPhysics()
 	btQuaternion orn(btVector3(0,1,0),SIMD_PI);
 	localTransform.setRotation(orn);
 	cylinderCompound->addChildShape(localTransform,cylinderShape);
-	
+
 	m_collisionShapes.push_back(cylinderCompound);
 
 
