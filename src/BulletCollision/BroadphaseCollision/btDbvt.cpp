@@ -669,7 +669,7 @@ Benchmarking dbvt...
 [4] btDbvt::collideTT self: 2814 ms (-20%)
 [5] btDbvt::collideTT xform: 7379 ms (-1%)
 [6] btDbvt::collideTT xform,self: 7270 ms (-2%)
-[7] btDbvt::collideRAY: 6314 ms (0%),(332143 r/s)
+[7] btDbvt::rayTest: 6314 ms (0%),(332143 r/s)
 [8] insert/remove: 2093 ms (0%),(1001983 ir/s)
 [9] updates (teleport): 1879 ms (-3%),(1116100 u/s)
 [10] updates (jitter): 1244 ms (-4%),(1685813 u/s)
@@ -809,7 +809,7 @@ bool					cfgBenchmark6_Enable		=	cfgEnable;
 static const int		cfgBenchmark6_Iterations	=	512;
 static const btScalar	cfgBenchmark6_OffsetScale	=	2;
 static const int		cfgBenchmark6_Reference		=	7270;
-//[7] btDbvt::collideRAY
+//[7] btDbvt::rayTest
 bool					cfgBenchmark7_Enable		=	cfgEnable;
 static const int		cfgBenchmark7_Passes		=	32;
 static const int		cfgBenchmark7_Iterations	=	65536;
@@ -1017,13 +1017,13 @@ if(cfgBenchmark7_Enable)
 		}
 	btDbvtBenchmark::RandTree(cfgVolumeCenterScale,cfgVolumeExentsBase,cfgVolumeExentsScale,cfgLeaves,dbvt);
 	dbvt.optimizeTopDown();
-	printf("[7] btDbvt::collideRAY: ");
+	printf("[7] btDbvt::rayTest: ");
 	wallclock.reset();
 	for(int i=0;i<cfgBenchmark7_Passes;++i)
 		{
 		for(int j=0;j<cfgBenchmark7_Iterations;++j)
 			{
-			btDbvt::collideRAY(dbvt.m_root,rayorg[j],raydir[j],policy);
+			btDbvt::rayTest(dbvt.m_root,rayorg[j],rayorg[j]+raydir[j],policy);
 			}
 		}
 	const int	time=(int)wallclock.getTimeMilliseconds();

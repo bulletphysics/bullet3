@@ -134,7 +134,7 @@ public:
 		btSoftBody*	body;		/// soft body
 		eFeature::_	feature;	/// feature type
 		int			index;		/// feature index
-		btScalar	time;		/// time of impact (rayorg+raydir*time)
+		btScalar	fraction;		/// time of impact fraction (rayorg+(rayto-rayfrom)*fraction)
 	};
 	
 	/* ImplicitFn	*/ 
@@ -532,18 +532,21 @@ public:
 		btScalar				radmrg;			// radial margin
 		btScalar				updmrg;			// Update margin
 	};	
-	/* RayCaster	*/ 
-	struct	RayCaster : btDbvt::ICollide
+	/// RayFromToCaster takes a ray from, ray to (instead of direction!)
+	struct	RayFromToCaster : btDbvt::ICollide
 		{
-		btVector3			o;
-		btVector3			d;
-		btScalar			mint;
-		Face*	face;
-		int					tests;
-								RayCaster(const btVector3& org,const btVector3& dir,btScalar mxt);
+		btVector3			m_rayFrom;
+		btVector3			m_rayTo;
+		btVector3			m_rayNormalizedDirection;
+		btScalar			m_mint;
+		Face*				m_face;
+		int					m_tests;
+								RayFromToCaster(const btVector3& rayFrom,const btVector3& rayTo,btScalar mxt);
 		void					Process(const btDbvtNode* leaf);
-		static inline btScalar	rayTriangle(const btVector3& org,
-											const btVector3& dir,
+		
+		static inline btScalar	rayFromToTriangle(const btVector3& rayFrom,
+											const btVector3& rayTo,
+											const btVector3& rayNormalizedDirection,
 											const btVector3& a,
 											const btVector3& b,
 											const btVector3& c,
@@ -744,11 +747,11 @@ public:
 	/* CutLink																*/ 
 	bool				cutLink(int node0,int node1,btScalar position);
 	bool				cutLink(const Node* node0,const Node* node1,btScalar position);
-	/* Ray casting															*/ 
-	bool				rayCast(const btVector3& org,
-								const btVector3& dir,
-								sRayCast& results,
-								btScalar maxtime=SIMD_INFINITY);
+	
+	///Ray casting using rayFrom and rayTo in worldspace, (not direction!)
+	bool				rayTest(const btVector3& rayFrom,
+								const btVector3& rayTo,
+								sRayCast& results);
 	/* Solver presets														*/ 
 	void				setSolver(eSolverPresets::_ preset);
 	/* predictMotion														*/ 
@@ -798,7 +801,8 @@ public:
 	//
 	void				pointersToIndices();
 	void				indicesToPointers(const int* map=0);
-	int					rayCast(const btVector3& org,const btVector3& dir,
+
+	int					rayTest(const btVector3& rayFrom,const btVector3& rayTo,
 								btScalar& mint,eFeature::_& feature,int& index,bool bcountonly) const;
 	void				initializeFaceTree();
 	btVector3			evaluateCom() const;

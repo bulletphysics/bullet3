@@ -1222,17 +1222,19 @@ return(done);
 }
 
 //
-bool			btSoftBody::rayCast(const btVector3& org,
-									const btVector3& dir,
-									sRayCast& results,
-									btScalar maxtime)
-{
-if(m_faces.size()&&m_fdbvt.empty()) initializeFaceTree();
-results.body	=	this;
-results.time	=	maxtime;
-results.feature	=	eFeature::None;
-results.index	=	-1;
-return(rayCast(org,dir,results.time,results.feature,results.index,false)!=0);
+bool			btSoftBody::rayTest(const btVector3& rayFrom,
+									const btVector3& rayTo,
+									sRayCast& results)
+	{
+	if(m_faces.size()&&m_fdbvt.empty()) 
+		initializeFaceTree();
+
+	results.body	=	this;
+	results.fraction = 1.f;
+	results.feature	=	eFeature::None;
+	results.index	=	-1;
+
+	return(rayTest(rayFrom,rayTo,results.fraction,results.feature,results.index,false)!=0);
 }
 
 //
@@ -1497,31 +1499,36 @@ void			btSoftBody::integrateMotion()
 }
 
 //
-					btSoftBody::RayCaster::RayCaster(const btVector3& org,const btVector3& dir,btScalar mxt)
+					btSoftBody::RayFromToCaster::RayFromToCaster(const btVector3& rayFrom,const btVector3& rayTo,btScalar mxt)
 {
-o		=	org;
-d		=	dir;
-mint	=	mxt;
-face	=	0;
-tests	=	0;
+	m_rayFrom = rayFrom;
+	m_rayNormalizedDirection = (rayTo-rayFrom);
+	m_rayTo = rayTo;
+	m_mint	=	mxt;
+	m_face	=	0;
+	m_tests	=	0;
 }
 
 //
-void				btSoftBody::RayCaster::Process(const btDbvtNode* leaf)
+void				btSoftBody::RayFromToCaster::Process(const btDbvtNode* leaf)
 {
-btSoftBody::Face&	f=*(btSoftBody::Face*)leaf->data;
-const btScalar		t=rayTriangle(	o,d,
-									f.m_n[0]->m_x,
-									f.m_n[1]->m_x,
-									f.m_n[2]->m_x,
-									mint);
-if((t>0)&&(t<mint)) { mint=t;face=&f; }
-++tests;
+	btSoftBody::Face&	f=*(btSoftBody::Face*)leaf->data;
+	const btScalar		t=rayFromToTriangle(	m_rayFrom,m_rayTo,m_rayNormalizedDirection,
+		f.m_n[0]->m_x,
+		f.m_n[1]->m_x,
+		f.m_n[2]->m_x,
+		m_mint);
+	if((t>0)&&(t<m_mint)) 
+	{ 
+		m_mint=t;m_face=&f; 
+	}
+	++m_tests;
 }
 
 //
-btScalar			btSoftBody::RayCaster::rayTriangle(	const btVector3& org,
-														const btVector3& dir,
+btScalar			btSoftBody::RayFromToCaster::rayFromToTriangle(	const btVector3& rayFrom,
+														const btVector3& rayTo,
+														const btVector3& rayNormalizedDirection,
 														const btVector3& a,
 														const btVector3& b,
 														const btVector3& c,
@@ -1529,16 +1536,17 @@ btScalar			btSoftBody::RayCaster::rayTriangle(	const btVector3& org,
 {
 	static const btScalar	ceps=-SIMD_EPSILON*10;
 	static const btScalar	teps=SIMD_EPSILON*10;
+
 	const btVector3			n=cross(b-a,c-a);
 	const btScalar			d=dot(a,n);
-	const btScalar			den=dot(dir,n);
+	const btScalar			den=dot(rayNormalizedDirection,n);
 	if(!btFuzzyZero(den))
 	{
-		const btScalar		num=dot(org,n)-d;
+		const btScalar		num=dot(rayFrom,n)-d;
 		const btScalar		t=-num/den;
 		if((t>teps)&&(t<maxt))
 		{
-			const btVector3	hit=org+dir*t;
+			const btVector3	hit=rayFrom+rayNormalizedDirection*t;
 			if(	(dot(n,cross(a-hit,b-hit))>ceps)	&&			
 				(dot(n,cross(b-hit,c-hit))>ceps)	&&
 				(dot(n,cross(c-hit,a-hit))>ceps))
@@ -1638,16 +1646,20 @@ void				btSoftBody::indicesToPointers(const int* map)
 }
 
 //
-int					btSoftBody::rayCast(const btVector3& org,const btVector3& dir,
+int					btSoftBody::rayTest(const btVector3& rayFrom,const btVector3& rayTo,
 										btScalar& mint,eFeature::_& feature,int& index,bool bcountonly) const
 {
 	int	cnt=0;
 	if(bcountonly||m_fdbvt.empty())
 		{/* Full search	*/ 
+			btVector3 dir = rayTo-rayFrom;
+			dir.normalize();
+
 		for(int i=0,ni=m_faces.size();i<ni;++i)
 			{
 			const btSoftBody::Face&	f=m_faces[i];
-			const btScalar			t=RayCaster::rayTriangle(	org,dir,
+			
+			const btScalar			t=RayFromToCaster::rayFromToTriangle(	rayFrom,rayTo,dir,
 																f.m_n[0]->m_x,
 																f.m_n[1]->m_x,
 																f.m_n[2]->m_x,
@@ -1666,13 +1678,14 @@ int					btSoftBody::rayCast(const btVector3& org,const btVector3& dir,
 		}
 		else
 		{/* Use dbvt	*/ 
-		RayCaster	collider(org,dir,mint);
-		btDbvt::collideRAY(m_fdbvt.m_root,org,dir,collider);
-		if(collider.face)
+		RayFromToCaster	collider(rayFrom,rayTo,mint);
+
+		btDbvt::rayTest(m_fdbvt.m_root,rayFrom,rayTo,collider);
+		if(collider.m_face)
 			{
-			mint=collider.mint;
+			mint=collider.m_mint;
 			feature=btSoftBody::eFeature::Face;
-			index=(int)(collider.face-&m_faces[0]);
+			index=(int)(collider.m_face-&m_faces[0]);
 			cnt=1;
 			}
 		}

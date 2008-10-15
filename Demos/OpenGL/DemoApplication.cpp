@@ -397,7 +397,7 @@ void DemoApplication::keyboardCallback(unsigned char key, int x, int y)
 
 	case '.':
 		{
-			shootBox(getCameraTargetPosition());
+			shootBox(getRayTo(x,y));//getCameraTargetPosition());
 			break;
 		}
 
@@ -530,7 +530,7 @@ void	DemoApplication::shootBox(const btVector3& destination)
 			btConvexShape* childShape = new btBoxShape(btVector3(1.f,1.f,1.f));
 			m_shootBoxShape = new btUniformScalingShape(childShape,0.5f);
 #else
-			m_shootBoxShape = new btBoxShape(btVector3(1.f,1.f,1.f));
+			m_shootBoxShape = new btSphereShape(1.f);//BoxShape(btVector3(1.f,1.f,1.f));
 #endif//
 		}
 

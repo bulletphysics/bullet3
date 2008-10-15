@@ -20,6 +20,7 @@ subject to the following restrictions:
 #include "LinearMath/btAlignedObjectArray.h"
 #include "LinearMath/btVector3.h"
 #include "LinearMath/btTransform.h"
+#include "LinearMath/btAabbUtil2.h"
 
 //
 // Compile time configuration
@@ -156,10 +157,7 @@ DBVT_INLINE friend bool			Intersect(	const btDbvtAabbMm& a,
 											const btTransform& xform);
 DBVT_INLINE friend bool			Intersect(	const btDbvtAabbMm& a,
 											const btVector3& b);
-DBVT_INLINE friend bool			Intersect(	const btDbvtAabbMm& a,
-											const btVector3& org,
-											const btVector3& invdir,
-											const unsigned* signs);
+
 DBVT_INLINE friend btScalar		Proximity(	const btDbvtAabbMm& a,
 											const btDbvtAabbMm& b);
 DBVT_INLINE friend int			Select(		const btDbvtAabbMm& o,
@@ -317,9 +315,9 @@ struct	btDbvt
 								const btDbvtVolume& volume,
 								DBVT_IPOLICY);
 	DBVT_PREFIX
-	static void		collideRAY(	const btDbvtNode* root,
-								const btVector3& origin,
-								const btVector3& direction,
+	static void		rayTest(	const btDbvtNode* root,
+								const btVector3& rayFrom,
+								const btVector3& rayTo,
 								DBVT_IPOLICY);
 	DBVT_PREFIX
 	static void		collideKDOP(const btDbvtNode* root,
@@ -539,37 +537,12 @@ return(	(b.x()>=a.mi.x())&&
 		(b.z()<=a.mx.z()));
 }
 
-//
-DBVT_INLINE bool		Intersect(	const btDbvtAabbMm& a,
-									const btVector3& org,
-									const btVector3& invdir,
-									const unsigned* signs)
-{
-#if 0
-const btVector3		b0((a.mi-org)*invdir);
-const btVector3		b1((a.mx-org)*invdir);
-const btVector3		tmin(btMin(b0[0],b1[0]),btMin(b0[1],b1[1]),btMin(b0[2],b1[2]));
-const btVector3		tmax(btMax(b0[0],b1[0]),btMax(b0[1],b1[1]),btMax(b0[2],b1[2]));
-const btScalar		tin=btMax(tmin[0],btMax(tmin[1],tmin[2]));
-const btScalar		tout=btMin(tmax[0],btMin(tmax[1],tmax[2]));
-return(tin<tout);
-#else
-const btVector3*	bounds[2]={&a.mi,&a.mx};
-btScalar			txmin=(bounds[  signs[0]]->x()-org[0])*invdir[0];
-btScalar			txmax=(bounds[1-signs[0]]->x()-org[0])*invdir[0];
-const btScalar		tymin=(bounds[  signs[1]]->y()-org[1])*invdir[1];
-const btScalar		tymax=(bounds[1-signs[1]]->y()-org[1])*invdir[1];
-if((txmin>tymax)||(tymin>txmax)) return(false);
-if(tymin>txmin) txmin=tymin;
-if(tymax<txmax) txmax=tymax;
-const btScalar		tzmin=(bounds[  signs[2]]->z()-org[2])*invdir[2];
-const btScalar		tzmax=(bounds[1-signs[2]]->z()-org[2])*invdir[2];
-if((txmin>tzmax)||(tzmin>txmax)) return(false);
-if(tzmin>txmin) txmin=tzmin;
-if(tzmax<txmax) txmax=tzmax;
-return(txmax>0);
-#endif
-}
+
+
+
+
+//////////////////////////////////////
+
 	
 //
 DBVT_INLINE btScalar	Proximity(	const btDbvtAabbMm& a,
@@ -875,31 +848,51 @@ if(root)
 	}
 }
 
+
 //
 DBVT_PREFIX
-inline void		btDbvt::collideRAY(	const btDbvtNode* root,
-									const btVector3& origin,
-									const btVector3& direction,
+inline void		btDbvt::rayTest(	const btDbvtNode* root,
+									const btVector3& rayFrom,
+									const btVector3& rayTo,
 									DBVT_IPOLICY)
 {
 DBVT_CHECKTYPE
-if(root)
+	if(root)
 	{
-	const btVector3	normal=direction.normalized();
-	const btVector3	invdir(	1/normal.x(),
-							1/normal.y(),
-							1/normal.z());
-	const unsigned	signs[]={	direction.x()<0,
-								direction.y()<0,
-								direction.z()<0};
+		btVector3 rayDir = (rayTo-rayFrom);
+		rayDir.normalize ();
+		
+		///what about division by zero? --> just set rayDirection[i] to INF/1e30
+		btVector3 rayDirectionInverse;
+		rayDirectionInverse[0] = rayDir[0] == btScalar(0.0) ? btScalar(1e30) : btScalar(1.0) / rayDir[0];
+		rayDirectionInverse[1] = rayDir[1] == btScalar(0.0) ? btScalar(1e30) : btScalar(1.0) / rayDir[1];
+		rayDirectionInverse[2] = rayDir[2] == btScalar(0.0) ? btScalar(1e30) : btScalar(1.0) / rayDir[2];
+		unsigned int signs[3] = { rayDirectionInverse[0] < 0.0, rayDirectionInverse[1] < 0.0, rayDirectionInverse[2] < 0.0};
+		
+	
+		btVector3 resultNormal;
+
+
 	btAlignedObjectArray<const btDbvtNode*>	stack;
 	stack.reserve(SIMPLE_STACKSIZE);
 	stack.push_back(root);
 	do	{
 		const btDbvtNode*	node=stack[stack.size()-1];
 		stack.pop_back();
-		if(Intersect(node->volume,origin,invdir,signs))
-			{
+
+		btVector3 bounds[2] = {node->volume.Mins(),node->volume.Maxs()};
+		btScalar lambda_max = rayDir.dot(rayTo-rayFrom);
+		btScalar tmin=1.f,lambda_min=0.f;
+		bool result1 = btRayAabb2(rayFrom,rayDirectionInverse,signs,bounds,tmin,lambda_min,lambda_max);
+
+#ifdef COMPARE_BTRAY_AABB2
+		btScalar param=1.f;
+		bool result2 = btRayAabb(rayFrom,rayTo,node->volume.Mins(),node->volume.Maxs(),param,resultNormal);
+		btAssert(result1 == result2);
+#endif //TEST_BTRAY_AABB2
+
+		if(result1)
+		{
 			if(node->isinternal())
 				{
 				stack.push_back(node->childs[0]);

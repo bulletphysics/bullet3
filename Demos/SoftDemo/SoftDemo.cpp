@@ -1322,7 +1322,7 @@ void	SoftDemo::clientResetScene()
 	m_autocam						=	false;
 	m_raycast						=	false;
 	m_cutting						=	false;
-	m_results.time					=	SIMD_INFINITY;
+	m_results.fraction				=	1.f;
 	demofncs[current_demo](this);
 }
 
@@ -1364,14 +1364,16 @@ void	SoftDemo::renderme()
 		const btScalar	dist=10;
 		btTransform		trs;
 		trs.setOrigin(ps);
+		btScalar rayLength = 1000.f;
+
 		const btScalar	angle=m_animtime*0.2;
 		trs.setRotation(btQuaternion(angle,SIMD_PI/4,0));
-		const btVector3	dir=trs.getBasis()*btVector3(0,-1,0);
+		btVector3	dir=trs.getBasis()*btVector3(0,-1,0);
 		trs.setOrigin(ps-dir*dist);
 		btAlignedObjectArray<btVector3>	origins;
-		btAlignedObjectArray<btScalar>	times;
+		btAlignedObjectArray<btScalar>	fractions;
 		origins.resize(res*res);
-		times.resize(res*res,SIMD_INFINITY);
+		fractions.resize(res*res,1.f);
 		for(int y=0;y<res;++y)
 			{
 			for(int x=0;x<res;++x)
@@ -1383,20 +1385,22 @@ void	SoftDemo::renderme()
 		/* Cast rays	*/ 		
 			{
 			m_clock.reset();
-			const btVector3*		org=&origins[0];
-			btScalar*				mint=&times[0];
+			btVector3*		org=&origins[0];
+			btScalar*				fraction=&fractions[0];
 			btSoftBody**			psbs=&sbs[0];
 			btSoftBody::sRayCast	results;
 			for(int i=0,ni=origins.size(),nb=sbs.size();i<ni;++i)
 				{
 				for(int ib=0;ib<nb;++ib)
 					{
-					if(psbs[ib]->rayCast(*org,dir,results,*mint))
+						btVector3 rayFrom = *org;
+						btVector3 rayTo = rayFrom+dir*rayLength;
+					if(psbs[ib]->rayTest(rayFrom,rayTo,results))
 						{
-						*mint=results.time;
+							*fraction=results.fraction;
 						}
 					}
-				++org;++mint;
+				++org;++fraction;
 				}
 			long	ms=btMax<long>(m_clock.getTimeMilliseconds(),1);
 			long	rayperseconds=(1000*(origins.size()*sbs.size()))/ms;
@@ -1413,15 +1417,15 @@ void	SoftDemo::renderme()
 		idraw->drawLine(c[2],c[0],btVector3(0,0,0));
 		for(int i=0,ni=origins.size();i<ni;++i)
 			{
-			const btScalar		tim=times[i];
+			const btScalar		fraction=fractions[i];
 			const btVector3&	org=origins[i];
-			if(tim<SIMD_INFINITY)
+			if(fraction<1.f)
 				{
-				idraw->drawLine(org,org+dir*tim,btVector3(1,0,0));
+				idraw->drawLine(org,org+dir*rayLength*fraction,btVector3(1,0,0));
 				}
 				else
 				{
-				idraw->drawLine(org,org-dir*0.1,btVector3(0,0,0));
+				idraw->drawLine(org,org-dir*rayLength*0.1,btVector3(0,0,0));
 				}
 			}
 		#undef RES
@@ -1490,7 +1494,7 @@ void	SoftDemo::keyboardCallback(unsigned char key, int x, int y)
 //
 void	SoftDemo::mouseMotionFunc(int x,int y)
 {
-if(m_node&&(m_results.time<SIMD_INFINITY))
+if(m_node&&(m_results.fraction<1.f))
 	{
 	if(!m_drag)
 		{
@@ -1522,7 +1526,7 @@ if(button==0)
 		{
 		case	0:
 			{
-			m_results.time=SIMD_INFINITY;
+			m_results.fraction=1.f;
 			DemoApplication::mouseFunc(button,state,x,y);
 			if(!m_pickConstraint)
 				{
@@ -1534,14 +1538,14 @@ if(button==0)
 					{
 					btSoftBody*				psb=sbs[ib];
 					btSoftBody::sRayCast	res;
-					if(psb->rayCast(rayFrom,rayDir,res,m_results.time))
+					if(psb->rayTest(rayFrom,rayTo,res))
 						{
 						m_results=res;
 						}
 					}
-				if(m_results.time<SIMD_INFINITY)
+				if(m_results.fraction<1.f)
 					{				
-					m_impact			=	rayFrom+rayDir*m_results.time;
+					m_impact			=	rayFrom+(rayTo-rayFrom)*m_results.fraction;
 					m_drag				=	false;
 					m_lastmousepos[0]	=	x;
 					m_lastmousepos[1]	=	y;
@@ -1570,14 +1574,14 @@ if(button==0)
 			}
 		break;
 		case	1:
-		if((!m_drag)&&m_cutting&&(m_results.time<SIMD_INFINITY))
+		if((!m_drag)&&m_cutting&&(m_results.fraction<1.f))
 			{
 			ImplicitSphere	isphere(m_impact,1);
 			printf("Mass before: %f\r\n",m_results.body->getTotalMass());
 			m_results.body->refine(&isphere,0.0001,true);
 			printf("Mass after: %f\r\n",m_results.body->getTotalMass());
 			}
-		m_results.time=SIMD_INFINITY;
+		m_results.fraction=1.f;
 		m_drag=false;
 		DemoApplication::mouseFunc(button,state,x,y);
 		break;
