@@ -333,7 +333,6 @@ struct	btDbvt
 								const btVector3& rayDirectionInverse,
 								unsigned int signs[3],
 								btScalar lambda_max,
-								const btRaySlope& raySlope,
 								DBVT_IPOLICY) const;
 
 	DBVT_PREFIX
@@ -872,7 +871,6 @@ inline void		btDbvt::rayTestInternal(	const btDbvtNode* root,
 								const btVector3& rayDirectionInverse,
 								unsigned int signs[3],
 								btScalar lambda_max,
-								const btRaySlope& raySlope,
 								DBVT_IPOLICY) const
 {
 	DBVT_CHECKTYPE
@@ -889,66 +887,11 @@ inline void		btDbvt::rayTestInternal(	const btDbvtNode* root,
 		do	
 		{
 			const btDbvtNode*	node=m_stack[--depth];
-			//m_stack.pop_back();
-
 			bounds[0] = node->volume.Mins();
 			bounds[1] = node->volume.Maxs();
-			
 			btScalar tmin=1.f,lambda_min=0.f;
 			unsigned int result1=false;
-
-///			A comparison test for ray-AABB test:
-///			"Fast Ray/Axis-Aligned Bounding Box Overlap Tests using Ray Slopes"
-///			http://jgt.akpeters.com/papers/EisemannEtAl07/
-///			The algorithm seems indeed a bit faster, but the code complexity doesn't make it attractive for future optimizations.
-///
-///			Enable/disable #define TEST_RAY_SLOPES in btBroadphaseInterface.h
-///
-#ifndef TEST_RAY_SLOPES
 			result1 = btRayAabb2(rayFrom,rayDirectionInverse,signs,bounds,tmin,lambda_min,lambda_max);
-#else
-			btScalar t=1.f;
-			btAaboxSlope aabbSlope;
-			aabbSlope.x0 = node->volume.Mins().getX();
-			aabbSlope.y0 = node->volume.Mins().getY();
-			aabbSlope.z0 = node->volume.Mins().getZ();
-
-			aabbSlope.x1 = node->volume.Maxs().getX();
-			aabbSlope.y1 = node->volume.Maxs().getY();
-			aabbSlope.z1 = node->volume.Maxs().getZ();
-
-
-			//ray starts or ends within AABB
-			
-//			if (!result1)
-//				if (TestPointAgainstAabb2(node->volume.Mins(),node->volume.Maxs(),rayTo))
-//					result1=true;
-//			if (!result1)
-
-			result1 = btRaySlopeAabb(&raySlope,&aabbSlope,&t);
-
-			if (result1)
-			{
-			//if fromRay is inside the AABB, t can still be negative, so we need an additional check.
-				if (t>1.0)
-					continue;
-
-				if (t<0.)
-				{
-					if (!TestPointAgainstAabb2(node->volume.Mins(),node->volume.Maxs(),rayFrom))
-						continue;
-				}
-			}
-#endif //USE_ORIGINAL_RAY_AABB
-
-	#ifdef COMPARE_BTRAY_AABB2//slower version using in/outcodes
-			btScalar param=1.f;
-			bool result2 = btRayAabb(rayFrom,rayTo,node->volume.Mins(),node->volume.Maxs(),param,resultNormal);
-			btAssert(result1 == result2);
-	#endif //TEST_BTRAY_AABB2
-
-	
-
 			if(result1)
 			{
 				if(node->isinternal())
@@ -1004,7 +947,6 @@ inline void		btDbvt::rayTest(	const btDbvtNode* root,
 			btVector3 bounds[2];
 			do	{
 				const btDbvtNode*	node=stack[--depth];
-				//m_stack.pop_back();
 
 				bounds[0] = node->volume.Mins();
 				bounds[1] = node->volume.Maxs();
@@ -1012,11 +954,11 @@ inline void		btDbvt::rayTest(	const btDbvtNode* root,
 				btScalar tmin=1.f,lambda_min=0.f;
 				unsigned int result1 = btRayAabb2(rayFrom,rayDirectionInverse,signs,bounds,tmin,lambda_min,lambda_max);
 
-		#ifdef COMPARE_BTRAY_AABB2
+#ifdef COMPARE_BTRAY_AABB2
 				btScalar param=1.f;
 				bool result2 = btRayAabb(rayFrom,rayTo,node->volume.Mins(),node->volume.Maxs(),param,resultNormal);
 				btAssert(result1 == result2);
-		#endif //TEST_BTRAY_AABB2
+#endif //TEST_BTRAY_AABB2
 
 				if(result1)
 				{

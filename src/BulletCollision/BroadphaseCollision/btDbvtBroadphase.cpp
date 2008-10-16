@@ -235,7 +235,6 @@ void	btDbvtBroadphase::rayTest(const btVector3& rayFrom,const btVector3& rayTo, 
 		rayCallback.m_rayDirectionInverse,
 		rayCallback.m_signs,
 		rayCallback.m_lambda_max,
-		rayCallback.m_ray,
 		callback);
 
 	m_sets[1].rayTestInternal(	m_sets[1].m_root,
@@ -244,7 +243,6 @@ void	btDbvtBroadphase::rayTest(const btVector3& rayFrom,const btVector3& rayTo, 
 		rayCallback.m_rayDirectionInverse,
 		rayCallback.m_signs,
 		rayCallback.m_lambda_max,
-		rayCallback.m_ray,
 		callback);
 
 }
