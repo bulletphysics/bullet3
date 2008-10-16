@@ -71,7 +71,7 @@ protected:
 	///users can point to their objects, m_userPointer is not used by Bullet, see setUserPointer/getUserPointer
 	void*			m_userObjectPointer;
 
-	///m_internalType is reserved to distinguish Bullet's btCollisionObject, btRigidBody, btSoftBody etc.
+	///m_internalType is reserved to distinguish Bullet's btCollisionObject, btRigidBody, btSoftBody, btGhostObject etc.
 	///do not assign your own m_internalType unless you write a new dynamics object class.
 	int				m_internalType;
 
@@ -110,7 +110,10 @@ public:
 	{
 		CO_COLLISION_OBJECT =1,
 		CO_RIGID_BODY,
-		CO_SOFT_BODY
+		CO_SOFT_BODY,
+		///CO_GHOST_OBJECT keeps track of all objects overlapping its AABB and that pass its collision filter
+		///It is useful for collision sensors, explosion objects, character controller etc.
+		CO_GHOST_OBJECT
 	};
 
 	SIMD_FORCE_INLINE bool mergesSimulationIslands() const
