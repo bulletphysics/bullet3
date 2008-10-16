@@ -628,9 +628,6 @@ struct btSingleRayCallback : public btBroadphaseRayCallback
 		m_rayToTrans.setOrigin(m_rayToWorld);
 
 		btVector3 rayDir = (rayToWorld-rayFromWorld);
-#ifdef TEST_RAY_SLOPES
-		btMakeRaySlope(rayFromWorld.getX(),rayFromWorld.getY(),rayFromWorld.getZ(),rayDir.getX(),rayDir.getY(),rayDir.getZ(),&m_ray);
-#else
 
 		rayDir.normalize ();
 		///what about division by zero? --> just set rayDirection[i] to INF/1e30
@@ -640,7 +637,6 @@ struct btSingleRayCallback : public btBroadphaseRayCallback
 		m_signs[0] = m_rayDirectionInverse[0] < 0.0;
 		m_signs[1] = m_rayDirectionInverse[1] < 0.0;
 		m_signs[2] = m_rayDirectionInverse[2] < 0.0;
-#endif
 
 		m_lambda_max = rayDir.dot(m_rayToWorld-m_rayFromWorld);
 
