@@ -21,10 +21,23 @@ subject to the following restrictions:
 struct btDispatcherInfo;
 class btDispatcher;
 #include "btBroadphaseProxy.h"
+#include "LinearMath/btAabbUtil2.h"//for fast ray-slope algorithm
+
 class btOverlappingPairCache;
+
+
 
 struct	btBroadphaseRayCallback
 {
+	///added some cached data to accelerate ray-AABB tests
+	///m_ray is used to accerate ray-AABB tests, see btDbvt.h, when TEST_RAY_SLOPES is enabled in LinearMath/btAabbUtil2.h
+	btRaySlope	m_ray;
+
+	///otherwise this data is used to accelerate ray-AABB tests
+	btVector3		m_rayDirectionInverse;
+	unsigned int	m_signs[3];
+	btScalar		m_lambda_max;
+
 	virtual ~btBroadphaseRayCallback() {}
 	virtual bool	process(const btBroadphaseProxy* proxy) = 0;
 };

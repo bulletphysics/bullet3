@@ -414,6 +414,7 @@ void	btCollisionWorld::objectQuerySingle(const btConvexShape* castShape,const bt
 {
 	if (collisionShape->isConvex())
 	{
+	
 		btConvexCast::CastResult castResult;
 		castResult.m_allowedPenetration = allowedPenetration;
 		castResult.m_fraction = btScalar(1.);//??
@@ -608,6 +609,10 @@ struct btSingleRayCallback : public btBroadphaseRayCallback
 
 	btVector3	m_rayFromWorld;
 	btVector3	m_rayToWorld;
+	btTransform	m_rayFromTrans;
+	btTransform	m_rayToTrans;
+	btVector3	m_hitNormal;
+
 	const btCollisionWorld*	m_world;
 	btCollisionWorld::RayResultCallback&	m_resultCallback;
 
@@ -617,8 +622,31 @@ struct btSingleRayCallback : public btBroadphaseRayCallback
 	m_world(world),
 	m_resultCallback(resultCallback)
 	{
+		m_rayFromTrans.setIdentity();
+		m_rayFromTrans.setOrigin(m_rayFromWorld);
+		m_rayToTrans.setIdentity();
+		m_rayToTrans.setOrigin(m_rayToWorld);
+
+		btVector3 rayDir = (rayToWorld-rayFromWorld);
+#ifdef TEST_RAY_SLOPES
+		btMakeRaySlope(rayFromWorld.getX(),rayFromWorld.getY(),rayFromWorld.getZ(),rayDir.getX(),rayDir.getY(),rayDir.getZ(),&m_ray);
+#else
+
+		rayDir.normalize ();
+		///what about division by zero? --> just set rayDirection[i] to INF/1e30
+		m_rayDirectionInverse[0] = rayDir[0] == btScalar(0.0) ? btScalar(1e30) : btScalar(1.0) / rayDir[0];
+		m_rayDirectionInverse[1] = rayDir[1] == btScalar(0.0) ? btScalar(1e30) : btScalar(1.0) / rayDir[1];
+		m_rayDirectionInverse[2] = rayDir[2] == btScalar(0.0) ? btScalar(1e30) : btScalar(1.0) / rayDir[2];
+		m_signs[0] = m_rayDirectionInverse[0] < 0.0;
+		m_signs[1] = m_rayDirectionInverse[1] < 0.0;
+		m_signs[2] = m_rayDirectionInverse[2] < 0.0;
+#endif
+
+		m_lambda_max = rayDir.dot(m_rayToWorld-m_rayFromWorld);
 
 	}
+
+	
 
 	virtual bool	process(const btBroadphaseProxy* proxy)
 	{
@@ -639,20 +667,14 @@ struct btSingleRayCallback : public btBroadphaseRayCallback
 			collisionObject->getCollisionShape()->getAabb(collisionObject->getWorldTransform(),collisionObjectAabbMin,collisionObjectAabbMax);
 #else
 			//getBroadphase()->getAabb(collisionObject->getBroadphaseHandle(),collisionObjectAabbMin,collisionObjectAabbMax);
-			btVector3& collisionObjectAabbMin = collisionObject->getBroadphaseHandle()->m_aabbMin;
-			btVector3& collisionObjectAabbMax = collisionObject->getBroadphaseHandle()->m_aabbMax;
+			const btVector3& collisionObjectAabbMin = collisionObject->getBroadphaseHandle()->m_aabbMin;
+			const btVector3& collisionObjectAabbMax = collisionObject->getBroadphaseHandle()->m_aabbMax;
 #endif
-			btScalar hitLambda = m_resultCallback.m_closestHitFraction;
-			btVector3 hitNormal;
-			if (btRayAabb(m_rayFromWorld,m_rayToWorld,collisionObjectAabbMin,collisionObjectAabbMax,hitLambda,hitNormal))
+			//btScalar hitLambda = m_resultCallback.m_closestHitFraction;
+			//culling already done by broadphase
+			//if (btRayAabb(m_rayFromWorld,m_rayToWorld,collisionObjectAabbMin,collisionObjectAabbMax,hitLambda,m_hitNormal))
 			{
-				btTransform	rayFromTrans,rayToTrans;
-				rayFromTrans.setIdentity();
-				rayFromTrans.setOrigin(m_rayFromWorld);
-				rayToTrans.setIdentity();
-				rayToTrans.setOrigin(m_rayToWorld);
-
-				m_world->rayTestSingle(rayFromTrans,rayToTrans,
+				m_world->rayTestSingle(m_rayFromTrans,m_rayToTrans,
 					collisionObject,
 						collisionObject->getCollisionShape(),
 						collisionObject->getWorldTransform(),

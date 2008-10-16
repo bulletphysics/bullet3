@@ -229,14 +229,22 @@ void	btDbvtBroadphase::rayTest(const btVector3& rayFrom,const btVector3& rayTo, 
 
 	BroadphaseRayTester callback(rayCallback);
 
-	m_sets[0].rayTest(	m_sets[0].m_root,
+	m_sets[0].rayTestInternal(	m_sets[0].m_root,
 		rayFrom,
 		rayTo,
+		rayCallback.m_rayDirectionInverse,
+		rayCallback.m_signs,
+		rayCallback.m_lambda_max,
+		rayCallback.m_ray,
 		callback);
 
-	m_sets[1].rayTest(	m_sets[1].m_root,
+	m_sets[1].rayTestInternal(	m_sets[1].m_root,
 		rayFrom,
 		rayTo,
+		rayCallback.m_rayDirectionInverse,
+		rayCallback.m_signs,
+		rayCallback.m_lambda_max,
+		rayCallback.m_ray,
 		callback);
 
 }

@@ -263,6 +263,9 @@ struct	btDbvt
 	int				m_lkhd;
 	int				m_leaves;
 	unsigned		m_opath;
+
+	mutable btAlignedObjectArray<const btDbvtNode*>	m_stack;
+
 	// Methods
 	btDbvt();
 	~btDbvt();
@@ -314,11 +317,25 @@ struct	btDbvt
 		static void		collideTV(	const btDbvtNode* root,
 		const btDbvtVolume& volume,
 		DBVT_IPOLICY);
+	///rayTest is a re-entrant ray test, and can be called in parallel as long as the btAlignedAlloc is thread-safe (uses locking etc)
+	///rayTest is slower than rayTestInternal, because it builds a local stack, using memory allocations, and it recomputes signs/rayDirectionInverses each time
 	DBVT_PREFIX
 		static void		rayTest(	const btDbvtNode* root,
 		const btVector3& rayFrom,
 		const btVector3& rayTo,
 		DBVT_IPOLICY);
+	///rayTestInternal is faster than rayTest, because it uses a persistent stack (to reduce dynamic memory allocations to a minimum) and it uses precomputed signs/rayInverseDirections
+	///rayTestInternal is used by btDbvtBroadphase to accelerate world ray casts
+	DBVT_PREFIX
+		void		rayTestInternal(	const btDbvtNode* root,
+								const btVector3& rayFrom,
+								const btVector3& rayTo,
+								const btVector3& rayDirectionInverse,
+								unsigned int signs[3],
+								btScalar lambda_max,
+								const btRaySlope& raySlope,
+								DBVT_IPOLICY) const;
+
 	DBVT_PREFIX
 		static void		collideKDOP(const btDbvtNode* root,
 		const btVector3* normals,
@@ -848,6 +865,110 @@ inline void		btDbvt::collideTV(	const btDbvtNode* root,
 		}
 }
 
+DBVT_PREFIX
+inline void		btDbvt::rayTestInternal(	const btDbvtNode* root,
+								const btVector3& rayFrom,
+								const btVector3& rayTo,
+								const btVector3& rayDirectionInverse,
+								unsigned int signs[3],
+								btScalar lambda_max,
+								const btRaySlope& raySlope,
+								DBVT_IPOLICY) const
+{
+	DBVT_CHECKTYPE
+	if(root)
+	{
+		btVector3 resultNormal;
+
+		int								depth=1;
+		int								treshold=DOUBLE_STACKSIZE-2;
+
+		m_stack.resize(DOUBLE_STACKSIZE);
+		m_stack[0]=root;
+		btVector3 bounds[2];
+		do	
+		{
+			const btDbvtNode*	node=m_stack[--depth];
+			//m_stack.pop_back();
+
+			bounds[0] = node->volume.Mins();
+			bounds[1] = node->volume.Maxs();
+			
+			btScalar tmin=1.f,lambda_min=0.f;
+			unsigned int result1=false;
+
+///			A comparison test for ray-AABB test:
+///			"Fast Ray/Axis-Aligned Bounding Box Overlap Tests using Ray Slopes"
+///			http://jgt.akpeters.com/papers/EisemannEtAl07/
+///			The algorithm seems indeed a bit faster, but the code complexity doesn't make it attractive for future optimizations.
+///
+///			Enable/disable #define TEST_RAY_SLOPES in btBroadphaseInterface.h
+///
+#ifndef TEST_RAY_SLOPES
+			result1 = btRayAabb2(rayFrom,rayDirectionInverse,signs,bounds,tmin,lambda_min,lambda_max);
+#else
+			btScalar t=1.f;
+			btAaboxSlope aabbSlope;
+			aabbSlope.x0 = node->volume.Mins().getX();
+			aabbSlope.y0 = node->volume.Mins().getY();
+			aabbSlope.z0 = node->volume.Mins().getZ();
+
+			aabbSlope.x1 = node->volume.Maxs().getX();
+			aabbSlope.y1 = node->volume.Maxs().getY();
+			aabbSlope.z1 = node->volume.Maxs().getZ();
+
+
+			//ray starts or ends within AABB
+			
+//			if (!result1)
+//				if (TestPointAgainstAabb2(node->volume.Mins(),node->volume.Maxs(),rayTo))
+//					result1=true;
+//			if (!result1)
+
+			result1 = btRaySlopeAabb(&raySlope,&aabbSlope,&t);
+
+			if (result1)
+			{
+			//if fromRay is inside the AABB, t can still be negative, so we need an additional check.
+				if (t>1.0)
+					continue;
+
+				if (t<0.)
+				{
+					if (!TestPointAgainstAabb2(node->volume.Mins(),node->volume.Maxs(),rayFrom))
+						continue;
+				}
+			}
+#endif //USE_ORIGINAL_RAY_AABB
+
+	#ifdef COMPARE_BTRAY_AABB2//slower version using in/outcodes
+			btScalar param=1.f;
+			bool result2 = btRayAabb(rayFrom,rayTo,node->volume.Mins(),node->volume.Maxs(),param,resultNormal);
+			btAssert(result1 == result2);
+	#endif //TEST_BTRAY_AABB2
+
+	
+
+			if(result1)
+			{
+				if(node->isinternal())
+				{
+					if(depth>treshold)
+					{
+						m_stack.resize(m_stack.size()*2);
+						treshold=m_stack.size()-2;
+					}
+					m_stack[depth++]=node->childs[0];
+					m_stack[depth++]=node->childs[1];
+				}
+				else
+				{
+					policy.Process(node);
+				}
+			}
+		} while(depth);
+	}
+}
 
 //
 DBVT_PREFIX
@@ -869,41 +990,53 @@ inline void		btDbvt::rayTest(	const btDbvtNode* root,
 			rayDirectionInverse[2] = rayDir[2] == btScalar(0.0) ? btScalar(1e30) : btScalar(1.0) / rayDir[2];
 			unsigned int signs[3] = { rayDirectionInverse[0] < 0.0, rayDirectionInverse[1] < 0.0, rayDirectionInverse[2] < 0.0};
 
+			btScalar lambda_max = rayDir.dot(rayTo-rayFrom);
 
 			btVector3 resultNormal;
 
-
 			btAlignedObjectArray<const btDbvtNode*>	stack;
-			stack.reserve(SIMPLE_STACKSIZE);
-			stack.push_back(root);
+
+			int								depth=1;
+			int								treshold=DOUBLE_STACKSIZE-2;
+
+			stack.resize(DOUBLE_STACKSIZE);
+			stack[0]=root;
+			btVector3 bounds[2];
 			do	{
-				const btDbvtNode*	node=stack[stack.size()-1];
-				stack.pop_back();
+				const btDbvtNode*	node=stack[--depth];
+				//m_stack.pop_back();
 
-				btVector3 bounds[2] = {node->volume.Mins(),node->volume.Maxs()};
-				btScalar lambda_max = rayDir.dot(rayTo-rayFrom);
+				bounds[0] = node->volume.Mins();
+				bounds[1] = node->volume.Maxs();
+				
 				btScalar tmin=1.f,lambda_min=0.f;
-				bool result1 = btRayAabb2(rayFrom,rayDirectionInverse,signs,bounds,tmin,lambda_min,lambda_max);
+				unsigned int result1 = btRayAabb2(rayFrom,rayDirectionInverse,signs,bounds,tmin,lambda_min,lambda_max);
 
-#ifdef COMPARE_BTRAY_AABB2
+		#ifdef COMPARE_BTRAY_AABB2
 				btScalar param=1.f;
 				bool result2 = btRayAabb(rayFrom,rayTo,node->volume.Mins(),node->volume.Maxs(),param,resultNormal);
 				btAssert(result1 == result2);
-#endif //TEST_BTRAY_AABB2
+		#endif //TEST_BTRAY_AABB2
 
 				if(result1)
 				{
 					if(node->isinternal())
 					{
-						stack.push_back(node->childs[0]);
-						stack.push_back(node->childs[1]);
+						if(depth>treshold)
+						{
+							stack.resize(stack.size()*2);
+							treshold=stack.size()-2;
+						}
+						stack[depth++]=node->childs[0];
+						stack[depth++]=node->childs[1];
 					}
 					else
 					{
 						policy.Process(node);
 					}
 				}
-			} while(stack.size());
+			} while(depth);
+
 		}
 }
 
