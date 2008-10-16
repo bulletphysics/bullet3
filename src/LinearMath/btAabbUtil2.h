@@ -21,6 +21,10 @@ subject to the following restrictions:
 #include "btVector3.h"
 #include "btMinMax.h"
 
+
+#define TEST_RAY_SLOPES 1
+
+
 SIMD_FORCE_INLINE void AabbExpand (btVector3& aabbMin,
 								   btVector3& aabbMax,
 								   const btVector3& expansionMin,
@@ -30,15 +34,26 @@ SIMD_FORCE_INLINE void AabbExpand (btVector3& aabbMin,
 	aabbMax = aabbMax + expansionMax;
 }
 
+/// conservative test for overlap between two aabbs
+SIMD_FORCE_INLINE bool TestPointAgainstAabb2(const btVector3 &aabbMin1, const btVector3 &aabbMax1,
+								const btVector3 &point)
+{
+	bool overlap = true;
+	overlap = (aabbMin1.getX() > point.getX() || aabbMax1.getX() < point.getX()) ? false : overlap;
+	overlap = (aabbMin1.getZ() > point.getZ() || aabbMax1.getZ() < point.getZ()) ? false : overlap;
+	overlap = (aabbMin1.getY() > point.getY() || aabbMax1.getY() < point.getY()) ? false : overlap;
+	return overlap;
+}
+
 
 /// conservative test for overlap between two aabbs
 SIMD_FORCE_INLINE bool TestAabbAgainstAabb2(const btVector3 &aabbMin1, const btVector3 &aabbMax1,
 								const btVector3 &aabbMin2, const btVector3 &aabbMax2)
 {
 	bool overlap = true;
-	overlap = (aabbMin1[0] > aabbMax2[0] || aabbMax1[0] < aabbMin2[0]) ? false : overlap;
-	overlap = (aabbMin1[2] > aabbMax2[2] || aabbMax1[2] < aabbMin2[2]) ? false : overlap;
-	overlap = (aabbMin1[1] > aabbMax2[1] || aabbMax1[1] < aabbMin2[1]) ? false : overlap;
+	overlap = (aabbMin1.getX() > aabbMax2.getX() || aabbMax1.getX() < aabbMin2.getX()) ? false : overlap;
+	overlap = (aabbMin1.getZ() > aabbMax2.getZ() || aabbMax1.getZ() < aabbMin2.getZ()) ? false : overlap;
+	overlap = (aabbMin1.getY() > aabbMax2.getY() || aabbMax1.getY() < aabbMin2.getY()) ? false : overlap;
 	return overlap;
 }
 
@@ -72,6 +87,632 @@ SIMD_FORCE_INLINE int	btOutcode(const btVector3& p,const btVector3& halfExtent)
 		   (p.getZ() >  halfExtent.getZ() ? 0x20 : 0x0);
 }
 
+/// http://jgt.akpeters.com/papers/EisemannEtAl07/
+/// See test case in btDbvt::rayTestInternal on dynamic AABB tree, Bullet/src/BulletCollision/BroadphaseCollision/btDbvt.h
+
+
+enum CLASSIFICATION
+{ MMM, MMP, MPM, MPP, PMM, PMP, PPM, PPP, POO, MOO, OPO, OMO, OOP, OOM,
+	OMM,OMP,OPM,OPP,MOM,MOP,POM,POP,MMO,MPO,PMO,PPO};
+
+struct btRaySlope
+{	
+	//common variables
+	float x, y, z;		// ray origin	
+	float i, j, k;		// ray direction	
+	float ii, ij, ik;	// inverses of direction components
+	
+	// ray slope
+	int classification;
+	float ibyj, jbyi, kbyj, jbyk, ibyk, kbyi; //slope
+	float c_xy, c_xz, c_yx, c_yz, c_zx, c_zy;	
+};
+
+struct btAaboxSlope
+{
+	float x0, y0, z0, x1, y1, z1;
+};
+
+SIMD_FORCE_INLINE void btMakeRaySlope(float x, float y, float z, float i, float j, float k, btRaySlope *r)
+{
+	//common variables
+	r->x = x;
+	r->y = y;
+	r->z = z;
+	r->i = i;
+	r->j = j;
+	r->k = k;
+
+	r->ii = 1.0f/i;
+	r->ij = 1.0f/j;
+	r->ik = 1.0f/k;
+
+	//ray slope
+	r->ibyj = r->i * r->ij;
+	r->jbyi = r->j * r->ii;
+	r->jbyk = r->j * r->ik;
+	r->kbyj = r->k * r->ij;
+	r->ibyk = r->i * r->ik;
+	r->kbyi = r->k * r->ii;
+	r->c_xy = r->y - r->jbyi * r->x;
+	r->c_xz = r->z - r->kbyi * r->x;
+	r->c_yx = r->x - r->ibyj * r->y;
+	r->c_yz = r->z - r->kbyj * r->y;
+	r->c_zx = r->x - r->ibyk * r->z;
+	r->c_zy = r->y - r->jbyk * r->z;	
+
+	//ray slope classification
+	if(i < 0)
+	{
+		if(j < 0)
+		{
+			if(k < 0)
+			{
+				r->classification = MMM;
+			}
+			else if(k > 0){
+				r->classification = MMP;
+			}
+			else//(k >= 0)
+			{
+				r->classification = MMO;
+			}
+		}
+		else//(j >= 0)
+		{
+			if(k < 0)
+			{
+				r->classification = MPM;
+				if(j==0)
+					r->classification = MOM;
+			}
+			else//(k >= 0)
+			{
+				if((j==0) && (k==0))
+					r->classification = MOO;	
+				else if(k==0)
+					r->classification = MPO;
+				else if(j==0)
+					r->classification = MOP;
+				else
+					r->classification = MPP;
+			}
+		}
+	}
+	else//(i >= 0)
+	{
+		if(j < 0)
+		{
+			if(k < 0)
+			{
+				r->classification = PMM;
+				if(i==0)
+					r->classification = OMM;
+			}
+			else//(k >= 0)
+			{				
+				if((i==0) && (k==0))
+					r->classification = OMO;
+				else if(k==0)
+					r->classification = PMO;
+				else if(i==0)
+					r->classification = OMP;
+				else
+					r->classification = PMP;
+			}
+		}
+		else//(j >= 0)
+		{
+			if(k < 0)
+			{
+				if((i==0) && (j==0))
+					r->classification = OOM;
+				else if(i==0)
+					r->classification = OPM;
+				else if(j==0)
+					r->classification = POM;
+				else
+					r->classification = PPM;
+			}
+			else//(k > 0)
+			{
+				if(i==0)
+				{
+					if(j==0)
+						r->classification = OOP;
+					else if(k==0)
+						r->classification = OPO;
+					else
+						r->classification = OPP;
+				}
+				else
+				{
+					if((j==0) && (k==0))
+						r->classification = POO;
+					else if(j==0)
+						r->classification = POP;
+					else if(k==0)
+						r->classification = PPO;
+					else
+						r->classification = PPP;
+				}
+			}			
+		}
+	}
+}
+
+
+//SIMD_FORCE_INLINE bool slopeint_div(const btRaySlope* r, const btAaboxSlope* b, float *t)
+SIMD_FORCE_INLINE bool btRaySlopeAabb(const btRaySlope* r, const btAaboxSlope* b, float *t)
+{
+	switch (r->classification)
+	{
+	case MMM:
+		{
+		if ((r->x < b->x0) || (r->y < b->y0) || (r->z < b->z0)
+			|| (r->jbyi * b->x0 - b->y1 + r->c_xy > 0)
+			|| (r->ibyj * b->y0 - b->x1 + r->c_yx > 0)
+			|| (r->jbyk * b->z0 - b->y1 + r->c_zy > 0)
+			|| (r->kbyj * b->y0 - b->z1 + r->c_yz > 0)
+			|| (r->kbyi * b->x0 - b->z1 + r->c_xz > 0)
+			|| (r->ibyk * b->z0 - b->x1 + r->c_zx > 0)
+			)
+			return false;
+		
+		*t = (b->x1 - r->x) / r->i;
+		float t1 = (b->y1 - r->y) / r->j;
+		if(t1 > *t)
+			*t = t1;
+		float t2 = (b->z1 - r->z) / r->k;
+		if(t2 > *t)
+			*t = t2;
+
+		return true;
+		}
+
+
+	case MMP:
+		{		
+		if ((r->x < b->x0) || (r->y < b->y0) || (r->z > b->z1)
+			|| (r->jbyi * b->x0 - b->y1 + r->c_xy > 0)
+			|| (r->ibyj * b->y0 - b->x1 + r->c_yx > 0)
+			|| (r->jbyk * b->z1 - b->y1 + r->c_zy > 0)
+			|| (r->kbyj * b->y0 - b->z0 + r->c_yz < 0)
+			|| (r->kbyi * b->x0 - b->z0 + r->c_xz < 0)
+			|| (r->ibyk * b->z1 - b->x1 + r->c_zx > 0)
+			)
+			return false;
+		*t = (b->x1 - r->x) / r->i;
+		float t1 = (b->y1 - r->y) / r->j;
+		if(t1 > *t)
+			*t = t1;
+		float t2 = (b->z0 - r->z) / r->k;
+		if(t2 > *t)
+			*t = t2;
+
+		return true;
+		}
+
+
+	case MPM:
+		{		
+		if ((r->x < b->x0) || (r->y > b->y1) || (r->z < b->z0)
+			|| (r->jbyi * b->x0 - b->y0 + r->c_xy < 0) 
+			|| (r->ibyj * b->y1 - b->x1 + r->c_yx > 0)
+			|| (r->jbyk * b->z0 - b->y0 + r->c_zy < 0) 
+			|| (r->kbyj * b->y1 - b->z1 + r->c_yz > 0)
+			|| (r->kbyi * b->x0 - b->z1 + r->c_xz > 0)
+			|| (r->ibyk * b->z0 - b->x1 + r->c_zx > 0)
+			)
+			return false;
+		
+		*t = (b->x1 - r->x) / r->i;
+		float t1 = (b->y0 - r->y) / r->j;
+		if(t1 > *t)
+			*t = t1;
+		float t2 = (b->z1 - r->z) / r->k;
+		if(t2 > *t)
+			*t = t2;
+
+		return true;
+		}
+
+	case MPP:
+		{
+		if ((r->x < b->x0) || (r->y > b->y1) || (r->z > b->z1)
+			|| (r->jbyi * b->x0 - b->y0 + r->c_xy < 0) 
+			|| (r->ibyj * b->y1 - b->x1 + r->c_yx > 0)
+			|| (r->jbyk * b->z1 - b->y0 + r->c_zy < 0)
+			|| (r->kbyj * b->y1 - b->z0 + r->c_yz < 0)
+			|| (r->kbyi * b->x0 - b->z0 + r->c_xz < 0)
+			|| (r->ibyk * b->z1 - b->x1 + r->c_zx > 0)
+			)
+			return false;
+		
+		*t = (b->x1 - r->x) / r->i;
+		float t1 = (b->y0 - r->y) / r->j;
+		if(t1 > *t)
+			*t = t1;
+		float t2 = (b->z0 - r->z) / r->k;
+		if(t2 > *t)
+			*t = t2;
+
+		return true;
+		}	
+
+	case PMM:
+		{
+		if ((r->x > b->x1) || (r->y < b->y0) || (r->z < b->z0)
+			|| (r->jbyi * b->x1 - b->y1 + r->c_xy > 0)
+			|| (r->ibyj * b->y0 - b->x0 + r->c_yx < 0)
+			|| (r->jbyk * b->z0 - b->y1 + r->c_zy > 0)
+			|| (r->kbyj * b->y0 - b->z1 + r->c_yz > 0)
+			|| (r->kbyi * b->x1 - b->z1 + r->c_xz > 0)
+			|| (r->ibyk * b->z0 - b->x0 + r->c_zx < 0)
+			)
+			return false;
+
+		*t = (b->x0 - r->x) / r->i;
+		float t1 = (b->y1 - r->y) / r->j;
+		if(t1 > *t)
+			*t = t1;
+		float t2 = (b->z1 - r->z) / r->k;
+		if(t2 > *t)
+			*t = t2;
+
+		return true;
+		}
+
+	case PMP:
+		{
+		if ((r->x > b->x1) || (r->y < b->y0) || (r->z > b->z1)
+			|| (r->jbyi * b->x1 - b->y1 + r->c_xy > 0)
+			|| (r->ibyj * b->y0 - b->x0 + r->c_yx < 0)
+			|| (r->jbyk * b->z1 - b->y1 + r->c_zy > 0)
+			|| (r->kbyj * b->y0 - b->z0 + r->c_yz < 0)
+			|| (r->kbyi * b->x1 - b->z0 + r->c_xz < 0)
+			|| (r->ibyk * b->z1 - b->x0 + r->c_zx < 0)
+			)
+			return false;
+
+		*t = (b->x0 - r->x) / r->i;
+		float t1 = (b->y1 - r->y) / r->j;
+		if(t1 > *t)
+			*t = t1;
+		float t2 = (b->z0 - r->z) / r->k;
+		if(t2 > *t)
+			*t = t2;
+
+		return true;
+		}
+
+	case PPM:
+		{
+		if ((r->x > b->x1) || (r->y > b->y1) || (r->z < b->z0)
+			|| (r->jbyi * b->x1 - b->y0 + r->c_xy < 0)
+			|| (r->ibyj * b->y1 - b->x0 + r->c_yx < 0)
+			|| (r->jbyk * b->z0 - b->y0 + r->c_zy < 0) 
+			|| (r->kbyj * b->y1 - b->z1 + r->c_yz > 0)
+			|| (r->kbyi * b->x1 - b->z1 + r->c_xz > 0)
+			|| (r->ibyk * b->z0 - b->x0 + r->c_zx < 0)
+			)
+			return false;
+		
+		*t = (b->x0 - r->x) / r->i;
+		float t1 = (b->y0 - r->y) / r->j;
+		if(t1 > *t)
+			*t = t1;
+		float t2 = (b->z1 - r->z) / r->k;
+		if(t2 > *t)
+			*t = t2;
+
+		return true;
+		}
+
+	case PPP:
+		{
+		if ((r->x > b->x1) || (r->y > b->y1) || (r->z > b->z1)
+			|| (r->jbyi * b->x1 - b->y0 + r->c_xy < 0)
+			|| (r->ibyj * b->y1 - b->x0 + r->c_yx < 0)
+			|| (r->jbyk * b->z1 - b->y0 + r->c_zy < 0)
+			|| (r->kbyj * b->y1 - b->z0 + r->c_yz < 0)
+			|| (r->kbyi * b->x1 - b->z0 + r->c_xz < 0)
+			|| (r->ibyk * b->z1 - b->x0 + r->c_zx < 0)
+			)
+			return false;
+		
+		*t = (b->x0 - r->x) / r->i;
+		float t1 = (b->y0 - r->y) / r->j;
+		if(t1 > *t)
+			*t = t1;
+		float t2 = (b->z0 - r->z) / r->k;
+		if(t2 > *t)
+			*t = t2;
+
+		return true;
+		}
+
+	case OMM:
+		{
+		if((r->x < b->x0) || (r->x > b->x1)
+			|| (r->y < b->y0) || (r->z < b->z0)
+			|| (r->jbyk * b->z0 - b->y1 + r->c_zy > 0)
+			|| (r->kbyj * b->y0 - b->z1 + r->c_yz > 0)
+			)
+			return false;
+
+		*t = (b->y1 - r->y) / r->j;
+		float t2 = (b->z1 - r->z) / r->k;
+		if(t2 > *t)
+			*t = t2;
+
+		return true;
+		}
+
+	case OMP:
+		{
+		if((r->x < b->x0) || (r->x > b->x1)
+			|| (r->y < b->y0) || (r->z > b->z1)
+			|| (r->jbyk * b->z1 - b->y1 + r->c_zy > 0)
+			|| (r->kbyj * b->y0 - b->z0 + r->c_yz < 0)
+			)
+			return false;
+
+		*t = (b->y1 - r->y) / r->j;
+		float t2 = (b->z0 - r->z) / r->k;
+		if(t2 > *t)
+			*t = t2;
+
+		return true;
+		}
+
+	case OPM:
+		{
+		if((r->x < b->x0) || (r->x > b->x1)
+			|| (r->y > b->y1) || (r->z < b->z0)
+			|| (r->jbyk * b->z0 - b->y0 + r->c_zy < 0) 
+			|| (r->kbyj * b->y1 - b->z1 + r->c_yz > 0)
+			)
+			return false;
+
+		*t = (b->y0 - r->y) / r->j;
+		float t2 = (b->z1 - r->z) / r->k;
+		if(t2 > *t)
+			*t = t2;
+
+		return true;
+		}
+
+	case OPP:
+		{
+		if((r->x < b->x0) || (r->x > b->x1)
+			|| (r->y > b->y1) || (r->z > b->z1)
+			|| (r->jbyk * b->z1 - b->y0 + r->c_zy < 0)
+			|| (r->kbyj * b->y1 - b->z0 + r->c_yz < 0)
+			)
+			return false;
+
+		*t = (b->y0 - r->y) / r->j;
+		float t2 = (b->z0 - r->z) / r->k;
+		if(t2 > *t)
+			*t = t2;
+
+		return true;
+		}
+
+	case MOM:
+		{
+		if((r->y < b->y0) || (r->y > b->y1)
+			|| (r->x < b->x0) || (r->z < b->z0) 
+			|| (r->kbyi * b->x0 - b->z1 + r->c_xz > 0)
+			|| (r->ibyk * b->z0 - b->x1 + r->c_zx > 0)
+			)
+			return false;
+
+		*t = (b->x1 - r->x) / r->i;
+		float t2 = (b->z1 - r->z) / r->k;
+		if(t2 > *t)
+			*t = t2;
+
+		return true;
+		}
+
+	case MOP:
+		{
+		if((r->y < b->y0) || (r->y > b->y1)
+			|| (r->x < b->x0) || (r->z > b->z1)
+			|| (r->kbyi * b->x0 - b->z0 + r->c_xz < 0)
+			|| (r->ibyk * b->z1 - b->x1 + r->c_zx > 0)
+			)
+			return false;
+
+		*t = (b->x1 - r->x) / r->i;
+		float t2 = (b->z0 - r->z) / r->k;
+		if(t2 > *t)
+			*t = t2;
+
+		return true;
+		}
+
+	case POM:
+		{
+		if((r->y < b->y0) || (r->y > b->y1)
+			|| (r->x > b->x1) || (r->z < b->z0)
+			|| (r->kbyi * b->x1 - b->z1 + r->c_xz > 0)
+			|| (r->ibyk * b->z0 - b->x0 + r->c_zx < 0)
+			)
+			return false;
+
+		*t = (b->x0 - r->x) / r->i;
+		float t2 = (b->z1 - r->z) / r->k;
+		if(t2 > *t)
+			*t = t2;
+
+		return true;
+		}	
+
+	case POP:
+		{
+		if((r->y < b->y0) || (r->y > b->y1)
+			|| (r->x > b->x1) || (r->z > b->z1)
+			|| (r->kbyi * b->x1 - b->z0 + r->c_xz < 0)
+			|| (r->ibyk * b->z1 - b->x0 + r->c_zx < 0)
+			)
+			return false;
+
+		*t = (b->x0 - r->x) / r->i;
+		float t2 = (b->z0 - r->z) / r->k;
+		if(t2 > *t)
+			*t = t2;
+
+		return true;
+		}
+
+	case MMO:
+		{
+		if((r->z < b->z0) || (r->z > b->z1)
+			|| (r->x < b->x0) || (r->y < b->y0)
+			|| (r->jbyi * b->x0 - b->y1 + r->c_xy > 0)
+			|| (r->ibyj * b->y0 - b->x1 + r->c_yx > 0)
+			)
+			return false;
+
+		*t = (b->x1 - r->x) / r->i;
+		float t1 = (b->y1 - r->y) / r->j;
+		if(t1 > *t)
+			*t = t1;
+
+		return true;
+		}
+
+	case MPO:
+		{
+		if((r->z < b->z0) || (r->z > b->z1)
+			|| (r->x < b->x0) || (r->y > b->y1) 
+			|| (r->jbyi * b->x0 - b->y0 + r->c_xy < 0) 
+			|| (r->ibyj * b->y1 - b->x1 + r->c_yx > 0)
+			)
+			return false;
+
+		*t = (b->x1 - r->x) / r->i;
+		float t1 = (b->y0 - r->y) / r->j;
+		if(t1 > *t)
+			*t = t1;
+
+		return true;
+		}
+
+	case PMO:
+		{
+		if((r->z < b->z0) || (r->z > b->z1)
+			|| (r->x > b->x1) || (r->y < b->y0) 
+			|| (r->jbyi * b->x1 - b->y1 + r->c_xy > 0)
+			|| (r->ibyj * b->y0 - b->x0 + r->c_yx < 0) 
+			)
+			return false;
+
+		*t = (b->x0 - r->x) / r->i;
+		float t1 = (b->y1 - r->y) / r->j;
+		if(t1 > *t)
+			*t = t1;
+
+		return true;
+		}
+
+	case PPO:
+		{
+		if((r->z < b->z0) || (r->z > b->z1)
+			|| (r->x > b->x1) || (r->y > b->y1)  
+			|| (r->jbyi * b->x1 - b->y0 + r->c_xy < 0)
+			|| (r->ibyj * b->y1 - b->x0 + r->c_yx < 0)
+			)
+			return false;
+
+		*t = (b->x0 - r->x) / r->i;
+		float t1 = (b->y0 - r->y) / r->j;
+		if(t1 > *t)
+			*t = t1;
+
+		return true;
+		}
+	case MOO:
+		{
+		if((r->x < b->x0)
+			|| (r->y < b->y0) || (r->y > b->y1)
+			|| (r->z < b->z0) || (r->z > b->z1)
+			)
+			return false;
+
+		*t = (b->x1 - r->x) / r->i;
+		return true;
+		}
+
+	case POO:
+		{
+		if((r->x > b->x1)
+			|| (r->y < b->y0) || (r->y > b->y1)
+			|| (r->z < b->z0) || (r->z > b->z1)
+			)
+			return false;
+
+		*t = (b->x0 - r->x) / r->i;
+		return true;
+		}
+
+	case OMO:
+		{
+		if((r->y < b->y0)
+			|| (r->x < b->x0) || (r->x > b->x1)
+			|| (r->z < b->z0) || (r->z > b->z1)
+			)
+			return false;
+		
+		*t = (b->y1 - r->y) / r->j;
+		return true;
+		}
+
+	case OPO:
+		{
+		if((r->y > b->y1)
+			|| (r->x < b->x0) || (r->x > b->x1)
+			|| (r->z < b->z0) || (r->z > b->z1)
+			)
+			return false;
+
+		*t = (b->y0 - r->y) / r->j;
+		return true;
+	}
+
+
+	case OOM:
+		{
+		if((r->z < b->z0)
+			|| (r->x < b->x0) || (r->x > b->x1)
+			|| (r->y < b->y0) || (r->y > b->y1)
+			)
+			return false;
+
+		*t = (b->z1 - r->z) / r->k;
+		return true;
+		}
+
+	case OOP:
+		{
+		if((r->z > b->z1)
+			|| (r->x < b->x0) || (r->x > b->x1)
+			|| (r->y < b->y0) || (r->y > b->y1)
+			)
+			return false;
+
+		*t = (b->z0 - r->z) / r->k;
+		return true;
+		}
+	
+	}
+
+	return false;
+}
+
 
 SIMD_FORCE_INLINE bool btRayAabb2(const btVector3& rayFrom,
 								  const btVector3& rayInvDirection,
@@ -82,10 +723,10 @@ SIMD_FORCE_INLINE bool btRayAabb2(const btVector3& rayFrom,
 								  btScalar lambda_max)
 {
 	btScalar tmax, tymin, tymax, tzmin, tzmax;
-	tmin = (bounds[raySign[0]][0] - rayFrom[0]) * rayInvDirection[0];
-	tmax = (bounds[1-raySign[0]][0] - rayFrom[0]) * rayInvDirection[0];
-	tymin = (bounds[raySign[1]][1] - rayFrom[1]) * rayInvDirection[1];
-	tymax = (bounds[1-raySign[1]][1] - rayFrom[1]) * rayInvDirection[1];
+	tmin = (bounds[raySign[0]].getX() - rayFrom.getX()) * rayInvDirection.getX();
+	tmax = (bounds[1-raySign[0]].getX() - rayFrom.getX()) * rayInvDirection.getX();
+	tymin = (bounds[raySign[1]].getY() - rayFrom.getY()) * rayInvDirection.getY();
+	tymax = (bounds[1-raySign[1]].getY() - rayFrom.getY()) * rayInvDirection.getY();
 
 	if ( (tmin > tymax) || (tymin > tmax) )
 		return false;
@@ -96,8 +737,8 @@ SIMD_FORCE_INLINE bool btRayAabb2(const btVector3& rayFrom,
 	if (tymax < tmax)
 		tmax = tymax;
 
-	tzmin = (bounds[raySign[2]][2] - rayFrom[2]) * rayInvDirection[2];
-	tzmax = (bounds[1-raySign[2]][2] - rayFrom[2]) * rayInvDirection[2];
+	tzmin = (bounds[raySign[2]].getZ() - rayFrom.getZ()) * rayInvDirection.getZ();
+	tzmax = (bounds[1-raySign[2]].getZ() - rayFrom.getZ()) * rayInvDirection.getZ();
 
 	if ( (tmin > tzmax) || (tzmin > tmax) )
 		return false;
