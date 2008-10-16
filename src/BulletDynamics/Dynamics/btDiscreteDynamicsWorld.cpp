@@ -731,7 +731,11 @@ public:
 	virtual btScalar addSingleResult(btCollisionWorld::LocalConvexResult& convexResult,bool normalInWorldSpace)
 	{
 		if (convexResult.m_hitCollisionObject == m_me)
-			return 1.0;
+			return 1.0f;
+
+		//ignore result if there is no contact response
+		if(!convexResult.m_hitCollisionObject->hasContactResponse())
+			return 1.0f;
 
 		btVector3 linVelA,linVelB;
 		linVelA = m_convexToWorld-m_convexFromWorld;
@@ -809,6 +813,10 @@ void	btDiscreteDynamicsWorld::integrateTransforms(btScalar timeStep)
 						btClosestNotMeConvexResultCallback sweepResults(body,body->getWorldTransform().getOrigin(),predictedTrans.getOrigin(),getBroadphase()->getOverlappingPairCache());
 						btConvexShape* convexShape = static_cast<btConvexShape*>(body->getCollisionShape());
 						btSphereShape tmpSphere(body->getCcdSweptSphereRadius());//btConvexShape* convexShape = static_cast<btConvexShape*>(body->getCollisionShape());
+
+						sweepResults.m_collisionFilterGroup = body->getBroadphaseProxy()->m_collisionFilterGroup;
+						sweepResults.m_collisionFilterMask  = body->getBroadphaseProxy()->m_collisionFilterMask;
+
 						convexSweepTest(&tmpSphere,body->getWorldTransform(),predictedTrans,sweepResults);
 						if (sweepResults.hasHit() && (sweepResults.m_closestHitFraction < 1.f))
 						{
