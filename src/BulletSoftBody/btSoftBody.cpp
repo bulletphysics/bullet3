@@ -2029,7 +2029,7 @@ void					btSoftBody::updateClusters()
 					const btVector3	x=c.m_framexform*c.m_framerefs[j];
 					n.m_x=Lerp(n.m_x,x,c.m_matching);
 				}
-			}
+			}			
 			/* Dbvt					*/ 
 			if(c.m_collide)
 			{
@@ -2107,6 +2107,7 @@ void					btSoftBody::applyClusters(bool drift)
 			}
 		}
 	}
+	
 	for(i=0;i<m_clusters.size();++i)
 	{
 		Cluster&	c=*m_clusters[i];	
@@ -2146,7 +2147,10 @@ void					btSoftBody::dampClusters()
 				if(n.m_im>0)
 				{
 					const btVector3	vx=c.m_lv+cross(c.m_av,c.m_nodes[j]->m_q-c.m_com);
-					n.m_v	+=	c.m_ndamping*(vx-n.m_v);
+					if(vx.length2()<=n.m_v.length2())
+						{
+						n.m_v	+=	c.m_ndamping*(vx-n.m_v);
+						}
 				}
 			}
 		}

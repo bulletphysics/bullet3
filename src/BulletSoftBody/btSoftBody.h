@@ -291,9 +291,9 @@ public:
 		btVector3					m_lv;
 		btVector3					m_av;
 		btDbvtNode*					m_leaf;
-		btScalar					m_ndamping;
-		btScalar					m_ldamping;
-		btScalar					m_adamping;
+		btScalar					m_ndamping;	/* Node damping		*/ 
+		btScalar					m_ldamping;	/* Linear damping	*/ 
+		btScalar					m_adamping;	/* Angular damping	*/ 
 		btScalar					m_matching;
 		bool						m_collide;
 		Cluster() : m_leaf(0),m_ndamping(0),m_ldamping(0),m_adamping(0),m_matching(0) {}
