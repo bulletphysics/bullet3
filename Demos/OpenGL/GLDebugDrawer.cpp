@@ -27,7 +27,7 @@ void	GLDebugDrawer::drawLine(const btVector3& from,const btVector3& to,const btV
 //	if (m_debugMode > 0)
 	{
 		glBegin(GL_LINES);
-		glColor3f(color.getX(), color.getY(), color.getZ());
+		glColor4f(color.getX(), color.getY(), color.getZ(),1.f);
 		glVertex3d(from.getX(), from.getY(), from.getZ());
 		glVertex3d(to.getX(), to.getY(), to.getZ());
 		glEnd();
@@ -72,13 +72,15 @@ void	GLDebugDrawer::drawContactPoint(const btVector3& pointOnB,const btVector3& 
 	{
 		btVector3 to=pointOnB+normalOnB*distance;
 		const btVector3&from = pointOnB;
+		glColor4f(color.getX(), color.getY(), color.getZ(),1.f);
+		//glColor4f(0,0,0,1.f);
+
 		glBegin(GL_LINES);
-		glColor3f(color.getX(), color.getY(), color.getZ());
 		glVertex3d(from.getX(), from.getY(), from.getZ());
 		glVertex3d(to.getX(), to.getY(), to.getZ());
 		glEnd();
 
-
+		
 		glRasterPos3f(from.x(),  from.y(),  from.z());
 		char buf[12];
 		sprintf(buf," %d",lifeTime);

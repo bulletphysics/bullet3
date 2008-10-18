@@ -29,7 +29,10 @@ struct	btBroadphaseProxy;
 class	btCollisionShape;
 #include "LinearMath/btMotionState.h"
 #include "LinearMath/btAlignedAllocator.h"
+#include "LinearMath/btAlignedObjectArray.h"
 
+
+typedef btAlignedObjectArray<class btCollisionObject*> btCollisionObjectArray;
 
 
 /// btCollisionObject can be used to manage collision detection objects. 

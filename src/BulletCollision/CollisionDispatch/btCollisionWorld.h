@@ -71,7 +71,7 @@ class btBroadphaseInterface;
 #include "LinearMath/btVector3.h"
 #include "LinearMath/btTransform.h"
 #include "btCollisionObject.h"
-#include "btCollisionDispatcher.h" //for definition of btCollisionObjectArray
+#include "btCollisionDispatcher.h"
 #include "BulletCollision/BroadphaseCollision/btOverlappingPairCache.h"
 #include "LinearMath/btAlignedObjectArray.h"
 

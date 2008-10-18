@@ -21,8 +21,11 @@ subject to the following restrictions:
 #include "BulletCollision/BroadphaseCollision/btOverlappingPairCallback.h"
 #include "LinearMath/btAlignedAllocator.h"
 #include "BulletCollision/BroadphaseCollision/btOverlappingPairCache.h"
+#include "btCollisionWorld.h"
 
-///work-in-progress, not complete
+class btConvexShape;
+
+class btDispatcher;
 
 ///The btGhostObject can keep track of all objects that are overlapping
 ///By default, this overlap is based on the AABB
@@ -32,20 +35,7 @@ ATTRIBUTE_ALIGNED16(class) btGhostObject : public btCollisionObject
 {
 protected:
 
-	btOverlappingPairCache*	m_overlappingPairCache;
-	
-	struct btGhostOverlapFilterCallback : public btOverlapFilterCallback
-	{
-		bool needBroadphaseCollision(btBroadphaseProxy* proxy0,btBroadphaseProxy* proxy1) const
-		{
-			bool collides = (proxy0->m_collisionFilterGroup & proxy1->m_collisionFilterMask) != 0;
-			collides = collides && (proxy1->m_collisionFilterGroup & proxy0->m_collisionFilterMask);
-			return collides;
-		}
-	};
-	
-	btGhostOverlapFilterCallback	m_ghostOverlapFilterCallback;
-
+	btAlignedObjectArray<btCollisionObject*> m_overlappingObjects;
 
 public:
 
@@ -53,33 +43,41 @@ public:
 
 	virtual ~btGhostObject();
 
+	void	convexSweepTest(const class btConvexShape* castShape, const btTransform& convexFromWorld, const btTransform& convexToWorld, btScalar allowedCcdPenetration,btCollisionWorld::ConvexResultCallback& resultCallback) const;
 
-	virtual void	addOverlappingObject(btCollisionObject* otherObject);
+	void	rayTest(const btVector3& rayFromWorld, const btVector3& rayToWorld, btCollisionWorld::RayResultCallback& resultCallback) const; 
 
-	virtual void	removeOverlappingObject(btCollisionObject* otherObject);
+	virtual void	addOverlappingObject(btBroadphaseProxy* otherProxy);
 
-	btOverlappingPairCache*	getPairCache()
+	virtual void	removeOverlappingObject(btBroadphaseProxy* otherProxy,btDispatcher* dispatcher);
+
+	int	getNumOverlappingObjects() const
 	{
-		return m_overlappingPairCache;
-	};
-
-	const btOverlappingPairCache*	getPairCache() const
-	{
-		return m_overlappingPairCache;
-	};
-
-	btBroadphasePairArray&	getOverlappingPairArray()
-	{
-		return m_overlappingPairCache->getOverlappingPairArray();
+		return m_overlappingObjects.size();
 	}
 
-	btOverlappingPairCache* getOverlappingPairCache()
+	btCollisionObject*	getOverlappingObject(int index)
 	{
-		return m_overlappingPairCache;
+		return m_overlappingObjects[index];
+	}
+
+	const btCollisionObject*	getOverlappingObject(int index) const
+	{
+		return m_overlappingObjects[index];
+	}
+
+	btAlignedObjectArray<btCollisionObject*>&	getOverlappingPairs()
+	{
+		return m_overlappingObjects;
+	}
+
+	const btAlignedObjectArray<btCollisionObject*>	getOverlappingPairs() const
+	{
+		return m_overlappingObjects;
 	}
 
 	//
-	// Cast
+	// internal cast
 	//
 
 	static const btGhostObject*	upcast(const btCollisionObject* colObj)
@@ -95,9 +93,29 @@ public:
 		return 0;
 	}
 
+};
 
+class	btPairCachingGhostObject : public btGhostObject
+{
+	btHashedOverlappingPairCache*	m_hashPairCache;
+
+public:
+
+	btPairCachingGhostObject();
+
+	virtual ~btPairCachingGhostObject();
+
+	virtual void	addOverlappingObject(btBroadphaseProxy* otherProxy);
+
+	virtual void	removeOverlappingObject(btBroadphaseProxy* otherProxy,btDispatcher* dispatcher);
+
+	btHashedOverlappingPairCache*	getOverlappingPairCache()
+	{
+		return m_hashPairCache;
+	}
 
 };
+
 
 
 ///btGhostPairCache  keeps track of overlapping objects that have AABB overlap with the ghost
@@ -121,9 +139,10 @@ public:
 		btGhostObject* ghost0 = 		btGhostObject::upcast(colObj0);
 		btGhostObject* ghost1 = 		btGhostObject::upcast(colObj1);
 		if (ghost0)
-			ghost0->addOverlappingObject(colObj1);
+			ghost0->addOverlappingObject(proxy1);
 		if (ghost1)
-			ghost1->addOverlappingObject(colObj0);
+			ghost1->addOverlappingObject(proxy0);
+		return 0;
 	}
 
 	virtual void*	removeOverlappingPair(btBroadphaseProxy* proxy0,btBroadphaseProxy* proxy1,btDispatcher* dispatcher)
@@ -133,9 +152,10 @@ public:
 		btGhostObject* ghost0 = 		btGhostObject::upcast(colObj0);
 		btGhostObject* ghost1 = 		btGhostObject::upcast(colObj1);
 		if (ghost0)
-			ghost0->removeOverlappingObject(colObj1);
+			ghost0->removeOverlappingObject(proxy1,dispatcher);
 		if (ghost1)
-			ghost1->removeOverlappingObject(colObj0);
+			ghost1->removeOverlappingObject(proxy0,dispatcher);
+		return 0;
 	}
 
 	virtual void	removeOverlappingPairsContainingProxy(btBroadphaseProxy* proxy0,btDispatcher* dispatcher)

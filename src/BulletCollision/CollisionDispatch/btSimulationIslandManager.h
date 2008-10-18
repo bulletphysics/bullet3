@@ -19,7 +19,7 @@ subject to the following restrictions:
 #include "BulletCollision/CollisionDispatch/btUnionFind.h"
 #include "btCollisionCreateFunc.h"
 #include "LinearMath/btAlignedObjectArray.h"
-
+#include "btCollisionObject.h"
 
 class btCollisionObject;
 class btCollisionWorld;

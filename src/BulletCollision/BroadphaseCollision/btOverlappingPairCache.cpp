@@ -33,7 +33,8 @@ int gFindPairs =0;
 
 btHashedOverlappingPairCache::btHashedOverlappingPairCache():
 	m_overlapFilterCallback(0),
-	m_blockedForChanges(false)
+	m_blockedForChanges(false),
+	m_ghostPairCallback(0)
 {
 	int initialAllocatedSize= 2;
 	m_overlappingPairArray.reserve(initialAllocatedSize);
@@ -238,6 +239,11 @@ btBroadphasePair* btHashedOverlappingPairCache::internalAddPair(btBroadphaseProx
 	int count = m_overlappingPairArray.size();
 	int oldCapacity = m_overlappingPairArray.capacity();
 	void* mem = &m_overlappingPairArray.expand();
+
+	//this is where we add an actual pair, so also call the 'ghost'
+	if (m_ghostPairCallback)
+		m_ghostPairCallback->addOverlappingPair(proxy0,proxy1);
+
 	int newCapacity = m_overlappingPairArray.capacity();
 
 	if (oldCapacity < newCapacity)
@@ -316,6 +322,9 @@ void* btHashedOverlappingPairCache::removeOverlappingPair(btBroadphaseProxy* pro
 	// table indices to support the move.
 
 	int lastPairIndex = m_overlappingPairArray.size() - 1;
+
+	if (m_ghostPairCallback)
+		m_ghostPairCallback->removeOverlappingPair(proxy0, proxy1,dispatcher);
 
 	// If the removed pair is the last pair, we are done.
 	if (lastPairIndex == pairIndex)
@@ -399,6 +408,8 @@ void*	btSortedOverlappingPairCache::removeOverlappingPair(btBroadphaseProxy* pro
 			btBroadphasePair& pair = m_overlappingPairArray[findIndex];
 			void* userData = pair.m_userInfo;
 			cleanOverlappingPair(pair,dispatcher);
+			if (m_ghostPairCallback)
+				m_ghostPairCallback->removeOverlappingPair(proxy0, proxy1,dispatcher);
 			
 			m_overlappingPairArray.swap(findIndex,m_overlappingPairArray.capacity()-1);
 			m_overlappingPairArray.pop_back();
@@ -426,8 +437,12 @@ btBroadphasePair*	btSortedOverlappingPairCache::addOverlappingPair(btBroadphaseP
 	
 	void* mem = &m_overlappingPairArray.expand();
 	btBroadphasePair* pair = new (mem) btBroadphasePair(*proxy0,*proxy1);
+	
 	gOverlappingPairs++;
 	gAddedPairs++;
+	
+	if (m_ghostPairCallback)
+		m_ghostPairCallback->addOverlappingPair(proxy0, proxy1);
 	return pair;
 	
 }
@@ -493,7 +508,8 @@ void	btSortedOverlappingPairCache::processAllOverlappingPairs(btOverlapCallback*
 btSortedOverlappingPairCache::btSortedOverlappingPairCache():
 	m_blockedForChanges(false),
 	m_hasDeferredRemoval(true),
-	m_overlapFilterCallback(0)
+	m_overlapFilterCallback(0),
+	m_ghostPairCallback(0)
 {
 	int initialAllocatedSize= 2;
 	m_overlappingPairArray.reserve(initialAllocatedSize);

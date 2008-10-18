@@ -13,13 +13,9 @@ subject to the following restrictions:
 3. This notice may not be removed or altered from any source distribution.
 */
 
-/// September 2006: CharacterDemo is work in progress, this file is mostly just a placeholder
-/// This CharacterDemo file is very early in development, please check it later
-/// One todo is a basic engine model:
-/// A function that maps user input (throttle) into torque/force applied on the wheels
-/// with gears etc.
 #include "btBulletDynamicsCommon.h"
 #include "BulletCollision/CollisionShapes/btHeightfieldTerrainShape.h"
+#include "BulletCollision/CollisionDispatch/btGhostObject.h"
 
 #include "GLDebugDrawer.h"
 #include <stdio.h> //printf debugging
@@ -54,55 +50,6 @@ void playerStepCallback(btDynamicsWorld* dynamicsWorld, btScalar timeStep)
 }
 
 
-#define QUAKE_BSP_IMPORTING 1
-#ifdef QUAKE_BSP_IMPORTING
-#include "../BspDemo/BspLoader.h"
-#include "../BspDemo/BspConverter.h"
-
-
-
-
-class BspToBulletConverter : public BspConverter
-{
-	CharacterDemo* m_demoApp;
-
-public:
-
-	BspToBulletConverter(CharacterDemo*	demoApp)
-		:m_demoApp(demoApp)
-	{
-	}
-
-		virtual void	addConvexVerticesCollider(btAlignedObjectArray<btVector3>& vertices, bool isEntity, const btVector3& entityTargetLocation)
-		{
-			///perhaps we can do something special with entities (isEntity)
-			///like adding a collision Triggering (as example)
-
-			if (vertices.size() > 0)
-			{
-				float mass = 0.f;
-				btTransform startTransform;
-				//can use a shift
-				startTransform.setIdentity();
-				startTransform.setOrigin(btVector3(0,-10.0f,0.0f));
-				//this create an internal copy of the vertices
-				for (int i = 0; i < vertices.size(); i++)
-				{
-					vertices[i] *= btScalar(0.5);
-					float t = vertices[i].getZ() * btScalar(0.75);
-					vertices[i].setZ(-vertices[i].getY());
-					vertices[i].setY(t);
-				}
-
-				btCollisionShape* shape = new btConvexHullShape(&(vertices[0].getX()),vertices.size());
-				m_demoApp->m_collisionShapes.push_back(shape);
-
-				//btRigidBody* body = m_demoApp->localCreateRigidBody(mass, startTransform,shape);
-				m_demoApp->localCreateRigidBody(mass, startTransform,shape);
-			}
-		}
-};
-#endif //QUAKE_BSP_IMPORTING
 CharacterDemo::CharacterDemo()
 :
 m_cameraHeight(4.f),
@@ -115,130 +62,6 @@ m_vertices(0)
 	m_cameraPosition = btVector3(30,30,30);
 }
 
-CharacterDemo::~CharacterDemo()
-{
-	//cleanup in the reverse order of creation/initialization
-	if (m_character)
-	{
-		m_dynamicsWorld->removeCollisionObject(m_character->getCollisionObject());
-		m_character->destroy ();
-	}
-
-
-	//remove the rigidbodies from the dynamics world and delete them
-	int i;
-	for (i=m_dynamicsWorld->getNumCollisionObjects()-1; i>=0 ;i--)
-	{
-		btCollisionObject* obj = m_dynamicsWorld->getCollisionObjectArray()[i];
-		btRigidBody* body = btRigidBody::upcast(obj);
-		if (body && body->getMotionState())
-		{
-			delete body->getMotionState();
-		}
-		m_dynamicsWorld->removeCollisionObject( obj );
-		delete obj;
-	}
-
-	//delete collision shapes
-	for (int j=0;j<m_collisionShapes.size();j++)
-	{
-		btCollisionShape* shape = m_collisionShapes[j];
-		delete shape;
-	}
-
-	delete m_indexVertexArrays;
-	delete m_vertices;
-
-	//delete dynamics world
-	delete m_dynamicsWorld;
-
-	//delete solver
-	delete m_constraintSolver;
-
-	//delete broadphase
-	delete m_overlappingPairCache;
-
-	//delete dispatcher
-	delete m_dispatcher;
-
-	delete m_collisionConfiguration;
-
-}
-
-class MyCustomOverlappingPairCallback : public btOverlappingPairCallback
-{
-
-	CharacterDemo*	m_characterDemo;
-	btCollisionObject*	m_characterCollider;
-
-	btHashedOverlappingPairCache*	m_hashPairCache;
-
-	struct customOverlapFilterCallback : public btOverlapFilterCallback
-	{
-		bool needBroadphaseCollision(btBroadphaseProxy* proxy0,btBroadphaseProxy* proxy1) const
-		{
-			bool collides = (proxy0->m_collisionFilterGroup & proxy1->m_collisionFilterMask) != 0;
-			collides = collides && (proxy1->m_collisionFilterGroup & proxy0->m_collisionFilterMask);
-			return collides;
-
-		}
-	} myCustomOverlapFilterCallback;
-
-public:
-
-	MyCustomOverlappingPairCallback(CharacterDemo* demo,btCollisionObject* characterCollider)
-		:m_characterDemo(demo),
-		m_characterCollider(characterCollider)
-	{
-		m_hashPairCache = new btHashedOverlappingPairCache();
-		m_hashPairCache->setOverlapFilterCallback (&myCustomOverlapFilterCallback);
-	}
-
-	virtual ~MyCustomOverlappingPairCallback()
-	{
-		delete m_hashPairCache;
-	}
-
-	virtual btBroadphasePair*	addOverlappingPair(btBroadphaseProxy* proxy0,btBroadphaseProxy* proxy1)
-	{
-		if (proxy0->m_clientObject==m_characterCollider || proxy1->m_clientObject==m_characterCollider)
-		{
-			//printf("addOverlappingPair (%p,%p)\n",proxy0,proxy1);
-			return m_hashPairCache->addOverlappingPair(proxy0,proxy1);
-		}
-		return 0;
-	}
-
-	virtual void*	removeOverlappingPair(btBroadphaseProxy* proxy0,btBroadphaseProxy* proxy1,btDispatcher* dispatcher)
-	{
-		if (proxy0->m_clientObject==m_characterCollider || proxy1->m_clientObject==m_characterCollider)
-		{
-			//printf("removeOverlappingPair (%p,%p)\n",proxy0,proxy1);
-			return m_hashPairCache->removeOverlappingPair(proxy0,proxy1,dispatcher);
-		}
-		return 0;
-	}
-
-	virtual void	removeOverlappingPairsContainingProxy(btBroadphaseProxy* proxy0,btDispatcher* dispatcher)
-	{
-		if (proxy0->m_clientObject==m_characterCollider)
-		{
-			//printf("removeOverlappingPairsContainingProxy (%p)\n",proxy0);
-			m_hashPairCache->removeOverlappingPairsContainingProxy(proxy0,dispatcher);
-		}
-	}
-
-	btBroadphasePairArray&	getOverlappingPairArray()
-	{
-		return m_hashPairCache->getOverlappingPairArray();
-	}
-
-	btOverlappingPairCache* getOverlappingPairCache()
-	{
-		return m_hashPairCache;
-	}
-
-};
 
 void CharacterDemo::initPhysics()
 {
@@ -254,29 +77,56 @@ void CharacterDemo::initPhysics()
 	m_constraintSolver = new btSequentialImpulseConstraintSolver();
 	m_dynamicsWorld = new btDiscreteDynamicsWorld(m_dispatcher,m_overlappingPairCache,m_constraintSolver,m_collisionConfiguration);
 	
+#ifdef DYNAMIC_CHARACTER_CONTROLLER
+	m_character = new DynamicCharacterController ();
+#else
+	
+	btTransform startTransform;
+	startTransform.setIdentity ();
+	startTransform.setOrigin (btVector3(0.0, 4.0, 0.0));
+
+	m_ghostObject = new btPairCachingGhostObject();
+	m_ghostObject->setWorldTransform(startTransform);
+	sweepBP->getOverlappingPairCache()->setInternalGhostPairCallback(new btGhostPairCallback());
+	btScalar characterHeight=1.75;
+	btScalar characterWidth =1.75;
+	btConvexShape* capsule = new btCapsuleShape(characterWidth,characterHeight);
+	m_ghostObject->setCollisionShape (capsule);
+	m_ghostObject->setCollisionFlags (btCollisionObject::CF_NO_CONTACT_RESPONSE);
+
+	btScalar stepHeight = btScalar(0.35);
+	m_character = new KinematicCharacterController (m_ghostObject,capsule,stepHeight);
+#endif
+
+	
+	m_dynamicsWorld->setInternalTickCallback(playerStepCallback,m_character);
+
+
+	///only collide with static for now (no interaction with dynamic objects)
+	m_dynamicsWorld->addCollisionObject(m_ghostObject,btBroadphaseProxy::DebrisFilter, btBroadphaseProxy::StaticFilter);
+
+
+	////////////////
+
+	/// Create some basic environment from a Quake level
+
 	//m_dynamicsWorld->setGravity(btVector3(0,0,0));
 	btTransform tr;
 	tr.setIdentity();
 
-
-#ifdef QUAKE_BSP_IMPORTING
 	char* bspfilename = "BspDemo.bsp";
 	void* memoryBuffer = 0;
 
 	FILE* file = fopen(bspfilename,"r");
 	if (!file)
 	{
-		//try again other path,
-		//sight... visual studio leaves the current working directory in the projectfiles folder
-		//instead of executable folder. who wants this default behaviour?!?
+		//visual studio leaves the current working directory in the projectfiles folder
 		bspfilename = "../../BspDemo.bsp";
 		file = fopen(bspfilename,"r");
 	}
 	if (!file)
 	{
-		//try again other path,
-		//sight... visual studio leaves the current working directory in the projectfiles folder
-		//instead of executable folder. who wants this default behaviour?!?
+		//visual studio leaves the current working directory in the projectfiles folder
 		bspfilename = "BspDemo.bsp";
 		file = fopen(bspfilename,"r");
 	}
@@ -302,211 +152,11 @@ void CharacterDemo::initPhysics()
 		fclose(file);
 	}
 
-#else
-#define  USE_TRIMESH_GROUND 1
-#ifdef USE_TRIMESH_GROUND
-	int i;
+	///////////////
 
-const float TRIANGLE_SIZE=20.f;
-
-	//create a triangle-mesh ground
-	int vertStride = sizeof(btVector3);
-	int indexStride = 3*sizeof(int);
-
-	const int NUM_VERTS_X = 20;
-	const int NUM_VERTS_Y = 20;
-	const int totalVerts = NUM_VERTS_X*NUM_VERTS_Y;
-
-	const int totalTriangles = 2*(NUM_VERTS_X-1)*(NUM_VERTS_Y-1);
-
-	m_vertices = new btVector3[totalVerts];
-	int*	gIndices = new int[totalTriangles*3];
-
-
-
-	for ( i=0;i<NUM_VERTS_X;i++)
-	{
-		for (int j=0;j<NUM_VERTS_Y;j++)
-		{
-			float wl = .2f;
-			//height set to zero, but can also use curved landscape, just uncomment out the code
-			float height = 20.f*sinf(float(i)*wl)*cosf(float(j)*wl);
-#ifdef FORCE_ZAXIS_UP
-			m_vertices[i+j*NUM_VERTS_X].setValue(
-				(i-NUM_VERTS_X*0.5f)*TRIANGLE_SIZE,
-				(j-NUM_VERTS_Y*0.5f)*TRIANGLE_SIZE,
-				height
-				);
-
-#else
-			m_vertices[i+j*NUM_VERTS_X].setValue(
-				(i-NUM_VERTS_X*0.5f)*TRIANGLE_SIZE,
-				height,
-				(j-NUM_VERTS_Y*0.5f)*TRIANGLE_SIZE);
-#endif
-
-		}
-	}
-
-	int index=0;
-	for ( i=0;i<NUM_VERTS_X-1;i++)
-	{
-		for (int j=0;j<NUM_VERTS_Y-1;j++)
-		{
-			gIndices[index++] = j*NUM_VERTS_X+i;
-			gIndices[index++] = j*NUM_VERTS_X+i+1;
-			gIndices[index++] = (j+1)*NUM_VERTS_X+i+1;
-
-			gIndices[index++] = j*NUM_VERTS_X+i;
-			gIndices[index++] = (j+1)*NUM_VERTS_X+i+1;
-			gIndices[index++] = (j+1)*NUM_VERTS_X+i;
-		}
-	}
-
-	m_indexVertexArrays = new btTriangleIndexVertexArray(totalTriangles,
-		gIndices,
-		indexStride,
-		totalVerts,(btScalar*) &m_vertices[0].x(),vertStride);
-
-	bool useQuantizedAabbCompression = true;
-	groundShape = new btBvhTriangleMeshShape(m_indexVertexArrays,useQuantizedAabbCompression);
-
-	tr.setOrigin(btVector3(0,-4.5f,0));
-
-#else
-	//testing btHeightfieldTerrainShape
-	int width=128;
-	int length=128;
-	unsigned char* heightfieldData = new unsigned char[width*length];
-	{
-		for (int i=0;i<width*length;i++)
-		{
-			heightfieldData[i]=0;
-		}
-	}
-
-	char*	filename="heightfield128x128.raw";
-	FILE* heightfieldFile = fopen(filename,"r");
-	if (!heightfieldFile)
-	{
-		filename="../../heightfield128x128.raw";
-		heightfieldFile = fopen(filename,"r");
-	}
-	if (heightfieldFile)
-	{
-		int numBytes =fread(heightfieldData,1,width*length,heightfieldFile);
-		//btAssert(numBytes);
-		if (!numBytes)
-		{
-			printf("couldn't read heightfield at %s\n",filename);
-		}
-		fclose (heightfieldFile);
-	}
-
-
-	btScalar maxHeight = 20000.f;
-
-	bool useFloatDatam=false;
-	bool flipQuadEdges=false;
-
-	btHeightfieldTerrainShape* heightFieldShape = new btHeightfieldTerrainShape(width,length,heightfieldData,maxHeight,upIndex,useFloatDatam,flipQuadEdges);;
-	groundShape = heightFieldShape;
-
-	heightFieldShape->setUseDiamondSubdivision(true);
-
-	btVector3 localScaling(20,20,20);
-	localScaling[upIndex]=1.f;
-	groundShape->setLocalScaling(localScaling);
-
-	tr.setOrigin(btVector3(0,-64.5f,0));
-
-#endif //
-
-	m_collisionShapes.push_back(groundShape);
-	//create ground object
-	localCreateRigidBody(0,tr,groundShape);
-
-
-
-#define CUBE_HALF_EXTENTS 0.5
-#define EXTRA_HEIGHT 10.0
-	btBoxShape* boxShape = new btBoxShape (btVector3(1.0, 1.0, 1.0));
-	m_collisionShapes.push_back (boxShape);
-#define DO_WALL
-#ifdef DO_WALL
-	for (i=0;i<50;i++)
-	{
-		btCollisionShape* shape = boxShape;
-		//shape->setMargin(gCollisionMargin);
-
-		bool isDyna = i>0;
-
-		btTransform trans;
-		trans.setIdentity();
-
-		if (i>0)
-		{
-			//stack them
-			int colsize = 10;
-			int row = (i*CUBE_HALF_EXTENTS*2)/(colsize*2*CUBE_HALF_EXTENTS);
-			int row2 = row;
-			int col = (i)%(colsize)-colsize/2;
-
-
-			if (col>3)
-			{
-				col=11;
-				row2 |=1;
-			}
-
-			btVector3 pos(col*2*CUBE_HALF_EXTENTS + (row2%2)*CUBE_HALF_EXTENTS,
-				row*2*CUBE_HALF_EXTENTS+CUBE_HALF_EXTENTS+EXTRA_HEIGHT,0);
-
-			trans.setOrigin(pos);
-		} else
-		{
-			trans.setOrigin(btVector3(0,EXTRA_HEIGHT-CUBE_HALF_EXTENTS,0));
-		}
-
-		float mass = 1.f;
-
-		if (!isDyna)
-			mass = 0.f;
-
-		btRigidBody* body = localCreateRigidBody(mass,trans,shape);
-#ifdef USE_KINEMATIC_GROUND
-		if (mass == 0.f)
-		{
-			body->setCollisionFlags( body->getCollisionFlags() | btCollisionObject::CF_KINEMATIC_OBJECT);
-			body->setActivationState(DISABLE_DEACTIVATION);
-		}
-#endif //USE_KINEMATIC_GROUND
-
-	}
-#endif
-
-#endif
-
-#ifdef DYNAMIC_CHARACTER_CONTROLLER
-	m_character = new DynamicCharacterController ();
-#else
-	m_character = new KinematicCharacterController ();
-#endif
-	m_character->setup ();
-	
-	m_dynamicsWorld->setInternalTickCallback(playerStepCallback,m_character);
-
-	//some custom callback sample
-	m_customPairCallback = new MyCustomOverlappingPairCallback(this,m_character->getCollisionObject());
-	sweepBP->setOverlappingPairUserCallback(m_customPairCallback);
-	m_character->registerPairCacheAndDispatcher (m_customPairCallback->getOverlappingPairCache(), m_dispatcher);
-
-	///only collide with static for now (no interaction with dynamic objects)
-	m_dynamicsWorld->addCollisionObject(m_character->getCollisionObject(),btBroadphaseProxy::DebrisFilter, btBroadphaseProxy::StaticFilter);
-	
 	clientResetScene();
 
-	setCameraDistance(26.f);
+	setCameraDistance(56.f);
 
 }
 
@@ -526,13 +176,16 @@ void	CharacterDemo::debugDrawContacts()
 //	printf("numPairs = %d\n",m_customPairCallback->getOverlappingPairArray().size());
 	{
 		btManifoldArray	manifoldArray;
-		for (int i=0;i<m_customPairCallback->getOverlappingPairArray().size();i++)
+		btBroadphasePairArray& pairArray = m_ghostObject->getOverlappingPairCache()->getOverlappingPairArray();
+		int numPairs = pairArray.size();
+
+		for (int i=0;i<numPairs;i++)
 		{
 			manifoldArray.clear();
 
-			const btBroadphasePair& pair = m_customPairCallback->getOverlappingPairArray()[i];
+			const btBroadphasePair& pair = pairArray[i];
+			
 			btBroadphasePair* collisionPair = m_overlappingPairCache->getOverlappingPairCache()->findPair(pair.m_pProxy0,pair.m_pProxy1);
-
 			if (!collisionPair)
 				continue;
 
@@ -546,7 +199,8 @@ void	CharacterDemo::debugDrawContacts()
 				{
 					const btManifoldPoint&pt = manifold->getContactPoint(p);
 
-					m_dynamicsWorld->getDebugDrawer()->drawContactPoint(pt.getPositionWorldOnB(),pt.m_normalWorldOnB,pt.getDistance(),pt.getLifeTime(),btVector3(1.f,1.f,0.f));
+					btVector3 color(255,255,255);
+					m_dynamicsWorld->getDebugDrawer()->drawContactPoint(pt.getPositionWorldOnB(),pt.m_normalWorldOnB,pt.getDistance(),pt.getLifeTime(),color);
 				}
 			}
 		}
@@ -645,7 +299,7 @@ void CharacterDemo::displayCallback(void)
 
 void CharacterDemo::clientResetScene()
 {
-	m_dynamicsWorld->getBroadphase()->getOverlappingPairCache()->cleanProxyFromPairs(m_character->getCollisionObject()->getBroadphaseHandle(),getDynamicsWorld()->getDispatcher());
+	m_dynamicsWorld->getBroadphase()->getOverlappingPairCache()->cleanProxyFromPairs(m_ghostObject->getBroadphaseHandle(),getDynamicsWorld()->getDispatcher());
 
 	m_character->reset ();
 	///WTF
@@ -741,14 +395,14 @@ void	CharacterDemo::updateCamera()
 	btTransform characterWorldTrans;
 
 	//look at the vehicle
-	characterWorldTrans = m_character->getCollisionObject()->getWorldTransform();
+	characterWorldTrans = m_ghostObject->getWorldTransform();
 	btVector3 up = characterWorldTrans.getBasis()[1];
 	btVector3 backward = -characterWorldTrans.getBasis()[2];
 	up.normalize ();
 	backward.normalize ();
 
 	m_cameraTargetPosition = characterWorldTrans.getOrigin();
-	m_cameraPosition = m_cameraTargetPosition + up * 2.0 + backward * 2.0;
+	m_cameraPosition = m_cameraTargetPosition + up * 2.0 + backward * 12.0;
 
 	//update OpenGL camera settings
     glFrustum(-1.0, 1.0, -1.0, 1.0, 1.0, 10000.0);
@@ -761,6 +415,54 @@ void	CharacterDemo::updateCamera()
 			  m_cameraUp.getX(),m_cameraUp.getY(),m_cameraUp.getZ());
 
 
+
+}
+
+
+CharacterDemo::~CharacterDemo()
+{
+	//cleanup in the reverse order of creation/initialization
+	if (m_character)
+	{
+		m_dynamicsWorld->removeCollisionObject(m_ghostObject);
+	}
+	//remove the rigidbodies from the dynamics world and delete them
+	int i;
+	for (i=m_dynamicsWorld->getNumCollisionObjects()-1; i>=0 ;i--)
+	{
+		btCollisionObject* obj = m_dynamicsWorld->getCollisionObjectArray()[i];
+		btRigidBody* body = btRigidBody::upcast(obj);
+		if (body && body->getMotionState())
+		{
+			delete body->getMotionState();
+		}
+		m_dynamicsWorld->removeCollisionObject( obj );
+		delete obj;
+	}
+
+	//delete collision shapes
+	for (int j=0;j<m_collisionShapes.size();j++)
+	{
+		btCollisionShape* shape = m_collisionShapes[j];
+		delete shape;
+	}
+
+	delete m_indexVertexArrays;
+	delete m_vertices;
+
+	//delete dynamics world
+	delete m_dynamicsWorld;
+
+	//delete solver
+	delete m_constraintSolver;
+
+	//delete broadphase
+	delete m_overlappingPairCache;
+
+	//delete dispatcher
+	delete m_dispatcher;
+
+	delete m_collisionConfiguration;
 
 }
 
