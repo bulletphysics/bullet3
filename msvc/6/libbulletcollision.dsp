@@ -306,6 +306,10 @@ SOURCE=..\..\src\BulletCollision\CollisionDispatch\btEmptyCollisionAlgorithm.cpp
 # End Source File
 # Begin Source File
 
+SOURCE=..\..\src\BulletCollision\CollisionDispatch\btGhostObject.cpp
+# End Source File
+# Begin Source File
+
 SOURCE=..\..\src\BulletCollision\CollisionDispatch\btManifoldResult.cpp
 # End Source File
 # Begin Source File
@@ -659,6 +663,10 @@ SOURCE=..\..\src\BulletCollision\CollisionDispatch\btDefaultCollisionConfigurati
 # Begin Source File
 
 SOURCE=..\..\src\BulletCollision\CollisionDispatch\btEmptyCollisionAlgorithm.h
+# End Source File
+# Begin Source File
+
+SOURCE=..\..\src\BulletCollision\CollisionDispatch\btGhostObject.h
 # End Source File
 # Begin Source File
 
