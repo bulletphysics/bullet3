@@ -26,7 +26,6 @@ Written by: Nicola Candussi <nicola@fluidinteractive.com>
 #ifndef DYN_RIGID_BODY_IMPL_H
 #define DYN_RIGID_BODY_IMPL_H
 
-#include "rigid_body_impl.h"
 #include "mathUtils.h"
 
 class rigid_body_impl_t

@@ -27,6 +27,7 @@ Written by: Nicola Candussi <nicola@fluidinteractive.com>
 
 shared_ptr<solver_impl_t> solver_t::m_impl;
 std::set<rigid_body_t::pointer> solver_t::m_rigid_bodies;
+std::set<constraint_t::pointer> solver_t::m_constraints;
 
 shared_ptr<solver_impl_t> solver_t::get_solver()
 {
@@ -84,6 +85,12 @@ rigid_body_t::pointer solver_t::create_rigid_body(collision_shape_t::pointer& cs
     return rigid_body_t::pointer(new rigid_body_t(m_impl->create_rigid_body(cs->impl()), cs));
 }
 
+nail_constraint_t::pointer  solver_t::create_nail_constraint(rigid_body_t::pointer& rb, vec3f const& pivot)
+{
+    return nail_constraint_t::pointer(new nail_constraint_t(m_impl->create_nail_constraint(rb->impl(), pivot), rb));
+}
+
+
 //add/remove from world
 void solver_t::add_rigid_body(rigid_body_t::pointer& rb)
 {
@@ -112,6 +119,35 @@ void solver_t::remove_all_rigid_bodies()
         m_impl->remove_rigid_body(const_cast<rigid_body_t*>((*it).get())->impl());
     }
     m_rigid_bodies.clear();
+}
+
+void solver_t::add_constraint(constraint_t::pointer& c)
+{
+    if(c) {
+        if(m_constraints.find(c) == m_constraints.end()) {
+            m_constraints.insert(c);
+            m_impl->add_constraint(c->impl());
+        }
+    }
+}
+
+void solver_t::remove_constraint(constraint_t::pointer& c)
+{
+    if(c) {
+        if(m_constraints.find(c) != m_constraints.end()) {
+            m_impl->remove_constraint(c->impl());
+            m_constraints.erase(c);
+        }
+    }
+}
+
+void solver_t::remove_all_constraints()
+{
+    std::set<constraint_t::pointer>::iterator it;
+    for(it = m_constraints.begin(); it != m_constraints.end(); ++it) { 
+        m_impl->remove_constraint(const_cast<constraint_t*>((*it).get())->impl());
+    }
+    m_constraints.clear();
 }
 
 void solver_t::set_gravity(vec3f const& g)

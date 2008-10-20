@@ -29,10 +29,12 @@ Written by: Nicola Candussi <nicola@fluidinteractive.com>
 #include "rigidBodyNode.h"
 #include "rigidBodyArrayNode.h"
 #include "collisionShapeNode.h"
+#include "nailConstraintNode.h"
 #include "dSolverNode.h"
 #include "dSolverCmd.h"
 #include "dRigidBodyCmd.h"
 #include "dRigidBodyArrayCmd.h" 
+#include "dNailConstraintCmd.h" 
 #include "mvl/util.h"
 #include "colladaExport.h"
 
@@ -63,7 +65,7 @@ MStatus initializePlugin( MObject obj )
 	MCHECKSTATUS(status,"registerFileTranslator COLLADA Physics export")
 
     
-// 
+    //
     status = plugin.registerNode( rigidBodyNode::typeName, rigidBodyNode::typeId,
                                   rigidBodyNode::creator,
                                   rigidBodyNode::initialize,
@@ -86,6 +88,15 @@ MStatus initializePlugin( MObject obj )
                                   collisionShapeNode::initialize,
                                   MPxNode::kDependNode );
     MCHECKSTATUS(status, "registering collisionShapeNode")
+
+    //
+    status = plugin.registerNode( nailConstraintNode::typeName, nailConstraintNode::typeId,
+                                  nailConstraintNode::creator,
+                                  nailConstraintNode::initialize,
+                                  MPxNode::kLocatorNode );
+    MCHECKSTATUS(status, "registering nailConstraintNode")
+    MDGMessage::addNodeRemovedCallback(nailConstraintNode::nodeRemoved, nailConstraintNode::typeName);
+
 
     // 
     status = plugin.registerNode( dSolverNode::typeName, dSolverNode::typeId,
@@ -110,6 +121,11 @@ MStatus initializePlugin( MObject obj )
                                      dRigidBodyArrayCmd::syntax);
     MCHECKSTATUS(status, "registering dRigidBodyArrayCmd")
 
+    status = plugin.registerCommand( dNailConstraintCmd::typeName,
+                                     dNailConstraintCmd::creator,
+                                     dNailConstraintCmd::syntax);
+    MCHECKSTATUS(status, "registering dNailConstraintCmd")
+
     MGlobal::executeCommand( "source dynamicaUI.mel" );
     MGlobal::executeCommand( "dynamicaUI_initialize" );
     
@@ -120,6 +136,9 @@ MStatus uninitializePlugin( MObject obj )
 {
     MStatus   status;
     MFnPlugin plugin( obj );
+
+    status = plugin.deregisterCommand(dNailConstraintCmd::typeName);
+    MCHECKSTATUS(status, "deregistering dNailConstraintCmd")
 
     status = plugin.deregisterCommand(dRigidBodyArrayCmd::typeName);
     MCHECKSTATUS(status, "deregistering dRigidBodyArrayCmd")
@@ -132,6 +151,9 @@ MStatus uninitializePlugin( MObject obj )
 
     status = plugin.deregisterNode(dSolverNode::typeId);
     MCHECKSTATUS(status, "deregistering dSolverNode")
+
+    status = plugin.deregisterNode(nailConstraintNode::typeId);
+    MCHECKSTATUS(status, "deregistering nailConstraintNode")
 
     status = plugin.deregisterNode(collisionShapeNode::typeId);
     MCHECKSTATUS(status, "deregistering collisionShapeNode")

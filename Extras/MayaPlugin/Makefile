@@ -36,20 +36,30 @@ GL_LIB=-lGL -lGLU
 MAYA_INCLUDE=-I$(MAYA)/include
 MAYA_LIB=-L$(MAYA)/lib -lOpenMaya -lFoundation -lOpenMayaUI -lOpenMayaFX
 
-SOURCES = pluginMain.cpp colladaExport.cpp rigidBodyNode.cpp rigidBodyArrayNode.cpp collisionShapeNode.cpp \
-	  solver.cpp bt_solver.cpp dSolverNode.cpp dSolverCmd.cpp dRigidBodyCmd.cpp dRigidBodyArrayCmd.cpp \
-	  pdbIO.cpp drawUtils.cpp
+SOURCES = bt_solver.cpp           dRigidBodyArrayCmd.cpp  pdbIO.cpp                \
+	colladaExport.cpp       dRigidBodyCmd.cpp       pluginMain.cpp             \
+	collisionShapeNode.cpp  dSolverCmd.cpp          rigidBodyArrayNode.cpp     \
+	dNailConstraintCmd.cpp  dSolverNode.cpp         rigidBodyNode.cpp          \
+	drawUtils.cpp           nailConstraintNode.cpp  solver.cpp                 
 
-HEADERS = box_shape.h             bt_sphere_shape.h         dSolverNode.h         rigid_body_impl.h \
-	box_shape_impl.h        collision_shape.h         mathUtils.h           rigidBodyNode.h \
-	bt_box_shape.h          collision_shape_impl.h    mayaUtils.h           solver.h \
-	bt_collision_shape.h    collisionShapeNode.h      mesh_shape.h          solver_impl.h \
-	bt_convex_hull_shape.h  convex_hull_shape.h       mesh_shape_impl.h     sphere_shape.h \
-	bt_mesh_shape.h         convex_hull_shape_impl.h  plane_shape.h         sphere_shape_impl.h \
-	bt_plane_shape.h        dRigidBodyArrayCmd.h      plane_shape_impl.h \
-	bt_rigid_body.h         dRigidBodyCmd.h           rigidBodyArrayNode.h \
-	bt_solver.h             dSolverCmd.h              rigid_body.h 		pdbIO.h \
-	shared_ptr.h		drawUtils.h
+
+
+HEADERS = box_shape.h             collisionShapeNode.h      nail_constraint.h     \
+	box_shape_impl.h        constraint.h              nail_constraint_impl.h  \
+	bt_box_shape.h          constraint_impl.h         nailConstraintNode.h    \
+	bt_collision_shape.h    convex_hull_shape.h       pdbIO.h                 \
+	bt_constraint.h         convex_hull_shape_impl.h  plane_shape.h           \
+	bt_convex_hull_shape.h  dNailConstraintCmd.h      plane_shape_impl.h      \
+	bt_mesh_shape.h         drawUtils.h               rigidBodyArrayNode.h    \
+	bt_nail_constraint.h    dRigidBodyArrayCmd.h      rigid_body.h            \
+	bt_plane_shape.h        dRigidBodyCmd.h           rigid_body_impl.h       \
+	bt_rigid_body.h         dSolverCmd.h              rigidBodyNode.h         \
+	bt_solver.h             dSolverNode.h             shared_ptr.h            \
+	bt_sphere_shape.h       mathUtils.h               solver.h                \
+	colladaExport.h         mayaUtils.h               solver_impl.h           \
+	collision_shape.h       mesh_shape.h              sphere_shape.h          \
+	collision_shape_impl.h  mesh_shape_impl.h         sphere_shape_impl.h     
+
 
 
 INCLUDE_FLAGS= $(GL_INCLUDE) $(BULLET_INCLUDE) $(MAYA_INCLUDE)

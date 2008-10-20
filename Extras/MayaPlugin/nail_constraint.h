@@ -1,0 +1,91 @@
+/*
+Bullet Continuous Collision Detection and Physics Library Maya Plugin
+Copyright (c) 2008 Walt Disney Studios
+ 
+This software is provided 'as-is', without any express or implied warranty.
+In no event will the authors be held liable for any damages arising
+from the use of this software.
+Permission is granted to anyone to use this software for any purpose,
+including commercial applications, and to alter it and redistribute it freely,
+subject to the following restrictions:
+ 
+1. The origin of this software must not be misrepresented; you must
+not claim that you wrote the original software. If you use this
+software in a product, an acknowledgment in the product documentation
+would be appreciated but is not required.
+2. Altered source versions must be plainly marked as such, and must
+not be misrepresented as being the original software.
+3. This notice may not be removed or altered from any source distribution.
+ 
+Written by: Nicola Candussi <nicola@fluidinteractive.com>
+*/
+
+//nail_constraint.h
+
+#ifndef DYN_NAIL_CONSTRAINT_H
+#define DYN_NAIL_CONSTRAINT_H
+
+#include "shared_ptr.h"
+#include "rigid_body.h"
+#include "mathUtils.h"
+
+#include "constraint.h"
+#include "nail_constraint_impl.h"
+
+class nail_constraint_t: public constraint_t
+{
+public:
+    //typedefs
+    typedef shared_ptr<nail_constraint_t> pointer;
+
+    //
+    rigid_body_t::pointer rigid_body()  {   return m_rigid_body;   }
+
+    //
+    void set_pivot(vec3f const& p) 
+    {
+        nail_constraint_impl_t* nail_impl = dynamic_cast<nail_constraint_impl_t*>(impl());
+        nail_impl->set_pivot(p);
+    }
+
+    //local space pivot
+    void get_pivot(vec3f& p) const  {    
+        nail_constraint_impl_t const* nail_impl = dynamic_cast<nail_constraint_impl_t const*>(impl());
+        nail_impl->get_pivot(p);   
+    }
+
+    //
+    void get_world_pivot(vec3f& p) const  {    
+        nail_constraint_impl_t const* nail_impl = dynamic_cast<nail_constraint_impl_t const*>(impl());
+        nail_impl->get_world_pivot(p);   
+    }
+
+    //
+    void set_damping(float d) {
+        nail_constraint_impl_t* nail_impl = dynamic_cast<nail_constraint_impl_t*>(impl());
+        nail_impl->set_damping(d);
+    }
+
+    float damping() const {
+        nail_constraint_impl_t const* nail_impl = dynamic_cast<nail_constraint_impl_t const*>(impl());
+        return nail_impl->damping();  
+    }
+
+public:
+    virtual ~nail_constraint_t() {};
+
+protected:
+    friend class solver_t;    
+    nail_constraint_t(nail_constraint_impl_t* impl, rigid_body_t::pointer& rigid_body): 
+        constraint_t(impl),
+        m_rigid_body(rigid_body) 
+    {
+    }
+
+private:
+    rigid_body_t::pointer                   m_rigid_body;
+};
+
+
+
+#endif

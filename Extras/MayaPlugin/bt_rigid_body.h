@@ -43,21 +43,14 @@ public:
         const btTransform& btxform = m_body->getWorldTransform();
         btQuaternion q = btxform.getRotation();
         btVector3 p = btxform.getOrigin();
- //       position = vec3f(p.x(), p.y(), p.z()) - m_collision_shape->center();
         position = vec3f(p.x(), p.y(), p.z());
-        //rotation = qprod(quatf(q.w(), q.x(), q.y(), q.z()), qconj(m_collision_shape->rotation()));
         rotation = quatf(q.w(), q.x(), q.y(), q.z());
     }
 
     virtual void set_transform(vec3f const &position, quatf const &rotation)
     {
-//        vec3f tp = position + m_collision_shape->center();
         vec3f tp = position;
-        //        quatf tr = qprod(rotation, m_collision_shape->rotation());
         quatf tr = rotation;
-      //  std::cout << "----------" << std::endl;
-      //  std::cout << rotation << std::endl;
-      //  std::cout << m_collision_shape->rotation() << std::endl;
         btTransform xform(btQuaternion(tr[1], tr[2], tr[3], tr[0]),
                           btVector3(tp[0], tp[1], tp[2])); 
         m_body->setWorldTransform(xform);
@@ -103,7 +96,6 @@ public:
 
     virtual void set_restitution(float r)
     {
-       // std::cout << r << std::endl;
         m_body->setRestitution(r);
     }
 

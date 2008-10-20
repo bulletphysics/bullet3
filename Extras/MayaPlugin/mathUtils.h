@@ -31,6 +31,7 @@ Written by: Nicola Candussi <nicola@fluidinteractive.com>
 using namespace mvl;
 
 typedef vec<float, 3> vec3f;
+typedef vec<float, 4> vec4f;
 typedef mat<float, 4, 4> mat4x4f;
 typedef mat<float, 3, 3> mat3x3f;
 typedef vec<float, 4> quatf;

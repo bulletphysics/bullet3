@@ -308,6 +308,21 @@ global proc string dynamicaUI_createMainTab()
 	    }
 	    setParent ..;
 	}
+
+	frameLayout -collapsable true -label "Constraints" -borderStyle "in";
+	{
+	    rowLayout -nc 5;
+	    {
+		string $createNailConstraintBtn = `iconTextButton -style "iconAndTextVertical" -label "Nail"
+                                                    -width 100 -image1 "dynamicaCreateNailConstraint.xpm" -c ("dynamicaUI_createNailConstraint")
+                                                    -ann "Create a nail constraint"`;
+
+
+		setParent ..;
+	    }
+	    setParent ..;
+	}
+
 	setParent ..;
     }
     return $mainForm;
@@ -641,6 +656,28 @@ global proc dynamicaUI_createPassiveHullRBArray()
 global proc dynamicaUI_createPassiveMeshRBArray()
 {
     dynamicaUI_createRigidBodyArray(false, 1);
+}
+
+global proc dynamicaUI_createNailConstraint()
+{    
+    string $selection[] = `ls -selection -dag -leaf -showType -type "geometry"`;
+
+    //create dSolver node if necessary
+    dSolver;
+
+    string $newConstraints[];
+
+    for($i = 0; $i < size($selection) / 2; $i++) {
+        if($selection[$i * 2 + 1] == "dRigidBody") {
+            string $constraintNode = `dNailConstraint`;
+            connectAttr ($selection[$i * 2] + ".message") ($constraintNode + ".inRigidBody");
+            string $constraintTransforms[] = `listRelatives -parent $constraintNode`;
+            $newConstraints[$i] = $constraintTransforms[0];
+        }
+    }
+
+    select -r $newConstraints;
+
 }
 
 global proc dyn_demo1()

@@ -20,26 +20,26 @@ not be misrepresented as being the original software.
 Written by: Nicola Candussi <nicola@fluidinteractive.com>
 */
 
-//dRigidBodyCmd.cpp
+//dNailConstraintCmd.cpp
 
 #include <maya/MGlobal.h>
 #include <maya/MItDependencyNodes.h>
 #include <maya/MSyntax.h>
 
-#include "rigidBodyNode.h"
-#include "dRigidBodyCmd.h"
+#include "nailConstraintNode.h"
+#include "dNailConstraintCmd.h"
 
 
-MString dRigidBodyCmd::typeName("dRigidBody");
+MString dNailConstraintCmd::typeName("dNailConstraint");
 
-dRigidBodyCmd::dRigidBodyCmd()
+dNailConstraintCmd::dNailConstraintCmd()
   : m_argDatabase(0),
     m_dagModifier(0)
 {
 }
 
 
-dRigidBodyCmd::~dRigidBodyCmd()
+dNailConstraintCmd::~dNailConstraintCmd()
 {
   if (m_argDatabase) {
     delete m_argDatabase;
@@ -52,14 +52,14 @@ dRigidBodyCmd::~dRigidBodyCmd()
 
 
 void *
-dRigidBodyCmd::creator()
+dNailConstraintCmd::creator()
 {
-  return new dRigidBodyCmd;
+  return new dNailConstraintCmd;
 }
 
 
 MSyntax
-dRigidBodyCmd::syntax()
+dNailConstraintCmd::syntax()
 {
     MSyntax syntax;
     syntax.enableQuery(false);
@@ -75,7 +75,7 @@ dRigidBodyCmd::syntax()
 
 
 MStatus
-dRigidBodyCmd::doIt(const MArgList &args)
+dNailConstraintCmd::doIt(const MArgList &args)
 {
     MStatus stat;
     m_argDatabase = new MArgDatabase(syntax(), args, &stat);
@@ -87,7 +87,7 @@ dRigidBodyCmd::doIt(const MArgList &args)
 
 
 MStatus
-dRigidBodyCmd::undoIt()
+dNailConstraintCmd::undoIt()
 {
   MGlobal::setActiveSelectionList(m_undoSelectionList);
 
@@ -102,7 +102,7 @@ dRigidBodyCmd::undoIt()
 
 
 MStatus
-dRigidBodyCmd::redoIt()
+dNailConstraintCmd::redoIt()
 {
     MGlobal::getActiveSelectionList(m_undoSelectionList);
 
@@ -111,7 +111,7 @@ dRigidBodyCmd::redoIt()
 	m_argDatabase->getFlagArgument("-name", 0, name);
     }
     if (!name.length()) {
-	name = "dRigidBody";
+	name = "dNailConstraint";
     }
 
     m_dagModifier = new MDagModifier;
@@ -120,28 +120,14 @@ dRigidBodyCmd::redoIt()
     m_dagModifier->renameNode(parentObj, name + "#");
     m_dagModifier->doIt();
 
-    MObject dRigidBodyObj = m_dagModifier->createNode(rigidBodyNode::typeId, parentObj);
-    std::string dRigidBodyName = MFnDependencyNode(parentObj).name().asChar();
-    std::string::size_type pos = dRigidBodyName.find_last_not_of("0123456789");
-    dRigidBodyName.insert(pos + 1, "Shape");
-    m_dagModifier->renameNode(dRigidBodyObj, dRigidBodyName.c_str());
+    MObject dConstraintObj = m_dagModifier->createNode(nailConstraintNode::typeId, parentObj);
+    std::string dConstraintName = MFnDependencyNode(parentObj).name().asChar();
+    std::string::size_type pos = dConstraintName.find_last_not_of("0123456789");
+    dConstraintName.insert(pos + 1, "Shape");
+    m_dagModifier->renameNode(dConstraintObj, dConstraintName.c_str());
     m_dagModifier->doIt();
 
-    // connect the solver attribute
-    MPlug plgSolver(dRigidBodyObj, rigidBodyNode::ia_solver);
-    MSelectionList slist;
-    slist.add("dSolver1");
-    MObject solverObj;
-    if(slist.length() != 0) {
-        slist.getDependNode(0, solverObj);
-	MPlug plgRigidBodies = MFnDependencyNode(solverObj).findPlug("rigidBodies", false);
-	m_dagModifier->connect(plgRigidBodies, plgSolver);
-	m_dagModifier->doIt();
-    }
-
-  //  MGlobal::select(parentObj, MGlobal::kReplaceList);
-
-    setResult(MFnDependencyNode(dRigidBodyObj).name());
+    setResult(MFnDependencyNode(dConstraintObj).name());
 
     return MS::kSuccess;
 }

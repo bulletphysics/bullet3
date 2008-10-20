@@ -37,6 +37,7 @@ Written by: Nicola Candussi <nicola@fluidinteractive.com>
 #include "bt_box_shape.h"
 #include "bt_convex_hull_shape.h"
 #include "bt_mesh_shape.h"
+#include "bt_nail_constraint.h"
 
 class bt_solver_t: public solver_impl_t
 {
@@ -71,6 +72,11 @@ public:
         return new bt_mesh_shape_t(vertices, num_vertices, normals, indices, num_indices);
     }
 
+    virtual nail_constraint_impl_t* create_nail_constraint(rigid_body_impl_t* rb, vec3f const& pivot)
+    {
+        return new bt_nail_constraint_t(rb, pivot);
+    }
+
     virtual void add_rigid_body(rigid_body_impl_t* rb)
     {
         bt_rigid_body_t* bt_body = static_cast<bt_rigid_body_t*>(rb);
@@ -81,6 +87,18 @@ public:
     {
         bt_rigid_body_t* bt_body = static_cast<bt_rigid_body_t*>(rb);
         m_dynamicsWorld->removeRigidBody(bt_body->body());
+    }
+
+    virtual void add_constraint(constraint_impl_t* c)
+    {
+        bt_constraint_t* btc = dynamic_cast<bt_constraint_t*>(c);
+        m_dynamicsWorld->addConstraint(btc->constraint());
+    }
+
+    virtual void remove_constraint(constraint_impl_t* c)
+    {
+        bt_constraint_t* btc = dynamic_cast<bt_constraint_t*>(c);
+        m_dynamicsWorld->removeConstraint(btc->constraint());
     }
 
     virtual void set_gravity(vec3f const& g)

@@ -26,6 +26,7 @@ Written by: Nicola Candussi <nicola@fluidinteractive.com>
 #define DYN_SOLVER_IMPL_H
 
 #include "rigid_body_impl.h"
+#include "nail_constraint_impl.h"
 #include "collision_shape_impl.h"
 
 class solver_impl_t
@@ -46,10 +47,16 @@ public:
                                                              unsigned int const *indices, size_t num_indices) = 0; 
 
     virtual rigid_body_impl_t* create_rigid_body(collision_shape_impl_t* cs) = 0;
-    
+
+    virtual nail_constraint_impl_t* create_nail_constraint(rigid_body_impl_t* rb, vec3f const& pivot) = 0;
+
     virtual void add_rigid_body(rigid_body_impl_t* rb) = 0;
 
     virtual void remove_rigid_body(rigid_body_impl_t* rb) = 0;
+
+    virtual void add_constraint(constraint_impl_t* rb) = 0;
+
+    virtual void remove_constraint(constraint_impl_t* rb) = 0;
 
     virtual void set_gravity(vec3f const& g) = 0;
 

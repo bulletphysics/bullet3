@@ -38,6 +38,7 @@ Written by: Nicola Candussi <nicola@fluidinteractive.com>
 #include "box_shape.h"
 #include "convex_hull_shape.h"
 #include "mesh_shape.h"
+#include "nail_constraint.h"
 #include "solver_impl.h"
 
 class solver_t
@@ -63,10 +64,17 @@ public:
 
     static rigid_body_t::pointer create_rigid_body(collision_shape_t::pointer& cs);
 
+    static nail_constraint_t::pointer create_nail_constraint(rigid_body_t::pointer& rb, vec3f const& pivot = vec3f(0, 0, 0));
+
     //add/remove from world
     static void add_rigid_body(rigid_body_t::pointer& rb);
     static void remove_rigid_body(rigid_body_t::pointer& rb);
     static void remove_all_rigid_bodies();
+
+    //add/remove from world
+    static void add_constraint(constraint_t::pointer& c);
+    static void remove_constraint(constraint_t::pointer& c);
+    static void remove_all_constraints();
 
     //
     static void set_gravity(vec3f const& g);
@@ -82,6 +90,7 @@ public:
 private:
     static shared_ptr<solver_impl_t> m_impl;
     static std::set<rigid_body_t::pointer> m_rigid_bodies;
+    static std::set<constraint_t::pointer> m_constraints;
 };
 
 
