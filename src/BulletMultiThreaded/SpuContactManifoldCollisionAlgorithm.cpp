@@ -17,7 +17,7 @@ subject to the following restrictions:
 #include "BulletCollision/CollisionDispatch/btCollisionDispatcher.h"
 #include "BulletCollision/CollisionDispatch/btCollisionObject.h"
 #include "BulletCollision/CollisionShapes/btCollisionShape.h"
-
+#include "BulletCollision/CollisionShapes/btPolyhedralConvexShape.h"
 
 SpuContactManifoldCollisionAlgorithm::SpuContactManifoldCollisionAlgorithm()
 :m_manifoldPtr(0)
@@ -46,7 +46,19 @@ SpuContactManifoldCollisionAlgorithm::SpuContactManifoldCollisionAlgorithm(const
 	m_shapeType1 = body1->getCollisionShape()->getShapeType();
 	m_collisionMargin0 = body0->getCollisionShape()->getMargin();
 	m_collisionMargin1 = body1->getCollisionShape()->getMargin();
+	m_collisionObject0 = body0;
+	m_collisionObject1 = body1;
 
+	if (body0->getCollisionShape()->isPolyhedral())
+	{
+		btPolyhedralConvexShape* convex0 = (btPolyhedralConvexShape*)body0->getCollisionShape();
+		m_shapeDimensions0 = convex0->getImplicitShapeDimensions();
+	}
+	if (body1->getCollisionShape()->isPolyhedral())
+	{
+		btPolyhedralConvexShape* convex1 = (btPolyhedralConvexShape*)body1->getCollisionShape();
+		m_shapeDimensions1 = convex1->getImplicitShapeDimensions();
+	}
 }
 #endif //__SPU__
 

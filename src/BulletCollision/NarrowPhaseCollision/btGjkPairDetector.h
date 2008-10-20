@@ -38,6 +38,7 @@ class btGjkPairDetector : public btDiscreteCollisionDetectorInterface
 	const btConvexShape* m_minkowskiA;
 	const btConvexShape* m_minkowskiB;
 	bool		m_ignoreMargin;
+	btScalar	m_cachedSeparatingDistance;
 	
 
 public:
@@ -66,6 +67,15 @@ public:
 	void setCachedSeperatingAxis(const btVector3& seperatingAxis)
 	{
 		m_cachedSeparatingAxis = seperatingAxis;
+	}
+
+	const btVector3& getCachedSeparatingAxis() const
+	{
+		return m_cachedSeparatingAxis;
+	}
+	btScalar	getCachedSeparatingDistance() const
+	{
+		return m_cachedSeparatingDistance;
 	}
 
 	void	setPenetrationDepthSolver(btConvexPenetrationDepthSolver*	penetrationDepthSolver)

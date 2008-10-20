@@ -140,5 +140,71 @@ public:
 
 };
 
+
+///The btConvexSeparatingDistanceUtil can help speed up convex collision detection 
+///by conservatively updating a cached separating distance/vector instead of re-calculating the closest distance
+class	btConvexSeparatingDistanceUtil
+{
+	btTransform	m_cachedTransformA;
+	btTransform m_cachedTransformB;
+
+	btScalar	m_boundingRadiusA;
+	btScalar	m_boundingRadiusB;
+
+	btVector3	m_separatingNormal;
+	btScalar	m_separatingDistance;
+
+public:
+
+	btConvexSeparatingDistanceUtil(btScalar	boundingRadiusA,btScalar	boundingRadiusB)
+		:m_boundingRadiusA(boundingRadiusA),
+		m_boundingRadiusB(boundingRadiusB),
+		m_separatingDistance(0.f)
+	{
+	}
+
+	btScalar	getConservativeSeparatingDistance()
+	{
+		return m_separatingDistance;
+	}
+
+	void	updateSeparatingDistance(const btTransform& transA,const btTransform& transB)
+	{
+		if (m_separatingDistance>0.f)
+		{
+			const btTransform& fromA = m_cachedTransformA;
+			const btTransform& fromB = m_cachedTransformB;
+			const btTransform& toA = transA;
+			const btTransform& toB = transB;
+			btVector3 linVelA,angVelA,linVelB,angVelB;
+			btTransformUtil::calculateVelocity(fromA,toA,btScalar(1.),linVelA,angVelA);
+			btTransformUtil::calculateVelocity(fromB,toB,btScalar(1.),linVelB,angVelB);
+			btScalar maxAngularProjectedVelocity = angVelA.length() * m_boundingRadiusA + angVelB.length() * m_boundingRadiusB;
+			btVector3 relLinVel = (linVelB-linVelA);
+			btScalar relLinVelocLength = (linVelB-linVelA).dot(m_separatingNormal);
+			if (relLinVelocLength<0.f)
+			{
+				relLinVelocLength = 0.f;
+			}
+	
+			btScalar	projectedMotion = maxAngularProjectedVelocity +relLinVelocLength;
+			m_separatingDistance -= projectedMotion;
+		}
+	
+		m_cachedTransformA = transA;
+		m_cachedTransformB = transB;
+	}
+
+	void	initSeparatingDistance(const btVector3& separatingVector,btScalar separatingDistance,const btTransform& transA,const btTransform& transB)
+	{
+		m_separatingNormal = separatingVector;
+		m_separatingDistance = separatingDistance;
+		m_cachedTransformA = transA;
+		m_cachedTransformB = transB;
+	}
+
+};
+
+
 #endif //SIMD_TRANSFORM_UTIL_H
 

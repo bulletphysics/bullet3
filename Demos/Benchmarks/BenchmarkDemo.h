@@ -17,7 +17,7 @@ subject to the following restrictions:
 
 #include "DemoApplication.h"
 #include "LinearMath/btAlignedObjectArray.h"
-#define NUMRAYS 200
+#define NUMRAYS 500
 
 class btBroadphaseInterface;
 class btCollisionShape;

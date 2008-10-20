@@ -53,6 +53,8 @@ m_catchDegeneracies(1)
 
 void btGjkPairDetector::getClosestPoints(const ClosestPointInput& input,Result& output,class btIDebugDraw* debugDraw,bool swapResults)
 {
+	m_cachedSeparatingDistance = 0.f;
+
 	btScalar distance=btScalar(0.);
 	btVector3	normalInB(btScalar(0.),btScalar(0.),btScalar(0.));
 	btVector3 pointOnA,pointOnB;
@@ -331,6 +333,9 @@ void btGjkPairDetector::getClosestPoints(const ClosestPointInput& input,Result& 
 #ifdef DEBUG_SPU_COLLISION_DETECTION
 		spu_printf("output 1\n");
 #endif
+		m_cachedSeparatingAxis = normalInB;
+		m_cachedSeparatingDistance = distance;
+
 		output.addContactPoint(
 			normalInB,
 			pointOnB+positionOffset,

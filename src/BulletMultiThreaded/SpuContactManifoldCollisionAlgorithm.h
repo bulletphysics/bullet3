@@ -26,12 +26,17 @@ class btPersistentManifold;
 /// SpuContactManifoldCollisionAlgorithm  provides contact manifold and should be processed on SPU.
 ATTRIBUTE_ALIGNED16(class) SpuContactManifoldCollisionAlgorithm : public btCollisionAlgorithm
 {
-
+	btVector3	m_shapeDimensions0;
+	btVector3	m_shapeDimensions1;
 	btPersistentManifold*	m_manifoldPtr;
 	int		m_shapeType0;
 	int		m_shapeType1;
 	float	m_collisionMargin0;
 	float	m_collisionMargin1;
+
+	btCollisionObject*	m_collisionObject0;
+	btCollisionObject*	m_collisionObject1;
+	
 
 	
 public:
@@ -57,6 +62,16 @@ public:
 		return m_manifoldPtr;
 	}
 
+	btCollisionObject*	getCollisionObject0()
+	{
+		return m_collisionObject0;
+	}
+	
+	btCollisionObject*	getCollisionObject1()
+	{
+		return m_collisionObject1;
+	}
+
 	int		getShapeType0() const
 	{
 		return m_shapeType0;
@@ -73,6 +88,16 @@ public:
 	float	getCollisionMargin1() const
 	{
 		return m_collisionMargin1;
+	}
+
+	const btVector3&	getShapeDimensions0() const
+	{
+		return m_shapeDimensions0;
+	}
+
+	const btVector3&	getShapeDimensions1() const
+	{
+		return m_shapeDimensions1;
 	}
 
 	struct CreateFunc :public 	btCollisionAlgorithmCreateFunc

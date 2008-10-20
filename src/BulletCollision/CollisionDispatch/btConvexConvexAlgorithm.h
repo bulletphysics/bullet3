@@ -23,6 +23,7 @@ subject to the following restrictions:
 #include "BulletCollision/NarrowPhaseCollision/btVoronoiSimplexSolver.h"
 #include "btCollisionCreateFunc.h"
 #include "btCollisionDispatcher.h"
+#include "LinearMath/btTransformUtil.h" //for btConvexSeparatingDistanceUtil
 
 class btConvexPenetrationDepthSolver;
 
@@ -36,6 +37,9 @@ public:
 	btPersistentManifold*	m_manifoldPtr;
 	bool			m_lowLevelOfDetail;
 	
+	///cache separating vector to speedup collision detection
+	btConvexSeparatingDistanceUtil	m_sepDistance;
+
 
 public:
 

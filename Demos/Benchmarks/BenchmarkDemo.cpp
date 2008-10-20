@@ -26,6 +26,11 @@ subject to the following restrictions:
 #include "Taru.mdl"
 #include "landscape.mdl"
 #include "BulletCollision/BroadphaseCollision/btDbvtBroadphase.h"
+#include "BulletMultiThreaded/SpuGatheringCollisionDispatcher.h"
+#include "BulletMultiThreaded/SequentialThreadSupport.h"
+#include "BulletMultiThreaded/SpuNarrowPhaseCollisionTask/SpuGatheringCollisionTask.h"
+
+
 
 
 
@@ -267,6 +272,16 @@ void	BenchmarkDemo::initPhysics()
 
 	///use the default collision dispatcher. For parallel processing you can use a diffent dispatcher (see Extras/BulletMultiThreaded)
 	m_dispatcher = new	btCollisionDispatcher(m_collisionConfiguration);
+
+#if 0
+	SequentialThreadSupport::SequentialThreadConstructionInfo sci("spuCD",
+									processCollisionTask,
+									createCollisionLocalStoreMemory);
+
+	SequentialThreadSupport* seq = new SequentialThreadSupport(sci);
+	m_dispatcher = new	SpuGatheringCollisionDispatcher(seq,1,m_collisionConfiguration);
+#endif
+
 
 	///the maximum size of the collision world. Make sure objects stay within these boundaries
 	///Don't make the world AABB size too large, it will harm simulation quality and performance
@@ -1132,9 +1147,9 @@ void BenchmarkDemo::castRays()
 
 void	BenchmarkDemo::createTest7()
 {
-	setCameraDistance(btScalar(150.));
+	
 	createTest6();
-
+	setCameraDistance(btScalar(150.));
 	initRays();
 }
 

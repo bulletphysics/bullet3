@@ -126,7 +126,7 @@ public:
 					if (m_dispatcher->supportsDispatchPairOnSpu(proxyType0,proxyType1))
 					{
 						int so = sizeof(SpuContactManifoldCollisionAlgorithm);
-						void* mem = m_dispatcher->allocateCollisionAlgorithm(so);
+						void* mem = btAlignedAlloc(sizeof(SpuContactManifoldCollisionAlgorithm),16);//m_dispatcher->allocateCollisionAlgorithm(so);
 						collisionPair.m_algorithm = new(mem) SpuContactManifoldCollisionAlgorithm(ci,colObj0,colObj1);
 						collisionPair.m_userInfo = (void*) 2;
 					} else
