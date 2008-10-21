@@ -45,6 +45,7 @@ libbulletcollision_a_SOURCES = \
 		BulletCollision/NarrowPhaseCollision/btVoronoiSimplexSolver.cpp \
 		BulletCollision/CollisionDispatch/btCollisionObject.cpp \
 		BulletCollision/CollisionDispatch/btEmptyCollisionAlgorithm.cpp \
+		BulletCollision/CollisionDispatch/btGhostObject.cpp \
 		BulletCollision/CollisionDispatch/btSphereSphereCollisionAlgorithm.cpp \
 		BulletCollision/CollisionDispatch/btSphereBoxCollisionAlgorithm.cpp \
 		BulletCollision/CollisionDispatch/btCollisionDispatcher.cpp \
@@ -122,6 +123,7 @@ libbulletcollision_a_SOURCES = \
 		BulletCollision/NarrowPhaseCollision/btManifoldPoint.h \
 		BulletCollision/NarrowPhaseCollision/btDiscreteCollisionDetectorInterface.h \
 		BulletCollision/CollisionDispatch/btCollisionObject.h \
+		BulletCollision/CollisionDispatch/btGhostObject.h \
 		BulletCollision/CollisionDispatch/btSphereTriangleCollisionAlgorithm.h \
 		BulletCollision/CollisionDispatch/btBoxBoxCollisionAlgorithm.h \
 		BulletCollision/CollisionDispatch/btConvexPlaneCollisionAlgorithm.h \
@@ -316,5 +318,8 @@ libbulletmultithreaded_a_SOURCES =\
                 BulletMultiThreaded/SpuBatchRaycaster.h \
                 BulletMultiThreaded/PosixThreadSupport.h \
                 BulletMultiThreaded/SpuLibspe2Support.h \
-                BulletMultiThreaded/SpuRaycastTaskProcess.h
+                BulletMultiThreaded/SpuRaycastTaskProcess.h \
+		BulletMultiThreaded/SpuNarrowPhaseCollisionTask/boxBoxDistance.cpp \
+		BulletMultiThreaded/SpuNarrowPhaseCollisionTask/boxBoxDistance.h \
+		BulletMultiThreaded/SpuNarrowPhaseCollisionTask/Box.h
 
