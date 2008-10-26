@@ -23,17 +23,18 @@
 
 /* ---------- OpenWIFF -------------------------------------------------*/
 
-IFFP OpenWIFF(file, new0, limit)  BPTR file; GroupContext *new0; LONG limit; {
-	register GroupContext *new = new0;
+IFFP OpenWIFF(BPTR file, GroupContext *new0, int limit)
+{
+	register GroupContext *newtmp = new0;
 	register IFFP iffp = IFF_OKAY;
 
-	new->parent       = NULL;
-	new->clientFrame  = NULL;
-	new->file         = file;
-	new->position     = 0;
-	new->bound        = limit;
-	new->ckHdr.ckID   = NULL_CHUNK;  /* indicates no current chunk */
-	new->ckHdr.ckSize = new->bytesSoFar = 0;
+	newtmp->parent       = NULL;
+	newtmp->clientFrame  = NULL;
+	newtmp->file         = file;
+	newtmp->position     = 0;
+	newtmp->bound        = limit;
+	newtmp->ckHdr.ckID   = NULL_CHUNK;  /* indicates no current chunk */
+	newtmp->ckHdr.ckSize = newtmp->bytesSoFar = 0;
 
 	if (0 > Seek(file, 0, OFFSET_BEGINNING))   /* Go to start of the file.*/
 		iffp = DOS_ERROR;
@@ -43,46 +44,48 @@ IFFP OpenWIFF(file, new0, limit)  BPTR file; GroupContext *new0; LONG limit; {
 }
 
 /* ---------- StartWGroup ----------------------------------------------*/
-IFFP StartWGroup(parent, groupType, groupSize, subtype, new)
-GroupContext *parent, *new; ID groupType, subtype; LONG groupSize;  {
+IFFP StartWGroup( GroupContext* parent, int groupType,int groupSize,int subtype, GroupContext * newtmp)
+{
 	register IFFP iffp;
 
 	iffp = PutCkHdr(parent, groupType, groupSize);
-	IfIffp( IFFWriteBytes(parent, (BYTE *)&subtype, sizeof(ID)) );
-	IfIffp( OpenWGroup(parent, new) );
+	IfIffp( IFFWriteBytes(parent, (char *)&subtype, sizeof(int)) );
+	IfIffp( OpenWGroup(parent, newtmp) );
 	return(iffp);
 }
 
 /* ---------- OpenWGroup -----------------------------------------------*/
-IFFP OpenWGroup(parent0, new0)  GroupContext *parent0, *new0; {
+IFFP OpenWGroup(GroupContext *parent0,GroupContext* new0)
+{
 	register GroupContext *parent = parent0;
-	register GroupContext *new    = new0;
-	register LONG ckEnd;
+	register GroupContext *newtmp    = new0;
+	register int ckEnd;
 	register IFFP iffp = IFF_OKAY;
 
-	new->parent       = parent;
-	new->clientFrame  = parent->clientFrame;
-	new->file         = parent->file;
-	new->position     = parent->position;
-	new->bound        = parent->bound;
-	new->ckHdr.ckID   = NULL_CHUNK;
-	new->ckHdr.ckSize = new->bytesSoFar = 0;
+	newtmp->parent       = parent;
+	newtmp->clientFrame  = parent->clientFrame;
+	newtmp->file         = parent->file;
+	newtmp->position     = parent->position;
+	newtmp->bound        = parent->bound;
+	newtmp->ckHdr.ckID   = NULL_CHUNK;
+	newtmp->ckHdr.ckSize = newtmp->bytesSoFar = 0;
 
 	if ( Known(parent->ckHdr.ckSize) ) {
-		ckEnd = new->position + ChunkMoreBytes(parent);
-		if ( new->bound == szNotYetKnown || new->bound > ckEnd )
-			new->bound = ckEnd;
+		ckEnd = newtmp->position + ChunkMoreBytes(parent);
+		if ( newtmp->bound == szNotYetKnown || newtmp->bound > ckEnd )
+			newtmp->bound = ckEnd;
 	};
 
 	if ( parent->ckHdr.ckID == NULL_CHUNK || /* not currently writing a chunk*/
-		IS_ODD(new->position) ||
-		(Known(new->bound) && IS_ODD(new->bound)) )
+		IS_ODD(newtmp->position) ||
+		(Known(newtmp->bound) && IS_ODD(newtmp->bound)) )
 		iffp = CLIENT_ERROR;
 	return(iffp);
 }
 
 /* ---------- CloseWGroup ----------------------------------------------*/
-IFFP CloseWGroup(old0)  GroupContext *old0; {
+IFFP CloseWGroup(GroupContext *old0)
+{
 	register GroupContext *old = old0;
 
 	if ( old->ckHdr.ckID != NULL_CHUNK )  /* didn't close the last chunk */
@@ -99,7 +102,8 @@ IFFP CloseWGroup(old0)  GroupContext *old0; {
 }
 
 /* ---------- EndWGroup ------------------------------------------------*/
-IFFP EndWGroup(old)  GroupContext *old;  {
+IFFP EndWGroup(GroupContext *old)
+{
 	register GroupContext *parent = old->parent;
 	register IFFP iffp;
 
@@ -110,8 +114,8 @@ IFFP EndWGroup(old)  GroupContext *old;  {
 }
 
 /* ---------- PutCk ----------------------------------------------------*/
-IFFP PutCk(context, ckID, ckSize, data)
-GroupContext *context; ID ckID; LONG ckSize; BYTE *data; {
+IFFP PutCk(GroupContext *context, int ckID,int ckSize,char *data)
+{
 	register IFFP iffp = IFF_OKAY;
 
 	if ( ckSize == szNotYetKnown )
@@ -123,14 +127,14 @@ GroupContext *context; ID ckID; LONG ckSize; BYTE *data; {
 }
 
 /* ---------- PutCkHdr -------------------------------------------------*/
-IFFP PutCkHdr(context0, ckID, ckSize)
-GroupContext *context0;  ID ckID;  LONG ckSize; {
+IFFP PutCkHdr(GroupContext *context0, int ckID, int ckSize)
+{
 	register GroupContext *context = context0;
-	LONG minPSize = sizeof(ChunkHeader); /* physical chunk >= minPSize bytes*/
+	int minPSize = sizeof(ChunkHeader); /* physical chunk >= minPSize bytes*/
 
 	/* CLIENT_ERROR if we're already inside a chunk or asked to write
 	* other than one FORM, LIST, or CAT at the top level of a file */
-	/* Also, non-positive ID values are illegal and used for error codes.*/
+	/* Also, non-positive int values are illegal and used for error codes.*/
 	/* (We could check for other illegal IDs...)*/
 	if ( context->ckHdr.ckID != NULL_CHUNK  ||  ckID <= 0 )
 		return(CLIENT_ERROR);
@@ -157,7 +161,7 @@ GroupContext *context0;  ID ckID;  LONG ckSize; {
 	context->bytesSoFar   = 0;
 	{
 		context->ckHdr.ckSize = endianSwap32(context->ckHdr.ckSize);
-		if (0 > GWrite(context->file, &context->ckHdr, sizeof(ChunkHeader)))
+		if (0 > fwrite(&context->ckHdr, 1,sizeof(ChunkHeader),context->file))
 			return(DOS_ERROR);
 		context->ckHdr.ckSize = endianSwap32(context->ckHdr.ckSize);
 	}
@@ -166,8 +170,8 @@ GroupContext *context0;  ID ckID;  LONG ckSize; {
 }
 
 /* ---------- IFFWriteBytes ---------------------------------------------*/
-IFFP IFFWriteBytes(context0, data, nBytes)
-GroupContext *context0;  BYTE *data;  LONG nBytes; {
+IFFP IFFWriteBytes(GroupContext *context0, char *data, int nBytes)
+{
 	register GroupContext *context = context0;
 
 	if ( context->ckHdr.ckID == NULL_CHUNK  ||   /* not in a chunk */
@@ -180,7 +184,7 @@ GroupContext *context0;  BYTE *data;  LONG nBytes; {
 		return(CLIENT_ERROR);
 	}
 
-	if (0 > GWrite(context->file, data, nBytes))
+	if (0 > fwrite(data, 1,nBytes,context->file))
 		return(DOS_ERROR);
 
 	context->bytesSoFar += nBytes;
@@ -189,7 +193,8 @@ GroupContext *context0;  BYTE *data;  LONG nBytes; {
 }
 
 /* ---------- PutCkEnd -------------------------------------------------*/
-IFFP PutCkEnd(context0)  GroupContext *context0; {
+IFFP PutCkEnd(GroupContext *context0)
+{
 	register GroupContext *context = context0;
 	WORD zero = 0;   /* padding source */
 
@@ -198,7 +203,7 @@ IFFP PutCkEnd(context0)  GroupContext *context0; {
 
 	if ( context->ckHdr.ckSize == szNotYetKnown ) {
 		/* go back and set the chunk size to bytesSoFar */
-		int offset = context->bytesSoFar+sizeof(LONG);
+		int offset = context->bytesSoFar+sizeof(int);
 		if ( 0 > GSeek(context->file,
 			-(offset),
 			OFFSET_CURRENT))
@@ -207,7 +212,7 @@ IFFP PutCkEnd(context0)  GroupContext *context0; {
 		} else
 		{
 			context->bytesSoFar = endianSwap32(context->bytesSoFar);
-			if (0 > GWrite(context->file, &context->bytesSoFar, sizeof(LONG)))
+			if (0 > fwrite(&context->bytesSoFar, 1,sizeof(int),context->file))
 				return (DOS_ERROR);
 			context->bytesSoFar = endianSwap32(context->bytesSoFar);
 			if (0 > GSeek(context->file, context->bytesSoFar, OFFSET_CURRENT)  )
@@ -226,7 +231,7 @@ IFFP PutCkEnd(context0)  GroupContext *context0; {
 	* overwritten the context, if we're on an odd position there must
 	* be room for a pad byte. */
 	if ( IS_ODD(context->bytesSoFar) ) {
-		if ( 0 > GWrite(context->file, &zero, 1) )
+		if ( 0 > fwrite(&zero, 1,1,context->file) )
 			return(DOS_ERROR);
 		context->position += 1;
 	};

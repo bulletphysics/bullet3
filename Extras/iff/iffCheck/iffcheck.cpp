@@ -55,7 +55,8 @@ extern IFFP GetForm(GroupContext*);
 extern IFFP GetProp(GroupContext*);
 extern IFFP GetCat (GroupContext*);
 
-void IFFCheck(name)  char *name; {
+void IFFCheck(char *name)
+{
 	IFFP iffp;
 	BPTR file = fopen(name,"rb");//Open(name, MODE_OLDFILE);
 	Frame frame;
@@ -87,16 +88,14 @@ void main(int argc,  char **argv)
 
 /* ---------- Put... ---------------------------------------------------*/
 
-PutLevels(count)
-int count;
+void PutLevels(int count)
 {
 	for ( ;  count > 0;  --count) {
 		printf(".");
 	}
 }
 
-PutID(id)
-ID id;
+void PutID(int id)
 {
 	long int i = 1;
 	const char *p = (const char *) &i;
@@ -114,14 +113,14 @@ ID id;
 	/*    printf("id = %lx", id);  */
 }
 
-PutN(n)
-long n;
+void PutN(long n)
 {
 	printf(" %ld ", n);
 }
 
 /* Put something like "...BMHD 14" or "...LIST 14 PLBM". */
-PutHdr(context)  GroupContext *context; {
+void PutHdr(GroupContext *context)
+{
 	PutLevels( ((Frame *)context->clientFrame)->levels );
 	PutID(context->ckHdr.ckID);
 	PutN(context->ckHdr.ckSize);
@@ -135,8 +134,9 @@ PutHdr(context)  GroupContext *context; {
 /* ---------- AtLeaf ---------------------------------------------------*/
 
 /* At Leaf chunk.  That is, a chunk which does NOT contain other chunks.
-* Print "ID size".*/
-IFFP AtLeaf(context)  GroupContext *context; {
+* Print "int size".*/
+IFFP AtLeaf(GroupContext *context)
+{
 
 	PutHdr(context);
 	/* A typical reader would read the chunk's contents, using the "Frame"
@@ -148,7 +148,8 @@ IFFP AtLeaf(context)  GroupContext *context; {
 /* ---------- GetList --------------------------------------------------*/
 /* Handle a LIST chunk.  Print "LIST size subTypeID".
 * Then dive into it.*/
-IFFP GetList(parent)  GroupContext *parent; {
+IFFP GetList(GroupContext *parent)
+{
 	Frame newFrame;
 
 	newFrame = *(Frame *)parent->clientFrame;  /* copy parent's frame*/
@@ -162,9 +163,10 @@ IFFP GetList(parent)  GroupContext *parent; {
 /* ---------- GetForm --------------------------------------------------*/
 /* Handle a FORM chunk.  Print "FORM size subTypeID".
 * Then dive into it.*/
-IFFP GetForm(parent)   GroupContext *parent; {
+IFFP GetForm(GroupContext *parent)
+{
 	/*CompilerBug register*/ IFFP iffp;
-	GroupContext new;
+	GroupContext newptr;
 	Frame newFrame;
 
 	newFrame = *(Frame *)parent->clientFrame;  /* copy parent's frame*/
@@ -172,49 +174,51 @@ IFFP GetForm(parent)   GroupContext *parent; {
 
 	PutHdr(parent);
 
-	iffp = OpenRGroup(parent, &new);
+	iffp = OpenRGroup(parent, &newptr);
 	CheckIFFP();
-	new.clientFrame = (ClientFrame *)&newFrame;
+	newptr.clientFrame = (ClientFrame *)&newFrame;
 
 	/* FORM reader for Checker. */
 	/* LIST, FORM, PROP, CAT already handled by GetF1ChunkHdr. */
-	do {if ( (iffp = GetF1ChunkHdr(&new)) > 0 )
-		iffp = AtLeaf(&new);
+	do {if ( (iffp = GetF1ChunkHdr(&newptr)) > 0 )
+		iffp = AtLeaf(&newptr);
 	} while (iffp >= IFF_OKAY);
 
-	CloseRGroup(&new);
+	CloseRGroup(&newptr);
 	return(iffp == END_MARK ? IFF_OKAY : iffp);
 }
 
 /* ---------- GetProp --------------------------------------------------*/
 /* Handle a PROP chunk.  Print "PROP size subTypeID".
 * Then dive into it.*/
-IFFP GetProp(listContext)  GroupContext *listContext; {
+IFFP GetProp(GroupContext *listContext)
+{
 	/*CompilerBug register*/ IFFP iffp;
-	GroupContext new;
+	GroupContext newptr;
 
 	PutHdr(listContext);
 
-	iffp = OpenRGroup(listContext, &new);
+	iffp = OpenRGroup(listContext, &newptr);
 	CheckIFFP();
 
 	/* PROP reader for Checker. */
 	((Frame *)listContext->clientFrame)->levels++;
 
-	do {if ( (iffp = GetPChunkHdr(&new)) > 0 )
-		iffp = AtLeaf(&new);
+	do {if ( (iffp = GetPChunkHdr(&newptr)) > 0 )
+		iffp = AtLeaf(&newptr);
 	} while (iffp >= IFF_OKAY);
 
 	((Frame *)listContext->clientFrame)->levels--;
 
-	CloseRGroup(&new);
+	CloseRGroup(&newptr);
 	return(iffp == END_MARK ? IFF_OKAY : iffp);
 }
 
 /* ---------- GetCat ---------------------------------------------------*/
 /* Handle a CAT chunk.  Print "CAT size subTypeID".
 * Then dive into it.*/
-IFFP GetCat(parent)  GroupContext *parent;  {
+IFFP GetCat(GroupContext *parent)
+{
 	IFFP iffp;
 
 	((Frame *)parent->clientFrame)->levels++;

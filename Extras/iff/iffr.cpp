@@ -19,58 +19,60 @@
 
 /* ---------- Read -----------------------------------------------------*/
 
-extern LONG PutID(); /**  Added as a diagnostic aid, will remove later ***/
+extern int PutID(); /**  Added as a diagnostic aid, will remove later ***/
 
 /* ---------- OpenRIFF --------------------------------------------------*/
-IFFP OpenRIFF(file0, new0, clientFrame)
-BPTR file0;   GroupContext *new0;   ClientFrame *clientFrame; {
+IFFP OpenRIFF(BPTR file0, GroupContext *new0,ClientFrame *clientFrame)
+{
 	register BPTR file = file0;
-	register GroupContext *new = new0;
+	register GroupContext *newtmp = new0;
 	IFFP iffp = IFF_OKAY;
 
-	new->parent       = NL;      /* "whole file" has no parent.*/
-	new->clientFrame  = clientFrame;
-	new->file         = file;
-	new->position     = 0;
-	new->ckHdr.ckID   = new->subtype    = NULL_CHUNK;
-	new->ckHdr.ckSize = new->bytesSoFar = 0;
+	newtmp->parent       = NL;      /* "whole file" has no parent.*/
+	newtmp->clientFrame  = clientFrame;
+	newtmp->file         = file;
+	newtmp->position     = 0;
+	newtmp->ckHdr.ckID   = newtmp->subtype    = NULL_CHUNK;
+	newtmp->ckHdr.ckSize = newtmp->bytesSoFar = 0;
 
-	/* Set new->bound. AmigaDOS specific code.*/
+	/* Set newtmp->bound. AmigaDOS specific code.*/
 	if (file <= 0)   return(NO_FILE);
 	Seek(file, 0L, OFFSET_END);         /* Seek to end of file.*/
-	new->bound = ftell(file);//Seek(file, 0L, OFFSET_CURRENT);   /* Pos'n == #bytes in file.*/
-	if (new->bound < 0)   return(DOS_ERROR);   /* DOS being absurd.*/
+	newtmp->bound = ftell(file);//Seek(file, 0L, OFFSET_CURRENT);   /* Pos'n == #bytes in file.*/
+	if (newtmp->bound < 0)   return(DOS_ERROR);   /* DOS being absurd.*/
 	Seek(file, 0L, OFFSET_BEGINNING);      /* Go to file start.*/
 	/* Would just do this if Amiga DOS maintained fh_End: */
-	/* new->bound = (FileHandle *)BADDR(file)->fh_End; */
+	/* newtmp->bound = (FileHandle *)BADDR(file)->fh_End; */
 
-	if ( new->bound < (long)sizeof(ChunkHeader) )
+	if ( newtmp->bound < (long)sizeof(ChunkHeader) )
 		iffp = NOT_IFF;
 	return(iffp);
 }
 
 /* ---------- OpenRGroup -----------------------------------------------*/
-IFFP OpenRGroup(parent0, new0)   GroupContext *parent0, *new0; {
+IFFP OpenRGroup(GroupContext* parent0,GroupContext* new0)
+{
 	register GroupContext *parent = parent0;
-	register GroupContext *new    = new0;
+	register GroupContext *newtmp    = new0;
 	IFFP iffp = IFF_OKAY;
 
-	new->parent       = parent;
-	new->clientFrame  = parent->clientFrame;
-	new->file         = parent->file;
-	new->position     = parent->position;
-	new->bound        = parent->position + ChunkMoreBytes(parent);
-	new->ckHdr.ckID   = new->subtype    = NULL_CHUNK;
-	new->ckHdr.ckSize = new->bytesSoFar = 0;
+	newtmp->parent       = parent;
+	newtmp->clientFrame  = parent->clientFrame;
+	newtmp->file         = parent->file;
+	newtmp->position     = parent->position;
+	newtmp->bound        = parent->position + ChunkMoreBytes(parent);
+	newtmp->ckHdr.ckID   = newtmp->subtype    = NULL_CHUNK;
+	newtmp->ckHdr.ckSize = newtmp->bytesSoFar = 0;
 
-	if ( new->bound > parent->bound  ||  IS_ODD(new->bound) )
+	if ( newtmp->bound > parent->bound  ||  IS_ODD(newtmp->bound) )
 		iffp = BAD_IFF;
 	return(iffp);
 }
 
 /* ---------- CloseRGroup -----------------------------------------------*/
-IFFP CloseRGroup(context)   GroupContext *context; {
-	register LONG position;
+IFFP CloseRGroup(GroupContext *context)
+{
+	register int position;
 
 	if (context->parent == NL) {
 	}  /* Context for whole file.*/
@@ -86,9 +88,7 @@ IFFP CloseRGroup(context)   GroupContext *context; {
 /* Skip over bytes in a context. Won't go backwards.*/
 /* Updates context->position but not context->bytesSoFar.*/
 /* This implementation is AmigaDOS specific.*/
-IFFP SkipFwd(context, bytes)
-GroupContext *context;
-LONG bytes;
+IFFP SkipFwd(GroupContext *context,int bytes)
 {
 	IFFP iffp = IFF_OKAY;
 
@@ -130,18 +130,18 @@ int endianSwap32(int val)
 
 
 /* ---------- GetChunkHdr ----------------------------------------------*/
-ID GetChunkHdr(GroupContext *context0)
+int GetChunkHdr(GroupContext *context0)
 {
 	register GroupContext *context = context0;
 	register IFFP iffp;
-	LONG remaining;
+	int remaining;
 
 	/* Skip remainder of previous chunk & padding. */
 	iffp = SkipFwd(context,
 		ChunkMoreBytes(context) + IS_ODD(context->ckHdr.ckSize));
 	CheckIFFP();
 
-	/* Set up to read the new header. */
+	/* Set up to read the newtmp header. */
 	context->ckHdr.ckID = BAD_IFF;   /* Until we know it's okay, mark it BAD.*/
 	context->subtype    = NULL_CHUNK;
 	context->bytesSoFar = 0;
@@ -189,7 +189,7 @@ ID GetChunkHdr(GroupContext *context0)
 		context->position += (long)sizeof(ChunkHeader);
 		remaining         -= (long)sizeof(ChunkHeader);
 
-		/* Non-positive ID values are illegal and used for error codes.*/
+		/* Non-positive int values are illegal and used for error codes.*/
 		/* We could check for other illegal IDs...*/
 		if (context->ckHdr.ckID <= 0 )
 			context->ckHdr.ckID = BAD_IFF;
@@ -201,14 +201,14 @@ ID GetChunkHdr(GroupContext *context0)
 				context->ckHdr.ckID   = BAD_IFF;
 		}
 
-		/* Automatically read the LIST, FORM, PROP, or CAT subtype ID */
+		/* Automatically read the LIST, FORM, PROP, or CAT subtype int */
 		else {
 			if (context->ckHdr.ckID == LIST ||
 				context->ckHdr.ckID == FORM ||
 				context->ckHdr.ckID == PROP ||
 				context->ckHdr.ckID == CAT) {
 					iffp = IFFReadBytes(context, (BYTE *)&context->subtype,
-						(long)sizeof(ID));
+						(long)sizeof(int));
 					if (iffp != IFF_OKAY )
 						context->ckHdr.ckID = iffp;
 			}
@@ -218,10 +218,7 @@ ID GetChunkHdr(GroupContext *context0)
 }
 
 /* ---------- IFFReadBytes ---------------------------------------------*/
-IFFP IFFReadBytes(context, buffer, nBytes)
-GroupContext *context;
-BYTE *buffer;
-LONG nBytes;
+IFFP IFFReadBytes(GroupContext *context,BYTE *buffer, int nBytes)
 {
 	register IFFP iffp = IFF_OKAY;
 
@@ -250,14 +247,12 @@ IFFP SkipGroup( GroupContext* context)
 }   /* Nothing to do, thanks to GetChunkHdr */
 
 /* ---------- ReadIFF --------------------------------------------------*/
-IFFP ReadIFF(file, clientFrame)
-BPTR file;
-ClientFrame *clientFrame;
+IFFP ReadIFF(BPTR file,ClientFrame *clientFrame)
 {
 	/*CompilerBug register*/ IFFP iffp;
 	GroupContext context;
 
-	iffp = OpenRIFF(file, &context);
+	iffp = OpenRIFF(file, &context,clientFrame);
 	context.clientFrame = clientFrame;
 
 	if (iffp == IFF_OKAY) {
@@ -274,15 +269,13 @@ ClientFrame *clientFrame;
 	}
 	CloseRGroup(&context);
 
-	if (iffp > 0 )           /* Make sure we don't return an ID.*/
+	if (iffp > 0 )           /* Make sure we don't return an int.*/
 		iffp = NOT_IFF;      /* GetChunkHdr should've caught this.*/
 	return(iffp);
 }
 
 /* ---------- ReadIList ------------------------------------------------*/
-IFFP ReadIList(parent, clientFrame)
-GroupContext *parent;
-ClientFrame *clientFrame;
+IFFP ReadIList(GroupContext *parent,ClientFrame *clientFrame)
 {
 	GroupContext listContext;
 	IFFP iffp;
@@ -327,15 +320,15 @@ ClientFrame *clientFrame;
 
 /* ---------- ReadICat -------------------------------------------------*/
 /* By special arrangement with the ReadIList implement'n, this is trivial.*/
-IFFP ReadICat(parent)  GroupContext *parent;  {
+IFFP ReadICat(GroupContext *parent)
+{
 	return( ReadIList(parent, parent->clientFrame));//NL) );
 }
 
 /* ---------- GetFChunkHdr ---------------------------------------------*/
-ID GetFChunkHdr(context)
-GroupContext *context;
+int GetFChunkHdr(GroupContext *context)
 {
-	register ID id;
+	register int id;
 
 	id = GetChunkHdr(context);
 	if (id == PROP)
@@ -344,8 +337,9 @@ GroupContext *context;
 }
 
 /* ---------- GetF1ChunkHdr ---------------------------------------------*/
-ID GetF1ChunkHdr(context)   GroupContext *context; {
-	register ID id;
+int GetF1ChunkHdr(GroupContext *context)
+{
+	register int id;
 	register ClientFrame *clientFrame = context->clientFrame;
 
 	id = GetChunkHdr(context);
@@ -365,10 +359,9 @@ ID GetF1ChunkHdr(context)   GroupContext *context; {
 }
 
 /* ---------- GetPChunkHdr ---------------------------------------------*/
-ID GetPChunkHdr(context)
-GroupContext *context;
+int GetPChunkHdr(GroupContext *context)
 {
-	register ID id;
+	register int id;
 
 	id = GetChunkHdr(context);
 	if (id == LIST || id == FORM || id == PROP || id == CAT )
