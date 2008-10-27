@@ -56,6 +56,9 @@ public:
 		return "Empty";
 	}
 
+	virtual void processAllTriangles(btTriangleCallback* callback,const btVector3& aabbMin,const btVector3& aabbMax) const
+	{
+	}
 
 protected:
 	btVector3	m_localScaling;
