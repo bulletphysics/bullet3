@@ -13,9 +13,8 @@
 
 #define NL 0L   /** A ver of NULL So Manx will like it **/
 #include <stdio.h> //printf debugging
-typedef int LONG;
 typedef unsigned char UBYTE;
-typedef void* BPTR;
+typedef FILE* BPTR;
 typedef unsigned short int UWORD;
 typedef short int WORD;
 typedef char BYTE;
@@ -31,7 +30,7 @@ typedef int BOOL;
 #define Write fwrite
 #define Read(file,buffer,nbytes)	fread(buffer,1,nbytes,file)
 #define GWriteFlush(file)          (0)
-#define GWrite(file, buffer, nBytes)       fwrite(buffer,1,nBytes,file)
+//#define GWrite(file, buffer, nBytes)       fwrite(buffer,1,nBytes,file)
 #define GSeek(file, position, mode)       Seek(file, position, mode)
 
 
@@ -39,8 +38,8 @@ typedef int BOOL;
 
 
 
-typedef LONG IFFP;      /* Status code result from an IFF procedure */
-/* LONG, because must be type compatable with ID for GetChunkHdr.*/
+typedef int IFFP;      /* Status code result from an IFF procedure */
+/* int, because must be type compatable with ID for GetChunkHdr.*/
 /* Note that the error codes below are not legal IDs.*/
 #define IFF_OKAY  0L     /* Keep going...*/
 #define END_MARK  -1L    /* As if there was a chunk at end of group.*/
@@ -68,8 +67,8 @@ typedef LONG IFFP;      /* Status code result from an IFF procedure */
 
 /* ---------- ID -------------------------------------------------------*/
 
-typedef LONG ID;        /* An ID is four printable ASCII chars but
-						* stored as a LONG for efficient copy & compare.*/
+typedef int ID;        /* An ID is four printable ASCII chars but
+						* stored as a int for efficient copy & compare.*/
 
 /* Four-character IDentifier builder.*/
 #define MakeID(a,b,c,d)  (((long)(a)) | ((long)(b))<<8L | (c)<<16L | (d)<<24L)
@@ -96,12 +95,12 @@ follow--the chunk's "logical size" or "data size". If that number is odd,
 a 0 pad byte is written, too. */
 typedef struct {
 	ID    ckID;
-	LONG  ckSize;
+	int  ckSize;
 } ChunkHeader;
 
 typedef struct {
 	ID    ckID;
-	LONG  ckSize;
+	int  ckSize;
 	UBYTE ckData[ 1 /*REALLY: ckSize*/ ];
 } Chunk;
 
@@ -125,13 +124,13 @@ typedef struct {
 * with FORM type XXXX", or "conCATenation of XXXX".*/
 typedef struct {
 	ID    ckID;
-	LONG  ckSize;       /* this ckSize includes "grpSubID".*/
+	int  ckSize;       /* this ckSize includes "grpSubID".*/
 	ID    grpSubID;
 } GroupHeader;
 
 typedef struct {
 	ID    ckID;
-	LONG  ckSize;
+	int  ckSize;
 	ID    grpSubID;
 	UBYTE grpData[ 1 /*REALLY: ckSize-sizeof(grpSubID)*/ ];
 } GroupChunk;
@@ -188,15 +187,15 @@ typedef struct _GroupContext {
 	struct _GroupContext *parent; /* Containing group; NULL => whole file. */
 	ClientFrame *clientFrame;     /* Reader data & client's context state. */
 	BPTR file;          /* Byte-stream file handle. */
-	LONG position;      /* The context's logical file position. */
-	LONG bound;         /* File-absolute context bound
+	int position;      /* The context's logical file position. */
+	int bound;         /* File-absolute context bound
 						* or szNotYetKnown (writer only). */
 	ChunkHeader ckHdr;  /* Current chunk header. ckHdr.ckSize = szNotYetKnown
 						* means we need to go back and set the size (writer onl
 						y).
 						* See also Pseudo-IDs, above. */
 	ID subtype;         /* Group's subtype ID when reading. */
-	LONG bytesSoFar;    /* # bytes read/written of current chunk's data. */
+	int bytesSoFar;    /* # bytes read/written of current chunk's data. */
 } GroupContext;
 
 /* Computes the number of bytes not yet read from the current chunk, given
@@ -212,8 +211,7 @@ typedef struct _GroupContext {
 * ASSUME context allocated by caller but not initialized.
 * ASSUME caller doesn't deallocate the context before calling CloseRGroup.
 * NOT_IFF ERROR if the file is too short for even a chunk header.*/
-extern IFFP OpenRIFF(/* BPTR, GroupContext *, ClientFrame * */);
-/* file, new,            clientFrame  */
+extern IFFP OpenRIFF(BPTR file, GroupContext *, ClientFrame * );
 
 /* Open the remainder of the current chunk as a group read context.
 * This will be called just after the group's subtype ID has been read
@@ -262,7 +260,7 @@ extern ID       GetChunkHdr(/* GroupContext * */);
 * which could be due to a client bug or a chunk that's shorter than it
 * ought to be (bad form). (on either CLIENT_ERROR or SHORT_CHUNK,
 * IFFReadBytes won't read any bytes.) */
-extern IFFP IFFReadBytes( GroupContext *, BYTE *, LONG );
+extern IFFP IFFReadBytes( GroupContext *, BYTE *, int );
 /* context,        buffer, nBytes  */
 
 
@@ -299,8 +297,7 @@ extern IFFP ReadIFF( BPTR, ClientFrame * );
 * Normal return is IFF_OKAY (if whole LIST scanned) or IFF_DONE (if a client
 * proc said "done" first).
 * BAD_IFF ERROR if a PROP appears after a non-PROP. */
-extern IFFP ReadIList(/* GroupContext *, ClientFrame * */);
-/* parent,         clientFrame  */
+extern IFFP ReadIList(GroupContext* parent, ClientFrame * clientFrame );
 
 /* IFF CAT reader.
 * Most clients can simply use this to read their CATs. If you must do extra
@@ -310,7 +307,7 @@ extern IFFP ReadIList(/* GroupContext *, ClientFrame * */);
 * Normal return is IFF_OKAY (if whole CAT scanned) or IFF_DONE (if a client
 * proc said "done" first).
 * BAD_IFF ERROR if a PROP appears in the CAT. */
-extern IFFP ReadICat(/* GroupContext * */);
+extern IFFP ReadICat( GroupContext * );
 /* parent  */
 
 /* Call GetFChunkHdr instead of GetChunkHdr to read each chunk inside a FORM.
@@ -321,12 +318,12 @@ extern ID       GetFChunkHdr( GroupContext * );
 /* GetF1ChunkHdr is like GetFChunkHdr, but it automatically dispatches to the
 * getForm, getList, and getCat procedure (and returns the result) if it
 * encounters a FORM, LIST, or CAT. */
-extern ID       GetF1ChunkHdr(/* GroupContext * */);
+extern ID       GetF1ChunkHdr( GroupContext * );
 /*  context.ckHdr.ckID         context  */
 
 /* Call GetPChunkHdr instead of GetChunkHdr to read each chunk inside a PROP.
 * It just calls GetChunkHdr and returns BAD_IFF if it gets a group chunk. */
-extern ID       GetPChunkHdr(/* GroupContext * */);
+extern ID       GetPChunkHdr( GroupContext * );
 /*  context.ckHdr.ckID        context  */
 
 /** endianSwap32/endianSwap16 convert integers from big endian to little endian on little-endian platforms. 
@@ -372,7 +369,7 @@ extern short int endianSwap16(short int value);
 * The caller is only allowed to write out one FORM, LIST, or CAT in this top
 * level context (see StartWGroup and PutCkHdr).
 * CLIENT_ERROR if limit is odd.*/
-extern IFFP OpenWIFF( BPTR, GroupContext *, LONG );
+extern IFFP OpenWIFF( BPTR, GroupContext *, int );
 /* file, new,            limit {file position}  */
 
 /* Start writing a group (presumably LIST, FORM, PROP, or CAT), opening a
@@ -390,9 +387,7 @@ extern IFFP OpenWIFF( BPTR, GroupContext *, LONG );
 * ASSUME caller doesn't deallocate the context or access the parent context
 * before calling CloseWGroup.
 * ERROR conditions: See PutCkHdr, IFFWriteBytes, OpenWGroup. */
-extern IFFP StartWGroup( GroupContext *, ID, LONG, ID, GroupContext * );
-/* parent, groupType, groupSize, subtype, new  */
-
+extern IFFP StartWGroup( GroupContext *, int, int, int, GroupContext * );
 /* End a group started by StartWGroup.
 * This just calls CloseWGroup and PutCkEnd.
 * ERROR conditions: See CloseWGroup and PutCkEnd. */
@@ -411,8 +406,8 @@ extern IFFP EndWGroup( GroupContext * );
 * ASSUME caller doesn't deallocate the context or access the parent context
 * before calling CloseWGroup.
 * CLIENT_ERROR if context end is odd or PutCkHdr wasn't called first. */
-extern IFFP OpenWGroup(/* GroupContext *, GroupContext * */);
-/* parent,         new  */
+extern IFFP OpenWGroup( GroupContext *, GroupContext *);
+
 
 /* Close a write context and update its parent context.
 * This is normally only called by EndWGroup.
@@ -431,7 +426,7 @@ extern IFFP CloseWGroup( GroupContext * );
 /* Write a whole chunk to a GroupContext. This writes a chunk header, ckSize
 * data bytes, and (if needed) a pad byte. It also updates the GroupContext.
 * CLIENT_ERROR if ckSize == szNotYetKnown. See also PutCkHdr errors. */
-extern IFFP PutCk( GroupContext *, ID,   LONG,   BYTE * );
+extern IFFP PutCk( GroupContext *, ID,   int,   BYTE * );
 /* context,        ckID, ckSize, *data  */
 
 /* Write just a chunk header. Follow this will any number of calls to
@@ -445,16 +440,14 @@ extern IFFP PutCk( GroupContext *, ID,   LONG,   BYTE * );
 * (except szNotYetKnown), if you're trying to write something other
 * than one FORM, LIST, or CAT in a top level (file level) context, or
 * if ckID <= 0 (these illegal ID values are used for error codes). */
-extern IFFP PutCkHdr(/* GroupContext *, ID,   LONG */);
-/* context,        ckID, ckSize  */
+extern IFFP PutCkHdr( GroupContext* context, int ckID,   int ckSize);
 
 /* Write nBytes number of data bytes for the current chunk and update
 * GroupContext.
 * CLIENT_ERROR if this would overflow the GroupContext's limit or the
 * current chunk's ckSize, or if PutCkHdr wasn't called first, or if
 * nBytes < 0. */
-extern IFFP IFFWriteBytes( GroupContext *, BYTE *, LONG );
-/* context,        *data,  nBytes  */
+extern IFFP IFFWriteBytes(GroupContext *context0, BYTE *data, int nBytes);
 
 /* Complete the current chunk, write a pad byte if needed, and update
 * GroupContext.
@@ -462,7 +455,6 @@ extern IFFP IFFWriteBytes( GroupContext *, BYTE *, LONG );
 * ckSize in the file.
 * CLIENT_ERROR if PutCkHdr wasn't called first, or if client hasn't
 * written 'ckSize' number of bytes with IFFWriteBytes. */
-extern IFFP PutCkEnd(/* GroupContext * */);
-/* context  */
+extern IFFP PutCkEnd( GroupContext* context );
 
 #endif
