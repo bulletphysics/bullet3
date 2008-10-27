@@ -6,7 +6,7 @@
 * This software is in the public domain.
 *
 * Original version was for the Commodore-Amiga computer.
-/* This version is compatible with PC, OSX, PS3, Wii, iPhone. 10/26/2008
+* This version is compatible with PC, OSX, PS3, Wii, iPhone. 10/26/2008
 *----------------------------------------------------------------------*/
 #include "iff.h"
 
