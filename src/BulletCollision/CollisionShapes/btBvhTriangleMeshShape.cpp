@@ -143,10 +143,19 @@ void	btBvhTriangleMeshShape::performRaycast (btTriangleCallback* callback, const
 			for (int j=2;j>=0;j--)
 			{
 				int graphicsindex = indicestype==PHY_SHORT?((unsigned short*)gfxbase)[j]:gfxbase[j];
-
-				btScalar* graphicsbase = (btScalar*)(vertexbase+graphicsindex*stride);
-
-				m_triangle[j] = btVector3(graphicsbase[0]*meshScaling.getX(),graphicsbase[1]*meshScaling.getY(),graphicsbase[2]*meshScaling.getZ());		
+				
+				if (type == PHY_FLOAT)
+				{
+					float* graphicsbase = (float*)(vertexbase+graphicsindex*stride);
+					
+					m_triangle[j] = btVector3(graphicsbase[0]*meshScaling.getX(),graphicsbase[1]*meshScaling.getY(),graphicsbase[2]*meshScaling.getZ());		
+				}
+				else
+				{
+					double* graphicsbase = (double*)(vertexbase+graphicsindex*stride);
+					
+					m_triangle[j] = btVector3(graphicsbase[0]*meshScaling.getX(),graphicsbase[1]*meshScaling.getY(),graphicsbase[2]*meshScaling.getZ());		
+				}
 			}
 
 			/* Perform ray vs. triangle collision here */
@@ -204,9 +213,18 @@ void	btBvhTriangleMeshShape::performConvexcast (btTriangleCallback* callback, co
 			{
 				int graphicsindex = indicestype==PHY_SHORT?((unsigned short*)gfxbase)[j]:gfxbase[j];
 
-				btScalar* graphicsbase = (btScalar*)(vertexbase+graphicsindex*stride);
+				if (type == PHY_FLOAT)
+				{
+					float* graphicsbase = (float*)(vertexbase+graphicsindex*stride);
 
-				m_triangle[j] = btVector3(graphicsbase[0]*meshScaling.getX(),graphicsbase[1]*meshScaling.getY(),graphicsbase[2]*meshScaling.getZ());		
+					m_triangle[j] = btVector3(graphicsbase[0]*meshScaling.getX(),graphicsbase[1]*meshScaling.getY(),graphicsbase[2]*meshScaling.getZ());		
+				}
+				else
+				{
+					double* graphicsbase = (double*)(vertexbase+graphicsindex*stride);
+					
+					m_triangle[j] = btVector3(graphicsbase[0]*meshScaling.getX(),graphicsbase[1]*meshScaling.getY(),graphicsbase[2]*meshScaling.getZ());		
+				}
 			}
 
 			/* Perform ray vs. triangle collision here */
@@ -281,12 +299,24 @@ void	btBvhTriangleMeshShape::processAllTriangles(btTriangleCallback* callback,co
 #ifdef DEBUG_TRIANGLE_MESH
 				printf("%d ,",graphicsindex);
 #endif //DEBUG_TRIANGLE_MESH
-				btScalar* graphicsbase = (btScalar*)(vertexbase+graphicsindex*stride);
+				if (type == PHY_FLOAT)
+				{
+					float* graphicsbase = (float*)(vertexbase+graphicsindex*stride);
+					
+					m_triangle[j] = btVector3(
+																		graphicsbase[0]*meshScaling.getX(),
+																		graphicsbase[1]*meshScaling.getY(),
+																		graphicsbase[2]*meshScaling.getZ());
+				}
+				else
+				{
+					double* graphicsbase = (double*)(vertexbase+graphicsindex*stride);
 
-				m_triangle[j] = btVector3(
-					graphicsbase[0]*meshScaling.getX(),
-					graphicsbase[1]*meshScaling.getY(),
-					graphicsbase[2]*meshScaling.getZ());
+					m_triangle[j] = btVector3(
+						graphicsbase[0]*meshScaling.getX(),
+						graphicsbase[1]*meshScaling.getY(),
+						graphicsbase[2]*meshScaling.getZ());
+				}
 #ifdef DEBUG_TRIANGLE_MESH
 				printf("triangle vertices:%f,%f,%f\n",triangle[j].x(),triangle[j].y(),triangle[j].z());
 #endif //DEBUG_TRIANGLE_MESH

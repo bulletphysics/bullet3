@@ -269,15 +269,12 @@ void btConvexTriangleMeshShape::calculatePrincipalAxisTransform(btTransform& pri
          btVector3 a = triangle[0] - center;
          btVector3 b = triangle[1] - center;
          btVector3 c = triangle[2] - center;
-         btVector3 abc = a + b + c;
          btScalar volNeg = -btFabs(a.triple(b, c)) * btScalar(1. / 6);
          for (int j = 0; j < 3; j++)
          {
             for (int k = 0; k <= j; k++)
             {
-               i[j][k] = i[k][j] = volNeg * (center[j] * center[k]
-                 + btScalar(0.25) * (center[j] * abc[k] + center[k] * abc[j])
-                  + btScalar(0.1) * (a[j] * a[k] + b[j] * b[k] + c[j] * c[k])
+               i[j][k] = i[k][j] = volNeg * (btScalar(0.1) * (a[j] * a[k] + b[j] * b[k] + c[j] * c[k])
                   + btScalar(0.05) * (a[j] * b[k] + a[k] * b[j] + a[j] * c[k] + a[k] * c[j] + b[j] * c[k] + b[k] * c[j]));
             }
          }

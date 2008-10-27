@@ -568,6 +568,8 @@ DBVT_INLINE btScalar	Proximity(	const btDbvtAabbMm& a,
 	return(btFabs(d.x())+btFabs(d.y())+btFabs(d.z()));
 }
 
+
+
 //
 DBVT_INLINE int			Select(	const btDbvtAabbMm& o,
 							   const btDbvtAabbMm& a,
@@ -577,6 +579,14 @@ DBVT_INLINE int			Select(	const btDbvtAabbMm& o,
 	static DBVT_ALIGN const unsigned __int32	mask[]={0x7fffffff,0x7fffffff,0x7fffffff,0x7fffffff};
 	// TODO: the intrinsic version is 11% slower
 #if DBVT_USE_INTRINSIC_SSE
+
+	union btSSEUnion ///NOTE: if we use more intrinsics, move btSSEUnion into the LinearMath directory
+	{
+	   __m128		ssereg;
+	   float		floats[4];
+	   int			ints[4];
+	};
+
 	__m128	omi(_mm_load_ps(o.mi));
 	omi=_mm_add_ps(omi,_mm_load_ps(o.mx));
 	__m128	ami(_mm_load_ps(a.mi));
@@ -590,10 +600,14 @@ DBVT_INLINE int			Select(	const btDbvtAabbMm& o,
 	__m128	t0(_mm_movehl_ps(ami,ami));
 	ami=_mm_add_ps(ami,t0);
 	ami=_mm_add_ss(ami,_mm_shuffle_ps(ami,ami,1));
-	__m128	t1(_mm_movehl_ps(bmi,bmi));
+	__m128 t1(_mm_movehl_ps(bmi,bmi));
 	bmi=_mm_add_ps(bmi,t1);
 	bmi=_mm_add_ss(bmi,_mm_shuffle_ps(bmi,bmi,1));
-	return(_mm_cmple_ss(bmi,ami).m128_u32[0]&1);
+	
+	btSSEUnion tmp;
+	tmp.ssereg = _mm_cmple_ss(bmi,ami);
+	return tmp.ints[0]&1;
+
 #else
 	DBVT_ALIGN __int32	r[1];
 	__asm
