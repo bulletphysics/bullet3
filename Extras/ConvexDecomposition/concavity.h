@@ -54,7 +54,7 @@ float computeConcavity(unsigned int vcount,
                        float &volume);
 
 
-};
+}
 
 
 #endif

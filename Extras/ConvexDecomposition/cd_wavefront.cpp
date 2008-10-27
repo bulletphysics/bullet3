@@ -857,4 +857,4 @@ unsigned int WavefrontObj::loadObj(const char *fname) // load a wavefront obj re
 	return ret;
 }
 
-};
+}

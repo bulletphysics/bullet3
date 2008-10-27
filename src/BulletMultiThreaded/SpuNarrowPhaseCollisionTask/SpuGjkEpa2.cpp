@@ -500,7 +500,8 @@ struct	eStatus { enum _ {
 	OutOfVertices,
 	AccuraryReached,
 	FallBack,
-	Failed,		};};
+	Failed		
+};};
 /* Fields		*/ 
 eStatus::_		m_status;
 GJK::sSimplex	m_result;

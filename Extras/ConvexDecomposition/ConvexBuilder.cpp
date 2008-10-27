@@ -55,7 +55,7 @@ bool CHull::overlap(const CHull &h) const
 ConvexBuilder::ConvexBuilder(ConvexDecompInterface *callback)
 {
 	mCallback = callback;
-};
+}
 
 ConvexBuilder::~ConvexBuilder(void)
 {

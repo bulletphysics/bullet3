@@ -57,6 +57,6 @@ public:
   float        *mVertices;
 };
 
-};
+}
 
 #endif

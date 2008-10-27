@@ -1172,14 +1172,14 @@ inline  Vector3d operator * (float s, const Vector3d &v )
 { 
 	Vector3d	Scaled(v.x*s, v.y*s, v.z*s);
 	return(Scaled); 
-};
+}
 
 inline  Vector2d	operator * (float s, const Vector2d &v )
  { 
 	 Vector2d	Scaled(v.x*s, v.y*s);
 	return(Scaled); 
- };
+ }
 
-};
+}
 
 #endif

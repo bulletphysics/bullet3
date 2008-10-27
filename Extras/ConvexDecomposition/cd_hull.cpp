@@ -3232,4 +3232,4 @@ void HullLibrary::BringOutYourDead(const float *verts,unsigned int vcount, float
 	free(used);
 }
 
-};
+}

@@ -72,7 +72,7 @@ btConvexTriangleCallback::~btConvexTriangleCallback()
 void	btConvexTriangleCallback::clearCache()
 {
 	m_dispatcher->clearManifold(m_manifoldPtr);
-};
+}
 
 
 

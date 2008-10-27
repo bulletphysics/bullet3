@@ -792,4 +792,4 @@ float computeConcavity(unsigned int vcount,
 }
 
 
-};
+}

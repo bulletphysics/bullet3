@@ -425,5 +425,5 @@ btScalar resolveSingleFrictionEmpty(
 
 
 	return btScalar(0.);
-};
+}
 
