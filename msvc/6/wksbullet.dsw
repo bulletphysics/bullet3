@@ -534,6 +534,18 @@ Package=<4>
 
 ###############################################################################
 
+Project: "appiffCheck"=.\appiffCheck.dsp - Package Owner=<4>
+
+Package=<5>
+{{{
+}}}
+
+Package=<4>
+{{{
+}}}
+
+###############################################################################
+
 Project: "appMovingConcaveDemo"=.\appMovingConcaveDemo.dsp - Package Owner=<4>
 
 Package=<5>
@@ -852,6 +864,9 @@ Package=<4>
     Project_Dep_Name appHelloWorld
     End Project Dependency
     Begin Project Dependency
+    Project_Dep_Name appiffCheck
+    End Project Dependency
+    Begin Project Dependency
     Project_Dep_Name appMovingConcaveDemo
     End Project Dependency
     Begin Project Dependency
@@ -913,6 +928,9 @@ Package=<4>
     End Project Dependency
     Begin Project Dependency
     Project_Dep_Name libglui
+    End Project Dependency
+    Begin Project Dependency
+    Project_Dep_Name libiff
     End Project Dependency
     Begin Project Dependency
     Project_Dep_Name liblibxml
@@ -993,6 +1011,9 @@ Package=<4>
     Project_Dep_Name appHelloWorld
     End Project Dependency
     Begin Project Dependency
+    Project_Dep_Name appiffCheck
+    End Project Dependency
+    Begin Project Dependency
     Project_Dep_Name appMovingConcaveDemo
     End Project Dependency
     Begin Project Dependency
@@ -1066,6 +1087,9 @@ Package=<4>
     End Project Dependency
     Begin Project Dependency
     Project_Dep_Name libglui
+    End Project Dependency
+    Begin Project Dependency
+    Project_Dep_Name libiff
     End Project Dependency
     Begin Project Dependency
     Project_Dep_Name liblibxml
@@ -1195,6 +1219,18 @@ Package=<4>
 ###############################################################################
 
 Project: "libglui"=.\libglui.dsp - Package Owner=<4>
+
+Package=<5>
+{{{
+}}}
+
+Package=<4>
+{{{
+}}}
+
+###############################################################################
+
+Project: "libiff"=.\libiff.dsp - Package Owner=<4>
 
 Package=<5>
 {{{
