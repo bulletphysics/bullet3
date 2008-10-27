@@ -1,0 +1,12 @@
+SubInclude TOP Extras iff iffCheck ;
+
+SubDir TOP Extras iff ;
+
+Library iff : [ Wildcard .  : */.h *.cpp ] : noinstall ;
+CFlags iff : [ FIncludes $(TOP)/Extras/iff ] ;
+LibDepends iff : ;
+
+   MsvcIncDirs iff : 
+	"../../Extras/iff" ;
+
+InstallHeader [ Wildcard *.h ] : iff ;

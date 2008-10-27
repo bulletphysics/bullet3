@@ -77,13 +77,14 @@ void IFFCheck(char *name)
 	printf("%s\n", IFFPMessages[-iffp]);
 }
 
-void main(int argc,  char **argv)
+int  main(int argc,  char **argv)
 {
 	if (argc != 1+1) {
 		printf("Usage: 'iffcheck filename'\n");
 		exit(0);
 	}
 	IFFCheck(argv[1]);
+	return 0;
 }
 
 /* ---------- Put... ---------------------------------------------------*/

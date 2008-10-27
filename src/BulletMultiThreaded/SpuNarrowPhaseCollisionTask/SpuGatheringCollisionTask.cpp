@@ -27,7 +27,7 @@
 #include "SpuGjkPairDetector.h"
 #include "SpuVoronoiSimplexSolver.h"
 #include "boxBoxDistance.h"
-#include "Util/Vectormath2Bullet.h"
+#include "BulletMultiThreaded/vectormath2bullet.h"
 #include "SpuCollisionShapes.h" //definition of SpuConvexPolyhedronVertexData
 
 #ifdef __SPU__
