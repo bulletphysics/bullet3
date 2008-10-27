@@ -130,8 +130,8 @@ void btGjkPairDetector::getClosestPoints(const ClosestPointInput& input,Result& 
 			btAssert((qInBv-qInB).length() < 0.0001);
 #endif //
 
-			btPoint3  pWorld = localTransA(pInA);	
-			btPoint3  qWorld = localTransB(qInB);
+			btVector3  pWorld = localTransA(pInA);	
+			btVector3  qWorld = localTransB(qInB);
 
 #ifdef DEBUG_SPU_COLLISION_DETECTION
 		spu_printf("got local supporting vertices\n");

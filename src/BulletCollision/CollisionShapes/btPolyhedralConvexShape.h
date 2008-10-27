@@ -16,7 +16,6 @@ subject to the following restrictions:
 #ifndef BU_SHAPE
 #define BU_SHAPE
 
-#include "LinearMath/btPoint3.h"
 #include "LinearMath/btMatrix3x3.h"
 #include "LinearMath/btAabbUtil2.h"
 #include "btConvexInternalShape.h"
@@ -75,13 +74,13 @@ public:
 
 	virtual int	getNumVertices() const = 0 ;
 	virtual int getNumEdges() const = 0;
-	virtual void getEdge(int i,btPoint3& pa,btPoint3& pb) const = 0;
-	virtual void getVertex(int i,btPoint3& vtx) const = 0;
+	virtual void getEdge(int i,btVector3& pa,btVector3& pb) const = 0;
+	virtual void getVertex(int i,btVector3& vtx) const = 0;
 	virtual int	getNumPlanes() const = 0;
-	virtual void getPlane(btVector3& planeNormal,btPoint3& planeSupport,int i ) const = 0;
+	virtual void getPlane(btVector3& planeNormal,btVector3& planeSupport,int i ) const = 0;
 //	virtual int getIndex(int i) const = 0 ; 
 
-	virtual	bool isInside(const btPoint3& pt,btScalar tolerance) const = 0;
+	virtual	bool isInside(const btVector3& pt,btScalar tolerance) const = 0;
 	
 	/// optional Hull is for optional Separating Axis Test Hull collision detection, see Hull.cpp
 	class	Hull*	m_optionalHull;

@@ -99,13 +99,11 @@ void	btContinuousConvexCollisionDemo::initPhysics()
 	btVector3 boxHalfExtentsA(10,1,1);
 	btVector3 boxHalfExtentsB(1.1f,1.1f,1.1f);
 	btBoxShape*	boxA = new btBoxShape(boxHalfExtentsA);
-//	btBU_Simplex1to4* boxA = new btBU_Simplex1to4(btPoint3(-2,0,-2),btPoint3(2,0,-2),btPoint3(0,0,2),btPoint3(0,2,0));
-//	btBU_Simplex1to4* boxA = new btBU_Simplex1to4(btPoint3(-12,0,0),btPoint3(12,0,0));
+//	btBU_Simplex1to4* boxA = new btBU_Simplex1to4(btVector3(-2,0,-2),btVector3(2,0,-2),btVector3(0,0,2),btVector3(0,2,0));
+//	btBU_Simplex1to4* boxA = new btBU_Simplex1to4(btVector3(-12,0,0),btVector3(12,0,0));
 	
 
 	btBoxShape*	boxB = new btBoxShape(boxHalfExtentsB);
-//	btBU_Simplex1to4 boxB(btPoint3(0,10,0),btPoint3(0,-10,0));
-
 
 	shapePtr[0] = boxA;
 	shapePtr[1] = boxB;

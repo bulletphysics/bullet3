@@ -19,7 +19,7 @@ subject to the following restrictions:
 #include "btPolyhedralConvexShape.h"
 #include "btCollisionMargin.h"
 #include "BulletCollision/BroadphaseCollision/btBroadphaseProxy.h"
-#include "LinearMath/btPoint3.h"
+#include "LinearMath/btVector3.h"
 #include "LinearMath/btMinMax.h"
 
 ///The btBoxShape is a box primitive around the origin, its sides axis aligned with length specified by half extents, in local shape coordinates. When used as part of a btCollisionObject or btRigidBody it will be an oriented box in world space.
@@ -117,7 +117,7 @@ public:
 
 	virtual void	calculateLocalInertia(btScalar mass,btVector3& inertia) const;
 
-	virtual void getPlane(btVector3& planeNormal,btPoint3& planeSupport,int i ) const
+	virtual void getPlane(btVector3& planeNormal,btVector3& planeSupport,int i ) const
 	{
 		//this plane might not be aligned...
 		btVector4 plane ;
@@ -190,7 +190,7 @@ public:
 	}
 
 	
-	virtual void getEdge(int i,btPoint3& pa,btPoint3& pb) const
+	virtual void getEdge(int i,btVector3& pa,btVector3& pb) const
 	//virtual void getEdge(int i,Edge& edge) const
 	{
 		int edgeVert0 = 0;
@@ -261,7 +261,7 @@ public:
 
 
 	
-	virtual	bool isInside(const btPoint3& pt,btScalar tolerance) const
+	virtual	bool isInside(const btVector3& pt,btScalar tolerance) const
 	{
 		btVector3 halfExtents = getHalfExtentsWithoutMargin();
 

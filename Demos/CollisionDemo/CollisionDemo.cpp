@@ -241,7 +241,7 @@ void CollisionDemo::displayCallback(void) {
 	}
 
 	simplex.setSimplexSolver(&sGjkSimplexSolver);
-	btPoint3 ybuf[4],pbuf[4],qbuf[4];
+	btVector3 ybuf[4],pbuf[4],qbuf[4];
 	int numpoints = sGjkSimplexSolver.getSimplex(pbuf,qbuf,ybuf);
 	simplex.reset();
 	

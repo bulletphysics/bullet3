@@ -19,7 +19,6 @@ subject to the following restrictions:
 #include "LinearMath/btTransform.h"
 #include "LinearMath/btVector3.h"
 #include "LinearMath/btMatrix3x3.h"
-#include "LinearMath/btPoint3.h"
 #include "BulletCollision/BroadphaseCollision/btBroadphaseProxy.h" //for the shape types
 
 ///The btCollisionShape class provides an interface for collision shapes that can be shared among btCollisionObjects.

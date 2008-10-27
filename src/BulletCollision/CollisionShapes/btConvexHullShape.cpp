@@ -28,7 +28,7 @@ btConvexHullShape ::btConvexHullShape (const btScalar* points,int numPoints,int 
 
 	for (int i=0;i<numPoints;i++)
 	{
-		btPoint3* point = (btPoint3*)(pointsBaseAddress + i*stride);
+		btVector3* point = (btVector3*)(pointsBaseAddress + i*stride);
 		m_points[i] = point[0];
 	}
 
@@ -44,7 +44,7 @@ void btConvexHullShape::setLocalScaling(const btVector3& scaling)
 	recalcLocalAabb();
 }
 
-void btConvexHullShape::addPoint(const btPoint3& point)
+void btConvexHullShape::addPoint(const btVector3& point)
 {
 	m_points.push_back(point);
 	recalcLocalAabb();
@@ -70,7 +70,7 @@ btVector3	btConvexHullShape::localGetSupportingVertexWithoutMargin(const btVecto
 
 	for (int i=0;i<m_points.size();i++)
 	{
-		btPoint3 vtx = m_points[i] * m_localScaling;
+		btVector3 vtx = m_points[i] * m_localScaling;
 
 		newDot = vec.dot(vtx);
 		if (newDot > maxDot)
@@ -94,7 +94,7 @@ void	btConvexHullShape::batchedUnitVectorGetSupportingVertexWithoutMargin(const 
 	}
 	for (int i=0;i<m_points.size();i++)
 	{
-		btPoint3 vtx = m_points[i] * m_localScaling;
+		btVector3 vtx = m_points[i] * m_localScaling;
 
 		for (int j=0;j<numVectors;j++)
 		{
@@ -153,7 +153,7 @@ int btConvexHullShape::getNumEdges() const
 	return m_points.size();
 }
 
-void btConvexHullShape::getEdge(int i,btPoint3& pa,btPoint3& pb) const
+void btConvexHullShape::getEdge(int i,btVector3& pa,btVector3& pb) const
 {
 
 	int index0 = i%m_points.size();
@@ -162,7 +162,7 @@ void btConvexHullShape::getEdge(int i,btPoint3& pa,btPoint3& pb) const
 	pb = m_points[index1]*m_localScaling;
 }
 
-void btConvexHullShape::getVertex(int i,btPoint3& vtx) const
+void btConvexHullShape::getVertex(int i,btVector3& vtx) const
 {
 	vtx = m_points[i]*m_localScaling;
 }
@@ -172,14 +172,14 @@ int	btConvexHullShape::getNumPlanes() const
 	return 0;
 }
 
-void btConvexHullShape::getPlane(btVector3& ,btPoint3& ,int ) const
+void btConvexHullShape::getPlane(btVector3& ,btVector3& ,int ) const
 {
 
 	btAssert(0);
 }
 
 //not yet
-bool btConvexHullShape::isInside(const btPoint3& ,btScalar ) const
+bool btConvexHullShape::isInside(const btVector3& ,btScalar ) const
 {
 	assert(0);
 	return false;

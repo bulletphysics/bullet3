@@ -43,7 +43,7 @@ btVector3	btConvexPointCloudShape::localGetSupportingVertexWithoutMargin(const b
 
 	for (int i=0;i<m_numPoints;i++)
 	{
-		btPoint3 vtx = m_points[i] * m_localScaling;
+		btVector3 vtx = m_points[i] * m_localScaling;
 
 		newDot = vec.dot(vtx);
 		if (newDot > maxDot)
@@ -67,7 +67,7 @@ void	btConvexPointCloudShape::batchedUnitVectorGetSupportingVertexWithoutMargin(
 	}
 	for (int i=0;i<m_numPoints;i++)
 	{
-		btPoint3 vtx = m_points[i] * m_localScaling;
+		btVector3 vtx = m_points[i] * m_localScaling;
 
 		for (int j=0;j<numVectors;j++)
 		{
@@ -126,12 +126,12 @@ int btConvexPointCloudShape::getNumEdges() const
 	return 0;
 }
 
-void btConvexPointCloudShape::getEdge(int i,btPoint3& pa,btPoint3& pb) const
+void btConvexPointCloudShape::getEdge(int i,btVector3& pa,btVector3& pb) const
 {
 	btAssert (0);
 }
 
-void btConvexPointCloudShape::getVertex(int i,btPoint3& vtx) const
+void btConvexPointCloudShape::getVertex(int i,btVector3& vtx) const
 {
 	vtx = m_points[i]*m_localScaling;
 }
@@ -141,14 +141,14 @@ int	btConvexPointCloudShape::getNumPlanes() const
 	return 0;
 }
 
-void btConvexPointCloudShape::getPlane(btVector3& ,btPoint3& ,int ) const
+void btConvexPointCloudShape::getPlane(btVector3& ,btVector3& ,int ) const
 {
 
 	btAssert(0);
 }
 
 //not yet
-bool btConvexPointCloudShape::isInside(const btPoint3& ,btScalar ) const
+bool btConvexPointCloudShape::isInside(const btVector3& ,btScalar ) const
 {
 	assert(0);
 	return false;

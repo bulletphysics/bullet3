@@ -41,7 +41,7 @@ static btVector3 convexHullSupport (const btVector3& localDir, const btVector3* 
 
 	for (int i=0;i<numPoints;i++)
 	{
-		btPoint3 vtx = points[i];// * m_localScaling;
+		btVector3 vtx = points[i];// * m_localScaling;
 
 		newDot = vec.dot(vtx);
 		if (newDot > maxDot)
@@ -210,7 +210,7 @@ btVector3 btConvexShape::localGetSupportVertexWithoutMarginNonVirtual (const btV
 	case CONVEX_HULL_SHAPE_PROXYTYPE:
 	{
 		btConvexHullShape* convexHullShape = (btConvexHullShape*)this;
-		btPoint3* points = convexHullShape->getPoints ();
+		btVector3* points = convexHullShape->getPoints ();
 		int numPoints = convexHullShape->getNumPoints ();
 		return convexHullSupport (localDir, points, numPoints);
 	}
@@ -226,7 +226,7 @@ btVector3 btConvexShape::localGetSupportVertexWithoutMarginNonVirtual (const btV
 
 	// should never reach here
 	btAssert (0);
-	return btPoint3 (btScalar(0.0f), btScalar(0.0f), btScalar(0.0f));
+	return btVector3 (btScalar(0.0f), btScalar(0.0f), btScalar(0.0f));
 }
 
 btVector3 btConvexShape::localGetSupportVertexNonVirtual (const btVector3& localDir) const
@@ -388,7 +388,7 @@ btVector3 btConvexShape::localGetSupportVertexNonVirtual (const btVector3& local
 	case CONVEX_HULL_SHAPE_PROXYTYPE:
 	{
 		btConvexHullShape* convexHullShape = (btConvexHullShape*)this;
-		btPoint3* points = convexHullShape->getPoints ();
+		btVector3* points = convexHullShape->getPoints ();
 		int numPoints = convexHullShape->getNumPoints ();
 		return convexHullSupport (localDir, points, numPoints) + getMarginNonVirtual() * localDirNorm;
 	}
@@ -404,7 +404,7 @@ btVector3 btConvexShape::localGetSupportVertexNonVirtual (const btVector3& local
 
 	// should never reach here
 	btAssert (0);
-	return btPoint3 (btScalar(0.0f), btScalar(0.0f), btScalar(0.0f));
+	return btVector3 (btScalar(0.0f), btScalar(0.0f), btScalar(0.0f));
 }
 
 /* TODO: This should be bumped up to btCollisionShape () */
@@ -488,7 +488,7 @@ void btConvexShape::getAabbNonVirtual (const btTransform& t, btVector3& aabbMin,
 		btVector3 halfExtents = convexShape->getImplicitShapeDimensions();
 		halfExtents += btVector3(margin,margin,margin);
 		btMatrix3x3 abs_b = t.getBasis().absolute();  
-		btPoint3 center = t.getOrigin();
+		btVector3 center = t.getOrigin();
 		btVector3 extent = btVector3(abs_b[0].dot(halfExtents),abs_b[1].dot(halfExtents),abs_b[2].dot(halfExtents));
 		
 		aabbMin = center - extent;
@@ -523,7 +523,7 @@ void btConvexShape::getAabbNonVirtual (const btTransform& t, btVector3& aabbMin,
 		halfExtents[m_upAxis] = capsuleShape->getRadius() + capsuleShape->getHalfHeight();
 		halfExtents += btVector3(capsuleShape->getMarginNonVirtual(),capsuleShape->getMarginNonVirtual(),capsuleShape->getMarginNonVirtual());
 		btMatrix3x3 abs_b = t.getBasis().absolute();  
-		btPoint3 center = t.getOrigin();
+		btVector3 center = t.getOrigin();
 		btVector3 extent = btVector3(abs_b[0].dot(halfExtents),abs_b[1].dot(halfExtents),abs_b[2].dot(halfExtents));		  	
 		aabbMin = center - extent;
 		aabbMax = center + extent;

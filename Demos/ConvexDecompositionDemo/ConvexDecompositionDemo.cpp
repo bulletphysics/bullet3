@@ -321,7 +321,7 @@ void ConvexDecompositionDemo::initPhysics(const char* filename)
 		btConvexHullShape* convexShape = new btConvexHullShape();
 		for (i=0;i<hull->numVertices();i++)
 		{
-			convexShape->addPoint(btPoint3(hull->getVertexPointer()[i]));	
+			convexShape->addPoint(hull->getVertexPointer()[i]);	
 		}
 
 		delete tmpConvexShape;

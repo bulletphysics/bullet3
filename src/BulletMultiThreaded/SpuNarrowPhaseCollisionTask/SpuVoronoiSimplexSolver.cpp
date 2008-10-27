@@ -77,7 +77,7 @@ void SpuVoronoiSimplexSolver::reset()
 
 
 	//add a vertex
-void SpuVoronoiSimplexSolver::addVertex(const btVector3& w, const btPoint3& p, const btPoint3& q)
+void SpuVoronoiSimplexSolver::addVertex(const btVector3& w, const btVector3& p, const btVector3& q)
 {
 	m_lastW = w;
 	m_needsUpdate = true;
@@ -269,7 +269,7 @@ btScalar SpuVoronoiSimplexSolver::maxVertex()
 
 
 	//return the current simplex
-int SpuVoronoiSimplexSolver::getSimplex(btPoint3 *pBuf, btPoint3 *qBuf, btVector3 *yBuf) const
+int SpuVoronoiSimplexSolver::getSimplex(btVector3 *pBuf, btVector3 *qBuf, btVector3 *yBuf) const
 {
 	int i;
 	for (i=0;i<numVertices();i++)
@@ -316,7 +316,7 @@ bool SpuVoronoiSimplexSolver::emptySimplex() const
 
 }
 
-void SpuVoronoiSimplexSolver::compute_points(btPoint3& p1, btPoint3& p2) 
+void SpuVoronoiSimplexSolver::compute_points(btVector3& p1, btVector3& p2) 
 {
 	updateClosestVectorAndPoints();
 	p1 = m_cachedP1;
@@ -327,7 +327,7 @@ void SpuVoronoiSimplexSolver::compute_points(btPoint3& p1, btPoint3& p2)
 
 
 
-bool	SpuVoronoiSimplexSolver::closestPtPointTriangle(const btPoint3& p, const btPoint3& a, const btPoint3& b, const btPoint3& c,SpuSubSimplexClosestResult& result)
+bool	SpuVoronoiSimplexSolver::closestPtPointTriangle(const btVector3& p, const btVector3& a, const btVector3& b, const btVector3& c,SpuSubSimplexClosestResult& result)
 {
 	result.m_usedVertices.reset();
 
@@ -427,7 +427,7 @@ bool	SpuVoronoiSimplexSolver::closestPtPointTriangle(const btPoint3& p, const bt
 
 
 /// Test if point p and d lie on opposite sides of plane through abc
-int SpuVoronoiSimplexSolver::pointOutsideOfPlane(const btPoint3& p, const btPoint3& a, const btPoint3& b, const btPoint3& c, const btPoint3& d)
+int SpuVoronoiSimplexSolver::pointOutsideOfPlane(const btVector3& p, const btVector3& a, const btVector3& b, const btVector3& c, const btVector3& d)
 {
 	btVector3 normal = (b-a).cross(c-a);
 
@@ -454,7 +454,7 @@ if (signd * signd < (btScalar(1e-8) * btScalar(1e-8)))
 }
 
 
-bool	SpuVoronoiSimplexSolver::closestPtPointTetrahedron(const btPoint3& p, const btPoint3& a, const btPoint3& b, const btPoint3& c, const btPoint3& d, SpuSubSimplexClosestResult& finalResult)
+bool	SpuVoronoiSimplexSolver::closestPtPointTetrahedron(const btVector3& p, const btVector3& a, const btVector3& b, const btVector3& c, const btVector3& d, SpuSubSimplexClosestResult& finalResult)
 {
 	SpuSubSimplexClosestResult tempResult;
 
@@ -488,7 +488,7 @@ bool	SpuVoronoiSimplexSolver::closestPtPointTetrahedron(const btPoint3& p, const
 	if (pointOutsideABC) 
 	{
         closestPtPointTriangle(p, a, b, c,tempResult);
-		btPoint3 q = tempResult.m_closestPointOnSimplex;
+		btVector3 q = tempResult.m_closestPointOnSimplex;
 		
         btScalar sqDist = (q - p).dot( q - p);
         // Update best closest point if (squared) distance is less than current best
@@ -515,7 +515,7 @@ bool	SpuVoronoiSimplexSolver::closestPtPointTetrahedron(const btPoint3& p, const
 	if (pointOutsideACD) 
 	{
         closestPtPointTriangle(p, a, c, d,tempResult);
-		btPoint3 q = tempResult.m_closestPointOnSimplex;
+		btVector3 q = tempResult.m_closestPointOnSimplex;
 		//convert result bitmask!
 
         btScalar sqDist = (q - p).dot( q - p);
@@ -542,7 +542,7 @@ bool	SpuVoronoiSimplexSolver::closestPtPointTetrahedron(const btPoint3& p, const
 	if (pointOutsideADB)
 	{
 		closestPtPointTriangle(p, a, d, b,tempResult);
-		btPoint3 q = tempResult.m_closestPointOnSimplex;
+		btVector3 q = tempResult.m_closestPointOnSimplex;
 		//convert result bitmask!
 
         btScalar sqDist = (q - p).dot( q - p);
@@ -569,7 +569,7 @@ bool	SpuVoronoiSimplexSolver::closestPtPointTetrahedron(const btPoint3& p, const
 	if (pointOutsideBDC)
 	{
         closestPtPointTriangle(p, b, d, c,tempResult);
-		btPoint3 q = tempResult.m_closestPointOnSimplex;
+		btVector3 q = tempResult.m_closestPointOnSimplex;
 		//convert result bitmask!
         btScalar sqDist = (q - p).dot( q - p);
         if (sqDist < bestSqDist) 

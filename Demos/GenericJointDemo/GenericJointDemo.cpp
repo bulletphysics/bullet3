@@ -68,8 +68,8 @@ void GenericJointDemo::initPhysics()
 
 	btCollisionDispatcher* dispatcher = new btCollisionDispatcher(collision_config);
 
-	btPoint3 worldAabbMin(-10000,-10000,-10000);
-	btPoint3 worldAabbMax(10000,10000,10000);
+	btVector3 worldAabbMin(-10000,-10000,-10000);
+	btVector3 worldAabbMax(10000,10000,10000);
 	btBroadphaseInterface* overlappingPairCache = new btAxisSweep3 (worldAabbMin, worldAabbMax);
 
 #ifdef USE_ODE_QUICKSTEP

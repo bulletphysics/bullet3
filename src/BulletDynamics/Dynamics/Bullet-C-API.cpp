@@ -255,7 +255,7 @@ void		plAddVertex(plCollisionShapeHandle cshape, plReal x,plReal y,plReal z)
 	(void)colShape;
 	btAssert(colShape->getShapeType()==CONVEX_HULL_SHAPE_PROXYTYPE);
 	btConvexHullShape* convexHullShape = reinterpret_cast<btConvexHullShape*>( cshape);
-	convexHullShape->addPoint(btPoint3(x,y,z));
+	convexHullShape->addPoint(btVector3(x,y,z));
 
 }
 

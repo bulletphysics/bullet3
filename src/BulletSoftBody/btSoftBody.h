@@ -18,7 +18,6 @@ subject to the following restrictions:
 #define _BT_SOFT_BODY_H
 
 #include "LinearMath/btAlignedObjectArray.h"
-#include "LinearMath/btPoint3.h"
 #include "LinearMath/btTransform.h"
 #include "LinearMath/btIDebugDraw.h"
 #include "BulletDynamics/Dynamics/btRigidBody.h"
@@ -417,7 +416,7 @@ public:
 		struct eType { enum _ {
 			Linear,
 			Angular,
-			Contact,
+			Contact
 		};};
 		struct Specs
 		{

@@ -109,10 +109,10 @@ void	SimplexDemo::initPhysics()
 
 	simplex.setSimplexSolver(&simplexSolver);
 
-	simplex.addVertex(btPoint3(-2,0,-2));
-	simplex.addVertex(btPoint3(2,0,-2));
-	simplex.addVertex(btPoint3(0,0,2));
-	simplex.addVertex(btPoint3(0,2,0));
+	simplex.addVertex(btVector3(-2,0,-2));
+	simplex.addVertex(btVector3(2,0,-2));
+	simplex.addVertex(btVector3(0,0,2));
+	simplex.addVertex(btVector3(0,2,0));
 
 	shapePtr[0] = &simplex;
 

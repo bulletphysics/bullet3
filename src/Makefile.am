@@ -21,7 +21,6 @@ libbulletmath_a_SOURCES	= \
 		LinearMath/btAlignedAllocator.h \
 		LinearMath/btQuaternion.h \
 		LinearMath/btAlignedObjectArray.h \
-		LinearMath/btPoint3.h \
 		LinearMath/btQuickprof.h \
 		LinearMath/btTransformUtil.h \
 		LinearMath/btTransform.h \

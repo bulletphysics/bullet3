@@ -104,8 +104,8 @@ int	shapeIndex[maxNumObjects];
 #define CUBE_HALF_EXTENTS 0.5
 
 #define EXTRA_HEIGHT -10.f
-//GL_LineSegmentShape shapeE(btPoint3(-50,0,0),
-//						   btPoint3(50,0,0));
+//GL_LineSegmentShape shapeE(btVector3(-50,0,0),
+//						   btVector3(50,0,0));
 
 
 void CcdPhysicsDemo::createStack( btCollisionShape* boxShape, float halfCubeSize, int size, float zPos )

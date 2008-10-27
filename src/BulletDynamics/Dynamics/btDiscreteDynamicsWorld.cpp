@@ -180,7 +180,7 @@ void	btDiscreteDynamicsWorld::debugDrawWorld()
 			}
 			if (m_debugDrawer && (m_debugDrawer->getDebugMode() & btIDebugDraw::DBG_DrawAabb))
 			{
-				btPoint3 minAabb,maxAabb;
+				btVector3 minAabb,maxAabb;
 				btVector3 colorvec(1,0,0);
 				colObj->getCollisionShape()->getAabb(colObj->getWorldTransform(), minAabb,maxAabb);
 				m_debugDrawer->drawAabb(minAabb,maxAabb,colorvec);
@@ -1135,7 +1135,7 @@ void btDiscreteDynamicsWorld::debugDrawObject(const btTransform& worldTransform,
 					int i;
 					for (i=0;i<polyshape->getNumEdges();i++)
 					{
-						btPoint3 a,b;
+						btVector3 a,b;
 						polyshape->getEdge(i,a,b);
 						btVector3 wa = worldTransform * a;
 						btVector3 wb = worldTransform * b;

@@ -53,7 +53,7 @@ void btTriangleMeshShape::getAabb(const btTransform& trans,btVector3& aabbMin,bt
 	
 	btMatrix3x3 abs_b = trans.getBasis().absolute();  
 
-	btPoint3 center = trans(localCenter);
+	btVector3 center = trans(localCenter);
 
 	btVector3 extent = btVector3(abs_b[0].dot(localHalfExtents),
 		   abs_b[1].dot(localHalfExtents),

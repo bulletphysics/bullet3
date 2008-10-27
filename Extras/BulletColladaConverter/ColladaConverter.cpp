@@ -2173,7 +2173,7 @@ ColladaConverter::updateRigidBodyVelocity (btRigidBody* body)
 void
 ColladaConverter::updateConstraint (btTypedConstraint* constraint, domRigid_constraint* rigidConstraint)
 {
-	if (!constraint->getConstraintType() != D6_CONSTRAINT_TYPE)
+	if (constraint->getConstraintType() != D6_CONSTRAINT_TYPE)
 		return;
 
 	btGeneric6DofConstraint* g6c = (btGeneric6DofConstraint*)constraint;
@@ -2711,7 +2711,7 @@ btCollisionShape* ColladaConverter::getCollisionShape(int shapeIndex)
 void	ColladaConverter::deleteAllocatedCollisionShapes()
 {
 	int i;
-	for (int i=0;i<m_allocatedCollisionShapes.size();i++)
+	for (i=0;i<m_allocatedCollisionShapes.size();i++)
 	{
 		delete m_allocatedCollisionShapes[i];
 	}
@@ -3006,7 +3006,7 @@ void	ColladaConverter::ConvertRigidBodyRef( btRigidBodyInput& rbInput,btRigidBod
 												domFloat fl0 = listFloats.get(vertIndex);
 												domFloat fl1 = listFloats.get(vertIndex+1);
 												domFloat fl2 = listFloats.get(vertIndex+2);
-												convexHull->addPoint(btPoint3(fl0,fl1,fl2) * m_unitMeterScaling);
+												convexHull->addPoint(btVector3(fl0,fl1,fl2) * m_unitMeterScaling);
 											}
 										}
 									}
@@ -3104,7 +3104,7 @@ void	ColladaConverter::ConvertRigidBodyRef( btRigidBodyInput& rbInput,btRigidBod
 															domFloat fl2 = listFloats.get(k+2);
 															//printf("float %f %f %f\n",fl0,fl1,fl2);
 
-															convexHullShape->addPoint(btPoint3(fl0,fl1,fl2) * m_unitMeterScaling);
+															convexHullShape->addPoint(btVector3(fl0,fl1,fl2) * m_unitMeterScaling);
 														}
 
 													}
@@ -3149,7 +3149,7 @@ void	ColladaConverter::ConvertRigidBodyRef( btRigidBodyInput& rbInput,btRigidBod
 											domFloat fl2 = listFloats.get(k+2);
 											//printf("float %f %f %f\n",fl0,fl1,fl2);
 
-											convexHullShape->addPoint(btPoint3(fl0,fl1,fl2)*m_unitMeterScaling);
+											convexHullShape->addPoint(btVector3(fl0,fl1,fl2)*m_unitMeterScaling);
 										}
 
 									}
@@ -3370,7 +3370,7 @@ void ColladaConverter::registerRigidBody(btRigidBody* body, const char* name)
 		btTypedConstraint* constraint = body->getConstraintRef (i);
 		
 		// not support by the dom
-		if (!constraint->getConstraintType() != D6_CONSTRAINT_TYPE)
+		if (constraint->getConstraintType() != D6_CONSTRAINT_TYPE)
 			continue;
 
 		btRigidConstraintColladaInfo* rcci = findRigidConstraintColladaInfo(constraint);

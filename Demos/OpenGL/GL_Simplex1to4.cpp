@@ -56,7 +56,7 @@ void	GL_Simplex1to4::calcClosest(btScalar* m)
 				for (int i=0;i<m_numVertices;i++)
 				{
 					v =  tr(m_vertices[i]);
-					m_simplexSolver->addVertex(v,v,btPoint3(0.f,0.f,0.f));
+					m_simplexSolver->addVertex(v,v,btVector3(0.f,0.f,0.f));
 					res = m_simplexSolver->closest(v);
 				}
 

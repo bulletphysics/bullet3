@@ -1,6 +1,5 @@
 
 #include "GLDebugDrawer.h"
-#include "LinearMath/btPoint3.h"
 
 #ifdef WIN32 //needed for glut.h
 #include <windows.h>

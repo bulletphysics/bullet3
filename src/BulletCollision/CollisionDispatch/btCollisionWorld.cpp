@@ -128,7 +128,7 @@ void	btCollisionWorld::updateAabbs()
 		//only update aabb of active objects
 		if (colObj->isActive())
 		{
-			btPoint3 minAabb,maxAabb;
+			btVector3 minAabb,maxAabb;
 			colObj->getCollisionShape()->getAabb(colObj->getWorldTransform(), minAabb,maxAabb);
 			//need to increase the aabb for contact thresholds
 			btVector3 contactThreshold(gContactBreakingThreshold,gContactBreakingThreshold,gContactBreakingThreshold);

@@ -140,8 +140,8 @@ bool SphereTriangleDetector::collide(const btVector3& sphereCenter,btVector3 &po
 			btVector3 nearestOnEdge;
 			for (int i = 0; i < m_triangle->getNumEdges(); i++) {
 				
-				btPoint3 pa;
-				btPoint3 pb;
+				btVector3 pa;
+				btVector3 pb;
 				
 				m_triangle->getEdge(i,pa,pb);
 

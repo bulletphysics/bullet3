@@ -16,13 +16,13 @@ subject to the following restrictions:
 
 #include "SpuCollisionShapes.h"
 
-btPoint3 localGetSupportingVertexWithoutMargin(int shapeType, void* shape, const btVector3& localDir,struct	SpuConvexPolyhedronVertexData* convexVertexData)//, int *featureIndex)
+btVector3 localGetSupportingVertexWithoutMargin(int shapeType, void* shape, const btVector3& localDir,struct	SpuConvexPolyhedronVertexData* convexVertexData)//, int *featureIndex)
 {
     switch (shapeType)
     {
     case SPHERE_SHAPE_PROXYTYPE:
         {
-            return btPoint3(0,0,0);
+            return btVector3(0,0,0);
         }
 	case BOX_SHAPE_PROXYTYPE:
 		{
@@ -30,7 +30,7 @@ btPoint3 localGetSupportingVertexWithoutMargin(int shapeType, void* shape, const
 			btConvexInternalShape* convexShape = (btConvexInternalShape*)shape;
 			const btVector3& halfExtents = convexShape->getImplicitShapeDimensions();
 			
-			return btPoint3(
+			return btVector3(
 				localDir.getX() < 0.0f ? -halfExtents.x() : halfExtents.x(),
 							localDir.getY() < 0.0f ? -halfExtents.y() : halfExtents.y(),
 							localDir.getZ() < 0.0f ? -halfExtents.z() : halfExtents.z());
@@ -43,7 +43,7 @@ btPoint3 localGetSupportingVertexWithoutMargin(int shapeType, void* shape, const
 			btVector3* vertices = (btVector3*)shape;
 			btVector3 dots(dir.dot(vertices[0]), dir.dot(vertices[1]), dir.dot(vertices[2]));
 	  		btVector3 sup = vertices[dots.maxAxis()];
-			return btPoint3(sup.getX(),sup.getY(),sup.getZ());
+			return btVector3(sup.getX(),sup.getY(),sup.getZ());
 			break;
 		}
 
@@ -100,14 +100,14 @@ btPoint3 localGetSupportingVertexWithoutMargin(int shapeType, void* shape, const
 				tmp[XX] = v[XX] * d;
 				tmp[YY] = v[YY] < 0.0 ? -halfHeight : halfHeight;
 				tmp[ZZ] = v[ZZ] * d;
-				return btPoint3(tmp.getX(),tmp.getY(),tmp.getZ());
+				return btVector3(tmp.getX(),tmp.getY(),tmp.getZ());
 			}
 			else
 			{
 				tmp[XX] = radius;
 				tmp[YY] = v[YY] < 0.0 ? -halfHeight : halfHeight;
 				tmp[ZZ] = btScalar(0.0);
-				return btPoint3(tmp.getX(),tmp.getY(),tmp.getZ());
+				return btVector3(tmp.getX(),tmp.getY(),tmp.getZ());
 			}
 		}
 
@@ -162,7 +162,7 @@ btPoint3 localGetSupportingVertexWithoutMargin(int shapeType, void* shape, const
 				supVec = vtx;
 			}
 		}
-		return btPoint3(supVec.getX(),supVec.getY(),supVec.getZ());
+		return btVector3(supVec.getX(),supVec.getY(),supVec.getZ());
 		break;
 	};
 
@@ -172,7 +172,7 @@ btPoint3 localGetSupportingVertexWithoutMargin(int shapeType, void* shape, const
 
 		
 
-			btPoint3* points = 0;
+			btVector3* points = 0;
 			int numPoints = 0;
 			points = convexVertexData->gConvexPoints;
 			numPoints = convexVertexData->gNumConvexPoints;
@@ -197,7 +197,7 @@ btPoint3 localGetSupportingVertexWithoutMargin(int shapeType, void* shape, const
 
 			for (int i=0;i<numPoints;i++)
 			{
-				btPoint3 vtx = points[i];// * m_localScaling;
+				btVector3 vtx = points[i];// * m_localScaling;
 
 				newDot = vec.dot(vtx);
 				if (newDot > maxDot)
@@ -206,7 +206,7 @@ btPoint3 localGetSupportingVertexWithoutMargin(int shapeType, void* shape, const
 					supVec = vtx;
 				}
 			}
-			return btPoint3(supVec.getX(),supVec.getY(),supVec.getZ());
+			return btVector3(supVec.getX(),supVec.getY(),supVec.getZ());
 
 			break;
 		};
@@ -219,7 +219,7 @@ btPoint3 localGetSupportingVertexWithoutMargin(int shapeType, void* shape, const
 #if __ASSERT
        // spu_printf("localGetSupportingVertexWithoutMargin() - Unsupported bound type: %d.\n", shapeType);
 #endif // __ASSERT
-        return btPoint3(0.f, 0.f, 0.f);
+        return btVector3(0.f, 0.f, 0.f);
     }
 }
 
@@ -237,7 +237,7 @@ void computeAabb (btVector3& aabbMin, btVector3& aabbMax, btConvexInternalShape*
 		halfExtents += btVector3(margin,margin,margin);
 		btTransform& t = xform;
 		btMatrix3x3 abs_b = t.getBasis().absolute();  
-		btPoint3 center = t.getOrigin();
+		btVector3 center = t.getOrigin();
 		btVector3 extent = btVector3(abs_b[0].dot(halfExtents),abs_b[1].dot(halfExtents),abs_b[2].dot(halfExtents));
 		
 		aabbMin = center - extent;
@@ -260,7 +260,7 @@ void computeAabb (btVector3& aabbMin, btVector3& aabbMax, btConvexInternalShape*
 #endif
 		btTransform& t = xform;
 		btMatrix3x3 abs_b = t.getBasis().absolute();  
-		btPoint3 center = t.getOrigin();
+		btVector3 center = t.getOrigin();
 		btVector3 extent = btVector3(abs_b[0].dot(halfExtents),abs_b[1].dot(halfExtents),abs_b[2].dot(halfExtents));
 		
 		aabbMin = center - extent;
@@ -410,7 +410,7 @@ void dmaConvexVertexData (SpuConvexPolyhedronVertexData* convexVertexData, btCon
 		return;
 	}
 			
-	register int dmaSize = convexVertexData->gNumConvexPoints*sizeof(btPoint3);
+	register int dmaSize = convexVertexData->gNumConvexPoints*sizeof(btVector3);
 	ppu_address_t pointsPPU = (ppu_address_t) convexShapeSPU->getPoints();
 	cellDmaGet(&convexVertexData->g_convexPointBuffer[0], pointsPPU  , dmaSize, DMA_TAG(2), 0, 0);
 }

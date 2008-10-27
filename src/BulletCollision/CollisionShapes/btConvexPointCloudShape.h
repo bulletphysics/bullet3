@@ -47,12 +47,12 @@ public:
 			recalcLocalAabb();
 	}
 
-	btPoint3* getPoints()
+	btVector3* getPoints()
 	{
 		return m_points;
 	}
 
-	const btPoint3* getPoints() const
+	const btVector3* getPoints() const
 	{
 		return m_points;
 	}
@@ -74,11 +74,11 @@ public:
 
 	virtual int	getNumVertices() const;
 	virtual int getNumEdges() const;
-	virtual void getEdge(int i,btPoint3& pa,btPoint3& pb) const;
-	virtual void getVertex(int i,btPoint3& vtx) const;
+	virtual void getEdge(int i,btVector3& pa,btVector3& pb) const;
+	virtual void getVertex(int i,btVector3& vtx) const;
 	virtual int	getNumPlanes() const;
-	virtual void getPlane(btVector3& planeNormal,btPoint3& planeSupport,int i ) const;
-	virtual	bool isInside(const btPoint3& pt,btScalar tolerance) const;
+	virtual void getPlane(btVector3& planeNormal,btVector3& planeSupport,int i ) const;
+	virtual	bool isInside(const btVector3& pt,btScalar tolerance) const;
 
 	///in case we receive negative scaling
 	virtual void	setLocalScaling(const btVector3& scaling);

@@ -17,7 +17,7 @@ subject to the following restrictions:
 #define SPHERE_TRIANGLE_DETECTOR_H
 
 #include "BulletCollision/NarrowPhaseCollision/btDiscreteCollisionDetectorInterface.h"
-#include "LinearMath/btPoint3.h"
+
 
 
 class btSphereShape;

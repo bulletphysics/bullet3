@@ -657,7 +657,7 @@ void GL_ShapeDrawer::drawOpenGL(btScalar* m, const btCollisionShape* shape, cons
 				int i;
 				for (i=0;i<polyshape->getNumVertices();i++)
 				{
-					btPoint3 vtx;
+					btVector3 vtx;
 					polyshape->getVertex(i,vtx);
 					glRasterPos3f(vtx.x(),  vtx.y(),  vtx.z());
 					char buf[12];
@@ -668,7 +668,7 @@ void GL_ShapeDrawer::drawOpenGL(btScalar* m, const btCollisionShape* shape, cons
 				for (i=0;i<polyshape->getNumPlanes();i++)
 				{
 					btVector3 normal;
-					btPoint3 vtx;
+					btVector3 vtx;
 					polyshape->getPlane(normal,vtx,i);
 					btScalar d = vtx.dot(normal);
 

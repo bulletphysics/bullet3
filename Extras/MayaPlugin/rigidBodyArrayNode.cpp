@@ -316,7 +316,7 @@ void rigidBodyArrayNode::draw( M3dView & view, const MDagPath &path,
         if(style == M3dView::kFlatShaded ||
            style == M3dView::kGouraudShaded) {
             glEnable(GL_LIGHTING);
-            float material[] = { 0.4, 0.3, 1.0, 1.0  };
+            float material[] = { 0.4f, 0.3f, 1.0f, 1.0f };
             glMaterialfv(GL_FRONT_AND_BACK, GL_AMBIENT_AND_DIFFUSE, material);
             for(size_t i = 0; i < m_rigid_bodies.size(); ++i) {  
                 glPushMatrix();
@@ -433,15 +433,15 @@ void rigidBodyArrayNode::computeRigidBodyParam(const MPlug& plug, MDataBlock& da
     
     MPlug(thisObject, ca_rigidBodies).getValue(update);
 
-    double mass = data.inputValue(ia_mass).asDouble();
+    float mass = data.inputValue(ia_mass).asFloat();
     vec3f inertia;
     if(!m_rigid_bodies.empty())  {
         inertia = mass * m_rigid_bodies[0]->collision_shape()->local_inertia();
     }
-    double restitution = data.inputValue(ia_restitution).asDouble();
-    double friction = data.inputValue(ia_friction).asDouble();
-    double linearDamping = data.inputValue(ia_linearDamping).asDouble();
-    double angularDamping = data.inputValue(ia_angularDamping).asDouble();
+    float restitution = data.inputValue(ia_restitution).asFloat();
+    float friction = data.inputValue(ia_friction).asFloat();
+    float linearDamping = data.inputValue(ia_linearDamping).asFloat();
+    float angularDamping = data.inputValue(ia_angularDamping).asFloat();
 
     for(size_t i = 0; i < m_rigid_bodies.size(); ++i) {
         m_rigid_bodies[i]->set_mass(mass);

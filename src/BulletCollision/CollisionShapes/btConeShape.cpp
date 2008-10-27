@@ -14,7 +14,6 @@ subject to the following restrictions:
 */
 
 #include "btConeShape.h"
-#include "LinearMath/btPoint3.h"
 
 
 

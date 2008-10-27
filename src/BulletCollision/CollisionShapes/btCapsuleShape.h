@@ -49,7 +49,7 @@ public:
 			halfExtents[m_upAxis] = getRadius() + getHalfHeight();
 			halfExtents += btVector3(getMargin(),getMargin(),getMargin());
 			btMatrix3x3 abs_b = t.getBasis().absolute();  
-			btPoint3 center = t.getOrigin();
+			btVector3 center = t.getOrigin();
 			btVector3 extent = btVector3(abs_b[0].dot(halfExtents),abs_b[1].dot(halfExtents),abs_b[2].dot(halfExtents));		  
 			
 			aabbMin = center - extent;

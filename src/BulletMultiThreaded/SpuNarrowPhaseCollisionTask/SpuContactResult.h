@@ -27,7 +27,6 @@ subject to the following restrictions:
 
 
 #include "LinearMath/btTransform.h"
-#include "LinearMath/btPoint3.h"
 
 
 #include "BulletCollision/NarrowPhaseCollision/btPersistentManifold.h"
@@ -102,7 +101,7 @@ class SpuContactResult
 
         void writeDoubleBufferedManifold(btPersistentManifold* lsManifold, btPersistentManifold* mmManifold);
 
-        virtual void addContactPoint(const btVector3& normalOnBInWorld,const btPoint3& pointInWorld,float depth);
+        virtual void addContactPoint(const btVector3& normalOnBInWorld,const btVector3& pointInWorld,float depth);
 
 		void flush();
 };

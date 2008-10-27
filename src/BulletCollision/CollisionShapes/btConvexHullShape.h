@@ -24,7 +24,7 @@ subject to the following restrictions:
 ///Bullet provides a general and fast collision detector for convex shapes based on GJK and EPA using localGetSupportingVertex.
 ATTRIBUTE_ALIGNED16(class) btConvexHullShape : public btPolyhedralConvexShape
 {
-	btAlignedObjectArray<btPoint3>	m_points;
+	btAlignedObjectArray<btVector3>	m_points;
 
 public:
 	BT_DECLARE_ALIGNED_ALLOCATOR();
@@ -33,16 +33,16 @@ public:
 	///this constructor optionally takes in a pointer to points. Each point is assumed to be 3 consecutive btScalar (x,y,z), the striding defines the number of bytes between each point, in memory.
 	///It is easier to not pass any points in the constructor, and just add one point at a time, using addPoint.
 	///btConvexHullShape make an internal copy of the points.
-	btConvexHullShape(const btScalar* points=0,int numPoints=0, int stride=sizeof(btPoint3));
+	btConvexHullShape(const btScalar* points=0,int numPoints=0, int stride=sizeof(btVector3));
 
-	void addPoint(const btPoint3& point);
+	void addPoint(const btVector3& point);
 
-	btPoint3* getPoints()
+	btVector3* getPoints()
 	{
 		return &m_points[0];
 	}
 
-	const btPoint3* getPoints() const
+	const btVector3* getPoints() const
 	{
 		return &m_points[0];
 	}
@@ -64,11 +64,11 @@ public:
 	
 	virtual int	getNumVertices() const;
 	virtual int getNumEdges() const;
-	virtual void getEdge(int i,btPoint3& pa,btPoint3& pb) const;
-	virtual void getVertex(int i,btPoint3& vtx) const;
+	virtual void getEdge(int i,btVector3& pa,btVector3& pb) const;
+	virtual void getVertex(int i,btVector3& vtx) const;
 	virtual int	getNumPlanes() const;
-	virtual void getPlane(btVector3& planeNormal,btPoint3& planeSupport,int i ) const;
-	virtual	bool isInside(const btPoint3& pt,btScalar tolerance) const;
+	virtual void getPlane(btVector3& planeNormal,btVector3& planeSupport,int i ) const;
+	virtual	bool isInside(const btVector3& pt,btScalar tolerance) const;
 
 	///in case we receive negative scaling
 	virtual void	setLocalScaling(const btVector3& scaling);

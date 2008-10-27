@@ -27,7 +27,7 @@ class btCollisionShape;
 class btRigidBody;
 class btTypedConstraint;
 class btDynamicsWorld;
-class ConstraintInput;
+struct ConstraintInput;
 class btRigidBodyColladaInfo;
 
 class btRigidBodyColladaInfo

@@ -25,7 +25,6 @@ ADD_LIBRARY(LibLinearMath
 		btTransform.h
 		btAlignedAllocator.h
 		btIDebugDraw.h
-		btPoint3.h
 		btQuickprof.h
 		btTransformUtil.h
 		btQuickprof.cpp

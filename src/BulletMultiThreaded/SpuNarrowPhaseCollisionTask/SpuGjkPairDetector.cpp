@@ -110,8 +110,8 @@ void SpuGjkPairDetector::getClosestPoints(const SpuClosestPointInput& input,SpuC
 			btVector3 qInB  = localGetSupportingVertexWithoutMargin(m_shapeTypeB, m_minkowskiB, seperatingAxisInB,input.m_convexVertexData[1]);//, &featureIndexB);
 
 
-			btPoint3  pWorld = localTransA(pInA);	
-			btPoint3  qWorld = localTransB(qInB);
+			btVector3  pWorld = localTransA(pInA);	
+			btVector3  qWorld = localTransB(qInB);
 			
 			btVector3 w	= pWorld - qWorld;
 			delta = m_cachedSeparatingAxis.dot(w);

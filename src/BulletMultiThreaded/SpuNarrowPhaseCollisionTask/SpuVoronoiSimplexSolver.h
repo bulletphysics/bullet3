@@ -19,8 +19,7 @@ subject to the following restrictions:
 #ifndef SPUVoronoiSimplexSolver_H
 #define SPUVoronoiSimplexSolver_H
 
-#include <LinearMath/btTransform.h>
-#include <LinearMath/btPoint3.h>
+#include "LinearMath/btTransform.h"
 
 #define VORONOI_SIMPLEX_MAX_VERTS 5
 
@@ -123,7 +122,7 @@ public:
 
 	void reset();
 
-	void addVertex(const btVector3& w, const btPoint3& p, const btPoint3& q);
+	void addVertex(const btVector3& w, const btVector3& p, const btVector3& q);
 
 
 	bool closest(btVector3& v);

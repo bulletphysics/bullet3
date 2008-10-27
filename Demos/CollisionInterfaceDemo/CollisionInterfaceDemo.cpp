@@ -68,9 +68,6 @@ void	CollisionInterfaceDemo::initPhysics()
 	objects[0].getWorldTransform().setBasis(basisA);
 	objects[1].getWorldTransform().setBasis(basisB);
 
-	//btPoint3	points0[3]={btPoint3(1,0,0),btPoint3(0,1,0),btPoint3(0,0,1)};
-	//btPoint3	points1[5]={btPoint3(1,0,0),btPoint3(0,1,0),btPoint3(0,0,1),btPoint3(0,0,-1),btPoint3(-1,-1,0)};
-	
 	btBoxShape* boxA = new btBoxShape(btVector3(1,1,1));
 	btBoxShape* boxB = new btBoxShape(btVector3(0.5,0.5,0.5));
 	//ConvexHullShape	hullA(points0,3);

@@ -72,7 +72,7 @@ btVector3(btScalar(0.162456) , btScalar(0.499995),btScalar(0.850654))
 bool SpuMinkowskiPenetrationDepthSolver::calcPenDepth( SpuVoronoiSimplexSolver& simplexSolver,
 	        void* convexA,void* convexB,int shapeTypeA, int shapeTypeB, float marginA, float marginB,
             btTransform& transA,const btTransform& transB,
-			btVector3& v, btPoint3& pa, btPoint3& pb,
+			btVector3& v, btVector3& pa, btVector3& pb,
 			class btIDebugDraw* debugDraw,btStackAlloc* stackAlloc,
 			struct SpuConvexPolyhedronVertexData* convexVertexDataA,
 			struct SpuConvexPolyhedronVertexData* convexVertexDataB

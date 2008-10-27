@@ -278,7 +278,7 @@ class BspLoader
 		enum
 		{
 			BSP_LITTLE_ENDIAN  = 0,
-			BSP_BIG_ENDIAN    =  1,
+			BSP_BIG_ENDIAN    =  1
 		};
 
 		//returns machines big endian / little endian

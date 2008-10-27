@@ -17,7 +17,6 @@ subject to the following restrictions:
 #define RIGIDBODY_H
 
 #include "LinearMath/btAlignedObjectArray.h"
-#include "LinearMath/btPoint3.h"
 #include "LinearMath/btTransform.h"
 #include "BulletCollision/BroadphaseCollision/btBroadphaseProxy.h"
 #include "BulletCollision/CollisionDispatch/btCollisionObject.h"
@@ -303,7 +302,7 @@ public:
 	
 	void updateInertiaTensor();    
 	
-	const btPoint3&     getCenterOfMassPosition() const { 
+	const btVector3&     getCenterOfMassPosition() const { 
 		return m_worldTransform.getOrigin(); 
 	}
 	btQuaternion getOrientation() const;
@@ -353,7 +352,7 @@ public:
 
 
 	
-	SIMD_FORCE_INLINE btScalar computeImpulseDenominator(const btPoint3& pos, const btVector3& normal) const
+	SIMD_FORCE_INLINE btScalar computeImpulseDenominator(const btVector3& pos, const btVector3& normal) const
 	{
 		btVector3 r0 = pos - getCenterOfMassPosition();
 

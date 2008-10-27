@@ -213,7 +213,7 @@ namespace ConvexDecomposition
 		unsigned int           depth);
 
 
-};
+}
 
 
 #endif

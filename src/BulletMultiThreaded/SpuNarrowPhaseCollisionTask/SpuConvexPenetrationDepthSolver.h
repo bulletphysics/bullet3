@@ -25,7 +25,6 @@ class btIDebugDraw;
 class SpuVoronoiSimplexSolver;
 
 #include <LinearMath/btTransform.h>
-#include <LinearMath/btPoint3.h>
 
 
 ///ConvexPenetrationDepthSolver provides an interface for penetration depth calculation.
@@ -37,7 +36,7 @@ public:
 	virtual bool calcPenDepth( SpuVoronoiSimplexSolver& simplexSolver,
 	        void* convexA,void* convexB,int shapeTypeA, int shapeTypeB, float marginA, float marginB,
             btTransform& transA,const btTransform& transB,
-			btVector3& v, btPoint3& pa, btPoint3& pb,
+			btVector3& v, btVector3& pa, btVector3& pb,
 			class btIDebugDraw* debugDraw,btStackAlloc* stackAlloc,
 			struct SpuConvexPolyhedronVertexData* convexVertexDataA,
 			struct SpuConvexPolyhedronVertexData* convexVertexDataB

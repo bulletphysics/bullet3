@@ -156,7 +156,7 @@ void	btSimpleDynamicsWorld::updateAabbs()
 		{
 			if (body->isActive() && (!body->isStaticObject()))
 			{
-				btPoint3 minAabb,maxAabb;
+				btVector3 minAabb,maxAabb;
 				colObj->getCollisionShape()->getAabb(colObj->getWorldTransform(), minAabb,maxAabb);
 				btBroadphaseInterface* bp = getBroadphase();
 				bp->setAabb(body->getBroadphaseHandle(),minAabb,maxAabb, m_dispatcher1);

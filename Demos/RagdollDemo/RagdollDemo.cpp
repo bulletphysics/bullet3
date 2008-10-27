@@ -318,8 +318,8 @@ void RagdollDemo::initPhysics()
 
 	m_dispatcher = new btCollisionDispatcher(m_collisionConfiguration);
 
-	btPoint3 worldAabbMin(-10000,-10000,-10000);
-	btPoint3 worldAabbMax(10000,10000,10000);
+	btVector3 worldAabbMin(-10000,-10000,-10000);
+	btVector3 worldAabbMax(10000,10000,10000);
 	m_broadphase = new btAxisSweep3 (worldAabbMin, worldAabbMax);
 
 	m_solver = new btSequentialImpulseConstraintSolver;

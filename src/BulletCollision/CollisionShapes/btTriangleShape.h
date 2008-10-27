@@ -46,7 +46,7 @@ public:
 		return 3;
 	}
 	
-	virtual void getEdge(int i,btPoint3& pa,btPoint3& pb) const
+	virtual void getEdge(int i,btVector3& pa,btVector3& pb) const
 	{
 		getVertex(i,pa);
 		getVertex((i+1)%3,pb);
@@ -88,7 +88,7 @@ public:
     }
 
 
-	virtual void getPlane(btVector3& planeNormal,btPoint3& planeSupport,int i) const
+	virtual void getPlane(btVector3& planeNormal,btVector3& planeSupport,int i) const
 	{
 		getPlaneEquation(i,planeNormal,planeSupport);
 	}
@@ -104,7 +104,7 @@ public:
 		normal.normalize();
 	}
 
-	virtual void getPlaneEquation(int i, btVector3& planeNormal,btPoint3& planeSupport) const
+	virtual void getPlaneEquation(int i, btVector3& planeNormal,btVector3& planeSupport) const
 	{
 		(void)i;
 		calcNormal(planeNormal);
@@ -118,7 +118,7 @@ public:
 		inertia.setValue(btScalar(0.),btScalar(0.),btScalar(0.));
 	}
 
-		virtual	bool isInside(const btPoint3& pt,btScalar tolerance) const
+		virtual	bool isInside(const btVector3& pt,btScalar tolerance) const
 	{
 		btVector3 normal;
 		calcNormal(normal);
@@ -132,7 +132,7 @@ public:
 			int i;
 			for (i=0;i<3;i++)
 			{
-				btPoint3 pa,pb;
+				btVector3 pa,pb;
 				getEdge(i,pa,pb);
 				btVector3 edge = pb-pa;
 				btVector3 edgeNormal = edge.cross(normal);
