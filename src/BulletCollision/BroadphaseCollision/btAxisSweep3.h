@@ -403,7 +403,10 @@ template <typename BP_FP_INT_TYPE>
 btAxisSweep3Internal<BP_FP_INT_TYPE>::~btAxisSweep3Internal()
 {
 	if (m_raycastAccelerator)
+	{
+		m_raycastAccelerator->~btDbvtBroadphase();
 		btAlignedFree (m_raycastAccelerator);
+	}
 
 	for (int i = 2; i >= 0; i--)
 	{

@@ -60,16 +60,15 @@ btSoftBodyRigidBodyCollisionConfiguration::btSoftBodyRigidBodyCollisionConfigura
 
 		int	collisionAlgorithmMaxElementSize = btMax(maxSize0,maxSize1);
 		collisionAlgorithmMaxElementSize = btMax(collisionAlgorithmMaxElementSize,maxSize2);
+		
 		if (collisionAlgorithmMaxElementSize > curElemSize)
 		{
+			m_collisionAlgorithmPool->~btPoolAllocator();
 			btAlignedFree(m_collisionAlgorithmPool);
 			void* mem = btAlignedAlloc(sizeof(btPoolAllocator),16);
 			m_collisionAlgorithmPool = new(mem) btPoolAllocator(collisionAlgorithmMaxElementSize,constructionInfo.m_defaultMaxCollisionAlgorithmPoolSize);
 		}
 	}
-
-
-
 
 }
 
