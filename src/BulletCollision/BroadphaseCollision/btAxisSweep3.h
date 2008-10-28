@@ -96,6 +96,7 @@ protected:
 	///additional dynamic aabb structure, used to accelerate ray cast queries.
 	///can be disabled using a optional argument in the constructor
 	btDbvtBroadphase*	m_raycastAccelerator;
+	btOverlappingPairCache*	m_nullPairCache;
 
 
 	// allocation/deallocation
@@ -338,7 +339,8 @@ m_raycastAccelerator(0)
 
 	if (!disableRaycastAccelerator)
 	{
-		m_raycastAccelerator = new (btAlignedAlloc(sizeof(btDbvtBroadphase),16)) btDbvtBroadphase();//m_pairCache);
+		m_nullPairCache = new (btAlignedAlloc(sizeof(btNullPairCache),16)) btNullPairCache();
+		m_raycastAccelerator = new (btAlignedAlloc(sizeof(btDbvtBroadphase),16)) btDbvtBroadphase(m_nullPairCache);//m_pairCache);
 		m_raycastAccelerator->m_deferedcollide = true;//don't add/remove pairs
 	}
 
@@ -404,6 +406,8 @@ btAxisSweep3Internal<BP_FP_INT_TYPE>::~btAxisSweep3Internal()
 {
 	if (m_raycastAccelerator)
 	{
+		m_nullPairCache->~btOverlappingPairCache();
+		btAlignedFree(m_nullPairCache);
 		m_raycastAccelerator->~btDbvtBroadphase();
 		btAlignedFree (m_raycastAccelerator);
 	}
