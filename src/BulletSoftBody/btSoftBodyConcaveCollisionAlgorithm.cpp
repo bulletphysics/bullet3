@@ -83,7 +83,7 @@ void	btSoftBodyTriangleCallback::clearCache()
 		delete tmp->m_childShape;
 	}
 	m_shapeCache.clear();
-};
+}
 
 
 void btSoftBodyTriangleCallback::processTriangle(btVector3* triangle,int partId, int triangleIndex)

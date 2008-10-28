@@ -57,7 +57,7 @@ btCollisionDispatcher::btCollisionDispatcher (btCollisionConfiguration* collisio
 	}
 	
 	
-};
+}
 
 
 void btCollisionDispatcher::registerCollisionCreateFunc(int proxyType0, int proxyType1, btCollisionAlgorithmCreateFunc *createFunc)

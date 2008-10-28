@@ -167,7 +167,7 @@ void Raytracer::clientMoveAndDisplay()
 	displayCallback();
 }
 
-int once = 1;
+
 
 
 
@@ -353,20 +353,20 @@ void Raytracer::displayCallback()
 
 	glClear(GL_COLOR_BUFFER_BIT | GL_DEPTH_BUFFER_BIT); 
 	glDisable(GL_LIGHTING);
-	if (once)
+	if (!m_initialized)
 	{
+		m_initialized = true;
 		glGenTextures(1, &glTextureId);
-		glBindTexture(GL_TEXTURE_2D,glTextureId );
-		once = 0;
-		glPixelStorei(GL_UNPACK_ALIGNMENT, 1);
-		glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_WRAP_S, GL_CLAMP);
-		glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_WRAP_T, GL_CLAMP);
-		glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MAG_FILTER, GL_LINEAR);
-		glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MIN_FILTER, GL_LINEAR);
 	}
-
-
-
+	
+	glBindTexture(GL_TEXTURE_2D,glTextureId );
+	
+	glPixelStorei(GL_UNPACK_ALIGNMENT, 1);
+	glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_WRAP_S, GL_CLAMP);
+	glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_WRAP_T, GL_CLAMP);
+	glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MAG_FILTER, GL_LINEAR);
+	glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MIN_FILTER, GL_LINEAR);
+	
 	glDisable(GL_TEXTURE_2D);
 	glDisable(GL_BLEND);
 

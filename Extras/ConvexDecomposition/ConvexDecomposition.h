@@ -42,6 +42,7 @@ THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
 #endif
 #include <string.h>
 #include <stdio.h>
+#include "LinearMath/btAlignedObjectArray.h"
 
 
 
@@ -49,8 +50,8 @@ extern unsigned int MAXDEPTH ;
 extern float CONCAVE_PERCENT ;
 extern float MERGE_PERCENT   ;
 
-#include <vector>
-typedef std::vector< unsigned int > UintVector;
+
+typedef btAlignedObjectArray< unsigned int > UintVector;
 
 
 

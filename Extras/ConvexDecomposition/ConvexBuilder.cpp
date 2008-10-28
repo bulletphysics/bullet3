@@ -5,7 +5,6 @@
 #include <assert.h>
 #include "cd_hull.h"
 
-#include <algorithm>
 #include "fitsphere.h"
 #include "bestfitobb.h"
 
@@ -59,10 +58,10 @@ ConvexBuilder::ConvexBuilder(ConvexDecompInterface *callback)
 
 ConvexBuilder::~ConvexBuilder(void)
 {
-	CHullVector::iterator i;
-	for (i=mChulls.begin(); i!=mChulls.end(); ++i)
+	int i;
+	for (i=0;i<mChulls.size();i++)
 	{
-		CHull *cr = (*i);
+		CHull *cr = mChulls[i];
 		delete cr;
 	}
 }
@@ -197,16 +196,16 @@ bool ConvexBuilder::combineHulls(void)
 	CHullVector output; // the output hulls...
 
 
-	CHullVector::iterator i;
+	int i;
 
-	for (i=mChulls.begin(); i!=mChulls.end() && !combine; ++i)
+	for (i=0;i<mChulls.size() && !combine; ++i)
 	{
-		CHull *cr = (*i);
+		CHull *cr = mChulls[i];
 
-		CHullVector::iterator j;
-		for (j=mChulls.begin(); j!=mChulls.end(); ++j)
+		int j;
+		for (j=0;j<mChulls.size();j++)
 		{
-			CHull *match = (*j);
+			CHull *match = mChulls[j];
 
 			if ( cr != match ) // don't try to merge a hull with itself, that be stoopid
 			{
@@ -220,9 +219,9 @@ bool ConvexBuilder::combineHulls(void)
 
 
 					++i;
-					while ( i != mChulls.end() )
+					while ( i != mChulls.size() )
 					{
-						CHull *cr = (*i);
+						CHull *cr = mChulls[i];
 						if ( cr != match )
 						{
 							output.push_back(cr);
@@ -275,10 +274,10 @@ unsigned int ConvexBuilder::process(const DecompDesc &desc)
 
 	while ( combineHulls() ); // keep combinging hulls until I can't combine any more...
 
-	CHullVector::iterator i;
-	for (i=mChulls.begin(); i!=mChulls.end(); ++i)
+	int i;
+	for (i=0;i<mChulls.size();i++)
 	{
-		CHull *cr = (*i);
+		CHull *cr = mChulls[i];
 
 		// before we hand it back to the application, we need to regenerate the hull based on the
 		// limits given by the user.
@@ -367,7 +366,8 @@ void ConvexBuilder::ConvexDecompResult(ConvexResult &result)
 
 void ConvexBuilder::sortChulls(CHullVector &hulls)
 {
-	std::sort( hulls.begin(), hulls.end(), CHullSort() );
+	hulls.quickSort(CHullSort());
+	//hulls.heapSort(CHullSort());
 }
 
 

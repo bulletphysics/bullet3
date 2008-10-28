@@ -43,10 +43,10 @@ class SpuSampleTaskProcess
 	btAlignedObjectArray<bool>	m_taskBusy;
 	btAlignedObjectArray<SpuSampleTaskDesc>m_spuSampleTaskDesc;
 	
-	unsigned int   m_numBusyTasks;
+	int   m_numBusyTasks;
 
 	// the current task and the current entry to insert a new work unit
-	unsigned int   m_currentTask;
+	int   m_currentTask;
 
 	bool m_initialized;
 
@@ -54,12 +54,12 @@ class SpuSampleTaskProcess
 	
 	class	btThreadSupportInterface*	m_threadInterface;
 
-	unsigned int	m_maxNumOutstandingTasks;
+	int	m_maxNumOutstandingTasks;
 
 
 
 public:
-	SpuSampleTaskProcess(btThreadSupportInterface*	threadInterface, unsigned int maxNumOutstandingTasks);
+	SpuSampleTaskProcess(btThreadSupportInterface*	threadInterface, int maxNumOutstandingTasks);
 	
 	~SpuSampleTaskProcess();
 	

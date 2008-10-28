@@ -147,7 +147,7 @@ private:
 													float *scale);
 };
 
-};
+}
 
 #endif
 

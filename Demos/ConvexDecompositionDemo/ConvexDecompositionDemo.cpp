@@ -36,7 +36,6 @@ subject to the following restrictions:
 
 #include "BMF_Api.h"
 #include <stdio.h> //printf debugging
-#include <vector>
 
 
 #include "ConvexDecompositionDemo.h"

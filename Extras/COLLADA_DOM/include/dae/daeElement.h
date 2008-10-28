@@ -29,7 +29,7 @@ namespace COLLADA_TYPE
 #else
 	typedef const int TypeEnum;
 #endif
-};
+}
 
 class daeMetaElement;
 class daeIntegrationObject;

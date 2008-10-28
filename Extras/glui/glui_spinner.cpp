@@ -52,23 +52,6 @@ FIXME: there's a heck of a lot of duplication between this and glui_scrollbar.cp
 #define  GLUI_SPINNER_CALLBACK_INTERVAL    1
 
  
-/****************************** spinner_edittext_callback() ******************/
-/*   This function is not used anymore.  It has been replaced by directly    */
-/*   Including an optional pointer to a spinner from an edittext box         */
-
-void  spinner_edittext_callback( int id )
-{
-  GLUI_Spinner *spinner;
-
-  putchar( '.' ); flushout;
-  
-  spinner = (GLUI_Spinner*) id;
-
-  if ( NOT spinner )
-    return;
-
-  spinner->do_callbacks();
-}
 
 
 /****************************** GLUI_Spinner::GLUI_Spinner() ****************/

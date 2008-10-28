@@ -152,6 +152,7 @@ public:
 
 	virtual void	setNumTasks(int numTasks)
 	{
+        (void) numTasks;
 	}
 
 };

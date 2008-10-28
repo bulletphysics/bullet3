@@ -95,7 +95,7 @@ struct SpuSolverHash
 	// Hash meta-data	
 };
 
-inline unsigned int spuHash(unsigned int k)  { return k*2654435769u; };
+inline unsigned int spuHash(unsigned int k)  { return k*2654435769u; }
 inline unsigned int spuGetHashCellIndex(int x, int y, int z)
 {
 	//int n = 0x8da6b343 * x + 0xd8163841 * y + 0xcb1ab31f * z;

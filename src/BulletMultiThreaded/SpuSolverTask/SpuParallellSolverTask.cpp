@@ -69,7 +69,7 @@ void* createSolverLocalStoreMemory()
 void* createSolverLocalStoreMemory()
 {
         return new SolverTask_LocalStoreMemory;
-};
+}
 
 #endif
 
@@ -250,7 +250,7 @@ static void updateLocalMask(SolverTask_LocalStoreMemory* localMemory, SpuSolverT
 	cellDmaWaitTagStatusAll(DMA_MASK(1));
 }
 
-static unsigned int getZeroIndex(unsigned int start, uint32_t* mask, uint32_t* finished, unsigned int numRegs)
+static unsigned int getZeroIndex(unsigned int start, uint32_t* mask, uint32_t* finished,  int numRegs)
 {
 	// Find the index of some zero within mask|finished 
 	unsigned int index = start;
@@ -288,7 +288,7 @@ static unsigned int getZeroIndex(unsigned int start, uint32_t* mask, uint32_t* f
 	return SPU_HASH_NUMCELLS;
 }
 
-static bool isAllOne (uint32_t* mask, unsigned int numRegs)
+static bool isAllOne (uint32_t* mask, int numRegs)
 {
 	uint32_t totalMask = ~0;
 	for (int reg = 0; reg < numRegs; ++reg)
@@ -299,7 +299,7 @@ static bool isAllOne (uint32_t* mask, unsigned int numRegs)
 	return totalMask == ~0;
 }
 
-static bool checkDependency(unsigned int tryIndex, uint32_t* mask, uint32_t matrix[SPU_HASH_NUMCELLS][SPU_HASH_NUMCELLDWORDS], unsigned int numRegs)
+static bool checkDependency( int tryIndex, uint32_t* mask, uint32_t matrix[SPU_HASH_NUMCELLS][SPU_HASH_NUMCELLDWORDS],  int numRegs)
 {
 	for (int reg = 0; reg < numRegs; ++reg)
 	{
@@ -313,9 +313,9 @@ static bool checkDependency(unsigned int tryIndex, uint32_t* mask, uint32_t matr
 	return true;
 }
 
-static unsigned int getNextFreeCell(SolverTask_LocalStoreMemory* localMemory, SpuSolverTaskDesc& taskDesc, btSpinlock& lock)
+static int getNextFreeCell(SolverTask_LocalStoreMemory* localMemory, SpuSolverTaskDesc& taskDesc, btSpinlock& lock)
 {
-	unsigned int cellIndex = SPU_HASH_NUMCELLS;
+	int cellIndex = SPU_HASH_NUMCELLS;
 
 	uint32_t myMask[SPU_HASH_NUMCELLDWORDS] = {0};
 	
@@ -345,8 +345,8 @@ static unsigned int getNextFreeCell(SolverTask_LocalStoreMemory* localMemory, Sp
 		}
 
 		// Find first zero, starting with offset
-		unsigned int tryIndex;
-		unsigned int start = 0;
+		int tryIndex;
+		int start = 0;
 		bool haveTry = false;
 		while (!haveTry)
 		{
@@ -1550,7 +1550,7 @@ void processSolverTask(void* userPtr, void* lsMemory)
 			
 			btSpinlock hashLock (taskDesc.m_commandData.m_iterate.m_spinLockVar);			
 
-			unsigned int cellToProcess;
+			int cellToProcess;
 			while (1)
 			{
 				cellToProcess = getNextFreeCell(localMemory, taskDesc, hashLock);
@@ -1609,7 +1609,7 @@ void processSolverTask(void* userPtr, void* lsMemory)
 
 
 						// Solve
-						for (int j = 0; j < packetSize; ++j)
+						for (size_t j = 0; j < packetSize; ++j)
 						{
 							SpuSolverConstraint& constraint = constraints[j];
 							SpuSolverBody& bodyA = bodyList[constraint.m_localOffsetBodyA];
@@ -1655,7 +1655,7 @@ void processSolverTask(void* userPtr, void* lsMemory)
 						cellDmaWaitTagStatusAll(DMA_MASK(1));
 
 
-						int j;
+						size_t j;
 						// Solve
 						for ( j = 0; j < packetSize*3; j += 3)
 						{

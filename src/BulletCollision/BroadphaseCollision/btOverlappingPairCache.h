@@ -428,8 +428,9 @@ public:
 		return true;
 	}
 
-	virtual	void	setInternalGhostPairCallback(btOverlappingPairCallback* ghostPairCallback)
+	virtual	void	setInternalGhostPairCallback(btOverlappingPairCallback* /* ghostPairCallback */)
 	{
+
 	}
 
 	virtual btBroadphasePair*	addOverlappingPair(btBroadphaseProxy* /*proxy0*/,btBroadphaseProxy* /*proxy1*/)

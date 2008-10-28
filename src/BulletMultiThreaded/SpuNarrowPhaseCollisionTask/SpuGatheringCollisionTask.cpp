@@ -157,7 +157,7 @@ void* createCollisionLocalStoreMemory()
 void* createCollisionLocalStoreMemory()
 {
         return new CollisionTask_LocalStoreMemory;
-};
+}
 
 #endif
 

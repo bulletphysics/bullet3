@@ -266,7 +266,7 @@ public:
   bool m_bIsRotation;
 };
 
-};
+}
 
 
 using namespace BestFit;

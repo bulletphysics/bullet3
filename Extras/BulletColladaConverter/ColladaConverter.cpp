@@ -19,13 +19,15 @@ subject to the following restrictions:
  */
 
 
-#include <string>
 #include "ColladaConverter.h"
 #include "btBulletDynamicsCommon.h"
+
 #include "dae.h"
 #include "dom/domCOLLADA.h"
 #include "dae/domAny.h"
 #include "dom/domConstants.h"
+#include <string>
+
 #include "BulletCollision/CollisionShapes/btShapeHull.h"
 
 #include "BulletCollision/CollisionShapes/btBoxShape.h"

@@ -22,9 +22,9 @@ subject to the following restrictions:
 
 
 
-///The btQuadWordStorage class is base class for btVector3 and btQuaternion. 
-///Some issues under PS3 Linux with IBM 2.1 SDK, gcc compiler prevent from using aligned quadword. todo: look into this
-///ATTRIBUTE_ALIGNED16(class) btQuadWordStorage
+/**@brief The btQuadWordStorage class is base class for btVector3 and btQuaternion. 
+ * Some issues under PS3 Linux with IBM 2.1 SDK, gcc compiler prevent from using aligned quadword. @todo look into this
+ * ATTRIBUTE_ALIGNED16(class) btQuadWordStorage */
 class btQuadWordStorage
 {
 protected:
@@ -39,34 +39,34 @@ public:
 };
 
 
-///btQuadWord is base-class for vectors, points
+/** @brief btQuadWord is base-class for vectors, points */
 class	btQuadWord : public btQuadWordStorage
 {
 	public:
-	
+  
 //		SIMD_FORCE_INLINE btScalar&       operator[](int i)       { return (&m_x)[i];	}      
 //		SIMD_FORCE_INLINE const btScalar& operator[](int i) const { return (&m_x)[i]; }
-
+  /**@brief Return the x value */
 		SIMD_FORCE_INLINE const btScalar& getX() const { return m_x; }
-
+  /**@brief Return the y value */
 		SIMD_FORCE_INLINE const btScalar& getY() const { return m_y; }
-
+  /**@brief Return the z value */
 		SIMD_FORCE_INLINE const btScalar& getZ() const { return m_z; }
-
+  /**@brief Set the x value */
 		SIMD_FORCE_INLINE void	setX(btScalar x) { m_x = x;};
-
+  /**@brief Set the y value */
 		SIMD_FORCE_INLINE void	setY(btScalar y) { m_y = y;};
-
+  /**@brief Set the z value */
 		SIMD_FORCE_INLINE void	setZ(btScalar z) { m_z = z;};
-
+  /**@brief Set the w value */
 		SIMD_FORCE_INLINE void	setW(btScalar w) { m_unusedW = w;};
-
+  /**@brief Return the x value */
 		SIMD_FORCE_INLINE const btScalar& x() const { return m_x; }
-
+  /**@brief Return the y value */
 		SIMD_FORCE_INLINE const btScalar& y() const { return m_y; }
-
+  /**@brief Return the z value */
 		SIMD_FORCE_INLINE const btScalar& z() const { return m_z; }
-
+  /**@brief Return the w value */
 		SIMD_FORCE_INLINE const btScalar& w() const { return m_unusedW; }
 
 
@@ -74,7 +74,11 @@ class	btQuadWord : public btQuadWordStorage
 		SIMD_FORCE_INLINE	operator const btScalar *() const { return &m_x; }
 
 
-
+  /**@brief Set x,y,z and zero w 
+   * @param x Value of x
+   * @param y Value of y
+   * @param z Value of z
+   */
 		SIMD_FORCE_INLINE void 	setValue(const btScalar& x, const btScalar& y, const btScalar& z)
 		{
 			m_x=x;
@@ -90,6 +94,12 @@ class	btQuadWord : public btQuadWordStorage
 			m[2] = m_z;
 		}
 */
+/**@brief Set the values 
+   * @param x Value of x
+   * @param y Value of y
+   * @param z Value of z
+   * @param w Value of w
+   */
 		SIMD_FORCE_INLINE void	setValue(const btScalar& x, const btScalar& y, const btScalar& z,const btScalar& w)
 		{
 			m_x=x;
@@ -97,28 +107,40 @@ class	btQuadWord : public btQuadWordStorage
 			m_z=z;
 			m_unusedW=w;
 		}
-
+  /**@brief No initialization constructor */
 		SIMD_FORCE_INLINE btQuadWord()
 		//	:m_x(btScalar(0.)),m_y(btScalar(0.)),m_z(btScalar(0.)),m_unusedW(btScalar(0.))
 		{
 		}
-
+  /**@brief Copy constructor */
 		SIMD_FORCE_INLINE btQuadWord(const btQuadWordStorage& q)
 		{
 			*((btQuadWordStorage*)this) = q;
 		}
-
+  /**@brief Three argument constructor (zeros w)
+   * @param x Value of x
+   * @param y Value of y
+   * @param z Value of z
+   */
 		SIMD_FORCE_INLINE btQuadWord(const btScalar& x, const btScalar& y, const btScalar& z)		
 		{
 			m_x = x, m_y = y, m_z = z, m_unusedW = 0.0f;
 		}
 
+/**@brief Initializing constructor
+   * @param x Value of x
+   * @param y Value of y
+   * @param z Value of z
+   * @param w Value of w
+   */
 		SIMD_FORCE_INLINE btQuadWord(const btScalar& x, const btScalar& y, const btScalar& z,const btScalar& w) 
 		{
 			m_x = x, m_y = y, m_z = z, m_unusedW = w;
 		}
 
-
+  /**@brief Set each element to the max of the current values and the values of another btQuadWord
+   * @param other The other btQuadWord to compare with 
+   */
 		SIMD_FORCE_INLINE void	setMax(const btQuadWord& other)
 		{
 			btSetMax(m_x, other.m_x);
@@ -126,7 +148,9 @@ class	btQuadWord : public btQuadWordStorage
 			btSetMax(m_z, other.m_z);
 			btSetMax(m_unusedW, other.m_unusedW);
 		}
-
+  /**@brief Set each element to the min of the current values and the values of another btQuadWord
+   * @param other The other btQuadWord to compare with 
+   */
 		SIMD_FORCE_INLINE void	setMin(const btQuadWord& other)
 		{
 			btSetMin(m_x, other.m_x);

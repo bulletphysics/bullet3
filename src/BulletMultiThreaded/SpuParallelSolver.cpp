@@ -84,7 +84,7 @@ static unsigned int getObjectIndex (btCollisionObject* object)
 	int cz = (int)floorf(center.z() / SPU_HASH_PHYSSIZE);
 
 	return spuGetHashCellIndex(cx, cy, cz);
-};
+}
 
 
 

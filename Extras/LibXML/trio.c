@@ -256,6 +256,10 @@ typedef trio_longlong_t trio_int64_t;
 
 #if !(defined(TRIO_COMPILER_SUPPORTS_C99) \
  || defined(TRIO_COMPILER_SUPPORTS_UNIX01))
+#undef floorl
+#undef fmodl
+#undef powl
+
 # define floorl(x) floor((double)(x))
 # define fmodl(x,y) fmod((double)(x),(double)(y))
 # define powl(x,y) pow((double)(x),(double)(y))

@@ -265,12 +265,12 @@ bool VertexLess::operator()(int v1,int v2) const
 
 
 	return false;
-};
+}
 
 
 
 
-};
+}
 
 using namespace Vlookup;
 

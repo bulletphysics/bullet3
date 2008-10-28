@@ -30,6 +30,7 @@ class Raytracer : public DemoApplication
 	btCollisionDispatcher*	m_dispatcher;
 	btAxisSweep3*	m_overlappingPairCache;
 	btCollisionWorld*	m_collisionWorld;
+	bool	m_initialized;
 	
 	public:
 

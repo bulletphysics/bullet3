@@ -23,14 +23,16 @@ subject to the following restrictions:
 
 
 
-///The btMatrix3x3 class implements a 3x3 rotation matrix, to perform linear algebra in combination with btQuaternion, btTransform and btVector3.
-///Make sure to only include a pure orthogonal matrix without scaling.
+/**@brief The btMatrix3x3 class implements a 3x3 rotation matrix, to perform linear algebra in combination with btQuaternion, btTransform and btVector3.
+ * Make sure to only include a pure orthogonal matrix without scaling. */
 class btMatrix3x3 {
 	public:
+  /** @brief No initializaion constructor */
 		btMatrix3x3 () {}
 		
 //		explicit btMatrix3x3(const btScalar *m) { setFromOpenGLSubMatrix(m); }
 		
+  /**@brief Constructor from Quaternion */
 		explicit btMatrix3x3(const btQuaternion& q) { setRotation(q); }
 		/*
 		template <typename btScalar>
@@ -39,6 +41,7 @@ class btMatrix3x3 {
 			setEulerYPR(yaw, pitch, roll);
 		}
 		*/
+  /** @brief Constructor with row major formatting */
 		btMatrix3x3(const btScalar& xx, const btScalar& xy, const btScalar& xz,
 				  const btScalar& yx, const btScalar& yy, const btScalar& yz,
 				  const btScalar& zx, const btScalar& zy, const btScalar& zz)
@@ -47,14 +50,14 @@ class btMatrix3x3 {
 					 yx, yy, yz, 
 					 zx, zy, zz);
 		}
-		
+  /** @brief Copy constructor */
 		SIMD_FORCE_INLINE btMatrix3x3 (const btMatrix3x3& other)
 		{
 			m_el[0] = other.m_el[0];
 			m_el[1] = other.m_el[1];
 			m_el[2] = other.m_el[2];
 		}
-
+  /** @brief Assignment Operator */
 		SIMD_FORCE_INLINE btMatrix3x3& operator=(const btMatrix3x3& other)
 		{
 			m_el[0] = other.m_el[0];
@@ -63,34 +66,45 @@ class btMatrix3x3 {
 			return *this;
 		}
 
+  /** @brief Get a column of the matrix as a vector 
+   *  @param i Column number 0 indexed */
 		SIMD_FORCE_INLINE btVector3 getColumn(int i) const
 		{
 			return btVector3(m_el[0][i],m_el[1][i],m_el[2][i]);
 		}
 		
 
-
+  /** @brief Get a row of the matrix as a vector 
+   *  @param i Row number 0 indexed */
 		SIMD_FORCE_INLINE const btVector3& getRow(int i) const
 		{
+			btFullAssert(0 <= i && i < 3);
 			return m_el[i];
 		}
 
-
+  /** @brief Get a mutable reference to a row of the matrix as a vector 
+   *  @param i Row number 0 indexed */
 		SIMD_FORCE_INLINE btVector3&  operator[](int i)
 		{ 
 			btFullAssert(0 <= i && i < 3);
 			return m_el[i]; 
 		}
 		
+  /** @brief Get a const reference to a row of the matrix as a vector 
+   *  @param i Row number 0 indexed */
 		SIMD_FORCE_INLINE const btVector3& operator[](int i) const
 		{
 			btFullAssert(0 <= i && i < 3);
 			return m_el[i]; 
 		}
 		
+  /** @brief Multiply by the target matrix on the right
+   *  @param m Rotation matrix to be applied 
+   * Equivilant to this = this * m */
 		btMatrix3x3& operator*=(const btMatrix3x3& m); 
 		
-	
+  /** @brief Set from a carray of btScalars 
+   *  @param m A pointer to the beginning of an array of 9 btScalars */
 	void setFromOpenGLSubMatrix(const btScalar *m)
 		{
 			m_el[0].setValue(m[0],m[4],m[8]);
@@ -98,7 +112,16 @@ class btMatrix3x3 {
 			m_el[2].setValue(m[2],m[6],m[10]);
 
 		}
-
+  /** @brief Set the values of the matrix explicitly (row major)
+   *  @param xx Top left
+   *  @param xy Top Middle
+   *  @param xz Top Right
+   *  @param yx Middle Left
+   *  @param yy Middle Middle
+   *  @param yz Middle Right
+   *  @param zx Bottom Left
+   *  @param zy Bottom Middle
+   *  @param zz Bottom Right*/
 		void setValue(const btScalar& xx, const btScalar& xy, const btScalar& xz, 
 					  const btScalar& yx, const btScalar& yy, const btScalar& yz, 
 					  const btScalar& zx, const btScalar& zy, const btScalar& zz)
@@ -107,7 +130,9 @@ class btMatrix3x3 {
 			m_el[1].setValue(yx,yy,yz);
 			m_el[2].setValue(zx,zy,zz);
 		}
-  
+
+  /** @brief Set the matrix from a quaternion
+   *  @param q The Quaternion to match */  
 		void setRotation(const btQuaternion& q) 
 		{
 			btScalar d = q.length2();
@@ -123,7 +148,11 @@ class btMatrix3x3 {
 		}
 		
 
-
+  /** @brief Set the matrix from euler angles using YPR around YXZ respectively
+   *  @param yaw Yaw about Y axis
+   *  @param pitch Pitch about X axis
+   *  @param roll Roll about Z axis 
+   */
 		void setEulerYPR(const btScalar& yaw, const btScalar& pitch, const btScalar& roll) 
 		{
 
@@ -143,15 +172,17 @@ class btMatrix3x3 {
 		
 		}
 
-	/**
-	 * setEulerZYX
-	 * @param euler a const reference to a btVector3 of euler angles
+	/** @brief Set the matrix from euler angles YPR around ZYX axes
+	 * @param eulerX Roll about X axis
+         * @param eulerY Pitch around Y axis
+         * @param eulerZ Yaw aboud Z axis
+         * 
 	 * These angles are used to produce a rotation matrix. The euler
 	 * angles are applied in ZYX order. I.e a vector is first rotated 
 	 * about X then Y and then Z
 	 **/
-	
-	void setEulerZYX(btScalar eulerX,btScalar eulerY,btScalar eulerZ) {
+	void setEulerZYX(btScalar eulerX,btScalar eulerY,btScalar eulerZ) { 
+  ///@todo proposed to reverse this since it's labeled zyx but takes arguments xyz and it will match all other parts of the code
 		btScalar ci ( btCos(eulerX)); 
 		btScalar cj ( btCos(eulerY)); 
 		btScalar ch ( btCos(eulerZ)); 
@@ -168,13 +199,15 @@ class btMatrix3x3 {
 	       			 -sj,      cj * si,      cj * ci);
 	}
 
+  /**@brief Set the matrix to the identity */
 		void setIdentity()
 		{ 
 			setValue(btScalar(1.0), btScalar(0.0), btScalar(0.0), 
 					 btScalar(0.0), btScalar(1.0), btScalar(0.0), 
 					 btScalar(0.0), btScalar(0.0), btScalar(1.0)); 
 		}
-    
+  /**@brief Fill the values of the matrix into a 9 element array 
+   * @param m The array to be filled */
 		void getOpenGLSubMatrix(btScalar *m) const 
 		{
 			m[0]  = btScalar(m_el[0].x()); 
@@ -191,6 +224,8 @@ class btMatrix3x3 {
 			m[11] = btScalar(0.0); 
 		}
 
+  /**@brief Get the matrix represented as a quaternion 
+   * @param q The quaternion which will be set */
 		void getRotation(btQuaternion& q) const
 		{
 			btScalar trace = m_el[0].x() + m_el[1].y() + m_el[2].z();
@@ -224,7 +259,11 @@ class btMatrix3x3 {
 			}
 			q.setValue(temp[0],temp[1],temp[2],temp[3]);
 		}
-	
+
+  /**@brief Get the matrix represented as euler angles around YXZ
+   * @param yaw Yaw around Y axis
+   * @param pitch Pitch around X axis
+   * @param roll around Z axis */	
 		void getEuler(btScalar& yaw, btScalar& pitch, btScalar& roll) const
 		{
 			
@@ -250,9 +289,9 @@ class btMatrix3x3 {
 				roll = btScalar(0.0);
 			}
 		}
-		
 
-	
+  /**@brief Create a scaled copy of the matrix 
+   * @param s Scaling vector The elements of the vector will scale each column */
 		
 		btMatrix3x3 scaled(const btVector3& s) const
 		{
@@ -261,10 +300,15 @@ class btMatrix3x3 {
 									 m_el[2].x() * s.x(), m_el[2].y() * s.y(), m_el[2].z() * s.z());
 		}
 
+  /**@brief Return the determinant of the matrix */
 		btScalar            determinant() const;
+  /**@brief Return the adjoint of the matrix */
 		btMatrix3x3 adjoint() const;
+  /**@brief Return the matrix with all values non negative */
 		btMatrix3x3 absolute() const;
+  /**@brief Return the transpose of the matrix */
 		btMatrix3x3 transpose() const;
+  /**@brief Return the inverse of the matrix */
 		btMatrix3x3 inverse() const; 
 		
 		btMatrix3x3 transposeTimes(const btMatrix3x3& m) const;
@@ -284,12 +328,15 @@ class btMatrix3x3 {
 		}
 		
 
-		///diagonalizes this matrix by the Jacobi method. rot stores the rotation
-		///from the coordinate system in which the matrix is diagonal to the original
-		///coordinate system, i.e., old_this = rot * new_this * rot^T. The iteration
-		///stops when all off-diagonal elements are less than the threshold multiplied
-		///by the sum of the absolute values of the diagonal, or when maxSteps have
-		///been executed. Note that this matrix is assumed to be symmetric.
+  /**@brief diagonalizes this matrix by the Jacobi method.
+   * @param rot stores the rotation from the coordinate system in which the matrix is diagonal to the original
+   * coordinate system, i.e., old_this = rot * new_this * rot^T. 
+   * @param threshold See iteration
+   * @param iteration The iteration stops when all off-diagonal elements are less than the threshold multiplied 
+   * by the sum of the absolute values of the diagonal, or when maxSteps have been executed. 
+   * 
+   * Note that this matrix is assumed to be symmetric. 
+   */
 		void diagonalize(btMatrix3x3& rot, btScalar threshold, int maxSteps)
 		{
 		 rot.setIdentity();
@@ -371,11 +418,18 @@ class btMatrix3x3 {
 
 		
 	protected:
+  /**@brief Calculate the matrix cofactor 
+   * @param r1 The first row to use for calculating the cofactor
+   * @param c1 The first column to use for calculating the cofactor
+   * @param r1 The second row to use for calculating the cofactor
+   * @param c1 The second column to use for calculating the cofactor
+   * See http://en.wikipedia.org/wiki/Cofactor_(linear_algebra) for more details
+   */
 		btScalar cofac(int r1, int c1, int r2, int c2) const 
 		{
 			return m_el[r1][c1] * m_el[r2][c2] - m_el[r1][c2] * m_el[r2][c1];
 		}
-
+  ///Data storage for the matrix, each vector is a row of the matrix
 		btVector3 m_el[3];
 	};
 	
@@ -494,6 +548,8 @@ class btMatrix3x3 {
 }
 */
 
+/**@brief Equality operator between two matrices
+ * It will test all elements are equal.  */
 SIMD_FORCE_INLINE bool operator==(const btMatrix3x3& m1, const btMatrix3x3& m2)
 {
    return ( m1[0][0] == m2[0][0] && m1[1][0] == m2[1][0] && m1[2][0] == m2[2][0] &&

@@ -154,7 +154,7 @@ void	btBvhTriangleMeshShape::performRaycast (btTriangleCallback* callback, const
 				{
 					double* graphicsbase = (double*)(vertexbase+graphicsindex*stride);
 					
-					m_triangle[j] = btVector3(graphicsbase[0]*meshScaling.getX(),graphicsbase[1]*meshScaling.getY(),graphicsbase[2]*meshScaling.getZ());		
+					m_triangle[j] = btVector3(btScalar(graphicsbase[0])*meshScaling.getX(),btScalar(graphicsbase[1])*meshScaling.getY(),btScalar(graphicsbase[2])*meshScaling.getZ());		
 				}
 			}
 
@@ -223,7 +223,7 @@ void	btBvhTriangleMeshShape::performConvexcast (btTriangleCallback* callback, co
 				{
 					double* graphicsbase = (double*)(vertexbase+graphicsindex*stride);
 					
-					m_triangle[j] = btVector3(graphicsbase[0]*meshScaling.getX(),graphicsbase[1]*meshScaling.getY(),graphicsbase[2]*meshScaling.getZ());		
+					m_triangle[j] = btVector3(btScalar(graphicsbase[0])*meshScaling.getX(),btScalar(graphicsbase[1])*meshScaling.getY(),btScalar(graphicsbase[2])*meshScaling.getZ());		
 				}
 			}
 
@@ -313,9 +313,9 @@ void	btBvhTriangleMeshShape::processAllTriangles(btTriangleCallback* callback,co
 					double* graphicsbase = (double*)(vertexbase+graphicsindex*stride);
 
 					m_triangle[j] = btVector3(
-						graphicsbase[0]*meshScaling.getX(),
-						graphicsbase[1]*meshScaling.getY(),
-						graphicsbase[2]*meshScaling.getZ());
+						btScalar(graphicsbase[0])*meshScaling.getX(),
+						btScalar(graphicsbase[1])*meshScaling.getY(),
+						btScalar(graphicsbase[2])*meshScaling.getZ());
 				}
 #ifdef DEBUG_TRIANGLE_MESH
 				printf("triangle vertices:%f,%f,%f\n",triangle[j].x(),triangle[j].y(),triangle[j].z());

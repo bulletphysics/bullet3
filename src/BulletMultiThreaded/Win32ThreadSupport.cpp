@@ -69,7 +69,7 @@ DWORD WINAPI Thread_no_1( LPVOID lpParam )
 			//exit Thread
 			status->m_status = 3;
 			SetEvent(status->m_eventCompletetHandle);
-			printf("Thread with taskId %i with handle %i exiting\n",status->m_taskId, status->m_threadHandle);
+			printf("Thread with taskId %i with handle %p exiting\n",status->m_taskId, status->m_threadHandle);
 			break;
 		}
 		
@@ -218,7 +218,7 @@ void Win32ThreadSupport::startThreads(const Win32ThreadConstructionInfo& threadC
 		spuStatus.m_lsMemory = threadConstructionInfo.m_lsMemoryFunc();
 		spuStatus.m_userThreadFunc = threadConstructionInfo.m_userThreadFunc;
 
-		printf("started thread %d with threadHandle %d\n",i,handle);
+		printf("started thread %d with threadHandle %p\n",i,handle);
 		
 	}
 

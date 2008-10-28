@@ -42,7 +42,7 @@ enum PlaneTriResult
 {
   PTR_FRONT,
   PTR_BACK,
-  PTR_SPLIT,
+  PTR_SPLIT
 };
 
 PlaneTriResult planeTriIntersection(const float *plane,    // the plane equation in Ax+By+Cz+D format

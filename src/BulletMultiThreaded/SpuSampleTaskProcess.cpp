@@ -52,13 +52,13 @@ void*	SamplelsMemoryFunc()
 
 extern "C" {
 	extern char SPU_SAMPLE_ELF_SYMBOL[];
-};
+}
 
 
 
 
 
-SpuSampleTaskProcess::SpuSampleTaskProcess(btThreadSupportInterface*	threadInterface, unsigned int maxNumOutstandingTasks)
+SpuSampleTaskProcess::SpuSampleTaskProcess(btThreadSupportInterface*	threadInterface,  int maxNumOutstandingTasks)
 :m_threadInterface(threadInterface),
 m_maxNumOutstandingTasks(maxNumOutstandingTasks)
 {
@@ -159,7 +159,7 @@ void SpuSampleTaskProcess::issueTask(void* sampleMainMemPtr,int sampleValue,int 
 	}
 
 	// find new task buffer
-	for (unsigned int i = 0; i < m_maxNumOutstandingTasks; i++)
+	for (int i = 0; i < m_maxNumOutstandingTasks; i++)
 	{
 		if (!m_taskBusy[i])
 		{
