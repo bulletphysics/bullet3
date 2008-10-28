@@ -155,21 +155,7 @@ class btMatrix3x3 {
    */
 		void setEulerYPR(const btScalar& yaw, const btScalar& pitch, const btScalar& roll) 
 		{
-
-			btScalar cy(btCos(yaw)); 
-			btScalar  sy(btSin(yaw)); 
-			btScalar  cp(btCos(pitch)); 
-			btScalar  sp(btSin(pitch)); 
-			btScalar  cr(btCos(roll));
-			btScalar  sr(btSin(roll));
-			btScalar  cc = cy * cr; 
-			btScalar  cs = cy * sr; 
-			btScalar  sc = sy * cr; 
-			btScalar  ss = sy * sr;
-			setValue(cc - sp * ss, -cs - sp * sc, -sy * cp,
-                     cp * sr,       cp * cr,      -sp,
-					 sc + sp * cs, -ss + sp * cc,  cy * cp);
-		
+			setEulerZYX(roll, pitch, yaw);
 		}
 
 	/** @brief Set the matrix from euler angles YPR around ZYX axes
@@ -260,35 +246,33 @@ class btMatrix3x3 {
 			q.setValue(temp[0],temp[1],temp[2],temp[3]);
 		}
 
-  /**@brief Get the matrix represented as euler angles around YXZ
+  /**@brief Get the matrix represented as euler angles around YXZ, roundtrip with setEulerYPR
    * @param yaw Yaw around Y axis
    * @param pitch Pitch around X axis
    * @param roll around Z axis */	
-		void getEuler(btScalar& yaw, btScalar& pitch, btScalar& roll) const
+		void getEulerYPR(btScalar& yaw, btScalar& pitch, btScalar& roll) const
 		{
 			
-			if (btScalar(m_el[1].z()) < btScalar(1))
+			// first use the normal calculus
+			yaw = btScalar(btAtan2(m_el[1].x(), m_el[0].x()));
+			pitch = btScalar(btAsin(-m_el[2].x()));
+			roll = btScalar(btAtan2(m_el[2].y(), m_el[2].z()));
+
+			// on pitch = +/-HalfPI
+			if (btFabs(pitch)==SIMD_HALF_PI)
 			{
-				if (btScalar(m_el[1].z()) > -btScalar(1))
-				{
-					yaw = btScalar(btAtan2(m_el[1].x(), m_el[0].x()));
-					pitch = btScalar(btAsin(-m_el[1].y()));
-					roll = btScalar(btAtan2(m_el[2].y(), m_el[2].z()));
-				}
-				else 
-				{
-					yaw = btScalar(-btAtan2(-m_el[0].y(), m_el[0].z()));
-					pitch = SIMD_HALF_PI;
-					roll = btScalar(0.0);
-				}
+				if (yaw>0)
+					yaw-=SIMD_PI;
+				else
+					yaw+=SIMD_PI;
+
+				if (roll>0)
+					roll-=SIMD_PI;
+				else
+					roll+=SIMD_PI;
 			}
-			else
-			{
-				yaw = btScalar(btAtan2(-m_el[0].y(), m_el[0].z()));
-				pitch = -SIMD_HALF_PI;
-				roll = btScalar(0.0);
-			}
-		}
+		};
+
 
   /**@brief Create a scaled copy of the matrix 
    * @param s Scaling vector The elements of the vector will scale each column */
