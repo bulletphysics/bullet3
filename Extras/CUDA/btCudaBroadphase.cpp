@@ -34,17 +34,21 @@ subject to the following restrictions:
 #include <GL/glut.h>
 #endif
 
-
+#define MAX_COLL_PAIR_PER_PARTICLE 64
 
 #define USE_SORT 1
+#define USE_OLD 0
+#define USE_CUDA 1
 
 #include "btCudaBroadphase.h"
 #include "LinearMath/btAlignedAllocator.h"
+#include "LinearMath/btQuickprof.h"
 #include "BulletCollision/BroadphaseCollision/btOverlappingPairCache.h"
 
 btCudaBroadphase::btCudaBroadphase(SimParams& simParams,int maxProxies) :
 btSimpleBroadphase(maxProxies,
-				     new (btAlignedAlloc(sizeof(btSortedOverlappingPairCache),16)) btSortedOverlappingPairCache),
+//				     new (btAlignedAlloc(sizeof(btSortedOverlappingPairCache),16)) btSortedOverlappingPairCache),
+				     new (btAlignedAlloc(sizeof(btHashedOverlappingPairCache),16)) btHashedOverlappingPairCache),
 	 m_bInitialized(false),
 	m_numParticles(simParams.numBodies),
     m_hPos(0),
@@ -155,6 +159,26 @@ void btCudaBroadphase::_initialize(int numParticles)
     m_hCellStart = new uint[m_simParams.numCells];
     memset(m_hCellStart, 0, m_simParams.numCells*sizeof(uint));
 
+
+	m_hPairBuffStartCurr = new unsigned int[m_numParticles * 2 + 1];
+	// --------------- for now, init with MAX_COLL_PAIR_PER_PARTICLE for each particle
+	m_hPairBuffStartCurr[0] = 0;
+	m_hPairBuffStartCurr[1] = 0;
+	for(uint i = 1; i <= m_numParticles; i++) 
+	{
+		m_hPairBuffStartCurr[i * 2] = m_hPairBuffStartCurr[(i-1) * 2] + MAX_COLL_PAIR_PER_PARTICLE;
+//		m_hPairBuffStartCurr[i * 2 + 1] = m_hPairBuffStartCurr[i * 2];
+		m_hPairBuffStartCurr[i * 2 + 1] = 0;
+	}
+	//----------------
+	m_hAABB = new float[numParticles*4*2]; // BB Min & Max
+
+	m_hPairBuff = new unsigned int[m_numParticles * MAX_COLL_PAIR_PER_PARTICLE];
+	memset(m_hPairBuff, 0x00, m_numParticles*MAX_COLL_PAIR_PER_PARTICLE*4);
+
+	m_hPairScan = new unsigned int[m_numParticles + 1];
+	m_hPairOut = new unsigned int[m_numParticles * MAX_COLL_PAIR_PER_PARTICLE];
+
     // allocate GPU data
     unsigned int memSize = sizeof(float) * 4 * m_numParticles;
 
@@ -176,7 +200,18 @@ void btCudaBroadphase::_initialize(int numParticles)
     allocateArray((void**)&m_dGridCells, m_numGridCells*m_maxParticlesPerCell*sizeof(uint));
 #endif
 
-    m_colorVBO = createVBO(m_numParticles*4*sizeof(float));
+    allocateArray((void**)&m_dPairBuff, m_numParticles*MAX_COLL_PAIR_PER_PARTICLE*sizeof(unsigned int));
+	copyArrayToDevice(m_dPairBuff, m_hPairBuff, 0, sizeof(unsigned int)*m_numParticles*MAX_COLL_PAIR_PER_PARTICLE); 
+
+    allocateArray((void**)&m_dPairBuffStartCurr, (m_numParticles*2 + 1)*sizeof(unsigned int));
+    allocateArray((void**)&m_dAABB, memSize*2);
+
+	copyArrayToDevice(m_dPairBuffStartCurr, m_hPairBuffStartCurr, 0, sizeof(unsigned int)*(m_numParticles*2 + 1)); 
+
+    allocateArray((void**)&m_dPairScan, (m_numParticles + 1)*sizeof(unsigned int));
+    allocateArray((void**)&m_dPairOut, m_numParticles*MAX_COLL_PAIR_PER_PARTICLE*sizeof(unsigned int));
+
+	m_colorVBO = createVBO(m_numParticles*4*sizeof(float));
 
 #if 1
     // fill color buffer
@@ -201,6 +236,10 @@ void btCudaBroadphase::_initialize(int numParticles)
 
     setParameters(&m_simParams);
 
+// Pair cache data
+	m_maxPairsPerParticle = 0;
+	m_numOverflows = 0;
+
     m_bInitialized = true;
 }
 
@@ -217,6 +256,14 @@ void btCudaBroadphase::_finalize()
     delete [] m_hGridCounters;
     delete [] m_hGridCells;
 
+    delete [] m_dPairBuff;
+    delete [] m_dPairBuffStartCurr;
+    delete [] m_hAABB;
+
+	delete [] m_hPairBuff;
+	delete [] m_hPairScan;
+	delete [] m_hPairOut;
+
     freeArray(m_dVel[0]);
     freeArray(m_dVel[1]);
 
@@ -231,12 +278,20 @@ void btCudaBroadphase::_finalize()
     freeArray(m_dGridCounters);
     freeArray(m_dGridCells);
 #endif
+    freeArray(m_dPairBuff);
+    freeArray(m_dPairBuffStartCurr);
+    freeArray(m_dAABB);
+
+	freeArray(m_hPairBuff);
+	freeArray(m_hPairScan);
+	freeArray(m_hPairOut);
 
     unregisterGLBufferObject(m_posVbo[0]);
     unregisterGLBufferObject(m_posVbo[1]);
     glDeleteBuffers(2, (const GLuint*)m_posVbo);
 
     glDeleteBuffers(1, (const GLuint*)&m_colorVBO);
+
 }
 
 btCudaBroadphase::~btCudaBroadphase()
@@ -299,9 +354,6 @@ void	btCudaBroadphase::calculateOverlappingPairs(btDispatcher* dispatcher)
 	int j;
 	static int frameCount = 0;
 	//printf("framecount=%d\n",frameCount++);
-
-
-	int numRejected=0;
 
 	if (m_numHandles >= 0)
 	{
@@ -373,9 +425,10 @@ void	btCudaBroadphase::calculateOverlappingPairs(btDispatcher* dispatcher)
 				// sort and search method
 
 				// calculate hash
-				calcHash(m_posVbo[m_currentPosRead],
-						 m_dParticleHash[0],
-						 m_numParticles);
+				{
+					BT_PROFILE("calcHash-- CUDA");
+					calcHash(	m_posVbo[m_currentPosRead], m_dParticleHash[0], m_numParticles);
+				}
 
 #if DEBUG_GRID
 				copyArrayFromDevice((void *) m_hParticleHash, (void *) m_dParticleHash[0], 0, sizeof(uint)*2*m_numParticles);
@@ -388,7 +441,10 @@ void	btCudaBroadphase::calculateOverlappingPairs(btDispatcher* dispatcher)
 			
 
 				// sort particles based on hash
-				RadixSort((KeyValuePair *) m_dParticleHash[0], (KeyValuePair *) m_dParticleHash[1], m_numParticles, 32);
+				{
+					BT_PROFILE("RadixSort-- CUDA");
+					RadixSort((KeyValuePair *) m_dParticleHash[0], (KeyValuePair *) m_dParticleHash[1], m_numParticles, 32);
+				}
 
 #if DEBUG_GRID
 				copyArrayFromDevice((void *) m_hParticleHash, (void *) m_dParticleHash[0], 0, sizeof(uint)*2*m_numParticles);
@@ -401,14 +457,24 @@ void	btCudaBroadphase::calculateOverlappingPairs(btDispatcher* dispatcher)
 			
 				// reorder particle arrays into sorted order and
 				// find start of each cell
-				reorderDataAndFindCellStart(m_dParticleHash[0],
-											m_posVbo[m_currentPosRead],
-											m_dVel[m_currentVelRead],
-											m_dSortedPos,
-											m_dSortedVel,
-											m_dCellStart,
-											m_numParticles,
-											m_simParams.numCells);
+				{
+					BT_PROFILE("Reorder-- CUDA");
+#if USE_OLD
+					reorderDataAndFindCellStart(m_dParticleHash[0],
+												m_posVbo[m_currentPosRead],
+												m_dVel[m_currentVelRead],
+												m_dSortedPos,
+												m_dSortedVel,
+												m_dCellStart,
+												m_numParticles,
+												m_simParams.numCells);
+#else
+					findCellStart(m_dParticleHash[0],
+								m_dCellStart,
+								m_numParticles,
+								m_simParams.numCells);
+#endif
+				}
 
 //#define DEBUG_GRID2
 #ifdef DEBUG_GRID2
@@ -455,9 +521,10 @@ void	btCudaBroadphase::calculateOverlappingPairs(btDispatcher* dispatcher)
 				}
 */
 
-				copyArrayFromDevice((void *) m_hParticleHash, (void *) m_dParticleHash[0], 0, sizeof(uint)*2*m_numParticles);
-				copyArrayFromDevice((void *) m_hCellStart, (void *) m_dCellStart, 0, sizeof(uint)*m_simParams.numCells);
-				copyArrayFromDevice((void *) m_hSortedPos, (void*) m_dSortedPos,0 , sizeof(float)*4*m_numParticles);
+			copyArrayFromDevice((void *) m_hParticleHash, (void *) m_dParticleHash[0], 0, sizeof(uint)*2*m_numParticles);
+			copyArrayFromDevice((void *) m_hCellStart, (void *) m_dCellStart, 0, sizeof(uint)*m_simParams.numCells);
+
+//				copyArrayFromDevice((void *) m_hSortedPos, (void*) m_dSortedPos,0 , sizeof(float)*4*m_numParticles);
 	
 //#define DEBUG_INDICES 1
 #ifdef DEBUG_INDICES
@@ -482,6 +549,7 @@ void	btCudaBroadphase::calculateOverlappingPairs(btDispatcher* dispatcher)
 //					}
 				}
 
+#if USE_OLD
 				//printf("particle hash sorted:\n");
 				for(uint pi=0; pi<m_numParticles; pi++) 
 				{
@@ -494,7 +562,7 @@ void	btCudaBroadphase::calculateOverlappingPairs(btDispatcher* dispatcher)
 					
 
 					btSimpleBroadphaseProxy* proxy0 = &m_pHandles[index];
-					btVector3 mypos = (proxy0->m_min+proxy0->m_max)*0.5f;
+					btVector3 mypos = (proxy0->m_aabbMin + proxy0->m_aabbMax)*0.5f;
 
 //					float4* p = (float4*)&m_hSortedPos[index*4];
 					
@@ -504,6 +572,7 @@ void	btCudaBroadphase::calculateOverlappingPairs(btDispatcher* dispatcher)
 					particleGridPos.y = floor((mypos.y() - m_simParams.worldOrigin.y) / m_simParams.cellSize.y);
 					particleGridPos.z = floor((mypos.z() - m_simParams.worldOrigin.z) / m_simParams.cellSize.z);
 
+					int numRejected=0;
 					
 					//for(int z=0; z<1; z++) 
 					for(int z=-1; z<=1; z++) 
@@ -575,15 +644,19 @@ void	btCudaBroadphase::calculateOverlappingPairs(btDispatcher* dispatcher)
 					}
 				}
 
-
-
+#else // USE_OLD
+		btBroadphasePairArray&	overlappingPairArrayA = m_pairCache->getOverlappingPairArray();
+		findOverlappingPairs(dispatcher);
+#endif
 
 #endif //_USE_BRUTEFORCE_N
 
+#if USE_OLD
 		///if this broadphase is used in a btMultiSapBroadphase, we shouldn't sort the overlapping paircache
 		if (m_ownsPairCache && m_pairCache->hasDeferredRemoval())
 		{
-			
+			BT_PROFILE("Cleaning-- CPU");
+
 			btBroadphasePairArray&	overlappingPairArray = m_pairCache->getOverlappingPairArray();
 
 			//perform a sort, to find duplicates and to sort 'invalid' pairs to the end
@@ -622,6 +695,7 @@ void	btCudaBroadphase::calculateOverlappingPairs(btDispatcher* dispatcher)
 						needsRemoval = false;//callback->processOverlap(pair);
 					} else
 					{
+						bool hasOverlapA = testAabbOverlap(pair.m_pProxy0,pair.m_pProxy1);
 						needsRemoval = true;
 					}
 				} else
@@ -629,7 +703,7 @@ void	btCudaBroadphase::calculateOverlappingPairs(btDispatcher* dispatcher)
 					//remove duplicate
 					needsRemoval = true;
 					//should have no algorithm
-					btAssert(!pair.m_algorithm);
+//					btAssert(!pair.m_algorithm);
 				}
 				
 				if (needsRemoval)
@@ -661,6 +735,7 @@ void	btCudaBroadphase::calculateOverlappingPairs(btDispatcher* dispatcher)
 		#endif//CLEAN_INVALID_PAIRS
 
 		}
+#endif // USE_OLD
 	}
 
 	//printf("numRejected=%d\n",numRejected);
@@ -1137,3 +1212,333 @@ void	btCudaBroadphase::quickHack2()
 				
 
 }
+
+
+
+void btCudaBroadphase::findOverlappingPairs(btDispatcher* dispatcher)
+{
+	BT_PROFILE("findOverlappingPairs -- CPU");
+	int numRejected=0;
+	m_numPairsAdded = 0;
+
+	{
+		BT_PROFILE("copy AABB -- CPU");
+
+	// do it faster ? 
+	float* pVec = m_hAABB;
+	for(uint pi=0; pi<m_numParticles; pi++) 
+	{
+		int index = m_hParticleHash[pi*2+1];
+		btSimpleBroadphaseProxy* proxy0 = &m_pHandles[index];
+		*pVec++ = proxy0->m_aabbMin.getX();
+		*pVec++ = proxy0->m_aabbMin.getY();
+		*pVec++ = proxy0->m_aabbMin.getZ();
+		*pVec++ = 0.0F;
+		*pVec++ = proxy0->m_aabbMax.getX();
+		*pVec++ = proxy0->m_aabbMax.getY();
+		*pVec++ = proxy0->m_aabbMax.getZ();
+		*pVec++ = 0.0F;
+	}
+	}
+
+#if USE_CUDA
+{
+	
+	{
+		BT_PROFILE("CopyBB to CUDA");
+		copyArrayToDevice(m_dAABB, m_hAABB, 0, sizeof(float)*4*2*m_numParticles); 
+	}
+	{
+		BT_PROFILE("btCudaFindOverlappingPairs");
+		btCudaFindOverlappingPairs(	m_dAABB,
+								m_dParticleHash[0],
+								m_dCellStart,
+								m_dPairBuff,
+								m_dPairBuffStartCurr,
+								m_numParticles
+								  );
+	}
+	{
+		BT_PROFILE("btCudaComputePairCacheChanges");
+		btCudaComputePairCacheChanges(m_dPairBuff, m_dPairBuffStartCurr, m_dPairScan, m_numParticles);
+	}
+	{
+		BT_PROFILE("scanOverlappingPairBuffCPU");
+		copyArrayFromDevice(m_hPairScan, m_dPairScan, 0, sizeof(unsigned int)*(m_numParticles + 1)); 
+		scanOverlappingPairBuffCPU();
+		copyArrayToDevice(m_dPairScan, m_hPairScan, 0, sizeof(unsigned int)*(m_numParticles + 1)); 
+	}
+	{
+		BT_PROFILE("btCudaSqueezeOverlappingPairBuff");
+		btCudaSqueezeOverlappingPairBuff(m_dPairBuff, m_dPairBuffStartCurr, m_dPairScan, m_dPairOut, m_numParticles);
+	}
+	{
+		BT_PROFILE("btCudaSqueezeOverlappingPairBuff");
+		copyArrayFromDevice(m_hPairOut, m_dPairOut, 0, sizeof(unsigned int) * m_hPairScan[m_numParticles]); 
+	}
+
+}
+#else
+	findOverlappingPairsCPU(	m_hAABB,
+								m_hParticleHash,
+								m_hCellStart,
+								m_hPairBuff,
+								m_hPairBuffStartCurr,
+								m_numParticles);
+	computePairCacheChangesCPU(m_hPairBuff, m_hPairBuffStartCurr, m_hPairScan, m_numParticles);
+	scanOverlappingPairBuffCPU();
+	squeezeOverlappingPairBuffCPU(m_hPairBuff, m_hPairBuffStartCurr, m_hPairScan, m_hPairOut, m_numParticles);
+#endif
+	{
+		BT_PROFILE("addPairsToCache");
+		addPairsToCacheCPU(dispatcher);
+	}
+} // btCudaBroadphase::fillOverlappingPairCache()
+
+
+
+// calculate position in uniform grid
+int3 btCudaBroadphase::calcGridPosCPU(float4 p)
+{
+    int3 gridPos;
+    gridPos.x = floor((p.x - m_simParams.worldOrigin.x) / m_simParams.cellSize.x);
+    gridPos.y = floor((p.y - m_simParams.worldOrigin.y) / m_simParams.cellSize.y);
+    gridPos.z = floor((p.z - m_simParams.worldOrigin.z) / m_simParams.cellSize.z);
+    return gridPos;
+} // btCudaBroadphase::calcGridPos()
+
+// calculate address in grid from position (clamping to edges)
+uint btCudaBroadphase::calcGridHashCPU(int3 gridPos)
+{
+    gridPos.x = max(0, min(gridPos.x, m_simParams.gridSize.x-1));
+    gridPos.y = max(0, min(gridPos.y, m_simParams.gridSize.y-1));
+    gridPos.z = max(0, min(gridPos.z, m_simParams.gridSize.z-1));
+    return (gridPos.z * m_simParams.gridSize.y) * m_simParams.gridSize.x + gridPos.y * m_simParams.gridSize.x + gridPos.x;
+}
+
+void btCudaBroadphase::computePairCacheChangesCPU(uint* pPairBuff, uint* pPairBuffStartCurr, uint* pPairScan, uint numParticles)
+{
+	for(uint i = 0; i < numParticles; i++)
+	{
+		computePairCacheChangesCPU_D(i, pPairBuff, (uint2*)pPairBuffStartCurr, pPairScan);
+	}
+}
+
+void btCudaBroadphase::computePairCacheChangesCPU_D(uint	index, uint* pPairBuff, uint2* pPairBuffStartCurr, uint* pPairScan)
+{
+	uint2 start_curr = pPairBuffStartCurr[index];
+	uint start = start_curr.x;
+	uint curr = start_curr.y;
+	uint *pInp = pPairBuff + start;
+	uint num_changes = 0;
+	for(uint k = 0; k < curr; k++, pInp++)
+	{
+		if(!((*pInp) & BT_CUDA_PAIR_FOUND_FLG))
+		{
+			num_changes++;
+		}
+	}
+	pPairScan[index+1] = num_changes;
+}
+
+void btCudaBroadphase::findOverlappingPairsCPU(	float*	pAABB,
+									uint*	pParticleHash,
+									uint*	pCellStart,
+									uint*	pPairBuff,
+									uint*	pPairBuffStartCurr,
+									uint	numParticles)
+{
+	BT_PROFILE("findOverlappingPairsCPU -- CPU");
+	for(uint i = 0; i < numParticles; i++)
+	{
+		findOverlappingPairsCPU_D(
+			i,
+			(float4 *)pAABB,
+			(uint2*)pParticleHash,
+			(uint*)pCellStart,
+			(uint*)pPairBuff,
+			(uint2*)pPairBuffStartCurr,
+			numParticles);
+	}
+} // btCudaBroadphase::findOverlappingPairsCPU()
+
+void btCudaBroadphase::findOverlappingPairsCPU_D(	uint	index,
+													float4*	pAABB,
+													uint2*	pParticleHash,
+													uint*	pCellStart,
+													uint*	pPairBuff,
+													uint2*	pPairBuffStartCurr,
+													uint	numParticles)
+{
+    float4 bbMin = pAABB[index*2];
+    float4 bbMax = pAABB[index*2+1];
+	float4 pos;
+	pos.x = (bbMin.x + bbMax.x) * 0.5f; 
+	pos.y = (bbMin.y + bbMax.y) * 0.5f; 
+	pos.z = (bbMin.z + bbMax.z) * 0.5f; 
+
+    // get address in grid
+    int3 gridPos = calcGridPosCPU(pos);
+    // examine only neighbouring cells
+    for(int z=-1; z<=1; z++) {
+        for(int y=-1; y<=1; y++) {
+            for(int x=-1; x<=1; x++) {
+				int3 gridPos2;
+				gridPos2.x = gridPos.x + x;
+				gridPos2.y = gridPos.y + y;
+				gridPos2.z = gridPos.z + z;
+                findPairsInCellCPU(gridPos2, index, pParticleHash, pCellStart, pAABB, pPairBuff, pPairBuffStartCurr, numParticles);
+            }
+        }
+    }
+} // btCudaBroadphase::findOverlappingPairsCPU_D()
+
+
+void btCudaBroadphase::findPairsInCellCPU(	int3	gridPos,
+											uint    index,
+											uint2*  pParticleHash,
+											uint*   pCellStart,
+											float4* pAABB, 
+											uint*   pPairBuff,
+											uint2*	pPairBuffStartCurr,
+											uint	numParticles)
+{
+    if ((gridPos.x < 0) || (gridPos.x > m_simParams.gridSize.x-1) ||
+        (gridPos.y < 0) || (gridPos.y > m_simParams.gridSize.y-1) ||
+        (gridPos.z < 0) || (gridPos.z > m_simParams.gridSize.z-1)) {
+        return;
+    }
+    uint gridHash = calcGridHashCPU(gridPos);
+    // get start of bucket for this cell
+    uint bucketStart = pCellStart[gridHash];
+    if (bucketStart == 0xffffffff)
+        return;   // cell empty
+	// iterate over particles in this cell
+    float4 min0 = pAABB[index*2];
+    float4 max0 = pAABB[index*2+1];
+
+    uint2 sortedData = pParticleHash[index];
+	uint unsorted_indx = sortedData.y;
+	uint2 start_curr = pPairBuffStartCurr[unsorted_indx];
+	uint start = start_curr.x;
+	uint curr = start_curr.y;
+	uint curr1 = curr;
+	uint bucketEnd = bucketStart + m_simParams.maxParticlesPerCell;
+	bucketEnd = (bucketEnd > numParticles) ? numParticles : bucketEnd;
+	for(uint index2=bucketStart; index2 < bucketEnd; index2++) 
+	{
+        uint2 cellData = pParticleHash[index2];
+        if (cellData.x != gridHash) break;   // no longer in same bucket
+        if (index2 != index) // check not colliding with self
+        {   
+			float4 min1 = pAABB[index2*2];
+			float4 max1 = pAABB[index2*2 + 1];
+			if(cudaTestAABBOverlapCPU(min0, max0, min1, max1))
+			{
+				uint k;
+				uint unsorted_indx2 = cellData.y;
+				for(k = 0; k < curr1; k++)
+				{
+					uint old_pair = pPairBuff[start+k] & (~BT_CUDA_PAIR_ANY_FLG);
+					if(old_pair == unsorted_indx2)
+					{
+						pPairBuff[start+k] |= BT_CUDA_PAIR_FOUND_FLG;
+						break;
+					}
+				}
+				if(k == curr1)
+				{
+					pPairBuff[start+curr] = unsorted_indx2 | BT_CUDA_PAIR_NEW_FLG;
+					curr++;
+				}
+			}
+		}
+	}
+	pPairBuffStartCurr[unsorted_indx] = make_uint2(start, curr);
+    return;
+} // btCudaBroadphase::findPairsInCellCPU()
+
+uint btCudaBroadphase::cudaTestAABBOverlapCPU(float4 min0, float4 max0, float4 min1, float4 max1)
+{
+	return	(min0.x <= max1.x)&& (min1.x <= max0.x) && 
+			(min0.y <= max1.y)&& (min1.y <= max0.y) && 
+			(min0.z <= max1.z)&& (min1.z <= max0.z); 
+} // btCudaBroadphase::cudaTestAABBOverlapCPU()
+
+
+void btCudaBroadphase::scanOverlappingPairBuffCPU()
+{
+	m_hPairScan[0] = 0;
+	for(uint i = 1; i <= m_numParticles; i++) 
+	{
+		unsigned int delta = m_hPairScan[i];
+		m_hPairScan[i] = m_hPairScan[i-1] + delta;
+	}
+} // btCudaBroadphase::scanOverlappingPairBuffCPU()
+
+void btCudaBroadphase::squeezeOverlappingPairBuffCPU(uint* pPairBuff, uint* pPairBuffStartCurr, uint* pPairScan, uint* pPairOut, uint numParticles)
+{
+	for(uint i = 0; i < numParticles; i++) 
+	{
+		squeezeOverlappingPairBuffCPU_D(i, pPairBuff, (uint2*)pPairBuffStartCurr, pPairScan, pPairOut);
+	}
+} // btCudaBroadphase::squeezeOverlappingPairBuffCPU()
+
+void btCudaBroadphase::squeezeOverlappingPairBuffCPU_D(uint index, uint* pPairBuff, uint2* pPairBuffStartCurr, uint* pPairScan, uint* pPairOut)
+{
+	uint2 start_curr = pPairBuffStartCurr[index];
+	uint start = start_curr.x;
+	uint curr = start_curr.y;
+	uint* pInp = pPairBuff + start;
+	uint* pOut = pPairOut + pPairScan[index];
+	uint* pOut2 = pInp;
+	uint num = 0; 
+	for(uint k = 0; k < curr; k++, pInp++)
+	{
+		if(!((*pInp) & BT_CUDA_PAIR_FOUND_FLG))
+		{
+			*pOut = *pInp;
+			pOut++;
+		}
+		if((*pInp) & BT_CUDA_PAIR_ANY_FLG)
+		{
+			*pOut2 = (*pInp) & (~BT_CUDA_PAIR_ANY_FLG);
+			pOut2++;
+			num++;
+		}
+	}
+	pPairBuffStartCurr[index] = make_uint2(start, num);
+} // btCudaBroadphase::squeezeOverlappingPairBuffCPU_D()
+
+unsigned int gNumPairsAdded = 0;
+
+void btCudaBroadphase::addPairsToCacheCPU(btDispatcher* dispatcher)
+{
+	gNumPairsAdded = 0;
+	for(uint i = 0; i < m_numParticles; i++) 
+	{
+		unsigned int num = m_hPairScan[i+1] - m_hPairScan[i];
+		if(!num)
+		{
+			continue;
+		}
+		unsigned int* pInp = m_hPairOut + m_hPairScan[i];
+		unsigned int index0 = i;
+		btSimpleBroadphaseProxy* proxy0 = &m_pHandles[index0];
+		for(uint j = 0; j < num; j++)
+		{
+			unsigned int indx1_s = pInp[j];
+			unsigned int index1 = indx1_s & (~BT_CUDA_PAIR_ANY_FLG);
+			btSimpleBroadphaseProxy* proxy1 = &m_pHandles[index1];
+			if(indx1_s & BT_CUDA_PAIR_NEW_FLG)
+			{
+				m_pairCache->addOverlappingPair(proxy0,proxy1);
+				gNumPairsAdded++;
+			}
+			else
+			{
+				m_pairCache->removeOverlappingPair(proxy0,proxy1,dispatcher);
+			}
+		}
+	}
+} // btCudaBroadphase::addPairsToCacheCPU()

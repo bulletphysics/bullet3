@@ -14,6 +14,12 @@
 #define FETCH(t, i) t[i]
 #endif
 
+
+#define BT_CUDA_PAIR_FOUND_FLG (0x40000000)
+#define BT_CUDA_PAIR_NEW_FLG   (0x20000000)
+#define BT_CUDA_PAIR_ANY_FLG   (BT_CUDA_PAIR_FOUND_FLG | BT_CUDA_PAIR_NEW_FLG)
+
+
 #include "vector_types.h"
 typedef unsigned int uint;
 

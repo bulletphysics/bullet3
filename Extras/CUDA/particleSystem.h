@@ -79,6 +79,7 @@ public:
 	class btDefaultCollisionConfiguration*		m_collisionConfiguration;
 	class btCollisionDispatcher*					m_dispatcher;
 	class btCudaBroadphase*						m_broadphase;
+//	class btBroadphaseInterface*						m_broadphase;
 	class btSequentialImpulseConstraintSolver*		m_constraintSolver;
 	btAlignedObjectArray<class btRigidBody*>				m_bulletParticles;
 

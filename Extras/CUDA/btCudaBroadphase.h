@@ -37,7 +37,13 @@ class btCudaBroadphase : public btSimpleBroadphase
 
     unsigned int*  m_hParticleHash;
     unsigned int*  m_hCellStart;
+
+	unsigned int*	m_hPairBuffStartCurr;
+	float*			m_hAABB;
 	
+	unsigned int*	m_hPairBuff;
+	unsigned int*	m_hPairScan;
+	unsigned int*	m_hPairOut;
 
     // GPU data
     float* m_dPos[2];
@@ -59,12 +65,25 @@ class btCudaBroadphase : public btSimpleBroadphase
     unsigned int	m_currentPosRead, m_currentVelRead;
     unsigned int	m_currentPosWrite, m_currentVelWrite;
 
+	// buffers on GPU
+	unsigned int*	m_dPairBuff; 
+	unsigned int*	m_dPairBuffStartCurr;
+	float*			m_dAABB;
+
+	unsigned int*	m_dPairScan;
+	unsigned int*	m_dPairOut;
+
     // params
 	struct SimParams&	m_simParams;
     
 
     
     unsigned int	m_maxParticlesPerCell;
+
+// debug
+	unsigned int	m_numPairsAdded;
+	unsigned int	m_maxPairsPerParticle;
+	unsigned int	m_numOverflows;
 
 protected:
 	
@@ -119,6 +138,49 @@ public:
 	void	quickHack(float deltaTime);
 	void	quickHack2();
 	void	integrate();
+
+
+	void findOverlappingPairs(btDispatcher* dispatcher);
+
+	int3 calcGridPosCPU(float4 p);
+	uint calcGridHashCPU(int3 gridPos);
+	
+	void computePairCacheChangesCPU(uint* pPairBuff, uint* pPairBuffStartCurr, uint* pPairScan, uint numParticles);
+	void computePairCacheChangesCPU_D(uint	index, uint* pPairBuff, uint2* pPairBuffStartCurr, uint* pPairScan);
+
+	void findOverlappingPairsCPU(	float*	pAABB,
+									uint*	pParticleHash,
+									uint*	pCellStart,
+									uint*	pPairBuff,
+									uint*	pPairBuffStartCurr,
+									uint	numParticles);
+	void findOverlappingPairsCPU_D(	uint	index,
+									float4*	pAABB,
+									uint2*	pParticleHash,
+									uint*	pCellStart,
+									uint*	pPairBuff,
+									uint2*	pPairBuffStartCurr,
+									uint	numParticles);
+
+void findPairsInCellCPU(int3	gridPos,
+						uint    index,
+						uint2*  pParticleHash,
+						uint*   pCellStart,
+						float4* pAABB, 
+						uint*   pPairBuff,
+						uint2*	pPairBuffStartCurr,
+						uint	numParticles);
+uint cudaTestAABBOverlapCPU(float4 min0, float4 max0, float4 min1, float4 max1);
+
+
+	void scanOverlappingPairBuffCPU();
+
+	void squeezeOverlappingPairBuffCPU(uint* pPairBuff, uint* pPairBuffStartCurr, uint* pPairScan, uint* pPairOut, uint numParticles);
+	void squeezeOverlappingPairBuffCPU_D(uint index, uint* pPairBuff, uint2* pPairBuffStartCurr, uint* pPairScan, uint* pPairOut);
+
+	void addPairsToCacheCPU(btDispatcher* dispatcher);
+	void resetOverlappingPairBuffCPU();
+
 
 };
 #endif //CUDA_BROADPHASE_H

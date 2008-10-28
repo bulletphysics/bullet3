@@ -72,7 +72,7 @@ void	ParticleSystem::initializeBullet()
 	
 	m_collisionConfiguration = new btDefaultCollisionConfiguration();
 	m_dispatcher = new btCollisionDispatcher(m_collisionConfiguration);
-	//m_broadphase = new btDbvtBroadphase();
+//	m_broadphase = new btDbvtBroadphase();
 	//m_broadphase = new btAxisSweep3(btVector3(-3,-3,-3),btVector3(3,3,3));
 	m_broadphase = new btCudaBroadphase(m_params,m_params.numBodies+6);
 
@@ -202,9 +202,9 @@ ParticleSystem::update(float deltaTime)
 						hPosData[i*4+1] = trans.getOrigin().getY();
 						hPosData[i*4+2] = trans.getOrigin().getZ();
 
-						m_hVel[i*4] = m_bulletParticles[i]->getLinearVelocity().getX()/10.;
-						m_hVel[i*4+1] = m_bulletParticles[i]->getLinearVelocity().getY()/10.;
-						m_hVel[i*4+2] = m_bulletParticles[i]->getLinearVelocity().getZ()/10.;
+						m_hVel[i*4] = m_bulletParticles[i]->getLinearVelocity().getX()/10.f;
+						m_hVel[i*4+1] = m_bulletParticles[i]->getLinearVelocity().getY()/10.f;
+						m_hVel[i*4+2] = m_bulletParticles[i]->getLinearVelocity().getZ()/10.f;
 					}
 
 					m_broadphase->copyBuffersFromHostToDevice();

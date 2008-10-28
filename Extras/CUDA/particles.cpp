@@ -45,6 +45,9 @@
 #include <GL/glut.h>
 #endif
 
+
+#include "LinearMath/btQuickprof.h"
+
 #include "particleSystem.h"
 #include "render_particles.h"
 #include "paramgl.h"
@@ -165,7 +168,9 @@ void display()
     glColor3f(1.0, 1.0, 1.0);
     glutWireCube(2.0);
 
-    // collider
+
+	
+	// collider
     glPushMatrix();
     float4 p = psystem->getColliderPos();
     glTranslatef(p.x, p.y, p.z);
@@ -188,6 +193,19 @@ void display()
     }
 
 	psystem->debugDraw();
+
+	glDisable(GL_DEPTH_TEST);
+//	glDisable(GL_LIGHTING);
+//	glColor3f(0, 0, 0);
+	float offsX = 10.f;
+	float offsY = 10.f;
+	renderer->showProfileInfo(offsX, offsY, 20.f);
+//	glEnable(GL_LIGHTING);
+	glEnable(GL_DEPTH_TEST);
+
+	
+
+
     
     glutSwapBuffers();
 
@@ -357,6 +375,19 @@ inline float frand()
 // commented out to remove unused parameter warnings in Linux
 void key(unsigned char key, int /*x*/, int /*y*/)
 {
+
+#ifndef BT_NO_PROFILE
+	if (key >= 0x31 && key < 0x37)
+	{
+		int child = key-0x31;
+		renderer->m_profileIterator->Enter_Child(child);
+	}
+	if (key==0x30)
+	{
+		renderer->m_profileIterator->Enter_Parent();
+	}
+#endif //BT_NO_PROFILE
+
     switch (key) 
     {
     case ' ':
@@ -394,13 +425,13 @@ void key(unsigned char key, int /*x*/, int /*y*/)
         displayEnabled = !displayEnabled;
         break;
 
-    case '1':
+    case 'g':
         psystem->reset(ParticleSystem::CONFIG_GRID);
         break;
-    case '2':
+    case 'a':
         psystem->reset(ParticleSystem::CONFIG_RANDOM);
         break;
-    case '3':
+    case 'e':
         {
             // inject a sphere of particles
             float pr = psystem->getParticleRadius();
@@ -414,7 +445,7 @@ void key(unsigned char key, int /*x*/, int /*y*/)
             psystem->addSphere(0, pos, vel, ballr, pr*2.0f);
         }
         break;
-    case '4':
+    case 'b':
         {
             // shoot ball from camera
             float pr = psystem->getParticleRadius();
@@ -484,9 +515,10 @@ void mainMenu(int i)
 void initMenus()
 {
     glutCreateMenu(mainMenu);
-    glutAddMenuEntry("Reset block [1]", '1');
-    glutAddMenuEntry("Reset random [2]", '2');
-    glutAddMenuEntry("Add sphere [3]", '3');
+    glutAddMenuEntry("Reset block [g]", 'g');
+    glutAddMenuEntry("Reset random [a]", 'a');
+    glutAddMenuEntry("Add sphere [e]", 'e');
+    glutAddMenuEntry("Shoot ball [b]", 'b');
     glutAddMenuEntry("View mode [v]", 'v');
     glutAddMenuEntry("Move cursor mode [m]", 'm');
     glutAddMenuEntry("Toggle point rendering [p]", 'p');
@@ -504,7 +536,8 @@ void initMenus()
 int
 main(int argc, char** argv) 
 {
-    numParticles =1024;//1024;//64;//16380;//32768;
+//    numParticles =1024;//1024;//64;//16380;//32768;
+    numParticles =8192;
     uint gridDim = 64;
     numIterations = 0;
 

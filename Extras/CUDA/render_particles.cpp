@@ -33,8 +33,12 @@
 #include <assert.h>
 #include <stdio.h>
 
+#include "BMF_Api.h"
+
 #include "render_particles.h"
 #include "shaders.h"
+#include "LinearMath/btQuickprof.h"
+#include "paramgl.h"
 
 #ifndef M_PI
 #define M_PI    3.1415926535897932384626433832795
@@ -50,6 +54,9 @@ ParticleRenderer::ParticleRenderer()
   m_colorVBO(0)
 {
     _initGL();
+#ifndef BT_NO_PROFILE
+	m_profileIterator = CProfileManager::Get_Iterator();
+#endif //BT_NO_PROFILE
 }
 
 ParticleRenderer::~ParticleRenderer()
@@ -178,3 +185,77 @@ void ParticleRenderer::_initGL()
     glClampColorARB(GL_CLAMP_FRAGMENT_COLOR_ARB, GL_FALSE);
 #endif
 }
+
+#if 1
+void ParticleRenderer::showProfileInfo(float& xOffset,float& yStart, float yIncr)
+{
+#ifndef BT_NO_PROFILE
+
+	static double time_since_reset = 0.f;
+//	if (!m_idle)
+	{
+		time_since_reset = CProfileManager::Get_Time_Since_Reset();
+	}
+  beginWinCoords();
+
+	{
+		//recompute profiling data, and store profile strings
+
+		char blockTime[128];
+
+		double totalTime = 0;
+
+		int frames_since_reset = CProfileManager::Get_Frame_Count_Since_Reset();
+
+		m_profileIterator->First();
+
+		double parent_time = m_profileIterator->Is_Root() ? time_since_reset : m_profileIterator->Get_Current_Parent_Total_Time();
+
+		{
+			sprintf(blockTime,"--- Profiling: %s (total running time: %.3f ms) ---",	m_profileIterator->Get_Current_Parent_Name(), parent_time );
+			displayProfileString(xOffset,yStart,blockTime);
+			yStart += yIncr;
+			sprintf(blockTime,"press number (1,2...) to display child timings, or 0 to go up to parent" );
+			displayProfileString(xOffset,yStart,blockTime);
+			yStart += yIncr;
+
+		}
+		double accumulated_time = 0.f;
+
+		for (int i = 0; !m_profileIterator->Is_Done(); m_profileIterator->Next())
+		{
+			double current_total_time = m_profileIterator->Get_Current_Total_Time();
+			accumulated_time += current_total_time;
+			double fraction = parent_time > SIMD_EPSILON ? (current_total_time / parent_time) * 100 : 0.f;
+
+			sprintf(blockTime,"%d -- %s (%.2f %%) :: %.3f ms / frame (%d calls)",
+				++i, m_profileIterator->Get_Current_Name(), fraction,
+				(current_total_time / (double)frames_since_reset),m_profileIterator->Get_Current_Total_Calls());
+			displayProfileString(xOffset,yStart,blockTime);
+			yStart += yIncr;
+			totalTime += current_total_time;
+		}
+
+		sprintf(blockTime,"%s (%.3f %%) :: %.3f ms", "Unaccounted",
+			// (min(0, time_since_reset - totalTime) / time_since_reset) * 100);
+			parent_time > SIMD_EPSILON ? ((parent_time - accumulated_time) / parent_time) * 100 : 0.f, parent_time - accumulated_time);
+
+		displayProfileString(xOffset,yStart,blockTime);
+		yStart += yIncr;
+		sprintf(blockTime,"-------------------------------------------------");
+		displayProfileString(xOffset,yStart,blockTime);
+		yStart += yIncr;
+
+	}
+  endWinCoords();
+#endif//BT_NO_PROFILE
+}
+
+
+void ParticleRenderer::displayProfileString(int xOffset,int yStart,char* message)
+{
+	glRasterPos3f(xOffset,yStart,0);
+	BMF_DrawString(BMF_GetFont(BMF_kHelvetica10),message);
+}
+
+#endif

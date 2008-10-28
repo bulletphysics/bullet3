@@ -30,6 +30,9 @@
 #ifndef __RENDER_PARTICLES__
 #define __RENDER_PARTICLES__
 
+
+class CProfileIterator;
+
 class ParticleRenderer
 {
 public:
@@ -54,6 +57,11 @@ public:
     void setParticleRadius(float r) { m_particleRadius = r; }
     void setFOV(float fov) { m_fov = fov; }
     void setWindowSize(int w, int h) { m_window_w = w; m_window_h = h; }
+
+	void showProfileInfo(float& xOffset,float& yStart, float yIncr);
+	void	displayProfileString(int xOffset,int yStart,char* message);
+	class CProfileIterator* m_profileIterator;
+
 
 protected: // methods
     void _initGL();
