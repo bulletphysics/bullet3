@@ -100,6 +100,32 @@ public:
 		predictedTransform.setRotation(predictedOrn);
 	}
 
+	static void	calculateVelocityQuaternion(const btVector3& pos0,const btVector3& pos1,const btQuaternion& orn0,const btQuaternion& orn1,btScalar timeStep,btVector3& linVel,btVector3& angVel)
+	{
+		linVel = (pos1 - pos0) / timeStep;
+		btVector3 axis;
+		btScalar  angle;
+		calculateDiffAxisAngleQuaternion(orn0,orn1,axis,angle);
+		angVel = axis * angle / timeStep;
+	}
+
+	static void calculateDiffAxisAngleQuaternion(const btQuaternion& orn0,const btQuaternion& orn1a,btVector3& axis,btScalar& angle)
+	{
+		btQuaternion orn1 = orn0.farthest(orn1a);
+		btQuaternion dorn = orn1 * orn0.inverse();
+		///floating point inaccuracy can lead to w component > 1..., which breaks 
+		dorn.normalize();
+		angle = dorn.getAngle();
+		axis = btVector3(dorn.x(),dorn.y(),dorn.z());
+		axis[3] = btScalar(0.);
+		//check for axis length
+		btScalar len = axis.length2();
+		if (len < SIMD_EPSILON*SIMD_EPSILON)
+			axis = btVector3(btScalar(1.),btScalar(0.),btScalar(0.));
+		else
+			axis /= btSqrt(len);
+	}
+
 	static void	calculateVelocity(const btTransform& transform0,const btTransform& transform1,btScalar timeStep,btVector3& linVel,btVector3& angVel)
 	{
 		linVel = (transform1.getOrigin() - transform0.getOrigin()) / timeStep;
@@ -111,20 +137,11 @@ public:
 
 	static void calculateDiffAxisAngle(const btTransform& transform0,const btTransform& transform1,btVector3& axis,btScalar& angle)
 	{
-	
-	#ifdef USE_QUATERNION_DIFF
-		btQuaternion orn0 = transform0.getRotation();
-		btQuaternion orn1a = transform1.getRotation();
-		btQuaternion orn1 = orn0.farthest(orn1a);
-		btQuaternion dorn = orn1 * orn0.inverse();
-#else
 		btMatrix3x3 dmat = transform1.getBasis() * transform0.getBasis().inverse();
 		btQuaternion dorn;
 		dmat.getRotation(dorn);
-#endif//USE_QUATERNION_DIFF
-	
-		///floating point inaccuracy can lead to w component > 1..., which breaks 
 
+		///floating point inaccuracy can lead to w component > 1..., which breaks 
 		dorn.normalize();
 		
 		angle = dorn.getAngle();
@@ -145,13 +162,15 @@ public:
 ///by conservatively updating a cached separating distance/vector instead of re-calculating the closest distance
 class	btConvexSeparatingDistanceUtil
 {
-	btTransform	m_cachedTransformA;
-	btTransform m_cachedTransformB;
+	btQuaternion	m_ornA;
+	btQuaternion	m_ornB;
+	btVector3	m_posA;
+	btVector3	m_posB;
+	
+	btVector3	m_separatingNormal;
 
 	btScalar	m_boundingRadiusA;
 	btScalar	m_boundingRadiusB;
-
-	btVector3	m_separatingNormal;
 	btScalar	m_separatingDistance;
 
 public:
@@ -170,15 +189,18 @@ public:
 
 	void	updateSeparatingDistance(const btTransform& transA,const btTransform& transB)
 	{
+		const btVector3& toPosA = transA.getOrigin();
+		const btVector3& toPosB = transB.getOrigin();
+		btQuaternion toOrnA = transA.getRotation();
+		btQuaternion toOrnB = transB.getRotation();
+
 		if (m_separatingDistance>0.f)
 		{
-			const btTransform& fromA = m_cachedTransformA;
-			const btTransform& fromB = m_cachedTransformB;
-			const btTransform& toA = transA;
-			const btTransform& toB = transB;
+			
+
 			btVector3 linVelA,angVelA,linVelB,angVelB;
-			btTransformUtil::calculateVelocity(fromA,toA,btScalar(1.),linVelA,angVelA);
-			btTransformUtil::calculateVelocity(fromB,toB,btScalar(1.),linVelB,angVelB);
+			btTransformUtil::calculateVelocityQuaternion(m_posA,toPosA,m_ornA,toOrnA,btScalar(1.),linVelA,angVelA);
+			btTransformUtil::calculateVelocityQuaternion(m_posB,toPosB,m_ornB,toOrnB,btScalar(1.),linVelB,angVelB);
 			btScalar maxAngularProjectedVelocity = angVelA.length() * m_boundingRadiusA + angVelB.length() * m_boundingRadiusB;
 			btVector3 relLinVel = (linVelB-linVelA);
 			btScalar relLinVelocLength = (linVelB-linVelA).dot(m_separatingNormal);
@@ -191,16 +213,25 @@ public:
 			m_separatingDistance -= projectedMotion;
 		}
 	
-		m_cachedTransformA = transA;
-		m_cachedTransformB = transB;
+		m_posA = toPosA;
+		m_posB = toPosB;
+		m_ornA = toOrnA;
+		m_ornB = toOrnB;
 	}
 
 	void	initSeparatingDistance(const btVector3& separatingVector,btScalar separatingDistance,const btTransform& transA,const btTransform& transB)
 	{
 		m_separatingNormal = separatingVector;
 		m_separatingDistance = separatingDistance;
-		m_cachedTransformA = transA;
-		m_cachedTransformB = transB;
+		
+		const btVector3& toPosA = transA.getOrigin();
+		const btVector3& toPosB = transB.getOrigin();
+		btQuaternion toOrnA = transA.getRotation();
+		btQuaternion toOrnB = transB.getRotation();
+		m_posA = toPosA;
+		m_posB = toPosB;
+		m_ornA = toOrnA;
+		m_ornB = toOrnB;
 	}
 
 };

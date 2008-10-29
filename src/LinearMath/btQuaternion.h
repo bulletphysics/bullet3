@@ -106,14 +106,14 @@ public:
    * @param q The quaternion to add to this one */
 	btQuaternion& operator+=(const btQuaternion& q)
 	{
-		m_x += q.x(); m_y += q.y(); m_z += q.z(); m_unusedW += q.m_unusedW;
+		m_floats[0] += q.x(); m_floats[1] += q.y(); m_floats[2] += q.z(); m_floats[3] += q.m_floats[3];
 		return *this;
 	}
   /**@brief Subtract out a quaternion
    * @param q The quaternion to subtract from this one */
 	btQuaternion& operator-=(const btQuaternion& q) 
 	{
-		m_x -= q.x(); m_y -= q.y(); m_z -= q.z(); m_unusedW -= q.m_unusedW;
+		m_floats[0] -= q.x(); m_floats[1] -= q.y(); m_floats[2] -= q.z(); m_floats[3] -= q.m_floats[3];
 		return *this;
 	}
 
@@ -121,7 +121,7 @@ public:
    * @param s The scalar to scale by */
 	btQuaternion& operator*=(const btScalar& s)
 	{
-		m_x *= s; m_y *= s; m_z *= s; m_unusedW *= s;
+		m_floats[0] *= s; m_floats[1] *= s; m_floats[2] *= s; m_floats[3] *= s;
 		return *this;
 	}
 
@@ -130,17 +130,17 @@ public:
    * Equivilant to this = this * q */
 	btQuaternion& operator*=(const btQuaternion& q)
 	{
-		setValue(m_unusedW * q.x() + m_x * q.m_unusedW + m_y * q.z() - m_z * q.y(),
-			m_unusedW * q.y() + m_y * q.m_unusedW + m_z * q.x() - m_x * q.z(),
-			m_unusedW * q.z() + m_z * q.m_unusedW + m_x * q.y() - m_y * q.x(),
-			m_unusedW * q.m_unusedW - m_x * q.x() - m_y * q.y() - m_z * q.z());
+		setValue(m_floats[3] * q.x() + m_floats[0] * q.m_floats[3] + m_floats[1] * q.z() - m_floats[2] * q.y(),
+			m_floats[3] * q.y() + m_floats[1] * q.m_floats[3] + m_floats[2] * q.x() - m_floats[0] * q.z(),
+			m_floats[3] * q.z() + m_floats[2] * q.m_floats[3] + m_floats[0] * q.y() - m_floats[1] * q.x(),
+			m_floats[3] * q.m_floats[3] - m_floats[0] * q.x() - m_floats[1] * q.y() - m_floats[2] * q.z());
 		return *this;
 	}
   /**@brief Return the dot product between this quaternion and another
    * @param q The other quaternion */
 	btScalar dot(const btQuaternion& q) const
 	{
-		return m_x * q.x() + m_y * q.y() + m_z * q.z() + m_unusedW * q.m_unusedW;
+		return m_floats[0] * q.x() + m_floats[1] * q.y() + m_floats[2] * q.z() + m_floats[3] * q.m_floats[3];
 	}
 
   /**@brief Return the length squared of the quaternion */
@@ -167,7 +167,7 @@ public:
 	SIMD_FORCE_INLINE btQuaternion
 	operator*(const btScalar& s) const
 	{
-		return btQuaternion(x() * s, y() * s, z() * s, m_unusedW * s);
+		return btQuaternion(x() * s, y() * s, z() * s, m_floats[3] * s);
 	}
 
 
@@ -203,7 +203,7 @@ public:
   /**@brief Return the angle of rotation represented by this quaternion */
 	btScalar getAngle() const 
 	{
-		btScalar s = btScalar(2.) * btAcos(m_unusedW);
+		btScalar s = btScalar(2.) * btAcos(m_floats[3]);
 		return s;
 	}
 
@@ -211,7 +211,7 @@ public:
   /**@brief Return the inverse of this quaternion */
 	btQuaternion inverse() const
 	{
-		return btQuaternion(-m_x, -m_y, -m_z, m_unusedW);
+		return btQuaternion(-m_floats[0], -m_floats[1], -m_floats[2], m_floats[3]);
 	}
 
   /**@brief Return the sum of this quaternion and the other 
@@ -220,7 +220,7 @@ public:
 	operator+(const btQuaternion& q2) const
 	{
 		const btQuaternion& q1 = *this;
-		return btQuaternion(q1.x() + q2.x(), q1.y() + q2.y(), q1.z() + q2.z(), q1.m_unusedW + q2.m_unusedW);
+		return btQuaternion(q1.x() + q2.x(), q1.y() + q2.y(), q1.z() + q2.z(), q1.m_floats[3] + q2.m_floats[3]);
 	}
 
   /**@brief Return the difference between this quaternion and the other 
@@ -229,7 +229,7 @@ public:
 	operator-(const btQuaternion& q2) const
 	{
 		const btQuaternion& q1 = *this;
-		return btQuaternion(q1.x() - q2.x(), q1.y() - q2.y(), q1.z() - q2.z(), q1.m_unusedW - q2.m_unusedW);
+		return btQuaternion(q1.x() - q2.x(), q1.y() - q2.y(), q1.z() - q2.z(), q1.m_floats[3] - q2.m_floats[3]);
 	}
 
   /**@brief Return the negative of this quaternion 
@@ -237,7 +237,7 @@ public:
 	SIMD_FORCE_INLINE btQuaternion operator-() const
 	{
 		const btQuaternion& q2 = *this;
-		return btQuaternion( - q2.x(), - q2.y(),  - q2.z(),  - q2.m_unusedW);
+		return btQuaternion( - q2.x(), - q2.y(),  - q2.z(),  - q2.m_floats[3]);
 	}
   /**@todo document this and it's use */
 	SIMD_FORCE_INLINE btQuaternion farthest( const btQuaternion& qd) const 
@@ -262,10 +262,10 @@ public:
 			btScalar d = btScalar(1.0) / btSin(theta);
 			btScalar s0 = btSin((btScalar(1.0) - t) * theta);
 			btScalar s1 = btSin(t * theta);   
-			return btQuaternion((m_x * s0 + q.x() * s1) * d,
-				(m_y * s0 + q.y() * s1) * d,
-				(m_z * s0 + q.z() * s1) * d,
-				(m_unusedW * s0 + q.m_unusedW * s1) * d);
+			return btQuaternion((m_floats[0] * s0 + q.x() * s1) * d,
+				(m_floats[1] * s0 + q.y() * s1) * d,
+				(m_floats[2] * s0 + q.z() * s1) * d,
+				(m_floats[3] * s0 + q.m_floats[3] * s1) * d);
 		}
 		else
 		{
@@ -273,7 +273,7 @@ public:
 		}
 	}
 
-	SIMD_FORCE_INLINE const btScalar& getW() const { return m_unusedW; }
+	SIMD_FORCE_INLINE const btScalar& getW() const { return m_floats[3]; }
 
 	
 };
