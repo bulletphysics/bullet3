@@ -50,6 +50,10 @@ texture<uint, 1, cudaReadModeElementType> cellStartTex;
 
 texture<uint, 1, cudaReadModeElementType> gridCountersTex;
 texture<uint, 1, cudaReadModeElementType> gridCellsTex;
+
+texture<float4, 1, cudaReadModeElementType> pAABBTex;
+
+
 #endif
 
 __constant__ SimParams params;
@@ -415,63 +419,6 @@ uint cudaTestAABBOverlap(float4 min0, float4 max0, float4 min1, float4 max1)
 			(min0.z <= max1.z)&& (min1.z <= max0.z); 
 }
 
-#if 0
-__device__
-void findPairsInCell(	int3	gridPos,
-						uint    index,
-						uint2*  pParticleHash,
-						uint*   pCellStart,
-						float4* pAABB, 
-						uint*   pPairBuff,
-						uint2* pPairBuffStartCurr)
-{
-    if ((gridPos.x < 0) || (gridPos.x > params.gridSize.x-1) ||
-        (gridPos.y < 0) || (gridPos.y > params.gridSize.y-1) ||
-        (gridPos.z < 0) || (gridPos.z > params.gridSize.z-1)) {
-        return;
-    }
-    uint gridHash = calcGridHash(gridPos);
-    // get start of bucket for this cell
-    uint bucketStart = pCellStart[gridHash];
-    if (bucketStart == 0xffffffff)
-        return;   // cell empty
-	// iterate over particles in this cell
-	float4 min0 = pAABB[index*2];
-	float4 max0 = pAABB[index*2 + 1];
-	uint2 start_curr = pPairBuffStartCurr[index];
-	uint start = start_curr.x;
-	uint curr = start_curr.y;
-//	uint* pBuf = pPairBuff; // + curr;
-	for(uint q=0; q < params.maxParticlesPerCell; q++) 
-	{
-        uint index2 = bucketStart + q;
-        uint2 cellData = pParticleHash[index2];
-        if (cellData.x != gridHash) break;   // no longer in same bucket
-        if (index2 != index) // check not colliding with self
-        {   
-			float4 min1 = pAABB[index2*2];
-			float4 max1 = pAABB[index2*2 + 1];
-			if(cudaTestAABBOverlap(min0, max0, min1, max1))
-			{
-				curr++;
-			}
-			//*pBuf = index2;
-			//pPairBuff[curr] = index2;
-			//pPairBuff[0] = index2;
-			//pBuf++;
-		}
-	}
-//	uint del = curr - start;
-	if(curr != start)
-	{
-		curr = start;
-	}
-	pPairBuffStartCurr[index] = make_uint2(start, curr);
-
-//	
-    return;
-}
-#endif
 
 __device__
 void findPairsInCell(	int3	gridPos,
@@ -494,8 +441,10 @@ void findPairsInCell(	int3	gridPos,
     if (bucketStart == 0xffffffff)
         return;   // cell empty
 	// iterate over particles in this cell
-    float4 min0 = pAABB[index*2];
-    float4 max0 = pAABB[index*2+1];
+//    float4 min0 = pAABB[index*2];
+//    float4 max0 = pAABB[index*2+1];
+    float4 min0 = FETCH(pAABB, index*2); // pAABB[index*2];
+    float4 max0 = FETCH(pAABB, index*2 + 1); // pAABB[index*2+1];
     
     uint2 sortedData = pParticleHash[index];
 	uint unsorted_indx = sortedData.y;
@@ -510,14 +459,20 @@ void findPairsInCell(	int3	gridPos,
 	{
         uint2 cellData = pParticleHash[index2];
         if (cellData.x != gridHash) break;   // no longer in same bucket
-        if (index2 < index) // check not colliding with self
+        if (index2 != index) // check not colliding with self
         {   
-			float4 min1 = pAABB[index2*2];
-			float4 max1 = pAABB[index2*2 + 1];
+			uint unsorted_indx2 = cellData.y;
+			if(unsorted_indx2 < unsorted_indx)
+			{
+				continue;
+			}
+//			float4 min1 = pAABB[index2*2];
+//			float4 max1 = pAABB[index2*2 + 1];
+			float4 min1 = FETCH(pAABB, index2*2);// pAABB[index2*2];
+			float4 max1 = FETCH(pAABB, index2*2 + 1);    // pAABB[index2*2 + 1];
 			if(cudaTestAABBOverlap(min0, max0, min1, max1))
 			{
 				uint k;
-				uint unsorted_indx2 = cellData.y;
 				for(k = 0; k < curr; k++)
 				{
 					uint old_pair = pPairBuff[start+k] & (~BT_CUDA_PAIR_ANY_FLG);
@@ -536,7 +491,6 @@ void findPairsInCell(	int3	gridPos,
 		}
 	}
 	pPairBuffStartCurr[unsorted_indx] = make_uint2(start, curr);
-//	pPairBuffStartCurr[index] = make_uint2(start, curr);
     return;
 }
 

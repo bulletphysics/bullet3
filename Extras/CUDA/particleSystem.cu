@@ -389,6 +389,9 @@ btCudaFindOverlappingPairs(	float*	pAABB,
 //		printf("\nAAAAA\n");
 //	}
 
+
+    MY_CUDA_SAFE_CALL(cudaBindTexture(0, pAABBTex, pAABB, numParticles*2*sizeof(float4)));
+
     int numThreads, numBlocks;
 //    computeGridSize(numParticles, 256, numBlocks, numThreads);
     computeGridSize(numParticles, 64, numBlocks, numThreads);
@@ -403,6 +406,7 @@ btCudaFindOverlappingPairs(	float*	pAABB,
 		numParticles
 	);
     CUT_CHECK_ERROR("Kernel execution failed: btCudaFindOverlappingPairsD");
+    MY_CUDA_SAFE_CALL(cudaUnbindTexture(pAABBTex));
  } // btCudaFindOverlappingPairs()
 
 
