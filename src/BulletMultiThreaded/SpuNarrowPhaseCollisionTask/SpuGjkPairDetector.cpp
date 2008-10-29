@@ -38,6 +38,7 @@ int gSpuNumGjkChecks = 0;
 
 SpuGjkPairDetector::SpuGjkPairDetector(void* objectA,void* objectB,int shapeTypeA, int shapeTypeB, float marginA,float marginB,SpuVoronoiSimplexSolver* simplexSolver, const SpuConvexPenetrationDepthSolver*	penetrationDepthSolver)
 :m_cachedSeparatingAxis(float(0.),float(0.),float(1.)),
+m_cachedSeparatingDistance(0.f),
 m_penetrationDepthSolver(penetrationDepthSolver),
 m_simplexSolver(simplexSolver),
 m_minkowskiA(objectA),
@@ -54,6 +55,8 @@ m_catchDegeneracies(1)
 
 void SpuGjkPairDetector::getClosestPoints(const SpuClosestPointInput& input,SpuContactResult& output)
 {
+	m_cachedSeparatingDistance = 0.f;
+
 	btScalar distance=btScalar(0.);
 	btVector3	normalInB(btScalar(0.),btScalar(0.),btScalar(0.));
 	btVector3 pointOnA,pointOnB;
@@ -294,6 +297,8 @@ void SpuGjkPairDetector::getClosestPoints(const SpuClosestPointInput& input,SpuC
 		//spu_printf("distance\n");
 #endif //__SPU__
 
+		m_cachedSeparatingDistance = distance;
+		m_cachedSeparatingAxis = normalInB;
 
 		output.addContactPoint(
 			normalInB,

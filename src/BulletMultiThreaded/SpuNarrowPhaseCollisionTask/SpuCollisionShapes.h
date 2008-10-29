@@ -64,7 +64,7 @@ struct bvhMeshShape_LocalStoreMemory
 
 
 btVector3 localGetSupportingVertexWithoutMargin(int shapeType, void* shape, const btVector3& localDir,struct	SpuConvexPolyhedronVertexData* convexVertexData);//, int *featureIndex)
-void computeAabb (btVector3& aabbMin, btVector3& aabbMax, btConvexInternalShape* convexShape, ppu_address_t convexShapePtr, int shapeType, btTransform xform);
+void computeAabb (btVector3& aabbMin, btVector3& aabbMax, btConvexInternalShape* convexShape, ppu_address_t convexShapePtr, int shapeType, const btTransform& xform);
 void dmaBvhShapeData (bvhMeshShape_LocalStoreMemory* bvhMeshShape, btBvhTriangleMeshShape* triMeshShape);
 void dmaBvhIndexedMesh (btIndexedMesh* IndexMesh, IndexedMeshArray& indexArray, int index, uint32_t dmaTag);
 void dmaBvhSubTreeHeaders (btBvhSubtreeInfo* subTreeHeaders, ppu_address_t subTreePtr, int batchSize, uint32_t dmaTag);
@@ -76,18 +76,27 @@ void dmaCollisionShape (void* collisionShapeLocation, ppu_address_t collisionSha
 void dmaCompoundShapeInfo (CompoundShape_LocalStoreMemory* compoundShapeLocation, btCompoundShape* spuCompoundShape, uint32_t dmaTag);
 void dmaCompoundSubShapes (CompoundShape_LocalStoreMemory* compoundShapeLocation, btCompoundShape* spuCompoundShape, uint32_t dmaTag);
 
+
 #define USE_BRANCHFREE_TEST 1
 #ifdef USE_BRANCHFREE_TEST
 SIMD_FORCE_INLINE unsigned int spuTestQuantizedAabbAgainstQuantizedAabb(unsigned short int* aabbMin1,unsigned short int* aabbMax1,const unsigned short int* aabbMin2,const unsigned short int* aabbMax2)
 {		
+#if defined(__CELLOS_LV2__) && defined (__SPU__)
+	vec_ushort8 vecMin = {aabbMin1[0],aabbMin2[0],aabbMin1[2],aabbMin2[2],aabbMin1[1],aabbMin2[1],0,0};
+	vec_ushort8 vecMax = {aabbMax2[0],aabbMax1[0],aabbMax2[2],aabbMax1[2],aabbMax2[1],aabbMax1[1],0,0};
+	vec_ushort8 isGt = spu_cmpgt(vecMin,vecMax);
+	return spu_extract(spu_gather(isGt),0)==0;
+
+#else
 	return btSelect((unsigned)((aabbMin1[0] <= aabbMax2[0]) & (aabbMax1[0] >= aabbMin2[0])
 		& (aabbMin1[2] <= aabbMax2[2]) & (aabbMax1[2] >= aabbMin2[2])
 		& (aabbMin1[1] <= aabbMax2[1]) & (aabbMax1[1] >= aabbMin2[1])),
 		1, 0);
+#endif
 }
 #else
 
-unsigned int spuTestQuantizedAabbAgainstQuantizedAabb(const unsigned short int* aabbMin1,const unsigned short int* aabbMax1,const unsigned short int* aabbMin2,const unsigned short int*  aabbMax2)
+SIMD_FORCE_INLINE unsigned int spuTestQuantizedAabbAgainstQuantizedAabb(const unsigned short int* aabbMin1,const unsigned short int* aabbMax1,const unsigned short int* aabbMin2,const unsigned short int*  aabbMax2)
 {
 	unsigned int overlap = 1;
 	overlap = (aabbMin1[0] > aabbMax2[0] || aabbMax1[0] < aabbMin2[0]) ? 0 : overlap;

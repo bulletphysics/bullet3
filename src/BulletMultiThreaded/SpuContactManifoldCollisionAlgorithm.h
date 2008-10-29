@@ -20,8 +20,11 @@ subject to the following restrictions:
 #include "BulletCollision/BroadphaseCollision/btBroadphaseProxy.h"
 #include "BulletCollision/CollisionDispatch/btCollisionCreateFunc.h"
 #include "BulletCollision/BroadphaseCollision/btDispatcher.h"
+#include "LinearMath/btTransformUtil.h"
 
 class btPersistentManifold;
+
+//#define USE_SEPDISTANCE_UTIL 1
 
 /// SpuContactManifoldCollisionAlgorithm  provides contact manifold and should be processed on SPU.
 ATTRIBUTE_ALIGNED16(class) SpuContactManifoldCollisionAlgorithm : public btCollisionAlgorithm
@@ -37,6 +40,7 @@ ATTRIBUTE_ALIGNED16(class) SpuContactManifoldCollisionAlgorithm : public btColli
 	btCollisionObject*	m_collisionObject0;
 	btCollisionObject*	m_collisionObject1;
 	
+	
 
 	
 public:
@@ -45,9 +49,11 @@ public:
 
 	virtual btScalar calculateTimeOfImpact(btCollisionObject* body0,btCollisionObject* body1,const btDispatcherInfo& dispatchInfo,btManifoldResult* resultOut);
 
-	SpuContactManifoldCollisionAlgorithm();
-
+	
 	SpuContactManifoldCollisionAlgorithm(const btCollisionAlgorithmConstructionInfo& ci,btCollisionObject* body0,btCollisionObject* body1);
+#ifdef USE_SEPDISTANCE_UTIL
+	btConvexSeparatingDistanceUtil	m_sepDistance;
+#endif //USE_SEPDISTANCE_UTIL
 
 	virtual ~SpuContactManifoldCollisionAlgorithm();
 

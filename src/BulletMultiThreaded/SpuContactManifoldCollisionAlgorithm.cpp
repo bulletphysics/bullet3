@@ -19,11 +19,7 @@ subject to the following restrictions:
 #include "BulletCollision/CollisionShapes/btCollisionShape.h"
 #include "BulletCollision/CollisionShapes/btPolyhedralConvexShape.h"
 
-SpuContactManifoldCollisionAlgorithm::SpuContactManifoldCollisionAlgorithm()
-:m_manifoldPtr(0)
-{
-	
-}
+
 
 
 void SpuContactManifoldCollisionAlgorithm::processCollision (btCollisionObject* body0,btCollisionObject* body1,const btDispatcherInfo& dispatchInfo,btManifoldResult* resultOut)
@@ -40,6 +36,9 @@ btScalar SpuContactManifoldCollisionAlgorithm::calculateTimeOfImpact(btCollision
 #ifndef __SPU__
 SpuContactManifoldCollisionAlgorithm::SpuContactManifoldCollisionAlgorithm(const btCollisionAlgorithmConstructionInfo& ci,btCollisionObject* body0,btCollisionObject* body1)
 :btCollisionAlgorithm(ci)
+#ifdef USE_SEPDISTANCE_UTIL
+,m_sepDistance(body0->getCollisionShape()->getAngularMotionDisc(),body1->getCollisionShape()->getAngularMotionDisc())
+#endif //USE_SEPDISTANCE_UTIL
 {
 	m_manifoldPtr = m_dispatcher->getNewManifold(body0,body1);
 	m_shapeType0 = body0->getCollisionShape()->getShapeType();

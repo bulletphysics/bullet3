@@ -34,6 +34,7 @@ class SpuGjkPairDetector
 	
 
 	btVector3	m_cachedSeparatingAxis;
+	btScalar	m_cachedSeparatingDistance;
 	const SpuConvexPenetrationDepthSolver*	m_penetrationDepthSolver;
 	SpuVoronoiSimplexSolver* m_simplexSolver;
 	void* m_minkowskiA;
@@ -72,6 +73,15 @@ public:
 	void setCachedSeperatingAxis(const btVector3& seperatingAxis)
 	{
 		m_cachedSeparatingAxis = seperatingAxis;
+	}
+
+	const btVector3&	getCachedSeparatingAxis() const
+	{
+		return m_cachedSeparatingAxis;
+	}
+	btScalar getCachedSeparatingDistance() const
+	{
+		return m_cachedSeparatingDistance;
 	}
 
 	void	setPenetrationDepthSolver(SpuConvexPenetrationDepthSolver*	penetrationDepthSolver)

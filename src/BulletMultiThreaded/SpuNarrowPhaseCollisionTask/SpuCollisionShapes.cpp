@@ -16,6 +16,17 @@ subject to the following restrictions:
 
 #include "SpuCollisionShapes.h"
 
+#ifdef __SPU__
+#include <spu_intrinsics.h>
+static inline vec_float4 vec_dot3( vec_float4 vec0, vec_float4 vec1 )
+{
+    vec_float4 result;
+    result = spu_mul( vec0, vec1 );
+    result = spu_madd( spu_rlqwbyte( vec0, 4 ), spu_rlqwbyte( vec1, 4 ), result );
+    return spu_madd( spu_rlqwbyte( vec0, 8 ), spu_rlqwbyte( vec1, 8 ), result );
+}
+#endif //__SPU__
+
 btVector3 localGetSupportingVertexWithoutMargin(int shapeType, void* shape, const btVector3& localDir,struct	SpuConvexPolyhedronVertexData* convexVertexData)//, int *featureIndex)
 {
     switch (shapeType)
@@ -170,7 +181,45 @@ btVector3 localGetSupportingVertexWithoutMargin(int shapeType, void* shape, cons
 		{
 			//spu_printf("SPU: todo: getSupport CONVEX_HULL_SHAPE_PROXYTYPE\n");
 
-		
+#if defined (__SPU__)
+			vec_float4 v_distMax = {-FLT_MAX,0,0,0};
+			vec_int4 v_idxMax = {-999,0,0,0};
+			int v=0;
+			int numverts = convexVertexData->gNumConvexPoints;
+			btVector3* points = convexVertexData->gConvexPoints;
+
+			for(;v<(int)numverts-4;v+=4) {
+				vec_float4 p0 = vec_dot3(points[v  ].get128(),localDir.get128());
+				vec_float4 p1 = vec_dot3(points[v+1].get128(),localDir.get128());
+				vec_float4 p2 = vec_dot3(points[v+2].get128(),localDir.get128());
+				vec_float4 p3 = vec_dot3(points[v+3].get128(),localDir.get128());
+				const vec_int4 i0 = {v  ,0,0,0};
+				const vec_int4 i1 = {v+1,0,0,0};
+				const vec_int4 i2 = {v+2,0,0,0};
+				const vec_int4 i3 = {v+3,0,0,0};
+				vec_uint4  retGt01 = spu_cmpgt(p0,p1);
+				vec_float4 pmax01 = spu_sel(p1,p0,retGt01);
+				vec_int4   imax01 = spu_sel(i1,i0,retGt01);
+				vec_uint4  retGt23 = spu_cmpgt(p2,p3);
+				vec_float4 pmax23 = spu_sel(p3,p2,retGt23);
+				vec_int4   imax23 = spu_sel(i3,i2,retGt23);
+				vec_uint4  retGt0123 = spu_cmpgt(pmax01,pmax23);
+				vec_float4 pmax0123 = spu_sel(pmax23,pmax01,retGt0123);
+				vec_int4   imax0123 = spu_sel(imax23,imax01,retGt0123);
+				vec_uint4  retGtMax = spu_cmpgt(v_distMax,pmax0123);
+				v_distMax = spu_sel(pmax0123,v_distMax,retGtMax);
+				v_idxMax = spu_sel(imax0123,v_idxMax,retGtMax);
+			}
+			for(;v<(int)numverts;v++) {
+				vec_float4 p = vec_dot3(points[v].get128(),localDir.get128());
+				const vec_int4 i = {v,0,0,0};
+				vec_uint4  retGtMax = spu_cmpgt(v_distMax,p);
+				v_distMax = spu_sel(p,v_distMax,retGtMax);
+				v_idxMax = spu_sel(i,v_idxMax,retGtMax);
+			}
+			int ptIndex = spu_extract(v_idxMax,0);
+			const btVector3& supVec= points[ptIndex];
+#else
 
 			btVector3* points = 0;
 			int numPoints = 0;
@@ -179,7 +228,7 @@ btVector3 localGetSupportingVertexWithoutMargin(int shapeType, void* shape, cons
 
 		//	spu_printf("numPoints = %d\n",numPoints);
 
-			btVector3 supVec(btScalar(0.),btScalar(0.),btScalar(0.));
+			int ptIndex = 0;
 			btScalar newDot,maxDot = btScalar(-1e30);
 
 			btVector3 vec0(localDir.getX(),localDir.getY(),localDir.getZ());
@@ -197,15 +246,18 @@ btVector3 localGetSupportingVertexWithoutMargin(int shapeType, void* shape, cons
 
 			for (int i=0;i<numPoints;i++)
 			{
-				btVector3 vtx = points[i];// * m_localScaling;
+				const btVector3& vtx = points[i];// * m_localScaling;
 
 				newDot = vec.dot(vtx);
 				if (newDot > maxDot)
 				{
 					maxDot = newDot;
-					supVec = vtx;
+					ptIndex = i;
 				}
 			}
+			const btVector3& supVec= points[ptIndex];
+			
+#endif
 			return btVector3(supVec.getX(),supVec.getY(),supVec.getZ());
 
 			break;
@@ -223,7 +275,7 @@ btVector3 localGetSupportingVertexWithoutMargin(int shapeType, void* shape, cons
     }
 }
 
-void computeAabb (btVector3& aabbMin, btVector3& aabbMax, btConvexInternalShape* convexShape, ppu_address_t convexShapePtr, int shapeType, btTransform xform)
+void computeAabb (btVector3& aabbMin, btVector3& aabbMax, btConvexInternalShape* convexShape, ppu_address_t convexShapePtr, int shapeType, const btTransform& xform)
 {
 	//calculate the aabb, given the types...
 	switch (shapeType)
@@ -235,7 +287,7 @@ void computeAabb (btVector3& aabbMin, btVector3& aabbMax, btConvexInternalShape*
 		float margin=convexShape->getMarginNV();
 		btVector3 halfExtents = convexShape->getImplicitShapeDimensions();
 		halfExtents += btVector3(margin,margin,margin);
-		btTransform& t = xform;
+		const btTransform& t = xform;
 		btMatrix3x3 abs_b = t.getBasis().absolute();  
 		btVector3 center = t.getOrigin();
 		btVector3 extent = btVector3(abs_b[0].dot(halfExtents),abs_b[1].dot(halfExtents),abs_b[2].dot(halfExtents));
@@ -258,7 +310,7 @@ void computeAabb (btVector3& aabbMin, btVector3& aabbMax, btConvexInternalShape*
 		btScalar radius = convexShape->getRadius();
 		halfExtents[capsuleUpAxis] = radius + halfHeight;
 #endif
-		btTransform& t = xform;
+		const btTransform& t = xform;
 		btMatrix3x3 abs_b = t.getBasis().absolute();  
 		btVector3 center = t.getOrigin();
 		btVector3 extent = btVector3(abs_b[0].dot(halfExtents),abs_b[1].dot(halfExtents),abs_b[2].dot(halfExtents));
@@ -271,7 +323,7 @@ void computeAabb (btVector3& aabbMin, btVector3& aabbMax, btConvexInternalShape*
 	{
 		float radius = convexShape->getImplicitShapeDimensions().getX();// * convexShape->getLocalScaling().getX();
 		float margin = radius + convexShape->getMarginNV();
-		btTransform& t = xform;
+		const btTransform& t = xform;
 		const btVector3& center = t.getOrigin();
 		btVector3 extent(margin,margin,margin);
 		aabbMin = center - extent;
@@ -284,7 +336,7 @@ void computeAabb (btVector3& aabbMin, btVector3& aabbMax, btConvexInternalShape*
 		cellDmaGet(&convexHullShape0, convexShapePtr  , sizeof(btConvexHullShape), DMA_TAG(1), 0, 0);
 		cellDmaWaitTagStatusAll(DMA_MASK(1));
 		btConvexHullShape* localPtr = (btConvexHullShape*)&convexHullShape0;
-		btTransform& t = xform;
+		const btTransform& t = xform;
 		btScalar margin = convexShape->getMarginNV();
 		localPtr->getNonvirtualAabb(t,aabbMin,aabbMax,margin);
 		//spu_printf("SPU convex aabbMin=%f,%f,%f=\n",aabbMin.getX(),aabbMin.getY(),aabbMin.getZ());
@@ -450,7 +502,9 @@ void	spuWalkStacklessQuantizedTree(btNodeOverlapCallback* nodeCallback,unsigned 
 
 	int curIndex = startNodeIndex;
 	int walkIterations = 0;
+#ifdef BT_DEBUG
 	int subTreeSize = endNodeIndex - startNodeIndex;
+#endif
 
 	int escapeIndex;
 
@@ -459,7 +513,7 @@ void	spuWalkStacklessQuantizedTree(btNodeOverlapCallback* nodeCallback,unsigned 
 	while (curIndex < endNodeIndex)
 	{
 		//catch bugs in tree data
-		assert (walkIterations < subTreeSize);
+		btAssert (walkIterations < subTreeSize);
 
 		walkIterations++;
 		aabbOverlap = spuTestQuantizedAabbAgainstQuantizedAabb(quantizedQueryAabbMin,quantizedQueryAabbMax,rootNode->m_quantizedAabbMin,rootNode->m_quantizedAabbMax);

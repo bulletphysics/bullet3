@@ -338,7 +338,7 @@ bool SpuMinkowskiPenetrationDepthSolver::calcPenDepth( SpuVoronoiSimplexSolver& 
 
 	} else {
 		// could not seperate shapes
-		btAssert (false);
+		//btAssert (false);
 	}
 	return res.m_hasResult;
 }
