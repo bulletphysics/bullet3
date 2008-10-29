@@ -258,6 +258,8 @@ libbulletsoftbody_a_SOURCES = \
 		BulletSoftBody/btSoftRigidDynamicsWorld.h \
 		BulletSoftBody/btSoftBodyHelpers.h
 
+
+libbulletmultithreaded_a_CXXFLAGS = ${CXXFLAGS} -I./BulletMultiThreaded/vectormath/scalar/cpp
 libbulletmultithreaded_a_SOURCES =\
                 BulletMultiThreaded/SpuCollisionObjectWrapper.cpp \
                 BulletMultiThreaded/SpuSampleTask/SpuSampleTask.cpp \
