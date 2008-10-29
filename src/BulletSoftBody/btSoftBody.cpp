@@ -2040,7 +2040,7 @@ void					btSoftBody::updateClusters()
 					mi.setMin(c.m_nodes[j]->m_x);
 					mx.setMax(c.m_nodes[j]->m_x);
 				}			
-				const ATTRIBUTE_ALIGNED16(btDbvtVolume)	bounds=btDbvtVolume::FromMM(mi,mx);
+				ATTRIBUTE_ALIGNED16(btDbvtVolume)	bounds=btDbvtVolume::FromMM(mi,mx);
 				if(c.m_leaf)
 					m_cdbvt.update(c.m_leaf,bounds,c.m_lv*m_sst.sdt*3,m_sst.radmrg);
 				else
