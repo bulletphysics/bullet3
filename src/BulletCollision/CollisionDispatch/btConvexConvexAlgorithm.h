@@ -27,19 +27,24 @@ subject to the following restrictions:
 
 class btConvexPenetrationDepthSolver;
 
+//#define USE_SEPDISTANCE_UTIL2 1
+
 ///ConvexConvexAlgorithm collision algorithm implements time of impact, convex closest points and penetration depth calculations.
 class btConvexConvexAlgorithm : public btCollisionAlgorithm
 {
-	btGjkPairDetector m_gjkPairDetector;
-public:
+#ifdef USE_SEPDISTANCE_UTIL2
+	btConvexSeparatingDistanceUtil	m_sepDistance;
+#endif
+	btSimplexSolverInterface*		m_simplexSolver;
+	btConvexPenetrationDepthSolver* m_pdSolver;
 
+	
 	bool	m_ownManifold;
 	btPersistentManifold*	m_manifoldPtr;
 	bool			m_lowLevelOfDetail;
 	
 	///cache separating vector to speedup collision detection
-	btConvexSeparatingDistanceUtil	m_sepDistance;
-
+	
 
 public:
 

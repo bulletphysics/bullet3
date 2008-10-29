@@ -91,19 +91,15 @@ BT_DECLARE_ALIGNED_ALLOCATOR();
 	        AllFilter = -1 //all bits sets: DefaultFilter | StaticFilter | KinematicFilter | DebrisFilter | SensorTrigger
 	};
 
-	btVector3	m_aabbMin;
-	btVector3	m_aabbMax;
-
 	//Usually the client btCollisionObject or Rigidbody class
 	void*	m_clientObject;
-
 	short int m_collisionFilterGroup;
 	short int m_collisionFilterMask;
-
 	void*	m_multiSapParentProxy;		
-
-
 	int			m_uniqueId;//m_uniqueId is introduced for paircache. could get rid of this, by calculating the address offset etc.
+
+	btVector3	m_aabbMin;
+	btVector3	m_aabbMax;
 
 	SIMD_FORCE_INLINE int getUid() const
 	{
@@ -116,11 +112,11 @@ BT_DECLARE_ALIGNED_ALLOCATOR();
 	}
 
 	btBroadphaseProxy(const btVector3& aabbMin,const btVector3& aabbMax,void* userPtr,short int collisionFilterGroup, short int collisionFilterMask,void* multiSapParentProxy=0)
-		:m_aabbMin(aabbMin),
-		m_aabbMax(aabbMax),
-		m_clientObject(userPtr),
+		:m_clientObject(userPtr),
 		m_collisionFilterGroup(collisionFilterGroup),
-		m_collisionFilterMask(collisionFilterMask)
+		m_collisionFilterMask(collisionFilterMask),
+		m_aabbMin(aabbMin),
+		m_aabbMax(aabbMax)
 	{
 		m_multiSapParentProxy = multiSapParentProxy;
 	}

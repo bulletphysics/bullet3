@@ -32,7 +32,7 @@ ATTRIBUTE_ALIGNED16(class) btScaledBvhTriangleMeshShape : public btConcaveShape
 public:
 
 
-	btScaledBvhTriangleMeshShape(btBvhTriangleMeshShape* childShape,btVector3 localScaling);
+	btScaledBvhTriangleMeshShape(btBvhTriangleMeshShape* childShape,const btVector3& localScaling);
 
 	virtual ~btScaledBvhTriangleMeshShape();
 

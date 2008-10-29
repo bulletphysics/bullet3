@@ -500,7 +500,7 @@ void			btDbvt::update(btDbvtNode* leaf,int lookahead)
 }
 
 //
-void			btDbvt::update(btDbvtNode* leaf,const btDbvtVolume& volume)
+void			btDbvt::update(btDbvtNode* leaf,btDbvtVolume& volume)
 {
 	btDbvtNode*	root=removeleaf(this,leaf);
 	if(root)
@@ -518,7 +518,7 @@ void			btDbvt::update(btDbvtNode* leaf,const btDbvtVolume& volume)
 }
 
 //
-bool			btDbvt::update(btDbvtNode* leaf,btDbvtVolume volume,const btVector3& velocity,btScalar margin)
+bool			btDbvt::update(btDbvtNode* leaf,btDbvtVolume& volume,const btVector3& velocity,btScalar margin)
 {
 	if(leaf->volume.Contain(volume)) return(false);
 	volume.Expand(btVector3(margin,margin,margin));
@@ -528,7 +528,7 @@ bool			btDbvt::update(btDbvtNode* leaf,btDbvtVolume volume,const btVector3& velo
 }
 
 //
-bool			btDbvt::update(btDbvtNode* leaf,btDbvtVolume volume,const btVector3& velocity)
+bool			btDbvt::update(btDbvtNode* leaf,btDbvtVolume& volume,const btVector3& velocity)
 {
 	if(leaf->volume.Contain(volume)) return(false);
 	volume.SignedExpand(velocity);
@@ -537,7 +537,7 @@ bool			btDbvt::update(btDbvtNode* leaf,btDbvtVolume volume,const btVector3& velo
 }
 
 //
-bool			btDbvt::update(btDbvtNode* leaf,btDbvtVolume volume,btScalar margin)
+bool			btDbvt::update(btDbvtNode* leaf,btDbvtVolume& volume,btScalar margin)
 {
 	if(leaf->volume.Contain(volume)) return(false);
 	volume.Expand(btVector3(margin,margin,margin));

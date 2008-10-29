@@ -61,12 +61,15 @@ btConvexConvexAlgorithm::CreateFunc::~CreateFunc()
 
 btConvexConvexAlgorithm::btConvexConvexAlgorithm(btPersistentManifold* mf,const btCollisionAlgorithmConstructionInfo& ci,btCollisionObject* body0,btCollisionObject* body1,btSimplexSolverInterface* simplexSolver, btConvexPenetrationDepthSolver* pdSolver)
 : btCollisionAlgorithm(ci),
-m_gjkPairDetector(0,0,simplexSolver,pdSolver),
+m_simplexSolver(simplexSolver),
+m_pdSolver(pdSolver),
 m_ownManifold (false),
 m_manifoldPtr(mf),
-m_lowLevelOfDetail(false),
-m_sepDistance((static_cast<btConvexShape*>(body0->getCollisionShape()))->getAngularMotionDisc(),
+m_lowLevelOfDetail(false)
+#ifdef USE_SEPDISTANCE_UTIL2
+,m_sepDistance((static_cast<btConvexShape*>(body0->getCollisionShape()))->getAngularMotionDisc(),
 			  (static_cast<btConvexShape*>(body1->getCollisionShape()))->getAngularMotionDisc())
+#endif
 {
 	(void)body0;
 	(void)body1;
@@ -112,9 +115,11 @@ void btConvexConvexAlgorithm ::processCollision (btCollisionObject* body0,btColl
 	btConvexShape* min0 = static_cast<btConvexShape*>(body0->getCollisionShape());
 	btConvexShape* min1 = static_cast<btConvexShape*>(body1->getCollisionShape());
 
+#ifdef USE_SEPDISTANCE_UTIL2
 	m_sepDistance.updateSeparatingDistance(body0->getWorldTransform(),body1->getWorldTransform());
-
 	if (!dispatchInfo.m_useConvexConservativeDistanceUtil || m_sepDistance.getConservativeSeparatingDistance()<=0.f)
+#endif //USE_SEPDISTANCE_UTIL2
+
 	{
 
 #ifdef USE_BT_GJKEPA
@@ -135,9 +140,10 @@ void btConvexConvexAlgorithm ::processCollision (btCollisionObject* body0,btColl
 	
 	btGjkPairDetector::ClosestPointInput input;
 
+	btGjkPairDetector	gjkPairDetector(min0,min1,m_simplexSolver,m_pdSolver);
 	//TODO: if (dispatchInfo.m_useContinuous)
-	m_gjkPairDetector.setMinkowskiA(min0);
-	m_gjkPairDetector.setMinkowskiB(min1);
+	gjkPairDetector.setMinkowskiA(min0);
+	gjkPairDetector.setMinkowskiB(min1);
 	input.m_maximumDistanceSquared = 1e30f;//min0->getMargin() + min1->getMargin() + m_manifoldPtr->getContactBreakingThreshold();
 	//input.m_maximumDistanceSquared*= input.m_maximumDistanceSquared;
 	input.m_stackAlloc = dispatchInfo.m_stackAllocator;
@@ -147,12 +153,14 @@ void btConvexConvexAlgorithm ::processCollision (btCollisionObject* body0,btColl
 	input.m_transformA = body0->getWorldTransform();
 	input.m_transformB = body1->getWorldTransform();
 	
-	m_gjkPairDetector.getClosestPoints(input,*resultOut,dispatchInfo.m_debugDraw);
+	gjkPairDetector.getClosestPoints(input,*resultOut,dispatchInfo.m_debugDraw);
 #endif
 
-	btScalar sepDist = m_gjkPairDetector.getCachedSeparatingDistance()+dispatchInfo.m_convexConservativeDistanceThreshold;
+	btScalar sepDist = gjkPairDetector.getCachedSeparatingDistance()+dispatchInfo.m_convexConservativeDistanceThreshold;
 
+#ifdef USE_SEPDISTANCE_UTIL2
 	m_sepDistance.initSeparatingDistance(m_gjkPairDetector.getCachedSeparatingAxis(),sepDist,body0->getWorldTransform(),body1->getWorldTransform());
+#endif //USE_SEPDISTANCE_UTIL2
 
 
 	}

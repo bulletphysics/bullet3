@@ -15,7 +15,7 @@ subject to the following restrictions:
 
 #include "btScaledBvhTriangleMeshShape.h"
 
-btScaledBvhTriangleMeshShape::btScaledBvhTriangleMeshShape(btBvhTriangleMeshShape* childShape,btVector3 localScaling)
+btScaledBvhTriangleMeshShape::btScaledBvhTriangleMeshShape(btBvhTriangleMeshShape* childShape,const btVector3& localScaling)
 :m_localScaling(localScaling),m_bvhTriMeshShape(childShape)
 {
 	m_shapeType = SCALED_TRIANGLE_MESH_SHAPE_PROXYTYPE;
@@ -34,7 +34,7 @@ class btScaledTriangleCallback : public btTriangleCallback
 
 public:
 
-	btScaledTriangleCallback(btTriangleCallback* originalCallback,btVector3 localScaling)
+	btScaledTriangleCallback(btTriangleCallback* originalCallback,const btVector3& localScaling)
 		:m_originalCallback(originalCallback),
 		m_localScaling(localScaling)
 	{

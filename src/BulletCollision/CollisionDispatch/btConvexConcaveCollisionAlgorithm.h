@@ -34,8 +34,8 @@ class btConvexTriangleCallback : public btTriangleCallback
 	btVector3	m_aabbMin;
 	btVector3	m_aabbMax ;
 
-	btManifoldResult* m_resultOut;
 
+	btManifoldResult* m_resultOut;
 	btDispatcher*	m_dispatcher;
 	const btDispatcherInfo* m_dispatchInfoPtr;
 	btScalar m_collisionMarginTriangle;
@@ -76,6 +76,7 @@ class btConvexConcaveCollisionAlgorithm  : public btCollisionAlgorithm
 	bool	m_isSwapped;
 
 	btConvexTriangleCallback m_btConvexTriangleCallback;
+
 
 
 public:

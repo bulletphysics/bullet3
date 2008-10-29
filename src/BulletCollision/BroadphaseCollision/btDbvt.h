@@ -276,10 +276,10 @@ struct	btDbvt
 	void			optimizeIncremental(int passes);
 	btDbvtNode*		insert(const btDbvtVolume& box,void* data);
 	void			update(btDbvtNode* leaf,int lookahead=-1);
-	void			update(btDbvtNode* leaf,const btDbvtVolume& volume);
-	bool			update(btDbvtNode* leaf,btDbvtVolume volume,const btVector3& velocity,btScalar margin);
-	bool			update(btDbvtNode* leaf,btDbvtVolume volume,const btVector3& velocity);
-	bool			update(btDbvtNode* leaf,btDbvtVolume volume,btScalar margin);	
+	void			update(btDbvtNode* leaf,btDbvtVolume& volume);
+	bool			update(btDbvtNode* leaf,btDbvtVolume& volume,const btVector3& velocity,btScalar margin);
+	bool			update(btDbvtNode* leaf,btDbvtVolume& volume,const btVector3& velocity);
+	bool			update(btDbvtNode* leaf,btDbvtVolume& volume,btScalar margin);	
 	void			remove(btDbvtNode* leaf);
 	void			write(IWriter* iwriter) const;
 	void			clone(btDbvt& dest,IClone* iclone=0) const;

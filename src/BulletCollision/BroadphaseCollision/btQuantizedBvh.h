@@ -158,40 +158,42 @@ typedef btAlignedObjectArray<btBvhSubtreeInfo>		BvhSubtreeInfoArray;
 ///It is recommended to use quantization for better performance and lower memory requirements.
 ATTRIBUTE_ALIGNED16(class) btQuantizedBvh
 {
-protected:
-
-	NodeArray			m_leafNodes;
-	NodeArray			m_contiguousNodes;
-
-	QuantizedNodeArray	m_quantizedLeafNodes;
-	
-	QuantizedNodeArray	m_quantizedContiguousNodes;
-	
-	int					m_curNodeIndex;
-
-
-	//quantization data
-	bool				m_useQuantization;
-	btVector3			m_bvhAabbMin;
-	btVector3			m_bvhAabbMax;
-	btVector3			m_bvhQuantization;
 public:
-	BT_DECLARE_ALIGNED_ALLOCATOR();
-
 	enum btTraversalMode
 	{
 		TRAVERSAL_STACKLESS = 0,
 		TRAVERSAL_STACKLESS_CACHE_FRIENDLY,
 		TRAVERSAL_RECURSIVE
 	};
+
 protected:
 
-	btTraversalMode	m_traversalMode;
+
+	btVector3			m_bvhAabbMin;
+	btVector3			m_bvhAabbMax;
+	btVector3			m_bvhQuantization;
+
+	int					m_bulletVersion;	//for serialization versioning. It could also be used to detect endianess.
+
+	int					m_curNodeIndex;
+	//quantization data
+	bool				m_useQuantization;
+
+
+
+	NodeArray			m_leafNodes;
+	NodeArray			m_contiguousNodes;
+	QuantizedNodeArray	m_quantizedLeafNodes;
+	QuantizedNodeArray	m_quantizedContiguousNodes;
 	
+	btTraversalMode	m_traversalMode;
 	BvhSubtreeInfoArray		m_SubtreeHeaders;
 
 	//This is only used for serialization so we don't have to add serialization directly to btAlignedObjectArray
 	int m_subtreeHeaderCount;
+
+	
+
 
 
 	///two versions, one for quantized and normal nodes. This allows code-reuse while maintaining readability (no template/macro!)
@@ -332,6 +334,9 @@ protected:
 	void	updateSubtreeHeaders(int leftChildNodexIndex,int rightChildNodexIndex);
 
 public:
+	
+	BT_DECLARE_ALIGNED_ALLOCATOR();
+
 	btQuantizedBvh();
 
 	virtual ~btQuantizedBvh();

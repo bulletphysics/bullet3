@@ -20,7 +20,9 @@ subject to the following restrictions:
 
 #define RAYAABB2
 
-btQuantizedBvh::btQuantizedBvh() : m_useQuantization(false), 
+btQuantizedBvh::btQuantizedBvh() : 
+					m_bulletVersion(BT_BULLET_VERSION),
+					m_useQuantization(false), 
 					//m_traversalMode(TRAVERSAL_STACKLESS_CACHE_FRIENDLY)
 					m_traversalMode(TRAVERSAL_STACKLESS)
 					//m_traversalMode(TRAVERSAL_RECURSIVE)
@@ -1136,9 +1138,9 @@ btQuantizedBvh *btQuantizedBvh::deSerializeInPlace(void *i_alignedDataBuffer, un
 btQuantizedBvh::btQuantizedBvh(btQuantizedBvh &self, bool /* ownsMemory */) :
 m_bvhAabbMin(self.m_bvhAabbMin),
 m_bvhAabbMax(self.m_bvhAabbMax),
-m_bvhQuantization(self.m_bvhQuantization)
+m_bvhQuantization(self.m_bvhQuantization),
+m_bulletVersion(BT_BULLET_VERSION)
 {
-
 
 }
 
