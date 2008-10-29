@@ -486,13 +486,17 @@ void			btSoftBody::setTotalDensity(btScalar density)
 void			btSoftBody::transform(const btTransform& trs)
 {
 	const btScalar	margin=getCollisionShape()->getMargin();
+	ATTRIBUTE_ALIGNED16(btDbvtVolume)	vol;
+	
 	for(int i=0,ni=m_nodes.size();i<ni;++i)
 	{
 		Node&	n=m_nodes[i];
 		n.m_x=trs*n.m_x;
 		n.m_q=trs*n.m_q;
 		n.m_n=trs.getBasis()*n.m_n;
-		m_ndbvt.update(n.m_leaf,btDbvtVolume::FromCR(n.m_x,margin));
+		vol = btDbvtVolume::FromCR(n.m_x,margin);
+		
+		m_ndbvt.update(n.m_leaf,vol);
 	}
 	updateNormals();
 	updateBounds();
@@ -521,12 +525,15 @@ void			btSoftBody::rotate(	const btQuaternion& rot)
 void			btSoftBody::scale(const btVector3& scl)
 {
 	const btScalar	margin=getCollisionShape()->getMargin();
+	ATTRIBUTE_ALIGNED16(btDbvtVolume)	vol;
+	
 	for(int i=0,ni=m_nodes.size();i<ni;++i)
 	{
 		Node&	n=m_nodes[i];
 		n.m_x*=scl;
 		n.m_q*=scl;
-		m_ndbvt.update(n.m_leaf,btDbvtVolume::FromCR(n.m_x,margin));
+		vol = btDbvtVolume::FromCR(n.m_x,margin);
+		m_ndbvt.update(n.m_leaf,vol);
 	}
 	updateNormals();
 	updateBounds();
@@ -1303,11 +1310,13 @@ void			btSoftBody::predictMotion(btScalar dt)
 	/* Bounds				*/ 
 	updateBounds();	
 	/* Nodes				*/ 
+	ATTRIBUTE_ALIGNED16(btDbvtVolume)	vol;
 	for(i=0,ni=m_nodes.size();i<ni;++i)
 	{
 		Node&	n=m_nodes[i];
+		vol = btDbvtVolume::FromCR(n.m_x,m_sst.radmrg);
 		m_ndbvt.update(	n.m_leaf,
-			btDbvtVolume::FromCR(n.m_x,m_sst.radmrg),
+			vol,
 			n.m_v*m_sst.velmrg,
 			m_sst.updmrg);
 	}
@@ -1320,8 +1329,9 @@ void			btSoftBody::predictMotion(btScalar dt)
 			const btVector3	v=(	f.m_n[0]->m_v+
 				f.m_n[1]->m_v+
 				f.m_n[2]->m_v)/3;
+			vol = VolumeOf(f,m_sst.radmrg);
 			m_fdbvt.update(	f.m_leaf,
-				VolumeOf(f,m_sst.radmrg),
+				vol,
 				v*m_sst.velmrg,
 				m_sst.updmrg);
 		}

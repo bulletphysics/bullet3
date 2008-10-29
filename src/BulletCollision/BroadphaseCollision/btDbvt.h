@@ -794,13 +794,13 @@ inline void		btDbvt::collideTT(	const btDbvtNode* root0,
 			m_stkStack.resize(DOUBLE_STACKSIZE);
 			m_stkStack[0]=sStkNN(root0,root1);
 			do	{
-				sStkNN	p=stack[--depth];
+				sStkNN	p=m_stkStack[--depth];
 				if(Intersect(p.a->volume,p.b->volume,xform))
 				{
 					if(depth>treshold)
 					{
-						m_stkStack.resize(stack.size()*2);
-						treshold=stack.size()-4;
+						m_stkStack.resize(m_stkStack.size()*2);
+						treshold=m_stkStack.size()-4;
 					}
 					if(p.a->isinternal())
 					{
