@@ -2089,8 +2089,8 @@ void					btSoftBody::applyClusters(bool drift)
 	BT_PROFILE("ApplyClusters");
 	const btScalar					f0=m_sst.sdt;
 	const btScalar					f1=f0/2;
-	btAlignedObjectArray<btVector3>	deltas;
-	btAlignedObjectArray<btScalar>	weights;
+	btAlignedObjectArray<btVector3> deltas;
+	btAlignedObjectArray<btScalar> weights;
 	deltas.resize(m_nodes.size(),btVector3(0,0,0));
 	weights.resize(m_nodes.size(),0);
 	int i;
@@ -2584,7 +2584,7 @@ void			btSoftBody::defaultCollisionHandler(btCollisionObject* pco)
 			docollide.prb		=	prb;
 			docollide.dynmargin	=	basemargin+timemargin;
 			docollide.stamargin	=	basemargin;
-			btDbvt::collideTV(m_ndbvt.m_root,volume,docollide);
+			m_ndbvt.collideTV(m_ndbvt.m_root,volume,docollide);
 		}
 		break;
 	case	fCollision::CL_RS:
@@ -2617,13 +2617,13 @@ void			btSoftBody::defaultCollisionHandler(btSoftBody* psb)
 			/* psb0 nodes vs psb1 faces	*/ 
 			docollide.psb[0]=this;
 			docollide.psb[1]=psb;
-			btDbvt::collideTT(	docollide.psb[0]->m_ndbvt.m_root,
+			docollide.psb[0]->m_ndbvt.collideTT(	docollide.psb[0]->m_ndbvt.m_root,
 				docollide.psb[1]->m_fdbvt.m_root,
 				docollide);
 			/* psb1 nodes vs psb0 faces	*/ 
 			docollide.psb[0]=psb;
 			docollide.psb[1]=this;
-			btDbvt::collideTT(	docollide.psb[0]->m_ndbvt.m_root,
+			docollide.psb[0]->m_ndbvt.collideTT(	docollide.psb[0]->m_ndbvt.m_root,
 				docollide.psb[1]->m_fdbvt.m_root,
 				docollide);
 		}

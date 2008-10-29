@@ -265,6 +265,8 @@ struct	btDbvt
 	unsigned		m_opath;
 
 	mutable btAlignedObjectArray<const btDbvtNode*>	m_stack;
+	mutable btAlignedObjectArray<sStkNN>	m_stkStack;
+
 
 	// Methods
 	btDbvt();
@@ -299,22 +301,22 @@ struct	btDbvt
 		static void		enumLeaves(	const btDbvtNode* root,
 		DBVT_IPOLICY);
 	DBVT_PREFIX
-		static void		collideTT(	const btDbvtNode* root0,
+		void		collideTT(	const btDbvtNode* root0,
 		const btDbvtNode* root1,
 		DBVT_IPOLICY);
 	DBVT_PREFIX
-		static void		collideTT(	const btDbvtNode* root0,
+		void		collideTT(	const btDbvtNode* root0,
 		const btDbvtNode* root1,
 		const btTransform& xform,
 		DBVT_IPOLICY);
 	DBVT_PREFIX
-		static void		collideTT(	const btDbvtNode* root0,
+		void		collideTT(	const btDbvtNode* root0,
 		const btTransform& xform0,
 		const btDbvtNode* root1,
 		const btTransform& xform1,
 		DBVT_IPOLICY);
 	DBVT_PREFIX
-		static void		collideTV(	const btDbvtNode* root,
+		void		collideTV(	const btDbvtNode* root,
 		const btDbvtVolume& volume,
 		DBVT_IPOLICY);
 	///rayTest is a re-entrant ray test, and can be called in parallel as long as the btAlignedAlloc is thread-safe (uses locking etc)
@@ -723,25 +725,24 @@ inline void		btDbvt::collideTT(	const btDbvtNode* root0,
 	DBVT_CHECKTYPE
 		if(root0&&root1)
 		{
-			btAlignedObjectArray<sStkNN>	stack;
 			int								depth=1;
 			int								treshold=DOUBLE_STACKSIZE-4;
-			stack.resize(DOUBLE_STACKSIZE);
-			stack[0]=sStkNN(root0,root1);
+			m_stkStack.resize(DOUBLE_STACKSIZE);
+			m_stkStack[0]=sStkNN(root0,root1);
 			do	{		
-				sStkNN	p=stack[--depth];
+				sStkNN	p=m_stkStack[--depth];
 				if(depth>treshold)
 				{
-					stack.resize(stack.size()*2);
-					treshold=stack.size()-4;
+					m_stkStack.resize(m_stkStack.size()*2);
+					treshold=m_stkStack.size()-4;
 				}
 				if(p.a==p.b)
 				{
 					if(p.a->isinternal())
 					{
-						stack[depth++]=sStkNN(p.a->childs[0],p.a->childs[0]);
-						stack[depth++]=sStkNN(p.a->childs[1],p.a->childs[1]);
-						stack[depth++]=sStkNN(p.a->childs[0],p.a->childs[1]);
+						m_stkStack[depth++]=sStkNN(p.a->childs[0],p.a->childs[0]);
+						m_stkStack[depth++]=sStkNN(p.a->childs[1],p.a->childs[1]);
+						m_stkStack[depth++]=sStkNN(p.a->childs[0],p.a->childs[1]);
 					}
 				}
 				else if(Intersect(p.a->volume,p.b->volume))
@@ -750,23 +751,23 @@ inline void		btDbvt::collideTT(	const btDbvtNode* root0,
 					{
 						if(p.b->isinternal())
 						{
-							stack[depth++]=sStkNN(p.a->childs[0],p.b->childs[0]);
-							stack[depth++]=sStkNN(p.a->childs[1],p.b->childs[0]);
-							stack[depth++]=sStkNN(p.a->childs[0],p.b->childs[1]);
-							stack[depth++]=sStkNN(p.a->childs[1],p.b->childs[1]);
+							m_stkStack[depth++]=sStkNN(p.a->childs[0],p.b->childs[0]);
+							m_stkStack[depth++]=sStkNN(p.a->childs[1],p.b->childs[0]);
+							m_stkStack[depth++]=sStkNN(p.a->childs[0],p.b->childs[1]);
+							m_stkStack[depth++]=sStkNN(p.a->childs[1],p.b->childs[1]);
 						}
 						else
 						{
-							stack[depth++]=sStkNN(p.a->childs[0],p.b);
-							stack[depth++]=sStkNN(p.a->childs[1],p.b);
+							m_stkStack[depth++]=sStkNN(p.a->childs[0],p.b);
+							m_stkStack[depth++]=sStkNN(p.a->childs[1],p.b);
 						}
 					}
 					else
 					{
 						if(p.b->isinternal())
 						{
-							stack[depth++]=sStkNN(p.a,p.b->childs[0]);
-							stack[depth++]=sStkNN(p.a,p.b->childs[1]);
+							m_stkStack[depth++]=sStkNN(p.a,p.b->childs[0]);
+							m_stkStack[depth++]=sStkNN(p.a,p.b->childs[1]);
 						}
 						else
 						{
@@ -788,41 +789,40 @@ inline void		btDbvt::collideTT(	const btDbvtNode* root0,
 	DBVT_CHECKTYPE
 		if(root0&&root1)
 		{
-			btAlignedObjectArray<sStkNN>	stack;
 			int								depth=1;
 			int								treshold=DOUBLE_STACKSIZE-4;
-			stack.resize(DOUBLE_STACKSIZE);
-			stack[0]=sStkNN(root0,root1);
+			m_stkStack.resize(DOUBLE_STACKSIZE);
+			m_stkStack[0]=sStkNN(root0,root1);
 			do	{
 				sStkNN	p=stack[--depth];
 				if(Intersect(p.a->volume,p.b->volume,xform))
 				{
 					if(depth>treshold)
 					{
-						stack.resize(stack.size()*2);
+						m_stkStack.resize(stack.size()*2);
 						treshold=stack.size()-4;
 					}
 					if(p.a->isinternal())
 					{
 						if(p.b->isinternal())
 						{					
-							stack[depth++]=sStkNN(p.a->childs[0],p.b->childs[0]);
-							stack[depth++]=sStkNN(p.a->childs[1],p.b->childs[0]);
-							stack[depth++]=sStkNN(p.a->childs[0],p.b->childs[1]);
-							stack[depth++]=sStkNN(p.a->childs[1],p.b->childs[1]);
+							m_stkStack[depth++]=sStkNN(p.a->childs[0],p.b->childs[0]);
+							m_stkStack[depth++]=sStkNN(p.a->childs[1],p.b->childs[0]);
+							m_stkStack[depth++]=sStkNN(p.a->childs[0],p.b->childs[1]);
+							m_stkStack[depth++]=sStkNN(p.a->childs[1],p.b->childs[1]);
 						}
 						else
 						{
-							stack[depth++]=sStkNN(p.a->childs[0],p.b);
-							stack[depth++]=sStkNN(p.a->childs[1],p.b);
+							m_stkStack[depth++]=sStkNN(p.a->childs[0],p.b);
+							m_stkStack[depth++]=sStkNN(p.a->childs[1],p.b);
 						}
 					}
 					else
 					{
 						if(p.b->isinternal())
 						{
-							stack[depth++]=sStkNN(p.a,p.b->childs[0]);
-							stack[depth++]=sStkNN(p.a,p.b->childs[1]);
+							m_stkStack[depth++]=sStkNN(p.a,p.b->childs[0]);
+							m_stkStack[depth++]=sStkNN(p.a,p.b->childs[1]);
 						}
 						else
 						{
@@ -856,25 +856,26 @@ inline void		btDbvt::collideTV(	const btDbvtNode* root,
 		if(root)
 		{
 			ATTRIBUTE_ALIGNED16(btDbvtVolume)		volume(vol);
-			btAlignedObjectArray<const btDbvtNode*>	stack;
-			stack.reserve(SIMPLE_STACKSIZE);
-			stack.push_back(root);
+			
+			m_stack.resize(0);
+			m_stack.reserve(SIMPLE_STACKSIZE);
+			m_stack.push_back(root);
 			do	{
-				const btDbvtNode*	n=stack[stack.size()-1];
-				stack.pop_back();
+				const btDbvtNode*	n=m_stack[m_stack.size()-1];
+				m_stack.pop_back();
 				if(Intersect(n->volume,volume))
 				{
 					if(n->isinternal())
 					{
-						stack.push_back(n->childs[0]);
-						stack.push_back(n->childs[1]);
+						m_stack.push_back(n->childs[0]);
+						m_stack.push_back(n->childs[1]);
 					}
 					else
 					{
 						policy.Process(n);
 					}
 				}
-			} while(stack.size()>0);
+			} while(m_stack.size()>0);
 		}
 }
 

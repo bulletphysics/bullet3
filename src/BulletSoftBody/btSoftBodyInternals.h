@@ -752,7 +752,7 @@ struct btSoftColliders
 			pr->getCollisionShape()->getAabb(pr->getInterpolationWorldTransform(),mins,maxs);
 			volume=btDbvtVolume::FromMM(mins,maxs);
 			volume.Expand(btVector3(1,1,1)*margin);
-			btDbvt::collideTV(ps->m_cdbvt.m_root,volume,*this);
+			ps->m_cdbvt.collideTV(ps->m_cdbvt.m_root,volume,*this);
 		}	
 	};
 	//
@@ -789,7 +789,7 @@ struct btSoftColliders
 			friction	=	btMin(psa->m_cfg.kDF,psb->m_cfg.kDF);
 			bodies[0]	=	psa;
 			bodies[1]	=	psb;
-			btDbvt::collideTT(psa->m_cdbvt.m_root,psb->m_cdbvt.m_root,*this);
+			psa->m_cdbvt.collideTT(psa->m_cdbvt.m_root,psb->m_cdbvt.m_root,*this);
 		}	
 	};
 	//

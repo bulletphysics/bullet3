@@ -182,8 +182,8 @@ btBroadphaseProxy*				btDbvtBroadphase::createProxy(	const btVector3& aabbMin,
 	{
 		btDbvtTreeCollider	collider(this);
 		collider.proxy=proxy;
-		btDbvt::collideTV(m_sets[0].m_root,aabb,collider);
-		btDbvt::collideTV(m_sets[1].m_root,aabb,collider);
+		m_sets[0].collideTV(m_sets[0].m_root,aabb,collider);
+		m_sets[1].collideTV(m_sets[1].m_root,aabb,collider);
 	}
 	return(proxy);
 }
@@ -307,8 +307,8 @@ void							btDbvtBroadphase::setAabb(		btBroadphaseProxy* absproxy,
 			if(!m_deferedcollide)
 			{
 				btDbvtTreeCollider	collider(this);
-				btDbvt::collideTT(m_sets[1].m_root,proxy->leaf,collider);
-				btDbvt::collideTT(m_sets[0].m_root,proxy->leaf,collider);
+				m_sets[1].collideTT(m_sets[1].m_root,proxy->leaf,collider);
+				m_sets[0].collideTT(m_sets[0].m_root,proxy->leaf,collider);
 			}
 		}	
 	}
@@ -382,12 +382,12 @@ void							btDbvtBroadphase::collide(btDispatcher* dispatcher)
 		if(m_deferedcollide)
 		{
 			SPC(m_profiling.m_fdcollide);
-			btDbvt::collideTT(m_sets[0].m_root,m_sets[1].m_root,collider);
+			m_sets[0].collideTT(m_sets[0].m_root,m_sets[1].m_root,collider);
 		}
 		if(m_deferedcollide)
 		{
 			SPC(m_profiling.m_ddcollide);
-			btDbvt::collideTT(m_sets[0].m_root,m_sets[0].m_root,collider);
+			m_sets[0].collideTT(m_sets[0].m_root,m_sets[0].m_root,collider);
 		}
 	}
 	/* clean up				*/ 
