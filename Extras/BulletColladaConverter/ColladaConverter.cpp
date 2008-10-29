@@ -1135,7 +1135,7 @@ void	ColladaConverter::prepareConstraints(ConstraintInput& input)
 	}
 }
 
-void	ColladaConverter::PreparePhysicsObject(struct btRigidBodyInput& input, bool isDynamics, float mass,btCollisionShape* colShape, btVector3 linearVelocity, btVector3 angularVelocity)
+void	ColladaConverter::PreparePhysicsObject(struct btRigidBodyInput& input, bool isDynamics, float mass,btCollisionShape* colShape, const btVector3& linearVelocity, const btVector3& angularVelocity)
 {
 	btTransform startTransform;
 	startTransform.setIdentity();

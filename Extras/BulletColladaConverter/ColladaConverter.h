@@ -99,7 +99,7 @@ protected:
 	bool	m_use32bitIndices;
 	bool	m_use4componentVertices;
 	
-	void PreparePhysicsObject(struct btRigidBodyInput& input, bool isDynamics, float mass,btCollisionShape* colShape, btVector3 linearVelocity, btVector3 angularVelocity);
+	void PreparePhysicsObject(struct btRigidBodyInput& input, bool isDynamics, float mass,btCollisionShape* colShape, const btVector3& linearVelocity, const btVector3& angularVelocity);
 	
 	void prepareConstraints(ConstraintInput& input);
 
