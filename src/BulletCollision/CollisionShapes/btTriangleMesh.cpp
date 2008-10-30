@@ -74,17 +74,21 @@ void	btTriangleMesh::addIndex(int index)
 	}
 }
 
-int	btTriangleMesh::findOrAddVertex(const btVector3& vertex)
+
+int	btTriangleMesh::findOrAddVertex(const btVector3& vertex, bool removeDuplicateVertices)
 {
 	//return index of new/existing vertex
 	//todo: could use acceleration structure for this
 	if (m_use4componentVertices)
 	{
-		for (int i=0;i< m_4componentVertices.size();i++)
-		{
-			if ((m_4componentVertices[i]-vertex).length2() <= m_weldingThreshold)
+		if (removeDuplicateVertices)
 			{
-				return i;
+			for (int i=0;i< m_4componentVertices.size();i++)
+			{
+				if ((m_4componentVertices[i]-vertex).length2() <= m_weldingThreshold)
+				{
+					return i;
+				}
 			}
 		}
 		m_indexedMeshes[0].m_numVertices++;
@@ -96,14 +100,17 @@ int	btTriangleMesh::findOrAddVertex(const btVector3& vertex)
 	} else
 	{
 		
-		for (int i=0;i< m_3componentVertices.size();i+=3)
+		if (removeDuplicateVertices)
 		{
-			btVector3 vtx(m_3componentVertices[i],m_3componentVertices[i+1],m_3componentVertices[i+2]);
-			if ((vtx-vertex).length2() <= m_weldingThreshold)
+			for (int i=0;i< m_3componentVertices.size();i+=3)
 			{
-				return i/3;
+				btVector3 vtx(m_3componentVertices[i],m_3componentVertices[i+1],m_3componentVertices[i+2]);
+				if ((vtx-vertex).length2() <= m_weldingThreshold)
+				{
+					return i/3;
+				}
 			}
-		}
+	}
 		m_3componentVertices.push_back(vertex.getX());
 		m_3componentVertices.push_back(vertex.getY());
 		m_3componentVertices.push_back(vertex.getZ());
@@ -114,13 +121,12 @@ int	btTriangleMesh::findOrAddVertex(const btVector3& vertex)
 
 }
 		
-void	btTriangleMesh::addTriangle(const btVector3& vertex0,const btVector3& vertex1,const btVector3& vertex2)
+void	btTriangleMesh::addTriangle(const btVector3& vertex0,const btVector3& vertex1,const btVector3& vertex2,bool removeDuplicateVertices)
 {
 	m_indexedMeshes[0].m_numTriangles++;
-		
-	addIndex(findOrAddVertex(vertex0));
-	addIndex(findOrAddVertex(vertex1));
-	addIndex(findOrAddVertex(vertex2));
+	addIndex(findOrAddVertex(vertex0,removeDuplicateVertices));
+	addIndex(findOrAddVertex(vertex1,removeDuplicateVertices));
+	addIndex(findOrAddVertex(vertex2,removeDuplicateVertices));
 }
 
 int btTriangleMesh::getNumTriangles() const
