@@ -2,11 +2,14 @@ SubDir TOP Extras ConvexDecomposition ;
 
 Library convexdecomposition : [ Wildcard *.h *.cpp ] : noinstall  ;
 
-CFlags convexdecomposition : [ FIncludes $(TOP)/Extras/Decomposition ] ;
+CFlags convexdecomposition : 
+[ FIncludes $(TOP)/Extras/Decomposition ] 
+[ FIncludes $(TOP)/src ] 
+;
 
 LibDepends convexdecomposition :  ;
 
-MsvcGenConfig ConvexDecomposition.INCDIRS : $(TOP)/Extras/ConvexDecomposition ;
+MsvcGenConfig ConvexDecomposition.INCDIRS : $(TOP)/Extras/ConvexDecomposition $(TOP)/src ;
 
 
 #InstallHeader [ Wildcard *.h ] : ConvexDecomposition ;
