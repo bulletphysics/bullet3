@@ -65,7 +65,7 @@ inline int	btGetVersion()
 		#endif //__MINGW32__
 
 		#include <assert.h>
-#if defined(DEBUG) || defined (_DEBUG)
+#ifdef BT_DEBUG
 		#define btAssert assert
 #else
 		#define btAssert(x)
@@ -85,7 +85,11 @@ inline int	btGetVersion()
 		#ifndef assert
 		#include <assert.h>
 		#endif
+#ifdef BT_DEBUG
 		#define btAssert assert
+#else
+		#define btAssert(x)
+#endif
 		//btFullAssert is optional, slows down a lot
 		#define btFullAssert(x)
 
@@ -102,7 +106,11 @@ inline int	btGetVersion()
 		#ifndef assert
 		#include <assert.h>
 		#endif
+#ifdef BT_DEBUG
 		#define btAssert assert
+#else
+		#define btAssert(x)
+#endif
 		//btFullAssert is optional, slows down a lot
 		#define btFullAssert(x)
 
