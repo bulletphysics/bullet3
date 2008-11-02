@@ -15,9 +15,9 @@ subject to the following restrictions:
 #ifndef BASIC_DEMO_H
 #define BASIC_DEMO_H
 
-#include "DemoApplication.h"
+#include "LinearMath/btQuickprof.h"
 
-
+class btDiscreteDynamicsworld;
 class btCollisionShape;
 class btOverlappingPairCache;
 class btCollisionDispatcher;
@@ -25,8 +25,9 @@ class btConstraintSolver;
 struct btCollisionAlgorithmCreateFunc;
 
 ///BasicDemo is good starting point for learning the code base and porting.
-class BasicDemo : public DemoApplication
+class BasicDemo 
 {
+	btClock m_clock;
 
 	//keep the collision shapes, for deletion/cleanup
 	btAlignedObjectArray<btCollisionShape*>	m_collisionShapes;
@@ -36,10 +37,14 @@ class BasicDemo : public DemoApplication
 	btCollisionDispatcher*	m_dispatcher;
 	btDefaultCollisionConfiguration* m_collisionConfiguration;
 	btConstraintSolver*	m_solver;
+	btDiscreteDynamicsWorld*	m_dynamicsWorld;
 
 	btCollisionAlgorithmCreateFunc*	m_sphereSphereCF;
 	btCollisionAlgorithmCreateFunc*	m_sphereBoxCF;
 	btCollisionAlgorithmCreateFunc*	m_boxSphereCF;
+
+	btRigidBody* localCreateRigidBody(btScalar mass,const btTransform& startTrans,btCollisionShape* colShape);
+
 
 	public:
 
@@ -49,7 +54,6 @@ class BasicDemo : public DemoApplication
 
 	virtual void clientMoveAndDisplay();
 
-	virtual void displayCallback();
 	
 	
 };

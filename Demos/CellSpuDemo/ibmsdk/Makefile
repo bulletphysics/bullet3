@@ -34,12 +34,10 @@ INCLUDE		=	-DUSE_LIBSPE2		\
 			-I$(ROOT)/src		\
 			-I$(ROOT)/Demos/OpenGL	\
 			-I$(HOSTINC)
-SYS_LIBS	:= -lspe2 -lglut -lGLU -lGL -lm -lXext -lXmu -lX11
+SYS_LIBS	:= -lspe2  -lm 
 
 IMPORTS		= 	$(ROOT)/lib/ibmsdk/bulletmultithreaded.a \
-			$(ROOT)/lib/ibmsdk/bulletopenglsupport.a			\
 			$(ROOT)/lib/ibmsdk/bulletdynamics.a 	\
-			$(ROOT)/lib/ibmsdk/bulletconvexhull.a 	\
 			$(ROOT)/lib/ibmsdk/bulletcollision.a	\
 			$(ROOT)/lib/ibmsdk/bulletmath.a	
 	

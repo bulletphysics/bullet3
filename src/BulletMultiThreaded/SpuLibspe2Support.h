@@ -152,10 +152,17 @@ public:
 	//tell the task scheduler we are done with the SPU tasks
 	virtual void stopSPU();
 
+	virtual void setNumTasks(int numTasks)
+	{
+		//changing the number of tasks after initialization is not implemented (yet)
+	}
+
 private:
 	
 	///start the spus (can be called at the beginning of each frame, to make sure that the right SPU program is loaded)
 	void internal_startSPU();
+
+
 	
 	
 	int numThreads;

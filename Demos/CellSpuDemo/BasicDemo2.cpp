@@ -15,8 +15,7 @@ subject to the following restrictions:
 
 
 //#define USE_GROUND_BOX 1
-//#define PRINT_CONTACT_STATISTICS 1
-//#define CHECK_MEMORY_LEAKS 1
+#define PRINT_CONTACT_STATISTICS 1
 #define USE_PARALLEL_DISPATCHER 1
 
 
@@ -27,19 +26,16 @@ int gNumObjects = 120;
 #include "btBulletDynamicsCommon.h"
 #include "BulletCollision/BroadphaseCollision/btMultiSapBroadphase.h"
 #include "LinearMath/btIDebugDraw.h"
-#include "GLDebugDrawer.h"
 #include <stdio.h> //printf debugging
 btScalar deltaTime = btScalar(1./60.);
 btScalar gCollisionMargin = btScalar(0.05);
 #include "BasicDemo2.h"
-#include "GL_ShapeDrawer.h"
-#include "GlutStuff.h"
 
 #ifdef USE_PARALLEL_DISPATCHER
-#include "../../Extras/BulletMultiThreaded/SpuGatheringCollisionDispatcher.h"
-#include "../../Extras/BulletMultiThreaded/Win32ThreadSupport.h"
-#include "../../Extras/BulletMultiThreaded/SpuLibspe2Support.h"
-#include "../../Extras/BulletMultiThreaded/SpuNarrowPhaseCollisionTask/SpuGatheringCollisionTask.h"
+#include "BulletMultiThreaded/SpuGatheringCollisionDispatcher.h"
+#include "BulletMultiThreaded/Win32ThreadSupport.h"
+#include "BulletMultiThreaded/SpuLibspe2Support.h"
+#include "BulletMultiThreaded/SpuNarrowPhaseCollisionTask/SpuGatheringCollisionTask.h"
 #endif//USE_PARALLEL_DISPATCHER
 
 
@@ -47,12 +43,6 @@ btScalar gCollisionMargin = btScalar(0.05);
 
 ////////////////////////////////////
 
-GLDebugDrawer debugDrawer;
-
-class myTest
-{
-
-};
 
 
 
@@ -61,15 +51,12 @@ int main(int argc,char** argv)
 
 	BasicDemo ccdDemo;
 	ccdDemo.initPhysics();
-	ccdDemo.setCameraDistance(btScalar(50.));
 
-#ifdef CHECK_MEMORY_LEAKS
+	int i;
+	for (i=0;i<1000;i++)
+		ccdDemo.clientMoveAndDisplay();
 	ccdDemo.exitPhysics();
-#else
-	return glutmain(argc, argv,640,480,"Bullet Physics Demo. http://bullet.sf.net",&ccdDemo);
-#endif
 	
-	//default glut doesn't return from mainloop
 	return 0;
 }
 
@@ -81,7 +68,6 @@ extern int gTotalContactPoints;
 
 void BasicDemo::clientMoveAndDisplay()
 {
-	glClear(GL_COLOR_BUFFER_BIT | GL_DEPTH_BUFFER_BIT); 
 
 	//simple dynamics world doesn't handle fixed-time-stepping
 	float ms = m_clock.getTimeMicroseconds();
@@ -93,9 +79,6 @@ void BasicDemo::clientMoveAndDisplay()
 	if (m_dynamicsWorld)
 		m_dynamicsWorld->stepSimulation(ms / 1000000.f);
 
-	renderme(); 
-
-	glFlush();
 	//some additional debugging info
 #ifdef PRINT_CONTACT_STATISTICS
 	printf("num manifolds: %i\n",gNumManifold);
@@ -104,23 +87,7 @@ void BasicDemo::clientMoveAndDisplay()
 #endif //PRINT_CONTACT_STATISTICS
 
 	gTotalContactPoints = 0;
-	glutSwapBuffers();
 
-}
-
-
-
-void BasicDemo::displayCallback(void) {
-
-	glClear(GL_COLOR_BUFFER_BIT | GL_DEPTH_BUFFER_BIT); 
-
-	if (m_dynamicsWorld)
-		m_dynamicsWorld->updateAabbs();
-	
-	renderme();
-
-	glFlush();
-	glutSwapBuffers();
 }
 
 
@@ -146,7 +113,7 @@ void	BasicDemo::initPhysics()
 	
 	spe_program_handle_t * program_handle;
 #ifndef USE_CESOF
-		char* spuFileName = "../../../Extras/BulletMultiThreaded/out/spuCollision.elf";
+		char* spuFileName = "../../../src/BulletMultiThreaded/out/spuCollision.elf";
 
 			program_handle = spe_image_open (spuFileName);
 			if (program_handle == NULL)
@@ -193,18 +160,11 @@ void	BasicDemo::initPhysics()
 	m_solver = sol;
 	
 
-#ifdef USE_SIMPLE_DYNAMICS_WORLD
-	//btSimpleDynamicsWorld doesn't support 'cache friendly' optimization, so disable this
-	sol->setSolverMode(btSequentialImpulseConstraintSolver::SOLVER_RANDMIZE_ORDER);
-	m_dynamicsWorld = new btSimpleDynamicsWorld(m_dispatcher,m_overlappingPairCache,m_solver);
-#else
 	m_dynamicsWorld = new btDiscreteDynamicsWorld(m_dispatcher,m_overlappingPairCache,m_solver,m_collisionConfiguration);
-#endif //USE_SIMPLE_DYNAMICS_WORLD
 	m_dynamicsWorld->getDispatchInfo().m_enableSPU = true;
 
 	m_dynamicsWorld->setGravity(btVector3(0,-10,0));
 
-	m_dynamicsWorld->setDebugDrawer(&debugDrawer);
 
 	///create a few basic rigid bodies
 
@@ -248,10 +208,22 @@ void	BasicDemo::initPhysics()
 		localCreateRigidBody(btScalar(1.),trans,sphereShape);
 	}
 
-	clientResetScene();
+	//clientResetScene();
 }
 	
+btRigidBody* BasicDemo::localCreateRigidBody(btScalar mass,const btTransform& startTrans,btCollisionShape* colShape)
+{
+btVector3 inertia(0,0,0);
+if (mass)
+	colShape->calculateLocalInertia(mass,inertia);
+	btRigidBody::btRigidBodyConstructionInfo rbci(mass,0,colShape,inertia);
+	rbci.m_startWorldTransform = startTrans;
 
+btRigidBody* body = new btRigidBody(rbci);
+	m_dynamicsWorld->addRigidBody(body);
+return body;
+
+}
 void	BasicDemo::exitPhysics()
 {
 

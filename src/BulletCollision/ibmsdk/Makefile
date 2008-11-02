@@ -28,15 +28,19 @@ CC_OPT_LEVEL =  -O3
 
 OBJS = 						\
 btAxisSweep3.o					\
+btQuantizedBvh.o				\
 btBroadphaseProxy.o				\
 btCollisionAlgorithm.o				\
 btDispatcher.o					\
-btOverlappingPairCache.o				\
+btDbvtBroadphase.o				\
+btDbvt.o					\
+btOverlappingPairCache.o			\
 btSimpleBroadphase.o				\
 btContinuousConvexCollision.o			\
 btConvexCast.o					\
 btGjkConvexCast.o				\
 btGjkEpa.o					\
+btGjkEpa2.o					\
 btGjkEpaPenetrationDepthSolver.o		\
 btGjkPairDetector.o				\
 btDefaultCollisionConfiguration.o		\
@@ -49,9 +53,12 @@ btCollisionDispatcher.o				\
 btCollisionObject.o				\
 btCollisionWorld.o				\
 btCompoundCollisionAlgorithm.o			\
+btBoxBoxCollisionAlgorithm.o			\
+btBoxBoxDetector.o				\
 btConvexPlaneCollisionAlgorithm.o		\
 btConvexConcaveCollisionAlgorithm.o		\
 btConvexConvexAlgorithm.o			\
+btDefaultCollisionConfiguration.o		\
 btEmptyCollisionAlgorithm.o			\
 btManifoldResult.o				\
 btSimulationIslandManager.o			\
