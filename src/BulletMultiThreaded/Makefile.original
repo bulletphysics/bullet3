@@ -29,7 +29,7 @@ else
   SPU_DEFFLAGS= -DUSE_LIBSPE2 -D__SPU__
 endif
 SPU_GCC=$(USE_CCACHE) /usr/bin/spu-gcc
-SPU_INCLUDEDIR= -I. -I$(CELL_SYSROOT)/usr/spu/include -I../../src -I$(NARROWPHASEDIR)
+SPU_INCLUDEDIR= -Ivectormath/scalar/cpp -I. -I$(CELL_SYSROOT)/usr/spu/include -I../../src -I$(NARROWPHASEDIR)
 #SPU_CFLAGS= $(DEBUGFLAG) -W -Wall -Winline -Os -c -include spu_intrinsics.h -include stdbool.h
 SPU_CFLAGS= $(DEBUGFLAG) -W -Wall -Winline -O3 -mbranch-hints -fomit-frame-pointer -ftree-vectorize -finline-functions -ftree-vect-loop-version -ftree-loop-optimize -ffast-math -fno-rtti -fno-exceptions -c -include spu_intrinsics.h -include stdbool.h
 
@@ -59,6 +59,9 @@ MakeOut :
 # SPU
 SpuTaskFile : MakeOut
 	$(SPU_GCC) $(SPU_DEFFLAGS) $(SPU_CFLAGS) $(SPU_INCLUDEDIR) -o $(OUTDIR)/SpuTaskFile.o $(SPU_TASKFILE).cpp
+
+boxBoxDistance : MakeOut
+	$(SPU_GCC) $(SPU_DEFFLAGS) $(SPU_CFLAGS) $(SPU_INCLUDEDIR) -o $(OUTDIR)/$@.o $(NARROWPHASEDIR)/$@.cpp
 
 SpuFakeDma : MakeOut
 	$(SPU_GCC) $(SPU_DEFFLAGS) $(SPU_CFLAGS) $(SPU_INCLUDEDIR) -o $(OUTDIR)/$@.o $@.cpp
@@ -131,13 +134,14 @@ SpuSampleTaskProcess : MakeOut
 	
 
 
-spu : SpuFakeDma SpuContactManifoldCollisionAlgorithm_spu SpuContactResult SpuTaskFile \
+spu : boxBoxDistance SpuFakeDma SpuContactManifoldCollisionAlgorithm_spu SpuContactResult SpuTaskFile \
       SpuGjkPairDetector SpuMinkowskiPenetrationDepthSolver SpuVoronoiSimplexSolver SpuCollisionShapes \
       btPersistentManifold btOptimizedBvh btCollisionObject btTriangleCallback btTriangleIndexVertexArray \
       btStridingMeshInterface btAlignedAllocator
 	$(SPU_GCC) -o $(OUTDIR)/spuCollision.elf \
                             $(OUTDIR)/SpuTaskFile.o \
                             $(OUTDIR)/SpuFakeDma.o \
+			    $(OUTDIR)/boxBoxDistance.o \
                             $(OUTDIR)/SpuContactManifoldCollisionAlgorithm_spu.o \
                             $(OUTDIR)/SpuContactResult.o \
                             $(OUTDIR)/SpuCollisionShapes.o \

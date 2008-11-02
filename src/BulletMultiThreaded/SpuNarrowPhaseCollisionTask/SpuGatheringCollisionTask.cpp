@@ -90,8 +90,10 @@ bool gUseEpa = false;
 #include <LibSN_SPU.h>
 #endif //USE_SN_TUNER
 
-#if defined (__SPU__) || defined (USE_LIBSPE2)
+#if defined (__SPU__) && !defined (USE_LIBSPE2)
 #include <spu_printf.h>
+#elif defined (USE_LIBSPE2)
+#define spu_printf(a)
 #else
 #define IGNORE_ALIGNMENT 1
 #include <stdio.h>
