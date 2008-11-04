@@ -307,8 +307,8 @@ void							btDbvtBroadphase::setAabb(		btBroadphaseProxy* absproxy,
 			if(!m_deferedcollide)
 			{
 				btDbvtTreeCollider	collider(this);
-				m_sets[1].collideTT(m_sets[1].m_root,proxy->leaf,collider);
-				m_sets[0].collideTT(m_sets[0].m_root,proxy->leaf,collider);
+				m_sets[1].collideTTpersistentStack(m_sets[1].m_root,proxy->leaf,collider);
+				m_sets[0].collideTTpersistentStack(m_sets[0].m_root,proxy->leaf,collider);
 			}
 		}	
 	}
@@ -382,12 +382,12 @@ void							btDbvtBroadphase::collide(btDispatcher* dispatcher)
 		if(m_deferedcollide)
 		{
 			SPC(m_profiling.m_fdcollide);
-			m_sets[0].collideTT(m_sets[0].m_root,m_sets[1].m_root,collider);
+			m_sets[0].collideTTpersistentStack(m_sets[0].m_root,m_sets[1].m_root,collider);
 		}
 		if(m_deferedcollide)
 		{
 			SPC(m_profiling.m_ddcollide);
-			m_sets[0].collideTT(m_sets[0].m_root,m_sets[0].m_root,collider);
+			m_sets[0].collideTTpersistentStack(m_sets[0].m_root,m_sets[0].m_root,collider);
 		}
 	}
 	/* clean up				*/ 

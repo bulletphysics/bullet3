@@ -266,7 +266,7 @@ struct	btDbvt
 	unsigned		m_opath;
 
 	
-	
+	btAlignedObjectArray<sStkNN>	m_stkStack;
 
 
 	// Methods
@@ -305,6 +305,12 @@ struct	btDbvt
 		void		collideTT(	const btDbvtNode* root0,
 		const btDbvtNode* root1,
 		DBVT_IPOLICY);
+
+	DBVT_PREFIX
+		void		collideTTpersistentStack(	const btDbvtNode* root0,
+		  const btDbvtNode* root1,
+		  DBVT_IPOLICY);
+
 	DBVT_PREFIX
 		void		collideTT(	const btDbvtNode* root0,
 		const btDbvtNode* root1,
@@ -780,6 +786,72 @@ inline void		btDbvt::collideTT(	const btDbvtNode* root0,
 			} while(depth);
 		}
 }
+
+
+
+DBVT_PREFIX
+inline void		btDbvt::collideTTpersistentStack(	const btDbvtNode* root0,
+								  const btDbvtNode* root1,
+								  DBVT_IPOLICY)
+{
+	DBVT_CHECKTYPE
+		if(root0&&root1)
+		{
+			int								depth=1;
+			int								treshold=DOUBLE_STACKSIZE-4;
+			
+			m_stkStack.resize(DOUBLE_STACKSIZE);
+			m_stkStack[0]=sStkNN(root0,root1);
+			do	{		
+				sStkNN	p=m_stkStack[--depth];
+				if(depth>treshold)
+				{
+					m_stkStack.resize(m_stkStack.size()*2);
+					treshold=m_stkStack.size()-4;
+				}
+				if(p.a==p.b)
+				{
+					if(p.a->isinternal())
+					{
+						m_stkStack[depth++]=sStkNN(p.a->childs[0],p.a->childs[0]);
+						m_stkStack[depth++]=sStkNN(p.a->childs[1],p.a->childs[1]);
+						m_stkStack[depth++]=sStkNN(p.a->childs[0],p.a->childs[1]);
+					}
+				}
+				else if(Intersect(p.a->volume,p.b->volume))
+				{
+					if(p.a->isinternal())
+					{
+						if(p.b->isinternal())
+						{
+							m_stkStack[depth++]=sStkNN(p.a->childs[0],p.b->childs[0]);
+							m_stkStack[depth++]=sStkNN(p.a->childs[1],p.b->childs[0]);
+							m_stkStack[depth++]=sStkNN(p.a->childs[0],p.b->childs[1]);
+							m_stkStack[depth++]=sStkNN(p.a->childs[1],p.b->childs[1]);
+						}
+						else
+						{
+							m_stkStack[depth++]=sStkNN(p.a->childs[0],p.b);
+							m_stkStack[depth++]=sStkNN(p.a->childs[1],p.b);
+						}
+					}
+					else
+					{
+						if(p.b->isinternal())
+						{
+							m_stkStack[depth++]=sStkNN(p.a,p.b->childs[0]);
+							m_stkStack[depth++]=sStkNN(p.a,p.b->childs[1]);
+						}
+						else
+						{
+							policy.Process(p.a,p.b);
+						}
+					}
+				}
+			} while(depth);
+		}
+}
+
 
 //
 DBVT_PREFIX
