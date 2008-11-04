@@ -1,135 +1,70 @@
-			
 INCLUDE_DIRECTORIES(
 ${BULLET_PHYSICS_SOURCE_DIR}/src }
 )
-	
-ADD_LIBRARY(LibBulletCollision
+
+SET(LibBulletCollision_SRCS
 				BroadphaseCollision/btAxisSweep3.cpp
-				BroadphaseCollision/btAxisSweep3.h
 				BroadphaseCollision/btBroadphaseProxy.cpp
-				BroadphaseCollision/btBroadphaseProxy.h
 				BroadphaseCollision/btCollisionAlgorithm.cpp
-				BroadphaseCollision/btCollisionAlgorithm.h
 				BroadphaseCollision/btDispatcher.cpp
-				BroadphaseCollision/btDispatcher.h
 				BroadphaseCollision/btDbvtBroadphase.cpp
-				BroadphaseCollision/btDbvtBroadphase.h
 				BroadphaseCollision/btDbvt.cpp
-				BroadphaseCollision/btDbvt.h
 				BroadphaseCollision/btMultiSapBroadphase.cpp
-				BroadphaseCollision/btMultiSapBroadphase.h
 				BroadphaseCollision/btOverlappingPairCache.cpp
-				BroadphaseCollision/btOverlappingPairCache.h
-				BroadphaseCollision/btOverlappingPairCallback.h
 				BroadphaseCollision/btQuantizedBvh.cpp
-				BroadphaseCollision/btQuantizedBvh.h
 				BroadphaseCollision/btSimpleBroadphase.cpp
-				BroadphaseCollision/btSimpleBroadphase.h
 				CollisionDispatch/btCollisionDispatcher.cpp
-				CollisionDispatch/btCollisionDispatcher.h
 				CollisionDispatch/btCollisionObject.cpp
-				CollisionDispatch/btCollisionObject.h
 				CollisionDispatch/btCollisionWorld.cpp
-				CollisionDispatch/btCollisionWorld.h
 				CollisionDispatch/btCompoundCollisionAlgorithm.cpp
-				CollisionDispatch/btCompoundCollisionAlgorithm.h
 				CollisionDispatch/btConvexConcaveCollisionAlgorithm.cpp
-				CollisionDispatch/btConvexConcaveCollisionAlgorithm.h
 				CollisionDispatch/btDefaultCollisionConfiguration.cpp
-				CollisionDispatch/btDefaultCollisionConfiguration.h
 				CollisionDispatch/btSphereSphereCollisionAlgorithm.cpp
-				CollisionDispatch/btSphereSphereCollisionAlgorithm.h
 				CollisionDispatch/btBoxBoxCollisionAlgorithm.cpp
-				CollisionDispatch/btBoxBoxCollisionAlgorithm.h
 				CollisionDispatch/btBoxBoxDetector.cpp
-				CollisionDispatch/btBoxBoxDetector.h
 				CollisionDispatch/btGhostObject.cpp
-				CollisionDispatch/btGhostObject.h
 				CollisionDispatch/btSphereBoxCollisionAlgorithm.cpp
-				CollisionDispatch/btSphereBoxCollisionAlgorithm.h
 				CollisionDispatch/btConvexPlaneCollisionAlgorithm.cpp
-				CollisionDispatch/btConvexPlaneCollisionAlgorithm.h
 				CollisionDispatch/btSphereTriangleCollisionAlgorithm.cpp
-				CollisionDispatch/btSphereTriangleCollisionAlgorithm.h
 				CollisionDispatch/btConvexConvexAlgorithm.cpp
-				CollisionDispatch/btConvexConvexAlgorithm.h
 				CollisionDispatch/btEmptyCollisionAlgorithm.cpp
-				CollisionDispatch/btEmptyCollisionAlgorithm.h
 				CollisionDispatch/btManifoldResult.cpp
-				CollisionDispatch/btManifoldResult.h
 				CollisionDispatch/btSimulationIslandManager.cpp
-				CollisionDispatch/btSimulationIslandManager.h
 				CollisionDispatch/btUnionFind.cpp
-				CollisionDispatch/btUnionFind.h
 				CollisionDispatch/SphereTriangleDetector.cpp
-				CollisionDispatch/SphereTriangleDetector.h
 				CollisionShapes/btBoxShape.cpp
-				CollisionShapes/btBoxShape.h
 				CollisionShapes/btBvhTriangleMeshShape.cpp
-				CollisionShapes/btBvhTriangleMeshShape.h
 				CollisionShapes/btCapsuleShape.cpp
-				CollisionShapes/btCapsuleShape.h
 				CollisionShapes/btCollisionShape.cpp
-				CollisionShapes/btCollisionShape.h
 				CollisionShapes/btCompoundShape.cpp
-				CollisionShapes/btCompoundShape.h
 				CollisionShapes/btConcaveShape.cpp
-				CollisionShapes/btConcaveShape.h
 				CollisionShapes/btConeShape.cpp
-				CollisionShapes/btConeShape.h
 				CollisionShapes/btConvexHullShape.cpp
-				CollisionShapes/btConvexHullShape.h
 				CollisionShapes/btConvexPointCloudShape.cpp
-				CollisionShapes/btConvexPointCloudShape.h
 				CollisionShapes/btConvexShape.cpp
-				CollisionShapes/btConvexShape.h
 				CollisionShapes/btConvexInternalShape.cpp
-				CollisionShapes/btConvexInternalShape.h
 				CollisionShapes/btConvexTriangleMeshShape.cpp
-				CollisionShapes/btConvexTriangleMeshShape.h
 				CollisionShapes/btCylinderShape.cpp
-				CollisionShapes/btCylinderShape.h
 				CollisionShapes/btEmptyShape.cpp
-				CollisionShapes/btEmptyShape.h
 				CollisionShapes/btHeightfieldTerrainShape.cpp
-				CollisionShapes/btHeightfieldTerrainShape.h
 				CollisionShapes/btMinkowskiSumShape.cpp
-				CollisionShapes/btMinkowskiSumShape.h
-				CollisionShapes/btMaterial.h
 				CollisionShapes/btMultimaterialTriangleMeshShape.cpp
-				CollisionShapes/btMultimaterialTriangleMeshShape.h
 				CollisionShapes/btMultiSphereShape.cpp
-				CollisionShapes/btMultiSphereShape.h
 				CollisionShapes/btOptimizedBvh.cpp
-				CollisionShapes/btOptimizedBvh.h
 				CollisionShapes/btPolyhedralConvexShape.cpp
-				CollisionShapes/btPolyhedralConvexShape.h
 				CollisionShapes/btScaledBvhTriangleMeshShape.cpp
-				CollisionShapes/btScaledBvhTriangleMeshShape.h
 				CollisionShapes/btTetrahedronShape.cpp
-				CollisionShapes/btTetrahedronShape.h
 				CollisionShapes/btSphereShape.cpp
-				CollisionShapes/btSphereShape.h
-				CollisionShapes/btShapeHull.h
 				CollisionShapes/btShapeHull.cpp
 				CollisionShapes/btStaticPlaneShape.cpp
-				CollisionShapes/btStaticPlaneShape.h
 				CollisionShapes/btStridingMeshInterface.cpp
-				CollisionShapes/btStridingMeshInterface.h
 				CollisionShapes/btTriangleCallback.cpp
-				CollisionShapes/btTriangleCallback.h
 				CollisionShapes/btTriangleBuffer.cpp
-				CollisionShapes/btTriangleBuffer.h
 				CollisionShapes/btTriangleIndexVertexArray.cpp
-				CollisionShapes/btTriangleIndexVertexArray.h
-				CollisionShapes/btTriangleIndexVertexMaterialArray.h
 				CollisionShapes/btTriangleIndexVertexMaterialArray.cpp
 				CollisionShapes/btTriangleMesh.cpp
-				CollisionShapes/btTriangleMesh.h
 				CollisionShapes/btTriangleMeshShape.cpp
-				CollisionShapes/btTriangleMeshShape.h
 				CollisionShapes/btUniformScalingShape.cpp
-				CollisionShapes/btUniformScalingShape.h
 				Gimpact/btContactProcessing.cpp
 				Gimpact/btGImpactShape.cpp
 				Gimpact/gim_contact.cpp
@@ -142,25 +77,109 @@ ADD_LIBRARY(LibBulletCollision
 				Gimpact/btGImpactQuantizedBvh.cpp
 				Gimpact/gim_box_set.cpp
 				NarrowPhaseCollision/btContinuousConvexCollision.cpp
-				NarrowPhaseCollision/btContinuousConvexCollision.h
 				NarrowPhaseCollision/btGjkEpa2.cpp
-				NarrowPhaseCollision/btGjkEpa2.h
 				NarrowPhaseCollision/btGjkEpaPenetrationDepthSolver.cpp
-				NarrowPhaseCollision/btGjkEpaPenetrationDepthSolver.h
 				NarrowPhaseCollision/btConvexCast.cpp
-				NarrowPhaseCollision/btConvexCast.h
 				NarrowPhaseCollision/btGjkConvexCast.cpp
-				NarrowPhaseCollision/btGjkConvexCast.h
 				NarrowPhaseCollision/btGjkPairDetector.cpp
-				NarrowPhaseCollision/btGjkPairDetector.h
 				NarrowPhaseCollision/btMinkowskiPenetrationDepthSolver.cpp
-				NarrowPhaseCollision/btMinkowskiPenetrationDepthSolver.h
 				NarrowPhaseCollision/btPersistentManifold.cpp
-				NarrowPhaseCollision/btPersistentManifold.h
 				NarrowPhaseCollision/btRaycastCallback.cpp
-				NarrowPhaseCollision/btRaycastCallback.h
 				NarrowPhaseCollision/btSubSimplexConvexCast.cpp
-				NarrowPhaseCollision/btSubSimplexConvexCast.h
 				NarrowPhaseCollision/btVoronoiSimplexSolver.cpp
+)
+
+SET(LibBulletCollision_HDRS
+				BroadphaseCollision/btAxisSweep3.h
+				BroadphaseCollision/btBroadphaseProxy.h
+				BroadphaseCollision/btCollisionAlgorithm.h
+				BroadphaseCollision/btDispatcher.h
+				BroadphaseCollision/btDbvtBroadphase.h
+				BroadphaseCollision/btDbvt.h
+				BroadphaseCollision/btMultiSapBroadphase.h
+				BroadphaseCollision/btOverlappingPairCache.h
+				BroadphaseCollision/btOverlappingPairCallback.h
+				BroadphaseCollision/btQuantizedBvh.h
+				BroadphaseCollision/btSimpleBroadphase.h
+				CollisionDispatch/btCollisionDispatcher.h
+				CollisionDispatch/btCollisionObject.h
+				CollisionDispatch/btCollisionWorld.h
+				CollisionDispatch/btCompoundCollisionAlgorithm.h
+				CollisionDispatch/btConvexConcaveCollisionAlgorithm.h
+				CollisionDispatch/btDefaultCollisionConfiguration.h
+				CollisionDispatch/btSphereSphereCollisionAlgorithm.h
+				CollisionDispatch/btBoxBoxCollisionAlgorithm.h
+				CollisionDispatch/btBoxBoxDetector.h
+				CollisionDispatch/btGhostObject.h
+				CollisionDispatch/btSphereBoxCollisionAlgorithm.h
+				CollisionDispatch/btConvexPlaneCollisionAlgorithm.h
+				CollisionDispatch/btSphereTriangleCollisionAlgorithm.h
+				CollisionDispatch/btConvexConvexAlgorithm.h
+				CollisionDispatch/btEmptyCollisionAlgorithm.h
+				CollisionDispatch/btManifoldResult.h
+				CollisionDispatch/btSimulationIslandManager.h
+				CollisionDispatch/btUnionFind.h
+				CollisionDispatch/SphereTriangleDetector.h
+				CollisionShapes/btBoxShape.h
+				CollisionShapes/btBvhTriangleMeshShape.h
+				CollisionShapes/btCapsuleShape.h
+				CollisionShapes/btCollisionShape.h
+				CollisionShapes/btCompoundShape.h
+				CollisionShapes/btConcaveShape.h
+				CollisionShapes/btConeShape.h
+				CollisionShapes/btConvexHullShape.h
+				CollisionShapes/btConvexPointCloudShape.h
+				CollisionShapes/btConvexShape.h
+				CollisionShapes/btConvexInternalShape.h
+				CollisionShapes/btConvexTriangleMeshShape.h
+				CollisionShapes/btCylinderShape.h
+				CollisionShapes/btEmptyShape.h
+				CollisionShapes/btHeightfieldTerrainShape.h
+				CollisionShapes/btMinkowskiSumShape.h
+				CollisionShapes/btMaterial.h
+				CollisionShapes/btMultimaterialTriangleMeshShape.h
+				CollisionShapes/btMultiSphereShape.h
+				CollisionShapes/btOptimizedBvh.h
+				CollisionShapes/btPolyhedralConvexShape.h
+				CollisionShapes/btScaledBvhTriangleMeshShape.h
+				CollisionShapes/btTetrahedronShape.h
+				CollisionShapes/btSphereShape.h
+				CollisionShapes/btShapeHull.h
+				CollisionShapes/btStaticPlaneShape.h
+				CollisionShapes/btStridingMeshInterface.h
+				CollisionShapes/btTriangleCallback.h
+				CollisionShapes/btTriangleBuffer.h
+				CollisionShapes/btTriangleIndexVertexArray.h
+				CollisionShapes/btTriangleIndexVertexMaterialArray.h
+				CollisionShapes/btTriangleMesh.h
+				CollisionShapes/btTriangleMeshShape.h
+				CollisionShapes/btUniformScalingShape.h
+				Gimpact/btGImpactShape.h
+				Gimpact/gim_contact.h
+				Gimpact/btGImpactBvh.h
+				Gimpact/btGenericPoolAllocator.h
+				Gimpact/gim_memory.h
+				Gimpact/btGImpactCollisionAlgorithm.h
+				Gimpact/btTriangleShapeEx.h
+				Gimpact/gim_tri_collision.h
+				Gimpact/btGImpactQuantizedBvh.h
+				Gimpact/gim_box_set.h
+				NarrowPhaseCollision/btContinuousConvexCollision.h
+				NarrowPhaseCollision/btContinuousConvexCollision.h
+				NarrowPhaseCollision/btGjkEpa2.h
+				NarrowPhaseCollision/btGjkEpaPenetrationDepthSolver.h
+				NarrowPhaseCollision/btConvexCast.h
+				NarrowPhaseCollision/btGjkConvexCast.h
+				NarrowPhaseCollision/btGjkPairDetector.h
+				NarrowPhaseCollision/btMinkowskiPenetrationDepthSolver.h
+				NarrowPhaseCollision/btPersistentManifold.h
+				NarrowPhaseCollision/btRaycastCallback.h
+				NarrowPhaseCollision/btSubSimplexConvexCast.h
 				NarrowPhaseCollision/btVoronoiSimplexSolver.h
 )
+
+#ADD_LIBRARY(LibBulletCollision SHARED ${LibBulletCollision_SRCS} ${LibBulletCollision_HDRS})
+ADD_LIBRARY(LibBulletCollision ${LibBulletCollision_SRCS} ${LibBulletCollision_HDRS})
+
+INSTALL(TARGETS LibBulletCollision DESTINATION lib)
+INSTALL(DIRECTORY ${CMAKE_CURRENT_SOURCE_DIR} DESTINATION include FILES_MATCHING PATTERN "*.h")

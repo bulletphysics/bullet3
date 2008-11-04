@@ -3,7 +3,14 @@ INCLUDE_DIRECTORIES(
 ${BULLET_PHYSICS_SOURCE_DIR}/src }
 )
 
-ADD_LIBRARY(LibLinearMath
+SET(LibLinearMath_SRCS
+		btConvexHull.cpp
+		btQuickprof.cpp
+		btGeometryUtil.cpp
+		btAlignedAllocator.cpp
+)
+
+SET(LibLinearMath_HDRS
 		btAlignedObjectArray.h
 		btList.h
 		btPoolAllocator.h
@@ -16,7 +23,6 @@ ADD_LIBRARY(LibLinearMath
 		btScalar.h
 		btAabbUtil2.h
 		btConvexHull.h
-		btConvexHull.cpp
 		btMinMax.h
 		btQuaternion.h
 		btStackAlloc.h
@@ -27,8 +33,10 @@ ADD_LIBRARY(LibLinearMath
 		btIDebugDraw.h
 		btQuickprof.h
 		btTransformUtil.h
-		btQuickprof.cpp
-		btGeometryUtil.cpp
-		btAlignedAllocator.cpp
 )
 
+# ADD_LIBRARY(LibLinearMath SHARED ${LibLinearMath_SRCS} ${LibLinearMath_HDRS})
+ADD_LIBRARY(LibLinearMath ${LibLinearMath_SRCS} ${LibLinearMath_HDRS})
+
+INSTALL(TARGETS LibLinearMath DESTINATION lib)
+INSTALL(DIRECTORY ${CMAKE_CURRENT_SOURCE_DIR} DESTINATION include FILES_MATCHING PATTERN "*.h")

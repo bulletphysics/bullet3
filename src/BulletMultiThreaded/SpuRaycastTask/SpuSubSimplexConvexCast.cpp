@@ -39,8 +39,8 @@ SpuSubsimplexRayCast::SpuSubsimplexRayCast (void* shapeB, SpuConvexPolyhedronVer
  * MSUM(Pellet, ConvexShape)
  *
  */
-void supportPoints (const btTransform xformRay,
-		    const btTransform xformB,
+void supportPoints (const btTransform& xformRay,
+		    const btTransform& xformB,
 		    const int shapeType,
 		    const void* shape,
 		    SpuConvexPolyhedronVertexData* convexVertexData,

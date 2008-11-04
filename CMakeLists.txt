@@ -56,4 +56,14 @@ ELSE (WIN32)
 ENDIF (WIN32)
 
 
-SUBDIRS(src Demos Extras)
+OPTION(BUILD_DEMOS "Set when you want to build the demos" ON)
+IF(BUILD_DEMOS)
+  SUBDIRS(Demos)
+ENDIF(BUILD_DEMOS)
+
+OPTION(BUILD_EXTRAS "Set when you want to build the extras" ON)
+IF(BUILD_EXTRAS)
+  SUBDIRS(Extras)
+ENDIF(BUILD_EXTRAS)
+
+SUBDIRS(src)

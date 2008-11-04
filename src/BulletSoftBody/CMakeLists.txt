@@ -3,19 +3,30 @@ INCLUDE_DIRECTORIES(
 ${BULLET_PHYSICS_SOURCE_DIR}/src }
 )
 
-ADD_LIBRARY(LibBulletSoftBody
+SET(LibBulletSoftBody_SRCS
 	btSoftBody.cpp
-	btSoftBody.h
 	btSoftBodyHelpers.cpp
-	btSparseSDF.h
-	btSoftBodyHelpers.h
 	btSoftBodyRigidBodyCollisionConfiguration.cpp
 	btSoftRigidCollisionAlgorithm.cpp
-	btSoftRigidCollisionAlgorithm.h
 	btSoftSoftCollisionAlgorithm.cpp
-	btSoftSoftCollisionAlgorithm.h
 	btSoftBodyConcaveCollisionAlgorithm.cpp
-	btSoftBodyConcaveCollisionAlgorithm.h
-	btSoftRigidDynamicsWorld.h
 	btSoftRigidDynamicsWorld.cpp
 )
+
+SET(LibBulletSoftBody_HDRS
+	btSoftBody.h
+	btSparseSDF.h
+	btSoftBodyHelpers.h
+	btSoftRigidCollisionAlgorithm.h
+	btSoftSoftCollisionAlgorithm.h
+	btSoftBodyConcaveCollisionAlgorithm.h
+	btSoftRigidDynamicsWorld.h
+)
+
+
+#ADD_LIBRARY(LibBulletSoftBody SHARED ${LibBulletSoftBody_SRCS} ${LibBulletSoftBody_HDRS})
+ADD_LIBRARY(LibBulletSoftBody  ${LibBulletSoftBody_SRCS} ${LibBulletSoftBody_HDRS})
+
+INSTALL(TARGETS LibBulletSoftBody DESTINATION lib)
+INSTALL(DIRECTORY ${CMAKE_CURRENT_SOURCE_DIR} DESTINATION include FILES_MATCHING PATTERN "*.h")
+
