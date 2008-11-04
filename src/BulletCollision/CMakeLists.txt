@@ -178,7 +178,11 @@ SET(LibBulletCollision_HDRS
 				NarrowPhaseCollision/btVoronoiSimplexSolver.h
 )
 
+
+
 #ADD_LIBRARY(LibBulletCollision SHARED ${LibBulletCollision_SRCS} ${LibBulletCollision_HDRS})
+#TARGET_LINK_LIBRARIES(LibBulletCollision LibLinearMath)
+
 ADD_LIBRARY(LibBulletCollision ${LibBulletCollision_SRCS} ${LibBulletCollision_HDRS})
 
 INSTALL(TARGETS LibBulletCollision DESTINATION lib)

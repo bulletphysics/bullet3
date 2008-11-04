@@ -37,8 +37,13 @@ SET(LibBulletDynamics_HDRS
 	Vehicle/btWheelInfo.h
 )
 
+
+
 #ADD_LIBRARY(LibBulletDynamics SHARED ${LibBulletDynamics_SRCS} ${LibBulletDynamics_HDRS})
+#TARGET_LINK_LIBRARIES(LibBulletDynamics LibBulletCollision LibLinearMath)
+
 ADD_LIBRARY(LibBulletDynamics ${LibBulletDynamics_SRCS} ${LibBulletDynamics_HDRS})
+
 
 INSTALL(TARGETS LibBulletDynamics DESTINATION lib)
 INSTALL(DIRECTORY ${CMAKE_CURRENT_SOURCE_DIR} DESTINATION include FILES_MATCHING PATTERN "*.h")
