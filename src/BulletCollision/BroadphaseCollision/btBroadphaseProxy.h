@@ -24,6 +24,7 @@ subject to the following restrictions:
 /// btDispatcher uses these types
 /// IMPORTANT NOTE:The types are ordered polyhedral, implicit convex and concave
 /// to facilitate type checking
+/// CUSTOM_POLYHEDRAL_SHAPE_TYPE,CUSTOM_CONVEX_SHAPE_TYPE and CUSTOM_CONCAVE_SHAPE_TYPE can be used to extend Bullet without modifying source code
 enum BroadphaseNativeTypes
 {
 	// polyhedral convex shapes
@@ -33,6 +34,7 @@ enum BroadphaseNativeTypes
 	CONVEX_TRIANGLEMESH_SHAPE_PROXYTYPE,
 	CONVEX_HULL_SHAPE_PROXYTYPE,
 	CONVEX_POINT_CLOUD_SHAPE_PROXYTYPE,
+	CUSTOM_POLYHEDRAL_SHAPE_TYPE,
 //implicit convex shapes
 IMPLICIT_CONVEX_SHAPES_START_HERE,
 	SPHERE_SHAPE_PROXYTYPE,
@@ -44,6 +46,7 @@ IMPLICIT_CONVEX_SHAPES_START_HERE,
 	UNIFORM_SCALING_SHAPE_PROXYTYPE,
 	MINKOWSKI_SUM_SHAPE_PROXYTYPE,
 	MINKOWSKI_DIFFERENCE_SHAPE_PROXYTYPE,
+	CUSTOM_CONVEX_SHAPE_TYPE,
 //concave shapes
 CONCAVE_SHAPES_START_HERE,
 	//keep all the convex shapetype below here, for the check IsConvexShape in broadphase proxy!
@@ -60,6 +63,7 @@ CONCAVE_SHAPES_START_HERE,
 	
 	EMPTY_SHAPE_PROXYTYPE,
 	STATIC_PLANE_PROXYTYPE,
+	CUSTOM_CONCAVE_SHAPE_TYPE,
 CONCAVE_SHAPES_END_HERE,
 
 	COMPOUND_SHAPE_PROXYTYPE,
