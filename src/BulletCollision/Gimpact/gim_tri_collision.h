@@ -36,9 +36,6 @@ email: projectileman@yahoo.com
 #include "gim_box_collision.h"
 #include "gim_clip_polygon.h"
 
-/*! \addtogroup GEOMETRIC_OPERATIONS
-*/
-//! @{
 
 
 
@@ -378,6 +375,5 @@ if 0.0<= u+v <=1.0 then they are inside of triangle
 
 
 
-//! @}
 
 #endif // GIM_TRI_COLLISION_H_INCLUDED

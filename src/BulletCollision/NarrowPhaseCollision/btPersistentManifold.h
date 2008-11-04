@@ -106,7 +106,7 @@ public:
 		return m_pointCache[index];
 	}
 
-	/// todo: get this margin from the current physics / collision environment
+	///@todo: get this margin from the current physics / collision environment
 	btScalar	getContactBreakingThreshold() const;
 	
 	int getCacheEntry(const btManifoldPoint& newPoint) const;

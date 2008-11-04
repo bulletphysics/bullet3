@@ -221,7 +221,7 @@ void	btDiscreteDynamicsWorld::debugDrawWorld()
 
 void	btDiscreteDynamicsWorld::clearForces()
 {
-	//todo: iterate over awake simulation islands!
+	///@todo: iterate over awake simulation islands!
 	for ( int i=0;i<m_collisionObjects.size();i++)
 	{
 		btCollisionObject* colObj = m_collisionObjects[i];
@@ -237,7 +237,7 @@ void	btDiscreteDynamicsWorld::clearForces()
 ///apply gravity, call this once per timestep
 void	btDiscreteDynamicsWorld::applyGravity()
 {
-	//todo: iterate over awake simulation islands!
+	///@todo: iterate over awake simulation islands!
 	for ( int i=0;i<m_collisionObjects.size();i++)
 	{
 		btCollisionObject* colObj = m_collisionObjects[i];
@@ -266,7 +266,7 @@ void	btDiscreteDynamicsWorld::synchronizeMotionStates()
 			{
 				//we need to call the update at least once, even for sleeping objects
 				//otherwise the 'graphics' transform never updates properly
-				//so todo: add 'dirty' flag
+				///@todo: add 'dirty' flag
 				//if (body->getActivationState() != ISLAND_SLEEPING)
 				{
 					btTransform interpolatedTransform;
@@ -1106,7 +1106,7 @@ void btDiscreteDynamicsWorld::debugDrawObject(const btTransform& worldTransform,
 				{
 					btConcaveShape* concaveMesh = (btConcaveShape*) shape;
 					
-					//todo pass camera, for some culling
+					///@todo pass camera, for some culling? no -> we are not a graphics lib
 					btVector3 aabbMax(btScalar(1e30),btScalar(1e30),btScalar(1e30));
 					btVector3 aabbMin(btScalar(-1e30),btScalar(-1e30),btScalar(-1e30));
 

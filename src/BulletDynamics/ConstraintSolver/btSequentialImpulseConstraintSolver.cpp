@@ -840,7 +840,7 @@ btScalar btSequentialImpulseConstraintSolver::solveGroupCacheFriendlySetup(btCol
 	int numConstraintPool = m_tmpSolverConstraintPool.size();
 	int numFrictionPool = m_tmpSolverFrictionConstraintPool.size();
 
-	///todo: use stack allocator for such temporarily memory, same for solver bodies/constraints
+	///@todo: use stack allocator for such temporarily memory, same for solver bodies/constraints
 	m_orderTmpConstraintPool.resize(numConstraintPool);
 	m_orderFrictionConstraintPool.resize(numFrictionPool);
 	{

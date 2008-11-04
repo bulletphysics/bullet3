@@ -323,7 +323,6 @@ void	btHingeConstraint::solveConstraint(btScalar	timeStep)
 				btScalar denom = getRigidBodyA().computeAngularImpulseDenominator(normal) +
 					getRigidBodyB().computeAngularImpulseDenominator(normal);
 				// scale for mass and relaxation
-				//todo:  expose this 0.9 factor to developer
 				velrelOrthog *= (btScalar(1.)/denom) * m_relaxationFactor;
 			}
 

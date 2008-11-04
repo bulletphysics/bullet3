@@ -38,7 +38,7 @@ subject to the following restrictions:
 #include "BulletCollision/NarrowPhaseCollision/btVoronoiSimplexSolver.h"
 #include "BulletCollision/NarrowPhaseCollision/btSubSimplexConvexCast.h"
 #include "BulletCollision/NarrowPhaseCollision/btGjkEpaPenetrationDepthSolver.h"
-#include "BulletCollision/NarrowPhaseCollision/btGjkEpa.h"
+#include "BulletCollision/NarrowPhaseCollision/btGjkEpa2.h"
 #include "BulletCollision/CollisionShapes/btMinkowskiSumShape.h"
 #include "BulletCollision/NarrowPhaseCollision/btDiscreteCollisionDetectorInterface.h"
 #include "BulletCollision/NarrowPhaseCollision/btSimplexSolverInterface.h"

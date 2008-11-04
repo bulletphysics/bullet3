@@ -139,7 +139,7 @@ bool ManifoldResultAddContactPoint(const btVector3& normalOnBInWorld,
 		newPt.m_combinedRestitution = combinedRestitution;
 
 		/*
-		//potential TODO: SPU callbacks, either immediate (local on the SPU), or deferred
+		///@todo: SPU callbacks, either immediate (local on the SPU), or deferred
 		//User can override friction and/or restitution
 		if (gContactAddedCallback &&
 			//and if either of the two bodies requires custom material

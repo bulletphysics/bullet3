@@ -78,7 +78,7 @@ void	btTriangleMesh::addIndex(int index)
 int	btTriangleMesh::findOrAddVertex(const btVector3& vertex, bool removeDuplicateVertices)
 {
 	//return index of new/existing vertex
-	//todo: could use acceleration structure for this
+	///@todo: could use acceleration structure for this
 	if (m_use4componentVertices)
 	{
 		if (removeDuplicateVertices)

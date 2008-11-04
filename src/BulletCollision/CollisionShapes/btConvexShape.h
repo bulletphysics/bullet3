@@ -24,8 +24,6 @@ subject to the following restrictions:
 #include "btCollisionMargin.h"
 #include "LinearMath/btAlignedAllocator.h"
 
-//todo: get rid of this btConvexCastResult thing!
-struct btConvexCastResult;
 #define MAX_PREFERRED_PENETRATION_DIRECTIONS 10
 
 /// The btConvexShape is an abstract shape interface, implemented by all convex shapes such as btBoxShape, btConvexHullShape etc.

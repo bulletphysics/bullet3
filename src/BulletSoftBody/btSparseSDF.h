@@ -125,7 +125,7 @@ struct	btSparseSdf
 		//printf("GC[%d]: %d cells, PpQ: %f\r\n",puid,ncells,nprobes/(btScalar)nqueries);
 		nqueries=1;
 		nprobes=1;
-		++puid;	/* TODO: Reset puid's when int range limit is reached	*/ 
+		++puid;	///@todo: Reset puid's when int range limit is reached	*/ 
 		/* else setup a priority list...						*/ 
 	}
 	//

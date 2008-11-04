@@ -97,7 +97,7 @@ int		btSimpleDynamicsWorld::stepSimulation( btScalar timeStep,int maxSubSteps, b
 
 void	btSimpleDynamicsWorld::clearForces()
 {
-	//todo: iterate over awake simulation islands!
+	///@todo: iterate over awake simulation islands!
 	for ( int i=0;i<m_collisionObjects.size();i++)
 	{
 		btCollisionObject* colObj = m_collisionObjects[i];
@@ -210,7 +210,7 @@ void	btSimpleDynamicsWorld::predictUnconstraintMotion(btScalar timeStep)
 
 void	btSimpleDynamicsWorld::synchronizeMotionStates()
 {
-	//todo: iterate over awake simulation islands!
+	///@todo: iterate over awake simulation islands!
 	for ( int i=0;i<m_collisionObjects.size();i++)
 	{
 		btCollisionObject* colObj = m_collisionObjects[i];

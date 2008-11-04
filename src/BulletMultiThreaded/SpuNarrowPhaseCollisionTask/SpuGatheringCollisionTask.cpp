@@ -266,9 +266,6 @@ public:
 
 		//		spu_printf("processNode with triangleIndex %d\n",triangleIndex);
 
-///TODO: add switch between short int, and int indices, based on indexType
-
-		// ugly solution to support both 16bit and 32bit indices
 		if (m_lsMemPtr->bvhShapeData.gIndexMesh.m_indexType == PHY_SHORT)
 		{
 			unsigned short int* indexBasePtr = (unsigned short int*)(m_lsMemPtr->bvhShapeData.gIndexMesh.m_triangleIndexBase+triangleIndex*m_lsMemPtr->bvhShapeData.gIndexMesh.m_triangleIndexStride);
@@ -403,7 +400,7 @@ void	ProcessConvexConcaveSpuCollision(SpuCollisionPairInput* wuInput, CollisionT
 		int numBatch = subTrees.size();
 		for (int i=0;i<numBatch;)
 		{
-// BEN: TODO - can reorder DMA transfers for less stall
+			//@todo- can reorder DMA transfers for less stall
 			int remaining = subTrees.size() - i;
 			int nextBatch = remaining < MAX_SPU_SUBTREE_HEADERS ? remaining : MAX_SPU_SUBTREE_HEADERS;
 			
@@ -647,7 +644,7 @@ void	handleCollisionPair(SpuCollisionPairInput& collisionPairInput, CollisionTas
 		cellDmaWaitTagStatusAll(DMA_MASK(1) | DMA_MASK(2));
 
 		// Both are compounds, do N^2 CD for now
-		// TODO: add some AABB-based pruning
+		///@todo: add some AABB-based pruning (probably not -> slower)
 	
 		btCompoundShape* spuCompoundShape0 = (btCompoundShape*)collisionShape0Loc;
 		btCompoundShape* spuCompoundShape1 = (btCompoundShape*)collisionShape1Loc;

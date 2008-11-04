@@ -44,7 +44,8 @@ struct	btSoftBodyWorldInfo
 };	
 
 
-/// btSoftBody is work-in-progress
+///The btSoftBody is an class to simulate cloth and volumetric soft bodies. 
+///There is two-way interaction between btSoftBody and btRigidBody/btCollisionObject.
 class	btSoftBody : public btCollisionObject
 {
 public:
@@ -616,9 +617,10 @@ public:
 		return m_worldInfo;
 	}
 
+	///@todo: avoid internal softbody shape hack and move collision code to collision library
 	virtual void	setCollisionShape(btCollisionShape* collisionShape)
 	{
-		//don't do anything, due to the internal shape hack: todo: fix this
+		
 	}
 
 	bool				checkLink(	int node0,

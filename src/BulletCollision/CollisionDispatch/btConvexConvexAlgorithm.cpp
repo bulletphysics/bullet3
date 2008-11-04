@@ -38,7 +38,7 @@ subject to the following restrictions:
 
 #include "BulletCollision/NarrowPhaseCollision/btMinkowskiPenetrationDepthSolver.h"
 
-#include "BulletCollision/NarrowPhaseCollision/btGjkEpa.h"
+#include "BulletCollision/NarrowPhaseCollision/btGjkEpa2.h"
 #include "BulletCollision/NarrowPhaseCollision/btGjkEpaPenetrationDepthSolver.h"
 
 
@@ -122,21 +122,6 @@ void btConvexConvexAlgorithm ::processCollision (btCollisionObject* body0,btColl
 
 	{
 
-#ifdef USE_BT_GJKEPA
-	btConvexShape*				shape0(static_cast<btConvexShape*>(body0->getCollisionShape()));
-	btConvexShape*				shape1(static_cast<btConvexShape*>(body1->getCollisionShape()));
-	const btScalar				radialmargin(0/*shape0->getMargin()+shape1->getMargin()*/);
-	btGjkEpaSolver::sResults	results;
-	if(btGjkEpaSolver::Collide(	shape0,body0->getWorldTransform(),
-								shape1,body1->getWorldTransform(),
-								radialmargin,results))
-		{
-		dispatchInfo.m_debugDraw->drawLine(results.witnesses[1],results.witnesses[1]+results.normal,btVector3(255,0,0));
-		resultOut->addContactPoint(results.normal,results.witnesses[1],-results.depth);
-		}
-#else
-
-	
 	
 	btGjkPairDetector::ClosestPointInput input;
 
@@ -154,7 +139,7 @@ void btConvexConvexAlgorithm ::processCollision (btCollisionObject* body0,btColl
 	input.m_transformB = body1->getWorldTransform();
 	
 	gjkPairDetector.getClosestPoints(input,*resultOut,dispatchInfo.m_debugDraw);
-#endif
+
 
 	btScalar sepDist = gjkPairDetector.getCachedSeparatingDistance()+dispatchInfo.m_convexConservativeDistanceThreshold;
 

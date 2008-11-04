@@ -32,7 +32,7 @@ subject to the following restrictions:
 typedef void (*PosixThreadFunc)(void* userPtr,void* lsMemory);
 typedef void* (*PosixlsMemorySetupFunc)();
 
-// PosixThreadSupport helps to initialize/shutdown libspe2, start/stop SPU tasks and communication
+///The PosixThreadSupport implements the btThreadSupportInterface using pthreads, to help porting SPU Tasks.
 class PosixThreadSupport : public btThreadSupportInterface 
 {
 public:

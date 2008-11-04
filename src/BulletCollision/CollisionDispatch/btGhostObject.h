@@ -118,7 +118,7 @@ public:
 
 
 
-///btGhostPairCache  keeps track of overlapping objects that have AABB overlap with the ghost
+///The btGhostPairCallback interfaces and forwards adding and removal of overlapping pairs from the btBroadphaseInterface to btGhostObject.
 class btGhostPairCallback : public btOverlappingPairCallback
 {
 	

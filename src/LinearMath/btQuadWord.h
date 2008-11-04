@@ -47,7 +47,7 @@ public:
 };
 
 
-/** @brief btQuadWord is base-class for vectors, points */
+/** @brief The btQuadWord is base-class for vectors, points */
 class	btQuadWord : public btQuadWordStorage
 {
 	public:

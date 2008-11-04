@@ -369,7 +369,7 @@ public:
 		btVector3 v = (point - m_bvhAabbMin) * m_bvhQuantization;
 		///Make sure rounding is done in a way that unQuantize(quantizeWithClamp(...)) is conservative
 		///end-points always set the first bit, so that they are sorted properly (so that neighbouring AABBs overlap properly)
-		///todo: double-check this
+		///@todo: double-check this
 		if (isMax)
 		{
 			out[0] = (unsigned short) (((unsigned short)(v.getX()+btScalar(1.)) | 1));

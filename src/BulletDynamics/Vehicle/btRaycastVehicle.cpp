@@ -188,7 +188,7 @@ btScalar btRaycastVehicle::rayCast(btWheelInfo& wheel)
 		wheel.m_raycastInfo.m_contactNormalWS  = rayResults.m_hitNormalInWorld;
 		wheel.m_raycastInfo.m_isInContact = true;
 		
-		wheel.m_raycastInfo.m_groundObject = &s_fixedObject;//todo for driving on dynamic/movable objects!;
+		wheel.m_raycastInfo.m_groundObject = &s_fixedObject;///@todo for driving on dynamic/movable objects!;
 		//wheel.m_raycastInfo.m_groundObject = object;
 
 

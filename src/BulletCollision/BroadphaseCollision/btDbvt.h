@@ -579,7 +579,7 @@ DBVT_INLINE int			Select(	const btDbvtAabbMm& o,
 {
 #if	DBVT_SELECT_IMPL == DBVT_IMPL_SSE
 	static DBVT_ALIGN const unsigned __int32	mask[]={0x7fffffff,0x7fffffff,0x7fffffff,0x7fffffff};
-	// TODO: the intrinsic version is 11% slower
+	///@todo: the intrinsic version is 11% slower
 #if DBVT_USE_INTRINSIC_SSE
 
 	union btSSEUnion ///NOTE: if we use more intrinsics, move btSSEUnion into the LinearMath directory

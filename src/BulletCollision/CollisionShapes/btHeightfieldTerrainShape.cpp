@@ -186,7 +186,7 @@ void btHeightfieldTerrainShape::quantizeWithClamp(int* out, const btVector3& poi
 
 	btVector3 v = (clampedPoint);// - m_bvhAabbMin) * m_bvhQuantization;
 
-	//TODO: optimization: check out how to removed this btFabs
+	///@todo: optimization: check out how to removed this btFabs
 		
 	out[0] = (int)(v.getX() + v.getX() / btFabs(v.getX())* btScalar(0.5) );
 	out[1] = (int)(v.getY() + v.getY() / btFabs(v.getY())* btScalar(0.5) );

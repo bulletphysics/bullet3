@@ -115,7 +115,7 @@ bool SphereTriangleDetector::collide(const btVector3& sphereCenter,btVector3 &po
 		normal *= btScalar(-1.);
 	}
 
-	///todo: move this gContactBreakingThreshold into a proper structure
+	///@todo: move this gContactBreakingThreshold into a proper structure
 	extern btScalar gContactBreakingThreshold;
 
 	btScalar contactMargin = gContactBreakingThreshold;

@@ -108,7 +108,7 @@ void	btConvexTriangleMeshShape::batchedUnitVectorGetSupportingVertexWithoutMargi
 		}
 	}
 	
-	//todo: could do the batch inside the callback!
+	///@todo: could do the batch inside the callback!
 
 
 	for (int j=0;j<numVectors;j++)

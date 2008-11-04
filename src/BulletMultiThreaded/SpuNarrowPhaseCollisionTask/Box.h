@@ -27,7 +27,7 @@ enum FeatureType { F, E, V };
 //----------------------------------------------------------------------------
 // Box
 //----------------------------------------------------------------------------
-
+///The Box is an internal class used by the boxBoxDistance calculation.
 class Box
 {
 public:
@@ -81,6 +81,7 @@ Box::GetAABB(const Matrix3& rotation) const
 // BoxPoint
 //-------------------------------------------------------------------------------------------------
 
+///The BoxPoint class is an internally used class to contain feature information for boxBoxDistance calculation.
 class BoxPoint
 {
 public:

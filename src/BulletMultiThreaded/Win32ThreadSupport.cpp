@@ -26,7 +26,7 @@ subject to the following restrictions:
 
 
 ///The number of threads should be equal to the number of available cores
-///Todo: each worker should be linked to a single core, using SetThreadIdealProcessor.
+///@todo: each worker should be linked to a single core, using SetThreadIdealProcessor.
 
 ///Win32ThreadSupport helps to initialize/shutdown libspe2, start/stop SPU tasks and communication
 ///Setup and initialize SPU/CELL/Libspe2

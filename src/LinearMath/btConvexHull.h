@@ -188,7 +188,7 @@ public:
 class HullLibrary
 {
 
-	btAlignedObjectArray<class Tri*> m_tris;
+	btAlignedObjectArray<class btHullTriangle*> m_tris;
 
 public:
 
@@ -203,15 +203,15 @@ private:
 
 	bool ComputeHull(unsigned int vcount,const btVector3 *vertices,PHullResult &result,unsigned int vlimit);
 
-	class Tri*	allocateTriangle(int a,int b,int c);
-	void	deAllocateTriangle(Tri*);
-	void b2bfix(Tri* s,Tri*t);
+	class btHullTriangle*	allocateTriangle(int a,int b,int c);
+	void	deAllocateTriangle(btHullTriangle*);
+	void b2bfix(btHullTriangle* s,btHullTriangle*t);
 
-	void removeb2b(Tri* s,Tri*t);
+	void removeb2b(btHullTriangle* s,btHullTriangle*t);
 
-	void checkit(Tri *t);
+	void checkit(btHullTriangle *t);
 
-	Tri* extrudable(btScalar epsilon);
+	btHullTriangle* extrudable(btScalar epsilon);
 
 	int calchull(btVector3 *verts,int verts_count, TUIntArray& tris_out, int &tris_count,int vlimit);
 
@@ -221,7 +221,7 @@ private:
 
 	class ConvexH* ConvexHCrop(ConvexH& convex,const btPlane& slice);
 
-	void extrude(class Tri* t0,int v);
+	void extrude(class btHullTriangle* t0,int v);
 
 	ConvexH* test_cube();
 

@@ -404,7 +404,7 @@ void btGImpactCollisionAlgorithm::collide_sat_triangles(btCollisionObject * body
 
 	btPrimitiveTriangle ptri0;
 	btPrimitiveTriangle ptri1;
-	BT_TRIANGLE_CONTACT contact_data;
+	GIM_TRIANGLE_CONTACT contact_data;
 
 	shape0->lockChildShapes();
 	shape1->lockChildShapes();
@@ -540,7 +540,7 @@ void btGImpactCollisionAlgorithm::gimpact_vs_gimpact(
 	int i = pairset.size();
 	while(i--)
 	{
-		BT_PAIR * pair = &pairset[i];
+		GIM_PAIR * pair = &pairset[i];
 		m_triface0 = pair->m_index1;
 		m_triface1 = pair->m_index2;
 		btCollisionShape * colshape0 = retriever0.getChildShape(m_triface0);

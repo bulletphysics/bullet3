@@ -29,7 +29,8 @@ typedef void* (*SequentiallsMemorySetupFunc)();
 
 
 
-///SequentialThreadSupport is a portable non-parallel implementation of the btThreadSupportInterface
+///The SequentialThreadSupport is a portable non-parallel implementation of the btThreadSupportInterface
+///This is useful for debugging and porting SPU Tasks to other platforms.
 class SequentialThreadSupport : public btThreadSupportInterface 
 {
 public:

@@ -46,7 +46,6 @@ btHashedOverlappingPairCache::btHashedOverlappingPairCache():
 
 btHashedOverlappingPairCache::~btHashedOverlappingPairCache()
 {
-	//todo/test: show we erase/delete data, or is it automatic
 }
 
 
@@ -517,7 +516,6 @@ btSortedOverlappingPairCache::btSortedOverlappingPairCache():
 
 btSortedOverlappingPairCache::~btSortedOverlappingPairCache()
 {
-	//todo/test: show we erase/delete data, or is it automatic
 }
 
 void	btSortedOverlappingPairCache::cleanOverlappingPair(btBroadphasePair& pair,btDispatcher* dispatcher)

@@ -30,7 +30,7 @@ extern btScalar gDeactivationTime;
 extern bool gDisableDeactivation;
 
 
-///btRigidBody is the main class for rigid body objects. It is derived from btCollisionObject, so it keeps a pointer to a btCollisionShape.
+///The btRigidBody is the main class for rigid body objects. It is derived from btCollisionObject, so it keeps a pointer to a btCollisionShape.
 ///It is recommended for performance and memory use to share btCollisionShape objects whenever possible.
 ///There are 3 types of rigid bodies: 
 ///- A) Dynamic rigid bodies, with positive mass. Motion is controlled by rigid body dynamics.
@@ -74,7 +74,7 @@ class btRigidBody  : public btCollisionObject
 public:
 
 
-	///btRigidBodyConstructionInfo provides information to create a rigid body. Setting mass to zero creates a fixed (non-dynamic) rigid body.
+	///The btRigidBodyConstructionInfo structure provides information to create a rigid body. Setting mass to zero creates a fixed (non-dynamic) rigid body.
 	///For dynamic objects, you can use the collision shape to approximate the local inertia tensor, otherwise use the zero vector (default argument)
 	///You can use the motion state to synchronize the world transform between physics and graphics objects. 
 	///And if the motion state is provided, the rigid body will initialize its initial world transform from the motion state,

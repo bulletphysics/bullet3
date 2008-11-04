@@ -17,7 +17,6 @@ subject to the following restrictions:
 
 #include "BulletCollision/CollisionDispatch/btConvexConvexAlgorithm.h"
 #include "BulletCollision/CollisionDispatch/btEmptyCollisionAlgorithm.h"
-#include "BulletMultiThreaded/SpuContactManifoldCollisionAlgorithm.h"
 #include "BulletCollision/CollisionDispatch/btConvexConcaveCollisionAlgorithm.h"
 #include "BulletCollision/CollisionDispatch/btCompoundCollisionAlgorithm.h"
 #include "BulletCollision/CollisionDispatch/btConvexPlaneCollisionAlgorithm.h"
@@ -101,12 +100,10 @@ btDefaultCollisionConfiguration::btDefaultCollisionConfiguration(const btDefault
 	int maxSize = sizeof(btConvexConvexAlgorithm);
 	int maxSize2 = sizeof(btConvexConcaveCollisionAlgorithm);
 	int maxSize3 = sizeof(btCompoundCollisionAlgorithm);
-	int maxSize4 = sizeof(SpuContactManifoldCollisionAlgorithm);
 	int sl = sizeof(btConvexSeparatingDistanceUtil);
 	sl = sizeof(btGjkPairDetector);
 	int	collisionAlgorithmMaxElementSize = btMax(maxSize,maxSize2);
 	collisionAlgorithmMaxElementSize = btMax(collisionAlgorithmMaxElementSize,maxSize3);
-	collisionAlgorithmMaxElementSize = btMax(collisionAlgorithmMaxElementSize,maxSize4);
 
 	if (constructionInfo.m_stackAlloc)
 	{

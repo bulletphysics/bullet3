@@ -720,7 +720,8 @@ static void solveConstraint (SpuSolverConstraint& constraint, SpuSolverBody& bod
 
 
 //-- CONSTRAINT SETUP METHODS
-// Compute the jacobian inverse @@TODO: Optimize
+/// Compute the jacobian inverse 
+///@todo: Optimize
 static float computeJacobianInverse (const btRigidBody* rb0, const btRigidBody* rb1,
 							  const btVector3& anchorAinW, const btVector3& anchorBinW, const btVector3& normal)
 {

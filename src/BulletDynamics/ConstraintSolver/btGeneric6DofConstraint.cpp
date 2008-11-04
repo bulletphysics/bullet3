@@ -156,7 +156,7 @@ btScalar btRotationalLimitMotor::solveAngularLimits(
 	// clip correction impulse
     btScalar clippedMotorImpulse;
 
-    //todo: should clip against accumulated impulse
+    ///@todo: should clip against accumulated impulse
     if (unclippedMotorImpulse>0.0f)
     {
         clippedMotorImpulse =  unclippedMotorImpulse > maxMotorForce? maxMotorForce: unclippedMotorImpulse;

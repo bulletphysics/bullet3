@@ -535,7 +535,7 @@ void btAxisSweep3Internal<BP_FP_INT_TYPE>::removeHandle(BP_FP_INT_TYPE handle,bt
 
 	//explicitly remove the pairs containing the proxy
 	//we could do it also in the sortMinUp (passing true)
-	//todo: compare performance
+	///@todo: compare performance
 	if (!m_pairCache->hasDeferredRemoval())
 	{
 		m_pairCache->removeOverlappingPairsContainingProxy(pHandle,dispatcher);

@@ -44,7 +44,7 @@ struct	btDefaultCollisionConstructionInfo
 
 ///btCollisionConfiguration allows to configure Bullet collision detection
 ///stack allocator, pool memory allocators
-///todo: describe the meaning
+///@todo: describe the meaning
 class	btDefaultCollisionConfiguration : public btCollisionConfiguration
 {
 

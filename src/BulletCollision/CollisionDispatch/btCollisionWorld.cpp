@@ -380,7 +380,7 @@ void	btCollisionWorld::rayTestSingle(const btTransform& rayFromTrans,const btTra
 			}
 		} else {
 			BT_PROFILE("rayTestCompound");
-			//todo: use AABB tree or other BVH acceleration structure!
+			///@todo: use AABB tree or other BVH acceleration structure, see btDbvt
 			if (collisionShape->isCompound())
 			{
 				const btCompoundShape* compoundShape = static_cast<const btCompoundShape*>(collisionShape);
@@ -577,7 +577,7 @@ void	btCollisionWorld::objectQuerySingle(const btConvexShape* castShape,const bt
 				triangleMesh->processAllTriangles(&tccb,rayAabbMinLocal,rayAabbMaxLocal);
 			}
 		} else {
-			//todo: use AABB tree or other BVH acceleration structure!
+			///@todo : use AABB tree or other BVH acceleration structure!
 			if (collisionShape->isCompound())
 			{
 				const btCompoundShape* compoundShape = static_cast<const btCompoundShape*>(collisionShape);

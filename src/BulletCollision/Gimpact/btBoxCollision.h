@@ -26,9 +26,6 @@ subject to the following restrictions:
 
 #include "LinearMath/btTransform.h"
 
-/*! \defgroup BOUND_AABB_OPERATIONS
-*/
-//! @{
 
 ///Swap numbers
 #define BT_SWAP_NUMBERS(a,b){ \
@@ -646,6 +643,5 @@ SIMD_FORCE_INLINE bool btCompareTransformsEqual(const btTransform & t1,const btT
 }
 
 
-//! @}
 
 #endif // GIM_BOX_COLLISION_H_INCLUDED

@@ -59,7 +59,7 @@ void btSphereTriangleCollisionAlgorithm::processCollision (btCollisionObject* co
 	SphereTriangleDetector detector(sphere,triangle);
 	
 	btDiscreteCollisionDetectorInterface::ClosestPointInput input;
-	input.m_maximumDistanceSquared = btScalar(1e30);//todo: tighter bounds
+	input.m_maximumDistanceSquared = btScalar(1e30);///@todo: tighter bounds
 	input.m_transformA = sphereObj->getWorldTransform();
 	input.m_transformB = triObj->getWorldTransform();
 

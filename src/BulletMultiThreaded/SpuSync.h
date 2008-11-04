@@ -31,6 +31,7 @@ Written by: Marten Svanfeldt
 #include <Windows.h>
 #endif
 
+///The btSpinlock is a structure to allow multi-platform synchronization. This allows to port the SPU tasks to other platforms.
 class btSpinlock
 {
 public:
@@ -67,6 +68,7 @@ private:
 //#include <cell/atomic.h>
 #include <cell/sync/mutex.h>
 
+///The btSpinlock is a structure to allow multi-platform synchronization. This allows to port the SPU tasks to other platforms.
 class btSpinlock
 {
 public:
