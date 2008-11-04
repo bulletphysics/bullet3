@@ -39,7 +39,6 @@ btSimpleBroadphase.o				\
 btContinuousConvexCollision.o			\
 btConvexCast.o					\
 btGjkConvexCast.o				\
-btGjkEpa.o					\
 btGjkEpa2.o					\
 btGjkEpaPenetrationDepthSolver.o		\
 btGjkPairDetector.o				\

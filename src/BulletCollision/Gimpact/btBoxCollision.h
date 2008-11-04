@@ -38,7 +38,7 @@ subject to the following restrictions:
 #define BT_MAX(a,b) (a<b?b:a)
 #define BT_MIN(a,b) (a>b?b:a)
 
-#define BT_GREATER(x, y)	fabsf(x) > (y)
+#define BT_GREATER(x, y)	btFabs(x) > (y)
 
 #define BT_MAX3(a,b,c) BT_MAX(a,BT_MAX(b,c))
 #define BT_MIN3(a,b,c) BT_MIN(a,BT_MIN(b,c))
@@ -178,7 +178,7 @@ public:
         {
             for(j=0;j<3;j++ )
             {
-            	m_AR[i][j] = 1e-6f + fabsf(m_R1to0[i][j]);
+            	m_AR[i][j] = 1e-6f + btFabs(m_R1to0[i][j]);
             }
         }
 

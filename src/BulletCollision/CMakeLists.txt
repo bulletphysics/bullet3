@@ -143,8 +143,6 @@ ADD_LIBRARY(LibBulletCollision
 				Gimpact/gim_box_set.cpp
 				NarrowPhaseCollision/btContinuousConvexCollision.cpp
 				NarrowPhaseCollision/btContinuousConvexCollision.h
-				NarrowPhaseCollision/btGjkEpa.cpp
-				NarrowPhaseCollision/btGjkEpa.h
 				NarrowPhaseCollision/btGjkEpa2.cpp
 				NarrowPhaseCollision/btGjkEpa2.h
 				NarrowPhaseCollision/btGjkEpaPenetrationDepthSolver.cpp

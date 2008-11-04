@@ -138,6 +138,8 @@ public:
 	void updateHandle(BP_FP_INT_TYPE handle, const btVector3& aabbMin,const btVector3& aabbMax,btDispatcher* dispatcher);
 	SIMD_FORCE_INLINE Handle* getHandle(BP_FP_INT_TYPE index) const {return m_pHandles + index;}
 
+	void resetPool();
+
 	void	processAllOverlappingPairs(btOverlapCallback* callback);
 
 	//Broadphase Interface
@@ -583,6 +585,21 @@ void btAxisSweep3Internal<BP_FP_INT_TYPE>::removeHandle(BP_FP_INT_TYPE handle,bt
 
 	
 }
+
+template <typename BP_FP_INT_TYPE>
+void btAxisSweep3Internal<BP_FP_INT_TYPE>::resetPool()
+{
+	if (m_numHandles == 0)
+	{
+		m_firstFreeHandle = 1;
+		{
+			for (BP_FP_INT_TYPE i = m_firstFreeHandle; i < m_maxHandles; i++)
+				m_pHandles[i].SetNextFree(static_cast<BP_FP_INT_TYPE>(i + 1));
+			m_pHandles[m_maxHandles - 1].SetNextFree(0);
+		}
+	}
+}       
+
 
 extern int gOverlappingPairs;
 //#include <stdio.h>

@@ -207,7 +207,13 @@ void cullPoints2 (int n, btScalar p[], int m, int i0, int iret[])
       cy += q*(p[i*2+1]+p[i*2+3]);
     }
     q = p[n*2-2]*p[1] - p[0]*p[n*2-1];
-    a = 1.f/(btScalar(3.0)*(a+q));
+	if (btFabs(a+q) > SIMD_EPSILON)
+	{
+		a = 1.f/(btScalar(3.0)*(a+q));
+	} else
+	{
+		a=1e30f;
+	}
     cx = a*(cx + q*(p[n*2-2]+p[0]));
     cy = a*(cy + q*(p[n*2-1]+p[1]));
   }

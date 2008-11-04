@@ -18,6 +18,7 @@ subject to the following restrictions:
 
 #include "btSorLcp.h"
 #include "btOdeSolverBody.h"
+#include "LinearMath/btQuickProf.h"
 
 #ifdef USE_SOR_SOLVER
 
@@ -223,6 +224,8 @@ void btSorLcpSolver::SOR_LCP(int m, int nb, dRealMutablePtr J, int *jb,
 	btStackAlloc* stackAlloc
 	)
 {
+	BT_PROFILE("btSorLcpSolver::SOR_LCP");
+
 	//btBlock* saBlock = stackAlloc->beginBlock();//Remo: 10.10.2007
 	AutoBlockSa asaBlock(stackAlloc);
 
@@ -448,6 +451,7 @@ void btSorLcpSolver::SolveInternal1 (
 			int nj, const btContactSolverInfo& solverInfo,
 			btStackAlloc* stackAlloc)
 {
+	BT_PROFILE("btSorLcpSolver::SolveInternal1");
 	//btBlock* saBlock = stackAlloc->beginBlock();//Remo: 10.10.2007
 	AutoBlockSa asaBlock(stackAlloc);
 

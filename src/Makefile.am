@@ -33,7 +33,6 @@ libbulletcollision_a_SOURCES = \
 		BulletCollision/NarrowPhaseCollision/btRaycastCallback.cpp \
 		BulletCollision/NarrowPhaseCollision/btMinkowskiPenetrationDepthSolver.cpp \
 		BulletCollision/NarrowPhaseCollision/btSubSimplexConvexCast.cpp \
-		BulletCollision/NarrowPhaseCollision/btGjkEpa.cpp \
 		BulletCollision/NarrowPhaseCollision/btGjkEpaPenetrationDepthSolver.cpp \
 		BulletCollision/NarrowPhaseCollision/btGjkConvexCast.cpp \
 		BulletCollision/NarrowPhaseCollision/btPersistentManifold.cpp \
@@ -115,7 +114,6 @@ libbulletcollision_a_SOURCES = \
 		BulletCollision/NarrowPhaseCollision/btSimplexSolverInterface.h \
 		BulletCollision/NarrowPhaseCollision/btRaycastCallback.h \
 		BulletCollision/NarrowPhaseCollision/btContinuousConvexCollision.h \
-		BulletCollision/NarrowPhaseCollision/btGjkEpa.h \
 		BulletCollision/NarrowPhaseCollision/btSubSimplexConvexCast.h \
 		BulletCollision/NarrowPhaseCollision/btPersistentManifold.h \
 		BulletCollision/NarrowPhaseCollision/btGjkConvexCast.h \
