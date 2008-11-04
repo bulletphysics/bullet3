@@ -793,6 +793,7 @@ inline void		btDbvt::collideTT(	const btDbvtNode* root0,
 		{
 			int								depth=1;
 			int								treshold=DOUBLE_STACKSIZE-4;
+			btAlignedObjectArray<sStkNN>	stkStack;
 			stkStack.resize(DOUBLE_STACKSIZE);
 			stkStack[0]=sStkNN(root0,root1);
 			do	{
