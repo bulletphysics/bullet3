@@ -526,10 +526,6 @@ SOURCE=..\..\src\BulletCollision\NarrowPhaseCollision\btGjkConvexCast.cpp
 # End Source File
 # Begin Source File
 
-SOURCE=..\..\src\BulletCollision\NarrowPhaseCollision\btGjkEpa.cpp
-# End Source File
-# Begin Source File
-
 SOURCE=..\..\src\BulletCollision\NarrowPhaseCollision\btGjkEpa2.cpp
 # End Source File
 # Begin Source File
@@ -967,10 +963,6 @@ SOURCE=..\..\src\BulletCollision\NarrowPhaseCollision\btDiscreteCollisionDetecto
 # Begin Source File
 
 SOURCE=..\..\src\BulletCollision\NarrowPhaseCollision\btGjkConvexCast.h
-# End Source File
-# Begin Source File
-
-SOURCE=..\..\src\BulletCollision\NarrowPhaseCollision\btGjkEpa.h
 # End Source File
 # Begin Source File
 

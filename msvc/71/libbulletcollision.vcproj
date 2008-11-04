@@ -648,9 +648,6 @@
 				RelativePath="..\..\src\BulletCollision\NarrowPhaseCollision\btGjkConvexCast.cpp">
 			</File>
 			<File
-				RelativePath="..\..\src\BulletCollision\NarrowPhaseCollision\btGjkEpa.cpp">
-			</File>
-			<File
 				RelativePath="..\..\src\BulletCollision\NarrowPhaseCollision\btGjkEpa2.cpp">
 			</File>
 			<File
@@ -980,9 +977,6 @@
 			</File>
 			<File
 				RelativePath="..\..\src\BulletCollision\NarrowPhaseCollision\btGjkConvexCast.h">
-			</File>
-			<File
-				RelativePath="..\..\src\BulletCollision\NarrowPhaseCollision\btGjkEpa.h">
 			</File>
 			<File
 				RelativePath="..\..\src\BulletCollision\NarrowPhaseCollision\btGjkEpa2.h">

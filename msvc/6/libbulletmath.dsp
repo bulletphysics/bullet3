@@ -290,10 +290,6 @@ SOURCE=..\..\src\LinearMath\btMotionState.h
 # End Source File
 # Begin Source File
 
-SOURCE=..\..\src\LinearMath\btPoint3.h
-# End Source File
-# Begin Source File
-
 SOURCE=..\..\src\LinearMath\btPoolAllocator.h
 # End Source File
 # Begin Source File

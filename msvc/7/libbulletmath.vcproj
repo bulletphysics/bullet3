@@ -472,9 +472,6 @@
 				RelativePath="..\..\src\LinearMath\btMotionState.h">
 			</File>
 			<File
-				RelativePath="..\..\src\LinearMath\btPoint3.h">
-			</File>
-			<File
 				RelativePath="..\..\src\LinearMath\btPoolAllocator.h">
 			</File>
 			<File
