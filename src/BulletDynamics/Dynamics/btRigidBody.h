@@ -320,15 +320,12 @@ public:
 
 	inline void setLinearVelocity(const btVector3& lin_vel)
 	{ 
-		assert (m_collisionFlags != btCollisionObject::CF_STATIC_OBJECT);
 		m_linearVelocity = lin_vel; 
 	}
 
-	inline void setAngularVelocity(const btVector3& ang_vel) { 
-		assert (m_collisionFlags != btCollisionObject::CF_STATIC_OBJECT);
-		{
-			m_angularVelocity = ang_vel; 
-		}
+	inline void setAngularVelocity(const btVector3& ang_vel) 
+	{ 
+		m_angularVelocity = ang_vel; 
 	}
 
 	btVector3 getVelocityInLocalPoint(const btVector3& rel_pos) const
