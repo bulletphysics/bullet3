@@ -274,6 +274,74 @@ class btMatrix3x3 {
 		};
 
 
+  /**@brief Get the matrix represented as euler angles around ZYX
+   * @param yaw Yaw around X axis
+   * @param pitch Pitch around Y axis
+   * @param roll around X axis 
+   * @param solution_number Which solution of two possible solutions ( 1 or 2) are possible values*/	
+  void getEulerZYX(btScalar& yaw, btScalar& pitch, btScalar& roll, unsigned int solution_number = 1) const
+  {
+    struct Euler{btScalar yaw, pitch, roll;};
+    Euler euler_out;
+    Euler euler_out2; //second solution
+    //get the pointer to the raw data
+    
+    // Check that pitch is not at a singularity
+    if (btFabs(m_el[2].x()) >= 1)
+    {
+      euler_out.yaw = 0;
+      euler_out2.yaw = 0;
+	
+      // From difference of angles formula
+      double delta = btAtan2(m_el[0].x(),m_el[0].z());
+      if (m_el[2].x() > 0)  //gimbal locked up
+      {
+        euler_out.pitch = SIMD_PI / 2.0;
+        euler_out2.pitch = SIMD_PI / 2.0;
+        euler_out.roll = euler_out.pitch + delta;
+        euler_out2.roll = euler_out.pitch + delta;
+      }
+      else // gimbal locked down
+      {
+        euler_out.pitch = -SIMD_PI / 2.0;
+        euler_out2.pitch = -SIMD_PI / 2.0;
+        euler_out.roll = -euler_out.pitch + delta;
+        euler_out2.roll = -euler_out.pitch + delta;
+      }
+    }
+    else
+    {
+      euler_out.pitch = - btAsin(m_el[2].x());
+      euler_out2.pitch = SIMD_PI - euler_out.pitch;
+	
+      euler_out.roll = btAtan2(m_el[2].y()/cos(euler_out.pitch), 
+			       m_el[2].z()/cos(euler_out.pitch));
+      euler_out2.roll = btAtan2(m_el[2].y()/cos(euler_out2.pitch), 
+				m_el[2].z()/cos(euler_out2.pitch));
+	
+      euler_out.yaw = btAtan2(m_el[1].x()/cos(euler_out.pitch), 
+			      m_el[0].x()/cos(euler_out.pitch));
+      euler_out2.yaw = btAtan2(m_el[1].x()/cos(euler_out2.pitch), 
+                               m_el[0].x()/cos(euler_out2.pitch));
+    }
+    
+    if (solution_number == 1)
+    { yaw = euler_out.yaw; 
+    pitch = euler_out.pitch;
+    roll = euler_out.roll;
+    }
+    else
+    { yaw = euler_out2.yaw; 
+    pitch = euler_out2.pitch;
+    roll = euler_out2.roll;
+    }
+
+	
+
+    return;
+
+  }
+
   /**@brief Create a scaled copy of the matrix 
    * @param s Scaling vector The elements of the vector will scale each column */
 		

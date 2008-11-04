@@ -284,7 +284,7 @@ void computeAabb (btVector3& aabbMin, btVector3& aabbMax, btConvexInternalShape*
 		/* fall through */
 	case BOX_SHAPE_PROXYTYPE:
 	{
-		float margin=convexShape->getMarginNV();
+		btScalar margin=convexShape->getMarginNV();
 		btVector3 halfExtents = convexShape->getImplicitShapeDimensions();
 		halfExtents += btVector3(margin,margin,margin);
 		const btTransform& t = xform;
@@ -298,7 +298,7 @@ void computeAabb (btVector3& aabbMin, btVector3& aabbMax, btConvexInternalShape*
 	}
 	case CAPSULE_SHAPE_PROXYTYPE:
 	{
-		float margin=convexShape->getMarginNV();
+		btScalar margin=convexShape->getMarginNV();
 		btVector3 halfExtents = convexShape->getImplicitShapeDimensions();
 		//add the radius to y-axis to get full height
 		btScalar radius = halfExtents[0];
@@ -321,8 +321,8 @@ void computeAabb (btVector3& aabbMin, btVector3& aabbMax, btConvexInternalShape*
 	}
 	case SPHERE_SHAPE_PROXYTYPE:
 	{
-		float radius = convexShape->getImplicitShapeDimensions().getX();// * convexShape->getLocalScaling().getX();
-		float margin = radius + convexShape->getMarginNV();
+		btScalar radius = convexShape->getImplicitShapeDimensions().getX();// * convexShape->getLocalScaling().getX();
+		btScalar margin = radius + convexShape->getMarginNV();
 		const btTransform& t = xform;
 		const btVector3& center = t.getOrigin();
 		btVector3 extent(margin,margin,margin);
