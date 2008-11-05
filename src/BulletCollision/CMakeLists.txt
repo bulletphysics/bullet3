@@ -180,10 +180,15 @@ SET(LibBulletCollision_HDRS
 
 
 
+
 #ADD_LIBRARY(LibBulletCollision SHARED ${LibBulletCollision_SRCS} ${LibBulletCollision_HDRS})
 #TARGET_LINK_LIBRARIES(LibBulletCollision LibLinearMath)
 
 ADD_LIBRARY(LibBulletCollision ${LibBulletCollision_SRCS} ${LibBulletCollision_HDRS})
 
-INSTALL(TARGETS LibBulletCollision DESTINATION lib)
-INSTALL(DIRECTORY ${CMAKE_CURRENT_SOURCE_DIR} DESTINATION include FILES_MATCHING PATTERN "*.h")
+
+#INSTALL of other files requires CMake 2.6
+IF (${CMAKE_MAJOR_VERSION}.${CMAKE_MINOR_VERSION} GREATER 2.6)
+	#INSTALL_TARGETS(DESTINATION LibBulletCollision)
+	#INSTALL(DIRECTORY ${CMAKE_CURRENT_SOURCE_DIR} DESTINATION include ${LibBulletCollision_HDRS})
+ENDIF (${CMAKE_MAJOR_VERSION}.${CMAKE_MINOR_VERSION} GREATER 2.6)
