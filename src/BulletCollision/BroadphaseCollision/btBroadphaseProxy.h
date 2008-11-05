@@ -92,6 +92,7 @@ BT_DECLARE_ALIGNED_ALLOCATOR();
 	        KinematicFilter = 4,
 	        DebrisFilter = 8,
 			SensorTrigger = 16,
+			CharacterFilter = 32,
 	        AllFilter = -1 //all bits sets: DefaultFilter | StaticFilter | KinematicFilter | DebrisFilter | SensorTrigger
 	};
 

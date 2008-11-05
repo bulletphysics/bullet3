@@ -13,11 +13,11 @@ subject to the following restrictions:
 3. This notice may not be removed or altered from any source distribution.
 */
 
-/// September 2006: VehicleDemo is work in progress, this file is mostly just a placeholder
-/// This VehicleDemo file is very early in development, please check it later
-/// One todo is a basic engine model:
-/// A function that maps user input (throttle) into torque/force applied on the wheels
-/// with gears etc.
+///September 2006: VehicleDemo is work in progress, this file is mostly just a placeholder
+///This VehicleDemo file is very early in development, please check it later
+///@todo is a basic engine model:
+///A function that maps user input (throttle) into torque/force applied on the wheels
+///with gears etc.
 #include "btBulletDynamicsCommon.h"
 #include "BulletCollision/CollisionShapes/btHeightfieldTerrainShape.h"
 

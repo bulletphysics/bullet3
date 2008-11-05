@@ -92,7 +92,7 @@ void CharacterDemo::initPhysics()
 	btScalar characterWidth =1.75;
 	btConvexShape* capsule = new btCapsuleShape(characterWidth,characterHeight);
 	m_ghostObject->setCollisionShape (capsule);
-	m_ghostObject->setCollisionFlags (btCollisionObject::CF_NO_CONTACT_RESPONSE);
+	m_ghostObject->setCollisionFlags (btCollisionObject::CF_CHARACTER_OBJECT);
 
 	btScalar stepHeight = btScalar(0.35);
 	m_character = new KinematicCharacterController (m_ghostObject,capsule,stepHeight);
@@ -103,7 +103,7 @@ void CharacterDemo::initPhysics()
 
 
 	///only collide with static for now (no interaction with dynamic objects)
-	m_dynamicsWorld->addCollisionObject(m_ghostObject,btBroadphaseProxy::DebrisFilter, btBroadphaseProxy::StaticFilter);
+	m_dynamicsWorld->addCollisionObject(m_ghostObject,btBroadphaseProxy::CharacterFilter, btBroadphaseProxy::StaticFilter|btBroadphaseProxy::DefaultFilter);
 
 
 	////////////////

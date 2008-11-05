@@ -86,7 +86,7 @@ void ConvexDecompositionDemo::initPhysics(const char* filename)
 								createCollisionLocalStoreMemory,
 								maxNumOutstandingTasks));
 #else
-///todo other platform threading
+///@todo other platform threading
 ///Playstation 3 SPU (SPURS)  version is available through PS3 Devnet
 ///Libspe2 SPU support will be available soon
 ///pthreads version

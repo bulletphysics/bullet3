@@ -259,7 +259,7 @@ void	ConcaveDemo::initPhysics()
 								createCollisionLocalStoreMemory,
 								maxNumOutstandingTasks));
 #else
-///todo other platform threading
+///@todo show other platform threading
 ///Playstation 3 SPU (SPURS)  version is available through PS3 Devnet
 ///Libspe2 SPU support will be available soon
 ///pthreads version

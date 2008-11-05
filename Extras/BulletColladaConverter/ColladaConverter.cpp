@@ -13,11 +13,8 @@ subject to the following restrictions:
 3. This notice may not be removed or altered from any source distribution.
 */
 
-/* Some TODO items:
- * fix naming conflicts with BulletUnnamed-* across executions -> need to generate a real unique name.
- * double check geometry sharing
- */
-
+///@todo fix naming conflicts with BulletUnnamed-* across executions -> need to generate a real unique name.
+///@todo double check geometry sharing
 
 #include "ColladaConverter.h"
 #include "btBulletDynamicsCommon.h"
@@ -430,7 +427,7 @@ bool ColladaConverter::convert()
 	
 							domPhysics_modelRef model = *(domPhysics_modelRef*)&ref; 
 
-							//todo: group some shared functionality in following 2 'blocks'.
+							///@todo: group some shared functionality in following 2 'blocks'.
 							for (r=0;r<instancePhysicsModelRef->getInstance_rigid_body_array().getCount();r++)
 							{
 								domInstance_rigid_bodyRef instRigidbodyRef = instancePhysicsModelRef->getInstance_rigid_body_array()[r];

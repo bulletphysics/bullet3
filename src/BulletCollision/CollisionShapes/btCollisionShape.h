@@ -46,6 +46,8 @@ public:
 	///getAngularMotionDisc returns the maximus radius needed for Conservative Advancement to handle time-of-impact with rotations.
 	virtual btScalar	getAngularMotionDisc() const;
 
+	virtual btScalar	getContactBreakingThreshold() const;
+
 
 	///calculateTemporalAabb calculates the enclosing aabb for the moving object over interval [0..timeStep)
 	///result is conservative

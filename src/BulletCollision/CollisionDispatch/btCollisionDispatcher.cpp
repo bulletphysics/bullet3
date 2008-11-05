@@ -78,6 +78,8 @@ btPersistentManifold*	btCollisionDispatcher::getNewManifold(void* b0,void* b1)
 
 	btCollisionObject* body0 = (btCollisionObject*)b0;
 	btCollisionObject* body1 = (btCollisionObject*)b1;
+
+	btScalar contactBreakingThreshold = btMin(gContactBreakingThreshold,btMin(body0->getCollisionShape()->getContactBreakingThreshold(),body1->getCollisionShape()->getContactBreakingThreshold()));
 	
 	void* mem = 0;
 	
@@ -89,7 +91,7 @@ btPersistentManifold*	btCollisionDispatcher::getNewManifold(void* b0,void* b1)
 		mem = btAlignedAlloc(sizeof(btPersistentManifold),16);
 
 	}
-	btPersistentManifold* manifold = new(mem) btPersistentManifold (body0,body1,0);
+	btPersistentManifold* manifold = new(mem) btPersistentManifold (body0,body1,0,contactBreakingThreshold);
 	manifold->m_index1a = m_manifoldsPtr.size();
 	m_manifoldsPtr.push_back(manifold);
 

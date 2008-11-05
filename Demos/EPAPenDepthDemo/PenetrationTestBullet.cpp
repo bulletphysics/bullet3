@@ -44,7 +44,7 @@
 
 #define USE_ORIGINAL 1
 #ifndef USE_ORIGINAL
-#include "BulletCollision/NarrowPhaseCollision/btGjkEpa.h"
+#include "BulletCollision/NarrowPhaseCollision/btGjkEpa2.h"
 #endif //USE_ORIGINAL
 
 static bool gRefMode = false;

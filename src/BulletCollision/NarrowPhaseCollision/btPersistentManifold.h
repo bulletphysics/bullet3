@@ -24,7 +24,7 @@ subject to the following restrictions:
 
 struct btCollisionResult;
 
-///contact breaking and merging threshold
+///maximum contact breaking and merging threshold
 extern btScalar gContactBreakingThreshold;
 
 typedef bool (*ContactDestroyedCallback)(void* userPersistentData);
@@ -52,6 +52,8 @@ ATTRIBUTE_ALIGNED16( class) btPersistentManifold
 	/// void* will allow any rigidbody class
 	void* m_body0;
 	void* m_body1;
+	btScalar	m_contactBreakingThreshold;
+
 	int	m_cachedPoints;
 
 	
@@ -68,10 +70,11 @@ public:
 
 	btPersistentManifold();
 
-	btPersistentManifold(void* body0,void* body1,int bla)
-		: m_body0(body0),m_body1(body1),m_cachedPoints(0)
+	btPersistentManifold(void* body0,void* body1,int bla, btScalar contactBreakingThreshold)
+		: m_body0(body0),m_body1(body1),m_cachedPoints(0),
+		m_contactBreakingThreshold(contactBreakingThreshold)
 	{
-		(void)bla;
+		
 	}
 
 	SIMD_FORCE_INLINE void* getBody0() { return m_body0;}

@@ -8,14 +8,12 @@
 #include "LinearMath/btDefaultMotionState.h"
 #include "KinematicCharacterController.h"
 
-/* TODO:
- * Interact with dynamic objects
- * Ride kinematicly animated platforms properly
- * More realistic (or maybe just a config option) falling
- *   -> Should integrate falling velocity manually and use that in stepDown()
- * Support jumping
- * Support ducking
- */
+///@todo Interact with dynamic objects,
+///Ride kinematicly animated platforms properly
+///More realistic (or maybe just a config option) falling
+/// -> Should integrate falling velocity manually and use that in stepDown()
+///Support jumping
+///Support ducking
 class ClosestNotMeRayResultCallback : public btCollisionWorld::ClosestRayResultCallback
 {
 public:

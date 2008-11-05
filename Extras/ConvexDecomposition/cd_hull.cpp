@@ -2308,25 +2308,25 @@ int shareedge(const int3 &a,const int3 &b)
 	return 0;
 }
 
-class Tri;
+class btHullTriangle;
 
-Array<Tri*> tris;
+Array<btHullTriangle*> tris;
 
-class Tri : public int3
+class btHullTriangle : public int3
 {
 public:
 	int3 n;
 	int id;
 	int vmax;
 	float rise;
-	Tri(int a,int b,int c):int3(a,b,c),n(-1,-1,-1)
+	btHullTriangle(int a,int b,int c):int3(a,b,c),n(-1,-1,-1)
 	{
 		id = tris.count;
 		tris.Add(this);
 		vmax=-1;
 		rise = 0.0f;
 	}
-	~Tri()
+	~btHullTriangle()
 	{
 		assert(tris[id]==this);
 		tris[id]=NULL;
@@ -2335,7 +2335,7 @@ public:
 };
 
 
-int &Tri::neib(int a,int b)
+int &btHullTriangle::neib(int a,int b)
 {
 	static int er=-1;
 	int i;
@@ -2349,7 +2349,7 @@ int &Tri::neib(int a,int b)
 	assert(0);
 	return er;
 }
-void b2bfix(Tri* s,Tri*t)
+void b2bfix(btHullTriangle* s,btHullTriangle*t)
 {
 	int i;
 	for(i=0;i<3;i++) 
@@ -2365,14 +2365,14 @@ void b2bfix(Tri* s,Tri*t)
 	}
 }
 
-void removeb2b(Tri* s,Tri*t)
+void removeb2b(btHullTriangle* s,btHullTriangle*t)
 {
 	b2bfix(s,t);
 	delete s;
 	delete t;
 }
 
-void checkit(Tri *t)
+void checkit(btHullTriangle *t)
 {
 	int i;
 	assert(tris[t->id]==t);
@@ -2386,17 +2386,17 @@ void checkit(Tri *t)
 		assert( tris[t->n[i]]->neib(b,a) == t->id);
 	}
 }
-void extrude(Tri *t0,int v)
+void extrude(btHullTriangle *t0,int v)
 {
 	int3 t= *t0;
 	int n = tris.count;
-	Tri* ta = new Tri(v,t[1],t[2]);
+	btHullTriangle* ta = new btHullTriangle(v,t[1],t[2]);
 	ta->n = int3(t0->n[0],n+1,n+2);
 	tris[t0->n[0]]->neib(t[1],t[2]) = n+0;
-	Tri* tb = new Tri(v,t[2],t[0]);
+	btHullTriangle* tb = new btHullTriangle(v,t[2],t[0]);
 	tb->n = int3(t0->n[1],n+2,n+0);
 	tris[t0->n[1]]->neib(t[2],t[0]) = n+1;
-	Tri* tc = new Tri(v,t[0],t[1]);
+	btHullTriangle* tc = new btHullTriangle(v,t[0],t[1]);
 	tc->n = int3(t0->n[2],n+0,n+1);
 	tris[t0->n[2]]->neib(t[0],t[1]) = n+2;
 	checkit(ta);
@@ -2409,10 +2409,10 @@ void extrude(Tri *t0,int v)
 
 }
 
-Tri *extrudable(float epsilon)
+btHullTriangle *extrudable(float epsilon)
 {
 	int i;
-	Tri *t=NULL;
+	btHullTriangle *t=NULL;
 	for(i=0;i<tris.count;i++)
 	{
 		if(!t || (tris[i] && t->rise<tris[i]->rise))
@@ -2489,23 +2489,23 @@ int calchullgen(float3 *verts,int verts_count, int vlimit)
 
 
 	float3 center = (verts[p[0]]+verts[p[1]]+verts[p[2]]+verts[p[3]]) /4.0f;  // a valid interior point
-	Tri *t0 = new Tri(p[2],p[3],p[1]); t0->n=int3(2,3,1);
-	Tri *t1 = new Tri(p[3],p[2],p[0]); t1->n=int3(3,2,0);
-	Tri *t2 = new Tri(p[0],p[1],p[3]); t2->n=int3(0,1,3);
-	Tri *t3 = new Tri(p[1],p[0],p[2]); t3->n=int3(1,0,2);
+	btHullTriangle *t0 = new btHullTriangle(p[2],p[3],p[1]); t0->n=int3(2,3,1);
+	btHullTriangle *t1 = new btHullTriangle(p[3],p[2],p[0]); t1->n=int3(3,2,0);
+	btHullTriangle *t2 = new btHullTriangle(p[0],p[1],p[3]); t2->n=int3(0,1,3);
+	btHullTriangle *t3 = new btHullTriangle(p[1],p[0],p[2]); t3->n=int3(1,0,2);
 	isextreme[p[0]]=isextreme[p[1]]=isextreme[p[2]]=isextreme[p[3]]=1;
 	checkit(t0);checkit(t1);checkit(t2);checkit(t3);
 
 	for(j=0;j<tris.count;j++)
 	{
-		Tri *t=tris[j];
+		btHullTriangle *t=tris[j];
 		assert(t);
 		assert(t->vmax<0);
 		float3 n=TriNormal(verts[(*t)[0]],verts[(*t)[1]],verts[(*t)[2]]);
 		t->vmax = maxdirsterid(verts,verts_count,n,allow);
 		t->rise = dot(n,verts[t->vmax]-verts[(*t)[0]]);
 	}
-	Tri *te;
+	btHullTriangle *te;
 	vlimit-=4;
 	while(vlimit >0 && (te=extrudable(epsilon)))
 	{
@@ -2532,7 +2532,7 @@ int calchullgen(float3 *verts,int verts_count, int vlimit)
 			int3 nt=*tris[j];
 			if(above(verts,nt,center,0.01f*epsilon)  || magnitude(cross(verts[nt[1]]-verts[nt[0]],verts[nt[2]]-verts[nt[1]]))< epsilon*epsilon*0.1f )
 			{
-				Tri *nb = tris[tris[j]->n[0]];
+				btHullTriangle *nb = tris[tris[j]->n[0]];
 				assert(nb);assert(!hasvert(*nb,v));assert(nb->id<j);
 				extrude(nb,v);
 				j=tris.count; 
@@ -2541,7 +2541,7 @@ int calchullgen(float3 *verts,int verts_count, int vlimit)
 		j=tris.count;
 		while(j--)
 		{
-			Tri *t=tris[j];
+			btHullTriangle *t=tris[j];
 			if(!t) continue;
 			if(t->vmax>=0) break;
 			float3 n=TriNormal(verts[(*t)[0]],verts[(*t)[1]],verts[(*t)[2]]);
@@ -2586,14 +2586,14 @@ int calchullpbev(float3 *verts,int verts_count,int vlimit, Array<Plane> &planes,
 	for(i=0;i<tris.count;i++)if(tris[i])
 	{
 		Plane p;
-		Tri *t = tris[i];
+		btHullTriangle *t = tris[i];
 		p.normal = TriNormal(verts[(*t)[0]],verts[(*t)[1]],verts[(*t)[2]]);
 		p.dist   = -dot(p.normal, verts[(*t)[0]]);
 		planes.Add(p);
 		for(j=0;j<3;j++)
 		{
 			if(t->n[j]<t->id) continue;
-			Tri *s = tris[t->n[j]];
+			btHullTriangle *s = tris[t->n[j]];
 			REAL3 snormal = TriNormal(verts[(*s)[0]],verts[(*s)[1]],verts[(*s)[2]]);
 			if(dot(snormal,p.normal)>=cos(bevangle*DEG2RAD)) continue;
 			REAL3 n = normalize(snormal+p.normal);

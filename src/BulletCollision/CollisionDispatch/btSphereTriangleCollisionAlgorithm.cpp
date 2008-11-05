@@ -56,7 +56,7 @@ void btSphereTriangleCollisionAlgorithm::processCollision (btCollisionObject* co
 	
 	/// report a contact. internally this will be kept persistent, and contact reduction is done
 	resultOut->setPersistentManifold(m_manifoldPtr);
-	SphereTriangleDetector detector(sphere,triangle);
+	SphereTriangleDetector detector(sphere,triangle, m_manifoldPtr->getContactBreakingThreshold());
 	
 	btDiscreteCollisionDetectorInterface::ClosestPointInput input;
 	input.m_maximumDistanceSquared = btScalar(1e30);///@todo: tighter bounds
