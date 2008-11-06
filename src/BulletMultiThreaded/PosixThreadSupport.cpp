@@ -15,16 +15,16 @@ subject to the following restrictions:
 
 #include <stdio.h>
 #include "PosixThreadSupport.h"
-
-
 #ifdef USE_PTHREADS
+#include <errno.h>
+#include <unistd.h>
 
 #include "SpuCollisionTaskProcess.h"
 #include "SpuNarrowPhaseCollisionTask/SpuGatheringCollisionTask.h"
 
 #define checkPThreadFunction(returnValue) \
     if(0 != returnValue) { \
-        printf("PThread problem at line %i in file %s: %i\n", __LINE__, __FILE__, returnValue); \
+        printf("PThread problem at line %i in file %s: %i %d\n", __LINE__, __FILE__, returnValue, errno); \
     }
 
 // The number of threads should be equal to the number of available cores
@@ -43,8 +43,45 @@ PosixThreadSupport::~PosixThreadSupport()
 	stopSPU();
 }
 
+#define NAMED_SEMAPHORES
+
 // this semaphore will signal, if and how many threads are finished with their work
-static sem_t mainSemaphore;
+static sem_t* mainSemaphore;
+
+static sem_t* createSem(const char* baseName)
+{
+	static int semCount = 0;
+#ifdef NAMED_SEMAPHORES
+        /// Named semaphore begin
+        char name[32];
+        snprintf(name, 32, "/%s-%d-%4.4d", baseName, getpid(), semCount++); 
+        sem_t* tempSem = sem_open(name, O_CREAT, 0600, 0);
+        if (tempSem != SEM_FAILED)
+        {
+        	//printf("Created \"%s\" Semaphore %x\n", name, tempSem);
+        }
+        else
+	{
+		//printf("Error creating Semaphore %d\n", errno);
+		exit(-1);
+	}
+        /// Named semaphore end
+#else
+	sem_t* tempSem = new sem_t;
+	checkPThreadFunction(sem_init(tempSem, 0, 0));
+#endif
+	return tempSem;
+}
+
+static void destroySem(sem_t* semaphore)
+{
+#ifdef NAMED_SEMAPHORES
+	checkPThreadFunction(sem_close(semaphore));
+#else
+	checkPThreadFunction(sem_destroy(semaphore));
+	delete semaphore;
+#endif	
+}
 
 static void *threadFunction(void *argument) 
 {
@@ -54,7 +91,7 @@ static void *threadFunction(void *argument)
 	
 	while (1)
 	{
-            checkPThreadFunction(sem_wait(&status->startSemaphore));
+            checkPThreadFunction(sem_wait(status->startSemaphore));
 		
 		void* userPtr = status->m_userPtr;
 
@@ -63,13 +100,12 @@ static void *threadFunction(void *argument)
 			btAssert(status->m_status);
 			status->m_userThreadFunc(userPtr,status->m_lsMemory);
 			status->m_status = 2;
-			checkPThreadFunction(sem_post(&mainSemaphore));
-
-            status->threadUsed++;
+			checkPThreadFunction(sem_post(mainSemaphore));
+	                status->threadUsed++;
 		} else {
 			//exit Thread
 			status->m_status = 3;
-			checkPThreadFunction(sem_post(&mainSemaphore));
+			checkPThreadFunction(sem_post(mainSemaphore));
 			printf("Thread with taskId %i exiting\n",status->m_taskId);
 			break;
 		}
@@ -103,7 +139,7 @@ void PosixThreadSupport::sendRequest(uint32_t uiCommand, uint32_t uiArgument0, u
 			spuStatus.m_userPtr = (void*)uiArgument0;
 
 			// fire event to start new task
-            checkPThreadFunction(sem_post(&spuStatus.startSemaphore));
+			checkPThreadFunction(sem_post(spuStatus.startSemaphore));
 			break;
 		}
 	default:
@@ -129,7 +165,7 @@ void PosixThreadSupport::waitForResponse(unsigned int *puiArgument0, unsigned in
 	btAssert(m_activeSpuStatus.size());
 
         // wait for any of the threads to finish
-        checkPThreadFunction(sem_wait(&mainSemaphore));
+	checkPThreadFunction(sem_wait(mainSemaphore));
         
 	// get at least one thread which has finished
         size_t last = -1;
@@ -160,15 +196,16 @@ void PosixThreadSupport::startThreads(ThreadConstructionInfo& threadConstruction
         printf("%s creating %i threads.\n", __FUNCTION__, threadConstructionInfo.m_numThreads);
 	m_activeSpuStatus.resize(threadConstructionInfo.m_numThreads);
         
-        checkPThreadFunction(sem_init(&mainSemaphore, 0, 0));
-
+	mainSemaphore = createSem("main");                
+        
 	for (int i=0;i < threadConstructionInfo.m_numThreads;i++)
 	{
 		printf("starting thread %d\n",i);
 
 		btSpuStatus&	spuStatus = m_activeSpuStatus[i];
+
+		spuStatus.startSemaphore = createSem("threadLocal");                
                 
-                checkPThreadFunction(sem_init(&spuStatus.startSemaphore, 0, 0));
                 checkPThreadFunction(pthread_create(&spuStatus.thread, NULL, &threadFunction, (void*)&spuStatus));
 
 		spuStatus.m_userPtr=0;
@@ -196,13 +233,12 @@ void PosixThreadSupport::stopSPU()
 {
 	for(size_t t=0; t < m_activeSpuStatus.size(); ++t) {
             btSpuStatus&	spuStatus = m_activeSpuStatus[t];
-        printf("%s: Thread %i used: %ld\n", __FUNCTION__, t, spuStatus.threadUsed);
+            printf("%s: Thread %i used: %ld\n", __FUNCTION__, t, spuStatus.threadUsed);
         
-        
-            checkPThreadFunction(sem_destroy(&spuStatus.startSemaphore));
+            destroySem(spuStatus.startSemaphore);
             checkPThreadFunction(pthread_cancel(spuStatus.thread));
         }
-        checkPThreadFunction(sem_destroy(&mainSemaphore));
+        destroySem(mainSemaphore);
 
 	m_activeSpuStatus.clear();
 }
