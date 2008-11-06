@@ -104,11 +104,12 @@ public:
 	}
   /**@brief Add two quaternions
    * @param q The quaternion to add to this one */
-	btQuaternion& operator+=(const btQuaternion& q)
+	SIMD_FORCE_INLINE	btQuaternion& operator+=(const btQuaternion& q)
 	{
 		m_floats[0] += q.x(); m_floats[1] += q.y(); m_floats[2] += q.z(); m_floats[3] += q.m_floats[3];
 		return *this;
 	}
+
   /**@brief Subtract out a quaternion
    * @param q The quaternion to subtract from this one */
 	btQuaternion& operator-=(const btQuaternion& q) 

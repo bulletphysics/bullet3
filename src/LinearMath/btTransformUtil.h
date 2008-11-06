@@ -105,8 +105,14 @@ public:
 		linVel = (pos1 - pos0) / timeStep;
 		btVector3 axis;
 		btScalar  angle;
-		calculateDiffAxisAngleQuaternion(orn0,orn1,axis,angle);
-		angVel = axis * angle / timeStep;
+		if (orn0 != orn1)
+		{
+			calculateDiffAxisAngleQuaternion(orn0,orn1,axis,angle);
+			angVel = axis * angle / timeStep;
+		} else
+		{
+			angVel.setValue(0,0,0);
+		}
 	}
 
 	static void calculateDiffAxisAngleQuaternion(const btQuaternion& orn0,const btQuaternion& orn1a,btVector3& axis,btScalar& angle)

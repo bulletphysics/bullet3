@@ -54,8 +54,7 @@ class	btQuadWord : public btQuadWordStorage
 {
 	public:
   
-//		SIMD_FORCE_INLINE btScalar&       operator[](int i)       { return (&m_floats[0])[i];	}      
-//		SIMD_FORCE_INLINE const btScalar& operator[](int i) const { return (&m_floats[0])[i]; }
+
   /**@brief Return the x value */
 		SIMD_FORCE_INLINE const btScalar& getX() const { return m_floats[0]; }
   /**@brief Return the y value */
@@ -79,10 +78,21 @@ class	btQuadWord : public btQuadWordStorage
   /**@brief Return the w value */
 		SIMD_FORCE_INLINE const btScalar& w() const { return m_floats[3]; }
 
+	//SIMD_FORCE_INLINE btScalar&       operator[](int i)       { return (&m_floats[0])[i];	}      
+	//SIMD_FORCE_INLINE const btScalar& operator[](int i) const { return (&m_floats[0])[i]; }
+	///operator btScalar*() replaces operator[], using implicit conversion. We added operator != and operator == to avoid pointer comparisons.
+	SIMD_FORCE_INLINE	operator       btScalar *()       { return &m_floats[0]; }
+	SIMD_FORCE_INLINE	operator const btScalar *() const { return &m_floats[0]; }
 
-		SIMD_FORCE_INLINE	operator       btScalar *()       { return &m_floats[0]; }
-		SIMD_FORCE_INLINE	operator const btScalar *() const { return &m_floats[0]; }
+	SIMD_FORCE_INLINE	bool	operator==(const btQuadWord& other) const
+	{
+		return ((m_floats[3]==m_floats[3]) && (m_floats[2]==m_floats[2]) && (m_floats[1]==m_floats[1]) && (m_floats[0]==m_floats[0]));
+	}
 
+	SIMD_FORCE_INLINE	bool	operator!=(const btQuadWord& other) const
+	{
+		return !(*this == other);
+	}
 
   /**@brief Set x,y,z and zero w 
    * @param x Value of x
