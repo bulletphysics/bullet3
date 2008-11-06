@@ -23,15 +23,17 @@ subject to the following restrictions:
 ///The btConvexPointCloudShape implements an implicit convex hull of an array of vertices.
 ATTRIBUTE_ALIGNED16(class) btConvexPointCloudShape : public btPolyhedralConvexShape
 {
-	btVector3* m_points;
+	btVector3* m_unscaledPoints;
 	int m_numPoints;
+
 public:
 	BT_DECLARE_ALIGNED_ALLOCATOR();
 
-	btConvexPointCloudShape(btVector3* points,int numPoints, bool computeAabb = true)
+	btConvexPointCloudShape(btVector3* points,int numPoints, const btVector3& localScaling,bool computeAabb = true)
 	{
+		m_localScaling = localScaling;
 		m_shapeType = CONVEX_POINT_CLOUD_SHAPE_PROXYTYPE;
-		m_points = points;
+		m_unscaledPoints = points;
 		m_numPoints = numPoints;
 
 		if (computeAabb)
@@ -40,26 +42,31 @@ public:
 
 	void setPoints (btVector3* points, int numPoints, bool computeAabb = true)
 	{
-		m_points = points;
+		m_unscaledPoints = points;
 		m_numPoints = numPoints;
 
 		if (computeAabb)
 			recalcLocalAabb();
 	}
 
-	btVector3* getPoints()
+	SIMD_FORCE_INLINE	btVector3* getUnscaledPoints()
 	{
-		return m_points;
+		return m_unscaledPoints;
 	}
 
-	const btVector3* getPoints() const
+	SIMD_FORCE_INLINE	const btVector3* getUnscaledPoints() const
 	{
-		return m_points;
+		return m_unscaledPoints;
 	}
 
-	int getNumPoints() const 
+	SIMD_FORCE_INLINE	int getNumPoints() const 
 	{
 		return m_numPoints;
+	}
+
+	SIMD_FORCE_INLINE	btVector3	getScaledPoint( int index) const
+	{
+		return m_unscaledPoints[index] * m_localScaling;
 	}
 
 #ifndef __SPU__

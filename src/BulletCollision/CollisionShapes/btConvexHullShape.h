@@ -24,7 +24,7 @@ subject to the following restrictions:
 ///Bullet provides a general and fast collision detector for convex shapes based on GJK and EPA using localGetSupportingVertex.
 ATTRIBUTE_ALIGNED16(class) btConvexHullShape : public btPolyhedralConvexShape
 {
-	btAlignedObjectArray<btVector3>	m_points;
+	btAlignedObjectArray<btVector3>	m_unscaledPoints;
 
 public:
 	BT_DECLARE_ALIGNED_ALLOCATOR();
@@ -37,19 +37,24 @@ public:
 
 	void addPoint(const btVector3& point);
 
-	btVector3* getPoints()
+	btVector3* getUnscaledPoints()
 	{
-		return &m_points[0];
+		return &m_unscaledPoints[0];
 	}
 
-	const btVector3* getPoints() const
+	const btVector3* getUnscaledPoints() const
 	{
-		return &m_points[0];
+		return &m_unscaledPoints[0];
 	}
 
-	int getNumPoints() const 
+	SIMD_FORCE_INLINE	btVector3 getScaledPoint(int i) const
 	{
-		return m_points.size();
+		return m_unscaledPoints[i] * m_localScaling;
+	}
+
+	SIMD_FORCE_INLINE	int getNumPoints() const 
+	{
+		return m_unscaledPoints.size();
 	}
 
 	virtual btVector3	localGetSupportingVertex(const btVector3& vec)const;

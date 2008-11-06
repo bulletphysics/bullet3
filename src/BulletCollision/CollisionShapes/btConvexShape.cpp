@@ -14,7 +14,6 @@ subject to the following restrictions:
 */
 
 #include "btConvexShape.h"
-#include "btConvexInternalShape.h"
 #include "btTriangleShape.h"
 #include "btSphereShape.h"
 #include "btCylinderShape.h"
@@ -22,7 +21,18 @@ subject to the following restrictions:
 #include "btConvexHullShape.h"
 #include "btConvexPointCloudShape.h"
 
-static btVector3 convexHullSupport (const btVector3& localDir, const btVector3* points, int numPoints)
+btConvexShape::btConvexShape ()
+{
+}
+
+btConvexShape::~btConvexShape()
+{
+
+}
+
+
+
+static btVector3 convexHullSupport (const btVector3& localDir, const btVector3* points, int numPoints, const btVector3& localScaling)
 {
 	btVector3 supVec(btScalar(0.),btScalar(0.),btScalar(0.));
 	btScalar newDot,maxDot = btScalar(-1e30);
@@ -41,7 +51,7 @@ static btVector3 convexHullSupport (const btVector3& localDir, const btVector3* 
 
 	for (int i=0;i<numPoints;i++)
 	{
-		btVector3 vtx = points[i];// * m_localScaling;
+		btVector3 vtx = points[i] * localScaling;
 
 		newDot = vec.dot(vtx);
 		if (newDot > maxDot)
@@ -64,7 +74,7 @@ btVector3 btConvexShape::localGetSupportVertexWithoutMarginNonVirtual (const btV
 	break;
 	case BOX_SHAPE_PROXYTYPE:
 	{
-		btConvexInternalShape* convexShape = (btConvexInternalShape*)this;
+		btBoxShape* convexShape = (btBoxShape*)this;
 		const btVector3& halfExtents = convexShape->getImplicitShapeDimensions();
 
 		return btVector3(btFsels(localDir.x(), halfExtents.x(), -halfExtents.x()),
@@ -203,16 +213,16 @@ btVector3 btConvexShape::localGetSupportVertexWithoutMarginNonVirtual (const btV
 	case CONVEX_POINT_CLOUD_SHAPE_PROXYTYPE:
 	{
 		btConvexPointCloudShape* convexPointCloudShape = (btConvexPointCloudShape*)this;
-		btVector3* points = convexPointCloudShape->getPoints ();
+		btVector3* points = convexPointCloudShape->getUnscaledPoints ();
 		int numPoints = convexPointCloudShape->getNumPoints ();
-		return convexHullSupport (localDir, points, numPoints);
+		return convexHullSupport (localDir, points, numPoints,convexPointCloudShape->getLocalScalingNV());
 	}
 	case CONVEX_HULL_SHAPE_PROXYTYPE:
 	{
 		btConvexHullShape* convexHullShape = (btConvexHullShape*)this;
-		btVector3* points = convexHullShape->getPoints ();
+		btVector3* points = convexHullShape->getUnscaledPoints();
 		int numPoints = convexHullShape->getNumPoints ();
-		return convexHullSupport (localDir, points, numPoints);
+		return convexHullSupport (localDir, points, numPoints,convexHullShape->getLocalScalingNV());
 	}
 	break;
     default:
@@ -237,174 +247,8 @@ btVector3 btConvexShape::localGetSupportVertexNonVirtual (const btVector3& local
 		localDirNorm.setValue(btScalar(-1.),btScalar(-1.),btScalar(-1.));
 	}
 	localDirNorm.normalize ();
-	switch (m_shapeType)
-	{
-    case SPHERE_SHAPE_PROXYTYPE:
-	{
-		return btVector3(0,0,0) + getMarginNonVirtual() * localDirNorm;
-    }
-	break;
-	case BOX_SHAPE_PROXYTYPE:
-	{
-		btConvexInternalShape* convexShape = (btConvexInternalShape*)this;
-		const btVector3& halfExtents = convexShape->getImplicitShapeDimensions();
 
-		return btVector3(localDir.getX() < 0.0f ? -halfExtents.x() : halfExtents.x(),
-						localDir.getY() < 0.0f ? -halfExtents.y() : halfExtents.y(),
-						localDir.getZ() < 0.0f ? -halfExtents.z() : halfExtents.z()) + getMarginNonVirtual() * localDirNorm;
-	}
-	break;
-	case TRIANGLE_SHAPE_PROXYTYPE:
-	{
-		btTriangleShape* triangleShape = (btTriangleShape*)this;
-		btVector3 dir(localDir.getX(),localDir.getY(),localDir.getZ());
-		btVector3* vertices = &triangleShape->m_vertices1[0];
-		btVector3 dots(dir.dot(vertices[0]), dir.dot(vertices[1]), dir.dot(vertices[2]));
-		btVector3 sup = vertices[dots.maxAxis()];
-		return btVector3(sup.getX(),sup.getY(),sup.getZ()) + getMarginNonVirtual() * localDirNorm;
-	}
-	break;
-	case CYLINDER_SHAPE_PROXYTYPE:
-	{
-		btCylinderShape* cylShape = (btCylinderShape*)this;
-		//mapping of halfextents/dimension onto radius/height depends on how cylinder local orientation is (upAxis)
-
-		btVector3 halfExtents = cylShape->getImplicitShapeDimensions();
-		btVector3 v(localDir.getX(),localDir.getY(),localDir.getZ());
-		int cylinderUpAxis = cylShape->getUpAxis();
-		int XX(1),YY(0),ZZ(2);
-
-		switch (cylinderUpAxis)
-		{
-		case 0:
-		{
-			XX = 1;
-			YY = 0;
-			ZZ = 2;
-		}
-		break;
-		case 1:
-		{
-			XX = 0;
-			YY = 1;
-			ZZ = 2;	
-		}
-		break;
-		case 2:
-		{
-			XX = 0;
-			YY = 2;
-			ZZ = 1;
-			
-		}
-		break;
-		default:
-			btAssert(0);
-		break;
-		};
-
-		btScalar radius = halfExtents[XX];
-		btScalar halfHeight = halfExtents[cylinderUpAxis];
-
-		btVector3 tmp;
-		btScalar d ;
-
-		btScalar s = btSqrt(v[XX] * v[XX] + v[ZZ] * v[ZZ]);
-		if (s != btScalar(0.0))
-		{
-			d = radius / s;  
-			tmp[XX] = v[XX] * d;
-			tmp[YY] = v[YY] < 0.0 ? -halfHeight : halfHeight;
-			tmp[ZZ] = v[ZZ] * d;
-			return btVector3(tmp.getX(),tmp.getY(),tmp.getZ()) + getMarginNonVirtual() * localDirNorm;
-		} else {
-			tmp[XX] = radius;
-			tmp[YY] = v[YY] < 0.0 ? -halfHeight : halfHeight;
-			tmp[ZZ] = btScalar(0.0);
-			return btVector3(tmp.getX(),tmp.getY(),tmp.getZ()) + getMarginNonVirtual() * localDirNorm;
-		}
-	}
-	break;
-	case CAPSULE_SHAPE_PROXYTYPE:
-	{
-		btVector3 vec0(localDir.getX(),localDir.getY(),localDir.getZ());
-
-		btCapsuleShape* capsuleShape = (btCapsuleShape*)this;
-		btVector3 halfExtents = capsuleShape->getImplicitShapeDimensions();
-		btScalar halfHeight = capsuleShape->getHalfHeight();
-		int capsuleUpAxis = capsuleShape->getUpAxis();
-
-		btScalar radius = capsuleShape->getRadius();
-		btVector3 supVec(0,0,0);
-
-		btScalar maxDot(btScalar(-1e30));
-
-		btVector3 vec = vec0;
-		btScalar lenSqr = vec.length2();
-		if (lenSqr < btScalar(0.0001))
-		{
-			vec.setValue(1,0,0);
-		} else
-		{
-			btScalar rlen = btScalar(1.) / btSqrt(lenSqr );
-			vec *= rlen;
-		}
-		btVector3 vtx;
-		btScalar newDot;
-		{
-			btVector3 pos(0,0,0);
-			pos[capsuleUpAxis] = halfHeight;
-
-			vtx = pos +vec*(radius);
-			newDot = vec.dot(vtx);
-			if (newDot > maxDot)
-			{
-				maxDot = newDot;
-				supVec = vtx;
-			}
-		}
-		{
-			btVector3 pos(0,0,0);
-			pos[capsuleUpAxis] = -halfHeight;
-
-			vtx = pos +vec*(radius);
-			newDot = vec.dot(vtx);
-			if (newDot > maxDot)
-			{
-				maxDot = newDot;
-				supVec = vtx;
-			}
-		}
-		return btVector3(supVec.getX(),supVec.getY(),supVec.getZ()) + getMarginNonVirtual() * localDirNorm;
-	}
-	break;
-	case CONVEX_POINT_CLOUD_SHAPE_PROXYTYPE:
-	{
-		btConvexPointCloudShape* convexPointCloudShape = (btConvexPointCloudShape*)this;
-		btVector3* points = convexPointCloudShape->getPoints ();
-		int numPoints = convexPointCloudShape->getNumPoints ();
-		return convexHullSupport (localDir, points, numPoints) + getMarginNonVirtual() * localDirNorm;
-	}
-	case CONVEX_HULL_SHAPE_PROXYTYPE:
-	{
-		btConvexHullShape* convexHullShape = (btConvexHullShape*)this;
-		btVector3* points = convexHullShape->getPoints ();
-		int numPoints = convexHullShape->getNumPoints ();
-		return convexHullSupport (localDir, points, numPoints) + getMarginNonVirtual() * localDirNorm;
-	}
-	break;
-    default:
-#ifndef __SPU__
-		return this->localGetSupportingVertex (localDir);
-#else
-		btAssert (0);
-#endif
-	break;
-	}
-
-	// should never reach here
-	btAssert (0);
-	return btVector3 (btScalar(0.0f), btScalar(0.0f), btScalar(0.0f));
+	return localGetSupportVertexWithoutMarginNonVirtual(localDirNorm)+ getMarginNonVirtual() * localDirNorm;
 }
 
 /* TODO: This should be bumped up to btCollisionShape () */
@@ -420,7 +264,7 @@ btScalar btConvexShape::getMarginNonVirtual () const
 	break;
 	case BOX_SHAPE_PROXYTYPE:
 	{
-		btConvexInternalShape* convexShape = (btConvexInternalShape*)this;
+		btBoxShape* convexShape = (btBoxShape*)this;
 		return convexShape->getMarginNV ();
 	}
 	break;
@@ -483,7 +327,7 @@ void btConvexShape::getAabbNonVirtual (const btTransform& t, btVector3& aabbMin,
 	/* fall through */
 	case BOX_SHAPE_PROXYTYPE:
 	{
-		btConvexInternalShape* convexShape = (btConvexInternalShape*)this;
+		btBoxShape* convexShape = (btBoxShape*)this;
 		float margin=convexShape->getMarginNonVirtual();
 		btVector3 halfExtents = convexShape->getImplicitShapeDimensions();
 		halfExtents += btVector3(margin,margin,margin);

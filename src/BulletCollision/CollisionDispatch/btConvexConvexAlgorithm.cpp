@@ -129,22 +129,31 @@ void btConvexConvexAlgorithm ::processCollision (btCollisionObject* body0,btColl
 	//TODO: if (dispatchInfo.m_useContinuous)
 	gjkPairDetector.setMinkowskiA(min0);
 	gjkPairDetector.setMinkowskiB(min1);
-	input.m_maximumDistanceSquared = 1e30f;//min0->getMargin() + min1->getMargin() + m_manifoldPtr->getContactBreakingThreshold();
-	//input.m_maximumDistanceSquared*= input.m_maximumDistanceSquared;
-	input.m_stackAlloc = dispatchInfo.m_stackAllocator;
 
-//	input.m_maximumDistanceSquared = btScalar(1e30);
-	
+#ifdef USE_SEPDISTANCE_UTIL2
+	if (dispatchInfo.m_useConvexConservativeDistanceUtil)
+	{
+		input.m_maximumDistanceSquared = 1e30f;
+	} else
+#endif //USE_SEPDISTANCE_UTIL2
+	{
+		input.m_maximumDistanceSquared = min0->getMargin() + min1->getMargin() + m_manifoldPtr->getContactBreakingThreshold();
+		input.m_maximumDistanceSquared*= input.m_maximumDistanceSquared;
+	}
+
+	input.m_stackAlloc = dispatchInfo.m_stackAllocator;
 	input.m_transformA = body0->getWorldTransform();
 	input.m_transformB = body1->getWorldTransform();
-	
-	gjkPairDetector.getClosestPoints(input,*resultOut,dispatchInfo.m_debugDraw);
 
+	gjkPairDetector.getClosestPoints(input,*resultOut,dispatchInfo.m_debugDraw);
 
 	btScalar sepDist = gjkPairDetector.getCachedSeparatingDistance()+dispatchInfo.m_convexConservativeDistanceThreshold;
 
 #ifdef USE_SEPDISTANCE_UTIL2
-	m_sepDistance.initSeparatingDistance(m_gjkPairDetector.getCachedSeparatingAxis(),sepDist,body0->getWorldTransform(),body1->getWorldTransform());
+	if (dispatchInfo.m_useConvexConservativeDistanceUtil)
+	{
+		m_sepDistance.initSeparatingDistance(gjkPairDetector.getCachedSeparatingAxis(),sepDist,body0->getWorldTransform(),body1->getWorldTransform());
+	}
 #endif //USE_SEPDISTANCE_UTIL2
 
 

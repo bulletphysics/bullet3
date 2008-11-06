@@ -22,14 +22,14 @@ subject to the following restrictions:
 btConvexHullShape ::btConvexHullShape (const btScalar* points,int numPoints,int stride) : btPolyhedralConvexShape ()
 {
 	m_shapeType = CONVEX_HULL_SHAPE_PROXYTYPE;
-	m_points.resize(numPoints);
+	m_unscaledPoints.resize(numPoints);
 
 	unsigned char* pointsBaseAddress = (unsigned char*)points;
 
 	for (int i=0;i<numPoints;i++)
 	{
 		btVector3* point = (btVector3*)(pointsBaseAddress + i*stride);
-		m_points[i] = point[0];
+		m_unscaledPoints[i] = point[0];
 	}
 
 	recalcLocalAabb();
@@ -46,7 +46,7 @@ void btConvexHullShape::setLocalScaling(const btVector3& scaling)
 
 void btConvexHullShape::addPoint(const btVector3& point)
 {
-	m_points.push_back(point);
+	m_unscaledPoints.push_back(point);
 	recalcLocalAabb();
 
 }
@@ -68,9 +68,9 @@ btVector3	btConvexHullShape::localGetSupportingVertexWithoutMargin(const btVecto
 	}
 
 
-	for (int i=0;i<m_points.size();i++)
+	for (int i=0;i<m_unscaledPoints.size();i++)
 	{
-		btVector3 vtx = m_points[i] * m_localScaling;
+		btVector3 vtx = m_unscaledPoints[i] * m_localScaling;
 
 		newDot = vec.dot(vtx);
 		if (newDot > maxDot)
@@ -92,9 +92,9 @@ void	btConvexHullShape::batchedUnitVectorGetSupportingVertexWithoutMargin(const 
 			supportVerticesOut[i][3] = btScalar(-1e30);
 		}
 	}
-	for (int i=0;i<m_points.size();i++)
+	for (int i=0;i<m_unscaledPoints.size();i++)
 	{
-		btVector3 vtx = m_points[i] * m_localScaling;
+		btVector3 vtx = getScaledPoint(i);
 
 		for (int j=0;j<numVectors;j++)
 		{
@@ -145,26 +145,26 @@ btVector3	btConvexHullShape::localGetSupportingVertex(const btVector3& vec)const
 //Please note that you can debug-draw btConvexHullShape with the Raytracer Demo
 int	btConvexHullShape::getNumVertices() const
 {
-	return m_points.size();
+	return m_unscaledPoints.size();
 }
 
 int btConvexHullShape::getNumEdges() const
 {
-	return m_points.size();
+	return m_unscaledPoints.size();
 }
 
 void btConvexHullShape::getEdge(int i,btVector3& pa,btVector3& pb) const
 {
 
-	int index0 = i%m_points.size();
-	int index1 = (i+1)%m_points.size();
-	pa = m_points[index0]*m_localScaling;
-	pb = m_points[index1]*m_localScaling;
+	int index0 = i%m_unscaledPoints.size();
+	int index1 = (i+1)%m_unscaledPoints.size();
+	pa = getScaledPoint(index0);
+	pb = getScaledPoint(index1);
 }
 
 void btConvexHullShape::getVertex(int i,btVector3& vtx) const
 {
-	vtx = m_points[i]*m_localScaling;
+	vtx = getScaledPoint(i);
 }
 
 int	btConvexHullShape::getNumPlanes() const

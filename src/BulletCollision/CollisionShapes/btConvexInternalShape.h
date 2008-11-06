@@ -30,14 +30,7 @@ public:
 
 	}
 
-
 	virtual btVector3	localGetSupportingVertex(const btVector3& vec)const;
-#ifndef __SPU__
-	virtual btVector3	localGetSupportingVertexWithoutMargin(const btVector3& vec) const= 0;
-	
-	//notice that the vectors should be unit length
-	virtual void	batchedUnitVectorGetSupportingVertexWithoutMargin(const btVector3* vectors,btVector3* supportVerticesOut,int numVectors) const= 0;
-#endif //#ifndef __SPU__
 
 	const btVector3& getImplicitShapeDimensions() const
 	{

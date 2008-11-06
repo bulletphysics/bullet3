@@ -36,28 +36,25 @@ public:
 
 	BT_DECLARE_ALIGNED_ALLOCATOR();
 
-	btConvexShape ()
-	{
-	}
+	btConvexShape ();
 
-	virtual ~btConvexShape()
-	{
+	virtual ~btConvexShape();
 
-	}
+	virtual btVector3	localGetSupportingVertex(const btVector3& vec)const = 0;
 
-
-	virtual btVector3	localGetSupportingVertex(const btVector3& vec)const =0;
-#ifndef __SPU__
-	virtual btVector3	localGetSupportingVertexWithoutMargin(const btVector3& vec) const= 0;
-	
-	//notice that the vectors should be unit length
-	virtual void	batchedUnitVectorGetSupportingVertexWithoutMargin(const btVector3* vectors,btVector3* supportVerticesOut,int numVectors) const= 0;
-#endif //#ifndef __SPU__
+	////////
+	#ifndef __SPU__
+	virtual btVector3	localGetSupportingVertexWithoutMargin(const btVector3& vec) const=0;
+	#endif //#ifndef __SPU__
 
 	btVector3 localGetSupportVertexWithoutMarginNonVirtual (const btVector3& vec) const;
 	btVector3 localGetSupportVertexNonVirtual (const btVector3& vec) const;
 	btScalar getMarginNonVirtual () const;
 	void getAabbNonVirtual (const btTransform& t, btVector3& aabbMin, btVector3& aabbMax) const;
+
+	
+	//notice that the vectors should be unit length
+	virtual void	batchedUnitVectorGetSupportingVertexWithoutMargin(const btVector3* vectors,btVector3* supportVerticesOut,int numVectors) const= 0;
 
 	///getAabb's default implementation is brute force, expected derived classes to implement a fast dedicated version
 	void getAabb(const btTransform& t,btVector3& aabbMin,btVector3& aabbMax) const =0;
@@ -75,6 +72,9 @@ public:
 	
 	virtual void	getPreferredPenetrationDirection(int index, btVector3& penetrationVector) const=0;
 
+
+	
+	
 };
 
 

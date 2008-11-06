@@ -43,7 +43,7 @@ btVector3	btConvexPointCloudShape::localGetSupportingVertexWithoutMargin(const b
 
 	for (int i=0;i<m_numPoints;i++)
 	{
-		btVector3 vtx = m_points[i] * m_localScaling;
+		btVector3 vtx = getScaledPoint(i);
 
 		newDot = vec.dot(vtx);
 		if (newDot > maxDot)
@@ -67,7 +67,7 @@ void	btConvexPointCloudShape::batchedUnitVectorGetSupportingVertexWithoutMargin(
 	}
 	for (int i=0;i<m_numPoints;i++)
 	{
-		btVector3 vtx = m_points[i] * m_localScaling;
+		btVector3 vtx = getScaledPoint(i);
 
 		for (int j=0;j<numVectors;j++)
 		{
@@ -133,7 +133,7 @@ void btConvexPointCloudShape::getEdge(int i,btVector3& pa,btVector3& pb) const
 
 void btConvexPointCloudShape::getVertex(int i,btVector3& vtx) const
 {
-	vtx = m_points[i]*m_localScaling;
+	vtx = m_unscaledPoints[i]*m_localScaling;
 }
 
 int	btConvexPointCloudShape::getNumPlanes() const

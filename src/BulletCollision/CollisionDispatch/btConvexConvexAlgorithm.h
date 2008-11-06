@@ -27,7 +27,7 @@ subject to the following restrictions:
 
 class btConvexPenetrationDepthSolver;
 
-//#define USE_SEPDISTANCE_UTIL2 1
+#define USE_SEPDISTANCE_UTIL2 1
 
 ///ConvexConvexAlgorithm collision algorithm implements time of impact, convex closest points and penetration depth calculations.
 class btConvexConvexAlgorithm : public btCollisionAlgorithm
