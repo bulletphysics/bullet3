@@ -21,4 +21,5 @@ FrameWorkDemo AllBulletDemos :
 	../VehicleDemo/VehicleDemo.cpp
 	../SoftDemo/SoftDemo.cpp
 	../ConstraintDemo/ConstraintDemo.cpp
+	../TerrainDemo/TerrainDemo.cpp
 ;

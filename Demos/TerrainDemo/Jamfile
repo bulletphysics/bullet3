@@ -1,0 +1,3 @@
+SubDir TOP Demos TerrainDemo ;
+
+BulletDemo TerrainDemo : [ Wildcard *.h *.cpp  ] ;
