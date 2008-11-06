@@ -878,10 +878,14 @@ void	BenchmarkDemo::createTest4()
 
 	btConvexHullShape* convexHullShape = new btConvexHullShape();
 
+	btScalar scaling(1);
+
+	convexHullShape->setLocalScaling(btVector3(scaling,scaling,scaling));
+
 	for (int i=0;i<TaruVtxCount;i++)
 	{
 		btVector3 vtx(TaruVtx[i*3],TaruVtx[i*3+1],TaruVtx[i*3+2]);
-		convexHullShape->addPoint(vtx);
+		convexHullShape->addPoint(vtx*(1./scaling));
 	}
 
 	btTransform trans;
