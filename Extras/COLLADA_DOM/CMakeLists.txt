@@ -6,7 +6,7 @@ ADD_DEFINITIONS( -D_CRT_SECURE_NO_WARNINGS)
 ADD_DEFINITIONS( -D_CRT_SECURE_NO_DEPRECATE)
 
 
-ADD_LIBRARY(LibColladaDom
+ADD_LIBRARY(ColladaDom
 			src/1.4/dom/domAccessor.cpp
 			src/1.4/dom/domAnimation.cpp
 			src/1.4/dom/domAnimation_clip.cpp
@@ -209,5 +209,5 @@ ADD_LIBRARY(LibColladaDom
 )
 
 IF (BUILD_SHARED_LIBS)
-  TARGET_LINK_LIBRARIES(LibColladaDom LibXML)
+  TARGET_LINK_LIBRARIES(ColladaDom XML)
 ENDIF (BUILD_SHARED_LIBS)

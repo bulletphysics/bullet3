@@ -3,7 +3,7 @@ INCLUDE_DIRECTORIES(
 	${BULLET_PHYSICS_SOURCE_DIR}/src/BulletMultiThreaded/vectormath/scalar/cpp
 )
 
-ADD_LIBRARY(LibBulletMultiThreaded
+ADD_LIBRARY(BulletMultiThreaded
 		PlatformDefinitions.h
 		SpuFakeDma.cpp
 		SpuFakeDma.h
@@ -69,5 +69,5 @@ ADD_LIBRARY(LibBulletMultiThreaded
 )
 
 IF (BUILD_SHARED_LIBS)
-	TARGET_LINK_LIBRARIES(LibBulletMultiThreaded LibBulletCollision)
+	TARGET_LINK_LIBRARIES(BulletMultiThreaded BulletCollision)
 ENDIF (BUILD_SHARED_LIBS)

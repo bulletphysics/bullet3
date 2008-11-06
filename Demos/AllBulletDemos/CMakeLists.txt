@@ -17,12 +17,12 @@ ${BULLET_PHYSICS_SOURCE_DIR}/Extras/BulletColladaConverter ${BULLET_PHYSICS_SOUR
 )
 
 LINK_LIBRARIES(
-LibBulletColladaConverter LibGLUI  LibGIMPACTUtils LibConvexDecomposition LibColladaDom LibXML LibOpenGLSupport  LibBulletSoftBody LibBulletDynamics LibBulletCollision LibLinearMath ${GLUT_glut_LIBRARY} ${OPENGL_gl_LIBRARY} ${OPENGL_glu_LIBRARY}
+BulletColladaConverter GLUI  GIMPACTUtils ConvexDecomposition ColladaDom XML OpenGLSupport  BulletSoftBody BulletDynamics BulletCollision LinearMath ${GLUT_glut_LIBRARY} ${OPENGL_gl_LIBRARY} ${OPENGL_glu_LIBRARY}
 )
 
 
 
-ADD_EXECUTABLE(AllBulletDemos
+ADD_EXECUTABLE(AppAllBulletDemos
 	Main.cpp
 	DemoEntries.cpp
  	 ../CcdPhysicsDemo/CcdPhysicsDemo.cpp

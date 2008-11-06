@@ -17,10 +17,10 @@ ${BULLET_PHYSICS_SOURCE_DIR}/src ${BULLET_PHYSICS_SOURCE_DIR}/Demos/OpenGL }
 )
 
 LINK_LIBRARIES(
-LibOpenGLSupport  LibBulletSoftBody LibBulletDynamics  LibBulletCollision LibLinearMath    ${GLUT_glut_LIBRARY} ${OPENGL_gl_LIBRARY} ${OPENGL_glu_LIBRARY}
+OpenGLSupport  BulletSoftBody BulletDynamics  BulletCollision LinearMath    ${GLUT_glut_LIBRARY} ${OPENGL_gl_LIBRARY} ${OPENGL_glu_LIBRARY}
 )
 
-ADD_EXECUTABLE(SoftBodyDemo
+ADD_EXECUTABLE(AppSoftBodyDemo
 	main.cpp
 	SoftDemo.cpp
 )

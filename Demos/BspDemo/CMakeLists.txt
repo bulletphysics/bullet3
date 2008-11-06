@@ -14,10 +14,10 @@ ${BULLET_PHYSICS_SOURCE_DIR}/src ${BULLET_PHYSICS_SOURCE_DIR}/Demos/OpenGL  }
 )
 
 LINK_LIBRARIES(
- LibOpenGLSupport  LibBulletDynamics  LibBulletCollision LibLinearMath    ${GLUT_glut_LIBRARY} ${OPENGL_gl_LIBRARY} ${OPENGL_glu_LIBRARY}
+ OpenGLSupport  BulletDynamics  BulletCollision LinearMath    ${GLUT_glut_LIBRARY} ${OPENGL_gl_LIBRARY} ${OPENGL_glu_LIBRARY}
 )
 
-ADD_EXECUTABLE(BspPhysicsDemo
+ADD_EXECUTABLE(AppBspPhysicsDemo
 	main.cpp
 	BspDemo.cpp
 	BspLoader.cpp

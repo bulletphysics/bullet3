@@ -5,10 +5,10 @@ ${BULLET_PHYSICS_SOURCE_DIR}/src }
 )
 
 LINK_LIBRARIES(
- LibBulletDynamics LibBulletCollision LibLinearMath 
+ BulletDynamics BulletCollision LinearMath 
 )
 
-ADD_EXECUTABLE(HelloWorld
+ADD_EXECUTABLE(AppHelloWorld
 	HelloWorld.cpp 
 )
 

@@ -8,7 +8,7 @@ ADD_DEFINITIONS( -D_CRT_SECURE_NO_DEPRECATE)
 
 
 	
-ADD_LIBRARY(LibXML
+ADD_LIBRARY(XML
 			c14n.c
 			catalog.c
 			chvalid.c

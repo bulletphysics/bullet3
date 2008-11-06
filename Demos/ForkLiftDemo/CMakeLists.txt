@@ -52,10 +52,10 @@ ${BULLET_PHYSICS_SOURCE_DIR}/src ${BULLET_PHYSICS_SOURCE_DIR}/Demos/OpenGL }
 )
 
 LINK_LIBRARIES(
-LibOpenGLSupport LibBulletDynamics  LibBulletCollision LibLinearMath    ${GLUT_glut_LIBRARY} ${OPENGL_gl_LIBRARY} ${OPENGL_glU_LIBRARY}
+OpenGLSupport BulletDynamics  BulletCollision LinearMath    ${GLUT_glut_LIBRARY} ${OPENGL_gl_LIBRARY} ${OPENGL_glU_LIBRARY}
 )
 
-ADD_EXECUTABLE(ForkLiftDemo
+ADD_EXECUTABLE(AppForkLiftDemo
 	ForkLiftDemo.cpp
 	main.cpp
 )

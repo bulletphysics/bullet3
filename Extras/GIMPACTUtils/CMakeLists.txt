@@ -5,10 +5,10 @@ ${BULLET_PHYSICS_SOURCE_DIR}/Extras/GIMPACTUtils
 ${BULLET_PHYSICS_SOURCE_DIR}/Extras/ConvexDecomposition
 )
 
-ADD_LIBRARY(LibGIMPACTUtils
+ADD_LIBRARY(GIMPACTUtils
 btGImpactConvexDecompositionShape.cpp	btGImpactConvexDecompositionShape.h
 )
 
 IF (BUILD_SHARED_LIBS)
-  TARGET_LINK_LIBRARIES(LibGIMPACTUtils LibConvexDecomposition LibBulletCollision)
+  TARGET_LINK_LIBRARIES(GIMPACTUtils ConvexDecomposition BulletCollision)
 ENDIF (BUILD_SHARED_LIBS)

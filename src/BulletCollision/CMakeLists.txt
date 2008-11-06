@@ -1,6 +1,6 @@
 INCLUDE_DIRECTORIES( ${BULLET_PHYSICS_SOURCE_DIR}/src } )
 
-SET(LibBulletCollision_SRCS
+SET(BulletCollision_SRCS
 	BroadphaseCollision/btAxisSweep3.cpp
 	BroadphaseCollision/btBroadphaseProxy.cpp
 	BroadphaseCollision/btCollisionAlgorithm.cpp
@@ -195,7 +195,7 @@ SET(NarrowPhaseCollision_HDRS
 	NarrowPhaseCollision/btVoronoiSimplexSolver.h
 )
 
-SET(LibBulletCollision_HDRS
+SET(BulletCollision_HDRS
 	${Root_HDRS}
 	${BroadphaseCollision_HDRS}
 	${CollisionDispatch_HDRS}
@@ -205,23 +205,21 @@ SET(LibBulletCollision_HDRS
 )
 
 
-#ADD_LIBRARY(LibBulletCollision SHARED ${LibBulletCollision_SRCS} ${LibBulletCollision_HDRS})
-
-ADD_LIBRARY(LibBulletCollision ${LibBulletCollision_SRCS} ${LibBulletCollision_HDRS})
+ADD_LIBRARY(BulletCollision ${BulletCollision_SRCS} ${BulletCollision_HDRS})
 IF (BUILD_SHARED_LIBS)
-  TARGET_LINK_LIBRARIES(LibBulletCollision LibLinearMath)
+  TARGET_LINK_LIBRARIES(BulletCollision LinearMath)
 ENDIF (BUILD_SHARED_LIBS)
 
 #INSTALL of other files requires CMake 2.6
 IF (${CMAKE_MAJOR_VERSION}.${CMAKE_MINOR_VERSION} GREATER 2.6)
-	#INSTALL_TARGETS(DESTINATION LibBulletCollision)
-	#INSTALL(DIRECTORY ${CMAKE_CURRENT_SOURCE_DIR} DESTINATION include ${LibBulletCollision_HDRS})
+	INSTALL(TARGETS BulletCollision DESTINATION lib)
+        INSTALL(DIRECTORY ${CMAKE_CURRENT_SOURCE_DIR} DESTINATION include FILES_MATCHING PATTERN "*.h")
 ENDIF (${CMAKE_MAJOR_VERSION}.${CMAKE_MINOR_VERSION} GREATER 2.6)
 
 IF (APPLE AND BUILD_SHARED_LIBS AND FRAMEWORK)
-	SET_TARGET_PROPERTIES(LibBulletCollision PROPERTIES FRAMEWORK true)
+	SET_TARGET_PROPERTIES(BulletCollision PROPERTIES FRAMEWORK true)
 
-	SET_TARGET_PROPERTIES(LibBulletCollision PROPERTIES PUBLIC_HEADER "${Root_HDRS}")
+	SET_TARGET_PROPERTIES(BulletCollision PROPERTIES PUBLIC_HEADER "${Root_HDRS}")
 	# Have to list out sub-directories manually:
 	SET_PROPERTY(SOURCE ${BroadphaseCollision_HDRS} PROPERTY MACOSX_PACKAGE_LOCATION Headers/BroadphaseCollision)
 	SET_PROPERTY(SOURCE ${CollisionDispatch_HDRS} PROPERTY MACOSX_PACKAGE_LOCATION Headers/CollisionDispatch)

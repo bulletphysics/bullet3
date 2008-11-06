@@ -17,7 +17,7 @@ INCLUDE_DIRECTORIES(
 ${BULLET_PHYSICS_SOURCE_DIR}/src ${BULLET_PHYSICS_SOURCE_DIR}/Extras/ConvexHull  }
 )
 
-ADD_LIBRARY(LibOpenGLSupport
+ADD_LIBRARY(OpenGLSupport
 		BMF_Api.cpp
 		BMF_BitmapFont.cpp
 		BMF_font_helv10.cpp
@@ -30,5 +30,5 @@ ADD_LIBRARY(LibOpenGLSupport
 )
 
 IF (BUILD_SHARED_LIBS)
-  TARGET_LINK_LIBRARIES(LibOpenGLSupport LibBulletDynamics LibBulletCollision ${GLUT_glut_LIBRARY} ${OPENGL_gl_LIBRARY} ${OPENGL_glu_LIBRARY})
+  TARGET_LINK_LIBRARIES(OpenGLSupport BulletDynamics BulletCollision ${GLUT_glut_LIBRARY} ${OPENGL_gl_LIBRARY} ${OPENGL_glu_LIBRARY})
 ENDIF (BUILD_SHARED_LIBS)
