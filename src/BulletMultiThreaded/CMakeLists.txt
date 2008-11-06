@@ -1,5 +1,6 @@
 INCLUDE_DIRECTORIES(
-${BULLET_PHYSICS_SOURCE_DIR}/src ${BULLET_PHYSICS_SOURCE_DIR}/src/BulletMultiThreaded/vectormath/scalar/cpp
+	${BULLET_PHYSICS_SOURCE_DIR}/src
+	${BULLET_PHYSICS_SOURCE_DIR}/src/BulletMultiThreaded/vectormath/scalar/cpp
 )
 
 ADD_LIBRARY(LibBulletMultiThreaded
@@ -66,3 +67,7 @@ ADD_LIBRARY(LibBulletMultiThreaded
 		SpuRaycastTask/SpuSubSimplexConvexCast.cpp
 		SpuRaycastTask/SpuSubSimplexConvexCast.h
 )
+
+IF (BUILD_SHARED_LIBS)
+	TARGET_LINK_LIBRARIES(LibBulletMultiThreaded LibBulletCollision)
+ENDIF (BUILD_SHARED_LIBS)

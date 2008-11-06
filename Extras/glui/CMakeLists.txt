@@ -60,3 +60,7 @@ algebra3.h			glui_bitmaps.cpp		glui_edittext.cpp		glui_mouse_iaction.cpp		glui_s
 arcball.cpp			glui_button.cpp			glui_filebrowser.cpp		glui_node.cpp			glui_separator.cpp		glui_tree.cpp
 	
 )
+
+IF (BUILD_SHARED_LIBS)
+  TARGET_LINK_LIBRARIES(LibGLUI ${GLUT_glut_LIBRARY} ${OPENGL_gl_LIBRARY} ${OPENGL_glu_LIBRARY})
+ENDIF (BUILD_SHARED_LIBS)

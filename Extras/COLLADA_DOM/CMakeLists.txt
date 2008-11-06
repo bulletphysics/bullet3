@@ -207,3 +207,7 @@ ADD_LIBRARY(LibColladaDom
 			src/modules/stdErrPlugin/stdErrPlugin.cpp
 			src/modules/STLDatabase/daeSTLDatabase.cpp
 )
+
+IF (BUILD_SHARED_LIBS)
+  TARGET_LINK_LIBRARIES(LibColladaDom LibXML)
+ENDIF (BUILD_SHARED_LIBS)

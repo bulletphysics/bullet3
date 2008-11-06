@@ -8,3 +8,7 @@ ${BULLET_PHYSICS_SOURCE_DIR}/Extras/ConvexDecomposition
 ADD_LIBRARY(LibGIMPACTUtils
 btGImpactConvexDecompositionShape.cpp	btGImpactConvexDecompositionShape.h
 )
+
+IF (BUILD_SHARED_LIBS)
+  TARGET_LINK_LIBRARIES(LibGIMPACTUtils LibConvexDecomposition LibBulletCollision)
+ENDIF (BUILD_SHARED_LIBS)

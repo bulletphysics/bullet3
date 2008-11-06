@@ -9,3 +9,7 @@ ConvexBuilder.h		bestfit.cpp		cd_hull.cpp		cd_wavefront.h		fitsphere.h		meshvolu
 ConvexDecomposition.cpp	bestfit.h		cd_hull.h		concavity.cpp		float_math.cpp		planetri.cpp		splitplane.cpp
 
 )
+
+IF (BUILD_SHARED_LIBS)
+  TARGET_LINK_LIBRARIES(LibConvexDecomposition LibBulletCollision LibLinearMath)
+ENDIF (BUILD_SHARED_LIBS)

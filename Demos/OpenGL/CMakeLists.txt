@@ -28,3 +28,7 @@ ADD_LIBRARY(LibOpenGLSupport
 		RenderTexture.cpp
 		DemoApplication.cpp
 )
+
+IF (BUILD_SHARED_LIBS)
+  TARGET_LINK_LIBRARIES(LibOpenGLSupport LibBulletDynamics LibBulletCollision ${GLUT_glut_LIBRARY} ${OPENGL_gl_LIBRARY} ${OPENGL_glu_LIBRARY})
+ENDIF (BUILD_SHARED_LIBS)

@@ -20,7 +20,7 @@ Written by: Marcus Hennix
 #ifndef CONETWISTCONSTRAINT_H
 #define CONETWISTCONSTRAINT_H
 
-#include "../../LinearMath/btVector3.h"
+#include "LinearMath/btVector3.h"
 #include "btJacobianEntry.h"
 #include "btTypedConstraint.h"
 

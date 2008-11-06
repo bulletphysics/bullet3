@@ -1,7 +1,5 @@
-INCLUDE_DIRECTORIES(
-${BULLET_PHYSICS_SOURCE_DIR}/src }
-)
-	
+INCLUDE_DIRECTORIES( ${BULLET_PHYSICS_SOURCE_DIR}/src } )
+
 SET(LibBulletDynamics_SRCS
 	ConstraintSolver/btContactConstraint.cpp
 	ConstraintSolver/btConeTwistConstraint.cpp
@@ -20,31 +18,65 @@ SET(LibBulletDynamics_SRCS
 	Vehicle/btWheelInfo.cpp
 )
 
-SET(LibBulletDynamics_HDRS
+SET(Root_HDRS
+	../btBulletDynamicsCommon.h
+	../btBulletCollisionCommon.h
+)
+SET(ConstraintSolver_HDRS
+	ConstraintSolver/btConstraintSolver.h
 	ConstraintSolver/btContactConstraint.h
+	ConstraintSolver/btContactSolverInfo.h
 	ConstraintSolver/btConeTwistConstraint.h
 	ConstraintSolver/btGeneric6DofConstraint.h
 	ConstraintSolver/btHingeConstraint.h
+	ConstraintSolver/btJacobianEntry.h
 	ConstraintSolver/btPoint2PointConstraint.h
 	ConstraintSolver/btSequentialImpulseConstraintSolver.h
 	ConstraintSolver/btSliderConstraint.h
 	ConstraintSolver/btSolve2LinearConstraint.h
+	ConstraintSolver/btSolverBody.h
+	ConstraintSolver/btSolverConstraint.h
 	ConstraintSolver/btTypedConstraint.h
+)
+SET(Dynamics_HDRS
+	Dynamics/btContinuousDynamicsWorld.h
 	Dynamics/btDiscreteDynamicsWorld.h
+	Dynamics/btDynamicsWorld.h
 	Dynamics/btSimpleDynamicsWorld.h
 	Dynamics/btRigidBody.h
+)
+SET(Vehicle_HDRS
 	Vehicle/btRaycastVehicle.h
+	Vehicle/btVehicleRaycaster.h
 	Vehicle/btWheelInfo.h
 )
 
-
+SET(LibBulletDynamics_HDRS
+	${Root_HDRS}
+	${ConstraintSolver_HDRS}
+	${Dynamics_HDRS}
+	${Vehicle_HDRS}
+)
 
 #ADD_LIBRARY(LibBulletDynamics SHARED ${LibBulletDynamics_SRCS} ${LibBulletDynamics_HDRS})
-#TARGET_LINK_LIBRARIES(LibBulletDynamics LibBulletCollision LibLinearMath)
 
 ADD_LIBRARY(LibBulletDynamics ${LibBulletDynamics_SRCS} ${LibBulletDynamics_HDRS})
+IF (BUILD_SHARED_LIBS)
+	TARGET_LINK_LIBRARIES(LibBulletDynamics LibBulletCollision LibLinearMath)
+ENDIF (BUILD_SHARED_LIBS)
 
 IF (${CMAKE_MAJOR_VERSION}.${CMAKE_MINOR_VERSION} GREATER 2.6)
 	#INSTALL(TARGETS LibBulletDynamics DESTINATION lib)
 	#INSTALL(DIRECTORY ${CMAKE_CURRENT_SOURCE_DIR} DESTINATION include FILES_MATCHING PATTERN "*.h")
 ENDIF (${CMAKE_MAJOR_VERSION}.${CMAKE_MINOR_VERSION} GREATER 2.6)
+
+IF (APPLE AND BUILD_SHARED_LIBS AND FRAMEWORK)
+	SET_TARGET_PROPERTIES(LibBulletDynamics PROPERTIES FRAMEWORK true)
+	
+	SET_TARGET_PROPERTIES(LibBulletDynamics PROPERTIES PUBLIC_HEADER "${Root_HDRS}")
+	# Have to list out sub-directories manually:
+	SET_PROPERTY(SOURCE ${ConstraintSolver_HDRS} PROPERTY MACOSX_PACKAGE_LOCATION Headers/ConstraintSolver)
+	SET_PROPERTY(SOURCE ${Dynamics_HDRS} PROPERTY MACOSX_PACKAGE_LOCATION Headers/Dynamics)
+	SET_PROPERTY(SOURCE ${Vehicle_HDRS} PROPERTY MACOSX_PACKAGE_LOCATION Headers/Vehicle)
+	
+ENDIF (APPLE AND BUILD_SHARED_LIBS AND FRAMEWORK)

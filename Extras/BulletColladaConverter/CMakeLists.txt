@@ -6,3 +6,7 @@ ADD_LIBRARY(LibBulletColladaConverter
 			ColladaConverter.h
 			ColladaConverter.cpp
 )
+
+IF (BUILD_SHARED_LIBS)
+  TARGET_LINK_LIBRARIES(LibBulletColladaConverter LibColladaDom LibBulletCollision LibBulletDynamics)
+ENDIF (BUILD_SHARED_LIBS)
