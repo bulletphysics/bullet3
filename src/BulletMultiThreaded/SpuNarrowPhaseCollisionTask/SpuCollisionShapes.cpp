@@ -463,7 +463,7 @@ void dmaConvexVertexData (SpuConvexPolyhedronVertexData* convexVertexData, btCon
 	}
 			
 	register int dmaSize = convexVertexData->gNumConvexPoints*sizeof(btVector3);
-	ppu_address_t pointsPPU = (ppu_address_t) convexShapeSPU->getPoints();
+	ppu_address_t pointsPPU = (ppu_address_t) convexShapeSPU->getUnscaledPoints();
 	cellDmaGet(&convexVertexData->g_convexPointBuffer[0], pointsPPU  , dmaSize, DMA_TAG(2), 0, 0);
 }
 
