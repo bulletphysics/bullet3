@@ -52,9 +52,9 @@ ATTRIBUTE_ALIGNED16( class) btPersistentManifold
 	/// void* will allow any rigidbody class
 	void* m_body0;
 	void* m_body1;
-	btScalar	m_contactBreakingThreshold;
-
 	int	m_cachedPoints;
+
+	btScalar	m_contactBreakingThreshold;
 
 	
 	/// sort cached points so most isolated points come first

@@ -185,7 +185,7 @@ public:
 
 	SIMD_FORCE_INLINE	int	getActivationState() const { return m_activationState1;}
 	
-	SIMD_FORCE_INLINE	void setActivationState(int newState);
+	void setActivationState(int newState);
 
 	void	setDeactivationTime(btScalar time)
 	{
