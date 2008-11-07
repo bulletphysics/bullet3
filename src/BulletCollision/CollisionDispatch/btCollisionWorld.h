@@ -84,6 +84,10 @@ protected:
 
 	btAlignedObjectArray<btCollisionObject*>	m_collisionObjects;
 	
+	///temporarily solution to keep track of active objects. This work-in-progress will improve when we refactor island management.
+	btAlignedObjectArray<btCollisionObject*>	m_activeObjects;
+
+
 	btDispatcher*	m_dispatcher1;
 
 	btDispatcherInfo	m_dispatchInfo;
@@ -94,6 +98,9 @@ protected:
 
 	btIDebugDraw*	m_debugDrawer;
 
+protected:
+
+	void	findActiveObjects();
 	
 public:
 
@@ -135,6 +142,16 @@ public:
 
 	virtual void	updateAabbs();
 
+	btCollisionObjectArray& getActiveObjects()
+	{
+		return m_activeObjects;
+	}
+
+	const btCollisionObjectArray& getActiveObjects() const
+	{
+		return m_activeObjects;
+	}
+	
 	virtual void	setDebugDrawer(btIDebugDraw*	debugDrawer)
 	{
 			m_debugDrawer = debugDrawer;

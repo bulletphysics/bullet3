@@ -183,9 +183,9 @@ public:
 		m_collisionShape = collisionShape;
 	}
 
-	int	getActivationState() const { return m_activationState1;}
+	SIMD_FORCE_INLINE	int	getActivationState() const { return m_activationState1;}
 	
-	void setActivationState(int newState);
+	SIMD_FORCE_INLINE	void setActivationState(int newState);
 
 	void	setDeactivationTime(btScalar time)
 	{
@@ -200,7 +200,7 @@ public:
 
 	void	activate(bool forceActivation = false);
 
-	inline bool isActive() const
+	SIMD_FORCE_INLINE bool isActive() const
 	{
 		return ((getActivationState() != ISLAND_SLEEPING) && (getActivationState() != DISABLE_SIMULATION));
 	}

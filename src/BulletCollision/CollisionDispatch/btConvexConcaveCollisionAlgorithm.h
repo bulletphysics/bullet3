@@ -16,7 +16,7 @@ subject to the following restrictions:
 #ifndef CONVEX_CONCAVE_COLLISION_ALGORITHM_H
 #define CONVEX_CONCAVE_COLLISION_ALGORITHM_H
 
-#include "BulletCollision/BroadphaseCollision/btCollisionAlgorithm.h"
+#include "btActivatingCollisionAlgorithm.h"
 #include "BulletCollision/BroadphaseCollision/btDispatcher.h"
 #include "BulletCollision/BroadphaseCollision/btBroadphaseInterface.h"
 #include "BulletCollision/CollisionShapes/btTriangleCallback.h"
@@ -70,7 +70,7 @@ int	m_triangleCount;
 
 
 /// btConvexConcaveCollisionAlgorithm  supports collision between convex shapes and (concave) trianges meshes.
-class btConvexConcaveCollisionAlgorithm  : public btCollisionAlgorithm
+class btConvexConcaveCollisionAlgorithm  : public btActivatingCollisionAlgorithm
 {
 
 	bool	m_isSwapped;

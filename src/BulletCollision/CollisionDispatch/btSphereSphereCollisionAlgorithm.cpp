@@ -19,7 +19,7 @@ subject to the following restrictions:
 #include "BulletCollision/CollisionDispatch/btCollisionObject.h"
 
 btSphereSphereCollisionAlgorithm::btSphereSphereCollisionAlgorithm(btPersistentManifold* mf,const btCollisionAlgorithmConstructionInfo& ci,btCollisionObject* col0,btCollisionObject* col1)
-: btCollisionAlgorithm(ci),
+: btActivatingCollisionAlgorithm(ci,col0,col1),
 m_ownManifold(false),
 m_manifoldPtr(mf)
 {

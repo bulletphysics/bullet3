@@ -22,7 +22,7 @@ subject to the following restrictions:
 
 
 btSphereTriangleCollisionAlgorithm::btSphereTriangleCollisionAlgorithm(btPersistentManifold* mf,const btCollisionAlgorithmConstructionInfo& ci,btCollisionObject* col0,btCollisionObject* col1,bool swapped)
-: btCollisionAlgorithm(ci),
+: btActivatingCollisionAlgorithm(ci,col0,col1),
 m_ownManifold(false),
 m_manifoldPtr(mf),
 m_swapped(swapped)

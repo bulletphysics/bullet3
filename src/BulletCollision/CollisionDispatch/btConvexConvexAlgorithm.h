@@ -16,7 +16,7 @@ subject to the following restrictions:
 #ifndef CONVEX_CONVEX_ALGORITHM_H
 #define CONVEX_CONVEX_ALGORITHM_H
 
-#include "BulletCollision/BroadphaseCollision/btCollisionAlgorithm.h"
+#include "btActivatingCollisionAlgorithm.h"
 #include "BulletCollision/NarrowPhaseCollision/btGjkPairDetector.h"
 #include "BulletCollision/NarrowPhaseCollision/btPersistentManifold.h"
 #include "BulletCollision/BroadphaseCollision/btBroadphaseProxy.h"
@@ -30,7 +30,7 @@ class btConvexPenetrationDepthSolver;
 #define USE_SEPDISTANCE_UTIL2 1
 
 ///ConvexConvexAlgorithm collision algorithm implements time of impact, convex closest points and penetration depth calculations.
-class btConvexConvexAlgorithm : public btCollisionAlgorithm
+class btConvexConvexAlgorithm : public btActivatingCollisionAlgorithm
 {
 #ifdef USE_SEPDISTANCE_UTIL2
 	btConvexSeparatingDistanceUtil	m_sepDistance;

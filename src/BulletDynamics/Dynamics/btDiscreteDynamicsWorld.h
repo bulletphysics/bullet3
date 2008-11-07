@@ -42,7 +42,6 @@ protected:
 
 	btAlignedObjectArray<btTypedConstraint*> m_constraints;
 
-
 	btVector3	m_gravity;
 
 	//for variable timesteps
@@ -79,6 +78,7 @@ protected:
 
 	void	debugDrawSphere(btScalar radius, const btTransform& transform, const btVector3& color);
 
+
 public:
 
 
@@ -90,6 +90,7 @@ public:
 	///if maxSubSteps > 0, it will interpolate motion between fixedTimeStep's
 	virtual int	stepSimulation( btScalar timeStep,int maxSubSteps=1, btScalar fixedTimeStep=btScalar(1.)/btScalar(60.));
 
+	
 
 	void	addConstraint(btTypedConstraint* constraint, bool disableCollisionsBetweenLinkedBodies=false);
 
@@ -113,7 +114,6 @@ public:
 	{
 		return this;
 	}
-
 
 	virtual void	setGravity(const btVector3& gravity);
 	virtual btVector3 getGravity () const;

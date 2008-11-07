@@ -60,7 +60,7 @@ btConvexConvexAlgorithm::CreateFunc::~CreateFunc()
 }
 
 btConvexConvexAlgorithm::btConvexConvexAlgorithm(btPersistentManifold* mf,const btCollisionAlgorithmConstructionInfo& ci,btCollisionObject* body0,btCollisionObject* body1,btSimplexSolverInterface* simplexSolver, btConvexPenetrationDepthSolver* pdSolver)
-: btCollisionAlgorithm(ci),
+: btActivatingCollisionAlgorithm(ci,body0,body1),
 m_simplexSolver(simplexSolver),
 m_pdSolver(pdSolver),
 m_ownManifold (false),

@@ -27,7 +27,7 @@ subject to the following restrictions:
 #include "BulletCollision/NarrowPhaseCollision/btSubSimplexConvexCast.h"
 
 btConvexConcaveCollisionAlgorithm::btConvexConcaveCollisionAlgorithm( const btCollisionAlgorithmConstructionInfo& ci, btCollisionObject* body0,btCollisionObject* body1,bool isSwapped)
-: btCollisionAlgorithm(ci),
+: btActivatingCollisionAlgorithm(ci,body0,body1),
 m_isSwapped(isSwapped),
 m_btConvexTriangleCallback(ci.m_dispatcher1,body0,body1,isSwapped)
 {

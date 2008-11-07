@@ -24,7 +24,7 @@ subject to the following restrictions:
 #ifndef BVH_CONCAVE_COLLISION_ALGORITHM_H
 #define BVH_CONCAVE_COLLISION_ALGORITHM_H
 
-#include "BulletCollision/BroadphaseCollision/btCollisionAlgorithm.h"
+#include "BulletCollision/CollisionDispatch/btActivatingCollisionAlgorithm.h"
 #include "BulletCollision/BroadphaseCollision/btDispatcher.h"
 #include "BulletCollision/BroadphaseCollision/btBroadphaseInterface.h"
 #include "BulletCollision/NarrowPhaseCollision/btPersistentManifold.h"
@@ -51,7 +51,7 @@ btCollisionDispatcher * dispatcher = static_cast<btCollisionDispatcher *>(m_dyna
 btGImpactCollisionAlgorithm::registerAlgorithm(dispatcher);
  \endcode
 */
-class btGImpactCollisionAlgorithm : public btCollisionAlgorithm
+class btGImpactCollisionAlgorithm : public btActivatingCollisionAlgorithm
 {
 protected:
 	btCollisionAlgorithm * m_convex_algorithm;

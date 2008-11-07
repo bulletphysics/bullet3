@@ -21,7 +21,7 @@ subject to the following restrictions:
 #include "LinearMath/btAabbUtil2.h"
 
 btCompoundCollisionAlgorithm::btCompoundCollisionAlgorithm( const btCollisionAlgorithmConstructionInfo& ci,btCollisionObject* body0,btCollisionObject* body1,bool isSwapped)
-:btCollisionAlgorithm(ci),
+:btActivatingCollisionAlgorithm(ci,body0,body1),
 m_isSwapped(isSwapped),
 m_sharedManifold(ci.m_manifold)
 {
