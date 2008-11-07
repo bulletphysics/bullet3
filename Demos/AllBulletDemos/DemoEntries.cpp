@@ -32,7 +32,6 @@ subject to the following restrictions:
 #include "../ConstraintDemo/ConstraintDemo.h"
 #include "../Benchmarks/BenchmarkDemo.h"
 #include "../SoftDemo/SoftDemo.h"
-#include "../TerrainDemo/TerrainDemo.h"
 
 
 #include "GlutStuff.h"//OpenGL stuff
@@ -146,7 +145,6 @@ btDemoEntry g_demoEntries[] =
 	{"Raytracer Test",Raytracer::Create},
 	{"GjkConvexCast",LinearConvexCastDemo::Create},
 	{"VehicleDemo",VehicleDemo::Create},
-	{"TerrainDemo",btCreateTerrainDemo},
 	{"Benchmark 3000 FALL",BenchmarkDemo1::Create},
 	{"Benchmark 1000 STACK",BenchmarkDemo2::Create},
 	{"Benchmark 136 RAGDOLLS",BenchmarkDemo3::Create},
