@@ -31,7 +31,7 @@
 
 
 
-// years spent in torment, buried in a nameless grave?
+
 inline	void	glutSwapBuffers()	{}
 inline	void	glutShowWindow()	{}
 inline	void	glutPostRedisplay()	{}
