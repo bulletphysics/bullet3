@@ -41,7 +41,7 @@ ADD_EXECUTABLE(AppAllBulletDemos
   ../GimpactTestDemo/GimpactTestDemo.cpp
   ../Raytracer/Raytracer.cpp
   ../GjkConvexCastDemo/LinearConvexCastDemo.cpp
-  ../VehicleDemo/VehicleDemo.cpp
+  ../ForkLiftDemo/ForkLiftDemo.cpp
   ../SoftDemo/SoftDemo.cpp
   ../ConstraintDemo/ConstraintDemo.cpp
 )

@@ -3,7 +3,7 @@ noinst_PROGRAMS=AllBulletDemo
 AllBulletDemo_SOURCES=\
 		      	../SoftDemo/SoftDemo.cpp \
 			../Benchmarks/BenchmarkDemo.cpp \
-			../VehicleDemo/VehicleDemo.cpp \
+			../ForkLiftDemo/ForkLiftDemo.cpp \
 			../RagdollDemo/RagdollDemo.cpp \
 			../BasicDemo/BasicDemo.cpp \
 			../CcdPhysicsDemo/CcdPhysicsDemo.cpp \
@@ -19,7 +19,6 @@ AllBulletDemo_SOURCES=\
 			../GjkConvexCastDemo/LinearConvexCastDemo.cpp \
 			../ConcaveDemo/ConcavePhysicsDemo.cpp \
 			../DynamicControlDemo/MotorDemo.cpp \
-			../TerrainDemo/TerrainDemo.cpp \
 			DemoEntries.cpp \
 			DemoEntries.h\
 			Main.cpp

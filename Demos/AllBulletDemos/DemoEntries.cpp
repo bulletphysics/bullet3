@@ -28,7 +28,7 @@ subject to the following restrictions:
 #include "../GimpactTestDemo/GimpactTestDemo.h"
 #include "../Raytracer/Raytracer.h"
 #include "../GjkConvexCastDemo/LinearConvexCastDemo.h"
-#include "../VehicleDemo/VehicleDemo.h"
+#include "../ForkLiftDemo/ForkLiftDemo.h"
 #include "../ConstraintDemo/ConstraintDemo.h"
 #include "../Benchmarks/BenchmarkDemo.h"
 #include "../SoftDemo/SoftDemo.h"
@@ -144,7 +144,7 @@ btDemoEntry g_demoEntries[] =
 	{"Gimpact Test", GimpactConcaveDemo::Create},
 	{"Raytracer Test",Raytracer::Create},
 	{"GjkConvexCast",LinearConvexCastDemo::Create},
-	{"VehicleDemo",VehicleDemo::Create},
+	{"ForkLiftDemo",ForkLiftDemo::Create},
 	{"Benchmark 3000 FALL",BenchmarkDemo1::Create},
 	{"Benchmark 1000 STACK",BenchmarkDemo2::Create},
 	{"Benchmark 136 RAGDOLLS",BenchmarkDemo3::Create},
