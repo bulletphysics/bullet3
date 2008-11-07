@@ -747,6 +747,30 @@ Package=<4>
 
 ###############################################################################
 
+Project: "appTerrainDemo"=.\appTerrainDemo.dsp - Package Owner=<4>
+
+Package=<5>
+{{{
+}}}
+
+Package=<4>
+{{{
+    Begin Project Dependency
+    Project_Dep_Name libbulletcollision
+    End Project Dependency
+    Begin Project Dependency
+    Project_Dep_Name libbulletdynamics
+    End Project Dependency
+    Begin Project Dependency
+    Project_Dep_Name libbulletmath
+    End Project Dependency
+    Begin Project Dependency
+    Project_Dep_Name libbulletopenglsupport
+    End Project Dependency
+}}}
+
+###############################################################################
+
 Project: "appUserCollisionAlgorithm"=.\appUserCollisionAlgorithm.dsp - Package Owner=<4>
 
 Package=<5>
@@ -894,6 +918,9 @@ Package=<4>
     Project_Dep_Name appSoftBodyDemo
     End Project Dependency
     Begin Project Dependency
+    Project_Dep_Name appTerrainDemo
+    End Project Dependency
+    Begin Project Dependency
     Project_Dep_Name appUserCollisionAlgorithm
     End Project Dependency
     Begin Project Dependency
@@ -1039,6 +1066,9 @@ Package=<4>
     End Project Dependency
     Begin Project Dependency
     Project_Dep_Name appSoftBodyDemo
+    End Project Dependency
+    Begin Project Dependency
+    Project_Dep_Name appTerrainDemo
     End Project Dependency
     Begin Project Dependency
     Project_Dep_Name appUserCollisionAlgorithm

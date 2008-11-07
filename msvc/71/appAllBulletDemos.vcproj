@@ -473,6 +473,9 @@
 				RelativePath="..\..\Demos\AllBulletDemos\..\DynamicControlDemo\MotorDemo.cpp">
 			</File>
 			<File
+				RelativePath="..\..\Demos\AllBulletDemos\..\ForkLiftDemo\ForkLiftDemo.cpp">
+			</File>
+			<File
 				RelativePath="..\..\Demos\AllBulletDemos\..\GimpactTestDemo\GimpactTestDemo.cpp">
 			</File>
 			<File
@@ -489,9 +492,6 @@
 			</File>
 			<File
 				RelativePath="..\..\Demos\AllBulletDemos\..\SoftDemo\SoftDemo.cpp">
-			</File>
-			<File
-				RelativePath="..\..\Demos\AllBulletDemos\..\VehicleDemo\VehicleDemo.cpp">
 			</File>
 			<File
 				RelativePath="..\..\Demos\AllBulletDemos\DemoEntries.cpp">

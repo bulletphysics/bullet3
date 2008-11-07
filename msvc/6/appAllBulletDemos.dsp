@@ -266,6 +266,10 @@ SOURCE=..\..\Demos\AllBulletDemos\..\DynamicControlDemo\MotorDemo.cpp
 # End Source File
 # Begin Source File
 
+SOURCE=..\..\Demos\AllBulletDemos\..\ForkLiftDemo\ForkLiftDemo.cpp
+# End Source File
+# Begin Source File
+
 SOURCE=..\..\Demos\AllBulletDemos\..\GimpactTestDemo\GimpactTestDemo.cpp
 # End Source File
 # Begin Source File
@@ -287,10 +291,6 @@ SOURCE=..\..\Demos\AllBulletDemos\..\SliderConstraintDemo\SliderConstraintDemo.c
 # Begin Source File
 
 SOURCE=..\..\Demos\AllBulletDemos\..\SoftDemo\SoftDemo.cpp
-# End Source File
-# Begin Source File
-
-SOURCE=..\..\Demos\AllBulletDemos\..\VehicleDemo\VehicleDemo.cpp
 # End Source File
 # Begin Source File
 
