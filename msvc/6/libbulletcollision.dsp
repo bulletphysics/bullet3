@@ -262,6 +262,10 @@ SOURCE=..\..\src\BulletCollision\BroadphaseCollision\btSimpleBroadphase.cpp
 # End Source File
 # Begin Source File
 
+SOURCE=..\..\src\BulletCollision\CollisionDispatch\btActivatingCollisionAlgorithm.cpp
+# End Source File
+# Begin Source File
+
 SOURCE=..\..\src\BulletCollision\CollisionDispatch\btBoxBoxCollisionAlgorithm.cpp
 # End Source File
 # Begin Source File
@@ -607,6 +611,10 @@ SOURCE=..\..\src\BulletCollision\BroadphaseCollision\btQuantizedBvh.h
 # Begin Source File
 
 SOURCE=..\..\src\BulletCollision\BroadphaseCollision\btSimpleBroadphase.h
+# End Source File
+# Begin Source File
+
+SOURCE=..\..\src\BulletCollision\CollisionDispatch\btActivatingCollisionAlgorithm.h
 # End Source File
 # Begin Source File
 

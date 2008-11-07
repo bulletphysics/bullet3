@@ -450,6 +450,9 @@
 				RelativePath="..\..\src\BulletCollision\BroadphaseCollision\btSimpleBroadphase.cpp">
 			</File>
 			<File
+				RelativePath="..\..\src\BulletCollision\CollisionDispatch\btActivatingCollisionAlgorithm.cpp">
+			</File>
+			<File
 				RelativePath="..\..\src\BulletCollision\CollisionDispatch\btBoxBoxCollisionAlgorithm.cpp">
 			</File>
 			<File
@@ -710,6 +713,9 @@
 			</File>
 			<File
 				RelativePath="..\..\src\BulletCollision\BroadphaseCollision\btSimpleBroadphase.h">
+			</File>
+			<File
+				RelativePath="..\..\src\BulletCollision\CollisionDispatch\btActivatingCollisionAlgorithm.h">
 			</File>
 			<File
 				RelativePath="..\..\src\BulletCollision\CollisionDispatch\btBoxBoxCollisionAlgorithm.h">
