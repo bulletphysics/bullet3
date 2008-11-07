@@ -41,6 +41,7 @@ libbulletcollision_a_SOURCES = \
 		BulletCollision/NarrowPhaseCollision/btGjkPairDetector.cpp \
 		BulletCollision/NarrowPhaseCollision/btGjkEpa2.cpp \
 		BulletCollision/NarrowPhaseCollision/btVoronoiSimplexSolver.cpp \
+		BulletCollision/CollisionDispatch/btActivatingCollisionAlgorithm.cpp \
 		BulletCollision/CollisionDispatch/btCollisionObject.cpp \
 		BulletCollision/CollisionDispatch/btEmptyCollisionAlgorithm.cpp \
 		BulletCollision/CollisionDispatch/btGhostObject.cpp \

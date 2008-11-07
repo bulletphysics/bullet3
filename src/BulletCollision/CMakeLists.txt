@@ -11,6 +11,7 @@ SET(BulletCollision_SRCS
 	BroadphaseCollision/btOverlappingPairCache.cpp
 	BroadphaseCollision/btQuantizedBvh.cpp
 	BroadphaseCollision/btSimpleBroadphase.cpp
+	CollisionDispatch/btActivatingCollisionAlgorithm.cpp
 	CollisionDispatch/btCollisionDispatcher.cpp
 	CollisionDispatch/btCollisionObject.cpp
 	CollisionDispatch/btCollisionWorld.cpp
@@ -105,6 +106,7 @@ SET(BroadphaseCollision_HDRS
 	BroadphaseCollision/btSimpleBroadphase.h
 )
 SET(CollisionDispatch_HDRS
+	CollisionDispatch/btActivatingCollisionAlgorithm.h
 	CollisionDispatch/btCollisionConfiguration.h
 	CollisionDispatch/btCollisionCreateFunc.h
 	CollisionDispatch/btCollisionDispatcher.h
