@@ -71,7 +71,6 @@ btVector3 btConvexShape::localGetSupportVertexWithoutMarginNonVirtual (const btV
 	{
 		return btVector3(0,0,0);
     }
-	break;
 	case BOX_SHAPE_PROXYTYPE:
 	{
 		btBoxShape* convexShape = (btBoxShape*)this;
@@ -81,7 +80,6 @@ btVector3 btConvexShape::localGetSupportVertexWithoutMarginNonVirtual (const btV
 			btFsels(localDir.y(), halfExtents.y(), -halfExtents.y()),
 			btFsels(localDir.z(), halfExtents.z(), -halfExtents.z()));
 	}
-	break;
 	case TRIANGLE_SHAPE_PROXYTYPE:
 	{
 		btTriangleShape* triangleShape = (btTriangleShape*)this;
@@ -91,7 +89,6 @@ btVector3 btConvexShape::localGetSupportVertexWithoutMarginNonVirtual (const btV
 		btVector3 sup = vertices[dots.maxAxis()];
 		return btVector3(sup.getX(),sup.getY(),sup.getZ());
 	}
-	break;
 	case CYLINDER_SHAPE_PROXYTYPE:
 	{
 		btCylinderShape* cylShape = (btCylinderShape*)this;
@@ -152,7 +149,6 @@ btVector3 btConvexShape::localGetSupportVertexWithoutMarginNonVirtual (const btV
 			return btVector3(tmp.getX(),tmp.getY(),tmp.getZ());
 		}
 	}
-	break;
 	case CAPSULE_SHAPE_PROXYTYPE:
 	{
 		btVector3 vec0(localDir.getX(),localDir.getY(),localDir.getZ());
@@ -209,7 +205,6 @@ btVector3 btConvexShape::localGetSupportVertexWithoutMarginNonVirtual (const btV
 		}
 		return btVector3(supVec.getX(),supVec.getY(),supVec.getZ());	
 	}
-	break;
 	case CONVEX_POINT_CLOUD_SHAPE_PROXYTYPE:
 	{
 		btConvexPointCloudShape* convexPointCloudShape = (btConvexPointCloudShape*)this;
@@ -224,14 +219,12 @@ btVector3 btConvexShape::localGetSupportVertexWithoutMarginNonVirtual (const btV
 		int numPoints = convexHullShape->getNumPoints ();
 		return convexHullSupport (localDir, points, numPoints,convexHullShape->getLocalScalingNV());
 	}
-	break;
     default:
 #ifndef __SPU__
 		return this->localGetSupportingVertexWithoutMargin (localDir);
 #else
 		btAssert (0);
 #endif
-	break;
 	}
 
 	// should never reach here
@@ -261,31 +254,26 @@ btScalar btConvexShape::getMarginNonVirtual () const
 		btSphereShape* sphereShape = (btSphereShape*)this;
 		return sphereShape->getRadius ();
 	}
-	break;
 	case BOX_SHAPE_PROXYTYPE:
 	{
 		btBoxShape* convexShape = (btBoxShape*)this;
 		return convexShape->getMarginNV ();
 	}
-	break;
 	case TRIANGLE_SHAPE_PROXYTYPE:
 	{
 		btTriangleShape* triangleShape = (btTriangleShape*)this;
 		return triangleShape->getMarginNV ();
 	}
-	break;
 	case CYLINDER_SHAPE_PROXYTYPE:
 	{
 		btCylinderShape* cylShape = (btCylinderShape*)this;
 		return cylShape->getMarginNV();
 	}
-	break;
 	case CAPSULE_SHAPE_PROXYTYPE:
 	{
 		btCapsuleShape* capsuleShape = (btCapsuleShape*)this;
 		return capsuleShape->getMarginNV();
 	}
-	break;
 	case CONVEX_POINT_CLOUD_SHAPE_PROXYTYPE:
 	/* fall through */
 	case CONVEX_HULL_SHAPE_PROXYTYPE:
@@ -293,14 +281,12 @@ btScalar btConvexShape::getMarginNonVirtual () const
 		btPolyhedralConvexShape* convexHullShape = (btPolyhedralConvexShape*)this;
 		return convexHullShape->getMarginNV();
 	}
-	break;
     default:
 #ifndef __SPU__
 		return this->getMargin ();
 #else
 		btAssert (0);
 #endif
-	break;
 	}
 
 	// should never reach here
@@ -339,7 +325,6 @@ void btConvexShape::getAabbNonVirtual (const btTransform& t, btVector3& aabbMin,
 		aabbMax = center + extent;
 		break;
 	}
-	break;
 	case TRIANGLE_SHAPE_PROXYTYPE:
 	{
 		btTriangleShape* triangleShape = (btTriangleShape*)this;

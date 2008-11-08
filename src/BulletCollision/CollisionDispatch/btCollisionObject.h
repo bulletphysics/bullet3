@@ -295,7 +295,7 @@ public:
 		return m_interpolationAngularVelocity;
 	}
 
-	const int getIslandTag() const
+	SIMD_FORCE_INLINE int getIslandTag() const
 	{
 		return	m_islandTag1;
 	}
@@ -305,7 +305,7 @@ public:
 		m_islandTag1 = tag;
 	}
 
-	const int getCompanionId() const
+	SIMD_FORCE_INLINE int getCompanionId() const
 	{
 		return	m_companionId;
 	}
@@ -315,7 +315,7 @@ public:
 		m_companionId = id;
 	}
 
-	const btScalar			getHitFraction() const
+	SIMD_FORCE_INLINE btScalar			getHitFraction() const
 	{
 		return m_hitFraction; 
 	}
@@ -326,7 +326,7 @@ public:
 	}
 
 	
-	const int	getCollisionFlags() const
+	SIMD_FORCE_INLINE int	getCollisionFlags() const
 	{
 		return m_collisionFlags;
 	}
