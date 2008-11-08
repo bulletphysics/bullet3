@@ -80,6 +80,8 @@ public:
 		virtual void	setGravity(const btVector3& gravity) = 0;
 		virtual btVector3 getGravity () const = 0;
 
+		virtual void	synchronizeMotionStates() = 0;
+
 		virtual void	addRigidBody(btRigidBody* body) = 0;
 
 		virtual void	removeRigidBody(btRigidBody* body) = 0;

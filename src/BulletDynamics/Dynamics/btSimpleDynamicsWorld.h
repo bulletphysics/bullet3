@@ -60,7 +60,7 @@ public:
 	
 	virtual void	updateAabbs();
 
-	void	synchronizeMotionStates();
+	virtual void	synchronizeMotionStates();
 
 	virtual void	setConstraintSolver(btConstraintSolver* solver);
 

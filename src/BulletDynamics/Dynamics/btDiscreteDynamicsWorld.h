@@ -60,9 +60,9 @@ protected:
 	
 	virtual void	integrateTransforms(btScalar timeStep);
 		
-	void	calculateSimulationIslands();
+	virtual void	calculateSimulationIslands();
 
-	void	solveConstraints(btContactSolverInfo& solverInfo);
+	virtual void	solveConstraints(btContactSolverInfo& solverInfo);
 	
 	void	updateActivationState(btScalar timeStep);
 
@@ -72,9 +72,8 @@ protected:
 
 	virtual void	internalSingleStepSimulation( btScalar timeStep);
 
-	void	synchronizeMotionStates();
 
-	void	saveKinematicState(btScalar timeStep);
+	virtual void	saveKinematicState(btScalar timeStep);
 
 	void	debugDrawSphere(btScalar radius, const btTransform& transform, const btVector3& color);
 
@@ -90,7 +89,8 @@ public:
 	///if maxSubSteps > 0, it will interpolate motion between fixedTimeStep's
 	virtual int	stepSimulation( btScalar timeStep,int maxSubSteps=1, btScalar fixedTimeStep=btScalar(1.)/btScalar(60.));
 
-	
+
+	virtual void	synchronizeMotionStates();
 
 	void	addConstraint(btTypedConstraint* constraint, bool disableCollisionsBetweenLinkedBodies=false);
 
