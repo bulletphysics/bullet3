@@ -16,6 +16,7 @@ SET(BulletDynamics_SRCS
 	Dynamics/btRigidBody.cpp
 	Vehicle/btRaycastVehicle.cpp
 	Vehicle/btWheelInfo.cpp
+	Character/btKinematicCharacterController.cpp
 )
 
 SET(Root_HDRS
@@ -51,11 +52,19 @@ SET(Vehicle_HDRS
 	Vehicle/btWheelInfo.h
 )
 
+SET(Character_HDRS
+	Character/btCharacterControllerInterface.h
+	Character/btKinematicCharacterController.h
+)
+
+
+
 SET(BulletDynamics_HDRS
 	${Root_HDRS}
 	${ConstraintSolver_HDRS}
 	${Dynamics_HDRS}
 	${Vehicle_HDRS}
+	${Character_HDRS}
 )
 
 
@@ -79,5 +88,6 @@ IF (APPLE AND BUILD_SHARED_LIBS AND FRAMEWORK)
 	SET_PROPERTY(SOURCE ${ConstraintSolver_HDRS} PROPERTY MACOSX_PACKAGE_LOCATION Headers/ConstraintSolver)
 	SET_PROPERTY(SOURCE ${Dynamics_HDRS} PROPERTY MACOSX_PACKAGE_LOCATION Headers/Dynamics)
 	SET_PROPERTY(SOURCE ${Vehicle_HDRS} PROPERTY MACOSX_PACKAGE_LOCATION Headers/Vehicle)
-	
+	SET_PROPERTY(SOURCE ${Character_HDRS} PROPERTY MACOSX_PACKAGE_LOCATION Headers/Character)
+		
 ENDIF (APPLE AND BUILD_SHARED_LIBS AND FRAMEWORK)

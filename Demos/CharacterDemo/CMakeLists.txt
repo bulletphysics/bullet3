@@ -18,11 +18,8 @@ LINK_LIBRARIES(
 )
 
 ADD_EXECUTABLE(AppCharacterDemo
-	KinematicCharacterController.cpp
 	DynamicCharacterController.cpp
-	KinematicCharacterController.h
 	DynamicCharacterController.h
-	CharacterControllerInterface.h
 	CharacterDemo.cpp
 	CharacterDemo.h
 	../BspDemo/BspConverter.cpp

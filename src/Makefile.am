@@ -216,6 +216,9 @@ libbulletdynamics_a_SOURCES = \
 		BulletDynamics/ConstraintSolver/btSequentialImpulseConstraintSolver.cpp \
 		BulletDynamics/Vehicle/btWheelInfo.cpp \
 		BulletDynamics/Vehicle/btRaycastVehicle.cpp \
+		BulletDynamics/Character/btKinematicCharacterController.cpp \
+		BulletDynamics/Character/btKinematicCharacterController.h \
+		BulletDynamics/Character/btCharacterControllerInterface.h \		
 		BulletDynamics/Dynamics/btContinuousDynamicsWorld.h \
 		BulletDynamics/Dynamics/btSimpleDynamicsWorld.h \
 		BulletDynamics/Dynamics/btRigidBody.h \
