@@ -151,9 +151,9 @@ void	btDiscreteDynamicsWorld::debugDrawWorld()
 	{
 		int i;
 
-		for (  i=0;i<m_activeObjects.size();i++)
+		for (  i=0;i<m_collisionObjects.size();i++)
 		{
-			btCollisionObject* colObj = m_activeObjects[i];
+			btCollisionObject* colObj = m_collisionObjects[i];
 			if (getDebugDrawer() && getDebugDrawer()->getDebugMode() & btIDebugDraw::DBG_DrawWireframe)
 			{
 				btVector3 color(btScalar(255.),btScalar(255.),btScalar(255.));
