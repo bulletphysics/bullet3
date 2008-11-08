@@ -137,13 +137,9 @@ class ConvexH
 	};
 	ConvexH()
 	{
-		int i;
-		i=0;
 	}
 	~ConvexH()
 	{
-		int i;
-		i=0;
 	}
 	btAlignedObjectArray<btVector3> vertices;
 	btAlignedObjectArray<HalfEdge> edges;
