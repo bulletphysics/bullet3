@@ -222,6 +222,10 @@ LINK32=link.exe
 # PROP Default_Filter ""
 # Begin Source File
 
+SOURCE=..\..\src\BulletDynamics\Character\btKinematicCharacterController.cpp
+# End Source File
+# Begin Source File
+
 SOURCE=..\..\src\BulletDynamics\ConstraintSolver\btConeTwistConstraint.cpp
 # End Source File
 # Begin Source File
@@ -288,6 +292,14 @@ SOURCE=..\..\src\BulletDynamics\Vehicle\btWheelInfo.cpp
 # Begin Group "Header Files"
 
 # PROP Default_Filter ""
+# Begin Source File
+
+SOURCE=..\..\src\BulletDynamics\Character\btCharacterControllerInterface.h
+# End Source File
+# Begin Source File
+
+SOURCE=..\..\src\BulletDynamics\Character\btKinematicCharacterController.h
+# End Source File
 # Begin Source File
 
 SOURCE=..\..\src\BulletDynamics\ConstraintSolver\btConeTwistConstraint.h

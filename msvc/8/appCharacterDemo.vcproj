@@ -449,9 +449,6 @@
 				RelativePath="..\..\Demos\CharacterDemo\DynamicCharacterController.cpp">
 			</File>
 			<File
-				RelativePath="..\..\Demos\CharacterDemo\KinematicCharacterController.cpp">
-			</File>
-			<File
 				RelativePath="..\..\Demos\CharacterDemo\main.cpp">
 			</File>
 		</Filter>
@@ -465,16 +462,10 @@
 				RelativePath="..\..\Demos\CharacterDemo\..\BspDemo\BspLoader.h">
 			</File>
 			<File
-				RelativePath="..\..\Demos\CharacterDemo\CharacterControllerInterface.h">
-			</File>
-			<File
 				RelativePath="..\..\Demos\CharacterDemo\CharacterDemo.h">
 			</File>
 			<File
 				RelativePath="..\..\Demos\CharacterDemo\DynamicCharacterController.h">
-			</File>
-			<File
-				RelativePath="..\..\Demos\CharacterDemo\KinematicCharacterController.h">
 			</File>
 		</Filter>
 		<Filter
