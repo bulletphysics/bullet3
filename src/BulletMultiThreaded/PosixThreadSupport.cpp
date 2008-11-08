@@ -43,7 +43,9 @@ PosixThreadSupport::~PosixThreadSupport()
 	stopSPU();
 }
 
+#if (defined (__APPLE__))
 #define NAMED_SEMAPHORES
+#endif
 
 // this semaphore will signal, if and how many threads are finished with their work
 static sem_t* mainSemaphore;
