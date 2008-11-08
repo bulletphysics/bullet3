@@ -51,6 +51,9 @@ subject to the following restrictions:
 #include "BulletDynamics/Vehicle/btRaycastVehicle.h"
 #include "BulletDynamics/Vehicle/btVehicleRaycaster.h"
 #include "BulletDynamics/Vehicle/btWheelInfo.h"
+//character
+#include "BulletDynamics/Character/btCharacterControllerInterface.h"
+
 #include "LinearMath/btIDebugDraw.h"
 #include "LinearMath/btQuickprof.h"
 #include "LinearMath/btMotionState.h"
@@ -403,7 +406,8 @@ void	btDiscreteDynamicsWorld::internalSingleStepSimulation(btScalar timeStep)
 
 	///update vehicle simulation
 	updateVehicles(timeStep);
-
+	
+	updateCharacters(timeStep);
 
 	updateActivationState( timeStep );
 
@@ -479,6 +483,20 @@ void	btDiscreteDynamicsWorld::updateVehicles(btScalar timeStep)
 	}
 }
 
+void	btDiscreteDynamicsWorld::updateCharacters(btScalar timeStep)
+{
+	BT_PROFILE("updateCharacters");
+	
+	for ( int i=0;i<m_characters.size();i++)
+	{
+		btCharacterControllerInterface* character = m_characters[i];
+		character->preStep (this);
+		character->playerStep (this,timeStep);
+	}
+}
+
+	
+	
 void	btDiscreteDynamicsWorld::updateActivationState(btScalar timeStep)
 {
 	BT_PROFILE("updateActivationState");
@@ -542,6 +560,17 @@ void	btDiscreteDynamicsWorld::removeVehicle(btRaycastVehicle* vehicle)
 {
 	m_vehicles.remove(vehicle);
 }
+
+void	btDiscreteDynamicsWorld::addCharacter(btCharacterControllerInterface* character)
+{
+	m_characters.push_back(character);
+}
+
+void	btDiscreteDynamicsWorld::removeCharacter(btCharacterControllerInterface* character)
+{
+	m_characters.remove(character);
+}
+
 
 SIMD_FORCE_INLINE	int	btGetConstraintIslandId(const btTypedConstraint* lhs)
 {

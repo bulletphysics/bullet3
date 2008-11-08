@@ -23,6 +23,7 @@ class btTypedConstraint;
 class btRaycastVehicle;
 class btConstraintSolver;
 class btDynamicsWorld;
+class btCharacterControllerInterface;
 
 /// Type for the callback for each tick
 typedef void (*btInternalTickCallback)(btDynamicsWorld *world, btScalar timeStep);
@@ -74,6 +75,11 @@ public:
 		virtual void	addVehicle(btRaycastVehicle* vehicle) {(void)vehicle;}
 
 		virtual void	removeVehicle(btRaycastVehicle* vehicle) {(void)vehicle;}
+
+		virtual void	addCharacter(btCharacterControllerInterface* character) {(void)character;}
+
+		virtual void	removeCharacter(btCharacterControllerInterface* character) {(void)character;}
+
 
 		//once a rigidbody is added to the dynamics world, it will get this gravity assigned
 		//existing rigidbodies in the world get gravity assigned too, during this method

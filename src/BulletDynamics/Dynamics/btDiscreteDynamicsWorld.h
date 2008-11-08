@@ -26,6 +26,7 @@ class btTypedConstraint;
 
 
 class btRaycastVehicle;
+class btCharacterControllerInterface;
 class btIDebugDraw;
 #include "LinearMath/btAlignedObjectArray.h"
 
@@ -53,6 +54,9 @@ protected:
 
 	
 	btAlignedObjectArray<btRaycastVehicle*>	m_vehicles;
+	
+	btAlignedObjectArray<btCharacterControllerInterface*> m_characters;
+	
 
 	int	m_profileTimings;
 
@@ -67,6 +71,8 @@ protected:
 	void	updateActivationState(btScalar timeStep);
 
 	void	updateVehicles(btScalar timeStep);
+
+	void	updateCharacters(btScalar timeStep);
 
 	void	startProfiling(btScalar timeStep);
 
@@ -95,13 +101,18 @@ public:
 	///this can be useful to synchronize a single rigid body -> graphics object
 	void	synchronizeSingleMotionState(btRigidBody* body);
 
-	void	addConstraint(btTypedConstraint* constraint, bool disableCollisionsBetweenLinkedBodies=false);
+	virtual void	addConstraint(btTypedConstraint* constraint, bool disableCollisionsBetweenLinkedBodies=false);
 
-	void	removeConstraint(btTypedConstraint* constraint);
+	virtual void	removeConstraint(btTypedConstraint* constraint);
 
-	void	addVehicle(btRaycastVehicle* vehicle);
+	virtual void	addVehicle(btRaycastVehicle* vehicle);
 
-	void	removeVehicle(btRaycastVehicle* vehicle);
+	virtual void	removeVehicle(btRaycastVehicle* vehicle);
+	
+	virtual void	addCharacter(btCharacterControllerInterface* character);
+
+	virtual void	removeCharacter(btCharacterControllerInterface* character);
+		
 
 	btSimulationIslandManager*	getSimulationIslandManager()
 	{

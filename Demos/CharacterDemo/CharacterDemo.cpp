@@ -27,7 +27,7 @@ subject to the following restrictions:
 #ifdef DYNAMIC_CHARACTER_CONTROLLER
 #include "DynamicCharacterController.h"
 #else
-#include "KinematicCharacterController.h"
+#include "BulletDynamics/Character/btKinematicCharacterController.h"
 #endif
 
 const int maxProxies = 32766;
@@ -39,15 +39,7 @@ static int gLeft = 0;
 static int gRight = 0;
 static int gJump = 0;
 
-///playerStepCallback is the main function that is updating the character.
-///Register this callback using: m_dynamicsWorld->setInternalTickCallback(playerStepCallback,m_character);
-///This function will be called at the end of each internal simulation time step
-void playerStepCallback(btDynamicsWorld* dynamicsWorld, btScalar timeStep)
-{
-	CharacterControllerInterface* characterInterface= (CharacterControllerInterface*) dynamicsWorld->getWorldUserInfo();
-	characterInterface->preStep (dynamicsWorld);
-	characterInterface->playerStep (dynamicsWorld, timeStep, gForward, gBackward, gLeft, gRight, gJump);
-}
+
 
 
 CharacterDemo::CharacterDemo()
@@ -95,16 +87,14 @@ void CharacterDemo::initPhysics()
 	m_ghostObject->setCollisionFlags (btCollisionObject::CF_CHARACTER_OBJECT);
 
 	btScalar stepHeight = btScalar(0.35);
-	m_character = new KinematicCharacterController (m_ghostObject,capsule,stepHeight);
+	m_character = new btKinematicCharacterController (m_ghostObject,capsule,stepHeight);
 #endif
 
 	
-	m_dynamicsWorld->setInternalTickCallback(playerStepCallback,m_character);
-
-
 	///only collide with static for now (no interaction with dynamic objects)
 	m_dynamicsWorld->addCollisionObject(m_ghostObject,btBroadphaseProxy::CharacterFilter, btBroadphaseProxy::StaticFilter|btBroadphaseProxy::DefaultFilter);
 
+	m_dynamicsWorld->addCharacter(m_character);
 
 	////////////////
 
@@ -230,6 +220,38 @@ void CharacterDemo::clientMoveAndDisplay()
 		int maxSimSubSteps = m_idle ? 1 : 2;
 		if (m_idle)
 			dt = 1.0/420.f;
+
+		///set walkDirection for our character
+		btTransform xform;
+		xform = m_ghostObject->getWorldTransform ();
+
+		btVector3 forwardDir = xform.getBasis()[2];
+	//	printf("forwardDir=%f,%f,%f\n",forwardDir[0],forwardDir[1],forwardDir[2]);
+		btVector3 upDir = xform.getBasis()[1];
+		btVector3 strafeDir = xform.getBasis()[0];
+		forwardDir.normalize ();
+		upDir.normalize ();
+		strafeDir.normalize ();
+
+		btVector3 walkDirection = btVector3(0.0, 0.0, 0.0);
+		btScalar walkVelocity = btScalar(1.1) * 4.0; // 4 km/h -> 1.1 m/s
+		btScalar walkSpeed = walkVelocity * dt;
+
+		if (gLeft)
+			walkDirection += strafeDir;
+
+		if (gRight)
+			walkDirection -= strafeDir;
+
+		if (gForward)
+			walkDirection += forwardDir;
+
+		if (gBackward)
+			walkDirection -= forwardDir;	
+
+
+		m_character->setWalkDirection(walkDirection*walkSpeed);
+
 
 		int numSimSteps = m_dynamicsWorld->stepSimulation(dt,maxSimSubSteps);
 

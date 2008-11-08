@@ -3,14 +3,14 @@
 
 #include "LinearMath/btVector3.h"
 
-#include "CharacterControllerInterface.h"
+#include "BulletDynamics/Character/btCharacterControllerInterface.h"
 
 class btCollisionShape;
 class btRigidBody;
 class btCollisionWorld;
 
 ///DynamicCharacterController is obsolete/unsupported at the moment
-class DynamicCharacterController : public CharacterControllerInterface
+class DynamicCharacterController : public btCharacterControllerInterface
 {
 protected:
 	btScalar m_halfHeight;

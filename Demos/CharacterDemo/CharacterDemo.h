@@ -16,14 +16,14 @@ subject to the following restrictions:
 #define CHARACTER_DEMO_H
 
 
-///DYNAMIC_CHARACTER_CONTROLLER is not at the moment
+///DYNAMIC_CHARACTER_CONTROLLER is not fully implemented yet at the moment
 //#define DYNAMIC_CHARACTER_CONTROLLER 1
 
 #include "BulletCollision/CollisionShapes/btConvexHullShape.h"
 
-class CharacterControllerInterface;
-class DynamicCharacterController;
-class KinematicCharacterController;
+class btCharacterControllerInterface;
+class btDynamicCharacterController;
+class btKinematicCharacterController;
 
 class btCollisionShape;
 
@@ -36,11 +36,12 @@ class CharacterDemo : public DemoApplication
 	public:
 
 #ifdef DYNAMIC_CHARACTER_CONTROLLER
-	CharacterControllerInterface* m_character;
+	btCharacterControllerInterface* m_character;
 #else
-	KinematicCharacterController* m_character;
+	btKinematicCharacterController* m_character;
 	class	btPairCachingGhostObject* m_ghostObject;
 #endif
+
 
 	btAlignedObjectArray<btCollisionShape*> m_collisionShapes;
 
