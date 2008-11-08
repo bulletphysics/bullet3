@@ -26,9 +26,6 @@ http://gimpact.sf.net
 #include <new>
 
 
-static const btScalar kSign[] = { btScalar(1.0), btScalar(-1.0), btScalar(1.0) };
-static const int kAxisA[] = { 1, 0, 0 };
-static const int kAxisB[] = { 2, 2, 1 };
 #define GENERIC_D6_DISABLE_WARMSTARTING 1
 
 btScalar btGetMatrixElem(const btMatrix3x3& mat, int index);
