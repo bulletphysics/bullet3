@@ -45,6 +45,8 @@ protected:
 	
 	btScalar m_stepHeight;
 
+	btScalar	m_addedMargin;//@todo: remove this and fix the code
+
 	///this is the desired walk direction, set by the user
 	btVector3	m_walkDirection;
 

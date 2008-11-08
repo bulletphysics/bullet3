@@ -95,6 +95,7 @@ btVector3 btKinematicCharacterController::perpindicularComponent (const btVector
 
 btKinematicCharacterController::btKinematicCharacterController (btPairCachingGhostObject* ghostObject,btConvexShape* convexShape,btScalar stepHeight)
 {
+	m_addedMargin = 0.02f;
 	m_walkDirection.setValue(0,0,0);
 	m_useGhostObjectSweepTest = true;
 	m_ghostObject = ghostObject;
@@ -277,8 +278,9 @@ void btKinematicCharacterController::stepForwardAndStrafe ( btCollisionWorld* co
 		callback.m_collisionFilterMask = getGhostObject()->getBroadphaseHandle()->m_collisionFilterMask;
 
 
-		//btScalar margin = m_convexShape->getMargin();
-		//m_convexShape->setMargin(margin - 0.06f);
+		btScalar margin = m_convexShape->getMargin();
+		m_convexShape->setMargin(margin + m_addedMargin);
+
 
 		if (m_useGhostObjectSweepTest)
 		{
@@ -288,7 +290,7 @@ void btKinematicCharacterController::stepForwardAndStrafe ( btCollisionWorld* co
 			collisionWorld->convexSweepTest (m_convexShape, start, end, callback);
 		}
 		
-		//m_convexShape->setMargin(margin);
+		m_convexShape->setMargin(margin);
 
 		
 		fraction -= callback.m_closestHitFraction;
@@ -303,7 +305,7 @@ void btKinematicCharacterController::stepForwardAndStrafe ( btCollisionWorld* co
 			}
 
 			/* If the distance is farther than the collision margin, move */
-			if (hitDistance > 0.05)
+			if (hitDistance > m_addedMargin)
 			{
 //				printf("callback.m_closestHitFraction=%f\n",callback.m_closestHitFraction);
 				m_currentPosition.setInterpolate3 (m_currentPosition, m_targetPosition, callback.m_closestHitFraction);

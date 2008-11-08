@@ -584,14 +584,15 @@ void btGImpactCollisionAlgorithm::gimpact_vs_shape(btCollisionObject * body0,
 	if(shape0->getGImpactShapeType()==CONST_GIMPACT_TRIMESH_SHAPE)
 	{
 		btGImpactMeshShape * meshshape0 = static_cast<btGImpactMeshShape *>(shape0);
-		m_part0 = meshshape0->getMeshPartCount();
+		int& part = swapped ? m_part1 : m_part0;
+		part = meshshape0->getMeshPartCount();
 
-		while(m_part0--)
+		while(part--)
 		{
 
 			gimpact_vs_shape(body0,
 				  body1,
-				  meshshape0->getMeshPart(m_part0),
+				  meshshape0->getMeshPart(part),
 				  shape1,swapped);
 
 		}
