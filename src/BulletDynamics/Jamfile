@@ -6,6 +6,7 @@ Library bulletdynamics :
   [ Wildcard ConstraintSolver : *.h *.cpp ] 
   [ Wildcard Dynamics : *.h *.cpp ] 
   [ Wildcard Vehicle : *.h *.cpp ] 
+  [ Wildcard Character : *.h *.cpp ]
 ;
 
 LibDepends bulletdynamics : bulletcollision  ;
