@@ -18,32 +18,30 @@ subject to the following restrictions:
 #include "btCollisionObject.h"
 
 btActivatingCollisionAlgorithm::btActivatingCollisionAlgorithm (const btCollisionAlgorithmConstructionInfo& ci)
-:btCollisionAlgorithm(ci),
-m_colObj0(0),
-m_colObj1(0)
+:btCollisionAlgorithm(ci)
+//,
+//m_colObj0(0),
+//m_colObj1(0)
 {
 }
 btActivatingCollisionAlgorithm::btActivatingCollisionAlgorithm (const btCollisionAlgorithmConstructionInfo& ci, btCollisionObject* colObj0,btCollisionObject* colObj1)
-:btCollisionAlgorithm(ci),
-m_colObj0(0),
-m_colObj1(0)
+:btCollisionAlgorithm(ci)
+//,
+//m_colObj0(0),
+//m_colObj1(0)
 {
-	if (ci.m_dispatcher1->needsCollision(colObj0,colObj1))
-	{
-		m_colObj0 = colObj0;
-		m_colObj1 = colObj1;
-		
-		if (!m_colObj0->isActive())
-			m_colObj0->activate();
-		if (!m_colObj1->isActive())
-			m_colObj1->activate();
-	}
+//	if (ci.m_dispatcher1->needsCollision(colObj0,colObj1))
+//	{
+//		m_colObj0 = colObj0;
+//		m_colObj1 = colObj1;
+//		
+//		m_colObj0->activate();
+//		m_colObj1->activate();
+//	}
 }
 
 btActivatingCollisionAlgorithm::~btActivatingCollisionAlgorithm()
 {
-	if (m_colObj0)
-			m_colObj0->activate();
-	if (m_colObj1)
-		m_colObj1->activate();
+//		m_colObj0->activate();
+//		m_colObj1->activate();
 }
