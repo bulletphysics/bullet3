@@ -1,3 +1,4 @@
+
 /*
 Bullet Continuous Collision Detection and Physics Library
 Copyright (c) 2003-2006,2008 Erwin Coumans  http://continuousphysics.com/Bullet/
@@ -653,7 +654,7 @@ void TerrainDemo::initialize(void)
 	// set up basic state
 	m_upAxis = 1;		// start with Y-axis as "up"
 	m_type = PHY_FLOAT;
-	m_model = eFractal;
+	m_model = eRadial;//eFractal;
 	m_isDynamic = true;
 
 	// set up the physics world
@@ -868,6 +869,7 @@ void TerrainDemo::resetPhysics(void)
 	// set origin to middle of heightfield
 	btTransform tr;
 	tr.setIdentity();
+	tr.setOrigin(btVector3(0,-20,0));
 
 	// create ground object
 	float mass = 0.0;
