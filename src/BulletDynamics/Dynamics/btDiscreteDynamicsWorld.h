@@ -92,6 +92,9 @@ public:
 
 	virtual void	synchronizeMotionStates();
 
+	///this can be useful to synchronize a single rigid body -> graphics object
+	void	synchronizeSingleMotionState(btRigidBody* body);
+
 	void	addConstraint(btTypedConstraint* constraint, bool disableCollisionsBetweenLinkedBodies=false);
 
 	void	removeConstraint(btTypedConstraint* constraint);

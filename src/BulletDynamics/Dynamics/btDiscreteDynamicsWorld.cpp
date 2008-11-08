@@ -250,6 +250,25 @@ void	btDiscreteDynamicsWorld::applyGravity()
 }
 
 
+void	btDiscreteDynamicsWorld::synchronizeSingleMotionState(btRigidBody* body)
+{
+	btAssert(body);
+
+	if (body->getMotionState() && !body->isStaticOrKinematicObject())
+	{
+		//we need to call the update at least once, even for sleeping objects
+		//otherwise the 'graphics' transform never updates properly
+		///@todo: add 'dirty' flag
+		//if (body->getActivationState() != ISLAND_SLEEPING)
+		{
+			btTransform interpolatedTransform;
+			btTransformUtil::integrateTransform(body->getInterpolationWorldTransform(),
+				body->getInterpolationLinearVelocity(),body->getInterpolationAngularVelocity(),m_localTime*body->getHitFraction(),interpolatedTransform);
+			body->getMotionState()->setWorldTransform(interpolatedTransform);
+		}
+	}
+}
+
 
 void	btDiscreteDynamicsWorld::synchronizeMotionStates()
 {
@@ -261,19 +280,8 @@ void	btDiscreteDynamicsWorld::synchronizeMotionStates()
 			btCollisionObject* colObj = m_activeObjects[i];
 			
 			btRigidBody* body = btRigidBody::upcast(colObj);
-			if (body && body->getMotionState() && !body->isStaticOrKinematicObject())
-			{
-				//we need to call the update at least once, even for sleeping objects
-				//otherwise the 'graphics' transform never updates properly
-				///@todo: add 'dirty' flag
-				//if (body->getActivationState() != ISLAND_SLEEPING)
-				{
-					btTransform interpolatedTransform;
-					btTransformUtil::integrateTransform(body->getInterpolationWorldTransform(),
-						body->getInterpolationLinearVelocity(),body->getInterpolationAngularVelocity(),m_localTime*body->getHitFraction(),interpolatedTransform);
-					body->getMotionState()->setWorldTransform(interpolatedTransform);
-				}
-			}
+			if (body)
+				synchronizeSingleMotionState(body);
 		}
 	}
 
