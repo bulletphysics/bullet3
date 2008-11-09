@@ -27,7 +27,11 @@ subject to the following restrictions:
 /**@brief The btQuadWordStorage class is base class for btVector3 and btQuaternion. 
  * Some issues under PS3 Linux with IBM 2.1 SDK, gcc compiler prevent from using aligned quadword.
  */
+#ifndef USE_LIBSPE2
+ATTRIBUTE_ALIGNED16(class) btQuadWordStorage
+#else
 class btQuadWordStorage
+#endif
 {
 protected:
 
