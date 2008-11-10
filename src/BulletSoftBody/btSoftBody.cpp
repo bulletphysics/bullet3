@@ -2600,7 +2600,7 @@ void			btSoftBody::defaultCollisionHandler(btCollisionObject* pco)
 	case	fCollision::CL_RS:
 		{
 			btSoftColliders::CollideCL_RS	collider;
-			collider.Process(this,btRigidBody::upcast(pco));
+			collider.Process(this,pco);
 		}
 		break;
 	}

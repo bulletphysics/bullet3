@@ -22,7 +22,6 @@ ADD_LIBRARY(XML
 			hash.c
 			HTMLparser.c
 			HTMLtree.c
-			legacy.c
 			list.c
 			nanoftp.c
 			nanohttp.c

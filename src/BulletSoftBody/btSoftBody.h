@@ -324,11 +324,17 @@ public:
 	/* Body			*/ 
 	struct	Body
 	{
-		Cluster*		m_soft;
-		btRigidBody*				m_rigid;
-		Body() : m_soft(0),m_rigid(0)				{}
-		Body(Cluster* p) : m_soft(p),m_rigid(0)	{}
-		Body(btRigidBody* p) : m_soft(0),m_rigid(p)	{}
+		Cluster*			m_soft;
+		btRigidBody*		m_rigid;
+		btCollisionObject*	m_collisionObject;
+
+		Body() : m_soft(0),m_rigid(0),m_collisionObject(0)				{}
+		Body(Cluster* p) : m_soft(p),m_rigid(0),m_collisionObject(0)	{}
+		Body(btCollisionObject* colObj) : m_soft(0),m_collisionObject(colObj)
+		{
+			m_rigid = btRigidBody::upcast(m_collisionObject);
+		}
+
 		void						activate() const
 		{
 			if(m_rigid) m_rigid->activate();
@@ -349,7 +355,7 @@ public:
 		const btTransform&			xform() const
 		{
 			static const btTransform	identity=btTransform::getIdentity();		
-			if(m_rigid) return(m_rigid->getInterpolationWorldTransform());
+			if(m_collisionObject) return(m_collisionObject->getInterpolationWorldTransform());
 			if(m_soft)	return(m_soft->m_framexform);
 			return(identity);
 		}

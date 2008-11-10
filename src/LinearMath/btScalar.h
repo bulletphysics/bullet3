@@ -18,6 +18,7 @@ subject to the following restrictions:
 #define SIMD___SCALAR_H
 
 #include <math.h>
+
 #include <stdlib.h>//size_t for MSVC 6.0
 
 #include <cstdlib>

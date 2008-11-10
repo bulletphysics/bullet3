@@ -1724,9 +1724,16 @@ void	SoftDemo::initPhysics()
 	tr.setOrigin(btVector3(0,-12,0));
 
 
-
-	localCreateRigidBody(0.f,tr,m_collisionShapes[0]);
-
+#define USE_COLLISION_OBJECT 1
+#ifdef USE_COLLISION_OBJECT
+	btCollisionObject* newOb = new btCollisionObject();
+	newOb->setWorldTransform(tr);
+	newOb->setInterpolationWorldTransform( tr);
+	newOb->setCollisionShape(m_collisionShapes[0]);
+	m_dynamicsWorld->addCollisionObject(newOb);
+#else
+	this->localCreateRigidBody(0,tr,m_collisionShapes[0]);
+#endif //USE_COLLISION_OBJECT
 
 	//	clientResetScene();
 

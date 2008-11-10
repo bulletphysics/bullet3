@@ -708,23 +708,24 @@ struct btSoftColliders
 	struct	CollideCL_RS : ClusterBase
 	{
 		btSoftBody*		psb;
-		btRigidBody*	prb;
+		
+		btCollisionObject*	m_colObj;
 		void		Process(const btDbvtNode* leaf)
 		{
 			btSoftBody::Cluster*		cluster=(btSoftBody::Cluster*)leaf->data;
 			btSoftClusterCollisionShape	cshape(cluster);
-			const btConvexShape*		rshape=(const btConvexShape*)prb->getCollisionShape();
+			const btConvexShape*		rshape=(const btConvexShape*)m_colObj->getCollisionShape();
 			btGjkEpaSolver2::sResults	res;		
 			if(btGjkEpaSolver2::SignedDistance(	&cshape,btTransform::getIdentity(),
-				rshape,prb->getInterpolationWorldTransform(),
+				rshape,m_colObj->getInterpolationWorldTransform(),
 				btVector3(1,0,0),res))
 			{
 				btSoftBody::CJoint	joint;
-				if(SolveContact(res,cluster,prb,joint))
+				if(SolveContact(res,cluster,m_colObj,joint))//prb,joint))
 				{
 					btSoftBody::CJoint*	pj=new(btAlignedAlloc(sizeof(btSoftBody::CJoint),16)) btSoftBody::CJoint();
 					*pj=joint;psb->m_joints.push_back(pj);
-					if(prb->isStaticOrKinematicObject())
+					if(m_colObj->isStaticOrKinematicObject())
 					{
 						pj->m_erp	*=	psb->m_cfg.kSKHR_CL;
 						pj->m_split	*=	psb->m_cfg.kSK_SPLT_CL;
@@ -737,19 +738,19 @@ struct btSoftColliders
 				}
 			}
 		}
-		void		Process(btSoftBody* ps,btRigidBody* pr)
+		void		Process(btSoftBody* ps,btCollisionObject* colOb)
 		{
 			psb			=	ps;
-			prb			=	pr;
+			m_colObj			=	colOb;
 			idt			=	ps->m_sst.isdt;
-			margin		=	ps->getCollisionShape()->getMargin()+
-				pr->getCollisionShape()->getMargin();
-			friction	=	btMin(psb->m_cfg.kDF,prb->getFriction());
+			margin		=	m_colObj->getCollisionShape()->getMargin()+
+				m_colObj->getCollisionShape()->getMargin();
+			friction	=	btMin(psb->m_cfg.kDF,m_colObj->getFriction());
 			btVector3			mins;
 			btVector3			maxs;
 
 			ATTRIBUTE_ALIGNED16(btDbvtVolume)		volume;
-			pr->getCollisionShape()->getAabb(pr->getInterpolationWorldTransform(),mins,maxs);
+			colOb->getCollisionShape()->getAabb(colOb->getInterpolationWorldTransform(),mins,maxs);
 			volume=btDbvtVolume::FromMM(mins,maxs);
 			volume.Expand(btVector3(1,1,1)*margin);
 			ps->m_cdbvt.collideTV(ps->m_cdbvt.m_root,volume,*this);

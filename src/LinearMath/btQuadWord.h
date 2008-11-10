@@ -18,7 +18,7 @@ subject to the following restrictions:
 
 #include "btScalar.h"
 #include "btMinMax.h"
-#include <math.h>
+
 
 #if defined (__CELLOS_LV2) && defined (__SPU__)
 #include <altivec.h>
