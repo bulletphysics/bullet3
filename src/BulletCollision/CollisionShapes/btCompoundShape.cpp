@@ -17,7 +17,7 @@ subject to the following restrictions:
 #include "btCollisionShape.h"
 #include "BulletCollision/BroadphaseCollision/btDbvt.h"
 
-btCompoundShape::btCompoundShape()
+btCompoundShape::btCompoundShape(bool enableDynamicAabbTree)
 : m_localAabbMin(btScalar(1e30),btScalar(1e30),btScalar(1e30)),
 m_localAabbMax(btScalar(-1e30),btScalar(-1e30),btScalar(-1e30)),
 m_collisionMargin(btScalar(0.)),
@@ -25,9 +25,13 @@ m_localScaling(btScalar(1.),btScalar(1.),btScalar(1.)),
 m_dynamicAabbTree(0)
 {
 	m_shapeType = COMPOUND_SHAPE_PROXYTYPE;
-	void* mem = btAlignedAlloc(sizeof(btDbvt),16);
-	m_dynamicAabbTree = new(mem) btDbvt();
-	btAssert(mem==m_dynamicAabbTree);
+
+	if (enableDynamicAabbTree)
+	{
+		void* mem = btAlignedAlloc(sizeof(btDbvt),16);
+		m_dynamicAabbTree = new(mem) btDbvt();
+		btAssert(mem==m_dynamicAabbTree);
+	}
 }
 
 
@@ -76,6 +80,23 @@ void	btCompoundShape::addChildShape(const btTransform& localTransform,btCollisio
 
 }
 
+void	btCompoundShape::updateChildTransform(int childIndex, const btTransform& newChildTransform)
+{
+	m_children[childIndex].m_transform = newChildTransform;
+
+	if (m_dynamicAabbTree)
+	{
+		///update the dynamic aabb tree
+		btVector3 localAabbMin,localAabbMax;
+		m_children[childIndex].m_childShape->getAabb(newChildTransform,localAabbMin,localAabbMax);
+		ATTRIBUTE_ALIGNED16(btDbvtVolume)	bounds=btDbvtVolume::FromMM(localAabbMin,localAabbMax);
+		int index = m_children.size()-1;
+		m_dynamicAabbTree->update(m_children[childIndex].m_node,bounds);
+	}
+
+	recalculateLocalAabb();
+}
+
 void btCompoundShape::removeChildShapeByIndex(int childShapeIndex)
 {
 	btAssert(childShapeIndex >=0 && childShapeIndex < m_children.size());
@@ -88,6 +109,8 @@ void btCompoundShape::removeChildShapeByIndex(int childShapeIndex)
 
 }
 
+
+
 void btCompoundShape::removeChildShape(btCollisionShape* shape)
 {
 	// Find the children containing the shape specified, and remove those children.
@@ -99,6 +122,8 @@ void btCompoundShape::removeChildShape(btCollisionShape* shape)
 			m_children.swap(i,m_children.size()-1);
 			m_children.pop_back();
 			//remove it from the m_dynamicAabbTree too
+			//@todo: this leads to problems due to caching in the btCompoundCollisionAlgorithm
+			//so effectively, removeChildShape is broken at the moment
 			//m_dynamicAabbTree->remove(m_aabbProxies[i]);
 			//m_aabbProxies.swap(i,m_children.size()-1);
 			//m_aabbProxies.pop_back();
