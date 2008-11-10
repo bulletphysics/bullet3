@@ -1728,21 +1728,22 @@ btVector3		btSoftBody::evaluateCom() const
 }
 
 //
-bool				btSoftBody::checkContact(	btRigidBody* prb,
+bool				btSoftBody::checkContact(	btCollisionObject* colObj,
 											 const btVector3& x,
 											 btScalar margin,
 											 btSoftBody::sCti& cti) const
 {
 	btVector3			nrm;
-	btCollisionShape*	shp=prb->getCollisionShape();
-	const btTransform&	wtr=prb->getInterpolationWorldTransform();
+	btCollisionShape*	shp=colObj->getCollisionShape();
+	btRigidBody* tmpRigid = btRigidBody::upcast(colObj);
+	const btTransform&	wtr=tmpRigid? tmpRigid->getInterpolationWorldTransform() : colObj->getWorldTransform();
 	btScalar			dst=m_worldInfo->m_sparsesdf.Evaluate(	wtr.invXform(x),
 		shp,
 		nrm,
 		margin);
 	if(dst<0)
 	{
-		cti.m_body		=	prb;
+		cti.m_colObj		=	colObj;
 		cti.m_normal	=	wtr.getBasis()*nrm;
 		cti.m_offset	=	-dot(	cti.m_normal,
 			x-cti.m_normal*dst);
@@ -2466,7 +2467,9 @@ void				btSoftBody::PSolve_RContacts(btSoftBody* psb,btScalar kst,btScalar ti)
 	{
 		const RContact&		c=psb->m_rcontacts[i];
 		const sCti&			cti=c.m_cti;	
-		const btVector3		va=cti.m_body->getVelocityInLocalPoint(c.m_c1)*dt;
+		btRigidBody* tmpRigid = btRigidBody::upcast(cti.m_colObj);
+
+		const btVector3		va=tmpRigid ? tmpRigid->getVelocityInLocalPoint(c.m_c1)*dt : btVector3(0,0,0);
 		const btVector3		vb=c.m_node->m_x-c.m_node->m_q;	
 		const btVector3		vr=vb-va;
 		const btScalar		dn=dot(vr,cti.m_normal);		
@@ -2476,7 +2479,8 @@ void				btSoftBody::PSolve_RContacts(btSoftBody* psb,btScalar kst,btScalar ti)
 			const btVector3		fv=vr-cti.m_normal*dn;
 			const btVector3		impulse=c.m_c0*((vr-fv*c.m_c3+cti.m_normal*(dp*c.m_c4))*kst);
 			c.m_node->m_x-=impulse*c.m_c2;
-			c.m_cti.m_body->applyImpulse(impulse,c.m_c1);
+			if (tmpRigid)
+				tmpRigid->applyImpulse(impulse,c.m_c1);
 		}
 	}
 }
@@ -2577,9 +2581,10 @@ void			btSoftBody::defaultCollisionHandler(btCollisionObject* pco)
 	case	fCollision::SDF_RS:
 		{
 			btSoftColliders::CollideSDF_RS	docollide;		
-			btRigidBody*		prb=btRigidBody::upcast(pco);
-			const btTransform	wtr=prb->getInterpolationWorldTransform();
-			const btTransform	ctr=prb->getWorldTransform();
+			btRigidBody*		prb1=btRigidBody::upcast(pco);
+			btTransform	wtr=prb1 ? prb1->getInterpolationWorldTransform() : pco->getWorldTransform();
+
+			const btTransform	ctr=pco->getWorldTransform();
 			const btScalar		timemargin=(wtr.getOrigin()-ctr.getOrigin()).length();
 			const btScalar		basemargin=getCollisionShape()->getMargin();
 			btVector3			mins;
@@ -2591,7 +2596,9 @@ void			btSoftBody::defaultCollisionHandler(btCollisionObject* pco)
 			volume=btDbvtVolume::FromMM(mins,maxs);
 			volume.Expand(btVector3(basemargin,basemargin,basemargin));		
 			docollide.psb		=	this;
-			docollide.prb		=	prb;
+			docollide.m_colObj1 = pco;
+			docollide.m_rigidBody = prb1;
+
 			docollide.dynmargin	=	basemargin+timemargin;
 			docollide.stamargin	=	basemargin;
 			m_ndbvt.collideTV(m_ndbvt.m_root,volume,docollide);

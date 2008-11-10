@@ -808,35 +808,38 @@ struct btSoftColliders
 			const btScalar			m=n.m_im>0?dynmargin:stamargin;
 			btSoftBody::RContact	c;
 			if(	(!n.m_battach)&&
-				psb->checkContact(prb,n.m_x,m,c.m_cti))
+				psb->checkContact(m_colObj1,n.m_x,m,c.m_cti))
 			{
 				const btScalar	ima=n.m_im;
-				const btScalar	imb=prb->getInvMass();
+				const btScalar	imb= m_rigidBody? m_rigidBody->getInvMass() : 0.f;
 				const btScalar	ms=ima+imb;
 				if(ms>0)
 				{
-					const btTransform&	wtr=prb->getInterpolationWorldTransform();
-					const btMatrix3x3&	iwi=prb->getInvInertiaTensorWorld();
+					const btTransform&	wtr=m_rigidBody?m_rigidBody->getInterpolationWorldTransform() : m_colObj1->getWorldTransform();
+					static const btMatrix3x3	iwiStatic(0,0,0,0,0,0,0,0,0);
+					const btMatrix3x3&	iwi=m_rigidBody?m_rigidBody->getInvInertiaTensorWorld() : iwiStatic;
 					const btVector3		ra=n.m_x-wtr.getOrigin();
-					const btVector3		va=prb->getVelocityInLocalPoint(ra)*psb->m_sst.sdt;
+					const btVector3		va=m_rigidBody ? m_rigidBody->getVelocityInLocalPoint(ra)*psb->m_sst.sdt : btVector3(0,0,0);
 					const btVector3		vb=n.m_x-n.m_q;	
 					const btVector3		vr=vb-va;
 					const btScalar		dn=dot(vr,c.m_cti.m_normal);
 					const btVector3		fv=vr-c.m_cti.m_normal*dn;
-					const btScalar		fc=psb->m_cfg.kDF*prb->getFriction();
+					const btScalar		fc=psb->m_cfg.kDF*m_colObj1->getFriction();
 					c.m_node	=	&n;
 					c.m_c0		=	ImpulseMatrix(psb->m_sst.sdt,ima,imb,iwi,ra);
 					c.m_c1		=	ra;
 					c.m_c2		=	ima*psb->m_sst.sdt;
 					c.m_c3		=	fv.length2()<(btFabs(dn)*fc)?0:1-fc;
-					c.m_c4		=	prb->isStaticOrKinematicObject()?psb->m_cfg.kKHR:psb->m_cfg.kCHR;
+					c.m_c4		=	m_colObj1->isStaticOrKinematicObject()?psb->m_cfg.kKHR:psb->m_cfg.kCHR;
 					psb->m_rcontacts.push_back(c);
-					prb->activate();
+					if (m_rigidBody)
+						m_rigidBody->activate();
 				}
 			}
 		}
 		btSoftBody*		psb;
-		btRigidBody*	prb;
+		btCollisionObject*	m_colObj1;
+		btRigidBody*	m_rigidBody;
 		btScalar		dynmargin;
 		btScalar		stamargin;
 	};

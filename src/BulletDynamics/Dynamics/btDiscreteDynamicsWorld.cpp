@@ -344,6 +344,8 @@ int	btDiscreteDynamicsWorld::stepSimulation( btScalar timeStep,int maxSubSteps, 
 	if (numSimulationSubSteps)
 	{
 
+		findActiveObjects();
+
 		saveKinematicState(fixedTimeStep);
 
 		applyGravity();
