@@ -117,28 +117,15 @@ void	btCollisionWorld::addCollisionObject(btCollisionObject* collisionObject,sho
 }
 
 
-void	btCollisionWorld::findActiveObjects()
-{
-	m_activeObjects.resize(0);
-
-	for ( int i=0;i<m_collisionObjects.size();i++)
-	{
-		btCollisionObject* colObj = m_collisionObjects[i];
-		if (colObj->isActive())
-		{
-			m_activeObjects.push_back(colObj);
-		}
-	}
-}
 
 void	btCollisionWorld::updateAabbs()
 {
 	BT_PROFILE("updateAabbs");
 
 	btTransform predictedTrans;
-	for ( int i=0;i<m_activeObjects.size();i++)
+	for ( int i=0;i<m_collisionObjects.size();i++)
 	{
-		btCollisionObject* colObj = m_activeObjects[i];
+		btCollisionObject* colObj = m_collisionObjects[i];
 
 		//only update aabb of active objects
 		if (colObj->isActive())

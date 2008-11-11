@@ -107,9 +107,9 @@ btDiscreteDynamicsWorld::~btDiscreteDynamicsWorld()
 void	btDiscreteDynamicsWorld::saveKinematicState(btScalar timeStep)
 {
 
-	for (int i=0;i<m_activeObjects.size();i++)
+	for (int i=0;i<m_collisionObjects.size();i++)
 	{
-		btCollisionObject* colObj = m_activeObjects[i];
+		btCollisionObject* colObj = m_collisionObjects[i];
 		btRigidBody* body = btRigidBody::upcast(colObj);
 		if (body)
 		{
@@ -224,9 +224,9 @@ void	btDiscreteDynamicsWorld::debugDrawWorld()
 void	btDiscreteDynamicsWorld::clearForces()
 {
 	///@todo: iterate over awake simulation islands!
-	for ( int i=0;i<m_activeObjects.size();i++)
+	for ( int i=0;i<m_collisionObjects.size();i++)
 	{
-		btCollisionObject* colObj = m_activeObjects[i];
+		btCollisionObject* colObj = m_collisionObjects[i];
 		
 		btRigidBody* body = btRigidBody::upcast(colObj);
 		if (body)
@@ -240,9 +240,9 @@ void	btDiscreteDynamicsWorld::clearForces()
 void	btDiscreteDynamicsWorld::applyGravity()
 {
 	///@todo: iterate over awake simulation islands!
-	for ( int i=0;i<m_activeObjects.size();i++)
+	for ( int i=0;i<m_collisionObjects.size();i++)
 	{
-		btCollisionObject* colObj = m_activeObjects[i];
+		btCollisionObject* colObj = m_collisionObjects[i];
 		
 		btRigidBody* body = btRigidBody::upcast(colObj);
 		if (body && body->isActive())
@@ -278,9 +278,9 @@ void	btDiscreteDynamicsWorld::synchronizeMotionStates()
 	BT_PROFILE("synchronizeMotionStates");
 	{
 		//todo: iterate over awake simulation islands!
-		for ( int i=0;i<m_activeObjects.size();i++)
+		for ( int i=0;i<m_collisionObjects.size();i++)
 		{
-			btCollisionObject* colObj = m_activeObjects[i];
+			btCollisionObject* colObj = m_collisionObjects[i];
 			
 			btRigidBody* body = btRigidBody::upcast(colObj);
 			if (body)
@@ -344,8 +344,6 @@ int	btDiscreteDynamicsWorld::stepSimulation( btScalar timeStep,int maxSubSteps, 
 	if (numSimulationSubSteps)
 	{
 
-		findActiveObjects();
-
 		saveKinematicState(fixedTimeStep);
 
 		applyGravity();
@@ -377,8 +375,6 @@ void	btDiscreteDynamicsWorld::internalSingleStepSimulation(btScalar timeStep)
 	
 	BT_PROFILE("internalSingleStepSimulation");
 
-	findActiveObjects();
-	
 	///apply gravity, predict motion
 	predictUnconstraintMotion(timeStep);
 
@@ -421,9 +417,9 @@ void	btDiscreteDynamicsWorld::internalSingleStepSimulation(btScalar timeStep)
 void	btDiscreteDynamicsWorld::setGravity(const btVector3& gravity)
 {
 	m_gravity = gravity;
-	for ( int i=0;i<m_activeObjects.size();i++)
+	for ( int i=0;i<m_collisionObjects.size();i++)
 	{
-		btCollisionObject* colObj = m_activeObjects[i];
+		btCollisionObject* colObj = m_collisionObjects[i];
 		btRigidBody* body = btRigidBody::upcast(colObj);
 		if (body)
 		{
@@ -830,9 +826,9 @@ void	btDiscreteDynamicsWorld::integrateTransforms(btScalar timeStep)
 {
 	BT_PROFILE("integrateTransforms");
 	btTransform predictedTrans;
-	for ( int i=0;i<m_activeObjects.size();i++)
+	for ( int i=0;i<m_collisionObjects.size();i++)
 	{
-		btCollisionObject* colObj = m_activeObjects[i];
+		btCollisionObject* colObj = m_collisionObjects[i];
 		btRigidBody* body = btRigidBody::upcast(colObj);
 		if (body)
 		{
@@ -881,9 +877,9 @@ void	btDiscreteDynamicsWorld::integrateTransforms(btScalar timeStep)
 void	btDiscreteDynamicsWorld::predictUnconstraintMotion(btScalar timeStep)
 {
 	BT_PROFILE("predictUnconstraintMotion");
-	for ( int i=0;i<m_activeObjects.size();i++)
+	for ( int i=0;i<m_collisionObjects.size();i++)
 	{
-		btCollisionObject* colObj = m_activeObjects[i];
+		btCollisionObject* colObj = m_collisionObjects[i];
 		btRigidBody* body = btRigidBody::upcast(colObj);
 		if (body)
 		{
