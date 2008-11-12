@@ -349,18 +349,19 @@ BulletSAPCompleteBoxPruningTest::BulletSAPCompleteBoxPruningTest(int numBoxes,in
 
 	int maxNumBoxes = numBoxes;
 	m_isdbvt=false;
+	bool disableRaycastAccelerator = true;
 	switch (method)
 	{
 	case 1:
-		m_broadphase = new btAxisSweep3(aabbMin,aabbMax,maxNumBoxes);
+		m_broadphase = new btAxisSweep3(aabbMin,aabbMax,maxNumBoxes,0,disableRaycastAccelerator);
 		methodname	=	"btAxisSweep3";
 		break;
 	case 2:
-		m_broadphase = new btAxisSweep3(aabbMin,aabbMax,maxNumBoxes,new btNullPairCache());
+		m_broadphase = new btAxisSweep3(aabbMin,aabbMax,maxNumBoxes,new btNullPairCache(),disableRaycastAccelerator);
 		methodname	=	"btAxisSweep3+btNullPairCache";
 		break;
 	case 3:
-		m_broadphase = new btAxisSweep3(aabbMin,aabbMax,maxNumBoxes,new btSortedOverlappingPairCache());
+		m_broadphase = new btAxisSweep3(aabbMin,aabbMax,maxNumBoxes,new btSortedOverlappingPairCache(),disableRaycastAccelerator);
 		methodname	=	"btAxisSweep3+btSortedOverlappingPairCache";
 		break;
 	case 4:
@@ -397,7 +398,7 @@ BulletSAPCompleteBoxPruningTest::BulletSAPCompleteBoxPruningTest(int numBoxes,in
 						tmpAabbMin[2] = aabbMin[2] + k*(aabbMax[2]-aabbMin[2])/numP;
 						tmpAabbMax[2] = aabbMin[2] + (k+1)*(aabbMax[2]-aabbMin[2])/numP;
 
-						btAxisSweep3* childBp = new btAxisSweep3(tmpAabbMin,tmpAabbMax,maxNumBoxes,multiSap->getOverlappingPairCache());
+						btAxisSweep3* childBp = new btAxisSweep3(tmpAabbMin,tmpAabbMax,maxNumBoxes,multiSap->getOverlappingPairCache(),disableRaycastAccelerator);
 						multiSap->getBroadphaseArray().push_back(childBp);
 					}
 				}
