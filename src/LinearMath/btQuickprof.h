@@ -327,9 +327,9 @@ public:
 	}
 	static	void						Release_Iterator( CProfileIterator * iterator ) { delete ( iterator); }
 
-	static void	DumpRecursive(CProfileIterator* profileIterator, int spacing);
+	static void	dumpRecursive(CProfileIterator* profileIterator, int spacing);
 
-	static void	DumpAll();
+	static void	dumpAll();
 
 private:
 	static	CProfileNode			Root;

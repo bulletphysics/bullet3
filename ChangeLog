@@ -4,8 +4,48 @@ Primary author and maintainer: Erwin Coumans
 Todo: update changelog from April - July 2008
 See http://code.google.com/p/bullet/source/list for more complete log in Subversion
 
+2008 November 12
+	- Add compound shape export to BulletColladaConverter
+	Thanks to JamesH for the report: http://www.bulletphysics.com/Bullet/phpBB3/viewtopic.php?f=12&t=2840
+	- Fix compiler build for Visual Studio 6
+	Thanks to JoF for the report: http://www.bulletphysics.com/Bullet/phpBB3/viewtopic.php?f=9&t=2841
+
+2008 November 11
+	- Add CProfileManager::dumpAll() to dump performance statistics to console using printf.
+	- Add support for interaction between btSoftBody and btCollisionObject/btGhostObject
+
+2008 November 8
+	- Fix PosixThreadSupport
+	- Add improved btHeightfieldTerrainShape support and new Demos/TerrainDemo
+	Thanks to tomva, http://code.google.com/p/bullet/issues/detail?id=63&can=1
+	- Moved kinematic character controller from Demos/CharacterDemo into src/BulletDynamics/Character/btKinematicCharacterController.cpp
+
+2008 November 6
+	- reduced default memory pool allocation from 40Mb to 3Mb. This should be more suitable for all platforms, including iPhone
+	- improved CUDA broadphase
+	- IBM Cell SDK 3.x support, fix ibmsdk Makefiles
+	- improved CMake support with 'install' and 'framework option
+	
+2008 November 4
+	- add btAxisSweep::resetPool to avoid non-determinism due to shuffled linked list
+	Thanks to Ole for the contribution, 
+
+2008 October 30
+	- disabled btTriangleMesh duplicate search by default, it is extremely slow
+	- added Extras/IFF binary chunk serialization library as preparation for in-game native platform serialization (planned COLLADA DOM -> IFF converter)
+
+2008 October 20
+	- added SCE Physics Effects box-box collision detection for SPU/BulletMultiThreaded version
+	See Bullet/src/BulletMultiThreaded/SpuNarrowPhaseCollisionTask/boxBoxDistance.cpp
+	Thanks to Sony Computer Entertainment Japan, SCEI for the contribution
+
+2008 October 17
+	- Added btGhostObject support, this helps character controller, explosions, triggers and other local spatial queries
+
 2008 October 10
 	- Moved aabb to btBroadphaseProxy, improves rayTest dramatically. Further raytest improvements using the broadphase acceleration structures are planned
+	- Moved BulletMultiThreaded from Extras to /src/BulletMultiThreaded for better integration
+
 
 2008 October 3
 	- Add support for autoconf automake

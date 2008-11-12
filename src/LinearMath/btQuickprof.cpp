@@ -281,7 +281,7 @@ float CProfileManager::Get_Time_Since_Reset( void )
 
 #include <stdio.h>
 
-void	CProfileManager::DumpRecursive(CProfileIterator* profileIterator, int spacing)
+void	CProfileManager::dumpRecursive(CProfileIterator* profileIterator, int spacing)
 {
 	profileIterator->First();
 	if (profileIterator->Is_Done())
@@ -323,19 +323,19 @@ void	CProfileManager::DumpRecursive(CProfileIterator* profileIterator, int spaci
 	for (i=0;i<numChildren;i++)
 	{
 		profileIterator->Enter_Child(i);
-		DumpRecursive(profileIterator,spacing+3);
+		dumpRecursive(profileIterator,spacing+3);
 		profileIterator->Enter_Parent();
 	}
 }
 
 
 
-void	CProfileManager::DumpAll()
+void	CProfileManager::dumpAll()
 {
 	CProfileIterator* profileIterator = 0;
 	profileIterator = CProfileManager::Get_Iterator();
 
-	DumpRecursive(profileIterator,0);
+	dumpRecursive(profileIterator,0);
 
 	CProfileManager::Release_Iterator(profileIterator);
 }
