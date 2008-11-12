@@ -579,7 +579,7 @@ DBVT_INLINE int			Select(	const btDbvtAabbMm& o,
 							   const btDbvtAabbMm& b)
 {
 #if	DBVT_SELECT_IMPL == DBVT_IMPL_SSE
-	static DBVT_ALIGN const unsigned __int32	mask[]={0x7fffffff,0x7fffffff,0x7fffffff,0x7fffffff};
+	static ATTRIBUTE_ALIGNED16(const unsigned __int32)	mask[]={0x7fffffff,0x7fffffff,0x7fffffff,0x7fffffff};
 	///@todo: the intrinsic version is 11% slower
 #if DBVT_USE_INTRINSIC_SSE
 
@@ -612,7 +612,7 @@ DBVT_INLINE int			Select(	const btDbvtAabbMm& o,
 	return tmp.ints[0]&1;
 
 #else
-	DBVT_ALIGN __int32	r[1];
+	ATTRIBUTE_ALIGNED16(__int32	r[1]);
 	__asm
 	{
 		mov		eax,o

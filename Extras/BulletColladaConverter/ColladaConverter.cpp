@@ -1647,9 +1647,39 @@ ColladaConverter::addConcaveMesh(btCollisionShape* shape, const char* nodeName)
 	}
 }
 
-void ColladaConverter::buildShape (btCollisionShape* shape, void* collada_shape, const char* shapeName)
+void ColladaConverter::buildShapeNew (btCollisionShape* shape, void* domTechniqueCommon, const char* shapeName,bool isChild,const btTransform& childTrans)
 {
-	domRigid_body::domTechnique_common::domShape* colladaShape = (domRigid_body::domTechnique_common::domShape*)collada_shape;
+	domRigid_body::domTechnique_common* common = (domRigid_body::domTechnique_common*)domTechniqueCommon;
+	domRigid_body::domTechnique_common::domShape* colladaShape = (domRigid_body::domTechnique_common::domShape*)common->createAndPlace (COLLADA_ELEMENT_SHAPE);
+
+	if (isChild)
+	{
+		{
+			domTranslate* translation = (domTranslate*)colladaShape->createAndPlace (COLLADA_ELEMENT_TRANSLATE);
+			{
+				btVector3 np = childTrans.getOrigin();
+				translation->getValue().append(np[0]);
+				translation->getValue().append(np[1]);
+				translation->getValue().append(np[2]);
+			}
+			domRotate* rotation = (domRotate*)colladaShape->createAndPlace (COLLADA_ELEMENT_ROTATE);
+			{
+				btQuaternion quat = childTrans.getRotation();
+				btVector3 axis(quat.getX(),quat.getY(),quat.getZ());
+				axis[3] = 0.f;
+				//check for axis length
+				btScalar len = axis.length2();
+				if (len < SIMD_EPSILON*SIMD_EPSILON)
+					axis = btVector3(1.f,0.f,0.f);
+				else
+					axis /= btSqrt(len);
+				rotation->getValue().set(0,axis[0]);
+				rotation->getValue().set(1,axis[1]);
+				rotation->getValue().set(2,axis[2]);
+				rotation->getValue().set(3,quat.getAngle()*SIMD_DEGS_PER_RAD);
+			}
+		}
+	}
 	switch (shape->getShapeType())
 	{
 	case BOX_SHAPE_PROXYTYPE:
@@ -1703,34 +1733,10 @@ void ColladaConverter::buildShape (btCollisionShape* shape, void* collada_shape,
 		btCompoundShape* cs = (btCompoundShape*)shape;
 		for (int i = 0; i < cs->getNumChildShapes (); i++)
 		{
-			btTransform xform = cs->getChildTransform (i);
-			{
-				domTranslate* translation = (domTranslate*)colladaShape->createAndPlace (COLLADA_ELEMENT_TRANSLATE);
-				{
-					btVector3 np = xform.getOrigin();
-					translation->getValue().append(np[0]);
-					translation->getValue().append(np[1]);
-					translation->getValue().append(np[2]);
-				}
-				domRotate* rotation = (domRotate*)colladaShape->createAndPlace (COLLADA_ELEMENT_ROTATE);
-				{
-					btQuaternion quat = xform.getRotation();
-					btVector3 axis(quat.getX(),quat.getY(),quat.getZ());
-					axis[3] = 0.f;
-					//check for axis length
-					btScalar len = axis.length2();
-					if (len < SIMD_EPSILON*SIMD_EPSILON)
-						axis = btVector3(1.f,0.f,0.f);
-					else
-						axis /= btSqrt(len);
-					rotation->getValue().set(0,axis[0]);
-					rotation->getValue().set(1,axis[1]);
-					rotation->getValue().set(2,axis[2]);
-					rotation->getValue().set(3,quat.getAngle()*SIMD_DEGS_PER_RAD);
-				}
-			}
 			btCollisionShape* child_shape = cs->getChildShape (i);
-			buildShape (child_shape, colladaShape, shapeName);
+			char childShapeName[512];
+			sprintf(childShapeName,"%s-Child%d",shapeName,i);
+			buildShapeNew (child_shape, domTechniqueCommon, childShapeName,true, cs->getChildTransform(i));
 		}
 	}
 	break;
@@ -1809,8 +1815,7 @@ domRigid_body* ColladaConverter::addRigidBody (btRigidBody* rb, const char* node
 	mi->setUrl (material_name);
 	// collision shape
 
-	domRigid_body::domTechnique_common::domShape* colladaShape = (domRigid_body::domTechnique_common::domShape*)common->createAndPlace (COLLADA_ELEMENT_SHAPE);
-	buildShape (shape, colladaShape, shapeName);
+	buildShapeNew (shape, common, shapeName);
 
 	return colladaRigidBody;
 }

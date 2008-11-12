@@ -135,7 +135,8 @@ protected:
 	class domPhysics_scene* getDefaultPhysicsScene ();
 	class domVisual_scene* getDefaultVisualScene ();
 
-	void buildShape (btCollisionShape* shape, void* collada_shape, const char* shapeName);
+	void buildShapeNew(btCollisionShape* shape, void* domTechniqueCommon, const char* shapeName, bool isChild=false,const btTransform& childTrans=btTransform::getIdentity());
+	
 
 	void addConvexHull (btCollisionShape* shape, const char* nodeName);
 	void addConvexMesh (btCollisionShape* shape, const char* nodeName);
