@@ -602,12 +602,13 @@ void daeSTLDatabase::validate()
 		if (documents[i]->getModified() ) {
 			daeDocument *tmp = documents[i];
 			const daeElementRefArray &rea = tmp->getRemovedArray();
-			for ( unsigned int x = 0; x < rea.getCount(); x++ ) {
+			unsigned int x;
+			for ( x = 0; x < rea.getCount(); x++ ) {
 				removeElement( tmp, rea[x] );
 			}
 
 			const daeElementRefArray &iea = tmp->getInsertedArray();
-			for ( unsigned int x = 0; x < iea.getCount(); x++ ) {
+			for ( x = 0; x < iea.getCount(); x++ ) {
 				insertElement( tmp, iea[x] );
 			}
 			

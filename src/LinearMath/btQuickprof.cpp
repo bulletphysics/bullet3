@@ -298,6 +298,7 @@ void	CProfileManager::DumpRecursive(CProfileIterator* profileIterator, int spaci
 
 	
 	int numChildren = 0;
+	
 	for (i = 0; !profileIterator->Is_Done(); i++,profileIterator->Next())
 	{
 		numChildren++;
@@ -318,7 +319,8 @@ void	CProfileManager::DumpRecursive(CProfileIterator* profileIterator, int spaci
 	}
 	for (i=0;i<spacing;i++)	printf(".");
 	printf("%s (%.3f %%) :: %.3f ms\n", "Unaccounted:",parent_time > SIMD_EPSILON ? ((parent_time - accumulated_time) / parent_time) * 100 : 0.f, parent_time - accumulated_time);
-	for (int i=0;i<numChildren;i++)
+	
+	for (i=0;i<numChildren;i++)
 	{
 		profileIterator->Enter_Child(i);
 		DumpRecursive(profileIterator,spacing+3);

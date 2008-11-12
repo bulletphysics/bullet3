@@ -451,6 +451,8 @@ daeBool
 	{
 		strcpy( dst, "NaN" );
 	}
+#if !(defined (_MSC_VER) && _MSC_VER < 1300)
+	//this breaks visual studio 2006, so ignore NaN/INF rather then break the build
 	else if ( *(daeULong*)src == 0x7ff0000000000000LL ) //+INF
 	{
 		strcpy( dst, "INF" );
@@ -459,6 +461,7 @@ daeBool
 	{
 		strcpy( dst, "-INF" );
 	}
+#endif
 	else
 	{
 		sprintf(dst,_printFormat,*((daeDouble*)src));
@@ -469,6 +472,8 @@ daeBool
 daeBool
 daeDoubleType::stringToMemory(daeChar *src, daeChar* dstMemory)
 {
+#if !(defined (_MSC_VER) && _MSC_VER < 1300)
+	//this breaks visual studio 2006, so ignore NaN/INF rather then break the build
 	if ( strcmp(src, "NaN") == 0 ) {
 		daeErrorHandler::get()->handleWarning( "NaN encountered while setting an attribute or value\n" );
 		*(daeLong*)(dstMemory) = 0x7ff0000000000002LL;
@@ -482,6 +487,7 @@ daeDoubleType::stringToMemory(daeChar *src, daeChar* dstMemory)
 		*(daeLong*)(dstMemory) = 0xfff0000000000000LL;
 	}
 	else
+#endif
 	{
 		sscanf(src, _scanFormat, dstMemory);
 	}

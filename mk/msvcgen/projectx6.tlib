@@ -63,8 +63,8 @@ GET glue(my.doc.librarydelay,' ','/DELAYLOAD:','.dll') %]
 [% MACRO usedebuglibs_release GET '0' %]
 [% MACRO usedebuglibs_debug   GET '1' %]
 
-[% MACRO addcpp_release GET '/Gy /GF /MD /Ob2 /Og /Oi /Ot /Oy' %]
-[% MACRO addcpp_debug   GET '/GR /MDd /ZI /Od' %]
+[% MACRO addcpp_release GET '/Gy /GF /MD /Ob2 /Zm1000 /Og /Oi /Ot /Oy' %]
+[% MACRO addcpp_debug   GET '/GR /MDd /Zm1000 /ZI /Od' %]
 [% MACRO addcpp_library GET '/D "_LIB"' %]
 
 [% MACRO ignoreexportlib_common(bool) BLOCK -%]

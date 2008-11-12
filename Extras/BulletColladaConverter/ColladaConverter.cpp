@@ -181,13 +181,15 @@ ColladaConverter::~ColladaConverter ()
 	m_collada = NULL;
 	m_dom = NULL;
 
-	for(int i=0;i<m_rbUserInfoHashMap.size();i++)
+	int i;
+
+	for(i=0;i<m_rbUserInfoHashMap.size();i++)
 	{
 		btRigidBodyColladaInfo* rbci = *(m_rbUserInfoHashMap.getAtIndex(i));
 		delete rbci;
 	}
 
-	for(int i=0;i<m_constraintUserInfoHashMap.size();i++)
+	for(i=0;i<m_constraintUserInfoHashMap.size();i++)
 	{
 		btRigidConstraintColladaInfo* rcci = *(m_constraintUserInfoHashMap.getAtIndex(i));
 		delete rcci;
@@ -243,13 +245,14 @@ bool	ColladaConverter::load(const char* orgfilename)
 // resets the collada converter state
 void ColladaConverter::reset ()
 {
-	for(int i=0;i<m_rbUserInfoHashMap.size();i++)
+	int i;
+	for(i=0;i<m_rbUserInfoHashMap.size();i++)
 	{
 		btRigidBodyColladaInfo* rbci = *(m_rbUserInfoHashMap.getAtIndex(i));
 		delete rbci;
 	}
 
-	for(int i=0;i<m_constraintUserInfoHashMap.size();i++)
+	for(i=0;i<m_constraintUserInfoHashMap.size();i++)
 	{
 		btRigidConstraintColladaInfo* rcci = *(m_constraintUserInfoHashMap.getAtIndex(i));
 		delete rcci;
@@ -2436,14 +2439,16 @@ bool ColladaConverter::save(const char* filename)
 		return false;
 	}
 
+	int i;
+
 	/* Dump the scene */
-	for (int i = 0; i < getNumRigidBodies (); i++)
+	for (i = 0; i < getNumRigidBodies (); i++)
 	{
 		syncOrAddRigidBody (getRigidBody(i));
 	}
 
 	/* Dump the constraints */
-	for (int i = 0; i < getNumConstraints (); i++)
+	for (i = 0; i < getNumConstraints (); i++)
 	{
 		syncOrAddConstraint (getConstraint(i));
 	}
@@ -2583,7 +2588,8 @@ char* ColladaConverter::getLastFileName()
 char* ColladaConverter::fixFileName(const char* lpCmdLine)
 {
 
-	for (int i=0;i<513;i++)
+	int i;
+	for (i=0;i<513;i++)
 	{
 		m_cleaned_filename[i]=0;
 	}
@@ -2605,7 +2611,7 @@ char* ColladaConverter::fixFileName(const char* lpCmdLine)
 		// Second character is a :, assume we have a path with a drive letter and add a slash at the beginning
 		*(out++) = '/';
 	}
-	int i;
+	
 	for(i =0; i<512; i++)
 	{
 		// If we hit a null or a quote, stop copying.  This will get just the first filename.

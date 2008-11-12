@@ -53,12 +53,6 @@ subject to the following restrictions:
 
 // Inlining
 #define DBVT_INLINE				SIMD_FORCE_INLINE
-// Align
-#ifdef WIN32
-#define DBVT_ALIGN				__declspec(align(16))
-#else
-#define DBVT_ALIGN
-#endif
 
 // Specific methods implementation
 

@@ -641,7 +641,9 @@ btSoftBody*		btSoftBodyHelpers::CreatePatchUV(btSoftBodyWorldInfo& worldInfo,
 	btVector3*	x=new btVector3[tot];
 	btScalar*	m=new btScalar[tot];
 
-	for(int iy=0;iy<ry;++iy)
+	int iy;
+
+	for(iy=0;iy<ry;++iy)
 	{
 		const btScalar	ty=iy/(btScalar)(ry-1);
 		const btVector3	py0=lerp(corner00,corner01,ty);
@@ -669,7 +671,7 @@ btSoftBody*		btSoftBodyHelpers::CreatePatchUV(btSoftBodyWorldInfo& worldInfo,
 
 	int z = 0;
 	/* Create links	and faces	*/ 
-	for(int iy=0;iy<ry;++iy)
+	for(iy=0;iy<ry;++iy)
 	{
 		for(int ix=0;ix<rx;++ix)
 		{

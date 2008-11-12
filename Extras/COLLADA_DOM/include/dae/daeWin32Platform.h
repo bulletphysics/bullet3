@@ -27,6 +27,12 @@
 
 #if _MSC_VER <= 1200
 typedef int intptr_t;
+#undef PLATFORM_INT8
+#define PLATFORM_INT8 char
+#undef PLATFORM_UINT8
+#define PLATFORM_UINT8 unsigned char
+
+
 #endif
 
 

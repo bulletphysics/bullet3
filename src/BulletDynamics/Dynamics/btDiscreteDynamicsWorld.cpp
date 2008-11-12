@@ -792,7 +792,7 @@ public:
 			return false;
 
 		///don't do CCD when the collision filters are not matching
-		if (!btCollisionWorld::ClosestConvexResultCallback::needsCollision(proxy0))
+		if (!ClosestConvexResultCallback::needsCollision(proxy0))
 			return false;
 
 		///don't do CCD when there are already contact points (touching contact/penetration)

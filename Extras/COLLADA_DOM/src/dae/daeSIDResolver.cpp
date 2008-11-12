@@ -46,11 +46,11 @@ daeSIDResolver::daeSIDResolver( daeElement *container, daeString target, daeStri
 daeSIDResolver::~daeSIDResolver()
 {
 	if ( target != NULL ) {
-		delete[] target;
+		delete[] (void*)target;
 		target = NULL;
 	}
 	if ( profile != NULL ) {
-		delete[] profile;
+		delete[] (void*)profile;
 		profile = NULL;
 	}
 }
@@ -58,7 +58,7 @@ daeSIDResolver::~daeSIDResolver()
 void daeSIDResolver::setTarget( daeString t )
 {
 	if ( target != NULL ) {
-		delete[] target;
+		delete[] (void*)target;
 	}
 	if ( t != NULL ) {
 		target = new char[ strlen( t ) +1 ];
@@ -78,7 +78,7 @@ void daeSIDResolver::setTarget( daeString t )
 void daeSIDResolver::setProfile( daeString p )
 {
 	if ( profile != NULL ) {
-		delete[] target;
+		delete[] (void*)target;
 	}
 	if ( p != NULL ) {
 		profile = new char[ strlen( p ) +1 ];
@@ -336,7 +336,9 @@ daeElement *daeSIDResolver::findSID( daeElement *el, daeString sid ) {
 	daeElementRefArray children;
 	el->getChildren( children );
 	size_t cnt = children.getCount();
-	for ( size_t x = 0; x < cnt; x++ ) {
+	size_t x;
+
+	for ( x = 0; x < cnt; x++ ) {
 		//examine the children
 		//char s[56]; 
 		//daeAtomicType::get( "token" )->memoryToString( children[x]->getAttributeValue( "sid" ), s, 56 );
@@ -346,7 +348,7 @@ daeElement *daeSIDResolver::findSID( daeElement *el, daeString sid ) {
 			return children[x];
 		}
 	}
-	for ( size_t x = 0; x < cnt; x++ ) {
+	for ( x = 0; x < cnt; x++ ) {
 		//if not found look for it in each child
 		if ( profile != NULL && strcmp( children[x]->getTypeName(), "technique_COMMON" ) == 0 ) {
 			//not looking for common profile

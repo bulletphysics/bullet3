@@ -462,7 +462,7 @@ daeElement::~daeElement()
 		_intObject->release();
 
 	if (_elementName) {
-		delete[] _elementName;
+		delete[] (void*) _elementName;
 		_elementName = NULL;
 	}
 }
@@ -478,7 +478,7 @@ daeString daeElement::getElementName() const
 }
 void daeElement::setElementName( daeString nm ) {
 	if ( nm == NULL ) {
-		if ( _elementName ) delete[] _elementName;
+		if ( _elementName ) delete[] (void*)_elementName;
 		_elementName = NULL;
 		return;
 	}
