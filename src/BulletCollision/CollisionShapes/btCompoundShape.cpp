@@ -205,7 +205,9 @@ void btCompoundShape::calculatePrincipalAxisTransform(btScalar* masses, btTransf
 
 	btScalar totalMass = 0;
 	btVector3 center(0, 0, 0);
-	for (int k = 0; k < n; k++)
+	int k;
+
+	for (k = 0; k < n; k++)
 	{
 		center += m_children[k].m_transform.getOrigin() * masses[k];
 		totalMass += masses[k];
@@ -214,7 +216,7 @@ void btCompoundShape::calculatePrincipalAxisTransform(btScalar* masses, btTransf
 	principal.setOrigin(center);
 
 	btMatrix3x3 tensor(0, 0, 0, 0, 0, 0, 0, 0, 0);
-	for (int k = 0; k < n; k++)
+	for ( k = 0; k < n; k++)
 	{
 		btVector3 i;
 		m_children[k].m_childShape->calculateLocalInertia(masses[k], i);

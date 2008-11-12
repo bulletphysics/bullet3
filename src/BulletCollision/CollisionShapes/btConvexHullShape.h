@@ -37,6 +37,7 @@ public:
 
 	void addPoint(const btVector3& point);
 
+	
 	btVector3* getUnscaledPoints()
 	{
 		return &m_unscaledPoints[0];
@@ -46,6 +47,15 @@ public:
 	{
 		return &m_unscaledPoints[0];
 	}
+
+	///getPoints is obsolete, please use getUnscaledPoints
+	const btVector3* getPoints() const
+	{
+		return getUnscaledPoints();
+	}
+
+	
+
 
 	SIMD_FORCE_INLINE	btVector3 getScaledPoint(int i) const
 	{

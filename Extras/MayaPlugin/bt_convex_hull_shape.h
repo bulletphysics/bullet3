@@ -118,7 +118,7 @@ protected:
     {
         //apply the scaling
         btVector3 const& scale = m_ch_shape->getLocalScaling();
-        btVector3 const* points = m_ch_shape->getPoints();
+        btVector3 const* points = m_ch_shape->getUnscaledPoints();
         for(int i = 0; i < m_ch_shape->getNumPoints(); ++i) {
             m_vertices[i] = vec3f(scale.x() * points[i].x(), scale.y() * points[i].y(), scale.z() * points[i].z()); 
         }
