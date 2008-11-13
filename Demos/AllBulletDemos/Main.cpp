@@ -180,6 +180,7 @@ void Timer(int)
 
 void SimulationLoop()
 {
+	Resize(width, height);
 
 	
 
@@ -461,7 +462,7 @@ int main(int argc, char** argv)
 	glui->add_button("Toggle Pause", 0,(GLUI_Update_CB)TogglePause);
 	
 	glui->add_button("Single Step", 0,(GLUI_Update_CB)SingleSimulationStep);
-//	glui->add_button("Reset Scene", 0,(GLUI_Update_CB)ResetScene);
+	glui->add_button("Reset Scene", 0,(GLUI_Update_CB)ResetScene);
 	glui->add_button("Restart Scene", 0,(GLUI_Update_CB)RestartScene);
 
 	glui->add_separator();
