@@ -140,7 +140,7 @@ void	ConcaveDemo::initPhysics()
 {
 	
 	setTexturing(true);
-	setShadows(false);
+	setShadows(true);
 
 	#define TRISIZE 10.f
 

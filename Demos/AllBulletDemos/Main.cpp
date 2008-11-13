@@ -34,8 +34,8 @@
 
 namespace
 {
-	int testIndex=0;
-	int testSelection=24;
+	int testIndex=1;
+	int testSelection=0;
 	btDemoEntry* entry;
 	DemoApplication* demo;
 	int iterationCount;
@@ -66,14 +66,15 @@ namespace
 }
 
 
+
 void	setDefaultSettings()
 {
 	viewX = 0.0f;
 	viewY = 0.0f;
-	framePeriod = 16;//todo: test if this value should be 0
+	framePeriod = 16;//16;//todo: test if this value should be 0
 	
-	width = 640;
-	height = 480;
+	width = 800;//640;
+	height = 600;//1024;//480;
 	iterationCount = 10;
 	gDrawAabb=0;
 	gWireFrame=0;
@@ -87,7 +88,7 @@ void	setDefaultSettings()
 	gUseWarmstarting = 1;
 	gRandomizeConstraints = 1;
 	gErp = 0.2f;
-	gSlop=0.0f;
+	gSlop=0.01f;
 	gErp2 = 0.1f;
 	gWarmStartingParameter = 0.85f;
 	
@@ -317,6 +318,18 @@ void Keyboard(unsigned char key, int x, int y)
 	}
 }
 
+void KeyboardSpecialUp(int key, int x, int y)
+{
+	if (demo)
+	{
+		demo->specialKeyboardUp(key,x,y);
+	}
+	
+}
+
+
+
+
 void KeyboardSpecial(int key, int x, int y)
 {
 
@@ -380,6 +393,7 @@ int main(int argc, char** argv)
 	GLUI_Master.set_glutReshapeFunc(Resize);  
 	GLUI_Master.set_glutKeyboardFunc(Keyboard);
 	GLUI_Master.set_glutSpecialFunc(KeyboardSpecial);
+	GLUI_Master.set_glutSpecialUpFunc(KeyboardSpecialUp);
 	GLUI_Master.set_glutMouseFunc(Mouse);
 	glutMotionFunc(MouseMotion);
 
@@ -410,14 +424,13 @@ int main(int argc, char** argv)
 	GLUI_Spinner* spinner = 0;
 
 	spinner = glui->add_spinner("ERP", GLUI_SPINNER_FLOAT, &gErp);
-	spinner->set_float_limits(0.f,1.f);
-	spinner = glui->add_spinner("ERP2", GLUI_SPINNER_FLOAT, &gErp2);
+//	spinner->set_float_limits(0.f,1.f);
+//	spinner = glui->add_spinner("ERP2", GLUI_SPINNER_FLOAT, &gErp2);
 	spinner->set_float_limits(0.f,1.f);
 	spinner = glui->add_spinner("Slop", GLUI_SPINNER_FLOAT, &gSlop);
 	spinner->set_float_limits(0.f,1.f);
-
-	spinner = glui->add_spinner("WSP", GLUI_SPINNER_FLOAT,&gWarmStartingParameter);
-	spinner->set_float_limits (0.f,1.0);
+//	spinner = glui->add_spinner("WSP", GLUI_SPINNER_FLOAT,&gWarmStartingParameter);
+//	spinner->set_float_limits (0.f,1.0);
 	glui->add_checkbox("Warmstarting", &gUseWarmstarting);
 	glui->add_checkbox("Randomize Constraints", &gRandomizeConstraints);
 	
@@ -434,14 +447,6 @@ int main(int argc, char** argv)
 	glui->add_checkbox_to_panel(drawPanel, "Shadows", &gDrawShadows);
 	glui->add_checkbox_to_panel(drawPanel, "Clusters", &gDrawClusters);
 
-
-	
-
-
-//	glui->add_checkbox_to_panel(drawPanel, "Impulses", &settings.drawImpulses);
-//	glui->add_checkbox_to_panel(drawPanel, "Statistics", &settings.drawStats);
-
-
 	int testCount = 0;
 	btDemoEntry* e = g_demoEntries;
 	while (e->createFcn)
@@ -456,12 +461,12 @@ int main(int argc, char** argv)
 	glui->add_button("Toggle Pause", 0,(GLUI_Update_CB)TogglePause);
 	
 	glui->add_button("Single Step", 0,(GLUI_Update_CB)SingleSimulationStep);
-	glui->add_button("Reset Scene", 0,(GLUI_Update_CB)ResetScene);
+//	glui->add_button("Reset Scene", 0,(GLUI_Update_CB)ResetScene);
 	glui->add_button("Restart Scene", 0,(GLUI_Update_CB)RestartScene);
 
 	glui->add_separator();
 	
-	glui->add_button("Exit", 0,(GLUI_Update_CB)exit);
+//	glui->add_button("Exit", 0,(GLUI_Update_CB)exit);
 
 	glui->set_main_gfx_window( mainWindow );
 

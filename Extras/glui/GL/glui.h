@@ -113,6 +113,7 @@ enum GLUI_Glut_CB_Types
     GLUI_GLUT_MOUSE,
     GLUI_GLUT_MOTION,
     GLUI_GLUT_SPECIAL,
+	GLUI_GLUT_SPECIAL_UP,
     GLUI_GLUT_PASSIVE_MOTION,  
     GLUI_GLUT_ENTRY,
     GLUI_GLUT_VISIBILITY  
@@ -581,6 +582,8 @@ public:
     void set_glutReshapeFunc (void (*f)(int width, int height));
     void set_glutKeyboardFunc(void (*f)(unsigned char key, int x, int y));
     void set_glutSpecialFunc (void (*f)(int key, int x, int y));
+	void set_glutSpecialUpFunc(void (*f)(int key, int x, int y));
+	
     void set_glutMouseFunc   (void (*f)(int, int, int, int ));
 
     void set_glutDisplayFunc(void (*f)(void)) {glutDisplayFunc(f);}
@@ -649,6 +652,7 @@ public:
     /*********** Pointers to GLUT callthrough functions *****/
     void (*glut_keyboard_CB)(unsigned char, int, int);
     void (*glut_special_CB)(int, int, int);
+	void (*glut_special_up_CB)(int, int, int);
     void (*glut_reshape_CB)(int, int);
     void (*glut_passive_motion_CB)(int,int);
     void (*glut_mouse_CB)(int,int,int,int);
@@ -692,6 +696,7 @@ class GLUI_Main : public GLUI_Node
     friend void glui_mouse_func(int button, int state, int x, int y);
     friend void glui_keyboard_func(unsigned char key, int x, int y);
     friend void glui_special_func(int key, int x, int y);
+	friend void glui_special_up_func(int key, int x, int y);
     friend void glui_passive_motion_func(int x, int y);
     friend void glui_reshape_func( int w, int h );
     friend void glui_visibility_func(int state);
@@ -740,6 +745,7 @@ protected:
     void           mouse(int button, int state, int x, int y);
     void           keyboard(unsigned char key, int x, int y);
     void           special(int key, int x, int y);
+	void           special_up(int key, int x, int y);
     void           passive_motion(int x, int y);
     void           reshape( int w, int h );
     void           visibility(int state);
@@ -905,6 +911,7 @@ public:
     virtual int mouse_held_down_handler( int local_x, int local_y, bool inside) { (void)local_x; (void)local_y; (void)inside; return false; }
     virtual int key_handler( unsigned char key, int modifiers )                { (void)key; (void)modifiers; return false; }
     virtual int special_handler( int key,int modifiers )                       { (void)key; (void)modifiers; return false; }
+	virtual int special_up_handler( int key,int modifiers )                       { (void)key; (void)modifiers; return false; }
 
     virtual void update_size( void )     { }
     virtual void idle( void )            { }

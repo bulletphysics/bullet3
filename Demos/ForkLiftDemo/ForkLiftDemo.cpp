@@ -73,7 +73,7 @@ const int maxOverlap = 65535;
 float	gEngineForce = 0.f;
 
 float	defaultBreakingForce = 10.f;
-float	gBreakingForce = 10.f;
+float	gBreakingForce = 100.f;
 
 float	maxEngineForce = 1000.f;//this should be engine/velocity dependent
 float	maxBreakingForce = 100.f;
@@ -116,6 +116,9 @@ m_vertices(0)
 	m_vehicle = 0;
 	m_cameraPosition = btVector3(30,30,30);
 	m_useDefaultCamera = false;
+	setTexturing(true);
+	setShadows(true);
+
 }
 
 
@@ -131,9 +134,19 @@ void ForkLiftDemo::termPhysics()
 		btRigidBody* body = btRigidBody::upcast(obj);
 		if (body && body->getMotionState())
 		{
+
+			while (body->getNumConstraintRefs())
+			{
+				btTypedConstraint* constraint = body->getConstraintRef(0);
+				m_dynamicsWorld->removeConstraint(constraint);
+				delete constraint;
+			}
 			delete body->getMotionState();
+			m_dynamicsWorld->removeRigidBody(body);
+		} else
+		{
+			m_dynamicsWorld->removeCollisionObject( obj );
 		}
-		m_dynamicsWorld->removeCollisionObject( obj );
 		delete obj;
 	}
 
@@ -348,7 +361,6 @@ const float TRIANGLE_SIZE=20.f;
 
 	{
 		btCollisionShape* suppShape = new btBoxShape(btVector3(0.5f,0.1f,0.5f));
-		m_collisionShapes.push_back(chassisShape);
 		btTransform suppLocalTrans;
 		suppLocalTrans.setIdentity();
 		//localTrans effectively shifts the center of mass with respect to the chassis
@@ -666,6 +678,9 @@ void ForkLiftDemo::displayCallback(void)
 void ForkLiftDemo::clientResetScene()
 {
 	gVehicleSteering = 0.f;
+	gBreakingForce = defaultBreakingForce;
+	gEngineForce = 0.f;
+
 	m_carChassis->setCenterOfMassTransform(btTransform::getIdentity());
 	m_carChassis->setLinearVelocity(btVector3(0,0,0));
 	m_carChassis->setAngularVelocity(btVector3(0,0,0));

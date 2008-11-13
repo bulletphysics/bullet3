@@ -310,6 +310,48 @@ void glui_keyboard_func(unsigned char key, int x, int y)
 }
 
 
+
+
+void glui_special_up_func(int key, int x, int y)
+{
+  GLUI              *glui;
+  int                current_window;
+  GLUI_Glut_Window  *glut_window;
+
+  current_window = glutGetWindow();
+  glut_window = GLUI_Master.find_glut_window( current_window );
+
+  if (glut_window) /**  Was event in a GLUT window?  **/
+  {
+    if ( GLUI_Master.active_control_glui AND GLUI_Master.active_control )
+    {
+      glutSetWindow( GLUI_Master.active_control_glui->get_glut_window_id() );
+      
+      GLUI_Master.active_control_glui->special_up(key,x,y);    
+      finish_drawing();
+      
+      glutSetWindow( current_window );
+    }
+    else
+    {
+      if (glut_window->glut_special_up_CB)
+        glut_window->glut_special_up_CB( key, x, y );
+    } 
+  }
+  else /***  Nope, event was in a standalone GLUI window  **/
+  {
+    glui = GLUI_Master.find_glui_by_window_id(glutGetWindow());
+
+    if ( glui )
+    {
+      glui->special_up(key,x,y);
+      finish_drawing();
+    }
+  }
+}
+
+
+
 /************************************************ glui_special_func() ********/
 
 void glui_special_func(int key, int x, int y)
@@ -728,6 +770,17 @@ void    GLUI_Main::keyboard(unsigned char key, int x, int y)
     if ( active_control != NULL )
       active_control->key_handler( key, curr_modifiers );
   }
+}
+
+
+
+void    GLUI_Main::special_up(int key, int x, int y)
+{
+  curr_modifiers = glutGetModifiers();
+
+  /*** Pass the keystroke onto the active control, if any ***/
+  if ( active_control != NULL )
+    active_control->special_up_handler( key, glutGetModifiers() );
 }
 
 
@@ -1665,6 +1718,16 @@ void GLUI_Master_Object::set_glutKeyboardFunc(void (*f)(unsigned char key,
 
 /*********************** GLUI_Master_Object::set_glutSpecialFunc() **********/
 
+
+
+void GLUI_Master_Object::set_glutSpecialUpFunc(void (*f)(int key, 
+						       int x, int y))
+{
+  glutSpecialUpFunc( glui_special_up_func );
+  add_cb_to_glut_window( glutGetWindow(), GLUI_GLUT_SPECIAL_UP, (void*) f);
+}
+
+
 void GLUI_Master_Object::set_glutSpecialFunc(void (*f)(int key, 
 						       int x, int y))
 {
@@ -1864,6 +1927,9 @@ void     GLUI_Master_Object::add_cb_to_glut_window(int window_id,
     break;
   case GLUI_GLUT_SPECIAL:
     window->glut_special_CB   = (void(*)(int,int,int)) cb;
+    break;
+  case GLUI_GLUT_SPECIAL_UP:
+    window->glut_special_up_CB   = (void(*)(int,int,int)) cb;
     break;
   case GLUI_GLUT_MOUSE:
     window->glut_mouse_CB     = (void(*)(int,int,int,int)) cb;

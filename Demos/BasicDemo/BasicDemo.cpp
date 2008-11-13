@@ -21,6 +21,8 @@ subject to the following restrictions:
 //maximum number of objects (and allow user to shoot additional boxes)
 #define MAX_PROXIES (ARRAY_SIZE_X*ARRAY_SIZE_Y*ARRAY_SIZE_Z + 1024)
 
+///scaling of the objects (0.1 = 20 centimeter boxes )
+#define SCALING 0.1
 #define START_POS_X -5
 #define START_POS_Y -5
 #define START_POS_Z -3
@@ -80,7 +82,7 @@ void	BasicDemo::initPhysics()
 	setTexturing(true);
 	setShadows(true);
 
-	setCameraDistance(btScalar(50.));
+	setCameraDistance(btScalar(SCALING*50.));
 
 	///collision configuration contains default setup for memory, collision setup
 	m_collisionConfiguration = new btDefaultCollisionConfiguration();
@@ -106,7 +108,7 @@ void	BasicDemo::initPhysics()
 
 	btTransform groundTransform;
 	groundTransform.setIdentity();
-	groundTransform.setOrigin(btVector3(0,-56,0));
+	groundTransform.setOrigin(btVector3(0,-50,0));
 
 	//We can also use DemoApplication::localCreateRigidBody, but for clarity it is provided here:
 	{
@@ -133,7 +135,7 @@ void	BasicDemo::initPhysics()
 		//create a few dynamic rigidbodies
 		// Re-using the same collision is better for memory usage and performance
 
-		btCollisionShape* colShape = new btBoxShape(btVector3(1,1,1));
+		btCollisionShape* colShape = new btBoxShape(btVector3(SCALING*1,SCALING*1,SCALING*1));
 		//btCollisionShape* colShape = new btSphereShape(btScalar(1.));
 		m_collisionShapes.push_back(colShape);
 
@@ -160,9 +162,9 @@ void	BasicDemo::initPhysics()
 			{
 				for(int j = 0;j<ARRAY_SIZE_Z;j++)
 				{
-					startTransform.setOrigin(btVector3(
+					startTransform.setOrigin(SCALING*btVector3(
 										2.0*i + start_x,
-										10+2.0*k + start_y,
+										20+2.0*k + start_y,
 										2.0*j + start_z));
 
 			
