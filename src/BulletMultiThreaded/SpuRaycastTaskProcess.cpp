@@ -79,7 +79,7 @@ void SpuRaycastTaskProcess::issueTask2()
 	SpuRaycastTaskDesc& taskDesc = m_spuRaycastTaskDesc[m_currentTask];
 
 	taskDesc.taskId = m_currentTask;
-	m_threadInterface->sendRequest(1, (uint32_t) &taskDesc,m_currentTask);
+	m_threadInterface->sendRequest(1, (ppu_address_t) &taskDesc,m_currentTask);
 	//printf("send thread requested for task %d\n", m_currentTask);
 	// if all tasks busy, wait for spu event to clear the task.
 	if (m_numBusyTasks >= m_maxNumOutstandingTasks)

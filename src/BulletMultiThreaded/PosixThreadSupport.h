@@ -100,7 +100,7 @@ public:
 
 
 ///send messages to SPUs
-	virtual	void sendRequest(uint32_t uiCommand, uint32_t uiArgument0, uint32_t uiArgument1);
+	virtual	void sendRequest(uint32_t uiCommand, ppu_address_t uiArgument0, uint32_t uiArgument1);
 
 ///check for messages from SPUs
 	virtual	void waitForResponse(unsigned int *puiArgument0, unsigned int *puiArgument1);

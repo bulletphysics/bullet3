@@ -106,9 +106,9 @@ public:
 		//by default, Bullet will use this near callback
 		{
 			///userInfo is used to determine if the SPU has to handle this case or not (skip PPU tasks)
-			if (!collisionPair.m_userInfo)
+			if (!collisionPair.m_internalTmpValue)
 			{
-				collisionPair.m_userInfo = (void*) 1;
+				collisionPair.m_internalTmpValue = 1;
 			}
 			if (!collisionPair.m_algorithm)
 			{
@@ -132,11 +132,11 @@ public:
 						void* mem = m_dispatcher->allocateCollisionAlgorithm(so);
 #endif
 						collisionPair.m_algorithm = new(mem) SpuContactManifoldCollisionAlgorithm(ci,colObj0,colObj1);
-						collisionPair.m_userInfo = (void*) 2;
+						collisionPair.m_internalTmpValue =  2;
 					} else
 					{
 						collisionPair.m_algorithm = m_dispatcher->findAlgorithm(colObj0,colObj1);
-						collisionPair.m_userInfo = (void*)3;
+						collisionPair.m_internalTmpValue = 3;
 					}
 				} 
 			}
@@ -179,7 +179,7 @@ void	SpuGatheringCollisionDispatcher::dispatchAllCollisionPairs(btOverlappingPai
 		for (i=0;i<numTotalPairs;i++)
 		{
 			btBroadphasePair& collisionPair = pairPtr[i];
-			if (collisionPair.m_userInfo == (void*)3)
+			if (collisionPair.m_internalTmpValue == 3)
 			{
 				if (collisionPair.m_algorithm)
 				{

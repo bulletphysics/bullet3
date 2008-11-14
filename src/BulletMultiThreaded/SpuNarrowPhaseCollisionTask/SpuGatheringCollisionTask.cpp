@@ -842,7 +842,6 @@ void	processCollisionTask(void* userPtr, void* lsMemPtr)
 	register ppu_address_t	dmaPpuAddress;
 	register ppu_address_t	dmaPpuAddress2;
 
-	int userInfo;
 	int numPairs;
 	register int p;
 	SpuCollisionPairInput collisionPairInput;
@@ -902,9 +901,7 @@ void	processCollisionTask(void* userPtr, void* lsMemPtr)
 					spu_printf("pair->m_pProxy1 = %d\n",pair.m_pProxy1);
 #endif //DEBUG_SPU_COLLISION_DETECTION
 
-					userInfo = int(pair.m_userInfo);
-
-					if (userInfo == 2 && pair.m_algorithm && pair.m_pProxy0 && pair.m_pProxy1)
+					if (pair.m_internalTmpValue == 2 && pair.m_algorithm && pair.m_pProxy0 && pair.m_pProxy1)
 					{
 						dmaSize = sizeof(SpuContactManifoldCollisionAlgorithm);
 						dmaPpuAddress2 = (ppu_address_t)pair.m_algorithm;

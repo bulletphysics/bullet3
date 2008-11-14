@@ -19,6 +19,7 @@ subject to the following restrictions:
 
 //#include <LinearMath/btScalar.h> //for uint32_t etc.
 #include "PlatformDefinitions.h"
+#include "PpuAddressSpace.h"
 
 class btThreadSupportInterface
 {
@@ -27,7 +28,7 @@ public:
 	virtual ~btThreadSupportInterface();
 
 ///send messages to SPUs
-	virtual void sendRequest(uint32_t uiCommand, uint32_t uiArgument0, uint32_t uiArgument1) =0;
+	virtual void sendRequest(uint32_t uiCommand, ppu_address_t uiArgument0, uint32_t uiArgument1) =0;
 
 ///check for messages from SPUs
 	virtual	void waitForResponse(unsigned int *puiArgument0, unsigned int *puiArgument1) =0;

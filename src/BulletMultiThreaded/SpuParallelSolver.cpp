@@ -578,7 +578,7 @@ void SolverTaskScheduler::issueTask()
 
 	SpuSolverTaskDesc& desc = m_taskDescriptors[m_currentTask];
 	
-	m_threadInterface->sendRequest(1, (uint32_t)&desc, m_currentTask);
+	m_threadInterface->sendRequest(1, (ppu_address_t)&desc, m_currentTask);
 }
 
 void SolverTaskScheduler::flushTasks()

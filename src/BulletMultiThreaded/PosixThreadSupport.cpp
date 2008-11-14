@@ -120,7 +120,7 @@ static void *threadFunction(void *argument)
 }
 
 ///send messages to SPUs
-void PosixThreadSupport::sendRequest(uint32_t uiCommand, uint32_t uiArgument0, uint32_t taskId)
+void PosixThreadSupport::sendRequest(uint32_t uiCommand, ppu_address_t uiArgument0, uint32_t taskId)
 {
 	///	gMidphaseSPU.sendRequest(CMD_GATHER_AND_PROCESS_PAIRLIST, (uint32_t) &taskDesc);
 	

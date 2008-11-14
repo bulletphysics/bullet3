@@ -130,7 +130,7 @@ void SpuSampleTaskProcess::issueTask(void* sampleMainMemPtr,int sampleValue,int 
 	}
 
 
-	m_threadInterface->sendRequest(1, (uint32_t) &taskDesc, m_currentTask);
+	m_threadInterface->sendRequest(1, (ppu_address_t) &taskDesc, m_currentTask);
 
 	// if all tasks busy, wait for spu event to clear the task.
 	

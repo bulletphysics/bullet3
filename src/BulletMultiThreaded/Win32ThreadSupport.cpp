@@ -81,9 +81,9 @@ DWORD WINAPI Thread_no_1( LPVOID lpParam )
 }
 
 ///send messages to SPUs
-void Win32ThreadSupport::sendRequest(uint32_t uiCommand, uint32_t uiArgument0, uint32_t taskId)
+void Win32ThreadSupport::sendRequest(uint32_t uiCommand, ppu_address_t uiArgument0, uint32_t taskId)
 {
-	///	gMidphaseSPU.sendRequest(CMD_GATHER_AND_PROCESS_PAIRLIST, (uint32_t) &taskDesc);
+	///	gMidphaseSPU.sendRequest(CMD_GATHER_AND_PROCESS_PAIRLIST, (ppu_address_t) &taskDesc);
 	
 	///we should spawn an SPU task here, and in 'waitForResponse' it should wait for response of the (one of) the first tasks that finished
 	

@@ -256,7 +256,7 @@ btBroadphasePair* btHashedOverlappingPairCache::internalAddPair(btBroadphaseProx
 //	pair->m_pProxy0 = proxy0;
 //	pair->m_pProxy1 = proxy1;
 	pair->m_algorithm = 0;
-	pair->m_userInfo = 0;
+	pair->m_internalTmpValue = 0;
 	
 
 	m_next[count] = m_hashTable[hash];
@@ -287,7 +287,7 @@ void* btHashedOverlappingPairCache::removeOverlappingPair(btBroadphaseProxy* pro
 
 	cleanOverlappingPair(*pair,dispatcher);
 
-	void* userData = pair->m_userInfo;
+	void* userData = pair->m_internalInfo1;
 
 	btAssert(pair->m_pProxy0->getUid() == proxyId1);
 	btAssert(pair->m_pProxy1->getUid() == proxyId2);
@@ -405,7 +405,7 @@ void*	btSortedOverlappingPairCache::removeOverlappingPair(btBroadphaseProxy* pro
 		{
 			gOverlappingPairs--;
 			btBroadphasePair& pair = m_overlappingPairArray[findIndex];
-			void* userData = pair.m_userInfo;
+			void* userData = pair.m_internalInfo1;
 			cleanOverlappingPair(pair,dispatcher);
 			if (m_ghostPairCallback)
 				m_ghostPairCallback->removeOverlappingPair(proxy0, proxy1,dispatcher);

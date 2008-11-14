@@ -128,7 +128,7 @@ void SpuCollisionTaskProcess::issueTask2()
 
 
 
-	m_threadInterface->sendRequest(CMD_GATHER_AND_PROCESS_PAIRLIST, (uint32_t) &taskDesc,m_currentTask);
+	m_threadInterface->sendRequest(CMD_GATHER_AND_PROCESS_PAIRLIST, (ppu_address_t) &taskDesc,m_currentTask);
 
 	// if all tasks busy, wait for spu event to clear the task.
 	

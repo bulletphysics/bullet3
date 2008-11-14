@@ -33,7 +33,7 @@ SequentialThreadSupport::~SequentialThreadSupport()
 #include <stdio.h>
 
 ///send messages to SPUs
-void SequentialThreadSupport::sendRequest(uint32_t uiCommand, uint32_t uiArgument0, uint32_t taskId)
+void SequentialThreadSupport::sendRequest(uint32_t uiCommand, ppu_address_t uiArgument0, uint32_t taskId)
 {
 	switch (uiCommand)
 	{

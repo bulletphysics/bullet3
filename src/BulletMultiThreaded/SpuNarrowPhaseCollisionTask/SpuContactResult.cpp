@@ -164,7 +164,7 @@ void SpuContactResult::writeDoubleBufferedManifold(btPersistentManifold* lsManif
     memcpy(g_manifoldDmaExport.getFront(),lsManifold,sizeof(btPersistentManifold));
 
     g_manifoldDmaExport.swapBuffers();
-    uint64_t mmAddr = (uint32_t)mmManifold;
+    ppu_address_t mmAddr = (ppu_address_t)mmManifold;
     g_manifoldDmaExport.backBufferDmaPut(mmAddr, sizeof(btPersistentManifold), DMA_TAG(9));
 	// Should there be any kind of wait here?  What if somebody tries to use this tag again?  What if we call this function again really soon?
 	//no, the swapBuffers does the wait
