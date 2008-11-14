@@ -494,7 +494,7 @@ btScalar& maxHeight
 	btAssert(raw && "out of memory");
 
 	// reseed randomization every 30 seconds
-	srand(time(NULL) / 30);
+//	srand(time(NULL) / 30);
 
 	// populate based on model
 	switch (model) {

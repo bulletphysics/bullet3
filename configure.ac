@@ -47,17 +47,17 @@ AC_SUBST(opengl_LIBS)
 case "$host" in
         i?86-* | k?-* | athlon-* | pentium*-)
                 AC_DEFINE(ARCH_X86, 1, [Architecture is x86])
-                ARCH_SPECIFIC_CFLAGS="-mmmx -msse"
+                ARCH_SPECIFIC_CFLAGS=""
                 ARCH_STRING="X86"
                 ;;
         x86_64-*)
                 AC_DEFINE(ARCH_X86_64, 1, [Architecture is x86-64])
-                ARCH_SPECIFIC_CFLAGS="-mmmx -msse"
+                ARCH_SPECIFIC_CFLAGS="-DUSE_ADDR64"
                 ARCH_STRING="X86-64"
                 ;;
         ppc-* | powerpc-*)
                 AC_DEFINE(ARCH_PPC, 1, [Architecture is PowerPC])
-                ARCH_SPECIFIC_CFLAGS="-maltivec"
+                ARCH_SPECIFIC_CFLAGS=""
                 ARCH_STRING="PowerPC"
                 ;;
         *)
@@ -131,6 +131,15 @@ CS_CHECK_GLUT
 #----------------------------------------------------------------------------
 # Package configuration switches.
 #----------------------------------------------------------------------------
+AC_ARG_ENABLE([multithreaded],
+	[AC_HELP_STRING([--disable-multithreaded],
+		[build without BulletMultiThreaded (default NO)])],
+	[disable_multithreaded=yes], [disable_multithreaded=no])
+AC_MSG_CHECKING([BulletMultiThreaded])
+AS_IF([test "$disable_multithreaded" = yes], [build_multithreaded=no], [build_multithreaded=yes])
+AC_MSG_RESULT([$build_multithreaded])
+AM_CONDITIONAL([CONDITIONAL_BUILD_MULTITHREADED], [test "$build_multithreaded" = yes])
+
 AC_ARG_ENABLE([debug],
     [AC_HELP_STRING([--enable-debug],
 	[build with debugging information (default NO)])],
@@ -149,7 +158,8 @@ CS_OUTPUT_INSTALLDIRS
 CS_EMIT_PACKAGEINFO
 
 
-CXXFLAGS="$CXXFLAGS $CFLAGS"
+CFLAGS="$ARCH_SPECIFIC_CFLAGS $CFLAGS"
+CXXFLAGS="$ARCH_SPECIFIC_CFLAGS $CXXFLAGS $CFLAGS"
 #----------------------------------------------------------------------------
 # Emit generated files.
 #----------------------------------------------------------------------------
