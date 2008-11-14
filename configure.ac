@@ -132,9 +132,9 @@ CS_CHECK_GLUT
 # Package configuration switches.
 #----------------------------------------------------------------------------
 AC_ARG_ENABLE([multithreaded],
-	[AC_HELP_STRING([--disable-multithreaded],
-		[build without BulletMultiThreaded (default NO)])],
-	[disable_multithreaded=yes], [disable_multithreaded=no])
+	[AC_HELP_STRING([--enable-multithreaded],
+		[build BulletMultiThreaded (default NO)])],
+	[disable_multithreaded=no], [disable_multithreaded=yes])
 AC_MSG_CHECKING([BulletMultiThreaded])
 AS_IF([test "$disable_multithreaded" = yes], [build_multithreaded=no], [build_multithreaded=yes])
 AC_MSG_RESULT([$build_multithreaded])
