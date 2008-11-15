@@ -53,6 +53,7 @@ protected:
 
 	int		m_numHandles;						// number of active handles
 	int		m_maxHandles;						// max number of handles
+	int		m_LastHandleIndex;							
 	
 	btSimpleBroadphaseProxy* m_pHandles;						// handles pool
 
@@ -65,6 +66,10 @@ protected:
 		int freeHandle = m_firstFreeHandle;
 		m_firstFreeHandle = m_pHandles[freeHandle].GetNextFree();
 		m_numHandles++;
+		if(freeHandle > m_LastHandleIndex)
+		{
+			m_LastHandleIndex = freeHandle;
+		}
 		return freeHandle;
 	}
 
@@ -72,9 +77,14 @@ protected:
 	{
 		int handle = int(proxy-m_pHandles);
 		btAssert(handle >= 0 && handle < m_maxHandles);
-
+		if(handle == m_LastHandleIndex)
+		{
+			m_LastHandleIndex--;
+		}
 		proxy->SetNextFree(m_firstFreeHandle);
 		m_firstFreeHandle = handle;
+
+		proxy->m_clientObject = 0;
 
 		m_numHandles--;
 	}
