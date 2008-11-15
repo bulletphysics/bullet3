@@ -451,6 +451,10 @@ void ForkLiftDemo::renderme()
 		glRasterPos3f(400, 60, 0);
 		sprintf(buf,"F5 - toggle camera mode");
 		BMF_DrawString(BMF_GetFont(BMF_kHelvetica10),buf);
+		glRasterPos3f(400, 80, 0);
+                sprintf(buf,"Click inside windows for keyboard focus");
+		BMF_DrawString(BMF_GetFont(BMF_kHelvetica10),buf);
+
 
 		resetPerspectiveProjection();
 		glEnable(GL_LIGHTING);

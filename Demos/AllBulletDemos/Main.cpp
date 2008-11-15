@@ -113,6 +113,12 @@ void	ResetScene()
 		demo->clientResetScene();
 }
 
+void	NextScene()
+{
+	testSelection++;
+	if(testSelection>23)
+		testSelection=0;
+}
 
 
 void	SingleSimulationStep()
@@ -407,6 +413,7 @@ int main(int argc, char** argv)
 	glui->add_statictext("Tests");
 	GLUI_Listbox* testList =
 		glui->add_listbox("", &testSelection);
+	glui->add_button("Next Scene", 0,(GLUI_Update_CB)NextScene);
 
 	glui->add_separator();
 
