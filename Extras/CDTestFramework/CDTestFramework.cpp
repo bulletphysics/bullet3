@@ -69,9 +69,9 @@ enum TestIndex
 //	TEST_COMPLETE_BOX_PRUNING=0,
  	TEST_COMPLETE_BOX_PRUNING_8192,
 //	TEST_BULLET_SAP_1024,
-	TEST_BULLET_SAP_8192,
+//	TEST_BULLET_SAP_8192,
 //	TEST_BULLET_SAP_SORTEDPAIRS_8192,
- 	TEST_BULLET_MULTISAP_8192,
+// 	TEST_BULLET_MULTISAP_8192,
 //	TEST_BIPARTITE_BOX_PRUNING,
 	TEST_DBVT_8192,
 	TEST_BULLET_CUDA_8192,
@@ -305,9 +305,9 @@ int main(int argc, char** argv)
 //			{TEST_COMPLETE_BOX_PRUNING, "OPCODE SAP 1024"},
 			{TEST_COMPLETE_BOX_PRUNING_8192, "OPCODE BOX PRUNING 8192"},
 //			{TEST_BULLET_SAP_1024, "Bullet SAP HASHPAIR 1024"},
-			{TEST_BULLET_SAP_8192, "Bullet SAP HASHPAIR 8192"},
+//			{TEST_BULLET_SAP_8192, "Bullet SAP HASHPAIR 8192"},
 //			{TEST_BULLET_SAP_SORTEDPAIRS_8192, "Bullet SAP SORTEDPAIR 8192"},
-			{TEST_BULLET_MULTISAP_8192, "Bullet MultiSAP 8192"},
+//			{TEST_BULLET_MULTISAP_8192, "Bullet MultiSAP 8192"},
 //			{TEST_BIPARTITE_BOX_PRUNING, "Bipartite box pruning"},
 			{TEST_DBVT_8192, "Bullet DBVT 8192"},
 			{TEST_BULLET_CUDA_8192, "Bullet CUDA 8192"},
@@ -328,9 +328,9 @@ int main(int argc, char** argv)
  //	gCollisionTests[TEST_COMPLETE_BOX_PRUNING_8192]	= new CompleteBoxPruningTest(NUM_SAP_BOXES);
 	gCollisionTests[TEST_COMPLETE_BOX_PRUNING_8192]	= new CompleteBoxPruningTest(NUM_SAP_BOXES);
 //	gCollisionTests[TEST_BULLET_SAP_1024]	= new BulletSAPCompleteBoxPruningTest(NUM_SAP_BOXES,1);
- 	gCollisionTests[TEST_BULLET_SAP_8192]	= new BulletSAPCompleteBoxPruningTest(NUM_SAP_BOXES,1);
+// 	gCollisionTests[TEST_BULLET_SAP_8192]	= new BulletSAPCompleteBoxPruningTest(NUM_SAP_BOXES,1);
 //	gCollisionTests[TEST_BULLET_SAP_SORTEDPAIRS_8192]	= new BulletSAPCompleteBoxPruningTest(NUM_SAP_BOXES,3);
- 	gCollisionTests[TEST_BULLET_MULTISAP_8192]	= new BulletSAPCompleteBoxPruningTest(NUM_SAP_BOXES,6);
+// 	gCollisionTests[TEST_BULLET_MULTISAP_8192]	= new BulletSAPCompleteBoxPruningTest(NUM_SAP_BOXES,6);
 //	gCollisionTests[TEST_BIPARTITE_BOX_PRUNING]	= new BipartiteBoxPruningTest;
 	gCollisionTests[TEST_DBVT_8192]	= new BulletSAPCompleteBoxPruningTest(NUM_SAP_BOXES,7);
 	gCollisionTests[TEST_BULLET_CUDA_8192]	= new BulletSAPCompleteBoxPruningTest(NUM_SAP_BOXES,8);

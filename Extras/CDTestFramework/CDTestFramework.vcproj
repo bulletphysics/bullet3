@@ -4,6 +4,7 @@
 	Version="8.00"
 	Name="CDTestFramework"
 	ProjectGUID="{0565DB39-45CC-416E-B549-BFC24F2666D1}"
+	RootNamespace="CDTestFramework"
 	Keyword="Win32Proj"
 	>
 	<Platforms>
@@ -349,6 +350,10 @@
 		</Filter>
 		<File
 			RelativePath=".\CDTestFramework.txt"
+			>
+		</File>
+		<File
+			RelativePath=".\VTune\CDTestFramework.vpj"
 			>
 		</File>
 		<File
