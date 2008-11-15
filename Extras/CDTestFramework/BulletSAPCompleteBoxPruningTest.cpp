@@ -24,6 +24,8 @@ subject to the following restrictions:
 #include "btBulletCollisionCommon.h"
 #include "BulletCollision/BroadphaseCollision/btDbvtBroadphase.h"
 #include "Camera.h"
+#include "../CUDA/btCudaBroadphase.h"
+#include "LinearMath/btQuickprof.h"
 
 int numParts =2;
 
@@ -33,6 +35,8 @@ bool	showCulling		=	false;
 bool	enableOcclusion	=	false;
 bool	showOcclusion	=	true;
 int		visiblecount	=	0;
+
+static bool sBulletProfilerToggle = false;
 
 struct OcclusionBuffer
 {
@@ -418,7 +422,17 @@ BulletSAPCompleteBoxPruningTest::BulletSAPCompleteBoxPruningTest(int numBoxes,in
 		m_isdbvt				=	true;
 		methodname				=	"dynamic AABB tree, btDbvtBroadphase";
 		}
-	break;
+		break;
+	case 8:
+//		m_broadphase = new btAxisSweep3(aabbMin,aabbMax,maxNumBoxes);
+//		m_broadphase = new btSimpleBroadphase(maxNumBoxes,new btSortedOverlappingPairCache());
+//		m_broadphase = new btCudaBroadphase(aabbMin, aabbMax, 8, 8, 8, 8192, 8192, 64, 16);
+//		m_broadphase = new btCudaBroadphase(aabbMin, aabbMax, 12, 12, 12, 8192, 8192, 64, 16);
+//		m_broadphase = new btCudaBroadphase(aabbMin, aabbMax, 16, 16, 16, 8192, 8192, 64, 16);
+		m_broadphase = new btCudaBroadphase(aabbMin, aabbMax, 24, 24, 24, 8192, 8192, 64, 16);
+//		m_broadphase = new btCudaBroadphase(aabbMin, aabbMax, 32, 32, 32, 8192, 8192, 64, 16);
+		methodname	=	"btCudaBroadphase";
+		break;
 	default:
 		{
 			m_broadphase = new btAxisSweep3(aabbMin,aabbMax,numBoxes,new btNullPairCache());
@@ -586,8 +600,22 @@ void BulletSAPCompleteBoxPruningTest::PerformTest()
 		m_broadphase->setAabb(m_proxies[i],aabbMin,aabbMax,0);//m_dispatcher);
 	}
 
+#ifndef BT_NO_PROFILE
+	if(sBulletProfilerToggle)
+	{
+		CProfileManager::Reset();
+	}
+#endif //BT_NO_PROFILE
+
 	m_broadphase->calculateOverlappingPairs(0);
 
+#ifndef BT_NO_PROFILE
+	if(sBulletProfilerToggle)
+	{
+		CProfileManager::Increment_Frame_Counter();
+		CProfileManager::dumpAll();
+	}
+#endif //BT_NO_PROFILE
 	
 
 	mProfiler.End();
@@ -706,7 +734,7 @@ void BulletSAPCompleteBoxPruningTest::PerformTest()
 		}
 	
 	char Buffer[4096];
-	sprintf(Buffer, "Bullet %s: %5.1f us (%d cycles) : %d pairs\n", methodname, mProfiler.mMsTime, mProfiler.mCycles, 
+	sprintf_s(Buffer, sizeof(Buffer), "Bullet %s: %5.1f us (%d cycles) : %d pairs\n", methodname, mProfiler.mMsTime, mProfiler.mCycles, 
 			m_broadphase->getOverlappingPairCache()->getNumOverlappingPairs());
 
 //	m_broadphase)->printStats();
@@ -1004,6 +1032,14 @@ if((!m_isdbvt)||(!enableCulling))
 
 void BulletSAPCompleteBoxPruningTest::KeyboardCallback(unsigned char key, int x, int y)
 {
+	switch (key)
+	{
+		case 'p':
+		case 'P':
+			sBulletProfilerToggle = !sBulletProfilerToggle;
+			break;
+		default : break;
+	}
 }
 
 void BulletSAPCompleteBoxPruningTest::MouseCallback(int button, int state, int x, int y)
