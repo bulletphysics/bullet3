@@ -45,7 +45,6 @@
 #include <GL/glut.h>
 #endif
 
-
 #include "LinearMath/btQuickprof.h"
 
 #include "particleSystem.h"
@@ -61,8 +60,6 @@ float camera_trans_lag[] = {0, 0, -3};
 float camera_rot_lag[] = {0, 0, 0};
 const float inertia = 0.1;
 ParticleRenderer::DisplayMode displayMode = ParticleRenderer::PARTICLE_SPHERES;
-
-
 
 int mode = 0;
 bool displayEnabled = true;
@@ -91,6 +88,9 @@ float collideAttraction = 0.0f;
 ParticleSystem *psystem = 0;
 
 // fps
+static int fpsCount = 0;
+static int fpsLimit = 1;
+unsigned int timer;
 
 ParticleRenderer *renderer = 0;
 
@@ -109,7 +109,7 @@ void init(int numParticles, uint3 gridSize)
     renderer->setParticleRadius(psystem->getParticleRadius());
     renderer->setColorBuffer(psystem->getColorBuffer());
 
-    
+//    CUT_SAFE_CALL(cutCreateTimer(&timer));
 }
 
 void initGL()
@@ -129,7 +129,6 @@ void initGL()
 
 void display()
 {
-    
     // update the simulation
     if (!bPause)
     {
@@ -143,8 +142,6 @@ void display()
 
         psystem->update(timestep); 
         renderer->setVertexBuffer(psystem->getCurrentReadBuffer(), psystem->getNumParticles());
-		float* posArray = psystem->getArray(ParticleSystem::POSITION);
-		renderer->setPositions(posArray,psystem->getNumParticles());
     }
 
     // render
@@ -168,9 +165,7 @@ void display()
     glColor3f(1.0, 1.0, 1.0);
     glutWireCube(2.0);
 
-
-	
-	// collider
+    // collider
     glPushMatrix();
     float4 p = psystem->getColliderPos();
     glTranslatef(p.x, p.y, p.z);
@@ -195,18 +190,12 @@ void display()
 	psystem->debugDraw();
 
 	glDisable(GL_DEPTH_TEST);
-//	glDisable(GL_LIGHTING);
-//	glColor3f(0, 0, 0);
 	float offsX = 10.f;
 	float offsY = 10.f;
 	renderer->showProfileInfo(offsX, offsY, 20.f);
-//	glEnable(GL_LIGHTING);
 	glEnable(GL_DEPTH_TEST);
 
-	
 
-
-    
     glutSwapBuffers();
 
 	{
@@ -233,6 +222,7 @@ void display()
 	}
 
     glutReportErrors();
+
 }
 
 void reshape(int w, int h)
@@ -375,7 +365,6 @@ inline float frand()
 // commented out to remove unused parameter warnings in Linux
 void key(unsigned char key, int /*x*/, int /*y*/)
 {
-
 #ifndef BT_NO_PROFILE
 	if (key >= 0x31 && key < 0x37)
 	{
@@ -407,12 +396,9 @@ void key(unsigned char key, int /*x*/, int /*y*/)
     case 'm':
         mode = M_MOVE;
         break;
-	case 's':
-		psystem->setSimulationMode((ParticleSystem::SimulationMode) ((psystem->getSimulationMode() + 1) % ParticleSystem::SIMULATION_NUM_MODES));
-        break;
-
     case 'p':
-        displayMode = (ParticleRenderer::DisplayMode) ((displayMode + 1) % ParticleRenderer::PARTICLE_NUM_MODES);
+        displayMode = (ParticleRenderer::DisplayMode)
+                      ((displayMode + 1) % ParticleRenderer::PARTICLE_NUM_MODES);
         break;
     case 'd':
         psystem->dumpGrid();
@@ -473,6 +459,10 @@ void key(unsigned char key, int /*x*/, int /*y*/)
 
     case 'h':
         displaySliders = !displaySliders;
+        break;
+	case 's':
+		psystem->setSimulationMode((ParticleSystem::SimulationMode) ((psystem->getSimulationMode() + 1) % ParticleSystem::SIMULATION_NUM_MODES));
+		CProfileManager::CleanupMemory();
         break;
     }
 
@@ -536,16 +526,22 @@ void initMenus()
 int
 main(int argc, char** argv) 
 {
-//    numParticles =1024;//1024;//64;//16380;//32768;
-    numParticles =8192;
+//    numParticles = 65536*2;
+//    numParticles = 65536;
+//    numParticles = 32768;
+//    numParticles = 8192;
+//    numParticles = 4096;
+    numParticles = 2048;
+//    numParticles = 1024;
+//    numParticles = 256;
+//    numParticles = 32;
+//    numParticles = 2;
     uint gridDim = 64;
     numIterations = 0;
 
     gridSize.x = gridSize.y = gridSize.z = gridDim;
     printf("grid: %d x %d x %d = %d cells\n", gridSize.x, gridSize.y, gridSize.z, gridSize.x*gridSize.y*gridSize.z);
 
-    bool benchmark = false;
-    
     cudaInit(argc, argv);
 
     glutInit(&argc, argv);
@@ -558,7 +554,6 @@ main(int argc, char** argv)
     initParams();
     initMenus();
 
-   
     glutDisplayFunc(display);
     glutReshapeFunc(reshape);
     glutMouseFunc(mouse);
@@ -568,7 +563,6 @@ main(int argc, char** argv)
     glutIdleFunc(idle);
 
     glutMainLoop();
-
 
     if (psystem)
         delete psystem;

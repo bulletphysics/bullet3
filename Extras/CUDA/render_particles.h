@@ -30,9 +30,6 @@
 #ifndef __RENDER_PARTICLES__
 #define __RENDER_PARTICLES__
 
-
-class CProfileIterator;
-
 class ParticleRenderer
 {
 public:
@@ -61,7 +58,6 @@ public:
 	void showProfileInfo(float& xOffset,float& yStart, float yIncr);
 	void	displayProfileString(int xOffset,int yStart,char* message);
 	class CProfileIterator* m_profileIterator;
-
 
 protected: // methods
     void _initGL();

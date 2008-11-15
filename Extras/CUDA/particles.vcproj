@@ -2,9 +2,9 @@
 <VisualStudioProject
 	ProjectType="Visual C++"
 	Version="8.00"
-	Name="btCudaBroadphase"
+	Name="particles"
 	ProjectGUID="{AF7F45C7-8545-4CA2-B835-FDE8823B7B09}"
-	RootNamespace="btCudaBroadphase"
+	RootNamespace="particles"
 	Keyword="Win32Proj"
 	>
 	<Platforms>
@@ -45,7 +45,7 @@
 				Name="VCCLCompilerTool"
 				Optimization="0"
 				AdditionalIncludeDirectories="../../Glut;&quot;$(CUDA_INC_PATH)&quot;;./;../../src;../../Demos/OpenGL"
-				PreprocessorDefinitions="WIN32;_DEBUG;_CONSOLE"
+				PreprocessorDefinitions="WIN32;_DEBUG;_CONSOLE;_CRT_SECURE_NO_WARNINGS"
 				MinimalRebuild="true"
 				BasicRuntimeChecks="3"
 				RuntimeLibrary="1"
@@ -70,7 +70,7 @@
 				LinkIncremental="1"
 				AdditionalLibraryDirectories="$(CUDA_LIB_PATH);../../Glut"
 				GenerateDebugInformation="true"
-				ProgramDatabaseFile="$(OutDir)/btCudaBroadphase.pdb"
+				ProgramDatabaseFile="$(OutDir)/particles.pdb"
 				SubSystem="1"
 				TargetMachine="1"
 			/>
@@ -149,11 +149,11 @@
 			<Tool
 				Name="VCLinkerTool"
 				AdditionalDependencies="cudart.lib cutil64D.lib glew64.lib glut64.lib"
-				OutputFile="../../bin/win64/$(ConfigurationName)/btCudaBroadphase.exe"
+				OutputFile="../../bin/win64/$(ConfigurationName)/particles.exe"
 				LinkIncremental="1"
 				AdditionalLibraryDirectories="$(CUDA_LIB_PATH);../../common/lib"
 				GenerateDebugInformation="true"
-				ProgramDatabaseFile="$(OutDir)/btCudaBroadphase.pdb"
+				ProgramDatabaseFile="$(OutDir)/particles.pdb"
 				SubSystem="1"
 				TargetMachine="17"
 			/>
@@ -209,7 +209,7 @@
 			<Tool
 				Name="VCCLCompilerTool"
 				AdditionalIncludeDirectories="../../Glut;&quot;$(CUDA_INC_PATH)&quot;;./;../../src;../../Demos/OpenGL"
-				PreprocessorDefinitions="WIN32;_CONSOLE"
+				PreprocessorDefinitions="WIN32;_CONSOLE;_CRT_SECURE_NO_WARNINGS"
 				RuntimeLibrary="0"
 				UsePrecompiledHeader="0"
 				WarningLevel="3"
@@ -227,8 +227,8 @@
 			/>
 			<Tool
 				Name="VCLinkerTool"
-				AdditionalDependencies="cudart.lib glew32.lib"
-				OutputFile="../../ReleaseCudaBroadphase.exe"
+				AdditionalDependencies="cudart.lib  glew32.lib"
+				OutputFile="../../ReleaseCudaParticles.exe"
 				LinkIncremental="1"
 				AdditionalLibraryDirectories="$(CUDA_LIB_PATH);../../Glut"
 				GenerateDebugInformation="true"
@@ -309,7 +309,7 @@
 			<Tool
 				Name="VCLinkerTool"
 				AdditionalDependencies="cudart.lib cutil64.lib glew64.lib glut64.lib"
-				OutputFile="../../bin/win64/$(ConfigurationName)/btCudaBroadphase.exe"
+				OutputFile="../../bin/win64/$(ConfigurationName)/particles.exe"
 				LinkIncremental="1"
 				AdditionalLibraryDirectories="$(CUDA_LIB_PATH);../../common/lib"
 				GenerateDebugInformation="true"
@@ -370,7 +370,7 @@
 			<Tool
 				Name="VCCLCompilerTool"
 				Optimization="0"
-				AdditionalIncludeDirectories="../../Glut;&quot;$(CUDA_INC_PATH)&quot;;./;../../src;../../Demos/OpenGL"
+				AdditionalIncludeDirectories="../../../Glut;&quot;$(CUDA_INC_PATH)&quot;;./;../../../src;../../../Demos/OpenGL"
 				PreprocessorDefinitions="WIN32;_DEBUG;_CONSOLE"
 				MinimalRebuild="true"
 				BasicRuntimeChecks="3"
@@ -391,12 +391,12 @@
 			/>
 			<Tool
 				Name="VCLinkerTool"
-				AdditionalDependencies="cudart.lib  glew32.lib"
-				OutputFile="../../EmuDebugCudaBroadphase.exe"
+				AdditionalDependencies="cudart.lib cutil32D.lib glew32.lib"
+				OutputFile="../../bin/win32/$(ConfigurationName)/particles.exe"
 				LinkIncremental="1"
-				AdditionalLibraryDirectories="$(CUDA_LIB_PATH);../../Glut"
+				AdditionalLibraryDirectories="$(CUDA_LIB_PATH);../../common/lib"
 				GenerateDebugInformation="true"
-				ProgramDatabaseFile="$(OutDir)/btCudaBroadphase.pdb"
+				ProgramDatabaseFile="$(OutDir)/particles.pdb"
 				SubSystem="1"
 				TargetMachine="1"
 			/>
@@ -475,11 +475,11 @@
 			<Tool
 				Name="VCLinkerTool"
 				AdditionalDependencies="cudart.lib cutil64D.lib glew64.lib glut64.lib"
-				OutputFile="../../bin/win64/$(ConfigurationName)/btCudaBroadphase.exe"
+				OutputFile="../../bin/win64/$(ConfigurationName)/particles.exe"
 				LinkIncremental="1"
 				AdditionalLibraryDirectories="$(CUDA_LIB_PATH);../../common/lib"
 				GenerateDebugInformation="true"
-				ProgramDatabaseFile="$(OutDir)/btCudaBroadphase.pdb"
+				ProgramDatabaseFile="$(OutDir)/particles.pdb"
 				SubSystem="1"
 				TargetMachine="17"
 			/>
@@ -535,7 +535,7 @@
 			<Tool
 				Name="VCCLCompilerTool"
 				Optimization="0"
-				AdditionalIncludeDirectories="../../Glut;&quot;$(CUDA_INC_PATH)&quot;;./;../../src;../../Demos/OpenGL"
+				AdditionalIncludeDirectories="../../../Glut;&quot;$(CUDA_INC_PATH)&quot;;./;../../../src;../../../Demos/OpenGL"
 				PreprocessorDefinitions="WIN32;_CONSOLE"
 				RuntimeLibrary="0"
 				UsePrecompiledHeader="0"
@@ -554,10 +554,10 @@
 			/>
 			<Tool
 				Name="VCLinkerTool"
-				AdditionalDependencies="cudart.lib  glew32.lib"
-				OutputFile="../../EmuReleaseCudaBroadphase.exe"
+				AdditionalDependencies="cudart.lib cutil32.lib glew32.lib"
+				OutputFile="../../bin/win32/$(ConfigurationName)/particles.exe"
 				LinkIncremental="1"
-				AdditionalLibraryDirectories="$(CUDA_LIB_PATH);../../Glut"
+				AdditionalLibraryDirectories="$(CUDA_LIB_PATH);../../common/lib"
 				GenerateDebugInformation="true"
 				SubSystem="1"
 				OptimizeReferences="2"
@@ -637,7 +637,7 @@
 			<Tool
 				Name="VCLinkerTool"
 				AdditionalDependencies="cudart.lib cutil64.lib glew64.lib glut64.lib"
-				OutputFile="../../bin/win64/$(ConfigurationName)/btCudaBroadphase.exe"
+				OutputFile="../../bin/win64/$(ConfigurationName)/particles.exe"
 				LinkIncremental="1"
 				AdditionalLibraryDirectories="$(CUDA_LIB_PATH);../../common/lib"
 				GenerateDebugInformation="true"
@@ -681,26 +681,6 @@
 			Filter="cu;cpp;c;cxx;def;odl;idl;hpj;bat;asm;asmx"
 			UniqueIdentifier="{4FC737F1-C7A5-4376-A066-2A32D752A2FF}"
 			>
-			<File
-				RelativePath="..\..\Demos\OpenGL\BMF_Api.cpp"
-				>
-			</File>
-			<File
-				RelativePath="..\..\Demos\OpenGL\BMF_BitmapFont.cpp"
-				>
-			</File>
-			<File
-				RelativePath="..\..\Demos\OpenGL\BMF_font_helv10.cpp"
-				>
-			</File>
-			<File
-				RelativePath=".\btCudaBroadphase.cpp"
-				>
-			</File>
-			<File
-				RelativePath="..\..\Demos\OpenGL\GLDebugDrawer.cpp"
-				>
-			</File>
 			<File
 				RelativePath=".\paramgl.cpp"
 				>
@@ -793,7 +773,7 @@
 					>
 					<Tool
 						Name="VCCustomBuildTool"
-						CommandLine="&quot;$(CUDA_BIN_PATH)\nvcc.exe&quot;  -arch=sm_10 -ccbin &quot;$(VCInstallDir)\bin&quot; -c -D_DEBUG -DWIN32 -D_CONSOLE -D_MBCS -Xcompiler /EHsc,/W3,/nologo,/Wp64,/Od,/Zi,/RTC1,/MTd -I &quot;$(CUDA_INC_PATH)&quot;; -I./ -Icommon/inc -I../../Glut -o $(ConfigurationName)\particleSystem_cu.obj particleSystem.cu&#x0D;&#x0A;"
+						CommandLine="&quot;$(CUDA_BIN_PATH)\nvcc.exe&quot; -arch=sm_10 -ccbin &quot;$(VCInstallDir)\bin&quot; -c -D_DEBUG -DWIN32 -D_CONSOLE -D_MBCS -Xcompiler /EHsc,/W3,/nologo,/Wp64,/Od,/Zi,/RTC1,/MTd -I &quot;$(CUDA_INC_PATH)&quot;; -I./ -I../../Glut -o $(ConfigurationName)\particleSystem_cu.obj particleSystem.cu&#x0D;&#x0A;"
 						AdditionalDependencies="particleSystem.cuh; particles_kernel.cu; radixsort.cu"
 						Outputs="$(ConfigurationName)\particleSystem_cu.obj"
 					/>
@@ -813,7 +793,7 @@
 					>
 					<Tool
 						Name="VCCustomBuildTool"
-						CommandLine="&quot;$(CUDA_BIN_PATH)\nvcc.exe&quot;  -arch=sm_10 -use_fast_math -ccbin &quot;$(VCInstallDir)\bin&quot; -c -I &quot;$(CUDA_INC_PATH)&quot;; -I./ -Icommon/inc -I../../Glut -o $(ConfigurationName)\particleSystem_cu.obj particleSystem.cu&#x0D;&#x0A;"
+						CommandLine="&quot;$(CUDA_BIN_PATH)\nvcc.exe&quot;  -arch=sm_10 -use_fast_math -ccbin &quot;$(VCInstallDir)\bin&quot; -c -I &quot;$(CUDA_INC_PATH)&quot;; -I./ -I../../Glut -o $(ConfigurationName)\particleSystem_cu.obj particleSystem.cu&#x0D;&#x0A;"
 						AdditionalDependencies="particleSystem.cuh; particles_kernel.cu; radixsort.cu"
 						Outputs="$(ConfigurationName)\particleSystem_cu.obj"
 					/>
@@ -878,95 +858,6 @@
 				>
 			</File>
 			<File
-				RelativePath=".\radixsort.cu"
-				>
-				<FileConfiguration
-					Name="Debug|Win32"
-					ExcludedFromBuild="true"
-					>
-					<Tool
-						Name="VCCLCompilerTool"
-					/>
-				</FileConfiguration>
-				<FileConfiguration
-					Name="Release|Win32"
-					ExcludedFromBuild="true"
-					>
-					<Tool
-						Name="VCCustomBuildTool"
-						CommandLine=""
-						AdditionalDependencies=""
-						Outputs=""
-					/>
-				</FileConfiguration>
-				<FileConfiguration
-					Name="Release|x64"
-					>
-					<Tool
-						Name="VCCustomBuildTool"
-						CommandLine=""
-						AdditionalDependencies=""
-						Outputs=""
-					/>
-				</FileConfiguration>
-				<FileConfiguration
-					Name="EmuDebug|Win32"
-					ExcludedFromBuild="true"
-					>
-					<Tool
-						Name="VCCLCompilerTool"
-					/>
-				</FileConfiguration>
-				<FileConfiguration
-					Name="EmuRelease|Win32"
-					ExcludedFromBuild="true"
-					>
-					<Tool
-						Name="VCCLCompilerTool"
-					/>
-				</FileConfiguration>
-			</File>
-			<File
-				RelativePath=".\radixsort.cuh"
-				>
-			</File>
-			<File
-				RelativePath=".\radixsort_kernel.cu"
-				>
-				<FileConfiguration
-					Name="Debug|Win32"
-					ExcludedFromBuild="true"
-					>
-					<Tool
-						Name="VCCLCompilerTool"
-					/>
-				</FileConfiguration>
-				<FileConfiguration
-					Name="Release|Win32"
-					ExcludedFromBuild="true"
-					>
-					<Tool
-						Name="VCCLCompilerTool"
-					/>
-				</FileConfiguration>
-				<FileConfiguration
-					Name="EmuDebug|Win32"
-					ExcludedFromBuild="true"
-					>
-					<Tool
-						Name="VCCLCompilerTool"
-					/>
-				</FileConfiguration>
-				<FileConfiguration
-					Name="EmuRelease|Win32"
-					ExcludedFromBuild="true"
-					>
-					<Tool
-						Name="VCCLCompilerTool"
-					/>
-				</FileConfiguration>
-			</File>
-			<File
 				RelativePath=".\render_particles.cpp"
 				>
 			</File>
@@ -983,46 +874,6 @@
 				>
 			</File>
 		</Filter>
-		<File
-			RelativePath="..\..\Demos\OpenGL\BMF_Api.h"
-			>
-		</File>
-		<File
-			RelativePath="..\..\Demos\OpenGL\BMF_BitmapFont.h"
-			>
-		</File>
-		<File
-			RelativePath="..\..\Demos\OpenGL\BMF_FontData.h"
-			>
-		</File>
-		<File
-			RelativePath="..\..\Demos\OpenGL\BMF_Fonts.h"
-			>
-		</File>
-		<File
-			RelativePath=".\btCudaBroadphase.h"
-			>
-		</File>
-		<File
-			RelativePath=".\VTune\btCudaBroadphase.vpj"
-			>
-		</File>
-		<File
-			RelativePath=".\cutil_math.h"
-			>
-		</File>
-		<File
-			RelativePath="..\..\Demos\OpenGL\GLDebugDrawer.h"
-			>
-		</File>
-		<File
-			RelativePath=".\param.h"
-			>
-		</File>
-		<File
-			RelativePath=".\paramgl.h"
-			>
-		</File>
 	</Files>
 	<Globals>
 	</Globals>

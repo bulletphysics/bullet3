@@ -41,7 +41,7 @@
 #include <cuda_gl_interop.h>
 
 #include "particles_kernel.cu"
-#include "radixsort.cu"
+//#include "radixsort.cu"
 
     //! Check for CUDA error
 #  define CUT_CHECK_ERROR(errorMessage) do {                                 \
@@ -77,9 +77,9 @@
     } } while (0)
 
 
+
 extern "C"
 {
-
 void mm_exit(int val)
 {
 	exit(val);
@@ -87,7 +87,7 @@ void mm_exit(int val)
 
 void cudaInit(int argc, char **argv)
 {   
-    //CUT_DEVICE_INIT(argc, argv);
+//    CUT_DEVICE_INIT(argc, argv);
 }
 
 void allocateArray(void **devPtr, size_t size)
@@ -117,26 +117,6 @@ void copyArrayFromDevice(void* host, const void* device, unsigned int vbo, int s
 void copyArrayToDevice(void* device, const void* host, int offset, int size)
 {
     MY_CUDA_SAFE_CALL(cudaMemcpy((char *) device + offset, host, size, cudaMemcpyHostToDevice));
-/*
-	cudaError_t err = cudaMemcpy((char *) device + offset, host, size, cudaMemcpyHostToDevice);
-	switch(err)
-	{
-		case cudaSuccess : 
-			return;
-		case cudaErrorInvalidValue :
-		 printf("\ncudaErrorInvalidValue : %d\n", err);
-		 return;
-		case cudaErrorInvalidDevicePointer :
-		 printf("\ncudaErrorInvalidDevicePointer : %d\n", err);
-		 return;
-		case cudaErrorInvalidMemcpyDirection :
-		 printf("\ncudaErrorInvalidMemcpyDirection : %d\n", err);
-		 return;
-		default : 
-		 printf("\nX3 : %d\n", err);
-		 return;
-	}
-*/
 }
 
 void registerGLBufferObject(uint vbo)
@@ -280,27 +260,6 @@ reorderDataAndFindCellStart(uint*  particleHash,
     MY_CUDA_SAFE_CALL(cudaGLUnmapBufferObject(vboOldPos));
 }
 
-#if 1
-void 
-findCellStart(	uint*  particleHash,
-				uint*  cellStart,
-				uint   numBodies,
-				uint   numCells)
-{
-    int numThreads, numBlocks;
-    computeGridSize(numBodies, 256, numBlocks, numThreads);
-
-	MY_CUDA_SAFE_CALL(cudaMemset(cellStart, 0xffffffff, numCells*sizeof(uint)));
-
-    findCellStartD<<< numBlocks, numThreads >>>(
-		(uint2 *)  particleHash,
-        (uint *)   cellStart);
-    CUT_CHECK_ERROR("Kernel execution failed: findCellStartD");
-
-}
-#endif
-
-
 void
 collide(uint   vboOldPos, uint vboNewPos,
         float* sortedPos, float* sortedVel,
@@ -373,72 +332,5 @@ collide(uint   vboOldPos, uint vboNewPos,
 #endif
 #endif
 }
-
-void
-btCudaFindOverlappingPairs(	float*	pAABB,
-							uint*	pParticleHash,
-							uint*	pCellStart,
-							uint*	pPairBuff,
-							uint*	pPairBuffStartCurr,
-							uint	numParticles)
-{
-
-//	cudaError err = cudaMemset(pPairBuff, 0x00, numParticles*32*4);
-//	if(err != cudaSuccess)
-//	{
-//		printf("\nAAAAA\n");
-//	}
-
-
-    MY_CUDA_SAFE_CALL(cudaBindTexture(0, pAABBTex, pAABB, numParticles*2*sizeof(float4)));
-
-    int numThreads, numBlocks;
-//    computeGridSize(numParticles, 256, numBlocks, numThreads);
-    computeGridSize(numParticles, 64, numBlocks, numThreads);
-//    numThreads = 1;
-//    numBlocks = 1;
-    btCudaFindOverlappingPairsD<<< numBlocks, numThreads >>>(
-		(float4 *)pAABB,
-		(uint2*)pParticleHash,
-        (uint*)pCellStart,
-		(uint*)pPairBuff,
-		(uint2*)pPairBuffStartCurr,
-		numParticles
-	);
-    CUT_CHECK_ERROR("Kernel execution failed: btCudaFindOverlappingPairsD");
-    MY_CUDA_SAFE_CALL(cudaUnbindTexture(pAABBTex));
- } // btCudaFindOverlappingPairs()
-
-
-void
-btCudaComputePairCacheChanges(uint* pPairBuff, uint* pPairBuffStartCurr, uint* pPairScan, uint numParticles)
-{
-    int numThreads, numBlocks;
-    computeGridSize(numParticles, 256, numBlocks, numThreads);
-
-    btCudaComputePairCacheChangesD<<< numBlocks, numThreads >>>(
-		(uint*)pPairBuff,
-		(uint2*)pPairBuffStartCurr,
-        (uint*)pPairScan
-	);
-    CUT_CHECK_ERROR("Kernel execution failed: btCudaComputePairCacheChangesD");
- } // btCudaFindOverlappingPairs()
-
-
-void 
-btCudaSqueezeOverlappingPairBuff(uint* pPairBuff, uint* pPairBuffStartCurr, uint* pPairScan, uint* pPairOut, uint numParticles)
-{
-    int numThreads, numBlocks;
-    computeGridSize(numParticles, 256, numBlocks, numThreads);
-
-    btCudaSqueezeOverlappingPairBuffD<<< numBlocks, numThreads >>>(
-		(uint*)pPairBuff,
-		(uint2*)pPairBuffStartCurr,
-        (uint*)pPairScan,
-        pPairOut
-	);
-    CUT_CHECK_ERROR("Kernel execution failed: btCudaSqueezeOverlappingPairBuffD");
-}
-
 
 }   // extern "C"

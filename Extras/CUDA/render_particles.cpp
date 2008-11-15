@@ -33,12 +33,13 @@
 #include <assert.h>
 #include <stdio.h>
 
+#include <paramgl.h>
 #include "BMF_Api.h"
+
+#include "LinearMath/btQuickprof.h"
 
 #include "render_particles.h"
 #include "shaders.h"
-#include "LinearMath/btQuickprof.h"
-#include "paramgl.h"
 
 #ifndef M_PI
 #define M_PI    3.1415926535897932384626433832795
@@ -186,7 +187,7 @@ void ParticleRenderer::_initGL()
 #endif
 }
 
-#if 1
+
 void ParticleRenderer::showProfileInfo(float& xOffset,float& yStart, float yIncr)
 {
 #ifndef BT_NO_PROFILE
@@ -257,5 +258,3 @@ void ParticleRenderer::displayProfileString(int xOffset,int yStart,char* message
 	glRasterPos3f(xOffset,yStart,0);
 	BMF_DrawString(BMF_GetFont(BMF_kHelvetica10),message);
 }
-
-#endif

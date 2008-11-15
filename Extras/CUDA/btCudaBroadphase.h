@@ -18,169 +18,95 @@ subject to the following restrictions:
 
 #include "BulletCollision/BroadphaseCollision/btSimpleBroadphase.h"
 
+#include "btCudaBroadphaseKernel.h"
+
+
 ///The btCudaBroadphase uses CUDA to compute overlapping pairs using a GPU.
 class btCudaBroadphase : public btSimpleBroadphase
 {
-
-	
-
-	bool m_bInitialized;
-    int	m_numParticles;
-
-    // CPU data
-    float* m_hPos;
-    float* m_hVel;
-	float*	m_hSortedPos;
-
-    unsigned int*  m_hGridCounters;
-    unsigned int*  m_hGridCells;
-
-    unsigned int*  m_hParticleHash;
-    unsigned int*  m_hCellStart;
-
+	bool			m_bInitialized;
+    unsigned int	m_numBodies;
+    unsigned int	m_numCells;
+	unsigned int	m_maxPairsPerBody;
+	btScalar		m_cellFactorAABB;
+	// CPU data
+    unsigned int*	m_hBodiesHash;
+    unsigned int*	m_hCellStart;
 	unsigned int*	m_hPairBuffStartCurr;
-	float*			m_hAABB;
-	
+	btCuda3F1U*		m_hAABB;
 	unsigned int*	m_hPairBuff;
 	unsigned int*	m_hPairScan;
 	unsigned int*	m_hPairOut;
-
     // GPU data
-    float* m_dPos[2];
-    float* m_dVel[2];
-
-    float* m_dSortedPos;
-    float* m_dSortedVel;
-
-    // uniform grid data
-    unsigned int*  m_dGridCounters; // counts number of entries per grid cell
-    unsigned int*  m_dGridCells;    // contains indices of up to "m_maxParticlesPerCell" particles per cell
-
-    unsigned int*  m_dParticleHash[2];
-    unsigned int*  m_dCellStart;
-
-    unsigned int	m_posVbo[2];
-    unsigned int	m_colorVBO;
-
-    unsigned int	m_currentPosRead, m_currentVelRead;
-    unsigned int	m_currentPosWrite, m_currentVelWrite;
-
-	// buffers on GPU
+    unsigned int*	m_dBodiesHash[2];
+    unsigned int*	m_dCellStart;
 	unsigned int*	m_dPairBuff; 
 	unsigned int*	m_dPairBuffStartCurr;
-	float*			m_dAABB;
-
+	btCuda3F1U*		m_dAABB;
 	unsigned int*	m_dPairScan;
 	unsigned int*	m_dPairOut;
-
-    // params
-	struct SimParams&	m_simParams;
-    
-
-    
-    unsigned int	m_maxParticlesPerCell;
+    unsigned int	m_maxBodiesPerCell;
+	btCudaBroadphaseParams m_params;
+	btScalar		m_maxRadius;
+// large proxies
+	int		m_numLargeHandles;						
+	int		m_maxLargeHandles;						
+	int		m_LastLargeHandleIndex;							
+	btSimpleBroadphaseProxy* m_pLargeHandles;
+	void* m_pLargeHandlesRawPtr;
+	int		m_firstFreeLargeHandle;
+	int allocLargeHandle()
+	{
+		btAssert(m_numLargeHandles < m_maxLargeHandles);
+		int freeLargeHandle = m_firstFreeLargeHandle;
+		m_firstFreeLargeHandle = m_pLargeHandles[freeLargeHandle].GetNextFree();
+		m_numLargeHandles++;
+		if(freeLargeHandle > m_LastLargeHandleIndex)
+		{
+			m_LastLargeHandleIndex = freeLargeHandle;
+		}
+		return freeLargeHandle;
+	}
+	void freeLargeHandle(btSimpleBroadphaseProxy* proxy)
+	{
+		int handle = int(proxy - m_pLargeHandles);
+		btAssert((handle >= 0) && (handle < m_maxHandles));
+		if(handle == m_LastLargeHandleIndex)
+		{
+			m_LastLargeHandleIndex--;
+		}
+		proxy->SetNextFree(m_firstFreeLargeHandle);
+		m_firstFreeLargeHandle = handle;
+		proxy->m_clientObject = 0;
+		m_numLargeHandles--;
+	}
+	bool isLargeProxy(const btVector3& aabbMin,  const btVector3& aabbMax);
+	bool isLargeProxy(btBroadphaseProxy* proxy);
 
 // debug
 	unsigned int	m_numPairsAdded;
-	unsigned int	m_maxPairsPerParticle;
+	unsigned int	m_numPairsRemoved;
 	unsigned int	m_numOverflows;
-
-protected:
-	
-	unsigned int createVBO(unsigned int size);
-
-	void _initialize(int numParticles);
-
-	void _finalize();
-
-
-
+// 
 public:
-
-	enum ParticleArray
-    {
-        POSITION,
-        VELOCITY,
-    };
-
-	enum ParticleConfig
-    {
-	    CONFIG_RANDOM,
-	    CONFIG_GRID,
-	    _NUM_CONFIGS
-    };
-
-	btCudaBroadphase(SimParams& simParams,int maxProxies);
-
+	btCudaBroadphase(const btVector3& worldAabbMin,const btVector3& worldAabbMax, 
+								   int gridSizeX, int gridSizeY, int gridSizeZ, 
+								   int maxSmallProxies, int maxLargeProxies, int maxPairsPerBody,
+								   int maxBodiesPerCell = 8,
+								   btScalar cellFactorAABB = btScalar(1.0f));
 	virtual ~btCudaBroadphase();
-
-	void initGrid(unsigned int* size, float spacing, float jitter, unsigned int numParticles);
-
-	void reset(ParticleConfig config);
-
-	void   setArray(ParticleArray array, const float* data, int start, int count);
-
-	float*  getArray(ParticleArray array);
-
-	void addSphere(int start, float *pos, float *vel, int r, float spacing);
-
 	virtual void	calculateOverlappingPairs(btDispatcher* dispatcher);
 
-	unsigned int getCurrentReadBuffer() const { return m_posVbo[m_currentPosRead]; }
-    unsigned int getColorBuffer() const { return m_colorVBO; }
-	void dumpParticles(unsigned int  start, unsigned int count);
-	void	dumpGrid();
-	
-	float*	copyBuffersFromDeviceToHost();
-	void	copyBuffersFromHostToDevice();
-	float* getHvelPtr();
-	float*	getHposPtr();
-	void	quickHack(float deltaTime);
-	void	quickHack2();
-	void	integrate();
+	virtual btBroadphaseProxy*	createProxy(const btVector3& aabbMin,  const btVector3& aabbMax,int shapeType,void* userPtr ,short int collisionFilterGroup,short int collisionFilterMask, btDispatcher* dispatcher,void* multiSapProxy);
+	virtual void	destroyProxy(btBroadphaseProxy* proxy,btDispatcher* dispatcher);
+	virtual void	rayTest(const btVector3& rayFrom,const btVector3& rayTo, btBroadphaseRayCallback& rayCallback);
 
 
-	void findOverlappingPairs(btDispatcher* dispatcher);
-
-	int3 calcGridPosCPU(float4 p);
-	uint calcGridHashCPU(int3 gridPos);
-	
-	void computePairCacheChangesCPU(uint* pPairBuff, uint* pPairBuffStartCurr, uint* pPairScan, uint numParticles);
-	void computePairCacheChangesCPU_D(uint	index, uint* pPairBuff, uint2* pPairBuffStartCurr, uint* pPairScan);
-
-	void findOverlappingPairsCPU(	float*	pAABB,
-									uint*	pParticleHash,
-									uint*	pCellStart,
-									uint*	pPairBuff,
-									uint*	pPairBuffStartCurr,
-									uint	numParticles);
-	void findOverlappingPairsCPU_D(	uint	index,
-									float4*	pAABB,
-									uint2*	pParticleHash,
-									uint*	pCellStart,
-									uint*	pPairBuff,
-									uint2*	pPairBuffStartCurr,
-									uint	numParticles);
-
-void findPairsInCellCPU(int3	gridPos,
-						uint    index,
-						uint2*  pParticleHash,
-						uint*   pCellStart,
-						float4* pAABB, 
-						uint*   pPairBuff,
-						uint2*	pPairBuffStartCurr,
-						uint	numParticles);
-uint cudaTestAABBOverlapCPU(float4 min0, float4 max0, float4 min1, float4 max1);
-
-
+protected:
+	void _initialize();
+	void _finalize();
 	void scanOverlappingPairBuffCPU();
-
-	void squeezeOverlappingPairBuffCPU(uint* pPairBuff, uint* pPairBuffStartCurr, uint* pPairScan, uint* pPairOut, uint numParticles);
-	void squeezeOverlappingPairBuffCPU_D(uint index, uint* pPairBuff, uint2* pPairBuffStartCurr, uint* pPairScan, uint* pPairOut);
-
 	void addPairsToCacheCPU(btDispatcher* dispatcher);
-	void resetOverlappingPairBuffCPU();
-
-
+	void addLarge2LargePairsToCache(btDispatcher* dispatcher);
 };
 #endif //CUDA_BROADPHASE_H

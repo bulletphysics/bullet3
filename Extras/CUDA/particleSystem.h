@@ -35,6 +35,7 @@
 
 #include "particles_kernel.cuh"
 #include "vector_functions.h"
+
 #include "LinearMath/btAlignedObjectArray.h"
 
 // CUDA BodySystem: runs on the GPU
@@ -44,18 +45,17 @@ public:
     ParticleSystem(uint numParticles, uint3 gridSize);
     ~ParticleSystem();
 
-	
-	enum ParticleArray
-    {
-        POSITION,
-        VELOCITY,
-    };
-
     enum ParticleConfig
     {
 	    CONFIG_RANDOM,
 	    CONFIG_GRID,
 	    _NUM_CONFIGS
+    };
+
+    enum ParticleArray
+    {
+        POSITION,
+        VELOCITY,
     };
 
 	enum SimulationMode
@@ -65,33 +65,19 @@ public:
         SIMULATION_NUM_MODES
     };
 
-	void reset(ParticleConfig config);
-		void	debugDraw();
-	
 
-	///
-	///Bullet data
-	///
-
-	void	initializeBullet();
-	void	finalizeBullet();
-	class btDiscreteDynamicsWorld*				m_dynamicsWorld;
-	class btDefaultCollisionConfiguration*		m_collisionConfiguration;
-	class btCollisionDispatcher*					m_dispatcher;
-	class btCudaBroadphase*						m_broadphase;
-//	class btBroadphaseInterface*						m_broadphase;
-	class btSequentialImpulseConstraintSolver*		m_constraintSolver;
-	btAlignedObjectArray<class btRigidBody*>				m_bulletParticles;
-
-    
     void update(float deltaTime);
+    void updateCuda(float deltaTime);
+    void updateBullet(float deltaTime);
+    void reset(ParticleConfig config);
 
     float* getArray(ParticleArray array);
+    void   setArray(ParticleArray array, const float* data, int start, int count);
 
-    int    getNumParticles() const;
+    int    getNumParticles() const { return m_numParticles; }
 
-    unsigned int getCurrentReadBuffer() const;
-    unsigned int getColorBuffer() const;
+    unsigned int getCurrentReadBuffer() const { return m_posVbo[m_currentPosRead]; }
+    unsigned int getColorBuffer() const { return m_colorVBO; }
 
     void dumpGrid();
     void dumpParticles(uint start, uint count);
@@ -127,21 +113,73 @@ public:
 		m_simulationMode=mode;
 	}
 
+	void	debugDraw();
+
 protected: // methods
-    ParticleSystem()
-		: m_simulationMode(SIMULATION_CUDA)
-	{}
-  
+    ParticleSystem() {}
+    uint createVBO(uint size);
+
+    void _initialize(int numParticles);
+    void _finalize();
+
     void initGrid(uint *size, float spacing, float jitter, uint numParticles);
 
 
+protected:
+	// Bullet data
+	void	initializeBullet();
+	void	finalizeBullet();
+	class btDiscreteDynamicsWorld*				m_dynamicsWorld;
+	class btDefaultCollisionConfiguration*		m_collisionConfiguration;
+	class btCollisionDispatcher*					m_dispatcher;
+//	class btCudaBroadphase*						m_broadphase;
+	class btBroadphaseInterface*						m_broadphase;
+	class btSequentialImpulseConstraintSolver*		m_constraintSolver;
+	btAlignedObjectArray<class btRigidBody*>				m_bulletParticles;
+	btRigidBody* m_bulletCollider;
+
+
+	float*	copyBuffersFromDeviceToHost();
+	void	copyBuffersFromHostToDevice();
+
 protected: // data
     bool m_bInitialized;
-    
+    uint m_numParticles;
 
-  
+    // CPU data
+    float* m_hPos;
+    float* m_hVel;
+
+    uint*  m_hGridCounters;
+    uint*  m_hGridCells;
+
+    uint*  m_hParticleHash;
+    uint*  m_hCellStart;
+
+    // GPU data
+    float* m_dPos[2];
+    float* m_dVel[2];
+
+    float* m_dSortedPos;
+    float* m_dSortedVel;
+
+    // uniform grid data
+    uint*  m_dGridCounters; // counts number of entries per grid cell
+    uint*  m_dGridCells;    // contains indices of up to "m_maxParticlesPerCell" particles per cell
+
+    uint*  m_dParticleHash[2];
+    uint*  m_dCellStart;
+
+    uint m_posVbo[2];
+    uint m_colorVBO;
+
+    uint m_currentPosRead, m_currentVelRead;
+    uint m_currentPosWrite, m_currentVelWrite;
+
     // params
     SimParams m_params;
+    uint3 m_gridSize;
+    uint m_numGridCells;
     uint m_maxParticlesPerCell;
 
     uint m_timer;
@@ -149,6 +187,7 @@ protected: // data
     uint m_solverIterations;
 
 	SimulationMode m_simulationMode;
+
 };
 
 #endif // __BODYSYSTEMCUDA_H__

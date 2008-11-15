@@ -42,12 +42,6 @@ reorderDataAndFindCellStart(uint*  particleHash,
 							uint   numBodies,
 							uint   numCells);
 
-void 
-findCellStart(	uint*  particleHash,
-				uint*  cellStart,
-				uint   numBodies,
-				uint   numCells);
-							
 void
 collide(uint   vboOldPos, uint vboNewPos,
         float* sortedPos, float* sortedVel,
@@ -59,20 +53,5 @@ collide(uint   vboOldPos, uint vboNewPos,
         uint   numBodies,
         uint   numCells,
         uint   maxParticlesPerCell);
-        
-void
-btCudaFindOverlappingPairs(	float*	pAABB,
-							uint*	pParticleHash,
-							uint*	pCellStart,
-							uint*	pPairBuff,
-							uint*	pPairBuffStartCurr,
-							uint	numParticles);
-							
-void
-btCudaComputePairCacheChanges(uint* pPairBuff, uint* pPairBuffStartCurr, uint* pPairScan, uint numParticles);
-							
-        
-void btCudaSqueezeOverlappingPairBuff(uint* pPairBuff, uint* pPairBuffStartCurr, uint* pPairScan, uint* pPairOut, uint numParticles);
-        
 
 }
