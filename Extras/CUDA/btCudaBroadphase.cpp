@@ -65,6 +65,8 @@ btCudaBroadphase::btCudaBroadphase(const btVector3& worldAabbMin,const btVector3
 
 	m_cellFactorAABB = cellFactorAABB;
 
+	m_LastLargeHandleIndex = -1;
+
 	_initialize();
 } // btCudaBroadphase::btCudaBroadphase()
 
@@ -187,8 +189,14 @@ void btCudaBroadphase::calculateOverlappingPairs(btDispatcher* dispatcher)
 		addLarge2LargePairsToCache(dispatcher);
 		return;
 	}
+
+		
+
 	// update constants
 	btCuda_setParameters(&m_params);
+
+	
+
 	// move AABB array to GPU
 	{
 		BT_PROFILE("copy AABB");
@@ -197,6 +205,7 @@ void btCudaBroadphase::calculateOverlappingPairs(btDispatcher* dispatcher)
 		int i;
 		int new_largest_index = -1;
 		unsigned int num_small = 0;
+
 		for(i = 0; i <= m_LastHandleIndex; i++) 
 		{
 			btSimpleBroadphaseProxy* proxy0 = &m_pHandles[i];
@@ -245,6 +254,7 @@ void btCudaBroadphase::calculateOverlappingPairs(btDispatcher* dispatcher)
 		btAssert(num_small == m_numHandles);
 		btAssert(num_large == m_numLargeHandles);
 	}
+	
 	{
 		BT_PROFILE("CopyBB to CUDA");
 		btCuda_copyArrayToDevice(m_dAABB, m_hAABB, sizeof(btCuda3F1U) * 2 * (m_numHandles + m_numLargeHandles)); 
