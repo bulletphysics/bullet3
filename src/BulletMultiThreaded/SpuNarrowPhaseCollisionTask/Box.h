@@ -17,6 +17,11 @@ subject to the following restrictions:
 #ifndef __BOX_H__
 #define __BOX_H__
 
+#ifndef PE_REF
+#define PE_REF(a) a
+#define PE_REF(a) const a&
+#endif
+
 #include <math.h>
 #include <vectormath_aos.h>
 
@@ -35,17 +40,17 @@ public:
 
 	inline Box()
 	{}
-	inline Box(Vector3 half_);
+	inline Box(PE_REF(Vector3) half_);
 	inline Box(float hx, float hy, float hz);
 
-	inline void Set(Vector3 half_);
+	inline void Set(PE_REF(Vector3) half_);
 	inline void Set(float hx, float hy, float hz);
 
 	inline Vector3 GetAABB(const Matrix3& rotation) const;
 };
 
 inline
-Box::Box(Vector3 half_)
+Box::Box(PE_REF(Vector3) half_)
 {
 	Set(half_);
 }
@@ -58,7 +63,7 @@ Box::Box(float hx, float hy, float hz)
 
 inline
 void
-Box::Set(Vector3 half_)
+Box::Set(PE_REF(Vector3) half_)
 {
 	half = half_;
 }

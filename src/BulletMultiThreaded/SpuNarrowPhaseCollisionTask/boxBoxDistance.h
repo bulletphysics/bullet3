@@ -59,7 +59,7 @@ using namespace Vectormath::Aos;
 
 float
 boxBoxDistance(Vector3& normal, BoxPoint& boxPointA, BoxPoint& boxPointB,
-			   Box boxA, const Transform3 & transformA, Box boxB,
+			   PE_REF(Box) boxA, const Transform3 & transformA, PE_REF(Box) boxB,
 			   const Transform3 & transformB,
 			   float distanceThreshold = FLT_MAX );
 

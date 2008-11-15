@@ -115,12 +115,12 @@ VertexBFaceATest(
 	float & t0,
 	float & t1,
 	const Vector3 & hA,
-	Vector3 faceOffsetAB,
-	Vector3 faceOffsetBA,
+	PE_REF(Vector3) faceOffsetAB,
+	PE_REF(Vector3) faceOffsetBA,
 	const Matrix3 & matrixAB,
 	const Matrix3 & matrixBA,
-	Vector3 signsB,
-	Vector3 scalesB )
+	PE_REF(Vector3) signsB,
+	PE_REF(Vector3) scalesB )
 {
 	// compute a corner of box B in A's coordinate system
 
@@ -174,14 +174,18 @@ VertexBFaceATests(
 	FeatureType & featureA,
 	FeatureType & featureB,
 	const Vector3 & hA,
-	Vector3 faceOffsetAB,
-	Vector3 faceOffsetBA,
+	PE_REF(Vector3) faceOffsetAB,
+	PE_REF(Vector3) faceOffsetBA,
 	const Matrix3 & matrixAB,
 	const Matrix3 & matrixBA,
-	Vector3 signsB,
-	Vector3 scalesB,
+	PE_REF(Vector3) signsB1,
+	PE_REF(Vector3) scalesB1,
 	bool first )
 {
+	
+	Vector3 signsB = signsB1;
+	Vector3 scalesB = scalesB;
+
 	float t0, t1;
 	float distSqr;
 
@@ -247,12 +251,12 @@ VertexAFaceBTest(
 	float & t0,
 	float & t1,
 	const Vector3 & hB,
-	Vector3 faceOffsetAB,
-	Vector3 faceOffsetBA,
+	PE_REF(Vector3) faceOffsetAB,
+	PE_REF(Vector3) faceOffsetBA,
 	const Matrix3 & matrixAB,
 	const Matrix3 & matrixBA,
-	Vector3 signsA,
-	Vector3 scalesA )
+	PE_REF(Vector3) signsA,
+	PE_REF(Vector3) scalesA )
 {
 	Vector3 corner =
 		Vector3( faceOffsetBA + matrixBA.getCol0() * scalesA.getX() + matrixBA.getCol1() * scalesA.getY() );
@@ -299,14 +303,16 @@ VertexAFaceBTests(
 	FeatureType & featureA,
 	FeatureType & featureB,
 	const Vector3 & hB,
-	Vector3 faceOffsetAB,
-	Vector3 faceOffsetBA,
+	PE_REF(Vector3) faceOffsetAB,
+	PE_REF(Vector3) faceOffsetBA,
 	const Matrix3 & matrixAB,
 	const Matrix3 & matrixBA,
-	Vector3 signsA,
-	Vector3 scalesA,
+	PE_REF(Vector3) signsA1,
+	PE_REF(Vector3) scalesA1,
 	bool first )
 {
+	Vector3 signsA = signsA1;
+	Vector3 scalesA = scalesA1;
 	float t0, t1;
 	float distSqr;
 
@@ -441,14 +447,14 @@ EdgeEdgeTest_0101(
 	float & tB,
 	const Vector3 & hA,
 	const Vector3 & hB,
-	Vector3 faceOffsetAB,
-	Vector3 faceOffsetBA,
+	PE_REF(Vector3) faceOffsetAB,
+	PE_REF(Vector3) faceOffsetBA,
 	const Matrix3 & matrixAB,
 	const Matrix3 & matrixBA,
-	Vector3 signsA,
-	Vector3 signsB,
-	Vector3 scalesA,
-	Vector3 scalesB )
+	PE_REF(Vector3) signsA,
+	PE_REF(Vector3) signsB,
+	PE_REF(Vector3) scalesA,
+	PE_REF(Vector3) scalesB )
 {
 	EdgeEdgeTest( 0, X, 1, Y, 0, X, 1, Y );
 }
@@ -460,14 +466,14 @@ EdgeEdgeTest_0110(
 	float & tB,
 	const Vector3 & hA,
 	const Vector3 & hB,
-	Vector3 faceOffsetAB,
-	Vector3 faceOffsetBA,
+	PE_REF(Vector3) faceOffsetAB,
+	PE_REF(Vector3) faceOffsetBA,
 	const Matrix3 & matrixAB,
 	const Matrix3 & matrixBA,
-	Vector3 signsA,
-	Vector3 signsB,
-	Vector3 scalesA,
-	Vector3 scalesB )
+	PE_REF(Vector3) signsA,
+	PE_REF(Vector3) signsB,
+	PE_REF(Vector3) scalesA,
+	PE_REF(Vector3) scalesB )
 {
 	EdgeEdgeTest( 0, X, 1, Y, 1, Y, 0, X );
 }
@@ -479,14 +485,14 @@ EdgeEdgeTest_1001(
 	float & tB,
 	const Vector3 & hA,
 	const Vector3 & hB,
-	Vector3 faceOffsetAB,
-	Vector3 faceOffsetBA,
+	PE_REF(Vector3) faceOffsetAB,
+	PE_REF(Vector3) faceOffsetBA,
 	const Matrix3 & matrixAB,
 	const Matrix3 & matrixBA,
-	Vector3 signsA,
-	Vector3 signsB,
-	Vector3 scalesA,
-	Vector3 scalesB )
+	PE_REF(Vector3) signsA,
+	PE_REF(Vector3) signsB,
+	PE_REF(Vector3) scalesA,
+	PE_REF(Vector3) scalesB )
 {
 	EdgeEdgeTest( 1, Y, 0, X, 0, X, 1, Y );
 }
@@ -498,14 +504,14 @@ EdgeEdgeTest_1010(
 	float & tB,
 	const Vector3 & hA,
 	const Vector3 & hB,
-	Vector3 faceOffsetAB,
-	Vector3 faceOffsetBA,
+	PE_REF(Vector3) faceOffsetAB,
+	PE_REF(Vector3) faceOffsetBA,
 	const Matrix3 & matrixAB,
 	const Matrix3 & matrixBA,
-	Vector3 signsA,
-	Vector3 signsB,
-	Vector3 scalesA,
-	Vector3 scalesB )
+	PE_REF(Vector3) signsA,
+	PE_REF(Vector3) signsB,
+	PE_REF(Vector3) scalesA,
+	PE_REF(Vector3) scalesB )
 {
 	EdgeEdgeTest( 1, Y, 0, X, 1, Y, 0, X );
 }
@@ -535,16 +541,22 @@ EdgeEdgeTests(
 	FeatureType & featureB,
 	const Vector3 & hA,
 	const Vector3 & hB,
-	Vector3 faceOffsetAB,
-	Vector3 faceOffsetBA,
+	PE_REF(Vector3) faceOffsetAB,
+	PE_REF(Vector3) faceOffsetBA,
 	const Matrix3 & matrixAB,
 	const Matrix3 & matrixBA,
-	Vector3 signsA,
-	Vector3 signsB,
-	Vector3 scalesA,
-	Vector3 scalesB,
+	PE_REF(Vector3) signsA1,
+	PE_REF(Vector3) signsB1,
+	PE_REF(Vector3) scalesA1,
+	PE_REF(Vector3) scalesB1,
 	bool first )
 {
+
+	Vector3 signsA=signsA1;
+	Vector3 signsB=signsB1;
+	Vector3 scalesA=scalesA1;
+	Vector3 scalesB=scalesB1;
+
 	float distSqr;
 	float tA, tB;
 
@@ -771,8 +783,8 @@ boxBoxDistance(
 	Vector3& normal,
 	BoxPoint& boxPointA,
 	BoxPoint& boxPointB,
-	Box boxA, const Transform3& transformA,
-	Box boxB, const Transform3& transformB,
+	PE_REF(Box) boxA, const Transform3& transformA,
+	PE_REF(Box) boxB, const Transform3& transformB,
 	float distanceThreshold )
 {
 	Matrix3 identity;
