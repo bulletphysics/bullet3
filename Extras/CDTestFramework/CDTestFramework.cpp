@@ -31,12 +31,13 @@ subject to the following restrictions:
 #include "BulletCollision/BroadphaseCollision/btDbvtBroadphase.h"
 #include "LinearMath/btQuickprof.h"
 
-#define NUM_SAP_BOXES 8192
+//#define NUM_SAP_BOXES 8192
+#define NUM_SAP_BOXES 16384
 //#define NUM_SAP_BOXES 1024
 
-int		percentUpdate	=	10;
+int		percentUpdate	=	100;
 //float	objectSpeed		=	0.005f;
-float	objectSpeed		=	0.0005f;
+float	objectSpeed		=	0.01f;
 bool	enableDraw		=	true;
 
 //Broadphase comparison

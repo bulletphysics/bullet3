@@ -429,7 +429,7 @@ BulletSAPCompleteBoxPruningTest::BulletSAPCompleteBoxPruningTest(int numBoxes,in
 //		m_broadphase = new btCudaBroadphase(aabbMin, aabbMax, 8, 8, 8, 8192, 8192, 64, 16);
 //		m_broadphase = new btCudaBroadphase(aabbMin, aabbMax, 12, 12, 12, 8192, 8192, 64, 16);
 //		m_broadphase = new btCudaBroadphase(aabbMin, aabbMax, 16, 16, 16, 8192, 8192, 64, 16);
-		m_broadphase = new btCudaBroadphase(aabbMin, aabbMax, 24, 24, 24, 8192, 8192, 64, 16);
+		m_broadphase = new btCudaBroadphase(aabbMin, aabbMax, 24, 24, 24,maxNumBoxes , maxNumBoxes, 64, 16);
 //		m_broadphase = new btCudaBroadphase(aabbMin, aabbMax, 32, 32, 32, 8192, 8192, 64, 16);
 		methodname	=	"btCudaBroadphase";
 		break;

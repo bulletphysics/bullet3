@@ -17,10 +17,10 @@ subject to the following restrictions:
 #include "Camera.h"
 
 static const float gCamSpeed = 1.0f;
-static Point gEye(3.0616338f, 1.1985892f, 2.5769043f);
-static Point gDir(-0.66853905,-0.14004262,-0.73037237);
-//static Point gEye(140, 105, 105);
-//static Point gDir(-1,-1,-1);
+//static Point gEye(3.0616338f, 1.1985892f, 2.5769043f);
+//static Point gDir(-0.66853905,-0.14004262,-0.73037237);
+static Point gEye(240, 205, 205);
+static Point gDir(-1,-1,-1);
 static Point gN;
 static float gFOV = 60.0f;
 
