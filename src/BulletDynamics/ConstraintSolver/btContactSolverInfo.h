@@ -21,7 +21,8 @@ enum	btSolverMode
 	SOLVER_RANDMIZE_ORDER = 1,
 	SOLVER_FRICTION_SEPARATE = 2,
 	SOLVER_USE_WARMSTARTING = 4,
-	SOLVER_CACHE_FRIENDLY = 8
+	SOLVER_USE_FRICTION_WARMSTARTING = 8,
+	SOLVER_CACHE_FRIENDLY = 16
 };
 
 struct btContactSolverInfoData
@@ -69,7 +70,7 @@ struct btContactSolverInfo : public btContactSolverInfoData
 		m_splitImpulsePenetrationThreshold = -0.02f;
 		m_linearSlop = btScalar(0.0);
 		m_warmstartingFactor=btScalar(0.85);
-		m_solverMode = SOLVER_RANDMIZE_ORDER | SOLVER_CACHE_FRIENDLY | SOLVER_USE_WARMSTARTING;
+		m_solverMode = SOLVER_CACHE_FRIENDLY |  SOLVER_RANDMIZE_ORDER |  SOLVER_USE_WARMSTARTING;
 		m_restingContactRestitutionThreshold = 2;//resting contact lifetime threshold to disable restitution
 	}
 };
