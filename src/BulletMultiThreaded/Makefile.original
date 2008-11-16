@@ -28,6 +28,9 @@ ifeq "$(__ARCH_BITS__)" "64"
 else
   SPU_DEFFLAGS= -DUSE_LIBSPE2 -D__SPU__
 endif
+
+SPU_DEFFLAGS+=-DUSE_PE_BOX_BOX
+
 SPU_GCC=$(USE_CCACHE) /usr/bin/spu-gcc
 SPU_INCLUDEDIR= -Ivectormath/scalar/cpp -I. -I$(CELL_SYSROOT)/usr/spu/include -I../../src -I$(NARROWPHASEDIR)
 #SPU_CFLAGS= $(DEBUGFLAG) -W -Wall -Winline -Os -c -include spu_intrinsics.h -include stdbool.h

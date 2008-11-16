@@ -981,7 +981,9 @@ void	processCollisionTask(void* userPtr, void* lsMemPtr)
 #endif											
 										)
 										{
+//#define USE_PE_BOX_BOX 1
 #ifdef USE_PE_BOX_BOX
+											{
 
 												//getCollisionMargin0
 												btScalar margin0 = lsMem.getlocalCollisionAlgorithm()->getCollisionMargin0();

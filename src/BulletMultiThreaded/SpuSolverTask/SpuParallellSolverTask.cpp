@@ -491,7 +491,7 @@ static void solveFriction ( btSolverBody& bodyA, btSolverBody& bodyB, btSolverCo
 			j1 = constraint.m_appliedImpulse - oldTangentImpulse;
 
 		}
-		j1*=0.9;
+		
 		if (bodyA.m_invMass > 0)
 		{
 			bodyA.m_linearVelocity += constraint.m_contactNormal*bodyA.m_invMass*j1;
@@ -1134,7 +1134,7 @@ void processSolverTask(void* userPtr, void* lsMemory)
 									constraint.m_penetration *= (taskDesc.m_commandData.m_manifoldSetup.m_solverInfo.m_erp/taskDesc.m_commandData.m_manifoldSetup.m_solverInfo.m_timeStep);
 								
 									constraint.m_restitution = rest;
-									constraint.m_appliedImpulse = cp.m_appliedImpulse*0.85;
+									constraint.m_appliedImpulse = cp.m_appliedImpulse*taskDesc.m_commandData.m_manifoldSetup.m_solverInfo.m_warmstartingFactor;
 									if (constraint.m_appliedImpulse!= 0.f)
 									{
 										if (solverBodyA)
