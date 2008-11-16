@@ -29,16 +29,18 @@ ATTRIBUTE_ALIGNED16 (struct)	btSolverBody
 {
 	BT_DECLARE_ALIGNED_ALLOCATOR();
 	
+	btMatrix3x3		m_worldInvInertiaTensor;
+
 	btVector3		m_angularVelocity;
+	btVector3		m_linearVelocity;
+	btVector3		m_centerOfMassPosition;
+	btVector3		m_pushVelocity;
+	btVector3		m_turnVelocity;
+
 	float			m_angularFactor;
 	float			m_invMass;
 	float			m_friction;
 	btRigidBody*	m_originalBody;
-	btVector3		m_linearVelocity;
-	btVector3		m_centerOfMassPosition;
-	
-	btVector3		m_pushVelocity;
-	btVector3		m_turnVelocity;
 	
 	
 	SIMD_FORCE_INLINE void	getVelocityInLocalPoint(const btVector3& rel_pos, btVector3& velocity ) const

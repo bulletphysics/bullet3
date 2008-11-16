@@ -1,4 +1,3 @@
-
 #include "SpuGatheringCollisionTask.h"
 
 //#define DEBUG_SPU_COLLISION_DETECTION 1
@@ -29,6 +28,7 @@
 #include "boxBoxDistance.h"
 #include "BulletMultiThreaded/vectormath2bullet.h"
 #include "SpuCollisionShapes.h" //definition of SpuConvexPolyhedronVertexData
+#include "BulletCollision/CollisionDispatch/btBoxBoxDetector.h"
 
 #ifdef __SPU__
 ///Software caching from the IBM Cell SDK, it reduces 25% SPU time for our test cases
@@ -959,15 +959,8 @@ void	processCollisionTask(void* userPtr, void* lsMemPtr)
 
 									bool boxbox = ((lsMem.getlocalCollisionAlgorithm()->getShapeType0()==BOX_SHAPE_PROXYTYPE)&&
 										(lsMem.getlocalCollisionAlgorithm()->getShapeType1()==BOX_SHAPE_PROXYTYPE));
-									if (boxbox)// && !gUseEpa)//for now use gUseEpa for this toggle
+									if (boxbox)
 									{
-										//getVmVector3
-										//getBtVector3
-										//getVmQuat
-										//getBtQuat
-										//getVmMatrix3
-
-									
 										//spu_printf("boxbox dist = %f\n",distance);
 										btPersistentManifold* spuManifold=&lsMem.gPersistentManifold;
 										btPersistentManifold* manifold = (btPersistentManifold*)collisionPairInput.m_persistentManifoldPtr;
@@ -988,41 +981,88 @@ void	processCollisionTask(void* userPtr, void* lsMemPtr)
 #endif											
 										)
 										{
+#ifdef USE_PE_BOX_BOX
 
-											//getCollisionMargin0
-											btScalar margin0 = lsMem.getlocalCollisionAlgorithm()->getCollisionMargin0();
-											btScalar margin1 = lsMem.getlocalCollisionAlgorithm()->getCollisionMargin1();
-											btVector3 shapeDim0 = lsMem.getlocalCollisionAlgorithm()->getShapeDimensions0()+btVector3(margin0,margin0,margin0);
-											btVector3 shapeDim1 = lsMem.getlocalCollisionAlgorithm()->getShapeDimensions1()+btVector3(margin1,margin1,margin1);
+												//getCollisionMargin0
+												btScalar margin0 = lsMem.getlocalCollisionAlgorithm()->getCollisionMargin0();
+												btScalar margin1 = lsMem.getlocalCollisionAlgorithm()->getCollisionMargin1();
+												btVector3 shapeDim0 = lsMem.getlocalCollisionAlgorithm()->getShapeDimensions0()+btVector3(margin0,margin0,margin0);
+												btVector3 shapeDim1 = lsMem.getlocalCollisionAlgorithm()->getShapeDimensions1()+btVector3(margin1,margin1,margin1);
 
-											Box boxA(shapeDim0.getX(),shapeDim0.getY(),shapeDim0.getZ());
-											Vector3 vmPos0 = getVmVector3(collisionPairInput.m_worldTransform0.getOrigin());
-											Vector3 vmPos1 = getVmVector3(collisionPairInput.m_worldTransform1.getOrigin());
-											Matrix3 vmMatrix0 = getVmMatrix3(collisionPairInput.m_worldTransform0.getBasis());
-											Matrix3 vmMatrix1 = getVmMatrix3(collisionPairInput.m_worldTransform1.getBasis());
+												Box boxA(shapeDim0.getX(),shapeDim0.getY(),shapeDim0.getZ());
+												Vector3 vmPos0 = getVmVector3(collisionPairInput.m_worldTransform0.getOrigin());
+												Vector3 vmPos1 = getVmVector3(collisionPairInput.m_worldTransform1.getOrigin());
+												Matrix3 vmMatrix0 = getVmMatrix3(collisionPairInput.m_worldTransform0.getBasis());
+												Matrix3 vmMatrix1 = getVmMatrix3(collisionPairInput.m_worldTransform1.getBasis());
 
-											Transform3 transformA(vmMatrix0,vmPos0);
-											Box boxB(shapeDim1.getX(),shapeDim1.getY(),shapeDim1.getZ());
-											Transform3 transformB(vmMatrix1,vmPos1);
-											BoxPoint resultClosestBoxPointA;
-											BoxPoint resultClosestBoxPointB;
-											Vector3 resultNormal;
-											float distanceThreshold = FLT_MAX;//0.0f;//FLT_MAX;//use epsilon?	
+												Transform3 transformA(vmMatrix0,vmPos0);
+												Box boxB(shapeDim1.getX(),shapeDim1.getY(),shapeDim1.getZ());
+												Transform3 transformB(vmMatrix1,vmPos1);
+												BoxPoint resultClosestBoxPointA;
+												BoxPoint resultClosestBoxPointB;
+												Vector3 resultNormal;
+												float distanceThreshold = FLT_MAX;//0.0f;//FLT_MAX;//use epsilon?	
 
 
-											float distance = boxBoxDistance(resultNormal,resultClosestBoxPointA,resultClosestBoxPointB,  boxA, transformA, boxB,transformB,distanceThreshold);
-											
-											btVector3 normalInB = -getBtVector3(resultNormal);
+												float distance = boxBoxDistance(resultNormal,resultClosestBoxPointA,resultClosestBoxPointB,  boxA, transformA, boxB,transformB,distanceThreshold);
+												
+												btVector3 normalInB = -getBtVector3(resultNormal);
 
-											if(distance < spuManifold->getContactBreakingThreshold())
+												if(distance < spuManifold->getContactBreakingThreshold())
+												{
+													btVector3 pointOnB = collisionPairInput.m_worldTransform1(getBtVector3(resultClosestBoxPointB.localPoint));
+
+													spuContacts.addContactPoint(
+														normalInB,
+														pointOnB,
+														distance);
+												}
+											} 
+#else									
 											{
-												btVector3 pointOnB = collisionPairInput.m_worldTransform1(getBtVector3(resultClosestBoxPointB.localPoint));
 
-												spuContacts.addContactPoint(
-													normalInB,
-													pointOnB,
-													distance);
+												btScalar margin0 = lsMem.getlocalCollisionAlgorithm()->getCollisionMargin0();
+												btScalar margin1 = lsMem.getlocalCollisionAlgorithm()->getCollisionMargin1();
+												btVector3 shapeDim0 = lsMem.getlocalCollisionAlgorithm()->getShapeDimensions0()+btVector3(margin0,margin0,margin0);
+												btVector3 shapeDim1 = lsMem.getlocalCollisionAlgorithm()->getShapeDimensions1()+btVector3(margin1,margin1,margin1);
+
+
+												btBoxShape box0(shapeDim0);
+												btBoxShape box1(shapeDim1);
+
+												struct SpuBridgeContactCollector : public btDiscreteCollisionDetectorInterface::Result
+												{
+													SpuContactResult&	m_spuContacts;
+
+													virtual void setShapeIdentifiers(int partId0,int index0,	int partId1,int index1)
+													{
+														m_spuContacts.setShapeIdentifiers(partId0,index0,partId1,index1);
+													}
+													virtual void addContactPoint(const btVector3& normalOnBInWorld,const btVector3& pointInWorld,btScalar depth)
+													{
+														m_spuContacts.addContactPoint(normalOnBInWorld,pointInWorld,depth);
+													}
+
+													SpuBridgeContactCollector(SpuContactResult& spuContacts)
+														:m_spuContacts(spuContacts)
+													{
+
+													}
+												};
+												
+												SpuBridgeContactCollector  bridgeOutput(spuContacts);
+
+												btDiscreteCollisionDetectorInterface::ClosestPointInput input;
+												input.m_maximumDistanceSquared = 1e30f;
+												input.m_transformA = collisionPairInput.m_worldTransform0;
+												input.m_transformB = collisionPairInput.m_worldTransform1;
+
+												btBoxBoxDetector detector(&box0,&box1);
+												
+												detector.getClosestPoints(input,bridgeOutput,0);
+
 											}
+#endif //USE_PE_BOX_BOX
 											
 											lsMem.needsDmaPutContactManifoldAlgo = true;
 #ifdef USE_SEPDISTANCE_UTIL

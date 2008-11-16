@@ -17,9 +17,9 @@ subject to the following restrictions:
 #ifndef __BOX_H__
 #define __BOX_H__
 
+
 #ifndef PE_REF
-#define PE_REF(a) a
-#define PE_REF(a) const a&
+#define PE_REF(a) a&
 #endif
 
 #include <math.h>

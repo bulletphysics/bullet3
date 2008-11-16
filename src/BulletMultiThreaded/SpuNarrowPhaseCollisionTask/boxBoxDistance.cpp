@@ -178,14 +178,11 @@ VertexBFaceATests(
 	PE_REF(Vector3) faceOffsetBA,
 	const Matrix3 & matrixAB,
 	const Matrix3 & matrixBA,
-	PE_REF(Vector3) signsB1,
-	PE_REF(Vector3) scalesB1,
+	PE_REF(Vector3) signsB,
+	PE_REF(Vector3) scalesB,
 	bool first )
 {
-	
-	Vector3 signsB = signsB1;
-	Vector3 scalesB = scalesB;
-
+		
 	float t0, t1;
 	float distSqr;
 
@@ -307,12 +304,10 @@ VertexAFaceBTests(
 	PE_REF(Vector3) faceOffsetBA,
 	const Matrix3 & matrixAB,
 	const Matrix3 & matrixBA,
-	PE_REF(Vector3) signsA1,
-	PE_REF(Vector3) scalesA1,
+	PE_REF(Vector3) signsA,
+	PE_REF(Vector3) scalesA,
 	bool first )
 {
-	Vector3 signsA = signsA1;
-	Vector3 scalesA = scalesA1;
 	float t0, t1;
 	float distSqr;
 
@@ -545,17 +540,12 @@ EdgeEdgeTests(
 	PE_REF(Vector3) faceOffsetBA,
 	const Matrix3 & matrixAB,
 	const Matrix3 & matrixBA,
-	PE_REF(Vector3) signsA1,
-	PE_REF(Vector3) signsB1,
-	PE_REF(Vector3) scalesA1,
-	PE_REF(Vector3) scalesB1,
+	PE_REF(Vector3) signsA,
+	PE_REF(Vector3) signsB,
+	PE_REF(Vector3) scalesA,
+	PE_REF(Vector3) scalesB,
 	bool first )
 {
-
-	Vector3 signsA=signsA1;
-	Vector3 signsB=signsB1;
-	Vector3 scalesA=scalesA1;
-	Vector3 scalesB=scalesB1;
 
 	float distSqr;
 	float tA, tB;

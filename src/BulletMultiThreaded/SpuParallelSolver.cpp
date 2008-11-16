@@ -257,9 +257,9 @@ public:
 */
 
 // Solver caches
-btAlignedObjectArray<SpuSolverBody> solverBodyPool_persist;
+btAlignedObjectArray<btSolverBody> solverBodyPool_persist;
 btAlignedObjectArray<uint32_t> solverBodyOffsetList_persist;
-btAlignedObjectArray<SpuSolverInternalConstraint> solverInternalConstraintPool_persist;
+btAlignedObjectArray<btSolverConstraint> solverInternalConstraintPool_persist;
 btAlignedObjectArray<SpuSolverConstraint> solverConstraintPool_persist;
 
 
@@ -343,13 +343,13 @@ void btParallelSequentialImpulseSolver::allSolved (const btContactSolverInfo& in
 	// Setup rigid bodies
 	// Allocate temporary data
 	solverBodyPool_persist.resize(numBodies + numManifolds + numConstraints);
-	SpuSolverBody* solverBodyPool = &solverBodyPool_persist[0];
+	btSolverBody* solverBodyPool = &solverBodyPool_persist[0];
 
 	solverBodyOffsetList_persist.resize(numBodyOffsets);
 	uint32_t* solverBodyOffsetList = &solverBodyOffsetList_persist[0];
 
 	solverInternalConstraintPool_persist.resize(m_numberOfContacts*3);
-	SpuSolverInternalConstraint* solverInternalConstraintPool = &solverInternalConstraintPool_persist[0];
+	btSolverConstraint* solverInternalConstraintPool = &solverInternalConstraintPool_persist[0];
 	
 	solverConstraintPool_persist.resize(numConstraints);
 	SpuSolverConstraint* solverConstraintPool = &solverConstraintPool_persist[0];
@@ -446,7 +446,9 @@ void btParallelSequentialImpulseSolver::allSolved (const btContactSolverInfo& in
 
 				m_taskScheduler.issueTask();
 			} 
-			m_taskScheduler.flushTasks();		
+			m_taskScheduler.flushTasks();
+
+
 		}
 		btAlignedFree((void*)spinVar);
 	}
@@ -479,6 +481,41 @@ void btParallelSequentialImpulseSolver::allSolved (const btContactSolverInfo& in
 
 		m_taskScheduler.flushTasks();
 	}
+
+
+
+
+	{
+		BT_PROFILE("warmstart_writeback");
+
+		btSpinlock::SpinVariable* spinVar = (btSpinlock::SpinVariable*)btAlignedAlloc(sizeof(btSpinlock::SpinVariable), 128);
+		for (int iter = 0; iter < info.m_numIterations; ++iter)
+		{
+			btSpinlock lock (spinVar);
+			lock.Init();
+
+			// Clear the "processed cells" part of the hash
+			memcpy(m_solverHash->m_currentMask[0], emptyCellMask, sizeof(uint32_t)*SPU_HASH_NUMCELLDWORDS);
+
+			for (int task = 0; task < m_taskScheduler.getMaxOutstandingTasks(); ++task)
+			{
+				SpuSolverTaskDesc* desc = m_taskScheduler.getTask();
+				desc->m_solverCommand = CMD_SOLVER_MANIFOLD_WARMSTART_WRITEBACK;
+				desc->m_solverData.m_solverHash = m_solverHash;
+				desc->m_solverData.m_solverInternalConstraintList = solverInternalConstraintPool;
+				desc->m_solverData.m_solverConstraintList = solverConstraintPool;
+				desc->m_commandData.m_manifoldSetup.m_manifoldHolders = &m_sortedManifolds[0];
+				desc->m_commandData.m_iterate.m_spinLockVar = spinVar;
+
+				m_taskScheduler.issueTask();
+			} 
+			m_taskScheduler.flushTasks();		
+		}
+		btAlignedFree((void*)spinVar);
+	}
+
+	
+
 
 
 	// Clean up

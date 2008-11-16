@@ -37,22 +37,24 @@ Written by: Marten Svanfeldt
 
 //NOTE! When changing this, make sure the package sizes etc below are updated
 #define TEMP_STORAGE_SIZE (150*1024)
-#define CONSTRAINT_MAX_SIZE (46*16)
+#define CONSTRAINT_MAX_SIZE (60*16)
 
 struct SolverTask_LocalStoreMemory
 {
 	ATTRIBUTE_ALIGNED16(SpuSolverHash			m_localHash);
 
 	// Data for temporary storage in situations where we just need very few
-	ATTRIBUTE_ALIGNED16(SpuSolverInternalConstraint	m_tempInternalConstr[4]);
+	ATTRIBUTE_ALIGNED16(btSolverConstraint	m_tempInternalConstr[4]);
 	ATTRIBUTE_ALIGNED16(SpuSolverConstraint		m_tempConstraint[1]);
-	ATTRIBUTE_ALIGNED16(SpuSolverBody			m_tempSPUBodies[2]);
+	ATTRIBUTE_ALIGNED16(btSolverBody			m_tempSPUBodies[2]);
 	ATTRIBUTE_ALIGNED16(char					m_tempRBs[2][sizeof(btRigidBody)]);
 	ATTRIBUTE_ALIGNED16(char					m_externalConstraint[CONSTRAINT_MAX_SIZE]);
 
 	// The general temporary storage, "dynamically" allocated
 	ATTRIBUTE_ALIGNED16(uint8_t					m_temporaryStorage[TEMP_STORAGE_SIZE]);
 	size_t										m_temporaryStorageUsed;
+
+	ATTRIBUTE_ALIGNED16(float					m_appliedImpulse[4]);
 };
 
 
@@ -112,24 +114,24 @@ void freeTemporaryStorage (SolverTask_LocalStoreMemory* lsmem, void* ptr, size_t
 	lsmem->m_temporaryStorageUsed -= size;
 }
 
-SpuSolverBody* allocBodyStorage (SolverTask_LocalStoreMemory* lsmem, size_t numBodies)
+btSolverBody* allocBodyStorage (SolverTask_LocalStoreMemory* lsmem, size_t numBodies)
 {
-	return static_cast<SpuSolverBody*> (allocTemporaryStorage(lsmem, sizeof(SpuSolverBody)*numBodies));
+	return static_cast<btSolverBody*> (allocTemporaryStorage(lsmem, sizeof(btSolverBody)*numBodies));
 }
 
-void freeBodyStorage (SolverTask_LocalStoreMemory* lsmem, SpuSolverBody* ptr, size_t numBodies)
+void freeBodyStorage (SolverTask_LocalStoreMemory* lsmem, btSolverBody* ptr, size_t numBodies)
 {
-	freeTemporaryStorage(lsmem, ptr, sizeof(SpuSolverBody)*numBodies);
+	freeTemporaryStorage(lsmem, ptr, sizeof(btSolverBody)*numBodies);
 }
 
-SpuSolverInternalConstraint* allocInternalConstraintStorage (SolverTask_LocalStoreMemory* lsmem, size_t numConstr)
+btSolverConstraint* allocInternalConstraintStorage (SolverTask_LocalStoreMemory* lsmem, size_t numConstr)
 {
-	return static_cast<SpuSolverInternalConstraint*> (allocTemporaryStorage(lsmem, sizeof(SpuSolverInternalConstraint)*numConstr));
+	return static_cast<btSolverConstraint*> (allocTemporaryStorage(lsmem, sizeof(btSolverConstraint)*numConstr));
 }
 
-void freeInternalConstraintStorage (SolverTask_LocalStoreMemory* lsmem, SpuSolverInternalConstraint* ptr, size_t numConstr)
+void freeInternalConstraintStorage (SolverTask_LocalStoreMemory* lsmem, btSolverConstraint* ptr, size_t numConstr)
 {
-	freeTemporaryStorage(lsmem, ptr, sizeof(SpuSolverInternalConstraint)*numConstr);
+	freeTemporaryStorage(lsmem, ptr, sizeof(btSolverConstraint)*numConstr);
 }
 
 SpuSolverConstraint* allocConstraintStorage (SolverTask_LocalStoreMemory* lsmem, size_t numConstr)
@@ -209,23 +211,37 @@ private:
 
 
 
-
+#include "BulletDynamics/ConstraintSolver/btSolverBody.h"
 
 //-- RB HANDLING
-static void setupSpuBody (btRigidBody* rb, SpuSolverBody* spuBody)
+static void setupSpuBody (btCollisionObject* collisionObject, btSolverBody* solverBody)
 {
-	spuBody->m_linearVelocity = rb->getLinearVelocity();
-	spuBody->m_angularVelocity = rb->getAngularVelocity();
-	spuBody->m_worldInvInertiaTensor = rb->getInvInertiaTensorWorld();
-	spuBody->m_invertedMass = rb->getInvMass();
-	spuBody->m_angularFactor = rb->getAngularFactor ();
+	btRigidBody* rb = btRigidBody::upcast(collisionObject);
+	if (rb)
+	{
+		solverBody->m_worldInvInertiaTensor = rb->getInvInertiaTensorWorld();
+		solverBody->m_angularVelocity = rb->getAngularVelocity() ;
+		solverBody->m_centerOfMassPosition = collisionObject->getWorldTransform().getOrigin();
+		solverBody->m_friction = collisionObject->getFriction();
+		solverBody->m_invMass = rb->getInvMass();
+		solverBody->m_linearVelocity = rb->getLinearVelocity();
+		solverBody->m_originalBody = rb;
+		solverBody->m_angularFactor = rb->getAngularFactor();
+	} else
+	{
+		solverBody->m_worldInvInertiaTensor.setIdentity();
+		solverBody->m_angularVelocity.setValue(0,0,0);
+		solverBody->m_centerOfMassPosition = collisionObject->getWorldTransform().getOrigin();
+		solverBody->m_friction = collisionObject->getFriction();
+		solverBody->m_invMass = 0.f;
+		solverBody->m_linearVelocity.setValue(0,0,0);
+		solverBody->m_originalBody = 0;
+		solverBody->m_angularFactor = 1.f;
+	}
+	solverBody->m_pushVelocity.setValue(0.f,0.f,0.f);
+	solverBody->m_turnVelocity.setValue(0.f,0.f,0.f);
 }
 //-- RB HANDLING END
-
-
-
-
-
 
 
 //-- HASH HANDLING
@@ -397,63 +413,58 @@ static int getNextFreeCell(SolverTask_LocalStoreMemory* localMemory, SpuSolverTa
 //-- HASH HANDLING END
 
 
-
-
-//-- SOLVER METHODS
-// Contact solve method
-static void solveContact (SpuSolverInternalConstraint& constraint, SpuSolverBody& bodyA, SpuSolverBody& bodyB)
+btScalar solveContact(btSolverBody& body1,btSolverBody& body2,const btSolverConstraint& contactConstraint)
 {
-	float normalImpulse(0.f);
+	btScalar normalImpulse;
 	{
-		if (constraint.m_penetration < 0.f)
-			return;
-
+		
 		//  Optimized version of projected relative velocity, use precomputed cross products with normal
 		//	body1.getVelocityInLocalPoint(contactConstraint.m_rel_posA,vel1);
 		//	body2.getVelocityInLocalPoint(contactConstraint.m_rel_posB,vel2);
 		//	btVector3 vel = vel1 - vel2;
-		//	float  rel_vel = contactConstraint.m_contactNormal.dot(vel);
+		//	btScalar  rel_vel = contactConstraint.m_contactNormal.dot(vel);
 
-		float rel_vel;
-		float vel1Dotn = constraint.m_normal.dot(bodyA.m_linearVelocity) 
-			+ constraint.m_relpos1CrossNormal.dot(bodyA.m_angularVelocity);
-		float vel2Dotn = constraint.m_normal.dot(bodyB.m_linearVelocity) 
-			+ constraint.m_relpos2CrossNormal.dot(bodyB.m_angularVelocity);
+		btScalar rel_vel;
+		btScalar vel1Dotn = contactConstraint.m_contactNormal.dot(body1.m_linearVelocity) 
+					+ contactConstraint.m_relpos1CrossNormal.dot(body1.m_angularVelocity);
+		btScalar vel2Dotn = contactConstraint.m_contactNormal.dot(body2.m_linearVelocity) 
+					+ contactConstraint.m_relpos2CrossNormal.dot(body2.m_angularVelocity);
 
 		rel_vel = vel1Dotn-vel2Dotn;
 
+		btScalar positionalError = 0.f;
+		positionalError = -contactConstraint.m_penetration;// * solverInfo.m_erp/solverInfo.m_timeStep;
 
-		float positionalError = constraint.m_penetration;
-		float velocityError = constraint.m_restitution - rel_vel;// * damping;
+		btScalar velocityError = contactConstraint.m_restitution - rel_vel;// * damping;
 
-		float penetrationImpulse = positionalError * constraint.m_jacDiagABInv;
-		float	velocityImpulse = velocityError * constraint.m_jacDiagABInv;
-		float normalImpulse = penetrationImpulse+velocityImpulse;
-
+		btScalar penetrationImpulse = positionalError * contactConstraint.m_jacDiagABInv;
+		btScalar	velocityImpulse = velocityError * contactConstraint.m_jacDiagABInv;
+		normalImpulse = penetrationImpulse+velocityImpulse;
+		
+		
 		// See Erin Catto's GDC 2006 paper: Clamp the accumulated impulse
-		float oldNormalImpulse = constraint.m_appliedImpulse;
-		float sum = oldNormalImpulse + normalImpulse;
-		constraint.m_appliedImpulse = float(0.) > sum ? float(0.): sum;
+		btScalar oldNormalImpulse = contactConstraint.m_appliedImpulse;
+		btScalar sum = oldNormalImpulse + normalImpulse;
+		contactConstraint.m_appliedImpulse = btScalar(0.) > sum ? btScalar(0.): sum;
 
-		normalImpulse = constraint.m_appliedImpulse - oldNormalImpulse;
+		normalImpulse = contactConstraint.m_appliedImpulse - oldNormalImpulse;
 
-		if (bodyA.m_invertedMass > 0)
-		{
-			bodyA.m_linearVelocity += constraint.m_normal*bodyA.m_invertedMass*normalImpulse;
-			bodyA.m_angularVelocity += bodyA.m_angularFactor * constraint.m_angularComponentA*normalImpulse;
-		}
-		if (bodyB.m_invertedMass > 0)
-		{
-			bodyB.m_linearVelocity -= constraint.m_normal*bodyB.m_invertedMass*normalImpulse;
-			bodyB.m_angularVelocity -= bodyB.m_angularFactor * constraint.m_angularComponentB*normalImpulse;
-		}
-
+		body1.internalApplyImpulse(contactConstraint.m_contactNormal*body1.m_invMass,
+				contactConstraint.m_angularComponentA,normalImpulse);
+		
+		body2.internalApplyImpulse(contactConstraint.m_contactNormal*body2.m_invMass,
+				contactConstraint.m_angularComponentB,-normalImpulse);
 	}
+
+	return normalImpulse;
 }
 
+
+
 // Friction solve method
-static void solveFriction (SpuSolverInternalConstraint& constraint, SpuSolverBody& bodyA, SpuSolverBody& bodyB, btScalar normalImpulse)
+static void solveFriction ( btSolverBody& bodyA, btSolverBody& bodyB, btSolverConstraint& constraint,btScalar normalImpulse)
 {
+
 	const btScalar combinedFriction = constraint.m_friction;
 
 	const btScalar limit = normalImpulse * combinedFriction;
@@ -465,9 +476,9 @@ static void solveFriction (SpuSolverInternalConstraint& constraint, SpuSolverBod
 		{
 
 			btScalar rel_vel;
-			const btScalar vel1Dotn = constraint.m_normal.dot(bodyA.m_linearVelocity) 
+			const btScalar vel1Dotn = constraint.m_contactNormal.dot(bodyA.m_linearVelocity) 
 				+ constraint.m_relpos1CrossNormal.dot(bodyA.m_angularVelocity);
-			const btScalar vel2Dotn = constraint.m_normal.dot(bodyB.m_linearVelocity) 
+			const btScalar vel2Dotn = constraint.m_contactNormal.dot(bodyB.m_linearVelocity) 
 				+ constraint.m_relpos2CrossNormal.dot(bodyB.m_angularVelocity);
 			rel_vel = vel1Dotn-vel2Dotn;
 
@@ -480,23 +491,24 @@ static void solveFriction (SpuSolverInternalConstraint& constraint, SpuSolverBod
 			j1 = constraint.m_appliedImpulse - oldTangentImpulse;
 
 		}
-
-		if (bodyA.m_invertedMass > 0)
+		j1*=0.9;
+		if (bodyA.m_invMass > 0)
 		{
-			bodyA.m_linearVelocity += constraint.m_normal*bodyA.m_invertedMass*j1;
+			bodyA.m_linearVelocity += constraint.m_contactNormal*bodyA.m_invMass*j1;
 			bodyA.m_angularVelocity += bodyA.m_angularFactor * constraint.m_angularComponentA*j1;
 		}
-		if (bodyB.m_invertedMass > 0)
+		if (bodyB.m_invMass > 0)
 		{
-			bodyB.m_linearVelocity -= constraint.m_normal*bodyB.m_invertedMass*j1;
+			bodyB.m_linearVelocity -= constraint.m_contactNormal*bodyB.m_invMass*j1;
 			bodyB.m_angularVelocity -= bodyB.m_angularFactor * constraint.m_angularComponentB*j1;
 		}
 
 	} 
 }
 
+
 // Constraint solving
-static void solveConstraint (SpuSolverConstraint& constraint, SpuSolverBody& bodyA, SpuSolverBody& bodyB)
+static void solveConstraint (SpuSolverConstraint& constraint, btSolverBody& bodyA, btSolverBody& bodyB)
 {
 	// All but D6 use worldspace normals, use same code
 	if (constraint.m_flags.m_useLinear)
@@ -527,14 +539,14 @@ static void solveConstraint (SpuSolverConstraint& constraint, SpuSolverBody& bod
 				btVector3 impNormal = normal*impulse;
 
 				// Apply
-				if (bodyA.m_invertedMass > 0)
+				if (bodyA.m_invMass > 0)
 				{
-					bodyA.m_linearVelocity += impNormal*bodyA.m_invertedMass;
+					bodyA.m_linearVelocity += impNormal*bodyA.m_invMass;
 					bodyA.m_angularVelocity += bodyA.m_angularFactor * (bodyA.m_worldInvInertiaTensor * (btVector3(constraint.m_relPos1).cross(impNormal)));
 				}
-				if (bodyB.m_invertedMass > 0)
+				if (bodyB.m_invMass > 0)
 				{
-					bodyB.m_linearVelocity -= impNormal*bodyB.m_invertedMass;
+					bodyB.m_linearVelocity -= impNormal*bodyB.m_invMass;
 					bodyB.m_angularVelocity -=  bodyB.m_angularFactor * (bodyB.m_worldInvInertiaTensor * (btVector3(constraint.m_relPos2).cross(impNormal)));
 				}
 
@@ -572,11 +584,11 @@ static void solveConstraint (SpuSolverConstraint& constraint, SpuSolverBody& bod
 				btVector3 impAxis = axis*impulse;
 
 				// Apply
-				if (bodyA.m_invertedMass > 0)
+				if (bodyA.m_invMass > 0)
 				{
 					bodyA.m_angularVelocity +=  bodyA.m_angularFactor * (bodyA.m_worldInvInertiaTensor * impAxis);
 				}
-				if (bodyB.m_invertedMass > 0)
+				if (bodyB.m_invMass > 0)
 				{
 					bodyB.m_angularVelocity -= bodyB.m_angularFactor * (bodyB.m_worldInvInertiaTensor * impAxis);
 				}
@@ -602,11 +614,11 @@ static void solveConstraint (SpuSolverConstraint& constraint, SpuSolverBody& bod
 				btVector3 impAxis = axis*impulse* (constraint.hinge.m_limitJacFactor/btFabs (constraint.hinge.m_limitJacFactor));
 
 				// Apply
-				if (bodyA.m_invertedMass > 0)
+				if (bodyA.m_invMass > 0)
 				{
 					bodyA.m_angularVelocity += bodyA.m_angularFactor * (bodyA.m_worldInvInertiaTensor * impAxis);
 				}
-				if (bodyB.m_invertedMass > 0)
+				if (bodyB.m_invMass > 0)
 				{
 					bodyB.m_angularVelocity -= bodyB.m_angularFactor * (bodyB.m_worldInvInertiaTensor * impAxis);
 				}				
@@ -632,11 +644,11 @@ static void solveConstraint (SpuSolverConstraint& constraint, SpuSolverBody& bod
 				btVector3 impAxis = axis*clampedImpulse;
 
 				// Apply
-				if (bodyA.m_invertedMass > 0)
+				if (bodyA.m_invMass > 0)
 				{
 					bodyA.m_angularVelocity += bodyA.m_angularFactor * (bodyA.m_worldInvInertiaTensor * impAxis);
 				}
-				if (bodyB.m_invertedMass > 0)
+				if (bodyB.m_invMass > 0)
 				{
 					bodyB.m_angularVelocity -= bodyB.m_angularFactor * (bodyB.m_worldInvInertiaTensor * impAxis);
 				}
@@ -665,11 +677,11 @@ static void solveConstraint (SpuSolverConstraint& constraint, SpuSolverBody& bod
 				btVector3 impAxis = axis*impulse;
 
 				// Apply
-				if (bodyA.m_invertedMass > 0)
+				if (bodyA.m_invMass > 0)
 				{
 					bodyA.m_angularVelocity += bodyA.m_angularFactor * (bodyA.m_worldInvInertiaTensor * impAxis);
 				}
-				if (bodyB.m_invertedMass > 0)
+				if (bodyB.m_invMass > 0)
 				{
 					bodyB.m_angularVelocity -= bodyB.m_angularFactor * (bodyB.m_worldInvInertiaTensor * impAxis);
 				}
@@ -695,11 +707,11 @@ static void solveConstraint (SpuSolverConstraint& constraint, SpuSolverBody& bod
 				btVector3 impAxis = axis*impulse;
 
 				// Apply
-				if (bodyA.m_invertedMass > 0)
+				if (bodyA.m_invMass > 0)
 				{
 					bodyA.m_angularVelocity += bodyA.m_angularFactor * (bodyA.m_worldInvInertiaTensor * impAxis);
 				}
-				if (bodyB.m_invertedMass > 0)
+				if (bodyB.m_invMass > 0)
 				{
 					bodyB.m_angularVelocity -= bodyB.m_angularFactor * (bodyB.m_worldInvInertiaTensor * impAxis);
 				}	
@@ -830,7 +842,7 @@ void processSolverTask(void* userPtr, void* lsMemory)
 
 			btRigidBody** bodyPtrList = (btRigidBody**)allocTemporaryStorage(localMemory, bodiesPerPackage*sizeof(btRigidBody*));
 			btRigidBody* bodyList = (btRigidBody*)allocTemporaryStorage(localMemory, bodiesPerPackage*sizeof(btRigidBody));
-			SpuSolverBody* spuBodyList = allocBodyStorage(localMemory, bodiesPerPackage);
+			btSolverBody* spuBodyList = allocBodyStorage(localMemory, bodiesPerPackage);
 
 
 			while (bodiesToProcess > 0)
@@ -859,7 +871,7 @@ void processSolverTask(void* userPtr, void* lsMemory)
 				for ( b = 0; b < packageSize; ++b)
 				{					
 					btRigidBody* localBody = bodyList+b;
-					SpuSolverBody* spuBody = spuBodyList + b;
+					btSolverBody* spuBody = spuBodyList + b;
 					//Set it up solver body
 					setupSpuBody(localBody, spuBody);
 
@@ -878,7 +890,7 @@ void processSolverTask(void* userPtr, void* lsMemory)
 
 				// DMA the list of SPU bodies
 				{
-					int dmaSize = sizeof(SpuSolverBody)*packageSize;
+					int dmaSize = sizeof(btSolverBody)*packageSize;
 					uint64_t dmaPpuAddress2 = reinterpret_cast<uint64_t> (taskDesc.m_solverData.m_solverBodyList + bodyPackageOffset);
 					cellDmaLargePut(spuBodyList, dmaPpuAddress2, dmaSize, DMA_TAG(2), 0, 0);
 				}
@@ -978,42 +990,53 @@ void processSolverTask(void* userPtr, void* lsMemory)
 							cellDmaWaitTagStatusAll(DMA_MASK(1) | DMA_MASK(2));
 
 
-							btRigidBody* rb0 = (btRigidBody*)&localMemory->m_tempRBs[0];
-							btRigidBody* rb1 = (btRigidBody*)&localMemory->m_tempRBs[1];
+							btRigidBody* rb0readonly = (btRigidBody*)&localMemory->m_tempRBs[0];
+							btRigidBody* rb1readonly = (btRigidBody*)&localMemory->m_tempRBs[1];
 
-							if (rb0->getIslandTag() >= 0)
+							if (rb0readonly->getIslandTag() >= 0)
 							{
-								solverBodyIdA = rb0->getCompanionId();
+								solverBodyIdA = rb0readonly->getCompanionId();
+
+								///DMA back bodyA (with applied impulse)
+								{
+									int dmaSize = sizeof(btSolverBody);
+									uint64_t dmaPpuAddress2 = reinterpret_cast<uint64_t> (taskDesc.m_solverData.m_solverBodyList + solverBodyIdA);
+									cellDmaLargeGet(&localMemory->m_tempSPUBodies[0], dmaPpuAddress2, dmaSize, DMA_TAG(1), 0, 0);
+									cellDmaWaitTagStatusAll(DMA_MASK(1));
+								}
 							} 
 							else
 							{
 								//create a static body
 								solverBodyIdA = taskDesc.m_commandData.m_manifoldSetup.m_numBodies + hashCell.m_manifoldListOffset;
-								setupSpuBody(rb0, &localMemory->m_tempSPUBodies[0]);
-								{
-									int dmaSize = sizeof(SpuSolverBody);
-									uint64_t dmaPpuAddress2 = reinterpret_cast<uint64_t> (taskDesc.m_solverData.m_solverBodyList + solverBodyIdA);
-									cellDmaLargePut(&localMemory->m_tempSPUBodies[0], dmaPpuAddress2, dmaSize, DMA_TAG(1), 0, 0);
-									cellDmaWaitTagStatusAll(DMA_MASK(1));
-								}							
+								setupSpuBody(rb0readonly, &localMemory->m_tempSPUBodies[0]);
 							}
 
-							if (rb1->getIslandTag() >= 0)
+							btSolverBody* solverBodyA = &localMemory->m_tempSPUBodies[0];
+
+							
+
+							if (rb1readonly->getIslandTag() >= 0)
 							{
-								solverBodyIdB = rb1->getCompanionId();
+								solverBodyIdB = rb1readonly->getCompanionId();
+								///DMA back bodyB (with applied impulse)
+								{
+									int dmaSize = sizeof(btSolverBody);
+									uint64_t dmaPpuAddress2 = reinterpret_cast<uint64_t> (taskDesc.m_solverData.m_solverBodyList + solverBodyIdB);
+									cellDmaLargeGet(&localMemory->m_tempSPUBodies[1], dmaPpuAddress2, dmaSize, DMA_TAG(1), 0, 0);
+									cellDmaWaitTagStatusAll(DMA_MASK(1));
+								}
+
 							} 
 							else
 							{
 								//create a static body
 								solverBodyIdB = taskDesc.m_commandData.m_manifoldSetup.m_numBodies + hashCell.m_manifoldListOffset;					
-								setupSpuBody(rb1, &localMemory->m_tempSPUBodies[0]);
-								{
-									int dmaSize = sizeof(SpuSolverBody);
-									uint64_t dmaPpuAddress2 = reinterpret_cast<uint64_t> (taskDesc.m_solverData.m_solverBodyList + solverBodyIdB);
-									cellDmaLargePut(&localMemory->m_tempSPUBodies[0], dmaPpuAddress2, dmaSize, DMA_TAG(1), 0, 0);
-									cellDmaWaitTagStatusAll(DMA_MASK(1));
-								}
+								setupSpuBody(rb1readonly, &localMemory->m_tempSPUBodies[1]);
 							}
+
+							btSolverBody* solverBodyB = &localMemory->m_tempSPUBodies[1];
+
 
 							// Setup the pointer table
 							int offsA = localRBs.insert(solverBodyIdA);		
@@ -1027,30 +1050,71 @@ void processSolverTask(void* userPtr, void* lsMemory)
 								btVector3 pos1 = cp.getPositionWorldOnA();
 								btVector3 pos2 = cp.getPositionWorldOnB();
 
-								btVector3 rel_pos1 = pos1 - rb0->getCenterOfMassPosition(); 
-								btVector3 rel_pos2 = pos2 - rb1->getCenterOfMassPosition();
+								btVector3 rel_pos1 = pos1 - rb0readonly->getCenterOfMassPosition(); 
+								btVector3 rel_pos2 = pos2 - rb1readonly->getCenterOfMassPosition();
 
 								btScalar rel_vel;
 								btVector3 vel;
 
 								// De-penetration
 								{
-									SpuSolverInternalConstraint& constraint = localMemory->m_tempInternalConstr[0];
+									btSolverConstraint& constraint = localMemory->m_tempInternalConstr[0];
 
-									constraint.m_localOffsetBodyA = offsA;
-									constraint.m_localOffsetBodyB = offsB;
+									{
+										uint64_t dmaPpuAddress2 = reinterpret_cast<uint64_t> (manifoldHolderList[m].m_manifold);
+										//btManifoldPoint
+										int index = offsetof(btManifoldPoint,m_appliedImpulse)+ c* sizeof(btManifoldPoint);
+										dmaPpuAddress2+=index;
+										constraint.m_originalContactPoint = (void*)dmaPpuAddress2;
+									}
 
-									constraint.m_normal = cp.m_normalWorldOnB;
+
+									constraint.m_solverBodyIdA = offsA;
+									constraint.m_solverBodyIdB = offsB;
+
+									constraint.m_contactNormal = cp.m_normalWorldOnB;
 									{
 										//can be optimized, the cross products are already calculated										
-										constraint.m_jacDiagABInv = computeJacobianInverse (rb0, rb1, pos1, pos2, cp.m_normalWorldOnB);
+										//constraint.m_jacDiagABInv = computeJacobianInverse (rb0, rb1, pos1, pos2, cp.m_normalWorldOnB);
 									}
 
 									constraint.m_relpos1CrossNormal = rel_pos1.cross(cp.m_normalWorldOnB);
 									constraint.m_relpos2CrossNormal = rel_pos2.cross(cp.m_normalWorldOnB);
+									btVector3 torqueAxis0 = rel_pos1.cross(cp.m_normalWorldOnB);
+									constraint.m_angularComponentA = rb0readonly->getInvInertiaTensorWorld()*torqueAxis0;
+									btVector3 torqueAxis1 = rel_pos2.cross(cp.m_normalWorldOnB);		
+									constraint.m_angularComponentB = rb1readonly->getInvInertiaTensorWorld()*torqueAxis1;
 
-									btVector3 vel1 = rb0->getVelocityInLocalPoint(rel_pos1);
-									btVector3 vel2 = rb1->getVelocityInLocalPoint(rel_pos2);
+
+									{
+										btVector3 vec;
+										btScalar denom0 = 0.f;
+										btScalar denom1 = 0.f;
+										if (rb0readonly)
+										{
+											vec = ( constraint.m_angularComponentA).cross(rel_pos1);
+											denom0 = rb0readonly->getInvMass() + cp.m_normalWorldOnB.dot(vec);
+										}
+										if (rb1readonly)
+										{
+											vec = ( constraint.m_angularComponentB).cross(rel_pos2);
+											denom1 = rb1readonly->getInvMass() + cp.m_normalWorldOnB.dot(vec);
+										}
+										
+										btScalar denom = 1/(denom0+denom1);
+										constraint.m_jacDiagABInv = denom;
+									}
+
+
+									
+
+									//btVector3 vel1 = rb0readonly->getVelocityInLocalPoint(rel_pos1);
+									//btVector3 vel2 = rb1readonly->getVelocityInLocalPoint(rel_pos2);
+									btVector3 vel1;
+									solverBodyA->getVelocityInLocalPoint(rel_pos1,vel1);
+									btVector3 vel2;
+									solverBodyB->getVelocityInLocalPoint(rel_pos2,vel2);
+
 
 									vel = vel1 - vel2;
 									rel_vel = cp.m_normalWorldOnB.dot(vel);
@@ -1063,22 +1127,24 @@ void processSolverTask(void* userPtr, void* lsMemory)
 										rest = 0.f;
 									};
 
+									 
+
 									btScalar penVel = -constraint.m_penetration/taskDesc.m_commandData.m_manifoldSetup.m_solverInfo.m_timeStep;
-									constraint.m_penetration *= 
-										-(taskDesc.m_commandData.m_manifoldSetup.m_solverInfo.m_erp/taskDesc.m_commandData.m_manifoldSetup.m_solverInfo.m_timeStep);
+									
+									constraint.m_penetration *= (taskDesc.m_commandData.m_manifoldSetup.m_solverInfo.m_erp/taskDesc.m_commandData.m_manifoldSetup.m_solverInfo.m_timeStep);
 								
-									if (rest > penVel)
-									{
-										constraint.m_penetration = btScalar(0.);
-									}
 									constraint.m_restitution = rest;
-									constraint.m_appliedImpulse = 0.f;
+									constraint.m_appliedImpulse = cp.m_appliedImpulse*0.85;
+									if (constraint.m_appliedImpulse!= 0.f)
+									{
+										if (solverBodyA)
+											solverBodyA->internalApplyImpulse(constraint.m_contactNormal*rb0readonly->getInvMass(),constraint.m_angularComponentA,constraint.m_appliedImpulse);
+										if (solverBodyB)
+											solverBodyB->internalApplyImpulse(constraint.m_contactNormal*rb1readonly->getInvMass(),constraint.m_angularComponentB,-constraint.m_appliedImpulse);
+									}
 
 
-									btVector3 torqueAxis0 = rel_pos1.cross(cp.m_normalWorldOnB);
-									constraint.m_angularComponentA = rb0->getInvInertiaTensorWorld()*torqueAxis0;
-									btVector3 torqueAxis1 = rel_pos2.cross(cp.m_normalWorldOnB);		
-									constraint.m_angularComponentB = rb1->getInvInertiaTensorWorld()*torqueAxis1;
+									
 								}
 
 								// Friction
@@ -1091,66 +1157,69 @@ void processSolverTask(void* userPtr, void* lsMemory)
 								{
 									frictionTangential0a /= btSqrt(lat_rel_vel);
 									frictionTangential1b = frictionTangential0a.cross(cp.m_normalWorldOnB);
+									frictionTangential1b.normalize();
 								} else
 								{
 									btPlaneSpace1(cp.m_normalWorldOnB,frictionTangential0a,frictionTangential1b);
 								}
 
+
 								{
-									SpuSolverInternalConstraint& constraint = localMemory->m_tempInternalConstr[1];
+									btSolverConstraint& constraint = localMemory->m_tempInternalConstr[1];
+									constraint.m_originalContactPoint = 0;
 
-									constraint.m_normal = frictionTangential0a;
+									constraint.m_contactNormal = frictionTangential0a;
 
-									constraint.m_localOffsetBodyA = offsA;
-									constraint.m_localOffsetBodyB = offsB;
+									constraint.m_solverBodyIdA = offsA;
+									constraint.m_solverBodyIdB = offsB;
 
 									constraint.m_friction = cp.m_combinedFriction;
 
-									constraint.m_appliedImpulse = btScalar(0.);
+									constraint.m_appliedImpulse = 0;//cp.m_appliedImpulse;//btScalar(0.);
 
-									constraint.m_jacDiagABInv = computeJacobianInverse (rb0, rb1, pos1, pos2, constraint.m_normal);
+									constraint.m_jacDiagABInv = computeJacobianInverse (rb0readonly, rb1readonly, pos1, pos2, constraint.m_contactNormal);
 
 									{
-										btVector3 ftorqueAxis0 = rel_pos1.cross(constraint.m_normal);
+										btVector3 ftorqueAxis0 = rel_pos1.cross(constraint.m_contactNormal);
 										constraint.m_relpos1CrossNormal = ftorqueAxis0;
-										constraint.m_angularComponentA = rb0->getInvInertiaTensorWorld()*ftorqueAxis0;
+										constraint.m_angularComponentA = rb0readonly->getInvInertiaTensorWorld()*ftorqueAxis0;
 									}
 									{
-										btVector3 ftorqueAxis0 = rel_pos2.cross(constraint.m_normal);
+										btVector3 ftorqueAxis0 = rel_pos2.cross(constraint.m_contactNormal);
 										constraint.m_relpos2CrossNormal = ftorqueAxis0;
-										constraint.m_angularComponentB = rb1->getInvInertiaTensorWorld()*ftorqueAxis0;
+										constraint.m_angularComponentB = rb1readonly->getInvInertiaTensorWorld()*ftorqueAxis0;
 									}
 								}
 
 								{
-									SpuSolverInternalConstraint& constraint = localMemory->m_tempInternalConstr[2];
+									btSolverConstraint& constraint = localMemory->m_tempInternalConstr[2];
+									constraint.m_originalContactPoint = 0;
+									constraint.m_contactNormal = frictionTangential1b;
 
-									constraint.m_normal = frictionTangential1b;
-
-									constraint.m_localOffsetBodyA = offsA;
-									constraint.m_localOffsetBodyB = offsB;
+									constraint.m_solverBodyIdA = offsA;
+									constraint.m_solverBodyIdB = offsB;
 
 									constraint.m_friction = cp.m_combinedFriction;
 
 									constraint.m_appliedImpulse = btScalar(0.);
 
-									constraint.m_jacDiagABInv = computeJacobianInverse (rb0, rb1, pos1, pos2, constraint.m_normal);
+									constraint.m_jacDiagABInv = computeJacobianInverse (rb0readonly, rb1readonly, pos1, pos2, constraint.m_contactNormal);
 
 									{
-										btVector3 ftorqueAxis0 = rel_pos1.cross(constraint.m_normal);
+										btVector3 ftorqueAxis0 = rel_pos1.cross(constraint.m_contactNormal);
 										constraint.m_relpos1CrossNormal = ftorqueAxis0;
-										constraint.m_angularComponentA = rb0->getInvInertiaTensorWorld()*ftorqueAxis0;
+										constraint.m_angularComponentA = rb0readonly->getInvInertiaTensorWorld()*ftorqueAxis0;
 									}
 									{
-										btVector3 ftorqueAxis0 = rel_pos2.cross(constraint.m_normal);
+										btVector3 ftorqueAxis0 = rel_pos2.cross(constraint.m_contactNormal);
 										constraint.m_relpos2CrossNormal = ftorqueAxis0;
-										constraint.m_angularComponentB = rb1->getInvInertiaTensorWorld()*ftorqueAxis0;
+										constraint.m_angularComponentB = rb1readonly->getInvInertiaTensorWorld()*ftorqueAxis0;
 									}
 								}
 
 								// DMA the three constraints
 								{
-									int dmaSize = sizeof(SpuSolverInternalConstraint)*3;
+									int dmaSize = sizeof(btSolverConstraint)*3;
 									uint64_t dmaPpuAddress2 = reinterpret_cast<uint64_t> (taskDesc.m_solverData.m_solverInternalConstraintList + constraintIndex);
 									cellDmaLargePut(&localMemory->m_tempInternalConstr, dmaPpuAddress2, dmaSize, DMA_TAG(1), 0, 0);		
 									cellDmaWaitTagStatusAll(DMA_MASK(1));
@@ -1159,8 +1228,27 @@ void processSolverTask(void* userPtr, void* lsMemory)
 								constraintIndex += 3;
 
 							}
+							if (1)
+							{
+								///DMA back bodyA (with applied impulse)
+								{
+									int dmaSize = sizeof(btSolverBody);
+									uint64_t dmaPpuAddress2 = reinterpret_cast<uint64_t> (taskDesc.m_solverData.m_solverBodyList + solverBodyIdA);
+									cellDmaLargePut(&localMemory->m_tempSPUBodies[0], dmaPpuAddress2, dmaSize, DMA_TAG(1), 0, 0);
+									cellDmaWaitTagStatusAll(DMA_MASK(1));
+								}
+								///DMA back bodyB (with applied impulse)
+								{
+									int dmaSize = sizeof(btSolverBody);
+									uint64_t dmaPpuAddress2 = reinterpret_cast<uint64_t> (taskDesc.m_solverData.m_solverBodyList + solverBodyIdB);
+									cellDmaLargePut(&localMemory->m_tempSPUBodies[1], dmaPpuAddress2, dmaSize, DMA_TAG(1), 0, 0);
+									cellDmaWaitTagStatusAll(DMA_MASK(1));
+								}
+							}
 
 						}
+
+						
 
 						manifoldsToProcess -= packageSize;
 						manifoldPackageOffset += packageSize;
@@ -1194,6 +1282,7 @@ void processSolverTask(void* userPtr, void* lsMemory)
 						{
 							//int dmaSize = CONSTRAINT_MAX_SIZE;
 							int dmaSize = getConstraintSize((btTypedConstraintType)constraintHolderList[c].m_constraintType);
+							btAssert(dmaSize<CONSTRAINT_MAX_SIZE);
 							uint64_t dmaPpuAddress2 = reinterpret_cast<uint64_t> (constraintHolderList[c].m_constraint);
 							cellDmaLargeGet(constraintList + CONSTRAINT_MAX_SIZE*c, dmaPpuAddress2, dmaSize, DMA_TAG(1), 0, 0);
 						}
@@ -1236,7 +1325,7 @@ void processSolverTask(void* userPtr, void* lsMemory)
 									hashCell.m_constraintListOffset;
 								setupSpuBody(rb0, &localMemory->m_tempSPUBodies[0]);
 								{
-									int dmaSize = sizeof(SpuSolverBody);
+									int dmaSize = sizeof(btSolverBody);
 									uint64_t dmaPpuAddress2 = reinterpret_cast<uint64_t> (taskDesc.m_solverData.m_solverBodyList + solverBodyIdA);
 									cellDmaLargePut(&localMemory->m_tempSPUBodies[0], dmaPpuAddress2, dmaSize, DMA_TAG(1), 0, 0);
 									cellDmaWaitTagStatusAll(DMA_MASK(1));
@@ -1254,7 +1343,7 @@ void processSolverTask(void* userPtr, void* lsMemory)
 									hashCell.m_constraintListOffset;					
 								setupSpuBody(rb1, &localMemory->m_tempSPUBodies[0]);
 								{
-									int dmaSize = sizeof(SpuSolverBody);
+									int dmaSize = sizeof(btSolverBody);
 									uint64_t dmaPpuAddress2 = reinterpret_cast<uint64_t> (taskDesc.m_solverData.m_solverBodyList + solverBodyIdB);
 									cellDmaLargePut(&localMemory->m_tempSPUBodies[0], dmaPpuAddress2, dmaSize, DMA_TAG(1), 0, 0);
 									cellDmaWaitTagStatusAll(DMA_MASK(1));
@@ -1539,6 +1628,7 @@ void processSolverTask(void* userPtr, void* lsMemory)
 			}
 		}
 		break;
+
 	case CMD_SOLVER_SOLVE_ITERATE:
 		{			
 			// DMA the hash
@@ -1569,7 +1659,7 @@ void processSolverTask(void* userPtr, void* lsMemory)
 
 				// Get the body list
 				uint32_t* indexList = (uint32_t*)allocTemporaryStorage(localMemory, sizeof(uint32_t)*hashCell.m_numLocalBodies);
-				SpuSolverBody* bodyList = allocBodyStorage(localMemory, hashCell.m_numLocalBodies);
+				btSolverBody* bodyList = allocBodyStorage(localMemory, hashCell.m_numLocalBodies);
 				int b;
 				{
 					int dmaSize = sizeof(uint32_t)*hashCell.m_numLocalBodies;
@@ -1581,7 +1671,7 @@ void processSolverTask(void* userPtr, void* lsMemory)
 				// DMA the bodies
 				for ( b = 0; b < hashCell.m_numLocalBodies; ++b)
 				{
-					int dmaSize = sizeof(SpuSolverBody);
+					int dmaSize = sizeof(btSolverBody);
 					uint64_t dmaPpuAddress2 = reinterpret_cast<uint64_t> (taskDesc.m_solverData.m_solverBodyList + indexList[b]);
 					cellDmaLargeGet(bodyList+b, dmaPpuAddress2, dmaSize, DMA_TAG(1), 0, 0);						
 				}
@@ -1613,8 +1703,8 @@ void processSolverTask(void* userPtr, void* lsMemory)
 						for (size_t j = 0; j < packetSize; ++j)
 						{
 							SpuSolverConstraint& constraint = constraints[j];
-							SpuSolverBody& bodyA = bodyList[constraint.m_localOffsetBodyA];
-							SpuSolverBody& bodyB = bodyList[constraint.m_localOffsetBodyB];
+							btSolverBody& bodyA = bodyList[constraint.m_localOffsetBodyA];
+							btSolverBody& bodyB = bodyList[constraint.m_localOffsetBodyB];
 
 							solveConstraint(constraint, bodyA, bodyB);
 						}
@@ -1632,16 +1722,16 @@ void processSolverTask(void* userPtr, void* lsMemory)
 					}
 
 					freeConstraintStorage (localMemory, constraints, maxConstraintsPerPacket);
-				}
+				} 
 
 				// Now process the contacts
 				if (hashCell.m_numContacts)
 				{
-					const size_t maxContactsPerPacket = memTemporaryStorage(localMemory) / (sizeof(SpuSolverInternalConstraint)*3);
+					const size_t maxContactsPerPacket = memTemporaryStorage(localMemory) / (sizeof(btSolverConstraint)*3);
 					size_t contactsToProcess = hashCell.m_numContacts;
 					size_t constraintListOffset = hashCell.m_internalConstraintListOffset;
 
-					SpuSolverInternalConstraint* internalConstraints = allocInternalConstraintStorage(localMemory, maxContactsPerPacket*3);
+					btSolverConstraint* internalConstraints = allocInternalConstraintStorage(localMemory, maxContactsPerPacket*3);
 
 					while (contactsToProcess > 0)
 					{
@@ -1649,7 +1739,7 @@ void processSolverTask(void* userPtr, void* lsMemory)
 
 						// DMA the constraints
 						{
-							int dmaSize = sizeof(SpuSolverInternalConstraint)*packetSize*3;
+							int dmaSize = sizeof(btSolverConstraint)*packetSize*3;
 							uint64_t dmaPpuAddress2 = reinterpret_cast<uint64_t> (taskDesc.m_solverData.m_solverInternalConstraintList + constraintListOffset);
 							cellDmaLargeGet(internalConstraints, dmaPpuAddress2, dmaSize, DMA_TAG(1), 0, 0);
 						}
@@ -1658,32 +1748,37 @@ void processSolverTask(void* userPtr, void* lsMemory)
 
 						size_t j;
 						// Solve
-						for ( j = 0; j < packetSize*3; j += 3)
+						
 						{
-							SpuSolverInternalConstraint& contact = internalConstraints[j];
-							SpuSolverBody& bodyA = bodyList[contact.m_localOffsetBodyA];
-							SpuSolverBody& bodyB = bodyList[contact.m_localOffsetBodyB];
+							for ( j = 0; j < packetSize*3; j += 3)
+							{
+								btSolverConstraint& contact = internalConstraints[j];
+								btSolverBody& bodyA = bodyList[contact.m_solverBodyIdA];
+								btSolverBody& bodyB = bodyList[contact.m_solverBodyIdB];
 
-							solveContact(contact, bodyA, bodyB);
+								solveContact(bodyA, bodyB,contact);
+							}
 						}
 
-						for ( j = 0; j < packetSize*3; j += 3)
 						{
-							SpuSolverInternalConstraint& contact = internalConstraints[j];
-							SpuSolverBody& bodyA = bodyList[contact.m_localOffsetBodyA];
-							SpuSolverBody& bodyB = bodyList[contact.m_localOffsetBodyB];
+							for ( j = 0; j < packetSize*3; j += 3)
+							{
+								btSolverConstraint& contact = internalConstraints[j];
+								btSolverBody& bodyA = bodyList[contact.m_solverBodyIdA];
+								btSolverBody& bodyB = bodyList[contact.m_solverBodyIdB];
 
-							SpuSolverInternalConstraint& frictionConstraint1 = internalConstraints[j + 1];
-							solveFriction(frictionConstraint1, bodyA, bodyB, contact.m_appliedImpulse);
+								btSolverConstraint& frictionConstraint1 = internalConstraints[j + 1];
+								solveFriction(bodyA, bodyB, frictionConstraint1,contact.m_appliedImpulse);
 
-							SpuSolverInternalConstraint& frictionConstraint2 = internalConstraints[j + 2];
-							solveFriction(frictionConstraint2, bodyA, bodyB, contact.m_appliedImpulse);
+								btSolverConstraint& frictionConstraint2 = internalConstraints[j + 2];
+								solveFriction(bodyA, bodyB, frictionConstraint2,contact.m_appliedImpulse);
+							}
 						}
 
 
 						// Write back the constraints for accumulated stuff
 						{
-							int dmaSize = sizeof(SpuSolverInternalConstraint)*packetSize*3;
+							int dmaSize = sizeof(btSolverConstraint)*packetSize*3;
 							uint64_t dmaPpuAddress2 = reinterpret_cast<uint64_t> (taskDesc.m_solverData.m_solverInternalConstraintList + constraintListOffset);					
 							cellDmaLargePut(internalConstraints, dmaPpuAddress2, dmaSize, DMA_TAG(1), 0, 0);
 						}
@@ -1700,7 +1795,7 @@ void processSolverTask(void* userPtr, void* lsMemory)
 				// DMA the bodies back to main memory
 				for ( b = 0; b < hashCell.m_numLocalBodies; ++b)
 				{					
-					int dmaSize = sizeof(SpuSolverBody);
+					int dmaSize = sizeof(btSolverBody);
 					uint64_t dmaPpuAddress2 = reinterpret_cast<uint64_t> (taskDesc.m_solverData.m_solverBodyList + indexList[b]);
 					cellDmaLargePut(bodyList + b, dmaPpuAddress2, dmaSize, DMA_TAG(1), 0, 0);						
 				}
@@ -1720,7 +1815,7 @@ void processSolverTask(void* userPtr, void* lsMemory)
 
 			btRigidBody** bodyPtrList = (btRigidBody**)allocTemporaryStorage(localMemory, bodiesPerPackage*sizeof(btRigidBody*));
 			btRigidBody* bodyList = (btRigidBody*)allocTemporaryStorage(localMemory, bodiesPerPackage*sizeof(btRigidBody));
-			SpuSolverBody* spuBodyList = allocBodyStorage(localMemory, bodiesPerPackage);
+			btSolverBody* spuBodyList = allocBodyStorage(localMemory, bodiesPerPackage);
 
 			while (bodiesToProcess > 0)
 			{
@@ -1746,7 +1841,7 @@ void processSolverTask(void* userPtr, void* lsMemory)
 
 				// DMA the list of SPU bodies
 				{
-					int dmaSize = sizeof(SpuSolverBody)*packageSize;
+					int dmaSize = sizeof(btSolverBody)*packageSize;
 					uint64_t dmaPpuAddress2 = reinterpret_cast<uint64_t> (taskDesc.m_solverData.m_solverBodyList + bodyPackageOffset);
 					cellDmaLargeGet(spuBodyList, dmaPpuAddress2, dmaSize, DMA_TAG(2), 0, 0);
 				}
@@ -1756,9 +1851,9 @@ void processSolverTask(void* userPtr, void* lsMemory)
 				for ( b = 0; b < packageSize; ++b)
 				{
 					btRigidBody* localBody = bodyList + b;
-					SpuSolverBody* solverBody = spuBodyList + b;
+					btSolverBody* solverBody = spuBodyList + b;
 				
-					if (solverBody->m_invertedMass > 0)
+					if (solverBody->m_invMass > 0)
 					{
 						localBody->setLinearVelocity(solverBody->m_linearVelocity);
 						localBody->setAngularVelocity(solverBody->m_angularVelocity);
@@ -1782,6 +1877,86 @@ void processSolverTask(void* userPtr, void* lsMemory)
 
 		}
 		break;
+
+		case CMD_SOLVER_MANIFOLD_WARMSTART_WRITEBACK:
+		{			
+			// DMA the hash
+			{
+				int dmaSize = sizeof(SpuSolverHash);
+				uint64_t dmaPpuAddress2 = reinterpret_cast<uint64_t> (taskDesc.m_solverData.m_solverHash);
+				cellDmaLargeGet(&localMemory->m_localHash, dmaPpuAddress2, dmaSize, DMA_TAG(1), 0, 0);
+				cellDmaWaitTagStatusAll(DMA_MASK(1));
+			}
+			
+			btSpinlock hashLock (taskDesc.m_commandData.m_iterate.m_spinLockVar);			
+
+			int cellToProcess;
+			while (1)
+			{
+				cellToProcess = getNextFreeCell(localMemory, taskDesc, hashLock);
+
+				if (cellToProcess >= SPU_HASH_NUMCELLS)
+					break;
+
+				// Now process that one cell
+				SpuSolverHashCell& hashCell = localMemory->m_localHash.m_Hash[cellToProcess];
+				
+				if (hashCell.m_numContacts == 0 && hashCell.m_numConstraints == 0)
+					continue;
+
+				// Now process the contacts
+				if (hashCell.m_numContacts)
+				{
+					const size_t maxContactsPerPacket = memTemporaryStorage(localMemory) / (sizeof(btSolverConstraint)*3);
+					size_t contactsToProcess = hashCell.m_numContacts;
+					size_t constraintListOffset = hashCell.m_internalConstraintListOffset;
+
+					btSolverConstraint* internalConstraints = allocInternalConstraintStorage(localMemory, maxContactsPerPacket*3);
+
+					while (contactsToProcess > 0)
+					{
+						size_t packetSize = contactsToProcess > maxContactsPerPacket ? maxContactsPerPacket : contactsToProcess;
+
+						// DMA the constraints
+						{
+							int dmaSize = sizeof(btSolverConstraint)*packetSize*3;
+							uint64_t dmaPpuAddress2 = reinterpret_cast<uint64_t> (taskDesc.m_solverData.m_solverInternalConstraintList + constraintListOffset);
+							cellDmaLargeGet(internalConstraints, dmaPpuAddress2, dmaSize, DMA_TAG(1), 0, 0);
+						}
+						cellDmaWaitTagStatusAll(DMA_MASK(1));
+
+						int j;
+						for ( j = 0; j < packetSize*3; j += 3)
+						{
+								btSolverConstraint& contact = internalConstraints[j];
+								{
+									//DMA in
+									uint64_t dmaPpuAddress2 = reinterpret_cast<uint64_t> (contact.m_originalContactPoint);
+									int dmasize = 4*sizeof(float);
+									float* tmpMem = &localMemory->m_appliedImpulse[0];
+									cellDmaGet(tmpMem,dmaPpuAddress2,dmasize,DMA_TAG(1),0,0);
+									cellDmaWaitTagStatusAll(DMA_MASK(1));
+
+									
+									*tmpMem = btMin(btScalar(3.),contact.m_appliedImpulse);
+
+									///DMA out
+									cellDmaLargePut(tmpMem,dmaPpuAddress2,dmasize,DMA_TAG(1),0,0);
+									cellDmaWaitTagStatusAll(DMA_MASK(1));
+								}
+						}
+						constraintListOffset += packetSize*3;
+						contactsToProcess -= packetSize;
+					}
+
+					freeInternalConstraintStorage (localMemory, internalConstraints, maxContactsPerPacket*3);
+				}
+
+				
+			}
+		}
+		break;
+
 	default:
 		//.. nothing
 		;

@@ -26,7 +26,8 @@ Written by: Marten Svanfeldt
 #include "../SpuSync.h"
 #include "BulletDynamics/ConstraintSolver/btTypedConstraint.h"
 #include "LinearMath/btAlignedAllocator.h"
-
+#include "BulletDynamics/ConstraintSolver/btSolverBody.h"
+#include "BulletDynamics/ConstraintSolver/btSolverConstraint.h"
 
 ATTRIBUTE_ALIGNED16(struct) ManifoldCellHolder
 {
@@ -61,10 +62,11 @@ enum
 enum
 {
 	CMD_SOLVER_SETUP_BODIES = 1,
-	CMD_SOLVER_MANIFOLD_SETUP = 2,
-	CMD_SOLVER_CONSTRAINT_SETUP = 3,
-	CMD_SOLVER_SOLVE_ITERATE = 4,
-	CMD_SOLVER_COPYBACK_BODIES = 5
+	CMD_SOLVER_MANIFOLD_SETUP,
+	CMD_SOLVER_CONSTRAINT_SETUP,
+	CMD_SOLVER_SOLVE_ITERATE,
+	CMD_SOLVER_COPYBACK_BODIES,
+	CMD_SOLVER_MANIFOLD_WARMSTART_WRITEBACK
 };
 
 struct SpuSolverHashCell
@@ -106,39 +108,9 @@ inline unsigned int spuGetHashCellIndex(int x, int y, int z)
 }
 
 
-ATTRIBUTE_ALIGNED16(struct) SpuSolverBody
-{
-	BT_DECLARE_ALIGNED_ALLOCATOR();
 
-	btVector3			m_linearVelocity;
-	btVector3			m_angularVelocity;
 
-	btMatrix3x3			m_worldInvInertiaTensor;
-	btScalar            m_angularFactor;
-	btScalar				m_invertedMass;
-};
 
-ATTRIBUTE_ALIGNED16(struct) SpuSolverInternalConstraint
-{
-	BT_DECLARE_ALIGNED_ALLOCATOR();
-
-	uint32_t			m_localOffsetBodyA;
-	uint32_t			m_localOffsetBodyB;
-
-	btScalar				m_appliedImpulse;
-
-	btScalar				m_friction;
-	btScalar				m_restitution;
-	btScalar				m_jacDiagABInv;
-	btScalar				m_penetration;
-
-	btVector3			m_normal;
-
-	btVector3			m_relpos1CrossNormal;
-	btVector3			m_relpos2CrossNormal;
-	btVector3			m_angularComponentA;
-	btVector3			m_angularComponentB;
-};
 
 
 ATTRIBUTE_ALIGNED16(struct) SpuSolverConstraint
@@ -147,7 +119,6 @@ ATTRIBUTE_ALIGNED16(struct) SpuSolverConstraint
 
 	uint16_t			m_localOffsetBodyA;
 	uint16_t			m_localOffsetBodyB;
-
 	uint16_t			m_constraintType;
 	struct 
 	{
@@ -217,8 +188,8 @@ ATTRIBUTE_ALIGNED16(struct) SpuSolverDataDesc
 	BT_DECLARE_ALIGNED_ALLOCATOR();
 
 	SpuSolverHash*					m_solverHash;
-	SpuSolverBody*					m_solverBodyList;
-	SpuSolverInternalConstraint*	m_solverInternalConstraintList;
+	btSolverBody*					m_solverBodyList;
+	btSolverConstraint*	m_solverInternalConstraintList;
 	SpuSolverConstraint*			m_solverConstraintList;
 	uint32_t*						m_solverBodyOffsetList;
 };
