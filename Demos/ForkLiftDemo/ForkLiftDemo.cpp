@@ -436,23 +436,28 @@ void ForkLiftDemo::renderme()
 		m_shapeDrawer.drawOpenGL(m,&wheelShape,wheelColor,getDebugMode(),worldBoundsMin,worldBoundsMax);
 	}
 
+
+	int lineWidth=250;
+	int xStart = m_glutScreenWidth - lineWidth;
+	
+
 	if((getDebugMode() & btIDebugDraw::DBG_NoHelpText)==0)
 	{
 		setOrthographicProjection();
 		glDisable(GL_LIGHTING);
 		glColor3f(0, 0, 0);
 		char buf[124];
-		glRasterPos3f(400, 20, 0);
+		glRasterPos3f(xStart, 20, 0);
 		sprintf(buf,"SHIFT+Cursor Left/Right - rotate lift");
 		BMF_DrawString(BMF_GetFont(BMF_kHelvetica10),buf);
-		glRasterPos3f(400, 40, 0);
+		glRasterPos3f(xStart, 40, 0);
 		sprintf(buf,"SHIFT+Cursor UP/Down - move fork up/down");
 		BMF_DrawString(BMF_GetFont(BMF_kHelvetica10),buf);
-		glRasterPos3f(400, 60, 0);
+		glRasterPos3f(xStart, 60, 0);
 		sprintf(buf,"F5 - toggle camera mode");
 		BMF_DrawString(BMF_GetFont(BMF_kHelvetica10),buf);
-		glRasterPos3f(400, 80, 0);
-                sprintf(buf,"Click inside windows for keyboard focus");
+		glRasterPos3f(xStart, 80, 0);
+                sprintf(buf,"Click inside this window for keyboard focus");
 		BMF_DrawString(BMF_GetFont(BMF_kHelvetica10),buf);
 
 
