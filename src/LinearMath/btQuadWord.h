@@ -88,7 +88,7 @@ class	btQuadWord : public btQuadWordStorage
 
 	SIMD_FORCE_INLINE	bool	operator==(const btQuadWord& other) const
 	{
-		return ((m_floats[3]==m_floats[3]) && (m_floats[2]==m_floats[2]) && (m_floats[1]==m_floats[1]) && (m_floats[0]==m_floats[0]));
+		return ((m_floats[3]==other.m_floats[3]) && (m_floats[2]==other.m_floats[2]) && (m_floats[1]==other.m_floats[1]) && (m_floats[0]==other.m_floats[0]));
 	}
 
 	SIMD_FORCE_INLINE	bool	operator!=(const btQuadWord& other) const
