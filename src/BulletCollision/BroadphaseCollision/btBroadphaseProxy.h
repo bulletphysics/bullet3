@@ -207,7 +207,7 @@ BT_DECLARE_ALIGNED_ALLOCATOR();
 	btBroadphaseProxy* m_pProxy1;
 	
 	mutable btCollisionAlgorithm* m_algorithm;
-	mutable union { void* m_internalInfo1; int m_internalTmpValue;};//don't use this data, it will be removed in future version.
+	union { void* m_internalInfo1; int m_internalTmpValue;};//don't use this data, it will be removed in future version.
 
 };
 
