@@ -47,9 +47,10 @@ public:
 
 	void	rayTest(const btVector3& rayFromWorld, const btVector3& rayToWorld, btCollisionWorld::RayResultCallback& resultCallback) const; 
 
-	virtual void	addOverlappingObject(btBroadphaseProxy* otherProxy);
-
-	virtual void	removeOverlappingObject(btBroadphaseProxy* otherProxy,btDispatcher* dispatcher);
+	///this method is mainly for expert/internal use only.
+	virtual void	addOverlappingObjectInternal(btBroadphaseProxy* otherProxy, btBroadphaseProxy* thisProxy=0);
+	///this method is mainly for expert/internal use only.
+	virtual void	removeOverlappingObjectInternal(btBroadphaseProxy* otherProxy,btDispatcher* dispatcher,btBroadphaseProxy* thisProxy=0);
 
 	int	getNumOverlappingObjects() const
 	{
@@ -105,9 +106,10 @@ public:
 
 	virtual ~btPairCachingGhostObject();
 
-	virtual void	addOverlappingObject(btBroadphaseProxy* otherProxy);
+	///this method is mainly for expert/internal use only.
+	virtual void	addOverlappingObjectInternal(btBroadphaseProxy* otherProxy, btBroadphaseProxy* thisProxy=0);
 
-	virtual void	removeOverlappingObject(btBroadphaseProxy* otherProxy,btDispatcher* dispatcher);
+	virtual void	removeOverlappingObjectInternal(btBroadphaseProxy* otherProxy,btDispatcher* dispatcher,btBroadphaseProxy* thisProxy=0);
 
 	btHashedOverlappingPairCache*	getOverlappingPairCache()
 	{
@@ -139,9 +141,9 @@ public:
 		btGhostObject* ghost0 = 		btGhostObject::upcast(colObj0);
 		btGhostObject* ghost1 = 		btGhostObject::upcast(colObj1);
 		if (ghost0)
-			ghost0->addOverlappingObject(proxy1);
+			ghost0->addOverlappingObjectInternal(proxy1, proxy0);
 		if (ghost1)
-			ghost1->addOverlappingObject(proxy0);
+			ghost1->addOverlappingObjectInternal(proxy0, proxy1);
 		return 0;
 	}
 
@@ -152,9 +154,9 @@ public:
 		btGhostObject* ghost0 = 		btGhostObject::upcast(colObj0);
 		btGhostObject* ghost1 = 		btGhostObject::upcast(colObj1);
 		if (ghost0)
-			ghost0->removeOverlappingObject(proxy1,dispatcher);
+			ghost0->removeOverlappingObjectInternal(proxy1,dispatcher,proxy0);
 		if (ghost1)
-			ghost1->removeOverlappingObject(proxy0,dispatcher);
+			ghost1->removeOverlappingObjectInternal(proxy0,dispatcher,proxy1);
 		return 0;
 	}
 

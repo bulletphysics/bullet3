@@ -90,12 +90,6 @@ void CharacterDemo::initPhysics()
 	m_character = new btKinematicCharacterController (m_ghostObject,capsule,stepHeight);
 #endif
 
-	
-	///only collide with static for now (no interaction with dynamic objects)
-	m_dynamicsWorld->addCollisionObject(m_ghostObject,btBroadphaseProxy::CharacterFilter, btBroadphaseProxy::StaticFilter|btBroadphaseProxy::DefaultFilter);
-
-	m_dynamicsWorld->addCharacter(m_character);
-
 	////////////////
 
 	/// Create some basic environment from a Quake level
@@ -141,6 +135,12 @@ void CharacterDemo::initPhysics()
 		}
 		fclose(file);
 	}
+
+	///only collide with static for now (no interaction with dynamic objects)
+	m_dynamicsWorld->addCollisionObject(m_ghostObject,btBroadphaseProxy::CharacterFilter, btBroadphaseProxy::StaticFilter|btBroadphaseProxy::DefaultFilter);
+
+	m_dynamicsWorld->addCharacter(m_character);
+
 
 	///////////////
 

@@ -30,18 +30,20 @@ btGhostObject::~btGhostObject()
 }
 
 
-void btGhostObject::addOverlappingObject(btBroadphaseProxy* otherProxy)
+void btGhostObject::addOverlappingObjectInternal(btBroadphaseProxy* otherProxy,btBroadphaseProxy* thisProxy)
 {
 	btCollisionObject* otherObject = (btCollisionObject*)otherProxy->m_clientObject;
 	btAssert(otherObject);
+	///if this linearSearch becomes too slow (too many overlapping objects) we should add a more appropriate data structure
 	int index = m_overlappingObjects.findLinearSearch(otherObject);
 	if (index==m_overlappingObjects.size())
 	{
+		//not found
 		m_overlappingObjects.push_back(otherObject);
 	}
 }
 
-void btGhostObject::removeOverlappingObject(btBroadphaseProxy* otherProxy,btDispatcher* dispatcher)
+void btGhostObject::removeOverlappingObjectInternal(btBroadphaseProxy* otherProxy,btDispatcher* dispatcher,btBroadphaseProxy* thisProxy)
 {
 	btCollisionObject* otherObject = (btCollisionObject*)otherProxy->m_clientObject;
 	btAssert(otherObject);
@@ -64,28 +66,34 @@ btPairCachingGhostObject::~btPairCachingGhostObject()
 	btAlignedFree( m_hashPairCache );
 }
 
-void btPairCachingGhostObject::addOverlappingObject(btBroadphaseProxy* otherProxy)
+void btPairCachingGhostObject::addOverlappingObjectInternal(btBroadphaseProxy* otherProxy,btBroadphaseProxy* thisProxy)
 {
+	btBroadphaseProxy*actualThisProxy = thisProxy ? thisProxy : getBroadphaseHandle();
+	btAssert(actualThisProxy);
+
 	btCollisionObject* otherObject = (btCollisionObject*)otherProxy->m_clientObject;
 	btAssert(otherObject);
 	int index = m_overlappingObjects.findLinearSearch(otherObject);
 	if (index==m_overlappingObjects.size())
 	{
 		m_overlappingObjects.push_back(otherObject);
-		m_hashPairCache->addOverlappingPair(getBroadphaseHandle(),otherProxy);
+		m_hashPairCache->addOverlappingPair(actualThisProxy,otherProxy);
 	}
 }
 
-void btPairCachingGhostObject::removeOverlappingObject(btBroadphaseProxy* otherProxy,btDispatcher* dispatcher)
+void btPairCachingGhostObject::removeOverlappingObjectInternal(btBroadphaseProxy* otherProxy,btDispatcher* dispatcher,btBroadphaseProxy* thisProxy1)
 {
 	btCollisionObject* otherObject = (btCollisionObject*)otherProxy->m_clientObject;
+	btBroadphaseProxy* actualThisProxy = thisProxy1 ? thisProxy1 : getBroadphaseHandle();
+	btAssert(actualThisProxy);
+
 	btAssert(otherObject);
 	int index = m_overlappingObjects.findLinearSearch(otherObject);
 	if (index<m_overlappingObjects.size())
 	{
 		m_overlappingObjects[index] = m_overlappingObjects[m_overlappingObjects.size()-1];
 		m_overlappingObjects.pop_back();
-		m_hashPairCache->removeOverlappingPair(getBroadphaseHandle(),otherProxy,dispatcher);
+		m_hashPairCache->removeOverlappingPair(actualThisProxy,otherProxy,dispatcher);
 	}
 }
 
