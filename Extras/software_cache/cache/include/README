@@ -1,0 +1,32 @@
+%% --------------------------------------------------------------- 
+%% PLEASE DO NOT MODIFY THIS SECTION                               
+%% This prolog section is automatically generated.                 
+%%                                                                 
+%% (C) Copyright 2001,2006,                                        
+%% International Business Machines Corporation,                    
+%%                                                                 
+%% All Rights Reserved.                                            
+%% --------------------------------------------------------------- 
+%% PROLOG END TAG zYx                                              
+This directory contains implementation of software managed cache for
+SPE.  Whenever possible, the cache interfaces are implemented as macros
+or inline-able functions.
+
+Depending on compile-time settings, different cache implementations can
+be selected.  
+
+The include file heirarchy is:
+
+	+ spe_cache.h				Top level header.
+		|
+		+ defs.h			Common definitions.
+		+ dma.h				Initiate DMA transfers.
+		+ nway.h			Top level n-way header.
+			|
+			+ nway-lookup.h		n-way lookup operations.
+			+ nway-miss.h		n-way cache miss handler.
+			+ nway-replace.h	n-way cache replace handler.
+			+ nway-opt.h		"optimized" n-way interfaces.
+			|
+		+ api.h				Basic application interfaces.
+
