@@ -187,7 +187,7 @@ void btKinematicCharacterController::stepUp ( btCollisionWorld* world)
 	
 	if (m_useGhostObjectSweepTest)
 	{
-		m_ghostObject->convexSweepTest (m_convexShape, start, end, world->getDispatchInfo().m_allowedCcdPenetration,callback);
+		m_ghostObject->convexSweepTest (m_convexShape, start, end, callback, world->getDispatchInfo().m_allowedCcdPenetration);
 	}
 	else
 	{
@@ -284,10 +284,10 @@ void btKinematicCharacterController::stepForwardAndStrafe ( btCollisionWorld* co
 
 		if (m_useGhostObjectSweepTest)
 		{
-			m_ghostObject->convexSweepTest (m_convexShape, start, end, collisionWorld->getDispatchInfo().m_allowedCcdPenetration,callback);
+			m_ghostObject->convexSweepTest (m_convexShape, start, end, callback, collisionWorld->getDispatchInfo().m_allowedCcdPenetration);
 		} else
 		{
-			collisionWorld->convexSweepTest (m_convexShape, start, end, callback);
+			collisionWorld->convexSweepTest (m_convexShape, start, end, callback, collisionWorld->getDispatchInfo().m_allowedCcdPenetration);
 		}
 		
 		m_convexShape->setMargin(margin);
@@ -359,10 +359,10 @@ void btKinematicCharacterController::stepDown ( btCollisionWorld* collisionWorld
 	
 	if (m_useGhostObjectSweepTest)
 	{
-		m_ghostObject->convexSweepTest (m_convexShape, start, end, collisionWorld->getDispatchInfo().m_allowedCcdPenetration,callback);
+		m_ghostObject->convexSweepTest (m_convexShape, start, end, callback, collisionWorld->getDispatchInfo().m_allowedCcdPenetration);
 	} else
 	{
-		collisionWorld->convexSweepTest (m_convexShape, start, end, callback);
+		collisionWorld->convexSweepTest (m_convexShape, start, end, callback, collisionWorld->getDispatchInfo().m_allowedCcdPenetration);
 	}
 
 	if (callback.hasHit())

@@ -71,7 +71,7 @@ void	setDefaultSettings()
 {
 	viewX = 0.0f;
 	viewY = 0.0f;
-	framePeriod = 16;//16;//todo: test if this value should be 0
+	framePeriod = 1;//16;//16;//todo: test if this value should be 0
 	
 	width = 800;//640;
 	height = 600;//1024;//480;

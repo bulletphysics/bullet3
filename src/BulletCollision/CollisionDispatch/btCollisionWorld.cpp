@@ -765,7 +765,7 @@ struct btSingleSweepCallback : public btBroadphaseRayCallback
 
 
 
-void	btCollisionWorld::convexSweepTest(const btConvexShape* castShape, const btTransform& convexFromWorld, const btTransform& convexToWorld, ConvexResultCallback& resultCallback) const
+void	btCollisionWorld::convexSweepTest(const btConvexShape* castShape, const btTransform& convexFromWorld, const btTransform& convexToWorld, ConvexResultCallback& resultCallback, btScalar allowedCcdPenetration) const
 {
 
 	BT_PROFILE("convexSweepTest");
@@ -793,7 +793,7 @@ void	btCollisionWorld::convexSweepTest(const btConvexShape* castShape, const btT
 
 #ifndef USE_BRUTEFORCE_RAYBROADPHASE
 
-	btSingleSweepCallback	convexCB(castShape,convexFromWorld,convexToWorld,this,resultCallback,getDispatchInfo().m_allowedCcdPenetration);
+	btSingleSweepCallback	convexCB(castShape,convexFromWorld,convexToWorld,this,resultCallback,allowedCcdPenetration);
 
 	m_broadphasePairCache->rayTest(convexFromTrans.getOrigin(),convexToTrans.getOrigin(),convexCB,castShapeAabbMin,castShapeAabbMax);
 
@@ -819,7 +819,7 @@ void	btCollisionWorld::convexSweepTest(const btConvexShape* castShape, const btT
 						collisionObject->getCollisionShape(),
 						collisionObject->getWorldTransform(),
 						resultCallback,
-						getDispatchInfo().m_allowedCcdPenetration);
+						allowedCcdPenetration);
 			}
 		}
 	}

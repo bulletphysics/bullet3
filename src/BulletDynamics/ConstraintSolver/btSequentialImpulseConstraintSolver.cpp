@@ -760,7 +760,7 @@ btScalar btSequentialImpulseConstraintSolver::solveGroupCacheFriendlySetup(btCol
 							solverConstraint.m_appliedPushImpulse = 0.f;
 							
 							solverConstraint.m_frictionIndex = m_tmpSolverFrictionConstraintPool.size();
-							if ((!infoGlobal.m_solverMode & SOLVER_USE_FRICTION_WARMSTARTING) || !cp.m_lateralFrictionInitialized)
+							if (!cp.m_lateralFrictionInitialized)
 							{
 								cp.m_lateralFrictionDir1 = vel - cp.m_normalWorldOnB * rel_vel;
 								btScalar lat_rel_vel = cp.m_lateralFrictionDir1.length2();
@@ -773,16 +773,19 @@ btScalar btSequentialImpulseConstraintSolver::solveGroupCacheFriendlySetup(btCol
 										cp.m_lateralFrictionDir2 = cp.m_lateralFrictionDir1.cross(cp.m_normalWorldOnB);
 										cp.m_lateralFrictionDir2.normalize();//??
 										addFrictionConstraint(cp.m_lateralFrictionDir2,solverBodyIdA,solverBodyIdB,frictionIndex,cp,rel_pos1,rel_pos2,colObj0,colObj1, relaxation);
+										cp.m_lateralFrictionInitialized = true;
 									}
 								} else
 								{
 									//re-calculate friction direction every frame, todo: check if this is really needed
-									
 									btPlaneSpace1(cp.m_normalWorldOnB,cp.m_lateralFrictionDir1,cp.m_lateralFrictionDir2);
 									addFrictionConstraint(cp.m_lateralFrictionDir1,solverBodyIdA,solverBodyIdB,frictionIndex,cp,rel_pos1,rel_pos2,colObj0,colObj1, relaxation);
 									addFrictionConstraint(cp.m_lateralFrictionDir2,solverBodyIdA,solverBodyIdB,frictionIndex,cp,rel_pos1,rel_pos2,colObj0,colObj1, relaxation);
+									if (infoGlobal.m_solverMode & SOLVER_USE_FRICTION_WARMSTARTING)
+									{
+										cp.m_lateralFrictionInitialized = true;
+									}
 								}
-								cp.m_lateralFrictionInitialized = true;
 								
 							} else
 							{
@@ -999,8 +1002,11 @@ btScalar btSequentialImpulseConstraintSolver::solveGroupCacheFriendly(btCollisio
 		btManifoldPoint* pt = (btManifoldPoint*) solveManifold.m_originalContactPoint;
 		btAssert(pt);
 		pt->m_appliedImpulse = solveManifold.m_appliedImpulse;
-		pt->m_appliedImpulseLateral1 = m_tmpSolverFrictionConstraintPool[solveManifold.m_frictionIndex].m_appliedImpulse;
-		pt->m_appliedImpulseLateral2 = m_tmpSolverFrictionConstraintPool[solveManifold.m_frictionIndex+1].m_appliedImpulse;
+		if (infoGlobal.m_solverMode & SOLVER_USE_FRICTION_WARMSTARTING)
+		{
+			pt->m_appliedImpulseLateral1 = m_tmpSolverFrictionConstraintPool[solveManifold.m_frictionIndex].m_appliedImpulse;
+			pt->m_appliedImpulseLateral2 = m_tmpSolverFrictionConstraintPool[solveManifold.m_frictionIndex+1].m_appliedImpulse;
+		}
 
 		//do a callback here?
 

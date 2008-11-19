@@ -353,7 +353,7 @@ public:
 
 	// convexTest performs a swept convex cast on all objects in the btCollisionWorld, and calls the resultCallback
 	// This allows for several queries: first hit, all hits, any hit, dependent on the value return by the callback.
-	void    convexSweepTest (const btConvexShape* castShape, const btTransform& from, const btTransform& to, ConvexResultCallback& resultCallback) const;
+	void    convexSweepTest (const btConvexShape* castShape, const btTransform& from, const btTransform& to, ConvexResultCallback& resultCallback,  btScalar allowedCcdPenetration = btScalar(0.)) const;
 
 
 	/// rayTestSingle performs a raycast call and calls the resultCallback. It is used internally by rayTest.

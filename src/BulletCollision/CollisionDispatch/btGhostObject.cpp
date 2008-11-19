@@ -98,7 +98,7 @@ void btPairCachingGhostObject::removeOverlappingObjectInternal(btBroadphaseProxy
 }
 
 
-void	btGhostObject::convexSweepTest(const btConvexShape* castShape, const btTransform& convexFromWorld, const btTransform& convexToWorld, btScalar allowedCcdPenetration, btCollisionWorld::ConvexResultCallback& resultCallback) const
+void	btGhostObject::convexSweepTest(const btConvexShape* castShape, const btTransform& convexFromWorld, const btTransform& convexToWorld, btCollisionWorld::ConvexResultCallback& resultCallback, btScalar allowedCcdPenetration) const
 {
 	btTransform	convexFromTrans,convexToTrans;
 	convexFromTrans = convexFromWorld;
