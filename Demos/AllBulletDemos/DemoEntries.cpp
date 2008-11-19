@@ -104,13 +104,14 @@ btDemoEntry g_demoEntries[] =
 {
 
 
-	{"ForkLiftDemo",ForkLiftDemo::Create},
-	{"RagdollDemo",RagdollDemo::Create},
-	{"BasicDemo", BasicDemo::Create},	
-	{"ConvexDecomposition",ConvexDecompositionDemo::Create},
+	{"ForkLift Demo",ForkLiftDemo::Create},
+	{"Ragdoll Demo",RagdollDemo::Create},
+	{"Basic Demo", BasicDemo::Create},	
+	{"Convex Decomposition",ConvexDecompositionDemo::Create},
 	{"Concave Moving", GimpactConcaveDemo::Create},
-	{"DynamicControlDemo",MotorDemo::Create},
-	{"ConcaveDemo",ConcaveDemo::Create},
+	{"Dynamic Control Demo",MotorDemo::Create},
+	//{"ConcaveDemo",ConcaveDemo::Create},
+	{"Concave Convexcast Demo",ConcaveConvexcastDemo::Create},
 	//	{"SoftBody Cloth",SoftDemo0::Create},
 //	{"SoftBody Pressure",SoftDemo1::Create},
 	{"SoftBody Ropes Attach",SoftDemo4::Create},
@@ -144,7 +145,6 @@ btDemoEntry g_demoEntries[] =
 //	{"SliderConstraint",SliderConstraintDemo::Create},
 //	{"CcdPhysicsDemo", CcdPhysicsDemo::Create},
 //	{"ConcaveRaycastDemo",ConcaveRaycastDemo::Create},
-//	{"ConcaveConvexcastDemo",ConcaveConvexcastDemo::Create},
 	//{"BspDemo", BspDemo::Create},
 //	{"Raytracer Test",Raytracer::Create},
 //	{"GjkConvexCast",LinearConvexCastDemo::Create},
@@ -156,7 +156,7 @@ btDemoEntry g_demoEntries[] =
 	{"Benchmark Mesh-Convex",BenchmarkDemo6::Create},
 	{"Benchmark Raycast",BenchmarkDemo7::Create},
 
-	{"MemoryLeakChecker",btEmptyDebugDemo::Create},	
+	{"MemoryLeak Checker",btEmptyDebugDemo::Create},	
 	{0, 0}
 };
 

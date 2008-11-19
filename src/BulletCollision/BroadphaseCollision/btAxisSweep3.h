@@ -148,8 +148,8 @@ public:
 	virtual void	setAabb(btBroadphaseProxy* proxy,const btVector3& aabbMin,const btVector3& aabbMax,btDispatcher* dispatcher);
 	virtual void  getAabb(btBroadphaseProxy* proxy,btVector3& aabbMin, btVector3& aabbMax ) const;
 	
-	virtual void	rayTest(const btVector3& rayFrom,const btVector3& rayTo, btBroadphaseRayCallback& rayCallback);
-
+	virtual void	rayTest(const btVector3& rayFrom,const btVector3& rayTo, btBroadphaseRayCallback& rayCallback, const btVector3& aabbMin=btVector3(0,0,0), const btVector3& aabbMax = btVector3(0,0,0));
+	
 	void quantize(BP_FP_INT_TYPE* out, const btVector3& point, int isMax) const;
 	///unQuantize should be conservative: aabbMin/aabbMax should be larger then 'getAabb' result
 	void unQuantize(btBroadphaseProxy* proxy,btVector3& aabbMin, btVector3& aabbMax ) const;
@@ -264,12 +264,11 @@ void	btAxisSweep3Internal<BP_FP_INT_TYPE>::setAabb(btBroadphaseProxy* proxy,cons
 }
 
 template <typename BP_FP_INT_TYPE>
-
-void	btAxisSweep3Internal<BP_FP_INT_TYPE>::rayTest(const btVector3& rayFrom,const btVector3& rayTo, btBroadphaseRayCallback& rayCallback)
+void	btAxisSweep3Internal<BP_FP_INT_TYPE>::rayTest(const btVector3& rayFrom,const btVector3& rayTo, btBroadphaseRayCallback& rayCallback,const btVector3& aabbMin,const btVector3& aabbMax)
 {
 	if (m_raycastAccelerator)
 	{
-		m_raycastAccelerator->rayTest(rayFrom,rayTo,rayCallback);
+		m_raycastAccelerator->rayTest(rayFrom,rayTo,rayCallback,aabbMin,aabbMax);
 	} else
 	{
 		//choose axis?
@@ -284,6 +283,7 @@ void	btAxisSweep3Internal<BP_FP_INT_TYPE>::rayTest(const btVector3& rayFrom,cons
 		}
 	}
 }
+
 
 
 template <typename BP_FP_INT_TYPE>

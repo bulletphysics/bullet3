@@ -210,7 +210,7 @@ void	btDbvtBroadphase::getAabb(btBroadphaseProxy* absproxy,btVector3& aabbMin, b
 	aabbMax = proxy->m_aabbMax;
 }
 
-void	btDbvtBroadphase::rayTest(const btVector3& rayFrom,const btVector3& rayTo, btBroadphaseRayCallback& rayCallback)
+void	btDbvtBroadphase::rayTest(const btVector3& rayFrom,const btVector3& rayTo, btBroadphaseRayCallback& rayCallback,const btVector3& aabbMin,const btVector3& aabbMax)
 {
 
 	struct	BroadphaseRayTester : btDbvt::ICollide
@@ -235,6 +235,8 @@ void	btDbvtBroadphase::rayTest(const btVector3& rayFrom,const btVector3& rayTo, 
 		rayCallback.m_rayDirectionInverse,
 		rayCallback.m_signs,
 		rayCallback.m_lambda_max,
+		aabbMin,
+		aabbMax,
 		callback);
 
 	m_sets[1].rayTestInternal(	m_sets[1].m_root,
@@ -243,6 +245,8 @@ void	btDbvtBroadphase::rayTest(const btVector3& rayFrom,const btVector3& rayTo, 
 		rayCallback.m_rayDirectionInverse,
 		rayCallback.m_signs,
 		rayCallback.m_lambda_max,
+		aabbMin,
+		aabbMax,
 		callback);
 
 }

@@ -31,8 +31,8 @@ subject to the following restrictions:
 #include "BulletCollision/BroadphaseCollision/btDbvtBroadphase.h"
 #include "LinearMath/btQuickprof.h"
 
-//#define NUM_SAP_BOXES 8192
-#define NUM_SAP_BOXES 16384
+#define NUM_SAP_BOXES 8192
+//#define NUM_SAP_BOXES 16384
 //#define NUM_SAP_BOXES 1024
 
 int		percentUpdate	=	100;

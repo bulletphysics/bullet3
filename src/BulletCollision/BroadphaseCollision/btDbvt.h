@@ -336,6 +336,8 @@ struct	btDbvt
 								const btVector3& rayDirectionInverse,
 								unsigned int signs[3],
 								btScalar lambda_max,
+								const btVector3& aabbMin,
+								const btVector3& aabbMax,
 								DBVT_IPOLICY) const;
 
 	DBVT_PREFIX
@@ -955,6 +957,8 @@ inline void		btDbvt::rayTestInternal(	const btDbvtNode* root,
 								const btVector3& rayDirectionInverse,
 								unsigned int signs[3],
 								btScalar lambda_max,
+								const btVector3& aabbMin,
+								const btVector3& aabbMax,
 								DBVT_IPOLICY) const
 {
 	DBVT_CHECKTYPE
@@ -971,8 +975,8 @@ inline void		btDbvt::rayTestInternal(	const btDbvtNode* root,
 		do	
 		{
 			const btDbvtNode*	node=stack[--depth];
-			bounds[0] = node->volume.Mins();
-			bounds[1] = node->volume.Maxs();
+			bounds[0] = node->volume.Mins()+aabbMin;
+			bounds[1] = node->volume.Maxs()+aabbMax;
 			btScalar tmin=1.f,lambda_min=0.f;
 			unsigned int result1=false;
 			result1 = btRayAabb2(rayFrom,rayDirectionInverse,signs,bounds,tmin,lambda_min,lambda_max);

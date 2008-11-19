@@ -794,7 +794,8 @@ void	ForkLiftDemo::updateCamera()
 	m_cameraPosition -= correctionFactor*camToObject;
 	
 	//update OpenGL camera settings
-    glFrustum(-1.0, 1.0, -1.0, 1.0, 1.0, 10000.0);
+	btScalar aspect = m_glutScreenWidth / (btScalar)m_glutScreenHeight;
+	glFrustum (-aspect, aspect, -1.0, 1.0, 1.0, 10000.0);
 
 	 glMatrixMode(GL_MODELVIEW);
 	 glLoadIdentity();

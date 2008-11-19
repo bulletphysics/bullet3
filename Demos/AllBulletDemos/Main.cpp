@@ -118,6 +118,8 @@ void	NextScene()
 	testSelection++;
 	if(testSelection>23)
 		testSelection=0;
+	if (glui)
+		glui->sync_live();
 }
 
 

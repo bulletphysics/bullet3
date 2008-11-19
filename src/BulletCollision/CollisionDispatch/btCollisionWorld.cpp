@@ -231,7 +231,7 @@ void	btCollisionWorld::rayTestSingle(const btTransform& rayFromTrans,const btTra
 
 	if (collisionShape->isConvex())
 	{
-		BT_PROFILE("rayTestConvex");
+//		BT_PROFILE("rayTestConvex");
 		btConvexCast::CastResult castResult;
 		castResult.m_fraction = resultCallback.m_closestHitFraction;
 
@@ -275,7 +275,7 @@ void	btCollisionWorld::rayTestSingle(const btTransform& rayFromTrans,const btTra
 	} else {
 		if (collisionShape->isConcave())
 		{
-			BT_PROFILE("rayTestConcave");
+//			BT_PROFILE("rayTestConcave");
 			if (collisionShape->getShapeType()==TRIANGLE_MESH_SHAPE_PROXYTYPE)
 			{
 				///optimized version for btBvhTriangleMeshShape
@@ -324,7 +324,8 @@ void	btCollisionWorld::rayTestSingle(const btTransform& rayFromTrans,const btTra
 				triangleMesh->performRaycast(&rcb,rayFromLocal,rayToLocal);
 			} else
 			{
-				btTriangleMeshShape* triangleMesh = (btTriangleMeshShape*)collisionShape;
+				//generic (slower) case
+				btConcaveShape* concaveShape = (btConcaveShape*)collisionShape;
 
 				btTransform worldTocollisionObject = colObjWorldTransform.inverse();
 
@@ -337,10 +338,10 @@ void	btCollisionWorld::rayTestSingle(const btTransform& rayFromTrans,const btTra
 				{
 					btCollisionWorld::RayResultCallback* m_resultCallback;
 					btCollisionObject*	m_collisionObject;
-					btTriangleMeshShape*	m_triangleMesh;
+					btConcaveShape*	m_triangleMesh;
 
 					BridgeTriangleRaycastCallback( const btVector3& from,const btVector3& to,
-						btCollisionWorld::RayResultCallback* resultCallback, btCollisionObject* collisionObject,btTriangleMeshShape*	triangleMesh):
+						btCollisionWorld::RayResultCallback* resultCallback, btCollisionObject* collisionObject,btConcaveShape*	triangleMesh):
 						btTriangleRaycastCallback(from,to),
 							m_resultCallback(resultCallback),
 							m_collisionObject(collisionObject),
@@ -370,7 +371,7 @@ void	btCollisionWorld::rayTestSingle(const btTransform& rayFromTrans,const btTra
 				};
 
 
-				BridgeTriangleRaycastCallback	rcb(rayFromLocal,rayToLocal,&resultCallback,collisionObject,triangleMesh);
+				BridgeTriangleRaycastCallback	rcb(rayFromLocal,rayToLocal,&resultCallback,collisionObject,concaveShape);
 				rcb.m_hitFraction = resultCallback.m_closestHitFraction;
 
 				btVector3 rayAabbMinLocal = rayFromLocal;
@@ -378,10 +379,10 @@ void	btCollisionWorld::rayTestSingle(const btTransform& rayFromTrans,const btTra
 				btVector3 rayAabbMaxLocal = rayFromLocal;
 				rayAabbMaxLocal.setMax(rayToLocal);
 
-				triangleMesh->processAllTriangles(&rcb,rayAabbMinLocal,rayAabbMaxLocal);
+				concaveShape->processAllTriangles(&rcb,rayAabbMinLocal,rayAabbMaxLocal);
 			}
 		} else {
-			BT_PROFILE("rayTestCompound");
+//			BT_PROFILE("rayTestCompound");
 			///@todo: use AABB tree or other BVH acceleration structure, see btDbvt
 			if (collisionShape->isCompound())
 			{
@@ -416,10 +417,10 @@ void	btCollisionWorld::objectQuerySingle(const btConvexShape* castShape,const bt
 {
 	if (collisionShape->isConvex())
 	{
-	
+		//BT_PROFILE("convexSweepConvex");
 		btConvexCast::CastResult castResult;
 		castResult.m_allowedPenetration = allowedPenetration;
-		castResult.m_fraction = btScalar(1.);//??
+		castResult.m_fraction = resultCallback.m_closestHitFraction;//btScalar(1.);//??
 
 		btConvexShape* convexShape = (btConvexShape*) collisionShape;
 		btVoronoiSimplexSolver	simplexSolver;
@@ -461,6 +462,7 @@ void	btCollisionWorld::objectQuerySingle(const btConvexShape* castShape,const bt
 		{
 			if (collisionShape->getShapeType()==TRIANGLE_MESH_SHAPE_PROXYTYPE)
 			{
+				//BT_PROFILE("convexSweepbtBvhTriangleMesh");
 				btBvhTriangleMeshShape* triangleMesh = (btBvhTriangleMeshShape*)collisionShape;
 				btTransform worldTocollisionObject = colObjWorldTransform.inverse();
 				btVector3 convexFromLocal = worldTocollisionObject * convexFromTrans.getOrigin();
@@ -517,7 +519,8 @@ void	btCollisionWorld::objectQuerySingle(const btConvexShape* castShape,const bt
 				triangleMesh->performConvexcast(&tccb,convexFromLocal,convexToLocal,boxMinLocal, boxMaxLocal);
 			} else
 			{
-				btBvhTriangleMeshShape* triangleMesh = (btBvhTriangleMeshShape*)collisionShape;
+				//BT_PROFILE("convexSweepConcave");
+				btConcaveShape* concaveShape = (btConcaveShape*)collisionShape;
 				btTransform worldTocollisionObject = colObjWorldTransform.inverse();
 				btVector3 convexFromLocal = worldTocollisionObject * convexFromTrans.getOrigin();
 				btVector3 convexToLocal = worldTocollisionObject * convexToTrans.getOrigin();
@@ -529,10 +532,10 @@ void	btCollisionWorld::objectQuerySingle(const btConvexShape* castShape,const bt
 				{
 					btCollisionWorld::ConvexResultCallback* m_resultCallback;
 					btCollisionObject*	m_collisionObject;
-					btTriangleMeshShape*	m_triangleMesh;
+					btConcaveShape*	m_triangleMesh;
 
 					BridgeTriangleConvexcastCallback(const btConvexShape* castShape, const btTransform& from,const btTransform& to,
-						btCollisionWorld::ConvexResultCallback* resultCallback, btCollisionObject* collisionObject,btTriangleMeshShape*	triangleMesh, const btTransform& triangleToWorld):
+						btCollisionWorld::ConvexResultCallback* resultCallback, btCollisionObject* collisionObject,btConcaveShape*	triangleMesh, const btTransform& triangleToWorld):
 						btTriangleConvexcastCallback(castShape, from,to, triangleToWorld, triangleMesh->getMargin()),
 							m_resultCallback(resultCallback),
 							m_collisionObject(collisionObject),
@@ -565,7 +568,7 @@ void	btCollisionWorld::objectQuerySingle(const btConvexShape* castShape,const bt
 
 				};
 
-				BridgeTriangleConvexcastCallback tccb(castShape, convexFromTrans,convexToTrans,&resultCallback,collisionObject,triangleMesh, colObjWorldTransform);
+				BridgeTriangleConvexcastCallback tccb(castShape, convexFromTrans,convexToTrans,&resultCallback,collisionObject,concaveShape, colObjWorldTransform);
 				tccb.m_hitFraction = resultCallback.m_closestHitFraction;
 				btVector3 boxMinLocal, boxMaxLocal;
 				castShape->getAabb(rotationXform, boxMinLocal, boxMaxLocal);
@@ -576,12 +579,13 @@ void	btCollisionWorld::objectQuerySingle(const btConvexShape* castShape,const bt
 				rayAabbMaxLocal.setMax(convexToLocal);
 				rayAabbMinLocal += boxMinLocal;
 				rayAabbMaxLocal += boxMaxLocal;
-				triangleMesh->processAllTriangles(&tccb,rayAabbMinLocal,rayAabbMaxLocal);
+				concaveShape->processAllTriangles(&tccb,rayAabbMinLocal,rayAabbMaxLocal);
 			}
 		} else {
 			///@todo : use AABB tree or other BVH acceleration structure!
 			if (collisionShape->isCompound())
 			{
+				BT_PROFILE("convexSweepCompound");
 				const btCompoundShape* compoundShape = static_cast<const btCompoundShape*>(collisionShape);
 				int i=0;
 				for (i=0;i<compoundShape->getNumChildShapes();i++)
@@ -686,7 +690,8 @@ struct btSingleRayCallback : public btBroadphaseRayCallback
 void	btCollisionWorld::rayTest(const btVector3& rayFromWorld, const btVector3& rayToWorld, RayResultCallback& resultCallback) const
 {
 	BT_PROFILE("rayTest");
-	/// go over all objects, and if the ray intersects their aabb, do a ray-shape query using convexCaster (CCD)
+	/// use the broadphase to accelerate the search for objects, based on their aabb
+	/// and for each object with ray-aabb overlap, perform an exact ray test
 	btSingleRayCallback rayCB(rayFromWorld,rayToWorld,this,resultCallback);
 
 #ifndef USE_BRUTEFORCE_RAYBROADPHASE
@@ -700,8 +705,76 @@ void	btCollisionWorld::rayTest(const btVector3& rayFromWorld, const btVector3& r
 
 }
 
+
+struct btSingleSweepCallback : public btBroadphaseRayCallback
+{
+
+	btTransform	m_convexFromTrans;
+	btTransform	m_convexToTrans;
+	btVector3	m_hitNormal;
+	const btCollisionWorld*	m_world;
+	btCollisionWorld::ConvexResultCallback&	m_resultCallback;
+	btScalar	m_allowedCcdPenetration;
+	const btConvexShape* m_castShape;
+
+
+	btSingleSweepCallback(const btConvexShape* castShape, const btTransform& convexFromTrans,const btTransform& convexToTrans,const btCollisionWorld* world,btCollisionWorld::ConvexResultCallback& resultCallback,btScalar allowedPenetration)
+		:m_convexFromTrans(convexFromTrans),
+		m_convexToTrans(convexToTrans),
+		m_world(world),
+		m_resultCallback(resultCallback),
+		m_allowedCcdPenetration(allowedPenetration),
+		m_castShape(castShape)
+	{
+		btVector3 unnormalizedRayDir = (m_convexToTrans.getOrigin()-m_convexFromTrans.getOrigin());
+		btVector3 rayDir = unnormalizedRayDir.normalized();
+		///what about division by zero? --> just set rayDirection[i] to INF/1e30
+		m_rayDirectionInverse[0] = rayDir[0] == btScalar(0.0) ? btScalar(1e30) : btScalar(1.0) / rayDir[0];
+		m_rayDirectionInverse[1] = rayDir[1] == btScalar(0.0) ? btScalar(1e30) : btScalar(1.0) / rayDir[1];
+		m_rayDirectionInverse[2] = rayDir[2] == btScalar(0.0) ? btScalar(1e30) : btScalar(1.0) / rayDir[2];
+		m_signs[0] = m_rayDirectionInverse[0] < 0.0;
+		m_signs[1] = m_rayDirectionInverse[1] < 0.0;
+		m_signs[2] = m_rayDirectionInverse[2] < 0.0;
+
+		m_lambda_max = rayDir.dot(unnormalizedRayDir);
+
+	}
+
+	virtual bool	process(const btBroadphaseProxy* proxy)
+	{
+		///terminate further convex sweep tests, once the closestHitFraction reached zero
+		if (m_resultCallback.m_closestHitFraction == btScalar(0.f))
+			return false;
+
+		btCollisionObject*	collisionObject = (btCollisionObject*)proxy->m_clientObject;
+
+		//only perform raycast if filterMask matches
+		if(m_resultCallback.needsCollision(collisionObject->getBroadphaseHandle())) {
+			//RigidcollisionObject* collisionObject = ctrl->GetRigidcollisionObject();
+			m_world->objectQuerySingle(m_castShape, m_convexFromTrans,m_convexToTrans,
+					collisionObject,
+						collisionObject->getCollisionShape(),
+						collisionObject->getWorldTransform(),
+						m_resultCallback,
+						m_allowedCcdPenetration);
+		}
+		
+		return true;
+	}
+};
+
+
+
 void	btCollisionWorld::convexSweepTest(const btConvexShape* castShape, const btTransform& convexFromWorld, const btTransform& convexToWorld, ConvexResultCallback& resultCallback) const
 {
+
+	BT_PROFILE("convexSweepTest");
+	/// use the broadphase to accelerate the search for objects, based on their aabb
+	/// and for each object with ray-aabb overlap, perform an exact ray test
+	/// unfortunately the implementation for rayTest and convexSweepTest duplicated, albeit practically identical
+
+	
+
 	btTransform	convexFromTrans,convexToTrans;
 	convexFromTrans = convexFromWorld;
 	convexToTrans = convexToWorld;
@@ -710,12 +783,21 @@ void	btCollisionWorld::convexSweepTest(const btConvexShape* castShape, const btT
 	{
 		btVector3 linVel, angVel;
 		btTransformUtil::calculateVelocity (convexFromTrans, convexToTrans, 1.0, linVel, angVel);
+		btVector3 zeroLinVel;
+		zeroLinVel.setValue(0,0,0);
 		btTransform R;
 		R.setIdentity ();
 		R.setRotation (convexFromTrans.getRotation());
-		castShape->calculateTemporalAabb (R, linVel, angVel, 1.0, castShapeAabbMin, castShapeAabbMax);
+		castShape->calculateTemporalAabb (R, zeroLinVel, angVel, 1.0, castShapeAabbMin, castShapeAabbMax);
 	}
 
+#ifndef USE_BRUTEFORCE_RAYBROADPHASE
+
+	btSingleSweepCallback	convexCB(castShape,convexFromWorld,convexToWorld,this,resultCallback,getDispatchInfo().m_allowedCcdPenetration);
+
+	m_broadphasePairCache->rayTest(convexFromTrans.getOrigin(),convexToTrans.getOrigin(),convexCB,castShapeAabbMin,castShapeAabbMax);
+
+#else
 	/// go over all objects, and if the ray intersects their aabb + cast shape aabb,
 	// do a ray-shape query using convexCaster (CCD)
 	int i;
@@ -741,5 +823,5 @@ void	btCollisionWorld::convexSweepTest(const btConvexShape* castShape, const btT
 			}
 		}
 	}
-
+#endif //USE_BRUTEFORCE_RAYBROADPHASE
 }

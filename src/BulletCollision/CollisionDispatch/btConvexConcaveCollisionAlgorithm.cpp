@@ -93,7 +93,7 @@ void btConvexTriangleCallback::processTriangle(btVector3* triangle,int partId, i
 
 	
 	///debug drawing of the overlapping triangles
-	if (m_dispatchInfoPtr && m_dispatchInfoPtr->m_debugDraw && m_dispatchInfoPtr->m_debugDraw->getDebugMode() > 0)
+	if (m_dispatchInfoPtr && m_dispatchInfoPtr->m_debugDraw && (m_dispatchInfoPtr->m_debugDraw->getDebugMode() &btIDebugDraw::DBG_DrawWireframe ))
 	{
 		btVector3 color(255,255,0);
 		btTransform& tr = ob->getWorldTransform();

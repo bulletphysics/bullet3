@@ -21,6 +21,8 @@ subject to the following restrictions:
 #include "GL_ShapeDrawer.h"
 #include "GlutStuff.h"
 
+#define NUM_DYNAMIC_BOXES_X 30
+#define NUM_DYNAMIC_BOXES_Y 30
 
 static btVector3*	gVertices=0;
 static int*	gIndices=0;
@@ -74,7 +76,7 @@ public:
 		sum_ms = 0;
 	}
 
-	btConvexcastBatch (bool unused, btScalar ray_length, btScalar min_z, btScalar max_z, btScalar min_y = -10, btScalar max_y = 10) : boxShape(btVector3(0.0, 0.0, 0.0))
+	btConvexcastBatch (bool unused, btScalar ray_length, btScalar min_z, btScalar max_z, btScalar min_y , btScalar max_y ) : boxShape(btVector3(0.0, 0.0, 0.0))
 	{
 		boxShapeHalfExtents = btVector3(1.0, 1.0, 1.0);
 		boxShape = btBoxShape(boxShapeHalfExtents);
@@ -302,6 +304,7 @@ void	ConcaveConvexcastDemo::initPhysics()
 {
 	#define TRISIZE 10.f
 
+	setCameraDistance(100.f);
    
 
 	int vertStride = sizeof(btVector3);
@@ -366,10 +369,11 @@ void	ConcaveConvexcastDemo::initPhysics()
 	m_collisionShapes.push_back(colShape);
 
 	{
-		for (int i=0;i<10;i++)
+		for (int j=0;j<NUM_DYNAMIC_BOXES_X;j++)
+		for (int i=0;i<NUM_DYNAMIC_BOXES_Y;i++)
 		{
 			//btCollisionShape* colShape = new btCapsuleShape(0.5,2.0);//boxShape = new btSphereShape(1.f);
-			startTransform.setOrigin(btVector3(2*i,10,1));
+			startTransform.setOrigin(btVector3(5*(i-NUM_DYNAMIC_BOXES_X/2),10,5*(j-NUM_DYNAMIC_BOXES_Y/2)));
 			localCreateRigidBody(1, startTransform,colShape);
 		}
 	}
@@ -383,7 +387,7 @@ void	ConcaveConvexcastDemo::initPhysics()
 	//enable custom material callback
 	staticBody->setCollisionFlags(staticBody->getCollisionFlags()  | btCollisionObject::CF_CUSTOM_MATERIAL_CALLBACK);
 
-	convexcastBatch = btConvexcastBatch (40.0, 0.0, -10.0);
+	convexcastBatch = btConvexcastBatch (40.0, 0.0, -10.0,80.0);
 	//convexcastBatch = btConvexcastBatch (true, 40.0, -50.0, 50.0);
 }
 
@@ -398,12 +402,34 @@ void ConcaveConvexcastDemo::clientMoveAndDisplay()
 		static float offset=0.f;
 		offset+=0.01f;
 
-		setVertexPositions(waveheight,offset);
+		
+		
+		int i;
+		int j;
+		btVector3 aabbMin(1e30,1e30,1e30);
+		btVector3 aabbMax(-1e30,-1e30,-1e30);
 
-		btVector3 worldMin(-1000,-1000,-1000);
-		btVector3 worldMax(1000,1000,1000);
+		for ( i=NUM_VERTS_X/2-3;i<NUM_VERTS_X/2+2;i++)
+		{
+			for (j=NUM_VERTS_X/2-3;j<NUM_VERTS_Y/2+2;j++)
+			{
+			
+			aabbMax.setMax(gVertices[i+j*NUM_VERTS_X]);
+			aabbMin.setMin(gVertices[i+j*NUM_VERTS_X]);
+			
+				gVertices[i+j*NUM_VERTS_X].setValue((i-NUM_VERTS_X*0.5f)*TRIANGLE_SIZE,
+					//0.f,
+					waveheight*sinf((float)i+offset)*cosf((float)j+offset),
+					(j-NUM_VERTS_Y*0.5f)*TRIANGLE_SIZE);
+					
+			aabbMin.setMin(gVertices[i+j*NUM_VERTS_X]);
+			aabbMax.setMax(gVertices[i+j*NUM_VERTS_X]);
 
-		trimeshShape->refitTree(worldMin,worldMax);
+			}
+		}
+
+		trimeshShape->partialRefitTree(aabbMin,aabbMax);
+
 
 		//clear all contact points involving mesh proxy. Note: this is a slow/unoptimized operation.
 		m_dynamicsWorld->getBroadphase()->getOverlappingPairCache()->cleanProxyFromPairs(staticBody->getBroadphaseHandle(),getDynamicsWorld()->getDispatcher());
