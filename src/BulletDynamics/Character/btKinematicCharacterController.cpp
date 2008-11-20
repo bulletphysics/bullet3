@@ -28,10 +28,10 @@ subject to the following restrictions:
 /// -> Should integrate falling velocity manually and use that in stepDown()
 ///Support jumping
 ///Support ducking
-class btClosestNotMeRayResultCallback : public btCollisionWorld::ClosestRayResultCallback
+class btKinematicClosestNotMeRayResultCallback : public btCollisionWorld::ClosestRayResultCallback
 {
 public:
-	btClosestNotMeRayResultCallback (btCollisionObject* me) : btCollisionWorld::ClosestRayResultCallback(btVector3(0.0, 0.0, 0.0), btVector3(0.0, 0.0, 0.0))
+	btKinematicClosestNotMeRayResultCallback (btCollisionObject* me) : btCollisionWorld::ClosestRayResultCallback(btVector3(0.0, 0.0, 0.0), btVector3(0.0, 0.0, 0.0))
 	{
 		m_me = me;
 	}
@@ -47,10 +47,10 @@ protected:
 	btCollisionObject* m_me;
 };
 
-class btClosestNotMeConvexResultCallback : public btCollisionWorld::ClosestConvexResultCallback
+class btKinematicClosestNotMeConvexResultCallback : public btCollisionWorld::ClosestConvexResultCallback
 {
 public:
-	btClosestNotMeConvexResultCallback (btCollisionObject* me) : btCollisionWorld::ClosestConvexResultCallback(btVector3(0.0, 0.0, 0.0), btVector3(0.0, 0.0, 0.0))
+	btKinematicClosestNotMeConvexResultCallback (btCollisionObject* me) : btCollisionWorld::ClosestConvexResultCallback(btVector3(0.0, 0.0, 0.0), btVector3(0.0, 0.0, 0.0))
 	{
 		m_me = me;
 	}
@@ -181,7 +181,7 @@ void btKinematicCharacterController::stepUp ( btCollisionWorld* world)
 	start.setOrigin (m_currentPosition + btVector3(btScalar(0.0), btScalar(0.1), btScalar(0.0)));
 	end.setOrigin (m_targetPosition);
 
-	btClosestNotMeConvexResultCallback callback (m_ghostObject);
+	btKinematicClosestNotMeConvexResultCallback callback (m_ghostObject);
 	callback.m_collisionFilterGroup = getGhostObject()->getBroadphaseHandle()->m_collisionFilterGroup;
 	callback.m_collisionFilterMask = getGhostObject()->getBroadphaseHandle()->m_collisionFilterMask;
 	
@@ -273,7 +273,7 @@ void btKinematicCharacterController::stepForwardAndStrafe ( btCollisionWorld* co
 		start.setOrigin (m_currentPosition);
 		end.setOrigin (m_targetPosition);
 
-		btClosestNotMeConvexResultCallback callback (m_ghostObject);
+		btKinematicClosestNotMeConvexResultCallback callback (m_ghostObject);
 		callback.m_collisionFilterGroup = getGhostObject()->getBroadphaseHandle()->m_collisionFilterGroup;
 		callback.m_collisionFilterMask = getGhostObject()->getBroadphaseHandle()->m_collisionFilterMask;
 
@@ -353,7 +353,7 @@ void btKinematicCharacterController::stepDown ( btCollisionWorld* collisionWorld
 	start.setOrigin (m_currentPosition);
 	end.setOrigin (m_targetPosition);
 
-	btClosestNotMeConvexResultCallback callback (m_ghostObject);
+	btKinematicClosestNotMeConvexResultCallback callback (m_ghostObject);
 	callback.m_collisionFilterGroup = getGhostObject()->getBroadphaseHandle()->m_collisionFilterGroup;
 	callback.m_collisionFilterMask = getGhostObject()->getBroadphaseHandle()->m_collisionFilterMask;
 	
