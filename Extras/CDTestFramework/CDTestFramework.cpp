@@ -76,6 +76,7 @@ enum TestIndex
 //	TEST_BIPARTITE_BOX_PRUNING,
 	TEST_DBVT_8192,
 	TEST_BULLET_CUDA_8192,
+	TEST_BULLET_3DGRID_8192,
  	TEST_OPCODE_ARRAY_SAP,
 	MAX_NB_TESTS
 };
@@ -312,6 +313,7 @@ int main(int argc, char** argv)
 //			{TEST_BIPARTITE_BOX_PRUNING, "Bipartite box pruning"},
 			{TEST_DBVT_8192, "Bullet DBVT 8192"},
 			{TEST_BULLET_CUDA_8192, "Bullet CUDA 8192"},
+			{TEST_BULLET_3DGRID_8192, "Bullet 3D Grid 8192"},
 			{TEST_OPCODE_ARRAY_SAP, "OPCODE ARRAY SAP"},
 		};
 		TwType testType = TwDefineEnum("CollisionTest", testEV, MAX_NB_TESTS);
@@ -335,6 +337,7 @@ int main(int argc, char** argv)
 //	gCollisionTests[TEST_BIPARTITE_BOX_PRUNING]	= new BipartiteBoxPruningTest;
 	gCollisionTests[TEST_DBVT_8192]	= new BulletSAPCompleteBoxPruningTest(NUM_SAP_BOXES,7);
 	gCollisionTests[TEST_BULLET_CUDA_8192]	= new BulletSAPCompleteBoxPruningTest(NUM_SAP_BOXES,8);
+	gCollisionTests[TEST_BULLET_3DGRID_8192]	= new BulletSAPCompleteBoxPruningTest(NUM_SAP_BOXES,9);
 	gCollisionTests[TEST_OPCODE_ARRAY_SAP]	= new OpcodeArraySAPTest(NUM_SAP_BOXES);
 
 	for(int i=0;i<MAX_NB_TESTS;i++)

@@ -664,6 +664,7 @@ void	ParticleSystem::initializeBullet()
 //	m_broadphase = new btDbvtBroadphase();
 //	m_broadphase = new btAxisSweep3(btVector3(-3,-3,-3),btVector3(3,3,3));
 	m_broadphase = new btCudaBroadphase(btVector3(-1, -1, -1), btVector3(1, 1, 1), 64, 64, 64, m_params.numBodies, 16, 64, 8, btScalar(1.0f/1.733f));
+//	m_broadphase = new bt3DGridBroadphase(btVector3(-1, -1, -1), btVector3(1, 1, 1), 64, 64, 64, m_params.numBodies, 16, 64, 8, btScalar(1.0f/1.733f));
 
 
 	m_constraintSolver=new btSequentialImpulseConstraintSolver();

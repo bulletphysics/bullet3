@@ -507,6 +507,14 @@
 			Name="Source Files"
 			>
 			<File
+				RelativePath=".\bt3DGridBroadphase.cpp"
+				>
+			</File>
+			<File
+				RelativePath=".\bt3DGridBroadphaseFunc.h"
+				>
+			</File>
+			<File
 				RelativePath=".\btCudaBroadphase.cpp"
 				>
 			</File>

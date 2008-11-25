@@ -54,7 +54,28 @@ struct btCuda3F1U
 
 extern "C"
 {
+// CPU functions
+	void bt3DGrid_setParameters(btCudaBroadphaseParams* hostParams);
+	void bt3DGrid_calcHashAABB(btCuda3F1U* pAABB, unsigned int* hash,	unsigned int numBodies);
+	void bt3DGrid_findCellStart(unsigned int* hash, unsigned int* cellStart, unsigned int numBodies, unsigned int numCells);
+	void bt3DGrid_findOverlappingPairs(	btCuda3F1U*	pAABB, unsigned int* pHash,
+										unsigned int*	pCellStart,
+										unsigned int*	pPairBuff,
+										unsigned int*	pPairBuffStartCurr,
+										unsigned int	numBodies);
+	void bt3DGrid_findPairsLarge(	btCuda3F1U*	pAABB, unsigned int* pHash,
+									unsigned int*	pCellStart,
+									unsigned int*	pPairBuff,
+									unsigned int*	pPairBuffStartCurr,
+									unsigned int	numBodies,
+									unsigned int	numLarge);
 
+	void bt3DGrid_computePairCacheChanges(	unsigned int* pPairBuff, unsigned int* pPairBuffStartCurr, 
+											unsigned int* pPairScan, btCuda3F1U* pAABB, unsigned int numBodies);
+	void bt3DGrid_squeezeOverlappingPairBuff(	unsigned int* pPairBuff, unsigned int* pPairBuffStartCurr, unsigned int* pPairScan, 
+												unsigned int* pPairOut, btCuda3F1U* pAABB, unsigned int numBodies);
+
+// CUDA functions
 	void btCuda_allocateArray(void** devPtr, unsigned int size);
 	void btCuda_freeArray(void* devPtr);
 	void btCuda_copyArrayFromDevice(void* host, const void* device, unsigned int size);

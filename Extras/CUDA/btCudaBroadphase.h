@@ -21,14 +21,18 @@ subject to the following restrictions:
 #include "btCudaBroadphaseKernel.h"
 
 
-///The btCudaBroadphase uses CUDA to compute overlapping pairs using a GPU.
-class btCudaBroadphase : public btSimpleBroadphase
+///The bt3DGridBroadphase uses CUDA to compute overlapping pairs using a GPU.
+class bt3DGridBroadphase : public btSimpleBroadphase
 {
+protected:
 	bool			m_bInitialized;
     unsigned int	m_numBodies;
     unsigned int	m_numCells;
 	unsigned int	m_maxPairsPerBody;
 	btScalar		m_cellFactorAABB;
+    unsigned int	m_maxBodiesPerCell;
+	btCudaBroadphaseParams m_params;
+	btScalar		m_maxRadius;
 	// CPU data
     unsigned int*	m_hBodiesHash;
     unsigned int*	m_hCellStart;
@@ -37,17 +41,6 @@ class btCudaBroadphase : public btSimpleBroadphase
 	unsigned int*	m_hPairBuff;
 	unsigned int*	m_hPairScan;
 	unsigned int*	m_hPairOut;
-    // GPU data
-    unsigned int*	m_dBodiesHash[2];
-    unsigned int*	m_dCellStart;
-	unsigned int*	m_dPairBuff; 
-	unsigned int*	m_dPairBuffStartCurr;
-	btCuda3F1U*		m_dAABB;
-	unsigned int*	m_dPairScan;
-	unsigned int*	m_dPairOut;
-    unsigned int	m_maxBodiesPerCell;
-	btCudaBroadphaseParams m_params;
-	btScalar		m_maxRadius;
 // large proxies
 	int		m_numLargeHandles;						
 	int		m_maxLargeHandles;						
@@ -82,12 +75,56 @@ class btCudaBroadphase : public btSimpleBroadphase
 	}
 	bool isLargeProxy(const btVector3& aabbMin,  const btVector3& aabbMax);
 	bool isLargeProxy(btBroadphaseProxy* proxy);
-
 // debug
 	unsigned int	m_numPairsAdded;
 	unsigned int	m_numPairsRemoved;
 	unsigned int	m_numOverflows;
 // 
+public:
+	bt3DGridBroadphase(const btVector3& worldAabbMin,const btVector3& worldAabbMax, 
+					   int gridSizeX, int gridSizeY, int gridSizeZ, 
+					   int maxSmallProxies, int maxLargeProxies, int maxPairsPerBody,
+					   int maxBodiesPerCell = 8,
+					   btScalar cellFactorAABB = btScalar(1.0f));
+	virtual ~bt3DGridBroadphase();
+	virtual void	calculateOverlappingPairs(btDispatcher* dispatcher);
+
+	virtual btBroadphaseProxy*	createProxy(const btVector3& aabbMin,  const btVector3& aabbMax,int shapeType,void* userPtr ,short int collisionFilterGroup,short int collisionFilterMask, btDispatcher* dispatcher,void* multiSapProxy);
+	virtual void	destroyProxy(btBroadphaseProxy* proxy,btDispatcher* dispatcher);
+	virtual void	rayTest(const btVector3& rayFrom,const btVector3& rayTo, btBroadphaseRayCallback& rayCallback);
+protected:
+	void _initialize();
+	void _finalize();
+	void addPairsToCache(btDispatcher* dispatcher);
+	void addLarge2LargePairsToCache(btDispatcher* dispatcher);
+
+// overrides for CPU version
+	virtual void setParameters(btCudaBroadphaseParams* hostParams);
+	virtual void prepareAABB();
+	virtual void calcHashAABB();
+	virtual void sortHash();	
+	virtual void findCellStart();
+	virtual void findOverlappingPairs();
+	virtual void findPairsLarge();
+	virtual void computePairCacheChanges();
+	virtual void scanOverlappingPairBuff();
+	virtual void squeezeOverlappingPairBuff();
+};
+
+
+
+///The btCudaBroadphase uses CUDA to compute overlapping pairs using a GPU.
+class btCudaBroadphase : public bt3DGridBroadphase
+{
+protected:
+    // GPU data
+    unsigned int*	m_dBodiesHash[2];
+    unsigned int*	m_dCellStart;
+	unsigned int*	m_dPairBuff; 
+	unsigned int*	m_dPairBuffStartCurr;
+	btCuda3F1U*		m_dAABB;
+	unsigned int*	m_dPairScan;
+	unsigned int*	m_dPairOut;
 public:
 	btCudaBroadphase(const btVector3& worldAabbMin,const btVector3& worldAabbMax, 
 								   int gridSizeX, int gridSizeY, int gridSizeZ, 
@@ -95,18 +132,21 @@ public:
 								   int maxBodiesPerCell = 8,
 								   btScalar cellFactorAABB = btScalar(1.0f));
 	virtual ~btCudaBroadphase();
-	virtual void	calculateOverlappingPairs(btDispatcher* dispatcher);
-
-	virtual btBroadphaseProxy*	createProxy(const btVector3& aabbMin,  const btVector3& aabbMax,int shapeType,void* userPtr ,short int collisionFilterGroup,short int collisionFilterMask, btDispatcher* dispatcher,void* multiSapProxy);
-	virtual void	destroyProxy(btBroadphaseProxy* proxy,btDispatcher* dispatcher);
-	virtual void	rayTest(const btVector3& rayFrom,const btVector3& rayTo, btBroadphaseRayCallback& rayCallback);
-
-
 protected:
 	void _initialize();
 	void _finalize();
-	void scanOverlappingPairBuffCPU();
-	void addPairsToCacheCPU(btDispatcher* dispatcher);
-	void addLarge2LargePairsToCache(btDispatcher* dispatcher);
+	void allocateArray(void** devPtr, unsigned int size);
+	void freeArray(void* devPtr);
+// overrides for CUDA version
+	virtual void setParameters(btCudaBroadphaseParams* hostParams);
+	virtual void prepareAABB();
+	virtual void calcHashAABB();
+	virtual void sortHash();	
+	virtual void findCellStart();
+	virtual void findOverlappingPairs();
+	virtual void findPairsLarge();
+	virtual void computePairCacheChanges();
+	virtual void scanOverlappingPairBuff();
+	virtual void squeezeOverlappingPairBuff();
 };
 #endif //CUDA_BROADPHASE_H

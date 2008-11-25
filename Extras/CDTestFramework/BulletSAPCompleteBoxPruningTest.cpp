@@ -433,6 +433,10 @@ BulletSAPCompleteBoxPruningTest::BulletSAPCompleteBoxPruningTest(int numBoxes,in
 //		m_broadphase = new btCudaBroadphase(aabbMin, aabbMax, 32, 32, 32, 8192, 8192, 64, 16);
 		methodname	=	"btCudaBroadphase";
 		break;
+	case 9:
+		m_broadphase = new bt3DGridBroadphase(aabbMin, aabbMax, 24, 24, 24,maxNumBoxes , maxNumBoxes, 64, 16);
+		methodname	=	"bt3DGridBroadphase";
+		break;
 	default:
 		{
 			m_broadphase = new btAxisSweep3(aabbMin,aabbMax,numBoxes,new btNullPairCache());
