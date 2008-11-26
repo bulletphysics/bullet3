@@ -120,6 +120,9 @@ btAlignedAllocator : MakeOut
 SpuGatheringCollisionDispatcher : MakeOut
 	$(PPU_GCC) $(PPU_DEFFLAGS) $(PPU_CFLAGS) $(PPU_INCLUDEDIR) -o $(OUTDIR)/$@.o $@.cpp
 
+SequentialThreadSupport: MakeOut
+	$(PPU_GCC) $(PPU_DEFFLAGS) $(PPU_CFLAGS) $(PPU_INCLUDEDIR) -o $(OUTDIR)/$@.o $@.cpp
+
 SpuLibspe2Support: MakeOut
 	$(PPU_GCC) $(PPU_DEFFLAGS) $(PPU_CFLAGS) $(PPU_INCLUDEDIR) -o $(OUTDIR)/$@.o $@.cpp
 

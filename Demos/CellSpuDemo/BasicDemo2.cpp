@@ -21,7 +21,7 @@ subject to the following restrictions:
 
 //#define USE_SIMPLE_DYNAMICS_WORLD 1
 
-int gNumObjects = 120;
+int gNumObjects = 5;
 #define HALF_EXTENTS btScalar(1.)
 #include "btBulletDynamicsCommon.h"
 #include "BulletCollision/BroadphaseCollision/btMultiSapBroadphase.h"
@@ -53,7 +53,7 @@ int main(int argc,char** argv)
 	ccdDemo.initPhysics();
 
 	int i;
-	for (i=0;i<1000;i++)
+	for (i=0;i<5;i++)
 		ccdDemo.clientMoveAndDisplay();
 	ccdDemo.exitPhysics();
 	
@@ -63,8 +63,6 @@ int main(int argc,char** argv)
 
 
 extern int gNumManifold;
-extern int gOverlappingPairs;
-extern int gTotalContactPoints;
 
 void BasicDemo::clientMoveAndDisplay()
 {
@@ -81,12 +79,25 @@ void BasicDemo::clientMoveAndDisplay()
 
 	//some additional debugging info
 #ifdef PRINT_CONTACT_STATISTICS
-	printf("num manifolds: %i\n",gNumManifold);
-	printf("num gOverlappingPairs: %i\n",gOverlappingPairs);
-	printf("num gTotalContactPoints : %i\n",gTotalContactPoints );
+	printf("num contact manifolds: %i\n",gNumManifold);
+	 int numManifolds = m_dynamicsWorld->getDispatcher()->getNumManifolds();
+        for (int i=0;i<numManifolds;i++)
+        {
+                btPersistentManifold* contactManifold = m_dynamicsWorld->getDispatcher()->getManifoldByIndexInternal(i);
+                btCollisionObject* obA = static_cast<btCollisionObject*>(contactManifold->getBody0());
+                btCollisionObject* obB = static_cast<btCollisionObject*>(contactManifold->getBody1());
+
+                int numContacts = contactManifold->getNumContacts();
+                for (int j=0;j<numContacts;j++)
+                {
+			  btManifoldPoint& pt = contactManifold->getContactPoint(j);
+                        btVector3 ptA = pt.getPositionWorldOnA();
+                        btVector3 ptB = pt.getPositionWorldOnB();
+			printf("contact manifold[%d],pointA[%d]=(%f,%f,%f)\n",i,j,ptA[0],ptA[1],ptA[2]);
+		}
+	}
 #endif //PRINT_CONTACT_STATISTICS
 
-	gTotalContactPoints = 0;
 
 }
 

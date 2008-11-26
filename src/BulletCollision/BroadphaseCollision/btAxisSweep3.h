@@ -42,6 +42,7 @@ protected:
 
 public:
 	
+ BT_DECLARE_ALIGNED_ALLOCATOR();
 
 	class Edge
 	{

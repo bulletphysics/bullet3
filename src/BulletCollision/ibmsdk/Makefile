@@ -64,6 +64,7 @@ btSimulationIslandManager.o			\
 btSphereBoxCollisionAlgorithm.o			\
 btSphereSphereCollisionAlgorithm.o		\
 btSphereTriangleCollisionAlgorithm.o		\
+btActivatingCollisionAlgorithm.o		\
 btUnionFind.o					\
 SphereTriangleDetector.o			\
 btBoxShape.o					\

@@ -16,7 +16,8 @@ subject to the following restrictions:
 
 #include "SpuCollisionShapes.h"
 
-#ifdef __SPU__
+///not supported on IBM SDK, until we fix the alignment of btVector3
+#if defined (__CELLOS_LV2__) && defined (__SPU__)
 #include <spu_intrinsics.h>
 static inline vec_float4 vec_dot3( vec_float4 vec0, vec_float4 vec1 )
 {
@@ -181,7 +182,7 @@ btVector3 localGetSupportingVertexWithoutMargin(int shapeType, void* shape, cons
 		{
 			//spu_printf("SPU: todo: getSupport CONVEX_HULL_SHAPE_PROXYTYPE\n");
 
-#if defined (__SPU__)
+#if defined (__CELLOS_LV2__) && defined (__SPU__)
 			vec_float4 v_distMax = {-FLT_MAX,0,0,0};
 			vec_int4 v_idxMax = {-999,0,0,0};
 			int v=0;
