@@ -48,8 +48,7 @@ void	btPoint2PointConstraint::buildJacobian()
 	{
 		normal[i] = 1;
 		new (&m_jac[i]) btJacobianEntry(
-			m_rbA.getCenterOfMassTransform().getBasis().transpose(),
-			m_rbB.getCenterOfMassTransform().getBasis().transpose(),
+
 			m_rbA.getCenterOfMassTransform()*m_pivotInA - m_rbA.getCenterOfMassPosition(),
 			m_rbB.getCenterOfMassTransform()*m_pivotInB - m_rbB.getCenterOfMassPosition(),
 			normal,

@@ -39,6 +39,7 @@ struct btContactSolverInfoData
 	btScalar	m_sor;
 	btScalar	m_erp;//used as Baumgarte factor
 	btScalar	m_erp2;//used in Split Impulse
+	btScalar	m_globalCfm;//constraint force mixing
 	int			m_splitImpulse;
 	btScalar	m_splitImpulsePenetrationThreshold;
 	btScalar	m_linearSlop;
@@ -63,9 +64,10 @@ struct btContactSolverInfo : public btContactSolverInfoData
 		m_restitution = btScalar(0.);
 		m_maxErrorReduction = btScalar(20.);
 		m_numIterations = 10;
-		m_erp = btScalar(0.2);
+		m_erp = btScalar(0.4);
 		m_erp2 = btScalar(0.1);
-		m_sor = btScalar(1.3);
+		m_globalCfm = btScalar(0.);
+		m_sor = btScalar(1.);
 		m_splitImpulse = false;
 		m_splitImpulsePenetrationThreshold = -0.02f;
 		m_linearSlop = btScalar(0.0);

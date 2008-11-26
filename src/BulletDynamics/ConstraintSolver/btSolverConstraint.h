@@ -19,6 +19,7 @@ subject to the following restrictions:
 class	btRigidBody;
 #include "LinearMath/btVector3.h"
 #include "LinearMath/btMatrix3x3.h"
+#include "btJacobianEntry.h"
 
 //#define NO_FRICTION_TANGENTIALS 1
 
@@ -27,6 +28,11 @@ ATTRIBUTE_ALIGNED16 (struct)	btSolverConstraint
 {
 	BT_DECLARE_ALIGNED_ALLOCATOR();
 
+#ifdef _USE_JACOBIAN
+	btJacobianEntry	m_jac;
+#endif
+
+
 	btVector3	m_relpos1CrossNormal;
 	btVector3	m_contactNormal;
 
@@ -34,10 +40,10 @@ ATTRIBUTE_ALIGNED16 (struct)	btSolverConstraint
 	btVector3	m_angularComponentA;
 
 	btVector3	m_angularComponentB;
-
-	mutable btScalar	m_appliedPushImpulse;
 	
+	mutable btScalar	m_appliedPushImpulse;
 	mutable btScalar	m_appliedImpulse;
+	
 	int			m_solverBodyIdA;
 	int			m_solverBodyIdB;
 	
@@ -51,8 +57,10 @@ ATTRIBUTE_ALIGNED16 (struct)	btSolverConstraint
 	int			m_constraintType;
 	int			m_frictionIndex;
 	void*		m_originalContactPoint;
-	int			m_unusedPadding[1];
-
+	btScalar	m_rhs;
+	btScalar	m_cfm;
+	btScalar	m_lowerLimit;
+	btScalar	m_upperLimit;
 
 	enum		btSolverConstraintType
 	{

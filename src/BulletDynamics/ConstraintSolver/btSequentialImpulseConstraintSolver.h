@@ -38,52 +38,45 @@ class btSequentialImpulseConstraintSolver : public btConstraintSolver
 
 
 protected:
-	btScalar solve(btRigidBody* body0,btRigidBody* body1, btManifoldPoint& cp, const btContactSolverInfo& info,int iter,btIDebugDraw* debugDrawer);
-	btScalar solveFriction(btRigidBody* body0,btRigidBody* body1, btManifoldPoint& cp, const btContactSolverInfo& info,int iter,btIDebugDraw* debugDrawer);
-	void  prepareConstraints(btPersistentManifold* manifoldPtr, const btContactSolverInfo& info,btIDebugDraw* debugDrawer);
 	btSolverConstraint&	addFrictionConstraint(const btVector3& normalAxis,int solverBodyIdA,int solverBodyIdB,int frictionIndex,btManifoldPoint& cp,const btVector3& rel_pos1,const btVector3& rel_pos2,btCollisionObject* colObj0,btCollisionObject* colObj1, btScalar relaxation);
-
-	ContactSolverFunc m_contactDispatch[MAX_CONTACT_SOLVER_TYPES][MAX_CONTACT_SOLVER_TYPES];
-	ContactSolverFunc m_frictionDispatch[MAX_CONTACT_SOLVER_TYPES][MAX_CONTACT_SOLVER_TYPES];
-
 	
 	///m_btSeed2 is used for re-arranging the constraint rows. improves convergence/quality of friction
 	unsigned long	m_btSeed2;
+
+	void	initSolverBody(btSolverBody* solverBody, btCollisionObject* collisionObject);
+	btScalar restitutionCurve(btScalar rel_vel, btScalar restitution);
+
+	void	resolveSplitPenetrationImpulseCacheFriendly(
+        btSolverBody& body1,
+        btSolverBody& body2,
+        const btSolverConstraint& contactConstraint,
+        const btContactSolverInfo& solverInfo);
+
+	void	resolveSingleConstraintRow(
+		btSolverBody& body1,
+		btSolverBody& body2,
+		const btSolverConstraint& contactConstraint);
+
+	void	resolveSingleFrictionCacheFriendly(
+		btSolverBody& body1,
+		btSolverBody& body2,
+		const btSolverConstraint& contactConstraint,
+		const btContactSolverInfo& solverInfo,
+		btScalar appliedNormalImpulse);
 
 public:
 
 	
 	btSequentialImpulseConstraintSolver();
-
-	///Advanced: Override the default contact solving function for contacts, for certain types of rigidbody
-	///See btRigidBody::m_contactSolverType and btRigidBody::m_frictionSolverType
-	void	setContactSolverFunc(ContactSolverFunc func,int type0,int type1)
-	{
-		m_contactDispatch[type0][type1] = func;
-	}
-	
-	///Advanced: Override the default friction solving function for contacts, for certain types of rigidbody
-	///See btRigidBody::m_contactSolverType and btRigidBody::m_frictionSolverType
-	void	SetFrictionSolverFunc(ContactSolverFunc func,int type0,int type1)
-	{
-		m_frictionDispatch[type0][type1] = func;
-	}
-
 	virtual ~btSequentialImpulseConstraintSolver();
-	
+
 	virtual btScalar solveGroup(btCollisionObject** bodies,int numBodies,btPersistentManifold** manifold,int numManifolds,btTypedConstraint** constraints,int numConstraints,const btContactSolverInfo& info, btIDebugDraw* debugDrawer, btStackAlloc* stackAlloc,btDispatcher* dispatcher);
-
-	virtual btScalar solveGroupCacheFriendly(btCollisionObject** bodies,int numBodies,btPersistentManifold** manifoldPtr, int numManifolds,btTypedConstraint** constraints,int numConstraints,const btContactSolverInfo& infoGlobal,btIDebugDraw* debugDrawer,btStackAlloc* stackAlloc);
-	btScalar solveGroupCacheFriendlyIterations(btCollisionObject** bodies,int numBodies,btPersistentManifold** manifoldPtr, int numManifolds,btTypedConstraint** constraints,int numConstraints,const btContactSolverInfo& infoGlobal,btIDebugDraw* debugDrawer,btStackAlloc* stackAlloc);
+	
 	btScalar solveGroupCacheFriendlySetup(btCollisionObject** bodies,int numBodies,btPersistentManifold** manifoldPtr, int numManifolds,btTypedConstraint** constraints,int numConstraints,const btContactSolverInfo& infoGlobal,btIDebugDraw* debugDrawer,btStackAlloc* stackAlloc);
-
+	btScalar solveGroupCacheFriendlyIterations(btCollisionObject** bodies,int numBodies,btPersistentManifold** manifoldPtr, int numManifolds,btTypedConstraint** constraints,int numConstraints,const btContactSolverInfo& infoGlobal,btIDebugDraw* debugDrawer,btStackAlloc* stackAlloc);
 
 	///clear internal cached data and reset random seed
 	virtual	void	reset();
-
-	btScalar solveCombinedContactFriction(btRigidBody* body0,btRigidBody* body1, btManifoldPoint& cp, const btContactSolverInfo& info,int iter,btIDebugDraw* debugDrawer);
-
-
 	
 	unsigned long btRand2();
 

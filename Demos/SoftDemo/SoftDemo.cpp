@@ -97,7 +97,7 @@ void SoftDemo::createStack( btCollisionShape* boxShape, float halfCubeSize, int 
 
 extern int gNumManifold;
 extern int gOverlappingPairs;
-extern int gTotalContactPoints;
+
 
 void SoftDemo::clientMoveAndDisplay()
 {
@@ -200,10 +200,10 @@ void SoftDemo::clientMoveAndDisplay()
 #ifdef PRINT_CONTACT_STATISTICS
 	printf("num manifolds: %i\n",gNumManifold);
 	printf("num gOverlappingPairs: %i\n",gOverlappingPairs);
-	printf("num gTotalContactPoints : %i\n",gTotalContactPoints );
+	
 #endif //PRINT_CONTACT_STATISTICS
 
-	gTotalContactPoints = 0;
+
 	glutSwapBuffers();
 
 }

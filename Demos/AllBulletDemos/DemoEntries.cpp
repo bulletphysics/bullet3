@@ -143,7 +143,7 @@ btDemoEntry g_demoEntries[] =
 	{"SoftBody Cluster Stack Mixed",SoftDemo27::Create},
 	
 //	{"SliderConstraint",SliderConstraintDemo::Create},
-//	{"CcdPhysicsDemo", CcdPhysicsDemo::Create},
+	{"CcdPhysicsDemo", CcdPhysicsDemo::Create},
 //	{"ConcaveRaycastDemo",ConcaveRaycastDemo::Create},
 	//{"BspDemo", BspDemo::Create},
 //	{"Raytracer Test",Raytracer::Create},

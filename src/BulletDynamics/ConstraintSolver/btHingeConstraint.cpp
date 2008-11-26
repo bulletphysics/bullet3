@@ -181,8 +181,6 @@ void	btHingeConstraint::buildJacobian()
 		for (int i=0;i<3;i++)
 		{
 			new (&m_jac[i]) btJacobianEntry(
-				m_rbA.getCenterOfMassTransform().getBasis().transpose(),
-				m_rbB.getCenterOfMassTransform().getBasis().transpose(),
 				pivotAInW - m_rbA.getCenterOfMassPosition(),
 				pivotBInW - m_rbB.getCenterOfMassPosition(),
 				normal[i],

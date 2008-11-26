@@ -52,8 +52,7 @@ void resolveSingleBilateral(btRigidBody& body1, const btVector3& pos1,
 	btVector3 vel = vel1 - vel2;
 	
 
-	  btJacobianEntry jac(body1.getCenterOfMassTransform().getBasis().transpose(),
-		body2.getCenterOfMassTransform().getBasis().transpose(),
+	  btJacobianEntry jac(
 		rel_pos1,rel_pos2,normal,body1.getInvInertiaDiagLocal(),body1.getInvMass(),
 		body2.getInvInertiaDiagLocal(),body2.getInvMass());
 

@@ -58,9 +58,7 @@ class btOdeJoint;
 //to bridge with ODE quickstep, we make a temp copy of the rigidbodies in each simultion island
 
 
-btOdeQuickstepConstraintSolver::btOdeQuickstepConstraintSolver():
-        m_cfm(0.f),//1e-5f),
-        m_erp(0.4f)
+btOdeQuickstepConstraintSolver::btOdeQuickstepConstraintSolver()
 {
 }
 
@@ -124,7 +122,7 @@ btScalar btOdeQuickstepConstraintSolver::solveGroup(btCollisionObject** /*bodies
 	//	printf(" numJoints > numManifolds * 4 + numConstraints");
 
 
-     m_SorLcpSolver.SolveInternal1(m_cfm,m_erp,m_odeBodies,numBodies,m_joints,numJoints,infoGlobal,stackAlloc); ///do
+     m_SorLcpSolver.SolveInternal1(m_odeBodies,numBodies,m_joints,numJoints,infoGlobal,stackAlloc); ///do
 
     //write back resulting velocities
     for (int i=0;i<numBodies;i++)
@@ -264,8 +262,9 @@ void btOdeQuickstepConstraintSolver::ConvertConstraint(btPersistentManifold* man
 {
 
 
-    manifold->refreshContactPoints(((btRigidBody*)manifold->getBody0())->getCenterOfMassTransform(),
+  /*  manifold->refreshContactPoints(((btRigidBody*)manifold->getBody0())->getCenterOfMassTransform(),
                                    ((btRigidBody*)manifold->getBody1())->getCenterOfMassTransform());
+*/
 
     int bodyId0 = _bodyId0,bodyId1 = _bodyId1;
 

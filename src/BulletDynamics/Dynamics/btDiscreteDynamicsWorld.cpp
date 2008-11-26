@@ -113,7 +113,6 @@ void	btDiscreteDynamicsWorld::saveKinematicState(btScalar timeStep)
 		btRigidBody* body = btRigidBody::upcast(colObj);
 		if (body)
 		{
-				btTransform predictedTrans;
 				if (body->getActivationState() != ISLAND_SLEEPING)
 				{
 					if (body->isKinematicObject())

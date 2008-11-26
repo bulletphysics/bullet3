@@ -133,7 +133,7 @@ extern btScalar gJitterVelocityDampingFactor;
 
 extern int gNumManifold;
 extern int gOverlappingPairs;
-extern int gTotalContactPoints;
+
 
 void MultiThreadedDemo::clientMoveAndDisplay()
 {
@@ -201,7 +201,7 @@ void MultiThreadedDemo::clientMoveAndDisplay()
 #endif 
 	glFlush();
 
-	gTotalContactPoints = 0;
+	
 	glutSwapBuffers();
 
 }

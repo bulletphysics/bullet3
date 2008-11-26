@@ -345,8 +345,7 @@ void btGeneric6DofConstraint::buildLinearJacobian(
     const btVector3 & pivotAInW,const btVector3 & pivotBInW)
 {
     new (&jacLinear) btJacobianEntry(
-        m_rbA.getCenterOfMassTransform().getBasis().transpose(),
-        m_rbB.getCenterOfMassTransform().getBasis().transpose(),
+
         pivotAInW - m_rbA.getCenterOfMassPosition(),
         pivotBInW - m_rbB.getCenterOfMassPosition(),
         normalWorld,

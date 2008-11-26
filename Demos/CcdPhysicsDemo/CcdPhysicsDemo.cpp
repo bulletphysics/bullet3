@@ -192,7 +192,7 @@ extern btScalar gJitterVelocityDampingFactor;
 
 extern int gNumManifold;
 extern int gOverlappingPairs;
-extern int gTotalContactPoints;
+
 
 void CcdPhysicsDemo::clientMoveAndDisplay()
 {
@@ -282,10 +282,10 @@ void CcdPhysicsDemo::clientMoveAndDisplay()
 #ifdef PRINT_CONTACT_STATISTICS
 	printf("num manifolds: %i\n",gNumManifold);
 	printf("num gOverlappingPairs: %i\n",gOverlappingPairs);
-	printf("num gTotalContactPoints : %i\n",gTotalContactPoints );
+	
 #endif //PRINT_CONTACT_STATISTICS
 
-	gTotalContactPoints = 0;
+	
 	glutSwapBuffers();
 
 }

@@ -119,8 +119,6 @@ void btSliderConstraint::buildJacobianInt(btRigidBody& rbA, btRigidBody& rbB, co
     {
 		normalWorld = m_calculatedTransformA.getBasis().getColumn(i);
 		new (&m_jacLin[i]) btJacobianEntry(
-			rbA.getCenterOfMassTransform().getBasis().transpose(),
-			rbB.getCenterOfMassTransform().getBasis().transpose(),
 			m_relPosA,
 			m_relPosB,
 			normalWorld,

@@ -39,9 +39,7 @@ public:
 		dRand2_seed = 0;
 	}
 
-	void SolveInternal1 (float global_cfm,
-		float global_erp,
-		const btAlignedObjectArray<btOdeSolverBody*> &body, int nb,
+	void SolveInternal1 (const btAlignedObjectArray<btOdeSolverBody*> &body, int nb,
 		btAlignedObjectArray<btOdeJoint*> &joint, 
 		int nj, const btContactSolverInfo& solverInfo,
 		btStackAlloc* stackAlloc

@@ -80,7 +80,7 @@ OdeP2PJoint::OdeP2PJoint(
 
 void OdeP2PJoint::GetInfo1(Info1 *info)
 {
-    info->m = 3;
+    info->m_numConstraintRows = 3;
     info->nub = 3;
 }
 
@@ -133,24 +133,24 @@ void OdeP2PJoint::GetInfo2(Info2 *info)
     int s = info->rowskip;
 
     // set jacobian
-    info->J1l[0] = 1;
-    info->J1l[s+1] = 1;
-    info->J1l[2*s+2] = 1;
+    info->m_J1linearAxis[0] = 1;
+    info->m_J1linearAxis[s+1] = 1;
+    info->m_J1linearAxis[2*s+2] = 1;
 
 
     btVector3 a1,a2;
 
     a1 = body0_trans.getBasis()*p2pconstraint->getPivotInA();
     //dMULTIPLY0_331 (a1, body0_mat,m_constraint->m_pivotInA);
-    dCROSSMAT (info->J1a,a1,s,-,+);
+    dCROSSMAT (info->m_J1angularAxis,a1,s,-,+);
     if (m_body1)
     {
-        info->J2l[0] = -1;
-        info->J2l[s+1] = -1;
-        info->J2l[2*s+2] = -1;
+        info->m_J2linearAxis[0] = -1;
+        info->m_J2linearAxis[s+1] = -1;
+        info->m_J2linearAxis[2*s+2] = -1;
         a2 = body1_trans.getBasis()*p2pconstraint->getPivotInB();
         //dMULTIPLY0_331 (a2,body1_mat,m_constraint->m_pivotInB);
-        dCROSSMAT (info->J2a,a2,s,+,-);
+        dCROSSMAT (info->m_J2angularAxis,a2,s,+,-);
     }
 
 
@@ -160,7 +160,7 @@ void OdeP2PJoint::GetInfo2(Info2 *info)
     {
         for (int j=0; j<3; j++)
         {
-            info->c[j] = k * (a2[j] + body1_trans.getOrigin()[j] -
+            info->m_constraintError[j] = k * (a2[j] + body1_trans.getOrigin()[j] -
                               a1[j] - body0_trans.getOrigin()[j]);
         }
     }
@@ -168,7 +168,7 @@ void OdeP2PJoint::GetInfo2(Info2 *info)
     {
         for (int j=0; j<3; j++)
         {
-            info->c[j] = k * (p2pconstraint->getPivotInB()[j] - a1[j] -
+            info->m_constraintError[j] = k * (p2pconstraint->getPivotInB()[j] - a1[j] -
                               body0_trans.getOrigin()[j]);
         }
     }
@@ -193,8 +193,8 @@ int bt_get_limit_motor_info2(
 
     if (powered || limit)
     {
-        btScalar *J1 = rotational ? info->J1a : info->J1l;
-        btScalar *J2 = rotational ? info->J2a : info->J2l;
+        btScalar *J1 = rotational ? info->m_J1angularAxis : info->m_J1linearAxis;
+        btScalar *J2 = rotational ? info->m_J2angularAxis : info->m_J2linearAxis;
 
         J1[srow+0] = ax1[0];
         J1[srow+1] = ax1[1];
@@ -232,12 +232,12 @@ int bt_get_limit_motor_info2(
 
 			ltd = c.cross(ax1);
 
-            info->J1a[srow+0] = ltd[0];
-            info->J1a[srow+1] = ltd[1];
-            info->J1a[srow+2] = ltd[2];
-            info->J2a[srow+0] = ltd[0];
-            info->J2a[srow+1] = ltd[1];
-            info->J2a[srow+2] = ltd[2];
+            info->m_J1angularAxis[srow+0] = ltd[0];
+            info->m_J1angularAxis[srow+1] = ltd[1];
+            info->m_J1angularAxis[srow+2] = ltd[2];
+            info->m_J2angularAxis[srow+0] = ltd[0];
+            info->m_J2angularAxis[srow+1] = ltd[1];
+            info->m_J2angularAxis[srow+2] = ltd[2];
         }
 
         // if we're limited low and high simultaneously, the joint motor is
@@ -250,37 +250,37 @@ int bt_get_limit_motor_info2(
             info->cfm[row] = 0.0f;//limot->m_normalCFM;
             if (! limit)
             {
-                info->c[row] = limot->m_targetVelocity;
-                info->lo[row] = -limot->m_maxMotorForce;
-                info->hi[row] = limot->m_maxMotorForce;
+                info->m_constraintError[row] = limot->m_targetVelocity;
+                info->m_lowerLimit[row] = -limot->m_maxMotorForce;
+                info->m_higherLimit[row] = limot->m_maxMotorForce;
             }
         }
 
         if (limit)
         {
             btScalar k = info->fps * limot->m_ERP;
-            info->c[row] = -k * limot->m_currentLimitError;
+            info->m_constraintError[row] = -k * limot->m_currentLimitError;
             info->cfm[row] = 0.0f;//limot->m_stopCFM;
 
             if (limot->m_loLimit == limot->m_hiLimit)
             {
                 // limited low and high simultaneously
-                info->lo[row] = -dInfinity;
-                info->hi[row] = dInfinity;
+                info->m_lowerLimit[row] = -dInfinity;
+                info->m_higherLimit[row] = dInfinity;
             }
             else
             {
                 if (limit == 1)
                 {
                     // low limit
-                    info->lo[row] = 0;
-                    info->hi[row] = SIMD_INFINITY;
+                    info->m_lowerLimit[row] = 0;
+                    info->m_higherLimit[row] = SIMD_INFINITY;
                 }
                 else
                 {
                     // high limit
-                    info->lo[row] = -SIMD_INFINITY;
-                    info->hi[row] = 0;
+                    info->m_lowerLimit[row] = -SIMD_INFINITY;
+                    info->m_higherLimit[row] = 0;
                 }
 
                 // deal with bounce
@@ -309,7 +309,8 @@ int bt_get_limit_motor_info2(
                         if (vel < 0)
                         {
                             btScalar newc = -limot->m_bounce* vel;
-                            if (newc > info->c[row]) info->c[row] = newc;
+                            if (newc > info->m_constraintError[row]) 
+								info->m_constraintError[row] = newc;
                         }
                     }
                     else
@@ -318,7 +319,8 @@ int bt_get_limit_motor_info2(
                         if (vel > 0)
                         {
                             btScalar newc = -limot->m_bounce * vel;
-                            if (newc < info->c[row]) info->c[row] = newc;
+                            if (newc < info->m_constraintError[row]) 
+								info->m_constraintError[row] = newc;
                         }
                     }
                 }
@@ -349,7 +351,7 @@ void OdeD6Joint::GetInfo1(Info1 *info)
 	btGeneric6DofConstraint * d6constraint = this->getD6Constraint();
 	//prepare constraint
 	d6constraint->calculateTransforms();
-    info->m = 3;
+    info->m_numConstraintRows = 3;
     info->nub = 3;
 
     //test angular limits
@@ -358,7 +360,7 @@ void OdeD6Joint::GetInfo1(Info1 *info)
     	//if(i==2) continue;
 		if(d6constraint->testAngularLimitMotor(i))
 		{
-			info->m++;
+			info->m_numConstraintRows++;
 		}
     }
 
@@ -390,25 +392,25 @@ int OdeD6Joint::setLinearLimits(Info2 *info)
     int s = info->rowskip;
 
     // set jacobian
-    info->J1l[0] = 1;
-    info->J1l[s+1] = 1;
-    info->J1l[2*s+2] = 1;
+    info->m_J1linearAxis[0] = 1;
+    info->m_J1linearAxis[s+1] = 1;
+    info->m_J1linearAxis[2*s+2] = 1;
 
 
     btVector3 a1,a2;
 
     a1 = body0_trans.getBasis()*d6constraint->getFrameOffsetA().getOrigin();
     //dMULTIPLY0_331 (a1, body0_mat,m_constraint->m_pivotInA);
-    dCROSSMAT (info->J1a,a1,s,-,+);
+    dCROSSMAT (info->m_J1angularAxis,a1,s,-,+);
     if (m_body1)
     {
-        info->J2l[0] = -1;
-        info->J2l[s+1] = -1;
-        info->J2l[2*s+2] = -1;
+        info->m_J2linearAxis[0] = -1;
+        info->m_J2linearAxis[s+1] = -1;
+        info->m_J2linearAxis[2*s+2] = -1;
         a2 = body1_trans.getBasis()*d6constraint->getFrameOffsetB().getOrigin();
 
         //dMULTIPLY0_331 (a2,body1_mat,m_constraint->m_pivotInB);
-        dCROSSMAT (info->J2a,a2,s,+,-);
+        dCROSSMAT (info->m_J2angularAxis,a2,s,+,-);
     }
 
 
@@ -418,7 +420,7 @@ int OdeD6Joint::setLinearLimits(Info2 *info)
     {
         for (int j=0; j<3; j++)
         {
-            info->c[j] = k * (a2[j] + body1_trans.getOrigin()[j] -
+            info->m_constraintError[j] = k * (a2[j] + body1_trans.getOrigin()[j] -
                               a1[j] - body0_trans.getOrigin()[j]);
         }
     }
@@ -426,7 +428,7 @@ int OdeD6Joint::setLinearLimits(Info2 *info)
     {
         for (int j=0; j<3; j++)
         {
-            info->c[j] = k * (d6constraint->getCalculatedTransformB().getOrigin()[j] - a1[j] -
+            info->m_constraintError[j] = k * (d6constraint->getCalculatedTransformB().getOrigin()[j] - a1[j] -
                               body0_trans.getOrigin()[j]);
         }
     }
@@ -485,19 +487,19 @@ OdeSliderJoint::OdeSliderJoint(
 void OdeSliderJoint::GetInfo1(Info1* info)
 {
 	info->nub = 4; 
-	info->m = 4; // Fixed 2 linear + 2 angular
+	info->m_numConstraintRows = 4; // Fixed 2 linear + 2 angular
 	btSliderConstraint * slider = this->getSliderConstraint();
 	//prepare constraint
 	slider->calculateTransforms();
 	slider->testLinLimits();
 	if(slider->getSolveLinLimit() || slider->getPoweredLinMotor())
 	{
-		info->m++; // limit 3rd linear as well
+		info->m_numConstraintRows++; // limit 3rd linear as well
 	}
 	slider->testAngLimits();
 	if(slider->getSolveAngLimit() || slider->getPoweredAngMotor())
 	{
-		info->m++; // limit 3rd angular as well
+		info->m_numConstraintRows++; // limit 3rd angular as well
 	}
 } // OdeSliderJoint::GetInfo1()
 
@@ -523,20 +525,20 @@ void OdeSliderJoint::GetInfo2(Info2 *info)
 	btVector3 p = trA.getBasis().getColumn(1);
 	btVector3 q = trA.getBasis().getColumn(2);
 	// set the two slider rows 
-	info->J1a[0] = p[0];
-	info->J1a[1] = p[1];
-	info->J1a[2] = p[2];
-	info->J1a[s+0] = q[0];
-	info->J1a[s+1] = q[1];
-	info->J1a[s+2] = q[2];
+	info->m_J1angularAxis[0] = p[0];
+	info->m_J1angularAxis[1] = p[1];
+	info->m_J1angularAxis[2] = p[2];
+	info->m_J1angularAxis[s+0] = q[0];
+	info->m_J1angularAxis[s+1] = q[1];
+	info->m_J1angularAxis[s+2] = q[2];
 	if(m_body1) 
 	{
-		info->J2a[0] = -p[0];
-		info->J2a[1] = -p[1];
-		info->J2a[2] = -p[2];
-		info->J2a[s+0] = -q[0];
-		info->J2a[s+1] = -q[1];
-		info->J2a[s+2] = -q[2];
+		info->m_J2angularAxis[0] = -p[0];
+		info->m_J2angularAxis[1] = -p[1];
+		info->m_J2angularAxis[2] = -p[2];
+		info->m_J2angularAxis[s+0] = -q[0];
+		info->m_J2angularAxis[s+1] = -q[1];
+		info->m_J2angularAxis[s+2] = -q[2];
 	}
 	// compute the right hand side of the constraint equation. set relative
 	// body velocities along p and q to bring the slider back into alignment.
@@ -564,8 +566,8 @@ void OdeSliderJoint::GetInfo2(Info2 *info)
 	{
 		u = ax2.cross(ax1);
 	}
-	info->c[0] = k * u.dot(p);
-	info->c[1] = k * u.dot(q);
+	info->m_constraintError[0] = k * u.dot(p);
+	info->m_constraintError[1] = k * u.dot(q);
 	// pull out pos and R for both bodies. also get the connection
 	// vector c = pos2-pos1.
 	// next two rows. we want: vel2 = vel1 + w1 x c ... but this would
@@ -585,19 +587,19 @@ void OdeSliderJoint::GetInfo2(Info2 *info)
 		c = bodyB_trans.getOrigin() - bodyA_trans.getOrigin();
 		btVector3 tmp = btScalar(0.5) * c.cross(p);
 
-		for (i=0; i<3; i++) info->J1a[s2+i] = tmp[i];
-		for (i=0; i<3; i++) info->J2a[s2+i] = tmp[i];
+		for (i=0; i<3; i++) info->m_J1angularAxis[s2+i] = tmp[i];
+		for (i=0; i<3; i++) info->m_J2angularAxis[s2+i] = tmp[i];
 
 		tmp = btScalar(0.5) * c.cross(q);
 
-		for (i=0; i<3; i++) info->J1a[s3+i] = tmp[i];
-		for (i=0; i<3; i++) info->J2a[s3+i] = tmp[i];
+		for (i=0; i<3; i++) info->m_J1angularAxis[s3+i] = tmp[i];
+		for (i=0; i<3; i++) info->m_J2angularAxis[s3+i] = tmp[i];
 
-		for (i=0; i<3; i++) info->J2l[s2+i] = -p[i];
-		for (i=0; i<3; i++) info->J2l[s3+i] = -q[i];
+		for (i=0; i<3; i++) info->m_J2linearAxis[s2+i] = -p[i];
+		for (i=0; i<3; i++) info->m_J2linearAxis[s3+i] = -q[i];
 	}
-	for (i=0; i<3; i++) info->J1l[s2+i] = p[i];
-	for (i=0; i<3; i++) info->J1l[s3+i] = q[i];
+	for (i=0; i<3; i++) info->m_J1linearAxis[s2+i] = p[i];
+	for (i=0; i<3; i++) info->m_J1linearAxis[s3+i] = q[i];
 	// compute two elements of right hand side. we want to align the offset
 	// point (in body 2's frame) with the center of body 1.
 	btVector3 ofs; // offset point in global coordinates
@@ -610,8 +612,8 @@ void OdeSliderJoint::GetInfo2(Info2 *info)
 		ofs = trA.getOrigin() - trB.getOrigin();
 	}
 	k = info->fps * info->erp * slider->getSoftnessOrthoLin();
-	info->c[2] = k * p.dot(ofs);
-	info->c[3] = k * q.dot(ofs);
+	info->m_constraintError[2] = k * p.dot(ofs);
+	info->m_constraintError[3] = k * q.dot(ofs);
 	int nrow = 3; // last filled row
 	int srow;
 	// check linear limits linear
@@ -639,14 +641,14 @@ void OdeSliderJoint::GetInfo2(Info2 *info)
 	{
 		nrow++;
 		srow = nrow * info->rowskip;
-		info->J1l[srow+0] = ax1[0];
-		info->J1l[srow+1] = ax1[1];
-		info->J1l[srow+2] = ax1[2];
+		info->m_J1linearAxis[srow+0] = ax1[0];
+		info->m_J1linearAxis[srow+1] = ax1[1];
+		info->m_J1linearAxis[srow+2] = ax1[2];
 		if(m_body1)
 		{
-			info->J2l[srow+0] = -ax1[0];
-			info->J2l[srow+1] = -ax1[1];
-			info->J2l[srow+2] = -ax1[2];
+			info->m_J2linearAxis[srow+0] = -ax1[0];
+			info->m_J2linearAxis[srow+1] = -ax1[1];
+			info->m_J2linearAxis[srow+2] = -ax1[2];
 		}
 		// linear torque decoupling step:
 		//
@@ -664,12 +666,12 @@ void OdeSliderJoint::GetInfo2(Info2 *info)
 			dVector3 ltd;	// Linear Torque Decoupling vector (a torque)
 			c = btScalar(0.5) * c;
 			dCROSS (ltd,=,c,ax1);
-			info->J1a[srow+0] = ltd[0];
-			info->J1a[srow+1] = ltd[1];
-			info->J1a[srow+2] = ltd[2];
-			info->J2a[srow+0] = ltd[0];
-			info->J2a[srow+1] = ltd[1];
-			info->J2a[srow+2] = ltd[2];
+			info->m_J1angularAxis[srow+0] = ltd[0];
+			info->m_J1angularAxis[srow+1] = ltd[1];
+			info->m_J1angularAxis[srow+2] = ltd[2];
+			info->m_J2angularAxis[srow+0] = ltd[0];
+			info->m_J2angularAxis[srow+1] = ltd[1];
+			info->m_J2angularAxis[srow+2] = ltd[2];
 		}
 		// right-hand part
 		btScalar lostop = slider->getLowerLinLimit();
@@ -683,9 +685,9 @@ void OdeSliderJoint::GetInfo2(Info2 *info)
             info->cfm[nrow] = btScalar(0.0); 
             if(!limit)
             {
-				info->c[nrow] = slider->getTargetLinMotorVelocity();
-				info->lo[nrow] = -slider->getMaxLinMotorForce() * info->fps;
-				info->hi[nrow] = slider->getMaxLinMotorForce() * info->fps;
+				info->m_constraintError[nrow] = slider->getTargetLinMotorVelocity();
+				info->m_lowerLimit[nrow] = -slider->getMaxLinMotorForce() * info->fps;
+				info->m_higherLimit[nrow] = slider->getMaxLinMotorForce() * info->fps;
             }
 		}
 		if(limit)
@@ -693,32 +695,32 @@ void OdeSliderJoint::GetInfo2(Info2 *info)
 			k = info->fps * info->erp;
 			if(m_body1) 
 			{
-				info->c[nrow] = k * limit_err;
+				info->m_constraintError[nrow] = k * limit_err;
 			}
 			else
 			{
-				info->c[nrow] = - k * limit_err;
+				info->m_constraintError[nrow] = - k * limit_err;
 			}
 			info->cfm[nrow] = btScalar(0.0); // stop_cfm;
 			if(lostop == histop) 
 			{
 				// limited low and high simultaneously
-				info->lo[nrow] = -SIMD_INFINITY;
-				info->hi[nrow] = SIMD_INFINITY;
+				info->m_lowerLimit[nrow] = -SIMD_INFINITY;
+				info->m_higherLimit[nrow] = SIMD_INFINITY;
 			}
 			else 
 			{
 				if(limit == 1) 
 				{
 					// low limit
-					info->lo[nrow] = 0;
-					info->hi[nrow] = SIMD_INFINITY;
+					info->m_lowerLimit[nrow] = 0;
+					info->m_higherLimit[nrow] = SIMD_INFINITY;
 				}
 				else 
 				{
 					// high limit
-					info->lo[nrow] = -SIMD_INFINITY;
-					info->hi[nrow] = 0;
+					info->m_lowerLimit[nrow] = -SIMD_INFINITY;
+					info->m_higherLimit[nrow] = 0;
 				}
 			}
 			// bounce (we'll use slider parameter abs(1.0 - m_dampingLimLin) for that)
@@ -738,7 +740,8 @@ void OdeSliderJoint::GetInfo2(Info2 *info)
 					if(vel < 0)
 					{
 						btScalar newc = -bounce * vel;
-						if (newc > info->c[nrow]) info->c[nrow] = newc;
+						if (newc > info->m_constraintError[nrow]) 
+							info->m_constraintError[nrow] = newc;
 					}
 				}
 				else
@@ -747,11 +750,12 @@ void OdeSliderJoint::GetInfo2(Info2 *info)
 					if(vel > 0)
 					{
 						btScalar newc = -bounce * vel;
-						if(newc < info->c[nrow]) info->c[nrow] = newc;
+						if(newc < info->m_constraintError[nrow]) 
+							info->m_constraintError[nrow] = newc;
 					}
 				}
 			}
-			info->c[nrow] *= slider->getSoftnessLimLin();
+			info->m_constraintError[nrow] *= slider->getSoftnessLimLin();
 		} // if(limit)
 	} // if linear limit
 	// check angular limits
@@ -779,14 +783,14 @@ void OdeSliderJoint::GetInfo2(Info2 *info)
 	{
 		nrow++;
 		srow = nrow * info->rowskip;
-		info->J1a[srow+0] = ax1[0];
-		info->J1a[srow+1] = ax1[1];
-		info->J1a[srow+2] = ax1[2];
+		info->m_J1angularAxis[srow+0] = ax1[0];
+		info->m_J1angularAxis[srow+1] = ax1[1];
+		info->m_J1angularAxis[srow+2] = ax1[2];
 		if(m_body1)
 		{
-			info->J2a[srow+0] = -ax1[0];
-			info->J2a[srow+1] = -ax1[1];
-			info->J2a[srow+2] = -ax1[2];
+			info->m_J2angularAxis[srow+0] = -ax1[0];
+			info->m_J2angularAxis[srow+1] = -ax1[1];
+			info->m_J2angularAxis[srow+2] = -ax1[2];
 		}
 		btScalar lostop = slider->getLowerAngLimit();
 		btScalar histop = slider->getUpperAngLimit();
@@ -799,9 +803,9 @@ void OdeSliderJoint::GetInfo2(Info2 *info)
             info->cfm[nrow] = btScalar(0.0); 
             if(!limit)
             {
-				info->c[nrow] = slider->getTargetAngMotorVelocity();
-				info->lo[nrow] = -slider->getMaxAngMotorForce() * info->fps;
-				info->hi[nrow] = slider->getMaxAngMotorForce() * info->fps;
+				info->m_constraintError[nrow] = slider->getTargetAngMotorVelocity();
+				info->m_lowerLimit[nrow] = -slider->getMaxAngMotorForce() * info->fps;
+				info->m_higherLimit[nrow] = slider->getMaxAngMotorForce() * info->fps;
             }
 		}
 		if(limit)
@@ -809,32 +813,32 @@ void OdeSliderJoint::GetInfo2(Info2 *info)
 			k = info->fps * info->erp;
 			if (m_body1) 
 			{
-				info->c[nrow] = k * limit_err;
+				info->m_constraintError[nrow] = k * limit_err;
 			}
 			else
 			{
-				info->c[nrow] = -k * limit_err;
+				info->m_constraintError[nrow] = -k * limit_err;
 			}
 			info->cfm[nrow] = btScalar(0.0); // stop_cfm;
 			if(lostop == histop) 
 			{
 				// limited low and high simultaneously
-				info->lo[nrow] = -SIMD_INFINITY;
-				info->hi[nrow] = SIMD_INFINITY;
+				info->m_lowerLimit[nrow] = -SIMD_INFINITY;
+				info->m_higherLimit[nrow] = SIMD_INFINITY;
 			}
 			else 
 			{
 				if (limit == 1) 
 				{
 					// low limit
-					info->lo[nrow] = 0;
-					info->hi[nrow] = SIMD_INFINITY;
+					info->m_lowerLimit[nrow] = 0;
+					info->m_higherLimit[nrow] = SIMD_INFINITY;
 				}
 				else 
 				{
 					// high limit
-					info->lo[nrow] = -SIMD_INFINITY;
-					info->hi[nrow] = 0;
+					info->m_lowerLimit[nrow] = -SIMD_INFINITY;
+					info->m_higherLimit[nrow] = 0;
 				}
 			}
 			// bounce (we'll use slider parameter abs(1.0 - m_dampingLimAng) for that)
@@ -854,7 +858,7 @@ void OdeSliderJoint::GetInfo2(Info2 *info)
 					if(vel < 0)
 					{
 						btScalar newc = -bounce * vel;
-						if (newc > info->c[nrow]) info->c[nrow] = newc;
+						if (newc > info->m_constraintError[nrow]) info->m_constraintError[nrow] = newc;
 					}
 				}
 				else
@@ -863,11 +867,11 @@ void OdeSliderJoint::GetInfo2(Info2 *info)
 					if(vel > 0)
 					{
 						btScalar newc = -bounce * vel;
-						if(newc < info->c[nrow]) info->c[nrow] = newc;
+						if(newc < info->m_constraintError[nrow]) info->m_constraintError[nrow] = newc;
 					}
 				}
 			}
-			info->c[nrow] *= slider->getSoftnessLimAng();
+			info->m_constraintError[nrow] *= slider->getSoftnessLimAng();
 		} // if(limit)
 	} // if angular limit or powered
 } // OdeSliderJoint::GetInfo2()

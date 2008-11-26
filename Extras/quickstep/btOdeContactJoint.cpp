@@ -35,7 +35,7 @@ int m_numRows = 3;
 
 void btOdeContactJoint::GetInfo1(Info1 *info)
 {
-	info->m = m_numRows;
+	info->m_numConstraintRows = m_numRows;
 	//friction adds another 2...
 	
 	info->nub = 0;
@@ -107,16 +107,12 @@ void btOdeContactJoint::GetInfo2(Info2 *info)
 	btVector3 relativePositionA;
 	{
 		relativePositionA = point.getPositionWorldOnA() - m_body0->m_centerOfMassPosition;
-		dVector3 c1;
-		c1[0] = relativePositionA.x();
-		c1[1] = relativePositionA.y();
-		c1[2] = relativePositionA.z();
 		
 		// set jacobian for normal
-		info->J1l[0] = normal[0];
-		info->J1l[1] = normal[1];
-		info->J1l[2] = normal[2];
-		dCROSS (info->J1a,=,c1,normal);
+		info->m_J1linearAxis[0] = normal[0];
+		info->m_J1linearAxis[1] = normal[1];
+		info->m_J1linearAxis[2] = normal[2];
+		dCROSS (info->m_J1angularAxis,=,relativePositionA,normal);
 		
 	}
 
@@ -126,30 +122,24 @@ void btOdeContactJoint::GetInfo2(Info2 *info)
 		//		if (GetBody1())
 		
 		{
-			dVector3 c2;
 			btVector3	posBody1 = m_body1 ? m_body1->m_centerOfMassPosition : btVector3(0,0,0);
 			relativePositionB = point.getPositionWorldOnB() - posBody1;
 			
 			//			for (i=0; i<3; i++) c2[i] = j->contact.geom.pos[i] -
 			//					  j->node[1].body->pos[i];
-			c2[0] = relativePositionB.x();
-			c2[1] = relativePositionB.y();
-			c2[2] = relativePositionB.z();
 			
-			info->J2l[0] = -normal[0];
-			info->J2l[1] = -normal[1];
-			info->J2l[2] = -normal[2];
-			dCROSS (info->J2a,= -,c2,normal);
+			info->m_J2linearAxis[0] = -normal[0];
+			info->m_J2linearAxis[1] = -normal[1];
+			info->m_J2linearAxis[2] = -normal[2];
+			dCROSS (info->m_J2angularAxis,= -,relativePositionB,normal);
 		}
 	}
-	
-	btScalar k = info->fps * info->erp;
 	
 	float depth = -point.getDistance();
 //	if (depth < 0.f)
 //		depth = 0.f;
 	
-	info->c[0] = k * depth;
+	info->m_constraintError[0] = depth * info->fps * info->erp ;
 	//float maxvel = .2f;
 
 //	if (info->c[0] > maxvel)
@@ -164,12 +154,12 @@ void btOdeContactJoint::GetInfo2(Info2 *info)
 	
 	
 	// set LCP limits for normal
-	info->lo[0] = 0;
-	info->hi[0] = 1e30f;//dInfinity;
-	info->lo[1] = 0;
-	info->hi[1] = 0.f;
-	info->lo[2] = 0.f;
-	info->hi[2] = 0.f;
+	info->m_lowerLimit[0] = 0;
+	info->m_higherLimit[0] = 1e30f;//dInfinity;
+	info->m_lowerLimit[1] = 0;
+	info->m_higherLimit[1] = 0.f;
+	info->m_lowerLimit[2] = 0.f;
+	info->m_higherLimit[2] = 0.f;
 
 #define DO_THE_FRICTION_2
 #ifdef DO_THE_FRICTION_2
@@ -197,15 +187,15 @@ void btOdeContactJoint::GetInfo2(Info2 *info)
 		
 		dPlaneSpace1 (normal,t1,t2);
 		
-		info->J1l[s+0] = t1[0];
-		info->J1l[s+1] = t1[1];
-		info->J1l[s+2] = t1[2];
-		dCROSS (info->J1a+s,=,c1,t1);
+		info->m_J1linearAxis[s+0] = t1[0];
+		info->m_J1linearAxis[s+1] = t1[1];
+		info->m_J1linearAxis[s+2] = t1[2];
+		dCROSS (info->m_J1angularAxis+s,=,c1,t1);
 //		if (1) { //j->node[1].body) {
-			info->J2l[s+0] = -t1[0];
-			info->J2l[s+1] = -t1[1];
-			info->J2l[s+2] = -t1[2];
-			dCROSS (info->J2a+s,= -,c2,t1);
+			info->m_J2linearAxis[s+0] = -t1[0];
+			info->m_J2linearAxis[s+1] = -t1[1];
+			info->m_J2linearAxis[s+2] = -t1[2];
+			dCROSS (info->m_J2angularAxis+s,= -,c2,t1);
 //		}
 		// set right hand side
 //		if (0) {//j->contact.surface.mode & dContactMotion1) {
@@ -216,8 +206,8 @@ void btOdeContactJoint::GetInfo2(Info2 *info)
 		//1e30f
 		
 		
-		info->lo[1] = -friction;//-j->contact.surface.mu;
-		info->hi[1] = friction;//j->contact.surface.mu;
+		info->m_lowerLimit[1] = -friction;//-j->contact.surface.mu;
+		info->m_higherLimit[1] = friction;//j->contact.surface.mu;
 //		if (1)//j->contact.surface.mode & dContactApprox1_1) 
 			info->findex[1] = 0;
 		
@@ -233,15 +223,15 @@ void btOdeContactJoint::GetInfo2(Info2 *info)
 	
 	// second friction direction
 	if (m_numRows >= 3) {
-		info->J1l[s2+0] = t2[0];
-		info->J1l[s2+1] = t2[1];
-		info->J1l[s2+2] = t2[2];
-		dCROSS (info->J1a+s2,=,c1,t2);
+		info->m_J1linearAxis[s2+0] = t2[0];
+		info->m_J1linearAxis[s2+1] = t2[1];
+		info->m_J1linearAxis[s2+2] = t2[2];
+		dCROSS (info->m_J1angularAxis+s2,=,c1,t2);
 //		if (1) { //j->node[1].body) {
-			info->J2l[s2+0] = -t2[0];
-			info->J2l[s2+1] = -t2[1];
-			info->J2l[s2+2] = -t2[2];
-			dCROSS (info->J2a+s2,= -,c2,t2);
+			info->m_J2linearAxis[s2+0] = -t2[0];
+			info->m_J2linearAxis[s2+1] = -t2[1];
+			info->m_J2linearAxis[s2+2] = -t2[2];
+			dCROSS (info->m_J2angularAxis+s2,= -,c2,t2);
 //		}
 
 		// set right hand side
@@ -251,18 +241,18 @@ void btOdeContactJoint::GetInfo2(Info2 *info)
 		// set LCP bounds and friction index. this depends on the approximation
 		// mode
 //		if (0){//j->contact.surface.mode & dContactMu2) {
-			//info->lo[2] = -j->contact.surface.mu2;
-			//info->hi[2] = j->contact.surface.mu2;
+			//info->m_lowerLimit[2] = -j->contact.surface.mu2;
+			//info->m_higherLimit[2] = j->contact.surface.mu2;
 //		}
 //		else {
-			info->lo[2] = -friction;
-			info->hi[2] = friction;
+			info->m_lowerLimit[2] = -friction;
+			info->m_higherLimit[2] = friction;
 //		}
-//		if (0)//j->contact.surface.mode & dContactApprox1_2) 
+		if (1)//j->contact.surface.mode & dContactApprox1_2) 
 			
-//		{
-//			info->findex[2] = 0;
-//		}
+		{
+			info->findex[2] = 0;
+		}
 		// set slip (constraint force mixing)
 //		if (0) //j->contact.surface.mode & dContactSlip2)
 			

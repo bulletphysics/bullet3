@@ -61,9 +61,10 @@ void btSolve2LinearConstraint::resolveUnilateralPairConstraint(
 
 
 	//this jacobian entry could be re-used for all iterations
-	btJacobianEntry jacA(world2A,world2B,rel_posA1,rel_posA2,normalA,invInertiaADiag,invMassA,
+	btJacobianEntry jacA(
+		rel_posA1,rel_posA2,normalA,invInertiaADiag,invMassA,
 		invInertiaBDiag,invMassB);
-	btJacobianEntry jacB(world2A,world2B,rel_posB1,rel_posB2,normalB,invInertiaADiag,invMassA,
+	btJacobianEntry jacB(rel_posB1,rel_posB2,normalB,invInertiaADiag,invMassA,
 		invInertiaBDiag,invMassB);
 	
 	//const btScalar vel0 = jacA.getRelativeVelocity(linvelA,angvelA,linvelB,angvelB);
@@ -150,9 +151,9 @@ void btSolve2LinearConstraint::resolveBilateralPairConstraint(
 
 
 	//this jacobian entry could be re-used for all iterations
-	btJacobianEntry jacA(world2A,world2B,rel_posA1,rel_posA2,normalA,invInertiaADiag,invMassA,
+	btJacobianEntry jacA(rel_posA1,rel_posA2,normalA,invInertiaADiag,invMassA,
 		invInertiaBDiag,invMassB);
-	btJacobianEntry jacB(world2A,world2B,rel_posB1,rel_posB2,normalB,invInertiaADiag,invMassA,
+	btJacobianEntry jacB(rel_posB1,rel_posB2,normalB,invInertiaADiag,invMassA,
 		invInertiaBDiag,invMassB);
 	
 	//const btScalar vel0 = jacA.getRelativeVelocity(linvelA,angvelA,linvelB,angvelB);

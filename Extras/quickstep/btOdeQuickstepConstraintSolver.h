@@ -40,9 +40,6 @@ private:
 	int		m_CurJoint;
 	int		m_CurTypedJoint;
 
-	float	m_cfm;
-	float	m_erp;
-
 	btSorLcpSolver	m_SorLcpSolver;
 
 	btAlignedObjectArray<btOdeSolverBody*> m_odeBodies;
@@ -74,19 +71,7 @@ public:
 
 	virtual btScalar solveGroup(btCollisionObject** bodies,int numBodies,btPersistentManifold** manifold,int numManifolds,btTypedConstraint** constraints,int numConstraints,const btContactSolverInfo& info,btIDebugDraw* debugDrawer,btStackAlloc* stackAlloc,btDispatcher* dispatcher);
 
-	///setConstraintForceMixing, the cfm adds some positive value to the main diagonal
-	///This can improve convergence (make matrix positive semidefinite), but it can make the simulation look more 'springy'
-	void	setConstraintForceMixing(float cfm) {
-		m_cfm  = cfm;
-	}
-
-	///setErrorReductionParamter sets the maximum amount of error reduction
-	///which limits energy addition during penetration depth recovery
-	void	setErrorReductionParamter(float erp)
-	{
-		m_erp = erp;
-	}
-
+	
 	///clear internal cached data and reset random seed
 	void reset()
 	{

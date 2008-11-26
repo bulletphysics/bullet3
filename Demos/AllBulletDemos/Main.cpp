@@ -71,7 +71,7 @@ void	setDefaultSettings()
 {
 	viewX = 0.0f;
 	viewY = 0.0f;
-	framePeriod = 1;//16;//16;//todo: test if this value should be 0
+	framePeriod = 6;//16;//16;//todo: test if this value should be 0
 	
 	width = 800;//640;
 	height = 600;//1024;//480;
@@ -87,8 +87,8 @@ void	setDefaultSettings()
 	gUseSplitImpulse = 0;
 	gUseWarmstarting = 1;
 	gRandomizeConstraints = 1;
-	gErp = 0.2f;
-	gSlop=0.01f;
+	gErp = 0.4f;
+	gSlop=0.0f;
 	gErp2 = 0.1f;
 	gWarmStartingParameter = 0.85f;
 	

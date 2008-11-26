@@ -449,10 +449,10 @@ btScalar solveContact(btSolverBody& body1,btSolverBody& body2,const btSolverCons
 
 		normalImpulse = contactConstraint.m_appliedImpulse - oldNormalImpulse;
 
-		body1.internalApplyImpulse(contactConstraint.m_contactNormal*body1.m_invMass,
+		body1.applyImpulse(contactConstraint.m_contactNormal*body1.m_invMass,
 				contactConstraint.m_angularComponentA,normalImpulse);
 		
-		body2.internalApplyImpulse(contactConstraint.m_contactNormal*body2.m_invMass,
+		body2.applyImpulse(contactConstraint.m_contactNormal*body2.m_invMass,
 				contactConstraint.m_angularComponentB,-normalImpulse);
 	}
 
@@ -1138,9 +1138,9 @@ void processSolverTask(void* userPtr, void* lsMemory)
 									if (constraint.m_appliedImpulse!= 0.f)
 									{
 										if (solverBodyA)
-											solverBodyA->internalApplyImpulse(constraint.m_contactNormal*rb0readonly->getInvMass(),constraint.m_angularComponentA,constraint.m_appliedImpulse);
+											solverBodyA->applyImpulse(constraint.m_contactNormal*rb0readonly->getInvMass(),constraint.m_angularComponentA,constraint.m_appliedImpulse);
 										if (solverBodyB)
-											solverBodyB->internalApplyImpulse(constraint.m_contactNormal*rb1readonly->getInvMass(),constraint.m_angularComponentB,-constraint.m_appliedImpulse);
+											solverBodyB->applyImpulse(constraint.m_contactNormal*rb1readonly->getInvMass(),constraint.m_angularComponentB,-constraint.m_appliedImpulse);
 									}
 
 
