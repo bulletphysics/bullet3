@@ -120,6 +120,19 @@ class btAlignedObjectArray
 			clear();
 		}
 
+		btAlignedObjectArray(const btAlignedObjectArray& otherArray)
+		{
+			init();
+
+			int otherSize = otherArray.size();
+			resize (otherSize);
+			int i;
+			for (i=0;i<otherSize;i++)
+			{
+				m_data[i] = otherArray[i];
+			}
+		}
+
 		SIMD_FORCE_INLINE	int capacity() const
 		{	// return current length of allocated storage
 			return m_capacity;
