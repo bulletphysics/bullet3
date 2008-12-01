@@ -76,7 +76,7 @@ void SoftDemo::createStack( btCollisionShape* boxShape, float halfCubeSize, int 
 		int rowSize = size - i;
 		for(int j=0; j< rowSize; j++)
 		{
-			btVector4 pos;
+			btVector3 pos;
 			pos.setValue(
 				-rowSize * halfCubeSize + halfCubeSize + j * 2.0f * halfCubeSize,
 				halfCubeSize + i * halfCubeSize * 2.0f,

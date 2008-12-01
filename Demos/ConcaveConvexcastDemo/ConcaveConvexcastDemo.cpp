@@ -123,9 +123,9 @@ public:
 		{
 			btScalar alpha = dalpha * i;
 			// rotate around by alpha degrees y 
-			btQuaternion q(btVector3(0.0, 1.0, 0.0), alpha);
+			btTransform tr(btQuaternion(btVector3(0.0, 1.0, 0.0), alpha));
 			direction[i] = btVector3(1.0, 0.0, 0.0);
-			direction[i] = q * direction[i];
+			direction[i] = tr * direction[i];
 			direction[i] = direction[i];
 			source[i] = btVector3(min_x, max_y, z);
 			dest[i] = source[i] + direction[i] * ray_length;

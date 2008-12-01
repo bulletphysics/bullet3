@@ -81,8 +81,8 @@ void BspConverter::convertBsp(BspLoader& bspLoader,float scaling)
 							planeEq.setValue(
 								plane.normal[0],
 								plane.normal[1],
-								plane.normal[2],
-								scaling*-plane.dist);
+								plane.normal[2]);
+							planeEq[3] = scaling*-plane.dist;
 
 							planeEquations.push_back(planeEq);
 							isValidBrush=true;
@@ -160,8 +160,8 @@ void BspConverter::convertBsp(BspLoader& bspLoader,float scaling)
 													planeEq.setValue(
 														plane.normal[0],
 														plane.normal[1],
-														plane.normal[2],
-														scaling*-plane.dist);
+														plane.normal[2]);
+													planeEq[3] = scaling*-plane.dist;
 													planeEquations.push_back(planeEq);
 													isValidBrush=true;
 												}

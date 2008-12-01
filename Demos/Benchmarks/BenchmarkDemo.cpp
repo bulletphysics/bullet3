@@ -91,7 +91,7 @@ public:
 			// rotate around by alpha degrees y 
 			btQuaternion q(btVector3(0.0, 1.0, 0.0), alpha);
 			direction[i] = btVector3(1.0, 0.0, 0.0);
-			direction[i] = q * direction[i];
+			direction[i] = quatRotate(q , direction[i]);
 			direction[i] = direction[i] * ray_length;
 			
 			
