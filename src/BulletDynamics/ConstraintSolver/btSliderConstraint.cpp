@@ -153,27 +153,41 @@ void btSliderConstraint::buildJacobianInt(btRigidBody& rbA, btRigidBody& rbB, co
 
 //-----------------------------------------------------------------------------
 
-void btSliderConstraint::solveConstraint(btScalar timeStep)
+void btSliderConstraint::getInfo1 (btConstraintInfo1* info)
+{
+	info->m_numConstraintRows = 0;
+	info->nub = 0;
+}
+
+void btSliderConstraint::getInfo2 (btConstraintInfo2* info)
+{
+	btAssert(0);
+}
+
+
+void btSliderConstraint::solveConstraintObsolete(btSolverBody& bodyA,btSolverBody& bodyB,btScalar timeStep)
 {
     m_timeStep = timeStep;
 	if(m_useLinearReferenceFrameA)
 	{
-		solveConstraintInt(m_rbA, m_rbB);
+		solveConstraintInt(m_rbA,bodyA, m_rbB,bodyB);
 	}
 	else
 	{
-		solveConstraintInt(m_rbB, m_rbA);
+		solveConstraintInt(m_rbB,bodyB, m_rbA,bodyA);
 	}
 } // btSliderConstraint::solveConstraint()
 
 //-----------------------------------------------------------------------------
 
-void btSliderConstraint::solveConstraintInt(btRigidBody& rbA, btRigidBody& rbB)
+void btSliderConstraint::solveConstraintInt(btRigidBody& rbA, btSolverBody& bodyA,btRigidBody& rbB, btSolverBody& bodyB)
 {
     int i;
     // linear
-    btVector3 velA = rbA.getVelocityInLocalPoint(m_relPosA);
-    btVector3 velB = rbB.getVelocityInLocalPoint(m_relPosB);
+    btVector3 velA;
+	bodyA.getVelocityInLocalPointObsolete(m_relPosA,velA);
+    btVector3 velB;
+	bodyB.getVelocityInLocalPointObsolete(m_relPosB,velB);
     btVector3 vel = velA - velB;
 	for(i = 0; i < 3; i++)
     {
@@ -188,8 +202,18 @@ void btSliderConstraint::solveConstraintInt(btRigidBody& rbA, btRigidBody& rbB)
 		// calcutate and apply impulse
 		btScalar normalImpulse = softness * (restitution * depth / m_timeStep - damping * rel_vel) * m_jacLinDiagABInv[i];
 		btVector3 impulse_vector = normal * normalImpulse;
-		rbA.applyImpulse( impulse_vector, m_relPosA);
-		rbB.applyImpulse(-impulse_vector, m_relPosB);
+		
+		//rbA.applyImpulse( impulse_vector, m_relPosA);
+		//rbB.applyImpulse(-impulse_vector, m_relPosB);
+		{
+			btVector3 ftorqueAxis1 = m_relPosA.cross(normal);
+			btVector3 ftorqueAxis2 = m_relPosB.cross(normal);
+			bodyA.applyImpulse(normal*rbA.getInvMass(), rbA.getInvInertiaTensorWorld()*ftorqueAxis1,normalImpulse);
+			bodyB.applyImpulse(normal*rbB.getInvMass(), rbB.getInvInertiaTensorWorld()*ftorqueAxis2,-normalImpulse);
+		}
+
+
+
 		if(m_poweredLinMotor && (!i))
 		{ // apply linear motor
 			if(m_accumulatedLinMotorImpulse < m_maxLinMotorForce)
@@ -215,8 +239,18 @@ void btSliderConstraint::solveConstraintInt(btRigidBody& rbA, btRigidBody& rbB)
 				m_accumulatedLinMotorImpulse = new_acc;
 				// apply clamped impulse
 				impulse_vector = normal * normalImpulse;
-				rbA.applyImpulse( impulse_vector, m_relPosA);
-				rbB.applyImpulse(-impulse_vector, m_relPosB);
+				//rbA.applyImpulse( impulse_vector, m_relPosA);
+				//rbB.applyImpulse(-impulse_vector, m_relPosB);
+
+				{
+					btVector3 ftorqueAxis1 = m_relPosA.cross(normal);
+					btVector3 ftorqueAxis2 = m_relPosB.cross(normal);
+					bodyA.applyImpulse(normal*rbA.getInvMass(), rbA.getInvInertiaTensorWorld()*ftorqueAxis1,normalImpulse);
+					bodyB.applyImpulse(normal*rbB.getInvMass(), rbB.getInvInertiaTensorWorld()*ftorqueAxis2,-normalImpulse);
+				}
+
+
+
 			}
 		}
     }
@@ -225,8 +259,10 @@ void btSliderConstraint::solveConstraintInt(btRigidBody& rbA, btRigidBody& rbB)
 	btVector3 axisA =  m_calculatedTransformA.getBasis().getColumn(0);
 	btVector3 axisB =  m_calculatedTransformB.getBasis().getColumn(0);
 
-	const btVector3& angVelA = rbA.getAngularVelocity();
-	const btVector3& angVelB = rbB.getAngularVelocity();
+	btVector3 angVelA;
+	bodyA.getAngularVelocity(angVelA);
+	btVector3 angVelB;
+	bodyB.getAngularVelocity(angVelB);
 
 	btVector3 angVelAroundAxisA = axisA * axisA.dot(angVelA);
 	btVector3 angVelAroundAxisB = axisB * axisB.dot(angVelB);
@@ -236,24 +272,38 @@ void btSliderConstraint::solveConstraintInt(btRigidBody& rbA, btRigidBody& rbB)
 	btVector3 velrelOrthog = angAorthog-angBorthog;
 	//solve orthogonal angular velocity correction
 	btScalar len = velrelOrthog.length();
+	btScalar orthorImpulseMag = 0.f;
+
 	if (len > btScalar(0.00001))
 	{
 		btVector3 normal = velrelOrthog.normalized();
 		btScalar denom = rbA.computeAngularImpulseDenominator(normal) + rbB.computeAngularImpulseDenominator(normal);
-		velrelOrthog *= (btScalar(1.)/denom) * m_dampingOrthoAng * m_softnessOrthoAng;
+		//velrelOrthog *= (btScalar(1.)/denom) * m_dampingOrthoAng * m_softnessOrthoAng;
+		orthorImpulseMag = (btScalar(1.)/denom) * m_dampingOrthoAng * m_softnessOrthoAng;
 	}
 	//solve angular positional correction
 	btVector3 angularError = axisA.cross(axisB) *(btScalar(1.)/m_timeStep);
+	btVector3 angularAxis = angularError;
+	btScalar angularImpulseMag = 0;
+
 	btScalar len2 = angularError.length();
 	if (len2>btScalar(0.00001))
 	{
 		btVector3 normal2 = angularError.normalized();
 		btScalar denom2 = rbA.computeAngularImpulseDenominator(normal2) + rbB.computeAngularImpulseDenominator(normal2);
-		angularError *= (btScalar(1.)/denom2) * m_restitutionOrthoAng * m_softnessOrthoAng;
+		angularImpulseMag = (btScalar(1.)/denom2) * m_restitutionOrthoAng * m_softnessOrthoAng;
+		angularError *= angularImpulseMag;
 	}
 	// apply impulse
-	rbA.applyTorqueImpulse(-velrelOrthog+angularError);
-	rbB.applyTorqueImpulse(velrelOrthog-angularError);
+	//rbA.applyTorqueImpulse(-velrelOrthog+angularError);
+	//rbB.applyTorqueImpulse(velrelOrthog-angularError);
+
+	bodyA.applyImpulse(btVector3(0,0,0), rbA.getInvInertiaTensorWorld()*velrelOrthog,-orthorImpulseMag);
+	bodyB.applyImpulse(btVector3(0,0,0), rbB.getInvInertiaTensorWorld()*velrelOrthog,orthorImpulseMag);
+	bodyA.applyImpulse(btVector3(0,0,0), rbA.getInvInertiaTensorWorld()*angularAxis,angularImpulseMag);
+	bodyB.applyImpulse(btVector3(0,0,0), rbB.getInvInertiaTensorWorld()*angularAxis,-angularImpulseMag);
+
+
 	btScalar impulseMag;
 	//solve angular limits
 	if(m_solveAngLim)
@@ -267,8 +317,14 @@ void btSliderConstraint::solveConstraintInt(btRigidBody& rbA, btRigidBody& rbB)
 		impulseMag *= m_kAngle * m_softnessDirAng;
 	}
 	btVector3 impulse = axisA * impulseMag;
-	rbA.applyTorqueImpulse(impulse);
-	rbB.applyTorqueImpulse(-impulse);
+	//rbA.applyTorqueImpulse(impulse);
+	//rbB.applyTorqueImpulse(-impulse);
+
+	bodyA.applyImpulse(btVector3(0,0,0), rbA.getInvInertiaTensorWorld()*axisA,impulseMag);
+	bodyB.applyImpulse(btVector3(0,0,0), rbB.getInvInertiaTensorWorld()*axisA,-impulseMag);
+
+
+
 	//apply angular motor
 	if(m_poweredAngMotor) 
 	{
@@ -299,8 +355,11 @@ void btSliderConstraint::solveConstraintInt(btRigidBody& rbA, btRigidBody& rbB)
 			m_accumulatedAngMotorImpulse = new_acc;
 			// apply clamped impulse
 			btVector3 motorImp = angImpulse * axisA;
-			m_rbA.applyTorqueImpulse(motorImp);
-			m_rbB.applyTorqueImpulse(-motorImp);
+			//rbA.applyTorqueImpulse(motorImp);
+			//rbB.applyTorqueImpulse(-motorImp);
+
+			bodyA.applyImpulse(btVector3(0,0,0), rbA.getInvInertiaTensorWorld()*axisA,angImpulse);
+			bodyB.applyImpulse(btVector3(0,0,0), rbB.getInvInertiaTensorWorld()*axisA,-angImpulse);
 		}
 	}
 } // btSliderConstraint::solveConstraint()

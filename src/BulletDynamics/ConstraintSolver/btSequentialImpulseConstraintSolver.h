@@ -23,6 +23,7 @@ class btIDebugDraw;
 #include "btSolverConstraint.h"
 
 
+
 ///The btSequentialImpulseConstraintSolver uses a Propagation Method and Sequentially applies impulses
 ///The approach is the 3D version of Erin Catto's GDC 2006 tutorial. See http://www.gphysics.com
 ///Although Sequential Impulse is more intuitive, it is mathematically equivalent to Projected Successive Overrelaxation (iterative LCP)
@@ -31,11 +32,11 @@ class btSequentialImpulseConstraintSolver : public btConstraintSolver
 {
 
 	btAlignedObjectArray<btSolverBody>	m_tmpSolverBodyPool;
-	btAlignedObjectArray<btSolverConstraint>	m_tmpSolverConstraintPool;
-	btAlignedObjectArray<btSolverConstraint>	m_tmpSolverFrictionConstraintPool;
+	btConstraintArray			m_tmpSolverContactConstraintPool;
+	btConstraintArray			m_tmpSolverNonContactConstraintPool;
+	btConstraintArray			m_tmpSolverContactFrictionConstraintPool;
 	btAlignedObjectArray<int>	m_orderTmpConstraintPool;
 	btAlignedObjectArray<int>	m_orderFrictionConstraintPool;
-
 
 protected:
 	btSolverConstraint&	addFrictionConstraint(const btVector3& normalAxis,int solverBodyIdA,int solverBodyIdB,int frictionIndex,btManifoldPoint& cp,const btVector3& rel_pos1,const btVector3& rel_pos2,btCollisionObject* colObj0,btCollisionObject* colObj1, btScalar relaxation);
@@ -52,18 +53,17 @@ protected:
         const btSolverConstraint& contactConstraint,
         const btContactSolverInfo& solverInfo);
 
-	void	resolveSingleConstraintRow(
-		btSolverBody& body1,
-		btSolverBody& body2,
-		const btSolverConstraint& contactConstraint);
+	//internal method
+	int	getOrInitSolverBody(btCollisionObject& body);
 
-	void	resolveSingleFrictionCacheFriendly(
-		btSolverBody& body1,
-		btSolverBody& body2,
-		const btSolverConstraint& contactConstraint,
-		const btContactSolverInfo& solverInfo,
-		btScalar appliedNormalImpulse);
+	void	resolveSingleConstraintRowGeneric(btSolverBody& body1,btSolverBody& body2,const btSolverConstraint& contactConstraint);
 
+	void	resolveSingleConstraintRowGenericSIMD(btSolverBody& body1,btSolverBody& body2,const btSolverConstraint& contactConstraint);
+	
+	void	resolveSingleConstraintRowLowerLimit(btSolverBody& body1,btSolverBody& body2,const btSolverConstraint& contactConstraint);
+	
+	void	resolveSingleConstraintRowLowerLimitSIMD(btSolverBody& body1,btSolverBody& body2,const btSolverConstraint& contactConstraint);
+		
 public:
 
 	

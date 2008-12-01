@@ -206,8 +206,8 @@ int btOdeQuickstepConstraintSolver::ConvertBody(btRigidBody* orgBody,btAlignedOb
 
     body->m_originalBody = orgBody;
 
-    body->m_facc.setValue(0,0,0,0);
-    body->m_tacc.setValue(0,0,0,0);
+    body->m_facc.setValue(0,0,0);
+    body->m_tacc.setValue(0,0,0);
 
     body->m_linearVelocity = orgBody->getLinearVelocity();
     body->m_angularVelocity = orgBody->getAngularVelocity();

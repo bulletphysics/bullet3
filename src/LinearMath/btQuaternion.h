@@ -19,6 +19,7 @@ subject to the following restrictions:
 
 
 #include "btVector3.h"
+#include "btQuadWord.h"
 
 /**@brief The btQuaternion implements quaternion to perform linear algebra rotations in combination with btMatrix3x3, btVector3 and btTransform. */
 class btQuaternion : public btQuadWord {

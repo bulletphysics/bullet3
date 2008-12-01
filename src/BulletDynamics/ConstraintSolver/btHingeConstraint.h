@@ -57,6 +57,7 @@ public:
 	bool		m_angularOnly;
 	bool		m_enableAngularMotor;
 	bool		m_solveLimit;
+	bool	m_useSolveConstraintObsolete;
 
 	
 public:
@@ -73,7 +74,11 @@ public:
 
 	virtual void	buildJacobian();
 
-	virtual	void	solveConstraint(btScalar	timeStep);
+	virtual void getInfo1 (btConstraintInfo1* info);
+
+	virtual void getInfo2 (btConstraintInfo2* info);
+	
+	virtual	void	solveConstraintObsolete(btSolverBody& bodyA,btSolverBody& bodyB,btScalar	timeStep);
 
 	void	updateRHS(btScalar	timeStep);
 

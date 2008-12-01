@@ -17,39 +17,69 @@ subject to the following restrictions:
 #ifndef SIMD__VECTOR3_H
 #define SIMD__VECTOR3_H
 
-#include "btQuadWord.h"
 
+#include "btScalar.h"
+#include "btScalar.h"
+#include "btMinMax.h"
+#include <emmintrin.h>
 /**@brief btVector3 can be used to represent 3D points and vectors.
  * It has an un-used w component to suit 16-byte alignment when btVector3 is stored in containers. This extra component can be used by derived classes (Quaternion?) or by user
  * Ideally, this class should be replaced by a platform optimized SIMD version that keeps the data in registers
  */
-class	btVector3 : public btQuadWord {
 
+ATTRIBUTE_ALIGNED16(class) btVector3
+{
 public:
+
+#if defined (__SPU__) && defined (__CELLOS_LV2__)
+	union {
+		vec_float4 mVec128;
+		btScalar	m_floats[4];
+	};
+public:
+	vec_float4	get128() const
+	{
+		return mVec128;
+	}
+public:
+#else //__CELLOS_LV2__ __SPU__
+#ifdef WIN32
+	union {
+		__m128 mVec128;
+		btScalar	m_floats[4];
+	};
+	SIMD_FORCE_INLINE	__m128	get128() const
+	{
+		return mVec128;
+	}
+	SIMD_FORCE_INLINE	void	set128(__m128 v128)
+	{
+		mVec128 = v128;
+	}
+#else
+	btScalar	m_floats[4];
+#endif
+#endif //__CELLOS_LV2__ __SPU__
+
+	public:
+
   /**@brief No initialization constructor */
 	SIMD_FORCE_INLINE btVector3() {}
 
-  /**@brief Constructor from btQuadWordStorage (btVector3 inherits from this so is also valid)
-   * Note: Vector3 derives from btQuadWordStorage*/
-	SIMD_FORCE_INLINE btVector3(const btQuadWordStorage& q) 
-		: btQuadWord(q)
-	{
-	}
+ 
 	
   /**@brief Constructor from scalars 
    * @param x X value
    * @param y Y value 
    * @param z Z value 
    */
-	SIMD_FORCE_INLINE btVector3(const btScalar& x, const btScalar& y, const btScalar& z) 
-		:btQuadWord(x,y,z,btScalar(0.))
+	SIMD_FORCE_INLINE btVector3(const btScalar& x, const btScalar& y, const btScalar& z)
 	{
+		m_floats[0] = x;
+		m_floats[1] = y;
+		m_floats[2] = z;
+		m_floats[3] = btScalar(0.);
 	}
-
-//	SIMD_FORCE_INLINE btVector3(const btScalar& x, const btScalar& y, const btScalar& z,const btScalar& w) 
-//		: btQuadWord(x,y,z,w)
-//	{
-//	}
 
 	
 /**@brief Add a vector to this one 
@@ -57,7 +87,7 @@ public:
 	SIMD_FORCE_INLINE btVector3& operator+=(const btVector3& v)
 	{
 
-		m_floats[0] += v.x(); m_floats[1] += v.y(); m_floats[2] += v.z();
+		m_floats[0] += v.m_floats[0]; m_floats[1] += v.m_floats[1];m_floats[2] += v.m_floats[2];
 		return *this;
 	}
 
@@ -66,14 +96,14 @@ public:
    * @param The vector to subtract */
 	SIMD_FORCE_INLINE btVector3& operator-=(const btVector3& v) 
 	{
-		m_floats[0] -= v.x(); m_floats[1] -= v.y(); m_floats[2] -= v.z();
+		m_floats[0] -= v.m_floats[0]; m_floats[1] -= v.m_floats[1];m_floats[2] -= v.m_floats[2];
 		return *this;
 	}
   /**@brief Scale the vector
    * @param s Scale factor */
 	SIMD_FORCE_INLINE btVector3& operator*=(const btScalar& s)
 	{
-		m_floats[0] *= s; m_floats[1] *= s; m_floats[2] *= s;
+		m_floats[0] *= s; m_floats[1] *= s;m_floats[2] *= s;
 		return *this;
 	}
 
@@ -89,7 +119,7 @@ public:
    * @param v The other vector in the dot product */
 	SIMD_FORCE_INLINE btScalar dot(const btVector3& v) const
 	{
-		return m_floats[0] * v.x() + m_floats[1] * v.y() + m_floats[2] * v.z();
+		return m_floats[0] * v.m_floats[0] + m_floats[1] * v.m_floats[1] +m_floats[2] * v.m_floats[2];
 	}
 
   /**@brief Return the length of the vector squared */
@@ -148,30 +178,30 @@ public:
 	SIMD_FORCE_INLINE btVector3 cross(const btVector3& v) const
 	{
 		return btVector3(
-			m_floats[1] * v.z() - m_floats[2] * v.y(),
-			m_floats[2] * v.x() - m_floats[0] * v.z(),
-			m_floats[0] * v.y() - m_floats[1] * v.x());
+			m_floats[1] * v.m_floats[2] -m_floats[2] * v.m_floats[1],
+			m_floats[2] * v.m_floats[0] - m_floats[0] * v.m_floats[2],
+			m_floats[0] * v.m_floats[1] - m_floats[1] * v.m_floats[0]);
 	}
 
 	SIMD_FORCE_INLINE btScalar triple(const btVector3& v1, const btVector3& v2) const
 	{
-		return m_floats[0] * (v1.y() * v2.z() - v1.z() * v2.y()) + 
-			m_floats[1] * (v1.z() * v2.x() - v1.x() * v2.z()) + 
-			m_floats[2] * (v1.x() * v2.y() - v1.y() * v2.x());
+		return m_floats[0] * (v1.m_floats[1] * v2.m_floats[2] - v1.m_floats[2] * v2.m_floats[1]) + 
+			m_floats[1] * (v1.m_floats[2] * v2.m_floats[0] - v1.m_floats[0] * v2.m_floats[2]) + 
+			m_floats[2] * (v1.m_floats[0] * v2.m_floats[1] - v1.m_floats[1] * v2.m_floats[0]);
 	}
 
   /**@brief Return the axis with the smallest value 
    * Note return values are 0,1,2 for x, y, or z */
 	SIMD_FORCE_INLINE int minAxis() const
 	{
-		return m_floats[0] < m_floats[1] ? (m_floats[0] < m_floats[2] ? 0 : 2) : (m_floats[1] < m_floats[2] ? 1 : 2);
+		return m_floats[0] < m_floats[1] ? (m_floats[0] <m_floats[2] ? 0 : 2) : (m_floats[1] <m_floats[2] ? 1 : 2);
 	}
 
   /**@brief Return the axis with the largest value 
    * Note return values are 0,1,2 for x, y, or z */
 	SIMD_FORCE_INLINE int maxAxis() const 
 	{
-		return m_floats[0] < m_floats[1] ? (m_floats[1] < m_floats[2] ? 2 : 1) : (m_floats[0] < m_floats[2] ? 2 : 0);
+		return m_floats[0] < m_floats[1] ? (m_floats[1] <m_floats[2] ? 2 : 1) : (m_floats[0] <m_floats[2] ? 2 : 0);
 	}
 
 	SIMD_FORCE_INLINE int furthestAxis() const
@@ -187,9 +217,9 @@ public:
 	SIMD_FORCE_INLINE void setInterpolate3(const btVector3& v0, const btVector3& v1, btScalar rt)
 	{
 		btScalar s = btScalar(1.0) - rt;
-		m_floats[0] = s * v0.x() + rt * v1.x();
-		m_floats[1] = s * v0.y() + rt * v1.y();
-		m_floats[2] = s * v0.z() + rt * v1.z();
+		m_floats[0] = s * v0.m_floats[0] + rt * v1.m_floats[0];
+		m_floats[1] = s * v0.m_floats[1] + rt * v1.m_floats[1];
+		m_floats[2] = s * v0.m_floats[2] + rt * v1.m_floats[2];
 		//don't do the unused w component
 		//		m_co[3] = s * v0[3] + rt * v1[3];
 	}
@@ -199,20 +229,86 @@ public:
    * @param t The ration of this to v (t = 0 => return this, t=1 => return other) */
 	SIMD_FORCE_INLINE btVector3 lerp(const btVector3& v, const btScalar& t) const 
 	{
-		return btVector3(m_floats[0] + (v.x() - m_floats[0]) * t,
-			m_floats[1] + (v.y() - m_floats[1]) * t,
-			m_floats[2] + (v.z() - m_floats[2]) * t);
+		return btVector3(m_floats[0] + (v.m_floats[0] - m_floats[0]) * t,
+			m_floats[1] + (v.m_floats[1] - m_floats[1]) * t,
+			m_floats[2] + (v.m_floats[2] -m_floats[2]) * t);
 	}
 
   /**@brief Elementwise multiply this vector by the other 
    * @param v The other vector */
 	SIMD_FORCE_INLINE btVector3& operator*=(const btVector3& v)
 	{
-		m_floats[0] *= v.x(); m_floats[1] *= v.y(); m_floats[2] *= v.z();
+		m_floats[0] *= v.m_floats[0]; m_floats[1] *= v.m_floats[1];m_floats[2] *= v.m_floats[2];
 		return *this;
 	}
 
-	
+	 /**@brief Return the x value */
+		SIMD_FORCE_INLINE const btScalar& getX() const { return m_floats[0]; }
+  /**@brief Return the y value */
+		SIMD_FORCE_INLINE const btScalar& getY() const { return m_floats[1]; }
+  /**@brief Return the z value */
+		SIMD_FORCE_INLINE const btScalar& getZ() const { return m_floats[2]; }
+  /**@brief Set the x value */
+		SIMD_FORCE_INLINE void	setX(btScalar x) { m_floats[0] = x;};
+  /**@brief Set the y value */
+		SIMD_FORCE_INLINE void	setY(btScalar y) { m_floats[1] = y;};
+  /**@brief Set the z value */
+		SIMD_FORCE_INLINE void	setZ(btScalar z) {m_floats[2] = z;};
+  /**@brief Set the w value */
+		SIMD_FORCE_INLINE void	setW(btScalar w) { m_floats[3] = w;};
+  /**@brief Return the x value */
+		SIMD_FORCE_INLINE const btScalar& x() const { return m_floats[0]; }
+  /**@brief Return the y value */
+		SIMD_FORCE_INLINE const btScalar& y() const { return m_floats[1]; }
+  /**@brief Return the z value */
+		SIMD_FORCE_INLINE const btScalar& z() const { return m_floats[2]; }
+  /**@brief Return the w value */
+		SIMD_FORCE_INLINE const btScalar& w() const { return m_floats[3]; }
+
+	//SIMD_FORCE_INLINE btScalar&       operator[](int i)       { return (&m_floats[0])[i];	}      
+	//SIMD_FORCE_INLINE const btScalar& operator[](int i) const { return (&m_floats[0])[i]; }
+	///operator btScalar*() replaces operator[], using implicit conversion. We added operator != and operator == to avoid pointer comparisons.
+	SIMD_FORCE_INLINE	operator       btScalar *()       { return &m_floats[0]; }
+	SIMD_FORCE_INLINE	operator const btScalar *() const { return &m_floats[0]; }
+
+	SIMD_FORCE_INLINE	bool	operator==(const btVector3& other) const
+	{
+		return ((m_floats[3]==other.m_floats[3]) && (m_floats[2]==other.m_floats[2]) && (m_floats[1]==other.m_floats[1]) && (m_floats[0]==other.m_floats[0]));
+	}
+
+	SIMD_FORCE_INLINE	bool	operator!=(const btVector3& other) const
+	{
+		return !(*this == other);
+	}
+
+	 /**@brief Set each element to the max of the current values and the values of another btVector3
+   * @param other The other btVector3 to compare with 
+   */
+		SIMD_FORCE_INLINE void	setMax(const btVector3& other)
+		{
+			btSetMax(m_floats[0], other.m_floats[0]);
+			btSetMax(m_floats[1], other.m_floats[1]);
+			btSetMax(m_floats[2], other.m_floats[2]);
+			btSetMax(m_floats[3], other.w());
+		}
+  /**@brief Set each element to the min of the current values and the values of another btVector3
+   * @param other The other btVector3 to compare with 
+   */
+		SIMD_FORCE_INLINE void	setMin(const btVector3& other)
+		{
+			btSetMin(m_floats[0], other.m_floats[0]);
+			btSetMin(m_floats[1], other.m_floats[1]);
+			btSetMin(m_floats[2], other.m_floats[2]);
+			btSetMin(m_floats[3], other.w());
+		}
+
+		SIMD_FORCE_INLINE void 	setValue(const btScalar& x, const btScalar& y, const btScalar& z)
+		{
+			m_floats[0]=x;
+			m_floats[1]=y;
+			m_floats[2]=z;
+			m_floats[3] = 0.f;
+		}
 
 };
 
@@ -220,34 +316,34 @@ public:
 SIMD_FORCE_INLINE btVector3 
 operator+(const btVector3& v1, const btVector3& v2) 
 {
-	return btVector3(v1.x() + v2.x(), v1.y() + v2.y(), v1.z() + v2.z());
+	return btVector3(v1.m_floats[0] + v2.m_floats[0], v1.m_floats[1] + v2.m_floats[1], v1.m_floats[2] + v2.m_floats[2]);
 }
 
 /**@brief Return the elementwise product of two vectors */
 SIMD_FORCE_INLINE btVector3 
 operator*(const btVector3& v1, const btVector3& v2) 
 {
-	return btVector3(v1.x() * v2.x(), v1.y() * v2.y(), v1.z() * v2.z());
+	return btVector3(v1.m_floats[0] * v2.m_floats[0], v1.m_floats[1] * v2.m_floats[1], v1.m_floats[2] * v2.m_floats[2]);
 }
 
 /**@brief Return the difference between two vectors */
 SIMD_FORCE_INLINE btVector3 
 operator-(const btVector3& v1, const btVector3& v2)
 {
-	return btVector3(v1.x() - v2.x(), v1.y() - v2.y(), v1.z() - v2.z());
+	return btVector3(v1.m_floats[0] - v2.m_floats[0], v1.m_floats[1] - v2.m_floats[1], v1.m_floats[2] - v2.m_floats[2]);
 }
 /**@brief Return the negative of the vector */
 SIMD_FORCE_INLINE btVector3 
 operator-(const btVector3& v)
 {
-	return btVector3(-v.x(), -v.y(), -v.z());
+	return btVector3(-v.m_floats[0], -v.m_floats[1], -v.m_floats[2]);
 }
 
 /**@brief Return the vector scaled by s */
 SIMD_FORCE_INLINE btVector3 
 operator*(const btVector3& v, const btScalar& s)
 {
-	return btVector3(v.x() * s, v.y() * s, v.z() * s);
+	return btVector3(v.m_floats[0] * s, v.m_floats[1] * s, v.m_floats[2] * s);
 }
 
 /**@brief Return the vector scaled by s */
@@ -269,7 +365,7 @@ operator/(const btVector3& v, const btScalar& s)
 SIMD_FORCE_INLINE btVector3
 operator/(const btVector3& v1, const btVector3& v2)
 {
-	return btVector3(v1.x() / v2.x(),v1.y() / v2.y(),v1.z() / v2.z());
+	return btVector3(v1.m_floats[0] / v2.m_floats[0],v1.m_floats[1] / v2.m_floats[1],v1.m_floats[2] / v2.m_floats[2]);
 }
 
 /**@brief Return the dot product between two vectors */
@@ -325,11 +421,7 @@ lerp(const btVector3& v1, const btVector3& v2, const btScalar& t)
 	return v1.lerp(v2, t);
 }
 
-/**@brief Test if each element of the vector is equivalent */
-SIMD_FORCE_INLINE bool operator==(const btVector3& p1, const btVector3& p2) 
-{
-	return p1.x() == p2.x() && p1.y() == p2.y() && p1.z() == p2.z();
-}
+
 
 SIMD_FORCE_INLINE btScalar btVector3::distance2(const btVector3& v) const
 {
@@ -404,7 +496,7 @@ public:
 		if (m_floats[2] > maxVal)
 		{
 			maxIndex = 2;
-			maxVal = m_floats[2];
+			maxVal =m_floats[2];
 		}
 		if (m_floats[3] > maxVal)
 		{
@@ -437,7 +529,7 @@ public:
 		if (m_floats[2] < minVal)
 		{
 			minIndex = 2;
-			minVal = m_floats[2];
+			minVal =m_floats[2];
 		}
 		if (m_floats[3] < minVal)
 		{
@@ -454,6 +546,40 @@ public:
 	{
 		return absolute4().maxAxis4();
 	}
+
+	
+ 
+
+  /**@brief Set x,y,z and zero w 
+   * @param x Value of x
+   * @param y Value of y
+   * @param z Value of z
+   */
+		
+
+/*		void getValue(btScalar *m) const 
+		{
+			m[0] = m_floats[0];
+			m[1] = m_floats[1];
+			m[2] =m_floats[2];
+		}
+*/
+/**@brief Set the values 
+   * @param x Value of x
+   * @param y Value of y
+   * @param z Value of z
+   * @param w Value of w
+   */
+		SIMD_FORCE_INLINE void	setValue(const btScalar& x, const btScalar& y, const btScalar& z,const btScalar& w)
+		{
+			m_floats[0]=x;
+			m_floats[1]=y;
+			m_floats[2]=z;
+			m_floats[3]=w;
+		}
+
+
+ 
 
 };
 

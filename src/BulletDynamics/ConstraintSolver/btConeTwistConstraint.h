@@ -63,6 +63,7 @@ public:
 	bool		m_solveTwistLimit;
 	bool		m_solveSwingLimit;
 
+	bool	m_useSolveConstraintObsolete;
 	
 public:
 
@@ -74,7 +75,12 @@ public:
 
 	virtual void	buildJacobian();
 
-	virtual	void	solveConstraint(btScalar	timeStep);
+	virtual void getInfo1 (btConstraintInfo1* info);
+	
+	virtual void getInfo2 (btConstraintInfo2* info);
+	
+
+	virtual	void	solveConstraintObsolete(btSolverBody& bodyA,btSolverBody& bodyB,btScalar	timeStep);
 
 	void	updateRHS(btScalar	timeStep);
 

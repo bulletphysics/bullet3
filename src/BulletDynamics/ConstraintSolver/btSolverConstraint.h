@@ -21,28 +21,26 @@ class	btRigidBody;
 #include "LinearMath/btMatrix3x3.h"
 #include "btJacobianEntry.h"
 
+#include <emmintrin.h>
 //#define NO_FRICTION_TANGENTIALS 1
+#include "btSolverBody.h"
+
 
 ///1D constraint along a normal axis between bodyA and bodyB. It can be combined to solve contact and friction constraints.
 ATTRIBUTE_ALIGNED16 (struct)	btSolverConstraint
 {
 	BT_DECLARE_ALIGNED_ALLOCATOR();
 
-#ifdef _USE_JACOBIAN
-	btJacobianEntry	m_jac;
-#endif
+	btVector3		m_relpos1CrossNormal;
+	btVector3		m_contactNormal;
 
-
-	btVector3	m_relpos1CrossNormal;
-	btVector3	m_contactNormal;
-
-	btVector3	m_relpos2CrossNormal;
-	btVector3	m_angularComponentA;
+	btVector3		m_relpos2CrossNormal;
+	btVector3		m_angularComponentA;
 
 	btVector3	m_angularComponentB;
 	
-	mutable btScalar	m_appliedPushImpulse;
-	mutable btScalar	m_appliedImpulse;
+	mutable btSimdScalar	m_appliedPushImpulse;
+	mutable btSimdScalar	m_appliedImpulse;
 	
 	int			m_solverBodyIdA;
 	int			m_solverBodyIdB;
@@ -51,16 +49,14 @@ ATTRIBUTE_ALIGNED16 (struct)	btSolverConstraint
 	btScalar	m_restitution;
 	btScalar	m_jacDiagABInv;
 	btScalar	m_penetration;
-	
-
-	
+		
 	int			m_constraintType;
 	int			m_frictionIndex;
 	void*		m_originalContactPoint;
-	btScalar	m_rhs;
-	btScalar	m_cfm;
-	btScalar	m_lowerLimit;
-	btScalar	m_upperLimit;
+	btScalar		m_rhs;
+	btScalar		m_cfm;
+	btScalar		m_lowerLimit;
+	btScalar		m_upperLimit;
 
 	enum		btSolverConstraintType
 	{
@@ -69,9 +65,7 @@ ATTRIBUTE_ALIGNED16 (struct)	btSolverConstraint
 	};
 };
 
-
-
-
+typedef btAlignedObjectArray<btSolverConstraint>	btConstraintArray;
 
 
 #endif //BT_SOLVER_CONSTRAINT_H

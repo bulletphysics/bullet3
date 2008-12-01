@@ -18,6 +18,8 @@ subject to the following restrictions:
 
 class btRigidBody;
 #include "LinearMath/btScalar.h"
+#include "btSolverConstraint.h"
+struct  btSolverBody;
 
 enum btTypedConstraintType
 {
@@ -55,13 +57,53 @@ public:
 	btTypedConstraint(btTypedConstraintType type);
 	virtual ~btTypedConstraint() {};
 	btTypedConstraint(btTypedConstraintType type, btRigidBody& rbA);
-
 	btTypedConstraint(btTypedConstraintType type, btRigidBody& rbA,btRigidBody& rbB);
+
+	struct btConstraintInfo1 {
+		int m_numConstraintRows,nub;
+	};
+
+	struct btConstraintInfo2 {
+		// integrator parameters: frames per second (1/stepsize), default error
+		// reduction parameter (0..1).
+		btScalar fps,erp;
+
+		// for the first and second body, pointers to two (linear and angular)
+		// n*3 jacobian sub matrices, stored by rows. these matrices will have
+		// been initialized to 0 on entry. if the second body is zero then the
+		// J2xx pointers may be 0.
+		btScalar *m_J1linearAxis,*m_J1angularAxis,*m_J2linearAxis,*m_J2angularAxis;
+
+		// elements to jump from one row to the next in J's
+		int rowskip;
+
+		// right hand sides of the equation J*v = c + cfm * lambda. cfm is the
+		// "constraint force mixing" vector. c is set to zero on entry, cfm is
+		// set to a constant value (typically very small or zero) value on entry.
+		btScalar *m_constraintError,*cfm;
+
+		// lo and hi limits for variables (set to -/+ infinity on entry).
+		btScalar *m_lowerLimit,*m_upperLimit;
+
+		// findex vector for variables. see the LCP solver interface for a
+		// description of what this does. this is set to -1 on entry.
+		// note that the returned indexes are relative to the first index of
+		// the constraint.
+		int *findex;
+	};
 
 	virtual void	buildJacobian() = 0;
 
-	virtual	void	solveConstraint(btScalar	timeStep) = 0;
+	virtual	void	setupSolverConstraint(btConstraintArray& ca, int solverBodyA,int solverBodyB, btScalar timeStep)
+	{
+	}
+	virtual void getInfo1 (btConstraintInfo1* info)=0;
 
+	virtual void getInfo2 (btConstraintInfo2* info)=0;
+
+	virtual	void	solveConstraintObsolete(btSolverBody& bodyA,btSolverBody& bodyB,btScalar	timeStep) = 0;
+
+	
 	const btRigidBody& getRigidBodyA() const
 	{
 		return m_rbA;
@@ -94,7 +136,7 @@ public:
 	{
 		m_userConstraintId = uid;
 	}
-	
+
 	int getUserConstraintId() const
 	{
 		return m_userConstraintId;

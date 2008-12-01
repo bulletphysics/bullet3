@@ -19,11 +19,14 @@ subject to the following restrictions:
 #include "LinearMath/btTransformUtil.h"
 #include "LinearMath/btMinMax.h"
 #include <new>
+#include "btSolverBody.h"
+
 
 
 btHingeConstraint::btHingeConstraint()
 : btTypedConstraint (HINGE_CONSTRAINT_TYPE),
-m_enableAngularMotor(false)
+m_enableAngularMotor(false),
+m_useSolveConstraintObsolete(true)
 {
 }
 
@@ -31,7 +34,8 @@ btHingeConstraint::btHingeConstraint(btRigidBody& rbA,btRigidBody& rbB, const bt
 									 btVector3& axisInA,btVector3& axisInB)
 									 :btTypedConstraint(HINGE_CONSTRAINT_TYPE, rbA,rbB),
 									 m_angularOnly(false),
-									 m_enableAngularMotor(false)
+									 m_enableAngularMotor(false),
+									 m_useSolveConstraintObsolete(true)
 {
 	m_rbAFrame.getOrigin() = pivotInA;
 	
@@ -77,7 +81,7 @@ btHingeConstraint::btHingeConstraint(btRigidBody& rbA,btRigidBody& rbB, const bt
 
 
 btHingeConstraint::btHingeConstraint(btRigidBody& rbA,const btVector3& pivotInA,btVector3& axisInA)
-:btTypedConstraint(HINGE_CONSTRAINT_TYPE, rbA), m_angularOnly(false), m_enableAngularMotor(false)
+:btTypedConstraint(HINGE_CONSTRAINT_TYPE, rbA), m_angularOnly(false), m_enableAngularMotor(false), m_useSolveConstraintObsolete(true)
 {
 
 	// since no frame is given, assume this to be zero angle and just pick rb transform axis
@@ -115,7 +119,8 @@ btHingeConstraint::btHingeConstraint(btRigidBody& rbA,btRigidBody& rbB,
 								     const btTransform& rbAFrame, const btTransform& rbBFrame)
 :btTypedConstraint(HINGE_CONSTRAINT_TYPE, rbA,rbB),m_rbAFrame(rbAFrame),m_rbBFrame(rbBFrame),
 m_angularOnly(false),
-m_enableAngularMotor(false)
+m_enableAngularMotor(false),
+m_useSolveConstraintObsolete(true)
 {
 	// flip axis
 	m_rbBFrame.getBasis()[0][2] *= btScalar(-1.);
@@ -136,7 +141,8 @@ m_enableAngularMotor(false)
 btHingeConstraint::btHingeConstraint(btRigidBody& rbA, const btTransform& rbAFrame)
 :btTypedConstraint(HINGE_CONSTRAINT_TYPE, rbA),m_rbAFrame(rbAFrame),m_rbBFrame(rbAFrame),
 m_angularOnly(false),
-m_enableAngularMotor(false)
+m_enableAngularMotor(false),
+m_useSolveConstraintObsolete(true)
 {
 	///not providing rigidbody B means implicitly using worldspace for body B
 
@@ -158,226 +164,270 @@ m_enableAngularMotor(false)
 
 void	btHingeConstraint::buildJacobian()
 {
-	m_appliedImpulse = btScalar(0.);
-
-	if (!m_angularOnly)
+	if (m_useSolveConstraintObsolete)
 	{
-		btVector3 pivotAInW = m_rbA.getCenterOfMassTransform()*m_rbAFrame.getOrigin();
-		btVector3 pivotBInW = m_rbB.getCenterOfMassTransform()*m_rbBFrame.getOrigin();
-		btVector3 relPos = pivotBInW - pivotAInW;
+		m_appliedImpulse = btScalar(0.);
 
-		btVector3 normal[3];
-		if (relPos.length2() > SIMD_EPSILON)
+		if (!m_angularOnly)
 		{
-			normal[0] = relPos.normalized();
+			btVector3 pivotAInW = m_rbA.getCenterOfMassTransform()*m_rbAFrame.getOrigin();
+			btVector3 pivotBInW = m_rbB.getCenterOfMassTransform()*m_rbBFrame.getOrigin();
+			btVector3 relPos = pivotBInW - pivotAInW;
+
+			btVector3 normal[3];
+			if (relPos.length2() > SIMD_EPSILON)
+			{
+				normal[0] = relPos.normalized();
+			}
+			else
+			{
+				normal[0].setValue(btScalar(1.0),0,0);
+			}
+
+			btPlaneSpace1(normal[0], normal[1], normal[2]);
+
+			for (int i=0;i<3;i++)
+			{
+				new (&m_jac[i]) btJacobianEntry(
+					pivotAInW - m_rbA.getCenterOfMassPosition(),
+					pivotBInW - m_rbB.getCenterOfMassPosition(),
+					normal[i],
+					m_rbA.getInvInertiaDiagLocal(),
+					m_rbA.getInvMass(),
+					m_rbB.getInvInertiaDiagLocal(),
+					m_rbB.getInvMass());
+			}
 		}
-		else
-		{
-			normal[0].setValue(btScalar(1.0),0,0);
-		}
 
-		btPlaneSpace1(normal[0], normal[1], normal[2]);
+		//calculate two perpendicular jointAxis, orthogonal to hingeAxis
+		//these two jointAxis require equal angular velocities for both bodies
 
-		for (int i=0;i<3;i++)
-		{
-			new (&m_jac[i]) btJacobianEntry(
-				pivotAInW - m_rbA.getCenterOfMassPosition(),
-				pivotBInW - m_rbB.getCenterOfMassPosition(),
-				normal[i],
-				m_rbA.getInvInertiaDiagLocal(),
-				m_rbA.getInvMass(),
-				m_rbB.getInvInertiaDiagLocal(),
-				m_rbB.getInvMass());
-		}
-	}
-
-	//calculate two perpendicular jointAxis, orthogonal to hingeAxis
-	//these two jointAxis require equal angular velocities for both bodies
-
-	//this is unused for now, it's a todo
-	btVector3 jointAxis0local;
-	btVector3 jointAxis1local;
-	
-	btPlaneSpace1(m_rbAFrame.getBasis().getColumn(2),jointAxis0local,jointAxis1local);
-
-	getRigidBodyA().getCenterOfMassTransform().getBasis() * m_rbAFrame.getBasis().getColumn(2);
-	btVector3 jointAxis0 = getRigidBodyA().getCenterOfMassTransform().getBasis() * jointAxis0local;
-	btVector3 jointAxis1 = getRigidBodyA().getCenterOfMassTransform().getBasis() * jointAxis1local;
-	btVector3 hingeAxisWorld = getRigidBodyA().getCenterOfMassTransform().getBasis() * m_rbAFrame.getBasis().getColumn(2);
+		//this is unused for now, it's a todo
+		btVector3 jointAxis0local;
+		btVector3 jointAxis1local;
 		
-	new (&m_jacAng[0])	btJacobianEntry(jointAxis0,
-		m_rbA.getCenterOfMassTransform().getBasis().transpose(),
-		m_rbB.getCenterOfMassTransform().getBasis().transpose(),
-		m_rbA.getInvInertiaDiagLocal(),
-		m_rbB.getInvInertiaDiagLocal());
+		btPlaneSpace1(m_rbAFrame.getBasis().getColumn(2),jointAxis0local,jointAxis1local);
 
-	new (&m_jacAng[1])	btJacobianEntry(jointAxis1,
-		m_rbA.getCenterOfMassTransform().getBasis().transpose(),
-		m_rbB.getCenterOfMassTransform().getBasis().transpose(),
-		m_rbA.getInvInertiaDiagLocal(),
-		m_rbB.getInvInertiaDiagLocal());
+		getRigidBodyA().getCenterOfMassTransform().getBasis() * m_rbAFrame.getBasis().getColumn(2);
+		btVector3 jointAxis0 = getRigidBodyA().getCenterOfMassTransform().getBasis() * jointAxis0local;
+		btVector3 jointAxis1 = getRigidBodyA().getCenterOfMassTransform().getBasis() * jointAxis1local;
+		btVector3 hingeAxisWorld = getRigidBodyA().getCenterOfMassTransform().getBasis() * m_rbAFrame.getBasis().getColumn(2);
+			
+		new (&m_jacAng[0])	btJacobianEntry(jointAxis0,
+			m_rbA.getCenterOfMassTransform().getBasis().transpose(),
+			m_rbB.getCenterOfMassTransform().getBasis().transpose(),
+			m_rbA.getInvInertiaDiagLocal(),
+			m_rbB.getInvInertiaDiagLocal());
 
-	new (&m_jacAng[2])	btJacobianEntry(hingeAxisWorld,
-		m_rbA.getCenterOfMassTransform().getBasis().transpose(),
-		m_rbB.getCenterOfMassTransform().getBasis().transpose(),
-		m_rbA.getInvInertiaDiagLocal(),
-		m_rbB.getInvInertiaDiagLocal());
+		new (&m_jacAng[1])	btJacobianEntry(jointAxis1,
+			m_rbA.getCenterOfMassTransform().getBasis().transpose(),
+			m_rbB.getCenterOfMassTransform().getBasis().transpose(),
+			m_rbA.getInvInertiaDiagLocal(),
+			m_rbB.getInvInertiaDiagLocal());
+
+		new (&m_jacAng[2])	btJacobianEntry(hingeAxisWorld,
+			m_rbA.getCenterOfMassTransform().getBasis().transpose(),
+			m_rbB.getCenterOfMassTransform().getBasis().transpose(),
+			m_rbA.getInvInertiaDiagLocal(),
+			m_rbB.getInvInertiaDiagLocal());
 
 
-	// Compute limit information
-	btScalar hingeAngle = getHingeAngle();  
+		// Compute limit information
+		btScalar hingeAngle = getHingeAngle();  
 
-	//set bias, sign, clear accumulator
-	m_correction = btScalar(0.);
-	m_limitSign = btScalar(0.);
-	m_solveLimit = false;
-	m_accLimitImpulse = btScalar(0.);
+		//set bias, sign, clear accumulator
+		m_correction = btScalar(0.);
+		m_limitSign = btScalar(0.);
+		m_solveLimit = false;
+		m_accLimitImpulse = btScalar(0.);
 
-//	if (m_lowerLimit < m_upperLimit)
-	if (m_lowerLimit <= m_upperLimit)
-	{
-//		if (hingeAngle <= m_lowerLimit*m_limitSoftness)
-		if (hingeAngle <= m_lowerLimit)
+	//	if (m_lowerLimit < m_upperLimit)
+		if (m_lowerLimit <= m_upperLimit)
 		{
-			m_correction = (m_lowerLimit - hingeAngle);
-			m_limitSign = 1.0f;
-			m_solveLimit = true;
-		} 
-//		else if (hingeAngle >= m_upperLimit*m_limitSoftness)
-		else if (hingeAngle >= m_upperLimit)
-		{
-			m_correction = m_upperLimit - hingeAngle;
-			m_limitSign = -1.0f;
-			m_solveLimit = true;
+	//		if (hingeAngle <= m_lowerLimit*m_limitSoftness)
+			if (hingeAngle <= m_lowerLimit)
+			{
+				m_correction = (m_lowerLimit - hingeAngle);
+				m_limitSign = 1.0f;
+				m_solveLimit = true;
+			} 
+	//		else if (hingeAngle >= m_upperLimit*m_limitSoftness)
+			else if (hingeAngle >= m_upperLimit)
+			{
+				m_correction = m_upperLimit - hingeAngle;
+				m_limitSign = -1.0f;
+				m_solveLimit = true;
+			}
 		}
+
+		//Compute K = J*W*J' for hinge axis
+		btVector3 axisA =  getRigidBodyA().getCenterOfMassTransform().getBasis() *  m_rbAFrame.getBasis().getColumn(2);
+		m_kHinge =   1.0f / (getRigidBodyA().computeAngularImpulseDenominator(axisA) +
+							 getRigidBodyB().computeAngularImpulseDenominator(axisA));
+
 	}
-
-	//Compute K = J*W*J' for hinge axis
-	btVector3 axisA =  getRigidBodyA().getCenterOfMassTransform().getBasis() *  m_rbAFrame.getBasis().getColumn(2);
-	m_kHinge =   1.0f / (getRigidBodyA().computeAngularImpulseDenominator(axisA) +
-			             getRigidBodyB().computeAngularImpulseDenominator(axisA));
-
 }
 
-void	btHingeConstraint::solveConstraint(btScalar	timeStep)
+
+void btHingeConstraint::getInfo1 (btConstraintInfo1* info)
+{
+	if (m_useSolveConstraintObsolete)
+	{
+		info->m_numConstraintRows = 0;
+		info->nub = 0;
+	} else
+	{
+		btAssert(0);
+	}
+}
+
+void btHingeConstraint::getInfo2 (btConstraintInfo2* info)
+{
+	btAssert(0);
+}
+
+
+void	btHingeConstraint::solveConstraintObsolete(btSolverBody& bodyA,btSolverBody& bodyB,btScalar	timeStep)
 {
 
-	btVector3 pivotAInW = m_rbA.getCenterOfMassTransform()*m_rbAFrame.getOrigin();
-	btVector3 pivotBInW = m_rbB.getCenterOfMassTransform()*m_rbBFrame.getOrigin();
-
-	btScalar tau = btScalar(0.3);
-
-	//linear part
-	if (!m_angularOnly)
+	///for backwards compatibility during the transition to 'getInfo/getInfo2'
+	if (m_useSolveConstraintObsolete)
 	{
-		btVector3 rel_pos1 = pivotAInW - m_rbA.getCenterOfMassPosition(); 
-		btVector3 rel_pos2 = pivotBInW - m_rbB.getCenterOfMassPosition();
 
-		btVector3 vel1 = m_rbA.getVelocityInLocalPoint(rel_pos1);
-		btVector3 vel2 = m_rbB.getVelocityInLocalPoint(rel_pos2);
-		btVector3 vel = vel1 - vel2;
+		btVector3 pivotAInW = m_rbA.getCenterOfMassTransform()*m_rbAFrame.getOrigin();
+		btVector3 pivotBInW = m_rbB.getCenterOfMassTransform()*m_rbBFrame.getOrigin();
 
-		for (int i=0;i<3;i++)
-		{		
-			const btVector3& normal = m_jac[i].m_linearJointAxis;
-			btScalar jacDiagABInv = btScalar(1.) / m_jac[i].getDiagonal();
+		btScalar tau = btScalar(0.3);
 
-			btScalar rel_vel;
-			rel_vel = normal.dot(vel);
-			//positional error (zeroth order error)
-			btScalar depth = -(pivotAInW - pivotBInW).dot(normal); //this is the error projected on the normal
-			btScalar impulse = depth*tau/timeStep  * jacDiagABInv -  rel_vel * jacDiagABInv;
-			m_appliedImpulse += impulse;
-			btVector3 impulse_vector = normal * impulse;
-			m_rbA.applyImpulse(impulse_vector, pivotAInW - m_rbA.getCenterOfMassPosition());
-			m_rbB.applyImpulse(-impulse_vector, pivotBInW - m_rbB.getCenterOfMassPosition());
-		}
-	}
-
-	
-	{
-		///solve angular part
-
-		// get axes in world space
-		btVector3 axisA =  getRigidBodyA().getCenterOfMassTransform().getBasis() *  m_rbAFrame.getBasis().getColumn(2);
-		btVector3 axisB =  getRigidBodyB().getCenterOfMassTransform().getBasis() *  m_rbBFrame.getBasis().getColumn(2);
-
-		const btVector3& angVelA = getRigidBodyA().getAngularVelocity();
-		const btVector3& angVelB = getRigidBodyB().getAngularVelocity();
-
-		btVector3 angVelAroundHingeAxisA = axisA * axisA.dot(angVelA);
-		btVector3 angVelAroundHingeAxisB = axisB * axisB.dot(angVelB);
-
-		btVector3 angAorthog = angVelA - angVelAroundHingeAxisA;
-		btVector3 angBorthog = angVelB - angVelAroundHingeAxisB;
-		btVector3 velrelOrthog = angAorthog-angBorthog;
+		//linear part
+		if (!m_angularOnly)
 		{
-			//solve orthogonal angular velocity correction
-			btScalar relaxation = btScalar(1.);
-			btScalar len = velrelOrthog.length();
-			if (len > btScalar(0.00001))
-			{
-				btVector3 normal = velrelOrthog.normalized();
-				btScalar denom = getRigidBodyA().computeAngularImpulseDenominator(normal) +
-					getRigidBodyB().computeAngularImpulseDenominator(normal);
-				// scale for mass and relaxation
-				velrelOrthog *= (btScalar(1.)/denom) * m_relaxationFactor;
-			}
+			btVector3 rel_pos1 = pivotAInW - m_rbA.getCenterOfMassPosition(); 
+			btVector3 rel_pos2 = pivotBInW - m_rbB.getCenterOfMassPosition();
 
-			//solve angular positional correction
-			btVector3 angularError = -axisA.cross(axisB) *(btScalar(1.)/timeStep);
-			btScalar len2 = angularError.length();
-			if (len2>btScalar(0.00001))
-			{
-				btVector3 normal2 = angularError.normalized();
-				btScalar denom2 = getRigidBodyA().computeAngularImpulseDenominator(normal2) +
-						getRigidBodyB().computeAngularImpulseDenominator(normal2);
-				angularError *= (btScalar(1.)/denom2) * relaxation;
-			}
+			btVector3 vel1,vel2;
+			bodyA.getVelocityInLocalPointObsolete(rel_pos1,vel1);
+			bodyB.getVelocityInLocalPointObsolete(rel_pos2,vel2);
+			btVector3 vel = vel1 - vel2;
 
-			m_rbA.applyTorqueImpulse(-velrelOrthog+angularError);
-			m_rbB.applyTorqueImpulse(velrelOrthog-angularError);
+			for (int i=0;i<3;i++)
+			{		
+				const btVector3& normal = m_jac[i].m_linearJointAxis;
+				btScalar jacDiagABInv = btScalar(1.) / m_jac[i].getDiagonal();
 
-			// solve limit
-			if (m_solveLimit)
-			{
-				btScalar amplitude = ( (angVelB - angVelA).dot( axisA )*m_relaxationFactor + m_correction* (btScalar(1.)/timeStep)*m_biasFactor  ) * m_limitSign;
-
-				btScalar impulseMag = amplitude * m_kHinge;
-
-				// Clamp the accumulated impulse
-				btScalar temp = m_accLimitImpulse;
-				m_accLimitImpulse = btMax(m_accLimitImpulse + impulseMag, btScalar(0) );
-				impulseMag = m_accLimitImpulse - temp;
-
-
-				btVector3 impulse = axisA * impulseMag * m_limitSign;
-				m_rbA.applyTorqueImpulse(impulse);
-				m_rbB.applyTorqueImpulse(-impulse);
+				btScalar rel_vel;
+				rel_vel = normal.dot(vel);
+				//positional error (zeroth order error)
+				btScalar depth = -(pivotAInW - pivotBInW).dot(normal); //this is the error projected on the normal
+				btScalar impulse = depth*tau/timeStep  * jacDiagABInv -  rel_vel * jacDiagABInv;
+				m_appliedImpulse += impulse;
+				btVector3 impulse_vector = normal * impulse;
+				btVector3 ftorqueAxis1 = rel_pos1.cross(normal);
+				btVector3 ftorqueAxis2 = rel_pos2.cross(normal);
+				bodyA.applyImpulse(normal*m_rbA.getInvMass(), m_rbA.getInvInertiaTensorWorld()*ftorqueAxis1,impulse);
+				bodyB.applyImpulse(normal*m_rbB.getInvMass(), m_rbB.getInvInertiaTensorWorld()*ftorqueAxis2,-impulse);
 			}
 		}
 
-		//apply motor
-		if (m_enableAngularMotor) 
+		
 		{
-			//todo: add limits too
-			btVector3 angularLimit(0,0,0);
+			///solve angular part
 
-			btVector3 velrel = angVelAroundHingeAxisA - angVelAroundHingeAxisB;
-			btScalar projRelVel = velrel.dot(axisA);
+			// get axes in world space
+			btVector3 axisA =  getRigidBodyA().getCenterOfMassTransform().getBasis() *  m_rbAFrame.getBasis().getColumn(2);
+			btVector3 axisB =  getRigidBodyB().getCenterOfMassTransform().getBasis() *  m_rbBFrame.getBasis().getColumn(2);
 
-			btScalar desiredMotorVel = m_motorTargetVelocity;
-			btScalar motor_relvel = desiredMotorVel - projRelVel;
+			btVector3 angVelA;
+			bodyA.getAngularVelocity(angVelA);
+			btVector3 angVelB;
+			bodyB.getAngularVelocity(angVelB);
 
-			btScalar unclippedMotorImpulse = m_kHinge * motor_relvel;;
-			//todo: should clip against accumulated impulse
-			btScalar clippedMotorImpulse = unclippedMotorImpulse > m_maxMotorImpulse ? m_maxMotorImpulse : unclippedMotorImpulse;
-			clippedMotorImpulse = clippedMotorImpulse < -m_maxMotorImpulse ? -m_maxMotorImpulse : clippedMotorImpulse;
-			btVector3 motorImp = clippedMotorImpulse * axisA;
+			btVector3 angVelAroundHingeAxisA = axisA * axisA.dot(angVelA);
+			btVector3 angVelAroundHingeAxisB = axisB * axisB.dot(angVelB);
 
-			m_rbA.applyTorqueImpulse(motorImp+angularLimit);
-			m_rbB.applyTorqueImpulse(-motorImp-angularLimit);
+			btVector3 angAorthog = angVelA - angVelAroundHingeAxisA;
+			btVector3 angBorthog = angVelB - angVelAroundHingeAxisB;
+			btVector3 velrelOrthog = angAorthog-angBorthog;
+			{
+				
+
+				//solve orthogonal angular velocity correction
+				btScalar relaxation = btScalar(1.);
+				btScalar len = velrelOrthog.length();
+				if (len > btScalar(0.00001))
+				{
+					btVector3 normal = velrelOrthog.normalized();
+					btScalar denom = getRigidBodyA().computeAngularImpulseDenominator(normal) +
+						getRigidBodyB().computeAngularImpulseDenominator(normal);
+					// scale for mass and relaxation
+					//velrelOrthog *= (btScalar(1.)/denom) * m_relaxationFactor;
+
+					bodyA.applyImpulse(btVector3(0,0,0), m_rbA.getInvInertiaTensorWorld()*velrelOrthog,-(btScalar(1.)/denom));
+					bodyB.applyImpulse(btVector3(0,0,0), m_rbB.getInvInertiaTensorWorld()*velrelOrthog,(btScalar(1.)/denom));
+
+				}
+
+				//solve angular positional correction
+				btVector3 angularError = -axisA.cross(axisB) *(btScalar(1.)/timeStep);
+				btScalar len2 = angularError.length();
+				if (len2>btScalar(0.00001))
+				{
+					btVector3 normal2 = angularError.normalized();
+					btScalar denom2 = getRigidBodyA().computeAngularImpulseDenominator(normal2) +
+							getRigidBodyB().computeAngularImpulseDenominator(normal2);
+					//angularError *= (btScalar(1.)/denom2) * relaxation;
+					
+					bodyA.applyImpulse(btVector3(0,0,0), m_rbA.getInvInertiaTensorWorld()*angularError,(btScalar(1.)/denom2));
+					bodyB.applyImpulse(btVector3(0,0,0), m_rbB.getInvInertiaTensorWorld()*angularError,-(btScalar(1.)/denom2));
+
+				}
+				
+				
+
+
+
+				// solve limit
+				if (m_solveLimit)
+				{
+					btScalar amplitude = ( (angVelB - angVelA).dot( axisA )*m_relaxationFactor + m_correction* (btScalar(1.)/timeStep)*m_biasFactor  ) * m_limitSign;
+
+					btScalar impulseMag = amplitude * m_kHinge;
+
+					// Clamp the accumulated impulse
+					btScalar temp = m_accLimitImpulse;
+					m_accLimitImpulse = btMax(m_accLimitImpulse + impulseMag, btScalar(0) );
+					impulseMag = m_accLimitImpulse - temp;
+
+
+					
+					bodyA.applyImpulse(btVector3(0,0,0), m_rbA.getInvInertiaTensorWorld()*axisA,impulseMag * m_limitSign);
+					bodyB.applyImpulse(btVector3(0,0,0), m_rbB.getInvInertiaTensorWorld()*axisA,-(impulseMag * m_limitSign));
+
+				}
+			}
+
+			//apply motor
+			if (m_enableAngularMotor) 
+			{
+				//todo: add limits too
+				btVector3 angularLimit(0,0,0);
+
+				btVector3 velrel = angVelAroundHingeAxisA - angVelAroundHingeAxisB;
+				btScalar projRelVel = velrel.dot(axisA);
+
+				btScalar desiredMotorVel = m_motorTargetVelocity;
+				btScalar motor_relvel = desiredMotorVel - projRelVel;
+
+				btScalar unclippedMotorImpulse = m_kHinge * motor_relvel;;
+				//todo: should clip against accumulated impulse
+				btScalar clippedMotorImpulse = unclippedMotorImpulse > m_maxMotorImpulse ? m_maxMotorImpulse : unclippedMotorImpulse;
+				clippedMotorImpulse = clippedMotorImpulse < -m_maxMotorImpulse ? -m_maxMotorImpulse : clippedMotorImpulse;
+				btVector3 motorImp = clippedMotorImpulse * axisA;
 			
+				bodyA.applyImpulse(btVector3(0,0,0), m_rbA.getInvInertiaTensorWorld()*axisA,clippedMotorImpulse);
+				bodyB.applyImpulse(btVector3(0,0,0), m_rbB.getInvInertiaTensorWorld()*axisA,-clippedMotorImpulse);
+				
+			}
 		}
 	}
 

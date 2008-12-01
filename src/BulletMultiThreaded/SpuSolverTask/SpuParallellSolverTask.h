@@ -140,22 +140,22 @@ ATTRIBUTE_ALIGNED16(struct) SpuSolverConstraint
 	}					m_flags;
 
 	// Linear parts, used by all constraints
-	btQuadWordStorage	m_relPos1;
-	btQuadWordStorage	m_relPos2;
-	btQuadWordStorage	m_jacdiagABInv;		//Jacobian inverse multiplied by gamma (damping) for each axis
-	btQuadWordStorage	m_linearBias;		//depth*tau/(dt*gamma) along each axis
+	btVector3			m_relPos1;
+	btVector3	m_relPos2;
+	btVector3	m_jacdiagABInv;		//Jacobian inverse multiplied by gamma (damping) for each axis
+	btVector3	m_linearBias;		//depth*tau/(dt*gamma) along each axis
 
 	// Joint-specific parts
 	union
 	{
 		struct 
 		{
-			btQuadWordStorage	m_frameAinW[3];
-			btQuadWordStorage	m_frameBinW[3];
+			btVector3	m_frameAinW[3];
+			btVector3	m_frameBinW[3];
 
 			// For angular
-			btQuadWordStorage	m_angJacdiagABInv;		//1/j 
-			btQuadWordStorage	m_angularBias;			//error/dt, in x/y.		limit error*bias factor / (dt * relaxation factor) in z
+			btVector3	m_angJacdiagABInv;		//1/j 
+			btVector3	m_angularBias;			//error/dt, in x/y.		limit error*bias factor / (dt * relaxation factor) in z
 			
 			// For limit
 			float				m_limitAccumulatedImpulse;
@@ -168,8 +168,8 @@ ATTRIBUTE_ALIGNED16(struct) SpuSolverConstraint
 		
 		struct  
 		{
-			btQuadWordStorage	m_swingAxis;
-			btQuadWordStorage	m_twistAxis;
+			btVector3	m_swingAxis;
+			btVector3	m_twistAxis;
 
 			float				m_swingError;
 			float				m_swingJacInv;

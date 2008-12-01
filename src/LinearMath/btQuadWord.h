@@ -24,13 +24,13 @@ subject to the following restrictions:
 #include <altivec.h>
 #endif
 
-/**@brief The btQuadWordStorage class is base class for btVector3 and btQuaternion. 
+/**@brief The btQuadWord class is base class for btVector3 and btQuaternion. 
  * Some issues under PS3 Linux with IBM 2.1 SDK, gcc compiler prevent from using aligned quadword.
  */
 #ifndef USE_LIBSPE2
-ATTRIBUTE_ALIGNED16(class) btQuadWordStorage
+ATTRIBUTE_ALIGNED16(class) btQuadWord
 #else
-class btQuadWordStorage
+class btQuadWord
 #endif
 {
 protected:
@@ -45,15 +45,11 @@ public:
 	{
 		return mVec128;
 	}
+protected:
 #else //__CELLOS_LV2__ __SPU__
 	btScalar	m_floats[4];
 #endif //__CELLOS_LV2__ __SPU__
 
-};
-
-/** @brief The btQuadWord is base-class for vectors, points */
-class	btQuadWord : public btQuadWordStorage
-{
 	public:
   
 
@@ -134,11 +130,7 @@ class	btQuadWord : public btQuadWordStorage
 		//	:m_floats[0](btScalar(0.)),m_floats[1](btScalar(0.)),m_floats[2](btScalar(0.)),m_floats[3](btScalar(0.))
 		{
 		}
-  /**@brief Copy constructor */
-		SIMD_FORCE_INLINE btQuadWord(const btQuadWordStorage& q)
-		{
-			*((btQuadWordStorage*)this) = q;
-		}
+ 
   /**@brief Three argument constructor (zeros w)
    * @param x Value of x
    * @param y Value of y

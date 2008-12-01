@@ -102,7 +102,7 @@ void MultiThreadedDemo::createStack( btCollisionShape* boxShape, float halfCubeS
 		int rowSize = size - i;
 		for(int j=0; j< rowSize; j++)
 		{
-			btVector4 pos;
+			btVector3 pos;
 			pos.setValue(
 				-rowSize * halfCubeSize + halfCubeSize + j * 2.0f * halfCubeSize,
 				halfCubeSize + i * halfCubeSize * 2.0f,
@@ -148,9 +148,10 @@ void MultiThreadedDemo::clientMoveAndDisplay()
 	if (m_dynamicsWorld)
 	{
 
-//#define FIXED_STEP 1
+#define FIXED_STEP 1
 #ifdef FIXED_STEP
   		m_dynamicsWorld->stepSimulation(1.0f/60.f,0);
+		//CProfileManager::dumpAll();
 	
 #else
 		//during idle mode, just run 1 simulation step maximum
@@ -354,6 +355,7 @@ m_threadSupportCollision = new Win32ThreadSupport(Win32ThreadSupport::Win32Threa
 		m_dynamicsWorld = world;
 
 		world->getSolverInfo().m_numIterations = 4;
+		world->getSolverInfo().m_solverMode = SOLVER_SIMD+SOLVER_USE_WARMSTARTING;
 
 		m_dynamicsWorld->getDispatchInfo().m_enableSPU = true;
 		m_dynamicsWorld->setGravity(btVector3(0,-10,0));

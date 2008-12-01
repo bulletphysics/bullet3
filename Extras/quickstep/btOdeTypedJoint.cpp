@@ -96,16 +96,6 @@ void OdeP2PJoint::GetInfo2(Info2 *info)
     {
         body0_trans = m_body0->m_originalBody->getCenterOfMassTransform();
     }
-//    btScalar body0_mat[12];
-//    body0_mat[0] = body0_trans.getBasis()[0][0];
-//    body0_mat[1] = body0_trans.getBasis()[0][1];
-//    body0_mat[2] = body0_trans.getBasis()[0][2];
-//    body0_mat[4] = body0_trans.getBasis()[1][0];
-//    body0_mat[5] = body0_trans.getBasis()[1][1];
-//    body0_mat[6] = body0_trans.getBasis()[1][2];
-//    body0_mat[8] = body0_trans.getBasis()[2][0];
-//    body0_mat[9] = body0_trans.getBasis()[2][1];
-//    body0_mat[10] = body0_trans.getBasis()[2][2];
 
     btTransform body1_trans;
 
@@ -113,23 +103,8 @@ void OdeP2PJoint::GetInfo2(Info2 *info)
     {
         body1_trans = m_body1->m_originalBody->getCenterOfMassTransform();
     }
-//    btScalar body1_mat[12];
-//    body1_mat[0] = body1_trans.getBasis()[0][0];
-//    body1_mat[1] = body1_trans.getBasis()[0][1];
-//    body1_mat[2] = body1_trans.getBasis()[0][2];
-//    body1_mat[4] = body1_trans.getBasis()[1][0];
-//    body1_mat[5] = body1_trans.getBasis()[1][1];
-//    body1_mat[6] = body1_trans.getBasis()[1][2];
-//    body1_mat[8] = body1_trans.getBasis()[2][0];
-//    body1_mat[9] = body1_trans.getBasis()[2][1];
-//    body1_mat[10] = body1_trans.getBasis()[2][2];
-
-
-
 
     // anchor points in global coordinates with respect to body PORs.
-
-
     int s = info->rowskip;
 
     // set jacobian
@@ -160,17 +135,18 @@ void OdeP2PJoint::GetInfo2(Info2 *info)
     {
         for (int j=0; j<3; j++)
         {
-            info->m_constraintError[j] = k * (a2[j] + body1_trans.getOrigin()[j] -
-                              a1[j] - body0_trans.getOrigin()[j]);
+            info->m_constraintError[j] = k * (a2[j] + body1_trans.getOrigin()[j] -                         a1[j] - body0_trans.getOrigin()[j]);
+			printf("info->m_constraintError[%d]=%f\n",j,info->m_constraintError[j]);
         }
     }
     else
     {
         for (int j=0; j<3; j++)
         {
-            info->m_constraintError[j] = k * (p2pconstraint->getPivotInB()[j] - a1[j] -
-                              body0_trans.getOrigin()[j]);
-        }
+		    info->m_constraintError[j] = k * (p2pconstraint->getPivotInB()[j] - a1[j] -                       body0_trans.getOrigin()[j]);
+        	printf("info->m_constraintError[%d]=%f\n",j,info->m_constraintError[j]);
+        
+		}
     }
 }
 

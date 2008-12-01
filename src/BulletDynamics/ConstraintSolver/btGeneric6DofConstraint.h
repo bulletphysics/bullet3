@@ -110,7 +110,7 @@ public:
 	int testLimitValue(btScalar test_value);
 
 	//! apply the correction impulses for two bodies
-    btScalar solveAngularLimits(btScalar timeStep,btVector3& axis, btScalar jacDiagABInv,btRigidBody * body0, btRigidBody * body1);
+    btScalar solveAngularLimits(btScalar timeStep,btVector3& axis, btScalar jacDiagABInv,btRigidBody * body0, btSolverBody& bodyA,btRigidBody * body1,btSolverBody& bodyB);
 
 
 };
@@ -168,8 +168,8 @@ public:
     btScalar solveLinearAxis(
     	btScalar timeStep,
         btScalar jacDiagABInv,
-        btRigidBody& body1,const btVector3 &pointInA,
-        btRigidBody& body2,const btVector3 &pointInB,
+        btRigidBody& body1,btSolverBody& bodyA,const btVector3 &pointInA,
+        btRigidBody& body2,btSolverBody& bodyB,const btVector3 &pointInB,
         int limit_index,
         const btVector3 & axis_normal_on_a,
 		const btVector3 & anchorPos);
@@ -262,6 +262,9 @@ protected:
     }
 
 
+	int setAngularLimits(btConstraintInfo2 *info, int row_offset);
+
+	int setLinearLimits(btConstraintInfo2 *info);
 
     void buildLinearJacobian(
         btJacobianEntry & jacLinear,const btVector3 & normalWorld,
@@ -276,6 +279,10 @@ protected:
 
 
 public:
+
+	///for backwards compatibility during the transition to 'getInfo/getInfo2'
+	bool		m_useSolveConstraintObsolete;
+
     btGeneric6DofConstraint(btRigidBody& rbA, btRigidBody& rbB, const btTransform& frameInA, const btTransform& frameInB ,bool useLinearReferenceFrameA);
 
     btGeneric6DofConstraint();
@@ -330,7 +337,11 @@ public:
 	//! performs Jacobian calculation, and also calculates angle differences and axis
     virtual void	buildJacobian();
 
-    virtual	void	solveConstraint(btScalar	timeStep);
+	virtual void getInfo1 (btConstraintInfo1* info);
+
+	virtual void getInfo2 (btConstraintInfo2* info);
+
+    virtual	void	solveConstraintObsolete(btSolverBody& bodyA,btSolverBody& bodyB,btScalar	timeStep);
 
     void	updateRHS(btScalar	timeStep);
 
