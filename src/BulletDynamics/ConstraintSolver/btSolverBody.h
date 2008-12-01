@@ -24,13 +24,12 @@ class	btRigidBody;
 #include "LinearMath/btTransformUtil.h"
 
 ///Until we get other contributions, only use SIMD on Windows, when using Visual Studio 2008 or later, and not double precision
-#if (defined (WIN32) && (_MSC_VER) && _MSC_VER >= 1400) && (!defined (BT_USE_DOUBLE_PRECISION))
+#ifdef BT_USE_SSE
 #define USE_SIMD 1
 #endif //
 
 
 #ifdef USE_SIMD
-#include <emmintrin.h>
 
 struct	btSimdScalar
 {

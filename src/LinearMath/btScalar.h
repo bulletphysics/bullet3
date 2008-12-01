@@ -62,6 +62,8 @@ inline int	btGetVersion()
  			#define btFsel(a,b,c) __fsel((a),(b),(c))
 		#else
 			#define BT_USE_SSE
+		#include <emmintrin.h>
+
 		#endif
 		#endif //__MINGW32__
 

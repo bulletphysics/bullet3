@@ -21,7 +21,6 @@ class	btRigidBody;
 #include "LinearMath/btMatrix3x3.h"
 #include "btJacobianEntry.h"
 
-#include <emmintrin.h>
 //#define NO_FRICTION_TANGENTIALS 1
 #include "btSolverBody.h"
 

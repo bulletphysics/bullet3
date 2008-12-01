@@ -21,7 +21,6 @@ subject to the following restrictions:
 #include "btScalar.h"
 #include "btScalar.h"
 #include "btMinMax.h"
-#include <emmintrin.h>
 /**@brief btVector3 can be used to represent 3D points and vectors.
  * It has an un-used w component to suit 16-byte alignment when btVector3 is stored in containers. This extra component can be used by derived classes (Quaternion?) or by user
  * Ideally, this class should be replaced by a platform optimized SIMD version that keeps the data in registers
@@ -43,7 +42,7 @@ public:
 	}
 public:
 #else //__CELLOS_LV2__ __SPU__
-#ifdef WIN32
+#ifdef BT_USE_SSE // WIN32
 	union {
 		__m128 mVec128;
 		btScalar	m_floats[4];
