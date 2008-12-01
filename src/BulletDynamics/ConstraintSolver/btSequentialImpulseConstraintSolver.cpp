@@ -32,7 +32,7 @@ subject to the following restrictions:
 #include "btSolverBody.h"
 #include "btSolverConstraint.h"
 #include "LinearMath/btAlignedObjectArray.h"
-
+#include <string.h> //for memset
 
 btSequentialImpulseConstraintSolver::btSequentialImpulseConstraintSolver()
 :m_btSeed2(0)
