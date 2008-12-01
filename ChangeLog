@@ -4,6 +4,9 @@ Primary author and maintainer: Erwin Coumans
 Todo: update changelog from April - July 2008
 See http://code.google.com/p/bullet/source/list for more complete log in Subversion
 
+2008 November 30
+	- Add highly optimized SIMD branchless PGS/SI solver innerloop 
+
 2008 November 12
 	- Add compound shape export to BulletColladaConverter
 	Thanks to JamesH for the report: http://www.bulletphysics.com/Bullet/phpBB3/viewtopic.php?f=12&t=2840
