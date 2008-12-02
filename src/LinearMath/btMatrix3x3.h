@@ -159,15 +159,16 @@ class btMatrix3x3 {
 		}
 
 	/** @brief Set the matrix from euler angles YPR around ZYX axes
-         * @param eulerZ Yaw aboud Z axis
-         * @param eulerY Pitch around Y axis
 	 * @param eulerX Roll about X axis
+         * @param eulerY Pitch around Y axis
+         * @param eulerZ Yaw aboud Z axis
          * 
 	 * These angles are used to produce a rotation matrix. The euler
 	 * angles are applied in ZYX order. I.e a vector is first rotated 
 	 * about X then Y and then Z
 	 **/
-	void setEulerZYX(btScalar eulerZ, btScalar eulerY,btScalar eulerX) { 
+	void setEulerZYX(btScalar eulerX,btScalar eulerY,btScalar eulerZ) { 
+  ///@todo proposed to reverse this since it's labeled zyx but takes arguments xyz and it will match all other parts of the code
 		btScalar ci ( btCos(eulerX)); 
 		btScalar cj ( btCos(eulerY)); 
 		btScalar ch ( btCos(eulerZ)); 
