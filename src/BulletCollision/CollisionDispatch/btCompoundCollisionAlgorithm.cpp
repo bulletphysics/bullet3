@@ -19,6 +19,7 @@ subject to the following restrictions:
 #include "BulletCollision/BroadphaseCollision/btDbvt.h"
 #include "LinearMath/btIDebugDraw.h"
 #include "LinearMath/btAabbUtil2.h"
+#include "btManifoldResult.h"
 
 btCompoundCollisionAlgorithm::btCompoundCollisionAlgorithm( const btCollisionAlgorithmConstructionInfo& ci,btCollisionObject* body0,btCollisionObject* body1,bool isSwapped)
 :btActivatingCollisionAlgorithm(ci,body0,body1),
@@ -174,6 +175,31 @@ void btCompoundCollisionAlgorithm::processCollision (btCollisionObject* body0,bt
 	//use a dynamic aabb tree to cull potential child-overlaps
 	btCompoundLeafCallback  callback(colObj,otherObj,m_dispatcher,dispatchInfo,resultOut,&m_childCollisionAlgorithms[0],m_sharedManifold);
 
+	///we need to refresh all contact manifolds
+	///note that we should actually recursively traverse all children, btCompoundShape can nested more then 1 level deep
+	///so we should add a 'refreshManifolds' in the btCollisionAlgorithm
+	{
+		int numChildren = m_childCollisionAlgorithms.size();
+		int i;
+		btManifoldArray manifoldArray;
+		for (i=0;i<m_childCollisionAlgorithms.size();i++)
+		{
+			if (m_childCollisionAlgorithms[i])
+			{
+				m_childCollisionAlgorithms[i]->getAllContactManifolds(manifoldArray);
+				for (int m=0;m<manifoldArray.size();m++)
+				{
+					if (manifoldArray[m]->getNumContacts())
+					{
+						resultOut->setPersistentManifold(manifoldArray[m]);
+						resultOut->refreshContactPoints();
+						resultOut->setPersistentManifold(0);//??necessary?
+					}
+				}
+				manifoldArray.clear();
+			}
+		}
+	}
 
 	if (tree)
 	{

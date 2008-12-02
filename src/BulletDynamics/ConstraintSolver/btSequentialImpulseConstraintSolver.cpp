@@ -382,6 +382,16 @@ btScalar btSequentialImpulseConstraintSolver::solveGroupCacheFriendlySetup(btCol
 		return 0.f;
 	}
 	
+	if (1)
+	{
+		int j;
+		for (j=0;j<numConstraints;j++)
+		{
+			btTypedConstraint* constraint = constraints[j];
+			constraint->buildJacobian();
+		}
+	}
+
 	btSolverBody& fixedBody = m_tmpSolverBodyPool.expand();
 	initSolverBody(&fixedBody,0);
 
@@ -406,10 +416,7 @@ btScalar btSequentialImpulseConstraintSolver::solveGroupCacheFriendlySetup(btCol
 			btTypedConstraint::btConstraintInfo1 info1;
 			info1.m_numConstraintRows = 0;
 			
-			if (m_tmpSolverNonContactConstraintPool.size()>3)
-			{
-				printf("dsadas\n");
-			}
+			
 			///setup the btSolverConstraints
 			int currentRow = 0;
 
@@ -492,7 +499,7 @@ btScalar btSequentialImpulseConstraintSolver::solveGroupCacheFriendlySetup(btCol
 							sum += iMJlB.dot(solverConstraint.m_contactNormal);
 							sum += iMJaB.dot(solverConstraint.m_relpos2CrossNormal);
 
-							solverConstraint.m_jacDiagABInv = 1./sum;
+							solverConstraint.m_jacDiagABInv = btScalar(1.)/sum;
 						}
 
 
@@ -551,6 +558,7 @@ btScalar btSequentialImpulseConstraintSolver::solveGroupCacheFriendlySetup(btCol
 					
 					///this is a bad test and results in jitter -> always solve for those zero-distanc contacts! 
 					///-> if (cp.getDistance() <= btScalar(0.))
+					//if (cp.getDistance() <= manifold->getContactBreakingThreshold())
 					{
 						
 						const btVector3& pos1 = cp.getPositionWorldOnA();
@@ -772,15 +780,7 @@ btScalar btSequentialImpulseConstraintSolver::solveGroupCacheFriendlySetup(btCol
 	
 	btContactSolverInfo info = infoGlobal;
 
-	if (1)
-	{
-		int j;
-		for (j=0;j<numConstraints;j++)
-		{
-			btTypedConstraint* constraint = constraints[j];
-			constraint->buildJacobian();
-		}
-	}
+	
 	
 	int numConstraintPool = m_tmpSolverContactConstraintPool.size();
 	int numFrictionPool = m_tmpSolverContactFrictionConstraintPool.size();

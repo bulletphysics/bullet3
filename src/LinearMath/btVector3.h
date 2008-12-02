@@ -309,6 +309,13 @@ public:
 			m_floats[3] = 0.f;
 		}
 
+		void	getSkewSymmetricMatrix(btVector3* v0,btVector3* v1,btVector3* v2) const
+		{
+			v0->setValue(0.		,-z()		,y());
+			v1->setValue(z()	,0.			,-x());
+			v2->setValue(-y()	,x()	,0.);
+		}
+
 };
 
 /**@brief Return the sum of two vectors (Point symantics)*/

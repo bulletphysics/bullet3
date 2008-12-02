@@ -34,6 +34,8 @@ public:
 	btJacobianEntry() {};
 	//constraint between two different rigidbodies
 	btJacobianEntry(
+		const btMatrix3x3& world2A,
+		const btMatrix3x3& world2B,
 		const btVector3& rel_pos1,const btVector3& rel_pos2,
 		const btVector3& jointAxis,
 		const btVector3& inertiaInvA, 
@@ -42,8 +44,8 @@ public:
 		const btScalar massInvB)
 		:m_linearJointAxis(jointAxis)
 	{
-		m_aJ = (rel_pos1.cross(m_linearJointAxis));
-		m_bJ = (rel_pos2.cross(-m_linearJointAxis));
+		m_aJ = world2A*(rel_pos1.cross(m_linearJointAxis));
+		m_bJ = world2B*(rel_pos2.cross(-m_linearJointAxis));
 		m_0MinvJt	= inertiaInvA * m_aJ;
 		m_1MinvJt = inertiaInvB * m_bJ;
 		m_Adiag = massInvA + m_0MinvJt.dot(m_aJ) + massInvB + m_1MinvJt.dot(m_bJ);
@@ -59,8 +61,8 @@ public:
 		const btVector3& inertiaInvB)
 		:m_linearJointAxis(btVector3(btScalar(0.),btScalar(0.),btScalar(0.)))
 	{
-		m_aJ= jointAxis;
-		m_bJ = -jointAxis;
+		m_aJ= world2A*jointAxis;
+		m_bJ = world2B*-jointAxis;
 		m_0MinvJt	= inertiaInvA * m_aJ;
 		m_1MinvJt = inertiaInvB * m_bJ;
 		m_Adiag =  m_0MinvJt.dot(m_aJ) + m_1MinvJt.dot(m_bJ);
@@ -93,8 +95,8 @@ public:
 		const btScalar massInvA)
 		:m_linearJointAxis(jointAxis)
 	{
-		m_aJ= (rel_pos1.cross(jointAxis));
-		m_bJ = (rel_pos2.cross(-jointAxis));
+		m_aJ= world2A*(rel_pos1.cross(jointAxis));
+		m_bJ = world2A*(rel_pos2.cross(-jointAxis));
 		m_0MinvJt	= inertiaInvA * m_aJ;
 		m_1MinvJt = btVector3(btScalar(0.),btScalar(0.),btScalar(0.));
 		m_Adiag = massInvA + m_0MinvJt.dot(m_aJ);
@@ -128,7 +130,7 @@ public:
 		return sum[0]+sum[1]+sum[2];
 	}
 
-	btScalar getRelativeVelocity(const btVector3& linvelA,const btVector3& angvelA,const btVector3& linvelB,const btVector3& angvelB) const
+	btScalar getRelativeVelocity(const btVector3& linvelA,const btVector3& angvelA,const btVector3& linvelB,const btVector3& angvelB)
 	{
 		btVector3 linrel = linvelA - linvelB;
 		btVector3 angvela  = angvelA * m_aJ;

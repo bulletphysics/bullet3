@@ -608,7 +608,7 @@ btVector3	DemoApplication::getRayTo(int x,int y)
 	return rayTo;
 }
 
-btScalar mousePickClamping = 3.f;
+btScalar mousePickClamping = 30.f;
 
 
 void DemoApplication::mouseFunc(int button, int state, int x, int y)
@@ -1249,7 +1249,7 @@ void	DemoApplication::clientResetScene()
 			{
 				btDefaultMotionState* myMotionState = (btDefaultMotionState*)body->getMotionState();
 				myMotionState->m_graphicsWorldTrans = myMotionState->m_startWorldTrans;
-				colObj->setWorldTransform( myMotionState->m_graphicsWorldTrans );
+				body->setCenterOfMassTransform( myMotionState->m_graphicsWorldTrans );
 				colObj->setInterpolationWorldTransform( myMotionState->m_startWorldTrans );
 				colObj->activate();
 				//colObj->setActivationState(WANTS_DEACTIVATION);

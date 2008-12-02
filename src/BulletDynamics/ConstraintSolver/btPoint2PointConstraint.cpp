@@ -43,7 +43,7 @@ m_useSolveConstraintObsolete(false)
 
 void	btPoint2PointConstraint::buildJacobian()
 {
-	if (m_useSolveConstraintObsolete)
+	///we need it for both methods
 	{
 		m_appliedImpulse = btScalar(0.);
 
@@ -53,15 +53,16 @@ void	btPoint2PointConstraint::buildJacobian()
 		{
 			normal[i] = 1;
 			new (&m_jac[i]) btJacobianEntry(
-
-				m_rbA.getCenterOfMassTransform()*m_pivotInA - m_rbA.getCenterOfMassPosition(),
-				m_rbB.getCenterOfMassTransform()*m_pivotInB - m_rbB.getCenterOfMassPosition(),
-				normal,
-				m_rbA.getInvInertiaDiagLocal(),
-				m_rbA.getInvMass(),
-				m_rbB.getInvInertiaDiagLocal(),
-				m_rbB.getInvMass());
-			normal[i] = 0;
+			m_rbA.getCenterOfMassTransform().getBasis().transpose(),
+			m_rbB.getCenterOfMassTransform().getBasis().transpose(),
+			m_rbA.getCenterOfMassTransform()*m_pivotInA - m_rbA.getCenterOfMassPosition(),
+			m_rbB.getCenterOfMassTransform()*m_pivotInB - m_rbB.getCenterOfMassPosition(),
+			normal,
+			m_rbA.getInvInertiaDiagLocal(),
+			m_rbA.getInvMass(),
+			m_rbB.getInvInertiaDiagLocal(),
+			m_rbB.getInvMass());
+		normal[i] = 0;
 		}
 	}
 
@@ -80,16 +81,6 @@ void btPoint2PointConstraint::getInfo1 (btConstraintInfo1* info)
 		info->nub = 3;
 	}
 }
-#define dCROSSMAT(A,a,skip,plus,minus) \
-{ \
-  (A)[1] = minus (a)[2]; \
-  (A)[2] = plus (a)[1]; \
-  (A)[(skip)+0] = plus (a)[2]; \
-  (A)[(skip)+2] = minus (a)[0]; \
-  (A)[2*(skip)+0] = minus (a)[1]; \
-  (A)[2*(skip)+1] = plus (a)[0]; \
-} 
-#include <stdio.h>
 
 void btPoint2PointConstraint::getInfo2 (btConstraintInfo2* info)
 {
@@ -102,30 +93,37 @@ void btPoint2PointConstraint::getInfo2 (btConstraintInfo2* info)
 	body1_trans = m_rbB.getCenterOfMassTransform();
 
 	// anchor points in global coordinates with respect to body PORs.
-    int s = info->rowskip;
-
+   
     // set jacobian
     info->m_J1linearAxis[0] = 1;
-    info->m_J1linearAxis[s+1] = 1;
-    info->m_J1linearAxis[2*s+2] = 1;
+    info->m_J1linearAxis[info->rowskip+1] = 1;
+    info->m_J1linearAxis[2*info->rowskip+2] = 1;
 
-    btVector3 a1,a2;
-
-    a1 = body0_trans.getBasis()*getPivotInA();
-    //dMULTIPLY0_331 (a1, body0_mat,m_constraint->m_pivotInA);
-    dCROSSMAT (info->m_J1angularAxis,a1,s,-,+);
+	btVector3 a1 = body0_trans.getBasis()*getPivotInA();
+	{
+		btVector3* angular0 = (btVector3*)(info->m_J1angularAxis);
+		btVector3* angular1 = (btVector3*)(info->m_J1angularAxis+info->rowskip);
+		btVector3* angular2 = (btVector3*)(info->m_J1angularAxis+2*info->rowskip);
+		btVector3 a1neg = -a1;
+		a1neg.getSkewSymmetricMatrix(angular0,angular1,angular2);
+	}
     
 	/*info->m_J2linearAxis[0] = -1;
     info->m_J2linearAxis[s+1] = -1;
     info->m_J2linearAxis[2*s+2] = -1;
 	*/
-
-    a2 = body1_trans.getBasis()*getPivotInB();
-	//dMULTIPLY0_331 (a2,body1_mat,m_constraint->m_pivotInB);
-    //dCROSSMAT (info->m_J2angularAxis,a2,s,+,-);
-	dCROSSMAT (info->m_J2angularAxis,a2,s,+,-);
-
+	
+	btVector3 a2 = body1_trans.getBasis()*getPivotInB();
+   
+	{
+		btVector3 a2n = -a2;
+		btVector3* angular0 = (btVector3*)(info->m_J2angularAxis);
+		btVector3* angular1 = (btVector3*)(info->m_J2angularAxis+info->rowskip);
+		btVector3* angular2 = (btVector3*)(info->m_J2angularAxis+2*info->rowskip);
+		a2.getSkewSymmetricMatrix(angular0,angular1,angular2);
+	}
     
+
 
     // set right hand side
     btScalar k = info->fps * info->erp;
@@ -133,17 +131,17 @@ void btPoint2PointConstraint::getInfo2 (btConstraintInfo2* info)
 
 	for (j=0; j<3; j++)
     {
-        info->m_constraintError[j*s] = k * (a2[j] + body1_trans.getOrigin()[j] -                     a1[j] - body0_trans.getOrigin()[j]);
+        info->m_constraintError[j*info->rowskip] = k * (a2[j] + body1_trans.getOrigin()[j] -                     a1[j] - body0_trans.getOrigin()[j]);
 		//printf("info->m_constraintError[%d]=%f\n",j,info->m_constraintError[j]);
     }
 
-	btScalar impulseClamp = m_setting.m_impulseClamp;
+	btScalar impulseClamp = m_setting.m_impulseClamp;//
 	for (j=0; j<3; j++)
     {
-		if (impulseClamp > 0)
+		if (m_setting.m_impulseClamp > 0)
 		{
-			info->m_lowerLimit[j*s] = -impulseClamp;
-			info->m_upperLimit[j*s] = impulseClamp;
+			info->m_lowerLimit[j*info->rowskip] = -impulseClamp;
+			info->m_upperLimit[j*info->rowskip] = impulseClamp;
 		}
 	}
 	
@@ -190,24 +188,33 @@ void	btPoint2PointConstraint::solveConstraintObsolete(btSolverBody& bodyA,btSolv
 			//positional error (zeroth order error)
 			btScalar depth = -(pivotAInW - pivotBInW).dot(normal); //this is the error projected on the normal
 			
-			btScalar impulse = depth*m_setting.m_tau/timeStep  * jacDiagABInv -  m_setting.m_damping * rel_vel * jacDiagABInv;
+			btScalar deltaImpulse = depth*m_setting.m_tau/timeStep  * jacDiagABInv -  m_setting.m_damping * rel_vel * jacDiagABInv;
 
 			btScalar impulseClamp = m_setting.m_impulseClamp;
-			if (impulseClamp > 0)
+			
+			const btScalar sum = btScalar(m_appliedImpulse) + deltaImpulse;
+			if (sum < -impulseClamp)
 			{
-				if (impulse < -impulseClamp) 
-					impulse = -impulseClamp;
-				if (impulse > impulseClamp) 
-					impulse = impulseClamp;
+				deltaImpulse = -impulseClamp-m_appliedImpulse;
+				m_appliedImpulse = -impulseClamp;
+			}
+			else if (sum > impulseClamp) 
+			{
+				deltaImpulse = impulseClamp-m_appliedImpulse;
+				m_appliedImpulse = impulseClamp;
+			}
+			else
+			{
+				m_appliedImpulse = sum;
 			}
 
-			m_appliedImpulse+=impulse;
-			btVector3 impulse_vector = normal * impulse;
+			
+			btVector3 impulse_vector = normal * deltaImpulse;
 			
 			btVector3 ftorqueAxis1 = rel_pos1.cross(normal);
 			btVector3 ftorqueAxis2 = rel_pos2.cross(normal);
-			bodyA.applyImpulse(normal*m_rbA.getInvMass(), m_rbA.getInvInertiaTensorWorld()*ftorqueAxis1,impulse);
-			bodyB.applyImpulse(normal*m_rbB.getInvMass(), m_rbB.getInvInertiaTensorWorld()*ftorqueAxis2,-impulse);
+			bodyA.applyImpulse(normal*m_rbA.getInvMass(), m_rbA.getInvInertiaTensorWorld()*ftorqueAxis1,deltaImpulse);
+			bodyB.applyImpulse(normal*m_rbB.getInvMass(), m_rbB.getInvInertiaTensorWorld()*ftorqueAxis2,-deltaImpulse);
 
 
 			normal[i] = 0;

@@ -44,17 +44,6 @@ m_useSolveConstraintObsolete(true)
 }
 
 
-
-#define dCROSSMAT(A,a,skip,plus,minus) \
-{ \
-  (A)[1] = minus (a)[2]; \
-  (A)[2] = plus (a)[1]; \
-  (A)[(skip)+0] = plus (a)[2]; \
-  (A)[(skip)+2] = minus (a)[0]; \
-  (A)[2*(skip)+0] = minus (a)[1]; \
-  (A)[2*(skip)+1] = plus (a)[0]; \
-} 
-
 #define GENERIC_D6_DISABLE_WARMSTARTING 1
 
 btScalar btGetMatrixElem(const btMatrix3x3& mat, int index);
@@ -374,25 +363,25 @@ void btGeneric6DofConstraint::buildLinearJacobian(
 	const btVector3 & pivotAInW,const btVector3 & pivotBInW)
 {
 	new (&jacLinear) btJacobianEntry(
-
-		pivotAInW - m_rbA.getCenterOfMassPosition(),
-		pivotBInW - m_rbB.getCenterOfMassPosition(),
-		normalWorld,
-		m_rbA.getInvInertiaDiagLocal(),
-		m_rbA.getInvMass(),
-		m_rbB.getInvInertiaDiagLocal(),
-		m_rbB.getInvMass());
-
+        m_rbA.getCenterOfMassTransform().getBasis().transpose(),
+        m_rbB.getCenterOfMassTransform().getBasis().transpose(),
+        pivotAInW - m_rbA.getCenterOfMassPosition(),
+        pivotBInW - m_rbB.getCenterOfMassPosition(),
+        normalWorld,
+        m_rbA.getInvInertiaDiagLocal(),
+        m_rbA.getInvMass(),
+        m_rbB.getInvInertiaDiagLocal(),
+        m_rbB.getInvMass());
 }
 
 void btGeneric6DofConstraint::buildAngularJacobian(
 	btJacobianEntry & jacAngular,const btVector3 & jointAxisW)
 {
-	new (&jacAngular)	btJacobianEntry(jointAxisW,
-		m_rbA.getCenterOfMassTransform().getBasis().transpose(),
-		m_rbB.getCenterOfMassTransform().getBasis().transpose(),
-		m_rbA.getInvInertiaDiagLocal(),
-		m_rbB.getInvInertiaDiagLocal());
+	 new (&jacAngular)	btJacobianEntry(jointAxisW,
+                                      m_rbA.getCenterOfMassTransform().getBasis().transpose(),
+                                      m_rbB.getCenterOfMassTransform().getBasis().transpose(),
+                                      m_rbA.getInvInertiaDiagLocal(),
+                                      m_rbB.getInvInertiaDiagLocal());
 
 }
 
@@ -517,12 +506,34 @@ int btGeneric6DofConstraint::setLinearLimits(btConstraintInfo2* info)
 	info->m_J1linearAxis[s+1] = 1;
 	info->m_J1linearAxis[2*s+2] = 1;
 
+	/*for (int i=0;i<3;i++)
+	{
+		if (m_useLinearReferenceFrameA)
+		{
+			btVector3* linear_axis = (btVector3* )&info->m_J1linearAxis[s*i];
+			*linear_axis = m_calculatedTransformA.getBasis().getColumn(i);
+		}
+		else
+		{
+			btVector3* linear_axis = (btVector3* )&info->m_J1linearAxis[s*i];
+			*linear_axis = m_calculatedTransformB.getBasis().getColumn(i);
+		}
+	}
+	*/
+
+
 
 	btVector3 a1,a2;
 
 	a1 = body0_trans.getBasis()*d6constraint->getFrameOffsetA().getOrigin();
-	//dMULTIPLY0_331 (a1, body0_mat,m_constraint->m_pivotInA);
-	dCROSSMAT (info->m_J1angularAxis,a1,s,-,+);
+
+	{
+		btVector3* angular0 = (btVector3*)(info->m_J1angularAxis);
+		btVector3* angular1 = (btVector3*)(info->m_J1angularAxis+info->rowskip);
+		btVector3* angular2 = (btVector3*)(info->m_J1angularAxis+2*info->rowskip);
+		btVector3 a1neg = -a1;
+		a1neg.getSkewSymmetricMatrix(angular0,angular1,angular2);
+	}
 
 	/*info->m_J2linearAxis[0] = -1;
 	info->m_J2linearAxis[s+1] = -1;
@@ -530,15 +541,19 @@ int btGeneric6DofConstraint::setLinearLimits(btConstraintInfo2* info)
 	*/
 
 	a2 = body1_trans.getBasis()*d6constraint->getFrameOffsetB().getOrigin();
-	//dMULTIPLY0_331 (a2,body1_mat,m_constraint->m_pivotInB);
-	dCROSSMAT (info->m_J2angularAxis,a2,s,+,-);
+
+	{
+		btVector3* angular0 = (btVector3*)(info->m_J2angularAxis);
+		btVector3* angular1 = (btVector3*)(info->m_J2angularAxis+info->rowskip);
+		btVector3* angular2 = (btVector3*)(info->m_J2angularAxis+2*info->rowskip);
+		a2.getSkewSymmetricMatrix(angular0,angular1,angular2);
+	}
 
 	// set right hand side
 	btScalar k = info->fps * info->erp;
 	for (int j=0; j<3; j++)
 	{
-		info->m_constraintError[s*j] = k * (a2[j] + body1_trans.getOrigin()[j] -
-			a1[j] - body0_trans.getOrigin()[j]);
+		info->m_constraintError[s*j] = k * (a2[j] + body1_trans.getOrigin()[j] -	a1[j] - body0_trans.getOrigin()[j]);
 	}
 
 	return 3;
