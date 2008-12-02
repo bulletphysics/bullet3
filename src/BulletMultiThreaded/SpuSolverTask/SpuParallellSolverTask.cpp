@@ -1,5 +1,3 @@
-#ifdef CONSTRAINT_SOLVER_IS_BEING_REFACTORED_DURING_DECEMBER_2008
-
 /*
 Bullet Continuous Collision Detection and Physics Library - Parallel solver
 Copyright (c) 2007 Starbreeze Studios
@@ -41,13 +39,13 @@ Written by: Marten Svanfeldt
 #define TEMP_STORAGE_SIZE (150*1024)
 #define CONSTRAINT_MAX_SIZE (60*16)
 
-struct SolverTask_LocalStoreMemory
+ATTRIBUTE_ALIGNED16(struct) SolverTask_LocalStoreMemory
 {
 	ATTRIBUTE_ALIGNED16(SpuSolverHash			m_localHash);
 
 	// Data for temporary storage in situations where we just need very few
 	ATTRIBUTE_ALIGNED16(btSolverConstraint	m_tempInternalConstr[4]);
-	ATTRIBUTE_ALIGNED16(SpuSolverConstraint		m_tempConstraint[1]);
+	ATTRIBUTE_ALIGNED16(btSolverConstraint		m_tempConstraint[6]);
 	ATTRIBUTE_ALIGNED16(btSolverBody			m_tempSPUBodies[2]);
 	ATTRIBUTE_ALIGNED16(char					m_tempRBs[2][sizeof(btRigidBody)]);
 	ATTRIBUTE_ALIGNED16(char					m_externalConstraint[CONSTRAINT_MAX_SIZE]);
@@ -72,7 +70,7 @@ void* createSolverLocalStoreMemory()
 #else
 void* createSolverLocalStoreMemory()
 {
-        return new SolverTask_LocalStoreMemory;
+        return btAlignedAlloc(sizeof(SolverTask_LocalStoreMemory),16);
 }
 
 #endif
@@ -118,7 +116,8 @@ void freeTemporaryStorage (SolverTask_LocalStoreMemory* lsmem, void* ptr, size_t
 
 btSolverBody* allocBodyStorage (SolverTask_LocalStoreMemory* lsmem, size_t numBodies)
 {
-	return static_cast<btSolverBody*> (allocTemporaryStorage(lsmem, sizeof(btSolverBody)*numBodies));
+	int sb = sizeof(btSolverBody);
+	return static_cast<btSolverBody*> (allocTemporaryStorage(lsmem, sb*numBodies));
 }
 
 void freeBodyStorage (SolverTask_LocalStoreMemory* lsmem, btSolverBody* ptr, size_t numBodies)
@@ -136,14 +135,14 @@ void freeInternalConstraintStorage (SolverTask_LocalStoreMemory* lsmem, btSolver
 	freeTemporaryStorage(lsmem, ptr, sizeof(btSolverConstraint)*numConstr);
 }
 
-SpuSolverConstraint* allocConstraintStorage (SolverTask_LocalStoreMemory* lsmem, size_t numConstr)
+btSolverConstraint* allocConstraintStorage (SolverTask_LocalStoreMemory* lsmem, size_t numConstr)
 {
-	return static_cast<SpuSolverConstraint*> (allocTemporaryStorage(lsmem, sizeof(SpuSolverConstraint)*numConstr));
+	return static_cast<btSolverConstraint*> (allocTemporaryStorage(lsmem, sizeof(btSolverConstraint)*numConstr));
 }
 
-void freeConstraintStorage (SolverTask_LocalStoreMemory* lsmem, SpuSolverConstraint* ptr, size_t numConstr)
+void freeConstraintStorage (SolverTask_LocalStoreMemory* lsmem, btSolverConstraint* ptr, size_t numConstr)
 {
-	freeTemporaryStorage(lsmem, ptr, sizeof(SpuSolverConstraint)*numConstr);
+	freeTemporaryStorage(lsmem, ptr, sizeof(btSolverConstraint)*numConstr);
 }
 //-- MEMORY MANAGEMENT HELPERS END
 
@@ -218,30 +217,23 @@ private:
 //-- RB HANDLING
 static void setupSpuBody (btCollisionObject* collisionObject, btSolverBody* solverBody)
 {
-	btRigidBody* rb = btRigidBody::upcast(collisionObject);
+	btRigidBody* rb = collisionObject? btRigidBody::upcast(collisionObject) : 0;
+
+	solverBody->m_deltaLinearVelocity.setValue(0.f,0.f,0.f);
+	solverBody->m_deltaAngularVelocity.setValue(0.f,0.f,0.f);
+
 	if (rb)
 	{
-		solverBody->m_worldInvInertiaTensor = rb->getInvInertiaTensorWorld();
-		solverBody->m_angularVelocity = rb->getAngularVelocity() ;
-		solverBody->m_centerOfMassPosition = collisionObject->getWorldTransform().getOrigin();
-		solverBody->m_friction = collisionObject->getFriction();
 		solverBody->m_invMass = rb->getInvMass();
-		solverBody->m_linearVelocity = rb->getLinearVelocity();
 		solverBody->m_originalBody = rb;
 		solverBody->m_angularFactor = rb->getAngularFactor();
 	} else
 	{
-		solverBody->m_worldInvInertiaTensor.setIdentity();
-		solverBody->m_angularVelocity.setValue(0,0,0);
-		solverBody->m_centerOfMassPosition = collisionObject->getWorldTransform().getOrigin();
-		solverBody->m_friction = collisionObject->getFriction();
 		solverBody->m_invMass = 0.f;
-		solverBody->m_linearVelocity.setValue(0,0,0);
 		solverBody->m_originalBody = 0;
 		solverBody->m_angularFactor = 1.f;
 	}
-	solverBody->m_pushVelocity.setValue(0.f,0.f,0.f);
-	solverBody->m_turnVelocity.setValue(0.f,0.f,0.f);
+	
 }
 //-- RB HANDLING END
 
@@ -414,103 +406,81 @@ static int getNextFreeCell(SolverTask_LocalStoreMemory* localMemory, SpuSolverTa
 }
 //-- HASH HANDLING END
 
-
-btScalar solveContact(btSolverBody& body1,btSolverBody& body2,const btSolverConstraint& contactConstraint)
+#ifdef BT_USE_SSE
+#include <emmintrin.h>
+#define vec_splat(x, e) _mm_shuffle_ps(x, x, _MM_SHUFFLE(e,e,e,e))
+static inline __m128 _vmathVfDot3( __m128 vec0, __m128 vec1 )
 {
-	btScalar normalImpulse;
+    __m128 result = _mm_mul_ps( vec0, vec1);
+    return _mm_add_ps( vec_splat( result, 0 ), _mm_add_ps( vec_splat( result, 1 ), vec_splat( result, 2 ) ) );
+}
+#endif//USE_SIMD
+
+
+static void SpuResolveSingleConstraintRowGeneric(btSolverBody& body1,btSolverBody& body2,const btSolverConstraint& c)
+{
+#ifdef BT_USE_SSE
+	__m128 cpAppliedImp = _mm_set1_ps(c.m_appliedImpulse);
+	__m128	lowerLimit1 = _mm_set1_ps(c.m_lowerLimit);
+	__m128	upperLimit1 = _mm_set1_ps(c.m_upperLimit);
+	__m128 deltaImpulse = _mm_sub_ps(_mm_set1_ps(c.m_rhs), _mm_mul_ps(_mm_set1_ps(c.m_appliedImpulse),_mm_set1_ps(c.m_cfm)));
+	__m128 deltaVel1Dotn	=	_mm_add_ps(_vmathVfDot3(c.m_contactNormal.mVec128,body1.m_deltaLinearVelocity.mVec128), _vmathVfDot3(c.m_relpos1CrossNormal.mVec128,body1.m_deltaAngularVelocity.mVec128));
+	__m128 deltaVel2Dotn	=	_mm_add_ps(_vmathVfDot3(c.m_contactNormal.mVec128,body2.m_deltaLinearVelocity.mVec128) ,_vmathVfDot3(c.m_relpos2CrossNormal.mVec128,body2.m_deltaAngularVelocity.mVec128));
+	__m128 delta_rel_vel	=	_mm_sub_ps(deltaVel1Dotn,deltaVel2Dotn);
+	deltaImpulse	=	_mm_sub_ps(deltaImpulse,_mm_mul_ps(deltaVel1Dotn,_mm_set1_ps(c.m_jacDiagABInv)));
+	deltaImpulse	=	_mm_add_ps(deltaImpulse,_mm_mul_ps(deltaVel2Dotn,_mm_set1_ps(c.m_jacDiagABInv)));
+	btSimdScalar sum = _mm_add_ps(cpAppliedImp,deltaImpulse);
+	btSimdScalar resultLowerLess,resultUpperLess;
+	resultLowerLess = _mm_cmplt_ps(sum,lowerLimit1);
+	resultUpperLess = _mm_cmplt_ps(sum,upperLimit1);
+	__m128 lowMinApplied = _mm_sub_ps(lowerLimit1,cpAppliedImp);
+	deltaImpulse = _mm_or_ps( _mm_and_ps(resultLowerLess, lowMinApplied), _mm_andnot_ps(resultLowerLess, deltaImpulse) );
+	c.m_appliedImpulse = _mm_or_ps( _mm_and_ps(resultLowerLess, lowerLimit1), _mm_andnot_ps(resultLowerLess, sum) );
+	__m128 upperMinApplied = _mm_sub_ps(upperLimit1,cpAppliedImp);
+	deltaImpulse = _mm_or_ps( _mm_and_ps(resultUpperLess, deltaImpulse), _mm_andnot_ps(resultUpperLess, upperMinApplied) );
+	c.m_appliedImpulse = _mm_or_ps( _mm_and_ps(resultUpperLess, c.m_appliedImpulse), _mm_andnot_ps(resultUpperLess, upperLimit1) );
+	__m128	linearComponentA = _mm_mul_ps(c.m_contactNormal.mVec128,_mm_set1_ps(body1.m_invMass));
+	__m128	linearComponentB = _mm_mul_ps(c.m_contactNormal.mVec128,_mm_set1_ps(body2.m_invMass));
+	__m128 impulseMagnitude = deltaImpulse;
+	body1.m_deltaLinearVelocity.mVec128 = _mm_add_ps(body1.m_deltaLinearVelocity.mVec128,_mm_mul_ps(linearComponentA,impulseMagnitude));
+	body1.m_deltaAngularVelocity.mVec128 = _mm_add_ps(body1.m_deltaAngularVelocity.mVec128 ,_mm_mul_ps(c.m_angularComponentA.mVec128,impulseMagnitude));
+	body2.m_deltaLinearVelocity.mVec128 = _mm_sub_ps(body2.m_deltaLinearVelocity.mVec128,_mm_mul_ps(linearComponentB,impulseMagnitude));
+	body2.m_deltaAngularVelocity.mVec128 = _mm_sub_ps(body2.m_deltaAngularVelocity.mVec128 ,_mm_mul_ps(c.m_angularComponentB.mVec128,impulseMagnitude));
+#else
+	btScalar deltaImpulse = c.m_rhs-btScalar(c.m_appliedImpulse)*c.m_cfm;
+	const btScalar deltaVel1Dotn	=	c.m_contactNormal.dot(body1.m_deltaLinearVelocity) 	+ c.m_relpos1CrossNormal.dot(body1.m_deltaAngularVelocity);
+	const btScalar deltaVel2Dotn	=	c.m_contactNormal.dot(body2.m_deltaLinearVelocity) 	+ c.m_relpos2CrossNormal.dot(body2.m_deltaAngularVelocity);
+	const btScalar delta_rel_vel	=	deltaVel1Dotn-deltaVel2Dotn;
+	deltaImpulse	-=	deltaVel1Dotn*c.m_jacDiagABInv;
+	deltaImpulse	+=	deltaVel2Dotn*c.m_jacDiagABInv;
+	const btScalar sum = btScalar(c.m_appliedImpulse) + deltaImpulse;
+	if (sum < c.m_lowerLimit)
 	{
-		
-		//  Optimized version of projected relative velocity, use precomputed cross products with normal
-		//	body1.getVelocityInLocalPoint(contactConstraint.m_rel_posA,vel1);
-		//	body2.getVelocityInLocalPoint(contactConstraint.m_rel_posB,vel2);
-		//	btVector3 vel = vel1 - vel2;
-		//	btScalar  rel_vel = contactConstraint.m_contactNormal.dot(vel);
-
-		btScalar rel_vel;
-		btScalar vel1Dotn = contactConstraint.m_contactNormal.dot(body1.m_linearVelocity) 
-					+ contactConstraint.m_relpos1CrossNormal.dot(body1.m_angularVelocity);
-		btScalar vel2Dotn = contactConstraint.m_contactNormal.dot(body2.m_linearVelocity) 
-					+ contactConstraint.m_relpos2CrossNormal.dot(body2.m_angularVelocity);
-
-		rel_vel = vel1Dotn-vel2Dotn;
-
-		btScalar positionalError = 0.f;
-		positionalError = -contactConstraint.m_penetration;// * solverInfo.m_erp/solverInfo.m_timeStep;
-
-		btScalar velocityError = contactConstraint.m_restitution - rel_vel;// * damping;
-
-		btScalar penetrationImpulse = positionalError * contactConstraint.m_jacDiagABInv;
-		btScalar	velocityImpulse = velocityError * contactConstraint.m_jacDiagABInv;
-		normalImpulse = penetrationImpulse+velocityImpulse;
-		
-		
-		// See Erin Catto's GDC 2006 paper: Clamp the accumulated impulse
-		btScalar oldNormalImpulse = contactConstraint.m_appliedImpulse;
-		btScalar sum = oldNormalImpulse + normalImpulse;
-		contactConstraint.m_appliedImpulse = btScalar(0.) > sum ? btScalar(0.): sum;
-
-		normalImpulse = contactConstraint.m_appliedImpulse - oldNormalImpulse;
-
-		body1.applyImpulse(contactConstraint.m_contactNormal*body1.m_invMass,
-				contactConstraint.m_angularComponentA,normalImpulse);
-		
-		body2.applyImpulse(contactConstraint.m_contactNormal*body2.m_invMass,
-				contactConstraint.m_angularComponentB,-normalImpulse);
+		deltaImpulse = c.m_lowerLimit-c.m_appliedImpulse;
+		c.m_appliedImpulse = c.m_lowerLimit;
 	}
-
-	return normalImpulse;
-}
-
-
-
-// Friction solve method
-static void solveFriction ( btSolverBody& bodyA, btSolverBody& bodyB, btSolverConstraint& constraint,btScalar normalImpulse)
-{
-
-	const btScalar combinedFriction = constraint.m_friction;
-
-	const btScalar limit = normalImpulse * combinedFriction;
-
-	if (normalImpulse>btScalar(0.))
+	else if (sum > c.m_upperLimit) 
 	{
-
-		btScalar j1;
-		{
-
-			btScalar rel_vel;
-			const btScalar vel1Dotn = constraint.m_contactNormal.dot(bodyA.m_linearVelocity) 
-				+ constraint.m_relpos1CrossNormal.dot(bodyA.m_angularVelocity);
-			const btScalar vel2Dotn = constraint.m_contactNormal.dot(bodyB.m_linearVelocity) 
-				+ constraint.m_relpos2CrossNormal.dot(bodyB.m_angularVelocity);
-			rel_vel = vel1Dotn-vel2Dotn;
-
-			// calculate j that moves us to zero relative velocity
-			j1 = -rel_vel * constraint.m_jacDiagABInv;
-			btScalar oldTangentImpulse = constraint.m_appliedImpulse;
-			constraint.m_appliedImpulse = oldTangentImpulse + j1;
-			btSetMin(constraint.m_appliedImpulse, limit);
-			btSetMax(constraint.m_appliedImpulse, -limit);
-			j1 = constraint.m_appliedImpulse - oldTangentImpulse;
-
-		}
-		
-		if (bodyA.m_invMass > 0)
-		{
-			bodyA.m_linearVelocity += constraint.m_contactNormal*bodyA.m_invMass*j1;
-			bodyA.m_angularVelocity += bodyA.m_angularFactor * constraint.m_angularComponentA*j1;
-		}
-		if (bodyB.m_invMass > 0)
-		{
-			bodyB.m_linearVelocity -= constraint.m_contactNormal*bodyB.m_invMass*j1;
-			bodyB.m_angularVelocity -= bodyB.m_angularFactor * constraint.m_angularComponentB*j1;
-		}
-
-	} 
+		deltaImpulse = c.m_upperLimit-c.m_appliedImpulse;
+		c.m_appliedImpulse = c.m_upperLimit;
+	}
+	else
+	{
+		c.m_appliedImpulse = sum;
+	}
+	if (body1.m_invMass)
+		body1.applyImpulse(c.m_contactNormal*body1.m_invMass,c.m_angularComponentA,deltaImpulse);
+	if (body2.m_invMass)
+		body2.applyImpulse(c.m_contactNormal*body2.m_invMass,c.m_angularComponentB,-deltaImpulse);
+#endif
 }
 
 
+
+
+#ifdef NOT_YET
 // Constraint solving
-static void solveConstraint (SpuSolverConstraint& constraint, btSolverBody& bodyA, btSolverBody& bodyB)
+static void solveConstraint (btSolverConstraint& constraint, btSolverBody& bodyA, btSolverBody& bodyB)
 {
 	// All but D6 use worldspace normals, use same code
 	if (constraint.m_flags.m_useLinear)
@@ -727,7 +697,7 @@ static void solveConstraint (SpuSolverConstraint& constraint, btSolverBody& body
 //-- SOLVER METHODS END
 
 
-
+#endif //NOT_YET
 
 
 
@@ -754,14 +724,12 @@ static float computeAngularJacobianInverse (const btRigidBody* rb0, const btRigi
 	return 1.0f/jacobian;
 }
 
-static void setupLinearConstraintWorld (SpuSolverConstraint& constraint, const btRigidBody* rb0, const btRigidBody* rb1,
+/*static void setupLinearConstraintWorld (btSolverConstraint& constraint, const btRigidBody* rb0, const btRigidBody* rb1,
 										const btVector3& anchorAinW, const btVector3& anchorBinW, const btContactSolverInfoData& solverInfo)
 {
 	btVector3 relPos1 = anchorAinW - rb0->getCenterOfMassPosition();
 	btVector3 relPos2 = anchorBinW - rb1->getCenterOfMassPosition();
 
-	constraint.m_relPos1 = relPos1;
-	constraint.m_relPos2 = relPos2;
 
 	btVector3 error = anchorAinW - anchorBinW;
 
@@ -789,10 +757,159 @@ static void setupLinearConstraintWorld (SpuSolverConstraint& constraint, const b
 }
 //-- CONSTRAINT SETUP METHODS END
 
+*/
+
+
+#ifdef NOT_YET
+void	setupConstraint(btSolverConstraint* currentConstraintRow,btRigidBody* rb0,btSolverBody& bodyA,btRigidBody* rb1,btSolverBody& bodyB,const btVector3& pivotAinW,const btVector3& pivotBinW,const btContactSolverInfoData& infoGlobal)
+{
+	return;
+	int j;
+
+	for (j=0;j<3;j++)
+	{
+		memset(&currentConstraintRow[j],0,sizeof(btSolverConstraint));
+		currentConstraintRow[j].m_lowerLimit = -FLT_MAX;
+		currentConstraintRow[j].m_upperLimit = FLT_MAX;
+		currentConstraintRow[j].m_appliedImpulse = 0.f;
+		currentConstraintRow[j].m_penetration = 0.f;
+		currentConstraintRow[j].m_appliedPushImpulse = 0.f;
+
+	}
+
+	bodyA.m_deltaLinearVelocity.setValue(0.f,0.f,0.f);
+	bodyA.m_deltaAngularVelocity.setValue(0.f,0.f,0.f);
+	bodyB.m_deltaLinearVelocity.setValue(0.f,0.f,0.f);
+	bodyB.m_deltaAngularVelocity.setValue(0.f,0.f,0.f);
+					
+
+
+	btTypedConstraint::btConstraintInfo2 info2;
+	info2.fps = 1.f/infoGlobal.m_timeStep;
+	info2.erp = infoGlobal.m_erp;
+	info2.m_J1linearAxis = currentConstraintRow->m_contactNormal;
+	info2.m_J1angularAxis = currentConstraintRow->m_relpos1CrossNormal;
+	info2.m_J2linearAxis = 0;
+	info2.m_J2angularAxis = currentConstraintRow->m_relpos2CrossNormal;
+	info2.rowskip = sizeof(btSolverConstraint)/sizeof(btScalar);//check this
+	info2.m_constraintError = &currentConstraintRow->m_rhs;
+	info2.cfm = &currentConstraintRow->m_cfm;
+	info2.m_lowerLimit = &currentConstraintRow->m_lowerLimit;
+	info2.m_upperLimit = &currentConstraintRow->m_upperLimit;
+
+	btTypedConstraint::btConstraintInfo2* info = &info2;
+	
+	 //retrieve matrices
+	btTransform body0_trans;
+	body0_trans = rb0->getCenterOfMassTransform();
+    btTransform body1_trans;
+	body1_trans = rb1->getCenterOfMassTransform();
+
+	// anchor points in global coordinates with respect to body PORs.
+   
+    // set jacobian
+    info->m_J1linearAxis[0] = 1;
+    info->m_J1linearAxis[info->rowskip+1] = 1;
+    info->m_J1linearAxis[2*info->rowskip+2] = 1;
+
+	btVector3 a1 = body0_trans.getBasis()*pivotAinW;
+	{
+		btVector3* angular0 = (btVector3*)(info->m_J1angularAxis);
+		btVector3* angular1 = (btVector3*)(info->m_J1angularAxis+info->rowskip);
+		btVector3* angular2 = (btVector3*)(info->m_J1angularAxis+2*info->rowskip);
+		btVector3 a1neg = -a1;
+		a1neg.getSkewSymmetricMatrix(angular0,angular1,angular2);
+	}
+    
+	/*info->m_J2linearAxis[0] = -1;
+    info->m_J2linearAxis[s+1] = -1;
+    info->m_J2linearAxis[2*s+2] = -1;
+	*/
+	
+	btVector3 a2 = body1_trans.getBasis()*pivotBinW;
+   
+	{
+		btVector3 a2n = -a2;
+		btVector3* angular0 = (btVector3*)(info->m_J2angularAxis);
+		btVector3* angular1 = (btVector3*)(info->m_J2angularAxis+info->rowskip);
+		btVector3* angular2 = (btVector3*)(info->m_J2angularAxis+2*info->rowskip);
+		a2.getSkewSymmetricMatrix(angular0,angular1,angular2);
+	}
+    
+
+
+    // set right hand side
+    btScalar k = info->fps * info->erp;
+
+	for (j=0; j<3; j++)
+    {
+        info->m_constraintError[j*info->rowskip] = k * (a2[j] + body1_trans.getOrigin()[j] -                     a1[j] - body0_trans.getOrigin()[j]);
+		//printf("info->m_constraintError[%d]=%f\n",j,info->m_constraintError[j]);
+    }
+
+/*	btScalar impulseClamp = m_setting.m_impulseClamp;//
+	for (j=0; j<3; j++)
+    {
+		if (m_setting.m_impulseClamp > 0)
+		{
+			info->m_lowerLimit[j*info->rowskip] = -impulseClamp;
+			info->m_upperLimit[j*info->rowskip] = impulseClamp;
+		}
+	}
+	*/
 
 
 
+	///finalize the constraint setup
+	for (int j=0;j<3;j++)
+	{
+		btSolverConstraint& solverConstraint = currentConstraintRow[j];
 
+		{
+			const btVector3& ftorqueAxis1 = solverConstraint.m_relpos1CrossNormal;
+			solverConstraint.m_angularComponentA = rb0->getInvInertiaTensorWorld()*ftorqueAxis1;
+		}
+		{
+			const btVector3& ftorqueAxis2 = solverConstraint.m_relpos2CrossNormal;
+			solverConstraint.m_angularComponentB = rb1->getInvInertiaTensorWorld()*ftorqueAxis2;
+		}
+
+		{
+			btVector3 iMJlA = solverConstraint.m_contactNormal*rb0->getInvMass();
+			btVector3 iMJaA = rb0->getInvInertiaTensorWorld()*solverConstraint.m_relpos1CrossNormal;
+			btVector3 iMJlB = solverConstraint.m_contactNormal*rb1->getInvMass();//sign of normal?
+			btVector3 iMJaB = rb1->getInvInertiaTensorWorld()*solverConstraint.m_relpos2CrossNormal;
+			
+			btScalar sum = iMJlA.dot(solverConstraint.m_contactNormal);
+			sum += iMJaA.dot(solverConstraint.m_relpos1CrossNormal);
+			sum += iMJlB.dot(solverConstraint.m_contactNormal);
+			sum += iMJaB.dot(solverConstraint.m_relpos2CrossNormal);
+
+			solverConstraint.m_jacDiagABInv = btScalar(1.)/sum;
+		}
+
+
+		///fix rhs
+		///todo: add force/torque accelerators
+		{
+			btScalar rel_vel;
+			btScalar vel1Dotn = solverConstraint.m_contactNormal.dot(rb0->getLinearVelocity()) + solverConstraint.m_relpos1CrossNormal.dot(rb0->getAngularVelocity());
+			btScalar vel2Dotn = solverConstraint.m_contactNormal.dot(rb1->getLinearVelocity()) + solverConstraint.m_relpos2CrossNormal.dot(rb1->getAngularVelocity());
+
+			rel_vel = vel1Dotn-vel2Dotn;
+
+			btScalar positionalError = solverConstraint.m_rhs;//already filled in by getConstraintInfo2
+			solverConstraint.m_restitution  = 0.f;
+			btScalar	velocityError = solverConstraint.m_restitution - rel_vel;// * damping;
+			btScalar	penetrationImpulse = positionalError*solverConstraint.m_jacDiagABInv;
+			btScalar	velocityImpulse = velocityError *solverConstraint.m_jacDiagABInv;
+			solverConstraint.m_rhs = penetrationImpulse+velocityImpulse;
+			solverConstraint.m_appliedImpulse = 0.f;
+		
+		}
+	}
+}
+#endif //NOT_YET
 
 static int getConstraintSize (btTypedConstraintType type)
 {
@@ -1113,9 +1230,9 @@ void processSolverTask(void* userPtr, void* lsMemory)
 									//btVector3 vel1 = rb0readonly->getVelocityInLocalPoint(rel_pos1);
 									//btVector3 vel2 = rb1readonly->getVelocityInLocalPoint(rel_pos2);
 									btVector3 vel1;
-									solverBodyA->getVelocityInLocalPoint(rel_pos1,vel1);
+									solverBodyA->getVelocityInLocalPointObsolete(rel_pos1,vel1);
 									btVector3 vel2;
-									solverBodyB->getVelocityInLocalPoint(rel_pos2,vel2);
+									solverBodyB->getVelocityInLocalPointObsolete(rel_pos2,vel2);
 
 
 									vel = vel1 - vel2;
@@ -1131,10 +1248,9 @@ void processSolverTask(void* userPtr, void* lsMemory)
 
 									 
 
-									btScalar penVel = -constraint.m_penetration/taskDesc.m_commandData.m_manifoldSetup.m_solverInfo.m_timeStep;
-									
-									constraint.m_penetration *= (taskDesc.m_commandData.m_manifoldSetup.m_solverInfo.m_erp/taskDesc.m_commandData.m_manifoldSetup.m_solverInfo.m_timeStep);
-								
+									btScalar erp = taskDesc.m_commandData.m_manifoldSetup.m_solverInfo.m_erp;
+									btScalar timeStep = taskDesc.m_commandData.m_manifoldSetup.m_solverInfo.m_timeStep;
+																	
 									constraint.m_restitution = rest;
 									constraint.m_appliedImpulse = cp.m_appliedImpulse*taskDesc.m_commandData.m_manifoldSetup.m_solverInfo.m_warmstartingFactor;
 									if (constraint.m_appliedImpulse!= 0.f)
@@ -1143,6 +1259,26 @@ void processSolverTask(void* userPtr, void* lsMemory)
 											solverBodyA->applyImpulse(constraint.m_contactNormal*rb0readonly->getInvMass(),constraint.m_angularComponentA,constraint.m_appliedImpulse);
 										if (solverBodyB)
 											solverBodyB->applyImpulse(constraint.m_contactNormal*rb1readonly->getInvMass(),constraint.m_angularComponentB,-constraint.m_appliedImpulse);
+									}
+
+									{
+										btScalar rel_vel;
+										btScalar vel1Dotn = constraint.m_contactNormal.dot(rb0readonly?rb0readonly->getLinearVelocity():btVector3(0,0,0)) 
+											+ constraint.m_relpos1CrossNormal.dot(rb0readonly?rb0readonly->getAngularVelocity():btVector3(0,0,0));
+										btScalar vel2Dotn = constraint.m_contactNormal.dot(rb1readonly?rb1readonly->getLinearVelocity():btVector3(0,0,0)) 
+											+ constraint.m_relpos2CrossNormal.dot(rb1readonly?rb1readonly->getAngularVelocity():btVector3(0,0,0));
+
+										rel_vel = vel1Dotn-vel2Dotn;
+
+										btScalar positionalError = 0.f;
+										positionalError = -constraint.m_penetration * erp/timeStep;
+										btScalar	velocityError = constraint.m_restitution - rel_vel;// * damping;
+										btScalar  penetrationImpulse = positionalError*constraint.m_jacDiagABInv;
+										btScalar velocityImpulse = velocityError *constraint.m_jacDiagABInv;
+										constraint.m_rhs = penetrationImpulse+velocityImpulse;
+										constraint.m_cfm = 0.f;
+										constraint.m_lowerLimit = 0;
+										constraint.m_upperLimit = 1e10f;
 									}
 
 
@@ -1191,6 +1327,27 @@ void processSolverTask(void* userPtr, void* lsMemory)
 										constraint.m_relpos2CrossNormal = ftorqueAxis0;
 										constraint.m_angularComponentB = rb1readonly->getInvInertiaTensorWorld()*ftorqueAxis0;
 									}
+
+									{
+										btScalar rel_vel;
+										btScalar vel1Dotn = constraint.m_contactNormal.dot(rb0readonly?rb0readonly->getLinearVelocity():btVector3(0,0,0)) 
+											+ constraint.m_relpos1CrossNormal.dot(rb0readonly?rb0readonly->getAngularVelocity():btVector3(0,0,0));
+										btScalar vel2Dotn = constraint.m_contactNormal.dot(rb1readonly?rb1readonly->getLinearVelocity():btVector3(0,0,0)) 
+											+ constraint.m_relpos2CrossNormal.dot(rb1readonly?rb1readonly->getAngularVelocity():btVector3(0,0,0));
+
+										rel_vel = vel1Dotn-vel2Dotn;
+
+										btScalar positionalError = 0.f;
+										positionalError = 0;
+										constraint.m_restitution=0.f;
+
+										btSimdScalar velocityError = constraint.m_restitution - rel_vel;
+										btSimdScalar	velocityImpulse = velocityError * btSimdScalar(constraint.m_jacDiagABInv);
+										constraint.m_rhs = velocityImpulse;
+										constraint.m_cfm = 0.f;
+										constraint.m_lowerLimit = 0;
+										constraint.m_upperLimit = 1e10f;
+									}
 								}
 
 								{
@@ -1216,6 +1373,27 @@ void processSolverTask(void* userPtr, void* lsMemory)
 										btVector3 ftorqueAxis0 = rel_pos2.cross(constraint.m_contactNormal);
 										constraint.m_relpos2CrossNormal = ftorqueAxis0;
 										constraint.m_angularComponentB = rb1readonly->getInvInertiaTensorWorld()*ftorqueAxis0;
+									}
+
+									{
+										btScalar rel_vel;
+										btScalar vel1Dotn = constraint.m_contactNormal.dot(rb0readonly?rb0readonly->getLinearVelocity():btVector3(0,0,0)) 
+											+ constraint.m_relpos1CrossNormal.dot(rb0readonly?rb0readonly->getAngularVelocity():btVector3(0,0,0));
+										btScalar vel2Dotn = constraint.m_contactNormal.dot(rb1readonly?rb1readonly->getLinearVelocity():btVector3(0,0,0)) 
+											+ constraint.m_relpos2CrossNormal.dot(rb1readonly?rb1readonly->getAngularVelocity():btVector3(0,0,0));
+
+										rel_vel = vel1Dotn-vel2Dotn;
+
+										btScalar positionalError = 0.f;
+										positionalError = 0;
+										constraint.m_restitution=0.f;
+
+										btSimdScalar velocityError = constraint.m_restitution - rel_vel;
+										btSimdScalar	velocityImpulse = velocityError * btSimdScalar(constraint.m_jacDiagABInv);
+										constraint.m_rhs = velocityImpulse;
+										constraint.m_cfm = 0.f;
+										constraint.m_lowerLimit = 0;
+										constraint.m_upperLimit = 1e10f;
 									}
 								}
 
@@ -1356,32 +1534,34 @@ void processSolverTask(void* userPtr, void* lsMemory)
 							int offsA = localRBs.insert(solverBodyIdA);		
 							int offsB = localRBs.insert(solverBodyIdB);
 
-							bool haveConstraint = false;
-
+							int numConstraintRows = 0;
+#ifdef NOT_YET
 							// Setup the constraint
 							switch (type)
 							{
 							case POINT2POINT_CONSTRAINT_TYPE:
 								{
-									SpuSolverConstraint& spuConstraint = localMemory->m_tempConstraint[0];
+									btSolverConstraint* spuConstraint = &localMemory->m_tempConstraint[0];
 									btPoint2PointConstraint* p2pC = (btPoint2PointConstraint*)currConstraint;
 
-									spuConstraint.m_localOffsetBodyA = offsA;
-									spuConstraint.m_localOffsetBodyB = offsB;
-									spuConstraint.m_constraintType = type;
+									spuConstraint->m_solverBodyIdA = offsA;
+									spuConstraint->m_solverBodyIdB = offsB;
+									spuConstraint->m_constraintType = type;
 
 									// Compute the anchor positions
 									btVector3 pivotAinW = rb0->getCenterOfMassTransform()*p2pC->m_pivotInA;
 									btVector3 pivotBinW = rb1->getCenterOfMassTransform()*p2pC->m_pivotInB;
 	
-									setupLinearConstraintWorld(spuConstraint, rb0, rb1, pivotAinW, pivotBinW, solverInfo);
-
-									haveConstraint = true; //We have one constraint
+									//setupLinearConstraintWorld(spuConstraint, rb0, rb1, pivotAinW, pivotBinW, solverInfo);
+									//setupConstraint(spuConstraint,rb0,localMemory->m_tempSPUBodies[0],rb1,localMemory->m_tempSPUBodies[1],pivotAinW,pivotBinW,solverInfo);
+									
+									numConstraintRows = 3; //We have 3 constraint rows
 								}
 								break;
+
 							case HINGE_CONSTRAINT_TYPE:
 								{
-									SpuSolverConstraint& spuConstraint = localMemory->m_tempConstraint[0];
+									btSolverConstraint& spuConstraint = localMemory->m_tempConstraint[0];
 									btHingeConstraint* hC = (btHingeConstraint*)currConstraint;
 
 									spuConstraint.m_localOffsetBodyA = offsA;
@@ -1393,7 +1573,7 @@ void processSolverTask(void* userPtr, void* lsMemory)
 									btTransform frameBinW = rb1->getCenterOfMassTransform()*hC->m_rbBFrame;
 
 									// Setup the linear part
-									setupLinearConstraintWorld(spuConstraint, rb0, rb1, frameAinW.getOrigin(), frameBinW.getOrigin(), solverInfo);
+									//setupLinearConstraintWorld(spuConstraint, rb0, rb1, frameAinW.getOrigin(), frameBinW.getOrigin(), solverInfo);
 
 									// Setup angular part
 									btVector3 jacInv; 
@@ -1472,7 +1652,7 @@ void processSolverTask(void* userPtr, void* lsMemory)
 								break;
 							case CONETWIST_CONSTRAINT_TYPE:
 								{
-									SpuSolverConstraint& spuConstraint = localMemory->m_tempConstraint[0];
+									btSolverConstraint& spuConstraint = localMemory->m_tempConstraint[0];
 									btConeTwistConstraint* ctC = (btConeTwistConstraint*)currConstraint;
 
 									spuConstraint.m_localOffsetBodyA = offsA;
@@ -1580,22 +1760,24 @@ void processSolverTask(void* userPtr, void* lsMemory)
 
 									haveConstraint = true; //We have one constraint
 								}
+								
 								break;
+
 							default:
 								;
 							}
-							
+#endif //NOT_YET
 
-							if (haveConstraint)
+							if (numConstraintRows)
 							{
 								//DMA it
-								int dmaSize = sizeof(SpuSolverConstraint);
+								int dmaSize = sizeof(btSolverConstraint)*numConstraintRows;
 								uint64_t dmaPpuAddress2 = reinterpret_cast<uint64_t> (taskDesc.m_solverData.m_solverConstraintList + 
 									hashCell.m_constraintListOffset + numOutConstraints);
 								cellDmaLargePut(&localMemory->m_tempConstraint[0], dmaPpuAddress2, dmaSize, DMA_TAG(1), 0, 0);
 								cellDmaWaitTagStatusAll(DMA_MASK(1));
 
-								numOutConstraints++;
+								numOutConstraints+=numConstraintRows;
 							}
 
 						}
@@ -1682,11 +1864,11 @@ void processSolverTask(void* userPtr, void* lsMemory)
 				// Process the constraints in packets
 				if (hashCell.m_numConstraints)
 				{
-					const size_t maxConstraintsPerPacket = memTemporaryStorage(localMemory) / sizeof(SpuSolverConstraint);
+					const size_t maxConstraintsPerPacket = memTemporaryStorage(localMemory) / sizeof(btSolverConstraint);
 					size_t constraintsToProcess = hashCell.m_numConstraints;
 					size_t constraintListOffset = hashCell.m_constraintListOffset;
 
-					SpuSolverConstraint* constraints = allocConstraintStorage(localMemory, maxConstraintsPerPacket);
+					btSolverConstraint* constraints = allocConstraintStorage(localMemory, maxConstraintsPerPacket);
 
 					while (constraintsToProcess > 0)
 					{
@@ -1694,7 +1876,7 @@ void processSolverTask(void* userPtr, void* lsMemory)
 
 						// DMA the constraints
 						{
-							int dmaSize = sizeof(SpuSolverConstraint)*packetSize;
+							int dmaSize = sizeof(btSolverConstraint)*packetSize;
 							uint64_t dmaPpuAddress2 = reinterpret_cast<uint64_t> (taskDesc.m_solverData.m_solverConstraintList + constraintListOffset);
 							cellDmaLargeGet(constraints, dmaPpuAddress2, dmaSize, DMA_TAG(1), 0, 0);
 						}
@@ -1704,16 +1886,16 @@ void processSolverTask(void* userPtr, void* lsMemory)
 						// Solve
 						for (size_t j = 0; j < packetSize; ++j)
 						{
-							SpuSolverConstraint& constraint = constraints[j];
-							btSolverBody& bodyA = bodyList[constraint.m_localOffsetBodyA];
-							btSolverBody& bodyB = bodyList[constraint.m_localOffsetBodyB];
+							btSolverConstraint& constraint = constraints[j];
+							btSolverBody& bodyA = bodyList[constraint.m_solverBodyIdA];
+							btSolverBody& bodyB = bodyList[constraint.m_solverBodyIdB];
 
-							solveConstraint(constraint, bodyA, bodyB);
+							//solveConstraint(constraint, bodyA, bodyB);
 						}
 						
 						// Write back the constraints for accumulated stuff
 						{
-							int dmaSize = sizeof(SpuSolverConstraint)*packetSize;
+							int dmaSize = sizeof(btSolverConstraint)*packetSize;
 							uint64_t dmaPpuAddress2 = reinterpret_cast<uint64_t> (taskDesc.m_solverData.m_solverConstraintList + constraintListOffset);					
 							cellDmaLargePut(constraints, dmaPpuAddress2, dmaSize, DMA_TAG(1), 0, 0);
 						}
@@ -1758,7 +1940,7 @@ void processSolverTask(void* userPtr, void* lsMemory)
 								btSolverBody& bodyA = bodyList[contact.m_solverBodyIdA];
 								btSolverBody& bodyB = bodyList[contact.m_solverBodyIdB];
 
-								solveContact(bodyA, bodyB,contact);
+								SpuResolveSingleConstraintRowGeneric(bodyA, bodyB,contact);
 							}
 						}
 
@@ -1770,10 +1952,14 @@ void processSolverTask(void* userPtr, void* lsMemory)
 								btSolverBody& bodyB = bodyList[contact.m_solverBodyIdB];
 
 								btSolverConstraint& frictionConstraint1 = internalConstraints[j + 1];
-								solveFriction(bodyA, bodyB, frictionConstraint1,contact.m_appliedImpulse);
+								frictionConstraint1.m_lowerLimit = frictionConstraint1.m_friction*btScalar(-contact.m_appliedImpulse);
+								frictionConstraint1.m_upperLimit = frictionConstraint1.m_friction*btScalar(contact.m_appliedImpulse);
+								SpuResolveSingleConstraintRowGeneric(bodyA, bodyB, frictionConstraint1);
 
 								btSolverConstraint& frictionConstraint2 = internalConstraints[j + 2];
-								solveFriction(bodyA, bodyB, frictionConstraint2,contact.m_appliedImpulse);
+								frictionConstraint2.m_lowerLimit = frictionConstraint2.m_friction*btScalar(-contact.m_appliedImpulse);
+								frictionConstraint2.m_upperLimit = frictionConstraint2.m_friction*btScalar(contact.m_appliedImpulse);
+								SpuResolveSingleConstraintRowGeneric(bodyA, bodyB, frictionConstraint2);
 							}
 						}
 
@@ -1857,8 +2043,8 @@ void processSolverTask(void* userPtr, void* lsMemory)
 				
 					if (solverBody->m_invMass > 0)
 					{
-						localBody->setLinearVelocity(solverBody->m_linearVelocity);
-						localBody->setAngularVelocity(solverBody->m_angularVelocity);
+						localBody->setLinearVelocity(localBody->getLinearVelocity()+solverBody->m_deltaLinearVelocity);
+						localBody->setAngularVelocity(localBody->getAngularVelocity()+solverBody->m_deltaAngularVelocity);
 					}
 					localBody->setCompanionId(-1);
 				}
@@ -1940,7 +2126,7 @@ void processSolverTask(void* userPtr, void* lsMemory)
 									cellDmaWaitTagStatusAll(DMA_MASK(1));
 
 									
-									*tmpMem = btMin(btScalar(3.),contact.m_appliedImpulse);
+									*tmpMem = btMin(btScalar(3.),btScalar(contact.m_appliedImpulse));
 
 									///DMA out
 									cellDmaLargePut(tmpMem,dmaPpuAddress2,dmasize,DMA_TAG(1),0,0);
@@ -1965,5 +2151,3 @@ void processSolverTask(void* userPtr, void* lsMemory)
 //		btAssert(0);
 	}
 }
-
-#endif //CONSTRAINT_SOLVER_IS_BEING_REFACTORED_DURING_DECEMBER_2008

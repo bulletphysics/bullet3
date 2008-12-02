@@ -1,4 +1,3 @@
-#ifdef CONSTRAINT_SOLVER_IS_BEING_REFACTORED_DURING_DECEMBER_2008
 /*
 Bullet Continuous Collision Detection and Physics Library - Parallel solver
 Copyright (c) 2007 Starbreeze Studios
@@ -261,7 +260,7 @@ public:
 btAlignedObjectArray<btSolverBody> solverBodyPool_persist;
 btAlignedObjectArray<uint32_t> solverBodyOffsetList_persist;
 btAlignedObjectArray<btSolverConstraint> solverInternalConstraintPool_persist;
-btAlignedObjectArray<SpuSolverConstraint> solverConstraintPool_persist;
+btAlignedObjectArray<btSolverConstraint> solverConstraintPool_persist;
 
 
 void btParallelSequentialImpulseSolver::allSolved (const btContactSolverInfo& info,class btIDebugDraw* debugDrawer, btStackAlloc* stackAlloc)
@@ -353,7 +352,7 @@ void btParallelSequentialImpulseSolver::allSolved (const btContactSolverInfo& in
 	btSolverConstraint* solverInternalConstraintPool = &solverInternalConstraintPool_persist[0];
 	
 	solverConstraintPool_persist.resize(numConstraints);
-	SpuSolverConstraint* solverConstraintPool = &solverConstraintPool_persist[0];
+	btSolverConstraint* solverConstraintPool = &solverConstraintPool_persist[0];
 
 	// Setup all the moving rigid bodies
 	{
@@ -603,7 +602,9 @@ SpuSolverTaskDesc* SolverTaskScheduler::getTask()
 
 
 	SpuSolverTaskDesc* result = &m_taskDescriptors[m_currentTask];
-	memset(result, 0, sizeof(SpuSolverTaskDesc));
+	int so = sizeof(SpuSolverTaskDesc);
+
+	memset(result, 0, so);
 	result->m_taskId = m_currentTask;
 
 	return result;
@@ -640,4 +641,3 @@ void SolverTaskScheduler::flushTasks()
 		m_numBusyTasks--;
 	}
 }
-#endif //#ifdef CONSTRAINT_SOLVER_IS_BEING_REFACTORED_DURING_DECEMBER_2008

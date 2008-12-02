@@ -1,4 +1,3 @@
-#ifdef CONSTRAINT_SOLVER_IS_BEING_REFACTORED_DURING_DECEMBER_2008
 /*
 Bullet Continuous Collision Detection and Physics Library - Parallel solver
 Copyright (c) 2007 Starbreeze Studios
@@ -114,74 +113,7 @@ inline unsigned int spuGetHashCellIndex(int x, int y, int z)
 
 
 
-ATTRIBUTE_ALIGNED16(struct) SpuSolverConstraint
-{
-	BT_DECLARE_ALIGNED_ALLOCATOR();
 
-	uint16_t			m_localOffsetBodyA;
-	uint16_t			m_localOffsetBodyB;
-	uint16_t			m_constraintType;
-	struct 
-	{
-		uint16_t		m_useLinear : 1;
-		
-		uint16_t		m_limit1	: 1;
-		uint16_t		m_limit2	: 1;
-		uint16_t		m_limit3	: 1;
-		uint16_t		m_limit4	: 1;
-		uint16_t		m_limit5	: 1;
-		uint16_t		m_limit6	: 1;
-
-		uint16_t		m_motor1	: 1;
-		uint16_t		m_motor2	: 1;
-		uint16_t		m_motor3	: 1;
-		uint16_t		m_motor4	: 1;
-		uint16_t		m_motor5	: 1;
-		uint16_t		m_motor6	: 1;
-	}					m_flags;
-
-	// Linear parts, used by all constraints
-	btVector3			m_relPos1;
-	btVector3	m_relPos2;
-	btVector3	m_jacdiagABInv;		//Jacobian inverse multiplied by gamma (damping) for each axis
-	btVector3	m_linearBias;		//depth*tau/(dt*gamma) along each axis
-
-	// Joint-specific parts
-	union
-	{
-		struct 
-		{
-			btVector3	m_frameAinW[3];
-			btVector3	m_frameBinW[3];
-
-			// For angular
-			btVector3	m_angJacdiagABInv;		//1/j 
-			btVector3	m_angularBias;			//error/dt, in x/y.		limit error*bias factor / (dt * relaxation factor) in z
-			
-			// For limit
-			float				m_limitAccumulatedImpulse;
-			float				m_limitJacFactor;		//limitSign*relaxation factor
-
-			// For motor
-			float				m_motorVelocity;
-			float				m_motorImpulse;
-		} hinge;
-		
-		struct  
-		{
-			btVector3	m_swingAxis;
-			btVector3	m_twistAxis;
-
-			float				m_swingError;
-			float				m_swingJacInv;
-			float				m_swingLimitImpulse;
-
-			float				m_twistError;
-			float				m_twistJacInv;
-			float				m_twistLimitImpulse;
-		} conetwist;
-	};
-};
 
 
 ATTRIBUTE_ALIGNED16(struct) SpuSolverDataDesc
@@ -190,8 +122,8 @@ ATTRIBUTE_ALIGNED16(struct) SpuSolverDataDesc
 
 	SpuSolverHash*					m_solverHash;
 	btSolverBody*					m_solverBodyList;
-	btSolverConstraint*	m_solverInternalConstraintList;
-	SpuSolverConstraint*			m_solverConstraintList;
+	btSolverConstraint*				m_solverInternalConstraintList;
+	btSolverConstraint*				m_solverConstraintList;
 	uint32_t*						m_solverBodyOffsetList;
 };
 
@@ -249,5 +181,3 @@ inline bool constraintTypeSupported(btTypedConstraintType type)
 }
 
 #endif
-
-#endif //CONSTRAINT_SOLVER_IS_BEING_REFACTORED_DURING_DECEMBER_2008

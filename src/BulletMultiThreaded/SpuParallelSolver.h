@@ -1,4 +1,3 @@
-#ifdef CONSTRAINT_SOLVER_IS_BEING_REFACTORED_DURING_DECEMBER_2008
 /*
 Bullet Continuous Collision Detection and Physics Library - Parallel solver
 Copyright (c) 2007 Starbreeze Studios
@@ -74,4 +73,3 @@ public:
 };
 
 #endif
-#endif //CONSTRAINT_SOLVER_IS_BEING_REFACTORED_DURING_DECEMBER_2008

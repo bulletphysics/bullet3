@@ -529,7 +529,7 @@ btScalar btSequentialImpulseConstraintSolver::solveGroupCacheFriendlySetup(btCol
 		{
 			int i;
 			btPersistentManifold* manifold = 0;
-	btCollisionObject* colObj0=0,*colObj1=0;
+			btCollisionObject* colObj0=0,*colObj1=0;
 
 
 			for (i=0;i<numManifolds;i++)
