@@ -63,7 +63,7 @@ SIMD_FORCE_INLINE void btSequentialImpulseConstraintSolver::resolveSingleConstra
 	__m128	upperLimit1 = _mm_set1_ps(c.m_upperLimit);
 	__m128 deltaImpulse = _mm_sub_ps(_mm_set1_ps(c.m_rhs), _mm_mul_ps(_mm_set1_ps(c.m_appliedImpulse),_mm_set1_ps(c.m_cfm)));
 	__m128 deltaVel1Dotn	=	_mm_add_ps(_vmathVfDot3(c.m_contactNormal.mVec128,body1.m_deltaLinearVelocity.mVec128), _vmathVfDot3(c.m_relpos1CrossNormal.mVec128,body1.m_deltaAngularVelocity.mVec128));
-	__m128 deltaVel2Dotn	=	_mm_add_ps(_vmathVfDot3((-c.m_contactNormal).mVec128,body2.m_deltaLinearVelocity.mVec128) ,_vmathVfDot3(c.m_relpos2CrossNormal.mVec128,body2.m_deltaAngularVelocity.mVec128));
+	__m128 deltaVel2Dotn	=	_mm_sub_ps(_vmathVfDot3(c.m_relpos2CrossNormal.mVec128,body2.m_deltaAngularVelocity.mVec128),_vmathVfDot3((c.m_contactNormal).mVec128,body2.m_deltaLinearVelocity.mVec128));
 	deltaImpulse	=	_mm_sub_ps(deltaImpulse,_mm_mul_ps(deltaVel1Dotn,_mm_set1_ps(c.m_jacDiagABInv)));
 	deltaImpulse	=	_mm_sub_ps(deltaImpulse,_mm_mul_ps(deltaVel2Dotn,_mm_set1_ps(c.m_jacDiagABInv)));
 	btSimdScalar sum = _mm_add_ps(cpAppliedImp,deltaImpulse);
@@ -77,11 +77,11 @@ SIMD_FORCE_INLINE void btSequentialImpulseConstraintSolver::resolveSingleConstra
 	deltaImpulse = _mm_or_ps( _mm_and_ps(resultUpperLess, deltaImpulse), _mm_andnot_ps(resultUpperLess, upperMinApplied) );
 	c.m_appliedImpulse = _mm_or_ps( _mm_and_ps(resultUpperLess, c.m_appliedImpulse), _mm_andnot_ps(resultUpperLess, upperLimit1) );
 	__m128	linearComponentA = _mm_mul_ps(c.m_contactNormal.mVec128,_mm_set1_ps(body1.m_invMass));
-	__m128	linearComponentB = _mm_mul_ps((-c.m_contactNormal).mVec128,_mm_set1_ps(body2.m_invMass));
+	__m128	linearComponentB = _mm_mul_ps((c.m_contactNormal).mVec128,_mm_set1_ps(body2.m_invMass));
 	__m128 impulseMagnitude = deltaImpulse;
 	body1.m_deltaLinearVelocity.mVec128 = _mm_add_ps(body1.m_deltaLinearVelocity.mVec128,_mm_mul_ps(linearComponentA,impulseMagnitude));
 	body1.m_deltaAngularVelocity.mVec128 = _mm_add_ps(body1.m_deltaAngularVelocity.mVec128 ,_mm_mul_ps(c.m_angularComponentA.mVec128,impulseMagnitude));
-	body2.m_deltaLinearVelocity.mVec128 = _mm_add_ps(body2.m_deltaLinearVelocity.mVec128,_mm_mul_ps(linearComponentB,impulseMagnitude));
+	body2.m_deltaLinearVelocity.mVec128 = _mm_sub_ps(body2.m_deltaLinearVelocity.mVec128,_mm_mul_ps(linearComponentB,impulseMagnitude));
 	body2.m_deltaAngularVelocity.mVec128 = _mm_add_ps(body2.m_deltaAngularVelocity.mVec128 ,_mm_mul_ps(c.m_angularComponentB.mVec128,impulseMagnitude));
 #else
 	resolveSingleConstraintRowGeneric(body1,body2,c);
@@ -129,21 +129,22 @@ SIMD_FORCE_INLINE void btSequentialImpulseConstraintSolver::resolveSingleConstra
 	__m128	upperLimit1 = _mm_set1_ps(c.m_upperLimit);
 	__m128 deltaImpulse = _mm_sub_ps(_mm_set1_ps(c.m_rhs), _mm_mul_ps(_mm_set1_ps(c.m_appliedImpulse),_mm_set1_ps(c.m_cfm)));
 	__m128 deltaVel1Dotn	=	_mm_add_ps(_vmathVfDot3(c.m_contactNormal.mVec128,body1.m_deltaLinearVelocity.mVec128), _vmathVfDot3(c.m_relpos1CrossNormal.mVec128,body1.m_deltaAngularVelocity.mVec128));
-	__m128 deltaVel2Dotn	=	_mm_add_ps(_vmathVfDot3((-c.m_contactNormal).mVec128,body2.m_deltaLinearVelocity.mVec128) ,_vmathVfDot3(c.m_relpos2CrossNormal.mVec128,body2.m_deltaAngularVelocity.mVec128));
+	__m128 deltaVel2Dotn	=	_mm_sub_ps(_vmathVfDot3(c.m_relpos2CrossNormal.mVec128,body2.m_deltaAngularVelocity.mVec128),_vmathVfDot3((c.m_contactNormal).mVec128,body2.m_deltaLinearVelocity.mVec128));
 	deltaImpulse	=	_mm_sub_ps(deltaImpulse,_mm_mul_ps(deltaVel1Dotn,_mm_set1_ps(c.m_jacDiagABInv)));
 	deltaImpulse	=	_mm_sub_ps(deltaImpulse,_mm_mul_ps(deltaVel2Dotn,_mm_set1_ps(c.m_jacDiagABInv)));
 	btSimdScalar sum = _mm_add_ps(cpAppliedImp,deltaImpulse);
-	btSimdScalar resultLowerLess;
+	btSimdScalar resultLowerLess,resultUpperLess;
 	resultLowerLess = _mm_cmplt_ps(sum,lowerLimit1);
+	resultUpperLess = _mm_cmplt_ps(sum,upperLimit1);
 	__m128 lowMinApplied = _mm_sub_ps(lowerLimit1,cpAppliedImp);
 	deltaImpulse = _mm_or_ps( _mm_and_ps(resultLowerLess, lowMinApplied), _mm_andnot_ps(resultLowerLess, deltaImpulse) );
 	c.m_appliedImpulse = _mm_or_ps( _mm_and_ps(resultLowerLess, lowerLimit1), _mm_andnot_ps(resultLowerLess, sum) );
 	__m128	linearComponentA = _mm_mul_ps(c.m_contactNormal.mVec128,_mm_set1_ps(body1.m_invMass));
-	__m128	linearComponentB = _mm_mul_ps((-c.m_contactNormal).mVec128,_mm_set1_ps(body2.m_invMass));
+	__m128	linearComponentB = _mm_mul_ps((c.m_contactNormal).mVec128,_mm_set1_ps(body2.m_invMass));
 	__m128 impulseMagnitude = deltaImpulse;
 	body1.m_deltaLinearVelocity.mVec128 = _mm_add_ps(body1.m_deltaLinearVelocity.mVec128,_mm_mul_ps(linearComponentA,impulseMagnitude));
 	body1.m_deltaAngularVelocity.mVec128 = _mm_add_ps(body1.m_deltaAngularVelocity.mVec128 ,_mm_mul_ps(c.m_angularComponentA.mVec128,impulseMagnitude));
-	body2.m_deltaLinearVelocity.mVec128 = _mm_add_ps(body2.m_deltaLinearVelocity.mVec128,_mm_mul_ps(linearComponentB,impulseMagnitude));
+	body2.m_deltaLinearVelocity.mVec128 = _mm_sub_ps(body2.m_deltaLinearVelocity.mVec128,_mm_mul_ps(linearComponentB,impulseMagnitude));
 	body2.m_deltaAngularVelocity.mVec128 = _mm_add_ps(body2.m_deltaAngularVelocity.mVec128 ,_mm_mul_ps(c.m_angularComponentB.mVec128,impulseMagnitude));
 #else
 	resolveSingleConstraintRowLowerLimit(body1,body2,c);
