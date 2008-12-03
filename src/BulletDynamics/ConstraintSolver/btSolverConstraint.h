@@ -34,8 +34,9 @@ ATTRIBUTE_ALIGNED16 (struct)	btSolverConstraint
 	btVector3		m_contactNormal;
 
 	btVector3		m_relpos2CrossNormal;
-	btVector3		m_angularComponentA;
+	//btVector3		m_contactNormal2;//usually m_contactNormal2 == -m_contactNormal
 
+	btVector3		m_angularComponentA;
 	btVector3	m_angularComponentB;
 	
 	mutable btSimdScalar	m_appliedPushImpulse;
