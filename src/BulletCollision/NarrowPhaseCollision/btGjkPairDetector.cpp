@@ -150,7 +150,8 @@ void btGjkPairDetector::getClosestPoints(const ClosestPointInput& input,Result& 
 			// potential exit, they don't overlap
 			if ((delta > btScalar(0.0)) && (delta * delta > squaredDistance * input.m_maximumDistanceSquared)) 
 			{
-				checkPenetration = false;
+				checkSimplex=true;
+				//checkPenetration = false;
 				break;
 			}
 

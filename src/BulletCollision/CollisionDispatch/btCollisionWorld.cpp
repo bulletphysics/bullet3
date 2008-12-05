@@ -69,6 +69,7 @@ btCollisionWorld::~btCollisionWorld()
 			//
 			getBroadphase()->getOverlappingPairCache()->cleanProxyFromPairs(bp,m_dispatcher1);
 			getBroadphase()->destroyProxy(bp,m_dispatcher1);
+			collisionObject->setBroadphaseHandle(0);
 		}
 	}
 
