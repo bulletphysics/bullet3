@@ -59,6 +59,9 @@ ATTRIBUTE_ALIGNED16(class) btCompoundShape	: public btCollisionShape
 
 	btDbvt*							m_dynamicAabbTree;
 
+	///increment m_updateRevision when adding/removing/replacing child shapes, so that some caches can be updated
+	int								m_updateRevision;
+
 public:
 	BT_DECLARE_ALIGNED_ALLOCATOR();
 
@@ -152,6 +155,10 @@ public:
 	///of the collision object by the principal transform.
 	void calculatePrincipalAxisTransform(btScalar* masses, btTransform& principal, btVector3& inertia) const;
 
+	int	getUpdateRevision() const
+	{
+		return m_updateRevision;
+	}
 
 private:
 	btScalar	m_collisionMargin;

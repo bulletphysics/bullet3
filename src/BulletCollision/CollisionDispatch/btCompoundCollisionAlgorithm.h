@@ -26,6 +26,7 @@ class btDispatcher;
 #include "btCollisionCreateFunc.h"
 #include "LinearMath/btAlignedObjectArray.h"
 class btDispatcher;
+class btCollisionObject;
 
 /// btCompoundCollisionAlgorithm  supports collision between CompoundCollisionShapes and other collision shapes
 class btCompoundCollisionAlgorithm  : public btActivatingCollisionAlgorithm
@@ -35,7 +36,13 @@ class btCompoundCollisionAlgorithm  : public btActivatingCollisionAlgorithm
 
 	class btPersistentManifold*	m_sharedManifold;
 	bool					m_ownsManifold;
+
+	int	m_compoundShapeRevision;//to keep track of changes, so that childAlgorithm array can be updated
 	
+	void	removeChildAlgorithms();
+	
+	void	preallocateChildAlgorithms(btCollisionObject* body0,btCollisionObject* body1);
+
 public:
 
 	btCompoundCollisionAlgorithm( const btCollisionAlgorithmConstructionInfo& ci,btCollisionObject* body0,btCollisionObject* body1,bool isSwapped);
