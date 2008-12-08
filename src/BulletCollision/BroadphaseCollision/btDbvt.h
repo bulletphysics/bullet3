@@ -146,9 +146,7 @@ struct	btDbvtAabbMm
 	DBVT_INLINE btScalar			ProjectMinimum(const btVector3& v,unsigned signs) const;
 	DBVT_INLINE friend bool			Intersect(	const btDbvtAabbMm& a,
 		const btDbvtAabbMm& b);
-	DBVT_INLINE friend bool			Intersect(	const btDbvtAabbMm& a,
-		const btDbvtAabbMm& b,
-		const btTransform& xform);
+	
 	DBVT_INLINE friend bool			Intersect(	const btDbvtAabbMm& a,
 		const btVector3& b);
 
@@ -530,21 +528,7 @@ DBVT_INLINE bool		Intersect(	const btDbvtAabbMm& a,
 #endif
 }
 
-//
-DBVT_INLINE bool		Intersect(	const btDbvtAabbMm& a,
-								  const btDbvtAabbMm& b,
-								  const btTransform& xform)
-{
-	const btVector3		d0=xform*b.Center()-a.Center();
-	const btVector3		d1=d0*xform.getBasis();
-	btScalar			s0[2]={0,0};
-	btScalar			s1[2]={dot(xform.getOrigin(),d0),s1[0]};
-	a.AddSpan(d0,s0[0],s0[1]);
-	b.AddSpan(d1,s1[0],s1[1]);
-	if(s0[0]>(s1[1])) return(false);
-	if(s0[1]<(s1[0])) return(false);
-	return(true);
-}
+
 
 //
 DBVT_INLINE bool		Intersect(	const btDbvtAabbMm& a,

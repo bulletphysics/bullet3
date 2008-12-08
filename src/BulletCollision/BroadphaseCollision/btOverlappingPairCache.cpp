@@ -135,7 +135,8 @@ void	btHashedOverlappingPairCache::removeOverlappingPairsContainingProxy(btBroad
 btBroadphasePair* btHashedOverlappingPairCache::findPair(btBroadphaseProxy* proxy0, btBroadphaseProxy* proxy1)
 {
 	gFindPairs++;
-	if(proxy0>proxy1) btSwap(proxy0,proxy1);
+	if(proxy0->m_uniqueId>proxy1->m_uniqueId) 
+		btSwap(proxy0,proxy1);
 	int proxyId1 = proxy0->getUid();
 	int proxyId2 = proxy1->getUid();
 
@@ -211,7 +212,8 @@ void	btHashedOverlappingPairCache::growTables()
 
 btBroadphasePair* btHashedOverlappingPairCache::internalAddPair(btBroadphaseProxy* proxy0, btBroadphaseProxy* proxy1)
 {
-	if(proxy0>proxy1) btSwap(proxy0,proxy1);
+	if(proxy0->m_uniqueId>proxy1->m_uniqueId) 
+		btSwap(proxy0,proxy1);
 	int proxyId1 = proxy0->getUid();
 	int proxyId2 = proxy1->getUid();
 
@@ -270,7 +272,8 @@ btBroadphasePair* btHashedOverlappingPairCache::internalAddPair(btBroadphaseProx
 void* btHashedOverlappingPairCache::removeOverlappingPair(btBroadphaseProxy* proxy0, btBroadphaseProxy* proxy1,btDispatcher* dispatcher)
 {
 	gRemovePairs++;
-	if(proxy0>proxy1) btSwap(proxy0,proxy1);
+	if(proxy0->m_uniqueId>proxy1->m_uniqueId) 
+		btSwap(proxy0,proxy1);
 	int proxyId1 = proxy0->getUid();
 	int proxyId2 = proxy1->getUid();
 

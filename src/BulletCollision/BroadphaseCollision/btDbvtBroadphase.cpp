@@ -100,7 +100,8 @@ struct	btDbvtTreeCollider : btDbvt::ICollide
 			btDbvtProxy*	pa=(btDbvtProxy*)na->data;
 			btDbvtProxy*	pb=(btDbvtProxy*)nb->data;
 #if DBVT_BP_SORTPAIRS
-			if(pa>pb) btSwap(pa,pb);
+			if(pa->m_uniqueId>pb->m_uniqueId) 
+				btSwap(pa,pb);
 #endif
 			pbp->m_paircache->addOverlappingPair(pa,pb);
 			++pbp->m_newpairs;
@@ -411,7 +412,8 @@ void							btDbvtBroadphase::collide(btDispatcher* dispatcher)
 				if(!Intersect(pa->leaf->volume,pb->leaf->volume))
 				{
 #if DBVT_BP_SORTPAIRS
-					if(pa>pb) btSwap(pa,pb);
+					if(pa->m_uniqueId>pb->m_uniqueId) 
+						btSwap(pa,pb);
 #endif
 					m_paircache->removeOverlappingPair(pa,pb,dispatcher);
 					--ni;--i;

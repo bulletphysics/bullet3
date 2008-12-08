@@ -187,7 +187,7 @@ BT_DECLARE_ALIGNED_ALLOCATOR();
 	{
 
 		//keep them sorted, so the std::set operations work
-		if (&proxy0 < &proxy1)
+		if (proxy0.m_uniqueId < proxy1.m_uniqueId)
         { 
             m_pProxy0 = &proxy0; 
             m_pProxy1 = &proxy1; 
@@ -228,8 +228,8 @@ class btBroadphasePairSortPredicate
 
 		bool operator() ( const btBroadphasePair& a, const btBroadphasePair& b )
 		{
-			 return a.m_pProxy0 > b.m_pProxy0 || 
-				(a.m_pProxy0 == b.m_pProxy0 && a.m_pProxy1 > b.m_pProxy1) ||
+			 return a.m_pProxy0->m_uniqueId > b.m_pProxy0->m_uniqueId || 
+				(a.m_pProxy0 == b.m_pProxy0 && a.m_pProxy1->m_uniqueId > b.m_pProxy1->m_uniqueId) ||
 				(a.m_pProxy0 == b.m_pProxy0 && a.m_pProxy1 == b.m_pProxy1 && a.m_algorithm > b.m_algorithm); 
 		}
 };
