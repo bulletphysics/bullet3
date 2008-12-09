@@ -302,7 +302,7 @@ struct	btDbvt
 		void		collideTTpersistentStack(	const btDbvtNode* root0,
 		  const btDbvtNode* root1,
 		  DBVT_IPOLICY);
-
+#if 0
 	DBVT_PREFIX
 		void		collideTT(	const btDbvtNode* root0,
 		const btDbvtNode* root1,
@@ -314,6 +314,8 @@ struct	btDbvt
 		const btDbvtNode* root1,
 		const btTransform& xform1,
 		DBVT_IPOLICY);
+#endif
+
 	DBVT_PREFIX
 		void		collideTV(	const btDbvtNode* root,
 		const btDbvtVolume& volume,
@@ -832,7 +834,7 @@ inline void		btDbvt::collideTTpersistentStack(	const btDbvtNode* root0,
 		}
 }
 
-
+#if 0
 //
 DBVT_PREFIX
 inline void		btDbvt::collideTT(	const btDbvtNode* root0,
@@ -888,7 +890,6 @@ inline void		btDbvt::collideTT(	const btDbvtNode* root0,
 			} while(depth);
 		}
 }
-
 //
 DBVT_PREFIX
 inline void		btDbvt::collideTT(	const btDbvtNode* root0,
@@ -900,6 +901,7 @@ inline void		btDbvt::collideTT(	const btDbvtNode* root0,
 	const btTransform	xform=xform0.inverse()*xform1;
 	collideTT(root0,root1,xform,policy);
 }
+#endif 
 
 //
 DBVT_PREFIX
