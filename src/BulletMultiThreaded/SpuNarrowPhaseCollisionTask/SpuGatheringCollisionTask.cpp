@@ -122,45 +122,56 @@ bool gUseEpa = false;
 ///Make sure no destructors are called on this memory
 struct	CollisionTask_LocalStoreMemory
 {
-	
-	ATTRIBUTE_ALIGNED16(char gColObj0 [sizeof(btCollisionObject)+16]);
-	ATTRIBUTE_ALIGNED16(char gColObj1 [sizeof(btCollisionObject)+16]);
-	
-	btCollisionObject* getColObj0()
-	{
-		return (btCollisionObject*) gColObj0;
-	}
-	btCollisionObject* getColObj1()
-	{
-		return (btCollisionObject*) gColObj1;
-	}
+	///This CollisionTask_LocalStoreMemory is mainly used for the SPU version, using explicit DMA
+	///Other platforms can use other memory programming models.
 
-	bool	needsDmaPutContactManifoldAlgo;
-
+	ATTRIBUTE_ALIGNED16(btBroadphasePair	gBroadphasePairsBuffer[SPU_BATCHSIZE_BROADPHASE_PAIRS]);
 	DoubleBuffer<unsigned char, MIDPHASE_WORKUNIT_PAGE_SIZE> g_workUnitTaskBuffers;
-	ATTRIBUTE_ALIGNED16(btBroadphasePair	gBroadphasePairs[SPU_BATCHSIZE_BROADPHASE_PAIRS]);
-
-
-	//SpuContactManifoldCollisionAlgorithm	gSpuContactManifoldAlgo;
-	//ATTRIBUTE_ALIGNED16(char	gSpuContactManifoldAlgo[sizeof(SpuContactManifoldCollisionAlgorithm)+128]);
-
-	ATTRIBUTE_ALIGNED16(char gSpuContactManifoldAlgo [sizeof(SpuContactManifoldCollisionAlgorithm)+16]);
-
-	SpuContactManifoldCollisionAlgorithm*	getlocalCollisionAlgorithm()
-	{
-		return (SpuContactManifoldCollisionAlgorithm*)&gSpuContactManifoldAlgo;
-
-	}
-	btPersistentManifold	gPersistentManifold;
-
-	CollisionShape_LocalStoreMemory gCollisionShapes[2];
-
+	ATTRIBUTE_ALIGNED16(char gSpuContactManifoldAlgoBuffer [sizeof(SpuContactManifoldCollisionAlgorithm)+16]);
+	ATTRIBUTE_ALIGNED16(char gColObj0Buffer [sizeof(btCollisionObject)+16]);
+	ATTRIBUTE_ALIGNED16(char gColObj1Buffer [sizeof(btCollisionObject)+16]);
 	///we reserve 32bit integer indices, even though they might be 16bit
 	ATTRIBUTE_ALIGNED16(int	spuIndices[16]);
-
+	btPersistentManifold	gPersistentManifoldBuffer;
+	CollisionShape_LocalStoreMemory gCollisionShapes[2];
 	bvhMeshShape_LocalStoreMemory bvhShapeData;
 	SpuConvexPolyhedronVertexData convexVertexData[2];
 	CompoundShape_LocalStoreMemory compoundShapeData[2];
+		
+	///The following pointers might either point into this local store memory, or to the original/other memory locations.
+	///See SpuFakeDma for implementation of cellDmaSmallGetReadOnly.
+	btCollisionObject*	m_lsColObj0Ptr;
+	btCollisionObject*	m_lsColObj1Ptr;
+	btBroadphasePair* m_pairsPointer;
+	btPersistentManifold*	m_lsManifoldPtr;
+	SpuContactManifoldCollisionAlgorithm*	m_lsCollisionAlgorithmPtr;
+
+	bool	needsDmaPutContactManifoldAlgo;
+
+	btCollisionObject* getColObj0()
+	{
+		return m_lsColObj0Ptr;
+	}
+	btCollisionObject* getColObj1()
+	{
+		return m_lsColObj1Ptr;
+	}
+
+
+	btBroadphasePair* getBroadphasePairPtr()
+	{
+		return m_pairsPointer;
+	}
+
+	SpuContactManifoldCollisionAlgorithm*	getlocalCollisionAlgorithm()
+	{
+		return m_lsCollisionAlgorithmPtr;
+	}
+	
+	btPersistentManifold*	getContactManifoldPtr()
+	{
+		return m_lsManifoldPtr;
+	}
 };
 
 
@@ -560,12 +571,12 @@ void	ProcessSpuConvexConvexCollision(SpuCollisionPairInput* wuInput, CollisionTa
 		cpInput.m_convexVertexData[1] = &lsMemPtr->convexVertexData[1];
 		cpInput.m_transformA = wuInput->m_worldTransform0;
 		cpInput.m_transformB = wuInput->m_worldTransform1;
-		float sumMargin = (marginA+marginB+lsMemPtr->gPersistentManifold.getContactBreakingThreshold());
+		float sumMargin = (marginA+marginB+lsMemPtr->getContactManifoldPtr()->getContactBreakingThreshold());
 		cpInput.m_maximumDistanceSquared = sumMargin * sumMargin;
 
 		ppu_address_t manifoldAddress = (ppu_address_t)manifold;
 
-		btPersistentManifold* spuManifold=&lsMemPtr->gPersistentManifold;
+		btPersistentManifold* spuManifold=lsMemPtr->getContactManifoldPtr();
 		//spuContacts.setContactInfo(spuManifold,manifoldAddress,wuInput->m_worldTransform0,wuInput->m_worldTransform1,wuInput->m_isSwapped);
 		spuContacts.setContactInfo(spuManifold,manifoldAddress,lsMemPtr->getColObj0()->getWorldTransform(),
 			lsMemPtr->getColObj1()->getWorldTransform(),
@@ -605,11 +616,11 @@ SIMD_FORCE_INLINE void	dmaAndSetupCollisionObjects(SpuCollisionPairInput& collis
 		
 	dmaSize = sizeof(btCollisionObject);//btTransform);
 	dmaPpuAddress2 = /*collisionPairInput.m_isSwapped ? (ppu_address_t)lsMem.gProxyPtr1->m_clientObject :*/ (ppu_address_t)lsMem.getlocalCollisionAlgorithm()->getCollisionObject0();
-	cellDmaGet(&lsMem.gColObj0, dmaPpuAddress2  , dmaSize, DMA_TAG(1), 0, 0);		
+	lsMem.m_lsColObj0Ptr = (btCollisionObject*)cellDmaGetReadOnly(&lsMem.gColObj0Buffer, dmaPpuAddress2  , dmaSize, DMA_TAG(1), 0, 0);		
 
 	dmaSize = sizeof(btCollisionObject);//btTransform);
 	dmaPpuAddress2 = /*collisionPairInput.m_isSwapped ? (ppu_address_t)lsMem.gProxyPtr0->m_clientObject :*/ (ppu_address_t)lsMem.getlocalCollisionAlgorithm()->getCollisionObject1();
-	cellDmaGet(&lsMem.gColObj1, dmaPpuAddress2  , dmaSize, DMA_TAG(2), 0, 0);		
+	lsMem.m_lsColObj1Ptr = (btCollisionObject*)cellDmaGetReadOnly(&lsMem.gColObj1Buffer, dmaPpuAddress2  , dmaSize, DMA_TAG(2), 0, 0);		
 	
 	cellDmaWaitTagStatusAll(DMA_MASK(1) | DMA_MASK(2));
 
@@ -899,7 +910,7 @@ void	processCollisionTask(void* userPtr, void* lsMemPtr)
 			{
 					dmaSize = numPairs*sizeof(btBroadphasePair);
 					dmaPpuAddress = wuInputs[j].m_pairArrayPtr+wuInputs[j].m_startIndex * sizeof(btBroadphasePair);
-					cellDmaGet(&lsMem.gBroadphasePairs, dmaPpuAddress  , dmaSize, DMA_TAG(1), 0, 0);
+					lsMem.m_pairsPointer = (btBroadphasePair*)cellDmaGetReadOnly(&lsMem.gBroadphasePairsBuffer, dmaPpuAddress  , dmaSize, DMA_TAG(1), 0, 0);
 					cellDmaWaitTagStatusAll(DMA_MASK(1));
 				
 
@@ -908,7 +919,7 @@ void	processCollisionTask(void* userPtr, void* lsMemPtr)
 
 					//for each broadphase pair, do something
 
-					btBroadphasePair& pair = lsMem.gBroadphasePairs[p];
+					btBroadphasePair& pair = lsMem.getBroadphasePairPtr()[p];
 #ifdef DEBUG_SPU_COLLISION_DETECTION
 					spu_printf("pair->m_userInfo = %d\n",pair.m_userInfo);
 					spu_printf("pair->m_algorithm = %d\n",pair.m_algorithm);
@@ -920,7 +931,7 @@ void	processCollisionTask(void* userPtr, void* lsMemPtr)
 					{
 						dmaSize = sizeof(SpuContactManifoldCollisionAlgorithm);
 						dmaPpuAddress2 = (ppu_address_t)pair.m_algorithm;
-						cellDmaGet(&lsMem.gSpuContactManifoldAlgo, dmaPpuAddress2  , dmaSize, DMA_TAG(1), 0, 0);
+						lsMem.m_lsCollisionAlgorithmPtr = (SpuContactManifoldCollisionAlgorithm*)cellDmaGetReadOnly(&lsMem.gSpuContactManifoldAlgoBuffer, dmaPpuAddress2  , dmaSize, DMA_TAG(1), 0, 0);
 
 						cellDmaWaitTagStatusAll(DMA_MASK(1));
 
@@ -944,7 +955,7 @@ void	processCollisionTask(void* userPtr, void* lsMemPtr)
 							dmaSize = sizeof(btPersistentManifold);
 
 							dmaPpuAddress2 = collisionPairInput.m_persistentManifoldPtr;
-							cellDmaGet(&lsMem.gPersistentManifold, dmaPpuAddress2  , dmaSize, DMA_TAG(1), 0, 0);
+							lsMem.m_lsManifoldPtr = (btPersistentManifold*)cellDmaGetReadOnly(&lsMem.gPersistentManifoldBuffer, dmaPpuAddress2  , dmaSize, DMA_TAG(1), 0, 0);
 
 							collisionPairInput.m_shapeType0 = lsMem.getlocalCollisionAlgorithm()->getShapeType0();
 							collisionPairInput.m_shapeType1 = lsMem.getlocalCollisionAlgorithm()->getShapeType1();
@@ -977,7 +988,7 @@ void	processCollisionTask(void* userPtr, void* lsMemPtr)
 									if (boxbox)
 									{
 										//spu_printf("boxbox dist = %f\n",distance);
-										btPersistentManifold* spuManifold=&lsMem.gPersistentManifold;
+										btPersistentManifold* spuManifold=lsMem.getContactManifoldPtr();
 										btPersistentManifold* manifold = (btPersistentManifold*)collisionPairInput.m_persistentManifoldPtr;
 										ppu_address_t manifoldAddress = (ppu_address_t)manifold;
 
@@ -1107,7 +1118,7 @@ void	processCollisionTask(void* userPtr, void* lsMemPtr)
 										} else
 										{
 												//spu_printf("boxbox dist = %f\n",distance);
-											btPersistentManifold* spuManifold=&lsMem.gPersistentManifold;
+											btPersistentManifold* spuManifold=lsMem.getContactManifoldPtr();
 											btPersistentManifold* manifold = (btPersistentManifold*)collisionPairInput.m_persistentManifoldPtr;
 											ppu_address_t manifoldAddress = (ppu_address_t)manifold;
 

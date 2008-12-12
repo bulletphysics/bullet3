@@ -161,6 +161,9 @@ bool ManifoldResultAddContactPoint(const btVector3& normalOnBInWorld,
 
 void SpuContactResult::writeDoubleBufferedManifold(btPersistentManifold* lsManifold, btPersistentManifold* mmManifold)
 {
+	///only write back the contact information on SPU. Other platforms avoid copying, and use the data in-place
+	///see SpuFakeDma.cpp 'cellDmaLargeGetReadOnly'
+#if defined (__SPU__) || defined (USE_LIBSPE2)
     memcpy(g_manifoldDmaExport.getFront(),lsManifold,sizeof(btPersistentManifold));
 
     g_manifoldDmaExport.swapBuffers();
@@ -168,6 +171,7 @@ void SpuContactResult::writeDoubleBufferedManifold(btPersistentManifold* lsManif
     g_manifoldDmaExport.backBufferDmaPut(mmAddr, sizeof(btPersistentManifold), DMA_TAG(9));
 	// Should there be any kind of wait here?  What if somebody tries to use this tag again?  What if we call this function again really soon?
 	//no, the swapBuffers does the wait
+#endif
 }
 
 void SpuContactResult::addContactPoint(const btVector3& normalOnBInWorld,const btVector3& pointInWorld,float depth)
