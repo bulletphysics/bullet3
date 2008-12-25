@@ -46,6 +46,8 @@ class btRigidBody;
 class btSliderConstraint : public btTypedConstraint
 {
 protected:
+	///for backwards compatibility during the transition to 'getInfo/getInfo2'
+	bool		m_useSolveConstraintObsolete;
 	btTransform	m_frameInA;
     btTransform	m_frameInB;
 	// use frameA fo define limits, if true
@@ -104,6 +106,7 @@ protected:
 	btVector3 m_relPosB;
 
 	btScalar m_linPos;
+	btScalar m_angPos;
 
 	btScalar m_angDepth;
 	btScalar m_kAngle;
@@ -200,6 +203,7 @@ public:
 	void setMaxAngMotorForce(btScalar maxAngMotorForce) { m_maxAngMotorForce = maxAngMotorForce; }
 	btScalar getMaxAngMotorForce() { return m_maxAngMotorForce; }
 	btScalar getLinearPos() { return m_linPos; }
+	
 
 	// access for ODE solver
 	bool getSolveLinLimit() { return m_solveLinLim; }
@@ -212,6 +216,7 @@ public:
 	// shared code used by ODE solver
 	void	calculateTransforms(void);
 	void	testLinLimits(void);
+	void	testLinLimits2(btConstraintInfo2* info);
 	void	testAngLimits(void);
 	// access for PE Solver
 	btVector3 getAncorInA(void);

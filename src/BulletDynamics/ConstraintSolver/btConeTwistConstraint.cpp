@@ -24,7 +24,8 @@ Written by: Marcus Hennix
 
 btConeTwistConstraint::btConeTwistConstraint()
 :btTypedConstraint(CONETWIST_CONSTRAINT_TYPE),
-m_useSolveConstraintObsolete(true)
+m_useSolveConstraintObsolete(false)
+//m_useSolveConstraintObsolete(true)
 {
 }
 
@@ -33,7 +34,8 @@ btConeTwistConstraint::btConeTwistConstraint(btRigidBody& rbA,btRigidBody& rbB,
 											 const btTransform& rbAFrame,const btTransform& rbBFrame)
 											 :btTypedConstraint(CONETWIST_CONSTRAINT_TYPE, rbA,rbB),m_rbAFrame(rbAFrame),m_rbBFrame(rbBFrame),
 											 m_angularOnly(false),
-											 m_useSolveConstraintObsolete(true)
+											 m_useSolveConstraintObsolete(false)
+//											 m_useSolveConstraintObsolete(true)
 {
 	m_swingSpan1 = btScalar(1e30);
 	m_swingSpan2 = btScalar(1e30);
@@ -49,7 +51,8 @@ btConeTwistConstraint::btConeTwistConstraint(btRigidBody& rbA,btRigidBody& rbB,
 btConeTwistConstraint::btConeTwistConstraint(btRigidBody& rbA,const btTransform& rbAFrame)
 											:btTypedConstraint(CONETWIST_CONSTRAINT_TYPE,rbA),m_rbAFrame(rbAFrame),
 											 m_angularOnly(false),
-											 m_useSolveConstraintObsolete(true)
+											 m_useSolveConstraintObsolete(false)
+//											 m_useSolveConstraintObsolete(true)
 {
 	m_rbBFrame = m_rbAFrame;
 	
@@ -64,6 +67,7 @@ btConeTwistConstraint::btConeTwistConstraint(btRigidBody& rbA,const btTransform&
 	
 }			
 
+//-----------------------------------------------------------------------------
 
 void btConeTwistConstraint::getInfo1 (btConstraintInfo1* info)
 {
@@ -71,17 +75,124 @@ void btConeTwistConstraint::getInfo1 (btConstraintInfo1* info)
 	{
 		info->m_numConstraintRows = 0;
 		info->nub = 0;
-	} else
+	} 
+	else
 	{
-		btAssert(0);
+		info->m_numConstraintRows = 3;
+		info->nub = 3;
+		calcAngleInfo();
+		if(m_solveSwingLimit)
+		{
+			info->m_numConstraintRows++;
+			info->nub--;
+		}
+		if(m_solveTwistLimit)
+		{
+			info->m_numConstraintRows++;
+			info->nub--;
+		}
+	}
+} // btConeTwistConstraint::getInfo1()
+	
+//-----------------------------------------------------------------------------
+
+void btConeTwistConstraint::getInfo2 (btConstraintInfo2* info)
+{
+	btAssert(!m_useSolveConstraintObsolete);
+	//retrieve matrices
+	btTransform body0_trans;
+	body0_trans = m_rbA.getCenterOfMassTransform();
+    btTransform body1_trans;
+	body1_trans = m_rbB.getCenterOfMassTransform();
+    // set jacobian
+    info->m_J1linearAxis[0] = 1;
+    info->m_J1linearAxis[info->rowskip+1] = 1;
+    info->m_J1linearAxis[2*info->rowskip+2] = 1;
+	btVector3 a1 = body0_trans.getBasis() * m_rbAFrame.getOrigin();
+	{
+		btVector3* angular0 = (btVector3*)(info->m_J1angularAxis);
+		btVector3* angular1 = (btVector3*)(info->m_J1angularAxis+info->rowskip);
+		btVector3* angular2 = (btVector3*)(info->m_J1angularAxis+2*info->rowskip);
+		btVector3 a1neg = -a1;
+		a1neg.getSkewSymmetricMatrix(angular0,angular1,angular2);
+	}
+	btVector3 a2 = body1_trans.getBasis() * m_rbBFrame.getOrigin();
+	{
+		btVector3* angular0 = (btVector3*)(info->m_J2angularAxis);
+		btVector3* angular1 = (btVector3*)(info->m_J2angularAxis+info->rowskip);
+		btVector3* angular2 = (btVector3*)(info->m_J2angularAxis+2*info->rowskip);
+		a2.getSkewSymmetricMatrix(angular0,angular1,angular2);
+	}
+    // set right hand side
+    btScalar k = info->fps * info->erp;
+    int j;
+	for (j=0; j<3; j++)
+    {
+        info->m_constraintError[j*info->rowskip] = k * (a2[j] + body1_trans.getOrigin()[j] - a1[j] - body0_trans.getOrigin()[j]);
+		info->m_lowerLimit[j*info->rowskip] = -SIMD_INFINITY;
+		info->m_upperLimit[j*info->rowskip] = SIMD_INFINITY;
+    }
+	int row = 3;
+    int srow = row * info->rowskip;
+	btVector3 ax1;
+	// angular limits
+	if(m_solveSwingLimit)
+	{
+		ax1 = m_swingAxis * m_relaxationFactor * m_relaxationFactor;
+        btScalar *J1 = info->m_J1angularAxis;
+        btScalar *J2 = info->m_J2angularAxis;
+        J1[srow+0] = ax1[0];
+        J1[srow+1] = ax1[1];
+        J1[srow+2] = ax1[2];
+        J2[srow+0] = -ax1[0];
+        J2[srow+1] = -ax1[1];
+        J2[srow+2] = -ax1[2];
+		btScalar k = info->fps * m_biasFactor;
+		info->m_constraintError[srow] = k * m_swingCorrection;
+		info->cfm[srow] = 0.0f;
+		// m_swingCorrection is always positive or 0
+		info->m_lowerLimit[srow] = 0;
+		info->m_upperLimit[srow] = SIMD_INFINITY;
+		srow += info->rowskip;
+	}
+	if(m_solveTwistLimit)
+	{
+		ax1 = m_twistAxis * m_relaxationFactor * m_relaxationFactor;
+        btScalar *J1 = info->m_J1angularAxis;
+        btScalar *J2 = info->m_J2angularAxis;
+        J1[srow+0] = ax1[0];
+        J1[srow+1] = ax1[1];
+        J1[srow+2] = ax1[2];
+        J2[srow+0] = -ax1[0];
+        J2[srow+1] = -ax1[1];
+        J2[srow+2] = -ax1[2];
+		btScalar k = info->fps * m_biasFactor;
+		info->m_constraintError[srow] = k * m_twistCorrection;
+		info->cfm[srow] = 0.0f;
+		if(m_twistSpan > 0.0f)
+		{
+
+			if(m_twistCorrection > 0.0f)
+			{
+				info->m_lowerLimit[srow] = 0;
+				info->m_upperLimit[srow] = SIMD_INFINITY;
+			} 
+			else
+			{
+				info->m_lowerLimit[srow] = -SIMD_INFINITY;
+				info->m_upperLimit[srow] = 0;
+			} 
+		}
+		else
+		{
+			info->m_lowerLimit[srow] = -SIMD_INFINITY;
+			info->m_upperLimit[srow] = SIMD_INFINITY;
+		}
+		srow += info->rowskip;
 	}
 }
 	
-void btConeTwistConstraint::getInfo2 (btConstraintInfo2* info)
-{
-	btAssert(0);
-}
-	
+//-----------------------------------------------------------------------------
 
 void	btConeTwistConstraint::buildJacobian()
 {
@@ -227,6 +338,8 @@ void	btConeTwistConstraint::buildJacobian()
 	}
 }
 
+//-----------------------------------------------------------------------------
+
 void	btConeTwistConstraint::solveConstraintObsolete(btSolverBody& bodyA,btSolverBody& bodyB,btScalar	timeStep)
 {
 	if (m_useSolveConstraintObsolete)
@@ -315,8 +428,101 @@ void	btConeTwistConstraint::solveConstraintObsolete(btSolverBody& bodyA,btSolver
 
 }
 
+//-----------------------------------------------------------------------------
+
 void	btConeTwistConstraint::updateRHS(btScalar	timeStep)
 {
 	(void)timeStep;
 
 }
+
+//-----------------------------------------------------------------------------
+
+void btConeTwistConstraint::calcAngleInfo()
+{
+	m_swingCorrection = btScalar(0.);
+	m_twistLimitSign = btScalar(0.);
+	m_solveTwistLimit = false;
+	m_solveSwingLimit = false;
+
+	btVector3 b1Axis1,b1Axis2,b1Axis3;
+	btVector3 b2Axis1,b2Axis2;
+
+	b1Axis1 = getRigidBodyA().getCenterOfMassTransform().getBasis() * this->m_rbAFrame.getBasis().getColumn(0);
+	b2Axis1 = getRigidBodyB().getCenterOfMassTransform().getBasis() * this->m_rbBFrame.getBasis().getColumn(0);
+
+	btScalar swing1=btScalar(0.),swing2 = btScalar(0.);
+
+	btScalar swx=btScalar(0.),swy = btScalar(0.);
+	btScalar thresh = btScalar(10.);
+	btScalar fact;
+
+	// Get Frame into world space
+	if (m_swingSpan1 >= btScalar(0.05f))
+	{
+		b1Axis2 = getRigidBodyA().getCenterOfMassTransform().getBasis() * this->m_rbAFrame.getBasis().getColumn(1);
+		swx = b2Axis1.dot(b1Axis1);
+		swy = b2Axis1.dot(b1Axis2);
+		swing1  = btAtan2Fast(swy, swx);
+		fact = (swy*swy + swx*swx) * thresh * thresh;
+		fact = fact / (fact + btScalar(1.0));
+		swing1 *= fact; 
+	}
+
+	if (m_swingSpan2 >= btScalar(0.05f))
+	{
+		b1Axis3 = getRigidBodyA().getCenterOfMassTransform().getBasis() * this->m_rbAFrame.getBasis().getColumn(2);			
+		swx = b2Axis1.dot(b1Axis1);
+		swy = b2Axis1.dot(b1Axis3);
+		swing2  = btAtan2Fast(swy, swx);
+		fact = (swy*swy + swx*swx) * thresh * thresh;
+		fact = fact / (fact + btScalar(1.0));
+		swing2 *= fact; 
+	}
+
+	btScalar RMaxAngle1Sq = 1.0f / (m_swingSpan1*m_swingSpan1);		
+	btScalar RMaxAngle2Sq = 1.0f / (m_swingSpan2*m_swingSpan2);	
+	btScalar EllipseAngle = btFabs(swing1*swing1)* RMaxAngle1Sq + btFabs(swing2*swing2) * RMaxAngle2Sq;
+
+	if (EllipseAngle > 1.0f)
+	{
+		m_swingCorrection = EllipseAngle-1.0f;
+		m_solveSwingLimit = true;
+		// Calculate necessary axis & factors
+		m_swingAxis = b2Axis1.cross(b1Axis2* b2Axis1.dot(b1Axis2) + b1Axis3* b2Axis1.dot(b1Axis3));
+		m_swingAxis.normalize();
+		btScalar swingAxisSign = (b2Axis1.dot(b1Axis1) >= 0.0f) ? 1.0f : -1.0f;
+		m_swingAxis *= swingAxisSign;
+	}
+
+	// Twist limits
+	if (m_twistSpan >= btScalar(0.))
+	{
+		btVector3 b2Axis2 = getRigidBodyB().getCenterOfMassTransform().getBasis() * this->m_rbBFrame.getBasis().getColumn(1);
+		btQuaternion rotationArc = shortestArcQuat(b2Axis1,b1Axis1);
+		btVector3 TwistRef = quatRotate(rotationArc,b2Axis2); 
+		btScalar twist = btAtan2Fast( TwistRef.dot(b1Axis3), TwistRef.dot(b1Axis2) );
+
+//		btScalar lockedFreeFactor = (m_twistSpan > btScalar(0.05f)) ? m_limitSoftness : btScalar(0.);
+		btScalar lockedFreeFactor = (m_twistSpan > btScalar(0.05f)) ? btScalar(1.0f) : btScalar(0.);
+		if (twist <= -m_twistSpan*lockedFreeFactor)
+		{
+			m_twistCorrection = -(twist + m_twistSpan);
+			m_solveTwistLimit = true;
+			m_twistAxis = (b2Axis1 + b1Axis1) * 0.5f;
+			m_twistAxis.normalize();
+			m_twistAxis *= -1.0f;
+		}
+		else if (twist >  m_twistSpan*lockedFreeFactor)
+		{
+			m_twistCorrection = (twist - m_twistSpan);
+			m_solveTwistLimit = true;
+			m_twistAxis = (b2Axis1 + b1Axis1) * 0.5f;
+			m_twistAxis.normalize();
+		}
+	}
+} // btConeTwistConstraint::calcAngleInfo()
+
+//-----------------------------------------------------------------------------
+//-----------------------------------------------------------------------------
+//-----------------------------------------------------------------------------

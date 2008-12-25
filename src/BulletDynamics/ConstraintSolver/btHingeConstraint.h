@@ -53,6 +53,7 @@ public:
 	btScalar	m_correction;
 
 	btScalar	m_accLimitImpulse;
+	btScalar	m_hingeAngle;
 
 	bool		m_angularOnly;
 	bool		m_enableAngularMotor;
@@ -126,6 +127,8 @@ public:
 
 
 	btScalar getHingeAngle();
+
+	void testLimit();
 
 
 	const btTransform& getAFrame() { return m_rbAFrame; };	

@@ -21,6 +21,9 @@ class btRigidBody;
 #include "btSolverConstraint.h"
 struct  btSolverBody;
 
+
+
+
 enum btTypedConstraintType
 {
 	POINT2POINT_CONSTRAINT_TYPE,
@@ -103,6 +106,7 @@ public:
 
 	virtual	void	solveConstraintObsolete(btSolverBody& bodyA,btSolverBody& bodyB,btScalar	timeStep) = 0;
 
+	btScalar getMotorFactor(btScalar pos, btScalar lowLim, btScalar uppLim, btScalar vel, btScalar timeFact);
 	
 	const btRigidBody& getRigidBodyA() const
 	{

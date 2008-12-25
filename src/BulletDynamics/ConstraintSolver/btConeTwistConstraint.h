@@ -127,6 +127,9 @@ public:
 		return m_twistLimitSign;
 	}
 
+	void calcAngleInfo();
+
+
 };
 
 #endif //CONETWISTCONSTRAINT_H

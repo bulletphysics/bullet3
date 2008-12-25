@@ -54,3 +54,56 @@ m_appliedImpulse(btScalar(0.))
 
 }
 
+
+//-----------------------------------------------------------------------------
+
+btScalar btTypedConstraint::getMotorFactor(btScalar pos, btScalar lowLim, btScalar uppLim, btScalar vel, btScalar timeFact)
+{
+	if(lowLim > uppLim)
+	{
+		return btScalar(1.0f);
+	}
+	else if(lowLim == uppLim)
+	{
+		return btScalar(0.0f);
+	}
+	btScalar lim_fact = btScalar(1.0f);
+	btScalar delta_max = vel / timeFact;
+	if(delta_max > btScalar(0.0f))
+	{
+		if((pos > lowLim) && (pos < (lowLim + delta_max)))
+		{
+			lim_fact = (pos  - lowLim) / delta_max;
+		}
+		else if(pos  < lowLim)
+		{
+			lim_fact = btScalar(0.0f);
+		}
+		else
+		{
+			lim_fact = btScalar(1.0f);
+		}
+	}
+	else if(delta_max < btScalar(0.0f))
+	{
+		if((pos < uppLim) && (pos > (uppLim + delta_max)))
+		{
+			lim_fact = (pos - uppLim) / delta_max;
+		}
+		else if(pos  > uppLim)
+		{
+			lim_fact = btScalar(0.0f);
+		}
+		else
+		{
+			lim_fact = btScalar(1.0f);
+		}
+	}
+	else
+	{
+			lim_fact = btScalar(0.0f);
+	}
+	return lim_fact;
+} // btTypedConstraint::getMotorFactor()
+
+

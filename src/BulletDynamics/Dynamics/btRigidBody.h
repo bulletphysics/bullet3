@@ -232,6 +232,16 @@ public:
 	{
 		m_totalForce += force;
 	}
+
+	const btVector3& getTotalForce()
+	{
+		return m_totalForce;
+	};
+
+	const btVector3& getTotalTorque()
+	{
+		return m_totalTorque;
+	};
     
 	const btVector3& getInvInertiaDiagLocal()
 	{
