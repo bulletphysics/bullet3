@@ -82,6 +82,7 @@ public:
 
     static  MObject     ca_rigidBody;
     static  MObject     ca_rigidBodyParam;
+    static  MObject     ca_solver;
 
 public:
     static  MTypeId     typeId;

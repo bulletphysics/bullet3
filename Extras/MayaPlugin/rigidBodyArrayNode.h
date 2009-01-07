@@ -88,14 +88,13 @@ public:
 
     static  MObject     ia_fileIO;
     static  MObject     ia_fioFiles;
-    static  MObject     ia_fioPositionAttribute;
-    static  MObject     ia_fioRotationAttribute;
 
     static  MObject     io_position;
     static  MObject     io_rotation;
 
     static  MObject     ca_rigidBodies;
     static  MObject     ca_rigidBodyParam;
+    static  MObject     ca_solver;
 
 public:
     static  MTypeId     typeId;

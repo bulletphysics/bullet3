@@ -61,12 +61,11 @@ MObject     rigidBodyArrayNode::ia_initialVelocity;
 MObject     rigidBodyArrayNode::ia_initialSpin;
 MObject     rigidBodyArrayNode::ia_fileIO;
 MObject     rigidBodyArrayNode::ia_fioFiles;
-MObject     rigidBodyArrayNode::ia_fioPositionAttribute;
-MObject     rigidBodyArrayNode::ia_fioRotationAttribute;
 MObject     rigidBodyArrayNode::io_position;
 MObject     rigidBodyArrayNode::io_rotation;
 MObject     rigidBodyArrayNode::ca_rigidBodies;
 MObject     rigidBodyArrayNode::ca_rigidBodyParam;
+MObject     rigidBodyArrayNode::ca_solver;
 
 MStatus rigidBodyArrayNode::initialize()
 {
@@ -196,6 +195,15 @@ MStatus rigidBodyArrayNode::initialize()
     status = addAttribute(ca_rigidBodyParam);
     MCHECKSTATUS(status, "adding ca_rigidBodyParam attribute")
 
+    ca_solver = fnNumericAttr.create("ca_solver", "caso", MFnNumericData::kBoolean, 0, &status);
+    MCHECKSTATUS(status, "creating ca_solver attribute")
+    fnNumericAttr.setConnectable(false);
+    fnNumericAttr.setHidden(true);
+    fnNumericAttr.setStorable(false);
+    fnNumericAttr.setKeyable(false);
+    status = addAttribute(ca_solver);
+    MCHECKSTATUS(status, "adding ca_solver attribute")
+
     status = attributeAffects(ia_numBodies, ca_rigidBodies);
     MCHECKSTATUS(status, "adding attributeAffects(ia_numBodies, ca_rigidBodies)")
 
@@ -222,6 +230,9 @@ MStatus rigidBodyArrayNode::initialize()
 
     status = attributeAffects(ia_angularDamping, ca_rigidBodyParam);
     MCHECKSTATUS(status, "adding attributeAffects(ia_angularDamping, ca_rigidBodyParam)")
+
+    status = attributeAffects(ia_solver, ca_solver);
+    MCHECKSTATUS(status, "adding attributeAffects(ia_solver, ca_solver)")
 
     return MS::kSuccess;
 }
@@ -282,6 +293,8 @@ MStatus rigidBodyArrayNode::compute(const MPlug& plug, MDataBlock& data)
         computeRigidBodies(plug, data);
     } else if(plug == ca_rigidBodyParam) {
         computeRigidBodyParam(plug, data);
+    } else if(plug == ca_solver) {
+	data.inputValue(ia_solver).asBool();
     } else if(plug.isElement()) {
         if(plug.array() == worldMatrix) {
             computeWorldMatrix(plug, data);
@@ -316,7 +329,7 @@ void rigidBodyArrayNode::draw( M3dView & view, const MDagPath &path,
         if(style == M3dView::kFlatShaded ||
            style == M3dView::kGouraudShaded) {
             glEnable(GL_LIGHTING);
-            float material[] = { 0.4f, 0.3f, 1.0f, 1.0f };
+            float material[] = { 0.4, 0.3, 1.0, 1.0 };
             glMaterialfv(GL_FRONT_AND_BACK, GL_AMBIENT_AND_DIFFUSE, material);
             for(size_t i = 0; i < m_rigid_bodies.size(); ++i) {  
                 glPushMatrix();
@@ -433,15 +446,15 @@ void rigidBodyArrayNode::computeRigidBodyParam(const MPlug& plug, MDataBlock& da
     
     MPlug(thisObject, ca_rigidBodies).getValue(update);
 
-    float mass = data.inputValue(ia_mass).asFloat();
+    double mass = data.inputValue(ia_mass).asDouble();
     vec3f inertia;
     if(!m_rigid_bodies.empty())  {
         inertia = mass * m_rigid_bodies[0]->collision_shape()->local_inertia();
     }
-    float restitution = data.inputValue(ia_restitution).asFloat();
-    float friction = data.inputValue(ia_friction).asFloat();
-    float linearDamping = data.inputValue(ia_linearDamping).asFloat();
-    float angularDamping = data.inputValue(ia_angularDamping).asFloat();
+    double restitution = data.inputValue(ia_restitution).asDouble();
+    double friction = data.inputValue(ia_friction).asDouble();
+    double linearDamping = data.inputValue(ia_linearDamping).asDouble();
+    double angularDamping = data.inputValue(ia_angularDamping).asDouble();
 
     for(size_t i = 0; i < m_rigid_bodies.size(); ++i) {
         m_rigid_bodies[i]->set_mass(mass);
@@ -527,6 +540,6 @@ void rigidBodyArrayNode::update()
     MObject update;
     MPlug(thisObject, ca_rigidBodies).getValue(update);
     MPlug(thisObject, ca_rigidBodyParam).getValue(update);
-    MPlug(thisObject, ia_solver).getValue(update);
+    MPlug(thisObject, ca_solver).getValue(update);
     MPlug(thisObject, worldMatrix).elementByLogicalIndex(0).getValue(update);
 }

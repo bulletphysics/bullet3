@@ -57,6 +57,7 @@ MObject     rigidBodyNode::ia_initialVelocity;
 MObject     rigidBodyNode::ia_initialSpin;
 MObject     rigidBodyNode::ca_rigidBody;
 MObject     rigidBodyNode::ca_rigidBodyParam;
+MObject     rigidBodyNode::ca_solver;
 
 
 MStatus rigidBodyNode::initialize()
@@ -150,6 +151,14 @@ MStatus rigidBodyNode::initialize()
     status = addAttribute(ca_rigidBodyParam);
     MCHECKSTATUS(status, "adding ca_rigidBodyParam attribute")
 
+    ca_solver = fnNumericAttr.create("ca_solver", "caso", MFnNumericData::kBoolean, 0, &status);
+    MCHECKSTATUS(status, "creating ca_solver attribute")
+    fnNumericAttr.setConnectable(false);
+    fnNumericAttr.setHidden(true);
+    fnNumericAttr.setStorable(false);
+    fnNumericAttr.setKeyable(false);
+    status = addAttribute(ca_solver);
+    MCHECKSTATUS(status, "adding ca_solver attribute")
 
     status = attributeAffects(ia_collisionShape, ca_rigidBody);
     MCHECKSTATUS(status, "adding attributeAffects(ia_collisionShape, ca_rigidBody)")
@@ -171,6 +180,9 @@ MStatus rigidBodyNode::initialize()
 
     status = attributeAffects(ia_angularDamping, ca_rigidBodyParam);
     MCHECKSTATUS(status, "adding attributeAffects(ia_angularDamping, ca_rigidBodyParam)")
+
+    status = attributeAffects(ia_solver, ca_solver);
+    MCHECKSTATUS(status, "adding attributeAffects(ia_solver, ca_solver)")
 
  //   status = attributeAffects(ia_active, ca_rigidBodyParam);
   //  MCHECKSTATUS(status, "adding attributeAffects(ia_active, ca_rigidBodyParam)")
@@ -269,6 +281,8 @@ MStatus rigidBodyNode::compute(const MPlug& plug, MDataBlock& data)
         computeRigidBody(plug, data);
     } else if(plug == ca_rigidBodyParam) {
         computeRigidBodyParam(plug, data);
+    } else if(plug == ca_solver) {
+	data.inputValue(ia_solver).asBool();
     } else if(plug.isElement()) {
         if(plug.array() == worldMatrix && plug.logicalIndex() == 0) {
             computeWorldMatrix(plug, data);
@@ -532,7 +546,7 @@ void rigidBodyNode::update()
     MObject update;
     MPlug(thisObject, ca_rigidBody).getValue(update);
     MPlug(thisObject, ca_rigidBodyParam).getValue(update);
-    MPlug(thisObject, ia_solver).getValue(update);
+    MPlug(thisObject, ca_solver).getValue(update);
     MPlug(thisObject, worldMatrix).elementByLogicalIndex(0).getValue(update);
 //    MPlug plg = MPlug(thisObject, worldMatrix).elementByLogicalIndex(0);
 }
