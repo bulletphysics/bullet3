@@ -51,7 +51,7 @@ const char *const colladaDefaultOptions =
 MStatus initializePlugin( MObject obj )
 {
     MStatus   status;
-    MFnPlugin plugin( obj, "Walt Disney Feature Animation", "1.0", "Any");
+    MFnPlugin plugin( obj, "Walt Disney Feature Animation", "2.73", "Any");
 
     solver_t::initialize();
 
