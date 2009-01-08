@@ -1539,7 +1539,7 @@ void ConcaveDemo::renderme()
 				}
 			}
 
-			m_shapeDrawer.drawOpenGL(m,colObj->getCollisionShape(),wireColor,getDebugMode(),worldBoundsMin,worldBoundsMax);
+			m_shapeDrawer->drawOpenGL(m,colObj->getCollisionShape(),wireColor,getDebugMode(),worldBoundsMin,worldBoundsMax);
 		}
 
 

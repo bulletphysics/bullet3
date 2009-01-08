@@ -235,7 +235,7 @@ void CollisionDemo::displayCallback(void) {
 		
 		tr[i].getOpenGLMatrix( m );
 
-		m_shapeDrawer.drawOpenGL(m,shapePtr[i],btVector3(1,1,1),getDebugMode(),worldBoundsMin,worldBoundsMax);
+		m_shapeDrawer->drawOpenGL(m,shapePtr[i],btVector3(1,1,1),getDebugMode(),worldBoundsMin,worldBoundsMax);
 
 
 	}
@@ -251,7 +251,7 @@ void CollisionDemo::displayCallback(void) {
 	btTransform ident;
 	ident.setIdentity();
 	ident.getOpenGLMatrix(m);
-	m_shapeDrawer.drawOpenGL(m,&simplex,btVector3(1,1,1),getDebugMode(),worldBoundsMin,worldBoundsMax);
+	m_shapeDrawer->drawOpenGL(m,&simplex,btVector3(1,1,1),getDebugMode(),worldBoundsMin,worldBoundsMax);
 
 
 	btQuaternion orn;

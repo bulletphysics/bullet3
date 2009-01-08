@@ -1,0 +1,3 @@
+SubDir TOP Demos HfFluidDemo ;
+
+BulletHfFluidDemo HfFluidDemo : [ Wildcard *.h *.cpp BulletHfFluid/*.h BulletHfFluid/*.cpp ] ;

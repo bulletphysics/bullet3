@@ -433,7 +433,7 @@ void ForkLiftDemo::renderme()
 		m_vehicle->updateWheelTransform(i,true);
 		//draw wheels (cylinders)
 		m_vehicle->getWheelInfo(i).m_worldTransform.getOpenGLMatrix(m);
-		m_shapeDrawer.drawOpenGL(m,&wheelShape,wheelColor,getDebugMode(),worldBoundsMin,worldBoundsMax);
+		m_shapeDrawer->drawOpenGL(m,&wheelShape,wheelColor,getDebugMode(),worldBoundsMin,worldBoundsMax);
 	}
 
 

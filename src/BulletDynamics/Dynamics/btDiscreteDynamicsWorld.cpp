@@ -338,7 +338,8 @@ int	btDiscreteDynamicsWorld::stepSimulation( btScalar timeStep,int maxSubSteps, 
 	//process some debugging flags
 	if (getDebugDrawer())
 	{
-		gDisableDeactivation = (getDebugDrawer()->getDebugMode() & btIDebugDraw::DBG_NoDeactivation) != 0;
+		btIDebugDraw* debugDrawer = getDebugDrawer ();
+		gDisableDeactivation = (debugDrawer->getDebugMode() & btIDebugDraw::DBG_NoDeactivation) != 0;
 	}
 	if (numSimulationSubSteps)
 	{

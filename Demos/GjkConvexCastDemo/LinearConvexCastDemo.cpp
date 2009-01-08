@@ -158,11 +158,11 @@ void LinearConvexCastDemo::displayCallback(void)
 	btTransform tmp = tr[0];
 	tmp.setOrigin(result.m_hitPoint);
 	tmp.getOpenGLMatrix(m3);
-	m_shapeDrawer.drawOpenGL( m3, &sphere, btVector3( 1, 0, 1 ), getDebugMode() ,worldBoundsMin,worldBoundsMax);
+	m_shapeDrawer->drawOpenGL( m3, &sphere, btVector3( 1, 0, 1 ), getDebugMode() ,worldBoundsMin,worldBoundsMax);
 
 
-	m_shapeDrawer.drawOpenGL( m1, shapePtr[ 0 ], btVector3( 1, 0, 0 ), getDebugMode() ,worldBoundsMin,worldBoundsMax);
-	m_shapeDrawer.drawOpenGL( m2, shapePtr[ 1 ], btVector3( 1, 0, 0 ), getDebugMode() ,worldBoundsMin,worldBoundsMax);
+	m_shapeDrawer->drawOpenGL( m1, shapePtr[ 0 ], btVector3( 1, 0, 0 ), getDebugMode() ,worldBoundsMin,worldBoundsMax);
+	m_shapeDrawer->drawOpenGL( m2, shapePtr[ 1 ], btVector3( 1, 0, 0 ), getDebugMode() ,worldBoundsMin,worldBoundsMax);
 
 	btVector3 originA, originB;
 	originA.setInterpolate3( tr[ 0 ].getOrigin(), toA.getOrigin(), result.m_fraction );
@@ -177,8 +177,8 @@ void LinearConvexCastDemo::displayCallback(void)
 	A.getOpenGLMatrix( m1 );
 	B.getOpenGLMatrix( m2 );
 
-	m_shapeDrawer.drawOpenGL( m1, shapePtr[ 0 ], btVector3( 1, 1, 0 ), getDebugMode() ,worldBoundsMin,worldBoundsMax);
-	m_shapeDrawer.drawOpenGL( m2, shapePtr[ 1 ], btVector3( 1, 1, 0 ), getDebugMode() ,worldBoundsMin,worldBoundsMax);
+	m_shapeDrawer->drawOpenGL( m1, shapePtr[ 0 ], btVector3( 1, 1, 0 ), getDebugMode() ,worldBoundsMin,worldBoundsMax);
+	m_shapeDrawer->drawOpenGL( m2, shapePtr[ 1 ], btVector3( 1, 1, 0 ), getDebugMode() ,worldBoundsMin,worldBoundsMax);
 
 	glFlush();
     glutSwapBuffers();

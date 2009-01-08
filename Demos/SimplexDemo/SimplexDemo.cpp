@@ -91,7 +91,7 @@ void SimplexDemo::displayCallback()
 		transA.getOpenGLMatrix( m );
 
 		/// draw the simplex
-		m_shapeDrawer.drawOpenGL(m,shapePtr[i],btVector3(1,1,1),getDebugMode(),worldBoundsMin,worldBoundsMax);
+		m_shapeDrawer->drawOpenGL(m,shapePtr[i],btVector3(1,1,1),getDebugMode(),worldBoundsMin,worldBoundsMax);
 
 		/// calculate closest point from simplex to the origin, and draw this vector
 		simplex.calcClosest(m);

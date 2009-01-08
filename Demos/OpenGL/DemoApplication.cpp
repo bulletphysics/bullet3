@@ -82,7 +82,8 @@ m_sundirection(btVector3(1,-2,1)*1000)
 	m_profileIterator = CProfileManager::Get_Iterator();
 #endif //BT_NO_PROFILE
 
-	m_shapeDrawer.enableTexture(true);
+	m_shapeDrawer = new GL_ShapeDrawer ();
+	m_shapeDrawer->enableTexture(true);
 	m_enableshadows = false;
 }
 
@@ -97,8 +98,17 @@ DemoApplication::~DemoApplication()
 	if (m_shootBoxShape)
 		delete m_shootBoxShape;
 
+	if (m_shapeDrawer)
+		delete m_shapeDrawer;
 }
 
+
+void DemoApplication::overrideGLShapeDrawer (GL_ShapeDrawer* shapeDrawer)
+{
+	shapeDrawer->enableTexture (m_shapeDrawer->hasTextureEnabled());
+	delete m_shapeDrawer;
+	m_shapeDrawer = shapeDrawer;
+}
 
 void DemoApplication::myinit(void)
 {
@@ -298,7 +308,7 @@ void DemoApplication::keyboardCallback(unsigned char key, int x, int y)
 	case 'x' : zoomOut(); break;
 	case 'i' : toggleIdle(); break;
 	case 'g' : m_enableshadows=!m_enableshadows;break;
-	case 'u' : m_shapeDrawer.enableTexture(!m_shapeDrawer.enableTexture(false));break;
+	case 'u' : m_shapeDrawer->enableTexture(!m_shapeDrawer->enableTexture(false));break;
 	case 'h':
 		if (m_debugMode & btIDebugDraw::DBG_NoHelpText)
 			m_debugMode = m_debugMode & (~btIDebugDraw::DBG_NoHelpText);
@@ -510,7 +520,19 @@ void DemoApplication::displayCallback()
 }
 
 
-
+void	DemoApplication::setShootBoxShape ()
+{
+		if (!m_shootBoxShape)
+		{
+			//#define TEST_UNIFORM_SCALING_SHAPE 1
+#ifdef TEST_UNIFORM_SCALING_SHAPE
+			btConvexShape* childShape = new btBoxShape(btVector3(1.f,1.f,1.f));
+			m_shootBoxShape = new btUniformScalingShape(childShape,0.5f);
+#else
+			m_shootBoxShape = new btSphereShape(1.f);//BoxShape(btVector3(1.f,1.f,1.f));
+#endif//
+		}
+}
 
 void	DemoApplication::shootBox(const btVector3& destination)
 {
@@ -523,16 +545,7 @@ void	DemoApplication::shootBox(const btVector3& destination)
 		btVector3 camPos = getCameraPosition();
 		startTransform.setOrigin(camPos);
 
-		if (!m_shootBoxShape)
-		{
-			//#define TEST_UNIFORM_SCALING_SHAPE 1
-#ifdef TEST_UNIFORM_SCALING_SHAPE
-			btConvexShape* childShape = new btBoxShape(btVector3(1.f,1.f,1.f));
-			m_shootBoxShape = new btUniformScalingShape(childShape,0.5f);
-#else
-			m_shootBoxShape = new btSphereShape(1.f);//BoxShape(btVector3(1.f,1.f,1.f));
-#endif//
-		}
+		setShootBoxShape ();
 
 		btRigidBody* body = this->localCreateRigidBody(mass, startTransform,m_shootBoxShape);
 
@@ -981,9 +994,9 @@ void	DemoApplication::renderscene(int pass)
 
 		switch(pass)
 		{
-		case	0:	m_shapeDrawer.drawOpenGL(m,colObj->getCollisionShape(),wireColor,getDebugMode(),aabbMin,aabbMax);break;
-		case	1:	m_shapeDrawer.drawShadow(m,m_sundirection*rot,colObj->getCollisionShape(),aabbMin,aabbMax);break;
-		case	2:	m_shapeDrawer.drawOpenGL(m,colObj->getCollisionShape(),wireColor*0.3,0,aabbMin,aabbMax);break;
+		case	0:	m_shapeDrawer->drawOpenGL(m,colObj->getCollisionShape(),wireColor,getDebugMode(),aabbMin,aabbMax);break;
+		case	1:	m_shapeDrawer->drawShadow(m,m_sundirection*rot,colObj->getCollisionShape(),aabbMin,aabbMax);break;
+		case	2:	m_shapeDrawer->drawOpenGL(m,colObj->getCollisionShape(),wireColor*0.3,0,aabbMin,aabbMax);break;
 		}
 	}
 }

@@ -25,6 +25,7 @@ class btShapeHull;
 /// OpenGL shape drawing
 class GL_ShapeDrawer
 {
+protected:
 	struct ShapeCache
 	{
 	struct Edge { btVector3 n[2];int v[2]; };
@@ -38,17 +39,17 @@ class GL_ShapeDrawer
 	bool								m_textureenabled;
 	bool								m_textureinitialized;
 	
-	private:
+
 	ShapeCache*							cache(btConvexShape*);
 
-	public:
+public:
 		GL_ShapeDrawer();
 
 		virtual ~GL_ShapeDrawer();
 
 		///drawOpenGL might allocate temporary memoty, stores pointer in shape userpointer
-		void		drawOpenGL(btScalar* m, const btCollisionShape* shape, const btVector3& color,int	debugMode,const btVector3& worldBoundsMin,const btVector3& worldBoundsMax);
-		void		drawShadow(btScalar* m, const btVector3& extrusion,const btCollisionShape* shape,const btVector3& worldBoundsMin,const btVector3& worldBoundsMax);
+		virtual void		drawOpenGL(btScalar* m, const btCollisionShape* shape, const btVector3& color,int	debugMode,const btVector3& worldBoundsMin,const btVector3& worldBoundsMax);
+		virtual void		drawShadow(btScalar* m, const btVector3& extrusion,const btCollisionShape* shape,const btVector3& worldBoundsMin,const btVector3& worldBoundsMax);
 		
 		bool		enableTexture(bool enable) { bool p=m_textureenabled;m_textureenabled=enable;return(p); }
 		bool		hasTextureEnabled() const

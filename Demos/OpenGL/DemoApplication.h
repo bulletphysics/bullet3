@@ -82,7 +82,7 @@ class DemoApplication
 	void showProfileInfo(float& xOffset,float& yStart, float yIncr);
 	void renderscene(int pass);
 
-	GL_ShapeDrawer	m_shapeDrawer;
+	GL_ShapeDrawer*	m_shapeDrawer;
 	bool			m_enableshadows;
 	btVector3		m_sundirection;
 
@@ -102,15 +102,16 @@ public:
 
 	}
 
+	void overrideGLShapeDrawer (GL_ShapeDrawer* shapeDrawer);
 	
 	void setOrthographicProjection();
 	void resetPerspectiveProjection();
 	
-	bool	setTexturing(bool enable) { return(m_shapeDrawer.enableTexture(enable)); }
+	bool	setTexturing(bool enable) { return(m_shapeDrawer->enableTexture(enable)); }
 	bool	setShadows(bool enable)	{ bool p=m_enableshadows;m_enableshadows=enable;return(p); }
 	bool	getTexturing() const
 	{
-		return m_shapeDrawer.hasTextureEnabled();
+		return m_shapeDrawer->hasTextureEnabled();
 	}
 	bool	getShadows() const
 	{
@@ -176,6 +177,7 @@ public:
 	virtual void	clientResetScene();
 
 	///Demo functions
+	virtual void setShootBoxShape ();
 	void	shootBox(const btVector3& destination);
 
 

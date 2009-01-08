@@ -102,4 +102,5 @@ SubInclude TOP Demos Raytracer ;
 SubInclude TOP Demos SimplexDemo ;
 SubInclude TOP Demos DoublePrecisionDemo ;
 SubInclude TOP Demos TerrainDemo ;
+SubInclude TOP Demos HeightFieldFluidDemo ;
 
