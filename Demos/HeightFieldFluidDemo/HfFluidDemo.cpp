@@ -985,6 +985,7 @@ void HfFluidDemo::setShootBoxShape ()
 {
 	if (!m_shootBoxShape)
 	{
+		m_shootBoxShape = new btBoxShape(btVector3(0.3f,1.f,0.2f));
 		btHfFluidBuoyantConvexShape* buoyantShape = new btHfFluidBuoyantConvexShape((btConvexShape*)m_shootBoxShape);
 		buoyantShape->generateShape (btScalar(0.25f), btScalar(0.05f));
 		m_shootBoxShape = buoyantShape;

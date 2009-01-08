@@ -8,7 +8,7 @@
 #include "BulletCollision/NarrowPhaseCollision/btMinkowskiPenetrationDepthSolver.h"
 #include "BulletCollision/NarrowPhaseCollision/btDiscreteCollisionDetectorInterface.h"
 
-#include "BulletHfFluid/btHfFluidBuoyantConvexShape.h"
+#include "btHfFluidBuoyantConvexShape.h"
 
 btHfFluidBuoyantConvexShape::btHfFluidBuoyantConvexShape (btConvexShape* convexShape)
 {

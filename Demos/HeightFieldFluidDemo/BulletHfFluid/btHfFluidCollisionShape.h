@@ -1,7 +1,7 @@
 #ifndef BT_HF_FLUID_COLLISION_SHAPE_H
 #define BT_HF_FLUID_COLLISION_SHAPE_H
 
-#include "BulletHfFluid/btHfFluid.h"
+#include "btHfFluid.h"
 #include "BulletCollision/BroadphaseCollision/btBroadphaseInterface.h"
 #include "BulletCollision/CollisionDispatch/btCollisionDispatcher.h"
 #include "BulletCollision/CollisionShapes/btConvexInternalShape.h"
