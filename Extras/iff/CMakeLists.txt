@@ -7,3 +7,5 @@ iff.h
 iffr.cpp
 iffw.cpp
 )
+
+SUBDIRS( BulletIffConverter )

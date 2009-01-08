@@ -23,10 +23,7 @@ subject to the following restrictions:
 
 #include <stdio.h>
 
-extern "C"
-{
 #include "iff.h"
-}
 
 IFFP MyReadICat(GroupContext *parent) 
 {
