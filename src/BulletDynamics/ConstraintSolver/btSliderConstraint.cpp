@@ -344,7 +344,8 @@ void btSliderConstraint::getInfo2(btConstraintInfo2* info)
             info->cfm[nrow] = btScalar(0.0); 
 			btScalar tag_vel = getTargetLinMotorVelocity();
 			btScalar mot_fact = getMotorFactor(m_linPos, m_lowerLinLimit, m_upperLinLimit, tag_vel, info->fps * info->erp);
-			info->m_constraintError[srow] += mot_fact * getTargetLinMotorVelocity();
+//			info->m_constraintError[srow] += mot_fact * getTargetLinMotorVelocity();
+			info->m_constraintError[srow] -= signFact * mot_fact * getTargetLinMotorVelocity();
 			info->m_lowerLimit[srow] += -getMaxLinMotorForce() * info->fps;
 			info->m_upperLimit[srow] += getMaxLinMotorForce() * info->fps;
 		}

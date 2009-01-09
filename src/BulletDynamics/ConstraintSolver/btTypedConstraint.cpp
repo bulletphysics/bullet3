@@ -69,11 +69,11 @@ btScalar btTypedConstraint::getMotorFactor(btScalar pos, btScalar lowLim, btScal
 	}
 	btScalar lim_fact = btScalar(1.0f);
 	btScalar delta_max = vel / timeFact;
-	if(delta_max > btScalar(0.0f))
+	if(delta_max < btScalar(0.0f))
 	{
-		if((pos > lowLim) && (pos < (lowLim + delta_max)))
+		if((pos >= lowLim) && (pos < (lowLim - delta_max)))
 		{
-			lim_fact = (pos  - lowLim) / delta_max;
+			lim_fact = (lowLim - pos) / delta_max;
 		}
 		else if(pos  < lowLim)
 		{
@@ -84,11 +84,11 @@ btScalar btTypedConstraint::getMotorFactor(btScalar pos, btScalar lowLim, btScal
 			lim_fact = btScalar(1.0f);
 		}
 	}
-	else if(delta_max < btScalar(0.0f))
+	else if(delta_max > btScalar(0.0f))
 	{
-		if((pos < uppLim) && (pos > (uppLim + delta_max)))
+		if((pos <= uppLim) && (pos > (uppLim - delta_max)))
 		{
-			lim_fact = (pos - uppLim) / delta_max;
+			lim_fact = (uppLim - pos) / delta_max;
 		}
 		else if(pos  > uppLim)
 		{
