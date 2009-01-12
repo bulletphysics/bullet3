@@ -20,6 +20,9 @@
 			ATLMinimizesCRunTimeLibraryUsage="FALSE">
 			<Tool
 				Name="VCCLCompilerTool"
+				EnableIntrinsicFunctions="true"
+				EnableEnhancedInstructionSet="2"
+				FloatingPointModel="2"
 				Optimization="2"
 				StringPooling="TRUE"
 				EnableFunctionLevelLinking="TRUE"
