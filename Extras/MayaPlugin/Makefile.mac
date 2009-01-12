@@ -28,9 +28,9 @@ CPPFLAGS = -DMAC_PLUGIN -DOSMac_MachO_ -DBits32_ -m32 -DUNIX -D_BOOL -DOSMac_ -D
 
 LDFLAGS =-bundle -ldl -shared
 
-BULLET_INCLUDE=-I$(BULLET)/src -I$(BULLET)/Extras/GIMPACT/include
+BULLET_INCLUDE=-I$(BULLET)/src 
 BULLET_LIB=-L$(BULLET)/out/macosxx86/optimize/libs -L$(BULLET)/src \
-                -lBulletColladaConverter -lcolladadom -llibxml  -lGIMPACT -lGIMPACTUtils -lbulletdynamics \
+                -lBulletColladaConverter -lcolladadom -llibxml  -lGIMPACTUtils -lbulletdynamics \
                  -lbulletcollision -lbulletmath 
 
 GL_LIB=-framework OpenGL
@@ -40,7 +40,7 @@ MAYA_LIB=-L/Applications/Autodesk/maya2008/Maya.app/Contents/MacOS -lOpenMaya -l
 
 SOURCES = pluginMain.cpp colladaExport.cpp rigidBodyNode.cpp rigidBodyArrayNode.cpp collisionShapeNode.cpp \
 	  solver.cpp bt_solver.cpp dSolverNode.cpp dSolverCmd.cpp dRigidBodyCmd.cpp dRigidBodyArrayCmd.cpp \
-	  pdbIO.cpp drawUtils.cpp
+	  pdbIO.cpp drawUtils.cpp nailConstraintNode.cpp dNailConstraintCmd.cpp
 
 HEADERS = box_shape.h             bt_sphere_shape.h         dSolverNode.h         rigid_body_impl.h \
 	box_shape_impl.h        collision_shape.h         mathUtils.h           rigidBodyNode.h \
@@ -51,7 +51,7 @@ HEADERS = box_shape.h             bt_sphere_shape.h         dSolverNode.h       
 	bt_plane_shape.h        dRigidBodyArrayCmd.h      plane_shape_impl.h \
 	bt_rigid_body.h         dRigidBodyCmd.h           rigidBodyArrayNode.h \
 	bt_solver.h             dSolverCmd.h              rigid_body.h 		pdbIO.h \
-	shared_ptr.h		drawUtils.h
+	shared_ptr.h		drawUtils.h		nailConstraintNode.h
 
 
 INCLUDE_FLAGS= $(GL_INCLUDE) $(BULLET_INCLUDE) $(MAYA_INCLUDE)

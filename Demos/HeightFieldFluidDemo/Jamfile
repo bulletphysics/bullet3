@@ -1,3 +1,5 @@
 SubDir TOP Demos HeightFieldFluidDemo ;
 
-BulletDemo HeightFieldFluidDemo : [ Wildcard *.h *.cpp BulletHfFluid/*.h BulletHfFluid/*.cpp ] ;
+BulletDemo HeightFieldFluidDemo : [ Wildcard *.cpp *.h ] 
+[ Wildcard BulletHfFluid : *.h *.cpp ]
+;

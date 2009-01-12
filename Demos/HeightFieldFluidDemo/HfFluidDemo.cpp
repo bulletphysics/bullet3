@@ -168,7 +168,7 @@ void Init_Bowl (HfFluidDemo* fluidDemo)
 		{
 			btScalar y = btScalar(j - fluid->getNumNodesLength()/2)/btScalar(fluid->getNumNodesLength()*2);
 			btScalar yh = amplitude * (y * y) + btScalar(5.0);
-			btScalar gHeight = max(xh,yh);
+			btScalar gHeight = btMax(xh,yh);
 			int index = fluid->arrayIndex (i, j);
 			ground[index] = gHeight;
 			btScalar wHeight = btScalar(0.0f);
