@@ -62,6 +62,8 @@ protected:
 	btVector3 m_touchingNormal;
 
 	bool	m_useGhostObjectSweepTest;
+
+	int m_upAxis;
 	
 	btVector3 computeReflectionDirection (const btVector3& direction, const btVector3& normal);
 	btVector3 parallelComponent (const btVector3& direction, const btVector3& normal);
@@ -73,9 +75,18 @@ protected:
 	void stepForwardAndStrafe (btCollisionWorld* collisionWorld, const btVector3& walkMove);
 	void stepDown (btCollisionWorld* collisionWorld, btScalar dt);
 public:
-	btKinematicCharacterController (btPairCachingGhostObject* ghostObject,btConvexShape* convexShape,btScalar stepHeight);
+	btKinematicCharacterController (btPairCachingGhostObject* ghostObject,btConvexShape* convexShape,btScalar stepHeight, int upAxis = 1);
 	~btKinematicCharacterController ();
 	
+	void setUpAxis (int axis)
+	{
+		if (axis < 0)
+			axis = 0;
+		if (axis > 2)
+			axis = 2;
+		m_upAxis = axis;
+	}
+
 	virtual void	setWalkDirection(const btVector3& walkDirection)
 	{
 		m_walkDirection = walkDirection;
