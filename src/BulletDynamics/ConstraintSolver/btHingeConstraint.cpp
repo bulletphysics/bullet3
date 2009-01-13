@@ -23,12 +23,15 @@ subject to the following restrictions:
 
 //-----------------------------------------------------------------------------
 
+#define HINGE_USE_OBSOLETE_SOLVER false
+
+//-----------------------------------------------------------------------------
+
 
 btHingeConstraint::btHingeConstraint()
 : btTypedConstraint (HINGE_CONSTRAINT_TYPE),
 m_enableAngularMotor(false),
-m_useSolveConstraintObsolete(false)
-//m_useSolveConstraintObsolete(true)
+m_useSolveConstraintObsolete(HINGE_USE_OBSOLETE_SOLVER)
 {
 }
 
@@ -39,8 +42,7 @@ btHingeConstraint::btHingeConstraint(btRigidBody& rbA,btRigidBody& rbB, const bt
 									 :btTypedConstraint(HINGE_CONSTRAINT_TYPE, rbA,rbB),
 									 m_angularOnly(false),
 									 m_enableAngularMotor(false),
-									 m_useSolveConstraintObsolete(false)
-//									 m_useSolveConstraintObsolete(true)
+									 m_useSolveConstraintObsolete(HINGE_USE_OBSOLETE_SOLVER)
 {
 	m_rbAFrame.getOrigin() = pivotInA;
 	
@@ -87,8 +89,7 @@ btHingeConstraint::btHingeConstraint(btRigidBody& rbA,btRigidBody& rbB, const bt
 
 btHingeConstraint::btHingeConstraint(btRigidBody& rbA,const btVector3& pivotInA,btVector3& axisInA)
 :btTypedConstraint(HINGE_CONSTRAINT_TYPE, rbA), m_angularOnly(false), m_enableAngularMotor(false), 
-m_useSolveConstraintObsolete(false)
-// m_useSolveConstraintObsolete(true)
+m_useSolveConstraintObsolete(HINGE_USE_OBSOLETE_SOLVER)
 {
 
 	// since no frame is given, assume this to be zero angle and just pick rb transform axis
@@ -129,8 +130,7 @@ btHingeConstraint::btHingeConstraint(btRigidBody& rbA,btRigidBody& rbB,
 :btTypedConstraint(HINGE_CONSTRAINT_TYPE, rbA,rbB),m_rbAFrame(rbAFrame),m_rbBFrame(rbBFrame),
 m_angularOnly(false),
 m_enableAngularMotor(false),
-m_useSolveConstraintObsolete(false)
-//m_useSolveConstraintObsolete(true)
+m_useSolveConstraintObsolete(HINGE_USE_OBSOLETE_SOLVER)
 {
 	// flip axis
 	m_rbBFrame.getBasis()[0][2] *= btScalar(-1.);
@@ -152,8 +152,7 @@ btHingeConstraint::btHingeConstraint(btRigidBody& rbA, const btTransform& rbAFra
 :btTypedConstraint(HINGE_CONSTRAINT_TYPE, rbA),m_rbAFrame(rbAFrame),m_rbBFrame(rbAFrame),
 m_angularOnly(false),
 m_enableAngularMotor(false),
-m_useSolveConstraintObsolete(false)
-//m_useSolveConstraintObsolete(true)
+m_useSolveConstraintObsolete(HINGE_USE_OBSOLETE_SOLVER)
 {
 	///not providing rigidbody B means implicitly using worldspace for body B
 
@@ -403,18 +402,19 @@ void btHingeConstraint::getInfo2 (btConstraintInfo2* info)
 		{  // the joint motor is ineffective
 			powered = 0;
 		}
+		info->m_constraintError[srow] = btScalar(0.0f);
 		if(powered)
 		{
             info->cfm[srow] = btScalar(0.0); 
 			btScalar mot_fact = getMotorFactor(m_hingeAngle, lostop, histop, m_motorTargetVelocity, info->fps * info->erp);
-			info->m_constraintError[srow] = mot_fact * m_motorTargetVelocity;
+			info->m_constraintError[srow] += mot_fact * m_motorTargetVelocity;
 			info->m_lowerLimit[srow] = - m_maxMotorImpulse;
 			info->m_upperLimit[srow] =   m_maxMotorImpulse;
 		}
 		if(limit)
 		{
 			k = info->fps * info->erp;
-			info->m_constraintError[srow] = k * limit_err;
+			info->m_constraintError[srow] += k * limit_err;
 			info->cfm[srow] = btScalar(0.0);
 			if(lostop == histop) 
 			{
