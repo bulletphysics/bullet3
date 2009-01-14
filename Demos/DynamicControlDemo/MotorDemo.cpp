@@ -256,7 +256,12 @@ void MotorDemo::initPhysics()
 
 	m_Time = 0;
 	m_fCyclePeriod = 2000.f; // in milliseconds
-	m_fMuscleStrength = 0.05f;
+
+//	m_fMuscleStrength = 0.05f;
+	// new SIMD solver for joints clips accumulated impulse, so the new limits for the motor
+	// should be (numberOfsolverIterations * oldLimits)
+	// currently solver uses 10 iterations, so:
+	m_fMuscleStrength = 0.5f;
 
 	setCameraDistance(btScalar(5.));
 
