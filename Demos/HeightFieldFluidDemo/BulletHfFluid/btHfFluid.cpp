@@ -8,7 +8,7 @@
 #include "BulletCollision/CollisionDispatch/btManifoldResult.h"
 #include "BulletCollision/CollisionShapes/btTriangleShape.h"
 #include "BulletDynamics/Dynamics/btRigidBody.h"
-#include "Demos/OpenGL/GLDebugDrawer.h"
+#include "../../OpenGL/GLDebugDrawer.h"
 								
 btHfFluid::btHfFluid (btScalar gridCellWidth, int numNodesWidth, int numNodesLength)
 {

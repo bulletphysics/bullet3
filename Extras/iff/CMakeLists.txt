@@ -8,4 +8,4 @@ iffr.cpp
 iffw.cpp
 )
 
-SUBDIRS( BulletIffConverter )
+#SUBDIRS( BulletIffConverter )
