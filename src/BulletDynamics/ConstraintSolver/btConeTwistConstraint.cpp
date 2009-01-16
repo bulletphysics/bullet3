@@ -307,6 +307,7 @@ void	btConeTwistConstraint::buildJacobian()
 			btQuaternion rotationArc = shortestArcQuat(b2Axis1,b1Axis1);
 			btVector3 TwistRef = quatRotate(rotationArc,b2Axis2); 
 			btScalar twist = btAtan2Fast( TwistRef.dot(b1Axis3), TwistRef.dot(b1Axis2) );
+			m_twistAngle = twist;
 
 			btScalar lockedFreeFactor = (m_twistSpan > btScalar(0.05f)) ? m_limitSoftness : btScalar(0.);
 			if (twist <= -m_twistSpan*lockedFreeFactor)
@@ -502,6 +503,7 @@ void btConeTwistConstraint::calcAngleInfo()
 		btQuaternion rotationArc = shortestArcQuat(b2Axis1,b1Axis1);
 		btVector3 TwistRef = quatRotate(rotationArc,b2Axis2); 
 		btScalar twist = btAtan2Fast( TwistRef.dot(b1Axis3), TwistRef.dot(b1Axis2) );
+		m_twistAngle = twist;
 
 //		btScalar lockedFreeFactor = (m_twistSpan > btScalar(0.05f)) ? m_limitSoftness : btScalar(0.);
 		btScalar lockedFreeFactor = (m_twistSpan > btScalar(0.05f)) ? btScalar(1.0f) : btScalar(0.);

@@ -56,6 +56,8 @@ public:
 	btScalar	m_swingCorrection;
 	btScalar	m_twistCorrection;
 
+	btScalar	m_twistAngle;
+
 	btScalar	m_accSwingLimitImpulse;
 	btScalar	m_accTwistLimitImpulse;
 
@@ -128,6 +130,23 @@ public:
 	}
 
 	void calcAngleInfo();
+
+	inline btScalar getSwingSpan1()
+	{
+		return m_swingSpan1;
+	}
+	inline btScalar getSwingSpan2()
+	{
+		return m_swingSpan2;
+	}
+	inline btScalar getTwistSpan()
+	{
+		return m_twistSpan;
+	}
+	inline btScalar getTwistAngle()
+	{
+		return m_twistAngle;
+	}
 
 
 };

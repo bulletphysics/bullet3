@@ -544,7 +544,7 @@ int btGeneric6DofConstraint::setLinearLimits(btConstraintInfo2* info)
 		{ // re-use rotational motor code
 			limot.m_bounce = btScalar(0.f);
 			limot.m_currentLimit = m_linearLimits.m_currentLimit[i];
-			limot.m_currentLimitError  = -m_linearLimits.m_currentLimitError[i];
+			limot.m_currentLimitError  = m_linearLimits.m_currentLimitError[i];
 			limot.m_damping  = m_linearLimits.m_damping;
 			limot.m_enableMotor  = m_linearLimits.m_enableMotor[i];
 			limot.m_ERP  = m_linearLimits.m_restitution;
@@ -578,7 +578,6 @@ int btGeneric6DofConstraint::setAngularLimits(btConstraintInfo2 *info, int row_o
 	//solve angular limits
 	for (int i=0;i<3 ;i++ )
 	{
-		//if(i==2) continue;
 		if(d6constraint->getRotationalLimitMotor(i)->needApplyTorques())
 		{
 			btVector3 axis = d6constraint->getAxis(i);
@@ -732,54 +731,31 @@ int btGeneric6DofConstraint::get_limit_motor_info2(
             J2[srow+1] = -ax1[1];
             J2[srow+2] = -ax1[2];
         }
-        // linear limot torque decoupling step:
-        //
-        // if this is a linear limot (e.g. from a slider), we have to be careful
-        // that the linear constraint forces (+/- ax1) applied to the two bodies
-        // do not create a torque couple. in other words, the points that the
-        // constraint force is applied at must lie along the same ax1 axis.
-        // a torque couple will result in powered or limited slider-jointed free
-        // bodies from gaining angular momentum.
-        // the solution used here is to apply the constraint forces at the point
-        // at center of mass of two bodies. there is no penalty (other than an
-        // extra tiny bit of computation) in doing this adjustment. note that we
-        // only need to do this if the constraint connects two bodies.
-        btVector3 ltd;	// Linear Torque Decoupling vector (a torque)
-        if(!rotational)
+        if((!rotational) && limit)
         {
-			btVector3 c = body1->getCenterOfMassPosition() - body0->getCenterOfMassPosition();
+			btVector3 ltd;	// Linear Torque Decoupling vector
+			btVector3 c = m_calculatedTransformB.getOrigin() - body0->getCenterOfMassPosition();
 			ltd = c.cross(ax1);
-			btScalar miA = body0->getInvMass();
-			btScalar miB = body1->getInvMass();
-			btScalar miS = miA + miB;
-			btScalar factA, factB;
-			if(miS > btScalar(0.f))
-			{
-				factA = miB / miS;
-			}
-			else 
-			{
-				factA = btScalar(0.5f);
-			}
-			if(factA > 0.99f) factA = 0.99f;
-			if(factA < 0.01f) factA = 0.01f;
-			factB = btScalar(1.0f) - factA;
-            info->m_J1angularAxis[srow+0] = factA * ltd[0];
-            info->m_J1angularAxis[srow+1] = factA * ltd[1];
-            info->m_J1angularAxis[srow+2] = factA * ltd[2];
-            info->m_J2angularAxis[srow+0] = factB * ltd[0];
-            info->m_J2angularAxis[srow+1] = factB * ltd[1];
-            info->m_J2angularAxis[srow+2] = factB * ltd[2];
+            info->m_J1angularAxis[srow+0] = ltd[0];
+            info->m_J1angularAxis[srow+1] = ltd[1];
+            info->m_J1angularAxis[srow+2] = ltd[2];
+
+			c = m_calculatedTransformB.getOrigin() - body1->getCenterOfMassPosition();
+			ltd = -c.cross(ax1);
+			info->m_J2angularAxis[srow+0] = ltd[0];
+            info->m_J2angularAxis[srow+1] = ltd[1];
+            info->m_J2angularAxis[srow+2] = ltd[2];
         }
         // if we're limited low and high simultaneously, the joint motor is
         // ineffective
         if (limit && (limot->m_loLimit == limot->m_hiLimit)) powered = 0;
+        info->m_constraintError[srow] = btScalar(0.f);
         if (powered)
         {
             info->cfm[srow] = 0.0f;
             if(!limit)
             {
-                info->m_constraintError[srow] = limot->m_targetVelocity;
+                info->m_constraintError[srow] += limot->m_targetVelocity;
                 info->m_lowerLimit[srow] = -limot->m_maxMotorForce;
                 info->m_upperLimit[srow] = limot->m_maxMotorForce;
             }
@@ -787,7 +763,14 @@ int btGeneric6DofConstraint::get_limit_motor_info2(
         if(limit)
         {
             btScalar k = info->fps * limot->m_ERP;
-			info->m_constraintError[srow] = -k * limot->m_currentLimitError;
+			if(!rotational)
+			{
+				info->m_constraintError[srow] += k * limot->m_currentLimitError;
+			}
+			else
+			{
+				info->m_constraintError[srow] += -k * limot->m_currentLimitError;
+			}
             info->cfm[srow] = 0.0f;
             if (limot->m_loLimit == limot->m_hiLimit)
             {   // limited low and high simultaneously
