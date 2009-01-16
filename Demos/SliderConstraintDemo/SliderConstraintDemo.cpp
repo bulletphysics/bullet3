@@ -52,6 +52,9 @@ April 24, 2008
 	static btSliderConstraint *spSlider1, *spSlider2;
 #endif
 
+static btPoint2PointConstraint* spP2PConst;
+static btHingeConstraint* spHingeConst;
+
 //-----------------------------------------------------------------------------
 
 static void draw_axes(const btRigidBody& rb, const btTransform& frame)
@@ -155,6 +158,7 @@ void SliderConstraintDemo::initPhysics()
 	btDiscreteDynamicsWorld* wp = new btDiscreteDynamicsWorld(m_dispatcher,m_overlappingPairCache,m_constraintSolver,m_collisionConfiguration);
 	//	wp->getSolverInfo().m_numIterations = 20; // default is 10
 	m_dynamicsWorld = wp;
+//	wp->getSolverInfo().m_erp = 0.8;
 
 	// add floor
 	//btCollisionShape* groundShape = new btStaticPlaneShape(btVector3(0,1,0),50);
@@ -202,8 +206,11 @@ void SliderConstraintDemo::initPhysics()
 	spSlider1->setAngularUpperLimit(btVector3(0,0,0));
 #else
 	spSlider1 = new btSliderConstraint(*pRbA1, *pRbB1, frameInA, frameInB, true);
+//	spSlider1 = new btSliderConstraint(*pRbA1, *pRbB1, frameInA, frameInB, false);
 	spSlider1->setLowerLinLimit(-15.0F);
 	spSlider1->setUpperLinLimit(-5.0F);
+//	spSlider1->setLowerLinLimit(5.0F);
+//	spSlider1->setUpperLinLimit(15.0F);
 //	spSlider1->setLowerLinLimit(-10.0F);
 //	spSlider1->setUpperLinLimit(-10.0F);
 	spSlider1->setLowerAngLimit(-SIMD_PI / 3.0F);
@@ -215,7 +222,7 @@ void SliderConstraintDemo::initPhysics()
 	// add kinematic rigid body A2
 	worldPos.setValue(0,2,0);
 	trans.setOrigin(worldPos);
-	btRigidBody* pRbA2 = localCreateRigidBody(0, trans, shape);
+	btRigidBody* pRbA2 = localCreateRigidBody(0., trans, shape);
 	pRbA2->setActivationState(DISABLE_DEACTIVATION);
 
 	// add dynamic rigid body B2
@@ -233,14 +240,30 @@ void SliderConstraintDemo::initPhysics()
 	spSlider2->setAngularUpperLimit(btVector3(0,0,0));
 #else
 	spSlider2 = new btSliderConstraint(*pRbA2, *pRbB2, frameInA, frameInB, true);
+//	spSlider2 = new btSliderConstraint(*pRbA2, *pRbB2, frameInA, frameInB, false);
 	spSlider2->setLowerLinLimit(-25.0F);
 	spSlider2->setUpperLinLimit(-5.0F);
-	spSlider2->setLowerAngLimit(SIMD_PI / 2.0F);
-	spSlider2->setUpperAngLimit(-SIMD_PI / 2.0F);
+//	spSlider2->setLowerLinLimit(5.0F);
+//	spSlider2->setUpperLinLimit(25.0F);
+//	spSlider2->setUpperLinLimit(-5.0F);
+//	spSlider2->setUpperLinLimit(-9.99F);
+
+
+//	spSlider2->setLowerAngLimit(SIMD_PI / 2.0F);
+//	spSlider2->setUpperAngLimit(-SIMD_PI / 2.0F);
+	spSlider2->setLowerAngLimit(-SIMD_PI / 2.0F);
+	spSlider2->setUpperAngLimit(SIMD_PI / 2.0F);
+//	spSlider2->setLowerAngLimit(-0.01F);
+//	spSlider2->setUpperAngLimit(0.01F);
+
+
+//	spSlider2->setDampingLimLin(0.5f);
+
+#if 0
 	// add motors
 	spSlider2->setPoweredLinMotor(true);
 	spSlider2->setMaxLinMotorForce(0.1);
-	spSlider2->setTargetLinMotorVelocity(5.0);
+	spSlider2->setTargetLinMotorVelocity(-5.0);
 
 	spSlider2->setPoweredAngMotor(true);
 //	spSlider2->setMaxAngMotorForce(0.01);
@@ -251,6 +274,7 @@ void SliderConstraintDemo::initPhysics()
 
 	spSlider2->setDampingDirLin(0.005F);
 	spSlider2->setRestitutionLimLin(1.1F);
+#endif
 
 	// various ODE tests
 //	spSlider2->setDampingLimLin(0.1F); // linear bounce factor for ODE == 1.0 - DampingLimLin;
@@ -262,6 +286,56 @@ void SliderConstraintDemo::initPhysics()
 #endif
 	m_dynamicsWorld->addConstraint(spSlider2, true);
 
+
+#if 1
+{
+	// add dynamic rigid body A1
+	trans.setIdentity();
+	worldPos.setValue(20,0,0);
+	trans.setOrigin(worldPos);
+	btRigidBody* pRbA3 = localCreateRigidBody(0.0F, trans, shape);
+	pRbA1->setActivationState(DISABLE_DEACTIVATION);
+
+	// add dynamic rigid body B1
+	worldPos.setValue(25,0,0);
+	trans.setOrigin(worldPos);
+	btRigidBody* pRbB3 = localCreateRigidBody(mass, trans, shape);
+	pRbB1->setActivationState(DISABLE_DEACTIVATION);
+
+	btVector3 pivA( 2.5, 0., 0.);
+	btVector3 pivB(-2.5, 0., 0.);
+	spP2PConst = new btPoint2PointConstraint(*pRbA3, *pRbB3, pivA, pivB);
+	m_dynamicsWorld->addConstraint(spP2PConst, true);
+}
+#endif
+
+#if 1
+	// add dynamic rigid body A4
+	trans.setIdentity();
+	worldPos.setValue(20,10,0);
+	trans.setOrigin(worldPos);
+	btRigidBody* pRbA4 = localCreateRigidBody(0.0F, trans, shape);
+	pRbA4->setActivationState(DISABLE_DEACTIVATION);
+
+	// add dynamic rigid body B1
+	worldPos.setValue(27,10,0);
+	trans.setOrigin(worldPos);
+	btRigidBody* pRbB4 = localCreateRigidBody(mass, trans, shape);
+	pRbB1->setActivationState(DISABLE_DEACTIVATION);
+
+
+	btVector3 pivA( 2., 0., 0.);
+	btVector3 pivB(-5., 0., 0.);
+	btVector3 axisA(0., 0., 1.);
+	btVector3 axisB(0., 0., 1.);
+
+	spHingeConst = new btHingeConstraint(*pRbA4, *pRbB4, pivA, pivB, axisA, axisB);
+//	spHingeConst->setLimit(-1.57, 1.57);
+	spHingeConst->setLimit(1.57, -1.57);
+	spHingeConst->enableAngularMotor(true, 10.0, 0.19);
+
+	m_dynamicsWorld->addConstraint(spHingeConst, true);
+#endif
 
 } // SliderConstraintDemo::initPhysics()
 
@@ -340,8 +414,8 @@ void SliderConstraintDemo::clientMoveAndDisplay()
 		}
 	}
 	renderme();
-	drawSlider(spSlider1);
-	drawSlider(spSlider2);
+//	drawSlider(spSlider1);
+//	drawSlider(spSlider2);
     glFlush();
     glutSwapBuffers();
 } // SliderConstraintDemo::clientMoveAndDisplay()
@@ -355,8 +429,8 @@ void SliderConstraintDemo::displayCallback(void)
 	{
 		m_dynamicsWorld->debugDrawWorld();
 	}
-	drawSlider(spSlider1);
-	drawSlider(spSlider2);
+//	drawSlider(spSlider1);
+//	drawSlider(spSlider2);
 	renderme();
     glFlush();
     glutSwapBuffers();

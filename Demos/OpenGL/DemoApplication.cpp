@@ -368,6 +368,18 @@ void DemoApplication::keyboardCallback(unsigned char key, int x, int y)
 		else
 			m_debugMode |= btIDebugDraw::DBG_DrawContactPoints;
 		break;
+	case 'C' : 
+		if (m_debugMode & btIDebugDraw::DBG_DrawConstraints)
+			m_debugMode = m_debugMode & (~btIDebugDraw::DBG_DrawConstraints);
+		else
+			m_debugMode |= btIDebugDraw::DBG_DrawConstraints;
+		break;
+	case 'L' : 
+		if (m_debugMode & btIDebugDraw::DBG_DrawConstraintLimits)
+			m_debugMode = m_debugMode & (~btIDebugDraw::DBG_DrawConstraintLimits);
+		else
+			m_debugMode |= btIDebugDraw::DBG_DrawConstraintLimits;
+		break;
 
 	case 'd' : 
 		if (m_debugMode & btIDebugDraw::DBG_NoDeactivation)
