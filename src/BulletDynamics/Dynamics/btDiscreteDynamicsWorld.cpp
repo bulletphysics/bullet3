@@ -1261,8 +1261,8 @@ void btDiscreteDynamicsWorld::debugDrawConstraint(btTypedConstraint* constraint)
 				if(drawLimits) 
 				{
 					btVector3& center = tr.getOrigin();
-					btVector3& normal = tr.getBasis().getColumn(2);
-					btVector3& axis = tr.getBasis().getColumn(0);
+					btVector3 normal = tr.getBasis().getColumn(2);
+					btVector3 axis = tr.getBasis().getColumn(0);
 					getDebugDrawer()->drawArc(center, normal, axis, DEBUG_DRAW_CONSTR_LEN, DEBUG_DRAW_CONSTR_LEN, minAng, maxAng, btVector3(0,0,0), drawSect);
 				}
 			}
@@ -1286,12 +1286,12 @@ void btDiscreteDynamicsWorld::debugDrawConstraint(btTypedConstraint* constraint)
 					tr.setOrigin(btVector3(0,0,0));
 					btVector3 center = btVector3(dist, 0.f, 0.f);
 					center = tr * center;
-					btVector3& pivot = pCT->getRigidBodyB().getCenterOfMassTransform() * pCT->getBFrame().getOrigin();
+					btVector3 pivot = pCT->getRigidBodyB().getCenterOfMassTransform() * pCT->getBFrame().getOrigin();
 					center += pivot;
 					tr = pCT->getRigidBodyA().getCenterOfMassTransform() * pCT->getAFrame();
-					btVector3& normal = tr.getBasis().getColumn(0);
-					btVector3& axis1 = tr.getBasis().getColumn(1);
-					btVector3& axis2 = tr.getBasis().getColumn(2);
+					btVector3 normal = tr.getBasis().getColumn(0);
+					btVector3 axis1 = tr.getBasis().getColumn(1);
+					btVector3 axis2 = tr.getBasis().getColumn(2);
 					btVector3 vert = center + axis1 * sw1;
 					getDebugDrawer()->drawLine(pivot, vert, btVector3(0,0,0));
 					vert = center - axis1 * sw1;
@@ -1324,8 +1324,8 @@ void btDiscreteDynamicsWorld::debugDrawConstraint(btTypedConstraint* constraint)
 				{
 					tr = p6DOF->getCalculatedTransformA();
 					const btVector3& center = p6DOF->getCalculatedTransformB().getOrigin();
-					btVector3& up = tr.getBasis().getColumn(2);
-					btVector3& axis = tr.getBasis().getColumn(0);
+					btVector3 up = tr.getBasis().getColumn(2);
+					btVector3 axis = tr.getBasis().getColumn(0);
 					btScalar minTh = p6DOF->getRotationalLimitMotor(1)->m_loLimit;
 					btScalar maxTh = p6DOF->getRotationalLimitMotor(1)->m_hiLimit;
 					btScalar minPs = p6DOF->getRotationalLimitMotor(2)->m_loLimit;
@@ -1343,7 +1343,7 @@ void btDiscreteDynamicsWorld::debugDrawConstraint(btTypedConstraint* constraint)
 					ref[1] = -sz*axis[0] + cz*axis[1];
 					ref[2] = cz*sy*axis[0] + sz*sy*axis[1] + cy*axis[2];
 					tr = p6DOF->getCalculatedTransformB();
-					btVector3& normal = -tr.getBasis().getColumn(0);
+					btVector3 normal = -tr.getBasis().getColumn(0);
 					btScalar minFi = p6DOF->getRotationalLimitMotor(0)->m_loLimit;
 					btScalar maxFi = p6DOF->getRotationalLimitMotor(0)->m_hiLimit;
 					getDebugDrawer()->drawArc(center, normal, ref, DEBUG_DRAW_CONSTR_LEN, DEBUG_DRAW_CONSTR_LEN, minFi, maxFi, btVector3(0,0,0), true);
@@ -1367,8 +1367,8 @@ void btDiscreteDynamicsWorld::debugDrawConstraint(btTypedConstraint* constraint)
 					btVector3 li_min = tr * btVector3(pSlider->getLowerLinLimit(), 0.f, 0.f);
 					btVector3 li_max = tr * btVector3(pSlider->getUpperLinLimit(), 0.f, 0.f);
 					getDebugDrawer()->drawLine(li_min, li_max, btVector3(0, 0, 0));
-					btVector3& normal = tr.getBasis().getColumn(0);
-					btVector3& axis = tr.getBasis().getColumn(1);
+					btVector3 normal = tr.getBasis().getColumn(0);
+					btVector3 axis = tr.getBasis().getColumn(1);
 					btScalar a_min = pSlider->getLowerAngLimit();
 					btScalar a_max = pSlider->getUpperAngLimit();
 					const btVector3& center = pSlider->getCalculatedTransformB().getOrigin();
