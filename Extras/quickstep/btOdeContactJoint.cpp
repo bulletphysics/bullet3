@@ -177,7 +177,12 @@ void btOdeContactJoint::GetInfo2(Info2 *info)
 	c2[2] = relativePositionB.z();
 	
 	//combined friction is available in the contact point
-	float friction = 0.25;//FRICTION_CONSTANT ;//* m_body0->m_friction * m_body1->m_friction;
+	//float friction = 0.25;//FRICTION_CONSTANT ;//* m_body0->m_friction * m_body1->m_friction;
+	float friction = 1.0f;
+	if (m_body0 != 0) 
+		friction *= m_body0->m_friction;
+	if (m_body1 != 0) 
+		friction *= m_body1->m_friction;
 	
 	// first friction direction
 	if (m_numRows >= 2) 
