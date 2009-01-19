@@ -141,6 +141,10 @@ protected:
 	void addConvexHull (btCollisionShape* shape, const char* nodeName);
 	void addConvexMesh (btCollisionShape* shape, const char* nodeName);
 	void addConcaveMesh(btCollisionShape* shape, const char* nodeName);
+	void addGimpactMesh(btCollisionShape* shape, const char* nodeName);
+
+	void	addConcaveMeshInternal(class btStridingMeshInterface* meshInterface , const char* nodeName);
+	
 	class domNode* addNode       (btRigidBody* body, const char* nodeName, const char* shapeName);
 	class domRigid_constraint*	addConstraint (btTypedConstraint* constraint, const char* constraintName);
 	class domInstance_rigid_constraint* addConstraintInstance (btTypedConstraint* constraint, const char* constraintName);
@@ -227,6 +231,7 @@ public:
 	virtual class btTriangleMesh*	createTriangleMeshContainer();
 	virtual	btCollisionShape* createBvhTriangleMeshShape(btTriangleMesh* trimesh);
 	virtual btCollisionShape* createConvexTriangleMeshShape(btTriangleMesh* trimesh);
+	virtual btCollisionShape* createGimpactShape(btTriangleMesh* trimesh);
 	virtual class btConvexHullShape* createConvexHullShape();
 	virtual class btCompoundShape* createCompoundShape();
 

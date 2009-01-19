@@ -40,6 +40,8 @@ subject to the following restrictions:
 //#include "BulletCollision/CollisionShapes/btTriangleIndexVertexArray.h"
 #include "BulletCollision/CollisionShapes/btCompoundShape.h"
 #include "LinearMath/btDefaultMotionState.h"
+#include "BulletCollision/Gimpact/btGImpactShape.h"
+
 
 #ifdef WIN32
 #define snprintf _snprintf
@@ -358,13 +360,14 @@ bool ColladaConverter::convert()
 						// Find out how many groups we need to allocate space for 
 						int	numTriangleGroups = (int)meshElement->getTriangles_array().getCount();
 						int	numPolygonGroups  = (int)meshElement->getPolygons_array().getCount();
-						int	totalGroups		  = numTriangleGroups + numPolygonGroups;
+						int numPolyList = (int)meshElement->getPolylist_array().getCount();
+						int	totalGroups		  = numTriangleGroups + numPolygonGroups + numPolyList;
 						if (totalGroups == 0) 
 						{
 							printf("No Triangles or Polygons found int Geometry %s \n", lib->getId() ); 
 						} else
 						{
-							printf("Found mesh geometry (%s): numTriangleGroups:%i numPolygonGroups:%i\n",lib->getId(),numTriangleGroups,numPolygonGroups);
+							printf("Found mesh geometry (%s): numTriangleGroups:%i numPolygonGroups :%i numPolyList=%i\n",lib->getId(),numTriangleGroups,numPolygonGroups,numPolyList);
 						}
 
 
@@ -1506,19 +1509,41 @@ void ColladaConverter::addConvexHull (btCollisionShape* shape, const char* conve
 
 }
 
-void
-ColladaConverter::addConvexMesh (btCollisionShape* shape, const char* nodeName)
+void	ColladaConverter::addConvexMesh (btCollisionShape* shape, const char* nodeName)
 {
 	printf("convex Triangle Mesh Shape\n");
 	printf("ERROR: Unsupported.\n");
 }
 
-void
-ColladaConverter::addConcaveMesh(btCollisionShape* shape, const char* nodeName)
+void	ColladaConverter::addConcaveMesh(btCollisionShape* shape, const char* nodeName)
 {
 	btTriangleMeshShape* meshShape = (btTriangleMeshShape*)shape;
 	btStridingMeshInterface* meshInterface = meshShape->getMeshInterface ();
+	addConcaveMeshInternal(meshInterface,nodeName);
 
+}
+
+void	ColladaConverter::addGimpactMesh(btCollisionShape* shape, const char* shapeName)
+{
+	btGImpactShapeInterface* meshShapeInterface = (btGImpactShapeInterface*) shape;
+	switch (meshShapeInterface->getGImpactShapeType())
+	{
+	case CONST_GIMPACT_TRIMESH_SHAPE:
+		{
+			btGImpactMeshShape* meshShape = (btGImpactMeshShape*) shape;
+			btStridingMeshInterface* meshInterface = meshShape->getMeshInterface ();
+			addConcaveMeshInternal(meshInterface,shapeName);
+			break;
+		}
+	default:
+		{
+		}
+	};
+}
+
+void	ColladaConverter::addConcaveMeshInternal(btStridingMeshInterface* meshInterface , const char* nodeName)
+{
+	
 	domLibrary_geometries* geomLib = getDefaultGeomLib ();
 	domGeometry* geo = findGeometry (nodeName);
 
@@ -1758,6 +1783,43 @@ void ColladaConverter::buildShapeNew (btCollisionShape* shape, void* domTechniqu
 		gi->setUrl (shapeURL);
 	}
 	break;
+	case GIMPACT_SHAPE_PROXYTYPE:
+		{
+			btGImpactShapeInterface* meshShapeInterface = (btGImpactShapeInterface*) shape;
+			switch (meshShapeInterface->getGImpactShapeType())
+			{
+			case CONST_GIMPACT_TRIMESH_SHAPE:
+				{
+					addGimpactMesh (shape, shapeName);
+					char shapeURL[512];
+					snprintf(&shapeURL[0], 512, "#%s", shapeName);
+					domInstance_geometry* gi = (domInstance_geometry*)colladaShape->createAndPlace (COLLADA_ELEMENT_INSTANCE_GEOMETRY);
+					gi->setUrl (shapeURL);
+					break;
+				}
+			
+			case CONST_GIMPACT_COMPOUND_SHAPE:
+				{
+					btGImpactCompoundShape* gimpactCompoundShape = (btGImpactCompoundShape*)shape;
+					
+					for (int i = 0; i < gimpactCompoundShape->getNumChildShapes (); i++)
+					{
+						btCollisionShape* child_shape = gimpactCompoundShape->getChildShape(i);
+						char childShapeName[512];
+						sprintf(childShapeName,"%s-Child%d",shapeName,i);
+						buildShapeNew (child_shape, domTechniqueCommon, childShapeName,true, gimpactCompoundShape->getChildTransform(i));
+					}
+					break;
+				}
+				
+			default:
+				{
+				}
+			};
+
+			
+		}
+		break;
 	case TRIANGLE_MESH_SHAPE_PROXYTYPE:
 	{
 		addConcaveMesh (shape, shapeName);
@@ -2086,8 +2148,7 @@ void ColladaConverter::addMaterial (btRigidBody* rb, const char* nodeName)
 
 }
 
-void
-ColladaConverter::updateRigidBodyPosition (btRigidBody* body, domNode* node)
+void	ColladaConverter::updateRigidBodyPosition (btRigidBody* body, domNode* node)
 {
 	// remove all translations
 	while (node->getTranslate_array().getCount())
@@ -2137,8 +2198,7 @@ ColladaConverter::updateRigidBodyPosition (btRigidBody* body, domNode* node)
 	}
 }
 
-void
-ColladaConverter::updateRigidBodyVelocity (btRigidBody* body)
+void	ColladaConverter::updateRigidBodyVelocity (btRigidBody* body)
 {
 	domInstance_rigid_bodyRef rigidBodyInstance = findRigid_body_instance (body);
 	if (!rigidBodyInstance)
@@ -2177,8 +2237,7 @@ ColladaConverter::updateRigidBodyVelocity (btRigidBody* body)
 	}
 }
 
-void
-ColladaConverter::updateConstraint (btTypedConstraint* constraint, domRigid_constraint* rigidConstraint)
+void	ColladaConverter::updateConstraint (btTypedConstraint* constraint, domRigid_constraint* rigidConstraint)
 {
 	if (constraint->getConstraintType() != D6_CONSTRAINT_TYPE)
 		return;
@@ -2365,6 +2424,9 @@ void ColladaConverter::syncOrAddRigidBody (btRigidBody* body)
 
 		if (shape->getShapeType () == TRIANGLE_MESH_SHAPE_PROXYTYPE) {
 			addConcaveMesh (shape, shapeName);
+		} else if (shape->getShapeType () == GIMPACT_SHAPE_PROXYTYPE)
+		{
+			addGimpactMesh (shape, shapeName);
 		} else if (!shape->isConvex () && !shape->isCompound() && (shape->getShapeType()!=STATIC_PLANE_PROXYTYPE)) {
 			printf("Unknown shape type. %d Skipping rigidbody.\n", shape->getShapeType());
 			return;
@@ -2699,6 +2761,15 @@ btCollisionShape* ColladaConverter::createBvhTriangleMeshShape(btTriangleMesh* t
 	return shape;
 }
 
+btCollisionShape* ColladaConverter::createGimpactShape(btTriangleMesh* trimesh)
+{
+	btGImpactMeshShape* shape = new btGImpactMeshShape(trimesh);
+	shape->setMargin(0.f);
+	shape->updateBound();
+	m_allocatedCollisionShapes.push_back(shape);
+	return shape;
+}
+
 btCollisionShape* ColladaConverter::createConvexTriangleMeshShape(btTriangleMesh* trimesh)
 {
 	btCollisionShape* shape = new btConvexTriangleMeshShape(trimesh);
@@ -2970,8 +3041,9 @@ void	ColladaConverter::ConvertRigidBodyRef( btRigidBodyInput& rbInput,btRigidBod
 
 							if (rbOutput.m_isDynamics)
 							{
-								printf("moving concave <mesh> not supported, transformed into convex\n");
-								rbOutput.m_colShape = createConvexTriangleMeshShape(trimesh);
+								printf("moving concave <mesh> added\n");
+								//rbOutput.m_colShape = createConvexTriangleMeshShape(trimesh);
+								rbOutput.m_colShape = createGimpactShape(trimesh);
 							} else
 							{
 								printf("static concave triangle <mesh> added\n");

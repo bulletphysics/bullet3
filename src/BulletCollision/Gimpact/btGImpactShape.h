@@ -881,6 +881,8 @@ Set of btGImpactMeshShapePart parts
 */
 class btGImpactMeshShape : public btGImpactShapeInterface
 {
+	btStridingMeshInterface* m_meshInterface;
+
 protected:
 	btAlignedObjectArray<btGImpactMeshShapePart*> m_mesh_parts;
 	void buildMeshParts(btStridingMeshInterface * meshInterface)
@@ -907,6 +909,7 @@ protected:
 public:
 	btGImpactMeshShape(btStridingMeshInterface * meshInterface)
 	{
+		m_meshInterface = meshInterface;
 		buildMeshParts(meshInterface);
 	}
 
@@ -922,6 +925,15 @@ public:
 	}
 
 
+	btStridingMeshInterface* getMeshInterface()
+	{
+		return m_meshInterface;
+	}
+
+	const btStridingMeshInterface* getMeshInterface() const
+	{
+		return m_meshInterface;
+	}
 
 	int getMeshPartCount() const
 	{

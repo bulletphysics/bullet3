@@ -18,7 +18,7 @@ subject to the following restrictions:
 #include "LinearMath/btIDebugDraw.h"
 #include "GLDebugDrawer.h"
 
-
+#include "BulletCollision/Gimpact/btGImpactCollisionAlgorithm.h"
 
 //COLLADA_DOM and LibXML source code are included in Extras/ folder.
 //COLLADA_DOM should compile under all platforms, and is enabled by default.
@@ -76,7 +76,7 @@ int main(int argc,char** argv)
 
 	/// Import Collada 1.4 Physics objects
 	/// also can pass filename in as argument
-	const char* filename = "jenga.dae";
+	const char* filename = "boxc4d.dae";
 	printf("argc=%i\n",argc);
 	{
 		for (int i=0;i<argc;i++)
@@ -109,6 +109,8 @@ void	ColladaDemo::initPhysics(const char* filename)
 
 	btDefaultCollisionConfiguration* collisionConfiguration = new btDefaultCollisionConfiguration();
 	btCollisionDispatcher* dispatcher = new btCollisionDispatcher(collisionConfiguration);
+	btGImpactCollisionAlgorithm::registerAlgorithm(dispatcher);
+
 	btVector3 worldMin(-1000,-1000,-1000);
 	btVector3 worldMax(1000,1000,1000);
 	btBroadphaseInterface* pairCache = new btAxisSweep3(worldMin,worldMax);
