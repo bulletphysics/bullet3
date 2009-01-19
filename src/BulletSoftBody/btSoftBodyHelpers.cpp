@@ -821,7 +821,7 @@ btSoftBody*		btSoftBodyHelpers::CreateFromTriMesh(btSoftBodyWorldInfo& worldInfo
 			if(!chks[IDX(idx[j],idx[k])])
 			{
 				chks[IDX(idx[j],idx[k])]=true;
-				chks[IDX(idx[k],idx[k])]=true;
+				chks[IDX(idx[k],idx[j])]=true;
 				psb->appendLink(idx[j],idx[k]);
 			}
 		}
