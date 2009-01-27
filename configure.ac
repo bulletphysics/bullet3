@@ -140,6 +140,19 @@ AS_IF([test "$disable_multithreaded" = yes], [build_multithreaded=no], [build_mu
 AC_MSG_RESULT([$build_multithreaded])
 AM_CONDITIONAL([CONDITIONAL_BUILD_MULTITHREADED], [test "$build_multithreaded" = yes])
 
+AC_ARG_ENABLE([demos],
+    [AS_HELP_STRING([--disable-demos],
+	    [disable Bullet demos])],
+    [],
+    [enable_demos=yes])
+AM_CONDITIONAL([CONDITIONAL_BUILD_DEMOS], [false])
+if test "x$enable_demos" != xno; then
+    AC_MSG_NOTICE([Building Bullet demos])
+    AM_CONDITIONAL([CONDITIONAL_BUILD_DEMOS],[true])
+fi
+
+
+
 AC_ARG_ENABLE([debug],
     [AC_HELP_STRING([--enable-debug],
 	[build with debugging information (default NO)])],
