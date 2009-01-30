@@ -2413,7 +2413,13 @@ void ColladaConverter::syncOrAddRigidBody (btRigidBody* body)
 
 		if (!nodeName)
 		{
-			snprintf(&nodeNameGen[0], 512, "BulletUnnamed-%d", random_node_name_key++);
+			//repeat until we have a unique name
+			do
+			{
+				snprintf(&nodeNameGen[0], 512, "BulletUnnamed-%d", random_node_name_key++);
+			}
+			while (findNode(&nodeNameGen[0]));
+
 			nodeName = &nodeNameGen[0];
 		}
 		if (!shapeName)
@@ -2481,8 +2487,13 @@ void ColladaConverter::syncOrAddConstraint (btTypedConstraint* constraint)
 		const char* constraintName = NULL;
 		if (!constraintName)
 		{
-			// generate one
-			sprintf(&namebuf[0], "BulletUnnamedConstraint-%d", random_node_name_key);
+			// generate one, and repeat until we have a unique name
+			do
+			{
+				sprintf(&namebuf[0], "BulletUnnamedConstraint-%d", random_node_name_key++);
+			}
+			while (findNode(&namebuf[0]));
+
 			constraintName = &namebuf[0];
 		}
 
