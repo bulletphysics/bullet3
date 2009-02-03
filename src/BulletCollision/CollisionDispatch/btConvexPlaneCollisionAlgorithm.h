@@ -32,11 +32,11 @@ class btConvexPlaneCollisionAlgorithm : public btCollisionAlgorithm
 	btPersistentManifold*	m_manifoldPtr;
 	bool		m_isSwapped;
 	int			m_numPertubationIterations;
-	btScalar	m_pertubeAngle;
+	int			m_minimumPointsPertubationThreshold;
 
 public:
 
-	btConvexPlaneCollisionAlgorithm(btPersistentManifold* mf,const btCollisionAlgorithmConstructionInfo& ci,btCollisionObject* col0,btCollisionObject* col1, bool isSwapped, int numPertubationIterations, btScalar pertubeAngle);
+	btConvexPlaneCollisionAlgorithm(btPersistentManifold* mf,const btCollisionAlgorithmConstructionInfo& ci,btCollisionObject* col0,btCollisionObject* col1, bool isSwapped, int numPertubationIterations,int minimumPointsPertubationThreshold);
 
 	virtual ~btConvexPlaneCollisionAlgorithm();
 
@@ -57,11 +57,11 @@ public:
 	struct CreateFunc :public 	btCollisionAlgorithmCreateFunc
 	{
 		int	m_numPertubationIterations;
-		btScalar	m_pertubeAngle;
-		
+		int m_minimumPointsPertubationThreshold;
+			
 		CreateFunc() 
-			: m_numPertubationIterations(10),
-			m_pertubeAngle(0.05f)
+			: m_numPertubationIterations(3),
+			m_minimumPointsPertubationThreshold(3)
 		{
 		}
 		
@@ -70,10 +70,10 @@ public:
 			void* mem = ci.m_dispatcher1->allocateCollisionAlgorithm(sizeof(btConvexPlaneCollisionAlgorithm));
 			if (!m_swapped)
 			{
-				return new(mem) btConvexPlaneCollisionAlgorithm(0,ci,body0,body1,false,m_numPertubationIterations,m_pertubeAngle);
+				return new(mem) btConvexPlaneCollisionAlgorithm(0,ci,body0,body1,false,m_numPertubationIterations,m_minimumPointsPertubationThreshold);
 			} else
 			{
-				return new(mem) btConvexPlaneCollisionAlgorithm(0,ci,body0,body1,true,m_numPertubationIterations,m_pertubeAngle);
+				return new(mem) btConvexPlaneCollisionAlgorithm(0,ci,body0,body1,true,m_numPertubationIterations,m_minimumPointsPertubationThreshold);
 			}
 		}
 	};

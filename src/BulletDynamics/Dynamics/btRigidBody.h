@@ -243,7 +243,7 @@ public:
 		return m_totalTorque;
 	};
     
-	const btVector3& getInvInertiaDiagLocal()
+	const btVector3& getInvInertiaDiagLocal() const
 	{
 		return m_invInertiaLocal;
 	};

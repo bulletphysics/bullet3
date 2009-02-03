@@ -51,6 +51,8 @@ subject to the following restrictions:
 
 btConvexConvexAlgorithm::CreateFunc::CreateFunc(btSimplexSolverInterface*			simplexSolver, btConvexPenetrationDepthSolver* pdSolver)
 {
+	m_numPertubationIterations = 3;
+	m_minimumPointsPertubationThreshold = 3;
 	m_simplexSolver = simplexSolver;
 	m_pdSolver = pdSolver;
 }
@@ -59,17 +61,19 @@ btConvexConvexAlgorithm::CreateFunc::~CreateFunc()
 { 
 }
 
-btConvexConvexAlgorithm::btConvexConvexAlgorithm(btPersistentManifold* mf,const btCollisionAlgorithmConstructionInfo& ci,btCollisionObject* body0,btCollisionObject* body1,btSimplexSolverInterface* simplexSolver, btConvexPenetrationDepthSolver* pdSolver)
+btConvexConvexAlgorithm::btConvexConvexAlgorithm(btPersistentManifold* mf,const btCollisionAlgorithmConstructionInfo& ci,btCollisionObject* body0,btCollisionObject* body1,btSimplexSolverInterface* simplexSolver, btConvexPenetrationDepthSolver* pdSolver,int numPertubationIterations, int minimumPointsPertubationThreshold)
 : btActivatingCollisionAlgorithm(ci,body0,body1),
 m_simplexSolver(simplexSolver),
 m_pdSolver(pdSolver),
 m_ownManifold (false),
 m_manifoldPtr(mf),
-m_lowLevelOfDetail(false)
+m_lowLevelOfDetail(false),
 #ifdef USE_SEPDISTANCE_UTIL2
 ,m_sepDistance((static_cast<btConvexShape*>(body0->getCollisionShape()))->getAngularMotionDisc(),
-			  (static_cast<btConvexShape*>(body1->getCollisionShape()))->getAngularMotionDisc())
+			  (static_cast<btConvexShape*>(body1->getCollisionShape()))->getAngularMotionDisc()),
 #endif
+m_numPertubationIterations(numPertubationIterations),
+m_minimumPointsPertubationThreshold(minimumPointsPertubationThreshold)
 {
 	(void)body0;
 	(void)body1;
@@ -93,8 +97,35 @@ void	btConvexConvexAlgorithm ::setLowLevelOfDetail(bool useLowLevel)
 }
 
 
+struct btPertubedContactResult : public btManifoldResult
+{
+	btManifoldResult* m_originalManifoldResult;
+	btTransform m_transformA;
+	btTransform m_transformB;
 
 
+	btPertubedContactResult(btManifoldResult* originalResult,const btTransform& transformA,const btTransform& transformB)
+		:m_originalManifoldResult(originalResult),
+		m_transformA(transformA),
+		m_transformB(transformB)
+	{
+	}
+	virtual ~ btPertubedContactResult()
+	{
+	}
+
+	virtual void addContactPoint(const btVector3& normalOnBInWorld,const btVector3& pointInWorld,btScalar depth)
+	{
+		const btVector3& worldPointB = pointInWorld;
+		btVector3 worldPointA = worldPointB+normalOnBInWorld*depth;
+		btVector3 localA = m_transformA.invXform(worldPointA);
+		btVector3 localB = m_transformB.invXform(pointInWorld);
+		m_originalManifoldResult->addLocalContactPointInternal(	normalOnBInWorld,localA,localB);
+	}
+
+};
+
+extern btScalar gContactBreakingThreshold;
 
 //
 // Convex-Convex collision algorithm
@@ -110,6 +141,8 @@ void btConvexConvexAlgorithm ::processCollision (btCollisionObject* body0,btColl
 	}
 	resultOut->setPersistentManifold(m_manifoldPtr);
 
+	//comment-out next line to test multi-contact generation
+	//resultOut->getPersistentManifold()->clearManifold();
 	
 
 	btConvexShape* min0 = static_cast<btConvexShape*>(body0->getCollisionShape());
@@ -146,8 +179,56 @@ void btConvexConvexAlgorithm ::processCollision (btCollisionObject* body0,btColl
 	input.m_transformB = body1->getWorldTransform();
 
 	gjkPairDetector.getClosestPoints(input,*resultOut,dispatchInfo.m_debugDraw);
-
 	btScalar sepDist = gjkPairDetector.getCachedSeparatingDistance()+dispatchInfo.m_convexConservativeDistanceThreshold;
+
+	//now pertube directions to get multiple contact points
+	btVector3 v0,v1;
+	btVector3 sepNormalWorldSpace = gjkPairDetector.getCachedSeparatingAxis().normalized();
+	btPlaneSpace1(sepNormalWorldSpace,v0,v1);
+	//now perform 'm_numPertubationIterations' collision queries with the pertubated collision objects
+	
+	//perform pertubation when more then 'm_minimumPointsPertubationThreshold' points
+	if (resultOut->getPersistentManifold()->getNumContacts() < m_minimumPointsPertubationThreshold)
+	{
+		
+		int i;
+
+		bool pertubeA = true;
+		const btScalar angleLimit = 0.125f * SIMD_PI;
+		btScalar pertubeAngle;
+		btScalar radiusA = min0->getAngularMotionDisc();
+		btScalar radiusB = min1->getAngularMotionDisc();
+		if (radiusA < radiusB)
+		{
+			pertubeAngle = gContactBreakingThreshold /radiusA;
+			pertubeA = true;
+		} else
+		{
+			pertubeAngle = gContactBreakingThreshold / radiusB;
+			pertubeA = false;
+		}
+		if ( pertubeAngle > angleLimit ) 
+				pertubeAngle = angleLimit;
+
+		for ( i=0;i<m_numPertubationIterations;i++)
+		{
+			btQuaternion pertubeRot(v0,pertubeAngle);
+			btScalar iterationAngle = i*(SIMD_2_PI/btScalar(m_numPertubationIterations));
+			btQuaternion rotq(sepNormalWorldSpace,iterationAngle);
+			if (pertubeA)
+			{
+				input.m_transformA.setBasis( btMatrix3x3(rotq.inverse()*pertubeRot*rotq)*body0->getWorldTransform().getBasis());
+			} else
+			{
+				input.m_transformB.setBasis( btMatrix3x3(rotq.inverse()*pertubeRot*rotq)*body1->getWorldTransform().getBasis());
+			}
+			btPertubedContactResult pertubedResultOut(resultOut,input.m_transformA,input.m_transformB);
+			gjkPairDetector.getClosestPoints(input,pertubedResultOut,dispatchInfo.m_debugDraw);
+			btScalar curSepDist = gjkPairDetector.getCachedSeparatingDistance()+dispatchInfo.m_convexConservativeDistanceThreshold;
+		}
+	}
+
+	
 
 #ifdef USE_SEPDISTANCE_UTIL2
 	if (dispatchInfo.m_useConvexConservativeDistanceUtil)

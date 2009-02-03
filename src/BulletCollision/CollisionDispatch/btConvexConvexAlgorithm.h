@@ -33,7 +33,9 @@ class btConvexPenetrationDepthSolver;
 ///for certain pairs that have a small size ratio
 ///#define USE_SEPDISTANCE_UTIL2 1
 
-///ConvexConvexAlgorithm collision algorithm implements time of impact, convex closest points and penetration depth calculations.
+///The convexConvexAlgorithm collision algorithm implements time of impact, convex closest points and penetration depth calculations between two convex objects.
+///Multiple contact points are calculated by pertubating the orientation of the smallest object orthogonal to the separating normal.
+///This idea was described by Gino van den Bergen in this forum topic http://www.bulletphysics.com/Bullet/phpBB3/viewtopic.php?f=4&t=288&p=888#p888
 class btConvexConvexAlgorithm : public btActivatingCollisionAlgorithm
 {
 #ifdef USE_SEPDISTANCE_UTIL2
@@ -47,12 +49,17 @@ class btConvexConvexAlgorithm : public btActivatingCollisionAlgorithm
 	btPersistentManifold*	m_manifoldPtr;
 	bool			m_lowLevelOfDetail;
 	
+	int m_numPertubationIterations;
+	int m_minimumPointsPertubationThreshold;
+
+
 	///cache separating vector to speedup collision detection
 	
 
 public:
 
-	btConvexConvexAlgorithm(btPersistentManifold* mf,const btCollisionAlgorithmConstructionInfo& ci,btCollisionObject* body0,btCollisionObject* body1, btSimplexSolverInterface* simplexSolver, btConvexPenetrationDepthSolver* pdSolver);
+	btConvexConvexAlgorithm(btPersistentManifold* mf,const btCollisionAlgorithmConstructionInfo& ci,btCollisionObject* body0,btCollisionObject* body1, btSimplexSolverInterface* simplexSolver, btConvexPenetrationDepthSolver* pdSolver, int numPertubationIterations, int minimumPointsPertubationThreshold);
+
 
 	virtual ~btConvexConvexAlgorithm();
 
@@ -78,9 +85,12 @@ public:
 
 	struct CreateFunc :public 	btCollisionAlgorithmCreateFunc
 	{
+
 		btConvexPenetrationDepthSolver*		m_pdSolver;
 		btSimplexSolverInterface*			m_simplexSolver;
-		
+		int m_numPertubationIterations;
+		int m_minimumPointsPertubationThreshold;
+
 		CreateFunc(btSimplexSolverInterface*			simplexSolver, btConvexPenetrationDepthSolver* pdSolver);
 		
 		virtual ~CreateFunc();
@@ -88,7 +98,7 @@ public:
 		virtual	btCollisionAlgorithm* CreateCollisionAlgorithm(btCollisionAlgorithmConstructionInfo& ci, btCollisionObject* body0,btCollisionObject* body1)
 		{
 			void* mem = ci.m_dispatcher1->allocateCollisionAlgorithm(sizeof(btConvexConvexAlgorithm));
-			return new(mem) btConvexConvexAlgorithm(ci.m_manifold,ci,body0,body1,m_simplexSolver,m_pdSolver);
+			return new(mem) btConvexConvexAlgorithm(ci.m_manifold,ci,body0,body1,m_simplexSolver,m_pdSolver,m_numPertubationIterations,m_minimumPointsPertubationThreshold);
 		}
 	};
 

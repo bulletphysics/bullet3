@@ -22,13 +22,13 @@ subject to the following restrictions:
 
 //#include <stdio.h>
 
-btConvexPlaneCollisionAlgorithm::btConvexPlaneCollisionAlgorithm(btPersistentManifold* mf,const btCollisionAlgorithmConstructionInfo& ci,btCollisionObject* col0,btCollisionObject* col1, bool isSwapped, int numPertubationIterations,btScalar pertubeAngle)
+btConvexPlaneCollisionAlgorithm::btConvexPlaneCollisionAlgorithm(btPersistentManifold* mf,const btCollisionAlgorithmConstructionInfo& ci,btCollisionObject* col0,btCollisionObject* col1, bool isSwapped, int numPertubationIterations,int minimumPointsPertubationThreshold)
 : btCollisionAlgorithm(ci),
 m_ownManifold(false),
 m_manifoldPtr(mf),
 m_isSwapped(isSwapped),
 m_numPertubationIterations(numPertubationIterations),
-m_pertubeAngle(pertubeAngle)
+m_minimumPointsPertubationThreshold(minimumPointsPertubationThreshold)
 {
 	btCollisionObject* convexObj = m_isSwapped? col1 : col0;
 	btCollisionObject* planeObj = m_isSwapped? col0 : col1;
@@ -89,6 +89,7 @@ void btConvexPlaneCollisionAlgorithm::collideSingleContact (const btQuaternion& 
 	}
 }
 
+
 void btConvexPlaneCollisionAlgorithm::processCollision (btCollisionObject* body0,btCollisionObject* body1,const btDispatcherInfo& dispatchInfo,btManifoldResult* resultOut)
 {
 	(void)dispatchInfo;
@@ -105,23 +106,33 @@ void btConvexPlaneCollisionAlgorithm::processCollision (btCollisionObject* body0
 	const btVector3& planeNormal = planeShape->getPlaneNormal();
 	const btScalar& planeConstant = planeShape->getPlaneConstant();
 
-
-    btVector3 v0,v1;
-	btPlaneSpace1(planeNormal,v0,v1);
 	//first perform a collision query with the non-pertubated collision objects
 	{
 		btQuaternion rotq(0,0,0,1);
 		collideSingleContact(rotq,body0,body1,dispatchInfo,resultOut);
 	}
 
-	//now perform 'm_numPertubationIterations' collision queries with the pertubated collision objects
-	btQuaternion pertubeRot(v0,m_pertubeAngle);
-    for (int i=0;i<m_numPertubationIterations;i++)
-    {
-        btScalar iterationAngle = i*(SIMD_2_PI/btScalar(m_numPertubationIterations));
-        btQuaternion rotq(planeNormal,iterationAngle);
-        collideSingleContact(rotq.inverse()*pertubeRot*rotq,body0,body1,dispatchInfo,resultOut);
-    }
+	if (resultOut->getPersistentManifold()->getNumContacts()<m_minimumPointsPertubationThreshold)
+	{
+		btVector3 v0,v1;
+		btPlaneSpace1(planeNormal,v0,v1);
+		//now perform 'm_numPertubationIterations' collision queries with the pertubated collision objects
+
+		const btScalar angleLimit = 0.125f * SIMD_PI;
+		btScalar pertubeAngle;
+		btScalar radius = convexShape->getAngularMotionDisc();
+		pertubeAngle = gContactBreakingThreshold / radius;
+		if ( pertubeAngle > angleLimit ) 
+				pertubeAngle = angleLimit;
+
+		btQuaternion pertubeRot(v0,pertubeAngle);
+		for (int i=0;i<m_numPertubationIterations;i++)
+		{
+			btScalar iterationAngle = i*(SIMD_2_PI/btScalar(m_numPertubationIterations));
+			btQuaternion rotq(planeNormal,iterationAngle);
+			collideSingleContact(rotq.inverse()*pertubeRot*rotq,body0,body1,dispatchInfo,resultOut);
+		}
+	}
 
 	if (m_ownManifold)
 	{

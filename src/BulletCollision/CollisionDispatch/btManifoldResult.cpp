@@ -52,6 +52,14 @@ btManifoldResult::btManifoldResult(btCollisionObject* body0,btCollisionObject* b
 	m_rootTransB = body1->getWorldTransform();
 }
 
+void btManifoldResult::addLocalContactPointInternal(const btVector3& normalOnBInWorld,const btVector3& localPointA,const btVector3& localPointB)
+{
+	btVector3 worldPointA = m_rootTransA( localPointA );
+	btVector3 worldPointB = m_rootTransB( localPointB );
+	btScalar depth = (worldPointA -  worldPointB).dot(normalOnBInWorld);
+
+	addContactPoint(normalOnBInWorld,worldPointB,depth);
+}
 
 void btManifoldResult::addContactPoint(const btVector3& normalOnBInWorld,const btVector3& pointInWorld,btScalar depth)
 {

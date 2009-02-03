@@ -45,6 +45,8 @@ class btManifoldResult : public btDiscreteCollisionDetectorInterface::Result
 	int m_partId1;
 	int m_index0;
 	int m_index1;
+	
+
 public:
 
 	btManifoldResult()
@@ -77,7 +79,10 @@ public:
 			m_index1=index1;		
 	}
 
+
 	virtual void addContactPoint(const btVector3& normalOnBInWorld,const btVector3& pointInWorld,btScalar depth);
+
+	virtual void addLocalContactPointInternal(const btVector3& normalOnBInWorld,const btVector3& localPointA,const btVector3& localPointB);
 
 	SIMD_FORCE_INLINE	void refreshContactPoints()
 	{
