@@ -31,18 +31,18 @@ class btConvexPlaneCollisionAlgorithm : public btCollisionAlgorithm
 	bool		m_ownManifold;
 	btPersistentManifold*	m_manifoldPtr;
 	bool		m_isSwapped;
-	int			m_numPertubationIterations;
-	int			m_minimumPointsPertubationThreshold;
+	int			m_numPerturbationIterations;
+	int			m_minimumPointsPerturbationThreshold;
 
 public:
 
-	btConvexPlaneCollisionAlgorithm(btPersistentManifold* mf,const btCollisionAlgorithmConstructionInfo& ci,btCollisionObject* col0,btCollisionObject* col1, bool isSwapped, int numPertubationIterations,int minimumPointsPertubationThreshold);
+	btConvexPlaneCollisionAlgorithm(btPersistentManifold* mf,const btCollisionAlgorithmConstructionInfo& ci,btCollisionObject* col0,btCollisionObject* col1, bool isSwapped, int numPerturbationIterations,int minimumPointsPerturbationThreshold);
 
 	virtual ~btConvexPlaneCollisionAlgorithm();
 
 	virtual void processCollision (btCollisionObject* body0,btCollisionObject* body1,const btDispatcherInfo& dispatchInfo,btManifoldResult* resultOut);
 
-	void collideSingleContact (const btQuaternion& pertubeRot, btCollisionObject* body0,btCollisionObject* body1,const btDispatcherInfo& dispatchInfo,btManifoldResult* resultOut);
+	void collideSingleContact (const btQuaternion& perturbeRot, btCollisionObject* body0,btCollisionObject* body1,const btDispatcherInfo& dispatchInfo,btManifoldResult* resultOut);
 
 	virtual btScalar calculateTimeOfImpact(btCollisionObject* body0,btCollisionObject* body1,const btDispatcherInfo& dispatchInfo,btManifoldResult* resultOut);
 
@@ -56,12 +56,12 @@ public:
 
 	struct CreateFunc :public 	btCollisionAlgorithmCreateFunc
 	{
-		int	m_numPertubationIterations;
-		int m_minimumPointsPertubationThreshold;
+		int	m_numPerturbationIterations;
+		int m_minimumPointsPerturbationThreshold;
 			
 		CreateFunc() 
-			: m_numPertubationIterations(3),
-			m_minimumPointsPertubationThreshold(3)
+			: m_numPerturbationIterations(3),
+			m_minimumPointsPerturbationThreshold(3)
 		{
 		}
 		
@@ -70,10 +70,10 @@ public:
 			void* mem = ci.m_dispatcher1->allocateCollisionAlgorithm(sizeof(btConvexPlaneCollisionAlgorithm));
 			if (!m_swapped)
 			{
-				return new(mem) btConvexPlaneCollisionAlgorithm(0,ci,body0,body1,false,m_numPertubationIterations,m_minimumPointsPertubationThreshold);
+				return new(mem) btConvexPlaneCollisionAlgorithm(0,ci,body0,body1,false,m_numPerturbationIterations,m_minimumPointsPerturbationThreshold);
 			} else
 			{
-				return new(mem) btConvexPlaneCollisionAlgorithm(0,ci,body0,body1,true,m_numPertubationIterations,m_minimumPointsPertubationThreshold);
+				return new(mem) btConvexPlaneCollisionAlgorithm(0,ci,body0,body1,true,m_numPerturbationIterations,m_minimumPointsPerturbationThreshold);
 			}
 		}
 	};
