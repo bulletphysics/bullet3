@@ -114,6 +114,31 @@ public:
 		m_angularOnly = angularOnly;
 	}
 
+	void	setLimit(int limitIndex,btScalar limitValue)
+	{
+		switch (limitIndex)
+		{
+		case 3:
+			{
+				m_swingSpan1 = limitValue;
+				break;
+			}
+		case 4:
+			{
+				m_swingSpan2 = limitValue;
+				break;
+			}
+		case 5:
+			{
+				m_twistSpan = limitValue;
+				break;
+			}
+		default:
+			{
+			}
+		};
+	}
+
 	void	setLimit(btScalar _swingSpan1,btScalar _swingSpan2,btScalar _twistSpan,  btScalar _softness = 0.8f, btScalar _biasFactor = 0.3f, btScalar _relaxationFactor = 1.0f)
 	{
 		m_swingSpan1 = _swingSpan1;
