@@ -130,6 +130,7 @@ void	ConstraintDemo::initPhysics()
 
 		m_dynamicsWorld->addConstraint(hinge);//p2p);
 //		m_dynamicsWorld->addConstraint(p2p);
+		hinge->setDbgDrawSize(btScalar(5.f));
 
 	}
 #endif
@@ -174,6 +175,7 @@ void	ConstraintDemo::initPhysics()
 
 
 		m_dynamicsWorld->addConstraint(slider);
+		slider->setDbgDrawSize(btScalar(5.f));
 
 	}
 #endif
@@ -193,6 +195,7 @@ void	ConstraintDemo::initPhysics()
 
 		spDoorHinge->setLimit( 0.0f, M_PI_2 );
 		m_dynamicsWorld->addConstraint(spDoorHinge);
+		spDoorHinge->setDbgDrawSize(btScalar(5.f));
 
 		//doorTrans.setOrigin(btVector3(-5.0f, 2.0f, 0.0f));
 		//btRigidBody* pDropBody = localCreateRigidBody( 10.0, doorTrans, shape);
@@ -248,6 +251,7 @@ void	ConstraintDemo::initPhysics()
 //		pGen6DOF->setAngularUpperLimit(btVector3(0.75,0., 0.));
 
 		m_dynamicsWorld->addConstraint(pGen6DOF, true);
+		pGen6DOF->setDbgDrawSize(btScalar(5.f));
 	}
 #endif
 #if 1
@@ -276,6 +280,7 @@ void	ConstraintDemo::initPhysics()
 		btConeTwistConstraint* pCT = new btConeTwistConstraint(*pBodyA, *pBodyB, frameInA, frameInB);
 		pCT->setLimit(btScalar(M_PI_4)*0.5f, btScalar(M_PI_4), btScalar(M_PI * 0.9));
 		m_dynamicsWorld->addConstraint(pCT, true);
+		pCT->setDbgDrawSize(btScalar(5.f));
 	}
 #endif
 #if 1
@@ -291,6 +296,7 @@ void	ConstraintDemo::initPhysics()
 		btHingeConstraint* pHinge = new btHingeConstraint( *pBody, btPivotA, btAxisA );
 		pHinge->enableAngularMotor(true, -1.0, 0.165);
 		m_dynamicsWorld->addConstraint(pHinge);
+		pHinge->setDbgDrawSize(btScalar(5.f));
 	}
 #endif
 }
