@@ -53,6 +53,7 @@ protected:
 	btRigidBody&	m_rbA;
 	btRigidBody&	m_rbB;
 	btScalar	m_appliedImpulse;
+	btScalar	m_DbgDrawSize;
 
 
 public:
@@ -94,6 +95,7 @@ public:
 		// the constraint.
 		int *findex;
 	};
+
 
 	virtual void	buildJacobian() = 0;
 
@@ -160,7 +162,16 @@ public:
 	{
 		return m_constraintType;
 	}
-
+	
+	void setDbgDrawSize(btScalar dbgDrawSize)
+	{
+		m_DbgDrawSize = dbgDrawSize;
+	}
+	btScalar getDbgDrawSize()
+	{
+		return m_DbgDrawSize;
+	}
+	
 };
 
 #endif //TYPED_CONSTRAINT_H

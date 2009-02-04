@@ -25,7 +25,8 @@ m_userConstraintId(-1),
 m_constraintType (type),
 m_rbA(s_fixed),
 m_rbB(s_fixed),
-m_appliedImpulse(btScalar(0.))
+m_appliedImpulse(btScalar(0.)),
+m_DbgDrawSize(btScalar(-1.f))
 {
 	s_fixed.setMassProps(btScalar(0.),btVector3(btScalar(0.),btScalar(0.),btScalar(0.)));
 }
@@ -35,7 +36,8 @@ m_userConstraintId(-1),
 m_constraintType (type),
 m_rbA(rbA),
 m_rbB(s_fixed),
-m_appliedImpulse(btScalar(0.))
+m_appliedImpulse(btScalar(0.)),
+m_DbgDrawSize(btScalar(-1.f))
 {
 		s_fixed.setMassProps(btScalar(0.),btVector3(btScalar(0.),btScalar(0.),btScalar(0.)));
 
@@ -48,7 +50,8 @@ m_userConstraintId(-1),
 m_constraintType (type),
 m_rbA(rbA),
 m_rbB(rbB),
-m_appliedImpulse(btScalar(0.))
+m_appliedImpulse(btScalar(0.)),
+m_DbgDrawSize(btScalar(-1.f))
 {
 		s_fixed.setMassProps(btScalar(0.),btVector3(btScalar(0.),btScalar(0.),btScalar(0.)));
 

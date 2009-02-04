@@ -42,6 +42,8 @@ public:
 	btScalar	m_biasFactor;
 	btScalar	m_relaxationFactor;
 
+	btScalar	m_damping;
+
 	btScalar	m_swingSpan1;
 	btScalar	m_swingSpan2;
 	btScalar	m_twistSpan;
@@ -66,6 +68,18 @@ public:
 	bool		m_solveSwingLimit;
 
 	bool	m_useSolveConstraintObsolete;
+
+	// not yet used...
+	btScalar	m_swingLimitRatio;
+	btScalar	m_twistLimitRatio;
+	btVector3   m_twistAxisA;
+
+	// motor
+	bool		 m_bMotorEnabled;
+	bool		 m_bNormalizedMotorStrength;
+	btQuaternion m_qTarget;
+	btScalar	 m_maxMotorImpulse;
+	btVector3	 m_accMotorImpulse;
 	
 public:
 
@@ -130,6 +144,7 @@ public:
 	}
 
 	void calcAngleInfo();
+	void calcAngleInfo2();
 
 	inline btScalar getSwingSpan1()
 	{
@@ -147,8 +162,38 @@ public:
 	{
 		return m_twistAngle;
 	}
+	bool isPastSwingLimit() { return m_solveSwingLimit; }
 
 
+	void setDamping(btScalar damping) { m_damping = damping; }
+
+	void enableMotor(bool b) { m_bMotorEnabled = b; }
+	void setMaxMotorImpulse(btScalar maxMotorImpulse) { m_maxMotorImpulse = maxMotorImpulse; m_bNormalizedMotorStrength = false; }
+	void setMaxMotorImpulseNormalized(btScalar maxMotorImpulse) { m_maxMotorImpulse = maxMotorImpulse; m_bNormalizedMotorStrength = true; }
+
+	// setMotorTarget:
+	// q: the desired rotation of bodyA wrt bodyB.
+	// note: if q violates the joint limits, the internal target is clamped to avoid conflicting impulses (very bad for stability)
+	// note: don't forget to enableMotor()
+	void setMotorTarget(const btQuaternion &q);
+
+	// same as above, but q is the desired rotation of frameA wrt frameB in constraint space
+	void setMotorTargetInConstraintSpace(const btQuaternion &q);
+
+	btVector3 GetPointForAngle(btScalar fAngleInRadians, btScalar fLength) const;
+
+
+
+protected:
+	void init();
+
+	void computeConeLimitInfo(const btQuaternion& qCone, // in
+		btScalar& swingAngle, btVector3& vSwingAxis, btScalar& swingLimit); // all outs
+
+	void computeTwistLimitInfo(const btQuaternion& qTwist, // in
+		btScalar& twistAngle, btVector3& vTwistAxis); // all outs
+
+	void adjustSwingAxisToUseEllipseNormal(btVector3& vSwingAxis) const;
 };
 
 #endif //CONETWISTCONSTRAINT_H
