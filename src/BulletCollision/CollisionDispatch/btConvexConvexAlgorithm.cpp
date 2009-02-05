@@ -188,7 +188,8 @@ void btConvexConvexAlgorithm ::processCollision (btCollisionObject* body0,btColl
 	//now perform 'm_numPerturbationIterations' collision queries with the perturbated collision objects
 	
 	//perform perturbation when more then 'm_minimumPointsPerturbationThreshold' points
-	if (resultOut->getPersistentManifold()->getNumContacts() < m_minimumPointsPerturbationThreshold)
+	//perturbation is work-in-progress, disable until fully finished and tested
+	if (0)//resultOut->getPersistentManifold()->getNumContacts() < m_minimumPointsPerturbationThreshold)
 	{
 		
 		int i;
