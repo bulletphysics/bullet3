@@ -166,6 +166,7 @@ class	btIDebugDraw
 		btVector3 *pvA = vA, *pvB = vB, *pT;
 		btVector3 npole = center + up * radius;
 		btVector3 spole = center - up * radius;
+		btVector3 arcStart;
 		btScalar step = stepDegrees * SIMD_RADS_PER_DEG;
 		const btVector3& kv = up;
 		const btVector3& iv = axis;
@@ -191,10 +192,20 @@ class	btIDebugDraw
 		int n_hor = (int)((maxTh - minTh) / step) + 1;
 		if(n_hor < 2) n_hor = 2;
 		btScalar step_h = (maxTh - minTh) / btScalar(n_hor - 1);
+		bool isClosed = false;
 		if(minPs > maxPs)
 		{
 			minPs = -SIMD_PI + step;
 			maxPs =  SIMD_PI;
+			isClosed = true;
+		}
+		else if((maxPs - minPs) >= SIMD_PI * btScalar(2.f))
+		{
+			isClosed = true;
+		}
+		else
+		{
+			isClosed = false;
 		}
 		int n_vert = (int)((maxPs - minPs) / step) + 1;
 		if(n_vert < 2) n_vert = 2;
@@ -222,13 +233,27 @@ class	btIDebugDraw
 				{
 					drawLine(pvB[j-1], pvB[j], color);
 				}
+				else
+				{
+					arcStart = pvB[j];
+				}
 				if((i == (n_hor - 1)) && drawN)
 				{
 					drawLine(npole, pvB[j], color);
 				}
-				if( ((!i) || (i == (n_hor-1))) && ((!j) || (j == (n_vert-1))))
+				if(isClosed)
 				{
-					drawLine(center, pvB[j], color);
+					if(j == (n_vert-1))
+					{
+						drawLine(arcStart, pvB[j], color);
+					}
+				}
+				else
+				{
+					if(((!i) || (i == (n_hor-1))) && ((!j) || (j == (n_vert-1))))
+					{
+						drawLine(center, pvB[j], color);
+					}
 				}
 			}
 			pT = pvA; pvA = pvB; pvB = pT;
@@ -249,6 +274,21 @@ class	btIDebugDraw
 		drawLine(btVector3(bbMax[0], bbMin[1], bbMax[2]), btVector3(bbMax[0], bbMax[1], bbMax[2]), color);
 		drawLine(btVector3(bbMax[0], bbMax[1], bbMax[2]), btVector3(bbMin[0], bbMax[1], bbMax[2]), color);
 		drawLine(btVector3(bbMin[0], bbMax[1], bbMax[2]), btVector3(bbMin[0], bbMin[1], bbMax[2]), color);
+	}
+	void drawBox(const btVector3& bbMin, const btVector3& bbMax, const btTransform& trans, const btVector3& color)
+	{
+		drawLine(trans * btVector3(bbMin[0], bbMin[1], bbMin[2]), trans * btVector3(bbMax[0], bbMin[1], bbMin[2]), color);
+		drawLine(trans * btVector3(bbMax[0], bbMin[1], bbMin[2]), trans * btVector3(bbMax[0], bbMax[1], bbMin[2]), color);
+		drawLine(trans * btVector3(bbMax[0], bbMax[1], bbMin[2]), trans * btVector3(bbMin[0], bbMax[1], bbMin[2]), color);
+		drawLine(trans * btVector3(bbMin[0], bbMax[1], bbMin[2]), trans * btVector3(bbMin[0], bbMin[1], bbMin[2]), color);
+		drawLine(trans * btVector3(bbMin[0], bbMin[1], bbMin[2]), trans * btVector3(bbMin[0], bbMin[1], bbMax[2]), color);
+		drawLine(trans * btVector3(bbMax[0], bbMin[1], bbMin[2]), trans * btVector3(bbMax[0], bbMin[1], bbMax[2]), color);
+		drawLine(trans * btVector3(bbMax[0], bbMax[1], bbMin[2]), trans * btVector3(bbMax[0], bbMax[1], bbMax[2]), color);
+		drawLine(trans * btVector3(bbMin[0], bbMax[1], bbMin[2]), trans * btVector3(bbMin[0], bbMax[1], bbMax[2]), color);
+		drawLine(trans * btVector3(bbMin[0], bbMin[1], bbMax[2]), trans * btVector3(bbMax[0], bbMin[1], bbMax[2]), color);
+		drawLine(trans * btVector3(bbMax[0], bbMin[1], bbMax[2]), trans * btVector3(bbMax[0], bbMax[1], bbMax[2]), color);
+		drawLine(trans * btVector3(bbMax[0], bbMax[1], bbMax[2]), trans * btVector3(bbMin[0], bbMax[1], bbMax[2]), color);
+		drawLine(trans * btVector3(bbMin[0], bbMax[1], bbMax[2]), trans * btVector3(bbMin[0], bbMin[1], bbMax[2]), color);
 	}
 };
 
