@@ -229,7 +229,7 @@ void	ConstraintDemo::initPhysics()
 //		btGeneric6DofConstraint* pGen6DOF = new btGeneric6DofConstraint(*pBodyA, *pBodyB, frameInA, frameInB, false);
 		pGen6DOF->setLinearLowerLimit(btVector3(-10., -2., -1.));
 		pGen6DOF->setLinearUpperLimit(btVector3(10., 2., 1.));
-//		pGen6DOF->setLinearLowerLimit(btVector3(-10., 0., 0.));
+		pGen6DOF->setLinearLowerLimit(btVector3(-10., 0., 0.));
 //		pGen6DOF->setLinearUpperLimit(btVector3(10., 0., 0.));
 //		pGen6DOF->setLinearLowerLimit(btVector3(0., 0., 0.));
 //		pGen6DOF->setLinearUpperLimit(btVector3(0., 0., 0.));
@@ -243,8 +243,16 @@ void	ConstraintDemo::initPhysics()
 //		pGen6DOF->setAngularUpperLimit(btVector3(0., -SIMD_HALF_PI*0.9, 0.));
 //		pGen6DOF->setAngularLowerLimit(btVector3(0., 0., -SIMD_HALF_PI));
 //		pGen6DOF->setAngularUpperLimit(btVector3(0., 0., SIMD_HALF_PI));
+
 		pGen6DOF->setAngularLowerLimit(btVector3(-SIMD_HALF_PI * 0.5f, -0.75, -SIMD_HALF_PI * 0.8f));
 		pGen6DOF->setAngularUpperLimit(btVector3(SIMD_HALF_PI * 0.5f, 0.75, SIMD_HALF_PI * 0.8f));
+//		pGen6DOF->setAngularLowerLimit(btVector3(0.f, -0.75, SIMD_HALF_PI * 0.8f));
+//		pGen6DOF->setAngularUpperLimit(btVector3(0.f, 0.75, -SIMD_HALF_PI * 0.8f));
+//		pGen6DOF->setAngularLowerLimit(btVector3(0.f, -SIMD_HALF_PI * 0.8f, SIMD_HALF_PI * 1.98f));
+//		pGen6DOF->setAngularUpperLimit(btVector3(0.f, SIMD_HALF_PI * 0.8f,  -SIMD_HALF_PI * 1.98f));
+
+		
+		
 //		pGen6DOF->setAngularLowerLimit(btVector3(-0.75,-0.5, -0.5));
 //		pGen6DOF->setAngularUpperLimit(btVector3(0.75,0.5, 0.5));
 //		pGen6DOF->setAngularLowerLimit(btVector3(-0.75,0., 0.));
@@ -261,13 +269,15 @@ void	ConstraintDemo::initPhysics()
 		tr.setIdentity();
 		tr.setOrigin(btVector3(btScalar(-10.), btScalar(5.), btScalar(0.)));
 		tr.getBasis().setEulerZYX(0,0,0);
-		btRigidBody* pBodyA = localCreateRigidBody( 0.0, tr, shape);
+		btRigidBody* pBodyA = localCreateRigidBody( 1.0, tr, shape);
+//		btRigidBody* pBodyA = localCreateRigidBody( 0.0, tr, shape);
 		pBodyA->setActivationState(DISABLE_DEACTIVATION);
 
 		tr.setIdentity();
 		tr.setOrigin(btVector3(btScalar(-10.), btScalar(0.), btScalar(0.)));
 		tr.getBasis().setEulerZYX(0,0,0);
-		btRigidBody* pBodyB = localCreateRigidBody(1.0, tr, shape);
+		btRigidBody* pBodyB = localCreateRigidBody(0.0, tr, shape);
+//		btRigidBody* pBodyB = localCreateRigidBody(1.0, tr, shape);
 
 		btTransform frameInA, frameInB;
 		frameInA = btTransform::getIdentity();
@@ -278,7 +288,8 @@ void	ConstraintDemo::initPhysics()
 		frameInB.setOrigin(btVector3(btScalar(0.), btScalar(4.), btScalar(0.)));
 
 		btConeTwistConstraint* pCT = new btConeTwistConstraint(*pBodyA, *pBodyB, frameInA, frameInB);
-		pCT->setLimit(btScalar(M_PI_4)*0.5f, btScalar(M_PI_4), btScalar(M_PI * 0.9));
+//		pCT->setLimit(btScalar(M_PI_4), btScalar(M_PI_4), btScalar(M_PI) * 0.8f);
+		pCT->setLimit(btScalar(M_PI_4), btScalar(M_PI_4), btScalar(M_PI) * 0.8f, 1.0f); // soft limit == hard limit
 		m_dynamicsWorld->addConstraint(pCT, true);
 		pCT->setDbgDrawSize(btScalar(5.f));
 	}
@@ -294,7 +305,8 @@ void	ConstraintDemo::initPhysics()
 		btVector3 btAxisA( 0.0f, 0.0f, 1.0f );
 
 		btHingeConstraint* pHinge = new btHingeConstraint( *pBody, btPivotA, btAxisA );
-		pHinge->enableAngularMotor(true, -1.0, 0.165);
+//		pHinge->enableAngularMotor(true, -1.0, 0.165); // use for the old solver
+		pHinge->enableAngularMotor(true, -1.0, 1.65); // use for the new SIMD solver
 		m_dynamicsWorld->addConstraint(pHinge);
 		pHinge->setDbgDrawSize(btScalar(5.f));
 	}
