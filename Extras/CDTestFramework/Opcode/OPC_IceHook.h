@@ -54,6 +54,8 @@ subject to the following restrictions:
 	#include ".\Ice\IceFPU.h"
 	#include ".\Ice\IceMemoryMacros.h"
 
+	namespace Opcode
+	{
 	namespace IceCore
 	{
 		#include ".\Ice\IceAllocator.h"
@@ -87,3 +89,4 @@ subject to the following restrictions:
 		#include ".\Ice\IceLSS.h"
 	}
 	using namespace IceMaths;
+}

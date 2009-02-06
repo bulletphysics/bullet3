@@ -77,7 +77,7 @@ subject to the following restrictions:
 // Precompiled Header
 #include "Stdafx.h"
 
-using namespace IceMaths;
+using namespace Opcode;
 
 float Ray::SquareDistance(const Point& point, float* t)	const
 {

@@ -12,7 +12,7 @@
 #include "StdAfx.h"
 #include <malloc.h>
 
-using namespace IceCore;
+using namespace Opcode;
 
 //#define ZERO_OVERHEAD_RELEASE
 #define NEW_CODE

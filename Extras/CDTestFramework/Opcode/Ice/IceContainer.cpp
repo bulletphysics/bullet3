@@ -24,7 +24,7 @@
 // Precompiled Header
 #include "StdAfx.h"
 
-using namespace IceCore;
+using namespace Opcode;
 
 // Static members
 #ifdef CONTAINER_STATS

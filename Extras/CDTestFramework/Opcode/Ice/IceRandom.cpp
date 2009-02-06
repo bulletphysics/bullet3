@@ -27,7 +27,7 @@ subject to the following restrictions:
 // Precompiled Header
 #include "Stdafx.h"
 
-using namespace IceCore;
+using namespace Opcode;
 
 void IceCore::	SRand(udword seed)
 {
@@ -48,4 +48,5 @@ udword IceCore::GetRandomIndex(udword max_index)
 	udword Index = gRandomGenerator.Randomize();
 	return Index % max_index;
 }
+
 

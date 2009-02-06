@@ -357,7 +357,7 @@ bool AABBNoLeafTree::Build(AABBTree* tree)
 	return true;
 }
 
-inline_ void ComputeMinMax(Point& min, Point& max, const VertexPointers& vp)
+inline_ void ComputeMinMax_OT(Point& min, Point& max, const VertexPointers& vp)
 {
 	// Compute triangle's AABB = a leaf box
 #ifdef OPC_USE_FCOMI	// a 15% speedup on my machine, not much
@@ -403,7 +403,7 @@ bool AABBNoLeafTree::Refit(const MeshInterface* mesh_interface)
 		if(Current.HasPosLeaf())
 		{
 			mesh_interface->GetTriangle(VP, Current.GetPosPrimitive());
-			ComputeMinMax(Min, Max, VP);
+			ComputeMinMax_OT(Min, Max, VP);
 		}
 		else
 		{
@@ -415,7 +415,7 @@ bool AABBNoLeafTree::Refit(const MeshInterface* mesh_interface)
 		if(Current.HasNegLeaf())
 		{
 			mesh_interface->GetTriangle(VP, Current.GetNegPrimitive());
-			ComputeMinMax(Min_, Max_, VP);
+			ComputeMinMax_OT(Min_, Max_, VP);
 		}
 		else
 		{

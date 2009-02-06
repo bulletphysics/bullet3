@@ -318,7 +318,7 @@ udword HybridModel::GetUsedBytes() const
 	return UsedBytes;
 }
 
-inline_ void ComputeMinMax(Point& min, Point& max, const VertexPointers& vp)
+inline_ void ComputeMinMax_HM(Point& min, Point& max, const VertexPointers& vp)
 {
 	// Compute triangle's AABB = a leaf box
 #ifdef OPC_USE_FCOMI	// a 15% speedup on my machine, not much
@@ -388,7 +388,7 @@ bool HybridModel::Refit()
 				while(NbTris--)
 				{
 					mIMesh->GetTriangle(VP, *T++);
-					ComputeMinMax(TmpMin, TmpMax, VP);
+					ComputeMinMax_HM(TmpMin, TmpMax, VP);
 					Min.Min(TmpMin);
 					Max.Max(TmpMax);
 				}
@@ -401,7 +401,7 @@ bool HybridModel::Refit()
 				while(NbTris--)
 				{
 					mIMesh->GetTriangle(VP, BaseIndex++);
-					ComputeMinMax(TmpMin, TmpMax, VP);
+					ComputeMinMax_HM(TmpMin, TmpMax, VP);
 					Min.Min(TmpMin);
 					Max.Max(TmpMax);
 				}
@@ -433,7 +433,7 @@ bool HybridModel::Refit()
 				while(NbTris--)
 				{
 					mIMesh->GetTriangle(VP, *T++);
-					ComputeMinMax(TmpMin, TmpMax, VP);
+					ComputeMinMax_HM(TmpMin, TmpMax, VP);
 					Min_.Min(TmpMin);
 					Max_.Max(TmpMax);
 				}
@@ -446,7 +446,7 @@ bool HybridModel::Refit()
 				while(NbTris--)
 				{
 					mIMesh->GetTriangle(VP, BaseIndex++);
-					ComputeMinMax(TmpMin, TmpMax, VP);
+					ComputeMinMax_HM(TmpMin, TmpMax, VP);
 					Min_.Min(TmpMin);
 					Max_.Max(TmpMax);
 				}

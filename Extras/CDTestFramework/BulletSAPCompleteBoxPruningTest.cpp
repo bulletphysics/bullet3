@@ -24,7 +24,9 @@ subject to the following restrictions:
 #include "btBulletCollisionCommon.h"
 #include "BulletCollision/BroadphaseCollision/btDbvtBroadphase.h"
 #include "Camera.h"
+#ifdef USE_CUDA_BROADPHASE
 #include "../CUDA/btCudaBroadphase.h"
+#endif
 #include "LinearMath/btQuickprof.h"
 
 int numParts =2;
@@ -429,14 +431,18 @@ BulletSAPCompleteBoxPruningTest::BulletSAPCompleteBoxPruningTest(int numBoxes,in
 //		m_broadphase = new btCudaBroadphase(aabbMin, aabbMax, 8, 8, 8, 8192, 8192, 64, 16);
 //		m_broadphase = new btCudaBroadphase(aabbMin, aabbMax, 12, 12, 12, 8192, 8192, 64, 16);
 //		m_broadphase = new btCudaBroadphase(aabbMin, aabbMax, 16, 16, 16, 8192, 8192, 64, 16);
+#ifdef USE_CUDA_BROADPHASE
 		m_broadphase = new btCudaBroadphase(aabbMin, aabbMax, 24, 24, 24,maxNumBoxes , maxNumBoxes, 64, 16);
 //		m_broadphase = new btCudaBroadphase(aabbMin, aabbMax, 32, 32, 32, 8192, 8192, 64, 16);
 		methodname	=	"btCudaBroadphase";
 		break;
+
 	case 9:
 		m_broadphase = new bt3DGridBroadphase(aabbMin, aabbMax, 24, 24, 24,maxNumBoxes , maxNumBoxes, 64, 16);
 		methodname	=	"bt3DGridBroadphase";
 		break;
+#endif //USE_CUDA_BROADPHASE
+
 	default:
 		{
 			m_broadphase = new btAxisSweep3(aabbMin,aabbMax,numBoxes,new btNullPairCache());

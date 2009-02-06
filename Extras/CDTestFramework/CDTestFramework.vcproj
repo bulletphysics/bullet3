@@ -63,10 +63,9 @@
 			/>
 			<Tool
 				Name="VCLinkerTool"
-				AdditionalDependencies="cudart.lib"
 				OutputFile="./Bin/CDTestFrameworkDEBUG.exe"
 				LinkIncremental="2"
-				AdditionalLibraryDirectories=".\AntTweakBar\lib;../../Glut;&quot;$(CUDA_LIB_PATH)&quot;"
+				AdditionalLibraryDirectories=".\AntTweakBar\lib;../../Glut"
 				GenerateDebugInformation="true"
 				ProgramDatabaseFile="$(OutDir)/CDTestFramework.pdb"
 				SubSystem="1"
