@@ -192,6 +192,15 @@ class btMatrix3x3 {
 					 btScalar(0.0), btScalar(1.0), btScalar(0.0), 
 					 btScalar(0.0), btScalar(0.0), btScalar(1.0)); 
 		}
+
+		static const btMatrix3x3&	getIdentity()
+		{
+			static const btMatrix3x3 identityMatrix(btScalar(1.0), btScalar(0.0), btScalar(0.0), 
+					 btScalar(0.0), btScalar(1.0), btScalar(0.0), 
+					 btScalar(0.0), btScalar(0.0), btScalar(1.0));
+			return identityMatrix;
+		}
+
   /**@brief Fill the values of the matrix into a 9 element array 
    * @param m The array to be filled */
 		void getOpenGLSubMatrix(btScalar *m) const 

@@ -275,6 +275,12 @@ public:
 		}
 	}
 
+	static const btQuaternion&	getIdentity()
+	{
+		static const btQuaternion identityQuat(btScalar(0.),btScalar(0.),btScalar(0.),btScalar(1.));
+		return identityQuat;
+	}
+
 	SIMD_FORCE_INLINE const btScalar& getW() const { return m_floats[3]; }
 
 	

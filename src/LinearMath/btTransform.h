@@ -190,11 +190,10 @@ public:
 	btTransform operator*(const btTransform& t) const;
 
   /**@brief Return an identity transform */
-	static btTransform	getIdentity()
+	static const btTransform&	getIdentity()
 	{
-		btTransform tr;
-		tr.setIdentity();
-		return tr;
+		static const btTransform identityTransform(btMatrix3x3::getIdentity());
+		return identityTransform;
 	}
 	
 private:
