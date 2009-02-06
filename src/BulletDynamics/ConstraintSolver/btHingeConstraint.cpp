@@ -71,9 +71,9 @@ btHingeConstraint::btHingeConstraint(btRigidBody& rbA,btRigidBody& rbB, const bt
 	btVector3 rbAxisB2 =  axisInB.cross(rbAxisB1);	
 	
 	m_rbBFrame.getOrigin() = pivotInB;
-	m_rbBFrame.getBasis().setValue( rbAxisB1.getX(),rbAxisB2.getX(),-axisInB.getX(),
-									rbAxisB1.getY(),rbAxisB2.getY(),-axisInB.getY(),
-									rbAxisB1.getZ(),rbAxisB2.getZ(),-axisInB.getZ() );
+	m_rbBFrame.getBasis().setValue( rbAxisB1.getX(),rbAxisB2.getX(),axisInB.getX(),
+									rbAxisB1.getY(),rbAxisB2.getY(),axisInB.getY(),
+									rbAxisB1.getZ(),rbAxisB2.getZ(),axisInB.getZ() );
 	
 	//start with free
 	m_lowerLimit = btScalar(1e30);
@@ -102,7 +102,7 @@ m_useSolveConstraintObsolete(HINGE_USE_OBSOLETE_SOLVER)
 									rbAxisA1.getY(),rbAxisA2.getY(),axisInA.getY(),
 									rbAxisA1.getZ(),rbAxisA2.getZ(),axisInA.getZ() );
 
-	btVector3 axisInB = rbA.getCenterOfMassTransform().getBasis() * -axisInA;
+	btVector3 axisInB = rbA.getCenterOfMassTransform().getBasis() * axisInA;
 
 	btQuaternion rotationArc = shortestArcQuat(axisInA,axisInB);
 	btVector3 rbAxisB1 =  quatRotate(rotationArc,rbAxisA1);
@@ -132,11 +132,6 @@ m_angularOnly(false),
 m_enableAngularMotor(false),
 m_useSolveConstraintObsolete(HINGE_USE_OBSOLETE_SOLVER)
 {
-	// flip axis
-	m_rbBFrame.getBasis()[0][2] *= btScalar(-1.);
-	m_rbBFrame.getBasis()[1][2] *= btScalar(-1.);
-	m_rbBFrame.getBasis()[2][2] *= btScalar(-1.);
-
 	//start with free
 	m_lowerLimit = btScalar(1e30);
 	m_upperLimit = btScalar(-1e30);
@@ -155,11 +150,6 @@ m_enableAngularMotor(false),
 m_useSolveConstraintObsolete(HINGE_USE_OBSOLETE_SOLVER)
 {
 	///not providing rigidbody B means implicitly using worldspace for body B
-
-	// flip axis
-	m_rbBFrame.getBasis()[0][2] *= btScalar(-1.);
-	m_rbBFrame.getBasis()[1][2] *= btScalar(-1.);
-	m_rbBFrame.getBasis()[2][2] *= btScalar(-1.);
 
 	m_rbBFrame.getOrigin() = m_rbA.getCenterOfMassTransform()(m_rbAFrame.getOrigin());
 
@@ -364,7 +354,7 @@ void btHingeConstraint::getInfo2 (btConstraintInfo2* info)
     //    angular_velocity  = (erp*fps) * (ax1 x ax2)
     // ax1 x ax2 is in the plane space of ax1, so we project the angular
     // velocity to p and q to find the right hand side.
-    btVector3 ax2 = - trB.getBasis().getColumn(2);
+    btVector3 ax2 = trB.getBasis().getColumn(2);
 	btVector3 u = ax1.cross(ax2);
 	info->m_constraintError[s3] = k * u.dot(p);
 	info->m_constraintError[s4] = k * u.dot(q);
@@ -551,7 +541,7 @@ void	btHingeConstraint::solveConstraintObsolete(btSolverBody& bodyA,btSolverBody
 				}
 
 				//solve angular positional correction
-				btVector3 angularError = -axisA.cross(axisB) *(btScalar(1.)/timeStep);
+				btVector3 angularError =  axisA.cross(axisB) *(btScalar(1.)/timeStep);
 				btScalar len2 = angularError.length();
 				if (len2>btScalar(0.00001))
 				{

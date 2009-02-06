@@ -1294,12 +1294,18 @@ void btDiscreteDynamicsWorld::debugDrawConstraint(btTypedConstraint* constraint)
 
 						pPrev = pCur;
 					}						
-
-
-					btVector3 pivot = pCT->getRigidBodyB().getCenterOfMassTransform() * pCT->getBFrame().getOrigin();
 					btScalar tws = pCT->getTwistSpan();
 					btScalar twa = pCT->getTwistAngle();
-					tr = pCT->getRigidBodyB().getCenterOfMassTransform() * pCT->getBFrame();
+					bool useFrameB = (pCT->getRigidBodyB().getInvMass() > btScalar(0.f));
+					if(useFrameB)
+					{
+						tr = pCT->getRigidBodyB().getCenterOfMassTransform() * pCT->getBFrame();
+					}
+					else
+					{
+						tr = pCT->getRigidBodyA().getCenterOfMassTransform() * pCT->getAFrame();
+					}
+					btVector3 pivot = tr.getOrigin();
 					btVector3 normal = tr.getBasis().getColumn(0);
 					btVector3 axis1 = tr.getBasis().getColumn(1);
 					getDebugDrawer()->drawArc(pivot, normal, axis1, dbgDrawSize, dbgDrawSize, -twa-tws, -twa+tws, btVector3(0,0,0), true);
@@ -1324,7 +1330,7 @@ void btDiscreteDynamicsWorld::debugDrawConstraint(btTypedConstraint* constraint)
 					btScalar maxTh = p6DOF->getRotationalLimitMotor(1)->m_hiLimit;
 					btScalar minPs = p6DOF->getRotationalLimitMotor(2)->m_loLimit;
 					btScalar maxPs = p6DOF->getRotationalLimitMotor(2)->m_hiLimit;
-					getDebugDrawer()->drawSpherePatch(center, up, axis, dbgDrawSize, minTh, maxTh, minPs, maxPs, btVector3(0,0,0));
+					getDebugDrawer()->drawSpherePatch(center, up, axis, dbgDrawSize * btScalar(.9f), minTh, maxTh, minPs, maxPs, btVector3(0,0,0));
 					axis = tr.getBasis().getColumn(1);
 					btScalar ay = p6DOF->getAngle(1);
 					btScalar az = p6DOF->getAngle(2);
@@ -1340,11 +1346,18 @@ void btDiscreteDynamicsWorld::debugDrawConstraint(btTypedConstraint* constraint)
 					btVector3 normal = -tr.getBasis().getColumn(0);
 					btScalar minFi = p6DOF->getRotationalLimitMotor(0)->m_loLimit;
 					btScalar maxFi = p6DOF->getRotationalLimitMotor(0)->m_hiLimit;
-					getDebugDrawer()->drawArc(center, normal, ref, dbgDrawSize, dbgDrawSize, minFi, maxFi, btVector3(0,0,0), true);
+					if(minFi > maxFi)
+					{
+						getDebugDrawer()->drawArc(center, normal, ref, dbgDrawSize, dbgDrawSize, -SIMD_PI, SIMD_PI, btVector3(0,0,0), false);
+					}
+					else if(minFi < maxFi)
+					{
+						getDebugDrawer()->drawArc(center, normal, ref, dbgDrawSize, dbgDrawSize, minFi, maxFi, btVector3(0,0,0), true);
+					}
 					tr = p6DOF->getCalculatedTransformA();
-					btVector3 bbMin = tr * p6DOF->getTranslationalLimitMotor()->m_lowerLimit;
-					btVector3 bbMax = tr * p6DOF->getTranslationalLimitMotor()->m_upperLimit;
-					getDebugDrawer()->drawBox(bbMin, bbMax, btVector3(0,0,0));
+					btVector3 bbMin = p6DOF->getTranslationalLimitMotor()->m_lowerLimit;
+					btVector3 bbMax = p6DOF->getTranslationalLimitMotor()->m_upperLimit;
+					getDebugDrawer()->drawBox(bbMin, bbMax, tr, btVector3(0,0,0));
 				}
 			}
 			break;

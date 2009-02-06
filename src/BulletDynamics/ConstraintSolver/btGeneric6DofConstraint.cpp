@@ -19,19 +19,19 @@ email: projectileman@yahoo.com
 http://gimpact.sf.net
 */
 
-
 #include "btGeneric6DofConstraint.h"
 #include "BulletDynamics/Dynamics/btRigidBody.h"
 #include "LinearMath/btTransformUtil.h"
 #include <new>
 
+
+#define D6_USE_OBSOLETE_METHOD false
 //-----------------------------------------------------------------------------
 
 btGeneric6DofConstraint::btGeneric6DofConstraint()
 :btTypedConstraint(D6_CONSTRAINT_TYPE),
 m_useLinearReferenceFrameA(true),
-m_useSolveConstraintObsolete(false)
-//m_useSolveConstraintObsolete(true)
+m_useSolveConstraintObsolete(D6_USE_OBSOLETE_METHOD)
 {
 }
 
@@ -42,8 +42,7 @@ btGeneric6DofConstraint::btGeneric6DofConstraint(btRigidBody& rbA, btRigidBody& 
 , m_frameInA(frameInA)
 , m_frameInB(frameInB),
 m_useLinearReferenceFrameA(useLinearReferenceFrameA),
-m_useSolveConstraintObsolete(false)
-//m_useSolveConstraintObsolete(true)
+m_useSolveConstraintObsolete(D6_USE_OBSOLETE_METHOD)
 {
 
 }
@@ -537,7 +536,6 @@ int btGeneric6DofConstraint::setLinearLimits(btConstraintInfo2* info)
 	int row = 0;
 	//solve linear limits
 	btRotationalLimitMotor limot;
-	bool useBasisBodyB = (m_rbB.getInvMass() == btScalar(0.f));
 	for (int i=0;i<3 ;i++ )
 	{
 		if(m_linearLimits.needApplyForce(i))
@@ -554,16 +552,8 @@ int btGeneric6DofConstraint::setLinearLimits(btConstraintInfo2* info)
 			limot.m_maxLimitForce  = btScalar(0.f);
 			limot.m_maxMotorForce  = m_linearLimits.m_maxMotorForce[i];
 			limot.m_targetVelocity  = m_linearLimits.m_targetVelocity[i];
-			btVector3 axis;
-			if(useBasisBodyB)
-			{
-				axis = m_calculatedTransformB.getBasis().getColumn(i);
-			}
-			else
-			{
-				axis = m_calculatedTransformA.getBasis().getColumn(i);
-			}
-			row += get_limit_motor_info2(&limot,	&m_rbA, &m_rbB, info, row, axis, 0);
+			btVector3 axis = m_calculatedTransformA.getBasis().getColumn(i);
+			row += get_limit_motor_info2(&limot, &m_rbA, &m_rbB, info, row, axis, 0);
 		}
 	}
 	return row;

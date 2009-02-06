@@ -610,7 +610,7 @@ void btConeTwistConstraint::calcAngleInfo2()
 			// or you're trying to set at least one of the swing limits too small. (if so, do you really want a conetwist constraint?)
 		}
 
-		if (m_twistSpan >= btScalar(0.05f))
+		if (m_twistSpan >= btScalar(0.f))
 		{
 			btVector3 twistAxis;
 			computeTwistLimitInfo(qABTwist, m_twistAngle, twistAxis);
