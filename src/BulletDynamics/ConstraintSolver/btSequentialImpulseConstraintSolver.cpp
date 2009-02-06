@@ -398,9 +398,9 @@ btScalar btSequentialImpulseConstraintSolver::solveGroupCacheFriendlySetup(btCol
 		{
 
 			int totalNumRows = 0;
-
+			int i;
 			//calculate the total number of contraint rows
-			for (int i=0;i<numConstraints;i++)
+			for (i=0;i<numConstraints;i++)
 			{
 
 				btTypedConstraint::btConstraintInfo1 info1;
@@ -416,7 +416,7 @@ btScalar btSequentialImpulseConstraintSolver::solveGroupCacheFriendlySetup(btCol
 			///setup the btSolverConstraints
 			int currentRow = 0;
 
-			for (int i=0;i<numConstraints;i++,currentRow+=info1.m_numConstraintRows)
+			for (i=0;i<numConstraints;i++,currentRow+=info1.m_numConstraintRows)
 			{
 				constraints[i]->getInfo1(&info1);
 				if (info1.m_numConstraintRows)
@@ -437,7 +437,8 @@ btScalar btSequentialImpulseConstraintSolver::solveGroupCacheFriendlySetup(btCol
 					btSolverBody* bodyAPtr = &m_tmpSolverBodyPool[solverBodyIdA];
 					btSolverBody* bodyBPtr = &m_tmpSolverBodyPool[solverBodyIdB];
 
-					for (int j=0;j<info1.m_numConstraintRows;j++)
+					int j;
+					for ( j=0;j<info1.m_numConstraintRows;j++)
 					{
 						memset(&currentConstraintRow[j],0,sizeof(btSolverConstraint));
 						currentConstraintRow[j].m_lowerLimit = -FLT_MAX;
@@ -471,7 +472,7 @@ btScalar btSequentialImpulseConstraintSolver::solveGroupCacheFriendlySetup(btCol
 					constraints[i]->getInfo2(&info2);
 
 					///finalize the constraint setup
-					for (int j=0;j<info1.m_numConstraintRows;j++)
+					for ( j=0;j<info1.m_numConstraintRows;j++)
 					{
 						btSolverConstraint& solverConstraint = currentConstraintRow[j];
 

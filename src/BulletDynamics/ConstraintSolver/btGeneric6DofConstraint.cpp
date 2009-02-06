@@ -508,7 +508,7 @@ void btGeneric6DofConstraint::getInfo1 (btConstraintInfo1* info)
 			}
 		}
 		//test angular limits
-		for (int i=0;i<3 ;i++ )
+		for (i=0;i<3 ;i++ )
 		{
 			if(testAngularLimitMotor(i))
 			{
