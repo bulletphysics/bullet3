@@ -110,7 +110,7 @@ GUINT GIM_BOX_TREE::_sort_and_calc_splitting_index(
 		splitIndex = startIndex+ (numIndices>>1);
 	}
 
-	btAssert(!(splitIndex==startIndex) || (splitIndex == (endIndex)));
+	btAssert(!((splitIndex==startIndex) || (splitIndex == (endIndex))));
 
 	return splitIndex;
 }
