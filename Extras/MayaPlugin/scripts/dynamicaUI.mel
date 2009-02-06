@@ -395,8 +395,15 @@ global proc dynamicaUI_STsubstepsChanged()
 
 }
 
-proc dynamicaUI_createRigidBody(int $active, int $collisionShapeType)
+proc dynamicaUI_createRigidBody(int $activebody, int $collisionShapeType)
 {
+	float $mass = 1;
+	
+	if($activebody == false)
+	{
+		$mass = 0;
+	}
+	
     string $selection[] = `ls -selection -dag -leaf -showType -type "geometry"`;
 
     //create dSolver node if necessary
@@ -419,7 +426,7 @@ proc dynamicaUI_createRigidBody(int $active, int $collisionShapeType)
                 connectAttr ($selection[$i * 2] + ".message") ($collisionShapeNode + ".inShape");
                 hide $shapeTransforms[0];
             }
-            setAttr ($rigidBodyNode + ".active" ) $active;
+            setAttr ($rigidBodyNode + ".mass" ) $mass;
             setAttr ($collisionShapeNode + ".type" ) $collisionShapeType;
 
             float $pos[]= `getAttr ($shapeTransforms[0] + ".translate")`;
@@ -439,7 +446,7 @@ proc dynamicaUI_createRigidBody(int $active, int $collisionShapeType)
         connectAttr ($collisionShapeNode + ".outCollisionShape") ($rigidBodyNode + ".inCollisionShape");
         string $rigidBodyTransforms[] = `listRelatives -parent $rigidBodyNode`;
 
-        setAttr ($rigidBodyNode + ".active" ) $active;
+        setAttr ($rigidBodyNode + ".mass" ) $mass;
         setAttr ($collisionShapeNode + ".type" ) $collisionShapeType;
         $newBodies[0] = $rigidBodyTransforms[0];
     }
@@ -562,8 +569,15 @@ global proc dynamicaUI_createPassiveMeshRB()
     dynamicaUI_createRigidBody(false, 1);
 }
 
-proc dynamicaUI_createRigidBodyArray(int $active, int $collisionShapeType)
+proc dynamicaUI_createRigidBodyArray(int $activebody, int $collisionShapeType)
 {
+	float $mass = 1;
+	
+	if ($activebody == false)
+	{
+		$mass = 0;
+	}
+	
     global int $dynamicaUI_createArrayUI_size[];
     global float $dynamicaUI_createArrayUI_offset[];
 
@@ -586,7 +600,7 @@ proc dynamicaUI_createRigidBodyArray(int $active, int $collisionShapeType)
             }
         }
     
-        setAttr ($rigidBodyArrayNode + ".active" ) $active;
+        setAttr ($rigidBodyArrayNode + ".mass" ) $mass;
         setAttr ($collisionShapeNode + ".type" ) $collisionShapeType;
     
         select -r $rigidBodyTransforms[0];

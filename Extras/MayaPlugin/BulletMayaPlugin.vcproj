@@ -695,6 +695,26 @@
 			>
 		</Filter>
 		<File
+			RelativePath=".\scripts\AEdCollisionShapeTemplate.mel"
+			>
+		</File>
+		<File
+			RelativePath=".\scripts\AEdNailConstraintTemplate.mel"
+			>
+		</File>
+		<File
+			RelativePath=".\scripts\AEdRigidBodyArrayTemplate.mel"
+			>
+		</File>
+		<File
+			RelativePath=".\scripts\AEdRigidBodyTemplate.mel"
+			>
+		</File>
+		<File
+			RelativePath=".\scripts\AEdSolverTemplate.mel"
+			>
+		</File>
+		<File
 			RelativePath=".\box_shape.h"
 			>
 		</File>
@@ -832,6 +852,14 @@
 		</File>
 		<File
 			RelativePath=".\dSolverNode.h"
+			>
+		</File>
+		<File
+			RelativePath=".\scripts\dynamica.mel"
+			>
+		</File>
+		<File
+			RelativePath=".\scripts\dynamicaUI.mel"
 			>
 		</File>
 		<File

@@ -49,7 +49,7 @@ MString     rigidBodyArrayNode::typeName("dRigidBodyArray");
 MObject     rigidBodyArrayNode::ia_collisionShape;
 MObject     rigidBodyArrayNode::ia_solver;
 MObject     rigidBodyArrayNode::ia_numBodies;
-MObject     rigidBodyArrayNode::ia_active;
+
 MObject     rigidBodyArrayNode::ia_mass;
 MObject     rigidBodyArrayNode::ia_restitution;
 MObject     rigidBodyArrayNode::ia_friction;
@@ -92,12 +92,7 @@ MStatus rigidBodyArrayNode::initialize()
     status = addAttribute(ia_numBodies);
     MCHECKSTATUS(status, "adding numBodies attribute")
 
-    ia_active = fnNumericAttr.create("active", "ac", MFnNumericData::kBoolean, 1, &status);
-    MCHECKSTATUS(status, "creating active attribute")
-    fnNumericAttr.setKeyable(true);
-    status = addAttribute(ia_active);
-    MCHECKSTATUS(status, "adding active attribute")
-
+    
     ia_mass = fnNumericAttr.create("mass", "ma", MFnNumericData::kDouble, 1.0, &status);
     MCHECKSTATUS(status, "creating mass attribute")
     fnNumericAttr.setKeyable(true);

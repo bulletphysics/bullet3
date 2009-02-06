@@ -82,8 +82,6 @@ public:
 
 	virtual void addContactPoint(const btVector3& normalOnBInWorld,const btVector3& pointInWorld,btScalar depth);
 
-	virtual void addLocalContactPointInternal(const btVector3& normalOnBInWorld,const btVector3& localPointA,const btVector3& localPointB);
-
 	SIMD_FORCE_INLINE	void refreshContactPoints()
 	{
 		btAssert(m_manifoldPtr);

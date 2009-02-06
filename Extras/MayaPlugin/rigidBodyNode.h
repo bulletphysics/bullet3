@@ -68,7 +68,6 @@ public:
     //Attributes
     static  MObject     ia_collisionShape;
     static  MObject     ia_solver;
-    static  MObject     ia_active;
     static  MObject     ia_mass;
     static  MObject     ia_restitution;
     static  MObject     ia_friction;

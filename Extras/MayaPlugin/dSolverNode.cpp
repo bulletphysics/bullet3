@@ -195,10 +195,10 @@ void initRigidBody(MObject &node)
 
     MFnTransform fnTransform(fnDagNode.parent(0));
 
-    MPlug plgActive(node, rigidBodyNode::ia_active);
-    bool active = false;
-    plgActive.getValue(active);
-    if(active) {
+    MPlug plgMass(node, rigidBodyNode::ia_mass);
+    float mass = 0.f;
+    plgMass.getValue(mass);
+    if(mass>0.f) {
         //active rigid body, set the world transform from the initial* attributes
         MObject obj;
 
@@ -259,9 +259,11 @@ void initRigidBodyArray(MObject &node)
 
     MFnTransform fnTransform(fnDagNode.parent(0));
 
-    MPlug plgActive(node, rigidBodyArrayNode::ia_active);
-    bool active = false;
-    plgActive.getValue(active);
+    MPlug plgMass(node, rigidBodyArrayNode::ia_mass);
+    float mass = 0.f;
+    plgMass.getValue(mass);
+	bool active = (mass>0.f);
+
     if(active) {
         //active rigid body, set the world transform from the initial* attributes
         MObject obj;
@@ -382,9 +384,10 @@ void dSolverNode::gatherPassiveTransforms(MPlugArray &rbConnections, std::vector
 
             MFnTransform fnTransform(fnDagNode.parent(0));
 
-            MPlug plgActive(node, rigidBodyNode::ia_active);
-            bool active = false;
-            plgActive.getValue(active);
+            MPlug plgMass(node, rigidBodyNode::ia_mass);
+            float mass = 0.f;
+            plgMass.getValue(mass);
+			bool active = (mass>0.f);
             if(!active) {
                 MQuaternion mquat;
                 fnTransform.getRotation(mquat);
@@ -404,9 +407,10 @@ void dSolverNode::gatherPassiveTransforms(MPlugArray &rbConnections, std::vector
                 return;
             }
 
-            MPlug plgActive(node, rigidBodyArrayNode::ia_active);
-            bool active = false;
-            plgActive.getValue(active);
+            MPlug plgMass(node, rigidBodyArrayNode::ia_mass);
+            float mass = 0.f;
+            plgMass.getValue(mass);
+			bool active = (mass>0.f);
             if(!active) {
                 MPlug plgPosition(node, rigidBodyArrayNode::io_position);
                 MPlug plgRotation(node, rigidBodyArrayNode::io_rotation);
@@ -453,9 +457,10 @@ void dSolverNode::updatePassiveRigidBodies(MPlugArray &rbConnections, std::vecto
                 continue;
             }
 
-            MPlug plgActive(node, rigidBodyNode::ia_active);
-            bool active = false;
-            plgActive.getValue(active);
+            MPlug plgMass(node, rigidBodyNode::ia_mass);
+            float mass = 0.f;
+            plgMass.getValue(mass);
+			bool active = (mass>0.f);
             if(!active) {
                 //do linear interpolation for now
                 rb->set_transform(xforms[pb].m_x0 + t * (xforms[pb].m_x1 - xforms[pb].m_x0),
@@ -471,9 +476,10 @@ void dSolverNode::updatePassiveRigidBodies(MPlugArray &rbConnections, std::vecto
                 return;
             }
 
-            MPlug plgActive(node, rigidBodyArrayNode::ia_active);
-            bool active = false;
-            plgActive.getValue(active);
+            MPlug plgMass(node, rigidBodyArrayNode::ia_mass);
+            float mass = 0.f;
+            plgMass.getValue(mass);
+			bool active = (mass>0.f);
             if(!active) {
                 for(size_t j = 0; j < rbs.size(); ++j) {
                     rbs[j]->set_transform(xforms[pb].m_x0 + t * (xforms[pb].m_x1 - xforms[pb].m_x0),
@@ -503,9 +509,10 @@ void dSolverNode::updateActiveRigidBodies(MPlugArray &rbConnections)
 
             MFnTransform fnTransform(fnDagNode.parent(0));
 
-            MPlug plgActive(node, rigidBodyNode::ia_active);
-            bool active = false;
-            plgActive.getValue(active);
+            MPlug plgMass(node, rigidBodyNode::ia_mass);
+            float mass = 0.f;
+            plgMass.getValue(mass);
+			bool active = (mass>0.f);
             if(active) {
                 quatf rot;
                 vec3f pos; 
@@ -517,10 +524,10 @@ void dSolverNode::updateActiveRigidBodies(MPlugArray &rbConnections)
             rigidBodyArrayNode *rbNode = static_cast<rigidBodyArrayNode*>(fnDagNode.userNode()); 
             std::vector<rigid_body_t::pointer>& rbs = rbNode->rigid_bodies();
 
-            MPlug plgActive(node, rigidBodyArrayNode::ia_active);
-            bool active = false;
-            plgActive.getValue(active);
-
+            MPlug plgMass(node, rigidBodyArrayNode::ia_mass);
+            float mass = 0.f;
+            plgMass.getValue(mass);
+			bool active = (mass>0.f);
             //write the position and rotations 
             if(active) {
                 MPlug plgPosition(node, rigidBodyArrayNode::io_position);
@@ -574,9 +581,10 @@ void dSolverNode::applyFields(MPlugArray &rbConnections, float dt)
             rigidBodyNode *rbNode = static_cast<rigidBodyNode*>(fnDagNode.userNode()); 
             rigid_body_t::pointer rb = rbNode->rigid_body();
 
-            MPlug plgActive(node, rigidBodyNode::ia_active);
-            bool active = false;
-            plgActive.getValue(active);
+            MPlug plgMass(node, rigidBodyNode::ia_mass);
+            float mass = 0.f;
+            plgMass.getValue(mass);
+			bool active = (mass>0.f);
             if(active) {
                 rigid_bodies.push_back(rb.get());
             }
@@ -584,9 +592,10 @@ void dSolverNode::applyFields(MPlugArray &rbConnections, float dt)
             rigidBodyArrayNode *rbNode = static_cast<rigidBodyArrayNode*>(fnDagNode.userNode()); 
             std::vector<rigid_body_t::pointer>& rbs = rbNode->rigid_bodies();
 
-            MPlug plgActive(node, rigidBodyArrayNode::ia_active);
-            bool active = false;
-            plgActive.getValue(active);
+            MPlug plgMass(node, rigidBodyArrayNode::ia_mass);
+            float mass = 0.f;
+			plgMass.getValue(mass);
+			bool active = (mass>0.f);
             if(active) {
                 for(size_t j = 0; j < rbs.size(); ++j) {
                     rigid_bodies.push_back(rbs[j].get());

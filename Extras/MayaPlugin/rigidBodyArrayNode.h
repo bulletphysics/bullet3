@@ -74,7 +74,7 @@ public:
     static  MObject     ia_collisionShape;
     static  MObject     ia_solver;
     static  MObject     ia_numBodies;
-    static  MObject     ia_active;
+	//ia_active is obsolete and redundant -> use ia_mass == 0 for (ia_active==false), and ia_mass > 0 for (ia_active == true)
     static  MObject     ia_mass;
     static  MObject     ia_restitution;
     static  MObject     ia_friction;

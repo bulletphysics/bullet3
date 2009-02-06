@@ -45,7 +45,6 @@ MString     rigidBodyNode::typeName("dRigidBody");
 
 MObject     rigidBodyNode::ia_collisionShape;
 MObject     rigidBodyNode::ia_solver;
-MObject     rigidBodyNode::ia_active;
 MObject     rigidBodyNode::ia_mass;
 MObject     rigidBodyNode::ia_restitution;
 MObject     rigidBodyNode::ia_friction;
@@ -76,12 +75,6 @@ MStatus rigidBodyNode::initialize()
     MCHECKSTATUS(status, "creating solver attribute")
     status = addAttribute(ia_solver);
     MCHECKSTATUS(status, "adding solver attribute")
-
-    ia_active = fnNumericAttr.create("active", "ac", MFnNumericData::kBoolean, 1, &status);
-    MCHECKSTATUS(status, "creating active attribute")
-    fnNumericAttr.setKeyable(true);
-    status = addAttribute(ia_active);
-    MCHECKSTATUS(status, "adding active attribute")
 
     ia_mass = fnNumericAttr.create("mass", "ma", MFnNumericData::kDouble, 1.0, &status);
     MCHECKSTATUS(status, "creating mass attribute")
@@ -184,8 +177,6 @@ MStatus rigidBodyNode::initialize()
     status = attributeAffects(ia_solver, ca_solver);
     MCHECKSTATUS(status, "adding attributeAffects(ia_solver, ca_solver)")
 
- //   status = attributeAffects(ia_active, ca_rigidBodyParam);
-  //  MCHECKSTATUS(status, "adding attributeAffects(ia_active, ca_rigidBodyParam)")
 
     return MS::kSuccess;
 }
@@ -521,7 +512,6 @@ void rigidBodyNode::computeRigidBodyParam(const MPlug& plug, MDataBlock& data)
     m_rigid_body->set_friction(data.inputValue(ia_friction).asDouble());
     m_rigid_body->set_linear_damping(data.inputValue(ia_linearDamping).asDouble());
     m_rigid_body->set_angular_damping(data.inputValue(ia_angularDamping).asDouble());
-   // m_rigid_body->set_kinematic(!data.inputValue(ia_active).asBool());
 
     data.outputValue(ca_rigidBodyParam).set(true);
     data.setClean(plug);

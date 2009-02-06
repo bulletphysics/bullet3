@@ -51,6 +51,7 @@ namespace
 	int tx, ty, tw, th;
 	int	gDrawAabb;
 	int	gWireFrame;
+	int gHelpText;
 	int	gDebugContacts;
 	int	gDrawTextures=1;
 	int gDrawShadows=0;
@@ -79,6 +80,7 @@ void	setDefaultSettings()
 	gDrawAabb=0;
 	gWireFrame=0;
 	gDebugContacts=0;
+	gHelpText = 0;
 	gDrawTextures=1;
 	gDrawShadows=0;
 	gDrawClusters=0;
@@ -206,6 +208,13 @@ void SimulationLoop()
 	{
 		demo->setDebugMode(demo->getDebugMode() & (~btIDebugDraw::DBG_DrawWireframe));
 
+	}
+	if (gHelpText)
+	{
+		demo->setDebugMode(demo->getDebugMode() & (~btIDebugDraw::DBG_NoHelpText));
+	} else
+	{
+		demo->setDebugMode(demo->getDebugMode() |btIDebugDraw::DBG_NoHelpText);
 	}
 	if (gDebugContacts)
 	{
@@ -450,9 +459,12 @@ int main(int argc, char** argv)
 
 	GLUI_Panel* drawPanel =	glui->add_panel("Debug Draw");
 
+	
+	glui->add_checkbox_to_panel(drawPanel, "Help", &gHelpText);
 	glui->add_checkbox_to_panel(drawPanel, "AABBs", &gDrawAabb);
 	glui->add_checkbox_to_panel(drawPanel, "Wireframe", &gWireFrame);
 	glui->add_checkbox_to_panel(drawPanel, "Contacts", &gDebugContacts);
+
 	glui->add_checkbox_to_panel(drawPanel, "Textures", &gDrawTextures);
 	glui->add_checkbox_to_panel(drawPanel, "Shadows", &gDrawShadows);
 	glui->add_checkbox_to_panel(drawPanel, "Clusters", &gDrawClusters);

@@ -26,7 +26,7 @@ subject to the following restrictions:
 #include <string>
 
 #include "BulletCollision/CollisionShapes/btShapeHull.h"
-
+#include "BulletCollision/CollisionShapes/btScaledBvhTriangleMeshShape.h"
 #include "BulletCollision/CollisionShapes/btBoxShape.h"
 #include "BulletCollision/CollisionShapes/btSphereShape.h"
 #include "BulletCollision/CollisionShapes/btCylinderShape.h"
@@ -272,6 +272,40 @@ void ColladaConverter::reset ()
 
 	m_collada = NULL;
 	m_dom = NULL;
+}
+
+void	ColladaConverter::setCameraInfo(const btVector3& upAxis,int forwardAxis)
+{
+	if (!instantiateDom ())
+	{
+		return;
+	}
+
+	domAsset::domUp_axis * up = m_dom->getAsset()->getUp_axis();
+	int upAxisIndex = upAxis.maxAxis();
+
+	switch (upAxisIndex)
+	{
+	case 0:
+		{
+			up->setValue(UPAXISTYPE_X_UP);
+			break;
+		}
+	case 1:
+		{
+			up->setValue(UPAXISTYPE_Y_UP);
+			break;
+		}
+	case 2:
+		{
+			up->setValue(UPAXISTYPE_Z_UP);
+			break;
+		}
+	default:
+		{
+		}
+	};
+	
 }
 
 
@@ -1515,6 +1549,16 @@ void	ColladaConverter::addConvexMesh (btCollisionShape* shape, const char* nodeN
 	printf("ERROR: Unsupported.\n");
 }
 
+void	ColladaConverter::addScaledConcaveMesh(btCollisionShape* shape, const char* nodeName)
+{
+	btScaledBvhTriangleMeshShape* scaledShape = (btScaledBvhTriangleMeshShape*)shape;
+	btBvhTriangleMeshShape* meshShape = scaledShape->getChildShape();
+	btStridingMeshInterface* meshInterface = meshShape->getMeshInterface ();
+	addConcaveMeshInternal(meshInterface,nodeName);
+}
+
+
+
 void	ColladaConverter::addConcaveMesh(btCollisionShape* shape, const char* nodeName)
 {
 	btTriangleMeshShape* meshShape = (btTriangleMeshShape*)shape;
@@ -1560,8 +1604,11 @@ void	ColladaConverter::addConcaveMeshInternal(btStridingMeshInterface* meshInter
 	geo->setId( nodeName );
 	geo->setName ( nodeName);
 
+	printf("numSubParts = \n",meshInterface->getNumSubParts ());
+
 	for (int i = 0; i < meshInterface->getNumSubParts (); i++)
 	{
+	
 
 		domMesh *mesh = daeSafeCast<domMesh>( geo->createAndPlace( COLLADA_ELEMENT_MESH ) );
 		if ( mesh == NULL )
@@ -1580,6 +1627,12 @@ void	ColladaConverter::addConcaveMeshInternal(btStridingMeshInterface* meshInter
 		PHY_ScalarType indexType;
 
 		meshInterface->getLockedReadOnlyVertexIndexBase (&vertexBase, numVerts, vertexType, vertexStride, &indexBase, indexStride, numFaces, indexType, i);
+
+		printf("meshInterface subpart[%d].numVerts = %d\n",i,numVerts);
+		printf("meshInterface subpart[%d].numFaces = %d\n",i,numFaces);
+		printf("meshInterface subpart[%d].indexType= %d\n",i,indexType);
+		
+
 
 		btAssert (vertexBase);
 		btAssert (indexBase);
@@ -1820,6 +1873,15 @@ void ColladaConverter::buildShapeNew (btCollisionShape* shape, void* domTechniqu
 			
 		}
 		break;
+	case SCALED_TRIANGLE_MESH_SHAPE_PROXYTYPE:
+	{
+		addScaledConcaveMesh (shape, shapeName);
+		char shapeURL[512];
+		snprintf(&shapeURL[0], 512, "#%s", shapeName);
+		domInstance_geometry* gi = (domInstance_geometry*)colladaShape->createAndPlace (COLLADA_ELEMENT_INSTANCE_GEOMETRY);
+		gi->setUrl (shapeURL);
+		break;
+	}
 	case TRIANGLE_MESH_SHAPE_PROXYTYPE:
 	{
 		addConcaveMesh (shape, shapeName);
@@ -1934,9 +1996,58 @@ domNode* ColladaConverter::addNode (btRigidBody* rb, const char* nodeName, const
 }
 
 
-domRigid_constraint* ColladaConverter::addConstraint (btTypedConstraint* constraint, const char* constraintName)
+domRigid_constraint* ColladaConverter::addConstraint (btTypedConstraint* originalConstraint, const char* constraintName)
 {
-	if (constraint->getConstraintType() != D6_CONSTRAINT_TYPE)
+	btGeneric6DofConstraint* constraint = 0;
+	btGeneric6DofConstraint* tmpConstraint = 0;
+		
+	switch (originalConstraint->getConstraintType())
+	{
+
+	case D6_CONSTRAINT_TYPE:
+		{
+			constraint = (btGeneric6DofConstraint*)originalConstraint;
+			break;
+		}
+
+	case POINT2POINT_CONSTRAINT_TYPE:
+		{
+			btPoint2PointConstraint* p2p = (btPoint2PointConstraint*) originalConstraint;
+			bool useLinearReferenceFrameA = true;
+			btTransform frameA,frameB;
+			frameA.setIdentity();
+			frameB.setIdentity();
+			frameA.setOrigin(p2p->getPivotInA());
+			frameB.setOrigin(p2p->getPivotInB());
+			tmpConstraint = new btGeneric6DofConstraint(p2p->getRigidBodyA(),p2p->getRigidBodyB(),frameA,frameB,useLinearReferenceFrameA);
+			tmpConstraint->setLinearLowerLimit(btVector3(0,0,0));
+			tmpConstraint->setLinearUpperLimit(btVector3(0,0,0));
+			constraint = tmpConstraint;
+			break;
+		}
+	case HINGE_CONSTRAINT_TYPE:
+		{
+			btHingeConstraint* hinge = (btHingeConstraint*)originalConstraint;
+			bool useLinearReferenceFrameA = true;
+			btTransform frameB = hinge->getBFrame();//todo: remove this flipping
+			frameB.getBasis()[0][2] *= btScalar(-1.);
+			frameB.getBasis()[1][2] *= btScalar(-1.);
+			frameB.getBasis()[2][2] *= btScalar(-1.);
+
+			tmpConstraint = new btGeneric6DofConstraint(hinge->getRigidBodyA(),hinge->getRigidBodyB(),hinge->getAFrame(),frameB,useLinearReferenceFrameA);
+			tmpConstraint->setLinearLowerLimit(btVector3(0,0,0));
+			tmpConstraint->setLinearUpperLimit(btVector3(0,0,0));
+			tmpConstraint->setAngularLowerLimit(btVector3(0,0,1));
+			tmpConstraint->setAngularUpperLimit(btVector3(0,0,-1));//max<min means free (not limited)
+			constraint = tmpConstraint;
+			break;
+		}
+	default:
+		{
+		}
+	};
+	//convert non-6DOF constraints into a 6DOF
+	if (!constraint || (constraint->getConstraintType() != D6_CONSTRAINT_TYPE))
 		return NULL;
 
 	btGeneric6DofConstraint* g6c = (btGeneric6DofConstraint*)constraint;
@@ -2085,6 +2196,8 @@ domRigid_constraint* ColladaConverter::addConstraint (btTypedConstraint* constra
 		max->getValue().set (1, limit->m_upperLimit[1]);
 		max->getValue().set (2, limit->m_upperLimit[2]);
 	}
+	if (tmpConstraint)
+		delete tmpConstraint;
 	return domRigidConstraint;
 }
 
@@ -2388,15 +2501,15 @@ void ColladaConverter::syncOrAddGeometry (btCollisionShape* shape, const char* n
 
 void ColladaConverter::syncOrAddRigidBody (btRigidBody* body)
 {
-	domNodeRef node = findNode (body);
+	domNodeRef nodeRef = findNode (body);
 	domLibrary_geometriesRef geomLib = getDefaultGeomLib ();
 	
 	static int random_node_name_key = 0;
-	if (node != NULL)
+	if (nodeRef != NULL)
 	{
-		updateRigidBodyPosition (body, node);
+		updateRigidBodyPosition (body, nodeRef);
 		updateRigidBodyVelocity (body);
-		printf("Updating %s in the COLLADA DOM.\n", node->getId() ? node->getId() : "");
+		printf("Updating %s in the COLLADA DOM.\n", nodeRef->getId() ? nodeRef->getId() : "");
 	} else {
 		/* This is a new body. */
 		const char* shapeName = NULL;
@@ -2428,18 +2541,8 @@ void ColladaConverter::syncOrAddRigidBody (btRigidBody* body)
 			shapeName = &shapeNameGen[0];
 		}
 
-		if (shape->getShapeType () == TRIANGLE_MESH_SHAPE_PROXYTYPE) {
-			addConcaveMesh (shape, shapeName);
-		} else if (shape->getShapeType () == GIMPACT_SHAPE_PROXYTYPE)
-		{
-			addGimpactMesh (shape, shapeName);
-		} else if (!shape->isConvex () && !shape->isCompound() && (shape->getShapeType()!=STATIC_PLANE_PROXYTYPE)) {
-			printf("Unknown shape type. %d Skipping rigidbody.\n", shape->getShapeType());
-			return;
-		}
-
-
 		printf("Adding %s to COLLADA DOM.\n", nodeName);
+
 
 		switch (shape->getShapeType())
 		{
@@ -2455,11 +2558,48 @@ void ColladaConverter::syncOrAddRigidBody (btRigidBody* body)
 				dNode = addNode (body, nodeName, concaveShapeName);
 				break;
 			}
+		case SCALED_TRIANGLE_MESH_SHAPE_PROXYTYPE:
+			{
+				addScaledConcaveMesh (shape, shapeName);
+				btScaledBvhTriangleMeshShape* scaledShape = (btScaledBvhTriangleMeshShape*)shape;
+				dNode = addNode (body, nodeName, shapeName);
+				//add scaling
+				domScale* scale= (domScale*)dNode->createAndPlace (COLLADA_ELEMENT_SCALE);
+				{
+					btVector3 localScaling = scaledShape->getLocalScaling();
+					scale->getValue().append(localScaling[0]);
+					scale->getValue().append(localScaling[1]);
+					scale->getValue().append(localScaling[2]);
+				}
+
+
+				break;
+			}
+		case TRIANGLE_MESH_SHAPE_PROXYTYPE:
+			{
+				addConcaveMesh (shape, shapeName);
+				dNode = addNode (body, nodeName, shapeName);
+				break;
+			}
+		case GIMPACT_SHAPE_PROXYTYPE:
+			{
+				addGimpactMesh (shape, shapeName);
+				dNode = addNode (body, nodeName, shapeName);
+				break;
+			}
 		default:
 			{
+				if (!shape->isConvex () && !shape->isCompound() && (shape->getShapeType()!=STATIC_PLANE_PROXYTYPE)) 
+				{
+					printf("Unknown shape type. %d Skipping rigidbody.\n", shape->getShapeType());
+					return;
+				}
 				dNode = addNode (body, nodeName, shapeName);
-			}
+			};
+
 		};
+
+
 
 		addMaterial (body, nodeName);
 		

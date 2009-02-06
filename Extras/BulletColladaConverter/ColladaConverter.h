@@ -141,6 +141,7 @@ protected:
 	void addConvexHull (btCollisionShape* shape, const char* nodeName);
 	void addConvexMesh (btCollisionShape* shape, const char* nodeName);
 	void addConcaveMesh(btCollisionShape* shape, const char* nodeName);
+	void addScaledConcaveMesh(btCollisionShape* shape, const char* nodeName);
 	void addGimpactMesh(btCollisionShape* shape, const char* nodeName);
 
 	void	addConcaveMeshInternal(class btStridingMeshInterface* meshInterface , const char* nodeName);
@@ -220,9 +221,7 @@ public:
 	virtual btTypedConstraint* getConstraint (int i);
 	virtual	void	setGravity(const btVector3& gravity);
 	virtual btVector3 getGravity ();
-	virtual	void	setCameraInfo(const btVector3& up, int forwardAxis)
-	{
-	};
+	virtual	void	setCameraInfo(const btVector3& up, int forwardAxis);
 
 	virtual btCollisionShape* createPlaneShape(const btVector3& planeNormal,btScalar planeConstant);
 	virtual btCollisionShape* createBoxShape(const btVector3& halfExtents);

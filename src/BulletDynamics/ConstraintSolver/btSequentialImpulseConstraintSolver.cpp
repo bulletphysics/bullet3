@@ -543,6 +543,9 @@ btScalar btSequentialImpulseConstraintSolver::solveGroupCacheFriendlySetup(btCol
 					solverBodyIdB = getOrInitSolverBody(*colObj1);
 				}
 
+				if (solverBodyIdA == 0 && solverBodyIdB == 0)
+					continue;
+
 				btVector3 rel_pos1;
 				btVector3 rel_pos2;
 				btScalar relaxation;
@@ -703,11 +706,11 @@ btScalar btSequentialImpulseConstraintSolver::solveGroupCacheFriendlySetup(btCol
 								{
 									cp.m_lateralFrictionDir1 = vel - cp.m_normalWorldOnB * rel_vel;
 									btScalar lat_rel_vel = cp.m_lateralFrictionDir1.length2();
-									if ((infoGlobal.m_solverMode & SOLVER_ENABLE_VELOCITY_DEPENDENT_FRICTION_DIRECTION) && lat_rel_vel > SIMD_EPSILON)
+									if (!(infoGlobal.m_solverMode & SOLVER_DISABLE_VELOCITY_DEPENDENT_FRICTION_DIRECTION) && lat_rel_vel > SIMD_EPSILON)
 									{
 										cp.m_lateralFrictionDir1 /= btSqrt(lat_rel_vel);
 										addFrictionConstraint(cp.m_lateralFrictionDir1,solverBodyIdA,solverBodyIdB,frictionIndex,cp,rel_pos1,rel_pos2,colObj0,colObj1, relaxation);
-										if(!(infoGlobal.m_solverMode & SOLVER_USE_1_FRICTION_DIRECTION))
+										if((infoGlobal.m_solverMode & SOLVER_USE_2_FRICTION_DIRECTIONS))
 										{
 											cp.m_lateralFrictionDir2 = cp.m_lateralFrictionDir1.cross(cp.m_normalWorldOnB);
 											cp.m_lateralFrictionDir2.normalize();//??
@@ -719,7 +722,7 @@ btScalar btSequentialImpulseConstraintSolver::solveGroupCacheFriendlySetup(btCol
 										//re-calculate friction direction every frame, todo: check if this is really needed
 										btPlaneSpace1(cp.m_normalWorldOnB,cp.m_lateralFrictionDir1,cp.m_lateralFrictionDir2);
 										addFrictionConstraint(cp.m_lateralFrictionDir1,solverBodyIdA,solverBodyIdB,frictionIndex,cp,rel_pos1,rel_pos2,colObj0,colObj1, relaxation);
-										if (!(infoGlobal.m_solverMode & SOLVER_USE_1_FRICTION_DIRECTION))
+										if ((infoGlobal.m_solverMode & SOLVER_USE_2_FRICTION_DIRECTIONS))
 										{
 											addFrictionConstraint(cp.m_lateralFrictionDir2,solverBodyIdA,solverBodyIdB,frictionIndex,cp,rel_pos1,rel_pos2,colObj0,colObj1, relaxation);
 										}
@@ -729,7 +732,7 @@ btScalar btSequentialImpulseConstraintSolver::solveGroupCacheFriendlySetup(btCol
 								} else
 								{
 									addFrictionConstraint(cp.m_lateralFrictionDir1,solverBodyIdA,solverBodyIdB,frictionIndex,cp,rel_pos1,rel_pos2,colObj0,colObj1, relaxation);
-									if (!(infoGlobal.m_solverMode & SOLVER_USE_1_FRICTION_DIRECTION))
+									if ((infoGlobal.m_solverMode & SOLVER_USE_2_FRICTION_DIRECTIONS))
 										addFrictionConstraint(cp.m_lateralFrictionDir2,solverBodyIdA,solverBodyIdB,frictionIndex,cp,rel_pos1,rel_pos2,colObj0,colObj1, relaxation);
 								}
 
@@ -750,7 +753,7 @@ btScalar btSequentialImpulseConstraintSolver::solveGroupCacheFriendlySetup(btCol
 										}
 									}
 
-									if (!(infoGlobal.m_solverMode & SOLVER_USE_1_FRICTION_DIRECTION))
+									if ((infoGlobal.m_solverMode & SOLVER_USE_2_FRICTION_DIRECTIONS))
 									{
 										btSolverConstraint& frictionConstraint2 = m_tmpSolverContactFrictionConstraintPool[solverConstraint.m_frictionIndex+1];
 										if (infoGlobal.m_solverMode & SOLVER_USE_WARMSTARTING)
@@ -769,7 +772,7 @@ btScalar btSequentialImpulseConstraintSolver::solveGroupCacheFriendlySetup(btCol
 								{
 									btSolverConstraint& frictionConstraint1 = m_tmpSolverContactFrictionConstraintPool[solverConstraint.m_frictionIndex];
 									frictionConstraint1.m_appliedImpulse = 0.f;
-									if (!(infoGlobal.m_solverMode & SOLVER_USE_1_FRICTION_DIRECTION))
+									if ((infoGlobal.m_solverMode & SOLVER_USE_2_FRICTION_DIRECTIONS))
 									{
 										btSolverConstraint& frictionConstraint2 = m_tmpSolverContactFrictionConstraintPool[solverConstraint.m_frictionIndex+1];
 										frictionConstraint2.m_appliedImpulse = 0.f;

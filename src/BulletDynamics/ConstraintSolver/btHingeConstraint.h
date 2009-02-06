@@ -92,6 +92,16 @@ public:
 		return m_rbB;
 	}
 
+	btRigidBody& getRigidBodyA()
+	{
+		return m_rbA;
+	}
+	btRigidBody& getRigidBodyB()
+	{
+		return m_rbB;
+	}
+
+
 	void	setAngularOnly(bool angularOnly)
 	{
 		m_angularOnly = angularOnly;

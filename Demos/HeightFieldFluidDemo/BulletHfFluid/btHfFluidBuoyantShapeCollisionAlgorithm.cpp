@@ -11,7 +11,7 @@
 #include "btHfFluid.h"
 
 btHfFluidBuoyantShapeCollisionAlgorithm::btHfFluidBuoyantShapeCollisionAlgorithm(const btCollisionAlgorithmConstructionInfo& ci,btCollisionObject* col0,btCollisionObject* col1,btSimplexSolverInterface* simplexSolver, btConvexPenetrationDepthSolver* pdSolver)
-: btCollisionAlgorithm(ci), m_convexConvexAlgorithm(NULL, ci, col0, col1, simplexSolver, pdSolver) 
+: btCollisionAlgorithm(ci), m_convexConvexAlgorithm(NULL, ci, col0, col1, simplexSolver, pdSolver,0,0) 
 {
 	m_collisionObject0 = col0;
 	m_collisionObject1 = col1;
