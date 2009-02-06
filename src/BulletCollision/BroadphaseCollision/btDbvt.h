@@ -82,7 +82,7 @@ subject to the following restrictions:
 #define DBVT_VIRTUAL_DTOR(a)
 #define DBVT_PREFIX					template <typename T>
 #define DBVT_IPOLICY				T& policy
-#define DBVT_CHECKTYPE				static const ICollide&	typechecker=*(T*)0;
+#define DBVT_CHECKTYPE				static const ICollide&	typechecker=*(T*)1;(void)typechecker;
 #else
 #define	DBVT_VIRTUAL_DTOR(a)		virtual ~a() {}
 #define DBVT_VIRTUAL				virtual

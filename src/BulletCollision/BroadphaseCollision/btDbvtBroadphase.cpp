@@ -211,23 +211,22 @@ void	btDbvtBroadphase::getAabb(btBroadphaseProxy* absproxy,btVector3& aabbMin, b
 	aabbMax = proxy->m_aabbMax;
 }
 
+struct	BroadphaseRayTester : btDbvt::ICollide
+{
+	btBroadphaseRayCallback& m_rayCallback;
+	BroadphaseRayTester(btBroadphaseRayCallback& orgCallback)
+		:m_rayCallback(orgCallback)
+	{
+	}
+	void					Process(const btDbvtNode* leaf)
+	{
+		btDbvtProxy*	proxy=(btDbvtProxy*)leaf->data;
+		m_rayCallback.process(proxy);
+	}
+};	
+
 void	btDbvtBroadphase::rayTest(const btVector3& rayFrom,const btVector3& rayTo, btBroadphaseRayCallback& rayCallback,const btVector3& aabbMin,const btVector3& aabbMax)
 {
-
-	struct	BroadphaseRayTester : btDbvt::ICollide
-	{
-		btBroadphaseRayCallback& m_rayCallback;
-		BroadphaseRayTester(btBroadphaseRayCallback& orgCallback)
-			:m_rayCallback(orgCallback)
-		{
-		}
-		void					Process(const btDbvtNode* leaf)
-		{
-			btDbvtProxy*	proxy=(btDbvtProxy*)leaf->data;
-			m_rayCallback.process(proxy);
-		}
-	};	
-
 	BroadphaseRayTester callback(rayCallback);
 
 	m_sets[0].rayTestInternal(	m_sets[0].m_root,

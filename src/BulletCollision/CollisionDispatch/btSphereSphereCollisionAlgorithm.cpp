@@ -78,7 +78,7 @@ void btSphereSphereCollisionAlgorithm::processCollision (btCollisionObject* col0
 	}
 
 	///point on A (worldspace)
-	btVector3 pos0 = col0->getWorldTransform().getOrigin() - radius0 * normalOnSurfaceB;
+	///btVector3 pos0 = col0->getWorldTransform().getOrigin() - radius0 * normalOnSurfaceB;
 	///point on B (worldspace)
 	btVector3 pos1 = col1->getWorldTransform().getOrigin() + radius1* normalOnSurfaceB;
 

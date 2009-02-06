@@ -238,7 +238,7 @@ void	btHeightfieldTerrainShape::getVertex(int x,int y,btVector3& vertex) const
 static inline int
 getQuantized
 (
-float x
+btScalar x
 )
 {
 	if (x < 0.0) {

@@ -469,7 +469,6 @@ void	btQuantizedBvh::walkStacklessTreeAgainstRay(btNodeOverlapCallback* nodeCall
 	rayAabbMax += aabbMax;
 
 #ifdef RAYAABB2
-	btVector3 rayFrom = raySource;
 	btVector3 rayDir = (rayTarget-raySource);
 	rayDir.normalize ();
 	lambda_max = rayDir.dot(rayTarget-raySource);
@@ -558,7 +557,6 @@ void	btQuantizedBvh::walkStacklessQuantizedTreeAgainstRay(btNodeOverlapCallback*
 	btScalar lambda_max = 1.0;
 
 #ifdef RAYAABB2
-	btVector3 rayFrom = raySource;
 	btVector3 rayDirection = (rayTarget-raySource);
 	rayDirection.normalize ();
 	lambda_max = rayDirection.dot(rayTarget-raySource);
@@ -817,12 +815,13 @@ void	btQuantizedBvh::assignInternalNodeFromLeafNode(int internalNode,int leafNod
 //PCK: include
 #include <new>
 
+#if 0
 //PCK: consts
 static const unsigned BVH_ALIGNMENT = 16;
 static const unsigned BVH_ALIGNMENT_MASK = BVH_ALIGNMENT-1;
 
 static const unsigned BVH_ALIGNMENT_BLOCKS = 2;
-
+#endif
 
 
 unsigned int btQuantizedBvh::getAlignmentSerializationPadding()
@@ -1143,6 +1142,7 @@ m_bulletVersion(BT_BULLET_VERSION)
 {
 
 }
+
 
 
 

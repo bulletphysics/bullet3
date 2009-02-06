@@ -107,7 +107,7 @@ enum GIM_SCALAR_TYPES
 ///returns a clamped number
 #define GIM_CLAMP(number,minval,maxval) (number<minval?minval:(number>maxval?maxval:number))
 
-#define GIM_GREATER(x, y)	fabsf(x) > (y)
+#define GIM_GREATER(x, y)	btFabs(x) > (y)
 
 ///Swap numbers
 #define GIM_SWAP_NUMBERS(a,b){ \

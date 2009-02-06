@@ -1045,12 +1045,12 @@ public:
 	}
 
 	//! call when reading child shapes
-	virtual void lockChildShapes()
+	virtual void lockChildShapes() const
 	{
 		btAssert(0);
 	}
 
-	virtual void unlockChildShapes()
+	virtual void unlockChildShapes() const
 	{
 		btAssert(0);
 	}

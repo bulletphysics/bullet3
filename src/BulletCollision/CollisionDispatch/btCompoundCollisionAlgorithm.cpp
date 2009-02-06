@@ -29,7 +29,6 @@ m_sharedManifold(ci.m_manifold)
 	m_ownsManifold = false;
 
 	btCollisionObject* colObj = m_isSwapped? body1 : body0;
-	btCollisionObject* otherObj = m_isSwapped? body0 : body1;
 	assert (colObj->getCollisionShape()->isCompound());
 	
 	btCompoundShape* compoundShape = static_cast<btCompoundShape*>(colObj->getCollisionShape());
@@ -209,7 +208,6 @@ void btCompoundCollisionAlgorithm::processCollision (btCollisionObject* body0,bt
 	///note that we should actually recursively traverse all children, btCompoundShape can nested more then 1 level deep
 	///so we should add a 'refreshManifolds' in the btCollisionAlgorithm
 	{
-		int numChildren = m_childCollisionAlgorithms.size();
 		int i;
 		btManifoldArray manifoldArray;
 		for (i=0;i<m_childCollisionAlgorithms.size();i++)
@@ -339,5 +337,6 @@ btScalar	btCompoundCollisionAlgorithm::calculateTimeOfImpact(btCollisionObject* 
 	return hitFraction;
 
 }
+
 
 

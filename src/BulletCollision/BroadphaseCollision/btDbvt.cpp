@@ -393,12 +393,13 @@ static DBVT_INLINE btDbvtNode*	sort(btDbvtNode* n,btDbvtNode*& r)
 	return(n);
 }
 
-//
+#if 0
 static DBVT_INLINE btDbvtNode*	walkup(btDbvtNode* n,int count)
 {
 	while(n&&(count--)) n=n->parent;
 	return(n);
 }
+#endif
 
 //
 // Api
