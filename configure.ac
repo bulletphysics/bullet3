@@ -9,7 +9,7 @@ AC_PREREQ([2.54])
 #----------------------------------------------------------------------------
 AC_INIT(
     [bullet],
-    [2.73],
+    [2.74],
     [bullet@erwincoumans.com])
 AC_CANONICAL_HOST
 CS_PACKAGEINFO(

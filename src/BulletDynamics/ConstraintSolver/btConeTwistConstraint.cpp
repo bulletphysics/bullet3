@@ -291,10 +291,13 @@ void	btConeTwistConstraint::solveConstraintObsolete(btSolverBody& bodyA,btSolver
 			btTransform trBCur = m_rbB.getCenterOfMassTransform();
 			btVector3 omegaA; bodyA.getAngularVelocity(omegaA);
 			btVector3 omegaB; bodyB.getAngularVelocity(omegaB);
-			btTransform trAPred; trAPred.setIdentity(); btTransformUtil::integrateTransform(
-				trACur, btVector3(0,0,0), omegaA, timeStep, trAPred);
-			btTransform trBPred; trBPred.setIdentity(); btTransformUtil::integrateTransform(
-				trBCur, btVector3(0,0,0), omegaB, timeStep, trBPred);
+			btTransform trAPred; trAPred.setIdentity(); 
+			btVector3 zerovec(0,0,0);
+			btTransformUtil::integrateTransform(
+				trACur, zerovec, omegaA, timeStep, trAPred);
+			btTransform trBPred; trBPred.setIdentity(); 
+			btTransformUtil::integrateTransform(
+				trBCur, zerovec, omegaB, timeStep, trBPred);
 
 			// compute desired transforms in world
 			btTransform trPose(m_qTarget);
@@ -304,8 +307,9 @@ void	btConeTwistConstraint::solveConstraintObsolete(btSolverBody& bodyA,btSolver
 
 			// compute desired omegas in world
 			btVector3 omegaADes, omegaBDes;
-			btTransformUtil::calculateVelocity(trACur, trADes, timeStep, btVector3(0,0,0), omegaADes);
-			btTransformUtil::calculateVelocity(trBCur, trBDes, timeStep, btVector3(0,0,0), omegaBDes);
+			
+			btTransformUtil::calculateVelocity(trACur, trADes, timeStep, zerovec, omegaADes);
+			btTransformUtil::calculateVelocity(trBCur, trBDes, timeStep, zerovec, omegaBDes);
 
 			// compute delta omegas
 			btVector3 dOmegaA = omegaADes - omegaA;
