@@ -288,3 +288,10 @@ btCollisionAlgorithmCreateFunc* btDefaultCollisionConfiguration::getCollisionAlg
 	//failed to find an algorithm
 	return m_emptyCreateFunc;
 }
+
+void btDefaultCollisionConfiguration::setConvexConvexMultipointIterations(int numPerturbationIterations, int minimumPointsPerturbationThreshold)
+{
+	btConvexConvexAlgorithm::CreateFunc* convexConvex = (btConvexConvexAlgorithm::CreateFunc*) m_convexConvexCreateFunc;
+	convexConvex->m_numPerturbationIterations = numPerturbationIterations;
+	convexConvex->m_minimumPointsPerturbationThreshold = minimumPointsPerturbationThreshold;
+}
