@@ -144,7 +144,12 @@ void btHeightfieldTerrainShape::getAabb(const btTransform& t,btVector3& aabbMin,
 	aabbMax = center + extent;
 }
 
-btScalar	btHeightfieldTerrainShape::getHeightFieldValue(int x,int y) const
+
+/// This returns the "raw" (user's initial) height, not the actual height.
+/// The actual height needs to be adjusted to be relative to the center
+///   of the heightfield's AABB.
+btScalar
+btHeightfieldTerrainShape::getRawHeightFieldValue(int x,int y) const
 {
 	btScalar val = 0.f;
 	switch (m_heightDataType)
@@ -181,24 +186,22 @@ btScalar	btHeightfieldTerrainShape::getHeightFieldValue(int x,int y) const
 
 
 
-
+/// this returns the vertex in bullet-local coordinates
 void	btHeightfieldTerrainShape::getVertex(int x,int y,btVector3& vertex) const
 {
-
 	btAssert(x>=0);
 	btAssert(y>=0);
 	btAssert(x<m_heightStickWidth);
 	btAssert(y<m_heightStickLength);
 
-
-	btScalar	height = getHeightFieldValue(x,y);
+	btScalar	height = getRawHeightFieldValue(x,y);
 
 	switch (m_upAxis)
 	{
 	case 0:
 		{
 		vertex.setValue(
-			height,
+			height - m_localOrigin.getX(),
 			(-m_width/btScalar(2.0)) + x,
 			(-m_length/btScalar(2.0) ) + y
 			);
@@ -208,7 +211,7 @@ void	btHeightfieldTerrainShape::getVertex(int x,int y,btVector3& vertex) const
 		{
 			vertex.setValue(
 			(-m_width/btScalar(2.0)) + x,
-			height,
+			height - m_localOrigin.getY(),
 			(-m_length/btScalar(2.0)) + y
 			);
 			break;
@@ -218,7 +221,7 @@ void	btHeightfieldTerrainShape::getVertex(int x,int y,btVector3& vertex) const
 			vertex.setValue(
 			(-m_width/btScalar(2.0)) + x,
 			(-m_length/btScalar(2.0)) + y,
-			height
+			height - m_localOrigin.getZ()
 			);
 			break;
 		}
@@ -230,7 +233,6 @@ void	btHeightfieldTerrainShape::getVertex(int x,int y,btVector3& vertex) const
 	}
 
 	vertex*=m_localScaling;
-	
 }
 
 

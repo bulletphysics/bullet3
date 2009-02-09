@@ -30,6 +30,17 @@ subject to the following restrictions:
   center (as determined by width and length and height, with each
   axis multiplied by the localScaling).
 
+  \b NOTE: be careful with coordinates.  If you have a heightfield with a local
+  min height of -100m, and a max height of +500m, you may be tempted to place it
+  at the origin (0,0) and expect the heights in world coordinates to be
+  -100 to +500 meters.
+  Actually, the heights will be -300 to +300m, because bullet will re-center
+  the heightfield based on its AABB (which is determined by the min/max
+  heights).  So keep in mind that once you create a btHeightfieldTerrainShape
+  object, the heights will be adjusted relative to the center of the AABB.  This
+  is different to the behavior of many rendering engines, but is useful for
+  physics engines.
+
   Most (but not all) rendering and heightfield libraries assume upAxis = 1
   (that is, the y-axis is "up").  This class allows any of the 3 coordinates
   to be "up".  Make sure your choice of axis is consistent with your rendering
@@ -88,7 +99,7 @@ protected:
 	
 	btVector3	m_localScaling;
 
-	virtual btScalar	getHeightFieldValue(int x,int y) const;
+	virtual btScalar	getRawHeightFieldValue(int x,int y) const;
 	void		quantizeWithClamp(int* out, const btVector3& point,int isMax) const;
 	void		getVertex(int x,int y,btVector3& vertex) const;
 
