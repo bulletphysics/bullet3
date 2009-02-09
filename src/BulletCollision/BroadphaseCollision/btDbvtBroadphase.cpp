@@ -341,6 +341,73 @@ void							btDbvtBroadphase::calculateOverlappingPairs(btDispatcher* dispatcher)
 		m_clock.reset();
 	}
 #endif
+
+	if (m_paircache->hasDeferredRemoval())
+	{
+	
+		btBroadphasePairArray&	overlappingPairArray = m_paircache->getOverlappingPairArray();
+
+		//perform a sort, to find duplicates and to sort 'invalid' pairs to the end
+		overlappingPairArray.quickSort(btBroadphasePairSortPredicate());
+
+		int invalidPair = 0;
+
+		
+		int i;
+
+		btBroadphasePair previousPair;
+		previousPair.m_pProxy0 = 0;
+		previousPair.m_pProxy1 = 0;
+		previousPair.m_algorithm = 0;
+		
+		
+		for (i=0;i<overlappingPairArray.size();i++)
+		{
+		
+			btBroadphasePair& pair = overlappingPairArray[i];
+
+			bool isDuplicate = (pair == previousPair);
+
+			previousPair = pair;
+
+			bool needsRemoval = false;
+
+			if (!isDuplicate)
+			{
+				btDbvtProxy*		pa=(btDbvtProxy*)pair.m_pProxy0;
+				btDbvtProxy*		pb=(btDbvtProxy*)pair.m_pProxy1;
+				bool hasOverlap = Intersect(pa->leaf->volume,pb->leaf->volume);
+
+				if (hasOverlap)
+				{
+					needsRemoval = false;//callback->processOverlap(pair);
+				} else
+				{
+					needsRemoval = true;
+				}
+			} else
+			{
+				//remove duplicate
+				needsRemoval = true;
+				//should have no algorithm
+				btAssert(!pair.m_algorithm);
+			}
+			
+			if (needsRemoval)
+			{
+				m_paircache->cleanOverlappingPair(pair,dispatcher);
+
+				pair.m_pProxy0 = 0;
+				pair.m_pProxy1 = 0;
+				invalidPair++;
+			} 
+			
+		}
+
+		//perform a sort, to sort 'invalid' pairs to the end
+		overlappingPairArray.quickSort(btBroadphasePairSortPredicate());
+		overlappingPairArray.resize(overlappingPairArray.size() - invalidPair);
+	}
 }
 
 //

@@ -98,7 +98,7 @@ int main(int argc,char** argv)
 
 	colladaDemo->setCameraDistance(26.f);
 
-	return glutmain(argc, argv,640,480,"Bullet COLLADA Physics Viewer http://bullet.sourceforge.net",colladaDemo);
+	return glutmain(argc, argv,640,480,"Bullet COLLADA Physics Viewer http://bulletphysics.org",colladaDemo);
 }
 
 void	ColladaDemo::initPhysics(const char* filename)

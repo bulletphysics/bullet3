@@ -278,7 +278,7 @@ void DemoApplication::keyboardCallback(unsigned char key, int x, int y)
 	m_lastKey = 0;
 
 #ifndef BT_NO_PROFILE
-	if (key >= 0x31 && key < 0x37)
+	if (key >= 0x31 && key <= 0x39)
 	{
 		int child = key-0x31;
 		m_profileIterator->Enter_Child(child);
@@ -1248,6 +1248,7 @@ void DemoApplication::renderme()
 	updateCamera();
 
 }
+#include "BulletCollision/BroadphaseCollision/btAxisSweep3.h"
 
 void	DemoApplication::clientResetScene()
 {
@@ -1290,6 +1291,8 @@ void	DemoApplication::clientResetScene()
 			}
 		}
 
+		btAxisSweep3* sap = (btAxisSweep3*)m_dynamicsWorld->getBroadphase();
+		sap->resetPool();
 		/*
 		//quickly search some issue at a certain simulation frame, pressing space to reset
 		int fixed=18;

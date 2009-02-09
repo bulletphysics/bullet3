@@ -54,6 +54,6 @@ int main(int argc,char** argv)
 
 	
 
-	return glutmain(argc, argv,640,480,"Bullet Quake BSP Physics Viewer http://bullet.sourceforge.net",bspDemo);
+	return glutmain(argc, argv,640,480,"Bullet Quake BSP Physics Viewer http://bulletphysics.org",bspDemo);
 }
 

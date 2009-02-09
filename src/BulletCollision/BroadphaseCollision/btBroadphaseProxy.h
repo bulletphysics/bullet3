@@ -229,8 +229,13 @@ class btBroadphasePairSortPredicate
 
 		bool operator() ( const btBroadphasePair& a, const btBroadphasePair& b )
 		{
-			 return a.m_pProxy0->m_uniqueId > b.m_pProxy0->m_uniqueId || 
-				(a.m_pProxy0 == b.m_pProxy0 && a.m_pProxy1->m_uniqueId > b.m_pProxy1->m_uniqueId) ||
+			const int uidA0 = a.m_pProxy0 ? a.m_pProxy0->m_uniqueId : -1;
+			const int uidB0 = b.m_pProxy0 ? b.m_pProxy0->m_uniqueId : -1;
+			const int uidA1 = a.m_pProxy1 ? a.m_pProxy1->m_uniqueId : -1;
+			const int uidB1 = b.m_pProxy1 ? b.m_pProxy1->m_uniqueId : -1;
+
+			 return uidA0 > uidB0 || 
+				(a.m_pProxy0 == b.m_pProxy0 && uidA1 > uidB1) ||
 				(a.m_pProxy0 == b.m_pProxy0 && a.m_pProxy1 == b.m_pProxy1 && a.m_algorithm > b.m_algorithm); 
 		}
 };
