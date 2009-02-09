@@ -942,6 +942,48 @@ void (*demo_init_functions[NUM_DEMOS])(HfFluidDemo*)=
 	Init_MovingPour,
 };
 
+btScalar g_ele_array[NUM_DEMOS] = {
+	btScalar(10),
+	btScalar(45),
+	btScalar(35),
+	btScalar(35),
+	btScalar(10),
+	btScalar(10),
+	btScalar(35),
+	btScalar(45),
+	btScalar(35),
+	btScalar(20),
+	btScalar(20),
+};
+
+btScalar g_azi_array[NUM_DEMOS] = {
+	btScalar(0),
+	btScalar(55),
+	btScalar(245),
+	btScalar(270),
+	btScalar(55),
+	btScalar(55),
+	btScalar(180),
+	btScalar(205),
+	btScalar(255),
+	btScalar(305),
+	btScalar(305),
+};
+
+btScalar g_cameraDistance_array[NUM_DEMOS] = {
+	btScalar(20),
+	btScalar(29),
+	btScalar(43),
+	btScalar(26),
+	btScalar(77),
+	btScalar(77),
+	btScalar(77),
+	btScalar(32),
+	btScalar(62),
+	btScalar(70),
+	btScalar(70),
+};
+
 #ifdef _DEBUG
 const int gNumObjects = 1;
 #else
@@ -1156,6 +1198,10 @@ void	HfFluidDemo::clientResetScene()
 	m_raycast						=	false;
 	m_cutting						=	false;
 	printf("current_demo = %d\n", current_demo);
+	m_azi = g_azi_array[current_demo];
+	m_ele = g_ele_array[current_demo];
+	m_cameraDistance = g_cameraDistance_array[current_demo];
+	updateCamera();
 	demo_init_functions[current_demo](this);
 }
 
@@ -1408,8 +1454,3 @@ HfFluidDemo::HfFluidDemo() : m_drag(false)
 	setTexturing(true);
 	setShadows(true);
 }
-
-
-
-
-
