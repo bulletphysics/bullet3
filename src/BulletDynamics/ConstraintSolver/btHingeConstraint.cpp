@@ -23,7 +23,7 @@ subject to the following restrictions:
 
 //-----------------------------------------------------------------------------
 
-#define HINGE_USE_OBSOLETE_SOLVER true
+#define HINGE_USE_OBSOLETE_SOLVER false
 
 //-----------------------------------------------------------------------------
 
