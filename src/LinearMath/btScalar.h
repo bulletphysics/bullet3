@@ -130,8 +130,8 @@ inline int	btGetVersion()
 	//non-windows systems
 
 		#define SIMD_FORCE_INLINE inline
-		#define ATTRIBUTE_ALIGNED16(a) a
-		#define ATTRIBUTE_ALIGNED128(a) a
+		#define ATTRIBUTE_ALIGNED16(a) a __attribute__ ((aligned (16)))
+		#define ATTRIBUTE_ALIGNED128(a) a __attribute__ ((aligned (128)))
 		#ifndef assert
 		#include <assert.h>
 		#endif

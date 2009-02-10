@@ -200,6 +200,9 @@ void DemoApplication::updateCamera() {
 	m_cameraPosition[2] = eyePos.getZ();
 	m_cameraPosition += m_cameraTargetPosition;
 
+	if (m_glutScreenWidth == 0 && m_glutScreenHeight == 0)
+		return;
+
 	if (m_glutScreenWidth > m_glutScreenHeight) 
 	{
 		btScalar aspect = m_glutScreenWidth / (btScalar)m_glutScreenHeight;
