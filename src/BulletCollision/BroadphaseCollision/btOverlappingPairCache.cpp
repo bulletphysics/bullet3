@@ -19,6 +19,7 @@ subject to the following restrictions:
 
 #include "btDispatcher.h"
 #include "btCollisionAlgorithm.h"
+#include "LinearMath/btAabbUtil2.h"
 
 #include <stdio.h>
 
@@ -395,6 +396,35 @@ void	btHashedOverlappingPairCache::processAllOverlappingPairs(btOverlapCallback*
 	}
 }
 
+void	btHashedOverlappingPairCache::sortOverlappingPairs(btDispatcher* dispatcher)
+{
+	///need to keep hashmap in sync with pair address, so rebuild all
+	btBroadphasePairArray tmpPairs;
+	int i;
+	for (i=0;i<m_overlappingPairArray.size();i++)
+	{
+		tmpPairs.push_back(m_overlappingPairArray[i]);
+	}
+
+	for (i=0;i<tmpPairs.size();i++)
+	{
+		removeOverlappingPair(tmpPairs[i].m_pProxy0,tmpPairs[i].m_pProxy1,dispatcher);
+	}
+	
+	for (i = 0; i < m_next.size(); i++)
+	{
+		m_next[i] = BT_NULL_PAIR;
+	}
+
+	tmpPairs.quickSort(btBroadphasePairSortPredicate());
+
+	for (i=0;i<tmpPairs.size();i++)
+	{
+		addOverlappingPair(tmpPairs[i].m_pProxy0,tmpPairs[i].m_pProxy1);
+	}
+
+	
+}
 
 
 void*	btSortedOverlappingPairCache::removeOverlappingPair(btBroadphaseProxy* proxy0,btBroadphaseProxy* proxy1, btDispatcher* dispatcher )
@@ -493,8 +523,9 @@ void	btSortedOverlappingPairCache::processAllOverlappingPairs(btOverlapCallback*
 		if (callback->processOverlap(*pair))
 		{
 			cleanOverlappingPair(*pair,dispatcher);
-
-			m_overlappingPairArray.swap(i,m_overlappingPairArray.capacity()-1);
+			pair->m_pProxy0 = 0;
+			pair->m_pProxy1 = 0;
+			m_overlappingPairArray.swap(i,m_overlappingPairArray.size()-1);
 			m_overlappingPairArray.pop_back();
 			gOverlappingPairs--;
 		} else
@@ -594,3 +625,76 @@ void	btSortedOverlappingPairCache::removeOverlappingPairsContainingProxy(btBroad
 
 	processAllOverlappingPairs(&removeCallback,dispatcher);
 }
+
+void	btSortedOverlappingPairCache::sortOverlappingPairs(btDispatcher* dispatcher)
+{
+	//should already be sorted
+}
+
+
+
+void	btSortedOverlappingPairCache::performDeferredRemoval(btDispatcher* dispatcher)
+{
+
+	btBroadphasePairArray&	overlappingPairArray = getOverlappingPairArray();
+
+		//perform a sort, to find duplicates and to sort 'invalid' pairs to the end
+		overlappingPairArray.quickSort(btBroadphasePairSortPredicate());
+
+		int invalidPair = 0;
+
+		
+		int i;
+
+		btBroadphasePair previousPair;
+		previousPair.m_pProxy0 = 0;
+		previousPair.m_pProxy1 = 0;
+		previousPair.m_algorithm = 0;
+		
+		
+		for (i=0;i<overlappingPairArray.size();i++)
+		{
+		
+			btBroadphasePair& pair = overlappingPairArray[i];
+
+			bool isDuplicate = (pair == previousPair);
+
+			previousPair = pair;
+
+			bool needsRemoval = false;
+
+			if (!isDuplicate)
+			{
+				
+				bool hasOverlap = TestAabbAgainstAabb2(pair.m_pProxy0->m_aabbMin,pair.m_pProxy0->m_aabbMax,pair.m_pProxy1->m_aabbMin,pair.m_pProxy1->m_aabbMax);
+
+				if (hasOverlap)
+				{
+					needsRemoval = false;
+				} else
+				{
+					needsRemoval = true;
+				}
+			} else
+			{
+				//remove duplicate
+				needsRemoval = true;
+				//should have no algorithm
+				btAssert(!pair.m_algorithm);
+			}
+			
+			if (needsRemoval)
+			{
+				cleanOverlappingPair(pair,dispatcher);
+
+				pair.m_pProxy0 = 0;
+				pair.m_pProxy1 = 0;
+				invalidPair++;
+			} 
+			
+		}
+
+		//perform a sort, to sort 'invalid' pairs to the end
+		overlappingPairArray.quickSort(btBroadphasePairSortPredicate());
+		overlappingPairArray.resize(overlappingPairArray.size() - invalidPair);
+	}

@@ -139,7 +139,7 @@ public:
 	void updateHandle(BP_FP_INT_TYPE handle, const btVector3& aabbMin,const btVector3& aabbMax,btDispatcher* dispatcher);
 	SIMD_FORCE_INLINE Handle* getHandle(BP_FP_INT_TYPE index) const {return m_pHandles + index;}
 
-	void resetPool();
+	virtual void resetPool(btDispatcher* dispatcher);
 
 	void	processAllOverlappingPairs(btOverlapCallback* callback);
 
@@ -588,7 +588,7 @@ void btAxisSweep3Internal<BP_FP_INT_TYPE>::removeHandle(BP_FP_INT_TYPE handle,bt
 }
 
 template <typename BP_FP_INT_TYPE>
-void btAxisSweep3Internal<BP_FP_INT_TYPE>::resetPool()
+void btAxisSweep3Internal<BP_FP_INT_TYPE>::resetPool(btDispatcher* dispatcher)
 {
 	if (m_numHandles == 0)
 	{
@@ -611,86 +611,8 @@ void	btAxisSweep3Internal<BP_FP_INT_TYPE>::calculateOverlappingPairs(btDispatche
 
 	if (m_pairCache->hasDeferredRemoval())
 	{
-	
-		btBroadphasePairArray&	overlappingPairArray = m_pairCache->getOverlappingPairArray();
-
-		//perform a sort, to find duplicates and to sort 'invalid' pairs to the end
-		overlappingPairArray.quickSort(btBroadphasePairSortPredicate());
-
-		overlappingPairArray.resize(overlappingPairArray.size() - m_invalidPair);
-		m_invalidPair = 0;
-
-		
-		int i;
-
-		btBroadphasePair previousPair;
-		previousPair.m_pProxy0 = 0;
-		previousPair.m_pProxy1 = 0;
-		previousPair.m_algorithm = 0;
-		
-		
-		for (i=0;i<overlappingPairArray.size();i++)
-		{
-		
-			btBroadphasePair& pair = overlappingPairArray[i];
-
-			bool isDuplicate = (pair == previousPair);
-
-			previousPair = pair;
-
-			bool needsRemoval = false;
-
-			if (!isDuplicate)
-			{
-				bool hasOverlap = testAabbOverlap(pair.m_pProxy0,pair.m_pProxy1);
-
-				if (hasOverlap)
-				{
-					needsRemoval = false;//callback->processOverlap(pair);
-				} else
-				{
-					needsRemoval = true;
-				}
-			} else
-			{
-				//remove duplicate
-				needsRemoval = true;
-				//should have no algorithm
-				btAssert(!pair.m_algorithm);
-			}
-			
-			if (needsRemoval)
-			{
-				m_pairCache->cleanOverlappingPair(pair,dispatcher);
-
-		//		m_overlappingPairArray.swap(i,m_overlappingPairArray.size()-1);
-		//		m_overlappingPairArray.pop_back();
-				pair.m_pProxy0 = 0;
-				pair.m_pProxy1 = 0;
-				m_invalidPair++;
-				gOverlappingPairs--;
-			} 
-			
-		}
-
-	///if you don't like to skip the invalid pairs in the array, execute following code:
-	#define CLEAN_INVALID_PAIRS 1
-	#ifdef CLEAN_INVALID_PAIRS
-
-		//perform a sort, to sort 'invalid' pairs to the end
-		overlappingPairArray.quickSort(btBroadphasePairSortPredicate());
-
-		overlappingPairArray.resize(overlappingPairArray.size() - m_invalidPair);
-		m_invalidPair = 0;
-	#endif//CLEAN_INVALID_PAIRS
-		
-		//printf("overlappingPairArray.size()=%d\n",overlappingPairArray.size());
+		m_pairCache->performDeferredRemoval(dispatcher);
 	}
-
-
-
-	
-
 }
 
 

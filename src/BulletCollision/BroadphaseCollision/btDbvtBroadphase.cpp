@@ -344,70 +344,9 @@ void							btDbvtBroadphase::calculateOverlappingPairs(btDispatcher* dispatcher)
 
 	if (m_paircache->hasDeferredRemoval())
 	{
-	
-		btBroadphasePairArray&	overlappingPairArray = m_paircache->getOverlappingPairArray();
-
-		//perform a sort, to find duplicates and to sort 'invalid' pairs to the end
-		overlappingPairArray.quickSort(btBroadphasePairSortPredicate());
-
-		int invalidPair = 0;
-
-		
-		int i;
-
-		btBroadphasePair previousPair;
-		previousPair.m_pProxy0 = 0;
-		previousPair.m_pProxy1 = 0;
-		previousPair.m_algorithm = 0;
-		
-		
-		for (i=0;i<overlappingPairArray.size();i++)
-		{
-		
-			btBroadphasePair& pair = overlappingPairArray[i];
-
-			bool isDuplicate = (pair == previousPair);
-
-			previousPair = pair;
-
-			bool needsRemoval = false;
-
-			if (!isDuplicate)
-			{
-				btDbvtProxy*		pa=(btDbvtProxy*)pair.m_pProxy0;
-				btDbvtProxy*		pb=(btDbvtProxy*)pair.m_pProxy1;
-				bool hasOverlap = Intersect(pa->leaf->volume,pb->leaf->volume);
-
-				if (hasOverlap)
-				{
-					needsRemoval = false;//callback->processOverlap(pair);
-				} else
-				{
-					needsRemoval = true;
-				}
-			} else
-			{
-				//remove duplicate
-				needsRemoval = true;
-				//should have no algorithm
-				btAssert(!pair.m_algorithm);
-			}
-			
-			if (needsRemoval)
-			{
-				m_paircache->cleanOverlappingPair(pair,dispatcher);
-
-				pair.m_pProxy0 = 0;
-				pair.m_pProxy1 = 0;
-				invalidPair++;
-			} 
-			
-		}
-
-		//perform a sort, to sort 'invalid' pairs to the end
-		overlappingPairArray.quickSort(btBroadphasePairSortPredicate());
-		overlappingPairArray.resize(overlappingPairArray.size() - invalidPair);
+		m_paircache->performDeferredRemoval(dispatcher);
 	}
+	
 }
 
 //
@@ -534,6 +473,30 @@ void							btDbvtBroadphase::getBroadphaseAabb(btVector3& aabbMin,btVector3& aab
 		bounds=btDbvtVolume::FromCR(btVector3(0,0,0),0);
 	aabbMin=bounds.Mins();
 	aabbMax=bounds.Maxs();
+}
+
+void btDbvtBroadphase::resetPool(btDispatcher* dispatcher)
+{
+	return;
+	m_sets[0].optimizeBottomUp();
+	m_sets[1].optimizeBottomUp();
+
+
+	btDbvtProxy*	current=m_stageRoots[m_stageCurrent];
+	if(current)
+	{
+		btDbvtTreeCollider	collider(this);
+		do	{
+			btDbvtProxy*	next=current->links[1];
+			listremove(current,m_stageRoots[current->stage]);
+			listappend(current,m_stageRoots[m_stageCurrent]);
+			current->stage	=	m_stageCurrent;	
+			current			=	next;
+		} while(current);
+	}
+
+	
+
 }
 
 //
@@ -668,3 +631,4 @@ void							btDbvtBroadphase::benchmark(btBroadphaseInterface*)
 #if DBVT_BP_PROFILE
 #undef	SPC
 #endif
+

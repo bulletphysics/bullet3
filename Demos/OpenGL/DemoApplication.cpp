@@ -1261,9 +1261,27 @@ void	DemoApplication::clientResetScene()
 	int numObjects = 0;
 	if (m_dynamicsWorld)
 	{
-		m_dynamicsWorld->stepSimulation(1.f/60.f,0);
 		numObjects = m_dynamicsWorld->getNumCollisionObjects();
 	}
+
+#ifdef TEST_DETERMINISM
+	btCollisionObjectArray copyArray = m_dynamicsWorld->getCollisionObjectArray();
+
+	for (int i=0;i<copyArray.size();i++)
+	{
+		btRigidBody* body = btRigidBody::upcast(copyArray[i]);
+		if (body)
+			m_dynamicsWorld->removeRigidBody(body);
+	}
+
+	for (int i=0;i<copyArray.size();i++)
+	{
+		btRigidBody* body = btRigidBody::upcast(copyArray[i]);
+		if (body)
+			m_dynamicsWorld->addRigidBody(btRigidBody::upcast(copyArray[i]));
+	}
+#endif //TEST_DETERMINISM
+
 
 	for (int i=0;i<numObjects;i++)
 	{
@@ -1277,7 +1295,9 @@ void	DemoApplication::clientResetScene()
 				myMotionState->m_graphicsWorldTrans = myMotionState->m_startWorldTrans;
 				body->setCenterOfMassTransform( myMotionState->m_graphicsWorldTrans );
 				colObj->setInterpolationWorldTransform( myMotionState->m_startWorldTrans );
+				colObj->forceActivationState(ACTIVE_TAG);
 				colObj->activate();
+				colObj->setDeactivationTime(0);
 				//colObj->setActivationState(WANTS_DEACTIVATION);
 			}
 			//removed cached contact points
@@ -1291,15 +1311,11 @@ void	DemoApplication::clientResetScene()
 			}
 		}
 
-		btAxisSweep3* sap = (btAxisSweep3*)m_dynamicsWorld->getBroadphase();
-		sap->resetPool();
-		/*
-		//quickly search some issue at a certain simulation frame, pressing space to reset
-		int fixed=18;
-		for (int i=0;i<fixed;i++)
-		{
-		getDynamicsWorld()->stepSimulation(1./60.f,1);
-		}
-		*/
 	}
+
+	m_dynamicsWorld->getBroadphase()->resetPool(getDynamicsWorld()->getDispatcher());
+	
+	m_dynamicsWorld->getPairCache()->sortOverlappingPairs(getDynamicsWorld()->getDispatcher());
+
+
 }

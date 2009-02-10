@@ -84,6 +84,10 @@ public:
 
 	virtual	void	setInternalGhostPairCallback(btOverlappingPairCallback* ghostPairCallback)=0;
 
+	virtual void	sortOverlappingPairs(btDispatcher* dispatcher) = 0;
+
+	virtual void	performDeferredRemoval(btDispatcher* dispatcher) = 0;
+
 };
 
 /// Hash-space based Pair Cache, thanks to Erin Catto, Box2D, http://www.box2d.org, and Pierre Terdiman, Codercorner, http://codercorner.com
@@ -259,7 +263,14 @@ private:
 		m_ghostPairCallback = ghostPairCallback;
 	}
 
-public:
+	virtual void	sortOverlappingPairs(btDispatcher* dispatcher);
+	
+	virtual void	performDeferredRemoval(btDispatcher* dispatcher)
+	{
+
+	}
+
+protected:
 	
 	btAlignedObjectArray<int>	m_hashTable;
 	btAlignedObjectArray<int>	m_next;
@@ -369,6 +380,10 @@ class	btSortedOverlappingPairCache : public btOverlappingPairCache
 			m_ghostPairCallback = ghostPairCallback;
 		}
 
+		virtual void	sortOverlappingPairs(btDispatcher* dispatcher);
+		
+		void	performDeferredRemoval(btDispatcher* dispatcher);
+
 
 };
 
@@ -447,7 +462,13 @@ public:
 	{
 	}
 	
+	virtual void	sortOverlappingPairs(btDispatcher* dispatcher)
+	{
+	}
 
+	virtual void	performDeferredRemoval(btDispatcher* dispatcher)
+	{
+	}
 
 };
 

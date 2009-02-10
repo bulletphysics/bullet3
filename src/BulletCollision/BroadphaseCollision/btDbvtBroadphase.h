@@ -114,6 +114,10 @@ struct	btDbvtBroadphase : btBroadphaseInterface
 	void							getBroadphaseAabb(btVector3& aabbMin,btVector3& aabbMax) const;
 	void							printStats();
 	static void						benchmark(btBroadphaseInterface*);
+
+	///reset broadphase internal structures, to ensure determinism/reproducability
+	virtual void resetPool(btDispatcher* dispatcher);
+
 };
 
 #endif

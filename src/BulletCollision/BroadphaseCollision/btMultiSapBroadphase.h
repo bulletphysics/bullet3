@@ -143,6 +143,9 @@ public:
 
 	void quicksort (btBroadphasePairArray& a, int lo, int hi);
 
+	///reset broadphase internal structures, to ensure determinism/reproducability
+	virtual void resetPool(btDispatcher* dispatcher);
+
 };
 
 #endif //BT_MULTI_SAP_BROADPHASE
