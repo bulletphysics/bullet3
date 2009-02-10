@@ -255,7 +255,8 @@ public:
 		localA.getBasis().setEulerZYX(0,M_PI_2,0); localA.setOrigin(btVector3(btScalar(0.), btScalar(0.18), btScalar(0.)));
 		localB.getBasis().setEulerZYX(0,M_PI_2,0); localB.setOrigin(btVector3(btScalar(0.), btScalar(-0.14), btScalar(0.)));
 		hingeC =  new btHingeConstraint(*m_bodies[BODYPART_LEFT_UPPER_ARM], *m_bodies[BODYPART_LEFT_LOWER_ARM], localA, localB);
-		hingeC->setLimit(btScalar(-M_PI_2), btScalar(0));
+//		hingeC->setLimit(btScalar(-M_PI_2), btScalar(0));
+		hingeC->setLimit(btScalar(0), btScalar(M_PI_2));
 		m_joints[JOINT_LEFT_ELBOW] = hingeC;
 		m_ownerWorld->addConstraint(m_joints[JOINT_LEFT_ELBOW], true);
 
@@ -273,7 +274,8 @@ public:
 		localA.getBasis().setEulerZYX(0,M_PI_2,0); localA.setOrigin(btVector3(btScalar(0.), btScalar(0.18), btScalar(0.)));
 		localB.getBasis().setEulerZYX(0,M_PI_2,0); localB.setOrigin(btVector3(btScalar(0.), btScalar(-0.14), btScalar(0.)));
 		hingeC =  new btHingeConstraint(*m_bodies[BODYPART_RIGHT_UPPER_ARM], *m_bodies[BODYPART_RIGHT_LOWER_ARM], localA, localB);
-		hingeC->setLimit(btScalar(-M_PI_2), btScalar(0));
+//		hingeC->setLimit(btScalar(-M_PI_2), btScalar(0));
+		hingeC->setLimit(btScalar(0), btScalar(M_PI_2));
 		m_joints[JOINT_RIGHT_ELBOW] = hingeC;
 		m_ownerWorld->addConstraint(m_joints[JOINT_RIGHT_ELBOW], true);
 	}
