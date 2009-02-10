@@ -15,8 +15,16 @@ btHfFluidBuoyantConvexShape::btHfFluidBuoyantConvexShape (btConvexShape* convexS
 	m_convexShape = convexShape;
 	m_shapeType = HFFLUID_BUOYANT_CONVEX_SHAPE_PROXYTYPE;
 	m_radius = btScalar(0.f);
+	m_numVoxels = 0;
+	m_voxelPositions = NULL;
 	m_totalVolume = btScalar(0.0f);
 	m_floatyness = btScalar(1.5f);
+}
+
+btHfFluidBuoyantConvexShape::~btHfFluidBuoyantConvexShape ()
+{
+	if (m_voxelPositions)
+		btAlignedFree (m_voxelPositions);
 }
 
 void btHfFluidBuoyantConvexShape::getAabb(const btTransform& t,btVector3& aabbMin,btVector3& aabbMax) const
@@ -128,6 +136,7 @@ void btHfFluidBuoyantConvexShape::generateShape (btScalar radius, btScalar gap)
 
 	btVoronoiSimplexSolver simplexSolver;
 	btSphereShape sphereShape(radius);
+	btVector3* voxelPositions = (btVector3*)btAlignedAlloc (sizeof(btVector3)*MAX_VOXEL_DIMENSION*MAX_VOXEL_DIMENSION*MAX_VOXEL_DIMENSION,16);
 	for (int i = 0; i < MAX_VOXEL_DIMENSION; i++)
 	{
 		for (int j = 0; j < MAX_VOXEL_DIMENSION; j++)
@@ -150,13 +159,19 @@ void btHfFluidBuoyantConvexShape::generateShape (btScalar radius, btScalar gap)
 
 					if (intersect (&simplexSolver, T, sT, m_convexShape, &sphereShape))
 					{
-						m_voxelPositions[m_numVoxels] = point;
+						voxelPositions[m_numVoxels] = point;
 						m_numVoxels++;
 					}
 				}
 			}
 		}
 	}
+	m_voxelPositions = (btVector3*)btAlignedAlloc (sizeof(btVector3)*m_numVoxels, 16);
+	for (int i = 0; i < m_numVoxels;i++)
+	{
+		m_voxelPositions[i] = voxelPositions[i];
+	}
+	btAlignedFree (voxelPositions);
 	m_volumePerVoxel = btScalar(4.0f)/btScalar(3.0f)*SIMD_PI*radius*radius*radius;
 	m_totalVolume = m_numVoxels * m_volumePerVoxel;
 	m_radius = radius;

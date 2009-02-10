@@ -12,7 +12,7 @@ class btHfFluidBuoyantConvexShape : public btCollisionShape
 {
 public:
 	btHfFluidBuoyantConvexShape (btConvexShape* convexShape);
-
+	~btHfFluidBuoyantConvexShape ();
 	void generateShape (btScalar radius, btScalar gap);
 
 	btConvexShape* getConvexShape () { return m_convexShape; }
@@ -39,7 +39,7 @@ protected:
 	btScalar m_totalVolume;
 	btScalar m_volumePerVoxel;
 	int m_numVoxels;
-	btVector3 m_voxelPositions[MAX_VOXEL_DIMENSION*MAX_VOXEL_DIMENSION*MAX_VOXEL_DIMENSION];
+	btVector3* m_voxelPositions;
 	btConvexShape* m_convexShape;
 };
 

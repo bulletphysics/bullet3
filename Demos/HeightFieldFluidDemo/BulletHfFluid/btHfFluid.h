@@ -207,8 +207,8 @@ protected:
 	btHfFluidBuoyantConvexShape* m_buoyantShape;
 	btIDebugDraw* m_debugDraw;
 	int m_numVoxels;
-	btVector3 m_voxelPositionsXformed[32*32*32];
-	bool m_voxelSubmerged[32*32*32];
+	btVector3* m_voxelPositionsXformed;
+	bool* m_voxelSubmerged;
 	btVector3 m_aabbMin;
 	btVector3 m_aabbMax;
 	btScalar m_volume;
@@ -216,6 +216,7 @@ protected:
 	btScalar m_floatyness;
 public:
 	btHfFluidColumnRigidBodyCallback (btRigidBody* rigidBody, btIDebugDraw* debugDraw, btScalar density, btScalar floatyness);
+	~btHfFluidColumnRigidBodyCallback ();
 	bool processColumn (btHfFluid* fluid, int w, int l);
 	btScalar getVolume () const { return m_volume; }
 };

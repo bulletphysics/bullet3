@@ -913,6 +913,8 @@ btHfFluidColumnRigidBodyCallback::btHfFluidColumnRigidBodyCallback (btRigidBody*
 	m_density = density;
 	m_floatyness = floatyness;
 	m_numVoxels = m_buoyantShape->getNumVoxels ();
+	m_voxelPositionsXformed = (btVector3*)btAlignedAlloc(sizeof(btVector3)*m_numVoxels, 16);
+	m_voxelSubmerged = (bool*)btAlignedAlloc(sizeof(bool)*m_numVoxels, 16);
 	for (int i = 0; i < m_numVoxels; i++)
 	{
 		btVector3 p = m_buoyantShape->getVoxelPositionsArray()[i];
@@ -921,6 +923,14 @@ btHfFluidColumnRigidBodyCallback::btHfFluidColumnRigidBodyCallback (btRigidBody*
 		m_voxelPositionsXformed[i] = p;
 		m_voxelSubmerged[i] = false;
 	}
+}
+
+btHfFluidColumnRigidBodyCallback::~btHfFluidColumnRigidBodyCallback ()
+{
+	if (m_voxelPositionsXformed)
+		btAlignedFree (m_voxelPositionsXformed);
+	if (m_voxelSubmerged)
+		btAlignedFree (m_voxelSubmerged);
 }
 
 static bool sphereVsAABB (const btVector3& aabbMin, const btVector3& aabbMax, const btVector3& sphereCenter, const btScalar sphereRadius)
