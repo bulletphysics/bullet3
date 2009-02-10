@@ -67,7 +67,7 @@ public:
 		int m_numConstraintRows,nub;
 	};
 
-	ATTRIBUTE_ALIGNED16(struct) btConstraintInfo2 {
+	struct btConstraintInfo2 {
 		// integrator parameters: frames per second (1/stepsize), default error
 		// reduction parameter (0..1).
 		btScalar fps,erp;

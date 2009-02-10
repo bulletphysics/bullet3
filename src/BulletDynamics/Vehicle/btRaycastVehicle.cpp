@@ -87,7 +87,7 @@ btWheelInfo&	btRaycastVehicle::addWheel( const btVector3& connectionPointCS, con
 
 const btTransform&	btRaycastVehicle::getWheelTransformWS( int wheelIndex ) const
 {
-	assert(wheelIndex < getNumWheels());
+	btAssert(wheelIndex < getNumWheels());
 	const btWheelInfo& wheel = m_wheelInfo[wheelIndex];
 	return wheel.m_worldTransform;
 
@@ -175,7 +175,7 @@ btScalar btRaycastVehicle::rayCast(btWheelInfo& wheel)
 	
 	btVehicleRaycaster::btVehicleRaycasterResult	rayResults;
 
-	assert(m_vehicleRaycaster);
+	btAssert(m_vehicleRaycaster);
 
 	void* object = m_vehicleRaycaster->castRay(source,target,rayResults);
 
@@ -359,7 +359,7 @@ void btRaycastVehicle::updateVehicle( btScalar step )
 
 void	btRaycastVehicle::setSteeringValue(btScalar steering,int wheel)
 {
-	assert(wheel>=0 && wheel < getNumWheels());
+	btAssert(wheel>=0 && wheel < getNumWheels());
 
 	btWheelInfo& wheelInfo = getWheelInfo(wheel);
 	wheelInfo.m_steering = steering;
@@ -375,7 +375,7 @@ btScalar	btRaycastVehicle::getSteeringValue(int wheel) const
 
 void	btRaycastVehicle::applyEngineForce(btScalar force, int wheel)
 {
-	assert(wheel>=0 && wheel < getNumWheels());
+	btAssert(wheel>=0 && wheel < getNumWheels());
 	btWheelInfo& wheelInfo = getWheelInfo(wheel);
 	wheelInfo.m_engineForce = force;
 }

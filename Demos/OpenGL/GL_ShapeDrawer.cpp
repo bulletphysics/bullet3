@@ -296,7 +296,7 @@ void GL_ShapeDrawer::drawCylinder(float radius,float halfHeight, int upAxis)
 		break;
 	default:
 		{
-			assert(0);
+			btAssert(0);
 		}
 
 	}

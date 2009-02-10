@@ -95,7 +95,7 @@ void SpuCollisionTaskProcess::initialize2(bool useEpa)
 
 #ifdef DEBUG_SpuCollisionTaskProcess
 	m_initialized = true;
-	assert(MIDPHASE_NUM_WORKUNITS_PER_TASK*sizeof(SpuGatherAndProcessWorkUnitInput) <= MIDPHASE_WORKUNIT_TASK_SIZE);
+	btAssert(MIDPHASE_NUM_WORKUNITS_PER_TASK*sizeof(SpuGatherAndProcessWorkUnitInput) <= MIDPHASE_WORKUNIT_TASK_SIZE);
 #endif
 }
 
@@ -173,8 +173,8 @@ void SpuCollisionTaskProcess::addWorkToTask(void* pairArrayPtr,int startIndex,in
 #endif //DEBUG_SPU_TASK_SCHEDULING
 	
 #ifdef DEBUG_SpuCollisionTaskProcess
-	assert(m_initialized);
-	assert(m_workUnitTaskBuffers);
+	btAssert(m_initialized);
+	btAssert(m_workUnitTaskBuffers);
 
 #endif
 

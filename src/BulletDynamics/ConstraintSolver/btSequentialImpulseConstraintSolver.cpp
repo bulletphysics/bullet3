@@ -262,7 +262,6 @@ btSolverConstraint&	btSequentialImpulseConstraintSolver::addFrictionConstraint(c
 
 	solverConstraint.m_solverBodyIdA = solverBodyIdA;
 	solverConstraint.m_solverBodyIdB = solverBodyIdB;
-	solverConstraint.m_constraintType = btSolverConstraint::BT_SOLVER_FRICTION_1D;
 	solverConstraint.m_frictionIndex = frictionIndex;
 
 	solverConstraint.m_friction = cp.m_combinedFriction;
@@ -465,6 +464,8 @@ btScalar btSequentialImpulseConstraintSolver::solveGroupCacheFriendlySetup(btCol
 					info2.m_J2linearAxis = 0;
 					info2.m_J2angularAxis = currentConstraintRow->m_relpos2CrossNormal;
 					info2.rowskip = sizeof(btSolverConstraint)/sizeof(btScalar);//check this
+					///the size of btSolverConstraint needs be a multiple of btScalar
+					btAssert(info2.rowskip*sizeof(btScalar)== sizeof(btSolverConstraint));
 					info2.m_constraintError = &currentConstraintRow->m_rhs;
 					info2.cfm = &currentConstraintRow->m_cfm;
 					info2.m_lowerLimit = &currentConstraintRow->m_lowerLimit;
@@ -581,7 +582,6 @@ btScalar btSequentialImpulseConstraintSolver::solveGroupCacheFriendlySetup(btCol
 
 							solverConstraint.m_solverBodyIdA = solverBodyIdA;
 							solverConstraint.m_solverBodyIdB = solverBodyIdB;
-							solverConstraint.m_constraintType = btSolverConstraint::BT_SOLVER_CONTACT_1D;
 
 							solverConstraint.m_originalContactPoint = &cp;
 
@@ -945,6 +945,9 @@ btScalar btSequentialImpulseConstraintSolver::solveGroupCacheFriendlyIterations(
 /// btSequentialImpulseConstraintSolver Sequentially applies impulses
 btScalar btSequentialImpulseConstraintSolver::solveGroup(btCollisionObject** bodies,int numBodies,btPersistentManifold** manifoldPtr, int numManifolds,btTypedConstraint** constraints,int numConstraints,const btContactSolverInfo& infoGlobal,btIDebugDraw* debugDrawer,btStackAlloc* stackAlloc,btDispatcher* /*dispatcher*/)
 {
+
+	
+
 	BT_PROFILE("solveGroup");
 	//we only implement SOLVER_CACHE_FRIENDLY now
 	//you need to provide at least some bodies

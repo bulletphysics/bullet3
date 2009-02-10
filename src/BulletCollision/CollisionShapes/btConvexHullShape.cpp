@@ -181,7 +181,7 @@ void btConvexHullShape::getPlane(btVector3& ,btVector3& ,int ) const
 //not yet
 bool btConvexHullShape::isInside(const btVector3& ,btScalar ) const
 {
-	assert(0);
+	btAssert(0);
 	return false;
 }
 

@@ -43,10 +43,10 @@ void btSimulationIslandManager::findUnions(btDispatcher* /* dispatcher */,btColl
 {
 	
 	{
-		btBroadphasePair* pairPtr = colWorld->getPairCache()->getOverlappingPairArrayPtr();
-
+		
 		for (int i=0;i<colWorld->getPairCache()->getNumOverlappingPairs();i++)
 		{
+			btBroadphasePair* pairPtr = colWorld->getPairCache()->getOverlappingPairArrayPtr();
 			const btBroadphasePair& collisionPair = pairPtr[i];
 			btCollisionObject* colObj0 = (btCollisionObject*)collisionPair.m_pProxy0->m_clientObject;
 			btCollisionObject* colObj1 = (btCollisionObject*)collisionPair.m_pProxy1->m_clientObject;
@@ -185,7 +185,7 @@ void btSimulationIslandManager::buildIslands(btDispatcher* dispatcher,btCollisio
 //				printf("error in island management\n");
 			}
 
-			assert((colObj0->getIslandTag() == islandId) || (colObj0->getIslandTag() == -1));
+			btAssert((colObj0->getIslandTag() == islandId) || (colObj0->getIslandTag() == -1));
 			if (colObj0->getIslandTag() == islandId)
 			{
 				if (colObj0->getActivationState()== ACTIVE_TAG)
@@ -212,7 +212,7 @@ void btSimulationIslandManager::buildIslands(btDispatcher* dispatcher,btCollisio
 //					printf("error in island management\n");
 				}
 
-				assert((colObj0->getIslandTag() == islandId) || (colObj0->getIslandTag() == -1));
+				btAssert((colObj0->getIslandTag() == islandId) || (colObj0->getIslandTag() == -1));
 
 				if (colObj0->getIslandTag() == islandId)
 				{
@@ -233,7 +233,7 @@ void btSimulationIslandManager::buildIslands(btDispatcher* dispatcher,btCollisio
 //					printf("error in island management\n");
 				}
 
-				assert((colObj0->getIslandTag() == islandId) || (colObj0->getIslandTag() == -1));
+				btAssert((colObj0->getIslandTag() == islandId) || (colObj0->getIslandTag() == -1));
 
 				if (colObj0->getIslandTag() == islandId)
 				{

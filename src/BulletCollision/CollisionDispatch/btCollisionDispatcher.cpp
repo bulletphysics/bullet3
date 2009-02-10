@@ -52,7 +52,7 @@ btCollisionDispatcher::btCollisionDispatcher (btCollisionConfiguration* collisio
 		for (int j=0;j<MAX_BROADPHASE_COLLISION_TYPES;j++)
 		{
 			m_doubleDispatch[i][j] = m_collisionConfiguration->getCollisionAlgorithmCreateFunc(i,j);
-			assert(m_doubleDispatch[i][j]);
+			btAssert(m_doubleDispatch[i][j]);
 		}
 	}
 	
@@ -160,8 +160,8 @@ bool	btCollisionDispatcher::needsResponse(btCollisionObject* body0,btCollisionOb
 
 bool	btCollisionDispatcher::needsCollision(btCollisionObject* body0,btCollisionObject* body1)
 {
-	assert(body0);
-	assert(body1);
+	btAssert(body0);
+	btAssert(body1);
 
 	bool needsCollision = true;
 

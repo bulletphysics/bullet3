@@ -193,7 +193,7 @@ bool	Raytracer::worldRaytest(const btVector3& rayFrom,const btVector3& rayTo,btV
 		{
 
 //caller already does the filter on the m_closestHitFraction
-			assert(rayResult.m_hitFraction <= m_closestHitFraction);
+			btAssert(rayResult.m_hitFraction <= m_closestHitFraction);
 			
 			m_closestHitFraction = rayResult.m_hitFraction;
 

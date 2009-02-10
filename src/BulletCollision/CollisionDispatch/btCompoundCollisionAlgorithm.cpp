@@ -29,7 +29,7 @@ m_sharedManifold(ci.m_manifold)
 	m_ownsManifold = false;
 
 	btCollisionObject* colObj = m_isSwapped? body1 : body0;
-	assert (colObj->getCollisionShape()->isCompound());
+	btAssert (colObj->getCollisionShape()->isCompound());
 	
 	btCompoundShape* compoundShape = static_cast<btCompoundShape*>(colObj->getCollisionShape());
 	m_compoundShapeRevision = compoundShape->getUpdateRevision();
@@ -41,7 +41,7 @@ void	btCompoundCollisionAlgorithm::preallocateChildAlgorithms(btCollisionObject*
 {
 	btCollisionObject* colObj = m_isSwapped? body1 : body0;
 	btCollisionObject* otherObj = m_isSwapped? body0 : body1;
-	assert (colObj->getCollisionShape()->isCompound());
+	btAssert (colObj->getCollisionShape()->isCompound());
 	
 	btCompoundShape* compoundShape = static_cast<btCompoundShape*>(colObj->getCollisionShape());
 
@@ -186,7 +186,7 @@ void btCompoundCollisionAlgorithm::processCollision (btCollisionObject* body0,bt
 
 	
 
-	assert (colObj->getCollisionShape()->isCompound());
+	btAssert (colObj->getCollisionShape()->isCompound());
 	btCompoundShape* compoundShape = static_cast<btCompoundShape*>(colObj->getCollisionShape());
 
 	///btCompoundShape might have changed:
@@ -296,7 +296,7 @@ btScalar	btCompoundCollisionAlgorithm::calculateTimeOfImpact(btCollisionObject* 
 	btCollisionObject* colObj = m_isSwapped? body1 : body0;
 	btCollisionObject* otherObj = m_isSwapped? body0 : body1;
 
-	assert (colObj->getCollisionShape()->isCompound());
+	btAssert (colObj->getCollisionShape()->isCompound());
 	
 	btCompoundShape* compoundShape = static_cast<btCompoundShape*>(colObj->getCollisionShape());
 

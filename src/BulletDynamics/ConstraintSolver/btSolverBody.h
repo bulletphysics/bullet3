@@ -49,9 +49,10 @@ struct	btSimdScalar
 	}
 	union
 	{
-		__m128	m_vec128;
-		float	m_floats[4];
-		int		m_ints[4];
+		__m128		m_vec128;
+		float		m_floats[4];
+		int			m_ints[4];
+		btScalar	m_unusedPadding;
 	};
 	SIMD_FORCE_INLINE	__m128	get128()
 	{

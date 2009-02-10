@@ -25,8 +25,6 @@ subject to the following restrictions:
 
 
 #include "btVoronoiSimplexSolver.h"
-#include <assert.h>
-//#include <stdio.h>
 
 #define VERTA  0
 #define VERTB  1
@@ -37,7 +35,7 @@ subject to the following restrictions:
 void	btVoronoiSimplexSolver::removeVertex(int index)
 {
 	
-	assert(m_numVertices>0);
+	btAssert(m_numVertices>0);
 	m_numVertices--;
 	m_simplexVectorW[index] = m_simplexVectorW[m_numVertices];
 	m_simplexPointsP[index] = m_simplexPointsP[m_numVertices];

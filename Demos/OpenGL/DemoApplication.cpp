@@ -1262,33 +1262,27 @@ void	DemoApplication::clientResetScene()
 
 	gNumClampedCcdMotions = 0;
 	int numObjects = 0;
+	int i;
+
 	if (m_dynamicsWorld)
 	{
 		numObjects = m_dynamicsWorld->getNumCollisionObjects();
 	}
 
-#ifdef TEST_DETERMINISM
 	btCollisionObjectArray copyArray = m_dynamicsWorld->getCollisionObjectArray();
 
-	for (int i=0;i<copyArray.size();i++)
+	for (i=0;i<copyArray.size();i++)
 	{
 		btRigidBody* body = btRigidBody::upcast(copyArray[i]);
 		if (body)
 			m_dynamicsWorld->removeRigidBody(body);
 	}
 
-	for (int i=0;i<copyArray.size();i++)
-	{
-		btRigidBody* body = btRigidBody::upcast(copyArray[i]);
-		if (body)
-			m_dynamicsWorld->addRigidBody(btRigidBody::upcast(copyArray[i]));
-	}
-#endif //TEST_DETERMINISM
 
 
-	for (int i=0;i<numObjects;i++)
+	for (i=0;i<numObjects;i++)
 	{
-		btCollisionObject* colObj = m_dynamicsWorld->getCollisionObjectArray()[i];
+		btCollisionObject* colObj = copyArray[i];
 		btRigidBody* body = btRigidBody::upcast(colObj);
 		if (body)
 		{
@@ -1304,7 +1298,7 @@ void	DemoApplication::clientResetScene()
 				//colObj->setActivationState(WANTS_DEACTIVATION);
 			}
 			//removed cached contact points
-			m_dynamicsWorld->getBroadphase()->getOverlappingPairCache()->cleanProxyFromPairs(colObj->getBroadphaseHandle(),getDynamicsWorld()->getDispatcher());
+			//m_dynamicsWorld->getBroadphase()->getOverlappingPairCache()->cleanProxyFromPairs(colObj->getBroadphaseHandle(),getDynamicsWorld()->getDispatcher());
 
 			btRigidBody* body = btRigidBody::upcast(colObj);
 			if (body && !body->isStaticObject())
@@ -1318,7 +1312,13 @@ void	DemoApplication::clientResetScene()
 
 	m_dynamicsWorld->getBroadphase()->resetPool(getDynamicsWorld()->getDispatcher());
 	
-	m_dynamicsWorld->getPairCache()->sortOverlappingPairs(getDynamicsWorld()->getDispatcher());
+	for ( i=0;i<copyArray.size();i++)
+	{
+		btRigidBody* body = btRigidBody::upcast(copyArray[i]);
+		if (body)
+			m_dynamicsWorld->addRigidBody(btRigidBody::upcast(copyArray[i]));
+	}
+	
 
 
 }

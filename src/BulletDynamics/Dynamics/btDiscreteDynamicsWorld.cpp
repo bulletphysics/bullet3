@@ -712,7 +712,7 @@ void	btDiscreteDynamicsWorld::solveConstraints(btContactSolverInfo& solverInfo)
 		sortedConstraints[i] = m_constraints[i];
 	}
 
-//	assert(0);
+//	btAssert(0);
 		
 	
 

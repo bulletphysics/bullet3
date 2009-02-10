@@ -37,22 +37,40 @@ ATTRIBUTE_ALIGNED16 (struct)	btSolverConstraint
 	//btVector3		m_contactNormal2;//usually m_contactNormal2 == -m_contactNormal
 
 	btVector3		m_angularComponentA;
-	btVector3	m_angularComponentB;
+	btVector3		m_angularComponentB;
 	
 	mutable btSimdScalar	m_appliedPushImpulse;
 	mutable btSimdScalar	m_appliedImpulse;
 	
-	int			m_solverBodyIdA;
-	int			m_solverBodyIdB;
 	
 	btScalar	m_friction;
 	btScalar	m_restitution;
 	btScalar	m_jacDiagABInv;
 	btScalar	m_penetration;
-		
-	int			m_constraintType;
-	int			m_frictionIndex;
-	void*		m_originalContactPoint;
+
+
+	union
+	{
+		int			m_frictionIndex;
+		btScalar	m_unusedPadding1;
+	};
+	union
+	{
+		int			m_solverBodyIdA;
+		btScalar	m_unusedPadding2;
+	};
+	union
+	{
+		int			m_solverBodyIdB;
+		btScalar	m_unusedPadding3;
+	};
+	
+	union
+	{
+		void*		m_originalContactPoint;
+		btScalar	m_unusedPadding4;
+	};
+
 	btScalar		m_rhs;
 	btScalar		m_cfm;
 	btScalar		m_lowerLimit;

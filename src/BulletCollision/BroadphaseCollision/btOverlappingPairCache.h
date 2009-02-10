@@ -86,7 +86,6 @@ public:
 
 	virtual void	sortOverlappingPairs(btDispatcher* dispatcher) = 0;
 
-	virtual void	performDeferredRemoval(btDispatcher* dispatcher) = 0;
 
 };
 
@@ -265,10 +264,6 @@ private:
 
 	virtual void	sortOverlappingPairs(btDispatcher* dispatcher);
 	
-	virtual void	performDeferredRemoval(btDispatcher* dispatcher)
-	{
-
-	}
 
 protected:
 	
@@ -382,8 +377,6 @@ class	btSortedOverlappingPairCache : public btOverlappingPairCache
 
 		virtual void	sortOverlappingPairs(btDispatcher* dispatcher);
 		
-		void	performDeferredRemoval(btDispatcher* dispatcher);
-
 
 };
 
@@ -466,9 +459,6 @@ public:
 	{
 	}
 
-	virtual void	performDeferredRemoval(btDispatcher* dispatcher)
-	{
-	}
 
 };
 

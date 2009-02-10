@@ -133,9 +133,7 @@ btDbvtBroadphase::btDbvtBroadphase(btOverlappingPairCache* paircache)
 	m_updates_call		=	0;
 	m_updates_done		=	0;
 	m_updates_ratio		=	0;
-	m_paircache			=	paircache?
-paircache	:
-	new(btAlignedAlloc(sizeof(btHashedOverlappingPairCache),16)) btHashedOverlappingPairCache();
+	m_paircache			=	paircache? paircache	: new(btAlignedAlloc(sizeof(btHashedOverlappingPairCache),16)) btHashedOverlappingPairCache();
 	m_gid				=	0;
 	m_pid				=	0;
 	m_cid				=	0;
@@ -342,16 +340,102 @@ void							btDbvtBroadphase::calculateOverlappingPairs(btDispatcher* dispatcher)
 	}
 #endif
 
+	performDeferredRemoval(dispatcher);
+
+}
+
+void btDbvtBroadphase::performDeferredRemoval(btDispatcher* dispatcher)
+{
+
 	if (m_paircache->hasDeferredRemoval())
 	{
-		m_paircache->performDeferredRemoval(dispatcher);
+
+		btBroadphasePairArray&	overlappingPairArray = m_paircache->getOverlappingPairArray();
+
+		//perform a sort, to find duplicates and to sort 'invalid' pairs to the end
+		overlappingPairArray.quickSort(btBroadphasePairSortPredicate());
+
+		int invalidPair = 0;
+
+		
+		int i;
+
+		btBroadphasePair previousPair;
+		previousPair.m_pProxy0 = 0;
+		previousPair.m_pProxy1 = 0;
+		previousPair.m_algorithm = 0;
+		
+		
+		for (i=0;i<overlappingPairArray.size();i++)
+		{
+		
+			btBroadphasePair& pair = overlappingPairArray[i];
+
+			bool isDuplicate = (pair == previousPair);
+
+			previousPair = pair;
+
+			bool needsRemoval = false;
+
+			if (!isDuplicate)
+			{
+				//important to perform AABB check that is consistent with the broadphase
+				btDbvtProxy*		pa=(btDbvtProxy*)pair.m_pProxy0;
+				btDbvtProxy*		pb=(btDbvtProxy*)pair.m_pProxy1;
+				bool hasOverlap = Intersect(pa->leaf->volume,pb->leaf->volume);
+
+				if (hasOverlap)
+				{
+					needsRemoval = false;
+				} else
+				{
+					needsRemoval = true;
+				}
+			} else
+			{
+				//remove duplicate
+				needsRemoval = true;
+				//should have no algorithm
+				btAssert(!pair.m_algorithm);
+			}
+			
+			if (needsRemoval)
+			{
+				m_paircache->cleanOverlappingPair(pair,dispatcher);
+
+				pair.m_pProxy0 = 0;
+				pair.m_pProxy1 = 0;
+				invalidPair++;
+			} 
+			
+		}
+
+		//perform a sort, to sort 'invalid' pairs to the end
+		overlappingPairArray.quickSort(btBroadphasePairSortPredicate());
+		overlappingPairArray.resize(overlappingPairArray.size() - invalidPair);
 	}
-	
 }
 
 //
 void							btDbvtBroadphase::collide(btDispatcher* dispatcher)
 {
+	/*printf("---------------------------------------------------------\n");
+	printf("m_sets[0].m_leaves=%d\n",m_sets[0].m_leaves);
+	printf("m_sets[1].m_leaves=%d\n",m_sets[1].m_leaves);
+	printf("numPairs = %d\n",getOverlappingPairCache()->getNumOverlappingPairs());
+	{
+		int i;
+		for (i=0;i<getOverlappingPairCache()->getNumOverlappingPairs();i++)
+		{
+			printf("pair[%d]=(%d,%d),",i,getOverlappingPairCache()->getOverlappingPairArray()[i].m_pProxy0->getUid(),
+				getOverlappingPairCache()->getOverlappingPairArray()[i].m_pProxy1->getUid());
+		}
+		printf("\n");
+	}
+*/
+
+
+
 	SPC(m_profiling.m_total);
 	/* optimize				*/ 
 	m_sets[0].optimizeIncremental(1+(m_sets[0].m_leaves*m_dupdates)/100);
@@ -407,11 +491,11 @@ void							btDbvtBroadphase::collide(btDispatcher* dispatcher)
 		btBroadphasePairArray&	pairs=m_paircache->getOverlappingPairArray();
 		if(pairs.size()>0)
 		{
-			const int	ci=pairs.size();
-			int			ni=btMin(ci,btMax<int>(m_newpairs,(ci*m_cupdates)/100));
+
+			int			ni=btMin(pairs.size(),btMax<int>(m_newpairs,(pairs.size()*m_cupdates)/100));
 			for(int i=0;i<ni;++i)
 			{
-				btBroadphasePair&	p=pairs[(m_cid+i)%ci];
+				btBroadphasePair&	p=pairs[(m_cid+i)%pairs.size()];
 				btDbvtProxy*		pa=(btDbvtProxy*)p.m_pProxy0;
 				btDbvtProxy*		pb=(btDbvtProxy*)p.m_pProxy1;
 				if(!Intersect(pa->leaf->volume,pb->leaf->volume))
@@ -477,26 +561,35 @@ void							btDbvtBroadphase::getBroadphaseAabb(btVector3& aabbMin,btVector3& aab
 
 void btDbvtBroadphase::resetPool(btDispatcher* dispatcher)
 {
-	return;
-	m_sets[0].optimizeBottomUp();
-	m_sets[1].optimizeBottomUp();
-
-
-	btDbvtProxy*	current=m_stageRoots[m_stageCurrent];
-	if(current)
-	{
-		btDbvtTreeCollider	collider(this);
-		do	{
-			btDbvtProxy*	next=current->links[1];
-			listremove(current,m_stageRoots[current->stage]);
-			listappend(current,m_stageRoots[m_stageCurrent]);
-			current->stage	=	m_stageCurrent;	
-			current			=	next;
-		} while(current);
-	}
-
 	
-
+	int totalObjects = m_sets[0].m_leaves + m_sets[1].m_leaves;
+	if (!totalObjects)
+	{
+		//reset internal dynamic tree data structures
+		m_sets[0].clear();
+		m_sets[1].clear();
+		
+		m_deferedcollide	=	false;
+		m_needcleanup		=	true;
+		m_prediction		=	1/(btScalar)2;
+		m_stageCurrent		=	0;
+		m_fixedleft			=	0;
+		m_fupdates			=	1;
+		m_dupdates			=	0;
+		m_cupdates			=	10;
+		m_newpairs			=	1;
+		m_updates_call		=	0;
+		m_updates_done		=	0;
+		m_updates_ratio		=	0;
+		
+		m_gid				=	0;
+		m_pid				=	0;
+		m_cid				=	0;
+		for(int i=0;i<=STAGECOUNT;++i)
+		{
+			m_stageRoots[i]=0;
+		}
+	}
 }
 
 //

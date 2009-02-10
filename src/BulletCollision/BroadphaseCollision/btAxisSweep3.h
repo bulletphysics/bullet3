@@ -221,7 +221,7 @@ void btAxisSweep3<BP_FP_INT_TYPE>::debugPrintAxis(int axis, bool checkCardinalit
 	}
 
 	if (checkCardinality)
-		assert(numEdges == m_numHandles*2+1);
+		btAssert(numEdges == m_numHandles*2+1);
 }
 #endif //DEBUG_BROADPHASE
 
@@ -347,7 +347,7 @@ m_raycastAccelerator(0)
 		m_raycastAccelerator->m_deferedcollide = true;//don't add/remove pairs
 	}
 
-	//assert(bounds.HasVolume());
+	//btAssert(bounds.HasVolume());
 
 	// init bounds
 	m_worldAabbMin = worldAabbMin;
@@ -453,7 +453,7 @@ void btAxisSweep3Internal<BP_FP_INT_TYPE>::quantize(BP_FP_INT_TYPE* out, const b
 template <typename BP_FP_INT_TYPE>
 BP_FP_INT_TYPE btAxisSweep3Internal<BP_FP_INT_TYPE>::allocHandle()
 {
-	assert(m_firstFreeHandle);
+	btAssert(m_firstFreeHandle);
 
 	BP_FP_INT_TYPE handle = m_firstFreeHandle;
 	m_firstFreeHandle = getHandle(handle)->GetNextFree();
@@ -465,7 +465,7 @@ BP_FP_INT_TYPE btAxisSweep3Internal<BP_FP_INT_TYPE>::allocHandle()
 template <typename BP_FP_INT_TYPE>
 void btAxisSweep3Internal<BP_FP_INT_TYPE>::freeHandle(BP_FP_INT_TYPE handle)
 {
-	assert(handle > 0 && handle < m_maxHandles);
+	btAssert(handle > 0 && handle < m_maxHandles);
 
 	getHandle(handle)->SetNextFree(m_firstFreeHandle);
 	m_firstFreeHandle = handle;
@@ -611,8 +611,83 @@ void	btAxisSweep3Internal<BP_FP_INT_TYPE>::calculateOverlappingPairs(btDispatche
 
 	if (m_pairCache->hasDeferredRemoval())
 	{
-		m_pairCache->performDeferredRemoval(dispatcher);
+	
+		btBroadphasePairArray&	overlappingPairArray = m_pairCache->getOverlappingPairArray();
+
+		//perform a sort, to find duplicates and to sort 'invalid' pairs to the end
+		overlappingPairArray.quickSort(btBroadphasePairSortPredicate());
+
+		overlappingPairArray.resize(overlappingPairArray.size() - m_invalidPair);
+		m_invalidPair = 0;
+
+		
+		int i;
+
+		btBroadphasePair previousPair;
+		previousPair.m_pProxy0 = 0;
+		previousPair.m_pProxy1 = 0;
+		previousPair.m_algorithm = 0;
+		
+		
+		for (i=0;i<overlappingPairArray.size();i++)
+		{
+		
+			btBroadphasePair& pair = overlappingPairArray[i];
+
+			bool isDuplicate = (pair == previousPair);
+
+			previousPair = pair;
+
+			bool needsRemoval = false;
+
+			if (!isDuplicate)
+			{
+				///important to use an AABB test that is consistent with the broadphase
+				bool hasOverlap = testAabbOverlap(pair.m_pProxy0,pair.m_pProxy1);
+
+				if (hasOverlap)
+				{
+					needsRemoval = false;//callback->processOverlap(pair);
+				} else
+				{
+					needsRemoval = true;
+				}
+			} else
+			{
+				//remove duplicate
+				needsRemoval = true;
+				//should have no algorithm
+				btAssert(!pair.m_algorithm);
+			}
+			
+			if (needsRemoval)
+			{
+				m_pairCache->cleanOverlappingPair(pair,dispatcher);
+
+		//		m_overlappingPairArray.swap(i,m_overlappingPairArray.size()-1);
+		//		m_overlappingPairArray.pop_back();
+				pair.m_pProxy0 = 0;
+				pair.m_pProxy1 = 0;
+				m_invalidPair++;
+				gOverlappingPairs--;
+			} 
+			
+		}
+
+	///if you don't like to skip the invalid pairs in the array, execute following code:
+	#define CLEAN_INVALID_PAIRS 1
+	#ifdef CLEAN_INVALID_PAIRS
+
+		//perform a sort, to sort 'invalid' pairs to the end
+		overlappingPairArray.quickSort(btBroadphasePairSortPredicate());
+
+		overlappingPairArray.resize(overlappingPairArray.size() - m_invalidPair);
+		m_invalidPair = 0;
+	#endif//CLEAN_INVALID_PAIRS
+		
+		//printf("overlappingPairArray.size()=%d\n",overlappingPairArray.size());
 	}
+
 }
 
 
@@ -653,8 +728,8 @@ bool btAxisSweep3Internal<BP_FP_INT_TYPE>::testOverlap2D(const Handle* pHandleA,
 template <typename BP_FP_INT_TYPE>
 void btAxisSweep3Internal<BP_FP_INT_TYPE>::updateHandle(BP_FP_INT_TYPE handle, const btVector3& aabbMin,const btVector3& aabbMax,btDispatcher* dispatcher)
 {
-//	assert(bounds.IsFinite());
-	//assert(bounds.HasVolume());
+//	btAssert(bounds.IsFinite());
+	//btAssert(bounds.HasVolume());
 
 	Handle* pHandle = getHandle(handle);
 

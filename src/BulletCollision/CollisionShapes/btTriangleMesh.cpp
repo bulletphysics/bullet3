@@ -35,13 +35,13 @@ m_weldingThreshold(0.0)
 	if (m_use32bitIndices)
 	{
 		m_indexedMeshes[0].m_numTriangles = m_32bitIndices.size()/3;
-		m_indexedMeshes[0].m_triangleIndexBase = (unsigned char*) &m_32bitIndices[0];
+		m_indexedMeshes[0].m_triangleIndexBase = 0;
 		m_indexedMeshes[0].m_indexType = PHY_INTEGER;
 		m_indexedMeshes[0].m_triangleIndexStride = 3*sizeof(int);
 	} else
 	{
 		m_indexedMeshes[0].m_numTriangles = m_16bitIndices.size()/3;
-		m_indexedMeshes[0].m_triangleIndexBase = (unsigned char*) &m_16bitIndices[0];
+		m_indexedMeshes[0].m_triangleIndexBase = 0;
 		m_indexedMeshes[0].m_indexType = PHY_SHORT;
 		m_indexedMeshes[0].m_triangleIndexStride = 3*sizeof(short int);
 	}
@@ -49,12 +49,12 @@ m_weldingThreshold(0.0)
 	if (m_use4componentVertices)
 	{
 		m_indexedMeshes[0].m_numVertices = m_4componentVertices.size();
-		m_indexedMeshes[0].m_vertexBase = (unsigned char*)&m_4componentVertices[0];
+		m_indexedMeshes[0].m_vertexBase = 0;
 		m_indexedMeshes[0].m_vertexStride = sizeof(btVector3);
 	} else
 	{
 		m_indexedMeshes[0].m_numVertices = m_3componentVertices.size()/3;
-		m_indexedMeshes[0].m_vertexBase = (unsigned char*)&m_3componentVertices[0];
+		m_indexedMeshes[0].m_vertexBase = 0;
 		m_indexedMeshes[0].m_vertexStride = 3*sizeof(btScalar);
 	}
 

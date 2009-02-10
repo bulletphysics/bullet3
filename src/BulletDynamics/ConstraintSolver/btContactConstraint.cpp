@@ -22,7 +22,7 @@ subject to the following restrictions:
 #include "LinearMath/btMinMax.h"
 #include "BulletCollision/NarrowPhaseCollision/btManifoldPoint.h"
 
-#define ASSERT2 assert
+#define ASSERT2 btAssert
 
 #define USE_INTERNAL_APPLY_IMPULSE 1
 
@@ -114,7 +114,7 @@ btScalar resolveSingleCollision(
 	btScalar Kcor = Kerp *Kfps;
 
 	btConstraintPersistentData* cpd = (btConstraintPersistentData*) contactPoint.m_userPersistentData;
-	assert(cpd);
+	btAssert(cpd);
 	btScalar distance = cpd->m_penetration;
 	btScalar positionalError = Kcor *-distance;
 	btScalar velocityError = cpd->m_restitution - rel_vel;// * damping;
@@ -166,7 +166,7 @@ btScalar resolveSingleFriction(
 	btVector3 rel_pos2 = pos2 - body2.getCenterOfMassPosition();
 	
 	btConstraintPersistentData* cpd = (btConstraintPersistentData*) contactPoint.m_userPersistentData;
-	assert(cpd);
+	btAssert(cpd);
 
 	btScalar combinedFriction = cpd->m_friction;
 	
@@ -255,7 +255,7 @@ btScalar resolveSingleFrictionOriginal(
 	btVector3 rel_pos2 = pos2 - body2.getCenterOfMassPosition();
 	
 	btConstraintPersistentData* cpd = (btConstraintPersistentData*) contactPoint.m_userPersistentData;
-	assert(cpd);
+	btAssert(cpd);
 
 	btScalar combinedFriction = cpd->m_friction;
 	
@@ -337,7 +337,7 @@ btScalar resolveSingleCollisionCombined(
 	btScalar Kcor = Kerp *Kfps;
 
 	btConstraintPersistentData* cpd = (btConstraintPersistentData*) contactPoint.m_userPersistentData;
-	assert(cpd);
+	btAssert(cpd);
 	btScalar distance = cpd->m_penetration;
 	btScalar positionalError = Kcor *-distance;
 	btScalar velocityError = cpd->m_restitution - rel_vel;// * damping;

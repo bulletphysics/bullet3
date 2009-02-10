@@ -60,7 +60,7 @@ void	btConeShape::setConeUpIndex(int upIndex)
 			m_coneIndices[2] = 1;
 		break;
 	default:
-		assert(0);
+		btAssert(0);
 	};
 }
 

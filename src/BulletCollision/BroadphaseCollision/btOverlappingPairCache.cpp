@@ -462,7 +462,7 @@ void*	btSortedOverlappingPairCache::removeOverlappingPair(btBroadphaseProxy* pro
 btBroadphasePair*	btSortedOverlappingPairCache::addOverlappingPair(btBroadphaseProxy* proxy0,btBroadphaseProxy* proxy1)
 {
 	//don't add overlap with own
-	assert(proxy0 != proxy1);
+	btAssert(proxy0 != proxy1);
 
 	if (!needsBroadphaseCollision(proxy0,proxy1))
 		return 0;
@@ -493,7 +493,7 @@ btBroadphasePair*	btSortedOverlappingPairCache::addOverlappingPair(btBroadphaseP
 
 	if (findIndex < m_overlappingPairArray.size())
 	{
-		//assert(it != m_overlappingPairSet.end());
+		//btAssert(it != m_overlappingPairSet.end());
 		 btBroadphasePair* pair = &m_overlappingPairArray[findIndex];
 		return pair;
 	}
@@ -631,70 +631,3 @@ void	btSortedOverlappingPairCache::sortOverlappingPairs(btDispatcher* dispatcher
 	//should already be sorted
 }
 
-
-
-void	btSortedOverlappingPairCache::performDeferredRemoval(btDispatcher* dispatcher)
-{
-
-	btBroadphasePairArray&	overlappingPairArray = getOverlappingPairArray();
-
-		//perform a sort, to find duplicates and to sort 'invalid' pairs to the end
-		overlappingPairArray.quickSort(btBroadphasePairSortPredicate());
-
-		int invalidPair = 0;
-
-		
-		int i;
-
-		btBroadphasePair previousPair;
-		previousPair.m_pProxy0 = 0;
-		previousPair.m_pProxy1 = 0;
-		previousPair.m_algorithm = 0;
-		
-		
-		for (i=0;i<overlappingPairArray.size();i++)
-		{
-		
-			btBroadphasePair& pair = overlappingPairArray[i];
-
-			bool isDuplicate = (pair == previousPair);
-
-			previousPair = pair;
-
-			bool needsRemoval = false;
-
-			if (!isDuplicate)
-			{
-				
-				bool hasOverlap = TestAabbAgainstAabb2(pair.m_pProxy0->m_aabbMin,pair.m_pProxy0->m_aabbMax,pair.m_pProxy1->m_aabbMin,pair.m_pProxy1->m_aabbMax);
-
-				if (hasOverlap)
-				{
-					needsRemoval = false;
-				} else
-				{
-					needsRemoval = true;
-				}
-			} else
-			{
-				//remove duplicate
-				needsRemoval = true;
-				//should have no algorithm
-				btAssert(!pair.m_algorithm);
-			}
-			
-			if (needsRemoval)
-			{
-				cleanOverlappingPair(pair,dispatcher);
-
-				pair.m_pProxy0 = 0;
-				pair.m_pProxy1 = 0;
-				invalidPair++;
-			} 
-			
-		}
-
-		//perform a sort, to sort 'invalid' pairs to the end
-		overlappingPairArray.quickSort(btBroadphasePairSortPredicate());
-		overlappingPairArray.resize(overlappingPairArray.size() - invalidPair);
-	}
