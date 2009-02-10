@@ -23,7 +23,7 @@ subject to the following restrictions:
 
 //-----------------------------------------------------------------------------
 
-#define HINGE_USE_OBSOLETE_SOLVER false
+#define HINGE_USE_OBSOLETE_SOLVER true
 
 //-----------------------------------------------------------------------------
 
@@ -31,18 +31,21 @@ subject to the following restrictions:
 btHingeConstraint::btHingeConstraint()
 : btTypedConstraint (HINGE_CONSTRAINT_TYPE),
 m_enableAngularMotor(false),
-m_useSolveConstraintObsolete(HINGE_USE_OBSOLETE_SOLVER)
+m_useSolveConstraintObsolete(HINGE_USE_OBSOLETE_SOLVER),
+m_useReferenceFrameA(false)
 {
+	m_referenceSign = m_useReferenceFrameA ? btScalar(-1.f) : btScalar(1.f);
 }
 
 //-----------------------------------------------------------------------------
 
 btHingeConstraint::btHingeConstraint(btRigidBody& rbA,btRigidBody& rbB, const btVector3& pivotInA,const btVector3& pivotInB,
-									 btVector3& axisInA,btVector3& axisInB)
+									 btVector3& axisInA,btVector3& axisInB, bool useReferenceFrameA)
 									 :btTypedConstraint(HINGE_CONSTRAINT_TYPE, rbA,rbB),
 									 m_angularOnly(false),
 									 m_enableAngularMotor(false),
-									 m_useSolveConstraintObsolete(HINGE_USE_OBSOLETE_SOLVER)
+									 m_useSolveConstraintObsolete(HINGE_USE_OBSOLETE_SOLVER),
+									 m_useReferenceFrameA(useReferenceFrameA)
 {
 	m_rbAFrame.getOrigin() = pivotInA;
 	
@@ -82,14 +85,15 @@ btHingeConstraint::btHingeConstraint(btRigidBody& rbA,btRigidBody& rbB, const bt
 	m_relaxationFactor = 1.0f;
 	m_limitSoftness = 0.9f;
 	m_solveLimit = false;
-
+	m_referenceSign = m_useReferenceFrameA ? btScalar(-1.f) : btScalar(1.f);
 }
 
 //-----------------------------------------------------------------------------
 
-btHingeConstraint::btHingeConstraint(btRigidBody& rbA,const btVector3& pivotInA,btVector3& axisInA)
+btHingeConstraint::btHingeConstraint(btRigidBody& rbA,const btVector3& pivotInA,btVector3& axisInA, bool useReferenceFrameA)
 :btTypedConstraint(HINGE_CONSTRAINT_TYPE, rbA), m_angularOnly(false), m_enableAngularMotor(false), 
-m_useSolveConstraintObsolete(HINGE_USE_OBSOLETE_SOLVER)
+m_useSolveConstraintObsolete(HINGE_USE_OBSOLETE_SOLVER),
+m_useReferenceFrameA(useReferenceFrameA)
 {
 
 	// since no frame is given, assume this to be zero angle and just pick rb transform axis
@@ -121,16 +125,18 @@ m_useSolveConstraintObsolete(HINGE_USE_OBSOLETE_SOLVER)
 	m_relaxationFactor = 1.0f;
 	m_limitSoftness = 0.9f;
 	m_solveLimit = false;
+	m_referenceSign = m_useReferenceFrameA ? btScalar(-1.f) : btScalar(1.f);
 }
 
 //-----------------------------------------------------------------------------
 
 btHingeConstraint::btHingeConstraint(btRigidBody& rbA,btRigidBody& rbB, 
-								     const btTransform& rbAFrame, const btTransform& rbBFrame)
+								     const btTransform& rbAFrame, const btTransform& rbBFrame, bool useReferenceFrameA)
 :btTypedConstraint(HINGE_CONSTRAINT_TYPE, rbA,rbB),m_rbAFrame(rbAFrame),m_rbBFrame(rbBFrame),
 m_angularOnly(false),
 m_enableAngularMotor(false),
-m_useSolveConstraintObsolete(HINGE_USE_OBSOLETE_SOLVER)
+m_useSolveConstraintObsolete(HINGE_USE_OBSOLETE_SOLVER),
+m_useReferenceFrameA(useReferenceFrameA)
 {
 	//start with free
 	m_lowerLimit = btScalar(1e30);
@@ -139,15 +145,17 @@ m_useSolveConstraintObsolete(HINGE_USE_OBSOLETE_SOLVER)
 	m_relaxationFactor = 1.0f;
 	m_limitSoftness = 0.9f;
 	m_solveLimit = false;
+	m_referenceSign = m_useReferenceFrameA ? btScalar(-1.f) : btScalar(1.f);
 }			
 
 //-----------------------------------------------------------------------------
 
-btHingeConstraint::btHingeConstraint(btRigidBody& rbA, const btTransform& rbAFrame)
+btHingeConstraint::btHingeConstraint(btRigidBody& rbA, const btTransform& rbAFrame, bool useReferenceFrameA)
 :btTypedConstraint(HINGE_CONSTRAINT_TYPE, rbA),m_rbAFrame(rbAFrame),m_rbBFrame(rbAFrame),
 m_angularOnly(false),
 m_enableAngularMotor(false),
-m_useSolveConstraintObsolete(HINGE_USE_OBSOLETE_SOLVER)
+m_useSolveConstraintObsolete(HINGE_USE_OBSOLETE_SOLVER),
+m_useReferenceFrameA(useReferenceFrameA)
 {
 	///not providing rigidbody B means implicitly using worldspace for body B
 
@@ -160,6 +168,7 @@ m_useSolveConstraintObsolete(HINGE_USE_OBSOLETE_SOLVER)
 	m_relaxationFactor = 1.0f;
 	m_limitSoftness = 0.9f;
 	m_solveLimit = false;
+	m_referenceSign = m_useReferenceFrameA ? btScalar(-1.f) : btScalar(1.f);
 }
 
 //-----------------------------------------------------------------------------
@@ -365,7 +374,7 @@ void btHingeConstraint::getInfo2 (btConstraintInfo2* info)
 	int limit = 0;
 	if(getSolveLimit())
 	{
-		limit_err = m_correction;
+		limit_err = m_correction * m_referenceSign;
 		limit = (limit_err > btScalar(0.0)) ? 1 : 2;
 	}
 	// if the hinge has joint limits or motor, add in the extra row
@@ -397,7 +406,7 @@ void btHingeConstraint::getInfo2 (btConstraintInfo2* info)
 		{
             info->cfm[srow] = btScalar(0.0); 
 			btScalar mot_fact = getMotorFactor(m_hingeAngle, lostop, histop, m_motorTargetVelocity, info->fps * info->erp);
-			info->m_constraintError[srow] += mot_fact * m_motorTargetVelocity;
+			info->m_constraintError[srow] += mot_fact * m_motorTargetVelocity * m_referenceSign;
 			info->m_lowerLimit[srow] = - m_maxMotorImpulse;
 			info->m_upperLimit[srow] =   m_maxMotorImpulse;
 		}
@@ -621,8 +630,8 @@ btScalar btHingeConstraint::getHingeAngle()
 	const btVector3 refAxis0  = getRigidBodyA().getCenterOfMassTransform().getBasis() * m_rbAFrame.getBasis().getColumn(0);
 	const btVector3 refAxis1  = getRigidBodyA().getCenterOfMassTransform().getBasis() * m_rbAFrame.getBasis().getColumn(1);
 	const btVector3 swingAxis = getRigidBodyB().getCenterOfMassTransform().getBasis() * m_rbBFrame.getBasis().getColumn(1);
-
-	return btAtan2Fast( swingAxis.dot(refAxis0), swingAxis.dot(refAxis1)  );
+	btScalar angle = btAtan2Fast(swingAxis.dot(refAxis0), swingAxis.dot(refAxis1));
+	return m_referenceSign * angle;
 }
 
 //-----------------------------------------------------------------------------

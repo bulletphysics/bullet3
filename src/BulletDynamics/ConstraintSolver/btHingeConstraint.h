@@ -54,22 +54,24 @@ public:
 
 	btScalar	m_accLimitImpulse;
 	btScalar	m_hingeAngle;
+	btScalar    m_referenceSign;
 
 	bool		m_angularOnly;
 	bool		m_enableAngularMotor;
 	bool		m_solveLimit;
-	bool	m_useSolveConstraintObsolete;
+	bool		m_useSolveConstraintObsolete;
+	bool		m_useReferenceFrameA;
 
 	
 public:
 
-	btHingeConstraint(btRigidBody& rbA,btRigidBody& rbB, const btVector3& pivotInA,const btVector3& pivotInB, btVector3& axisInA,btVector3& axisInB);
+	btHingeConstraint(btRigidBody& rbA,btRigidBody& rbB, const btVector3& pivotInA,const btVector3& pivotInB, btVector3& axisInA,btVector3& axisInB, bool useReferenceFrameA = false);
 
-	btHingeConstraint(btRigidBody& rbA,const btVector3& pivotInA,btVector3& axisInA);
+	btHingeConstraint(btRigidBody& rbA,const btVector3& pivotInA,btVector3& axisInA, bool useReferenceFrameA = false);
 	
-	btHingeConstraint(btRigidBody& rbA,btRigidBody& rbB, const btTransform& rbAFrame, const btTransform& rbBFrame);
+	btHingeConstraint(btRigidBody& rbA,btRigidBody& rbB, const btTransform& rbAFrame, const btTransform& rbBFrame, bool useReferenceFrameA = false);
 
-	btHingeConstraint(btRigidBody& rbA,const btTransform& rbAFrame);
+	btHingeConstraint(btRigidBody& rbA,const btTransform& rbAFrame, bool useReferenceFrameA = false);
 
 	btHingeConstraint();
 
@@ -92,16 +94,16 @@ public:
 		return m_rbB;
 	}
 
-	btRigidBody& getRigidBodyA()
-	{
-		return m_rbA;
-	}
-	btRigidBody& getRigidBodyB()
-	{
-		return m_rbB;
-	}
+	btRigidBody& getRigidBodyA()	
+	{		
+		return m_rbA;	
+	}	
 
-
+	btRigidBody& getRigidBodyB()	
+	{		
+		return m_rbB;	
+	}	
+	
 	void	setAngularOnly(bool angularOnly)
 	{
 		m_angularOnly = angularOnly;
