@@ -28,8 +28,8 @@ m_shapeB(shapeB)
 
 btVector3 btMinkowskiSumShape::localGetSupportingVertexWithoutMargin(const btVector3& vec)const
 {
-	btVector3 supVertexA = m_transA(m_shapeA->localGetSupportingVertexWithoutMargin(-vec*m_transA.getBasis()));
-	btVector3 supVertexB = m_transB(m_shapeB->localGetSupportingVertexWithoutMargin(vec*m_transB.getBasis()));
+	btVector3 supVertexA = m_transA(m_shapeA->localGetSupportingVertexWithoutMargin(vec*m_transA.getBasis()));
+	btVector3 supVertexB = m_transB(m_shapeB->localGetSupportingVertexWithoutMargin(-vec*m_transB.getBasis()));
 	return  supVertexA - supVertexB;
 }
 
