@@ -24,7 +24,7 @@ subject to the following restrictions:
 #include "BulletCollision/CollisionShapes/btSphereShape.h"
 #include "BulletCollision/CollisionShapes/btCompoundShape.h"
 #include "BulletCollision/CollisionShapes/btUniformScalingShape.h"
-
+#include "BulletDynamics/ConstraintSolver/btConstraintSolver.h"
 #include "GL_ShapeDrawer.h"
 #include "LinearMath/btQuickprof.h"
 #include "LinearMath/btDefaultMotionState.h"
@@ -1311,6 +1311,7 @@ void	DemoApplication::clientResetScene()
 	}
 
 	m_dynamicsWorld->getBroadphase()->resetPool(getDynamicsWorld()->getDispatcher());
+	m_dynamicsWorld->getConstraintSolver()->reset();
 	
 	for ( i=0;i<copyArray.size();i++)
 	{
