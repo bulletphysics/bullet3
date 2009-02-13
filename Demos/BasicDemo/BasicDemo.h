@@ -57,6 +57,8 @@ class BasicDemo : public DemoApplication
 	virtual void clientMoveAndDisplay();
 
 	virtual void displayCallback();
+
+	virtual void keyboardCallback(unsigned char key, int x, int y);
 	
 	static DemoApplication* Create()
 	{

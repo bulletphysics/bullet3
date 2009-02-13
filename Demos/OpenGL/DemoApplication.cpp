@@ -1269,6 +1269,7 @@ void	DemoApplication::clientResetScene()
 		numObjects = m_dynamicsWorld->getNumCollisionObjects();
 	}
 
+	///create a copy of the array, not a reference!
 	btCollisionObjectArray copyArray = m_dynamicsWorld->getCollisionObjectArray();
 
 	for (i=0;i<copyArray.size();i++)
@@ -1297,8 +1298,8 @@ void	DemoApplication::clientResetScene()
 				colObj->setDeactivationTime(0);
 				//colObj->setActivationState(WANTS_DEACTIVATION);
 			}
-			//removed cached contact points
-			//m_dynamicsWorld->getBroadphase()->getOverlappingPairCache()->cleanProxyFromPairs(colObj->getBroadphaseHandle(),getDynamicsWorld()->getDispatcher());
+			//removed cached contact points (this is not necessary if all objects have been removed from the dynamics world)
+			m_dynamicsWorld->getBroadphase()->getOverlappingPairCache()->cleanProxyFromPairs(colObj->getBroadphaseHandle(),getDynamicsWorld()->getDispatcher());
 
 			btRigidBody* body = btRigidBody::upcast(colObj);
 			if (body && !body->isStaticObject())
@@ -1310,6 +1311,7 @@ void	DemoApplication::clientResetScene()
 
 	}
 
+	///reset some internal cached data in the broadphase
 	m_dynamicsWorld->getBroadphase()->resetPool(getDynamicsWorld()->getDispatcher());
 	m_dynamicsWorld->getConstraintSolver()->reset();
 	

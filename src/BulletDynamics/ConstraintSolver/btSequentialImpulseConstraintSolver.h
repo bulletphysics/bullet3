@@ -30,6 +30,7 @@ class btIDebugDraw;
 ///Applies impulses for combined restitution and penetration recovery and to simulate friction
 class btSequentialImpulseConstraintSolver : public btConstraintSolver
 {
+protected:
 
 	btAlignedObjectArray<btSolverBody>	m_tmpSolverBodyPool;
 	btConstraintArray			m_tmpSolverContactConstraintPool;
@@ -38,7 +39,6 @@ class btSequentialImpulseConstraintSolver : public btConstraintSolver
 	btAlignedObjectArray<int>	m_orderTmpConstraintPool;
 	btAlignedObjectArray<int>	m_orderFrictionConstraintPool;
 
-protected:
 	btSolverConstraint&	addFrictionConstraint(const btVector3& normalAxis,int solverBodyIdA,int solverBodyIdB,int frictionIndex,btManifoldPoint& cp,const btVector3& rel_pos1,const btVector3& rel_pos2,btCollisionObject* colObj0,btCollisionObject* colObj1, btScalar relaxation);
 	
 	///m_btSeed2 is used for re-arranging the constraint rows. improves convergence/quality of friction
@@ -46,6 +46,8 @@ protected:
 
 	void	initSolverBody(btSolverBody* solverBody, btCollisionObject* collisionObject);
 	btScalar restitutionCurve(btScalar rel_vel, btScalar restitution);
+
+	void	convertContact(btPersistentManifold* manifold,const btContactSolverInfo& infoGlobal);
 
 	void	resolveSplitPenetrationImpulseCacheFriendly(
         btSolverBody& body1,

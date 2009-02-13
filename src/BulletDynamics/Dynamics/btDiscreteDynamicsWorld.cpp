@@ -665,8 +665,11 @@ void	btDiscreteDynamicsWorld::solveConstraints(btContactSolverInfo& solverInfo)
 		{
 			if (islandId<0)
 			{
-				///we don't split islands, so all constraints/contact manifolds/bodies are passed into the solver regardless the island id
-				m_solver->solveGroup( bodies,numBodies,manifolds, numManifolds,&m_sortedConstraints[0],m_numConstraints,m_solverInfo,m_debugDrawer,m_stackAlloc,m_dispatcher);
+				if (numManifolds + m_numConstraints)
+				{
+					///we don't split islands, so all constraints/contact manifolds/bodies are passed into the solver regardless the island id
+					m_solver->solveGroup( bodies,numBodies,manifolds, numManifolds,&m_sortedConstraints[0],m_numConstraints,m_solverInfo,m_debugDrawer,m_stackAlloc,m_dispatcher);
+				}
 			} else
 			{
 					//also add all non-contact constraints/joints for this island

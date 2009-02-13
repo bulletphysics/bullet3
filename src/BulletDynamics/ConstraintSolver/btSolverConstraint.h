@@ -44,10 +44,12 @@ ATTRIBUTE_ALIGNED16 (struct)	btSolverConstraint
 	
 	
 	btScalar	m_friction;
-	btScalar	m_restitution;
 	btScalar	m_jacDiagABInv;
-	btScalar	m_penetration;
-
+	union
+	{
+		int	m_numConsecutiveRowsPerKernel;
+		btScalar	m_unusedPadding0;
+	};
 
 	union
 	{

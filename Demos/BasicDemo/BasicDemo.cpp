@@ -13,17 +13,27 @@ subject to the following restrictions:
 3. This notice may not be removed or altered from any source distribution.
 */
 
+#define LARGE_DEMO 0
 
-///create 125 (5x5x5) dynamic object
-#define ARRAY_SIZE_X 5
-#define ARRAY_SIZE_Y 5
-#define ARRAY_SIZE_Z 5
+#if LARGE_DEMO
+	///create 512 (8x8x8) dynamic object
+	#define ARRAY_SIZE_X 8
+	#define ARRAY_SIZE_Y 8
+	#define ARRAY_SIZE_Z 8
+#else
+	///create 125 (5x5x5) dynamic object
+	#define ARRAY_SIZE_X 5
+	#define ARRAY_SIZE_Y 5
+	#define ARRAY_SIZE_Z 5
+#endif
+
 
 //maximum number of objects (and allow user to shoot additional boxes)
 #define MAX_PROXIES (ARRAY_SIZE_X*ARRAY_SIZE_Y*ARRAY_SIZE_Z + 1024)
 
 ///scaling of the objects (0.1 = 20 centimeter boxes )
-#define SCALING 0.1
+//#define SCALING 0.1
+#define SCALING 1
 #define START_POS_X -5
 #define START_POS_Y -5
 #define START_POS_Z -3
@@ -34,6 +44,9 @@ subject to the following restrictions:
 #include "btBulletDynamicsCommon.h"
 #include <stdio.h> //printf debugging
 
+#include "BulletDynamics/ConstraintSolver/btParallelBatchConstraintSolver.h"
+#include "BulletDynamics/ConstraintSolver/btParallelBatchConstraintSolver2.h"
+#include "BulletCollision/CollisionDispatch/btSimulationIslandManager.h"
 
 void BasicDemo::clientMoveAndDisplay()
 {
@@ -46,6 +59,10 @@ void BasicDemo::clientMoveAndDisplay()
 	if (m_dynamicsWorld)
 	{
 		m_dynamicsWorld->stepSimulation(ms / 1000000.f);
+		if (m_idle)
+		{
+			CProfileManager::dumpAll();
+		}
 		//optional but useful: debug drawing
 		m_dynamicsWorld->debugDrawWorld();
 	}
@@ -75,6 +92,10 @@ void BasicDemo::displayCallback(void) {
 }
 
 
+static btSequentialImpulseConstraintSolver* sDefSeqImpSolver = 0;
+static btParallelBatchConstraintSolver* sParallelBatchSolver = 0;
+static btParallelBatchConstraintSolver2* sParallelBatchSolver2 = 0;
+
 
 
 
@@ -94,22 +115,31 @@ void	BasicDemo::initPhysics()
 	m_broadphase = new btDbvtBroadphase();
 
 	///the default constraint solver. For parallel processing you can use a different solver (see Extras/BulletMultiThreaded)
-	btSequentialImpulseConstraintSolver* sol = new btSequentialImpulseConstraintSolver;
-	m_solver = sol;
+	sDefSeqImpSolver = new btSequentialImpulseConstraintSolver;
+	// create parallel batch solver for tests 
+	sParallelBatchSolver = new btParallelBatchConstraintSolver();
+	sParallelBatchSolver2 = new btParallelBatchConstraintSolver2();
+	
+	// start with parallel batch solver
+	m_solver = sParallelBatchSolver;
 
-	m_dynamicsWorld = new btDiscreteDynamicsWorld(m_dispatcher,m_broadphase,m_solver,m_collisionConfiguration);
+	btDiscreteDynamicsWorld* ddw = new btDiscreteDynamicsWorld(m_dispatcher,m_broadphase,m_solver,m_collisionConfiguration);
+	m_dynamicsWorld = ddw;
+	ddw->getSimulationIslandManager()->setSplitIslands(false);
 
 	m_dynamicsWorld->setGravity(btVector3(0,-10,0));
 
 	///create a few basic rigid bodies
-	btCollisionShape* groundShape = new btBoxShape(btVector3(btScalar(50.),btScalar(50.),btScalar(50.)));
+	btCollisionShape* groundShape = new btBoxShape(btVector3(btScalar(30.),btScalar(1.),btScalar(30.)));
+//	btCollisionShape* groundShape = new btBoxShape(btVector3(btScalar(50.),btScalar(50.),btScalar(50.)));
 //	btCollisionShape* groundShape = new btStaticPlaneShape(btVector3(0,1,0),50);
 	
 	m_collisionShapes.push_back(groundShape);
 
 	btTransform groundTransform;
 	groundTransform.setIdentity();
-	groundTransform.setOrigin(btVector3(0,-50,0));
+	groundTransform.setOrigin(btVector3(0,-5,0));
+//	groundTransform.setOrigin(btVector3(0,-50,0));
 
 	//We can also use DemoApplication::localCreateRigidBody, but for clarity it is provided here:
 	{
@@ -215,7 +245,9 @@ void	BasicDemo::exitPhysics()
 
 	delete m_dynamicsWorld;
 	
-	delete m_solver;
+	m_solver = 0;
+	delete sDefSeqImpSolver;
+	delete sParallelBatchSolver;
 	
 	delete m_broadphase;
 	
@@ -227,5 +259,49 @@ void	BasicDemo::exitPhysics()
 }
 
 
+
+void BasicDemo::keyboardCallback(unsigned char key, int x, int y)
+{
+	(void)x;
+	(void)y;
+	switch (key) 
+	{
+		case 'q' : 
+			exitPhysics();
+			break;
+		case 'S' :
+			{
+				btConstraintSolver* curr_solver = m_dynamicsWorld->getConstraintSolver();
+				btDiscreteDynamicsWorld* pDdw = (btDiscreteDynamicsWorld*)m_dynamicsWorld;
+				if(curr_solver == sDefSeqImpSolver)
+				{
+					static bool toggle = true;
+					toggle=!toggle;
+					if (toggle)
+					{
+						pDdw->setConstraintSolver(sParallelBatchSolver);
+						pDdw->getSimulationIslandManager()->setSplitIslands(false);
+						printf("\nUsing ParallelBatch constraint solver\n");
+					} else
+					{
+						pDdw->setConstraintSolver(sParallelBatchSolver2);
+						pDdw->getSimulationIslandManager()->setSplitIslands(false);
+						printf("\nUsing ParallelBatch constraint solver2\n");
+
+					}
+				}
+				else
+				{
+					m_dynamicsWorld->setConstraintSolver(sDefSeqImpSolver);
+					pDdw->getSimulationIslandManager()->setSplitIslands(true);
+					printf("\nUsing default SequentialImpulse constraint solver\n");
+				}
+			}
+			break;
+		default : 
+			break;
+	}
+	DemoApplication::keyboardCallback(key, x, y);
+}
 
 
