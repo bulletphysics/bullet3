@@ -272,12 +272,12 @@ btSolverConstraint&	btSequentialImpulseConstraintSolver::addFrictionConstraint(c
 	{
 		btVector3 ftorqueAxis1 = rel_pos1.cross(solverConstraint.m_contactNormal);
 		solverConstraint.m_relpos1CrossNormal = ftorqueAxis1;
-		solverConstraint.m_angularComponentA = body0 ? body0->getInvInertiaTensorWorld()*ftorqueAxis1 : btVector3(0,0,0);
+		solverConstraint.m_angularComponentA = body0 ? body0->getInvInertiaTensorWorld()*ftorqueAxis1*body0->getAngularFactor() : btVector3(0,0,0);
 	}
 	{
 		btVector3 ftorqueAxis1 = rel_pos2.cross(-solverConstraint.m_contactNormal);
 		solverConstraint.m_relpos2CrossNormal = ftorqueAxis1;
-		solverConstraint.m_angularComponentB = body1 ? body1->getInvInertiaTensorWorld()*ftorqueAxis1 : btVector3(0,0,0);
+		solverConstraint.m_angularComponentB = body1 ? body1->getInvInertiaTensorWorld()*ftorqueAxis1*body1->getAngularFactor() : btVector3(0,0,0);
 	}
 
 #ifdef COMPUTE_IMPULSE_DENOM
@@ -417,9 +417,9 @@ void	btSequentialImpulseConstraintSolver::convertContact(btPersistentManifold* m
 				solverConstraint.m_originalContactPoint = &cp;
 
 				btVector3 torqueAxis0 = rel_pos1.cross(cp.m_normalWorldOnB);
-				solverConstraint.m_angularComponentA = rb0 ? rb0->getInvInertiaTensorWorld()*torqueAxis0 : btVector3(0,0,0);
+				solverConstraint.m_angularComponentA = rb0 ? rb0->getInvInertiaTensorWorld()*torqueAxis0*rb0->getAngularFactor() : btVector3(0,0,0);
 				btVector3 torqueAxis1 = rel_pos2.cross(cp.m_normalWorldOnB);		
-				solverConstraint.m_angularComponentB = rb1 ? rb1->getInvInertiaTensorWorld()*-torqueAxis1 : btVector3(0,0,0);
+				solverConstraint.m_angularComponentB = rb1 ? rb1->getInvInertiaTensorWorld()*-torqueAxis1*rb1->getAngularFactor() : btVector3(0,0,0);
 				{
 #ifdef COMPUTE_IMPULSE_DENOM
 					btScalar denom0 = rb0->computeImpulseDenominator(pos1,cp.m_normalWorldOnB);
@@ -718,11 +718,11 @@ btScalar btSequentialImpulseConstraintSolver::solveGroupCacheFriendlySetup(btCol
 
 						{
 							const btVector3& ftorqueAxis1 = solverConstraint.m_relpos1CrossNormal;
-							solverConstraint.m_angularComponentA = constraint->getRigidBodyA().getInvInertiaTensorWorld()*ftorqueAxis1;
+							solverConstraint.m_angularComponentA = constraint->getRigidBodyA().getInvInertiaTensorWorld()*ftorqueAxis1*constraint->getRigidBodyA().getAngularFactor();
 						}
 						{
 							const btVector3& ftorqueAxis2 = solverConstraint.m_relpos2CrossNormal;
-							solverConstraint.m_angularComponentB = constraint->getRigidBodyB().getInvInertiaTensorWorld()*ftorqueAxis2;
+							solverConstraint.m_angularComponentB = constraint->getRigidBodyB().getInvInertiaTensorWorld()*ftorqueAxis2*constraint->getRigidBodyB().getAngularFactor();
 						}
 
 						{
