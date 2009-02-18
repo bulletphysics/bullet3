@@ -52,6 +52,7 @@ namespace
 	int	gDrawAabb;
 	int	gWireFrame;
 	int gHelpText;
+	int gDebugConstraints;
 	int	gDebugContacts;
 	int	gDrawTextures=1;
 	int gDrawShadows=0;
@@ -80,6 +81,14 @@ void	setDefaultSettings()
 	gDrawAabb=0;
 	gWireFrame=0;
 	gDebugContacts=0;
+	//enable constraint debug visualization for first demo, only if user hasn't overridden the setting
+	if (testSelection>1)
+	{
+		gDebugConstraints=0;
+	} else
+	{
+		 gDebugConstraints=1;
+	}
 	gHelpText = 0;
 	gDrawTextures=1;
 	gDrawShadows=0;
@@ -118,6 +127,14 @@ void	ResetScene()
 void	NextScene()
 {
 	testSelection++;
+	if (testSelection>1)
+        {
+                gDebugConstraints=0;
+        } else
+        {
+                 gDebugConstraints=1;
+        }
+
 	if(testSelection>23)
 		testSelection=0;
 	if (glui)
@@ -216,6 +233,13 @@ void SimulationLoop()
 	{
 		demo->setDebugMode(demo->getDebugMode() |btIDebugDraw::DBG_NoHelpText);
 	}
+	if (gDebugConstraints)
+	{
+		 demo->setDebugMode(demo->getDebugMode() |btIDebugDraw::DBG_DrawConstraints+btIDebugDraw::DBG_DrawConstraintLimits);
+	} else
+	{
+		demo->setDebugMode(demo->getDebugMode() & (~btIDebugDraw::DBG_DrawConstraints+btIDebugDraw::DBG_DrawConstraintLimits));
+	}
 	if (gDebugContacts)
 	{
 		demo->setDebugMode(demo->getDebugMode() |btIDebugDraw::DBG_DrawContactPoints);
@@ -281,6 +305,14 @@ void SimulationLoop()
 	}
 	if (testSelection != testIndex)
 	{
+		if (testSelection>1)
+	        {
+                gDebugConstraints=0;
+        	} else
+        	{
+               	  gDebugConstraints=1;
+        	}
+
 		testIndex = testSelection;
 		if (demo->getDynamicsWorld() && demo->getDynamicsWorld()->getDebugDrawer())
 			delete demo->getDynamicsWorld()->getDebugDrawer();
@@ -464,6 +496,7 @@ int main(int argc, char** argv)
 	glui->add_checkbox_to_panel(drawPanel, "AABBs", &gDrawAabb);
 	glui->add_checkbox_to_panel(drawPanel, "Wireframe", &gWireFrame);
 	glui->add_checkbox_to_panel(drawPanel, "Contacts", &gDebugContacts);
+	glui->add_checkbox_to_panel(drawPanel, "Constraints", &gDebugConstraints);
 
 	glui->add_checkbox_to_panel(drawPanel, "Textures", &gDrawTextures);
 	glui->add_checkbox_to_panel(drawPanel, "Shadows", &gDrawShadows);

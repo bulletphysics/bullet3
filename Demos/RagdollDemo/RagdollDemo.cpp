@@ -16,6 +16,8 @@ subject to the following restrictions:
 Written by: Marten Svanfeldt
 */
 
+#define CONSTRAINT_DEBUG_SIZE 0.2f
+
 
 #include "btBulletDynamicsCommon.h"
 #include "GlutStuff.h"
@@ -197,6 +199,8 @@ public:
 		hingeC =  new btHingeConstraint(*m_bodies[BODYPART_PELVIS], *m_bodies[BODYPART_SPINE], localA, localB);
 		hingeC->setLimit(btScalar(-M_PI_4), btScalar(M_PI_2));
 		m_joints[JOINT_PELVIS_SPINE] = hingeC;
+		hingeC->setDbgDrawSize(CONSTRAINT_DEBUG_SIZE);
+
 		m_ownerWorld->addConstraint(m_joints[JOINT_PELVIS_SPINE], true);
 
 
@@ -206,6 +210,8 @@ public:
 		coneC = new btConeTwistConstraint(*m_bodies[BODYPART_SPINE], *m_bodies[BODYPART_HEAD], localA, localB);
 		coneC->setLimit(M_PI_4, M_PI_4, M_PI_2);
 		m_joints[JOINT_SPINE_HEAD] = coneC;
+		coneC->setDbgDrawSize(CONSTRAINT_DEBUG_SIZE);
+
 		m_ownerWorld->addConstraint(m_joints[JOINT_SPINE_HEAD], true);
 
 
@@ -215,6 +221,8 @@ public:
 		coneC = new btConeTwistConstraint(*m_bodies[BODYPART_PELVIS], *m_bodies[BODYPART_LEFT_UPPER_LEG], localA, localB);
 		coneC->setLimit(M_PI_4, M_PI_4, 0);
 		m_joints[JOINT_LEFT_HIP] = coneC;
+		coneC->setDbgDrawSize(CONSTRAINT_DEBUG_SIZE);
+
 		m_ownerWorld->addConstraint(m_joints[JOINT_LEFT_HIP], true);
 
 		localA.setIdentity(); localB.setIdentity();
@@ -223,6 +231,8 @@ public:
 		hingeC =  new btHingeConstraint(*m_bodies[BODYPART_LEFT_UPPER_LEG], *m_bodies[BODYPART_LEFT_LOWER_LEG], localA, localB);
 		hingeC->setLimit(btScalar(0), btScalar(M_PI_2));
 		m_joints[JOINT_LEFT_KNEE] = hingeC;
+		hingeC->setDbgDrawSize(CONSTRAINT_DEBUG_SIZE);
+
 		m_ownerWorld->addConstraint(m_joints[JOINT_LEFT_KNEE], true);
 
 
@@ -232,6 +242,8 @@ public:
 		coneC = new btConeTwistConstraint(*m_bodies[BODYPART_PELVIS], *m_bodies[BODYPART_RIGHT_UPPER_LEG], localA, localB);
 		coneC->setLimit(M_PI_4, M_PI_4, 0);
 		m_joints[JOINT_RIGHT_HIP] = coneC;
+		coneC->setDbgDrawSize(CONSTRAINT_DEBUG_SIZE);
+
 		m_ownerWorld->addConstraint(m_joints[JOINT_RIGHT_HIP], true);
 
 		localA.setIdentity(); localB.setIdentity();
@@ -240,6 +252,8 @@ public:
 		hingeC =  new btHingeConstraint(*m_bodies[BODYPART_RIGHT_UPPER_LEG], *m_bodies[BODYPART_RIGHT_LOWER_LEG], localA, localB);
 		hingeC->setLimit(btScalar(0), btScalar(M_PI_2));
 		m_joints[JOINT_RIGHT_KNEE] = hingeC;
+		hingeC->setDbgDrawSize(CONSTRAINT_DEBUG_SIZE);
+
 		m_ownerWorld->addConstraint(m_joints[JOINT_RIGHT_KNEE], true);
 
 
@@ -248,6 +262,8 @@ public:
 		localB.getBasis().setEulerZYX(0,0,M_PI_2); localB.setOrigin(btVector3(btScalar(0.), btScalar(-0.18), btScalar(0.)));
 		coneC = new btConeTwistConstraint(*m_bodies[BODYPART_SPINE], *m_bodies[BODYPART_LEFT_UPPER_ARM], localA, localB);
 		coneC->setLimit(M_PI_2, M_PI_2, 0);
+		coneC->setDbgDrawSize(CONSTRAINT_DEBUG_SIZE);
+
 		m_joints[JOINT_LEFT_SHOULDER] = coneC;
 		m_ownerWorld->addConstraint(m_joints[JOINT_LEFT_SHOULDER], true);
 
@@ -258,6 +274,8 @@ public:
 //		hingeC->setLimit(btScalar(-M_PI_2), btScalar(0));
 		hingeC->setLimit(btScalar(0), btScalar(M_PI_2));
 		m_joints[JOINT_LEFT_ELBOW] = hingeC;
+		hingeC->setDbgDrawSize(CONSTRAINT_DEBUG_SIZE);
+
 		m_ownerWorld->addConstraint(m_joints[JOINT_LEFT_ELBOW], true);
 
 
@@ -268,6 +286,8 @@ public:
 		coneC = new btConeTwistConstraint(*m_bodies[BODYPART_SPINE], *m_bodies[BODYPART_RIGHT_UPPER_ARM], localA, localB);
 		coneC->setLimit(M_PI_2, M_PI_2, 0);
 		m_joints[JOINT_RIGHT_SHOULDER] = coneC;
+		coneC->setDbgDrawSize(CONSTRAINT_DEBUG_SIZE);
+
 		m_ownerWorld->addConstraint(m_joints[JOINT_RIGHT_SHOULDER], true);
 
 		localA.setIdentity(); localB.setIdentity();
@@ -277,6 +297,8 @@ public:
 //		hingeC->setLimit(btScalar(-M_PI_2), btScalar(0));
 		hingeC->setLimit(btScalar(0), btScalar(M_PI_2));
 		m_joints[JOINT_RIGHT_ELBOW] = hingeC;
+		hingeC->setDbgDrawSize(CONSTRAINT_DEBUG_SIZE);
+
 		m_ownerWorld->addConstraint(m_joints[JOINT_RIGHT_ELBOW], true);
 	}
 

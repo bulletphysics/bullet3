@@ -76,7 +76,7 @@ int main(int argc,char** argv)
 
 	/// Import Collada 1.4 Physics objects
 	/// also can pass filename in as argument
-	const char* filename = "boxc4d.dae";
+	const char* filename = "jenga.dae";
 	printf("argc=%i\n",argc);
 	{
 		for (int i=0;i<argc;i++)

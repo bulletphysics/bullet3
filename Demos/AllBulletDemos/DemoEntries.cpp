@@ -103,13 +103,13 @@ public:
 btDemoEntry g_demoEntries[] =
 {
 
-
+	{"ConstraintDemo",ConstraintDemo::Create},
 	{"ForkLift Demo",ForkLiftDemo::Create},
 	{"Ragdoll Demo",RagdollDemo::Create},
 	{"Basic Demo", BasicDemo::Create},	
 	{"Convex Decomposition",ConvexDecompositionDemo::Create},
 	{"Concave Moving", GimpactConcaveDemo::Create},
-	{"Dynamic Control Demo",MotorDemo::Create},
+//	{"Dynamic Control Demo",MotorDemo::Create},
 	//{"ConcaveDemo",ConcaveDemo::Create},
 	{"Concave Convexcast Demo",ConcaveConvexcastDemo::Create},
 	//	{"SoftBody Cloth",SoftDemo0::Create},

@@ -19,7 +19,7 @@ subject to the following restrictions:
 
 static btRigidBody s_fixed(0, 0,0);
 
-#define DEFAULT_DEBUGDRAW_SIZE btScalar(5.f)
+#define DEFAULT_DEBUGDRAW_SIZE btScalar(0.3f)
 
 btTypedConstraint::btTypedConstraint(btTypedConstraintType type)
 :m_userConstraintType(-1),
