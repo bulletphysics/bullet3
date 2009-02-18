@@ -25,6 +25,7 @@ Written by: Marcus Hennix
 //-----------------------------------------------------------------------------
 
 #define CONETWIST_USE_OBSOLETE_SOLVER false
+#define CONETWIST_DEF_FIX_THRESH btScalar(.05f)
 
 //-----------------------------------------------------------------------------
 
@@ -64,6 +65,7 @@ void btConeTwistConstraint::init()
 
 	setLimit(btScalar(1e30), btScalar(1e30), btScalar(1e30));
 	m_damping = btScalar(0.01);
+	m_fixThresh = CONETWIST_DEF_FIX_THRESH;
 }
 
 
@@ -80,12 +82,16 @@ void btConeTwistConstraint::getInfo1 (btConstraintInfo1* info)
 	{
 		info->m_numConstraintRows = 3;
 		info->nub = 3;
-		//calcAngleInfo();
 		calcAngleInfo2();
 		if(m_solveSwingLimit)
 		{
 			info->m_numConstraintRows++;
 			info->nub--;
+			if((m_swingSpan1 < m_fixThresh) && (m_swingSpan2 < m_fixThresh))
+			{
+				info->m_numConstraintRows++;
+				info->nub--;
+			}
 		}
 		if(m_solveTwistLimit)
 		{
@@ -139,34 +145,64 @@ void btConeTwistConstraint::getInfo2 (btConstraintInfo2* info)
 	// angular limits
 	if(m_solveSwingLimit)
 	{
-		ax1 = m_swingAxis * m_relaxationFactor * m_relaxationFactor;
-        btScalar *J1 = info->m_J1angularAxis;
-        btScalar *J2 = info->m_J2angularAxis;
-        J1[srow+0] = ax1[0];
-        J1[srow+1] = ax1[1];
-        J1[srow+2] = ax1[2];
-        J2[srow+0] = -ax1[0];
-        J2[srow+1] = -ax1[1];
-        J2[srow+2] = -ax1[2];
-		btScalar k = info->fps * m_biasFactor;
-		info->m_constraintError[srow] = k * m_swingCorrection;
-		info->cfm[srow] = 0.0f;
-		// m_swingCorrection is always positive or 0
-		info->m_lowerLimit[srow] = 0;
-		info->m_upperLimit[srow] = SIMD_INFINITY;
-		srow += info->rowskip;
+		btScalar *J1 = info->m_J1angularAxis;
+		btScalar *J2 = info->m_J2angularAxis;
+		if((m_swingSpan1 < m_fixThresh) && (m_swingSpan2 < m_fixThresh))
+		{
+			btTransform trA = m_rbA.getCenterOfMassTransform()*m_rbAFrame;
+			btVector3 p = trA.getBasis().getColumn(1);
+			btVector3 q = trA.getBasis().getColumn(2);
+			int srow1 = srow + info->rowskip;
+			J1[srow+0] = p[0];
+			J1[srow+1] = p[1];
+			J1[srow+2] = p[2];
+			J1[srow1+0] = q[0];
+			J1[srow1+1] = q[1];
+			J1[srow1+2] = q[2];
+			J2[srow+0] = -p[0];
+			J2[srow+1] = -p[1];
+			J2[srow+2] = -p[2];
+			J2[srow1+0] = -q[0];
+			J2[srow1+1] = -q[1];
+			J2[srow1+2] = -q[2];
+			btScalar fact = info->fps * m_relaxationFactor;
+			info->m_constraintError[srow] =   fact * m_swingAxis.dot(p);
+			info->m_constraintError[srow1] =  fact * m_swingAxis.dot(q);
+			info->m_lowerLimit[srow] = -SIMD_INFINITY;
+			info->m_upperLimit[srow] = SIMD_INFINITY;
+			info->m_lowerLimit[srow1] = -SIMD_INFINITY;
+			info->m_upperLimit[srow1] = SIMD_INFINITY;
+			srow = srow1 + info->rowskip;
+		}
+		else
+		{
+			ax1 = m_swingAxis * m_relaxationFactor * m_relaxationFactor;
+			J1[srow+0] = ax1[0];
+			J1[srow+1] = ax1[1];
+			J1[srow+2] = ax1[2];
+			J2[srow+0] = -ax1[0];
+			J2[srow+1] = -ax1[1];
+			J2[srow+2] = -ax1[2];
+			btScalar k = info->fps * m_biasFactor;
+			info->m_constraintError[srow] = k * m_swingCorrection;
+			info->cfm[srow] = 0.0f;
+			// m_swingCorrection is always positive or 0
+			info->m_lowerLimit[srow] = 0;
+			info->m_upperLimit[srow] = SIMD_INFINITY;
+			srow += info->rowskip;
+		}
 	}
 	if(m_solveTwistLimit)
 	{
 		ax1 = m_twistAxis * m_relaxationFactor * m_relaxationFactor;
-        btScalar *J1 = info->m_J1angularAxis;
-        btScalar *J2 = info->m_J2angularAxis;
-        J1[srow+0] = ax1[0];
-        J1[srow+1] = ax1[1];
-        J1[srow+2] = ax1[2];
-        J2[srow+0] = -ax1[0];
-        J2[srow+1] = -ax1[1];
-        J2[srow+2] = -ax1[2];
+		btScalar *J1 = info->m_J1angularAxis;
+		btScalar *J2 = info->m_J2angularAxis;
+		J1[srow+0] = ax1[0];
+		J1[srow+1] = ax1[1];
+		J1[srow+2] = ax1[2];
+		J2[srow+0] = -ax1[0];
+		J2[srow+1] = -ax1[1];
+		J2[srow+2] = -ax1[2];
 		btScalar k = info->fps * m_biasFactor;
 		info->m_constraintError[srow] = k * m_twistCorrection;
 		info->cfm[srow] = 0.0f;
@@ -573,7 +609,7 @@ void btConeTwistConstraint::calcAngleInfo2()
 		btQuaternion qABCone  = shortestArcQuat(vTwist, vConeNoTwist); qABCone.normalize();
 		btQuaternion qABTwist = qABCone.inverse() * qAB; qABTwist.normalize();
 
-		if (m_swingSpan1 >= btScalar(0.05f) && m_swingSpan2 >= btScalar(0.05f))
+		if (m_swingSpan1 >= m_fixThresh && m_swingSpan2 >= m_fixThresh)
 		{
 			btScalar swingAngle, swingLimit = 0; btVector3 swingAxis;
 			computeConeLimitInfo(qABCone, swingAngle, swingAxis, swingLimit);
@@ -612,6 +648,77 @@ void btConeTwistConstraint::calcAngleInfo2()
 		{
 			// you haven't set any limits;
 			// or you're trying to set at least one of the swing limits too small. (if so, do you really want a conetwist constraint?)
+			// anyway, we have either hinge or fixed joint
+			btVector3 ivA = getRigidBodyA().getCenterOfMassTransform().getBasis() * m_rbAFrame.getBasis().getColumn(0);
+			btVector3 jvA = getRigidBodyA().getCenterOfMassTransform().getBasis() * m_rbAFrame.getBasis().getColumn(1);
+			btVector3 kvA = getRigidBodyA().getCenterOfMassTransform().getBasis() * m_rbAFrame.getBasis().getColumn(2);
+			btVector3 ivB = getRigidBodyB().getCenterOfMassTransform().getBasis() * m_rbBFrame.getBasis().getColumn(0);
+			btVector3 target;
+			btScalar x = ivB.dot(ivA);
+			btScalar y = ivB.dot(jvA);
+			btScalar z = ivB.dot(kvA);
+			if((m_swingSpan1 < m_fixThresh) && (m_swingSpan2 < m_fixThresh))
+			{ // fixed. We'll need to add one more row to constraint
+				if((y != btScalar(0.f)) || (z != btScalar(0.f)))
+				{
+					m_solveSwingLimit = true;
+					m_swingAxis = -ivB.cross(ivA);
+				}
+			}
+			else
+			{
+				if(m_swingSpan1 < m_fixThresh)
+				{ // hinge around Y axis
+					if(y != btScalar(0.f))
+					{
+						m_solveSwingLimit = true;
+						if(m_swingSpan2 >= m_fixThresh)
+						{
+							y = btScalar(0.f);
+							btScalar span2 = btAtan2(z, x);
+							if(span2 > m_swingSpan2)
+							{
+								x = btCos(m_swingSpan2);
+								z = btSin(m_swingSpan2);
+							}
+							else if(span2 < -m_swingSpan2)
+							{
+								x =  btCos(m_swingSpan2);
+								z = -btSin(m_swingSpan2);
+							}
+						}
+					}
+				}
+				else
+				{ // hinge around Z axis
+					if(z != btScalar(0.f))
+					{
+						m_solveSwingLimit = true;
+						if(m_swingSpan1 >= m_fixThresh)
+						{
+							z = btScalar(0.f);
+							btScalar span1 = btAtan2(y, x);
+							if(span1 > m_swingSpan1)
+							{
+								x = btCos(m_swingSpan1);
+								y = btSin(m_swingSpan1);
+							}
+							else if(span1 < -m_swingSpan1)
+							{
+								x =  btCos(m_swingSpan1);
+								y = -btSin(m_swingSpan1);
+							}
+						}
+					}
+				}
+				target[0] = x * ivA[0] + y * jvA[0] + z * kvA[0];
+				target[1] = x * ivA[1] + y * jvA[1] + z * kvA[1];
+				target[2] = x * ivA[2] + y * jvA[2] + z * kvA[2];
+				target.normalize();
+				m_swingAxis = -ivB.cross(target);
+				m_swingCorrection = m_swingAxis.length();
+				m_swingAxis.normalize();
+			}
 		}
 
 		if (m_twistSpan >= btScalar(0.f))

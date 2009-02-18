@@ -48,6 +48,8 @@ public:
 	btScalar	m_swingSpan2;
 	btScalar	m_twistSpan;
 
+	btScalar	m_fixThresh;
+
 	btVector3   m_swingAxis;
 	btVector3	m_twistAxis;
 
@@ -195,6 +197,9 @@ public:
 	void enableMotor(bool b) { m_bMotorEnabled = b; }
 	void setMaxMotorImpulse(btScalar maxMotorImpulse) { m_maxMotorImpulse = maxMotorImpulse; m_bNormalizedMotorStrength = false; }
 	void setMaxMotorImpulseNormalized(btScalar maxMotorImpulse) { m_maxMotorImpulse = maxMotorImpulse; m_bNormalizedMotorStrength = true; }
+
+	btScalar getFixThresh() { return m_fixThresh; }
+	void setFixThresh(btScalar fixThresh) { m_fixThresh = fixThresh; }
 
 	// setMotorTarget:
 	// q: the desired rotation of bodyA wrt bodyB.
