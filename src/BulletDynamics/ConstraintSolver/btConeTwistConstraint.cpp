@@ -184,6 +184,7 @@ void btConeTwistConstraint::getInfo2 (btConstraintInfo2* info)
 			J2[srow+1] = -ax1[1];
 			J2[srow+2] = -ax1[2];
 			btScalar k = info->fps * m_biasFactor;
+
 			info->m_constraintError[srow] = k * m_swingCorrection;
 			info->cfm[srow] = 0.0f;
 			// m_swingCorrection is always positive or 0
@@ -659,7 +660,7 @@ void btConeTwistConstraint::calcAngleInfo2()
 			btScalar z = ivB.dot(kvA);
 			if((m_swingSpan1 < m_fixThresh) && (m_swingSpan2 < m_fixThresh))
 			{ // fixed. We'll need to add one more row to constraint
-				if((y != btScalar(0.f)) || (z != btScalar(0.f)))
+				if((!btFuzzyZero(y)) || (!(btFuzzyZero(z))))
 				{
 					m_solveSwingLimit = true;
 					m_swingAxis = -ivB.cross(ivA);
@@ -669,7 +670,7 @@ void btConeTwistConstraint::calcAngleInfo2()
 			{
 				if(m_swingSpan1 < m_fixThresh)
 				{ // hinge around Y axis
-					if(y != btScalar(0.f))
+					if(!(btFuzzyZero(y)))
 					{
 						m_solveSwingLimit = true;
 						if(m_swingSpan2 >= m_fixThresh)
@@ -691,7 +692,7 @@ void btConeTwistConstraint::calcAngleInfo2()
 				}
 				else
 				{ // hinge around Z axis
-					if(z != btScalar(0.f))
+					if(!btFuzzyZero(z))
 					{
 						m_solveSwingLimit = true;
 						if(m_swingSpan1 >= m_fixThresh)

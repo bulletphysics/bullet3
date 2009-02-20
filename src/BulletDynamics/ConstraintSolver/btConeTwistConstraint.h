@@ -122,7 +122,7 @@ public:
 		{
 		case 3:
 			{
-				m_swingSpan1 = limitValue;
+				m_twistSpan = limitValue;
 				break;
 			}
 		case 4:
@@ -132,7 +132,7 @@ public:
 			}
 		case 5:
 			{
-				m_twistSpan = limitValue;
+				m_swingSpan1 = limitValue;
 				break;
 			}
 		default:
@@ -141,7 +141,7 @@ public:
 		};
 	}
 
-	void	setLimit(btScalar _swingSpan1,btScalar _swingSpan2,btScalar _twistSpan,  btScalar _softness = 0.8f, btScalar _biasFactor = 0.3f, btScalar _relaxationFactor = 1.0f)
+	void	setLimit(btScalar _swingSpan1,btScalar _swingSpan2,btScalar _twistSpan,  btScalar _softness = 1.f, btScalar _biasFactor = 0.3f, btScalar _relaxationFactor = 1.0f)
 	{
 		m_swingSpan1 = _swingSpan1;
 		m_swingSpan2 = _swingSpan2;
