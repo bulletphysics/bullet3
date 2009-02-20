@@ -28,5 +28,5 @@ LibDepends iff : ;
 InstallHeader [ Wildcard *.h ] : iff ;
 
 SubInclude TOP Extras iff iffCheck ;
-SubInclude TOP Extras iff iffCreateTest ;
+#SubInclude TOP Extras iff iffCreateTest ;
 #SubInclude TOP Extras iff BulletIffConverter ;

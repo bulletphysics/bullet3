@@ -3,6 +3,7 @@ noinst_PROGRAMS=AllBulletDemo
 AllBulletDemo_SOURCES=\
 		      	../SoftDemo/SoftDemo.cpp \
 			../Benchmarks/BenchmarkDemo.cpp \
+			../ConstraintDemo/ConstraintDemo.cpp \
 			../ForkLiftDemo/ForkLiftDemo.cpp \
 			../RagdollDemo/RagdollDemo.cpp \
 			../BasicDemo/BasicDemo.cpp \
