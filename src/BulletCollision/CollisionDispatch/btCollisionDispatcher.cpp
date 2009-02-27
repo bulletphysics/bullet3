@@ -79,7 +79,9 @@ btPersistentManifold*	btCollisionDispatcher::getNewManifold(void* b0,void* b1)
 	btCollisionObject* body0 = (btCollisionObject*)b0;
 	btCollisionObject* body1 = (btCollisionObject*)b1;
 
-	btScalar contactBreakingThreshold = btMin(gContactBreakingThreshold,btMin(body0->getCollisionShape()->getContactBreakingThreshold(),body1->getCollisionShape()->getContactBreakingThreshold()));
+	//test for Bullet 2.74: use a relative contact breaking threshold without clamping against 'gContactBreakingThreshold'
+	//btScalar contactBreakingThreshold = btMin(gContactBreakingThreshold,btMin(body0->getCollisionShape()->getContactBreakingThreshold(),body1->getCollisionShape()->getContactBreakingThreshold()));
+	btScalar contactBreakingThreshold = btMin(body0->getCollisionShape()->getContactBreakingThreshold(),body1->getCollisionShape()->getContactBreakingThreshold());
 	
 	void* mem = 0;
 	
@@ -142,7 +144,6 @@ btCollisionAlgorithm* btCollisionDispatcher::findAlgorithm(btCollisionObject* bo
 
 	return algo;
 }
-
 
 
 

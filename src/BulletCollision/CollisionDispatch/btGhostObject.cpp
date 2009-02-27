@@ -63,6 +63,7 @@ btPairCachingGhostObject::btPairCachingGhostObject()
 
 btPairCachingGhostObject::~btPairCachingGhostObject()
 {
+	m_hashPairCache->~btHashedOverlappingPairCache();
 	btAlignedFree( m_hashPairCache );
 }
 

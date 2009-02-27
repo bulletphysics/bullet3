@@ -133,8 +133,9 @@ public:
 		return m_dispatcher1;
 	}
 
-	virtual void	updateAabbs();
+	void	updateSingleAabb(btCollisionObject* colObj);
 
+	virtual void	updateAabbs();
 	
 	virtual void	setDebugDrawer(btIDebugDraw*	debugDrawer)
 	{

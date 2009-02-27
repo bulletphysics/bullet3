@@ -119,6 +119,39 @@ void	btCollisionWorld::addCollisionObject(btCollisionObject* collisionObject,sho
 
 
 
+void	btCollisionWorld::updateSingleAabb(btCollisionObject* colObj)
+{
+	btVector3 minAabb,maxAabb;
+	colObj->getCollisionShape()->getAabb(colObj->getWorldTransform(), minAabb,maxAabb);
+	//need to increase the aabb for contact thresholds
+	btVector3 contactThreshold(gContactBreakingThreshold,gContactBreakingThreshold,gContactBreakingThreshold);
+	minAabb -= contactThreshold;
+	maxAabb += contactThreshold;
+
+	btBroadphaseInterface* bp = (btBroadphaseInterface*)m_broadphasePairCache;
+
+	//moving objects should be moderately sized, probably something wrong if not
+	if ( colObj->isStaticObject() || ((maxAabb-minAabb).length2() < btScalar(1e12)))
+	{
+		bp->setAabb(colObj->getBroadphaseHandle(),minAabb,maxAabb, m_dispatcher1);
+	} else
+	{
+		//something went wrong, investigate
+		//this assert is unwanted in 3D modelers (danger of loosing work)
+		colObj->setActivationState(DISABLE_SIMULATION);
+
+		static bool reportMe = true;
+		if (reportMe && m_debugDrawer)
+		{
+			reportMe = false;
+			m_debugDrawer->reportErrorWarning("Overflow in AABB, object removed from simulation");
+			m_debugDrawer->reportErrorWarning("If you can reproduce this, please email bugs@continuousphysics.com\n");
+			m_debugDrawer->reportErrorWarning("Please include above information, your Platform, version of OS.\n");
+			m_debugDrawer->reportErrorWarning("Thanks.\n");
+		}
+	}
+}
+
 void	btCollisionWorld::updateAabbs()
 {
 	BT_PROFILE("updateAabbs");
@@ -131,38 +164,9 @@ void	btCollisionWorld::updateAabbs()
 		//only update aabb of active objects
 		if (colObj->isActive())
 		{
-			btVector3 minAabb,maxAabb;
-			colObj->getCollisionShape()->getAabb(colObj->getWorldTransform(), minAabb,maxAabb);
-			//need to increase the aabb for contact thresholds
-			btVector3 contactThreshold(gContactBreakingThreshold,gContactBreakingThreshold,gContactBreakingThreshold);
-			minAabb -= contactThreshold;
-			maxAabb += contactThreshold;
-
-			btBroadphaseInterface* bp = (btBroadphaseInterface*)m_broadphasePairCache;
-
-			//moving objects should be moderately sized, probably something wrong if not
-			if ( colObj->isStaticObject() || ((maxAabb-minAabb).length2() < btScalar(1e12)))
-			{
-				bp->setAabb(colObj->getBroadphaseHandle(),minAabb,maxAabb, m_dispatcher1);
-			} else
-			{
-				//something went wrong, investigate
-				//this assert is unwanted in 3D modelers (danger of loosing work)
-				colObj->setActivationState(DISABLE_SIMULATION);
-
-				static bool reportMe = true;
-				if (reportMe && m_debugDrawer)
-				{
-					reportMe = false;
-					m_debugDrawer->reportErrorWarning("Overflow in AABB, object removed from simulation");
-					m_debugDrawer->reportErrorWarning("If you can reproduce this, please email bugs@continuousphysics.com\n");
-					m_debugDrawer->reportErrorWarning("Please include above information, your Platform, version of OS.\n");
-					m_debugDrawer->reportErrorWarning("Thanks.\n");
-				}
-			}
+			updateSingleAabb(colObj);
 		}
 	}
-
 }
 
 

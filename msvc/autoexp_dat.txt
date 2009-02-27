@@ -1,0 +1,66 @@
+
+;------------------------------------------------------------------------------
+; Microsoft Visual Studio Debug Visualization for Bullet btVector3 and btAlignedObjectArray
+;
+; Copy and paste the contents of this file to the end of autoexp.dat, usually located at
+; C:\Program Files\Microsoft Visual Studio 8\Common7\Packages\Debugger\autoexp.dat
+;------------------------------------------------------------------------------
+
+
+[Visualizer]
+;------------------------------------------------------------------------------
+;  btVector3
+;------------------------------------------------------------------------------
+btVector3{
+	children
+	(
+	    #array
+	    (
+			expr :	($c.m_floats)[$i],  
+			size :	4
+		)
+	)
+	
+    preview
+    ( 
+        #( 
+			"[", 
+            #array
+            (
+				expr :	($c.m_floats)[$i],  
+				size :	4
+			), 
+			"]"
+		)
+	)
+}
+	
+;------------------------------------------------------------------------------
+;  btAlignedObjectArray
+;------------------------------------------------------------------------------
+btAlignedObjectArray<*>{
+	children
+	(
+	    #array
+	    (
+			expr :	($c.m_data)[$i],  
+			size :	$c.m_size
+		)
+	)
+	
+    preview
+    ( 
+        #( 
+			"[", 
+            $c.m_size ,
+            "](", 
+            
+            #array
+            (
+				expr : 	($c.m_data)[$i],  
+				size : 	$c.m_size
+			), 
+			")"
+		)
+	)
+}

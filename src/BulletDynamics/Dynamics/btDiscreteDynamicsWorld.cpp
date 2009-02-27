@@ -779,14 +779,16 @@ class btClosestNotMeConvexResultCallback : public btCollisionWorld::ClosestConve
 	btCollisionObject* m_me;
 	btScalar m_allowedPenetration;
 	btOverlappingPairCache* m_pairCache;
+	btDispatcher* m_dispatcher;
 
 
 public:
-	btClosestNotMeConvexResultCallback (btCollisionObject* me,const btVector3& fromA,const btVector3& toA,btOverlappingPairCache* pairCache) : 
+	btClosestNotMeConvexResultCallback (btCollisionObject* me,const btVector3& fromA,const btVector3& toA,btOverlappingPairCache* pairCache,btDispatcher* dispatcher) : 
 	  btCollisionWorld::ClosestConvexResultCallback(fromA,toA),
 		m_allowedPenetration(0.0f),
 		m_me(me),
-		m_pairCache(pairCache)
+		m_pairCache(pairCache),
+		m_dispatcher(dispatcher)
 	{
 	}
 
@@ -821,20 +823,26 @@ public:
 		if (!ClosestConvexResultCallback::needsCollision(proxy0))
 			return false;
 
-		///don't do CCD when there are already contact points (touching contact/penetration)
-		btAlignedObjectArray<btPersistentManifold*> manifoldArray;
-		btBroadphasePair* collisionPair = m_pairCache->findPair(m_me->getBroadphaseHandle(),proxy0);
-		if (collisionPair)
+		btCollisionObject* otherObj = (btCollisionObject*) proxy0->m_clientObject;
+
+		//call needsResponse, see http://code.google.com/p/bullet/issues/detail?id=179
+		if (m_dispatcher->needsResponse(m_me,otherObj))
 		{
-			if (collisionPair->m_algorithm)
+			///don't do CCD when there are already contact points (touching contact/penetration)
+			btAlignedObjectArray<btPersistentManifold*> manifoldArray;
+			btBroadphasePair* collisionPair = m_pairCache->findPair(m_me->getBroadphaseHandle(),proxy0);
+			if (collisionPair)
 			{
-				manifoldArray.resize(0);
-				collisionPair->m_algorithm->getAllContactManifolds(manifoldArray);
-				for (int j=0;j<manifoldArray.size();j++)
+				if (collisionPair->m_algorithm)
 				{
-					btPersistentManifold* manifold = manifoldArray[j];
-					if (manifold->getNumContacts()>0)
-						return false;
+					manifoldArray.resize(0);
+					collisionPair->m_algorithm->getAllContactManifolds(manifoldArray);
+					for (int j=0;j<manifoldArray.size();j++)
+					{
+						btPersistentManifold* manifold = manifoldArray[j];
+						if (manifold->getNumContacts()>0)
+							return false;
+					}
 				}
 			}
 		}
@@ -872,7 +880,7 @@ void	btDiscreteDynamicsWorld::integrateTransforms(btScalar timeStep)
 					{
 						gNumClampedCcdMotions++;
 						
-						btClosestNotMeConvexResultCallback sweepResults(body,body->getWorldTransform().getOrigin(),predictedTrans.getOrigin(),getBroadphase()->getOverlappingPairCache());
+						btClosestNotMeConvexResultCallback sweepResults(body,body->getWorldTransform().getOrigin(),predictedTrans.getOrigin(),getBroadphase()->getOverlappingPairCache(),getDispatcher());
 						btConvexShape* convexShape = static_cast<btConvexShape*>(body->getCollisionShape());
 						btSphereShape tmpSphere(body->getCcdSweptSphereRadius());//btConvexShape* convexShape = static_cast<btConvexShape*>(body->getCollisionShape());
 
