@@ -98,7 +98,7 @@ void	setDefaultSettings()
 	gUseSplitImpulse = 0;
 	gUseWarmstarting = 1;
 	gRandomizeConstraints = 1;
-	gErp = 0.4f;
+	gErp = 0.2f;
 	gSlop=0.0f;
 	gErp2 = 0.1f;
 	gWarmStartingParameter = 0.85f;
