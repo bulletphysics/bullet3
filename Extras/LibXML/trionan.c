@@ -174,11 +174,16 @@ trio_make_double
 TRIO_ARGS1((values),
 	   TRIO_CONST unsigned char *values)
 {
-  TRIO_VOLATILE double result;
+
+//remove the TRI_VOLATILE, because MSVC 2005 compiles crashes
+//	fatal error C1001: An internal error has occurred in the compiler.
+// (compiler file 'f:\rtm\vctools\compiler\utc\src\P2\main.c[0x00498D00:0x00498D00]', line 182)
+
+  double result;
   int i;
 
   for (i = 0; i < (int)sizeof(double); i++) {
-    ((TRIO_VOLATILE unsigned char *)&result)[TRIO_DOUBLE_INDEX(i)] = values[i];
+    (( unsigned char *)&result)[TRIO_DOUBLE_INDEX(i)] = values[i];
   }
   return result;
 }

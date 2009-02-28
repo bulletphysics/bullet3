@@ -298,7 +298,8 @@ void	btCollisionWorld::rayTestSingle(const btTransform& rayFromTrans,const btTra
 
 					BridgeTriangleRaycastCallback( const btVector3& from,const btVector3& to,
 						btCollisionWorld::RayResultCallback* resultCallback, btCollisionObject* collisionObject,btTriangleMeshShape*	triangleMesh):
-						btTriangleRaycastCallback(from,to),
+                  //@BP Mod
+						btTriangleRaycastCallback(from,to, resultCallback->m_flags),
 							m_resultCallback(resultCallback),
 							m_collisionObject(collisionObject),
 							m_triangleMesh(triangleMesh)
@@ -347,7 +348,8 @@ void	btCollisionWorld::rayTestSingle(const btTransform& rayFromTrans,const btTra
 
 					BridgeTriangleRaycastCallback( const btVector3& from,const btVector3& to,
 						btCollisionWorld::RayResultCallback* resultCallback, btCollisionObject* collisionObject,btConcaveShape*	triangleMesh):
-						btTriangleRaycastCallback(from,to),
+                  //@BP Mod
+                  btTriangleRaycastCallback(from,to, resultCallback->m_flags),
 							m_resultCallback(resultCallback),
 							m_collisionObject(collisionObject),
 							m_triangleMesh(triangleMesh)

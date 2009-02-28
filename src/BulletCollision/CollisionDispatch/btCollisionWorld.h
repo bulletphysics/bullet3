@@ -186,6 +186,8 @@ public:
 		btCollisionObject*		m_collisionObject;
 		short int	m_collisionFilterGroup;
 		short int	m_collisionFilterMask;
+      //@BP Mod - Custom flags, currently used to enable backface culling on tri-meshes, see btRaycastCallback
+      unsigned int m_flags;
 
 		virtual ~RayResultCallback()
 		{
@@ -199,7 +201,9 @@ public:
 			:m_closestHitFraction(btScalar(1.)),
 			m_collisionObject(0),
 			m_collisionFilterGroup(btBroadphaseProxy::DefaultFilter),
-			m_collisionFilterMask(btBroadphaseProxy::AllFilter)
+			m_collisionFilterMask(btBroadphaseProxy::AllFilter),
+         //@BP Mod
+         m_flags(0)
 		{
 		}
 
