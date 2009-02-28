@@ -743,8 +743,8 @@ struct btSoftColliders
 			psb			=	ps;
 			m_colObj			=	colOb;
 			idt			=	ps->m_sst.isdt;
-			margin		=	m_colObj->getCollisionShape()->getMargin()+
-				m_colObj->getCollisionShape()->getMargin();
+			margin		=	m_colObj->getCollisionShape()->getMargin();
+			///Bullet rigid body uses multiply instead of minimum to determine combined friction. Some customization would be useful.
 			friction	=	btMin(psb->m_cfg.kDF,m_colObj->getFriction());
 			btVector3			mins;
 			btVector3			maxs;

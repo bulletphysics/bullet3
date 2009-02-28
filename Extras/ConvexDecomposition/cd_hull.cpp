@@ -2176,9 +2176,15 @@ inline int maxdir(const T *p,int count,const T &dir)
 {
 	assert(count);
 	int m=0;
+	float currDotm = dot(p[0], dir);
 	for(int i=1;i<count;i++)
 	{
-		if(dot(p[i],dir)>dot(p[m],dir)) m=i;
+		const float currDoti =  dot(p[i], dir);
+		if(currDoti > currDotm) 
+		{
+			currDotm = currDoti;
+			m=i;
+		}
 	}
 	return m;
 }
@@ -2189,9 +2195,25 @@ int maxdirfiltered(const T *p,int count,const T &dir,Array<int> &allow)
 {
 	assert(count);
 	int m=-1;
-	for(int i=0;i<count;i++) if(allow[i])
+	float currDotm = dot(p[0], dir);
+	for(int i=0;i<count;i++) 
 	{
-		if(m==-1 || dot(p[i],dir)>dot(p[m],dir)) m=i;
+		if(allow[i])
+		{
+			if(m==-1 )
+			{
+				m=i;
+			}
+			else 
+			{
+				const float currDoti = dot(p[i], dir);
+				if (currDoti>currDotm)
+				{
+					currDotm = currDoti;
+					m=i;
+				}
+			}
+		}
 	}
 	assert(m!=-1);
 	return m;
