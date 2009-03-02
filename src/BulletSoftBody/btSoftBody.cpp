@@ -911,6 +911,35 @@ int				btSoftBody::generateClusters(int k,int maxiterations)
 
 		initializeClusters();
 		updateClusters();
+
+		//for self-collision
+		m_clusterConnectivity.resize(m_clusters.size()*m_clusters.size());
+		{
+			for (int c0=0;c0<m_clusters.size();c0++)
+			{
+				m_clusters[c0]->m_clusterIndex=c0;
+				for (int c1=0;c1<m_clusters.size();c1++)
+				{
+					
+					bool connected=false;
+					Cluster* cla = m_clusters[c0];
+					Cluster* clb = m_clusters[c1];
+					for (int i=0;!connected&&i<cla->m_nodes.size();i++)
+					{
+						for (int j=0;j<clb->m_nodes.size();j++)
+						{
+							if (cla->m_nodes[i] == clb->m_nodes[j])
+							{
+								connected=true;
+								break;
+							}
+						}
+					}
+					m_clusterConnectivity[c0+c1*m_clusters.size()]=connected;
+				}
+			}
+		}
+	
 		return(m_clusters.size());
 	}
 	return(0);
@@ -2059,7 +2088,12 @@ void					btSoftBody::updateClusters()
 			}
 		}
 	}
+
+
 }
+
+
+
 
 //
 void					btSoftBody::cleanupClusters()
@@ -2319,6 +2353,7 @@ void				btSoftBody::CJoint::Terminate(btScalar dt)
 //
 void				btSoftBody::applyForces()
 {
+
 	BT_PROFILE("SoftBody applyForces");
 	const btScalar					dt=m_sst.sdt;
 	const btScalar					kLF=m_cfg.kLF;

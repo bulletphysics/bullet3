@@ -296,6 +296,7 @@ public:
 		btScalar					m_adamping;	/* Angular damping	*/ 
 		btScalar					m_matching;
 		bool						m_collide;
+		int							m_clusterIndex;
 		Cluster() : m_leaf(0),m_ndamping(0),m_ldamping(0),m_adamping(0),m_matching(0) {}
 	};
 	/* Impulse		*/ 
@@ -603,6 +604,7 @@ public:
 	btDbvt					m_fdbvt;		// Faces tree
 	btDbvt					m_cdbvt;		// Clusters tree
 	tClusterArray			m_clusters;		// Clusters
+	btAlignedObjectArray<bool>m_clusterConnectivity;//cluster connectivity, for self-collision
 
 	//
 	// Api

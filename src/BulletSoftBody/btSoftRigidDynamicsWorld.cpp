@@ -63,6 +63,13 @@ void	btSoftRigidDynamicsWorld::internalSingleStepSimulation( btScalar timeStep)
 	///solve soft bodies constraints
 	solveSoftBodiesConstraints();
 
+	//self collisions
+	for ( int i=0;i<m_softBodies.size();i++)
+	{
+		btSoftBody*	psb=(btSoftBody*)m_softBodies[i];
+		psb->defaultCollisionHandler(psb);
+	}
+
 	///update soft bodies
 	updateSoftBodies();
 

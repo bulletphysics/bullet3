@@ -766,21 +766,38 @@ struct btSoftColliders
 		{
 			btSoftBody::Cluster*		cla=(btSoftBody::Cluster*)la->data;
 			btSoftBody::Cluster*		clb=(btSoftBody::Cluster*)lb->data;
-			btSoftClusterCollisionShape	csa(cla);
-			btSoftClusterCollisionShape	csb(clb);
-			btGjkEpaSolver2::sResults	res;		
-			if(btGjkEpaSolver2::SignedDistance(	&csa,btTransform::getIdentity(),
-				&csb,btTransform::getIdentity(),
-				cla->m_com-clb->m_com,res))
+
+
+			bool connected=false;
+			if ((bodies[0]==bodies[1])&&(bodies[0]->m_clusterConnectivity.size()))
 			{
-				btSoftBody::CJoint	joint;
-				if(SolveContact(res,cla,clb,joint))
+				connected = bodies[0]->m_clusterConnectivity[cla->m_clusterIndex+bodies[0]->m_clusters.size()*clb->m_clusterIndex];
+			}
+
+			if (!connected)
+			{
+				btSoftClusterCollisionShape	csa(cla);
+				btSoftClusterCollisionShape	csb(clb);
+				btGjkEpaSolver2::sResults	res;		
+				if(btGjkEpaSolver2::SignedDistance(	&csa,btTransform::getIdentity(),
+					&csb,btTransform::getIdentity(),
+					cla->m_com-clb->m_com,res))
 				{
-					btSoftBody::CJoint*	pj=new(btAlignedAlloc(sizeof(btSoftBody::CJoint),16)) btSoftBody::CJoint();
-					*pj=joint;bodies[0]->m_joints.push_back(pj);
-					pj->m_erp	*=	btMax(bodies[0]->m_cfg.kSSHR_CL,bodies[1]->m_cfg.kSSHR_CL);
-					pj->m_split	*=	(bodies[0]->m_cfg.kSS_SPLT_CL+bodies[1]->m_cfg.kSS_SPLT_CL)/2;
+					btSoftBody::CJoint	joint;
+					if(SolveContact(res,cla,clb,joint))
+					{
+						btSoftBody::CJoint*	pj=new(btAlignedAlloc(sizeof(btSoftBody::CJoint),16)) btSoftBody::CJoint();
+						*pj=joint;bodies[0]->m_joints.push_back(pj);
+						pj->m_erp	*=	btMax(bodies[0]->m_cfg.kSSHR_CL,bodies[1]->m_cfg.kSSHR_CL);
+						pj->m_split	*=	(bodies[0]->m_cfg.kSS_SPLT_CL+bodies[1]->m_cfg.kSS_SPLT_CL)/2;
+					}
 				}
+			} else
+			{
+				static int count=0;
+				count++;
+				//printf("count=%d\n",count);
+				
 			}
 		}
 		void		Process(btSoftBody* psa,btSoftBody* psb)
