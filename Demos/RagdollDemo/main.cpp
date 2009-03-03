@@ -27,5 +27,5 @@ int main(int argc,char* argv[])
         demoApp.initPhysics();
 		demoApp.getDynamicsWorld()->setDebugDrawer(&gDebugDrawer);
 
-        return glutmain(argc, argv,640,480,"Bullet Physics Demo. http://bullet.sf.net",&demoApp);
+        return glutmain(argc, argv,640,480,"Bullet Physics Demo. http://bulletphysics.com",&demoApp);
 }

@@ -81,7 +81,7 @@ int main(int argc,char** argv)
 #ifdef CHECK_MEMORY_LEAKS
 	ccdDemo.exitPhysics();
 #else
-	return glutmain(argc, argv,640,480,"Bullet Physics Demo. http://bullet.sf.net",&ccdDemo);
+	return glutmain(argc, argv,640,480,"Bullet Physics Demo. http://bulletphysics.com",&ccdDemo);
 #endif
 	
 	//default glut doesn't return from mainloop

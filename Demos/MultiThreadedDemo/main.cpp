@@ -28,7 +28,7 @@ int main(int argc,char** argv)
 	demo->getDynamicsWorld()->setDebugDrawer(&gDebugDrawer);
 
 
-	glutmain(argc, argv,640,480,"Bullet Physics Demo. http://bullet.sf.net",demo);
+	glutmain(argc, argv,640,480,"Bullet Physics Demo. http://bulletphysics.com",demo);
 
 	delete demo;
 

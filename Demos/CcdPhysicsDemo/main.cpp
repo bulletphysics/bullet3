@@ -41,7 +41,7 @@ int main(int argc,char** argv)
 	ccdDemo->getDynamicsWorld()->setDebugDrawer(&gDebugDrawer);
 
 
-	glutmain(argc, argv,640,480,"Bullet Physics Demo. http://bullet.sf.net",ccdDemo);
+	glutmain(argc, argv,640,480,"Bullet Physics Demo. http://bulletphysics.com",ccdDemo);
 
 	delete ccdDemo;
 	return 0;

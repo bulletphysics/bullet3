@@ -2761,7 +2761,7 @@ bool ColladaConverter::save(const char* filename)
 				}
 
 				m_dom->getAsset()->getContributor_array().get(0)->getAuthor()->setValue
-					("http://bullet.sf.net Erwin Coumans");
+					("http://bulletphysics.com Erwin Coumans");
 
 				if (!m_dom->getAsset()->getContributor_array().get(0)->getAuthoring_tool())
 				{

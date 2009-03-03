@@ -116,7 +116,7 @@ btPairCachingGhostObject* btKinematicCharacterController::getGhostObject()
 	return m_ghostObject;
 }
 
-bool btKinematicCharacterController::recoverFromPenetration (btCollisionWorld* collisionWorld)
+bool btKinematicCharacterController::recoverFromPenetration ( btCollisionWorld* collisionWorld)
 {
 
 	bool penetration = false;
@@ -390,7 +390,7 @@ void btKinematicCharacterController::warp (const btVector3& origin)
 }
 
 
-void btKinematicCharacterController::preStep ( btCollisionWorld* collisionWorld)
+void btKinematicCharacterController::preStep (  btCollisionWorld* collisionWorld)
 {
 	
 	int numPenetrationLoops = 0;
@@ -413,7 +413,7 @@ void btKinematicCharacterController::preStep ( btCollisionWorld* collisionWorld)
 	
 }
 
-void btKinematicCharacterController::playerStep ( btCollisionWorld* collisionWorld, btScalar dt)
+void btKinematicCharacterController::playerStep (  btCollisionWorld* collisionWorld, btScalar dt)
 {
 	btTransform xform;
 	xform = m_ghostObject->getWorldTransform ();
@@ -468,4 +468,9 @@ void btKinematicCharacterController::jump ()
 bool btKinematicCharacterController::onGround () const
 {
 	return true;
+}
+
+
+void	btKinematicCharacterController::debugDraw(btIDebugDraw* debugDrawer)
+{
 }
