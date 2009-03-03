@@ -1717,6 +1717,10 @@ void	ConcaveDemo::initPhysics()
 		}
 	}
 
+	shootTrimesh(btVector3(0,10,0),btVector3(0,0,0));
+
+	shootTrimesh(btVector3(0,20,0),btVector3(0,10,0));
+
 	//m_debugMode |= btIDebugDraw::DBG_DrawWireframe;
 
 }
@@ -1834,7 +1838,7 @@ void ConcaveDemo::keyboardCallback(unsigned char key, int x, int y)
 
 		case '.':
 		{
-			shootTrimesh(getCameraTargetPosition());
+			shootTrimesh(getCameraPosition(),getCameraTargetPosition());
 			break;
 		}
 
@@ -1862,7 +1866,7 @@ void ConcaveDemo::keyboardCallback(unsigned char key, int x, int y)
 }
 
 
-void ConcaveDemo::shootTrimesh(const btVector3& destination)
+void ConcaveDemo::shootTrimesh(const btVector3& startPosition,const btVector3& destination)
 {
 
 	if (m_dynamicsWorld)
@@ -1870,16 +1874,15 @@ void ConcaveDemo::shootTrimesh(const btVector3& destination)
 		float mass = 4.f;
 		btTransform startTransform;
 		startTransform.setIdentity();
-		btVector3 camPos = getCameraPosition();
-		startTransform.setOrigin(camPos);
+		startTransform.setOrigin(startPosition);
 
 		btRigidBody* body = this->localCreateRigidBody(mass, startTransform,m_trimeshShape);
 
-		btVector3 linVel(destination[0]-camPos[0],destination[1]-camPos[1],destination[2]-camPos[2]);
+		btVector3 linVel(destination[0]-startPosition[0],destination[1]-startPosition[1],destination[2]-startPosition[2]);
 		linVel.normalize();
 		linVel*=m_ShootBoxInitialSpeed*0.25;
 
-		body->getWorldTransform().setOrigin(camPos);
+		body->getWorldTransform().setOrigin(startPosition);
 		body->getWorldTransform().setRotation(btQuaternion(0,0,0,1));
 		body->setLinearVelocity(linVel);
 		body->setAngularVelocity(btVector3(0,0,0));

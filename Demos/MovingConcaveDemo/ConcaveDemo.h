@@ -39,7 +39,7 @@ class ConcaveDemo : public DemoApplication
 	virtual void keyboardCallback(unsigned char key, int x, int y);
 
 	///Demo functions
-	void	shootTrimesh(const btVector3& destination);
+	void	shootTrimesh(const btVector3& startPosition,const btVector3& destination);
 
 
 };

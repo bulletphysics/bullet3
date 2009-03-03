@@ -29,7 +29,7 @@ subject to the following restrictions:
 #include "BulletMultiThreaded/SpuGatheringCollisionDispatcher.h"
 #include "BulletMultiThreaded/SequentialThreadSupport.h"
 #include "BulletMultiThreaded/SpuNarrowPhaseCollisionTask/SpuGatheringCollisionTask.h"
-
+#include "BulletCollision/CollisionDispatch/btSimulationIslandManager.h"
 
 
 
@@ -221,7 +221,7 @@ void BenchmarkDemo::clientMoveAndDisplay()
 	///step the simulation
 	if (m_dynamicsWorld)
 	{
-		m_dynamicsWorld->stepSimulation(ms / 1000000.f);
+		m_dynamicsWorld->stepSimulation(btScalar(1./60.));
 		//optional but useful: debug drawing
 		m_dynamicsWorld->debugDrawWorld();
 	}
@@ -300,7 +300,10 @@ void	BenchmarkDemo::initPhysics()
 	
 	m_solver = sol;
 
-	m_dynamicsWorld = new btDiscreteDynamicsWorld(m_dispatcher,m_overlappingPairCache,m_solver,m_collisionConfiguration);
+	btDiscreteDynamicsWorld* dynamicsWorld;
+	m_dynamicsWorld = dynamicsWorld = new btDiscreteDynamicsWorld(m_dispatcher,m_overlappingPairCache,m_solver,m_collisionConfiguration);
+	dynamicsWorld->getSimulationIslandManager()->setSplitIslands(false);
+
 
 	m_dynamicsWorld->setGravity(btVector3(0,-10,0));
 

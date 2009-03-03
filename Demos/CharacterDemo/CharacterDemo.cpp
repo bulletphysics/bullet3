@@ -139,7 +139,7 @@ void CharacterDemo::initPhysics()
 	///only collide with static for now (no interaction with dynamic objects)
 	m_dynamicsWorld->addCollisionObject(m_ghostObject,btBroadphaseProxy::CharacterFilter, btBroadphaseProxy::StaticFilter|btBroadphaseProxy::DefaultFilter);
 
-	m_dynamicsWorld->addCharacter(m_character);
+	m_dynamicsWorld->addAction(m_character);
 
 
 	///////////////
