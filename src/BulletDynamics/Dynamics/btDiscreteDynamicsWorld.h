@@ -159,6 +159,12 @@ public:
         (void) numTasks;
 	}
 
+	///obsolete, use updateActions instead
+	virtual void updateVehicles(btScalar timeStep)
+	{
+		updateActions(timeStep);
+	}
+
 	///obsolete, use addAction instead
 	virtual void	addVehicle(btActionInterface* vehicle);
 	///obsolete, use removeAction instead
