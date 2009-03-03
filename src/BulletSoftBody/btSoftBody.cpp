@@ -87,7 +87,7 @@ btSoftBody::btSoftBody(btSoftBodyWorldInfo*	worldInfo,int node_count,  const btV
 	}
 	updateBounds();	
 
-
+	m_initialWorldTransform.setIdentity();
 }
 
 //
@@ -306,8 +306,16 @@ void			btSoftBody::appendFace(int node0,int node1,int node2,Material* mat)
 }
 
 //
-void			btSoftBody::appendAnchor(int node,btRigidBody* body)
+void			btSoftBody::appendAnchor(int node,btRigidBody* body, bool disableCollisionBetweenLinkedBodies)
 {
+	if (disableCollisionBetweenLinkedBodies)
+	{
+		if (m_collisionDisabledObjects.findLinearSearch(body)==m_collisionDisabledObjects.size())
+		{
+			m_collisionDisabledObjects.push_back(body);
+		}
+	}
+
 	Anchor	a;
 	a.m_node			=	&m_nodes[node];
 	a.m_body			=	body;
@@ -501,6 +509,7 @@ void			btSoftBody::transform(const btTransform& trs)
 	updateNormals();
 	updateBounds();
 	updateConstants();
+	m_initialWorldTransform = trs;
 }
 
 //
@@ -2662,22 +2671,26 @@ void			btSoftBody::defaultCollisionHandler(btSoftBody* psb)
 		break;
 	case	fCollision::VF_SS:
 		{
-			btSoftColliders::CollideVF_SS	docollide;
-			/* common					*/ 
-			docollide.mrg=	getCollisionShape()->getMargin()+
-				psb->getCollisionShape()->getMargin();
-			/* psb0 nodes vs psb1 faces	*/ 
-			docollide.psb[0]=this;
-			docollide.psb[1]=psb;
-			docollide.psb[0]->m_ndbvt.collideTT(	docollide.psb[0]->m_ndbvt.m_root,
-				docollide.psb[1]->m_fdbvt.m_root,
-				docollide);
-			/* psb1 nodes vs psb0 faces	*/ 
-			docollide.psb[0]=psb;
-			docollide.psb[1]=this;
-			docollide.psb[0]->m_ndbvt.collideTT(	docollide.psb[0]->m_ndbvt.m_root,
-				docollide.psb[1]->m_fdbvt.m_root,
-				docollide);
+			//only self-collision for Cluster, not Vertex-Face yet
+			if (this!=psb)
+			{
+				btSoftColliders::CollideVF_SS	docollide;
+				/* common					*/ 
+				docollide.mrg=	getCollisionShape()->getMargin()+
+					psb->getCollisionShape()->getMargin();
+				/* psb0 nodes vs psb1 faces	*/ 
+				docollide.psb[0]=this;
+				docollide.psb[1]=psb;
+				docollide.psb[0]->m_ndbvt.collideTT(	docollide.psb[0]->m_ndbvt.m_root,
+					docollide.psb[1]->m_fdbvt.m_root,
+					docollide);
+				/* psb1 nodes vs psb0 faces	*/ 
+				docollide.psb[0]=psb;
+				docollide.psb[1]=this;
+				docollide.psb[0]->m_ndbvt.collideTT(	docollide.psb[0]->m_ndbvt.m_root,
+					docollide.psb[1]->m_fdbvt.m_root,
+					docollide);
+			}
 		}
 		break;
 	}

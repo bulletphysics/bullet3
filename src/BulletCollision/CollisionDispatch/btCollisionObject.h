@@ -52,6 +52,11 @@ protected:
 	//without destroying the continuous interpolated motion (which uses this interpolation velocities)
 	btVector3	m_interpolationLinearVelocity;
 	btVector3	m_interpolationAngularVelocity;
+	
+	btVector3		m_anisotropicFriction;
+	bool				m_hasAnisotropicFriction;
+	btScalar		m_contactProcessingThreshold;	
+
 	btBroadphaseProxy*		m_broadphaseHandle;
 	btCollisionShape*		m_collisionShape;
 	
@@ -127,6 +132,30 @@ public:
 		return  ((m_collisionFlags & (CF_STATIC_OBJECT | CF_KINEMATIC_OBJECT | CF_NO_CONTACT_RESPONSE) )==0);
 	}
 
+	const btVector3& getAnisotropicFriction() const
+	{
+		return m_anisotropicFriction;
+	}
+	void	setAnisotropicFriction(const btVector3& anisotropicFriction)
+	{
+		m_anisotropicFriction = anisotropicFriction;
+		m_hasAnisotropicFriction = (anisotropicFriction[0]!=1.f) || (anisotropicFriction[1]!=1.f) || (anisotropicFriction[2]!=1.f);
+	}
+	bool	hasAnisotropicFriction() const
+	{
+		return m_hasAnisotropicFriction;
+	}
+
+	///the constraint solver can discard solving contacts, if the distance is above this threshold. 0 by default.
+	///Note that using contacts with positive distance can improve stability. It increases, however, the chance of colliding with degerate contacts, such as 'interior' triangle edges
+	void	setContactProcessingThreshold( btScalar contactProcessingThreshold)
+	{
+		m_contactProcessingThreshold = contactProcessingThreshold;
+	}
+	btScalar	getContactProcessingThreshold() const
+	{
+		return m_contactProcessingThreshold;
+	}
 
 	SIMD_FORCE_INLINE bool		isStaticObject() const {
 		return (m_collisionFlags & CF_STATIC_OBJECT) != 0;

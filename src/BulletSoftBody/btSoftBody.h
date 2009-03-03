@@ -49,6 +49,8 @@ struct	btSoftBodyWorldInfo
 class	btSoftBody : public btCollisionObject
 {
 public:
+	btAlignedObjectArray<class btCollisionObject*> m_collisionDisabledObjects;
+
 	//
 	// Enumerations
 	//
@@ -604,7 +606,10 @@ public:
 	btDbvt					m_fdbvt;		// Faces tree
 	btDbvt					m_cdbvt;		// Clusters tree
 	tClusterArray			m_clusters;		// Clusters
+
 	btAlignedObjectArray<bool>m_clusterConnectivity;//cluster connectivity, for self-collision
+
+	btTransform			m_initialWorldTransform;
 
 	//
 	// Api
@@ -678,7 +683,7 @@ public:
 		Material* mat=0);
 	/* Append anchor														*/ 
 	void				appendAnchor(	int node,
-		btRigidBody* body);
+		btRigidBody* body, bool disableCollisionBetweenLinkedBodies=false);
 	/* Append linear joint													*/ 
 	void				appendLinearJoint(const LJoint::Specs& specs,Cluster* body0,Body body1);
 	void				appendLinearJoint(const LJoint::Specs& specs,Body body=Body());

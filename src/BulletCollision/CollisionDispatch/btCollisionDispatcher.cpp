@@ -82,7 +82,9 @@ btPersistentManifold*	btCollisionDispatcher::getNewManifold(void* b0,void* b1)
 	//test for Bullet 2.74: use a relative contact breaking threshold without clamping against 'gContactBreakingThreshold'
 	//btScalar contactBreakingThreshold = btMin(gContactBreakingThreshold,btMin(body0->getCollisionShape()->getContactBreakingThreshold(),body1->getCollisionShape()->getContactBreakingThreshold()));
 	btScalar contactBreakingThreshold = btMin(body0->getCollisionShape()->getContactBreakingThreshold(),body1->getCollisionShape()->getContactBreakingThreshold());
-	
+
+	btScalar contactProcessingThreshold = btMin(body0->getContactProcessingThreshold(),body1->getContactProcessingThreshold());
+		
 	void* mem = 0;
 	
 	if (m_persistentManifoldPoolAllocator->getFreeCount())
@@ -93,7 +95,7 @@ btPersistentManifold*	btCollisionDispatcher::getNewManifold(void* b0,void* b1)
 		mem = btAlignedAlloc(sizeof(btPersistentManifold),16);
 
 	}
-	btPersistentManifold* manifold = new(mem) btPersistentManifold (body0,body1,0,contactBreakingThreshold);
+	btPersistentManifold* manifold = new(mem) btPersistentManifold (body0,body1,0,contactBreakingThreshold,contactProcessingThreshold);
 	manifold->m_index1a = m_manifoldsPtr.size();
 	m_manifoldsPtr.push_back(manifold);
 
