@@ -1,14 +1,14 @@
 /*
  * Copyright 2006 Sony Computer Entertainment Inc.
  *
- * Licensed under the SCEA Shared Source License, Version 1.0 (the "License"); you may not use this 
+ * Licensed under the SCEA Shared Source License, Version 1.0 (the "License"); you may not use this
  * file except in compliance with the License. You may obtain a copy of the License at:
  * http://research.scea.com/scea_shared_source_license.html
  *
- * Unless required by applicable law or agreed to in writing, software distributed under the License 
- * is distributed on an "AS IS" BASIS, WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or 
- * implied. See the License for the specific language governing permissions and limitations under the 
- * License. 
+ * Unless required by applicable law or agreed to in writing, software distributed under the License
+ * is distributed on an "AS IS" BASIS, WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or
+ * implied. See the License for the specific language governing permissions and limitations under the
+ * License.
  */
 
 // This is a rework of the XML plugin that contains a complete interface to libxml2 "readXML"
@@ -77,8 +77,8 @@ void daeLIBXMLPlugin::getProgress(daeInt* bytesParsed,
 daeInt daeLIBXMLPlugin::read(daeURI& uri, daeString docBuffer)
 {
     // Make sure topMeta has been set before proceeding
-	
-	if (topMeta == NULL) 
+
+	if (topMeta == NULL)
 	{
 		return DAE_ERR_BACKEND_IO;
 	}
@@ -127,7 +127,7 @@ daeInt daeLIBXMLPlugin::read(daeURI& uri, daeString docBuffer)
 	daeElementRef domObject = startParse(topMeta, reader);
 
 	// Parsing done, free the xmlReader and error check to make sure we got a valid DOM back
-	
+
 	xmlFreeTextReader(reader);
 
 	if (!domObject)
@@ -149,11 +149,11 @@ daeInt daeLIBXMLPlugin::read(daeURI& uri, daeString docBuffer)
 
 	// Make a vector to store a list of the integration items that need to be processed later
 	// postProcessDom will fill this in for us (this should probably not be done in the IOPlugin)
-	
+
 	std::vector<INTEGRATION_ITEM> intItems;
-	
+
 	//insert the elements into the database, for this DB the elements are the Collada object which have
-	//an ID. 
+	//an ID.
 	//this function will fill the _integrationItems array as well
 	postProcessDom(document, domObject, intItems);
 	database->validate();
@@ -164,7 +164,7 @@ daeInt daeLIBXMLPlugin::read(daeURI& uri, daeString docBuffer)
 	int i;
 	for (i=0;i<size;i++)
 		intItems[i].intObject->createFromChecked(intItems[i].element);
-	
+
 	for (i=0;i<size;i++)
 		intItems[i].intObject->fromCOLLADAChecked();
 
@@ -238,7 +238,7 @@ daeLIBXMLPlugin::startParse(daeMetaElement* thisMetaElement, xmlTextReaderPtr re
 	}
 #endif
 
-	
+
 	ret = xmlTextReaderRead(reader);
 	// If we're out of data, return the element
 	if(ret != 1)
@@ -308,11 +308,11 @@ void daeLIBXMLPlugin::readAttributes( daeElement *element, xmlTextReaderPtr read
 		while(xmlTextReaderMoveToNextAttribute(reader))
 		{
 			daeMetaAttribute *ma = element->getMeta()->getMetaAttribute((const daeString)xmlTextReaderConstName(reader));
-			if( ( ma != NULL && ma->getType() != NULL && ma->getType()->getUsesStrings() ) || 
+			if( ( ma != NULL && ma->getType() != NULL && ma->getType()->getUsesStrings() ) ||
 				strcmp(element->getMeta()->getName(), "any") == 0 )
 			{
 				// String is used as one piece
-				if(!element->setAttribute( (const daeString)xmlTextReaderConstName(reader), 
+				if(!element->setAttribute( (const daeString)xmlTextReaderConstName(reader),
 					(const daeString)xmlTextReaderConstValue(reader) ) )
 				{
 					const xmlChar * attName	 = xmlTextReaderConstName(reader);
@@ -339,7 +339,7 @@ void daeLIBXMLPlugin::readAttributes( daeElement *element, xmlTextReaderPtr read
 					memset( err, 0, 512 );
 #if LIBXML_VERSION >= 20620
 					sprintf(err,"The DOM was unable to create an attribute %s = %s at line %d\nProbably a schema violation.\n", attName, attValue ,xmlTextReaderGetParserLineNumber(reader));
-#else				
+#else
 					sprintf(err,"The DOM was unable to create an attribute %s = %s \nProbably a schema violation.\n", attName, attValue);
 #endif
 					daeErrorHandler::get()->handleWarning( err );
@@ -377,7 +377,8 @@ void daeLIBXMLPlugin::readAttributes( daeElement *element, xmlTextReaderPtr read
 						}
 					}
 				}
-				xmlFree(value);
+				//rather leak than break compilers (CodeBlocks/MinGW)
+				//xmlFree(value);
 			}
 		}
 	}
@@ -425,7 +426,8 @@ void daeLIBXMLPlugin::readValue( daeElement *element, xmlTextReaderPtr reader ) 
 				// eat the characters we just read (would be nice if set returned characters used.
 			}
 		}
-		xmlFree(value);
+		//rather leak than break compilers (CodeBlocks/MinGW)
+		//xmlFree(value);
 	}
 	int ret = xmlTextReaderRead(reader);
 	assert(ret==1);
@@ -466,7 +468,7 @@ daeLIBXMLPlugin::nextElement(daeMetaElement* thisMetaElement, xmlTextReaderPtr r
 
 	//try and read attributes
 	readAttributes( element, reader );
-	
+
 	ret = xmlTextReaderRead(reader);
 	// If we're out of data, return the element
 	if(ret != 1)
@@ -550,7 +552,7 @@ void daeLIBXMLPlugin::postProcessDom(daeDocument *document, daeElement* element,
 	for ( size_t x = 0; x < children.getCount(); x++ ) {
 		postProcessDom(document, children.get(x), intItems);
 	}
-	
+
 	/*if (element->getMeta()->getContents() != NULL) {
 		daeMetaElementArrayAttribute *contents = element->getMeta()->getContents();
 		for ( int i = 0; i < contents->getCount( element ); i++ ) {
@@ -618,9 +620,9 @@ daeInt daeLIBXMLPlugin::write(daeURI *name, daeDocument *document, daeBool repla
 	xmlTextWriterSetIndentString( writer, indentString );
 	xmlTextWriterSetIndent( writer, 1 );
 	xmlTextWriterStartDocument( writer, NULL, NULL, NULL );
-	
+
 	writeElement( document->getDomRoot() );
-	
+
 	xmlTextWriterEndDocument( writer );
 	xmlTextWriterFlush( writer );
 	xmlFreeTextWriter( writer );
@@ -645,9 +647,9 @@ void daeLIBXMLPlugin::writeElement( daeElement* element )
             xmlTextWriterStartElement(writer, (xmlChar*)(daeString)_meta->getName());
 		}
 		daeMetaAttributeRefArray& attrs = _meta->getMetaAttributes();
-		
+
 		int acnt = (int)attrs.getCount();
-		
+
 		for(int i=0;i<acnt;i++) {
 			writeAttribute( attrs[i], element, i );
 		}
@@ -655,7 +657,7 @@ void daeLIBXMLPlugin::writeElement( daeElement* element )
 	daeMetaAttribute* valueAttr = _meta->getValueAttribute();
 	if (valueAttr!=NULL)
 		writeAttribute(valueAttr, element);
-	
+
 	daeElementRefArray children;
 	element->getChildren( children );
 	for ( size_t x = 0; x < children.getCount(); x++ ) {
@@ -695,7 +697,7 @@ void daeLIBXMLPlugin::writeElement( daeElement* element )
 /*void daeLIBXMLPlugin::writeAttribute( daeMetaAttribute* attr, daeElement* element, daeInt attrNum )
 {
 	static daeChar atomicTypeBuf[TYPE_BUFFER_SIZE];
-	
+
 	if (element == NULL)
 		return;
 	if ( attr->getCount(element) == 0 ) {
@@ -706,7 +708,7 @@ void daeLIBXMLPlugin::writeElement( daeElement* element )
 		}
 		return;
 	}
-	else if ( attr->getCount(element) == 1 ) { 
+	else if ( attr->getCount(element) == 1 ) {
 		//single value or an array of a single value
 		char* elemMem = attr->get(element, 0);
 
@@ -718,7 +720,7 @@ void daeLIBXMLPlugin::writeElement( daeElement* element )
 			if(attr->getDefault() != NULL)
 			{
 				#if 1
-				// The attribute has a default, convert the default to binary and suppress 
+				// The attribute has a default, convert the default to binary and suppress
 				// output of the attribute if the value matches the default.
 				// DISABLE THIS CODE IF YOU WANT DEFAULT VALUES TO ALWAYS EXPORT
 				if(typeSize >= TYPE_BUFFER_SIZE)
@@ -748,7 +750,7 @@ void daeLIBXMLPlugin::writeElement( daeElement* element )
 					if(elemMem[i] != 0)
 						break;
 				}
-				if(i == typeSize && attr->getContainer()->getValueAttribute() != attr && 
+				if(i == typeSize && attr->getContainer()->getValueAttribute() != attr &&
 					attr->getType()->getTypeEnum() != daeAtomicType::BoolType &&
 					attr->getType()->getTypeEnum() != daeAtomicType::EnumType )
 					return;
@@ -768,7 +770,7 @@ void daeLIBXMLPlugin::writeElement( daeElement* element )
 					(daeString)attr->getName(),(daeString)attr->getContainer()->getName());
 			daeErrorHandler::get()->handleError( msg );
 		}
-					
+
 		// Suppress attributes that convert to an empty string.
 
 		if (strlen(atomicTypeBuf) == 0)
@@ -804,7 +806,7 @@ void daeLIBXMLPlugin::writeElement( daeElement* element )
 		}
 		for( int i = 0; i < attr->getCount(element); i++ ) {
 			char* elemMem = attr->get(element, i);
-			if (attr->getType()->memoryToString(elemMem, atomicTypeBuf,	TYPE_BUFFER_SIZE)== false) 
+			if (attr->getType()->memoryToString(elemMem, atomicTypeBuf,	TYPE_BUFFER_SIZE)== false)
 			{
 				char msg[512];
 				sprintf(msg,
@@ -842,7 +844,7 @@ void daeLIBXMLPlugin::writeAttribute( daeMetaAttribute* attr, daeElement* elemen
 		return;
 	}
 
-	if ( !attr->isArrayAttribute() && ( attr->getType()->getTypeEnum() == daeAtomicType::StringRefType || 
+	if ( !attr->isArrayAttribute() && ( attr->getType()->getTypeEnum() == daeAtomicType::StringRefType ||
 		 attr->getType()->getTypeEnum() == daeAtomicType::TokenType ) &&
 		 *(char**)attr->getWritableMemory( element ) != NULL )
 	{
@@ -865,7 +867,7 @@ void daeLIBXMLPlugin::writeAttribute( daeMetaAttribute* attr, daeElement* elemen
 				//early out if !value && !required && !set
 				return;
 			}
-			
+
 			//is set
 			//check for default suppression
 			if ( attr->getDefault() != NULL )
@@ -888,7 +890,7 @@ void daeLIBXMLPlugin::writeAttribute( daeMetaAttribute* attr, daeElement* elemen
 			xmlTextWriterStartAttribute( writer, (xmlChar*)(daeString)attr->getName() );
 		}
 	}
-	if (valCount>0) 
+	if (valCount>0)
 	{
 		//do val 0 first then space and the rest of the vals.
 		char* elemMem = attr->get( element, 0 );
@@ -899,7 +901,7 @@ void daeLIBXMLPlugin::writeAttribute( daeMetaAttribute* attr, daeElement* elemen
 		}
 
 		*buf = ' ';
-		for( size_t i = 1; i < valCount; i++ ) 
+		for( size_t i = 1; i < valCount; i++ )
 		{
 			elemMem = attr->get( element, (int)i );
 			attr->getType()->memoryToString( elemMem, buf+1, bufSz );

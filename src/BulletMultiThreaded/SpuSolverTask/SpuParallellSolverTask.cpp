@@ -224,14 +224,14 @@ static void setupSpuBody (btCollisionObject* collisionObject, btSolverBody* solv
 
 	if (rb)
 	{
-		solverBody->m_invMass = rb->getInvMass();
+		solverBody->m_invMass.setValue(rb->getInvMass(),rb->getInvMass(),rb->getInvMass());
 		solverBody->m_originalBody = rb;
 		solverBody->m_angularFactor = rb->getAngularFactor();
 	} else
 	{
-		solverBody->m_invMass = 0.f;
+		solverBody->m_invMass.setValue(0,0,0);
 		solverBody->m_originalBody = 0;
-		solverBody->m_angularFactor = 1.f;
+		solverBody->m_angularFactor.setValue(1,1,1);
 	}
 	
 }
@@ -439,8 +439,8 @@ static void SpuResolveSingleConstraintRowGeneric(btSolverBody& body1,btSolverBod
 	__m128 upperMinApplied = _mm_sub_ps(upperLimit1,cpAppliedImp);
 	deltaImpulse = _mm_or_ps( _mm_and_ps(resultUpperLess, deltaImpulse), _mm_andnot_ps(resultUpperLess, upperMinApplied) );
 	c.m_appliedImpulse = _mm_or_ps( _mm_and_ps(resultUpperLess, c.m_appliedImpulse), _mm_andnot_ps(resultUpperLess, upperLimit1) );
-	__m128	linearComponentA = _mm_mul_ps(c.m_contactNormal.mVec128,_mm_set1_ps(body1.m_invMass));
-	__m128	linearComponentB = _mm_mul_ps(c.m_contactNormal.mVec128,_mm_set1_ps(body2.m_invMass));
+	__m128	linearComponentA = _mm_mul_ps(c.m_contactNormal.mVec128,body1.m_invMass.mVec128);
+	__m128	linearComponentB = _mm_mul_ps(c.m_contactNormal.mVec128,body2.m_invMass.mVec128);
 	__m128 impulseMagnitude = deltaImpulse;
 	body1.m_deltaLinearVelocity.mVec128 = _mm_add_ps(body1.m_deltaLinearVelocity.mVec128,_mm_mul_ps(linearComponentA,impulseMagnitude));
 	body1.m_deltaAngularVelocity.mVec128 = _mm_add_ps(body1.m_deltaAngularVelocity.mVec128 ,_mm_mul_ps(c.m_angularComponentA.mVec128,impulseMagnitude));

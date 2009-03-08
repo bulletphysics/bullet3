@@ -71,7 +71,7 @@ m_cameraUp(0,1,0),
 m_forwardAxis(2),	
 m_glutScreenWidth(0),
 m_glutScreenHeight(0),
-m_ShootBoxInitialSpeed(40.f),
+m_ShootBoxInitialSpeed(4.f),
 m_stepping(true),
 m_singleStep(false),
 m_idle(false),
@@ -544,7 +544,7 @@ void	DemoApplication::setShootBoxShape ()
 			btConvexShape* childShape = new btBoxShape(btVector3(1.f,1.f,1.f));
 			m_shootBoxShape = new btUniformScalingShape(childShape,0.5f);
 #else
-			m_shootBoxShape = new btSphereShape(1.f);//BoxShape(btVector3(1.f,1.f,1.f));
+			m_shootBoxShape = new btSphereShape(.1f);//BoxShape(btVector3(1.f,1.f,1.f));
 #endif//
 		}
 }
@@ -554,7 +554,7 @@ void	DemoApplication::shootBox(const btVector3& destination)
 
 	if (m_dynamicsWorld)
 	{
-		float mass = 10.f;
+		float mass = 0.1f;
 		btTransform startTransform;
 		startTransform.setIdentity();
 		btVector3 camPos = getCameraPosition();
@@ -563,6 +563,7 @@ void	DemoApplication::shootBox(const btVector3& destination)
 		setShootBoxShape ();
 
 		btRigidBody* body = this->localCreateRigidBody(mass, startTransform,m_shootBoxShape);
+		body->setLinearFactor(btVector3(1,1,1));
 
 		btVector3 linVel(destination[0]-camPos[0],destination[1]-camPos[1],destination[2]-camPos[2]);
 		linVel.normalize();
