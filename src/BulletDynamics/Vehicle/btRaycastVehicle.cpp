@@ -689,7 +689,7 @@ void	btRaycastVehicle::updateFriction(btScalar	timeStep)
 					
 					btVector3 sideImp = m_axle[wheel] * m_sideImpulse[wheel];
 
-					rel_pos[m_indexForwardAxis] *= wheelInfo.m_rollInfluence;
+					rel_pos[m_indexUpAxis] *= wheelInfo.m_rollInfluence;
 					m_chassisBody->applyImpulse(sideImp,rel_pos);
 
 					//apply friction impulse on the ground
