@@ -295,6 +295,14 @@ void plSetOrientation(plRigidBodyHandle object, const plQuaternion orientation)
 	body->setWorldTransform(worldTrans);
 }
 
+void	plSetOpenGLMatrix(plRigidBodyHandle object, plReal* matrix)
+{
+	btRigidBody* body = reinterpret_cast< btRigidBody* >(object);
+	btAssert(body);
+	btTransform& worldTrans = body->getWorldTransform();
+	worldTrans.setFromOpenGLMatrix(matrix);
+}
+
 void	plGetOpenGLMatrix(plRigidBodyHandle object, plReal* matrix)
 {
 	btRigidBody* body = reinterpret_cast< btRigidBody* >(object);
