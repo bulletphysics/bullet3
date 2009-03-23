@@ -23,7 +23,7 @@ subject to the following restrictions:
 #define MAX_PROXIES (ARRAY_SIZE_X*ARRAY_SIZE_Y*ARRAY_SIZE_Z + 1024)
 
 ///scaling of the objects (0.1 = 20 centimeter boxes )
-#define SCALING 0.1
+#define SCALING 1.
 #define START_POS_X -5
 #define START_POS_Y -5
 #define START_POS_Z -3
