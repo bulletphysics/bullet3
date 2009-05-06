@@ -127,6 +127,29 @@ public:
 
 	}
 
+	void	setAxis(btVector3& axisInA = btVector3(0, 1, 0))
+	{
+		btVector3 rbAxisA1, rbAxisA2;
+		btPlaneSpace1(axisInA, rbAxisA1, rbAxisA2);
+		btVector3 pivotInA = m_rbAFrame.getOrigin();
+//		m_rbAFrame.getOrigin() = pivotInA;
+		m_rbAFrame.getBasis().setValue( rbAxisA1.getX(),rbAxisA2.getX(),axisInA.getX(),
+										rbAxisA1.getY(),rbAxisA2.getY(),axisInA.getY(),
+										rbAxisA1.getZ(),rbAxisA2.getZ(),axisInA.getZ() );
+
+		btVector3 axisInB = m_rbA.getCenterOfMassTransform().getBasis() * axisInA;
+
+		btQuaternion rotationArc = shortestArcQuat(axisInA,axisInB);
+		btVector3 rbAxisB1 =  quatRotate(rotationArc,rbAxisA1);
+		btVector3 rbAxisB2 = axisInB.cross(rbAxisB1);
+
+
+		m_rbBFrame.getOrigin() = m_rbA.getCenterOfMassTransform()(pivotInA);
+		m_rbBFrame.getBasis().setValue( rbAxisB1.getX(),rbAxisB2.getX(),axisInB.getX(),
+										rbAxisB1.getY(),rbAxisB2.getY(),axisInB.getY(),
+										rbAxisB1.getZ(),rbAxisB2.getZ(),axisInB.getZ() );
+	}
+
 	btScalar	getLowerLimit() const
 	{
 		return m_lowerLimit;
@@ -143,8 +166,11 @@ public:
 	void testLimit();
 
 
-	const btTransform& getAFrame() { return m_rbAFrame; };	
-	const btTransform& getBFrame() { return m_rbBFrame; };
+	const btTransform& getAFrame() const { return m_rbAFrame; };	
+	const btTransform& getBFrame() const { return m_rbBFrame; };
+
+	btTransform& getAFrame() { return m_rbAFrame; };	
+	btTransform& getBFrame() { return m_rbBFrame; };
 
 	inline int getSolveLimit()
 	{

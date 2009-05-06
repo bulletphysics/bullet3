@@ -89,7 +89,18 @@ nail_constraint_t::pointer  solver_t::create_nail_constraint(rigid_body_t::point
 {
     return nail_constraint_t::pointer(new nail_constraint_t(m_impl->create_nail_constraint(rb->impl(), pivot), rb));
 }
-
+hinge_constraint_t::pointer  solver_t::create_hinge_constraint(rigid_body_t::pointer& rb, vec3f const& pivot)
+{
+    return hinge_constraint_t::pointer(new hinge_constraint_t(m_impl->create_hinge_constraint(rb->impl(), pivot), rb));
+}
+slider_constraint_t::pointer  solver_t::create_slider_constraint(rigid_body_t::pointer& rbA, vec3f const& pivotA, rigid_body_t::pointer& rbB, vec3f const& pivotB)
+{
+    return slider_constraint_t::pointer(new slider_constraint_t(m_impl->create_slider_constraint(rbA->impl(), pivotA, rbB->impl(), pivotB), rbA, rbB));
+}
+sixdof_constraint_t::pointer  solver_t::create_sixdof_constraint(rigid_body_t::pointer& rbA, vec3f const& pivotA, rigid_body_t::pointer& rbB, vec3f const& pivotB)
+{
+    return sixdof_constraint_t::pointer(new sixdof_constraint_t(m_impl->create_sixdof_constraint(rbA->impl(), pivotA, rbB->impl(), pivotB), rbA, rbB));
+}
 
 //add/remove from world
 void solver_t::add_rigid_body(rigid_body_t::pointer& rb)

@@ -29,12 +29,18 @@ Written by: Nicola Candussi <nicola@fluidinteractive.com>
 #include "rigidBodyNode.h"
 #include "rigidBodyArrayNode.h"
 #include "collisionShapeNode.h"
-#include "nailConstraintNode.h"
+#include "constraint/nailConstraintNode.h"
+#include "constraint/hingeConstraintNode.h"
+#include "constraint/sliderConstraintNode.h"
+#include "constraint/sixdofConstraintNode.h"
 #include "dSolverNode.h"
 #include "dSolverCmd.h"
 #include "dRigidBodyCmd.h"
 #include "dRigidBodyArrayCmd.h" 
-#include "dNailConstraintCmd.h" 
+#include "constraint/dNailConstraintCmd.h" 
+#include "constraint/dHingeConstraintCmd.h" 
+#include "constraint/dSliderConstraintCmd.h" 
+#include "constraint/dSixdofConstraintCmd.h" 
 #include "mvl/util.h"
 #include "colladaExport.h"
 
@@ -51,7 +57,7 @@ const char *const colladaDefaultOptions =
 MStatus initializePlugin( MObject obj )
 {
     MStatus   status;
-    MFnPlugin plugin( obj, "Walt Disney Feature Animation", "2.73", "Any");
+    MFnPlugin plugin( obj, "Walt Disney Feature Animation", "2.75", "Any");
 
     solver_t::initialize();
 
@@ -97,8 +103,31 @@ MStatus initializePlugin( MObject obj )
     MCHECKSTATUS(status, "registering nailConstraintNode")
     MDGMessage::addNodeRemovedCallback(nailConstraintNode::nodeRemoved, nailConstraintNode::typeName);
 
+    //
+    status = plugin.registerNode( hingeConstraintNode::typeName, hingeConstraintNode::typeId,
+                                  hingeConstraintNode::creator,
+                                  hingeConstraintNode::initialize,
+                                  MPxNode::kLocatorNode );
+    MCHECKSTATUS(status, "registering hingeConstraintNode")
+    MDGMessage::addNodeRemovedCallback(hingeConstraintNode::nodeRemoved, hingeConstraintNode::typeName);
 
-    // 
+	//
+    status = plugin.registerNode( sliderConstraintNode::typeName, sliderConstraintNode::typeId,
+                                  sliderConstraintNode::creator,
+                                  sliderConstraintNode::initialize,
+                                  MPxNode::kLocatorNode );
+    MCHECKSTATUS(status, "registering sliderConstraintNode")
+    MDGMessage::addNodeRemovedCallback(sliderConstraintNode::nodeRemoved, sliderConstraintNode::typeName);
+
+	//
+    status = plugin.registerNode( sixdofConstraintNode::typeName, sixdofConstraintNode::typeId,
+                                  sixdofConstraintNode::creator,
+                                  sixdofConstraintNode::initialize,
+                                  MPxNode::kLocatorNode );
+    MCHECKSTATUS(status, "registering sixdofConstraintNode")
+    MDGMessage::addNodeRemovedCallback(sixdofConstraintNode::nodeRemoved, sixdofConstraintNode::typeName);
+
+	// 
     status = plugin.registerNode( dSolverNode::typeName, dSolverNode::typeId,
                                   dSolverNode::creator, 
                                   dSolverNode::initialize,
@@ -126,7 +155,22 @@ MStatus initializePlugin( MObject obj )
                                      dNailConstraintCmd::syntax);
     MCHECKSTATUS(status, "registering dNailConstraintCmd")
 
-    MGlobal::executeCommand( "source dynamicaUI.mel" );
+    status = plugin.registerCommand( dHingeConstraintCmd::typeName,
+                                     dHingeConstraintCmd::creator,
+                                     dHingeConstraintCmd::syntax);
+    MCHECKSTATUS(status, "registering dHingeConstraintCmd")
+
+	status = plugin.registerCommand( dSliderConstraintCmd::typeName,
+                                     dSliderConstraintCmd::creator,
+                                     dSliderConstraintCmd::syntax);
+    MCHECKSTATUS(status, "registering dSliderConstraintCmd")
+
+	status = plugin.registerCommand( dSixdofConstraintCmd::typeName,
+                                     dSixdofConstraintCmd::creator,
+                                     dSixdofConstraintCmd::syntax);
+    MCHECKSTATUS(status, "registering dSixdofConstraintCmd")
+
+	MGlobal::executeCommand( "source dynamicaUI.mel" );
     MGlobal::executeCommand( "dynamicaUI_initialize" );
     
     return status;
@@ -140,7 +184,13 @@ MStatus uninitializePlugin( MObject obj )
     status = plugin.deregisterCommand(dNailConstraintCmd::typeName);
     MCHECKSTATUS(status, "deregistering dNailConstraintCmd")
 
-    status = plugin.deregisterCommand(dRigidBodyArrayCmd::typeName);
+    status = plugin.deregisterCommand(dHingeConstraintCmd::typeName);
+    MCHECKSTATUS(status, "deregistering dHingeConstraintCmd")
+
+    status = plugin.deregisterCommand(dSliderConstraintCmd::typeName);
+    MCHECKSTATUS(status, "deregistering dSliderConstraintCmd")
+
+	status = plugin.deregisterCommand(dRigidBodyArrayCmd::typeName);
     MCHECKSTATUS(status, "deregistering dRigidBodyArrayCmd")
 
     status = plugin.deregisterCommand(dRigidBodyCmd::typeName);
@@ -155,7 +205,16 @@ MStatus uninitializePlugin( MObject obj )
     status = plugin.deregisterNode(nailConstraintNode::typeId);
     MCHECKSTATUS(status, "deregistering nailConstraintNode")
 
-    status = plugin.deregisterNode(collisionShapeNode::typeId);
+	status = plugin.deregisterNode(hingeConstraintNode::typeId);
+    MCHECKSTATUS(status, "deregistering hingeConstraintNode")
+
+	status = plugin.deregisterNode(sliderConstraintNode::typeId);
+    MCHECKSTATUS(status, "deregistering sliderConstraintNode")
+
+	status = plugin.deregisterNode(sixdofConstraintNode::typeId);
+    MCHECKSTATUS(status, "deregistering sixdofConstraintNode")
+
+	status = plugin.deregisterNode(collisionShapeNode::typeId);
     MCHECKSTATUS(status, "deregistering collisionShapeNode")
 
     status = plugin.deregisterNode(rigidBodyArrayNode::typeId);

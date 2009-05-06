@@ -126,6 +126,7 @@ protected:
 public:
 	// constructors
     btSliderConstraint(btRigidBody& rbA, btRigidBody& rbB, const btTransform& frameInA, const btTransform& frameInB ,bool useLinearReferenceFrameA);
+    btSliderConstraint(btRigidBody& rbB, const btTransform& frameInB, bool useLinearReferenceFrameB);
     btSliderConstraint();
 	// overrides
     virtual void	buildJacobian();

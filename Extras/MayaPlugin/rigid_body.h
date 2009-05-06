@@ -67,6 +67,10 @@ public:
     void apply_central_force(vec3f const& f)                            { m_impl->apply_central_force(f);    }
     void apply_torque(vec3f const& t)                                   { m_impl->apply_torque(t);    }
 
+	void update_constraint()											{ m_impl->update_constraint(); }
+	void add_constraint(bt_constraint_t* constraint)					{ m_impl->add_constraint(constraint); }
+	void remove_constraint(bt_constraint_t* constraint)					{ m_impl->remove_constraint(constraint); }
+
 public:
     virtual ~rigid_body_t() {};
 

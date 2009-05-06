@@ -38,8 +38,12 @@ Written by: Nicola Candussi <nicola@fluidinteractive.com>
 #include "box_shape.h"
 #include "convex_hull_shape.h"
 #include "mesh_shape.h"
-#include "nail_constraint.h"
+#include "constraint/nail_constraint.h"
 #include "solver_impl.h"
+
+#include "constraint/hinge_constraint.h"
+#include "constraint/slider_constraint.h"
+#include "constraint/sixdof_constraint.h"
 
 class solver_t
 {
@@ -65,6 +69,9 @@ public:
     static rigid_body_t::pointer create_rigid_body(collision_shape_t::pointer& cs);
 
     static nail_constraint_t::pointer create_nail_constraint(rigid_body_t::pointer& rb, vec3f const& pivot = vec3f(0, 0, 0));
+    static hinge_constraint_t::pointer create_hinge_constraint(rigid_body_t::pointer& rb, vec3f const& pivot = vec3f(0, 0, 0));
+    static slider_constraint_t::pointer create_slider_constraint(rigid_body_t::pointer& rbA, vec3f const& pivotA, rigid_body_t::pointer& rbB, vec3f const& pivotB = vec3f(0, 0, 0));
+    static sixdof_constraint_t::pointer create_sixdof_constraint(rigid_body_t::pointer& rbA, vec3f const& pivotA, rigid_body_t::pointer& rbB, vec3f const& pivotB = vec3f(0, 0, 0));
 
     //add/remove from world
     static void add_rigid_body(rigid_body_t::pointer& rb);

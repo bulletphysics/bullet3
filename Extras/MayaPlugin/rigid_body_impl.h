@@ -27,6 +27,7 @@ Written by: Nicola Candussi <nicola@fluidinteractive.com>
 #define DYN_RIGID_BODY_IMPL_H
 
 #include "mathUtils.h"
+#include "constraint/bt_constraint.h"
 
 class rigid_body_impl_t
 {
@@ -54,6 +55,10 @@ public:
     virtual void clear_forces() = 0;
     virtual void apply_central_force(vec3f const& f) = 0;
     virtual void apply_torque(vec3f const& t) = 0;
+
+	virtual void update_constraint() = 0;
+	virtual void add_constraint(bt_constraint_t* constraint) = 0;
+	virtual void remove_constraint(bt_constraint_t* constraint) = 0;
 
 public:
     virtual ~rigid_body_impl_t() {};

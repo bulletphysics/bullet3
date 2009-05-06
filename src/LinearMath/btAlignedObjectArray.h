@@ -171,9 +171,9 @@ class btAlignedObjectArray
 		{
 			int curSize = size();
 
-			if (newsize < size())
+			if (newsize < curSize)
 			{
-				for(int i = curSize; i < newsize; i++)
+				for(int i = newsize; i < curSize; i++)
 				{
 					m_data[i].~T();
 				}

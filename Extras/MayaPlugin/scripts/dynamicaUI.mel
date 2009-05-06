@@ -316,6 +316,19 @@ global proc string dynamicaUI_createMainTab()
 		string $createNailConstraintBtn = `iconTextButton -style "iconAndTextVertical" -label "Nail"
                                                     -width 100 -image1 "dynamicaCreateNailConstraint.xpm" -c ("dynamicaUI_createNailConstraint")
                                                     -ann "Create a nail constraint"`;
+		string $createHingeConstraintBtn = `iconTextButton -style "iconAndTextVertical" -label "Hinge"
+                                                    -width 100 -image1 "dynamicaCreateHingeConstraint.xpm" -c ("dynamicaUI_createHingeConstraint")
+                                                    -ann "Create a hinge constraint"`;
+		string $createSliderConstraintBtn = `iconTextButton -style "iconAndTextVertical" -label "Slider"
+                                                    -width 100 -image1 "dynamicaCreateSliderConstraint.xpm" -c ("dynamicaUI_createSliderConstraint")
+                                                    -ann "Create a slider constraint"`;
+/*		string $createConeTwistConstraintBtn = `iconTextButton -style "iconAndTextVertical" -label "ConeTwist"
+                                                    -width 100 -image1 "dynamicaCreateConeTwistConstraint.xpm" -c ("dynamicaUI_createConeTwistConstraint")
+                                                    -ann "Create a conetwist constraint"`;
+*/		string $create6DofConstraintBtn = `iconTextButton -style "iconAndTextVertical" -label "6Dof"
+                                                    -width 100 -image1 "dynamicaCreate6DofConstraint.xpm" -c ("dynamicaUI_create6DofConstraint")
+                                                    -ann "Create a 6dof constraint"`;
+                                                    
 
 
 		setParent ..;
@@ -678,9 +691,8 @@ global proc dynamicaUI_createNailConstraint()
 
     //create dSolver node if necessary
     dSolver;
-
+    
     string $newConstraints[];
-
     for($i = 0; $i < size($selection) / 2; $i++) {
         if($selection[$i * 2 + 1] == "dRigidBody") {
             string $constraintNode = `dNailConstraint`;
@@ -689,9 +701,73 @@ global proc dynamicaUI_createNailConstraint()
             $newConstraints[$i] = $constraintTransforms[0];
         }
     }
-
     select -r $newConstraints;
+}
+global proc dynamicaUI_createHingeConstraint()
+{    
+    string $selection[] = `ls -selection -dag -leaf -showType -type "geometry"`;
 
+    //create dSolver node if necessary
+    dSolver;
+    
+    string $newConstraints[];
+    for($i = 0; $i < size($selection) / 2; $i++) {
+        if($selection[$i * 2 + 1] == "dRigidBody") {
+            string $constraintNode = `dHingeConstraint`;
+            connectAttr ($selection[$i * 2] + ".message") ($constraintNode + ".inRigidBody");
+            string $constraintTransforms[] = `listRelatives -parent $constraintNode`;
+            $newConstraints[$i] = $constraintTransforms[0];
+        }
+    }
+    select -r $newConstraints;
+}
+global proc dynamicaUI_createSliderConstraint()
+{    
+    string $selection[] = `ls -selection -dag -leaf -showType -type "geometry"`;
+
+    //create dSolver node if necessary
+    dSolver;
+    
+    string $newConstraints[];
+    if (size($selection) < 4) 
+		print("Requres 2 Rigid Body to create a Slider");
+    for($i = 0; $i < size($selection) / 4; $i++) {
+        if($selection[$i * 2 + 1] == "dRigidBody" && $selection[$i * 2 + 3] == "dRigidBody") {
+            string $constraintNode = `dSliderConstraint`;
+            connectAttr ($selection[$i * 2] + ".message") ($constraintNode + ".inRigidBodyA");
+            connectAttr ($selection[$i * 2 + 2] + ".message") ($constraintNode + ".inRigidBodyB");
+            string $constraintTransforms[] = `listRelatives -parent $constraintNode`;
+            $newConstraints[$i] = $constraintTransforms[0];
+		    select -r $newConstraints;
+        } else
+        {
+			print("Requres 2 Rigid Body to create a slider constraint");
+        }
+    }
+}
+global proc dynamicaUI_create6DofConstraint()
+{    
+    string $selection[] = `ls -selection -dag -leaf -showType -type "geometry"`;
+
+    //create dSolver node if necessary
+    dSolver;
+    
+    string $newConstraints[];
+    if (size($selection) < 4) 
+		print("Requres 2 Rigid Body to create a 6Dof constraint");
+    for($i = 0; $i < size($selection) / 4; $i++) {
+        if($selection[$i * 2 + 1] == "dRigidBody" && $selection[$i * 2 + 3] == "dRigidBody") {
+            string $constraintNode = `dSixdofConstraint`;
+            connectAttr ($selection[$i * 2] + ".message") ($constraintNode + ".inRigidBodyA");
+            connectAttr ($selection[$i * 2 + 2] + ".message") ($constraintNode + ".inRigidBodyB");
+            string $constraintTransforms[] = `listRelatives -parent $constraintNode`;
+            $newConstraints[$i] = $constraintTransforms[0];
+		    select -r $newConstraints;
+        } else
+        {
+			print("Requres 2 Rigid Body to create a 6Dof constraint");
+        }
+    }
 }
 
 global proc dyn_demo1()

@@ -37,7 +37,10 @@ Written by: Nicola Candussi <nicola@fluidinteractive.com>
 #include "bt_box_shape.h"
 #include "bt_convex_hull_shape.h"
 #include "bt_mesh_shape.h"
-#include "bt_nail_constraint.h"
+#include "constraint/bt_nail_constraint.h"
+#include "constraint/bt_hinge_constraint.h"
+#include "constraint/bt_slider_constraint.h"
+#include "constraint/bt_sixdof_constraint.h"
 
 class bt_solver_t: public solver_impl_t
 {
@@ -75,6 +78,18 @@ public:
     virtual nail_constraint_impl_t* create_nail_constraint(rigid_body_impl_t* rb, vec3f const& pivot)
     {
         return new bt_nail_constraint_t(rb, pivot);
+    }
+    virtual hinge_constraint_impl_t* create_hinge_constraint(rigid_body_impl_t* rb, vec3f const& pivot)
+    {
+        return new bt_hinge_constraint_t(rb, pivot);
+    }
+    virtual slider_constraint_impl_t* create_slider_constraint(rigid_body_impl_t* rbA, vec3f const& pivotA, rigid_body_impl_t* rbB, vec3f const& pivotB)
+    {
+        return new bt_slider_constraint_t(rbA, pivotA, rbB, pivotB);
+    }
+    virtual sixdof_constraint_impl_t* create_sixdof_constraint(rigid_body_impl_t* rbA, vec3f const& pivotA, rigid_body_impl_t* rbB, vec3f const& pivotB)
+    {
+        return new bt_sixdof_constraint_t(rbA, pivotA, rbB, pivotB);
     }
 
     virtual void add_rigid_body(rigid_body_impl_t* rb)

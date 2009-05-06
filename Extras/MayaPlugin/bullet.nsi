@@ -8,14 +8,14 @@
 ;--------------------------------
 
 ; The name of the installer
-Name "Dynamica Bullet 2.73 physics plugin for Maya 2008"
+Name "Dynamica Bullet 2.75 physics plugin for Maya 2008"
 
 ; The file to write
-OutFile "DynamicaForMaya2009_32bit.exe"
+OutFile "DynamicaForMaya2008_32bit.exe"
 
 
 ; The default installation directory
-InstallDir $PROGRAMFILES\DynamicaBullet2.73\
+InstallDir $PROGRAMFILES\DynamicaBullet2.75\
 
 UninstPage uninstConfirm
 UninstPage instfiles

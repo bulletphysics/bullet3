@@ -28,6 +28,8 @@ Written by: Nicola Candussi <nicola@fluidinteractive.com>
 #include "shared_ptr.h"
 #include "rigid_body_impl.h"
 #include "bt_collision_shape.h"
+#include "LinearMath/btAlignedObjectArray.h"
+#include "constraint/bt_constraint.h"
 
 class bt_rigid_body_t: public rigid_body_impl_t {
 public:
@@ -153,10 +155,28 @@ public:
         m_body->applyTorque(btVector3(t[0], t[1], t[2]));
     }
 
+	virtual void update_constraint()
+	{
+		int count = m_constraintRef.size();
+		for(int i=0; i<count; i++)
+		{
+			m_constraintRef[i]->update_constraint();
+		}
+	}
+
     btRigidBody* body() { return m_body.get(); }
 
+	virtual void add_constraint(bt_constraint_t* constraint)
+	{
+		m_constraintRef.push_back(constraint);
+	}
+	virtual void remove_constraint(bt_constraint_t* constraint)
+	{
+		m_constraintRef.remove(constraint);
+	}
 protected:
     friend class bt_solver_t;
+	btAlignedObjectArray<bt_constraint_t*> m_constraintRef;
 
     bt_rigid_body_t(collision_shape_impl_t* cs):
         m_collision_shape(cs),

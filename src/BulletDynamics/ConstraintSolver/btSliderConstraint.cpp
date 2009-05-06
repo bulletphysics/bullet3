@@ -89,6 +89,22 @@ btSliderConstraint::btSliderConstraint(btRigidBody& rbA, btRigidBody& rbB, const
 } // btSliderConstraint::btSliderConstraint()
 
 //-----------------------------------------------------------------------------
+static btRigidBody s_fixed(0, 0, 0);
+btSliderConstraint::btSliderConstraint(btRigidBody& rbB, const btTransform& frameInB, bool useLinearReferenceFrameB)
+        : btTypedConstraint(SLIDER_CONSTRAINT_TYPE, s_fixed, rbB)
+        ,
+        m_frameInB(frameInB),
+		m_useLinearReferenceFrameA(useLinearReferenceFrameB),
+		m_useSolveConstraintObsolete(false)
+//		m_useSolveConstraintObsolete(true)
+{
+	///not providing rigidbody B means implicitly using worldspace for body B
+//	m_frameInA.getOrigin() = m_rbA.getCenterOfMassTransform()(m_frameInA.getOrigin());
+
+	initParams();
+} // btSliderConstraint::btSliderConstraint()
+
+//-----------------------------------------------------------------------------
 
 void btSliderConstraint::buildJacobian()
 {

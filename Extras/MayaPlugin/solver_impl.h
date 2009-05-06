@@ -26,8 +26,12 @@ Written by: Nicola Candussi <nicola@fluidinteractive.com>
 #define DYN_SOLVER_IMPL_H
 
 #include "rigid_body_impl.h"
-#include "nail_constraint_impl.h"
+#include "constraint/nail_constraint_impl.h"
 #include "collision_shape_impl.h"
+
+#include "constraint/hinge_constraint_impl.h"
+#include "constraint/slider_constraint_impl.h"
+#include "constraint/sixdof_constraint_impl.h"
 
 class solver_impl_t
 {
@@ -49,6 +53,9 @@ public:
     virtual rigid_body_impl_t* create_rigid_body(collision_shape_impl_t* cs) = 0;
 
     virtual nail_constraint_impl_t* create_nail_constraint(rigid_body_impl_t* rb, vec3f const& pivot) = 0;
+    virtual hinge_constraint_impl_t* create_hinge_constraint(rigid_body_impl_t* rb, vec3f const& pivot) = 0;
+    virtual slider_constraint_impl_t* create_slider_constraint(rigid_body_impl_t* rbA, vec3f const& pivotA, rigid_body_impl_t* rbB, vec3f const& pivotB) = 0;
+    virtual sixdof_constraint_impl_t* create_sixdof_constraint(rigid_body_impl_t* rbA, vec3f const& pivotA, rigid_body_impl_t* rbB, vec3f const& pivotB) = 0;
 
     virtual void add_rigid_body(rigid_body_impl_t* rb) = 0;
 

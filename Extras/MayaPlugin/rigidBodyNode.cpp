@@ -470,6 +470,13 @@ void rigidBodyNode::computeWorldMatrix(const MPlug& plug, MDataBlock& data)
     m_rigid_body->set_transform(vec3f(mtranslation.x, mtranslation.y, mtranslation.z),
                                 quatf(mrotation.w, mrotation.x, mrotation.y, mrotation.z));
 
+    if(pos[0] != float(mtranslation.x) ||
+        pos[1] != float(mtranslation.y) ||
+        pos[2] != float(mtranslation.z)) 
+	{
+		m_rigid_body->update_constraint();
+	}
+
     data.setClean(plug);
 
     //set the scale to the collision shape
