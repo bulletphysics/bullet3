@@ -1,12 +1,20 @@
 if (CMAKE_SIZEOF_VOID_P MATCHES "8")
 SUBDIRS( OpenGL AllBulletDemos  ConvexDecompositionDemo Benchmarks HelloWorld
-CcdPhysicsDemo ConstraintDemo SliderConstraintDemo GenericJointDemo
+CcdPhysicsDemo ConstraintDemo SliderConstraintDemo GenericJointDemo Raytracer
 RagdollDemo ForkLiftDemo BasicDemo BspDemo MovingConcaveDemo VehicleDemo
-ColladaDemo UserCollisionAlgorithm CharacterDemo SoftDemo HeightFieldFluidDemo)
+ColladaDemo UserCollisionAlgorithm CharacterDemo SoftDemo HeightFieldFluidDemo
+CollisionInterfaceDemo ConcaveConvexcastDemo SimplexDemo DynamicControlDemo
+DoublePrecisionDemo ConcaveDemo CollisionDemo
+ContinuousConvexCollision ConcaveRaycastDemo GjkConvexCastDemo
+MultiMaterialDemo)
 else (CMAKE_SIZEOF_VOID_P MATCHES "8")
 SUBDIRS( OpenGL AllBulletDemos ConvexDecompositionDemo Benchmarks HelloWorld
-MultiThreadedDemo CcdPhysicsDemo ConstraintDemo SliderConstraintDemo
+MultiThreadedDemo CcdPhysicsDemo ConstraintDemo SliderConstraintDemo Raytracer
 GenericJointDemo RagdollDemo ForkLiftDemo BasicDemo BspDemo MovingConcaveDemo
 VehicleDemo ColladaDemo UserCollisionAlgorithm CharacterDemo SoftDemo
- HeightFieldFluidDemo)
+ HeightFieldFluidDemo
+CollisionInterfaceDemo ConcaveConvexcastDemo SimplexDemo DynamicControlDemo
+DoublePrecisionDemo ConcaveDemo CollisionDemo
+ContinuousConvexCollision ConcaveRaycastDemo GjkConvexCastDemo
+MultiMaterialDemo)
 endif (CMAKE_SIZEOF_VOID_P MATCHES "8")
