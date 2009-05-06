@@ -44,11 +44,9 @@ void	btTriangleIndexVertexArray::getLockedVertexIndexBase(unsigned char **vertex
 
 	numverts = mesh.m_numVertices;
 	(*vertexbase) = (unsigned char *) mesh.m_vertexBase;
-	#ifdef BT_USE_DOUBLE_PRECISION
-	type = PHY_DOUBLE;
-	#else
-	type = PHY_FLOAT;
-	#endif
+
+   type = mesh.m_vertexType;
+
 	vertexStride = mesh.m_vertexStride;
 
 	numfaces = mesh.m_numTriangles;
@@ -64,11 +62,9 @@ void	btTriangleIndexVertexArray::getLockedReadOnlyVertexIndexBase(const unsigned
 
 	numverts = mesh.m_numVertices;
 	(*vertexbase) = (const unsigned char *)mesh.m_vertexBase;
-	#ifdef BT_USE_DOUBLE_PRECISION
-	type = PHY_DOUBLE;
-	#else
-	type = PHY_FLOAT;
-	#endif
+
+   type = mesh.m_vertexType;
+   
 	vertexStride = mesh.m_vertexStride;
 
 	numfaces = mesh.m_numTriangles;
