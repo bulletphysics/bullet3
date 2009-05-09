@@ -15,10 +15,10 @@ subject to the following restrictions:
 #ifndef COLLISION_INTERFACE_DEMO_H
 #define COLLISION_INTERFACE_DEMO_H
 
-#include "DemoApplication.h"
+#include "GlutDemoApplication.h"
 
 ///DoublePrecisionDemo shows how to use the collision detection without dynamics (btCollisionWorld/CollisionObject)
-class DoublePrecisionDemo : public DemoApplication
+class DoublePrecisionDemo : public GlutDemoApplication
 {
 	public:
 

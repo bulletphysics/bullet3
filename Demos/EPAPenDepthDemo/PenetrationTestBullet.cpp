@@ -16,13 +16,14 @@
 #include <GL/glut.h>
 #endif
 
+
 #include <stdlib.h>
 #include <stdio.h>
 #include <math.h>
 
 #define VERBOSE_TEXT_ONSCREEN 1
 #ifdef VERBOSE_TEXT_ONSCREEN
-#include "BMF_Api.h"
+#include "GLDebugFont.h"
 #endif
 
 #include "btBulletCollisionCommon.h"
@@ -693,19 +694,16 @@ static void RenderCallback()
 	float yIncr = 20.f;
 	char buf[124];
 
-	glRasterPos3f(xOffset,yStart,0);
 	sprintf(buf,"gDepth=%f:  gNormal=(%f  %f  %f)\n", gDepth, gNormal.x(), gNormal.y(), gNormal.z());
-	BMF_DrawString(BMF_GetFont(BMF_kHelvetica10),buf);
+	GLDebugDrawString(xOffset,yStart,buf);
 	yStart += yIncr;
 
-	glRasterPos3f(xOffset,yStart,0);
 	sprintf(buf,"num GJK iterations =%d\n", gNumGjkIterations);
-	BMF_DrawString(BMF_GetFont(BMF_kHelvetica10),buf);
+	GLDebugDrawString(xOffset,yStart,buf);
 	yStart += yIncr;
 
-	glRasterPos3f(xOffset,yStart,0);
 	sprintf(buf,"gLastUsedMethod=%d\n", gLastUsedMethod);
-	BMF_DrawString(BMF_GetFont(BMF_kHelvetica10),buf);
+	GLDebugDrawString(xOffset,yStart,buf);
 	yStart += yIncr;
 
 	
@@ -731,23 +729,20 @@ static void RenderCallback()
 		default:
 				sprintf(buf,"Unknown Penetration Depth\n" );
 		}
-		glRasterPos3f(xOffset,yStart,0);
-		BMF_DrawString(BMF_GetFont(BMF_kHelvetica10),buf);
+		GLDebugDrawString(xOffset,yStart,buf);
 		yStart += yIncr;
 
 	} else
 	{
-		glRasterPos3f(xOffset,yStart,0);
 		sprintf(buf,"Hybrid GJK method %d\n", gLastUsedMethod);
-		BMF_DrawString(BMF_GetFont(BMF_kHelvetica10),buf);
+		GLDebugDrawString(xOffset,yStart,buf);
 		yStart += yIncr;
 	}
 
 	if (gLastDegenerateSimplex)
 	{
-		glRasterPos3f(xOffset,yStart,0);
 		sprintf(buf,"DegenerateSimplex %d\n", gLastDegenerateSimplex);
-		BMF_DrawString(BMF_GetFont(BMF_kHelvetica10),buf);
+		GLDebugDrawString(xOffset,yStart,buf);
 		yStart += yIncr;
 	}
 

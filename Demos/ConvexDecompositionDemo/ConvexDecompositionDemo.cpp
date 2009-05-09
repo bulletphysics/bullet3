@@ -34,7 +34,7 @@ subject to the following restrictions:
 
 
 
-#include "BMF_Api.h"
+#include "GLDebugFont.h"
 #include <stdio.h> //printf debugging
 
 
@@ -53,6 +53,13 @@ btVector3   convexDecompositionObjectOffset(10,0,0);
 ////////////////////////////////////
 
 unsigned int tcount = 0;
+
+
+void ConvexDecompositionDemo::initPhysics()
+{
+	initPhysics("file.obj");
+}
+
 
 
 

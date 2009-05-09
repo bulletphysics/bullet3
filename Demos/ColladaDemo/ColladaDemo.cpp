@@ -25,7 +25,7 @@ subject to the following restrictions:
 
 #include "ColladaConverter.h"
 
-#include "BMF_Api.h"
+#include "GLDebugFont.h"
 #include <stdio.h> //printf debugging
 
 float deltaTime = 1.f/60.f;
@@ -99,6 +99,12 @@ int main(int argc,char** argv)
 	colladaDemo->setCameraDistance(26.f);
 
 	return glutmain(argc, argv,640,480,"Bullet COLLADA Physics Viewer http://bulletphysics.org",colladaDemo);
+}
+
+void ColladaDemo::initPhysics()
+{
+	const char* filename = "jenga.dae";
+	initPhysics(filename);
 }
 
 void	ColladaDemo::initPhysics(const char* filename)

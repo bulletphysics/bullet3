@@ -15,7 +15,7 @@ subject to the following restrictions:
 #ifndef CONVEX_DECOMPOSITION_DEMO_H
 #define CONVEX_DECOMPOSITION_DEMO_H
 
-#include "DemoApplication.h"
+#include "GlutDemoApplication.h"
 #include "LinearMath/btAlignedObjectArray.h"
 
 class btBroadphaseInterface;
@@ -28,7 +28,7 @@ class btDefaultCollisionConfiguration;
 class btTriangleMesh;
 
 ///ConvexDecompositionDemo shows automatic convex decomposition of a concave mesh
-class ConvexDecompositionDemo : public DemoApplication
+class ConvexDecompositionDemo : public GlutDemoApplication
 {
 
 public:
@@ -48,6 +48,7 @@ public:
 	btDefaultCollisionConfiguration* m_collisionConfiguration;
 
 
+	virtual void initPhysics();
 
 	void	initPhysics(const char* filename);
 

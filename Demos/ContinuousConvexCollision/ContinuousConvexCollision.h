@@ -15,10 +15,10 @@ subject to the following restrictions:
 #ifndef CONTINUOUS_CONVEX_COLLISION_DEMO_H
 #define CONTINUOUS_CONVEX_COLLISION_DEMO_H
 
-#include "DemoApplication.h"
+#include "GlutDemoApplication.h"
 
 ///ContinuousConvexCollisionDemo shows the working of the continuous collision detection, including linear and angular motion
-class btContinuousConvexCollisionDemo : public DemoApplication
+class btContinuousConvexCollisionDemo : public GlutDemoApplication
 {
 	public:
 

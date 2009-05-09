@@ -15,7 +15,7 @@ subject to the following restrictions:
 #ifndef RAYTRACER_H
 #define RAYTRACER_H
 
-#include "DemoApplication.h"
+#include "GlutDemoApplication.h"
 
 class btDefaultCollisionConfiguration;
 class btCollisionDispatcher;
@@ -23,7 +23,7 @@ class btAxisSweep3;
 class btCollisionWorld;
 
 ///Raytracer shows the inner working of the ray casting, using ray tracing rendering into a texture.
-class Raytracer : public DemoApplication
+class Raytracer : public GlutDemoApplication
 {
 
 	btDefaultCollisionConfiguration*	m_collisionConfiguration;

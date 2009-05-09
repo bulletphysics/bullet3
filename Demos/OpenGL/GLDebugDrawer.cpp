@@ -1,20 +1,10 @@
 
 #include "GLDebugDrawer.h"
+#include "GLDebugFont.h"
+#include "GlutStuff.h"
 
-#ifdef WIN32 //needed for glut.h
-#include <windows.h>
-#endif
 
-//think different
-#if defined(__APPLE__) && !defined (VMDMESA)
-#include <OpenGL/gl.h>
-#include <OpenGL/glu.h>
-#include <GLUT/glut.h>
-#else
-#include <GL/glut.h>
-#endif
 
-#include "BMF_Api.h"
 #include <stdio.h> //printf debugging
 GLDebugDrawer::GLDebugDrawer()
 :m_debugMode(0)
@@ -49,7 +39,7 @@ void GLDebugDrawer::drawSphere (const btVector3& p, btScalar radius, const btVec
 	glColor4f (color.getX(), color.getY(), color.getZ(), btScalar(1.0f));
 	glPushMatrix ();
 	glTranslatef (p.getX(), p.getY(), p.getZ());
-	glutSolidSphere (radius, 10, 10);
+//	glutSolidSphere (radius, 10, 10);
 	glPopMatrix();
 }
 
@@ -63,7 +53,7 @@ void GLDebugDrawer::drawBox (const btVector3& boxMin, const btVector3& boxMax, c
 	glPushMatrix ();
 	glTranslatef (center.getX(), center.getY(), center.getZ());
 	glScaled(2*halfExtent[0], 2*halfExtent[1], 2*halfExtent[2]);
-	glutSolidCube(1.0);
+//	glutSolidCube(1.0);
 	glPopMatrix ();
 	//glDisable(GL_BLEND);
 }
@@ -92,7 +82,7 @@ void	GLDebugDrawer::setDebugMode(int debugMode)
 void	GLDebugDrawer::draw3dText(const btVector3& location,const char* textString)
 {
 	glRasterPos3f(location.x(),  location.y(),  location.z());
-	BMF_DrawString(BMF_GetFont(BMF_kHelvetica10),textString);
+	//BMF_DrawString(BMF_GetFont(BMF_kHelvetica10),textString);
 }
 
 void	GLDebugDrawer::reportErrorWarning(const char* warningString)
@@ -118,7 +108,7 @@ void	GLDebugDrawer::drawContactPoint(const btVector3& pointOnB,const btVector3& 
 		glRasterPos3f(from.x(),  from.y(),  from.z());
 		char buf[12];
 		sprintf(buf," %d",lifeTime);
-		BMF_DrawString(BMF_GetFont(BMF_kHelvetica10),buf);
+		//BMF_DrawString(BMF_GetFont(BMF_kHelvetica10),buf);
 
 
 	}

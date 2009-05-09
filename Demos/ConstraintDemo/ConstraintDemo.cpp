@@ -21,7 +21,7 @@ subject to the following restrictions:
 
 #include "GLDebugDrawer.h"
 
-#include "BMF_Api.h"
+#include "GLDebugFont.h"
 #include <stdio.h> //printf debugging
 
 #include "ConstraintDemo.h"

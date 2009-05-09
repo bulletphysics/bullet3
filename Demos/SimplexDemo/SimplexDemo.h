@@ -15,10 +15,10 @@ subject to the following restrictions:
 #ifndef SIMPLEX_DEMO_H
 #define SIMPLEX_DEMO_H
 
-#include "DemoApplication.h"
+#include "GlutDemoApplication.h"
 
 ///SimplexDemo shows the working of the sub-distance algorithm, used inside GJK
-class SimplexDemo : public DemoApplication
+class SimplexDemo : public GlutDemoApplication
 {
 	public:
 

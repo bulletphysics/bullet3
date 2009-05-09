@@ -16,11 +16,11 @@ subject to the following restrictions:
 #define TERRAIN_DEMO_H
 
 
-#include "DemoApplication.h"
+#include "GlutDemoApplication.h"
 
 
 // all we need to expose publicly is the factory method!
-DemoApplication * btCreateTerrainDemo(void);
+GlutDemoApplication * btCreateTerrainDemo(void);
 
 
 #endif //TERRAIN_DEMO_H

@@ -21,10 +21,10 @@ class btCollisionShape;
 
 #include "BulletDynamics/Vehicle/btRaycastVehicle.h"
 
-#include "DemoApplication.h"
+#include "GlutDemoApplication.h"
 
 ///VehicleDemo shows how to setup and use the built-in raycast vehicle
-class VehicleDemo : public DemoApplication
+class VehicleDemo : public GlutDemoApplication
 {
 	public:
 

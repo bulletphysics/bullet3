@@ -25,12 +25,58 @@ subject to the following restrictions:
 #include <OpenGL/glu.h>
 #include <GLUT/glut.h>
 #else
+#ifndef _WINDOWS
 #include <GL/glut.h>
+#else
+#include <windows.h>
+#include <GL/gl.h>
+#include <GL/glu.h>
 #endif
+#endif
+
+#ifdef _WINDOWS
+#define BT_KEY_K 'K'
+#define BT_KEY_LEFT			VK_LEFT
+#define BT_KEY_RIGHT		VK_RIGHT
+#define BT_KEY_UP			VK_UP
+#define BT_KEY_DOWN			VK_DOWN
+#define	BT_KEY_F1			VK_F1
+#define	BT_KEY_F2			VK_F2
+#define	BT_KEY_F3			VK_F3
+#define	BT_KEY_F4			VK_F4
+#define	BT_KEY_F5			VK_F5
+#define BT_KEY_PAGEUP		VK_PRIOR
+#define BT_KEY_PAGEDOWN		VK_NEXT
+#define BT_KEY_END			VK_END
+#define BT_KEY_HOME			VK_HOME
+
+
+#else
+#define BT_KEY_K 'k'
+#define BT_KEY_LEFT			GLUT_KEY_LEFT
+#define BT_KEY_RIGHT		GLUT_KEY_RIGHT
+#define BT_KEY_UP			GLUT_KEY_UP
+#define BT_KEY_DOWN			GLUT_KEY_DOWN
+#define	BT_KEY_F1			GLUT_KEY_F1
+#define	BT_KEY_F2			GLUT_KEY_F2
+#define	BT_KEY_F3			GLUT_KEY_F3
+#define	BT_KEY_F4			GLUT_KEY_F4
+#define	BT_KEY_F5			GLUT_KEY_F5
+#define BT_KEY_PAGEUP		GLUT_KEY_PAGE_UP
+#define BT_KEY_PAGEDOWN		GLUT_KEY_PAGE_DOWN
+#define BT_KEY_END			GLUT_KEY_END
+#define BT_KEY_HOME			GLUT_KEY_HOME
+#define BT_ACTIVE_ALT		GLUT_ACTIVE_ALT
+#define	BT_ACTIVE_CTRL		GLUT_ACTIVE_ALT
+#define BT_ACTIVE_SHIFT		GLUT_ACTIVE_SHIFT
+
+#endif
+
 
 #if BT_USE_FREEGLUT
 #include "GL/freeglut_ext.h" //to be able to return from glutMainLoop()
 #endif
+
 
 
 class DemoApplication;

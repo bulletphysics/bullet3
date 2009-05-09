@@ -15,7 +15,7 @@ subject to the following restrictions:
 #ifndef BSP_DEMO_H
 #define BSP_DEMO_H
 
-#include "DemoApplication.h"
+#include "GlutDemoApplication.h"
 #include "LinearMath/btAlignedObjectArray.h"
 
 class btBroadphaseInterface;
@@ -28,7 +28,7 @@ class btDefaultCollisionConfiguration;
 
 
 ///BspDemo shows the convex collision detection, by converting a Quake BSP file into convex objects and allowing interaction with boxes.
-class BspDemo : public DemoApplication
+class BspDemo : public GlutDemoApplication
 {
 	public:
 
@@ -48,7 +48,9 @@ class BspDemo : public DemoApplication
 
 	virtual ~BspDemo();
 
-	void	initPhysics(char* bspfilename);
+	virtual void	initPhysics();
+
+	void	initPhysics(const char* bspfilename);
 
 	virtual void clientMoveAndDisplay();
 

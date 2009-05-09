@@ -19,7 +19,7 @@ Written by: Marten Svanfeldt
 #ifndef RAGDOLLDEMO_H
 #define RAGDOLLDEMO_H
 
-#include "DemoApplication.h"
+#include "GlutDemoApplication.h"
 #include "LinearMath/btAlignedObjectArray.h"
 class btBroadphaseInterface;
 class btCollisionShape;
@@ -29,7 +29,7 @@ class btConstraintSolver;
 struct btCollisionAlgorithmCreateFunc;
 class btDefaultCollisionConfiguration;
 
-class RagdollDemo : public DemoApplication
+class RagdollDemo : public GlutDemoApplication
 {
 
 	btAlignedObjectArray<class RagDoll*> m_ragdolls;

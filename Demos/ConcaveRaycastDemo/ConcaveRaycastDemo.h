@@ -15,7 +15,7 @@ subject to the following restrictions:
 #ifndef CONCAVE_RAYCAST_DEMO_H
 #define CONCAVE_RAYCAST_DEMO_H
 
-#include "DemoApplication.h"
+#include "GlutDemoApplication.h"
 #include "LinearMath/btAlignedObjectArray.h"
 
 class btBroadphaseInterface;
@@ -28,7 +28,7 @@ class btDefaultCollisionConfiguration;
 class btTriangleIndexVertexArray;
 
 ///ConcaveRaycastDemo shows usage of static concave triangle meshes
-class ConcaveRaycastDemo : public DemoApplication
+class ConcaveRaycastDemo : public GlutDemoApplication
 {
 
 	//keep the collision shapes, for deletion/cleanup

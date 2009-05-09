@@ -19,11 +19,11 @@ Written by: Marten Svanfeldt
 #ifndef GENERIGJOINTDEMO_H
 #define GENERIGJOINTDEMO_H
 
-#include "DemoApplication.h"
+#include "GlutDemoApplication.h"
 #include "LinearMath/btAlignedObjectArray.h"
 #include "Ragdoll.h"
 
-class GenericJointDemo : public DemoApplication
+class GenericJointDemo : public GlutDemoApplication
 {
 
 	btAlignedObjectArray<class RagDoll*> m_ragdolls;

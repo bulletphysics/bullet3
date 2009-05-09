@@ -20,7 +20,7 @@ subject to the following restrictions:
 ///with gears etc.
 #include "btBulletDynamicsCommon.h"
 #include "BulletCollision/CollisionShapes/btHeightfieldTerrainShape.h"
-
+#include "GLDebugFont.h"
 
 #ifndef M_PI
 #define M_PI       3.14159265358979323846
@@ -62,7 +62,7 @@ subject to the following restrictions:
 
 #include "GlutStuff.h"
 #include "ForkLiftDemo.h"
-#include "BMF_Api.h"
+
 
 const int maxProxies = 32766;
 const int maxOverlap = 65535;
@@ -439,7 +439,7 @@ void ForkLiftDemo::renderme()
 
 	int lineWidth=250;
 	int xStart = m_glutScreenWidth - lineWidth;
-	
+	int yStart = 20;
 
 	if((getDebugMode() & btIDebugDraw::DBG_NoHelpText)==0)
 	{
@@ -447,18 +447,23 @@ void ForkLiftDemo::renderme()
 		glDisable(GL_LIGHTING);
 		glColor3f(0, 0, 0);
 		char buf[124];
-		glRasterPos3f(xStart, 20, 0);
+		
+		glRasterPos3f(xStart, yStart, 0);
 		sprintf(buf,"SHIFT+Cursor Left/Right - rotate lift");
-		BMF_DrawString(BMF_GetFont(BMF_kHelvetica10),buf);
-		glRasterPos3f(xStart, 40, 0);
+		GLDebugDrawString(xStart,20,buf);
+		yStart+=20;
+		glRasterPos3f(xStart, yStart, 0);
 		sprintf(buf,"SHIFT+Cursor UP/Down - move fork up/down");
-		BMF_DrawString(BMF_GetFont(BMF_kHelvetica10),buf);
-		glRasterPos3f(xStart, 60, 0);
+		yStart+=20;
+		GLDebugDrawString(xStart,yStart,buf);
+		glRasterPos3f(xStart, yStart, 0);
 		sprintf(buf,"F5 - toggle camera mode");
-		BMF_DrawString(BMF_GetFont(BMF_kHelvetica10),buf);
-		glRasterPos3f(xStart, 80, 0);
-                sprintf(buf,"Click inside this window for keyboard focus");
-		BMF_DrawString(BMF_GetFont(BMF_kHelvetica10),buf);
+		yStart+=20;
+		GLDebugDrawString(xStart,yStart,buf);
+		glRasterPos3f(xStart, yStart, 0);
+        sprintf(buf,"Click inside this window for keyboard focus");
+		yStart+=20;
+		GLDebugDrawString(xStart,yStart,buf);
 
 
 		resetPerspectiveProjection();

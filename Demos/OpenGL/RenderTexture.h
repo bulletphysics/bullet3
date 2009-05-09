@@ -17,7 +17,7 @@ subject to the following restrictions:
 #define RENDER_TEXTURE_H
 
 #include "LinearMath/btVector3.h"
-#include "BMF_FontData.h"
+#include "GLDebugFont.h"
 
 ///
 ///renderTexture provides a software-render context (setpixel/printf)
@@ -55,7 +55,7 @@ public:
 	const unsigned char*	getBuffer() const { return m_buffer;}
 	int	getWidth() const { return m_width;}
 	int	getHeight() const { return m_height;}
-	void grapicalPrintf(char* str,	BMF_FontData* fontData, int startx = 0,int starty=0);
+	void grapicalPrintf(char* str,	void* fontData, int startx = 0,int starty=0);
 
 };
 

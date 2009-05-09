@@ -54,7 +54,6 @@ Experimental Buoyancy fluid demo written by John McCutchan
 
 #include "LinearMath/btIDebugDraw.h"
 //for debugmodes
-#include "BMF_Api.h"
 #include <stdio.h> //printf debugging
 
 #include <map>
@@ -422,7 +421,7 @@ void HfFluidDemo_GL_ShapeDrawer::drawOpenGL(btScalar* m, const btCollisionShape*
 					glRasterPos3f(vtx.x(),  vtx.y(),  vtx.z());
 					char buf[12];
 					sprintf(buf," %d",i);
-					BMF_DrawString(BMF_GetFont(BMF_kHelvetica10),buf);
+//					BMF_DrawString(BMF_GetFont(BMF_kHelvetica10),buf);
 				}
 
 				for (i=0;i<polyshape->getNumPlanes();i++)
@@ -435,7 +434,7 @@ void HfFluidDemo_GL_ShapeDrawer::drawOpenGL(btScalar* m, const btCollisionShape*
 					glRasterPos3f(normal.x()*d,  normal.y()*d, normal.z()*d);
 					char buf[12];
 					sprintf(buf," plane %d",i);
-					BMF_DrawString(BMF_GetFont(BMF_kHelvetica10),buf);
+//					BMF_DrawString(BMF_GetFont(BMF_kHelvetica10),buf);
 
 				}
 			}
@@ -502,7 +501,7 @@ glDisable(GL_DEPTH_TEST);
 glRasterPos3f(0,0,0);//mvtx.x(),  vtx.y(),  vtx.z());
 if (debugMode&btIDebugDraw::DBG_DrawText)
 {
-	BMF_DrawString(BMF_GetFont(BMF_kHelvetica10),shape->getName());
+//	BMF_DrawString(BMF_GetFont(BMF_kHelvetica10),shape->getName());
 }
 
 if (debugMode& btIDebugDraw::DBG_DrawFeaturesText)

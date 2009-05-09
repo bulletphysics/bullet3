@@ -28,7 +28,7 @@ subject to the following restrictions:
 #include "BspConverter.h"
 #endif //QUAKE_BSP_IMPORTING
 
-#include "BMF_Api.h"
+
 #include <stdio.h> //printf debugging
 
 
@@ -131,7 +131,16 @@ BspDemo::~BspDemo()
 	delete m_collisionConfiguration;
 }
 
-void	BspDemo::initPhysics(char* bspfilename)
+void	BspDemo::initPhysics()
+{
+	const char* bspfilename = "BspDemo.bsp";
+	
+	initPhysics(bspfilename);
+}
+
+
+
+void	BspDemo::initPhysics(const char* bspfilename)
 {
 	setTexturing(true);
 	setShadows(false);

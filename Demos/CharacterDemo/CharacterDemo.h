@@ -28,10 +28,10 @@ class btKinematicCharacterController;
 class btCollisionShape;
 
 
-#include "DemoApplication.h"
+#include "GlutDemoApplication.h"
 
 ///CharacterDemo shows how to setup and use the built-in raycast vehicle
-class CharacterDemo : public DemoApplication
+class CharacterDemo : public GlutDemoApplication
 {
 	public:
 

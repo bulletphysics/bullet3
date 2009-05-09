@@ -23,10 +23,10 @@ class btCollisionShape;
 #include "BulletDynamics/ConstraintSolver/btHingeConstraint.h"
 #include "BulletDynamics/ConstraintSolver/btSliderConstraint.h"
 
-#include "DemoApplication.h"
+#include "GlutDemoApplication.h"
 
 ///VehicleDemo shows how to setup and use the built-in raycast vehicle
-class ForkLiftDemo : public DemoApplication
+class ForkLiftDemo : public GlutDemoApplication
 {
 	public:
 

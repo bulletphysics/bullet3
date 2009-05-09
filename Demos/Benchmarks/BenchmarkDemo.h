@@ -15,7 +15,7 @@ subject to the following restrictions:
 #ifndef BENCHMARK_DEMO_H
 #define BENCHMARK_DEMO_H
 
-#include "DemoApplication.h"
+#include "GlutDemoApplication.h"
 #include "LinearMath/btAlignedObjectArray.h"
 #define NUMRAYS 500
 
@@ -28,7 +28,7 @@ struct btCollisionAlgorithmCreateFunc;
 class btDefaultCollisionConfiguration;
 
 ///BenchmarkDemo is provides several performance tests
-class BenchmarkDemo : public DemoApplication
+class BenchmarkDemo : public GlutDemoApplication
 {
 
 	//keep the collision shapes, for deletion/cleanup

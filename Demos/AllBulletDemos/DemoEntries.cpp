@@ -32,16 +32,16 @@ subject to the following restrictions:
 #include "../ConstraintDemo/ConstraintDemo.h"
 #include "../Benchmarks/BenchmarkDemo.h"
 #include "../SoftDemo/SoftDemo.h"
-
+#include "GLDebugFont.h"
 
 #include "GlutStuff.h"//OpenGL stuff
-#include "BMF_Api.h"//font stuff
+
 
 extern int gNumAlignedAllocs;
 extern int gNumAlignedFree;
 extern int gTotalBytesAlignedAllocs;
 
-class btEmptyDebugDemo : public DemoApplication
+class btEmptyDebugDemo : public GlutDemoApplication
 {
 public:
 	btEmptyDebugDemo()
@@ -66,22 +66,22 @@ public:
 
 		glRasterPos3f(xOffset,yStart,0);
 		sprintf(buf,"gNumAlignedAllocs= %d",gNumAlignedAllocs);
-		BMF_DrawString(BMF_GetFont(BMF_kHelvetica10),buf);
+		GLDebugDrawString(xOffset,yStart,buf);
 		yStart += yIncr;
 
 		glRasterPos3f(xOffset,yStart,0);
 		sprintf(buf,"gNumAlignedFree= %d",gNumAlignedFree);
-		BMF_DrawString(BMF_GetFont(BMF_kHelvetica10),buf);
+		GLDebugDrawString(xOffset,yStart,buf);
 		yStart += yIncr;
 
 		glRasterPos3f(xOffset,yStart,0);
 		sprintf(buf,"# alloc-free = %d",gNumAlignedAllocs-gNumAlignedFree);
-		BMF_DrawString(BMF_GetFont(BMF_kHelvetica10),buf);
+		GLDebugDrawString(xOffset,yStart,buf);
 		yStart += yIncr;
 #ifdef BT_DEBUG_MEMORY_ALLOCATIONS
 		glRasterPos3f(xOffset,yStart,0);
 		sprintf(buf,"gTotalBytesAlignedAllocs = %d",gTotalBytesAlignedAllocs);
-		BMF_DrawString(BMF_GetFont(BMF_kHelvetica10),buf);
+		GLDebugDrawString(xOffset,yStart,buf);
 		yStart += yIncr;
 #endif //BT_DEBUG_MEMORY_ALLOCATIONS
 
@@ -89,6 +89,8 @@ public:
 	glutSwapBuffers();
 			
 	}
+
+	virtual	void initPhysics() {}
 
 	static DemoApplication* Create()
 	{

@@ -15,7 +15,7 @@ subject to the following restrictions:
 #ifndef BASIC_DEMO_H
 #define BASIC_DEMO_H
 
-#include "DemoApplication.h"
+#include "GlutDemoApplication.h"
 #include "LinearMath/btAlignedObjectArray.h"
 
 class btBroadphaseInterface;
@@ -27,7 +27,7 @@ struct btCollisionAlgorithmCreateFunc;
 class btDefaultCollisionConfiguration;
 
 ///BasicDemo is good starting point for learning the code base and porting.
-class BasicDemo : public DemoApplication
+class BasicDemo : public GlutDemoApplication
 {
 
 	//keep the collision shapes, for deletion/cleanup

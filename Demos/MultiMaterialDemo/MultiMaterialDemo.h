@@ -15,7 +15,7 @@ subject to the following restrictions:
 #ifndef CONCAVE_DEMO_H
 #define CONCAVE_DEMO_H
 
-#include "DemoApplication.h"
+#include "GlutDemoApplication.h"
 #include "LinearMath/btAlignedObjectArray.h"
 
 class btBroadphaseInterface;
@@ -29,7 +29,7 @@ class btTriangleIndexVertexArray;
 
 ///MultiMaterialDemo shows usage of static concave triangle meshes
 ///It also shows per-triangle material (friction/restitution) through CustomMaterialCombinerCallback
-class MultiMaterialDemo : public DemoApplication
+class MultiMaterialDemo : public GlutDemoApplication
 {
 
 	//keep the collision shapes, for deletion/cleanup

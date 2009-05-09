@@ -23,7 +23,7 @@ subject to the following restrictions:
 #include "BulletCollision/NarrowPhaseCollision/btGjkEpa2.h"
 #include "LinearMath/btQuickprof.h"
 #include "LinearMath/btIDebugDraw.h"
-#include "BMF_Api.h"
+
 #include "../GimpactTestDemo/BunnyMesh.h"
 #include "../GimpactTestDemo/TorusMesh.h"
 #include <stdio.h> //printf debugging

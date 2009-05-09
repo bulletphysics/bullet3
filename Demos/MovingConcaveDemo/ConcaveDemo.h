@@ -15,13 +15,13 @@ subject to the following restrictions:
 #ifndef CONCAVE_DEMO_H
 #define CONCAVE_DEMO_H
 
-#include "DemoApplication.h"
+#include "GlutDemoApplication.h"
 
 struct btCollisionAlgorithmCreateFunc;
 
 ///ConcaveDemo shows usage of static concave triangle meshes
 ///It also shows per-triangle material (friction/restitution) through CustomMaterialCombinerCallback
-class ConcaveDemo : public DemoApplication
+class ConcaveDemo : public GlutDemoApplication
 {
 
 	btCollisionShape * m_trimeshShape;

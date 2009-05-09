@@ -15,10 +15,10 @@ subject to the following restrictions:
 #ifndef LINEAR_CONVEX_CAST_DEMO_H
 #define LINEAR_CONVEX_CAST_DEMO_H
 
-#include "DemoApplication.h"
+#include "GlutDemoApplication.h"
 
 ///LinearConvexCastDemo shows the working of the object sweep / pure-linear continuous collision detection query
-class LinearConvexCastDemo : public DemoApplication
+class LinearConvexCastDemo : public GlutDemoApplication
 {
 	public:
 

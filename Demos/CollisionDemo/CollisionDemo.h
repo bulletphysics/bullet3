@@ -15,10 +15,10 @@ subject to the following restrictions:
 #ifndef COLLISION_DEMO_H
 #define COLLISION_DEMO_H
 
-#include "DemoApplication.h"
+#include "GlutDemoApplication.h"
 
 ///CollisionDemo shows the low-level direct access to GJK
-class CollisionDemo : public DemoApplication
+class CollisionDemo : public GlutDemoApplication
 {
 	public:
 

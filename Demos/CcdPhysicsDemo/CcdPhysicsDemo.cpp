@@ -61,7 +61,7 @@ subject to the following restrictions:
 #include "LinearMath/btIDebugDraw.h"
 
 
-#include "BMF_Api.h"
+#include "GLDebugFont.h"
 #include <stdio.h> //printf debugging
 
 static float	gCollisionMargin = 0.05f;

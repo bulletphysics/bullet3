@@ -16,15 +16,9 @@ subject to the following restrictions:
 #ifdef WIN32 //needed for glut.h
 #include <windows.h>
 #endif
+#include "GLDebugFont.h"
 
-//think different
-#if defined(__APPLE__) && !defined (VMDMESA)
-#include <OpenGL/gl.h>
-#include <OpenGL/glu.h>
-#include <GLUT/glut.h>
-#else
-#include <GL/glut.h>
-#endif
+
 
 #include "GlutStuff.h"
 #include "GL_ShapeDrawer.h"
@@ -48,7 +42,7 @@ subject to the following restrictions:
 
 #include "LinearMath/btIDebugDraw.h"
 //for debugmodes
-#include "BMF_Api.h"
+
 #include <stdio.h> //printf debugging
 
 //#define USE_DISPLAY_LISTS 1
@@ -364,12 +358,81 @@ GL_ShapeDrawer::ShapeCache*		GL_ShapeDrawer::cache(btConvexShape* shape)
 	return(sc);
 }
 
+void renderSquareA(float x, float y, float z)
+{
+	glBegin(GL_LINE_LOOP);
+	glVertex3f(x, y, z);
+	glVertex3f(x + 10., y, z);
+	glVertex3f(x + 10., y + 10., z);
+	glVertex3f(x, y + 10., z);
+	glEnd();
+}
+
+inline void glDrawVector(btVector3& v) { glVertex3d(v[0], v[1], v[2]); }
+
+
 void GL_ShapeDrawer::drawOpenGL(btScalar* m, const btCollisionShape* shape, const btVector3& color,int	debugMode,const btVector3& worldBoundsMin,const btVector3& worldBoundsMax)
 {
+	if (shape->getShapeType() == CUSTOM_CONVEX_SHAPE_TYPE)
+	{
+		btVector3 org(m[12], m[13], m[14]);
+		btVector3 dx(m[0], m[1], m[2]);
+		btVector3 dy(m[4], m[5], m[6]);
+//		btVector3 dz(m[8], m[9], m[10]);
+		const btBoxShape* boxShape = static_cast<const btBoxShape*>(shape);
+		btVector3 halfExtent = boxShape->getHalfExtentsWithMargin();
+		dx *= halfExtent[0];
+		dy *= halfExtent[1];
+//		dz *= halfExtent[2];
+		glColor3f(1,1,1);
+		glDisable(GL_LIGHTING);
+		glLineWidth(2);
 
+		glBegin(GL_LINE_LOOP);
+		glDrawVector(org - dx - dy);
+		glDrawVector(org - dx + dy);
+		glDrawVector(org + dx + dy);
+		glDrawVector(org + dx - dy);
+		glEnd();
+		return;
+	} 
+	else if((shape->getShapeType() == BOX_SHAPE_PROXYTYPE) && (debugMode & btIDebugDraw::DBG_FastWireframe))
+	{
+		btVector3 org(m[12], m[13], m[14]);
+		btVector3 dx(m[0], m[1], m[2]);
+		btVector3 dy(m[4], m[5], m[6]);
+		btVector3 dz(m[8], m[9], m[10]);
+		const btBoxShape* boxShape = static_cast<const btBoxShape*>(shape);
+		btVector3 halfExtent = boxShape->getHalfExtentsWithMargin();
+		dx *= halfExtent[0];
+		dy *= halfExtent[1];
+		dz *= halfExtent[2];
+		glBegin(GL_LINE_LOOP);
+		glDrawVector(org - dx - dy - dz);
+		glDrawVector(org + dx - dy - dz);
+		glDrawVector(org + dx + dy - dz);
+		glDrawVector(org - dx + dy - dz);
+		glDrawVector(org - dx + dy + dz);
+		glDrawVector(org + dx + dy + dz);
+		glDrawVector(org + dx - dy + dz);
+		glDrawVector(org - dx - dy + dz);
+		glEnd();
+		glBegin(GL_LINES);
+		glDrawVector(org + dx - dy - dz);
+		glDrawVector(org + dx - dy + dz);
+		glDrawVector(org + dx + dy - dz);
+		glDrawVector(org + dx + dy + dz);
+		glDrawVector(org - dx - dy - dz);
+		glDrawVector(org - dx + dy - dz);
+		glDrawVector(org - dx - dy + dz);
+		glDrawVector(org - dx + dy + dz);
+		glEnd();
+		return;
+	}
 
 	glPushMatrix(); 
 	btglMultMatrix(m);
+
 
 	if (shape->getShapeType() == UNIFORM_SCALING_SHAPE_PROXYTYPE)
 	{
@@ -417,6 +480,7 @@ void GL_ShapeDrawer::drawOpenGL(btScalar* m, const btCollisionShape* shape, cons
 					pi[0]=pi[1]=pi[2]=c;pi+=3;
 				}
 			}
+
 			glGenTextures(1,(GLuint*)&m_texturehandle);
 			glBindTexture(GL_TEXTURE_2D,m_texturehandle);
 			glTexEnvf(GL_TEXTURE_ENV,GL_TEXTURE_ENV_MODE,GL_MODULATE);
@@ -426,12 +490,17 @@ void GL_ShapeDrawer::drawOpenGL(btScalar* m, const btCollisionShape* shape, cons
 			glTexParameterf(GL_TEXTURE_2D,GL_TEXTURE_WRAP_T,GL_REPEAT);
 			gluBuild2DMipmaps(GL_TEXTURE_2D,3,256,256,GL_RGB,GL_UNSIGNED_BYTE,image);
 			delete[] image;
-
+	
 			glMatrixMode(GL_TEXTURE);
 			glLoadIdentity();
 			glScalef(0.025,0.025,0.025);
+		
+			
+		}
 
-			static const GLfloat	planex[]={1,0,0,0};
+		
+
+		static const GLfloat	planex[]={1,0,0,0};
 			static const GLfloat	planey[]={0,1,0,0};
 			static const GLfloat	planez[]={0,0,1,0};
 			glTexGenfv(GL_S,GL_OBJECT_PLANE,planex);
@@ -442,7 +511,10 @@ void GL_ShapeDrawer::drawOpenGL(btScalar* m, const btCollisionShape* shape, cons
 			glEnable(GL_TEXTURE_GEN_T);
 			glEnable(GL_TEXTURE_GEN_R);
 			m_textureinitialized=true;
-		}
+
+		
+			
+
 		//drawCoordSystem();
 
 		//glPushMatrix();
@@ -464,10 +536,12 @@ void GL_ShapeDrawer::drawOpenGL(btScalar* m, const btCollisionShape* shape, cons
 		if (!(debugMode & btIDebugDraw::DBG_DrawWireframe))
 		{
 			///you can comment out any of the specific cases, and use the default
+
 			///the benefit of 'default' is that it approximates the actual collision shape including collision margin
 			int shapetype=m_textureenabled?MAX_BROADPHASE_COLLISION_TYPES:shape->getShapeType();
 			switch (shapetype)
 			{
+#if 0
 			case BOX_SHAPE_PROXYTYPE:
 				{
 					const btBoxShape* boxShape = static_cast<const btBoxShape*>(shape);
@@ -515,7 +589,7 @@ void GL_ShapeDrawer::drawOpenGL(btScalar* m, const btCollisionShape* shape, cons
 					break;
 
 				}
-
+#endif
 
 			case STATIC_PLANE_PROXYTYPE:
 				{
@@ -651,7 +725,7 @@ void GL_ShapeDrawer::drawOpenGL(btScalar* m, const btCollisionShape* shape, cons
 
 			{
 				glRasterPos3f(0.0,  0.0,  0.0);
-				//BMF_DrawString(BMF_GetFont(BMF_kHelvetica10),polyshape->getExtraDebugInfo());
+				//btDrawString(BMF_GetFont(BMF_kHelvetica10),polyshape->getExtraDebugInfo());
 
 				glColor3f(1.f, 1.f, 1.f);
 				int i;
@@ -662,7 +736,7 @@ void GL_ShapeDrawer::drawOpenGL(btScalar* m, const btCollisionShape* shape, cons
 					glRasterPos3f(vtx.x(),  vtx.y(),  vtx.z());
 					char buf[12];
 					sprintf(buf," %d",i);
-					BMF_DrawString(BMF_GetFont(BMF_kHelvetica10),buf);
+					//btDrawString(BMF_GetFont(BMF_kHelvetica10),buf);
 				}
 
 				for (i=0;i<polyshape->getNumPlanes();i++)
@@ -675,7 +749,7 @@ void GL_ShapeDrawer::drawOpenGL(btScalar* m, const btCollisionShape* shape, cons
 					glRasterPos3f(normal.x()*d,  normal.y()*d, normal.z()*d);
 					char buf[12];
 					sprintf(buf," plane %d",i);
-					BMF_DrawString(BMF_GetFont(BMF_kHelvetica10),buf);
+					//btDrawString(BMF_GetFont(BMF_kHelvetica10),buf);
 
 				}
 			}
@@ -713,19 +787,7 @@ void GL_ShapeDrawer::drawOpenGL(btScalar* m, const btCollisionShape* shape, cons
 }
 #endif
 
-/*
-if (shape->getShapeType() == CONVEX_TRIANGLEMESH_SHAPE_PROXYTYPE)
-{
-btConvexTriangleMeshShape* convexMesh = (btConvexTriangleMeshShape*) shape;
 
-//todo: pass camera for some culling			
-btVector3 aabbMax(btScalar(1e30),btScalar(1e30),btScalar(1e30));
-btVector3 aabbMin(-btScalar(1e30),-btScalar(1e30),-btScalar(1e30));
-TriangleGlDrawcallback drawCallback;
-convexMesh->getMeshInterface()->InternalProcessAllTriangles(&drawCallback,aabbMin,aabbMax);
-
-}
-*/
 
 
 
@@ -733,12 +795,12 @@ glDisable(GL_DEPTH_TEST);
 glRasterPos3f(0,0,0);//mvtx.x(),  vtx.y(),  vtx.z());
 if (debugMode&btIDebugDraw::DBG_DrawText)
 {
-	BMF_DrawString(BMF_GetFont(BMF_kHelvetica10),shape->getName());
+	GLDebugDrawString(0,0,shape->getName());
 }
 
 if (debugMode& btIDebugDraw::DBG_DrawFeaturesText)
 {
-	//BMF_DrawString(BMF_GetFont(BMF_kHelvetica10),shape->getExtraDebugInfo());
+	//btDrawString(BMF_GetFont(BMF_kHelvetica10),shape->getExtraDebugInfo());
 }
 glEnable(GL_DEPTH_TEST);
 

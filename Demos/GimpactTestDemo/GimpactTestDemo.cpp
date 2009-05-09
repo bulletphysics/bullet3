@@ -22,12 +22,10 @@ subject to the following restrictions:
 #include "LinearMath/btIDebugDraw.h"
 #include "LinearMath/btQuickprof.h"
 #include "LinearMath/btDefaultMotionState.h"
-
+#include "GLDebugFont.h"
 /// Including GIMPACT here
 
 
-
-#include "BMF_Api.h"
 
 #include "GLDebugDrawer.h"
 
@@ -172,52 +170,52 @@ void GimpactConcaveDemo::renderme()
 
 			glRasterPos3f(xOffset,yStart,0);
 			sprintf(buf,"mouse to interact");
-			BMF_DrawString(BMF_GetFont(BMF_kHelvetica10),buf);
+			GLDebugDrawString(xOffset,yStart,buf);
 			yStart += yIncr;
 
 		/*	glRasterPos3f(xOffset,yStart,0);
 			sprintf(buf,"space to reset");
-			BMF_DrawString(BMF_GetFont(BMF_kHelvetica10),buf);
+			GLDebugDrawString(xOffset,yStart,buf);
 			yStart += yIncr;
 		*/
 			glRasterPos3f(xOffset,yStart,0);
 			sprintf(buf,"cursor keys and z,x to navigate");
-			BMF_DrawString(BMF_GetFont(BMF_kHelvetica10),buf);
+			GLDebugDrawString(xOffset,yStart,buf);
 			yStart += yIncr;
 
 			glRasterPos3f(xOffset,yStart,0);
 			sprintf(buf,"i to toggle simulation, s single step");
-			BMF_DrawString(BMF_GetFont(BMF_kHelvetica10),buf);
+			GLDebugDrawString(xOffset,yStart,buf);
 			yStart += yIncr;
 
 			glRasterPos3f(xOffset,yStart,0);
 			sprintf(buf,"q to quit");
-			BMF_DrawString(BMF_GetFont(BMF_kHelvetica10),buf);
+			GLDebugDrawString(xOffset,yStart,buf);
 			yStart += yIncr;
 
 			glRasterPos3f(xOffset,yStart,0);
 			sprintf(buf,". to shoot TRIMESH (dot)");
-			BMF_DrawString(BMF_GetFont(BMF_kHelvetica10),buf);
+			GLDebugDrawString(xOffset,yStart,buf);
 			yStart += yIncr;
 
 			// not yet hooked up again after refactoring...
 
 /*			glRasterPos3f(xOffset,yStart,0);
 			sprintf(buf,"d to toggle deactivation");
-			BMF_DrawString(BMF_GetFont(BMF_kHelvetica10),buf);
+			GLDebugDrawString(xOffset,yStart,buf);
 			yStart += yIncr;
 */
 
 		/*
 			glRasterPos3f(xOffset,yStart,0);
 			sprintf(buf,"a to draw temporal AABBs");
-			BMF_DrawString(BMF_GetFont(BMF_kHelvetica10),buf);
+			GLDebugDrawString(xOffset,yStart,buf);
 			yStart += yIncr;
 		*/
 
 			glRasterPos3f(xOffset,yStart,0);
 			sprintf(buf,"h to toggle help text");
-			BMF_DrawString(BMF_GetFont(BMF_kHelvetica10),buf);
+			GLDebugDrawString(xOffset,yStart,buf);
 			yStart += yIncr;
 
 			//bool useBulletLCP = !(getDebugMode() & btIDebugDraw::DBG_DisableBulletLCP);
@@ -226,24 +224,24 @@ void GimpactConcaveDemo::renderme()
 
 			glRasterPos3f(xOffset,yStart,0);
 			sprintf(buf,"1 CCD mode (adhoc) = %i",useCCD);
-			BMF_DrawString(BMF_GetFont(BMF_kHelvetica10),buf);
+			GLDebugDrawString(xOffset,yStart,buf);
 			yStart += yIncr;
 
 			glRasterPos3f(xOffset,yStart,0);
 			sprintf(buf,"+- shooting speed = %10.2f",m_ShootBoxInitialSpeed);
-			BMF_DrawString(BMF_GetFont(BMF_kHelvetica10),buf);
+			GLDebugDrawString(xOffset,yStart,buf);
 			yStart += yIncr;
 
 			#ifdef SHOW_NUM_DEEP_PENETRATIONS
 				
 				glRasterPos3f(xOffset,yStart,0);
 				sprintf(buf,"gNumDeepPenetrationChecks = %d",gNumDeepPenetrationChecks);
-				BMF_DrawString(BMF_GetFont(BMF_kHelvetica10),buf);
+				GLDebugDrawString(xOffset,yStart,buf);
 				yStart += yIncr;
 
 				glRasterPos3f(xOffset,yStart,0);
 				sprintf(buf,"gNumSplitImpulseRecoveries= %d",gNumSplitImpulseRecoveries);
-				BMF_DrawString(BMF_GetFont(BMF_kHelvetica10),buf);
+				GLDebugDrawString(xOffset,yStart,buf);
 				yStart += yIncr;
 
 				
@@ -251,7 +249,7 @@ void GimpactConcaveDemo::renderme()
 
 				glRasterPos3f(xOffset,yStart,0);
 				sprintf(buf,"gNumGjkChecks= %d",gNumGjkChecks);
-				BMF_DrawString(BMF_GetFont(BMF_kHelvetica10),buf);
+				GLDebugDrawString(xOffset,yStart,buf);
 				yStart += yIncr;
 
 			#endif //SHOW_NUM_DEEP_PENETRATIONS

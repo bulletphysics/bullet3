@@ -24,7 +24,9 @@ subject to the following restrictions:
 #include "btBulletCollisionCommon.h"
 
 #include "LinearMath/btIDebugDraw.h"
-#include "BMF_Api.h"
+#include "GLDebugFont.h"
+
+
 #include "GL_ShapeDrawer.h"
 #include "DoublePrecisionDemo.h"
 #include "GlutStuff.h"
@@ -189,16 +191,16 @@ void DoublePrecisionDemo::displayCallback(void)
 
   glRasterPos3f(10.0f,yStart,0);
   #ifdef BT_USE_DOUBLE_PRECISION
-  BMF_DrawString(BMF_GetFont(BMF_kHelvetica10),"Double Precision Mode");
+  GLDebugDrawString(10.f,yStart,"Double Precision Mode");
   #else
-  BMF_DrawString(BMF_GetFont(BMF_kHelvetica10),"Single Precision Mode");
+  GLDebugDrawString(10.f,yStart,"Single Precision Mode");
   #endif
   yStart += yIncr;
   
   glRasterPos3f(10.0f,yStart,0);
   sprintf(buf,"Movement distance in x and y axis = %lf", VERY_SMALL_INCREMENT);
 
-  BMF_DrawString(BMF_GetFont(BMF_kHelvetica10),buf);
+  GLDebugDrawString(10.f,yStart,buf);
   yStart += yIncr;
   
   glRasterPos3f(10.0f,yStart,0);
@@ -206,7 +208,7 @@ void DoublePrecisionDemo::displayCallback(void)
   btScalar yValue = objects[0].getWorldTransform().getOrigin().y();
   btScalar zValue = objects[0].getWorldTransform().getOrigin().z();
   sprintf(buf,"Cube 0 location = ( %lf, %lf, %lf )", xValue, yValue, zValue);
-  BMF_DrawString(BMF_GetFont(BMF_kHelvetica10),buf);
+  GLDebugDrawString(10.f,yStart,buf);
   yStart += yIncr;
 
   xValue = objects[1].getWorldTransform().getOrigin().x();
@@ -214,11 +216,11 @@ void DoublePrecisionDemo::displayCallback(void)
   zValue = objects[1].getWorldTransform().getOrigin().z();
   glRasterPos3f(10.0f,yStart,0);
   sprintf(buf,"Cube 1 location = ( %lf, %lf, %lf )", xValue, yValue, zValue);
-  BMF_DrawString(BMF_GetFont(BMF_kHelvetica10),buf);
+  GLDebugDrawString(10.f,yStart,buf);
   yStart += yIncr;
 
   glRasterPos3f(10.0f,yStart,0);
-  BMF_DrawString(BMF_GetFont(BMF_kHelvetica10),"w=toggle wireframe/solid");
+  GLDebugDrawString(10.f,yStart,"w=toggle wireframe/solid");
 
   resetPerspectiveProjection();
 

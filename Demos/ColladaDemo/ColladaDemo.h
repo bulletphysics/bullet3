@@ -15,13 +15,15 @@ subject to the following restrictions:
 #ifndef COLLADA_PHYSICS_DEMO_H
 #define COLLADA_PHYSICS_DEMO_H
 
-#include "DemoApplication.h"
+#include "GlutDemoApplication.h"
 
 ///ColladaDemo shows the loading and exporting of COLLADA physics xml files.
 ///It uses COLLADA DOM
-class ColladaDemo : public DemoApplication
+class ColladaDemo : public GlutDemoApplication
 {
 	public:
+
+	virtual	void initPhysics();
 
 	void	initPhysics(const char* filename);
 

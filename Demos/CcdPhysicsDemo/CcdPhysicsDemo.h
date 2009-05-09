@@ -15,7 +15,7 @@ subject to the following restrictions:
 #ifndef CCD_PHYSICS_DEMO_H
 #define CCD_PHYSICS_DEMO_H
 
-#include "DemoApplication.h"
+#include "GlutDemoApplication.h"
 #include "LinearMath/btAlignedObjectArray.h"
 
 class btBroadphaseInterface;
@@ -28,7 +28,7 @@ class btDefaultCollisionConfiguration;
 
 
 ///CcdPhysicsDemo shows basic stacking using Bullet physics, and allows toggle of Ccd (using key '1')
-class CcdPhysicsDemo : public DemoApplication
+class CcdPhysicsDemo : public GlutDemoApplication
 {
 
 	//keep the collision shapes, for deletion/cleanup

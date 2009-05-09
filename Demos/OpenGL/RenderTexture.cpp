@@ -15,7 +15,7 @@ subject to the following restrictions:
 
 #include "RenderTexture.h"
 #include <memory.h>
-#include "BMF_FontData.h"
+
 
 renderTexture::renderTexture(int width,int height)
 :m_height(height),m_width(width)
@@ -37,30 +37,30 @@ renderTexture::renderTexture(int width,int height)
 
 }
 
-void renderTexture::grapicalPrintf(char* str,	BMF_FontData* fontData, int startx,int starty)
+void renderTexture::grapicalPrintf(char* str,	void* fontData, int startx,int starty)
 {
 	unsigned char c;
 	int rasterposx = startx;
 	int rasterposy = starty;
 	while ((c = (unsigned char) *str++)) {
-		BMF_CharData & cd = fontData->chars[c];
 		
-		if (cd.data_offset!=-1) {
-			unsigned char* bitmap = &fontData->bitmap_data[cd.data_offset];
-			for (int y=0;y<cd.height;y++)
+		
+		
+		unsigned char* bitmap = 0;//&fontData->bitmap_data[cd.data_offset];
+		for (int y=0;y<8;y++)
+		{
+			int bit = 128;
+			for (int x=0;x<8;x++)
 			{
-				int bit = 128;
-				for (int x=0;x<cd.width;x++)
-				{
-					char packedColor = bitmap[y];
-					float colorf = packedColor & bit ? 0.f : 1.f;
-					btVector4 rgba(colorf,colorf,colorf,1.f);
-					setPixel(rasterposx+x,rasterposy+8-y-1,rgba);
-					bit >>=1;
-				}
+				char packedColor = bitmap[y];
+				float colorf = packedColor & bit ? 0.f : 1.f;
+				btVector4 rgba(colorf,colorf,colorf,1.f);
+				setPixel(rasterposx+x,rasterposy+8-y-1,rgba);
+				bit >>=1;
 			}
 		}
-		rasterposx+= cd.advance;
+		
+		rasterposx+= 8;
 	}
 }
 

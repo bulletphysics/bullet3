@@ -64,6 +64,11 @@ class DemoApplication
 	btVector3 m_cameraPosition;
 	btVector3 m_cameraTargetPosition;//look at
 
+	int	m_mouseOldX;
+	int	m_mouseOldY;
+	int	m_mouseButtons;
+	int	m_modifierKeys;
+
 	float m_scaleBottom;
 	float m_scaleFactor;
 	btVector3 m_cameraUp;
@@ -72,6 +77,8 @@ class DemoApplication
 	int m_glutScreenWidth;
 	int m_glutScreenHeight;
 
+	int	m_ortho;
+
 	float	m_ShootBoxInitialSpeed;
 	
 	bool	m_stepping;
@@ -79,7 +86,7 @@ class DemoApplication
 	bool m_idle;
 	int m_lastKey;
 
-	void showProfileInfo(float& xOffset,float& yStart, float yIncr);
+	void showProfileInfo(int& xOffset,int& yStart, int yIncr);
 	void renderscene(int pass);
 
 	GL_ShapeDrawer*	m_shapeDrawer;
@@ -96,6 +103,8 @@ public:
 	{
 		return m_dynamicsWorld;
 	}
+
+	virtual	void initPhysics() = 0;
 
 	virtual	void setDrawClusters(bool drawClusters)
 	{
@@ -189,9 +198,9 @@ public:
 
 	virtual void keyboardCallback(unsigned char key, int x, int y);
 
-	virtual void specialKeyboard(int key, int x, int y);
+	virtual void specialKeyboard(int key, int x, int y){}
 
-	virtual void specialKeyboardUp(int key, int x, int y);
+	virtual void specialKeyboardUp(int key, int x, int y){}
 
 	virtual void reshape(int w, int h);
 
@@ -203,6 +212,9 @@ public:
 
 	virtual 	void renderme();
 
+	virtual		void swapBuffers() = 0;
+
+	virtual		void	updateModifierKeys() = 0;
 
 	void stepLeft();
 	void stepRight();

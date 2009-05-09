@@ -489,12 +489,13 @@ void Raytracer::displayCallback()
 
 
 
-	extern BMF_FontData BMF_font_helv10;
 
+#if 0
 	raytracePicture->grapicalPrintf("CCD RAYTRACER",&BMF_font_helv10);
 	char buffer[256];
 	sprintf(buffer,"%d RAYS / Frame",screenWidth*screenHeight*numObjects);
 	raytracePicture->grapicalPrintf(buffer,&BMF_font_helv10,0,10);
+#endif
 
 	glMatrixMode(GL_PROJECTION);
 	glPushMatrix();

@@ -22,13 +22,13 @@ subject to the following restrictions:
 
 #include "btBulletDynamicsCommon.h"
 #include "BulletDynamics/ConstraintSolver/btSliderConstraint.h"
-#include "DemoApplication.h"
+#include "GlutDemoApplication.h"
 
 //-----------------------------------------------------------------------------
 
 
 /// SliderConstraintDemo shows how to create a slider constraint
-class SliderConstraintDemo : public DemoApplication
+class SliderConstraintDemo : public GlutDemoApplication
 {
 	//keep track of variables to delete memory at the end
 	btAlignedObjectArray<btCollisionShape*> m_collisionShapes;

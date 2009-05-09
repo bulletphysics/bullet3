@@ -24,8 +24,7 @@ subject to the following restrictions:
 #include "GL_ShapeDrawer.h"
 
 #include "GlutStuff.h"
-
-#include "BMF_Api.h"
+#include "GLDebugFont.h"
 
 
 
@@ -564,11 +563,13 @@ btScalar& maxHeight
 ////////////////////////////////////////////////////////////////////////////////
 
 /// class that demonstrates the btHeightfieldTerrainShape object
-class TerrainDemo : public DemoApplication {
+class TerrainDemo : public GlutDemoApplication {
 public:
 	// constructor, destructor ---------------------------------------------
 	TerrainDemo(void);
 	~TerrainDemo(void);
+
+	virtual void initPhysics() {}
 
 	// public class methods ------------------------------------------------
 	void initialize(void);
@@ -769,17 +770,9 @@ void TerrainDemo::keyboardCallback(unsigned char key, int x, int y) {
 
 
 
-static void
-doPrint
-(
-int x,
-int& y,
-int dy,
-const char * text
-)
+static void doPrint(int x,int& y,int dy,const char * text)
 {
-	glRasterPos3f(x, y, 0);
-	BMF_DrawString(BMF_GetFont(BMF_kHelvetica10), text);
+	GLDebugDrawString(x,y, text);
 	y += dy;
 }
 
@@ -916,7 +909,7 @@ void TerrainDemo::clearWorld(void)
 ////////////////////////////////////////////////////////////////////////////////
 
 /// creates an object that demonstrates terrain
-DemoApplication * btCreateTerrainDemo(void)
+GlutDemoApplication * btCreateTerrainDemo(void)
 {
 	TerrainDemo * demo = new TerrainDemo;
 	btAssert(demo && "out of memory");

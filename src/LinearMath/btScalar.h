@@ -25,7 +25,7 @@ subject to the following restrictions:
 #include <cfloat>
 #include <float.h>
 
-#define BT_BULLET_VERSION 274
+#define BT_BULLET_VERSION 275
 
 inline int	btGetVersion()
 {

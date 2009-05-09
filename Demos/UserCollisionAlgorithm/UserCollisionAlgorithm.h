@@ -15,10 +15,10 @@ subject to the following restrictions:
 #ifndef USER_COLLISION_ALGORITHM_DEMO_H
 #define USER_COLLISION_ALGORITHM_DEMO_H
 
-#include "DemoApplication.h"
+#include "GlutDemoApplication.h"
 
 ///UserCollisionAlgorithmDemo shows how to register and use your own collision algorithm for a certain shape pair type
-class UserCollisionAlgorithm : public DemoApplication
+class UserCollisionAlgorithm : public GlutDemoApplication
 {
 	public:
 

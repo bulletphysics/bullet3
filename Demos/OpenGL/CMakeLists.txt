@@ -18,15 +18,14 @@ ${BULLET_PHYSICS_SOURCE_DIR}/src ${BULLET_PHYSICS_SOURCE_DIR}/Extras/ConvexHull 
 )
 
 ADD_LIBRARY(OpenGLSupport
-		BMF_Api.cpp
-		BMF_BitmapFont.cpp
-		BMF_font_helv10.cpp
+		GLDebugFont.cpp
 		GL_ShapeDrawer.cpp
 		GL_Simplex1to4.cpp
 		GLDebugDrawer.cpp
 		GlutStuff.cpp
 		RenderTexture.cpp
 		DemoApplication.cpp
+		GlutDemoApplication.cpp
 )
 
 IF (BUILD_SHARED_LIBS)

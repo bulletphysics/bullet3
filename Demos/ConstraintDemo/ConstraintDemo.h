@@ -15,10 +15,10 @@ subject to the following restrictions:
 #ifndef CONSTRAINT_DEMO_H
 #define CONSTRAINT_DEMO_H
 
-#include "DemoApplication.h"
+#include "GlutDemoApplication.h"
 
 ///ConstraintDemo shows how to create a constraint, like Hinge or btGenericD6constraint
-class ConstraintDemo : public DemoApplication
+class ConstraintDemo : public GlutDemoApplication
 {
 	//keep track of variables to delete memory at the end
 	btAlignedObjectArray<btCollisionShape*> m_collisionShapes;

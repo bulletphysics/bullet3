@@ -15,7 +15,7 @@ subject to the following restrictions:
 #ifndef TEST_CONCAVE_DEMO_H
 #define TEST_CONCAVE_DEMO_H
 
-#include "DemoApplication.h"
+#include "GlutDemoApplication.h"
 class btTriangleIndexVertexArray;
 class btDefaultCollisionConfiguration;
 
@@ -47,7 +47,7 @@ struct btCollisionAlgorithmCreateFunc;
 
 ///GimpactConcaveDemo shows usage of static concave triangle meshes
 ///It also shows per-triangle material (friction/restitution) through CustomMaterialCombinerCallback
-class GimpactConcaveDemo : public DemoApplication
+class GimpactConcaveDemo : public GlutDemoApplication
 {
 
 public:

@@ -17,7 +17,7 @@ subject to the following restrictions:
 #ifndef MOTORDEMO_H
 #define MOTORDEMO_H
 
-#include "DemoApplication.h"
+#include "GlutDemoApplication.h"
 #include "LinearMath/btAlignedObjectArray.h"
 class btBroadphaseInterface;
 class btCollisionShape;
@@ -27,7 +27,7 @@ class btConstraintSolver;
 struct btCollisionAlgorithmCreateFunc;
 class btDefaultCollisionConfiguration;
 
-class MotorDemo : public DemoApplication
+class MotorDemo : public GlutDemoApplication
 {
 	float m_Time;
 	float m_fCyclePeriod; // in milliseconds
