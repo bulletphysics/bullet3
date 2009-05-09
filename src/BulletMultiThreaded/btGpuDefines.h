@@ -113,11 +113,11 @@ inline int3 operator+(int3 a, int3 b)
     return bt3dGrid_make_int3(a.x + b.x, a.y + b.y, a.z + b.z);
 }
 
-inline float4 operator+(float4& a, float4& b)
+inline float4 operator+(const float4& a, const float4& b)
 {
 	float4 r; r.x = a.x+b.x; r.y = a.y+b.y; r.z = a.z+b.z; r.w = a.w+b.w; return r;
 }
-inline float4 operator*(float4& a, float fact)
+inline float4 operator*(const float4& a, float fact)
 {
 	float4 r; r.x = a.x*fact; r.y = a.y*fact; r.z = a.z*fact; r.w = a.w*fact; return r;
 }
@@ -136,15 +136,11 @@ inline float4& operator+=(float4& a, float4& b)
 	return a;
 }
 
-inline float3 operator+(float3& a, float3& b)
-{
-	float3 r; r.x = a.x+b.x; r.y = a.y+b.y; r.z = a.z+b.z; return r;
-}
 inline float3 operator+(const float3& a, const float3& b)
 {
 	float3 r; r.x = a.x+b.x; r.y = a.y+b.y; r.z = a.z+b.z; return r;
 }
-inline float3 operator-(float3& a, float3& b)
+inline float3 operator-(const float3& a, const float3& b)
 {
 	float3 r; r.x = a.x-b.x; r.y = a.y-b.y; r.z = a.z-b.z; return r;
 }
@@ -160,16 +156,13 @@ static inline float bt3dGrid_dot4(float4& a, float4& b)
 }
 #define BT_GPU_dot4(a,b) bt3dGrid_dot4(a,b)
 
-static inline float3 bt3dGrid_cross(float3& a, float3& b)
+static inline float3 bt3dGrid_cross(const float3& a, const float3& b)
 {
 	float3 r; r.x = a.y*b.z-a.z*b.y; r.y = -a.x*b.z+a.z*b.x; r.z = a.x*b.y-a.y*b.x;	return r;
 }
 #define BT_GPU_cross(a,b) bt3dGrid_cross(a,b)
 
-inline float3 operator*(float3& a, float fact)
-{
-	float3 r; r.x = a.x*fact; r.y = a.y*fact; r.z = a.z*fact; return r;
-}
+
 inline float3 operator*(const float3& a, float fact)
 {
 	float3 r; r.x = a.x*fact; r.y = a.y*fact; r.z = a.z*fact; return r;

@@ -219,7 +219,7 @@ projtypes = {
   },
   library =>
   {
-    defines = ['_LIB', '_WINDOWS','_CRT_SECURE_NO_DEPRECATE','_CRT_NONSTDC_NO_DEPRECATE']
+    defines = ['_LIB', '_CONSOLE','_CRT_SECURE_NO_DEPRECATE','_CRT_NONSTDC_NO_DEPRECATE']
   }
 };
 

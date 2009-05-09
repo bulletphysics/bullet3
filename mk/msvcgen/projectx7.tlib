@@ -68,13 +68,13 @@
 
 [% MACRO compiler_release BLOCK -%]
 				EnableIntrinsicFunctions="true"
-				EnableEnhancedInstructionSet="2"
+				EnableEnhancedInstructionSet="1"
 				FloatingPointModel="2"
 				Optimization="2"
 				StringPooling="TRUE"
 				EnableFunctionLevelLinking="TRUE"
 				RuntimeLibrary="0"
-				DebugInformationFormat="3"
+				DebugInformationFormat="1"
 				BufferSecurityCheck="FALSE"
 [% END %]
 [% MACRO compiler_release_dll BLOCK -%]
@@ -88,21 +88,21 @@
 [% MACRO compiler_debug BLOCK -%]
 				Optimization="0"
 				MinimalRebuild="TRUE"
-				DebugInformationFormat="4"
+				DebugInformationFormat="3"
 				RuntimeTypeInfo="FALSE"
 				RuntimeLibrary="1"
 [% END %]
 [% MACRO compiler_debug_dll BLOCK -%]
                                 Optimization="0"
                                 MinimalRebuild="TRUE"
-                                DebugInformationFormat="4"
+                                DebugInformationFormat="3"
                                 RuntimeTypeInfo="FALSE"
                                 RuntimeLibrary="3"
 [% END %]
 [% MACRO compiler_debug_dbl BLOCK -%]
                                 Optimization="0"
                                 MinimalRebuild="TRUE"
-                                DebugInformationFormat="4"
+                                DebugInformationFormat="3"
                                 RuntimeTypeInfo="FALSE"
                                 RuntimeLibrary="1"
 [% END %]
@@ -110,7 +110,7 @@
 				LinkIncremental="1"
 				OptimizeReferences="2"
 				EnableCOMDATFolding="2"
-				GenerateDebugInformation="TRUE"
+				GenerateDebugInformation="FALSE"
 				IgnoreDefaultLibraryNames="LIBC,LIBCD"
 [% END %]
 [% MACRO linker_debug BLOCK -%]

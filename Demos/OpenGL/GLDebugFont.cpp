@@ -16,8 +16,9 @@ subject to the following restrictions:
 #include "GLDebugFont.h"
 #include "GlutStuff.h"
 #include <stdio.h>
+#include <string>
 
-unsigned char sFontData[];
+extern unsigned char sFontData[];
 static GLuint sTexture = -1;
 static int sScreenWidth = 0;
 static int sScreenHeight = 0;

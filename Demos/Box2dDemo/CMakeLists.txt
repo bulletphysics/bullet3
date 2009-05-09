@@ -19,20 +19,14 @@ LINK_LIBRARIES(
 OpenGLSupport  BulletDynamics  BulletCollision LinearMath    ${GLUT_glut_LIBRARY} ${OPENGL_gl_LIBRARY} ${OPENGL_glu_LIBRARY}
 )
 
-ADD_EXECUTABLE(AppGpu2dDemo
+ADD_EXECUTABLE(AppBox2dDemo
 	main.cpp
-	BasicDemo.cpp
-	BasicDemo.h
-	btGpuDemoPairCache.cpp
-	btGpuDemoPairCache.h
-	btGpuDemo2dSharedTypes.h
-	btGpuDemo2dCpuFunc.cpp
-	btGpuDemoDynamicsWorld.cpp
-	btGpuDemoDynamicsWorld.h
-	oecakeLoader.cpp
-	oecakeLoader.h
-	btGpuDemo2dSharedCode.h
-	btGpuDemo2dSharedDefs.h
+	Box2dDemo.cpp
+	btBox2dBox2dCollisionAlgorithm.h
+	Box2dDemo.h
+	btBox2dShape.cpp
+	btBox2dBox2dCollisionAlgorithm.cpp	
+	btBox2dShape.h
 )
 
 

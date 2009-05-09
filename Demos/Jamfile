@@ -81,6 +81,8 @@ SubInclude TOP Demos EPAPenDepthDemo ;
 SubInclude TOP Demos HelloWorld ;
 SubInclude TOP Demos BspDemo ;
 SubInclude TOP Demos BasicDemo ;
+SubInclude TOP Demos Box2dDemo ;
+SubInclude TOP Demos Gpu2dDemo ;
 SubInclude TOP Demos ConvexDecompositionDemo ;
 SubInclude TOP Demos ColladaDemo ;
 SubInclude TOP Demos CharacterDemo ;

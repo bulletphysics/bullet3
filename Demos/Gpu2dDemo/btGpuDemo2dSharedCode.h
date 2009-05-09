@@ -19,6 +19,7 @@ subject to the following restrictions:
 #define FRICTION_BOX_GROUND_FACT 0.05f
 #define FRICTION_BOX_BOX_FACT 0.05f
 #define USE_CENTERS 1
+#include "LinearMath/btMinMax.h"
 
 //------------------------------------------------------------------------------------------------
 //------------------------------------------------------------------------------------------------
@@ -58,6 +59,7 @@ BT_GPU___device__ void testSphSph(float3 aPos, float3 bPos, float radA, float ra
 	float dist = BT_GPU_dot(del, del);
 	dist = sqrtf(dist);
 	float maxD = radA + radB;
+	
 	if(dist > maxD)
 	{
 		return;
@@ -76,7 +78,9 @@ BT_GPU___device__ void testSphSph(float3 aPos, float3 bPos, float radA, float ra
 		normal = BT_GPU_make_float3(1.f, 0.f, 0.f);
 	}
 //	float3 contact = (bPos + aPos + normal * (radB - radA)) * 0.5f;
-	float3 contact = aPos - normal * radA;
+	float3 tmp = (normal * radA);
+	float3 contact = aPos - tmp;
+	
 	// now add point
 	int numPoints = 0;
 	for(int i = 0; i < MAX_VTX_PER_OBJ; i++)
@@ -143,14 +147,20 @@ BT_GPU___global__ void setConstraintDataD(int2 *constraints,
 		for(i = 0; i < numSphA; i++)
 		{	
 			float3 va = aPos;
-			va += ai * shapeA[i].x;
-			va += aj * shapeA[i].y;
+			float3 tmp = ai * shapeA[i].x; 
+			float3 tmp2 = aj * shapeA[i].y;
+			
+			va += tmp;
+			va += tmp2;
+			
 			float radA = shapeA[i].w;
 			for(j = 0; j < numSphB; j++)
 			{
 				float3 vb = bPos;
-				vb += bi * shapeB[j].x;
-				vb += bj * shapeB[j].y;
+				float3 tmp =bi * shapeB[j].x;
+				float3 tmp2 = bj * shapeB[j].y;
+				vb += tmp;
+				vb += tmp2;
 				float radB = shapeB[j].w;
 				testSphSph(va, vb, radA, radB, pOut);
 			}
@@ -174,7 +184,7 @@ BT_GPU___device__ float computeImpulse1(float3 rVel,
 	if(positionConstraint > 0)
 		return lambdaDt;
 
-	positionConstraint = min(0.0f,positionConstraint+penetrationError);
+	positionConstraint = btMin(0.0f,positionConstraint+penetrationError);
 	
 	lambdaDt	=	-(BT_GPU_dot(cNormal,rVel)*(1+collisionConstant));
 	lambdaDt	-=	(baumgarteConstant/dt*positionConstraint);
@@ -216,7 +226,8 @@ BT_GPU___global__ void collisionWithWallBoxD(float4 *pos,
 			float3 aVel = BT_GPU_make_float3(vel[idx].x, vel[idx].y, vel[idx].z);
 			float aAngVel = angVel[idx];
 			float3 rerVertex = ai * shape[iVtx].x;
-			rerVertex += aj * shape[iVtx].y;
+			float3 tmp = aj * shape[iVtx].y;
+			rerVertex += tmp;
 			float3 vPos = aPos + rerVertex;
 			float rad = shape[iVtx].w;
 			float3 vVel	=aVel+BT_GPU_cross(BT_GPU_make_float3(0.0f,0.0f,aAngVel),rerVertex);
@@ -239,11 +250,14 @@ BT_GPU___global__ void collisionWithWallBoxD(float4 *pos,
 					{
 						lat_vel_len = sqrtf(lat_vel_len);
 						lat_vel *= 1.f/lat_vel_len;	
-						impulse	-= lat_vel * BT_GPU_dot(lat_vel, vVel) * FRICTION_BOX_GROUND_FACT;
+						float3 tmp = lat_vel * BT_GPU_dot(lat_vel, vVel) * FRICTION_BOX_GROUND_FACT;
+						impulse	-= tmp;
 					}
 #endif //USE_FRICTION
-					vel[idx]	+=	BT_GPU_make_float42(impulse,0.0f);
-					angVel[idx]	+=	BT_GPU_cross(rerVertex,impulse).z;
+					float4 tmp = BT_GPU_make_float42(impulse,0.0f);
+					vel[idx]	+=	tmp;
+					float tmp2 = BT_GPU_cross(rerVertex,impulse).z;
+					angVel[idx]	+=	tmp2;
 				}
 			}
 
@@ -257,7 +271,8 @@ BT_GPU___global__ void collisionWithWallBoxD(float4 *pos,
 						BT_GPU_make_float3(1.0f,0.0f,0.0f),
 						dt);
 
-					vel[idx]	+=	BT_GPU_make_float42(impulse,0.0f);
+					float4 tmp = BT_GPU_make_float42(impulse,0.0f);
+					vel[idx]	+=	tmp;
 					angVel[idx]	+=	BT_GPU_cross(rerVertex,impulse).z;
 				}
 			}
@@ -272,7 +287,8 @@ BT_GPU___global__ void collisionWithWallBoxD(float4 *pos,
 						BT_GPU_make_float3(-1.0f,0.0f,0.0f),
 						dt);
 
-					vel[idx]	+=	BT_GPU_make_float42(impulse,0.0f);
+					float4 tmp = BT_GPU_make_float42(impulse,0.0f);
+					vel[idx]	+=	tmp;
 					angVel[idx]	+=	BT_GPU_cross(rerVertex,impulse).z;
 				}
 			}
@@ -326,7 +342,7 @@ BT_GPU___device__ void collisionResolutionBox(	int constrId,
 			{
 				float rLambdaDt=lambdaDtBox[(MAX_VTX_PER_OBJ)*(2*constrId)+iVtx];
 				float pLambdaDt=rLambdaDt;
-				rLambdaDt=max(pLambdaDt+lambdaDt,0.0f);
+				rLambdaDt=btMax(pLambdaDt+lambdaDt,0.0f);
 				lambdaDt=rLambdaDt-pLambdaDt;
 				lambdaDtBox[(MAX_VTX_PER_OBJ)*(2*constrId)+iVtx]=rLambdaDt;
 			}
@@ -340,7 +356,8 @@ BT_GPU___device__ void collisionResolutionBox(	int constrId,
 				{
 					lat_vel_len = sqrtf(lat_vel_len);
 					lat_vel *= 1.f/lat_vel_len;
-					impulse	-= lat_vel * BT_GPU_dot(lat_vel , relVel) * FRICTION_BOX_BOX_FACT;
+					float3 tmp = lat_vel * BT_GPU_dot(lat_vel , relVel) * FRICTION_BOX_BOX_FACT;
+					impulse	-= tmp;
 				}
 			}
 #endif //USE_FRICTION
