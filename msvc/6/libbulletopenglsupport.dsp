@@ -47,9 +47,9 @@ RSC=rc.exe
 # PROP Ignore_Export_Lib 0
 # PROP Target_Dir ""
 # ADD BASE CPP /nologo /vmb /vms /W3 /Gm /G5 /D "WIN32" /FD /c
-# ADD CPP /nologo /vmb /vms /W3 /Gm /G5 /FD /c /Gy /GF /MD /Ob2 /Zm1000 /Og /Oi /Ot /Oy /D "_LIB" /D "_MT" /D "_MBCS" /D "NDEBUG" /D "_LIB" /D "_WINDOWS" /D "_CRT_SECURE_NO_DEPRECATE" /D "_CRT_NONSTDC_NO_DEPRECATE" /D "WIN32"  /I "." /I "..\.." /I "..\..\src" /I "..\..\Glut"
+# ADD CPP /nologo /vmb /vms /W3 /Gm /G5 /FD /c /Gy /GF /MD /Ob2 /Zm1000 /Og /Oi /Ot /Oy /D "_LIB" /D "_MT" /D "_MBCS" /D "NDEBUG" /D "_LIB" /D "_CONSOLE" /D "_CRT_SECURE_NO_DEPRECATE" /D "_CRT_NONSTDC_NO_DEPRECATE" /D "WIN32"  /I "." /I "..\.." /I "..\..\src" /I "..\..\Glut"
 # ADD BASE MTL /nologo /mktyplib203 /o "NUL" /win32
-# ADD MTL /nologo /mktyplib203 /o "NUL" /win32 /D "NDEBUG" /D "_LIB" /D "_WINDOWS" /D "_CRT_SECURE_NO_DEPRECATE" /D "_CRT_NONSTDC_NO_DEPRECATE"
+# ADD MTL /nologo /mktyplib203 /o "NUL" /win32 /D "NDEBUG" /D "_LIB" /D "_CONSOLE" /D "_CRT_SECURE_NO_DEPRECATE" /D "_CRT_NONSTDC_NO_DEPRECATE"
 # ADD BASE RSC /l 0x409
 # ADD RSC /l 0x409 /fo".\..\..\out\release6\build\libbulletopenglsupport\libbulletopenglsupport.res" /i "." /i "..\.." /i "..\..\src" /i "..\..\Glut"
 BSC32=bscmake.exe
@@ -76,9 +76,9 @@ LINK32=link.exe
 # PROP Ignore_Export_Lib 0
 # PROP Target_Dir ""
 # ADD BASE CPP /nologo /vmb /vms /W3 /Gm /G5 /D "WIN32" /FD /c
-# ADD CPP /nologo /vmb /vms /W3 /Gm /G5 /FD /c /D "_LIB" /D "_MT" /D "_MBCS" /D "NDEBUG" /D "_LIB" /D "_WINDOWS" /D "_CRT_SECURE_NO_DEPRECATE" /D "_CRT_NONSTDC_NO_DEPRECATE" /D "WIN32"  /I "." /I "..\.." /I "..\..\src" /I "..\..\Glut"
+# ADD CPP /nologo /vmb /vms /W3 /Gm /G5 /FD /c /D "_LIB" /D "_MT" /D "_MBCS" /D "NDEBUG" /D "_LIB" /D "_CONSOLE" /D "_CRT_SECURE_NO_DEPRECATE" /D "_CRT_NONSTDC_NO_DEPRECATE" /D "WIN32"  /I "." /I "..\.." /I "..\..\src" /I "..\..\Glut"
 # ADD BASE MTL /nologo /mktyplib203 /o "NUL" /win32
-# ADD MTL /nologo /mktyplib203 /o "NUL" /win32 /D "NDEBUG" /D "_LIB" /D "_WINDOWS" /D "_CRT_SECURE_NO_DEPRECATE" /D "_CRT_NONSTDC_NO_DEPRECATE"
+# ADD MTL /nologo /mktyplib203 /o "NUL" /win32 /D "NDEBUG" /D "_LIB" /D "_CONSOLE" /D "_CRT_SECURE_NO_DEPRECATE" /D "_CRT_NONSTDC_NO_DEPRECATE"
 # ADD BASE RSC /l 0x409
 # ADD RSC /l 0x409 /fo".\..\..\out\release_dll6\build\libbulletopenglsupport\libbulletopenglsupport.res" /i "." /i "..\.." /i "..\..\src" /i "..\..\Glut"
 BSC32=bscmake.exe
@@ -105,9 +105,9 @@ LINK32=link.exe
 # PROP Ignore_Export_Lib 0
 # PROP Target_Dir ""
 # ADD BASE CPP /nologo /vmb /vms /W3 /Gm /G5 /D "WIN32" /FD /c
-# ADD CPP /nologo /vmb /vms /W3 /Gm /G5 /FD /c /D "_LIB" /D "_MT" /D "_MBCS" /D "NDEBUG" /D "BT_USE_DOUBLE_PRECISION" /D "_LIB" /D "_WINDOWS" /D "_CRT_SECURE_NO_DEPRECATE" /D "_CRT_NONSTDC_NO_DEPRECATE" /D "WIN32"  /I "." /I "..\.." /I "..\..\src" /I "..\..\Glut"
+# ADD CPP /nologo /vmb /vms /W3 /Gm /G5 /FD /c /D "_LIB" /D "_MT" /D "_MBCS" /D "NDEBUG" /D "BT_USE_DOUBLE_PRECISION" /D "_LIB" /D "_CONSOLE" /D "_CRT_SECURE_NO_DEPRECATE" /D "_CRT_NONSTDC_NO_DEPRECATE" /D "WIN32"  /I "." /I "..\.." /I "..\..\src" /I "..\..\Glut"
 # ADD BASE MTL /nologo /mktyplib203 /o "NUL" /win32
-# ADD MTL /nologo /mktyplib203 /o "NUL" /win32 /D "NDEBUG" /D "BT_USE_DOUBLE_PRECISION" /D "_LIB" /D "_WINDOWS" /D "_CRT_SECURE_NO_DEPRECATE" /D "_CRT_NONSTDC_NO_DEPRECATE"
+# ADD MTL /nologo /mktyplib203 /o "NUL" /win32 /D "NDEBUG" /D "BT_USE_DOUBLE_PRECISION" /D "_LIB" /D "_CONSOLE" /D "_CRT_SECURE_NO_DEPRECATE" /D "_CRT_NONSTDC_NO_DEPRECATE"
 # ADD BASE RSC /l 0x409
 # ADD RSC /l 0x409 /fo".\..\..\out\release_dbl6\build\libbulletopenglsupport\libbulletopenglsupport.res" /i "." /i "..\.." /i "..\..\src" /i "..\..\Glut"
 BSC32=bscmake.exe
@@ -134,9 +134,9 @@ LINK32=link.exe
 # PROP Ignore_Export_Lib 0
 # PROP Target_Dir ""
 # ADD BASE CPP /nologo /vmb /vms /W3 /Gm /G5 /D "WIN32" /FD /c
-# ADD CPP /nologo /vmb /vms /W3 /Gm /G5 /FD /c /GR /MDd /Zm1000 /ZI /Od /D "_LIB" /D "_MT" /D "_MBCS" /D "_DEBUG" /D "_LIB" /D "_WINDOWS" /D "_CRT_SECURE_NO_DEPRECATE" /D "_CRT_NONSTDC_NO_DEPRECATE" /D "WIN32"  /I "." /I "..\.." /I "..\..\src" /I "..\..\Glut"
+# ADD CPP /nologo /vmb /vms /W3 /Gm /G5 /FD /c /GR /MDd /Zm1000 /ZI /Od /D "_LIB" /D "_MT" /D "_MBCS" /D "_DEBUG" /D "_LIB" /D "_CONSOLE" /D "_CRT_SECURE_NO_DEPRECATE" /D "_CRT_NONSTDC_NO_DEPRECATE" /D "WIN32"  /I "." /I "..\.." /I "..\..\src" /I "..\..\Glut"
 # ADD BASE MTL /nologo /mktyplib203 /o "NUL" /win32
-# ADD MTL /nologo /mktyplib203 /o "NUL" /win32 /D "_DEBUG" /D "_LIB" /D "_WINDOWS" /D "_CRT_SECURE_NO_DEPRECATE" /D "_CRT_NONSTDC_NO_DEPRECATE"
+# ADD MTL /nologo /mktyplib203 /o "NUL" /win32 /D "_DEBUG" /D "_LIB" /D "_CONSOLE" /D "_CRT_SECURE_NO_DEPRECATE" /D "_CRT_NONSTDC_NO_DEPRECATE"
 # ADD BASE RSC /l 0x409
 # ADD RSC /l 0x409 /fo".\..\..\out\debug6\build\libbulletopenglsupport\libbulletopenglsupport.res" /i "." /i "..\.." /i "..\..\src" /i "..\..\Glut"
 BSC32=bscmake.exe
@@ -163,9 +163,9 @@ LINK32=link.exe
 # PROP Ignore_Export_Lib 0
 # PROP Target_Dir ""
 # ADD BASE CPP /nologo /vmb /vms /W3 /Gm /G5 /D "WIN32" /FD /c
-# ADD CPP /nologo /vmb /vms /W3 /Gm /G5 /FD /c /D "_LIB" /D "_MT" /D "_MBCS" /D "_DEBUG" /D "_LIB" /D "_WINDOWS" /D "_CRT_SECURE_NO_DEPRECATE" /D "_CRT_NONSTDC_NO_DEPRECATE" /D "WIN32"  /I "." /I "..\.." /I "..\..\src" /I "..\..\Glut"
+# ADD CPP /nologo /vmb /vms /W3 /Gm /G5 /FD /c /D "_LIB" /D "_MT" /D "_MBCS" /D "_DEBUG" /D "_LIB" /D "_CONSOLE" /D "_CRT_SECURE_NO_DEPRECATE" /D "_CRT_NONSTDC_NO_DEPRECATE" /D "WIN32"  /I "." /I "..\.." /I "..\..\src" /I "..\..\Glut"
 # ADD BASE MTL /nologo /mktyplib203 /o "NUL" /win32
-# ADD MTL /nologo /mktyplib203 /o "NUL" /win32 /D "_DEBUG" /D "_LIB" /D "_WINDOWS" /D "_CRT_SECURE_NO_DEPRECATE" /D "_CRT_NONSTDC_NO_DEPRECATE"
+# ADD MTL /nologo /mktyplib203 /o "NUL" /win32 /D "_DEBUG" /D "_LIB" /D "_CONSOLE" /D "_CRT_SECURE_NO_DEPRECATE" /D "_CRT_NONSTDC_NO_DEPRECATE"
 # ADD BASE RSC /l 0x409
 # ADD RSC /l 0x409 /fo".\..\..\out\debug_dll6\build\libbulletopenglsupport\libbulletopenglsupport.res" /i "." /i "..\.." /i "..\..\src" /i "..\..\Glut"
 BSC32=bscmake.exe
@@ -192,9 +192,9 @@ LINK32=link.exe
 # PROP Ignore_Export_Lib 0
 # PROP Target_Dir ""
 # ADD BASE CPP /nologo /vmb /vms /W3 /Gm /G5 /D "WIN32" /FD /c
-# ADD CPP /nologo /vmb /vms /W3 /Gm /G5 /FD /c /D "_LIB" /D "_MT" /D "_MBCS" /D "_DEBUG" /D "BT_USE_DOUBLE_PRECISION" /D "_LIB" /D "_WINDOWS" /D "_CRT_SECURE_NO_DEPRECATE" /D "_CRT_NONSTDC_NO_DEPRECATE" /D "WIN32"  /I "." /I "..\.." /I "..\..\src" /I "..\..\Glut"
+# ADD CPP /nologo /vmb /vms /W3 /Gm /G5 /FD /c /D "_LIB" /D "_MT" /D "_MBCS" /D "_DEBUG" /D "BT_USE_DOUBLE_PRECISION" /D "_LIB" /D "_CONSOLE" /D "_CRT_SECURE_NO_DEPRECATE" /D "_CRT_NONSTDC_NO_DEPRECATE" /D "WIN32"  /I "." /I "..\.." /I "..\..\src" /I "..\..\Glut"
 # ADD BASE MTL /nologo /mktyplib203 /o "NUL" /win32
-# ADD MTL /nologo /mktyplib203 /o "NUL" /win32 /D "_DEBUG" /D "BT_USE_DOUBLE_PRECISION" /D "_LIB" /D "_WINDOWS" /D "_CRT_SECURE_NO_DEPRECATE" /D "_CRT_NONSTDC_NO_DEPRECATE"
+# ADD MTL /nologo /mktyplib203 /o "NUL" /win32 /D "_DEBUG" /D "BT_USE_DOUBLE_PRECISION" /D "_LIB" /D "_CONSOLE" /D "_CRT_SECURE_NO_DEPRECATE" /D "_CRT_NONSTDC_NO_DEPRECATE"
 # ADD BASE RSC /l 0x409
 # ADD RSC /l 0x409 /fo".\..\..\out\debug_dbl6\build\libbulletopenglsupport\libbulletopenglsupport.res" /i "." /i "..\.." /i "..\..\src" /i "..\..\Glut"
 BSC32=bscmake.exe
@@ -222,18 +222,6 @@ LINK32=link.exe
 # PROP Default_Filter ""
 # Begin Source File
 
-SOURCE=..\..\Demos\OpenGL\BMF_Api.cpp
-# End Source File
-# Begin Source File
-
-SOURCE=..\..\Demos\OpenGL\BMF_BitmapFont.cpp
-# End Source File
-# Begin Source File
-
-SOURCE=..\..\Demos\OpenGL\BMF_font_helv10.cpp
-# End Source File
-# Begin Source File
-
 SOURCE=..\..\Demos\OpenGL\DemoApplication.cpp
 # End Source File
 # Begin Source File
@@ -250,36 +238,32 @@ SOURCE=..\..\Demos\OpenGL\GLDebugDrawer.cpp
 # End Source File
 # Begin Source File
 
+SOURCE=..\..\Demos\OpenGL\GLDebugFont.cpp
+# End Source File
+# Begin Source File
+
+SOURCE=..\..\Demos\OpenGL\GlutDemoApplication.cpp
+# End Source File
+# Begin Source File
+
 SOURCE=..\..\Demos\OpenGL\GlutStuff.cpp
 # End Source File
 # Begin Source File
 
 SOURCE=..\..\Demos\OpenGL\RenderTexture.cpp
 # End Source File
+# Begin Source File
+
+SOURCE=..\..\Demos\OpenGL\Win32AppMain.cpp
+# End Source File
+# Begin Source File
+
+SOURCE=..\..\Demos\OpenGL\Win32DemoApplication.cpp
+# End Source File
 # End Group
 # Begin Group "Header Files"
 
 # PROP Default_Filter ""
-# Begin Source File
-
-SOURCE=..\..\Demos\OpenGL\BMF_Api.h
-# End Source File
-# Begin Source File
-
-SOURCE=..\..\Demos\OpenGL\BMF_BitmapFont.h
-# End Source File
-# Begin Source File
-
-SOURCE=..\..\Demos\OpenGL\BMF_FontData.h
-# End Source File
-# Begin Source File
-
-SOURCE=..\..\Demos\OpenGL\BMF_Fonts.h
-# End Source File
-# Begin Source File
-
-SOURCE=..\..\Demos\OpenGL\BMF_Settings.h
-# End Source File
 # Begin Source File
 
 SOURCE=..\..\Demos\OpenGL\DebugCastResult.h
@@ -302,11 +286,23 @@ SOURCE=..\..\Demos\OpenGL\GLDebugDrawer.h
 # End Source File
 # Begin Source File
 
+SOURCE=..\..\Demos\OpenGL\GLDebugFont.h
+# End Source File
+# Begin Source File
+
+SOURCE=..\..\Demos\OpenGL\GlutDemoApplication.h
+# End Source File
+# Begin Source File
+
 SOURCE=..\..\Demos\OpenGL\GlutStuff.h
 # End Source File
 # Begin Source File
 
 SOURCE=..\..\Demos\OpenGL\RenderTexture.h
+# End Source File
+# Begin Source File
+
+SOURCE=..\..\Demos\OpenGL\Win32DemoApplication.h
 # End Source File
 # End Group
 # End Target

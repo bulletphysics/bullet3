@@ -87,6 +87,30 @@ Package=<4>
 
 ###############################################################################
 
+Project: "appBox2dDemo"=.\appBox2dDemo.dsp - Package Owner=<4>
+
+Package=<5>
+{{{
+}}}
+
+Package=<4>
+{{{
+    Begin Project Dependency
+    Project_Dep_Name libbulletcollision
+    End Project Dependency
+    Begin Project Dependency
+    Project_Dep_Name libbulletdynamics
+    End Project Dependency
+    Begin Project Dependency
+    Project_Dep_Name libbulletmath
+    End Project Dependency
+    Begin Project Dependency
+    Project_Dep_Name libbulletopenglsupport
+    End Project Dependency
+}}}
+
+###############################################################################
+
 Project: "appBspDemo"=.\appBspDemo.dsp - Package Owner=<4>
 
 Package=<5>
@@ -513,6 +537,30 @@ Package=<4>
 
 ###############################################################################
 
+Project: "appGpu2dDemo"=.\appGpu2dDemo.dsp - Package Owner=<4>
+
+Package=<5>
+{{{
+}}}
+
+Package=<4>
+{{{
+    Begin Project Dependency
+    Project_Dep_Name libbulletcollision
+    End Project Dependency
+    Begin Project Dependency
+    Project_Dep_Name libbulletdynamics
+    End Project Dependency
+    Begin Project Dependency
+    Project_Dep_Name libbulletmath
+    End Project Dependency
+    Begin Project Dependency
+    Project_Dep_Name libbulletopenglsupport
+    End Project Dependency
+}}}
+
+###############################################################################
+
 Project: "appHeightFieldFluidDemo"=.\appHeightFieldFluidDemo.dsp - Package Owner=<4>
 
 Package=<5>
@@ -559,21 +607,6 @@ Package=<4>
 ###############################################################################
 
 Project: "appiffCheck"=.\appiffCheck.dsp - Package Owner=<4>
-
-Package=<5>
-{{{
-}}}
-
-Package=<4>
-{{{
-    Begin Project Dependency
-    Project_Dep_Name libiff
-    End Project Dependency
-}}}
-
-###############################################################################
-
-Project: "appiffCreateTest"=.\appiffCreateTest.dsp - Package Owner=<4>
 
 Package=<5>
 {{{
@@ -876,6 +909,9 @@ Package=<4>
     Project_Dep_Name appBenchmarks
     End Project Dependency
     Begin Project Dependency
+    Project_Dep_Name appBox2dDemo
+    End Project Dependency
+    Begin Project Dependency
     Project_Dep_Name appBspDemo
     End Project Dependency
     Begin Project Dependency
@@ -927,6 +963,9 @@ Package=<4>
     Project_Dep_Name appGjkConvexCastDemo
     End Project Dependency
     Begin Project Dependency
+    Project_Dep_Name appGpu2dDemo
+    End Project Dependency
+    Begin Project Dependency
     Project_Dep_Name appHeightFieldFluidDemo
     End Project Dependency
     Begin Project Dependency
@@ -934,9 +973,6 @@ Package=<4>
     End Project Dependency
     Begin Project Dependency
     Project_Dep_Name appiffCheck
-    End Project Dependency
-    Begin Project Dependency
-    Project_Dep_Name appiffCreateTest
     End Project Dependency
     Begin Project Dependency
     Project_Dep_Name appMovingConcaveDemo
@@ -1032,6 +1068,9 @@ Package=<4>
     Project_Dep_Name appBenchmarks
     End Project Dependency
     Begin Project Dependency
+    Project_Dep_Name appBox2dDemo
+    End Project Dependency
+    Begin Project Dependency
     Project_Dep_Name appBspDemo
     End Project Dependency
     Begin Project Dependency
@@ -1083,6 +1122,9 @@ Package=<4>
     Project_Dep_Name appGjkConvexCastDemo
     End Project Dependency
     Begin Project Dependency
+    Project_Dep_Name appGpu2dDemo
+    End Project Dependency
+    Begin Project Dependency
     Project_Dep_Name appHeightFieldFluidDemo
     End Project Dependency
     Begin Project Dependency
@@ -1090,9 +1132,6 @@ Package=<4>
     End Project Dependency
     Begin Project Dependency
     Project_Dep_Name appiffCheck
-    End Project Dependency
-    Begin Project Dependency
-    Project_Dep_Name appiffCreateTest
     End Project Dependency
     Begin Project Dependency
     Project_Dep_Name appMovingConcaveDemo
