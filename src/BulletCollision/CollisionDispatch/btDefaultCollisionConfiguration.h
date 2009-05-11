@@ -28,6 +28,7 @@ struct	btDefaultCollisionConstructionInfo
 	int					m_defaultMaxPersistentManifoldPoolSize;
 	int					m_defaultMaxCollisionAlgorithmPoolSize;
 	int					m_defaultStackAllocatorSize;
+	int					m_useEpaPenetrationAlgorithm;
 
 	btDefaultCollisionConstructionInfo()
 		:m_stackAlloc(0),
@@ -35,7 +36,8 @@ struct	btDefaultCollisionConstructionInfo
 		m_collisionAlgorithmPool(0),
 		m_defaultMaxPersistentManifoldPoolSize(4096),
 		m_defaultMaxCollisionAlgorithmPoolSize(4096),
-		m_defaultStackAllocatorSize(0)
+		m_defaultStackAllocatorSize(0),
+		m_useEpaPenetrationAlgorithm(true)
 	{
 	}
 };

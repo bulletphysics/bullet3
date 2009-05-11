@@ -127,7 +127,7 @@ public:
 
 	}
 
-	void	setAxis(btVector3& axisInA = btVector3(0, 1, 0))
+	void	setAxis(btVector3& axisInA)
 	{
 		btVector3 rbAxisA1, rbAxisA2;
 		btPlaneSpace1(axisInA, rbAxisA1, rbAxisA2);

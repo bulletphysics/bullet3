@@ -16,7 +16,7 @@ subject to the following restrictions:
 #include "GLDebugFont.h"
 #include "GlutStuff.h"
 #include <stdio.h>
-#include <string>
+#include <string.h> //for memset
 
 extern unsigned char sFontData[];
 static GLuint sTexture = -1;

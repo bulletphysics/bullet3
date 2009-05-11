@@ -27,8 +27,7 @@ subject to the following restrictions:
 #include "btGpu3DGridBroadphaseSharedDefs.h"
 
 #include "btGpu3DGridBroadphase.h"
-#include <string> //for memset
-
+#include <string.h> //for memset
 //--------------------------------------------------------------------------
 
 #include <stdio.h>

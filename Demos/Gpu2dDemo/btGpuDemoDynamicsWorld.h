@@ -42,7 +42,7 @@ subject to the following restrictions:
 
 //----------------------------------------------------------------------------------------
 
-#include "btGpuDemo2DSharedTypes.h"
+#include "btGpuDemo2dSharedTypes.h"
 
 //----------------------------------------------------------------------------------------
 

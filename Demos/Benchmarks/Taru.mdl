@@ -1,7 +1,7 @@
 #define TaruVtxCount 43
 #define TaruIdxCount 132
 
-float TaruVtx[] = {
+static float TaruVtx[] = {
 1.08664f,-1.99237f,0.0f,
 0.768369f,-1.99237f,-0.768369f,
 1.28852f,1.34412e-007f,-1.28852f,
@@ -47,7 +47,7 @@ float TaruVtx[] = {
 1.08664f,1.99237f,0.0f,
 };
 
-float TaruNml[] = {
+static float TaruNml[] = {
 0.938103f,-0.346356f,0.0f,
 0.663339f,-0.346356f,-0.663339f,
 0.707107f,0.0f,-0.707107f,
@@ -93,7 +93,7 @@ float TaruNml[] = {
 0.0f,1.0f,0.0f,
 };
 
-float TaruTex[] = {
+static float TaruTex[] = {
 0.75f,0.0f,
 0.875f,0.0f,
 0.875f,0.5f,
@@ -139,7 +139,7 @@ float TaruTex[] = {
 0.5f,1.0f,
 };
 
-unsigned short TaruIdx[] = {
+static unsigned short TaruIdx[] = {
 0,1,2,
 2,3,0,
 1,4,5,
