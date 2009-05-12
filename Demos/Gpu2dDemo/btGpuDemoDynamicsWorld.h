@@ -66,6 +66,7 @@ protected:
 	int						m_numObj;
 	int						m_numSimStep;
 	bool					m_useCPUSolver;
+	bool					m_useBulletNarrowphase;
 
 	float4*					m_hPos;
 	float*					m_hRot;
@@ -254,11 +255,13 @@ public:
 	void setWorldMax(const btVector3& worldMax) { m_worldMax = worldMax; }
 
 	void grabData();
+	void grabContactData();
 	void copyDataToGPU();
 	void setConstraintData(btCudaPartProps& partProps);
 	void copyDataFromGPU();
 	void writebackData();
 	void setUseCPUSolver(bool useCPU) { m_useCPUSolver = useCPU; }
+	void setUseBulletNarrowphase(bool useBulletNarrowphase) {m_useBulletNarrowphase = useBulletNarrowphase; } 
 
 	void createBatches2();
 

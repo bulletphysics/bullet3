@@ -174,8 +174,11 @@ BT_GPU___device__ float computeImpulse1(float3 rVel,
 								 float3 cNormal,
 								 float dt)
 {
-	const float collisionConstant	=	0.1f;
-	const float baumgarteConstant	=	0.5f;
+//	const float collisionConstant	=	0.1f;
+//	const float baumgarteConstant	=	0.5f;
+//	const float penetrationError	=	0.02f;
+	const float collisionConstant	=	-0.1f;
+	const float baumgarteConstant	=	0.3f;
 	const float penetrationError	=	0.02f;
 
 	float lambdaDt=0;
@@ -231,12 +234,14 @@ BT_GPU___global__ void collisionWithWallBoxD(float4 *pos,
 			float3 vPos = aPos + rerVertex;
 			float rad = shape[iVtx].w;
 			float3 vVel	=aVel+BT_GPU_cross(BT_GPU_make_float3(0.0f,0.0f,aAngVel),rerVertex);
-			float restitution=1.0;
+//			float restitution=1.0;
+			float restitution=0.3f;
 			{
 				positionConstraint	=vPos.y - rad - gProp.minY;
 				impulse				=BT_GPU_make_float31(0.0f);
 
-				if(positionConstraint < 0){
+				if(positionConstraint < 0)
+				{
 					float3 groundNormal;
 					groundNormal = BT_GPU_make_float3(0.0f,1.0f,0.0f);
 					impulse	=groundNormal*
@@ -266,7 +271,7 @@ BT_GPU___global__ void collisionWithWallBoxD(float4 *pos,
 				impulse				=BT_GPU_make_float31(0.0f);
 
 				if(positionConstraint < 0){
-					impulse	=BT_GPU_make_float3(1.0f,0.0f,0.0f)*
+					impulse	=BT_GPU_make_float3(1.0f,0.0f,0.0f)* restitution * 
 						computeImpulse1(vVel,positionConstraint,
 						BT_GPU_make_float3(1.0f,0.0f,0.0f),
 						dt);
@@ -282,7 +287,7 @@ BT_GPU___global__ void collisionWithWallBoxD(float4 *pos,
 				impulse				=BT_GPU_make_float31(0.0f);
 
 				if(positionConstraint < 0){
-					impulse	=BT_GPU_make_float3(-1.0f,0.0f,0.0f)*
+					impulse	=BT_GPU_make_float3(-1.0f,0.0f,0.0f)* restitution * 
 						computeImpulse1(vVel,positionConstraint,
 						BT_GPU_make_float3(-1.0f,0.0f,0.0f),
 						dt);

@@ -431,8 +431,8 @@ void btGpuDemoDynamicsWorld::debugDrawConstraints(int selectedBatch, const float
 		for(int i = 0; i < numConstraints; i++)
 		{
 			int indx = pBatchIds[i];
-			int idA = m_hIds[indx].x-1;
-			int idB = m_hIds[indx].y-1;
+			int idA = m_hIds[indx].x - 1;
+			int idB = m_hIds[indx].y - 1;
 			if((idA > 0) && (idB > 0))
 			{
 				btCollisionObject* colObjA = m_collisionObjects[idA];

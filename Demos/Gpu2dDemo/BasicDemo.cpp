@@ -97,6 +97,7 @@ bool gUseCPUSolver = false;
 bool gUseCPUSolver = true;
 #endif //BT_USE_CUDA
 
+bool gUseBulletNarrowphase = false;
 
 #include "oecakeLoader.h"
 
@@ -303,6 +304,8 @@ void	BasicDemo::initPhysics()
 	pDdw->setWorldMax(gWorldMax);
 //	gUseCPUSolver = true;
 	pDdw->setUseCPUSolver(gUseCPUSolver);
+	gUseBulletNarrowphase = false;
+	pDdw->setUseBulletNarrowphase(gUseBulletNarrowphase);
 
 //	m_dynamicsWorld->setGravity(btVector3(0,0,0));
 	m_dynamicsWorld->setGravity(btVector3(0,-10.,0));
@@ -584,6 +587,21 @@ void BasicDemo::keyboardCallback(unsigned char key, int x, int y)
 				btGpuDemoDynamicsWorld* pDdw = (btGpuDemoDynamicsWorld*)m_dynamicsWorld;
 				gUseCPUSolver = !gUseCPUSolver;
 				pDdw->setUseCPUSolver(gUseCPUSolver);
+				break;
+			}
+		case 'j' :
+			{
+				btGpuDemoDynamicsWorld* pDdw = (btGpuDemoDynamicsWorld*)m_dynamicsWorld;
+				gUseBulletNarrowphase = !gUseBulletNarrowphase;
+				pDdw->setUseBulletNarrowphase(gUseBulletNarrowphase);
+				if(gUseBulletNarrowphase)
+				{
+					m_dispatcher->setNearCallback(btCollisionDispatcher::defaultNearCallback);
+				}
+				else
+				{
+					m_dispatcher->setNearCallback(cudaDemoNearCallback);
+				}
 				break;
 			}
 		default : 
