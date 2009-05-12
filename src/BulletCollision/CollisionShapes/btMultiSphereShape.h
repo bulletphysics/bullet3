@@ -1,6 +1,6 @@
 /*
 Bullet Continuous Collision Detection and Physics Library
-Copyright (c) 2003-2006 Erwin Coumans  http://continuousphysics.com/Bullet/
+Copyright (c) 2003-2009 Erwin Coumans  http://bulletphysics.org
 
 This software is provided 'as-is', without any express or implied warranty.
 In no event will the authors be held liable for any damages arising from the use of this software.
@@ -18,8 +18,7 @@ subject to the following restrictions:
 
 #include "btConvexInternalShape.h"
 #include "BulletCollision/BroadphaseCollision/btBroadphaseProxy.h" // for the types
-
-#define MAX_NUM_SPHERES 5
+#include "LinearMath/btAlignedObjectArray.h"
 
 ///The btMultiSphereShape represents the convex hull of a collection of spheres. You can create special capsules or other smooth volumes.
 ///It is possible to animate the spheres for deformation.
@@ -27,12 +26,9 @@ class btMultiSphereShape : public btConvexInternalShape
 
 {
 	
-	btVector3 m_localPositions[MAX_NUM_SPHERES];
-	btScalar  m_radi[MAX_NUM_SPHERES];
+	btAlignedObjectArray<btVector3> m_localPositionArray;
+	btAlignedObjectArray<btScalar>  m_radiArray;
 	btVector3	m_inertiaHalfExtents;
-
-	int m_numSpheres;
-	
 
 
 
@@ -49,17 +45,17 @@ public:
 	
 	int	getSphereCount() const
 	{
-		return m_numSpheres;
+		return m_localPositionArray.size();
 	}
 
 	const btVector3&	getSpherePosition(int index) const
 	{
-		return m_localPositions[index];
+		return m_localPositionArray[index];
 	}
 
 	btScalar	getSphereRadius(int index) const
 	{
-		return m_radi[index];
+		return m_radiArray[index];
 	}
 
 

@@ -119,10 +119,14 @@ void	BasicOECakeReader::addNewCollisionShape(int numParticles, btVector3* partic
 	if ((materialType & 0x20000) ||(materialType & 0x12))
 	{
 		mass = 1.f;
+	} else
+	{
+			mass = 0.f;
 	}
 	btTransform	startTransform;
 	startTransform.setIdentity();
 
+	int numCurSpheres = 0;
 
 	{
 		
@@ -132,11 +136,19 @@ void	BasicOECakeReader::addNewCollisionShape(int numParticles, btVector3* partic
 
 		//static
 		btCompoundShape* compound = new btCompoundShape();
+		
 		for (int i=0;i<numParticles;i++)
 		{
+			numCurSpheres++;
 			localTrans.setOrigin(particlePositions[i]);
 			btSphereShape* particle = new btSphereShape(radii[i]);
 			compound->addChildShape(localTrans,particle);
+			if (mass==0.f && (numCurSpheres>=7))
+			{
+				createBodyForCompoundShape(compound,false,startTransform,mass);
+				compound = new btCompoundShape();
+				numCurSpheres = 0;
+			}
 		}
 		if (mass)
 		{
@@ -152,7 +164,7 @@ void	BasicOECakeReader::addNewCollisionShape(int numParticles, btVector3* partic
 
 	btDefaultMotionState* myMotionState  = 0;
 
-	if (colShape)
+	if (colShape && numCurSpheres)
 	{
 		createBodyForCompoundShape(colShape,addConstraint,startTransform,mass);
 	}

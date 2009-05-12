@@ -1,6 +1,6 @@
 /*
 Bullet Continuous Collision Detection and Physics Library
-Copyright (c) 2003-2006 Erwin Coumans  http://continuousphysics.com/Bullet/
+Copyright (c) 2003-2009 Erwin Coumans  http://bulletphysics.org
 
 This software is provided 'as-is', without any express or implied warranty.
 In no event will the authors be held liable for any damages arising from the use of this software.
@@ -25,7 +25,7 @@ subject to the following restrictions:
 ///Instead of the number of indices, we pass the number of triangles.
 ATTRIBUTE_ALIGNED16( struct)	btIndexedMesh
 {
-   BT_DECLARE_ALIGNED_ALLOCATOR();
+	BT_DECLARE_ALIGNED_ALLOCATOR();
 
    int                     m_numTriangles;
    const unsigned char *   m_triangleIndexBase;
@@ -84,10 +84,10 @@ public:
 	//just to be backwards compatible
 	btTriangleIndexVertexArray(int numTriangles,int* triangleIndexBase,int triangleIndexStride,int numVertices,btScalar* vertexBase,int vertexStride);
 	
-   void  addIndexedMesh(const btIndexedMesh& mesh, PHY_ScalarType indexType = PHY_INTEGER)
+	void	addIndexedMesh(const btIndexedMesh& mesh, PHY_ScalarType indexType = PHY_INTEGER)
 	{
-      m_indexedMeshes.push_back(mesh);
-      m_indexedMeshes[m_indexedMeshes.size()-1].m_indexType  = indexType;
+		m_indexedMeshes.push_back(mesh);
+		m_indexedMeshes[m_indexedMeshes.size()-1].m_indexType = indexType;
 	}
 	
 	

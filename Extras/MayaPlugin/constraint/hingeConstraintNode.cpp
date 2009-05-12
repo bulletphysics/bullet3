@@ -108,6 +108,7 @@ MStatus hingeConstraintNode::initialize()
     MCHECKSTATUS(status, "adding relaxationFactor attribute")
 
 	ia_hingeAxis = fnNumericAttr.createPoint("hingeAxis", "hgAx", &status);
+	status = fnNumericAttr.setDefault((double) 0.0, (double) 0.0, (double) 1.0);
     MCHECKSTATUS(status, "creating hingeAxis attribute")
     status = addAttribute(ia_hingeAxis);
     MCHECKSTATUS(status, "adding hingeAxis attribute")

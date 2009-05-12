@@ -1,6 +1,6 @@
 /*
 Bullet Continuous Collision Detection and Physics Library
-Copyright (c) 2003-2006 Erwin Coumans  http://continuousphysics.com/Bullet/
+Copyright (c) 2003-2009 Erwin Coumans  http://bulletphysics.org
 
 This software is provided 'as-is', without any express or implied warranty.
 In no event will the authors be held liable for any damages arising from the use of this software.
@@ -124,14 +124,7 @@ void btCompoundShape::removeChildShape(btCollisionShape* shape)
 	{
 		if(m_children[i].m_childShape == shape)
 		{
-			m_children.swap(i,m_children.size()-1);
-			m_children.pop_back();
-			//remove it from the m_dynamicAabbTree too
-			//@todo: this leads to problems due to caching in the btCompoundCollisionAlgorithm
-			//so effectively, removeChildShape is broken at the moment
-			//m_dynamicAabbTree->remove(m_aabbProxies[i]);
-			//m_aabbProxies.swap(i,m_children.size()-1);
-			//m_aabbProxies.pop_back();
+			removeChildShapeByIndex(i);
 		}
 	}
 

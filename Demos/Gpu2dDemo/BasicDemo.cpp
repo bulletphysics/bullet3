@@ -190,7 +190,7 @@ void BasicDemo::clientMoveAndDisplay()
 	if (m_dynamicsWorld)
 	{
 #if USE_CUDA_DEMO_PAIR_CASHE
-		btCudaDemoPairCache* pc = (btCudaDemoPairCache*)m_dynamicsWorld->getPairCache();
+		btGpuDemoPairCache* pc = (btGpuDemoPairCache*)m_dynamicsWorld->getPairCache();
 		pc->m_numSmallProxies = m_dynamicsWorld->getNumCollisionObjects(); //  - 1; // exclude floor
 #endif
 		m_dynamicsWorld->stepSimulation(gTimeStep,0);//ms / 1000000.f);
@@ -237,7 +237,7 @@ void BasicDemo::displayCallback(void) {
 	btVector3 gWorldMax( POS_OFFS_X,  POS_OFFS_Y,  POS_OFFS_Z);
 #endif
 
-//btCudaDemoPairCache* gPairCache;
+//btGpuDemoPairCache* gPairCache;
 btOverlappingPairCache* gPairCache;
 
 
@@ -276,7 +276,7 @@ void	BasicDemo::initPhysics()
 
 	
 #if USE_CUDA_DEMO_PAIR_CASHE
-	gPairCache = new (btAlignedAlloc(sizeof(btCudaDemoPairCache),16)) btCudaDemoPairCache(MAX_PROXIES, 24, MAX_SMALL_PROXIES); 
+	gPairCache = new (btAlignedAlloc(sizeof(btGpuDemoPairCache),16)) btGpuDemoPairCache(MAX_PROXIES, 24, MAX_SMALL_PROXIES); 
 #else
 	gPairCache = new (btAlignedAlloc(sizeof(btHashedOverlappingPairCache),16))btHashedOverlappingPairCache(); 
 #endif
@@ -319,6 +319,7 @@ void	BasicDemo::initPhysics()
 		//btCollisionShape* colShape = new btBoxShape(btVector3(SCALING*1,SCALING*1,0.1));//SCALING*1));
 //		btCollisionShape* colShape = new btBox2dShape(btVector3(SCALING*.7,SCALING*.7,0.1));//SCALING*1));
 
+#if 0
 		#define SPRADIUS btScalar(SCALING*0.1f)
 		#define SPRPOS btScalar(SCALING*0.05f)
 		static btVector3 sSphPos[8];
@@ -343,12 +344,13 @@ void	BasicDemo::initPhysics()
 		//btCollisionShape* colShape = new btSphereShape(btScalar(1.));
 		m_collisionShapes.push_back(colShape[0]);
 		m_collisionShapes.push_back(colShape[1]);
+#endif
 
 		/// Create Dynamic Objects
 		btTransform startTransform;
 		startTransform.setIdentity();
 
-		btScalar	mass(1.f);
+		btScalar	mass(0.f);
 
 		//rigidbody is dynamic if and only if mass is non zero, otherwise static
 		bool isDynamic = (mass != 0.f);
@@ -614,7 +616,7 @@ void BasicDemo::keyboardCallback(unsigned char key, int x, int y)
 	if(key == ' ')
 	{
 #if USE_CUDA_DEMO_PAIR_CASHE
-		((btCudaDemoPairCache*)gPairCache)->reset();
+		((btGpuDemoPairCache*)gPairCache)->reset();
 #endif
 	}
 }
