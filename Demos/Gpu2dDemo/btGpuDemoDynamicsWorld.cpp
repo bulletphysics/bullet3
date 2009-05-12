@@ -68,6 +68,79 @@ void btGpuDemoDynamicsWorld::grabNonContactConstraintData()
 
 //--------------------------------------------------------------------------
 
+void btGpuDemoDynamicsWorld::grabContactData()
+{
+	int i;
+	btDispatcher* dispatcher = getDispatcher();
+	btPersistentManifold** manifoldPtr = dispatcher->getInternalManifoldPointer();
+	int numManifolds = dispatcher->getNumManifolds();
+	btPersistentManifold* manifold = 0;
+	m_totalNumConstraints = 0;
+	for(i = 0; i < numManifolds; i++)
+	{
+		manifold = manifoldPtr[i];
+		int numPoints = manifold->getNumContacts();
+		if(!numPoints)
+		{
+			continue;
+		}
+		int numActualPoints = 0;
+		for(int n = 0; n < numPoints; n++)
+		{	
+				btManifoldPoint& cp = manifold->getContactPoint(n);
+				if (cp.m_distance1<=0)
+				{
+					numActualPoints++;
+				}
+		}
+		if (!numActualPoints)
+			continue;
+
+		btRigidBody *rbA, *rbB;
+		rbA = (btRigidBody*)manifold->getBody0();
+		rbB = (btRigidBody*)manifold->getBody1();
+		int idA = rbA->getCompanionId();
+		int idB = rbB->getCompanionId();
+		btVector3* pConstrData = (btVector3*)(m_hContact + m_totalNumConstraints * 2 * m_maxVtxPerObj);
+		if(idA < idB)
+		{
+			m_hIds[m_totalNumConstraints].x = idA;
+			m_hIds[m_totalNumConstraints].y = idB;
+
+			for(int n = 0; n < numPoints; n++)
+			{	
+				btManifoldPoint& cp = manifold->getContactPoint(n);
+				btVector3 v = cp.getPositionWorldOnA();
+				pConstrData[0] = cp.getPositionWorldOnA();
+				float dist = cp.getDistance();
+				if(dist > 0.f)
+				{
+					pConstrData[0][3] = -1.f;
+				}
+				else
+				{
+					pConstrData[0][3] = -dist;
+				}
+				pConstrData[1] = cp.m_normalWorldOnB;
+				pConstrData[1][3] = 0.f;
+				pConstrData += 2;
+			}
+		}
+		else
+		{ // should never happen
+			btAssert(0);
+		}
+		for(int n = numPoints; n < m_maxVtxPerObj; n++)
+		{
+			pConstrData[0][3] = -1.f;
+			pConstrData += 2;
+		}
+		m_totalNumConstraints++;
+	}
+} // btCudaDemoDynamicsWorld::grabContactData()
+
+//--------------------------------------------------------------------------
+
 void btGpuDemoDynamicsWorld::grabP2PConstraintData(btPoint2PointConstraint* ct)
 {
 	btRigidBody& bodyA = ct->getRigidBodyA();
@@ -131,6 +204,10 @@ void btGpuDemoDynamicsWorld::grabData()
 		m_hVel[i+1] = *((float4*)&v);
 		v = rb->getAngularVelocity();
 		m_hAngVel[i+1] = v[2];
+	}
+	if(m_useBulletNarrowphase)
+	{
+		grabContactData();
 	}
 	grabNonContactConstraintData();
 } // btGpuDemoDynamicsWorld::grabGata()
@@ -265,8 +342,11 @@ void btGpuDemoDynamicsWorld::setConstraintData(btCudaPartProps& partProps)
 		partProps.m_restCoeff = 1.0f;
 #ifdef BT_USE_CUDA
 		btCuda_clearAccumulationOfLambdaDt(m_dLambdaDtBox, m_totalNumConstraints, m_maxVtxPerObj * 2);
-		btCuda_setConstraintData(m_dIds, m_totalNumConstraints - m_numNonContactConstraints, m_numObj + 1, m_dcPos, m_dcRot, m_dShapeBuffer, m_dShapeIds,
-								 partProps,	m_dContact);
+		if(!m_useBulletNarrowphase)
+		{
+			btCuda_setConstraintData(m_dIds, m_totalNumConstraints - m_numNonContactConstraints, m_numObj + 1, m_dcPos, m_dcRot, m_dShapeBuffer, m_dShapeIds,
+									 partProps,	m_dContact);
+		}
 #endif //BT_USE_CUDA
 
 } // btGpuDemoDynamicsWorld::setConstraintData()
@@ -363,8 +443,11 @@ void btGpuDemoDynamicsWorld::solveConstraintsCPU2(btContactSolverInfo& solverInf
 
 		btGpu_clearAccumulationOfLambdaDt(m_hLambdaDtBox, m_totalNumConstraints, m_maxVtxPerObj * 2);
 
-		btGpu_setConstraintData(m_hIds, m_totalNumConstraints - m_numNonContactConstraints, m_numObj + 1, m_hPos, m_hRot,m_hShapeBuffer, m_hShapeIds,
+		if(!m_useBulletNarrowphase)
+		{
+			btGpu_setConstraintData(m_hIds, m_totalNumConstraints - m_numNonContactConstraints, m_numObj + 1, m_hPos, m_hRot,m_hShapeBuffer, m_hShapeIds,
 									partProps,	m_hContact);
+		}
 	}
 
 	btCudaBoxProps boxProps;
