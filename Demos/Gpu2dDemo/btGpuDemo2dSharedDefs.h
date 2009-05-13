@@ -25,8 +25,8 @@ extern "C"
 
 void BT_GPU_PREF(clearAccumulationOfLambdaDt(float* lambdaDtBox, int numConstraints, int numContPoints));
 void BT_GPU_PREF(setConstraintData(void* constraints,int numConstraints,int numObjs,void* pos,float *rotation,char* shapes,void* shapeIds,btCudaPartProps pProp,void* oContact));
-void BT_GPU_PREF(collisionWithWallBox(void* pos,void* vel,float *rotation,float *angVel,char* shapes,void* shapeIds,btCudaPartProps pProp,	btCudaBoxProps gProp,int numObjs,float dt));
-void BT_GPU_PREF(collisionBatchResolutionBox(void* constraints,int *batch,int numConstraints,int numObjs,void *pos,void *vel,float *rotation,float *angularVel,float *lambdaDtBox,void* contact,btCudaPartProps pProp,int iBatch,float dt));
+void BT_GPU_PREF(collisionWithWallBox(void* pos,void* vel,float *rotation,float *angVel,char* shapes,void* shapeIds,void* invMass,btCudaPartProps pProp,btCudaBoxProps gProp,int numObjs,float dt));
+void BT_GPU_PREF(collisionBatchResolutionBox(void* constraints,int *batch,int numConstraints,int numObjs,void *pos,void *vel,float *rotation,float *angularVel,float *lambdaDtBox,void* contact,void* invMass,btCudaPartProps pProp,int iBatch,float dt));
 
 }   // extern "C"
 

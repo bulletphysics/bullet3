@@ -202,6 +202,7 @@ BT_GPU___global__ void collisionWithWallBoxD(float4 *pos,
 								   float *angVel,
 								   char* shapes,
 								   int2* shapeIds,
+								   float* invMass,
 								   btCudaPartProps pProp,
 								   btCudaBoxProps gProp,
 								   int nParticles,
@@ -214,8 +215,13 @@ BT_GPU___global__ void collisionWithWallBoxD(float4 *pos,
 	float3 impulse;
 	
 
-	if((idx > 0) && idx < nParticles)
+	if((idx > 0) && (idx < nParticles))
 	{
+		float inv_mass = invMass[idx];
+		if(inv_mass <= 0.f)
+		{
+			return;
+		}
 		aPos=BT_GPU_make_float34(BT_GPU_FETCH4(pos,idx));
 		aRot=rotation[idx];
 		float4* shape = (float4*)(shapes + shapeIds[idx].x);
@@ -309,6 +315,7 @@ BT_GPU___device__ void collisionResolutionBox(	int constrId,
 												float *angularVel,
 												float *lambdaDtBox,
 												float4* contact,
+												float* invMass,
 												btCudaPartProps pProp,
 												float dt)
 {
@@ -366,12 +373,12 @@ BT_GPU___device__ void collisionResolutionBox(	int constrId,
 				}
 			}
 #endif //USE_FRICTION
-			if(aId)
+			if(aId && (invMass[aId] > 0.f))
 			{
 				aVel+=	impulse;
 				aAngVel+=	BT_GPU_cross(contactPoint, impulse).z;
 			}
-			if(bId)
+			if(bId && (invMass[bId] > 0.f))
 			{
 				bVel-=	impulse;
 				bAngVel-=	BT_GPU_cross(contactPoint+aPos-bPos,	impulse).z;
@@ -394,6 +401,7 @@ BT_GPU___global__ void collisionBatchResolutionBoxD(int2 *constraints,
 										 float *angularVel,
 										 float *lambdaDtBox,
 										 float4* contact,
+										 float* invMass,
 										 btCudaPartProps pProp,
 										 int iBatch,
 										 float dt)
@@ -403,7 +411,7 @@ BT_GPU___global__ void collisionBatchResolutionBoxD(int2 *constraints,
 	{
 		int idx = batch[k_idx];
 		collisionResolutionBox(	idx, constraints, pos, vel, rotation, angularVel, lambdaDtBox,
-								contact, pProp, dt);
+								contact, invMass, pProp, dt);
 	}
 }
 
@@ -448,7 +456,7 @@ void BT_GPU_PREF(setConstraintData(void* constraints,int numConstraints,int numO
     BT_GPU_CHECK_ERROR("setConstraintDataD kernel execution failed");
 }
 
-void BT_GPU_PREF(collisionWithWallBox(void* pos,void* vel,float *rotation,float *angVel,char* shapes,void* shapeIds,btCudaPartProps pProp,	btCudaBoxProps gProp,int numObjs,float dt))
+void BT_GPU_PREF(collisionWithWallBox(void* pos,void* vel,float *rotation,float *angVel,char* shapes,void* shapeIds,void* invMass,btCudaPartProps pProp,	btCudaBoxProps gProp,int numObjs,float dt))
 {
 	if(!numObjs) 
 	{
@@ -457,19 +465,20 @@ void BT_GPU_PREF(collisionWithWallBox(void* pos,void* vel,float *rotation,float 
 	float4* pPos = (float4*)pos;
 	float4* pVel = (float4*)vel;
 	int2* pShapeIds = (int2*)shapeIds;
+	float* pInvMass = (float*)invMass;
     BT_GPU_SAFE_CALL(BT_GPU_BindTexture(0, posTex, pPos, numObjs * sizeof(float4)));
 
     int numThreads, numBlocks;
     BT_GPU_PREF(computeGridSize)(numObjs, 256, numBlocks, numThreads);
     // execute the kernel
-    BT_GPU_EXECKERNEL(numBlocks, numThreads, collisionWithWallBoxD, (pPos,pVel,rotation,angVel,shapes, pShapeIds,pProp,gProp,numObjs,dt));
+    BT_GPU_EXECKERNEL(numBlocks, numThreads, collisionWithWallBoxD, (pPos,pVel,rotation,angVel,shapes, pShapeIds,pInvMass,pProp,gProp,numObjs,dt));
 
     BT_GPU_SAFE_CALL(BT_GPU_UnbindTexture(posTex));
     // check if kernel invocation generated an error
     BT_GPU_CHECK_ERROR("collisionWithWallBoxD kernel execution failed");
 }
 
-void BT_GPU_PREF(collisionBatchResolutionBox(void* constraints,int *batch,int numConstraints,int numObjs,void *pos,void *vel,float *rotation,float *angularVel,float *lambdaDtBox,void* contact,btCudaPartProps pProp,int iBatch,float dt))
+void BT_GPU_PREF(collisionBatchResolutionBox(void* constraints,int *batch,int numConstraints,int numObjs,void *pos,void *vel,float *rotation,float *angularVel,float *lambdaDtBox,void* contact,void* invMass,btCudaPartProps pProp,int iBatch,float dt))
 {
 	if(!numConstraints) 
 	{
@@ -479,11 +488,12 @@ void BT_GPU_PREF(collisionBatchResolutionBox(void* constraints,int *batch,int nu
 	float4* pPos = (float4*)pos;
 	float4* pVel = (float4*)vel;
 	float4* pCont = (float4*)contact;
+	float* pInvMass = (float*)invMass;
     int numThreads, numBlocks;
     BT_GPU_PREF(computeGridSize)(numConstraints, 128, numBlocks, numThreads);
     BT_GPU_SAFE_CALL(BT_GPU_BindTexture(0, posTex, pPos, numObjs * sizeof(float4)));
     // execute the kernel
-    BT_GPU_EXECKERNEL(numBlocks, numThreads, collisionBatchResolutionBoxD, (pConstr,batch,numConstraints,pPos,pVel,rotation,angularVel,lambdaDtBox,pCont,pProp,iBatch,dt));
+    BT_GPU_EXECKERNEL(numBlocks, numThreads, collisionBatchResolutionBoxD, (pConstr,batch,numConstraints,pPos,pVel,rotation,angularVel,lambdaDtBox,pCont,pInvMass,pProp,iBatch,dt));
     // check if kernel invocation generated an error
     BT_GPU_CHECK_ERROR("collisionBatchResolutionBox2D kernel execution failed");
     BT_GPU_SAFE_CALL(BT_GPU_UnbindTexture(posTex));

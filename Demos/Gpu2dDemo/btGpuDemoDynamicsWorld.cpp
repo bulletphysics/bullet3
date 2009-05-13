@@ -204,6 +204,10 @@ void btGpuDemoDynamicsWorld::grabData()
 		m_hVel[i+1] = *((float4*)&v);
 		v = rb->getAngularVelocity();
 		m_hAngVel[i+1] = v[2];
+		if(m_copyMassDataToGPU)
+		{
+			m_hInvMass[i+1] = rb->getInvMass();
+		}
 	}
 	if(m_useBulletNarrowphase)
 	{
@@ -327,6 +331,11 @@ void btGpuDemoDynamicsWorld::copyDataToGPU()
 		btCuda_copyArrayToDevice(m_dShapeBuffer, m_hShapeBuffer, m_firstFreeShapeBufferOffset); 
 		btCuda_copyArrayToDevice(m_dShapeIds, m_hShapeIds, (m_numObj + 1) * sizeof(int2)); 
 		m_copyShapeDataToGPU = false;
+	}
+	if(m_copyMassDataToGPU)
+	{
+		btCuda_copyArrayToDevice(m_dInvMass, m_hInvMass, (m_numObj + 1) * sizeof(float)); 
+		m_copyMassDataToGPU = false;
 	}
 #endif //BT_USE_CUDA
 
@@ -465,7 +474,7 @@ void btGpuDemoDynamicsWorld::solveConstraintsCPU2(btContactSolverInfo& solverInf
 
 		for(int i=0;i<nIter;i++){
 			btGpu_collisionWithWallBox(m_hPos, m_hVel, m_hRot, m_hAngVel,m_hShapeBuffer, m_hShapeIds,
-				partProps, boxProps, m_numObj + 1, timeStep);
+				m_hInvMass, partProps, boxProps, m_numObj + 1, timeStep);
 			int* pBatchIds = m_hBatchIds;
 			for(int iBatch=0;iBatch < m_maxBatches;iBatch++)
 			{
@@ -479,6 +488,7 @@ void btGpuDemoDynamicsWorld::solveConstraintsCPU2(btContactSolverInfo& solverInf
 													m_hRot, m_hAngVel,
 													m_hLambdaDtBox,
 													m_hContact,
+													m_hInvMass,
 													partProps, iBatch, timeStep);
 				pBatchIds += numContConstraints;
 			}

@@ -73,6 +73,10 @@ protected:
 	float4*					m_hVel;
 	float*					m_hAngVel;
 
+	float*					m_hInvMass;
+	float*					m_dInvMass;
+	bool					m_copyMassDataToGPU;
+
 #ifdef BT_USE_CUDA
 	float4*					m_dPos;
 	float*					m_dRot;
@@ -166,6 +170,8 @@ public:
 		m_hRot = new float[m_maxObjs];
 		m_hAngVel = new float[m_maxObjs];
 
+		m_hInvMass = new float[m_maxObjs];
+
 		m_maxVtxPerObj = 8;
 
 #ifdef BT_USE_CUDA
@@ -177,6 +183,8 @@ public:
 		btCuda_allocateArray((void**)&m_dpRot, sizeof(float) * m_maxObjs);
 		btCuda_allocateArray((void**)&m_dpVel, sizeof(float4) * m_maxObjs);
 		btCuda_allocateArray((void**)&m_dpAngVel, sizeof(float) * m_maxObjs);
+
+		btCuda_allocateArray((void**)&m_dInvMass, sizeof(float) * m_maxObjs);
 
 		btCuda_allocateArray((void**)&m_dIds, sizeof(int2) * sz);
 		btCuda_allocateArray((void**)&m_dBatchIds, sizeof(int) * sz);
@@ -205,6 +213,8 @@ public:
 
 		initShapeBuffer(m_maxObjs * CUDA_DEMO_DYNAMICS_WORLD_MAX_SPHERES_PER_OBJ * sizeof(float) * 4);
 
+		m_copyMassDataToGPU = true;
+
 	}
 	virtual ~btGpuDemoDynamicsWorld()
 	{
@@ -216,6 +226,7 @@ public:
 		delete [] m_hRot;
 		delete [] m_hVel;
 		delete [] m_hAngVel;
+		delete [] m_hInvMass;
 #ifdef BT_USE_CUDA
 		btCuda_freeArray(m_dPos);
 		btCuda_freeArray(m_dRot);
@@ -225,6 +236,7 @@ public:
 		btCuda_freeArray(m_dpRot);
 		btCuda_freeArray(m_dpVel);
 		btCuda_freeArray(m_dpAngVel);
+		btCuda_freeArray(m_dInvMass);
 
 		btCuda_freeArray(m_dIds);
 		btCuda_freeArray(m_dBatchIds);
