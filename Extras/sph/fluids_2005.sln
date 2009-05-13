@@ -1,0 +1,23 @@
+﻿
+Microsoft Visual Studio Solution File, Format Version 9.00
+# Visual Studio 2005
+Project("{8BC9CEB8-8B4A-11D0-8D11-00A0C91BC942}") = "fluids_2005", "fluids_2005.vcproj", "{644E4AC1-416D-4567-A68B-D66CA9FCFD9C}"
+EndProject
+Global
+	GlobalSection(SolutionConfigurationPlatforms) = preSolution
+		Debug|Win32 = Debug|Win32
+		EmuDebug|Win32 = EmuDebug|Win32
+		Release|Win32 = Release|Win32
+	EndGlobalSection
+	GlobalSection(ProjectConfigurationPlatforms) = postSolution
+		{644E4AC1-416D-4567-A68B-D66CA9FCFD9C}.Debug|Win32.ActiveCfg = Debug|Win32
+		{644E4AC1-416D-4567-A68B-D66CA9FCFD9C}.Debug|Win32.Build.0 = Debug|Win32
+		{644E4AC1-416D-4567-A68B-D66CA9FCFD9C}.EmuDebug|Win32.ActiveCfg = EmuDebug|Win32
+		{644E4AC1-416D-4567-A68B-D66CA9FCFD9C}.EmuDebug|Win32.Build.0 = EmuDebug|Win32
+		{644E4AC1-416D-4567-A68B-D66CA9FCFD9C}.Release|Win32.ActiveCfg = Release|Win32
+		{644E4AC1-416D-4567-A68B-D66CA9FCFD9C}.Release|Win32.Build.0 = Release|Win32
+	EndGlobalSection
+	GlobalSection(SolutionProperties) = preSolution
+		HideSolutionNode = FALSE
+	EndGlobalSection
+EndGlobal
