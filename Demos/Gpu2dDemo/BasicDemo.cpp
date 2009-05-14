@@ -13,9 +13,9 @@ subject to the following restrictions:
 3. This notice may not be removed or altered from any source distribution.
 */
 
-#include "BulletMultiThreaded/btGpuDefines.h"
-#include "BulletMultiThreaded/btGpuUtilsSharedDefs.h"
-#include "BulletMultiThreaded/btGpuUtilsSharedCode.h"
+//#include "BulletMultiThreaded/btGpuDefines.h"
+//#include "BulletMultiThreaded/btGpuUtilsSharedDefs.h"
+//#include "BulletMultiThreaded/btGpuUtilsSharedCode.h"
 
 //----------------------------------------------------------------------------------------
 
@@ -144,6 +144,7 @@ public:
 		}
 
 		btMultiSphereShape* multiSphere = new btMultiSphereShape(inertiaHalfExtents,positions,radii,numSpheres);
+		m_demo->addCollisionShape(multiSphere);
 		
 			btVector3 localInertia(0,0,0);
 			if (mass)
@@ -239,6 +240,13 @@ void BasicDemo::displayCallback(void) {
 
 //btGpuDemoPairCache* gPairCache;
 btOverlappingPairCache* gPairCache;
+
+
+static btScalar fRandMinMax(btScalar fMin, btScalar fMax)
+{
+	btScalar fr = btScalar(rand()) / btScalar(RAND_MAX);
+	return fMax - (fMax - fMin) * fr;
+}
 
 
 void	BasicDemo::initPhysics()
@@ -363,6 +371,31 @@ void	BasicDemo::initPhysics()
 	{
 		loader.processFile("../../test1.oec");
 	}
+#if 0 // perfomance test : work-in-progress
+	{ // add more object, but share their shapes
+		int numNewObjects = 500;
+		mass = 1.f;
+		for(int n_obj = 0; n_obj < numNewObjects; n_obj++)
+		{
+			btDefaultMotionState* myMotionState= 0;
+			btVector3 localInertia(0,0,0);
+			btTransform worldTransform;
+			worldTransform.setIdentity();
+			btScalar fx = fRandMinMax(-30., 30.);
+			btScalar fy = fRandMinMax(5., 30.);
+			worldTransform.setOrigin(btVector3(fx, fy, 0.f));
+			int sz = m_collisionShapes.size();
+			btMultiSphereShape* multiSphere = (btMultiSphereShape*)m_collisionShapes[1];
+			myMotionState = new btDefaultMotionState(worldTransform);
+			multiSphere->calculateLocalInertia(mass, localInertia);
+			btRigidBody* body = new btRigidBody(mass,myMotionState,multiSphere,localInertia);	
+			body->setLinearFactor(btVector3(1,1,0));
+			body->setAngularFactor(btVector3(0,0,1));
+			body->setWorldTransform(worldTransform);
+			getDynamicsWorld()->addRigidBody(body);
+		}
+	}
+#endif
 
 #else
 #if (!SPEC_TEST)

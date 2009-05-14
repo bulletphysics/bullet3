@@ -17,61 +17,75 @@ subject to the following restrictions:
 #include <cstdio>
 #include <string.h>
 
+#include <GL/glut.h>
+#include <cuda_gl_interop.h>
+
 #include "cutil_math.h"
 #include "math_constants.h"
-
 
 #include <vector_types.h>
 
 //----------------------------------------------------------------------------------------
 
+
 #include "btCudaDefines.h"
-
-//----------------------------------------------------------------------------------------
-
 #include "../../src/BulletMultiThreaded/btGpuUtilsSharedDefs.h"
-#include "../../src/BulletMultiThreaded/btGpu3DGridBroadphaseSharedDefs.h"
+
+//----------------------------------------------------------------------------------------
+//----------------------------------------------------------------------------------------
+
 
 //----------------------------------------------------------------------------------------
 
-__device__ inline bt3DGrid3F1U tex_fetch3F1U(float4 a) { return *((bt3DGrid3F1U*)(&a)); }
-
-//----------------------------------------------------------------------------------------
-
-void btCuda_exit(int val);
-
-//----------------------------------------------------------------------------------------
-
-texture<uint2, 1, cudaReadModeElementType> particleHashTex;
-texture<uint, 1, cudaReadModeElementType> cellStartTex;
-texture<float4, 1, cudaReadModeElementType> pAABBTex;
-
-//----------------------------------------------------------------------------------------
-
-__constant__ bt3DGridBroadphaseParams params;
-
-//----------------------------------------------------------------------------------------
-
-extern "C"
+void btCuda_exit(int val)
 {
+    fprintf(stderr, "Press ENTER key to terminate the program\n");
+    getchar();
+	exit(val);
+}
 
-//----------------------------------------------------------------------------------------
-
-void btCuda_setParameters(bt3DGridBroadphaseParams* hostParams)
+void btCuda_allocateArray(void** devPtr, unsigned int size)
 {
-    // copy parameters to constant memory
-    BT_GPU_SAFE_CALL(cudaMemcpyToSymbol(params, hostParams, sizeof(bt3DGridBroadphaseParams)));
-} // btCuda_setParameters()
+    BT_GPU_SAFE_CALL(cudaMalloc(devPtr, size));
+}
+
+void btCuda_freeArray(void* devPtr)
+{
+    BT_GPU_SAFE_CALL(cudaFree(devPtr));
+}
+
+void btCuda_copyArrayFromDevice(void* host, const void* device, unsigned int size)
+{   
+    BT_GPU_SAFE_CALL(cudaMemcpy(host, device, size, cudaMemcpyDeviceToHost));
+}
+
+void btCuda_copyArrayToDevice(void* device, const void* host, unsigned int size)
+{
+    BT_GPU_SAFE_CALL(cudaMemcpy((char*)device, host, size, cudaMemcpyHostToDevice));
+}
+
+
+void btCuda_registerGLBufferObject(unsigned int vbo)
+{
+    BT_GPU_SAFE_CALL(cudaGLRegisterBufferObject(vbo));
+}
+
+void* btCuda_mapGLBufferObject(unsigned int vbo)
+{
+    void *ptr;
+    BT_GPU_SAFE_CALL(cudaGLMapBufferObject(&ptr, vbo));
+    return ptr;
+}
+
+void btCuda_unmapGLBufferObject(unsigned int vbo)
+{
+    BT_GPU_SAFE_CALL(cudaGLUnmapBufferObject(vbo));
+}
 
 //----------------------------------------------------------------------------------------
 
-} // extern "C"
+#include "../../src/BulletMultiThreaded/btGpuUtilsSharedCode.h"
 
-//----------------------------------------------------------------------------------------
-
-#include "../../src/BulletMultiThreaded/btGpu3DGridBroadphaseSharedCode.h"
-
-//----------------------------------------------------------------------------------------
 //----------------------------------------------------------------------------------------
 //----------------------------------------------------------------------------------------
 

@@ -25,17 +25,27 @@ subject to the following restrictions:
 #include "BulletDynamics/ConstraintSolver/btPoint2PointConstraint.h"
 
 
+//#define BT_USE_CUDA 1
+// To enable CUDA : 
+// 1. Uncomment //#define BT_USE_CUDA 1
+// 2. Build and add libbulletcuda (Extras/CUDA) to project
+// 3. Add $(CUDA_LIB_PATH) and cudart.lib to linker properties
+
 #ifdef BT_USE_CUDA
-#include "btCudaDemoPairCache.h"
-#include <vector_types.h>
-#define BT_GPU_PREF(func) btCuda_##func
-#include "../../src/BulletMultiThreaded/btGpuUtilsSharedDefs.h"
+//	#include "btCudaDemoPairCache.h"
+//	#include <vector_types.h>
+	#include "BulletMultiThreaded/btGpuDefines.h"
+	#undef BT_GPU_PREF
+	#define BT_GPU_PREF(func) btCuda_##func
+	#include "BulletMultiThreaded/btGpuUtilsSharedDefs.h"
 #else
-#include "BulletMultiThreaded/btGpuDefines.h"
-#include "../../src/BulletMultiThreaded/btGpuUtilsSharedDefs.h"
+	#include "BulletMultiThreaded/btGpuDefines.h"
+	#include "../../src/BulletMultiThreaded/btGpuUtilsSharedDefs.h"
 #endif
 
 #undef BT_GPU_PREF
+
+
 //----------------------------------------------------------------------------------------
 
 

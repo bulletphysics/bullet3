@@ -97,7 +97,7 @@ void	ConstraintDemo::initPhysics()
 	trans.setOrigin(btVector3(0,20,0));
 
 	float mass = 1.f;
-#if 1
+#if 0
 	//point to point constraint (ball socket)
 	{
 		btRigidBody* body0 = localCreateRigidBody( mass,trans,shape);
@@ -135,7 +135,7 @@ void	ConstraintDemo::initPhysics()
 	}
 #endif
 
-#if 1	
+#if 0	
 	//create a slider, using the generic D6 constraint
 	{
 		mass = 1.f;
@@ -179,7 +179,7 @@ void	ConstraintDemo::initPhysics()
 
 	}
 #endif
-#if 1
+#if 0
 	{ // create a door using hinge constraint attached to the world
 		btCollisionShape* pDoorShape = new btBoxShape(btVector3(2.0f, 5.0f, 0.2f));
 		m_collisionShapes.push_back(pDoorShape);
@@ -201,7 +201,7 @@ void	ConstraintDemo::initPhysics()
 		//btRigidBody* pDropBody = localCreateRigidBody( 10.0, doorTrans, shape);
 	}
 #endif
-#if 1
+#if 0
 	{ // create a generic 6DOF constraint
 
 		btTransform tr;
@@ -262,7 +262,7 @@ void	ConstraintDemo::initPhysics()
 		pGen6DOF->setDbgDrawSize(btScalar(5.f));
 	}
 #endif
-#if 1
+#if 0
 	{ // create a ConeTwist constraint
 
 		btTransform tr;
@@ -294,7 +294,7 @@ void	ConstraintDemo::initPhysics()
 		pCT->setDbgDrawSize(btScalar(5.f));
 	}
 #endif
-#if 1
+#if 0
 	{ // Hinge connected to the world, with motor (to hinge motor with new and old constraint solver)
 		btTransform tr;
 		tr.setIdentity();
@@ -311,6 +311,63 @@ void	ConstraintDemo::initPhysics()
 		pHinge->setDbgDrawSize(btScalar(5.f));
 	}
 #endif
+
+#if 1
+	{ 
+		// create a universal joint using generic 6DOF constraint
+		// create two rigid bodies
+		// static bodyA (parent) on top:
+		btTransform tr;
+		tr.setIdentity();
+		tr.setOrigin(btVector3(btScalar(0.), btScalar(4.), btScalar(0.)));
+		btRigidBody* pBodyA = localCreateRigidBody( 0.0, tr, shape);
+		pBodyA->setActivationState(DISABLE_DEACTIVATION);
+		// dynamic bodyB (child) below it :
+		tr.setIdentity();
+		tr.setOrigin(btVector3(btScalar(0.), btScalar(0.), btScalar(0.)));
+		btRigidBody* pBodyB = localCreateRigidBody(1.0, tr, shape);
+		pBodyB->setActivationState(DISABLE_DEACTIVATION);
+		// add some (arbitrary) data to build constraint frames
+		btVector3 parentAxis(1.f, 0.f, 0.f); 
+		btVector3 childAxis(0.f, 0.f, 1.f); 
+		btVector3 anchor(0.f, 2.f, 0.f);
+		// build frame basis
+		// 6DOF constraint uses Euler angles and to define limits
+		// it is assumed that rotational order is :
+		// Z - first, allowed limits are (-PI,PI);
+		// new position of Y - second (allowed limits are (-PI/2 + epsilon, PI/2 - epsilon), where epsilon is a small positive number 
+		// used to prevent constraint from instability on poles;
+		// new position of X, allowed limits are (-PI,PI);
+		// So to simulate ODE Universal joint we should use parent axis as Z, child axis as Y and limit all other DOFs
+		// Build the frame in world coordinate system first
+		btVector3 zAxis = parentAxis.normalize();
+		btVector3 yAxis = childAxis.normalize();
+		btVector3 xAxis = yAxis.cross(zAxis); // we want right coordinate system
+		btTransform frameInW;
+		frameInW.setIdentity();
+		frameInW.getBasis().setValue(	xAxis[0], yAxis[0], zAxis[0],	
+										xAxis[1], yAxis[1], zAxis[1],
+										xAxis[2], yAxis[2], zAxis[2]);
+		frameInW.setOrigin(anchor);
+		// now get constraint frame in local coordinate systems
+		btTransform frameInA = pBodyA->getCenterOfMassTransform().inverse() * frameInW;
+		btTransform frameInB = pBodyB->getCenterOfMassTransform().inverse() * frameInW;
+		// now create the constraint
+		btGeneric6DofConstraint* pGen6DOF = new btGeneric6DofConstraint(*pBodyA, *pBodyB, frameInA, frameInB, true);
+		// linear limits in our case are allowed offset of origin of frameInB in frameInA, so set them to zero
+		pGen6DOF->setLinearLowerLimit(btVector3(0., 0., 0.));
+		pGen6DOF->setLinearUpperLimit(btVector3(0., 0., 0.));
+		// set limits for parent (axis z) and child (axis Y)
+		pGen6DOF->setAngularLowerLimit(btVector3(0.f, -SIMD_HALF_PI * 0.5f, -SIMD_HALF_PI * 0.5f));
+		pGen6DOF->setAngularUpperLimit(btVector3(0.f,  SIMD_HALF_PI * 0.5f,  SIMD_HALF_PI * 0.5f));
+		// add constraint to world
+		m_dynamicsWorld->addConstraint(pGen6DOF, true);
+		// draw constraint frames and limits for debugging
+		pGen6DOF->setDbgDrawSize(btScalar(10.f));
+	}
+#endif
+
+
 }
 
 ConstraintDemo::~ConstraintDemo()

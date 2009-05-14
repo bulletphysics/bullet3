@@ -1,6 +1,6 @@
 /*
-Impulse based Rigid body simulation using CUDA
-Copyright (c) 2007 Takahiro Harada  http://www.iii.u-tokyo.ac.jp/~takahiroharada/projects/impulseCUDA.html
+Bullet Continuous Collision Detection and Physics Library, http://bulletphysics.org
+Copyright (C) 2006, 2007 Sony Computer Entertainment Inc. 
 
 This software is provided 'as-is', without any express or implied warranty.
 In no event will the authors be held liable for any damages arising from the use of this software.
@@ -13,32 +13,14 @@ subject to the following restrictions:
 3. This notice may not be removed or altered from any source distribution.
 */
 
-#include <cstdlib>
-#include <cstdio>
-#include <string.h>
+//----------------------------------------------------------------------------------------
 
-#include "../../Extras/CUDA/cutil_math.h"
-#include "math_constants.h"
-
-#include <vector_types.h>
+#include "btGpuDefines.h"
+#include "btGpuUtilsSharedDefs.h"
 
 //----------------------------------------------------------------------------------------
 
-#include "../../Extras/CUDA/btCudaDefines.h"
-
-//----------------------------------------------------------------------------------------
-
-#include "../../src/BulletMultiThreaded/btGpuUtilsSharedDefs.h"
-#include "btGpuDemo2dSharedTypes.h"
-#include "btGpuDemo2dSharedDefs.h"
-
-//----------------------------------------------------------------------------------------
-
-texture<float4, 1, cudaReadModeElementType> posTex;
-
-//----------------------------------------------------------------------------------------
-
-#include "btGpuDemo2dSharedCode.h"
+#include "btGpuUtilsSharedCode.h"
 
 //----------------------------------------------------------------------------------------
 //----------------------------------------------------------------------------------------

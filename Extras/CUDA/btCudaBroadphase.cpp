@@ -1,6 +1,6 @@
 /*
-Bullet Continuous Collision Detection and Physics Library
-Copyright (c) 2003-2008 Erwin Coumans  http://continuousphysics.com/Bullet/
+Bullet Continuous Collision Detection and Physics Library, http://bulletphysics.org
+Copyright (C) 2006, 2007 Sony Computer Entertainment Inc. 
 
 This software is provided 'as-is', without any express or implied warranty.
 In no event will the authors be held liable for any damages arising from the use of this software.
@@ -18,23 +18,32 @@ subject to the following restrictions:
 #include "LinearMath/btAlignedAllocator.h"
 #include "LinearMath/btQuickprof.h"
 #include "BulletCollision/BroadphaseCollision/btOverlappingPairCache.h"
-#include "btCudaBroadphaseKernel.h"
+
 #include "btCudaBroadphase.h"
 #include "radixsort.cuh"
-//#include "vector_functions.h"
+
+//--------------------------------------------------------------------------
+
+#define BT_GPU_PREF(func) btCuda_##func
+#include "../../src/BulletMultiThreaded/btGpuUtilsSharedDefs.h"
+#include "../../src/BulletMultiThreaded/btGpu3DGridBroadphaseSharedDefs.h"
+#undef BT_GPU_PREF
+
+extern "C" void btCuda_setParameters(bt3DGridBroadphaseParams* hostParams);
 
 //--------------------------------------------------------------------------
 
 #include <stdio.h>
 
+
 //--------------------------------------------------------------------------
 
-btCudaBroadphase::btCudaBroadphase(const btVector3& worldAabbMin,const btVector3& worldAabbMax, 
-								   int gridSizeX, int gridSizeY, int gridSizeZ, 
-								   int maxSmallProxies, int maxLargeProxies, int maxPairsPerBody,
-								   int maxBodiesPerCell,
-								   btScalar cellFactorAABB) :
-	bt3DGridBroadphase(worldAabbMin, worldAabbMax, gridSizeX, gridSizeY, gridSizeZ, maxSmallProxies, maxLargeProxies, maxPairsPerBody, maxBodiesPerCell,cellFactorAABB)
+btCudaBroadphase::btCudaBroadphase(	btOverlappingPairCache* overlappingPairCache,
+									const btVector3& worldAabbMin,const btVector3& worldAabbMax, 
+									int gridSizeX, int gridSizeY, int gridSizeZ, 
+									int maxSmallProxies, int maxLargeProxies, int maxPairsPerSmallProxy,
+									int maxSmallProxiesPerCell) :
+	btGpu3DGridBroadphase(overlappingPairCache, worldAabbMin, worldAabbMax, gridSizeX, gridSizeY, gridSizeZ, maxSmallProxies, maxLargeProxies, maxPairsPerSmallProxy, maxSmallProxiesPerCell)
 {
 	_initialize();
 } // btCudaBroadphase::btCudaBroadphase()
@@ -65,7 +74,7 @@ void btCudaBroadphase::_initialize()
 	btCuda_copyArrayToDevice(m_dPairBuffStartCurr, m_hPairBuffStartCurr, (m_maxHandles * 2 + 1) * sizeof(unsigned int)); 
 
 	unsigned int numAABB = m_maxHandles + m_maxLargeHandles;
-	btCuda_allocateArray((void**)&m_dAABB, numAABB * sizeof(btCuda3F1U) * 2);
+	btCuda_allocateArray((void**)&m_dAABB, numAABB * sizeof(bt3DGrid3F1U) * 2);
 
     btCuda_allocateArray((void**)&m_dPairScan, (m_maxHandles + 1) * sizeof(unsigned int));
 
@@ -77,13 +86,6 @@ void btCudaBroadphase::_initialize()
 void btCudaBroadphase::_finalize()
 {
     assert(m_bInitialized);
-    delete [] m_hBodiesHash;
-    delete [] m_hCellStart;
-    delete [] m_hPairBuffStartCurr;
-    delete [] m_hAABB;
-	delete [] m_hPairBuff;
-	delete [] m_hPairScan;
-	delete [] m_hPairOut;
     btCuda_freeArray(m_dBodiesHash[0]);
     btCuda_freeArray(m_dBodiesHash[1]);
     btCuda_freeArray(m_dCellStart);
@@ -92,10 +94,6 @@ void btCudaBroadphase::_finalize()
     btCuda_freeArray(m_dPairBuff);
 	btCuda_freeArray(m_dPairScan);
 	btCuda_freeArray(m_dPairOut);
-
-	btAlignedFree(m_pLargeHandlesRawPtr);
-
-	m_bInitialized = false;
 } // btCudaBroadphase::_finalize()
 
 //--------------------------------------------------------------------------
@@ -108,14 +106,14 @@ void btCudaBroadphase::_finalize()
 
 void btCudaBroadphase::prepareAABB()
 {
-	bt3DGridBroadphase::prepareAABB();
-	btCuda_copyArrayToDevice(m_dAABB, m_hAABB, sizeof(btCuda3F1U) * 2 * (m_numHandles + m_numLargeHandles)); 
+	btGpu3DGridBroadphase::prepareAABB();
+	btCuda_copyArrayToDevice(m_dAABB, m_hAABB, sizeof(bt3DGrid3F1U) * 2 * (m_numHandles + m_numLargeHandles)); 
 	return;
 } // btCudaBroadphase::prepareAABB()
 
 //--------------------------------------------------------------------------
 
-void btCudaBroadphase::setParameters(btCudaBroadphaseParams* hostParams)
+void btCudaBroadphase::setParameters(bt3DGridBroadphaseParams* hostParams)
 {
 	btCuda_setParameters(hostParams);
 	return;
@@ -183,7 +181,7 @@ void btCudaBroadphase::computePairCacheChanges()
 void btCudaBroadphase::scanOverlappingPairBuff()
 {
 	btCuda_copyArrayFromDevice(m_hPairScan, m_dPairScan, sizeof(unsigned int)*(m_numHandles + 1)); 
-	bt3DGridBroadphase::scanOverlappingPairBuff();
+	btGpu3DGridBroadphase::scanOverlappingPairBuff();
 	btCuda_copyArrayToDevice(m_dPairScan, m_hPairScan, sizeof(unsigned int)*(m_numHandles + 1)); 
 	return;
 } // btCudaBroadphase::scanOverlappingPairBuff()
@@ -197,5 +195,13 @@ void btCudaBroadphase::squeezeOverlappingPairBuff()
 	btCuda_copyArrayFromDevice(m_hPairOut, m_dPairOut, sizeof(unsigned int) * m_hPairScan[m_numHandles]); 
 	return;
 } // btCudaBroadphase::squeezeOverlappingPairBuff()
+
+//--------------------------------------------------------------------------
+
+void btCudaBroadphase::resetPool(btDispatcher* dispatcher)
+{
+	btGpu3DGridBroadphase::resetPool(dispatcher);
+	btCuda_copyArrayToDevice(m_dPairBuffStartCurr, m_hPairBuffStartCurr, (m_maxHandles * 2 + 1) * sizeof(unsigned int)); 
+} // btCudaBroadphase::resetPool()
 
 //--------------------------------------------------------------------------

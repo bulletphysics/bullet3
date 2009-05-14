@@ -21,8 +21,8 @@ subject to the following restrictions:
 
 
 #ifdef BT_USE_CUDA
-#include "btCudaDemoPairCache.h"
-#include <vector_types.h>
+//#include "btCudaDemoPairCache.h"
+//#include <vector_types.h>
 #endif //BT_USE_CUDA
 
 class btBroadphaseInterface;
@@ -88,7 +88,7 @@ class BasicDemo : public GlutDemoApplication
 	void DrawConstraintInfo();
 	void outputDebugInfo(int & xOffset,int & yStart, int  yIncr);
 	virtual void renderme();
-	
+	void addCollisionShape(btCollisionShape* pShape) { m_collisionShapes.push_back(pShape); }
 };
 
 

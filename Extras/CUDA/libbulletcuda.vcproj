@@ -507,14 +507,6 @@
 			Name="Source Files"
 			>
 			<File
-				RelativePath=".\bt3DGridBroadphase.cpp"
-				>
-			</File>
-			<File
-				RelativePath=".\bt3DGridBroadphaseFunc.h"
-				>
-			</File>
-			<File
 				RelativePath=".\btCudaBroadphase.cpp"
 				>
 			</File>
@@ -545,8 +537,52 @@
 				</FileConfiguration>
 			</File>
 			<File
-				RelativePath=".\btCudaBroadphaseKernel.h"
+				RelativePath=".\btCudaUtils.cu"
 				>
+				<FileConfiguration
+					Name="Release|Win32"
+					>
+					<Tool
+						Name="VCCustomBuildTool"
+						Description="CUDA compiling"
+						CommandLine="&quot;$(CUDA_BIN_PATH)\nvcc.exe&quot;  -arch=sm_10 -use_fast_math -ccbin &quot;$(VCInstallDir)\bin&quot; -c -I &quot;$(CUDA_INC_PATH)&quot;; -I./ -I../../Glut -o $(IntDir)\btCudaUtils_cu.obj btCudaUtils.cu&#x0D;&#x0A;"
+						Outputs="$(IntDir)\btCudaUtils_cu.obj"
+					/>
+				</FileConfiguration>
+				<FileConfiguration
+					Name="Debug|Win32"
+					>
+					<Tool
+						Name="VCCustomBuildTool"
+						Description="CUDA compiling"
+						CommandLine="&quot;$(CUDA_BIN_PATH)\nvcc.exe&quot; -arch=sm_10 -ccbin &quot;$(VCInstallDir)\bin&quot; -D_DEBUG -DWIN32 -D_CONSOLE -D_MBCS -Xcompiler /EHsc,/W3,/nologo,/Wp64,/Od,/Zi,/RTC1,/MTd -c -I &quot;$(CUDA_INC_PATH)&quot;; -I./ -I../../Glut -o $(IntDir)/btCudaUtils_cu.obj btCudaUtils.cu&#x0D;&#x0A;"
+						Outputs="$(IntDir)/btCudaUtils_cu.obj"
+					/>
+				</FileConfiguration>
+			</File>
+			<File
+				RelativePath=".\btGpuDemo2dCudaFunc.cu"
+				>
+				<FileConfiguration
+					Name="Release|Win32"
+					>
+					<Tool
+						Name="VCCustomBuildTool"
+						Description="CUDA compiling"
+						CommandLine="&quot;$(CUDA_BIN_PATH)\nvcc.exe&quot;  -arch=sm_10 -use_fast_math -ccbin &quot;$(VCInstallDir)\bin&quot; -c -I &quot;$(CUDA_INC_PATH)&quot;; -I./ -I../../Glut -o $(IntDir)\btGpuDemo2dCudaFunc_cu.obj btGpuDemo2dCudaFunc.cu&#x0D;&#x0A;"
+						Outputs="$(IntDir)\btGpuDemo2dCudaFunc_cu.obj"
+					/>
+				</FileConfiguration>
+				<FileConfiguration
+					Name="Debug|Win32"
+					>
+					<Tool
+						Name="VCCustomBuildTool"
+						Description="CUDA compiling"
+						CommandLine="&quot;$(CUDA_BIN_PATH)\nvcc.exe&quot; -arch=sm_10 -ccbin &quot;$(VCInstallDir)\bin&quot; -D_DEBUG -DWIN32 -D_CONSOLE -D_MBCS -Xcompiler /EHsc,/W3,/nologo,/Wp64,/Od,/Zi,/RTC1,/MTd -c -I &quot;$(CUDA_INC_PATH)&quot;; -I./ -I../../Glut -o $(IntDir)/btGpuDemo2dCudaFunc_cu.obj btGpuDemo2dCudaFunc.cu&#x0D;&#x0A;"
+						Outputs="$(IntDir)/btGpuDemo2dCudaFunc_cu.obj"
+					/>
+				</FileConfiguration>
 			</File>
 			<File
 				RelativePath=".\cutil_math.h"
@@ -592,6 +628,10 @@
 			>
 			<File
 				RelativePath=".\btCudaBroadphase.h"
+				>
+			</File>
+			<File
+				RelativePath=".\btCudaDefines.h"
 				>
 			</File>
 		</Filter>

@@ -19,7 +19,7 @@ subject to the following restrictions:
 #define FRICTION_BOX_GROUND_FACT 0.05f
 #define FRICTION_BOX_BOX_FACT 0.05f
 #define USE_CENTERS 1
-#include "LinearMath/btMinMax.h"
+//#include "LinearMath/btMinMax.h"
 
 //------------------------------------------------------------------------------------------------
 //------------------------------------------------------------------------------------------------
@@ -187,7 +187,8 @@ BT_GPU___device__ float computeImpulse1(float3 rVel,
 	if(positionConstraint > 0)
 		return lambdaDt;
 
-	positionConstraint = btMin(0.0f,positionConstraint+penetrationError);
+//	positionConstraint = btMin(0.0f,positionConstraint+penetrationError);
+	positionConstraint = (positionConstraint+penetrationError) < 0.f ? (positionConstraint+penetrationError) : 0.0f;
 	
 	lambdaDt	=	-(BT_GPU_dot(cNormal,rVel)*(1+collisionConstant));
 	lambdaDt	-=	(baumgarteConstant/dt*positionConstraint);
@@ -328,8 +329,6 @@ BT_GPU___device__ void collisionResolutionBox(	int constrId,
 	int bId=constraints[constrId].y;
 	float3 aPos=BT_GPU_make_float34(BT_GPU_FETCH4(pos,aId));
 	float3 bPos=BT_GPU_make_float34(BT_GPU_FETCH4(pos,bId));
-	float aRot=rotation[aId];
-	float bRot=rotation[bId];
 	float3 aVel=BT_GPU_make_float34(vel[aId]);
 	float3 bVel=BT_GPU_make_float34(vel[bId]);
 	float aAngVel=angularVel[aId];
@@ -354,7 +353,8 @@ BT_GPU___device__ void collisionResolutionBox(	int constrId,
 			{
 				float rLambdaDt=lambdaDtBox[(MAX_VTX_PER_OBJ)*(2*constrId)+iVtx];
 				float pLambdaDt=rLambdaDt;
-				rLambdaDt=btMax(pLambdaDt+lambdaDt,0.0f);
+//				rLambdaDt=btMax(pLambdaDt+lambdaDt,0.0f);
+				rLambdaDt=(pLambdaDt+lambdaDt) > 0.0f ? (pLambdaDt+lambdaDt) : 0.0f;
 				lambdaDt=rLambdaDt-pLambdaDt;
 				lambdaDtBox[(MAX_VTX_PER_OBJ)*(2*constrId)+iVtx]=rLambdaDt;
 			}

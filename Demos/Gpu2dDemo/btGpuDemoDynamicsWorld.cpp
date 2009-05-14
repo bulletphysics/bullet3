@@ -413,7 +413,7 @@ void btGpuDemoDynamicsWorld::solveConstraints2(btContactSolverInfo& solverInfo)
 
 		for(int i=0;i<nIter;i++)
 		{
-			btCuda_collisionWithWallBox(m_dcPos, m_dcVel, m_dcRot, m_dcAngVel,m_dShapeBuffer, m_dShapeIds,
+			btCuda_collisionWithWallBox(m_dcPos, m_dcVel, m_dcRot, m_dcAngVel,m_dShapeBuffer, m_dShapeIds, m_dInvMass,
 				partProps, boxProps, m_numObj + 1, timeStep);
 			int* pBatchIds = m_dBatchIds;
 			for(int iBatch=0;iBatch < m_maxBatches;iBatch++)
@@ -423,7 +423,7 @@ void btGpuDemoDynamicsWorld::solveConstraints2(btContactSolverInfo& solverInfo)
 													m_dcPos, m_dcVel,
 													m_dcRot, m_dcAngVel,
 													m_dLambdaDtBox,
-													m_dContact,
+													m_dContact, m_dInvMass,
 													partProps, iBatch, timeStep);
 				pBatchIds += numConstraints;
 			}

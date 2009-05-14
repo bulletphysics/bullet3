@@ -1,6 +1,6 @@
 /*
-Bullet Continuous Collision Detection and Physics Library, http://bulletphysics.org
-Copyright (C) 2006, 2007 Sony Computer Entertainment Inc. 
+Impulse based Rigid body simulation using CUDA
+Copyright (c) 2007 Takahiro Harada  http://www.iii.u-tokyo.ac.jp/~takahiroharada/projects/impulseCUDA.html
 
 This software is provided 'as-is', without any express or implied warranty.
 In no event will the authors be held liable for any damages arising from the use of this software.
@@ -20,7 +20,6 @@ subject to the following restrictions:
 #include "cutil_math.h"
 #include "math_constants.h"
 
-
 #include <vector_types.h>
 
 //----------------------------------------------------------------------------------------
@@ -30,46 +29,16 @@ subject to the following restrictions:
 //----------------------------------------------------------------------------------------
 
 #include "../../src/BulletMultiThreaded/btGpuUtilsSharedDefs.h"
-#include "../../src/BulletMultiThreaded/btGpu3DGridBroadphaseSharedDefs.h"
+#include "../../Demos/Gpu2dDemo/btGpuDemo2dSharedTypes.h"
+#include "../../Demos/Gpu2dDemo/btGpuDemo2dSharedDefs.h"
 
 //----------------------------------------------------------------------------------------
 
-__device__ inline bt3DGrid3F1U tex_fetch3F1U(float4 a) { return *((bt3DGrid3F1U*)(&a)); }
+texture<float4, 1, cudaReadModeElementType> posTex;
 
 //----------------------------------------------------------------------------------------
 
-void btCuda_exit(int val);
-
-//----------------------------------------------------------------------------------------
-
-texture<uint2, 1, cudaReadModeElementType> particleHashTex;
-texture<uint, 1, cudaReadModeElementType> cellStartTex;
-texture<float4, 1, cudaReadModeElementType> pAABBTex;
-
-//----------------------------------------------------------------------------------------
-
-__constant__ bt3DGridBroadphaseParams params;
-
-//----------------------------------------------------------------------------------------
-
-extern "C"
-{
-
-//----------------------------------------------------------------------------------------
-
-void btCuda_setParameters(bt3DGridBroadphaseParams* hostParams)
-{
-    // copy parameters to constant memory
-    BT_GPU_SAFE_CALL(cudaMemcpyToSymbol(params, hostParams, sizeof(bt3DGridBroadphaseParams)));
-} // btCuda_setParameters()
-
-//----------------------------------------------------------------------------------------
-
-} // extern "C"
-
-//----------------------------------------------------------------------------------------
-
-#include "../../src/BulletMultiThreaded/btGpu3DGridBroadphaseSharedCode.h"
+#include "../../Demos/Gpu2dDemo/btGpuDemo2dSharedCode.h"
 
 //----------------------------------------------------------------------------------------
 //----------------------------------------------------------------------------------------
