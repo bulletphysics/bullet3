@@ -94,6 +94,7 @@ m_indexVertexArrays(0),
 m_vertices(0)
 {
 	m_vehicle = 0;
+	m_wheelShape = 0;
 	m_cameraPosition = btVector3(30,30,30);
 }
 
@@ -131,6 +132,8 @@ VehicleDemo::~VehicleDemo()
 	delete m_vehicleRayCaster;
 
 	delete m_vehicle;
+
+	delete m_wheelShape;
 
 	//delete solver
 	delete m_constraintSolver;
@@ -324,6 +327,7 @@ const float TRIANGLE_SIZE=20.f;
 	m_carChassis = localCreateRigidBody(800,tr,compound);//chassisShape);
 	//m_carChassis->setDamping(0.2,0.2);
 	
+	m_wheelShape = new btCylinderShapeX(btVector3(wheelWidth,wheelRadius,wheelRadius));
 	
 	clientResetScene();
 
@@ -400,7 +404,7 @@ void VehicleDemo::renderme()
 	btScalar m[16];
 	int i;
 
-	btCylinderShapeX wheelShape(btVector3(wheelWidth,wheelRadius,wheelRadius));
+
 	btVector3 wheelColor(1,0,0);
 
 	btVector3	worldBoundsMin,worldBoundsMax;
@@ -414,7 +418,7 @@ void VehicleDemo::renderme()
 		m_vehicle->updateWheelTransform(i,true);
 		//draw wheels (cylinders)
 		m_vehicle->getWheelInfo(i).m_worldTransform.getOpenGLMatrix(m);
-		m_shapeDrawer->drawOpenGL(m,&wheelShape,wheelColor,getDebugMode(),worldBoundsMin,worldBoundsMax);
+		m_shapeDrawer->drawOpenGL(m,m_wheelShape,wheelColor,getDebugMode(),worldBoundsMin,worldBoundsMax);
 	}
 
 

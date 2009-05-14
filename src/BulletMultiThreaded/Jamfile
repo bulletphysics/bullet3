@@ -2,7 +2,7 @@ SubDir TOP src BulletMultiThreaded ;
 
 #IncludeDir src/BulletMultiThreaded ;
 
-Library bulletmultithreaded : [ Wildcard . : */.h *.cpp ] [ Wildcard SpuNarrowPhaseCollisionTask : *.h *.cpp  ] [ Wildcard SpuSolverTask : *.h *.cpp  ] : noinstall ;
+Library bulletmultithreaded : [ Wildcard . : *.h *.cpp ] [ Wildcard SpuNarrowPhaseCollisionTask : *.h *.cpp  ] [ Wildcard SpuSolverTask : *.h *.cpp  ] : noinstall ;
 CFlags bulletmultithreaded : [ FIncludes $(TOP)/src/BulletMultiThreaded ] [ FIncludes $(TOP)/src/BulletMultiThreaded/vectormath/scalar/cpp ] ;
 LibDepends bulletmultithreaded :  ;
 
