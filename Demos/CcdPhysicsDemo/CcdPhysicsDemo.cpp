@@ -38,10 +38,10 @@ subject to the following restrictions:
 #include "BulletCollision/CollisionDispatch/btSphereTriangleCollisionAlgorithm.h"
 
 #ifdef USE_PARALLEL_DISPATCHER
-#include "../../Extras/BulletMultiThreaded/SpuGatheringCollisionDispatcher.h"
+#include "BulletMultiThreaded/SpuGatheringCollisionDispatcher.h"
 #ifdef WIN32
-#include "../../Extras/BulletMultiThreaded/Win32ThreadSupport.h"
-#include "../../Extras/BulletMultiThreaded/SpuNarrowPhaseCollisionTask/SpuGatheringCollisionTask.h"
+#include "BulletMultiThreaded/Win32ThreadSupport.h"
+#include "BulletMultiThreaded/SpuNarrowPhaseCollisionTask/SpuGatheringCollisionTask.h"
 #endif //WIN32
 
 #ifdef USE_LIBSPE2
@@ -49,8 +49,8 @@ subject to the following restrictions:
 #endif //USE_LIBSPE2
 
 #ifdef USE_PARALLEL_SOLVER
-#include "../../Extras/BulletMultiThreaded/SpuParallelSolver.h"
-#include "../../Extras/BulletMultiThreaded/SpuSolverTask/SpuParallellSolverTask.h"
+#include "BulletMultiThreaded/SpuParallelSolver.h"
+#include "BulletMultiThreaded/SpuSolverTask/SpuParallellSolverTask.h"
 #endif //USE_PARALLEL_SOLVER
 
 #endif//USE_PARALLEL_DISPATCHER
