@@ -13,19 +13,19 @@ subject to the following restrictions:
 3. This notice may not be removed or altered from any source distribution.
 */
 
-//----------------------------------------------------------------------------------------
+
 
 #ifndef CUDA_BROADPHASE_H
 #define CUDA_BROADPHASE_H
 
-//----------------------------------------------------------------------------------------
+
 
 #include "BulletCollision/BroadphaseCollision/btSimpleBroadphase.h"
 
 #include "../../src/BulletMultiThreaded/btGpu3DGridBroadphaseSharedTypes.h"
 #include "../../src/BulletMultiThreaded/btGpu3DGridBroadphase.h"
 
-//----------------------------------------------------------------------------------------
+
 
 ///The btCudaBroadphase uses CUDA-capable GPU to compute overlapping pairs
 

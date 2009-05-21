@@ -21,7 +21,7 @@ Added support for ODE sover
 April 24, 2008
 */
 
-//-----------------------------------------------------------------------------
+
 
 
 #include "btBulletDynamicsCommon.h"
@@ -36,14 +36,14 @@ April 24, 2008
 #include "GL_ShapeDrawer.h"
 #include "GlutStuff.h"
 
-//-----------------------------------------------------------------------------
+
 
 #define SLIDER_DEMO_USE_ODE_SOLVER 0
 #define SLIDER_DEMO_USE_6DOF 0
 
 #define CUBE_HALF_EXTENTS 1.f
 
-//-----------------------------------------------------------------------------
+
 
 // A couple of sliders
 #if SLIDER_DEMO_USE_6DOF
@@ -55,7 +55,7 @@ April 24, 2008
 static btPoint2PointConstraint* spP2PConst;
 static btHingeConstraint* spHingeConst;
 
-//-----------------------------------------------------------------------------
+
 
 static void draw_axes(const btRigidBody& rb, const btTransform& frame)
 {
@@ -98,7 +98,7 @@ static void draw_axes(const btRigidBody& rb, const btTransform& frame)
 	glEnd();
 } // draw_axes()
 
-//-----------------------------------------------------------------------------
+
 
 #if SLIDER_DEMO_USE_6DOF
 static void	drawSlider(btGeneric6DofConstraint* pSlider)
@@ -133,7 +133,7 @@ static void	drawSlider(btSliderConstraint* pSlider)
 } // drawSlider()
 #endif
 
-//-----------------------------------------------------------------------------
+
 
 void SliderConstraintDemo::initPhysics()
 {
@@ -339,7 +339,7 @@ void SliderConstraintDemo::initPhysics()
 
 } // SliderConstraintDemo::initPhysics()
 
-//-----------------------------------------------------------------------------
+
 
 SliderConstraintDemo::~SliderConstraintDemo()
 {
@@ -381,7 +381,7 @@ SliderConstraintDemo::~SliderConstraintDemo()
 	delete m_collisionConfiguration;
 } // SliderConstraintDemo::~SliderConstraintDemo()
 
-//-----------------------------------------------------------------------------
+
 
 void SliderConstraintDemo::clientMoveAndDisplay()
 {
@@ -420,7 +420,7 @@ void SliderConstraintDemo::clientMoveAndDisplay()
     glutSwapBuffers();
 } // SliderConstraintDemo::clientMoveAndDisplay()
 
-//-----------------------------------------------------------------------------
+
 
 void SliderConstraintDemo::displayCallback(void) 
 {
@@ -436,4 +436,4 @@ void SliderConstraintDemo::displayCallback(void)
     glutSwapBuffers();
 } // SliderConstraintDemo::displayCallback()
 
-//-----------------------------------------------------------------------------
+

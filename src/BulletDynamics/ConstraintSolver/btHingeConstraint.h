@@ -62,6 +62,8 @@ public:
 	bool		m_useSolveConstraintObsolete;
 	bool		m_useReferenceFrameA;
 
+	btScalar	m_accMotorImpulse;
+
 	
 public:
 
@@ -115,6 +117,15 @@ public:
 		m_motorTargetVelocity = targetVelocity;
 		m_maxMotorImpulse = maxMotorImpulse;
 	}
+
+	// extra motor API, including ability to set a target rotation (as opposed to angular velocity)
+	// note: setMotorTarget sets angular velocity under the hood, so you must call it every tick to
+	//       maintain a given angular target.
+	void enableMotor(bool enableMotor) 	{ m_enableAngularMotor = enableMotor; }
+	void setMaxMotorImpulse(btScalar maxMotorImpulse) { m_maxMotorImpulse = maxMotorImpulse; }
+	void setMotorTarget(const btQuaternion& qAinB, btScalar dt); // qAinB is rotation of body A wrt body B.
+	void setMotorTarget(btScalar targetAngle, btScalar dt);
+
 
 	void	setLimit(btScalar low,btScalar high,btScalar _softness = 0.9f, btScalar _biasFactor = 0.3f, btScalar _relaxationFactor = 1.0f)
 	{

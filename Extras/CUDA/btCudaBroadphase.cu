@@ -23,55 +23,52 @@ subject to the following restrictions:
 
 #include <vector_types.h>
 
-//----------------------------------------------------------------------------------------
+
 
 #include "btCudaDefines.h"
 
-//----------------------------------------------------------------------------------------
+
 
 #include "../../src/BulletMultiThreaded/btGpuUtilsSharedDefs.h"
 #include "../../src/BulletMultiThreaded/btGpu3DGridBroadphaseSharedDefs.h"
 
-//----------------------------------------------------------------------------------------
+
 
 __device__ inline bt3DGrid3F1U tex_fetch3F1U(float4 a) { return *((bt3DGrid3F1U*)(&a)); }
 
-//----------------------------------------------------------------------------------------
+
 
 void btCuda_exit(int val);
 
-//----------------------------------------------------------------------------------------
+
 
 texture<uint2, 1, cudaReadModeElementType> particleHashTex;
 texture<uint, 1, cudaReadModeElementType> cellStartTex;
 texture<float4, 1, cudaReadModeElementType> pAABBTex;
 
-//----------------------------------------------------------------------------------------
+
 
 __constant__ bt3DGridBroadphaseParams params;
 
-//----------------------------------------------------------------------------------------
+
 
 extern "C"
 {
 
-//----------------------------------------------------------------------------------------
+
 
 void btCuda_setParameters(bt3DGridBroadphaseParams* hostParams)
 {
     // copy parameters to constant memory
     BT_GPU_SAFE_CALL(cudaMemcpyToSymbol(params, hostParams, sizeof(bt3DGridBroadphaseParams)));
-} // btCuda_setParameters()
+}
 
-//----------------------------------------------------------------------------------------
+
 
 } // extern "C"
 
-//----------------------------------------------------------------------------------------
+
 
 #include "../../src/BulletMultiThreaded/btGpu3DGridBroadphaseSharedCode.h"
 
-//----------------------------------------------------------------------------------------
-//----------------------------------------------------------------------------------------
-//----------------------------------------------------------------------------------------
 

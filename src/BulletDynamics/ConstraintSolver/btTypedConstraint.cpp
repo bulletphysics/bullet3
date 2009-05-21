@@ -60,7 +60,7 @@ m_dbgDrawSize(DEFAULT_DEBUGDRAW_SIZE)
 }
 
 
-//-----------------------------------------------------------------------------
+
 
 btScalar btTypedConstraint::getMotorFactor(btScalar pos, btScalar lowLim, btScalar uppLim, btScalar vel, btScalar timeFact)
 {
@@ -109,6 +109,6 @@ btScalar btTypedConstraint::getMotorFactor(btScalar pos, btScalar lowLim, btScal
 			lim_fact = btScalar(0.0f);
 	}
 	return lim_fact;
-} // btTypedConstraint::getMotorFactor()
+}
 
 

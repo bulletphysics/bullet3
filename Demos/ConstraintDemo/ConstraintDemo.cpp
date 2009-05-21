@@ -44,6 +44,10 @@ btRigidBody* d6body0 =0;
 
 btHingeConstraint* spDoorHinge = NULL;
 
+static bool s_bTestConeTwistMotor = false;
+
+
+
 void	drawLimit()
 {
 		btVector3 from = sliderTransform*lowerSliderLimit;
@@ -71,6 +75,7 @@ void	ConstraintDemo::initPhysics()
 	setShadows(true);
 
 	setCameraDistance(26.f);
+	m_Time = 0;
 
 	m_collisionConfiguration = new btDefaultCollisionConfiguration();
 	m_dispatcher = new btCollisionDispatcher(m_collisionConfiguration);
@@ -97,7 +102,7 @@ void	ConstraintDemo::initPhysics()
 	trans.setOrigin(btVector3(0,20,0));
 
 	float mass = 1.f;
-#if 0
+#if 1
 	//point to point constraint (ball socket)
 	{
 		btRigidBody* body0 = localCreateRigidBody( mass,trans,shape);
@@ -135,7 +140,7 @@ void	ConstraintDemo::initPhysics()
 	}
 #endif
 
-#if 0	
+#if 1	
 	//create a slider, using the generic D6 constraint
 	{
 		mass = 1.f;
@@ -179,7 +184,7 @@ void	ConstraintDemo::initPhysics()
 
 	}
 #endif
-#if 0
+#if 1
 	{ // create a door using hinge constraint attached to the world
 		btCollisionShape* pDoorShape = new btBoxShape(btVector3(2.0f, 5.0f, 0.2f));
 		m_collisionShapes.push_back(pDoorShape);
@@ -201,7 +206,7 @@ void	ConstraintDemo::initPhysics()
 		//btRigidBody* pDropBody = localCreateRigidBody( 10.0, doorTrans, shape);
 	}
 #endif
-#if 0
+#if 1
 	{ // create a generic 6DOF constraint
 
 		btTransform tr;
@@ -262,7 +267,7 @@ void	ConstraintDemo::initPhysics()
 		pGen6DOF->setDbgDrawSize(btScalar(5.f));
 	}
 #endif
-#if 0
+#if 1
 	{ // create a ConeTwist constraint
 
 		btTransform tr;
@@ -274,7 +279,7 @@ void	ConstraintDemo::initPhysics()
 		pBodyA->setActivationState(DISABLE_DEACTIVATION);
 
 		tr.setIdentity();
-		tr.setOrigin(btVector3(btScalar(-10.), btScalar(0.), btScalar(0.)));
+		tr.setOrigin(btVector3(btScalar(-10.), btScalar(-5.), btScalar(0.)));
 		tr.getBasis().setEulerZYX(0,0,0);
 		btRigidBody* pBodyB = localCreateRigidBody(0.0, tr, shape);
 //		btRigidBody* pBodyB = localCreateRigidBody(1.0, tr, shape);
@@ -282,19 +287,22 @@ void	ConstraintDemo::initPhysics()
 		btTransform frameInA, frameInB;
 		frameInA = btTransform::getIdentity();
 		frameInA.getBasis().setEulerZYX(0, 0, M_PI_2);
-		frameInA.setOrigin(btVector3(btScalar(0.), btScalar(-1.), btScalar(0.)));
+		frameInA.setOrigin(btVector3(btScalar(0.), btScalar(-5.), btScalar(0.)));
 		frameInB = btTransform::getIdentity();
 		frameInB.getBasis().setEulerZYX(0,0,  M_PI_2);
-		frameInB.setOrigin(btVector3(btScalar(0.), btScalar(4.), btScalar(0.)));
+		frameInB.setOrigin(btVector3(btScalar(0.), btScalar(5.), btScalar(0.)));
 
-		btConeTwistConstraint* pCT = new btConeTwistConstraint(*pBodyA, *pBodyB, frameInA, frameInB);
-//		pCT->setLimit(btScalar(M_PI_4), btScalar(M_PI_4), btScalar(M_PI) * 0.8f);
-		pCT->setLimit(btScalar(M_PI_4), btScalar(M_PI_4), btScalar(M_PI) * 0.8f, 1.0f); // soft limit == hard limit
-		m_dynamicsWorld->addConstraint(pCT, true);
-		pCT->setDbgDrawSize(btScalar(5.f));
+		m_ctc = new btConeTwistConstraint(*pBodyA, *pBodyB, frameInA, frameInB);
+//		m_ctc->setLimit(btScalar(M_PI_4), btScalar(M_PI_4), btScalar(M_PI) * 0.8f);
+//		m_ctc->setLimit(btScalar(M_PI_4*0.6f), btScalar(M_PI_4), btScalar(M_PI) * 0.8f, 1.0f); // soft limit == hard limit
+		m_ctc->setLimit(btScalar(M_PI_4*0.6f), btScalar(M_PI_4), btScalar(M_PI) * 0.8f, 0.5f);
+		m_dynamicsWorld->addConstraint(m_ctc, true);
+		m_ctc->setDbgDrawSize(btScalar(5.f));
+		// s_bTestConeTwistMotor = true; // use only with old solver for now
+		s_bTestConeTwistMotor = false;
 	}
 #endif
-#if 0
+#if 1
 	{ // Hinge connected to the world, with motor (to hinge motor with new and old constraint solver)
 		btTransform tr;
 		tr.setIdentity();
@@ -319,54 +327,95 @@ void	ConstraintDemo::initPhysics()
 		// static bodyA (parent) on top:
 		btTransform tr;
 		tr.setIdentity();
-		tr.setOrigin(btVector3(btScalar(0.), btScalar(4.), btScalar(0.)));
+		tr.setOrigin(btVector3(btScalar(20.), btScalar(4.), btScalar(0.)));
 		btRigidBody* pBodyA = localCreateRigidBody( 0.0, tr, shape);
 		pBodyA->setActivationState(DISABLE_DEACTIVATION);
 		// dynamic bodyB (child) below it :
 		tr.setIdentity();
-		tr.setOrigin(btVector3(btScalar(0.), btScalar(0.), btScalar(0.)));
+		tr.setOrigin(btVector3(btScalar(20.), btScalar(0.), btScalar(0.)));
 		btRigidBody* pBodyB = localCreateRigidBody(1.0, tr, shape);
 		pBodyB->setActivationState(DISABLE_DEACTIVATION);
 		// add some (arbitrary) data to build constraint frames
 		btVector3 parentAxis(1.f, 0.f, 0.f); 
 		btVector3 childAxis(0.f, 0.f, 1.f); 
-		btVector3 anchor(0.f, 2.f, 0.f);
-		// build frame basis
-		// 6DOF constraint uses Euler angles and to define limits
-		// it is assumed that rotational order is :
-		// Z - first, allowed limits are (-PI,PI);
-		// new position of Y - second (allowed limits are (-PI/2 + epsilon, PI/2 - epsilon), where epsilon is a small positive number 
-		// used to prevent constraint from instability on poles;
-		// new position of X, allowed limits are (-PI,PI);
-		// So to simulate ODE Universal joint we should use parent axis as Z, child axis as Y and limit all other DOFs
-		// Build the frame in world coordinate system first
-		btVector3 zAxis = parentAxis.normalize();
-		btVector3 yAxis = childAxis.normalize();
-		btVector3 xAxis = yAxis.cross(zAxis); // we want right coordinate system
-		btTransform frameInW;
-		frameInW.setIdentity();
-		frameInW.getBasis().setValue(	xAxis[0], yAxis[0], zAxis[0],	
-										xAxis[1], yAxis[1], zAxis[1],
-										xAxis[2], yAxis[2], zAxis[2]);
-		frameInW.setOrigin(anchor);
-		// now get constraint frame in local coordinate systems
-		btTransform frameInA = pBodyA->getCenterOfMassTransform().inverse() * frameInW;
-		btTransform frameInB = pBodyB->getCenterOfMassTransform().inverse() * frameInW;
-		// now create the constraint
-		btGeneric6DofConstraint* pGen6DOF = new btGeneric6DofConstraint(*pBodyA, *pBodyB, frameInA, frameInB, true);
-		// linear limits in our case are allowed offset of origin of frameInB in frameInA, so set them to zero
-		pGen6DOF->setLinearLowerLimit(btVector3(0., 0., 0.));
-		pGen6DOF->setLinearUpperLimit(btVector3(0., 0., 0.));
-		// set limits for parent (axis z) and child (axis Y)
-		pGen6DOF->setAngularLowerLimit(btVector3(0.f, -SIMD_HALF_PI * 0.5f, -SIMD_HALF_PI * 0.5f));
-		pGen6DOF->setAngularUpperLimit(btVector3(0.f,  SIMD_HALF_PI * 0.5f,  SIMD_HALF_PI * 0.5f));
+		btVector3 anchor(20.f, 2.f, 0.f);
+		btUniversalConstraint* pUniv = new btUniversalConstraint(*pBodyA, *pBodyB, anchor, parentAxis, childAxis);
+		pUniv->setLowerLimit(-SIMD_HALF_PI * 0.5f, -SIMD_HALF_PI * 0.5f);
+		pUniv->setUpperLimit(SIMD_HALF_PI * 0.5f,  SIMD_HALF_PI * 0.5f);
 		// add constraint to world
-		m_dynamicsWorld->addConstraint(pGen6DOF, true);
+		m_dynamicsWorld->addConstraint(pUniv, true);
 		// draw constraint frames and limits for debugging
-		pGen6DOF->setDbgDrawSize(btScalar(10.f));
+		pUniv->setDbgDrawSize(btScalar(5.f));
 	}
 #endif
 
+#if 1
+	{ // create a generic 6DOF constraint with springs 
+
+		btTransform tr;
+		tr.setIdentity();
+		tr.setOrigin(btVector3(btScalar(-20.), btScalar(16.), btScalar(0.)));
+		tr.getBasis().setEulerZYX(0,0,0);
+		btRigidBody* pBodyA = localCreateRigidBody( 0.0, tr, shape);
+		pBodyA->setActivationState(DISABLE_DEACTIVATION);
+
+		tr.setIdentity();
+		tr.setOrigin(btVector3(btScalar(-10.), btScalar(16.), btScalar(0.)));
+		tr.getBasis().setEulerZYX(0,0,0);
+		btRigidBody* pBodyB = localCreateRigidBody(1.0, tr, shape);
+		pBodyB->setActivationState(DISABLE_DEACTIVATION);
+
+		btTransform frameInA, frameInB;
+		frameInA = btTransform::getIdentity();
+		frameInA.setOrigin(btVector3(btScalar(10.), btScalar(0.), btScalar(0.)));
+		frameInB = btTransform::getIdentity();
+		frameInB.setOrigin(btVector3(btScalar(0.), btScalar(0.), btScalar(0.)));
+
+		btGeneric6DofSpringConstraint* pGen6DOFSpring = new btGeneric6DofSpringConstraint(*pBodyA, *pBodyB, frameInA, frameInB, true);
+		pGen6DOFSpring->setLinearUpperLimit(btVector3(5., 0., 0.));
+		pGen6DOFSpring->setLinearLowerLimit(btVector3(-5., 0., 0.));
+
+		pGen6DOFSpring->setAngularLowerLimit(btVector3(0.f, 0.f, -1.5f));
+		pGen6DOFSpring->setAngularUpperLimit(btVector3(0.f, 0.f, 1.5f));
+
+		m_dynamicsWorld->addConstraint(pGen6DOFSpring, true);
+		pGen6DOFSpring->setDbgDrawSize(btScalar(5.f));
+		
+		pGen6DOFSpring->enableSpring(0, true);
+		pGen6DOFSpring->setStiffness(0, 39.478f);
+		pGen6DOFSpring->enableSpring(5, true);
+		pGen6DOFSpring->setStiffness(5, 39.478f);
+		pGen6DOFSpring->setEquilibriumPoint();
+	}
+#endif
+#if 1
+	{ 
+		// create a Hinge2 joint
+		// create two rigid bodies
+		// static bodyA (parent) on top:
+		btTransform tr;
+		tr.setIdentity();
+		tr.setOrigin(btVector3(btScalar(-20.), btScalar(4.), btScalar(0.)));
+		btRigidBody* pBodyA = localCreateRigidBody( 0.0, tr, shape);
+		pBodyA->setActivationState(DISABLE_DEACTIVATION);
+		// dynamic bodyB (child) below it :
+		tr.setIdentity();
+		tr.setOrigin(btVector3(btScalar(-20.), btScalar(0.), btScalar(0.)));
+		btRigidBody* pBodyB = localCreateRigidBody(1.0, tr, shape);
+		pBodyB->setActivationState(DISABLE_DEACTIVATION);
+		// add some data to build constraint frames
+		btVector3 parentAxis(0.f, 1.f, 0.f); 
+		btVector3 childAxis(1.f, 0.f, 0.f); 
+		btVector3 anchor(-20.f, 0.f, 0.f);
+		btHinge2Constraint* pHinge2 = new btHinge2Constraint(*pBodyA, *pBodyB, anchor, parentAxis, childAxis);
+		pHinge2->setLowerLimit(-SIMD_HALF_PI * 0.5f);
+		pHinge2->setUpperLimit( SIMD_HALF_PI * 0.5f);
+		// add constraint to world
+		m_dynamicsWorld->addConstraint(pHinge2, true);
+		// draw constraint frames and limits for debugging
+		pHinge2->setDbgDrawSize(btScalar(5.f));
+	}
+#endif
 
 }
 
@@ -383,6 +432,7 @@ ConstraintDemo::~ConstraintDemo()
 		m_dynamicsWorld->removeConstraint(constraint);
 		delete constraint;
 	}
+	m_ctc = NULL;
 
 	//remove the rigidbodies from the dynamics world and delete them
 	for (i=m_dynamicsWorld->getNumCollisionObjects()-1; i>=0 ;i--)
@@ -424,6 +474,7 @@ ConstraintDemo::~ConstraintDemo()
 
 }
 
+
 void ConstraintDemo::clientMoveAndDisplay()
 {
 	
@@ -431,6 +482,28 @@ void ConstraintDemo::clientMoveAndDisplay()
 
  	float dt = float(getDeltaTimeMicroseconds()) * 0.000001f;
 	//printf("dt = %f: ",dt);
+
+	// drive cone-twist motor
+	m_Time += 0.03f;
+	if (s_bTestConeTwistMotor)
+	{  // this works only for obsolete constraint solver for now
+		// build cone target
+		btScalar t = 1.25f*m_Time;
+		btVector3 axis(0,sin(t),cos(t));
+		axis.normalize();
+		btQuaternion q1(axis, 0.75f*M_PI);
+
+		// build twist target
+		//btQuaternion q2(0,0,0);
+		//btQuaternion q2(btVehictor3(1,0,0), -0.3*sin(m_Time));
+		btQuaternion q2(btVector3(1,0,0), -1.49*sin(1.5*m_Time));
+
+		// compose cone + twist and set target
+		q1 = q1 * q2;
+		m_ctc->enableMotor(true);
+		m_ctc->setMotorTargetInConstraintSpace(q1);
+	}
+
 	
 	{
 	 	//during idle mode, just run 1 simulation step maximum

@@ -13,7 +13,7 @@ subject to the following restrictions:
 3. This notice may not be removed or altered from any source distribution.
 */
 
-//--------------------------------------------------------------------------
+
 
 #include "BulletCollision/CollisionDispatch/btCollisionDispatcher.h"
 
@@ -21,7 +21,7 @@ subject to the following restrictions:
 
 #include "btGpuDemoDynamicsWorld.h"
 
-//--------------------------------------------------------------------------
+
 
 void btGpuDemoPairCache::processAllOverlappingPairs(btOverlapCallback* callback, btDispatcher* dispatcher)
 {
@@ -41,9 +41,9 @@ void btGpuDemoPairCache::processAllOverlappingPairs(btOverlapCallback* callback,
 		}
 	}
 	gpCudaDemoDynamicsWorld->setTotalNumConstraints(numContConstraints);	
-} // btGpuDemoPairCache::processAllOverlappingPairs()
+} 
 
-//--------------------------------------------------------------------------
+
 
 // this will be called for each overlapping pair if collision detection uses pairCache other than btGpuDemoPairCache
 // IMPORTANT : m_numConstraints in gpCudaDemoDynamicsWorld is set to 0 at start of simulation step
@@ -74,6 +74,3 @@ void cudaDemoNearCallback(btBroadphasePair& collisionPair, btCollisionDispatcher
 	}
 } // cudaDemoNearCallback()
 
-//--------------------------------------------------------------------------
-//--------------------------------------------------------------------------
-//--------------------------------------------------------------------------

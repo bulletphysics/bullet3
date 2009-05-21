@@ -13,7 +13,7 @@ subject to the following restrictions:
 3. This notice may not be removed or altered from any source distribution.
 */
 
-//----------------------------------------------------------------------------------------
+
 
 // Shared definitions for GPU-based utilities
 
@@ -23,17 +23,17 @@ subject to the following restrictions:
 //	file with definitions of BT_GPU_xxx should be included first
 //!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!
 
-//----------------------------------------------------------------------------------------
+
 
 #ifndef BTGPUUTILSDHAREDDEFS_H
 #define BTGPUUTILSDHAREDDEFS_H
 
-//----------------------------------------------------------------------------------------
+
 
 extern "C"
 {
 
-//----------------------------------------------------------------------------------------
+
 
 //Round a / b to nearest higher integer value
 int BT_GPU_PREF(iDivUp)(int a, int b);
@@ -47,16 +47,13 @@ void BT_GPU_PREF(copyArrayFromDevice)(void* host, const void* device, unsigned i
 void BT_GPU_PREF(copyArrayToDevice)(void* device, const void* host, unsigned int size);
 
 
-//----------------------------------------------------------------------------------------
+
 
 
 
 } // extern "C"
 
-//----------------------------------------------------------------------------------------
+
 
 #endif // BTGPUUTILSDHAREDDEFS_H
 
-//----------------------------------------------------------------------------------------
-//----------------------------------------------------------------------------------------
-//----------------------------------------------------------------------------------------

@@ -13,13 +13,13 @@ subject to the following restrictions:
 3. This notice may not be removed or altered from any source distribution.
 */
 
-//--------------------------------------------------------------------------
+
 
 #include "LinearMath/btAlignedAllocator.h"
 #include "LinearMath/btQuickprof.h"
 #include "BulletCollision/BroadphaseCollision/btOverlappingPairCache.h"
 
-//--------------------------------------------------------------------------
+
 
 #include "btGpuDefines.h"
 #include "btGpuUtilsSharedDefs.h"
@@ -28,15 +28,15 @@ subject to the following restrictions:
 
 #include "btGpu3DGridBroadphase.h"
 #include <string.h> //for memset
-//--------------------------------------------------------------------------
+
 
 #include <stdio.h>
 
-//--------------------------------------------------------------------------
+
 
 static bt3DGridBroadphaseParams s3DGridBroadphaseParams;
 
-//--------------------------------------------------------------------------
+
 
 btGpu3DGridBroadphase::btGpu3DGridBroadphase(	const btVector3& worldAabbMin,const btVector3& worldAabbMax, 
 										int gridSizeX, int gridSizeY, int gridSizeZ, 
@@ -52,9 +52,9 @@ btGpu3DGridBroadphase::btGpu3DGridBroadphase(	const btVector3& worldAabbMin,cons
 	_initialize(worldAabbMin, worldAabbMax, gridSizeX, gridSizeY, gridSizeZ, 
 				maxSmallProxies, maxLargeProxies, maxPairsPerBody,
 				maxBodiesPerCell, cellFactorAABB);
-} // btGpu3DGridBroadphase::btGpu3DGridBroadphase()
+}
 
-//--------------------------------------------------------------------------
+
 
 btGpu3DGridBroadphase::btGpu3DGridBroadphase(	btOverlappingPairCache* overlappingPairCache,
 										const btVector3& worldAabbMin,const btVector3& worldAabbMax, 
@@ -69,18 +69,18 @@ btGpu3DGridBroadphase::btGpu3DGridBroadphase(	btOverlappingPairCache* overlappin
 	_initialize(worldAabbMin, worldAabbMax, gridSizeX, gridSizeY, gridSizeZ, 
 				maxSmallProxies, maxLargeProxies, maxPairsPerBody,
 				maxBodiesPerCell, cellFactorAABB);
-} // btGpu3DGridBroadphase::btGpu3DGridBroadphase()
+}
 
-//--------------------------------------------------------------------------
+
 
 btGpu3DGridBroadphase::~btGpu3DGridBroadphase()
 {
 	//btSimpleBroadphase will free memory of btSortedOverlappingPairCache, because m_ownsPairCache
 	assert(m_bInitialized);
 	_finalize();
-} // btGpu3DGridBroadphase::~btGpu3DGridBroadphase()
+}
 
-//--------------------------------------------------------------------------
+
 
 void btGpu3DGridBroadphase::_initialize(	const btVector3& worldAabbMin,const btVector3& worldAabbMax, 
 										int gridSizeX, int gridSizeY, int gridSizeZ, 
@@ -164,9 +164,9 @@ void btGpu3DGridBroadphase::_initialize(	const btVector3& worldAabbMin,const btV
 	m_numOverflows = 0;
 
     m_bInitialized = true;
-} // btGpu3DGridBroadphase::_initialize()
+}
 
-//--------------------------------------------------------------------------
+
 
 void btGpu3DGridBroadphase::_finalize()
 {
@@ -180,9 +180,9 @@ void btGpu3DGridBroadphase::_finalize()
 	delete [] m_hPairOut;
 	btAlignedFree(m_pLargeHandlesRawPtr);
 	m_bInitialized = false;
-} // btGpu3DGridBroadphase::_finalize()
+}
 
-//--------------------------------------------------------------------------
+
 
 void btGpu3DGridBroadphase::calculateOverlappingPairs(btDispatcher* dispatcher)
 {
@@ -214,9 +214,9 @@ void btGpu3DGridBroadphase::calculateOverlappingPairs(btDispatcher* dispatcher)
 	// find and add large/large pairs to CPU cache
 	addLarge2LargePairsToCache(dispatcher);
 	return;
-} // btGpu3DGridBroadphase::calculateOverlappingPairs()
+}
 
-//--------------------------------------------------------------------------
+
 
 void btGpu3DGridBroadphase::addPairsToCache(btDispatcher* dispatcher)
 {
@@ -259,9 +259,9 @@ void btGpu3DGridBroadphase::addPairsToCache(btDispatcher* dispatcher)
 			}
 		}
 	}
-} // btGpu3DGridBroadphase::addPairsToCache()
+}
 
-//--------------------------------------------------------------------------
+
 
 btBroadphaseProxy* btGpu3DGridBroadphase::createProxy(  const btVector3& aabbMin,  const btVector3& aabbMax,int shapeType,void* userPtr ,short int collisionFilterGroup,short int collisionFilterMask, btDispatcher* dispatcher,void* multiSapProxy)
 {
@@ -284,9 +284,9 @@ btBroadphaseProxy* btGpu3DGridBroadphase::createProxy(  const btVector3& aabbMin
 		proxy = btSimpleBroadphase::createProxy(aabbMin, aabbMax, shapeType, userPtr, collisionFilterGroup, collisionFilterMask, dispatcher, multiSapProxy);
 	}
 	return proxy;
-} // btGpu3DGridBroadphase::createProxy()
+}
 
-//--------------------------------------------------------------------------
+
 
 void btGpu3DGridBroadphase::destroyProxy(btBroadphaseProxy* proxy, btDispatcher* dispatcher)
 {
@@ -303,9 +303,9 @@ void btGpu3DGridBroadphase::destroyProxy(btBroadphaseProxy* proxy, btDispatcher*
 		btSimpleBroadphase::destroyProxy(proxy, dispatcher);
 	}
 	return;
-} // btGpu3DGridBroadphase::destroyProxy()
+}
 
-//--------------------------------------------------------------------------
+
 
 void btGpu3DGridBroadphase::resetPool(btDispatcher* dispatcher)
 {
@@ -316,9 +316,9 @@ void btGpu3DGridBroadphase::resetPool(btDispatcher* dispatcher)
 		m_hPairBuffStartCurr[i * 2] = m_hPairBuffStartCurr[(i-1) * 2] + m_maxPairsPerBody;
 		m_hPairBuffStartCurr[i * 2 + 1] = 0;
 	}
-} // btGpu3DGridBroadphase::resetPool()
+}
 
-//--------------------------------------------------------------------------
+
 
 bool btGpu3DGridBroadphase::isLargeProxy(const btVector3& aabbMin,  const btVector3& aabbMax)
 {
@@ -329,16 +329,16 @@ bool btGpu3DGridBroadphase::isLargeProxy(const btVector3& aabbMin,  const btVect
 	radius *= m_cellFactorAABB; // user-defined factor
 
 	return (radius > m_maxRadius);
-} // btGpu3DGridBroadphase::isLargeProxy()
+}
 
-//--------------------------------------------------------------------------
+
 
 bool btGpu3DGridBroadphase::isLargeProxy(btBroadphaseProxy* proxy)
 {
 	return (proxy->getUid() >= (m_maxHandles+2));
-} // btGpu3DGridBroadphase::isLargeProxy()
+}
 
-//--------------------------------------------------------------------------
+
 
 void btGpu3DGridBroadphase::addLarge2LargePairsToCache(btDispatcher* dispatcher)
 {
@@ -384,9 +384,9 @@ void btGpu3DGridBroadphase::addLarge2LargePairsToCache(btDispatcher* dispatcher)
 	}
 	m_LastLargeHandleIndex = new_largest_index;
 	return;
-} // btGpu3DGridBroadphase::addLarge2LargePairsToCache()
+}
 
-//--------------------------------------------------------------------------
+
 
 void btGpu3DGridBroadphase::rayTest(const btVector3& rayFrom,const btVector3& rayTo, btBroadphaseRayCallback& rayCallback)
 {
@@ -400,15 +400,15 @@ void btGpu3DGridBroadphase::rayTest(const btVector3& rayFrom,const btVector3& ra
 		}
 		rayCallback.process(proxy);
 	}
-} // btGpu3DGridBroadphase::rayTest()
+}
 
-//--------------------------------------------------------------------------
-//--------------------------------------------------------------------------
+
+
 //
 // overrides for CPU version
 //
-//--------------------------------------------------------------------------
-//--------------------------------------------------------------------------
+
+
 
 void btGpu3DGridBroadphase::prepareAABB()
 {
@@ -465,26 +465,26 @@ void btGpu3DGridBroadphase::prepareAABB()
 	btAssert(num_small == m_numHandles);
 	btAssert(num_large == m_numLargeHandles);
 	return;
-} // btGpu3DGridBroadphase::prepareAABB()
+}
 
-//--------------------------------------------------------------------------
+
 
 void btGpu3DGridBroadphase::setParameters(bt3DGridBroadphaseParams* hostParams)
 {
 	s3DGridBroadphaseParams = *hostParams;
 	return;
-} // btGpu3DGridBroadphase::setParameters()
+}
 
-//--------------------------------------------------------------------------
+
 
 void btGpu3DGridBroadphase::calcHashAABB()
 {
 	BT_PROFILE("bt3DGrid_calcHashAABB");
 	btGpu_calcHashAABB(m_hAABB, m_hBodiesHash, m_numHandles);
 	return;
-} // btGpu3DGridBroadphase::calcHashAABB()
+}
 
-//--------------------------------------------------------------------------
+
 
 void btGpu3DGridBroadphase::sortHash()
 {
@@ -517,45 +517,45 @@ void btGpu3DGridBroadphase::sortHash()
 	bt3DGridHashKey* pHash = (bt3DGridHashKey*)m_hBodiesHash;
 	pHash->quickSort(pHash, 0, m_numHandles - 1);
 	return;
-} // btGpu3DGridBroadphase::sortHash()
+}
 
-//--------------------------------------------------------------------------
+
 
 void btGpu3DGridBroadphase::findCellStart()
 {
 	BT_PROFILE("bt3DGrid_findCellStart");
 	btGpu_findCellStart(m_hBodiesHash, m_hCellStart, m_numHandles, m_params.m_numCells);
 	return;
-} // btGpu3DGridBroadphase::findCellStart()
+}
 
-//--------------------------------------------------------------------------
+
 
 void btGpu3DGridBroadphase::findOverlappingPairs()
 {
 	BT_PROFILE("bt3DGrid_findOverlappingPairs");
 	btGpu_findOverlappingPairs(m_hAABB, m_hBodiesHash, m_hCellStart, m_hPairBuff, m_hPairBuffStartCurr, m_numHandles);
 	return;
-} // btGpu3DGridBroadphase::findOverlappingPairs()
+}
 
-//--------------------------------------------------------------------------
+
 
 void btGpu3DGridBroadphase::findPairsLarge()
 {
 	BT_PROFILE("bt3DGrid_findPairsLarge");
 	btGpu_findPairsLarge(m_hAABB, m_hBodiesHash, m_hCellStart, m_hPairBuff, m_hPairBuffStartCurr,	m_numHandles, m_numLargeHandles);
 	return;
-} // btGpu3DGridBroadphase::findPairsLarge()
+}
 
-//--------------------------------------------------------------------------
+
 
 void btGpu3DGridBroadphase::computePairCacheChanges()
 {
 	BT_PROFILE("bt3DGrid_computePairCacheChanges");
 	btGpu_computePairCacheChanges(m_hPairBuff, m_hPairBuffStartCurr, m_hPairScan, m_hAABB, m_numHandles);
 	return;
-} // btGpu3DGridBroadphase::computePairCacheChanges()
+}
 
-//--------------------------------------------------------------------------
+
 
 void btGpu3DGridBroadphase::scanOverlappingPairBuff()
 {
@@ -567,19 +567,19 @@ void btGpu3DGridBroadphase::scanOverlappingPairBuff()
 		m_hPairScan[i] = m_hPairScan[i-1] + delta;
 	}
 	return;
-} // btGpu3DGridBroadphase::scanOverlappingPairBuff()
+}
 
-//--------------------------------------------------------------------------
+
 
 void btGpu3DGridBroadphase::squeezeOverlappingPairBuff()
 {
 	BT_PROFILE("bt3DGrid_squeezeOverlappingPairBuff");
 	btGpu_squeezeOverlappingPairBuff(m_hPairBuff, m_hPairBuffStartCurr, m_hPairScan, m_hPairOut, m_hAABB, m_numHandles);
 	return;
-} // btGpu3DGridBroadphase::squeezeOverlappingPairBuff()
+}
 
-//--------------------------------------------------------------------------
+
 
 #include "btGpu3DGridBroadphaseSharedCode.h"
 
-//--------------------------------------------------------------------------
+

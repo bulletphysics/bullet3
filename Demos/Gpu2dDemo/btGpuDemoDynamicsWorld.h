@@ -13,12 +13,12 @@ subject to the following restrictions:
 3. This notice may not be removed or altered from any source distribution.
 */
 
-//----------------------------------------------------------------------------------------
+
 
 #ifndef BT_CUDA_DEMO_DYNAMICS_WORLD_H
 #define BT_CUDA_DEMO_DYNAMICS_WORLD_H
 
-//----------------------------------------------------------------------------------------
+
 
 #include "BulletDynamics/Dynamics/btDiscreteDynamicsWorld.h"
 #include "BulletDynamics/ConstraintSolver/btTypedConstraint.h"
@@ -46,15 +46,9 @@ subject to the following restrictions:
 #undef BT_GPU_PREF
 
 
-//----------------------------------------------------------------------------------------
-
-
-
-//----------------------------------------------------------------------------------------
-
 #include "btGpuDemo2dSharedTypes.h"
 
-//----------------------------------------------------------------------------------------
+
 
 #define CUDA_DEMO_DYNAMICS_WORLD_MAX_BATCHES 20
 
@@ -130,10 +124,10 @@ protected:
 	btVector3				m_worldMin;
 	btVector3				m_worldMax;
 	
-	//-------------------------------
+	
 	int*					m_hConstraintUsed;
 
-	//-------------------------------
+	
 	// shape buffer
 	int						m_maxShapeBufferSize;
 	int						m_firstFreeShapeBufferOffset;
@@ -146,7 +140,7 @@ protected:
 	void					freeShapeBuffer();
 	void					sendShapeDataToGpu();
 
-	//-------------------------------
+	
 	int						m_numNonContactConstraints;
 	void					grabNonContactConstraintData();
 	void					grabP2PConstraintData(btPoint2PointConstraint* ct);

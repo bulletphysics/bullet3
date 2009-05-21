@@ -13,16 +13,16 @@ subject to the following restrictions:
 3. This notice may not be removed or altered from any source distribution.
 */
 
-//----------------------------------------------------------------------------------------
+
 
 // Common preprocessor definitions for CUDA compiler
 
-//----------------------------------------------------------------------------------------
+
 
 #ifndef BTCUDADEFINES_H
 #define BTCUDADEFINES_H
 
-//----------------------------------------------------------------------------------------
+
 
 #ifdef __DEVICE_EMULATION__
 	#define B_CUDA_USE_TEX 0
@@ -39,7 +39,7 @@ subject to the following restrictions:
 	#define BT_GPU_FETCH4(t, i) t[i]
 #endif
 
-//----------------------------------------------------------------------------------------
+
 
 #define BT_GPU___device__ __device__
 #define BT_GPU___devdata__ __device__
@@ -71,7 +71,7 @@ subject to the following restrictions:
 #define BT_GPU_UnbindTexture(a) cudaUnbindTexture(a) 
 #define BT_GPU_EXECKERNEL(numb, numt, kfunc, args) kfunc<<<numb, numt>>>args
 
-//----------------------------------------------------------------------------------------
+
 
 //! Check for CUDA error
 #define BT_GPU_CHECK_ERROR(errorMessage)									\
@@ -94,7 +94,7 @@ subject to the following restrictions:
 	}																		\
 	while(0)
 
-//----------------------------------------------------------------------------------------
+
 
 #define BT_GPU_SAFE_CALL_NO_SYNC(call)										\
 	do																		\
@@ -109,7 +109,7 @@ subject to the following restrictions:
 	}																		\
 	while(0)
 
-//----------------------------------------------------------------------------------------
+
 
 #define BT_GPU_SAFE_CALL(call)												\
 	do																		\
@@ -124,15 +124,15 @@ subject to the following restrictions:
 		}																	\
 	} while (0)
 
-//----------------------------------------------------------------------------------------
+
 
 extern "C" void btCuda_exit(int val);
 
-//----------------------------------------------------------------------------------------
+
 
 #endif // BTCUDADEFINES_H
 
-//----------------------------------------------------------------------------------------
-//----------------------------------------------------------------------------------------
+
+
 
 

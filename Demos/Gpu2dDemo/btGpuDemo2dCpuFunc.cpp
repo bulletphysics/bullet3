@@ -13,21 +13,18 @@ subject to the following restrictions:
 3. This notice may not be removed or altered from any source distribution.
 */
 
-//----------------------------------------------------------------------------------------
+
 
 #include "LinearMath/btQuickprof.h"
 
-//----------------------------------------------------------------------------------------
+
 #include "LinearMath/btScalar.h"
 
 #include "btGpuDemo2dSharedTypes.h"
 
-//----------------------------------------------------------------------------------------
+
 
 #include "BulletMultiThreaded/btGpuDefines.h"
 #include "BulletMultiThreaded/btGpuUtilsSharedDefs.h"
 #include "btGpuDemo2dSharedCode.h"
 
-//--------------------------------------------------------------------------
-//--------------------------------------------------------------------------
-//--------------------------------------------------------------------------

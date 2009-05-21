@@ -48,7 +48,11 @@ class ConstraintDemo : public GlutDemoApplication
 		demo->myinit();
 		demo->initPhysics();
 		return demo;
-	}	
+	}
+
+	// for cone-twist motor driving
+	float m_Time;
+	class btConeTwistConstraint* m_ctc;
 	
 };
 

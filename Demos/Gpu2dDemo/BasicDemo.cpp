@@ -18,8 +18,6 @@ subject to the following restrictions:
 #include "BulletMultiThreaded/btGpuUtilsSharedDefs.h"
 #include "BulletMultiThreaded/btGpuUtilsSharedCode.h"
 
-//----------------------------------------------------------------------------------------
-
 
 #include "BulletCollision/CollisionDispatch/btEmptyCollisionAlgorithm.h"
 

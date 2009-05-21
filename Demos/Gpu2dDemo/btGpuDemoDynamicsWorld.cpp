@@ -13,7 +13,7 @@ subject to the following restrictions:
 3. This notice may not be removed or altered from any source distribution.
 */
 
-//--------------------------------------------------------------------------
+
 
 #include "btGpuDemoDynamicsWorld.h"
 #include "BulletCollision/CollisionDispatch/btCollisionDispatcher.h"
@@ -28,7 +28,7 @@ subject to the following restrictions:
 #include "BulletDynamics/ConstraintSolver/btPoint2PointConstraint.h"
 
 
-//--------------------------------------------------------------------------
+
 
 #define BT_GPU_PREF(func) btCuda_##func
 
@@ -40,11 +40,11 @@ subject to the following restrictions:
 #include "btGpuDemo2dSharedDefs.h"
 #undef BT_GPU_PREF
 
-//--------------------------------------------------------------------------
+
 
 btGpuDemoDynamicsWorld* gpCudaDemoDynamicsWorld = NULL;
 
-//--------------------------------------------------------------------------
+
 
 void btGpuDemoDynamicsWorld::grabNonContactConstraintData()
 {
@@ -64,9 +64,9 @@ void btGpuDemoDynamicsWorld::grabNonContactConstraintData()
 				break;
 		}
 	}
-} // btGpuDemoDynamicsWorld::grabNonContactConstraintData()
+}
 
-//--------------------------------------------------------------------------
+
 
 void btGpuDemoDynamicsWorld::grabContactData()
 {
@@ -137,9 +137,9 @@ void btGpuDemoDynamicsWorld::grabContactData()
 		}
 		m_totalNumConstraints++;
 	}
-} // btCudaDemoDynamicsWorld::grabContactData()
+} 
 
-//--------------------------------------------------------------------------
+
 
 void btGpuDemoDynamicsWorld::grabP2PConstraintData(btPoint2PointConstraint* ct)
 {
@@ -177,9 +177,9 @@ void btGpuDemoDynamicsWorld::grabP2PConstraintData(btPoint2PointConstraint* ct)
 	}
 	m_totalNumConstraints++;
 	m_numNonContactConstraints++;
-} // btGpuDemoDynamicsWorld::grabP2PConstraintData()
+} 
 
-//--------------------------------------------------------------------------
+
 
 void btGpuDemoDynamicsWorld::grabData()
 {
@@ -214,9 +214,9 @@ void btGpuDemoDynamicsWorld::grabData()
 		grabContactData();
 	}
 	grabNonContactConstraintData();
-} // btGpuDemoDynamicsWorld::grabGata()
+} 
 
-//--------------------------------------------------------------------------
+
 
 void btGpuDemoDynamicsWorld::createBatches2()
 {
@@ -268,9 +268,9 @@ void btGpuDemoDynamicsWorld::createBatches2()
 		m_numInBatches[stage] = numInBatch;
 		pBatchIds += numInBatch;
 	}
-} // btGpuDemoDynamicsWorld::createBatches2()
+} 
 
-//--------------------------------------------------------------------------
+
 
 void btGpuDemoDynamicsWorld::writebackData()
 {
@@ -288,9 +288,9 @@ void btGpuDemoDynamicsWorld::writebackData()
 		v[2] = m_hAngVel[i + 1];
 		rb->setAngularVelocity(v);
 	}
-} // btGpuDemoDynamicsWorld::writebackData()
+} 
 
-//--------------------------------------------------------------------------
+
 
 void btGpuDemoDynamicsWorld::copyDataToGPU()
 {
@@ -339,9 +339,9 @@ void btGpuDemoDynamicsWorld::copyDataToGPU()
 	}
 #endif //BT_USE_CUDA
 
-} // btGpuDemoDynamicsWorld::copyDataToGPU()
+} 
 
-//--------------------------------------------------------------------------
+
 
 void btGpuDemoDynamicsWorld::setConstraintData(btCudaPartProps& partProps)
 {
@@ -358,9 +358,9 @@ void btGpuDemoDynamicsWorld::setConstraintData(btCudaPartProps& partProps)
 		}
 #endif //BT_USE_CUDA
 
-} // btGpuDemoDynamicsWorld::setConstraintData()
+} 
 
-//--------------------------------------------------------------------------
+
 
 void btGpuDemoDynamicsWorld::copyDataFromGPU()
 {
@@ -369,9 +369,9 @@ void btGpuDemoDynamicsWorld::copyDataFromGPU()
 	btCuda_copyArrayFromDevice(m_hVel, m_dcVel, (m_numObj + 1) * sizeof(float4));
 	btCuda_copyArrayFromDevice(m_hAngVel, m_dcAngVel, (m_numObj + 1) * sizeof(float)); 
 #endif //BT_USE_CUDA
-} // btGpuDemoDynamicsWorld::copyDataFromGPU()
+} 
 
-//--------------------------------------------------------------------------
+
 
 void btGpuDemoDynamicsWorld::solveConstraints(btContactSolverInfo& solverInfo)
 {
@@ -384,9 +384,9 @@ void btGpuDemoDynamicsWorld::solveConstraints(btContactSolverInfo& solverInfo)
 		solveConstraints2(solverInfo);
 	}
 	m_totalNumConstraints = 0;
-} // btGpuDemoDynamicsWorld::solveConstraints()
+} 
 
-//--------------------------------------------------------------------------
+
 
 void btGpuDemoDynamicsWorld::solveConstraints2(btContactSolverInfo& solverInfo)
 {
@@ -433,9 +433,9 @@ void btGpuDemoDynamicsWorld::solveConstraints2(btContactSolverInfo& solverInfo)
 	writebackData();
 	m_numSimStep++;
 #endif //BT_USE_CUDA
-} // btGpuDemoDynamicsWorld::solveConstraints2()
+} 
 
-//--------------------------------------------------------------------------
+
 
 void btGpuDemoDynamicsWorld::solveConstraintsCPU2(btContactSolverInfo& solverInfo)
 {
@@ -496,9 +496,9 @@ void btGpuDemoDynamicsWorld::solveConstraintsCPU2(btContactSolverInfo& solverInf
 	}
 	writebackData();
 	m_numSimStep++;
-} // btGpuDemoDynamicsWorld::solveConstraintsCPU2()
+} 
 
-//--------------------------------------------------------------------------
+
 
 void btGpuDemoDynamicsWorld::debugDrawConstraints(int selectedBatch, const float* pColorTab)
 {
@@ -539,10 +539,9 @@ void btGpuDemoDynamicsWorld::debugDrawConstraints(int selectedBatch, const float
 		pBatchIds += numConstraints;
 		glEnd();
 	}
-} // btGpuDemoDynamicsWorld::debugDrawConstraints()
+} 
 
-//--------------------------------------------------------------------------
-//--------------------------------------------------------------------------
+
 
 void btGpuDemoDynamicsWorld::initShapeBuffer(int maxShapeBufferSize)
 {
@@ -557,9 +556,9 @@ void btGpuDemoDynamicsWorld::initShapeBuffer(int maxShapeBufferSize)
 #endif //BT_USE_CUDA
 
 	m_copyShapeDataToGPU = true;
-} // btGpuDemoDynamicsWorld::initShapeBuffer()
+} 
 
-//--------------------------------------------------------------------------
+
 
 void btGpuDemoDynamicsWorld::freeShapeBuffer()
 {
@@ -569,9 +568,9 @@ void btGpuDemoDynamicsWorld::freeShapeBuffer()
 	btCuda_freeArray(m_dShapeBuffer);
 	btCuda_freeArray(m_dShapeIds);
 #endif //BT_USE_CUDA
-} // btGpuDemoDynamicsWorld::freeShapeBuffer()
+} 
 
-//--------------------------------------------------------------------------
+
 
 void btGpuDemoDynamicsWorld::addSphere(btVector3& pos, btScalar rad)
 {
@@ -579,18 +578,15 @@ void btGpuDemoDynamicsWorld::addSphere(btVector3& pos, btScalar rad)
 	*pBuf = pos;
 	pBuf->setW(rad);
 	m_firstFreeShapeBufferOffset += sizeof(btVector3);
-} // btGpuDemoDynamicsWorld::addSphere()
+} 
 
-//--------------------------------------------------------------------------
+
 
 void btGpuDemoDynamicsWorld::addMultiShereObject(int numSpheres, int objIndex)
 {
 	m_hShapeIds[objIndex].x = m_firstFreeShapeBufferOffset;
 	m_hShapeIds[objIndex].y  = numSpheres;
 	return;
-} // btGpuDemoDynamicsWorld::addMultiShereObject()
+} 
 
-//--------------------------------------------------------------------------
-//--------------------------------------------------------------------------
-//--------------------------------------------------------------------------
 

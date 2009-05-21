@@ -13,18 +13,18 @@ subject to the following restrictions:
 3. This notice may not be removed or altered from any source distribution.
 */
 
-//-----------------------------------------------------------------------------
+
 
 #ifndef SLIDER_CONSTRAINT_DEMO_H
 #define SLIDER_CONSTRAINT_DEMO_H
 
-//-----------------------------------------------------------------------------
+
 
 #include "btBulletDynamicsCommon.h"
 #include "BulletDynamics/ConstraintSolver/btSliderConstraint.h"
 #include "GlutDemoApplication.h"
 
-//-----------------------------------------------------------------------------
+
 
 
 /// SliderConstraintDemo shows how to create a slider constraint

@@ -1368,7 +1368,7 @@ void btDiscreteDynamicsWorld::debugDrawConstraint(btTypedConstraint* constraint)
 			break;
 	}
 	return;
-} // btDiscreteDynamicsWorld::debugDrawConstraint()
+}
 
 
 

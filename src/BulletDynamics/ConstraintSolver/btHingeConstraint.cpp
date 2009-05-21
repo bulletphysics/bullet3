@@ -21,11 +21,11 @@ subject to the following restrictions:
 #include <new>
 #include "btSolverBody.h"
 
-//-----------------------------------------------------------------------------
+
 
 #define HINGE_USE_OBSOLETE_SOLVER false
 
-//-----------------------------------------------------------------------------
+
 
 
 btHingeConstraint::btHingeConstraint()
@@ -37,7 +37,7 @@ m_useReferenceFrameA(false)
 	m_referenceSign = m_useReferenceFrameA ? btScalar(-1.f) : btScalar(1.f);
 }
 
-//-----------------------------------------------------------------------------
+
 
 btHingeConstraint::btHingeConstraint(btRigidBody& rbA,btRigidBody& rbB, const btVector3& pivotInA,const btVector3& pivotInB,
 									 btVector3& axisInA,btVector3& axisInB, bool useReferenceFrameA)
@@ -88,7 +88,7 @@ btHingeConstraint::btHingeConstraint(btRigidBody& rbA,btRigidBody& rbB, const bt
 	m_referenceSign = m_useReferenceFrameA ? btScalar(-1.f) : btScalar(1.f);
 }
 
-//-----------------------------------------------------------------------------
+
 
 btHingeConstraint::btHingeConstraint(btRigidBody& rbA,const btVector3& pivotInA,btVector3& axisInA, bool useReferenceFrameA)
 :btTypedConstraint(HINGE_CONSTRAINT_TYPE, rbA), m_angularOnly(false), m_enableAngularMotor(false), 
@@ -128,7 +128,7 @@ m_useReferenceFrameA(useReferenceFrameA)
 	m_referenceSign = m_useReferenceFrameA ? btScalar(-1.f) : btScalar(1.f);
 }
 
-//-----------------------------------------------------------------------------
+
 
 btHingeConstraint::btHingeConstraint(btRigidBody& rbA,btRigidBody& rbB, 
 								     const btTransform& rbAFrame, const btTransform& rbBFrame, bool useReferenceFrameA)
@@ -148,7 +148,7 @@ m_useReferenceFrameA(useReferenceFrameA)
 	m_referenceSign = m_useReferenceFrameA ? btScalar(-1.f) : btScalar(1.f);
 }			
 
-//-----------------------------------------------------------------------------
+
 
 btHingeConstraint::btHingeConstraint(btRigidBody& rbA, const btTransform& rbAFrame, bool useReferenceFrameA)
 :btTypedConstraint(HINGE_CONSTRAINT_TYPE, rbA),m_rbAFrame(rbAFrame),m_rbBFrame(rbAFrame),
@@ -171,13 +171,14 @@ m_useReferenceFrameA(useReferenceFrameA)
 	m_referenceSign = m_useReferenceFrameA ? btScalar(-1.f) : btScalar(1.f);
 }
 
-//-----------------------------------------------------------------------------
+
 
 void	btHingeConstraint::buildJacobian()
 {
 	if (m_useSolveConstraintObsolete)
 	{
 		m_appliedImpulse = btScalar(0.);
+		m_accMotorImpulse = btScalar(0.);
 
 		if (!m_angularOnly)
 		{
@@ -258,7 +259,7 @@ void	btHingeConstraint::buildJacobian()
 	}
 }
 
-//-----------------------------------------------------------------------------
+
 
 void btHingeConstraint::getInfo1(btConstraintInfo1* info)
 {
@@ -279,9 +280,9 @@ void btHingeConstraint::getInfo1(btConstraintInfo1* info)
 			info->nub--; 
 		}
 	}
-} // btHingeConstraint::getInfo1 ()
+}
 
-//-----------------------------------------------------------------------------
+
 
 void btHingeConstraint::getInfo2 (btConstraintInfo2* info)
 {
@@ -467,7 +468,7 @@ void btHingeConstraint::getInfo2 (btConstraintInfo2* info)
 	} // if angular limit or powered
 }
 
-//-----------------------------------------------------------------------------
+
 
 void	btHingeConstraint::solveConstraintObsolete(btSolverBody& bodyA,btSolverBody& bodyB,btScalar	timeStep)
 {
@@ -601,10 +602,22 @@ void	btHingeConstraint::solveConstraintObsolete(btSolverBody& bodyA,btSolverBody
 				btScalar motor_relvel = desiredMotorVel - projRelVel;
 
 				btScalar unclippedMotorImpulse = m_kHinge * motor_relvel;;
-				//todo: should clip against accumulated impulse
-				btScalar clippedMotorImpulse = unclippedMotorImpulse > m_maxMotorImpulse ? m_maxMotorImpulse : unclippedMotorImpulse;
-				clippedMotorImpulse = clippedMotorImpulse < -m_maxMotorImpulse ? -m_maxMotorImpulse : clippedMotorImpulse;
-				btVector3 motorImp = clippedMotorImpulse * axisA;
+
+				// accumulated impulse clipping:
+				btScalar fMaxImpulse = m_maxMotorImpulse;
+				btScalar newAccImpulse = m_accMotorImpulse + unclippedMotorImpulse;
+				btScalar clippedMotorImpulse = unclippedMotorImpulse;
+				if (newAccImpulse > fMaxImpulse)
+				{
+					newAccImpulse = fMaxImpulse;
+					clippedMotorImpulse = newAccImpulse - m_accMotorImpulse;
+				}
+				else if (newAccImpulse < -fMaxImpulse)
+				{
+					newAccImpulse = -fMaxImpulse;
+					clippedMotorImpulse = newAccImpulse - m_accMotorImpulse;
+				}
+				m_accMotorImpulse += clippedMotorImpulse;
 			
 				bodyA.applyImpulse(btVector3(0,0,0), m_rbA.getInvInertiaTensorWorld()*axisA,clippedMotorImpulse);
 				bodyB.applyImpulse(btVector3(0,0,0), m_rbB.getInvInertiaTensorWorld()*axisA,-clippedMotorImpulse);
@@ -615,7 +628,7 @@ void	btHingeConstraint::solveConstraintObsolete(btSolverBody& bodyA,btSolverBody
 
 }
 
-//-----------------------------------------------------------------------------
+
 
 void	btHingeConstraint::updateRHS(btScalar	timeStep)
 {
@@ -623,7 +636,7 @@ void	btHingeConstraint::updateRHS(btScalar	timeStep)
 
 }
 
-//-----------------------------------------------------------------------------
+
 
 btScalar btHingeConstraint::getHingeAngle()
 {
@@ -634,7 +647,7 @@ btScalar btHingeConstraint::getHingeAngle()
 	return m_referenceSign * angle;
 }
 
-//-----------------------------------------------------------------------------
+
 
 void btHingeConstraint::testLimit()
 {
@@ -659,8 +672,50 @@ void btHingeConstraint::testLimit()
 		}
 	}
 	return;
-} // btHingeConstraint::testLimit()
+}
 
-//-----------------------------------------------------------------------------
-//-----------------------------------------------------------------------------
-//-----------------------------------------------------------------------------
+
+static btVector3 vHinge(0, 0, btScalar(1));
+
+void btHingeConstraint::setMotorTarget(const btQuaternion& qAinB, btScalar dt)
+{
+	// convert target from body to constraint space
+	btQuaternion qConstraint = m_rbBFrame.getRotation().inverse() * qAinB * m_rbAFrame.getRotation();
+	qConstraint.normalize();
+
+	// extract "pure" hinge component
+	btVector3 vNoHinge = quatRotate(qConstraint, vHinge); vNoHinge.normalize();
+	btQuaternion qNoHinge = shortestArcQuat(vHinge, vNoHinge);
+	btQuaternion qHinge = qNoHinge.inverse() * qConstraint;
+	qHinge.normalize();
+
+	// compute angular target, clamped to limits
+	btScalar targetAngle = qHinge.getAngle();
+	if (targetAngle > SIMD_PI) // long way around. flip quat and recalculate.
+	{
+		qHinge = operator-(qHinge);
+		targetAngle = qHinge.getAngle();
+	}
+	if (qHinge.getZ() < 0)
+		targetAngle = -targetAngle;
+
+	setMotorTarget(targetAngle, dt);
+}
+
+void btHingeConstraint::setMotorTarget(btScalar targetAngle, btScalar dt)
+{
+	if (m_lowerLimit < m_upperLimit)
+	{
+		if (targetAngle < m_lowerLimit)
+			targetAngle = m_lowerLimit;
+		else if (targetAngle > m_upperLimit)
+			targetAngle = m_upperLimit;
+	}
+
+	// compute angular velocity
+	btScalar curAngle  = getHingeAngle();
+	btScalar dAngle = targetAngle - curAngle;
+	m_motorTargetVelocity = dAngle / dt;
+}
+
+
