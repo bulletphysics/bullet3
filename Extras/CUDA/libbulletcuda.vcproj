@@ -585,6 +585,30 @@
 				</FileConfiguration>
 			</File>
 			<File
+				RelativePath=".\btGpuDemo3dCudaFunc.cu"
+				>
+				<FileConfiguration
+					Name="Release|Win32"
+					>
+					<Tool
+						Name="VCCustomBuildTool"
+						Description="CUDA compiling"
+						CommandLine="&quot;$(CUDA_BIN_PATH)\nvcc.exe&quot;  -arch=sm_10 -use_fast_math -ccbin &quot;$(VCInstallDir)\bin&quot; -c -I &quot;$(CUDA_INC_PATH)&quot;; -I./ -I../../Glut -o $(IntDir)\btGpuDemo3dCudaFunc_cu.obj btGpuDemo3dCudaFunc.cu"
+						Outputs="$(IntDir)\btGpuDemo3dCudaFunc_cu.obj"
+					/>
+				</FileConfiguration>
+				<FileConfiguration
+					Name="Debug|Win32"
+					>
+					<Tool
+						Name="VCCustomBuildTool"
+						Description="CUDA compiling"
+						CommandLine="&quot;$(CUDA_BIN_PATH)\nvcc.exe&quot; -arch=sm_10 -ccbin &quot;$(VCInstallDir)\bin&quot; -D_DEBUG -DWIN32 -D_CONSOLE -D_MBCS -Xcompiler /EHsc,/W3,/nologo,/Wp64,/Od,/Zi,/RTC1,/MTd -c -I &quot;$(CUDA_INC_PATH)&quot;; -I./ -I../../Glut -o $(IntDir)/btGpuDemo3dCudaFunc_cu.obj btGpuDemo3dCudaFunc.cu"
+						Outputs="$(IntDir)/btGpuDemo3dCudaFunc_cu.obj"
+					/>
+				</FileConfiguration>
+			</File>
+			<File
 				RelativePath=".\cutil_math.h"
 				>
 			</File>
