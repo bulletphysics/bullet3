@@ -238,6 +238,14 @@ SOURCE=..\..\src\BulletDynamics\ConstraintSolver\btGeneric6DofConstraint.cpp
 # End Source File
 # Begin Source File
 
+SOURCE=..\..\src\BulletDynamics\ConstraintSolver\btGeneric6DofSpringConstraint.cpp
+# End Source File
+# Begin Source File
+
+SOURCE=..\..\src\BulletDynamics\ConstraintSolver\btHinge2Constraint.cpp
+# End Source File
+# Begin Source File
+
 SOURCE=..\..\src\BulletDynamics\ConstraintSolver\btHingeConstraint.cpp
 # End Source File
 # Begin Source File
@@ -259,6 +267,10 @@ SOURCE=..\..\src\BulletDynamics\ConstraintSolver\btSolve2LinearConstraint.cpp
 # Begin Source File
 
 SOURCE=..\..\src\BulletDynamics\ConstraintSolver\btTypedConstraint.cpp
+# End Source File
+# Begin Source File
+
+SOURCE=..\..\src\BulletDynamics\ConstraintSolver\btUniversalConstraint.cpp
 # End Source File
 # Begin Source File
 
@@ -322,6 +334,14 @@ SOURCE=..\..\src\BulletDynamics\ConstraintSolver\btGeneric6DofConstraint.h
 # End Source File
 # Begin Source File
 
+SOURCE=..\..\src\BulletDynamics\ConstraintSolver\btGeneric6DofSpringConstraint.h
+# End Source File
+# Begin Source File
+
+SOURCE=..\..\src\BulletDynamics\ConstraintSolver\btHinge2Constraint.h
+# End Source File
+# Begin Source File
+
 SOURCE=..\..\src\BulletDynamics\ConstraintSolver\btHingeConstraint.h
 # End Source File
 # Begin Source File
@@ -355,6 +375,10 @@ SOURCE=..\..\src\BulletDynamics\ConstraintSolver\btSolverConstraint.h
 # Begin Source File
 
 SOURCE=..\..\src\BulletDynamics\ConstraintSolver\btTypedConstraint.h
+# End Source File
+# Begin Source File
+
+SOURCE=..\..\src\BulletDynamics\ConstraintSolver\btUniversalConstraint.h
 # End Source File
 # Begin Source File
 

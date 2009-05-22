@@ -230,6 +230,14 @@ SOURCE=..\..\src\BulletMultiThreaded\btThreadSupportInterface.cpp
 # End Source File
 # Begin Source File
 
+SOURCE=..\..\src\BulletMultiThreaded\MiniCLTask\MiniCLTask.cpp
+# End Source File
+# Begin Source File
+
+SOURCE=..\..\src\BulletMultiThreaded\MiniCLTaskScheduler.cpp
+# End Source File
+# Begin Source File
+
 SOURCE=..\..\src\BulletMultiThreaded\PosixThreadSupport.cpp
 # End Source File
 # Begin Source File
@@ -326,6 +334,94 @@ SOURCE=..\..\src\BulletMultiThreaded\Win32ThreadSupport.cpp
 # PROP Default_Filter ""
 # Begin Source File
 
+SOURCE=..\..\src\BulletMultiThreaded\btGpu3DGridBroadphase.h
+# End Source File
+# Begin Source File
+
+SOURCE=..\..\src\BulletMultiThreaded\btGpu3DGridBroadphaseSharedCode.h
+# End Source File
+# Begin Source File
+
+SOURCE=..\..\src\BulletMultiThreaded\btGpu3DGridBroadphaseSharedDefs.h
+# End Source File
+# Begin Source File
+
+SOURCE=..\..\src\BulletMultiThreaded\btGpu3DGridBroadphaseSharedTypes.h
+# End Source File
+# Begin Source File
+
+SOURCE=..\..\src\BulletMultiThreaded\btGpuDefines.h
+# End Source File
+# Begin Source File
+
+SOURCE=..\..\src\BulletMultiThreaded\btGpuUtilsSharedCode.h
+# End Source File
+# Begin Source File
+
+SOURCE=..\..\src\BulletMultiThreaded\btGpuUtilsSharedDefs.h
+# End Source File
+# Begin Source File
+
+SOURCE=..\..\src\BulletMultiThreaded\btThreadSupportInterface.h
+# End Source File
+# Begin Source File
+
+SOURCE=..\..\src\BulletMultiThreaded\MiniCLTask\MiniCLTask.h
+# End Source File
+# Begin Source File
+
+SOURCE=..\..\src\BulletMultiThreaded\MiniCLTaskScheduler.h
+# End Source File
+# Begin Source File
+
+SOURCE=..\..\src\BulletMultiThreaded\PlatformDefinitions.h
+# End Source File
+# Begin Source File
+
+SOURCE=..\..\src\BulletMultiThreaded\PosixThreadSupport.h
+# End Source File
+# Begin Source File
+
+SOURCE=..\..\src\BulletMultiThreaded\PpuAddressSpace.h
+# End Source File
+# Begin Source File
+
+SOURCE=..\..\src\BulletMultiThreaded\SequentialThreadSupport.h
+# End Source File
+# Begin Source File
+
+SOURCE=..\..\src\BulletMultiThreaded\SpuBatchRaycaster.h
+# End Source File
+# Begin Source File
+
+SOURCE=..\..\src\BulletMultiThreaded\SpuCollisionObjectWrapper.h
+# End Source File
+# Begin Source File
+
+SOURCE=..\..\src\BulletMultiThreaded\SpuCollisionTaskProcess.h
+# End Source File
+# Begin Source File
+
+SOURCE=..\..\src\BulletMultiThreaded\SpuContactManifoldCollisionAlgorithm.h
+# End Source File
+# Begin Source File
+
+SOURCE=..\..\src\BulletMultiThreaded\SpuDoubleBuffer.h
+# End Source File
+# Begin Source File
+
+SOURCE=..\..\src\BulletMultiThreaded\SpuFakeDma.h
+# End Source File
+# Begin Source File
+
+SOURCE=..\..\src\BulletMultiThreaded\SpuGatheringCollisionDispatcher.h
+# End Source File
+# Begin Source File
+
+SOURCE=..\..\src\BulletMultiThreaded\SpuLibspe2Support.h
+# End Source File
+# Begin Source File
+
 SOURCE=..\..\src\BulletMultiThreaded\SpuNarrowPhaseCollisionTask\Box.h
 # End Source File
 # Begin Source File
@@ -378,7 +474,31 @@ SOURCE=..\..\src\BulletMultiThreaded\SpuNarrowPhaseCollisionTask\SpuVoronoiSimpl
 # End Source File
 # Begin Source File
 
+SOURCE=..\..\src\BulletMultiThreaded\SpuParallelSolver.h
+# End Source File
+# Begin Source File
+
+SOURCE=..\..\src\BulletMultiThreaded\SpuRaycastTaskProcess.h
+# End Source File
+# Begin Source File
+
+SOURCE=..\..\src\BulletMultiThreaded\SpuSampleTaskProcess.h
+# End Source File
+# Begin Source File
+
 SOURCE=..\..\src\BulletMultiThreaded\SpuSolverTask\SpuParallellSolverTask.h
+# End Source File
+# Begin Source File
+
+SOURCE=..\..\src\BulletMultiThreaded\SpuSync.h
+# End Source File
+# Begin Source File
+
+SOURCE=..\..\src\BulletMultiThreaded\vectormath2bullet.h
+# End Source File
+# Begin Source File
+
+SOURCE=..\..\src\BulletMultiThreaded\Win32ThreadSupport.h
 # End Source File
 # End Group
 # End Target

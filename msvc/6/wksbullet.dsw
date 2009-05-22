@@ -561,6 +561,30 @@ Package=<4>
 
 ###############################################################################
 
+Project: "appGpu3dDemo"=.\appGpu3dDemo.dsp - Package Owner=<4>
+
+Package=<5>
+{{{
+}}}
+
+Package=<4>
+{{{
+    Begin Project Dependency
+    Project_Dep_Name libbulletcollision
+    End Project Dependency
+    Begin Project Dependency
+    Project_Dep_Name libbulletdynamics
+    End Project Dependency
+    Begin Project Dependency
+    Project_Dep_Name libbulletmath
+    End Project Dependency
+    Begin Project Dependency
+    Project_Dep_Name libbulletopenglsupport
+    End Project Dependency
+}}}
+
+###############################################################################
+
 Project: "appHeightFieldFluidDemo"=.\appHeightFieldFluidDemo.dsp - Package Owner=<4>
 
 Package=<5>
@@ -616,6 +640,24 @@ Package=<4>
 {{{
     Begin Project Dependency
     Project_Dep_Name libiff
+    End Project Dependency
+}}}
+
+###############################################################################
+
+Project: "appMiniCL_VectorAdd"=.\appMiniCL_VectorAdd.dsp - Package Owner=<4>
+
+Package=<5>
+{{{
+}}}
+
+Package=<4>
+{{{
+    Begin Project Dependency
+    Project_Dep_Name libbulletmath
+    End Project Dependency
+    Begin Project Dependency
+    Project_Dep_Name libbulletmultithreaded
     End Project Dependency
 }}}
 
@@ -966,6 +1008,9 @@ Package=<4>
     Project_Dep_Name appGpu2dDemo
     End Project Dependency
     Begin Project Dependency
+    Project_Dep_Name appGpu3dDemo
+    End Project Dependency
+    Begin Project Dependency
     Project_Dep_Name appHeightFieldFluidDemo
     End Project Dependency
     Begin Project Dependency
@@ -973,6 +1018,9 @@ Package=<4>
     End Project Dependency
     Begin Project Dependency
     Project_Dep_Name appiffCheck
+    End Project Dependency
+    Begin Project Dependency
+    Project_Dep_Name appMiniCL_VectorAdd
     End Project Dependency
     Begin Project Dependency
     Project_Dep_Name appMovingConcaveDemo
@@ -1125,6 +1173,9 @@ Package=<4>
     Project_Dep_Name appGpu2dDemo
     End Project Dependency
     Begin Project Dependency
+    Project_Dep_Name appGpu3dDemo
+    End Project Dependency
+    Begin Project Dependency
     Project_Dep_Name appHeightFieldFluidDemo
     End Project Dependency
     Begin Project Dependency
@@ -1132,6 +1183,9 @@ Package=<4>
     End Project Dependency
     Begin Project Dependency
     Project_Dep_Name appiffCheck
+    End Project Dependency
+    Begin Project Dependency
+    Project_Dep_Name appMiniCL_VectorAdd
     End Project Dependency
     Begin Project Dependency
     Project_Dep_Name appMovingConcaveDemo

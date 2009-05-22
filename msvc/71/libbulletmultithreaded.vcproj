@@ -429,6 +429,12 @@
 				RelativePath="..\..\src\BulletMultiThreaded\btThreadSupportInterface.cpp">
 			</File>
 			<File
+				RelativePath="..\..\src\BulletMultiThreaded\MiniCLTask\MiniCLTask.cpp">
+			</File>
+			<File
+				RelativePath="..\..\src\BulletMultiThreaded\MiniCLTaskScheduler.cpp">
+			</File>
+			<File
 				RelativePath="..\..\src\BulletMultiThreaded\PosixThreadSupport.cpp">
 			</File>
 			<File
@@ -502,6 +508,72 @@
 			Name="Header Files"
 			Filter="">
 			<File
+				RelativePath="..\..\src\BulletMultiThreaded\btGpu3DGridBroadphase.h">
+			</File>
+			<File
+				RelativePath="..\..\src\BulletMultiThreaded\btGpu3DGridBroadphaseSharedCode.h">
+			</File>
+			<File
+				RelativePath="..\..\src\BulletMultiThreaded\btGpu3DGridBroadphaseSharedDefs.h">
+			</File>
+			<File
+				RelativePath="..\..\src\BulletMultiThreaded\btGpu3DGridBroadphaseSharedTypes.h">
+			</File>
+			<File
+				RelativePath="..\..\src\BulletMultiThreaded\btGpuDefines.h">
+			</File>
+			<File
+				RelativePath="..\..\src\BulletMultiThreaded\btGpuUtilsSharedCode.h">
+			</File>
+			<File
+				RelativePath="..\..\src\BulletMultiThreaded\btGpuUtilsSharedDefs.h">
+			</File>
+			<File
+				RelativePath="..\..\src\BulletMultiThreaded\btThreadSupportInterface.h">
+			</File>
+			<File
+				RelativePath="..\..\src\BulletMultiThreaded\MiniCLTask\MiniCLTask.h">
+			</File>
+			<File
+				RelativePath="..\..\src\BulletMultiThreaded\MiniCLTaskScheduler.h">
+			</File>
+			<File
+				RelativePath="..\..\src\BulletMultiThreaded\PlatformDefinitions.h">
+			</File>
+			<File
+				RelativePath="..\..\src\BulletMultiThreaded\PosixThreadSupport.h">
+			</File>
+			<File
+				RelativePath="..\..\src\BulletMultiThreaded\PpuAddressSpace.h">
+			</File>
+			<File
+				RelativePath="..\..\src\BulletMultiThreaded\SequentialThreadSupport.h">
+			</File>
+			<File
+				RelativePath="..\..\src\BulletMultiThreaded\SpuBatchRaycaster.h">
+			</File>
+			<File
+				RelativePath="..\..\src\BulletMultiThreaded\SpuCollisionObjectWrapper.h">
+			</File>
+			<File
+				RelativePath="..\..\src\BulletMultiThreaded\SpuCollisionTaskProcess.h">
+			</File>
+			<File
+				RelativePath="..\..\src\BulletMultiThreaded\SpuContactManifoldCollisionAlgorithm.h">
+			</File>
+			<File
+				RelativePath="..\..\src\BulletMultiThreaded\SpuDoubleBuffer.h">
+			</File>
+			<File
+				RelativePath="..\..\src\BulletMultiThreaded\SpuFakeDma.h">
+			</File>
+			<File
+				RelativePath="..\..\src\BulletMultiThreaded\SpuGatheringCollisionDispatcher.h">
+			</File>
+			<File
+				RelativePath="..\..\src\BulletMultiThreaded\SpuLibspe2Support.h">
+			</File>
+			<File
 				RelativePath="..\..\src\BulletMultiThreaded\SpuNarrowPhaseCollisionTask\Box.h">
 			</File>
 			<File
@@ -541,7 +613,25 @@
 				RelativePath="..\..\src\BulletMultiThreaded\SpuNarrowPhaseCollisionTask\SpuVoronoiSimplexSolver.h">
 			</File>
 			<File
+				RelativePath="..\..\src\BulletMultiThreaded\SpuParallelSolver.h">
+			</File>
+			<File
+				RelativePath="..\..\src\BulletMultiThreaded\SpuRaycastTaskProcess.h">
+			</File>
+			<File
+				RelativePath="..\..\src\BulletMultiThreaded\SpuSampleTaskProcess.h">
+			</File>
+			<File
 				RelativePath="..\..\src\BulletMultiThreaded\SpuSolverTask\SpuParallellSolverTask.h">
+			</File>
+			<File
+				RelativePath="..\..\src\BulletMultiThreaded\SpuSync.h">
+			</File>
+			<File
+				RelativePath="..\..\src\BulletMultiThreaded\vectormath2bullet.h">
+			</File>
+			<File
+				RelativePath="..\..\src\BulletMultiThreaded\Win32ThreadSupport.h">
 			</File>
 		</Filter>
 	</Files>
