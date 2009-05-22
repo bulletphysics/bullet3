@@ -44,6 +44,18 @@ rule BulletSoftBodyDemo
         "../../src" ;
   }
 
+ rule BulletMiniCLDemo
+  {
+    Application $(<) : $(>) : noinstall console nomanifest ;
+    LinkWith $(<) :  bulletmultithreaded  bulletmath ;
+    CFlags $(<) :
+          [ FIncludes $(TOP)/src ]
+           ;
+    MsvcIncDirs $(<) :
+        "../../src" ;
+  }
+
+
 if $(GLUT.AVAILABLE) = "yes"
 {
   # All demo apps have a lot in common, so use this rule to simply things
@@ -79,10 +91,12 @@ SubInclude TOP Demos ForkLiftDemo ;
 SubInclude TOP Demos BulletDinoDemo ;
 SubInclude TOP Demos EPAPenDepthDemo ;
 SubInclude TOP Demos HelloWorld ;
+SubInclude TOP Demos MiniCL_VectorAdd ;
 SubInclude TOP Demos BspDemo ;
 SubInclude TOP Demos BasicDemo ;
 SubInclude TOP Demos Box2dDemo ;
 SubInclude TOP Demos Gpu2dDemo ;
+SubInclude TOP Demos Gpu3dDemo ;
 SubInclude TOP Demos ConvexDecompositionDemo ;
 SubInclude TOP Demos ColladaDemo ;
 SubInclude TOP Demos CharacterDemo ;

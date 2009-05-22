@@ -196,7 +196,7 @@ void	BasicDemo3D::initPhysics()
 
 	///use the default collision dispatcher. For parallel processing you can use a diffent dispatcher (see Extras/BulletMultiThreaded)
 	//m_dispatcher = new	btCollisionDispatcher(m_collisionConfiguration);
-#ifdef SINGLE_THREADED_NARROWPHASE
+#ifndef WIN32
 	m_dispatcher = new	btCollisionDispatcher(m_collisionConfiguration);
 #else
 	unsigned int	maxNumOutstandingTasks =4;

@@ -66,6 +66,25 @@ ADD_LIBRARY(BulletMultiThreaded
 		SpuRaycastTask/SpuRaycastTask.h
 		SpuRaycastTask/SpuSubSimplexConvexCast.cpp
 		SpuRaycastTask/SpuSubSimplexConvexCast.h
+
+#Some GPU related stuff, mainly CUDA and perhaps OpenCL
+		btGpu3DGridBroadphase.cpp
+		btGpu3DGridBroadphase.h
+		btGpu3DGridBroadphaseSharedCode.h
+		btGpu3DGridBroadphaseSharedDefs.h
+		btGpu3DGridBroadphaseSharedTypes.h
+		btGpuDefines.h
+		btGpuUtilsSharedCode.h
+		btGpuUtilsSharedDefs.h
+
+#MiniCL provides a small subset of OpenCL
+		MiniCLTaskScheduler.cpp
+		MiniCLTaskScheduler.h
+		MiniCLTask/MiniCLTask.cpp
+		MiniCLTask/MiniCLTask.h
+		../MiniCL/cl.h
+		../MiniCL/cl_gl.h
+		../MiniCL/cl_platform.h
 )
 
 IF (BUILD_SHARED_LIBS)

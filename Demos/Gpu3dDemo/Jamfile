@@ -1,0 +1,3 @@
+SubDir TOP Demos Gpu3dDemo ;
+
+BulletDemo Gpu3dDemo : [ Wildcard *.h *.cpp  ] ;
