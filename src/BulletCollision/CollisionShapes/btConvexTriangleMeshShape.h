@@ -22,7 +22,7 @@ subject to the following restrictions:
 
 /// The btConvexTriangleMeshShape is a convex hull of a triangle mesh, but the performance is not as good as btConvexHullShape.
 /// A small benefit of this class is that it uses the btStridingMeshInterface, so you can avoid the duplication of the triangle mesh data. Nevertheless, most users should use the much better performing btConvexHullShape instead.
-class btConvexTriangleMeshShape : public btPolyhedralConvexShape
+class btConvexTriangleMeshShape : public btPolyhedralConvexAabbCachingShape
 {
 
 	class btStridingMeshInterface*	m_stridingMesh;

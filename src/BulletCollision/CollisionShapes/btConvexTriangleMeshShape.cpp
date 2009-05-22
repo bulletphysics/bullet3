@@ -21,7 +21,7 @@ subject to the following restrictions:
 
 
 btConvexTriangleMeshShape ::btConvexTriangleMeshShape (btStridingMeshInterface* meshInterface, bool calcAabb)
-: btPolyhedralConvexShape(), m_stridingMesh(meshInterface)
+: btPolyhedralConvexAabbCachingShape(), m_stridingMesh(meshInterface)
 {
 	m_shapeType = CONVEX_TRIANGLEMESH_SHAPE_PROXYTYPE;
 	if ( calcAabb )

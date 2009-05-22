@@ -19,13 +19,16 @@ subject to the following restrictions:
 #include "btConvexInternalShape.h"
 #include "BulletCollision/BroadphaseCollision/btBroadphaseProxy.h" // for the types
 #include "LinearMath/btAlignedObjectArray.h"
+#include "LinearMath/btAabbUtil2.h"
 
 ///The btMultiSphereShape represents the convex hull of a collection of spheres. You can create special capsules or other smooth volumes.
 ///It is possible to animate the spheres for deformation.
-class btMultiSphereShape : public btConvexInternalShape
+class btMultiSphereShape : public btConvexInternalAabbCachingShape
 
 {
 	
+
+
 	btAlignedObjectArray<btVector3> m_localPositionArray;
 	btAlignedObjectArray<btScalar>  m_radiArray;
 	btVector3	m_inertiaHalfExtents;
@@ -63,6 +66,7 @@ public:
 	{
 		return "MultiSphere";
 	}
+
 
 };
 

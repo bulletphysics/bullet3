@@ -360,7 +360,7 @@ void btConvexShape::getAabbNonVirtual (const btTransform& t, btVector3& aabbMin,
 	case CONVEX_POINT_CLOUD_SHAPE_PROXYTYPE:
 	case CONVEX_HULL_SHAPE_PROXYTYPE:
 	{
-		btPolyhedralConvexShape* convexHullShape = (btPolyhedralConvexShape*)this;
+		btPolyhedralConvexAabbCachingShape* convexHullShape = (btPolyhedralConvexAabbCachingShape*)this;
 		btScalar margin = convexHullShape->getMarginNonVirtual();
 		convexHullShape->getNonvirtualAabb (t, aabbMin, aabbMax, margin);
 	}

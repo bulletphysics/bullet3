@@ -440,6 +440,9 @@ int maxNumOutstandingTasks = 4;
 		btDiscreteDynamicsWorld* world = new btDiscreteDynamicsWorld(m_dispatcher,m_broadphase,m_solver,m_collisionConfiguration);
 		m_dynamicsWorld = world;
 
+		///SOLVER_RANDMIZE_ORDER makes cylinder stacking a bit more stable
+		world->getSolverInfo().m_solverMode |= SOLVER_RANDMIZE_ORDER;
+
 #ifdef	USER_DEFINED_FRICTION_MODEL
 	//user defined friction model is not supported in 'cache friendly' solver yet, so switch to old solver
 

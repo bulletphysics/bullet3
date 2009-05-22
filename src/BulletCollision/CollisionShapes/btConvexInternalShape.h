@@ -17,6 +17,7 @@ subject to the following restrictions:
 #define BT_CONVEX_INTERNAL_SHAPE_H
 
 #include "btConvexShape.h"
+#include "LinearMath/btAabbUtil2.h"
 
 ///The btConvexInternalShape is an internal base class, shared by most convex shape implementations.
 class btConvexInternalShape : public btConvexShape
@@ -103,5 +104,48 @@ public:
 	
 };
 
+
+///btConvexInternalAabbCachingShape adds local aabb caching for convex shapes, to avoid expensive bounding box calculations
+class btConvexInternalAabbCachingShape : public btConvexInternalShape
+{
+	btVector3	m_localAabbMin;
+	btVector3	m_localAabbMax;
+	bool		m_isLocalAabbValid;
+	
+protected:
+					
+	btConvexInternalAabbCachingShape();
+	
+	void setCachedLocalAabb (const btVector3& aabbMin, const btVector3& aabbMax)
+	{
+		m_isLocalAabbValid = true;
+		m_localAabbMin = aabbMin;
+		m_localAabbMax = aabbMax;
+	}
+
+	inline void getCachedLocalAabb (btVector3& aabbMin, btVector3& aabbMax) const
+	{
+		btAssert(m_isLocalAabbValid);
+		aabbMin = m_localAabbMin;
+		aabbMax = m_localAabbMax;
+	}
+
+	inline void getNonvirtualAabb(const btTransform& trans,btVector3& aabbMin,btVector3& aabbMax, btScalar margin) const
+	{
+
+		//lazy evaluation of local aabb
+		btAssert(m_isLocalAabbValid);
+		btTransformAabb(m_localAabbMin,m_localAabbMax,margin,trans,aabbMin,aabbMax);
+	}
+		
+public:
+		
+	virtual void	setLocalScaling(const btVector3& scaling);
+
+	virtual void getAabb(const btTransform& t,btVector3& aabbMin,btVector3& aabbMax) const;
+
+	void	recalcLocalAabb();
+
+};
 
 #endif //BT_CONVEX_INTERNAL_SHAPE_H

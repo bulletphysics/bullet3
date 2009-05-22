@@ -66,6 +66,9 @@ class BasicDemo : public GlutDemoApplication
 
 	void	exitPhysics();
 
+	///don't shoot a box in this demo ;-)
+	virtual void	shootBox(const btVector3& dest) {}
+
 	virtual void clientMoveAndDisplay();
 
 	virtual void displayCallback();

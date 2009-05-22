@@ -32,8 +32,8 @@ subject to the following restrictions:
 #define OECAKE_LOADER 1
 
 #ifdef _DEBUG
-	#define LARGE_DEMO 0
-//	#define LARGE_DEMO 1
+//	#define LARGE_DEMO 0
+	#define LARGE_DEMO 1
 #else
 	#define LARGE_DEMO 1
 #endif
@@ -323,10 +323,8 @@ void	BasicDemo::initPhysics()
 		// Re-using the same collision is better for memory usage and performance
 
 
-		//btCollisionShape* colShape = new btBoxShape(btVector3(SCALING*1,SCALING*1,0.1));//SCALING*1));
-//		btCollisionShape* colShape = new btBox2dShape(btVector3(SCALING*.7,SCALING*.7,0.1));//SCALING*1));
 
-#if 0
+#if 1
 		#define SPRADIUS btScalar(SCALING*0.1f)
 		#define SPRPOS btScalar(SCALING*0.05f)
 		static btVector3 sSphPos[8];

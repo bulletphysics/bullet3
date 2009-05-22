@@ -34,6 +34,9 @@ subject to the following restrictions:
 #include "BulletCollision/CollisionShapes/btConvexTriangleMeshShape.h"
 #include "BulletCollision/CollisionShapes/btUniformScalingShape.h"
 #include "BulletCollision/CollisionShapes/btStaticPlaneShape.h"
+#include "BulletCollision/CollisionShapes/btMultiSphereShape.h"
+
+
 ///
 #include "BulletCollision/CollisionShapes/btShapeHull.h"
 
@@ -268,6 +271,34 @@ public:
 		glEnd();
 	}
 };
+
+
+void GL_ShapeDrawer::drawSphere(btScalar r, int lats, int longs) 
+{
+	int i, j;
+	for(i = 0; i <= lats; i++) {
+		btScalar lat0 = SIMD_PI * (-btScalar(0.5) + (btScalar) (i - 1) / lats);
+		btScalar z0  = sin(lat0);
+		btScalar zr0 =  cos(lat0);
+
+		btScalar lat1 = SIMD_PI * (-btScalar(0.5) + (btScalar) i / lats);
+		btScalar z1 = sin(lat1);
+		btScalar zr1 = cos(lat1);
+
+		glBegin(GL_QUAD_STRIP);
+		for(j = 0; j <= longs; j++) {
+			btScalar lng = 2 * SIMD_PI * (btScalar) (j - 1) / longs;
+			btScalar x = cos(lng);
+			btScalar y = sin(lng);
+
+			glNormal3f(x * zr0, y * zr0, z0);
+			glVertex3f(x * zr0, y * zr0, z0);
+			glNormal3f(x * zr1, y * zr1, z1);
+			glVertex3f(x * zr1, y * zr1, z1);
+		}
+		glEnd();
+	}
+}
 
 void GL_ShapeDrawer::drawCylinder(float radius,float halfHeight, int upAxis)
 {
@@ -538,30 +569,66 @@ void GL_ShapeDrawer::drawOpenGL(btScalar* m, const btCollisionShape* shape, cons
 			///you can comment out any of the specific cases, and use the default
 
 			///the benefit of 'default' is that it approximates the actual collision shape including collision margin
-			int shapetype=m_textureenabled?MAX_BROADPHASE_COLLISION_TYPES:shape->getShapeType();
+			//int shapetype=m_textureenabled?MAX_BROADPHASE_COLLISION_TYPES:shape->getShapeType();
+			int shapetype=shape->getShapeType();
 			switch (shapetype)
 			{
-#if 0
-			case BOX_SHAPE_PROXYTYPE:
-				{
-					const btBoxShape* boxShape = static_cast<const btBoxShape*>(shape);
-					btVector3 halfExtent = boxShape->getHalfExtentsWithMargin();
-					glScaled(2*halfExtent[0], 2*halfExtent[1], 2*halfExtent[2]);
-					glutSolidCube(1.0);
-					useWireframeFallback = false;
-					break;
-				}
 
-
-			case SPHERE_SHAPE_PROXYTYPE:
+				case SPHERE_SHAPE_PROXYTYPE:
 				{
 					const btSphereShape* sphereShape = static_cast<const btSphereShape*>(shape);
 					float radius = sphereShape->getMargin();//radius doesn't include the margin, so draw with margin
-					glutSolidSphere(radius,10,10);
+					drawSphere(radius,10,10);
 					useWireframeFallback = false;
 					break;
 				}
 
+				case BOX_SHAPE_PROXYTYPE:
+				{
+					const btBoxShape* boxShape = static_cast<const btBoxShape*>(shape);
+					btVector3 halfExtent = boxShape->getHalfExtentsWithMargin();
+					
+					static int indices[36] = {
+						0,1,2,
+						3,2,1,
+						4,0,6,
+						6,0,2,
+						5,1,4,
+						4,1,0,
+						7,3,1,
+						7,1,5,
+						5,4,7,
+						7,4,6,
+						7,2,3,
+						7,6,2};
+
+					static btVector3 vertices[8]={	btVector3(1,1,1),btVector3(-1,1,1),	btVector3(1,-1,1),	btVector3(-1,-1,1),	btVector3(1,1,-1),	btVector3(-1,1,-1),	btVector3(1,-1,-1),	btVector3(-1,-1,-1)};
+					glBegin (GL_TRIANGLES);
+					int si=36;
+					for (int i=0;i<si;i+=3)
+					{
+						btVector3 v1 = vertices[indices[i]]*halfExtent;
+						btVector3 v2 = vertices[indices[i+1]]*halfExtent;
+						btVector3 v3 = vertices[indices[i+2]]*halfExtent;
+						btVector3 normal = (v3-v1).cross(v2-v1);
+						normal.normalize ();
+
+						glNormal3f(normal.getX(),normal.getY(),normal.getZ());
+						glVertex3f (v1.x(), v1.y(), v1.z());
+						glVertex3f (v2.x(), v2.y(), v2.z());
+						glVertex3f (v3.x(), v3.y(), v3.z());
+						
+					}
+					glEnd();
+
+					useWireframeFallback = false;
+					break;
+				}
+
+
+
+#if 0
+			
 			case CONE_SHAPE_PROXYTYPE:
 				{
 					const btConeShape* coneShape = static_cast<const btConeShape*>(shape);
@@ -629,6 +696,26 @@ void GL_ShapeDrawer::drawOpenGL(btScalar* m, const btCollisionShape* shape, cons
 
 					break;
 				}
+
+			case MULTI_SPHERE_SHAPE_PROXYTYPE:
+			{
+				const btMultiSphereShape* multiSphereShape = static_cast<const btMultiSphereShape*>(shape);
+
+				btTransform childTransform;
+				childTransform.setIdentity();
+
+				
+				for (int i = multiSphereShape->getSphereCount()-1; i>=0;i--)
+				{
+					btSphereShape sc(multiSphereShape->getSphereRadius(i));
+					childTransform.setOrigin(multiSphereShape->getSpherePosition(i));
+					btScalar childMat[16];
+					childTransform.getOpenGLMatrix(childMat);
+					drawOpenGL(childMat,&sc,color,debugMode,worldBoundsMin,worldBoundsMax);
+				}
+
+				break;
+			}
 
 			default:
 				{

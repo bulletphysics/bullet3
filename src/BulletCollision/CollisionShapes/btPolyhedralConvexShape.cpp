@@ -15,11 +15,7 @@ subject to the following restrictions:
 
 #include "BulletCollision/CollisionShapes/btPolyhedralConvexShape.h"
 
-btPolyhedralConvexShape::btPolyhedralConvexShape() :btConvexInternalShape(),
-m_localAabbMin(1,1,1),
-m_localAabbMax(-1,-1,-1),
-m_isLocalAabbValid(false),
-m_optionalHull(0)
+btPolyhedralConvexShape::btPolyhedralConvexShape() :btConvexInternalShape()
 {
 
 }
@@ -120,20 +116,26 @@ void	btPolyhedralConvexShape::calculateLocalInertia(btScalar mass,btVector3& ine
 
 
 
-void btPolyhedralConvexShape::getAabb(const btTransform& trans,btVector3& aabbMin,btVector3& aabbMax) const
-{
-	getNonvirtualAabb(trans,aabbMin,aabbMax,getMargin());
-}
-
-
-
-void	btPolyhedralConvexShape::setLocalScaling(const btVector3& scaling)
+void	btPolyhedralConvexAabbCachingShape::setLocalScaling(const btVector3& scaling)
 {
 	btConvexInternalShape::setLocalScaling(scaling);
 	recalcLocalAabb();
 }
 
-void	btPolyhedralConvexShape::recalcLocalAabb()
+btPolyhedralConvexAabbCachingShape::btPolyhedralConvexAabbCachingShape()
+:btPolyhedralConvexShape(),
+m_localAabbMin(1,1,1),
+m_localAabbMax(-1,-1,-1),
+m_isLocalAabbValid(false)
+{
+}
+
+void btPolyhedralConvexAabbCachingShape::getAabb(const btTransform& trans,btVector3& aabbMin,btVector3& aabbMax) const
+{
+	getNonvirtualAabb(trans,aabbMin,aabbMax,getMargin());
+}
+
+void	btPolyhedralConvexAabbCachingShape::recalcLocalAabb()
 {
 	m_isLocalAabbValid = true;
 	
@@ -180,6 +182,4 @@ void	btPolyhedralConvexShape::recalcLocalAabb()
 	}
 	#endif
 }
-
-
 

@@ -187,7 +187,7 @@ public:
 
 	///Demo functions
 	virtual void setShootBoxShape ();
-	void	shootBox(const btVector3& destination);
+	virtual void	shootBox(const btVector3& destination);
 
 
 	btVector3	getRayTo(int x,int y);

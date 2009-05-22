@@ -19,7 +19,7 @@ subject to the following restrictions:
 #include "LinearMath/btQuaternion.h"
 
 
-btConvexHullShape ::btConvexHullShape (const btScalar* points,int numPoints,int stride) : btPolyhedralConvexShape ()
+btConvexHullShape ::btConvexHullShape (const btScalar* points,int numPoints,int stride) : btPolyhedralConvexAabbCachingShape ()
 {
 	m_shapeType = CONVEX_HULL_SHAPE_PROXYTYPE;
 	m_unscaledPoints.resize(numPoints);

@@ -22,7 +22,7 @@ subject to the following restrictions:
 
 
 ///The btBU_Simplex1to4 implements tetrahedron, triangle, line, vertex collision shapes. In most cases it is better to use btConvexHullShape instead.
-class btBU_Simplex1to4 : public btPolyhedralConvexShape
+class btBU_Simplex1to4 : public btPolyhedralConvexAabbCachingShape
 {
 protected:
 
@@ -43,7 +43,7 @@ public:
 		m_numVertices = 0;
 	}
 	
-
+	virtual void getAabb(const btTransform& t,btVector3& aabbMin,btVector3& aabbMax) const;
 
 	void addVertex(const btVector3& pt);
 

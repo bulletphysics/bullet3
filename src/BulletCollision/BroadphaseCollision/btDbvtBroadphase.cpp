@@ -1,6 +1,6 @@
 /*
 Bullet Continuous Collision Detection and Physics Library
-Copyright (c) 2003-2007 Erwin Coumans  http://continuousphysics.com/Bullet/
+Copyright (c) 2003-2009 Erwin Coumans  http://bulletphysics.org
 
 This software is provided 'as-is', without any express or implied warranty.
 In no event will the authors be held liable for any damages arising from the use of this software.
@@ -12,6 +12,7 @@ subject to the following restrictions:
 2. Altered source versions must be plainly marked as such, and must not be misrepresented as being the original software.
 3. This notice may not be removed or altered from any source distribution.
 */
+
 ///btDbvtBroadphase implementation by Nathanael Presson
 
 #include "btDbvtBroadphase.h"
@@ -123,7 +124,7 @@ btDbvtBroadphase::btDbvtBroadphase(btOverlappingPairCache* paircache)
 	m_deferedcollide	=	false;
 	m_needcleanup		=	true;
 	m_releasepaircache	=	(paircache!=0)?false:true;
-	m_prediction		=	1/(btScalar)2;
+	m_prediction		=	0;
 	m_stageCurrent		=	0;
 	m_fixedleft			=	0;
 	m_fupdates			=	1;
@@ -248,6 +249,7 @@ void	btDbvtBroadphase::rayTest(const btVector3& rayFrom,const btVector3& rayTo, 
 		callback);
 
 }
+
 
 //
 void							btDbvtBroadphase::setAabb(		btBroadphaseProxy* absproxy,
@@ -571,7 +573,6 @@ void btDbvtBroadphase::resetPool(btDispatcher* dispatcher)
 		
 		m_deferedcollide	=	false;
 		m_needcleanup		=	true;
-		m_prediction		=	1/(btScalar)2;
 		m_stageCurrent		=	0;
 		m_fixedleft			=	0;
 		m_fupdates			=	1;

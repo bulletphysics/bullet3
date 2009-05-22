@@ -20,13 +20,16 @@ subject to the following restrictions:
 
 extern unsigned char sFontData[];
 static GLuint sTexture = -1;
-static int sScreenWidth = 0;
-static int sScreenHeight = 0;
+static int sScreenWidth = -1;
+static int sScreenHeight = -1;
 
 
 void GLDebugResetFont(int screenWidth,int screenHeight)
 {
 	
+	if ((sScreenWidth == screenWidth) && (sScreenHeight == screenHeight))
+		return;
+
 	sScreenWidth = screenWidth;
 	sScreenHeight = screenHeight;
 

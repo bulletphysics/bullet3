@@ -16,11 +16,12 @@ subject to the following restrictions:
 #include "btCylinderShape.h"
 
 btCylinderShape::btCylinderShape (const btVector3& halfExtents)
-:btBoxShape(halfExtents),
+:btConvexInternalShape(),
 m_upAxis(1)
 {
+	btVector3 margin(getMargin(),getMargin(),getMargin());
+	m_implicitShapeDimensions = (halfExtents * m_localScaling) - margin;
 	m_shapeType = CYLINDER_SHAPE_PROXYTYPE;
-	recalcLocalAabb();
 }
 
 
@@ -28,7 +29,7 @@ btCylinderShapeX::btCylinderShapeX (const btVector3& halfExtents)
 :btCylinderShape(halfExtents)
 {
 	m_upAxis = 0;
-	recalcLocalAabb();
+
 }
 
 
@@ -36,13 +37,27 @@ btCylinderShapeZ::btCylinderShapeZ (const btVector3& halfExtents)
 :btCylinderShape(halfExtents)
 {
 	m_upAxis = 2;
-	recalcLocalAabb();
+
 }
 
 void btCylinderShape::getAabb(const btTransform& t,btVector3& aabbMin,btVector3& aabbMax) const
 {
-	//skip the box 'getAabb'
-	btPolyhedralConvexShape::getAabb(t,aabbMin,aabbMax);
+	btTransformAabb(getHalfExtentsWithoutMargin(),getMargin(),t,aabbMin,aabbMax);
+}
+
+void	btCylinderShape::calculateLocalInertia(btScalar mass,btVector3& inertia) const
+{
+	//approximation of box shape, todo: implement cylinder shape inertia before people notice ;-)
+	btVector3 halfExtents = getHalfExtentsWithMargin();
+
+	btScalar lx=btScalar(2.)*(halfExtents.x());
+	btScalar ly=btScalar(2.)*(halfExtents.y());
+	btScalar lz=btScalar(2.)*(halfExtents.z());
+
+	inertia.setValue(mass/(btScalar(12.0)) * (ly*ly + lz*lz),
+					mass/(btScalar(12.0)) * (lx*lx + lz*lz),
+					mass/(btScalar(12.0)) * (lx*lx + ly*ly));
+
 }
 
 

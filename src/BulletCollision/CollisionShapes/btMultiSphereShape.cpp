@@ -20,7 +20,7 @@ subject to the following restrictions:
 #include "LinearMath/btQuaternion.h"
 
 btMultiSphereShape::btMultiSphereShape (const btVector3& inertiaHalfExtents,const btVector3* positions,const btScalar* radi,int numSpheres)
-:btConvexInternalShape (), m_inertiaHalfExtents(inertiaHalfExtents)
+:btConvexInternalAabbCachingShape (), m_inertiaHalfExtents(inertiaHalfExtents)
 {
 	m_shapeType = MULTI_SPHERE_SHAPE_PROXYTYPE;
 	btScalar startMargin = btScalar(1e30);
@@ -34,6 +34,7 @@ btMultiSphereShape::btMultiSphereShape (const btVector3& inertiaHalfExtents,cons
 		
 	}
 
+	recalcLocalAabb();
 
 }
 
@@ -147,6 +148,5 @@ void	btMultiSphereShape::calculateLocalInertia(btScalar mass,btVector3& inertia)
 	inertia[2] = scaledmass * (x2+y2);
 
 }
-
 
 

@@ -21,7 +21,7 @@ subject to the following restrictions:
 #include "LinearMath/btVector3.h"
 
 /// The btCylinderShape class implements a cylinder shape primitive, centered around the origin. Its central axis aligned with the Y axis. btCylinderShapeX is aligned with the X axis and btCylinderShapeZ around the Z axis.
-class btCylinderShape : public btBoxShape
+class btCylinderShape : public btConvexInternalShape
 
 {
 
@@ -30,14 +30,41 @@ protected:
 	int	m_upAxis;
 
 public:
+
+	btVector3 getHalfExtentsWithMargin() const
+	{
+		btVector3 halfExtents = getHalfExtentsWithoutMargin();
+		btVector3 margin(getMargin(),getMargin(),getMargin());
+		halfExtents += margin;
+		return halfExtents;
+	}
+	
+	const btVector3& getHalfExtentsWithoutMargin() const
+	{
+		return m_implicitShapeDimensions;//changed in Bullet 2.63: assume the scaling and margin are included
+	}
+
 	btCylinderShape (const btVector3& halfExtents);
 	
-	///getAabb's default implementation is brute force, expected derived classes to implement a fast dedicated version
 	void getAabb(const btTransform& t,btVector3& aabbMin,btVector3& aabbMax) const;
+
+	virtual void	calculateLocalInertia(btScalar mass,btVector3& inertia) const;
 
 	virtual btVector3	localGetSupportingVertexWithoutMargin(const btVector3& vec)const;
 
 	virtual void	batchedUnitVectorGetSupportingVertexWithoutMargin(const btVector3* vectors,btVector3* supportVerticesOut,int numVectors) const;
+
+	virtual void setMargin(btScalar collisionMargin)
+	{
+		//correct the m_implicitShapeDimensions for the margin
+		btVector3 oldMargin(getMargin(),getMargin(),getMargin());
+		btVector3 implicitShapeDimensionsWithMargin = m_implicitShapeDimensions+oldMargin;
+		
+		btConvexInternalShape::setMargin(collisionMargin);
+		btVector3 newMargin(getMargin(),getMargin(),getMargin());
+		m_implicitShapeDimensions = implicitShapeDimensionsWithMargin - newMargin;
+
+	}
 
 	virtual btVector3	localGetSupportingVertex(const btVector3& vec) const
 	{
