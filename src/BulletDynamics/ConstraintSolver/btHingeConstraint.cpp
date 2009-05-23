@@ -79,8 +79,8 @@ btHingeConstraint::btHingeConstraint(btRigidBody& rbA,btRigidBody& rbB, const bt
 									rbAxisB1.getZ(),rbAxisB2.getZ(),axisInB.getZ() );
 	
 	//start with free
-	m_lowerLimit = btScalar(1e30);
-	m_upperLimit = btScalar(-1e30);
+	m_lowerLimit = btScalar(BT_LARGE_FLOAT);
+	m_upperLimit = btScalar(-BT_LARGE_FLOAT);
 	m_biasFactor = 0.3f;
 	m_relaxationFactor = 1.0f;
 	m_limitSoftness = 0.9f;
@@ -119,8 +119,8 @@ m_useReferenceFrameA(useReferenceFrameA)
 									rbAxisB1.getZ(),rbAxisB2.getZ(),axisInB.getZ() );
 	
 	//start with free
-	m_lowerLimit = btScalar(1e30);
-	m_upperLimit = btScalar(-1e30);
+	m_lowerLimit = btScalar(BT_LARGE_FLOAT);
+	m_upperLimit = btScalar(-BT_LARGE_FLOAT);
 	m_biasFactor = 0.3f;
 	m_relaxationFactor = 1.0f;
 	m_limitSoftness = 0.9f;
@@ -139,8 +139,8 @@ m_useSolveConstraintObsolete(HINGE_USE_OBSOLETE_SOLVER),
 m_useReferenceFrameA(useReferenceFrameA)
 {
 	//start with free
-	m_lowerLimit = btScalar(1e30);
-	m_upperLimit = btScalar(-1e30);
+	m_lowerLimit = btScalar(BT_LARGE_FLOAT);
+	m_upperLimit = btScalar(-BT_LARGE_FLOAT);
 	m_biasFactor = 0.3f;
 	m_relaxationFactor = 1.0f;
 	m_limitSoftness = 0.9f;
@@ -162,8 +162,8 @@ m_useReferenceFrameA(useReferenceFrameA)
 	m_rbBFrame.getOrigin() = m_rbA.getCenterOfMassTransform()(m_rbAFrame.getOrigin());
 
 	//start with free
-	m_lowerLimit = btScalar(1e30);
-	m_upperLimit = btScalar(-1e30);	
+	m_lowerLimit = btScalar(BT_LARGE_FLOAT);
+	m_upperLimit = btScalar(-BT_LARGE_FLOAT);	
 	m_biasFactor = 0.3f;
 	m_relaxationFactor = 1.0f;
 	m_limitSoftness = 0.9f;

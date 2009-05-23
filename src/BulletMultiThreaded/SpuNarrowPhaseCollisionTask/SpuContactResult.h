@@ -56,7 +56,7 @@ struct SpuCollisionPairInput
 struct SpuClosestPointInput
 {
     SpuClosestPointInput()
-        :m_maximumDistanceSquared(float(1e30)),
+        :m_maximumDistanceSquared(float(BT_LARGE_FLOAT)),
         m_stackAlloc(0)
     {
     }

@@ -62,8 +62,8 @@ void btBU_Simplex1to4::getAabb(const btTransform& t,btVector3& aabbMin,btVector3
 #if 1
 	btPolyhedralConvexAabbCachingShape::getAabb(t,aabbMin,aabbMax);
 #else
-	aabbMin.setValue(1e30f,1e30f,1e30f);
-	aabbMax.setValue(-1e30f,-1e30f,-1e30f);
+	aabbMin.setValue(BT_LARGE_FLOAT,BT_LARGE_FLOAT,BT_LARGE_FLOAT);
+	aabbMax.setValue(-BT_LARGE_FLOAT,-BT_LARGE_FLOAT,-BT_LARGE_FLOAT);
 
 	//just transform the vertices in worldspace, and take their AABB
 	for (int i=0;i<m_numVertices;i++)

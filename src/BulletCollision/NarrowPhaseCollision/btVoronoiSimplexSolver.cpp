@@ -68,7 +68,7 @@ void btVoronoiSimplexSolver::reset()
 	m_cachedValidClosest = false;
 	m_numVertices = 0;
 	m_needsUpdate = true;
-	m_lastW = btVector3(btScalar(1e30),btScalar(1e30),btScalar(1e30));
+	m_lastW = btVector3(btScalar(BT_LARGE_FLOAT),btScalar(BT_LARGE_FLOAT),btScalar(BT_LARGE_FLOAT));
 	m_cachedBC.reset();
 }
 

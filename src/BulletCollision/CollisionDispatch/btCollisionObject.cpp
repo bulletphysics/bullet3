@@ -19,7 +19,7 @@ subject to the following restrictions:
 btCollisionObject::btCollisionObject()
 	:	m_anisotropicFriction(1.f,1.f,1.f),
 	m_hasAnisotropicFriction(false),
-	m_contactProcessingThreshold(1e30f),
+	m_contactProcessingThreshold(BT_LARGE_FLOAT),
 		m_broadphaseHandle(0),
 		m_collisionShape(0),
 		m_rootCollisionShape(0),

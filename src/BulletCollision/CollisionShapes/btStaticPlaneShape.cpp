@@ -38,7 +38,7 @@ void btStaticPlaneShape::getAabb(const btTransform& t,btVector3& aabbMin,btVecto
 {
 	(void)t;
 	/*
-	btVector3 infvec (btScalar(1e30),btScalar(1e30),btScalar(1e30));
+	btVector3 infvec (btScalar(BT_LARGE_FLOAT),btScalar(BT_LARGE_FLOAT),btScalar(BT_LARGE_FLOAT));
 
 	btVector3 center = m_planeNormal*m_planeConstant;
 	aabbMin = center + infvec*m_planeNormal;
@@ -47,8 +47,8 @@ void btStaticPlaneShape::getAabb(const btTransform& t,btVector3& aabbMin,btVecto
 	aabbMax.setMax(center - infvec*m_planeNormal); 
 	*/
 
-	aabbMin.setValue(btScalar(-1e30),btScalar(-1e30),btScalar(-1e30));
-	aabbMax.setValue(btScalar(1e30),btScalar(1e30),btScalar(1e30));
+	aabbMin.setValue(btScalar(-BT_LARGE_FLOAT),btScalar(-BT_LARGE_FLOAT),btScalar(-BT_LARGE_FLOAT));
+	aabbMax.setValue(btScalar(BT_LARGE_FLOAT),btScalar(BT_LARGE_FLOAT),btScalar(BT_LARGE_FLOAT));
 
 }
 

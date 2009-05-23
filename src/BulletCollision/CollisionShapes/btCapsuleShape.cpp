@@ -32,7 +32,7 @@ btCapsuleShape::btCapsuleShape(btScalar radius, btScalar height) : btConvexInter
 
 	btVector3 supVec(0,0,0);
 
-	btScalar maxDot(btScalar(-1e30));
+	btScalar maxDot(btScalar(-BT_LARGE_FLOAT));
 
 	btVector3 vec = vec0;
 	btScalar lenSqr = vec.length2();
@@ -88,7 +88,7 @@ btCapsuleShape::btCapsuleShape(btScalar radius, btScalar height) : btConvexInter
 
 	for (int j=0;j<numVectors;j++)
 	{
-		btScalar maxDot(btScalar(-1e30));
+		btScalar maxDot(btScalar(-BT_LARGE_FLOAT));
 		const btVector3& vec = vectors[j];
 
 		btVector3 vtx;

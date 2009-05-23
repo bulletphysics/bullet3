@@ -55,7 +55,7 @@ void btConvexHullShape::addPoint(const btVector3& point)
 btVector3	btConvexHullShape::localGetSupportingVertexWithoutMargin(const btVector3& vec0)const
 {
 	btVector3 supVec(btScalar(0.),btScalar(0.),btScalar(0.));
-	btScalar newDot,maxDot = btScalar(-1e30);
+	btScalar newDot,maxDot = btScalar(-BT_LARGE_FLOAT);
 
 	btVector3 vec = vec0;
 	btScalar lenSqr = vec.length2();
@@ -90,7 +90,7 @@ void	btConvexHullShape::batchedUnitVectorGetSupportingVertexWithoutMargin(const 
 	{
 		for (int i=0;i<numVectors;i++)
 		{
-			supportVerticesOut[i][3] = btScalar(-1e30);
+			supportVerticesOut[i][3] = btScalar(-BT_LARGE_FLOAT);
 		}
 	}
 	for (int i=0;i<m_unscaledPoints.size();i++)

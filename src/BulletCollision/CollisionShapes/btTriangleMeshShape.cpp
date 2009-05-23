@@ -91,7 +91,7 @@ public:
 	btVector3 m_supportVecLocal;
 
 	SupportVertexCallback(const btVector3& supportVecWorld,const btTransform& trans)
-		: m_supportVertexLocal(btScalar(0.),btScalar(0.),btScalar(0.)), m_worldTrans(trans) ,m_maxDot(btScalar(-1e30))
+		: m_supportVertexLocal(btScalar(0.),btScalar(0.),btScalar(0.)), m_worldTrans(trans) ,m_maxDot(btScalar(-BT_LARGE_FLOAT))
 		
 	{
 		m_supportVecLocal = supportVecWorld * m_worldTrans.getBasis();
@@ -199,7 +199,7 @@ btVector3 btTriangleMeshShape::localGetSupportingVertex(const btVector3& vec) co
 
 	SupportVertexCallback supportCallback(vec,ident);
 
-	btVector3 aabbMax(btScalar(1e30),btScalar(1e30),btScalar(1e30));
+	btVector3 aabbMax(btScalar(BT_LARGE_FLOAT),btScalar(BT_LARGE_FLOAT),btScalar(BT_LARGE_FLOAT));
 	
 	processAllTriangles(&supportCallback,-aabbMax,aabbMax);
 		

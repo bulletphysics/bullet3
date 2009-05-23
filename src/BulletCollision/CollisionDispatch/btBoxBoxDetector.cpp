@@ -212,7 +212,7 @@ void cullPoints2 (int n, btScalar p[], int m, int i0, int iret[])
 		a = 1.f/(btScalar(3.0)*(a+q));
 	} else
 	{
-		a=1e30f;
+		a=BT_LARGE_FLOAT;
 	}
     cx = a*(cx + q*(p[n*2-2]+p[0]));
     cy = a*(cy + q*(p[n*2-1]+p[1]));

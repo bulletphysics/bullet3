@@ -26,7 +26,7 @@ btVector3	btPolyhedralConvexShape::localGetSupportingVertexWithoutMargin(const b
 	int i;
 	btVector3 supVec(0,0,0);
 
-	btScalar maxDot(btScalar(-1e30));
+	btScalar maxDot(btScalar(-BT_LARGE_FLOAT));
 
 	btVector3 vec = vec0;
 	btScalar lenSqr = vec.length2();
@@ -66,7 +66,7 @@ void	btPolyhedralConvexShape::batchedUnitVectorGetSupportingVertexWithoutMargin(
 
 	for (i=0;i<numVectors;i++)
 	{
-		supportVerticesOut[i][3] = btScalar(-1e30);
+		supportVerticesOut[i][3] = btScalar(-BT_LARGE_FLOAT);
 	}
 
 	for (int j=0;j<numVectors;j++)

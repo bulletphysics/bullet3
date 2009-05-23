@@ -136,7 +136,7 @@ btVector3 localGetSupportingVertexWithoutMargin(int shapeType, void* shape, cons
 		btScalar radius = capsuleShape->getRadius();
 		btVector3 supVec(0,0,0);
 
-		btScalar maxDot(btScalar(-1e30));
+		btScalar maxDot(btScalar(-BT_LARGE_FLOAT));
 
 		btVector3 vec = vec0;
 		btScalar lenSqr = vec.length2();
@@ -230,7 +230,7 @@ btVector3 localGetSupportingVertexWithoutMargin(int shapeType, void* shape, cons
 		//	spu_printf("numPoints = %d\n",numPoints);
 
 			int ptIndex = 0;
-			btScalar newDot,maxDot = btScalar(-1e30);
+			btScalar newDot,maxDot = btScalar(-BT_LARGE_FLOAT);
 
 			btVector3 vec0(localDir.getX(),localDir.getY(),localDir.getZ());
 			btVector3 vec = vec0;

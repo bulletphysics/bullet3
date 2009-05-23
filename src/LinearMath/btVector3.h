@@ -488,7 +488,7 @@ public:
 		SIMD_FORCE_INLINE int maxAxis4() const
 	{
 		int maxIndex = -1;
-		btScalar maxVal = btScalar(-1e30);
+		btScalar maxVal = btScalar(-BT_LARGE_FLOAT);
 		if (m_floats[0] > maxVal)
 		{
 			maxIndex = 0;
@@ -521,7 +521,7 @@ public:
 	SIMD_FORCE_INLINE int minAxis4() const
 	{
 		int minIndex = -1;
-		btScalar minVal = btScalar(1e30);
+		btScalar minVal = btScalar(BT_LARGE_FLOAT);
 		if (m_floats[0] < minVal)
 		{
 			minIndex = 0;

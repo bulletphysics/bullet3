@@ -64,7 +64,7 @@ void btConeTwistConstraint::init()
 	m_bMotorEnabled = false;
 	m_maxMotorImpulse = btScalar(-1);
 
-	setLimit(btScalar(1e30), btScalar(1e30), btScalar(1e30));
+	setLimit(btScalar(BT_LARGE_FLOAT), btScalar(BT_LARGE_FLOAT), btScalar(BT_LARGE_FLOAT));
 	m_damping = btScalar(0.01);
 	m_fixThresh = CONETWIST_DEF_FIX_THRESH;
 }

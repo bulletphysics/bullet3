@@ -1147,8 +1147,8 @@ void btDiscreteDynamicsWorld::debugDrawObject(const btTransform& worldTransform,
 					btConcaveShape* concaveMesh = (btConcaveShape*) shape;
 					
 					///@todo pass camera, for some culling? no -> we are not a graphics lib
-					btVector3 aabbMax(btScalar(1e30),btScalar(1e30),btScalar(1e30));
-					btVector3 aabbMin(btScalar(-1e30),btScalar(-1e30),btScalar(-1e30));
+					btVector3 aabbMax(btScalar(BT_LARGE_FLOAT),btScalar(BT_LARGE_FLOAT),btScalar(BT_LARGE_FLOAT));
+					btVector3 aabbMin(btScalar(-BT_LARGE_FLOAT),btScalar(-BT_LARGE_FLOAT),btScalar(-BT_LARGE_FLOAT));
 
 					DebugDrawcallback drawCallback(getDebugDrawer(),worldTransform,color);
 					concaveMesh->processAllTriangles(&drawCallback,aabbMin,aabbMax);
@@ -1159,8 +1159,8 @@ void btDiscreteDynamicsWorld::debugDrawObject(const btTransform& worldTransform,
 				{
 					btConvexTriangleMeshShape* convexMesh = (btConvexTriangleMeshShape*) shape;
 					//todo: pass camera for some culling			
-					btVector3 aabbMax(btScalar(1e30),btScalar(1e30),btScalar(1e30));
-					btVector3 aabbMin(btScalar(-1e30),btScalar(-1e30),btScalar(-1e30));
+					btVector3 aabbMax(btScalar(BT_LARGE_FLOAT),btScalar(BT_LARGE_FLOAT),btScalar(BT_LARGE_FLOAT));
+					btVector3 aabbMin(btScalar(-BT_LARGE_FLOAT),btScalar(-BT_LARGE_FLOAT),btScalar(-BT_LARGE_FLOAT));
 					//DebugDrawcallback drawCallback;
 					DebugDrawcallback drawCallback(getDebugDrawer(),worldTransform,color);
 					convexMesh->getMeshInterface()->InternalProcessAllTriangles(&drawCallback,aabbMin,aabbMax);

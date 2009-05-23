@@ -155,7 +155,7 @@ void btOdeContactJoint::GetInfo2(Info2 *info)
 	
 	// set LCP limits for normal
 	info->m_lowerLimit[0] = 0;
-	info->m_higherLimit[0] = 1e30f;//dInfinity;
+	info->m_higherLimit[0] = BT_LARGE_FLOAT;//dInfinity;
 	info->m_lowerLimit[1] = 0;
 	info->m_higherLimit[1] = 0.f;
 	info->m_lowerLimit[2] = 0.f;
@@ -208,7 +208,7 @@ void btOdeContactJoint::GetInfo2(Info2 *info)
 //		}
 		// set LCP bounds and friction index. this depends on the approximation
 		// mode
-		//1e30f
+		//BT_LARGE_FLOAT
 		
 		
 		info->m_lowerLimit[1] = -friction;//-j->contact.surface.mu;

@@ -92,7 +92,6 @@ struct ClipVertex
 #define b2Dot(a,b) (a).dot(b)
 #define b2Mul(a,b) (a)*(b)
 #define b2MulT(a,b) (a).transpose()*(b)
-#define BT_FLT_MAX 1e30f
 #define b2Cross(a,b) (a).cross(b)
 #define btCrossS(a,s) btVector3(s * a.getY(), -s * a.getX(),0.f)
 
@@ -151,7 +150,7 @@ static btScalar EdgeSeparation(const btBox2dShape* poly1, const btTransform& xf1
 
 	// Find support vertex on poly2 for -normal.
 	int index = 0;
-	btScalar minDot = BT_FLT_MAX;
+	btScalar minDot = BT_LARGE_FLOAT;
 
 	for (int i = 0; i < count2; ++i)
 	{
@@ -183,7 +182,7 @@ static btScalar FindMaxSeparation(int* edgeIndex,
 
 	// Find edge normal on poly1 that has the largest projection onto d.
 	int edge = 0;
-	btScalar maxDot = -BT_FLT_MAX;
+	btScalar maxDot = -BT_LARGE_FLOAT;
 	for (int i = 0; i < count1; ++i)
 	{
 		btScalar dot = b2Dot(normals1[i], dLocal1);
@@ -286,7 +285,7 @@ static void FindIncidentEdge(ClipVertex c[2],
 
 	// Find the incident edge on poly2.
 	int index = 0;
-	btScalar minDot = BT_FLT_MAX;
+	btScalar minDot = BT_LARGE_FLOAT;
 	for (int i = 0; i < count2; ++i)
 	{
 		btScalar dot = b2Dot(normal1, normals2[i]);

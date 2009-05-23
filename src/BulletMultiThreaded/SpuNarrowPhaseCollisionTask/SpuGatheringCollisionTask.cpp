@@ -1081,7 +1081,7 @@ void	processCollisionTask(void* userPtr, void* lsMemPtr)
 												SpuBridgeContactCollector  bridgeOutput(spuContacts);
 
 												btDiscreteCollisionDetectorInterface::ClosestPointInput input;
-												input.m_maximumDistanceSquared = 1e30f;
+												input.m_maximumDistanceSquared = BT_LARGE_FLOAT;
 												input.m_transformA = collisionPairInput.m_worldTransform0;
 												input.m_transformB = collisionPairInput.m_worldTransform1;
 

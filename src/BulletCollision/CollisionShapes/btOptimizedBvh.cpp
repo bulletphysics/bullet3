@@ -56,8 +56,8 @@ void btOptimizedBvh::build(btStridingMeshInterface* triangles, bool useQuantized
 		{
 			btOptimizedBvhNode node;
 			btVector3	aabbMin,aabbMax;
-			aabbMin.setValue(btScalar(1e30),btScalar(1e30),btScalar(1e30));
-			aabbMax.setValue(btScalar(-1e30),btScalar(-1e30),btScalar(-1e30)); 
+			aabbMin.setValue(btScalar(BT_LARGE_FLOAT),btScalar(BT_LARGE_FLOAT),btScalar(BT_LARGE_FLOAT));
+			aabbMax.setValue(btScalar(-BT_LARGE_FLOAT),btScalar(-BT_LARGE_FLOAT),btScalar(-BT_LARGE_FLOAT)); 
 			aabbMin.setMin(triangle[0]);
 			aabbMax.setMax(triangle[0]);
 			aabbMin.setMin(triangle[1]);
@@ -104,8 +104,8 @@ void btOptimizedBvh::build(btStridingMeshInterface* triangles, bool useQuantized
 
 			btQuantizedBvhNode node;
 			btVector3	aabbMin,aabbMax;
-			aabbMin.setValue(btScalar(1e30),btScalar(1e30),btScalar(1e30));
-			aabbMax.setValue(btScalar(-1e30),btScalar(-1e30),btScalar(-1e30)); 
+			aabbMin.setValue(btScalar(BT_LARGE_FLOAT),btScalar(BT_LARGE_FLOAT),btScalar(BT_LARGE_FLOAT));
+			aabbMax.setValue(btScalar(-BT_LARGE_FLOAT),btScalar(-BT_LARGE_FLOAT),btScalar(-BT_LARGE_FLOAT)); 
 			aabbMin.setMin(triangle[0]);
 			aabbMax.setMax(triangle[0]);
 			aabbMin.setMin(triangle[1]);
@@ -168,8 +168,8 @@ void btOptimizedBvh::build(btStridingMeshInterface* triangles, bool useQuantized
 	{
 		NodeTriangleCallback	callback(m_leafNodes);
 
-		btVector3 aabbMin(btScalar(-1e30),btScalar(-1e30),btScalar(-1e30));
-		btVector3 aabbMax(btScalar(1e30),btScalar(1e30),btScalar(1e30));
+		btVector3 aabbMin(btScalar(-BT_LARGE_FLOAT),btScalar(-BT_LARGE_FLOAT),btScalar(-BT_LARGE_FLOAT));
+		btVector3 aabbMax(btScalar(BT_LARGE_FLOAT),btScalar(BT_LARGE_FLOAT),btScalar(BT_LARGE_FLOAT));
 
 		triangles->InternalProcessAllTriangles(&callback,aabbMin,aabbMax);
 
@@ -337,8 +337,8 @@ void	btOptimizedBvh::updateBvhNodes(btStridingMeshInterface* meshInterface,int f
 
 
 				
-				aabbMin.setValue(btScalar(1e30),btScalar(1e30),btScalar(1e30));
-				aabbMax.setValue(btScalar(-1e30),btScalar(-1e30),btScalar(-1e30)); 
+				aabbMin.setValue(btScalar(BT_LARGE_FLOAT),btScalar(BT_LARGE_FLOAT),btScalar(BT_LARGE_FLOAT));
+				aabbMax.setValue(btScalar(-BT_LARGE_FLOAT),btScalar(-BT_LARGE_FLOAT),btScalar(-BT_LARGE_FLOAT)); 
 				aabbMin.setMin(triangleVerts[0]);
 				aabbMax.setMax(triangleVerts[0]);
 				aabbMin.setMin(triangleVerts[1]);

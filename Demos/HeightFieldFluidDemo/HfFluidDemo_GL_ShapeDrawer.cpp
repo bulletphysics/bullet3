@@ -487,8 +487,8 @@ if (shape->getShapeType() == CONVEX_TRIANGLEMESH_SHAPE_PROXYTYPE)
 btConvexTriangleMeshShape* convexMesh = (btConvexTriangleMeshShape*) shape;
 
 //todo: pass camera for some culling			
-btVector3 aabbMax(btScalar(1e30),btScalar(1e30),btScalar(1e30));
-btVector3 aabbMin(-btScalar(1e30),-btScalar(1e30),-btScalar(1e30));
+btVector3 aabbMax(btScalar(BT_LARGE_FLOAT),btScalar(BT_LARGE_FLOAT),btScalar(BT_LARGE_FLOAT));
+btVector3 aabbMin(-btScalar(BT_LARGE_FLOAT),-btScalar(BT_LARGE_FLOAT),-btScalar(BT_LARGE_FLOAT));
 TriangleGlDrawcallback drawCallback;
 convexMesh->getMeshInterface()->InternalProcessAllTriangles(&drawCallback,aabbMin,aabbMax);
 

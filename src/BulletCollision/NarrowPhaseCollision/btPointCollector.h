@@ -31,7 +31,7 @@ struct btPointCollector : public btDiscreteCollisionDetectorInterface::Result
 	bool	m_hasResult;
 
 	btPointCollector () 
-		: m_distance(btScalar(1e30)),m_hasResult(false)
+		: m_distance(btScalar(BT_LARGE_FLOAT)),m_hasResult(false)
 	{
 	}
 

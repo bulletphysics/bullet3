@@ -217,8 +217,8 @@ void CollisionDemo::displayCallback(void) {
 			}
 			debugDrawer.drawTransform(input.m_transformA,10.0);
 			btGjkPairDetector convexConvex(shapePtr[0],shapePtr[1],&sGjkSimplexSolver,&epaSolver); 
-			input.m_maximumDistanceSquared = 1e30;
-			gjkOutput.m_distance = 1e30f;
+			input.m_maximumDistanceSquared = BT_LARGE_FLOAT;
+			gjkOutput.m_distance = BT_LARGE_FLOAT;
 			convexConvex.getClosestPoints(input, gjkOutput, 0); 
 			
 			

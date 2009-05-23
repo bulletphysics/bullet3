@@ -191,8 +191,8 @@ btScalar btRotationalLimitMotor::solveAngularLimits(
 
 
 	// sort with accumulated impulses
-	btScalar	lo = btScalar(-1e30);
-	btScalar	hi = btScalar(1e30);
+	btScalar	lo = btScalar(-BT_LARGE_FLOAT);
+	btScalar	hi = btScalar(BT_LARGE_FLOAT);
 
 	btScalar oldaccumImpulse = m_accumulatedImpulse;
 	btScalar sum = oldaccumImpulse + clippedMotorImpulse;
@@ -283,8 +283,8 @@ btScalar btTranslationalLimitMotor::solveLinearAxis(
 
 	//positional error (zeroth order error)
 	btScalar depth = -(pointInA - pointInB).dot(axis_normal_on_a);
-	btScalar	lo = btScalar(-1e30);
-	btScalar	hi = btScalar(1e30);
+	btScalar	lo = btScalar(-BT_LARGE_FLOAT);
+	btScalar	hi = btScalar(BT_LARGE_FLOAT);
 
 	btScalar minLimit = m_lowerLimit[limit_index];
 	btScalar maxLimit = m_upperLimit[limit_index];

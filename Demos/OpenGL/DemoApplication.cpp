@@ -1098,8 +1098,8 @@ void	DemoApplication::renderscene(int pass)
 		btVector3 aabbMin,aabbMax;
 		m_dynamicsWorld->getBroadphase()->getBroadphaseAabb(aabbMin,aabbMax);
 		
-		aabbMin-=btVector3(1e30,1e30,1e30);
-		aabbMax+=btVector3(1e30,1e30,1e30);
+		aabbMin-=btVector3(BT_LARGE_FLOAT,BT_LARGE_FLOAT,BT_LARGE_FLOAT);
+		aabbMax+=btVector3(BT_LARGE_FLOAT,BT_LARGE_FLOAT,BT_LARGE_FLOAT);
 //		printf("aabbMin=(%f,%f,%f)\n",aabbMin.getX(),aabbMin.getY(),aabbMin.getZ());
 //		printf("aabbMax=(%f,%f,%f)\n",aabbMax.getX(),aabbMax.getY(),aabbMax.getZ());
 //		m_dynamicsWorld->getDebugDrawer()->drawAabb(aabbMin,aabbMax,btVector3(1,1,1));

@@ -44,7 +44,7 @@ public:
 
 	LocalSupportVertexCallback(const btVector3& supportVecLocal)
 		: m_supportVertexLocal(btScalar(0.),btScalar(0.),btScalar(0.)),
-		m_maxDot(btScalar(-1e30)),
+		m_maxDot(btScalar(-BT_LARGE_FLOAT)),
                 m_supportVecLocal(supportVecLocal)
 	{
 	}
@@ -92,7 +92,7 @@ btVector3	btConvexTriangleMeshShape::localGetSupportingVertexWithoutMargin(const
 	}
 
 	LocalSupportVertexCallback	supportCallback(vec);
-	btVector3 aabbMax(btScalar(1e30),btScalar(1e30),btScalar(1e30));
+	btVector3 aabbMax(btScalar(BT_LARGE_FLOAT),btScalar(BT_LARGE_FLOAT),btScalar(BT_LARGE_FLOAT));
 	m_stridingMesh->InternalProcessAllTriangles(&supportCallback,-aabbMax,aabbMax);
 	supVec = supportCallback.GetSupportVertexLocal();
 
@@ -105,7 +105,7 @@ void	btConvexTriangleMeshShape::batchedUnitVectorGetSupportingVertexWithoutMargi
 	{
 		for (int i=0;i<numVectors;i++)
 		{
-			supportVerticesOut[i][3] = btScalar(-1e30);
+			supportVerticesOut[i][3] = btScalar(-BT_LARGE_FLOAT);
 		}
 	}
 	
@@ -116,7 +116,7 @@ void	btConvexTriangleMeshShape::batchedUnitVectorGetSupportingVertexWithoutMargi
 	{
 		const btVector3& vec = vectors[j];
 		LocalSupportVertexCallback	supportCallback(vec);
-		btVector3 aabbMax(btScalar(1e30),btScalar(1e30),btScalar(1e30));
+		btVector3 aabbMax(btScalar(BT_LARGE_FLOAT),btScalar(BT_LARGE_FLOAT),btScalar(BT_LARGE_FLOAT));
 		m_stridingMesh->InternalProcessAllTriangles(&supportCallback,-aabbMax,aabbMax);
 		supportVerticesOut[j] = supportCallback.GetSupportVertexLocal();
 	}
@@ -298,7 +298,7 @@ void btConvexTriangleMeshShape::calculatePrincipalAxisTransform(btTransform& pri
    };
 
    CenterCallback centerCallback;
-   btVector3 aabbMax(btScalar(1e30),btScalar(1e30),btScalar(1e30));
+   btVector3 aabbMax(btScalar(BT_LARGE_FLOAT),btScalar(BT_LARGE_FLOAT),btScalar(BT_LARGE_FLOAT));
    m_stridingMesh->InternalProcessAllTriangles(&centerCallback, -aabbMax, aabbMax);
    btVector3 center = centerCallback.getCenter();
    principal.setOrigin(center);

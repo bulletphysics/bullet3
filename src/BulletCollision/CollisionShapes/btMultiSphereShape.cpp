@@ -23,7 +23,7 @@ btMultiSphereShape::btMultiSphereShape (const btVector3& inertiaHalfExtents,cons
 :btConvexInternalAabbCachingShape (), m_inertiaHalfExtents(inertiaHalfExtents)
 {
 	m_shapeType = MULTI_SPHERE_SHAPE_PROXYTYPE;
-	btScalar startMargin = btScalar(1e30);
+	btScalar startMargin = btScalar(BT_LARGE_FLOAT);
 
 	m_localPositionArray.resize(numSpheres);
 	m_radiArray.resize(numSpheres);
@@ -46,7 +46,7 @@ btMultiSphereShape::btMultiSphereShape (const btVector3& inertiaHalfExtents,cons
 	int i;
 	btVector3 supVec(0,0,0);
 
-	btScalar maxDot(btScalar(-1e30));
+	btScalar maxDot(btScalar(-BT_LARGE_FLOAT));
 
 
 	btVector3 vec = vec0;
@@ -89,7 +89,7 @@ btMultiSphereShape::btMultiSphereShape (const btVector3& inertiaHalfExtents,cons
 
 	for (int j=0;j<numVectors;j++)
 	{
-		btScalar maxDot(btScalar(-1e30));
+		btScalar maxDot(btScalar(-BT_LARGE_FLOAT));
 
 		const btVector3& vec = vectors[j];
 

@@ -37,7 +37,7 @@ void	SphereTriangleDetector::getClosestPoints(const ClosestPointInput& input,Res
 	btVector3 point,normal;
 	btScalar timeOfImpact = btScalar(1.);
 	btScalar depth = btScalar(0.);
-//	output.m_distance = btScalar(1e30);
+//	output.m_distance = btScalar(BT_LARGE_FLOAT);
 	//move sphere into triangle space
 	btTransform	sphereInTr = transformB.inverseTimes(transformA);
 

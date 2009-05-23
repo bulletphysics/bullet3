@@ -194,7 +194,7 @@ void btConvexConvexAlgorithm ::processCollision (btCollisionObject* body0,btColl
 #ifdef USE_SEPDISTANCE_UTIL2
 	if (dispatchInfo.m_useConvexConservativeDistanceUtil)
 	{
-		input.m_maximumDistanceSquared = 1e30f;
+		input.m_maximumDistanceSquared = BT_LARGE_FLOAT;
 	} else
 #endif //USE_SEPDISTANCE_UTIL2
 	{

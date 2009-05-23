@@ -275,8 +275,8 @@ void MultiMaterialDemo::clientMoveAndDisplay()
 
         int i;
         int j;
-        btVector3 aabbMin(1e30,1e30,1e30);
-        btVector3 aabbMax(-1e30,-1e30,-1e30);
+        btVector3 aabbMin(BT_LARGE_FLOAT,BT_LARGE_FLOAT,BT_LARGE_FLOAT);
+        btVector3 aabbMax(-BT_LARGE_FLOAT,-BT_LARGE_FLOAT,-BT_LARGE_FLOAT);
 
         for ( i=NUM_VERTS_X/2-3;i<NUM_VERTS_X/2+2;i++)
         {

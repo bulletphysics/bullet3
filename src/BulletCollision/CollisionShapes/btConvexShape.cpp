@@ -35,7 +35,7 @@ btConvexShape::~btConvexShape()
 static btVector3 convexHullSupport (const btVector3& localDir, const btVector3* points, int numPoints, const btVector3& localScaling)
 {
 	btVector3 supVec(btScalar(0.),btScalar(0.),btScalar(0.));
-	btScalar newDot,maxDot = btScalar(-1e30);
+	btScalar newDot,maxDot = btScalar(-BT_LARGE_FLOAT);
 
 	btVector3 vec0(localDir.getX(),localDir.getY(),localDir.getZ());
 	btVector3 vec = vec0;
@@ -160,7 +160,7 @@ btVector3 btConvexShape::localGetSupportVertexWithoutMarginNonVirtual (const btV
 		btScalar radius = capsuleShape->getRadius();
 		btVector3 supVec(0,0,0);
 
-		btScalar maxDot(btScalar(-1e30));
+		btScalar maxDot(btScalar(-BT_LARGE_FLOAT));
 
 		btVector3 vec = vec0;
 		btScalar lenSqr = vec.length2();

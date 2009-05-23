@@ -108,7 +108,7 @@ bool btMinkowskiPenetrationDepthSolver::calcPenDepth(btSimplexSolverInterface& s
 	};
 
 	//just take fixed number of orientation, and sample the penetration depth in that direction
-	btScalar minProj = btScalar(1e30);
+	btScalar minProj = btScalar(BT_LARGE_FLOAT);
 	btVector3 minNorm(btScalar(0.), btScalar(0.), btScalar(0.));
 	btVector3 minA,minB;
 	btVector3 seperatingAxisInA,seperatingAxisInB;
@@ -299,7 +299,7 @@ bool btMinkowskiPenetrationDepthSolver::calcPenDepth(btSimplexSolverInterface& s
 
 	input.m_transformA = displacedTrans;
 	input.m_transformB = transB;
-	input.m_maximumDistanceSquared = btScalar(1e30);//minProj;
+	input.m_maximumDistanceSquared = btScalar(BT_LARGE_FLOAT);//minProj;
 	
 	btIntermediateResult res;
 	gjkdet.getClosestPoints(input,res,debugDraw);

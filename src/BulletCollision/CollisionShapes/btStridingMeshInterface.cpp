@@ -156,8 +156,8 @@ void	btStridingMeshInterface::calculateAabbBruteForce(btVector3& aabbMin,btVecto
 
 		AabbCalculationCallback()
 		{
-			m_aabbMin.setValue(btScalar(1e30),btScalar(1e30),btScalar(1e30));
-			m_aabbMax.setValue(btScalar(-1e30),btScalar(-1e30),btScalar(-1e30));
+			m_aabbMin.setValue(btScalar(BT_LARGE_FLOAT),btScalar(BT_LARGE_FLOAT),btScalar(BT_LARGE_FLOAT));
+			m_aabbMax.setValue(btScalar(-BT_LARGE_FLOAT),btScalar(-BT_LARGE_FLOAT),btScalar(-BT_LARGE_FLOAT));
 		}
 
 		virtual void internalProcessTriangleIndex(btVector3* triangle,int partId,int  triangleIndex)
@@ -176,8 +176,8 @@ void	btStridingMeshInterface::calculateAabbBruteForce(btVector3& aabbMin,btVecto
 
 		//first calculate the total aabb for all triangles
 	AabbCalculationCallback	aabbCallback;
-	aabbMin.setValue(btScalar(-1e30),btScalar(-1e30),btScalar(-1e30));
-	aabbMax.setValue(btScalar(1e30),btScalar(1e30),btScalar(1e30));
+	aabbMin.setValue(btScalar(-BT_LARGE_FLOAT),btScalar(-BT_LARGE_FLOAT),btScalar(-BT_LARGE_FLOAT));
+	aabbMax.setValue(btScalar(BT_LARGE_FLOAT),btScalar(BT_LARGE_FLOAT),btScalar(BT_LARGE_FLOAT));
 	InternalProcessAllTriangles(&aabbCallback,aabbMin,aabbMax);
 
 	aabbMin = aabbCallback.m_aabbMin;
