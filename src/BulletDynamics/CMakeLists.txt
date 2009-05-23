@@ -1,6 +1,11 @@
 INCLUDE_DIRECTORIES( ${BULLET_PHYSICS_SOURCE_DIR}/src } )
 
+
+
 SET(BulletDynamics_SRCS
+	ConstraintSolver/btGeneric6DofSpringConstraint.cpp
+	ConstraintSolver/btHinge2Constraint.cpp
+	ConstraintSolver/btUniversalConstraint.cpp
 	ConstraintSolver/btContactConstraint.cpp
 	ConstraintSolver/btConeTwistConstraint.cpp
 	ConstraintSolver/btGeneric6DofConstraint.cpp
@@ -24,6 +29,9 @@ SET(Root_HDRS
 	../btBulletCollisionCommon.h
 )
 SET(ConstraintSolver_HDRS
+	ConstraintSolver/btGeneric6DofSpringConstraint.h
+	ConstraintSolver/btHinge2Constraint.h
+	ConstraintSolver/btUniversalConstraint.h
 	ConstraintSolver/btConstraintSolver.h
 	ConstraintSolver/btContactConstraint.h
 	ConstraintSolver/btContactSolverInfo.h

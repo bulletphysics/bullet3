@@ -130,7 +130,7 @@ inline float4& operator*=(float4& a, float fact)
 	a = fact * a;
 	return a;
 }
-inline float4& operator+=(float4& a, float4& b)
+inline float4& operator+=(float4& a, const float4& b)
 {
 	a = a + b;
 	return a;
@@ -169,12 +169,12 @@ inline float3 operator*(const float3& a, float fact)
 }
 
 
-inline float3& operator+=(float3& a, float3& b)
+inline float3& operator+=(float3& a, const float3& b)
 {
 	a = a + b;
 	return a;
 }
-inline float3& operator-=(float3& a, float3& b)
+inline float3& operator-=(float3& a, const float3& b)
 {
 	a = a - b;
 	return a;

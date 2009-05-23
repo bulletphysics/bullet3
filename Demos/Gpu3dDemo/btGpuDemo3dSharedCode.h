@@ -13,6 +13,8 @@ subject to the following restrictions:
 3. This notice may not be removed or altered from any source distribution.
 */
 
+#include "LinearMath/btMinMax.h"
+
 //----------------------------------------------------------------------------------------
 
 #define USE_FRICTION 1
@@ -57,7 +59,7 @@ BT_GPU___device__ float computeImpulse3D(float3 rVel,
 	if(positionConstraint >= 0)
 		return lambdaDt;
 
-	positionConstraint = min(0.0f,positionConstraint+penetrationError);
+	positionConstraint = btMin(0.0f,positionConstraint+penetrationError);
 	
 	lambdaDt	=	-(BT_GPU_dot(cNormal,rVel)*(collisionConstant));
 	lambdaDt	-=	(baumgarteConstant/dt*positionConstraint);
@@ -104,6 +106,7 @@ BT_GPU___global__ void collisionWithWallBox3DD(float4 *trans,
 			float3 dy = BT_GPU_make_float34(trans[idx * 4 + 1]);
 			float3 dz = BT_GPU_make_float34(trans[idx * 4 + 2]);
 			float3 rerVertex = ((iVtx & 1) ? dx : dx * (-1.f));
+			
 			rerVertex += ((iVtx & 2) ? dy : dy * (-1.f));
 			rerVertex += ((iVtx & 4) ? dz : dz * (-1.f));
 			float3 vPos = aPos + rerVertex;
@@ -227,7 +230,7 @@ BT_GPU___global__ void collisionBatchResolutionBox3DD(int2 *constraints,
 				{
 					float rLambdaDt=lambdaDtBox[idx * 4 + iVtx];
 					float pLambdaDt=rLambdaDt;
-					rLambdaDt=max(pLambdaDt+lambdaDt,0.0f);
+					rLambdaDt=btMax(pLambdaDt+lambdaDt,0.0f);
 					lambdaDt=rLambdaDt-pLambdaDt;
 					lambdaDtBox[idx * 4 + iVtx]=rLambdaDt;
 				}
