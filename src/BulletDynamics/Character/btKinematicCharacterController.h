@@ -20,6 +20,9 @@ subject to the following restrictions:
 
 #include "btCharacterControllerInterface.h"
 
+#include "BulletCollision/BroadphaseCollision/btCollisionAlgorithm.h"
+
+
 class btCollisionShape;
 class btRigidBody;
 class btCollisionWorld;
@@ -49,6 +52,7 @@ protected:
 
 	///this is the desired walk direction, set by the user
 	btVector3	m_walkDirection;
+	btVector3	m_normalizedDirection;
 
 	//some internal variables
 	btVector3 m_currentPosition;
@@ -62,7 +66,8 @@ protected:
 	btVector3 m_touchingNormal;
 
 	bool	m_useGhostObjectSweepTest;
-
+	bool	m_useWalkDirection;
+	float	m_velocityTimeInterval;
 	int m_upAxis;
 	
 	btVector3 computeReflectionDirection (const btVector3& direction, const btVector3& normal);
@@ -98,10 +103,20 @@ public:
 		m_upAxis = axis;
 	}
 
-	virtual void	setWalkDirection(const btVector3& walkDirection)
-	{
-		m_walkDirection = walkDirection;
-	}
+	/// This should probably be called setPositionIncrementPerSimulatorStep.
+	/// This is neither a direction nor a velocity, but the amount to
+	///   increment the position each simulation iteration, regardless
+	///   of dt.
+	/// This call will reset any velocity set by setVelocityForTimeInterval().
+	virtual void	setWalkDirection(const btVector3& walkDirection);
+
+	/// Caller provides a velocity with which the character should move for
+	///   the given time period.  After the time period, velocity is reset
+	///   to zero.
+	/// This call will reset any walk direction set by setWalkDirection().
+	/// Negative time intervals will result in no motion.
+	virtual void setVelocityForTimeInterval(const btVector3& velocity,
+				btScalar timeInterval);
 
 	void reset ();
 	void warp (const btVector3& origin);

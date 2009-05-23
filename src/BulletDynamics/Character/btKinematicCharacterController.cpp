@@ -13,6 +13,7 @@ subject to the following restrictions:
 3. This notice may not be removed or altered from any source distribution.
 */
 
+
 #include "LinearMath/btIDebugDraw.h"
 #include "BulletCollision/CollisionDispatch/btGhostObject.h"
 #include "BulletCollision/CollisionShapes/btMultiSphereShape.h"
@@ -23,6 +24,19 @@ subject to the following restrictions:
 #include "btKinematicCharacterController.h"
 
 static btVector3 upAxisDirection[3] = { btVector3(1.0f, 0.0f, 0.0f), btVector3(0.0f, 1.0f, 0.0f), btVector3(0.0f, 0.0f, 1.0f) };
+
+
+// static helper method
+static btVector3
+getNormalizedVector(const btVector3& v)
+{
+	btVector3 n = v.normalized();
+	if (n.length() < SIMD_EPSILON) {
+		n.setValue(0, 0, 0);
+	}
+	return n;
+}
+
 
 ///@todo Interact with dynamic objects,
 ///Ride kinematicly animated platforms properly
@@ -105,6 +119,8 @@ btKinematicCharacterController::btKinematicCharacterController (btPairCachingGho
 	m_stepHeight = stepHeight;
 	m_turnAngle = btScalar(0.0);
 	m_convexShape=convexShape;	
+	m_useWalkDirection = true;	// use walk direction by default, legacy behavior
+	m_velocityTimeInterval = 0.0;
 }
 
 btKinematicCharacterController::~btKinematicCharacterController ()
@@ -244,13 +260,8 @@ void btKinematicCharacterController::updateTargetPositionBasedOnCollision (const
 
 void btKinematicCharacterController::stepForwardAndStrafe ( btCollisionWorld* collisionWorld, const btVector3& walkMove)
 {
-
-	btVector3 originalDir = walkMove.normalized();
-	if (walkMove.length() < SIMD_EPSILON)
-	{
-		originalDir.setValue(0.f,0.f,0.f);
-	}
-//	printf("originalDir=%f,%f,%f\n",originalDir[0],originalDir[1],originalDir[2]);
+	// printf("m_normalizedDirection=%f,%f,%f\n",
+	// 	m_normalizedDirection[0],m_normalizedDirection[1],m_normalizedDirection[2]);
 	// phase 2: forward and strafe
 	btTransform start, end;
 	m_targetPosition = m_currentPosition + walkMove;
@@ -263,7 +274,7 @@ void btKinematicCharacterController::stepForwardAndStrafe ( btCollisionWorld* co
 
 	if (m_touchingContact)
 	{
-		if (originalDir.dot(m_touchingNormal) > btScalar(0.0))
+		if (m_normalizedDirection.dot(m_touchingNormal) > btScalar(0.0))
 			updateTargetPositionBasedOnCollision (m_touchingNormal);
 	}
 
@@ -319,7 +330,7 @@ void btKinematicCharacterController::stepForwardAndStrafe ( btCollisionWorld* co
 			{
 				currentDir.normalize();
 				/* See Quake2: "If velocity is against original velocity, stop ead to avoid tiny oscilations in sloping corners." */
-				if (currentDir.dot(originalDir) <= btScalar(0.0))
+				if (currentDir.dot(m_normalizedDirection) <= btScalar(0.0))
 				{
 					break;
 				}
@@ -377,6 +388,39 @@ void btKinematicCharacterController::stepDown ( btCollisionWorld* collisionWorld
 	}
 }
 
+
+
+void btKinematicCharacterController::setWalkDirection
+(
+const btVector3& walkDirection
+)
+{
+	m_useWalkDirection = true;
+	m_walkDirection = walkDirection;
+	m_normalizedDirection = getNormalizedVector(m_walkDirection);
+}
+
+
+
+void btKinematicCharacterController::setVelocityForTimeInterval
+(
+const btVector3& velocity,
+btScalar timeInterval
+)
+{
+//	printf("setVelocity!\n");
+//	printf("  interval: %f\n", timeInterval);
+//	printf("  velocity: (%f, %f, %f)\n",
+//	    velocity.x(), velocity.y(), velocity.z());
+
+	m_useWalkDirection = false;
+	m_walkDirection = velocity;
+	m_normalizedDirection = getNormalizedVector(m_walkDirection);
+	m_velocityTimeInterval = timeInterval;
+}
+
+
+
 void btKinematicCharacterController::reset ()
 {
 }
@@ -415,6 +459,15 @@ void btKinematicCharacterController::preStep (  btCollisionWorld* collisionWorld
 
 void btKinematicCharacterController::playerStep (  btCollisionWorld* collisionWorld, btScalar dt)
 {
+//	printf("playerStep(): ");
+//	printf("  dt = %f", dt);
+
+	// quick check...
+	if (!m_useWalkDirection && m_velocityTimeInterval <= 0.0) {
+//		printf("\n");
+		return;		// no motion
+	}
+
 	btTransform xform;
 	xform = m_ghostObject->getWorldTransform ();
 
@@ -422,8 +475,26 @@ void btKinematicCharacterController::playerStep (  btCollisionWorld* collisionWo
 //	printf("walkSpeed=%f\n",walkSpeed);
 
 	stepUp (collisionWorld);
-	stepForwardAndStrafe (collisionWorld, m_walkDirection);
+	if (m_useWalkDirection) {
+		stepForwardAndStrafe (collisionWorld, m_walkDirection);
+	} else {
+		//printf("  time: %f", m_velocityTimeInterval);
+		// still have some time left for moving!
+		btScalar dtMoving =
+		   (dt < m_velocityTimeInterval) ? dt : m_velocityTimeInterval;
+		m_velocityTimeInterval -= dt;
+
+		// how far will we move while we are moving?
+		btVector3 move = m_walkDirection * dtMoving;
+
+		// printf("  dtMoving: %f", dtMoving);
+
+		// okay, step
+		stepForwardAndStrafe(collisionWorld, move);
+	}
 	stepDown (collisionWorld, dt);
+
+	// printf("\n");
 
 	xform.setOrigin (m_currentPosition);
 	m_ghostObject->setWorldTransform (xform);

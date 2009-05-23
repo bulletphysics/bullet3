@@ -107,7 +107,7 @@ void btGjkPairDetector::getClosestPoints(const ClosestPointInput& input,Result& 
 	m_lastUsedMethod = -1;
 
 	{
-		btScalar squaredDistance = SIMD_INFINITY;
+		btScalar squaredDistance = BT_LARGE_FLOAT;
 		btScalar delta = btScalar(0.);
 		
 		btScalar margin = marginA + marginB;
