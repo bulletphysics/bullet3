@@ -393,7 +393,7 @@ public:
 	/// Don't do continuous collision detection if the motion (in one step) is less then m_ccdMotionThreshold
 	void	setCcdMotionThreshold(btScalar ccdMotionThreshold)
 	{
-		m_ccdMotionThreshold = ccdMotionThreshold*ccdMotionThreshold;
+		m_ccdMotionThreshold = ccdMotionThreshold;
 	}
 
 	///users can point to their objects, userPointer is not used by Bullet

@@ -27,6 +27,11 @@ static	void glutKeyboardCallback(unsigned char key, int x, int y)
 	gDemoApplication->keyboardCallback(key,x,y);
 }
 
+static	void glutKeyboardUpCallback(unsigned char key, int x, int y)
+{
+  gDemoApplication->keyboardUpCallback(key,x,y);
+}
+
 static void glutSpecialKeyboardCallback(int key, int x, int y)
 {
 	gDemoApplication->specialKeyboard(key,x,y);
@@ -82,6 +87,7 @@ int glutmain(int argc, char **argv,int width,int height,const char* title,DemoAp
     gDemoApplication->myinit();
 
 	glutKeyboardFunc(glutKeyboardCallback);
+	glutKeyboardUpFunc(glutKeyboardUpCallback);
 	glutSpecialFunc(glutSpecialKeyboardCallback);
 	glutSpecialUpFunc(glutSpecialKeyboardUpCallback);
 
