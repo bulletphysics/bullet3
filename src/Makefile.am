@@ -325,6 +325,7 @@ libbulletdynamics_la_SOURCES = \
 		BulletDynamics/Dynamics/Bullet-C-API.cpp \
 		BulletDynamics/Dynamics/btDiscreteDynamicsWorld.cpp \
 		BulletDynamics/ConstraintSolver/btGeneric6DofConstraint.cpp \
+		BulletDynamics/ConstraintSolver/btGeneric6DofSpringConstraint.cpp \
 		BulletDynamics/ConstraintSolver/btSolve2LinearConstraint.cpp \
 		BulletDynamics/ConstraintSolver/btPoint2PointConstraint.cpp \
 		BulletDynamics/ConstraintSolver/btTypedConstraint.cpp \
@@ -332,6 +333,8 @@ libbulletdynamics_la_SOURCES = \
 		BulletDynamics/ConstraintSolver/btSliderConstraint.cpp \
 		BulletDynamics/ConstraintSolver/btConeTwistConstraint.cpp \
 		BulletDynamics/ConstraintSolver/btHingeConstraint.cpp \
+		BulletDynamics/ConstraintSolver/btHinge2Constraint.cpp \
+		BulletDynamics/ConstraintSolver/btUniversalConstraint.cpp \
 		BulletDynamics/ConstraintSolver/btSequentialImpulseConstraintSolver.cpp \
 		BulletDynamics/Vehicle/btWheelInfo.cpp \
 		BulletDynamics/Vehicle/btRaycastVehicle.cpp \
@@ -354,8 +357,11 @@ libbulletdynamics_la_SOURCES = \
 		BulletDynamics/ConstraintSolver/btSolverConstraint.h \
 		BulletDynamics/ConstraintSolver/btSequentialImpulseConstraintSolver.h \
 		BulletDynamics/ConstraintSolver/btGeneric6DofConstraint.h \
+		BulletDynamics/ConstraintSolver/btGeneric6DofSpringConstraint.h \
 		BulletDynamics/ConstraintSolver/btSliderConstraint.h \
 		BulletDynamics/ConstraintSolver/btHingeConstraint.h \
+		BulletDynamics/ConstraintSolver/btHinge2Constraint.h \
+		BulletDynamics/ConstraintSolver/btUniversalConstraint.h \
 		BulletDynamics/ConstraintSolver/btSolve2LinearConstraint.h \
 		BulletDynamics/Vehicle/btVehicleRaycaster.h \
 		BulletDynamics/Vehicle/btRaycastVehicle.h \
@@ -408,10 +414,13 @@ nobase_bullet_include_HEADERS += \
 	BulletDynamics/ConstraintSolver/btContactConstraint.h \
 	BulletDynamics/ConstraintSolver/btContactSolverInfo.h \
 	BulletDynamics/ConstraintSolver/btGeneric6DofConstraint.h \
+	BulletDynamics/ConstraintSolver/btGeneric6DofSpringConstraint.h \
 	BulletDynamics/ConstraintSolver/btJacobianEntry.h \
 	BulletDynamics/ConstraintSolver/btSolve2LinearConstraint.h \
 	BulletDynamics/ConstraintSolver/btConeTwistConstraint.h \
 	BulletDynamics/ConstraintSolver/btHingeConstraint.h \
+	BulletDynamics/ConstraintSolver/btHinge2Constraint.h \
+	BulletDynamics/ConstraintSolver/btUniversalConstraint.h \
 	BulletDynamics/ConstraintSolver/btSolverBody.h \
 	BulletDynamics/Character/btCharacterControllerInterface.h \
 	BulletDynamics/Character/btKinematicCharacterController.h \
