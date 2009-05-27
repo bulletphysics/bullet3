@@ -1,5 +1,5 @@
 /*
-Copyright (c) 2003-2006 Gino van den Bergen / Erwin Coumans  http://continuousphysics.com/Bullet/
+Copyright (c) 2003-2009 Erwin Coumans  http://bullet.googlecode.com
 
 This software is provided 'as-is', without any express or implied warranty.
 In no event will the authors be held liable for any damages arising from the use of this software.
@@ -18,13 +18,12 @@ subject to the following restrictions:
 #define SIMD___SCALAR_H
 
 #include <math.h>
-
 #include <stdlib.h>//size_t for MSVC 6.0
-
 #include <cstdlib>
 #include <cfloat>
 #include <float.h>
 
+/* SVN $Revision$ on $Date$ from http://bullet.googlecode.com*/
 #define BT_BULLET_VERSION 275
 
 inline int	btGetVersion()
