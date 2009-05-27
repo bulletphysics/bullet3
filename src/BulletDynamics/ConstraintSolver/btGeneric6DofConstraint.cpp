@@ -418,6 +418,7 @@ void btGeneric6DofConstraint::buildAngularJacobian(
 bool btGeneric6DofConstraint::testAngularLimitMotor(int axis_index)
 {
 	btScalar angle = m_calculatedAxisAngleDiff[axis_index];
+	m_angularLimits[axis_index].m_currentPosition = angle;
 	//test limits
 	m_angularLimits[axis_index].testLimitValue(angle);
 	return m_angularLimits[axis_index].needApplyTorques();
@@ -542,6 +543,7 @@ int btGeneric6DofConstraint::setLinearLimits(btConstraintInfo2* info)
 		{ // re-use rotational motor code
 			limot.m_bounce = btScalar(0.f);
 			limot.m_currentLimit = m_linearLimits.m_currentLimit[i];
+			limot.m_currentPosition = m_linearLimits.m_currentLinearDiff[i];
 			limot.m_currentLimitError  = m_linearLimits.m_currentLimitError[i];
 			limot.m_damping  = m_linearLimits.m_damping;
 			limot.m_enableMotor  = m_linearLimits.m_enableMotor[i];
@@ -694,6 +696,7 @@ void btGeneric6DofConstraint::calculateLinearInfo()
 	m_calculatedLinearDiff = m_calculatedTransformA.getBasis().inverse() * m_calculatedLinearDiff;
 	for(int i = 0; i < 3; i++)
 	{
+		m_linearLimits.m_currentLinearDiff[i] = m_calculatedLinearDiff[i];
 		m_linearLimits.testLimitValue(i, m_calculatedLinearDiff[i]);
 	}
 }
@@ -743,9 +746,16 @@ int btGeneric6DofConstraint::get_limit_motor_info2(
         if (powered)
         {
             info->cfm[srow] = 0.0f;
-            if(!limit)
+//            if(!limit)
             {
-                info->m_constraintError[srow] += limot->m_targetVelocity;
+				btScalar tag_vel = rotational ? limot->m_targetVelocity : -limot->m_targetVelocity;
+
+				btScalar mot_fact = getMotorFactor(	limot->m_currentPosition, 
+													limot->m_loLimit,
+													limot->m_hiLimit, 
+													tag_vel, 
+													info->fps * info->erp);
+				info->m_constraintError[srow] += mot_fact * limot->m_targetVelocity;
                 info->m_lowerLimit[srow] = -limot->m_maxMotorForce;
                 info->m_upperLimit[srow] = limot->m_maxMotorForce;
             }

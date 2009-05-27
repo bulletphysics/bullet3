@@ -54,6 +54,7 @@ public:
     //! temp_variables
     //!@{
     btScalar m_currentLimitError;//!  How much is violated this limit
+    btScalar m_currentPosition;     //!  current value of angle 
     int m_currentLimit;//!< 0=free, 1=at lo limit, 2=at hi limit
     btScalar m_accumulatedImpulse;
     //!@}
@@ -134,6 +135,7 @@ public:
     btVector3	m_targetVelocity;//!< target motor velocity
     btVector3	m_maxMotorForce;//!< max force on motor
     btVector3	m_currentLimitError;//!  How much is violated this limit
+    btVector3	m_currentLinearDiff;//!  Current relative offset of constraint frames
     int			m_currentLimit[3];//!< 0=free, 1=at lower limit, 2=at upper limit
 
     btTranslationalLimitMotor()
