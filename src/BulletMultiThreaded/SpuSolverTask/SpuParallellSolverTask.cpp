@@ -1876,7 +1876,7 @@ void processSolverTask(void* userPtr, void* lsMemory)
 
 						// DMA the constraints
 						{
-							int dmaSize = sizeof(btSolverConstraint)*packetSize;
+							int dmaSize = sizeof(btSolverConstraint)*(int)packetSize;
 							uint64_t dmaPpuAddress2 = reinterpret_cast<uint64_t> (taskDesc.m_solverData.m_solverConstraintList + constraintListOffset);
 							cellDmaLargeGet(constraints, dmaPpuAddress2, dmaSize, DMA_TAG(1), 0, 0);
 						}
@@ -1895,7 +1895,7 @@ void processSolverTask(void* userPtr, void* lsMemory)
 						
 						// Write back the constraints for accumulated stuff
 						{
-							int dmaSize = sizeof(btSolverConstraint)*packetSize;
+							int dmaSize = sizeof(btSolverConstraint)*(int)packetSize;
 							uint64_t dmaPpuAddress2 = reinterpret_cast<uint64_t> (taskDesc.m_solverData.m_solverConstraintList + constraintListOffset);					
 							cellDmaLargePut(constraints, dmaPpuAddress2, dmaSize, DMA_TAG(1), 0, 0);
 						}
@@ -1923,7 +1923,7 @@ void processSolverTask(void* userPtr, void* lsMemory)
 
 						// DMA the constraints
 						{
-							int dmaSize = sizeof(btSolverConstraint)*packetSize*3;
+							int dmaSize = sizeof(btSolverConstraint)*(int)packetSize*3;
 							uint64_t dmaPpuAddress2 = reinterpret_cast<uint64_t> (taskDesc.m_solverData.m_solverInternalConstraintList + constraintListOffset);
 							cellDmaLargeGet(internalConstraints, dmaPpuAddress2, dmaSize, DMA_TAG(1), 0, 0);
 						}
@@ -1966,7 +1966,7 @@ void processSolverTask(void* userPtr, void* lsMemory)
 
 						// Write back the constraints for accumulated stuff
 						{
-							int dmaSize = sizeof(btSolverConstraint)*packetSize*3;
+							int dmaSize = sizeof(btSolverConstraint)*(int)packetSize*3;
 							uint64_t dmaPpuAddress2 = reinterpret_cast<uint64_t> (taskDesc.m_solverData.m_solverInternalConstraintList + constraintListOffset);					
 							cellDmaLargePut(internalConstraints, dmaPpuAddress2, dmaSize, DMA_TAG(1), 0, 0);
 						}
@@ -2107,7 +2107,7 @@ void processSolverTask(void* userPtr, void* lsMemory)
 
 						// DMA the constraints
 						{
-							int dmaSize = sizeof(btSolverConstraint)*packetSize*3;
+							int dmaSize = sizeof(btSolverConstraint)*(int)packetSize*3;
 							uint64_t dmaPpuAddress2 = reinterpret_cast<uint64_t> (taskDesc.m_solverData.m_solverInternalConstraintList + constraintListOffset);
 							cellDmaLargeGet(internalConstraints, dmaPpuAddress2, dmaSize, DMA_TAG(1), 0, 0);
 						}

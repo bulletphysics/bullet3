@@ -24,6 +24,7 @@ static btRigidBody s_fixed(0, 0,0);
 btTypedConstraint::btTypedConstraint(btTypedConstraintType type)
 :m_userConstraintType(-1),
 m_userConstraintId(-1),
+m_needsFeedback(false),
 m_constraintType (type),
 m_rbA(s_fixed),
 m_rbB(s_fixed),
@@ -35,6 +36,7 @@ m_dbgDrawSize(DEFAULT_DEBUGDRAW_SIZE)
 btTypedConstraint::btTypedConstraint(btTypedConstraintType type, btRigidBody& rbA)
 :m_userConstraintType(-1),
 m_userConstraintId(-1),
+m_needsFeedback(false),
 m_constraintType (type),
 m_rbA(rbA),
 m_rbB(s_fixed),
@@ -49,6 +51,7 @@ m_dbgDrawSize(DEFAULT_DEBUGDRAW_SIZE)
 btTypedConstraint::btTypedConstraint(btTypedConstraintType type, btRigidBody& rbA,btRigidBody& rbB)
 :m_userConstraintType(-1),
 m_userConstraintId(-1),
+m_needsFeedback(false),
 m_constraintType (type),
 m_rbA(rbA),
 m_rbB(rbB),

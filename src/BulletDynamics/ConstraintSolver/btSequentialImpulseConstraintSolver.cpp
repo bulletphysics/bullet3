@@ -660,26 +660,25 @@ btScalar btSequentialImpulseConstraintSolver::solveGroupCacheFriendlySetup(btCol
 
 			int totalNumRows = 0;
 			int i;
+			
+			m_tmpConstraintSizesPool.resize(numConstraints);
 			//calculate the total number of contraint rows
 			for (i=0;i<numConstraints;i++)
 			{
-
-				btTypedConstraint::btConstraintInfo1 info1;
+				btTypedConstraint::btConstraintInfo1& info1 = m_tmpConstraintSizesPool[i];
 				constraints[i]->getInfo1(&info1);
 				totalNumRows += info1.m_numConstraintRows;
 			}
 			m_tmpSolverNonContactConstraintPool.resize(totalNumRows);
 
-			btTypedConstraint::btConstraintInfo1 info1;
-			info1.m_numConstraintRows = 0;
-
-
+			
 			///setup the btSolverConstraints
 			int currentRow = 0;
 
-			for (i=0;i<numConstraints;i++,currentRow+=info1.m_numConstraintRows)
+			for (i=0;i<numConstraints;i++)
 			{
-				constraints[i]->getInfo1(&info1);
+				const btTypedConstraint::btConstraintInfo1& info1 = m_tmpConstraintSizesPool[i];
+				
 				if (info1.m_numConstraintRows)
 				{
 					btAssert(currentRow<totalNumRows);
@@ -782,6 +781,7 @@ btScalar btSequentialImpulseConstraintSolver::solveGroupCacheFriendlySetup(btCol
 						}
 					}
 				}
+				currentRow+=m_tmpConstraintSizesPool[i].m_numConstraintRows;
 			}
 		}
 
@@ -972,6 +972,7 @@ btScalar btSequentialImpulseConstraintSolver::solveGroup(btCollisionObject** bod
 	int numPoolConstraints = m_tmpSolverContactConstraintPool.size();
 	int j;
 
+	//copy back the applied impulses for contacts
 	for (j=0;j<numPoolConstraints;j++)
 	{
 
@@ -988,6 +989,39 @@ btScalar btSequentialImpulseConstraintSolver::solveGroup(btCollisionObject** bod
 		//do a callback here?
 	}
 
+	int currentRow = 0;
+	int totalNumRows = m_tmpSolverNonContactConstraintPool.size();
+#if 1
+	//copy back the applied impulses for joints
+	for (i=0;i<numConstraints;i++)
+	{
+		btTypedConstraint* constraint = constraints[i];
+		if (constraint->needsFeedback())
+		{
+			const btTypedConstraint::btConstraintInfo1& info1 = m_tmpConstraintSizesPool[i];
+			if (info1.m_numConstraintRows)
+			{
+				btAssert(currentRow<totalNumRows);
+				btSolverConstraint* currentConstraintRow = &m_tmpSolverNonContactConstraintPool[currentRow];
+				
+				constraint->getAppliedLinearImpulse().setValue(0,0,0);
+				constraint->getAppliedAngularImpulseA().setValue(0,0,0);
+				constraint->getAppliedAngularImpulseB().setValue(0,0,0);
+				int j;
+				btScalar maxAppliedImpulse(0.);
+				for ( j=0;j<info1.m_numConstraintRows;j++)
+				{
+					btSetMax(maxAppliedImpulse,(btScalar)currentConstraintRow[i].m_appliedImpulse);
+					constraint->getAppliedLinearImpulse() += currentConstraintRow[i].m_contactNormal*currentConstraintRow[i].m_appliedImpulse;
+					constraint->getAppliedAngularImpulseA() += currentConstraintRow[i].m_relpos1CrossNormal*currentConstraintRow[i].m_appliedImpulse;
+					constraint->getAppliedAngularImpulseB() += currentConstraintRow[i].m_relpos2CrossNormal*currentConstraintRow[i].m_appliedImpulse;
+				}
+				constraint->internalSetAppliedImpulse(maxAppliedImpulse);
+			}
+		}
+		currentRow+=m_tmpConstraintSizesPool[i].m_numConstraintRows;
+	}
+#endif 
 	if (infoGlobal.m_splitImpulse)
 	{		
 		for ( i=0;i<m_tmpSolverBodyPool.size();i++)
