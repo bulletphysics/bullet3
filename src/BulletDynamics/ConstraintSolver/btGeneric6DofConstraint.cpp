@@ -746,10 +746,9 @@ int btGeneric6DofConstraint::get_limit_motor_info2(
         if (powered)
         {
             info->cfm[srow] = 0.0f;
-//            if(!limit)
+            if(!limit)
             {
 				btScalar tag_vel = rotational ? limot->m_targetVelocity : -limot->m_targetVelocity;
-
 				btScalar mot_fact = getMotorFactor(	limot->m_currentPosition, 
 													limot->m_loLimit,
 													limot->m_hiLimit, 
