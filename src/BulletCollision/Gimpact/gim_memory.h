@@ -34,7 +34,7 @@ email: projectileman@yahoo.com
 
 
 #include "gim_math.h"
-#include <memory.h>
+#include <string.h>
 
 #ifdef PREFETCH
 #include <xmmintrin.h>	// for prefetch
