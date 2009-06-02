@@ -60,6 +60,7 @@ btHinge2Constraint::btHinge2Constraint(btRigidBody& rbA, btRigidBody& rbB, btVec
 	// enable suspension
 	enableSpring(2, true);
 	setStiffness(2, SIMD_PI * SIMD_PI * 4.f); // period 1 sec for 1 kilogramm weel :-)
+	setDamping(2, 0.01f);
 	setEquilibriumPoint();
 }
 

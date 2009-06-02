@@ -97,6 +97,8 @@ public:
 		// note that the returned indexes are relative to the first index of
 		// the constraint.
 		int *findex;
+		// number of solver iterations
+		int m_numIterations;
 	};
 
 	///internal method used by the constraint solver, don't use them directly

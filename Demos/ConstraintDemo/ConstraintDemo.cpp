@@ -383,8 +383,10 @@ void	ConstraintDemo::initPhysics()
 		
 		pGen6DOFSpring->enableSpring(0, true);
 		pGen6DOFSpring->setStiffness(0, 39.478f);
+		pGen6DOFSpring->setDamping(0, 0.5f);
 		pGen6DOFSpring->enableSpring(5, true);
 		pGen6DOFSpring->setStiffness(5, 39.478f);
+		pGen6DOFSpring->setDamping(0, 0.3f);
 		pGen6DOFSpring->setEquilibriumPoint();
 	}
 #endif

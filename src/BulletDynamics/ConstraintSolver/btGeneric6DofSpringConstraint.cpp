@@ -26,6 +26,7 @@ btGeneric6DofSpringConstraint::btGeneric6DofSpringConstraint(btRigidBody& rbA, b
 		m_springEnabled[i] = false;
 		m_equilibriumPoint[i] = btScalar(0.f);
 		m_springStiffness[i] = btScalar(0.f);
+		m_springDamping[i] = btScalar(1.f);
 	}
 }
 
@@ -50,6 +51,13 @@ void btGeneric6DofSpringConstraint::setStiffness(int index, btScalar stiffness)
 {
 	btAssert((index >= 0) && (index < 6));
 	m_springStiffness[index] = stiffness;
+}
+
+
+void btGeneric6DofSpringConstraint::setDamping(int index, btScalar damping)
+{
+	btAssert((index >= 0) && (index < 6));
+	m_springDamping[index] = damping;
 }
 
 
@@ -99,8 +107,9 @@ void btGeneric6DofSpringConstraint::internalUpdateSprings(btConstraintInfo2* inf
 			btScalar delta = currPos - m_equilibriumPoint[i];
 			// spring force is (delta * m_stiffness) according to Hooke's Law
 			btScalar force = delta * m_springStiffness[i];
-			m_linearLimits.m_targetVelocity[i] = force  * info->fps;
-			m_linearLimits.m_maxMotorForce[i] = btFabs(force) / info->fps;
+			btScalar velFactor = info->fps * m_springDamping[i] / btScalar(info->m_numIterations);
+			m_linearLimits.m_targetVelocity[i] =  velFactor * force;
+			m_linearLimits.m_maxMotorForce[i] =  btFabs(force) / info->fps;
 		}
 	}
 	for(i = 0; i < 3; i++)
@@ -113,7 +122,8 @@ void btGeneric6DofSpringConstraint::internalUpdateSprings(btConstraintInfo2* inf
 			btScalar delta = currPos - m_equilibriumPoint[i+3];
 			// spring force is (-delta * m_stiffness) according to Hooke's Law
 			btScalar force = -delta * m_springStiffness[i+3];
-			m_angularLimits[i].m_targetVelocity = force  * info->fps;
+			btScalar velFactor = info->fps * m_springDamping[i+3] / btScalar(info->m_numIterations);
+			m_angularLimits[i].m_targetVelocity = velFactor * force;
 			m_angularLimits[i].m_maxMotorForce = btFabs(force) / info->fps;
 		}
 	}
