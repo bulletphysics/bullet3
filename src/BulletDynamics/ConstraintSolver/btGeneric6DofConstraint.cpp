@@ -22,7 +22,9 @@ http://gimpact.sf.net
 #include "btGeneric6DofConstraint.h"
 #include "BulletDynamics/Dynamics/btRigidBody.h"
 #include "LinearMath/btTransformUtil.h"
+#include "LinearMath/btTransformUtil.h"
 #include <new>
+
 
 
 #define D6_USE_OBSOLETE_METHOD false
@@ -661,10 +663,15 @@ btVector3 btGeneric6DofConstraint::getAxis(int axis_index) const
 }
 
 
-
-btScalar btGeneric6DofConstraint::getAngle(int axis_index) const
+btScalar	btGeneric6DofConstraint::getRelativePivotPosition(int axisIndex) const
 {
-	return m_calculatedAxisAngleDiff[axis_index];
+	return m_calculatedLinearDiff[axisIndex];
+}
+
+
+btScalar btGeneric6DofConstraint::getAngle(int axisIndex) const
+{
+	return m_calculatedAxisAngleDiff[axisIndex];
 }
 
 
@@ -724,7 +731,7 @@ int btGeneric6DofConstraint::get_limit_motor_info2(
             J2[srow+1] = -ax1[1];
             J2[srow+2] = -ax1[2];
         }
-        if((!rotational) && limit)
+        if((!rotational))
         {
 			btVector3 ltd;	// Linear Torque Decoupling vector
 			btVector3 c = m_calculatedTransformB.getOrigin() - body0->getCenterOfMassPosition();
@@ -749,6 +756,7 @@ int btGeneric6DofConstraint::get_limit_motor_info2(
             if(!limit)
             {
 				btScalar tag_vel = rotational ? limot->m_targetVelocity : -limot->m_targetVelocity;
+
 				btScalar mot_fact = getMotorFactor(	limot->m_currentPosition, 
 													limot->m_loLimit,
 													limot->m_hiLimit, 
