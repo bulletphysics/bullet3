@@ -78,6 +78,8 @@ ATTRIBUTE_ALIGNED16 (struct)	btSolverConstraint
 	btScalar		m_lowerLimit;
 	btScalar		m_upperLimit;
 
+	btScalar		m_rhsPenetration;
+
 	enum		btSolverConstraintType
 	{
 		BT_SOLVER_CONTACT_1D = 0,

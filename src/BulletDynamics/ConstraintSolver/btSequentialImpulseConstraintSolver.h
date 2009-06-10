@@ -47,11 +47,16 @@ protected:
 
 	void	convertContact(btPersistentManifold* manifold,const btContactSolverInfo& infoGlobal);
 
+
+	void	resolveSplitPenetrationSIMD(
+        btSolverBody& body1,
+        btSolverBody& body2,
+        const btSolverConstraint& contactConstraint);
+
 	void	resolveSplitPenetrationImpulseCacheFriendly(
         btSolverBody& body1,
         btSolverBody& body2,
-        const btSolverConstraint& contactConstraint,
-        const btContactSolverInfo& solverInfo);
+        const btSolverConstraint& contactConstraint);
 
 	//internal method
 	int	getOrInitSolverBody(btCollisionObject& body);

@@ -115,7 +115,7 @@ ATTRIBUTE_ALIGNED16 (struct)	btSolverBody
 	btScalar		m_friction;
 	btRigidBody*	m_originalBody;
 	btVector3		m_pushVelocity;
-	//btVector3		m_turnVelocity;	
+	btVector3		m_turnVelocity;
 
 	
 	SIMD_FORCE_INLINE void	getVelocityInLocalPointObsolete(const btVector3& rel_pos, btVector3& velocity ) const
@@ -145,12 +145,18 @@ ATTRIBUTE_ALIGNED16 (struct)	btSolverBody
 		}
 	}
 
-	
-/*
+	SIMD_FORCE_INLINE void internalApplyPushImpulse(const btVector3& linearComponent, const btVector3& angularComponent,btScalar impulseMagnitude)
+	{
+		if (m_originalBody)
+		{
+			m_pushVelocity += linearComponent*impulseMagnitude;
+			m_turnVelocity += angularComponent*(impulseMagnitude*m_angularFactor);
+		}
+	}
 	
 	void	writebackVelocity()
 	{
-		if (m_invMass)
+		if (m_originalBody)
 		{
 			m_originalBody->setLinearVelocity(m_originalBody->getLinearVelocity()+ m_deltaLinearVelocity);
 			m_originalBody->setAngularVelocity(m_originalBody->getAngularVelocity()+m_deltaAngularVelocity);
@@ -158,14 +164,20 @@ ATTRIBUTE_ALIGNED16 (struct)	btSolverBody
 			//m_originalBody->setCompanionId(-1);
 		}
 	}
-	*/
 
-	void	writebackVelocity(btScalar timeStep=0)
+
+	void	writebackVelocity(btScalar timeStep)
 	{
 		if (m_originalBody)
 		{
-			m_originalBody->setLinearVelocity(m_originalBody->getLinearVelocity()+m_deltaLinearVelocity);
+			m_originalBody->setLinearVelocity(m_originalBody->getLinearVelocity()+ m_deltaLinearVelocity);
 			m_originalBody->setAngularVelocity(m_originalBody->getAngularVelocity()+m_deltaAngularVelocity);
+			
+			//correct the position/orientation based on push/turn recovery
+			btTransform newTransform;
+			btTransformUtil::integrateTransform(m_originalBody->getWorldTransform(),m_pushVelocity,m_turnVelocity,timeStep,newTransform);
+			m_originalBody->setWorldTransform(newTransform);
+			
 			//m_originalBody->setCompanionId(-1);
 		}
 	}

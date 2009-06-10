@@ -34,6 +34,8 @@ subject to the following restrictions:
 #include "LinearMath/btAlignedObjectArray.h"
 #include <string.h> //for memset
 
+int		gNumSplitImpulseRecoveries = 0;
+
 btSequentialImpulseConstraintSolver::btSequentialImpulseConstraintSolver()
 :m_btSeed2(0)
 {
@@ -172,6 +174,71 @@ void btSequentialImpulseConstraintSolver::resolveSingleConstraintRowGenericSIMD(
 }
 
 
+void	btSequentialImpulseConstraintSolver::resolveSplitPenetrationImpulseCacheFriendly(
+        btSolverBody& body1,
+        btSolverBody& body2,
+        const btSolverConstraint& c)
+{
+		if (c.m_rhsPenetration)
+        {
+			gNumSplitImpulseRecoveries++;
+			btScalar deltaImpulse = c.m_rhsPenetration-btScalar(c.m_appliedPushImpulse)*c.m_cfm;
+			const btScalar deltaVel1Dotn	=	c.m_contactNormal.dot(body1.m_pushVelocity) 	+ c.m_relpos1CrossNormal.dot(body1.m_turnVelocity);
+			const btScalar deltaVel2Dotn	=	-c.m_contactNormal.dot(body2.m_pushVelocity) + c.m_relpos2CrossNormal.dot(body2.m_turnVelocity);
+
+			deltaImpulse	-=	deltaVel1Dotn*c.m_jacDiagABInv;
+			deltaImpulse	-=	deltaVel2Dotn*c.m_jacDiagABInv;
+			const btScalar sum = btScalar(c.m_appliedPushImpulse) + deltaImpulse;
+			if (sum < c.m_lowerLimit)
+			{
+				deltaImpulse = c.m_lowerLimit-c.m_appliedPushImpulse;
+				c.m_appliedPushImpulse = c.m_lowerLimit;
+			}
+			else
+			{
+				c.m_appliedPushImpulse = sum;
+			}
+			body1.internalApplyPushImpulse(c.m_contactNormal*body1.m_invMass,c.m_angularComponentA,deltaImpulse);
+			body2.internalApplyPushImpulse(-c.m_contactNormal*body2.m_invMass,c.m_angularComponentB,deltaImpulse);
+        }
+}
+
+ void btSequentialImpulseConstraintSolver::resolveSplitPenetrationSIMD(btSolverBody& body1,btSolverBody& body2,const btSolverConstraint& c)
+{
+#ifdef USE_SIMD
+	if (!c.m_rhsPenetration)
+		return;
+
+	gNumSplitImpulseRecoveries++;
+
+	__m128 cpAppliedImp = _mm_set1_ps(c.m_appliedPushImpulse);
+	__m128	lowerLimit1 = _mm_set1_ps(c.m_lowerLimit);
+	__m128	upperLimit1 = _mm_set1_ps(c.m_upperLimit);
+	__m128 deltaImpulse = _mm_sub_ps(_mm_set1_ps(c.m_rhsPenetration), _mm_mul_ps(_mm_set1_ps(c.m_appliedPushImpulse),_mm_set1_ps(c.m_cfm)));
+	__m128 deltaVel1Dotn	=	_mm_add_ps(_vmathVfDot3(c.m_contactNormal.mVec128,body1.m_pushVelocity.mVec128), _vmathVfDot3(c.m_relpos1CrossNormal.mVec128,body1.m_turnVelocity.mVec128));
+	__m128 deltaVel2Dotn	=	_mm_sub_ps(_vmathVfDot3(c.m_relpos2CrossNormal.mVec128,body2.m_turnVelocity.mVec128),_vmathVfDot3((c.m_contactNormal).mVec128,body2.m_pushVelocity.mVec128));
+	deltaImpulse	=	_mm_sub_ps(deltaImpulse,_mm_mul_ps(deltaVel1Dotn,_mm_set1_ps(c.m_jacDiagABInv)));
+	deltaImpulse	=	_mm_sub_ps(deltaImpulse,_mm_mul_ps(deltaVel2Dotn,_mm_set1_ps(c.m_jacDiagABInv)));
+	btSimdScalar sum = _mm_add_ps(cpAppliedImp,deltaImpulse);
+	btSimdScalar resultLowerLess,resultUpperLess;
+	resultLowerLess = _mm_cmplt_ps(sum,lowerLimit1);
+	resultUpperLess = _mm_cmplt_ps(sum,upperLimit1);
+	__m128 lowMinApplied = _mm_sub_ps(lowerLimit1,cpAppliedImp);
+	deltaImpulse = _mm_or_ps( _mm_and_ps(resultLowerLess, lowMinApplied), _mm_andnot_ps(resultLowerLess, deltaImpulse) );
+	c.m_appliedImpulse = _mm_or_ps( _mm_and_ps(resultLowerLess, lowerLimit1), _mm_andnot_ps(resultLowerLess, sum) );
+	__m128	linearComponentA = _mm_mul_ps(c.m_contactNormal.mVec128,body1.m_invMass.mVec128);
+	__m128	linearComponentB = _mm_mul_ps((c.m_contactNormal).mVec128,body2.m_invMass.mVec128);
+	__m128 impulseMagnitude = deltaImpulse;
+	body1.m_pushVelocity.mVec128 = _mm_add_ps(body1.m_pushVelocity.mVec128,_mm_mul_ps(linearComponentA,impulseMagnitude));
+	body1.m_turnVelocity.mVec128 = _mm_add_ps(body1.m_turnVelocity.mVec128 ,_mm_mul_ps(c.m_angularComponentA.mVec128,impulseMagnitude));
+	body2.m_pushVelocity.mVec128 = _mm_sub_ps(body2.m_pushVelocity.mVec128,_mm_mul_ps(linearComponentB,impulseMagnitude));
+	body2.m_turnVelocity.mVec128 = _mm_add_ps(body2.m_turnVelocity.mVec128 ,_mm_mul_ps(c.m_angularComponentB.mVec128,impulseMagnitude));
+#else
+	resolveSplitPenetrationImpulseCacheFriendly(body1,body2,c);
+#endif
+}
+
+
 
 unsigned long btSequentialImpulseConstraintSolver::btRand2()
 {
@@ -217,6 +284,8 @@ void	btSequentialImpulseConstraintSolver::initSolverBody(btSolverBody* solverBod
 
 	solverBody->m_deltaLinearVelocity.setValue(0.f,0.f,0.f);
 	solverBody->m_deltaAngularVelocity.setValue(0.f,0.f,0.f);
+	solverBody->m_pushVelocity.setValue(0.f,0.f,0.f);
+	solverBody->m_turnVelocity.setValue(0.f,0.f,0.f);
 
 	if (rb)
 	{
@@ -232,7 +301,8 @@ void	btSequentialImpulseConstraintSolver::initSolverBody(btSolverBody* solverBod
 }
 
 
-int		gNumSplitImpulseRecoveries = 0;
+
+
 
 btScalar btSequentialImpulseConstraintSolver::restitutionCurve(btScalar rel_vel, btScalar restitution)
 {
@@ -278,7 +348,7 @@ btSolverConstraint&	btSequentialImpulseConstraintSolver::addFrictionConstraint(c
 	solverConstraint.m_originalContactPoint = 0;
 
 	solverConstraint.m_appliedImpulse = 0.f;
-	//	solverConstraint.m_appliedPushImpulse = 0.f;
+	solverConstraint.m_appliedPushImpulse = 0.f;
 
 	{
 		btVector3 ftorqueAxis1 = rel_pos1.cross(solverConstraint.m_contactNormal);
@@ -502,7 +572,7 @@ void	btSequentialImpulseConstraintSolver::convertContact(btPersistentManifold* m
 					solverConstraint.m_appliedImpulse = 0.f;
 				}
 
-				//							solverConstraint.m_appliedPushImpulse = 0.f;
+				solverConstraint.m_appliedPushImpulse = 0.f;
 
 				{
 					btScalar rel_vel;
@@ -518,7 +588,17 @@ void	btSequentialImpulseConstraintSolver::convertContact(btPersistentManifold* m
 					btScalar	velocityError = restitution - rel_vel;// * damping;
 					btScalar  penetrationImpulse = positionalError*solverConstraint.m_jacDiagABInv;
 					btScalar velocityImpulse = velocityError *solverConstraint.m_jacDiagABInv;
-					solverConstraint.m_rhs = penetrationImpulse+velocityImpulse;
+					if (!infoGlobal.m_splitImpulse || (penetration > infoGlobal.m_splitImpulsePenetrationThreshold))
+					{
+						//combine position and velocity into rhs
+						solverConstraint.m_rhs = penetrationImpulse+velocityImpulse;
+						solverConstraint.m_rhsPenetration = 0.f;
+					} else
+					{
+						//split position and velocity into rhs and m_rhsPenetration
+						solverConstraint.m_rhs = velocityImpulse;
+						solverConstraint.m_rhsPenetration = penetrationImpulse;
+					}
 					solverConstraint.m_cfm = 0.f;
 					solverConstraint.m_lowerLimit = 0;
 					solverConstraint.m_upperLimit = 1e10f;
@@ -944,9 +1024,46 @@ btScalar btSequentialImpulseConstraintSolver::solveGroupCacheFriendlyIterations(
 				}
 			}
 
-
-
 		}
+
+			if (infoGlobal.m_splitImpulse)
+			{
+				if (infoGlobal.m_solverMode & SOLVER_SIMD)
+				{
+					for ( iteration = 0;iteration<infoGlobal.m_numIterations;iteration++)
+					{
+						{
+							int numPoolConstraints = m_tmpSolverContactConstraintPool.size();
+							int j;
+							for (j=0;j<numPoolConstraints;j++)
+							{
+								const btSolverConstraint& solveManifold = m_tmpSolverContactConstraintPool[m_orderTmpConstraintPool[j]];
+
+								resolveSplitPenetrationSIMD(m_tmpSolverBodyPool[solveManifold.m_solverBodyIdA],
+									m_tmpSolverBodyPool[solveManifold.m_solverBodyIdB],solveManifold);
+							}
+						}
+					}
+				}
+				else
+				{
+					for ( iteration = 0;iteration<infoGlobal.m_numIterations;iteration++)
+					{
+						{
+							int numPoolConstraints = m_tmpSolverContactConstraintPool.size();
+							int j;
+							for (j=0;j<numPoolConstraints;j++)
+							{
+								const btSolverConstraint& solveManifold = m_tmpSolverContactConstraintPool[m_orderTmpConstraintPool[j]];
+
+								resolveSplitPenetrationImpulseCacheFriendly(m_tmpSolverBodyPool[solveManifold.m_solverBodyIdA],
+									m_tmpSolverBodyPool[solveManifold.m_solverBodyIdB],solveManifold);
+							}
+						}
+					}
+				}
+			}
+		
 	}
 	return 0.f;
 }
