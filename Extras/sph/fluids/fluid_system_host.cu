@@ -21,8 +21,10 @@
 */
 
 
-#include "C:\CUDA\common\inc\cutil.h"				// cutil32.lib
+//#include "C:\CUDA\common\inc\cutil.h"				// cutil32.lib
 #include <string.h>
+#include "../CUDA/btCudaDefines.h"
+
 
 
 #if defined(__APPLE__) || defined(MACOSX)
@@ -43,12 +45,13 @@ __device__ uint*			bufHash[2];		// point grid hash
 __device__ int*				bufGrid;	
 
 	
+
 extern "C"
 {
 // Initialize CUDA
 void cudaInit(int argc, char **argv)
 {   
-    CUT_DEVICE_INIT(argc, argv);
+    //CUT_DEVICE_INIT(argc, argv);
  
 	cudaDeviceProp p;
 	cudaGetDeviceProperties ( &p, 0);
@@ -65,10 +68,10 @@ void cudaInit(int argc, char **argv)
 	printf ( "Const Mem:  %d\n", p.totalConstMem );
 	printf ( "Clock Rate: %d\n", p.clockRate );	
 	
-	CUDA_SAFE_CALL ( cudaMalloc ( (void**) &bufPnts, 10 ) );	
-	CUDA_SAFE_CALL ( cudaMalloc ( (void**) &bufPntSort, 10 ) );
-	CUDA_SAFE_CALL ( cudaMalloc ( (void**) &bufHash, 10 ) );	
-	CUDA_SAFE_CALL ( cudaMalloc ( (void**) &bufGrid, 10 ) );	
+	BT_GPU_SAFE_CALL ( cudaMalloc ( (void**) &bufPnts, 10 ) );	
+	BT_GPU_SAFE_CALL ( cudaMalloc ( (void**) &bufPntSort, 10 ) );
+	BT_GPU_SAFE_CALL ( cudaMalloc ( (void**) &bufHash, 10 ) );	
+	BT_GPU_SAFE_CALL ( cudaMalloc ( (void**) &bufGrid, 10 ) );	
 };
 	
 // Compute number of blocks to create
@@ -83,11 +86,11 @@ void computeNumBlocks (int numPnts, int maxThreads, int &numBlocks, int &numThre
 
 void FluidClearCUDA ()
 {
-	CUDA_SAFE_CALL ( cudaFree ( bufPnts ) );	
-	CUDA_SAFE_CALL ( cudaFree ( bufPntSort ) );
-	CUDA_SAFE_CALL ( cudaFree ( bufHash[0] ) );	
-	CUDA_SAFE_CALL ( cudaFree ( bufHash[1] ) );	
-	CUDA_SAFE_CALL ( cudaFree ( bufGrid ) );
+	BT_GPU_SAFE_CALL ( cudaFree ( bufPnts ) );	
+	BT_GPU_SAFE_CALL ( cudaFree ( bufPntSort ) );
+	BT_GPU_SAFE_CALL ( cudaFree ( bufHash[0] ) );	
+	BT_GPU_SAFE_CALL ( cudaFree ( bufHash[1] ) );	
+	BT_GPU_SAFE_CALL ( cudaFree ( bufGrid ) );
 }
 
 
@@ -114,11 +117,11 @@ void FluidSetupCUDA ( int num, int stride, float3 min, float3 max, float3 res, f
     printf ( "pnts: %d, t:%dx%d=%d, bufPnts:%d, bufHash:%d\n", fcuda.pnts, fcuda.numBlocks, fcuda.numThreads, fcuda.numBlocks*fcuda.numThreads, fcuda.szPnts, fcuda.szHash );
     printf ( "grds: %d, t:%dx%d=%d, bufGrid:%d, Res: %dx%dx%d\n", fcuda.cells, fcuda.gridBlocks, fcuda.gridThreads, fcuda.gridBlocks*fcuda.gridThreads, fcuda.szGrid, (int) fcuda.res.x, (int) fcuda.res.y, (int) fcuda.res.z );	
 
-	CUDA_SAFE_CALL ( cudaMalloc ( (void**) &bufPnts, fcuda.szPnts ) );	
-	CUDA_SAFE_CALL ( cudaMalloc ( (void**) &bufPntSort, fcuda.szPnts ) );	
-	CUDA_SAFE_CALL ( cudaMalloc ( (void**) &bufHash[0], fcuda.szHash ) );	
-	CUDA_SAFE_CALL ( cudaMalloc ( (void**) &bufHash[1], fcuda.szHash ) );	
-	CUDA_SAFE_CALL ( cudaMalloc ( (void**) &bufGrid, fcuda.szGrid ) );
+	BT_GPU_SAFE_CALL ( cudaMalloc ( (void**) &bufPnts, fcuda.szPnts ) );	
+	BT_GPU_SAFE_CALL ( cudaMalloc ( (void**) &bufPntSort, fcuda.szPnts ) );	
+	BT_GPU_SAFE_CALL ( cudaMalloc ( (void**) &bufHash[0], fcuda.szHash ) );	
+	BT_GPU_SAFE_CALL ( cudaMalloc ( (void**) &bufHash[1], fcuda.szHash ) );	
+	BT_GPU_SAFE_CALL ( cudaMalloc ( (void**) &bufGrid, fcuda.szGrid ) );
 	
 	printf ( "POINTERS\n");
 	printf ( "bufPnts:    %p\n", bufPnts );
@@ -127,7 +130,7 @@ void FluidSetupCUDA ( int num, int stride, float3 min, float3 max, float3 res, f
 	printf ( "bufHash1:   %p\n", bufHash[1] );
 	printf ( "bufGrid:    %p\n", bufGrid );
 	
-	CUDA_SAFE_CALL ( cudaMemcpyToSymbol ( simData, &fcuda, sizeof(FluidParams) ) );
+	BT_GPU_SAFE_CALL ( cudaMemcpyToSymbol ( simData, &fcuda, sizeof(FluidParams) ) );
 	cudaThreadSynchronize ();
 }
 
@@ -146,46 +149,46 @@ void FluidParamCUDA ( float sim_scale, float smooth_rad, float mass, float rest,
 	fcuda.spikykern = -45.0f / (3.141592 * pow( smooth_rad, 6.0f) );
 	fcuda.lapkern = 45.0f / (3.141592 * pow( smooth_rad, 6.0f) );	
 
-	CUDA_SAFE_CALL( cudaMemcpyToSymbol ( simData, &fcuda, sizeof(FluidParams) ) );
+	BT_GPU_SAFE_CALL( cudaMemcpyToSymbol ( simData, &fcuda, sizeof(FluidParams) ) );
 	cudaThreadSynchronize ();
 }
 
 void TransferToCUDA ( char* data, int* grid, int numPoints )
 {
-	CUDA_SAFE_CALL( cudaMemcpy ( bufPnts, data, numPoints * fcuda.stride, cudaMemcpyHostToDevice ) );
+	BT_GPU_SAFE_CALL( cudaMemcpy ( bufPnts, data, numPoints * fcuda.stride, cudaMemcpyHostToDevice ) );
 	cudaThreadSynchronize ();
 }
 
 void TransferFromCUDA ( char* data, int* grid, int numPoints )
 {
-	CUDA_SAFE_CALL( cudaMemcpy ( data, bufPntSort, numPoints * fcuda.stride, cudaMemcpyDeviceToHost ) );	
+	BT_GPU_SAFE_CALL( cudaMemcpy ( data, bufPntSort, numPoints * fcuda.stride, cudaMemcpyDeviceToHost ) );	
 	cudaThreadSynchronize ();	
 	
-	CUDA_SAFE_CALL( cudaMemcpy ( grid, bufGrid, fcuda.cells * sizeof(uint), cudaMemcpyDeviceToHost ) );			
+	BT_GPU_SAFE_CALL( cudaMemcpy ( grid, bufGrid, fcuda.cells * sizeof(uint), cudaMemcpyDeviceToHost ) );			
 }
 
 void Grid_InsertParticlesCUDA ()
 {
-	CUDA_SAFE_CALL( cudaMemset ( bufHash[0], 0, fcuda.szHash ) );
+	BT_GPU_SAFE_CALL( cudaMemset ( bufHash[0], 0, fcuda.szHash ) );
 	
 	hashParticles<<< fcuda.numBlocks, fcuda.numThreads>>> ( bufPnts, (uint2*) bufHash[0], fcuda.pnts );	
-	CUT_CHECK_ERROR( "Kernel execution failed");
+	BT_GPU_CHECK_ERROR( "Kernel execution failed");
 	cudaThreadSynchronize ();
 	
 	//int buf[20000];		
 	/*printf ( "HASH: %d (%d)\n", fcuda.pnts, fcuda.numBlocks*fcuda.numThreads );
-	CUDA_SAFE_CALL( cudaMemcpy ( buf, bufHash[0], fcuda.pnts * 2*sizeof(uint), cudaMemcpyDeviceToHost ) );		
+	BT_GPU_SAFE_CALL( cudaMemcpy ( buf, bufHash[0], fcuda.pnts * 2*sizeof(uint), cudaMemcpyDeviceToHost ) );		
 	//for (int n=0; n < fcuda.numBlocks*fcuda.numThreads; n++) {		
 	for (int n=0; n < 100; n++) {
 		printf ( "%d: <%d,%d>\n", n, buf[n*2], buf[n*2+1] );
 	}*/
 	 
 	RadixSort( (KeyValuePair *) bufHash[0], (KeyValuePair *) bufHash[1], fcuda.pnts, 32);
-	CUT_CHECK_ERROR( "Kernel execution failed");
+	BT_GPU_CHECK_ERROR( "Kernel execution failed");
 	cudaThreadSynchronize ();
 	
 	/*printf ( "HASH: %d (%d)\n", fcuda.pnts, fcuda.numBlocks*fcuda.numThreads );
-	CUDA_SAFE_CALL( cudaMemcpy ( buf, bufHash[0], fcuda.pnts * 2*sizeof(uint), cudaMemcpyDeviceToHost ) );		
+	BT_GPU_SAFE_CALL( cudaMemcpy ( buf, bufHash[0], fcuda.pnts * 2*sizeof(uint), cudaMemcpyDeviceToHost ) );		
 	//for (int n=0; n < fcuda.numBlocks*fcuda.numThreads; n++) {		
 	for (int n=0; n < 100; n++) {
 		printf ( "%d: <%d,%d>\n", n, buf[n*2], buf[n*2+1] );
@@ -193,14 +196,14 @@ void Grid_InsertParticlesCUDA ()
 	
 	// insertParticles<<< fcuda.gridBlocks, fcuda.gridThreads>>> ( bufPnts, (uint2*) bufHash[0], bufGrid, fcuda.pnts, fcuda.cells );			
 	
-	CUDA_SAFE_CALL( cudaMemset ( bufGrid, NULL_HASH, fcuda.cells * sizeof(uint) ) );
+	BT_GPU_SAFE_CALL( cudaMemset ( bufGrid, NULL_HASH, fcuda.cells * sizeof(uint) ) );
 	
 	insertParticlesRadix<<< fcuda.numBlocks, fcuda.numThreads>>> ( bufPnts, (uint2*) bufHash[0], bufGrid, bufPntSort, fcuda.pnts, fcuda.cells );
-	CUT_CHECK_ERROR( "Kernel execution failed");
+	BT_GPU_CHECK_ERROR( "Kernel execution failed");
 	cudaThreadSynchronize ();	
     
     /*printf ( "GRID: %d\n", fcuda.cells );
-	CUDA_SAFE_CALL( cudaMemcpy ( buf, bufGrid, fcuda.cells * sizeof(uint), cudaMemcpyDeviceToHost ) );		
+	BT_GPU_SAFE_CALL( cudaMemcpy ( buf, bufGrid, fcuda.cells * sizeof(uint), cudaMemcpyDeviceToHost ) );		
 	*for (int n=0; n < 100; n++) {		
 		printf ( "%d: %d\n", n, buf[n]);
 	}*/
@@ -209,7 +212,7 @@ void Grid_InsertParticlesCUDA ()
 void SPH_ComputePressureCUDA ()
 {
 	computePressure<<< fcuda.numBlocks, fcuda.numThreads>>> ( bufPntSort, bufGrid, (uint2*) bufHash[0], fcuda.pnts );	
-    CUT_CHECK_ERROR( "Kernel execution failed");
+    BT_GPU_CHECK_ERROR( "Kernel execution failed");
     cudaThreadSynchronize ();	
 }
 
@@ -220,14 +223,14 @@ void SPH_ComputeForceCUDA ()
 	
 	// Force using neighbor table
 	computeForceNbr<<< fcuda.numBlocks, fcuda.numThreads>>> ( bufPntSort, fcuda.pnts );	
-    CUT_CHECK_ERROR( "Kernel execution failed");
+    BT_GPU_CHECK_ERROR( "Kernel execution failed");
     cudaThreadSynchronize ();	
 }
 
 void SPH_AdvanceCUDA ( float dt, float ss )
 {
 	advanceParticles<<< fcuda.numBlocks, fcuda.numThreads>>> ( bufPntSort, fcuda.pnts, dt, ss );
-    CUT_CHECK_ERROR( "Kernel execution failed");
+    BT_GPU_CHECK_ERROR( "Kernel execution failed");
     cudaThreadSynchronize ();
 }
 

@@ -25,7 +25,7 @@
 
 	#include "common_defs.h"
 
-	#include <gl/glee.h>
+	#include <glee.h>
 	#include <gl/glext.h>	
 
 	#ifdef _MSC_VER						// Windows

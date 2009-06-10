@@ -125,7 +125,7 @@
 				EnableIntrinsicFunctions="true"
 				FavorSizeOrSpeed="1"
 				OmitFramePointers="true"
-				AdditionalIncludeDirectories="fluids;common;marching;sphere_scan;marching_tris"
+				AdditionalIncludeDirectories="fluids;common;marching;sphere_scan;marching_tris;&quot;$(CUDA_INC_PATH)&quot;;../../Glut"
 				PreprocessorDefinitions="WIN32;NDEBUG;_CONSOLE"
 				StringPooling="true"
 				RuntimeLibrary="0"
@@ -146,9 +146,9 @@
 			/>
 			<Tool
 				Name="VCLinkerTool"
-				AdditionalDependencies="glee_2008.lib"
 				OutputFile="$(OutDir)/fluids.exe"
 				LinkIncremental="1"
+				AdditionalLibraryDirectories="../../Glut"
 				IgnoreDefaultLibraryNames="libcmtd.lib"
 				GenerateDebugInformation="false"
 				SubSystem="1"
@@ -292,6 +292,10 @@
 				>
 			</File>
 		</Filter>
+		<File
+			RelativePath=".\common\GLee.c"
+			>
+		</File>
 		<File
 			RelativePath=".\main.cpp"
 			>

@@ -583,3 +583,12 @@ int main ( int argc, char **argv )
 
   return 0;
 }
+
+extern "C" {
+	void btCuda_exit(int val)
+	{
+		fprintf(stderr, "Press ENTER key to terminate the program\n");
+		getchar();
+		exit(val);
+	}
+}

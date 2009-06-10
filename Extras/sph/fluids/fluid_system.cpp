@@ -134,7 +134,7 @@ int FluidSystem::AddPointReuse ()
 
 void FluidSystem::Run ()
 {
-	bool bTiming = true;
+	bool bTiming = false;//true;
 
 	mint::Time start, stop;
 	
