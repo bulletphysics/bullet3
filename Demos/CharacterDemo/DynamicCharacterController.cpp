@@ -33,7 +33,7 @@ void DynamicCharacterController::setup (btScalar height, btScalar width, btScala
 
 	m_halfHeight = height/btScalar(2.0);
 
-	m_shape = new btMultiSphereShape (btVector3(width/btScalar(2.0), height/btScalar(2.0), width/btScalar(2.0)), &spherePositions[0], &sphereRadii[0], 2);
+	m_shape = new btMultiSphereShape (&spherePositions[0], &sphereRadii[0], 2);
 
 	btTransform startTransform;
 	startTransform.setIdentity ();

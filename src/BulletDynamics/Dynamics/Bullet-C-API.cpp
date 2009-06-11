@@ -181,12 +181,12 @@ plCollisionShapeHandle plNewBoxShape(plReal x, plReal y, plReal z)
 plCollisionShapeHandle plNewCapsuleShape(plReal radius, plReal height)
 {
 	//capsule is convex hull of 2 spheres, so use btMultiSphereShape
-	btVector3 inertiaHalfExtents(radius,height,radius);
+	
 	const int numSpheres = 2;
 	btVector3 positions[numSpheres] = {btVector3(0,height,0),btVector3(0,-height,0)};
 	btScalar radi[numSpheres] = {radius,radius};
 	void* mem = btAlignedAlloc(sizeof(btMultiSphereShape),16);
-	return (plCollisionShapeHandle) new (mem)btMultiSphereShape(inertiaHalfExtents,positions,radi,numSpheres);
+	return (plCollisionShapeHandle) new (mem)btMultiSphereShape(positions,radi,numSpheres);
 }
 plCollisionShapeHandle plNewConeShape(plReal radius, plReal height)
 {
