@@ -296,13 +296,16 @@ void	btCollisionWorld::rayTestSingle(const btTransform& rayFromTrans,const btTra
 					btCollisionObject*	m_collisionObject;
 					btTriangleMeshShape*	m_triangleMesh;
 
+               btTransform m_colObjWorldTransform;
+
 					BridgeTriangleRaycastCallback( const btVector3& from,const btVector3& to,
-						btCollisionWorld::RayResultCallback* resultCallback, btCollisionObject* collisionObject,btTriangleMeshShape*	triangleMesh):
+						btCollisionWorld::RayResultCallback* resultCallback, btCollisionObject* collisionObject,btTriangleMeshShape*	triangleMesh,const btTransform& colObjWorldTransform):
                   //@BP Mod
 						btTriangleRaycastCallback(from,to, resultCallback->m_flags),
 							m_resultCallback(resultCallback),
 							m_collisionObject(collisionObject),
-							m_triangleMesh(triangleMesh)
+							m_triangleMesh(triangleMesh),
+                     m_colObjWorldTransform(colObjWorldTransform)
 						{
 						}
 
@@ -313,19 +316,21 @@ void	btCollisionWorld::rayTestSingle(const btTransform& rayFromTrans,const btTra
 						shapeInfo.m_shapePart = partId;
 						shapeInfo.m_triangleIndex = triangleIndex;
 
+                  btVector3 hitNormalWorld = m_colObjWorldTransform.getBasis() * hitNormalLocal;
+
 						btCollisionWorld::LocalRayResult rayResult
 						(m_collisionObject,
 							&shapeInfo,
-							hitNormalLocal,
+							hitNormalWorld,
 							hitFraction);
 
-						bool	normalInWorldSpace = false;
+						bool	normalInWorldSpace = true;
 						return m_resultCallback->addSingleResult(rayResult,normalInWorldSpace);
 					}
 
 				};
 
-				BridgeTriangleRaycastCallback rcb(rayFromLocal,rayToLocal,&resultCallback,collisionObject,triangleMesh);
+				BridgeTriangleRaycastCallback rcb(rayFromLocal,rayToLocal,&resultCallback,collisionObject,triangleMesh,colObjWorldTransform);
 				rcb.m_hitFraction = resultCallback.m_closestHitFraction;
 				triangleMesh->performRaycast(&rcb,rayFromLocal,rayToLocal);
 			} else
@@ -346,13 +351,16 @@ void	btCollisionWorld::rayTestSingle(const btTransform& rayFromTrans,const btTra
 					btCollisionObject*	m_collisionObject;
 					btConcaveShape*	m_triangleMesh;
 
+               btTransform m_colObjWorldTransform;
+
 					BridgeTriangleRaycastCallback( const btVector3& from,const btVector3& to,
-						btCollisionWorld::RayResultCallback* resultCallback, btCollisionObject* collisionObject,btConcaveShape*	triangleMesh):
+						btCollisionWorld::RayResultCallback* resultCallback, btCollisionObject* collisionObject,btConcaveShape*	triangleMesh, const btTransform& colObjWorldTransform):
                   //@BP Mod
                   btTriangleRaycastCallback(from,to, resultCallback->m_flags),
 							m_resultCallback(resultCallback),
 							m_collisionObject(collisionObject),
-							m_triangleMesh(triangleMesh)
+							m_triangleMesh(triangleMesh),
+                     m_colObjWorldTransform(colObjWorldTransform)
 						{
 						}
 
@@ -363,22 +371,22 @@ void	btCollisionWorld::rayTestSingle(const btTransform& rayFromTrans,const btTra
 						shapeInfo.m_shapePart = partId;
 						shapeInfo.m_triangleIndex = triangleIndex;
 
+                  btVector3 hitNormalWorld = m_colObjWorldTransform.getBasis() * hitNormalLocal;
+
 						btCollisionWorld::LocalRayResult rayResult
 						(m_collisionObject,
 							&shapeInfo,
-							hitNormalLocal,
+							hitNormalWorld,
 							hitFraction);
 
-						bool	normalInWorldSpace = false;
+						bool	normalInWorldSpace = true;
 						return m_resultCallback->addSingleResult(rayResult,normalInWorldSpace);
-
-
 					}
 
 				};
 
 
-				BridgeTriangleRaycastCallback	rcb(rayFromLocal,rayToLocal,&resultCallback,collisionObject,concaveShape);
+				BridgeTriangleRaycastCallback	rcb(rayFromLocal,rayToLocal,&resultCallback,collisionObject,concaveShape, colObjWorldTransform);
 				rcb.m_hitFraction = resultCallback.m_closestHitFraction;
 
 				btVector3 rayAabbMinLocal = rayFromLocal;
