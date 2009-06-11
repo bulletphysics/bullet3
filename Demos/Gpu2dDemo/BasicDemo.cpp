@@ -119,10 +119,8 @@ public:
 
 		btDefaultMotionState* myMotionState= 0;
 		
-		btVector3 inertiaHalfExtents;
 		btVector3 aabbMin,aabbMax;
 		compoundTmpShape->getAabb(btTransform::getIdentity(),aabbMin,aabbMax);
-		inertiaHalfExtents = (aabbMax-aabbMin)*0.5;
 		int numSpheres = compoundTmpShape->getNumChildShapes();
 		btAssert(numSpheres>0);
 		if (numSpheres>8)
@@ -142,7 +140,7 @@ public:
 			positions[i] = compoundTmpShape->getChildTransform(i).getOrigin();
 		}
 
-		btMultiSphereShape* multiSphere = new btMultiSphereShape(inertiaHalfExtents,positions,radii,numSpheres);
+		btMultiSphereShape* multiSphere = new btMultiSphereShape(positions,radii,numSpheres);
 		m_demo->addCollisionShape(multiSphere);
 		
 			btVector3 localInertia(0,0,0);
@@ -343,8 +341,8 @@ void	BasicDemo::initPhysics()
 //		sSphPos[0].setX(sSphPos[0].getX()-0.15);
 		#undef SPR
 		btMultiSphereShape* colShape[2];
-		colShape[0] = new btMultiSphereShape(inertiaHalfExtents, sSphPos, sSphRad, 8);
-		colShape[1] = new btMultiSphereShape(inertiaHalfExtents, sSphPos, sSphRad, 2);
+		colShape[0] = new btMultiSphereShape( sSphPos, sSphRad, 8);
+		colShape[1] = new btMultiSphereShape( sSphPos, sSphRad, 2);
 
 		//btCollisionShape* colShape = new btSphereShape(btScalar(1.));
 		m_collisionShapes.push_back(colShape[0]);
