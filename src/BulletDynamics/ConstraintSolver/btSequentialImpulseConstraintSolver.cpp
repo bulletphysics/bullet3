@@ -619,9 +619,6 @@ void	btSequentialImpulseConstraintSolver::convertContact(btPersistentManifold* m
 						if (!(infoGlobal.m_solverMode & SOLVER_DISABLE_VELOCITY_DEPENDENT_FRICTION_DIRECTION) && lat_rel_vel > SIMD_EPSILON)
 						{
 							cp.m_lateralFrictionDir1 /= btSqrt(lat_rel_vel);
-							applyAnisotropicFriction(colObj0,cp.m_lateralFrictionDir1);
-							applyAnisotropicFriction(colObj1,cp.m_lateralFrictionDir1);
-							addFrictionConstraint(cp.m_lateralFrictionDir1,solverBodyIdA,solverBodyIdB,frictionIndex,cp,rel_pos1,rel_pos2,colObj0,colObj1, relaxation);
 							if((infoGlobal.m_solverMode & SOLVER_USE_2_FRICTION_DIRECTIONS))
 							{
 								cp.m_lateralFrictionDir2 = cp.m_lateralFrictionDir1.cross(cp.m_normalWorldOnB);
@@ -630,21 +627,26 @@ void	btSequentialImpulseConstraintSolver::convertContact(btPersistentManifold* m
 								applyAnisotropicFriction(colObj1,cp.m_lateralFrictionDir2);
 								addFrictionConstraint(cp.m_lateralFrictionDir2,solverBodyIdA,solverBodyIdB,frictionIndex,cp,rel_pos1,rel_pos2,colObj0,colObj1, relaxation);
 							}
+
+							applyAnisotropicFriction(colObj0,cp.m_lateralFrictionDir1);
+							applyAnisotropicFriction(colObj1,cp.m_lateralFrictionDir1);
+							addFrictionConstraint(cp.m_lateralFrictionDir1,solverBodyIdA,solverBodyIdB,frictionIndex,cp,rel_pos1,rel_pos2,colObj0,colObj1, relaxation);
 							cp.m_lateralFrictionInitialized = true;
 						} else
 						{
 							//re-calculate friction direction every frame, todo: check if this is really needed
 							btPlaneSpace1(cp.m_normalWorldOnB,cp.m_lateralFrictionDir1,cp.m_lateralFrictionDir2);
-							applyAnisotropicFriction(colObj0,cp.m_lateralFrictionDir1);
-							applyAnisotropicFriction(colObj1,cp.m_lateralFrictionDir1);
-
-							addFrictionConstraint(cp.m_lateralFrictionDir1,solverBodyIdA,solverBodyIdB,frictionIndex,cp,rel_pos1,rel_pos2,colObj0,colObj1, relaxation);
 							if ((infoGlobal.m_solverMode & SOLVER_USE_2_FRICTION_DIRECTIONS))
 							{
 								applyAnisotropicFriction(colObj0,cp.m_lateralFrictionDir2);
 								applyAnisotropicFriction(colObj1,cp.m_lateralFrictionDir2);
 								addFrictionConstraint(cp.m_lateralFrictionDir2,solverBodyIdA,solverBodyIdB,frictionIndex,cp,rel_pos1,rel_pos2,colObj0,colObj1, relaxation);
 							}
+
+							applyAnisotropicFriction(colObj0,cp.m_lateralFrictionDir1);
+							applyAnisotropicFriction(colObj1,cp.m_lateralFrictionDir1);
+							addFrictionConstraint(cp.m_lateralFrictionDir1,solverBodyIdA,solverBodyIdB,frictionIndex,cp,rel_pos1,rel_pos2,colObj0,colObj1, relaxation);
+
 							cp.m_lateralFrictionInitialized = true;
 						}
 
@@ -1090,7 +1092,6 @@ btScalar btSequentialImpulseConstraintSolver::solveGroup(btCollisionObject** bod
 	int numPoolConstraints = m_tmpSolverContactConstraintPool.size();
 	int j;
 
-	//copy back the applied impulses for contacts
 	for (j=0;j<numPoolConstraints;j++)
 	{
 
@@ -1107,39 +1108,6 @@ btScalar btSequentialImpulseConstraintSolver::solveGroup(btCollisionObject** bod
 		//do a callback here?
 	}
 
-	int currentRow = 0;
-	int totalNumRows = m_tmpSolverNonContactConstraintPool.size();
-#if 1
-	//copy back the applied impulses for joints
-	for (i=0;i<numConstraints;i++)
-	{
-		btTypedConstraint* constraint = constraints[i];
-		if (constraint->needsFeedback())
-		{
-			const btTypedConstraint::btConstraintInfo1& info1 = m_tmpConstraintSizesPool[i];
-			if (info1.m_numConstraintRows)
-			{
-				btAssert(currentRow<totalNumRows);
-				btSolverConstraint* currentConstraintRow = &m_tmpSolverNonContactConstraintPool[currentRow];
-				
-				constraint->getAppliedLinearImpulse().setValue(0,0,0);
-				constraint->getAppliedAngularImpulseA().setValue(0,0,0);
-				constraint->getAppliedAngularImpulseB().setValue(0,0,0);
-				int j;
-				btScalar maxAppliedImpulse(0.);
-				for ( j=0;j<info1.m_numConstraintRows;j++)
-				{
-					btSetMax(maxAppliedImpulse,(btScalar)currentConstraintRow[i].m_appliedImpulse);
-					constraint->getAppliedLinearImpulse() += currentConstraintRow[i].m_contactNormal*currentConstraintRow[i].m_appliedImpulse;
-					constraint->getAppliedAngularImpulseA() += currentConstraintRow[i].m_relpos1CrossNormal*currentConstraintRow[i].m_appliedImpulse;
-					constraint->getAppliedAngularImpulseB() += currentConstraintRow[i].m_relpos2CrossNormal*currentConstraintRow[i].m_appliedImpulse;
-				}
-				constraint->internalSetAppliedImpulse(maxAppliedImpulse);
-			}
-		}
-		currentRow+=m_tmpConstraintSizesPool[i].m_numConstraintRows;
-	}
-#endif 
 	if (infoGlobal.m_splitImpulse)
 	{		
 		for ( i=0;i<m_tmpSolverBodyPool.size();i++)

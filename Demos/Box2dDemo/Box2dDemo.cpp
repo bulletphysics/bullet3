@@ -97,7 +97,7 @@ void	Box2dDemo::initPhysics()
 	///use the default collision dispatcher. For parallel processing you can use a diffent dispatcher (see Extras/BulletMultiThreaded)
 	m_dispatcher = new	btCollisionDispatcher(m_collisionConfiguration);
 
-	m_dispatcher->registerCollisionCreateFunc(BOX_SHAPE_PROXYTYPE,BOX_SHAPE_PROXYTYPE,new btEmptyAlgorithm::CreateFunc);
+	
 	m_dispatcher->registerCollisionCreateFunc(CUSTOM_CONVEX_SHAPE_TYPE,CUSTOM_CONVEX_SHAPE_TYPE,new btBox2dBox2dCollisionAlgorithm::CreateFunc);
 
 	m_broadphase = new btDbvtBroadphase();

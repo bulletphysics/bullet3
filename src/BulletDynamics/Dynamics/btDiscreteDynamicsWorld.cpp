@@ -64,7 +64,8 @@ btDiscreteDynamicsWorld::btDiscreteDynamicsWorld(btDispatcher* dispatcher,btBroa
 m_constraintSolver(constraintSolver),
 m_gravity(0,-10,0),
 m_localTime(btScalar(1.)/btScalar(60.)),
-m_profileTimings(0)
+m_profileTimings(0),
+m_synchronizeAllMotionStates(false)
 {
 	if (!m_constraintSolver)
 	{
@@ -264,8 +265,19 @@ void	btDiscreteDynamicsWorld::synchronizeSingleMotionState(btRigidBody* body)
 void	btDiscreteDynamicsWorld::synchronizeMotionStates()
 {
 	BT_PROFILE("synchronizeMotionStates");
+	if (m_synchronizeAllMotionStates)
 	{
-		//todo: iterate over awake simulation islands!
+		//iterate  over all collision objects
+		for ( int i=0;i<m_collisionObjects.size();i++)
+		{
+			btCollisionObject* colObj = m_collisionObjects[i];
+			btRigidBody* body = btRigidBody::upcast(colObj);
+			if (body)
+				synchronizeSingleMotionState(body);
+		}
+	} else
+	{
+		//iterate over all active rigid bodies
 		for ( int i=0;i<m_nonStaticRigidBodies.size();i++)
 		{
 			btRigidBody* body = m_nonStaticRigidBodies[i];
@@ -273,21 +285,6 @@ void	btDiscreteDynamicsWorld::synchronizeMotionStates()
 				synchronizeSingleMotionState(body);
 		}
 	}
-/*
-	if (getDebugDrawer() && getDebugDrawer()->getDebugMode() & btIDebugDraw::DBG_DrawWireframe)
-	{
-		for ( int i=0;i<this->m_vehicles.size();i++)
-		{
-			for (int v=0;v<m_vehicles[i]->getNumWheels();v++)
-			{
-				//synchronize the wheels with the (interpolated) chassis worldtransform
-				m_vehicles[i]->updateWheelTransform(v,true);
-			}
-		}
-	}
-	*/
-
-
 }
 
 
@@ -438,6 +435,9 @@ void	btDiscreteDynamicsWorld::addRigidBody(btRigidBody* body)
 		if (!body->isStaticObject())
 		{
 			m_nonStaticRigidBodies.push_back(body);
+		} else
+		{
+			body->setActivationState(ISLAND_SLEEPING);
 		}
 
 		bool isDynamic = !(body->isStaticObject() || body->isKinematicObject());
@@ -460,6 +460,10 @@ void	btDiscreteDynamicsWorld::addRigidBody(btRigidBody* body, short group, short
 		if (!body->isStaticObject())
 		{
 			m_nonStaticRigidBodies.push_back(body);
+		}
+		 else
+		{
+			body->setActivationState(ISLAND_SLEEPING);
 		}
 		addCollisionObject(body,group,mask);
 	}

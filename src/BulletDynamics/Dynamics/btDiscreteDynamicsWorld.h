@@ -52,6 +52,7 @@ protected:
 
 	bool	m_ownsIslandManager;
 	bool	m_ownsConstraintSolver;
+	bool	m_synchronizeAllMotionStates;
 
 	btAlignedObjectArray<btActionInterface*>	m_actions;
 	
@@ -176,6 +177,15 @@ public:
 	virtual void	addCharacter(btActionInterface* character);
 	///obsolete, use removeAction instead
 	virtual void	removeCharacter(btActionInterface* character);
+
+	void	setSynchronizeAllMotionStates(bool synchronizeAll)
+	{
+		m_synchronizeAllMotionStates = synchronizeAll;
+	}
+	bool getSynchronizeAllMotionStates() const
+	{
+		return m_synchronizeAllMotionStates;
+	}
 
 };
 
