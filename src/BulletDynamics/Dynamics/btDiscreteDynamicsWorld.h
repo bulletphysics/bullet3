@@ -42,6 +42,8 @@ protected:
 
 	btAlignedObjectArray<btTypedConstraint*> m_constraints;
 
+	btAlignedObjectArray<btRigidBody*> m_nonStaticRigidBodies;
+
 	btVector3	m_gravity;
 
 	//for variable timesteps
