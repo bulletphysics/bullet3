@@ -112,7 +112,6 @@ int btRotationalLimitMotor::testLimitValue(btScalar test_value)
 		m_currentLimit = 0;//Free from violation
 		return 0;
 	}
-
 	if (test_value < m_loLimit)
 	{
 		m_currentLimit = 1;//low limit violation
@@ -420,6 +419,7 @@ void btGeneric6DofConstraint::buildAngularJacobian(
 bool btGeneric6DofConstraint::testAngularLimitMotor(int axis_index)
 {
 	btScalar angle = m_calculatedAxisAngleDiff[axis_index];
+	angle = btAdjustAngleToLimits(angle, m_angularLimits[axis_index].m_loLimit, m_angularLimits[axis_index].m_hiLimit);
 	m_angularLimits[axis_index].m_currentPosition = angle;
 	//test limits
 	m_angularLimits[axis_index].testLimitValue(angle);

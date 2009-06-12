@@ -65,8 +65,8 @@ public:
         m_targetVelocity = 0;
         m_maxMotorForce = 0.1f;
         m_maxLimitForce = 300.0f;
-        m_loLimit = -SIMD_INFINITY;
-        m_hiLimit = SIMD_INFINITY;
+        m_loLimit = 1.0f;
+        m_hiLimit = -1.0f;
         m_ERP = 0.5f;
         m_bounce = 0.0f;
         m_damping = 1.0f;
@@ -412,16 +412,14 @@ public:
 
     void	setAngularLowerLimit(const btVector3& angularLower)
     {
-        m_angularLimits[0].m_loLimit = angularLower.getX();
-        m_angularLimits[1].m_loLimit = angularLower.getY();
-        m_angularLimits[2].m_loLimit = angularLower.getZ();
+		for(int i = 0; i < 3; i++) 
+			m_angularLimits[i].m_loLimit = btNormalizeAngle(angularLower[i]);
     }
 
     void	setAngularUpperLimit(const btVector3& angularUpper)
     {
-        m_angularLimits[0].m_hiLimit = angularUpper.getX();
-        m_angularLimits[1].m_hiLimit = angularUpper.getY();
-        m_angularLimits[2].m_hiLimit = angularUpper.getZ();
+		for(int i = 0; i < 3; i++)
+			m_angularLimits[i].m_hiLimit = btNormalizeAngle(angularUpper[i]);
     }
 
 	//! Retrieves the angular limit informacion
@@ -446,6 +444,8 @@ public:
     	}
     	else
     	{
+			lo = btNormalizeAngle(lo);
+			hi = btNormalizeAngle(hi);
     		m_angularLimits[axis-3].m_loLimit = lo;
     		m_angularLimits[axis-3].m_hiLimit = hi;
     	}

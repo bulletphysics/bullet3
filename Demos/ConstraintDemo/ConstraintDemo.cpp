@@ -169,10 +169,12 @@ void	ConstraintDemo::initPhysics()
 		slider->setLinearUpperLimit(hiSliderLimit);
 
 		//range should be small, otherwise singularities will 'explode' the constraint
-		slider->setAngularLowerLimit(btVector3(-1.5,0,0));
-		slider->setAngularUpperLimit(btVector3(1.5,0,0));
+//		slider->setAngularLowerLimit(btVector3(-1.5,0,0));
+//		slider->setAngularUpperLimit(btVector3(1.5,0,0));
 //		slider->setAngularLowerLimit(btVector3(0,0,0));
 //		slider->setAngularUpperLimit(btVector3(0,0,0));
+		slider->setAngularLowerLimit(btVector3(-SIMD_PI,0,0));
+		slider->setAngularUpperLimit(btVector3(1.5,0,0));
 
 		slider->getTranslationalLimitMotor()->m_enableMotor[0] = true;
 		slider->getTranslationalLimitMotor()->m_targetVelocity[0] = -5.0f;
@@ -198,7 +200,11 @@ void	ConstraintDemo::initPhysics()
 
 		spDoorHinge = new btHingeConstraint( *pDoorBody, btPivotA, btAxisA );
 
-		spDoorHinge->setLimit( 0.0f, M_PI_2 );
+//		spDoorHinge->setLimit( 0.0f, M_PI_2 );
+		// test problem values
+//		spDoorHinge->setLimit( -M_PI, M_PI*0.8f);
+		spDoorHinge->setLimit( -M_PI*0.8f, M_PI);
+//		spDoorHinge->setLimit( 0.0f, 0.0f );
 		m_dynamicsWorld->addConstraint(spDoorHinge);
 		spDoorHinge->setDbgDrawSize(btScalar(5.f));
 

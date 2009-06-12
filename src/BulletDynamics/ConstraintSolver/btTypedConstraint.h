@@ -244,4 +244,31 @@ public:
 	
 };
 
+// returns angle in range [-SIMD_2_PI, SIMD_2_PI], closest to one of the limits 
+// all arguments should be normalized angles (i.e. in range [-SIMD_PI, SIMD_PI])
+SIMD_FORCE_INLINE btScalar btAdjustAngleToLimits(btScalar angleInRadians, btScalar angleLowerLimitInRadians, btScalar angleUpperLimitInRadians)
+{
+	if(angleLowerLimitInRadians >= angleUpperLimitInRadians)
+	{
+		return angleInRadians;
+	}
+	else if(angleInRadians < angleLowerLimitInRadians)
+	{
+		btScalar diffLo = btNormalizeAngle(angleLowerLimitInRadians - angleInRadians); // this is positive
+		btScalar diffHi = btFabs(btNormalizeAngle(angleUpperLimitInRadians - angleInRadians));
+		return (diffLo < diffHi) ? angleInRadians : (angleInRadians + SIMD_2_PI);
+	}
+	else if(angleInRadians > angleUpperLimitInRadians)
+	{
+		btScalar diffHi = btNormalizeAngle(angleInRadians - angleUpperLimitInRadians); // this is positive
+		btScalar diffLo = btFabs(btNormalizeAngle(angleInRadians - angleLowerLimitInRadians));
+		return (diffLo < diffHi) ? (angleInRadians - SIMD_2_PI) : angleInRadians;
+	}
+	else
+	{
+		return angleInRadians;
+	}
+}
+
+
 #endif //TYPED_CONSTRAINT_H

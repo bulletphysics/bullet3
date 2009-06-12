@@ -151,9 +151,9 @@ public:
     btScalar getUpperLinLimit() { return m_upperLinLimit; }
     void setUpperLinLimit(btScalar upperLimit) { m_upperLinLimit = upperLimit; }
     btScalar getLowerAngLimit() { return m_lowerAngLimit; }
-    void setLowerAngLimit(btScalar lowerLimit) { m_lowerAngLimit = lowerLimit; }
+    void setLowerAngLimit(btScalar lowerLimit) { m_lowerAngLimit = btNormalizeAngle(lowerLimit); }
     btScalar getUpperAngLimit() { return m_upperAngLimit; }
-    void setUpperAngLimit(btScalar upperLimit) { m_upperAngLimit = upperLimit; }
+    void setUpperAngLimit(btScalar upperLimit) { m_upperAngLimit = btNormalizeAngle(upperLimit); }
 	bool getUseLinearReferenceFrameA() { return m_useLinearReferenceFrameA; }
 	btScalar getSoftnessDirLin() { return m_softnessDirLin; }
 	btScalar getRestitutionDirLin() { return m_restitutionDirLin; }

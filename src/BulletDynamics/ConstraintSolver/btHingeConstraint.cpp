@@ -79,8 +79,8 @@ btHingeConstraint::btHingeConstraint(btRigidBody& rbA,btRigidBody& rbB, const bt
 									rbAxisB1.getZ(),rbAxisB2.getZ(),axisInB.getZ() );
 	
 	//start with free
-	m_lowerLimit = btScalar(BT_LARGE_FLOAT);
-	m_upperLimit = btScalar(-BT_LARGE_FLOAT);
+	m_lowerLimit = btScalar(1.0f);
+	m_upperLimit = btScalar(-1.0f);
 	m_biasFactor = 0.3f;
 	m_relaxationFactor = 1.0f;
 	m_limitSoftness = 0.9f;
@@ -119,8 +119,8 @@ m_useReferenceFrameA(useReferenceFrameA)
 									rbAxisB1.getZ(),rbAxisB2.getZ(),axisInB.getZ() );
 	
 	//start with free
-	m_lowerLimit = btScalar(BT_LARGE_FLOAT);
-	m_upperLimit = btScalar(-BT_LARGE_FLOAT);
+	m_lowerLimit = btScalar(1.0f);
+	m_upperLimit = btScalar(-1.0f);
 	m_biasFactor = 0.3f;
 	m_relaxationFactor = 1.0f;
 	m_limitSoftness = 0.9f;
@@ -139,8 +139,8 @@ m_useSolveConstraintObsolete(HINGE_USE_OBSOLETE_SOLVER),
 m_useReferenceFrameA(useReferenceFrameA)
 {
 	//start with free
-	m_lowerLimit = btScalar(BT_LARGE_FLOAT);
-	m_upperLimit = btScalar(-BT_LARGE_FLOAT);
+	m_lowerLimit = btScalar(1.0f);
+	m_upperLimit = btScalar(-1.0f);
 	m_biasFactor = 0.3f;
 	m_relaxationFactor = 1.0f;
 	m_limitSoftness = 0.9f;
@@ -162,8 +162,8 @@ m_useReferenceFrameA(useReferenceFrameA)
 	m_rbBFrame.getOrigin() = m_rbA.getCenterOfMassTransform()(m_rbAFrame.getOrigin());
 
 	//start with free
-	m_lowerLimit = btScalar(BT_LARGE_FLOAT);
-	m_upperLimit = btScalar(-BT_LARGE_FLOAT);	
+	m_lowerLimit = btScalar(1.0f);
+	m_upperLimit = btScalar(-1.0f);
 	m_biasFactor = 0.3f;
 	m_relaxationFactor = 1.0f;
 	m_limitSoftness = 0.9f;
@@ -648,7 +648,7 @@ btScalar btHingeConstraint::getHingeAngle()
 }
 
 
-
+#if 0
 void btHingeConstraint::testLimit()
 {
 	// Compute limit information
@@ -673,7 +673,35 @@ void btHingeConstraint::testLimit()
 	}
 	return;
 }
+#else
 
+
+void btHingeConstraint::testLimit()
+{
+	// Compute limit information
+	m_hingeAngle = getHingeAngle();
+	m_correction = btScalar(0.);
+	m_limitSign = btScalar(0.);
+	m_solveLimit = false;
+	if (m_lowerLimit <= m_upperLimit)
+	{
+		m_hingeAngle = btAdjustAngleToLimits(m_hingeAngle, m_lowerLimit, m_upperLimit);
+		if (m_hingeAngle <= m_lowerLimit)
+		{
+			m_correction = (m_lowerLimit - m_hingeAngle);
+			m_limitSign = 1.0f;
+			m_solveLimit = true;
+		} 
+		else if (m_hingeAngle >= m_upperLimit)
+		{
+			m_correction = m_upperLimit - m_hingeAngle;
+			m_limitSign = -1.0f;
+			m_solveLimit = true;
+		}
+	}
+	return;
+}
+#endif
 
 static btVector3 vHinge(0, 0, btScalar(1));
 

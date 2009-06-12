@@ -129,8 +129,8 @@ public:
 
 	void	setLimit(btScalar low,btScalar high,btScalar _softness = 0.9f, btScalar _biasFactor = 0.3f, btScalar _relaxationFactor = 1.0f)
 	{
-		m_lowerLimit = low;
-		m_upperLimit = high;
+		m_lowerLimit = btNormalizeAngle(low);
+		m_upperLimit = btNormalizeAngle(high);
 
 		m_limitSoftness =  _softness;
 		m_biasFactor = _biasFactor;

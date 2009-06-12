@@ -213,11 +213,13 @@ void SliderConstraintDemo::initPhysics()
 //	spSlider1->setUpperLinLimit(15.0F);
 //	spSlider1->setLowerLinLimit(-10.0F);
 //	spSlider1->setUpperLinLimit(-10.0F);
+
 	spSlider1->setLowerAngLimit(-SIMD_PI / 3.0F);
 	spSlider1->setUpperAngLimit( SIMD_PI / 3.0F);
 #endif
 
 	m_dynamicsWorld->addConstraint(spSlider1, true);
+	spSlider1->setDbgDrawSize(btScalar(5.f));
 
 	// add kinematic rigid body A2
 	worldPos.setValue(0,2,0);
@@ -251,8 +253,13 @@ void SliderConstraintDemo::initPhysics()
 
 //	spSlider2->setLowerAngLimit(SIMD_PI / 2.0F);
 //	spSlider2->setUpperAngLimit(-SIMD_PI / 2.0F);
-	spSlider2->setLowerAngLimit(-SIMD_PI / 2.0F);
-	spSlider2->setUpperAngLimit(SIMD_PI / 2.0F);
+
+	//	spSlider2->setLowerAngLimit(-SIMD_PI / 2.0F);
+//	spSlider2->setUpperAngLimit(SIMD_PI / 2.0F);
+	spSlider2->setLowerAngLimit(-SIMD_PI);
+	spSlider2->setUpperAngLimit(SIMD_PI *0.8F);
+
+
 //	spSlider2->setLowerAngLimit(-0.01F);
 //	spSlider2->setUpperAngLimit(0.01F);
 
@@ -285,6 +292,7 @@ void SliderConstraintDemo::initPhysics()
 //	spSlider2->setSoftnessLimAng(0.1);
 #endif
 	m_dynamicsWorld->addConstraint(spSlider2, true);
+	spSlider2->setDbgDrawSize(btScalar(5.f));
 
 
 #if 1
@@ -306,6 +314,8 @@ void SliderConstraintDemo::initPhysics()
 	btVector3 pivB(-2.5, 0., 0.);
 	spP2PConst = new btPoint2PointConstraint(*pRbA3, *pRbB3, pivA, pivB);
 	m_dynamicsWorld->addConstraint(spP2PConst, true);
+	spP2PConst->setDbgDrawSize(btScalar(5.f));
+
 }
 #endif
 
@@ -335,6 +345,8 @@ void SliderConstraintDemo::initPhysics()
 	spHingeConst->enableAngularMotor(true, 10.0, 0.19);
 
 	m_dynamicsWorld->addConstraint(spHingeConst, true);
+	spHingeConst->setDbgDrawSize(btScalar(5.f));
+
 #endif
 
 } // SliderConstraintDemo::initPhysics()

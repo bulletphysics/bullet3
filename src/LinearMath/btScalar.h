@@ -195,6 +195,7 @@ SIMD_FORCE_INLINE btScalar btAtan2(btScalar x, btScalar y) { return atan2(x, y);
 SIMD_FORCE_INLINE btScalar btExp(btScalar x) { return exp(x); }
 SIMD_FORCE_INLINE btScalar btLog(btScalar x) { return log(x); }
 SIMD_FORCE_INLINE btScalar btPow(btScalar x,btScalar y) { return pow(x,y); }
+SIMD_FORCE_INLINE btScalar btFmod(btScalar x,btScalar y) { return fmod(x,y); }
 
 #else
 		
@@ -232,6 +233,7 @@ SIMD_FORCE_INLINE btScalar btAtan2(btScalar x, btScalar y) { return atan2f(x, y)
 SIMD_FORCE_INLINE btScalar btExp(btScalar x) { return expf(x); }
 SIMD_FORCE_INLINE btScalar btLog(btScalar x) { return logf(x); }
 SIMD_FORCE_INLINE btScalar btPow(btScalar x,btScalar y) { return powf(x,y); }
+SIMD_FORCE_INLINE btScalar btFmod(btScalar x,btScalar y) { return fmodf(x,y); }
 	
 #endif
 
@@ -430,5 +432,22 @@ SIMD_FORCE_INLINE double btUnswapEndianDouble(const unsigned char *src)
 	return d;
 }
 
+// returns normalized value in range [-SIMD_PI, SIMD_PI]
+SIMD_FORCE_INLINE btScalar btNormalizeAngle(btScalar angleInRadians) 
+{
+	angleInRadians = btFmod(angleInRadians, SIMD_2_PI);
+	if(angleInRadians < -SIMD_PI)
+	{
+		return angleInRadians + SIMD_2_PI;
+	}
+	else if(angleInRadians > SIMD_PI)
+	{
+		return angleInRadians - SIMD_2_PI;
+	}
+	else
+	{
+		return angleInRadians;
+	}
+}
 
 #endif //SIMD___SCALAR_H
