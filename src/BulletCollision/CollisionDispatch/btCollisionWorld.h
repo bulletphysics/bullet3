@@ -377,7 +377,7 @@ public:
 					  const btTransform& colObjWorldTransform,
 					  ConvexResultCallback& resultCallback, btScalar	allowedPenetration);
 
-	void	addCollisionObject(btCollisionObject* collisionObject,short int collisionFilterGroup=btBroadphaseProxy::DefaultFilter,short int collisionFilterMask=btBroadphaseProxy::AllFilter);
+	virtual void	addCollisionObject(btCollisionObject* collisionObject,short int collisionFilterGroup=btBroadphaseProxy::DefaultFilter,short int collisionFilterMask=btBroadphaseProxy::AllFilter);
 
 	btCollisionObjectArray& getCollisionObjectArray()
 	{
@@ -390,7 +390,7 @@ public:
 	}
 
 
-	void	removeCollisionObject(btCollisionObject* collisionObject);
+	virtual void	removeCollisionObject(btCollisionObject* collisionObject);
 
 	virtual void	performDiscreteCollisionDetection();
 

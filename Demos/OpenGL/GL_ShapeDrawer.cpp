@@ -683,6 +683,7 @@ void GL_ShapeDrawer::drawOpenGL(btScalar* m, const btCollisionShape* shape, cons
 
 				}
 
+/*
 			case CYLINDER_SHAPE_PROXYTYPE:
 				{
 					const btCylinderShape* cylinder = static_cast<const btCylinderShape*>(shape);
@@ -696,6 +697,7 @@ void GL_ShapeDrawer::drawOpenGL(btScalar* m, const btCollisionShape* shape, cons
 
 					break;
 				}
+*/
 
 			case MULTI_SPHERE_SHAPE_PROXYTYPE:
 			{

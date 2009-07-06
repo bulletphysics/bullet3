@@ -1272,7 +1272,11 @@ void	SoftDemo::clientResetScene()
 			getSoftDynamicsWorld()->removeSoftBody(softBody);
 		} else
 		{
-			m_dynamicsWorld->removeCollisionObject(obj);
+			btRigidBody* body = btRigidBody::upcast(obj);
+			if (body)
+				m_dynamicsWorld->removeRigidBody(body);
+			else
+				m_dynamicsWorld->removeCollisionObject(obj);
 		}
 		delete obj;
 	}
@@ -1349,8 +1353,6 @@ void	SoftDemo::renderme()
 	ps/=nps;
 	if(m_autocam)
 		m_cameraTargetPosition+=(ps-m_cameraTargetPosition)*0.05;
-	else
-		m_cameraTargetPosition=btVector3(0,0,0);
 	/* Anm			*/ 
 	if(!isIdle())
 		m_animtime=m_clock.getTimeMilliseconds()/1000.f;
