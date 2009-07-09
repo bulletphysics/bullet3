@@ -324,6 +324,32 @@ void btGjkPairDetector::getClosestPoints(const ClosestPointInput& input,Result& 
 					}
 				} else
 				{
+					///this is another degenerate case, where the initial GJK calculation reports a degenerate case
+					///EPA reports no penetration, and the second GJK (using the supporting vector without margin)
+					///reports a valid positive distance. Use the results of the second GJK instead of failing.
+					///thanks to Jacob.Langford for the reproduction case
+					///http://code.google.com/p/bullet/issues/detail?id=250
+
+					btVector3 tmpNormalInB = tmpPointOnA - tmpPointOnB;
+					btScalar lenSqr = tmpNormalInB.length2();
+					if (lenSqr > (SIMD_EPSILON*SIMD_EPSILON))
+					{
+						tmpNormalInB /= btSqrt(lenSqr);
+						btScalar distance2 = (tmpPointOnA-tmpPointOnB).length();
+						//only replace valid distances when the distance is less
+						if (!isValid || (distance2 < distance))
+						{
+							distance = distance2;
+							pointOnA = tmpPointOnA;
+							pointOnB = tmpPointOnB;
+							normalInB = tmpNormalInB;
+							isValid = true;
+							m_lastUsedMethod = 6;
+						} else
+						{
+							
+						}
+					}
 					m_lastUsedMethod = 5;
 				}
 				

@@ -36,6 +36,8 @@ bool btGjkEpaPenetrationDepthSolver::calcPenDepth( btSimplexSolverInterface& sim
 	
 	btVector3	guessVector(transformA.getOrigin()-transformB.getOrigin());
 	btGjkEpaSolver2::sResults	results;
+	
+
 	if(btGjkEpaSolver2::Penetration(pConvexA,transformA,
 								pConvexB,transformB,
 								guessVector,results))
@@ -46,7 +48,15 @@ bool btGjkEpaPenetrationDepthSolver::calcPenDepth( btSimplexSolverInterface& sim
 		wWitnessOnA = results.witnesses[0];
 		wWitnessOnB = results.witnesses[1];
 		return true;		
+		} else
+	{
+		if(btGjkEpaSolver2::Distance(pConvexA,transformA,pConvexB,transformB,guessVector,results))
+		{
+			wWitnessOnA = results.witnesses[0];
+			wWitnessOnB = results.witnesses[1];
+			return false;
 		}
+	}
 
 	return false;
 }
