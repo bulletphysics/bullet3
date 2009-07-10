@@ -184,24 +184,36 @@ void btGjkPairDetector::getClosestPoints(const ClosestPointInput& input,Result& 
 #ifdef DEBUG_SPU_COLLISION_DETECTION
 		spu_printf("addVertex 2\n");
 #endif
+			btVector3 newCachedSeparatingAxis;
+
 			//calculate the closest point to the origin (update vector v)
-			if (!m_simplexSolver->closest(m_cachedSeparatingAxis))
+			if (!m_simplexSolver->closest(newCachedSeparatingAxis))
 			{
 				m_degenerateSimplex = 3;
 				checkSimplex = true;
 				break;
 			}
 
-			if(m_cachedSeparatingAxis.length2()<REL_ERROR2)
+			if(newCachedSeparatingAxis.length2()<REL_ERROR2)
             {
+				m_cachedSeparatingAxis = newCachedSeparatingAxis;
                 m_degenerateSimplex = 6;
                 checkSimplex = true;
                 break;
             }
 
 			btScalar previousSquaredDistance = squaredDistance;
-			squaredDistance = m_cachedSeparatingAxis.length2();
+			squaredDistance = newCachedSeparatingAxis.length2();
+			if (squaredDistance>previousSquaredDistance)
+			{
+				m_degenerateSimplex = 7;
+				squaredDistance = previousSquaredDistance;
+                checkSimplex = true;
+                break;
+			}
 			
+			m_cachedSeparatingAxis = newCachedSeparatingAxis;
+
 			//redundant m_simplexSolver->compute_points(pointOnA, pointOnB);
 
 			//are we getting any closer ?
@@ -303,11 +315,13 @@ void btGjkPairDetector::getClosestPoints(const ClosestPointInput& input,Result& 
 					if (lenSqr > (SIMD_EPSILON*SIMD_EPSILON))
 					{
 						tmpNormalInB /= btSqrt(lenSqr);
-						btScalar distance2 = -(tmpPointOnA-tmpPointOnB).length();
+						btScalar distance2 = -(tmpPointOnA-tmpPointOnB).length()-margin;
 						//only replace valid penetrations when the result is deeper (check)
 						if (!isValid || (distance2 < distance))
 						{
 							distance = distance2;
+							pointOnA -= m_cachedSeparatingAxis * (marginA / distance);
+							pointOnB += m_cachedSeparatingAxis * (marginB / distance);
 							pointOnA = tmpPointOnA;
 							pointOnB = tmpPointOnB;
 							normalInB = tmpNormalInB;
