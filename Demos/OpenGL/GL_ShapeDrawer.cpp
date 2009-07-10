@@ -273,17 +273,17 @@ public:
 };
 
 
-void GL_ShapeDrawer::drawSphere(btScalar r, int lats, int longs) 
+void GL_ShapeDrawer::drawSphere(btScalar radius, int lats, int longs) 
 {
 	int i, j;
 	for(i = 0; i <= lats; i++) {
 		btScalar lat0 = SIMD_PI * (-btScalar(0.5) + (btScalar) (i - 1) / lats);
-		btScalar z0  = sin(lat0);
-		btScalar zr0 =  cos(lat0);
+		btScalar z0  = radius*sin(lat0);
+		btScalar zr0 =  radius*cos(lat0);
 
 		btScalar lat1 = SIMD_PI * (-btScalar(0.5) + (btScalar) i / lats);
-		btScalar z1 = sin(lat1);
-		btScalar zr1 = cos(lat1);
+		btScalar z1 = radius*sin(lat1);
+		btScalar zr1 = radius*cos(lat1);
 
 		glBegin(GL_QUAD_STRIP);
 		for(j = 0; j <= longs; j++) {
