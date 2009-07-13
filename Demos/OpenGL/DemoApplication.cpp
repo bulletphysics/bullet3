@@ -1354,47 +1354,47 @@ void	DemoApplication::clientResetScene()
 	if (m_dynamicsWorld)
 	{
 		numObjects = m_dynamicsWorld->getNumCollisionObjects();
-	}
-
-	///create a copy of the array, not a reference!
-	btCollisionObjectArray copyArray = m_dynamicsWorld->getCollisionObjectArray();
-
 	
+		///create a copy of the array, not a reference!
+		btCollisionObjectArray copyArray = m_dynamicsWorld->getCollisionObjectArray();
+
+		
 
 
-	for (i=0;i<numObjects;i++)
-	{
-		btCollisionObject* colObj = copyArray[i];
-		btRigidBody* body = btRigidBody::upcast(colObj);
-		if (body)
+		for (i=0;i<numObjects;i++)
 		{
-			if (body->getMotionState())
-			{
-				btDefaultMotionState* myMotionState = (btDefaultMotionState*)body->getMotionState();
-				myMotionState->m_graphicsWorldTrans = myMotionState->m_startWorldTrans;
-				body->setCenterOfMassTransform( myMotionState->m_graphicsWorldTrans );
-				colObj->setInterpolationWorldTransform( myMotionState->m_startWorldTrans );
-				colObj->forceActivationState(ACTIVE_TAG);
-				colObj->activate();
-				colObj->setDeactivationTime(0);
-				//colObj->setActivationState(WANTS_DEACTIVATION);
-			}
-			//removed cached contact points (this is not necessary if all objects have been removed from the dynamics world)
-			//m_dynamicsWorld->getBroadphase()->getOverlappingPairCache()->cleanProxyFromPairs(colObj->getBroadphaseHandle(),getDynamicsWorld()->getDispatcher());
-
+			btCollisionObject* colObj = copyArray[i];
 			btRigidBody* body = btRigidBody::upcast(colObj);
-			if (body && !body->isStaticObject())
+			if (body)
 			{
-				btRigidBody::upcast(colObj)->setLinearVelocity(btVector3(0,0,0));
-				btRigidBody::upcast(colObj)->setAngularVelocity(btVector3(0,0,0));
+				if (body->getMotionState())
+				{
+					btDefaultMotionState* myMotionState = (btDefaultMotionState*)body->getMotionState();
+					myMotionState->m_graphicsWorldTrans = myMotionState->m_startWorldTrans;
+					body->setCenterOfMassTransform( myMotionState->m_graphicsWorldTrans );
+					colObj->setInterpolationWorldTransform( myMotionState->m_startWorldTrans );
+					colObj->forceActivationState(ACTIVE_TAG);
+					colObj->activate();
+					colObj->setDeactivationTime(0);
+					//colObj->setActivationState(WANTS_DEACTIVATION);
+				}
+				//removed cached contact points (this is not necessary if all objects have been removed from the dynamics world)
+				//m_dynamicsWorld->getBroadphase()->getOverlappingPairCache()->cleanProxyFromPairs(colObj->getBroadphaseHandle(),getDynamicsWorld()->getDispatcher());
+
+				btRigidBody* body = btRigidBody::upcast(colObj);
+				if (body && !body->isStaticObject())
+				{
+					btRigidBody::upcast(colObj)->setLinearVelocity(btVector3(0,0,0));
+					btRigidBody::upcast(colObj)->setAngularVelocity(btVector3(0,0,0));
+				}
 			}
+
 		}
 
+		///reset some internal cached data in the broadphase
+		m_dynamicsWorld->getBroadphase()->resetPool(getDynamicsWorld()->getDispatcher());
+		m_dynamicsWorld->getConstraintSolver()->reset();
+
 	}
-
-	///reset some internal cached data in the broadphase
-	m_dynamicsWorld->getBroadphase()->resetPool(getDynamicsWorld()->getDispatcher());
-	m_dynamicsWorld->getConstraintSolver()->reset();
-
 
 }

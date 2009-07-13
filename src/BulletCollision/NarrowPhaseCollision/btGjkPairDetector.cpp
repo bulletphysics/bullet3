@@ -208,7 +208,7 @@ void btGjkPairDetector::getClosestPoints(const ClosestPointInput& input,Result& 
 			{
 				m_degenerateSimplex = 7;
 				squaredDistance = previousSquaredDistance;
-                checkSimplex = true;
+                checkSimplex = false;
                 break;
 			}
 			
@@ -315,13 +315,11 @@ void btGjkPairDetector::getClosestPoints(const ClosestPointInput& input,Result& 
 					if (lenSqr > (SIMD_EPSILON*SIMD_EPSILON))
 					{
 						tmpNormalInB /= btSqrt(lenSqr);
-						btScalar distance2 = -(tmpPointOnA-tmpPointOnB).length()-margin;
+						btScalar distance2 = -(tmpPointOnA-tmpPointOnB).length();
 						//only replace valid penetrations when the result is deeper (check)
 						if (!isValid || (distance2 < distance))
 						{
 							distance = distance2;
-							pointOnA -= m_cachedSeparatingAxis * (marginA / distance);
-							pointOnB += m_cachedSeparatingAxis * (marginB / distance);
 							pointOnA = tmpPointOnA;
 							pointOnB = tmpPointOnB;
 							normalInB = tmpNormalInB;
@@ -349,13 +347,15 @@ void btGjkPairDetector::getClosestPoints(const ClosestPointInput& input,Result& 
 					if (lenSqr > (SIMD_EPSILON*SIMD_EPSILON))
 					{
 						tmpNormalInB /= btSqrt(lenSqr);
-						btScalar distance2 = (tmpPointOnA-tmpPointOnB).length();
+						btScalar distance2 = (tmpPointOnA-tmpPointOnB).length()-margin;
 						//only replace valid distances when the distance is less
 						if (!isValid || (distance2 < distance))
 						{
 							distance = distance2;
 							pointOnA = tmpPointOnA;
 							pointOnB = tmpPointOnB;
+							pointOnA -= tmpNormalInB * marginA ;
+							pointOnB += tmpNormalInB * marginB ;
 							normalInB = tmpNormalInB;
 							isValid = true;
 							m_lastUsedMethod = 6;

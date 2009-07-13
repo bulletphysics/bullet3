@@ -290,11 +290,10 @@ void GL_ShapeDrawer::drawSphere(btScalar radius, int lats, int longs)
 			btScalar lng = 2 * SIMD_PI * (btScalar) (j - 1) / longs;
 			btScalar x = cos(lng);
 			btScalar y = sin(lng);
-
-			glNormal3f(x * zr0, y * zr0, z0);
-			glVertex3f(x * zr0, y * zr0, z0);
 			glNormal3f(x * zr1, y * zr1, z1);
 			glVertex3f(x * zr1, y * zr1, z1);
+			glNormal3f(x * zr0, y * zr0, z0);
+			glVertex3f(x * zr0, y * zr0, z0);
 		}
 		glEnd();
 	}

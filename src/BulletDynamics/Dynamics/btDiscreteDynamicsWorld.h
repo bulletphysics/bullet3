@@ -130,6 +130,9 @@ public:
 
 	virtual void	removeRigidBody(btRigidBody* body);
 
+	///removeCollisionObject will first check if it is a rigid body, if so call removeRigidBody otherwise call btCollisionWorld::removeCollisionObject
+	virtual void	removeCollisionObject(btCollisionObject* collisionObject);
+
 	void	debugDrawObject(const btTransform& worldTransform, const btCollisionShape* shape, const btVector3& color);
 
 	void	debugDrawConstraint(btTypedConstraint* constraint);

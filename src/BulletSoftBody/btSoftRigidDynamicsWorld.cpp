@@ -119,6 +119,15 @@ void	btSoftRigidDynamicsWorld::removeSoftBody(btSoftBody* body)
 	btCollisionWorld::removeCollisionObject(body);
 }
 
+void	btSoftRigidDynamicsWorld::removeCollisionObject(btCollisionObject* collisionObject)
+{
+	btSoftBody* body = btSoftBody::upcast(collisionObject);
+	if (body)
+		removeSoftBody(body);
+	else
+		btDiscreteDynamicsWorld::removeCollisionObject(collisionObject);
+}
+
 void	btSoftRigidDynamicsWorld::debugDrawWorld()
 {
 	btDiscreteDynamicsWorld::debugDrawWorld();

@@ -387,7 +387,11 @@ shortestArcQuat(const btVector3& v0, const btVector3& v1) // Game Programming Ge
 	btScalar  d = v0.dot(v1);
 
 	if (d < -1.0 + SIMD_EPSILON)
-		return btQuaternion(0.0f,1.0f,0.0f,0.0f); // just pick any vector
+	{
+		btVector3 n,unused;
+		btPlaneSpace1(v0,n,unused);
+		return btQuaternion(n.x(),n.y(),n.z(),0.0f); // just pick any vector that is orthogonal to v0
+	}
 
 	btScalar  s = btSqrt((1.0f + d) * 2.0f);
 	btScalar rs = 1.0f / s;
