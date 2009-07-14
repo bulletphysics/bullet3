@@ -88,7 +88,7 @@ void	GLDebugDrawString(int x,int y,const char* string)
 
 		for (int i=0;i<strlen(string);i++)
 		{
-			unsigned char ch = string[i]-32;
+			char ch = string[i]-32;
 			if (ch>=0)
 			{
 				cx=float(ch%16) * 1./16.f;

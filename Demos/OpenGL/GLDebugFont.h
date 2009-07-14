@@ -21,3 +21,4 @@ void	GLDebugDrawString(int x,int y,const char* string);
 void	GLDebugResetFont(int screenWidth,int screenHeight);
 
 #endif //BT_DEBUG_FONT_H
+

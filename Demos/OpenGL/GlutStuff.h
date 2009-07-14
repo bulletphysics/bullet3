@@ -27,7 +27,7 @@ subject to the following restrictions:
 #else
 
 #include <GL/glut.h>
-#ifndef _WINDOWS
+#ifdef _WINDOWS
 #include <windows.h>
 #include <GL/gl.h>
 #include <GL/glu.h>
