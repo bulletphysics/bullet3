@@ -32,7 +32,6 @@ DemoApplication* gDemoApplication = 0;
 DemoApplication*	createDemo();
 
 
-
 // Function Declarations
 
 LRESULT CALLBACK WndProc(HWND hWnd, UINT message, WPARAM wParam, LPARAM lParam);
@@ -86,7 +85,8 @@ int WINAPI WinMain(HINSTANCE hInstance, HINSTANCE hPrevInstance,
 	gDemoApplication->myinit();
 	//gDemoApplication->reshape(1024, 768);
 	gDemoApplication->initPhysics();
-	gDemoApplication->getDynamicsWorld()->setDebugDrawer(&debugDraw);
+	if (gDemoApplication->getDynamicsWorld())
+		gDemoApplication->getDynamicsWorld()->setDebugDrawer(&debugDraw);
 	
 
 	// program main loop
@@ -146,10 +146,35 @@ int WINAPI WinMain(HINSTANCE hInstance, HINSTANCE hPrevInstance,
 LRESULT CALLBACK WndProc(HWND hWnd, UINT message, WPARAM wParam, LPARAM lParam)
 {
 	
+	
+
 	switch (message)
 	{
+
+	case WM_SYSKEYDOWN:
+		{
+			if (lParam & 1<<29)
+			{
+				gDemoApplication->m_modifierKeys = VK_LMENU;
+			}
+			break;
+		}
+	case WM_SYSKEYUP:
+		{
+			if (lParam & 1<<29)
+			{
+				gDemoApplication->m_modifierKeys = VK_LMENU;
+			} else
+			{
+				gDemoApplication->m_modifierKeys = 0;
+			}
+			
+			break;
+		}
+
 		
 		case WM_SIZE:													// Size Action Has Taken Place
+
 			switch (wParam)												// Evaluate Size Action
 			{
 				case SIZE_MINIMIZED:									// Was Window Minimized?

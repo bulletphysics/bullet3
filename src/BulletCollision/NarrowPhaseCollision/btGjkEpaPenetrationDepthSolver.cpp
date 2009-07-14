@@ -47,6 +47,7 @@ bool btGjkEpaPenetrationDepthSolver::calcPenDepth( btSimplexSolverInterface& sim
 		//resultOut->addContactPoint(results.normal,results.witnesses[1],-results.depth);
 		wWitnessOnA = results.witnesses[0];
 		wWitnessOnB = results.witnesses[1];
+		v = results.normal;
 		return true;		
 		} else
 	{
@@ -54,6 +55,7 @@ bool btGjkEpaPenetrationDepthSolver::calcPenDepth( btSimplexSolverInterface& sim
 		{
 			wWitnessOnA = results.witnesses[0];
 			wWitnessOnB = results.witnesses[1];
+			v = results.normal;
 			return false;
 		}
 	}

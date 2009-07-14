@@ -67,7 +67,9 @@ class DemoApplication
 	int	m_mouseOldX;
 	int	m_mouseOldY;
 	int	m_mouseButtons;
+public:
 	int	m_modifierKeys;
+protected:
 
 	float m_scaleBottom;
 	float m_scaleFactor;

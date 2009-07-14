@@ -5,22 +5,23 @@ ${BULLET_PHYSICS_SOURCE_DIR}/src }
 
 SET(BulletSoftBody_SRCS
 	btSoftBody.cpp
+	btSoftBodyConcaveCollisionAlgorithm.cpp
 	btSoftBodyHelpers.cpp
 	btSoftBodyRigidBodyCollisionConfiguration.cpp
 	btSoftRigidCollisionAlgorithm.cpp
-	btSoftSoftCollisionAlgorithm.cpp
-	btSoftBodyConcaveCollisionAlgorithm.cpp
 	btSoftRigidDynamicsWorld.cpp
+	btSoftSoftCollisionAlgorithm.cpp
 )
 
 SET(BulletSoftBody_HDRS
 	btSoftBody.h
-	btSparseSDF.h
-	btSoftBodyHelpers.h
-	btSoftRigidCollisionAlgorithm.h
-	btSoftSoftCollisionAlgorithm.h
 	btSoftBodyConcaveCollisionAlgorithm.h
+	btSoftBodyHelpers.h
+	btSoftBodyRigidBodyCollisionConfiguration.h
+	btSoftRigidCollisionAlgorithm.h
 	btSoftRigidDynamicsWorld.h
+	btSoftSoftCollisionAlgorithm.h
+	btSparseSDF.h
 )
 
 
@@ -33,8 +34,12 @@ IF (BUILD_SHARED_LIBS)
 ENDIF (BUILD_SHARED_LIBS)
 
 IF (${CMAKE_MAJOR_VERSION}.${CMAKE_MINOR_VERSION} GREATER 2.5)
+	IF (APPLE AND BUILD_SHARED_LIBS AND FRAMEWORK)
+		INSTALL(TARGETS BulletSoftBody DESTINATION .)
+	ELSE (APPLE AND BUILD_SHARED_LIBS AND FRAMEWORK)
 	INSTALL(TARGETS BulletSoftBody DESTINATION lib)
         INSTALL(DIRECTORY ${CMAKE_CURRENT_SOURCE_DIR} DESTINATION include FILES_MATCHING PATTERN "*.h")
+	ENDIF (APPLE AND BUILD_SHARED_LIBS AND FRAMEWORK)
 ENDIF (${CMAKE_MAJOR_VERSION}.${CMAKE_MINOR_VERSION} GREATER 2.5)
 
 IF (APPLE AND BUILD_SHARED_LIBS AND FRAMEWORK)

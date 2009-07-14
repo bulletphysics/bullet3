@@ -298,7 +298,7 @@ public:
 
 
 //algorithm details
-//#define BULLET_TRIANGLE_COLLISION 1
+#define BULLET_TRIANGLE_COLLISION 1
 #define GIMPACT_VS_PLANE_COLLISION 1
 
 

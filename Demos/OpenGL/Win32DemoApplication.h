@@ -32,6 +32,7 @@ public:
 		
 	void specialKeyboard(int key, int x, int y);
 
+	virtual		void	updateModifierKeys();
 
 	
 };

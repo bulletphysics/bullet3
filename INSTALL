@@ -1,38 +1,100 @@
 Bullet Collision Detection and Physics Library
 
-Compile
+** Windows Compilation **
 
-Under Windows, projectfiles for Visual Studio version 6,7,7.1 and 8 are available in msvc/<version>.
-For example, for Visual Studio 2005, open msvc/8/wksbullet.sln
+Under Windows, projectfiles for Visual Studio version 6,7,7.1 and 8 are 
+available in msvc/<version>.  For example, for Visual Studio 2005, open 
+msvc/8/wksbullet.sln
 
-The ColladaDemo and ConvexDecomposition demo needs to be able to locate the data files (jenga.dae and file.obj) in the current directory. Make sure Visual Studio points to the right folder (..\..).
+The ColladaDemo and ConvexDecomposition demo needs to be able to locate the 
+data files (jenga.dae and file.obj) in the current directory. Make sure Visual 
+Studio points to the right folder (..\..).
+
+Alternatively use CMake to autogenerate a build system for Windows:
+	
+	- Download/install CMake from www.cmake.org or package manager
+	- List available build systems by running 'cmake' in the Bullet root folder
+	- Create a build system using the -G option for example:
+	
+	cmake . -G "Visual Studio 9 2008" or
+	cmake . -G "Visual Studio 9 2008 Win64"
+		 
+
+** Linux Compilation **
+
+  - Download/install CMake from www.cmake.org or package manager
+    CMake is like autoconf in that it will create build scripts which are then 
+    used for the actual compilation
+
+  - There are some options for cmake builds:
+      BUILD_SHARED_LIBS: default 'OFF', set to 'ON' to build .so libraries
+      BUILD_EXTRAS: default 'ON', compiles additional libraries in 'Extras'
+      BUILD_DEMOS: default 'ON', compiles applications found in 'Demos'
+      CMAKE_INSTALL_PREFIX: default '/usr/local', the installation path.
+      CMAKE_INSTALL_RPATH: if you install outside a standard ld search path,
+        then you should set this to the installation lib path.
+    Other options may be discovered by 'cmake --help-variable-list' and
+    'cmake --help-variable OPTION'
+
+  - Run 'cmake' with desired options of the form -DOPTION=VALUE
+    By default this will create the usual Makefile build system, but CMake can 
+    also produce Eclipse or KDevelop project files.  See 'cmake --help' to see 
+    what "generators" are available in your environment, selected via '-G'.
+        For example:
+        cmake -DBUILD_SHARED_LIBS=ON
+
+  - Assuming using the default Makefile output from cmake, run 'make' to 
+    build, and then 'make install' if you wish to install.
 
 
-For other systems, for example Linux or Mac OS-X:
+** Mac OS X Compilation **
 
-Download/install  CMake from www.cmake.org, and run cmake . -G Xcode (or replace Xcode with other available buildsystem).
+  - Download/install CMake from www.cmake.org or package manager
+    CMake is like autoconf in that it will create build scripts which are then 
+    used for the actual compilation
 
-Alternatively use make or jam:
+  - There are some options for cmake builds:
+      BUILD_SHARED_LIBS: default 'OFF', set to 'ON' to build .dylib libraries
+      BUILD_EXTRAS: default 'ON', compiles additional libraries in 'Extras'
+      BUILD_DEMOS: default 'ON', compiles applications found in 'Demos'
+      CMAKE_INSTALL_PREFIX: default '/usr/local', the installation path.
+      CMAKE_INSTALL_NAME_DIR: if you install outside a standard ld search 
+        path, then you should set this to the installation lib/framework path. 
 
-./autogen.sh
+    To build framework bundles:
+      FRAMEWORK: default 'OFF', also requires 'BUILD_SHARED_LIBS' set ON
+        If both FRAMEWORK and BUILD_SHARED_LIBS are set, will create
+        OS X style Framework Bundles which can be placed in 
+        linked via the -framework gcc argument or drag into Xcode projects.
+    (If not framework, then UNIX style 'include' and 'lib' will be produced)
+      
+    Other options may be discovered by 'cmake --help-variable-list' and
+    'cmake --help-variable OPTION'
 
-./configure
+  - Run 'cmake' with desired options of the form -DOPTION=VALUE
+    By default this will create the usual Makefile build system, but CMake can 
+    also produce Eclipse or KDevelop project files.  See 'cmake --help' to see 
+    what "generators" are available in your environment, selected via '-G'.
+        For example:
+        cmake -DBUILD_SHARED_LIBS=ON -DFRAMEWORK=ON \
+              -DCMAKE_INSTALL_PREFIX=/Library/Frameworks \
+              -DCMAKE_INSTALL_NAME_DIR=/Library/Frameworks
 
-jam or make
+  - Assuming using the default Makefile output from cmake, run 'make' to build 
+    and then 'make install'.
 
-If jam is not available for your system, you can compile it, jam sources are included with the Bullet sources in jam-2.5
 
-compiling jam:
+** Alternative Mac OS X and Linux via 'jam' or autoconf/make **
+  - at the command line:
+    ./autogen.sh
+    ./configure
+  - 'jam' or 'make' depending on preference
+  - If jam is not available for your system, you can compile it, jam sources 
+    are included with the Bullet sources in jam-2.5
+      - compiling jam:
+        cd jam-2.5
+        make
+        sudo make install
 
-cd jam-2.5
 
-make
-
-(as root)
-
-su
-
-make install
-
-For more help, visit http://www.continuousphysics.com
-
+** For more help, visit http://www.bulletphysics.com **

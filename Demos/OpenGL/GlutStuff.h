@@ -25,9 +25,9 @@ subject to the following restrictions:
 #include <OpenGL/glu.h>
 #include <GLUT/glut.h>
 #else
-#ifndef _WINDOWS
+
 #include <GL/glut.h>
-#else
+#ifndef _WINDOWS
 #include <windows.h>
 #include <GL/gl.h>
 #include <GL/glu.h>
@@ -49,6 +49,8 @@ subject to the following restrictions:
 #define BT_KEY_PAGEDOWN		VK_NEXT
 #define BT_KEY_END			VK_END
 #define BT_KEY_HOME			VK_HOME
+#define BT_ACTIVE_ALT		VK_LMENU
+
 
 
 #else

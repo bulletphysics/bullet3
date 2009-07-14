@@ -63,7 +63,7 @@ btTransform	toTrans[maxNumObjects];
 int screenWidth = 640;
 int screenHeight = 480;
 
-
+#ifndef _WINDOWS
 int main(int argc,char** argv)
 {
 	btContinuousConvexCollisionDemo* ccdDemo = new btContinuousConvexCollisionDemo();
@@ -74,6 +74,17 @@ int main(int argc,char** argv)
 	
 	return glutmain(argc, argv,screenWidth,screenHeight,"Continuous Convex Collision Demo",ccdDemo);
 }
+#else
+DemoApplication* createDemo()
+{
+	btContinuousConvexCollisionDemo* ccdDemo = new btContinuousConvexCollisionDemo();
+
+	ccdDemo->setCameraDistance(40.f);
+	return ccdDemo;
+
+}
+#endif //_WINDOWS
+
 
 void	btContinuousConvexCollisionDemo::initPhysics()
 {
@@ -280,8 +291,7 @@ void btContinuousConvexCollisionDemo::displayCallback(void) {
 		}
 	}
 
-	glFlush();
-    glutSwapBuffers();
+	swapBuffers();
 }
 
 

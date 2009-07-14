@@ -74,7 +74,7 @@ subject to the following restrictions:
 #define START_POS_Y 5
 #define START_POS_Z 0
 
-#include "BasicDemo3D.h"
+#include "BasicDemo3d.h"
 #include "GlutStuff.h"
 ///btBulletDynamicsCommon.h is the main Bullet include file, contains most common include files.
 #include "btBulletDynamicsCommon.h"

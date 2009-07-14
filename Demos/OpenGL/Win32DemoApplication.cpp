@@ -41,6 +41,12 @@ void	Win32DemoApplication::clientResetScene()
 }
 #endif
 
+void Win32DemoApplication::updateModifierKeys()
+{
+	//not yet
+}
+
+
 
 void Win32DemoApplication::specialKeyboard(int key, int x, int y)	
 {

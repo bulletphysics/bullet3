@@ -45,7 +45,7 @@ subject to the following restrictions:
 #undef BT_GPU_PREF
 #endif
 
-#include "btGpuDemo3DSharedTypes.h"
+#include "btGpuDemo3dSharedTypes.h"
 
 //#define CUDA_DEMO_DYNAMICS_WORLD3D_MAX_BATCHES 20
 #define CUDA_DEMO_DYNAMICS_WORLD3D_MAX_BATCHES 15

@@ -310,28 +310,18 @@ void btGjkPairDetector::getClosestPoints(const ClosestPointInput& input,Result& 
 
 				if (isValid2)
 				{
-					btVector3 tmpNormalInB = tmpPointOnB-tmpPointOnA;
-					btScalar lenSqr = tmpNormalInB.length2();
-					if (lenSqr > (SIMD_EPSILON*SIMD_EPSILON))
+					btScalar distance2 = -(tmpPointOnA-tmpPointOnB).length();
+					//only replace valid penetrations when the result is deeper (check)
+					if (!isValid || (distance2 < distance))
 					{
-						tmpNormalInB /= btSqrt(lenSqr);
-						btScalar distance2 = -(tmpPointOnA-tmpPointOnB).length();
-						//only replace valid penetrations when the result is deeper (check)
-						if (!isValid || (distance2 < distance))
-						{
-							distance = distance2;
-							pointOnA = tmpPointOnA;
-							pointOnB = tmpPointOnB;
-							normalInB = tmpNormalInB;
-							isValid = true;
-							m_lastUsedMethod = 3;
-						} else
-						{
-							
-						}
-					} else
+						distance = distance2;
+						pointOnA = tmpPointOnA;
+						pointOnB = tmpPointOnB;
+						normalInB = m_cachedSeparatingAxis;
+						isValid = true;
+						m_lastUsedMethod = 3;
+					}  else
 					{
-						//isValid = false;
 						m_lastUsedMethod = 4;
 					}
 				} else
@@ -342,29 +332,23 @@ void btGjkPairDetector::getClosestPoints(const ClosestPointInput& input,Result& 
 					///thanks to Jacob.Langford for the reproduction case
 					///http://code.google.com/p/bullet/issues/detail?id=250
 
-					btVector3 tmpNormalInB = tmpPointOnA - tmpPointOnB;
-					btScalar lenSqr = tmpNormalInB.length2();
-					if (lenSqr > (SIMD_EPSILON*SIMD_EPSILON))
+				
+					btScalar distance2 = (tmpPointOnA-tmpPointOnB).length()-margin;
+					//only replace valid distances when the distance is less
+					if (!isValid || (distance2 < distance))
 					{
-						tmpNormalInB /= btSqrt(lenSqr);
-						btScalar distance2 = (tmpPointOnA-tmpPointOnB).length()-margin;
-						//only replace valid distances when the distance is less
-						if (!isValid || (distance2 < distance))
-						{
-							distance = distance2;
-							pointOnA = tmpPointOnA;
-							pointOnB = tmpPointOnB;
-							pointOnA -= tmpNormalInB * marginA ;
-							pointOnB += tmpNormalInB * marginB ;
-							normalInB = tmpNormalInB;
-							isValid = true;
-							m_lastUsedMethod = 6;
-						} else
-						{
-							
-						}
+						distance = distance2;
+						pointOnA = tmpPointOnA;
+						pointOnB = tmpPointOnB;
+						pointOnA -= m_cachedSeparatingAxis * marginA ;
+						pointOnB += m_cachedSeparatingAxis * marginB ;
+						normalInB = m_cachedSeparatingAxis;
+						isValid = true;
+						m_lastUsedMethod = 6;
+					} else
+					{
+						m_lastUsedMethod = 5;
 					}
-					m_lastUsedMethod = 5;
 				}
 				
 			}

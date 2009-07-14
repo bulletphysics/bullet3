@@ -237,11 +237,20 @@ void CharacterDemo::clientMoveAndDisplay()
 		btScalar walkVelocity = btScalar(1.1) * 4.0; // 4 km/h -> 1.1 m/s
 		btScalar walkSpeed = walkVelocity * dt;
 
+		//rotate view
 		if (gLeft)
-			walkDirection += strafeDir;
+		{
+			btMatrix3x3 orn = m_ghostObject->getWorldTransform().getBasis();
+			orn *= btMatrix3x3(btQuaternion(btVector3(0,1,0),0.01));
+			m_ghostObject->getWorldTransform ().setBasis(orn);
+		}
 
 		if (gRight)
-			walkDirection -= strafeDir;
+		{
+			btMatrix3x3 orn = m_ghostObject->getWorldTransform().getBasis();
+			orn *= btMatrix3x3(btQuaternion(btVector3(0,1,0),-0.01));
+			m_ghostObject->getWorldTransform ().setBasis(orn);
+		}
 
 		if (gForward)
 			walkDirection += forwardDir;
@@ -424,7 +433,29 @@ void	CharacterDemo::updateCamera()
 	backward.normalize ();
 
 	m_cameraTargetPosition = characterWorldTrans.getOrigin();
-	m_cameraPosition = m_cameraTargetPosition + up * 2.0 + backward * 12.0;
+	m_cameraPosition = m_cameraTargetPosition + up * 10.0 + backward * 12.0;
+	
+	//use the convex sweep test to find a safe position for the camera (not blocked by static geometry)
+	btSphereShape cameraSphere(0.2f);
+	btTransform cameraFrom,cameraTo;
+	cameraFrom.setIdentity();
+	cameraFrom.setOrigin(characterWorldTrans.getOrigin());
+	cameraTo.setIdentity();
+	cameraTo.setOrigin(m_cameraPosition);
+	
+	btCollisionWorld::ClosestConvexResultCallback cb( characterWorldTrans.getOrigin(), cameraTo.getOrigin() );
+	cb.m_collisionFilterMask = btBroadphaseProxy::StaticFilter;
+		
+	m_dynamicsWorld->convexSweepTest(&cameraSphere,cameraFrom,cameraTo,cb);
+	if (cb.hasHit())
+	{
+
+		btScalar minFraction  = cb.m_closestHitFraction;//btMax(btScalar(0.3),cb.m_closestHitFraction);
+		m_cameraPosition.setInterpolate3(cameraFrom.getOrigin(),cameraTo.getOrigin(),minFraction);
+	}
+
+
+
 
 	//update OpenGL camera settings
     glFrustum(-1.0, 1.0, -1.0, 1.0, 1.0, 10000.0);
